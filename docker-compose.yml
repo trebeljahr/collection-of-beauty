@@ -43,10 +43,14 @@ services:
       CHOKIDAR_USEPOLLING: "true"
       # Browser-side URL: host's exposed port on the rclone container
       NEXT_PUBLIC_ASSETS_BASE_URL: "http://localhost:9100"
-      # Server-side URL: compose-internal service name. Next's image
-      # optimizer fetches originals from here, resizes them with sharp,
-      # and caches the results under /app/.next/cache/images/.
-      ASSETS_ORIGIN_URL: "http://assets:8080"
+      # Image-optimizer origin: the browser never dereferences this URL —
+      # it only hits /_next/image?url=<here>, which the Next server resolves
+      # itself. So point it at the compose-internal DNS name of the rclone
+      # sidecar for a fast, LAN-speed fetch; routing through
+      # host.docker.internal hits Docker NAT and is dramatically slower.
+      # NEXT_PUBLIC_* so the client-rendered gallery embeds the same string
+      # during hydration (no SSR/CSR mismatch).
+      NEXT_PUBLIC_ASSETS_ORIGIN_URL: "http://assets:8080"
       PNPM_HOME: /pnpm-store
       npm_config_store_dir: /pnpm-store
     # Install happens at container start against the bind-mounted source;

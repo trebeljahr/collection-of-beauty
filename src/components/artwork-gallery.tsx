@@ -41,6 +41,9 @@ type Props = {
   artworks: Artwork[];
   /** Page size for infinite-scroll materialisation. */
   pageSize?: number;
+  /** How many photos to seed the album with on first render. Makes the top
+   *  two-to-three screenfuls available instantly, before any fetch fires. */
+  initialSeed?: number;
   /** Key that changes when the parent filters/sort change — forces a full
    *  remount so the scroller's internal cursor resets to 0. */
   resetKey?: string;
@@ -50,18 +53,22 @@ type Props = {
 export function ArtworkGallery({
   artworks,
   pageSize = 40,
+  initialSeed = 40,
   resetKey,
   targetRowHeight,
 }: Props) {
   const photos = useMemo(() => artworks.map(toGalleryPhoto), [artworks]);
+  const seed = useMemo(() => photos.slice(0, initialSeed), [photos, initialSeed]);
 
+  // `fetch(index)` is called by InfiniteScroll when more photos are needed
+  // AFTER the seed. index 0 ⇒ first page beyond the seed.
   const fetchPage = useCallback(
     async (index: number): Promise<GalleryPhoto[] | null> => {
-      const start = index * pageSize;
+      const start = initialSeed + index * pageSize;
       if (start >= photos.length) return null;
       return photos.slice(start, start + pageSize);
     },
-    [photos, pageSize],
+    [photos, pageSize, initialSeed],
   );
 
   const rowHeight =
@@ -79,6 +86,7 @@ export function ArtworkGallery({
   return (
     <InfiniteScroll
       key={resetKey}
+      photos={seed}
       fetch={fetchPage}
       fetchRootMargin="1200px"
       offscreenRootMargin="2400px"
@@ -114,17 +122,20 @@ export function ArtworkGallery({
           // Route every thumb through next/image so originals are resized
           // and cached (WebP/AVIF) in .next/cache/images/ instead of
           // streaming 2–16 MB JPEGs to the browser.
-          image: (_, { photo, width, height }) => (
-            <Image
-              src={photo.src}
-              alt={photo.alt ?? ""}
-              width={width}
-              height={height}
-              sizes={`${Math.ceil(width)}px`}
-              loading="lazy"
-              style={{ width: "100%", height: "100%", objectFit: "cover" }}
-            />
-          ),
+          image: (_, { photo, width, height }) => {
+            const p = photo as GalleryPhoto;
+            return (
+              <Image
+                src={p.src}
+                alt={p.alt ?? ""}
+                width={width}
+                height={height}
+                sizes={`${Math.ceil(width)}px`}
+                loading="lazy"
+                style={{ width: "100%", height: "100%", objectFit: "cover" }}
+              />
+            );
+          },
         }}
       />
     </InfiniteScroll>

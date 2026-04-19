@@ -12,7 +12,7 @@ const nextConfig = {
       { protocol: "https", hostname: "commons.wikimedia.org" },
       { protocol: "http", hostname: "localhost", port: "9100" },
       { protocol: "http", hostname: "127.0.0.1", port: "9100" },
-      // compose-internal hostname the web container uses to reach rclone
+      // compose-internal hostname the Next optimizer uses to reach rclone
       { protocol: "http", hostname: "assets", port: "8080" },
     ],
     formats: ["image/avif", "image/webp"],

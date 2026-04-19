@@ -16,15 +16,22 @@ export function slugify(input: string): string {
 
 // Two URLs to the same asset:
 //
-// - assetUrl()       browser-reachable (raw <img>, <a href>, download links).
+// - assetUrl()       browser-facing (raw <img>, <a href>, download links).
 //                    Defaults to the rclone HTTP server exposed on the host.
-// - assetOriginUrl() reachable by the Next.js image optimizer running inside
-//                    the web container. Uses the docker-compose service name
-//                    so web → assets traffic stays on the internal network.
-//                    In prod both collapse to the same public URL.
+// - assetOriginUrl() used in next/image src. The browser never dereferences
+//                    this URL directly — it only hits /_next/image?url=<here>,
+//                    which the Next server resolves itself. So the value only
+//                    needs to be resolvable from the Next server process.
+//                    Inside docker-compose that's host.docker.internal; in
+//                    prod it collapses to the same public URL as assetUrl.
+//
+// Both are read from NEXT_PUBLIC_* so client and server agree (no hydration
+// mismatch) and a private image-optimizer URL doesn't leak as a secret — the
+// Next.js optimizer only signs whitelisted hostnames anyway.
 const ASSETS_BASE_URL =
   process.env.NEXT_PUBLIC_ASSETS_BASE_URL ?? "http://localhost:9100";
-const ASSETS_ORIGIN_URL = process.env.ASSETS_ORIGIN_URL ?? ASSETS_BASE_URL;
+const ASSETS_ORIGIN_URL =
+  process.env.NEXT_PUBLIC_ASSETS_ORIGIN_URL ?? ASSETS_BASE_URL;
 
 function encodeKey(objectKey: string): string {
   return objectKey.split("/").map(encodeURIComponent).join("/");
