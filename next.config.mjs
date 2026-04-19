@@ -10,8 +10,8 @@ const nextConfig = {
     remotePatterns: [
       { protocol: "https", hostname: "upload.wikimedia.org" },
       { protocol: "https", hostname: "commons.wikimedia.org" },
-      { protocol: "http", hostname: "localhost", port: "9000" },
-      { protocol: "http", hostname: "127.0.0.1", port: "9000" },
+      { protocol: "http", hostname: "localhost", port: "9100" },
+      { protocol: "http", hostname: "127.0.0.1", port: "9100" },
     ],
   },
 };

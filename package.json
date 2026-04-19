@@ -5,7 +5,10 @@
   "packageManager": "pnpm@9.15.4",
   "scripts": {
     "build:data": "node scripts/build-data.mjs",
-    "dev": "npm run build:data && next dev",
+    "dev": "docker-compose up --build",
+    "dev:local": "npm run build:data && next dev",
+    "dev:down": "docker-compose down",
+    "dev:logs": "docker-compose logs -f",
     "build": "npm run build:data && next build",
     "start": "next start",
     "typecheck": "tsc --noEmit",
@@ -13,8 +16,7 @@
     "scrape:resolve": "node scripts/resolve-unresolved.mjs",
     "scrape:classify": "node scripts/classify-unresolved.mjs",
     "download:birds": "bash scripts/download-birds-of-america.sh",
-    "download:kunstformen": "bash scripts/download-kunstformen.sh",
-    "upload": "bash scripts/upload-to-minio.sh"
+    "download:kunstformen": "bash scripts/download-kunstformen.sh"
   },
   "dependencies": {
     "class-variance-authority": "^0.7.1",

@@ -1,0 +1,14 @@
+FROM node:24-alpine
+
+WORKDIR /app
+
+# pnpm via corepack, pinned to the repo's packageManager version
+RUN corepack enable && corepack prepare pnpm@9.15.4 --activate
+
+# Deps are installed at container start against the bind-mounted source, so
+# node_modules lives in the anonymous volume defined in docker-compose.yml.
+# The image itself stays tiny — just node + pnpm.
+
+EXPOSE 3000
+
+CMD ["sh", "-c", "pnpm install --frozen-lockfile && node scripts/build-data.mjs && pnpm exec next dev -H 0.0.0.0"]

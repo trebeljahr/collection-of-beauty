@@ -6,6 +6,10 @@ metadata/.cache/
 
 # Dependencies
 node_modules/
+.pnpm-store/
+
+# Claude Code local scratch
+.claude/
 
 # Build artifacts
 dist/

@@ -1,0 +1,55 @@
+services:
+  # rclone serves ./assets/ as a read-only HTTP file server.
+  # Each subfolder (collection-of-beauty, audubon-birds, kunstformen-images)
+  # becomes the first path segment: /<folder>/<filename>. No auth, no upload
+  # path — drop a file into assets/<folder>/ and it's immediately fetchable.
+  assets:
+    image: rclone/rclone:latest
+    container_name: cob-assets
+    restart: unless-stopped
+    ports:
+      - "9100:8080"
+    volumes:
+      - ./assets:/data:ro
+    command:
+      - serve
+      - http
+      - /data
+      - --addr=:8080
+      - --read-only
+
+  # Next.js dev server. Source is bind-mounted for hot reload.
+  web:
+    build:
+      context: .
+      dockerfile: Dockerfile.dev
+    container_name: cob-web
+    ports:
+      - "3000:3000"
+    volumes:
+      # Mount source read-write so edits on host reflect in container.
+      - .:/app
+      # Anonymous volumes shadow the host's node_modules / .next so the
+      # container's Linux-built artifacts aren't clobbered by the host.
+      - /app/node_modules
+      - /app/.next
+      # pnpm's content-addressable store lives outside /app so it doesn't
+      # leak into the bind-mounted host tree
+      - pnpm-store:/pnpm-store
+    depends_on:
+      - assets
+    environment:
+      WATCHPACK_POLLING: "true"
+      CHOKIDAR_USEPOLLING: "true"
+      NEXT_PUBLIC_ASSETS_BASE_URL: "http://localhost:9100"
+      PNPM_HOME: /pnpm-store
+      npm_config_store_dir: /pnpm-store
+    # Install happens at container start against the bind-mounted source;
+    # node_modules is preserved in the anonymous volume above.
+    command:
+      - sh
+      - -c
+      - "pnpm install --frozen-lockfile && node scripts/build-data.mjs && pnpm exec next dev -H 0.0.0.0"
+
+volumes:
+  pnpm-store:

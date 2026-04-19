@@ -14,10 +14,11 @@ export function slugify(input: string): string {
     .replace(/(^-|-$)+/g, "");
 }
 
-// Set via .env.local; defaults to the bucket on the local shared MinIO.
+// Set via .env.local; defaults to the rclone HTTP server (docker-compose).
+// objectKey is "<folder>/<filename>", which rclone serves directly as
+// .../<folder>/<filename> from the bind-mounted assets/ directory.
 const ASSETS_BASE_URL =
-  process.env.NEXT_PUBLIC_ASSETS_BASE_URL ??
-  "http://localhost:9000/collection-of-beauty";
+  process.env.NEXT_PUBLIC_ASSETS_BASE_URL ?? "http://localhost:9100";
 
 export function assetUrl(objectKey: string): string {
   return `${ASSETS_BASE_URL}/${objectKey

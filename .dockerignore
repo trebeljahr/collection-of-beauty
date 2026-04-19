@@ -1,0 +1,33 @@
+# Asset root — 42 GB of images, served by the rclone container, not needed in the build context
+assets
+
+# Node artifacts — installed fresh inside the image
+node_modules
+.next
+.pnpm-store
+
+# VCS / local tooling
+.git
+.gitignore
+.gitattributes
+.claude
+
+# Env & secrets
+.env
+.env.*
+!.env.example
+
+# Editor / OS cruft
+.vscode
+.idea
+.DS_Store
+
+# Logs
+*.log
+npm-debug.log*
+pnpm-debug.log*
+
+# Docker itself
+Dockerfile*
+docker-compose*.yml
+.dockerignore
