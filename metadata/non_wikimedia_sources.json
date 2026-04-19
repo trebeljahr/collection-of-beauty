@@ -1,5 +1,5 @@
 {
-  "description": "Reference catalog of non-Wikimedia sources discovered in the user's bookmark dump. Use this to classify any Collection of Beauty files that the Wikimedia Commons API cannot resolve. Each entry describes the source domain, likely copyright status, and how to recognize files that came from it.",
+  "description": "Reference catalog of non-Wikimedia sources discovered in the user's bookmark dump. Use this to classify any collection-of-beauty files that the Wikimedia Commons API cannot resolve. Each entry describes the source domain, likely copyright status, and how to recognize files that came from it.",
   "sources": [
     {
       "domain": "images-assets.nasa.gov / images.nasa.gov / assets.science.nasa.gov",
@@ -174,5 +174,5 @@
       "notes": "Same as facebook above — transient URLs, copyright belongs to poster, mark needs_review."
     }
   ],
-  "how_to_use": "When scripts/fetch-wikimedia-metadata.mjs flags a Collection of Beauty file with needs_review=true, consult this catalog. If the filename contains clues like 'PIA', 'STScI', 'GSFC' → NASA (PD). 'escher' or Escher work titles → copyrighted. 'kordan' / 'DSC_' generic photo IDs → possibly Daniel Kordan. 'McCurry' or 'INDIA-10841' → Steve McCurry / Magnum (copyrighted). 'Serafini' or Codex → copyrighted. Otherwise mark as unknown and escalate to the user."
+  "how_to_use": "When scripts/fetch-wikimedia-metadata.mjs flags a collection-of-beauty file with needs_review=true, consult this catalog. If the filename contains clues like 'PIA', 'STScI', 'GSFC' → NASA (PD). 'escher' or Escher work titles → copyrighted. 'kordan' / 'DSC_' generic photo IDs → possibly Daniel Kordan. 'McCurry' or 'INDIA-10841' → Steve McCurry / Magnum (copyrighted). 'Serafini' or Codex → copyrighted. Otherwise mark as unknown and escalate to the user."
 }

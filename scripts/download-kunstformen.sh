@@ -5,7 +5,7 @@
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 ROOT_DIR="$(dirname "$SCRIPT_DIR")"
-OUTPUT_DIR="$ROOT_DIR/assets/kunstformen_images"
+OUTPUT_DIR="$ROOT_DIR/assets/kunstformen-images"
 DELAY=3  # Seconds between downloads
 MAX_RETRIES=5
 RETRY_DELAY=10  # Seconds to wait before retry

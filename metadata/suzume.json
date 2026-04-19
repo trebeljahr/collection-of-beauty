@@ -1,0 +1,27 @@
+{
+  "folder": "suzume",
+  "kind": "film_screenshots",
+  "description": "Personal screenshots from the animated film 'suzume' (suzume no Tojimari).",
+  "work": {
+    "title": "suzume",
+    "original_title": "すずめの戸締まり",
+    "director": "Makoto Shinkai",
+    "studio": "CoMix Wave Films",
+    "release_year": 2022,
+    "country": "Japan",
+    "medium": "Animated feature film"
+  },
+  "copyright": {
+    "copyrighted": true,
+    "rights_holder": "CoMix Wave Films / Story Inc. / Toho",
+    "license": "All rights reserved",
+    "notes": "Screenshots of a copyrighted animated film. Captured personally by the owner of this collection; kept for private/reference use only. Not suitable for public redistribution."
+  },
+  "source": {
+    "type": "personal_screenshot",
+    "captured_by": "collection owner",
+    "url": null
+  },
+  "file_naming": "Timestamped PNGs (e.g. 2026-02-08_18-36.png). Do not rename.",
+  "file_count": 229
+}

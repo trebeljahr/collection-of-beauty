@@ -1,18 +1,18 @@
 {
-  "generated": "Metadata catalog for the Collection of Beauty image archive.",
+  "generated": "Metadata catalog for the collection-of-beauty image archive.",
   "layout": {
     "description": "One JSON file per source folder under metadata/. Each file contains either a single 'work' object (for the anime screenshot folders) or an 'entries' map keyed by filename (for the Wikimedia-sourced collections).",
     "files": {
-      "5 Centimeters per Second.json": "Film-level entry; per-file PNGs omitted.",
-      "Nausicaa.json": "Film-level entry.",
-      "Spirited Away.json": "Film-level entry.",
-      "Suzume.json": "Film-level entry.",
-      "The Garden of Words.json": "Film-level entry.",
-      "Your Name.json": "Film-level entry.",
-      "audubon_birds.json": "Per-file entries from Wikimedia Commons API (435/435 resolved).",
-      "kunstformen_images.json": "Per-file entries from Wikimedia Commons API (100/100 resolved).",
-      "Collection of Beauty.json": "Per-file entries. 2412/2624 resolved from Wikimedia Commons; the remaining 212 are classified by filename heuristic and marked needs_review where necessary.",
-      "Collection of Beauty.unresolved.txt": "Flat list of the 212 Collection-of-Beauty filenames that the Wikimedia Commons API did not resolve (after thumbnail-prefix stripping, extension-case variants, and NFC normalization).",
+      "5-centimeters-per-second.json": "Film-level entry; per-file PNGs omitted.",
+      "nausicaa.json": "Film-level entry.",
+      "spirited-away.json": "Film-level entry.",
+      "suzume.json": "Film-level entry.",
+      "the-garden-of-words.json": "Film-level entry.",
+      "your-name.json": "Film-level entry.",
+      "audubon-birds.json": "Per-file entries from Wikimedia Commons API (435/435 resolved).",
+      "kunstformen-images.json": "Per-file entries from Wikimedia Commons API (100/100 resolved).",
+      "collection-of-beauty.json": "Per-file entries. 2412/2624 resolved from Wikimedia Commons; the remaining 212 are classified by filename heuristic and marked needs_review where necessary.",
+      "collection-of-beauty.unresolved.txt": "Flat list of the 212 Collection-of-Beauty filenames that the Wikimedia Commons API did not resolve (after thumbnail-prefix stripping, extension-case variants, and NFC normalization).",
       "non_wikimedia_sources.json": "Reference catalog of non-Wikimedia sources discovered in bookmarks.txt. Use to interpret needs_review entries.",
       ".cache/": "Raw Wikimedia Commons API responses per batch, kept so reruns are free. Safe to delete."
     }
@@ -24,16 +24,16 @@
       "note": "All copyrighted — personal screenshots of Studio Ghibli / CoMix Wave Films / Makoto Shinkai films."
     },
     "wikimedia_sourced_files": {
-      "audubon_birds": { "total": 435, "resolved": 435, "unresolved": 0 },
-      "kunstformen_images": { "total": 100, "resolved": 100, "unresolved": 0 },
-      "Collection of Beauty": { "total": 2624, "resolved_wikimedia": 2412, "classified_heuristically": 204, "still_needs_review": 8 }
+      "audubon-birds": { "total": 435, "resolved": 435, "unresolved": 0 },
+      "kunstformen-images": { "total": 100, "resolved": 100, "unresolved": 0 },
+      "collection-of-beauty": { "total": 2624, "resolved_wikimedia": 2412, "classified_heuristically": 204, "still_needs_review": 8 }
     }
   },
   "copyright_summary": {
     "public_domain": [
-      "All of audubon_birds (John James Audubon, 1785-1851, Birds of America 1827-1838)",
-      "All of kunstformen_images (Ernst Haeckel, 1834-1919, Kunstformen der Natur 1904)",
-      "The vast majority of Collection of Beauty — Old Master paintings and 19th-century art whose creators died more than 100 years ago"
+      "All of audubon-birds (John James Audubon, 1785-1851, Birds of America 1827-1838)",
+      "All of kunstformen-images (Ernst Haeckel, 1834-1919, Kunstformen der Natur 1904)",
+      "The vast majority of collection-of-beauty — Old Master paintings and 19th-century art whose creators died more than 100 years ago"
     ],
     "definitely_copyrighted": [
       "All anime screenshot folders (6 folders, 1618 files) — Studio Ghibli / CoMix Wave Films",
@@ -44,7 +44,7 @@
     ],
     "needs_manual_review": {
       "count": 8,
-      "note": "Files whose source and copyright status could not be determined even after extended filename heuristics. See Collection of Beauty.unresolved.txt (full 212 list) and filter by needs_review=true in the entries map.",
+      "note": "Files whose source and copyright status could not be determined even after extended filename heuristics. See collection-of-beauty.unresolved.txt (full 212 list) and filter by needs_review=true in the entries map.",
       "remaining_items": [
         "2× Flickr CDN hashes (40606050395_*, 40606051085_*) — look up via https://www.flickr.com/photo.gne?id=<id>",
         "2× 'Quickenborne' .webp (La gare sous baguettes / Sans Baguettes) — unidentified artist, likely Belgian contemporary",

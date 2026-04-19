@@ -9,9 +9,9 @@ const META = path.join(ROOT, "metadata");
 const OUT = path.join(ROOT, "src", "data");
 
 const WIKIMEDIA_FOLDERS = [
-  "Collection of Beauty",
-  "audubon_birds",
-  "kunstformen_images",
+  "collection-of-beauty",
+  "audubon-birds",
+  "kunstformen-images",
 ];
 
 function slugify(input) {
@@ -249,9 +249,9 @@ async function main() {
     }
   }
 
-  pushFromFolder("Collection of Beauty", cob);
-  pushFromFolder("audubon_birds", birds);
-  pushFromFolder("kunstformen_images", haeckel);
+  pushFromFolder("collection-of-beauty", cob);
+  pushFromFolder("audubon-birds", birds);
+  pushFromFolder("kunstformen-images", haeckel);
 
   artworks.sort((a, b) => {
     const ay = a.year ?? 99999;

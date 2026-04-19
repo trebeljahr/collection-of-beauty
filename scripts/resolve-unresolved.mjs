@@ -7,7 +7,7 @@
 // Writes:  metadata/<folder>.json  (updated in-place, still just the index)
 //          metadata/.cache/<folder>/pass2-batch-NNNN.json (cached API responses)
 //
-// Usage:   node scripts/resolve-unresolved.mjs "Collection of Beauty"
+// Usage:   node scripts/resolve-unresolved.mjs "collection-of-beauty"
 
 import fs from "fs";
 import path from "path";

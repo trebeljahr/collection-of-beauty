@@ -1,0 +1,27 @@
+{
+  "folder": "5-centimeters-per-second",
+  "kind": "film_screenshots",
+  "description": "Personal screenshots from the animated film '5-centimeters-per-second' (Byōsoku 5 Senchimētoru).",
+  "work": {
+    "title": "5-centimeters-per-second",
+    "original_title": "秒速5センチメートル",
+    "director": "Makoto Shinkai",
+    "studio": "CoMix Wave Films",
+    "release_year": 2007,
+    "country": "Japan",
+    "medium": "Animated feature film"
+  },
+  "copyright": {
+    "copyrighted": true,
+    "rights_holder": "CoMix Wave Films",
+    "license": "All rights reserved",
+    "notes": "Screenshots of a copyrighted animated film. Captured personally by the owner of this collection; kept for private/reference use only. Not suitable for public redistribution."
+  },
+  "source": {
+    "type": "personal_screenshot",
+    "captured_by": "collection owner",
+    "url": null
+  },
+  "file_naming": "Timestamped PNGs (e.g. 2026-02-19_19-38.png). Do not rename.",
+  "file_count": 225
+}

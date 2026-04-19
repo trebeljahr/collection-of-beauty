@@ -1,0 +1,28 @@
+{
+  "folder": "nausicaa",
+  "kind": "film_screenshots",
+  "description": "Personal screenshots from the animated film 'Nausicaä of the Valley of the Wind'.",
+  "work": {
+    "title": "Nausicaä of the Valley of the Wind",
+    "original_title": "風の谷のナウシカ",
+    "director": "Hayao Miyazaki",
+    "studio": "Topcraft (pre-Ghibli; now associated with Studio Ghibli)",
+    "distributor": "Toei Company",
+    "release_year": 1984,
+    "country": "Japan",
+    "medium": "Animated feature film"
+  },
+  "copyright": {
+    "copyrighted": true,
+    "rights_holder": "Studio Ghibli / Nibariki",
+    "license": "All rights reserved",
+    "notes": "Screenshots of a copyrighted animated film. Captured personally by the owner of this collection; kept for private/reference use only. Not suitable for public redistribution."
+  },
+  "source": {
+    "type": "personal_screenshot",
+    "captured_by": "collection owner",
+    "url": null
+  },
+  "file_naming": "Timestamped PNGs (e.g. 2026-03-09_21-07.png). Do not rename.",
+  "file_count": 235
+}

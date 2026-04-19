@@ -1,0 +1,27 @@
+{
+  "folder": "spirited-away",
+  "kind": "film_screenshots",
+  "description": "Personal screenshots from the animated film 'spirited-away'.",
+  "work": {
+    "title": "spirited-away",
+    "original_title": "千と千尋の神隠し",
+    "director": "Hayao Miyazaki",
+    "studio": "Studio Ghibli",
+    "release_year": 2001,
+    "country": "Japan",
+    "medium": "Animated feature film"
+  },
+  "copyright": {
+    "copyrighted": true,
+    "rights_holder": "Studio Ghibli / Nibariki / TGNDDTM",
+    "license": "All rights reserved",
+    "notes": "Screenshots of a copyrighted animated film. Captured personally by the owner of this collection; kept for private/reference use only. Not suitable for public redistribution."
+  },
+  "source": {
+    "type": "personal_screenshot",
+    "captured_by": "collection owner",
+    "url": null
+  },
+  "file_naming": "Timestamped PNGs (e.g. 2026-03-19_19-29.png). Do not rename.",
+  "file_count": 373
+}

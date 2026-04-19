@@ -6,7 +6,7 @@
 // Heuristics come from metadata/non_wikimedia_sources.json and from hand
 // analysis of common prefixes/artist names.
 //
-// Usage: node scripts/classify-unresolved.mjs "Collection of Beauty"
+// Usage: node scripts/classify-unresolved.mjs "collection-of-beauty"
 
 import fs from "fs";
 import path from "path";

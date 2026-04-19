@@ -2,9 +2,9 @@
 // Fetch metadata for image files from the Wikimedia Commons API.
 //
 // Usage:
-//   node scripts/fetch-wikimedia-metadata.mjs "Collection of Beauty"
-//   node scripts/fetch-wikimedia-metadata.mjs audubon_birds
-//   node scripts/fetch-wikimedia-metadata.mjs kunstformen_images
+//   node scripts/fetch-wikimedia-metadata.mjs "collection-of-beauty"
+//   node scripts/fetch-wikimedia-metadata.mjs audubon-birds
+//   node scripts/fetch-wikimedia-metadata.mjs kunstformen-images
 //
 // Reads files from the given folder (read-only — never touches source files),
 // queries Wikimedia Commons in batches of 50 titles, caches raw API responses
