@@ -25,7 +25,7 @@ services:
       dockerfile: Dockerfile.dev
     container_name: cob-web
     ports:
-      - "3000:3000"
+      - "3547:3547"
     volumes:
       # Mount source read-write so edits on host reflect in container.
       - .:/app
@@ -46,10 +46,12 @@ services:
       npm_config_store_dir: /pnpm-store
     # Install happens at container start against the bind-mounted source;
     # node_modules is preserved in the anonymous volume above.
+    # The echo at the front is so the URL is visible during the slow first
+    # install — Next prints it again once it's actually listening.
     command:
       - sh
       - -c
-      - "pnpm install --frozen-lockfile && node scripts/build-data.mjs && pnpm exec next dev -H 0.0.0.0"
+      - "echo '==> dev server will be at http://localhost:3547' && pnpm install --frozen-lockfile && node scripts/build-data.mjs && pnpm exec next dev -H 0.0.0.0 -p 3547"
 
 volumes:
   pnpm-store:
