@@ -13,6 +13,7 @@ export type Artwork = {
   dateCreated: string | null;
   description: string | null;
   folder: string;
+  objectKey: string;
   fileUrl: string;
   commonsUrl: string;
   credit: string | null;
@@ -32,6 +33,7 @@ export type Artist = {
   minYear: number | null;
   maxYear: number | null;
   coverFileUrl: string | null;
+  coverObjectKey: string | null;
   coverTitle: string | null;
 };
 

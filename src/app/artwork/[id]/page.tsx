@@ -3,7 +3,7 @@ import { notFound } from "next/navigation";
 import { getArtwork, getArtist, getArtworksByArtist, artworks } from "@/lib/data";
 import { Badge } from "@/components/ui/badge";
 import { ArtworkCard } from "@/components/artwork-card";
-import { wikimediaThumb } from "@/lib/utils";
+import { assetUrl } from "@/lib/utils";
 
 type Params = { id: string };
 
@@ -59,13 +59,13 @@ export default async function ArtworkPage({
         <div className="rounded-xl border border-[var(--border)] bg-[var(--muted)] p-2">
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <a
-            href={art.fileUrl}
+            href={assetUrl(art.objectKey)}
             target="_blank"
             rel="noreferrer"
-            title="Open original on Wikimedia Commons"
+            title="Open original"
           >
             <img
-              src={wikimediaThumb(art.fileUrl, 1600)}
+              src={assetUrl(art.objectKey)}
               alt={art.title}
               className="mx-auto max-h-[80vh] w-auto rounded-md"
             />
@@ -146,7 +146,7 @@ export default async function ArtworkPage({
           </h2>
           <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6">
             {moreByArtist.map((a) => (
-              <ArtworkCard key={a.id} artwork={a} size={320} />
+              <ArtworkCard key={a.id} artwork={a} />
             ))}
           </div>
         </section>

@@ -211,6 +211,7 @@ async function main() {
         dateCreated: stripQuickStatements(entry.date_created) || null,
         description: firstLineDescription(entry.description),
         folder: folderKey,
+        objectKey: `${folderKey}/${fname}`,
         fileUrl: entry.source.file_url,
         commonsUrl: entry.source.url,
         credit: entry.source.credit || null,
@@ -232,6 +233,7 @@ async function main() {
             minYear: null,
             maxYear: null,
             coverFileUrl: null,
+            coverObjectKey: null,
             coverTitle: null,
           });
         }
@@ -243,6 +245,7 @@ async function main() {
         }
         if (!agg.coverFileUrl) {
           agg.coverFileUrl = entry.source.file_url;
+          agg.coverObjectKey = `${folderKey}/${fname}`;
           agg.coverTitle = title;
         }
       }

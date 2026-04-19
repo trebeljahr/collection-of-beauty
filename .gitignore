@@ -4,9 +4,6 @@ assets/
 # Regeneratable Wikimedia API response cache
 metadata/.cache/
 
-# MinIO local state (bucket index, IAM config)
-.minio-data/
-
 # Dependencies
 node_modules/
 

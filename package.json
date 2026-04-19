@@ -14,9 +14,7 @@
     "scrape:classify": "node scripts/classify-unresolved.mjs",
     "download:birds": "bash scripts/download-birds-of-america.sh",
     "download:kunstformen": "bash scripts/download-kunstformen.sh",
-    "minio:up": "docker-compose up -d minio",
-    "minio:down": "docker-compose down",
-    "minio:logs": "docker-compose logs -f minio"
+    "upload": "bash scripts/upload-to-minio.sh"
   },
   "dependencies": {
     "class-variance-authority": "^0.7.1",

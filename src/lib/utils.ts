@@ -14,14 +14,14 @@ export function slugify(input: string): string {
     .replace(/(^-|-$)+/g, "");
 }
 
-export function wikimediaThumb(fileUrl: string, width = 800): string {
-  const m = fileUrl.match(
-    /^https:\/\/upload\.wikimedia\.org\/wikipedia\/commons\/([0-9a-f])\/([0-9a-f]{2})\/(.+)$/,
-  );
-  if (!m) return fileUrl;
-  const [, a, ab, name] = m;
-  const ext = (name.match(/\.([^.]+)$/)?.[1] ?? "").toLowerCase();
-  const passthrough = ext === "jpg" || ext === "jpeg" || ext === "png";
-  if (!passthrough) return fileUrl;
-  return `https://upload.wikimedia.org/wikipedia/commons/thumb/${a}/${ab}/${name}/${width}px-${name}`;
+// Set via .env.local; defaults to the bucket on the local shared MinIO.
+const ASSETS_BASE_URL =
+  process.env.NEXT_PUBLIC_ASSETS_BASE_URL ??
+  "http://localhost:9000/collection-of-beauty";
+
+export function assetUrl(objectKey: string): string {
+  return `${ASSETS_BASE_URL}/${objectKey
+    .split("/")
+    .map(encodeURIComponent)
+    .join("/")}`;
 }

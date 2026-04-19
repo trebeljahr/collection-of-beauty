@@ -4,7 +4,7 @@ import { useMemo, useState } from "react";
 import Link from "next/link";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
-import { wikimediaThumb } from "@/lib/utils";
+import { assetUrl } from "@/lib/utils";
 import type { Artwork } from "@/lib/data";
 
 const DECADE = 10;
@@ -134,7 +134,7 @@ export function TimelineView({ artworks, movements }: Props) {
                 >
                   {/* eslint-disable-next-line @next/next/no-img-element */}
                   <img
-                    src={wikimediaThumb(a.fileUrl, 300)}
+                    src={assetUrl(a.objectKey)}
                     alt={a.title}
                     loading="lazy"
                     className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-110"

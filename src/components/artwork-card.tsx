@@ -1,15 +1,14 @@
 import Link from "next/link";
-import { wikimediaThumb } from "@/lib/utils";
+import { assetUrl } from "@/lib/utils";
 import type { Artwork } from "@/lib/data";
 
 type Props = {
   artwork: Artwork;
   priority?: boolean;
-  size?: number;
 };
 
-export function ArtworkCard({ artwork, priority, size = 480 }: Props) {
-  const thumb = wikimediaThumb(artwork.fileUrl, size);
+export function ArtworkCard({ artwork, priority }: Props) {
+  const src = assetUrl(artwork.objectKey);
   return (
     <Link
       href={`/artwork/${artwork.id}`}
@@ -18,7 +17,7 @@ export function ArtworkCard({ artwork, priority, size = 480 }: Props) {
       <div className="aspect-[4/5] overflow-hidden bg-[var(--muted)]">
         {/* eslint-disable-next-line @next/next/no-img-element */}
         <img
-          src={thumb}
+          src={src}
           alt={artwork.title}
           loading={priority ? "eager" : "lazy"}
           className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"

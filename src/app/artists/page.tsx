@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { artists } from "@/lib/data";
-import { wikimediaThumb } from "@/lib/utils";
+import { assetUrl } from "@/lib/utils";
 
 export default function ArtistsPage() {
   return (
@@ -20,10 +20,10 @@ export default function ArtistsPage() {
             className="group block overflow-hidden rounded-lg border border-[var(--border)] bg-[var(--card)] transition-shadow hover:shadow-lg"
           >
             <div className="aspect-square overflow-hidden bg-[var(--muted)]">
-              {a.coverFileUrl && (
+              {a.coverObjectKey && (
                 /* eslint-disable-next-line @next/next/no-img-element */
                 <img
-                  src={wikimediaThumb(a.coverFileUrl, 400)}
+                  src={assetUrl(a.coverObjectKey)}
                   alt={a.coverTitle || a.name}
                   loading="lazy"
                   className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
