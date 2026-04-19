@@ -14,15 +14,26 @@ export function slugify(input: string): string {
     .replace(/(^-|-$)+/g, "");
 }
 
-// Set via .env.local; defaults to the rclone HTTP server (docker-compose).
-// objectKey is "<folder>/<filename>", which rclone serves directly as
-// .../<folder>/<filename> from the bind-mounted assets/ directory.
+// Two URLs to the same asset:
+//
+// - assetUrl()       browser-reachable (raw <img>, <a href>, download links).
+//                    Defaults to the rclone HTTP server exposed on the host.
+// - assetOriginUrl() reachable by the Next.js image optimizer running inside
+//                    the web container. Uses the docker-compose service name
+//                    so web → assets traffic stays on the internal network.
+//                    In prod both collapse to the same public URL.
 const ASSETS_BASE_URL =
   process.env.NEXT_PUBLIC_ASSETS_BASE_URL ?? "http://localhost:9100";
+const ASSETS_ORIGIN_URL = process.env.ASSETS_ORIGIN_URL ?? ASSETS_BASE_URL;
+
+function encodeKey(objectKey: string): string {
+  return objectKey.split("/").map(encodeURIComponent).join("/");
+}
 
 export function assetUrl(objectKey: string): string {
-  return `${ASSETS_BASE_URL}/${objectKey
-    .split("/")
-    .map(encodeURIComponent)
-    .join("/")}`;
+  return `${ASSETS_BASE_URL}/${encodeKey(objectKey)}`;
+}
+
+export function assetOriginUrl(objectKey: string): string {
+  return `${ASSETS_ORIGIN_URL}/${encodeKey(objectKey)}`;
 }

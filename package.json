@@ -17,7 +17,8 @@
     "scrape:resolve": "node scripts/resolve-unresolved.mjs",
     "scrape:classify": "node scripts/classify-unresolved.mjs",
     "download:birds": "bash scripts/download-birds-of-america.sh",
-    "download:kunstformen": "bash scripts/download-kunstformen.sh"
+    "download:kunstformen": "bash scripts/download-kunstformen.sh",
+    "prewarm": "node scripts/prewarm-images.mjs"
   },
   "dependencies": {
     "@aws-sdk/client-s3": "^3.1032.0",

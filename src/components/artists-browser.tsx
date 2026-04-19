@@ -4,7 +4,8 @@ import { useEffect, useMemo, useRef, useState, useDeferredValue } from "react";
 import Link from "next/link";
 import Fuse from "fuse.js";
 import { Input } from "@/components/ui/input";
-import { assetUrl } from "@/lib/utils";
+import Image from "next/image";
+import { assetOriginUrl } from "@/lib/utils";
 import type { Artist } from "@/lib/data";
 
 const PAGE = 40;
@@ -83,14 +84,15 @@ export function ArtistsBrowser({ artists }: Props) {
             href={`/artist/${a.slug}`}
             className="group block overflow-hidden rounded-lg border border-[var(--border)] bg-[var(--card)] transition-shadow hover:shadow-lg"
           >
-            <div className="aspect-square overflow-hidden bg-[var(--muted)]">
+            <div className="relative aspect-square overflow-hidden bg-[var(--muted)]">
               {a.coverObjectKey && (
-                /* eslint-disable-next-line @next/next/no-img-element */
-                <img
-                  src={assetUrl(a.coverObjectKey)}
+                <Image
+                  src={assetOriginUrl(a.coverObjectKey)}
                   alt={a.coverTitle || a.name}
+                  fill
+                  sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 20vw"
                   loading="lazy"
-                  className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
+                  className="object-cover transition-transform duration-500 group-hover:scale-105"
                 />
               )}
             </div>

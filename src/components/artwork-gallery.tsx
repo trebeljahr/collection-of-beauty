@@ -2,10 +2,11 @@
 
 import { useCallback, useMemo } from "react";
 import Link from "next/link";
+import Image from "next/image";
 import { RowsPhotoAlbum } from "react-photo-album";
 import InfiniteScroll from "react-photo-album/scroll";
 import "react-photo-album/rows.css";
-import { assetUrl } from "@/lib/utils";
+import { assetOriginUrl } from "@/lib/utils";
 import type { Artwork } from "@/lib/data";
 
 export type GalleryPhoto = {
@@ -22,7 +23,9 @@ export type GalleryPhoto = {
 
 export function toGalleryPhoto(a: Artwork): GalleryPhoto {
   return {
-    src: assetUrl(a.objectKey),
+    // Pass the compose-internal URL to <Image>; Next's optimizer fetches
+    // it server-side and the browser only ever sees /_next/image?... URLs.
+    src: assetOriginUrl(a.objectKey),
     width: a.width ?? 800,
     height: a.height ?? 1000,
     key: a.id,
@@ -94,6 +97,7 @@ export function ArtworkGallery({
         photos={[]}
         targetRowHeight={rowHeight}
         spacing={6}
+        sizes={{ size: "640px" }}
         render={{
           link: ({ href, children, ...rest }, { photo }) => {
             const p = photo as GalleryPhoto;
@@ -107,6 +111,20 @@ export function ArtworkGallery({
               </Link>
             );
           },
+          // Route every thumb through next/image so originals are resized
+          // and cached (WebP/AVIF) in .next/cache/images/ instead of
+          // streaming 2–16 MB JPEGs to the browser.
+          image: (_, { photo, width, height }) => (
+            <Image
+              src={photo.src}
+              alt={photo.alt ?? ""}
+              width={width}
+              height={height}
+              sizes={`${Math.ceil(width)}px`}
+              loading="lazy"
+              style={{ width: "100%", height: "100%", objectFit: "cover" }}
+            />
+          ),
         }}
       />
     </InfiniteScroll>

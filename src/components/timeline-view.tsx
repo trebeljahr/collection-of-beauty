@@ -4,7 +4,8 @@ import { useMemo, useState } from "react";
 import Link from "next/link";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
-import { assetUrl } from "@/lib/utils";
+import Image from "next/image";
+import { assetOriginUrl } from "@/lib/utils";
 import type { Artwork } from "@/lib/data";
 
 const DECADE = 10;
@@ -132,12 +133,13 @@ export function TimelineView({ artworks, movements }: Props) {
                   className="group relative block aspect-square overflow-hidden rounded-md bg-[var(--muted)]"
                   title={`${a.title}${a.artist ? " — " + a.artist : ""} (${a.year})`}
                 >
-                  {/* eslint-disable-next-line @next/next/no-img-element */}
-                  <img
-                    src={assetUrl(a.objectKey)}
+                  <Image
+                    src={assetOriginUrl(a.objectKey)}
                     alt={a.title}
+                    fill
+                    sizes="(max-width: 640px) 33vw, (max-width: 1024px) 20vw, 12vw"
                     loading="lazy"
-                    className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-110"
+                    className="object-cover transition-transform duration-500 group-hover:scale-110"
                   />
                   <div className="absolute inset-x-0 bottom-0 translate-y-full bg-gradient-to-t from-black/80 to-transparent p-1.5 text-[10px] text-white transition-transform group-hover:translate-y-0">
                     <div className="line-clamp-1 font-medium">{a.title}</div>

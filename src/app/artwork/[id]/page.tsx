@@ -1,9 +1,10 @@
 import Link from "next/link";
+import Image from "next/image";
 import { notFound } from "next/navigation";
 import { getArtwork, getArtist, getArtworksByArtist, artworks } from "@/lib/data";
 import { Badge } from "@/components/ui/badge";
 import { ArtworkCard } from "@/components/artwork-card";
-import { assetUrl } from "@/lib/utils";
+import { assetOriginUrl, assetUrl } from "@/lib/utils";
 
 type Params = { id: string };
 
@@ -57,16 +58,20 @@ export default async function ArtworkPage({
 
       <div className="grid gap-8 md:grid-cols-[1.3fr_1fr]">
         <div className="rounded-xl border border-[var(--border)] bg-[var(--muted)] p-2">
-          {/* eslint-disable-next-line @next/next/no-img-element */}
           <a
             href={assetUrl(art.objectKey)}
             target="_blank"
             rel="noreferrer"
             title="Open original"
+            className="block"
           >
-            <img
-              src={assetUrl(art.objectKey)}
+            <Image
+              src={assetOriginUrl(art.objectKey)}
               alt={art.title}
+              width={art.width ?? 1600}
+              height={art.height ?? 2000}
+              sizes="(max-width: 768px) 100vw, 65vw"
+              priority
               className="mx-auto max-h-[80vh] w-auto rounded-md"
             />
           </a>
