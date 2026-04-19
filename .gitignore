@@ -22,6 +22,9 @@ next-env.d.ts
 /src/data/connections.json
 /src/data/summary.json
 
+# react-email dev server scratch dir
+.react-email/
+
 # OS / editor
 .DS_Store
 .vscode/
