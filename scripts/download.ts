@@ -3,7 +3,8 @@ import * as path from "path";
 import * as https from "https";
 import * as crypto from "crypto";
 
-const OUTPUT_DIR = "./assets/kunstformen_images";
+const ROOT = path.resolve(__dirname, "..");
+const OUTPUT_DIR = path.join(ROOT, "assets", "kunstformen_images");
 const DELAY_MS = 2000; // 2 second delay between downloads
 const MAX_RETRIES = 3;
 const RETRY_DELAY = 5000; // 5 seconds between retries

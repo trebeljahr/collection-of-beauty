@@ -3,7 +3,9 @@
 # Audubon's Birds of America Image Downloader using curl
 # This script downloads all images with proper rate limiting and retry logic
 
-OUTPUT_DIR="./assets/audubon_birds"
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+ROOT_DIR="$(dirname "$SCRIPT_DIR")"
+OUTPUT_DIR="$ROOT_DIR/assets/audubon_birds"
 DELAY=3  # Seconds between downloads
 MAX_RETRIES=5
 RETRY_DELAY=10  # Seconds to wait before retry

@@ -1,15 +1,39 @@
 {
-  "name": "wikipedia-scraper",
-  "version": "1.0.0",
-  "description": "",
-  "main": "index.js",
+  "name": "collection-of-beauty",
+  "version": "0.1.0",
+  "private": true,
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "build:data": "node scripts/build-data.mjs",
+    "dev": "pnpm build:data && next dev",
+    "build": "pnpm build:data && next build",
+    "start": "next start",
+    "typecheck": "tsc --noEmit",
+    "scrape:fetch": "node scripts/fetch-wikimedia-metadata.mjs",
+    "scrape:resolve": "node scripts/resolve-unresolved.mjs",
+    "scrape:classify": "node scripts/classify-unresolved.mjs",
+    "download:birds": "bash scripts/download-birds-of-america.sh",
+    "download:kunstformen": "bash scripts/download-kunstformen.sh"
   },
-  "keywords": [],
-  "author": "",
-  "license": "ISC",
+  "dependencies": {
+    "class-variance-authority": "^0.7.1",
+    "clsx": "^2.1.1",
+    "d3-force": "^3.0.0",
+    "fuse.js": "^7.1.0",
+    "lucide-react": "^0.474.0",
+    "next": "^15.1.6",
+    "react": "^19.0.0",
+    "react-dom": "^19.0.0",
+    "tailwind-merge": "^3.0.1"
+  },
   "devDependencies": {
-    "@types/node": "^25.0.9"
+    "@tailwindcss/postcss": "^4.0.5",
+    "@types/d3-force": "^3.0.10",
+    "@types/node": "^22.13.0",
+    "@types/react": "^19.0.8",
+    "@types/react-dom": "^19.0.3",
+    "postcss": "^8.5.1",
+    "tailwindcss": "^4.0.5",
+    "tw-animate-css": "^1.2.0",
+    "typescript": "^5.7.3"
   }
 }

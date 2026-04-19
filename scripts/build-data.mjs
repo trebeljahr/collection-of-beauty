@@ -4,9 +4,9 @@ import path from "node:path";
 import { fileURLToPath } from "node:url";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
-const ROOT = path.resolve(__dirname, "..", "..");
+const ROOT = path.resolve(__dirname, "..");
 const META = path.join(ROOT, "metadata");
-const OUT = path.resolve(__dirname, "..", "src", "data");
+const OUT = path.join(ROOT, "src", "data");
 
 const WIKIMEDIA_FOLDERS = [
   "Collection of Beauty",

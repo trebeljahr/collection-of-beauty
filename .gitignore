@@ -15,6 +15,13 @@ out/
 *.tsbuildinfo
 next-env.d.ts
 
+# Generated gallery data (rebuilt via `pnpm build:data`)
+/src/data/artworks.json
+/src/data/artists.json
+/src/data/movements.json
+/src/data/connections.json
+/src/data/summary.json
+
 # OS / editor
 .DS_Store
 .vscode/
