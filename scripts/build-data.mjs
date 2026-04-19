@@ -1,12 +1,42 @@
 import { readFile, writeFile, mkdir } from "node:fs/promises";
-import { existsSync } from "node:fs";
+import { existsSync, openSync, readSync, closeSync } from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
+import { imageSize } from "image-size";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const ROOT = path.resolve(__dirname, "..");
 const META = path.join(ROOT, "metadata");
+const ASSETS = path.join(ROOT, "assets");
 const OUT = path.join(ROOT, "src", "data");
+
+// Probe only the first 64 KB of each image to extract width/height — enough
+// for every format we have (jpg/png/webp/tif). Reading full files would OOM
+// the container on the larger 16 MB plates.
+const PROBE_BYTES = 64 * 1024;
+const probeBuf = Buffer.alloc(PROBE_BYTES);
+const dimensionCache = new Map();
+
+function dimensionsFor(folderKey, filename) {
+  const key = `${folderKey}/${filename}`;
+  if (dimensionCache.has(key)) return dimensionCache.get(key);
+  let result = null;
+  const file = path.join(ASSETS, folderKey, filename);
+  if (existsSync(file)) {
+    try {
+      const fd = openSync(file, "r");
+      const n = readSync(fd, probeBuf, 0, PROBE_BYTES, 0);
+      closeSync(fd);
+      const slice = n < PROBE_BYTES ? probeBuf.subarray(0, n) : probeBuf;
+      const { width, height } = imageSize(slice);
+      if (width && height) result = { width, height };
+    } catch {
+      // leave null
+    }
+  }
+  dimensionCache.set(key, result);
+  return result;
+}
 
 const WIKIMEDIA_FOLDERS = [
   "collection-of-beauty",
@@ -202,6 +232,7 @@ async function main() {
         `${folderKey}-${fname.replace(/\.[^.]+$/, "")}`,
       ).slice(0, 120);
 
+      const dims = dimensionsFor(folderKey, fname);
       artworks.push({
         id,
         title,
@@ -212,6 +243,8 @@ async function main() {
         description: firstLineDescription(entry.description),
         folder: folderKey,
         objectKey: `${folderKey}/${fname}`,
+        width: dims?.width ?? null,
+        height: dims?.height ?? null,
         fileUrl: entry.source.file_url,
         commonsUrl: entry.source.url,
         credit: entry.source.credit || null,

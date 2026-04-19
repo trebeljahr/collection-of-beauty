@@ -14,6 +14,8 @@ export type Artwork = {
   description: string | null;
   folder: string;
   objectKey: string;
+  width: number | null;
+  height: number | null;
   fileUrl: string;
   commonsUrl: string;
   credit: string | null;

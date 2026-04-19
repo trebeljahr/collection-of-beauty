@@ -5,10 +5,8 @@ import Fuse from "fuse.js";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { ArtworkCard } from "@/components/artwork-card";
+import { ArtworkGallery } from "@/components/artwork-gallery";
 import type { Artwork } from "@/lib/data";
-
-const PAGE_SIZE = 60;
 
 type Props = {
   artworks: Artwork[];
@@ -22,7 +20,6 @@ export function GalleryBrowser({ artworks, movements }: Props) {
   const [minYear, setMinYear] = useState<string>("");
   const [maxYear, setMaxYear] = useState<string>("");
   const [sortBy, setSortBy] = useState<"year" | "artist" | "title">("year");
-  const [limit, setLimit] = useState(PAGE_SIZE);
 
   const fuse = useMemo(
     () =>
@@ -53,9 +50,7 @@ export function GalleryBrowser({ artworks, movements }: Props) {
     if (hi != null) list = list.filter((a) => a.year != null && a.year <= hi);
 
     if (sortBy === "year") {
-      list.sort(
-        (a, b) => (a.year ?? 99999) - (b.year ?? 99999),
-      );
+      list.sort((a, b) => (a.year ?? 99999) - (b.year ?? 99999));
     } else if (sortBy === "artist") {
       list.sort((a, b) =>
         (a.artist ?? "zzz").localeCompare(b.artist ?? "zzz"),
@@ -66,8 +61,7 @@ export function GalleryBrowser({ artworks, movements }: Props) {
     return list;
   }, [deferredQuery, fuse, artworks, movement, minYear, maxYear, sortBy]);
 
-  const visible = filtered.slice(0, limit);
-  const hasMore = filtered.length > visible.length;
+  const filterKey = `${deferredQuery}|${movement}|${minYear}|${maxYear}|${sortBy}`;
 
   const activeFilterCount =
     (movement ? 1 : 0) + (minYear ? 1 : 0) + (maxYear ? 1 : 0);
@@ -85,19 +79,13 @@ export function GalleryBrowser({ artworks, movements }: Props) {
         <Input
           placeholder="Search by title, artist, movement, description..."
           value={query}
-          onChange={(e) => {
-            setQuery(e.target.value);
-            setLimit(PAGE_SIZE);
-          }}
+          onChange={(e) => setQuery(e.target.value)}
           className="md:max-w-lg"
         />
         <div className="flex flex-wrap items-center gap-2 text-sm">
           <select
             value={movement}
-            onChange={(e) => {
-              setMovement(e.target.value);
-              setLimit(PAGE_SIZE);
-            }}
+            onChange={(e) => setMovement(e.target.value)}
             className="h-9 rounded-md border border-[var(--input)] bg-transparent px-2"
           >
             <option value="">All movements</option>
@@ -111,20 +99,14 @@ export function GalleryBrowser({ artworks, movements }: Props) {
             type="number"
             placeholder="From"
             value={minYear}
-            onChange={(e) => {
-              setMinYear(e.target.value);
-              setLimit(PAGE_SIZE);
-            }}
+            onChange={(e) => setMinYear(e.target.value)}
             className="w-24"
           />
           <Input
             type="number"
             placeholder="To"
             value={maxYear}
-            onChange={(e) => {
-              setMaxYear(e.target.value);
-              setLimit(PAGE_SIZE);
-            }}
+            onChange={(e) => setMaxYear(e.target.value)}
             className="w-24"
           />
           <select
@@ -157,28 +139,7 @@ export function GalleryBrowser({ artworks, movements }: Props) {
         </span>
       </div>
 
-      <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5">
-        {visible.map((a, i) => (
-          <ArtworkCard key={a.id} artwork={a} priority={i < 10} />
-        ))}
-      </div>
-
-      {hasMore && (
-        <div className="flex justify-center py-6">
-          <Button
-            onClick={() => setLimit((l) => l + PAGE_SIZE)}
-            variant="outline"
-          >
-            Show more ({filtered.length - visible.length} remaining)
-          </Button>
-        </div>
-      )}
-
-      {filtered.length === 0 && (
-        <div className="py-16 text-center text-[var(--muted-foreground)]">
-          No works match the current filters.
-        </div>
-      )}
+      <ArtworkGallery artworks={filtered} resetKey={filterKey} />
     </div>
   );
 }

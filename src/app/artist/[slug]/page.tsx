@@ -6,7 +6,7 @@ import {
   getConnectionsFor,
 } from "@/lib/data";
 import { Badge } from "@/components/ui/badge";
-import { ArtworkCard } from "@/components/artwork-card";
+import { ArtworkGallery } from "@/components/artwork-gallery";
 
 type Params = { slug: string };
 
@@ -104,11 +104,7 @@ export default async function ArtistPage({
 
       <section>
         <h2 className="mb-4 font-serif text-xl">Works in this collection</h2>
-        <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5">
-          {works.map((a) => (
-            <ArtworkCard key={a.id} artwork={a} />
-          ))}
-        </div>
+        <ArtworkGallery artworks={works} resetKey={artist.slug} />
       </section>
     </div>
   );
