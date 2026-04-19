@@ -1,0 +1,27 @@
+{
+  "folder": "Your Name",
+  "kind": "film_screenshots",
+  "description": "Personal screenshots from the animated film 'Your Name' (Kimi no Na wa).",
+  "work": {
+    "title": "Your Name",
+    "original_title": "君の名は。",
+    "director": "Makoto Shinkai",
+    "studio": "CoMix Wave Films",
+    "release_year": 2016,
+    "country": "Japan",
+    "medium": "Animated feature film"
+  },
+  "copyright": {
+    "copyrighted": true,
+    "rights_holder": "CoMix Wave Films / Toho",
+    "license": "All rights reserved",
+    "notes": "Screenshots of a copyrighted animated film. Captured personally by the owner of this collection; kept for private/reference use only. Not suitable for public redistribution."
+  },
+  "source": {
+    "type": "personal_screenshot",
+    "captured_by": "collection owner",
+    "url": null
+  },
+  "file_naming": "Timestamped PNGs (e.g. 2026-03-05_19-26.png). Do not rename.",
+  "file_count": 386
+}

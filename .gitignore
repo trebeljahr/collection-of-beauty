@@ -1,0 +1,30 @@
+# Image archives — too heavy for git; reproduce via download scripts
+assets/
+
+# Regeneratable Wikimedia API response cache
+metadata/.cache/
+
+# Dependencies
+node_modules/
+
+# Build artifacts
+dist/
+build/
+out/
+.next/
+*.tsbuildinfo
+next-env.d.ts
+
+# OS / editor
+.DS_Store
+.vscode/
+.idea/
+
+# Logs / env
+*.log
+.env
+.env.local
+.env.*.local
+
+# Lockfile cruft (keep package-lock.json / pnpm-lock.yaml)
+yarn.lock

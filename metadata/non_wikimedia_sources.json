@@ -1,0 +1,178 @@
+{
+  "description": "Reference catalog of non-Wikimedia sources discovered in the user's bookmark dump. Use this to classify any Collection of Beauty files that the Wikimedia Commons API cannot resolve. Each entry describes the source domain, likely copyright status, and how to recognize files that came from it.",
+  "sources": [
+    {
+      "domain": "images-assets.nasa.gov / images.nasa.gov / assets.science.nasa.gov",
+      "type": "public_domain_government",
+      "subject": "NASA imagery (Hubble, JWST, Cassini, astronaut photography, archival)",
+      "copyright": {
+        "copyrighted": false,
+        "license": "NASA media usage guidelines (generally public domain, not for endorsement of products)",
+        "notes": "Works created by NASA as part of official duties are in the public domain in the US. Non-NASA imagery in NASA's catalog (e.g. ESA/Hubble partnership) may have separate terms."
+      },
+      "file_hints": "Filenames often contain PIA####, GSFC_########, STScI-, carina_nebula, or 'orig' suffix.",
+      "examples_from_bookmarks": [
+        "PIA03606", "PIA13014", "PIA04200", "PIA15985", "PIA23645",
+        "GSFC_20171208_Archive_e002159", "carina_nebula",
+        "STScI-01GGF8H15VZ09MET9HFBRQX4S3 (JWST Pillars of Creation)"
+      ]
+    },
+    {
+      "domain": "pexels.com",
+      "type": "stock_photo_site",
+      "copyright": {
+        "copyrighted": true,
+        "license": "Pexels License (free to use, cannot sell unaltered copies, no identifiable people/logos for commercial without permission)",
+        "notes": "Contributor @paduret referenced — specific photographer."
+      },
+      "file_hints": "Often large JPEGs with Pexels-style numeric IDs."
+    },
+    {
+      "domain": "freepik.com",
+      "type": "stock_content_site",
+      "copyright": {
+        "copyrighted": true,
+        "license": "Freepik License (free tier requires attribution; Premium tier commercial allowed)",
+        "notes": "User-referenced file was a premium-video asset (foam_4087438)."
+      }
+    },
+    {
+      "domain": "magnumphotos.com / solldn.com",
+      "type": "photojournalism_agency",
+      "artists": ["Steve McCurry"],
+      "copyright": {
+        "copyrighted": true,
+        "license": "All rights reserved",
+        "notes": "Magnum Photos agency imagery. User bookmarked McCurry's 'Dust Storm, Rajasthan, India, 1983'. Definitely copyrighted; redistribution requires licensing."
+      }
+    },
+    {
+      "domain": "danielkordan.com / thisiscolossal.com (Kordan features)",
+      "type": "photographer_portfolio",
+      "artists": ["Daniel Kordan"],
+      "copyright": {
+        "copyrighted": true,
+        "license": "All rights reserved",
+        "notes": "Contemporary landscape photographer. Multiple bookmarks reference Kordan's site."
+      }
+    },
+    {
+      "domain": "escherinhetpaleis.nl",
+      "type": "museum_website",
+      "artists": ["M. C. Escher (1898-1972)"],
+      "copyright": {
+        "copyrighted": true,
+        "license": "All rights reserved — The M.C. Escher Company B.V.",
+        "notes": "Escher works enter public domain in most jurisdictions 2043 (70 years post-mortem from 1972). Museum images are watermarked reproductions; reuse requires permission. User bookmarked many specific Escher plates (Metamorphosis I/II, Belvedere, Relativity, Waterfall, Drawing Hands, Hand with Reflecting Sphere, etc.)."
+      },
+      "file_hints": "Filenames may contain 'escher', 'cat###' (catalog numbers), or work titles like 'metamorphosis', 'bonifacio', 'castrovalva', 'babel-escher'."
+    },
+    {
+      "domain": "erniebarnes.com",
+      "type": "artist_estate_store",
+      "artists": ["Ernie Barnes (1938-2009)"],
+      "copyright": {
+        "copyrighted": true,
+        "license": "All rights reserved — The Ernie Barnes Family Trust",
+        "notes": "American painter famous for 'The Sugar Shack'. Definitely copyrighted. User bookmarked: The Sugar Shack, High Aspirations, Springboard, In the Beginning, In the Moment, Anniversary, The Tunesmith, His Effort."
+      }
+    },
+    {
+      "domain": "christies.com / bonhams.com",
+      "type": "auction_house",
+      "copyright": {
+        "copyrighted": "varies",
+        "notes": "Underlying works may be public domain (old masters) but auction-house photography can carry its own thin copyright. User bookmarks include Chinese modern paintings by Huang Binhong (1865-1955), Ya Ming (1924-2002), Song Wenzhi (1919-1999) — underlying works likely still copyrighted outside China in most cases."
+      }
+    },
+    {
+      "domain": "wikigallery.org / commons.wikimedia.org/wiki/Creator:Salvador_Dalí",
+      "type": "art_reference",
+      "artists": ["Salvador Dalí (1904-1989)"],
+      "copyright": {
+        "copyrighted": true,
+        "license": "All rights reserved — Fundació Gala-Salvador Dalí / VEGAP",
+        "notes": "Dalí works remain under copyright until ~2060 (Spain: 80 years post-mortem for authors who died before 1987). Any Dalí image in this collection should be flagged copyrighted."
+      }
+    },
+    {
+      "domain": "c82.net",
+      "type": "design_remix_site",
+      "author": "Nicholas Rougeux",
+      "copyright": {
+        "copyrighted": true,
+        "license": "Nicholas Rougeux retains rights to his digital remixes; underlying source material (Redouté, Euclid, Werner's nomenclature, Twining's plants, etc.) is public domain.",
+        "notes": "High-quality modern reworkings of public-domain natural-history and scientific illustration."
+      }
+    },
+    {
+      "domain": "archive.org",
+      "type": "digital_library",
+      "copyright": {
+        "copyrighted": "varies by item",
+        "notes": "Mirrors both public-domain scans (Redouté 'Les Roses', Gerard's Herball, Sowerby 'British Mineralogy', Twining, Hulme 'Familiar Wild Flowers', etc. — all PD) and some still-copyrighted works. Generally PD for anything pre-1930."
+      }
+    },
+    {
+      "domain": "publicdomainreview.org",
+      "type": "curated_pd_collection",
+      "copyright": {
+        "copyrighted": false,
+        "license": "Content highlighted is public domain; the site's editorial is CC-BY-SA."
+      }
+    },
+    {
+      "domain": "digitalcommonwealth.org",
+      "type": "digital_library",
+      "copyright": {
+        "copyrighted": false,
+        "notes": "Boston Public Library / Digital Commonwealth — mostly public-domain historical holdings. User bookmarked: commonwealth:ww72cb78j, commonwealth:gf06h372n."
+      }
+    },
+    {
+      "domain": "artic.edu",
+      "type": "museum_open_access",
+      "copyright": {
+        "copyrighted": false,
+        "license": "Art Institute of Chicago open-access collection — CC0 for out-of-copyright works."
+      }
+    },
+    {
+      "domain": "wordingart.com / groundcontrolth.com / falcon.groundcontrolth.com / pictufy.com / i.etsystatic.com",
+      "type": "miscellaneous",
+      "copyright": {
+        "copyrighted": "unknown",
+        "notes": "Treat as needs_review unless specific file can be matched to an underlying work."
+      }
+    },
+    {
+      "domain": "facebook.com / scontent.*.fbcdn.net",
+      "type": "social_media_cdn",
+      "copyright": {
+        "copyrighted": "varies",
+        "notes": "Images shared via Facebook CDN. Copyright belongs to the original poster/creator. Cannot be determined from URL alone — URLs also expire. Mark needs_review."
+      }
+    },
+    {
+      "domain": "codex_seraphinianus",
+      "type": "copyrighted_book",
+      "artists": ["Luigi Serafini (b. 1949)"],
+      "copyright": {
+        "copyrighted": true,
+        "license": "All rights reserved — Rizzoli / Luigi Serafini",
+        "notes": "Contemporary surrealist encyclopedia. User bookmarked a PDF on holybooks.com — unofficial scan; copyright still belongs to Serafini."
+      }
+    },
+    {
+      "domain": "youtube.com",
+      "type": "video_platform",
+      "notes": "Bookmarked video URLs — not images. Ignore for image metadata."
+    },
+    {
+      "domain": "scontent.fcnx1-1.fna.fbcdn.net",
+      "type": "facebook_cdn",
+      "notes": "Same as facebook above — transient URLs, copyright belongs to poster, mark needs_review."
+    }
+  ],
+  "how_to_use": "When scripts/fetch-wikimedia-metadata.mjs flags a Collection of Beauty file with needs_review=true, consult this catalog. If the filename contains clues like 'PIA', 'STScI', 'GSFC' → NASA (PD). 'escher' or Escher work titles → copyrighted. 'kordan' / 'DSC_' generic photo IDs → possibly Daniel Kordan. 'McCurry' or 'INDIA-10841' → Steve McCurry / Magnum (copyrighted). 'Serafini' or Codex → copyrighted. Otherwise mark as unknown and escalate to the user."
+}
