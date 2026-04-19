@@ -4,8 +4,8 @@
   "private": true,
   "scripts": {
     "build:data": "node scripts/build-data.mjs",
-    "dev": "pnpm build:data && next dev",
-    "build": "pnpm build:data && next build",
+    "dev": "npm run build:data && next dev",
+    "build": "npm run build:data && next build",
     "start": "next start",
     "typecheck": "tsc --noEmit",
     "scrape:fetch": "node scripts/fetch-wikimedia-metadata.mjs",
