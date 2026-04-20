@@ -5,10 +5,10 @@
   "packageManager": "pnpm@9.15.4",
   "scripts": {
     "build:data": "node scripts/build-data.mjs",
-    "dev": "docker-compose up --build",
-    "dev:local": "npm run build:data && echo '==> dev server at http://localhost:3547' && next dev -p 3547",
-    "dev:down": "docker-compose down",
-    "dev:logs": "docker-compose logs -f",
+    "assets:up": "docker-compose up -d assets",
+    "assets:down": "docker-compose down",
+    "assets:logs": "docker-compose logs -f assets",
+    "dev": "npm run assets:up && npm run build:data && echo '==> dev server at http://localhost:3547' && next dev -p 3547",
     "build": "npm run build:data && next build",
     "start": "next start",
     "typecheck": "tsc --noEmit",
@@ -24,6 +24,8 @@
     "@aws-sdk/client-s3": "^3.1032.0",
     "@react-email/components": "^1.0.12",
     "@react-email/render": "^2.0.7",
+    "@react-three/drei": "^10.7.7",
+    "@react-three/fiber": "^9.6.0",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
     "d3-force": "^3.0.0",
@@ -36,7 +38,8 @@
     "react": "^19.2.5",
     "react-dom": "^19.2.5",
     "react-photo-album": "^3.6.0",
-    "tailwind-merge": "^3.5.0"
+    "tailwind-merge": "^3.5.0",
+    "three": "^0.184.0"
   },
   "devDependencies": {
     "@tailwindcss/postcss": "^4.2.2",
@@ -44,6 +47,7 @@
     "@types/node": "^25.6.0",
     "@types/react": "^19.2.14",
     "@types/react-dom": "^19.2.3",
+    "@types/three": "^0.184.0",
     "postcss": "^8.5.10",
     "react-email": "^6.0.0",
     "sharp": "^0.34.5",

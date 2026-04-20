@@ -49,6 +49,12 @@ export default function RootLayout({
               >
                 Lineage
               </Link>
+              <Link
+                href="/gallery-3d"
+                className="rounded-md px-3 py-1.5 hover:bg-[var(--accent)]"
+              >
+                3D Room
+              </Link>
             </div>
           </nav>
         </header>
