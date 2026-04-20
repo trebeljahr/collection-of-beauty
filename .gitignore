@@ -1,5 +1,7 @@
 # Image archives — too heavy for git; reproduce via download scripts
 assets/
+# Web-ready derivatives built by `pnpm shrink` from assets/
+assets-web/
 
 # Regeneratable Wikimedia API response cache
 metadata/.cache/

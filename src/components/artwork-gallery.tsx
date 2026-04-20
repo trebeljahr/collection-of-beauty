@@ -2,14 +2,16 @@
 
 import { useCallback, useMemo } from "react";
 import Link from "next/link";
-import Image from "next/image";
 import { RowsPhotoAlbum } from "react-photo-album";
 import InfiniteScroll from "react-photo-album/scroll";
 import "react-photo-album/rows.css";
-import { assetOriginUrl } from "@/lib/utils";
+import { ResponsiveImage } from "@/components/responsive-image";
 import type { Artwork } from "@/lib/data";
 
 export type GalleryPhoto = {
+  // react-photo-album needs a src string to place tiles, even though we
+  // render via <ResponsiveImage>. We stash the objectKey as src and
+  // re-resolve to real URLs inside the custom image renderer below.
   src: string;
   width: number;
   height: number;
@@ -23,9 +25,7 @@ export type GalleryPhoto = {
 
 export function toGalleryPhoto(a: Artwork): GalleryPhoto {
   return {
-    // Pass the compose-internal URL to <Image>; Next's optimizer fetches
-    // it server-side and the browser only ever sees /_next/image?... URLs.
-    src: assetOriginUrl(a.objectKey),
+    src: a.objectKey,
     width: a.width ?? 800,
     height: a.height ?? 1000,
     key: a.id,
@@ -60,8 +60,6 @@ export function ArtworkGallery({
   const photos = useMemo(() => artworks.map(toGalleryPhoto), [artworks]);
   const seed = useMemo(() => photos.slice(0, initialSeed), [photos, initialSeed]);
 
-  // `fetch(index)` is called by InfiniteScroll when more photos are needed
-  // AFTER the seed. index 0 ⇒ first page beyond the seed.
   const fetchPage = useCallback(
     async (index: number): Promise<GalleryPhoto[] | null> => {
       const start = initialSeed + index * pageSize;
@@ -119,17 +117,16 @@ export function ArtworkGallery({
               </Link>
             );
           },
-          // Route every thumb through next/image so originals are resized
-          // and cached (WebP/AVIF) in .next/cache/images/ instead of
-          // streaming 2–16 MB JPEGs to the browser.
+          // Render via <picture>/<source> against pre-built rclone variants.
+          // photo.src is the objectKey (see toGalleryPhoto above).
           image: (_, { photo, width, height }) => {
             const p = photo as GalleryPhoto;
             return (
-              <Image
-                src={p.src}
+              <ResponsiveImage
+                objectKey={p.src}
                 alt={p.alt ?? ""}
-                width={width}
-                height={height}
+                srcWidth={p.width}
+                srcHeight={p.height}
                 sizes={`${Math.ceil(width)}px`}
                 loading="lazy"
                 style={{ width: "100%", height: "100%", objectFit: "cover" }}

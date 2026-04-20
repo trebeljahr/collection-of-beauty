@@ -1,8 +1,9 @@
 services:
-  # rclone serves ./assets/ as a read-only HTTP file server.
-  # Each subfolder (collection-of-beauty, audubon-birds, kunstformen-images)
-  # becomes the first path segment: /<folder>/<filename>. No auth, no upload
-  # path — drop a file into assets/<folder>/ and it's immediately fetchable.
+  # rclone serves ./assets-web/ as a read-only HTTP file server.
+  # assets-web/ holds the web-ready derivatives built by `pnpm shrink` —
+  # originals in assets/ are preserved untouched. Each subfolder
+  # (collection-of-beauty, audubon-birds, kunstformen-images) becomes the
+  # first path segment: /<folder>/<filename>.
   assets:
     image: rclone/rclone:latest
     container_name: cob-assets
@@ -10,7 +11,7 @@ services:
     ports:
       - "9100:8080"
     volumes:
-      - ./assets:/data:ro
+      - ./assets-web:/data:ro
     command:
       - serve
       - http
@@ -41,16 +42,10 @@ services:
     environment:
       WATCHPACK_POLLING: "true"
       CHOKIDAR_USEPOLLING: "true"
-      # Browser-side URL: host's exposed port on the rclone container
+      # Single URL: the browser fetches pre-built variants directly from
+      # the rclone container on the host's exposed port. No server-side
+      # image fetching, so no need for a compose-internal origin URL.
       NEXT_PUBLIC_ASSETS_BASE_URL: "http://localhost:9100"
-      # Image-optimizer origin: the browser never dereferences this URL —
-      # it only hits /_next/image?url=<here>, which the Next server resolves
-      # itself. So point it at the compose-internal DNS name of the rclone
-      # sidecar for a fast, LAN-speed fetch; routing through
-      # host.docker.internal hits Docker NAT and is dramatically slower.
-      # NEXT_PUBLIC_* so the client-rendered gallery embeds the same string
-      # during hydration (no SSR/CSR mismatch).
-      NEXT_PUBLIC_ASSETS_ORIGIN_URL: "http://assets:8080"
       PNPM_HOME: /pnpm-store
       npm_config_store_dir: /pnpm-store
     # Install happens at container start against the bind-mounted source;

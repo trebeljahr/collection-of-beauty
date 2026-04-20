@@ -4,8 +4,7 @@ import { useEffect, useMemo, useRef, useState, useDeferredValue } from "react";
 import Link from "next/link";
 import Fuse from "fuse.js";
 import { Input } from "@/components/ui/input";
-import Image from "next/image";
-import { assetOriginUrl } from "@/lib/utils";
+import { ResponsiveImage } from "@/components/responsive-image";
 import type { Artist } from "@/lib/data";
 
 const PAGE = 40;
@@ -86,13 +85,13 @@ export function ArtistsBrowser({ artists }: Props) {
           >
             <div className="relative aspect-square overflow-hidden bg-[var(--muted)]">
               {a.coverObjectKey && (
-                <Image
-                  src={assetOriginUrl(a.coverObjectKey)}
+                <ResponsiveImage
+                  objectKey={a.coverObjectKey}
                   alt={a.coverTitle || a.name}
                   fill
                   sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 20vw"
                   loading="lazy"
-                  className="object-cover transition-transform duration-500 group-hover:scale-105"
+                  className="transition-transform duration-500 group-hover:scale-105"
                 />
               )}
             </div>

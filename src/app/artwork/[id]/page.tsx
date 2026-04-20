@@ -1,10 +1,10 @@
 import Link from "next/link";
-import Image from "next/image";
 import { notFound } from "next/navigation";
 import { getArtwork, getArtist, getArtworksByArtist, artworks } from "@/lib/data";
 import { Badge } from "@/components/ui/badge";
 import { ArtworkCard } from "@/components/artwork-card";
-import { assetOriginUrl, assetUrl } from "@/lib/utils";
+import { ResponsiveImage } from "@/components/responsive-image";
+import { assetUrl } from "@/lib/utils";
 
 type Params = { id: string };
 
@@ -65,11 +65,11 @@ export default async function ArtworkPage({
             title="Open original"
             className="block"
           >
-            <Image
-              src={assetOriginUrl(art.objectKey)}
+            <ResponsiveImage
+              objectKey={art.objectKey}
               alt={art.title}
-              width={art.width ?? 1600}
-              height={art.height ?? 2000}
+              srcWidth={art.width ?? 1600}
+              srcHeight={art.height ?? 2000}
               sizes="(max-width: 768px) 100vw, 65vw"
               priority
               className="mx-auto max-h-[80vh] w-auto rounded-md"

@@ -4,7 +4,7 @@ import WeeklyDigest, {
   type DigestArtwork,
   type WeeklyDigestProps,
 } from "../../../emails/weekly-digest";
-import { assetUrl } from "@/lib/utils";
+import { variantUrl } from "@/lib/utils";
 import type { Artwork } from "@/lib/data";
 
 export type RenderedDigest = {
@@ -33,7 +33,11 @@ export function toDigestArtwork(
     year: artwork.year,
     description: artwork.description,
     movement: artwork.movement,
-    imageUrl: assetUrl(artwork.objectKey),
+    // 960w WebP hits the sweet spot for email: readable on retina, ~80-150 KB,
+    // supported by every modern client (Gmail, Apple Mail, Outlook 2019+).
+    // Pre-2019 Outlook desktop will see a broken image — acceptable for now;
+    // if it matters later, add a "jpg" entry to shrink-sources.mjs FORMATS.
+    imageUrl: variantUrl(artwork.objectKey, 960, "webp"),
     artworkUrl: `${siteUrl.replace(/\/$/, "")}/artwork/${artwork.id}`,
   };
 }

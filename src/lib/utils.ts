@@ -14,33 +14,57 @@ export function slugify(input: string): string {
     .replace(/(^-|-$)+/g, "");
 }
 
-// Two URLs to the same asset:
-//
-// - assetUrl()       browser-facing (raw <img>, <a href>, download links).
-//                    Defaults to the rclone HTTP server exposed on the host.
-// - assetOriginUrl() used in next/image src. The browser never dereferences
-//                    this URL directly — it only hits /_next/image?url=<here>,
-//                    which the Next server resolves itself. So the value only
-//                    needs to be resolvable from the Next server process.
-//                    Inside docker-compose that's host.docker.internal; in
-//                    prod it collapses to the same public URL as assetUrl.
-//
-// Both are read from NEXT_PUBLIC_* so client and server agree (no hydration
-// mismatch) and a private image-optimizer URL doesn't leak as a secret — the
-// Next.js optimizer only signs whitelisted hostnames anyway.
+// Single URL for everything — the rclone HTTP server. Serves both:
+//   - Originals at      <bucket>/<filename>.<ext>   (download links only)
+//   - Pre-built variants at <bucket>/<basename>/<width>.<avif|webp>
+//     (emitted by scripts/shrink-sources.mjs, consumed by <ResponsiveImage>)
+// There is no longer a separate ORIGIN_URL — all image fetching is
+// browser-direct, Next.js is no longer in the image pipeline.
 const ASSETS_BASE_URL =
   process.env.NEXT_PUBLIC_ASSETS_BASE_URL ?? "http://localhost:9100";
-const ASSETS_ORIGIN_URL =
-  process.env.NEXT_PUBLIC_ASSETS_ORIGIN_URL ?? ASSETS_BASE_URL;
 
-function encodeKey(objectKey: string): string {
-  return objectKey.split("/").map(encodeURIComponent).join("/");
+// Variant set emitted by shrink-sources.mjs. The script hardcodes the same
+// list — keep them in sync. Chosen to cover typical responsive breakpoints
+// (mobile, tablet, desktop, 4K) plus a small thumb size.
+export const VARIANT_WIDTHS = [256, 480, 640, 960, 1280, 1920, 2560] as const;
+
+export type VariantFormat = "avif" | "webp";
+
+function encodePath(segments: string[]): string {
+  return segments.map(encodeURIComponent).join("/");
 }
 
 export function assetUrl(objectKey: string): string {
-  return `${ASSETS_BASE_URL}/${encodeKey(objectKey)}`;
+  return `${ASSETS_BASE_URL}/${encodePath(objectKey.split("/"))}`;
 }
 
-export function assetOriginUrl(objectKey: string): string {
-  return `${ASSETS_ORIGIN_URL}/${encodeKey(objectKey)}`;
+// Variants live at <bucket>/<basename>/<width>.<format>, where <basename>
+// is the original filename minus its extension. Example:
+//   objectKey = "collection-of-beauty/Dong_Yuan_Mountain_Hall.jpg"
+//   width=960, format="avif"
+//   → "<base>/collection-of-beauty/Dong_Yuan_Mountain_Hall/960.avif"
+export function variantUrl(
+  objectKey: string,
+  width: number,
+  format: VariantFormat,
+): string {
+  const lastSlash = objectKey.lastIndexOf("/");
+  const dir = objectKey.slice(0, lastSlash);
+  const filename = objectKey.slice(lastSlash + 1);
+  const basename = filename.replace(/\.[^.]+$/, "");
+  const segments = [...dir.split("/"), basename, `${width}.${format}`];
+  return `${ASSETS_BASE_URL}/${encodePath(segments)}`;
+}
+
+// Full srcSet string for a <source> element. Always emits every width —
+// shrink-sources.mjs writes a file for each width (Sharp uses
+// withoutEnlargement so small sources get re-encoded at their native size,
+// but the file still exists at every URL).
+export function variantSrcSet(
+  objectKey: string,
+  format: VariantFormat,
+): string {
+  return VARIANT_WIDTHS
+    .map((w) => `${variantUrl(objectKey, w, format)} ${w}w`)
+    .join(", ");
 }

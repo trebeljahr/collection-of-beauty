@@ -1,5 +1,6 @@
-# Asset root — 42 GB of images, served by the rclone container, not needed in the build context
+# Asset roots — large image dirs served by the rclone container, not needed in the build context
 assets
+assets-web
 
 # Node artifacts — installed fresh inside the image
 node_modules
