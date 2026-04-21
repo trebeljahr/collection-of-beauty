@@ -33,6 +33,10 @@ const WALL_X_BUF = 0.7;
 const DOOR_WIDTH = 2.6;
 const DOOR_HEIGHT = 3.0;
 
+// Walls have real thickness — 10 cm — so shared walls between rooms
+// don't z-fight with the paintings sitting 6 cm in front of them.
+const WALL_THICKNESS = 0.1;
+
 // Painting sizing — raise cap to accommodate very large works at
 // near-real scale (Birth of Venus is 2.79 × 1.73 m).
 const MAX_PAINTING_W = 5.0;
@@ -387,7 +391,7 @@ function layoutCorridor(rooms: RoomData[]): RoomLayout[] {
 }
 
 // =============================================================
-// Texture loading — per-Painting lifecycle (no global cache)
+// Texture loading — shared LRU cache + eager GPU upload
 // =============================================================
 
 function variantAssetsRawUrl(
@@ -407,20 +411,77 @@ function rawOriginalUrl(objectKey: string): string {
   return `/assets-raw/${objectKey.split("/").map(encodeURIComponent).join("/")}`;
 }
 
-async function loadTexture(
+// Module-level set of URLs that returned 404 this session. Once we know
+// a variant doesn't exist we skip it on future loads of the same work
+// (the browser still caches negative results via HTTP, but skipping the
+// re-attempt keeps the console clean and avoids wasted round trips).
+const missingUrls = new Set<string>();
+
+// Keep the N most-recently-used textures alive in GPU memory. When an
+// entry is evicted, its Texture is disposed. This lets a Painting leave
+// the render window (unmount) without throwing away its texture — if
+// the player comes back within the LRU's lifetime, it's instant.
+const TEXTURE_CACHE_CAPACITY = 80;
+
+class TextureLRU {
+  private map = new Map<string, THREE.Texture>();
+  constructor(private capacity: number) {}
+
+  get(key: string): THREE.Texture | undefined {
+    const tex = this.map.get(key);
+    if (tex) {
+      this.map.delete(key);
+      this.map.set(key, tex);
+    }
+    return tex;
+  }
+
+  put(key: string, tex: THREE.Texture): void {
+    if (this.map.has(key)) {
+      this.map.delete(key);
+    }
+    this.map.set(key, tex);
+    while (this.map.size > this.capacity) {
+      const oldest = this.map.keys().next().value;
+      if (oldest === undefined) break;
+      const old = this.map.get(oldest);
+      this.map.delete(oldest);
+      old?.dispose();
+    }
+  }
+
+  has(key: string): boolean {
+    return this.map.has(key);
+  }
+}
+
+const textureCache = new TextureLRU(TEXTURE_CACHE_CAPACITY);
+const textureInFlight = new Map<string, Promise<THREE.Texture>>();
+
+async function fetchAndDecodeTexture(
   artwork: Artwork,
   signal: AbortSignal,
 ): Promise<THREE.Texture> {
-  const attempts: Array<[string, boolean]> = [
-    [variantAssetsRawUrl(artwork.objectKey, VARIANT_TEX_WIDTH, "avif"), false],
-    [rawOriginalUrl(artwork.objectKey), true],
-  ];
+  // Try variants in descending size order, then fall through to the
+  // original. Skip any URL we already know 404s.
+  const candidates: Array<[string, boolean]> = [];
+  const variantUrl = variantAssetsRawUrl(
+    artwork.objectKey,
+    VARIANT_TEX_WIDTH,
+    "avif",
+  );
+  if (!missingUrls.has(variantUrl)) candidates.push([variantUrl, false]);
+  candidates.push([rawOriginalUrl(artwork.objectKey), true]);
+
   let lastErr: unknown = null;
-  for (const [url, downsample] of attempts) {
+  for (const [url, downsample] of candidates) {
     if (signal.aborted) throw new Error("aborted");
     try {
       const res = await fetch(url, { signal });
-      if (!res.ok) throw new Error(`fetch ${url}: ${res.status}`);
+      if (!res.ok) {
+        if (res.status === 404) missingUrls.add(url);
+        throw new Error(`fetch ${url}: ${res.status}`);
+      }
       const blob = await res.blob();
       if (signal.aborted) throw new Error("aborted");
       const opts: ImageBitmapOptions = {
@@ -453,6 +514,65 @@ async function loadTexture(
   throw lastErr ?? new Error("texture load failed");
 }
 
+/**
+ * Load a texture through the cache + in-flight dedup, and eagerly
+ * upload it to the GPU via `renderer.initTexture`. Eagerness is what
+ * kills the lag on room transitions — otherwise the GPU upload is
+ * deferred until the mesh renders, batching dozens of uploads into one
+ * frame. With initTexture, uploads happen during preload, in small
+ * time-sliced bits, and the mesh just uses the already-ready texture.
+ *
+ * The caller's `signal` aborts only the caller's *await* — the shared
+ * underlying fetch+decode keeps running so another caller (or a future
+ * re-mount) can pick up the finished texture from the cache. If we
+ * threaded the signal into the fetch, one Painting's unmount would kill
+ * the Preloader's in-flight request for the same work, which used to
+ * cause cascades of spurious AbortError warnings.
+ */
+async function loadTextureCached(
+  artwork: Artwork,
+  renderer: THREE.WebGLRenderer | null,
+  signal: AbortSignal,
+): Promise<THREE.Texture> {
+  const key = artwork.objectKey;
+  const cached = textureCache.get(key);
+  if (cached) return cached;
+
+  let promise = textureInFlight.get(key);
+  if (!promise) {
+    // Shared fetch, independent of any caller's abort signal.
+    const shared = new AbortController();
+    promise = fetchAndDecodeTexture(artwork, shared.signal)
+      .then((tex) => {
+        textureCache.put(key, tex);
+        return tex;
+      })
+      .finally(() => {
+        textureInFlight.delete(key);
+      });
+    textureInFlight.set(key, promise);
+  }
+
+  if (signal.aborted) throw new DOMException("Aborted", "AbortError");
+  return new Promise<THREE.Texture>((resolve, reject) => {
+    const onAbort = () => {
+      signal.removeEventListener("abort", onAbort);
+      reject(new DOMException("Aborted", "AbortError"));
+    };
+    signal.addEventListener("abort", onAbort);
+    promise!.then(
+      (tex) => {
+        signal.removeEventListener("abort", onAbort);
+        resolve(tex);
+      },
+      (err) => {
+        signal.removeEventListener("abort", onAbort);
+        reject(err);
+      },
+    );
+  });
+}
+
 // =============================================================
 // Painting
 // =============================================================
@@ -461,27 +581,58 @@ function computePaintingSize(
   artwork: Artwork,
   texture: THREE.Texture | null,
 ): { w: number; h: number } {
-  if (artwork.realDimensions) {
-    let w = artwork.realDimensions.widthCm / 100;
-    let h = artwork.realDimensions.heightCm / 100;
-    if (w > MAX_PAINTING_W || h > MAX_PAINTING_H) {
-      const scale = Math.min(MAX_PAINTING_W / w, MAX_PAINTING_H / h);
-      w *= scale;
-      h *= scale;
-    }
-    return { w, h };
-  }
   const img = texture?.image as
     | { width?: number; height?: number }
     | undefined;
-  const aspect = img?.width && img?.height ? img.width / img.height : 1;
+  const imgAspect =
+    img?.width && img?.height ? img.width / img.height : null;
+
+  const clampToCap = (w: number, h: number) => {
+    if (w > MAX_PAINTING_W || h > MAX_PAINTING_H) {
+      const scale = Math.min(MAX_PAINTING_W / w, MAX_PAINTING_H / h);
+      return { w: w * scale, h: h * scale };
+    }
+    return { w, h };
+  };
+
+  if (artwork.realDimensions) {
+    const mw = artwork.realDimensions.widthCm / 100;
+    const mh = artwork.realDimensions.heightCm / 100;
+
+    // If we don't have the image yet (still loading), just use the
+    // metadata verbatim — we'll re-render once the texture arrives.
+    if (!imgAspect) return clampToCap(mw, mh);
+
+    const metaAspect = mw / mh;
+    const disagreement =
+      Math.abs(imgAspect - metaAspect) / Math.max(metaAspect, 0.01);
+
+    // Aspects match within ~15% — trust the metadata directly.
+    if (disagreement < 0.15) {
+      return clampToCap(mw, mh);
+    }
+
+    // Aspects disagree. Most common cause is that Wikidata has width/
+    // height swapped for the work (or the image crop differs from the
+    // physical canvas). Keep the metadata's *area* as the sense of
+    // scale, but use the actual image aspect so the picture doesn't
+    // stretch inside its frame.
+    const areaM2 = mw * mh;
+    const h = Math.sqrt(areaM2 / imgAspect);
+    const w = h * imgAspect;
+    return clampToCap(w, h);
+  }
+
+  // No metadata — fall back to a modest default size at the image's
+  // natural aspect.
+  const aspect = imgAspect ?? 1;
   let w = 2.0;
   let h = w / aspect;
   if (h > 1.8) {
     h = 1.8;
     w = h * aspect;
   }
-  return { w, h };
+  return clampToCap(w, h);
 }
 
 function computePaintingYCenter(h: number): number {
@@ -499,33 +650,58 @@ type PaintingProps = {
   onClick: (artwork: Artwork) => void;
   onLoaded?: () => void;
   reportProgress?: boolean;
+  /** If true, render a per-painting warm accent light. Only enable for
+   *  the active room — turning this on for every painting in the render
+   *  window would stack dozens of lights into the forward shader and
+   *  tank frame rate. */
+  accentLight?: boolean;
 };
 
-function Painting({ placement, onClick, onLoaded, reportProgress }: PaintingProps) {
+function Painting({
+  placement,
+  onClick,
+  onLoaded,
+  reportProgress,
+  accentLight,
+}: PaintingProps) {
   const { artwork, position, rotation } = placement;
-  const [texture, setTexture] = useState<THREE.Texture | null>(null);
+  const { gl } = useThree();
+  // Seed from cache synchronously so rooms that were already preloaded
+  // render immediately on mount.
+  const [texture, setTexture] = useState<THREE.Texture | null>(() =>
+    textureCache.get(artwork.objectKey) ?? null,
+  );
   const reportedRef = useRef(false);
 
   useEffect(() => {
+    // If we synchronously picked up a cached texture, nothing to do.
+    if (texture) {
+      if (reportProgress && !reportedRef.current) {
+        reportedRef.current = true;
+        onLoaded?.();
+      }
+      return;
+    }
     const controller = new AbortController();
-    let createdTexture: THREE.Texture | null = null;
-    loadTexture(artwork, controller.signal)
+    loadTextureCached(artwork, gl, controller.signal)
       .then((tex) => {
-        if (controller.signal.aborted) {
-          tex.dispose();
-          return;
-        }
-        createdTexture = tex;
+        if (controller.signal.aborted) return;
         setTexture(tex);
       })
       .catch((err) => {
-        if (!controller.signal.aborted) {
-          console.warn(
-            "gallery-3d texture load failed:",
-            artwork.objectKey,
-            err,
-          );
+        // Abort errors are expected when a Painting unmounts mid-load —
+        // don't spam the console for them.
+        if (
+          controller.signal.aborted ||
+          (err instanceof DOMException && err.name === "AbortError")
+        ) {
+          return;
         }
+        console.warn(
+          "gallery-3d texture load failed:",
+          artwork.objectKey,
+          err,
+        );
       })
       .finally(() => {
         if (
@@ -538,8 +714,11 @@ function Painting({ placement, onClick, onLoaded, reportProgress }: PaintingProp
         }
       });
     return () => {
+      // Do NOT dispose the texture here — it lives in the shared LRU
+      // cache, which handles eviction. This means painting unmount is
+      // cheap and revisits are instant as long as the work hasn't
+      // aged out of the cache.
       controller.abort();
-      if (createdTexture) createdTexture.dispose();
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [artwork.objectKey]);
@@ -590,6 +769,15 @@ function Painting({ placement, onClick, onLoaded, reportProgress }: PaintingProp
         </mesh>
       )}
       <Plaque artwork={artwork} paintingHeight={h} paintingWidth={w} />
+      {accentLight && (
+        <pointLight
+          position={[0, 0.3, 1.1]}
+          intensity={2.2}
+          distance={3.5}
+          decay={2}
+          color="#ffd9a8"
+        />
+      )}
     </group>
   );
 }
@@ -1343,9 +1531,32 @@ function ZoomModal({
   artwork: Artwork;
   onClose: () => void;
 }) {
-  const [src, setSrc] = useState(
-    variantAssetsRawUrl(artwork.objectKey, 2560, "avif"),
-  );
+  // Try the biggest pre-built variant first; fall through to smaller
+  // widths, then the raw original if none of them exist. Each onError
+  // advances to the next candidate.
+  const srcCandidates = useMemo(() => {
+    const list: string[] = [];
+    const key = artwork.objectKey;
+    for (const w of [2560, 1920, 1280]) {
+      const url = variantAssetsRawUrl(key, w, "avif");
+      if (!missingUrls.has(url)) list.push(url);
+    }
+    list.push(rawOriginalUrl(key));
+    return list;
+  }, [artwork.objectKey]);
+  const [srcIdx, setSrcIdx] = useState(0);
+  const src = srcCandidates[Math.min(srcIdx, srcCandidates.length - 1)];
+
+  const handleImgError = useCallback(() => {
+    setSrcIdx((i) => {
+      // Everything except the final raw-original fallback is a
+      // pre-built variant worth remembering as missing.
+      const bad = srcCandidates[i];
+      if (bad && i < srcCandidates.length - 1) missingUrls.add(bad);
+      return Math.min(i + 1, srcCandidates.length - 1);
+    });
+  }, [srcCandidates]);
+
   const [scale, setScale] = useState(1);
   const [tx, setTx] = useState(0);
   const [ty, setTy] = useState(0);
@@ -1452,7 +1663,7 @@ function ZoomModal({
           draggable={false}
           onClick={(e) => e.stopPropagation()}
           onMouseDown={onMouseDown}
-          onError={() => setSrc(rawOriginalUrl(artwork.objectKey))}
+          onError={handleImgError}
           className="absolute left-1/2 top-1/2 max-h-[90vh] max-w-[94vw] select-none object-contain shadow-2xl"
           style={{
             transform: `translate(calc(-50% + ${tx}px), calc(-50% + ${ty}px)) scale(${scale})`,
@@ -1500,6 +1711,43 @@ function ZoomModal({
       </div>
     </div>
   );
+}
+
+// =============================================================
+// Preloader — warms the texture cache for rooms just beyond the render
+// window so crossing a door doesn't burst-fetch + burst-upload.
+// =============================================================
+
+/** How many rooms out from the active one to preload. Must be strictly
+ *  greater than RENDER_WINDOW so textures exist before the room mounts. */
+const PRELOAD_WINDOW = 2;
+
+function Preloader({
+  layouts,
+  activeRoom,
+}: {
+  layouts: RoomLayout[];
+  activeRoom: number;
+}) {
+  const { gl } = useThree();
+  useEffect(() => {
+    const controllers: AbortController[] = [];
+    const lo = Math.max(0, activeRoom - PRELOAD_WINDOW);
+    const hi = Math.min(layouts.length - 1, activeRoom + PRELOAD_WINDOW);
+    for (let i = lo; i <= hi; i++) {
+      for (const p of layouts[i].placements) {
+        if (textureCache.has(p.artwork.objectKey)) continue;
+        const c = new AbortController();
+        controllers.push(c);
+        // Fire and forget — failures are logged by the loader.
+        loadTextureCached(p.artwork, gl, c.signal).catch(() => undefined);
+      }
+    }
+    return () => {
+      for (const c of controllers) c.abort();
+    };
+  }, [activeRoom, layouts, gl]);
+  return null;
 }
 
 // =============================================================
@@ -1572,11 +1820,11 @@ export function Gallery3D({ artworks }: Props) {
 
   const handleZoomClose = useCallback(() => {
     setZoomed(null);
-    // Try to re-engage pointer lock immediately — the click-to-close
-    // button counts as a user gesture, so this should succeed in most
-    // browsers. If it doesn't, the ResumeOverlay catches it.
-    // Use a microtask so React state flushes first.
-    Promise.resolve().then(() => controlsRef.current?.lock?.());
+    // Deliberately don't auto-relock here: Chrome blocks relocking
+    // "immediately after the user has exited the lock" (see the
+    // SecurityError / THREE warning), and racing that restriction just
+    // produces noise. The ResumeOverlay already lets the user re-enter
+    // with a single click, which counts as a fresh gesture.
   }, []);
 
   const handleFirstRoomLoaded = useCallback(() => {
@@ -1633,6 +1881,7 @@ export function Gallery3D({ artworks }: Props) {
         {layouts.flatMap((layout, i) => {
           if (!visibleIdx.has(i)) return [];
           const reportProgress = i === 0 && !hasEntered;
+          const isActive = i === activeRoom;
           return layout.placements.map((p) => (
             <Painting
               key={`${layout.data.id}-${p.artwork.id}`}
@@ -1642,9 +1891,12 @@ export function Gallery3D({ artworks }: Props) {
               onLoaded={
                 reportProgress ? handleFirstRoomLoaded : undefined
               }
+              accentLight={isActive}
             />
           ));
         })}
+
+        <Preloader layouts={layouts} activeRoom={activeRoom} />
 
         <Player
           enabled={locked}
