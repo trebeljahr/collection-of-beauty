@@ -12,6 +12,12 @@ type Props = { artworks: Artwork[] };
 const ROOM = { w: 30, h: 6, d: 20 } as const;
 const EYE_HEIGHT = 1.65;
 
+// Player physics
+const WALK_SPEED = 5;
+const RUN_SPEED = 10;
+const JUMP_IMPULSE = 6;
+const GRAVITY = 22;
+
 type Placement = {
   artwork: Artwork;
   position: [number, number, number];
@@ -51,11 +57,10 @@ function layout(arts: Artwork[]): Placement[] {
 }
 
 // Preferred URL: the 1280w AVIF variant emitted by `pnpm shrink`. Falls
-// back to the original asset for anything that hasn't been shrunk yet
-// (e.g. new imports running before the nightly shrink). Both go through
-// the /assets-raw/ rewrite in next.config.mjs so WebGL doesn't taint the
-// texture — rclone doesn't emit CORS headers, so a direct 9100 hit would
-// be blocked.
+// back to the original asset for anything that hasn't been shrunk yet.
+// Both go through the /assets-raw/ rewrite in next.config.mjs so WebGL
+// doesn't taint the texture — rclone doesn't emit CORS headers, so a
+// direct 9100 hit would be blocked.
 const VARIANT_TEX_WIDTH = 1280;
 const MAX_TEX_WIDTH = 1400;
 
@@ -101,10 +106,9 @@ async function loadTexture(artwork: Artwork): Promise<THREE.Texture> {
   const promise = (async () => {
     // Tuple: [url, shouldDownsample]. The pre-built 1280w variant is
     // already the right size; only the raw-original fallback needs
-    // resizing (some source scans are 50+ MP and blow up GPU memory).
+    // resizing (some source scans are 50+ MP).
     const attempts: Array<[string, boolean]> = [
       [variantAssetsRawUrl(cacheKey, VARIANT_TEX_WIDTH, "avif"), false],
-      [variantAssetsRawUrl(cacheKey, VARIANT_TEX_WIDTH, "webp"), false],
       [rawOriginalUrl(cacheKey), true],
     ];
     let lastErr: unknown = null;
@@ -127,6 +131,10 @@ async function loadTexture(artwork: Artwork): Promise<THREE.Texture> {
         texture.minFilter = THREE.LinearMipMapLinearFilter;
         texture.magFilter = THREE.LinearFilter;
         texture.generateMipmaps = true;
+        // ImageBitmap sources ignore UNPACK_FLIP_Y_WEBGL on some drivers;
+        // Three's convention is flipY=false so pixels upload in image
+        // orientation (top-left origin) rather than doubly-flipped.
+        texture.flipY = false;
         texture.needsUpdate = true;
         textureCache.set(cacheKey, texture);
         return texture;
@@ -146,21 +154,28 @@ async function loadTexture(artwork: Artwork): Promise<THREE.Texture> {
 
 function Painting({ placement }: { placement: Placement }) {
   const { artwork, position, rotation } = placement;
-  const [texture, setTexture] = useState<THREE.Texture | null>(null);
+  const [texture, setTexture] = useState<THREE.Texture | null>(() =>
+    textureCache.get(artwork.objectKey) ?? null,
+  );
 
   useEffect(() => {
+    if (texture) return;
     let cancelled = false;
     loadTexture(artwork)
       .then((tex) => {
         if (!cancelled) setTexture(tex);
       })
       .catch((err) => {
-        console.error("gallery-3d texture load failed:", artwork.objectKey, err);
+        console.error(
+          "gallery-3d texture load failed:",
+          artwork.objectKey,
+          err,
+        );
       });
     return () => {
       cancelled = true;
     };
-  }, [artwork]);
+  }, [artwork, texture]);
 
   const img = texture?.image as
     | { width?: number; height?: number }
@@ -188,7 +203,7 @@ function Painting({ placement }: { placement: Placement }) {
 
   return (
     <group position={position} rotation={rotation}>
-      <mesh position={[0, 0, -frameDepth / 2]} castShadow>
+      <mesh position={[0, 0, -frameDepth / 2]}>
         <boxGeometry args={[w + frameT * 2, h + frameT * 2, frameDepth]} />
         <meshStandardMaterial color="#241810" roughness={0.55} metalness={0.1} />
       </mesh>
@@ -231,10 +246,40 @@ function Painting({ placement }: { placement: Placement }) {
       </Text>
       <pointLight
         position={[0, 0.8, 1.3]}
-        intensity={5}
-        distance={5}
+        intensity={3.5}
+        distance={4.5}
         decay={2}
         color="#ffd9a8"
+      />
+    </group>
+  );
+}
+
+function CeilingLamp({
+  position,
+}: {
+  position: [number, number, number];
+}) {
+  return (
+    <group position={position}>
+      {/* Recessed ceiling fixture — an emissive disc explains the
+          soft glow you see on the ceiling so it reads as a lamp
+          rather than a render artefact. */}
+      <mesh position={[0, -0.02, 0]}>
+        <cylinderGeometry args={[0.26, 0.3, 0.06, 24]} />
+        <meshStandardMaterial
+          color="#2a1d14"
+          emissive="#ffd08a"
+          emissiveIntensity={1.6}
+          roughness={0.5}
+        />
+      </mesh>
+      <pointLight
+        position={[0, -0.15, 0]}
+        intensity={7}
+        distance={13}
+        decay={2.2}
+        color="#ffd9a5"
       />
     </group>
   );
@@ -243,13 +288,13 @@ function Painting({ placement }: { placement: Placement }) {
 function Room() {
   return (
     <group>
-      <mesh rotation={[-Math.PI / 2, 0, 0]} position={[0, 0, 0]} receiveShadow>
+      <mesh rotation={[-Math.PI / 2, 0, 0]} position={[0, 0, 0]}>
         <planeGeometry args={[ROOM.w, ROOM.d]} />
         <meshStandardMaterial color="#3a2a1f" roughness={0.85} metalness={0.05} />
       </mesh>
       <mesh rotation={[Math.PI / 2, 0, 0]} position={[0, ROOM.h, 0]}>
         <planeGeometry args={[ROOM.w, ROOM.d]} />
-        <meshStandardMaterial color="#f0e6d0" roughness={0.95} />
+        <meshStandardMaterial color="#f2e8d2" roughness={0.95} />
       </mesh>
       <mesh position={[0, ROOM.h / 2, -ROOM.d / 2]}>
         <planeGeometry args={[ROOM.w, ROOM.h]} />
@@ -273,7 +318,7 @@ function Room() {
         <planeGeometry args={[ROOM.d, ROOM.h]} />
         <meshStandardMaterial color="#e8ddc4" roughness={0.92} />
       </mesh>
-      <mesh position={[0, 0.3, 0]} castShadow receiveShadow>
+      <mesh position={[0, 0.3, 0]}>
         <boxGeometry args={[3, 0.6, 0.9]} />
         <meshStandardMaterial color="#2a1d14" roughness={0.65} metalness={0.1} />
       </mesh>
@@ -285,9 +330,20 @@ function Room() {
   );
 }
 
+const CEILING_LAMP_POSITIONS: Array<[number, number, number]> = [
+  [-10, ROOM.h - 0.04, -6],
+  [0, ROOM.h - 0.04, -6],
+  [10, ROOM.h - 0.04, -6],
+  [-10, ROOM.h - 0.04, 6],
+  [0, ROOM.h - 0.04, 6],
+  [10, ROOM.h - 0.04, 6],
+];
+
 function Player({ enabled }: { enabled: boolean }) {
   const { camera } = useThree();
   const keys = useRef<Record<string, boolean>>({});
+  const velocityY = useRef(0);
+  const grounded = useRef(true);
 
   useEffect(() => {
     camera.position.set(0, EYE_HEIGHT, 7);
@@ -297,6 +353,12 @@ function Player({ enabled }: { enabled: boolean }) {
   useEffect(() => {
     const down = (e: KeyboardEvent) => {
       keys.current[e.code] = true;
+      if (e.code === "Space" && enabled && grounded.current) {
+        velocityY.current = JUMP_IMPULSE;
+        grounded.current = false;
+        // Don't let the browser scroll or fire a button "click" from Space.
+        e.preventDefault();
+      }
     };
     const up = (e: KeyboardEvent) => {
       keys.current[e.code] = false;
@@ -307,14 +369,14 @@ function Player({ enabled }: { enabled: boolean }) {
       window.removeEventListener("keydown", down);
       window.removeEventListener("keyup", up);
     };
-  }, []);
+  }, [enabled]);
 
   useFrame((_, delta) => {
     if (!enabled) return;
     const dt = Math.min(delta, 0.1);
     const running =
       keys.current["ShiftLeft"] || keys.current["ShiftRight"] || false;
-    const speed = running ? 6 : 3;
+    const speed = running ? RUN_SPEED : WALK_SPEED;
 
     const forward = new THREE.Vector3();
     camera.getWorldDirection(forward);
@@ -337,6 +399,7 @@ function Player({ enabled }: { enabled: boolean }) {
       camera.position.add(move);
     }
 
+    // Clamp to walls
     const buf = 0.7;
     camera.position.x = THREE.MathUtils.clamp(
       camera.position.x,
@@ -348,8 +411,14 @@ function Player({ enabled }: { enabled: boolean }) {
       -ROOM.d / 2 + buf,
       ROOM.d / 2 - buf,
     );
+
+    // Bench collision (XZ only — can't jump on top, but the impulse
+    // carries you over when you're airborne thanks to the y guard).
+    const BENCH_HEIGHT = 0.66;
     const bench = { x: 3, z: 0.9 };
+    const benchBlocking = camera.position.y < EYE_HEIGHT + BENCH_HEIGHT - 0.1;
     if (
+      benchBlocking &&
       Math.abs(camera.position.x) < bench.x / 2 + 0.4 &&
       Math.abs(camera.position.z) < bench.z / 2 + 0.4
     ) {
@@ -361,16 +430,37 @@ function Player({ enabled }: { enabled: boolean }) {
         camera.position.z = Math.sign(dz || 1) * (bench.z / 2 + 0.4);
       }
     }
-    camera.position.y = EYE_HEIGHT;
+
+    // Vertical integration (jump / gravity). Floor at EYE_HEIGHT.
+    velocityY.current -= GRAVITY * dt;
+    camera.position.y += velocityY.current * dt;
+    if (camera.position.y <= EYE_HEIGHT) {
+      camera.position.y = EYE_HEIGHT;
+      velocityY.current = 0;
+      grounded.current = true;
+    } else {
+      grounded.current = false;
+    }
   });
 
   return null;
 }
 
-function StartOverlay({ onStart }: { onStart: () => void }) {
+function StartOverlay({
+  onStart,
+  loadedCount,
+  total,
+}: {
+  onStart: () => void;
+  loadedCount: number;
+  total: number;
+}) {
+  const ready = loadedCount >= total;
+  const pct = total > 0 ? Math.round((loadedCount / total) * 100) : 0;
+
   return (
     <div className="absolute inset-0 z-10 flex items-center justify-center bg-black/65 backdrop-blur-sm">
-      <div className="max-w-md rounded-xl border border-white/15 bg-black/60 p-6 text-center text-white shadow-2xl">
+      <div className="w-[min(420px,92vw)] rounded-xl border border-white/15 bg-black/60 p-6 text-center text-white shadow-2xl">
         <h2 className="font-serif text-2xl tracking-wide">Enter the gallery</h2>
         <p className="mt-3 text-sm leading-relaxed text-white/75">
           Click <span className="font-medium">Enter</span> to lock the cursor,
@@ -381,17 +471,36 @@ function StartOverlay({ onStart }: { onStart: () => void }) {
           <kbd className="rounded border border-white/30 px-1.5">D</kbd>, look
           with the mouse, hold{" "}
           <kbd className="rounded border border-white/30 px-1.5">Shift</kbd>{" "}
-          to walk faster, and press{" "}
+          to run,{" "}
+          <kbd className="rounded border border-white/30 px-1.5">Space</kbd>{" "}
+          to jump, and{" "}
           <kbd className="rounded border border-white/30 px-1.5">Esc</kbd>{" "}
           to release.
         </p>
+
+        <div className="mt-5 space-y-2">
+          <div className="h-1.5 w-full overflow-hidden rounded-full bg-white/10">
+            <div
+              className="h-full bg-white/70 transition-[width] duration-300 ease-out"
+              style={{ width: `${pct}%` }}
+            />
+          </div>
+          <div className="text-xs text-white/55">
+            {ready
+              ? "Paintings loaded"
+              : `Loading paintings… ${loadedCount}/${total}`}
+          </div>
+        </div>
+
         <button
           type="button"
           onClick={onStart}
-          className="mt-5 rounded-md bg-white px-5 py-2 text-sm font-medium text-black transition hover:bg-white/85"
+          disabled={!ready}
+          className="mt-5 rounded-md bg-white px-5 py-2 text-sm font-medium text-black transition hover:bg-white/85 disabled:cursor-not-allowed disabled:bg-white/30 disabled:text-white/60"
         >
-          Enter
+          {ready ? "Enter" : "Preparing…"}
         </button>
+
         <div className="mt-4 text-xs text-white/45">
           <Link href="/" className="underline hover:text-white/80">
             Back to the 2D gallery
@@ -416,7 +525,7 @@ function Crosshair() {
 function HintBar() {
   return (
     <div className="pointer-events-none absolute bottom-4 left-1/2 -translate-x-1/2 rounded-full bg-black/55 px-4 py-1.5 text-xs text-white/80 backdrop-blur">
-      WASD to move · mouse to look · Shift to run · Esc to release
+      WASD · mouse to look · Shift to run · Space to jump · Esc to release
     </div>
   );
 }
@@ -429,7 +538,29 @@ type PointerLockControlsHandle = {
 export function Gallery3D({ artworks }: Props) {
   const placements = useMemo(() => layout(artworks), [artworks]);
   const [locked, setLocked] = useState(false);
+  const [loadedCount, setLoadedCount] = useState(() =>
+    placements.filter((p) => textureCache.has(p.artwork.objectKey)).length,
+  );
   const controlsRef = useRef<PointerLockControlsHandle | null>(null);
+
+  // Kick every texture load off immediately at mount so all 12 fetches
+  // are in flight before the first Painting useEffect runs. Failures
+  // still count as "done" so the Enter button can unblock even if a
+  // variant 404s and we have to fall through to the raw original.
+  useEffect(() => {
+    let cancelled = false;
+    for (const p of placements) {
+      if (textureCache.has(p.artwork.objectKey)) continue;
+      loadTexture(p.artwork)
+        .catch(() => undefined)
+        .finally(() => {
+          if (!cancelled) setLoadedCount((c) => c + 1);
+        });
+    }
+    return () => {
+      cancelled = true;
+    };
+  }, [placements]);
 
   const start = () => {
     controlsRef.current?.lock?.();
@@ -438,42 +569,23 @@ export function Gallery3D({ artworks }: Props) {
   return (
     <div className="fixed left-0 right-0 bottom-0 top-[57px] bg-[#0a0604]">
       <Canvas
-        shadows
         dpr={[1, 1.75]}
         camera={{ fov: 70, near: 0.1, far: 120, position: [0, EYE_HEIGHT, 7] }}
-        gl={{ antialias: true, toneMappingExposure: 1.1 }}
+        gl={{ antialias: true, toneMappingExposure: 1.15 }}
       >
         <color attach="background" args={["#0a0604"]} />
-        <fog attach="fog" args={["#0a0604", 14, 42]} />
+        <fog attach="fog" args={["#0a0604", 16, 48]} />
 
-        <ambientLight intensity={0.28} color="#fff1dd" />
+        <ambientLight intensity={0.38} color="#fff1dd" />
         <hemisphereLight
-          intensity={0.35}
+          intensity={0.32}
           color={"#fff1dd" as unknown as THREE.ColorRepresentation}
           groundColor={"#2a1d14" as unknown as THREE.ColorRepresentation}
         />
-        <pointLight
-          position={[0, ROOM.h - 0.3, 0]}
-          intensity={18}
-          distance={24}
-          decay={2}
-          color="#ffe6bf"
-          castShadow
-        />
-        <pointLight
-          position={[-8, ROOM.h - 0.3, -5]}
-          intensity={12}
-          distance={18}
-          decay={2}
-          color="#ffe0b5"
-        />
-        <pointLight
-          position={[8, ROOM.h - 0.3, 5]}
-          intensity={12}
-          distance={18}
-          decay={2}
-          color="#ffe0b5"
-        />
+
+        {CEILING_LAMP_POSITIONS.map((p, i) => (
+          <CeilingLamp key={i} position={p} />
+        ))}
 
         <Room />
         {placements.map((p) => (
@@ -487,7 +599,13 @@ export function Gallery3D({ artworks }: Props) {
           onUnlock={() => setLocked(false)}
         />
       </Canvas>
-      {!locked && <StartOverlay onStart={start} />}
+      {!locked && (
+        <StartOverlay
+          onStart={start}
+          loadedCount={loadedCount}
+          total={placements.length}
+        />
+      )}
       {locked && (
         <>
           <Crosshair />
