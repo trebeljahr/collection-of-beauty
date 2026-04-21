@@ -1,5 +1,11 @@
 import { readFile, writeFile, mkdir } from "node:fs/promises";
-import { existsSync, openSync, readSync, closeSync } from "node:fs";
+import {
+  existsSync,
+  openSync,
+  readSync,
+  closeSync,
+  readdirSync,
+} from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { imageSize } from "image-size";
@@ -8,6 +14,7 @@ const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const ROOT = path.resolve(__dirname, "..");
 const META = path.join(ROOT, "metadata");
 const ASSETS = path.join(ROOT, "assets");
+const ASSETS_WEB = path.join(ROOT, "assets-web");
 const OUT = path.join(ROOT, "src", "data");
 
 // Probe only the first 64 KB of each image to extract width/height — enough
@@ -16,6 +23,35 @@ const OUT = path.join(ROOT, "src", "data");
 const PROBE_BYTES = 64 * 1024;
 const probeBuf = Buffer.alloc(PROBE_BYTES);
 const dimensionCache = new Map();
+
+// Scan assets-web/<folder>/<basename>/ for pre-built variant files
+// (emitted by `pnpm shrink`). Returns the sorted list of widths for
+// which at least one format (AVIF preferred, WebP acceptable) exists.
+// Lets the runtime skip fetches for variants that don't exist yet,
+// which eliminates the 404 noise on artworks that haven't been shrunk.
+const variantsCache = new Map();
+function variantWidthsFor(folderKey, filename) {
+  const key = `${folderKey}/${filename}`;
+  if (variantsCache.has(key)) return variantsCache.get(key);
+  const basename = filename.replace(/\.[^.]+$/, "");
+  const dir = path.join(ASSETS_WEB, folderKey, basename);
+  let widths = [];
+  if (existsSync(dir)) {
+    try {
+      const files = readdirSync(dir);
+      const set = new Set();
+      for (const f of files) {
+        const m = f.match(/^(\d+)\.(avif|webp)$/i);
+        if (m) set.add(Number.parseInt(m[1], 10));
+      }
+      widths = Array.from(set).sort((a, b) => a - b);
+    } catch {
+      // leave empty
+    }
+  }
+  variantsCache.set(key, widths);
+  return widths;
+}
 
 function dimensionsFor(folderKey, filename) {
   const key = `${folderKey}/${filename}`;
@@ -255,6 +291,7 @@ async function main() {
 
       const dims = dimensionsFor(folderKey, fname);
       const real = realDimensions.get(id) || null;
+      const variantWidths = variantWidthsFor(folderKey, fname);
       artworks.push({
         id,
         title,
@@ -268,6 +305,7 @@ async function main() {
         width: dims?.width ?? null,
         height: dims?.height ?? null,
         realDimensions: real,
+        variantWidths: variantWidths.length > 0 ? variantWidths : null,
         fileUrl: entry.source.file_url,
         commonsUrl: entry.source.url,
         credit: entry.source.credit || null,

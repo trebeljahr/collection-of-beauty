@@ -9,7 +9,7 @@ import {
 } from "react";
 import Link from "next/link";
 import { Canvas, useFrame, useThree } from "@react-three/fiber";
-import { PointerLockControls, Text } from "@react-three/drei";
+import { Instance, Instances, PointerLockControls, Text } from "@react-three/drei";
 import * as THREE from "three";
 import type { Artwork } from "@/lib/data";
 import { slugify } from "@/lib/utils";
@@ -458,19 +458,37 @@ class TextureLRU {
 const textureCache = new TextureLRU(TEXTURE_CACHE_CAPACITY);
 const textureInFlight = new Map<string, Promise<THREE.Texture>>();
 
+/**
+ * Pick the best available variant width for a desired target width:
+ * the smallest variant that's at least the target, or the largest
+ * available if all variants are smaller. Returns null when no variants
+ * are known (= not shrunk yet), in which case the caller should fall
+ * straight through to the raw original.
+ */
+function bestVariantUrl(
+  artwork: Artwork,
+  desiredWidth: number,
+): string | null {
+  const widths = artwork.variantWidths;
+  if (!widths || widths.length === 0) return null;
+  const atLeast = widths.find((w) => w >= desiredWidth);
+  const pick = atLeast ?? widths[widths.length - 1];
+  return variantAssetsRawUrl(artwork.objectKey, pick, "avif");
+}
+
 async function fetchAndDecodeTexture(
   artwork: Artwork,
   signal: AbortSignal,
 ): Promise<THREE.Texture> {
-  // Try variants in descending size order, then fall through to the
-  // original. Skip any URL we already know 404s.
+  // Only request variants the manifest says exist. The manifest is
+  // populated by `pnpm build:data` scanning assets-web/<basename>/. If
+  // nothing has been shrunk yet, fall straight through to the raw
+  // original.
   const candidates: Array<[string, boolean]> = [];
-  const variantUrl = variantAssetsRawUrl(
-    artwork.objectKey,
-    VARIANT_TEX_WIDTH,
-    "avif",
-  );
-  if (!missingUrls.has(variantUrl)) candidates.push([variantUrl, false]);
+  const variantUrl = bestVariantUrl(artwork, VARIANT_TEX_WIDTH);
+  if (variantUrl && !missingUrls.has(variantUrl)) {
+    candidates.push([variantUrl, false]);
+  }
   candidates.push([rawOriginalUrl(artwork.objectKey), true]);
 
   let lastErr: unknown = null;
@@ -577,67 +595,76 @@ async function loadTextureCached(
 // Painting
 // =============================================================
 
+function clampToCap(w: number, h: number): { w: number; h: number } {
+  if (w > MAX_PAINTING_W || h > MAX_PAINTING_H) {
+    const scale = Math.min(MAX_PAINTING_W / w, MAX_PAINTING_H / h);
+    return { w: w * scale, h: h * scale };
+  }
+  return { w, h };
+}
+
+/**
+ * Dimensions from metadata alone (no texture required). Used for
+ * instanced frame + plaque meshes — those are sized at mount time,
+ * before the image has loaded, so they can't wait for the image's
+ * actual aspect ratio. The eventual canvas fits *inside* this box.
+ */
+function computeMetaSize(artwork: Artwork): { w: number; h: number } {
+  if (artwork.realDimensions) {
+    return clampToCap(
+      artwork.realDimensions.widthCm / 100,
+      artwork.realDimensions.heightCm / 100,
+    );
+  }
+  // No metadata — pick a modest default.
+  return { w: 2.0, h: 1.5 };
+}
+
+/**
+ * Final canvas dimensions, which also need to fit *inside* the meta
+ * box (so the instanced frame always encloses the canvas cleanly). If
+ * the image aspect disagrees with the metadata aspect, we shrink the
+ * canvas to keep its aspect *inside* the meta bounding box rather than
+ * stretching it.
+ */
 function computePaintingSize(
   artwork: Artwork,
   texture: THREE.Texture | null,
 ): { w: number; h: number } {
+  const meta = computeMetaSize(artwork);
   const img = texture?.image as
     | { width?: number; height?: number }
     | undefined;
   const imgAspect =
     img?.width && img?.height ? img.width / img.height : null;
 
-  const clampToCap = (w: number, h: number) => {
-    if (w > MAX_PAINTING_W || h > MAX_PAINTING_H) {
-      const scale = Math.min(MAX_PAINTING_W / w, MAX_PAINTING_H / h);
-      return { w: w * scale, h: h * scale };
-    }
-    return { w, h };
-  };
+  if (!imgAspect || !artwork.realDimensions) return meta;
 
-  if (artwork.realDimensions) {
-    const mw = artwork.realDimensions.widthCm / 100;
-    const mh = artwork.realDimensions.heightCm / 100;
+  const metaAspect = meta.w / meta.h;
+  const disagreement =
+    Math.abs(imgAspect - metaAspect) / Math.max(metaAspect, 0.01);
+  if (disagreement < 0.15) return meta;
 
-    // If we don't have the image yet (still loading), just use the
-    // metadata verbatim — we'll re-render once the texture arrives.
-    if (!imgAspect) return clampToCap(mw, mh);
-
-    const metaAspect = mw / mh;
-    const disagreement =
-      Math.abs(imgAspect - metaAspect) / Math.max(metaAspect, 0.01);
-
-    // Aspects match within ~15% — trust the metadata directly.
-    if (disagreement < 0.15) {
-      return clampToCap(mw, mh);
-    }
-
-    // Aspects disagree. Most common cause is that Wikidata has width/
-    // height swapped for the work (or the image crop differs from the
-    // physical canvas). Keep the metadata's *area* as the sense of
-    // scale, but use the actual image aspect so the picture doesn't
-    // stretch inside its frame.
-    const areaM2 = mw * mh;
-    const h = Math.sqrt(areaM2 / imgAspect);
-    const w = h * imgAspect;
-    return clampToCap(w, h);
+  // Aspects disagree: fit the image aspect *inside* the meta rectangle,
+  // always choosing the larger-fitting dimension. Never grows past the
+  // frame.
+  const heightAtMetaW = meta.w / imgAspect;
+  if (heightAtMetaW <= meta.h) {
+    return { w: meta.w, h: heightAtMetaW };
   }
-
-  // No metadata — fall back to a modest default size at the image's
-  // natural aspect.
-  const aspect = imgAspect ?? 1;
-  let w = 2.0;
-  let h = w / aspect;
-  if (h > 1.8) {
-    h = 1.8;
-    w = h * aspect;
-  }
-  return clampToCap(w, h);
+  return { w: meta.h * imgAspect, h: meta.h };
 }
 
 function computePaintingYCenter(h: number): number {
   return Math.max(CANONICAL_Y_CENTER, MIN_FLOOR_GAP + h / 2);
 }
+
+const FRAME_T = 0.05;
+const FRAME_DEPTH = 0.08;
+const PLAQUE_W = 0.34;
+const PLAQUE_H = 0.24;
+const PLAQUE_DEPTH = 0.012;
+const PLAQUE_GAP = 0.1;
 
 /**
  * Reporter for aggregate load progress (of the *first* room only — once
@@ -717,11 +744,12 @@ function Painting({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [artwork.objectKey]);
 
+  const meta = computeMetaSize(artwork);
   const { w, h } = computePaintingSize(artwork, texture);
-  const yCenter = computePaintingYCenter(h);
-
-  const frameT = 0.05;
-  const frameDepth = 0.08;
+  // yCenter uses the meta height so the group + frame share the same
+  // y-centre — the canvas (inside the group) may be slightly smaller,
+  // but it'll sit centred inside the frame.
+  const yCenter = computePaintingYCenter(meta.h);
 
   const groupPosition: [number, number, number] = [
     position[0],
@@ -731,14 +759,9 @@ function Painting({
 
   return (
     <group position={groupPosition} rotation={rotation}>
-      {/* Frame */}
-      <mesh position={[0, 0, -frameDepth / 2]}>
-        <boxGeometry args={[w + frameT * 2, h + frameT * 2, frameDepth]} />
-        <meshStandardMaterial color="#241810" roughness={0.55} metalness={0.1} />
-      </mesh>
-      {/* Canvas — bumped emissive so paintings read as "lit" without
-          per-painting pointLights (which were tanking frame rate when
-          the render window was up around 45 paintings). */}
+      {/* Canvas — frame is drawn via instanced meshes at the Gallery3D
+          level. Canvas emissive is bumped so the painting still reads
+          as "lit" without a per-painting pointLight. */}
       {texture && (
         <mesh
           position={[0, 0, 0.004]}
@@ -760,12 +783,9 @@ function Painting({
           />
         </mesh>
       )}
-      <Plaque
-        artwork={artwork}
-        paintingHeight={h}
-        paintingWidth={w}
-        yCenter={yCenter}
-      />
+      {/* Plaque renders only its label text here; the box body is
+          instanced alongside the frames. */}
+      <Plaque artwork={artwork} paintingWidthMeta={meta.w} yCenter={yCenter} />
     </group>
   );
 }
@@ -776,30 +796,20 @@ function Painting({
 
 function Plaque({
   artwork,
-  paintingHeight,
-  paintingWidth,
+  paintingWidthMeta,
   yCenter,
 }: {
   artwork: Artwork;
-  paintingHeight: number;
-  paintingWidth: number;
+  paintingWidthMeta: number;
   yCenter: number;
 }) {
-  // Plaque sits to the painting's right at eye height. A single
-  // multi-line Text replaces the three stacked ones we had before —
-  // easier to lay out without overlap, and it collapses three draws
-  // per plaque into one (big saving with 40+ paintings on screen).
-  const plaqueW = 0.34;
-  const plaqueH = 0.24;
-  const plaqueDepth = 0.012;
-  const gap = 0.1; // clearance from the painting's frame
-
-  // Local X: to the right of the painting (local +X in its group frame).
-  // Local Y: offset so the plaque's centre lands at world Y = EYE_HEIGHT,
-  // which is where an adult's gaze naturally rests.
-  const plaqueX = paintingWidth / 2 + gap + plaqueW / 2;
+  // Plaque box is drawn via an instanced mesh at the Gallery3D level;
+  // this component positions only the label Text on top of it. Local
+  // coords here mirror the instance's transform so the Text lands
+  // centred on the plaque face.
+  const plaqueX = paintingWidthMeta / 2 + PLAQUE_GAP + PLAQUE_W / 2;
   const plaqueY = EYE_HEIGHT - yCenter;
-  const plaqueZ = 0.005;
+  const plaqueZ = PLAQUE_DEPTH / 2 + 0.003;
 
   const year = artwork.year ? `, ${artwork.year}` : "";
   const byline = `${artwork.artist ?? "Unknown"}${year}`;
@@ -817,30 +827,18 @@ function Plaque({
   const text = [title, "", byline, dims].filter(Boolean).join("\n");
 
   return (
-    <group position={[plaqueX, plaqueY, plaqueZ]}>
-      <mesh>
-        <boxGeometry args={[plaqueW, plaqueH, plaqueDepth]} />
-        <meshStandardMaterial
-          color="#f4ecd8"
-          emissive="#2a1e10"
-          emissiveIntensity={0.05}
-          roughness={0.7}
-          metalness={0}
-        />
-      </mesh>
-      <Text
-        position={[0, 0, plaqueDepth / 2 + 0.002]}
-        fontSize={0.018}
-        lineHeight={1.35}
-        color="#241810"
-        anchorX="center"
-        anchorY="middle"
-        maxWidth={plaqueW - 0.024}
-        textAlign="center"
-      >
-        {text}
-      </Text>
-    </group>
+    <Text
+      position={[plaqueX, plaqueY, plaqueZ]}
+      fontSize={0.018}
+      lineHeight={1.35}
+      color="#241810"
+      anchorX="center"
+      anchorY="middle"
+      maxWidth={PLAQUE_W - 0.024}
+      textAlign="center"
+    >
+      {text}
+    </Text>
   );
 }
 
@@ -1573,19 +1571,23 @@ function ZoomModal({
   artwork: Artwork;
   onClose: () => void;
 }) {
-  // Try the biggest pre-built variant first; fall through to smaller
-  // widths, then the raw original if none of them exist. Each onError
-  // advances to the next candidate.
+  // Cascade through the variants the manifest says exist, largest
+  // first, then fall back to the raw original. The manifest comes from
+  // `pnpm build:data` scanning assets-web, so we don't fire requests
+  // for variants that don't exist on disk.
   const srcCandidates = useMemo(() => {
     const list: string[] = [];
     const key = artwork.objectKey;
-    for (const w of [2560, 1920, 1280]) {
+    const widths = artwork.variantWidths ?? [];
+    // Largest-first. Cap at the raw-original for a clean tail.
+    const sorted = [...widths].sort((a, b) => b - a);
+    for (const w of sorted) {
       const url = variantAssetsRawUrl(key, w, "avif");
       if (!missingUrls.has(url)) list.push(url);
     }
     list.push(rawOriginalUrl(key));
     return list;
-  }, [artwork.objectKey]);
+  }, [artwork.objectKey, artwork.variantWidths]);
   const [srcIdx, setSrcIdx] = useState(0);
   const src = srcCandidates[Math.min(srcIdx, srcCandidates.length - 1)];
 
@@ -1756,6 +1758,117 @@ function ZoomModal({
 }
 
 // =============================================================
+// Instanced furniture — frames + plaque boxes
+// =============================================================
+
+/**
+ * All frame boxes and plaque boxes across the visible render window
+ * collapse into two draw calls (one shared geometry + material per
+ * kind). Without this, a busy room with ~45 paintings did 45 frame
+ * draws + 45 plaque-box draws = 90 draws/frame just on the physical
+ * housings. With instancing it's 2.
+ *
+ * Each `<Instance>` carries its own position, rotation, and scale,
+ * which is how we pack varied painting dimensions into the single
+ * shared unit-cube geometry.
+ */
+type FurniturePlacement = {
+  key: string;
+  /** Group (painting) position and rotation in world coords. */
+  groupPosition: [number, number, number];
+  rotation: [number, number, number];
+  /** Frame and plaque-box sizes (meta-based). */
+  frameScale: [number, number, number];
+  plaqueOffsetX: number;
+  plaqueOffsetY: number;
+};
+
+function collectFurniture(
+  layouts: RoomLayout[],
+  visibleIdx: Set<number>,
+): FurniturePlacement[] {
+  const out: FurniturePlacement[] = [];
+  for (const i of visibleIdx) {
+    const layout = layouts[i];
+    for (const p of layout.placements) {
+      const meta = computeMetaSize(p.artwork);
+      const yCenter = computePaintingYCenter(meta.h);
+      out.push({
+        key: `${layout.data.id}-${p.artwork.id}`,
+        groupPosition: [p.position[0], yCenter, p.position[2]],
+        rotation: p.rotation,
+        frameScale: [
+          meta.w + FRAME_T * 2,
+          meta.h + FRAME_T * 2,
+          FRAME_DEPTH,
+        ],
+        plaqueOffsetX: meta.w / 2 + PLAQUE_GAP + PLAQUE_W / 2,
+        plaqueOffsetY: EYE_HEIGHT - yCenter,
+      });
+    }
+  }
+  return out;
+}
+
+function FurnitureInstances({
+  placements,
+}: {
+  placements: FurniturePlacement[];
+}) {
+  if (placements.length === 0) return null;
+  // Cap `limit` above typical worst-case (30 paintings per room × 3
+  // visible rooms = 90) so drei's backing buffer doesn't reallocate
+  // every time the set changes.
+  const limit = Math.max(200, placements.length + 32);
+  return (
+    <>
+      {/* Frames — dark wood box, sunk behind the wall surface by
+          FRAME_DEPTH/2 so the canvas sits flush with the wall face. */}
+      <Instances limit={limit} range={placements.length}>
+        <boxGeometry args={[1, 1, 1]} />
+        <meshStandardMaterial color="#241810" roughness={0.55} metalness={0.1} />
+        {placements.map((p) => (
+          <group
+            key={p.key}
+            position={p.groupPosition}
+            rotation={p.rotation}
+          >
+            <Instance
+              position={[0, 0, -FRAME_DEPTH / 2]}
+              scale={p.frameScale}
+            />
+          </group>
+        ))}
+      </Instances>
+      {/* Plaque bodies — cream cards floating at eye height, to the
+          right of the painting's meta-width. Uniform scale; plaque size
+          is constant across the scene. */}
+      <Instances limit={limit} range={placements.length}>
+        <boxGeometry args={[PLAQUE_W, PLAQUE_H, PLAQUE_DEPTH]} />
+        <meshStandardMaterial
+          color="#f4ecd8"
+          emissive="#2a1e10"
+          emissiveIntensity={0.05}
+          roughness={0.7}
+          metalness={0}
+        />
+        {placements.map((p) => (
+          <group
+            key={p.key}
+            position={p.groupPosition}
+            rotation={p.rotation}
+          >
+            <Instance
+              position={[p.plaqueOffsetX, p.plaqueOffsetY, PLAQUE_DEPTH / 2]}
+            />
+          </group>
+        ))}
+      </Instances>
+    </>
+  );
+}
+
+// =============================================================
 // Preloader — warms the texture cache for rooms just beyond the render
 // window so crossing a door doesn't burst-fetch + burst-upload.
 // =============================================================
@@ -1847,6 +1960,11 @@ export function Gallery3D({ artworks }: Props) {
     return s;
   }, [activeRoom, layouts.length]);
 
+  const furniture = useMemo(
+    () => collectFurniture(layouts, visibleIdx),
+    [layouts, visibleIdx],
+  );
+
   const start = useCallback(() => {
     setHasEntered(true);
     controlsRef.current?.lock?.();
@@ -1937,6 +2055,8 @@ export function Gallery3D({ artworks }: Props) {
             />
           ));
         })}
+
+        <FurnitureInstances placements={furniture} />
 
         <Preloader layouts={layouts} activeRoom={activeRoom} />
 
