@@ -12,235 +12,385 @@ import { Canvas, useFrame, useThree } from "@react-three/fiber";
 import { PointerLockControls, Text } from "@react-three/drei";
 import * as THREE from "three";
 import type { Artwork } from "@/lib/data";
+import { slugify } from "@/lib/utils";
 
 type Props = { artworks: Artwork[] };
 
-// -------------------------------------------------------------
-// Player physics & room constants
-// -------------------------------------------------------------
+// =============================================================
+// Constants
+// =============================================================
 
-const EYE_HEIGHT = 1.7; // adult standing eye level
+const EYE_HEIGHT = 1.7;
 const WALK_SPEED = 5;
 const RUN_SPEED = 10;
 const JUMP_IMPULSE = 6;
 const GRAVITY = 22;
 
-// Every room in the corridor shares these. The walls are 22 m wide and
-// 6.2 m tall; the floor at y=0. Individual rooms differ in depth, wall
-// colour, lighting and what's on the walls.
 const ROOM_WIDTH = 22;
 const ROOM_HEIGHT = 6.2;
-const WALL_X_BUF = 0.7; // player can't get closer than this to side walls
+const WALL_X_BUF = 0.7;
 
-// Doors between rooms: 2.6 m wide × 3 m tall opening in the shared wall.
 const DOOR_WIDTH = 2.6;
 const DOOR_HEIGHT = 3.0;
 
-// Paintings: raise caps so Birth of Venus (2.79 × 1.72 m) and similar
-// grand works render at near-real scale. Anything bigger than this would
-// need its own "grand works" room; flagged as out-of-cap but not common
-// in the 12-artwork selection.
+// Painting sizing — raise cap to accommodate very large works at
+// near-real scale (Birth of Venus is 2.79 × 1.73 m).
 const MAX_PAINTING_W = 5.0;
 const MAX_PAINTING_H = 4.5;
-
-// Museum hang convention: centre line ~145 cm. Tall works ride up so
-// their bottom doesn't clip into the floor (keep 30 cm baseboard clear).
 const CANONICAL_Y_CENTER = 1.55;
 const MIN_FLOOR_GAP = 0.3;
 
-// -------------------------------------------------------------
-// Rooms
-// -------------------------------------------------------------
+// Render only rooms within [active - N, active + N]. Keeps the scene
+// small enough for smooth movement regardless of how many rooms the
+// corridor actually has.
+const RENDER_WINDOW = 1;
 
-type RoomDef = {
-  id: string;
-  title: string;
-  description: string;
+// Data caps. The corridor can hold at most MAX_ROOMS rooms, each
+// holding between MIN_PER_ROOM and MAX_PER_ROOM paintings. Oversize
+// movements get split into "Part 1/2/...".
+const MAX_ROOMS = 28;
+const MAX_PAINTINGS_TOTAL = 500;
+const MIN_PER_ROOM = 8; // accept small natural groupings
+const MAX_PER_ROOM = 22;
+
+// Tunables for texture loading (same shape as before).
+const VARIANT_TEX_WIDTH = 1280;
+const MAX_TEX_WIDTH = 1200; // cap after client-side resize
+
+// =============================================================
+// Room data & generation
+// =============================================================
+
+type Palette = {
   wallColor: string;
   floorColor: string;
   ceilingColor: string;
-  lampTint: string; // warm/cool shift per room
-  depth: number; // z-span
-  artworkIds: string[];
+  lampTint: string;
 };
 
-// Hand-curated. Order matches the corridor — player starts in the first
-// and walks forward through the doors to the others.
-const ROOMS: RoomDef[] = [
-  {
-    id: "impressionism",
-    title: "Impressionism & Post-Impressionism",
-    description:
-      "Light, air, and the moment — Monet and van Gogh, late 19th century.",
-    wallColor: "#ece2c9",
-    floorColor: "#3a2a1f",
-    ceilingColor: "#f4ead2",
-    lampTint: "#ffd9a5",
-    depth: 18,
-    artworkIds: [
-      "collection-of-beauty-claude-monet-la-corniche-near-monaco-google-art-project",
-      "collection-of-beauty-claude-monet-nympheas-1905",
-      "collection-of-beauty-starry-night-over-the-rhone",
-      "collection-of-beauty-vincent-van-gogh-1853-1890-cafeterras-bij-nacht-place-du-forum-kroller-muller-museum-otterlo-23-8-2",
-    ],
-  },
-  {
-    id: "storms-and-waves",
-    title: "Storms & Waves",
-    description:
-      "Ukiyo-e meets Romanticism — Hokusai, Turner, Munch. Nature pushing back.",
-    wallColor: "#d9d2c2",
-    floorColor: "#2a2218",
-    ceilingColor: "#ebe3cf",
-    lampTint: "#ffe0b5",
-    depth: 16,
-    artworkIds: [
-      "collection-of-beauty-tsunami-by-hokusai-19th-century",
-      "collection-of-beauty-tenman-bridge-at-settsu-province-sesshu-tenmanbashi-from-the-series-remarkable-views-of-bridges-in-",
-      "collection-of-beauty-the-rising-squall-hot-wells-from-st-vincent-s-rock-bristol",
-      "collection-of-beauty-edvard-munch-1893-the-scream-oil-tempera-and-pastel-on-cardboard-91-x-73-cm-national-gallery-of-nor",
-    ],
-  },
-  {
-    id: "old-masters",
-    title: "Old Masters",
-    description:
-      "Italian Renaissance meets the Dutch Golden Age. Botticelli's Venus at near-real scale.",
-    wallColor: "#e8dcbd",
-    floorColor: "#322015",
-    ceilingColor: "#f3e9cf",
-    lampTint: "#ffd09a",
-    depth: 22,
-    artworkIds: [
-      "collection-of-beauty-sandro-botticelli-la-nascita-di-venere-google-art-project-edited",
-      "collection-of-beauty-venus-and-mars-national-gallery",
-      "collection-of-beauty-1665-girl-with-a-pearl-earring",
-      "collection-of-beauty-johannes-jan-vermeer-christ-in-the-house-of-martha-and-mary-google-art-project",
-    ],
-  },
+type RoomData = {
+  id: string;
+  title: string;
+  description: string;
+  palette: Palette;
+  artworks: Artwork[];
+};
+
+const PALETTES: Palette[] = [
+  { wallColor: "#ece2c9", floorColor: "#3a2a1f", ceilingColor: "#f4ead2", lampTint: "#ffd9a5" },
+  { wallColor: "#d9d2c2", floorColor: "#2a2218", ceilingColor: "#ebe3cf", lampTint: "#ffe0b5" },
+  { wallColor: "#e8dcbd", floorColor: "#322015", ceilingColor: "#f3e9cf", lampTint: "#ffd09a" },
+  { wallColor: "#d4cdb9", floorColor: "#2a1d14", ceilingColor: "#ede5d1", lampTint: "#ffd2a0" },
+  { wallColor: "#e0d4ba", floorColor: "#342518", ceilingColor: "#ece2cc", lampTint: "#ffdaa8" },
+  { wallColor: "#dbd3b8", floorColor: "#2f2015", ceilingColor: "#ebe0c7", lampTint: "#ffcfa0" },
 ];
 
-// Player starts inside Room 0, a little back from centre, looking toward
-// the back wall.
-function defaultStartZ(rooms: ReadonlyArray<Pick<RoomDef, "depth">>) {
-  // Corridor runs from z = 0 (Room 0 back wall) down to z = -totalDepth.
-  // Player inside Room 0, a bit offset from the back wall.
-  return -rooms[0].depth * 0.35;
+// Hand-written one-liners for the movements we're likely to see. Any
+// movement not here falls back to a year-range summary.
+const MOVEMENT_BLURBS: Record<string, string> = {
+  "Impressionism":
+    "Plein-air, visible brushwork, light over line.",
+  "Post-Impressionism":
+    "After Impressionism — van Gogh, Gauguin, Cézanne remake the language.",
+  "Dutch Golden Age":
+    "Vermeer, Rembrandt and the quiet northern interior.",
+  "Early Renaissance":
+    "15th-century Italy relearning antiquity.",
+  "High Renaissance":
+    "Michelangelo, Raphael, Leonardo at the peak.",
+  "Mannerism":
+    "Elongation, torsion, theatrical composition.",
+  "Baroque":
+    "Drama, tenebrism, motion — Caravaggio's shadow stretches across Europe.",
+  "Rococo":
+    "Ornament, play, 18th-century French intimacy.",
+  "Neoclassicism":
+    "Antique clarity reasserted against Rococo.",
+  "Romanticism":
+    "The sublime and the storm — Turner, Géricault, Friedrich.",
+  "Realism":
+    "Nothing staged — Courbet and Manet turn to what's there.",
+  "Symbolism":
+    "Dream logic, myth, interior weather.",
+  "Symbolism / Expressionism":
+    "Dreams and inner weather pushing into colour.",
+  "Ukiyo-e":
+    "Edo-period woodblock — Hokusai, Hiroshige, Utamaro.",
+  "Art Nouveau":
+    "Whiplash curves and the natural world stylised.",
+  "Expressionism":
+    "Subjective colour and distortion carrying the feeling.",
+  "Cubism":
+    "Form shattered and reassembled from multiple angles.",
+  "Surrealism":
+    "The unconscious staged with the precision of a photograph.",
+  "Abstract Expressionism":
+    "Paint as the subject — gesture, scale, field.",
+};
+
+function ordinalCentury(year: number): string {
+  const century = Math.floor((year - 1) / 100) + 1;
+  const s = ["th", "st", "nd", "rd"];
+  const v = century % 100;
+  const suffix = s[(v - 20) % 10] || s[v] || s[0];
+  return `${century}${suffix} century`;
 }
 
-// -------------------------------------------------------------
+function medianYear(arr: Artwork[]): number {
+  const years = arr
+    .map((a) => a.year ?? 0)
+    .filter((y) => y > 0)
+    .sort((a, b) => a - b);
+  if (years.length === 0) return 0;
+  return years[Math.floor(years.length / 2)];
+}
+
+function yearRangeText(arr: Artwork[]): string {
+  const years = arr.map((a) => a.year).filter((y): y is number => y != null);
+  if (years.length === 0) return "A selection of works";
+  const min = Math.min(...years);
+  const max = Math.max(...years);
+  if (max - min < 30) return `Works from around ${min}`;
+  return `${min}–${max}`;
+}
+
+function generateRooms(allArtworks: Artwork[]): RoomData[] {
+  // Candidate filter: must be a paintings-folder work with real-world
+  // dimensions and a year. Skip huge outliers and tiny thumbs.
+  const seen = new Set<string>();
+  const candidates: Artwork[] = [];
+  for (const a of allArtworks) {
+    if (a.folder !== "collection-of-beauty") continue;
+    if (!a.objectKey) continue;
+    if (a.year == null) continue;
+    if (!a.realDimensions) continue;
+    const { widthCm, heightCm } = a.realDimensions;
+    if (widthCm < 15 || widthCm > 450) continue;
+    if (heightCm < 15 || heightCm > 450) continue;
+    if (seen.has(a.id)) continue;
+    seen.add(a.id);
+    candidates.push(a);
+  }
+
+  // Group by movement, or year-century fallback for the unclassified.
+  const groups = new Map<string, Artwork[]>();
+  for (const a of candidates) {
+    const key =
+      a.movement && a.movement.trim().length > 0
+        ? a.movement
+        : `Other works · ${ordinalCentury(a.year ?? 1500)}`;
+    if (!groups.has(key)) groups.set(key, []);
+    groups.get(key)!.push(a);
+  }
+
+  // Chronological order by median year.
+  const ordered = Array.from(groups.entries())
+    .map(([title, arr]) => ({
+      title,
+      arr: [...arr].sort((x, y) => (x.year ?? 0) - (y.year ?? 0)),
+      median: medianYear(arr),
+    }))
+    .sort((a, b) => a.median - b.median);
+
+  // Split over-sized and skip groups below the minimum (unless they're
+  // naturally small and can still make a quiet little room).
+  const rooms: RoomData[] = [];
+  let total = 0;
+
+  for (const { title, arr } of ordered) {
+    if (rooms.length >= MAX_ROOMS || total >= MAX_PAINTINGS_TOTAL) break;
+    if (arr.length < MIN_PER_ROOM) continue;
+
+    if (arr.length <= MAX_PER_ROOM) {
+      const take = Math.min(arr.length, MAX_PAINTINGS_TOTAL - total);
+      if (take < MIN_PER_ROOM) continue;
+      rooms.push(makeRoom(title, arr.slice(0, take), rooms.length));
+      total += take;
+    } else {
+      const numParts = Math.ceil(arr.length / MAX_PER_ROOM);
+      const chunkSize = Math.ceil(arr.length / numParts);
+      for (let p = 0; p < numParts; p++) {
+        if (rooms.length >= MAX_ROOMS) break;
+        if (total >= MAX_PAINTINGS_TOTAL) break;
+        const chunk = arr
+          .slice(p * chunkSize, (p + 1) * chunkSize)
+          .slice(0, MAX_PAINTINGS_TOTAL - total);
+        if (chunk.length === 0) break;
+        const partTitle =
+          numParts > 1 ? `${title} · Part ${p + 1}` : title;
+        rooms.push(makeRoom(partTitle, chunk, rooms.length));
+        total += chunk.length;
+      }
+    }
+  }
+
+  return rooms;
+}
+
+function makeRoom(
+  title: string,
+  artworks: Artwork[],
+  paletteIdx: number,
+): RoomData {
+  // Blurb key: strip any "· Part N" suffix.
+  const baseKey = title.split(" · Part")[0].trim();
+  const blurb = MOVEMENT_BLURBS[baseKey];
+  const yearText = yearRangeText(artworks);
+  const description = blurb
+    ? `${blurb} · ${artworks.length} works · ${yearText}`
+    : `${artworks.length} works · ${yearText}`;
+  return {
+    id: slugify(title) || `room-${paletteIdx}`,
+    title,
+    description,
+    palette: PALETTES[paletteIdx % PALETTES.length],
+    artworks,
+  };
+}
+
+// =============================================================
 // Layout
-// -------------------------------------------------------------
+// =============================================================
+
+type Slot = {
+  pos: [number, number, number];
+  rot: [number, number, number];
+};
 
 type Placement = {
   artwork: Artwork;
-  /** World position of the painting centre. */
   position: [number, number, number];
-  /** World Y-rotation so the painting faces into the room. */
   rotation: [number, number, number];
 };
 
 type RoomLayout = {
-  def: RoomDef;
+  data: RoomData;
   index: number;
   isFirst: boolean;
   isLast: boolean;
-  /** Z of the room's back wall (furthest from entrance). More negative. */
+  /** More negative — further from entrance. */
   backZ: number;
-  /** Z of the room's front wall (closest to entrance). Less negative. */
+  /** Closer to entrance. */
   frontZ: number;
-  /** Z of the room's geometric centre. */
   centerZ: number;
+  depth: number;
   placements: Placement[];
 };
 
-function layoutCorridor(
-  artworkById: Map<string, Artwork>,
-): RoomLayout[] {
+const SIDE_SPACING = 3.2;
+
+/** Compute depth + slots for a given painting count. Side walls take
+ *  the brunt of the load; end walls hold up to 4 each (solid) or 2
+ *  each (with a door). */
+function planSlots(
+  paintingCount: number,
+  isFirst: boolean,
+  isLast: boolean,
+): { depth: number; slots: Slot[] } {
+  const frontHasDoor = !isFirst;
+  const backHasDoor = !isLast;
+  const backSlots = backHasDoor ? 2 : 4;
+  const frontSlots = frontHasDoor ? 2 : 4;
+  const endSlots = backSlots + frontSlots;
+
+  // How many on the sides? (The rest go on the ends.)
+  const onSides = Math.max(0, paintingCount - endSlots);
+  const perSide = Math.max(3, Math.ceil(onSides / 2));
+  const depth = Math.max(16, 2 + perSide * SIDE_SPACING);
+
+  const frontZ = 0; // room-local
+  const backZ = -depth;
+  const centerZ = -depth / 2;
+
+  const slots: Slot[] = [];
+
+  // Back wall slots
+  const backXs = backHasDoor
+    ? [-5.5, 5.5]
+    : [-8, -2.7, 2.7, 8];
+  for (const x of backXs) {
+    slots.push({ pos: [x, 0, backZ + 0.06], rot: [0, 0, 0] });
+  }
+
+  // Walk the side walls from back toward front (player walks front →
+  // back, so this reads naturally if they turn to each wall in order).
+  const sideStart = backZ + 1.6;
+  const sideEnd = frontZ - 1.6;
+  const sideSpan = sideEnd - sideStart;
+  const effectiveCount = Math.max(1, Math.floor(sideSpan / SIDE_SPACING) + 1);
+  for (let i = 0; i < effectiveCount; i++) {
+    const t = effectiveCount > 1 ? i / (effectiveCount - 1) : 0.5;
+    const z = sideStart + t * sideSpan;
+    // West
+    slots.push({
+      pos: [-ROOM_WIDTH / 2 + 0.06, 0, z],
+      rot: [0, Math.PI / 2, 0],
+    });
+    // East
+    slots.push({
+      pos: [ROOM_WIDTH / 2 - 0.06, 0, z],
+      rot: [0, -Math.PI / 2, 0],
+    });
+  }
+
+  // Front wall slots
+  const frontXs = frontHasDoor
+    ? [-5.5, 5.5]
+    : [-8, -2.7, 2.7, 8];
+  for (const x of frontXs) {
+    slots.push({ pos: [x, 0, frontZ - 0.06], rot: [0, Math.PI, 0] });
+  }
+
+  return { depth, slots };
+}
+
+function layoutCorridor(rooms: RoomData[]): RoomLayout[] {
   const layouts: RoomLayout[] = [];
-  let frontZ = 0; // first room's front wall at the origin
+  let frontZ = 0;
 
-  ROOMS.forEach((def, i) => {
-    const backZ = frontZ - def.depth;
-    const centerZ = (frontZ + backZ) / 2;
+  rooms.forEach((data, i) => {
     const isFirst = i === 0;
-    const isLast = i === ROOMS.length - 1;
+    const isLast = i === rooms.length - 1;
+    const { depth, slots } = planSlots(data.artworks.length, isFirst, isLast);
+    const backZ = frontZ - depth;
+    const centerZ = (frontZ + backZ) / 2;
 
-    // Pick the 4 canonical slots per room. The first room's front wall
-    // has a door (to the entrance) — wait, no, Room 0 is the entrance,
-    // so its FRONT wall (z = frontZ = 0 for Room 0) is solid. Subsequent
-    // rooms' front wall has a door (shared with previous room). The
-    // BACK wall has a door iff there's a next room.
-    const frontHasDoor = !isFirst;
-    const backHasDoor = !isLast;
-
-    const slots: Array<{
-      pos: [number, number, number];
-      rot: [number, number, number];
-    }> = [];
-
-    // Back wall: centre z = backZ + 0.06. Painting faces +z.
-    // If no door in back wall: 2 paintings centred on either side of middle.
-    // If door in back wall: paintings flank the door.
-    const backX = [-4.2, 4.2];
-    if (!backHasDoor) {
-      // Solid back wall — spread out wider.
-      for (const x of [-6.2, 6.2]) {
-        slots.push({ pos: [x, 0, backZ + 0.06], rot: [0, 0, 0] });
-      }
-    } else {
-      for (const x of backX) {
-        slots.push({ pos: [x, 0, backZ + 0.06], rot: [0, 0, 0] });
-      }
-    }
-
-    // West wall: x = -ROOM_WIDTH/2 + 0.06, rotated +90° so it faces +x.
-    // Front wall at some z, back wall at backZ.
-    const sideZ = centerZ;
-    const westX = -ROOM_WIDTH / 2 + 0.06;
-    const eastX = ROOM_WIDTH / 2 - 0.06;
-    slots.push({ pos: [westX, 0, sideZ], rot: [0, Math.PI / 2, 0] });
-    slots.push({ pos: [eastX, 0, sideZ], rot: [0, -Math.PI / 2, 0] });
-
-    // Match artworks to slots. If we have fewer artworks than slots, fill
-    // in order; if more, truncate (shouldn't happen with curated list).
+    // Map slots (room-local) to world coords by shifting z by frontZ
+    // (room-local frontZ is 0, world frontZ is this room's frontZ).
     const placements: Placement[] = [];
-    def.artworkIds.slice(0, slots.length).forEach((id, idx) => {
-      const artwork = artworkById.get(id);
-      if (!artwork) return;
-      const slot = slots[idx];
+    const n = Math.min(data.artworks.length, slots.length);
+    for (let k = 0; k < n; k++) {
+      const slot = slots[k];
       placements.push({
-        artwork,
-        position: slot.pos,
+        artwork: data.artworks[k],
+        position: [slot.pos[0], slot.pos[1], slot.pos[2] + frontZ],
         rotation: slot.rot,
       });
-    });
+    }
 
     layouts.push({
-      def,
+      data,
       index: i,
       isFirst,
       isLast,
       frontZ,
       backZ,
       centerZ,
+      depth,
       placements,
     });
 
-    frontZ = backZ; // next room starts at this room's back wall
+    frontZ = backZ;
   });
 
   return layouts;
 }
 
-// -------------------------------------------------------------
-// Texture loading
-// -------------------------------------------------------------
+// =============================================================
+// Texture loading — per-Painting lifecycle (no global cache)
+// =============================================================
 
-const VARIANT_TEX_WIDTH = 1280;
-const MAX_TEX_WIDTH = 1400;
-
-function variantAssetPath(
+function variantAssetsRawUrl(
   objectKey: string,
   width: number,
   format: "avif" | "webp",
@@ -250,79 +400,62 @@ function variantAssetPath(
   const filename = objectKey.slice(lastSlash + 1);
   const basename = filename.replace(/\.[^.]+$/, "");
   const segments = [...dir.split("/"), basename, `${width}.${format}`];
-  return segments.map(encodeURIComponent).join("/");
-}
-
-function variantAssetsRawUrl(
-  objectKey: string,
-  width: number,
-  format: "avif" | "webp",
-): string {
-  return `/assets-raw/${variantAssetPath(objectKey, width, format)}`;
+  return `/assets-raw/${segments.map(encodeURIComponent).join("/")}`;
 }
 
 function rawOriginalUrl(objectKey: string): string {
-  const encoded = objectKey.split("/").map(encodeURIComponent).join("/");
-  return `/assets-raw/${encoded}`;
+  return `/assets-raw/${objectKey.split("/").map(encodeURIComponent).join("/")}`;
 }
 
-const textureCache = new Map<string, THREE.Texture>();
-const textureInFlight = new Map<string, Promise<THREE.Texture>>();
-
-async function loadTexture(artwork: Artwork): Promise<THREE.Texture> {
-  const cacheKey = artwork.objectKey;
-  const cached = textureCache.get(cacheKey);
-  if (cached) return cached;
-  const pending = textureInFlight.get(cacheKey);
-  if (pending) return pending;
-
-  const promise = (async () => {
-    const attempts: Array<[string, boolean]> = [
-      [variantAssetsRawUrl(cacheKey, VARIANT_TEX_WIDTH, "avif"), false],
-      [rawOriginalUrl(cacheKey), true],
-    ];
-    let lastErr: unknown = null;
-    for (const [url, downsample] of attempts) {
-      try {
-        const res = await fetch(url);
-        if (!res.ok) throw new Error(`fetch ${url}: ${res.status}`);
-        const blob = await res.blob();
-        const bitmapOpts: ImageBitmapOptions = {
-          imageOrientation: "flipY",
-          ...(downsample
-            ? { resizeWidth: MAX_TEX_WIDTH, resizeQuality: "high" }
-            : {}),
-        };
-        const bitmap = await createImageBitmap(blob, bitmapOpts);
-        const texture = new THREE.Texture(
-          bitmap as unknown as HTMLImageElement,
-        );
-        texture.colorSpace = THREE.SRGBColorSpace;
-        texture.anisotropy = 8;
-        texture.minFilter = THREE.LinearMipMapLinearFilter;
-        texture.magFilter = THREE.LinearFilter;
-        texture.generateMipmaps = true;
-        texture.flipY = false;
-        texture.needsUpdate = true;
-        textureCache.set(cacheKey, texture);
-        return texture;
-      } catch (e) {
-        lastErr = e;
+async function loadTexture(
+  artwork: Artwork,
+  signal: AbortSignal,
+): Promise<THREE.Texture> {
+  const attempts: Array<[string, boolean]> = [
+    [variantAssetsRawUrl(artwork.objectKey, VARIANT_TEX_WIDTH, "avif"), false],
+    [rawOriginalUrl(artwork.objectKey), true],
+  ];
+  let lastErr: unknown = null;
+  for (const [url, downsample] of attempts) {
+    if (signal.aborted) throw new Error("aborted");
+    try {
+      const res = await fetch(url, { signal });
+      if (!res.ok) throw new Error(`fetch ${url}: ${res.status}`);
+      const blob = await res.blob();
+      if (signal.aborted) throw new Error("aborted");
+      const opts: ImageBitmapOptions = {
+        imageOrientation: "flipY",
+        ...(downsample
+          ? { resizeWidth: MAX_TEX_WIDTH, resizeQuality: "high" }
+          : {}),
+      };
+      const bitmap = await createImageBitmap(blob, opts);
+      if (signal.aborted) {
+        bitmap.close?.();
+        throw new Error("aborted");
       }
+      const texture = new THREE.Texture(
+        bitmap as unknown as HTMLImageElement,
+      );
+      texture.colorSpace = THREE.SRGBColorSpace;
+      texture.anisotropy = 8;
+      texture.minFilter = THREE.LinearMipMapLinearFilter;
+      texture.magFilter = THREE.LinearFilter;
+      texture.generateMipmaps = true;
+      texture.flipY = false;
+      texture.needsUpdate = true;
+      return texture;
+    } catch (e) {
+      if (signal.aborted) throw e;
+      lastErr = e;
     }
-    throw lastErr ?? new Error("texture load failed");
-  })();
-  textureInFlight.set(cacheKey, promise);
-  try {
-    return await promise;
-  } finally {
-    textureInFlight.delete(cacheKey);
   }
+  throw lastErr ?? new Error("texture load failed");
 }
 
-// -------------------------------------------------------------
+// =============================================================
 // Painting
-// -------------------------------------------------------------
+// =============================================================
 
 function computePaintingSize(
   artwork: Artwork,
@@ -342,51 +475,74 @@ function computePaintingSize(
     | { width?: number; height?: number }
     | undefined;
   const aspect = img?.width && img?.height ? img.width / img.height : 1;
-  let w = 2.8;
+  let w = 2.0;
   let h = w / aspect;
-  if (h > 2.4) {
-    h = 2.4;
+  if (h > 1.8) {
+    h = 1.8;
     w = h * aspect;
   }
   return { w, h };
 }
 
 function computePaintingYCenter(h: number): number {
-  // Canonical centre at 1.55 m. If the painting is tall enough that it'd
-  // clip into the floor, push it up so the bottom clears 30 cm.
   return Math.max(CANONICAL_Y_CENTER, MIN_FLOOR_GAP + h / 2);
 }
 
-function Painting({
-  placement,
-  onClick,
-}: {
+/**
+ * Reporter for aggregate load progress (of the *first* room only — once
+ * we've unlocked Enter, subsequent rooms pop in in the background and
+ * no progress ping is needed). Painting components call onLoaded()
+ * exactly once per instance, whether the load succeeded or failed.
+ */
+type PaintingProps = {
   placement: Placement;
   onClick: (artwork: Artwork) => void;
-}) {
+  onLoaded?: () => void;
+  reportProgress?: boolean;
+};
+
+function Painting({ placement, onClick, onLoaded, reportProgress }: PaintingProps) {
   const { artwork, position, rotation } = placement;
-  const [texture, setTexture] = useState<THREE.Texture | null>(() =>
-    textureCache.get(artwork.objectKey) ?? null,
-  );
+  const [texture, setTexture] = useState<THREE.Texture | null>(null);
+  const reportedRef = useRef(false);
 
   useEffect(() => {
-    if (texture) return;
-    let cancelled = false;
-    loadTexture(artwork)
+    const controller = new AbortController();
+    let createdTexture: THREE.Texture | null = null;
+    loadTexture(artwork, controller.signal)
       .then((tex) => {
-        if (!cancelled) setTexture(tex);
+        if (controller.signal.aborted) {
+          tex.dispose();
+          return;
+        }
+        createdTexture = tex;
+        setTexture(tex);
       })
       .catch((err) => {
-        console.error(
-          "gallery-3d texture load failed:",
-          artwork.objectKey,
-          err,
-        );
+        if (!controller.signal.aborted) {
+          console.warn(
+            "gallery-3d texture load failed:",
+            artwork.objectKey,
+            err,
+          );
+        }
+      })
+      .finally(() => {
+        if (
+          reportProgress &&
+          !reportedRef.current &&
+          !controller.signal.aborted
+        ) {
+          reportedRef.current = true;
+          onLoaded?.();
+        }
       });
     return () => {
-      cancelled = true;
+      controller.abort();
+      if (createdTexture) createdTexture.dispose();
     };
-  }, [artwork, texture]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [artwork.objectKey]);
 
   const { w, h } = computePaintingSize(artwork, texture);
   const yCenter = computePaintingYCenter(h);
@@ -394,9 +550,6 @@ function Painting({
   const frameT = 0.05;
   const frameDepth = 0.08;
 
-  // Slot `position` carries the wall's anchor (y set to 0). The group
-  // sits at (x, yCenter, z) so the painting centres vertically where
-  // the computed yCenter says.
   const groupPosition: [number, number, number] = [
     position[0],
     yCenter,
@@ -408,11 +561,7 @@ function Painting({
       {/* Frame */}
       <mesh position={[0, 0, -frameDepth / 2]}>
         <boxGeometry args={[w + frameT * 2, h + frameT * 2, frameDepth]} />
-        <meshStandardMaterial
-          color="#241810"
-          roughness={0.55}
-          metalness={0.1}
-        />
+        <meshStandardMaterial color="#241810" roughness={0.55} metalness={0.1} />
       </mesh>
       {/* Mat */}
       <mesh position={[0, 0, 0.002]}>
@@ -440,23 +589,14 @@ function Painting({
           />
         </mesh>
       )}
-      {/* Physical plaque mounted on wall under the painting */}
       <Plaque artwork={artwork} paintingHeight={h} paintingWidth={w} />
-      {/* Warm accent spot pointed at the painting */}
-      <pointLight
-        position={[0, 0.6, 1.3]}
-        intensity={3.5}
-        distance={4.5}
-        decay={2}
-        color="#ffd9a8"
-      />
     </group>
   );
 }
 
-// -------------------------------------------------------------
-// Plaque — a physical card on the wall, not floating text
-// -------------------------------------------------------------
+// =============================================================
+// Plaque
+// =============================================================
 
 function Plaque({
   artwork,
@@ -471,12 +611,8 @@ function Plaque({
   const plaqueH = 0.16;
   const plaqueDepth = 0.012;
 
-  // Sit the plaque below the painting, with a small gap, but not more
-  // than 22 cm below the bottom edge (otherwise it ends up below the
-  // baseboard for large works).
   const verticalGap = Math.min(0.18, 0.08 + paintingHeight * 0.05);
   const plaqueY = -paintingHeight / 2 - verticalGap - plaqueH / 2;
-  // Sit flush with the wall: local z just in front of the wall.
   const plaqueZ = 0.01;
 
   const year = artwork.year ? `, ${artwork.year}` : "";
@@ -486,7 +622,6 @@ function Plaque({
         artwork.realDimensions.heightCm,
       )} cm`
     : null;
-
   const titleMax = 56;
   const title =
     artwork.title.length > titleMax
@@ -495,7 +630,6 @@ function Plaque({
 
   return (
     <group position={[0, plaqueY, plaqueZ]}>
-      {/* Card body — slight emissive so text stays legible in shadow. */}
       <mesh>
         <boxGeometry args={[plaqueW, plaqueH, plaqueDepth]} />
         <meshStandardMaterial
@@ -506,12 +640,10 @@ function Plaque({
           metalness={0}
         />
       </mesh>
-      {/* Thin bevel strip along the top for a bit of visual weight */}
       <mesh position={[0, plaqueH / 2 - 0.008, plaqueDepth / 2 + 0.0001]}>
         <boxGeometry args={[plaqueW - 0.01, 0.004, 0.001]} />
         <meshStandardMaterial color="#241810" roughness={0.4} />
       </mesh>
-      {/* Title */}
       <Text
         position={[0, plaqueH / 2 - 0.03, plaqueDepth / 2 + 0.002]}
         fontSize={0.018}
@@ -523,7 +655,6 @@ function Plaque({
       >
         {title}
       </Text>
-      {/* Artist & year */}
       <Text
         position={[0, plaqueH / 2 - 0.06, plaqueDepth / 2 + 0.002]}
         fontSize={0.014}
@@ -535,7 +666,6 @@ function Plaque({
       >
         {artistLine}
       </Text>
-      {/* Dimensions */}
       {dims && (
         <Text
           position={[0, -plaqueH / 2 + 0.022, plaqueDepth / 2 + 0.002]}
@@ -557,11 +687,10 @@ function formatCm(n: number): string {
   return Number.isInteger(n) ? String(n) : n.toFixed(1);
 }
 
-// -------------------------------------------------------------
+// =============================================================
 // Walls
-// -------------------------------------------------------------
+// =============================================================
 
-// A solid wall — just a flat plane.
 function SolidWall({
   position,
   rotation,
@@ -578,14 +707,15 @@ function SolidWall({
   return (
     <mesh position={position} rotation={rotation}>
       <planeGeometry args={[width, height]} />
-      <meshStandardMaterial color={color} roughness={0.92} side={THREE.DoubleSide} />
+      <meshStandardMaterial
+        color={color}
+        roughness={0.92}
+        side={THREE.DoubleSide}
+      />
     </mesh>
   );
 }
 
-// A wall with a centred door opening — rendered as three plane segments
-// (left of door, right of door, over-door lintel). `rotation` is the
-// same as a solid wall's rotation.
 function WallWithDoor({
   position,
   rotation,
@@ -604,34 +734,37 @@ function WallWithDoor({
   doorHeight: number;
 }) {
   const sideWidth = (width - doorWidth) / 2;
-  // Segment positions (in local X-Y of the wall plane).
   const leftX = -doorWidth / 2 - sideWidth / 2;
   const rightX = doorWidth / 2 + sideWidth / 2;
   const lintelY = doorHeight + (height - doorHeight) / 2 - height / 2;
   const lintelH = height - doorHeight;
 
-  // The "position" passed in represents the wall's centre at (x=0 in
-  // local coords, y=height/2, z=wallZ). We stack children inside a group
-  // so we can position them in local wall-coordinates.
   return (
     <group position={position} rotation={rotation}>
-      {/* Left panel */}
       <mesh position={[leftX, 0, 0]}>
         <planeGeometry args={[sideWidth, height]} />
-        <meshStandardMaterial color={color} roughness={0.92} side={THREE.DoubleSide} />
+        <meshStandardMaterial
+          color={color}
+          roughness={0.92}
+          side={THREE.DoubleSide}
+        />
       </mesh>
-      {/* Right panel */}
       <mesh position={[rightX, 0, 0]}>
         <planeGeometry args={[sideWidth, height]} />
-        <meshStandardMaterial color={color} roughness={0.92} side={THREE.DoubleSide} />
+        <meshStandardMaterial
+          color={color}
+          roughness={0.92}
+          side={THREE.DoubleSide}
+        />
       </mesh>
-      {/* Over-door lintel */}
       <mesh position={[0, lintelY, 0]}>
         <planeGeometry args={[doorWidth, lintelH]} />
-        <meshStandardMaterial color={color} roughness={0.92} side={THREE.DoubleSide} />
+        <meshStandardMaterial
+          color={color}
+          roughness={0.92}
+          side={THREE.DoubleSide}
+        />
       </mesh>
-      {/* Door trim — a thin frame around the opening for a bit of
-          architectural detail. */}
       <DoorTrim doorWidth={doorWidth} doorHeight={doorHeight} />
     </group>
   );
@@ -646,21 +779,16 @@ function DoorTrim({
 }) {
   const trim = 0.06;
   const color = "#2a1d14";
-  // Two vertical jambs + one top trim; all extruded slightly forward on
-  // both sides of the wall so it reads from either room.
   return (
     <group position={[0, -ROOM_HEIGHT / 2, 0]}>
-      {/* Left jamb */}
       <mesh position={[-doorWidth / 2 - trim / 2, doorHeight / 2, 0]}>
         <boxGeometry args={[trim, doorHeight, 0.06]} />
         <meshStandardMaterial color={color} roughness={0.6} metalness={0.1} />
       </mesh>
-      {/* Right jamb */}
       <mesh position={[doorWidth / 2 + trim / 2, doorHeight / 2, 0]}>
         <boxGeometry args={[trim, doorHeight, 0.06]} />
         <meshStandardMaterial color={color} roughness={0.6} metalness={0.1} />
       </mesh>
-      {/* Lintel trim */}
       <mesh position={[0, doorHeight + trim / 2, 0]}>
         <boxGeometry args={[doorWidth + trim * 2, trim, 0.06]} />
         <meshStandardMaterial color={color} roughness={0.6} metalness={0.1} />
@@ -669,8 +797,6 @@ function DoorTrim({
   );
 }
 
-// Room sign — mounted on the lintel above the door, visible from both
-// sides. Reads the next room's title and description.
 function RoomSign({
   position,
   rotation,
@@ -684,9 +810,8 @@ function RoomSign({
 }) {
   return (
     <group position={position} rotation={rotation}>
-      {/* Plate */}
       <mesh>
-        <boxGeometry args={[3.4, 0.6, 0.04]} />
+        <boxGeometry args={[3.4, 0.62, 0.04]} />
         <meshStandardMaterial
           color="#f2e9d0"
           emissive="#2a1e10"
@@ -694,10 +819,9 @@ function RoomSign({
           roughness={0.7}
         />
       </mesh>
-      {/* Title */}
       <Text
         position={[0, 0.12, 0.025]}
-        fontSize={0.12}
+        fontSize={0.1}
         color="#241810"
         anchorX="center"
         anchorY="middle"
@@ -706,10 +830,9 @@ function RoomSign({
       >
         {title}
       </Text>
-      {/* Subtitle */}
       <Text
         position={[0, -0.12, 0.025]}
-        fontSize={0.06}
+        fontSize={0.055}
         color="#55402a"
         anchorX="center"
         anchorY="middle"
@@ -722,9 +845,9 @@ function RoomSign({
   );
 }
 
-// -------------------------------------------------------------
-// Ceiling lamps (same as before)
-// -------------------------------------------------------------
+// =============================================================
+// Ceiling lamps
+// =============================================================
 
 function CeilingLamp({
   position,
@@ -736,7 +859,7 @@ function CeilingLamp({
   return (
     <group position={position}>
       <mesh position={[0, -0.02, 0]}>
-        <cylinderGeometry args={[0.26, 0.3, 0.06, 24]} />
+        <cylinderGeometry args={[0.26, 0.3, 0.06, 20]} />
         <meshStandardMaterial
           color="#2a1d14"
           emissive={tint}
@@ -755,26 +878,43 @@ function CeilingLamp({
   );
 }
 
-// -------------------------------------------------------------
-// Room geometry — walls (with or without doors), floor, ceiling, bench
-// -------------------------------------------------------------
+// =============================================================
+// Room geometry
+// =============================================================
 
-function RoomGeometry({ layout }: { layout: RoomLayout }) {
-  const { def, isFirst, isLast, backZ, frontZ, centerZ } = layout;
-  const d = def.depth;
-  const frontHasDoor = !isFirst;
+function RoomGeometry({
+  layout,
+  nextTitle,
+  nextDescription,
+  prevTitle,
+}: {
+  layout: RoomLayout;
+  nextTitle: string | null;
+  nextDescription: string | null;
+  prevTitle: string | null;
+}) {
+  const { data, isFirst, isLast, backZ, frontZ, centerZ, depth } = layout;
   const backHasDoor = !isLast;
+  const frontHasDoor = !isFirst;
+
+  // Distribute ceiling lamps along the room's depth — one cluster per
+  // ~6 m of depth.
+  const lampRows = Math.max(1, Math.round(depth / 7));
+  const lampPositions: Array<[number, number, number]> = [];
+  for (let r = 0; r < lampRows; r++) {
+    const t = lampRows === 1 ? 0.5 : r / (lampRows - 1);
+    const z = frontZ + (backZ - frontZ) * (0.18 + 0.64 * t);
+    lampPositions.push([-6, ROOM_HEIGHT - 0.04, z]);
+    lampPositions.push([6, ROOM_HEIGHT - 0.04, z]);
+  }
 
   return (
     <group>
       {/* Floor */}
-      <mesh
-        rotation={[-Math.PI / 2, 0, 0]}
-        position={[0, 0, centerZ]}
-      >
-        <planeGeometry args={[ROOM_WIDTH, d]} />
+      <mesh rotation={[-Math.PI / 2, 0, 0]} position={[0, 0, centerZ]}>
+        <planeGeometry args={[ROOM_WIDTH, depth]} />
         <meshStandardMaterial
-          color={def.floorColor}
+          color={data.palette.floorColor}
           roughness={0.88}
           metalness={0.05}
         />
@@ -784,19 +924,17 @@ function RoomGeometry({ layout }: { layout: RoomLayout }) {
         rotation={[Math.PI / 2, 0, 0]}
         position={[0, ROOM_HEIGHT, centerZ]}
       >
-        <planeGeometry args={[ROOM_WIDTH, d]} />
-        <meshStandardMaterial color={def.ceilingColor} roughness={0.96} />
+        <planeGeometry args={[ROOM_WIDTH, depth]} />
+        <meshStandardMaterial color={data.palette.ceilingColor} roughness={0.96} />
       </mesh>
-      {/* Back wall (higher z is "back" because player moves -z into the
-          corridor; actually back-from-entrance is lower z). The back
-          wall of each room is at z = backZ, player-facing. */}
+      {/* Back wall */}
       {backHasDoor ? (
         <WallWithDoor
           position={[0, ROOM_HEIGHT / 2, backZ]}
           rotation={[0, 0, 0]}
           width={ROOM_WIDTH}
           height={ROOM_HEIGHT}
-          color={def.wallColor}
+          color={data.palette.wallColor}
           doorWidth={DOOR_WIDTH}
           doorHeight={DOOR_HEIGHT}
         />
@@ -806,37 +944,36 @@ function RoomGeometry({ layout }: { layout: RoomLayout }) {
           rotation={[0, 0, 0]}
           width={ROOM_WIDTH}
           height={ROOM_HEIGHT}
-          color={def.wallColor}
+          color={data.palette.wallColor}
         />
       )}
-      {/* Front wall — only render from this room if it has a door or if
-          it's the outer wall (isFirst). Otherwise it'd double with the
-          previous room's back wall. */}
-      {isFirst ? (
+      {/* Front wall — only render from the first room (walls between
+          rooms are rendered as the previous room's back wall). */}
+      {isFirst && (
         <SolidWall
           position={[0, ROOM_HEIGHT / 2, frontZ]}
           rotation={[0, Math.PI, 0]}
           width={ROOM_WIDTH}
           height={ROOM_HEIGHT}
-          color={def.wallColor}
+          color={data.palette.wallColor}
         />
-      ) : null}
-      {/* East + west walls span the room's depth. */}
+      )}
+      {/* East + west */}
       <SolidWall
         position={[ROOM_WIDTH / 2, ROOM_HEIGHT / 2, centerZ]}
         rotation={[0, -Math.PI / 2, 0]}
-        width={d}
+        width={depth}
         height={ROOM_HEIGHT}
-        color={def.wallColor}
+        color={data.palette.wallColor}
       />
       <SolidWall
         position={[-ROOM_WIDTH / 2, ROOM_HEIGHT / 2, centerZ]}
         rotation={[0, Math.PI / 2, 0]}
-        width={d}
+        width={depth}
         height={ROOM_HEIGHT}
-        color={def.wallColor}
+        color={data.palette.wallColor}
       />
-      {/* Bench in the middle of the room */}
+      {/* Bench */}
       <mesh position={[0, 0.3, centerZ]}>
         <boxGeometry args={[3, 0.6, 0.9]} />
         <meshStandardMaterial color="#2a1d14" roughness={0.65} metalness={0.1} />
@@ -845,74 +982,95 @@ function RoomGeometry({ layout }: { layout: RoomLayout }) {
         <boxGeometry args={[3.1, 0.05, 1]} />
         <meshStandardMaterial color="#5a3d28" roughness={0.5} metalness={0.2} />
       </mesh>
-      {/* Ceiling lamps — four distributed across the ceiling. */}
-      {[
-        [-6, ROOM_HEIGHT - 0.04, centerZ - d / 4],
-        [6, ROOM_HEIGHT - 0.04, centerZ - d / 4],
-        [-6, ROOM_HEIGHT - 0.04, centerZ + d / 4],
-        [6, ROOM_HEIGHT - 0.04, centerZ + d / 4],
-      ].map((p, i) => (
-        <CeilingLamp
-          key={i}
-          position={p as [number, number, number]}
-          tint={def.lampTint}
-        />
+      {/* Lamps */}
+      {lampPositions.map((p, i) => (
+        <CeilingLamp key={i} position={p} tint={data.palette.lampTint} />
       ))}
-
-      {/* Sign above back door (if there's a next room) — points into
-          THIS room (toward +z) so you see it as you approach. */}
-      {backHasDoor && (
+      {/* Room title sign — opposite the entrance door, high on the
+          back wall (or on the front wall for the very first room). */}
+      {!isFirst && (
         <RoomSign
-          position={[0, DOOR_HEIGHT + 0.6, backZ + 0.06]}
-          rotation={[0, 0, 0]}
-          title={ROOMS[layout.index + 1].title}
-          description={ROOMS[layout.index + 1].description}
+          position={[0, DOOR_HEIGHT + 0.7, frontZ - 0.06]}
+          rotation={[0, Math.PI, 0]}
+          title={data.title}
+          description={data.description}
         />
       )}
-      {/* Sign above front door (the same shared door, seen from the
-          other side). Rendered only by the room whose FRONT side has a
-          door — that's every room except the first. Faces -z. */}
-      {frontHasDoor && (
+      {/* Next-room sign above the back door */}
+      {backHasDoor && nextTitle && (
         <RoomSign
-          position={[0, DOOR_HEIGHT + 0.6, frontZ - 0.06]}
+          position={[0, DOOR_HEIGHT + 0.7, backZ + 0.06]}
+          rotation={[0, 0, 0]}
+          title={nextTitle}
+          description={nextDescription ?? ""}
+        />
+      )}
+      {/* Also put a little sign for THIS room on the back wall of the
+          previous room — already handled because the previous room's
+          RoomGeometry renders its own "next" sign. */}
+      {/* Return hint above front door */}
+      {frontHasDoor && prevTitle && (
+        <RoomSign
+          position={[0, DOOR_HEIGHT + 0.7, frontZ - 0.06]}
           rotation={[0, Math.PI, 0]}
-          title={`Return: ${ROOMS[layout.index - 1].title}`}
-          description="You are leaving this room."
+          title={data.title}
+          description={data.description}
         />
       )}
     </group>
   );
 }
 
-// -------------------------------------------------------------
+// =============================================================
 // Player
-// -------------------------------------------------------------
+// =============================================================
 
 type CorridorBounds = {
   zMin: number;
   zMax: number;
-  doorZs: number[]; // shared-wall z positions
+  doorZs: number[];
   benchCenters: Array<{ x: number; z: number }>;
+  rooms: Array<{ frontZ: number; backZ: number }>;
 };
+
+function findRoomIndex(
+  z: number,
+  rooms: ReadonlyArray<{ frontZ: number; backZ: number }>,
+): number {
+  // Rooms are ordered front → back in the corridor, with frontZ > backZ.
+  // Room i contains z such that backZ <= z <= frontZ.
+  for (let i = 0; i < rooms.length; i++) {
+    if (z <= rooms[i].frontZ && z >= rooms[i].backZ) return i;
+  }
+  // Fallbacks
+  if (rooms.length === 0) return 0;
+  if (z > rooms[0].frontZ) return 0;
+  return rooms.length - 1;
+}
 
 function Player({
   enabled,
   onZoomRequest,
   corridor,
   startZ,
+  onRoomChange,
 }: {
   enabled: boolean;
   onZoomRequest: (artwork: Artwork) => void;
   corridor: CorridorBounds;
   startZ: number;
+  onRoomChange: (i: number) => void;
 }) {
   const { camera, scene } = useThree();
   const keys = useRef<Record<string, boolean>>({});
   const velocityY = useRef(0);
   const grounded = useRef(true);
-  const raycaster = useRef(new THREE.Raycaster(undefined, undefined, 0.1, 10));
+  const raycaster = useRef(
+    new THREE.Raycaster(undefined, undefined, 0.1, 10),
+  );
   const rayOrigin = useRef(new THREE.Vector3());
   const rayDirection = useRef(new THREE.Vector3());
+  const lastRoomIdx = useRef(-1);
 
   useEffect(() => {
     camera.position.set(0, EYE_HEIGHT, startZ);
@@ -933,7 +1091,6 @@ function Player({
         }
       }
     };
-
     const down = (e: KeyboardEvent) => {
       keys.current[e.code] = true;
       if (!enabled) return;
@@ -947,10 +1104,8 @@ function Player({
     const up = (e: KeyboardEvent) => {
       keys.current[e.code] = false;
     };
-    // Click while locked = inspect what you're looking at.
     const mouse = (e: MouseEvent) => {
       if (!enabled) return;
-      // button 0 = primary. Clicks during pointer-lock still fire.
       if (e.button === 0) tryZoom();
     };
     window.addEventListener("keydown", down);
@@ -985,26 +1140,25 @@ function Player({
     if (keys.current["KeyS"] || keys.current["ArrowDown"]) move.sub(forward);
     if (keys.current["KeyD"] || keys.current["ArrowRight"]) move.add(right);
     if (keys.current["KeyA"] || keys.current["ArrowLeft"]) move.sub(right);
-
     if (move.lengthSq() > 0) {
       move.normalize().multiplyScalar(speed * dt);
       camera.position.add(move);
     }
 
-    // X bound — same for every room.
+    // X bound: same for every room
     camera.position.x = THREE.MathUtils.clamp(
       camera.position.x,
       -ROOM_WIDTH / 2 + WALL_X_BUF,
       ROOM_WIDTH / 2 - WALL_X_BUF,
     );
-    // Z corridor bound (corridor outermost walls).
+    // Z corridor bound
     camera.position.z = THREE.MathUtils.clamp(
       camera.position.z,
       corridor.zMin,
       corridor.zMax,
     );
 
-    // Door walls — block crossings that don't thread the opening.
+    // Door walls
     const DOOR_HALF_W = DOOR_WIDTH / 2 - 0.1;
     const WALL_THICK = 0.35;
     for (const wallZ of corridor.doorZs) {
@@ -1019,7 +1173,7 @@ function Player({
       }
     }
 
-    // Bench colliders — one per room, centred on room centre.
+    // Benches
     const BENCH_HEIGHT = 0.66;
     const BENCH_HALF = { x: 1.5, z: 0.45 };
     const benchBlocking =
@@ -1042,7 +1196,7 @@ function Player({
       }
     }
 
-    // Vertical integration (jump / gravity).
+    // Vertical integration
     velocityY.current -= GRAVITY * dt;
     camera.position.y += velocityY.current * dt;
     if (camera.position.y <= EYE_HEIGHT) {
@@ -1052,46 +1206,59 @@ function Player({
     } else {
       grounded.current = false;
     }
+
+    // Room change detection
+    const idx = findRoomIndex(camera.position.z, corridor.rooms);
+    if (idx !== lastRoomIdx.current) {
+      lastRoomIdx.current = idx;
+      onRoomChange(idx);
+    }
   });
 
   return null;
 }
 
-// -------------------------------------------------------------
+// =============================================================
 // Overlays
-// -------------------------------------------------------------
+// =============================================================
 
 function StartOverlay({
   onStart,
   loadedCount,
   total,
+  title,
+  description,
 }: {
   onStart: () => void;
   loadedCount: number;
   total: number;
+  title: string;
+  description: string;
 }) {
   const ready = loadedCount >= total;
   const pct = total > 0 ? Math.round((loadedCount / total) * 100) : 0;
 
   return (
-    <div className="absolute inset-0 z-10 flex items-center justify-center bg-black/65 backdrop-blur-sm">
-      <div className="w-[min(460px,92vw)] rounded-xl border border-white/15 bg-black/60 p-6 text-center text-white shadow-2xl">
-        <h2 className="font-serif text-2xl tracking-wide">Enter the gallery</h2>
-        <p className="mt-3 text-sm leading-relaxed text-white/75">
-          Click{" "}
-          <kbd className="rounded border border-white/30 px-1.5">Enter</kbd> to
-          lock the cursor. Move with{" "}
+    <div className="absolute inset-0 z-10 flex items-center justify-center bg-black/70 backdrop-blur-sm">
+      <div className="w-[min(480px,92vw)] rounded-xl border border-white/15 bg-black/60 p-6 text-center text-white shadow-2xl">
+        <h2 className="font-serif text-2xl tracking-wide">Enter the museum</h2>
+        <p className="mt-3 text-sm leading-relaxed text-white/80">
+          You'll enter the first room:{" "}
+          <span className="font-medium text-white">{title}</span>.
+          <span className="block mt-1 text-white/60">{description}</span>
+        </p>
+        <p className="mt-4 text-xs leading-relaxed text-white/65">
           <kbd className="rounded border border-white/30 px-1.5">W</kbd>{" "}
           <kbd className="rounded border border-white/30 px-1.5">A</kbd>{" "}
           <kbd className="rounded border border-white/30 px-1.5">S</kbd>{" "}
-          <kbd className="rounded border border-white/30 px-1.5">D</kbd>,
-          look with the mouse, hold{" "}
+          <kbd className="rounded border border-white/30 px-1.5">D</kbd>{" "}
+          to move · mouse to look ·{" "}
           <kbd className="rounded border border-white/30 px-1.5">Shift</kbd>{" "}
-          to run,{" "}
+          to run ·{" "}
           <kbd className="rounded border border-white/30 px-1.5">Space</kbd>{" "}
-          to jump. Click a painting — or look at it and press{" "}
+          to jump · click or{" "}
           <kbd className="rounded border border-white/30 px-1.5">E</kbd>{" "}
-          — to inspect. Walk through the doorways to reach the next room.
+          to inspect · walk through the doorways.
         </p>
 
         <div className="mt-5 space-y-2">
@@ -1103,8 +1270,8 @@ function StartOverlay({
           </div>
           <div className="text-xs text-white/55">
             {ready
-              ? "Paintings loaded"
-              : `Loading paintings… ${loadedCount}/${total}`}
+              ? "First room ready"
+              : `Loading first room… ${loadedCount}/${total}`}
           </div>
         </div>
 
@@ -1127,6 +1294,20 @@ function StartOverlay({
   );
 }
 
+function ResumeOverlay({ onResume }: { onResume: () => void }) {
+  return (
+    <button
+      type="button"
+      onClick={onResume}
+      className="absolute inset-0 z-10 flex cursor-pointer items-center justify-center bg-black/50 text-white transition hover:bg-black/40"
+    >
+      <div className="rounded-lg border border-white/20 bg-black/60 px-6 py-3 text-sm backdrop-blur">
+        Click to resume
+      </div>
+    </button>
+  );
+}
+
 function Crosshair() {
   return (
     <div
@@ -1138,18 +1319,22 @@ function Crosshair() {
   );
 }
 
-function HintBar() {
+function HintBar({ roomTitle }: { roomTitle: string }) {
   return (
-    <div className="pointer-events-none absolute bottom-4 left-1/2 -translate-x-1/2 rounded-full bg-black/55 px-4 py-1.5 text-xs text-white/80 backdrop-blur">
-      WASD · mouse · Shift to run · Space to jump · Click or E to inspect · Esc
-      to release
-    </div>
+    <>
+      <div className="pointer-events-none absolute top-[72px] left-1/2 -translate-x-1/2 rounded-full bg-black/55 px-4 py-1 text-xs font-medium text-white/85 backdrop-blur">
+        {roomTitle}
+      </div>
+      <div className="pointer-events-none absolute bottom-4 left-1/2 -translate-x-1/2 rounded-full bg-black/55 px-4 py-1.5 text-xs text-white/80 backdrop-blur">
+        WASD · Shift · Space · Click/E to inspect · Esc to release
+      </div>
+    </>
   );
 }
 
-// -------------------------------------------------------------
-// Zoom modal — with wheel zoom + drag pan + reset
-// -------------------------------------------------------------
+// =============================================================
+// Zoom modal with wheel-zoom + drag-pan
+// =============================================================
 
 function ZoomModal({
   artwork,
@@ -1194,24 +1379,14 @@ function ZoomModal({
 
   const onWheel = useCallback(
     (e: React.WheelEvent<HTMLDivElement>) => {
-      // Pinch or scroll: adjust scale. Negative deltaY = scroll up =
-      // zoom in. Keep the point under the cursor stationary by
-      // adjusting the translate accordingly.
       const rect = (e.currentTarget as HTMLElement).getBoundingClientRect();
       const cx = e.clientX - rect.left - rect.width / 2;
       const cy = e.clientY - rect.top - rect.height / 2;
-
       const factor = Math.exp(-e.deltaY * 0.0018);
       const newScale = Math.max(1, Math.min(10, scale * factor));
-      // Point (px, py) in image space before:
-      //   ix = (cx - tx) / scale
-      // After zoom, to keep (ix, iy) under cursor:
-      //   cx = ix * newScale + tx'
-      //   tx' = cx - ix * newScale = cx - (cx - tx) * (newScale / scale)
       const actualFactor = newScale / scale;
       const newTx = cx - (cx - tx) * actualFactor;
       const newTy = cy - (cy - ty) * actualFactor;
-
       setScale(newScale);
       if (newScale === 1) {
         setTx(0);
@@ -1233,16 +1408,13 @@ function ZoomModal({
     [tx, ty],
   );
 
-  const onMouseMove = useCallback(
-    (e: React.MouseEvent<HTMLDivElement>) => {
-      if (!dragRef.current) return;
-      const dx = e.clientX - dragRef.current.x;
-      const dy = e.clientY - dragRef.current.y;
-      setTx(dragRef.current.tx + dx);
-      setTy(dragRef.current.ty + dy);
-    },
-    [],
-  );
+  const onMouseMove = useCallback((e: React.MouseEvent<HTMLDivElement>) => {
+    if (!dragRef.current) return;
+    const dx = e.clientX - dragRef.current.x;
+    const dy = e.clientY - dragRef.current.y;
+    setTx(dragRef.current.tx + dx);
+    setTy(dragRef.current.ty + dy);
+  }, []);
 
   const onMouseUp = useCallback(() => {
     dragRef.current = null;
@@ -1258,7 +1430,7 @@ function ZoomModal({
 
   return (
     <div
-      className="absolute inset-0 z-20 flex flex-col items-stretch bg-black/95 text-white"
+      className="absolute inset-0 z-20 flex flex-col bg-black/95 text-white"
       onMouseMove={onMouseMove}
       onMouseUp={onMouseUp}
       onMouseLeave={onMouseUp}
@@ -1266,12 +1438,13 @@ function ZoomModal({
       <div
         className="relative flex-1 overflow-hidden"
         onClick={(e) => {
-          // Click outside the image area closes the modal. The image
-          // itself stops propagation.
           if (e.target === e.currentTarget) onClose();
         }}
         onWheel={onWheel}
-        style={{ cursor: scale > 1 ? (dragRef.current ? "grabbing" : "grab") : "default" }}
+        style={{
+          cursor:
+            scale > 1 ? (dragRef.current ? "grabbing" : "grab") : "default",
+        }}
       >
         <img
           src={src}
@@ -1293,7 +1466,9 @@ function ZoomModal({
         onClick={(e) => e.stopPropagation()}
       >
         <div>
-          <div className="font-serif text-lg leading-tight">{artwork.title}</div>
+          <div className="font-serif text-lg leading-tight">
+            {artwork.title}
+          </div>
           <div className="mt-0.5 text-white/60">{byline}</div>
           {dims && (
             <div className="mt-0.5 text-xs text-white/45">{dims}</div>
@@ -1327,9 +1502,9 @@ function ZoomModal({
   );
 }
 
-// -------------------------------------------------------------
+// =============================================================
 // Main
-// -------------------------------------------------------------
+// =============================================================
 
 type PointerLockControlsHandle = {
   lock: () => void;
@@ -1337,56 +1512,87 @@ type PointerLockControlsHandle = {
 };
 
 export function Gallery3D({ artworks }: Props) {
-  const artworkById = useMemo(
-    () => new Map(artworks.map((a) => [a.id, a])),
-    [artworks],
-  );
-  const layouts = useMemo(() => layoutCorridor(artworkById), [artworkById]);
-  const allPlacements = useMemo(
-    () => layouts.flatMap((l) => l.placements),
+  const rooms = useMemo(() => generateRooms(artworks), [artworks]);
+  const layouts = useMemo(() => layoutCorridor(rooms), [rooms]);
+
+  const firstRoomSize = layouts[0]?.data.artworks.length ?? 0;
+  const startZ = useMemo(
+    () =>
+      layouts[0]
+        ? layouts[0].frontZ + (layouts[0].backZ - layouts[0].frontZ) * 0.3
+        : 0,
     [layouts],
   );
-  const startZ = useMemo(() => defaultStartZ(ROOMS), []);
 
-  const corridorBounds: CorridorBounds = useMemo(() => {
+  const corridor: CorridorBounds = useMemo(() => {
     const zMax = (layouts[0]?.frontZ ?? 0) - 0.6;
     const zMin = (layouts[layouts.length - 1]?.backZ ?? 0) + 0.6;
     const doorZs = layouts.slice(0, -1).map((l) => l.backZ);
     const benchCenters = layouts.map((l) => ({ x: 0, z: l.centerZ }));
-    return { zMin, zMax, doorZs, benchCenters };
+    const roomRanges = layouts.map((l) => ({
+      frontZ: l.frontZ,
+      backZ: l.backZ,
+    }));
+    return { zMin, zMax, doorZs, benchCenters, rooms: roomRanges };
   }, [layouts]);
 
   const [locked, setLocked] = useState(false);
+  const [hasEntered, setHasEntered] = useState(false);
   const [zoomed, setZoomed] = useState<Artwork | null>(null);
-  const [loadedCount, setLoadedCount] = useState(() =>
-    allPlacements.filter((p) => textureCache.has(p.artwork.objectKey))
-      .length,
-  );
+  const [firstRoomLoaded, setFirstRoomLoaded] = useState(0);
+  const [activeRoom, setActiveRoom] = useState(0);
   const controlsRef = useRef<PointerLockControlsHandle | null>(null);
 
-  useEffect(() => {
-    let cancelled = false;
-    for (const p of allPlacements) {
-      if (textureCache.has(p.artwork.objectKey)) continue;
-      loadTexture(p.artwork)
-        .catch(() => undefined)
-        .finally(() => {
-          if (!cancelled) setLoadedCount((c) => c + 1);
-        });
+  // Visible window — render these rooms' geometry and paintings.
+  const visibleIdx = useMemo(() => {
+    const s = new Set<number>();
+    for (
+      let i = Math.max(0, activeRoom - RENDER_WINDOW);
+      i <= Math.min(layouts.length - 1, activeRoom + RENDER_WINDOW);
+      i++
+    ) {
+      s.add(i);
     }
-    return () => {
-      cancelled = true;
-    };
-  }, [allPlacements]);
+    return s;
+  }, [activeRoom, layouts.length]);
 
-  const start = () => {
+  const start = useCallback(() => {
+    setHasEntered(true);
     controlsRef.current?.lock?.();
-  };
+  }, []);
 
-  const handleZoomRequest = (artwork: Artwork) => {
+  const resume = useCallback(() => {
+    controlsRef.current?.lock?.();
+  }, []);
+
+  const handleZoomRequest = useCallback((artwork: Artwork) => {
     setZoomed(artwork);
     controlsRef.current?.unlock?.();
-  };
+  }, []);
+
+  const handleZoomClose = useCallback(() => {
+    setZoomed(null);
+    // Try to re-engage pointer lock immediately — the click-to-close
+    // button counts as a user gesture, so this should succeed in most
+    // browsers. If it doesn't, the ResumeOverlay catches it.
+    // Use a microtask so React state flushes first.
+    Promise.resolve().then(() => controlsRef.current?.lock?.());
+  }, []);
+
+  const handleFirstRoomLoaded = useCallback(() => {
+    setFirstRoomLoaded((c) => c + 1);
+  }, []);
+
+  if (layouts.length === 0) {
+    return (
+      <div className="fixed left-0 right-0 bottom-0 top-[57px] flex items-center justify-center bg-[#0a0604] text-white/60">
+        No rooms to show. Run <code className="mx-1">pnpm build:data</code> and
+        ensure real-dimension metadata is present.
+      </div>
+    );
+  }
+
+  const activeRoomData = layouts[Math.min(activeRoom, layouts.length - 1)].data;
 
   return (
     <div className="fixed left-0 right-0 bottom-0 top-[57px] bg-[#0a0604]">
@@ -1395,38 +1601,57 @@ export function Gallery3D({ artworks }: Props) {
         camera={{
           fov: 70,
           near: 0.1,
-          far: 140,
+          far: 160,
           position: [0, EYE_HEIGHT, startZ],
         }}
         gl={{ antialias: true, toneMappingExposure: 1.15 }}
       >
         <color attach="background" args={["#0a0604"]} />
-        <fog attach="fog" args={["#0a0604", 18, 64]} />
-
-        <ambientLight intensity={0.38} color="#fff1dd" />
+        <fog attach="fog" args={["#0a0604", 18, 70]} />
+        <ambientLight intensity={0.4} color="#fff1dd" />
         <hemisphereLight
           intensity={0.32}
           color={"#fff1dd" as unknown as THREE.ColorRepresentation}
           groundColor={"#2a1d14" as unknown as THREE.ColorRepresentation}
         />
 
-        {layouts.map((layout) => (
-          <RoomGeometry key={layout.def.id} layout={layout} />
-        ))}
+        {layouts.map((layout, i) => {
+          if (!visibleIdx.has(i)) return null;
+          const next = layouts[i + 1];
+          const prev = layouts[i - 1];
+          return (
+            <RoomGeometry
+              key={layout.data.id}
+              layout={layout}
+              nextTitle={next?.data.title ?? null}
+              nextDescription={next?.data.description ?? null}
+              prevTitle={prev?.data.title ?? null}
+            />
+          );
+        })}
 
-        {allPlacements.map((p) => (
-          <Painting
-            key={p.artwork.id}
-            placement={p}
-            onClick={handleZoomRequest}
-          />
-        ))}
+        {layouts.flatMap((layout, i) => {
+          if (!visibleIdx.has(i)) return [];
+          const reportProgress = i === 0 && !hasEntered;
+          return layout.placements.map((p) => (
+            <Painting
+              key={`${layout.data.id}-${p.artwork.id}`}
+              placement={p}
+              onClick={handleZoomRequest}
+              reportProgress={reportProgress}
+              onLoaded={
+                reportProgress ? handleFirstRoomLoaded : undefined
+              }
+            />
+          ));
+        })}
 
         <Player
           enabled={locked}
           onZoomRequest={handleZoomRequest}
-          corridor={corridorBounds}
+          corridor={corridor}
           startZ={startZ}
+          onRoomChange={setActiveRoom}
         />
         <PointerLockControls
           ref={controlsRef as unknown as React.Ref<never>}
@@ -1434,21 +1659,28 @@ export function Gallery3D({ artworks }: Props) {
           onUnlock={() => setLocked(false)}
         />
       </Canvas>
-      {!locked && !zoomed && (
+
+      {/* Overlays */}
+      {!hasEntered && !locked && !zoomed && layouts[0] && (
         <StartOverlay
           onStart={start}
-          loadedCount={loadedCount}
-          total={allPlacements.length}
+          loadedCount={firstRoomLoaded}
+          total={firstRoomSize}
+          title={layouts[0].data.title}
+          description={layouts[0].data.description}
         />
+      )}
+      {hasEntered && !locked && !zoomed && (
+        <ResumeOverlay onResume={resume} />
       )}
       {locked && (
         <>
           <Crosshair />
-          <HintBar />
+          <HintBar roomTitle={activeRoomData.title} />
         </>
       )}
       {zoomed && (
-        <ZoomModal artwork={zoomed} onClose={() => setZoomed(null)} />
+        <ZoomModal artwork={zoomed} onClose={handleZoomClose} />
       )}
     </div>
   );
