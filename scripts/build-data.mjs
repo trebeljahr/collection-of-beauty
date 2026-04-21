@@ -209,6 +209,26 @@ const KNOWN_CONNECTIONS = [
   ["John James Audubon", "John Gould", "ornithological illustrators, contemporaries"],
 ];
 
+async function loadRealDimensions() {
+  // Sidecar produced by scripts/fetch-artwork-dimensions.mjs. Optional — if
+  // missing, every artwork simply gets realDimensions: null.
+  const p = path.join(META, "artwork-dimensions.json");
+  if (!existsSync(p)) return new Map();
+  const raw = JSON.parse(await readFile(p, "utf8"));
+  const m = new Map();
+  for (const [id, v] of Object.entries(raw)) {
+    if (v == null) continue;
+    if (
+      typeof v.widthCm === "number" &&
+      typeof v.heightCm === "number" &&
+      typeof v.source === "string"
+    ) {
+      m.set(id, { widthCm: v.widthCm, heightCm: v.heightCm, source: v.source });
+    }
+  }
+  return m;
+}
+
 async function main() {
   const [cob, birds, haeckel] = await Promise.all(
     WIKIMEDIA_FOLDERS.map((f) =>
@@ -216,6 +236,7 @@ async function main() {
     ),
   );
   const { artists: artistsDb, byAlias } = await loadArtistsDb();
+  const realDimensions = await loadRealDimensions();
 
   const artworks = [];
   const artistAggregates = new Map();
@@ -233,6 +254,7 @@ async function main() {
       ).slice(0, 120);
 
       const dims = dimensionsFor(folderKey, fname);
+      const real = realDimensions.get(id) || null;
       artworks.push({
         id,
         title,
@@ -245,6 +267,7 @@ async function main() {
         objectKey: `${folderKey}/${fname}`,
         width: dims?.width ?? null,
         height: dims?.height ?? null,
+        realDimensions: real,
         fileUrl: entry.source.file_url,
         commonsUrl: entry.source.url,
         credit: entry.source.credit || null,

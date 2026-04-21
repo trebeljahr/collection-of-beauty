@@ -16,6 +16,11 @@ export type Artwork = {
   objectKey: string;
   width: number | null;
   height: number | null;
+  realDimensions: {
+    widthCm: number;
+    heightCm: number;
+    source: "wikidata" | "wikimedia-template" | "static";
+  } | null;
   fileUrl: string;
   commonsUrl: string;
   credit: string | null;
