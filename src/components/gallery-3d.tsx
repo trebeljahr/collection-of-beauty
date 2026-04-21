@@ -186,17 +186,39 @@ function Painting({ placement }: { placement: Placement }) {
   const aspect =
     img?.width && img?.height ? img.width / img.height : 1;
 
-  const MAX_W = 2.8;
-  const MAX_H = 2.4;
-  let w = MAX_W;
-  let h = MAX_W / aspect;
-  if (h > MAX_H) {
-    h = MAX_H;
-    w = MAX_H * aspect;
+  // Safe wall-slot bounds. A painting won't get larger than this; if its
+  // real size is bigger, we scale it down proportionally.
+  const MAX_W = 3.2;
+  const MAX_H = 3.0;
+
+  // Prefer real-world dimensions (cm → m) when we have them so viewers
+  // see Girl-with-a-Pearl-Earring at 40 cm and Birth of Venus at nearly
+  // 3 m, side by side. Fall back to a max-fit rectangle from the
+  // texture's pixel aspect ratio when the sidecar has no entry.
+  let w: number;
+  let h: number;
+  if (artwork.realDimensions) {
+    w = artwork.realDimensions.widthCm / 100;
+    h = artwork.realDimensions.heightCm / 100;
+    if (w > MAX_W || h > MAX_H) {
+      const scale = Math.min(MAX_W / w, MAX_H / h);
+      w *= scale;
+      h *= scale;
+    }
+  } else {
+    w = 2.8;
+    h = w / aspect;
+    if (h > 2.4) {
+      h = 2.4;
+      w = h * aspect;
+    }
   }
 
-  const frameT = 0.08;
-  const frameDepth = 0.14;
+  // Physical frame profile. Real picture frames are usually 3–8 cm
+  // thick, independent of canvas size, so we keep this constant instead
+  // of scaling with the painting.
+  const frameT = 0.05;
+  const frameDepth = 0.08;
   const label = artwork.title.length > 70
     ? artwork.title.slice(0, 67) + "…"
     : artwork.title;
@@ -228,22 +250,22 @@ function Painting({ placement }: { placement: Placement }) {
         </mesh>
       )}
       <Text
-        position={[0, -h / 2 - 0.26, 0.02]}
+        position={[0, -h / 2 - frameT - 0.18, 0.02]}
         fontSize={0.085}
         color="#efe6d0"
         anchorX="center"
         anchorY="top"
-        maxWidth={Math.max(w + 0.5, 2)}
+        maxWidth={Math.max(w + 0.6, 2)}
       >
         {label}
       </Text>
       <Text
-        position={[0, -h / 2 - 0.42, 0.02]}
+        position={[0, -h / 2 - frameT - 0.34, 0.02]}
         fontSize={0.07}
         color="#a89b82"
         anchorX="center"
         anchorY="top"
-        maxWidth={Math.max(w + 0.5, 2)}
+        maxWidth={Math.max(w + 0.6, 2)}
       >
         {byline}
       </Text>
