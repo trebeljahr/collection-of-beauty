@@ -117,12 +117,18 @@ async function loadTexture(artwork: Artwork): Promise<THREE.Texture> {
         const res = await fetch(url);
         if (!res.ok) throw new Error(`fetch ${url}: ${res.status}`);
         const blob = await res.blob();
-        const bitmap = downsample
-          ? await createImageBitmap(blob, {
-              resizeWidth: MAX_TEX_WIDTH,
-              resizeQuality: "high",
-            })
-          : await createImageBitmap(blob);
+        // `imageOrientation: "flipY"` pre-flips the bitmap at decode
+        // time. Paired with texture.flipY=false (below), this matches
+        // three.js's ImageBitmapLoader convention and gives the correct
+        // orientation on every driver — relying on UNPACK_FLIP_Y_WEBGL
+        // alone is flaky for ImageBitmap sources.
+        const bitmapOpts: ImageBitmapOptions = {
+          imageOrientation: "flipY",
+          ...(downsample
+            ? { resizeWidth: MAX_TEX_WIDTH, resizeQuality: "high" }
+            : {}),
+        };
+        const bitmap = await createImageBitmap(blob, bitmapOpts);
         const texture = new THREE.Texture(
           bitmap as unknown as HTMLImageElement,
         );
@@ -131,9 +137,6 @@ async function loadTexture(artwork: Artwork): Promise<THREE.Texture> {
         texture.minFilter = THREE.LinearMipMapLinearFilter;
         texture.magFilter = THREE.LinearFilter;
         texture.generateMipmaps = true;
-        // ImageBitmap sources ignore UNPACK_FLIP_Y_WEBGL on some drivers;
-        // Three's convention is flipY=false so pixels upload in image
-        // orientation (top-left origin) rather than doubly-flipped.
         texture.flipY = false;
         texture.needsUpdate = true;
         textureCache.set(cacheKey, texture);
@@ -212,7 +215,7 @@ function Painting({ placement }: { placement: Placement }) {
         <meshStandardMaterial color="#e9dfcb" roughness={0.95} />
       </mesh>
       {texture && (
-        <mesh position={[0, 0, 0.006]}>
+        <mesh position={[0, 0, 0.006]} userData={{ artwork }}>
           <planeGeometry args={[w, h]} />
           <meshStandardMaterial
             map={texture}
@@ -339,11 +342,21 @@ const CEILING_LAMP_POSITIONS: Array<[number, number, number]> = [
   [10, ROOM.h - 0.04, 6],
 ];
 
-function Player({ enabled }: { enabled: boolean }) {
-  const { camera } = useThree();
+function Player({
+  enabled,
+  onZoomRequest,
+}: {
+  enabled: boolean;
+  onZoomRequest: (artwork: Artwork) => void;
+}) {
+  const { camera, scene } = useThree();
   const keys = useRef<Record<string, boolean>>({});
   const velocityY = useRef(0);
   const grounded = useRef(true);
+  // Persistent raycaster so we don't allocate every key press.
+  const raycaster = useRef(new THREE.Raycaster(undefined, undefined, 0.1, 10));
+  const rayOrigin = useRef(new THREE.Vector3());
+  const rayDirection = useRef(new THREE.Vector3());
 
   useEffect(() => {
     camera.position.set(0, EYE_HEIGHT, 7);
@@ -351,13 +364,31 @@ function Player({ enabled }: { enabled: boolean }) {
   }, [camera]);
 
   useEffect(() => {
+    const tryZoom = () => {
+      camera.getWorldPosition(rayOrigin.current);
+      camera.getWorldDirection(rayDirection.current);
+      raycaster.current.set(rayOrigin.current, rayDirection.current);
+      const hits = raycaster.current.intersectObjects(scene.children, true);
+      for (const hit of hits) {
+        const artwork = hit.object.userData?.artwork as Artwork | undefined;
+        if (artwork) {
+          onZoomRequest(artwork);
+          return;
+        }
+      }
+    };
+
     const down = (e: KeyboardEvent) => {
       keys.current[e.code] = true;
-      if (e.code === "Space" && enabled && grounded.current) {
+      if (!enabled) return;
+      if (e.code === "Space" && grounded.current) {
         velocityY.current = JUMP_IMPULSE;
         grounded.current = false;
         // Don't let the browser scroll or fire a button "click" from Space.
         e.preventDefault();
+      }
+      if (e.code === "KeyE" || e.code === "KeyF") {
+        tryZoom();
       }
     };
     const up = (e: KeyboardEvent) => {
@@ -369,7 +400,7 @@ function Player({ enabled }: { enabled: boolean }) {
       window.removeEventListener("keydown", down);
       window.removeEventListener("keyup", up);
     };
-  }, [enabled]);
+  }, [enabled, camera, scene, onZoomRequest]);
 
   useFrame((_, delta) => {
     if (!enabled) return;
@@ -525,7 +556,69 @@ function Crosshair() {
 function HintBar() {
   return (
     <div className="pointer-events-none absolute bottom-4 left-1/2 -translate-x-1/2 rounded-full bg-black/55 px-4 py-1.5 text-xs text-white/80 backdrop-blur">
-      WASD · mouse to look · Shift to run · Space to jump · Esc to release
+      WASD · mouse to look · Shift to run · Space to jump · E to inspect ·
+      Esc to release
+    </div>
+  );
+}
+
+function ZoomModal({
+  artwork,
+  onClose,
+}: {
+  artwork: Artwork;
+  onClose: () => void;
+}) {
+  // Prefer the largest pre-built variant; fall back to the raw original
+  // if shrink hasn't produced one yet.
+  const [src, setSrc] = useState(
+    variantAssetsRawUrl(artwork.objectKey, 2560, "avif"),
+  );
+
+  useEffect(() => {
+    const handle = (e: KeyboardEvent) => {
+      if (e.code === "Escape" || e.code === "KeyE" || e.code === "KeyF") {
+        onClose();
+      }
+    };
+    window.addEventListener("keydown", handle);
+    return () => window.removeEventListener("keydown", handle);
+  }, [onClose]);
+
+  const byline =
+    (artwork.artist ?? "Unknown") +
+    (artwork.year ? ` · ${artwork.year}` : "");
+
+  return (
+    <div
+      className="absolute inset-0 z-20 flex flex-col items-center justify-center gap-4 bg-black/90 p-6 backdrop-blur-sm"
+      onClick={onClose}
+    >
+      <img
+        src={src}
+        alt={artwork.title}
+        onClick={(e) => e.stopPropagation()}
+        onError={() => {
+          // If the pre-built 2560 variant is missing, drop to the raw
+          // original. The browser treats that as a same-origin <img>
+          // fine; WebGL's CORS restriction only applies to textures.
+          setSrc(rawOriginalUrl(artwork.objectKey));
+        }}
+        className="max-h-[82vh] max-w-[92vw] cursor-default object-contain shadow-2xl"
+      />
+      <div
+        onClick={(e) => e.stopPropagation()}
+        className="max-w-[92vw] text-center text-white"
+      >
+        <div className="font-serif text-lg">{artwork.title}</div>
+        <div className="mt-1 text-sm text-white/60">{byline}</div>
+        <div className="mt-3 text-xs text-white/40">
+          Press{" "}
+          <kbd className="rounded border border-white/30 px-1.5">Esc</kbd> or{" "}
+          <kbd className="rounded border border-white/30 px-1.5">E</kbd> to
+          return to the gallery
+        </div>
+      </div>
     </div>
   );
 }
@@ -538,6 +631,7 @@ type PointerLockControlsHandle = {
 export function Gallery3D({ artworks }: Props) {
   const placements = useMemo(() => layout(artworks), [artworks]);
   const [locked, setLocked] = useState(false);
+  const [zoomed, setZoomed] = useState<Artwork | null>(null);
   const [loadedCount, setLoadedCount] = useState(() =>
     placements.filter((p) => textureCache.has(p.artwork.objectKey)).length,
   );
@@ -566,6 +660,12 @@ export function Gallery3D({ artworks }: Props) {
     controlsRef.current?.lock?.();
   };
 
+  const handleZoomRequest = (artwork: Artwork) => {
+    setZoomed(artwork);
+    // Release the cursor so users can read the modal and click out.
+    controlsRef.current?.unlock?.();
+  };
+
   return (
     <div className="fixed left-0 right-0 bottom-0 top-[57px] bg-[#0a0604]">
       <Canvas
@@ -592,14 +692,14 @@ export function Gallery3D({ artworks }: Props) {
           <Painting key={p.artwork.id} placement={p} />
         ))}
 
-        <Player enabled={locked} />
+        <Player enabled={locked} onZoomRequest={handleZoomRequest} />
         <PointerLockControls
           ref={controlsRef as unknown as React.Ref<never>}
           onLock={() => setLocked(true)}
           onUnlock={() => setLocked(false)}
         />
       </Canvas>
-      {!locked && (
+      {!locked && !zoomed && (
         <StartOverlay
           onStart={start}
           loadedCount={loadedCount}
@@ -611,6 +711,9 @@ export function Gallery3D({ artworks }: Props) {
           <Crosshair />
           <HintBar />
         </>
+      )}
+      {zoomed && (
+        <ZoomModal artwork={zoomed} onClose={() => setZoomed(null)} />
       )}
     </div>
   );
