@@ -650,11 +650,6 @@ type PaintingProps = {
   onClick: (artwork: Artwork) => void;
   onLoaded?: () => void;
   reportProgress?: boolean;
-  /** If true, render a per-painting warm accent light. Only enable for
-   *  the active room — turning this on for every painting in the render
-   *  window would stack dozens of lights into the forward shader and
-   *  tank frame rate. */
-  accentLight?: boolean;
 };
 
 function Painting({
@@ -662,7 +657,6 @@ function Painting({
   onClick,
   onLoaded,
   reportProgress,
-  accentLight,
 }: PaintingProps) {
   const { artwork, position, rotation } = placement;
   const { gl } = useThree();
@@ -742,15 +736,12 @@ function Painting({
         <boxGeometry args={[w + frameT * 2, h + frameT * 2, frameDepth]} />
         <meshStandardMaterial color="#241810" roughness={0.55} metalness={0.1} />
       </mesh>
-      {/* Mat */}
-      <mesh position={[0, 0, 0.002]}>
-        <planeGeometry args={[w + frameT * 0.9, h + frameT * 0.9]} />
-        <meshStandardMaterial color="#e9dfcb" roughness={0.95} />
-      </mesh>
-      {/* Canvas */}
+      {/* Canvas — bumped emissive so paintings read as "lit" without
+          per-painting pointLights (which were tanking frame rate when
+          the render window was up around 45 paintings). */}
       {texture && (
         <mesh
-          position={[0, 0, 0.006]}
+          position={[0, 0, 0.004]}
           userData={{ artwork }}
           onClick={(e) => {
             e.stopPropagation();
@@ -762,22 +753,19 @@ function Painting({
             map={texture}
             roughness={0.85}
             metalness={0}
-            emissive="#2a1e10"
-            emissiveIntensity={0.08}
+            emissive="#ffffff"
+            emissiveIntensity={0.35}
             emissiveMap={texture}
+            toneMapped={false}
           />
         </mesh>
       )}
-      <Plaque artwork={artwork} paintingHeight={h} paintingWidth={w} />
-      {accentLight && (
-        <pointLight
-          position={[0, 0.3, 1.1]}
-          intensity={2.2}
-          distance={3.5}
-          decay={2}
-          color="#ffd9a8"
-        />
-      )}
+      <Plaque
+        artwork={artwork}
+        paintingHeight={h}
+        paintingWidth={w}
+        yCenter={yCenter}
+      />
     </group>
   );
 }
@@ -790,83 +778,68 @@ function Plaque({
   artwork,
   paintingHeight,
   paintingWidth,
+  yCenter,
 }: {
   artwork: Artwork;
   paintingHeight: number;
   paintingWidth: number;
+  yCenter: number;
 }) {
-  const plaqueW = Math.min(0.32, Math.max(0.2, paintingWidth * 0.45));
-  const plaqueH = 0.16;
+  // Plaque sits to the painting's right at eye height. A single
+  // multi-line Text replaces the three stacked ones we had before —
+  // easier to lay out without overlap, and it collapses three draws
+  // per plaque into one (big saving with 40+ paintings on screen).
+  const plaqueW = 0.34;
+  const plaqueH = 0.24;
   const plaqueDepth = 0.012;
+  const gap = 0.1; // clearance from the painting's frame
 
-  const verticalGap = Math.min(0.18, 0.08 + paintingHeight * 0.05);
-  const plaqueY = -paintingHeight / 2 - verticalGap - plaqueH / 2;
-  const plaqueZ = 0.01;
+  // Local X: to the right of the painting (local +X in its group frame).
+  // Local Y: offset so the plaque's centre lands at world Y = EYE_HEIGHT,
+  // which is where an adult's gaze naturally rests.
+  const plaqueX = paintingWidth / 2 + gap + plaqueW / 2;
+  const plaqueY = EYE_HEIGHT - yCenter;
+  const plaqueZ = 0.005;
 
   const year = artwork.year ? `, ${artwork.year}` : "";
-  const artistLine = `${artwork.artist ?? "Unknown"}${year}`;
+  const byline = `${artwork.artist ?? "Unknown"}${year}`;
   const dims = artwork.realDimensions
     ? `${formatCm(artwork.realDimensions.widthCm)} × ${formatCm(
         artwork.realDimensions.heightCm,
       )} cm`
     : null;
-  const titleMax = 56;
+  const titleMax = 64;
   const title =
     artwork.title.length > titleMax
       ? artwork.title.slice(0, titleMax - 1) + "…"
       : artwork.title;
 
+  const text = [title, "", byline, dims].filter(Boolean).join("\n");
+
   return (
-    <group position={[0, plaqueY, plaqueZ]}>
+    <group position={[plaqueX, plaqueY, plaqueZ]}>
       <mesh>
         <boxGeometry args={[plaqueW, plaqueH, plaqueDepth]} />
         <meshStandardMaterial
           color="#f4ecd8"
           emissive="#2a1e10"
-          emissiveIntensity={0.04}
+          emissiveIntensity={0.05}
           roughness={0.7}
           metalness={0}
         />
       </mesh>
-      <mesh position={[0, plaqueH / 2 - 0.008, plaqueDepth / 2 + 0.0001]}>
-        <boxGeometry args={[plaqueW - 0.01, 0.004, 0.001]} />
-        <meshStandardMaterial color="#241810" roughness={0.4} />
-      </mesh>
       <Text
-        position={[0, plaqueH / 2 - 0.03, plaqueDepth / 2 + 0.002]}
+        position={[0, 0, plaqueDepth / 2 + 0.002]}
         fontSize={0.018}
+        lineHeight={1.35}
         color="#241810"
         anchorX="center"
-        anchorY="top"
-        maxWidth={plaqueW - 0.02}
+        anchorY="middle"
+        maxWidth={plaqueW - 0.024}
         textAlign="center"
       >
-        {title}
+        {text}
       </Text>
-      <Text
-        position={[0, plaqueH / 2 - 0.06, plaqueDepth / 2 + 0.002]}
-        fontSize={0.014}
-        color="#4a3420"
-        anchorX="center"
-        anchorY="top"
-        maxWidth={plaqueW - 0.02}
-        textAlign="center"
-      >
-        {artistLine}
-      </Text>
-      {dims && (
-        <Text
-          position={[0, -plaqueH / 2 + 0.022, plaqueDepth / 2 + 0.002]}
-          fontSize={0.011}
-          color="#6b5538"
-          anchorX="center"
-          anchorY="bottom"
-          maxWidth={plaqueW - 0.02}
-          textAlign="center"
-        >
-          {dims}
-        </Text>
-      )}
     </group>
   );
 }
@@ -1057,9 +1030,9 @@ function CeilingLamp({
       </mesh>
       <pointLight
         position={[0, -0.15, 0]}
-        intensity={7}
-        distance={13}
-        decay={2.2}
+        intensity={10}
+        distance={18}
+        decay={2}
         color={tint}
       />
     </group>
@@ -1242,12 +1215,14 @@ function Player({
   corridor,
   startZ,
   onRoomChange,
+  onAimChange,
 }: {
   enabled: boolean;
   onZoomRequest: (artwork: Artwork) => void;
   corridor: CorridorBounds;
   startZ: number;
   onRoomChange: (i: number) => void;
+  onAimChange: (aiming: boolean) => void;
 }) {
   const { camera, scene } = useThree();
   const keys = useRef<Record<string, boolean>>({});
@@ -1259,6 +1234,11 @@ function Player({
   const rayOrigin = useRef(new THREE.Vector3());
   const rayDirection = useRef(new THREE.Vector3());
   const lastRoomIdx = useRef(-1);
+  // Throttled aim raycast state. Updated once every AIM_PERIOD frames
+  // (see useFrame below). Avoids per-frame CPU cost of traversing the
+  // scene graph while still feeling responsive.
+  const aimRef = useRef(false);
+  const frameCountRef = useRef(0);
 
   useEffect(() => {
     camera.position.set(0, EYE_HEIGHT, startZ);
@@ -1401,6 +1381,31 @@ function Player({
       lastRoomIdx.current = idx;
       onRoomChange(idx);
     }
+
+    // Throttled aim raycast for the inspect-cursor affordance. Doing
+    // this every frame is wasteful (scene has dozens of meshes), every
+    // 6 frames (≈10 Hz) is indistinguishable from real-time.
+    frameCountRef.current++;
+    if (frameCountRef.current % 6 === 0) {
+      camera.getWorldPosition(rayOrigin.current);
+      camera.getWorldDirection(rayDirection.current);
+      raycaster.current.set(rayOrigin.current, rayDirection.current);
+      const hits = raycaster.current.intersectObjects(
+        scene.children,
+        true,
+      );
+      let aiming = false;
+      for (const hit of hits) {
+        if (hit.object.userData?.artwork) {
+          aiming = true;
+          break;
+        }
+      }
+      if (aiming !== aimRef.current) {
+        aimRef.current = aiming;
+        onAimChange(aiming);
+      }
+    }
   });
 
   return null;
@@ -1496,13 +1501,50 @@ function ResumeOverlay({ onResume }: { onResume: () => void }) {
   );
 }
 
-function Crosshair() {
+function Crosshair({ inspecting }: { inspecting: boolean }) {
   return (
     <div
       aria-hidden
       className="pointer-events-none absolute inset-0 flex items-center justify-center"
     >
-      <div className="h-1.5 w-1.5 rounded-full bg-white/70 ring-1 ring-black/40" />
+      <div className="flex flex-col items-center gap-2">
+        {inspecting ? (
+          // Magnifying-glass ring when the crosshair is over an
+          // inspectable painting. SVG so it scales crisply at any DPI.
+          <svg
+            width="34"
+            height="34"
+            viewBox="0 0 24 24"
+            className="drop-shadow-[0_1px_2px_rgba(0,0,0,0.8)] transition-transform duration-150"
+            style={{ transform: "scale(1)" }}
+          >
+            <circle
+              cx="10"
+              cy="10"
+              r="6.5"
+              fill="rgba(0,0,0,0.25)"
+              stroke="white"
+              strokeWidth="1.8"
+            />
+            <line
+              x1="14.5"
+              y1="14.5"
+              x2="20.5"
+              y2="20.5"
+              stroke="white"
+              strokeWidth="2.2"
+              strokeLinecap="round"
+            />
+          </svg>
+        ) : (
+          <div className="h-1.5 w-1.5 rounded-full bg-white/70 ring-1 ring-black/40" />
+        )}
+        {inspecting && (
+          <div className="rounded-full bg-black/55 px-2.5 py-0.5 text-[11px] font-medium text-white/85 backdrop-blur">
+            Click or <kbd className="rounded border border-white/30 px-1 font-mono text-[10px]">E</kbd> to inspect
+          </div>
+        )}
+      </div>
     </div>
   );
 }
@@ -1787,6 +1829,7 @@ export function Gallery3D({ artworks }: Props) {
   const [locked, setLocked] = useState(false);
   const [hasEntered, setHasEntered] = useState(false);
   const [zoomed, setZoomed] = useState<Artwork | null>(null);
+  const [aimingAtPainting, setAimingAtPainting] = useState(false);
   const [firstRoomLoaded, setFirstRoomLoaded] = useState(0);
   const [activeRoom, setActiveRoom] = useState(0);
   const controlsRef = useRef<PointerLockControlsHandle | null>(null);
@@ -1845,7 +1888,8 @@ export function Gallery3D({ artworks }: Props) {
   return (
     <div className="fixed left-0 right-0 bottom-0 top-[57px] bg-[#0a0604]">
       <Canvas
-        dpr={[1, 1.75]}
+        dpr={[1, 1.5]}
+        performance={{ min: 0.6 }}
         camera={{
           fov: 70,
           near: 0.1,
@@ -1881,7 +1925,6 @@ export function Gallery3D({ artworks }: Props) {
         {layouts.flatMap((layout, i) => {
           if (!visibleIdx.has(i)) return [];
           const reportProgress = i === 0 && !hasEntered;
-          const isActive = i === activeRoom;
           return layout.placements.map((p) => (
             <Painting
               key={`${layout.data.id}-${p.artwork.id}`}
@@ -1891,7 +1934,6 @@ export function Gallery3D({ artworks }: Props) {
               onLoaded={
                 reportProgress ? handleFirstRoomLoaded : undefined
               }
-              accentLight={isActive}
             />
           ));
         })}
@@ -1904,6 +1946,7 @@ export function Gallery3D({ artworks }: Props) {
           corridor={corridor}
           startZ={startZ}
           onRoomChange={setActiveRoom}
+          onAimChange={setAimingAtPainting}
         />
         <PointerLockControls
           ref={controlsRef as unknown as React.Ref<never>}
@@ -1927,7 +1970,7 @@ export function Gallery3D({ artworks }: Props) {
       )}
       {locked && (
         <>
-          <Crosshair />
+          <Crosshair inspecting={aimingAtPainting} />
           <HintBar roomTitle={activeRoomData.title} />
         </>
       )}
