@@ -1,6 +1,7 @@
 "use client";
 
 import {
+  startTransition,
   useCallback,
   useEffect,
   useMemo,
@@ -9,7 +10,13 @@ import {
 } from "react";
 import Link from "next/link";
 import { Canvas, useFrame, useThree } from "@react-three/fiber";
-import { Instance, Instances, PointerLockControls, Text } from "@react-three/drei";
+import {
+  Instance,
+  Instances,
+  PointerLockControls,
+  StatsGl,
+  Text,
+} from "@react-three/drei";
 import * as THREE from "three";
 import type { Artwork } from "@/lib/data";
 import { slugify } from "@/lib/utils";
@@ -47,7 +54,12 @@ const MIN_FLOOR_GAP = 0.3;
 // Render only rooms within [active - N, active + N]. Keeps the scene
 // small enough for smooth movement regardless of how many rooms the
 // corridor actually has.
-const RENDER_WINDOW = 1;
+// Keep 2 rooms on each side of the active one mounted. This makes
+// crossing a door cheap: the new room's geometry + signs are already
+// in the scene graph, we just shift which room is "active". Mount
+// thrash (particularly <Text> re-creation, which triggers troika SDF
+// generation) was a big contributor to the feelable lag.
+const RENDER_WINDOW = 2;
 
 // Data caps. The corridor can hold at most MAX_ROOMS rooms, each
 // holding between MIN_PER_ROOM and MAX_PER_ROOM paintings. Oversize
@@ -562,6 +574,24 @@ async function loadTextureCached(
     const shared = new AbortController();
     promise = fetchAndDecodeTexture(artwork, shared.signal)
       .then((tex) => {
+        // Eagerly upload to the GPU here — this is the single most
+        // important step for hiding the lag when a new room mounts.
+        // Without it, every newly-mounted Painting's first render
+        // batches its GPU upload into the same frame as 15+ others
+        // (a main-thread stall you can feel). With it, the upload
+        // happened during preload and the mount is free.
+        //
+        // initTexture is a synchronous WebGL call; safe to invoke
+        // outside the render loop because R3F's renderer re-binds
+        // its own state at the next draw.
+        if (renderer) {
+          try {
+            renderer.initTexture(tex);
+          } catch {
+            // Some drivers occasionally complain; fall back to
+            // lazy upload at first render.
+          }
+        }
         textureCache.put(key, tex);
         return tex;
       })
@@ -1554,7 +1584,7 @@ function HintBar({ roomTitle }: { roomTitle: string }) {
         {roomTitle}
       </div>
       <div className="pointer-events-none absolute bottom-4 left-1/2 -translate-x-1/2 rounded-full bg-black/55 px-4 py-1.5 text-xs text-white/80 backdrop-blur">
-        WASD · Shift · Space · Click/E to inspect · Esc to release
+        WASD · Shift · Space · Click/E to inspect · F3 stats · Esc to release
       </div>
     </>
   );
@@ -1875,7 +1905,7 @@ function FurnitureInstances({
 
 /** How many rooms out from the active one to preload. Must be strictly
  *  greater than RENDER_WINDOW so textures exist before the room mounts. */
-const PRELOAD_WINDOW = 2;
+const PRELOAD_WINDOW = 3;
 
 function Preloader({
   layouts,
@@ -1945,7 +1975,22 @@ export function Gallery3D({ artworks }: Props) {
   const [aimingAtPainting, setAimingAtPainting] = useState(false);
   const [firstRoomLoaded, setFirstRoomLoaded] = useState(0);
   const [activeRoom, setActiveRoom] = useState(0);
+  const [showStats, setShowStats] = useState(false);
   const controlsRef = useRef<PointerLockControlsHandle | null>(null);
+
+  useEffect(() => {
+    // F3 toggles the stats overlay. Off by default so it doesn't
+    // clutter the room; flip it on when you want to benchmark lag
+    // spikes on a door crossing or a texture upload.
+    const h = (e: KeyboardEvent) => {
+      if (e.code === "F3") {
+        e.preventDefault();
+        setShowStats((v) => !v);
+      }
+    };
+    window.addEventListener("keydown", h);
+    return () => window.removeEventListener("keydown", h);
+  }, []);
 
   // Visible window — render these rooms' geometry and paintings.
   const visibleIdx = useMemo(() => {
@@ -2065,7 +2110,13 @@ export function Gallery3D({ artworks }: Props) {
           onZoomRequest={handleZoomRequest}
           corridor={corridor}
           startZ={startZ}
-          onRoomChange={setActiveRoom}
+          onRoomChange={(i) => {
+            // Room transitions mount ~22 Paintings at once. Marking
+            // that as a non-urgent transition lets React yield to the
+            // frame loop while the re-render happens, so movement
+            // doesn't stutter while the new room is being wired up.
+            startTransition(() => setActiveRoom(i));
+          }}
           onAimChange={setAimingAtPainting}
         />
         <PointerLockControls
@@ -2073,6 +2124,7 @@ export function Gallery3D({ artworks }: Props) {
           onLock={() => setLocked(true)}
           onUnlock={() => setLocked(false)}
         />
+        {showStats && <StatsGl />}
       </Canvas>
 
       {/* Overlays */}
