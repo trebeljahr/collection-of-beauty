@@ -1061,11 +1061,18 @@ function Plaque({
       anchorY="middle"
       maxWidth={PLAQUE_W - 0.024}
       textAlign="center"
-      // troika-three-text computes its own bounding sphere from the
-      // rendered glyphs. Under some transforms (painting rotations,
-      // newlines, dynamic maxWidth) that sphere ends up wrong and the
-      // text culls even when it's plainly in frame — visible as
-      // "sometimes the plaque is blank". Don't cull.
+      // Force synchronous SDF atlas generation. Without this, troika
+      // dispatches the glyph work to a Web Worker and there's a race
+      // where the text mesh renders with empty geometry on the first
+      // frame — visible as "plaque is blank for a second or forever".
+      // Costs a few ms on first-ever mount (the font-atlas cache);
+      // after that it's near-free because glyphs are shared.
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      {...({ sync: true } as any)}
+      // troika computes its own bounding sphere from the rendered
+      // glyphs. Under some transforms (rotations, newlines, dynamic
+      // maxWidth) that sphere ends up wrong and the text culls even
+      // when it's plainly in frame. Don't cull.
       frustumCulled={false}
     >
       {text}
@@ -1809,16 +1816,35 @@ function Crosshair({ inspecting }: { inspecting: boolean }) {
   );
 }
 
-function HintBar({ roomTitle }: { roomTitle: string }) {
+function HintBar({ visible }: { visible: boolean }) {
   return (
-    <>
-      <div className="pointer-events-none absolute top-[72px] left-1/2 -translate-x-1/2 rounded-full bg-black/55 px-4 py-1 text-xs font-medium text-white/85 backdrop-blur">
-        {roomTitle}
-      </div>
-      <div className="pointer-events-none absolute bottom-4 left-1/2 -translate-x-1/2 rounded-full bg-black/55 px-4 py-1.5 text-xs text-white/80 backdrop-blur">
-        WASD · Shift · Space · Click/E to inspect · F3 stats · Esc to release
-      </div>
-    </>
+    <div
+      className="pointer-events-none absolute bottom-4 left-1/2 -translate-x-1/2 rounded-full bg-black/55 px-4 py-1.5 text-xs text-white/80 backdrop-blur transition-opacity duration-500 ease-out"
+      style={{ opacity: visible ? 1 : 0 }}
+    >
+      WASD · Shift · Space · Click/E to inspect ·{" "}
+      <kbd className="rounded border border-white/30 px-1 font-mono text-[10px]">H</kbd>{" "}
+      hints ·{" "}
+      <kbd className="rounded border border-white/30 px-1 font-mono text-[10px]">`</kbd>{" "}
+      stats · Esc to release
+    </div>
+  );
+}
+
+function RoomBanner({
+  visible,
+  title,
+}: {
+  visible: boolean;
+  title: string;
+}) {
+  return (
+    <div
+      className="pointer-events-none absolute top-[72px] left-1/2 -translate-x-1/2 rounded-full bg-black/55 px-4 py-1 text-xs font-medium text-white/85 backdrop-blur transition-opacity duration-500 ease-out"
+      style={{ opacity: visible ? 1 : 0 }}
+    >
+      {title}
+    </div>
   );
 }
 
@@ -2336,6 +2362,26 @@ export function Gallery3D({ artworks }: Props) {
   const [firstRoomLoaded, setFirstRoomLoaded] = useState(0);
   const [activeRoom, setActiveRoom] = useState(0);
   const [showStats, setShowStats] = useState(false);
+  const [hintsVisible, setHintsVisible] = useState(true);
+  const [roomBannerVisible, setRoomBannerVisible] = useState(false);
+
+  // Hint bar: show for a few seconds after locking, then quietly fade.
+  // `H` toggles it back on at any time.
+  useEffect(() => {
+    if (!locked) return;
+    setHintsVisible(true);
+    const t = setTimeout(() => setHintsVisible(false), 4000);
+    return () => clearTimeout(t);
+  }, [locked]);
+
+  // Room title banner: briefly announce the new room on entry, then
+  // fade. Re-shows on every crossing so you always see the next
+  // room's name without having to look at the signage.
+  useEffect(() => {
+    setRoomBannerVisible(true);
+    const t = setTimeout(() => setRoomBannerVisible(false), 2500);
+    return () => clearTimeout(t);
+  }, [activeRoom]);
   const controlsRef = useRef<PointerLockControlsHandle | null>(null);
 
   // ── Audio ────────────────────────────────────────────────────────────────
@@ -2382,13 +2428,16 @@ export function Gallery3D({ artworks }: Props) {
   }, [audio.enabled, audio.sfxVolume]);
 
   useEffect(() => {
-    // F3 toggles the stats overlay. Off by default so it doesn't
-    // clutter the room; flip it on when you want to benchmark lag
-    // spikes on a door crossing or a texture upload.
+    // Backtick toggles the stats overlay (F3 is hijacked by the
+    // browser's find-next). Off by default; flip on when benchmarking.
+    // Also toggle the hint bar with H.
     const h = (e: KeyboardEvent) => {
-      if (e.code === "F3") {
+      if (e.code === "Backquote") {
         e.preventDefault();
         setShowStats((v) => !v);
+      }
+      if (e.code === "KeyH") {
+        setHintsVisible((v) => !v);
       }
     };
     window.addEventListener("keydown", h);
@@ -2572,7 +2621,11 @@ export function Gallery3D({ artworks }: Props) {
       {locked && (
         <>
           <Crosshair inspecting={aimingAtPainting} />
-          <HintBar roomTitle={activeRoomData.title} />
+          <HintBar visible={hintsVisible} />
+          <RoomBanner
+            visible={roomBannerVisible}
+            title={activeRoomData.title}
+          />
         </>
       )}
       {zoomed && (
