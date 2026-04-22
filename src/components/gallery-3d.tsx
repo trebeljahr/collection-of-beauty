@@ -55,6 +55,14 @@ const MAX_PAINTING_H = 4.5;
 const CANONICAL_Y_CENTER = 1.55;
 const MIN_FLOOR_GAP = 0.3;
 
+// Scale multiplier applied to a painting's real-world dimensions before
+// rendering. Compensates for the perceptual compression that any 3D
+// perspective introduces — the 3 m bench reads as ~2 m, so without a
+// scale-up a "real-sized" Birth of Venus reads as a dining-room picture.
+// 1.5× pushes sizes into the range where they *feel* accurate; bump
+// higher if the scene still reads as dollhouse.
+const PAINTING_SCALE = 1.5;
+
 // Render only rooms within [active - N, active + N]. Keeps the scene
 // small enough for smooth movement regardless of how many rooms the
 // corridor actually has.
@@ -65,13 +73,22 @@ const MIN_FLOOR_GAP = 0.3;
 // generation) was a big contributor to the feelable lag.
 const RENDER_WINDOW = 2;
 
-// Data caps. The corridor can hold at most MAX_ROOMS rooms, each
-// holding between MIN_PER_ROOM and MAX_PER_ROOM paintings. Oversize
+// Data caps. The corridor can hold at most MAX_ROOMS rooms, each holding
+// between MIN_PER_ROOM and dynamicMaxPerRoom() paintings. Oversize
 // movements get split into "Part 1/2/...".
 const MAX_ROOMS = 28;
 const MAX_PAINTINGS_TOTAL = 500;
 const MIN_PER_ROOM = 8; // accept small natural groupings
-const MAX_PER_ROOM = 22;
+// Per-room capacity is chosen from these by dynamicMaxPerRoom() based on
+// the average painting width in the group.
+//   avg ≥ 2.8 m → LARGE (14):  Baroque canvases, big Turner / Rubens
+//   avg ≥ 1.4 m → DEFAULT (22): the old uniform cap, typical oil works
+//   avg ≥ 0.8 m → TIGHT (32):   studies, 19th c. genre works
+//   avg  < 0.8 m → SMALL (48):  prints, plates, botanical illustrations
+const MAX_PER_ROOM_DEFAULT = 22;
+const MAX_PER_ROOM_SMALL = 48;
+const MAX_PER_ROOM_TIGHT = 32;
+const MAX_PER_ROOM_LARGE = 14;
 
 // Tunables for texture loading (same shape as before).
 const VARIANT_TEX_WIDTH = 1280;
@@ -174,6 +191,27 @@ function yearRangeText(arr: Artwork[]): string {
   return `${min}–${max}`;
 }
 
+// Pick an appropriate upper bound on paintings-per-room from the average
+// real-world width of the paintings in this group. Rooms full of small
+// works (prints, plates) pack tight and can hold many; rooms dominated
+// by large canvases need breathing room.
+function dynamicMaxPerRoom(paintings: Artwork[]): number {
+  let totalW = 0;
+  let n = 0;
+  for (const a of paintings) {
+    if (a.realDimensions && a.realDimensions.widthCm) {
+      totalW += a.realDimensions.widthCm / 100; // metres
+      n += 1;
+    }
+  }
+  if (n === 0) return MAX_PER_ROOM_DEFAULT;
+  const avg = totalW / n;
+  if (avg < 0.8) return MAX_PER_ROOM_SMALL;
+  if (avg < 1.4) return MAX_PER_ROOM_TIGHT;
+  if (avg > 2.8) return MAX_PER_ROOM_LARGE;
+  return MAX_PER_ROOM_DEFAULT;
+}
+
 function generateRooms(allArtworks: Artwork[]): RoomData[] {
   // Candidate filter: must be a paintings-folder work with real-world
   // dimensions and a year. Skip huge outliers and tiny thumbs.
@@ -221,13 +259,18 @@ function generateRooms(allArtworks: Artwork[]): RoomData[] {
     if (rooms.length >= MAX_ROOMS || total >= MAX_PAINTINGS_TOTAL) break;
     if (arr.length < MIN_PER_ROOM) continue;
 
-    if (arr.length <= MAX_PER_ROOM) {
+    // Room capacity is width-aware: a movement full of small works
+    // (Kunstformen plates, prints, etchings) fits ~2× the count of a
+    // movement full of large Baroque canvases.
+    const maxForThisGroup = dynamicMaxPerRoom(arr);
+
+    if (arr.length <= maxForThisGroup) {
       const take = Math.min(arr.length, MAX_PAINTINGS_TOTAL - total);
       if (take < MIN_PER_ROOM) continue;
       rooms.push(makeRoom(title, arr.slice(0, take), rooms.length));
       total += take;
     } else {
-      const numParts = Math.ceil(arr.length / MAX_PER_ROOM);
+      const numParts = Math.ceil(arr.length / maxForThisGroup);
       const chunkSize = Math.ceil(arr.length / numParts);
       for (let p = 0; p < numParts; p++) {
         if (rooms.length >= MAX_ROOMS) break;
@@ -297,68 +340,147 @@ type RoomLayout = {
   placements: Placement[];
 };
 
-const SIDE_SPACING = 3.2;
+// Side-wall slot spacing fallback. Used only when a wall has a single
+// painting and we want a default "takes this much of the wall" footprint.
+// Actual inter-painting gaps are width-aware (see packWall).
+const SIDE_SPACING = 3.2 * PAINTING_SCALE;
 
-/** Compute depth + slots for a given painting count. Side walls take
- *  the brunt of the load; end walls hold up to 4 each (solid) or 2
- *  each (with a door). */
+// ─── Cluster packing ───────────────────────────────────────────────────────
+// "Small" paintings hang close together in groups of SMALL_CLUSTER_MAX, with
+// a slightly wider break between clusters so the wall reads as a rhythm of
+// little groups rather than one uniform frieze. "Big" paintings (or a small
+// next to a big) get a larger breathing gap. All gaps are edge-to-edge, in
+// world metres.
+const SMALL_PAINTING_THRESHOLD = 1.6; // width (m) at which a work is "small"
+const SMALL_GAP = 0.35;   // gap between two small neighbours in a cluster
+const LARGE_GAP = 0.9;    // gap whenever at least one neighbour is big
+const CLUSTER_BOUNDARY_GAP = 1.4; // gap between clusters of small works
+const SMALL_CLUSTER_MAX = 4;  // reset to a bigger gap after this many smalls
+
+/**
+ * Pack a sequence of painting widths onto a single wall with variable
+ * spacing. Returns each painting's centre position (running distance from
+ * the start of the packed range) and the total packed length.
+ *
+ * Gap rules:
+ *   - small↔small: SMALL_GAP (tight cluster)
+ *   - at cluster boundary (every SMALL_CLUSTER_MAX smalls): CLUSTER_BOUNDARY_GAP
+ *   - any neighbour is big: LARGE_GAP
+ */
+function packWall(widths: number[]): {
+  centres: number[];
+  length: number;
+} {
+  if (widths.length === 0) return { centres: [], length: 0 };
+  const centres: number[] = [];
+  let smallRun = widths[0] < SMALL_PAINTING_THRESHOLD ? 1 : 0;
+  centres.push(widths[0] / 2);
+  for (let i = 1; i < widths.length; i++) {
+    const prev = widths[i - 1];
+    const cur = widths[i];
+    const prevSmall = prev < SMALL_PAINTING_THRESHOLD;
+    const curSmall = cur < SMALL_PAINTING_THRESHOLD;
+    let gap: number;
+    if (prevSmall && curSmall) {
+      if (smallRun >= SMALL_CLUSTER_MAX) {
+        gap = CLUSTER_BOUNDARY_GAP;
+        smallRun = 1;
+      } else {
+        gap = SMALL_GAP;
+        smallRun += 1;
+      }
+    } else {
+      gap = LARGE_GAP;
+      smallRun = curSmall ? 1 : 0;
+    }
+    const edgeOfPrev = centres[i - 1] + prev / 2;
+    centres.push(edgeOfPrev + gap + cur / 2);
+  }
+  const last = widths.length - 1;
+  const length = centres[last] + widths[last] / 2;
+  return { centres, length };
+}
+
+/** Compute depth + slots for a given list of paintings. End walls take up
+ *  to 4 (solid) or 2 (door) works each; the remainder pack onto side walls
+ *  with the width-aware rules above, so rooms full of small works pack
+ *  tightly and rooms full of big canvases get generous breathing room. */
 function planSlots(
-  paintingCount: number,
+  paintings: Artwork[],
   isFirst: boolean,
   isLast: boolean,
 ): { depth: number; slots: Slot[] } {
   const frontHasDoor = !isFirst;
   const backHasDoor = !isLast;
-  const backSlots = backHasDoor ? 2 : 4;
-  const frontSlots = frontHasDoor ? 2 : 4;
-  const endSlots = backSlots + frontSlots;
+  const backSlotCount = backHasDoor ? 2 : 4;
+  const frontSlotCount = frontHasDoor ? 2 : 4;
 
-  // How many on the sides? (The rest go on the ends.)
-  const onSides = Math.max(0, paintingCount - endSlots);
-  const perSide = Math.max(3, Math.ceil(onSides / 2));
-  const depth = Math.max(16, 2 + perSide * SIDE_SPACING);
+  // Split paintings across walls in the order the player will see them:
+  // first few → back wall (directly ahead on entry); middle → sides
+  // (seen walking through); last few → front wall (seen on exit).
+  const count = paintings.length;
+  const backCount = Math.min(backSlotCount, count);
+  const frontCount = Math.min(frontSlotCount, Math.max(0, count - backCount));
+  const sideCount = Math.max(0, count - backCount - frontCount);
+
+  const sidePaintings = paintings.slice(backCount, backCount + sideCount);
+  // Alternate west/east in painting order — keeps chronology readable as
+  // you walk down the middle of the room.
+  const westWidths: number[] = [];
+  const eastWidths: number[] = [];
+  for (let i = 0; i < sidePaintings.length; i++) {
+    const { w } = computePaintingSize(sidePaintings[i], null);
+    if (i % 2 === 0) westWidths.push(w);
+    else eastWidths.push(w);
+  }
+  const westPack = packWall(westWidths);
+  const eastPack = packWall(eastWidths);
+  const sideLength = Math.max(westPack.length, eastPack.length);
+
+  // Room depth = packed side length + 1.6 m margin at each end. Clamp to
+  // a minimum so a half-empty room still feels like a proper gallery.
+  const MARGIN = 1.6;
+  const MIN_DEPTH = 10;
+  const depth = Math.max(MIN_DEPTH, sideLength + 2 * MARGIN);
 
   const frontZ = 0; // room-local
   const backZ = -depth;
-  const centerZ = -depth / 2;
 
   const slots: Slot[] = [];
 
-  // Back wall slots
-  const backXs = backHasDoor
-    ? [-5.5, 5.5]
-    : [-8, -2.7, 2.7, 8];
-  for (const x of backXs) {
-    slots.push({ pos: [x, 0, backZ + 0.06], rot: [0, 0, 0] });
+  // Back wall
+  const backXs = backHasDoor ? [-5.5, 5.5] : [-8, -2.7, 2.7, 8];
+  for (let i = 0; i < backCount; i++) {
+    slots.push({ pos: [backXs[i], 0, backZ + 0.06], rot: [0, 0, 0] });
   }
 
-  // Walk the side walls from back toward front (player walks front →
-  // back, so this reads naturally if they turn to each wall in order).
-  const sideStart = backZ + 1.6;
-  const sideEnd = frontZ - 1.6;
-  const sideSpan = sideEnd - sideStart;
-  const effectiveCount = Math.max(1, Math.floor(sideSpan / SIDE_SPACING) + 1);
-  for (let i = 0; i < effectiveCount; i++) {
-    const t = effectiveCount > 1 ? i / (effectiveCount - 1) : 0.5;
-    const z = sideStart + t * sideSpan;
-    // West
-    slots.push({
-      pos: [-ROOM_WIDTH / 2 + 0.06, 0, z],
-      rot: [0, Math.PI / 2, 0],
-    });
-    // East
-    slots.push({
-      pos: [ROOM_WIDTH / 2 - 0.06, 0, z],
-      rot: [0, -Math.PI / 2, 0],
-    });
+  // Side walls. Centre each packed run on the usable side length so a
+  // half-full wall floats evenly between back and front margins.
+  const usable = depth - 2 * MARGIN;
+  const westOffset = (usable - westPack.length) / 2;
+  const eastOffset = (usable - eastPack.length) / 2;
+  let wi = 0;
+  let ei = 0;
+  for (let i = 0; i < sidePaintings.length; i++) {
+    if (i % 2 === 0) {
+      const z = backZ + MARGIN + westOffset + westPack.centres[wi++];
+      slots.push({
+        pos: [-ROOM_WIDTH / 2 + 0.06, 0, z],
+        rot: [0, Math.PI / 2, 0],
+      });
+    } else {
+      const z = backZ + MARGIN + eastOffset + eastPack.centres[ei++];
+      slots.push({
+        pos: [ROOM_WIDTH / 2 - 0.06, 0, z],
+        rot: [0, -Math.PI / 2, 0],
+      });
+    }
   }
 
-  // Front wall slots
-  const frontXs = frontHasDoor
-    ? [-5.5, 5.5]
-    : [-8, -2.7, 2.7, 8];
-  for (const x of frontXs) {
-    slots.push({ pos: [x, 0, frontZ - 0.06], rot: [0, Math.PI, 0] });
+  // Front wall
+  const frontXs = frontHasDoor ? [-5.5, 5.5] : [-8, -2.7, 2.7, 8];
+  for (let i = 0; i < frontCount; i++) {
+    slots.push({ pos: [frontXs[i], 0, frontZ - 0.06], rot: [0, Math.PI, 0] });
   }
 
   return { depth, slots };
@@ -371,7 +493,7 @@ function layoutCorridor(rooms: RoomData[]): RoomLayout[] {
   rooms.forEach((data, i) => {
     const isFirst = i === 0;
     const isLast = i === rooms.length - 1;
-    const { depth, slots } = planSlots(data.artworks.length, isFirst, isLast);
+    const { depth, slots } = planSlots(data.artworks, isFirst, isLast);
     const backZ = frontZ - depth;
     const centerZ = (frontZ + backZ) / 2;
 
@@ -438,12 +560,12 @@ const missingUrls = new Set<string>();
 // the render window (unmount) without throwing away its texture — if
 // the player comes back within the LRU's lifetime, it's instant.
 //
-// Sized for (RENDER_WINDOW × MAX_PER_ROOM) + ~headroom: at most 5 rooms
-// × 22 paintings = 110 visible, but the *active* room is the one with
-// full detail (~22). 32 comfortably covers active + one neighbour, and
-// keeps browser memory around 160 MB instead of the 400 MB the old
-// cap implied.
-const TEXTURE_CACHE_CAPACITY = 32;
+// Sized for (active room + one neighbour) worth of paintings. Rooms of
+// small works pack up to MAX_PER_ROOM_SMALL (48), but the active-room
+// detail is what matters most — neighbours degrade to the low-res
+// variant anyway. 48 covers an active small-works room with headroom
+// and keeps browser GPU memory around ~240 MB.
+const TEXTURE_CACHE_CAPACITY = 48;
 
 class TextureLRU {
   private map = new Map<string, THREE.Texture>();
@@ -769,9 +891,14 @@ function computeMetaSize(artwork: Artwork): { w: number; h: number } {
       }
     }
 
-    return clampToCap(wCm / 100, hCm / 100);
+    return clampToCap(
+      (wCm / 100) * PAINTING_SCALE,
+      (hCm / 100) * PAINTING_SCALE,
+    );
   }
-  // No metadata — pick a modest default.
+  // No metadata — pick a modest default. (The room layout filters these
+  // out upstream in generateRooms; this branch only runs if something
+  // slips through.)
   return { w: 2.0, h: 1.5 };
 }
 
@@ -1029,12 +1156,14 @@ function Plaque({
   yCenter: number;
 }) {
   // Plaque box is drawn via an instanced mesh at the Gallery3D level;
-  // this component positions only the label Text on top of it. Local
-  // coords here mirror the instance's transform so the Text lands
-  // centred on the plaque face.
+  // this component positions only the label Text on top of it. The
+  // instance's front face sits at z = PLAQUE_DEPTH (the box centre is
+  // at PLAQUE_DEPTH/2, extends ±half-depth). Park the Text a hair in
+  // front of that face — otherwise it renders *inside* the opaque
+  // cream body and is completely occluded.
   const plaqueX = paintingWidth / 2 + PLAQUE_GAP + PLAQUE_W / 2;
   const plaqueY = EYE_HEIGHT - yCenter;
-  const plaqueZ = PLAQUE_DEPTH / 2 + 0.003;
+  const plaqueZ = PLAQUE_DEPTH + 0.003;
 
   const year = artwork.year ? `, ${artwork.year}` : "";
   const byline = `${artwork.artist ?? "Unknown"}${year}`;
@@ -1061,14 +1190,6 @@ function Plaque({
       anchorY="middle"
       maxWidth={PLAQUE_W - 0.024}
       textAlign="center"
-      // Force synchronous SDF atlas generation. Without this, troika
-      // dispatches the glyph work to a Web Worker and there's a race
-      // where the text mesh renders with empty geometry on the first
-      // frame — visible as "plaque is blank for a second or forever".
-      // Costs a few ms on first-ever mount (the font-atlas cache);
-      // after that it's near-free because glyphs are shared.
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      {...({ sync: true } as any)}
       // troika computes its own bounding sphere from the rendered
       // glyphs. Under some transforms (rotations, newlines, dynamic
       // maxWidth) that sphere ends up wrong and the text culls even
@@ -1101,14 +1222,15 @@ function SolidWall({
   height: number;
   color: string;
 }) {
+  // Box (not plane) so the wall has real WALL_THICKNESS in depth. Frames
+  // sink 2 cm backward into the wall surface to give the mat its inset
+  // look; with a zero-depth plane that 2 cm poked out the *other* side
+  // of the wall and was visible as a phantom rectangle in the adjacent
+  // room. Box walls hide the backward frame extension completely.
   return (
     <mesh position={position} rotation={rotation}>
-      <planeGeometry args={[width, height]} />
-      <meshStandardMaterial
-        color={color}
-        roughness={0.92}
-        side={THREE.DoubleSide}
-      />
+      <boxGeometry args={[width, height, WALL_THICKNESS]} />
+      <meshStandardMaterial color={color} roughness={0.92} />
     </mesh>
   );
 }
@@ -1136,31 +1258,21 @@ function WallWithDoor({
   const lintelY = doorHeight + (height - doorHeight) / 2 - height / 2;
   const lintelH = height - doorHeight;
 
+  // Box panels for the same reason as SolidWall — a zero-depth plane
+  // lets the adjacent-room painting frames poke through the wall.
   return (
     <group position={position} rotation={rotation}>
       <mesh position={[leftX, 0, 0]}>
-        <planeGeometry args={[sideWidth, height]} />
-        <meshStandardMaterial
-          color={color}
-          roughness={0.92}
-          side={THREE.DoubleSide}
-        />
+        <boxGeometry args={[sideWidth, height, WALL_THICKNESS]} />
+        <meshStandardMaterial color={color} roughness={0.92} />
       </mesh>
       <mesh position={[rightX, 0, 0]}>
-        <planeGeometry args={[sideWidth, height]} />
-        <meshStandardMaterial
-          color={color}
-          roughness={0.92}
-          side={THREE.DoubleSide}
-        />
+        <boxGeometry args={[sideWidth, height, WALL_THICKNESS]} />
+        <meshStandardMaterial color={color} roughness={0.92} />
       </mesh>
       <mesh position={[0, lintelY, 0]}>
-        <planeGeometry args={[doorWidth, lintelH]} />
-        <meshStandardMaterial
-          color={color}
-          roughness={0.92}
-          side={THREE.DoubleSide}
-        />
+        <boxGeometry args={[doorWidth, lintelH, WALL_THICKNESS]} />
+        <meshStandardMaterial color={color} roughness={0.92} />
       </mesh>
       <DoorTrim doorWidth={doorWidth} doorHeight={doorHeight} />
     </group>
@@ -2213,14 +2325,15 @@ function FurnitureInstances({
 // =============================================================
 
 /**
- * Fixed capacity — matches MAX_PER_ROOM, our upper bound on paintings
- * per room. If the active room has fewer, the extra lights sit idle
- * (intensity 0, parked far off-screen). Crucially, the total count of
- * `<pointLight>` components in the scene stays constant across the
- * entire session, so Three.js's forward shader compiles exactly once
- * for this count and never recompiles during a room crossing.
+ * Fixed capacity — must be ≥ the largest dynamicMaxPerRoom result, so
+ * a small-works-packed room has a light per painting with headroom. If
+ * the active room has fewer paintings, the extras sit idle (intensity
+ * 0, parked far off-screen). Crucially the total count of
+ * `<pointLight>` components stays constant across the whole session, so
+ * Three.js's forward shader compiles exactly once for this count and
+ * never recompiles during a room crossing.
  */
-const ACCENT_LIGHT_POOL_SIZE = MAX_PER_ROOM;
+const ACCENT_LIGHT_POOL_SIZE = MAX_PER_ROOM_SMALL;
 
 function AccentLightPool({
   layouts,

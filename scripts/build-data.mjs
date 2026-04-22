@@ -245,6 +245,50 @@ const KNOWN_CONNECTIONS = [
   ["John James Audubon", "John Gould", "ornithological illustrators, contemporaries"],
 ];
 
+// Sidecar values that are actually placeholders, not real measurements. Each
+// pair here is shared by a huge chunk of the catalog (>30 artworks) because
+// the source hands the same value to every page in a book or collection:
+//   - 67.31 × 100.33  Audubon's "double elephant folio" page size (435 plates)
+//   - 26 × 36         Haeckel Kunstformen der Natur book page   (100 plates)
+//   - 41 × 76         Wikimedia template default seen on ~34 Russian works
+// Null these out so the 3D gallery skips them rather than rendering every
+// Audubon bird at an identical uniform page rectangle.
+const PLACEHOLDER_DIMS = new Set([
+  "6731:10033",
+  "10033:6731",
+  "2600:3600",
+  "3600:2600",
+  "4100:7600",
+  "7600:4100",
+]);
+
+function sanitizeRealDimensions(dims) {
+  if (!dims) return null;
+  let { widthCm, heightCm, source } = dims;
+
+  const sig = `${Math.round(widthCm * 100)}:${Math.round(heightCm * 100)}`;
+  if (PLACEHOLDER_DIMS.has(sig)) return null;
+
+  // Google Art Project's `|pretty_dimensions = w997 x h610 cm` format
+  // sometimes stores millimetres labelled as centimetres (confirmed on
+  // "The Deposition" and others). Real paintings over ~4 m in either
+  // dimension are rare and almost always covered by Wikidata, so anything
+  // sourced from the wikitext template and exceeding 400 cm is very likely
+  // the mm/cm bug. If dividing by 10 gives a plausible painting (both dims
+  // 1–300 cm), accept the mm interpretation; otherwise drop the value as
+  // unreliable so the room renderer falls back to skipping it.
+  if (source === "wikimedia-template" && (widthCm > 400 || heightCm > 400)) {
+    const wMm = widthCm / 10;
+    const hMm = heightCm / 10;
+    if (wMm >= 1 && hMm >= 1 && wMm <= 300 && hMm <= 300) {
+      return { widthCm: wMm, heightCm: hMm, source: "wikimedia-template-mm" };
+    }
+    return null;
+  }
+
+  return { widthCm, heightCm, source };
+}
+
 async function loadRealDimensions() {
   // Sidecar produced by scripts/fetch-artwork-dimensions.mjs. Optional — if
   // missing, every artwork simply gets realDimensions: null.
@@ -252,16 +296,32 @@ async function loadRealDimensions() {
   if (!existsSync(p)) return new Map();
   const raw = JSON.parse(await readFile(p, "utf8"));
   const m = new Map();
+  let droppedPlaceholder = 0;
+  let mmFixed = 0;
+  let droppedUnreliable = 0;
   for (const [id, v] of Object.entries(raw)) {
     if (v == null) continue;
     if (
-      typeof v.widthCm === "number" &&
-      typeof v.heightCm === "number" &&
-      typeof v.source === "string"
+      typeof v.widthCm !== "number" ||
+      typeof v.heightCm !== "number" ||
+      typeof v.source !== "string"
     ) {
-      m.set(id, { widthCm: v.widthCm, heightCm: v.heightCm, source: v.source });
+      continue;
     }
+    const sanitized = sanitizeRealDimensions(v);
+    if (!sanitized) {
+      // Distinguish the two drop reasons for the stats line.
+      const sig = `${Math.round(v.widthCm * 100)}:${Math.round(v.heightCm * 100)}`;
+      if (PLACEHOLDER_DIMS.has(sig)) droppedPlaceholder++;
+      else droppedUnreliable++;
+      continue;
+    }
+    if (sanitized.source === "wikimedia-template-mm") mmFixed++;
+    m.set(id, sanitized);
   }
+  console.log(
+    `[build-data] realDimensions: ${m.size} kept, ${droppedPlaceholder} placeholders dropped, ${mmFixed} mm/cm rescales, ${droppedUnreliable} unreliable dropped`,
+  );
   return m;
 }
 

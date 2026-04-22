@@ -278,13 +278,33 @@ function parseDimensionString(raw) {
   // Google Art Project uses `wWIDTH x hHEIGHT UNIT`. Check this first so we
   // preserve axis identity — otherwise we'd fall through to the generic pair
   // parser (which assumes height-first).
+  //
+  // GAP's `|pretty_dimensions = w997 x h610 cm` is a known-buggy import from
+  // Commons: the numbers are actually millimetres but get labelled `cm`. If
+  // the stated unit gives implausibly huge cm values (≥ 400 cm) and
+  // interpreting as mm lands in a realistic painting range (1–300 cm on
+  // both dims), trust the mm reading.
   const gapRe = /w\s*(\d+(?:[.,]\d+)?)\s*(?:[x×X]|by)\s*h\s*(\d+(?:[.,]\d+)?)\s*(cm|mm|m|in|inches?)\b/i;
   const gm = raw.match(gapRe);
   if (gm) {
     const w = parseFloat(gm[1].replace(",", "."));
     const h = parseFloat(gm[2].replace(",", "."));
-    const wCm = convertToCm(w, gm[3]);
-    const hCm = convertToCm(h, gm[3]);
+    const unit = gm[3];
+    let wCm = convertToCm(w, unit);
+    let hCm = convertToCm(h, unit);
+    if (
+      /^cm$/i.test(unit) &&
+      wCm != null &&
+      hCm != null &&
+      (wCm >= 400 || hCm >= 400)
+    ) {
+      const wMm = wCm / 10;
+      const hMm = hCm / 10;
+      if (wMm >= 1 && hMm >= 1 && wMm <= 300 && hMm <= 300) {
+        wCm = wMm;
+        hCm = hMm;
+      }
+    }
     if (wCm != null && hCm != null && plausibleCm(wCm) && plausibleCm(hCm))
       return { widthCm: round(wCm, 2), heightCm: round(hCm, 2) };
   }
