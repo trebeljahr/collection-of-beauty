@@ -637,8 +637,8 @@ const HIRES_CACHE_CAPACITY = 12;
 // LOD distance hysteresis: upgrade when camera steps inside UPGRADE,
 // downgrade (drop back to base + free VRAM) once it passes DOWNGRADE.
 // The gap prevents flip-flop if the player lingers on the threshold.
-const HIRES_UPGRADE_DIST = 3.5;
-const HIRES_DOWNGRADE_DIST = 5.5;
+const HIRES_UPGRADE_DIST = 1.5;
+const HIRES_DOWNGRADE_DIST = 2.5;
 const hiResCache = new TextureLRU(HIRES_CACHE_CAPACITY);
 const hiResInFlight = new Map<string, Promise<THREE.Texture>>();
 
