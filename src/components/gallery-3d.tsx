@@ -433,7 +433,13 @@ const missingUrls = new Set<string>();
 // entry is evicted, its Texture is disposed. This lets a Painting leave
 // the render window (unmount) without throwing away its texture — if
 // the player comes back within the LRU's lifetime, it's instant.
-const TEXTURE_CACHE_CAPACITY = 80;
+//
+// Sized for (RENDER_WINDOW × MAX_PER_ROOM) + ~headroom: at most 5 rooms
+// × 22 paintings = 110 visible, but the *active* room is the one with
+// full detail (~22). 32 comfortably covers active + one neighbour, and
+// keeps browser memory around 160 MB instead of the 400 MB the old
+// cap implied.
+const TEXTURE_CACHE_CAPACITY = 32;
 
 class TextureLRU {
   private map = new Map<string, THREE.Texture>();
