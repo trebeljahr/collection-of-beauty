@@ -707,6 +707,17 @@ type PaintingProps = {
   onClick: (artwork: Artwork) => void;
   onLoaded?: () => void;
   reportProgress?: boolean;
+  /** Room this painting lives in is the active (player-occupied) one.
+   *  Only active rooms get per-painting accent lights and plaque-label
+   *  `<Text>`, both of which are expensive per-frame / per-mount costs
+   *  that we don't want paid for rooms the player is just glimpsing
+   *  through a doorway. */
+  isActive?: boolean;
+  /** Milliseconds to delay the first render. Used to spread out
+   *  `<Text>` and `<mesh>` creations across several frames when a new
+   *  room enters the render window, instead of slamming all ~22
+   *  paintings into a single frame. */
+  staggerMs?: number;
 };
 
 function Painting({
@@ -714,6 +725,8 @@ function Painting({
   onClick,
   onLoaded,
   reportProgress,
+  isActive,
+  staggerMs = 0,
 }: PaintingProps) {
   const { artwork, position, rotation } = placement;
   const { gl } = useThree();
@@ -722,7 +735,14 @@ function Painting({
   const [texture, setTexture] = useState<THREE.Texture | null>(() =>
     textureCache.get(artwork.objectKey) ?? null,
   );
+  const [staggerReady, setStaggerReady] = useState(() => staggerMs <= 0);
   const reportedRef = useRef(false);
+
+  useEffect(() => {
+    if (staggerReady) return;
+    const t = setTimeout(() => setStaggerReady(true), staggerMs);
+    return () => clearTimeout(t);
+  }, [staggerReady, staggerMs]);
 
   useEffect(() => {
     // If we synchronously picked up a cached texture, nothing to do.
@@ -787,12 +807,13 @@ function Painting({
     position[2],
   ];
 
+  // While staggering, render nothing — the frame + plaque *boxes* are
+  // instanced at the Gallery3D level, so they appear instantly. Only
+  // the per-painting pieces (canvas mesh, Plaque Text, accent light)
+  // wait their turn.
   return (
     <group position={groupPosition} rotation={rotation}>
-      {/* Canvas — frame is drawn via instanced meshes at the Gallery3D
-          level. Canvas emissive is bumped so the painting still reads
-          as "lit" without a per-painting pointLight. */}
-      {texture && (
+      {staggerReady && texture && (
         <mesh
           position={[0, 0, 0.004]}
           userData={{ artwork }}
@@ -807,15 +828,34 @@ function Painting({
             roughness={0.85}
             metalness={0}
             emissive="#ffffff"
-            emissiveIntensity={0.35}
+            emissiveIntensity={isActive ? 0.25 : 0.4}
             emissiveMap={texture}
             toneMapped={false}
           />
         </mesh>
       )}
-      {/* Plaque renders only its label text here; the box body is
-          instanced alongside the frames. */}
-      <Plaque artwork={artwork} paintingWidthMeta={meta.w} yCenter={yCenter} />
+      {/* Plaque label only for the active room — troika SDF cost is
+          the expensive part of a Plaque, and you can't read labels
+          across a doorway anyway. */}
+      {staggerReady && isActive && (
+        <Plaque
+          artwork={artwork}
+          paintingWidthMeta={meta.w}
+          yCenter={yCenter}
+        />
+      )}
+      {/* Warm accent spot — only in the active room, for the same
+          reason: each light costs forward-shader work per fragment,
+          and we don't need the ones in the room behind us. */}
+      {staggerReady && isActive && (
+        <pointLight
+          position={[0, 0.2, 1.1]}
+          intensity={2.2}
+          distance={3.5}
+          decay={2}
+          color="#ffd9a8"
+        />
+      )}
     </group>
   );
 }
@@ -1076,11 +1116,13 @@ function RoomGeometry({
   nextTitle,
   nextDescription,
   prevTitle,
+  isActive,
 }: {
   layout: RoomLayout;
   nextTitle: string | null;
   nextDescription: string | null;
   prevTitle: string | null;
+  isActive: boolean;
 }) {
   const { data, isFirst, isLast, backZ, frontZ, centerZ, depth } = layout;
   const backHasDoor = !isLast;
@@ -1172,7 +1214,12 @@ function RoomGeometry({
         <meshStandardMaterial color="#5a3d28" roughness={0.5} metalness={0.2} />
       </mesh>
       {/* Lamps */}
-      {lampPositions.map((p, i) => (
+      {/* Ceiling lamps only inhabit the active room. Neighbour rooms
+          rely on ambient + hemisphere fill, which reads as "the next
+          room is dim, you haven't turned the lights on yet". Drops the
+          live-pointLight count from 20+ down to ~4, which the forward
+          shader evaluates per fragment. */}
+      {isActive && lampPositions.map((p, i) => (
         <CeilingLamp key={i} position={p} tint={data.palette.lampTint} />
       ))}
       {/* Room title sign — opposite the entrance door, high on the
@@ -1516,13 +1563,17 @@ function StartOverlay({
 }
 
 function ResumeOverlay({ onResume }: { onResume: () => void }) {
+  // Invisible full-screen click target. The scene is fully visible
+  // underneath — no darkening, no modal. The hint in the corner is
+  // purely informational; the whole surface relocks on any click.
   return (
     <button
       type="button"
       onClick={onResume}
-      className="absolute inset-0 z-10 flex cursor-pointer items-center justify-center bg-black/50 text-white transition hover:bg-black/40"
+      aria-label="Resume"
+      className="absolute inset-0 z-10 cursor-pointer bg-transparent"
     >
-      <div className="rounded-lg border border-white/20 bg-black/60 px-6 py-3 text-sm backdrop-blur">
+      <div className="pointer-events-none absolute bottom-4 left-1/2 -translate-x-1/2 rounded-full bg-black/55 px-3 py-1 text-xs text-white/80 backdrop-blur">
         Click to resume
       </div>
     </button>
@@ -2026,11 +2077,19 @@ export function Gallery3D({ artworks }: Props) {
 
   const handleZoomClose = useCallback(() => {
     setZoomed(null);
-    // Deliberately don't auto-relock here: Chrome blocks relocking
-    // "immediately after the user has exited the lock" (see the
-    // SecurityError / THREE warning), and racing that restriction just
-    // produces noise. The ResumeOverlay already lets the user re-enter
-    // with a single click, which counts as a fresh gesture.
+    // Try to re-engage pointer lock right away. This *is* a user gesture
+    // (the click on Close), so it'll succeed unless Chrome's post-unlock
+    // cooldown (~1.5 s) is still active.
+    const tryLock = () => controlsRef.current?.lock?.();
+    tryLock();
+    // Fall-back: the *next* click anywhere retries. That click is itself
+    // a user gesture, and by then the cooldown has passed. The net UX:
+    // rapid close = one extra (invisible) click and you're back in; slow
+    // close = no extra click at all.
+    const onNextClick = () => {
+      tryLock();
+    };
+    window.addEventListener("pointerdown", onNextClick, { once: true });
   }, []);
 
   const handleFirstRoomLoaded = useCallback(() => {
@@ -2081,6 +2140,7 @@ export function Gallery3D({ artworks }: Props) {
               nextTitle={next?.data.title ?? null}
               nextDescription={next?.data.description ?? null}
               prevTitle={prev?.data.title ?? null}
+              isActive={i === activeRoom}
             />
           );
         })}
@@ -2088,7 +2148,8 @@ export function Gallery3D({ artworks }: Props) {
         {layouts.flatMap((layout, i) => {
           if (!visibleIdx.has(i)) return [];
           const reportProgress = i === 0 && !hasEntered;
-          return layout.placements.map((p) => (
+          const isActive = i === activeRoom;
+          return layout.placements.map((p, idx) => (
             <Painting
               key={`${layout.data.id}-${p.artwork.id}`}
               placement={p}
@@ -2097,6 +2158,12 @@ export function Gallery3D({ artworks }: Props) {
               onLoaded={
                 reportProgress ? handleFirstRoomLoaded : undefined
               }
+              isActive={isActive}
+              // Spread ~22 paintings across ~450 ms so the <Text> SDF
+              // atlas generation and mesh creation don't batch into a
+              // single frame when a new room mounts. Imperceptible at
+              // walking speed, inexpensive on the main thread.
+              staggerMs={idx * 20}
             />
           ));
         })}
