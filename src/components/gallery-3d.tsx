@@ -19,6 +19,11 @@ import {
 import * as THREE from "three";
 import type { Artwork } from "@/lib/data";
 import { slugify } from "@/lib/utils";
+import { useAudioSettings } from "@/lib/audio-settings";
+import { AudioControls } from "@/components/audio-controls";
+
+const AMBIENCE_SRC = "/audio/ambience-loop.mp3";
+const ROOM_TRANSITION_SRC = "/audio/room-transition.mp3";
 
 type Props = { artworks: Artwork[] };
 
@@ -739,44 +744,68 @@ function clampToCap(w: number, h: number): { w: number; h: number } {
  * actual aspect ratio. The eventual canvas fits *inside* this box.
  */
 function computeMetaSize(artwork: Artwork): { w: number; h: number } {
-  if (artwork.realDimensions) {
-    return clampToCap(
-      artwork.realDimensions.widthCm / 100,
-      artwork.realDimensions.heightCm / 100,
-    );
+  const rd = artwork.realDimensions;
+  if (rd && rd.widthCm && rd.heightCm) {
+    let wCm = rd.widthCm;
+    let hCm = rd.heightCm;
+
+    // Wikidata (and the wikimedia-template parser) sometimes store
+    // width/height in the wrong slots — especially for landscape
+    // paintings. If the image aspect matches the *swapped* meta far
+    // better than the stated one, trust the image and swap the dims.
+    // This alone recovers ~240 artworks in the catalog (most of
+    // Turner's landscapes among them) that otherwise render at a
+    // fraction of their real size.
+    if (artwork.width && artwork.height) {
+      const imgAspect = artwork.width / artwork.height;
+      const statedAspect = wCm / hCm;
+      const swappedAspect = hCm / wCm;
+      const statedDiff =
+        Math.abs(imgAspect - statedAspect) / Math.max(statedAspect, 0.01);
+      const swappedDiff =
+        Math.abs(imgAspect - swappedAspect) / Math.max(swappedAspect, 0.01);
+      if (statedDiff > 0.15 && swappedDiff < 0.05) {
+        [wCm, hCm] = [hCm, wCm];
+      }
+    }
+
+    return clampToCap(wCm / 100, hCm / 100);
   }
   // No metadata — pick a modest default.
   return { w: 2.0, h: 1.5 };
 }
 
 /**
- * Final canvas dimensions, which also need to fit *inside* the meta
- * box (so the instanced frame always encloses the canvas cleanly). If
- * the image aspect disagrees with the metadata aspect, we shrink the
- * canvas to keep its aspect *inside* the meta bounding box rather than
- * stretching it.
+ * Final canvas dimensions. Fits the image aspect *inside* the meta
+ * bounding box — the frame (sized to this result in collectFurniture)
+ * then hugs the canvas with only the FRAME_T mat around it. No visible
+ * dark matte from an aspect mismatch.
+ *
+ * Deterministic at layout time: we prefer the aspect baked into
+ * artworks.json (image-size probed from the original during
+ * build-data), so the frame can be sized before the texture has loaded.
+ * Texture dims are a fallback for artworks whose probe failed.
  */
 function computePaintingSize(
   artwork: Artwork,
   texture: THREE.Texture | null,
 ): { w: number; h: number } {
   const meta = computeMetaSize(artwork);
-  const img = texture?.image as
-    | { width?: number; height?: number }
-    | undefined;
-  const imgAspect =
-    img?.width && img?.height ? img.width / img.height : null;
 
-  if (!imgAspect || !artwork.realDimensions) return meta;
+  let imgAspect: number | null = null;
+  if (artwork.width && artwork.height) {
+    imgAspect = artwork.width / artwork.height;
+  } else {
+    const img = texture?.image as
+      | { width?: number; height?: number }
+      | undefined;
+    imgAspect = img?.width && img?.height ? img.width / img.height : null;
+  }
 
-  const metaAspect = meta.w / meta.h;
-  const disagreement =
-    Math.abs(imgAspect - metaAspect) / Math.max(metaAspect, 0.01);
-  if (disagreement < 0.15) return meta;
+  if (!imgAspect) return meta;
 
-  // Aspects disagree: fit the image aspect *inside* the meta rectangle,
-  // always choosing the larger-fitting dimension. Never grows past the
-  // frame.
+  // Fit the image aspect inside the meta box: whichever of width /
+  // height can't expand without overflowing is the binding constraint.
   const heightAtMetaW = meta.w / imgAspect;
   if (heightAtMetaW <= meta.h) {
     return { w: meta.w, h: heightAtMetaW };
@@ -904,14 +933,14 @@ function Painting({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [artwork.objectKey]);
 
-  const meta = computeMetaSize(artwork);
   // Display the hi-res texture when we have it, else the normal one.
   const displayTexture = hiResTexture ?? texture;
   const { w, h } = computePaintingSize(artwork, displayTexture);
-  // yCenter uses the meta height so the group + frame share the same
-  // y-centre — the canvas (inside the group) may be slightly smaller,
-  // but it'll sit centred inside the frame.
-  const yCenter = computePaintingYCenter(meta.h);
+  // yCenter is driven by the canvas height — the instanced frame (in
+  // FurnitureInstances) is sized to the same computePaintingSize + mat,
+  // so frame and canvas share the same centre and the frame hugs the
+  // painting with no visible matte.
+  const yCenter = computePaintingYCenter(h);
 
   const groupPosition: [number, number, number] = [
     position[0],
@@ -978,7 +1007,7 @@ function Painting({
       {staggerReady && isActive && (
         <Plaque
           artwork={artwork}
-          paintingWidthMeta={meta.w}
+          paintingWidth={w}
           yCenter={yCenter}
         />
       )}
@@ -992,18 +1021,18 @@ function Painting({
 
 function Plaque({
   artwork,
-  paintingWidthMeta,
+  paintingWidth,
   yCenter,
 }: {
   artwork: Artwork;
-  paintingWidthMeta: number;
+  paintingWidth: number;
   yCenter: number;
 }) {
   // Plaque box is drawn via an instanced mesh at the Gallery3D level;
   // this component positions only the label Text on top of it. Local
   // coords here mirror the instance's transform so the Text lands
   // centred on the plaque face.
-  const plaqueX = paintingWidthMeta / 2 + PLAQUE_GAP + PLAQUE_W / 2;
+  const plaqueX = paintingWidth / 2 + PLAQUE_GAP + PLAQUE_W / 2;
   const plaqueY = EYE_HEIGHT - yCenter;
   const plaqueZ = PLAQUE_DEPTH / 2 + 0.003;
 
@@ -1846,7 +1875,15 @@ function ZoomModal({
 
   useEffect(() => {
     const handle = (e: KeyboardEvent) => {
-      if (e.code === "Escape" || e.code === "KeyE" || e.code === "KeyF") {
+      // Intentionally not binding Escape: Chrome blocks requestPointerLock()
+      // if the triggering user gesture was an Escape keypress (security:
+      // sites can't re-trap the user after they hit the universal escape
+      // hatch). Closing the zoom view via E/F is just a normal keypress,
+      // so re-lock succeeds on the same gesture and the walker resumes
+      // without going through the ResumeOverlay. Browser-level Escape
+      // still works if it needs to — at this point pointer lock is
+      // already released, so ESC is a no-op anyway.
+      if (e.code === "KeyE" || e.code === "KeyF") {
         onClose();
       }
       if (e.code === "Digit0" || e.code === "Numpad0") {
@@ -1984,7 +2021,7 @@ function ZoomModal({
       <div className="pointer-events-none absolute left-1/2 top-3 -translate-x-1/2 rounded-full bg-black/55 px-3 py-1 text-xs text-white/75 backdrop-blur">
         Scroll to zoom · drag to pan ·{" "}
         <kbd className="rounded border border-white/30 px-1">0</kbd> resets ·{" "}
-        <kbd className="rounded border border-white/30 px-1">Esc</kbd> closes
+        <kbd className="rounded border border-white/30 px-1">E</kbd> closes
       </div>
     </div>
   );
@@ -2028,18 +2065,24 @@ function collectFurniture(
   for (const i of visibleIdx) {
     const layout = layouts[i];
     for (const p of layout.placements) {
-      const meta = computeMetaSize(p.artwork);
-      const yCenter = computePaintingYCenter(meta.h);
+      // Size furniture (frame + plaque offset) from the painting's
+      // final dimensions, not the raw meta box. computePaintingSize
+      // reads the artwork's aspect from artworks.json so it's
+      // deterministic at layout time — no texture needed. The frame
+      // then hugs the canvas on every artwork, including ones whose
+      // image aspect doesn't match the metadata bounding box.
+      const painting = computePaintingSize(p.artwork, null);
+      const yCenter = computePaintingYCenter(painting.h);
       out.push({
         key: `${layout.data.id}-${p.artwork.id}`,
         groupPosition: [p.position[0], yCenter, p.position[2]],
         rotation: p.rotation,
         frameScale: [
-          meta.w + FRAME_T * 2,
-          meta.h + FRAME_T * 2,
+          painting.w + FRAME_T * 2,
+          painting.h + FRAME_T * 2,
           FRAME_DEPTH,
         ],
-        plaqueOffsetX: meta.w / 2 + PLAQUE_GAP + PLAQUE_W / 2,
+        plaqueOffsetX: painting.w / 2 + PLAQUE_GAP + PLAQUE_W / 2,
         plaqueOffsetY: EYE_HEIGHT - yCenter,
         roomIndex: i,
       });
@@ -2171,8 +2214,10 @@ function AccentLightPool({
     > = [];
     if (active) {
       for (const p of active.placements.slice(0, ACCENT_LIGHT_POOL_SIZE)) {
-        const meta = computeMetaSize(p.artwork);
-        const yCenter = computePaintingYCenter(meta.h);
+        // Same sizing path as the Painting / frame — keeps accent
+        // lights centred on the canvas, not on the unused meta box.
+        const painting = computePaintingSize(p.artwork, null);
+        const yCenter = computePaintingYCenter(painting.h);
         // Local offset inside the painting's group: slightly in front
         // and just below centre, same as the previous per-Painting
         // accent-light position.
@@ -2292,6 +2337,49 @@ export function Gallery3D({ artworks }: Props) {
   const [activeRoom, setActiveRoom] = useState(0);
   const [showStats, setShowStats] = useState(false);
   const controlsRef = useRef<PointerLockControlsHandle | null>(null);
+
+  // ── Audio ────────────────────────────────────────────────────────────────
+  // Ambience: a long looping <audio> streamed via HTMLAudioElement.
+  // SFX: a tiny preloaded Audio for the lightswitch tick on room transitions.
+  // Both are gated on the user's Start-click (browsers block autoplay).
+  // The AudioControls component writes to the same localStorage-backed hook,
+  // so we only need the read half here. Changes there propagate via the
+  // hook's internal pub/sub — no prop drilling needed.
+  const [audio] = useAudioSettings();
+  const ambienceRef = useRef<HTMLAudioElement | null>(null);
+  const sfxRef = useRef<HTMLAudioElement | null>(null);
+  // Seed the one-shot SFX element on first client render. Tiny file (6 KB),
+  // preload=auto buys a decoded buffer before the first room crossing.
+  useEffect(() => {
+    if (sfxRef.current) return;
+    const a = new Audio(ROOM_TRANSITION_SRC);
+    a.preload = "auto";
+    sfxRef.current = a;
+  }, []);
+  // Keep <audio> volume + play state in sync with user settings + entry gate.
+  useEffect(() => {
+    const el = ambienceRef.current;
+    if (!el) return;
+    el.volume = audio.ambienceVolume;
+    if (hasEntered && audio.enabled) {
+      // play() may reject if Chrome hasn't decided the gesture is "valid
+      // enough" — harmless, the next gesture (room change, slider nudge,
+      // re-lock click) will retry this effect and succeed.
+      void el.play().catch(() => {});
+    } else {
+      el.pause();
+    }
+  }, [audio.enabled, audio.ambienceVolume, hasEntered]);
+
+  const playRoomTransition = useCallback(() => {
+    if (!audio.enabled) return;
+    const a = sfxRef.current;
+    if (!a) return;
+    // Restart from 0 so rapid door crossings don't drop any clicks.
+    a.currentTime = 0;
+    a.volume = audio.sfxVolume;
+    void a.play().catch(() => {});
+  }, [audio.enabled, audio.sfxVolume]);
 
   useEffect(() => {
     // F3 toggles the stats overlay. Off by default so it doesn't
@@ -2452,6 +2540,11 @@ export function Gallery3D({ artworks }: Props) {
             // the previous pass; startTransition just added input
             // latency to every crossing without helping any more.
             setActiveRoom(i);
+            // The satisfying part: a lightswitch click per room. Fires on
+            // the very first detected room too (lastRoomIdx starts at -1),
+            // which doubles as an "entering the museum" click when you
+            // first step out of the StartOverlay.
+            playRoomTransition();
           }}
           onAimChange={setAimingAtPainting}
         />
@@ -2485,6 +2578,29 @@ export function Gallery3D({ artworks }: Props) {
       {zoomed && (
         <ZoomModal artwork={zoomed} onClose={handleZoomClose} />
       )}
+
+      {/* Audio settings pill — always visible when inside the gallery (after
+          the user's first click, which is also our autoplay gate). Hidden on
+          the initial Start screen so it doesn't compete with the big CTA. */}
+      {hasEntered && !zoomed && (
+        <AudioControls className="top-4 right-4" />
+      )}
+
+      {/*
+        Background ambience. <audio> streams (preload=auto buffers forward
+        instead of downloading in full), loops seamlessly, and gets its volume
+        + play/pause driven by the effect further up. Hidden from the layout
+        but kept in the DOM for the whole Gallery3D lifetime so settings
+        changes don't interrupt the loop.
+      */}
+      <audio
+        ref={ambienceRef}
+        src={AMBIENCE_SRC}
+        loop
+        preload="auto"
+        aria-hidden="true"
+        className="hidden"
+      />
     </div>
   );
 }
