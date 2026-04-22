@@ -6,6 +6,7 @@ import {
   useMemo,
   useRef,
   useState,
+  type ComponentProps,
 } from "react";
 import Link from "next/link";
 import { Canvas, useFrame, useThree } from "@react-three/fiber";
@@ -613,6 +614,10 @@ class TextureLRU {
   private map = new Map<string, THREE.Texture>();
   constructor(private capacity: number) {}
 
+  get size(): number {
+    return this.map.size;
+  }
+
   get(key: string): THREE.Texture | undefined {
     const tex = this.map.get(key);
     if (tex) {
@@ -683,6 +688,22 @@ const HIRES_UPGRADE_DIST = 1.5;
 const HIRES_DOWNGRADE_DIST = 2.5;
 const hiResCache = new TextureLRU(HIRES_CACHE_CAPACITY);
 const hiResInFlight = new Map<string, Promise<THREE.Texture>>();
+
+// -------------------------------------------------------------
+// Painting-mesh registry — every mounted painting canvas registers
+// itself here so the Player's aim raycast can (a) skip scene-graph
+// traversal entirely, and (b) prefilter to near + roughly-forward
+// paintings before doing the actual ray/triangle tests. The set
+// never holds more than the visible-render-window count (~110) and
+// lives for the life of the page.
+// -------------------------------------------------------------
+type PaintingEntry = {
+  mesh: THREE.Mesh;
+  /** Painting group's world position. Stable after layout — no need to
+   *  call getWorldPosition every frame. */
+  worldPos: [number, number, number];
+};
+const paintingEntries = new Set<PaintingEntry>();
 
 /**
  * Largest variant width that's a meaningful upgrade over the default
@@ -1061,6 +1082,7 @@ function Painting({
   );
   const [staggerReady, setStaggerReady] = useState(() => staggerMs <= 0);
   const reportedRef = useRef(false);
+  const meshRef = useRef<THREE.Mesh>(null);
   const hiResRequestedRef = useRef(false);
   // LOD distance check needs the painting's world position. Compute
   // once — it doesn't change between renders.
@@ -1191,6 +1213,27 @@ function Painting({
       });
   });
 
+  // Register the canvas mesh in the module-level paintingEntries
+  // set so the Player's aim raycast can test against just painting
+  // meshes instead of traversing the whole scene. Re-runs if the
+  // painting's world position changes (size/aspect shifts through
+  // yCenter), which in practice only fires once when the texture
+  // arrives.
+  useEffect(() => {
+    if (!displayTexture) return;
+    const m = meshRef.current;
+    if (!m) return;
+    const entry: PaintingEntry = {
+      mesh: m,
+      worldPos: [groupPosition[0], groupPosition[1], groupPosition[2]],
+    };
+    paintingEntries.add(entry);
+    return () => {
+      paintingEntries.delete(entry);
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [displayTexture, groupPosition[0], groupPosition[1], groupPosition[2]]);
+
   // When the room this painting belongs to leaves active status (the
   // player crossed a doorway), drop the hi-res immediately — there's
   // no reason to keep a multi-megabyte texture resident for a room
@@ -1220,6 +1263,7 @@ function Painting({
           their textures are ready, which feels correct anyway. */}
       {displayTexture && (
         <mesh
+          ref={meshRef}
           position={[0, 0, 0.004]}
           userData={{ artwork }}
           onClick={(e) => {
@@ -1253,6 +1297,50 @@ function Painting({
       )}
     </group>
   );
+}
+
+// =============================================================
+// DisposingText — drei's <Text> wrapper that plugs troika's
+// derived-material leak.
+//
+// troika-three-text's dispose() only frees geometry; the per-Text
+// _derivedMaterial (shader program + uniforms) and the cloned
+// _defaultMaterial leak on every unmount. With ~26 Text meshes
+// per active room and a RENDER_WINDOW of 2 on each side, every
+// door crossing leaked ~25–30 materials + compiled programs,
+// which is why the scene got progressively laggier with each
+// room visited. See troika-three-text/src/Text.js:499.
+//
+// We rely on React 19 ref-callback cleanups: the callback
+// captures the troika mesh in its closure, and React invokes
+// the returned cleanup on unmount — at that point the mesh
+// itself is still reachable through the closure even though
+// React has cleared the ref.current field.
+// =============================================================
+
+type TroikaTextMesh = THREE.Mesh & {
+  _derivedMaterial?: THREE.Material;
+  _defaultMaterial?: THREE.Material;
+};
+
+// Module-level so the ref callback has a stable identity across
+// every DisposingText render. An inline arrow function here would
+// look different to React on every render, causing it to run the
+// cleanup (= dispose the derived material) and re-register on
+// every re-render. Troika would then lazy-recreate the derived
+// material + shader program on the next frame, which is exactly
+// the scene-wide per-frame lag we'd accidentally reintroduce.
+const disposingTextRef = (mesh: unknown) => {
+  if (!mesh) return;
+  return () => {
+    const m = mesh as TroikaTextMesh;
+    m._derivedMaterial?.dispose();
+    m._defaultMaterial?.dispose();
+  };
+};
+
+function DisposingText(props: ComponentProps<typeof Text>) {
+  return <Text {...props} ref={disposingTextRef} />;
 }
 
 // =============================================================
@@ -1303,7 +1391,7 @@ function Plaque({
   const text = [title, "", byline, dims].filter(Boolean).join("\n");
 
   return (
-    <Text
+    <DisposingText
       position={[plaqueX, plaqueY, plaqueZ]}
       fontSize={0.018}
       lineHeight={1.35}
@@ -1319,7 +1407,7 @@ function Plaque({
       frustumCulled={false}
     >
       {text}
-    </Text>
+    </DisposingText>
   );
 }
 
@@ -1433,12 +1521,27 @@ function RoomSign({
   rotation,
   title,
   description,
+  staggerMs = 0,
 }: {
   position: [number, number, number];
   rotation: [number, number, number];
   title: string;
   description: string;
+  /** Delay before mounting the troika `<Text>` children. When several
+   *  rooms enter the render window at the same moment (a door crossing
+   *  re-forms the visible window), each sign's Text would otherwise
+   *  build its SDF geometry on the same frame, producing a visible
+   *  hitch. Staggering 0–100 ms spreads the work without any perceptual
+   *  effect — the board itself is already drawn immediately. */
+  staggerMs?: number;
 }) {
+  const [ready, setReady] = useState(() => staggerMs <= 0);
+  useEffect(() => {
+    if (ready) return;
+    const t = setTimeout(() => setReady(true), staggerMs);
+    return () => clearTimeout(t);
+  }, [ready, staggerMs]);
+
   return (
     <group position={position} rotation={rotation}>
       <mesh>
@@ -1450,28 +1553,32 @@ function RoomSign({
           roughness={0.7}
         />
       </mesh>
-      <Text
-        position={[0, 0.12, 0.025]}
-        fontSize={0.1}
-        color="#241810"
-        anchorX="center"
-        anchorY="middle"
-        maxWidth={3.2}
-        textAlign="center"
-      >
-        {title}
-      </Text>
-      <Text
-        position={[0, -0.12, 0.025]}
-        fontSize={0.055}
-        color="#55402a"
-        anchorX="center"
-        anchorY="middle"
-        maxWidth={3.2}
-        textAlign="center"
-      >
-        {description}
-      </Text>
+      {ready && (
+        <>
+          <DisposingText
+            position={[0, 0.12, 0.025]}
+            fontSize={0.1}
+            color="#241810"
+            anchorX="center"
+            anchorY="middle"
+            maxWidth={3.2}
+            textAlign="center"
+          >
+            {title}
+          </DisposingText>
+          <DisposingText
+            position={[0, -0.12, 0.025]}
+            fontSize={0.055}
+            color="#55402a"
+            anchorX="center"
+            anchorY="middle"
+            maxWidth={3.2}
+            textAlign="center"
+          >
+            {description}
+          </DisposingText>
+        </>
+      )}
     </group>
   );
 }
@@ -1490,7 +1597,7 @@ function CeilingLamp({
   return (
     <group position={position}>
       <mesh position={[0, -0.02, 0]}>
-        <cylinderGeometry args={[0.26, 0.3, 0.06, 20]} />
+        <cylinderGeometry args={[0.26, 0.3, 0.06, 12]} />
         <meshStandardMaterial
           color="#2a1d14"
           emissive={tint}
@@ -1628,13 +1735,16 @@ function RoomGeometry({
         <CeilingLamp key={i} position={p} tint={data.palette.lampTint} />
       ))}
       {/* Room title sign — opposite the entrance door, high on the
-          back wall (or on the front wall for the very first room). */}
+          back wall (or on the front wall for the very first room).
+          Stagger offsets spread up to 3 signs' SDF generation across
+          a handful of frames when a new room enters the window. */}
       {!isFirst && (
         <RoomSign
           position={[0, DOOR_HEIGHT + 0.7, frontZ - 0.06]}
           rotation={[0, Math.PI, 0]}
           title={data.title}
           description={data.description}
+          staggerMs={30}
         />
       )}
       {/* Next-room sign above the back door */}
@@ -1644,6 +1754,7 @@ function RoomGeometry({
           rotation={[0, 0, 0]}
           title={nextTitle}
           description={nextDescription ?? ""}
+          staggerMs={60}
         />
       )}
       {/* Also put a little sign for THIS room on the back wall of the
@@ -1656,6 +1767,7 @@ function RoomGeometry({
           rotation={[0, Math.PI, 0]}
           title={data.title}
           description={data.description}
+          staggerMs={90}
         />
       )}
     </group>
@@ -1673,6 +1785,48 @@ type CorridorBounds = {
   benchCenters: Array<{ x: number; z: number }>;
   rooms: Array<{ frontZ: number; backZ: number }>;
 };
+
+/**
+ * Filter the registered painting meshes down to just those worth
+ * raycasting against from the current camera position: close enough
+ * to be within the ray's far cap AND roughly forward of the camera.
+ * Typical active-room scene has ~110 registered paintings — this
+ * drops it to the handful actually in the forward cone (~5–15), and
+ * the ray/triangle tests run only on that narrow list.
+ *
+ * Without this prefilter the raycaster would traverse the whole scene
+ * graph (walls, floor, ceiling, benches, lamps, signs, frames, plaques
+ * — ~200+ meshes), which was the single biggest CPU sink in the Player
+ * useFrame at 10 Hz.
+ */
+function collectAimCandidates(
+  rayOrigin: THREE.Vector3,
+  rayDirection: THREE.Vector3,
+  maxDistSq: number,
+  minForwardDot: number,
+): THREE.Mesh[] {
+  const out: THREE.Mesh[] = [];
+  for (const entry of paintingEntries) {
+    const dx = entry.worldPos[0] - rayOrigin.x;
+    const dy = entry.worldPos[1] - rayOrigin.y;
+    const dz = entry.worldPos[2] - rayOrigin.z;
+    const distSq = dx * dx + dy * dy + dz * dz;
+    if (distSq > maxDistSq) continue;
+    if (distSq < 1e-6) {
+      out.push(entry.mesh);
+      continue;
+    }
+    const invLen = 1 / Math.sqrt(distSq);
+    const dot =
+      (dx * rayDirection.x +
+        dy * rayDirection.y +
+        dz * rayDirection.z) *
+      invLen;
+    if (dot < minForwardDot) continue;
+    out.push(entry.mesh);
+  }
+  return out;
+}
 
 function findRoomIndex(
   z: number,
@@ -1704,7 +1858,7 @@ function Player({
   onRoomChange: (i: number) => void;
   onAimChange: (aiming: boolean) => void;
 }) {
-  const { camera, scene } = useThree();
+  const { camera } = useThree();
   const keys = useRef<Record<string, boolean>>({});
   const velocityY = useRef(0);
   const grounded = useRef(true);
@@ -1717,6 +1871,13 @@ function Player({
   );
   const rayOrigin = useRef(new THREE.Vector3());
   const rayDirection = useRef(new THREE.Vector3());
+  // Hoisted movement vectors — reused every frame instead of
+  // allocating fresh Vector3s in the hot loop. At 60 FPS the old
+  // code burned 240 Vector3 allocations/s on nothing but gc fodder.
+  const forwardRef = useRef(new THREE.Vector3());
+  const rightRef = useRef(new THREE.Vector3());
+  const moveRef = useRef(new THREE.Vector3());
+  const upVecRef = useRef(new THREE.Vector3(0, 1, 0));
   const lastRoomIdx = useRef(-1);
   // Throttled aim raycast state. Updated once every AIM_PERIOD frames
   // (see useFrame below). Avoids per-frame CPU cost of traversing the
@@ -1724,17 +1885,27 @@ function Player({
   const aimRef = useRef(false);
   const frameCountRef = useRef(0);
 
-  useEffect(() => {
-    camera.position.set(0, EYE_HEIGHT, startZ);
-    camera.lookAt(0, EYE_HEIGHT, startZ - 5);
-  }, [camera, startZ]);
+  // Aim-prefilter tunables: camera.far cap = 10 m, so paintings beyond
+  // that can't be hit. 0.5 is a ~60° half-cone — wider than the 70°
+  // FOV's screen-centre cone, so we keep every painting the ray
+  // could plausibly hit and drop the rest before ever testing tris.
+  const AIM_MAX_DIST_SQ = 10 * 10;
+  const AIM_FORWARD_DOT = 0.5;
 
+  const tryZoomRef = useRef<() => void>(() => {});
   useEffect(() => {
-    const tryZoom = () => {
+    tryZoomRef.current = () => {
       camera.getWorldPosition(rayOrigin.current);
       camera.getWorldDirection(rayDirection.current);
+      const candidates = collectAimCandidates(
+        rayOrigin.current,
+        rayDirection.current,
+        AIM_MAX_DIST_SQ,
+        AIM_FORWARD_DOT,
+      );
+      if (candidates.length === 0) return;
       raycaster.current.set(rayOrigin.current, rayDirection.current);
-      const hits = raycaster.current.intersectObjects(scene.children, true);
+      const hits = raycaster.current.intersectObjects(candidates, false);
       for (const hit of hits) {
         const artwork = hit.object.userData?.artwork as Artwork | undefined;
         if (artwork) {
@@ -1743,6 +1914,10 @@ function Player({
         }
       }
     };
+  }, [camera, onZoomRequest]);
+
+  useEffect(() => {
+    const tryZoom = () => tryZoomRef.current();
     const down = (e: KeyboardEvent) => {
       keys.current[e.code] = true;
       if (!enabled) return;
@@ -1768,7 +1943,7 @@ function Player({
       window.removeEventListener("keyup", up);
       window.removeEventListener("mousedown", mouse);
     };
-  }, [enabled, camera, scene, onZoomRequest]);
+  }, [enabled]);
 
   useFrame((_, delta) => {
     if (!enabled) return;
@@ -1777,17 +1952,14 @@ function Player({
       keys.current["ShiftLeft"] || keys.current["ShiftRight"] || false;
     const speed = running ? RUN_SPEED : WALK_SPEED;
 
-    const forward = new THREE.Vector3();
+    const forward = forwardRef.current;
     camera.getWorldDirection(forward);
     forward.y = 0;
     if (forward.lengthSq() > 0) forward.normalize();
-    const right = new THREE.Vector3().crossVectors(
-      forward,
-      new THREE.Vector3(0, 1, 0),
-    );
+    const right = rightRef.current.crossVectors(forward, upVecRef.current);
     if (right.lengthSq() > 0) right.normalize();
 
-    const move = new THREE.Vector3();
+    const move = moveRef.current.set(0, 0, 0);
     if (keys.current["KeyW"] || keys.current["ArrowUp"]) move.add(forward);
     if (keys.current["KeyS"] || keys.current["ArrowDown"]) move.sub(forward);
     if (keys.current["KeyD"] || keys.current["ArrowRight"]) move.add(right);
@@ -1879,23 +2051,31 @@ function Player({
       onRoomChange(idx);
     }
 
-    // Throttled aim raycast for the inspect-cursor affordance. Doing
-    // this every frame is wasteful (scene has dozens of meshes), every
-    // 6 frames (≈10 Hz) is indistinguishable from real-time.
+    // Throttled aim raycast for the inspect-cursor affordance. Every
+    // 6 frames (≈10 Hz) is indistinguishable from real-time. The
+    // candidates list is the narrow painting-mesh registry after a
+    // distance + forward-dot prefilter, so the actual ray test only
+    // runs against the handful of paintings plausibly in the ray's
+    // path — not the whole scene graph.
     frameCountRef.current++;
     if (frameCountRef.current % 6 === 0) {
       camera.getWorldPosition(rayOrigin.current);
       camera.getWorldDirection(rayDirection.current);
-      raycaster.current.set(rayOrigin.current, rayDirection.current);
-      const hits = raycaster.current.intersectObjects(
-        scene.children,
-        true,
+      const candidates = collectAimCandidates(
+        rayOrigin.current,
+        rayDirection.current,
+        AIM_MAX_DIST_SQ,
+        AIM_FORWARD_DOT,
       );
       let aiming = false;
-      for (const hit of hits) {
-        if (hit.object.userData?.artwork) {
-          aiming = true;
-          break;
+      if (candidates.length > 0) {
+        raycaster.current.set(rayOrigin.current, rayDirection.current);
+        const hits = raycaster.current.intersectObjects(candidates, false);
+        for (const hit of hits) {
+          if (hit.object.userData?.artwork) {
+            aiming = true;
+            break;
+          }
         }
       }
       if (aiming !== aimRef.current) {
@@ -2317,20 +2497,17 @@ type FurniturePlacement = {
   roomIndex: number;
 };
 
-function collectFurniture(
-  layouts: RoomLayout[],
-  visibleIdx: Set<number>,
-): FurniturePlacement[] {
+/**
+ * Precompute furniture placements for every room, once, at layout
+ * time. The shape is deterministic (depends only on each artwork's
+ * metadata), so there's no reason to recompute on each room change.
+ * FurnitureInstances then picks the visible subset per render.
+ */
+function collectFurniture(layouts: RoomLayout[]): FurniturePlacement[] {
   const out: FurniturePlacement[] = [];
-  for (const i of visibleIdx) {
+  for (let i = 0; i < layouts.length; i++) {
     const layout = layouts[i];
     for (const p of layout.placements) {
-      // Size furniture (frame + plaque offset) from the painting's
-      // final dimensions, not the raw meta box. computePaintingSize
-      // reads the artwork's aspect from artworks.json so it's
-      // deterministic at layout time — no texture needed. The frame
-      // then hugs the canvas on every artwork, including ones whose
-      // image aspect doesn't match the metadata bounding box.
       const painting = computePaintingSize(p.artwork, null);
       const yCenter = computePaintingYCenter(painting.h);
       const plaqueOffsetX = p.plaqueBelow
@@ -2357,27 +2534,39 @@ function collectFurniture(
   return out;
 }
 
+// Fixed buffer caps for the instanced draws. Dimensioned off the
+// worst-case render window so drei's backing buffers never need to
+// reallocate on room change. (2×RENDER_WINDOW+1) rooms × biggest
+// per-room bucket (small works pack tightest), plus headroom.
+const FRAMES_INSTANCE_LIMIT =
+  (2 * RENDER_WINDOW + 1) * MAX_PER_ROOM_SMALL + 32;
+const PLAQUES_INSTANCE_LIMIT = MAX_PER_ROOM_SMALL + 16;
+
 function FurnitureInstances({
   placements,
+  visibleIdx,
   activeRoom,
 }: {
   placements: FurniturePlacement[];
+  visibleIdx: Set<number>;
   activeRoom: number;
 }) {
-  // Plaque boxes exist only in the active room — the Text lives there
-  // too, and a plaque card with no text just looks like a blank
-  // rectangle glued to the wall.
-  const activePlaques = useMemo(
-    () => placements.filter((p) => p.roomIndex === activeRoom),
-    [placements, activeRoom],
-  );
+  // Split once per render of this component (cheap — O(n), n ≤ 500):
+  // visible frames for the whole render window, plaques for the
+  // active room only (empty cream cards would look broken without
+  // their troika Text companion, which is likewise active-only).
+  const { visibleFurniture, activePlaques } = useMemo(() => {
+    const visible: FurniturePlacement[] = [];
+    const plaques: FurniturePlacement[] = [];
+    for (const p of placements) {
+      if (!visibleIdx.has(p.roomIndex)) continue;
+      visible.push(p);
+      if (p.roomIndex === activeRoom) plaques.push(p);
+    }
+    return { visibleFurniture: visible, activePlaques: plaques };
+  }, [placements, visibleIdx, activeRoom]);
 
-  if (placements.length === 0) return null;
-  // Cap `limit` above typical worst-case (22 paintings per room × 5
-  // visible rooms = 110) so drei's backing buffer doesn't reallocate
-  // every time the set changes.
-  const framesLimit = Math.max(200, placements.length + 32);
-  const plaqueLimit = Math.max(64, activePlaques.length + 16);
+  if (visibleFurniture.length === 0) return null;
 
   return (
     <>
@@ -2389,13 +2578,13 @@ function FurnitureInstances({
           entire batch culls — which is the "frames disappear from some
           angles" bug. */}
       <Instances
-        limit={framesLimit}
-        range={placements.length}
+        limit={FRAMES_INSTANCE_LIMIT}
+        range={visibleFurniture.length}
         frustumCulled={false}
       >
         <boxGeometry args={[1, 1, 1]} />
         <meshStandardMaterial color="#241810" roughness={0.55} metalness={0.1} />
-        {placements.map((p) => (
+        {visibleFurniture.map((p) => (
           <group
             key={p.key}
             position={p.groupPosition}
@@ -2413,7 +2602,7 @@ function FurnitureInstances({
           is constant across the scene. Active room only (see above). */}
       {activePlaques.length > 0 && (
         <Instances
-          limit={plaqueLimit}
+          limit={PLAQUES_INSTANCE_LIMIT}
           range={activePlaques.length}
           frustumCulled={false}
         >
@@ -2563,6 +2752,43 @@ function Preloader({
 }
 
 // =============================================================
+// MemoryProbe — "U" dumps renderer + registry counts to the
+// console. Use to diagnose progressive lag: walk through N
+// rooms, print once, walk through more, print again, compare. Any
+// counter that grows monotonically with rooms visited is the leak.
+// =============================================================
+
+function MemoryProbe() {
+  const { gl } = useThree();
+  useEffect(() => {
+    const handle = (e: KeyboardEvent) => {
+      if (e.code !== "KeyU") return;
+      e.preventDefault();
+      const info = gl.info;
+      // eslint-disable-next-line no-console
+      console.log("[gallery-3d memory]", {
+        renderer: {
+          geometries: info.memory.geometries,
+          textures: info.memory.textures,
+          programs: info.programs?.length ?? 0,
+          calls: info.render.calls,
+          triangles: info.render.triangles,
+        },
+        paintingEntries: paintingEntries.size,
+        textureCache: textureCache.size,
+        hiResCache: hiResCache.size,
+        textureInFlight: textureInFlight.size,
+        hiResInFlight: hiResInFlight.size,
+        missingUrls: missingUrls.size,
+      });
+    };
+    window.addEventListener("keydown", handle);
+    return () => window.removeEventListener("keydown", handle);
+  }, [gl]);
+  return null;
+}
+
+// =============================================================
 // Main
 // =============================================================
 
@@ -2698,10 +2924,10 @@ export function Gallery3D({ artworks }: Props) {
     return s;
   }, [activeRoom, layouts.length]);
 
-  const furniture = useMemo(
-    () => collectFurniture(layouts, visibleIdx),
-    [layouts, visibleIdx],
-  );
+  // Furniture placement is deterministic from layouts alone, so
+  // compute the full list once on layouts change. FurnitureInstances
+  // filters down to the visible render window per render.
+  const allFurniture = useMemo(() => collectFurniture(layouts), [layouts]);
 
   const start = useCallback(() => {
     setHasEntered(true);
@@ -2810,11 +3036,17 @@ export function Gallery3D({ artworks }: Props) {
           ));
         })}
 
-        <FurnitureInstances placements={furniture} activeRoom={activeRoom} />
+        <FurnitureInstances
+          placements={allFurniture}
+          visibleIdx={visibleIdx}
+          activeRoom={activeRoom}
+        />
 
         <AccentLightPool layouts={layouts} activeRoom={activeRoom} />
 
         <Preloader layouts={layouts} activeRoom={activeRoom} />
+
+        <MemoryProbe />
 
         <Player
           enabled={locked}
