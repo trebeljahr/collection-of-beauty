@@ -680,12 +680,25 @@ function bestVariantUrl(
 // -------------------------------------------------------------
 
 const HIRES_MIN_WIDTH = 1920; // no point loading anything smaller as a "hi-res"
+// Cap the hi-res variant we actually upload to the GPU. A 6000 px
+// original is ~140 MB decoded and takes hundreds of ms to texImage2D
+// — the perceptual gain over 3000 px at close viewing distance is
+// negligible and the cost is prohibitive.
+const HIRES_MAX_WIDTH = 3000;
 const HIRES_CACHE_CAPACITY = 12;
-// LOD distance hysteresis: upgrade when camera steps inside UPGRADE,
-// downgrade (drop back to base + free VRAM) once it passes DOWNGRADE.
-// The gap prevents flip-flop if the player lingers on the threshold.
-const HIRES_UPGRADE_DIST = 1.5;
-const HIRES_DOWNGRADE_DIST = 2.5;
+
+// Two-stage LOD. Heavy work (fetch + decode + GPU upload) kicks in at
+// PREFETCH distance so the texture is ready by the time the player
+// actually gets close. DISPLAY thresholds only decide whether to *swap*
+// to the already-cached texture — no load cost at that moment. The gap
+// between DISPLAY and PREFETCH gives the background pipeline a runway;
+// the gap between DOWNGRADE and RELEASE gives it hysteresis so short
+// hops across a threshold don't thrash fetches.
+const HIRES_DISPLAY_UPGRADE_DIST = 1.5;
+const HIRES_DISPLAY_DOWNGRADE_DIST = 2.5;
+const HIRES_PREFETCH_DIST = 4.0;
+const HIRES_PREFETCH_RELEASE_DIST = 5.0;
+
 const hiResCache = new TextureLRU(HIRES_CACHE_CAPACITY);
 const hiResInFlight = new Map<string, Promise<THREE.Texture>>();
 
@@ -707,16 +720,74 @@ const paintingEntries = new Set<PaintingEntry>();
 
 /**
  * Largest variant width that's a meaningful upgrade over the default
- * 1280 canvas. Returns null when the manifest has nothing at or above
- * HIRES_MIN_WIDTH — in which case the regular texture is the best
- * we've got and there's no LOD to apply.
+ * 1280 canvas but still bounded by HIRES_MAX_WIDTH so we don't upload
+ * 100+ MB textures. Returns null when the manifest has nothing at or
+ * above HIRES_MIN_WIDTH — in which case the regular texture is the
+ * best we've got and there's no LOD to apply.
  */
 function bestHiResWidth(artwork: Artwork): number | null {
   const widths = artwork.variantWidths;
   if (!widths || widths.length === 0) return null;
   const biggest = widths[widths.length - 1];
   if (biggest < HIRES_MIN_WIDTH) return null;
-  return biggest;
+  // Largest variant at or below the cap. If every variant is above the
+  // cap (unlikely — we usually ship a mid-sized one), fall back to the
+  // smallest that still counts as "hi-res".
+  const capped = widths.filter((w) => w <= HIRES_MAX_WIDTH);
+  if (capped.length > 0) return capped[capped.length - 1];
+  const above = widths.find((w) => w >= HIRES_MIN_WIDTH);
+  return above ?? biggest;
+}
+
+// -------------------------------------------------------------
+// GPU upload queue — one texImage2D per animation frame.
+//
+// createImageBitmap decodes off-thread, fetch/blob are async, so
+// everything *before* the GPU upload stays off the main thread.
+// `renderer.initTexture` itself is the single unavoidable main-thread
+// step (WebGL's context is single-threaded). A 3000 px texture costs
+// ~50–100 ms to upload; doing a dozen in one frame is what makes the
+// scene hitch when the player walks into a cluster. The queue
+// serialises uploads across rAF ticks so at most one hitch per frame.
+// -------------------------------------------------------------
+
+type UploadTask = {
+  tex: THREE.Texture;
+  renderer: THREE.WebGLRenderer;
+  resolve: () => void;
+};
+const uploadQueue: UploadTask[] = [];
+let uploadPumpScheduled = false;
+
+function schedulePump() {
+  if (uploadPumpScheduled) return;
+  uploadPumpScheduled = true;
+  requestAnimationFrame(pumpUploads);
+}
+
+function pumpUploads() {
+  uploadPumpScheduled = false;
+  const task = uploadQueue.shift();
+  if (task) {
+    try {
+      task.renderer.initTexture(task.tex);
+    } catch {
+      // Some drivers occasionally complain; R3F will lazily upload
+      // at draw time as a fallback.
+    }
+    task.resolve();
+  }
+  if (uploadQueue.length > 0) schedulePump();
+}
+
+function enqueueUpload(
+  tex: THREE.Texture,
+  renderer: THREE.WebGLRenderer,
+): Promise<void> {
+  return new Promise((resolve) => {
+    uploadQueue.push({ tex, renderer, resolve });
+    schedulePump();
+  });
 }
 
 async function loadHiResTexture(
@@ -754,12 +825,11 @@ async function loadHiResTexture(
       tex.generateMipmaps = true;
       tex.flipY = false;
       tex.needsUpdate = true;
+      // Hand the GPU upload to the rAF-paced queue instead of running
+      // it synchronously here — this is the big main-thread hitch we
+      // want to spread across frames.
       if (renderer) {
-        try {
-          renderer.initTexture(tex);
-        } catch {
-          /* best-effort */
-        }
+        await enqueueUpload(tex, renderer);
       }
       hiResCache.put(key, tex);
       return tex;
@@ -1161,30 +1231,46 @@ function Painting({
   ];
   worldPosRef.current.set(position[0], yCenter, position[2]);
 
-  // Drop the hi-res texture: swap the mesh back to the base variant
-  // and free the GPU memory. The dispose is deferred by one animation
+  // Swap the mesh back to the base variant. Keeps the hi-res texture
+  // in the cache (it might be needed again soon) — use `evictHiRes`
+  // when you want to actually free the GPU memory. Dispose is never
+  // done here: even when we *do* evict, we defer that by one animation
   // frame so React's commit has time to point the material's `map` at
-  // the base texture before the hi-res one is torn down — disposing
-  // while still bound would either warn or flash black.
-  const releaseHiRes = useCallback(() => {
+  // the base texture before the hi-res handle is torn down.
+  const dropHiResDisplay = useCallback(() => {
+    setHiResTexture((prev) => (prev ? null : prev));
+  }, []);
+
+  // Drop display + evict from cache + dispose the GPU texture. Used
+  // when the painting is far enough away that we don't expect the
+  // player to return soon (or when the room goes inactive / unmounts).
+  const evictHiRes = useCallback(() => {
     hiResRequestedRef.current = false;
     setHiResTexture((prev) => {
-      if (!prev) return prev;
       const w = bestHiResWidth(artwork);
       if (w != null) {
         const key = `${artwork.objectKey}@${w}`;
+        // Defer so the next render can rebind material.map to the
+        // base texture before dispose tears the GPU handle down.
         requestAnimationFrame(() => hiResCache.delete(key));
       }
-      return null;
+      return prev ? null : prev;
     });
   }, [artwork]);
 
-  // LOD: when the player walks within HIRES_UPGRADE_DIST of an active
-  // painting, upgrade to the biggest available variant; once they back
-  // out past HIRES_DOWNGRADE_DIST, drop it and free the VRAM. Checked
-  // every 12 frames (~5 Hz) — distance doesn't change that fast at
-  // walking speed. Off-main-thread decode (createImageBitmap) keeps
-  // the fetch from stalling the frame loop.
+  // Two-stage LOD:
+  //
+  //   prefetch  ←── 4 m ──→ 5 m release
+  //   display      ←── 1.5 / 2.5 m hysteresis
+  //
+  // The prefetch band runs fetch + decode + GPU upload so the texture
+  // is resident in the cache well before the player walks into the
+  // display band. Uploads are serialised by the rAF-paced queue, so
+  // "prefetch 20 paintings at once" doesn't hammer the main thread —
+  // at most one initTexture per frame. When the player finally crosses
+  // into 1.5 m, the swap is a free state update because the texture
+  // is already on the GPU. Checked every 12 frames (~5 Hz) — distance
+  // doesn't change that fast at walking speed.
   const lodFrameRef = useRef(0);
   useFrame(() => {
     if (!isActive) return;
@@ -1194,23 +1280,55 @@ function Painting({
     camera.getWorldPosition(cameraWorldRef.current);
     const dist = cameraWorldRef.current.distanceTo(worldPosRef.current);
 
-    if (hiResTexture) {
-      if (dist > HIRES_DOWNGRADE_DIST) releaseHiRes();
+    // Far enough that we don't expect a return soon: release cache +
+    // dispose. This covers "walked into the next cluster".
+    if (dist > HIRES_PREFETCH_RELEASE_DIST) {
+      if (hiResTexture || hiResRequestedRef.current) evictHiRes();
       return;
     }
-    if (hiResRequestedRef.current) return;
-    if (dist > HIRES_UPGRADE_DIST) return;
 
-    hiResRequestedRef.current = true;
-    const controller = new AbortController();
-    loadHiResTexture(artwork, gl, controller.signal)
-      .then((tex) => {
-        if (tex) setHiResTexture(tex);
-      })
-      .catch(() => {
-        // 404 or abort — leave the flag set so we don't retry spam;
-        // a real reload of the page will try again.
-      });
+    // Middle band: drop the display swap if we had one, but keep the
+    // cache entry so walking back into range is a free swap.
+    if (hiResTexture && dist > HIRES_DISPLAY_DOWNGRADE_DIST) {
+      dropHiResDisplay();
+      return;
+    }
+
+    // Inside the display band and the cache already has the texture
+    // (prefetch finished earlier) — swap to it with no load cost.
+    if (!hiResTexture && dist <= HIRES_DISPLAY_UPGRADE_DIST) {
+      const w = bestHiResWidth(artwork);
+      if (w != null) {
+        const cached = hiResCache.get(`${artwork.objectKey}@${w}`);
+        if (cached) {
+          setHiResTexture(cached);
+          return;
+        }
+      }
+    }
+
+    // Inside the prefetch band and we haven't kicked off a load yet:
+    // start the pipeline. When it completes, swap the display in *if*
+    // the player is still (or already) within the display band.
+    if (
+      !hiResRequestedRef.current &&
+      !hiResTexture &&
+      dist <= HIRES_PREFETCH_DIST
+    ) {
+      hiResRequestedRef.current = true;
+      const controller = new AbortController();
+      loadHiResTexture(artwork, gl, controller.signal)
+        .then((tex) => {
+          if (!tex) return;
+          camera.getWorldPosition(cameraWorldRef.current);
+          const d = cameraWorldRef.current.distanceTo(worldPosRef.current);
+          if (d <= HIRES_DISPLAY_UPGRADE_DIST) setHiResTexture(tex);
+        })
+        .catch(() => {
+          // 404 or abort — leave the flag set so we don't retry spam;
+          // a real reload of the page will try again.
+        });
+    }
   });
 
   // Register the canvas mesh in the module-level paintingEntries
@@ -1235,13 +1353,13 @@ function Painting({
   }, [displayTexture, groupPosition[0], groupPosition[1], groupPosition[2]]);
 
   // When the room this painting belongs to leaves active status (the
-  // player crossed a doorway), drop the hi-res immediately — there's
-  // no reason to keep a multi-megabyte texture resident for a room
-  // you're walking out of.
+  // player crossed a doorway), evict the hi-res — there's no reason
+  // to keep a multi-megabyte texture resident for a room you're
+  // walking out of.
   useEffect(() => {
     if (isActive) return;
-    releaseHiRes();
-  }, [isActive, releaseHiRes]);
+    evictHiRes();
+  }, [isActive, evictHiRes]);
 
   // Unmount cleanup: if this painting had a hi-res variant in the
   // cache, drop it. Without this, rooms that leave the render window
