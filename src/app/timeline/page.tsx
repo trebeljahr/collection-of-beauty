@@ -1,5 +1,21 @@
+import type { Metadata } from "next";
 import { TimelineView } from "@/components/timeline-view";
-import { artworks, movements } from "@/lib/data";
+import { artworks, movements, summary } from "@/lib/data";
+
+export const metadata: Metadata = {
+  title: "Timeline",
+  description:
+    `A chronological view of ${summary.totalArtworks.toLocaleString()} works, ` +
+    `grouped by decade from ${summary.yearRange.min} to ${summary.yearRange.max}. ` +
+    `Hover any column to see the count; click to jump to that period.`,
+  alternates: { canonical: "/timeline" },
+  openGraph: {
+    title: "Timeline · Collection of Beauty",
+    description:
+      `${summary.totalArtworks.toLocaleString()} works grouped by decade, ` +
+      `from ${summary.yearRange.min} to ${summary.yearRange.max}.`,
+  },
+};
 
 export default function TimelinePage() {
   return (

@@ -1,5 +1,15 @@
+import type { Metadata } from "next";
 import { GalleryBrowser } from "@/components/gallery-browser";
 import { artworks, movements, summary } from "@/lib/data";
+import { SITE_DESCRIPTION, SITE_NAME, SITE_TAGLINE } from "@/lib/seo";
+
+export const metadata: Metadata = {
+  // Absolute title on the home page — skips the "%s · Collection of Beauty"
+  // template so the tagline gets first-class billing in tab chrome and search.
+  title: { absolute: `${SITE_NAME} — ${SITE_TAGLINE}` },
+  description: SITE_DESCRIPTION,
+  alternates: { canonical: "/" },
+};
 
 export default function HomePage() {
   return (

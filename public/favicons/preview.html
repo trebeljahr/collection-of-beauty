@@ -1,0 +1,265 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Favicon picks — Collection of Beauty</title>
+  <style>
+    :root {
+      --bg: #fafaf7;
+      --fg: #1a1614;
+      --muted: #6b665f;
+      --card: #ffffff;
+      --card-border: #e7e3dc;
+      --tab-bg: #e8e4db;
+      --tab-active: #ffffff;
+    }
+    :root.dark {
+      --bg: #141210;
+      --fg: #ece7df;
+      --muted: #8d867c;
+      --card: #1e1b17;
+      --card-border: #2d2924;
+      --tab-bg: #2a2621;
+      --tab-active: #141210;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      padding: 2rem 1rem 4rem;
+      background: var(--bg);
+      color: var(--fg);
+      font-family: Georgia, "Times New Roman", serif;
+      font-size: 16px;
+      line-height: 1.5;
+      transition: background 0.2s, color 0.2s;
+    }
+    .container {
+      max-width: 72rem;
+      margin: 0 auto;
+    }
+    header {
+      display: flex;
+      justify-content: space-between;
+      align-items: baseline;
+      margin-bottom: 2.5rem;
+      padding-bottom: 1.5rem;
+      border-bottom: 1px solid var(--card-border);
+    }
+    h1 {
+      font-size: 1.75rem;
+      font-weight: 400;
+      letter-spacing: 0.01em;
+      margin: 0 0 0.25rem;
+    }
+    .subtitle {
+      color: var(--muted);
+      font-style: italic;
+      font-size: 0.95rem;
+    }
+    .theme-toggle {
+      font-family: inherit;
+      font-size: 0.85rem;
+      background: transparent;
+      border: 1px solid var(--card-border);
+      color: var(--fg);
+      padding: 0.4rem 0.9rem;
+      border-radius: 0.25rem;
+      cursor: pointer;
+      letter-spacing: 0.03em;
+    }
+    .theme-toggle:hover { border-color: var(--fg); }
+
+    .grid {
+      display: grid;
+      gap: 1rem;
+      grid-template-columns: repeat(auto-fill, minmax(22rem, 1fr));
+    }
+    .card {
+      background: var(--card);
+      border: 1px solid var(--card-border);
+      border-radius: 0.5rem;
+      padding: 1.25rem 1.25rem 1rem;
+      display: flex;
+      flex-direction: column;
+      gap: 0.9rem;
+    }
+    .name-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: baseline;
+      gap: 1rem;
+    }
+    .name {
+      font-size: 1.1rem;
+      font-weight: 400;
+    }
+    .desc {
+      color: var(--muted);
+      font-size: 0.85rem;
+      font-style: italic;
+    }
+    .sizes {
+      display: flex;
+      align-items: flex-end;
+      gap: 1.25rem;
+      padding: 0.75rem 0 0.25rem;
+    }
+    .size-slot {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 0.35rem;
+    }
+    .size-slot img { display: block; }
+    .size-label {
+      font-family: "SF Mono", Menlo, monospace;
+      font-size: 0.68rem;
+      color: var(--muted);
+      letter-spacing: 0.05em;
+    }
+
+    /* Simulated browser tab */
+    .tab {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      background: var(--tab-active);
+      border: 1px solid var(--card-border);
+      border-bottom: none;
+      padding: 0.5rem 0.8rem 0.5rem 0.65rem;
+      border-radius: 0.35rem 0.35rem 0 0;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      font-size: 0.78rem;
+      color: var(--fg);
+      max-width: 16rem;
+    }
+    .tab img { display: block; }
+    .tab-title {
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    .tab-strip {
+      background: var(--tab-bg);
+      padding: 0.4rem 0.4rem 0;
+      border-radius: 0.5rem 0.5rem 0 0;
+      margin: 0 -0.25rem;
+    }
+
+    .install {
+      background: var(--bg);
+      border: 1px solid var(--card-border);
+      border-radius: 0.35rem;
+      padding: 0.6rem 0.75rem;
+      font-family: "SF Mono", Menlo, monospace;
+      font-size: 0.72rem;
+      color: var(--muted);
+      overflow-x: auto;
+      white-space: nowrap;
+    }
+    .install code { color: var(--fg); }
+
+    footer {
+      margin-top: 3rem;
+      padding-top: 1.5rem;
+      border-top: 1px solid var(--card-border);
+      color: var(--muted);
+      font-size: 0.85rem;
+      line-height: 1.6;
+    }
+    footer code {
+      font-family: "SF Mono", Menlo, monospace;
+      font-size: 0.8rem;
+      color: var(--fg);
+      background: var(--card);
+      padding: 0.1rem 0.35rem;
+      border-radius: 0.2rem;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <header>
+      <div>
+        <h1>Favicon picks</h1>
+        <div class="subtitle">Collection of Beauty — eight directions to choose from</div>
+      </div>
+      <button class="theme-toggle" onclick="document.documentElement.classList.toggle('dark')">
+        Toggle theme
+      </button>
+    </header>
+
+    <div class="grid" id="grid"></div>
+
+    <footer>
+      <p>
+        To install your pick, copy the chosen SVG to <code>src/app/icon.svg</code>.
+        Next.js picks that up automatically at <code>/icon</code> and wires the
+        <code>&lt;link rel="icon"&gt;</code> headers for you. For Safari pinned
+        tabs, also copy it to <code>src/app/apple-icon.svg</code>.
+      </p>
+      <p>
+        All icons are 64×64 SVG, single-stroke where possible, tested to stay
+        legible at 16×16 (actual browser-tab size, shown leftmost in each card).
+        Toggle the theme above to see each on a dark tab strip.
+      </p>
+    </footer>
+  </div>
+
+  <script>
+    const icons = [
+      { file: "01-enso.svg", name: "Enso",
+        desc: "The Zen brush circle — beauty as a single unbroken gesture. The gap is essential." },
+      { file: "02-peony.svg", name: "Peony",
+        desc: "Layered bloom — the flower Chinese painting calls the 'king of flowers'." },
+      { file: "03-plum-blossom.svg", name: "Plum blossom",
+        desc: "Ume — a Japanese family crest, five petals in perfect geometric rest." },
+      { file: "04-tulip.svg", name: "Tulip",
+        desc: "A single stem in the Dutch Golden Age manner — silhouette, leaf, crease." },
+      { file: "05-nautilus.svg", name: "Nautilus",
+        desc: "The golden spiral in warm gold — mathematics and nature in one line." },
+      { file: "06-serpentine.svg", name: "Line of Beauty",
+        desc: "Hogarth's serpentine S — his 1753 thesis for the single most beautiful line." },
+      { file: "07-gold-leaf.svg", name: "Gold leaf",
+        desc: "A Byzantine / Klimt gold panel — ornament as reverence, the ground of icons." },
+    ];
+
+    const sizes = [16, 32, 64, 128];
+
+    const grid = document.getElementById("grid");
+    for (const ico of icons) {
+      const card = document.createElement("div");
+      card.className = "card";
+      card.innerHTML = `
+        <div class="name-row">
+          <div class="name">${ico.name}</div>
+          <div class="size-label">${ico.file}</div>
+        </div>
+        <div class="desc">${ico.desc}</div>
+
+        <div class="tab-strip">
+          <div class="tab">
+            <img src="${ico.file}" width="16" height="16" alt="" />
+            <span class="tab-title">Collection of Beauty</span>
+          </div>
+        </div>
+
+        <div class="sizes">
+          ${sizes.map((s) => `
+            <div class="size-slot">
+              <img src="${ico.file}" width="${s}" height="${s}" alt="" />
+              <div class="size-label">${s}px</div>
+            </div>
+          `).join("")}
+        </div>
+
+        <div class="install">
+          <code>cp public/favicons/${ico.file} src/app/icon.svg</code>
+        </div>
+      `;
+      grid.appendChild(card);
+    }
+  </script>
+</body>
+</html>

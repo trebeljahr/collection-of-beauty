@@ -1,3 +1,4 @@
+import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import {
@@ -7,8 +8,58 @@ import {
 } from "@/lib/data";
 import { Badge } from "@/components/ui/badge";
 import { ArtworkGallery } from "@/components/artwork-gallery";
+import {
+  artistJsonLd,
+  jsonLdScriptProps,
+  ogImagesForArtist,
+} from "@/lib/seo";
 
 type Params = { slug: string };
+
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<Params>;
+}): Promise<Metadata> {
+  const { slug } = await params;
+  const artist = getArtist(slug);
+  if (!artist) {
+    return { title: "Artist not found" };
+  }
+
+  const lifespan =
+    artist.born && artist.died
+      ? `${artist.born}–${artist.died}`
+      : artist.born
+        ? `b. ${artist.born}`
+        : null;
+
+  const descriptionBits = [
+    `${artist.count} work${artist.count === 1 ? "" : "s"} by ${artist.name}`,
+    lifespan,
+    artist.nationality,
+    artist.movement,
+  ].filter(Boolean);
+  const description = `${descriptionBits.join(" · ")}. Browse their works in the Collection of Beauty.`;
+
+  return {
+    title: artist.name,
+    description,
+    alternates: { canonical: `/artist/${artist.slug}` },
+    openGraph: {
+      type: "profile",
+      title: `${artist.name} · Collection of Beauty`,
+      description,
+      images: ogImagesForArtist(artist),
+    },
+    twitter: {
+      card: "summary_large_image",
+      title: `${artist.name} · Collection of Beauty`,
+      description,
+      images: ogImagesForArtist(artist),
+    },
+  };
+}
 
 export default async function ArtistPage({
   params,
@@ -37,6 +88,7 @@ export default async function ArtistPage({
 
   return (
     <div className="mx-auto max-w-6xl px-4 py-8">
+      <script {...jsonLdScriptProps(artistJsonLd(artist))} />
       <Link
         href="/artists"
         className="text-sm text-[var(--muted-foreground)] hover:underline"

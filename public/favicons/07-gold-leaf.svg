@@ -1,0 +1,19 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">
+  <title>Gold leaf — after Klimt / Byzantine icon</title>
+  <defs>
+    <linearGradient id="leafGold" x1="0.15" y1="0" x2="0.85" y2="1">
+      <stop offset="0" stop-color="#ecc145"/>
+      <stop offset="0.45" stop-color="#c49a3a"/>
+      <stop offset="1" stop-color="#7a5610"/>
+    </linearGradient>
+  </defs>
+  <!-- Solid gold panel — the ground of Byzantine icons and Klimt portraits. -->
+  <rect x="6" y="6" width="52" height="52" rx="2" fill="url(#leafGold)"/>
+  <!-- Restrained embossed ornament: nested square + halo disc. -->
+  <g fill="none" stroke="#6b4a0f" stroke-width="1.5">
+    <rect x="14" y="14" width="36" height="36" opacity="0.5"/>
+    <circle cx="32" cy="32" r="13" opacity="0.45"/>
+  </g>
+  <circle cx="32" cy="32" r="4" fill="#6b4a0f"/>
+  <circle cx="31.3" cy="31.3" r="1.4" fill="#f5d44e"/>
+</svg>

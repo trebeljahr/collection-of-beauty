@@ -1,0 +1,21 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">
+  <title>Tulip — Dutch Golden Age</title>
+  <!-- Leaf, sweeping back and up-right from the stem. -->
+  <path d="M 32 46 C 46 42, 48 28, 44 20 C 40 28, 36 36, 32 44 Z" fill="#6d7a3e"/>
+  <!-- Stem. -->
+  <line x1="32" y1="60" x2="32" y2="30"
+        stroke="#6d7a3e" stroke-width="2.5" stroke-linecap="round"/>
+  <!-- Three-lobed tulip bulb: back petal (darker), front two (lighter). -->
+  <path d="M 32 6
+           C 24 6, 20 18, 22 30
+           C 24 28, 28 26, 30 28
+           L 32 30
+           C 32 30, 32 6, 32 6 Z" fill="#b8342e"/>
+  <path d="M 32 6
+           C 40 6, 44 18, 42 30
+           C 40 28, 36 26, 34 28
+           L 32 30
+           C 32 30, 32 6, 32 6 Z" fill="#c94032"/>
+  <!-- Center petal crease — slight shadow separating the two front petals. -->
+  <path d="M 32 8 C 30 16, 30 24, 32 30 C 34 24, 34 16, 32 8 Z" fill="#8e2821"/>
+</svg>

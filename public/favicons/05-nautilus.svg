@@ -1,0 +1,24 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">
+  <title>Nautilus — the golden spiral</title>
+  <defs>
+    <linearGradient id="nautilusGold" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#e0b238"/>
+      <stop offset="0.5" stop-color="#b08530"/>
+      <stop offset="1" stop-color="#7a5610"/>
+    </linearGradient>
+  </defs>
+  <!-- Growing quarter-turn arcs approximating a Fibonacci spiral.
+       Radii: 2, 2, 4, 4, 7, 7, 11, 11, 15 → each sweep a 90° quadrant. -->
+  <path d="M 34 34
+           Q 34 30 38 30
+           Q 42 30 42 34
+           Q 42 40 36 40
+           Q 28 40 28 32
+           Q 28 20 40 20
+           Q 54 20 54 34
+           Q 54 52 34 52
+           Q 12 52 12 30
+           Q 12 8 36 8"
+        fill="none" stroke="url(#nautilusGold)" stroke-width="2.75"
+        stroke-linecap="round" stroke-linejoin="round"/>
+</svg>

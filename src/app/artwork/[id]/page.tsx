@@ -1,3 +1,4 @@
+import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { getArtwork, getArtist, getArtworksByArtist, artworks } from "@/lib/data";
@@ -5,8 +6,60 @@ import { Badge } from "@/components/ui/badge";
 import { ArtworkCard } from "@/components/artwork-card";
 import { ResponsiveImage } from "@/components/responsive-image";
 import { assetUrl } from "@/lib/utils";
+import {
+  artworkJsonLd,
+  jsonLdScriptProps,
+  ogImagesForArtwork,
+} from "@/lib/seo";
 
 type Params = { id: string };
+
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<Params>;
+}): Promise<Metadata> {
+  const { id } = await params;
+  const art = getArtwork(id);
+  if (!art) {
+    return { title: "Artwork not found" };
+  }
+
+  const bylineBits = [
+    art.artist,
+    art.dateCreated ?? (art.year ? String(art.year) : null),
+    art.movement,
+  ].filter(Boolean);
+  const byline = bylineBits.join(" · ");
+  const title = art.artist ? `${art.title} — ${art.artist}` : art.title;
+  const description = art.description
+    ? `${art.description}${byline ? ` (${byline})` : ""}`
+    : byline
+      ? `${art.title} — ${byline}. From the Collection of Beauty, a public-domain art gallery.`
+      : `${art.title}. From the Collection of Beauty, a public-domain art gallery.`;
+
+  const images = ogImagesForArtwork(art);
+
+  return {
+    title,
+    description,
+    alternates: { canonical: `/artwork/${art.id}` },
+    openGraph: {
+      type: "article",
+      title,
+      description,
+      images,
+      ...(art.artist ? { authors: [art.artist] } : {}),
+      ...(art.dateCreated ? { publishedTime: art.dateCreated } : {}),
+    },
+    twitter: {
+      card: "summary_large_image",
+      title,
+      description,
+      images,
+    },
+  };
+}
 
 export default async function ArtworkPage({
   params,
@@ -30,6 +83,7 @@ export default async function ArtworkPage({
 
   return (
     <div className="mx-auto max-w-6xl px-4 py-8">
+      <script {...jsonLdScriptProps(artworkJsonLd(art))} />
       <div className="mb-6 flex items-center justify-between text-sm text-[var(--muted-foreground)]">
         <Link href="/" className="hover:underline">
           ← Back to gallery

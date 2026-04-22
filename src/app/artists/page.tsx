@@ -1,5 +1,19 @@
+import type { Metadata } from "next";
 import { artists } from "@/lib/data";
 import { ArtistsBrowser } from "@/components/artists-browser";
+
+export const metadata: Metadata = {
+  title: "Artists",
+  description:
+    `${artists.length} artists represented in the Collection of Beauty, ` +
+    `from Renaissance masters to 20th-century modernists to natural-history ` +
+    `illustrators — browse by number of works, search, or filter by movement.`,
+  alternates: { canonical: "/artists" },
+  openGraph: {
+    title: "Artists · Collection of Beauty",
+    description: `${artists.length} artists represented, sorted by number of works.`,
+  },
+};
 
 export default function ArtistsPage() {
   return (

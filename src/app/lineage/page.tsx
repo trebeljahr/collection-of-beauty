@@ -1,5 +1,22 @@
+import type { Metadata } from "next";
 import { LineageGraph } from "@/components/lineage-graph";
 import { artists, connections } from "@/lib/data";
+
+export const metadata: Metadata = {
+  title: "Lineage",
+  description:
+    `The social graph of ${artists.length} artists across ${connections.length} ` +
+    `connections — who taught whom, painted alongside whom, shared movements with ` +
+    `whom. An interactive force-directed map of the friendships and rivalries ` +
+    `that shaped the history of Western art.`,
+  alternates: { canonical: "/lineage" },
+  openGraph: {
+    title: "Lineage · Collection of Beauty",
+    description:
+      `Interactive social graph of ${artists.length} artists and ${connections.length} connections — ` +
+      `teachers, rivals, co-founders of movements, friends and correspondents.`,
+  },
+};
 
 export default function LineagePage() {
   return (
