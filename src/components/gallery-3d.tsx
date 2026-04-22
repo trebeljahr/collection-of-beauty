@@ -318,12 +318,17 @@ function makeRoom(
 type Slot = {
   pos: [number, number, number];
   rot: [number, number, number];
+  /** When the painting is packed tight against a cluster neighbour, the
+   *  side-hung plaque collides with the adjacent canvas. `plaqueBelow`
+   *  hangs the plaque under the painting instead. */
+  plaqueBelow: boolean;
 };
 
 type Placement = {
   artwork: Artwork;
   position: [number, number, number];
   rotation: [number, number, number];
+  plaqueBelow: boolean;
 };
 
 type RoomLayout = {
@@ -359,8 +364,9 @@ const SMALL_CLUSTER_MAX = 4;  // reset to a bigger gap after this many smalls
 
 /**
  * Pack a sequence of painting widths onto a single wall with variable
- * spacing. Returns each painting's centre position (running distance from
- * the start of the packed range) and the total packed length.
+ * spacing. Returns each painting's centre position, the edge-to-edge
+ * gap to its previous neighbour on the same wall (Infinity for the
+ * first painting), and the total packed length.
  *
  * Gap rules:
  *   - small↔small: SMALL_GAP (tight cluster)
@@ -369,10 +375,14 @@ const SMALL_CLUSTER_MAX = 4;  // reset to a bigger gap after this many smalls
  */
 function packWall(widths: number[]): {
   centres: number[];
+  /** gapBefore[i] is the edge-to-edge gap between painting i and i-1;
+   *  gapBefore[0] is Infinity (no neighbour on that side). */
+  gapBefore: number[];
   length: number;
 } {
-  if (widths.length === 0) return { centres: [], length: 0 };
+  if (widths.length === 0) return { centres: [], gapBefore: [], length: 0 };
   const centres: number[] = [];
+  const gapBefore: number[] = [Infinity];
   let smallRun = widths[0] < SMALL_PAINTING_THRESHOLD ? 1 : 0;
   centres.push(widths[0] / 2);
   for (let i = 1; i < widths.length; i++) {
@@ -393,12 +403,13 @@ function packWall(widths: number[]): {
       gap = LARGE_GAP;
       smallRun = curSmall ? 1 : 0;
     }
+    gapBefore.push(gap);
     const edgeOfPrev = centres[i - 1] + prev / 2;
     centres.push(edgeOfPrev + gap + cur / 2);
   }
   const last = widths.length - 1;
   const length = centres[last] + widths[last] / 2;
-  return { centres, length };
+  return { centres, gapBefore, length };
 }
 
 /** Compute depth + slots for a given list of paintings. End walls take up
@@ -437,6 +448,24 @@ function planSlots(
   const eastPack = packWall(eastWidths);
   const sideLength = Math.max(westPack.length, eastPack.length);
 
+  // Demote the plaque under a painting when the packed gap on either
+  // side is tighter than the plaque's horizontal footprint — otherwise
+  // it hangs over the adjacent canvas. Applied per-wall since the
+  // packed sequences are independent.
+  const plaqueBelowOn = (gapBefore: number[], count: number): boolean[] => {
+    const out: boolean[] = new Array(count).fill(false);
+    for (let i = 0; i < count; i++) {
+      const before = gapBefore[i];
+      const after = i + 1 < count ? gapBefore[i + 1] : Infinity;
+      if (before < PLAQUE_SIDE_MIN_GAP || after < PLAQUE_SIDE_MIN_GAP) {
+        out[i] = true;
+      }
+    }
+    return out;
+  };
+  const westBelow = plaqueBelowOn(westPack.gapBefore, westWidths.length);
+  const eastBelow = plaqueBelowOn(eastPack.gapBefore, eastWidths.length);
+
   // Room depth = packed side length + 1.6 m margin at each end. Clamp to
   // a minimum so a half-empty room still feels like a proper gallery.
   const MARGIN = 1.6;
@@ -451,7 +480,11 @@ function planSlots(
   // Back wall
   const backXs = backHasDoor ? [-5.5, 5.5] : [-8, -2.7, 2.7, 8];
   for (let i = 0; i < backCount; i++) {
-    slots.push({ pos: [backXs[i], 0, backZ + 0.06], rot: [0, 0, 0] });
+    slots.push({
+      pos: [backXs[i], 0, backZ + 0.06],
+      rot: [0, 0, 0],
+      plaqueBelow: false,
+    });
   }
 
   // Side walls. Centre each packed run on the usable side length so a
@@ -463,16 +496,20 @@ function planSlots(
   let ei = 0;
   for (let i = 0; i < sidePaintings.length; i++) {
     if (i % 2 === 0) {
-      const z = backZ + MARGIN + westOffset + westPack.centres[wi++];
+      const wIdx = wi++;
+      const z = backZ + MARGIN + westOffset + westPack.centres[wIdx];
       slots.push({
         pos: [-ROOM_WIDTH / 2 + 0.06, 0, z],
         rot: [0, Math.PI / 2, 0],
+        plaqueBelow: westBelow[wIdx],
       });
     } else {
-      const z = backZ + MARGIN + eastOffset + eastPack.centres[ei++];
+      const eIdx = ei++;
+      const z = backZ + MARGIN + eastOffset + eastPack.centres[eIdx];
       slots.push({
         pos: [ROOM_WIDTH / 2 - 0.06, 0, z],
         rot: [0, -Math.PI / 2, 0],
+        plaqueBelow: eastBelow[eIdx],
       });
     }
   }
@@ -480,7 +517,11 @@ function planSlots(
   // Front wall
   const frontXs = frontHasDoor ? [-5.5, 5.5] : [-8, -2.7, 2.7, 8];
   for (let i = 0; i < frontCount; i++) {
-    slots.push({ pos: [frontXs[i], 0, frontZ - 0.06], rot: [0, Math.PI, 0] });
+    slots.push({
+      pos: [frontXs[i], 0, frontZ - 0.06],
+      rot: [0, Math.PI, 0],
+      plaqueBelow: false,
+    });
   }
 
   return { depth, slots };
@@ -507,6 +548,7 @@ function layoutCorridor(rooms: RoomData[]): RoomLayout[] {
         artwork: data.artworks[k],
         position: [slot.pos[0], slot.pos[1], slot.pos[2] + frontZ],
         rotation: slot.rot,
+        plaqueBelow: slot.plaqueBelow,
       });
     }
 
@@ -962,6 +1004,15 @@ const PLAQUE_W = 0.34;
 const PLAQUE_H = 0.24;
 const PLAQUE_DEPTH = 0.012;
 const PLAQUE_GAP = 0.1;
+// Vertical breathing room between painting bottom and the plaque when
+// it's demoted below the canvas (cluster-tight neighbours).
+const PLAQUE_BELOW_GAP = 0.08;
+// Minimum edge-to-edge gap needed between two side-wall paintings for
+// their plaques to hang to the right without crossing into the
+// neighbour. Below this, the layout puts the plaque under the painting
+// instead. Derived from the plaque's horizontal footprint plus a small
+// safety margin so we don't land flush against the next frame.
+const PLAQUE_SIDE_MIN_GAP = PLAQUE_GAP + PLAQUE_W + 0.05;
 
 /**
  * Reporter for aggregate load progress (of the *first* room only — once
@@ -1195,7 +1246,9 @@ function Painting({
         <Plaque
           artwork={artwork}
           paintingWidth={w}
+          paintingHeight={h}
           yCenter={yCenter}
+          below={placement.plaqueBelow}
         />
       )}
     </group>
@@ -1209,11 +1262,18 @@ function Painting({
 function Plaque({
   artwork,
   paintingWidth,
+  paintingHeight,
   yCenter,
+  below,
 }: {
   artwork: Artwork;
   paintingWidth: number;
+  paintingHeight: number;
   yCenter: number;
+  /** When true, hang the plaque under the painting instead of to the
+   *  right of it. Used for cluster-tight neighbours whose side-hung
+   *  plaques would overlap the adjacent canvas. */
+  below: boolean;
 }) {
   // Plaque box is drawn via an instanced mesh at the Gallery3D level;
   // this component positions only the label Text on top of it. The
@@ -1221,8 +1281,10 @@ function Plaque({
   // at PLAQUE_DEPTH/2, extends ±half-depth). Park the Text a hair in
   // front of that face — otherwise it renders *inside* the opaque
   // cream body and is completely occluded.
-  const plaqueX = paintingWidth / 2 + PLAQUE_GAP + PLAQUE_W / 2;
-  const plaqueY = EYE_HEIGHT - yCenter;
+  const plaqueX = below ? 0 : paintingWidth / 2 + PLAQUE_GAP + PLAQUE_W / 2;
+  const plaqueY = below
+    ? -paintingHeight / 2 - PLAQUE_BELOW_GAP - PLAQUE_H / 2
+    : EYE_HEIGHT - yCenter;
   const plaqueZ = PLAQUE_DEPTH + 0.003;
 
   const year = artwork.year ? `, ${artwork.year}` : "";
@@ -2271,6 +2333,12 @@ function collectFurniture(
       // image aspect doesn't match the metadata bounding box.
       const painting = computePaintingSize(p.artwork, null);
       const yCenter = computePaintingYCenter(painting.h);
+      const plaqueOffsetX = p.plaqueBelow
+        ? 0
+        : painting.w / 2 + PLAQUE_GAP + PLAQUE_W / 2;
+      const plaqueOffsetY = p.plaqueBelow
+        ? -painting.h / 2 - PLAQUE_BELOW_GAP - PLAQUE_H / 2
+        : EYE_HEIGHT - yCenter;
       out.push({
         key: `${layout.data.id}-${p.artwork.id}`,
         groupPosition: [p.position[0], yCenter, p.position[2]],
@@ -2280,8 +2348,8 @@ function collectFurniture(
           painting.h + FRAME_T * 2,
           FRAME_DEPTH,
         ],
-        plaqueOffsetX: painting.w / 2 + PLAQUE_GAP + PLAQUE_W / 2,
-        plaqueOffsetY: EYE_HEIGHT - yCenter,
+        plaqueOffsetX,
+        plaqueOffsetY,
         roomIndex: i,
       });
     }
