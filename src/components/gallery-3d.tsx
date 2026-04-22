@@ -1,7 +1,6 @@
 "use client";
 
 import {
-  startTransition,
   useCallback,
   useEffect,
   useMemo,
@@ -494,6 +493,100 @@ function bestVariantUrl(
   return variantAssetsRawUrl(artwork.objectKey, pick, "avif");
 }
 
+// -------------------------------------------------------------
+// High-res LOD — separate cache so the regular LRU's eviction
+// doesn't hit the big textures, and vice versa.
+// -------------------------------------------------------------
+
+const HIRES_MIN_WIDTH = 1920; // no point loading anything smaller as a "hi-res"
+const HIRES_CACHE_CAPACITY = 12;
+const hiResCache = new TextureLRU(HIRES_CACHE_CAPACITY);
+const hiResInFlight = new Map<string, Promise<THREE.Texture>>();
+
+/**
+ * Largest variant width that's a meaningful upgrade over the default
+ * 1280 canvas. Returns null when the manifest has nothing at or above
+ * HIRES_MIN_WIDTH — in which case the regular texture is the best
+ * we've got and there's no LOD to apply.
+ */
+function bestHiResWidth(artwork: Artwork): number | null {
+  const widths = artwork.variantWidths;
+  if (!widths || widths.length === 0) return null;
+  const biggest = widths[widths.length - 1];
+  if (biggest < HIRES_MIN_WIDTH) return null;
+  return biggest;
+}
+
+async function loadHiResTexture(
+  artwork: Artwork,
+  renderer: THREE.WebGLRenderer | null,
+  signal: AbortSignal,
+): Promise<THREE.Texture | null> {
+  const width = bestHiResWidth(artwork);
+  if (width == null) return null;
+  const key = `${artwork.objectKey}@${width}`;
+  const cached = hiResCache.get(key);
+  if (cached) return cached;
+
+  let promise = hiResInFlight.get(key);
+  if (!promise) {
+    const shared = new AbortController();
+    const url = variantAssetsRawUrl(artwork.objectKey, width, "avif");
+    promise = (async () => {
+      const res = await fetch(url, { signal: shared.signal });
+      if (!res.ok) {
+        if (res.status === 404) missingUrls.add(url);
+        throw new Error(`fetch ${url}: ${res.status}`);
+      }
+      const blob = await res.blob();
+      const bitmap = await createImageBitmap(blob, {
+        imageOrientation: "flipY",
+      });
+      const tex = new THREE.Texture(
+        bitmap as unknown as HTMLImageElement,
+      );
+      tex.colorSpace = THREE.SRGBColorSpace;
+      tex.anisotropy = 8;
+      tex.minFilter = THREE.LinearMipMapLinearFilter;
+      tex.magFilter = THREE.LinearFilter;
+      tex.generateMipmaps = true;
+      tex.flipY = false;
+      tex.needsUpdate = true;
+      if (renderer) {
+        try {
+          renderer.initTexture(tex);
+        } catch {
+          /* best-effort */
+        }
+      }
+      hiResCache.put(key, tex);
+      return tex;
+    })().finally(() => {
+      hiResInFlight.delete(key);
+    });
+    hiResInFlight.set(key, promise);
+  }
+
+  if (signal.aborted) throw new DOMException("Aborted", "AbortError");
+  return new Promise((resolve, reject) => {
+    const onAbort = () => {
+      signal.removeEventListener("abort", onAbort);
+      reject(new DOMException("Aborted", "AbortError"));
+    };
+    signal.addEventListener("abort", onAbort);
+    promise!.then(
+      (tex) => {
+        signal.removeEventListener("abort", onAbort);
+        resolve(tex);
+      },
+      (err) => {
+        signal.removeEventListener("abort", onAbort);
+        reject(err);
+      },
+    );
+  });
+}
+
 async function fetchAndDecodeTexture(
   artwork: Artwork,
   signal: AbortSignal,
@@ -735,14 +828,25 @@ function Painting({
   staggerMs = 0,
 }: PaintingProps) {
   const { artwork, position, rotation } = placement;
-  const { gl } = useThree();
+  const { gl, camera } = useThree();
   // Seed from cache synchronously so rooms that were already preloaded
   // render immediately on mount.
   const [texture, setTexture] = useState<THREE.Texture | null>(() =>
     textureCache.get(artwork.objectKey) ?? null,
   );
+  const [hiResTexture, setHiResTexture] = useState<THREE.Texture | null>(
+    () => {
+      const w = bestHiResWidth(artwork);
+      return w ? (hiResCache.get(`${artwork.objectKey}@${w}`) ?? null) : null;
+    },
+  );
   const [staggerReady, setStaggerReady] = useState(() => staggerMs <= 0);
   const reportedRef = useRef(false);
+  const hiResRequestedRef = useRef(false);
+  // LOD distance check needs the painting's world position. Compute
+  // once — it doesn't change between renders.
+  const worldPosRef = useRef(new THREE.Vector3());
+  const cameraWorldRef = useRef(new THREE.Vector3());
 
   useEffect(() => {
     if (staggerReady) return;
@@ -801,7 +905,9 @@ function Painting({
   }, [artwork.objectKey]);
 
   const meta = computeMetaSize(artwork);
-  const { w, h } = computePaintingSize(artwork, texture);
+  // Display the hi-res texture when we have it, else the normal one.
+  const displayTexture = hiResTexture ?? texture;
+  const { w, h } = computePaintingSize(artwork, displayTexture);
   // yCenter uses the meta height so the group + frame share the same
   // y-centre — the canvas (inside the group) may be slightly smaller,
   // but it'll sit centred inside the frame.
@@ -812,6 +918,32 @@ function Painting({
     yCenter,
     position[2],
   ];
+  worldPosRef.current.set(position[0], yCenter, position[2]);
+
+  // LOD: when the player walks within ~3 m of an active painting,
+  // upgrade to the biggest available variant. Checked every 12 frames
+  // (~5 Hz) — distance doesn't change that fast at walking speed.
+  const lodFrameRef = useRef(0);
+  useFrame(() => {
+    if (!isActive) return;
+    if (hiResTexture || hiResRequestedRef.current) return;
+    if (bestHiResWidth(artwork) == null) return;
+    lodFrameRef.current += 1;
+    if (lodFrameRef.current % 12 !== 0) return;
+    camera.getWorldPosition(cameraWorldRef.current);
+    const dist = cameraWorldRef.current.distanceTo(worldPosRef.current);
+    if (dist > 3.5) return;
+    hiResRequestedRef.current = true;
+    const controller = new AbortController();
+    loadHiResTexture(artwork, gl, controller.signal)
+      .then((tex) => {
+        if (tex) setHiResTexture(tex);
+      })
+      .catch(() => {
+        // 404 or abort — leave the flag set so we don't retry spam;
+        // a real reload of the page will try again.
+      });
+  });
 
   return (
     <group position={groupPosition} rotation={rotation}>
@@ -819,7 +951,7 @@ function Painting({
           shader recompile after the first one, so no reason to
           stagger. Un-staggered = all canvases pop in together when
           their textures are ready, which feels correct anyway. */}
-      {texture && (
+      {displayTexture && (
         <mesh
           position={[0, 0, 0.004]}
           userData={{ artwork }}
@@ -829,15 +961,13 @@ function Painting({
           }}
         >
           <planeGeometry args={[w, h]} />
-          <meshStandardMaterial
-            map={texture}
-            roughness={0.85}
-            metalness={0}
-            emissive="#ffffff"
-            emissiveIntensity={isActive ? 0.25 : 0.4}
-            emissiveMap={texture}
-            toneMapped={false}
-          />
+          {/* meshBasicMaterial is unlit — cheapest fragment shader
+              (one texture sample, no PBR math, no per-light eval).
+              Paintings are effectively self-illuminated this way and
+              don't vary with scene lights, which is a standard choice
+              for museum displays and lets us pay almost nothing per
+              covered pixel. */}
+          <meshBasicMaterial map={displayTexture} toneMapped={false} />
         </mesh>
       )}
 
@@ -902,6 +1032,12 @@ function Plaque({
       anchorY="middle"
       maxWidth={PLAQUE_W - 0.024}
       textAlign="center"
+      // troika-three-text computes its own bounding sphere from the
+      // rendered glyphs. Under some transforms (painting rotations,
+      // newlines, dynamic maxWidth) that sphere ends up wrong and the
+      // text culls even when it's plainly in frame — visible as
+      // "sometimes the plaque is blank". Don't cull.
+      frustumCulled={false}
     >
       {text}
     </Text>
@@ -1302,6 +1438,10 @@ function Player({
   const keys = useRef<Record<string, boolean>>({});
   const velocityY = useRef(0);
   const grounded = useRef(true);
+  // Head-bob phase: advances while walking on the ground, holds still
+  // otherwise. Converted to a tiny sinusoidal y-offset + lateral x
+  // roll for a "footsteps carrying the head" feel.
+  const bobPhase = useRef(0);
   const raycaster = useRef(
     new THREE.Raycaster(undefined, undefined, 0.1, 10),
   );
@@ -1438,11 +1578,24 @@ function Player({
       }
     }
 
-    // Vertical integration
+    // Head bob: advance phase while walking, let it ease back to zero
+    // when standing still. Frequency scales with speed (faster walking
+    // = quicker bob). 1.6 cm peak, 2× rate so one step produces one
+    // up-and-down cycle.
+    const isWalking =
+      grounded.current && move.lengthSq() > 0;
+    if (isWalking) {
+      bobPhase.current += speed * dt * 1.6;
+    }
+    const bobY = isWalking ? Math.sin(bobPhase.current * 2) * 0.016 : 0;
+    const walkingFloor = EYE_HEIGHT + bobY;
+
+    // Vertical integration — "floor" shifts subtly when walking so the
+    // bob blends with jumping/gravity correctly.
     velocityY.current -= GRAVITY * dt;
     camera.position.y += velocityY.current * dt;
-    if (camera.position.y <= EYE_HEIGHT) {
-      camera.position.y = EYE_HEIGHT;
+    if (camera.position.y <= walkingFloor) {
+      camera.position.y = walkingFloor;
       velocityY.current = 0;
       grounded.current = true;
     } else {
@@ -1861,6 +2014,10 @@ type FurniturePlacement = {
   frameScale: [number, number, number];
   plaqueOffsetX: number;
   plaqueOffsetY: number;
+  /** Which room this belongs to — used to decide whether to draw the
+   *  plaque (active room only; neighbour rooms get the frame but not
+   *  the empty cream card). */
+  roomIndex: number;
 };
 
 function collectFurniture(
@@ -1884,6 +2041,7 @@ function collectFurniture(
         ],
         plaqueOffsetX: meta.w / 2 + PLAQUE_GAP + PLAQUE_W / 2,
         plaqueOffsetY: EYE_HEIGHT - yCenter,
+        roomIndex: i,
       });
     }
   }
@@ -1892,19 +2050,40 @@ function collectFurniture(
 
 function FurnitureInstances({
   placements,
+  activeRoom,
 }: {
   placements: FurniturePlacement[];
+  activeRoom: number;
 }) {
+  // Plaque boxes exist only in the active room — the Text lives there
+  // too, and a plaque card with no text just looks like a blank
+  // rectangle glued to the wall.
+  const activePlaques = useMemo(
+    () => placements.filter((p) => p.roomIndex === activeRoom),
+    [placements, activeRoom],
+  );
+
   if (placements.length === 0) return null;
-  // Cap `limit` above typical worst-case (30 paintings per room × 3
-  // visible rooms = 90) so drei's backing buffer doesn't reallocate
+  // Cap `limit` above typical worst-case (22 paintings per room × 5
+  // visible rooms = 110) so drei's backing buffer doesn't reallocate
   // every time the set changes.
-  const limit = Math.max(200, placements.length + 32);
+  const framesLimit = Math.max(200, placements.length + 32);
+  const plaqueLimit = Math.max(64, activePlaques.length + 16);
+
   return (
     <>
       {/* Frames — dark wood box, sunk behind the wall surface by
-          FRAME_DEPTH/2 so the canvas sits flush with the wall face. */}
-      <Instances limit={limit} range={placements.length}>
+          FRAME_DEPTH/2 so the canvas sits flush with the wall face.
+          frustumCulled={false} is essential: drei's <Instances> uses a
+          single bounding sphere computed from instance 0's transform,
+          and when that instance happens to be outside the frustum the
+          entire batch culls — which is the "frames disappear from some
+          angles" bug. */}
+      <Instances
+        limit={framesLimit}
+        range={placements.length}
+        frustumCulled={false}
+      >
         <boxGeometry args={[1, 1, 1]} />
         <meshStandardMaterial color="#241810" roughness={0.55} metalness={0.1} />
         {placements.map((p) => (
@@ -1922,28 +2101,38 @@ function FurnitureInstances({
       </Instances>
       {/* Plaque bodies — cream cards floating at eye height, to the
           right of the painting's meta-width. Uniform scale; plaque size
-          is constant across the scene. */}
-      <Instances limit={limit} range={placements.length}>
-        <boxGeometry args={[PLAQUE_W, PLAQUE_H, PLAQUE_DEPTH]} />
-        <meshStandardMaterial
-          color="#f4ecd8"
-          emissive="#2a1e10"
-          emissiveIntensity={0.05}
-          roughness={0.7}
-          metalness={0}
-        />
-        {placements.map((p) => (
-          <group
-            key={p.key}
-            position={p.groupPosition}
-            rotation={p.rotation}
-          >
-            <Instance
-              position={[p.plaqueOffsetX, p.plaqueOffsetY, PLAQUE_DEPTH / 2]}
-            />
-          </group>
-        ))}
-      </Instances>
+          is constant across the scene. Active room only (see above). */}
+      {activePlaques.length > 0 && (
+        <Instances
+          limit={plaqueLimit}
+          range={activePlaques.length}
+          frustumCulled={false}
+        >
+          <boxGeometry args={[PLAQUE_W, PLAQUE_H, PLAQUE_DEPTH]} />
+          <meshStandardMaterial
+            color="#f4ecd8"
+            emissive="#2a1e10"
+            emissiveIntensity={0.05}
+            roughness={0.7}
+            metalness={0}
+          />
+          {activePlaques.map((p) => (
+            <group
+              key={p.key}
+              position={p.groupPosition}
+              rotation={p.rotation}
+            >
+              <Instance
+                position={[
+                  p.plaqueOffsetX,
+                  p.plaqueOffsetY,
+                  PLAQUE_DEPTH / 2,
+                ]}
+              />
+            </group>
+          ))}
+        </Instances>
+      )}
     </>
   );
 }
@@ -2185,7 +2374,7 @@ export function Gallery3D({ artworks }: Props) {
   return (
     <div className="fixed left-0 right-0 bottom-0 top-[57px] bg-[#0a0604]">
       <Canvas
-        dpr={[1, 1.5]}
+        dpr={[1, 1.25]}
         performance={{ min: 0.6 }}
         camera={{
           fov: 70,
@@ -2243,7 +2432,7 @@ export function Gallery3D({ artworks }: Props) {
           ));
         })}
 
-        <FurnitureInstances placements={furniture} />
+        <FurnitureInstances placements={furniture} activeRoom={activeRoom} />
 
         <AccentLightPool layouts={layouts} activeRoom={activeRoom} />
 
@@ -2259,7 +2448,10 @@ export function Gallery3D({ artworks }: Props) {
             // that as a non-urgent transition lets React yield to the
             // frame loop while the re-render happens, so movement
             // doesn't stutter while the new room is being wired up.
-            startTransition(() => setActiveRoom(i));
+            // Eager update — the heavy mount costs were killed in
+            // the previous pass; startTransition just added input
+            // latency to every crossing without helping any more.
+            setActiveRoom(i);
           }}
           onAimChange={setAimingAtPainting}
         />
