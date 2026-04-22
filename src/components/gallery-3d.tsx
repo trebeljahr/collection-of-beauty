@@ -807,13 +807,13 @@ function Painting({
     position[2],
   ];
 
-  // While staggering, render nothing — the frame + plaque *boxes* are
-  // instanced at the Gallery3D level, so they appear instantly. Only
-  // the per-painting pieces (canvas mesh, Plaque Text, accent light)
-  // wait their turn.
   return (
     <group position={groupPosition} rotation={rotation}>
-      {staggerReady && texture && (
+      {/* Canvas mesh — material reuse across all paintings means no
+          shader recompile after the first one, so no reason to
+          stagger. Un-staggered = all canvases pop in together when
+          their textures are ready, which feels correct anyway. */}
+      {texture && (
         <mesh
           position={[0, 0, 0.004]}
           userData={{ artwork }}
@@ -834,26 +834,16 @@ function Painting({
           />
         </mesh>
       )}
-      {/* Plaque label only for the active room — troika SDF cost is
-          the expensive part of a Plaque, and you can't read labels
-          across a doorway anyway. */}
+
+      {/* Plaque label — the expensive piece (troika SDF atlas per
+          Text) lives here. Staggering spreads the cost across ~20
+          frames instead of slamming it into one. Active-room only:
+          you can't read labels across a doorway. */}
       {staggerReady && isActive && (
         <Plaque
           artwork={artwork}
           paintingWidthMeta={meta.w}
           yCenter={yCenter}
-        />
-      )}
-      {/* Warm accent spot — only in the active room, for the same
-          reason: each light costs forward-shader work per fragment,
-          and we don't need the ones in the room behind us. */}
-      {staggerReady && isActive && (
-        <pointLight
-          position={[0, 0.2, 1.1]}
-          intensity={2.2}
-          distance={3.5}
-          decay={2}
-          color="#ffd9a8"
         />
       )}
     </group>
@@ -1128,12 +1118,15 @@ function RoomGeometry({
   const backHasDoor = !isLast;
   const frontHasDoor = !isFirst;
 
-  // Distribute ceiling lamps along the room's depth — one cluster per
-  // ~6 m of depth.
-  const lampRows = Math.max(1, Math.round(depth / 7));
+  // Distribute ceiling lamps along the room's depth. Kept constant at
+  // 2 rows (4 lamps) across every room so the total pointLight count
+  // doesn't flip when the player moves between a small and a large
+  // room — flipping it would force a shader recompile on every door
+  // crossing, which is a ~50 ms main-thread stall.
+  const lampRows = 2;
   const lampPositions: Array<[number, number, number]> = [];
   for (let r = 0; r < lampRows; r++) {
-    const t = lampRows === 1 ? 0.5 : r / (lampRows - 1);
+    const t = r / (lampRows - 1);
     const z = frontZ + (backZ - frontZ) * (0.18 + 0.64 * t);
     lampPositions.push([-6, ROOM_HEIGHT - 0.04, z]);
     lampPositions.push([6, ROOM_HEIGHT - 0.04, z]);
@@ -1950,6 +1943,82 @@ function FurnitureInstances({
 }
 
 // =============================================================
+// Accent light pool — N pointLights that never unmount; their
+// positions (and on/off intensity) update when the active room
+// changes.
+// =============================================================
+
+/**
+ * Fixed capacity — matches MAX_PER_ROOM, our upper bound on paintings
+ * per room. If the active room has fewer, the extra lights sit idle
+ * (intensity 0, parked far off-screen). Crucially, the total count of
+ * `<pointLight>` components in the scene stays constant across the
+ * entire session, so Three.js's forward shader compiles exactly once
+ * for this count and never recompiles during a room crossing.
+ */
+const ACCENT_LIGHT_POOL_SIZE = MAX_PER_ROOM;
+
+function AccentLightPool({
+  layouts,
+  activeRoom,
+}: {
+  layouts: RoomLayout[];
+  activeRoom: number;
+}) {
+  const lights = useMemo(() => {
+    const active = layouts[activeRoom];
+    const out: Array<
+      | {
+          position: [number, number, number];
+          on: true;
+        }
+      | { on: false }
+    > = [];
+    if (active) {
+      for (const p of active.placements.slice(0, ACCENT_LIGHT_POOL_SIZE)) {
+        const meta = computeMetaSize(p.artwork);
+        const yCenter = computePaintingYCenter(meta.h);
+        // Local offset inside the painting's group: slightly in front
+        // and just below centre, same as the previous per-Painting
+        // accent-light position.
+        const localOffset = new THREE.Vector3(0, 0.2, 1.1);
+        const euler = new THREE.Euler(
+          p.rotation[0],
+          p.rotation[1],
+          p.rotation[2],
+        );
+        localOffset.applyEuler(euler);
+        out.push({
+          position: [
+            p.position[0] + localOffset.x,
+            yCenter + localOffset.y,
+            p.position[2] + localOffset.z,
+          ],
+          on: true,
+        });
+      }
+    }
+    while (out.length < ACCENT_LIGHT_POOL_SIZE) out.push({ on: false });
+    return out;
+  }, [layouts, activeRoom]);
+
+  return (
+    <>
+      {lights.map((cfg, i) => (
+        <pointLight
+          key={i}
+          position={cfg.on ? cfg.position : [0, -1000, 0]}
+          intensity={cfg.on ? 2.2 : 0}
+          distance={3.5}
+          decay={2}
+          color="#ffd9a8"
+        />
+      ))}
+    </>
+  );
+}
+
+// =============================================================
 // Preloader — warms the texture cache for rooms just beyond the render
 // window so crossing a door doesn't burst-fetch + burst-upload.
 // =============================================================
@@ -2169,6 +2238,8 @@ export function Gallery3D({ artworks }: Props) {
         })}
 
         <FurnitureInstances placements={furniture} />
+
+        <AccentLightPool layouts={layouts} activeRoom={activeRoom} />
 
         <Preloader layouts={layouts} activeRoom={activeRoom} />
 
