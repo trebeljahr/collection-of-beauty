@@ -597,6 +597,13 @@ class TextureLRU {
   has(key: string): boolean {
     return this.map.has(key);
   }
+
+  delete(key: string): void {
+    const tex = this.map.get(key);
+    if (!tex) return;
+    this.map.delete(key);
+    tex.dispose();
+  }
 }
 
 const textureCache = new TextureLRU(TEXTURE_CACHE_CAPACITY);
@@ -627,6 +634,11 @@ function bestVariantUrl(
 
 const HIRES_MIN_WIDTH = 1920; // no point loading anything smaller as a "hi-res"
 const HIRES_CACHE_CAPACITY = 12;
+// LOD distance hysteresis: upgrade when camera steps inside UPGRADE,
+// downgrade (drop back to base + free VRAM) once it passes DOWNGRADE.
+// The gap prevents flip-flop if the player lingers on the threshold.
+const HIRES_UPGRADE_DIST = 3.5;
+const HIRES_DOWNGRADE_DIST = 5.5;
 const hiResCache = new TextureLRU(HIRES_CACHE_CAPACITY);
 const hiResInFlight = new Map<string, Promise<THREE.Texture>>();
 
@@ -1076,19 +1088,46 @@ function Painting({
   ];
   worldPosRef.current.set(position[0], yCenter, position[2]);
 
-  // LOD: when the player walks within ~3 m of an active painting,
-  // upgrade to the biggest available variant. Checked every 12 frames
-  // (~5 Hz) — distance doesn't change that fast at walking speed.
+  // Drop the hi-res texture: swap the mesh back to the base variant
+  // and free the GPU memory. The dispose is deferred by one animation
+  // frame so React's commit has time to point the material's `map` at
+  // the base texture before the hi-res one is torn down — disposing
+  // while still bound would either warn or flash black.
+  const releaseHiRes = useCallback(() => {
+    hiResRequestedRef.current = false;
+    setHiResTexture((prev) => {
+      if (!prev) return prev;
+      const w = bestHiResWidth(artwork);
+      if (w != null) {
+        const key = `${artwork.objectKey}@${w}`;
+        requestAnimationFrame(() => hiResCache.delete(key));
+      }
+      return null;
+    });
+  }, [artwork]);
+
+  // LOD: when the player walks within HIRES_UPGRADE_DIST of an active
+  // painting, upgrade to the biggest available variant; once they back
+  // out past HIRES_DOWNGRADE_DIST, drop it and free the VRAM. Checked
+  // every 12 frames (~5 Hz) — distance doesn't change that fast at
+  // walking speed. Off-main-thread decode (createImageBitmap) keeps
+  // the fetch from stalling the frame loop.
   const lodFrameRef = useRef(0);
   useFrame(() => {
     if (!isActive) return;
-    if (hiResTexture || hiResRequestedRef.current) return;
     if (bestHiResWidth(artwork) == null) return;
     lodFrameRef.current += 1;
     if (lodFrameRef.current % 12 !== 0) return;
     camera.getWorldPosition(cameraWorldRef.current);
     const dist = cameraWorldRef.current.distanceTo(worldPosRef.current);
-    if (dist > 3.5) return;
+
+    if (hiResTexture) {
+      if (dist > HIRES_DOWNGRADE_DIST) releaseHiRes();
+      return;
+    }
+    if (hiResRequestedRef.current) return;
+    if (dist > HIRES_UPGRADE_DIST) return;
+
     hiResRequestedRef.current = true;
     const controller = new AbortController();
     loadHiResTexture(artwork, gl, controller.signal)
@@ -1100,6 +1139,27 @@ function Painting({
         // a real reload of the page will try again.
       });
   });
+
+  // When the room this painting belongs to leaves active status (the
+  // player crossed a doorway), drop the hi-res immediately — there's
+  // no reason to keep a multi-megabyte texture resident for a room
+  // you're walking out of.
+  useEffect(() => {
+    if (isActive) return;
+    releaseHiRes();
+  }, [isActive, releaseHiRes]);
+
+  // Unmount cleanup: if this painting had a hi-res variant in the
+  // cache, drop it. Without this, rooms that leave the render window
+  // hold onto their hi-res textures until the 12-slot LRU eventually
+  // evicts them, which isn't aggressive enough to matter.
+  useEffect(() => {
+    const key = artwork.objectKey;
+    return () => {
+      const w = bestHiResWidth(artwork);
+      if (w != null) hiResCache.delete(`${key}@${w}`);
+    };
+  }, [artwork]);
 
   return (
     <group position={groupPosition} rotation={rotation}>
@@ -1882,11 +1942,11 @@ function ResumeOverlay({ onResume }: { onResume: () => void }) {
 
 function Crosshair({ inspecting }: { inspecting: boolean }) {
   return (
-    <div
-      aria-hidden
-      className="pointer-events-none absolute inset-0 flex items-center justify-center"
-    >
-      <div className="flex flex-col items-center gap-2">
+    <>
+      <div
+        aria-hidden
+        className="pointer-events-none absolute inset-0 flex items-center justify-center"
+      >
         {inspecting ? (
           // Magnifying-glass ring when the crosshair is over an
           // inspectable painting. SVG so it scales crisply at any DPI.
@@ -1918,13 +1978,13 @@ function Crosshair({ inspecting }: { inspecting: boolean }) {
         ) : (
           <div className="h-1.5 w-1.5 rounded-full bg-white/70 ring-1 ring-black/40" />
         )}
-        {inspecting && (
-          <div className="rounded-full bg-black/55 px-2.5 py-0.5 text-[11px] font-medium text-white/85 backdrop-blur">
-            Click or <kbd className="rounded border border-white/30 px-1 font-mono text-[10px]">E</kbd> to inspect
-          </div>
-        )}
       </div>
-    </div>
+      {inspecting && (
+        <div className="pointer-events-none absolute bottom-4 right-4 rounded-full bg-black/55 px-2.5 py-0.5 text-[11px] font-medium text-white/85 backdrop-blur">
+          Click or <kbd className="rounded border border-white/30 px-1 font-mono text-[10px]">E</kbd> to inspect
+        </div>
+      )}
+    </>
   );
 }
 
@@ -1952,7 +2012,7 @@ function RoomBanner({
 }) {
   return (
     <div
-      className="pointer-events-none absolute top-[72px] left-1/2 -translate-x-1/2 rounded-full bg-black/55 px-4 py-1 text-xs font-medium text-white/85 backdrop-blur transition-opacity duration-500 ease-out"
+      className="pointer-events-none absolute bottom-4 left-4 rounded-full bg-black/55 px-4 py-1 text-xs font-medium text-white/85 backdrop-blur transition-opacity duration-500 ease-out"
       style={{ opacity: visible ? 1 : 0 }}
     >
       {title}
