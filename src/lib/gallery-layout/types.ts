@@ -66,6 +66,10 @@ export type Staircase = {
   id: string;
   lowerFloor: number;
   upperFloor: number;
+  /** Human-readable era title for each end — used as a navigation sign
+   *  at the corresponding end of the flight. */
+  lowerLabel: string;
+  upperLabel: string;
   entryRect: {
     xMin: number;
     xMax: number;

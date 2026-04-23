@@ -12,6 +12,7 @@ import { RoomGeometry } from "./room-geometry";
 import { HallwayRenderer } from "./hallway";
 import { Player } from "./player";
 import { StaircaseRenderer } from "./staircase";
+import { ZoomModal } from "./zoom-modal";
 
 type Props = { artworks: Artwork[] };
 
@@ -27,6 +28,7 @@ export function GalleryDungeon({ artworks }: Props) {
     layout.entry.floorIndex,
   );
   const [activeRoomIdx, setActiveRoomIdx] = useState<number>(-1);
+  const [zoomed, setZoomed] = useState<Artwork | null>(null);
 
   const currentFloor = layout.floors[currentFloorIdx];
   const activeRoom =
@@ -126,7 +128,7 @@ export function GalleryDungeon({ artworks }: Props) {
         )}
 
         <Player
-          enabled={hasStarted}
+          enabled={hasStarted && !zoomed}
           floor={currentFloor}
           spawnAt={spawnForFloor.current}
           onRoomChange={setActiveRoomIdx}
@@ -134,8 +136,9 @@ export function GalleryDungeon({ artworks }: Props) {
           onPositionSample={(x, z) => {
             lastCameraRef.current = { x, z };
           }}
+          onZoomRequest={setZoomed}
         />
-        {hasStarted && <PointerLockControls />}
+        {hasStarted && !zoomed && <PointerLockControls />}
       </Canvas>
 
       {!hasStarted && (
@@ -174,12 +177,14 @@ export function GalleryDungeon({ artworks }: Props) {
         </div>
       )}
 
-      {hasStarted && (
+      {hasStarted && !zoomed && (
         <div className="absolute bottom-4 left-1/2 -translate-x-1/2 bg-black/50 text-neutral-300 px-3 py-1 rounded text-xs pointer-events-none">
           1 Gothic · 2 Renaissance · 3 Baroque · 4 Enlightenment ·
-          5 Romantic · 6 Fin-de-siècle · 7 Modern
+          5 Romantic · 6 Fin-de-siècle · 7 Modern · click painting to zoom
         </div>
       )}
+
+      {zoomed && <ZoomModal artwork={zoomed} onClose={() => setZoomed(null)} />}
     </div>
   );
 }

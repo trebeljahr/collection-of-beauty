@@ -1,6 +1,7 @@
 "use client";
 
 import * as THREE from "three";
+import { Text } from "@react-three/drei";
 import type { Staircase } from "@/lib/gallery-layout/types";
 import { CELL_SIZE, FLOOR_SEPARATION } from "@/lib/gallery-layout/world-coords";
 
@@ -70,6 +71,53 @@ export function StaircaseRenderer({
         yStart={entryRect.y + 0.05}
         yEnd={exitRect.y + 0.05}
       />
+
+      {/* Destination signs — one at each end of the flight, facing the
+          approaching player so they can see where the stairs lead. */}
+      <StairSign
+        position={[cx, entryRect.y + 2.6, entryRect.zMin + 0.4]}
+        rotationY={Math.PI} // sign at the bottom faces -Z (away from the stairs)
+        label={`↑ ${staircase.upperLabel}`}
+      />
+      <StairSign
+        position={[cx, exitRect.y + 2.6, exitRect.zMax - 0.4]}
+        rotationY={0} // sign at the top faces +Z
+        label={`↓ ${staircase.lowerLabel}`}
+      />
+    </group>
+  );
+}
+
+function StairSign({
+  position,
+  rotationY,
+  label,
+}: {
+  position: [number, number, number];
+  rotationY: number;
+  label: string;
+}) {
+  return (
+    <group position={position} rotation={[0, rotationY, 0]}>
+      <mesh>
+        <boxGeometry args={[3.2, 0.6, 0.05]} />
+        <meshStandardMaterial
+          color="#1a1108"
+          emissive="#1a1108"
+          emissiveIntensity={0.15}
+          roughness={0.7}
+        />
+      </mesh>
+      <Text
+        position={[0, 0, 0.03]}
+        fontSize={0.3}
+        color="#f2e9d0"
+        anchorX="center"
+        anchorY="middle"
+        maxWidth={3.0}
+      >
+        {label}
+      </Text>
     </group>
   );
 }

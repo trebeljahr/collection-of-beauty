@@ -3,6 +3,7 @@
 import { useEffect, useRef } from "react";
 import { useFrame, useThree } from "@react-three/fiber";
 import * as THREE from "three";
+import type { Artwork } from "@/lib/data";
 import type { FloorLayout, Staircase } from "@/lib/gallery-layout/types";
 import {
   CELL_SIZE,
@@ -32,6 +33,7 @@ export function Player({
   onRoomChange,
   onFloorChange,
   onPositionSample,
+  onZoomRequest,
 }: {
   enabled: boolean;
   floor: FloorLayout;
@@ -46,12 +48,20 @@ export function Player({
    *  remember the position across mount/unmount cycles triggered by
    *  floor swaps. */
   onPositionSample?: (x: number, z: number) => void;
+  /** Called with an Artwork when the player clicks/aims at a painting,
+   *  so the host can open an inspect/zoom overlay. */
+  onZoomRequest?: (artwork: Artwork) => void;
 }) {
-  const { camera } = useThree();
+  const { camera, scene } = useThree();
   const keys = useRef<Record<string, boolean>>({});
   const velocityY = useRef(0);
   const grounded = useRef(true);
   const lastRoomIdx = useRef<number>(-2);
+  const raycaster = useRef(
+    new THREE.Raycaster(undefined, undefined, 0.1, 12),
+  );
+  const rayOrigin = useRef(new THREE.Vector3());
+  const rayDir = useRef(new THREE.Vector3());
 
   useEffect(() => {
     camera.position.set(spawnAt[0], spawnAt[1] + EYE_HEIGHT, spawnAt[2]);
@@ -60,6 +70,20 @@ export function Player({
   }, [camera, spawnAt]);
 
   useEffect(() => {
+    const tryZoom = () => {
+      if (!onZoomRequest) return;
+      camera.getWorldPosition(rayOrigin.current);
+      camera.getWorldDirection(rayDir.current);
+      raycaster.current.set(rayOrigin.current, rayDir.current);
+      const hits = raycaster.current.intersectObjects(scene.children, true);
+      for (const hit of hits) {
+        const artwork = hit.object.userData?.artwork as Artwork | undefined;
+        if (artwork) {
+          onZoomRequest(artwork);
+          return;
+        }
+      }
+    };
     const down = (e: KeyboardEvent) => {
       keys.current[e.code] = true;
       if (!enabled) return;
@@ -68,17 +92,24 @@ export function Player({
         grounded.current = false;
         e.preventDefault();
       }
+      if (e.code === "KeyE" || e.code === "KeyF") tryZoom();
     };
     const up = (e: KeyboardEvent) => {
       keys.current[e.code] = false;
     };
+    const mouse = (e: MouseEvent) => {
+      if (!enabled) return;
+      if (e.button === 0) tryZoom();
+    };
     window.addEventListener("keydown", down);
     window.addEventListener("keyup", up);
+    window.addEventListener("mousedown", mouse);
     return () => {
       window.removeEventListener("keydown", down);
       window.removeEventListener("keyup", up);
+      window.removeEventListener("mousedown", mouse);
     };
-  }, [enabled]);
+  }, [enabled, camera, scene, onZoomRequest]);
 
   useFrame((_, delta) => {
     if (!enabled) return;

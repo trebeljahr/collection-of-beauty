@@ -30,8 +30,17 @@ export function Painting({ placement }: { placement: Placement }) {
         <meshStandardMaterial color="#1a1108" roughness={0.55} metalness={0.05} />
       </mesh>
       {/* Canvas plane — sits just in front of the frame. */}
-      <Suspense fallback={<FallbackSwatch widthM={widthM} heightM={heightM} />}>
-        <PaintingPlane url={url} widthM={widthM} heightM={heightM} />
+      <Suspense
+        fallback={
+          <FallbackSwatch widthM={widthM} heightM={heightM} artwork={artwork} />
+        }
+      >
+        <PaintingPlane
+          url={url}
+          widthM={widthM}
+          heightM={heightM}
+          artwork={artwork}
+        />
       </Suspense>
     </group>
   );
@@ -41,10 +50,12 @@ function PaintingPlane({
   url,
   widthM,
   heightM,
+  artwork,
 }: {
   url: string;
   widthM: number;
   heightM: number;
+  artwork: Placement["artwork"];
 }) {
   const texture = useLoader(THREE.TextureLoader, url) as THREE.Texture;
   // sRGB colour space — raw PNG/WebP data is non-linear.
@@ -52,7 +63,7 @@ function PaintingPlane({
   texture.anisotropy = 4;
 
   return (
-    <mesh position={[0, 0, 0.03]}>
+    <mesh position={[0, 0, 0.03]} userData={{ artwork }}>
       <planeGeometry args={[widthM, heightM]} />
       <meshBasicMaterial map={texture} toneMapped={false} />
     </mesh>
@@ -64,12 +75,14 @@ function PaintingPlane({
 function FallbackSwatch({
   widthM,
   heightM,
+  artwork,
 }: {
   widthM: number;
   heightM: number;
+  artwork: Placement["artwork"];
 }) {
   return (
-    <mesh position={[0, 0, 0.03]}>
+    <mesh position={[0, 0, 0.03]} userData={{ artwork }}>
       <planeGeometry args={[widthM, heightM]} />
       <meshBasicMaterial color="#3a2e20" toneMapped={false} />
     </mesh>

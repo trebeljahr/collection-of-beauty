@@ -169,6 +169,8 @@ function buildStaircase(
     id: `stair-${lower.index}-to-${upper.index}`,
     lowerFloor: lower.index,
     upperFloor: upper.index,
+    lowerLabel: lower.era.title,
+    upperLabel: upper.era.title,
     entryRect,
     exitRect,
     // Direction: stairs rise along +Z on all floors.

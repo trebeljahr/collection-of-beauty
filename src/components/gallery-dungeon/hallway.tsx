@@ -9,6 +9,12 @@ import { CellType3D } from "@/lib/dungeon/types";
 import { SolidWall } from "./wall";
 import { Painting } from "./painting";
 
+/** Stride between overhead lamps in the corridor — one lamp every N
+ *  cells. Too dense and the cost to the renderer climbs; too sparse
+ *  and paintings on the walls are invisible. 3 cells ≈ 7.5 m and
+ *  reads as "a lamp halfway between every bay of paintings". */
+const CORRIDOR_LAMP_STRIDE = 3;
+
 /**
  * Render a hallway as a run of cells: floor + ceiling per cell, and a
  * wall segment on each side where the adjacent cell is non-walkable.
@@ -27,12 +33,39 @@ export function HallwayRenderer({
   const floorY = floor.y;
   const palette = floor.era.palette;
 
+  // Sample every Nth cell for a lamp. Because the cells aren't stored
+  // in a spatially-ordered run, index-based striding is fine — each
+  // hallway is a small connected blob and one lamp every few cells
+  // reads as evenly spread.
+  const lampCells = hallway.cells.filter(
+    (_, i) => i % CORRIDOR_LAMP_STRIDE === 0,
+  );
+
   return (
     <group>
       {/* Paintings (small artworks, one per outside-facing cell side) */}
       {hallway.placements.map((p, i) => (
         <Painting key={`${hallway.id}-p${i}`} placement={p} />
       ))}
+
+      {/* Dim ceiling lamps — weak enough that the active room's light
+          still dominates when you're inside, but strong enough that
+          the paintings in the corridor stay visible. */}
+      {lampCells.map((c) => {
+        const cx = c.x * CELL_SIZE + CELL_SIZE / 2;
+        const cz = c.z * CELL_SIZE + CELL_SIZE / 2;
+        return (
+          <pointLight
+            key={`${hallway.id}-lamp-${c.x}-${c.z}`}
+            position={[cx, floorY + CORRIDOR_HEIGHT - 0.25, cz]}
+            intensity={6}
+            distance={9}
+            decay={2}
+            color={palette.lampTint}
+          />
+        );
+      })}
+
       {hallway.cells.map((c) => {
         const x0 = c.x * CELL_SIZE;
         const z0 = c.z * CELL_SIZE;
