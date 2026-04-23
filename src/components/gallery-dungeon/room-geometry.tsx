@@ -77,28 +77,74 @@ export function RoomGeometry({
     height: DOOR_HEIGHT,
   }));
 
+  const hasFloor = !room.isStairwell;
+  const hasCeiling = !room.isStairwell;
+
   return (
     <group>
-      {/* Floor */}
-      <mesh
-        rotation={[-Math.PI / 2, 0, 0]}
-        position={[cxWorld, floorY, czWorld]}
-      >
-        <planeGeometry args={[width, depth]} />
-        <meshStandardMaterial
-          color={palette.floorColor}
-          roughness={0.88}
-          metalness={0.05}
-        />
-      </mesh>
-      {/* Ceiling */}
-      <mesh
-        rotation={[Math.PI / 2, 0, 0]}
-        position={[cxWorld, floorY + ROOM_HEIGHT, czWorld]}
-      >
-        <planeGeometry args={[width, depth]} />
-        <meshStandardMaterial color={palette.ceilingColor} roughness={0.96} />
-      </mesh>
+      {/* Floor — stairwells skip this; their walkable surface is the
+          stair flight itself, plus the two landing tiles below. */}
+      {hasFloor && (
+        <mesh
+          rotation={[-Math.PI / 2, 0, 0]}
+          position={[cxWorld, floorY, czWorld]}
+        >
+          <planeGeometry args={[width, depth]} />
+          <meshStandardMaterial
+            color={palette.floorColor}
+            roughness={0.88}
+            metalness={0.05}
+          />
+        </mesh>
+      )}
+      {/* Ceiling — stairwells have no ceiling so the stair rising up
+          through this floor to the next is visible overhead. */}
+      {hasCeiling && (
+        <mesh
+          rotation={[Math.PI / 2, 0, 0]}
+          position={[cxWorld, floorY + ROOM_HEIGHT, czWorld]}
+        >
+          <planeGeometry args={[width, depth]} />
+          <meshStandardMaterial color={palette.ceilingColor} roughness={0.96} />
+        </mesh>
+      )}
+      {/* Stairwell landing tiles — one at the low-Z end (entry) and
+          one at the high-Z end (exit from the stair below). Each covers
+          the full 2-cell X width and one cell of Z depth. */}
+      {room.isStairwell && (
+        <>
+          <mesh
+            rotation={[-Math.PI / 2, 0, 0]}
+            position={[
+              cxWorld,
+              floorY,
+              cellBounds.zMin * CELL_SIZE + CELL_SIZE / 2,
+            ]}
+          >
+            <planeGeometry args={[width, CELL_SIZE]} />
+            <meshStandardMaterial
+              color={palette.floorColor}
+              roughness={0.88}
+              metalness={0.05}
+            />
+          </mesh>
+          <mesh
+            rotation={[-Math.PI / 2, 0, 0]}
+            position={[
+              cxWorld,
+              floorY,
+              (cellBounds.zMax + 0.5) * CELL_SIZE,
+            ]}
+          >
+            <planeGeometry args={[width, CELL_SIZE]} />
+            <meshStandardMaterial
+              color={palette.floorColor}
+              roughness={0.88}
+              metalness={0.05}
+            />
+          </mesh>
+        </>
+      )}
 
       {/* North wall — z = zMin, facing +Z */}
       <WallWithDoors

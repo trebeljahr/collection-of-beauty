@@ -36,6 +36,10 @@ export type RoomLayout = {
   title: string;
   description: string;
   isAnchor: boolean;
+  /** True for the stairwell room. Rendered without a ceiling so the
+   *  ascending stair flight is visible, and without a full floor — the
+   *  stair geometry provides the walking surface between landings. */
+  isStairwell: boolean;
   cellBounds: { xMin: number; xMax: number; zMin: number; zMax: number };
   /** World rectangle of the interior floor (walls exclusive). */
   worldRect: {

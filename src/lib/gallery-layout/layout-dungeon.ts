@@ -25,6 +25,7 @@ import type {
   FloorLayout,
   HallwayLayout,
   RoomLayout,
+  Staircase,
 } from "./types";
 
 // --- Configuration --------------------------------------------------------
@@ -48,6 +49,16 @@ const MAX_ROOMS_PER_FLOOR = 18;
 const ROOM_MIN_CELLS = 3;
 const ROOM_MAX_CELLS = 8;
 
+/** Stair room footprint. Every floor places a 2×6 stair room at the
+ *  same grid cells so stairwells stack vertically across floors. The
+ *  room is deep in Z so the rising flight (9 m over ~15 m run) has a
+ *  comfortable ≈30° slope. */
+const STAIR_X_MIN = 2;
+const STAIR_X_MAX = 3; // inclusive — 2 cells wide
+const STAIR_Z_MIN = 2;
+const STAIR_Z_MAX = 7; // inclusive — 6 cells deep
+const STAIR_LABEL = "Stairwell";
+
 // --- Public entry ---------------------------------------------------------
 
 export function layoutDungeon(allArtworks: Artwork[]): DungeonLayout {
@@ -56,6 +67,7 @@ export function layoutDungeon(allArtworks: Artwork[]): DungeonLayout {
   const floors: FloorLayout[] = [];
   const allRooms: RoomLayout[] = [];
   const allHallways: HallwayLayout[] = [];
+  const allStaircases: Staircase[] = [];
 
   for (const era of ERAS) {
     const eraArtworks = byEra.get(era.id) ?? [];
@@ -63,6 +75,20 @@ export function layoutDungeon(allArtworks: Artwork[]): DungeonLayout {
     floors.push(floor);
     allRooms.push(...floor.rooms);
     allHallways.push(...floor.hallways);
+  }
+
+  // Wire staircases between every adjacent floor pair. Each floor's
+  // stair room is at the same grid cells, so the stair connects them
+  // vertically with a straight flight.
+  for (let i = 0; i < floors.length - 1; i++) {
+    const lower = floors[i];
+    const upper = floors[i + 1];
+    const staircase = buildStaircase(lower, upper);
+    if (staircase) {
+      lower.stairsOut.push(staircase);
+      upper.stairsIn.push(staircase);
+      allStaircases.push(staircase);
+    }
   }
 
   // Entry point: ground floor, center of the anchor room (or fallback
@@ -86,7 +112,68 @@ export function layoutDungeon(allArtworks: Artwork[]): DungeonLayout {
     entry: { floorIndex: 0, worldPosition: entryWorld },
     allRooms,
     allHallways,
-    allStaircases: [],
+    allStaircases,
+  };
+}
+
+/** Build a Staircase connecting two adjacent floors. The stair rooms on
+ *  both floors share the same grid cells (STAIR_X/Z_MIN..MAX), so the
+ *  stair is a straight flight ascending from the lower floor's Y to the
+ *  upper floor's Y over the stair room's Z extent. */
+function buildStaircase(
+  lower: FloorLayout,
+  upper: FloorLayout,
+): Staircase | null {
+  const lowerStair = lower.rooms.find((r) => r.movement === STAIR_LABEL);
+  const upperStair = upper.rooms.find((r) => r.movement === STAIR_LABEL);
+  if (!lowerStair || !upperStair) return null;
+
+  const entryRect = {
+    xMin: STAIR_X_MIN * CELL_SIZE,
+    xMax: (STAIR_X_MAX + 1) * CELL_SIZE,
+    // Entry (bottom) is at the low-Z end of the stair room.
+    zMin: STAIR_Z_MIN * CELL_SIZE,
+    zMax: (STAIR_Z_MIN + 1) * CELL_SIZE,
+    y: lower.y,
+  };
+  const exitRect = {
+    xMin: STAIR_X_MIN * CELL_SIZE,
+    xMax: (STAIR_X_MAX + 1) * CELL_SIZE,
+    // Exit (top) is at the high-Z end.
+    zMin: STAIR_Z_MAX * CELL_SIZE,
+    zMax: (STAIR_Z_MAX + 1) * CELL_SIZE,
+    y: upper.y,
+  };
+
+  // 12 visual steps spanning the stair room's Z extent. Each step
+  // centred on a sub-slice of the run.
+  const runStart = STAIR_Z_MIN * CELL_SIZE;
+  const runEnd = (STAIR_Z_MAX + 1) * CELL_SIZE;
+  const totalRun = runEnd - runStart;
+  const totalRise = upper.y - lower.y;
+  const numSteps = 12;
+  const steps: Staircase["steps"] = [];
+  for (let s = 0; s < numSteps; s++) {
+    const t = (s + 0.5) / numSteps;
+    const z = runStart + t * totalRun;
+    const y = lower.y + t * totalRise;
+    steps.push({
+      x: (STAIR_X_MIN + STAIR_X_MAX + 1) / 2 * CELL_SIZE,
+      z,
+      y,
+      heightOffset: 0,
+    });
+  }
+
+  return {
+    id: `stair-${lower.index}-to-${upper.index}`,
+    lowerFloor: lower.index,
+    upperFloor: upper.index,
+    entryRect,
+    exitRect,
+    // Direction: stairs rise along +Z on all floors.
+    direction: { x: 0, z: 1 },
+    steps,
   };
 }
 
@@ -193,6 +280,21 @@ function buildFloor(era: Era, eraArtworks: Artwork[]): FloorLayout {
     gen.addAnchorRoom(anchorRoom);
   }
 
+  // --- Stairwell pre-placement ---
+  // Stair rooms stack vertically across floors, so every floor reserves
+  // the same grid footprint for them. Placing this before generate()
+  // means random rooms won't overlap. The MST/pathfinding step still
+  // connects the stair room into the hallway graph like any other room.
+  const stairRoom = new Room3D(
+    new Vector3Int(STAIR_X_MIN, 0, STAIR_Z_MIN),
+    new Vector3Int(
+      STAIR_X_MAX - STAIR_X_MIN + 1,
+      1,
+      STAIR_Z_MAX - STAIR_Z_MIN + 1,
+    ),
+  );
+  gen.addAnchorRoom(stairRoom);
+
   const grid = gen.generate();
   const roomRects = gen.rooms;
 
@@ -214,10 +316,14 @@ function buildFloor(era: Era, eraArtworks: Artwork[]): FloorLayout {
   for (let r = 0; r < roomRects.length; r++) {
     const rect = roomRects[r];
     const isAnchor = anchorRoom !== null && rect === anchorRoom;
+    const isStairwell = rect === stairRoom;
 
     let name: string;
     let artworks: Artwork[];
-    if (isAnchor) {
+    if (isStairwell) {
+      name = STAIR_LABEL;
+      artworks = [];
+    } else if (isAnchor) {
       name = anchorEntry ? anchorEntry.name : anchorMovement;
       artworks = anchorEntry ? anchorEntry.artworks : [];
     } else {
@@ -238,6 +344,7 @@ function buildFloor(era: Era, eraArtworks: Artwork[]): FloorLayout {
       title: name,
       description: describeRoom(name, artworks),
       isAnchor,
+      isStairwell,
       cellBounds: {
         xMin: rect.bounds.xMin,
         xMax: rect.bounds.xMax - 1,

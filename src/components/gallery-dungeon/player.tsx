@@ -3,8 +3,12 @@
 import { useEffect, useRef } from "react";
 import { useFrame, useThree } from "@react-three/fiber";
 import * as THREE from "three";
-import type { FloorLayout } from "@/lib/gallery-layout/types";
-import { CELL_SIZE } from "@/lib/gallery-layout/world-coords";
+import type { FloorLayout, Staircase } from "@/lib/gallery-layout/types";
+import {
+  CELL_SIZE,
+  FLOOR_SEPARATION,
+} from "@/lib/gallery-layout/world-coords";
+import { isInsideStair, stairHeightAt } from "./staircase";
 
 const EYE_HEIGHT = 1.7;
 const WALK_SPEED = 5;
@@ -26,11 +30,22 @@ export function Player({
   floor,
   spawnAt,
   onRoomChange,
+  onFloorChange,
+  onPositionSample,
 }: {
   enabled: boolean;
   floor: FloorLayout;
   spawnAt: [number, number, number];
   onRoomChange?: (roomIndex: number) => void;
+  /** Called when the player's Y crosses the midpoint between the
+   *  current floor and an adjacent floor (via stairs). The callback
+   *  is fired with the new floor index; the host should update state
+   *  so this component re-mounts with the new `floor` prop. */
+  onFloorChange?: (newFloorIndex: number) => void;
+  /** Fires each frame with the player's XZ — used by the host to
+   *  remember the position across mount/unmount cycles triggered by
+   *  floor swaps. */
+  onPositionSample?: (x: number, z: number) => void;
 }) {
   const { camera } = useThree();
   const keys = useRef<Record<string, boolean>>({});
@@ -90,14 +105,20 @@ export function Player({
 
     if (move.lengthSq() > 0) {
       move.normalize().multiplyScalar(speed * dt);
-      // Grid-based collision: try full move, then fall back to X-only
-      // and Z-only axis slides if blocked.
       const curX = camera.position.x;
       const curZ = camera.position.z;
       const nx = curX + move.x;
       const nz = curZ + move.z;
 
-      if (isWalkable(floor, nx, nz)) {
+      // Check if either the current or the proposed position is on a
+      // staircase. Stairs override normal grid collision so the player
+      // can walk up them out of the stairwell's cell-based walkable
+      // footprint.
+      const onStair = findStairAt(floor, nx, nz);
+      if (onStair) {
+        camera.position.x = nx;
+        camera.position.z = nz;
+      } else if (isWalkable(floor, nx, nz)) {
         camera.position.x = nx;
         camera.position.z = nz;
       } else if (isWalkable(floor, nx, curZ)) {
@@ -105,19 +126,57 @@ export function Player({
       } else if (isWalkable(floor, curX, nz)) {
         camera.position.z = nz;
       }
-      // else: fully blocked, stay put.
     }
 
-    // Vertical physics (gravity + jump).
-    velocityY.current -= GRAVITY * dt;
-    camera.position.y += velocityY.current * dt;
-    const floorHeight = floor.y + EYE_HEIGHT;
-    if (camera.position.y <= floorHeight) {
-      camera.position.y = floorHeight;
+    // Vertical physics — two cases.
+    const stair = findStairAt(floor, camera.position.x, camera.position.z);
+    if (stair) {
+      // On a stair: Y is determined by horizontal progress along the
+      // flight. Smoothly lerp rather than snap to avoid a jarring jump
+      // when entering/leaving the stair footprint.
+      const targetY =
+        stairHeightAt(stair, camera.position.x, camera.position.z)! +
+        EYE_HEIGHT;
+      camera.position.y = THREE.MathUtils.damp(
+        camera.position.y,
+        targetY,
+        20,
+        dt,
+      );
       velocityY.current = 0;
       grounded.current = true;
+
+      // Floor swap when Y crosses the halfway point.
+      const midY = floor.y + FLOOR_SEPARATION / 2 + EYE_HEIGHT;
+      if (onFloorChange) {
+        if (
+          camera.position.y > midY &&
+          floor.index < stair.upperFloor
+        ) {
+          onFloorChange(stair.upperFloor);
+        } else if (
+          camera.position.y < floor.y - FLOOR_SEPARATION / 2 + EYE_HEIGHT &&
+          floor.index > stair.lowerFloor
+        ) {
+          onFloorChange(stair.lowerFloor);
+        }
+      }
     } else {
-      grounded.current = false;
+      // Not on stairs — normal gravity + jump + floor-plane clamp.
+      velocityY.current -= GRAVITY * dt;
+      camera.position.y += velocityY.current * dt;
+      const floorHeight = floor.y + EYE_HEIGHT;
+      if (camera.position.y <= floorHeight) {
+        camera.position.y = floorHeight;
+        velocityY.current = 0;
+        grounded.current = true;
+      } else {
+        grounded.current = false;
+      }
+    }
+
+    if (onPositionSample) {
+      onPositionSample(camera.position.x, camera.position.z);
     }
 
     // Active-room detection — emit a callback when the owner cell changes.
@@ -139,6 +198,25 @@ export function Player({
     }
   });
 
+  return null;
+}
+
+/** Return the first staircase connected to this floor that contains
+ *  the given world XZ position, or null if none. "Connected" means
+ *  stairsIn[*] (going from below up to this floor) or stairsOut[*]
+ *  (going from this floor up to the next) — both sets' footprints sit
+ *  partly inside the stairwell room of this floor. */
+function findStairAt(
+  floor: FloorLayout,
+  worldX: number,
+  worldZ: number,
+): Staircase | null {
+  for (const s of floor.stairsOut) {
+    if (isInsideStair(s, worldX, worldZ)) return s;
+  }
+  for (const s of floor.stairsIn) {
+    if (isInsideStair(s, worldX, worldZ)) return s;
+  }
   return null;
 }
 

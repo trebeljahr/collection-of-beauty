@@ -11,6 +11,7 @@ import type { FloorLayout } from "@/lib/gallery-layout/types";
 import { RoomGeometry } from "./room-geometry";
 import { HallwayRenderer } from "./hallway";
 import { Player } from "./player";
+import { StaircaseRenderer } from "./staircase";
 
 type Props = { artworks: Artwork[] };
 
@@ -31,33 +32,56 @@ export function GalleryDungeon({ artworks }: Props) {
   const activeRoom =
     activeRoomIdx >= 0 ? currentFloor.rooms[activeRoomIdx] : undefined;
 
-  // Debug 1..7 teleport keys. Updates the mounted floor and triggers
-  // the Player's `spawnAt` effect to reposition the camera.
+  // Spawn point driver. Default: entry on floor 0. Teleport keys
+  // overwrite this to the anchor of the target floor. Stair-driven
+  // floor changes set it to the *current* XZ so the player continues
+  // walking where they were, with Y matched to the new floor.
   const spawnForFloor = useRef<[number, number, number]>(
     layout.entry.worldPosition,
   );
+  // Player preserves its last camera XZ so we can read it when stairs
+  // trigger a floor swap.
+  const lastCameraRef = useRef<{ x: number; z: number } | null>(null);
+
+  const teleportToFloor = (idx: number) => {
+    const f = layout.floors[idx];
+    const anchor = f.rooms.find((r) => r.isAnchor) ?? f.rooms[0];
+    if (!anchor) return;
+    spawnForFloor.current = [
+      (anchor.worldRect.xMin + anchor.worldRect.xMax) / 2,
+      anchor.worldRect.y,
+      (anchor.worldRect.zMin + anchor.worldRect.zMax) / 2,
+    ];
+    setCurrentFloorIdx(idx);
+    setActiveRoomIdx(-1);
+  };
+
+  const handleStairFloorChange = (newIdx: number) => {
+    if (newIdx === currentFloorIdx) return;
+    // Stair-driven swap: do NOT touch spawnForFloor — that would trigger
+    // Player's spawn effect and teleport the camera. Just change which
+    // floor's layout informs collision/rendering. The staircase
+    // geometry is the same on both floors (it's the same Staircase
+    // object, referenced from stairsOut on the lower floor and
+    // stairsIn on the upper), so the player keeps riding it smoothly.
+    setCurrentFloorIdx(newIdx);
+    setActiveRoomIdx(-1);
+  };
+
+  // Debug 1..7 teleport keys.
   useEffect(() => {
     const down = (e: KeyboardEvent) => {
       if (e.code.startsWith("Digit")) {
         const digit = parseInt(e.code.slice(5), 10);
         const idx = digit - 1;
         if (Number.isInteger(idx) && idx >= 0 && idx < layout.floors.length) {
-          const f = layout.floors[idx];
-          const anchor = f.rooms.find((r) => r.isAnchor) ?? f.rooms[0];
-          if (anchor) {
-            spawnForFloor.current = [
-              (anchor.worldRect.xMin + anchor.worldRect.xMax) / 2,
-              anchor.worldRect.y,
-              (anchor.worldRect.zMin + anchor.worldRect.zMax) / 2,
-            ];
-            setCurrentFloorIdx(idx);
-            setActiveRoomIdx(-1);
-          }
+          teleportToFloor(idx);
         }
       }
     };
     window.addEventListener("keydown", down);
     return () => window.removeEventListener("keydown", down);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [layout]);
 
   return (
@@ -84,11 +108,14 @@ export function GalleryDungeon({ artworks }: Props) {
         />
 
         <Player
-          key={`player-${currentFloorIdx}`}
           enabled={hasStarted}
           floor={currentFloor}
           spawnAt={spawnForFloor.current}
           onRoomChange={setActiveRoomIdx}
+          onFloorChange={handleStairFloorChange}
+          onPositionSample={(x, z) => {
+            lastCameraRef.current = { x, z };
+          }}
         />
         {hasStarted && <PointerLockControls />}
       </Canvas>
@@ -157,6 +184,16 @@ function FloorScene({
       ))}
       {floor.hallways.map((hw) => (
         <HallwayRenderer key={hw.id} hallway={hw} floor={floor} />
+      ))}
+      {/* Stair geometry — outbound rises from this floor up, inbound
+          rises from below into this floor. Both sets are visible when
+          the stairwell room is on-screen because the stair room has
+          no ceiling or mid-run floor. */}
+      {floor.stairsOut.map((s) => (
+        <StaircaseRenderer key={s.id} staircase={s} />
+      ))}
+      {floor.stairsIn.map((s) => (
+        <StaircaseRenderer key={s.id} staircase={s} />
       ))}
     </group>
   );
