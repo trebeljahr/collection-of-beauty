@@ -9,16 +9,34 @@ import {
   type ComponentProps,
 } from "react";
 import Link from "next/link";
-import { Canvas, useFrame, useThree } from "@react-three/fiber";
 import {
-  Instance,
-  Instances,
+  Canvas,
+  extend,
+  useFrame,
+  useThree,
+  type ThreeElement,
+} from "@react-three/fiber";
+import {
   PointerLockControls,
   StatsGl,
   Text,
 } from "@react-three/drei";
 import * as THREE from "three";
+import { InstancedMesh2 } from "@three.ez/instanced-mesh";
 import type { Artwork } from "@/lib/data";
+
+// Register <instancedMesh2> with R3F so the JSX intrinsic resolves
+// to @three.ez/instanced-mesh's InstancedMesh2 class. Must happen at
+// module scope — R3F checks its registry at element-creation time,
+// so the Canvas must see this before the first <instancedMesh2>
+// node is reconciled. The TypeScript declaration tells tsc the
+// accepted props (args, ref, and every Object3D-ish prop).
+extend({ InstancedMesh2 });
+declare module "@react-three/fiber" {
+  interface ThreeElements {
+    instancedMesh2: ThreeElement<typeof InstancedMesh2>;
+  }
+}
 import { slugify } from "@/lib/utils";
 import { useAudioSettings } from "@/lib/audio-settings";
 import { AudioControls } from "@/components/audio-controls";
@@ -2592,13 +2610,14 @@ function ZoomModal({
 /**
  * All frame boxes and plaque boxes across the visible render window
  * collapse into two draw calls (one shared geometry + material per
- * kind). Without this, a busy room with ~45 paintings did 45 frame
- * draws + 45 plaque-box draws = 90 draws/frame just on the physical
- * housings. With instancing it's 2.
+ * kind). Without instancing, a busy room with ~45 paintings did 45
+ * frame draws + 45 plaque-box draws = 90 draws/frame just on the
+ * physical housings. With instancing it's 2.
  *
- * Each `<Instance>` carries its own position, rotation, and scale,
- * which is how we pack varied painting dimensions into the single
- * shared unit-cube geometry.
+ * Each instance's world-space position / rotation / scale is written
+ * into InstancedMesh2's buffer inside FurnitureInstances's effects.
+ * The per-instance frame scale is how we fit varied painting
+ * dimensions against the single shared unit-cube geometry.
  */
 type FurniturePlacement = {
   key: string;
@@ -2652,14 +2671,6 @@ function collectFurniture(layouts: RoomLayout[]): FurniturePlacement[] {
   return out;
 }
 
-// Fixed buffer caps for the instanced draws. Dimensioned off the
-// worst-case render window so drei's backing buffers never need to
-// reallocate on room change. (2×RENDER_WINDOW+1) rooms × biggest
-// per-room bucket (small works pack tightest), plus headroom.
-const FRAMES_INSTANCE_LIMIT =
-  (2 * RENDER_WINDOW + 1) * MAX_PER_ROOM_SMALL + 32;
-const PLAQUES_INSTANCE_LIMIT = MAX_PER_ROOM_SMALL + 16;
-
 function FurnitureInstances({
   placements,
   visibleIdx,
@@ -2669,6 +2680,10 @@ function FurnitureInstances({
   visibleIdx: Set<number>;
   activeRoom: number;
 }) {
+  const { gl } = useThree();
+  const framesRef = useRef<InstancedMesh2 | null>(null);
+  const plaquesRef = useRef<InstancedMesh2 | null>(null);
+
   // Split once per render of this component (cheap — O(n), n ≤ 500):
   // visible frames for the whole render window, plaques for the
   // active room only (empty cream cards would look broken without
@@ -2684,70 +2699,137 @@ function FurnitureInstances({
     return { visibleFurniture: visible, activePlaques: plaques };
   }, [placements, visibleIdx, activeRoom]);
 
+  // InstancedMesh2 consumes geometry + material through its
+  // constructor (via R3F `args`), not as JSX children. Create them
+  // once per mount; dispose on unmount. Each MeshStandardMaterial
+  // is shared across every frame (or every plaque) in the scene,
+  // so the shader compile happens once for each kind and never
+  // recompiles on room transitions.
+  const frameGeometry = useMemo(() => new THREE.BoxGeometry(1, 1, 1), []);
+  const frameMaterial = useMemo(
+    () =>
+      new THREE.MeshStandardMaterial({
+        color: "#241810",
+        roughness: 0.55,
+        metalness: 0.1,
+      }),
+    [],
+  );
+  const plaqueGeometry = useMemo(
+    () => new THREE.BoxGeometry(PLAQUE_W, PLAQUE_H, PLAQUE_DEPTH),
+    [],
+  );
+  const plaqueMaterial = useMemo(
+    () =>
+      new THREE.MeshStandardMaterial({
+        color: "#f4ecd8",
+        emissive: new THREE.Color("#2a1e10"),
+        emissiveIntensity: 0.05,
+        roughness: 0.7,
+        metalness: 0,
+      }),
+    [],
+  );
+  useEffect(() => {
+    return () => {
+      frameGeometry.dispose();
+      frameMaterial.dispose();
+      plaqueGeometry.dispose();
+      plaqueMaterial.dispose();
+    };
+  }, [frameGeometry, frameMaterial, plaqueGeometry, plaqueMaterial]);
+
+  // Rebuild the frame instance buffer whenever the visible window
+  // shifts (every room transition: the render window slides and
+  // `visibleFurniture` reconstructs). clearInstances + addInstances
+  // is O(n) and runs on the main thread; BVH rebuild is O(n log n).
+  // At n ≤ ~240 (5 rooms × 48 small-works cap), this is sub-ms.
+  //
+  // The group's (position, rotation) transform that drei's version
+  // used implicitly via <group> wrappers is baked into each
+  // instance's world-space position/rotation here: rotate the
+  // painting-local frame offset (-FRAME_DEPTH/2 along local z) into
+  // world coords, then add it to the group origin.
+  useEffect(() => {
+    const m = framesRef.current;
+    if (!m) return;
+    m.clearInstances();
+    if (visibleFurniture.length === 0) return;
+    const offset = new THREE.Vector3();
+    const euler = new THREE.Euler();
+    m.addInstances(visibleFurniture.length, (obj, i) => {
+      const p = visibleFurniture[i];
+      euler.set(p.rotation[0], p.rotation[1], p.rotation[2]);
+      offset.set(0, 0, -FRAME_DEPTH / 2).applyEuler(euler);
+      obj.position.set(
+        p.groupPosition[0] + offset.x,
+        p.groupPosition[1] + offset.y,
+        p.groupPosition[2] + offset.z,
+      );
+      obj.rotation.copy(euler);
+      obj.scale.set(
+        p.frameScale[0],
+        p.frameScale[1],
+        p.frameScale[2],
+      );
+    });
+    // BVH accelerates the per-instance frustum cull that
+    // InstancedMesh2 runs in `onBeforeRender`. `margin: 0` is fine
+    // for static instances — the frame positions don't jitter once
+    // placed.
+    m.computeBVH({ margin: 0 });
+  }, [visibleFurniture]);
+
+  useEffect(() => {
+    const m = plaquesRef.current;
+    if (!m) return;
+    m.clearInstances();
+    if (activePlaques.length === 0) return;
+    const offset = new THREE.Vector3();
+    const euler = new THREE.Euler();
+    m.addInstances(activePlaques.length, (obj, i) => {
+      const p = activePlaques[i];
+      euler.set(p.rotation[0], p.rotation[1], p.rotation[2]);
+      offset
+        .set(p.plaqueOffsetX, p.plaqueOffsetY, PLAQUE_DEPTH / 2)
+        .applyEuler(euler);
+      obj.position.set(
+        p.groupPosition[0] + offset.x,
+        p.groupPosition[1] + offset.y,
+        p.groupPosition[2] + offset.z,
+      );
+      obj.rotation.copy(euler);
+      obj.scale.set(1, 1, 1);
+    });
+    m.computeBVH({ margin: 0 });
+  }, [activePlaques]);
+
   if (visibleFurniture.length === 0) return null;
 
   return (
     <>
-      {/* Frames — dark wood box, sunk behind the wall surface by
-          FRAME_DEPTH/2 so the canvas sits flush with the wall face.
-          frustumCulled={false} is essential: drei's <Instances> uses a
-          single bounding sphere computed from instance 0's transform,
-          and when that instance happens to be outside the frustum the
-          entire batch culls — which is the "frames disappear from some
-          angles" bug. */}
-      <Instances
-        limit={FRAMES_INSTANCE_LIMIT}
-        range={visibleFurniture.length}
+      {/* Frames — dark wood box, sunk behind the wall surface so the
+          canvas sits flush with the wall face. `frustumCulled={false}`
+          disables THREE's object-level cull on the mesh itself;
+          InstancedMesh2's own *per-instance* cull (driven by the BVH
+          computed above) still runs inside onBeforeRender. Net
+          effect: each frame is individually frustum-tested, instead
+          of one bounding sphere standing in for the whole batch —
+          which was the "frames disappear from some angles" bug in
+          the drei version. */}
+      <instancedMesh2
+        ref={framesRef}
+        args={[frameGeometry, frameMaterial, { renderer: gl }]}
         frustumCulled={false}
-      >
-        <boxGeometry args={[1, 1, 1]} />
-        <meshStandardMaterial color="#241810" roughness={0.55} metalness={0.1} />
-        {visibleFurniture.map((p) => (
-          <group
-            key={p.key}
-            position={p.groupPosition}
-            rotation={p.rotation}
-          >
-            <Instance
-              position={[0, 0, -FRAME_DEPTH / 2]}
-              scale={p.frameScale}
-            />
-          </group>
-        ))}
-      </Instances>
-      {/* Plaque bodies — cream cards floating at eye height, to the
-          right of the painting's meta-width. Uniform scale; plaque size
-          is constant across the scene. Active room only (see above). */}
+      />
+      {/* Plaque bodies — cream cards at eye height, to the right of
+          each painting. Active room only (see split above). */}
       {activePlaques.length > 0 && (
-        <Instances
-          limit={PLAQUES_INSTANCE_LIMIT}
-          range={activePlaques.length}
+        <instancedMesh2
+          ref={plaquesRef}
+          args={[plaqueGeometry, plaqueMaterial, { renderer: gl }]}
           frustumCulled={false}
-        >
-          <boxGeometry args={[PLAQUE_W, PLAQUE_H, PLAQUE_DEPTH]} />
-          <meshStandardMaterial
-            color="#f4ecd8"
-            emissive="#2a1e10"
-            emissiveIntensity={0.05}
-            roughness={0.7}
-            metalness={0}
-          />
-          {activePlaques.map((p) => (
-            <group
-              key={p.key}
-              position={p.groupPosition}
-              rotation={p.rotation}
-            >
-              <Instance
-                position={[
-                  p.plaqueOffsetX,
-                  p.plaqueOffsetY,
-                  PLAQUE_DEPTH / 2,
-                ]}
-              />
-            </group>
-          ))}
-        </Instances>
+        />
       )}
     </>
   );
