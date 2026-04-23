@@ -30,16 +30,23 @@ import type {
 // --- Configuration --------------------------------------------------------
 
 /** Floor grid is square, this many cells per side (plus 1 of slack for
- *  the generator's strict bounds check — see the `size` computation). */
-const FLOOR_GRID_SIZE = 28;
+ *  the generator's strict bounds check — see the `size` computation).
+ *  ≈125 m per side in world space, enough for the biggest eras
+ *  (Impressionism ≈ 400 works) to fit every candidate. */
+const FLOOR_GRID_SIZE = 48;
 
-/** Non-anchor rooms target per floor. Generator tries random placement
- *  this many times; the MST step ignores rooms that never got placed. */
-const DEFAULT_NON_ANCHOR_ROOMS = 5;
+/** Target artworks per room. An 8×8 room gives about 28 wall slots;
+ *  at this many per room every era's works fit on the walls with some
+ *  headroom. Anything under this per room feels undercrowded. */
+const TARGET_WORKS_PER_ROOM = 30;
+
+/** Hard cap on rooms per floor — the Delaunay + A* pathfinder scales
+ *  fine well past this, but bigger counts stop looking like a museum. */
+const MAX_ROOMS_PER_FLOOR = 18;
 
 /** Min/max room size in cells (X and Z; Y is always 1). */
 const ROOM_MIN_CELLS = 3;
-const ROOM_MAX_CELLS = 6;
+const ROOM_MAX_CELLS = 8;
 
 // --- Public entry ---------------------------------------------------------
 
@@ -128,12 +135,24 @@ function buildFloor(era: Era, eraArtworks: Artwork[]): FloorLayout {
     if (biggest) anchorMovement = biggest[0];
   }
 
-  // Order movements: anchor first (if present), then by size descending.
-  const movementList = Array.from(byMovement.entries()).sort((a, b) => {
+  // Expand movements into "parts" so big movements occupy multiple
+  // rooms. Target ~TARGET_WORKS_PER_ROOM per room; a movement with 200
+  // works becomes ~7 rooms, each titled "Movement · Part N". Small
+  // movements stay as a single room.
+  const expanded: Array<{ name: string; artworks: Artwork[] }> = [];
+  for (const [name, arr] of Array.from(byMovement.entries()).sort((a, b) => {
     if (a[0] === anchorMovement) return -1;
     if (b[0] === anchorMovement) return 1;
     return b[1].length - a[1].length;
-  });
+  })) {
+    const numParts = Math.max(1, Math.ceil(arr.length / TARGET_WORKS_PER_ROOM));
+    const chunkSize = Math.ceil(arr.length / numParts);
+    for (let p = 0; p < numParts; p++) {
+      const chunk = arr.slice(p * chunkSize, (p + 1) * chunkSize);
+      const label = numParts > 1 ? `${name} · Part ${p + 1}` : name;
+      expanded.push({ name: label, artworks: chunk });
+    }
+  }
 
   const seed = `era-${era.id}-v1-${eraArtworks.length}`;
   // Grid Y is padded to 2 even though each floor is 1 cell tall. The
@@ -147,7 +166,7 @@ function buildFloor(era: Era, eraArtworks: Artwork[]): FloorLayout {
 
   const roomCountTarget = Math.max(
     2,
-    Math.min(movementList.length, DEFAULT_NON_ANCHOR_ROOMS + 1),
+    Math.min(expanded.length, MAX_ROOMS_PER_FLOOR),
   );
 
   const gen = new DungeonGenerator3D(
@@ -178,13 +197,20 @@ function buildFloor(era: Era, eraArtworks: Artwork[]): FloorLayout {
   const roomRects = gen.rooms;
 
   // --- Assign movements to generator rooms ---
-  const movementsQueue = movementList.map(([name, arr]) => ({
-    name,
-    artworks: arr,
-  }));
+  // Consume the `expanded` list (movements split into parts) in order:
+  // anchor's first chunk goes to the anchor room, then the rest fill
+  // remaining rooms in popularity-descending order.
+  const roomQueue = [...expanded];
+  // Pull the first entry for the anchor movement out of the queue so
+  // we can hand it to the anchor room explicitly.
+  const anchorEntryIdx = roomQueue.findIndex((e) =>
+    e.name === anchorMovement || e.name.startsWith(`${anchorMovement} · Part `),
+  );
+  const anchorEntry =
+    anchorEntryIdx >= 0 ? roomQueue.splice(anchorEntryIdx, 1)[0] : null;
 
   const roomLayouts: RoomLayout[] = [];
-  let movementIdx = 0;
+  let queueIdx = 0;
   for (let r = 0; r < roomRects.length; r++) {
     const rect = roomRects[r];
     const isAnchor = anchorRoom !== null && rect === anchorRoom;
@@ -192,14 +218,10 @@ function buildFloor(era: Era, eraArtworks: Artwork[]): FloorLayout {
     let name: string;
     let artworks: Artwork[];
     if (isAnchor) {
-      name = anchorMovement;
-      artworks = byMovement.get(anchorMovement) ?? [];
-      movementsQueue.splice(
-        movementsQueue.findIndex((m) => m.name === anchorMovement),
-        1,
-      );
+      name = anchorEntry ? anchorEntry.name : anchorMovement;
+      artworks = anchorEntry ? anchorEntry.artworks : [];
     } else {
-      const picked = movementsQueue[movementIdx++];
+      const picked = roomQueue[queueIdx++];
       if (picked) {
         name = picked.name;
         artworks = picked.artworks;
@@ -302,7 +324,13 @@ function buildFloor(era: Era, eraArtworks: Artwork[]): FloorLayout {
 
   // Distribute this era's artworks into the floor's rooms/hallways.
   // Mutates `floor.rooms[*].placements` + `floor.hallways[*].placements`.
-  distributePaintings(floor, eraArtworks);
+  const stats = distributePaintings(floor, eraArtworks);
+  if (process.env.DUNGEON_DEBUG === "1") {
+    // eslint-disable-next-line no-console
+    console.log(
+      `[dungeon:${era.id}] slots rooms=${stats.roomSlotsFilled}/${stats.roomSlotsTotal} halls=${stats.hallwaySlotsFilled}/${stats.hallwaySlotsTotal} dropped=${stats.dropped}`,
+    );
+  }
 
   return floor;
 }

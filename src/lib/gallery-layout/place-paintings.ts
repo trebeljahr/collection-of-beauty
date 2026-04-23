@@ -24,10 +24,15 @@ import { CELL_SIZE } from "./world-coords";
 
 /** Eye-height-ish centre for every wall-mounted painting. */
 const CANONICAL_Y_CENTER_OFFSET = 1.55;
+/** Lower/upper row heights in hallways — salon hang. Ceiling is 3.4 m so
+ *  the upper row caps below that to leave visual breathing room. */
+const HALLWAY_ROW_LOWER_Y = 1.1;
+const HALLWAY_ROW_UPPER_Y = 2.5;
 /** Max painting dimensions in metres, independent of real-world size. */
 const MAX_PAINTING_W = 2.2;
 const MAX_PAINTING_H_ROOM = 3.0;
-const MAX_PAINTING_H_HALLWAY = 2.0;
+const MAX_PAINTING_H_HALLWAY = 1.6;   // lower-row cap
+const MAX_PAINTING_H_HALLWAY_UPPER = 0.8;
 /** Inset from the wall surface so paintings don't z-fight. */
 const PAINTING_WALL_OFFSET = 0.06;
 
@@ -136,14 +141,15 @@ export function computeRoomSlots(room: RoomLayout): Slot[] {
   return slots;
 }
 
-/** For each hallway cell, emit a slot on each side that faces a None
- *  (non-walkable) cell. Those sides will have a wall drawn by the
- *  hallway renderer. */
+/** For each hallway cell, emit slots on each side that faces a None
+ *  (non-walkable) cell. Two rows per side (salon hang): a lower row
+ *  and a higher, smaller row above. */
 export function computeHallwaySlots(
   hallway: HallwayLayout,
   floor: FloorLayout,
 ): Slot[] {
-  const y = floor.y + CANONICAL_Y_CENTER_OFFSET;
+  const yLow = floor.y + HALLWAY_ROW_LOWER_Y;
+  const yHigh = floor.y + HALLWAY_ROW_UPPER_Y;
   const slots: Slot[] = [];
 
   const neighbourIsNone = (nx: number, nz: number): boolean => {
@@ -153,68 +159,81 @@ export function computeHallwaySlots(
     return floor.walkable[idx] !== 1;
   };
 
-  for (const c of hallway.cells) {
-    const x0 = c.x * CELL_SIZE;
-    const z0 = c.z * CELL_SIZE;
-    const cx = x0 + CELL_SIZE / 2;
-    const cz = z0 + CELL_SIZE / 2;
+  // Two rows per side: lower + upper. Ordered so the lower row fills
+  // across all sides of the hallway first (nicer distribution than
+  // filling one side floor-to-ceiling before moving to the next).
+  const rows = [
+    { wallY: yLow, maxHeight: MAX_PAINTING_H_HALLWAY },
+    { wallY: yHigh, maxHeight: MAX_PAINTING_H_HALLWAY_UPPER },
+  ];
+  for (const row of rows) {
+    for (const c of hallway.cells) {
+      const x0 = c.x * CELL_SIZE;
+      const z0 = c.z * CELL_SIZE;
+      const cx = x0 + CELL_SIZE / 2;
+      const cz = z0 + CELL_SIZE / 2;
 
-    // North side (neighbour at z-1)
-    if (neighbourIsNone(c.x, c.z - 1)) {
-      slots.push({
-        wallX: cx,
-        wallY: y,
-        wallZ: z0,
-        rotationY: 0,
-        normalX: 0,
-        normalZ: 1,
-        maxWidth: Math.min(MAX_PAINTING_W, CELL_SIZE - 0.4),
-        maxHeight: MAX_PAINTING_H_HALLWAY,
-      });
-    }
-    // South side (neighbour at z+1)
-    if (neighbourIsNone(c.x, c.z + 1)) {
-      slots.push({
-        wallX: cx,
-        wallY: y,
-        wallZ: z0 + CELL_SIZE,
-        rotationY: Math.PI,
-        normalX: 0,
-        normalZ: -1,
-        maxWidth: Math.min(MAX_PAINTING_W, CELL_SIZE - 0.4),
-        maxHeight: MAX_PAINTING_H_HALLWAY,
-      });
-    }
-    // West side (neighbour at x-1)
-    if (neighbourIsNone(c.x - 1, c.z)) {
-      slots.push({
-        wallX: x0,
-        wallY: y,
-        wallZ: cz,
-        rotationY: Math.PI / 2,
-        normalX: 1,
-        normalZ: 0,
-        maxWidth: Math.min(MAX_PAINTING_W, CELL_SIZE - 0.4),
-        maxHeight: MAX_PAINTING_H_HALLWAY,
-      });
-    }
-    // East side (neighbour at x+1)
-    if (neighbourIsNone(c.x + 1, c.z)) {
-      slots.push({
-        wallX: x0 + CELL_SIZE,
-        wallY: y,
-        wallZ: cz,
-        rotationY: -Math.PI / 2,
-        normalX: -1,
-        normalZ: 0,
-        maxWidth: Math.min(MAX_PAINTING_W, CELL_SIZE - 0.4),
-        maxHeight: MAX_PAINTING_H_HALLWAY,
-      });
+      if (neighbourIsNone(c.x, c.z - 1)) {
+        slots.push({
+          wallX: cx,
+          wallY: row.wallY,
+          wallZ: z0,
+          rotationY: 0,
+          normalX: 0,
+          normalZ: 1,
+          maxWidth: Math.min(MAX_PAINTING_W, CELL_SIZE - 0.4),
+          maxHeight: row.maxHeight,
+        });
+      }
+      if (neighbourIsNone(c.x, c.z + 1)) {
+        slots.push({
+          wallX: cx,
+          wallY: row.wallY,
+          wallZ: z0 + CELL_SIZE,
+          rotationY: Math.PI,
+          normalX: 0,
+          normalZ: -1,
+          maxWidth: Math.min(MAX_PAINTING_W, CELL_SIZE - 0.4),
+          maxHeight: row.maxHeight,
+        });
+      }
+      if (neighbourIsNone(c.x - 1, c.z)) {
+        slots.push({
+          wallX: x0,
+          wallY: row.wallY,
+          wallZ: cz,
+          rotationY: Math.PI / 2,
+          normalX: 1,
+          normalZ: 0,
+          maxWidth: Math.min(MAX_PAINTING_W, CELL_SIZE - 0.4),
+          maxHeight: row.maxHeight,
+        });
+      }
+      if (neighbourIsNone(c.x + 1, c.z)) {
+        slots.push({
+          wallX: x0 + CELL_SIZE,
+          wallY: row.wallY,
+          wallZ: cz,
+          rotationY: -Math.PI / 2,
+          normalX: -1,
+          normalZ: 0,
+          maxWidth: Math.min(MAX_PAINTING_W, CELL_SIZE - 0.4),
+          maxHeight: row.maxHeight,
+        });
+      }
     }
   }
 
   return slots;
 }
+
+export type DistributionStats = {
+  roomSlotsTotal: number;
+  roomSlotsFilled: number;
+  hallwaySlotsTotal: number;
+  hallwaySlotsFilled: number;
+  dropped: number;
+};
 
 /**
  * Distribute an era's artworks into the floor's rooms and hallways.
@@ -230,7 +249,7 @@ export function computeHallwaySlots(
 export function distributePaintings(
   floor: FloorLayout,
   eraArtworks: Artwork[],
-): void {
+): DistributionStats {
   const bands = partitionByBand(eraArtworks);
 
   // --- Rooms: large first (biggest rooms), then medium
@@ -242,46 +261,93 @@ export function distributePaintings(
     })
     .sort((a, b) => b.area - a.area);
 
-  const pourInto = (supply: Artwork[]) => {
-    let supplyIdx = 0;
-    let progressed = true;
-    while (supplyIdx < supply.length && progressed) {
-      progressed = false;
-      for (const r of roomsByArea) {
-        if (supplyIdx >= supply.length) break;
-        if (r.filled >= r.slots.length) continue;
-        const slot = r.slots[r.filled];
-        r.filled++;
-        progressed = true;
-        r.room.placements.push(slotToPlacement(slot, supply[supplyIdx]));
-        supplyIdx++;
-      }
-    }
+  // Round-robin round-robin: each container tracks its `filled` cursor
+  // across successive pour() calls, and `pour` returns how many items
+  // from the supply actually landed (so we can re-pour leftovers into
+  // other containers).
+  type SlotContainer = {
+    slots: Slot[];
+    filled: number;
+    push: (p: Placement) => void;
   };
 
-  pourInto(bands.large);
-  pourInto(bands.medium);
-
-  // --- Hallways: small artworks, round-robin across all slots.
-  const hallwaySlots = floor.hallways.map((hw) => ({
-    hallway: hw,
+  const roomContainers: SlotContainer[] = roomsByArea.map((r) => ({
+    slots: r.slots,
+    filled: 0,
+    push: (p) => r.room.placements.push(p),
+  }));
+  const hallContainers: SlotContainer[] = floor.hallways.map((hw) => ({
     slots: computeHallwaySlots(hw, floor),
     filled: 0,
+    push: (p) => hw.placements.push(p),
   }));
-  let smallIdx = 0;
-  let progressed = true;
-  while (smallIdx < bands.small.length && progressed) {
-    progressed = false;
-    for (const h of hallwaySlots) {
-      if (smallIdx >= bands.small.length) break;
-      if (h.filled >= h.slots.length) continue;
-      const slot = h.slots[h.filled];
-      h.filled++;
-      progressed = true;
-      h.hallway.placements.push(slotToPlacement(slot, bands.small[smallIdx]));
-      smallIdx++;
+
+  const pour = (supply: Artwork[], containers: SlotContainer[]): number => {
+    let placed = 0;
+    let progressed = true;
+    while (placed < supply.length && progressed) {
+      progressed = false;
+      for (const c of containers) {
+        if (placed >= supply.length) break;
+        if (c.filled >= c.slots.length) continue;
+        const slot = c.slots[c.filled];
+        c.filled++;
+        c.push(slotToPlacement(slot, supply[placed]));
+        placed++;
+        progressed = true;
+      }
     }
+    return placed;
+  };
+
+  // Preferences, in order:
+  //   large  → rooms    (need visual breathing room)
+  //   small  → hallways (low ceilings, tight spaces — salon hang)
+  //   medium → rooms
+  // Then any leftover from any bucket spills into whichever container
+  // still has free slots so nothing gets dropped.
+  const largePlaced = pour(bands.large, roomContainers);
+  const smallPlacedHalls = pour(bands.small, hallContainers);
+  const mediumPlaced = pour(bands.medium, roomContainers);
+
+  const largeLeft = bands.large.slice(largePlaced);
+  const smallLeft = bands.small.slice(smallPlacedHalls);
+  const mediumLeft = bands.medium.slice(mediumPlaced);
+
+  // Overflow pass — try whichever container still has room.
+  pour(smallLeft, roomContainers);
+  pour(mediumLeft, hallContainers);
+  pour(largeLeft, hallContainers);
+
+  // Expose read-only views so the stats block at the bottom can count.
+  const hallwaySlots = hallContainers.map((c, i) => ({
+    hallway: floor.hallways[i],
+    slots: c.slots,
+    filled: c.filled,
+  }));
+  // Keep the `filled` cursor synced to roomsByArea too so stats below
+  // match what was actually placed.
+  for (let i = 0; i < roomsByArea.length; i++) {
+    roomsByArea[i].filled = roomContainers[i].filled;
   }
+
+  const roomSlotsTotal = roomsByArea.reduce((n, r) => n + r.slots.length, 0);
+  const roomSlotsFilled = roomsByArea.reduce((n, r) => n + r.filled, 0);
+  const hallwaySlotsTotal = hallwaySlots.reduce((n, h) => n + h.slots.length, 0);
+  const hallwaySlotsFilled = hallwaySlots.reduce((n, h) => n + h.filled, 0);
+  const dropped =
+    bands.large.length +
+    bands.medium.length +
+    bands.small.length -
+    (roomSlotsFilled + hallwaySlotsFilled);
+
+  return {
+    roomSlotsTotal,
+    roomSlotsFilled,
+    hallwaySlotsTotal,
+    hallwaySlotsFilled,
+    dropped,
+  };
 }
 
 /** Project a painting's real-world dimensions into a slot. Maintains
