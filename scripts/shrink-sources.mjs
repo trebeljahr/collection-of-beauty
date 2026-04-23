@@ -279,8 +279,13 @@ async function main() {
   const totals = await runPool(jobs, (t, job, result) => {
     const hasError = !!result?.error;
     if (!hasError && t.done % 10 !== 0 && t.done !== jobs.length) return;
-    const eta = t.done
-      ? ((Date.now() - start) / t.done) * (jobs.length - t.done)
+    // Base ETA on actual build work, not inspection count. Fresh-skipped
+    // jobs take ~1ms (just a stat call) while built jobs take ~1s, so
+    // dividing by t.done flattens the rate and gives wildly optimistic
+    // ETAs on resumed runs where most files are already fresh.
+    const remainingBuild = jobs.length - t.fresh - t.built - t.errors;
+    const eta = t.built
+      ? ((Date.now() - start) / t.built) * remainingBuild
       : 0;
     const errTag = hasError ? ` ! ${job.name}: ${result.error.message}` : "";
     const outMb = (t.bytesAfter / 1e6).toFixed(0);
