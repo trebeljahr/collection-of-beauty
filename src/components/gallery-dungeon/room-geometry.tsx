@@ -7,6 +7,7 @@ import {
   ROOM_HEIGHT,
 } from "@/lib/gallery-layout/world-coords";
 import { SolidWall, WallWithDoors } from "./wall";
+import { Painting } from "./painting";
 
 /**
  * Render a single room: floor, ceiling, 4 walls with the room's door
@@ -135,6 +136,11 @@ export function RoomGeometry({
         color={palette.wallColor}
         doors={eDoors}
       />
+
+      {/* Paintings */}
+      {room.placements.map((p, i) => (
+        <Painting key={`${room.id}-p${i}`} placement={p} />
+      ))}
 
       {/* A single overhead point light per room; only in the active room
           so the total light count stays bounded no matter how many rooms

@@ -150,7 +150,12 @@ export class DungeonGenerator3D {
   private placeRooms(): void {
     let placedRooms = this.rooms.length; // anchors already counted
     let attempts = 0;
-    const maxAttempts = this.roomCount * 3;
+    // The original generator used roomCount * 3, which is fine for a
+    // 50³ dungeon but too tight for our 29×29 floors: if a few random
+    // rolls land on the anchor, we run out of attempts before placing
+    // any non-anchor rooms. 15× attempts gives enough margin without
+    // making layout noticeably slower.
+    const maxAttempts = this.roomCount * 15;
 
     while (placedRooms < this.roomCount && attempts < maxAttempts) {
       attempts++;

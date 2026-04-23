@@ -7,6 +7,7 @@ import {
 } from "@/lib/gallery-layout/world-coords";
 import { CellType3D } from "@/lib/dungeon/types";
 import { SolidWall } from "./wall";
+import { Painting } from "./painting";
 
 /**
  * Render a hallway as a run of cells: floor + ceiling per cell, and a
@@ -26,15 +27,12 @@ export function HallwayRenderer({
   const floorY = floor.y;
   const palette = floor.era.palette;
 
-  // Build a fast "is this cell part of this hallway?" lookup so we know
-  // when the neighbour is another hallway cell (no wall) vs None (wall).
-  const hallCellKeys = new Set<number>();
-  for (const c of hallway.cells) {
-    hallCellKeys.add(c.z * floor.gridSize.x + c.x);
-  }
-
   return (
     <group>
+      {/* Paintings (small artworks, one per outside-facing cell side) */}
+      {hallway.placements.map((p, i) => (
+        <Painting key={`${hallway.id}-p${i}`} placement={p} />
+      ))}
       {hallway.cells.map((c) => {
         const x0 = c.x * CELL_SIZE;
         const z0 = c.z * CELL_SIZE;

@@ -12,6 +12,10 @@ export type Placement = {
   position: [number, number, number];
   rotation: [number, number, number];
   band: Band;
+  /** Painting width in world metres (already aspect-fit to the slot). */
+  widthM: number;
+  /** Painting height in world metres (already aspect-fit to the slot). */
+  heightM: number;
 };
 
 export type Door = {

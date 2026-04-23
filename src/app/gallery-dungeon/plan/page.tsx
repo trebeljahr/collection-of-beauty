@@ -67,6 +67,14 @@ function FloorSvg({ floor }: { floor: FloorLayout }) {
     0,
   );
   const doorCount = floor.rooms.reduce((n, r) => n + r.doors.length, 0);
+  const placedInRooms = floor.rooms.reduce(
+    (n, r) => n + r.placements.length,
+    0,
+  );
+  const placedInHallways = floor.hallways.reduce(
+    (n, h) => n + h.placements.length,
+    0,
+  );
 
   return (
     <section className="space-y-3">
@@ -79,7 +87,8 @@ function FloorSvg({ floor }: { floor: FloorLayout }) {
           {floor.era.yearMin}–
           {floor.era.yearMax === 9999 ? "now" : floor.era.yearMax} ·{" "}
           {floor.rooms.length} rooms · {floor.hallways.length} hallways ·{" "}
-          {doorCount} doors · {eraArtworkCount} works
+          {doorCount} doors · {eraArtworkCount} works ({placedInRooms}+
+          {placedInHallways} placed)
         </span>
       </div>
       <p className="text-neutral-400 text-sm italic">{floor.era.blurb}</p>

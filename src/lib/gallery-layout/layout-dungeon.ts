@@ -10,6 +10,7 @@ import { ERAS, type Era, type EraId, assignEra } from "@/lib/gallery-eras";
 import { slugify } from "@/lib/utils";
 import { DungeonGenerator3D } from "@/lib/dungeon/generator";
 import { CellType3D, Room3D, Vector3Int } from "@/lib/dungeon/types";
+import { distributePaintings } from "./place-paintings";
 
 import {
   CELL_SIZE,
@@ -286,7 +287,7 @@ function buildFloor(era: Era, eraArtworks: Artwork[]): FloorLayout {
     }
   }
 
-  return {
+  const floor: FloorLayout = {
     index: era.index,
     era,
     y: floorY(era.index),
@@ -298,6 +299,12 @@ function buildFloor(era: Era, eraArtworks: Artwork[]): FloorLayout {
     stairsIn: [],
     stairsOut: [],
   };
+
+  // Distribute this era's artworks into the floor's rooms/hallways.
+  // Mutates `floor.rooms[*].placements` + `floor.hallways[*].placements`.
+  distributePaintings(floor, eraArtworks);
+
+  return floor;
 }
 
 // --- Anchor placement helper ---------------------------------------------
