@@ -5,9 +5,9 @@ import {
   CELL_SIZE,
   CORRIDOR_HEIGHT,
 } from "@/lib/gallery-layout/world-coords";
-import { CellType3D } from "@/lib/dungeon/types";
 import { SolidWall } from "./wall";
 import { Painting } from "./painting";
+import { getPaletteMaterials } from "./palette-materials";
 
 /** Stride between overhead lamps in the corridor — one lamp every N
  *  cells. Too dense and the cost to the renderer climbs; too sparse
@@ -18,10 +18,8 @@ const CORRIDOR_LAMP_STRIDE = 3;
 /**
  * Render a hallway as a run of cells: floor + ceiling per cell, and a
  * wall segment on each side where the adjacent cell is non-walkable.
- *
- * Walls between hallway cells and rooms are drawn by the room (with
- * door openings already cut), so we only draw hallway walls where the
- * neighbour is None. This avoids z-fighting with room walls.
+ * Walls/floors/ceilings use shared per-palette materials so the dozens
+ * of cells on a big floor don't allocate dozens of materials.
  */
 export function HallwayRenderer({
   hallway,
@@ -31,26 +29,18 @@ export function HallwayRenderer({
   floor: FloorLayout;
 }) {
   const floorY = floor.y;
-  const palette = floor.era.palette;
+  const mats = getPaletteMaterials(floor.era.palette);
 
-  // Sample every Nth cell for a lamp. Because the cells aren't stored
-  // in a spatially-ordered run, index-based striding is fine — each
-  // hallway is a small connected blob and one lamp every few cells
-  // reads as evenly spread.
   const lampCells = hallway.cells.filter(
     (_, i) => i % CORRIDOR_LAMP_STRIDE === 0,
   );
 
   return (
     <group>
-      {/* Paintings (small artworks, one per outside-facing cell side) */}
       {hallway.placements.map((p, i) => (
         <Painting key={`${hallway.id}-p${i}`} placement={p} />
       ))}
 
-      {/* Dim ceiling lamps — weak enough that the active room's light
-          still dominates when you're inside, but strong enough that
-          the paintings in the corridor stay visible. */}
       {lampCells.map((c) => {
         const cx = c.x * CELL_SIZE + CELL_SIZE / 2;
         const cz = c.z * CELL_SIZE + CELL_SIZE / 2;
@@ -61,7 +51,7 @@ export function HallwayRenderer({
             intensity={6}
             distance={9}
             decay={2}
-            color={palette.lampTint}
+            color={floor.era.palette.lampTint}
           />
         );
       })}
@@ -73,11 +63,6 @@ export function HallwayRenderer({
         const cz = z0 + CELL_SIZE / 2;
         const wallMidY = floorY + CORRIDOR_HEIGHT / 2;
 
-        // Determine which sides need walls: a side needs a wall if the
-        // neighbour cell is None (not walkable at all in the layout).
-        // If the neighbour is a room cell, the room draws its own wall
-        // with the door cut there. If the neighbour is another hallway
-        // cell, no wall — open passage.
         const needsWall = (nx: number, nz: number): boolean => {
           if (
             nx < 0 ||
@@ -85,75 +70,61 @@ export function HallwayRenderer({
             nz < 0 ||
             nz >= floor.gridSize.z
           ) {
-            return true; // off the grid → wall
+            return true;
           }
           const idx = nz * floor.gridSize.x + nx;
-          const walk = floor.walkable[idx] === 1;
-          return !walk;
+          return floor.walkable[idx] !== 1;
         };
 
         const key = `${c.x}-${c.z}`;
         return (
           <group key={key}>
-            {/* Floor slab for this cell */}
             <mesh rotation={[-Math.PI / 2, 0, 0]} position={[cx, floorY, cz]}>
               <planeGeometry args={[CELL_SIZE, CELL_SIZE]} />
-              <meshStandardMaterial
-                color={palette.floorColor}
-                roughness={0.88}
-                metalness={0.05}
-              />
+              <primitive object={mats.floor} attach="material" />
             </mesh>
-            {/* Ceiling slab */}
             <mesh
               rotation={[Math.PI / 2, 0, 0]}
               position={[cx, floorY + CORRIDOR_HEIGHT, cz]}
             >
               <planeGeometry args={[CELL_SIZE, CELL_SIZE]} />
-              <meshStandardMaterial
-                color={palette.ceilingColor}
-                roughness={0.96}
-              />
+              <primitive object={mats.ceiling} attach="material" />
             </mesh>
 
-            {/* N wall (low z) */}
             {needsWall(c.x, c.z - 1) && (
               <SolidWall
                 position={[cx, wallMidY, z0]}
                 rotation={[0, 0, 0]}
                 width={CELL_SIZE}
                 height={CORRIDOR_HEIGHT}
-                color={palette.wallColor}
+                material={mats.wall}
               />
             )}
-            {/* S wall (high z) */}
             {needsWall(c.x, c.z + 1) && (
               <SolidWall
                 position={[cx, wallMidY, z0 + CELL_SIZE]}
                 rotation={[0, Math.PI, 0]}
                 width={CELL_SIZE}
                 height={CORRIDOR_HEIGHT}
-                color={palette.wallColor}
+                material={mats.wall}
               />
             )}
-            {/* W wall (low x) */}
             {needsWall(c.x - 1, c.z) && (
               <SolidWall
                 position={[x0, wallMidY, cz]}
                 rotation={[0, Math.PI / 2, 0]}
                 width={CELL_SIZE}
                 height={CORRIDOR_HEIGHT}
-                color={palette.wallColor}
+                material={mats.wall}
               />
             )}
-            {/* E wall (high x) */}
             {needsWall(c.x + 1, c.z) && (
               <SolidWall
                 position={[x0 + CELL_SIZE, wallMidY, cz]}
                 rotation={[0, -Math.PI / 2, 0]}
                 width={CELL_SIZE}
                 height={CORRIDOR_HEIGHT}
-                color={palette.wallColor}
+                material={mats.wall}
               />
             )}
           </group>
@@ -162,6 +133,3 @@ export function HallwayRenderer({
     </group>
   );
 }
-
-// Suppress unused-import warning in some build modes.
-export const _cellTypeRef = CellType3D;

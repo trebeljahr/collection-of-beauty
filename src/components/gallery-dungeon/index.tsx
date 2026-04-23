@@ -1,18 +1,23 @@
 "use client";
 
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { Canvas } from "@react-three/fiber";
 import { PointerLockControls } from "@react-three/drei";
 import * as THREE from "three";
 import type { Artwork } from "@/lib/data";
 import { layoutDungeon } from "@/lib/gallery-layout/layout-dungeon";
 import type { FloorLayout } from "@/lib/gallery-layout/types";
+import { useAudioSettings } from "@/lib/audio-settings";
+import { AudioControls } from "@/components/audio-controls";
 
 import { RoomGeometry } from "./room-geometry";
 import { HallwayRenderer } from "./hallway";
 import { Player } from "./player";
 import { StaircaseRenderer } from "./staircase";
 import { ZoomModal } from "./zoom-modal";
+
+const AMBIENCE_SRC = "/audio/ambience-loop.mp3";
+const ROOM_TRANSITION_SRC = "/audio/room-transition.mp3";
 
 type Props = { artworks: Artwork[] };
 
@@ -30,6 +35,22 @@ export function GalleryDungeon({ artworks }: Props) {
   const [activeRoomIdx, setActiveRoomIdx] = useState<number>(-1);
   const [zoomed, setZoomed] = useState<Artwork | null>(null);
 
+  // ── Audio ────────────────────────────────────────────────────────
+  // Ambience: long looping <audio> streamed via HTMLAudioElement.
+  // SFX: tiny preloaded Audio that fires on every floor change.
+  // Both are gated on the user's Start-click (browsers block autoplay).
+  // AudioControls writes to the same localStorage-backed hook, so we
+  // only need the read half here.
+  const [audio] = useAudioSettings();
+  const ambienceRef = useRef<HTMLAudioElement | null>(null);
+  const sfxRef = useRef<HTMLAudioElement | null>(null);
+  useEffect(() => {
+    if (sfxRef.current) return;
+    const a = new Audio(ROOM_TRANSITION_SRC);
+    a.preload = "auto";
+    sfxRef.current = a;
+  }, []);
+
   const currentFloor = layout.floors[currentFloorIdx];
   const activeRoom =
     activeRoomIdx >= 0 ? currentFloor.rooms[activeRoomIdx] : undefined;
@@ -45,30 +66,62 @@ export function GalleryDungeon({ artworks }: Props) {
   // trigger a floor swap.
   const lastCameraRef = useRef<{ x: number; z: number } | null>(null);
 
-  const teleportToFloor = (idx: number) => {
-    const f = layout.floors[idx];
-    const anchor = f.rooms.find((r) => r.isAnchor) ?? f.rooms[0];
-    if (!anchor) return;
-    spawnForFloor.current = [
-      (anchor.worldRect.xMin + anchor.worldRect.xMax) / 2,
-      anchor.worldRect.y,
-      (anchor.worldRect.zMin + anchor.worldRect.zMax) / 2,
-    ];
-    setCurrentFloorIdx(idx);
-    setActiveRoomIdx(-1);
-  };
+  const teleportToFloor = useCallback(
+    (idx: number) => {
+      const f = layout.floors[idx];
+      const anchor = f.rooms.find((r) => r.isAnchor) ?? f.rooms[0];
+      if (!anchor) return;
+      spawnForFloor.current = [
+        (anchor.worldRect.xMin + anchor.worldRect.xMax) / 2,
+        anchor.worldRect.y,
+        (anchor.worldRect.zMin + anchor.worldRect.zMax) / 2,
+      ];
+      setCurrentFloorIdx(idx);
+      setActiveRoomIdx(-1);
+    },
+    [layout],
+  );
 
-  const handleStairFloorChange = (newIdx: number) => {
-    if (newIdx === currentFloorIdx) return;
-    // Stair-driven swap: do NOT touch spawnForFloor — that would trigger
-    // Player's spawn effect and teleport the camera. Just change which
-    // floor's layout informs collision/rendering. The staircase
-    // geometry is the same on both floors (it's the same Staircase
-    // object, referenced from stairsOut on the lower floor and
-    // stairsIn on the upper), so the player keeps riding it smoothly.
-    setCurrentFloorIdx(newIdx);
-    setActiveRoomIdx(-1);
-  };
+  // Ambience follows user preferences + entry gate. play() may reject if
+  // Chrome hasn't yet decided the gesture is "valid enough" — harmless,
+  // the next state change (setting toggle, teleport, stair swap) retries
+  // this effect and succeeds.
+  useEffect(() => {
+    const el = ambienceRef.current;
+    if (!el) return;
+    el.volume = audio.ambienceVolume;
+    if (hasStarted && audio.enabled) {
+      void el.play().catch(() => {});
+    } else {
+      el.pause();
+    }
+  }, [audio.enabled, audio.ambienceVolume, hasStarted]);
+
+  // One-shot SFX on floor change — gives a "room transition" feel as
+  // the player walks up stairs or teleports.
+  const playTransition = useCallback(() => {
+    if (!audio.enabled) return;
+    const a = sfxRef.current;
+    if (!a) return;
+    a.currentTime = 0;
+    a.volume = audio.sfxVolume;
+    void a.play().catch(() => {});
+  }, [audio.enabled, audio.sfxVolume]);
+
+  const handleStairFloorChange = useCallback(
+    (newIdx: number) => {
+      if (newIdx === currentFloorIdx) return;
+      // Stair-driven swap: do NOT touch spawnForFloor — that would
+      // trigger Player's spawn effect and teleport the camera. Just
+      // change which floor's layout informs collision/rendering. The
+      // staircase geometry is the same on both floors so the player
+      // keeps riding it smoothly.
+      setCurrentFloorIdx(newIdx);
+      setActiveRoomIdx(-1);
+      playTransition();
+    },
+    [currentFloorIdx, playTransition],
+  );
 
   // Debug 1..7 teleport keys.
   useEffect(() => {
@@ -78,13 +131,13 @@ export function GalleryDungeon({ artworks }: Props) {
         const idx = digit - 1;
         if (Number.isInteger(idx) && idx >= 0 && idx < layout.floors.length) {
           teleportToFloor(idx);
+          playTransition();
         }
       }
     };
     window.addEventListener("keydown", down);
     return () => window.removeEventListener("keydown", down);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [layout]);
+  }, [layout, teleportToFloor, playTransition]);
 
   return (
     <div className="relative w-full h-screen bg-black">
@@ -184,7 +237,38 @@ export function GalleryDungeon({ artworks }: Props) {
         </div>
       )}
 
+      {/* Crosshair — small dot in the centre of the screen so the
+          player knows exactly where they're aiming. Always visible
+          while walking; hidden during the start overlay and zoom
+          modal so it doesn't compete with either. */}
+      {hasStarted && !zoomed && (
+        <div
+          className="absolute inset-0 pointer-events-none flex items-center justify-center"
+          aria-hidden
+        >
+          <div className="w-1.5 h-1.5 rounded-full bg-white/70 shadow-[0_0_2px_rgba(0,0,0,0.8)]" />
+        </div>
+      )}
+
+      {/* Audio controls — shown after the start gate (mount on the
+          user's first click, which is also the autoplay gate). */}
+      {hasStarted && !zoomed && (
+        <AudioControls className="top-4 right-4" />
+      )}
+
       {zoomed && <ZoomModal artwork={zoomed} onClose={() => setZoomed(null)} />}
+
+      {/* Ambience player. Streams, loops, hidden from layout but kept
+          in the DOM for the lifetime of the gallery so settings
+          changes don't interrupt the loop. */}
+      <audio
+        ref={ambienceRef}
+        src={AMBIENCE_SRC}
+        loop
+        preload="auto"
+        aria-hidden="true"
+        className="hidden"
+      />
     </div>
   );
 }

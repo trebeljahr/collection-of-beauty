@@ -10,6 +10,7 @@ import {
   FLOOR_SEPARATION,
 } from "@/lib/gallery-layout/world-coords";
 import { isInsideStair, stairHeightAt } from "./staircase";
+import { raycastNearestPainting } from "./painting-registry";
 
 const EYE_HEIGHT = 1.7;
 const WALK_SPEED = 5;
@@ -52,7 +53,7 @@ export function Player({
    *  so the host can open an inspect/zoom overlay. */
   onZoomRequest?: (artwork: Artwork) => void;
 }) {
-  const { camera, scene } = useThree();
+  const { camera } = useThree();
   const keys = useRef<Record<string, boolean>>({});
   const velocityY = useRef(0);
   const grounded = useRef(true);
@@ -75,14 +76,15 @@ export function Player({
       camera.getWorldPosition(rayOrigin.current);
       camera.getWorldDirection(rayDir.current);
       raycaster.current.set(rayOrigin.current, rayDir.current);
-      const hits = raycaster.current.intersectObjects(scene.children, true);
-      for (const hit of hits) {
-        const artwork = hit.object.userData?.artwork as Artwork | undefined;
-        if (artwork) {
-          onZoomRequest(artwork);
-          return;
-        }
-      }
+      // Painting-registry prefilter — bounds the raycast to the
+      // ~handful of paintings in the player's forward cone instead of
+      // traversing hundreds of wall/floor/step meshes on every click.
+      const artwork = raycastNearestPainting(
+        raycaster.current,
+        rayOrigin.current,
+        rayDir.current,
+      );
+      if (artwork) onZoomRequest(artwork);
     };
     const down = (e: KeyboardEvent) => {
       keys.current[e.code] = true;
@@ -109,7 +111,7 @@ export function Player({
       window.removeEventListener("keyup", up);
       window.removeEventListener("mousedown", mouse);
     };
-  }, [enabled, camera, scene, onZoomRequest]);
+  }, [enabled, camera, onZoomRequest]);
 
   useFrame((_, delta) => {
     if (!enabled) return;

@@ -4,6 +4,21 @@ import * as THREE from "three";
 import { Text } from "@react-three/drei";
 import type { Staircase } from "@/lib/gallery-layout/types";
 import { CELL_SIZE, FLOOR_SEPARATION } from "@/lib/gallery-layout/world-coords";
+import { signBaseMaterial } from "./palette-materials";
+
+// Shared materials for the stair flight itself — same dark wood across
+// every staircase so they all visually belong to the same "stair
+// vocabulary" across the building.
+const stepMaterial = new THREE.MeshStandardMaterial({
+  color: "#3a2a1f",
+  roughness: 0.7,
+  metalness: 0.1,
+});
+const railMaterial = new THREE.MeshStandardMaterial({
+  color: "#1f1611",
+  roughness: 0.85,
+  metalness: 0.05,
+});
 
 /**
  * Render a straight flight of stairs connecting two floors. The stair's
@@ -44,11 +59,7 @@ export function StaircaseRenderer({
             position={[cx, stepTopY - boxHeight / 2, stepCenterZ]}
           >
             <boxGeometry args={[width, boxHeight, stepRun + 0.02]} />
-            <meshStandardMaterial
-              color="#3a2a1f"
-              roughness={0.7}
-              metalness={0.1}
-            />
+            <primitive object={stepMaterial} attach="material" />
           </mesh>
         );
       })}
@@ -101,12 +112,7 @@ function StairSign({
     <group position={position} rotation={[0, rotationY, 0]}>
       <mesh>
         <boxGeometry args={[3.2, 0.6, 0.05]} />
-        <meshStandardMaterial
-          color="#1a1108"
-          emissive="#1a1108"
-          emissiveIntensity={0.15}
-          roughness={0.7}
-        />
+        <primitive object={signBaseMaterial} attach="material" />
       </mesh>
       <Text
         position={[0, 0, 0.03]}
@@ -150,11 +156,7 @@ function RailWall({
   return (
     <mesh position={mid} rotation={[slope, 0, 0]}>
       <boxGeometry args={[0.08, wallH, diagLen]} />
-      <meshStandardMaterial
-        color="#1f1611"
-        roughness={0.85}
-        metalness={0.05}
-      />
+      <primitive object={railMaterial} attach="material" />
     </mesh>
   );
 }
