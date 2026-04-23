@@ -56,15 +56,17 @@ export function variantUrl(
   return `${ASSETS_BASE_URL}/${encodePath(segments)}`;
 }
 
-// Full srcSet string for a <source> element. Always emits every width —
-// shrink-sources.mjs writes a file for each width (Sharp uses
-// withoutEnlargement so small sources get re-encoded at their native size,
-// but the file still exists at every URL).
+// Full srcSet string for a <source> element. Emits only the widths the
+// caller knows exist on disk (the `variantWidths` manifest from
+// build-data.mjs). Emitting widths that aren't present makes the browser
+// 404 for every unmatched candidate, which shows as broken images in
+// dev and spams the console in prod.
 export function variantSrcSet(
   objectKey: string,
   format: VariantFormat,
+  widths: readonly number[] = VARIANT_WIDTHS,
 ): string {
-  return VARIANT_WIDTHS
+  return widths
     .map((w) => `${variantUrl(objectKey, w, format)} ${w}w`)
     .join(", ");
 }

@@ -13,6 +13,7 @@ export type GalleryPhoto = {
   // render via <ResponsiveImage>. We stash the objectKey as src and
   // re-resolve to real URLs inside the custom image renderer below.
   src: string;
+  variantWidths: number[] | null;
   width: number;
   height: number;
   key: string;
@@ -26,6 +27,7 @@ export type GalleryPhoto = {
 export function toGalleryPhoto(a: Artwork): GalleryPhoto {
   return {
     src: a.objectKey,
+    variantWidths: a.variantWidths,
     width: a.width ?? 800,
     height: a.height ?? 1000,
     key: a.id,
@@ -124,6 +126,7 @@ export function ArtworkGallery({
             return (
               <ResponsiveImage
                 objectKey={p.src}
+                variantWidths={p.variantWidths}
                 alt={p.alt ?? ""}
                 srcWidth={p.width}
                 srcHeight={p.height}

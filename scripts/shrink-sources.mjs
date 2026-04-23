@@ -7,12 +7,13 @@
  *
  *   assets/<bucket>/foo.jpg   (original, untouched)
  *         └──► assets-web/<bucket>/foo/<w>.avif
- *              assets-web/<bucket>/foo/<w>.webp
- *                where <w> ∈ WIDTHS = [256, 480, 640, 960, 1280, 1920, 2560]
+ *                where <w> ∈ [256, 480, 640, 960, 1280, 1920, 2560]
+ *              assets-web/<bucket>/foo/1280.webp
+ *                (single width — OG meta + email clients that don't grok AVIF)
  *
- * So each source produces 14 variant files. For the full catalog (~3000
- * artworks) that's ~42k files totalling ~3–6 GB. Each file is tiny
- * (10–600 KB) so serving is fast and CDN-friendly.
+ * So each source produces 8 variant files (7 AVIF + 1 WebP). For the full
+ * catalog (~3000 artworks) that's ~24k files totalling ~2–3 GB. Each
+ * file is tiny (10–600 KB) so serving is fast and CDN-friendly.
  *
  * WIDTHS is duplicated (as VARIANT_WIDTHS) in src/lib/utils.ts — keep
  * the two in sync; they're the contract between the builder and the
@@ -79,9 +80,28 @@ const WIDTHS = [256, 480, 640, 960, 1280, 1920, 2560];
 const MAX_WIDTH = Math.max(...WIDTHS);
 // AVIF q=60 looks indistinguishable from q=85 JPEG but is ~3× smaller.
 // WebP q=75 is the usual balance for photographs.
+//
+// effort tradeoff: libavif's encode time scales non-linearly with effort.
+// effort=4 (Sharp default) vs effort=2 is ~2-3× faster with only 5-10%
+// larger files — for a bulk pipeline with 42k outputs, that's tens of
+// minutes saved for negligible bandwidth cost.
+//
+// Per-format `widths` override: AVIF is universally supported in modern
+// browsers (Safari 16.4+, 2023), so we emit every srcSet width in AVIF.
+// WebP is only kept at 1280w for OG meta images and email templates —
+// social scrapers and email clients have poor AVIF support, but WebP
+// works everywhere we care about. One WebP per source, not seven.
 const FORMATS = [
-  { ext: "avif", encode: (s) => s.avif({ quality: 60, effort: 4 }) },
-  { ext: "webp", encode: (s) => s.webp({ quality: 75, effort: 4 }) },
+  {
+    ext: "avif",
+    widths: WIDTHS,
+    encode: (s) => s.avif({ quality: 60, effort: 2 }),
+  },
+  {
+    ext: "webp",
+    widths: [1280],
+    encode: (s) => s.webp({ quality: 75, effort: 3 }),
+  },
 ];
 
 // Sharp handles all of these; anything else (pdf etc.) is skipped.
@@ -109,8 +129,8 @@ function variantPaths(folder, name) {
   const basename = path.basename(name, path.extname(name));
   const destDir = path.join(DEST_ROOT, folder, basename);
   const files = [];
-  for (const w of WIDTHS) {
-    for (const f of FORMATS) {
+  for (const f of FORMATS) {
+    for (const w of f.widths) {
       files.push({
         width: w,
         format: f,

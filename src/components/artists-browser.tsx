@@ -87,6 +87,7 @@ export function ArtistsBrowser({ artists }: Props) {
               {a.coverObjectKey && (
                 <ResponsiveImage
                   objectKey={a.coverObjectKey}
+                  variantWidths={a.coverVariantWidths}
                   alt={a.coverTitle || a.name}
                   fill
                   sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 20vw"

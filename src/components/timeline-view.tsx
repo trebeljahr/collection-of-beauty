@@ -134,6 +134,7 @@ export function TimelineView({ artworks, movements }: Props) {
                 >
                   <ResponsiveImage
                     objectKey={a.objectKey}
+                    variantWidths={a.variantWidths}
                     alt={a.title}
                     fill
                     sizes="(max-width: 640px) 33vw, (max-width: 1024px) 20vw, 12vw"

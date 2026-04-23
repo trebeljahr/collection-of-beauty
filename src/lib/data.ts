@@ -48,6 +48,9 @@ export type Artist = {
   coverFileUrl: string | null;
   coverObjectKey: string | null;
   coverTitle: string | null;
+  /** variantWidths of the cover artwork — see Artwork.variantWidths. Null
+   *  when the cover has no pre-built variants yet. */
+  coverVariantWidths: number[] | null;
 };
 
 export type Connection = {

@@ -16,6 +16,7 @@ export function ArtworkCard({ artwork, priority }: Props) {
       <div className="relative aspect-[4/5] overflow-hidden bg-[var(--muted)]">
         <ResponsiveImage
           objectKey={artwork.objectKey}
+          variantWidths={artwork.variantWidths}
           alt={artwork.title}
           fill
           sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 20vw"

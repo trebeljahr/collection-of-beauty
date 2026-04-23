@@ -121,6 +121,7 @@ export default async function ArtworkPage({
           >
             <ResponsiveImage
               objectKey={art.objectKey}
+              variantWidths={art.variantWidths}
               alt={art.title}
               srcWidth={art.width ?? 1600}
               srcHeight={art.height ?? 2000}

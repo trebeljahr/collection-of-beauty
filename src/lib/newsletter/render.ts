@@ -33,11 +33,11 @@ export function toDigestArtwork(
     year: artwork.year,
     description: artwork.description,
     movement: artwork.movement,
-    // 960w WebP hits the sweet spot for email: readable on retina, ~80-150 KB,
-    // supported by every modern client (Gmail, Apple Mail, Outlook 2019+).
-    // Pre-2019 Outlook desktop will see a broken image — acceptable for now;
-    // if it matters later, add a "jpg" entry to shrink-sources.mjs FORMATS.
-    imageUrl: variantUrl(artwork.objectKey, 960, "webp"),
+    // 1280w WebP: readable on retina, ~150-300 KB, supported by every
+    // modern client (Gmail, Apple Mail, Outlook 2019+). Pinned to 1280
+    // because that's the only WebP width shrink-sources.mjs emits —
+    // AVIF covers the rest, but email clients don't grok AVIF yet.
+    imageUrl: variantUrl(artwork.objectKey, 1280, "webp"),
     artworkUrl: `${siteUrl.replace(/\/$/, "")}/artwork/${artwork.id}`,
   };
 }

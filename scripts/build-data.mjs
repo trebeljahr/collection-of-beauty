@@ -389,6 +389,7 @@ async function main() {
             coverFileUrl: null,
             coverObjectKey: null,
             coverTitle: null,
+            coverVariantWidths: null,
           });
         }
         const agg = artistAggregates.get(artistSlug);
@@ -401,6 +402,8 @@ async function main() {
           agg.coverFileUrl = entry.source.file_url;
           agg.coverObjectKey = `${folderKey}/${fname}`;
           agg.coverTitle = title;
+          agg.coverVariantWidths =
+            variantWidths.length > 0 ? variantWidths : null;
         }
       }
     }
