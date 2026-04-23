@@ -1,23 +1,24 @@
 import type { Metadata } from "next";
-import { Gallery3D } from "@/components/gallery-3d";
+import { GalleryDungeon } from "@/components/gallery-dungeon";
 import { artworks } from "@/lib/data";
 
 export const metadata: Metadata = {
   title: "3D Gallery",
   description:
-    "Walk through a virtual museum of themed rooms and view paintings in 3D at real scale. " +
-    "A WebGL exhibit of the Collection of Beauty — Impressionist halls, Japanese print rooms, " +
-    "natural-history galleries, each laid out like a real museum wing.",
+    "Walk through a multi-floor virtual museum: seven eras stacked on " +
+    "top of each other, Gothic at ground level rising to Modernism at " +
+    "the top, staircases between. A WebGL exhibit of the Collection of " +
+    "Beauty with every canonical work on a wall — big paintings in the " +
+    "galleries, small works in the corridors.",
   alternates: { canonical: "/gallery-3d" },
   openGraph: {
     title: "3D Gallery · Collection of Beauty",
     description:
-      "Walk through themed rooms and view paintings in 3D at real scale. An immersive WebGL exhibit.",
+      "Walk through a multi-floor virtual museum — one floor per era. " +
+      "An immersive WebGL exhibit.",
   },
 };
 
 export default function Gallery3DPage() {
-  // The 3D component filters/groups/selects rooms from this pool. We
-  // pass every artwork and let it curate — no hand-picked list here.
-  return <Gallery3D artworks={artworks} />;
+  return <GalleryDungeon artworks={artworks} />;
 }
