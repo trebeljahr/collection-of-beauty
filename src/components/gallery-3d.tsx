@@ -1,6 +1,7 @@
 "use client";
 
 import {
+  memo,
   useCallback,
   useEffect,
   useMemo,
@@ -1147,7 +1148,12 @@ type PaintingProps = {
   staggerMs?: number;
 };
 
-function Painting({
+// Wrapped in memo below. Props are stable — placement comes out of a
+// useMemo'd layouts array (stable per-artwork identity), callbacks are
+// useCallback'd, primitives compare by value — so the top-level aim
+// state flip (~Hz) stops cascading into every painting and re-rendering
+// 22 of these per tick for nothing.
+const Painting = memo(function Painting({
   placement,
   onClick,
   onLoaded,
@@ -1433,7 +1439,7 @@ function Painting({
       )}
     </group>
   );
-}
+});
 
 // =============================================================
 // DisposingText — drei's <Text> wrapper that plugs troika's
@@ -1483,7 +1489,7 @@ function DisposingText(props: ComponentProps<typeof Text>) {
 // Plaque
 // =============================================================
 
-function Plaque({
+const Plaque = memo(function Plaque({
   artwork,
   paintingWidth,
   paintingHeight,
@@ -1545,10 +1551,99 @@ function Plaque({
       {text}
     </DisposingText>
   );
-}
+});
 
 function formatCm(n: number): string {
   return Number.isInteger(n) ? String(n) : n.toFixed(1);
+}
+
+// =============================================================
+// Shared materials — built once, reused across every room.
+//
+// Without this, every SolidWall / WallWithDoor / DoorTrim / bench /
+// RoomSign / CeilingLamp / floor / ceiling declared <meshStandardMaterial>
+// inline, so each door crossing burned ~80 material constructions +
+// ~80 idle-queue disposals for geometry that looks identical frame to
+// frame. Module-level materials survive unmount (R3F skips dispose on
+// `<primitive>` attachments), so door crossings only move the camera
+// plus swap instanced-furniture buffers — the architecture is static.
+// =============================================================
+
+// Palette-invariant. Same dark wood shows up in every room.
+const wallTrimMaterial = new THREE.MeshStandardMaterial({
+  color: "#2a1d14",
+  roughness: 0.6,
+  metalness: 0.1,
+});
+const benchBaseMaterial = new THREE.MeshStandardMaterial({
+  color: "#2a1d14",
+  roughness: 0.65,
+  metalness: 0.1,
+});
+const benchTopMaterial = new THREE.MeshStandardMaterial({
+  color: "#5a3d28",
+  roughness: 0.5,
+  metalness: 0.2,
+});
+const roomSignMaterial = new THREE.MeshStandardMaterial({
+  color: "#f2e9d0",
+  emissive: new THREE.Color("#2a1e10"),
+  emissiveIntensity: 0.06,
+  roughness: 0.7,
+});
+const frameMaterial = new THREE.MeshStandardMaterial({
+  color: "#241810",
+  roughness: 0.55,
+  metalness: 0.1,
+});
+const plaqueMaterial = new THREE.MeshStandardMaterial({
+  color: "#f4ecd8",
+  emissive: new THREE.Color("#2a1e10"),
+  emissiveIntensity: 0.05,
+  roughness: 0.7,
+  metalness: 0,
+});
+
+// Per-palette. One material per (palette × kind), lazily built the
+// first time a room of that palette mounts. Keyed off the Palette
+// object identity — PALETTES is a module const so the identities are
+// stable, making Map the right container (no cleanup needed either).
+type PaletteMaterials = {
+  wall: THREE.MeshStandardMaterial;
+  floor: THREE.MeshStandardMaterial;
+  ceiling: THREE.MeshStandardMaterial;
+  lampHousing: THREE.MeshStandardMaterial;
+};
+
+const paletteMaterialCache = new Map<Palette, PaletteMaterials>();
+
+function getPaletteMaterials(palette: Palette): PaletteMaterials {
+  let entry = paletteMaterialCache.get(palette);
+  if (!entry) {
+    entry = {
+      wall: new THREE.MeshStandardMaterial({
+        color: palette.wallColor,
+        roughness: 0.92,
+      }),
+      floor: new THREE.MeshStandardMaterial({
+        color: palette.floorColor,
+        roughness: 0.88,
+        metalness: 0.05,
+      }),
+      ceiling: new THREE.MeshStandardMaterial({
+        color: palette.ceilingColor,
+        roughness: 0.96,
+      }),
+      lampHousing: new THREE.MeshStandardMaterial({
+        color: "#2a1d14",
+        emissive: new THREE.Color(palette.lampTint),
+        emissiveIntensity: 1.6,
+        roughness: 0.5,
+      }),
+    };
+    paletteMaterialCache.set(palette, entry);
+  }
+  return entry;
 }
 
 // =============================================================
@@ -1560,13 +1655,13 @@ function SolidWall({
   rotation,
   width,
   height,
-  color,
+  material,
 }: {
   position: [number, number, number];
   rotation: [number, number, number];
   width: number;
   height: number;
-  color: string;
+  material: THREE.Material;
 }) {
   // Box (not plane) so the wall has real WALL_THICKNESS in depth. Frames
   // sink 2 cm backward into the wall surface to give the mat its inset
@@ -1576,7 +1671,7 @@ function SolidWall({
   return (
     <mesh position={position} rotation={rotation}>
       <boxGeometry args={[width, height, WALL_THICKNESS]} />
-      <meshStandardMaterial color={color} roughness={0.92} />
+      <primitive object={material} attach="material" />
     </mesh>
   );
 }
@@ -1586,7 +1681,7 @@ function WallWithDoor({
   rotation,
   width,
   height,
-  color,
+  material,
   doorWidth,
   doorHeight,
 }: {
@@ -1594,7 +1689,7 @@ function WallWithDoor({
   rotation: [number, number, number];
   width: number;
   height: number;
-  color: string;
+  material: THREE.Material;
   doorWidth: number;
   doorHeight: number;
 }) {
@@ -1610,15 +1705,15 @@ function WallWithDoor({
     <group position={position} rotation={rotation}>
       <mesh position={[leftX, 0, 0]}>
         <boxGeometry args={[sideWidth, height, WALL_THICKNESS]} />
-        <meshStandardMaterial color={color} roughness={0.92} />
+        <primitive object={material} attach="material" />
       </mesh>
       <mesh position={[rightX, 0, 0]}>
         <boxGeometry args={[sideWidth, height, WALL_THICKNESS]} />
-        <meshStandardMaterial color={color} roughness={0.92} />
+        <primitive object={material} attach="material" />
       </mesh>
       <mesh position={[0, lintelY, 0]}>
         <boxGeometry args={[doorWidth, lintelH, WALL_THICKNESS]} />
-        <meshStandardMaterial color={color} roughness={0.92} />
+        <primitive object={material} attach="material" />
       </mesh>
       <DoorTrim doorWidth={doorWidth} doorHeight={doorHeight} />
     </group>
@@ -1633,20 +1728,19 @@ function DoorTrim({
   doorHeight: number;
 }) {
   const trim = 0.06;
-  const color = "#2a1d14";
   return (
     <group position={[0, -ROOM_HEIGHT / 2, 0]}>
       <mesh position={[-doorWidth / 2 - trim / 2, doorHeight / 2, 0]}>
         <boxGeometry args={[trim, doorHeight, 0.06]} />
-        <meshStandardMaterial color={color} roughness={0.6} metalness={0.1} />
+        <primitive object={wallTrimMaterial} attach="material" />
       </mesh>
       <mesh position={[doorWidth / 2 + trim / 2, doorHeight / 2, 0]}>
         <boxGeometry args={[trim, doorHeight, 0.06]} />
-        <meshStandardMaterial color={color} roughness={0.6} metalness={0.1} />
+        <primitive object={wallTrimMaterial} attach="material" />
       </mesh>
       <mesh position={[0, doorHeight + trim / 2, 0]}>
         <boxGeometry args={[doorWidth + trim * 2, trim, 0.06]} />
-        <meshStandardMaterial color={color} roughness={0.6} metalness={0.1} />
+        <primitive object={wallTrimMaterial} attach="material" />
       </mesh>
     </group>
   );
@@ -1682,12 +1776,7 @@ function RoomSign({
     <group position={position} rotation={rotation}>
       <mesh>
         <boxGeometry args={[3.4, 0.62, 0.04]} />
-        <meshStandardMaterial
-          color="#f2e9d0"
-          emissive="#2a1e10"
-          emissiveIntensity={0.06}
-          roughness={0.7}
-        />
+        <primitive object={roomSignMaterial} attach="material" />
       </mesh>
       {ready && (
         <>
@@ -1725,21 +1814,18 @@ function RoomSign({
 
 function CeilingLamp({
   position,
+  housingMaterial,
   tint,
 }: {
   position: [number, number, number];
+  housingMaterial: THREE.Material;
   tint: string;
 }) {
   return (
     <group position={position}>
       <mesh position={[0, -0.02, 0]}>
         <cylinderGeometry args={[0.26, 0.3, 0.06, 12]} />
-        <meshStandardMaterial
-          color="#2a1d14"
-          emissive={tint}
-          emissiveIntensity={1.6}
-          roughness={0.5}
-        />
+        <primitive object={housingMaterial} attach="material" />
       </mesh>
       <pointLight
         position={[0, -0.15, 0]}
@@ -1756,7 +1842,7 @@ function CeilingLamp({
 // Room geometry
 // =============================================================
 
-function RoomGeometry({
+const RoomGeometry = memo(function RoomGeometry({
   layout,
   nextTitle,
   nextDescription,
@@ -1772,31 +1858,31 @@ function RoomGeometry({
   const { data, isFirst, isLast, backZ, frontZ, centerZ, depth } = layout;
   const backHasDoor = !isLast;
   const frontHasDoor = !isFirst;
+  const palMats = getPaletteMaterials(data.palette);
 
   // Distribute ceiling lamps along the room's depth. Kept constant at
   // 2 rows (4 lamps) across every room so the total pointLight count
   // doesn't flip when the player moves between a small and a large
   // room — flipping it would force a shader recompile on every door
   // crossing, which is a ~50 ms main-thread stall.
-  const lampRows = 2;
-  const lampPositions: Array<[number, number, number]> = [];
-  for (let r = 0; r < lampRows; r++) {
-    const t = r / (lampRows - 1);
-    const z = frontZ + (backZ - frontZ) * (0.18 + 0.64 * t);
-    lampPositions.push([-6, ROOM_HEIGHT - 0.04, z]);
-    lampPositions.push([6, ROOM_HEIGHT - 0.04, z]);
-  }
+  const lampPositions = useMemo<Array<[number, number, number]>>(() => {
+    const out: Array<[number, number, number]> = [];
+    const lampRows = 2;
+    for (let r = 0; r < lampRows; r++) {
+      const t = r / (lampRows - 1);
+      const z = frontZ + (backZ - frontZ) * (0.18 + 0.64 * t);
+      out.push([-6, ROOM_HEIGHT - 0.04, z]);
+      out.push([6, ROOM_HEIGHT - 0.04, z]);
+    }
+    return out;
+  }, [frontZ, backZ]);
 
   return (
     <group>
       {/* Floor */}
       <mesh rotation={[-Math.PI / 2, 0, 0]} position={[0, 0, centerZ]}>
         <planeGeometry args={[ROOM_WIDTH, depth]} />
-        <meshStandardMaterial
-          color={data.palette.floorColor}
-          roughness={0.88}
-          metalness={0.05}
-        />
+        <primitive object={palMats.floor} attach="material" />
       </mesh>
       {/* Ceiling */}
       <mesh
@@ -1804,7 +1890,7 @@ function RoomGeometry({
         position={[0, ROOM_HEIGHT, centerZ]}
       >
         <planeGeometry args={[ROOM_WIDTH, depth]} />
-        <meshStandardMaterial color={data.palette.ceilingColor} roughness={0.96} />
+        <primitive object={palMats.ceiling} attach="material" />
       </mesh>
       {/* Back wall */}
       {backHasDoor ? (
@@ -1813,7 +1899,7 @@ function RoomGeometry({
           rotation={[0, 0, 0]}
           width={ROOM_WIDTH}
           height={ROOM_HEIGHT}
-          color={data.palette.wallColor}
+          material={palMats.wall}
           doorWidth={DOOR_WIDTH}
           doorHeight={DOOR_HEIGHT}
         />
@@ -1823,7 +1909,7 @@ function RoomGeometry({
           rotation={[0, 0, 0]}
           width={ROOM_WIDTH}
           height={ROOM_HEIGHT}
-          color={data.palette.wallColor}
+          material={palMats.wall}
         />
       )}
       {/* Front wall — only render from the first room (walls between
@@ -1834,7 +1920,7 @@ function RoomGeometry({
           rotation={[0, Math.PI, 0]}
           width={ROOM_WIDTH}
           height={ROOM_HEIGHT}
-          color={data.palette.wallColor}
+          material={palMats.wall}
         />
       )}
       {/* East + west */}
@@ -1843,23 +1929,23 @@ function RoomGeometry({
         rotation={[0, -Math.PI / 2, 0]}
         width={depth}
         height={ROOM_HEIGHT}
-        color={data.palette.wallColor}
+        material={palMats.wall}
       />
       <SolidWall
         position={[-ROOM_WIDTH / 2, ROOM_HEIGHT / 2, centerZ]}
         rotation={[0, Math.PI / 2, 0]}
         width={depth}
         height={ROOM_HEIGHT}
-        color={data.palette.wallColor}
+        material={palMats.wall}
       />
       {/* Bench */}
       <mesh position={[0, 0.3, centerZ]}>
         <boxGeometry args={[3, 0.6, 0.9]} />
-        <meshStandardMaterial color="#2a1d14" roughness={0.65} metalness={0.1} />
+        <primitive object={benchBaseMaterial} attach="material" />
       </mesh>
       <mesh position={[0, 0.66, centerZ]}>
         <boxGeometry args={[3.1, 0.05, 1]} />
-        <meshStandardMaterial color="#5a3d28" roughness={0.5} metalness={0.2} />
+        <primitive object={benchTopMaterial} attach="material" />
       </mesh>
       {/* Lamps */}
       {/* Ceiling lamps only inhabit the active room. Neighbour rooms
@@ -1868,7 +1954,12 @@ function RoomGeometry({
           live-pointLight count from 20+ down to ~4, which the forward
           shader evaluates per fragment. */}
       {isActive && lampPositions.map((p, i) => (
-        <CeilingLamp key={i} position={p} tint={data.palette.lampTint} />
+        <CeilingLamp
+          key={i}
+          position={p}
+          housingMaterial={palMats.lampHousing}
+          tint={data.palette.lampTint}
+        />
       ))}
       {/* Room title sign — opposite the entrance door, high on the
           back wall (or on the front wall for the very first room).
@@ -1908,7 +1999,7 @@ function RoomGeometry({
       )}
     </group>
   );
-}
+});
 
 // =============================================================
 // Player
@@ -2671,7 +2762,7 @@ function collectFurniture(layouts: RoomLayout[]): FurniturePlacement[] {
   return out;
 }
 
-function FurnitureInstances({
+const FurnitureInstances = memo(function FurnitureInstances({
   placements,
   visibleIdx,
   activeRoom,
@@ -2701,43 +2792,21 @@ function FurnitureInstances({
 
   // InstancedMesh2 consumes geometry + material through its
   // constructor (via R3F `args`), not as JSX children. Create them
-  // once per mount; dispose on unmount. Each MeshStandardMaterial
-  // is shared across every frame (or every plaque) in the scene,
-  // so the shader compile happens once for each kind and never
-  // recompiles on room transitions.
+  // once per mount; dispose geometries on unmount. Materials are
+  // shared at module scope (see frameMaterial / plaqueMaterial up
+  // top), so shader compilation happens once for each kind and they
+  // outlive the component — no dispose here for them.
   const frameGeometry = useMemo(() => new THREE.BoxGeometry(1, 1, 1), []);
-  const frameMaterial = useMemo(
-    () =>
-      new THREE.MeshStandardMaterial({
-        color: "#241810",
-        roughness: 0.55,
-        metalness: 0.1,
-      }),
-    [],
-  );
   const plaqueGeometry = useMemo(
     () => new THREE.BoxGeometry(PLAQUE_W, PLAQUE_H, PLAQUE_DEPTH),
-    [],
-  );
-  const plaqueMaterial = useMemo(
-    () =>
-      new THREE.MeshStandardMaterial({
-        color: "#f4ecd8",
-        emissive: new THREE.Color("#2a1e10"),
-        emissiveIntensity: 0.05,
-        roughness: 0.7,
-        metalness: 0,
-      }),
     [],
   );
   useEffect(() => {
     return () => {
       frameGeometry.dispose();
-      frameMaterial.dispose();
       plaqueGeometry.dispose();
-      plaqueMaterial.dispose();
     };
-  }, [frameGeometry, frameMaterial, plaqueGeometry, plaqueMaterial]);
+  }, [frameGeometry, plaqueGeometry]);
 
   // Rebuild the frame instance buffer whenever the visible window
   // shifts (every room transition: the render window slides and
@@ -2833,7 +2902,7 @@ function FurnitureInstances({
       )}
     </>
   );
-}
+});
 
 // =============================================================
 // Accent light pool — N pointLights that never unmount; their
@@ -2852,7 +2921,7 @@ function FurnitureInstances({
  */
 const ACCENT_LIGHT_POOL_SIZE = MAX_PER_ROOM_SMALL;
 
-function AccentLightPool({
+const AccentLightPool = memo(function AccentLightPool({
   layouts,
   activeRoom,
 }: {
@@ -2868,6 +2937,12 @@ function AccentLightPool({
         }
       | { on: false }
     > = [];
+    // One Vector3/Euler for the whole loop — reset per iteration with
+    // .set(). Fresh allocations per painting would be ~96 short-lived
+    // objects on every room change (48 small-packed works × 2), just
+    // enough to show up as a GC spike during door crossings.
+    const localOffset = new THREE.Vector3();
+    const euler = new THREE.Euler();
     if (active) {
       for (const p of active.placements.slice(0, ACCENT_LIGHT_POOL_SIZE)) {
         // Same sizing path as the Painting / frame — keeps accent
@@ -2877,12 +2952,8 @@ function AccentLightPool({
         // Local offset inside the painting's group: slightly in front
         // and just below centre, same as the previous per-Painting
         // accent-light position.
-        const localOffset = new THREE.Vector3(0, 0.2, 1.1);
-        const euler = new THREE.Euler(
-          p.rotation[0],
-          p.rotation[1],
-          p.rotation[2],
-        );
+        localOffset.set(0, 0.2, 1.1);
+        euler.set(p.rotation[0], p.rotation[1], p.rotation[2]);
         localOffset.applyEuler(euler);
         out.push({
           position: [
@@ -2912,7 +2983,7 @@ function AccentLightPool({
       ))}
     </>
   );
-}
+});
 
 // =============================================================
 // Preloader — warms the texture cache for rooms just beyond the render
