@@ -106,6 +106,24 @@ export function GalleryDungeon({ artworks }: Props) {
           floor={currentFloor}
           activeRoomIdx={activeRoomIdx}
         />
+        {/* Adjacent floors: mount their stairwell rooms only so the
+            stair leading up/down has visual continuity into the next
+            floor (no painted void overhead or underfoot). Cheap —
+            stairwells hold no paintings. */}
+        {currentFloorIdx > 0 && (
+          <FloorScene
+            floor={layout.floors[currentFloorIdx - 1]}
+            activeRoomIdx={-1}
+            showOnly="stairwell"
+          />
+        )}
+        {currentFloorIdx < layout.floors.length - 1 && (
+          <FloorScene
+            floor={layout.floors[currentFloorIdx + 1]}
+            activeRoomIdx={-1}
+            showOnly="stairwell"
+          />
+        )}
 
         <Player
           enabled={hasStarted}
@@ -169,30 +187,38 @@ export function GalleryDungeon({ artworks }: Props) {
 function FloorScene({
   floor,
   activeRoomIdx,
+  showOnly,
 }: {
   floor: FloorLayout;
   activeRoomIdx: number;
+  /** "stairwell" keeps only the stairwell room and its stair geometry —
+   *  used for adjacent floors so the stair has visual continuity
+   *  without mounting every room + painting. */
+  showOnly?: "stairwell";
 }) {
+  const rooms =
+    showOnly === "stairwell"
+      ? floor.rooms.filter((r) => r.isStairwell)
+      : floor.rooms;
+  const hallways = showOnly === "stairwell" ? [] : floor.hallways;
+  // Stair geometry only mounts once per Staircase (from the lower
+  // floor's stairsOut). Skipping stairsIn here avoids double-rendering
+  // the same stair on the upper floor — the geometry is the same
+  // object either way.
+  const stairs = floor.stairsOut;
   return (
     <group>
-      {floor.rooms.map((room, i) => (
+      {rooms.map((room, i) => (
         <RoomGeometry
           key={room.id}
           room={room}
           isActive={i === activeRoomIdx}
         />
       ))}
-      {floor.hallways.map((hw) => (
+      {hallways.map((hw) => (
         <HallwayRenderer key={hw.id} hallway={hw} floor={floor} />
       ))}
-      {/* Stair geometry — outbound rises from this floor up, inbound
-          rises from below into this floor. Both sets are visible when
-          the stairwell room is on-screen because the stair room has
-          no ceiling or mid-run floor. */}
-      {floor.stairsOut.map((s) => (
-        <StaircaseRenderer key={s.id} staircase={s} />
-      ))}
-      {floor.stairsIn.map((s) => (
+      {stairs.map((s) => (
         <StaircaseRenderer key={s.id} staircase={s} />
       ))}
     </group>
