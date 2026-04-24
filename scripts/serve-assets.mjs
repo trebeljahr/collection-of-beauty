@@ -45,17 +45,32 @@ function safeResolve(reqPath) {
   return absolute;
 }
 
+// The 3D gallery fetches textures with `fetch()` so it can pipe them
+// through createImageBitmap; cross-origin fetches require an explicit
+// ACAO header even for same-host different-port requests. Mirror what
+// a typical CDN (S3/CloudFront) returns: allow any origin to GET.
+const CORS_HEADERS = /** @type {const} */ ({
+  "Access-Control-Allow-Origin": "*",
+  "Access-Control-Allow-Methods": "GET, HEAD",
+  "Access-Control-Max-Age": "86400",
+});
+
 const server = http.createServer(async (req, res) => {
   try {
+    if (req.method === "OPTIONS") {
+      res.writeHead(204, CORS_HEADERS);
+      res.end();
+      return;
+    }
     if (req.method !== "GET" && req.method !== "HEAD") {
-      res.writeHead(405, { Allow: "GET, HEAD" });
+      res.writeHead(405, { Allow: "GET, HEAD", ...CORS_HEADERS });
       res.end();
       return;
     }
     const url = req.url ?? "/";
     const path = safeResolve(url.split("?")[0]);
     if (!path) {
-      res.writeHead(403);
+      res.writeHead(403, CORS_HEADERS);
       res.end("forbidden");
       return;
     }
@@ -65,7 +80,7 @@ const server = http.createServer(async (req, res) => {
       stats = await stat(path);
       if (!stats.isFile()) throw new Error("not a file");
     } catch {
-      res.writeHead(404);
+      res.writeHead(404, CORS_HEADERS);
       res.end("not found");
       return;
     }
@@ -95,6 +110,7 @@ const server = http.createServer(async (req, res) => {
           "Content-Range": `bytes ${start}-${end}/${stats.size}`,
           "Accept-Ranges": "bytes",
           "Cache-Control": "public, max-age=31536000, immutable",
+          ...CORS_HEADERS,
         });
         if (req.method === "HEAD") return res.end();
         createReadStream(path, { start, end }).pipe(res);
@@ -108,13 +124,14 @@ const server = http.createServer(async (req, res) => {
       "Accept-Ranges": "bytes",
       "Cache-Control": "public, max-age=31536000, immutable",
       "Last-Modified": stats.mtime.toUTCString(),
+      ...CORS_HEADERS,
     });
     if (req.method === "HEAD") return res.end();
     createReadStream(path).pipe(res);
   } catch (err) {
     console.error("[assets] request error:", err);
     if (!res.headersSent) {
-      res.writeHead(500);
+      res.writeHead(500, CORS_HEADERS);
       res.end("server error");
     }
   }

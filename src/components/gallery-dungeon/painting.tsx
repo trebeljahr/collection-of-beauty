@@ -22,7 +22,7 @@ import { useCachedTexture } from "./texture-cache";
  */
 export function Painting({ placement }: { placement: Placement }) {
   const { artwork, position, rotation, widthM, heightM } = placement;
-  const url = variantUrl(artwork.objectKey, 960, "webp");
+  const url = variantUrl(artwork.objectKey, 960, "avif");
 
   const frameDepth = 0.05;
   const frameInset = 0.03;
