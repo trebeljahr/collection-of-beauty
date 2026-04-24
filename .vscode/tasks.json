@@ -1,0 +1,133 @@
+{
+  "version": "2.0.0",
+  "tasks": [
+    {
+      "label": "build:data",
+      "type": "shell",
+      "command": "pnpm build:data",
+      "problemMatcher": []
+    },
+    {
+      "label": "assets:serve",
+      "type": "shell",
+      "command": "pnpm assets:serve",
+      "problemMatcher": []
+    },
+    {
+      "label": "assets:docker:up",
+      "type": "shell",
+      "command": "pnpm assets:docker:up",
+      "problemMatcher": []
+    },
+    {
+      "label": "assets:docker:down",
+      "type": "shell",
+      "command": "pnpm assets:docker:down",
+      "problemMatcher": []
+    },
+    {
+      "label": "assets:docker:logs",
+      "type": "shell",
+      "command": "pnpm assets:docker:logs",
+      "problemMatcher": []
+    },
+    {
+      "label": "dev",
+      "type": "shell",
+      "command": "pnpm dev",
+      "problemMatcher": [],
+      "isBackground": true,
+      "presentation": {
+        "reveal": "always",
+        "panel": "dedicated"
+      }
+    },
+    {
+      "label": "build",
+      "type": "shell",
+      "command": "pnpm build",
+      "problemMatcher": [],
+      "group": {
+        "kind": "build",
+        "isDefault": true
+      }
+    },
+    {
+      "label": "start",
+      "type": "shell",
+      "command": "pnpm start",
+      "problemMatcher": [],
+      "isBackground": true,
+      "presentation": {
+        "reveal": "always",
+        "panel": "dedicated"
+      }
+    },
+    {
+      "label": "typecheck",
+      "type": "shell",
+      "command": "pnpm typecheck",
+      "problemMatcher": []
+    },
+    {
+      "label": "email:dev",
+      "type": "shell",
+      "command": "pnpm email:dev",
+      "problemMatcher": []
+    },
+    {
+      "label": "scrape:fetch",
+      "type": "shell",
+      "command": "pnpm scrape:fetch",
+      "problemMatcher": []
+    },
+    {
+      "label": "scrape:resolve",
+      "type": "shell",
+      "command": "pnpm scrape:resolve",
+      "problemMatcher": []
+    },
+    {
+      "label": "scrape:classify",
+      "type": "shell",
+      "command": "pnpm scrape:classify",
+      "problemMatcher": []
+    },
+    {
+      "label": "download:birds",
+      "type": "shell",
+      "command": "pnpm download:birds",
+      "problemMatcher": []
+    },
+    {
+      "label": "download:kunstformen",
+      "type": "shell",
+      "command": "pnpm download:kunstformen",
+      "problemMatcher": []
+    },
+    {
+      "label": "shrink",
+      "type": "shell",
+      "command": "pnpm shrink",
+      "problemMatcher": []
+    },
+    {
+      "label": "format",
+      "type": "shell",
+      "command": "pnpm format",
+      "problemMatcher": []
+    },
+    {
+      "label": "lint",
+      "type": "shell",
+      "command": "pnpm lint",
+      "problemMatcher": []
+    },
+    {
+      "label": "check",
+      "type": "shell",
+      "command": "pnpm check",
+      "problemMatcher": []
+    }
+  ]
+}
