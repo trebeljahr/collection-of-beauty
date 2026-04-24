@@ -11,8 +11,8 @@
 // wall/floor/ceiling mesh, which was the single biggest contributor to
 // GC pressure in the corridor gallery (50+ paintings × 4 walls each).
 
-import * as THREE from "three";
 import type { Palette } from "@/lib/gallery-eras";
+import * as THREE from "three";
 
 export type PaletteMaterials = {
   wall: THREE.MeshStandardMaterial;

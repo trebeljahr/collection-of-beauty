@@ -23,40 +23,53 @@ const rules = [
     name: "christies_hgk_2013_auction",
     test: (f) => /^2013_HGK_/.test(f),
     apply: () => ({
-      guessed_source: "Christie's auction lot image (Hong Kong 2013, sale 3211 — 'Fine Chinese Modern Paintings')",
-      guessed_artists: "20th-century Chinese painters (Huang Binhong, Zhang Daqian, Ya Ming, Song Wenzhi, Wu Changshuo, Pu Ru, etc.) — lot description embedded in filename",
+      guessed_source:
+        "Christie's auction lot image (Hong Kong 2013, sale 3211 — 'Fine Chinese Modern Paintings')",
+      guessed_artists:
+        "20th-century Chinese painters (Huang Binhong, Zhang Daqian, Ya Ming, Song Wenzhi, Wu Changshuo, Pu Ru, etc.) — lot description embedded in filename",
       copyright: {
         copyrighted: true,
-        license: "Underlying works mostly still under copyright (artists died after 1930); auction-house photography carries its own rights.",
-        notes: "Treat as copyrighted. See https://www.christies.com/en/auction/fine-chinese-modern-paintings-24302/",
+        license:
+          "Underlying works mostly still under copyright (artists died after 1930); auction-house photography carries its own rights.",
+        notes:
+          "Treat as copyrighted. See https://www.christies.com/en/auction/fine-chinese-modern-paintings-24302/",
       },
       needs_review: false,
     }),
   },
   {
     name: "escher",
-    test: (f) => /escher|Escher|metamorphose|Metamorphosis|Belvedere|Relativity|Waterfall\.|Drawing_Hands|Hand_with_Reflecting|Three_Spheres|Day_and_Night|Sky_and_Water|Reptiles|Castrovalva|Bonifacio|Bond_of_Union|Fish[_ ]in[_ ]Baarn|Still_Life_and_Street|House_of_Stairs|Other_World|Snakes\.|Ascending_and_Descending|Convex_and_Concave|M%C3%B6bius|Mobius/i.test(f),
+    test: (f) =>
+      /escher|Escher|metamorphose|Metamorphosis|Belvedere|Relativity|Waterfall\.|Drawing_Hands|Hand_with_Reflecting|Three_Spheres|Day_and_Night|Sky_and_Water|Reptiles|Castrovalva|Bonifacio|Bond_of_Union|Fish[_ ]in[_ ]Baarn|Still_Life_and_Street|House_of_Stairs|Other_World|Snakes\.|Ascending_and_Descending|Convex_and_Concave|M%C3%B6bius|Mobius/i.test(
+        f,
+      ),
     apply: () => ({
-      guessed_source: "Escher in Het Paleis museum / Wikimedia en.wiki fair-use / Escher Foundation",
+      guessed_source:
+        "Escher in Het Paleis museum / Wikimedia en.wiki fair-use / Escher Foundation",
       guessed_artists: "M. C. Escher (1898–1972)",
       copyright: {
         copyrighted: true,
         license: "All rights reserved — The M.C. Escher Company B.V.",
-        notes: "Escher works enter public domain in most jurisdictions 2043 (70 years post-mortem). Reuse requires permission.",
+        notes:
+          "Escher works enter public domain in most jurisdictions 2043 (70 years post-mortem). Reuse requires permission.",
       },
       needs_review: false,
     }),
   },
   {
     name: "dali",
-    test: (f) => /DaliG|Dal%C3%AD|Dali[_-]|[-_]Dali\.|Dal%C3%AD|The[_ ]Accommodations|Persistence[_ ]of[_ ]Memory|persistence_20of_20memory|Apparatus_and_Hand|Apparition_of_Face|Enigma[_ ]of[_ ]Hitler|First[_ ]Days[_ ]of[_ ]Spring|GreatMasturbator|Salvador[-_ ]Dali/i.test(f),
+    test: (f) =>
+      /DaliG|Dal%C3%AD|Dali[_-]|[-_]Dali\.|Dal%C3%AD|The[_ ]Accommodations|Persistence[_ ]of[_ ]Memory|persistence_20of_20memory|Apparatus_and_Hand|Apparition_of_Face|Enigma[_ ]of[_ ]Hitler|First[_ ]Days[_ ]of[_ ]Spring|GreatMasturbator|Salvador[-_ ]Dali/i.test(
+        f,
+      ),
     apply: () => ({
       guessed_source: "Wikimedia en.wiki fair-use or external art-reference site",
       guessed_artists: "Salvador Dalí (1904–1989)",
       copyright: {
         copyrighted: true,
         license: "All rights reserved — Fundació Gala-Salvador Dalí / VEGAP",
-        notes: "Dalí works remain under copyright until ~2060 in Spain (80 years post-mortem for authors who died before 1987).",
+        notes:
+          "Dalí works remain under copyright until ~2060 in Spain (80 years post-mortem for authors who died before 1987).",
       },
       needs_review: false,
     }),
@@ -70,7 +83,8 @@ const rules = [
       copyright: {
         copyrighted: true,
         license: "All rights reserved — Edward Gorey Charitable Trust",
-        notes: "Copyrighted until at least 2070 in the US (95 years from publication for most works).",
+        notes:
+          "Copyrighted until at least 2070 in the US (95 years from publication for most works).",
       },
       needs_review: false,
     }),
@@ -111,11 +125,18 @@ const rules = [
   },
   {
     name: "ernie_barnes",
-    test: (f) => /[Ee]rnie[_ -]?[Bb]arnes|Sugar[_+ ]Shack|High[_+ ]Aspirations|Tunesmith|The[_+ ]Rhythmic[_+ ]Gymnast|head[_+ ]over[_+ ]heels|Springboard-Ernie|His[_+ ]Effort/i.test(f),
+    test: (f) =>
+      /[Ee]rnie[_ -]?[Bb]arnes|Sugar[_+ ]Shack|High[_+ ]Aspirations|Tunesmith|The[_+ ]Rhythmic[_+ ]Gymnast|head[_+ ]over[_+ ]heels|Springboard-Ernie|His[_+ ]Effort/i.test(
+        f,
+      ),
     apply: () => ({
       guessed_source: "erniebarnes.com",
       guessed_artists: "Ernie Barnes (1938–2009)",
-      copyright: { copyrighted: true, license: "All rights reserved — The Ernie Barnes Family Trust", notes: null },
+      copyright: {
+        copyrighted: true,
+        license: "All rights reserved — The Ernie Barnes Family Trust",
+        notes: null,
+      },
       needs_review: false,
     }),
   },
@@ -123,9 +144,14 @@ const rules = [
     name: "durer",
     test: (f) => /^d[uü]rer[\s_]|^Dürer|Albrecht[_ ]D[uü]rer/i.test(f),
     apply: () => ({
-      guessed_source: "Wikimedia Commons (file renamed locally — filename starts with lowercase 'dürer' so the API lookup missed it)",
+      guessed_source:
+        "Wikimedia Commons (file renamed locally — filename starts with lowercase 'dürer' so the API lookup missed it)",
       guessed_artists: "Albrecht Dürer (1471–1528)",
-      copyright: { copyrighted: false, license: "Public domain", notes: "Author died 1528. Public domain worldwide." },
+      copyright: {
+        copyrighted: false,
+        license: "Public domain",
+        notes: "Author died 1528. Public domain worldwide.",
+      },
       needs_review: false,
     }),
   },
@@ -133,9 +159,14 @@ const rules = [
     name: "julie_de_graag",
     test: (f) => /Julie[_ ]de[_ ]Graag/i.test(f),
     apply: () => ({
-      guessed_source: "Wikimedia Commons / Rijksmuseum (file renamed locally, spaces instead of underscores)",
+      guessed_source:
+        "Wikimedia Commons / Rijksmuseum (file renamed locally, spaces instead of underscores)",
       guessed_artists: "Julie de Graag (1877–1924) — Dutch graphic artist",
-      copyright: { copyrighted: false, license: "Public domain", notes: "Author died 1924. Public domain worldwide." },
+      copyright: {
+        copyrighted: false,
+        license: "Public domain",
+        notes: "Author died 1924. Public domain worldwide.",
+      },
       needs_review: false,
     }),
   },
@@ -148,7 +179,8 @@ const rules = [
       copyright: {
         copyrighted: true,
         license: "All rights reserved — Succession Picasso",
-        notes: "Picasso works enter public domain in 2044 (70 years post-mortem). Fully copyrighted.",
+        notes:
+          "Picasso works enter public domain in 2044 (70 years post-mortem). Fully copyrighted.",
       },
       needs_review: false,
     }),
@@ -173,7 +205,11 @@ const rules = [
     apply: () => ({
       guessed_source: "Wikimedia en.wiki fair-use or museum reproduction (MoMA)",
       guessed_artists: "Andrew Wyeth (1917–2009)",
-      copyright: { copyrighted: true, license: "All rights reserved — Andrew Wyeth estate", notes: null },
+      copyright: {
+        copyrighted: true,
+        license: "All rights reserved — Andrew Wyeth estate",
+        notes: null,
+      },
       needs_review: false,
     }),
   },
@@ -200,17 +236,23 @@ const rules = [
       copyright: {
         copyrighted: false,
         license: "Public domain in most jurisdictions (70y PMA reached 2018)",
-        notes: "Still under URAA restoration in the US for some works. Generally safe as PD elsewhere.",
+        notes:
+          "Still under URAA restoration in the US for some works. Generally safe as PD elsewhere.",
       },
       needs_review: false,
     }),
   },
   {
     name: "hiroshige_hokusai_shotei_yoshida_spaced",
-    test: (f) => /^Hiroshige |^Hokusai |Hiroshi[_ ]Yoshida|Takahashi[_ ]Sh[oō]tei|Takahashi[_ ]Hiroaki|Takahashi_nude|Keisai[_ ]Eisen|Nishikawa[_ ]Sukenobu|Snow_on_Ayase|Bridge_over_waterfall|^Ariko[_ ]/i.test(f),
+    test: (f) =>
+      /^Hiroshige |^Hokusai |Hiroshi[_ ]Yoshida|Takahashi[_ ]Sh[oō]tei|Takahashi[_ ]Hiroaki|Takahashi_nude|Keisai[_ ]Eisen|Nishikawa[_ ]Sukenobu|Snow_on_Ayase|Bridge_over_waterfall|^Ariko[_ ]/i.test(
+        f,
+      ),
     apply: () => ({
-      guessed_source: "Wikimedia Commons — file uses spaces or variant naming not found directly; underlying work is a known Japanese woodblock print",
-      guessed_artists: "Japanese woodblock/shin-hanga artists: Hiroshige (1797–1858), Hokusai (1760–1849), Takahashi Shōtei / Hiroaki (1871–1945), Hiroshi Yoshida (1876–1950), Keisai Eisen (1790–1848), Nishikawa Sukenobu (1671–1750)",
+      guessed_source:
+        "Wikimedia Commons — file uses spaces or variant naming not found directly; underlying work is a known Japanese woodblock print",
+      guessed_artists:
+        "Japanese woodblock/shin-hanga artists: Hiroshige (1797–1858), Hokusai (1760–1849), Takahashi Shōtei / Hiroaki (1871–1945), Hiroshi Yoshida (1876–1950), Keisai Eisen (1790–1848), Nishikawa Sukenobu (1671–1750)",
       copyright: {
         copyrighted: false,
         license: "Public domain",
@@ -224,10 +266,12 @@ const rules = [
     test: (f) => /huang[_ -]binhong|zhang[_ ]shanzi/i.test(f),
     apply: () => ({
       guessed_source: "Auction house (bonhams.com / christies.com)",
-      guessed_artists: "Huang Binhong (1865–1955) or Zhang Shanzi (1882–1940) — 20th-century Chinese painters",
+      guessed_artists:
+        "Huang Binhong (1865–1955) or Zhang Shanzi (1882–1940) — 20th-century Chinese painters",
       copyright: {
         copyrighted: true,
-        license: "Likely still under copyright in most jurisdictions (China: 50y PMA from end of death year — Huang PD in China 2006, Zhang Shanzi PD in China 1991; US: depends on pre-1978 publication status)",
+        license:
+          "Likely still under copyright in most jurisdictions (China: 50y PMA from end of death year — Huang PD in China 2006, Zhang Shanzi PD in China 1991; US: depends on pre-1978 publication status)",
         notes: "Treat as copyrighted to be safe.",
       },
       needs_review: false,
@@ -236,14 +280,18 @@ const rules = [
   {
     name: "famous_pd_old_master_renamed",
     test: (f) =>
-      /Carl[_ ]Spitzweg|Carracci|Constable|Baldung|East[_ ]Cowes[_ ]Castle|Hieronym[ou]us[_ ]Bosch|Rembrandt|Van[_ ]Gogh|van[_ ]Gogh|Vincent[_ ]Van[_ ]Gogh|Courbet|Turner|Plompton|Pope's[_ ]Villa|Monet|Manet|Gainsborough|Mucha|Much[_ ]Slavnost|Rubens|Gauguin|van[_ ]Eyck|Chancellor[_ ]Rolin|Life-Boat[_ ]and[_ ]Manby|Manby[_ ]Apparatus/i.test(f),
+      /Carl[_ ]Spitzweg|Carracci|Constable|Baldung|East[_ ]Cowes[_ ]Castle|Hieronym[ou]us[_ ]Bosch|Rembrandt|Van[_ ]Gogh|van[_ ]Gogh|Vincent[_ ]Van[_ ]Gogh|Courbet|Turner|Plompton|Pope's[_ ]Villa|Monet|Manet|Gainsborough|Mucha|Much[_ ]Slavnost|Rubens|Gauguin|van[_ ]Eyck|Chancellor[_ ]Rolin|Life-Boat[_ ]and[_ ]Manby|Manby[_ ]Apparatus/i.test(
+        f,
+      ),
     apply: () => ({
-      guessed_source: "Wikimedia Commons (file renamed locally — cannot auto-resolve but the title matches a famous pre-1930 Old-Master or Impressionist work)",
+      guessed_source:
+        "Wikimedia Commons (file renamed locally — cannot auto-resolve but the title matches a famous pre-1930 Old-Master or Impressionist work)",
       guessed_artists: "Known pre-1930 European masters (artist derivable from filename)",
       copyright: {
         copyrighted: false,
         license: "Public domain",
-        notes: "All implied artists died before 1955 so underlying works are public domain worldwide. Verify by manual Wikimedia search if an authoritative source URL is needed.",
+        notes:
+          "All implied artists died before 1955 so underlying works are public domain worldwide. Verify by manual Wikimedia search if an authoritative source URL is needed.",
       },
       needs_review: false,
     }),
@@ -256,8 +304,10 @@ const rules = [
       guessed_artists: "Jean Metzinger (1883–1956)",
       copyright: {
         copyrighted: false,
-        license: "Public domain in life+70 jurisdictions (since 2027 — borderline, check for specific works)",
-        notes: "Public domain in most jurisdictions reached 2027-01-01 under 70y PMA; previously still under copyright. Today (2026) it is borderline — some works already PD via earlier publication, others not until 2027.",
+        license:
+          "Public domain in life+70 jurisdictions (since 2027 — borderline, check for specific works)",
+        notes:
+          "Public domain in most jurisdictions reached 2027-01-01 under 70y PMA; previously still under copyright. Today (2026) it is borderline — some works already PD via earlier publication, others not until 2027.",
       },
       needs_review: true,
     }),
@@ -271,7 +321,8 @@ const rules = [
       copyright: {
         copyrighted: null,
         license: null,
-        notes: "Cannot be determined from filename alone. The photo-id in the filename can be looked up on Flickr: https://www.flickr.com/photo.gne?id=<photo-id>. Check the photo's license there.",
+        notes:
+          "Cannot be determined from filename alone. The photo-id in the filename can be looked up on Flickr: https://www.flickr.com/photo.gne?id=<photo-id>. Check the photo's license there.",
       },
       needs_review: true,
     }),
@@ -280,9 +331,14 @@ const rules = [
     name: "uuid_filename",
     test: (f) => /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}\./i.test(f),
     apply: () => ({
-      guessed_source: "Unknown — filename is a bare UUID (possibly a CMS upload hash, sanity.io/cdn CDN, etc.)",
+      guessed_source:
+        "Unknown — filename is a bare UUID (possibly a CMS upload hash, sanity.io/cdn CDN, etc.)",
       guessed_artists: null,
-      copyright: { copyrighted: null, license: null, notes: "Impossible to identify without inspecting the image content." },
+      copyright: {
+        copyrighted: null,
+        license: null,
+        notes: "Impossible to identify without inspecting the image content.",
+      },
       needs_review: true,
     }),
   },
@@ -292,7 +348,11 @@ const rules = [
     apply: () => ({
       guessed_source: "Invaluable / LiveAuctioneers / Sotheby's auction lot image",
       guessed_artists: null,
-      copyright: { copyrighted: null, license: null, notes: "Auction lot numeric ID — underlying work and copyright depend on the specific lot." },
+      copyright: {
+        copyrighted: null,
+        license: null,
+        notes: "Auction lot numeric ID — underlying work and copyright depend on the specific lot.",
+      },
       needs_review: true,
     }),
   },
@@ -300,9 +360,14 @@ const rules = [
     name: "webp_unknown",
     test: (f) => /\.webp(\.png)?$/i.test(f),
     apply: () => ({
-      guessed_source: "Unknown (.webp files rarely come from Wikimedia; likely downloaded from a museum site, blog, or CDN)",
+      guessed_source:
+        "Unknown (.webp files rarely come from Wikimedia; likely downloaded from a museum site, blog, or CDN)",
       guessed_artists: null,
-      copyright: { copyrighted: null, license: null, notes: "Inspect the filename for artist clues; treat as needs_review." },
+      copyright: {
+        copyrighted: null,
+        license: null,
+        notes: "Inspect the filename for artist clues; treat as needs_review.",
+      },
       needs_review: true,
     }),
   },
@@ -312,7 +377,11 @@ const rules = [
     apply: () => ({
       guessed_source: "Codex Seraphinianus (Luigi Serafini, 1981)",
       guessed_artists: "Luigi Serafini (b. 1949)",
-      copyright: { copyrighted: true, license: "All rights reserved — Rizzoli / Luigi Serafini", notes: null },
+      copyright: {
+        copyrighted: true,
+        license: "All rights reserved — Rizzoli / Luigi Serafini",
+        notes: null,
+      },
       needs_review: false,
     }),
   },
@@ -321,9 +390,14 @@ const rules = [
 // Default fallthrough: everything else becomes "unknown, needs manual review"
 function classifyFallback(filename) {
   return {
-    guessed_source: "Unknown — not found on Wikimedia Commons by filename. Possibly renamed, from another site, or has a typo.",
+    guessed_source:
+      "Unknown — not found on Wikimedia Commons by filename. Possibly renamed, from another site, or has a typo.",
     guessed_artists: null,
-    copyright: { copyrighted: null, license: null, notes: "Needs manual review — compare against bookmarks.txt." },
+    copyright: {
+      copyrighted: null,
+      license: null,
+      notes: "Needs manual review — compare against bookmarks.txt.",
+    },
     needs_review: true,
   };
 }

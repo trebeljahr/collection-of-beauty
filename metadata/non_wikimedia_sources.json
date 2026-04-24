@@ -12,8 +12,13 @@
       },
       "file_hints": "Filenames often contain PIA####, GSFC_########, STScI-, carina_nebula, or 'orig' suffix.",
       "examples_from_bookmarks": [
-        "PIA03606", "PIA13014", "PIA04200", "PIA15985", "PIA23645",
-        "GSFC_20171208_Archive_e002159", "carina_nebula",
+        "PIA03606",
+        "PIA13014",
+        "PIA04200",
+        "PIA15985",
+        "PIA23645",
+        "GSFC_20171208_Archive_e002159",
+        "carina_nebula",
         "STScI-01GGF8H15VZ09MET9HFBRQX4S3 (JWST Pillars of Creation)"
       ]
     },

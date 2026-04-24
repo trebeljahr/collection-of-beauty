@@ -1,5 +1,5 @@
-import type { MetadataRoute } from "next";
 import { SITE_URL } from "@/lib/seo";
+import type { MetadataRoute } from "next";
 
 /**
  * Served at /robots.txt. Opens the whole site to crawlers except the

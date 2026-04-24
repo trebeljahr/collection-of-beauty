@@ -5,8 +5,8 @@
 import type { Artwork } from "@/lib/data";
 import type { Band } from "./types";
 
-export const SMALL_MAX_CM = 60;   // max dimension < this → "small"
-export const LARGE_MIN_CM = 150;  // max dimension > this → "large"
+export const SMALL_MAX_CM = 60; // max dimension < this → "small"
+export const LARGE_MIN_CM = 150; // max dimension > this → "large"
 
 export function artworkBand(artwork: Artwork): Band {
   const dims = artwork.realDimensions;

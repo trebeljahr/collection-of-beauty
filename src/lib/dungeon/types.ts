@@ -3,11 +3,11 @@
 // Original algorithm by vazgriz, ported to TypeScript for web use by Rico.
 
 export enum CellType3D {
-  None,
-  Room,
-  Hallway,
-  RoomCenterAxis,
-  Stairs,
+  None = 0,
+  Room = 1,
+  Hallway = 2,
+  RoomCenterAxis = 3,
+  Stairs = 4,
 }
 
 export class Room3D {
@@ -38,7 +38,11 @@ export class Room3D {
 }
 
 export class Vector3 {
-  constructor(public x: number, public y: number, public z: number) {}
+  constructor(
+    public x: number,
+    public y: number,
+    public z: number,
+  ) {}
 
   static zero(): Vector3 {
     return new Vector3(0, 0, 0);
@@ -87,7 +91,11 @@ export class Vector3 {
 }
 
 export class Vector3Int {
-  constructor(public x: number, public y: number, public z: number) {}
+  constructor(
+    public x: number,
+    public y: number,
+    public z: number,
+  ) {}
 
   static zero(): Vector3Int {
     return new Vector3Int(0, 0, 0);
@@ -138,7 +146,10 @@ export class Vector3Int {
 }
 
 export class BoundsInt3D {
-  constructor(public position: Vector3Int, public size: Vector3Int) {}
+  constructor(
+    public position: Vector3Int,
+    public size: Vector3Int,
+  ) {}
 
   get xMin(): number {
     return this.position.x;

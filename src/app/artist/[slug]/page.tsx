@@ -1,18 +1,10 @@
+import { ArtworkGallery } from "@/components/artwork-gallery";
+import { Badge } from "@/components/ui/badge";
+import { getArtist, getArtworksByArtist, getConnectionsFor } from "@/lib/data";
+import { artistJsonLd, jsonLdScriptProps, ogImagesForArtist } from "@/lib/seo";
 import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import {
-  getArtist,
-  getArtworksByArtist,
-  getConnectionsFor,
-} from "@/lib/data";
-import { Badge } from "@/components/ui/badge";
-import { ArtworkGallery } from "@/components/artwork-gallery";
-import {
-  artistJsonLd,
-  jsonLdScriptProps,
-  ogImagesForArtist,
-} from "@/lib/seo";
 
 type Params = { slug: string };
 
@@ -70,9 +62,7 @@ export default async function ArtistPage({
   const artist = getArtist(slug);
   if (!artist) notFound();
 
-  const works = getArtworksByArtist(slug).sort(
-    (a, b) => (a.year ?? 99999) - (b.year ?? 99999),
-  );
+  const works = getArtworksByArtist(slug).sort((a, b) => (a.year ?? 99999) - (b.year ?? 99999));
   const connections = getConnectionsFor(slug);
   const connected = connections
     .map((c) => {
@@ -89,10 +79,7 @@ export default async function ArtistPage({
   return (
     <div className="mx-auto max-w-6xl px-4 py-8">
       <script {...jsonLdScriptProps(artistJsonLd(artist))} />
-      <Link
-        href="/artists"
-        className="text-sm text-[var(--muted-foreground)] hover:underline"
-      >
+      <Link href="/artists" className="text-sm text-[var(--muted-foreground)] hover:underline">
         ← All artists
       </Link>
 
@@ -106,9 +93,7 @@ export default async function ArtistPage({
             </span>
           )}
           {artist.nationality && <span>· {artist.nationality}</span>}
-          {artist.movement && (
-            <Badge variant="secondary">{artist.movement}</Badge>
-          )}
+          {artist.movement && <Badge variant="secondary">{artist.movement}</Badge>}
           <span>
             · {artist.count} work{artist.count === 1 ? "" : "s"}
           </span>

@@ -6,12 +6,20 @@
 // that. Doors ARE computed so M2 can render walls with openings.
 
 import type { Artwork } from "@/lib/data";
-import { ERAS, type Era, type EraId, assignEra } from "@/lib/gallery-eras";
-import { slugify } from "@/lib/utils";
 import { DungeonGenerator3D } from "@/lib/dungeon/generator";
 import { CellType3D, Room3D, Vector3Int } from "@/lib/dungeon/types";
+import { ERAS, type Era, type EraId, assignEra } from "@/lib/gallery-eras";
+import { slugify } from "@/lib/utils";
 import { distributePaintings } from "./place-paintings";
 
+import type {
+  Door,
+  DungeonLayout,
+  FloorLayout,
+  HallwayLayout,
+  RoomLayout,
+  Staircase,
+} from "./types";
 import {
   CELL_SIZE,
   DOOR_WIDTH,
@@ -23,14 +31,6 @@ import {
   cellCenterToWorld,
   floorY,
 } from "./world-coords";
-import type {
-  Door,
-  DungeonLayout,
-  FloorLayout,
-  HallwayLayout,
-  RoomLayout,
-  Staircase,
-} from "./types";
 
 // --- Configuration --------------------------------------------------------
 
@@ -57,9 +57,7 @@ const ROOM_MAX_CELLS = 8;
  *  SPIRAL_ROOM_CELLS × SPIRAL_ROOM_CELLS room at the geometric centre
  *  of the grid, so the spiral tower stacks vertically across all
  *  floors and becomes the building's axis. */
-const STAIR_MIN_CELLS = Math.floor(
-  FLOOR_GRID_SIZE / 2 - (SPIRAL_ROOM_CELLS - 1) / 2,
-);
+const STAIR_MIN_CELLS = Math.floor(FLOOR_GRID_SIZE / 2 - (SPIRAL_ROOM_CELLS - 1) / 2);
 const STAIR_MAX_CELLS = STAIR_MIN_CELLS + SPIRAL_ROOM_CELLS - 1;
 const STAIR_LABEL = "Stairwell";
 
@@ -105,11 +103,7 @@ export function layoutDungeon(allArtworks: Artwork[]): DungeonLayout {
         anchor.worldRect.y,
         (anchor.worldRect.zMin + anchor.worldRect.zMax) / 2,
       ]
-    : [
-        (FLOOR_GRID_SIZE * CELL_SIZE) / 2,
-        floorY(0),
-        (FLOOR_GRID_SIZE * CELL_SIZE) / 2,
-      ];
+    : [(FLOOR_GRID_SIZE * CELL_SIZE) / 2, floorY(0), (FLOOR_GRID_SIZE * CELL_SIZE) / 2];
 
   return {
     floors,
@@ -124,16 +118,12 @@ export function layoutDungeon(allArtworks: Artwork[]): DungeonLayout {
  *  rooms on both floors share the same grid cells (STAIR_MIN_CELLS..
  *  STAIR_MAX_CELLS), so the central column is vertical and each flight
  *  is one full revolution around it. */
-function buildStaircase(
-  lower: FloorLayout,
-  upper: FloorLayout,
-): Staircase | null {
+function buildStaircase(lower: FloorLayout, upper: FloorLayout): Staircase | null {
   const lowerStair = lower.rooms.find((r) => r.movement === STAIR_LABEL);
   const upperStair = upper.rooms.find((r) => r.movement === STAIR_LABEL);
   if (!lowerStair || !upperStair) return null;
 
-  const centerX =
-    ((STAIR_MIN_CELLS + STAIR_MAX_CELLS + 1) / 2) * CELL_SIZE;
+  const centerX = ((STAIR_MIN_CELLS + STAIR_MAX_CELLS + 1) / 2) * CELL_SIZE;
   const centerZ = centerX; // stair room is square and centred
 
   return {
@@ -192,9 +182,7 @@ function buildFloor(era: Era, eraArtworks: Artwork[]): FloorLayout {
   let anchorMovement = era.anchor.movement;
   const configuredHasWorks = (byMovement.get(anchorMovement)?.length ?? 0) > 0;
   if (!configuredHasWorks) {
-    const biggest = Array.from(byMovement.entries()).sort(
-      (a, b) => b[1].length - a[1].length,
-    )[0];
+    const biggest = Array.from(byMovement.entries()).sort((a, b) => b[1].length - a[1].length)[0];
     if (biggest) anchorMovement = biggest[0];
   }
 
@@ -227,18 +215,9 @@ function buildFloor(era: Era, eraArtworks: Artwork[]): FloorLayout {
   const roomMin = new Vector3Int(ROOM_MIN_CELLS, 1, ROOM_MIN_CELLS);
   const roomMax = new Vector3Int(ROOM_MAX_CELLS, 1, ROOM_MAX_CELLS);
 
-  const roomCountTarget = Math.max(
-    2,
-    Math.min(expanded.length, MAX_ROOMS_PER_FLOOR),
-  );
+  const roomCountTarget = Math.max(2, Math.min(expanded.length, MAX_ROOMS_PER_FLOOR));
 
-  const gen = new DungeonGenerator3D(
-    size,
-    roomCountTarget,
-    roomMax,
-    roomMin,
-    seed,
-  );
+  const gen = new DungeonGenerator3D(size, roomCountTarget, roomMax, roomMin, seed);
 
   // --- Anchor pre-placement ---
   const anchorArtworks = byMovement.get(anchorMovement);
@@ -249,10 +228,7 @@ function buildFloor(era: Era, eraArtworks: Artwork[]): FloorLayout {
     const az = clampAnchorLocation(spec, size, "z");
     const sizeX = Math.max(spec.minCells.x, ROOM_MIN_CELLS);
     const sizeZ = Math.max(spec.minCells.z, ROOM_MIN_CELLS);
-    anchorRoom = new Room3D(
-      new Vector3Int(ax, 0, az),
-      new Vector3Int(sizeX, 1, sizeZ),
-    );
+    anchorRoom = new Room3D(new Vector3Int(ax, 0, az), new Vector3Int(sizeX, 1, sizeZ));
     gen.addAnchorRoom(anchorRoom);
   }
 
@@ -279,11 +255,10 @@ function buildFloor(era: Era, eraArtworks: Artwork[]): FloorLayout {
   const roomQueue = [...expanded];
   // Pull the first entry for the anchor movement out of the queue so
   // we can hand it to the anchor room explicitly.
-  const anchorEntryIdx = roomQueue.findIndex((e) =>
-    e.name === anchorMovement || e.name.startsWith(`${anchorMovement} · Part `),
+  const anchorEntryIdx = roomQueue.findIndex(
+    (e) => e.name === anchorMovement || e.name.startsWith(`${anchorMovement} · Part `),
   );
-  const anchorEntry =
-    anchorEntryIdx >= 0 ? roomQueue.splice(anchorEntryIdx, 1)[0] : null;
+  const anchorEntry = anchorEntryIdx >= 0 ? roomQueue.splice(anchorEntryIdx, 1)[0] : null;
 
   const roomLayouts: RoomLayout[] = [];
   let queueIdx = 0;
@@ -334,7 +309,7 @@ function buildFloor(era: Era, eraArtworks: Artwork[]): FloorLayout {
       },
       doors: [], // computed below
       hasBench: isAnchor,
-      placements: [],  // M3 will populate
+      placements: [], // M3 will populate
       artworks,
     });
   }
@@ -353,13 +328,7 @@ function buildFloor(era: Era, eraArtworks: Artwork[]): FloorLayout {
   }
 
   for (let i = 0; i < roomLayouts.length; i++) {
-    roomLayouts[i].doors = computeDoorsForRoom(
-      roomRects[i],
-      grid,
-      size,
-      era.index,
-      cellHallway,
-    );
+    roomLayouts[i].doors = computeDoorsForRoom(roomRects[i], grid, size, era.index, cellHallway);
   }
 
   // --- Walkable mask + cell owner ---
@@ -499,9 +468,7 @@ function computeDoorsForRoom(
     if (candidates.length === 0) continue;
 
     const runs = groupContiguous(candidates);
-    const picks = runs.slice(0, 2).map((run) =>
-      run[Math.floor(run.length / 2)],
-    );
+    const picks = runs.slice(0, 2).map((run) => run[Math.floor(run.length / 2)]);
 
     for (const idx of picks) {
       let worldX: number;
@@ -608,9 +575,7 @@ function extractHallways(
 
 function describeRoom(movement: string, artworks: Artwork[]): string {
   if (artworks.length === 0) return movement;
-  const years = artworks
-    .map((a) => a.year)
-    .filter((y): y is number => y != null);
+  const years = artworks.map((a) => a.year).filter((y): y is number => y != null);
   if (years.length === 0) return `${movement} · ${artworks.length} works`;
   const min = Math.min(...years);
   const max = Math.max(...years);

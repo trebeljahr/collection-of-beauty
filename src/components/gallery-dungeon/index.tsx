@@ -1,18 +1,19 @@
 "use client";
 
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import { Canvas } from "@react-three/fiber";
-import { PointerLockControls } from "@react-three/drei";
-import * as THREE from "three";
+import { AudioControls } from "@/components/audio-controls";
+import { useAudioSettings } from "@/lib/audio-settings";
 import type { Artwork } from "@/lib/data";
 import { layoutDungeon } from "@/lib/gallery-layout/layout-dungeon";
 import type { FloorLayout } from "@/lib/gallery-layout/types";
-import { useAudioSettings } from "@/lib/audio-settings";
-import { AudioControls } from "@/components/audio-controls";
+import { PointerLockControls } from "@react-three/drei";
+import { Canvas } from "@react-three/fiber";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import * as THREE from "three";
 
-import { RoomGeometry } from "./room-geometry";
 import { HallwayRenderer } from "./hallway";
+import { Minimap, type PlayerSample } from "./minimap";
 import { Player } from "./player";
+import { RoomGeometry } from "./room-geometry";
 import { StaircaseRenderer } from "./staircase";
 import { ZoomModal } from "./zoom-modal";
 
@@ -29,9 +30,7 @@ type Props = { artworks: Artwork[] };
 export function GalleryDungeon({ artworks }: Props) {
   const layout = useMemo(() => layoutDungeon(artworks), [artworks]);
   const [hasStarted, setHasStarted] = useState(false);
-  const [currentFloorIdx, setCurrentFloorIdx] = useState(
-    layout.entry.floorIndex,
-  );
+  const [currentFloorIdx, setCurrentFloorIdx] = useState(layout.entry.floorIndex);
   const [activeRoomIdx, setActiveRoomIdx] = useState<number>(-1);
   const [zoomed, setZoomed] = useState<Artwork | null>(null);
 
@@ -52,19 +51,17 @@ export function GalleryDungeon({ artworks }: Props) {
   }, []);
 
   const currentFloor = layout.floors[currentFloorIdx];
-  const activeRoom =
-    activeRoomIdx >= 0 ? currentFloor.rooms[activeRoomIdx] : undefined;
+  const activeRoom = activeRoomIdx >= 0 ? currentFloor.rooms[activeRoomIdx] : undefined;
 
   // Spawn point driver. Default: entry on floor 0. Teleport keys
   // overwrite this to the anchor of the target floor. Stair-driven
   // floor changes set it to the *current* XZ so the player continues
   // walking where they were, with Y matched to the new floor.
-  const spawnForFloor = useRef<[number, number, number]>(
-    layout.entry.worldPosition,
-  );
-  // Player preserves its last camera XZ so we can read it when stairs
-  // trigger a floor swap.
-  const lastCameraRef = useRef<{ x: number; z: number } | null>(null);
+  const spawnForFloor = useRef<[number, number, number]>(layout.entry.worldPosition);
+  // Player preserves its last camera XZ (and yaw) so we can read it
+  // when stairs trigger a floor swap and so the minimap can follow the
+  // camera per-frame without round-tripping through React state.
+  const lastCameraRef = useRef<PlayerSample | null>(null);
 
   const teleportToFloor = useCallback(
     (idx: number) => {
@@ -127,7 +124,7 @@ export function GalleryDungeon({ artworks }: Props) {
   useEffect(() => {
     const down = (e: KeyboardEvent) => {
       if (e.code.startsWith("Digit")) {
-        const digit = parseInt(e.code.slice(5), 10);
+        const digit = Number.parseInt(e.code.slice(5), 10);
         const idx = digit - 1;
         if (Number.isInteger(idx) && idx >= 0 && idx < layout.floors.length) {
           teleportToFloor(idx);
@@ -152,15 +149,9 @@ export function GalleryDungeon({ artworks }: Props) {
       >
         <color attach="background" args={["#0a0805"]} />
         <ambientLight intensity={0.35} />
-        <hemisphereLight
-          args={["#fff3d0", "#1a120b", 0.45]}
-          position={[0, 20, 0]}
-        />
+        <hemisphereLight args={["#fff3d0", "#1a120b", 0.45]} position={[0, 20, 0]} />
 
-        <FloorScene
-          floor={currentFloor}
-          activeRoomIdx={activeRoomIdx}
-        />
+        <FloorScene floor={currentFloor} activeRoomIdx={activeRoomIdx} />
         {/* Adjacent floors: mount their stairwell rooms only so the
             stair leading up/down has visual continuity into the next
             floor (no painted void overhead or underfoot). Cheap —
@@ -186,8 +177,8 @@ export function GalleryDungeon({ artworks }: Props) {
           spawnAt={spawnForFloor.current}
           onRoomChange={setActiveRoomIdx}
           onFloorChange={handleStairFloorChange}
-          onPositionSample={(x, z) => {
-            lastCameraRef.current = { x, z };
+          onPositionSample={(x, z, yaw) => {
+            lastCameraRef.current = { x, z, yaw };
           }}
           onZoomRequest={setZoomed}
         />
@@ -199,18 +190,14 @@ export function GalleryDungeon({ artworks }: Props) {
           onClick={() => setHasStarted(true)}
           className="absolute inset-0 flex flex-col items-center justify-center bg-black/70 text-neutral-100 cursor-pointer"
         >
-          <h1 className="text-3xl font-semibold mb-2">
-            {currentFloor.era.title}
-          </h1>
+          <h1 className="text-3xl font-semibold mb-2">{currentFloor.era.title}</h1>
           <p className="text-neutral-400 text-sm mb-8 max-w-md text-center">
             {currentFloor.era.blurb}
           </p>
           <p className="text-neutral-500 text-xs">
             Click to enter · WASD / arrows to walk · Shift to run · Space to jump
           </p>
-          <p className="text-neutral-600 text-xs mt-2">
-            1–7 teleports between floors
-          </p>
+          <p className="text-neutral-600 text-xs mt-2">1–7 teleports between floors</p>
         </div>
       )}
 
@@ -222,9 +209,7 @@ export function GalleryDungeon({ artworks }: Props) {
           {activeRoom && (
             <>
               <div className="font-semibold">{activeRoom.title}</div>
-              <div className="text-xs text-neutral-400">
-                {activeRoom.description}
-              </div>
+              <div className="text-xs text-neutral-400">{activeRoom.description}</div>
             </>
           )}
         </div>
@@ -232,8 +217,8 @@ export function GalleryDungeon({ artworks }: Props) {
 
       {hasStarted && !zoomed && (
         <div className="absolute bottom-4 left-1/2 -translate-x-1/2 bg-black/50 text-neutral-300 px-3 py-1 rounded text-xs pointer-events-none">
-          1 Gothic · 2 Renaissance · 3 Baroque · 4 Enlightenment ·
-          5 Romantic · 6 Fin-de-siècle · 7 Modern · click painting to zoom
+          1 Gothic · 2 Renaissance · 3 Baroque · 4 Enlightenment · 5 Romantic · 6 Fin-de-siècle · 7
+          Modern · click painting to zoom
         </div>
       )}
 
@@ -252,8 +237,15 @@ export function GalleryDungeon({ artworks }: Props) {
 
       {/* Audio controls — shown after the start gate (mount on the
           user's first click, which is also the autoplay gate). */}
+      {hasStarted && !zoomed && <AudioControls className="top-4 right-4" />}
+
+      {/* Minimap — bottom-right. Derived entirely from the current
+          FloorLayout, so it updates automatically if the dungeon
+          generator is retuned. */}
       {hasStarted && !zoomed && (
-        <AudioControls className="top-4 right-4" />
+        <div className="absolute bottom-4 right-4 pointer-events-none">
+          <Minimap floor={currentFloor} activeRoomIdx={activeRoomIdx} playerRef={lastCameraRef} />
+        </div>
       )}
 
       {zoomed && <ZoomModal artwork={zoomed} onClose={() => setZoomed(null)} />}
@@ -285,10 +277,7 @@ function FloorScene({
    *  without mounting every room + painting. */
   showOnly?: "stairwell";
 }) {
-  const rooms =
-    showOnly === "stairwell"
-      ? floor.rooms.filter((r) => r.isStairwell)
-      : floor.rooms;
+  const rooms = showOnly === "stairwell" ? floor.rooms.filter((r) => r.isStairwell) : floor.rooms;
   const hallways = showOnly === "stairwell" ? [] : floor.hallways;
   // Stair geometry only mounts once per Staircase (from the lower
   // floor's stairsOut). Skipping stairsIn here avoids double-rendering
@@ -298,11 +287,7 @@ function FloorScene({
   return (
     <group>
       {rooms.map((room, i) => (
-        <RoomGeometry
-          key={room.id}
-          room={room}
-          isActive={i === activeRoomIdx}
-        />
+        <RoomGeometry key={room.id} room={room} isActive={i === activeRoomIdx} />
       ))}
       {hallways.map((hw) => (
         <HallwayRenderer key={hw.id} hallway={hw} floor={floor} />

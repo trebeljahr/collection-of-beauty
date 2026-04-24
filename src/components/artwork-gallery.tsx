@@ -1,7 +1,7 @@
 "use client";
 
-import { useCallback, useMemo } from "react";
 import Link from "next/link";
+import { useCallback, useMemo } from "react";
 import { RowsPhotoAlbum } from "react-photo-album";
 import InfiniteScroll from "react-photo-album/scroll";
 import "react-photo-album/rows.css";
@@ -71,16 +71,10 @@ export function ArtworkGallery({
     [photos, pageSize, initialSeed],
   );
 
-  const rowHeight =
-    targetRowHeight ??
-    ((w: number) => (w < 640 ? 160 : w < 1024 ? 220 : 260));
+  const rowHeight = targetRowHeight ?? ((w: number) => (w < 640 ? 160 : w < 1024 ? 220 : 260));
 
   if (artworks.length === 0) {
-    return (
-      <div className="py-16 text-center text-[var(--muted-foreground)]">
-        No works.
-      </div>
-    );
+    return <div className="py-16 text-center text-[var(--muted-foreground)]">No works.</div>;
   }
 
   return (
@@ -91,14 +85,10 @@ export function ArtworkGallery({
       fetchRootMargin="1200px"
       offscreenRootMargin="2400px"
       loading={
-        <div className="py-6 text-center text-sm text-[var(--muted-foreground)]">
-          Loading more…
-        </div>
+        <div className="py-6 text-center text-sm text-[var(--muted-foreground)]">Loading more…</div>
       }
       finished={
-        <div className="py-6 text-center text-sm text-[var(--muted-foreground)]">
-          — end —
-        </div>
+        <div className="py-6 text-center text-sm text-[var(--muted-foreground)]">— end —</div>
       }
     >
       <RowsPhotoAlbum

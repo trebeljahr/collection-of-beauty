@@ -1,13 +1,13 @@
 "use client";
 
-import { useEffect, useRef } from "react";
-import { useFrame, useThree } from "@react-three/fiber";
-import * as THREE from "three";
 import type { Artwork } from "@/lib/data";
 import type { FloorLayout, Staircase } from "@/lib/gallery-layout/types";
 import { CELL_SIZE } from "@/lib/gallery-layout/world-coords";
-import { isInsideStair, spiralRawAngle, stairHeightAt } from "./staircase";
+import { useFrame, useThree } from "@react-three/fiber";
+import { useEffect, useRef } from "react";
+import * as THREE from "three";
 import { raycastNearestPainting } from "./painting-registry";
+import { isInsideStair, spiralRawAngle, stairHeightAt } from "./staircase";
 
 const EYE_HEIGHT = 1.7;
 const WALK_SPEED = 5;
@@ -42,10 +42,11 @@ export function Player({
    *  is fired with the new floor index; the host should update state
    *  so this component re-mounts with the new `floor` prop. */
   onFloorChange?: (newFloorIndex: number) => void;
-  /** Fires each frame with the player's XZ — used by the host to
-   *  remember the position across mount/unmount cycles triggered by
-   *  floor swaps. */
-  onPositionSample?: (x: number, z: number) => void;
+  /** Fires each frame with the player's XZ and map-space yaw (radians;
+   *  0 = facing +x on the minimap, grows clockwise as the player turns
+   *  right). Used by the host to remember position across floor-swap
+   *  remounts and to drive the minimap compass arrow. */
+  onPositionSample?: (x: number, z: number, yaw: number) => void;
   /** Called with an Artwork when the player clicks/aims at a painting,
    *  so the host can open an inspect/zoom overlay. */
   onZoomRequest?: (artwork: Artwork) => void;
@@ -55,9 +56,7 @@ export function Player({
   const velocityY = useRef(0);
   const grounded = useRef(true);
   const lastRoomIdx = useRef<number>(-2);
-  const raycaster = useRef(
-    new THREE.Raycaster(undefined, undefined, 0.1, 12),
-  );
+  const raycaster = useRef(new THREE.Raycaster(undefined, undefined, 0.1, 12));
   const rayOrigin = useRef(new THREE.Vector3());
   const rayDir = useRef(new THREE.Vector3());
   /** Spiral-stair state. Tracks the cumulative angle the player has
@@ -86,11 +85,7 @@ export function Player({
       // Painting-registry prefilter — bounds the raycast to the
       // ~handful of paintings in the player's forward cone instead of
       // traversing hundreds of wall/floor/step meshes on every click.
-      const artwork = raycastNearestPainting(
-        raycaster.current,
-        rayOrigin.current,
-        rayDir.current,
-      );
+      const artwork = raycastNearestPainting(raycaster.current, rayOrigin.current, rayDir.current);
       if (artwork) onZoomRequest(artwork);
     };
     const down = (e: KeyboardEvent) => {
@@ -123,18 +118,14 @@ export function Player({
   useFrame((_, delta) => {
     if (!enabled) return;
     const dt = Math.min(delta, 0.1);
-    const running =
-      keys.current["ShiftLeft"] || keys.current["ShiftRight"] || false;
+    const running = keys.current["ShiftLeft"] || keys.current["ShiftRight"] || false;
     const speed = running ? RUN_SPEED : WALK_SPEED;
 
     const forward = new THREE.Vector3();
     camera.getWorldDirection(forward);
     forward.y = 0;
     if (forward.lengthSq() > 0) forward.normalize();
-    const right = new THREE.Vector3().crossVectors(
-      forward,
-      new THREE.Vector3(0, 1, 0),
-    );
+    const right = new THREE.Vector3().crossVectors(forward, new THREE.Vector3(0, 1, 0));
     if (right.lengthSq() > 0) right.normalize();
 
     const move = new THREE.Vector3();
@@ -177,15 +168,10 @@ export function Player({
       // onto the spiral from: entering on the lower floor = start of
       // the flight (0 rad), entering while already on the upper floor
       // = top of the flight (2π rad).
-      const raw = spiralRawAngle(
-        stair,
-        camera.position.x,
-        camera.position.z,
-      );
+      const raw = spiralRawAngle(stair, camera.position.x, camera.position.z);
       let st = spiralState.current;
       if (!st || st.staircaseId !== stair.id) {
-        const initial =
-          floor.index === stair.lowerFloor ? 0 : Math.PI * 2;
+        const initial = floor.index === stair.lowerFloor ? 0 : Math.PI * 2;
         st = { staircaseId: stair.id, cumulativeAngle: initial, lastRaw: raw };
         spiralState.current = st;
       } else {
@@ -201,12 +187,7 @@ export function Player({
       if (st.cumulativeAngle > Math.PI * 2) st.cumulativeAngle = Math.PI * 2;
 
       const targetY = stairHeightAt(stair, st.cumulativeAngle) + EYE_HEIGHT;
-      camera.position.y = THREE.MathUtils.damp(
-        camera.position.y,
-        targetY,
-        20,
-        dt,
-      );
+      camera.position.y = THREE.MathUtils.damp(camera.position.y, targetY, 20, dt);
       velocityY.current = 0;
       grounded.current = true;
 
@@ -214,15 +195,9 @@ export function Player({
       // around (ascending) or back past half way (descending).
       const HALF = Math.PI;
       if (onFloorChange) {
-        if (
-          floor.index === stair.lowerFloor &&
-          st.cumulativeAngle > HALF
-        ) {
+        if (floor.index === stair.lowerFloor && st.cumulativeAngle > HALF) {
           onFloorChange(stair.upperFloor);
-        } else if (
-          floor.index === stair.upperFloor &&
-          st.cumulativeAngle < HALF
-        ) {
+        } else if (floor.index === stair.upperFloor && st.cumulativeAngle < HALF) {
           onFloorChange(stair.lowerFloor);
         }
       }
@@ -243,19 +218,18 @@ export function Player({
     }
 
     if (onPositionSample) {
-      onPositionSample(camera.position.x, camera.position.z);
+      // Map-space yaw: atan2(fz, fx) where (fx, fz) is the horizontal
+      // forward vector. On the minimap +x is right, +z is down, so this
+      // angle tells the arrow which way to point directly.
+      const yaw = Math.atan2(forward.z, forward.x);
+      onPositionSample(camera.position.x, camera.position.z, yaw);
     }
 
     // Active-room detection — emit a callback when the owner cell changes.
     if (onRoomChange) {
       const cx = Math.floor(camera.position.x / CELL_SIZE);
       const cz = Math.floor(camera.position.z / CELL_SIZE);
-      if (
-        cx >= 0 &&
-        cx < floor.gridSize.x &&
-        cz >= 0 &&
-        cz < floor.gridSize.z
-      ) {
+      if (cx >= 0 && cx < floor.gridSize.x && cz >= 0 && cz < floor.gridSize.z) {
         const owner = floor.cellOwner[cz * floor.gridSize.x + cx];
         if (owner !== lastRoomIdx.current) {
           lastRoomIdx.current = owner;
@@ -274,11 +248,7 @@ export function Player({
  *  (going from this floor up to the next) — both sets' footprints sit
  *  inside the stairwell room of this floor (the same spiral, seen
  *  from two sides). */
-function findStairAt(
-  floor: FloorLayout,
-  worldX: number,
-  worldZ: number,
-): Staircase | null {
+function findStairAt(floor: FloorLayout, worldX: number, worldZ: number): Staircase | null {
   for (const s of floor.stairsOut) {
     if (isInsideStair(s, worldX, worldZ)) return s;
   }
@@ -292,11 +262,7 @@ function findStairAt(
  *  of any staircase on the current floor. The column is always solid
  *  regardless of whether the player is on the spiral annulus or in
  *  the surrounding walkway. */
-function blockedByStairColumn(
-  floor: FloorLayout,
-  worldX: number,
-  worldZ: number,
-): boolean {
+function blockedByStairColumn(floor: FloorLayout, worldX: number, worldZ: number): boolean {
   const r = PLAYER_RADIUS;
   const corners: Array<[number, number]> = [
     [worldX - r, worldZ - r],
@@ -345,11 +311,7 @@ function isWalkable(floor: FloorLayout, worldX: number, worldZ: number): boolean
 
 /** Top-level predicate used by movement: central column blocks first,
  *  then spiral annulus always passes, then grid mask decides. */
-function canStepTo(
-  floor: FloorLayout,
-  worldX: number,
-  worldZ: number,
-): boolean {
+function canStepTo(floor: FloorLayout, worldX: number, worldZ: number): boolean {
   if (blockedByStairColumn(floor, worldX, worldZ)) return false;
   if (findStairAt(floor, worldX, worldZ)) return true;
   return isWalkable(floor, worldX, worldZ);

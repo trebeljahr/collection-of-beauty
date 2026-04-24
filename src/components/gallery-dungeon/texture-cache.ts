@@ -24,8 +24,8 @@
 // `useLoader(TextureLoader, url)`. The result is Suspense-friendly via
 // the bundled `useCachedTexture` hook.
 
-import { useMemo } from "react";
 import { useThree } from "@react-three/fiber";
+import { useMemo } from "react";
 import * as THREE from "three";
 
 const TEXTURE_CACHE_CAPACITY = 96;
@@ -97,10 +97,7 @@ function pumpUploads() {
   if (uploadQueue.length > 0) schedulePump();
 }
 
-function enqueueUpload(
-  tex: THREE.Texture,
-  renderer: THREE.WebGLRenderer,
-): Promise<void> {
+function enqueueUpload(tex: THREE.Texture, renderer: THREE.WebGLRenderer): Promise<void> {
   return new Promise((resolve) => {
     uploadQueue.push({ tex, renderer, resolve });
     schedulePump();

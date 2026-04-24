@@ -44,3 +44,6 @@ next-env.d.ts
 
 # Lockfile cruft (keep package-lock.json / pnpm-lock.yaml)
 yarn.lock
+# claude code
+.claude/settings.local.json
+.claude/worktrees/

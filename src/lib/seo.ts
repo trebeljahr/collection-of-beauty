@@ -1,6 +1,6 @@
-import type { Metadata } from "next";
-import { artworks, type Artist, type Artwork, summary } from "@/lib/data";
+import { type Artist, type Artwork, artworks, summary } from "@/lib/data";
 import { assetUrl, variantUrl } from "@/lib/utils";
+import type { Metadata } from "next";
 
 // ────────────────────────────────────────────────────────────────────────────
 // Identity
@@ -137,15 +137,13 @@ export function artworkJsonLd(artwork: Artwork): Record<string, unknown> {
   return {
     "@context": "https://schema.org",
     "@type": "VisualArtwork",
-    "name": artwork.title,
+    name: artwork.title,
     ...(artwork.artist
       ? {
           creator: {
             "@type": "Person",
             name: artwork.artist,
-            ...(artwork.artistSlug
-              ? { url: absoluteUrl(`/artist/${artwork.artistSlug}`) }
-              : {}),
+            ...(artwork.artistSlug ? { url: absoluteUrl(`/artist/${artwork.artistSlug}`) } : {}),
           },
         }
       : {}),
@@ -186,9 +184,7 @@ export function artistJsonLd(artist: Artist): Record<string, unknown> {
     ...(artist.died ? { deathDate: String(artist.died) } : {}),
     ...(artist.nationality ? { nationality: artist.nationality } : {}),
     ...(artist.movement ? { knowsAbout: artist.movement } : {}),
-    ...(artist.coverObjectKey
-      ? { image: variantUrl(artist.coverObjectKey, 1280, "webp") }
-      : {}),
+    ...(artist.coverObjectKey ? { image: variantUrl(artist.coverObjectKey, 1280, "webp") } : {}),
     url: absoluteUrl(`/artist/${artist.slug}`),
   };
 }

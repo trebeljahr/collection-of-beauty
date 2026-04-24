@@ -1,6 +1,6 @@
-import type { MetadataRoute } from "next";
 import { artists, artworks } from "@/lib/data";
 import { absoluteUrl } from "@/lib/seo";
+import type { MetadataRoute } from "next";
 
 /**
  * Served at /sitemap.xml. Emits every indexable URL:
@@ -19,7 +19,12 @@ export default function sitemap(): MetadataRoute.Sitemap {
     { url: absoluteUrl("/timeline"), lastModified: now, changeFrequency: "monthly", priority: 0.7 },
     { url: absoluteUrl("/artists"), lastModified: now, changeFrequency: "monthly", priority: 0.7 },
     { url: absoluteUrl("/lineage"), lastModified: now, changeFrequency: "monthly", priority: 0.6 },
-    { url: absoluteUrl("/gallery-3d"), lastModified: now, changeFrequency: "monthly", priority: 0.6 },
+    {
+      url: absoluteUrl("/gallery-3d"),
+      lastModified: now,
+      changeFrequency: "monthly",
+      priority: 0.6,
+    },
   ];
 
   const artistEntries: MetadataRoute.Sitemap = artists.map((a) => ({

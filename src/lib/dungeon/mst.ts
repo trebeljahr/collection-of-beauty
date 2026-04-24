@@ -1,6 +1,6 @@
 // Ported from ricos.site 3D dungeon generator (MinimumSpanningTree.ts).
 
-import { Edge, Vertex } from "./graph-structures";
+import type { Edge, Vertex } from "./graph-structures";
 
 export class PrimMST {
   static minimumSpanningTree(edges: Edge[], start: Vertex): Edge[] {
@@ -20,7 +20,7 @@ export class PrimMST {
     while (openSet.size > 0) {
       let chosen = false;
       let chosenEdge: Edge | null = null;
-      let minWeight = Infinity;
+      let minWeight = Number.POSITIVE_INFINITY;
 
       for (const edge of edges) {
         const uInClosed = closedSet.has(edge.u);

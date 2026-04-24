@@ -10,8 +10,8 @@
 // Usage:   node scripts/resolve-unresolved.mjs "collection-of-beauty"
 
 import fs from "fs";
-import path from "path";
 import https from "https";
+import path from "path";
 import { fileURLToPath } from "url";
 
 const __filename = fileURLToPath(import.meta.url);
@@ -30,36 +30,32 @@ const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
 function httpsGetJson(url, retry = 0) {
   return new Promise((resolve, reject) => {
     https
-      .get(
-        url,
-        { headers: { "User-Agent": USER_AGENT, Accept: "application/json" } },
-        (res) => {
-          const retryAfter = parseInt(res.headers["retry-after"] || "0", 10);
-          let data = "";
-          res.on("data", (c) => (data += c));
-          res.on("end", async () => {
-            if (res.statusCode === 200) {
-              try {
-                const parsed = JSON.parse(data);
-                if (parsed.error && parsed.error.code === "maxlag") {
-                  if (retry >= MAX_RETRIES) return reject(new Error("maxlag"));
-                  await sleep(Math.max((retryAfter || 5) * 1000, 2000));
-                  return httpsGetJson(url, retry + 1).then(resolve, reject);
-                }
-                resolve(parsed);
-              } catch (e) {
-                reject(e);
+      .get(url, { headers: { "User-Agent": USER_AGENT, Accept: "application/json" } }, (res) => {
+        const retryAfter = Number.parseInt(res.headers["retry-after"] || "0", 10);
+        let data = "";
+        res.on("data", (c) => (data += c));
+        res.on("end", async () => {
+          if (res.statusCode === 200) {
+            try {
+              const parsed = JSON.parse(data);
+              if (parsed.error && parsed.error.code === "maxlag") {
+                if (retry >= MAX_RETRIES) return reject(new Error("maxlag"));
+                await sleep(Math.max((retryAfter || 5) * 1000, 2000));
+                return httpsGetJson(url, retry + 1).then(resolve, reject);
               }
-            } else if (res.statusCode === 503 || res.statusCode === 429) {
-              if (retry >= MAX_RETRIES) return reject(new Error(`HTTP ${res.statusCode}`));
-              await sleep(Math.max((retryAfter || 5) * 1000, 2000));
-              return httpsGetJson(url, retry + 1).then(resolve, reject);
-            } else {
-              reject(new Error(`HTTP ${res.statusCode}`));
+              resolve(parsed);
+            } catch (e) {
+              reject(e);
             }
-          });
-        },
-      )
+          } else if (res.statusCode === 503 || res.statusCode === 429) {
+            if (retry >= MAX_RETRIES) return reject(new Error(`HTTP ${res.statusCode}`));
+            await sleep(Math.max((retryAfter || 5) * 1000, 2000));
+            return httpsGetJson(url, retry + 1).then(resolve, reject);
+          } else {
+            reject(new Error(`HTTP ${res.statusCode}`));
+          }
+        });
+      })
       .on("error", reject);
   });
 }
@@ -86,7 +82,7 @@ function emValue(em, key) {
 function extractYear(s) {
   if (!s) return null;
   const m = String(s).match(/\b(1[0-9]{3}|20[0-2][0-9])\b/);
-  return m ? parseInt(m[1], 10) : null;
+  return m ? Number.parseInt(m[1], 10) : null;
 }
 
 // Given an original filename, produce ordered candidate filenames to try
@@ -145,7 +141,8 @@ function pageToEntry(page, originalFilename, variantUsed) {
   if (!page || page.missing || !page.imageinfo || !page.imageinfo[0]) return null;
   const ii = page.imageinfo[0];
   const em = ii.extmetadata || {};
-  const title = emValue(em, "ObjectName") || originalFilename.replace(/\.[^.]+$/, "").replace(/_/g, " ");
+  const title =
+    emValue(em, "ObjectName") || originalFilename.replace(/\.[^.]+$/, "").replace(/_/g, " ");
   const artist = emValue(em, "Artist");
   const dateOriginal = emValue(em, "DateTimeOriginal");
   const licenseShort = emValue(em, "LicenseShortName");
@@ -241,7 +238,9 @@ async function processFolder(folderName) {
       // skip this round if everyone is out of candidates at this index
       continue;
     }
-    console.log(`[${folderName}] pass2 round ${round + 1}: querying ${titlesToTry.length} candidates`);
+    console.log(
+      `[${folderName}] pass2 round ${round + 1}: querying ${titlesToTry.length} candidates`,
+    );
 
     // batch
     for (let i = 0; i < titlesToTry.length; i += BATCH_SIZE) {
@@ -289,7 +288,9 @@ async function processFolder(folderName) {
         }
       }
     }
-    console.log(`[${folderName}] pass2 after round ${round + 1}: resolved ${resolvedByFilename.size}, remaining ${remaining.size}`);
+    console.log(
+      `[${folderName}] pass2 after round ${round + 1}: resolved ${resolvedByFilename.size}, remaining ${remaining.size}`,
+    );
   }
 
   // Merge back

@@ -1,6 +1,6 @@
 "use client";
 
-import * as THREE from "three";
+import type * as THREE from "three";
 import { darkWoodTrimMaterial } from "./palette-materials";
 
 type Vec3 = [number, number, number];

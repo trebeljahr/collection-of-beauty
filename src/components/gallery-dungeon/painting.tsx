@@ -1,16 +1,12 @@
 "use client";
 
-import { Suspense, useEffect, useRef } from "react";
-import * as THREE from "three";
 import type { Placement } from "@/lib/gallery-layout/types";
 import { variantUrl } from "@/lib/utils";
-import { useCachedTexture } from "./texture-cache";
+import { Suspense, useEffect, useRef } from "react";
+import * as THREE from "three";
+import { type PaintingEntry, registerPainting, unregisterPainting } from "./painting-registry";
 import { frameMaterial } from "./palette-materials";
-import {
-  registerPainting,
-  unregisterPainting,
-  type PaintingEntry,
-} from "./painting-registry";
+import { useCachedTexture } from "./texture-cache";
 
 /**
  * One painting on a wall. Renders a thin box behind the canvas so the
@@ -34,22 +30,11 @@ export function Painting({ placement }: { placement: Placement }) {
   return (
     <group position={position} rotation={rotation}>
       <mesh>
-        <boxGeometry
-          args={[widthM + frameInset * 2, heightM + frameInset * 2, frameDepth]}
-        />
+        <boxGeometry args={[widthM + frameInset * 2, heightM + frameInset * 2, frameDepth]} />
         <primitive object={frameMaterial} attach="material" />
       </mesh>
-      <Suspense
-        fallback={
-          <FallbackSwatch widthM={widthM} heightM={heightM} artwork={artwork} />
-        }
-      >
-        <PaintingPlane
-          url={url}
-          widthM={widthM}
-          heightM={heightM}
-          artwork={artwork}
-        />
+      <Suspense fallback={<FallbackSwatch widthM={widthM} heightM={heightM} artwork={artwork} />}>
+        <PaintingPlane url={url} widthM={widthM} heightM={heightM} artwork={artwork} />
       </Suspense>
     </group>
   );

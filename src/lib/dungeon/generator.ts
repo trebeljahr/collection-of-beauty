@@ -15,10 +15,10 @@
 import { alea } from "seedrandom";
 
 import { Delaunay3D } from "./delaunay3d";
-import { DungeonPathfinder3D, GraphNode3D } from "./pathfinder3d";
-import { Edge, Vertex, VertexWithData } from "./graph-structures";
+import { Edge, type Vertex, VertexWithData } from "./graph-structures";
 import { Grid3D } from "./grid3d";
 import { PrimMST } from "./mst";
+import { DungeonPathfinder3D, type GraphNode3D } from "./pathfinder3d";
 import { CellType3D, Mathf, Room3D, Vector3Int } from "./types";
 
 // --- inlined random helpers (from ricos.site/src/lib/utils/misc) ----------
@@ -31,11 +31,7 @@ function createRandomFunction(seed: string): () => number {
   return prng as () => number;
 }
 
-function getRandomInt(
-  min: number,
-  max: number,
-  randFunc: () => number = Math.random,
-): number {
+function getRandomInt(min: number, max: number, randFunc: () => number = Math.random): number {
   return Math.floor(randFunc() * (max - min + 1)) + min;
 }
 
@@ -43,11 +39,7 @@ function makeUneven(value: number): number {
   return value % 2 === 0 ? value + 1 : value;
 }
 
-function getRandomIntUneven(
-  min: number,
-  max: number,
-  randFunc?: () => number,
-): number {
+function getRandomIntUneven(min: number, max: number, randFunc?: () => number): number {
   return makeUneven(getRandomInt(min, max - 1, randFunc));
 }
 
@@ -130,8 +122,7 @@ export class DungeonGenerator3D {
     // complete graph when we have fewer rooms — cheap at small N (max
     // 6 edges for 4 rooms) and lets MST/pathfinding run as normal.
     const delaunay = Delaunay3D.triangulate(vertices);
-    const edgePool =
-      delaunay.edges.length > 0 ? delaunay.edges : completeEdges(vertices);
+    const edgePool = delaunay.edges.length > 0 ? delaunay.edges : completeEdges(vertices);
 
     const mstEdges = PrimMST.minimumSpanningTree(edgePool, vertices[0]);
 
@@ -139,12 +130,7 @@ export class DungeonGenerator3D {
     // because our floors are denser (~15 rooms vs. the original 20 on a
     // much larger grid) and a pure MST forces long detours when two
     // adjacent rooms are on opposite sides of the tree.
-    const finalEdges = PrimMST.addRandomConnections(
-      edgePool,
-      mstEdges,
-      0.3,
-      this.random,
-    );
+    const finalEdges = PrimMST.addRandomConnections(edgePool, mstEdges, 0.3, this.random);
 
     this.pathfindHallways(finalEdges);
 
@@ -314,24 +300,18 @@ export class DungeonGenerator3D {
           if (
             !this.grid.inBounds(a.position.add(verticalOffset)) ||
             !this.grid.inBounds(a.position.add(horizontalOffset)) ||
-            !this.grid.inBounds(
-              a.position.add(verticalOffset).add(horizontalOffset),
-            )
+            !this.grid.inBounds(a.position.add(verticalOffset).add(horizontalOffset))
           ) {
             return result;
           }
 
           if (
-            this.grid.getValue(a.position.add(horizontalOffset)) !==
+            this.grid.getValue(a.position.add(horizontalOffset)) !== CellType3D.None ||
+            this.grid.getValue(a.position.add(horizontalOffset.multiply(2))) !== CellType3D.None ||
+            this.grid.getValue(a.position.add(verticalOffset).add(horizontalOffset)) !==
               CellType3D.None ||
-            this.grid.getValue(a.position.add(horizontalOffset.multiply(2))) !==
-              CellType3D.None ||
-            this.grid.getValue(
-              a.position.add(verticalOffset).add(horizontalOffset),
-            ) !== CellType3D.None ||
-            this.grid.getValue(
-              a.position.add(verticalOffset).add(horizontalOffset.multiply(2)),
-            ) !== CellType3D.None
+            this.grid.getValue(a.position.add(verticalOffset).add(horizontalOffset.multiply(2))) !==
+              CellType3D.None
           ) {
             return result;
           }
@@ -366,9 +346,7 @@ export class DungeonGenerator3D {
               const stairPos1 = prev.add(horizontalOffset);
               const stairPos2 = prev.add(horizontalOffset.multiply(2));
               const stairPos3 = prev.add(verticalOffset).add(horizontalOffset);
-              const stairPos4 = prev
-                .add(verticalOffset)
-                .add(horizontalOffset.multiply(2));
+              const stairPos4 = prev.add(verticalOffset).add(horizontalOffset.multiply(2));
 
               this.grid.setValue(stairPos1, CellType3D.Stairs);
               this.grid.setValue(stairPos2, CellType3D.Stairs);

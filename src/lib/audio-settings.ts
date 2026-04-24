@@ -39,19 +39,14 @@ function clamp01(v: number): number {
 function sanitize(raw: Partial<AudioSettings> | null | undefined): AudioSettings {
   if (!raw || typeof raw !== "object") return DEFAULT_AUDIO_SETTINGS;
   return {
-    enabled:
-      typeof raw.enabled === "boolean"
-        ? raw.enabled
-        : DEFAULT_AUDIO_SETTINGS.enabled,
+    enabled: typeof raw.enabled === "boolean" ? raw.enabled : DEFAULT_AUDIO_SETTINGS.enabled,
     ambienceVolume: clamp01(
       typeof raw.ambienceVolume === "number"
         ? raw.ambienceVolume
         : DEFAULT_AUDIO_SETTINGS.ambienceVolume,
     ),
     sfxVolume: clamp01(
-      typeof raw.sfxVolume === "number"
-        ? raw.sfxVolume
-        : DEFAULT_AUDIO_SETTINGS.sfxVolume,
+      typeof raw.sfxVolume === "number" ? raw.sfxVolume : DEFAULT_AUDIO_SETTINGS.sfxVolume,
     ),
   };
 }
@@ -92,15 +87,10 @@ function emit(settings: AudioSettings): void {
  * (hydrated from localStorage on mount) and an `update` function that
  * patches + persists + broadcasts.
  */
-export function useAudioSettings(): [
-  AudioSettings,
-  (patch: Partial<AudioSettings>) => void,
-] {
+export function useAudioSettings(): [AudioSettings, (patch: Partial<AudioSettings>) => void] {
   // Start with defaults (SSR-safe — no window access during render), then
   // hydrate from localStorage on the client mount.
-  const [settings, setSettings] = useState<AudioSettings>(
-    DEFAULT_AUDIO_SETTINGS,
-  );
+  const [settings, setSettings] = useState<AudioSettings>(DEFAULT_AUDIO_SETTINGS);
 
   useEffect(() => {
     setSettings(loadAudioSettings());

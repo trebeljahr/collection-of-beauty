@@ -13,8 +13,8 @@
  */
 
 import { spawn, spawnSync } from "node:child_process";
-import { fileURLToPath } from "node:url";
 import path from "node:path";
+import { fileURLToPath } from "node:url";
 
 const __dirname = fileURLToPath(new URL(".", import.meta.url));
 const ROOT = path.resolve(__dirname, "..");
@@ -26,11 +26,10 @@ function log(prefix, msg) {
 // Rebuild data synchronously first so the JSON is current before Next
 // starts watching it.
 log("dev", "building data…");
-const build = spawnSync(
-  process.execPath,
-  ["scripts/build-data.mjs"],
-  { cwd: ROOT, stdio: "inherit" },
-);
+const build = spawnSync(process.execPath, ["scripts/build-data.mjs"], {
+  cwd: ROOT,
+  stdio: "inherit",
+});
 if (build.status !== 0) {
   log("dev", `build-data failed with exit ${build.status}`);
   process.exit(build.status ?? 1);
@@ -39,11 +38,10 @@ if (build.status !== 0) {
 const children = [];
 
 function startAssets() {
-  const child = spawn(
-    process.execPath,
-    ["scripts/serve-assets.mjs"],
-    { cwd: ROOT, stdio: ["ignore", "inherit", "inherit"] },
-  );
+  const child = spawn(process.execPath, ["scripts/serve-assets.mjs"], {
+    cwd: ROOT,
+    stdio: ["ignore", "inherit", "inherit"],
+  });
   child.on("exit", (code) => {
     if (!shuttingDown) {
       log("dev", `assets server exited (code ${code}); shutting down`);
@@ -59,18 +57,11 @@ function startNext() {
   // stays bounded.
   const env = {
     ...process.env,
-    NODE_OPTIONS: [
-      process.env.NODE_OPTIONS ?? "",
-      "--max-old-space-size=2048",
-    ]
+    NODE_OPTIONS: [process.env.NODE_OPTIONS ?? "", "--max-old-space-size=2048"]
       .filter(Boolean)
       .join(" "),
   };
-  const child = spawn(
-    "npx",
-    ["next", "dev", "-p", "3547"],
-    { cwd: ROOT, stdio: "inherit", env },
-  );
+  const child = spawn("npx", ["next", "dev", "-p", "3547"], { cwd: ROOT, stdio: "inherit", env });
   child.on("exit", (code) => {
     if (!shuttingDown) {
       log("dev", `next dev exited (code ${code}); shutting down`);

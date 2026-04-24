@@ -1,5 +1,5 @@
-import type { CSSProperties } from "react";
 import { assetUrl, cn, variantSrcSet } from "@/lib/utils";
+import type { CSSProperties } from "react";
 
 type Props = {
   /** The artwork's objectKey, e.g. "collection-of-beauty/Monet_Foo.jpg". */

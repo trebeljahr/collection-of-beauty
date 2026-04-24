@@ -1,12 +1,6 @@
-import { NextRequest, NextResponse } from "next/server";
 import { artworks } from "@/lib/data";
-import {
-  findIssue,
-  loadState,
-  saveState,
-  sentArtworkIds,
-  type NewsletterIssue,
-} from "@/lib/newsletter/state";
+import { sendDigest } from "@/lib/newsletter/mailgun";
+import { renderDigest } from "@/lib/newsletter/render";
 import {
   DIGEST_SIZE,
   isoWeekKey,
@@ -14,8 +8,14 @@ import {
   pickArtworks,
   resolveManualPicks,
 } from "@/lib/newsletter/select";
-import { renderDigest } from "@/lib/newsletter/render";
-import { sendDigest } from "@/lib/newsletter/mailgun";
+import {
+  type NewsletterIssue,
+  findIssue,
+  loadState,
+  saveState,
+  sentArtworkIds,
+} from "@/lib/newsletter/state";
+import { type NextRequest, NextResponse } from "next/server";
 
 // This route must be dynamic (talks to R2 and Mailgun) and must run in Node
 // (AWS SDK + Mailgun SDK both need Node APIs).
@@ -71,10 +71,7 @@ export async function POST(request: NextRequest) {
   return runSend(request, body);
 }
 
-async function runSend(
-  request: NextRequest,
-  body: SendBody,
-): Promise<NextResponse> {
+async function runSend(request: NextRequest, body: SendBody): Promise<NextResponse> {
   const now = new Date();
   const weekKey = isoWeekKey(now);
   const issueDate = issueDateLabel(now);

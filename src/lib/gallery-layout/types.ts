@@ -24,9 +24,7 @@ export type Door = {
   worldZ: number;
   worldY: number;
   width: number;
-  connectsTo:
-    | { kind: "hallway"; hallwayId: string }
-    | { kind: "staircase"; staircaseId: string };
+  connectsTo: { kind: "hallway"; hallwayId: string } | { kind: "staircase"; staircaseId: string };
 };
 
 export type RoomLayout = {

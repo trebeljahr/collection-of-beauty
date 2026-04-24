@@ -73,8 +73,8 @@ export default function WeeklyDigest({
                 Five for the week
               </Heading>
               <Text className="mx-auto mt-3 max-w-sm text-sm leading-relaxed text-stone-600">
-                A small selection of paintings, prints, and illustrations from
-                the public domain — picked fresh each {"Monday"}.
+                A small selection of paintings, prints, and illustrations from the public domain —
+                picked fresh each {"Monday"}.
               </Text>
             </Section>
 
@@ -83,10 +83,7 @@ export default function WeeklyDigest({
             {/* Artworks */}
             {artworks.map((a, i) => (
               <Section key={a.id} className={i > 0 ? "mt-10" : ""}>
-                <Link
-                  href={a.artworkUrl}
-                  className="block no-underline"
-                >
+                <Link href={a.artworkUrl} className="block no-underline">
                   <Img
                     src={a.imageUrl}
                     alt={a.title}
@@ -98,10 +95,7 @@ export default function WeeklyDigest({
                   as="h2"
                   className="mt-4 mb-1 font-serif text-xl font-normal text-stone-900"
                 >
-                  <Link
-                    href={a.artworkUrl}
-                    className="text-stone-900 no-underline"
-                  >
+                  <Link href={a.artworkUrl} className="text-stone-900 no-underline">
                     {a.title}
                   </Link>
                 </Heading>
@@ -131,8 +125,8 @@ export default function WeeklyDigest({
                 </Link>
               </Text>
               <Text className="mt-6 text-xs leading-relaxed text-stone-500">
-                You&apos;re receiving this because you subscribed to the
-                Collection of Beauty weekly digest ({weekKey}).
+                You&apos;re receiving this because you subscribed to the Collection of Beauty weekly
+                digest ({weekKey}).
                 <br />
                 <Link
                   href={unsubscribeUrl}
@@ -162,7 +156,8 @@ const PREVIEW_ARTWORKS: DigestArtwork[] = [
     description:
       "One of roughly 250 oil paintings in Monet's Water Lilies series, reflecting his garden at Giverny.",
     movement: "Impressionism",
-    imageUrl: "https://upload.wikimedia.org/wikipedia/commons/thumb/1/1b/Claude_Monet%2C_Water_Lilies%2C_1906%2C_Ryerson.jpg/800px-Claude_Monet%2C_Water_Lilies%2C_1906%2C_Ryerson.jpg",
+    imageUrl:
+      "https://upload.wikimedia.org/wikipedia/commons/thumb/1/1b/Claude_Monet%2C_Water_Lilies%2C_1906%2C_Ryerson.jpg/800px-Claude_Monet%2C_Water_Lilies%2C_1906%2C_Ryerson.jpg",
     artworkUrl: "https://example.com/artwork/preview-1",
   },
   {
@@ -173,7 +168,8 @@ const PREVIEW_ARTWORKS: DigestArtwork[] = [
     description:
       "The most famous woodblock print from Hokusai's Thirty-six Views of Mount Fuji series.",
     movement: "Ukiyo-e",
-    imageUrl: "https://upload.wikimedia.org/wikipedia/commons/thumb/a/a5/Tsunami_by_hokusai_19th_century.jpg/800px-Tsunami_by_hokusai_19th_century.jpg",
+    imageUrl:
+      "https://upload.wikimedia.org/wikipedia/commons/thumb/a/a5/Tsunami_by_hokusai_19th_century.jpg/800px-Tsunami_by_hokusai_19th_century.jpg",
     artworkUrl: "https://example.com/artwork/preview-2",
   },
   {
@@ -184,7 +180,8 @@ const PREVIEW_ARTWORKS: DigestArtwork[] = [
     description:
       "Painted from memory during van Gogh's stay at the Saint-Paul-de-Mausole asylum in Saint-Rémy-de-Provence.",
     movement: "Post-Impressionism",
-    imageUrl: "https://upload.wikimedia.org/wikipedia/commons/thumb/e/ea/Van_Gogh_-_Starry_Night_-_Google_Art_Project.jpg/800px-Van_Gogh_-_Starry_Night_-_Google_Art_Project.jpg",
+    imageUrl:
+      "https://upload.wikimedia.org/wikipedia/commons/thumb/e/ea/Van_Gogh_-_Starry_Night_-_Google_Art_Project.jpg/800px-Van_Gogh_-_Starry_Night_-_Google_Art_Project.jpg",
     artworkUrl: "https://example.com/artwork/preview-3",
   },
   {
@@ -195,7 +192,8 @@ const PREVIEW_ARTWORKS: DigestArtwork[] = [
     description:
       "Plate 431 from Audubon's Birds of America, depicting a flamingo in a characteristic stooped feeding posture.",
     movement: null,
-    imageUrl: "https://upload.wikimedia.org/wikipedia/commons/thumb/6/6d/American_Flamingo.jpg/800px-American_Flamingo.jpg",
+    imageUrl:
+      "https://upload.wikimedia.org/wikipedia/commons/thumb/6/6d/American_Flamingo.jpg/800px-American_Flamingo.jpg",
     artworkUrl: "https://example.com/artwork/preview-4",
   },
   {
@@ -206,7 +204,8 @@ const PREVIEW_ARTWORKS: DigestArtwork[] = [
     description:
       "Plate 8 from Kunstformen der Natur, showing the radial symmetry of jellyfish species.",
     movement: null,
-    imageUrl: "https://upload.wikimedia.org/wikipedia/commons/thumb/7/7e/Haeckel_Discomedusae_8.jpg/800px-Haeckel_Discomedusae_8.jpg",
+    imageUrl:
+      "https://upload.wikimedia.org/wikipedia/commons/thumb/7/7e/Haeckel_Discomedusae_8.jpg/800px-Haeckel_Discomedusae_8.jpg",
     artworkUrl: "https://example.com/artwork/preview-5",
   },
 ];

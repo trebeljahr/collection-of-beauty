@@ -1,11 +1,11 @@
 "use client";
 
-import { useMemo, useState } from "react";
-import Link from "next/link";
-import { Input } from "@/components/ui/input";
-import { Badge } from "@/components/ui/badge";
 import { ResponsiveImage } from "@/components/responsive-image";
+import { Badge } from "@/components/ui/badge";
+import { Input } from "@/components/ui/input";
 import type { Artwork } from "@/lib/data";
+import Link from "next/link";
+import { useMemo, useState } from "react";
 
 const DECADE = 10;
 
@@ -79,8 +79,7 @@ export function TimelineView({ artworks, movements }: Props) {
           ))}
         </select>
         <div className="text-sm text-[var(--muted-foreground)]">
-          {filtered.length.toLocaleString()} dated works across{" "}
-          {buckets.length} decades
+          {filtered.length.toLocaleString()} dated works across {buckets.length} decades
         </div>
       </div>
 
@@ -111,16 +110,10 @@ export function TimelineView({ artworks, movements }: Props) {
 
       <div className="space-y-12">
         {buckets.map((b) => (
-          <section
-            key={b.decade}
-            id={`decade-${b.decade}`}
-            className="scroll-mt-20"
-          >
+          <section key={b.decade} id={`decade-${b.decade}`} className="scroll-mt-20">
             <div className="sticky top-14 z-10 -mx-4 mb-3 border-y border-[var(--border)] bg-[var(--background)]/90 px-4 py-2 backdrop-blur">
               <div className="flex items-baseline justify-between">
-                <h2 className="font-serif text-xl">
-                  {b.decade}s
-                </h2>
+                <h2 className="font-serif text-xl">{b.decade}s</h2>
                 <Badge variant="outline">{b.works.length}</Badge>
               </div>
             </div>

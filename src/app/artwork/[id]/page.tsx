@@ -1,16 +1,12 @@
+import { ArtworkCard } from "@/components/artwork-card";
+import { ResponsiveImage } from "@/components/responsive-image";
+import { Badge } from "@/components/ui/badge";
+import { artworks, getArtist, getArtwork, getArtworksByArtist } from "@/lib/data";
+import { artworkJsonLd, jsonLdScriptProps, ogImagesForArtwork } from "@/lib/seo";
+import { assetUrl } from "@/lib/utils";
 import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { getArtwork, getArtist, getArtworksByArtist, artworks } from "@/lib/data";
-import { Badge } from "@/components/ui/badge";
-import { ArtworkCard } from "@/components/artwork-card";
-import { ResponsiveImage } from "@/components/responsive-image";
-import { assetUrl } from "@/lib/utils";
-import {
-  artworkJsonLd,
-  jsonLdScriptProps,
-  ogImagesForArtwork,
-} from "@/lib/seo";
 
 type Params = { id: string };
 
@@ -90,20 +86,12 @@ export default async function ArtworkPage({
         </Link>
         <div className="flex items-center gap-3">
           {prev && (
-            <Link
-              href={`/artwork/${prev.id}`}
-              className="hover:underline"
-              title={prev.title}
-            >
+            <Link href={`/artwork/${prev.id}`} className="hover:underline" title={prev.title}>
               ← Previous
             </Link>
           )}
           {next && (
-            <Link
-              href={`/artwork/${next.id}`}
-              className="hover:underline"
-              title={next.title}
-            >
+            <Link href={`/artwork/${next.id}`} className="hover:underline" title={next.title}>
               Next →
             </Link>
           )}
@@ -151,18 +139,12 @@ export default async function ArtworkPage({
                 )}
               </p>
             )}
-            {art.dateCreated && (
-              <p className="text-[var(--muted-foreground)]">{art.dateCreated}</p>
-            )}
+            {art.dateCreated && <p className="text-[var(--muted-foreground)]">{art.dateCreated}</p>}
           </div>
 
           <div className="flex flex-wrap gap-2">
-            {art.movement && (
-              <Badge variant="secondary">{art.movement}</Badge>
-            )}
-            {art.nationality && (
-              <Badge variant="outline">{art.nationality}</Badge>
-            )}
+            {art.movement && <Badge variant="secondary">{art.movement}</Badge>}
+            {art.nationality && <Badge variant="outline">{art.nationality}</Badge>}
             <Badge variant="outline">{art.license}</Badge>
           </div>
 
@@ -174,23 +156,14 @@ export default async function ArtworkPage({
 
           <div className="rounded-lg border border-[var(--border)] p-4 text-xs text-[var(--muted-foreground)]">
             <div>
-              <span className="font-medium text-[var(--foreground)]">
-                Source:
-              </span>{" "}
-              <a
-                className="underline"
-                href={art.commonsUrl}
-                target="_blank"
-                rel="noreferrer"
-              >
+              <span className="font-medium text-[var(--foreground)]">Source:</span>{" "}
+              <a className="underline" href={art.commonsUrl} target="_blank" rel="noreferrer">
                 Wikimedia Commons
               </a>
             </div>
             {art.credit && (
               <div className="mt-1">
-                <span className="font-medium text-[var(--foreground)]">
-                  Credit:
-                </span>{" "}
+                <span className="font-medium text-[var(--foreground)]">Credit:</span>{" "}
                 {art.credit.slice(0, 220)}
                 {art.credit.length > 220 ? "..." : ""}
               </div>
@@ -201,9 +174,7 @@ export default async function ArtworkPage({
 
       {moreByArtist.length > 0 && art.artist && (
         <section className="mt-16">
-          <h2 className="mb-4 font-serif text-xl">
-            More by {art.artist}
-          </h2>
+          <h2 className="mb-4 font-serif text-xl">More by {art.artist}</h2>
           <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6">
             {moreByArtist.map((a) => (
               <ArtworkCard key={a.id} artwork={a} />

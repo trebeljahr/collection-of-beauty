@@ -1,82 +1,698 @@
 {
   "description": "Curated artist lookup table used to enrich Wikimedia metadata with birth/death/nationality/movement for the most common artists in this collection. Matched by substring on the Artist field returned by the Commons API.",
   "artists": [
-    { "name": "Claude Monet", "aliases": ["Claude Monet", "Monet"], "born": 1840, "died": 1926, "nationality": "French", "movement": "Impressionism", "pd_status": "public_domain_worldwide" },
-    { "name": "Vincent van Gogh", "aliases": ["Vincent van Gogh", "van Gogh"], "born": 1853, "died": 1890, "nationality": "Dutch", "movement": "Post-Impressionism", "pd_status": "public_domain_worldwide" },
-    { "name": "J. M. W. Turner", "aliases": ["J. M. W. Turner", "William Turner", "Turner"], "born": 1775, "died": 1851, "nationality": "English", "movement": "Romanticism", "pd_status": "public_domain_worldwide" },
-    { "name": "Peter Paul Rubens", "aliases": ["Peter Paul Rubens", "P.P. Rubens", "Rubens"], "born": 1577, "died": 1640, "nationality": "Flemish", "movement": "Baroque", "pd_status": "public_domain_worldwide" },
-    { "name": "Rembrandt van Rijn", "aliases": ["Rembrandt van Rijn", "Rembrandt"], "born": 1606, "died": 1669, "nationality": "Dutch", "movement": "Dutch Golden Age", "pd_status": "public_domain_worldwide" },
-    { "name": "Johannes Vermeer", "aliases": ["Johannes Vermeer", "Vermeer"], "born": 1632, "died": 1675, "nationality": "Dutch", "movement": "Dutch Golden Age", "pd_status": "public_domain_worldwide" },
-    { "name": "Leonardo da Vinci", "aliases": ["Leonardo da Vinci", "Leonardo"], "born": 1452, "died": 1519, "nationality": "Italian", "movement": "High Renaissance", "pd_status": "public_domain_worldwide" },
-    { "name": "Michelangelo Buonarroti", "aliases": ["Michelangelo Buonarroti", "Michelangelo"], "born": 1475, "died": 1564, "nationality": "Italian", "movement": "High Renaissance", "pd_status": "public_domain_worldwide" },
-    { "name": "Raphael", "aliases": ["Raffaello Sanzio", "Raphael"], "born": 1483, "died": 1520, "nationality": "Italian", "movement": "High Renaissance", "pd_status": "public_domain_worldwide" },
-    { "name": "Caravaggio", "aliases": ["Michelangelo Merisi", "Caravaggio"], "born": 1571, "died": 1610, "nationality": "Italian", "movement": "Baroque", "pd_status": "public_domain_worldwide" },
-    { "name": "Titian", "aliases": ["Tiziano Vecellio", "Titian"], "born": 1488, "died": 1576, "nationality": "Italian", "movement": "Venetian Renaissance", "pd_status": "public_domain_worldwide" },
-    { "name": "Sandro Botticelli", "aliases": ["Sandro Botticelli", "Botticelli"], "born": 1445, "died": 1510, "nationality": "Italian", "movement": "Early Renaissance", "pd_status": "public_domain_worldwide" },
-    { "name": "Albrecht Dürer", "aliases": ["Albrecht Dürer", "Albrecht Durer", "Dürer"], "born": 1471, "died": 1528, "nationality": "German", "movement": "Northern Renaissance", "pd_status": "public_domain_worldwide" },
-    { "name": "Hieronymus Bosch", "aliases": ["Hieronymus Bosch", "Bosch"], "born": 1450, "died": 1516, "nationality": "Early Netherlandish", "movement": "Northern Renaissance", "pd_status": "public_domain_worldwide" },
-    { "name": "Pieter Bruegel the Elder", "aliases": ["Pieter Bruegel the Elder", "Bruegel", "Brueghel"], "born": 1525, "died": 1569, "nationality": "Flemish", "movement": "Northern Renaissance", "pd_status": "public_domain_worldwide" },
-    { "name": "Jan van Eyck", "aliases": ["Jan van Eyck"], "born": 1390, "died": 1441, "nationality": "Early Netherlandish", "movement": "Northern Renaissance", "pd_status": "public_domain_worldwide" },
-    { "name": "Édouard Manet", "aliases": ["Édouard Manet", "Edouard Manet", "Manet"], "born": 1832, "died": 1883, "nationality": "French", "movement": "Impressionism / Realism", "pd_status": "public_domain_worldwide" },
-    { "name": "Edgar Degas", "aliases": ["Edgar Degas", "Degas"], "born": 1834, "died": 1917, "nationality": "French", "movement": "Impressionism", "pd_status": "public_domain_worldwide" },
-    { "name": "Pierre-Auguste Renoir", "aliases": ["Pierre-Auguste Renoir", "Renoir"], "born": 1841, "died": 1919, "nationality": "French", "movement": "Impressionism", "pd_status": "public_domain_worldwide" },
-    { "name": "Paul Cézanne", "aliases": ["Paul Cézanne", "Cezanne", "Cézanne"], "born": 1839, "died": 1906, "nationality": "French", "movement": "Post-Impressionism", "pd_status": "public_domain_worldwide" },
-    { "name": "Paul Gauguin", "aliases": ["Paul Gauguin", "Gauguin"], "born": 1848, "died": 1903, "nationality": "French", "movement": "Post-Impressionism", "pd_status": "public_domain_worldwide" },
-    { "name": "Georges Seurat", "aliases": ["Georges Seurat", "Seurat"], "born": 1859, "died": 1891, "nationality": "French", "movement": "Neo-Impressionism", "pd_status": "public_domain_worldwide" },
-    { "name": "Henri de Toulouse-Lautrec", "aliases": ["Toulouse-Lautrec"], "born": 1864, "died": 1901, "nationality": "French", "movement": "Post-Impressionism", "pd_status": "public_domain_worldwide" },
-    { "name": "Henri Matisse", "aliases": ["Henri Matisse", "Matisse"], "born": 1869, "died": 1954, "nationality": "French", "movement": "Fauvism / Modernism", "pd_status": "copyrighted_in_most_jurisdictions_until_2025" },
-    { "name": "Pablo Picasso", "aliases": ["Pablo Picasso", "Picasso"], "born": 1881, "died": 1973, "nationality": "Spanish", "movement": "Cubism / Modernism", "pd_status": "copyrighted" },
-    { "name": "Salvador Dalí", "aliases": ["Salvador Dalí", "Salvador Dali", "Dalí"], "born": 1904, "died": 1989, "nationality": "Spanish", "movement": "Surrealism", "pd_status": "copyrighted" },
-    { "name": "Wassily Kandinsky", "aliases": ["Wassily Kandinsky", "Kandinsky"], "born": 1866, "died": 1944, "nationality": "Russian / French", "movement": "Abstract / Expressionism", "pd_status": "public_domain_in_most_jurisdictions" },
-    { "name": "Paul Klee", "aliases": ["Paul Klee", "Klee"], "born": 1879, "died": 1940, "nationality": "Swiss / German", "movement": "Expressionism / Bauhaus", "pd_status": "public_domain_in_most_jurisdictions" },
-    { "name": "Edvard Munch", "aliases": ["Edvard Munch", "Munch"], "born": 1863, "died": 1944, "nationality": "Norwegian", "movement": "Symbolism / Expressionism", "pd_status": "public_domain_in_most_jurisdictions" },
-    { "name": "Gustav Klimt", "aliases": ["Gustav Klimt", "Klimt"], "born": 1862, "died": 1918, "nationality": "Austrian", "movement": "Symbolism / Art Nouveau / Vienna Secession", "pd_status": "public_domain_worldwide" },
-    { "name": "Egon Schiele", "aliases": ["Egon Schiele", "Schiele"], "born": 1890, "died": 1918, "nationality": "Austrian", "movement": "Expressionism", "pd_status": "public_domain_worldwide" },
-    { "name": "Grant Wood", "aliases": ["Grant Wood"], "born": 1891, "died": 1942, "nationality": "American", "movement": "Regionalism", "pd_status": "copyrighted_in_us_until_2037" },
-    { "name": "Edward Hopper", "aliases": ["Edward Hopper", "Hopper"], "born": 1882, "died": 1967, "nationality": "American", "movement": "American Realism", "pd_status": "copyrighted" },
-    { "name": "Georgia O'Keeffe", "aliases": ["Georgia O'Keeffe", "O'Keeffe"], "born": 1887, "died": 1986, "nationality": "American", "movement": "American Modernism", "pd_status": "copyrighted" },
-    { "name": "Winslow Homer", "aliases": ["Winslow Homer", "Homer"], "born": 1836, "died": 1910, "nationality": "American", "movement": "Realism", "pd_status": "public_domain_worldwide" },
-    { "name": "John Singer Sargent", "aliases": ["John Singer Sargent", "Sargent"], "born": 1856, "died": 1925, "nationality": "American", "movement": "Realism / Impressionism", "pd_status": "public_domain_worldwide" },
-    { "name": "James McNeill Whistler", "aliases": ["James McNeill Whistler", "Whistler"], "born": 1834, "died": 1903, "nationality": "American", "movement": "Tonalism / Aestheticism", "pd_status": "public_domain_worldwide" },
-    { "name": "Thomas Cole", "aliases": ["Thomas Cole"], "born": 1801, "died": 1848, "nationality": "American / English", "movement": "Hudson River School", "pd_status": "public_domain_worldwide" },
-    { "name": "Frederic Edwin Church", "aliases": ["Frederic Edwin Church", "Frederic Church"], "born": 1826, "died": 1900, "nationality": "American", "movement": "Hudson River School", "pd_status": "public_domain_worldwide" },
-    { "name": "Albert Bierstadt", "aliases": ["Albert Bierstadt", "Bierstadt"], "born": 1830, "died": 1902, "nationality": "American / German", "movement": "Hudson River School", "pd_status": "public_domain_worldwide" },
-    { "name": "Francisco Goya", "aliases": ["Francisco Goya", "Goya"], "born": 1746, "died": 1828, "nationality": "Spanish", "movement": "Romanticism", "pd_status": "public_domain_worldwide" },
-    { "name": "Diego Velázquez", "aliases": ["Diego Velázquez", "Velázquez", "Velazquez"], "born": 1599, "died": 1660, "nationality": "Spanish", "movement": "Baroque", "pd_status": "public_domain_worldwide" },
-    { "name": "El Greco", "aliases": ["Doménikos Theotokópoulos", "El Greco"], "born": 1541, "died": 1614, "nationality": "Greek / Spanish", "movement": "Mannerism", "pd_status": "public_domain_worldwide" },
-    { "name": "Giuseppe Arcimboldo", "aliases": ["Giuseppe Arcimboldo", "Arcimboldo"], "born": 1526, "died": 1593, "nationality": "Italian", "movement": "Mannerism", "pd_status": "public_domain_worldwide" },
-    { "name": "Eugène Delacroix", "aliases": ["Eugène Delacroix", "Delacroix"], "born": 1798, "died": 1863, "nationality": "French", "movement": "Romanticism", "pd_status": "public_domain_worldwide" },
-    { "name": "Théodore Géricault", "aliases": ["Théodore Géricault", "Gericault", "Géricault"], "born": 1791, "died": 1824, "nationality": "French", "movement": "Romanticism", "pd_status": "public_domain_worldwide" },
-    { "name": "Jean-Léon Gérôme", "aliases": ["Jean-Léon Gérôme", "Gérôme", "Gerome"], "born": 1824, "died": 1904, "nationality": "French", "movement": "Academicism / Orientalism", "pd_status": "public_domain_worldwide" },
-    { "name": "Jacques-Louis David", "aliases": ["Jacques-Louis David"], "born": 1748, "died": 1825, "nationality": "French", "movement": "Neoclassicism", "pd_status": "public_domain_worldwide" },
-    { "name": "Jean-Auguste-Dominique Ingres", "aliases": ["Jean-Auguste-Dominique Ingres", "Ingres"], "born": 1780, "died": 1867, "nationality": "French", "movement": "Neoclassicism", "pd_status": "public_domain_worldwide" },
-    { "name": "Jean-François Millet", "aliases": ["Jean-François Millet", "Millet"], "born": 1814, "died": 1875, "nationality": "French", "movement": "Realism / Barbizon", "pd_status": "public_domain_worldwide" },
-    { "name": "Camille Corot", "aliases": ["Camille Corot", "Corot"], "born": 1796, "died": 1875, "nationality": "French", "movement": "Realism / Barbizon", "pd_status": "public_domain_worldwide" },
-    { "name": "Gustave Courbet", "aliases": ["Gustave Courbet", "Courbet"], "born": 1819, "died": 1877, "nationality": "French", "movement": "Realism", "pd_status": "public_domain_worldwide" },
-    { "name": "Caspar David Friedrich", "aliases": ["Caspar David Friedrich", "Friedrich"], "born": 1774, "died": 1840, "nationality": "German", "movement": "Romanticism", "pd_status": "public_domain_worldwide" },
-    { "name": "John Constable", "aliases": ["John Constable", "Constable"], "born": 1776, "died": 1837, "nationality": "English", "movement": "Romanticism", "pd_status": "public_domain_worldwide" },
-    { "name": "Hendrick Goltzius", "aliases": ["Hendrick Goltzius", "Goltzius"], "born": 1558, "died": 1617, "nationality": "Dutch", "movement": "Northern Mannerism", "pd_status": "public_domain_worldwide" },
-    { "name": "Frans Snyders", "aliases": ["Frans Snyders", "Snyders"], "born": 1579, "died": 1657, "nationality": "Flemish", "movement": "Baroque", "pd_status": "public_domain_worldwide" },
-    { "name": "Francesco Hayez", "aliases": ["Francesco Hayez", "Hayez"], "born": 1791, "died": 1882, "nationality": "Italian", "movement": "Romanticism", "pd_status": "public_domain_worldwide" },
-    { "name": "Katsushika Hokusai", "aliases": ["Katsushika Hokusai", "Hokusai"], "born": 1760, "died": 1849, "nationality": "Japanese", "movement": "Ukiyo-e", "pd_status": "public_domain_worldwide" },
-    { "name": "Utagawa Hiroshige", "aliases": ["Utagawa Hiroshige", "Hiroshige", "Andō Hiroshige"], "born": 1797, "died": 1858, "nationality": "Japanese", "movement": "Ukiyo-e", "pd_status": "public_domain_worldwide" },
-    { "name": "Kitagawa Utamaro", "aliases": ["Kitagawa Utamaro", "Utamaro"], "born": 1753, "died": 1806, "nationality": "Japanese", "movement": "Ukiyo-e", "pd_status": "public_domain_worldwide" },
-    { "name": "Charles W. Bartlett", "aliases": ["Charles W. Bartlett", "Charles Bartlett"], "born": 1860, "died": 1940, "nationality": "English / American", "movement": "Shin-hanga", "pd_status": "public_domain_in_most_jurisdictions" },
-    { "name": "Yamakawa Shūhō", "aliases": ["Yamakawa Shūhō", "Yamakawa Shuho"], "born": 1898, "died": 1944, "nationality": "Japanese", "movement": "Nihonga / Bijinga", "pd_status": "public_domain_in_most_jurisdictions" },
-    { "name": "John James Audubon", "aliases": ["John James Audubon", "Audubon"], "born": 1785, "died": 1851, "nationality": "American / French", "movement": "Natural history illustration", "pd_status": "public_domain_worldwide" },
-    { "name": "Ernst Haeckel", "aliases": ["Ernst Haeckel", "Haeckel"], "born": 1834, "died": 1919, "nationality": "German", "movement": "Scientific illustration / Art Nouveau influence", "pd_status": "public_domain_worldwide" },
-    { "name": "Henri Rousseau", "aliases": ["Henri Rousseau"], "born": 1844, "died": 1910, "nationality": "French", "movement": "Post-Impressionism / Naïve Art", "pd_status": "public_domain_worldwide" },
-    { "name": "Gustave Moreau", "aliases": ["Gustave Moreau", "Moreau"], "born": 1826, "died": 1898, "nationality": "French", "movement": "Symbolism", "pd_status": "public_domain_worldwide" },
-    { "name": "Alphonse Mucha", "aliases": ["Alphonse Mucha", "Mucha"], "born": 1860, "died": 1939, "nationality": "Czech", "movement": "Art Nouveau", "pd_status": "public_domain_worldwide" },
-    { "name": "William Blake", "aliases": ["William Blake"], "born": 1757, "died": 1827, "nationality": "English", "movement": "Romanticism", "pd_status": "public_domain_worldwide" },
-    { "name": "William-Adolphe Bouguereau", "aliases": ["William-Adolphe Bouguereau", "Bouguereau"], "born": 1825, "died": 1905, "nationality": "French", "movement": "Academicism", "pd_status": "public_domain_worldwide" },
-    { "name": "Dante Gabriel Rossetti", "aliases": ["Dante Gabriel Rossetti", "Rossetti"], "born": 1828, "died": 1882, "nationality": "English", "movement": "Pre-Raphaelite", "pd_status": "public_domain_worldwide" },
-    { "name": "John Everett Millais", "aliases": ["John Everett Millais", "Millais"], "born": 1829, "died": 1896, "nationality": "English", "movement": "Pre-Raphaelite", "pd_status": "public_domain_worldwide" },
-    { "name": "John William Waterhouse", "aliases": ["John William Waterhouse", "Waterhouse"], "born": 1849, "died": 1917, "nationality": "English", "movement": "Pre-Raphaelite / Academicism", "pd_status": "public_domain_worldwide" },
-    { "name": "Lawrence Alma-Tadema", "aliases": ["Lawrence Alma-Tadema", "Alma-Tadema"], "born": 1836, "died": 1912, "nationality": "Dutch / English", "movement": "Academicism", "pd_status": "public_domain_worldwide" },
-    { "name": "Frederic Leighton", "aliases": ["Frederic Leighton", "Leighton"], "born": 1830, "died": 1896, "nationality": "English", "movement": "Academicism", "pd_status": "public_domain_worldwide" },
-    { "name": "Marc Chagall", "aliases": ["Marc Chagall", "Chagall"], "born": 1887, "died": 1985, "nationality": "Russian / French", "movement": "Modernism / Surrealism", "pd_status": "copyrighted" },
-    { "name": "Joan Miró", "aliases": ["Joan Miró", "Miro"], "born": 1893, "died": 1983, "nationality": "Spanish / Catalan", "movement": "Surrealism", "pd_status": "copyrighted" },
-    { "name": "Piet Mondrian", "aliases": ["Piet Mondrian", "Mondrian"], "born": 1872, "died": 1944, "nationality": "Dutch", "movement": "De Stijl", "pd_status": "public_domain_in_most_jurisdictions" }
+    {
+      "name": "Claude Monet",
+      "aliases": ["Claude Monet", "Monet"],
+      "born": 1840,
+      "died": 1926,
+      "nationality": "French",
+      "movement": "Impressionism",
+      "pd_status": "public_domain_worldwide"
+    },
+    {
+      "name": "Vincent van Gogh",
+      "aliases": ["Vincent van Gogh", "van Gogh"],
+      "born": 1853,
+      "died": 1890,
+      "nationality": "Dutch",
+      "movement": "Post-Impressionism",
+      "pd_status": "public_domain_worldwide"
+    },
+    {
+      "name": "J. M. W. Turner",
+      "aliases": ["J. M. W. Turner", "William Turner", "Turner"],
+      "born": 1775,
+      "died": 1851,
+      "nationality": "English",
+      "movement": "Romanticism",
+      "pd_status": "public_domain_worldwide"
+    },
+    {
+      "name": "Peter Paul Rubens",
+      "aliases": ["Peter Paul Rubens", "P.P. Rubens", "Rubens"],
+      "born": 1577,
+      "died": 1640,
+      "nationality": "Flemish",
+      "movement": "Baroque",
+      "pd_status": "public_domain_worldwide"
+    },
+    {
+      "name": "Rembrandt van Rijn",
+      "aliases": ["Rembrandt van Rijn", "Rembrandt"],
+      "born": 1606,
+      "died": 1669,
+      "nationality": "Dutch",
+      "movement": "Dutch Golden Age",
+      "pd_status": "public_domain_worldwide"
+    },
+    {
+      "name": "Johannes Vermeer",
+      "aliases": ["Johannes Vermeer", "Vermeer"],
+      "born": 1632,
+      "died": 1675,
+      "nationality": "Dutch",
+      "movement": "Dutch Golden Age",
+      "pd_status": "public_domain_worldwide"
+    },
+    {
+      "name": "Leonardo da Vinci",
+      "aliases": ["Leonardo da Vinci", "Leonardo"],
+      "born": 1452,
+      "died": 1519,
+      "nationality": "Italian",
+      "movement": "High Renaissance",
+      "pd_status": "public_domain_worldwide"
+    },
+    {
+      "name": "Michelangelo Buonarroti",
+      "aliases": ["Michelangelo Buonarroti", "Michelangelo"],
+      "born": 1475,
+      "died": 1564,
+      "nationality": "Italian",
+      "movement": "High Renaissance",
+      "pd_status": "public_domain_worldwide"
+    },
+    {
+      "name": "Raphael",
+      "aliases": ["Raffaello Sanzio", "Raphael"],
+      "born": 1483,
+      "died": 1520,
+      "nationality": "Italian",
+      "movement": "High Renaissance",
+      "pd_status": "public_domain_worldwide"
+    },
+    {
+      "name": "Caravaggio",
+      "aliases": ["Michelangelo Merisi", "Caravaggio"],
+      "born": 1571,
+      "died": 1610,
+      "nationality": "Italian",
+      "movement": "Baroque",
+      "pd_status": "public_domain_worldwide"
+    },
+    {
+      "name": "Titian",
+      "aliases": ["Tiziano Vecellio", "Titian"],
+      "born": 1488,
+      "died": 1576,
+      "nationality": "Italian",
+      "movement": "Venetian Renaissance",
+      "pd_status": "public_domain_worldwide"
+    },
+    {
+      "name": "Sandro Botticelli",
+      "aliases": ["Sandro Botticelli", "Botticelli"],
+      "born": 1445,
+      "died": 1510,
+      "nationality": "Italian",
+      "movement": "Early Renaissance",
+      "pd_status": "public_domain_worldwide"
+    },
+    {
+      "name": "Albrecht Dürer",
+      "aliases": ["Albrecht Dürer", "Albrecht Durer", "Dürer"],
+      "born": 1471,
+      "died": 1528,
+      "nationality": "German",
+      "movement": "Northern Renaissance",
+      "pd_status": "public_domain_worldwide"
+    },
+    {
+      "name": "Hieronymus Bosch",
+      "aliases": ["Hieronymus Bosch", "Bosch"],
+      "born": 1450,
+      "died": 1516,
+      "nationality": "Early Netherlandish",
+      "movement": "Northern Renaissance",
+      "pd_status": "public_domain_worldwide"
+    },
+    {
+      "name": "Pieter Bruegel the Elder",
+      "aliases": ["Pieter Bruegel the Elder", "Bruegel", "Brueghel"],
+      "born": 1525,
+      "died": 1569,
+      "nationality": "Flemish",
+      "movement": "Northern Renaissance",
+      "pd_status": "public_domain_worldwide"
+    },
+    {
+      "name": "Jan van Eyck",
+      "aliases": ["Jan van Eyck"],
+      "born": 1390,
+      "died": 1441,
+      "nationality": "Early Netherlandish",
+      "movement": "Northern Renaissance",
+      "pd_status": "public_domain_worldwide"
+    },
+    {
+      "name": "Édouard Manet",
+      "aliases": ["Édouard Manet", "Edouard Manet", "Manet"],
+      "born": 1832,
+      "died": 1883,
+      "nationality": "French",
+      "movement": "Impressionism / Realism",
+      "pd_status": "public_domain_worldwide"
+    },
+    {
+      "name": "Edgar Degas",
+      "aliases": ["Edgar Degas", "Degas"],
+      "born": 1834,
+      "died": 1917,
+      "nationality": "French",
+      "movement": "Impressionism",
+      "pd_status": "public_domain_worldwide"
+    },
+    {
+      "name": "Pierre-Auguste Renoir",
+      "aliases": ["Pierre-Auguste Renoir", "Renoir"],
+      "born": 1841,
+      "died": 1919,
+      "nationality": "French",
+      "movement": "Impressionism",
+      "pd_status": "public_domain_worldwide"
+    },
+    {
+      "name": "Paul Cézanne",
+      "aliases": ["Paul Cézanne", "Cezanne", "Cézanne"],
+      "born": 1839,
+      "died": 1906,
+      "nationality": "French",
+      "movement": "Post-Impressionism",
+      "pd_status": "public_domain_worldwide"
+    },
+    {
+      "name": "Paul Gauguin",
+      "aliases": ["Paul Gauguin", "Gauguin"],
+      "born": 1848,
+      "died": 1903,
+      "nationality": "French",
+      "movement": "Post-Impressionism",
+      "pd_status": "public_domain_worldwide"
+    },
+    {
+      "name": "Georges Seurat",
+      "aliases": ["Georges Seurat", "Seurat"],
+      "born": 1859,
+      "died": 1891,
+      "nationality": "French",
+      "movement": "Neo-Impressionism",
+      "pd_status": "public_domain_worldwide"
+    },
+    {
+      "name": "Henri de Toulouse-Lautrec",
+      "aliases": ["Toulouse-Lautrec"],
+      "born": 1864,
+      "died": 1901,
+      "nationality": "French",
+      "movement": "Post-Impressionism",
+      "pd_status": "public_domain_worldwide"
+    },
+    {
+      "name": "Henri Matisse",
+      "aliases": ["Henri Matisse", "Matisse"],
+      "born": 1869,
+      "died": 1954,
+      "nationality": "French",
+      "movement": "Fauvism / Modernism",
+      "pd_status": "copyrighted_in_most_jurisdictions_until_2025"
+    },
+    {
+      "name": "Pablo Picasso",
+      "aliases": ["Pablo Picasso", "Picasso"],
+      "born": 1881,
+      "died": 1973,
+      "nationality": "Spanish",
+      "movement": "Cubism / Modernism",
+      "pd_status": "copyrighted"
+    },
+    {
+      "name": "Salvador Dalí",
+      "aliases": ["Salvador Dalí", "Salvador Dali", "Dalí"],
+      "born": 1904,
+      "died": 1989,
+      "nationality": "Spanish",
+      "movement": "Surrealism",
+      "pd_status": "copyrighted"
+    },
+    {
+      "name": "Wassily Kandinsky",
+      "aliases": ["Wassily Kandinsky", "Kandinsky"],
+      "born": 1866,
+      "died": 1944,
+      "nationality": "Russian / French",
+      "movement": "Abstract / Expressionism",
+      "pd_status": "public_domain_in_most_jurisdictions"
+    },
+    {
+      "name": "Paul Klee",
+      "aliases": ["Paul Klee", "Klee"],
+      "born": 1879,
+      "died": 1940,
+      "nationality": "Swiss / German",
+      "movement": "Expressionism / Bauhaus",
+      "pd_status": "public_domain_in_most_jurisdictions"
+    },
+    {
+      "name": "Edvard Munch",
+      "aliases": ["Edvard Munch", "Munch"],
+      "born": 1863,
+      "died": 1944,
+      "nationality": "Norwegian",
+      "movement": "Symbolism / Expressionism",
+      "pd_status": "public_domain_in_most_jurisdictions"
+    },
+    {
+      "name": "Gustav Klimt",
+      "aliases": ["Gustav Klimt", "Klimt"],
+      "born": 1862,
+      "died": 1918,
+      "nationality": "Austrian",
+      "movement": "Symbolism / Art Nouveau / Vienna Secession",
+      "pd_status": "public_domain_worldwide"
+    },
+    {
+      "name": "Egon Schiele",
+      "aliases": ["Egon Schiele", "Schiele"],
+      "born": 1890,
+      "died": 1918,
+      "nationality": "Austrian",
+      "movement": "Expressionism",
+      "pd_status": "public_domain_worldwide"
+    },
+    {
+      "name": "Grant Wood",
+      "aliases": ["Grant Wood"],
+      "born": 1891,
+      "died": 1942,
+      "nationality": "American",
+      "movement": "Regionalism",
+      "pd_status": "copyrighted_in_us_until_2037"
+    },
+    {
+      "name": "Edward Hopper",
+      "aliases": ["Edward Hopper", "Hopper"],
+      "born": 1882,
+      "died": 1967,
+      "nationality": "American",
+      "movement": "American Realism",
+      "pd_status": "copyrighted"
+    },
+    {
+      "name": "Georgia O'Keeffe",
+      "aliases": ["Georgia O'Keeffe", "O'Keeffe"],
+      "born": 1887,
+      "died": 1986,
+      "nationality": "American",
+      "movement": "American Modernism",
+      "pd_status": "copyrighted"
+    },
+    {
+      "name": "Winslow Homer",
+      "aliases": ["Winslow Homer", "Homer"],
+      "born": 1836,
+      "died": 1910,
+      "nationality": "American",
+      "movement": "Realism",
+      "pd_status": "public_domain_worldwide"
+    },
+    {
+      "name": "John Singer Sargent",
+      "aliases": ["John Singer Sargent", "Sargent"],
+      "born": 1856,
+      "died": 1925,
+      "nationality": "American",
+      "movement": "Realism / Impressionism",
+      "pd_status": "public_domain_worldwide"
+    },
+    {
+      "name": "James McNeill Whistler",
+      "aliases": ["James McNeill Whistler", "Whistler"],
+      "born": 1834,
+      "died": 1903,
+      "nationality": "American",
+      "movement": "Tonalism / Aestheticism",
+      "pd_status": "public_domain_worldwide"
+    },
+    {
+      "name": "Thomas Cole",
+      "aliases": ["Thomas Cole"],
+      "born": 1801,
+      "died": 1848,
+      "nationality": "American / English",
+      "movement": "Hudson River School",
+      "pd_status": "public_domain_worldwide"
+    },
+    {
+      "name": "Frederic Edwin Church",
+      "aliases": ["Frederic Edwin Church", "Frederic Church"],
+      "born": 1826,
+      "died": 1900,
+      "nationality": "American",
+      "movement": "Hudson River School",
+      "pd_status": "public_domain_worldwide"
+    },
+    {
+      "name": "Albert Bierstadt",
+      "aliases": ["Albert Bierstadt", "Bierstadt"],
+      "born": 1830,
+      "died": 1902,
+      "nationality": "American / German",
+      "movement": "Hudson River School",
+      "pd_status": "public_domain_worldwide"
+    },
+    {
+      "name": "Francisco Goya",
+      "aliases": ["Francisco Goya", "Goya"],
+      "born": 1746,
+      "died": 1828,
+      "nationality": "Spanish",
+      "movement": "Romanticism",
+      "pd_status": "public_domain_worldwide"
+    },
+    {
+      "name": "Diego Velázquez",
+      "aliases": ["Diego Velázquez", "Velázquez", "Velazquez"],
+      "born": 1599,
+      "died": 1660,
+      "nationality": "Spanish",
+      "movement": "Baroque",
+      "pd_status": "public_domain_worldwide"
+    },
+    {
+      "name": "El Greco",
+      "aliases": ["Doménikos Theotokópoulos", "El Greco"],
+      "born": 1541,
+      "died": 1614,
+      "nationality": "Greek / Spanish",
+      "movement": "Mannerism",
+      "pd_status": "public_domain_worldwide"
+    },
+    {
+      "name": "Giuseppe Arcimboldo",
+      "aliases": ["Giuseppe Arcimboldo", "Arcimboldo"],
+      "born": 1526,
+      "died": 1593,
+      "nationality": "Italian",
+      "movement": "Mannerism",
+      "pd_status": "public_domain_worldwide"
+    },
+    {
+      "name": "Eugène Delacroix",
+      "aliases": ["Eugène Delacroix", "Delacroix"],
+      "born": 1798,
+      "died": 1863,
+      "nationality": "French",
+      "movement": "Romanticism",
+      "pd_status": "public_domain_worldwide"
+    },
+    {
+      "name": "Théodore Géricault",
+      "aliases": ["Théodore Géricault", "Gericault", "Géricault"],
+      "born": 1791,
+      "died": 1824,
+      "nationality": "French",
+      "movement": "Romanticism",
+      "pd_status": "public_domain_worldwide"
+    },
+    {
+      "name": "Jean-Léon Gérôme",
+      "aliases": ["Jean-Léon Gérôme", "Gérôme", "Gerome"],
+      "born": 1824,
+      "died": 1904,
+      "nationality": "French",
+      "movement": "Academicism / Orientalism",
+      "pd_status": "public_domain_worldwide"
+    },
+    {
+      "name": "Jacques-Louis David",
+      "aliases": ["Jacques-Louis David"],
+      "born": 1748,
+      "died": 1825,
+      "nationality": "French",
+      "movement": "Neoclassicism",
+      "pd_status": "public_domain_worldwide"
+    },
+    {
+      "name": "Jean-Auguste-Dominique Ingres",
+      "aliases": ["Jean-Auguste-Dominique Ingres", "Ingres"],
+      "born": 1780,
+      "died": 1867,
+      "nationality": "French",
+      "movement": "Neoclassicism",
+      "pd_status": "public_domain_worldwide"
+    },
+    {
+      "name": "Jean-François Millet",
+      "aliases": ["Jean-François Millet", "Millet"],
+      "born": 1814,
+      "died": 1875,
+      "nationality": "French",
+      "movement": "Realism / Barbizon",
+      "pd_status": "public_domain_worldwide"
+    },
+    {
+      "name": "Camille Corot",
+      "aliases": ["Camille Corot", "Corot"],
+      "born": 1796,
+      "died": 1875,
+      "nationality": "French",
+      "movement": "Realism / Barbizon",
+      "pd_status": "public_domain_worldwide"
+    },
+    {
+      "name": "Gustave Courbet",
+      "aliases": ["Gustave Courbet", "Courbet"],
+      "born": 1819,
+      "died": 1877,
+      "nationality": "French",
+      "movement": "Realism",
+      "pd_status": "public_domain_worldwide"
+    },
+    {
+      "name": "Caspar David Friedrich",
+      "aliases": ["Caspar David Friedrich", "Friedrich"],
+      "born": 1774,
+      "died": 1840,
+      "nationality": "German",
+      "movement": "Romanticism",
+      "pd_status": "public_domain_worldwide"
+    },
+    {
+      "name": "John Constable",
+      "aliases": ["John Constable", "Constable"],
+      "born": 1776,
+      "died": 1837,
+      "nationality": "English",
+      "movement": "Romanticism",
+      "pd_status": "public_domain_worldwide"
+    },
+    {
+      "name": "Hendrick Goltzius",
+      "aliases": ["Hendrick Goltzius", "Goltzius"],
+      "born": 1558,
+      "died": 1617,
+      "nationality": "Dutch",
+      "movement": "Northern Mannerism",
+      "pd_status": "public_domain_worldwide"
+    },
+    {
+      "name": "Frans Snyders",
+      "aliases": ["Frans Snyders", "Snyders"],
+      "born": 1579,
+      "died": 1657,
+      "nationality": "Flemish",
+      "movement": "Baroque",
+      "pd_status": "public_domain_worldwide"
+    },
+    {
+      "name": "Francesco Hayez",
+      "aliases": ["Francesco Hayez", "Hayez"],
+      "born": 1791,
+      "died": 1882,
+      "nationality": "Italian",
+      "movement": "Romanticism",
+      "pd_status": "public_domain_worldwide"
+    },
+    {
+      "name": "Katsushika Hokusai",
+      "aliases": ["Katsushika Hokusai", "Hokusai"],
+      "born": 1760,
+      "died": 1849,
+      "nationality": "Japanese",
+      "movement": "Ukiyo-e",
+      "pd_status": "public_domain_worldwide"
+    },
+    {
+      "name": "Utagawa Hiroshige",
+      "aliases": ["Utagawa Hiroshige", "Hiroshige", "Andō Hiroshige"],
+      "born": 1797,
+      "died": 1858,
+      "nationality": "Japanese",
+      "movement": "Ukiyo-e",
+      "pd_status": "public_domain_worldwide"
+    },
+    {
+      "name": "Kitagawa Utamaro",
+      "aliases": ["Kitagawa Utamaro", "Utamaro"],
+      "born": 1753,
+      "died": 1806,
+      "nationality": "Japanese",
+      "movement": "Ukiyo-e",
+      "pd_status": "public_domain_worldwide"
+    },
+    {
+      "name": "Charles W. Bartlett",
+      "aliases": ["Charles W. Bartlett", "Charles Bartlett"],
+      "born": 1860,
+      "died": 1940,
+      "nationality": "English / American",
+      "movement": "Shin-hanga",
+      "pd_status": "public_domain_in_most_jurisdictions"
+    },
+    {
+      "name": "Yamakawa Shūhō",
+      "aliases": ["Yamakawa Shūhō", "Yamakawa Shuho"],
+      "born": 1898,
+      "died": 1944,
+      "nationality": "Japanese",
+      "movement": "Nihonga / Bijinga",
+      "pd_status": "public_domain_in_most_jurisdictions"
+    },
+    {
+      "name": "John James Audubon",
+      "aliases": ["John James Audubon", "Audubon"],
+      "born": 1785,
+      "died": 1851,
+      "nationality": "American / French",
+      "movement": "Natural history illustration",
+      "pd_status": "public_domain_worldwide"
+    },
+    {
+      "name": "Ernst Haeckel",
+      "aliases": ["Ernst Haeckel", "Haeckel"],
+      "born": 1834,
+      "died": 1919,
+      "nationality": "German",
+      "movement": "Scientific illustration / Art Nouveau influence",
+      "pd_status": "public_domain_worldwide"
+    },
+    {
+      "name": "Henri Rousseau",
+      "aliases": ["Henri Rousseau"],
+      "born": 1844,
+      "died": 1910,
+      "nationality": "French",
+      "movement": "Post-Impressionism / Naïve Art",
+      "pd_status": "public_domain_worldwide"
+    },
+    {
+      "name": "Gustave Moreau",
+      "aliases": ["Gustave Moreau", "Moreau"],
+      "born": 1826,
+      "died": 1898,
+      "nationality": "French",
+      "movement": "Symbolism",
+      "pd_status": "public_domain_worldwide"
+    },
+    {
+      "name": "Alphonse Mucha",
+      "aliases": ["Alphonse Mucha", "Mucha"],
+      "born": 1860,
+      "died": 1939,
+      "nationality": "Czech",
+      "movement": "Art Nouveau",
+      "pd_status": "public_domain_worldwide"
+    },
+    {
+      "name": "William Blake",
+      "aliases": ["William Blake"],
+      "born": 1757,
+      "died": 1827,
+      "nationality": "English",
+      "movement": "Romanticism",
+      "pd_status": "public_domain_worldwide"
+    },
+    {
+      "name": "William-Adolphe Bouguereau",
+      "aliases": ["William-Adolphe Bouguereau", "Bouguereau"],
+      "born": 1825,
+      "died": 1905,
+      "nationality": "French",
+      "movement": "Academicism",
+      "pd_status": "public_domain_worldwide"
+    },
+    {
+      "name": "Dante Gabriel Rossetti",
+      "aliases": ["Dante Gabriel Rossetti", "Rossetti"],
+      "born": 1828,
+      "died": 1882,
+      "nationality": "English",
+      "movement": "Pre-Raphaelite",
+      "pd_status": "public_domain_worldwide"
+    },
+    {
+      "name": "John Everett Millais",
+      "aliases": ["John Everett Millais", "Millais"],
+      "born": 1829,
+      "died": 1896,
+      "nationality": "English",
+      "movement": "Pre-Raphaelite",
+      "pd_status": "public_domain_worldwide"
+    },
+    {
+      "name": "John William Waterhouse",
+      "aliases": ["John William Waterhouse", "Waterhouse"],
+      "born": 1849,
+      "died": 1917,
+      "nationality": "English",
+      "movement": "Pre-Raphaelite / Academicism",
+      "pd_status": "public_domain_worldwide"
+    },
+    {
+      "name": "Lawrence Alma-Tadema",
+      "aliases": ["Lawrence Alma-Tadema", "Alma-Tadema"],
+      "born": 1836,
+      "died": 1912,
+      "nationality": "Dutch / English",
+      "movement": "Academicism",
+      "pd_status": "public_domain_worldwide"
+    },
+    {
+      "name": "Frederic Leighton",
+      "aliases": ["Frederic Leighton", "Leighton"],
+      "born": 1830,
+      "died": 1896,
+      "nationality": "English",
+      "movement": "Academicism",
+      "pd_status": "public_domain_worldwide"
+    },
+    {
+      "name": "Marc Chagall",
+      "aliases": ["Marc Chagall", "Chagall"],
+      "born": 1887,
+      "died": 1985,
+      "nationality": "Russian / French",
+      "movement": "Modernism / Surrealism",
+      "pd_status": "copyrighted"
+    },
+    {
+      "name": "Joan Miró",
+      "aliases": ["Joan Miró", "Miro"],
+      "born": 1893,
+      "died": 1983,
+      "nationality": "Spanish / Catalan",
+      "movement": "Surrealism",
+      "pd_status": "copyrighted"
+    },
+    {
+      "name": "Piet Mondrian",
+      "aliases": ["Piet Mondrian", "Mondrian"],
+      "born": 1872,
+      "died": 1944,
+      "nationality": "Dutch",
+      "movement": "De Stijl",
+      "pd_status": "public_domain_in_most_jurisdictions"
+    }
   ]
 }

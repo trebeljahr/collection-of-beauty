@@ -26,7 +26,12 @@
     "wikimedia_sourced_files": {
       "audubon-birds": { "total": 435, "resolved": 435, "unresolved": 0 },
       "kunstformen-images": { "total": 100, "resolved": 100, "unresolved": 0 },
-      "collection-of-beauty": { "total": 2624, "resolved_wikimedia": 2412, "classified_heuristically": 204, "still_needs_review": 8 }
+      "collection-of-beauty": {
+        "total": 2624,
+        "resolved_wikimedia": 2412,
+        "classified_heuristically": 204,
+        "still_needs_review": 8
+      }
     }
   },
   "copyright_summary": {

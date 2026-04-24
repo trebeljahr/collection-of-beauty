@@ -1,9 +1,9 @@
 "use client";
 
-import * as THREE from "three";
-import { Text } from "@react-three/drei";
 import type { Staircase } from "@/lib/gallery-layout/types";
 import { FLOOR_SEPARATION } from "@/lib/gallery-layout/world-coords";
+import { Text } from "@react-three/drei";
+import * as THREE from "three";
 import { signBaseMaterial } from "./palette-materials";
 
 // Shared materials — one "stair vocabulary" for every spiral in the
@@ -40,16 +40,8 @@ export function StaircaseRenderer({
 }: {
   staircase: Staircase;
 }) {
-  const {
-    centerX,
-    centerZ,
-    innerRadius,
-    outerRadius,
-    numSteps,
-    direction,
-    lowerY,
-    upperY,
-  } = staircase;
+  const { centerX, centerZ, innerRadius, outerRadius, numSteps, direction, lowerY, upperY } =
+    staircase;
 
   const midR = (innerRadius + outerRadius) / 2;
   const stepDepth = outerRadius - innerRadius; // radial span of the tread
@@ -97,11 +89,7 @@ export function StaircaseRenderer({
     const cx = centerX + Math.cos(theta) * railRadius;
     const cz = centerZ + Math.sin(theta) * railRadius;
     rails.push(
-      <mesh
-        key={`rail-${i}`}
-        position={[cx, railY, cz]}
-        rotation={[0, -theta, 0]}
-      >
+      <mesh key={`rail-${i}`} position={[cx, railY, cz]} rotation={[0, -theta, 0]}>
         <boxGeometry args={[0.08, railHeight, arcAtMid]} />
         <primitive object={railMaterial} attach="material" />
       </mesh>,
@@ -111,9 +99,7 @@ export function StaircaseRenderer({
   return (
     <group>
       {/* Central column */}
-      <mesh
-        position={[centerX, lowerY + columnHeight / 2, centerZ]}
-      >
+      <mesh position={[centerX, lowerY + columnHeight / 2, centerZ]}>
         <cylinderGeometry args={[innerRadius, innerRadius, columnHeight, 24]} />
         <primitive object={columnMaterial} attach="material" />
       </mesh>
@@ -124,21 +110,13 @@ export function StaircaseRenderer({
       {/* Destination sign at the bottom of the flight — placed on the
           central column at the spiral's entry angle (+X). */}
       <StairSign
-        position={[
-          centerX + innerRadius + 0.05,
-          lowerY + 2.4,
-          centerZ,
-        ]}
+        position={[centerX + innerRadius + 0.05, lowerY + 2.4, centerZ]}
         rotationY={-Math.PI / 2}
         label={`↑ ${staircase.upperLabel}`}
       />
       {/* …and one at the top, same column, facing the player exiting. */}
       <StairSign
-        position={[
-          centerX + innerRadius + 0.05,
-          upperY + 2.4,
-          centerZ,
-        ]}
+        position={[centerX + innerRadius + 0.05, upperY + 2.4, centerZ]}
         rotationY={-Math.PI / 2}
         label={`↓ ${staircase.lowerLabel}`}
       />
@@ -185,11 +163,7 @@ function StairSign({
  *  (between innerRadius and outerRadius). The central column and the
  *  walkway outside the spiral both return false so they use normal
  *  floor physics. */
-export function isInsideStair(
-  staircase: Staircase,
-  worldX: number,
-  worldZ: number,
-): boolean {
+export function isInsideStair(staircase: Staircase, worldX: number, worldZ: number): boolean {
   const dx = worldX - staircase.centerX;
   const dz = worldZ - staircase.centerZ;
   const r = Math.hypot(dx, dz);
@@ -204,11 +178,7 @@ export function isInsideStair(
  * ambiguous (e.g. θ=0 is both the bottom of this flight and the top
  * of the same flight if the player has already walked a full loop).
  */
-export function spiralRawAngle(
-  staircase: Staircase,
-  worldX: number,
-  worldZ: number,
-): number {
+export function spiralRawAngle(staircase: Staircase, worldX: number, worldZ: number): number {
   const dx = worldX - staircase.centerX;
   const dz = worldZ - staircase.centerZ;
   let theta = Math.atan2(dz, dx);
@@ -220,10 +190,7 @@ export function spiralRawAngle(
 
 /** Y at a normalised cumulative angle. `cumulative` in [0, 2π] —
  *  below 0 clamps to lowerY, above 2π clamps to upperY. */
-export function stairHeightAt(
-  staircase: Staircase,
-  cumulativeAngle: number,
-): number {
+export function stairHeightAt(staircase: Staircase, cumulativeAngle: number): number {
   const t = Math.max(0, Math.min(1, cumulativeAngle / (Math.PI * 2)));
   return staircase.lowerY + t * (staircase.upperY - staircase.lowerY);
 }

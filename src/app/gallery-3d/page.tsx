@@ -1,6 +1,6 @@
-import type { Metadata } from "next";
 import { GalleryDungeon } from "@/components/gallery-dungeon";
 import { artworks } from "@/lib/data";
+import type { Metadata } from "next";
 
 export const metadata: Metadata = {
   title: "3D Gallery",

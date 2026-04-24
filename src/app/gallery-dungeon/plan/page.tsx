@@ -8,11 +8,11 @@
 //   label         → room movement name, centred on the room
 //   door ticks    → short marks on room walls where openings sit
 
-import type { Metadata } from "next";
 import { artworks } from "@/lib/data";
 import { layoutDungeon } from "@/lib/gallery-layout/layout-dungeon";
 import type { FloorLayout, RoomLayout } from "@/lib/gallery-layout/types";
 import { CELL_SIZE } from "@/lib/gallery-layout/world-coords";
+import type { Metadata } from "next";
 
 export const metadata: Metadata = {
   title: "Dungeon floor plan · debug",
@@ -33,15 +33,14 @@ export default function FloorPlanPage() {
         <header className="space-y-2">
           <h1 className="text-3xl font-semibold">Dungeon floor plans</h1>
           <p className="text-neutral-400 max-w-3xl text-sm">
-            Debug view for the multi-floor gallery layout. Each era is one
-            floor; rooms are era-coloured, anchor rooms are saturated, and
-            connecting corridors show in grey. Rooms without a movement label
-            are slots the generator produced that didn&apos;t have a movement
-            to claim them.
+            Debug view for the multi-floor gallery layout. Each era is one floor; rooms are
+            era-coloured, anchor rooms are saturated, and connecting corridors show in grey. Rooms
+            without a movement label are slots the generator produced that didn&apos;t have a
+            movement to claim them.
           </p>
           <p className="text-neutral-500 text-xs">
-            Floors: {layout.floors.length} · Rooms: {layout.allRooms.length} ·
-            Hallways: {layout.allHallways.length} · Doors: {totalDoors}
+            Floors: {layout.floors.length} · Rooms: {layout.allRooms.length} · Hallways:{" "}
+            {layout.allHallways.length} · Doors: {totalDoors}
           </p>
         </header>
 
@@ -62,33 +61,20 @@ function FloorSvg({ floor }: { floor: FloorLayout }) {
   const accent = floor.era.palette.accent;
   const wall = floor.era.palette.wallColor;
 
-  const eraArtworkCount = floor.rooms.reduce(
-    (acc, r) => acc + r.artworks.length,
-    0,
-  );
+  const eraArtworkCount = floor.rooms.reduce((acc, r) => acc + r.artworks.length, 0);
   const doorCount = floor.rooms.reduce((n, r) => n + r.doors.length, 0);
-  const placedInRooms = floor.rooms.reduce(
-    (n, r) => n + r.placements.length,
-    0,
-  );
-  const placedInHallways = floor.hallways.reduce(
-    (n, h) => n + h.placements.length,
-    0,
-  );
+  const placedInRooms = floor.rooms.reduce((n, r) => n + r.placements.length, 0);
+  const placedInHallways = floor.hallways.reduce((n, h) => n + h.placements.length, 0);
 
   return (
     <section className="space-y-3">
       <div className="flex items-baseline gap-3">
-        <span className="text-xs font-mono text-neutral-500">
-          FLOOR {floor.index}
-        </span>
+        <span className="text-xs font-mono text-neutral-500">FLOOR {floor.index}</span>
         <h2 className="text-xl font-semibold">{floor.era.title}</h2>
         <span className="text-neutral-500 text-xs">
-          {floor.era.yearMin}–
-          {floor.era.yearMax === 9999 ? "now" : floor.era.yearMax} ·{" "}
-          {floor.rooms.length} rooms · {floor.hallways.length} hallways ·{" "}
-          {doorCount} doors · {eraArtworkCount} works ({placedInRooms}+
-          {placedInHallways} placed)
+          {floor.era.yearMin}–{floor.era.yearMax === 9999 ? "now" : floor.era.yearMax} ·{" "}
+          {floor.rooms.length} rooms · {floor.hallways.length} hallways · {doorCount} doors ·{" "}
+          {eraArtworkCount} works ({placedInRooms}+{placedInHallways} placed)
         </span>
       </div>
       <p className="text-neutral-400 text-sm italic">{floor.era.blurb}</p>
@@ -100,13 +86,7 @@ function FloorSvg({ floor }: { floor: FloorLayout }) {
           viewBox={`0 0 ${svgW} ${svgH}`}
           className="border border-neutral-800 bg-neutral-900 rounded"
         >
-          <rect
-            x={PADDING}
-            y={PADDING}
-            width={w * CELL_PX}
-            height={h * CELL_PX}
-            fill="#0c0a08"
-          />
+          <rect x={PADDING} y={PADDING} width={w * CELL_PX} height={h * CELL_PX} fill="#0c0a08" />
 
           {cellsOfKind(floor, "hallway").map((c, i) => (
             <rect
@@ -120,12 +100,7 @@ function FloorSvg({ floor }: { floor: FloorLayout }) {
           ))}
 
           {floor.rooms.map((room) => (
-            <RoomRect
-              key={room.id}
-              room={room}
-              accent={accent}
-              wall={wall}
-            />
+            <RoomRect key={room.id} room={room} accent={accent} wall={wall} />
           ))}
 
           {floor.rooms.flatMap((room) =>
@@ -183,7 +158,7 @@ function RoomLabel({ room }: { room: RoomLayout }) {
   const cx = PADDING + ((xMin + xMax + 1) / 2) * CELL_PX;
   const cy = PADDING + ((zMin + zMax + 1) / 2) * CELL_PX;
   const count = room.artworks.length;
-  const isTiny = (xMax - xMin) < 3 || (zMax - zMin) < 3;
+  const isTiny = xMax - xMin < 3 || zMax - zMin < 3;
 
   return (
     <g pointerEvents="none">

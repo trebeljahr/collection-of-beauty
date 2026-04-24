@@ -12,14 +12,8 @@
 // falls inside a door opening is skipped.
 
 import type { Artwork } from "@/lib/data";
-import type {
-  Door,
-  FloorLayout,
-  HallwayLayout,
-  Placement,
-  RoomLayout,
-} from "./types";
 import { artworkBand, partitionByBand } from "./painting-bands";
+import type { Door, FloorLayout, HallwayLayout, Placement, RoomLayout } from "./types";
 import { CELL_SIZE } from "./world-coords";
 
 /** Eye-height-ish centre for every wall-mounted painting. */
@@ -31,7 +25,7 @@ const HALLWAY_ROW_UPPER_Y = 2.5;
 /** Max painting dimensions in metres, independent of real-world size. */
 const MAX_PAINTING_W = 2.2;
 const MAX_PAINTING_H_ROOM = 3.0;
-const MAX_PAINTING_H_HALLWAY = 1.6;   // lower-row cap
+const MAX_PAINTING_H_HALLWAY = 1.6; // lower-row cap
 const MAX_PAINTING_H_HALLWAY_UPPER = 0.8;
 /** Inset from the wall surface so paintings don't z-fight. */
 const PAINTING_WALL_OFFSET = 0.06;
@@ -144,10 +138,7 @@ export function computeRoomSlots(room: RoomLayout): Slot[] {
 /** For each hallway cell, emit slots on each side that faces a None
  *  (non-walkable) cell. Two rows per side (salon hang): a lower row
  *  and a higher, smaller row above. */
-export function computeHallwaySlots(
-  hallway: HallwayLayout,
-  floor: FloorLayout,
-): Slot[] {
+export function computeHallwaySlots(hallway: HallwayLayout, floor: FloorLayout): Slot[] {
   const yLow = floor.y + HALLWAY_ROW_LOWER_Y;
   const yHigh = floor.y + HALLWAY_ROW_UPPER_Y;
   const slots: Slot[] = [];
@@ -246,10 +237,7 @@ export type DistributionStats = {
  *    (wall shows through). If we have more artworks than slots, the
  *    overflow is dropped.
  */
-export function distributePaintings(
-  floor: FloorLayout,
-  eraArtworks: Artwork[],
-): DistributionStats {
+export function distributePaintings(floor: FloorLayout, eraArtworks: Artwork[]): DistributionStats {
   const bands = partitionByBand(eraArtworks);
 
   // --- Rooms: large first (biggest rooms), then medium
@@ -393,11 +381,7 @@ function slotToPlacement(slot: Slot, artwork: Artwork): Placement {
  *  inside any of the doors on this side? `coord` is the painting's
  *  centre; doors are 2 m wide, so we treat anything within ±1.1 m as a
  *  collision (adds 10 cm of buffer so paintings don't crowd the frame). */
-function isInsideDoor(
-  coord: number,
-  doors: Door[],
-  axis: "x" | "z",
-): boolean {
+function isInsideDoor(coord: number, doors: Door[], axis: "x" | "z"): boolean {
   for (const d of doors) {
     const dCoord = axis === "x" ? d.worldX : d.worldZ;
     if (Math.abs(coord - dCoord) < d.width / 2 + 0.1) return true;

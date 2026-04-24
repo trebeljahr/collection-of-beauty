@@ -1,7 +1,7 @@
-import artworksJson from "@/data/artworks.json";
 import artistsJson from "@/data/artists.json";
-import movementsJson from "@/data/movements.json";
+import artworksJson from "@/data/artworks.json";
 import connectionsJson from "@/data/connections.json";
+import movementsJson from "@/data/movements.json";
 import summaryJson from "@/data/summary.json";
 
 export type Artwork = {

@@ -11,41 +11,24 @@ class Matrix4x4 {
   }
 
   get determinant(): number {
-    const [
-      [m00, m01, m02, m03],
-      [m10, m11, m12, m13],
-      [m20, m21, m22, m23],
-      [m30, m31, m32, m33],
-    ] = this.elements;
+    const [[m00, m01, m02, m03], [m10, m11, m12, m13], [m20, m21, m22, m23], [m30, m31, m32, m33]] =
+      this.elements;
 
     const det3_123_123 =
-      m11 * (m22 * m33 - m23 * m32) -
-      m12 * (m21 * m33 - m23 * m31) +
-      m13 * (m21 * m32 - m22 * m31);
+      m11 * (m22 * m33 - m23 * m32) - m12 * (m21 * m33 - m23 * m31) + m13 * (m21 * m32 - m22 * m31);
     const det3_123_023 =
-      m01 * (m22 * m33 - m23 * m32) -
-      m02 * (m21 * m33 - m23 * m31) +
-      m03 * (m21 * m32 - m22 * m31);
+      m01 * (m22 * m33 - m23 * m32) - m02 * (m21 * m33 - m23 * m31) + m03 * (m21 * m32 - m22 * m31);
     const det3_123_013 =
-      m01 * (m12 * m33 - m13 * m32) -
-      m02 * (m11 * m33 - m13 * m31) +
-      m03 * (m11 * m32 - m12 * m31);
+      m01 * (m12 * m33 - m13 * m32) - m02 * (m11 * m33 - m13 * m31) + m03 * (m11 * m32 - m12 * m31);
     const det3_123_012 =
-      m01 * (m12 * m23 - m13 * m22) -
-      m02 * (m11 * m23 - m13 * m21) +
-      m03 * (m11 * m22 - m12 * m21);
+      m01 * (m12 * m23 - m13 * m22) - m02 * (m11 * m23 - m13 * m21) + m03 * (m11 * m22 - m12 * m21);
 
-    return (
-      m00 * det3_123_123 -
-      m10 * det3_123_023 +
-      m20 * det3_123_013 -
-      m30 * det3_123_012
-    );
+    return m00 * det3_123_123 - m10 * det3_123_023 + m20 * det3_123_013 - m30 * det3_123_012;
   }
 }
 
 export class DelaunayTetrahedron {
-  public isBad: boolean = false;
+  public isBad = false;
   private circumcenter: Vector3 | undefined;
   private circumradiusSquared: number | undefined;
 
@@ -112,8 +95,7 @@ export class DelaunayTetrahedron {
 
     this.circumcenter = new Vector3(Dx / (2 * a), Dy / (2 * a), Dz / (2 * a));
 
-    this.circumradiusSquared =
-      (Dx * Dx + Dy * Dy + Dz * Dz - 4 * a * c) / (4 * a * a);
+    this.circumradiusSquared = (Dx * Dx + Dy * Dy + Dz * Dz - 4 * a * c) / (4 * a * a);
   }
 
   containsVertex(vertex: Vertex): boolean {
@@ -135,10 +117,7 @@ export class DelaunayTetrahedron {
       point.y - this.circumcenter.y,
       point.z - this.circumcenter.z,
     );
-    const distSqr =
-      distance.x * distance.x +
-      distance.y * distance.y +
-      distance.z * distance.z;
+    const distSqr = distance.x * distance.x + distance.y * distance.y + distance.z * distance.z;
     return distSqr <= this.circumradiusSquared;
   }
 
@@ -250,9 +229,7 @@ export class Delaunay3D {
       const goodTriangles = triangles.filter((t) => !t.isBad);
 
       for (const triangle of goodTriangles) {
-        this.tetrahedra.push(
-          new DelaunayTetrahedron(triangle.u, triangle.v, triangle.w, vertex),
-        );
+        this.tetrahedra.push(new DelaunayTetrahedron(triangle.u, triangle.v, triangle.w, vertex));
       }
     }
 
@@ -305,9 +282,13 @@ export class Delaunay3D {
 }
 
 class DelaunayTriangle {
-  public isBad: boolean = false;
+  public isBad = false;
 
-  constructor(public u: Vertex, public v: Vertex, public w: Vertex) {}
+  constructor(
+    public u: Vertex,
+    public v: Vertex,
+    public w: Vertex,
+  ) {}
 
   static almostEqual(left: DelaunayTriangle, right: DelaunayTriangle): boolean {
     return (
@@ -325,7 +306,10 @@ class DelaunayTriangle {
 }
 
 class DelaunayEdge {
-  public isBad: boolean = false;
+  public isBad = false;
 
-  constructor(public u: Vertex, public v: Vertex) {}
+  constructor(
+    public u: Vertex,
+    public v: Vertex,
+  ) {}
 }

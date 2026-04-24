@@ -1,13 +1,10 @@
 "use client";
 
 import type { FloorLayout, HallwayLayout } from "@/lib/gallery-layout/types";
-import {
-  CELL_SIZE,
-  CORRIDOR_HEIGHT,
-} from "@/lib/gallery-layout/world-coords";
-import { SolidWall } from "./wall";
+import { CELL_SIZE, CORRIDOR_HEIGHT } from "@/lib/gallery-layout/world-coords";
 import { Painting } from "./painting";
 import { getPaletteMaterials } from "./palette-materials";
+import { SolidWall } from "./wall";
 
 /** Stride between overhead lamps in the corridor — one lamp every N
  *  cells. Too dense and the cost to the renderer climbs; too sparse
@@ -31,9 +28,7 @@ export function HallwayRenderer({
   const floorY = floor.y;
   const mats = getPaletteMaterials(floor.era.palette);
 
-  const lampCells = hallway.cells.filter(
-    (_, i) => i % CORRIDOR_LAMP_STRIDE === 0,
-  );
+  const lampCells = hallway.cells.filter((_, i) => i % CORRIDOR_LAMP_STRIDE === 0);
 
   return (
     <group>
@@ -64,12 +59,7 @@ export function HallwayRenderer({
         const wallMidY = floorY + CORRIDOR_HEIGHT / 2;
 
         const needsWall = (nx: number, nz: number): boolean => {
-          if (
-            nx < 0 ||
-            nx >= floor.gridSize.x ||
-            nz < 0 ||
-            nz >= floor.gridSize.z
-          ) {
+          if (nx < 0 || nx >= floor.gridSize.x || nz < 0 || nz >= floor.gridSize.z) {
             return true;
           }
           const idx = nz * floor.gridSize.x + nx;
@@ -83,10 +73,7 @@ export function HallwayRenderer({
               <planeGeometry args={[CELL_SIZE, CELL_SIZE]} />
               <primitive object={mats.floor} attach="material" />
             </mesh>
-            <mesh
-              rotation={[Math.PI / 2, 0, 0]}
-              position={[cx, floorY + CORRIDOR_HEIGHT, cz]}
-            >
+            <mesh rotation={[Math.PI / 2, 0, 0]} position={[cx, floorY + CORRIDOR_HEIGHT, cz]}>
               <planeGeometry args={[CELL_SIZE, CELL_SIZE]} />
               <primitive object={mats.ceiling} attach="material" />
             </mesh>

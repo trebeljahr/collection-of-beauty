@@ -13,9 +13,9 @@
  * downstream notices the swap.
  */
 
-import http from "node:http";
 import { createReadStream } from "node:fs";
 import { stat } from "node:fs/promises";
+import http from "node:http";
 import { extname, join, normalize, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 
@@ -121,9 +121,7 @@ const server = http.createServer(async (req, res) => {
 });
 
 server.listen(PORT, HOST, () => {
-  console.log(
-    `[assets] serving ${ROOT} at http://${HOST}:${PORT} (read-only)`,
-  );
+  console.log(`[assets] serving ${ROOT} at http://${HOST}:${PORT} (read-only)`);
 });
 
 for (const sig of /** @type {const} */ (["SIGINT", "SIGTERM"])) {

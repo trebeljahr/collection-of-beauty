@@ -1,11 +1,11 @@
-import { createElement } from "react";
+import type { Artwork } from "@/lib/data";
+import { variantUrl } from "@/lib/utils";
 import { render } from "@react-email/render";
+import { createElement } from "react";
 import WeeklyDigest, {
   type DigestArtwork,
   type WeeklyDigestProps,
 } from "../../../emails/weekly-digest";
-import { variantUrl } from "@/lib/utils";
-import type { Artwork } from "@/lib/data";
 
 export type RenderedDigest = {
   subject: string;
@@ -22,10 +22,7 @@ export type BuildDigestInput = {
 };
 
 /** Shape an Artwork for the email template (public image URL + link). */
-export function toDigestArtwork(
-  artwork: Artwork,
-  siteUrl: string,
-): DigestArtwork {
+export function toDigestArtwork(artwork: Artwork, siteUrl: string): DigestArtwork {
   return {
     id: artwork.id,
     title: artwork.title,
@@ -42,12 +39,8 @@ export function toDigestArtwork(
   };
 }
 
-export async function renderDigest(
-  input: BuildDigestInput,
-): Promise<RenderedDigest> {
-  const digestArtworks = input.artworks.map((a) =>
-    toDigestArtwork(a, input.siteUrl),
-  );
+export async function renderDigest(input: BuildDigestInput): Promise<RenderedDigest> {
+  const digestArtworks = input.artworks.map((a) => toDigestArtwork(a, input.siteUrl));
   const props: WeeklyDigestProps = {
     issueNumber: input.issueNumber,
     issueDate: input.issueDate,
@@ -56,10 +49,7 @@ export async function renderDigest(
     siteUrl: input.siteUrl,
   };
   const element = createElement(WeeklyDigest, props);
-  const [html, text] = await Promise.all([
-    render(element),
-    render(element, { plainText: true }),
-  ]);
+  const [html, text] = await Promise.all([render(element), render(element, { plainText: true })]);
   const subject = buildSubject(input.issueNumber, digestArtworks);
   return { subject, html, text };
 }

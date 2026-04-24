@@ -1,4 +1,4 @@
-import { clsx, type ClassValue } from "clsx";
+import { type ClassValue, clsx } from "clsx";
 import { twMerge } from "tailwind-merge";
 
 export function cn(...inputs: ClassValue[]) {
@@ -20,8 +20,7 @@ export function slugify(input: string): string {
 //     (emitted by scripts/shrink-sources.mjs, consumed by <ResponsiveImage>)
 // There is no longer a separate ORIGIN_URL — all image fetching is
 // browser-direct, Next.js is no longer in the image pipeline.
-const ASSETS_BASE_URL =
-  process.env.NEXT_PUBLIC_ASSETS_BASE_URL ?? "http://localhost:9100";
+const ASSETS_BASE_URL = process.env.NEXT_PUBLIC_ASSETS_BASE_URL ?? "http://localhost:9100";
 
 // Variant set emitted by shrink-sources.mjs. The script hardcodes the same
 // list — keep them in sync. Chosen to cover typical responsive breakpoints
@@ -43,11 +42,7 @@ export function assetUrl(objectKey: string): string {
 //   objectKey = "collection-of-beauty/Dong_Yuan_Mountain_Hall.jpg"
 //   width=960, format="avif"
 //   → "<base>/collection-of-beauty/Dong_Yuan_Mountain_Hall/960.avif"
-export function variantUrl(
-  objectKey: string,
-  width: number,
-  format: VariantFormat,
-): string {
+export function variantUrl(objectKey: string, width: number, format: VariantFormat): string {
   const lastSlash = objectKey.lastIndexOf("/");
   const dir = objectKey.slice(0, lastSlash);
   const filename = objectKey.slice(lastSlash + 1);
@@ -66,7 +61,5 @@ export function variantSrcSet(
   format: VariantFormat,
   widths: readonly number[] = VARIANT_WIDTHS,
 ): string {
-  return widths
-    .map((w) => `${variantUrl(objectKey, w, format)} ${w}w`)
-    .join(", ");
+  return widths.map((w) => `${variantUrl(objectKey, w, format)} ${w}w`).join(", ");
 }

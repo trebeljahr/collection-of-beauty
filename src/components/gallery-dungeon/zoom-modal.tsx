@@ -1,8 +1,8 @@
 "use client";
 
-import { useEffect } from "react";
 import type { Artwork } from "@/lib/data";
 import { variantSrcSet, variantUrl } from "@/lib/utils";
+import { useEffect } from "react";
 
 /**
  * Full-screen overlay with a larger look at one painting plus its
@@ -61,10 +61,7 @@ export function ZoomModal({
           </div>
         )}
       </div>
-      <button
-        onClick={onClose}
-        className="mt-4 text-neutral-500 text-xs hover:text-neutral-300"
-      >
+      <button onClick={onClose} className="mt-4 text-neutral-500 text-xs hover:text-neutral-300">
         close · Esc · click anywhere
       </button>
     </div>

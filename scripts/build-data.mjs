@@ -1,11 +1,5 @@
-import { readFile, writeFile, mkdir } from "node:fs/promises";
-import {
-  existsSync,
-  openSync,
-  readSync,
-  closeSync,
-  readdirSync,
-} from "node:fs";
+import { closeSync, existsSync, openSync, readSync, readdirSync } from "node:fs";
+import { mkdir, readFile, writeFile } from "node:fs/promises";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { imageSize } from "image-size";
@@ -74,11 +68,7 @@ function dimensionsFor(folderKey, filename) {
   return result;
 }
 
-const WIKIMEDIA_FOLDERS = [
-  "collection-of-beauty",
-  "audubon-birds",
-  "kunstformen-images",
-];
+const WIKIMEDIA_FOLDERS = ["collection-of-beauty", "audubon-birds", "kunstformen-images"];
 
 function slugify(input) {
   return input
@@ -101,7 +91,9 @@ function stripQuickStatements(input) {
 function cleanTitle(raw, fallback) {
   if (!raw) return fallback;
   const first = raw.split(/[,(]/)[0];
-  const cleaned = stripQuickStatements(first).replace(/^["']|["']$/g, "").trim();
+  const cleaned = stripQuickStatements(first)
+    .replace(/^["']|["']$/g, "")
+    .trim();
   return cleaned || fallback;
 }
 
@@ -147,10 +139,7 @@ function normalizeArtistName(raw) {
 }
 
 async function loadArtistsDb() {
-  const raw = await readFile(
-    path.join(ROOT, "scripts", "artists-db.json"),
-    "utf8",
-  );
+  const raw = await readFile(path.join(ROOT, "scripts", "artists-db.json"), "utf8");
   const { artists } = JSON.parse(raw);
   const byAlias = new Map();
   for (const a of artists) {
@@ -264,7 +253,7 @@ const PLACEHOLDER_DIMS = new Set([
 
 function sanitizeRealDimensions(dims) {
   if (!dims) return null;
-  let { widthCm, heightCm, source } = dims;
+  const { widthCm, heightCm, source } = dims;
 
   const sig = `${Math.round(widthCm * 100)}:${Math.round(heightCm * 100)}`;
   if (PLACEHOLDER_DIMS.has(sig)) return null;
@@ -327,9 +316,7 @@ async function loadRealDimensions() {
 
 async function main() {
   const [cob, birds, haeckel] = await Promise.all(
-    WIKIMEDIA_FOLDERS.map((f) =>
-      readFile(path.join(META, `${f}.json`), "utf8").then(JSON.parse),
-    ),
+    WIKIMEDIA_FOLDERS.map((f) => readFile(path.join(META, `${f}.json`), "utf8").then(JSON.parse)),
   );
   const { artists: artistsDb, byAlias } = await loadArtistsDb();
   const realDimensions = await loadRealDimensions();
@@ -345,9 +332,7 @@ async function main() {
       const year = extractYear(entry);
       const artistInfo = entry.artist_info ?? matchArtist(artistName, byAlias);
       const artistSlug = artistName ? slugify(artistName) : "unknown";
-      const id = slugify(
-        `${folderKey}-${fname.replace(/\.[^.]+$/, "")}`,
-      ).slice(0, 120);
+      const id = slugify(`${folderKey}-${fname.replace(/\.[^.]+$/, "")}`).slice(0, 120);
 
       const dims = dimensionsFor(folderKey, fname);
       const real = realDimensions.get(id) || null;
@@ -402,8 +387,7 @@ async function main() {
           agg.coverFileUrl = entry.source.file_url;
           agg.coverObjectKey = `${folderKey}/${fname}`;
           agg.coverTitle = title;
-          agg.coverVariantWidths =
-            variantWidths.length > 0 ? variantWidths : null;
+          agg.coverVariantWidths = variantWidths.length > 0 ? variantWidths : null;
         }
       }
     }
@@ -420,13 +404,11 @@ async function main() {
     return (a.title || "").localeCompare(b.title || "");
   });
 
-  const artists = Array.from(artistAggregates.values()).sort((a, b) =>
-    b.count - a.count || a.name.localeCompare(b.name),
+  const artists = Array.from(artistAggregates.values()).sort(
+    (a, b) => b.count - a.count || a.name.localeCompare(b.name),
   );
 
-  const movements = Array.from(
-    new Set(artists.map((a) => a.movement).filter(Boolean)),
-  ).sort();
+  const movements = Array.from(new Set(artists.map((a) => a.movement).filter(Boolean))).sort();
 
   const knownArtistByName = new Map(artists.map((a) => [a.name, a]));
   const artistSlugByName = new Map(artists.map((a) => [a.name, a.slug]));
@@ -445,9 +427,7 @@ async function main() {
   }
 
   const movementGroups = buildMovementGroups(artists);
-  const existingPairs = new Set(
-    edges.map((e) => [e.source, e.target].sort().join("|")),
-  );
+  const existingPairs = new Set(edges.map((e) => [e.source, e.target].sort().join("|")));
   for (const [movement, members] of movementGroups) {
     for (let i = 0; i < members.length; i++) {
       for (let j = i + 1; j < members.length; j++) {
@@ -485,26 +465,11 @@ async function main() {
   };
 
   if (!existsSync(OUT)) await mkdir(OUT, { recursive: true });
-  await writeFile(
-    path.join(OUT, "artworks.json"),
-    JSON.stringify(artworks),
-  );
-  await writeFile(
-    path.join(OUT, "artists.json"),
-    JSON.stringify(artists),
-  );
-  await writeFile(
-    path.join(OUT, "movements.json"),
-    JSON.stringify(movements),
-  );
-  await writeFile(
-    path.join(OUT, "connections.json"),
-    JSON.stringify(edges),
-  );
-  await writeFile(
-    path.join(OUT, "summary.json"),
-    JSON.stringify(summary, null, 2),
-  );
+  await writeFile(path.join(OUT, "artworks.json"), JSON.stringify(artworks));
+  await writeFile(path.join(OUT, "artists.json"), JSON.stringify(artists));
+  await writeFile(path.join(OUT, "movements.json"), JSON.stringify(movements));
+  await writeFile(path.join(OUT, "connections.json"), JSON.stringify(edges));
+  await writeFile(path.join(OUT, "summary.json"), JSON.stringify(summary, null, 2));
 
   console.log("[build-data]", summary);
 }

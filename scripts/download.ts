@@ -1,7 +1,7 @@
-import * as fs from "fs";
-import * as path from "path";
-import * as https from "https";
 import * as crypto from "crypto";
+import * as fs from "fs";
+import * as https from "https";
+import * as path from "path";
 
 const ROOT = path.resolve(__dirname, "..");
 const OUTPUT_DIR = path.join(ROOT, "assets", "kunstformen-images");
@@ -37,18 +37,13 @@ function getDirectUrl(filename: string): string {
 /**
  * Downloads a file from a URL to a local path with retry logic
  */
-function downloadFile(
-  url: string,
-  outputPath: string,
-  retryCount = 0,
-): Promise<void> {
+function downloadFile(url: string, outputPath: string, retryCount = 0): Promise<void> {
   return new Promise((resolve, reject) => {
     const file = fs.createWriteStream(outputPath);
 
     const options = {
       headers: {
-        "User-Agent":
-          "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36",
+        "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36",
         Accept: "image/*,*/*;q=0.8",
         "Accept-Language": "en-US,en;q=0.5",
         Connection: "keep-alive",
@@ -253,9 +248,7 @@ async function downloadAllImages() {
 
     // Skip if already downloaded
     if (fs.existsSync(outputPath)) {
-      console.log(
-        `[${i + 1}/${imageList.length}] Skipping ${filename} (already exists)`,
-      );
+      console.log(`[${i + 1}/${imageList.length}] Skipping ${filename} (already exists)`);
       successCount++;
       continue;
     }

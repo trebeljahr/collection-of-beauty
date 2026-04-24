@@ -1,11 +1,11 @@
 "use client";
 
-import { useEffect, useMemo, useRef, useState, useDeferredValue } from "react";
-import Link from "next/link";
-import Fuse from "fuse.js";
-import { Input } from "@/components/ui/input";
 import { ResponsiveImage } from "@/components/responsive-image";
+import { Input } from "@/components/ui/input";
 import type { Artist } from "@/lib/data";
+import Fuse from "fuse.js";
+import Link from "next/link";
+import { useDeferredValue, useEffect, useMemo, useRef, useState } from "react";
 
 const PAGE = 40;
 
@@ -103,9 +103,7 @@ export function ArtistsBrowser({ artists }: Props) {
                 {a.born && a.died ? ` · ${a.born}–${a.died}` : ""}
               </p>
               {a.movement && (
-                <p className="mt-0.5 text-xs text-[var(--muted-foreground)]">
-                  {a.movement}
-                </p>
+                <p className="mt-0.5 text-xs text-[var(--muted-foreground)]">{a.movement}</p>
               )}
             </div>
           </Link>
@@ -113,10 +111,7 @@ export function ArtistsBrowser({ artists }: Props) {
       </div>
 
       {hasMore && (
-        <div
-          ref={sentinelRef}
-          className="py-6 text-center text-sm text-[var(--muted-foreground)]"
-        >
+        <div ref={sentinelRef} className="py-6 text-center text-sm text-[var(--muted-foreground)]">
           Loading more artists…
         </div>
       )}

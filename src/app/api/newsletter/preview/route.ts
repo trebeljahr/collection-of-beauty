@@ -1,6 +1,5 @@
-import { NextRequest, NextResponse } from "next/server";
 import { artworks } from "@/lib/data";
-import { loadState, sentArtworkIds } from "@/lib/newsletter/state";
+import { renderDigest } from "@/lib/newsletter/render";
 import {
   DIGEST_SIZE,
   isoWeekKey,
@@ -8,7 +7,8 @@ import {
   pickArtworks,
   resolveManualPicks,
 } from "@/lib/newsletter/select";
-import { renderDigest } from "@/lib/newsletter/render";
+import { loadState, sentArtworkIds } from "@/lib/newsletter/state";
+import { type NextRequest, NextResponse } from "next/server";
 
 // Preview what *would* be sent this week, as a renderable HTML page.
 // Query params:
@@ -61,7 +61,10 @@ export async function GET(request: NextRequest) {
   let picks;
   try {
     if (idsParam) {
-      const ids = idsParam.split(",").map((s) => s.trim()).filter(Boolean);
+      const ids = idsParam
+        .split(",")
+        .map((s) => s.trim())
+        .filter(Boolean);
       picks = resolveManualPicks(artworks, ids);
     } else {
       picks = pickArtworks(artworks, excluded, weekKey, DIGEST_SIZE);
@@ -73,8 +76,7 @@ export async function GET(request: NextRequest) {
     );
   }
 
-  const siteUrl =
-    process.env.NEXT_PUBLIC_SITE_URL ?? request.nextUrl.origin;
+  const siteUrl = process.env.NEXT_PUBLIC_SITE_URL ?? request.nextUrl.origin;
   const issueNumber = state.issues.length + 1;
 
   const rendered = await renderDigest({

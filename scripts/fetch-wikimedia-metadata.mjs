@@ -20,8 +20,8 @@
 // Read-only w.r.t. the source collection. Does not rename or move any file.
 
 import fs from "fs";
-import path from "path";
 import https from "https";
+import path from "path";
 import { fileURLToPath } from "url";
 
 const __filename = fileURLToPath(import.meta.url);
@@ -33,7 +33,7 @@ const USER_AGENT =
 
 const API_URL = "https://commons.wikimedia.org/w/api.php";
 const BATCH_SIZE = 50; // API max for non-bot users
-const DELAY_MS = 250;  // polite delay between batches
+const DELAY_MS = 250; // polite delay between batches
 const MAX_RETRIES = 5;
 
 const IMAGE_EXTS = new Set([".jpg", ".jpeg", ".png", ".tif", ".tiff", ".webp", ".gif", ".svg"]);
@@ -56,7 +56,7 @@ function httpsGetJson(url, retry = 0) {
       },
       (res) => {
         // Handle maxlag backoff (HTTP 200 with error, or 503 retry-after)
-        const retryAfter = parseInt(res.headers["retry-after"] || "0", 10);
+        const retryAfter = Number.parseInt(res.headers["retry-after"] || "0", 10);
         let data = "";
         res.on("data", (c) => (data += c));
         res.on("end", async () => {
@@ -76,9 +76,12 @@ function httpsGetJson(url, retry = 0) {
               reject(e);
             }
           } else if (res.statusCode === 503 || res.statusCode === 429) {
-            if (retry >= MAX_RETRIES) return reject(new Error(`HTTP ${res.statusCode}: retries exhausted`));
+            if (retry >= MAX_RETRIES)
+              return reject(new Error(`HTTP ${res.statusCode}: retries exhausted`));
             const wait = Math.max((retryAfter || 5) * 1000, 2000);
-            console.log(`    HTTP ${res.statusCode}, sleeping ${wait}ms (retry ${retry + 1}/${MAX_RETRIES})`);
+            console.log(
+              `    HTTP ${res.statusCode}, sleeping ${wait}ms (retry ${retry + 1}/${MAX_RETRIES})`,
+            );
             await sleep(wait);
             return httpsGetJson(url, retry + 1).then(resolve, reject);
           } else {
@@ -116,7 +119,7 @@ function emValue(em, key) {
 function extractYear(s) {
   if (!s) return null;
   const m = String(s).match(/\b(1[0-9]{3}|20[0-2][0-9])\b/);
-  return m ? parseInt(m[1], 10) : null;
+  return m ? Number.parseInt(m[1], 10) : null;
 }
 
 // ---------------------------------------------------------------------------
@@ -227,7 +230,11 @@ async function processFolder(folderName) {
         artist: null,
         date_created: h.guessed_year ? String(h.guessed_year) : null,
         source: { type: "unknown", url: null },
-        copyright: { copyrighted: null, license: null, notes: "Not found on Wikimedia Commons; needs manual review." },
+        copyright: {
+          copyrighted: null,
+          license: null,
+          notes: "Not found on Wikimedia Commons; needs manual review.",
+        },
       };
       unresolved.push(filename);
       continue;
@@ -253,7 +260,12 @@ async function processFolder(folderName) {
     }
     if (copyrighted == null && licenseShort) {
       if (/public domain/i.test(licenseShort) || /^pd/i.test(licenseShort)) copyrighted = false;
-      else if (/^cc/i.test(licenseShort) || /gfdl/i.test(licenseShort) || /copyright/i.test(licenseShort)) copyrighted = true;
+      else if (
+        /^cc/i.test(licenseShort) ||
+        /gfdl/i.test(licenseShort) ||
+        /copyright/i.test(licenseShort)
+      )
+        copyrighted = true;
     }
 
     entries[filename] = {

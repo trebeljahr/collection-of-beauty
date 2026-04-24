@@ -1,15 +1,11 @@
 "use client";
 
-import type { RoomLayout } from "@/lib/gallery-layout/types";
-import {
-  CELL_SIZE,
-  DOOR_HEIGHT,
-  ROOM_HEIGHT,
-} from "@/lib/gallery-layout/world-coords";
 import { ERAS } from "@/lib/gallery-eras";
-import { WallWithDoors } from "./wall";
+import type { RoomLayout } from "@/lib/gallery-layout/types";
+import { CELL_SIZE, DOOR_HEIGHT, ROOM_HEIGHT } from "@/lib/gallery-layout/world-coords";
 import { Painting } from "./painting";
 import { getPaletteMaterials } from "./palette-materials";
+import { WallWithDoors } from "./wall";
 
 /**
  * Render a single room: floor, ceiling, 4 walls with the room's door
@@ -69,19 +65,13 @@ export function RoomGeometry({
   return (
     <group>
       {hasFloor && (
-        <mesh
-          rotation={[-Math.PI / 2, 0, 0]}
-          position={[cxWorld, floorY, czWorld]}
-        >
+        <mesh rotation={[-Math.PI / 2, 0, 0]} position={[cxWorld, floorY, czWorld]}>
           <planeGeometry args={[width, depth]} />
           <primitive object={mats.floor} attach="material" />
         </mesh>
       )}
       {hasCeiling && (
-        <mesh
-          rotation={[Math.PI / 2, 0, 0]}
-          position={[cxWorld, floorY + ROOM_HEIGHT, czWorld]}
-        >
+        <mesh rotation={[Math.PI / 2, 0, 0]} position={[cxWorld, floorY + ROOM_HEIGHT, czWorld]}>
           <planeGeometry args={[width, depth]} />
           <primitive object={mats.ceiling} attach="material" />
         </mesh>
@@ -92,22 +82,14 @@ export function RoomGeometry({
         <>
           <mesh
             rotation={[-Math.PI / 2, 0, 0]}
-            position={[
-              cxWorld,
-              floorY,
-              cellBounds.zMin * CELL_SIZE + CELL_SIZE / 2,
-            ]}
+            position={[cxWorld, floorY, cellBounds.zMin * CELL_SIZE + CELL_SIZE / 2]}
           >
             <planeGeometry args={[width, CELL_SIZE]} />
             <primitive object={mats.floor} attach="material" />
           </mesh>
           <mesh
             rotation={[-Math.PI / 2, 0, 0]}
-            position={[
-              cxWorld,
-              floorY,
-              (cellBounds.zMax + 0.5) * CELL_SIZE,
-            ]}
+            position={[cxWorld, floorY, (cellBounds.zMax + 0.5) * CELL_SIZE]}
           >
             <planeGeometry args={[width, CELL_SIZE]} />
             <primitive object={mats.floor} attach="material" />

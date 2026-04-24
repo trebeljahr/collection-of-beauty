@@ -40,7 +40,7 @@
  *   node scripts/shrink-sources.mjs --concurrency=4
  */
 
-import { mkdir, readdir, stat, unlink } from "node:fs/promises";
+import { mkdir, readdir, stat } from "node:fs/promises";
 import os from "node:os";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
@@ -66,7 +66,7 @@ const args = Object.fromEntries(
 
 const DRY_RUN = args["dry-run"] === true;
 const FORCE = args.force === true;
-const CONCURRENCY = parseInt(
+const CONCURRENCY = Number.parseInt(
   args.concurrency ?? String(Math.min(6, Math.max(2, os.cpus().length - 2))),
   10,
 );
@@ -269,9 +269,7 @@ async function main() {
   process.stdout.write(`[shrink] scanning sources…`);
   const jobs = await collectJobs();
   const totalBytes = jobs.reduce((a, j) => a + j.srcStat.size, 0);
-  console.log(
-    `\r[shrink] scanning sources… ${jobs.length} files, ${fmt(totalBytes)} total`,
-  );
+  console.log(`\r[shrink] scanning sources… ${jobs.length} files, ${fmt(totalBytes)} total`);
   console.log(
     `[shrink] will produce ${jobs.length * WIDTHS.length * FORMATS.length} variant files (if nothing is fresh)`,
   );
@@ -284,9 +282,7 @@ async function main() {
     // dividing by t.done flattens the rate and gives wildly optimistic
     // ETAs on resumed runs where most files are already fresh.
     const remainingBuild = jobs.length - t.fresh - t.built - t.errors;
-    const eta = t.built
-      ? ((Date.now() - start) / t.built) * remainingBuild
-      : 0;
+    const eta = t.built ? ((Date.now() - start) / t.built) * remainingBuild : 0;
     const errTag = hasError ? ` ! ${job.name}: ${result.error.message}` : "";
     const outMb = (t.bytesAfter / 1e6).toFixed(0);
     console.log(

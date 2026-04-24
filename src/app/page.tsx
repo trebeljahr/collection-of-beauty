@@ -1,7 +1,7 @@
-import type { Metadata } from "next";
 import { GalleryBrowser } from "@/components/gallery-browser";
 import { artworks, movements, summary } from "@/lib/data";
 import { SITE_DESCRIPTION, SITE_NAME, SITE_TAGLINE } from "@/lib/seo";
+import type { Metadata } from "next";
 
 export const metadata: Metadata = {
   // Absolute title on the home page — skips the "%s · Collection of Beauty"
@@ -21,9 +21,8 @@ export default function HomePage() {
           </h1>
           <p className="mt-2 max-w-2xl text-[var(--muted-foreground)]">
             {summary.totalArtworks.toLocaleString()} works by{" "}
-            {summary.totalArtists.toLocaleString()} artists across{" "}
-            {summary.totalMovements} movements, spanning{" "}
-            {summary.yearRange.min}–{summary.yearRange.max}.
+            {summary.totalArtists.toLocaleString()} artists across {summary.totalMovements}{" "}
+            movements, spanning {summary.yearRange.min}–{summary.yearRange.max}.
           </p>
         </div>
       </section>

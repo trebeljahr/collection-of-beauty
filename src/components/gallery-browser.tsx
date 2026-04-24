@@ -1,12 +1,12 @@
 "use client";
 
-import { useMemo, useState, useDeferredValue } from "react";
-import Fuse from "fuse.js";
-import { Input } from "@/components/ui/input";
-import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
 import { ArtworkGallery } from "@/components/artwork-gallery";
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
 import type { Artwork } from "@/lib/data";
+import Fuse from "fuse.js";
+import { useDeferredValue, useMemo, useState } from "react";
 
 type Props = {
   artworks: Artwork[];
@@ -52,9 +52,7 @@ export function GalleryBrowser({ artworks, movements }: Props) {
     if (sortBy === "year") {
       list.sort((a, b) => (a.year ?? 99999) - (b.year ?? 99999));
     } else if (sortBy === "artist") {
-      list.sort((a, b) =>
-        (a.artist ?? "zzz").localeCompare(b.artist ?? "zzz"),
-      );
+      list.sort((a, b) => (a.artist ?? "zzz").localeCompare(b.artist ?? "zzz"));
     } else {
       list.sort((a, b) => a.title.localeCompare(b.title));
     }
@@ -63,8 +61,7 @@ export function GalleryBrowser({ artworks, movements }: Props) {
 
   const filterKey = `${deferredQuery}|${movement}|${minYear}|${maxYear}|${sortBy}`;
 
-  const activeFilterCount =
-    (movement ? 1 : 0) + (minYear ? 1 : 0) + (maxYear ? 1 : 0);
+  const activeFilterCount = (movement ? 1 : 0) + (minYear ? 1 : 0) + (maxYear ? 1 : 0);
 
   function clearFilters() {
     setMovement("");

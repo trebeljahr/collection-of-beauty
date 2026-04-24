@@ -25,8 +25,8 @@
 //   node scripts/fetch-artwork-dimensions.mjs --limit=N          # first N
 
 import fs from "node:fs";
-import path from "node:path";
 import https from "node:https";
+import path from "node:path";
 import { fileURLToPath } from "node:url";
 
 const __filename = fileURLToPath(import.meta.url);
@@ -36,23 +36,22 @@ const ROOT = path.resolve(__dirname, "..");
 const ARTWORKS_PATH = path.join(ROOT, "src", "data", "artworks.json");
 const OUT_PATH = path.join(ROOT, "metadata", "artwork-dimensions.json");
 
-const USER_AGENT =
-  "collection-of-beauty-metadata-enrichment/1.0 (ricotrebeljahr@gmail.com)";
+const USER_AGENT = "collection-of-beauty-metadata-enrichment/1.0 (ricotrebeljahr@gmail.com)";
 
 const COMMONS_API = "https://commons.wikimedia.org/w/api.php";
 const WIKIDATA_API = "https://www.wikidata.org/w/api.php";
 
 const BATCH_SIZE = 50; // MediaWiki API cap for non-bot users
-const DELAY_MS = 220;  // ~4.5 req/s, well under 5 req/s target
+const DELAY_MS = 220; // ~4.5 req/s, well under 5 req/s target
 const MAX_RETRIES = 5;
 
 // Length-unit Q-ids on Wikidata. Everything is converted to cm.
 const UNIT_TO_CM = {
-  "http://www.wikidata.org/entity/Q174728": 1.0,     // centimetre
-  "http://www.wikidata.org/entity/Q174789": 0.1,     // millimetre
-  "http://www.wikidata.org/entity/Q11573": 100.0,    // metre
-  "http://www.wikidata.org/entity/Q218593": 2.54,    // inch
-  "http://www.wikidata.org/entity/Q3710": 30.48,     // foot
+  "http://www.wikidata.org/entity/Q174728": 1.0, // centimetre
+  "http://www.wikidata.org/entity/Q174789": 0.1, // millimetre
+  "http://www.wikidata.org/entity/Q11573": 100.0, // metre
+  "http://www.wikidata.org/entity/Q218593": 2.54, // inch
+  "http://www.wikidata.org/entity/Q3710": 30.48, // foot
 };
 
 // Per-collection static defaults (see Deliverable §3). Used only when neither
@@ -81,9 +80,15 @@ for (const a of process.argv.slice(2)) {
 }
 const FORCE = args.get("force") === "true";
 const ONLY = args.has("only")
-  ? new Set(args.get("only").split(",").map((s) => s.trim()).filter(Boolean))
+  ? new Set(
+      args
+        .get("only")
+        .split(",")
+        .map((s) => s.trim())
+        .filter(Boolean),
+    )
   : null;
-const LIMIT = args.has("limit") ? parseInt(args.get("limit"), 10) : null;
+const LIMIT = args.has("limit") ? Number.parseInt(args.get("limit"), 10) : null;
 
 // ---------------------------------------------------------------------------
 // tiny helpers
@@ -113,7 +118,7 @@ function httpsGetJson(url, retry = 0) {
         },
       },
       (res) => {
-        const retryAfter = parseInt(res.headers["retry-after"] || "0", 10);
+        const retryAfter = Number.parseInt(res.headers["retry-after"] || "0", 10);
         const chunks = [];
         res.on("data", (c) => chunks.push(c));
         res.on("end", async () => {
@@ -122,8 +127,7 @@ function httpsGetJson(url, retry = 0) {
             try {
               const parsed = JSON.parse(body);
               if (parsed.error && parsed.error.code === "maxlag") {
-                if (retry >= MAX_RETRIES)
-                  return reject(new Error("maxlag: retries exhausted"));
+                if (retry >= MAX_RETRIES) return reject(new Error("maxlag: retries exhausted"));
                 const wait = Math.max((retryAfter || 5) * 1000, 2000);
                 await sleep(wait);
                 return httpsGetJson(url, retry + 1).then(resolve, reject);
@@ -171,10 +175,7 @@ function extractTemplateField(wikitext, fieldNames) {
   for (const name of fieldNames) {
     // `[ \t]` (not `\s`) around the `=` so an empty value doesn't silently
     // cross into the next line (the next `|field=` pattern).
-    const re = new RegExp(
-      `\\|[ \\t]*${name}\\b[^=\\n]*=[ \\t]*([^\\n|}]*)`,
-      "i",
-    );
+    const re = new RegExp(`\\|[ \\t]*${name}\\b[^=\\n]*=[ \\t]*([^\\n|}]*)`, "i");
     const m = wikitext.match(re);
     if (m) {
       const val = m[1].trim();
@@ -224,7 +225,10 @@ function parseDimensionString(raw) {
   const sizeRe = /\{\{\s*(?:size|Size|SIZE)\s*\|([^{}]+?)\}\}/;
   const sm = raw.match(sizeRe);
   if (sm) {
-    const parts = sm[1].split("|").map((p) => p.trim()).filter(Boolean);
+    const parts = sm[1]
+      .split("|")
+      .map((p) => p.trim())
+      .filter(Boolean);
     let unit = null;
     const nums = [];
     for (const p of parts) {
@@ -233,12 +237,12 @@ function parseDimensionString(raw) {
         const key = eq[1].trim().toLowerCase();
         const val = eq[2].trim();
         if (key === "unit") unit = val.toLowerCase();
-        else if (!Number.isNaN(parseFloat(val)) && /^[\d.]+$/.test(val))
-          nums.push(parseFloat(val));
+        else if (!Number.isNaN(Number.parseFloat(val)) && /^[\d.]+$/.test(val))
+          nums.push(Number.parseFloat(val));
       } else if (/^[a-zA-Z]+$/.test(p) && unit == null) {
         unit = p.toLowerCase();
-      } else if (!Number.isNaN(parseFloat(p))) {
-        nums.push(parseFloat(p));
+      } else if (!Number.isNaN(Number.parseFloat(p))) {
+        nums.push(Number.parseFloat(p));
       }
     }
     if (nums.length >= 2 && unit) {
@@ -247,8 +251,7 @@ function parseDimensionString(raw) {
         // {{size|unit|HEIGHT|WIDTH}} (Commons convention, height first)
         const heightCm = round(nums[0] * factor, 2);
         const widthCm = round(nums[1] * factor, 2);
-        if (plausibleCm(widthCm) && plausibleCm(heightCm))
-          return { widthCm, heightCm };
+        if (plausibleCm(widthCm) && plausibleCm(heightCm)) return { widthCm, heightCm };
       }
     }
   }
@@ -262,8 +265,8 @@ function parseDimensionString(raw) {
     /(?:W(?:\.|idth)?|width)[^\dA-Za-z]{0,8}(?:[\d.\s/]+(?:in|cm|mm|m)\.?\s*\()?\s*([\d.]+)\s*(cm|mm|m|in|inches?)\b/i,
   );
   if (hMatch && wMatch) {
-    const h = convertToCm(parseFloat(hMatch[1]), hMatch[2]);
-    const w = convertToCm(parseFloat(wMatch[1]), wMatch[2]);
+    const h = convertToCm(Number.parseFloat(hMatch[1]), hMatch[2]);
+    const w = convertToCm(Number.parseFloat(wMatch[1]), wMatch[2]);
     if (h != null && w != null && plausibleCm(h) && plausibleCm(w))
       return { widthCm: round(w, 2), heightCm: round(h, 2) };
   }
@@ -272,7 +275,8 @@ function parseDimensionString(raw) {
   //    Commons the convention is still height first for paintings). Reject
   //    3-dimensional strings like `32 x 46 x 2 cm` (W × H × D for boxes /
   //    sculptures) since we can't reliably pick the right two.
-  const threeDRe = /(\d+(?:[.,]\d+)?)\s*[x×X]\s*(\d+(?:[.,]\d+)?)\s*[x×X]\s*(\d+(?:[.,]\d+)?)\s*(cm|mm|m|in|inches?)\b/i;
+  const threeDRe =
+    /(\d+(?:[.,]\d+)?)\s*[x×X]\s*(\d+(?:[.,]\d+)?)\s*[x×X]\s*(\d+(?:[.,]\d+)?)\s*(cm|mm|m|in|inches?)\b/i;
   if (threeDRe.test(raw)) return null;
 
   // Google Art Project uses `wWIDTH x hHEIGHT UNIT`. Check this first so we
@@ -284,20 +288,16 @@ function parseDimensionString(raw) {
   // the stated unit gives implausibly huge cm values (≥ 400 cm) and
   // interpreting as mm lands in a realistic painting range (1–300 cm on
   // both dims), trust the mm reading.
-  const gapRe = /w\s*(\d+(?:[.,]\d+)?)\s*(?:[x×X]|by)\s*h\s*(\d+(?:[.,]\d+)?)\s*(cm|mm|m|in|inches?)\b/i;
+  const gapRe =
+    /w\s*(\d+(?:[.,]\d+)?)\s*(?:[x×X]|by)\s*h\s*(\d+(?:[.,]\d+)?)\s*(cm|mm|m|in|inches?)\b/i;
   const gm = raw.match(gapRe);
   if (gm) {
-    const w = parseFloat(gm[1].replace(",", "."));
-    const h = parseFloat(gm[2].replace(",", "."));
+    const w = Number.parseFloat(gm[1].replace(",", "."));
+    const h = Number.parseFloat(gm[2].replace(",", "."));
     const unit = gm[3];
     let wCm = convertToCm(w, unit);
     let hCm = convertToCm(h, unit);
-    if (
-      /^cm$/i.test(unit) &&
-      wCm != null &&
-      hCm != null &&
-      (wCm >= 400 || hCm >= 400)
-    ) {
+    if (/^cm$/i.test(unit) && wCm != null && hCm != null && (wCm >= 400 || hCm >= 400)) {
       const wMm = wCm / 10;
       const hMm = hCm / 10;
       if (wMm >= 1 && hMm >= 1 && wMm <= 300 && hMm <= 300) {
@@ -311,8 +311,8 @@ function parseDimensionString(raw) {
   const pairRe = /(\d+(?:[.,]\d+)?)\s*(?:[x×X]|by)\s*(\d+(?:[.,]\d+)?)\s*(cm|mm|m|in|inches?)\b/i;
   const pm = raw.match(pairRe);
   if (pm) {
-    const a = parseFloat(pm[1].replace(",", "."));
-    const b = parseFloat(pm[2].replace(",", "."));
+    const a = Number.parseFloat(pm[1].replace(",", "."));
+    const b = Number.parseFloat(pm[2].replace(",", "."));
     const unit = pm[3];
     const aCm = convertToCm(a, unit);
     const bCm = convertToCm(b, unit);
@@ -457,19 +457,14 @@ async function fetchWikidataBatch(qids) {
       if (!arr?.length) return null;
       const v = arr[0]?.mainsnak?.datavalue?.value;
       if (!v) return null;
-      const amount = parseFloat(v.amount);
+      const amount = Number.parseFloat(v.amount);
       const factor = UNIT_TO_CM[v.unit];
       if (!Number.isFinite(amount) || factor == null) return null;
       return amount * factor;
     };
     const heightCm = readQuantity("P2048");
     const widthCm = readQuantity("P2049");
-    if (
-      heightCm != null &&
-      widthCm != null &&
-      plausibleCm(heightCm) &&
-      plausibleCm(widthCm)
-    ) {
+    if (heightCm != null && widthCm != null && plausibleCm(heightCm) && plausibleCm(widthCm)) {
       out.set(qid, { heightCm: round(heightCm, 2), widthCm: round(widthCm, 2) });
     } else {
       out.set(qid, null);
@@ -483,9 +478,7 @@ async function fetchWikidataBatch(qids) {
 
 async function main() {
   const artworks = JSON.parse(fs.readFileSync(ARTWORKS_PATH, "utf8"));
-  const existing = fs.existsSync(OUT_PATH)
-    ? JSON.parse(fs.readFileSync(OUT_PATH, "utf8"))
-    : {};
+  const existing = fs.existsSync(OUT_PATH) ? JSON.parse(fs.readFileSync(OUT_PATH, "utf8")) : {};
 
   let candidates = artworks;
   if (ONLY) candidates = candidates.filter((a) => ONLY.has(a.id));
@@ -530,9 +523,7 @@ async function main() {
   }
 
   // --- Remaining folders: batch Commons wikitext fetches.
-  const wikimediaTodo = todo.filter(
-    (a) => !STATIC_DEFAULTS[a.folder] && a.commonsUrl,
-  );
+  const wikimediaTodo = todo.filter((a) => !STATIC_DEFAULTS[a.folder] && a.commonsUrl);
 
   // title -> artwork map
   const titleToArtwork = new Map();
@@ -552,9 +543,7 @@ async function main() {
 
   for (let i = 0; i < allTitles.length; i += BATCH_SIZE) {
     const batch = allTitles.slice(i, i + BATCH_SIZE);
-    process.stdout.write(
-      `[dims] wikitext ${i + batch.length}/${allTitles.length}... `,
-    );
+    process.stdout.write(`[dims] wikitext ${i + batch.length}/${allTitles.length}... `);
     let wikitextByTitle;
     try {
       wikitextByTitle = await fetchWikitextBatch(batch);
@@ -584,15 +573,11 @@ async function main() {
   // --- SDC fallback for titles that didn't carry a |wikidata= field.
   if (sdcFallbackByTitle.size) {
     const entries = [...sdcFallbackByTitle.entries()];
-    console.log(
-      `[dims] SDC fallback for ${entries.length} files missing wikidata= field`,
-    );
+    console.log(`[dims] SDC fallback for ${entries.length} files missing wikidata= field`);
     for (let i = 0; i < entries.length; i += BATCH_SIZE) {
       const slice = entries.slice(i, i + BATCH_SIZE);
       const mids = slice.map(([, v]) => `M${v.pageid}`);
-      process.stdout.write(
-        `[dims] SDC ${i + slice.length}/${entries.length}... `,
-      );
+      process.stdout.write(`[dims] SDC ${i + slice.length}/${entries.length}... `);
       let sdcByMid;
       try {
         sdcByMid = await fetchSdcBatch(mids);
@@ -609,8 +594,7 @@ async function main() {
         const qid = sdc.p6243 || sdc.p921;
         if (!qid) continue;
         for (const a of titleToArtwork.get(t) || []) {
-          if (!wikidataQidByArtworkId.has(a.id))
-            wikidataQidByArtworkId.set(a.id, qid);
+          if (!wikidataQidByArtworkId.has(a.id)) wikidataQidByArtworkId.set(a.id, qid);
         }
       }
       await sleep(DELAY_MS);
@@ -623,9 +607,7 @@ async function main() {
   const dimsByQid = new Map();
   for (let i = 0; i < uniqueQids.length; i += BATCH_SIZE) {
     const batch = uniqueQids.slice(i, i + BATCH_SIZE);
-    process.stdout.write(
-      `[dims] wikidata ${i + batch.length}/${uniqueQids.length}... `,
-    );
+    process.stdout.write(`[dims] wikidata ${i + batch.length}/${uniqueQids.length}... `);
     let m;
     try {
       m = await fetchWikidataBatch(batch);
@@ -652,8 +634,7 @@ async function main() {
     const disagree =
       wd &&
       tmpl &&
-      (Math.max(wd.widthCm, tmpl.widthCm) /
-        Math.max(Math.min(wd.widthCm, tmpl.widthCm), 0.01) >
+      (Math.max(wd.widthCm, tmpl.widthCm) / Math.max(Math.min(wd.widthCm, tmpl.widthCm), 0.01) >
         2 ||
         Math.max(wd.heightCm, tmpl.heightCm) /
           Math.max(Math.min(wd.heightCm, tmpl.heightCm), 0.01) >

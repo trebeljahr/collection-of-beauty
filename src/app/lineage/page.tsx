@@ -1,6 +1,6 @@
-import type { Metadata } from "next";
 import { LineageGraph } from "@/components/lineage-graph";
 import { artists, connections } from "@/lib/data";
+import type { Metadata } from "next";
 
 export const metadata: Metadata = {
   title: "Lineage",
@@ -24,10 +24,9 @@ export default function LineagePage() {
       <header className="mb-6">
         <h1 className="font-serif text-3xl md:text-4xl">Lineage</h1>
         <p className="mt-2 max-w-3xl text-[var(--muted-foreground)]">
-          The social graph of artists in the collection — who knew whom,
-          painted with whom, taught whom. Solid lines are direct personal
-          connections; dashed lines are shared movements with overlapping
-          lifetimes.
+          The social graph of artists in the collection — who knew whom, painted with whom, taught
+          whom. Solid lines are direct personal connections; dashed lines are shared movements with
+          overlapping lifetimes.
         </p>
       </header>
       <LineageGraph artists={artists} connections={connections} />

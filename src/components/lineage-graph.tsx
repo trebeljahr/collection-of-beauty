@@ -1,8 +1,9 @@
 "use client";
 
-import { useEffect, useMemo, useRef, useState } from "react";
-import Link from "next/link";
+import type { Artist, Connection } from "@/lib/data";
 import {
+  type SimulationLinkDatum,
+  type SimulationNodeDatum,
   forceCenter,
   forceCollide,
   forceLink,
@@ -10,10 +11,9 @@ import {
   forceSimulation,
   forceX,
   forceY,
-  type SimulationNodeDatum,
-  type SimulationLinkDatum,
 } from "d3-force";
-import type { Artist, Connection } from "@/lib/data";
+import Link from "next/link";
+import { useEffect, useMemo, useRef, useState } from "react";
 
 type Props = {
   artists: Artist[];
@@ -74,9 +74,7 @@ export function LineageGraph({ artists, connections }: Props) {
 
   const { nodes, links, connectedIds } = useMemo(() => {
     const filteredConnections =
-      connectionKind === "known"
-        ? connections.filter((c) => c.kind === "known")
-        : connections;
+      connectionKind === "known" ? connections.filter((c) => c.kind === "known") : connections;
 
     const used = new Set<string>();
     for (const c of filteredConnections) {
@@ -89,9 +87,7 @@ export function LineageGraph({ artists, connections }: Props) {
       ns = ns.filter((a) => a.movement === movementFilter);
     }
     const allowed = new Set(ns.map((a) => a.slug));
-    const ls = filteredConnections.filter(
-      (c) => allowed.has(c.source) && allowed.has(c.target),
-    );
+    const ls = filteredConnections.filter((c) => allowed.has(c.source) && allowed.has(c.target));
 
     const nodes: Node[] = ns.map((a) => ({
       id: a.slug,
@@ -130,9 +126,7 @@ export function LineageGraph({ artists, connections }: Props) {
     if (nodes.length === 0) return;
     const { width, height } = dimensions;
 
-    const years = nodes
-      .map((n) => n.born)
-      .filter((y): y is number => y != null);
+    const years = nodes.map((n) => n.born).filter((y): y is number => y != null);
     const minYear = years.length ? Math.min(...years) : 1400;
     const maxYear = years.length ? Math.max(...years) : 2000;
     const span = Math.max(1, maxYear - minYear);
@@ -190,7 +184,7 @@ export function LineageGraph({ artists, connections }: Props) {
   }, [links]);
 
   const activeId = selected ?? hovered;
-  const neighbors = activeId ? adjacency.get(activeId) ?? new Set() : null;
+  const neighbors = activeId ? (adjacency.get(activeId) ?? new Set()) : null;
 
   function isHighlighted(id: string) {
     if (!activeId) return true;
@@ -263,8 +257,7 @@ export function LineageGraph({ artists, connections }: Props) {
           ))}
         </select>
         <span className="text-xs text-[var(--muted-foreground)]">
-          {nodes.length} artists · {links.length} connections · x-axis = birth
-          year
+          {nodes.length} artists · {links.length} connections · x-axis = birth year
         </span>
       </div>
 
@@ -296,13 +289,9 @@ export function LineageGraph({ artists, connections }: Props) {
             <g>
               {links.map((l, i) => {
                 const s =
-                  typeof l.source === "string"
-                    ? nodeById.get(l.source)
-                    : (l.source as Node);
+                  typeof l.source === "string" ? nodeById.get(l.source) : (l.source as Node);
                 const t =
-                  typeof l.target === "string"
-                    ? nodeById.get(l.target)
-                    : (l.target as Node);
+                  typeof l.target === "string" ? nodeById.get(l.target) : (l.target as Node);
                 if (!s || !t || s.x == null || t.x == null) return null;
                 const hi = linkHighlighted(l);
                 const dim = activeId && !hi;
@@ -331,9 +320,7 @@ export function LineageGraph({ artists, connections }: Props) {
                     transform={`translate(${n.x ?? 0}, ${n.y ?? 0})`}
                     onMouseEnter={() => setHovered(n.id)}
                     onMouseLeave={() => setHovered(null)}
-                    onClick={() =>
-                      setSelected((prev) => (prev === n.id ? null : n.id))
-                    }
+                    onClick={() => setSelected((prev) => (prev === n.id ? null : n.id))}
                     className="cursor-pointer"
                     opacity={hi ? 1 : 0.15}
                   >
@@ -343,7 +330,7 @@ export function LineageGraph({ artists, connections }: Props) {
                       stroke={selected === n.id ? "#111" : "white"}
                       strokeWidth={selected === n.id ? 2 : 1}
                     />
-                    {(hi && (hovered === n.id || selected === n.id || n.count > 30)) && (
+                    {hi && (hovered === n.id || selected === n.id || n.count > 30) && (
                       <text
                         y={-r - 4}
                         textAnchor="middle"
@@ -408,9 +395,7 @@ export function LineageGraph({ artists, connections }: Props) {
                   <ul className="space-y-1 text-xs">
                     {activeLinks.slice(0, 20).map((l, i) => {
                       const other =
-                        (typeof l.source === "string"
-                          ? l.source
-                          : l.source.id) === activeArtist.id
+                        (typeof l.source === "string" ? l.source : l.source.id) === activeArtist.id
                           ? typeof l.target === "string"
                             ? l.target
                             : l.target.id
@@ -434,9 +419,7 @@ export function LineageGraph({ artists, connections }: Props) {
                             >
                               {node.name}
                             </span>
-                            <span className="ml-1 text-[var(--muted-foreground)]">
-                              — {l.label}
-                            </span>
+                            <span className="ml-1 text-[var(--muted-foreground)]">— {l.label}</span>
                           </button>
                         </li>
                       );
@@ -447,12 +430,10 @@ export function LineageGraph({ artists, connections }: Props) {
             </div>
           ) : (
             <div className="text-sm text-[var(--muted-foreground)]">
-              <p className="mb-2">
-                Hover or click an artist to see their connections.
-              </p>
+              <p className="mb-2">Hover or click an artist to see their connections.</p>
               <p className="mb-4">
-                Nodes are positioned by birth year (left = earlier). Solid
-                lines mean direct acquaintance; dashed lines share a movement.
+                Nodes are positioned by birth year (left = earlier). Solid lines mean direct
+                acquaintance; dashed lines share a movement.
               </p>
               <div className="space-y-1">
                 {Object.entries(MOVEMENT_COLORS)

@@ -1,8 +1,4 @@
-import {
-  S3Client,
-  GetObjectCommand,
-  PutObjectCommand,
-} from "@aws-sdk/client-s3";
+import { GetObjectCommand, PutObjectCommand, S3Client } from "@aws-sdk/client-s3";
 import type { NewsletterIssue, NewsletterState } from "./types";
 import { EMPTY_STATE } from "./types";
 
@@ -38,9 +34,7 @@ function getKey(): string {
 export async function loadState(): Promise<NewsletterState> {
   const client = getClient();
   try {
-    const res = await client.send(
-      new GetObjectCommand({ Bucket: getBucket(), Key: getKey() }),
-    );
+    const res = await client.send(new GetObjectCommand({ Bucket: getBucket(), Key: getKey() }));
     const body = await res.Body?.transformToString();
     if (!body) return EMPTY_STATE;
     const parsed = JSON.parse(body) as NewsletterState;
@@ -76,10 +70,7 @@ export function sentArtworkIds(state: NewsletterState): Set<string> {
   return set;
 }
 
-export function findIssue(
-  state: NewsletterState,
-  weekKey: string,
-): NewsletterIssue | undefined {
+export function findIssue(state: NewsletterState, weekKey: string): NewsletterIssue | undefined {
   return state.issues.find((i) => i.weekKey === weekKey);
 }
 

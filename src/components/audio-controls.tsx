@@ -1,7 +1,7 @@
 "use client";
 
-import { useCallback, useEffect, useRef, useState } from "react";
 import { useAudioSettings } from "@/lib/audio-settings";
+import { useCallback, useEffect, useRef, useState } from "react";
 
 // ─────────────────────────────────────────────────────────────────────────────
 // Floating audio settings pill — sits in the corner of the 3D gallery.
@@ -35,10 +35,7 @@ export function AudioControls({ className }: Props) {
   }, [settings.enabled, update]);
 
   return (
-    <div
-      ref={rootRef}
-      className={`pointer-events-auto absolute ${className ?? ""}`}
-    >
+    <div ref={rootRef} className={`pointer-events-auto absolute ${className ?? ""}`}>
       <div className="flex items-center gap-1 rounded-full bg-black/55 px-2 py-1 text-white/85 backdrop-blur">
         <IconButton
           onClick={toggleMute}
@@ -65,9 +62,7 @@ export function AudioControls({ className }: Props) {
           aria-label="Sound settings"
         >
           <div className="mb-2 flex items-center justify-between">
-            <span className="text-[10px] uppercase tracking-wider text-white/50">
-              Sound
-            </span>
+            <span className="text-[10px] uppercase tracking-wider text-white/50">Sound</span>
             <button
               type="button"
               onClick={toggleMute}
@@ -143,9 +138,7 @@ function VolumeRow({
     <label className={`mb-2 block last:mb-0 ${disabled ? "opacity-50" : ""}`}>
       <div className="mb-1 flex items-center justify-between">
         <span>{label}</span>
-        <span className="tabular-nums text-white/55">
-          {Math.round(value * 100)}
-        </span>
+        <span className="tabular-nums text-white/55">{Math.round(value * 100)}</span>
       </div>
       <input
         type="range"
@@ -154,7 +147,7 @@ function VolumeRow({
         step={0.01}
         value={value}
         disabled={disabled}
-        onChange={(e) => onChange(parseFloat(e.target.value))}
+        onChange={(e) => onChange(Number.parseFloat(e.target.value))}
         className="h-1 w-full accent-white disabled:cursor-not-allowed"
       />
     </label>
@@ -167,7 +160,17 @@ function VolumeRow({
 
 function SpeakerIcon() {
   return (
-    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+    <svg
+      width="16"
+      height="16"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="2"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      aria-hidden="true"
+    >
       <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5" />
       <path d="M15.54 8.46a5 5 0 0 1 0 7.07" />
       <path d="M19.07 4.93a10 10 0 0 1 0 14.14" />
@@ -177,7 +180,17 @@ function SpeakerIcon() {
 
 function SpeakerMutedIcon() {
   return (
-    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+    <svg
+      width="16"
+      height="16"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="2"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      aria-hidden="true"
+    >
       <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5" />
       <line x1="22" y1="9" x2="16" y2="15" />
       <line x1="16" y1="9" x2="22" y2="15" />
@@ -187,7 +200,17 @@ function SpeakerMutedIcon() {
 
 function GearIcon() {
   return (
-    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+    <svg
+      width="14"
+      height="14"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="2"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      aria-hidden="true"
+    >
       <circle cx="12" cy="12" r="3" />
       <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z" />
     </svg>
