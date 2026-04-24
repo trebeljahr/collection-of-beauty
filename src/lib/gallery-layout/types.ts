@@ -51,6 +51,10 @@ export type RoomLayout = {
   hasBench: boolean;
   placements: Placement[];
   artworks: Artwork[];
+  /** Which walls of this room should NOT be rendered, because a
+   *  neighbouring room shares that wall and is responsible for drawing
+   *  it (with door cuts). Prevents z-fighting on shared boundaries. */
+  suppressWalls?: { north?: boolean; south?: boolean; east?: boolean; west?: boolean };
 };
 
 export type HallwayLayout = {

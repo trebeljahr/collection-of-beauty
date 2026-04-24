@@ -3,7 +3,7 @@
 import { AudioControls } from "@/components/audio-controls";
 import { useAudioSettings } from "@/lib/audio-settings";
 import type { Artwork } from "@/lib/data";
-import { layoutDungeon } from "@/lib/gallery-layout/layout-dungeon";
+import { layoutMuseum } from "@/lib/gallery-layout/layout-museum";
 import type { FloorLayout } from "@/lib/gallery-layout/types";
 import { PointerLockControls } from "@react-three/drei";
 import { Canvas } from "@react-three/fiber";
@@ -28,7 +28,7 @@ type Props = { artworks: Artwork[] };
  * Staircases and cross-floor walking land in M4.
  */
 export function GalleryDungeon({ artworks }: Props) {
-  const layout = useMemo(() => layoutDungeon(artworks), [artworks]);
+  const layout = useMemo(() => layoutMuseum(artworks), [artworks]);
   const [hasStarted, setHasStarted] = useState(false);
   const [currentFloorIdx, setCurrentFloorIdx] = useState(layout.entry.floorIndex);
   const [activeRoomIdx, setActiveRoomIdx] = useState<number>(-1);

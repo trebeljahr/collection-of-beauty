@@ -9,7 +9,7 @@
 //   door ticks    → short marks on room walls where openings sit
 
 import { artworks } from "@/lib/data";
-import { layoutDungeon } from "@/lib/gallery-layout/layout-dungeon";
+import { layoutMuseum } from "@/lib/gallery-layout/layout-museum";
 import type { FloorLayout, RoomLayout } from "@/lib/gallery-layout/types";
 import { CELL_SIZE } from "@/lib/gallery-layout/world-coords";
 import type { Metadata } from "next";
@@ -23,7 +23,7 @@ const CELL_PX = 18; // svg px per grid cell
 const PADDING = 16;
 
 export default function FloorPlanPage() {
-  const layout = layoutDungeon(artworks);
+  const layout = layoutMuseum(artworks);
 
   const totalDoors = layout.allRooms.reduce((n, r) => n + r.doors.length, 0);
 

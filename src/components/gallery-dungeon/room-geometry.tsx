@@ -97,39 +97,48 @@ export function RoomGeometry({
         </>
       )}
 
-      {/* Four walls */}
-      <WallWithDoors
-        position={[cxWorld, wallMidY, zMin]}
-        rotation={[0, 0, 0]}
-        width={width}
-        height={ROOM_HEIGHT}
-        material={mats.wall}
-        doors={nsDoors("north")}
-      />
-      <WallWithDoors
-        position={[cxWorld, wallMidY, zMax]}
-        rotation={[0, Math.PI, 0]}
-        width={width}
-        height={ROOM_HEIGHT}
-        material={mats.wall}
-        doors={nsDoors("south")}
-      />
-      <WallWithDoors
-        position={[xMin, wallMidY, czWorld]}
-        rotation={[0, Math.PI / 2, 0]}
-        width={depth}
-        height={ROOM_HEIGHT}
-        material={mats.wall}
-        doors={wDoors}
-      />
-      <WallWithDoors
-        position={[xMax, wallMidY, czWorld]}
-        rotation={[0, -Math.PI / 2, 0]}
-        width={depth}
-        height={ROOM_HEIGHT}
-        material={mats.wall}
-        doors={eDoors}
-      />
+      {/* Four walls — each may be suppressed when a neighbouring room
+          owns the shared wall (and draws it with a door cut). */}
+      {!room.suppressWalls?.north && (
+        <WallWithDoors
+          position={[cxWorld, wallMidY, zMin]}
+          rotation={[0, 0, 0]}
+          width={width}
+          height={ROOM_HEIGHT}
+          material={mats.wall}
+          doors={nsDoors("north")}
+        />
+      )}
+      {!room.suppressWalls?.south && (
+        <WallWithDoors
+          position={[cxWorld, wallMidY, zMax]}
+          rotation={[0, Math.PI, 0]}
+          width={width}
+          height={ROOM_HEIGHT}
+          material={mats.wall}
+          doors={nsDoors("south")}
+        />
+      )}
+      {!room.suppressWalls?.west && (
+        <WallWithDoors
+          position={[xMin, wallMidY, czWorld]}
+          rotation={[0, Math.PI / 2, 0]}
+          width={depth}
+          height={ROOM_HEIGHT}
+          material={mats.wall}
+          doors={wDoors}
+        />
+      )}
+      {!room.suppressWalls?.east && (
+        <WallWithDoors
+          position={[xMax, wallMidY, czWorld]}
+          rotation={[0, -Math.PI / 2, 0]}
+          width={depth}
+          height={ROOM_HEIGHT}
+          material={mats.wall}
+          doors={eDoors}
+        />
+      )}
 
       {/* Paintings */}
       {room.placements.map((p, i) => (
