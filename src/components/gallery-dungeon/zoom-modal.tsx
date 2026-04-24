@@ -26,7 +26,7 @@ export function ZoomModal({
   }, [onClose]);
 
   const fallback = variantUrl(artwork.objectKey, 1280, "webp");
-  const srcSet = variantSrcSet(artwork.objectKey, "webp");
+  const srcSet = variantSrcSet(artwork.objectKey, "avif");
   const dims = artwork.realDimensions;
 
   return (
