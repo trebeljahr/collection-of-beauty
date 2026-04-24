@@ -1,0 +1,533 @@
+# Copyright review — looks recent
+# Generated: 2026-04-24T13:05:25.862Z
+# Cutoff: year < 1926 (artwork must be at least 100 years old).
+# Entries here have year >= 1926 after heuristic re-extraction,
+# so they may be copyrighted. Review and remove if they cannot be
+# confirmed as public domain.
+
+## collection-of-beauty.json  (131)
+
+2016 [filename]             ? — Snow on Ayase river, Rijksmuseum RP-P-2016-66-8 (1)
+       file: Snow_on_Ayase_river,_Rijksmuseum_RP-P-2016-66-8 (1).jpg
+       date_created: 2016
+
+2016 [filename]             Another Believer — Young man in armor, by Peter Paul Rubens, Timken Museum of Art - 2016 - 430 (cropped)
+       file: Young_man_in_armor,_by_Peter_Paul_Rubens,_Timken_Museum_of_Art_-_2016_-_430_(cropped).jpg
+       date_created: 2016-10-06
+
+2013 [filename]             ? — 2013 HGK 03211 1009 000(wu changshuo landscape120225)
+       file: 2013_HGK_03211_1009_000(wu_changshuo_landscape120225).jpg
+       date_created: 2013
+
+2013 [filename]             ? — 2013 HGK 03211 1015 000(wu hufan landscape in yuan dynasty style120413)
+       file: 2013_HGK_03211_1015_000(wu_hufan_landscape_in_yuan_dynasty_style120413).jpg
+       date_created: 2013
+
+2013 [filename]             ? — 2013 HGK 03211 1016 000(chen da landscape in the style of li xianxi120441)
+       file: 2013_HGK_03211_1016_000(chen_da_landscape_in_the_style_of_li_xianxi120441).jpg
+       date_created: 2013
+
+2013 [filename]             ? — 2013 HGK 03211 1017 000(tang yun fisherman returning to shore120508)
+       file: 2013_HGK_03211_1017_000(tang_yun_fisherman_returning_to_shore120508).jpg
+       date_created: 2013
+
+2013 [filename]             ? — 2013 HGK 03211 1027 000(zhang daqian houses on a mountain121015)
+       file: 2013_HGK_03211_1027_000(zhang_daqian_houses_on_a_mountain121015).jpg
+       date_created: 2013
+
+2013 [filename]             ? — 2013 HGK 03211 1030 000(pu ru pine trees in the mountains121153)
+       file: 2013_HGK_03211_1030_000(pu_ru_pine_trees_in_the_mountains121153).jpg
+       date_created: 2013
+
+2013 [filename]             ? — 2013 HGK 03211 1034 000(yang shanshen hundred sparrows121330)
+       file: 2013_HGK_03211_1034_000(yang_shanshen_hundred_sparrows121330).jpg
+       date_created: 2013
+
+2013 [filename]             ? — 2013 HGK 03211 1037 000(liu haisu mount huang121520)
+       file: 2013_HGK_03211_1037_000(liu_haisu_mount_huang121520).jpg
+       date_created: 2013
+
+2013 [filename]             ? — 2013 HGK 03211 1038 000(zhao shaoang canna lily121556)
+       file: 2013_HGK_03211_1038_000(zhao_shaoang_canna_lily121556).jpg
+       date_created: 2013
+
+2013 [filename]             ? — 2013 HGK 03211 1101 000(zhao shaoang autumn scenery125133)
+       file: 2013_HGK_03211_1101_000(zhao_shaoang_autumn_scenery125133).jpg
+       date_created: 2013
+
+2013 [filename]             ? — 2013 HGK 03211 1105 000(li xiongcai rafting125605)
+       file: 2013_HGK_03211_1105_000(li_xiongcai_rafting125605).jpg
+       date_created: 2013
+
+2013 [filename]             ? — 2013 HGK 03211 1113 000(lu shoukun view of kwun tong010053)
+       file: 2013_HGK_03211_1113_000(lu_shoukun_view_of_kwun_tong010053).jpg
+       date_created: 2013
+
+2013 [filename]             ? — 2013 HGK 03211 1114 000(li xiongcai autumn landscape after rain010135)
+       file: 2013_HGK_03211_1114_000(li_xiongcai_autumn_landscape_after_rain010135).jpg
+       date_created: 2013
+
+2013 [filename]             ? — 2013 HGK 03211 1118 000(wang ran autumn landscape010432)
+       file: 2013_HGK_03211_1118_000(wang_ran_autumn_landscape010432).jpg
+       date_created: 2013
+
+2013 [filename]             ? — 2013 HGK 03211 1121 000(he baili peonies010620)
+       file: 2013_HGK_03211_1121_000(he_baili_peonies010620).jpg
+       date_created: 2013
+
+2013 [filename]             ? — 2013 HGK 03211 1122 000(he baili landscape010758)
+       file: 2013_HGK_03211_1122_000(he_baili_landscape010758).jpg
+       date_created: 2013
+
+2013 [filename]             ? — 2013 HGK 03211 1126 000(zhang daqian zhang daqian011014)
+       file: 2013_HGK_03211_1126_000(zhang_daqian_zhang_daqian011014).jpg
+       date_created: 2013
+
+2013 [filename]             ? — 2013 HGK 03211 1127 000(zhang daqian peony011041)
+       file: 2013_HGK_03211_1127_000(zhang_daqian_peony011041).jpg
+       date_created: 2013
+
+2013 [filename]             ? — 2013 HGK 03211 1129 000(jiang zhaohe gril knitting011336)
+       file: 2013_HGK_03211_1129_000(jiang_zhaohe_gril_knitting011336).jpg
+       date_created: 2013
+
+2013 [filename]             ? — 2013 HGK 03211 1155 000(pu quan bamboo013126)
+       file: 2013_HGK_03211_1155_000(pu_quan_bamboo013126).jpg
+       date_created: 2013
+
+2013 [filename]             ? — 2013 HGK 03211 1156 000(pu ru scholar under tree013254)
+       file: 2013_HGK_03211_1156_000(pu_ru_scholar_under_tree013254).jpg
+       date_created: 2013
+
+2013 [filename]             ? — 2013 HGK 03211 1159 000(qi kun listening to the streams013359)
+       file: 2013_HGK_03211_1159_000(qi_kun_listening_to_the_streams013359).jpg
+       date_created: 2013
+
+2013 [filename]             ? — 2013 HGK 03211 1161 000(huang junbi mighty mountains013504)
+       file: 2013_HGK_03211_1161_000(huang_junbi_mighty_mountains013504).jpg
+       date_created: 2013
+
+2013 [filename]             ? — 2013 HGK 03211 1162 000(huang junbi landscape013542)
+       file: 2013_HGK_03211_1162_000(huang_junbi_landscape013542).jpg
+       date_created: 2013
+
+2013 [filename]             ? — 2013 HGK 03211 1163 000(huang junbi boating in the mist013615)
+       file: 2013_HGK_03211_1163_000(huang_junbi_boating_in_the_mist013615).jpg
+       date_created: 2013
+
+2013 [filename]             ? — 2013 HGK 03211 1176 000(luo ming mount hua014457)
+       file: 2013_HGK_03211_1176_000(luo_ming_mount_hua014457).jpg
+       date_created: 2013
+
+2011 [date_created_plain]   Nishikawa Sukenobu — Nishikawa Sukenobu, 1739, Ehon Asakayama,16 gris
+       file: Nishikawa_Sukenobu,_1739,_Ehon_Asakayama,16_gris.jpg
+       date_created: 5/12/2011
+
+2009 [date_created_plain]   Claude Monet — Water Lilies p
+       file: WLA_metmuseum_Water_Lilies_by_Claude_Monet.jpg
+       date_created: Taken in February 2009
+
+2009 [date_created_plain]   Wikipedia Loves Art participant " Stephen_Sandoval " — WLA moma Monet Reflections of Clouds on the Water-Lily Pond
+       file: WLA_moma_Monet_Reflections_of_Clouds_on_the_Water-Lily_Pond.jpg
+       date_created: Taken in February 2009
+
+2008 [date_created_plain]   Eugene de Blaas — Blaas Eugen Von An Interesting Story
+       file: Blaas_Eugen_Von_An_Interesting_Story.jpg
+       date_created: 2008 (upload date)
+
+2008 [description]          Dong Yuan — The Immortal Paradise Building in the Mountain
+       file: Dong_Yuan_Mountain_Hall.jpg
+       date_created: 10 th century date QS:P,+950-00-00T00:00:00Z/7
+
+2008 [date_created_plain]   John Byam Liston Shaw — John Liston Byam Shaw Boer War
+       file: John_Liston_Byam_Shaw_Boer_War.jpg
+       date_created: 2008 (upload date)
+
+2008 [date_created_plain]   John Byam Liston Shaw — Shaw John Byam Liston Now is Pilgrim Fair Autumn-s Charge
+       file: Shaw_John_Byam_Liston_Now_is_Pilgrim_Fair_Autumn-s_Charge.jpg
+       date_created: 2008 (upload date)
+
+1957 [wikidata_qs]          Rijksmuseum — Akashi strand Akashi no hama (titel op object), AK-MAK-1637
+       file: Akashi_strand_Akashi_no_hama_(titel_op_object),_AK-MAK-1637.jpg
+       date_created: after 1957 date QS:P,+1957-00-00T00:00:00Z/7,P1319,+1957-00-00T00:00:00Z/9
+
+1957 [jp_era]               Hasui Kawase — Kawase Hasui-No Series-Konjikido in Snow Hiraizumi
+       file: Kawase_Hasui-No_Series-Konjikido_in_Snow_Hiraizumi.jpg
+       date_created: 昭和32年出版
+
+1953 [date_created_plain]   Hasui Kawase — Snow over Zojoji Temple (Shiba, Tokyo)-IMG 9360
+       file: Snow_over_Zojoji_Temple_(Shiba,_Tokyo)-IMG_9360.JPG
+       date_created: Published in 1953
+
+1952 [date_created_plain]   Edward Hopper — Morning Sun
+       file: Edward_Hopper_-_Morning_Sun_-_c_1952_-_Columbus_Museum_of_Art.jpg
+       date_created: 1952
+
+1952 [wikidata_qs]          Hasui Kawase — Heirin-ji, Nobidome
+       file: Heirin-ji,_Nobidome,_Hasui_Kawase,_野火止_平林寺,_川瀬巴水.jpg
+       date_created: 1952 date QS:P571,+1952-00-00T00:00:00Z/9
+
+1946 [wikidata_qs]          Kanae Yamamoto — Kanae Yamamoto - Dutch girl in landscape
+       file: Kanae_Yamamoto_-_Dutch_girl_in_landscape.jpg
+       date_created: before 1946 date QS:P,+1946-00-00T00:00:00Z/7,P1326,+1946-00-00T00:00:00Z/9
+
+1942 [wikidata_qs]          Edward Hopper — Nighthawks
+       file: Nighthawks_by_Edward_Hopper_1942.jpg
+       date_created: 21 January 1942 date QS:P571,+1942-01-21T00:00:00Z/11
+
+1942 [date_created_plain]   Yves Tanguy — Indefinite Divisibility
+       file: Yves_Tanguy_-_Divisibilité_indéfinie_(1942).jpg
+       date_created: 1942
+
+1940 [wikidata_qs]          Grant Wood — January
+       file: 'January'_by_Grant_Wood,_1940-41,_Cleveland_Museum_of_Art.jpeg
+       date_created: between 1940 and 1941 date QS:P571,+1940-00-00T00:00:00Z/8,P1319,+1940-00-00T00:00:00Z/9,P1326,+1941-00-00T00:00:00Z/9
+
+1940 [wikidata_qs]          Grant Wood — Sentimental Ballad
+       file: 'Sentimental_Ballad'_by_Grant_Wood,_1940.jpg
+       date_created: 1940 date QS:P571,+1940-00-00T00:00:00Z/9
+
+1940 [wikidata_qs]          Hasui Kawase — Evening at Tagonoura
+       file: Hasui_Kawase,_Evening_at_Tagonoura,_川瀬巴水,_田子の浦の夕.jpg
+       date_created: 1940 date QS:P571,+1940-00-00T00:00:00Z/9
+
+1939 [date_created_plain]   Hiroshi Yoshida — Bamboo Grove
+       file: Bamboo_Grove_(5759026915).jpg
+       date_created: 1939 , digital img: 25 May 2011 12:49:50
+
+1939 [wikidata_qs]          Kanae Yamamoto — Kanae Yamamoto (1939) Kōgen - Iizuna
+       file: Kanae_Yamamoto_(1939)_Kōgen_-_Iizuna.jpg
+       date_created: 1939 date QS:P571,+1939-00-00T00:00:00Z/9
+
+1939 [wikidata_qs]          Grant Wood — Parson Weems’ Fable
+       file: Parson_Weems'_Fable.jpg
+       date_created: 1939 date QS:P571,+1939-00-00T00:00:00Z/9
+
+1938 [wikidata_qs]          Kanae Yamamoto — Kanae Yamamoto (1938) Kami-Ide no Fuji
+       file: Kanae_Yamamoto_(1938)_Kami-Ide_no_Fuji.jpg
+       date_created: 1938 date QS:P571,+1938-00-00T00:00:00Z/9
+
+1938 [date_created_plain]   Elizabeth Keith — Old Korea-Keith-BRIDE
+       file: Old_Korea-Keith-BRIDE.jpeg
+       date_created: 1938
+
+1938 [wikidata_qs]          Tsuchiya Kōitsu — Sketches of Famous Places in Japan: Asakusa Kinryūzan Temple
+       file: Tsuchiya_Kōitsu_-_Sketches_of_Famous_Places_in_Japan-_Asakusa_Kinryūzan_Temple_-_2016.76_-_Cleveland_Museum_of_Art_(cropped).tif
+       date_created: 1938 date QS:P571,+1938-00-00T00:00:00Z/9
+
+1937 [date_created_plain]   Rijksmuseum — De warme bronnen van Shuzenji Shuzenji onsen (titel op object), RP-P-1968-277
+       file: De_warme_bronnen_van_Shuzenji_Shuzenji_onsen_(titel_op_object),_RP-P-1968-277.jpg
+       date_created: 1937
+
+1937 [wikidata_qs]          Hiroshi Yoshida — Yomei Gate
+       file: Hiroshi_Yoshida_-_Yomei_Gate.jpg
+       date_created: 1937 date QS:P571,+1937-00-00T00:00:00Z/9
+
+1937 [wikidata_qs]          Kanae Yamamoto — Kanae Yamamoto (1937) Haruna-ko shoshū
+       file: Kanae_Yamamoto_(1937)_Haruna-ko_shoshū.jpg
+       date_created: 1937 date QS:P571,+1937-00-00T00:00:00Z/9
+
+1937 [wikidata_qs]          Tsuchiya Kōitsu — Rain at Kofukuji Temple
+       file: Rain_at_Kofukuji_Temple_(5759571352).jpg
+       date_created: June 1937 date QS:P571,+1937-06-00T00:00:00Z/10
+
+1937 [date_created_plain]   Hiroshi Yoshida — Toshogu Shrine
+       file: Toshogu_Shrine_(5759027311).jpg
+       date_created: Published in 1937
+
+1936 [jp_era]               Yamakawa Shūhō（1898-1944） — 'Three Sisters' by Yamakawa Shūhō (1898-1944), painted screen, 1936, Honolulu Museum of Art 02
+       file: 'Three_Sisters'_by_Yamakawa_Shūhō_(1898-1944),_painted_screen,_1936,_Honolulu_Museum_of_Art_02.jpg
+       date_created: 昭和11年
+
+1936 [wikidata_qs]          Pu Xian — 溥僩丙子夏日寫生
+       file: 溥僩丙子夏日寫生.jpg
+       date_created: 1936 date QS:P571,+1936-00-00T00:00:00Z/9
+
+1935 [date_created_plain]   Hiroshi Yoshida — Hirosaki Castle
+       file: Yoshida_Hiroshi_-_Hirosaki_Castle_(Hirosaki_jô),_from_the_series_Eight_Scenes_of_Cherry_Blossoms_(Sakura_hachidai),_Museum_of_Fine_Arts_Boston.jpg
+       date_created: Published in 1935
+
+1935 [wikidata_qs]          Hiroshi Yoshida — Suzukawa River
+       file: Yoshida_Hiroshi_Suzukawa,_1935.jpg
+       date_created: 1935 date QS:P571,+1935-00-00T00:00:00Z/9
+
+1934 [date_created_plain]   Rijksmuseum — De grote lantaarn van de Kannon tempel in Asakusa Asakusa Kannondo ochochin (serietitel op object), RP-P-1968-275
+       file: De_grote_lantaarn_van_de_Kannon_tempel_in_Asakusa_Asakusa_Kannondo_ochochin_(serietitel_op_object),_RP-P-1968-275.jpg
+       date_created: 1934
+
+1934 [date_created_plain]   Rijksmuseum — Het drijvende paviljoen te Katada in de sneeuw Yuki no Katada Ukimido (titel op object), AK-MAK-1636
+       file: Het_drijvende_paviljoen_te_Katada_in_de_sneeuw_Yuki_no_Katada_Ukimido_(titel_op_object),_AK-MAK-1636.jpg
+       date_created: 1934-03
+
+1933 [wikidata_qs]          Hasui Kawase — 川瀬巴水版画集二
+       file: NDL-DC_2586550-50_Kawase_Hasui_S0806_crd.jpg
+       date_created: 1933 date QS:P571,+1933-00-00T00:00:00Z/9
+
+1933 [wikidata_qs]          Hasui Kawase — 川瀬巴水版画集二
+       file: NDL-DC_2586550-58_Kawase_Hasui_S0807_crd.jpg
+       date_created: 1933 date QS:P571,+1933-00-00T00:00:00Z/9
+
+1933 [wikidata_qs]          Hasui Kawase — 川瀬巴水版画集二
+       file: NDL-DC_2586550-74_Kawase_Hasui_S0812_crd.jpg
+       date_created: 1933 date QS:P571,+1933-00-00T00:00:00Z/9
+
+1933 [filename]             Sailko — Ohara koson, gatto e vasca con pesci rossi, 1933, xilografia colorata
+       file: Ohara_koson,_gatto_e_vasca_con_pesci_rossi,_1933,_xilografia_colorata.jpg
+       date_created: 2016-11-03 22:02:33
+
+1933 [date_created_plain]   Hiroshi Yoshida — The Golden Pavilion
+       file: The_Golden_Pavilion_(5759027207).jpg
+       date_created: Published in 1933
+
+1932 [date_created_plain]   Rijksmuseum — De rand van de Shinobazu vijver tijdens een mistige avond. Kasumu yube Shinobazu chihan (titel op object), RP-P-1998-389
+       file: De_rand_van_de_Shinobazu_vijver_tijdens_een_mistige_avond._Kasumu_yube_Shinobazu_chihan_(titel_op_object),_RP-P-1998-389.jpg
+       date_created: 1932
+
+1932 [date_created_plain]   Grant Wood — Self-Portrait
+       file: Grant_Wood.jpg
+       date_created: 1932 / 1941
+
+1932 [wikidata_qs]          Hiroshi Yoshida — Morning Mist in Taj Mahal, no. 5
+       file: Morning_Mist_in_Taj_Mahal,_no._5,_Hiroshi_yoshida.jpg
+       date_created: 1932 date QS:P571,+1932-00-00T00:00:00Z/9
+
+1932 [wikidata_qs]          Rudolf Ernst — Rudolf Ernst After Prayers
+       file: Rudolf_Ernst_After_Prayers.jpg
+       date_created: by 1932 date QS:P571,+1932-00-00T00:00:00Z/7,P1326,+1932-00-00T00:00:00Z/9
+
+1931 [wikidata_qs]          Hasui Kawase — Shinagawa
+       file: Hasui_Kawase,_Shinagawa,_川瀬巴水,_品川.jpg
+       date_created: 1931 date QS:P571,+1931-00-00T00:00:00Z/9
+
+1931 [jp_era]               Hasui Kawase — Snow in Mukojima
+       file: Kawase_Hasui_(1931)_Snow_in_Mukojima.jpg
+       date_created: 昭和6年出版
+
+1931 [date_created_plain]   TG 642 — Midnight Ride of Paul Revere
+       file: Midnight_Ride_of_Paul_Revere.jpg
+       date_created: 1931
+
+1931 [jp_era]               Hasui Kawase — Meguro Fudō Temple
+       file: NDL-DC_2586549-40_Kawase_Hasui_S06_crd.jpg
+       date_created: 昭和6年出版
+
+1930 [wikidata_qs]          Edvard Munch — Winter Night, Ekely
+       file: 'Winter_Night,_Ekely'_by_Edvard_Munch,_1930-31.jpeg
+       date_created: from 1930 until 1931 date QS:P,+1930-00-00T00:00:00Z/8,P580,+1930-00-00T00:00:00Z/9,P582,+1931-00-00T00:00:00Z/9
+
+1930 [wikidata_qs]          Grant Wood — American Gothic
+       file: Grant_Wood_-_American_Gothic_-_Google_Art_Project.jpg
+       date_created: 1930 date QS:P571,+1930-00-00T00:00:00Z/9
+
+1930 [jp_era]               Hasui Kawase — Moon at Magome
+       file: NDL-DC_2586549-31_Kawase_Hasui_S05_crd.jpg
+       date_created: 昭和5年出版
+
+1930 [jp_era]               Hasui Kawase — Ōmori Coast
+       file: NDL-DC_2586550-07_Kawase_Hasui_S05_crd.jpg
+       date_created: 昭和5年出版
+
+1930 [jp_era]               Hasui Kawase — Nikkō Kaidō
+       file: Nikko_kaido_hasui_kawase.jpg
+       date_created: 昭和5年出版
+
+1930 [jp_era]               Ohara Koson — Sumō-wrestling toads by Hōson
+       file: Sumō-wrestling_toads_by_Hōson.jpg
+       date_created: 昭和5年頃
+
+1930 [wikidata_qs]          Torii Kotondo (Japanese, active 1st half 20th century) — Woman Before a Mirror
+       file: Torii_Kotondo_-_Woman_Before_a_Mirror_-_Walters_95890.jpg
+       date_created: 1930 date QS:P571,+1930-00-00T00:00:00Z/9
+
+1929 [jp_era]               Hasui Kawase — Shinobazu Pond in Rain
+       file: NDL-DC_2586549-10_Kawase_Hasui_S04_crd.jpg
+       date_created: 昭和4年出版
+
+1929 [jp_era]               Hasui Kawase — Takinogawa River
+       file: NDL-DC_2586549-25_Kawase_Hasui_S04_crd.jpg
+       date_created: 昭和4年出版
+
+1929 [jp_era]               Hasui Kawase — Evening in Beppu
+       file: NDL-DC_2586549-26_Kawase_Hasui_S04_crd.jpg
+       date_created: 昭和4年出版
+
+1929 [date_created_plain]   Hasui Kawase — The Pond at Benten Shrine in Shiba, Kawase Hasui, MFAB 50.2885
+       file: The_Pond_at_Benten_Shrine_in_Shiba,_Kawase_Hasui,_MFAB_50.2885.jpg
+       date_created: 1929 (Shôwa 4), August, Shôwa era
+
+1929 [wikidata_qs]          Torii Kotondo (Japanese, active 1st half 20th century) — Kamisuki (Combing Her Hair)
+       file: Torii_Kotondo_-_Kamisuki_(Combing_Her_Hair)_-_Walters_95889.jpg
+       date_created: 1929 date QS:P571,+1929-00-00T00:00:00Z/9
+
+1928 [jp_era]               Hasui Kawase — Setting Sun, Ichinokura, Ikegami
+       file: 2560px-NDL-DC_2586549-06_Kawase_Hasui_S03_crd.jpg
+       date_created: 昭和3年出版
+
+1928 [jp_era]               Hasui Kawase — Akashi-chō after Rain
+       file: 2560px-NDL-DC_2586549-07_Kawase_Hasui_S03_crd.jpg
+       date_created: 昭和3年出版
+
+1928 [jp_era]               Hasui Kawase — Kiyomizu-dō Temple in Ueno
+       file: NDL-DC_2586549-04_Kawase_Hasui_S03_crd.jpg
+       date_created: 昭和3年出版
+
+1928 [jp_era]               Hasui Kawase — Starlit Night at Miyajima
+       file: NDL-DC_2586549-18_Kawase_Hasui_S03_crd.jpg
+       date_created: 昭和3年出版
+
+1928 [jp_era]               Hasui Kawase — Hōrai Rock, Kiso River
+       file: NDL-DC_2586549-19_Kawase_Hasui_S03_crd.jpg
+       date_created: 昭和3年出版
+
+1928 [jp_era]               Hasui Kawase — Kamezaki in Owari Province
+       file: NDL-DC_2586549-20_Kawase_Hasui_S03_crd.jpg
+       date_created: 昭和3年出版
+
+1928 [jp_era]               Hasui Kawase — Nishi Park, Fukuoka
+       file: NDL-DC_2586549-22_Kawase_Hasui_S03_crd.jpg
+       date_created: 昭和3年出版
+
+1928 [jp_era]               Hasui Kawase — Dawn at Beppu
+       file: NDL-DC_2586549-23_Kawase_Hasui_S03_crd.jpg
+       date_created: 昭和3年出版
+
+1928 [wikidata_qs]          Hiroshi Yoshida — Rapids at the Upper Reaches of Tone River
+       file: Yoshida_Hiroshi,_Rapids_at_the_Upper_Reaches_of_Tone_River,_1928.jpg
+       date_created: 1928 date QS:P571,+1928-00-00T00:00:00Z/9
+
+1928 [jp_era]               Hiroshi Yoshida — 日本南アルプス集 駒ケ岳山頂より
+       file: Yoshida_Komagatake.jpg
+       date_created: 昭和3年出版
+
+1927 [jp_era]               Hasui Kawase — Kawase Tenno-ji-27
+       file: Kawase_Tenno-ji-27.jpg
+       date_created: 昭和2年出版
+
+1927 [jp_era]               Hasui Kawase — Morning on the Daikon Wharf
+       file: NDL-DC_2586549-03_Kawase_Hasui_S02_crd.jpg
+       date_created: 昭和2年出版
+
+1927 [jp_era]               Hasui Kawase — Karasu Marsh, Akita
+       file: NDL-DC_2586549-14_Kawase_Hasui_S02_crd.jpg
+       date_created: 昭和2年出版
+
+1927 [jp_era]               Hasui Kawase — Hachirōgata Lagoon, Akita
+       file: NDL-DC_2586549-15_Kawase_Hasui_S02_crd.jpg
+       date_created: 昭和2年出版
+
+1927 [jp_era]               Hiroshi Yoshida — Kameidô
+       file: Yoshida_Kameidô.jpg
+       date_created: 昭和2年出版
+
+1926 [wikidata_qs]          Hiroshi Yoshida (1876 - 1950) (Japanese) Details on Google Art Project — 雲井櫻
+       file: 2560px-Hiroshi_Yoshida_-_Kumoi-Zakura_(Kumoi_Cherry_Trees)_-_Google_Art_Project.jpg
+       date_created: 1926 date QS:P571,+1926-00-00T00:00:00Z/9
+
+1926 [jp_era]               Hasui Kawase — Ryuga Island, Oga Peninsula
+       file: 2560px-NDL-DC_2586549-12_Kawase_Hasui_T15_crd.jpg
+       date_created: 大正15年出版
+
+1926 [wikidata_qs]          Robert Delaunay — Tour Eiffel
+       file: 960px-Robert_Delaunay,_1926,_Tour_Eiffel,_oil_on_canvas,_169_×_86_cm,_Musée_d'Art_Moderne_de_la_ville_de_Paris.jpg
+       date_created: 1926 date QS:P571,+1926-00-00T00:00:00Z/9
+
+1926 [wikidata_qs]          Claude Monet — Claude Monet - Dahlias (16035439250)
+       file: Claude_Monet_-_Dahlias_(16035439250).jpg
+       date_created: by 1926 date QS:P571,+1926-00-00T00:00:00Z/7,P1326,+1926-00-00T00:00:00Z/9
+
+1926 [wikidata_qs]          Claude Monet — Claude Monet - Vase of Tulips (14300279725)
+       file: Claude_Monet_-_Vase_of_Tulips_(14300279725).jpg
+       date_created: by 1926 date QS:P571,+1926-00-00T00:00:00Z/7,P1326,+1926-00-00T00:00:00Z/9
+
+1926 [jp_era]               Hasui Kawase — Clearing Sky after Snow, Kannon Temple, Asakusa, from the series Twenty Views of Tokyo, MFAB 50.2851
+       file: Clearing_Sky_after_Snow,_Kannon_Temple,_Asakusa,_from_the_series_Twenty_Views_of_Tokyo,_MFAB_50.2851.jpg
+       date_created: 大正15年出版
+
+1926 [wikidata_qs]          Hiroshi Yoshida (1876 - 1950) (Japanese) Details on Google Art Project — 雲井櫻
+       file: Hiroshi_Yoshida_-_Kumoi-Zakura_(Kumoi_Cherry_Trees)_-_Google_Art_Project.jpg
+       date_created: 1926 date QS:P571,+1926-00-00T00:00:00Z/9
+
+1926 [jp_era]               Hiroshi Yoshida — 瀬戸内海集 (1/9) 光る海
+       file: Hiroshi_Yoshida,_Hikaru_umi,_1926.jpg
+       date_created: 大正15年出版
+
+1926 [wikidata_qs]          Hiroshi Yoshida — Hodakayama
+       file: Hodakayama,_from_the_series_Twelve_Scenes_in_the_Japan_Alps,_Hiroshi_Yoshida.jpg
+       date_created: 1926 date QS:P571,+1926-00-00T00:00:00Z/9
+
+1926 [wikidata_qs]          Kanae Yamamoto — Kanae Yamamoto (1926) Tokko Sanroku Shūi
+       file: Kanae_Yamamoto_(1926)_Tokko_Sanroku_Shūi.jpg
+       date_created: 1926 date QS:P571,+1926-00-00T00:00:00Z/9
+
+1926 [wikidata_qs]          Claude Monet — Monet - dahlias
+       file: Monet_-_dahlias.jpg
+       date_created: before 1926 date QS:P571,+1926-00-00T00:00:00Z/7,P1326,+1926-00-00T00:00:00Z/9
+
+1926 [wikidata_qs]          Claude Monet — The Dinner
+       file: Monet_-_Das_Nachtessen,_1868-69.jpg
+       date_created: 1868/1869 before 1926 date QS:P571,+1926-00-00T00:00:00Z/7,P1326,+1926-00-00T00:00:00Z/9
+
+1926 [wikidata_qs]          Claude Monet — Glaçons à Bougival
+       file: Monet_-_ice-floes-on-the-seine-at-bougival-1868.jpg
+       date_created: before 1926 date QS:P571,+1926-00-00T00:00:00Z/7,P1326,+1926-00-00T00:00:00Z/9
+
+1926 [wikidata_qs]          Claude Monet — Monet - yellow-irises-1917
+       file: Monet_-_yellow-irises-1917.jpg
+       date_created: before 1926 date QS:P571,+1926-00-00T00:00:00Z/7,P1326,+1926-00-00T00:00:00Z/9
+
+1926 [date_created_plain]   Claude Monet — Monet w1668
+       file: Monet_w1668.jpg
+       date_created: 1926-06-06
+
+1926 [wikidata_qs]          Alfons Mucha — Apotheosis of the Slavs
+       file: Mucha_Apoteoza.jpg
+       date_created: 1926 date QS:P571,+1926-00-00T00:00:00Z/9
+
+1926 [date_created_plain]   Edvard Munch — Self-Portrait with Palette
+       file: Munch_-_Self-Portrait_with_Palette,_1926,_Lot_114.jpg
+       date_created: 1926
+
+1926 [jp_era]               Hasui Kawase — Kōjaku cavern at Oga Peninsula
+       file: NDL-DC_2586549-13_Kawase_Hasui_T15_crd.jpg
+       date_created: 大正15年出版
+
+1926 [jp_era]               Hasui Kawase — Nihon fūkei senshū, Izumo Yasugi Kiyomizu by Kawase Hasui
+       file: Nihon_fūkei_senshū,_Izumo_Yasugi_Kiyomizu_by_Kawase_Hasui.jpg
+       date_created: 大正15年出版
+
+1926 [jp_era]               Hasui Kawase — Ochanomizu (5758871675)
+       file: Ochanomizu_(5758871675).jpg
+       date_created: 大正15年出版
+
+1926 [wikidata_qs]          Hiroshi Yoshida — Sailing Boats, Afternoon
+       file: Sailing_Boats,_Afternoon,_Hiroshi_Yoshida.jpg
+       date_created: 1926 date QS:P571,+1926-00-00T00:00:00Z/9
+
+1926 [wikidata_qs]          Hiroshi Yoshida — Sailing Boats, Evening
+       file: Sailing_Boats,_Evening,_Hiroshi_Yoshida.jpg
+       date_created: 1926 date QS:P571,+1926-00-00T00:00:00Z/9
+
+1926 [wikidata_qs]          Hiroshi Yoshida — Sailing Boats, Mist
+       file: Sailing_Boats,_Mist,_Hiroshi_Yoshida.jpg
+       date_created: 1926 date QS:P571,+1926-00-00T00:00:00Z/9
+
+1926 [wikidata_qs]          Hiroshi Yoshida — Sailing Boats, Morning
+       file: Sailing_Boats,_Morning,_Hiroshi_Yoshida.jpg
+       date_created: 1926 date QS:P571,+1926-00-00T00:00:00Z/9
+
+1926 [wikidata_qs]          Hiroshi Yoshida — Sailing Boats, Night
+       file: Sailing_Boats,_Night,_Hiroshi_Yoshida.jpg
+       date_created: 1926 date QS:P571,+1926-00-00T00:00:00Z/9
+
+1926 [jp_era]               Hasui Kawase — Tabi miyage dai sanshū, Tazawako Gozanoishi by Kawase Hasui
+       file: Tabi_miyage_dai_sanshū,_Tazawako_Gozanoishi_by_Kawase_Hasui.jpg
+       date_created: 大正15年出版
+
+1926 [jp_era]               Hasui Kawase — Tōkyō nijū kei, Kanda Myōjin keidai by Kawase Hasui
+       file: Tōkyō_nijū_kei,_Kanda_Myōjin_keidai_by_Kawase_Hasui.jpg
+       date_created: 大正15年出版
+
+1926 [jp_era]               Hasui Kawase — Tōkyō nijū kei, Shin Ōhashi by Kawase Hasui
+       file: Tōkyō_nijū_kei,_Shin_Ōhashi_by_Kawase_Hasui.jpg
+       date_created: 大正15年出版
+
