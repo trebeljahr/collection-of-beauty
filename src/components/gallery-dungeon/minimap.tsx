@@ -1,6 +1,6 @@
 "use client";
 
-import type { FloorLayout } from "@/lib/gallery-layout/types";
+import type { FloorLayout, RoomLayout } from "@/lib/gallery-layout/types";
 import { CELL_SIZE } from "@/lib/gallery-layout/world-coords";
 import { type RefObject, useEffect, useRef } from "react";
 
@@ -11,30 +11,33 @@ type Props = {
   activeRoomIdx: number;
   /** Ref fed by Player.onPositionSample. `null` until the first frame. */
   playerRef: RefObject<PlayerSample | null>;
-  /** CSS pixel size of the minimap square. */
+  /** CSS pixel side of the map area (the footer adds extra height). */
   size?: number;
   className?: string;
 };
 
 const PAD = 6;
+const FOOTER_H = 48;
 
 /**
  * Overlay minimap driven entirely by the current FloorLayout — walkable
- * cells, rooms, hallways and staircase footprints are read from the same
- * data the 3D scene uses, so the map stays correct automatically when
- * the dungeon generator shifts the layout. Only the player arrow is
- * redrawn per frame; the floor plan is cached to an offscreen canvas.
+ * cells, room outlines, door positions and staircase footprints are
+ * read from the same data the 3D scene uses, so the map stays correct
+ * automatically when the dungeon generator shifts the layout. The
+ * static plan is baked to an offscreen canvas; only the player arrow
+ * is redrawn each frame.
  */
-export function Minimap({ floor, activeRoomIdx, playerRef, size = 200, className }: Props) {
+export function Minimap({ floor, activeRoomIdx, playerRef, size = 220, className }: Props) {
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
   const staticRef = useRef<HTMLCanvasElement | null>(null);
+  const totalH = size + FOOTER_H;
 
   // Re-bake the static floor plan whenever floor or active room changes.
   useEffect(() => {
     const off = document.createElement("canvas");
     const dpr = window.devicePixelRatio || 1;
     off.width = size * dpr;
-    off.height = size * dpr;
+    off.height = totalH * dpr;
     const ctx = off.getContext("2d");
     if (!ctx) return;
     ctx.scale(dpr, dpr);
@@ -46,15 +49,21 @@ export function Minimap({ floor, activeRoomIdx, playerRef, size = 200, className
     const ox = (size - drawW) / 2;
     const oy = (size - drawH) / 2;
 
-    // Panel background.
-    ctx.fillStyle = "rgba(10, 8, 5, 0.78)";
-    ctx.fillRect(0, 0, size, size);
+    // Panel background + outer frame.
+    ctx.fillStyle = "rgba(10, 8, 5, 0.82)";
+    ctx.fillRect(0, 0, size, totalH);
     ctx.strokeStyle = "rgba(255, 240, 210, 0.18)";
     ctx.lineWidth = 1;
-    ctx.strokeRect(0.5, 0.5, size - 1, size - 1);
+    ctx.strokeRect(0.5, 0.5, size - 1, totalH - 1);
+    // Divider above the footer.
+    ctx.beginPath();
+    ctx.moveTo(0, size);
+    ctx.lineTo(size, size);
+    ctx.stroke();
 
-    // Walkable cells — rooms get a warmer fill than hallways, the active
-    // room glows.
+    // Walkable cells — corridors stay muted; rooms read warmer; the
+    // active room is filled with a saturated gold so the player can
+    // locate themselves at a glance.
     for (let z = 0; z < gz; z++) {
       for (let x = 0; x < gx; x++) {
         const idx = z * gx + x;
@@ -71,9 +80,49 @@ export function Minimap({ floor, activeRoomIdx, playerRef, size = 200, className
       }
     }
 
-    // Staircase footprint — annulus around the spiral column, drawn only
-    // for flights leaving this floor so two adjacent floors don't both
-    // render the same tower.
+    // Room walls — thin outline around each room's cell bounds. The
+    // active room gets a brighter, thicker stroke so it pops out of
+    // the surrounding block.
+    for (const [i, room] of floor.rooms.entries()) {
+      const rx = ox + room.cellBounds.xMin * scale;
+      const ry = oy + room.cellBounds.zMin * scale;
+      const rw = (room.cellBounds.xMax - room.cellBounds.xMin + 1) * scale;
+      const rh = (room.cellBounds.zMax - room.cellBounds.zMin + 1) * scale;
+      const isActive = i === activeRoomIdx;
+      ctx.strokeStyle = isActive ? "#fff1c8" : "rgba(255, 240, 210, 0.45)";
+      ctx.lineWidth = isActive ? 1.6 : 0.8;
+      ctx.strokeRect(rx + 0.5, ry + 0.5, rw - 1, rh - 1);
+    }
+
+    // Doors — drawn after walls so they punch through the outline as
+    // a brighter notch. Each door records its world XZ centre, the
+    // wall it sits on and its width; that maps cleanly to a short
+    // segment in cell-grid space.
+    ctx.lineCap = "round";
+    for (const room of floor.rooms) {
+      for (const door of room.doors) {
+        const dxp = ox + (door.worldX / CELL_SIZE) * scale;
+        const dyp = oy + (door.worldZ / CELL_SIZE) * scale;
+        const half = (door.width / 2 / CELL_SIZE) * scale;
+        const horizontal = door.side === "north" || door.side === "south";
+        ctx.strokeStyle = "#ffd98a";
+        ctx.lineWidth = 2.2;
+        ctx.beginPath();
+        if (horizontal) {
+          ctx.moveTo(dxp - half, dyp);
+          ctx.lineTo(dxp + half, dyp);
+        } else {
+          ctx.moveTo(dxp, dyp - half);
+          ctx.lineTo(dxp, dyp + half);
+        }
+        ctx.stroke();
+      }
+    }
+    ctx.lineCap = "butt";
+
+    // Staircase footprint — annulus around the spiral column, drawn
+    // only for flights leaving this floor so two adjacent floors don't
+    // both render the same tower.
     for (const s of floor.stairsOut) {
       const cx = ox + (s.centerX / CELL_SIZE) * scale;
       const cy = oy + (s.centerZ / CELL_SIZE) * scale;
@@ -91,14 +140,42 @@ export function Minimap({ floor, activeRoomIdx, playerRef, size = 200, className
       ctx.stroke();
     }
 
-    // Floor label in the corner.
-    ctx.fillStyle = "rgba(255, 240, 210, 0.7)";
-    ctx.font = "10px ui-monospace, SFMono-Regular, Menlo, monospace";
+    // Per-room glyph — title truncated to fit the room footprint, with
+    // anchor / stairwell rooms overridden to a clearer icon. Dropped
+    // entirely when even one character won't fit.
+    ctx.textAlign = "center";
+    ctx.textBaseline = "middle";
+    for (const [i, room] of floor.rooms.entries()) {
+      const rx = ox + room.cellBounds.xMin * scale;
+      const ry = oy + room.cellBounds.zMin * scale;
+      const rw = (room.cellBounds.xMax - room.cellBounds.xMin + 1) * scale;
+      const rh = (room.cellBounds.zMax - room.cellBounds.zMin + 1) * scale;
+      const isActive = i === activeRoomIdx;
+      const cx = rx + rw / 2;
+      const cy = ry + rh / 2;
+      const icon = room.isStairwell ? "↑" : room.isAnchor ? "⌂" : null;
+      ctx.font = icon
+        ? "bold 11px ui-sans-serif, system-ui, sans-serif"
+        : "9px ui-sans-serif, system-ui, sans-serif";
+      ctx.fillStyle = isActive ? "#1a120b" : "rgba(255, 240, 210, 0.78)";
+      const text = icon ?? truncateToFit(ctx, room.title, rw - 4);
+      if (text) ctx.fillText(text, cx, cy);
+    }
+
+    // Header strip — floor + era so the player always knows what
+    // they're looking at, even when no room is active.
+    ctx.textAlign = "left";
     ctx.textBaseline = "top";
+    ctx.fillStyle = "rgba(255, 240, 210, 0.72)";
+    ctx.font = "10px ui-monospace, SFMono-Regular, Menlo, monospace";
     ctx.fillText(`F${floor.index} · ${floor.era.title}`, 6, 5);
 
+    // Footer — active room title + description, or a hint when the
+    // player isn't standing in any one room.
+    drawFooter(ctx, size, FOOTER_H, size, floor.rooms[activeRoomIdx]);
+
     staticRef.current = off;
-  }, [floor, activeRoomIdx, size]);
+  }, [floor, activeRoomIdx, size, totalH]);
 
   // Live loop — composites the cached floor plan with the player arrow.
   useEffect(() => {
@@ -106,7 +183,7 @@ export function Minimap({ floor, activeRoomIdx, playerRef, size = 200, className
     if (!canvas) return;
     const dpr = window.devicePixelRatio || 1;
     canvas.width = size * dpr;
-    canvas.height = size * dpr;
+    canvas.height = totalH * dpr;
     const ctx = canvas.getContext("2d");
     if (!ctx) return;
 
@@ -129,7 +206,7 @@ export function Minimap({ floor, activeRoomIdx, playerRef, size = 200, className
         const px = ox + (p.x / CELL_SIZE) * scale;
         const py = oy + (p.z / CELL_SIZE) * scale;
 
-        // Clamp inside the panel so the arrow stays visible if the
+        // Clamp inside the map area so the arrow stays visible if the
         // player ever ends up just outside the grid.
         const cx = Math.max(PAD, Math.min(size - PAD, px));
         const cy = Math.max(PAD, Math.min(size - PAD, py));
@@ -155,16 +232,92 @@ export function Minimap({ floor, activeRoomIdx, playerRef, size = 200, className
     };
     raf = requestAnimationFrame(draw);
     return () => cancelAnimationFrame(raf);
-  }, [floor, playerRef, size]);
+  }, [floor, playerRef, size, totalH]);
 
   return (
     <canvas
       ref={canvasRef}
       width={size}
-      height={size}
-      style={{ width: size, height: size }}
+      height={totalH}
+      style={{ width: size, height: totalH }}
       className={className}
       aria-hidden
     />
   );
+}
+
+/** Trim `text` (with a trailing ellipsis when needed) so it fits within
+ *  `maxWidth` at the canvas's currently configured font. Returns an
+ *  empty string when nothing useful fits. */
+function truncateToFit(
+  ctx: CanvasRenderingContext2D,
+  text: string,
+  maxWidth: number,
+): string {
+  if (maxWidth <= 0) return "";
+  if (ctx.measureText(text).width <= maxWidth) return text;
+  for (let n = text.length - 1; n > 0; n--) {
+    const t = `${text.slice(0, n).trimEnd()}…`;
+    if (ctx.measureText(t).width <= maxWidth) return t;
+  }
+  return "";
+}
+
+function drawFooter(
+  ctx: CanvasRenderingContext2D,
+  width: number,
+  height: number,
+  yTop: number,
+  room: RoomLayout | undefined,
+) {
+  const innerX = 8;
+  const innerW = width - innerX * 2;
+  ctx.textAlign = "left";
+  ctx.textBaseline = "top";
+  if (!room) {
+    ctx.fillStyle = "rgba(255, 240, 210, 0.45)";
+    ctx.font = "11px ui-sans-serif, system-ui, sans-serif";
+    ctx.fillText("— in corridor —", innerX, yTop + 8);
+    return;
+  }
+  ctx.fillStyle = "#fff1c8";
+  ctx.font = "bold 12px ui-sans-serif, system-ui, sans-serif";
+  ctx.fillText(truncateToFit(ctx, room.title, innerW), innerX, yTop + 6);
+
+  ctx.fillStyle = "rgba(255, 240, 210, 0.65)";
+  ctx.font = "10px ui-sans-serif, system-ui, sans-serif";
+  // Two short lines of description; word-wrap inside innerW.
+  const lines = wrapLines(ctx, room.description, innerW, 2);
+  for (let i = 0; i < lines.length; i++) {
+    ctx.fillText(lines[i], innerX, yTop + 22 + i * 12);
+  }
+}
+
+function wrapLines(
+  ctx: CanvasRenderingContext2D,
+  text: string,
+  maxWidth: number,
+  maxLines: number,
+): string[] {
+  const words = text.split(/\s+/).filter(Boolean);
+  const lines: string[] = [];
+  let cur = "";
+  for (const w of words) {
+    const next = cur ? `${cur} ${w}` : w;
+    if (ctx.measureText(next).width <= maxWidth) {
+      cur = next;
+      continue;
+    }
+    if (cur) lines.push(cur);
+    cur = w;
+    if (lines.length === maxLines - 1) break;
+  }
+  if (cur && lines.length < maxLines) lines.push(cur);
+  // If we ran out of room while words remained, ellipsize the last line.
+  const used = lines.join(" ").split(/\s+/).filter(Boolean).length;
+  if (used < words.length && lines.length > 0) {
+    const last = lines[lines.length - 1];
+    lines[lines.length - 1] = truncateToFit(ctx, `${last}…`, maxWidth) || last;
+  }
+  return lines;
 }
