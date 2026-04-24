@@ -19,6 +19,7 @@
 //
 // Read-only w.r.t. the source collection. Does not rename or move any file.
 
+import { spawnSync } from "child_process";
 import fs from "fs";
 import https from "https";
 import path from "path";
@@ -356,4 +357,19 @@ if (!folders.length) {
 
 for (const f of folders) {
   await processFolder(f);
+}
+
+// Post-process: normalize the freshly-written JSON so consumers always see
+// clean English titles + translations map and a recovered year. Without this
+// step, the raw Commons ObjectName string still contains `label QS:Lxx,"..."`
+// multilingual markup.
+const normalizerPath = path.join(__dirname, "normalize-metadata.mjs");
+if (fs.existsSync(normalizerPath)) {
+  const normalizerArgs = folders.map((f) => `${f}.json`);
+  console.log(`\nRunning normalize-metadata.mjs for: ${normalizerArgs.join(", ")}`);
+  const r = spawnSync(process.execPath, [normalizerPath, ...normalizerArgs], { stdio: "inherit" });
+  if (r.status !== 0) {
+    console.error(`normalize-metadata.mjs exited with status ${r.status}`);
+    process.exit(r.status ?? 1);
+  }
 }

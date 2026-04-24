@@ -63,12 +63,16 @@
   "how_to_use": {
     "lookup_by_filename": "Open metadata/<folder>.json and look up entries[<filename>]. For anime screenshots, any file in that folder shares the single folder-level record.",
     "reproducing_results": "All scripts are read-only with respect to the source images. Cache files under metadata/.cache/ allow any rerun to be free (no additional API calls). Delete the cache to force a fresh fetch.",
-    "adding_files": "Rerun 'node scripts/fetch-wikimedia-metadata.mjs <folder>' then 'node scripts/resolve-unresolved.mjs <folder>' then 'node scripts/classify-unresolved.mjs <folder>'. New files appended to the folder will be picked up automatically."
+    "adding_files": "Rerun 'node scripts/fetch-wikimedia-metadata.mjs <folder>' then 'node scripts/resolve-unresolved.mjs <folder>' then 'node scripts/classify-unresolved.mjs <folder>' then 'node scripts/normalize-metadata.mjs <folder>.json' (the last step cleans up the multilingual QuickStatement markup and re-scans dates). New files appended to the folder will be picked up automatically.",
+    "i18n_translations": "Each entry's primary title/description is English. Non-English values live under entry.translations.title[<lang>] and entry.translations.description[<lang>]. Language codes are ISO-639-1 (de, fr, ja, ru, ...) matching Wikidata QS:L<code> labels. Empty translations objects are omitted. Re-run scripts/normalize-metadata.mjs after any fetch to regenerate these.",
+    "copyright_review": "After normalize-metadata.mjs runs, see metadata/needs_review_dates.txt (entries whose best available year is >= 1926, i.e. possibly still in copyright) and metadata/needs_review_dates.unknown.txt (entries where no creation year could be recovered). Items with an artist_info.died year before 1926 are excluded from the 'unknown' list because the artist was conclusively pre-cutoff."
   },
   "scripts": {
     "scripts/fetch-wikimedia-metadata.mjs": "Pass 1: batched Wikimedia Commons API fetch (50 titles/batch, maxlag=5, polite User-Agent).",
     "scripts/resolve-unresolved.mjs": "Pass 2: retry with filename variants (strip 1280px- thumbs, case-swap extensions, NFC normalization) and follow normalization chains.",
     "scripts/classify-unresolved.mjs": "Pass 3: filename-pattern heuristic classification for what the API can't resolve.",
+    "scripts/normalize-metadata.mjs": "Pass 4: converts raw QS:P1476/QS:L<code> multilingual strings in title/description into a clean English primary value plus an entry.translations map keyed by language; re-derives entry.year from the most reliable source (Wikidata QS:P571 creation date, Japanese era phrases, filename year, title/description year, 'nth century' phrasing) and writes metadata/needs_review_dates*.txt listing copyright-review candidates.",
+    "scripts/mark-copyright-status.mjs": "Pass 5: writes entry.pd_status (public_domain, uraa_restricted, copyrighted, needs_review) and entry.pd_status_reason. URAA_restricted captures shin-hanga artists whose source-country term is shorter than the US term (Hiroshi Yoshida, Hasui Kawase): pre-1931 works stay PD, 1931+ works are flagged. The gallery build in scripts/build-data.mjs drops uraa_restricted entries.",
     "scripts/artists-db.json": "Curated lookup of ~75 prominent artists with birth/death/nationality/movement. Used for enrichment."
   }
 }

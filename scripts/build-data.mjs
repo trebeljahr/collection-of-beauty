@@ -116,6 +116,10 @@ function extractYear(entry) {
 function keepEntry(entry) {
   if (!entry.source?.file_url) return false;
   if (entry.needs_review) return false;
+  // URAA-restricted works are PD in the source country but still copyrighted
+  // in the US — drop them regardless of the Commons license tag, which only
+  // reflects the source-country status.
+  if (entry.pd_status === "uraa_restricted") return false;
   const cp = entry.copyright;
   if (!cp) return false;
   if (cp.copyrighted === false) return true;
