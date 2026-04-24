@@ -1,11 +1,13 @@
 "use client";
 
+import type { Artwork } from "@/lib/data";
 import type { Placement } from "@/lib/gallery-layout/types";
 import { variantUrl } from "@/lib/utils";
+import { Text } from "@react-three/drei";
 import { Suspense, useEffect, useRef } from "react";
 import * as THREE from "three";
 import { type PaintingEntry, registerPainting, unregisterPainting } from "./painting-registry";
-import { frameMaterial } from "./palette-materials";
+import { frameMaterial, plaqueBaseMaterial } from "./palette-materials";
 import { useCachedTexture } from "./texture-cache";
 
 /**
@@ -36,8 +38,74 @@ export function Painting({ placement }: { placement: Placement }) {
       <Suspense fallback={<FallbackSwatch widthM={widthM} heightM={heightM} artwork={artwork} />}>
         <PaintingPlane url={url} widthM={widthM} heightM={heightM} artwork={artwork} />
       </Suspense>
+      <Plaque artwork={artwork} widthM={widthM} heightM={heightM} />
     </group>
   );
+}
+
+// ── Plaque ────────────────────────────────────────────────────────────
+// A small museum-style label card to the right of each painting at
+// canvas centre height. Carries title, artist, year, dimensions.
+
+const PLAQUE_W = 0.34;
+const PLAQUE_H = 0.24;
+const PLAQUE_DEPTH = 0.012;
+const PLAQUE_GAP = 0.08;
+
+function Plaque({
+  artwork,
+  widthM,
+  heightM,
+}: {
+  artwork: Artwork;
+  widthM: number;
+  heightM: number;
+}) {
+  // Plaque sits to the painting's right at canvas mid-height. The
+  // group is already at the painting's centre (placement.position), so
+  // local +X is right and local Y=0 is canvas centre.
+  const localX = widthM / 2 + PLAQUE_GAP + PLAQUE_W / 2;
+  const localY = -heightM / 2 + PLAQUE_H / 2 + 0.06; // near canvas bottom
+  const localZ = 0.04;
+
+  const title = stripBrackets(artwork.title);
+  const year = artwork.year ? `, ${artwork.year}` : "";
+  const byline = `${artwork.artist ?? "Unknown"}${year}`;
+  const dims = artwork.realDimensions
+    ? `${artwork.realDimensions.widthCm.toFixed(0)} × ${artwork.realDimensions.heightCm.toFixed(0)} cm`
+    : "";
+  const text = [title, "", byline, dims].filter(Boolean).join("\n");
+
+  return (
+    <group position={[localX, localY, localZ]}>
+      <mesh>
+        <boxGeometry args={[PLAQUE_W, PLAQUE_H, PLAQUE_DEPTH]} />
+        <primitive object={plaqueBaseMaterial} attach="material" />
+      </mesh>
+      <Text
+        position={[0, 0, PLAQUE_DEPTH / 2 + 0.002]}
+        fontSize={0.018}
+        lineHeight={1.35}
+        color="#241810"
+        anchorX="center"
+        anchorY="middle"
+        maxWidth={PLAQUE_W - 0.024}
+        textAlign="center"
+      >
+        {text}
+      </Text>
+    </group>
+  );
+}
+
+/** Trim Wikimedia title noise: `label QS:Len,"Foo"` → `Foo`, drop
+ *  trailing language-tagged duplicates. */
+function stripBrackets(title: string): string {
+  const m = title.match(/label QS:L\w+,"([^"]+)"/);
+  if (m) return m[1];
+  const cut = title.indexOf(" label QS:");
+  if (cut > 0) return title.slice(0, cut).trim();
+  return title;
 }
 
 function PaintingPlane({

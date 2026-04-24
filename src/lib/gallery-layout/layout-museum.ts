@@ -66,10 +66,12 @@ const STAIR: CellRect = {
 };
 
 // Grand Hall (anchor) sits north of the spiral, between the corner
-// rooms. Its south wall borders the stair's north wall.
+// rooms. Its x range is centred on the spiral's world centre so the
+// south door aligns with the player's natural walking line straight
+// out of the hall toward the staircase.
 const GRAND_HALL: CellRect = {
   xMin: 14,
-  xMax: 33,
+  xMax: 34,
   zMin: STAIR_MAX + 1,
   zMax: 44,
 };
@@ -102,7 +104,7 @@ const SLOTS: Slot[] = [
   // South counterpart to the Grand Hall — large gallery facing the spiral.
   {
     id: "s_main",
-    rect: { xMin: 14, xMax: 33, zMin: 3, zMax: STAIR_MIN - 1 },
+    rect: { xMin: 14, xMax: 34, zMin: 3, zMax: STAIR_MIN - 1 },
     suppress: ["north"], // stair's south wall is shared, owned by stair
   },
   // West and east galleries — single rooms hugging the spiral on the
@@ -114,7 +116,7 @@ const SLOTS: Slot[] = [
   },
   {
     id: "east",
-    rect: { xMin: STAIR_MAX + 1, xMax: 43, zMin: STAIR_MIN, zMax: STAIR_MAX },
+    rect: { xMin: STAIR_MAX + 1, xMax: 44, zMin: STAIR_MIN, zMax: STAIR_MAX },
     suppress: ["west"],
   },
   // North-corner pair — flanking the Grand Hall on x.
@@ -125,7 +127,7 @@ const SLOTS: Slot[] = [
   },
   {
     id: "n_east_corner",
-    rect: { xMin: 34, xMax: 43, zMin: STAIR_MAX + 1, zMax: 44 },
+    rect: { xMin: 35, xMax: 44, zMin: STAIR_MAX + 1, zMax: 44 },
     suppress: ["west"],
   },
   // South-corner pair — flanking s_main.
@@ -136,7 +138,7 @@ const SLOTS: Slot[] = [
   },
   {
     id: "s_east_corner",
-    rect: { xMin: 34, xMax: 43, zMin: 3, zMax: STAIR_MIN - 1 },
+    rect: { xMin: 35, xMax: 44, zMin: 3, zMax: STAIR_MIN - 1 },
     suppress: ["west"],
   },
 ];

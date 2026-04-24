@@ -74,3 +74,13 @@ export const signBaseMaterial = new THREE.MeshStandardMaterial({
   emissiveIntensity: 0.15,
   roughness: 0.7,
 });
+
+// Cream label card used for painting plaques. Slightly emissive so the
+// text stays legible in dim rooms without needing its own light.
+export const plaqueBaseMaterial = new THREE.MeshStandardMaterial({
+  color: "#f4ecd8",
+  emissive: new THREE.Color("#2a1e10"),
+  emissiveIntensity: 0.05,
+  roughness: 0.7,
+  metalness: 0,
+});
