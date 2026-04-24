@@ -135,10 +135,14 @@ export class DungeonGenerator3D {
 
     const mstEdges = PrimMST.minimumSpanningTree(edgePool, vertices[0]);
 
+    // 30% extra edges on top of the MST. Higher than the original 12.5%
+    // because our floors are denser (~15 rooms vs. the original 20 on a
+    // much larger grid) and a pure MST forces long detours when two
+    // adjacent rooms are on opposite sides of the tree.
     const finalEdges = PrimMST.addRandomConnections(
       edgePool,
       mstEdges,
-      0.125,
+      0.3,
       this.random,
     );
 
@@ -273,6 +277,20 @@ export class DungeonGenerator3D {
 
           if (this.grid.getValue(b.position) === CellType3D.None) {
             result.cost += 1;
+          }
+
+          // Turn penalty — prefer L-shaped paths over a staircase
+          // pattern (…→east→south→east→south→…). Without this, A* is
+          // indifferent between the two when their heuristic tie and
+          // the rendered corridor outlines get notchy diagonals. A
+          // turn costs as much as four or five extra straight cells,
+          // so the planner still turns when it needs to but never
+          // zig-zags for fun.
+          if (a.previous) {
+            const prevDelta = a.position.subtract(a.previous.position);
+            if (prevDelta.x !== delta.x || prevDelta.z !== delta.z) {
+              result.cost += 4;
+            }
           }
 
           result.traversable = true;

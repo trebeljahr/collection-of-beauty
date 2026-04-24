@@ -15,6 +15,10 @@ import { distributePaintings } from "./place-paintings";
 import {
   CELL_SIZE,
   DOOR_WIDTH,
+  SPIRAL_INNER_RADIUS,
+  SPIRAL_OUTER_RADIUS,
+  SPIRAL_ROOM_CELLS,
+  SPIRAL_STEPS_PER_FLOOR,
   WALL_THICKNESS,
   cellCenterToWorld,
   floorY,
@@ -49,14 +53,14 @@ const MAX_ROOMS_PER_FLOOR = 18;
 const ROOM_MIN_CELLS = 3;
 const ROOM_MAX_CELLS = 8;
 
-/** Stair room footprint. Every floor places a 2×6 stair room at the
- *  same grid cells so stairwells stack vertically across floors. The
- *  room is deep in Z so the rising flight (9 m over ~15 m run) has a
- *  comfortable ≈30° slope. */
-const STAIR_X_MIN = 2;
-const STAIR_X_MAX = 3; // inclusive — 2 cells wide
-const STAIR_Z_MIN = 2;
-const STAIR_Z_MAX = 7; // inclusive — 6 cells deep
+/** Central spiral staircase footprint. Every floor places the same
+ *  SPIRAL_ROOM_CELLS × SPIRAL_ROOM_CELLS room at the geometric centre
+ *  of the grid, so the spiral tower stacks vertically across all
+ *  floors and becomes the building's axis. */
+const STAIR_MIN_CELLS = Math.floor(
+  FLOOR_GRID_SIZE / 2 - (SPIRAL_ROOM_CELLS - 1) / 2,
+);
+const STAIR_MAX_CELLS = STAIR_MIN_CELLS + SPIRAL_ROOM_CELLS - 1;
 const STAIR_LABEL = "Stairwell";
 
 // --- Public entry ---------------------------------------------------------
@@ -116,10 +120,10 @@ export function layoutDungeon(allArtworks: Artwork[]): DungeonLayout {
   };
 }
 
-/** Build a Staircase connecting two adjacent floors. The stair rooms on
- *  both floors share the same grid cells (STAIR_X/Z_MIN..MAX), so the
- *  stair is a straight flight ascending from the lower floor's Y to the
- *  upper floor's Y over the stair room's Z extent. */
+/** Build a spiral Staircase connecting two adjacent floors. The stair
+ *  rooms on both floors share the same grid cells (STAIR_MIN_CELLS..
+ *  STAIR_MAX_CELLS), so the central column is vertical and each flight
+ *  is one full revolution around it. */
 function buildStaircase(
   lower: FloorLayout,
   upper: FloorLayout,
@@ -128,42 +132,9 @@ function buildStaircase(
   const upperStair = upper.rooms.find((r) => r.movement === STAIR_LABEL);
   if (!lowerStair || !upperStair) return null;
 
-  const entryRect = {
-    xMin: STAIR_X_MIN * CELL_SIZE,
-    xMax: (STAIR_X_MAX + 1) * CELL_SIZE,
-    // Entry (bottom) is at the low-Z end of the stair room.
-    zMin: STAIR_Z_MIN * CELL_SIZE,
-    zMax: (STAIR_Z_MIN + 1) * CELL_SIZE,
-    y: lower.y,
-  };
-  const exitRect = {
-    xMin: STAIR_X_MIN * CELL_SIZE,
-    xMax: (STAIR_X_MAX + 1) * CELL_SIZE,
-    // Exit (top) is at the high-Z end.
-    zMin: STAIR_Z_MAX * CELL_SIZE,
-    zMax: (STAIR_Z_MAX + 1) * CELL_SIZE,
-    y: upper.y,
-  };
-
-  // 12 visual steps spanning the stair room's Z extent. Each step
-  // centred on a sub-slice of the run.
-  const runStart = STAIR_Z_MIN * CELL_SIZE;
-  const runEnd = (STAIR_Z_MAX + 1) * CELL_SIZE;
-  const totalRun = runEnd - runStart;
-  const totalRise = upper.y - lower.y;
-  const numSteps = 12;
-  const steps: Staircase["steps"] = [];
-  for (let s = 0; s < numSteps; s++) {
-    const t = (s + 0.5) / numSteps;
-    const z = runStart + t * totalRun;
-    const y = lower.y + t * totalRise;
-    steps.push({
-      x: (STAIR_X_MIN + STAIR_X_MAX + 1) / 2 * CELL_SIZE,
-      z,
-      y,
-      heightOffset: 0,
-    });
-  }
+  const centerX =
+    ((STAIR_MIN_CELLS + STAIR_MAX_CELLS + 1) / 2) * CELL_SIZE;
+  const centerZ = centerX; // stair room is square and centred
 
   return {
     id: `stair-${lower.index}-to-${upper.index}`,
@@ -171,11 +142,14 @@ function buildStaircase(
     upperFloor: upper.index,
     lowerLabel: lower.era.title,
     upperLabel: upper.era.title,
-    entryRect,
-    exitRect,
-    // Direction: stairs rise along +Z on all floors.
-    direction: { x: 0, z: 1 },
-    steps,
+    centerX,
+    centerZ,
+    innerRadius: SPIRAL_INNER_RADIUS,
+    outerRadius: SPIRAL_OUTER_RADIUS,
+    numSteps: SPIRAL_STEPS_PER_FLOOR,
+    direction: 1, // counter-clockwise ascending, conventional
+    lowerY: lower.y,
+    upperY: upper.y,
   };
 }
 
@@ -284,16 +258,14 @@ function buildFloor(era: Era, eraArtworks: Artwork[]): FloorLayout {
 
   // --- Stairwell pre-placement ---
   // Stair rooms stack vertically across floors, so every floor reserves
-  // the same grid footprint for them. Placing this before generate()
-  // means random rooms won't overlap. The MST/pathfinding step still
-  // connects the stair room into the hallway graph like any other room.
+  // the same grid footprint for them — the geometric centre. Placing
+  // this before generate() means random rooms won't overlap. The MST
+  // step connects the stairwell into the hallway graph like any other
+  // room, so every floor has hallway spurs from four sides of the
+  // central tower.
   const stairRoom = new Room3D(
-    new Vector3Int(STAIR_X_MIN, 0, STAIR_Z_MIN),
-    new Vector3Int(
-      STAIR_X_MAX - STAIR_X_MIN + 1,
-      1,
-      STAIR_Z_MAX - STAIR_Z_MIN + 1,
-    ),
+    new Vector3Int(STAIR_MIN_CELLS, 0, STAIR_MIN_CELLS),
+    new Vector3Int(SPIRAL_ROOM_CELLS, 1, SPIRAL_ROOM_CELLS),
   );
   gen.addAnchorRoom(stairRoom);
 
@@ -453,16 +425,22 @@ function clampAnchorLocation(
 ): number {
   const room = spec.minCells[axis];
   const full = axis === "x" ? size.x : size.z;
+  // NW quadrant position on a non-positioned axis — keeps anchor rooms
+  // clear of the central stairwell (which claims the geometric centre).
+  const nw = Math.floor((full - room) / 4);
 
   switch (spec.preferredLocation) {
     case "center":
-      return Math.floor(full / 2 - room / 2);
+      // "Centre" used to mean geometric middle; the spiral lives there
+      // now, so redirect to the NW quadrant — still a prominent, easy-
+      // to-find spot for the era's grand hall.
+      return nw;
     case "back":
       if (axis === "z") return Math.max(2, full - room - 3);
-      return Math.floor(full / 2 - room / 2);
+      return nw;
     case "wing":
       if (axis === "x") return Math.max(2, full - room - 3);
-      return Math.floor(full / 2 - room / 2);
+      return nw;
   }
 }
 
@@ -481,13 +459,23 @@ function computeDoorsForRoom(
 
   // Scan each wall's perimeter, collect door-candidate cells, then dedupe
   // contiguous runs to the midpoint of the run (at most 2 doors per side).
+  //
+  // Key correctness rule: only open a door where the inside cell is
+  // RoomCenterAxis. The pathfinder only enters/exits rooms at those
+  // cells (Room interior is non-traversable), so a hallway adjacent to
+  // a regular Room cell means the hallway is merely running alongside
+  // the wall — there's no actual pathing connection through that
+  // point and any door we cut there would open into solid interior.
   for (const side of ["north", "south", "west", "east"] as const) {
     const candidates: number[] = [];
     if (side === "north" || side === "south") {
       const z = side === "north" ? b.zMin - 1 : b.zMax;
+      const zInside = side === "north" ? b.zMin : b.zMax - 1;
       for (let x = b.xMin; x < b.xMax; x++) {
         const outside = new Vector3Int(x, 0, z);
+        const inside = new Vector3Int(x, 0, zInside);
         if (!grid.inBounds(outside)) continue;
+        if (grid.getValue(inside) !== CellType3D.RoomCenterAxis) continue;
         const v = grid.getValue(outside);
         if (v === CellType3D.Hallway || v === CellType3D.Stairs) {
           candidates.push(x);
@@ -495,9 +483,12 @@ function computeDoorsForRoom(
       }
     } else {
       const x = side === "west" ? b.xMin - 1 : b.xMax;
+      const xInside = side === "west" ? b.xMin : b.xMax - 1;
       for (let z = b.zMin; z < b.zMax; z++) {
         const outside = new Vector3Int(x, 0, z);
+        const inside = new Vector3Int(xInside, 0, z);
         if (!grid.inBounds(outside)) continue;
+        if (grid.getValue(inside) !== CellType3D.RoomCenterAxis) continue;
         const v = grid.getValue(outside);
         if (v === CellType3D.Hallway || v === CellType3D.Stairs) {
           candidates.push(z);

@@ -5,11 +5,8 @@ import { useFrame, useThree } from "@react-three/fiber";
 import * as THREE from "three";
 import type { Artwork } from "@/lib/data";
 import type { FloorLayout, Staircase } from "@/lib/gallery-layout/types";
-import {
-  CELL_SIZE,
-  FLOOR_SEPARATION,
-} from "@/lib/gallery-layout/world-coords";
-import { isInsideStair, stairHeightAt } from "./staircase";
+import { CELL_SIZE } from "@/lib/gallery-layout/world-coords";
+import { isInsideStair, spiralRawAngle, stairHeightAt } from "./staircase";
 import { raycastNearestPainting } from "./painting-registry";
 
 const EYE_HEIGHT = 1.7;
@@ -63,6 +60,16 @@ export function Player({
   );
   const rayOrigin = useRef(new THREE.Vector3());
   const rayDir = useRef(new THREE.Vector3());
+  /** Spiral-stair state. Tracks the cumulative angle the player has
+   *  walked around the central column so Y is continuous (a raw angle
+   *  from atan2 jumps by 2π at the θ=0 wraparound, which would read as
+   *  teleporting one floor up/down). Reset when the player steps off
+   *  the spiral or the staircase id changes. */
+  const spiralState = useRef<{
+    staircaseId: string;
+    cumulativeAngle: number;
+    lastRaw: number;
+  } | null>(null);
 
   useEffect(() => {
     camera.position.set(spawnAt[0], spawnAt[1] + EYE_HEIGHT, spawnAt[2]);
@@ -143,20 +150,18 @@ export function Player({
       const nx = curX + move.x;
       const nz = curZ + move.z;
 
-      // Check if either the current or the proposed position is on a
-      // staircase. Stairs override normal grid collision so the player
-      // can walk up them out of the stairwell's cell-based walkable
-      // footprint.
-      const onStair = findStairAt(floor, nx, nz);
-      if (onStair) {
+      // Collision model:
+      //  - Central spiral columns block (can't walk through them).
+      //  - The spiral's outer annulus is always walkable (overriding
+      //    the per-cell grid mask so the stairwell isn't confined to
+      //    room cells).
+      //  - Everywhere else, the grid walkable mask decides.
+      if (canStepTo(floor, nx, nz)) {
         camera.position.x = nx;
         camera.position.z = nz;
-      } else if (isWalkable(floor, nx, nz)) {
+      } else if (canStepTo(floor, nx, curZ)) {
         camera.position.x = nx;
-        camera.position.z = nz;
-      } else if (isWalkable(floor, nx, curZ)) {
-        camera.position.x = nx;
-      } else if (isWalkable(floor, curX, nz)) {
+      } else if (canStepTo(floor, curX, nz)) {
         camera.position.z = nz;
       }
     }
@@ -164,12 +169,38 @@ export function Player({
     // Vertical physics — two cases.
     const stair = findStairAt(floor, camera.position.x, camera.position.z);
     if (stair) {
-      // On a stair: Y is determined by horizontal progress along the
-      // flight. Smoothly lerp rather than snap to avoid a jarring jump
-      // when entering/leaving the stair footprint.
-      const targetY =
-        stairHeightAt(stair, camera.position.x, camera.position.z)! +
-        EYE_HEIGHT;
+      // On a spiral: Y is derived from the cumulative angle the player
+      // has walked around the central column. A fresh raw angle (from
+      // atan2) isn't enough on its own because a spiral has a
+      // θ=0 ≡ θ=2π discontinuity where Y differs by FLOOR_SEPARATION.
+      // Initialise the cumulative angle based on where the player came
+      // onto the spiral from: entering on the lower floor = start of
+      // the flight (0 rad), entering while already on the upper floor
+      // = top of the flight (2π rad).
+      const raw = spiralRawAngle(
+        stair,
+        camera.position.x,
+        camera.position.z,
+      );
+      let st = spiralState.current;
+      if (!st || st.staircaseId !== stair.id) {
+        const initial =
+          floor.index === stair.lowerFloor ? 0 : Math.PI * 2;
+        st = { staircaseId: stair.id, cumulativeAngle: initial, lastRaw: raw };
+        spiralState.current = st;
+      } else {
+        // Integrate the shortest angular delta since last frame.
+        let d = raw - st.lastRaw;
+        if (d > Math.PI) d -= Math.PI * 2;
+        if (d < -Math.PI) d += Math.PI * 2;
+        st.cumulativeAngle += d;
+        st.lastRaw = raw;
+      }
+      // Clamp to this flight's one-revolution range.
+      if (st.cumulativeAngle < 0) st.cumulativeAngle = 0;
+      if (st.cumulativeAngle > Math.PI * 2) st.cumulativeAngle = Math.PI * 2;
+
+      const targetY = stairHeightAt(stair, st.cumulativeAngle) + EYE_HEIGHT;
       camera.position.y = THREE.MathUtils.damp(
         camera.position.y,
         targetY,
@@ -179,23 +210,26 @@ export function Player({
       velocityY.current = 0;
       grounded.current = true;
 
-      // Floor swap when Y crosses the halfway point.
-      const midY = floor.y + FLOOR_SEPARATION / 2 + EYE_HEIGHT;
+      // Floor swap when the player has walked more than half way
+      // around (ascending) or back past half way (descending).
+      const HALF = Math.PI;
       if (onFloorChange) {
         if (
-          camera.position.y > midY &&
-          floor.index < stair.upperFloor
+          floor.index === stair.lowerFloor &&
+          st.cumulativeAngle > HALF
         ) {
           onFloorChange(stair.upperFloor);
         } else if (
-          camera.position.y < floor.y - FLOOR_SEPARATION / 2 + EYE_HEIGHT &&
-          floor.index > stair.lowerFloor
+          floor.index === stair.upperFloor &&
+          st.cumulativeAngle < HALF
         ) {
           onFloorChange(stair.lowerFloor);
         }
       }
     } else {
-      // Not on stairs — normal gravity + jump + floor-plane clamp.
+      // Not on stairs — clear spiral state, then normal gravity + jump
+      // + floor-plane clamp.
+      spiralState.current = null;
       velocityY.current -= GRAVITY * dt;
       camera.position.y += velocityY.current * dt;
       const floorHeight = floor.y + EYE_HEIGHT;
@@ -238,7 +272,8 @@ export function Player({
  *  the given world XZ position, or null if none. "Connected" means
  *  stairsIn[*] (going from below up to this floor) or stairsOut[*]
  *  (going from this floor up to the next) — both sets' footprints sit
- *  partly inside the stairwell room of this floor. */
+ *  inside the stairwell room of this floor (the same spiral, seen
+ *  from two sides). */
 function findStairAt(
   floor: FloorLayout,
   worldX: number,
@@ -253,7 +288,40 @@ function findStairAt(
   return null;
 }
 
-/** True if the cell at (worldX, worldZ) is walkable for a player of
+/** True if any corner of the player's bbox overlaps the central column
+ *  of any staircase on the current floor. The column is always solid
+ *  regardless of whether the player is on the spiral annulus or in
+ *  the surrounding walkway. */
+function blockedByStairColumn(
+  floor: FloorLayout,
+  worldX: number,
+  worldZ: number,
+): boolean {
+  const r = PLAYER_RADIUS;
+  const corners: Array<[number, number]> = [
+    [worldX - r, worldZ - r],
+    [worldX + r, worldZ - r],
+    [worldX - r, worldZ + r],
+    [worldX + r, worldZ + r],
+  ];
+  for (const s of floor.stairsOut) {
+    for (const [cx, cz] of corners) {
+      if (Math.hypot(cx - s.centerX, cz - s.centerZ) < s.innerRadius) {
+        return true;
+      }
+    }
+  }
+  for (const s of floor.stairsIn) {
+    for (const [cx, cz] of corners) {
+      if (Math.hypot(cx - s.centerX, cz - s.centerZ) < s.innerRadius) {
+        return true;
+      }
+    }
+  }
+  return false;
+}
+
+/** True if the grid cell at (worldX, worldZ) is walkable for a player of
  *  PLAYER_RADIUS — i.e. none of the four corners of the player's bbox
  *  lie in a non-walkable cell. Keeps the player's silhouette out of
  *  wall planes. */
@@ -273,4 +341,16 @@ function isWalkable(floor: FloorLayout, worldX: number, worldZ: number): boolean
     if (floor.walkable[cz * floor.gridSize.x + cx] !== 1) return false;
   }
   return true;
+}
+
+/** Top-level predicate used by movement: central column blocks first,
+ *  then spiral annulus always passes, then grid mask decides. */
+function canStepTo(
+  floor: FloorLayout,
+  worldX: number,
+  worldZ: number,
+): boolean {
+  if (blockedByStairColumn(floor, worldX, worldZ)) return false;
+  if (findStairAt(floor, worldX, worldZ)) return true;
+  return isWalkable(floor, worldX, worldZ);
 }

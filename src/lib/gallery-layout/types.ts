@@ -70,22 +70,24 @@ export type Staircase = {
    *  at the corresponding end of the flight. */
   lowerLabel: string;
   upperLabel: string;
-  entryRect: {
-    xMin: number;
-    xMax: number;
-    zMin: number;
-    zMax: number;
-    y: number;
-  };
-  exitRect: {
-    xMin: number;
-    xMax: number;
-    zMin: number;
-    zMax: number;
-    y: number;
-  };
-  direction: { x: -1 | 0 | 1; z: -1 | 0 | 1 };
-  steps: Array<{ x: number; z: number; y: number; heightOffset: number }>;
+
+  // ── Spiral geometry ────────────────────────────────────────────────
+  /** World XZ of the spiral's central column. Both adjacent floors'
+   *  towers align vertically through this centre. */
+  centerX: number;
+  centerZ: number;
+  /** Central column radius. */
+  innerRadius: number;
+  /** Outer walking surface radius. */
+  outerRadius: number;
+  /** Step count for one full revolution between lowerY and upperY. */
+  numSteps: number;
+  /** +1 = counter-clockwise ascending, -1 = clockwise. */
+  direction: 1 | -1;
+  /** Y at θ=0 (entry / bottom of this flight). */
+  lowerY: number;
+  /** Y at θ=2π (exit / top of this flight). */
+  upperY: number;
 };
 
 export type FloorLayout = {

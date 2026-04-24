@@ -17,6 +17,16 @@ export const DOOR_WIDTH = 2.0;
 export const DOOR_HEIGHT = 2.8;
 export const CORRIDOR_DOOR_HEIGHT = 2.6; // slightly lower on hallway side
 
+// ── Central spiral staircase ─────────────────────────────────────────
+// The stairwell is a single tower centred on every floor. One
+// revolution per floor — so walking once all the way around the
+// central column ascends you exactly one level.
+export const SPIRAL_INNER_RADIUS = 1.0;    // central stone column
+export const SPIRAL_OUTER_RADIUS = 5.0;    // outer walk surface
+export const SPIRAL_STEPS_PER_FLOOR = 20;  // 18° per step
+/** Stair room footprint in cells. Must be odd so it centres cleanly. */
+export const SPIRAL_ROOM_CELLS = 7;
+
 export function floorY(floorIndex: number): number {
   return floorIndex * FLOOR_SEPARATION;
 }
