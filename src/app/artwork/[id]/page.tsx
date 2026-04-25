@@ -1,9 +1,8 @@
 import { ArtworkCard } from "@/components/artwork-card";
-import { ResponsiveImage } from "@/components/responsive-image";
+import { ArtworkViewer } from "@/components/artwork-viewer";
 import { Badge } from "@/components/ui/badge";
-import { artworkAlt, artworks, getArtist, getArtwork, getArtworksByArtist } from "@/lib/data";
+import { artworks, getArtist, getArtwork, getArtworksByArtist } from "@/lib/data";
 import { artworkJsonLd, jsonLdScriptProps, ogImagesForArtwork } from "@/lib/seo";
-import { assetUrl } from "@/lib/utils";
 import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
@@ -100,24 +99,19 @@ export default async function ArtworkPage({
 
       <div className="grid gap-8 md:grid-cols-[1.3fr_1fr]">
         <div className="rounded-xl border border-[var(--border)] bg-[var(--muted)] p-2">
-          <a
-            href={assetUrl(art.objectKey)}
-            target="_blank"
-            rel="noreferrer"
-            title="Open original"
-            className="block"
-          >
-            <ResponsiveImage
-              objectKey={art.objectKey}
-              variantWidths={art.variantWidths}
-              alt={artworkAlt(art)}
-              srcWidth={art.width ?? 1600}
-              srcHeight={art.height ?? 2000}
-              sizes="(max-width: 768px) 100vw, 65vw"
-              priority
-              className="mx-auto max-h-[80vh] w-auto rounded-md"
-            />
-          </a>
+          <ArtworkViewer
+            art={{
+              objectKey: art.objectKey,
+              variantWidths: art.variantWidths,
+              title: art.title,
+              artist: art.artist,
+              year: art.year,
+              width: art.width,
+              height: art.height,
+            }}
+            prevId={prev?.id ?? null}
+            nextId={next?.id ?? null}
+          />
         </div>
 
         <aside className="space-y-5">
