@@ -32,9 +32,10 @@ import { distributePaintings } from "./place-paintings";
 import {
   CELL_SIZE,
   DOOR_WIDTH,
+  SPIRAL_INNER_RADIUS,
+  SPIRAL_OUTER_RADIUS,
   SPIRAL_ROOM_CELLS,
-  STAIR_DEPTH,
-  STAIR_WIDTH,
+  SPIRAL_STEPS_PER_FLOOR,
   WALL_THICKNESS,
   floorY,
 } from "./world-coords";
@@ -54,7 +55,9 @@ const STAIR_LABEL = "Stairwell";
 
 type CellRect = { xMin: number; xMax: number; zMin: number; zMax: number };
 
-// Stair sits dead centre, 7×7 cells.
+// Stairwell sits dead centre. Its size scales with SPIRAL_ROOM_CELLS
+// (currently 9), so all slot rectangles below derive their bounds from
+// STAIR_MIN/STAIR_MAX rather than hardcoding cell numbers.
 const STAIR_MIN = Math.floor(GRID_SIZE / 2 - (SPIRAL_ROOM_CELLS - 1) / 2);
 const STAIR_MAX = STAIR_MIN + SPIRAL_ROOM_CELLS - 1;
 const STAIR: CellRect = {
@@ -64,15 +67,18 @@ const STAIR: CellRect = {
   zMax: STAIR_MAX,
 };
 
-// Grand Hall (anchor) sits directly north of the spiral. Its x range
-// matches the stair's exactly (x=21..27) so the shared north/south
-// wall is contiguous and the door at the centre of the wall is on the
-// player's natural walking line out of the hall.
+/** Depth of the rooms in the inner ring (Grand Hall, s_main, etc.). */
+const RING_DEPTH = 6;
+
+// Grand Hall (anchor) sits directly south of the stairwell (high z, in
+// cardinal terms south = high z). Its x range matches the stair so the
+// shared wall is a single contiguous span and the door at its centre
+// lines up on the player's natural walking line.
 const GRAND_HALL: CellRect = {
-  xMin: 21,
-  xMax: 27,
+  xMin: STAIR_MIN,
+  xMax: STAIR_MAX,
   zMin: STAIR_MAX + 1,
-  zMax: STAIR_MAX + 6, // 6 cells deep
+  zMax: STAIR_MAX + RING_DEPTH,
 };
 
 // Slot room rectangles, ordered by priority (most-central first). A
@@ -126,83 +132,107 @@ type Slot = {
 // sketch); they may not match the cardinal-side semantics — pay
 // attention to `suppress` for the wall-side bookkeeping.
 
+// All slot rectangles are derived from the stair's cell bounds + the
+// ring depth so they shift in lockstep when SPIRAL_ROOM_CELLS changes.
+const RING_X_WEST: { xMin: number; xMax: number } = {
+  xMin: STAIR_MIN - RING_DEPTH,
+  xMax: STAIR_MIN - 1,
+};
+const RING_X_EAST: { xMin: number; xMax: number } = {
+  xMin: STAIR_MAX + 1,
+  xMax: STAIR_MAX + RING_DEPTH,
+};
+const RING_Z_S: { zMin: number; zMax: number } = {
+  zMin: STAIR_MIN - RING_DEPTH,
+  zMax: STAIR_MIN - 1,
+};
+const RING_Z_N: { zMin: number; zMax: number } = {
+  zMin: STAIR_MAX + 1,
+  zMax: STAIR_MAX + RING_DEPTH,
+};
+const OUTER_Z_S: { zMin: number; zMax: number } = {
+  zMin: STAIR_MIN - 2 * RING_DEPTH,
+  zMax: STAIR_MIN - RING_DEPTH - 1,
+};
+const OUTER_Z_N: { zMin: number; zMax: number } = {
+  zMin: STAIR_MAX + RING_DEPTH + 1,
+  zMax: STAIR_MAX + 2 * RING_DEPTH,
+};
+
 const SLOTS: Slot[] = [
-  // Mirror of Grand Hall, south of the spiral (low z, so its NORTH
-  // wall in cardinal terms faces the stair). Stair owns the shared
-  // wall.
+  // Mirror of Grand Hall, north of the spiral (low z = north). Stair
+  // owns the shared wall.
   {
     id: "s_main",
-    rect: { xMin: 21, xMax: 27, zMin: STAIR_MIN - 6, zMax: STAIR_MIN - 1 },
+    rect: { xMin: STAIR_MIN, xMax: STAIR_MAX, ...RING_Z_S },
     suppress: ["south"], // stair's north wall owns
   },
-  // Inner-ring corner pair flanking the Grand Hall.
+  // Inner-ring corner pair flanking the Grand Hall (high z side).
   {
     id: "n_west",
-    rect: { xMin: 15, xMax: 20, zMin: STAIR_MAX + 1, zMax: STAIR_MAX + 6 },
+    rect: { ...RING_X_WEST, ...RING_Z_N },
     suppress: ["east"], // Grand Hall's west wall owns
   },
   {
     id: "n_east",
-    rect: { xMin: 28, xMax: 33, zMin: STAIR_MAX + 1, zMax: STAIR_MAX + 6 },
+    rect: { ...RING_X_EAST, ...RING_Z_N },
     suppress: ["west"], // Grand Hall's east wall owns
   },
-  // Inner-ring corner pair flanking s_main.
+  // Inner-ring corner pair flanking s_main (low z side).
   {
     id: "s_west",
-    rect: { xMin: 15, xMax: 20, zMin: STAIR_MIN - 6, zMax: STAIR_MIN - 1 },
+    rect: { ...RING_X_WEST, ...RING_Z_S },
     suppress: ["east"], // s_main's west wall owns
   },
   {
     id: "s_east",
-    rect: { xMin: 28, xMax: 33, zMin: STAIR_MIN - 6, zMax: STAIR_MIN - 1 },
+    rect: { ...RING_X_EAST, ...RING_Z_S },
     suppress: ["west"], // s_main's east wall owns
   },
-  // West / east galleries flanking the spiral. These are reached only
-  // through the corner rooms — the stair's E/W walls have no doors so
-  // the central column doesn't show through every doorway.
+  // West / east galleries flanking the spiral. Reached only through
+  // the corner rooms — the stair's E/W walls have no doors so the
+  // central well doesn't show through every doorway.
   {
     id: "west",
-    rect: { xMin: 15, xMax: 20, zMin: STAIR_MIN, zMax: STAIR_MAX },
+    rect: { ...RING_X_WEST, zMin: STAIR_MIN, zMax: STAIR_MAX },
     suppress: [],
   },
   {
     id: "east",
-    rect: { xMin: 28, xMax: 33, zMin: STAIR_MIN, zMax: STAIR_MAX },
+    rect: { ...RING_X_EAST, zMin: STAIR_MIN, zMax: STAIR_MAX },
     suppress: [],
   },
-  // Outer rooms behind Grand Hall (higher z than GH = on its SOUTH
-  // side in cardinal terms).
+  // Outer rooms behind Grand Hall (south cardinal — even higher z).
   {
     id: "n_outer",
-    rect: { xMin: 21, xMax: 27, zMin: STAIR_MAX + 7, zMax: STAIR_MAX + 12 },
+    rect: { xMin: STAIR_MIN, xMax: STAIR_MAX, ...OUTER_Z_N },
     suppress: ["north"], // Grand Hall's south wall owns
   },
-  // Outer rooms behind s_main (lower z than s_main = on its NORTH
-  // side in cardinal terms).
+  // Outer rooms behind s_main (north cardinal — even lower z).
   {
     id: "s_outer",
-    rect: { xMin: 21, xMax: 27, zMin: STAIR_MIN - 12, zMax: STAIR_MIN - 7 },
+    rect: { xMin: STAIR_MIN, xMax: STAIR_MAX, ...OUTER_Z_S },
     suppress: ["south"], // s_main's north wall owns
   },
   // Outer corners — behind the inner corner rooms.
   {
     id: "n_west_outer",
-    rect: { xMin: 15, xMax: 20, zMin: STAIR_MAX + 7, zMax: STAIR_MAX + 12 },
+    rect: { ...RING_X_WEST, ...OUTER_Z_N },
     suppress: ["north"], // n_west's south wall owns
   },
   {
     id: "n_east_outer",
-    rect: { xMin: 28, xMax: 33, zMin: STAIR_MAX + 7, zMax: STAIR_MAX + 12 },
+    rect: { ...RING_X_EAST, ...OUTER_Z_N },
     suppress: ["north"],
   },
   {
     id: "s_west_outer",
-    rect: { xMin: 15, xMax: 20, zMin: STAIR_MIN - 12, zMax: STAIR_MIN - 7 },
+    rect: { ...RING_X_WEST, ...OUTER_Z_S },
     suppress: ["south"], // s_west's north wall owns
   },
   {
     id: "s_east_outer",
-    rect: { xMin: 28, xMax: 33, zMin: STAIR_MIN - 12, zMax: STAIR_MIN - 7 },
+    rect: { ...RING_X_EAST, ...OUTER_Z_S },
     suppress: ["south"],
   },
 ];
@@ -744,10 +774,16 @@ function buildStaircase(lower: FloorLayout, upper: FloorLayout): Staircase | nul
     upperLabel: upper.era.title,
     centerX,
     centerZ,
-    width: STAIR_WIDTH,
-    depth: STAIR_DEPTH,
+    innerRadius: SPIRAL_INNER_RADIUS,
+    outerRadius: SPIRAL_OUTER_RADIUS,
+    numSteps: SPIRAL_STEPS_PER_FLOOR,
+    direction: 1,
     lowerY: lower.y,
     upperY: upper.y,
+    // High z = south (cardinal). The stairwell's grand-hall door sits
+    // on the south wall, so anchoring step 0 there means a player
+    // walking in from the grand hall meets the spiral entry square on.
+    entryAngle: Math.PI / 2,
   };
 }
 

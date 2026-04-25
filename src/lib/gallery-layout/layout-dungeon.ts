@@ -23,9 +23,10 @@ import type {
 import {
   CELL_SIZE,
   DOOR_WIDTH,
+  SPIRAL_INNER_RADIUS,
+  SPIRAL_OUTER_RADIUS,
   SPIRAL_ROOM_CELLS,
-  STAIR_DEPTH,
-  STAIR_WIDTH,
+  SPIRAL_STEPS_PER_FLOOR,
   WALL_THICKNESS,
   cellCenterToWorld,
   floorY,
@@ -133,10 +134,13 @@ function buildStaircase(lower: FloorLayout, upper: FloorLayout): Staircase | nul
     upperLabel: upper.era.title,
     centerX,
     centerZ,
-    width: STAIR_WIDTH,
-    depth: STAIR_DEPTH,
+    innerRadius: SPIRAL_INNER_RADIUS,
+    outerRadius: SPIRAL_OUTER_RADIUS,
+    numSteps: SPIRAL_STEPS_PER_FLOOR,
+    direction: 1,
     lowerY: lower.y,
     upperY: upper.y,
+    entryAngle: Math.PI / 2,
   };
 }
 

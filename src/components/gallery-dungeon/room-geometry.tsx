@@ -2,14 +2,14 @@
 
 import { ERAS } from "@/lib/gallery-eras";
 import type { RoomLayout } from "@/lib/gallery-layout/types";
-import type * as THREE from "three";
 import {
   CELL_SIZE,
   DOOR_HEIGHT,
   ROOM_HEIGHT,
-  STAIR_DEPTH,
-  STAIR_WIDTH,
+  SPIRAL_FLOOR_CUTOUT_RADIUS,
 } from "@/lib/gallery-layout/world-coords";
+import { useMemo } from "react";
+import * as THREE from "three";
 import { Painting } from "./painting";
 import { getPaletteMaterials, getRoomFloorMaterial } from "./palette-materials";
 import { WallWithDoors } from "./wall";
@@ -99,11 +99,12 @@ export function RoomGeometry({
         </mesh>
       )}
 
-      {/* Stairwell main floor — four slabs around the stair footprint
-          so the descending flights below remain visible from above
-          (without the cutout, the floor at this floor's Y would hide
-          the lower flight running down to the floor below). The stair
-          sits at the centre, STAIR_WIDTH × STAIR_DEPTH metres. */}
+      {/* Stairwell main floor. On the ground floor the spiral only
+          rises (no stair below), so the floor stays solid — a hole
+          there would just expose blackness. On every other floor the
+          stair from below ascends through this level, so we cut a
+          clean circular hole around the spiral so the descending
+          flights stay visible. */}
       {room.isStairwell && (
         <StairwellFloor
           cxWorld={cxWorld}
@@ -112,6 +113,7 @@ export function RoomGeometry({
           depth={depth}
           floorY={floorY}
           floorMat={floorMat}
+          cutHole={room.floorIndex > 0}
         />
       )}
 
@@ -176,10 +178,12 @@ export function RoomGeometry({
   );
 }
 
-/** Four floor slabs around the central U-stair footprint. Skips the
- *  centre rectangle so the descending flights from the floor above (or
- *  the rising flights to the floor below) remain visible from this
- *  floor's vantage. */
+/** Floor slab for a stairwell room with a circular hole around the
+ *  spiral well. Built once via ShapeGeometry — the hole hugs the
+ *  spiral's outer radius (plus a tiny margin) so the descending
+ *  flights below stay visible from this floor without the rectangular
+ *  hole / spiral edge intersection artefacts the old four-slab
+ *  approach produced. */
 function StairwellFloor({
   cxWorld,
   czWorld,
@@ -187,6 +191,7 @@ function StairwellFloor({
   depth,
   floorY,
   floorMat,
+  cutHole,
 }: {
   cxWorld: number;
   czWorld: number;
@@ -194,49 +199,30 @@ function StairwellFloor({
   depth: number;
   floorY: number;
   floorMat: THREE.MeshStandardMaterial;
+  cutHole: boolean;
 }) {
-  const halfW = width / 2;
-  const halfD = depth / 2;
-  const stairHalfW = STAIR_WIDTH / 2;
-  const stairHalfD = STAIR_DEPTH / 2;
-  const y = floorY - 0.005;
-  // North slab (low z): from room's north wall to the stair's north face.
-  const northDepth = halfD - stairHalfD;
-  const northZ = czWorld - halfD + northDepth / 2;
-  // South slab (high z): from the stair's south face to the room's south wall.
-  const southDepth = halfD - stairHalfD;
-  const southZ = czWorld + halfD - southDepth / 2;
-  // West / east slabs span only the stair's depth band.
-  const sideDepth = STAIR_DEPTH;
-  const sideWidth = halfW - stairHalfW;
-  const westX = cxWorld - halfW + sideWidth / 2;
-  const eastX = cxWorld + halfW - sideWidth / 2;
+  const geom = useMemo(() => {
+    const shape = new THREE.Shape();
+    const halfW = width / 2;
+    const halfD = depth / 2;
+    shape.moveTo(-halfW, -halfD);
+    shape.lineTo(halfW, -halfD);
+    shape.lineTo(halfW, halfD);
+    shape.lineTo(-halfW, halfD);
+    shape.closePath();
+    if (cutHole) {
+      const hole = new THREE.Path();
+      hole.absarc(0, 0, SPIRAL_FLOOR_CUTOUT_RADIUS, 0, Math.PI * 2, false);
+      shape.holes.push(hole);
+    }
+    const g = new THREE.ShapeGeometry(shape, 32);
+    // Shape lives on XY plane; rotate it down onto XZ so it lies flat.
+    g.rotateX(-Math.PI / 2);
+    return g;
+  }, [width, depth, cutHole]);
   return (
-    <>
-      {northDepth > 0 && (
-        <mesh rotation={[-Math.PI / 2, 0, 0]} position={[cxWorld, y, northZ]}>
-          <planeGeometry args={[width, northDepth]} />
-          <primitive object={floorMat} attach="material" />
-        </mesh>
-      )}
-      {southDepth > 0 && (
-        <mesh rotation={[-Math.PI / 2, 0, 0]} position={[cxWorld, y, southZ]}>
-          <planeGeometry args={[width, southDepth]} />
-          <primitive object={floorMat} attach="material" />
-        </mesh>
-      )}
-      {sideWidth > 0 && (
-        <>
-          <mesh rotation={[-Math.PI / 2, 0, 0]} position={[westX, y, czWorld]}>
-            <planeGeometry args={[sideWidth, sideDepth]} />
-            <primitive object={floorMat} attach="material" />
-          </mesh>
-          <mesh rotation={[-Math.PI / 2, 0, 0]} position={[eastX, y, czWorld]}>
-            <planeGeometry args={[sideWidth, sideDepth]} />
-            <primitive object={floorMat} attach="material" />
-          </mesh>
-        </>
-      )}
-    </>
+    <mesh geometry={geom} position={[cxWorld, floorY - 0.005, czWorld]} receiveShadow>
+      <primitive object={floorMat} attach="material" />
+    </mesh>
   );
 }

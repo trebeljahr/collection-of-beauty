@@ -184,6 +184,7 @@ export function GalleryDungeon({ artworks }: Props) {
         <Player
           enabled={hasStarted && !zoomed}
           floor={currentFloor}
+          allStaircases={layout.allStaircases}
           spawnAt={spawnForFloor.current}
           onRoomChange={setActiveRoomIdx}
           onFloorChange={handleStairFloorChange}

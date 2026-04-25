@@ -7,7 +7,13 @@ import { useFrame, useThree } from "@react-three/fiber";
 import { useEffect, useRef } from "react";
 import * as THREE from "three";
 import { raycastNearestPainting } from "./painting-registry";
-import { canCrossStairMidline, isInsideStair, stairHeightAt } from "./staircase";
+import {
+  findStairAbove,
+  findStairBelow,
+  isInsideStair,
+  spiralRawAngle,
+  stairHeightAt,
+} from "./staircase";
 
 const EYE_HEIGHT = 1.7;
 const WALK_SPEED = 5;
@@ -27,6 +33,7 @@ const PLAYER_RADIUS = 0.3;
 export function Player({
   enabled,
   floor,
+  allStaircases,
   spawnAt,
   onRoomChange,
   onFloorChange,
@@ -35,6 +42,10 @@ export function Player({
 }: {
   enabled: boolean;
   floor: FloorLayout;
+  /** Every staircase in the building. Needed so the spiral physics can
+   *  transition the player from one storey's flight to the next when
+   *  their cumulative angle crosses a revolution boundary. */
+  allStaircases: readonly Staircase[];
   spawnAt: [number, number, number];
   onRoomChange?: (roomIndex: number) => void;
   /** Called when the player's Y crosses the midpoint between the
@@ -59,12 +70,18 @@ export function Player({
   const raycaster = useRef(new THREE.Raycaster(undefined, undefined, 0.1, 12));
   const rayOrigin = useRef(new THREE.Vector3());
   const rayDir = useRef(new THREE.Vector3());
-  /** Tracks which U-stair the player is currently riding so the
-   *  collision check can let them roam freely on the flight they're on
-   *  (otherwise the same XZ footprint as the descent stair would also
-   *  match and the lookup would flicker between the two). Cleared when
-   *  the player steps off the stair. */
-  const currentStairRef = useRef<string | null>(null);
+  /** Cumulative-angle state for the spiral. `cumulativeAngle ∈ [0, 2π]`
+   *  describes how far around the current stair's revolution the
+   *  player has walked; `lastRaw` is the previous frame's raw angle so
+   *  per-frame deltas can be integrated even across the 2π wraparound.
+   *  When cumulative crosses 2π or 0 we transition to the next/prev
+   *  stair so the player can ride a continuous spiral across all
+   *  storeys. Cleared when the player leaves the spiral annulus. */
+  const spiralState = useRef<{
+    staircaseId: string;
+    cumulativeAngle: number;
+    lastRaw: number;
+  } | null>(null);
 
   useEffect(() => {
     camera.position.set(spawnAt[0], spawnAt[1] + EYE_HEIGHT, spawnAt[2]);
@@ -143,11 +160,11 @@ export function Player({
       const nz = curZ + move.z;
 
       // Collision model:
-      //  - The U-stair footprint is always walkable (Y comes from
-      //    stairHeightAt below); inside it, the central rib blocks
-      //    midline crossings except over the landing.
+      //  - The spiral annulus passes always — Y comes from
+      //    stairHeightAt(cumulativeAngle) below, regardless of which
+      //    direction the player approaches.
       //  - Otherwise the grid mask + per-edge wall mask decides.
-      const currentStairId = currentStairRef.current;
+      const currentStairId = spiralState.current?.staircaseId ?? null;
       if (canStepTo(floor, curX, curZ, nx, nz, currentStairId)) {
         camera.position.x = nx;
         camera.position.z = nz;
@@ -158,34 +175,93 @@ export function Player({
       }
     }
 
-    // Vertical physics — on the U-stair, derive Y directly from XZ
-    // (each flight is a smooth ramp; the landing is flat). Off the
-    // stair, normal gravity + floor-plane clamp.
-    const stair = findStairAt(floor, camera.position.x, camera.position.z);
-    if (stair) {
-      currentStairRef.current = stair.id;
-      const stairY = stairHeightAt(stair, camera.position.x, camera.position.z);
-      if (stairY != null) {
-        const targetY = stairY + EYE_HEIGHT;
-        camera.position.y = THREE.MathUtils.damp(camera.position.y, targetY, 20, dt);
-        velocityY.current = 0;
-        grounded.current = true;
+    // Vertical physics — on the spiral, derive Y from cumulative angle
+    // (continuous across flight boundaries so the player walks one
+    // long spiral from floor 0 to the top without per-storey jumps).
+    // Off the spiral, normal gravity + floor-plane clamp.
+    let activeStair = findStairAt(floor, camera.position.x, camera.position.z);
+    // Prefer the stair the player is already tracked on, even when
+    // both stairsIn and stairsOut overlap the same annulus on this
+    // floor — the existing state's stair is the one we want.
+    if (spiralState.current) {
+      const tracked = allStaircases.find((s) => s.id === spiralState.current!.staircaseId);
+      if (
+        tracked &&
+        isInsideStair(tracked, camera.position.x, camera.position.z)
+      ) {
+        activeStair = tracked;
+      }
+    }
 
-        // Floor swap when the player crosses the midway height. A small
-        // hysteresis around midwayY keeps the swap from chattering when
-        // the player loiters on the landing.
-        const midwayY = (stair.lowerY + stair.upperY) / 2;
-        const HYST = 0.4;
-        if (onFloorChange) {
-          if (floor.index === stair.lowerFloor && stairY > midwayY + HYST) {
-            onFloorChange(stair.upperFloor);
-          } else if (floor.index === stair.upperFloor && stairY < midwayY - HYST) {
-            onFloorChange(stair.lowerFloor);
-          }
+    if (activeStair) {
+      const raw = spiralRawAngle(activeStair, camera.position.x, camera.position.z);
+      let st = spiralState.current;
+      if (!st || st.staircaseId !== activeStair.id) {
+        // Stepping onto the spiral fresh. If we're entering at the
+        // floor that is this stair's lowerFloor, start at cumulative=0
+        // (bottom). If we're entering at upperFloor, start at 2π (top).
+        const initial = floor.index === activeStair.upperFloor ? Math.PI * 2 : 0;
+        st = { staircaseId: activeStair.id, cumulativeAngle: initial, lastRaw: raw };
+        spiralState.current = st;
+      } else {
+        let d = raw - st.lastRaw;
+        if (d > Math.PI) d -= Math.PI * 2;
+        if (d < -Math.PI) d += Math.PI * 2;
+        st.cumulativeAngle += d;
+        st.lastRaw = raw;
+      }
+
+      // Stair-to-stair transitions. Walking past the top of this
+      // revolution rolls cumulative back to 0 on the next stair up;
+      // walking past the bottom rolls it forward to 2π on the stair
+      // below. When there is no next/prev stair (top or ground floor),
+      // clamp instead.
+      while (st.cumulativeAngle >= Math.PI * 2) {
+        const next = findStairAbove(activeStair, allStaircases);
+        if (!next) {
+          st.cumulativeAngle = Math.PI * 2;
+          break;
+        }
+        st.staircaseId = next.id;
+        st.cumulativeAngle -= Math.PI * 2;
+        activeStair = next;
+      }
+      while (st.cumulativeAngle <= 0) {
+        if (st.cumulativeAngle === 0) break;
+        const prev = findStairBelow(activeStair, allStaircases);
+        if (!prev) {
+          st.cumulativeAngle = 0;
+          break;
+        }
+        st.staircaseId = prev.id;
+        st.cumulativeAngle += Math.PI * 2;
+        activeStair = prev;
+      }
+
+      const targetY = stairHeightAt(activeStair, st.cumulativeAngle) + EYE_HEIGHT;
+      camera.position.y = THREE.MathUtils.damp(camera.position.y, targetY, 20, dt);
+      velocityY.current = 0;
+      grounded.current = true;
+
+      // Floor swap at the halfway point (with hysteresis so loitering
+      // around the midpoint doesn't chatter).
+      const HALF = Math.PI;
+      const HYST = 0.15;
+      if (onFloorChange) {
+        if (
+          floor.index === activeStair.lowerFloor &&
+          st.cumulativeAngle > HALF + HYST
+        ) {
+          onFloorChange(activeStair.upperFloor);
+        } else if (
+          floor.index === activeStair.upperFloor &&
+          st.cumulativeAngle < HALF - HYST
+        ) {
+          onFloorChange(activeStair.lowerFloor);
         }
       }
     } else {
-      currentStairRef.current = null;
+      spiralState.current = null;
       velocityY.current -= GRAVITY * dt;
       camera.position.y += velocityY.current * dt;
       const floorHeight = floor.y + EYE_HEIGHT;
@@ -223,32 +299,20 @@ export function Player({
   return null;
 }
 
-/** Return the staircase the player is standing on, picking by the X
- *  half of the footprint when both stairsIn (descent) and stairsOut
- *  (ascent) overlap the same cells:
- *    - west half (dx ≤ 0) → ascent stair (this floor is the lower).
- *    - east half (dx > 0) → descent stair (this floor is the upper).
- *  In the landing strip the two flights merge — preference flips to
- *  whichever stair has the player's `currentFloor` matching its
- *  closer end so floor swaps don't bounce between the two stairs. */
+/** Return any staircase whose annulus contains (worldX, worldZ).
+ *  When both stairsIn (descent) and stairsOut (ascent) overlap the
+ *  same annulus, prefer the one whose upper/lower end matches this
+ *  floor — i.e. on floor i pick stair S_i (ascending) by default; the
+ *  spiral physics will transition to S_{i-1} via the stair-to-stair
+ *  rollover when the player walks descending past cumulative=0. */
 function findStairAt(floor: FloorLayout, worldX: number, worldZ: number): Staircase | null {
-  const candidates: Staircase[] = [];
   for (const s of floor.stairsOut) {
-    if (isInsideStair(s, worldX, worldZ)) candidates.push(s);
+    if (isInsideStair(s, worldX, worldZ)) return s;
   }
   for (const s of floor.stairsIn) {
-    if (isInsideStair(s, worldX, worldZ)) candidates.push(s);
+    if (isInsideStair(s, worldX, worldZ)) return s;
   }
-  if (candidates.length === 0) return null;
-  if (candidates.length === 1) return candidates[0];
-  // Two stairs overlap (in + out at same XZ). Pick by which half of
-  // the footprint we're on.
-  for (const s of candidates) {
-    const dx = worldX - s.centerX;
-    if (dx <= 0 && s.lowerFloor === floor.index) return s;
-    if (dx > 0 && s.upperFloor === floor.index) return s;
-  }
-  return candidates[0];
+  return null;
 }
 
 /** True if the grid cell at (worldX, worldZ) is walkable for a player of
@@ -273,34 +337,21 @@ function isWalkable(floor: FloorLayout, worldX: number, worldZ: number): boolean
   return true;
 }
 
-/** Top-level predicate used by movement: U-stair footprint passes
- *  always (Y comes from stairHeightAt; the central rib between flights
- *  is enforced via canCrossStairMidline so the player must use the
- *  landing to switch sides). Off the stair, the grid + per-edge wall
- *  masks decide. */
+/** Top-level predicate used by movement: spiral annulus passes always
+ *  (the player can step onto the spiral from any direction because the
+ *  step under their feet is always at their current floor's Y when
+ *  they first touch it — see the cumulative-angle init in useFrame).
+ *  Off the spiral, the grid mask + per-edge wall mask decide. */
 function canStepTo(
   floor: FloorLayout,
   fromX: number,
   fromZ: number,
   toX: number,
   toZ: number,
-  currentStairId: string | null,
+  _currentStairId: string | null,
 ): boolean {
   const stair = findStairAt(floor, toX, toZ);
-  if (stair) {
-    if (currentStairId !== stair.id) {
-      // First step onto a stair — gate it on the target Y matching the
-      // player's current floor, so a player on the lower floor can't
-      // wander onto the east flight (whose south end sits at upperY)
-      // and snap a full storey upward.
-      const targetY = stairHeightAt(stair, toX, toZ);
-      if (targetY == null) return false;
-      const ENTRY_TOL = 0.3;
-      if (Math.abs(targetY - floor.y) > ENTRY_TOL) return false;
-    }
-    if (!canCrossStairMidline(stair, fromX, fromZ, toX, toZ)) return false;
-    return true;
-  }
+  if (stair) return true;
   if (!isWalkable(floor, toX, toZ)) return false;
   if (!canCrossEdges(floor, fromX, fromZ, toX, toZ)) return false;
   return true;

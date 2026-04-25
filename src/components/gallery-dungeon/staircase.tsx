@@ -1,214 +1,288 @@
 "use client";
 
 import type { Staircase } from "@/lib/gallery-layout/types";
-import { STAIR_FLIGHT_LENGTH, STAIR_LANDING_DEPTH } from "@/lib/gallery-layout/world-coords";
 import { Text } from "@react-three/drei";
 import { useMemo } from "react";
 import * as THREE from "three";
 import { signBaseMaterial } from "./palette-materials";
 
-// Shared materials — one "stair vocabulary" for every U-stair in the
+// Shared materials — one "stair vocabulary" for every spiral in the
 // building. Allocated once at module load.
-const stringerMaterial = new THREE.MeshStandardMaterial({
-  color: "#2a1d14",
-  roughness: 0.85,
-  metalness: 0.05,
-});
 const treadMaterial = new THREE.MeshStandardMaterial({
   color: "#3a2a1f",
   roughness: 0.7,
   metalness: 0.1,
 });
-const landingMaterial = new THREE.MeshStandardMaterial({
-  color: "#2e2118",
-  roughness: 0.75,
-  metalness: 0.08,
-});
-const ribMaterial = new THREE.MeshStandardMaterial({
+const newelMaterial = new THREE.MeshStandardMaterial({
   color: "#1f1611",
   roughness: 0.9,
   metalness: 0.05,
 });
+const railTopMaterial = new THREE.MeshStandardMaterial({
+  color: "#2a1d14",
+  roughness: 0.6,
+  metalness: 0.15,
+});
+const balusterMaterial = new THREE.MeshStandardMaterial({
+  color: "#1a1108",
+  roughness: 0.85,
+  metalness: 0.05,
+});
 
-const RIB_THICKNESS = 0.15;
-/** No-go half-width around the rib for player collision. Includes the
- *  rib's own half-thickness plus a player-radius buffer so the camera
- *  doesn't clip into the rib's geometry. */
-const RIB_NO_GO_HALF = 0.4;
+const TREAD_THICKNESS = 0.16;
+const NEWEL_HEIGHT = 2.2;
+const NEWEL_SIZE = 0.32;
+const RAIL_HEIGHT = 1.0;
+const BALUSTER_SIZE = 0.05;
 
 /**
- * Build a side-view shape (X = length axis, Y = height) and extrude it
- * along the geometry's Z by `thickness`. Used for solid wedge / trapezoid
- * masses that anchor the stair flights to the floor.
+ * Build a single spiral tread as an explicit BufferGeometry (annulus
+ * sector wedge). The tread's TOP face sits at world Y = `topY`; the
+ * bottom is `topY - TREAD_THICKNESS`. Angles are in atan2 convention
+ * (atan2(dz, dx)) so x = r*cos(θ), z = r*sin(θ) maps directly.
  *
- *    south─top ┐
- *              │\\
- *              │ \\__ north─top
- *              │    │
- *    south─bot ┴────┴ north─bot
- *
- * `southHeight = 0` collapses the south side into a triangle.
+ * Triangulation produces:
+ *  - top + bottom annular faces
+ *  - inner + outer curved faces (visible from the well / outside)
+ *  - two radial side caps that double as risers between adjacent steps
  */
-function makeStringerGeometry(
-  length: number,
-  southHeight: number,
-  northHeight: number,
+function buildTreadGeometry(
+  innerR: number,
+  outerR: number,
+  thetaStart: number,
+  thetaEnd: number,
+  topY: number,
   thickness: number,
+  segments: number,
+): { positions: number[]; indices: number[] } {
+  const positions: number[] = [];
+  const indices: number[] = [];
+  const ring = (which: 0 | 1 | 2 | 3, i: number) =>
+    which * (segments + 1) + i;
+
+  const bottomY = topY - thickness;
+  // 4 rings × (segments+1) verts: ib, it, ob, ot.
+  for (const [r, y] of [
+    [innerR, bottomY],
+    [innerR, topY],
+    [outerR, bottomY],
+    [outerR, topY],
+  ] as const) {
+    for (let i = 0; i <= segments; i++) {
+      const t = i / segments;
+      const theta = thetaStart + (thetaEnd - thetaStart) * t;
+      positions.push(r * Math.cos(theta), y, r * Math.sin(theta));
+    }
+  }
+
+  // Top (CCW from above looking down -Y).
+  for (let i = 0; i < segments; i++) {
+    indices.push(ring(1, i), ring(3, i), ring(1, i + 1));
+    indices.push(ring(1, i + 1), ring(3, i), ring(3, i + 1));
+  }
+  // Bottom (CCW from below).
+  for (let i = 0; i < segments; i++) {
+    indices.push(ring(0, i), ring(0, i + 1), ring(2, i));
+    indices.push(ring(0, i + 1), ring(2, i + 1), ring(2, i));
+  }
+  // Inner curved face (faces toward the well).
+  for (let i = 0; i < segments; i++) {
+    indices.push(ring(0, i + 1), ring(0, i), ring(1, i));
+    indices.push(ring(0, i + 1), ring(1, i), ring(1, i + 1));
+  }
+  // Outer curved face.
+  for (let i = 0; i < segments; i++) {
+    indices.push(ring(2, i), ring(2, i + 1), ring(3, i));
+    indices.push(ring(2, i + 1), ring(3, i + 1), ring(3, i));
+  }
+  // Radial cap at thetaStart (also serves as the riser of THIS step,
+  // visible to a player approaching from the previous tread).
+  indices.push(ring(0, 0), ring(1, 0), ring(2, 0));
+  indices.push(ring(1, 0), ring(3, 0), ring(2, 0));
+  // Radial cap at thetaEnd.
+  indices.push(ring(0, segments), ring(2, segments), ring(1, segments));
+  indices.push(ring(1, segments), ring(2, segments), ring(3, segments));
+
+  return { positions, indices };
+}
+
+/** Merge all the spiral's tread wedges into one BufferGeometry. */
+function buildSpiralStepsGeometry(
+  staircase: Staircase,
 ): THREE.BufferGeometry {
-  const shape = new THREE.Shape();
-  shape.moveTo(0, 0);
-  if (southHeight > 0) shape.lineTo(0, southHeight);
-  shape.lineTo(length, northHeight);
-  shape.lineTo(length, 0);
-  shape.closePath();
-  return new THREE.ExtrudeGeometry(shape, { depth: thickness, bevelEnabled: false });
+  const { innerRadius, outerRadius, numSteps, direction, lowerY, upperY, entryAngle } =
+    staircase;
+  const stepAngle = ((Math.PI * 2) / numSteps) * direction;
+  // Each tread's top sits at lowerY + i * stepRise so step 0 is flush
+  // with the lower floor and the last step (numSteps-1) lands the
+  // player on upperY exactly when they cross to the next stair (where
+  // step 0 is again flush with upperY).
+  const stepRise = (upperY - lowerY) / numSteps;
+  const positions: number[] = [];
+  const indices: number[] = [];
+  const segPerStep = 4;
+
+  for (let i = 0; i < numSteps; i++) {
+    const aStart = entryAngle + i * stepAngle;
+    const aEnd = entryAngle + (i + 1) * stepAngle;
+    // ExtrudeGeometry needs aStart < aEnd; if direction is -1 swap.
+    const lo = Math.min(aStart, aEnd);
+    const hi = Math.max(aStart, aEnd);
+    // Step `i` top sits at the i-th rise above the lower floor. Step 0
+    // tread is at lowerY (the on-ramp). Step (numSteps-1) tread is at
+    // upperY - stepRise; the next stair's step 0 is at upperY, giving
+    // a clean continuous climb across the transition.
+    const topY = lowerY + i * stepRise;
+    const { positions: p, indices: idx } = buildTreadGeometry(
+      innerRadius,
+      outerRadius,
+      lo,
+      hi,
+      topY,
+      TREAD_THICKNESS,
+      segPerStep,
+    );
+    const base = positions.length / 3;
+    for (let k = 0; k < p.length; k++) positions.push(p[k]);
+    for (let k = 0; k < idx.length; k++) indices.push(idx[k] + base);
+  }
+
+  const geom = new THREE.BufferGeometry();
+  geom.setAttribute("position", new THREE.Float32BufferAttribute(positions, 3));
+  geom.setIndex(indices);
+  geom.computeVertexNormals();
+  return geom;
+}
+
+/** Inner railing around the open well — a continuous top rail with
+ *  vertical balusters at each step. Inner radius slightly outside the
+ *  well so the rail doesn't z-fight with the tread inner face. */
+function buildInnerRail(
+  staircase: Staircase,
+): { rail: THREE.BufferGeometry; balusters: Array<[number, number, number]> } {
+  const { innerRadius, numSteps, direction, lowerY, upperY, entryAngle } = staircase;
+  const stepAngle = ((Math.PI * 2) / numSteps) * direction;
+  const stepRise = (upperY - lowerY) / numSteps;
+  const railR = innerRadius + 0.06;
+  const positions: number[] = [];
+  const indices: number[] = [];
+  const segPerStep = 3;
+  const railThickness = 0.06;
+
+  // Build a thin ribbon along the rail path. Two control points per
+  // sample (one at top of rail, one slightly below) form a quad strip.
+  let ringIdx = 0;
+  const balusters: Array<[number, number, number]> = [];
+  for (let i = 0; i < numSteps; i++) {
+    const aStart = entryAngle + i * stepAngle;
+    const aEnd = entryAngle + (i + 1) * stepAngle;
+    const lo = Math.min(aStart, aEnd);
+    const hi = Math.max(aStart, aEnd);
+    const yTop = lowerY + i * stepRise + RAIL_HEIGHT;
+    for (let s = 0; s <= segPerStep; s++) {
+      const t = s / segPerStep;
+      const theta = lo + (hi - lo) * t;
+      const x = railR * Math.cos(theta);
+      const z = railR * Math.sin(theta);
+      positions.push(x, yTop, z);
+      positions.push(x, yTop - railThickness, z);
+      if (i + s > 0) {
+        const a = (ringIdx - 1) * 2;
+        const b = ringIdx * 2;
+        indices.push(a, b, a + 1);
+        indices.push(a + 1, b, b + 1);
+      }
+      ringIdx++;
+    }
+    // One baluster per step at the start angle.
+    const balR = innerRadius + 0.04;
+    const balTheta = aStart;
+    balusters.push([
+      balR * Math.cos(balTheta),
+      lowerY + i * stepRise + (RAIL_HEIGHT - railThickness) / 2,
+      balR * Math.sin(balTheta),
+    ]);
+  }
+  const geom = new THREE.BufferGeometry();
+  geom.setAttribute("position", new THREE.Float32BufferAttribute(positions, 3));
+  geom.setIndex(indices);
+  geom.computeVertexNormals();
+  return { rail: geom, balusters };
 }
 
 /**
- * Render one U-stair: solid stringer wedges below each flight, a
- * structural pier supporting the midway landing, and a tall central
- * rib between the two flights. The flights' top surfaces ARE the
- * stringer top faces — no separate ramp slabs — so there's no z-fight
- * and no "floating" look. Both entries sit on the south face: lower
- * floor at the south-west corner (Y=lowerY), upper floor at the
- * south-east corner (Y=upperY).
- *
- * Cardinal convention in this codebase: north = low z, south = high z.
+ * Render one revolution of the open-well spiral. Steps are real wedge
+ * geometry (top, bottom, inner curve, outer curve, riser caps) so each
+ * tread reads as a step rather than a smoothed ramp. A continuous top
+ * rail follows the inner edge of the spiral with a baluster per step.
+ * Newel posts at the entry angle anchor the bottom and top to the
+ * floor + ceiling and carry the directional sign.
  */
 export function StaircaseRenderer({ staircase }: { staircase: Staircase }) {
-  const { centerX, centerZ, width, depth, lowerY, upperY } = staircase;
-  const halfD = depth / 2;
-  const flightWidth = width / 2;
-  const halfRise = (upperY - lowerY) / 2;
-  const midwayY = lowerY + halfRise;
+  const { centerX, centerZ, innerRadius, outerRadius, lowerY, upperY, entryAngle } =
+    staircase;
 
-  // Footprint Z extents.
-  const southZ = centerZ + halfD;
-  const landingMaxZ = centerZ - halfD + STAIR_LANDING_DEPTH;
-  const landingNorthZ = centerZ - halfD;
+  const stepsGeom = useMemo(() => buildSpiralStepsGeometry(staircase), [staircase]);
+  const railData = useMemo(() => buildInnerRail(staircase), [staircase]);
 
-  // Stringer geometries.
-  //  - West stringer: triangular wedge, south=0 (ramp meets floor),
-  //    north=halfRise (ramp meets landing).
-  //  - East stringer: trapezoid, south=halfRise*2 (ramp at upperY) →
-  //    north=halfRise (ramp at midwayY). Both stringers extend down to
-  //    floor Y, anchoring the flights as solid stone masses.
-  const westStringerGeom = useMemo(
-    () => makeStringerGeometry(STAIR_FLIGHT_LENGTH, 0, halfRise, flightWidth),
-    [halfRise, flightWidth],
-  );
-  const eastStringerGeom = useMemo(
-    () => makeStringerGeometry(STAIR_FLIGHT_LENGTH, halfRise * 2, halfRise, flightWidth),
-    [halfRise, flightWidth],
-  );
-  // Central rib — same trapezoid silhouette as the east stringer
-  // (south=upperY, north=midwayY), so the rib's top tracks the higher
-  // ramp and reads as a chest-high handrail wall as the player walks
-  // up the lower flight.
-  const ribGeom = useMemo(
-    () => makeStringerGeometry(STAIR_FLIGHT_LENGTH, halfRise * 2, halfRise, RIB_THICKNESS),
-    [halfRise],
-  );
+  // Newel posts at the entry direction, just outside the outer tread
+  // radius. They anchor the spiral to the floor (visually, by going
+  // floor → 2 m up) and carry the wall-mounted direction sign.
+  const newelR = outerRadius + NEWEL_SIZE / 2 + 0.05;
+  const newelX = newelR * Math.cos(entryAngle);
+  const newelZ = newelR * Math.sin(entryAngle);
 
-  const flightCenterX = {
-    west: centerX - flightWidth / 2,
-    east: centerX + flightWidth / 2,
-  };
-
-  // Tread "lips" — thin contrast strips along each riser line so the
-  // smooth stringer top reads as a flight of stairs instead of a
-  // plain ramp. We anchor them slightly above the stringer surface to
-  // dodge z-fighting (the ramp top is sloped, the lips are flat).
-  const NUM_LIPS = 10;
-  const tiltAngle = Math.atan2(halfRise, STAIR_FLIGHT_LENGTH);
-  const treadDepth = STAIR_FLIGHT_LENGTH / NUM_LIPS;
-  const lipThickness = 0.04;
-  const westLips: React.ReactElement[] = [];
-  const eastLips: React.ReactElement[] = [];
-  for (let i = 1; i < NUM_LIPS; i++) {
-    // Riser line `i` sits at i treads up from the south.
-    const riserCenterZ = southZ - i * treadDepth;
-    const wRiserY = lowerY + i * (halfRise / NUM_LIPS);
-    westLips.push(
-      <mesh
-        key={`w-lip-${i}`}
-        position={[flightCenterX.west, wRiserY + lipThickness / 2, riserCenterZ]}
-        rotation={[tiltAngle, 0, 0]}
-      >
-        <boxGeometry args={[flightWidth - 0.05, lipThickness, 0.06]} />
-        <primitive object={treadMaterial} attach="material" />
-      </mesh>,
-    );
-    const eRiserY = upperY - i * (halfRise / NUM_LIPS);
-    eastLips.push(
-      <mesh
-        key={`e-lip-${i}`}
-        position={[flightCenterX.east, eRiserY + lipThickness / 2, riserCenterZ]}
-        rotation={[-tiltAngle, 0, 0]}
-      >
-        <boxGeometry args={[flightWidth - 0.05, lipThickness, 0.06]} />
-        <primitive object={treadMaterial} attach="material" />
-      </mesh>,
-    );
-  }
-
-  // Landing pier — solid block from floor to midwayY at the north end
-  // of the footprint. Anchors the landing as a structural mass instead
-  // of a thin slab floating in space, and the front face (south side)
-  // gets a darker fascia so the seam between pier and stringers reads.
-  const landingPierH = halfRise; // floor → midwayY
-  const landingPierZCenter = (landingNorthZ + landingMaxZ) / 2;
-  const landingPierY = lowerY + landingPierH / 2;
+  // Sign sits flush against the OUTWARD-facing face of the newel
+  // post — the side a player approaching from outside the spiral will
+  // see first. We want the sign's normal (default +Z) to point in the
+  // entry direction, i.e. outward from the spiral centre. The Y
+  // rotation that maps +Z onto (cos(entryAngle), 0, sin(entryAngle))
+  // is θ = π/2 − entryAngle.
+  const signRotY = Math.PI / 2 - entryAngle;
+  const signOffset = NEWEL_SIZE / 2 + 0.012;
+  const signX = newelX + Math.cos(entryAngle) * signOffset;
+  const signZ = newelZ + Math.sin(entryAngle) * signOffset;
 
   return (
-    <group>
-      {/* West flight stringer — triangular wedge under the ramp. */}
-      <mesh
-        geometry={westStringerGeom}
-        position={[centerX - flightWidth, lowerY, southZ]}
-        rotation={[0, Math.PI / 2, 0]}
-      >
-        <primitive object={stringerMaterial} attach="material" />
-      </mesh>
-      {/* East flight stringer — trapezoidal solid (south face full
-          storey tall down to floor, north face joins the landing). */}
-      <mesh
-        geometry={eastStringerGeom}
-        position={[centerX, lowerY, southZ]}
-        rotation={[0, Math.PI / 2, 0]}
-      >
-        <primitive object={stringerMaterial} attach="material" />
+    <group position={[centerX, 0, centerZ]}>
+      {/* Treads — single merged mesh per stair. */}
+      <mesh geometry={stepsGeom} castShadow receiveShadow>
+        <primitive object={treadMaterial} attach="material" />
       </mesh>
 
-      {/* Central rib between flights — handrail wall whose top tracks
-          the higher (east) ramp. */}
-      <mesh
-        geometry={ribGeom}
-        position={[centerX - RIB_THICKNESS / 2, lowerY, southZ]}
-        rotation={[0, Math.PI / 2, 0]}
-      >
-        <primitive object={ribMaterial} attach="material" />
+      {/* Inner railing around the open well. */}
+      <mesh geometry={railData.rail}>
+        <primitive object={railTopMaterial} attach="material" />
       </mesh>
+      {railData.balusters.map((p, i) => (
+        <mesh key={`bal-${i}`} position={p}>
+          <boxGeometry args={[BALUSTER_SIZE, RAIL_HEIGHT, BALUSTER_SIZE]} />
+          <primitive object={balusterMaterial} attach="material" />
+        </mesh>
+      ))}
 
-      {westLips}
-      {eastLips}
-
-      {/* Landing pier — solid block, top surface is the connecting
-          platform between the two flights at midwayY. */}
-      <mesh position={[centerX, landingPierY, landingPierZCenter]}>
-        <boxGeometry args={[width, landingPierH, STAIR_LANDING_DEPTH]} />
-        <primitive object={landingMaterial} attach="material" />
+      {/* Lower newel post + sign. The sign carries an arrow pointing
+          up the spiral — the player walking toward the entry sees it
+          face-on. */}
+      <mesh position={[newelX, lowerY + NEWEL_HEIGHT / 2, newelZ]}>
+        <boxGeometry args={[NEWEL_SIZE, NEWEL_HEIGHT, NEWEL_SIZE]} />
+        <primitive object={newelMaterial} attach="material" />
       </mesh>
-
-      {/* Signs at each entry, set just past the south face. */}
       <StairSign
-        position={[flightCenterX.west, lowerY + 2.4, southZ + 0.02]}
-        rotationY={0}
+        position={[signX, lowerY + 1.65, signZ]}
+        rotationY={signRotY}
         label={`↑ ${staircase.upperLabel}`}
       />
+
+      {/* Upper newel post + sign — sits at the same XZ as the lower
+          one, one storey higher. */}
+      <mesh position={[newelX, upperY + NEWEL_HEIGHT / 2, newelZ]}>
+        <boxGeometry args={[NEWEL_SIZE, NEWEL_HEIGHT, NEWEL_SIZE]} />
+        <primitive object={newelMaterial} attach="material" />
+      </mesh>
       <StairSign
-        position={[flightCenterX.east, upperY + 2.4, southZ + 0.02]}
-        rotationY={0}
+        position={[signX, upperY + 1.65, signZ]}
+        rotationY={signRotY}
         label={`↓ ${staircase.lowerLabel}`}
       />
     </group>
@@ -227,16 +301,16 @@ function StairSign({
   return (
     <group position={position} rotation={[0, rotationY, 0]}>
       <mesh>
-        <boxGeometry args={[2.4, 0.5, 0.04]} />
+        <boxGeometry args={[1.4, 0.32, 0.02]} />
         <primitive object={signBaseMaterial} attach="material" />
       </mesh>
       <Text
-        position={[0, 0, 0.03]}
-        fontSize={0.24}
+        position={[0, 0, 0.012]}
+        fontSize={0.14}
         color="#f2e9d0"
         anchorX="center"
         anchorY="middle"
-        maxWidth={2.2}
+        maxWidth={1.3}
       >
         {label}
       </Text>
@@ -246,88 +320,50 @@ function StairSign({
 
 // ── Physics helpers ──────────────────────────────────────────────────
 
-/** True if (worldX, worldZ) sits inside the stair footprint. The rib
- *  between flights is *not* excluded here — collision against the rib
- *  is enforced separately by `canCrossStairMidline` so the player can
- *  walk along either flight without being kicked off the stair. */
+/** True if (worldX, worldZ) sits inside the spiral's walking annulus
+ *  (between innerRadius and outerRadius). Outside the annulus uses
+ *  normal floor physics. */
 export function isInsideStair(stair: Staircase, worldX: number, worldZ: number): boolean {
-  const halfW = stair.width / 2;
-  const halfD = stair.depth / 2;
   const dx = worldX - stair.centerX;
   const dz = worldZ - stair.centerZ;
-  return Math.abs(dx) <= halfW && Math.abs(dz) <= halfD;
+  const r2 = dx * dx + dz * dz;
+  return r2 >= stair.innerRadius * stair.innerRadius && r2 <= stair.outerRadius * stair.outerRadius;
 }
 
-/** Y the player's feet should sit at, given world XZ on the stair.
- *  West half rises lowerY (south) → midwayY (north), east half rises
- *  midwayY (north) → upperY (south), and the low-z strip is the flat
- *  midway landing. Returns null if the position is outside the
- *  footprint. */
-export function stairHeightAt(
-  stair: Staircase,
-  worldX: number,
-  worldZ: number,
-): number | null {
-  const halfW = stair.width / 2;
-  const halfD = stair.depth / 2;
+/** Normalised raw angle around the spiral, measured from `entryAngle`
+ *  in the spiral's walking direction. Returns a value in [0, 2π);
+ *  step `i` occupies [i*stepAngle, (i+1)*stepAngle]. */
+export function spiralRawAngle(stair: Staircase, worldX: number, worldZ: number): number {
   const dx = worldX - stair.centerX;
   const dz = worldZ - stair.centerZ;
-  if (Math.abs(dx) > halfW || Math.abs(dz) > halfD) return null;
-
-  const halfRise = (stair.upperY - stair.lowerY) / 2;
-  const midwayY = stair.lowerY + halfRise;
-
-  // Landing strip at the far (-Z, north) end.
-  if (dz <= -halfD + STAIR_LANDING_DEPTH) return midwayY;
-
-  // Flight zone: t = 0 at the south end (player's floor entry), t = 1
-  // at the landing (north).
-  const t = (halfD - dz) / STAIR_FLIGHT_LENGTH;
-  if (dx <= 0) {
-    // West flight — ascending lowerY → midwayY as you walk north.
-    return stair.lowerY + t * halfRise;
-  }
-  // East flight — south at upperY (upper-floor entry), north at midwayY.
-  return stair.upperY - t * halfRise;
+  let theta = Math.atan2(dz, dx) - stair.entryAngle;
+  if (stair.direction === -1) theta = -theta;
+  return ((theta % (Math.PI * 2)) + Math.PI * 2) % (Math.PI * 2);
 }
 
-/** Pick which flight half corresponds to the player's current floor.
- *  Used to disambiguate when both stairsIn (descent) and stairsOut
- *  (ascent) overlap the same footprint XZ — west = ascent, east =
- *  descent. */
-export function flightForFloor(
-  stair: Staircase,
-  floorIndex: number,
-): "west" | "east" | null {
-  if (floorIndex === stair.lowerFloor) return "west";
-  if (floorIndex === stair.upperFloor) return "east";
-  return null;
+/** Y the player's feet should sit at given a cumulative angle on this
+ *  stair. Cumulative ∈ [0, 2π]; clamped outside that. The Y is
+ *  continuous, no step jumps — the camera damp + the visible riser
+ *  geometry give the staircase its stepped feel. */
+export function stairHeightAt(stair: Staircase, cumulativeAngle: number): number {
+  const t = Math.max(0, Math.min(1, cumulativeAngle / (Math.PI * 2)));
+  return stair.lowerY + t * (stair.upperY - stair.lowerY);
 }
 
-/** The rib between the two flights is a wall outside the landing
- *  strip — block targets that fall inside the rib's no-go zone, and
- *  block side-switching crossings, unless we're moving entirely within
- *  the landing strip (where the two flights merge into one walkable
- *  surface). */
-export function canCrossStairMidline(
-  stair: Staircase,
-  fromX: number,
-  fromZ: number,
-  toX: number,
-  toZ: number,
-): boolean {
-  const halfD = stair.depth / 2;
-  const fromInLanding = fromZ - stair.centerZ <= -halfD + STAIR_LANDING_DEPTH;
-  const toInLanding = toZ - stair.centerZ <= -halfD + STAIR_LANDING_DEPTH;
-  if (fromInLanding && toInLanding) return true;
+/** Find the stair connected above this one (its upperFloor matches
+ *  the next stair's lowerFloor) — used when the player walks past the
+ *  top of one revolution and continues into the next storey's flight. */
+export function findStairAbove(
+  staircase: Staircase,
+  all: readonly Staircase[],
+): Staircase | undefined {
+  return all.find((s) => s.lowerFloor === staircase.upperFloor);
+}
 
-  const toDx = toX - stair.centerX;
-  // Don't let the player wedge into the rib's footprint outside the
-  // landing.
-  if (Math.abs(toDx) < RIB_NO_GO_HALF) return false;
-
-  // No side-switching outside the landing.
-  const fromDx = fromX - stair.centerX;
-  if (Math.sign(fromDx) !== Math.sign(toDx) && fromDx !== 0 && toDx !== 0) return false;
-  return true;
+/** Mirror of findStairAbove for descent. */
+export function findStairBelow(
+  staircase: Staircase,
+  all: readonly Staircase[],
+): Staircase | undefined {
+  return all.find((s) => s.upperFloor === staircase.lowerFloor);
 }

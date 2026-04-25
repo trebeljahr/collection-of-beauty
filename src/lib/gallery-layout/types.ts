@@ -77,41 +77,34 @@ export type Staircase = {
   lowerLabel: string;
   upperLabel: string;
 
-  // ── U-stair (switchback) geometry ──────────────────────────────────
-  // The stair is a rectangular footprint in the stairwell room. Two
-  // straight flights run side-by-side along the depth axis with a flat
-  // landing at the far end:
-  //
-  //   facing side (low z = north) ←———————→ landing side (high z = south)
-  //   ┌──────────────┬──────────────┐
-  //   │ lower entry  │  upper exit  │   ← flush with floor at face side
-  //   │   (west)     │   (east)     │
-  //   │   ascending  │  descending  │
-  //   │      ↑       │      ↓       │   (drawing — both flights have
-  //   │      ↑       │      ↓       │    their high end at the landing)
-  //   │              │              │
-  //   ├──────────────┴──────────────┤
-  //   │         midway landing      │   at midwayY = (lowerY+upperY)/2
-  //   └─────────────────────────────┘
-  //
-  // Both entries sit on the same face of the footprint, at the lower
-  // and upper floor's Y respectively, so a player walking in from
-  // either floor's stairwell door always meets the stair flush with
-  // their own walking surface. A central rib between the flights
-  // forces the player to use the landing to switch sides — that's
-  // what gives the stair its switchback feel and avoids a 0.6 m
-  // jump when crossing midline mid-flight.
-  /** Centre of the stair footprint in world XZ. */
+  // ── Open-well spiral geometry ──────────────────────────────────────
+  // One revolution of an annular spiral around an empty central well.
+  // Going up = walk counter-clockwise; going down = walk clockwise.
+  // The well is open vertically — the same XZ on every floor — so the
+  // player can see all the way from the ground floor up through every
+  // storey. Adjacent stairs (S_i and S_{i+1}) line up vertically and
+  // the player transitions between them when their cumulative angle
+  // passes 2π (ascending) or 0 (descending).
+  /** Centre of the open well (world XZ). */
   centerX: number;
   centerZ: number;
-  /** Footprint width along X (covers both flights side-by-side). */
-  width: number;
-  /** Footprint depth along Z (flight length + landing depth). */
-  depth: number;
-  /** Y of the lower-floor entry. */
+  /** Inner radius — the open well begins here. The spiral treads
+   *  occupy [innerRadius, outerRadius]. */
+  innerRadius: number;
+  /** Outer radius — outer edge of the treads. */
+  outerRadius: number;
+  /** Tread count for one full revolution. */
+  numSteps: number;
+  /** +1 = atan2 angle increases as the player walks "up the stair". */
+  direction: 1 | -1;
+  /** Y of the lowest tread. */
   lowerY: number;
-  /** Y of the upper-floor exit. */
+  /** Y of the highest tread (= lowerY + FLOOR_SEPARATION). */
   upperY: number;
+  /** World atan2 angle (atan2(dz, dx)) at which step 0 sits. The player
+   *  walking onto the spiral from the stairwell door enters at this
+   *  angle, so the on-ramp greets them flush with the floor. */
+  entryAngle: number;
 };
 
 export type FloorLayout = {
