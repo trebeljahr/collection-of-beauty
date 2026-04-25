@@ -88,22 +88,137 @@ function stripQuickStatements(input) {
     .trim();
 }
 
-function cleanTitle(raw, fallback) {
+// Strip the leading EXIF / upload-timestamp prefix that creeps onto
+// some Commons titles when the uploader didn't set a proper Object
+// Name. Patterns seen in metadata/*.json:
+//   "2022-06-24 at 13-35-16 Pêches (C Monet - W 952)"  ← the worst
+//   "2014-11-25 16:15:40 Some title"
+//   "21 August 2009, 08:09:03 - Title"
+function stripUploadTimestamp(s) {
+  if (!s) return s;
+  return s
+    .replace(/^\d{4}-\d{2}-\d{2}\s+at\s+\d{1,2}-\d{2}-\d{2}\s+/i, "")
+    .replace(/^\d{4}-\d{2}-\d{2}[\sT]\d{2}:\d{2}(:\d{2})?\s+/, "")
+    .replace(/^\d{1,2}\s+\w+\s+\d{4},?\s*\d{2}:\d{2}(:\d{2})?\s*-?\s*/, "")
+    .trim();
+}
+
+// Treat a string as "needs an English fallback" when the visible
+// content is overwhelmingly non-Latin (CJK, Cyrillic, Arabic, Hebrew,
+// Devanagari, etc.). Latin-with-diacritics is fine — French/Italian/
+// German titles read perfectly well in this gallery.
+function isMostlyNonLatin(s) {
+  if (!s) return false;
+  let nonLatin = 0;
+  let letters = 0;
+  for (const ch of s) {
+    const code = ch.codePointAt(0) ?? 0;
+    if (/[^\s\d.,;:!?'"()&\-]/u.test(ch)) letters++;
+    // Latin Basic + Latin-1 Supplement + Latin Extended-A + Latin Extended-B
+    // run from U+0000 through U+024F. Anything past that we treat as
+    // non-Latin script.
+    if (code > 0x024f) nonLatin++;
+  }
+  return letters > 0 && nonLatin / letters > 0.5;
+}
+
+// Many Met / Wikipedia scans bake an English title into the filename
+// alongside the original-language name, e.g.
+//   "2560px-冨嶽三十六景_上総の海路-At_Sea_off_Kazusa_(Kazusa_no_kairo)
+//      ,_from_the_series_Thirty-six_Views_of_Mount_Fuji
+//      _(Fugaku_sanjūrokkei)_MET_DP141056.jpg"
+// The pattern is `<resolution>-<original>-<English>_MET_<id>.<ext>`,
+// so split on `-`, drop the trailing source-id chunk, and pick the
+// segment with the most ASCII letters.
+function englishFromFilename(fname) {
+  if (!fname) return null;
+  let base = fname.replace(/\.[^.]+$/, "");
+  base = base.replace(/_MET_\w+$/i, ""); // Met DP id suffix
+  base = base.replace(/_\(\d+\)$/, ""); // trailing "(2)" disambiguator
+  // Split on dashes that act as SECTION separators, not word-internal
+  // hyphens. A section dash has at least one non-Latin neighbour (a CJK
+  // character, an underscore, or end-of-string); a word-internal dash
+  // like "Thirty-six" has Latin letters on both sides.
+  const parts = base
+    .split(/(?<=[^A-Za-z])-|-(?=[^A-Za-z])/)
+    .map((p) => p.replace(/_/g, " ").trim())
+    .filter(Boolean);
+  let best = null;
+  let bestScore = 0;
+  for (const p of parts) {
+    if (/^\d+(px|p)$/i.test(p)) continue; // resolution prefix
+    const latin = (p.match(/[A-Za-z]/g) || []).length;
+    if (latin < 8) continue; // need a real phrase, not a stray word
+    if (latin / p.length < 0.5) continue;
+    if (latin > bestScore) {
+      best = p;
+      bestScore = latin;
+    }
+  }
+  return best;
+}
+
+// `entry.source.credit` is the Wikimedia uploader's free-text entry,
+// often "Own work" (the uploader photographed the painting themselves
+// — true but uninformative for attribution) or a museum/auction
+// reference. Drop the boilerplate so the artwork detail page doesn't
+// render attribution noise.
+function cleanCredit(raw) {
+  if (!raw) return null;
+  const c = String(raw).trim();
+  if (!c) return null;
+  if (/^own\s*work$/i.test(c)) return null;
+  return c;
+}
+
+function cleanTitle(raw, fname) {
+  const fallback = (fname ?? "").replace(/\.[^.]+$/, "").replace(/[_]/g, " ");
   if (!raw) return fallback;
+
+  // 1. Drop QuickStatements clutter and bracketed asides; commas often
+  //    fold a date / location after the actual title.
   const first = raw.split(/[,(]/)[0];
-  const cleaned = stripQuickStatements(first)
+  let cleaned = stripQuickStatements(first)
     .replace(/^["']|["']$/g, "")
     .trim();
+
+  // 2. Strip leading upload timestamps.
+  cleaned = stripUploadTimestamp(cleaned);
+
+  // 3. If what's left is overwhelmingly non-Latin, look for an English
+  //    title baked into the filename.
+  if (cleaned && isMostlyNonLatin(cleaned)) {
+    const english = englishFromFilename(fname);
+    if (english) cleaned = english;
+  }
+
   return cleaned || fallback;
 }
 
+// Pull a few sentences out of the raw description rather than the
+// single-sentence cut we used to take. Lots of source descriptions are
+// 2–3 short sentences (subject, medium, provenance) and truncating to
+// the first one threw away the most informative parts.
 function firstLineDescription(raw) {
   if (!raw) return null;
-  const t = stripQuickStatements(raw);
-  const oneline = t.split(/[.!?\n]/)[0].trim();
-  if (oneline.length < 8) return null;
-  if (oneline.length > 240) return oneline.slice(0, 237) + "...";
-  return oneline;
+  const t = stripQuickStatements(raw).trim();
+  if (!t) return null;
+  // Split into sentence-ish chunks while keeping the punctuation.
+  const sentences = t.match(/[^.!?\n]+[.!?]?/g) || [t];
+  const out = [];
+  let len = 0;
+  for (const s of sentences) {
+    const piece = s.trim();
+    if (!piece) continue;
+    if (out.length === 0 && piece.length < 8) continue;
+    if (len + piece.length > 600) break;
+    out.push(piece);
+    len += piece.length + 1;
+    if (out.length >= 3) break;
+  }
+  const joined = out.join(" ").trim();
+  if (joined.length < 8) return null;
+  return joined;
 }
 
 function extractYear(entry) {
@@ -349,7 +464,7 @@ async function main() {
       }
 
       const artistName = normalizeArtistName(entry.artist) ?? null;
-      const title = cleanTitle(entry.title, fname.replace(/[_.]/g, " "));
+      const title = cleanTitle(entry.title, fname);
       const year = extractYear(entry);
       const artistInfo = entry.artist_info ?? matchArtist(artistName, byAlias);
       const artistSlug = artistName ? slugify(artistName) : "unknown";
@@ -374,7 +489,7 @@ async function main() {
         variantWidths: variantWidths.length > 0 ? variantWidths : null,
         fileUrl: entry.source.file_url,
         commonsUrl: entry.source.url,
-        credit: entry.source.credit || null,
+        credit: cleanCredit(entry.source.credit),
         license: entry.copyright.license_short || "Public domain",
         movement: artistInfo?.movement || null,
         nationality: artistInfo?.nationality || null,
