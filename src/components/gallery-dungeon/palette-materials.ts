@@ -95,24 +95,24 @@ export const signBaseMaterial = new THREE.MeshStandardMaterial({
   roughness: 0.7,
 });
 
-// Brushed-aluminium label card — the printed face of a painting
-// plaque. Lighter than every era's wall colour so the plaque always
-// pops, with enough metalness to catch a faint highlight from the
-// room's overhead light. Slight emissive lift keeps the text legible
-// even in dim galleries.
+// Printed face of the painting plaque — kept matte and very light so
+// the engraved text reads crisply at any angle. The shimmer lives on
+// the surrounding mount, not here; a metallic face would catch
+// environment reflections that wash out small text.
 export const plaqueBaseMaterial = new THREE.MeshStandardMaterial({
-  color: "#eef0f1",
-  emissive: new THREE.Color("#1a1a1c"),
-  emissiveIntensity: 0.06,
-  roughness: 0.32,
-  metalness: 0.55,
+  color: "#f5f5f7",
+  emissive: new THREE.Color("#202024"),
+  emissiveIntensity: 0.08,
+  roughness: 0.85,
+  metalness: 0,
 });
 
-// Slightly darker brushed-steel backing plate, fractionally larger
-// than the face. Metalness is high enough to read as polished metal
-// from across the room without looking mirror-finish at close range.
+// Polished-chrome backing plate that rims the face. High metalness
+// and low roughness make it pick up a sharp highlight from the
+// room's overhead light, so the plaque shimmers without smearing
+// reflections across the printed text.
 export const plaqueMountMaterial = new THREE.MeshStandardMaterial({
-  color: "#9aa0a6",
-  roughness: 0.28,
-  metalness: 0.7,
+  color: "#d8dde2",
+  roughness: 0.18,
+  metalness: 1.0,
 });

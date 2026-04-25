@@ -116,14 +116,15 @@ export function Painting({ placement }: { placement: Placement }) {
 // Cream face dims. Painting + plaque reach (painting width / 2 + GAP
 // + face / 2) stays under ~1.25 m so neighbouring paintings don't
 // collide.
-const PLAQUE_FACE_W = 0.21;
-const PLAQUE_FACE_H = 0.13;
+const PLAQUE_FACE_W = 0.28;
+const PLAQUE_FACE_H = 0.18;
 const PLAQUE_FACE_DEPTH = 0.004;
-// Brass mount sits a hair larger than the face, acting as a visible
-// frame rim around it.
-const PLAQUE_MOUNT_W = PLAQUE_FACE_W + 0.018;
-const PLAQUE_MOUNT_H = PLAQUE_FACE_H + 0.018;
-const PLAQUE_MOUNT_DEPTH = 0.006;
+// Brushed-steel mount sits a hair larger than the face, framing it
+// like a polished metal rim. Bigger reveal here makes the shimmer
+// from the mount more visible at typical viewing distances.
+const PLAQUE_MOUNT_W = PLAQUE_FACE_W + 0.028;
+const PLAQUE_MOUNT_H = PLAQUE_FACE_H + 0.028;
+const PLAQUE_MOUNT_DEPTH = 0.008;
 const PLAQUE_GAP = 0.06;
 // `placement.position` is offset PAINTING_WALL_OFFSET (= 0.02 m) into
 // the room from the wall plane, so localZ = -0.02 lands the plaque
@@ -166,16 +167,16 @@ function Plaque({
         <boxGeometry args={[PLAQUE_FACE_W, PLAQUE_FACE_H, PLAQUE_FACE_DEPTH]} />
         <primitive object={plaqueBaseMaterial} attach="material" />
       </mesh>
-      {/* Title — small caps weight, italic-ish via slight emphasis */}
+      {/* Title — bold and largest. */}
       <Text
         position={[0, PLAQUE_FACE_H * 0.28, textZ]}
-        fontSize={0.014}
-        lineHeight={1.2}
-        color="#1a1108"
-        fontWeight={600}
+        fontSize={0.022}
+        lineHeight={1.15}
+        color="#0d0a08"
+        fontWeight={700}
         anchorX="center"
         anchorY="middle"
-        maxWidth={PLAQUE_FACE_W - 0.018}
+        maxWidth={PLAQUE_FACE_W - 0.022}
         textAlign="center"
       >
         {title}
@@ -183,26 +184,26 @@ function Plaque({
       {/* Artist · year */}
       <Text
         position={[0, 0, textZ]}
-        fontSize={0.011}
-        lineHeight={1.25}
-        color="#3a2a1f"
+        fontSize={0.018}
+        lineHeight={1.2}
+        color="#1c1410"
         anchorX="center"
         anchorY="middle"
-        maxWidth={PLAQUE_FACE_W - 0.018}
+        maxWidth={PLAQUE_FACE_W - 0.022}
         textAlign="center"
       >
         {byline}
       </Text>
-      {/* Dimensions — smaller, lighter */}
+      {/* Dimensions — smaller, slightly lighter. */}
       {dims && (
         <Text
           position={[0, -PLAQUE_FACE_H * 0.32, textZ]}
-          fontSize={0.0095}
-          lineHeight={1.2}
-          color="#5a463a"
+          fontSize={0.014}
+          lineHeight={1.15}
+          color="#3a2c22"
           anchorX="center"
           anchorY="middle"
-          maxWidth={PLAQUE_FACE_W - 0.018}
+          maxWidth={PLAQUE_FACE_W - 0.022}
           textAlign="center"
         >
           {dims}
