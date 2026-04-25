@@ -3,7 +3,7 @@
 import { ResponsiveImage } from "@/components/responsive-image";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
-import type { Artwork } from "@/lib/data";
+import { type Artwork, artworkAlt } from "@/lib/data";
 import Link from "next/link";
 import { useMemo, useState } from "react";
 
@@ -89,6 +89,7 @@ export function TimelineView({ artworks, movements }: Props) {
         </div>
         <div className="flex h-24 items-end gap-0.5">
           {buckets.map((b) => (
+            // biome-ignore lint/a11y/useAnchorContent: decorative density bar; the title attribute carries the screen-reader label.
             <a
               key={b.decade}
               href={`#decade-${b.decade}`}
@@ -96,6 +97,7 @@ export function TimelineView({ artworks, movements }: Props) {
               style={{
                 height: `${(b.works.length / maxInBucket) * 100}%`,
               }}
+              aria-label={`${b.decade}s: ${b.works.length} work${b.works.length === 1 ? "" : "s"}`}
               title={`${b.decade}s: ${b.works.length} work${b.works.length === 1 ? "" : "s"}`}
             />
           ))}
@@ -128,7 +130,7 @@ export function TimelineView({ artworks, movements }: Props) {
                   <ResponsiveImage
                     objectKey={a.objectKey}
                     variantWidths={a.variantWidths}
-                    alt={a.title}
+                    alt={artworkAlt(a)}
                     fill
                     sizes="(max-width: 640px) 33vw, (max-width: 1024px) 20vw, 12vw"
                     loading="lazy"

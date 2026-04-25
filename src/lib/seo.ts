@@ -1,4 +1,4 @@
-import { type Artist, type Artwork, artworks, summary } from "@/lib/data";
+import { type Artist, type Artwork, artworkAlt, artworks, summary } from "@/lib/data";
 import { assetUrl, variantUrl } from "@/lib/utils";
 import type { Metadata } from "next";
 
@@ -89,17 +89,18 @@ function fitInto(
  */
 export function ogImagesForArtwork(artwork: Artwork): NonNullable<Metadata["openGraph"]>["images"] {
   const { width, height } = fitInto(artwork.width, artwork.height, 1280);
+  const alt = artworkAlt(artwork);
   return [
     {
       url: variantUrl(artwork.objectKey, 1280, "webp"),
       width,
       height,
-      alt: artwork.title,
+      alt,
       type: "image/webp",
     },
     {
       url: assetUrl(artwork.objectKey),
-      alt: artwork.title,
+      alt,
     },
   ];
 }

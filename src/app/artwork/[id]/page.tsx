@@ -1,7 +1,7 @@
 import { ArtworkCard } from "@/components/artwork-card";
 import { ResponsiveImage } from "@/components/responsive-image";
 import { Badge } from "@/components/ui/badge";
-import { artworks, getArtist, getArtwork, getArtworksByArtist } from "@/lib/data";
+import { artworkAlt, artworks, getArtist, getArtwork, getArtworksByArtist } from "@/lib/data";
 import { artworkJsonLd, jsonLdScriptProps, ogImagesForArtwork } from "@/lib/seo";
 import { assetUrl } from "@/lib/utils";
 import type { Metadata } from "next";
@@ -110,7 +110,7 @@ export default async function ArtworkPage({
             <ResponsiveImage
               objectKey={art.objectKey}
               variantWidths={art.variantWidths}
-              alt={art.title}
+              alt={artworkAlt(art)}
               srcWidth={art.width ?? 1600}
               srcHeight={art.height ?? 2000}
               sizes="(max-width: 768px) 100vw, 65vw"

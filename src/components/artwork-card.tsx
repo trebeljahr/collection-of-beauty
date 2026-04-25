@@ -1,5 +1,5 @@
 import { ResponsiveImage } from "@/components/responsive-image";
-import type { Artwork } from "@/lib/data";
+import { type Artwork, artworkAlt } from "@/lib/data";
 import Link from "next/link";
 
 type Props = {
@@ -17,7 +17,7 @@ export function ArtworkCard({ artwork, priority }: Props) {
         <ResponsiveImage
           objectKey={artwork.objectKey}
           variantWidths={artwork.variantWidths}
-          alt={artwork.title}
+          alt={artworkAlt(artwork)}
           fill
           sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 20vw"
           priority={priority}

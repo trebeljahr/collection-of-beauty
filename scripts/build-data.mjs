@@ -327,10 +327,27 @@ async function main() {
 
   const artworks = [];
   const artistAggregates = new Map();
+  const droppedMissing = { count: 0, samples: [] };
 
   function pushFromFolder(folderKey, data) {
     for (const [fname, entry] of Object.entries(data.entries)) {
       if (!keepEntry(entry)) continue;
+
+      // Drop entries whose source file isn't present on disk. These come
+      // from metadata for files we never downloaded (or that landed under
+      // a different filename) — Wikimedia thumbnail URLs (`2560px-…`),
+      // renamed locals (`Albrecht_Dürer_-_The_Rhinoceros_(NGA_…).jpg` vs
+      // `dürer rhino.jpg`), etc. Including them in artworks.json means
+      // every gallery <img> 404s on those tiles.
+      const srcExists = existsSync(path.join(ASSETS, folderKey, fname));
+      if (!srcExists) {
+        droppedMissing.count++;
+        if (droppedMissing.samples.length < 5) {
+          droppedMissing.samples.push(`${folderKey}/${fname}`);
+        }
+        continue;
+      }
+
       const artistName = normalizeArtistName(entry.artist) ?? null;
       const title = cleanTitle(entry.title, fname.replace(/[_.]/g, " "));
       const year = extractYear(entry);
@@ -400,6 +417,13 @@ async function main() {
   pushFromFolder("collection-of-beauty", cob);
   pushFromFolder("audubon-birds", birds);
   pushFromFolder("kunstformen-images", haeckel);
+
+  if (droppedMissing.count > 0) {
+    const sampleStr = droppedMissing.samples.join(", ");
+    console.log(
+      `[build-data] dropped ${droppedMissing.count} entries with no source file on disk (e.g. ${sampleStr}${droppedMissing.count > droppedMissing.samples.length ? ", …" : ""})`,
+    );
+  }
 
   artworks.sort((a, b) => {
     const ay = a.year ?? 99999;

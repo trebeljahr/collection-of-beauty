@@ -39,6 +39,7 @@ export function ArtistsBrowser({ artists }: Props) {
   }, [artists, deferredQuery, fuse]);
 
   // Reset limit when the filter changes so we don't strand users mid-scroll
+  // biome-ignore lint/correctness/useExhaustiveDependencies: deferredQuery IS the trigger; setLimit is a stable setter.
   useEffect(() => {
     setLimit(PAGE);
   }, [deferredQuery]);
@@ -88,7 +89,7 @@ export function ArtistsBrowser({ artists }: Props) {
                 <ResponsiveImage
                   objectKey={a.coverObjectKey}
                   variantWidths={a.coverVariantWidths}
-                  alt={a.coverTitle || a.name}
+                  alt={a.coverTitle ? `${a.coverTitle} by ${a.name}` : a.name}
                   fill
                   sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 20vw"
                   loading="lazy"

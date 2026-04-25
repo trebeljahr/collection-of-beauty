@@ -6,7 +6,7 @@ import { RowsPhotoAlbum } from "react-photo-album";
 import InfiniteScroll from "react-photo-album/scroll";
 import "react-photo-album/rows.css";
 import { ResponsiveImage } from "@/components/responsive-image";
-import type { Artwork } from "@/lib/data";
+import { type Artwork, artworkAlt } from "@/lib/data";
 
 export type GalleryPhoto = {
   // react-photo-album needs a src string to place tiles, even though we
@@ -31,7 +31,7 @@ export function toGalleryPhoto(a: Artwork): GalleryPhoto {
     width: a.width ?? 800,
     height: a.height ?? 1000,
     key: a.id,
-    alt: a.title,
+    alt: artworkAlt(a),
     href: `/artwork/${a.id}`,
     title: a.title,
     artist: a.artist,
@@ -111,7 +111,7 @@ export function ArtworkGallery({
           },
           // Render via <picture>/<source> against pre-built rclone variants.
           // photo.src is the objectKey (see toGalleryPhoto above).
-          image: (_, { photo, width, height }) => {
+          image: (_, { photo, width }) => {
             const p = photo as GalleryPhoto;
             return (
               <ResponsiveImage

@@ -1,7 +1,7 @@
 "use client";
 
-import type { Artwork } from "@/lib/data";
-import { variantSrcSet, variantUrl } from "@/lib/utils";
+import { type Artwork, artworkAlt } from "@/lib/data";
+import { assetUrl, variantSrcSet, variantUrl } from "@/lib/utils";
 import { useEffect } from "react";
 
 /**
@@ -25,15 +25,26 @@ export function ZoomModal({
     return () => window.removeEventListener("keydown", onKey);
   }, [onClose]);
 
-  const fallback = variantUrl(artwork.objectKey, 1280, "webp");
-  const srcSet = variantSrcSet(artwork.objectKey, "avif");
+  // Pass the artwork's actual variantWidths so we don't emit candidates
+  // the browser will 404 on (e.g. 4096w, which only exists for very large
+  // sources, or anything when the artwork hasn't been shrunk yet).
+  const widths = artwork.variantWidths ?? [];
+  const hasVariants = widths.length > 0;
+  const srcSet = hasVariants ? variantSrcSet(artwork.objectKey, "avif", widths) : undefined;
+  // 1280.webp is only emitted when the artwork has been shrunk; for
+  // un-shrunk artworks fall through to the original.
+  const fallback = hasVariants
+    ? variantUrl(artwork.objectKey, 1280, "webp")
+    : assetUrl(artwork.objectKey);
   const dims = artwork.realDimensions;
 
   return (
+    // biome-ignore lint/a11y/useKeyWithClickEvents: Esc dismisses via the window keydown listener above; the overlay click is just a mouse shortcut, not the only path.
     <div
       onClick={onClose}
       className="absolute inset-0 bg-black/85 backdrop-blur-sm z-40 flex flex-col items-center justify-center cursor-zoom-out p-6"
     >
+      {/* biome-ignore lint/a11y/useKeyWithClickEvents: stopPropagation only — keyboard activation here would be a no-op */}
       <div
         onClick={(e) => e.stopPropagation()}
         className="relative max-w-[min(90vw,1400px)] max-h-[80vh] cursor-default"
@@ -44,7 +55,7 @@ export function ZoomModal({
           src={fallback}
           srcSet={srcSet}
           sizes="min(90vw, 1400px)"
-          alt={artwork.title}
+          alt={artworkAlt(artwork)}
           className="max-h-[80vh] max-w-full object-contain shadow-2xl"
         />
       </div>
@@ -61,7 +72,11 @@ export function ZoomModal({
           </div>
         )}
       </div>
-      <button onClick={onClose} className="mt-4 text-neutral-500 text-xs hover:text-neutral-300">
+      <button
+        type="button"
+        onClick={onClose}
+        className="mt-4 text-neutral-500 text-xs hover:text-neutral-300"
+      >
         close · Esc · click anywhere
       </button>
     </div>
