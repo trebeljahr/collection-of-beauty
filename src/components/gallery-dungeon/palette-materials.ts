@@ -95,12 +95,22 @@ export const signBaseMaterial = new THREE.MeshStandardMaterial({
   roughness: 0.7,
 });
 
-// Cream label card used for painting plaques. Slightly emissive so the
-// text stays legible in dim rooms without needing its own light.
+// Cream label card — the printed face of a painting plaque. Slightly
+// emissive so the text stays legible in dim rooms without needing its
+// own light.
 export const plaqueBaseMaterial = new THREE.MeshStandardMaterial({
-  color: "#f4ecd8",
+  color: "#ece2c9",
   emissive: new THREE.Color("#2a1e10"),
-  emissiveIntensity: 0.05,
-  roughness: 0.7,
+  emissiveIntensity: 0.04,
+  roughness: 0.78,
   metalness: 0,
+});
+
+// Brass-toned backing plate for the plaque, slightly larger than the
+// printed face. Reads as a small wall mount the cream card is glued
+// onto rather than a floating HTML rectangle.
+export const plaqueMountMaterial = new THREE.MeshStandardMaterial({
+  color: "#5a4528",
+  roughness: 0.42,
+  metalness: 0.5,
 });

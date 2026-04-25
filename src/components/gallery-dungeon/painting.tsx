@@ -8,7 +8,7 @@ import { useThree } from "@react-three/fiber";
 import { Suspense, useEffect, useRef } from "react";
 import * as THREE from "three";
 import { type PaintingEntry, registerPainting, unregisterPainting } from "./painting-registry";
-import { frameMaterial, plaqueBaseMaterial } from "./palette-materials";
+import { frameMaterial, plaqueBaseMaterial, plaqueMountMaterial } from "./palette-materials";
 import { getHiRes, loadHiRes, useCachedTexture } from "./texture-cache";
 
 /**
@@ -105,16 +105,27 @@ export function Painting({ placement }: { placement: Placement }) {
 }
 
 // ── Plaque ────────────────────────────────────────────────────────────
-// A small museum-style label card to the right of each painting at
-// canvas centre height. Carries title, artist, year, dimensions.
+// A small museum-style label to the right of each painting at canvas
+// centre height. Two-layer construction: a brass mount plate fixed
+// flush to the wall, with a slightly inset cream face card on top
+// carrying title / artist / year / dimensions in three sized lines.
 
-// A small museum-style label card. Sized so the painting + plaque
-// reach (paintingW + GAP + PLAQUE_W) stays under one cell width
-// (~2.5 m), preventing overlap with the next slot's plaque/painting.
-const PLAQUE_W = 0.22;
-const PLAQUE_H = 0.18;
-const PLAQUE_DEPTH = 0.012;
-const PLAQUE_GAP = 0.05;
+// Cream face dims. Painting + plaque reach (painting width / 2 + GAP
+// + face / 2) stays under ~1.25 m so neighbouring paintings don't
+// collide.
+const PLAQUE_FACE_W = 0.21;
+const PLAQUE_FACE_H = 0.13;
+const PLAQUE_FACE_DEPTH = 0.004;
+// Brass mount sits a hair larger than the face, acting as a visible
+// frame rim around it.
+const PLAQUE_MOUNT_W = PLAQUE_FACE_W + 0.018;
+const PLAQUE_MOUNT_H = PLAQUE_FACE_H + 0.018;
+const PLAQUE_MOUNT_DEPTH = 0.006;
+const PLAQUE_GAP = 0.06;
+// `placement.position` is offset PAINTING_WALL_OFFSET (= 0.06 m) into
+// the room from the wall plane, so localZ = -0.06 lands the plaque
+// back exactly on the wall surface.
+const PAINTING_WALL_OFFSET = 0.06;
 
 function Plaque({
   artwork,
@@ -123,38 +134,76 @@ function Plaque({
   artwork: Artwork;
   widthM: number;
 }) {
-  // Plaque sits to the painting's right at canvas mid-height (eye
-  // level — the group origin is already at the painting's centre).
-  const localX = widthM / 2 + PLAQUE_GAP + PLAQUE_W / 2;
+  const localX = widthM / 2 + PLAQUE_GAP + PLAQUE_MOUNT_W / 2;
   const localY = 0;
-  const localZ = 0.04;
+  // Mount sits flush against the wall; face is parked just in front
+  // of it; text floats a hair above the face to clear z-fighting.
+  const mountCenterZ = -PAINTING_WALL_OFFSET + PLAQUE_MOUNT_DEPTH / 2;
+  const faceCenterZ = mountCenterZ + PLAQUE_MOUNT_DEPTH / 2 + PLAQUE_FACE_DEPTH / 2;
+  const textZ = faceCenterZ + PLAQUE_FACE_DEPTH / 2 + 0.001;
 
   const title = stripBrackets(artwork.title);
-  const year = artwork.year ? `, ${artwork.year}` : "";
-  const byline = `${artwork.artist ?? "Unknown"}${year}`;
+  const artist = artwork.artist ?? "Unknown";
+  const year = artwork.year ? String(artwork.year) : "";
+  const byline = year ? `${artist}, ${year}` : artist;
   const dims = artwork.realDimensions
     ? `${artwork.realDimensions.widthCm.toFixed(0)} × ${artwork.realDimensions.heightCm.toFixed(0)} cm`
     : "";
-  const text = [title, "", byline, dims].filter(Boolean).join("\n");
 
   return (
-    <group position={[localX, localY, localZ]}>
-      <mesh>
-        <boxGeometry args={[PLAQUE_W, PLAQUE_H, PLAQUE_DEPTH]} />
+    <group position={[localX, localY, 0]}>
+      {/* Brass mount plate */}
+      <mesh position={[0, 0, mountCenterZ]}>
+        <boxGeometry args={[PLAQUE_MOUNT_W, PLAQUE_MOUNT_H, PLAQUE_MOUNT_DEPTH]} />
+        <primitive object={plaqueMountMaterial} attach="material" />
+      </mesh>
+      {/* Cream face card on top of the mount */}
+      <mesh position={[0, 0, faceCenterZ]}>
+        <boxGeometry args={[PLAQUE_FACE_W, PLAQUE_FACE_H, PLAQUE_FACE_DEPTH]} />
         <primitive object={plaqueBaseMaterial} attach="material" />
       </mesh>
+      {/* Title — small caps weight, italic-ish via slight emphasis */}
       <Text
-        position={[0, 0, PLAQUE_DEPTH / 2 + 0.002]}
-        fontSize={0.018}
-        lineHeight={1.35}
-        color="#241810"
+        position={[0, PLAQUE_FACE_H * 0.28, textZ]}
+        fontSize={0.014}
+        lineHeight={1.2}
+        color="#1a1108"
+        fontWeight={600}
         anchorX="center"
         anchorY="middle"
-        maxWidth={PLAQUE_W - 0.024}
+        maxWidth={PLAQUE_FACE_W - 0.018}
         textAlign="center"
       >
-        {text}
+        {title}
       </Text>
+      {/* Artist · year */}
+      <Text
+        position={[0, 0, textZ]}
+        fontSize={0.011}
+        lineHeight={1.25}
+        color="#3a2a1f"
+        anchorX="center"
+        anchorY="middle"
+        maxWidth={PLAQUE_FACE_W - 0.018}
+        textAlign="center"
+      >
+        {byline}
+      </Text>
+      {/* Dimensions — smaller, lighter */}
+      {dims && (
+        <Text
+          position={[0, -PLAQUE_FACE_H * 0.32, textZ]}
+          fontSize={0.0095}
+          lineHeight={1.2}
+          color="#5a463a"
+          anchorX="center"
+          anchorY="middle"
+          maxWidth={PLAQUE_FACE_W - 0.018}
+          textAlign="center"
+        >
+          {dims}
+        </Text>
+      )}
     </group>
   );
 }
