@@ -103,6 +103,7 @@ export default async function ArtworkPage({
         <div className="rounded-xl border border-[var(--border)] bg-[var(--muted)] p-2">
           <ArtworkViewer
             art={{
+              id: art.id,
               objectKey: art.objectKey,
               variantWidths: art.variantWidths,
               title: art.title,

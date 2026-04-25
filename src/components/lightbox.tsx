@@ -1,9 +1,13 @@
 "use client";
 
 import { assetUrl, cn, variantSrcSet, variantUrl } from "@/lib/utils";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { createPortal } from "react-dom";
-import { TransformComponent, TransformWrapper } from "react-zoom-pan-pinch";
+import {
+  type ReactZoomPanPinchRef,
+  TransformComponent,
+  TransformWrapper,
+} from "react-zoom-pan-pinch";
 
 type Props = {
   open: boolean;
@@ -31,7 +35,9 @@ export function Lightbox({
   onNext,
 }: Props) {
   const [mounted, setMounted] = useState(false);
+  const [placeholderLoaded, setPlaceholderLoaded] = useState(false);
   const [highReady, setHighReady] = useState(false);
+  const transformRef = useRef<ReactZoomPanPinchRef | null>(null);
 
   useEffect(() => setMounted(true), []);
 
@@ -42,14 +48,24 @@ export function Lightbox({
   const fallbackSrc = assetUrl(objectKey);
   const avifSrcSet = hasVariants ? variantSrcSet(objectKey, "avif", widths) : "";
 
-  // Reset high-res preload when the image (or open state) changes — so
-  // navigating prev/next inside the lightbox shows the placeholder until
-  // the new high-res variant arrives.
+  // Reset everything when the displayed artwork changes (objectKey is the
+  // unique identifier here). Without this, prev/next inside the lightbox
+  // would leave stale zoom and a stale opacity state.
+  // biome-ignore lint/correctness/useExhaustiveDependencies: objectKey is the trigger, not a body dependency
   useEffect(() => {
     if (!open) return;
+    setPlaceholderLoaded(false);
     setHighReady(false);
-    const img = new Image();
+    transformRef.current?.resetTransform(0);
+  }, [open, objectKey]);
+
+  // Preload the high-res variant. Re-runs whenever the artwork (highSrc)
+  // or open state changes. Cancellation prevents a stale onload from
+  // flipping highReady true after a fast prev/next.
+  useEffect(() => {
+    if (!open) return;
     let cancelled = false;
+    const img = new Image();
     img.onload = () => {
       if (!cancelled) setHighReady(true);
     };
@@ -87,6 +103,8 @@ export function Lightbox({
 
   if (!open || !mounted) return null;
 
+  const showSpinner = !placeholderLoaded && !highReady;
+
   return createPortal(
     // biome-ignore lint/a11y/useSemanticElements: <dialog> with showModal() conflicts with the portal+gesture stack — div+role is fine here.
     <div
@@ -96,13 +114,14 @@ export function Lightbox({
       className="fixed inset-0 z-[100] bg-black/95 backdrop-blur-sm"
     >
       <TransformWrapper
+        ref={transformRef}
         initialScale={1}
         minScale={1}
         maxScale={8}
         centerOnInit
         doubleClick={{ mode: "toggle", step: 0.7 }}
-        wheel={{ step: 0.2 }}
-        pinch={{ step: 5 }}
+        wheel={{ step: 0.13 }}
+        pinch={{ step: 3.3 }}
         limitToBounds
       >
         <TransformComponent
@@ -127,6 +146,7 @@ export function Lightbox({
                   width={srcWidth ?? undefined}
                   height={srcHeight ?? undefined}
                   draggable={false}
+                  onLoad={() => setPlaceholderLoaded(true)}
                   className="h-full w-full object-contain"
                 />
               </picture>
@@ -138,6 +158,9 @@ export function Lightbox({
               width={srcWidth ?? undefined}
               height={srcHeight ?? undefined}
               draggable={false}
+              onLoad={() => {
+                if (!hasVariants) setPlaceholderLoaded(true);
+              }}
               className={cn(
                 "absolute inset-0 h-full w-full select-none object-contain transition-opacity duration-300",
                 highReady ? "opacity-100" : hasVariants ? "opacity-0" : "opacity-100",
@@ -146,6 +169,31 @@ export function Lightbox({
           </div>
         </TransformComponent>
       </TransformWrapper>
+
+      {/* Loading spinner while the first paintable image (placeholder or
+          high-res) is still in flight. Sits above the empty <picture>
+          frame so the backdrop isn't a black void. Pointer-events off so
+          the user can still drag underneath it. */}
+      {showSpinner && (
+        <div className="pointer-events-none absolute inset-0 z-[5] flex items-center justify-center">
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            width="44"
+            height="44"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="2"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            aria-hidden="true"
+            className="animate-spin text-white/80"
+          >
+            <path d="M21 12a9 9 0 1 1-6.219-8.56" />
+          </svg>
+          <span className="sr-only">Loading image</span>
+        </div>
+      )}
 
       {/* Top bar: close + caption. Pointer-events scoped to controls so
           they don't swallow drags on the image itself. */}
