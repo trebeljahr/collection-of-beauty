@@ -4,7 +4,7 @@ import { ERAS } from "@/lib/gallery-eras";
 import type { RoomLayout } from "@/lib/gallery-layout/types";
 import { CELL_SIZE, DOOR_HEIGHT, ROOM_HEIGHT } from "@/lib/gallery-layout/world-coords";
 import { Painting } from "./painting";
-import { getPaletteMaterials } from "./palette-materials";
+import { getPaletteMaterials, getRoomFloorMaterial } from "./palette-materials";
 import { WallWithDoors } from "./wall";
 
 /**
@@ -22,6 +22,7 @@ export function RoomGeometry({
 }) {
   const era = ERAS[room.floorIndex];
   const mats = getPaletteMaterials(era.palette);
+  const floorMat = getRoomFloorMaterial(room.floorColor);
   const { cellBounds } = room;
 
   const xMin = cellBounds.xMin * CELL_SIZE;
@@ -67,7 +68,7 @@ export function RoomGeometry({
       {hasFloor && (
         <mesh rotation={[-Math.PI / 2, 0, 0]} position={[cxWorld, floorY, czWorld]}>
           <planeGeometry args={[width, depth]} />
-          <primitive object={mats.floor} attach="material" />
+          <primitive object={floorMat} attach="material" />
         </mesh>
       )}
       {hasCeiling && (
@@ -85,14 +86,14 @@ export function RoomGeometry({
             position={[cxWorld, floorY, cellBounds.zMin * CELL_SIZE + CELL_SIZE / 2]}
           >
             <planeGeometry args={[width, CELL_SIZE]} />
-            <primitive object={mats.floor} attach="material" />
+            <primitive object={floorMat} attach="material" />
           </mesh>
           <mesh
             rotation={[-Math.PI / 2, 0, 0]}
             position={[cxWorld, floorY, (cellBounds.zMax + 0.5) * CELL_SIZE]}
           >
             <planeGeometry args={[width, CELL_SIZE]} />
-            <primitive object={mats.floor} attach="material" />
+            <primitive object={floorMat} attach="material" />
           </mesh>
         </>
       )}

@@ -11,6 +11,11 @@ export type Palette = {
   ceilingColor: string;
   lampTint: string;
   accent: string;
+  /** Per-room floor tints. Each room hashes its id into this list so
+   *  every room on a floor reads as a slightly different shade while
+   *  the era as a whole still feels cohesive. Authored dark — these
+   *  multiply against the era's `floorColor` mood, they don't pop. */
+  roomAccents: string[];
 };
 
 export type AnchorSpec = {
@@ -65,6 +70,9 @@ export const ERAS: Era[] = [
       ceilingColor: "#f3e9cf",
       lampTint: "#ffcfa0",
       accent: "#c68642",
+      // Cool stone + plum + teal — medieval cathedral floor stones, each
+      // worn a different colour from centuries of foot traffic.
+      roomAccents: ["#3a2a1f", "#2e3540", "#3a2e3f", "#293a36", "#3d2e22"],
     },
     blurb: "Gold ground and tempera — the long medieval morning.",
     anchor: {
@@ -93,6 +101,8 @@ export const ERAS: Era[] = [
       ceilingColor: "#f4ead2",
       lampTint: "#ffd9a5",
       accent: "#b98a4f",
+      // Warm earth: terracotta, sienna, olive, chocolate.
+      roomAccents: ["#3a2a1f", "#3f2820", "#3a2e1c", "#322318", "#42301f"],
     },
     blurb: "Leonardo, Michelangelo, Raphael — perspective made a language.",
     anchor: {
@@ -120,6 +130,8 @@ export const ERAS: Era[] = [
       ceilingColor: "#e8ddc3",
       lampTint: "#ffd09a",
       accent: "#8a5a2b",
+      // Tenebrist velvets: charcoal, wine, midnight, forest.
+      roomAccents: ["#221711", "#2a1418", "#1a1822", "#1f261b", "#1a1612"],
     },
     blurb: "Drama, tenebrism, motion — Caravaggio's shadow across Europe.",
     anchor: {
@@ -141,6 +153,8 @@ export const ERAS: Era[] = [
       ceilingColor: "#f1e7cd",
       lampTint: "#ffe0b5",
       accent: "#c49a66",
+      // Refined drawing-room tones: muted plum, sage, rose-brown, dusty blue.
+      roomAccents: ["#2e2015", "#3a2a35", "#28332a", "#3a2c22", "#28303a"],
     },
     blurb: "Ornament gives way to antique clarity.",
     anchor: {
@@ -174,6 +188,8 @@ export const ERAS: Era[] = [
       ceilingColor: "#dcd3bd",
       lampTint: "#ffd6a0",
       accent: "#6e4f2e",
+      // Stormy weather underfoot: storm-blue, slate, rust, moss.
+      roomAccents: ["#1e1711", "#1a2230", "#2a221c", "#2e1f17", "#1f261c"],
     },
     blurb: "The sublime, the storm, and nothing staged.",
     anchor: {
@@ -209,6 +225,8 @@ export const ERAS: Era[] = [
       ceilingColor: "#f9f1db",
       lampTint: "#ffe3b4",
       accent: "#c88a47",
+      // Garden dapple: sage, dusty rose, lavender, butter.
+      roomAccents: ["#2a1d14", "#283325", "#3a2a2e", "#2e2838", "#3a3220"],
     },
     blurb: "Plein-air light and interior weather.",
     anchor: {
@@ -245,6 +263,8 @@ export const ERAS: Era[] = [
       ceilingColor: "#f2efe8",
       lampTint: "#ffe6bd",
       accent: "#4a3b2a",
+      // Bold-but-darkened modernist: brick, cobalt, mustard, jet, teal.
+      roomAccents: ["#1a1712", "#3a1f1a", "#1a2230", "#3a2f15", "#1f3030"],
     },
     blurb: "Form shattered, rebuilt, and made raw.",
     anchor: {
@@ -290,4 +310,22 @@ export function getEra(id: EraId): Era {
   const era = ERAS.find((e) => e.id === id);
   if (!era) throw new Error(`Unknown era id: ${id}`);
   return era;
+}
+
+/** Deterministic per-room floor tint. Same room id always picks the
+ *  same accent — keeps the visual identity stable across reloads and
+ *  layout regenerations as long as the room id is stable. Falls back
+ *  to the era's base floorColor if the palette has no accents
+ *  authored. */
+export function roomFloorColor(era: Era, roomId: string): string {
+  const accents = era.palette.roomAccents;
+  if (!accents || accents.length === 0) return era.palette.floorColor;
+  // FNV-1a 32-bit — small, deterministic, no allocations.
+  let h = 0x811c9dc5;
+  for (let i = 0; i < roomId.length; i++) {
+    h ^= roomId.charCodeAt(i);
+    h = Math.imul(h, 0x01000193);
+  }
+  const idx = (h >>> 0) % accents.length;
+  return accents[idx];
 }

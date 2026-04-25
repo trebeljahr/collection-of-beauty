@@ -26,7 +26,7 @@
 // compact 3-room plan, sprawling ones fill all 8 slot rooms.
 
 import type { Artwork } from "@/lib/data";
-import { ERAS, type Era, type EraId, assignEra } from "@/lib/gallery-eras";
+import { ERAS, type Era, type EraId, assignEra, roomFloorColor } from "@/lib/gallery-eras";
 import { slugify } from "@/lib/utils";
 import { distributePaintings } from "./place-paintings";
 import {
@@ -399,8 +399,9 @@ function buildRoom(opts: {
   suppressWalls?: RoomLayout["suppressWalls"];
 }): RoomLayout {
   const { era, rect } = opts;
+  const id = slugify(opts.id) || opts.id;
   return {
-    id: slugify(opts.id) || opts.id,
+    id,
     floorIndex: era.index,
     movement: opts.movement,
     title: opts.movement,
@@ -419,6 +420,7 @@ function buildRoom(opts: {
     hasBench: opts.isAnchor,
     placements: [],
     artworks: opts.artworks,
+    floorColor: roomFloorColor(era, id),
     suppressWalls: opts.suppressWalls,
   };
 }

@@ -52,6 +52,26 @@ export function getPaletteMaterials(palette: Palette): PaletteMaterials {
   return entry;
 }
 
+// ── Per-room floor materials ──────────────────────────────────────────
+// Rooms now carry their own floor tint (see Era.palette.roomAccents).
+// Materials are cached by hex string so two rooms picking the same
+// accent share one material — bounded by the union of authored accents
+// (≈ 5 × 7 = 35 max) regardless of room count.
+
+const roomFloorCache = new Map<string, THREE.MeshStandardMaterial>();
+
+export function getRoomFloorMaterial(color: string): THREE.MeshStandardMaterial {
+  let mat = roomFloorCache.get(color);
+  if (mat) return mat;
+  mat = new THREE.MeshStandardMaterial({
+    color,
+    roughness: 0.88,
+    metalness: 0.05,
+  });
+  roomFloorCache.set(color, mat);
+  return mat;
+}
+
 // ── Palette-invariant materials (same across every era) ───────────────
 // Dark wood trim for doorframes; cream for signs; etc. These are
 // allocated once at module load.

@@ -51,6 +51,10 @@ export type RoomLayout = {
   hasBench: boolean;
   placements: Placement[];
   artworks: Artwork[];
+  /** Per-room floor tint, picked deterministically from the era's
+   *  palette so reloads are stable and floors read as a coherent set
+   *  while individual rooms feel distinct underfoot. */
+  floorColor: string;
   /** Which walls of this room should NOT be rendered, because a
    *  neighbouring room shares that wall and is responsible for drawing
    *  it (with door cuts). Prevents z-fighting on shared boundaries. */

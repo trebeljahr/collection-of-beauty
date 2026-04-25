@@ -61,9 +61,14 @@ export function Minimap({ floor, activeRoomIdx, playerRef, size = 220, className
     ctx.lineTo(size, size);
     ctx.stroke();
 
-    // Walkable cells — corridors stay muted; rooms read warmer; the
-    // active room is filled with a saturated gold so the player can
+    // Per-room minimap fills, brightened from the 3D floor tint so the
+    // hue still reads against the dark panel background. The active
+    // room overrides this with a saturated gold so the player can
     // locate themselves at a glance.
+    const roomFills = floor.rooms.map((r) => boostForMap(r.floorColor));
+
+    // Walkable cells — corridors stay muted; rooms take their hashed
+    // accent.
     for (let z = 0; z < gz; z++) {
       for (let x = 0; x < gx; x++) {
         const idx = z * gx + x;
@@ -72,7 +77,7 @@ export function Minimap({ floor, activeRoomIdx, playerRef, size = 220, className
         if (owner === activeRoomIdx && owner >= 0) {
           ctx.fillStyle = "#d19a3d";
         } else if (owner >= 0) {
-          ctx.fillStyle = "#5a4c35";
+          ctx.fillStyle = roomFills[owner] ?? "#5a4c35";
         } else {
           ctx.fillStyle = "#3a362d";
         }
@@ -320,4 +325,31 @@ function wrapLines(
     lines[lines.length - 1] = truncateToFit(ctx, `${last}…`, maxWidth) || last;
   }
   return lines;
+}
+
+/** Convert an authored 3D-floor hex (intentionally dark, ~L 18-25) into
+ *  a brighter minimap-fill colour. Same hue, saturation lifted, lightness
+ *  pinned around 0.42 so all rooms stay legible against the dark panel
+ *  while keeping the era's identity. Returns a CSS hsl() string. */
+function boostForMap(hex: string): string {
+  const c = hex.startsWith("#") ? hex.slice(1) : hex;
+  if (c.length !== 6) return hex;
+  const r = parseInt(c.slice(0, 2), 16) / 255;
+  const g = parseInt(c.slice(2, 4), 16) / 255;
+  const b = parseInt(c.slice(4, 6), 16) / 255;
+  const max = Math.max(r, g, b);
+  const min = Math.min(r, g, b);
+  const l = (max + min) / 2;
+  let h = 0;
+  let s = 0;
+  if (max !== min) {
+    const d = max - min;
+    s = l > 0.5 ? d / (2 - max - min) : d / (max + min);
+    if (max === r) h = (g - b) / d + (g < b ? 6 : 0);
+    else if (max === g) h = (b - r) / d + 2;
+    else h = (r - g) / d + 4;
+    h *= 60;
+  }
+  const sBoosted = Math.min(1, Math.max(s, 0.35) * 1.6);
+  return `hsl(${h.toFixed(0)}, ${(sBoosted * 100).toFixed(0)}%, 42%)`;
 }

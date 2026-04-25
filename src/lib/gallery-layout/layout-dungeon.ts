@@ -8,7 +8,7 @@
 import type { Artwork } from "@/lib/data";
 import { DungeonGenerator3D } from "@/lib/dungeon/generator";
 import { CellType3D, Room3D, Vector3Int } from "@/lib/dungeon/types";
-import { ERAS, type Era, type EraId, assignEra } from "@/lib/gallery-eras";
+import { ERAS, type Era, type EraId, assignEra, roomFloorColor } from "@/lib/gallery-eras";
 import { slugify } from "@/lib/utils";
 import { distributePaintings } from "./place-paintings";
 
@@ -286,8 +286,9 @@ function buildFloor(era: Era, eraArtworks: Artwork[]): FloorLayout {
       }
     }
 
+    const id = slugify(`${era.id}-${name}`) || `${era.id}-room-${r}`;
     roomLayouts.push({
-      id: slugify(`${era.id}-${name}`) || `${era.id}-room-${r}`,
+      id,
       floorIndex: era.index,
       movement: name,
       title: name,
@@ -311,6 +312,7 @@ function buildFloor(era: Era, eraArtworks: Artwork[]): FloorLayout {
       hasBench: isAnchor,
       placements: [], // M3 will populate
       artworks,
+      floorColor: roomFloorColor(era, id),
     });
   }
 
