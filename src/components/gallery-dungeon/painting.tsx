@@ -87,8 +87,11 @@ export function Painting({ placement }: { placement: Placement }) {
   const { artwork, position, rotation, widthM, heightM } = placement;
   const url = variantUrl(artwork.objectKey, 960, "avif");
 
-  const frameDepth = 0.05;
-  const frameInset = 0.03;
+  // Frame depth was 5 cm — visibly chunky from oblique angles, made
+  // paintings look like they were floating off the wall. Real museum
+  // frames are 2-3 cm; matching that hides the boxiness.
+  const frameDepth = 0.025;
+  const frameInset = 0.025;
 
   return (
     <group position={position} rotation={rotation}>
@@ -318,7 +321,7 @@ function PaintingPlane({
   }, [artwork, texture, gl]);
 
   return (
-    <mesh ref={meshRef} position={[0, 0, 0.03]} userData={{ artwork }}>
+    <mesh ref={meshRef} position={[0, 0, 0.014]} userData={{ artwork }}>
       <planeGeometry args={[widthM, heightM]} />
       <meshBasicMaterial ref={matRef} map={texture} toneMapped={false} />
     </mesh>
@@ -350,7 +353,7 @@ function FallbackSwatch({
   }, [artwork]);
 
   return (
-    <mesh ref={meshRef} position={[0, 0, 0.03]} userData={{ artwork }}>
+    <mesh ref={meshRef} position={[0, 0, 0.014]} userData={{ artwork }}>
       <planeGeometry args={[widthM, heightM]} />
       <meshBasicMaterial color="#3a2e20" toneMapped={false} />
     </mesh>

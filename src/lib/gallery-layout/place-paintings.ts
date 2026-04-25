@@ -27,8 +27,12 @@ const MAX_PAINTING_W = 2.2;
 const MAX_PAINTING_H_ROOM = 3.0;
 const MAX_PAINTING_H_HALLWAY = 1.6; // lower-row cap
 const MAX_PAINTING_H_HALLWAY_UPPER = 0.8;
-/** Inset from the wall surface so paintings don't z-fight. */
-const PAINTING_WALL_OFFSET = 0.06;
+/** Inset from the wall surface so paintings don't z-fight. Sized to
+ *  put the back of the painting frame box flush against the wall —
+ *  frame box depth in painting.tsx is 0.025 m, half-depth + a 1 mm
+ *  z-fight margin = ~0.014 m. Bumped to 0.02 for a comfortable hair
+ *  of clearance. */
+const PAINTING_WALL_OFFSET = 0.02;
 
 type Slot = {
   /** Anchor point (wall surface) in world space. */
