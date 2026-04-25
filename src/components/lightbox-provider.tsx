@@ -40,19 +40,20 @@ export function LightboxProvider({ children }: { children: ReactNode }) {
 
   const navigate = useCallback(
     (delta: number) => {
-      setIndex((cur) => {
-        if (cur == null) return cur;
-        const target = cur + delta;
-        if (target < 0 || target >= artworks.length) return cur;
-        // Soft URL sync: page below the modal swaps for the new artwork
-        // (so closing the lightbox lands on what the user was viewing,
-        // and reload preserves state). The provider lives in the layout
-        // and stays mounted, so the lightbox itself doesn't flicker.
-        router.push(`/artwork/${artworks[target].id}`, { scroll: false });
-        return target;
-      });
+      if (index == null) return;
+      const target = index + delta;
+      if (target < 0 || target >= artworks.length) return;
+      setIndex(target);
+      // Soft URL sync: page below the modal swaps for the new artwork
+      // (so closing the lightbox lands on what the user was viewing,
+      // and reload preserves state). The provider lives in the layout
+      // and stays mounted, so the lightbox itself doesn't flicker.
+      // Fired outside the setState updater because router.push triggers
+      // an update in the Router component, which React forbids during
+      // the render phase that the updater function runs in.
+      router.push(`/artwork/${artworks[target].id}`, { scroll: false });
     },
-    [router],
+    [index, router],
   );
 
   const api = useMemo<LightboxApi>(
