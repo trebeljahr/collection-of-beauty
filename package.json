@@ -2,7 +2,7 @@
   "name": "collection-of-beauty",
   "version": "0.1.0",
   "private": true,
-  "packageManager": "pnpm@9.15.4",
+  "packageManager": "pnpm@10.33.2",
   "scripts": {
     "build:data": "node scripts/build-data.mjs",
     "assets:serve": "node scripts/serve-assets.mjs",
@@ -67,6 +67,8 @@
     "lint-staged": "^16.4.0"
   },
   "lint-staged": {
-    "*.{js,jsx,ts,tsx,json,jsonc,css}": ["biome check --write --no-errors-on-unmatched"]
+    "*.{js,jsx,ts,tsx,json,jsonc,css}": [
+      "biome check --write --no-errors-on-unmatched"
+    ]
   }
 }
