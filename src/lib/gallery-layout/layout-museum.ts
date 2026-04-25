@@ -65,15 +65,15 @@ const STAIR: CellRect = {
   zMax: STAIR_MAX,
 };
 
-// Grand Hall (anchor) sits north of the spiral, between the corner
-// rooms. Its x range is centred on the spiral's world centre so the
-// south door aligns with the player's natural walking line straight
-// out of the hall toward the staircase.
+// Grand Hall (anchor) sits directly north of the spiral. Its x range
+// matches the stair's exactly (x=21..27) so the shared north/south
+// wall is contiguous and the door at the centre of the wall is on the
+// player's natural walking line out of the hall.
 const GRAND_HALL: CellRect = {
-  xMin: 14,
-  xMax: 34,
+  xMin: 21,
+  xMax: 27,
   zMin: STAIR_MAX + 1,
-  zMax: 44,
+  zMax: STAIR_MAX + 6, // 6 cells deep
 };
 
 // Slot room rectangles, ordered by priority (most-central first). A
@@ -86,12 +86,18 @@ const GRAND_HALL: CellRect = {
 
 type SlotId =
   | "s_main"
+  | "n_west"
+  | "n_east"
+  | "s_west"
+  | "s_east"
   | "west"
   | "east"
-  | "n_west_corner"
-  | "n_east_corner"
-  | "s_west_corner"
-  | "s_east_corner";
+  | "n_outer"
+  | "s_outer"
+  | "n_west_outer"
+  | "n_east_outer"
+  | "s_west_outer"
+  | "s_east_outer";
 
 type Slot = {
   id: SlotId;
@@ -100,46 +106,92 @@ type Slot = {
   suppress: Array<"north" | "south" | "east" | "west">;
 };
 
+// Layout: tight ring of 6×6-cell rooms around the spiral, plus a
+// second outer ring for sprawling eras. Rooms cap around 263 m² (a
+// 7×6 cell room — 17.5 m × 15 m); typical rooms are 6×6 (15 × 15 m,
+// 225 m²). The Grand Hall sits north of the spiral; its mirror
+// `s_main` is south. Other slots fan outward in priority order.
+//
+// The spiral connects only via N (Grand Hall) and S (s_main) walls —
+// no doors on the E/W of the stair, so reaching the W/E galleries
+// requires walking around through the corner rooms (enfilade). This
+// makes the central column less visually dominant from any one
+// vantage.
+
 const SLOTS: Slot[] = [
-  // South counterpart to the Grand Hall — large gallery facing the spiral.
+  // Mirror of Grand Hall, south of the spiral. First slot for any era
+  // — gives the building immediate N–S symmetry.
   {
     id: "s_main",
-    rect: { xMin: 14, xMax: 34, zMin: 3, zMax: STAIR_MIN - 1 },
-    suppress: ["north"], // stair's south wall is shared, owned by stair
+    rect: { xMin: 21, xMax: 27, zMin: STAIR_MIN - 6, zMax: STAIR_MIN - 1 },
+    suppress: ["north"], // stair's south wall owns
   },
-  // West and east galleries — single rooms hugging the spiral on the
-  // sides, between the north corners and south corners.
+  // Inner-ring corner pair flanking the Grand Hall.
+  {
+    id: "n_west",
+    rect: { xMin: 15, xMax: 20, zMin: STAIR_MAX + 1, zMax: STAIR_MAX + 6 },
+    suppress: ["east"], // Grand Hall's west wall owns
+  },
+  {
+    id: "n_east",
+    rect: { xMin: 28, xMax: 33, zMin: STAIR_MAX + 1, zMax: STAIR_MAX + 6 },
+    suppress: ["west"], // Grand Hall's east wall owns
+  },
+  // Inner-ring corner pair flanking s_main.
+  {
+    id: "s_west",
+    rect: { xMin: 15, xMax: 20, zMin: STAIR_MIN - 6, zMax: STAIR_MIN - 1 },
+    suppress: ["east"], // s_main's west wall owns
+  },
+  {
+    id: "s_east",
+    rect: { xMin: 28, xMax: 33, zMin: STAIR_MIN - 6, zMax: STAIR_MIN - 1 },
+    suppress: ["west"], // s_main's east wall owns
+  },
+  // West / east galleries flanking the spiral. These are reached only
+  // through the corner rooms — the stair's E/W walls have no doors so
+  // the central column doesn't show through every doorway.
   {
     id: "west",
-    rect: { xMin: 4, xMax: STAIR_MIN - 1, zMin: STAIR_MIN, zMax: STAIR_MAX },
-    suppress: ["east"], // stair's west wall is owner
+    rect: { xMin: 15, xMax: 20, zMin: STAIR_MIN, zMax: STAIR_MAX },
+    suppress: [],
   },
   {
     id: "east",
-    rect: { xMin: STAIR_MAX + 1, xMax: 44, zMin: STAIR_MIN, zMax: STAIR_MAX },
-    suppress: ["west"],
+    rect: { xMin: 28, xMax: 33, zMin: STAIR_MIN, zMax: STAIR_MAX },
+    suppress: [],
   },
-  // North-corner pair — flanking the Grand Hall on x.
+  // Outer N / S center rooms, behind Grand Hall and s_main.
   {
-    id: "n_west_corner",
-    rect: { xMin: 4, xMax: 13, zMin: STAIR_MAX + 1, zMax: 44 },
-    suppress: ["east"], // grand hall's west wall is owner
-  },
-  {
-    id: "n_east_corner",
-    rect: { xMin: 35, xMax: 44, zMin: STAIR_MAX + 1, zMax: 44 },
-    suppress: ["west"],
-  },
-  // South-corner pair — flanking s_main.
-  {
-    id: "s_west_corner",
-    rect: { xMin: 4, xMax: 13, zMin: 3, zMax: STAIR_MIN - 1 },
-    suppress: ["east"], // s_main's west wall is owner
+    id: "n_outer",
+    rect: { xMin: 21, xMax: 27, zMin: STAIR_MAX + 7, zMax: STAIR_MAX + 12 },
+    suppress: ["south"], // Grand Hall's north wall owns
   },
   {
-    id: "s_east_corner",
-    rect: { xMin: 35, xMax: 44, zMin: 3, zMax: STAIR_MIN - 1 },
-    suppress: ["west"],
+    id: "s_outer",
+    rect: { xMin: 21, xMax: 27, zMin: STAIR_MIN - 12, zMax: STAIR_MIN - 7 },
+    suppress: ["north"], // s_main's south wall owns
+  },
+  // Outer corner rooms, behind the inner corners.
+  {
+    id: "n_west_outer",
+    rect: { xMin: 15, xMax: 20, zMin: STAIR_MAX + 7, zMax: STAIR_MAX + 12 },
+    suppress: ["south"], // n_west's north wall owns
+  },
+  {
+    id: "n_east_outer",
+    rect: { xMin: 28, xMax: 33, zMin: STAIR_MAX + 7, zMax: STAIR_MAX + 12 },
+    suppress: ["south"],
+  },
+  {
+    id: "s_west_outer",
+    rect: { xMin: 15, xMax: 20, zMin: STAIR_MIN - 12, zMax: STAIR_MIN - 7 },
+    suppress: ["north"], // s_west's south wall owns
+  },
+  {
+    id: "s_east_outer",
+    rect: { xMin: 28, xMax: 33, zMin: STAIR_MIN - 12, zMax: STAIR_MIN - 7 },
+    suppress: ["north"],
   },
 ];
 
@@ -329,7 +381,8 @@ function buildFloor(era: Era, eraArtworks: Artwork[]): FloorLayout {
   const hallways: HallwayLayout[] = [];
 
   // Wire doors between rooms.
-  wireDoors(rooms, slotRooms);
+  wireDoors(rooms);
+  void slotRooms;
 
   // Walkable + cellOwner masks.
   const walkable = new Uint8Array(GRID_SIZE * GRID_SIZE);
@@ -426,163 +479,111 @@ function buildRoom(opts: {
 }
 
 /**
- * Wire doors between rooms based on shared walls. The "owner" of a
- * shared wall draws the wall + door; the suppressing neighbour gets a
- * mirror door so painting placement skips that overlap. Doors are
- * placed at the centre of each shared edge.
+ * Wire doors between rooms based on shared walls. For every pair of
+ * rooms whose rectangles touch on a single edge, we add a reciprocal
+ * door at the centre of the shared edge — except where one of the
+ * pair is the stairwell on its E/W faces (those stay solid so the
+ * spiral central column doesn't show through every doorway).
+ *
+ * The owner of a shared wall is whichever room does NOT suppress that
+ * side; the suppressor draws no wall there but still gets a door so
+ * painting placement skips the overlap.
  */
-function wireDoors(
-  rooms: RoomLayout[],
-  slotRooms: Array<{ slot: Slot; room: RoomLayout }>,
-) {
-  const grandHall = rooms.find((r) => r.isAnchor);
+function wireDoors(rooms: RoomLayout[]) {
   const stairwell = rooms.find((r) => r.isStairwell);
 
-  // Helper: add reciprocal doors between two rooms whose rectangles
-  // share an edge along `axis`.
-  const linkRooms = (
-    owner: RoomLayout,
-    suppressor: RoomLayout,
-    ownerSide: Door["side"],
-    suppressorSide: Door["side"],
-    worldX: number,
-    worldZ: number,
-  ) => {
-    addDoor(owner, ownerSide, worldX, worldZ, {
-      kind: "hallway",
-      hallwayId: `room:${suppressor.id}`,
-    });
-    addDoor(suppressor, suppressorSide, worldX, worldZ, {
-      kind: "hallway",
-      hallwayId: `room:${owner.id}`,
-    });
-  };
+  for (let i = 0; i < rooms.length; i++) {
+    for (let j = i + 1; j < rooms.length; j++) {
+      const a = rooms[i];
+      const b = rooms[j];
+      const adj = adjacency(a.cellBounds, b.cellBounds);
+      if (!adj) continue;
 
-  // --- Stairwell ↔ Grand Hall (stair owns shared north wall) ---
-  if (stairwell && grandHall) {
-    const sb = stairwell.cellBounds;
-    const worldX = ((sb.xMin + sb.xMax + 1) / 2) * CELL_SIZE;
-    const worldZ = (sb.zMax + 1) * CELL_SIZE;
-    addDoor(stairwell, "north", worldX, worldZ, {
-      kind: "hallway",
-      hallwayId: `room:${grandHall.id}`,
-    });
-    addDoor(grandHall, "south", worldX, worldZ, {
-      kind: "hallway",
-      hallwayId: `room:${stairwell.id}`,
-    });
-  }
+      // Skip stairwell E/W doors so the central column stays out of
+      // sight from corridor entrances.
+      if (
+        stairwell &&
+        (a.id === stairwell.id || b.id === stairwell.id) &&
+        (adj.aSide === "east" || adj.aSide === "west")
+      ) {
+        continue;
+      }
 
-  const slotById = new Map(slotRooms.map(({ slot, room }) => [slot.id, room]));
-
-  // --- Stairwell ↔ s_main, west, east (stair owns the shared walls) ---
-  if (stairwell) {
-    const sb = stairwell.cellBounds;
-    const sMain = slotById.get("s_main");
-    if (sMain) {
-      const worldX = ((sb.xMin + sb.xMax + 1) / 2) * CELL_SIZE;
-      const worldZ = sb.zMin * CELL_SIZE;
-      linkRooms(stairwell, sMain, "south", "north", worldX, worldZ);
-    }
-    const west = slotById.get("west");
-    if (west) {
-      const worldX = sb.xMin * CELL_SIZE;
-      const worldZ = ((sb.zMin + sb.zMax + 1) / 2) * CELL_SIZE;
-      linkRooms(stairwell, west, "west", "east", worldX, worldZ);
-    }
-    const east = slotById.get("east");
-    if (east) {
-      const worldX = (sb.xMax + 1) * CELL_SIZE;
-      const worldZ = ((sb.zMin + sb.zMax + 1) / 2) * CELL_SIZE;
-      linkRooms(stairwell, east, "east", "west", worldX, worldZ);
+      const { worldX, worldZ, aSide, bSide } = adj;
+      addDoor(a, aSide, worldX, worldZ, {
+        kind: "hallway",
+        hallwayId: `room:${b.id}`,
+      });
+      addDoor(b, bSide, worldX, worldZ, {
+        kind: "hallway",
+        hallwayId: `room:${a.id}`,
+      });
     }
   }
+}
 
-  // --- Grand Hall ↔ corner rooms (Grand Hall owns shared walls) ---
-  if (grandHall) {
-    const gb = grandHall.cellBounds;
-    const nWest = slotById.get("n_west_corner");
-    if (nWest) {
-      const cb = nWest.cellBounds;
-      const worldX = gb.xMin * CELL_SIZE;
-      const worldZ = ((Math.max(gb.zMin, cb.zMin) + Math.min(gb.zMax, cb.zMax) + 1) / 2) * CELL_SIZE;
-      linkRooms(grandHall, nWest, "west", "east", worldX, worldZ);
-    }
-    const nEast = slotById.get("n_east_corner");
-    if (nEast) {
-      const cb = nEast.cellBounds;
-      const worldX = (gb.xMax + 1) * CELL_SIZE;
-      const worldZ = ((Math.max(gb.zMin, cb.zMin) + Math.min(gb.zMax, cb.zMax) + 1) / 2) * CELL_SIZE;
-      linkRooms(grandHall, nEast, "east", "west", worldX, worldZ);
-    }
+/**
+ * For two cell rectangles `a` and `b`, detect whether they share an
+ * edge and if so return the world-space centre of that shared edge plus
+ * which side of `a` and which side of `b` the edge lies on.
+ */
+function adjacency(
+  a: CellRect,
+  b: CellRect,
+): { aSide: Door["side"]; bSide: Door["side"]; worldX: number; worldZ: number } | null {
+  // a's east wall touches b's west wall.
+  if (a.xMax + 1 === b.xMin && rangeOverlap(a.zMin, a.zMax, b.zMin, b.zMax)) {
+    const overlap = overlapCenter(a.zMin, a.zMax, b.zMin, b.zMax);
+    return {
+      aSide: "east",
+      bSide: "west",
+      worldX: (a.xMax + 1) * CELL_SIZE,
+      worldZ: (overlap + 0.5) * CELL_SIZE,
+    };
   }
+  // a's west wall touches b's east wall.
+  if (b.xMax + 1 === a.xMin && rangeOverlap(a.zMin, a.zMax, b.zMin, b.zMax)) {
+    const overlap = overlapCenter(a.zMin, a.zMax, b.zMin, b.zMax);
+    return {
+      aSide: "west",
+      bSide: "east",
+      worldX: a.xMin * CELL_SIZE,
+      worldZ: (overlap + 0.5) * CELL_SIZE,
+    };
+  }
+  // a's north wall (high z) touches b's south wall.
+  if (a.zMax + 1 === b.zMin && rangeOverlap(a.xMin, a.xMax, b.xMin, b.xMax)) {
+    const overlap = overlapCenter(a.xMin, a.xMax, b.xMin, b.xMax);
+    return {
+      aSide: "north",
+      bSide: "south",
+      worldX: (overlap + 0.5) * CELL_SIZE,
+      worldZ: (a.zMax + 1) * CELL_SIZE,
+    };
+  }
+  // a's south wall (low z) touches b's north wall.
+  if (b.zMax + 1 === a.zMin && rangeOverlap(a.xMin, a.xMax, b.xMin, b.xMax)) {
+    const overlap = overlapCenter(a.xMin, a.xMax, b.xMin, b.xMax);
+    return {
+      aSide: "south",
+      bSide: "north",
+      worldX: (overlap + 0.5) * CELL_SIZE,
+      worldZ: a.zMin * CELL_SIZE,
+    };
+  }
+  return null;
+}
 
-  // --- s_main ↔ south corners (s_main owns shared walls) ---
-  const sMain = slotById.get("s_main");
-  if (sMain) {
-    const sb = sMain.cellBounds;
-    const sWest = slotById.get("s_west_corner");
-    if (sWest) {
-      const cb = sWest.cellBounds;
-      const worldX = sb.xMin * CELL_SIZE;
-      const worldZ = ((Math.max(sb.zMin, cb.zMin) + Math.min(sb.zMax, cb.zMax) + 1) / 2) * CELL_SIZE;
-      linkRooms(sMain, sWest, "west", "east", worldX, worldZ);
-    }
-    const sEast = slotById.get("s_east_corner");
-    if (sEast) {
-      const cb = sEast.cellBounds;
-      const worldX = (sb.xMax + 1) * CELL_SIZE;
-      const worldZ = ((Math.max(sb.zMin, cb.zMin) + Math.min(sb.zMax, cb.zMax) + 1) / 2) * CELL_SIZE;
-      linkRooms(sMain, sEast, "east", "west", worldX, worldZ);
-    }
-  }
+function rangeOverlap(a0: number, a1: number, b0: number, b1: number): boolean {
+  return a0 <= b1 && b0 <= a1;
+}
 
-  // --- west ↔ n_west_corner / s_west_corner (corners own these) ---
-  // Each corner room sits north or south of `west`; the corner draws
-  // the shared wall.
-  const west = slotById.get("west");
-  if (west) {
-    const wb = west.cellBounds;
-    const nw = slotById.get("n_west_corner");
-    if (nw) {
-      const nb = nw.cellBounds;
-      const worldX = ((Math.max(wb.xMin, nb.xMin) + Math.min(wb.xMax, nb.xMax) + 1) / 2) * CELL_SIZE;
-      const worldZ = (wb.zMax + 1) * CELL_SIZE;
-      // n_west_corner's south wall owns the door; west's north wall is
-      // suppressed so we add a mirror door there.
-      linkRooms(nw, west, "south", "north", worldX, worldZ);
-      west.suppressWalls = { ...(west.suppressWalls ?? {}), north: true };
-    }
-    const sw = slotById.get("s_west_corner");
-    if (sw) {
-      const sb = sw.cellBounds;
-      const worldX = ((Math.max(wb.xMin, sb.xMin) + Math.min(wb.xMax, sb.xMax) + 1) / 2) * CELL_SIZE;
-      const worldZ = wb.zMin * CELL_SIZE;
-      linkRooms(sw, west, "north", "south", worldX, worldZ);
-      west.suppressWalls = { ...(west.suppressWalls ?? {}), south: true };
-    }
-  }
-
-  const east = slotById.get("east");
-  if (east) {
-    const eb = east.cellBounds;
-    const ne = slotById.get("n_east_corner");
-    if (ne) {
-      const nb = ne.cellBounds;
-      const worldX = ((Math.max(eb.xMin, nb.xMin) + Math.min(eb.xMax, nb.xMax) + 1) / 2) * CELL_SIZE;
-      const worldZ = (eb.zMax + 1) * CELL_SIZE;
-      linkRooms(ne, east, "south", "north", worldX, worldZ);
-      east.suppressWalls = { ...(east.suppressWalls ?? {}), north: true };
-    }
-    const se = slotById.get("s_east_corner");
-    if (se) {
-      const sb = se.cellBounds;
-      const worldX = ((Math.max(eb.xMin, sb.xMin) + Math.min(eb.xMax, sb.xMax) + 1) / 2) * CELL_SIZE;
-      const worldZ = eb.zMin * CELL_SIZE;
-      linkRooms(se, east, "north", "south", worldX, worldZ);
-      east.suppressWalls = { ...(east.suppressWalls ?? {}), south: true };
-    }
-  }
+function overlapCenter(a0: number, a1: number, b0: number, b1: number): number {
+  // Cell-axis midpoint of the overlapping integer range; +0.5 in the
+  // caller maps it to the centre of the cell in world space.
+  const lo = Math.max(a0, b0);
+  const hi = Math.min(a1, b1);
+  return Math.floor((lo + hi) / 2);
 }
 
 function addDoor(

@@ -38,7 +38,7 @@ export function Painting({ placement }: { placement: Placement }) {
       <Suspense fallback={<FallbackSwatch widthM={widthM} heightM={heightM} artwork={artwork} />}>
         <PaintingPlane url={url} widthM={widthM} heightM={heightM} artwork={artwork} />
       </Suspense>
-      <Plaque artwork={artwork} widthM={widthM} heightM={heightM} />
+      <Plaque artwork={artwork} widthM={widthM} />
     </group>
   );
 }
@@ -55,17 +55,14 @@ const PLAQUE_GAP = 0.08;
 function Plaque({
   artwork,
   widthM,
-  heightM,
 }: {
   artwork: Artwork;
   widthM: number;
-  heightM: number;
 }) {
-  // Plaque sits to the painting's right at canvas mid-height. The
-  // group is already at the painting's centre (placement.position), so
-  // local +X is right and local Y=0 is canvas centre.
+  // Plaque sits to the painting's right at canvas mid-height (eye
+  // level — the group origin is already at the painting's centre).
   const localX = widthM / 2 + PLAQUE_GAP + PLAQUE_W / 2;
-  const localY = -heightM / 2 + PLAQUE_H / 2 + 0.06; // near canvas bottom
+  const localY = 0;
   const localZ = 0.04;
 
   const title = stripBrackets(artwork.title);

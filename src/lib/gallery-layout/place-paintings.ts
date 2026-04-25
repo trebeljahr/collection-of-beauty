@@ -240,8 +240,11 @@ export type DistributionStats = {
 export function distributePaintings(floor: FloorLayout, eraArtworks: Artwork[]): DistributionStats {
   const bands = partitionByBand(eraArtworks);
 
-  // --- Rooms: large first (biggest rooms), then medium
+  // --- Rooms: large first (biggest rooms), then medium. Stairwell
+  // rooms are excluded — their walls hold the spiral steps and signs,
+  // not paintings.
   const roomsByArea = [...floor.rooms]
+    .filter((r) => !r.isStairwell)
     .map((r) => {
       const w = r.cellBounds.xMax - r.cellBounds.xMin + 1;
       const d = r.cellBounds.zMax - r.cellBounds.zMin + 1;
