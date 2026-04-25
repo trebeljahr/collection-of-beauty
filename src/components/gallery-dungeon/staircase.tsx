@@ -106,17 +106,18 @@ function buildTreadGeometry(
   return { positions, indices };
 }
 
-/** Merge all the spiral's tread wedges into one BufferGeometry. */
-function buildSpiralStepsGeometry(
-  staircase: Staircase,
-): THREE.BufferGeometry {
+/** Merge all the spiral's tread wedges into one BufferGeometry. The
+ *  tread tops are placed to match the discrete physics in
+ *  `stairHeightAt` exactly: while the player walks the arc of step
+ *  `i`, both their feet AND the tread under them sit at
+ *  `lowerY + i * stepRise`. Step 0 is flush with the lower floor.
+ *  When the player crosses cumulative=2π onto the next stair, that
+ *  stair's step 0 is at `upperY`, giving the final +stepRise climb
+ *  onto the upper floor with no visual gap or floating tread. */
+function buildSpiralStepsGeometry(staircase: Staircase): THREE.BufferGeometry {
   const { innerRadius, outerRadius, numSteps, direction, lowerY, upperY, entryAngle } =
     staircase;
   const stepAngle = ((Math.PI * 2) / numSteps) * direction;
-  // Each tread's top sits at lowerY + i * stepRise so step 0 is flush
-  // with the lower floor and the last step (numSteps-1) lands the
-  // player on upperY exactly when they cross to the next stair (where
-  // step 0 is again flush with upperY).
   const stepRise = (upperY - lowerY) / numSteps;
   const positions: number[] = [];
   const indices: number[] = [];
@@ -125,13 +126,8 @@ function buildSpiralStepsGeometry(
   for (let i = 0; i < numSteps; i++) {
     const aStart = entryAngle + i * stepAngle;
     const aEnd = entryAngle + (i + 1) * stepAngle;
-    // ExtrudeGeometry needs aStart < aEnd; if direction is -1 swap.
     const lo = Math.min(aStart, aEnd);
     const hi = Math.max(aStart, aEnd);
-    // Step `i` top sits at the i-th rise above the lower floor. Step 0
-    // tread is at lowerY (the on-ramp). Step (numSteps-1) tread is at
-    // upperY - stepRise; the next stair's step 0 is at upperY, giving
-    // a clean continuous climb across the transition.
     const topY = lowerY + i * stepRise;
     const { positions: p, indices: idx } = buildTreadGeometry(
       innerRadius,
@@ -261,9 +257,8 @@ export function StaircaseRenderer({ staircase }: { staircase: Staircase }) {
         </mesh>
       ))}
 
-      {/* Lower newel post + sign. The sign carries an arrow pointing
-          up the spiral — the player walking toward the entry sees it
-          face-on. */}
+      {/* Lower newel post + UP sign. Sits at lowerY + 1.65 (eye-ish
+          height for a player at lowerY). */}
       <mesh position={[newelX, lowerY + NEWEL_HEIGHT / 2, newelZ]}>
         <boxGeometry args={[NEWEL_SIZE, NEWEL_HEIGHT, NEWEL_SIZE]} />
         <primitive object={newelMaterial} attach="material" />
@@ -274,14 +269,17 @@ export function StaircaseRenderer({ staircase }: { staircase: Staircase }) {
         label={`↑ ${staircase.upperLabel}`}
       />
 
-      {/* Upper newel post + sign — sits at the same XZ as the lower
-          one, one storey higher. */}
+      {/* Upper newel post + DOWN sign. The DOWN sign sits LOWER on
+          its post (offset 0.85) than the next stair's UP sign would
+          (offset 1.65), so adjacent stairs' signs at the same shared
+          floor's level stack vertically — DOWN to where you came
+          from BELOW the UP to where you're going next. */}
       <mesh position={[newelX, upperY + NEWEL_HEIGHT / 2, newelZ]}>
         <boxGeometry args={[NEWEL_SIZE, NEWEL_HEIGHT, NEWEL_SIZE]} />
         <primitive object={newelMaterial} attach="material" />
       </mesh>
       <StairSign
-        position={[signX, upperY + 1.65, signZ]}
+        position={[signX, upperY + 0.85, signZ]}
         rotationY={signRotY}
         label={`↓ ${staircase.lowerLabel}`}
       />
@@ -342,12 +340,23 @@ export function spiralRawAngle(stair: Staircase, worldX: number, worldZ: number)
 }
 
 /** Y the player's feet should sit at given a cumulative angle on this
- *  stair. Cumulative ∈ [0, 2π]; clamped outside that. The Y is
- *  continuous, no step jumps — the camera damp + the visible riser
- *  geometry give the staircase its stepped feel. */
+ *  stair. The Y is DISCRETE per tread — it matches each step's
+ *  rendered top exactly, so the player's feet are visually planted on
+ *  the tread they're standing on rather than gliding along an
+ *  invisible ramp through the geometry. The camera damping in
+ *  player.tsx smooths the per-step jumps into a feeling-of-climbing
+ *  rather than a teleport. Cumulative ∈ [0, 2π]; clamped outside. */
 export function stairHeightAt(stair: Staircase, cumulativeAngle: number): number {
-  const t = Math.max(0, Math.min(1, cumulativeAngle / (Math.PI * 2)));
-  return stair.lowerY + t * (stair.upperY - stair.lowerY);
+  const stepAngle = (Math.PI * 2) / stair.numSteps;
+  const stepRise = (stair.upperY - stair.lowerY) / stair.numSteps;
+  // Step idx is 0..numSteps-1 for cumulative in [0, 2π); cumulative=2π
+  // is the transition point handed off to the next stair, so we clamp
+  // to numSteps-1 before reaching it.
+  const idx = Math.max(
+    0,
+    Math.min(stair.numSteps - 1, Math.floor(cumulativeAngle / stepAngle)),
+  );
+  return stair.lowerY + idx * stepRise;
 }
 
 /** Find the stair connected above this one (its upperFloor matches

@@ -28,9 +28,12 @@ export const SPIRAL_OUTER_RADIUS = 5.4; // outer edge of treads
 export const SPIRAL_STEPS_PER_FLOOR = 22; // ~16° per step
 /** Stairwell room footprint in cells. Must be odd so it centres cleanly. */
 export const SPIRAL_ROOM_CELLS = 9;
-/** Radius the floor cutout uses around the spiral (slightly outside the
- *  outermost tread so the stair fits cleanly with no z-fighting). */
-export const SPIRAL_FLOOR_CUTOUT_RADIUS = SPIRAL_OUTER_RADIUS + 0.2;
+/** Radius the floor cutout uses around the spiral. Sits just outside
+ *  the outermost tread so the stair fits cleanly with no z-fight at
+ *  the boundary, but the gap is small enough that the player's bbox
+ *  always straddles either the floor or the spiral — no walking over
+ *  empty no-man's-land. */
+export const SPIRAL_FLOOR_CUTOUT_RADIUS = SPIRAL_OUTER_RADIUS + 0.04;
 
 export function floorY(floorIndex: number): number {
   return floorIndex * FLOOR_SEPARATION;

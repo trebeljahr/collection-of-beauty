@@ -160,17 +160,21 @@ export function Player({
       const nz = curZ + move.z;
 
       // Collision model:
-      //  - The spiral annulus passes always — Y comes from
-      //    stairHeightAt(cumulativeAngle) below, regardless of which
-      //    direction the player approaches.
+      //  - The spiral annulus passes always when entering, so the
+      //    player can step onto the on-ramp from any direction.
+      //  - LEAVING the spiral is gated on cumulative ≈ 0 / 2π — the
+      //    player has to be at a real floor's height to step off,
+      //    otherwise canStepTo refuses (no more "beam up/down" when
+      //    they wander out mid-flight).
       //  - Otherwise the grid mask + per-edge wall mask decides.
       const currentStairId = spiralState.current?.staircaseId ?? null;
-      if (canStepTo(floor, curX, curZ, nx, nz, currentStairId)) {
+      const currentCum = spiralState.current?.cumulativeAngle ?? 0;
+      if (canStepTo(floor, curX, curZ, nx, nz, currentStairId, currentCum)) {
         camera.position.x = nx;
         camera.position.z = nz;
-      } else if (canStepTo(floor, curX, curZ, nx, curZ, currentStairId)) {
+      } else if (canStepTo(floor, curX, curZ, nx, curZ, currentStairId, currentCum)) {
         camera.position.x = nx;
-      } else if (canStepTo(floor, curX, curZ, curX, nz, currentStairId)) {
+      } else if (canStepTo(floor, curX, curZ, curX, nz, currentStairId, currentCum)) {
         camera.position.z = nz;
       }
     }
@@ -212,54 +216,56 @@ export function Player({
       }
 
       // Stair-to-stair transitions. Walking past the top of this
-      // revolution rolls cumulative back to 0 on the next stair up;
-      // walking past the bottom rolls it forward to 2π on the stair
-      // below. When there is no next/prev stair (top or ground floor),
-      // clamp instead.
+      // revolution rolls cumulative back to 0 on the next stair up
+      // and fires onFloorChange(upperFloor); walking past the bottom
+      // rolls it forward to 2π on the stair below and fires
+      // onFloorChange(lowerFloor). When there's no next/prev stair
+      // (top of building or ground floor) we clamp AND emit a
+      // matching floor change so the player's `floor` prop is always
+      // the one whose Y matches their feet by the time they exit.
       while (st.cumulativeAngle >= Math.PI * 2) {
         const next = findStairAbove(activeStair, allStaircases);
         if (!next) {
           st.cumulativeAngle = Math.PI * 2;
+          if (onFloorChange && floor.index !== activeStair.upperFloor) {
+            onFloorChange(activeStair.upperFloor);
+          }
           break;
         }
         st.staircaseId = next.id;
         st.cumulativeAngle -= Math.PI * 2;
         activeStair = next;
+        if (onFloorChange && floor.index !== next.lowerFloor) {
+          onFloorChange(next.lowerFloor);
+        }
       }
       while (st.cumulativeAngle <= 0) {
-        if (st.cumulativeAngle === 0) break;
+        if (st.cumulativeAngle === 0) {
+          if (onFloorChange && floor.index !== activeStair.lowerFloor) {
+            onFloorChange(activeStair.lowerFloor);
+          }
+          break;
+        }
         const prev = findStairBelow(activeStair, allStaircases);
         if (!prev) {
           st.cumulativeAngle = 0;
+          if (onFloorChange && floor.index !== activeStair.lowerFloor) {
+            onFloorChange(activeStair.lowerFloor);
+          }
           break;
         }
         st.staircaseId = prev.id;
         st.cumulativeAngle += Math.PI * 2;
         activeStair = prev;
+        if (onFloorChange && floor.index !== prev.upperFloor) {
+          onFloorChange(prev.upperFloor);
+        }
       }
 
       const targetY = stairHeightAt(activeStair, st.cumulativeAngle) + EYE_HEIGHT;
       camera.position.y = THREE.MathUtils.damp(camera.position.y, targetY, 20, dt);
       velocityY.current = 0;
       grounded.current = true;
-
-      // Floor swap at the halfway point (with hysteresis so loitering
-      // around the midpoint doesn't chatter).
-      const HALF = Math.PI;
-      const HYST = 0.15;
-      if (onFloorChange) {
-        if (
-          floor.index === activeStair.lowerFloor &&
-          st.cumulativeAngle > HALF + HYST
-        ) {
-          onFloorChange(activeStair.upperFloor);
-        } else if (
-          floor.index === activeStair.upperFloor &&
-          st.cumulativeAngle < HALF - HYST
-        ) {
-          onFloorChange(activeStair.lowerFloor);
-        }
-      }
     } else {
       spiralState.current = null;
       velocityY.current -= GRAVITY * dt;
@@ -337,21 +343,37 @@ function isWalkable(floor: FloorLayout, worldX: number, worldZ: number): boolean
   return true;
 }
 
-/** Top-level predicate used by movement: spiral annulus passes always
- *  (the player can step onto the spiral from any direction because the
- *  step under their feet is always at their current floor's Y when
- *  they first touch it — see the cumulative-angle init in useFrame).
- *  Off the spiral, the grid mask + per-edge wall mask decide. */
+/** Top-level predicate used by movement.
+ *
+ *  - Stepping ONTO the spiral always passes — the cumulative-angle
+ *    init in useFrame snaps the player's Y to the right floor.
+ *  - Stepping OFF the spiral (target outside the annulus while
+ *    `currentStairId` is set) only passes if the player is at a real
+ *    floor's height — i.e. cumulative is near 0 (lower floor) or near
+ *    2π (upper floor). Mid-flight exit is blocked, which is what
+ *    kills the old "beam up/down to the wrong floor" bug when the
+ *    player wandered off mid-spiral.
+ *  - Off the spiral, the grid mask + per-edge wall mask decide. */
 function canStepTo(
   floor: FloorLayout,
   fromX: number,
   fromZ: number,
   toX: number,
   toZ: number,
-  _currentStairId: string | null,
+  currentStairId: string | null,
+  currentCum: number,
 ): boolean {
   const stair = findStairAt(floor, toX, toZ);
   if (stair) return true;
+  if (currentStairId !== null) {
+    // Trying to leave the spiral. Allow only when the player's
+    // cumulative is in a "landing" arc near 0 or 2π — the heights
+    // where stepping off lands them flush with a real floor.
+    const EXIT_TOL = 0.5; // ~28°
+    const onLowerLanding = currentCum <= EXIT_TOL;
+    const onUpperLanding = currentCum >= Math.PI * 2 - EXIT_TOL;
+    if (!onLowerLanding && !onUpperLanding) return false;
+  }
   if (!isWalkable(floor, toX, toZ)) return false;
   if (!canCrossEdges(floor, fromX, fromZ, toX, toZ)) return false;
   return true;
