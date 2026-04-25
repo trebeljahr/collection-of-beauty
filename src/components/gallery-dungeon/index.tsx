@@ -11,6 +11,7 @@ import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import * as THREE from "three";
 
 import { HallwayRenderer } from "./hallway";
+import { LodController } from "./lod-controller";
 import { Minimap, type PlayerSample } from "./minimap";
 import { Player } from "./player";
 import { RoomGeometry } from "./room-geometry";
@@ -171,6 +172,8 @@ export function GalleryDungeon({ artworks }: Props) {
           />
         )}
 
+        <LodController />
+
         <Player
           enabled={hasStarted && !zoomed}
           floor={currentFloor}
@@ -186,6 +189,7 @@ export function GalleryDungeon({ artworks }: Props) {
       </Canvas>
 
       {!hasStarted && (
+        // biome-ignore lint/a11y/useKeyWithClickEvents: pointer-lock entry requires a real mouse click; keyboard activation can't grant pointer-lock
         <div
           onClick={() => setHasStarted(true)}
           className="absolute inset-0 flex flex-col items-center justify-center bg-black/70 text-neutral-100 cursor-pointer"
@@ -253,6 +257,8 @@ export function GalleryDungeon({ artworks }: Props) {
       {/* Ambience player. Streams, loops, hidden from layout but kept
           in the DOM for the lifetime of the gallery so settings
           changes don't interrupt the loop. */}
+      {/* biome-ignore lint/a11y/useMediaCaption: ambient music has no spoken content */}
+      {/* biome-ignore lint/a11y/noAriaHiddenOnFocusable: hidden utility audio with no controls — focus path doesn't apply */}
       <audio
         ref={ambienceRef}
         src={AMBIENCE_SRC}

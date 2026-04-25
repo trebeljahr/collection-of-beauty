@@ -75,8 +75,10 @@ const FOLDERS = args.folder
   : ["collection-of-beauty", "audubon-birds", "kunstformen-images"];
 
 // ─── Variant schema ────────────────────────────────────────────────────────
-// Keep in sync with VARIANT_WIDTHS in src/lib/utils.ts.
-const WIDTHS = [256, 480, 640, 960, 1280, 1920, 2560];
+// Keep in sync with VARIANT_WIDTHS in src/lib/utils.ts. The 4096 px
+// width is for the 3D gallery's close-up LOD; the responsive <picture>
+// stops at 2560 px.
+const WIDTHS = [256, 480, 640, 960, 1280, 1920, 2560, 4096];
 const MAX_WIDTH = Math.max(...WIDTHS);
 // AVIF q=60 looks indistinguishable from q=85 JPEG but is ~3× smaller.
 // WebP q=75 is the usual balance for photographs.

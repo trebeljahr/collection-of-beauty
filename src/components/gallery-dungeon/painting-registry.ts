@@ -18,6 +18,12 @@ export type PaintingEntry = {
    *  paintings don't move, so no need to re-read every frame. */
   worldPos: THREE.Vector3;
   artwork: Artwork;
+  /** Optional LOD tick. Called by the LodController with the squared
+   *  distance from the camera to this painting; the painting decides
+   *  whether to prefetch, swap, or release its hi-res texture. Only
+   *  PaintingPlane sets this — fallback swatches don't have a texture
+   *  to upgrade. */
+  lodUpdate?: (distSq: number) => void;
 };
 
 const entries = new Set<PaintingEntry>();
@@ -28,6 +34,10 @@ export function registerPainting(e: PaintingEntry): void {
 
 export function unregisterPainting(e: PaintingEntry): void {
   entries.delete(e);
+}
+
+export function forEachPainting(fn: (e: PaintingEntry) => void): void {
+  for (const e of entries) fn(e);
 }
 
 /**

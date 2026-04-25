@@ -29,6 +29,13 @@ import { useMemo } from "react";
 import * as THREE from "three";
 
 const TEXTURE_CACHE_CAPACITY = 96;
+// Hi-res cache is small on purpose — at most a handful of paintings are
+// inside the upgrade radius at any moment, and these textures are 4–32×
+// the GPU memory of a 960 px base. Eviction frees GPU memory quickly
+// when the player walks past. Sized for two concurrent tiers (1920 +
+// 2560 px) across the paintings visible from the current room with
+// some headroom for the next room's prefetch.
+const HIRES_CACHE_CAPACITY = 20;
 
 class TextureLRU {
   private map = new Map<string, THREE.Texture>();
@@ -48,6 +55,11 @@ class TextureLRU {
     return tex;
   }
 
+  /** Read without touching MRU order. */
+  peek(key: string): THREE.Texture | undefined {
+    return this.map.get(key);
+  }
+
   put(key: string, tex: THREE.Texture): void {
     if (this.map.has(key)) this.map.delete(key);
     this.map.set(key, tex);
@@ -63,6 +75,9 @@ class TextureLRU {
 
 const cache = new TextureLRU(TEXTURE_CACHE_CAPACITY);
 const inFlight = new Map<string, Promise<THREE.Texture>>();
+
+const hiresCache = new TextureLRU(HIRES_CACHE_CAPACITY);
+const hiresInFlight = new Map<string, Promise<THREE.Texture>>();
 
 // ─────────────────────────────────────────────────────────────────────
 // GPU upload queue — one texImage2D per rAF tick.
@@ -153,15 +168,71 @@ async function loadTextureCached(
 // it — same contract `useLoader` uses.
 // ─────────────────────────────────────────────────────────────────────
 
+// ─────────────────────────────────────────────────────────────────────
+// Hi-res cache — separate LRU for the proximity upgrade. Kept apart
+// from the main cache so a busy floor of 960 px paintings can't push
+// out hi-res textures the player is currently looking at, and the
+// other way round.
+//
+// `peekHiRes` returns the cached texture without touching MRU — used
+// when we just want to know if it's available. `getHiRes` touches MRU,
+// used when a painting is actively displaying or about to display the
+// texture (so it stays alive until the player walks away).
+// ─────────────────────────────────────────────────────────────────────
+
+export function getHiRes(url: string): THREE.Texture | undefined {
+  return hiresCache.get(url);
+}
+
+export function peekHiRes(url: string): THREE.Texture | undefined {
+  return hiresCache.peek(url);
+}
+
+export function loadHiRes(
+  url: string,
+  renderer: THREE.WebGLRenderer | null,
+  signal?: AbortSignal,
+): Promise<THREE.Texture> {
+  const cached = hiresCache.get(url);
+  if (cached) return Promise.resolve(cached);
+  const existing = hiresInFlight.get(url);
+  if (existing) return existing;
+
+  const promise = (async () => {
+    const res = await fetch(url, { credentials: "omit", signal });
+    if (!res.ok) throw new Error(`fetch ${url}: ${res.status}`);
+    const blob = await res.blob();
+    if (signal?.aborted) throw new DOMException("aborted", "AbortError");
+    const bitmap = await createImageBitmap(blob, { imageOrientation: "flipY" });
+    if (signal?.aborted) throw new DOMException("aborted", "AbortError");
+    const tex = new THREE.Texture(bitmap as unknown as HTMLImageElement);
+    tex.colorSpace = THREE.SRGBColorSpace;
+    tex.anisotropy = 4;
+    tex.minFilter = THREE.LinearMipMapLinearFilter;
+    tex.magFilter = THREE.LinearFilter;
+    tex.generateMipmaps = true;
+    tex.flipY = false;
+    tex.needsUpdate = true;
+    if (renderer) await enqueueUpload(tex, renderer);
+    hiresCache.put(url, tex);
+    return tex;
+  })().finally(() => {
+    hiresInFlight.delete(url);
+  });
+
+  hiresInFlight.set(url, promise);
+  return promise;
+}
+
 export function useCachedTexture(url: string): THREE.Texture {
   const { gl } = useThree();
   // We only care about `gl` identity to avoid the React hook warning.
   // loadTextureCached handles null renderer (e.g. SSR) gracefully.
+  // biome-ignore lint/correctness/useExhaustiveDependencies: gl identity is stable per renderer; re-memoising on it would thrash Suspense
   return useMemo(() => {
     const hit = cache.get(url);
     if (hit) return hit;
     throw loadTextureCached(url, gl);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [url]);
 }
 
@@ -174,5 +245,11 @@ export const _textureCacheDebug = {
   },
   get queued() {
     return uploadQueue.length;
+  },
+  get hiresSize() {
+    return hiresCache.size;
+  },
+  get hiresInFlight() {
+    return hiresInFlight.size;
   },
 };

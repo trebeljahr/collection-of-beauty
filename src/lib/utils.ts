@@ -6,12 +6,15 @@ export function cn(...inputs: ClassValue[]) {
 }
 
 export function slugify(input: string): string {
-  return input
-    .toLowerCase()
-    .normalize("NFKD")
-    .replace(/[\u0300-\u036f]/g, "")
-    .replace(/[^a-z0-9]+/g, "-")
-    .replace(/(^-|-$)+/g, "");
+  return (
+    input
+      .toLowerCase()
+      .normalize("NFKD")
+      // biome-ignore lint/suspicious/noMisleadingCharacterClass: stripping NFKD combining marks is the intent
+      .replace(/[\u0300-\u036f]/g, "")
+      .replace(/[^a-z0-9]+/g, "-")
+      .replace(/(^-|-$)+/g, "")
+  );
 }
 
 // Single URL for everything — the rclone HTTP server. Serves both:
@@ -24,8 +27,10 @@ const ASSETS_BASE_URL = process.env.NEXT_PUBLIC_ASSETS_BASE_URL ?? "http://local
 
 // Variant set emitted by shrink-sources.mjs. The script hardcodes the same
 // list — keep them in sync. Chosen to cover typical responsive breakpoints
-// (mobile, tablet, desktop, 4K) plus a small thumb size.
-export const VARIANT_WIDTHS = [256, 480, 640, 960, 1280, 1920, 2560] as const;
+// (mobile, tablet, desktop, 4K) plus a small thumb size. The 4096 px
+// variant is for the 3D gallery's close-up LOD only; sources smaller
+// than 4096 px just don't generate that file.
+export const VARIANT_WIDTHS = [256, 480, 640, 960, 1280, 1920, 2560, 4096] as const;
 
 export type VariantFormat = "avif" | "webp";
 
