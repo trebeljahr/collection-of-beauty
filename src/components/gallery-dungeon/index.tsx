@@ -5,7 +5,7 @@ import { useAudioSettings } from "@/lib/audio-settings";
 import type { Artwork } from "@/lib/data";
 import { layoutMuseum } from "@/lib/gallery-layout/layout-museum";
 import type { FloorLayout } from "@/lib/gallery-layout/types";
-import { PointerLockControls } from "@react-three/drei";
+import { Environment, PointerLockControls } from "@react-three/drei";
 import { Canvas } from "@react-three/fiber";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import * as THREE from "three";
@@ -151,6 +151,13 @@ export function GalleryDungeon({ artworks }: Props) {
         <color attach="background" args={["#0a0805"]} />
         <ambientLight intensity={0.35} />
         <hemisphereLight args={["#fff3d0", "#1a120b", 0.45]} position={[0, 20, 0]} />
+        {/* Environment map for metallic surfaces (plaque chrome rims,
+            painting frame highlights) — without something to reflect,
+            metalness=1 materials render as flat dark grey. `apartment`
+            is a small indoor HDRI; environmentIntensity keeps it dim
+            so the gallery stays atmospheric. background:false leaves
+            the existing fog/black backdrop alone. */}
+        <Environment preset="apartment" background={false} environmentIntensity={0.4} />
 
         <FloorScene floor={currentFloor} activeRoomIdx={activeRoomIdx} />
         {/* Adjacent floors: mount their stairwell rooms only so the
