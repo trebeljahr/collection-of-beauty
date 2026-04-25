@@ -77,29 +77,41 @@ export type Staircase = {
   lowerLabel: string;
   upperLabel: string;
 
-  // ── Spiral geometry ────────────────────────────────────────────────
-  /** World XZ of the spiral's central column. Both adjacent floors'
-   *  towers align vertically through this centre. */
+  // ── U-stair (switchback) geometry ──────────────────────────────────
+  // The stair is a rectangular footprint in the stairwell room. Two
+  // straight flights run side-by-side along the depth axis with a flat
+  // landing at the far end:
+  //
+  //   facing side (low z = north) ←———————→ landing side (high z = south)
+  //   ┌──────────────┬──────────────┐
+  //   │ lower entry  │  upper exit  │   ← flush with floor at face side
+  //   │   (west)     │   (east)     │
+  //   │   ascending  │  descending  │
+  //   │      ↑       │      ↓       │   (drawing — both flights have
+  //   │      ↑       │      ↓       │    their high end at the landing)
+  //   │              │              │
+  //   ├──────────────┴──────────────┤
+  //   │         midway landing      │   at midwayY = (lowerY+upperY)/2
+  //   └─────────────────────────────┘
+  //
+  // Both entries sit on the same face of the footprint, at the lower
+  // and upper floor's Y respectively, so a player walking in from
+  // either floor's stairwell door always meets the stair flush with
+  // their own walking surface. A central rib between the flights
+  // forces the player to use the landing to switch sides — that's
+  // what gives the stair its switchback feel and avoids a 0.6 m
+  // jump when crossing midline mid-flight.
+  /** Centre of the stair footprint in world XZ. */
   centerX: number;
   centerZ: number;
-  /** Central column radius. */
-  innerRadius: number;
-  /** Outer walking surface radius. */
-  outerRadius: number;
-  /** Step count for one full revolution between lowerY and upperY. */
-  numSteps: number;
-  /** +1 = counter-clockwise ascending, -1 = clockwise. */
-  direction: 1 | -1;
-  /** Y at θ=0 (entry / bottom of this flight). */
+  /** Footprint width along X (covers both flights side-by-side). */
+  width: number;
+  /** Footprint depth along Z (flight length + landing depth). */
+  depth: number;
+  /** Y of the lower-floor entry. */
   lowerY: number;
-  /** Y at θ=2π (exit / top of this flight). */
+  /** Y of the upper-floor exit. */
   upperY: number;
-  /** World-space angle (atan2(dz,dx) convention) at which the on-ramp
-   *  meets the lower floor and the off-ramp meets the upper floor.
-   *  Step 0 sits at this angle, so the player walking straight onto
-   *  the spiral from the stairwell door always lands on the flat
-   *  landing instead of mid-flight. */
-  entryAngle: number;
 };
 
 export type FloorLayout = {

@@ -2,7 +2,14 @@
 
 import { ERAS } from "@/lib/gallery-eras";
 import type { RoomLayout } from "@/lib/gallery-layout/types";
-import { CELL_SIZE, DOOR_HEIGHT, ROOM_HEIGHT } from "@/lib/gallery-layout/world-coords";
+import type * as THREE from "three";
+import {
+  CELL_SIZE,
+  DOOR_HEIGHT,
+  ROOM_HEIGHT,
+  STAIR_DEPTH,
+  STAIR_WIDTH,
+} from "@/lib/gallery-layout/world-coords";
 import { Painting } from "./painting";
 import { getPaletteMaterials, getRoomFloorMaterial } from "./palette-materials";
 import { WallWithDoors } from "./wall";
@@ -92,18 +99,20 @@ export function RoomGeometry({
         </mesh>
       )}
 
-      {/* Stairwell main floor — slightly below the room's nominal Y so
-          the spiral's first riser still reads as a step rather than
-          z-fighting with the floor plane. Without this the player would
-          walk over a void between the door and the spiral. */}
+      {/* Stairwell main floor — four slabs around the stair footprint
+          so the descending flights below remain visible from above
+          (without the cutout, the floor at this floor's Y would hide
+          the lower flight running down to the floor below). The stair
+          sits at the centre, STAIR_WIDTH × STAIR_DEPTH metres. */}
       {room.isStairwell && (
-        <mesh
-          rotation={[-Math.PI / 2, 0, 0]}
-          position={[cxWorld, floorY - 0.005, czWorld]}
-        >
-          <planeGeometry args={[width, depth]} />
-          <primitive object={floorMat} attach="material" />
-        </mesh>
+        <StairwellFloor
+          cxWorld={cxWorld}
+          czWorld={czWorld}
+          width={width}
+          depth={depth}
+          floorY={floorY}
+          floorMat={floorMat}
+        />
       )}
 
       {/* Four walls — each may be suppressed when a neighbouring room
@@ -164,5 +173,70 @@ export function RoomGeometry({
         />
       )}
     </group>
+  );
+}
+
+/** Four floor slabs around the central U-stair footprint. Skips the
+ *  centre rectangle so the descending flights from the floor above (or
+ *  the rising flights to the floor below) remain visible from this
+ *  floor's vantage. */
+function StairwellFloor({
+  cxWorld,
+  czWorld,
+  width,
+  depth,
+  floorY,
+  floorMat,
+}: {
+  cxWorld: number;
+  czWorld: number;
+  width: number;
+  depth: number;
+  floorY: number;
+  floorMat: THREE.MeshStandardMaterial;
+}) {
+  const halfW = width / 2;
+  const halfD = depth / 2;
+  const stairHalfW = STAIR_WIDTH / 2;
+  const stairHalfD = STAIR_DEPTH / 2;
+  const y = floorY - 0.005;
+  // North slab (low z): from room's north wall to the stair's north face.
+  const northDepth = halfD - stairHalfD;
+  const northZ = czWorld - halfD + northDepth / 2;
+  // South slab (high z): from the stair's south face to the room's south wall.
+  const southDepth = halfD - stairHalfD;
+  const southZ = czWorld + halfD - southDepth / 2;
+  // West / east slabs span only the stair's depth band.
+  const sideDepth = STAIR_DEPTH;
+  const sideWidth = halfW - stairHalfW;
+  const westX = cxWorld - halfW + sideWidth / 2;
+  const eastX = cxWorld + halfW - sideWidth / 2;
+  return (
+    <>
+      {northDepth > 0 && (
+        <mesh rotation={[-Math.PI / 2, 0, 0]} position={[cxWorld, y, northZ]}>
+          <planeGeometry args={[width, northDepth]} />
+          <primitive object={floorMat} attach="material" />
+        </mesh>
+      )}
+      {southDepth > 0 && (
+        <mesh rotation={[-Math.PI / 2, 0, 0]} position={[cxWorld, y, southZ]}>
+          <planeGeometry args={[width, southDepth]} />
+          <primitive object={floorMat} attach="material" />
+        </mesh>
+      )}
+      {sideWidth > 0 && (
+        <>
+          <mesh rotation={[-Math.PI / 2, 0, 0]} position={[westX, y, czWorld]}>
+            <planeGeometry args={[sideWidth, sideDepth]} />
+            <primitive object={floorMat} attach="material" />
+          </mesh>
+          <mesh rotation={[-Math.PI / 2, 0, 0]} position={[eastX, y, czWorld]}>
+            <planeGeometry args={[sideWidth, sideDepth]} />
+            <primitive object={floorMat} attach="material" />
+          </mesh>
+        </>
+      )}
+    </>
   );
 }

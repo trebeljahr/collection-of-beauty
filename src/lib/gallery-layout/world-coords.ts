@@ -17,15 +17,28 @@ export const DOOR_WIDTH = 2.0;
 export const DOOR_HEIGHT = 2.8;
 export const CORRIDOR_DOOR_HEIGHT = 2.6; // slightly lower on hallway side
 
-// ── Central spiral staircase ─────────────────────────────────────────
-// The stairwell is a single tower centred on every floor. One
-// revolution per floor — so walking once all the way around the
-// central column ascends you exactly one level.
-export const SPIRAL_INNER_RADIUS = 1.0; // central stone column
-export const SPIRAL_OUTER_RADIUS = 5.0; // outer walk surface
-export const SPIRAL_STEPS_PER_FLOOR = 20; // 18° per step
+// ── Central switchback (U) staircase ─────────────────────────────────
+// The stairwell is a single shaft centred on every floor. Two flights
+// run side-by-side along the depth axis with a flat landing at the
+// far end — both flights share the landing, so walking up = take the
+// "ascending" flight, hit the landing, take the "descending" flight
+// up to the next floor; walking down = the same path in reverse. Both
+// the lower-floor entry and the upper-floor exit sit on the SAME face
+// of the footprint at their respective Ys, so a player coming in from
+// either floor's stairwell door meets the stair flush with the floor.
+export const STAIR_WIDTH = 6; // total width (3 m per flight)
+export const STAIR_DEPTH = 8; // flight length + landing depth
+export const STAIR_LANDING_DEPTH = 1; // metres of flat landing at far end
+export const STAIR_FLIGHT_LENGTH = STAIR_DEPTH - STAIR_LANDING_DEPTH;
+/** Visible step count per flight. The physics ramp is continuous — these
+ *  are decorative risers stacked on top of the ramp surface so the
+ *  flight reads as stairs rather than a smooth incline. */
+export const STAIR_STEPS_PER_FLIGHT = 10;
 /** Stair room footprint in cells. Must be odd so it centres cleanly. */
-export const SPIRAL_ROOM_CELLS = 7;
+export const STAIR_ROOM_CELLS = 7;
+// Re-export the old name so existing imports (sized stairwell room in
+// layout-museum, layout-dungeon) keep working.
+export const SPIRAL_ROOM_CELLS = STAIR_ROOM_CELLS;
 
 export function floorY(floorIndex: number): number {
   return floorIndex * FLOOR_SEPARATION;

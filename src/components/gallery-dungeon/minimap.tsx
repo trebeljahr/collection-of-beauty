@@ -125,24 +125,35 @@ export function Minimap({ floor, activeRoomIdx, playerRef, size = 220, className
     }
     ctx.lineCap = "butt";
 
-    // Staircase footprint — annulus around the spiral column, drawn
-    // only for flights leaving this floor so two adjacent floors don't
-    // both render the same tower.
+    // Staircase footprint — rectangular U-stair, drawn only for flights
+    // leaving this floor so two adjacent floors don't both render the
+    // same shaft. A faint midline marks the rib between flights and an
+    // up-arrow tag points toward the lower entry (south face).
     for (const s of floor.stairsOut) {
-      const cx = ox + (s.centerX / CELL_SIZE) * scale;
-      const cy = oy + (s.centerZ / CELL_SIZE) * scale;
-      const rOuter = (s.outerRadius / CELL_SIZE) * scale;
-      const rInner = (s.innerRadius / CELL_SIZE) * scale;
+      const sxMin = ox + ((s.centerX - s.width / 2) / CELL_SIZE) * scale;
+      const sxMax = ox + ((s.centerX + s.width / 2) / CELL_SIZE) * scale;
+      const szMin = oy + ((s.centerZ - s.depth / 2) / CELL_SIZE) * scale;
+      const szMax = oy + ((s.centerZ + s.depth / 2) / CELL_SIZE) * scale;
+      ctx.fillStyle = "#2a241c";
+      ctx.fillRect(sxMin, szMin, sxMax - sxMin, szMax - szMin);
       ctx.strokeStyle = "#c9a45a";
       ctx.lineWidth = 1.2;
+      ctx.strokeRect(sxMin + 0.5, szMin + 0.5, sxMax - sxMin - 1, szMax - szMin - 1);
+      // Central rib between flights.
+      const sxMid = (sxMin + sxMax) / 2;
+      ctx.strokeStyle = "rgba(201, 164, 90, 0.5)";
+      ctx.lineWidth = 0.8;
       ctx.beginPath();
-      ctx.arc(cx, cy, rOuter, 0, Math.PI * 2);
+      ctx.moveTo(sxMid, szMin);
+      ctx.lineTo(sxMid, szMax);
       ctx.stroke();
-      ctx.beginPath();
-      ctx.arc(cx, cy, rInner, 0, Math.PI * 2);
-      ctx.fillStyle = "#2a241c";
-      ctx.fill();
-      ctx.stroke();
+      // Up-arrow at the south face (high z) marking the lower entry.
+      ctx.fillStyle = "#fff1c8";
+      ctx.font = "bold 9px ui-sans-serif, system-ui, sans-serif";
+      ctx.textAlign = "center";
+      ctx.textBaseline = "middle";
+      ctx.fillText("↑", (sxMin + sxMid) / 2, szMax - 4);
+      ctx.fillText("↓", (sxMid + sxMax) / 2, szMax - 4);
     }
 
     // Per-room glyph — title truncated to fit the room footprint, with

@@ -23,10 +23,9 @@ import type {
 import {
   CELL_SIZE,
   DOOR_WIDTH,
-  SPIRAL_INNER_RADIUS,
-  SPIRAL_OUTER_RADIUS,
   SPIRAL_ROOM_CELLS,
-  SPIRAL_STEPS_PER_FLOOR,
+  STAIR_DEPTH,
+  STAIR_WIDTH,
   WALL_THICKNESS,
   cellCenterToWorld,
   floorY,
@@ -134,15 +133,10 @@ function buildStaircase(lower: FloorLayout, upper: FloorLayout): Staircase | nul
     upperLabel: upper.era.title,
     centerX,
     centerZ,
-    innerRadius: SPIRAL_INNER_RADIUS,
-    outerRadius: SPIRAL_OUTER_RADIUS,
-    numSteps: SPIRAL_STEPS_PER_FLOOR,
-    direction: 1, // counter-clockwise ascending, conventional
+    width: STAIR_WIDTH,
+    depth: STAIR_DEPTH,
     lowerY: lower.y,
     upperY: upper.y,
-    // Anchor step 0 at the south of the column — see layout-museum's
-    // staircase for the rationale; same orientation here.
-    entryAngle: (3 * Math.PI) / 2,
   };
 }
 

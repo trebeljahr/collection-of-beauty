@@ -32,10 +32,9 @@ import { distributePaintings } from "./place-paintings";
 import {
   CELL_SIZE,
   DOOR_WIDTH,
-  SPIRAL_INNER_RADIUS,
-  SPIRAL_OUTER_RADIUS,
   SPIRAL_ROOM_CELLS,
-  SPIRAL_STEPS_PER_FLOOR,
+  STAIR_DEPTH,
+  STAIR_WIDTH,
   WALL_THICKNESS,
   floorY,
 } from "./world-coords";
@@ -745,17 +744,10 @@ function buildStaircase(lower: FloorLayout, upper: FloorLayout): Staircase | nul
     upperLabel: upper.era.title,
     centerX,
     centerZ,
-    innerRadius: SPIRAL_INNER_RADIUS,
-    outerRadius: SPIRAL_OUTER_RADIUS,
-    numSteps: SPIRAL_STEPS_PER_FLOOR,
-    direction: 1,
+    width: STAIR_WIDTH,
+    depth: STAIR_DEPTH,
     lowerY: lower.y,
     upperY: upper.y,
-    // South of the central column. The stairwell's only doors are on
-    // its north (Grand Hall) and south (s_main) walls; players walking
-    // in from s_main face north and meet the spiral's south face first,
-    // so anchoring step 0 there makes the on-ramp match their line.
-    entryAngle: (3 * Math.PI) / 2,
   };
 }
 
