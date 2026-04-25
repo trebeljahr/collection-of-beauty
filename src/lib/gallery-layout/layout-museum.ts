@@ -118,13 +118,23 @@ type Slot = {
 // makes the central column less visually dominant from any one
 // vantage.
 
+// Cardinal-direction convention used everywhere in this file matches
+// the rest of the codebase:
+//   north = low z   south = high z   west = low x   east = high x
+// The spatial labels in the slot ids ("s_main" = the room geometrically
+// south of the spiral) describe the room's position in the diagram at
+// the top of this file (where +z visually points "down" in the layout
+// sketch); they may not match the cardinal-side semantics — pay
+// attention to `suppress` for the wall-side bookkeeping.
+
 const SLOTS: Slot[] = [
-  // Mirror of Grand Hall, south of the spiral. First slot for any era
-  // — gives the building immediate N–S symmetry.
+  // Mirror of Grand Hall, south of the spiral (low z, so its NORTH
+  // wall in cardinal terms faces the stair). Stair owns the shared
+  // wall.
   {
     id: "s_main",
     rect: { xMin: 21, xMax: 27, zMin: STAIR_MIN - 6, zMax: STAIR_MIN - 1 },
-    suppress: ["north"], // stair's south wall owns
+    suppress: ["south"], // stair's north wall owns
   },
   // Inner-ring corner pair flanking the Grand Hall.
   {
@@ -161,37 +171,40 @@ const SLOTS: Slot[] = [
     rect: { xMin: 28, xMax: 33, zMin: STAIR_MIN, zMax: STAIR_MAX },
     suppress: [],
   },
-  // Outer N / S center rooms, behind Grand Hall and s_main.
+  // Outer rooms behind Grand Hall (higher z than GH = on its SOUTH
+  // side in cardinal terms).
   {
     id: "n_outer",
     rect: { xMin: 21, xMax: 27, zMin: STAIR_MAX + 7, zMax: STAIR_MAX + 12 },
-    suppress: ["south"], // Grand Hall's north wall owns
+    suppress: ["north"], // Grand Hall's south wall owns
   },
+  // Outer rooms behind s_main (lower z than s_main = on its NORTH
+  // side in cardinal terms).
   {
     id: "s_outer",
     rect: { xMin: 21, xMax: 27, zMin: STAIR_MIN - 12, zMax: STAIR_MIN - 7 },
-    suppress: ["north"], // s_main's south wall owns
+    suppress: ["south"], // s_main's north wall owns
   },
-  // Outer corner rooms, behind the inner corners.
+  // Outer corners — behind the inner corner rooms.
   {
     id: "n_west_outer",
     rect: { xMin: 15, xMax: 20, zMin: STAIR_MAX + 7, zMax: STAIR_MAX + 12 },
-    suppress: ["south"], // n_west's north wall owns
+    suppress: ["north"], // n_west's south wall owns
   },
   {
     id: "n_east_outer",
     rect: { xMin: 28, xMax: 33, zMin: STAIR_MAX + 7, zMax: STAIR_MAX + 12 },
-    suppress: ["south"],
+    suppress: ["north"],
   },
   {
     id: "s_west_outer",
     rect: { xMin: 15, xMax: 20, zMin: STAIR_MIN - 12, zMax: STAIR_MIN - 7 },
-    suppress: ["north"], // s_west's south wall owns
+    suppress: ["south"], // s_west's north wall owns
   },
   {
     id: "s_east_outer",
     rect: { xMin: 28, xMax: 33, zMin: STAIR_MIN - 12, zMax: STAIR_MIN - 7 },
-    suppress: ["north"],
+    suppress: ["south"],
   },
 ];
 
@@ -415,6 +428,12 @@ function buildFloor(era: Era, eraArtworks: Artwork[]): FloorLayout {
     }
   }
 
+  const { blockedEdgesEW, blockedEdgesNS } = computeBlockedEdges(
+    GRID_SIZE,
+    rooms,
+    cellOwner,
+  );
+
   const floor: FloorLayout = {
     index: era.index,
     era,
@@ -422,6 +441,8 @@ function buildFloor(era: Era, eraArtworks: Artwork[]): FloorLayout {
     gridSize: { x: GRID_SIZE, z: GRID_SIZE },
     walkable,
     cellOwner,
+    blockedEdgesEW,
+    blockedEdgesNS,
     rooms,
     hallways,
     stairsIn: [],
@@ -581,27 +602,100 @@ function adjacency(
       worldZ: (overlap + 0.5) * CELL_SIZE,
     };
   }
-  // a's north wall (high z) touches b's south wall.
+  // a's south wall (high z) touches b's north wall (low z). Cardinal
+  // convention: south = high z, north = low z.
   if (a.zMax + 1 === b.zMin && rangeOverlap(a.xMin, a.xMax, b.xMin, b.xMax)) {
-    const overlap = overlapCenter(a.xMin, a.xMax, b.xMin, b.xMax);
-    return {
-      aSide: "north",
-      bSide: "south",
-      worldX: (overlap + 0.5) * CELL_SIZE,
-      worldZ: (a.zMax + 1) * CELL_SIZE,
-    };
-  }
-  // a's south wall (low z) touches b's north wall.
-  if (b.zMax + 1 === a.zMin && rangeOverlap(a.xMin, a.xMax, b.xMin, b.xMax)) {
     const overlap = overlapCenter(a.xMin, a.xMax, b.xMin, b.xMax);
     return {
       aSide: "south",
       bSide: "north",
       worldX: (overlap + 0.5) * CELL_SIZE,
+      worldZ: (a.zMax + 1) * CELL_SIZE,
+    };
+  }
+  // a's north wall (low z) touches b's south wall (high z).
+  if (b.zMax + 1 === a.zMin && rangeOverlap(a.xMin, a.xMax, b.xMin, b.xMax)) {
+    const overlap = overlapCenter(a.xMin, a.xMax, b.xMin, b.xMax);
+    return {
+      aSide: "north",
+      bSide: "south",
+      worldX: (overlap + 0.5) * CELL_SIZE,
       worldZ: a.zMin * CELL_SIZE,
     };
   }
   return null;
+}
+
+/**
+ * Build the per-edge wall mask the player uses for collision. Walls
+ * sit on cell boundaries; if cells (x, z) and (x+1, z) belong to two
+ * different rooms, a wall divides them — and that edge is blocked
+ * unless one of the room's doors covers the cell midpoint.
+ *
+ * Edges between same-room cells, or between any room/hallway and
+ * non-walkable space, are NOT in this mask (the latter is handled by
+ * the cell `walkable` mask; the former is free passage by definition).
+ */
+function computeBlockedEdges(
+  gridSize: number,
+  rooms: RoomLayout[],
+  cellOwner: Int16Array,
+): { blockedEdgesEW: Uint8Array; blockedEdgesNS: Uint8Array } {
+  const blockedEdgesEW = new Uint8Array((gridSize - 1) * gridSize);
+  const blockedEdgesNS = new Uint8Array(gridSize * (gridSize - 1));
+  const HALF_DOOR = 1.0; // half of DOOR_WIDTH; tolerance for "covers".
+
+  for (let z = 0; z < gridSize; z++) {
+    for (let x = 0; x < gridSize - 1; x++) {
+      const a = cellOwner[z * gridSize + x];
+      const b = cellOwner[z * gridSize + (x + 1)];
+      if (a < 0 || b < 0 || a === b) continue;
+      const edgeWorldX = (x + 1) * CELL_SIZE;
+      const edgeWorldZ = (z + 0.5) * CELL_SIZE;
+      const open =
+        rooms[a].doors.some(
+          (d) =>
+            d.side === "east" &&
+            Math.abs(d.worldX - edgeWorldX) < 0.01 &&
+            Math.abs(d.worldZ - edgeWorldZ) < HALF_DOOR,
+        ) ||
+        rooms[b].doors.some(
+          (d) =>
+            d.side === "west" &&
+            Math.abs(d.worldX - edgeWorldX) < 0.01 &&
+            Math.abs(d.worldZ - edgeWorldZ) < HALF_DOOR,
+        );
+      if (!open) blockedEdgesEW[z * (gridSize - 1) + x] = 1;
+    }
+  }
+
+  for (let z = 0; z < gridSize - 1; z++) {
+    for (let x = 0; x < gridSize; x++) {
+      const a = cellOwner[z * gridSize + x];
+      const b = cellOwner[(z + 1) * gridSize + x];
+      if (a < 0 || b < 0 || a === b) continue;
+      const edgeWorldX = (x + 0.5) * CELL_SIZE;
+      const edgeWorldZ = (z + 1) * CELL_SIZE;
+      // a is at lower z = cardinal "north" cell; the shared wall is on
+      // a's south face (high z) and on b's north face (low z).
+      const open =
+        rooms[a].doors.some(
+          (d) =>
+            d.side === "south" &&
+            Math.abs(d.worldZ - edgeWorldZ) < 0.01 &&
+            Math.abs(d.worldX - edgeWorldX) < HALF_DOOR,
+        ) ||
+        rooms[b].doors.some(
+          (d) =>
+            d.side === "north" &&
+            Math.abs(d.worldZ - edgeWorldZ) < 0.01 &&
+            Math.abs(d.worldX - edgeWorldX) < HALF_DOOR,
+        );
+      if (!open) blockedEdgesNS[z * gridSize + x] = 1;
+    }
+  }
+
+  return { blockedEdgesEW, blockedEdgesNS };
 }
 
 function rangeOverlap(a0: number, a1: number, b0: number, b1: number): boolean {

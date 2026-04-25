@@ -152,12 +152,12 @@ export function Player({
       //    the per-cell grid mask so the stairwell isn't confined to
       //    room cells).
       //  - Everywhere else, the grid walkable mask decides.
-      if (canStepTo(floor, nx, nz)) {
+      if (canStepTo(floor, curX, curZ, nx, nz)) {
         camera.position.x = nx;
         camera.position.z = nz;
-      } else if (canStepTo(floor, nx, curZ)) {
+      } else if (canStepTo(floor, curX, curZ, nx, curZ)) {
         camera.position.x = nx;
-      } else if (canStepTo(floor, curX, nz)) {
+      } else if (canStepTo(floor, curX, curZ, curX, nz)) {
         camera.position.z = nz;
       }
     }
@@ -315,9 +315,86 @@ function isWalkable(floor: FloorLayout, worldX: number, worldZ: number): boolean
 }
 
 /** Top-level predicate used by movement: central column blocks first,
- *  then spiral annulus always passes, then grid mask decides. */
-function canStepTo(floor: FloorLayout, worldX: number, worldZ: number): boolean {
-  if (blockedByStairColumn(floor, worldX, worldZ)) return false;
-  if (findStairAt(floor, worldX, worldZ)) return true;
-  return isWalkable(floor, worldX, worldZ);
+ *  then spiral annulus always passes, then grid mask decides, and
+ *  finally the per-edge wall mask blocks crossings between adjacent
+ *  rooms unless a door cut spans the player's crossing point. */
+function canStepTo(
+  floor: FloorLayout,
+  fromX: number,
+  fromZ: number,
+  toX: number,
+  toZ: number,
+): boolean {
+  if (blockedByStairColumn(floor, toX, toZ)) return false;
+  if (findStairAt(floor, toX, toZ)) return true;
+  if (!isWalkable(floor, toX, toZ)) return false;
+  if (!canCrossEdges(floor, fromX, fromZ, toX, toZ)) return false;
+  return true;
+}
+
+/** Walk every cell-boundary edge the player's bbox sweeps through and
+ *  reject if any of them is wall-blocked. Splits the move into single
+ *  cell-boundary crossings so a fast diagonal step can't slip through
+ *  a corner. */
+function canCrossEdges(
+  floor: FloorLayout,
+  fromX: number,
+  fromZ: number,
+  toX: number,
+  toZ: number,
+): boolean {
+  const r = PLAYER_RADIUS;
+  // Check both leading edges of the player's bbox along each axis: a
+  // step from (fromX, fromZ) to (toX, toZ) crosses an EW edge iff
+  // some corner's cell-x changes; same for NS.
+  const fromCellsX = [
+    Math.floor((fromX - r) / CELL_SIZE),
+    Math.floor((fromX + r) / CELL_SIZE),
+  ];
+  const toCellsX = [
+    Math.floor((toX - r) / CELL_SIZE),
+    Math.floor((toX + r) / CELL_SIZE),
+  ];
+  const fromCellsZ = [
+    Math.floor((fromZ - r) / CELL_SIZE),
+    Math.floor((fromZ + r) / CELL_SIZE),
+  ];
+  const toCellsZ = [
+    Math.floor((toZ - r) / CELL_SIZE),
+    Math.floor((toZ + r) / CELL_SIZE),
+  ];
+
+  // EW edge crossings — for each (front, back) corner pair, if the
+  // x-cell changes, the player crosses an EW edge between min and max.
+  for (let i = 0; i < 2; i++) {
+    const fcx = fromCellsX[i];
+    const tcx = toCellsX[i];
+    if (fcx === tcx) continue;
+    // Z-cells the player straddles after the move (use its bbox).
+    for (const cz of [toCellsZ[0], toCellsZ[1]]) {
+      if (cz < 0 || cz >= floor.gridSize.z) continue;
+      const lo = Math.min(fcx, tcx);
+      const hi = Math.max(fcx, tcx);
+      for (let xx = lo; xx < hi; xx++) {
+        if (xx < 0 || xx >= floor.gridSize.x - 1) continue;
+        if (floor.blockedEdgesEW[cz * (floor.gridSize.x - 1) + xx]) return false;
+      }
+    }
+  }
+  // NS edge crossings.
+  for (let i = 0; i < 2; i++) {
+    const fcz = fromCellsZ[i];
+    const tcz = toCellsZ[i];
+    if (fcz === tcz) continue;
+    for (const cx of [toCellsX[0], toCellsX[1]]) {
+      if (cx < 0 || cx >= floor.gridSize.x) continue;
+      const lo = Math.min(fcz, tcz);
+      const hi = Math.max(fcz, tcz);
+      for (let zz = lo; zz < hi; zz++) {
+        if (zz < 0 || zz >= floor.gridSize.z - 1) continue;
+        if (floor.blockedEdgesNS[zz * floor.gridSize.x + cx]) return false;
+      }
+    }
+  }
+  return true;
 }

@@ -368,6 +368,12 @@ function buildFloor(era: Era, eraArtworks: Artwork[]): FloorLayout {
     gridSize: { x: size.x, z: size.z },
     walkable,
     cellOwner,
+    // Empty edge masks — the dungeon generator separates rooms with
+    // hallways, so the per-cell `walkable` mask is sufficient there;
+    // the edge mask is only meaningful when adjacent rooms share walls
+    // (the museum layout's pattern).
+    blockedEdgesEW: new Uint8Array((size.x - 1) * size.z),
+    blockedEdgesNS: new Uint8Array(size.x * (size.z - 1)),
     rooms: roomLayouts,
     hallways,
     stairsIn: [],

@@ -106,6 +106,13 @@ export type FloorLayout = {
   walkable: Uint8Array;
   /** -1 for hallway/stair, else room index into `rooms`. */
   cellOwner: Int16Array;
+  /** Blocks the edge between cell (x, z) and (x+1, z) — set to 1 when
+   *  a wall divides them and no door cut spans the cell midpoint.
+   *  Indexed as `z * (gridSize.x - 1) + x`. */
+  blockedEdgesEW: Uint8Array;
+  /** Blocks the edge between cell (x, z) and (x, z+1). Indexed as
+   *  `z * gridSize.x + x`. */
+  blockedEdgesNS: Uint8Array;
   rooms: RoomLayout[];
   hallways: HallwayLayout[];
   stairsIn: Staircase[];
