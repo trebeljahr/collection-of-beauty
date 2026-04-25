@@ -131,6 +131,11 @@ const PLAQUE_GAP = 0.06;
 // back exactly on the wall surface. Keep this in sync with
 // PAINTING_WALL_OFFSET in src/lib/gallery-layout/place-paintings.ts.
 const PAINTING_WALL_OFFSET = 0.02;
+// Small clearance so the plaque mount's back doesn't sit coplanar with
+// the wall — coplanar geometry z-fights from any camera and shows
+// through DoubleSide walls as wedge-shaped artefacts. 5 mm is enough
+// for far-room viewing without making the plaque look detached.
+const PLAQUE_WALL_CLEAR = 0.005;
 
 function Plaque({
   artwork,
@@ -141,9 +146,10 @@ function Plaque({
 }) {
   const localX = widthM / 2 + PLAQUE_GAP + PLAQUE_MOUNT_W / 2;
   const localY = 0;
-  // Mount sits flush against the wall; face is parked just in front
-  // of it; text floats a hair above the face to clear z-fighting.
-  const mountCenterZ = -PAINTING_WALL_OFFSET + PLAQUE_MOUNT_DEPTH / 2;
+  // Mount sits a few mm off the wall so it doesn't z-fight with it; face
+  // is parked just in front of the mount; text floats a hair above the
+  // face for the same reason.
+  const mountCenterZ = -PAINTING_WALL_OFFSET + PLAQUE_WALL_CLEAR + PLAQUE_MOUNT_DEPTH / 2;
   const faceCenterZ = mountCenterZ + PLAQUE_MOUNT_DEPTH / 2 + PLAQUE_FACE_DEPTH / 2;
   const textZ = faceCenterZ + PLAQUE_FACE_DEPTH / 2 + 0.001;
 
