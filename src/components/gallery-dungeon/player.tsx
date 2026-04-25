@@ -103,6 +103,11 @@ export function Player({
     };
     const mouse = (e: MouseEvent) => {
       if (!enabled) return;
+      // Only treat clicks as zoom requests while the pointer is already
+      // locked. The first click after returning from the zoom modal is
+      // PointerLockControls reacquiring the lock — without this guard
+      // it would also raycast and immediately re-open the painting.
+      if (!document.pointerLockElement) return;
       if (e.button === 0) tryZoom();
     };
     window.addEventListener("keydown", down);
