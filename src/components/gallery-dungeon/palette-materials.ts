@@ -95,22 +95,24 @@ export const signBaseMaterial = new THREE.MeshStandardMaterial({
   roughness: 0.7,
 });
 
-// Cream label card — the printed face of a painting plaque. Slightly
-// emissive so the text stays legible in dim rooms without needing its
-// own light.
+// Brushed-aluminium label card — the printed face of a painting
+// plaque. Lighter than every era's wall colour so the plaque always
+// pops, with enough metalness to catch a faint highlight from the
+// room's overhead light. Slight emissive lift keeps the text legible
+// even in dim galleries.
 export const plaqueBaseMaterial = new THREE.MeshStandardMaterial({
-  color: "#ece2c9",
-  emissive: new THREE.Color("#2a1e10"),
-  emissiveIntensity: 0.04,
-  roughness: 0.78,
-  metalness: 0,
+  color: "#eef0f1",
+  emissive: new THREE.Color("#1a1a1c"),
+  emissiveIntensity: 0.06,
+  roughness: 0.32,
+  metalness: 0.55,
 });
 
-// Brass-toned backing plate for the plaque, slightly larger than the
-// printed face. Reads as a small wall mount the cream card is glued
-// onto rather than a floating HTML rectangle.
+// Slightly darker brushed-steel backing plate, fractionally larger
+// than the face. Metalness is high enough to read as polished metal
+// from across the room without looking mirror-finish at close range.
 export const plaqueMountMaterial = new THREE.MeshStandardMaterial({
-  color: "#5a4528",
-  roughness: 0.42,
-  metalness: 0.5,
+  color: "#9aa0a6",
+  roughness: 0.28,
+  metalness: 0.7,
 });
