@@ -27,10 +27,20 @@ export function getPaletteMaterials(palette: Palette): PaletteMaterials {
   let entry = cache.get(palette);
   if (entry) return entry;
   entry = {
+    // Wall depth-shifts itself slightly via polygonOffset so anything
+    // mounted on it (painting frame backs at ~7 mm off the wall, plaque
+    // mount backs flush against the wall) renders cleanly in front from
+    // any viewing distance. Without this, 24-bit depth precision at the
+    // far end of a stairwell or hallway dropped below the geometric
+    // offset and the dark frame backs leaked through the wall as wedge-
+    // shaped artefacts.
     wall: new THREE.MeshStandardMaterial({
       color: palette.wallColor,
       roughness: 0.92,
       side: THREE.DoubleSide,
+      polygonOffset: true,
+      polygonOffsetFactor: 1,
+      polygonOffsetUnits: 1,
     }),
     floor: new THREE.MeshStandardMaterial({
       color: palette.floorColor,
