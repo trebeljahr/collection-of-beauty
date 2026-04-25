@@ -351,6 +351,17 @@ function slotToPlacement(slot: Slot, artwork: Artwork): Placement {
   let wM = dims ? dims.widthCm / 100 : 0.8;
   let hM = dims ? dims.heightCm / 100 : 1.0;
 
+  // Sanity-clamp absurd aspect ratios. Some Wikimedia metadata records
+  // a panel's predella height (e.g. Botticelli's Coronation lists
+  // 269 × 21 cm — that's the predella strip, but the texture we load
+  // is the full altarpiece). Anything outside [1:4 .. 4:1] gets a
+  // square-ish default so the frame isn't squashed into a sliver.
+  const aspect = wM / hM;
+  if (aspect > 4 || aspect < 0.25) {
+    wM = 1.2;
+    hM = 1.0;
+  }
+
   // Scale to fit the slot while preserving aspect.
   const scale = Math.min(slot.maxWidth / wM, slot.maxHeight / hM, 1);
   if (scale < 1) {

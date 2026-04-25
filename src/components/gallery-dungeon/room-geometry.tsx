@@ -43,18 +43,32 @@ export function RoomGeometry({
     west: room.doors.filter((d) => d.side === "west"),
   };
 
-  const nsDoors = (side: "north" | "south") =>
-    doorsBySide[side].map((d) => ({
-      centerLocalX: d.worldX - cxWorld,
-      width: d.width,
-      height: DOOR_HEIGHT,
-    }));
-  const wDoors = doorsBySide.west.map((d) => ({
-    centerLocalX: d.worldZ - czWorld,
+  // Map a world-space door position into the wall's local frame. Each
+  // wall is a plane rotated around Y; the wall's local +X axis after
+  // rotation maps to a different world axis depending on the side:
+  //   north (rot 0):     local +X →  world +X
+  //   south (rot π):     local +X →  world -X    (mirror of cxWorld)
+  //   east  (rot -π/2):  local +X →  world +Z
+  //   west  (rot +π/2):  local +X →  world -Z    (mirror of czWorld)
+  // So doors on the south/west walls need a sign flip; the older code
+  // had this inverted, which painted the cut on the mirror side of the
+  // wall whenever the door wasn't centred on the wall's midpoint.
+  const nDoors = doorsBySide.north.map((d) => ({
+    centerLocalX: d.worldX - cxWorld,
+    width: d.width,
+    height: DOOR_HEIGHT,
+  }));
+  const sDoors = doorsBySide.south.map((d) => ({
+    centerLocalX: -(d.worldX - cxWorld),
     width: d.width,
     height: DOOR_HEIGHT,
   }));
   const eDoors = doorsBySide.east.map((d) => ({
+    centerLocalX: d.worldZ - czWorld,
+    width: d.width,
+    height: DOOR_HEIGHT,
+  }));
+  const wDoors = doorsBySide.west.map((d) => ({
     centerLocalX: -(d.worldZ - czWorld),
     width: d.width,
     height: DOOR_HEIGHT,
@@ -107,7 +121,7 @@ export function RoomGeometry({
           width={width}
           height={ROOM_HEIGHT}
           material={mats.wall}
-          doors={nsDoors("north")}
+          doors={nDoors}
         />
       )}
       {!room.suppressWalls?.south && (
@@ -117,7 +131,7 @@ export function RoomGeometry({
           width={width}
           height={ROOM_HEIGHT}
           material={mats.wall}
-          doors={nsDoors("south")}
+          doors={sDoors}
         />
       )}
       {!room.suppressWalls?.west && (

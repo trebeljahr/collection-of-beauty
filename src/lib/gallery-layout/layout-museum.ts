@@ -279,12 +279,19 @@ function buildFloor(era: Era, eraArtworks: Artwork[]): FloorLayout {
   const targetRooms = Math.max(1, Math.ceil(eraArtworks.length / PER_ROOM_TARGET));
   const totalSlots = Math.min(Math.max(0, targetRooms - 1), SLOTS.length);
 
-  // Expand movements into room-sized chunks (anchor first, then by
-  // popularity), splitting big movements into "Part N" rooms.
+  // Expand movements into room-sized chunks (anchor first, then East
+  // Asian movements right after — they belong to a different art-
+  // history tradition than European Renaissance/Baroque/etc, so they
+  // earn a dedicated room rather than being lumped in with whatever
+  // European overflow exists. Then by popularity for the rest.
   const expanded: Array<{ name: string; artworks: Artwork[] }> = [];
   const orderedMovements = Array.from(byMovement.entries()).sort((a, b) => {
     if (a[0] === anchorMovement) return -1;
     if (b[0] === anchorMovement) return 1;
+    const aAsian = isEastAsianMovement(a[0]);
+    const bAsian = isEastAsianMovement(b[0]);
+    if (aAsian && !bAsian) return -1;
+    if (!aAsian && bAsian) return 1;
     return b[1].length - a[1].length;
   });
   for (const [name, arr] of orderedMovements) {
@@ -315,12 +322,21 @@ function buildFloor(era: Era, eraArtworks: Artwork[]): FloorLayout {
     const tail = expanded.slice(totalSlots - 1);
     slotEntries.push(...kept);
     if (tail.length > 0) {
-      const mergedArtworks = tail.flatMap((e) => e.artworks);
-      const mergedName =
-        tail.length === 1
-          ? tail[0].name
-          : `Also from the ${era.title.toLowerCase()}`;
-      slotEntries.push({ name: mergedName, artworks: mergedArtworks });
+      // East Asian entries that fell into the tail keep their own
+      // rooms — never let them get rolled into a generic "Also from
+      // the renaissance" catch-all. They displace lower-priority
+      // European entries from `kept` if the slot count is tight.
+      const tailAsian = tail.filter((e) => isEastAsianMovement(e.name));
+      const tailRest = tail.filter((e) => !isEastAsianMovement(e.name));
+      slotEntries.push(...tailAsian);
+      if (tailRest.length > 0) {
+        const mergedArtworks = tailRest.flatMap((e) => e.artworks);
+        const mergedName =
+          tailRest.length === 1
+            ? tailRest[0].name
+            : `Also from the ${era.title.toLowerCase()}`;
+        slotEntries.push({ name: mergedName, artworks: mergedArtworks });
+      }
     }
   }
 
@@ -427,6 +443,20 @@ function groupMovements(era: Era, eraArtworks: Artwork[]): Map<string, Artwork[]
     byMovement.get(key)!.push(a);
   }
   return byMovement;
+}
+
+/**
+ * Heuristic — true if the movement name describes an East Asian
+ * tradition (Japanese woodblock prints, Nihonga, etc.) rather than a
+ * European school. These works earn their own dedicated room because
+ * they belong to an entirely different art-history lineage than the
+ * European Renaissance / Baroque / Romantic eras they happen to be
+ * year-binned with.
+ */
+function isEastAsianMovement(name: string): boolean {
+  return /Ukiyo-e|Nihonga|Bijinga|Yamato-e|Sumi-e|Edo|Heian|Song|Ming|Qing|Tang/i.test(
+    name,
+  );
 }
 
 function resolveAnchorMovement(

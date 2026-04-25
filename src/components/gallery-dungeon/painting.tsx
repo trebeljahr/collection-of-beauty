@@ -47,10 +47,13 @@ export function Painting({ placement }: { placement: Placement }) {
 // A small museum-style label card to the right of each painting at
 // canvas centre height. Carries title, artist, year, dimensions.
 
-const PLAQUE_W = 0.34;
-const PLAQUE_H = 0.24;
+// A small museum-style label card. Sized so the painting + plaque
+// reach (paintingW + GAP + PLAQUE_W) stays under one cell width
+// (~2.5 m), preventing overlap with the next slot's plaque/painting.
+const PLAQUE_W = 0.22;
+const PLAQUE_H = 0.18;
 const PLAQUE_DEPTH = 0.012;
-const PLAQUE_GAP = 0.08;
+const PLAQUE_GAP = 0.05;
 
 function Plaque({
   artwork,
