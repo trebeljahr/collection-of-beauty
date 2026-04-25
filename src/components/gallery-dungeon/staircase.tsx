@@ -1,18 +1,20 @@
 "use client";
 
 import type { Staircase } from "@/lib/gallery-layout/types";
-import {
-  STAIR_FLIGHT_LENGTH,
-  STAIR_LANDING_DEPTH,
-  STAIR_STEPS_PER_FLIGHT,
-} from "@/lib/gallery-layout/world-coords";
+import { STAIR_FLIGHT_LENGTH, STAIR_LANDING_DEPTH } from "@/lib/gallery-layout/world-coords";
 import { Text } from "@react-three/drei";
+import { useMemo } from "react";
 import * as THREE from "three";
 import { signBaseMaterial } from "./palette-materials";
 
 // Shared materials — one "stair vocabulary" for every U-stair in the
 // building. Allocated once at module load.
-const stepMaterial = new THREE.MeshStandardMaterial({
+const stringerMaterial = new THREE.MeshStandardMaterial({
+  color: "#2a1d14",
+  roughness: 0.85,
+  metalness: 0.05,
+});
+const treadMaterial = new THREE.MeshStandardMaterial({
   color: "#3a2a1f",
   roughness: 0.7,
   metalness: 0.1,
@@ -24,147 +26,188 @@ const landingMaterial = new THREE.MeshStandardMaterial({
 });
 const ribMaterial = new THREE.MeshStandardMaterial({
   color: "#1f1611",
-  roughness: 0.85,
+  roughness: 0.9,
   metalness: 0.05,
 });
 
-const RIB_THICKNESS = 0.1;
-const RIB_HEIGHT = 1.0;
-const RAMP_THICKNESS = 0.12;
+const RIB_THICKNESS = 0.15;
+/** No-go half-width around the rib for player collision. Includes the
+ *  rib's own half-thickness plus a player-radius buffer so the camera
+ *  doesn't clip into the rib's geometry. */
+const RIB_NO_GO_HALF = 0.4;
 
 /**
- * Render one U-stair flight pair: an ascending flight on the west half
- * (low x), a descending flight on the east half (high x), and a flat
- * landing platform at the north (low z) end. The flights' SOUTH ends
- * (high z) sit flush with their respective floors:
+ * Build a side-view shape (X = length axis, Y = height) and extrude it
+ * along the geometry's Z by `thickness`. Used for solid wedge / trapezoid
+ * masses that anchor the stair flights to the floor.
  *
- *      lower entry (south, west, lowerY)   upper entry (south, east, upperY)
- *                       │                                 │
- *                       ↓ walking north up the ramp       ↓ walking north down
- *                                                         (or south up to upper)
- *      ┌────────────────┬────────────────┐  ← landing at north (low z, midwayY)
+ *    south─top ┐
+ *              │\\
+ *              │ \\__ north─top
+ *              │    │
+ *    south─bot ┴────┴ north─bot
  *
- * The cardinal convention in this codebase: north = low z, south = high z.
- * Both entries are on the south face so a player from either floor's
- * stairwell south door (grand-hall side) walks straight onto the stair.
+ * `southHeight = 0` collapses the south side into a triangle.
+ */
+function makeStringerGeometry(
+  length: number,
+  southHeight: number,
+  northHeight: number,
+  thickness: number,
+): THREE.BufferGeometry {
+  const shape = new THREE.Shape();
+  shape.moveTo(0, 0);
+  if (southHeight > 0) shape.lineTo(0, southHeight);
+  shape.lineTo(length, northHeight);
+  shape.lineTo(length, 0);
+  shape.closePath();
+  return new THREE.ExtrudeGeometry(shape, { depth: thickness, bevelEnabled: false });
+}
+
+/**
+ * Render one U-stair: solid stringer wedges below each flight, a
+ * structural pier supporting the midway landing, and a tall central
+ * rib between the two flights. The flights' top surfaces ARE the
+ * stringer top faces — no separate ramp slabs — so there's no z-fight
+ * and no "floating" look. Both entries sit on the south face: lower
+ * floor at the south-west corner (Y=lowerY), upper floor at the
+ * south-east corner (Y=upperY).
  *
- * Step boxes are decorative — the underlying ramp is a continuous
- * inclined plane so the player's feet glide rather than jerk frame to
- * frame; the riser boxes just sell the look.
+ * Cardinal convention in this codebase: north = low z, south = high z.
  */
 export function StaircaseRenderer({ staircase }: { staircase: Staircase }) {
   const { centerX, centerZ, width, depth, lowerY, upperY } = staircase;
-  const halfW = width / 2;
   const halfD = depth / 2;
   const flightWidth = width / 2;
   const halfRise = (upperY - lowerY) / 2;
   const midwayY = lowerY + halfRise;
+
+  // Footprint Z extents.
+  const southZ = centerZ + halfD;
+  const landingMaxZ = centerZ - halfD + STAIR_LANDING_DEPTH;
+  const landingNorthZ = centerZ - halfD;
+
+  // Stringer geometries.
+  //  - West stringer: triangular wedge, south=0 (ramp meets floor),
+  //    north=halfRise (ramp meets landing).
+  //  - East stringer: trapezoid, south=halfRise*2 (ramp at upperY) →
+  //    north=halfRise (ramp at midwayY). Both stringers extend down to
+  //    floor Y, anchoring the flights as solid stone masses.
+  const westStringerGeom = useMemo(
+    () => makeStringerGeometry(STAIR_FLIGHT_LENGTH, 0, halfRise, flightWidth),
+    [halfRise, flightWidth],
+  );
+  const eastStringerGeom = useMemo(
+    () => makeStringerGeometry(STAIR_FLIGHT_LENGTH, halfRise * 2, halfRise, flightWidth),
+    [halfRise, flightWidth],
+  );
+  // Central rib — same trapezoid silhouette as the east stringer
+  // (south=upperY, north=midwayY), so the rib's top tracks the higher
+  // ramp and reads as a chest-high handrail wall as the player walks
+  // up the lower flight.
+  const ribGeom = useMemo(
+    () => makeStringerGeometry(STAIR_FLIGHT_LENGTH, halfRise * 2, halfRise, RIB_THICKNESS),
+    [halfRise],
+  );
 
   const flightCenterX = {
     west: centerX - flightWidth / 2,
     east: centerX + flightWidth / 2,
   };
 
-  // Flights occupy z ∈ [landingMaxZ, southZ]. Landing occupies the low-z
-  // strip, flights run from the landing's high-z edge to the footprint's
-  // south face.
-  const southZ = centerZ + halfD;
-  const landingMaxZ = centerZ - halfD + STAIR_LANDING_DEPTH;
-  const flightCenterZ = (landingMaxZ + southZ) / 2;
-  // tiltAngle: top surface tilts up toward south (high z) on the west
-  // flight (ascends south→north? no: lowerY at south, midwayY at north,
-  // so the top surface DROPS toward the south as you walk south. We
-  // rotate around X by +tilt to lift the +Z end up… wait, we want the
-  // -Z end lifted. Use -tilt below.
+  // Tread "lips" — thin contrast strips along each riser line so the
+  // smooth stringer top reads as a flight of stairs instead of a
+  // plain ramp. We anchor them slightly above the stringer surface to
+  // dodge z-fighting (the ramp top is sloped, the lips are flat).
+  const NUM_LIPS = 10;
   const tiltAngle = Math.atan2(halfRise, STAIR_FLIGHT_LENGTH);
-  const slabLength = Math.hypot(STAIR_FLIGHT_LENGTH, halfRise);
-
-  // Riser steps stacked on the ramp. Index from south (south = step 0,
-  // entry tread). Walking north on the west flight ascends; walking
-  // north on the east flight descends from upperY.
-  const stepRise = halfRise / STAIR_STEPS_PER_FLIGHT;
-  const treadDepth = STAIR_FLIGHT_LENGTH / STAIR_STEPS_PER_FLIGHT;
-
-  const westSteps: React.ReactElement[] = [];
-  const eastSteps: React.ReactElement[] = [];
-  for (let i = 0; i < STAIR_STEPS_PER_FLIGHT; i++) {
-    // Tread `i` sits at south end + i treads up the flight. Z decreases
-    // (going north) as i increases.
-    const treadCenterZ = southZ - (i + 0.5) * treadDepth;
-    // West: lowerY at south, midwayY at north → tread top rises with i.
-    const wTreadTopY = lowerY + (i + 1) * stepRise;
-    westSteps.push(
+  const treadDepth = STAIR_FLIGHT_LENGTH / NUM_LIPS;
+  const lipThickness = 0.04;
+  const westLips: React.ReactElement[] = [];
+  const eastLips: React.ReactElement[] = [];
+  for (let i = 1; i < NUM_LIPS; i++) {
+    // Riser line `i` sits at i treads up from the south.
+    const riserCenterZ = southZ - i * treadDepth;
+    const wRiserY = lowerY + i * (halfRise / NUM_LIPS);
+    westLips.push(
       <mesh
-        key={`w-${i}`}
-        position={[flightCenterX.west, wTreadTopY - 0.05, treadCenterZ]}
+        key={`w-lip-${i}`}
+        position={[flightCenterX.west, wRiserY + lipThickness / 2, riserCenterZ]}
+        rotation={[tiltAngle, 0, 0]}
       >
-        <boxGeometry args={[flightWidth - 0.05, 0.1, treadDepth]} />
-        <primitive object={stepMaterial} attach="material" />
+        <boxGeometry args={[flightWidth - 0.05, lipThickness, 0.06]} />
+        <primitive object={treadMaterial} attach="material" />
       </mesh>,
     );
-    // East: upperY at south, midwayY at north → tread top falls with i.
-    const eTreadTopY = upperY - i * stepRise;
-    eastSteps.push(
+    const eRiserY = upperY - i * (halfRise / NUM_LIPS);
+    eastLips.push(
       <mesh
-        key={`e-${i}`}
-        position={[flightCenterX.east, eTreadTopY - 0.05, treadCenterZ]}
+        key={`e-lip-${i}`}
+        position={[flightCenterX.east, eRiserY + lipThickness / 2, riserCenterZ]}
+        rotation={[-tiltAngle, 0, 0]}
       >
-        <boxGeometry args={[flightWidth - 0.05, 0.1, treadDepth]} />
-        <primitive object={stepMaterial} attach="material" />
+        <boxGeometry args={[flightWidth - 0.05, lipThickness, 0.06]} />
+        <primitive object={treadMaterial} attach="material" />
       </mesh>,
     );
   }
 
-  // Landing platform at the north end, spanning both flights' width.
-  const landingCenterZ = centerZ - halfD + STAIR_LANDING_DEPTH / 2;
-
-  // Central rib between the two flights — skipped over the landing
-  // section so the player can walk across to switch flights.
-  const ribCenterY = midwayY + RIB_HEIGHT / 2 - 0.5;
+  // Landing pier — solid block from floor to midwayY at the north end
+  // of the footprint. Anchors the landing as a structural mass instead
+  // of a thin slab floating in space, and the front face (south side)
+  // gets a darker fascia so the seam between pier and stringers reads.
+  const landingPierH = halfRise; // floor → midwayY
+  const landingPierZCenter = (landingNorthZ + landingMaxZ) / 2;
+  const landingPierY = lowerY + landingPierH / 2;
 
   return (
     <group>
-      {/* West flight ramp surface (south end low, north end high). */}
+      {/* West flight stringer — triangular wedge under the ramp. */}
       <mesh
-        position={[flightCenterX.west, lowerY + halfRise / 2, flightCenterZ]}
-        rotation={[tiltAngle, 0, 0]}
+        geometry={westStringerGeom}
+        position={[centerX - flightWidth, lowerY, southZ]}
+        rotation={[0, Math.PI / 2, 0]}
       >
-        <boxGeometry args={[flightWidth - 0.05, RAMP_THICKNESS, slabLength]} />
-        <primitive object={stepMaterial} attach="material" />
+        <primitive object={stringerMaterial} attach="material" />
       </mesh>
-      {/* East flight ramp surface (south end high, north end mid). */}
+      {/* East flight stringer — trapezoidal solid (south face full
+          storey tall down to floor, north face joins the landing). */}
       <mesh
-        position={[flightCenterX.east, upperY - halfRise / 2, flightCenterZ]}
-        rotation={[-tiltAngle, 0, 0]}
+        geometry={eastStringerGeom}
+        position={[centerX, lowerY, southZ]}
+        rotation={[0, Math.PI / 2, 0]}
       >
-        <boxGeometry args={[flightWidth - 0.05, RAMP_THICKNESS, slabLength]} />
-        <primitive object={stepMaterial} attach="material" />
+        <primitive object={stringerMaterial} attach="material" />
       </mesh>
 
-      {westSteps}
-      {eastSteps}
-
-      {/* Landing — flat slab at midwayY across the full width. */}
-      <mesh position={[centerX, midwayY - 0.05, landingCenterZ]}>
-        <boxGeometry args={[width, 0.1, STAIR_LANDING_DEPTH]} />
-        <primitive object={landingMaterial} attach="material" />
-      </mesh>
-
-      {/* Central rib between flights — forces the player to use the
-          landing to switch sides instead of jumping the midline gap. */}
-      <mesh position={[centerX, ribCenterY, flightCenterZ]}>
-        <boxGeometry args={[RIB_THICKNESS, RIB_HEIGHT, STAIR_FLIGHT_LENGTH]} />
+      {/* Central rib between flights — handrail wall whose top tracks
+          the higher (east) ramp. */}
+      <mesh
+        geometry={ribGeom}
+        position={[centerX - RIB_THICKNESS / 2, lowerY, southZ]}
+        rotation={[0, Math.PI / 2, 0]}
+      >
         <primitive object={ribMaterial} attach="material" />
       </mesh>
 
-      {/* Destination signs at each entry, at the south end of each flight. */}
+      {westLips}
+      {eastLips}
+
+      {/* Landing pier — solid block, top surface is the connecting
+          platform between the two flights at midwayY. */}
+      <mesh position={[centerX, landingPierY, landingPierZCenter]}>
+        <boxGeometry args={[width, landingPierH, STAIR_LANDING_DEPTH]} />
+        <primitive object={landingMaterial} attach="material" />
+      </mesh>
+
+      {/* Signs at each entry, set just past the south face. */}
       <StairSign
-        position={[flightCenterX.west, lowerY + 2.4, southZ - 0.1]}
+        position={[flightCenterX.west, lowerY + 2.4, southZ + 0.02]}
         rotationY={0}
         label={`↑ ${staircase.upperLabel}`}
       />
       <StairSign
-        position={[flightCenterX.east, upperY + 2.4, southZ - 0.1]}
+        position={[flightCenterX.east, upperY + 2.4, southZ + 0.02]}
         rotationY={0}
         label={`↓ ${staircase.lowerLabel}`}
       />
@@ -261,9 +304,11 @@ export function flightForFloor(
   return null;
 }
 
-/** The midline between the two flights is a wall outside the landing
- *  strip — block crossings unless both endpoints are in the landing.
- *  Same idea as the per-edge wall mask, scoped to the stair's interior. */
+/** The rib between the two flights is a wall outside the landing
+ *  strip — block targets that fall inside the rib's no-go zone, and
+ *  block side-switching crossings, unless we're moving entirely within
+ *  the landing strip (where the two flights merge into one walkable
+ *  surface). */
 export function canCrossStairMidline(
   stair: Staircase,
   fromX: number,
@@ -271,14 +316,18 @@ export function canCrossStairMidline(
   toX: number,
   toZ: number,
 ): boolean {
-  const fromDx = fromX - stair.centerX;
-  const toDx = toX - stair.centerX;
-  if (Math.sign(fromDx) === Math.sign(toDx)) return true;
-  if (fromDx === 0 || toDx === 0) return true;
-  // Crossing midline — only allowed if BOTH endpoints sit in the
-  // landing strip (low z).
   const halfD = stair.depth / 2;
   const fromInLanding = fromZ - stair.centerZ <= -halfD + STAIR_LANDING_DEPTH;
   const toInLanding = toZ - stair.centerZ <= -halfD + STAIR_LANDING_DEPTH;
-  return fromInLanding && toInLanding;
+  if (fromInLanding && toInLanding) return true;
+
+  const toDx = toX - stair.centerX;
+  // Don't let the player wedge into the rib's footprint outside the
+  // landing.
+  if (Math.abs(toDx) < RIB_NO_GO_HALF) return false;
+
+  // No side-switching outside the landing.
+  const fromDx = fromX - stair.centerX;
+  if (Math.sign(fromDx) !== Math.sign(toDx) && fromDx !== 0 && toDx !== 0) return false;
+  return true;
 }
