@@ -125,10 +125,11 @@ const PLAQUE_MOUNT_W = PLAQUE_FACE_W + 0.018;
 const PLAQUE_MOUNT_H = PLAQUE_FACE_H + 0.018;
 const PLAQUE_MOUNT_DEPTH = 0.006;
 const PLAQUE_GAP = 0.06;
-// `placement.position` is offset PAINTING_WALL_OFFSET (= 0.06 m) into
-// the room from the wall plane, so localZ = -0.06 lands the plaque
-// back exactly on the wall surface.
-const PAINTING_WALL_OFFSET = 0.06;
+// `placement.position` is offset PAINTING_WALL_OFFSET (= 0.02 m) into
+// the room from the wall plane, so localZ = -0.02 lands the plaque
+// back exactly on the wall surface. Keep this in sync with
+// PAINTING_WALL_OFFSET in src/lib/gallery-layout/place-paintings.ts.
+const PAINTING_WALL_OFFSET = 0.02;
 
 function Plaque({
   artwork,
