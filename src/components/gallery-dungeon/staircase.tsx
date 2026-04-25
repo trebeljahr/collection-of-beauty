@@ -18,28 +18,32 @@ const stepMaterial = new THREE.MeshStandardMaterial({
   roughness: 0.7,
   metalness: 0.1,
 });
+const landingMaterial = new THREE.MeshStandardMaterial({
+  color: "#2e2118",
+  roughness: 0.75,
+  metalness: 0.08,
+});
 const railMaterial = new THREE.MeshStandardMaterial({
   color: "#1f1611",
   roughness: 0.85,
   metalness: 0.05,
 });
 
+/** Number of flat steps at each end of the flight. The first
+ *  LANDING_STEPS sit at lowerY (entry on-ramp) and the last LANDING_STEPS
+ *  sit at upperY (exit off-ramp). The remaining steps in the middle
+ *  carry the rise. With numSteps=20 and LANDING_STEPS=2, the rise is
+ *  spread across 16 steps ≈ 56 cm per step — comfortable to walk. */
+const LANDING_STEPS = 2;
+
 /**
  * Render one spiral flight: central column + fan of wedge steps + an
- * outer ring of handrail posts. The flight rises from `lowerY` at
- * θ=0 to `upperY` at θ=2π around (centerX, centerZ), one revolution
- * for one storey.
- *
- * Each step is approximated as a thin box oriented tangent to the
- * central column. With SPIRAL_STEPS_PER_FLOOR = 20 that's 18° per
- * step, which is visually smooth enough without needing a custom
- * annular-wedge geometry.
+ * outer ring of handrail posts. The flight rises from `lowerY` at the
+ * `entryAngle` to `upperY` after one revolution back to the same
+ * angle, with flat landings of LANDING_STEPS wedges at each end so the
+ * player can step on/off without lifting onto a riser.
  */
-export function StaircaseRenderer({
-  staircase,
-}: {
-  staircase: Staircase;
-}) {
+export function StaircaseRenderer({ staircase }: { staircase: Staircase }) {
   const { centerX, centerZ, innerRadius, outerRadius, numSteps, direction, lowerY, upperY } =
     staircase;
 
@@ -59,11 +63,11 @@ export function StaircaseRenderer({
 
   const steps: React.ReactElement[] = [];
   for (let i = 0; i < numSteps; i++) {
-    const theta = i * stepAngle * direction;
-    const t = i / numSteps;
-    const stepTopY = lowerY + t * totalRise + totalRise / numSteps;
+    const theta = staircase.entryAngle + i * stepAngle * direction;
+    const stepTopY = stepTopAt(staircase, i);
     const cx = centerX + Math.cos(theta) * midR;
     const cz = centerZ + Math.sin(theta) * midR;
+    const isLanding = i < LANDING_STEPS || i >= numSteps - LANDING_STEPS;
     steps.push(
       <mesh
         key={`step-${i}`}
@@ -71,7 +75,10 @@ export function StaircaseRenderer({
         rotation={[0, -theta, 0]}
       >
         <boxGeometry args={[stepDepth, stepVerticalThickness, arcAtMid]} />
-        <primitive object={stepMaterial} attach="material" />
+        <primitive
+          object={isLanding ? landingMaterial : stepMaterial}
+          attach="material"
+        />
       </mesh>,
     );
   }
@@ -83,9 +90,8 @@ export function StaircaseRenderer({
   const railRadius = outerRadius - 0.15;
   const railHeight = 1.0;
   for (let i = 0; i < numSteps; i++) {
-    const theta = i * stepAngle * direction;
-    const t = i / numSteps;
-    const railY = lowerY + t * totalRise + 0.9; // chest-ish above step
+    const theta = staircase.entryAngle + i * stepAngle * direction;
+    const railY = stepTopAt(staircase, i) + 0.9; // chest-ish above step
     const cx = centerX + Math.cos(theta) * railRadius;
     const cz = centerZ + Math.sin(theta) * railRadius;
     rails.push(
@@ -107,17 +113,25 @@ export function StaircaseRenderer({
       {steps}
       {rails}
 
-      {/* Destination sign at the bottom of the flight — placed on the
-          central column at the spiral's entry angle (+X). */}
+      {/* Destination sign at the bottom of the flight, on the column
+          face the player sees as they step onto the on-ramp. */}
       <StairSign
-        position={[centerX + innerRadius + 0.05, lowerY + 2.4, centerZ]}
-        rotationY={-Math.PI / 2}
+        position={[
+          centerX + Math.cos(staircase.entryAngle) * (innerRadius + 0.05),
+          lowerY + 2.4,
+          centerZ + Math.sin(staircase.entryAngle) * (innerRadius + 0.05),
+        ]}
+        rotationY={-staircase.entryAngle}
         label={`↑ ${staircase.upperLabel}`}
       />
       {/* …and one at the top, same column, facing the player exiting. */}
       <StairSign
-        position={[centerX + innerRadius + 0.05, upperY + 2.4, centerZ]}
-        rotationY={-Math.PI / 2}
+        position={[
+          centerX + Math.cos(staircase.entryAngle) * (innerRadius + 0.05),
+          upperY + 2.4,
+          centerZ + Math.sin(staircase.entryAngle) * (innerRadius + 0.05),
+        ]}
+        rotationY={-staircase.entryAngle}
         label={`↓ ${staircase.lowerLabel}`}
       />
     </group>
@@ -172,27 +186,66 @@ export function isInsideStair(staircase: Staircase, worldX: number, worldZ: numb
 
 /**
  * Raw angle-from-entry for a world XZ on the spiral, normalised to
- * [0, 2π). Only meaningful inside the spiral annulus. The Player
- * uses this plus a tracked cumulative-angle to disambiguate which
- * "turn" around the column the player is on — a flat angle is
- * ambiguous (e.g. θ=0 is both the bottom of this flight and the top
- * of the same flight if the player has already walked a full loop).
+ * [0, 2π). Returns 0 at `entryAngle` and increases in the spiral's
+ * walking direction. The Player tracks this delta plus a cumulative
+ * angle to disambiguate which "turn" around the column the player is
+ * on — a flat angle is otherwise ambiguous (θ=0 at the bottom and at
+ * the top of the same flight have identical raw values).
  */
 export function spiralRawAngle(staircase: Staircase, worldX: number, worldZ: number): number {
   const dx = worldX - staircase.centerX;
   const dz = worldZ - staircase.centerZ;
-  let theta = Math.atan2(dz, dx);
-  // Flip sign for clockwise spirals so "walking forward" always
-  // corresponds to increasing θ.
+  let theta = Math.atan2(dz, dx) - staircase.entryAngle;
   if (staircase.direction === -1) theta = -theta;
-  return (theta + Math.PI * 2) % (Math.PI * 2);
+  return ((theta % (Math.PI * 2)) + Math.PI * 2) % (Math.PI * 2);
+}
+
+/** Top Y of step `i` (0-indexed). Steps 0..LANDING_STEPS-1 sit flat at
+ *  lowerY (entry on-ramp), steps numSteps-LANDING_STEPS..numSteps-1
+ *  sit flat at upperY (exit off-ramp), and the middle steps carry the
+ *  rise. Used by both the renderer and `stairHeightAt` so the visual
+ *  treads match what the player's feet stand on. */
+export function stepTopAt(staircase: Staircase, i: number): number {
+  const { numSteps, lowerY, upperY } = staircase;
+  if (i < LANDING_STEPS) return lowerY;
+  if (i >= numSteps - LANDING_STEPS) return upperY;
+  const risingSteps = numSteps - 2 * LANDING_STEPS;
+  const k = i - LANDING_STEPS + 1; // 1..risingSteps
+  return lowerY + (k / risingSteps) * (upperY - lowerY);
 }
 
 /** Y at a normalised cumulative angle. `cumulative` in [0, 2π] —
- *  below 0 clamps to lowerY, above 2π clamps to upperY. */
+ *  below 0 clamps to lowerY, above 2π clamps to upperY. Implemented
+ *  as a step function so each tread keeps a constant height while the
+ *  player's foot is on it; the camera's existing damping smooths the
+ *  riser jumps into a continuous climb. */
 export function stairHeightAt(staircase: Staircase, cumulativeAngle: number): number {
-  const t = Math.max(0, Math.min(1, cumulativeAngle / (Math.PI * 2)));
-  return staircase.lowerY + t * (staircase.upperY - staircase.lowerY);
+  const stepAngle = (Math.PI * 2) / staircase.numSteps;
+  const i = Math.floor(cumulativeAngle / stepAngle);
+  const clamped = Math.max(0, Math.min(staircase.numSteps - 1, i));
+  return stepTopAt(staircase, clamped);
+}
+
+/** Half-width of the on/off-ramp arc — the angular range around
+ *  `entryAngle` where the spiral is at flat landing height and the
+ *  player can transition between floor and stair without a step. */
+export function landingArcHalf(staircase: Staircase): number {
+  const stepAngle = (Math.PI * 2) / staircase.numSteps;
+  return LANDING_STEPS * stepAngle;
+}
+
+/** True if a raw spiral angle (0..2π relative to entryAngle, as
+ *  returned by `spiralRawAngle`) lies within the on-ramp arc on the
+ *  lower floor or the off-ramp arc on the upper floor. Used by the
+ *  player to gate first-time entry onto the spiral so step 0 always
+ *  greets the player at floor height. */
+export function isWithinLandingArc(staircase: Staircase, rawAngle: number): boolean {
+  const arc = landingArcHalf(staircase);
+  // On-ramp at the bottom (raw ≈ 0).
+  if (rawAngle <= arc) return true;
+  // Off-ramp at the top (raw ≈ 2π).
+  if (rawAngle >= Math.PI * 2 - arc) return true;
+  return false;
 }
 
 // `FLOOR_SEPARATION` is still the canonical per-floor rise — anchor

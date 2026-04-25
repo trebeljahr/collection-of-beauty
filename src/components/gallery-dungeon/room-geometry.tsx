@@ -92,24 +92,18 @@ export function RoomGeometry({
         </mesh>
       )}
 
-      {/* Stairwell landing tiles */}
+      {/* Stairwell main floor — slightly below the room's nominal Y so
+          the spiral's first riser still reads as a step rather than
+          z-fighting with the floor plane. Without this the player would
+          walk over a void between the door and the spiral. */}
       {room.isStairwell && (
-        <>
-          <mesh
-            rotation={[-Math.PI / 2, 0, 0]}
-            position={[cxWorld, floorY, cellBounds.zMin * CELL_SIZE + CELL_SIZE / 2]}
-          >
-            <planeGeometry args={[width, CELL_SIZE]} />
-            <primitive object={floorMat} attach="material" />
-          </mesh>
-          <mesh
-            rotation={[-Math.PI / 2, 0, 0]}
-            position={[cxWorld, floorY, (cellBounds.zMax + 0.5) * CELL_SIZE]}
-          >
-            <planeGeometry args={[width, CELL_SIZE]} />
-            <primitive object={floorMat} attach="material" />
-          </mesh>
-        </>
+        <mesh
+          rotation={[-Math.PI / 2, 0, 0]}
+          position={[cxWorld, floorY - 0.005, czWorld]}
+        >
+          <planeGeometry args={[width, depth]} />
+          <primitive object={floorMat} attach="material" />
+        </mesh>
       )}
 
       {/* Four walls — each may be suppressed when a neighbouring room

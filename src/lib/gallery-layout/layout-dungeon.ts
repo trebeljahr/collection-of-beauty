@@ -140,6 +140,9 @@ function buildStaircase(lower: FloorLayout, upper: FloorLayout): Staircase | nul
     direction: 1, // counter-clockwise ascending, conventional
     lowerY: lower.y,
     upperY: upper.y,
+    // Anchor step 0 at the south of the column — see layout-museum's
+    // staircase for the rationale; same orientation here.
+    entryAngle: (3 * Math.PI) / 2,
   };
 }
 

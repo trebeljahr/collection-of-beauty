@@ -751,6 +751,11 @@ function buildStaircase(lower: FloorLayout, upper: FloorLayout): Staircase | nul
     direction: 1,
     lowerY: lower.y,
     upperY: upper.y,
+    // South of the central column. The stairwell's only doors are on
+    // its north (Grand Hall) and south (s_main) walls; players walking
+    // in from s_main face north and meet the spiral's south face first,
+    // so anchoring step 0 there makes the on-ramp match their line.
+    entryAngle: (3 * Math.PI) / 2,
   };
 }
 

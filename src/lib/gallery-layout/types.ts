@@ -94,6 +94,12 @@ export type Staircase = {
   lowerY: number;
   /** Y at θ=2π (exit / top of this flight). */
   upperY: number;
+  /** World-space angle (atan2(dz,dx) convention) at which the on-ramp
+   *  meets the lower floor and the off-ramp meets the upper floor.
+   *  Step 0 sits at this angle, so the player walking straight onto
+   *  the spiral from the stairwell door always lands on the flat
+   *  landing instead of mid-flight. */
+  entryAngle: number;
 };
 
 export type FloorLayout = {

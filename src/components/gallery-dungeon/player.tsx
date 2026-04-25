@@ -7,7 +7,12 @@ import { useFrame, useThree } from "@react-three/fiber";
 import { useEffect, useRef } from "react";
 import * as THREE from "three";
 import { raycastNearestPainting } from "./painting-registry";
-import { isInsideStair, spiralRawAngle, stairHeightAt } from "./staircase";
+import {
+  isInsideStair,
+  isWithinLandingArc,
+  spiralRawAngle,
+  stairHeightAt,
+} from "./staircase";
 
 const EYE_HEIGHT = 1.7;
 const WALK_SPEED = 5;
@@ -148,16 +153,18 @@ export function Player({
 
       // Collision model:
       //  - Central spiral columns block (can't walk through them).
-      //  - The spiral's outer annulus is always walkable (overriding
-      //    the per-cell grid mask so the stairwell isn't confined to
-      //    room cells).
-      //  - Everywhere else, the grid walkable mask decides.
-      if (canStepTo(floor, curX, curZ, nx, nz)) {
+      //  - The spiral annulus passes if the player is already on this
+      //    stair, or if stepping in through the on/off-ramp landing
+      //    arc — that gate keeps the visual treads aligned with the
+      //    player's feet (see canStepTo).
+      //  - Otherwise the grid mask + per-edge wall mask decides.
+      const currentStairId = spiralState.current?.staircaseId ?? null;
+      if (canStepTo(floor, curX, curZ, nx, nz, currentStairId)) {
         camera.position.x = nx;
         camera.position.z = nz;
-      } else if (canStepTo(floor, curX, curZ, nx, curZ)) {
+      } else if (canStepTo(floor, curX, curZ, nx, curZ, currentStairId)) {
         camera.position.x = nx;
-      } else if (canStepTo(floor, curX, curZ, curX, nz)) {
+      } else if (canStepTo(floor, curX, curZ, curX, nz, currentStairId)) {
         camera.position.z = nz;
       }
     }
@@ -176,8 +183,13 @@ export function Player({
       const raw = spiralRawAngle(stair, camera.position.x, camera.position.z);
       let st = spiralState.current;
       if (!st || st.staircaseId !== stair.id) {
-        const initial = floor.index === stair.lowerFloor ? 0 : Math.PI * 2;
-        st = { staircaseId: stair.id, cumulativeAngle: initial, lastRaw: raw };
+        // Stepping onto the spiral fresh. The on-ramp lives near raw=0
+        // (lower floor) and the off-ramp near raw=2π (upper floor); we
+        // only allow entry within those arcs (see canStepTo), so the
+        // raw angle is already inside the right landing — copying it
+        // into cumulative lands the player on step 0 at the bottom or
+        // step (numSteps-1) at the top, with no first-frame snap.
+        st = { staircaseId: stair.id, cumulativeAngle: raw, lastRaw: raw };
         spiralState.current = st;
       } else {
         // Integrate the shortest angular delta since last frame.
@@ -315,18 +327,29 @@ function isWalkable(floor: FloorLayout, worldX: number, worldZ: number): boolean
 }
 
 /** Top-level predicate used by movement: central column blocks first,
- *  then spiral annulus always passes, then grid mask decides, and
- *  finally the per-edge wall mask blocks crossings between adjacent
- *  rooms unless a door cut spans the player's crossing point. */
+ *  then the spiral annulus passes if the player is already on this
+ *  stair or stepping in through its landing arc, otherwise the grid
+ *  mask + per-edge wall mask decides. The landing-arc gate keeps the
+ *  visual treads aligned with the player's feet — a player who walked
+ *  onto the stair from a random angle would otherwise see steps
+ *  floating overhead or below while their own Y stayed pinned to the
+ *  floor. */
 function canStepTo(
   floor: FloorLayout,
   fromX: number,
   fromZ: number,
   toX: number,
   toZ: number,
+  currentStairId: string | null,
 ): boolean {
   if (blockedByStairColumn(floor, toX, toZ)) return false;
-  if (findStairAt(floor, toX, toZ)) return true;
+  const stair = findStairAt(floor, toX, toZ);
+  if (stair) {
+    if (currentStairId === stair.id) return true;
+    const raw = spiralRawAngle(stair, toX, toZ);
+    if (isWithinLandingArc(stair, raw)) return true;
+    return false;
+  }
   if (!isWalkable(floor, toX, toZ)) return false;
   if (!canCrossEdges(floor, fromX, fromZ, toX, toZ)) return false;
   return true;
