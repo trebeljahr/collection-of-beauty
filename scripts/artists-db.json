@@ -75,7 +75,7 @@
     },
     {
       "name": "Raphael",
-      "aliases": ["Raffaello Sanzio", "Raphael"],
+      "aliases": ["Raffaello Sanzio", "Raffaello", "Rafael", "Raphael"],
       "born": 1483,
       "died": 1520,
       "nationality": "Italian",
@@ -88,6 +88,39 @@
       "born": 1571,
       "died": 1610,
       "nationality": "Italian",
+      "movement": "Baroque",
+      "pd_status": "public_domain_worldwide"
+    },
+    {
+      "name": "Tintoretto",
+      "aliases": ["Tintoretto", "Jacopo Tintoretto", "Jacopo Robusti"],
+      "born": 1518,
+      "died": 1594,
+      "nationality": "Italian",
+      "movement": "Mannerism",
+      "pd_status": "public_domain_worldwide"
+    },
+    {
+      "name": "Élisabeth Louise Vigée Le Brun",
+      "aliases": [
+        "Élisabeth Louise Vigée Le Brun",
+        "Élisabeth Vigée-Lebrun",
+        "Elisabeth Louise Vigee Le Brun",
+        "Vigée Le Brun",
+        "Vigée-Lebrun"
+      ],
+      "born": 1755,
+      "died": 1842,
+      "nationality": "French",
+      "movement": "Rococo / Neoclassicism",
+      "pd_status": "public_domain_worldwide"
+    },
+    {
+      "name": "Anthony van Dyck",
+      "aliases": ["Anthony van Dyck", "Anthony Van Dyck", "Antoon van Dyck", "van Dyck"],
+      "born": 1599,
+      "died": 1641,
+      "nationality": "Flemish",
       "movement": "Baroque",
       "pd_status": "public_domain_worldwide"
     },
@@ -597,7 +630,7 @@
     },
     {
       "name": "Alphonse Mucha",
-      "aliases": ["Alphonse Mucha", "Mucha"],
+      "aliases": ["Alphonse Mucha", "Alfons Mucha", "Mucha"],
       "born": 1860,
       "died": 1939,
       "nationality": "Czech",

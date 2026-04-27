@@ -70,31 +70,10 @@ function dimensionsFor(folderKey, filename) {
 
 const WIKIMEDIA_FOLDERS = ["collection-of-beauty", "audubon-birds", "kunstformen-images"];
 
-function assertRequiredAssetsAvailable() {
-  if (!existsSync(ASSETS)) {
-    throw new Error(
-      `[build-data] Missing ${path.relative(ROOT, ASSETS)}/. ` +
-        "Download or mount source assets before generating src/data.",
-    );
-  }
-
-  const missingFolders = WIKIMEDIA_FOLDERS.filter(
-    (folder) => !existsSync(path.join(ASSETS, folder)),
-  );
-  if (missingFolders.length > 0) {
-    throw new Error(
-      `[build-data] Missing asset folder(s): ${missingFolders
-        .map((folder) => path.join("assets", folder))
-        .join(", ")}. Run the download scripts or restore the asset archive before building.`,
-    );
-  }
-}
-
 function slugify(input) {
   return input
     .toLowerCase()
     .normalize("NFKD")
-    // biome-ignore lint/suspicious/noMisleadingCharacterClass: stripping NFKD combining marks is the intent
     .replace(/[\u0300-\u036f]/g, "")
     .replace(/[^a-z0-9]+/g, "-")
     .replace(/(^-|-$)+/g, "");
@@ -216,50 +195,6 @@ function cleanTitle(raw, fname) {
   return cleaned || fallback;
 }
 
-// Detect descriptions written in a language other than English. Wikimedia's
-// `description` field is whatever the uploader provided — sometimes Spanish,
-// German, French, Italian, Dutch, Russian. We'd rather drop those than show
-// a foreign-language paragraph in an English UI.
-//
-// Non-Latin scripts (Cyrillic / CJK / Arabic) are an obvious tell. For
-// Latin-script European languages we look for high-frequency function
-// words; matching two or more of them flags the string. Single accented
-// characters aren't enough (English picks them up in loanwords like "café").
-const NON_EN_MARKERS = [
-  // Spanish / Portuguese
-  /\b(esta|este|esto|las|los|del|que|por|para|como|sus|nuestra|nuestro|seg[uú]n|representa|representando|obra|cuadro|lienzo|destes|deste|tambi[eé]n|pelo|pela)\b/i,
-  // Italian
-  /\b(questo|questa|delle|sulla|della|degli|nella|sono|come|secondo|olio su|tela)\b/i,
-  // French
-  /\b(cette|cet|cela|dans|sur|qui|que|pour|avec|selon|peinture|tableau|huile sur)\b/i,
-  // German
-  /\b(dieses|dieser|diese|der|die|das|den|dem|wurde|wurden|nach|über|gem[aä]lde|bild|öl auf|leinwand|dargestellt)\b/i,
-  // Dutch
-  /\b(deze|dit|van|het|een|naar|over|werd|werden|olieverf|paneel)\b/i,
-];
-
-function looksNonEnglish(s) {
-  if (!s) return false;
-  // Cyrillic / CJK / Arabic / Hebrew / Devanagari / Greek (non-Latin scripts).
-  if (/[Ͱ-ϿЀ-ӿ֐-׿؀-ۿऀ-ॿ぀-ヿ一-鿿]/.test(s)) {
-    // If non-Latin chars dominate over Latin, flag.
-    const nonLatin = (s.match(/[Ͱ-ϿЀ-ӿ֐-׿؀-ۿऀ-ॿ぀-ヿ一-鿿]/g) || []).length;
-    const latin = (s.match(/[A-Za-z]/g) || []).length;
-    if (nonLatin > latin) return true;
-  }
-  let hits = 0;
-  for (const re of NON_EN_MARKERS) if (re.test(s)) hits++;
-  if (hits >= 2) return true;
-  // Strong leading signals — a paragraph starting with "Esta/Este/En el"
-  // is almost always Spanish; "Le/La/Cette" → French; "Der/Die/Das" → German.
-  const head = s.trim().slice(0, 80).toLowerCase();
-  if (/^(esta|este|en el|en la)\b/.test(head)) return true;
-  if (/^(cette|cet)\b/.test(head)) return true;
-  if (/^(dieses|dieser|diese)\b/.test(head)) return true;
-  if (/^(questo|questa)\b/.test(head)) return true;
-  return false;
-}
-
 // Pull a few sentences out of the raw description rather than the
 // single-sentence cut we used to take. Lots of source descriptions are
 // 2–3 short sentences (subject, medium, provenance) and truncating to
@@ -268,7 +203,6 @@ function firstLineDescription(raw) {
   if (!raw) return null;
   const t = stripQuickStatements(raw).trim();
   if (!t) return null;
-  if (looksNonEnglish(t)) return null;
   // Split into sentence-ish chunks while keeping the punctuation.
   const sentences = t.match(/[^.!?\n]+[.!?]?/g) || [t];
   const out = [];
@@ -316,11 +250,52 @@ function keepEntry(entry) {
 
 function normalizeArtistName(raw) {
   if (!raw) return null;
-  let s = stripQuickStatements(raw);
+  // "Unknown author/artist/photographer" placeholders are no information at
+  // all; render as null so the artist field stays blank rather than echoing
+  // the placeholder.
+  if (/^\s*(unknown|anonymous)(\s+(author|artist|painter|photographer|maker))?(\s+\1)?\s*\.?\s*$/i.test(raw))
+    return null;
+  // Wikimedia free-text Artist sometimes appends biographical and publisher
+  // tails like "Utagawa Kuniyoshi; Utagawa Kuniyoshi died 1861; Iseya Rihei"
+  // — keep just the maker.
+  let s = raw.includes(";") ? raw.split(";")[0] : raw;
+  s = stripQuickStatements(s);
   s = s.replace(/\s*\([^)]*\)/g, "");
+
+  // Trailing Google Art Project / Met / Wikipedia boilerplate.
+  s = s.replace(/\bDetails on Google Art Project\b.*$/i, "");
+  // Trailing free-form date ranges left over from "(1832–1904) Details ...".
+  s = s.replace(/[,\-–]?\s*\b1[5-9]\d{2}\s*[-–/]\s*1[5-9]\d{2}\b.*$/, "");
+  // "Lastname, Firstname" → "Firstname Lastname" when the right-hand side is
+  // just one or two given-name tokens (no nationality, no role).
+  const flip = s.match(
+    /^([A-ZÀ-ÖØ-Þ][\p{L}'’\-]+)\s*,\s*([A-ZÀ-ÖØ-Þ][\p{L}'’\-]+(?:\s+[a-zà-öø-þ][\p{L}'’\-]+)?(?:\s+[A-ZÀ-ÖØ-Þ][\p{L}'’\-]+)?)\s*$/u,
+  );
+  if (flip) s = `${flip[2]} ${flip[1]}`;
+  // Otherwise drop nationality/role tail after the first comma (e.g.
+  // "Mary Stevenson Cassatt, American, 1844 - 1926, artist." → "Mary
+  // Stevenson Cassatt").
+  else if (s.includes(",")) s = s.split(",")[0];
+
   s = s.replace(/\b(artist|painter|sculptor|unknown)\b/gi, "").trim();
-  s = s.replace(/\s+/g, " ");
+  // "Sir " title prefix from auction catalogues; harmless honorific.
+  s = s.replace(/^Sir\s+/i, "");
+  // Once Latin content is present, drop trailing CJK glyphs (e.g.
+  // "Chen Rong 陳容 陈容" → "Chen Rong"). Don't touch fully-CJK names.
+  if (/[A-Za-z]/.test(s)) {
+    // Anything from the first CJK glyph onward is a redundant native-
+    // script gloss or biographical tail.
+    s = s.replace(/\s*[　-鿿豈-﫿][\s\S]*$/u, "");
+  }
+  // Strip trailing punctuation/dashes left over from earlier substitutions.
+  s = s.replace(/[\s\-–—.,;:/]+$/u, "");
+  s = s.replace(/\s+/g, " ").trim();
   return s || null;
+}
+
+function fold(s) {
+  // NFKD + strip combining marks so "Vigée" and "Vigee" collide.
+  return s.normalize("NFKD").replace(/[̀-ͯ]/g, "").toLowerCase();
 }
 
 async function loadArtistsDb() {
@@ -329,16 +304,16 @@ async function loadArtistsDb() {
   const byAlias = new Map();
   for (const a of artists) {
     for (const alias of a.aliases || [a.name]) {
-      byAlias.set(alias.toLowerCase(), a);
+      byAlias.set(fold(alias), a);
     }
-    byAlias.set(a.name.toLowerCase(), a);
+    byAlias.set(fold(a.name), a);
   }
   return { artists, byAlias };
 }
 
 function matchArtist(name, byAlias) {
   if (!name) return null;
-  const low = name.toLowerCase();
+  const low = fold(name);
   if (byAlias.has(low)) return byAlias.get(low);
   for (const [alias, a] of byAlias) {
     if (low.includes(alias) || alias.includes(low)) return a;
@@ -499,33 +474,12 @@ async function loadRealDimensions() {
   return m;
 }
 
-// Curator overrides — manually-written or LLM-generated English
-// descriptions keyed by artwork id. Loaded from
-// metadata/curator-descriptions.json (optional). Used for entries
-// whose Wikimedia source description was missing or non-English, so
-// the gallery never has to render a foreign-language paragraph or a
-// generated byline when a real description can be served instead.
-async function loadCuratorDescriptions() {
-  const p = path.join(META, "curator-descriptions.json");
-  if (!existsSync(p)) return new Map();
-  const raw = JSON.parse(await readFile(p, "utf8"));
-  const m = new Map();
-  for (const [id, desc] of Object.entries(raw)) {
-    if (typeof desc === "string" && desc.trim()) m.set(id, desc.trim());
-  }
-  console.log(`[build-data] curator descriptions: ${m.size}`);
-  return m;
-}
-
 async function main() {
-  assertRequiredAssetsAvailable();
-
   const [cob, birds, haeckel] = await Promise.all(
     WIKIMEDIA_FOLDERS.map((f) => readFile(path.join(META, `${f}.json`), "utf8").then(JSON.parse)),
   );
-  const { byAlias } = await loadArtistsDb();
+  const { artists: artistsDb, byAlias } = await loadArtistsDb();
   const realDimensions = await loadRealDimensions();
-  const curatorDescriptions = await loadCuratorDescriptions();
 
   const artworks = [];
   const artistAggregates = new Map();
@@ -550,10 +504,15 @@ async function main() {
         continue;
       }
 
-      const artistName = normalizeArtistName(entry.artist) ?? null;
+      const normalizedArtistName = normalizeArtistName(entry.artist) ?? null;
       const title = cleanTitle(entry.title, fname);
       const year = extractYear(entry);
-      const artistInfo = entry.artist_info ?? matchArtist(artistName, byAlias);
+      const artistInfo = entry.artist_info ?? matchArtist(normalizedArtistName, byAlias);
+      // Prefer the canonical name from the artists DB so casing variants
+      // ("Claude monet"), spelling variants ("Rafael" → "Raphael", "Alfons
+      // Mucha" → "Alphonse Mucha"), and ordering variants ("Yamamoto Kanae"
+      // → "Kanae Yamamoto") collapse onto a single artist page.
+      const artistName = artistInfo?.name ?? normalizedArtistName;
       const artistSlug = artistName ? slugify(artistName) : "unknown";
       const id = slugify(`${folderKey}-${fname.replace(/\.[^.]+$/, "")}`).slice(0, 120);
 
@@ -567,7 +526,7 @@ async function main() {
         artistSlug,
         year,
         dateCreated: stripQuickStatements(entry.date_created) || null,
-        description: curatorDescriptions.get(id) ?? firstLineDescription(entry.description),
+        description: firstLineDescription(entry.description),
         folder: folderKey,
         objectKey: `${folderKey}/${fname}`,
         width: dims?.width ?? null,
@@ -620,13 +579,6 @@ async function main() {
   pushFromFolder("audubon-birds", birds);
   pushFromFolder("kunstformen-images", haeckel);
 
-  if (artworks.length === 0) {
-    throw new Error(
-      `[build-data] Refusing to write an empty catalog. ` +
-        `${droppedMissing.count} metadata entries had no matching source file in assets/.`,
-    );
-  }
-
   if (droppedMissing.count > 0) {
     const sampleStr = droppedMissing.samples.join(", ");
     console.log(
@@ -648,6 +600,7 @@ async function main() {
   const movements = Array.from(new Set(artists.map((a) => a.movement).filter(Boolean))).sort();
 
   const knownArtistByName = new Map(artists.map((a) => [a.name, a]));
+  const artistSlugByName = new Map(artists.map((a) => [a.name, a.slug]));
 
   const edges = [];
   for (const [a, b, label] of KNOWN_CONNECTIONS) {
