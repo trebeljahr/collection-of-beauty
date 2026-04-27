@@ -8,7 +8,12 @@ import { useThree } from "@react-three/fiber";
 import { Suspense, useEffect, useRef } from "react";
 import * as THREE from "three";
 import { type PaintingEntry, registerPainting, unregisterPainting } from "./painting-registry";
-import { frameMaterial, plaqueBaseMaterial, plaqueMountMaterial } from "./palette-materials";
+import {
+  FRAME_VARIANTS,
+  type FrameVariantId,
+  plaqueBaseMaterial,
+  plaqueMountMaterial,
+} from "./palette-materials";
 import { getHiRes, loadHiRes, useCachedTexture } from "./texture-cache";
 
 /**
@@ -83,28 +88,110 @@ const LOD_TIERS: LodTier[] = [
   },
 ];
 
-export function Painting({ placement }: { placement: Placement }) {
+export function Painting({
+  placement,
+  onLoaded,
+}: {
+  placement: Placement;
+  /** Fires once when the base 960 px texture has finished loading and
+   *  the painting plane mounts. Used by GalleryDungeon to drive the
+   *  "Loading first room…" progress bar on the start overlay. */
+  onLoaded?: () => void;
+}) {
   const { artwork, position, rotation, widthM, heightM } = placement;
   const url = variantUrl(artwork.objectKey, 960, "avif");
 
-  // Frame depth was 5 cm — visibly chunky from oblique angles, made
-  // paintings look like they were floating off the wall. Real museum
-  // frames are 2-3 cm; matching that hides the boxiness.
-  const frameDepth = 0.025;
-  const frameInset = 0.025;
+  const variant = FRAME_VARIANTS[pickFrameVariant(artwork)];
+  const frameDepth = variant.depth;
+  const frameInset = variant.inset;
+
+  // Liner is a flat rim sitting on top of the frame's front face,
+  // sandwiched between the frame face (at z = frameDepth/2) and the
+  // canvas plane (at z = 0.014). Keep ≥1.5 mm on both sides to stay well
+  // out of depth-buffer noise. Liner is canvas-sized + 2 × width in XY
+  // so it's strictly inside the frame outer rectangle (no XY clipping)
+  // and the canvas plane occludes its centre, leaving a visible rim.
+  const linerDepth = 0.001;
+  const linerClearance = 0.0015;
+  const linerZ = frameDepth / 2 + linerClearance + linerDepth / 2;
 
   return (
     <group position={position} rotation={rotation}>
       <mesh>
         <boxGeometry args={[widthM + frameInset * 2, heightM + frameInset * 2, frameDepth]} />
-        <primitive object={frameMaterial} attach="material" />
+        <primitive object={variant.material} attach="material" />
       </mesh>
+      {variant.liner && (
+        <mesh position={[0, 0, linerZ]}>
+          <boxGeometry
+            args={[widthM + variant.liner.width * 2, heightM + variant.liner.width * 2, linerDepth]}
+          />
+          <primitive object={variant.liner.material} attach="material" />
+        </mesh>
+      )}
       <Suspense fallback={<FallbackSwatch widthM={widthM} heightM={heightM} artwork={artwork} />}>
-        <PaintingPlane url={url} widthM={widthM} heightM={heightM} artwork={artwork} />
+        <PaintingPlane
+          url={url}
+          widthM={widthM}
+          heightM={heightM}
+          artwork={artwork}
+          onLoaded={onLoaded}
+        />
       </Suspense>
       <Plaque artwork={artwork} widthM={widthM} />
     </group>
   );
+}
+
+// Pick a frame variant that complements the painting's era. Each rule
+// below is a substring match against the artwork's `movement` field —
+// some entries in the dataset are slashed combos like "Realism /
+// Impressionism", so the first match wins. Anything unmatched (and the
+// non-trivial number of artworks with `movement: null`) falls through to
+// a stable hash on the artwork id, which keeps a consistent look per
+// painting across reloads while still spreading variety across the
+// gallery.
+function pickFrameVariant(artwork: Artwork): FrameVariantId {
+  const m = artwork.movement;
+  if (m) {
+    if (m.includes("Ukiyo-e")) return "redLacquer";
+    if (
+      m.includes("Renaissance") ||
+      m.includes("Baroque") ||
+      m.includes("Mannerism") ||
+      m.includes("Academicism") ||
+      m.includes("Neoclassicism")
+    )
+      return "gilded";
+    if (
+      m.includes("Impressionism") ||
+      m.includes("Pre-Raphaelite") ||
+      m.includes("Art Nouveau") ||
+      m.includes("Neo-Impressionism")
+    )
+      return "paleAsh";
+    if (
+      m.includes("Modernism") ||
+      m.includes("Fauvism") ||
+      m.includes("Post-Impressionism") ||
+      m.includes("Symbolism") ||
+      m.includes("Expressionism")
+    )
+      return "ebony";
+    if (
+      m.includes("Dutch Golden Age") ||
+      m.includes("Realism") ||
+      m.includes("Romanticism") ||
+      m.includes("Tonalism") ||
+      m.includes("Regionalism")
+    )
+      return "walnut";
+  }
+  // Stable hash → deterministic per id, distributed across all five.
+  const order: FrameVariantId[] = ["walnut", "ebony", "paleAsh", "gilded", "redLacquer"];
+  let h = 0;
+  for (let i = 0; i < artwork.id.length; i++) h = (h * 31 + artwork.id.charCodeAt(i)) | 0;
+  return order[Math.abs(h) % order.length];
 }
 
 // ── Plaque ────────────────────────────────────────────────────────────
@@ -234,16 +321,26 @@ function PaintingPlane({
   widthM,
   heightM,
   artwork,
+  onLoaded,
 }: {
   url: string;
   widthM: number;
   heightM: number;
   artwork: Placement["artwork"];
+  onLoaded?: () => void;
 }) {
   const texture = useCachedTexture(url);
   const meshRef = useRef<THREE.Mesh>(null);
   const matRef = useRef<THREE.MeshBasicMaterial>(null);
   const { gl } = useThree();
+
+  // PaintingPlane only mounts after Suspense resolves — i.e. after the
+  // 960 px texture is decoded and uploaded. Fire once so the parent can
+  // tally progress for the start-overlay "Loading first room…" bar.
+  // biome-ignore lint/correctness/useExhaustiveDependencies: one-shot — onLoaded identity changes shouldn't refire.
+  useEffect(() => {
+    onLoaded?.();
+  }, []);
 
   useEffect(() => {
     const mesh = meshRef.current;

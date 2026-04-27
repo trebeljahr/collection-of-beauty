@@ -8,6 +8,7 @@ import { artworkJsonLd, jsonLdScriptProps, ogImagesForArtwork } from "@/lib/seo"
 import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
+import type { ReactNode } from "react";
 
 type Params = { id: string };
 
@@ -172,14 +173,16 @@ export default async function ArtworkPage({
  * Source, License — per the Commons reuse guidelines:
  *   https://commons.wikimedia.org/wiki/Commons:Reusing_content_outside_Wikimedia
  *
- * `art.credit` from Commons' source.credit is often "Own work" or a
- * gallery/auction reference — not the artist (the artist is already
- * shown above), so we only render it when it adds information.
+ * Provenance now comes from Wikidata when available (collection,
+ * inventory, museum page URL); otherwise we fall back to source links
+ * scraped from the Commons file page, and finally to the legacy raw
+ * `credit` string with footnote refs cleaned up.
  */
 function AttributionBlock({ artwork }: { artwork: Artwork }) {
-  const credit = meaningfulCredit(artwork.credit);
   const titleText = artwork.title;
   const author = artwork.artist ?? "Unknown artist";
+  const prov = artwork.provenance;
+  const fallbackCredit = !prov ? meaningfulCredit(artwork.credit) : null;
 
   return (
     <div className="rounded-lg border border-[var(--border)] p-4 text-xs leading-relaxed text-[var(--muted-foreground)]">
@@ -199,13 +202,83 @@ function AttributionBlock({ artwork }: { artwork: Artwork }) {
         </a>
         .
       </p>
-      {credit && (
+      {prov && <ProvenanceBlock prov={prov} />}
+      {fallbackCredit && (
         <p className="mt-1.5">
-          <span className="font-medium text-[var(--foreground)]">Provenance:</span> {credit}
+          <span className="font-medium text-[var(--foreground)]">Provenance:</span> {fallbackCredit}
         </p>
       )}
     </div>
   );
+}
+
+function ProvenanceBlock({ prov }: { prov: NonNullable<Artwork["provenance"]> }) {
+  // The collection name is often the same string as the location (e.g.
+  // both are "Cleveland Museum of Art"). Avoid showing it twice.
+  const showLocation = prov.location && prov.location !== prov.collection;
+  const hasStructured = prov.collection || prov.inventory || prov.describedAt || showLocation;
+  const hasLinks = prov.sourceLinks.length > 0;
+  if (!hasStructured && !hasLinks && !prov.wikidataUrl) return null;
+
+  return (
+    <div className="mt-3 border-t border-[var(--border)] pt-3">
+      <p className="mb-1.5 font-medium text-[var(--foreground)]">Provenance</p>
+      {prov.collection && (
+        <p>
+          <span className="text-[var(--foreground)]">Collection:</span> {prov.collection}
+          {prov.inventory ? <> · acc. {prov.inventory}</> : null}
+        </p>
+      )}
+      {showLocation && (
+        <p>
+          <span className="text-[var(--foreground)]">Location:</span> {prov.location}
+        </p>
+      )}
+      {prov.describedAt && (
+        <p>
+          <span className="text-[var(--foreground)]">Museum page:</span>{" "}
+          <ExternalLink href={prov.describedAt}>{hostnameOf(prov.describedAt)}</ExternalLink>
+        </p>
+      )}
+      {hasLinks && (
+        <p>
+          <span className="text-[var(--foreground)]">See also:</span>{" "}
+          {prov.sourceLinks.map((link, i) => (
+            <span key={link.url}>
+              {i > 0 ? ", " : null}
+              <ExternalLink href={link.url}>{link.label}</ExternalLink>
+            </span>
+          ))}
+        </p>
+      )}
+      {prov.wikidataUrl && (
+        <p className="mt-1.5">
+          <ExternalLink href={prov.wikidataUrl}>View on Wikidata ({prov.wikidataId})</ExternalLink>
+        </p>
+      )}
+    </div>
+  );
+}
+
+function ExternalLink({ href, children }: { href: string; children: ReactNode }) {
+  return (
+    <a
+      href={href}
+      target="_blank"
+      rel="noreferrer"
+      className="underline underline-offset-2 hover:text-[var(--foreground)]"
+    >
+      {children}
+    </a>
+  );
+}
+
+function hostnameOf(url: string): string {
+  try {
+    return new URL(url).hostname.replace(/^www\./, "");
+  } catch {
+    return url;
+  }
 }
 
 function LicenseInline({ license }: { license: string | null | undefined }) {
@@ -224,11 +297,37 @@ function LicenseInline({ license }: { license: string | null | undefined }) {
   );
 }
 
-/** Skip the credit if it's a low-signal Wikimedia placeholder ("Own
- *  work") or an absurdly long blob (HTML scraped wholesale). */
+/** Clean up the Wikimedia source.credit before display. The raw field
+ *  often contains orphaned footnote refs (`[1]`, `[2]`) — copied out of
+ *  Wikipedia's References section without the numbered targets — and
+ *  stranded Wikidata QS templates (`wga QS:P11807,"..."`). Returns null
+ *  when nothing readable survives, so the caller can hide the row
+ *  entirely instead of rendering "Provenance: [2]". */
 function meaningfulCredit(credit: string | null): string | null {
   if (!credit) return null;
-  const c = credit.trim();
+  let c = credit.trim();
+  if (!c) return null;
+
+  // Footnote refs, anywhere in the string.
+  c = c.replace(/\[\d+\]/g, "");
+
+  // Wikidata QS-claim templates, e.g.
+  //   wga QS:P11807,"w/weyden/rogier/05sevens/0sevens"
+  //   label QS:Len,"Foo"
+  // These are machine-readable assertions, not human credit.
+  c = c.replace(/\b(?:wga\s+|label\s+)?QS:[A-Z]\w*,\s*"[^"]*"/gi, "");
+
+  // Tidy stranded punctuation/whitespace the strips leave behind:
+  // "  ,  ", " . ;", trailing junk.
+  c = c.replace(/\s+/g, " ");
+  c = c.replace(/\s+([,;.:])/g, "$1");
+  c = c.replace(/([,;:.])\s*([,;:.])/g, "$2");
+  c = c.replace(/^[\s,;:.]+|[\s,;:.]+$/g, "").trim();
+
+  // Connectives that only meant something paired with the stripped
+  // ref ("Cropped from [1]" → "Cropped from").
+  if (/^(?:cropped from|source|see|via|from|and)$/i.test(c)) return null;
+
   if (!c) return null;
   if (/^own\s*work$/i.test(c)) return null;
   if (c.length > 320) return `${c.slice(0, 317)}…`;

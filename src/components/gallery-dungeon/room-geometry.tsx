@@ -23,9 +23,14 @@ import { WallWithDoors } from "./wall";
 export function RoomGeometry({
   room,
   isActive,
+  onPaintingLoaded,
 }: {
   room: RoomLayout;
   isActive: boolean;
+  /** Fires once per painting after its 960 px texture loads. Optional —
+   *  GalleryDungeon only passes it for the entry room so the start
+   *  overlay can show first-room load progress. */
+  onPaintingLoaded?: () => void;
 }) {
   const era = ERAS[room.floorIndex];
   const mats = getPaletteMaterials(era.palette);
@@ -162,7 +167,7 @@ export function RoomGeometry({
 
       {/* Paintings */}
       {room.placements.map((p, i) => (
-        <Painting key={`${room.id}-p${i}`} placement={p} />
+        <Painting key={`${room.id}-p${i}`} placement={p} onLoaded={onPaintingLoaded} />
       ))}
 
       {isActive && (

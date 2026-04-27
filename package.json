@@ -17,6 +17,7 @@
     "scrape:fetch": "node scripts/fetch-wikimedia-metadata.mjs",
     "scrape:resolve": "node scripts/resolve-unresolved.mjs",
     "scrape:classify": "node scripts/classify-unresolved.mjs",
+    "scrape:provenance": "node scripts/fetch-provenance.mjs",
     "download:birds": "bash scripts/download-birds-of-america.sh",
     "download:kunstformen": "bash scripts/download-kunstformen.sh",
     "shrink": "node scripts/shrink-sources.mjs",

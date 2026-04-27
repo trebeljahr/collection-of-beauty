@@ -34,6 +34,18 @@ export function GalleryDungeon({ artworks }: Props) {
   const [currentFloorIdx, setCurrentFloorIdx] = useState(layout.entry.floorIndex);
   const [activeRoomIdx, setActiveRoomIdx] = useState<number>(-1);
   const [zoomed, setZoomed] = useState<Artwork | null>(null);
+  const [aiming, setAiming] = useState<Artwork | null>(null);
+
+  // Entry room — used as the basis for the start-overlay loading bar.
+  // We wait for this room's paintings to decode before the player can
+  // click "Enter", so they don't walk in to a wall of brown swatches.
+  const entryFloor = layout.floors[layout.entry.floorIndex];
+  const entryRoom = entryFloor.rooms.find((r) => r.isAnchor) ?? entryFloor.rooms[0];
+  const entryRoomTotal = entryRoom?.placements.length ?? 0;
+  const [entryRoomLoaded, setEntryRoomLoaded] = useState(0);
+  const handleEntryPaintingLoaded = useCallback(() => {
+    setEntryRoomLoaded((n) => n + 1);
+  }, []);
 
   // ── Audio ────────────────────────────────────────────────────────
   // Ambience: long looping <audio> streamed via HTMLAudioElement.
@@ -159,7 +171,16 @@ export function GalleryDungeon({ artworks }: Props) {
             the existing fog/black backdrop alone. */}
         <Environment preset="apartment" background={false} environmentIntensity={0.4} />
 
-        <FloorScene floor={currentFloor} activeRoomIdx={activeRoomIdx} />
+        <FloorScene
+          floor={currentFloor}
+          activeRoomIdx={activeRoomIdx}
+          // Only the entry floor wires the load-tally callback; once the
+          // player has started, further floors don't need it.
+          entryRoomId={
+            !hasStarted && currentFloorIdx === layout.entry.floorIndex ? entryRoom?.id : undefined
+          }
+          onEntryPaintingLoaded={handleEntryPaintingLoaded}
+        />
         {/* Adjacent floors: mount their stairwell rooms only so the
             stair leading up/down has visual continuity into the next
             floor (no painted void overhead or underfoot). Cheap —
@@ -192,25 +213,19 @@ export function GalleryDungeon({ artworks }: Props) {
             lastCameraRef.current = { x, z, yaw };
           }}
           onZoomRequest={setZoomed}
+          onAimChange={setAiming}
         />
         {hasStarted && !zoomed && <PointerLockControls />}
       </Canvas>
 
       {!hasStarted && (
-        // biome-ignore lint/a11y/useKeyWithClickEvents: pointer-lock entry requires a real mouse click; keyboard activation can't grant pointer-lock
-        <div
-          onClick={() => setHasStarted(true)}
-          className="absolute inset-0 flex flex-col items-center justify-center bg-black/70 text-neutral-100 cursor-pointer"
-        >
-          <h1 className="text-3xl font-semibold mb-2">{currentFloor.era.title}</h1>
-          <p className="text-neutral-400 text-sm mb-8 max-w-md text-center">
-            {currentFloor.era.blurb}
-          </p>
-          <p className="text-neutral-500 text-xs">
-            Click to enter · WASD / arrows to walk · Shift to run · Space to jump
-          </p>
-          <p className="text-neutral-600 text-xs mt-2">1–7 teleports between floors</p>
-        </div>
+        <StartOverlay
+          title={currentFloor.era.title}
+          blurb={currentFloor.era.blurb}
+          loaded={Math.min(entryRoomLoaded, entryRoomTotal)}
+          total={entryRoomTotal}
+          onStart={() => setHasStarted(true)}
+        />
       )}
 
       {hasStarted && (
@@ -228,24 +243,29 @@ export function GalleryDungeon({ artworks }: Props) {
       )}
 
       {hasStarted && !zoomed && (
-        <div className="absolute bottom-4 left-1/2 -translate-x-1/2 bg-black/50 text-neutral-300 px-3 py-1 rounded text-xs pointer-events-none">
-          1 Gothic · 2 Renaissance · 3 Baroque · 4 Enlightenment · 5 Romantic · 6 Fin-de-siècle · 7
-          Modern · click painting to zoom
+        <div className="absolute bottom-4 left-1/2 -translate-x-1/2 bg-black/55 text-neutral-200 px-3 py-1 rounded text-xs pointer-events-none backdrop-blur-sm">
+          {aiming ? (
+            <>
+              Press <kbd className="rounded border border-white/30 px-1 font-mono">E</kbd> or click
+              to inspect painting
+            </>
+          ) : (
+            <>
+              1 Gothic · 2 Renaissance · 3 Baroque · 4 Enlightenment · 5 Romantic · 6 Fin-de-siècle
+              · 7 Modern
+            </>
+          )}
         </div>
       )}
 
       {/* Crosshair — small dot in the centre of the screen so the
-          player knows exactly where they're aiming. Always visible
-          while walking; hidden during the start overlay and zoom
-          modal so it doesn't compete with either. */}
-      {hasStarted && !zoomed && (
-        <div
-          className="absolute inset-0 pointer-events-none flex items-center justify-center"
-          aria-hidden
-        >
-          <div className="w-1.5 h-1.5 rounded-full bg-white/70 shadow-[0_0_2px_rgba(0,0,0,0.8)]" />
-        </div>
-      )}
+          player knows exactly where they're aiming. Swaps to a
+          magnifying-glass icon when the aim raycast lands on a
+          painting (and the player is within ~4.5 m of it), telegraphing
+          the inspect/zoom affordance. Always visible while walking;
+          hidden during the start overlay and zoom modal so it doesn't
+          compete with either. */}
+      {hasStarted && !zoomed && <Crosshair inspecting={aiming !== null} />}
 
       {/* Audio controls — shown after the start gate (mount on the
           user's first click, which is also the autoplay gate). */}
@@ -283,6 +303,8 @@ function FloorScene({
   floor,
   activeRoomIdx,
   showOnly,
+  entryRoomId,
+  onEntryPaintingLoaded,
 }: {
   floor: FloorLayout;
   activeRoomIdx: number;
@@ -290,6 +312,10 @@ function FloorScene({
    *  used for adjacent floors so the stair has visual continuity
    *  without mounting every room + painting. */
   showOnly?: "stairwell";
+  /** Room whose paintings should report load progress. Undefined →
+   *  no room reports (e.g. once the player has entered). */
+  entryRoomId?: string;
+  onEntryPaintingLoaded?: () => void;
 }) {
   const rooms = showOnly === "stairwell" ? floor.rooms.filter((r) => r.isStairwell) : floor.rooms;
   const hallways = showOnly === "stairwell" ? [] : floor.hallways;
@@ -301,7 +327,12 @@ function FloorScene({
   return (
     <group>
       {rooms.map((room, i) => (
-        <RoomGeometry key={room.id} room={room} isActive={i === activeRoomIdx} />
+        <RoomGeometry
+          key={room.id}
+          room={room}
+          isActive={i === activeRoomIdx}
+          onPaintingLoaded={room.id === entryRoomId ? onEntryPaintingLoaded : undefined}
+        />
       ))}
       {hallways.map((hw) => (
         <HallwayRenderer key={hw.id} hallway={hw} floor={floor} />
@@ -310,5 +341,130 @@ function FloorScene({
         <StaircaseRenderer key={s.id} staircase={s} />
       ))}
     </group>
+  );
+}
+
+/**
+ * Centre-screen aim reticle. Default state is a tiny dot so the player
+ * knows where they're looking; when the aim raycast hits a painting
+ * within range, swap to a magnifying-glass icon so the inspect/zoom
+ * affordance is immediately legible. Ported from the pre-museum
+ * gallery's Crosshair — the multi-floor cutover dropped it, leaving
+ * only the dot.
+ */
+function Crosshair({ inspecting }: { inspecting: boolean }) {
+  return (
+    <div
+      aria-hidden
+      className="pointer-events-none absolute inset-0 flex items-center justify-center"
+    >
+      {inspecting ? (
+        <svg
+          width="34"
+          height="34"
+          viewBox="0 0 24 24"
+          className="drop-shadow-[0_1px_2px_rgba(0,0,0,0.8)]"
+          aria-hidden="true"
+        >
+          <title>Inspect painting</title>
+          <circle
+            cx="10"
+            cy="10"
+            r="6.5"
+            fill="rgba(0,0,0,0.25)"
+            stroke="white"
+            strokeWidth="1.8"
+          />
+          <line
+            x1="14.5"
+            y1="14.5"
+            x2="20.5"
+            y2="20.5"
+            stroke="white"
+            strokeWidth="2.2"
+            strokeLinecap="round"
+          />
+        </svg>
+      ) : (
+        <div className="h-1.5 w-1.5 rounded-full bg-white/70 shadow-[0_0_2px_rgba(0,0,0,0.8)]" />
+      )}
+    </div>
+  );
+}
+
+/**
+ * Start-of-gallery overlay. Card-style modal with the era title, the
+ * controls hint, and a progress bar reporting how many of the entry
+ * room's paintings have decoded their textures. The Enter button is
+ * disabled until the entry room is fully loaded so the player doesn't
+ * walk into a wall of brown swatches. Ported from the old corridor
+ * gallery's StartOverlay — same UX, scoped to the new entry room.
+ */
+function StartOverlay({
+  onStart,
+  loaded,
+  total,
+  title,
+  blurb,
+}: {
+  onStart: () => void;
+  loaded: number;
+  total: number;
+  title: string;
+  blurb: string;
+}) {
+  const ready = total === 0 || loaded >= total;
+  const pct = total > 0 ? Math.round((loaded / total) * 100) : 100;
+
+  return (
+    // biome-ignore lint/a11y/useKeyWithClickEvents: pointer-lock entry requires a real mouse click; keyboard activation can't grant pointer-lock
+    <div
+      onClick={ready ? onStart : undefined}
+      className={`absolute inset-0 z-10 flex items-center justify-center bg-black/70 backdrop-blur-sm ${
+        ready ? "cursor-pointer" : "cursor-default"
+      }`}
+    >
+      {/* biome-ignore lint/a11y/useKeyWithClickEvents: stopPropagation only. */}
+      <div
+        onClick={(e) => e.stopPropagation()}
+        className="w-[min(480px,92vw)] rounded-xl border border-white/15 bg-black/60 p-6 text-center text-white shadow-2xl"
+      >
+        <h2 className="font-serif text-2xl tracking-wide">Enter the museum</h2>
+        <p className="mt-3 text-sm leading-relaxed text-white/80">
+          You'll start on <span className="font-medium text-white">{title}</span>.
+          <span className="mt-1 block text-white/60">{blurb}</span>
+        </p>
+        <p className="mt-4 text-xs leading-relaxed text-white/65">
+          <kbd className="rounded border border-white/30 px-1.5">W</kbd>{" "}
+          <kbd className="rounded border border-white/30 px-1.5">A</kbd>{" "}
+          <kbd className="rounded border border-white/30 px-1.5">S</kbd>{" "}
+          <kbd className="rounded border border-white/30 px-1.5">D</kbd> to walk · mouse to look ·{" "}
+          <kbd className="rounded border border-white/30 px-1.5">Shift</kbd> to run ·{" "}
+          <kbd className="rounded border border-white/30 px-1.5">Space</kbd> to jump · click a
+          painting to zoom · 1–7 teleports between floors
+        </p>
+
+        <div className="mt-5 space-y-2">
+          <div className="h-1.5 w-full overflow-hidden rounded-full bg-white/10">
+            <div
+              className="h-full bg-white/70 transition-[width] duration-300 ease-out"
+              style={{ width: `${pct}%` }}
+            />
+          </div>
+          <div className="text-xs text-white/55">
+            {ready ? "First room ready" : `Loading first room… ${loaded}/${total}`}
+          </div>
+        </div>
+
+        <button
+          type="button"
+          onClick={onStart}
+          disabled={!ready}
+          className="mt-5 rounded-md bg-white px-5 py-2 text-sm font-medium text-black transition hover:bg-white/85 disabled:cursor-not-allowed disabled:bg-white/30 disabled:text-white/60"
+        >
+          {ready ? "Enter" : "Preparing…"}
+        </button>
+      </div>
+    </div>
   );
 }

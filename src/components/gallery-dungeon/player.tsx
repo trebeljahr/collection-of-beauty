@@ -23,6 +23,11 @@ const GRAVITY = 22;
 // Keep the player this far back from a wall face. Cell-size is 2.5 m;
 // 0.3 m leaves headroom for the wall plane + trim geometry.
 const PLAYER_RADIUS = 0.3;
+// Max distance (m) at which the crosshair swaps to the magnifying-glass
+// "inspect" affordance. Click-to-zoom still works at any range; this is
+// purely the visual hover threshold so the cursor only changes when the
+// player is right up against the painting they're looking at.
+const AIM_MAX_DIST = 2;
 
 /**
  * First-person player with grid-based collision. The active floor's
@@ -39,6 +44,7 @@ export function Player({
   onFloorChange,
   onPositionSample,
   onZoomRequest,
+  onAimChange,
 }: {
   enabled: boolean;
   floor: FloorLayout;
@@ -61,15 +67,28 @@ export function Player({
   /** Called with an Artwork when the player clicks/aims at a painting,
    *  so the host can open an inspect/zoom overlay. */
   onZoomRequest?: (artwork: Artwork) => void;
+  /** Fires when the painting under the crosshair changes (or null when
+   *  none is in range). Throttled to ~10 Hz inside this component;
+   *  consumers can use it to swap the crosshair to a magnifying-glass
+   *  affordance and show a "Press E to inspect" hint. */
+  onAimChange?: (artwork: Artwork | null) => void;
 }) {
   const { camera } = useThree();
   const keys = useRef<Record<string, boolean>>({});
   const velocityY = useRef(0);
   const grounded = useRef(true);
   const lastRoomIdx = useRef<number>(-2);
-  const raycaster = useRef(new THREE.Raycaster(undefined, undefined, 0.1, 12));
+  // Click and aim raycasters share the same INSPECT_RANGE so the
+  // crosshair affordance and the click-to-zoom action agree: if the
+  // magnifying-glass cursor isn't showing, the click won't open
+  // anything either. Two separate Raycaster instances avoid having
+  // tryZoom re-set the throttled aim raycaster mid-frame.
+  const raycaster = useRef(new THREE.Raycaster(undefined, undefined, 0.1, AIM_MAX_DIST));
+  const aimRaycaster = useRef(new THREE.Raycaster(undefined, undefined, 0.1, AIM_MAX_DIST));
   const rayOrigin = useRef(new THREE.Vector3());
   const rayDir = useRef(new THREE.Vector3());
+  const aimFrameCount = useRef(0);
+  const aimLast = useRef<Artwork | null>(null);
   /** Cumulative-angle state for the spiral. `cumulativeAngle ∈ [0, 2π]`
    *  describes how far around the current stair's revolution the
    *  player has walked; `lastRaw` is the previous frame's raw angle so
@@ -98,7 +117,12 @@ export function Player({
       // Painting-registry prefilter — bounds the raycast to the
       // ~handful of paintings in the player's forward cone instead of
       // traversing hundreds of wall/floor/step meshes on every click.
-      const artwork = raycastNearestPainting(raycaster.current, rayOrigin.current, rayDir.current);
+      const artwork = raycastNearestPainting(
+        raycaster.current,
+        rayOrigin.current,
+        rayDir.current,
+        AIM_MAX_DIST,
+      );
       if (artwork) onZoomRequest(artwork);
     };
     const down = (e: KeyboardEvent) => {
@@ -283,6 +307,30 @@ export function Player({
       // angle tells the arrow which way to point directly.
       const yaw = Math.atan2(forward.z, forward.x);
       onPositionSample(camera.position.x, camera.position.z, yaw);
+    }
+
+    // Throttled aim raycast for the inspect-cursor affordance. ~10 Hz
+    // (every 6 frames at 60 fps) is indistinguishable from real-time and
+    // keeps the per-frame work tiny — painting-registry already
+    // distance/forward-dot prefilters, so the actual ray test runs
+    // against the handful of paintings plausibly in the player's path.
+    if (onAimChange) {
+      aimFrameCount.current = (aimFrameCount.current + 1) % 6;
+      if (aimFrameCount.current === 0) {
+        camera.getWorldPosition(rayOrigin.current);
+        camera.getWorldDirection(rayDir.current);
+        aimRaycaster.current.set(rayOrigin.current, rayDir.current);
+        const aimed = raycastNearestPainting(
+          aimRaycaster.current,
+          rayOrigin.current,
+          rayDir.current,
+          AIM_MAX_DIST,
+        );
+        if (aimed !== aimLast.current) {
+          aimLast.current = aimed;
+          onAimChange(aimed);
+        }
+      }
     }
 
     // Active-room detection — emit a callback when the owner cell changes.
