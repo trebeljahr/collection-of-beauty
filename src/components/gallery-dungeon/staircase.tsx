@@ -13,27 +13,30 @@ const treadMaterial = new THREE.MeshStandardMaterial({
   roughness: 0.7,
   metalness: 0.1,
 });
-const newelMaterial = new THREE.MeshStandardMaterial({
-  color: "#1f1611",
-  roughness: 0.9,
-  metalness: 0.05,
-});
 const railTopMaterial = new THREE.MeshStandardMaterial({
-  color: "#2a1d14",
-  roughness: 0.6,
-  metalness: 0.15,
+  // Warm bronze — the top rail is the eye-catching detail, slightly
+  // metallic so the gallery's environment light catches its arc.
+  color: "#6a4a28",
+  roughness: 0.45,
+  metalness: 0.6,
 });
 const balusterMaterial = new THREE.MeshStandardMaterial({
-  color: "#1a1108",
-  roughness: 0.85,
-  metalness: 0.05,
+  // Dark wrought iron for the verticals — strong contrast against
+  // the warm tread tones so the railing reads at a glance.
+  color: "#0f0c08",
+  roughness: 0.7,
+  metalness: 0.4,
 });
 
 const TREAD_THICKNESS = 0.16;
-const NEWEL_HEIGHT = 2.2;
-const NEWEL_SIZE = 0.32;
-const RAIL_HEIGHT = 1.0;
-const BALUSTER_SIZE = 0.05;
+const RAIL_HEIGHT = 1.05;
+const RAIL_TOP_THICKNESS = 0.09;
+const BALUSTER_SIZE = 0.07;
+/** Step indices skipped on the OUTER rail — the gap is the player's
+ *  entry/exit point onto the spiral, centred on the entry direction.
+ *  Two steps' worth = ~33°, wide enough to walk through comfortably
+ *  without scraping the rail posts on either side. */
+const OUTER_RAIL_GAP_STEPS = 2;
 
 /**
  * Build a single spiral tread as an explicit BufferGeometry (annulus
@@ -148,27 +151,53 @@ function buildSpiralStepsGeometry(staircase: Staircase): THREE.BufferGeometry {
   return geom;
 }
 
-/** Inner railing around the open well — a continuous top rail with
- *  vertical balusters at each step. Inner radius slightly outside the
- *  well so the rail doesn't z-fight with the tread inner face. */
-function buildInnerRail(staircase: Staircase): {
-  rail: THREE.BufferGeometry;
-  balusters: Array<[number, number, number]>;
-} {
-  const { innerRadius, numSteps, direction, lowerY, upperY, entryAngle } = staircase;
+/** Build a spiral railing — a continuous top rail with vertical
+ *  balusters at every step. Used for both the inner edge (around the
+ *  open well) and the outer edge (between the treads and the
+ *  stairwell room). The outer rail skips a configurable number of
+ *  steps at the entry direction to leave a gate for the player to
+ *  walk onto the spiral.
+ *
+ *  Returns:
+ *   - `rail`: a triangle-strip ribbon following the rail path at
+ *     RAIL_HEIGHT above each tread, of thickness RAIL_TOP_THICKNESS.
+ *   - `balusters`: world-relative XYZ positions for each baluster
+ *     (one per step, at the step's start angle). */
+function buildSpiralRail(
+  staircase: Staircase,
+  side: "inner" | "outer",
+  gapSteps: number,
+): { rail: THREE.BufferGeometry; balusters: Array<[number, number, number]> } {
+  const { innerRadius, outerRadius, numSteps, direction, lowerY, upperY, entryAngle } =
+    staircase;
   const stepAngle = ((Math.PI * 2) / numSteps) * direction;
   const stepRise = (upperY - lowerY) / numSteps;
-  const railR = innerRadius + 0.06;
+  // Inner rail sits a finger-width INSIDE the inner tread edge so the
+  // player at the rim has the rail "in front of" them as they look
+  // toward the well. Outer rail sits a finger-width INSIDE the outer
+  // tread edge, same idea on the outside face.
+  const railR = side === "inner" ? innerRadius + 0.07 : outerRadius - 0.07;
+  const balR = side === "inner" ? innerRadius + 0.05 : outerRadius - 0.05;
   const positions: number[] = [];
   const indices: number[] = [];
   const segPerStep = 3;
-  const railThickness = 0.06;
 
-  // Build a thin ribbon along the rail path. Two control points per
-  // sample (one at top of rail, one slightly below) form a quad strip.
-  let ringIdx = 0;
+  // Gap window — gapSteps consecutive step indices centred on the
+  // entry angle (i=0). For gapSteps=2: skip step (numSteps−1) and
+  // step 0; for gapSteps=1: skip step 0 only.
+  const gapAfter = Math.ceil(gapSteps / 2);
+  const gapBefore = Math.floor(gapSteps / 2);
+  const inGap = (i: number) =>
+    gapSteps > 0 && (i < gapAfter || i >= numSteps - gapBefore);
+
   const balusters: Array<[number, number, number]> = [];
+  let ringIdx = 0;
+  let prevHadVertex = false;
   for (let i = 0; i < numSteps; i++) {
+    if (inGap(i)) {
+      prevHadVertex = false;
+      continue;
+    }
     const aStart = entryAngle + i * stepAngle;
     const aEnd = entryAngle + (i + 1) * stepAngle;
     const lo = Math.min(aStart, aEnd);
@@ -180,22 +209,23 @@ function buildInnerRail(staircase: Staircase): {
       const x = railR * Math.cos(theta);
       const z = railR * Math.sin(theta);
       positions.push(x, yTop, z);
-      positions.push(x, yTop - railThickness, z);
-      if (i + s > 0) {
+      positions.push(x, yTop - RAIL_TOP_THICKNESS, z);
+      // Only stitch a quad strip when the previous vertex was part of
+      // a continuous arc (no gap between).
+      if (prevHadVertex || s > 0) {
         const a = (ringIdx - 1) * 2;
         const b = ringIdx * 2;
         indices.push(a, b, a + 1);
         indices.push(a + 1, b, b + 1);
       }
       ringIdx++;
+      prevHadVertex = true;
     }
     // One baluster per step at the start angle.
-    const balR = innerRadius + 0.04;
-    const balTheta = aStart;
     balusters.push([
-      balR * Math.cos(balTheta),
-      lowerY + i * stepRise + (RAIL_HEIGHT - railThickness) / 2,
-      balR * Math.sin(balTheta),
+      balR * Math.cos(aStart),
+      lowerY + i * stepRise + (RAIL_HEIGHT - RAIL_TOP_THICKNESS) / 2,
+      balR * Math.sin(aStart),
     ]);
   }
   const geom = new THREE.BufferGeometry();
@@ -206,36 +236,26 @@ function buildInnerRail(staircase: Staircase): {
 }
 
 /**
- * Render one revolution of the open-well spiral. Steps are real wedge
- * geometry (top, bottom, inner curve, outer curve, riser caps) so each
- * tread reads as a step rather than a smoothed ramp. A continuous top
- * rail follows the inner edge of the spiral with a baluster per step.
- * Newel posts at the entry angle anchor the bottom and top to the
- * floor + ceiling and carry the directional sign.
+ * Render one revolution of the open-well spiral. Treads are real
+ * wedge geometry (top, bottom, inner curve, outer curve, riser caps)
+ * so each step reads as a step rather than a smoothed ramp. Two
+ * railings — one along the inner edge of the open well, one along
+ * the outer edge — give the player a clear handhold on either side
+ * as they climb. The outer rail has a one-step gap at the entry
+ * direction so the player can step onto / off the spiral; the
+ * directional signs themselves live on gate posts placed by the
+ * stairwell-accents component, where they can sit flush against
+ * substantial railing posts at floor level.
  */
 export function StaircaseRenderer({ staircase }: { staircase: Staircase }) {
-  const { centerX, centerZ, outerRadius, lowerY, upperY, entryAngle } = staircase;
+  const { centerX, centerZ } = staircase;
 
   const stepsGeom = useMemo(() => buildSpiralStepsGeometry(staircase), [staircase]);
-  const railData = useMemo(() => buildInnerRail(staircase), [staircase]);
-
-  // Newel posts at the entry direction, just outside the outer tread
-  // radius. They anchor the spiral to the floor (visually, by going
-  // floor → 2 m up) and carry the wall-mounted direction sign.
-  const newelR = outerRadius + NEWEL_SIZE / 2 + 0.05;
-  const newelX = newelR * Math.cos(entryAngle);
-  const newelZ = newelR * Math.sin(entryAngle);
-
-  // Sign sits flush against the OUTWARD-facing face of the newel
-  // post — the side a player approaching from outside the spiral will
-  // see first. We want the sign's normal (default +Z) to point in the
-  // entry direction, i.e. outward from the spiral centre. The Y
-  // rotation that maps +Z onto (cos(entryAngle), 0, sin(entryAngle))
-  // is θ = π/2 − entryAngle.
-  const signRotY = Math.PI / 2 - entryAngle;
-  const signOffset = NEWEL_SIZE / 2 + 0.012;
-  const signX = newelX + Math.cos(entryAngle) * signOffset;
-  const signZ = newelZ + Math.sin(entryAngle) * signOffset;
+  const innerRail = useMemo(() => buildSpiralRail(staircase, "inner", 0), [staircase]);
+  const outerRail = useMemo(
+    () => buildSpiralRail(staircase, "outer", OUTER_RAIL_GAP_STEPS),
+    [staircase],
+  );
 
   return (
     <group position={[centerX, 0, centerZ]}>
@@ -245,47 +265,35 @@ export function StaircaseRenderer({ staircase }: { staircase: Staircase }) {
       </mesh>
 
       {/* Inner railing around the open well. */}
-      <mesh geometry={railData.rail}>
+      <mesh geometry={innerRail.rail} castShadow>
         <primitive object={railTopMaterial} attach="material" />
       </mesh>
-      {railData.balusters.map((p) => (
-        <mesh key={`bal-${p.join("-")}`} position={p}>
+      {innerRail.balusters.map((p, i) => (
+        <mesh key={`in-bal-${i}`} position={p} castShadow>
           <boxGeometry args={[BALUSTER_SIZE, RAIL_HEIGHT, BALUSTER_SIZE]} />
           <primitive object={balusterMaterial} attach="material" />
         </mesh>
       ))}
 
-      {/* Lower newel post + UP sign. Sits at lowerY + 1.65 (eye-ish
-          height for a player at lowerY). */}
-      <mesh position={[newelX, lowerY + NEWEL_HEIGHT / 2, newelZ]}>
-        <boxGeometry args={[NEWEL_SIZE, NEWEL_HEIGHT, NEWEL_SIZE]} />
-        <primitive object={newelMaterial} attach="material" />
+      {/* Outer railing along the outside of the spiral, with a
+          one-step gap at the entry direction. */}
+      <mesh geometry={outerRail.rail} castShadow>
+        <primitive object={railTopMaterial} attach="material" />
       </mesh>
-      <StairSign
-        position={[signX, lowerY + 1.65, signZ]}
-        rotationY={signRotY}
-        label={`↑ ${staircase.upperLabel}`}
-      />
-
-      {/* Upper newel post + DOWN sign. The DOWN sign sits LOWER on
-          its post (offset 0.85) than the next stair's UP sign would
-          (offset 1.65), so adjacent stairs' signs at the same shared
-          floor's level stack vertically — DOWN to where you came
-          from BELOW the UP to where you're going next. */}
-      <mesh position={[newelX, upperY + NEWEL_HEIGHT / 2, newelZ]}>
-        <boxGeometry args={[NEWEL_SIZE, NEWEL_HEIGHT, NEWEL_SIZE]} />
-        <primitive object={newelMaterial} attach="material" />
-      </mesh>
-      <StairSign
-        position={[signX, upperY + 0.85, signZ]}
-        rotationY={signRotY}
-        label={`↓ ${staircase.lowerLabel}`}
-      />
+      {outerRail.balusters.map((p, i) => (
+        <mesh key={`out-bal-${i}`} position={p} castShadow>
+          <boxGeometry args={[BALUSTER_SIZE, RAIL_HEIGHT, BALUSTER_SIZE]} />
+          <primitive object={balusterMaterial} attach="material" />
+        </mesh>
+      ))}
     </group>
   );
 }
 
-function StairSign({
+/** Sign panel for use on gate posts — exposed so the stairwell-accents
+ *  component can mount them on the cutout-edge railing rather than on
+ *  floating posts inside the stair. */
+export function StairSign({
   position,
   rotationY,
   label,
@@ -297,12 +305,12 @@ function StairSign({
   return (
     <group position={position} rotation={[0, rotationY, 0]}>
       <mesh>
-        <boxGeometry args={[1.4, 0.32, 0.02]} />
+        <boxGeometry args={[1.4, 0.34, 0.025]} />
         <primitive object={signBaseMaterial} attach="material" />
       </mesh>
       <Text
-        position={[0, 0, 0.012]}
-        fontSize={0.14}
+        position={[0, 0, 0.014]}
+        fontSize={0.13}
         color="#f2e9d0"
         anchorX="center"
         anchorY="middle"
@@ -338,20 +346,16 @@ export function spiralRawAngle(stair: Staircase, worldX: number, worldZ: number)
 }
 
 /** Y the player's feet should sit at given a cumulative angle on this
- *  stair. The Y is DISCRETE per tread — it matches each step's
- *  rendered top exactly, so the player's feet are visually planted on
- *  the tread they're standing on rather than gliding along an
- *  invisible ramp through the geometry. The camera damping in
- *  player.tsx smooths the per-step jumps into a feeling-of-climbing
- *  rather than a teleport. Cumulative ∈ [0, 2π]; clamped outside. */
+ *  stair. Continuous along the spiral so on/off ramping is smooth and
+ *  flush with the floor at both ends — at cumulative=0 the player is
+ *  exactly on lowerY (= the floor below), at cumulative=2π exactly on
+ *  upperY (= the floor above), with a continuous climb between. The
+ *  visual rendered treads at lowerY + i*stepRise sit *under* the
+ *  player while they walk that tread's arc; the top of that tread is
+ *  the moving goal as they cross it. */
 export function stairHeightAt(stair: Staircase, cumulativeAngle: number): number {
-  const stepAngle = (Math.PI * 2) / stair.numSteps;
-  const stepRise = (stair.upperY - stair.lowerY) / stair.numSteps;
-  // Step idx is 0..numSteps-1 for cumulative in [0, 2π); cumulative=2π
-  // is the transition point handed off to the next stair, so we clamp
-  // to numSteps-1 before reaching it.
-  const idx = Math.max(0, Math.min(stair.numSteps - 1, Math.floor(cumulativeAngle / stepAngle)));
-  return stair.lowerY + idx * stepRise;
+  const t = Math.max(0, Math.min(1, cumulativeAngle / (Math.PI * 2)));
+  return stair.lowerY + t * (stair.upperY - stair.lowerY);
 }
 
 /** Find the stair connected above this one (its upperFloor matches

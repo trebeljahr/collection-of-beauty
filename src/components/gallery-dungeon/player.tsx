@@ -419,6 +419,21 @@ function canStepTo(
     const onUpperLanding = currentCum >= Math.PI * 2 - EXIT_TOL;
     if (!onLowerLanding && !onUpperLanding) return false;
   }
+  // Open-well guard. On every floor above the ground there's a
+  // circular hole in the stairwell floor exposing the spiral going
+  // down; the cells inside that hole are still flagged walkable in
+  // the cell mask, so without an explicit check the player would
+  // happily walk over the abyss. Block any target inside the
+  // central well (radius < spiral inner radius) on those floors.
+  if (floor.index > 0 && currentStairId === null) {
+    for (const s of [...floor.stairsOut, ...floor.stairsIn]) {
+      const dx = toX - s.centerX;
+      const dz = toZ - s.centerZ;
+      if (dx * dx + dz * dz < s.innerRadius * s.innerRadius) {
+        return false;
+      }
+    }
+  }
   if (!isWalkable(floor, toX, toZ)) return false;
   if (!canCrossEdges(floor, fromX, fromZ, toX, toZ)) return false;
   return true;

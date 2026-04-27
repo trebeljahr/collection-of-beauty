@@ -1,0 +1,245 @@
+"use client";
+
+import type { FloorLayout } from "@/lib/gallery-layout/types";
+import { SPIRAL_FLOOR_CUTOUT_RADIUS } from "@/lib/gallery-layout/world-coords";
+import { useMemo } from "react";
+import * as THREE from "three";
+import { StairSign } from "./staircase";
+
+// Local copies of the rail vocabulary so this file is self-contained.
+const railTopMaterial = new THREE.MeshStandardMaterial({
+  color: "#6a4a28",
+  roughness: 0.45,
+  metalness: 0.6,
+});
+const balusterMaterial = new THREE.MeshStandardMaterial({
+  color: "#0f0c08",
+  roughness: 0.7,
+  metalness: 0.4,
+});
+const gatePostMaterial = new THREE.MeshStandardMaterial({
+  color: "#1a120a",
+  roughness: 0.7,
+  metalness: 0.45,
+});
+
+const RAIL_HEIGHT = 1.05;
+const RAIL_TOP_THICKNESS = 0.09;
+const BALUSTER_SIZE = 0.07;
+const GATE_POST_SIZE = 0.32;
+const GATE_POST_HEIGHT = 2.4;
+/** Half-arc of the entry gate in radians. The gate is centred on the
+ *  spiral's `entryAngle` and the rail is omitted across this arc. */
+const GATE_HALF_ARC = 0.34; // ≈ 19.5° each side, ≈ 39° total
+
+/** Build the cutout-edge top rail as a triangle-strip ribbon. The rail
+ *  follows a circle of radius `radius` at height `y + RAIL_HEIGHT`,
+ *  skipping a centred gate of width 2 * gateHalfArc around `entryAngle`. */
+function buildCutoutRailGeometry(
+  radius: number,
+  y: number,
+  entryAngle: number,
+  gateHalfArc: number,
+): THREE.BufferGeometry {
+  const segments = 64;
+  const positions: number[] = [];
+  const indices: number[] = [];
+  let ringIdx = 0;
+  let prevHadVertex = false;
+  for (let s = 0; s <= segments; s++) {
+    const theta = (s / segments) * Math.PI * 2;
+    // Shortest signed angular distance from theta to entryAngle.
+    const angDiff = Math.atan2(
+      Math.sin(theta - entryAngle),
+      Math.cos(theta - entryAngle),
+    );
+    if (Math.abs(angDiff) < gateHalfArc) {
+      prevHadVertex = false;
+      continue;
+    }
+    const x = radius * Math.cos(theta);
+    const z = radius * Math.sin(theta);
+    positions.push(x, y + RAIL_HEIGHT, z);
+    positions.push(x, y + RAIL_HEIGHT - RAIL_TOP_THICKNESS, z);
+    if (prevHadVertex) {
+      const a = (ringIdx - 1) * 2;
+      const b = ringIdx * 2;
+      indices.push(a, b, a + 1);
+      indices.push(a + 1, b, b + 1);
+    }
+    ringIdx++;
+    prevHadVertex = true;
+  }
+  const geom = new THREE.BufferGeometry();
+  geom.setAttribute("position", new THREE.Float32BufferAttribute(positions, 3));
+  geom.setIndex(indices);
+  geom.computeVertexNormals();
+  return geom;
+}
+
+/** Sample a regular series of baluster positions around the cutout
+ *  rail, again skipping the gate arc. */
+function buildCutoutBalusters(
+  radius: number,
+  y: number,
+  entryAngle: number,
+  gateHalfArc: number,
+): Array<[number, number, number]> {
+  const out: Array<[number, number, number]> = [];
+  // ~30 cm arc length between balusters at radius=5.5 → 30 balusters
+  // around 2π. Round to a nice integer.
+  const count = 28;
+  for (let i = 0; i < count; i++) {
+    const theta = (i / count) * Math.PI * 2;
+    const angDiff = Math.atan2(
+      Math.sin(theta - entryAngle),
+      Math.cos(theta - entryAngle),
+    );
+    if (Math.abs(angDiff) < gateHalfArc) continue;
+    out.push([
+      radius * Math.cos(theta),
+      y + (RAIL_HEIGHT - RAIL_TOP_THICKNESS) / 2,
+      radius * Math.sin(theta),
+    ]);
+  }
+  return out;
+}
+
+/**
+ * Per-floor stairwell accents: cutout-edge railing (only on floors
+ * above the ground, where there's a hole in the floor to fall into),
+ * a pair of gate posts at the entry direction, and the directional
+ * signs mounted on the gate posts. The signs face outward — toward
+ * the player approaching from the grand-hall door — so they read
+ * face-on as you walk up to the staircase.
+ */
+export function StairwellAccents({ floor }: { floor: FloorLayout }) {
+  const stairwell = useMemo(
+    () => floor.rooms.find((r) => r.isStairwell) ?? null,
+    [floor.rooms],
+  );
+
+  const data = useMemo(() => {
+    if (!stairwell) return null;
+    const stairOut = floor.stairsOut[0];
+    const stairIn = floor.stairsIn[0];
+    const reference = stairOut ?? stairIn;
+    if (!reference) return null;
+    const cx = reference.centerX;
+    const cz = reference.centerZ;
+    const railR = SPIRAL_FLOOR_CUTOUT_RADIUS + 0.18;
+    const railGeom = buildCutoutRailGeometry(
+      railR,
+      floor.y,
+      reference.entryAngle,
+      GATE_HALF_ARC,
+    );
+    const balusters = buildCutoutBalusters(
+      railR,
+      floor.y,
+      reference.entryAngle,
+      GATE_HALF_ARC,
+    );
+    return {
+      cx,
+      cz,
+      railR,
+      railGeom,
+      balusters,
+      entryAngle: reference.entryAngle,
+      stairOut,
+      stairIn,
+    };
+  }, [floor, stairwell]);
+
+  if (!stairwell || !data) return null;
+  const { cx, cz, railR, railGeom, balusters, entryAngle, stairOut, stairIn } = data;
+  const hasCutout = floor.index > 0;
+  // Gate posts flank the gate gap. Post A is one half-arc CCW from
+  // entry, post B one half-arc CW. They sit at the rail radius +
+  // a hair so the post face is flush with the rail end.
+  const gatePostRadius = railR + 0.02;
+  const angleA = entryAngle + GATE_HALF_ARC;
+  const angleB = entryAngle - GATE_HALF_ARC;
+  const postA = {
+    x: cx + gatePostRadius * Math.cos(angleA),
+    z: cz + gatePostRadius * Math.sin(angleA),
+    angle: angleA,
+  };
+  const postB = {
+    x: cx + gatePostRadius * Math.cos(angleB),
+    z: cz + gatePostRadius * Math.sin(angleB),
+    angle: angleB,
+  };
+
+  // Each sign hugs the OUTWARD-facing side of its post (away from the
+  // spiral centre) and rotates so its +Z normal points along that
+  // post's outward radial.
+  const signOffset = GATE_POST_SIZE / 2 + 0.014;
+  const signFor = (post: { x: number; z: number; angle: number }) => ({
+    position: [
+      post.x + Math.cos(post.angle) * signOffset,
+      floor.y + 1.65,
+      post.z + Math.sin(post.angle) * signOffset,
+    ] as [number, number, number],
+    rotationY: Math.PI / 2 - post.angle,
+  });
+  const signA = signFor(postA);
+  const signB = signFor(postB);
+
+  return (
+    <group>
+      {/* Cutout-edge railing — only meaningful when there's actually a
+          hole to fall into. */}
+      {hasCutout && (
+        <>
+          <mesh geometry={railGeom} position={[cx, 0, cz]} castShadow>
+            <primitive object={railTopMaterial} attach="material" />
+          </mesh>
+          {balusters.map((p, i) => (
+            <mesh
+              key={`cutout-bal-${i}`}
+              position={[cx + p[0], p[1], cz + p[2]]}
+              castShadow
+            >
+              <boxGeometry args={[BALUSTER_SIZE, RAIL_HEIGHT, BALUSTER_SIZE]} />
+              <primitive object={balusterMaterial} attach="material" />
+            </mesh>
+          ))}
+        </>
+      )}
+
+      {/* Gate posts — substantial vertical pillars flanking the
+          entry/exit gap, regardless of cutout. They're the anchor
+          for the directional signs. */}
+      <mesh position={[postA.x, floor.y + GATE_POST_HEIGHT / 2, postA.z]} castShadow>
+        <boxGeometry args={[GATE_POST_SIZE, GATE_POST_HEIGHT, GATE_POST_SIZE]} />
+        <primitive object={gatePostMaterial} attach="material" />
+      </mesh>
+      <mesh position={[postB.x, floor.y + GATE_POST_HEIGHT / 2, postB.z]} castShadow>
+        <boxGeometry args={[GATE_POST_SIZE, GATE_POST_HEIGHT, GATE_POST_SIZE]} />
+        <primitive object={gatePostMaterial} attach="material" />
+      </mesh>
+
+      {/* Directional signs. UP goes on the post that's CCW from the
+          entry direction (left-hand side of the gap as you walk in);
+          DOWN goes on the right. Either is omitted if there's no
+          stair in that direction (ground floor has no DOWN, top
+          floor has no UP). */}
+      {stairOut && (
+        <StairSign
+          position={signA.position}
+          rotationY={signA.rotationY}
+          label={`↑ ${stairOut.upperLabel}`}
+        />
+      )}
+      {stairIn && (
+        <StairSign
+          position={signB.position}
+          rotationY={signB.rotationY}
+          label={`↓ ${stairIn.lowerLabel}`}
+        />
+      )}
+    </group>
+  );
+}

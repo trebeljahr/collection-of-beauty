@@ -16,6 +16,7 @@ import { Minimap, type PlayerSample } from "./minimap";
 import { Player } from "./player";
 import { RoomGeometry } from "./room-geometry";
 import { StaircaseRenderer } from "./staircase";
+import { StairwellAccents } from "./stairwell-rail";
 import { ZoomModal } from "./zoom-modal";
 
 const AMBIENCE_SRC = "/audio/ambience-loop.mp3";
@@ -340,6 +341,11 @@ function FloorScene({
       {stairs.map((s) => (
         <StaircaseRenderer key={s.id} staircase={s} />
       ))}
+      {/* Cutout-edge railing + entry gate posts + signage. Rendered
+          for every floor that has a stairwell, including adjacent
+          floors in showOnly="stairwell" mode — the player sees the
+          full vertical stack of railings as they travel up. */}
+      <StairwellAccents floor={floor} />
     </group>
   );
 }
