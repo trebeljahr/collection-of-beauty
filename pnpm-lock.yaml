@@ -44,6 +44,9 @@ importers:
       image-size:
         specifier: ^2.0.2
         version: 2.0.2
+      joystick-controller:
+        specifier: ^2.0.0
+        version: 2.0.0
       lucide-react:
         specifier: ^1.8.0
         version: 1.8.0(react@19.2.5)
@@ -1800,6 +1803,9 @@ packages:
   jiti@2.6.1:
     resolution: {integrity: sha512-ekilCSN1jwRvIbgeg/57YFh8qQDNbwDb9xT/qu2DAHbFFZUicIl4ygVaAvzveMhMVr3LnpSKTNnwt8PoOfmKhQ==}
     hasBin: true
+
+  joystick-controller@2.0.0:
+    resolution: {integrity: sha512-MZTU/FUCQxVPCHFFTI4hiWH8q8+9MwI7rlGxyeU+mBsXZQmtBemuZqwlmkzSWdPEg12ZNVovrdUuBy64OGBZ8A==}
 
   js-tokens@4.0.0:
     resolution: {integrity: sha512-RdJUflcE3cUzKiMqQgsCu06FPu9UdIJO0beYbPhHN4k6apgJtifcoCtT9bcxOpYBtpD2kCM6Sbzg4CausW/PKQ==}
@@ -4281,6 +4287,8 @@ snapshots:
   jiti@2.4.2: {}
 
   jiti@2.6.1: {}
+
+  joystick-controller@2.0.0: {}
 
   js-tokens@4.0.0: {}
 

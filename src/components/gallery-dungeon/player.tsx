@@ -4,6 +4,7 @@ import type { Artwork } from "@/lib/data";
 import type { FloorLayout, Staircase } from "@/lib/gallery-layout/types";
 import { CELL_SIZE } from "@/lib/gallery-layout/world-coords";
 import { useFrame, useThree } from "@react-three/fiber";
+import type { JoystickOnMove } from "joystick-controller";
 import { useEffect, useRef } from "react";
 import * as THREE from "three";
 import { raycastNearestPainting } from "./painting-registry";
@@ -28,6 +29,11 @@ const PLAYER_RADIUS = 0.3;
 // purely the visual hover threshold so the cursor only changes when the
 // player is right up against the painting they're looking at.
 const AIM_MAX_DIST = 2;
+// Look joystick → angular velocity. Tuned so a fully-deflected stick
+// (leveled = ±10) sweeps roughly 180° per second at ~2.0 rad/s.
+const LOOK_SPEED = 2.0;
+const _lookEuler = new THREE.Euler(0, 0, 0, "YXZ");
+const PITCH_LIMIT = Math.PI / 2 - 0.05;
 
 /**
  * First-person player with grid-based collision. The active floor's
@@ -45,6 +51,8 @@ export function Player({
   onPositionSample,
   onZoomRequest,
   onAimChange,
+  joystickMoveGetter,
+  joystickLookGetter,
 }: {
   enabled: boolean;
   floor: FloorLayout;
@@ -72,8 +80,15 @@ export function Player({
    *  consumers can use it to swap the crosshair to a magnifying-glass
    *  affordance and show a "Press E to inspect" hint. */
   onAimChange?: (artwork: Artwork | null) => void;
+  /** Polled each frame for left-stick movement (leveledX/Y in -10..10).
+   *  Combined additively with WASD so a hybrid keyboard-+-touch session
+   *  works without jankily fighting itself. Falsy → keyboard only. */
+  joystickMoveGetter?: () => JoystickOnMove;
+  /** Polled each frame for right-stick look. Drives yaw (X) and pitch
+   *  (Y) at LOOK_SPEED radians per second per fully-deflected axis. */
+  joystickLookGetter?: () => JoystickOnMove;
 }) {
-  const { camera } = useThree();
+  const { camera, gl } = useThree();
   const keys = useRef<Record<string, boolean>>({});
   const velocityY = useRef(0);
   const grounded = useRef(true);
@@ -138,28 +153,51 @@ export function Player({
     const up = (e: KeyboardEvent) => {
       keys.current[e.code] = false;
     };
-    const mouse = (e: MouseEvent) => {
+    // Tap/click on the canvas raycasts the centred crosshair. On
+    // desktop we still gate on pointerLockElement so the first click
+    // after closing the zoom modal (which re-grabs pointer lock) does
+    // not re-trigger a zoom. Touch devices have no pointer lock —
+    // their joystick UI lives in DOM siblings that the pointerdown
+    // doesn't reach, so any tap on the canvas is intentional.
+    const canvas = gl.domElement;
+    const pointer = (e: PointerEvent) => {
       if (!enabled) return;
-      // Only treat clicks as zoom requests while the pointer is already
-      // locked. The first click after returning from the zoom modal is
-      // PointerLockControls reacquiring the lock — without this guard
-      // it would also raycast and immediately re-open the painting.
-      if (!document.pointerLockElement) return;
-      if (e.button === 0) tryZoom();
+      if (e.pointerType === "mouse" && e.button !== 0) return;
+      if (e.pointerType === "mouse" && !document.pointerLockElement) return;
+      tryZoom();
     };
     window.addEventListener("keydown", down);
     window.addEventListener("keyup", up);
-    window.addEventListener("mousedown", mouse);
+    canvas.addEventListener("pointerdown", pointer);
     return () => {
       window.removeEventListener("keydown", down);
       window.removeEventListener("keyup", up);
-      window.removeEventListener("mousedown", mouse);
+      canvas.removeEventListener("pointerdown", pointer);
     };
-  }, [enabled, camera, onZoomRequest]);
+  }, [enabled, camera, gl, onZoomRequest]);
 
   useFrame((_, delta) => {
     if (!enabled) return;
     const dt = Math.min(delta, 0.1);
+
+    // Look stick → continuous yaw/pitch. We extract the camera's
+    // current Euler each frame so PointerLockControls (desktop) and
+    // the joystick (mobile) coexist without fighting over a stored
+    // look state. leveledX/leveledY are -10..10; divide by 10 to get
+    // a unit-scaled rate, multiplied by LOOK_SPEED * dt.
+    if (joystickLookGetter) {
+      const look = joystickLookGetter();
+      if (look.leveledX !== 0 || look.leveledY !== 0) {
+        _lookEuler.setFromQuaternion(camera.quaternion, "YXZ");
+        _lookEuler.y -= (look.leveledX / 10) * LOOK_SPEED * dt;
+        _lookEuler.x += (look.leveledY / 10) * LOOK_SPEED * dt;
+        if (_lookEuler.x > PITCH_LIMIT) _lookEuler.x = PITCH_LIMIT;
+        if (_lookEuler.x < -PITCH_LIMIT) _lookEuler.x = -PITCH_LIMIT;
+        _lookEuler.z = 0;
+        camera.quaternion.setFromEuler(_lookEuler);
+      }
+    }
+
     const running = keys.current.ShiftLeft || keys.current.ShiftRight || false;
     const speed = running ? RUN_SPEED : WALK_SPEED;
 
@@ -176,8 +214,24 @@ export function Player({
     if (keys.current.KeyD || keys.current.ArrowRight) move.add(right);
     if (keys.current.KeyA || keys.current.ArrowLeft) move.sub(right);
 
+    // Movement stick → contributes to the same `move` vector, scaled
+    // by deflection so half-stick → half-speed. Additive with WASD so
+    // an iPad with a Bluetooth keyboard works either way.
+    if (joystickMoveGetter) {
+      const m = joystickMoveGetter();
+      if (m.leveledX !== 0 || m.leveledY !== 0) {
+        const fx = m.leveledY / 10;
+        const sx = m.leveledX / 10;
+        move.addScaledVector(forward, fx);
+        move.addScaledVector(right, sx);
+      }
+    }
+
     if (move.lengthSq() > 0) {
-      move.normalize().multiplyScalar(speed * dt);
+      // Cap magnitude to 1 — diagonal keyboard combined with a fully
+      // deflected joystick must not double the speed.
+      if (move.lengthSq() > 1) move.normalize();
+      move.multiplyScalar(speed * dt);
       const curX = camera.position.x;
       const curZ = camera.position.z;
       const nx = curX + move.x;

@@ -39,6 +39,7 @@
     "form-data": "^4.0.5",
     "fuse.js": "^7.3.0",
     "image-size": "^2.0.2",
+    "joystick-controller": "^2.0.0",
     "lucide-react": "^1.8.0",
     "mailgun.js": "^13.0.0",
     "next": "^16.2.4",

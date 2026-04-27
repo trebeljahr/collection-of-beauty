@@ -1,6 +1,8 @@
 "use client";
 
 import { AudioControls } from "@/components/audio-controls";
+import { useJoystick } from "@/hooks/use-joystick";
+import { useNeedsRotate, useTouchDevice } from "@/hooks/use-touch-device";
 import { useAudioSettings } from "@/lib/audio-settings";
 import type { Artwork } from "@/lib/data";
 import { layoutMuseum } from "@/lib/gallery-layout/layout-museum";
@@ -11,6 +13,7 @@ import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import * as THREE from "three";
 
 import { HallwayRenderer } from "./hallway";
+import { LandscapePrompt } from "./landscape-prompt";
 import { LodController } from "./lod-controller";
 import { Minimap, type PlayerSample } from "./minimap";
 import { Player } from "./player";
@@ -47,6 +50,23 @@ export function GalleryDungeon({ artworks }: Props) {
   const handleEntryPaintingLoaded = useCallback(() => {
     setEntryRoomLoaded((n) => n + 1);
   }, []);
+
+  // Mobile UX: replace pointer-lock + WASD with two on-screen
+  // joysticks (movement on the left, look on the right) and gate
+  // entry on landscape orientation. The rotate prompt follows the
+  // raptor-runner pattern; the joysticks come from the same
+  // `joystick-controller` package as my ricos.site demo.
+  const isTouch = useTouchDevice() === true;
+  const needsRotate = useNeedsRotate();
+  const joysticksActive = isTouch && hasStarted && !zoomed && !needsRotate;
+  const moveJoystick = useJoystick({
+    enabled: joysticksActive,
+    params: { x: "12%", y: "18%" },
+  });
+  const lookJoystick = useJoystick({
+    enabled: joysticksActive,
+    params: { x: "88%", y: "18%" },
+  });
 
   // ── Audio ────────────────────────────────────────────────────────
   // Ambience: long looping <audio> streamed via HTMLAudioElement.
@@ -215,8 +235,13 @@ export function GalleryDungeon({ artworks }: Props) {
           }}
           onZoomRequest={setZoomed}
           onAimChange={setAiming}
+          joystickMoveGetter={isTouch ? moveJoystick.getData : undefined}
+          joystickLookGetter={isTouch ? lookJoystick.getData : undefined}
         />
-        {hasStarted && !zoomed && <PointerLockControls />}
+        {/* Pointer-lock is desktop-only — on touch the joysticks own
+            both move and look, and pointer-lock isn't supported in
+            mobile browsers anyway. */}
+        {hasStarted && !zoomed && !isTouch && <PointerLockControls />}
       </Canvas>
 
       {!hasStarted && (
@@ -226,8 +251,15 @@ export function GalleryDungeon({ artworks }: Props) {
           loaded={Math.min(entryRoomLoaded, entryRoomTotal)}
           total={entryRoomTotal}
           onStart={() => setHasStarted(true)}
+          isTouch={isTouch}
         />
       )}
+
+      {/* Rotate-to-landscape guard — full-screen overlay shown to
+          mobile users in portrait. Sits above every other layer so
+          start screen, joysticks, and minimap are all hidden until
+          they rotate. */}
+      {needsRotate && <LandscapePrompt />}
 
       {hasStarted && (
         <div className="absolute top-4 left-1/2 -translate-x-1/2 bg-black/60 text-neutral-100 px-4 py-2 rounded text-sm pointer-events-none">
@@ -246,10 +278,16 @@ export function GalleryDungeon({ artworks }: Props) {
       {hasStarted && !zoomed && (
         <div className="absolute bottom-4 left-1/2 -translate-x-1/2 bg-black/55 text-neutral-200 px-3 py-1 rounded text-xs pointer-events-none backdrop-blur-sm">
           {aiming ? (
-            <>
-              Press <kbd className="rounded border border-white/30 px-1 font-mono">E</kbd> or click
-              to inspect painting
-            </>
+            isTouch ? (
+              <>Tap to inspect painting</>
+            ) : (
+              <>
+                Press <kbd className="rounded border border-white/30 px-1 font-mono">E</kbd> or
+                click to inspect painting
+              </>
+            )
+          ) : isTouch ? (
+            <>Left stick walks · right stick looks</>
           ) : (
             <>
               1 Gothic · 2 Renaissance · 3 Baroque · 4 Enlightenment · 5 Romantic · 6 Fin-de-siècle
@@ -272,12 +310,22 @@ export function GalleryDungeon({ artworks }: Props) {
           user's first click, which is also the autoplay gate). */}
       {hasStarted && !zoomed && <AudioControls className="top-4 right-4" />}
 
-      {/* Minimap — bottom-right. Derived entirely from the current
-          FloorLayout, so it updates automatically if the dungeon
-          generator is retuned. */}
+      {/* Minimap. Bottom-right on desktop; top-left on mobile so the
+          look joystick (bottom-right) and audio controls (top-right)
+          don't collide with it. Smaller size on mobile to leave room
+          for the centred floor banner on narrow viewports. */}
       {hasStarted && !zoomed && (
-        <div className="absolute bottom-4 right-4 pointer-events-none">
-          <Minimap floor={currentFloor} activeRoomIdx={activeRoomIdx} playerRef={lastCameraRef} />
+        <div
+          className={`absolute pointer-events-none ${
+            isTouch ? "top-4 left-4" : "bottom-4 right-4"
+          }`}
+        >
+          <Minimap
+            floor={currentFloor}
+            activeRoomIdx={activeRoomIdx}
+            playerRef={lastCameraRef}
+            size={isTouch ? 140 : 220}
+          />
         </div>
       )}
 
@@ -412,12 +460,16 @@ function StartOverlay({
   total,
   title,
   blurb,
+  isTouch = false,
 }: {
   onStart: () => void;
   loaded: number;
   total: number;
   title: string;
   blurb: string;
+  /** When true, the controls hint reads as joystick / tap instructions
+   *  instead of WASD + mouse. Driven by `useTouchDevice()` upstream. */
+  isTouch?: boolean;
 }) {
   const ready = total === 0 || loaded >= total;
   const pct = total > 0 ? Math.round((loaded / total) * 100) : 100;
@@ -441,13 +493,22 @@ function StartOverlay({
           <span className="mt-1 block text-white/60">{blurb}</span>
         </p>
         <p className="mt-4 text-xs leading-relaxed text-white/65">
-          <kbd className="rounded border border-white/30 px-1.5">W</kbd>{" "}
-          <kbd className="rounded border border-white/30 px-1.5">A</kbd>{" "}
-          <kbd className="rounded border border-white/30 px-1.5">S</kbd>{" "}
-          <kbd className="rounded border border-white/30 px-1.5">D</kbd> to walk · mouse to look ·{" "}
-          <kbd className="rounded border border-white/30 px-1.5">Shift</kbd> to run ·{" "}
-          <kbd className="rounded border border-white/30 px-1.5">Space</kbd> to jump · click a
-          painting to zoom · 1–7 teleports between floors
+          {isTouch ? (
+            <>
+              Left stick walks · right stick looks · tap a painting to inspect · stairs change
+              floors
+            </>
+          ) : (
+            <>
+              <kbd className="rounded border border-white/30 px-1.5">W</kbd>{" "}
+              <kbd className="rounded border border-white/30 px-1.5">A</kbd>{" "}
+              <kbd className="rounded border border-white/30 px-1.5">S</kbd>{" "}
+              <kbd className="rounded border border-white/30 px-1.5">D</kbd> to walk · mouse to
+              look · <kbd className="rounded border border-white/30 px-1.5">Shift</kbd> to run ·{" "}
+              <kbd className="rounded border border-white/30 px-1.5">Space</kbd> to jump · click a
+              painting to zoom · 1–7 teleports between floors
+            </>
+          )}
         </p>
 
         <div className="mt-5 space-y-2">
