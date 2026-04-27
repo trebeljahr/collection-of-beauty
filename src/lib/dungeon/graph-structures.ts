@@ -3,10 +3,9 @@
 import type { Vector3 } from "./types";
 
 export class Vertex {
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   constructor(
     public position: Vector3,
-    public data: any = null,
+    public data: unknown = null,
   ) {}
 
   equals(other: Vertex): boolean {
@@ -73,10 +72,6 @@ export class Edge {
 
 export class DelaunayEdge extends Edge {
   public isBad = false;
-
-  constructor(u: Vertex, v: Vertex) {
-    super(u, v);
-  }
 }
 
 export class Triangle {

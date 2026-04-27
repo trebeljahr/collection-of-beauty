@@ -70,10 +70,31 @@ function dimensionsFor(folderKey, filename) {
 
 const WIKIMEDIA_FOLDERS = ["collection-of-beauty", "audubon-birds", "kunstformen-images"];
 
+function assertRequiredAssetsAvailable() {
+  if (!existsSync(ASSETS)) {
+    throw new Error(
+      `[build-data] Missing ${path.relative(ROOT, ASSETS)}/. ` +
+        "Download or mount source assets before generating src/data.",
+    );
+  }
+
+  const missingFolders = WIKIMEDIA_FOLDERS.filter(
+    (folder) => !existsSync(path.join(ASSETS, folder)),
+  );
+  if (missingFolders.length > 0) {
+    throw new Error(
+      `[build-data] Missing asset folder(s): ${missingFolders
+        .map((folder) => path.join("assets", folder))
+        .join(", ")}. Run the download scripts or restore the asset archive before building.`,
+    );
+  }
+}
+
 function slugify(input) {
   return input
     .toLowerCase()
     .normalize("NFKD")
+    // biome-ignore lint/suspicious/noMisleadingCharacterClass: stripping NFKD combining marks is the intent
     .replace(/[\u0300-\u036f]/g, "")
     .replace(/[^a-z0-9]+/g, "-")
     .replace(/(^-|-$)+/g, "");
@@ -497,10 +518,12 @@ async function loadCuratorDescriptions() {
 }
 
 async function main() {
+  assertRequiredAssetsAvailable();
+
   const [cob, birds, haeckel] = await Promise.all(
     WIKIMEDIA_FOLDERS.map((f) => readFile(path.join(META, `${f}.json`), "utf8").then(JSON.parse)),
   );
-  const { artists: artistsDb, byAlias } = await loadArtistsDb();
+  const { byAlias } = await loadArtistsDb();
   const realDimensions = await loadRealDimensions();
   const curatorDescriptions = await loadCuratorDescriptions();
 
@@ -597,6 +620,13 @@ async function main() {
   pushFromFolder("audubon-birds", birds);
   pushFromFolder("kunstformen-images", haeckel);
 
+  if (artworks.length === 0) {
+    throw new Error(
+      `[build-data] Refusing to write an empty catalog. ` +
+        `${droppedMissing.count} metadata entries had no matching source file in assets/.`,
+    );
+  }
+
   if (droppedMissing.count > 0) {
     const sampleStr = droppedMissing.samples.join(", ");
     console.log(
@@ -618,7 +648,6 @@ async function main() {
   const movements = Array.from(new Set(artists.map((a) => a.movement).filter(Boolean))).sort();
 
   const knownArtistByName = new Map(artists.map((a) => [a.name, a]));
-  const artistSlugByName = new Map(artists.map((a) => [a.name, a.slug]));
 
   const edges = [];
   for (const [a, b, label] of KNOWN_CONNECTIONS) {

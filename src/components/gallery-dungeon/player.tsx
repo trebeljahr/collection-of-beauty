@@ -136,7 +136,7 @@ export function Player({
   useFrame((_, delta) => {
     if (!enabled) return;
     const dt = Math.min(delta, 0.1);
-    const running = keys.current["ShiftLeft"] || keys.current["ShiftRight"] || false;
+    const running = keys.current.ShiftLeft || keys.current.ShiftRight || false;
     const speed = running ? RUN_SPEED : WALK_SPEED;
 
     const forward = new THREE.Vector3();
@@ -147,10 +147,10 @@ export function Player({
     if (right.lengthSq() > 0) right.normalize();
 
     const move = new THREE.Vector3();
-    if (keys.current["KeyW"] || keys.current["ArrowUp"]) move.add(forward);
-    if (keys.current["KeyS"] || keys.current["ArrowDown"]) move.sub(forward);
-    if (keys.current["KeyD"] || keys.current["ArrowRight"]) move.add(right);
-    if (keys.current["KeyA"] || keys.current["ArrowLeft"]) move.sub(right);
+    if (keys.current.KeyW || keys.current.ArrowUp) move.add(forward);
+    if (keys.current.KeyS || keys.current.ArrowDown) move.sub(forward);
+    if (keys.current.KeyD || keys.current.ArrowRight) move.add(right);
+    if (keys.current.KeyA || keys.current.ArrowLeft) move.sub(right);
 
     if (move.lengthSq() > 0) {
       move.normalize().multiplyScalar(speed * dt);
@@ -189,10 +189,7 @@ export function Player({
     // floor — the existing state's stair is the one we want.
     if (spiralState.current) {
       const tracked = allStaircases.find((s) => s.id === spiralState.current!.staircaseId);
-      if (
-        tracked &&
-        isInsideStair(tracked, camera.position.x, camera.position.z)
-      ) {
+      if (tracked && isInsideStair(tracked, camera.position.x, camera.position.z)) {
         activeStair = tracked;
       }
     }
@@ -394,22 +391,10 @@ function canCrossEdges(
   // Check both leading edges of the player's bbox along each axis: a
   // step from (fromX, fromZ) to (toX, toZ) crosses an EW edge iff
   // some corner's cell-x changes; same for NS.
-  const fromCellsX = [
-    Math.floor((fromX - r) / CELL_SIZE),
-    Math.floor((fromX + r) / CELL_SIZE),
-  ];
-  const toCellsX = [
-    Math.floor((toX - r) / CELL_SIZE),
-    Math.floor((toX + r) / CELL_SIZE),
-  ];
-  const fromCellsZ = [
-    Math.floor((fromZ - r) / CELL_SIZE),
-    Math.floor((fromZ + r) / CELL_SIZE),
-  ];
-  const toCellsZ = [
-    Math.floor((toZ - r) / CELL_SIZE),
-    Math.floor((toZ + r) / CELL_SIZE),
-  ];
+  const fromCellsX = [Math.floor((fromX - r) / CELL_SIZE), Math.floor((fromX + r) / CELL_SIZE)];
+  const toCellsX = [Math.floor((toX - r) / CELL_SIZE), Math.floor((toX + r) / CELL_SIZE)];
+  const fromCellsZ = [Math.floor((fromZ - r) / CELL_SIZE), Math.floor((fromZ + r) / CELL_SIZE)];
+  const toCellsZ = [Math.floor((toZ - r) / CELL_SIZE), Math.floor((toZ + r) / CELL_SIZE)];
 
   // EW edge crossings — for each (front, back) corner pair, if the
   // x-cell changes, the player crosses an EW edge between min and max.

@@ -30,7 +30,7 @@ type Node = SimulationNodeDatum & {
   nationality: string | null;
 };
 
-type Link = SimulationLinkDatum<Node> & {
+type GraphLink = SimulationLinkDatum<Node> & {
   source: string | Node;
   target: string | Node;
   kind: "known" | "movement";
@@ -98,7 +98,7 @@ export function LineageGraph({ artists, connections }: Props) {
       count: a.count,
       nationality: a.nationality,
     }));
-    const links: Link[] = ls.map((c) => ({
+    const links: GraphLink[] = ls.map((c) => ({
       source: c.source,
       target: c.target,
       kind: c.kind,
@@ -134,7 +134,7 @@ export function LineageGraph({ artists, connections }: Props) {
     const simulation = forceSimulation(nodes)
       .force(
         "link",
-        forceLink<Node, Link>(links)
+        forceLink<Node, GraphLink>(links)
           .id((d) => d.id)
           .strength((l) => (l.kind === "known" ? 0.25 : 0.03))
           .distance((l) => (l.kind === "known" ? 80 : 160)),
@@ -192,7 +192,7 @@ export function LineageGraph({ artists, connections }: Props) {
     return neighbors?.has(id) ?? false;
   }
 
-  function linkHighlighted(l: Link) {
+  function linkHighlighted(l: GraphLink) {
     if (!activeId) return l.kind === "known";
     const s = typeof l.source === "string" ? l.source : l.source.id;
     const t = typeof l.target === "string" ? l.target : l.target.id;
@@ -224,6 +224,7 @@ export function LineageGraph({ artists, connections }: Props) {
       <div className="flex flex-wrap items-center gap-3 rounded-xl border border-[var(--border)] bg-[var(--card)] p-4 text-sm">
         <div className="flex items-center gap-1 rounded-md border border-[var(--border)] p-0.5">
           <button
+            type="button"
             onClick={() => setConnectionKind("known")}
             className={`rounded-sm px-2 py-1 text-xs ${
               connectionKind === "known"
@@ -234,6 +235,7 @@ export function LineageGraph({ artists, connections }: Props) {
             Knew personally
           </button>
           <button
+            type="button"
             onClick={() => setConnectionKind("all")}
             className={`rounded-sm px-2 py-1 text-xs ${
               connectionKind === "all"
@@ -263,8 +265,11 @@ export function LineageGraph({ artists, connections }: Props) {
 
       <div className="grid gap-4 lg:grid-cols-[1fr_320px]">
         <div className="relative rounded-xl border border-[var(--border)] bg-[var(--card)] overflow-hidden">
+          {/* biome-ignore lint/a11y/useKeyWithClickEvents: clicking the SVG background clears selection; artist nodes below are keyboard-accessible. */}
           <svg
             ref={svgRef}
+            role="img"
+            aria-label="Artist lineage graph"
             width={dimensions.width}
             height={dimensions.height}
             className="block"
@@ -287,17 +292,17 @@ export function LineageGraph({ artists, connections }: Props) {
               </marker>
             </defs>
             <g>
-              {links.map((l, i) => {
-                const s =
-                  typeof l.source === "string" ? nodeById.get(l.source) : (l.source as Node);
-                const t =
-                  typeof l.target === "string" ? nodeById.get(l.target) : (l.target as Node);
+              {links.map((l) => {
+                const sourceId = typeof l.source === "string" ? l.source : l.source.id;
+                const targetId = typeof l.target === "string" ? l.target : l.target.id;
+                const s = typeof l.source === "string" ? nodeById.get(l.source) : l.source;
+                const t = typeof l.target === "string" ? nodeById.get(l.target) : l.target;
                 if (!s || !t || s.x == null || t.x == null) return null;
                 const hi = linkHighlighted(l);
                 const dim = activeId && !hi;
                 return (
                   <line
-                    key={i}
+                    key={`${sourceId}-${targetId}-${l.kind}-${l.label}`}
                     x1={s.x}
                     y1={s.y}
                     x2={t.x}
@@ -321,6 +326,11 @@ export function LineageGraph({ artists, connections }: Props) {
                     onMouseEnter={() => setHovered(n.id)}
                     onMouseLeave={() => setHovered(null)}
                     onClick={() => setSelected((prev) => (prev === n.id ? null : n.id))}
+                    onKeyDown={(e) => {
+                      if (e.key !== "Enter" && e.key !== " ") return;
+                      e.preventDefault();
+                      setSelected((prev) => (prev === n.id ? null : n.id));
+                    }}
                     className="cursor-pointer"
                     opacity={hi ? 1 : 0.15}
                   >
@@ -393,7 +403,7 @@ export function LineageGraph({ artists, connections }: Props) {
                     Connections
                   </div>
                   <ul className="space-y-1 text-xs">
-                    {activeLinks.slice(0, 20).map((l, i) => {
+                    {activeLinks.slice(0, 20).map((l) => {
                       const other =
                         (typeof l.source === "string" ? l.source : l.source.id) === activeArtist.id
                           ? typeof l.target === "string"
@@ -405,8 +415,9 @@ export function LineageGraph({ artists, connections }: Props) {
                       const node = nodeById.get(other);
                       if (!node) return null;
                       return (
-                        <li key={i}>
+                        <li key={`${activeArtist.id}-${node.id}-${l.kind}-${l.label}`}>
                           <button
+                            type="button"
                             onClick={() => setSelected(node.id)}
                             className="w-full text-left hover:underline"
                           >

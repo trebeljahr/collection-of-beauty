@@ -8,7 +8,16 @@ const __dirname = path.dirname(fileURLToPath(import.meta.url));
 // (rclone doesn't emit Access-Control-Allow-Origin). Points at the same
 // URL the browser would use directly — we just re-expose it under a
 // same-origin path so WebGL textures aren't tainted.
-const ASSETS_REWRITE_TARGET = process.env.NEXT_PUBLIC_ASSETS_BASE_URL ?? "http://localhost:9100";
+function assetsRewriteTarget() {
+  const explicit = process.env.NEXT_PUBLIC_ASSETS_BASE_URL;
+  if (explicit) return explicit.replace(/\/$/, "");
+  if (process.env.NODE_ENV === "production") {
+    throw new Error("NEXT_PUBLIC_ASSETS_BASE_URL must be set in production.");
+  }
+  return "http://localhost:9100";
+}
+
+const ASSETS_REWRITE_TARGET = assetsRewriteTarget();
 
 /** @type {import('next').NextConfig} */
 const nextConfig = {

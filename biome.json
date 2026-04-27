@@ -6,7 +6,17 @@
     "useIgnoreFile": true
   },
   "files": {
-    "ignore": ["dist", "build", "node_modules", ".next", "out", "coverage"]
+    "ignore": [
+      "dist",
+      "build",
+      "node_modules",
+      ".next",
+      "out",
+      "coverage",
+      "metadata/**/*.json",
+      "src/data/**/*.json",
+      "scripts/**/*"
+    ]
   },
   "formatter": {
     "enabled": true,

@@ -1,4 +1,4 @@
-import { artworks } from "@/lib/data";
+import { type Artwork, artworks } from "@/lib/data";
 import { renderDigest } from "@/lib/newsletter/render";
 import {
   DIGEST_SIZE,
@@ -7,7 +7,7 @@ import {
   pickArtworks,
   resolveManualPicks,
 } from "@/lib/newsletter/select";
-import { loadState, sentArtworkIds } from "@/lib/newsletter/state";
+import { type NewsletterState, loadState, sentArtworkIds } from "@/lib/newsletter/state";
 import { type NextRequest, NextResponse } from "next/server";
 
 // Preview what *would* be sent this week, as a renderable HTML page.
@@ -45,7 +45,7 @@ export async function GET(request: NextRequest) {
 
   // Preview is forgiving — if R2 isn't configured yet, fall back to empty
   // state so you can iterate on the template without full prod setup.
-  let state;
+  let state: NewsletterState;
   if (ignoreState) {
     state = { issues: [] };
   } else {
@@ -58,7 +58,7 @@ export async function GET(request: NextRequest) {
   const excluded = sentArtworkIds(state);
 
   const idsParam = searchParams.get("ids");
-  let picks;
+  let picks: Artwork[];
   try {
     if (idsParam) {
       const ids = idsParam

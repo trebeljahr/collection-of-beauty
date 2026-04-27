@@ -85,31 +85,34 @@ export function WallWithDoors({
 
   return (
     <group position={position} rotation={rotation}>
-      {strips.map((s, i) => {
+      {strips.map((s) => {
         const w = s.xMax - s.xMin;
         if (w <= 0.001) return null;
         const cx = (s.xMin + s.xMax) / 2;
         return (
-          <mesh key={`s${i}`} position={[cx, 0, 0]}>
+          <mesh key={`strip-${s.xMin}-${s.xMax}`} position={[cx, 0, 0]}>
             <planeGeometry args={[w, height]} />
             <primitive object={material} attach="material" />
           </mesh>
         );
       })}
-      {sorted.map((d, i) => {
+      {sorted.map((d) => {
         const lintelH = height - d.height;
         if (lintelH <= 0.001) return null;
         const cy = d.height + lintelH / 2 - halfH;
         return (
-          <mesh key={`l${i}`} position={[d.centerLocalX, cy, 0]}>
+          <mesh
+            key={`lintel-${d.centerLocalX}-${d.width}-${d.height}`}
+            position={[d.centerLocalX, cy, 0]}
+          >
             <planeGeometry args={[d.width, lintelH]} />
             <primitive object={material} attach="material" />
           </mesh>
         );
       })}
-      {sorted.map((d, i) => (
+      {sorted.map((d) => (
         <DoorTrim
-          key={`t${i}`}
+          key={`trim-${d.centerLocalX}-${d.width}-${d.height}`}
           centerLocalX={d.centerLocalX}
           width={d.width}
           height={d.height}

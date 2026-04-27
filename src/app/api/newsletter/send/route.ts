@@ -1,4 +1,4 @@
-import { artworks } from "@/lib/data";
+import { type Artwork, artworks } from "@/lib/data";
 import { sendDigest } from "@/lib/newsletter/mailgun";
 import { renderDigest } from "@/lib/newsletter/render";
 import {
@@ -10,6 +10,7 @@ import {
 } from "@/lib/newsletter/select";
 import {
   type NewsletterIssue,
+  type NewsletterState,
   findIssue,
   loadState,
   saveState,
@@ -80,7 +81,7 @@ async function runSend(request: NextRequest, body: SendBody): Promise<NextRespon
 
   // For dry-runs we don't require R2 to be configured — fall back to empty
   // state so previews work during initial setup. Real sends still fail loudly.
-  let state;
+  let state: NewsletterState;
   try {
     state = await loadState();
   } catch (err) {
@@ -113,7 +114,7 @@ async function runSend(request: NextRequest, body: SendBody): Promise<NextRespon
 
   // Pick the 5 artworks (manual or random, always respecting sent history).
   const excluded = sentArtworkIds(state);
-  let picks;
+  let picks: Artwork[];
   let mode: NewsletterIssue["mode"];
   try {
     if (body.artworkIds && body.artworkIds.length > 0) {

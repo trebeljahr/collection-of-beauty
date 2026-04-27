@@ -57,8 +57,7 @@ function buildTreadGeometry(
 ): { positions: number[]; indices: number[] } {
   const positions: number[] = [];
   const indices: number[] = [];
-  const ring = (which: 0 | 1 | 2 | 3, i: number) =>
-    which * (segments + 1) + i;
+  const ring = (which: 0 | 1 | 2 | 3, i: number) => which * (segments + 1) + i;
 
   const bottomY = topY - thickness;
   // 4 rings × (segments+1) verts: ib, it, ob, ot.
@@ -115,8 +114,7 @@ function buildTreadGeometry(
  *  stair's step 0 is at `upperY`, giving the final +stepRise climb
  *  onto the upper floor with no visual gap or floating tread. */
 function buildSpiralStepsGeometry(staircase: Staircase): THREE.BufferGeometry {
-  const { innerRadius, outerRadius, numSteps, direction, lowerY, upperY, entryAngle } =
-    staircase;
+  const { innerRadius, outerRadius, numSteps, direction, lowerY, upperY, entryAngle } = staircase;
   const stepAngle = ((Math.PI * 2) / numSteps) * direction;
   const stepRise = (upperY - lowerY) / numSteps;
   const positions: number[] = [];
@@ -153,9 +151,10 @@ function buildSpiralStepsGeometry(staircase: Staircase): THREE.BufferGeometry {
 /** Inner railing around the open well — a continuous top rail with
  *  vertical balusters at each step. Inner radius slightly outside the
  *  well so the rail doesn't z-fight with the tread inner face. */
-function buildInnerRail(
-  staircase: Staircase,
-): { rail: THREE.BufferGeometry; balusters: Array<[number, number, number]> } {
+function buildInnerRail(staircase: Staircase): {
+  rail: THREE.BufferGeometry;
+  balusters: Array<[number, number, number]>;
+} {
   const { innerRadius, numSteps, direction, lowerY, upperY, entryAngle } = staircase;
   const stepAngle = ((Math.PI * 2) / numSteps) * direction;
   const stepRise = (upperY - lowerY) / numSteps;
@@ -215,8 +214,7 @@ function buildInnerRail(
  * floor + ceiling and carry the directional sign.
  */
 export function StaircaseRenderer({ staircase }: { staircase: Staircase }) {
-  const { centerX, centerZ, innerRadius, outerRadius, lowerY, upperY, entryAngle } =
-    staircase;
+  const { centerX, centerZ, outerRadius, lowerY, upperY, entryAngle } = staircase;
 
   const stepsGeom = useMemo(() => buildSpiralStepsGeometry(staircase), [staircase]);
   const railData = useMemo(() => buildInnerRail(staircase), [staircase]);
@@ -250,8 +248,8 @@ export function StaircaseRenderer({ staircase }: { staircase: Staircase }) {
       <mesh geometry={railData.rail}>
         <primitive object={railTopMaterial} attach="material" />
       </mesh>
-      {railData.balusters.map((p, i) => (
-        <mesh key={`bal-${i}`} position={p}>
+      {railData.balusters.map((p) => (
+        <mesh key={`bal-${p.join("-")}`} position={p}>
           <boxGeometry args={[BALUSTER_SIZE, RAIL_HEIGHT, BALUSTER_SIZE]} />
           <primitive object={balusterMaterial} attach="material" />
         </mesh>
@@ -352,10 +350,7 @@ export function stairHeightAt(stair: Staircase, cumulativeAngle: number): number
   // Step idx is 0..numSteps-1 for cumulative in [0, 2π); cumulative=2π
   // is the transition point handed off to the next stair, so we clamp
   // to numSteps-1 before reaching it.
-  const idx = Math.max(
-    0,
-    Math.min(stair.numSteps - 1, Math.floor(cumulativeAngle / stepAngle)),
-  );
+  const idx = Math.max(0, Math.min(stair.numSteps - 1, Math.floor(cumulativeAngle / stepAngle)));
   return stair.lowerY + idx * stepRise;
 }
 

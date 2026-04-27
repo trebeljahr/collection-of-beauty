@@ -1,4 +1,5 @@
 import { type Artist, type Artwork, artworkAlt, artworks, summary } from "@/lib/data";
+import { getLicenseInfo } from "@/lib/license";
 import { assetUrl, variantUrl } from "@/lib/utils";
 import type { Metadata } from "next";
 
@@ -51,8 +52,8 @@ const HERO_ID_PATTERNS = [
 
 let _cachedHero: Artwork | null | undefined;
 
-export function heroArtwork(): Artwork {
-  if (_cachedHero !== undefined) return _cachedHero ?? artworks[0];
+export function heroArtwork(): Artwork | null {
+  if (_cachedHero !== undefined) return _cachedHero;
   for (const pattern of HERO_ID_PATTERNS) {
     const hit = artworks.find((a) => pattern.test(a.id) && a.width && a.height);
     if (hit) {
@@ -61,7 +62,7 @@ export function heroArtwork(): Artwork {
     }
   }
   // Last-resort fallback: the first artwork with known dimensions.
-  _cachedHero = artworks.find((a) => a.width && a.height) ?? artworks[0];
+  _cachedHero = artworks.find((a) => a.width && a.height) ?? artworks[0] ?? null;
   return _cachedHero;
 }
 
@@ -87,7 +88,10 @@ function fitInto(
  * pre-built 1280-wide WebP variant (fast for social scrapers) and include
  * the original JPEG as a secondary fallback for picky crawlers.
  */
-export function ogImagesForArtwork(artwork: Artwork): NonNullable<Metadata["openGraph"]>["images"] {
+export function ogImagesForArtwork(
+  artwork: Artwork | null | undefined,
+): NonNullable<Metadata["openGraph"]>["images"] {
+  if (!artwork) return [];
   const { width, height } = fitInto(artwork.width, artwork.height, 1280);
   const alt = artworkAlt(artwork);
   return [
@@ -135,6 +139,7 @@ function stripTrailingSlash(s: string): string {
  */
 export function artworkJsonLd(artwork: Artwork): Record<string, unknown> {
   const imageUrl = variantUrl(artwork.objectKey, 1280, "webp");
+  const license = getLicenseInfo(artwork.license);
   return {
     "@context": "https://schema.org",
     "@type": "VisualArtwork",
@@ -167,7 +172,7 @@ export function artworkJsonLd(artwork: Artwork): Record<string, unknown> {
         }
       : {}),
     ...(artwork.movement ? { artMovement: artwork.movement } : {}),
-    license: "https://creativecommons.org/publicdomain/mark/1.0/",
+    license: license.url,
     creditText: artwork.credit ?? "Wikimedia Commons",
     isAccessibleForFree: true,
     isFamilyFriendly: true,

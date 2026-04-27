@@ -56,9 +56,9 @@ export function AudioControls({ className }: Props) {
       </div>
 
       {open && (
-        <div
-          className="absolute right-0 top-[calc(100%+6px)] w-56 rounded-lg border border-white/10 bg-black/80 p-3 text-xs text-white/85 shadow-xl backdrop-blur"
-          role="dialog"
+        <dialog
+          open
+          className="absolute right-0 top-[calc(100%+6px)] m-0 w-56 rounded-lg border border-white/10 bg-black/80 p-3 text-xs text-white/85 shadow-xl backdrop-blur"
           aria-label="Sound settings"
         >
           <div className="mb-2 flex items-center justify-between">
@@ -84,7 +84,7 @@ export function AudioControls({ className }: Props) {
             disabled={!settings.enabled}
             onChange={(v) => update({ sfxVolume: v })}
           />
-        </div>
+        </dialog>
       )}
     </div>
   );

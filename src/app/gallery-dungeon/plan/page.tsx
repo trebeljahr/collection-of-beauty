@@ -81,6 +81,8 @@ function FloorSvg({ floor }: { floor: FloorLayout }) {
 
       <div className="overflow-x-auto">
         <svg
+          role="img"
+          aria-label={`${floor.era.title} floor plan`}
           width={svgW}
           height={svgH}
           viewBox={`0 0 ${svgW} ${svgH}`}
@@ -88,9 +90,9 @@ function FloorSvg({ floor }: { floor: FloorLayout }) {
         >
           <rect x={PADDING} y={PADDING} width={w * CELL_PX} height={h * CELL_PX} fill="#0c0a08" />
 
-          {cellsOfKind(floor, "hallway").map((c, i) => (
+          {cellsOfKind(floor, "hallway").map((c) => (
             <rect
-              key={`hall-${i}`}
+              key={`hall-${c.x}-${c.z}`}
               x={PADDING + c.x * CELL_PX}
               y={PADDING + c.z * CELL_PX}
               width={CELL_PX}

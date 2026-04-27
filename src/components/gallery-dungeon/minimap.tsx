@@ -270,11 +270,7 @@ export function Minimap({ floor, activeRoomIdx, playerRef, size = 220, className
 /** Trim `text` (with a trailing ellipsis when needed) so it fits within
  *  `maxWidth` at the canvas's currently configured font. Returns an
  *  empty string when nothing useful fits. */
-function truncateToFit(
-  ctx: CanvasRenderingContext2D,
-  text: string,
-  maxWidth: number,
-): string {
+function truncateToFit(ctx: CanvasRenderingContext2D, text: string, maxWidth: number): string {
   if (maxWidth <= 0) return "";
   if (ctx.measureText(text).width <= maxWidth) return text;
   for (let n = text.length - 1; n > 0; n--) {
@@ -287,7 +283,7 @@ function truncateToFit(
 function drawFooter(
   ctx: CanvasRenderingContext2D,
   width: number,
-  height: number,
+  _height: number,
   yTop: number,
   room: RoomLayout | undefined,
 ) {
@@ -350,9 +346,9 @@ function wrapLines(
 function boostForMap(hex: string): string {
   const c = hex.startsWith("#") ? hex.slice(1) : hex;
   if (c.length !== 6) return hex;
-  const r = parseInt(c.slice(0, 2), 16) / 255;
-  const g = parseInt(c.slice(2, 4), 16) / 255;
-  const b = parseInt(c.slice(4, 6), 16) / 255;
+  const r = Number.parseInt(c.slice(0, 2), 16) / 255;
+  const g = Number.parseInt(c.slice(2, 4), 16) / 255;
+  const b = Number.parseInt(c.slice(4, 6), 16) / 255;
   const max = Math.max(r, g, b);
   const min = Math.min(r, g, b);
   const l = (max + min) / 2;

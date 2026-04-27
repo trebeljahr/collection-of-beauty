@@ -23,7 +23,16 @@ export function slugify(input: string): string {
 //     (emitted by scripts/shrink-sources.mjs, consumed by <ResponsiveImage>)
 // There is no longer a separate ORIGIN_URL — all image fetching is
 // browser-direct, Next.js is no longer in the image pipeline.
-const ASSETS_BASE_URL = process.env.NEXT_PUBLIC_ASSETS_BASE_URL ?? "http://localhost:9100";
+function assetsBaseUrl(): string {
+  const explicit = process.env.NEXT_PUBLIC_ASSETS_BASE_URL;
+  if (explicit) return explicit.replace(/\/$/, "");
+  if (process.env.NODE_ENV === "production") {
+    throw new Error("NEXT_PUBLIC_ASSETS_BASE_URL must be set in production.");
+  }
+  return "http://localhost:9100";
+}
+
+const ASSETS_BASE_URL = assetsBaseUrl();
 
 // Variant set emitted by shrink-sources.mjs. The script hardcodes the same
 // list — keep them in sync. Chosen to cover typical responsive breakpoints

@@ -19,7 +19,7 @@ export type Artwork = {
   realDimensions: {
     widthCm: number;
     heightCm: number;
-    source: "wikidata" | "wikimedia-template" | "static";
+    source: "wikidata" | "wikimedia-template" | "wikimedia-template-mm" | "static";
   } | null;
   /** Widths (in px) for which a pre-built variant exists under
    *  assets-web/<folder>/<basename>/<width>.{avif,webp}. Emitted by

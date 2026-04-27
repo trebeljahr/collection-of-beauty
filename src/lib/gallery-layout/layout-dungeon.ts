@@ -172,7 +172,7 @@ function buildFloor(era: Era, eraArtworks: Artwork[]): FloorLayout {
   // Group artworks by movement so each movement becomes a room.
   const byMovement = new Map<string, Artwork[]>();
   for (const a of eraArtworks) {
-    const key = a.movement && a.movement.trim() ? a.movement : era.title;
+    const key = a.movement?.trim() ? a.movement : era.title;
     if (!byMovement.has(key)) byMovement.set(key, []);
     byMovement.get(key)!.push(a);
   }

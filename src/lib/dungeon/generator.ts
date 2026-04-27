@@ -24,11 +24,7 @@ import { CellType3D, Mathf, Room3D, Vector3Int } from "./types";
 // --- inlined random helpers (from ricos.site/src/lib/utils/misc) ----------
 
 function createRandomFunction(seed: string): () => number {
-  // seedrandom's `alea` constructor returns a function () => number in
-  // [0, 1); the TS types are a bit awkward so we cast.
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const prng = new (alea as any)(seed);
-  return prng as () => number;
+  return alea(seed);
 }
 
 function getRandomInt(min: number, max: number, randFunc: () => number = Math.random): number {

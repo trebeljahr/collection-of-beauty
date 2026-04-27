@@ -2,8 +2,8 @@
 
 import type { Edge, Vertex } from "./graph-structures";
 
-export class PrimMST {
-  static minimumSpanningTree(edges: Edge[], start: Vertex): Edge[] {
+export const PrimMST = {
+  minimumSpanningTree(edges: Edge[], start: Vertex): Edge[] {
     const openSet = new Set<Vertex>();
     const closedSet = new Set<Vertex>();
 
@@ -51,9 +51,9 @@ export class PrimMST {
     }
 
     return result;
-  }
+  },
 
-  static addRandomConnections(
+  addRandomConnections(
     allEdges: Edge[],
     mstEdges: Edge[],
     randomRatio: number,
@@ -75,5 +75,5 @@ export class PrimMST {
     }
 
     return result;
-  }
-}
+  },
+};

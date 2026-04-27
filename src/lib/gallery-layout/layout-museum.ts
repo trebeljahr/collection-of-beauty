@@ -29,6 +29,14 @@ import type { Artwork } from "@/lib/data";
 import { ERAS, type Era, type EraId, assignEra, roomFloorColor } from "@/lib/gallery-eras";
 import { slugify } from "@/lib/utils";
 import { distributePaintings } from "./place-paintings";
+import type {
+  Door,
+  DungeonLayout,
+  FloorLayout,
+  HallwayLayout,
+  RoomLayout,
+  Staircase,
+} from "./types";
 import {
   CELL_SIZE,
   DOOR_WIDTH,
@@ -39,14 +47,6 @@ import {
   WALL_THICKNESS,
   floorY,
 } from "./world-coords";
-import type {
-  Door,
-  DungeonLayout,
-  FloorLayout,
-  HallwayLayout,
-  RoomLayout,
-  Staircase,
-} from "./types";
 
 // --- Floor plan geometry (cell coordinates, inclusive) --------------------
 
@@ -347,8 +347,7 @@ function buildFloor(era: Era, eraArtworks: Artwork[]): FloorLayout {
   }
 
   const grandHallEntryIdx = expanded.findIndex(
-    (e) =>
-      e.name === anchorMovement || e.name.startsWith(`${anchorMovement} · Part `),
+    (e) => e.name === anchorMovement || e.name.startsWith(`${anchorMovement} · Part `),
   );
   const grandHallEntry =
     grandHallEntryIdx >= 0
@@ -374,9 +373,7 @@ function buildFloor(era: Era, eraArtworks: Artwork[]): FloorLayout {
       if (tailRest.length > 0) {
         const mergedArtworks = tailRest.flatMap((e) => e.artworks);
         const mergedName =
-          tailRest.length === 1
-            ? tailRest[0].name
-            : `Also from the ${era.title.toLowerCase()}`;
+          tailRest.length === 1 ? tailRest[0].name : `Also from the ${era.title.toLowerCase()}`;
         slotEntries.push({ name: mergedName, artworks: mergedArtworks });
       }
     }
@@ -457,11 +454,7 @@ function buildFloor(era: Era, eraArtworks: Artwork[]): FloorLayout {
     }
   }
 
-  const { blockedEdgesEW, blockedEdgesNS } = computeBlockedEdges(
-    GRID_SIZE,
-    rooms,
-    cellOwner,
-  );
+  const { blockedEdgesEW, blockedEdgesNS } = computeBlockedEdges(GRID_SIZE, rooms, cellOwner);
 
   const floor: FloorLayout = {
     index: era.index,
@@ -488,7 +481,7 @@ function buildFloor(era: Era, eraArtworks: Artwork[]): FloorLayout {
 function groupMovements(era: Era, eraArtworks: Artwork[]): Map<string, Artwork[]> {
   const byMovement = new Map<string, Artwork[]>();
   for (const a of eraArtworks) {
-    const key = a.movement && a.movement.trim() ? a.movement : era.title;
+    const key = a.movement?.trim() ? a.movement : era.title;
     if (!byMovement.has(key)) byMovement.set(key, []);
     byMovement.get(key)!.push(a);
   }
@@ -504,20 +497,13 @@ function groupMovements(era: Era, eraArtworks: Artwork[]): Map<string, Artwork[]
  * year-binned with.
  */
 function isEastAsianMovement(name: string): boolean {
-  return /Ukiyo-e|Nihonga|Bijinga|Yamato-e|Sumi-e|Edo|Heian|Song|Ming|Qing|Tang/i.test(
-    name,
-  );
+  return /Ukiyo-e|Nihonga|Bijinga|Yamato-e|Sumi-e|Edo|Heian|Song|Ming|Qing|Tang/i.test(name);
 }
 
-function resolveAnchorMovement(
-  era: Era,
-  byMovement: Map<string, Artwork[]>,
-): string {
+function resolveAnchorMovement(era: Era, byMovement: Map<string, Artwork[]>): string {
   const configured = era.anchor.movement;
   if ((byMovement.get(configured)?.length ?? 0) > 0) return configured;
-  const biggest = Array.from(byMovement.entries()).sort(
-    (a, b) => b[1].length - a[1].length,
-  )[0];
+  const biggest = Array.from(byMovement.entries()).sort((a, b) => b[1].length - a[1].length)[0];
   return biggest ? biggest[0] : era.title;
 }
 
@@ -791,9 +777,7 @@ function buildStaircase(lower: FloorLayout, upper: FloorLayout): Staircase | nul
 
 function describeRoom(movement: string, artworks: Artwork[]): string {
   if (artworks.length === 0) return movement;
-  const years = artworks
-    .map((a) => a.year)
-    .filter((y): y is number => y != null);
+  const years = artworks.map((a) => a.year).filter((y): y is number => y != null);
   if (years.length === 0) return `${movement} · ${artworks.length} works`;
   const min = Math.min(...years);
   const max = Math.max(...years);

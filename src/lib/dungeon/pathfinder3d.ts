@@ -155,9 +155,9 @@ export class DungeonPathfinder3D {
 
           neighbor.previousSet.clear();
 
-          node.previousSet.forEach((pos) => {
+          for (const pos of node.previousSet) {
             neighbor.previousSet.add(pos);
-          });
+          }
 
           neighbor.previousSet.add(GraphNode3D.positionToString(node.position));
 
