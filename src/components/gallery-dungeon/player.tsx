@@ -32,6 +32,15 @@ const AIM_MAX_DIST = 2;
 // Look joystick → angular velocity. Tuned so a fully-deflected stick
 // (leveled = ±10) sweeps roughly 180° per second at ~2.0 rad/s.
 const LOOK_SPEED = 2.0;
+// Width of the "you're at a real floor" arc at each end of a spiral
+// revolution. Stepping off the spiral (canStepTo's exit branch) is only
+// allowed inside one of these arcs, AND the player's `floor.index` is
+// promoted to the destination floor when they enter one — without that
+// promotion an upper-landing exit would teleport them into the lower
+// floor's grid frame and they'd fall through the upper floor's annular
+// ring on the way down. Tied to ~28° of revolution = ~0.7 m of vertical
+// slack at FLOOR_SEPARATION = 9 m.
+const STAIR_LANDING_TOL = 0.5;
 const _lookEuler = new THREE.Euler(0, 0, 0, "YXZ");
 const PITCH_LIMIT = Math.PI / 2 - 0.05;
 
@@ -337,6 +346,29 @@ export function Player({
         }
       }
 
+      // Promote floor.index as soon as the player enters a landing arc
+      // — the same arc canStepTo permits exit in. Without this, an
+      // exit at the upper landing (cumulative ≈ 2π−ε) would still be
+      // checked against the LOWER floor's grid; the player would step
+      // onto a "walkable" stairwell cell at the lower floor while
+      // their visual Y is already through the cutout, then gravity
+      // would yank them down through the upper floor's annular ring.
+      // handleStairFloorChange short-circuits same-floor calls so
+      // firing this every frame in the arc is cheap.
+      if (onFloorChange) {
+        if (
+          st.cumulativeAngle >= Math.PI * 2 - STAIR_LANDING_TOL &&
+          floor.index !== activeStair.upperFloor
+        ) {
+          onFloorChange(activeStair.upperFloor);
+        } else if (
+          st.cumulativeAngle <= STAIR_LANDING_TOL &&
+          floor.index !== activeStair.lowerFloor
+        ) {
+          onFloorChange(activeStair.lowerFloor);
+        }
+      }
+
       const targetY = stairHeightAt(activeStair, st.cumulativeAngle) + EYE_HEIGHT;
       camera.position.y = THREE.MathUtils.damp(camera.position.y, targetY, 20, dt);
       velocityY.current = 0;
@@ -462,24 +494,15 @@ function canStepTo(
   currentStairId: string | null,
   currentCum: number,
 ): boolean {
-  const stair = findStairAt(floor, toX, toZ);
-  if (stair) return true;
-  if (currentStairId !== null) {
-    // Trying to leave the spiral. Allow only when the player's
-    // cumulative is in a "landing" arc near 0 or 2π — the heights
-    // where stepping off lands them flush with a real floor.
-    const EXIT_TOL = 0.5; // ~28°
-    const onLowerLanding = currentCum <= EXIT_TOL;
-    const onUpperLanding = currentCum >= Math.PI * 2 - EXIT_TOL;
-    if (!onLowerLanding && !onUpperLanding) return false;
-  }
   // Open-well guard. On every floor above the ground there's a
   // circular hole in the stairwell floor exposing the spiral going
   // down; the cells inside that hole are still flagged walkable in
   // the cell mask, so without an explicit check the player would
   // happily walk over the abyss. Block any target inside the
-  // central well (radius < spiral inner radius) on those floors.
-  if (floor.index > 0 && currentStairId === null) {
+  // central well (radius < spiral inner radius) on those floors —
+  // including when stepping off the spiral inward at a landing,
+  // which would otherwise drop the player straight through the cutout.
+  if (floor.index > 0) {
     for (const s of [...floor.stairsOut, ...floor.stairsIn]) {
       const dx = toX - s.centerX;
       const dz = toZ - s.centerZ;
@@ -487,6 +510,16 @@ function canStepTo(
         return false;
       }
     }
+  }
+  const stair = findStairAt(floor, toX, toZ);
+  if (stair) return true;
+  if (currentStairId !== null) {
+    // Trying to leave the spiral. Allow only when the player's
+    // cumulative is in a "landing" arc near 0 or 2π — the heights
+    // where stepping off lands them flush with a real floor.
+    const onLowerLanding = currentCum <= STAIR_LANDING_TOL;
+    const onUpperLanding = currentCum >= Math.PI * 2 - STAIR_LANDING_TOL;
+    if (!onLowerLanding && !onUpperLanding) return false;
   }
   if (!isWalkable(floor, toX, toZ)) return false;
   if (!canCrossEdges(floor, fromX, fromZ, toX, toZ)) return false;

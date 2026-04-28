@@ -106,6 +106,12 @@ export function getRoomFloorMaterial(color: string, slug?: string): THREE.MeshSt
     roughness: textures ? 1 : 0.88,
     metalness: 0,
     envMapIntensity: textures ? 0 : 1,
+    // Stairwell floors above the player are viewed from below (looking
+    // up through the well). Single-sided rendering would backface-cull
+    // the underside and leave the scene's black backdrop showing through
+    // — the "see-through floor" bug. Regular room floors are never
+    // viewed from below, so DoubleSide is a no-op there.
+    side: THREE.DoubleSide,
     ...(textures ?? {}),
   });
   roomFloorCache.set(key, mat);
