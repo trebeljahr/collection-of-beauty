@@ -55,8 +55,14 @@ export function getPaletteMaterials(palette: Palette): PaletteMaterials {
     }),
     floor: new THREE.MeshStandardMaterial({
       color: palette.floorColor,
+      // roughness=1 with a roughnessMap means "use the map directly".
+      // metalness=0 keeps marble/wood/concrete as dielectrics.
+      // envMapIntensity=0 silences the cool apartment HDRI's Fresnel
+      // contribution at grazing angles — without this, polished tiles
+      // picked up a blue sheen when viewed from across a doorway.
       roughness: floorTextures ? 1 : 0.88,
-      metalness: floorTextures ? 1 : 0.05,
+      metalness: 0,
+      envMapIntensity: floorTextures ? 0 : 1,
       ...(floorTextures ?? {}),
     }),
     ceiling: new THREE.MeshStandardMaterial({
@@ -95,8 +101,11 @@ export function getRoomFloorMaterial(color: string, slug?: string): THREE.MeshSt
   const textures = slug ? buildMapBundle(slug, FLOOR_REPEAT[0], FLOOR_REPEAT[1]) : null;
   mat = new THREE.MeshStandardMaterial({
     color,
+    // See getPaletteMaterials' floor for the rationale on these knobs —
+    // mirrors the per-room accent material so rooms and hallways match.
     roughness: textures ? 1 : 0.88,
-    metalness: textures ? 1 : 0.05,
+    metalness: 0,
+    envMapIntensity: textures ? 0 : 1,
     ...(textures ?? {}),
   });
   roomFloorCache.set(key, mat);

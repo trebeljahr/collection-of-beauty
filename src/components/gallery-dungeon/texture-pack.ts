@@ -75,12 +75,17 @@ function clonedWithRepeat(src: THREE.Texture, repeatU: number, repeatV: number):
  *   const bundle = buildMapBundle("marble_01", 1, 1);
  *   new THREE.MeshStandardMaterial({ ...bundle, color: "#fff" });
  *
- * The ARM texture is bound to roughnessMap + metalnessMap (channels G
- * and B). AO (channel R) is intentionally NOT bound — Poly Haven's
- * diffuse already bakes contact shadows in, so adding aoMap on top
- * double-darkens the surface and reads as splotchy artefacts. AO also
- * requires a uv2 attribute on the geometry that PlaneGeometry/
- * ShapeGeometry don't generate.
+ * Maps bound: diffuse, normal, and the G channel of ARM as roughness.
+ *
+ * Intentionally NOT bound:
+ * - `aoMap` — Poly Haven's diffuse already bakes contact shadows in;
+ *   adding ao on top double-darkens. Also requires a uv2 attribute
+ *   that PlaneGeometry / ShapeGeometry don't generate.
+ * - `metalnessMap` — none of the gallery's floor surfaces (marble,
+ *   stone, wood, concrete) are metallic. Binding the ARM B channel
+ *   here was making the floor pick up the apartment HDRI as a cool
+ *   blue reflection at grazing angles. The host material sets
+ *   `metalness: 0` instead.
  *
  * `repeatU`/`repeatV` control tile density. With per-mesh world-unit
  * UVs (see `useWorldUVPlane` in room-geometry.tsx), pass `(1, 1)` here
@@ -95,18 +100,13 @@ export function buildMapBundle(
   map: THREE.Texture;
   normalMap: THREE.Texture;
   roughnessMap: THREE.Texture;
-  metalnessMap: THREE.Texture;
 } {
   const diff = loadSource(slug, "diff");
   const nor = loadSource(slug, "nor_gl");
   const arm = loadSource(slug, "arm");
-  // Rough + metal share the same source image — three.js samples
-  // channels G + B respectively — but the texture object's .repeat
-  // must match across all bindings, so each gets its own clone.
   return {
     map: clonedWithRepeat(diff, repeatU, repeatV),
     normalMap: clonedWithRepeat(nor, repeatU, repeatV),
     roughnessMap: clonedWithRepeat(arm, repeatU, repeatV),
-    metalnessMap: clonedWithRepeat(arm, repeatU, repeatV),
   };
 }
