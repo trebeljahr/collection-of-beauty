@@ -96,6 +96,13 @@ export function GalleryDungeon({ artworks }: Props) {
   // when stairs trigger a floor swap and so the minimap can follow the
   // camera per-frame without round-tripping through React state.
   const lastCameraRef = useRef<PlayerSample | null>(null);
+  // Captured in Canvas.onCreated so the Enter click can engage pointer
+  // lock synchronously inside its own user gesture. drei's selector now
+  // scopes auto-lock to .gallery-canvas-host, which the start overlay
+  // (a DOM sibling) doesn't sit inside — so without this manual lock
+  // the player would enter the gallery un-locked, and their first
+  // painting click would just be the relock click rather than a zoom.
+  const canvasRef = useRef<HTMLCanvasElement | null>(null);
 
   const teleportToFloor = useCallback(
     (idx: number) => {
@@ -180,6 +187,7 @@ export function GalleryDungeon({ artworks }: Props) {
           gl.toneMapping = THREE.ACESFilmicToneMapping;
           gl.toneMappingExposure = 1.0;
           scene.fog = new THREE.Fog("#0a0805", 20, 80);
+          canvasRef.current = gl.domElement;
         }}
       >
         <color attach="background" args={["#0a0805"]} />
@@ -255,7 +263,14 @@ export function GalleryDungeon({ artworks }: Props) {
           blurb={currentFloor.era.blurb}
           loaded={Math.min(entryRoomLoaded, entryRoomTotal)}
           total={entryRoomTotal}
-          onStart={() => setHasStarted(true)}
+          onStart={() => {
+            // Engage pointer lock inside the Enter click's user gesture so
+            // the very first painting click opens the inspect overlay
+            // instead of being consumed by drei's selector relock.
+            // Touch devices have no pointer lock — joysticks own look.
+            if (!isTouch) canvasRef.current?.requestPointerLock?.();
+            setHasStarted(true);
+          }}
           isTouch={isTouch}
         />
       )}
@@ -508,8 +523,8 @@ function StartOverlay({
               <kbd className="rounded border border-white/30 px-1.5">W</kbd>{" "}
               <kbd className="rounded border border-white/30 px-1.5">A</kbd>{" "}
               <kbd className="rounded border border-white/30 px-1.5">S</kbd>{" "}
-              <kbd className="rounded border border-white/30 px-1.5">D</kbd> to walk · mouse to
-              look · <kbd className="rounded border border-white/30 px-1.5">Shift</kbd> to run ·{" "}
+              <kbd className="rounded border border-white/30 px-1.5">D</kbd> to walk · mouse to look
+              · <kbd className="rounded border border-white/30 px-1.5">Shift</kbd> to run ·{" "}
               <kbd className="rounded border border-white/30 px-1.5">Space</kbd> to jump · click a
               painting to zoom · 1–7 teleports between floors
             </>
