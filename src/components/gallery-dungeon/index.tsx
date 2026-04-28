@@ -173,6 +173,7 @@ export function GalleryDungeon({ artworks }: Props) {
   return (
     <div className="relative w-full h-screen bg-black">
       <Canvas
+        className="gallery-canvas-host"
         camera={{ fov: 75, near: 0.1, far: 500 }}
         gl={{ antialias: true, powerPreference: "high-performance" }}
         onCreated={({ gl, scene }) => {
@@ -239,9 +240,13 @@ export function GalleryDungeon({ artworks }: Props) {
           joystickLookGetter={isTouch ? lookJoystick.getData : undefined}
         />
         {/* Pointer-lock is desktop-only — on touch the joysticks own
-            both move and look, and pointer-lock isn't supported in
-            mobile browsers anyway. */}
-        {hasStarted && !zoomed && !isTouch && <PointerLockControls />}
+            move/look, and mobile browsers don't support it anyway.
+            selector scopes drei's auto-lock click listener to the
+            canvas wrapper; otherwise it binds to document.body and
+            any click (audio gear, HUD) yanks the cursor into lock. */}
+        {hasStarted && !zoomed && !isTouch && (
+          <PointerLockControls selector=".gallery-canvas-host" />
+        )}
       </Canvas>
 
       {!hasStarted && (

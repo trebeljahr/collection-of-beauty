@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 
 // ─────────────────────────────────────────────────────────────────────────────
 // Persistent audio preferences
@@ -92,6 +92,13 @@ export function useAudioSettings(): [AudioSettings, (patch: Partial<AudioSetting
   // hydrate from localStorage on the client mount.
   const [settings, setSettings] = useState<AudioSettings>(DEFAULT_AUDIO_SETTINGS);
 
+  // Latest-state ref so update() can read settings without a setState
+  // updater. Calling emit() inside an updater synchronously fires every
+  // subscriber's setSettings during this render, which React flags as
+  // "setState while rendering a different component".
+  const settingsRef = useRef(settings);
+  settingsRef.current = settings;
+
   useEffect(() => {
     setSettings(loadAudioSettings());
 
@@ -111,12 +118,10 @@ export function useAudioSettings(): [AudioSettings, (patch: Partial<AudioSetting
   }, []);
 
   const update = useCallback((patch: Partial<AudioSettings>) => {
-    setSettings((prev) => {
-      const next = sanitize({ ...prev, ...patch });
-      saveAudioSettings(next);
-      emit(next);
-      return next;
-    });
+    const next = sanitize({ ...settingsRef.current, ...patch });
+    saveAudioSettings(next);
+    setSettings(next);
+    emit(next);
   }, []);
 
   return [settings, update];
