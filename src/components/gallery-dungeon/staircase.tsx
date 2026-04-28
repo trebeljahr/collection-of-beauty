@@ -39,11 +39,16 @@ const RAIL_BAR_HEIGHT = 0.1;
  *  reading as a hand rail you could grip. */
 const RAIL_BAR_HALF_WIDTH = 0.05;
 const BALUSTER_SIZE = 0.07;
-/** Step indices skipped on the OUTER rail — the gap is the player's
- *  entry/exit point onto the spiral, centred on the entry direction.
- *  Two steps' worth = ~33°, wide enough to walk through comfortably
- *  without scraping the rail posts on either side. */
-const OUTER_RAIL_GAP_STEPS = 2;
+/** Half-arc of the entry/exit gate on the OUTER rail — the rail is
+ *  omitted across this arc so the player can step onto/off the
+ *  spiral. The cutout-edge rail on each floor uses the same value
+ *  (computed from each stair's numSteps), so the two gates align
+ *  vertically and the spiral rail flows smoothly out of one floor's
+ *  cutout rail and into the next. */
+export function spiralGateHalfArc(numSteps: number): number {
+  // One step's worth of arc on each side ≈ 16° at numSteps=22.
+  return (Math.PI * 2) / numSteps;
+}
 
 /**
  * Build a single spiral tread as an explicit BufferGeometry (annulus
@@ -173,7 +178,7 @@ function buildSpiralStepsGeometry(staircase: Staircase): THREE.BufferGeometry {
 function buildSpiralRail(
   staircase: Staircase,
   side: "inner" | "outer",
-  gapSteps: number,
+  gateHalfArc: number,
 ): { rail: THREE.BufferGeometry; balusters: Array<[number, number, number]> } {
   const { innerRadius, outerRadius, numSteps, direction, lowerY, upperY, entryAngle } = staircase;
   const stepAngle = ((Math.PI * 2) / numSteps) * direction;
@@ -188,12 +193,18 @@ function buildSpiralRail(
   const indices: number[] = [];
   const segPerStep = 3;
 
-  // Gap window — gapSteps consecutive step indices centred on the
-  // entry angle (i=0). For gapSteps=2: skip step (numSteps−1) and
-  // step 0; for gapSteps=1: skip step 0 only.
-  const gapAfter = Math.ceil(gapSteps / 2);
-  const gapBefore = Math.floor(gapSteps / 2);
-  const inGap = (i: number) => gapSteps > 0 && (i < gapAfter || i >= numSteps - gapBefore);
+  // Gap is an ANGULAR window centred on entryAngle (rather than a
+  // count of skipped step indices), so it can match the cutout-edge
+  // rail's gate exactly regardless of how the spiral's steps line up
+  // with it.
+  const inGap = (theta: number): boolean => {
+    if (gateHalfArc <= 0) return false;
+    const angDiff = Math.atan2(
+      Math.sin(theta - entryAngle),
+      Math.cos(theta - entryAngle),
+    );
+    return Math.abs(angDiff) < gateHalfArc;
+  };
 
   const balusters: Array<[number, number, number]> = [];
   // Track the start of each contiguous tube segment so we can cap
@@ -224,18 +235,29 @@ function buildSpiralRail(
   };
 
   for (let i = 0; i < numSteps; i++) {
-    if (inGap(i)) {
-      closeSegment();
-      continue;
-    }
     const aStart = entryAngle + i * stepAngle;
     const aEnd = entryAngle + (i + 1) * stepAngle;
     const lo = Math.min(aStart, aEnd);
     const hi = Math.max(aStart, aEnd);
-    const yTop = lowerY + i * stepRise + RAIL_HEIGHT;
     for (let s = 0; s <= segPerStep; s++) {
       const t = s / segPerStep;
       const theta = lo + (hi - lo) * t;
+      // Per-sample gating: the gap is an angular window around the
+      // entry direction, not a count of skipped step indices, so it
+      // can be smaller or larger than a step's worth of arc and still
+      // align with the cutout-rail's gate.
+      if (inGap(theta)) {
+        closeSegment();
+        continue;
+      }
+      // Smooth helical Y — the rail rises continuously with angular
+      // progress along the spiral instead of holding flat across a
+      // step and jumping at every boundary. tGlobal interpolates
+      // through the same step + sample fraction the treads use, so
+      // the rail meets the baluster top at every step's start angle
+      // exactly (one rise above the previous step's top).
+      const tGlobal = (i + t) / numSteps;
+      const yTop = lowerY + tGlobal * (upperY - lowerY) + RAIL_HEIGHT;
       const cx = railR * Math.cos(theta);
       const cz = railR * Math.sin(theta);
       // Outward radial unit vector at this angle.
@@ -285,12 +307,15 @@ function buildSpiralRail(
       }
       prevBaseIdx = baseIdx;
     }
-    // One baluster per step at the start angle.
-    balusters.push([
-      balR * Math.cos(aStart),
-      lowerY + i * stepRise + (RAIL_HEIGHT - RAIL_BAR_HEIGHT) / 2,
-      balR * Math.sin(aStart),
-    ]);
+    // One baluster per step at the start angle, but only if that
+    // angle falls outside the gate gap.
+    if (!inGap(aStart)) {
+      balusters.push([
+        balR * Math.cos(aStart),
+        lowerY + i * stepRise + (RAIL_HEIGHT - RAIL_BAR_HEIGHT) / 2,
+        balR * Math.sin(aStart),
+      ]);
+    }
   }
   // Cap the final segment that ran off the loop's end.
   closeSegment();
@@ -319,7 +344,7 @@ export function StaircaseRenderer({ staircase }: { staircase: Staircase }) {
   const stepsGeom = useMemo(() => buildSpiralStepsGeometry(staircase), [staircase]);
   const innerRail = useMemo(() => buildSpiralRail(staircase, "inner", 0), [staircase]);
   const outerRail = useMemo(
-    () => buildSpiralRail(staircase, "outer", OUTER_RAIL_GAP_STEPS),
+    () => buildSpiralRail(staircase, "outer", spiralGateHalfArc(staircase.numSteps)),
     [staircase],
   );
 

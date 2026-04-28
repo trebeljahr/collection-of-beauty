@@ -4,7 +4,7 @@ import { useMemo } from "react";
 import * as THREE from "three";
 import type { FloorLayout } from "@/lib/gallery-layout/types";
 import { SPIRAL_FLOOR_CUTOUT_RADIUS } from "@/lib/gallery-layout/world-coords";
-import { StairSign } from "./staircase";
+import { spiralGateHalfArc, StairSign } from "./staircase";
 
 // Local copies of the rail vocabulary so this file is self-contained.
 // Match staircase.tsx exactly so the cutout-edge rail and the spiral
@@ -38,9 +38,9 @@ const GATE_POST_TANGENT_WIDTH = 0.85;
  *  pylon rather than a fat column. */
 const GATE_POST_RADIAL_DEPTH = 0.18;
 const GATE_POST_HEIGHT = 2.4;
-/** Half-arc of the entry gate in radians. The gate is centred on the
- *  spiral's `entryAngle` and the rail is omitted across this arc. */
-const GATE_HALF_ARC = 0.34; // ≈ 19.5° each side, ≈ 39° total
+// Half-arc of the entry gate is now derived per-stair from the
+// spiral's numSteps (`spiralGateHalfArc(numSteps)`), so the cutout-edge
+// gate aligns exactly with the spiral rail's gap above and below.
 
 /** Build the cutout-edge top rail as a CLOSED RECTANGULAR TUBE
  *  following a circle of radius `radius` at height `y + RAIL_HEIGHT`,
@@ -178,8 +178,9 @@ export function StairwellAccents({ floor }: { floor: FloorLayout }) {
     const cx = reference.centerX;
     const cz = reference.centerZ;
     const railR = SPIRAL_FLOOR_CUTOUT_RADIUS + 0.18;
-    const railGeom = buildCutoutRailGeometry(railR, floor.y, reference.entryAngle, GATE_HALF_ARC);
-    const balusters = buildCutoutBalusters(railR, floor.y, reference.entryAngle, GATE_HALF_ARC);
+    const gateHalfArc = spiralGateHalfArc(reference.numSteps);
+    const railGeom = buildCutoutRailGeometry(railR, floor.y, reference.entryAngle, gateHalfArc);
+    const balusters = buildCutoutBalusters(railR, floor.y, reference.entryAngle, gateHalfArc);
     return {
       cx,
       cz,
@@ -187,13 +188,14 @@ export function StairwellAccents({ floor }: { floor: FloorLayout }) {
       railGeom,
       balusters,
       entryAngle: reference.entryAngle,
+      gateHalfArc,
       stairOut,
       stairIn,
     };
   }, [floor, stairwell]);
 
   if (!stairwell || !data) return null;
-  const { cx, cz, railR, railGeom, balusters, entryAngle, stairOut, stairIn } = data;
+  const { cx, cz, railR, railGeom, balusters, entryAngle, gateHalfArc, stairOut, stairIn } = data;
   const hasCutout = floor.index > 0;
   // Gate posts sit ON the rail line — same radius as the rail —
   // so the rail terminates INTO the post instead of stopping next
@@ -205,8 +207,8 @@ export function StairwellAccents({ floor }: { floor: FloorLayout }) {
   // face the spiral, which is also the ascending direction); post B
   // is the same arc CW (right side, descending direction).
   const gatePostRadius = railR;
-  const angleA = entryAngle + GATE_HALF_ARC;
-  const angleB = entryAngle - GATE_HALF_ARC;
+  const angleA = entryAngle + gateHalfArc;
+  const angleB = entryAngle - gateHalfArc;
   const postA = {
     x: cx + gatePostRadius * Math.cos(angleA),
     z: cz + gatePostRadius * Math.sin(angleA),
