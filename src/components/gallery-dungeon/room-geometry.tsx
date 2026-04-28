@@ -34,7 +34,7 @@ export function RoomGeometry({
 }) {
   const era = ERAS[room.floorIndex];
   const mats = getPaletteMaterials(era.palette);
-  const floorMat = getRoomFloorMaterial(room.floorColor);
+  const floorMat = getRoomFloorMaterial(room.floorColor, era.palette.floorTexture);
   const { cellBounds } = room;
 
   const xMin = cellBounds.xMin * CELL_SIZE;

@@ -13,6 +13,19 @@
 
 import type { Palette } from "@/lib/gallery-eras";
 import * as THREE from "three";
+import { buildMapBundle } from "./texture-pack";
+
+// Tile densities. UV repeat is global to a texture clone, so a single
+// (slug, density) pair can be shared across every wall on a floor —
+// they all receive the same texture/UV transform via the cached
+// material. The numbers below assume each Poly Haven 1 m² tile reads
+// at roughly its real-world scale on the surface it's bound to.
+//
+// Walls are 2.5 m × 6.2 m planes; (2, 4) gives ~1.25 m × ~1.55 m tiles.
+// Floors / ceilings vary in size; (4, 4) is a sensible compromise for
+// rooms in the 5–25 m range.
+const WALL_REPEAT: [number, number] = [2, 4];
+const FLOOR_REPEAT: [number, number] = [4, 4];
 
 export type PaletteMaterials = {
   wall: THREE.MeshStandardMaterial;
@@ -26,17 +39,36 @@ const cache = new Map<Palette, PaletteMaterials>();
 export function getPaletteMaterials(palette: Palette): PaletteMaterials {
   let entry = cache.get(palette);
   if (entry) return entry;
+
+  // Wall — when a wallTexture is set we bind diff/normal/ARM maps;
+  // .color stays the era tint and three.js multiplies it onto the
+  // diffuse map. Roughness/metalness clamp to 1 so the map values
+  // pass through unattenuated; without textures, fall back to the
+  // hand-tuned solid-material recipe.
+  const wallTextures = palette.wallTexture
+    ? buildMapBundle(palette.wallTexture, WALL_REPEAT[0], WALL_REPEAT[1])
+    : null;
+  const wall = new THREE.MeshStandardMaterial({
+    color: palette.wallColor,
+    roughness: wallTextures ? 1 : 0.92,
+    metalness: wallTextures ? 1 : 0,
+    side: THREE.DoubleSide,
+    ...(wallTextures ?? {}),
+  });
+
+  const floorTextures = palette.floorTexture
+    ? buildMapBundle(palette.floorTexture, FLOOR_REPEAT[0], FLOOR_REPEAT[1])
+    : null;
+  const floor = new THREE.MeshStandardMaterial({
+    color: palette.floorColor,
+    roughness: floorTextures ? 1 : 0.88,
+    metalness: floorTextures ? 1 : 0.05,
+    ...(floorTextures ?? {}),
+  });
+
   entry = {
-    wall: new THREE.MeshStandardMaterial({
-      color: palette.wallColor,
-      roughness: 0.92,
-      side: THREE.DoubleSide,
-    }),
-    floor: new THREE.MeshStandardMaterial({
-      color: palette.floorColor,
-      roughness: 0.88,
-      metalness: 0.05,
-    }),
+    wall,
+    floor,
     ceiling: new THREE.MeshStandardMaterial({
       color: palette.ceilingColor,
       roughness: 0.96,
@@ -54,21 +86,33 @@ export function getPaletteMaterials(palette: Palette): PaletteMaterials {
 
 // ── Per-room floor materials ──────────────────────────────────────────
 // Rooms now carry their own floor tint (see Era.palette.roomAccents).
-// Materials are cached by hex string so two rooms picking the same
-// accent share one material — bounded by the union of authored accents
-// (≈ 5 × 7 = 35 max) regardless of room count.
+// Materials are cached by (color, slug) so two rooms picking the same
+// accent + era share one material — bounded by the union of authored
+// accents × floor textures (≤ 5 × 7 = 35 max) regardless of room count.
 
 const roomFloorCache = new Map<string, THREE.MeshStandardMaterial>();
 
-export function getRoomFloorMaterial(color: string): THREE.MeshStandardMaterial {
-  let mat = roomFloorCache.get(color);
+/**
+ * Per-room floor material. The slug is the era's `floorTexture` so
+ * room floors carry the same marble/wood/concrete look as their
+ * hallway floors, just tinted by the room's accent. Pass `undefined`
+ * to fall back to a flat tinted material.
+ */
+export function getRoomFloorMaterial(
+  color: string,
+  slug?: string,
+): THREE.MeshStandardMaterial {
+  const key = slug ? `${color}|${slug}` : color;
+  let mat = roomFloorCache.get(key);
   if (mat) return mat;
+  const textures = slug ? buildMapBundle(slug, FLOOR_REPEAT[0], FLOOR_REPEAT[1]) : null;
   mat = new THREE.MeshStandardMaterial({
     color,
-    roughness: 0.88,
-    metalness: 0.05,
+    roughness: textures ? 1 : 0.88,
+    metalness: textures ? 1 : 0.05,
+    ...(textures ?? {}),
   });
-  roomFloorCache.set(color, mat);
+  roomFloorCache.set(key, mat);
   return mat;
 }
 

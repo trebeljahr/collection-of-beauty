@@ -21,6 +21,7 @@
     "download:birds": "bash scripts/download-birds-of-america.sh",
     "download:kunstformen": "bash scripts/download-kunstformen.sh",
     "shrink": "node scripts/shrink-sources.mjs",
+    "textures": "node scripts/download-textures.mjs",
     "format": "biome format --write .",
     "lint": "biome lint .",
     "check": "biome check --write .",
