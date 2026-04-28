@@ -195,11 +195,13 @@ export function GalleryDungeon({ artworks }: Props) {
         <hemisphereLight args={["#fff3d0", "#1a120b", 0.45]} position={[0, 20, 0]} />
         {/* Environment map for metallic surfaces (plaque chrome rims,
             painting frame highlights) — without something to reflect,
-            metalness=1 materials render as flat dark grey. `apartment`
-            is a small indoor HDRI; environmentIntensity keeps it dim
-            so the gallery stays atmospheric. background:false leaves
-            the existing fog/black backdrop alone. */}
-        <Environment preset="apartment" background={false} environmentIntensity={0.4} />
+            metalness=1 materials render as flat dark grey. `sunset` is
+            warm and matches the orange lamp tints throughout the
+            gallery; the previous `apartment` preset cast cool window
+            light that read as a blue sheen on polished floors when
+            viewed at grazing angles. background:false leaves the
+            existing fog/black backdrop alone. */}
+        <Environment preset="sunset" background={false} environmentIntensity={0.4} />
 
         <FloorScene
           floor={currentFloor}
@@ -496,6 +498,7 @@ function StartOverlay({
 
   return (
     // biome-ignore lint/a11y/useKeyWithClickEvents: pointer-lock entry requires a real mouse click; keyboard activation can't grant pointer-lock
+    // biome-ignore lint/a11y/noStaticElementInteractions: same reason — full-screen click target gates pointer-lock entry
     <div
       onClick={ready ? onStart : undefined}
       className={`absolute inset-0 z-10 flex items-center justify-center bg-black/70 backdrop-blur-sm ${
@@ -503,6 +506,7 @@ function StartOverlay({
       }`}
     >
       {/* biome-ignore lint/a11y/useKeyWithClickEvents: stopPropagation only. */}
+      {/* biome-ignore lint/a11y/noStaticElementInteractions: stopPropagation only — purely visual container */}
       <div
         onClick={(e) => e.stopPropagation()}
         className="w-[min(480px,92vw)] rounded-xl border border-white/15 bg-black/60 p-6 text-center text-white shadow-2xl"
