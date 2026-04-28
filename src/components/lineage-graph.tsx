@@ -14,6 +14,7 @@ import {
 } from "d3-force";
 import Link from "next/link";
 import { useEffect, useMemo, useRef, useState } from "react";
+import { TransformComponent, TransformWrapper } from "react-zoom-pan-pinch";
 
 type Props = {
   artists: Artist[];
@@ -112,9 +113,15 @@ export function LineageGraph({ artists, connections }: Props) {
     function resize() {
       if (!svgRef.current) return;
       const rect = svgRef.current.parentElement!.getBoundingClientRect();
+      // Height: never bigger than 70 % of viewport (so the graph
+      // doesn't push the sidebar off-screen on phones in portrait), and
+      // never smaller than 320 px (so the simulation has room to settle
+      // even on a phone in landscape).
+      const vh = window.innerHeight;
+      const target = Math.round(vh * 0.7);
       setDimensions({
         width: rect.width,
-        height: Math.max(600, Math.min(900, window.innerHeight - 240)),
+        height: Math.max(320, Math.min(800, target)),
       });
     }
     resize();
@@ -264,101 +271,135 @@ export function LineageGraph({ artists, connections }: Props) {
       </div>
 
       <div className="grid gap-4 lg:grid-cols-[1fr_320px]">
-        <div className="relative rounded-xl border border-[var(--border)] bg-[var(--card)] overflow-hidden">
-          {/* biome-ignore lint/a11y/useKeyWithClickEvents: clicking the SVG background clears selection; artist nodes below are keyboard-accessible. */}
-          <svg
-            ref={svgRef}
-            role="img"
-            aria-label="Artist lineage graph"
-            width={dimensions.width}
-            height={dimensions.height}
-            className="block"
-            data-tick={tick}
-            onClick={(e) => {
-              if (e.target === svgRef.current) setSelected(null);
-            }}
+        <div className="relative rounded-xl border border-[var(--border)] bg-[var(--card)] overflow-hidden touch-none">
+          {/* Pinch / drag / wheel zoom. With ~200 nodes packed into a
+              phone-sized SVG the hit targets are tiny — the wrapper
+              lets users zoom in to ~3× and pan around. `centerOnInit`
+              and `limitToBounds` keep the graph from drifting
+              off-screen. */}
+          <TransformWrapper
+            initialScale={1}
+            minScale={0.6}
+            maxScale={4}
+            limitToBounds
+            centerOnInit
+            doubleClick={{ disabled: true }}
+            wheel={{ step: 0.15 }}
+            pinch={{ step: 5 }}
           >
-            <defs>
-              <marker
-                id="arrow"
-                viewBox="0 -5 10 10"
-                refX="10"
-                refY="0"
-                markerWidth="5"
-                markerHeight="5"
-                orient="auto"
+            <TransformComponent
+              wrapperStyle={{
+                width: dimensions.width,
+                height: dimensions.height,
+              }}
+              contentStyle={{
+                width: dimensions.width,
+                height: dimensions.height,
+              }}
+            >
+              {/* biome-ignore lint/a11y/useKeyWithClickEvents: clicking the SVG background clears selection; artist nodes below are keyboard-accessible. */}
+              <svg
+                ref={svgRef}
+                role="img"
+                aria-label="Artist lineage graph"
+                width={dimensions.width}
+                height={dimensions.height}
+                className="block"
+                data-tick={tick}
+                onClick={(e) => {
+                  if (e.target === svgRef.current) setSelected(null);
+                }}
               >
-                <path d="M0,-5L10,0L0,5" fill="currentColor" opacity="0.4" />
-              </marker>
-            </defs>
-            <g>
-              {links.map((l) => {
-                const sourceId = typeof l.source === "string" ? l.source : l.source.id;
-                const targetId = typeof l.target === "string" ? l.target : l.target.id;
-                const s = typeof l.source === "string" ? nodeById.get(l.source) : l.source;
-                const t = typeof l.target === "string" ? nodeById.get(l.target) : l.target;
-                if (!s || !t || s.x == null || t.x == null) return null;
-                const hi = linkHighlighted(l);
-                const dim = activeId && !hi;
-                return (
-                  <line
-                    key={`${sourceId}-${targetId}-${l.kind}-${l.label}`}
-                    x1={s.x}
-                    y1={s.y}
-                    x2={t.x}
-                    y2={t.y}
-                    stroke={l.kind === "known" ? "#525252" : "#a3a3a3"}
-                    strokeWidth={l.kind === "known" ? 1.5 : 0.7}
-                    strokeOpacity={dim ? 0.08 : l.kind === "known" ? 0.7 : 0.35}
-                    strokeDasharray={l.kind === "movement" ? "3 3" : undefined}
-                  />
-                );
-              })}
-            </g>
-            <g>
-              {nodes.map((n) => {
-                const hi = isHighlighted(n.id);
-                const r = 5 + Math.sqrt(n.count) * 1.4;
-                return (
-                  <g
-                    key={n.id}
-                    transform={`translate(${n.x ?? 0}, ${n.y ?? 0})`}
-                    onMouseEnter={() => setHovered(n.id)}
-                    onMouseLeave={() => setHovered(null)}
-                    onClick={() => setSelected((prev) => (prev === n.id ? null : n.id))}
-                    onKeyDown={(e) => {
-                      if (e.key !== "Enter" && e.key !== " ") return;
-                      e.preventDefault();
-                      setSelected((prev) => (prev === n.id ? null : n.id));
-                    }}
-                    className="cursor-pointer"
-                    opacity={hi ? 1 : 0.15}
+                <defs>
+                  <marker
+                    id="arrow"
+                    viewBox="0 -5 10 10"
+                    refX="10"
+                    refY="0"
+                    markerWidth="5"
+                    markerHeight="5"
+                    orient="auto"
                   >
-                    <circle
-                      r={r}
-                      fill={movementColor(n.movement)}
-                      stroke={selected === n.id ? "#111" : "white"}
-                      strokeWidth={selected === n.id ? 2 : 1}
-                    />
-                    {hi && (hovered === n.id || selected === n.id || n.count > 30) && (
-                      <text
-                        y={-r - 4}
-                        textAnchor="middle"
-                        className="pointer-events-none select-none"
-                        fontSize={11}
-                        fill="var(--foreground)"
-                        paintOrder="stroke"
-                        stroke="var(--background)"
-                        strokeWidth={3}
+                    <path d="M0,-5L10,0L0,5" fill="currentColor" opacity="0.4" />
+                  </marker>
+                </defs>
+                <g>
+                  {links.map((l) => {
+                    const sourceId = typeof l.source === "string" ? l.source : l.source.id;
+                    const targetId = typeof l.target === "string" ? l.target : l.target.id;
+                    const s = typeof l.source === "string" ? nodeById.get(l.source) : l.source;
+                    const t = typeof l.target === "string" ? nodeById.get(l.target) : l.target;
+                    if (!s || !t || s.x == null || t.x == null) return null;
+                    const hi = linkHighlighted(l);
+                    const dim = activeId && !hi;
+                    return (
+                      <line
+                        key={`${sourceId}-${targetId}-${l.kind}-${l.label}`}
+                        x1={s.x}
+                        y1={s.y}
+                        x2={t.x}
+                        y2={t.y}
+                        stroke={l.kind === "known" ? "#525252" : "#a3a3a3"}
+                        strokeWidth={l.kind === "known" ? 1.5 : 0.7}
+                        strokeOpacity={dim ? 0.08 : l.kind === "known" ? 0.7 : 0.35}
+                        strokeDasharray={l.kind === "movement" ? "3 3" : undefined}
+                      />
+                    );
+                  })}
+                </g>
+                <g>
+                  {nodes.map((n) => {
+                    const hi = isHighlighted(n.id);
+                    const r = 5 + Math.sqrt(n.count) * 1.4;
+                    // Invisible hit-zone keeps the visual node small but
+                    // gives every artist a touch-friendly tap target. Most
+                    // visible circles are 5–15 px; 18 px radius brings the
+                    // hit area to ~36 px diameter at scale 1, and pinch
+                    // zoom takes over from there for dense clusters.
+                    const hitR = Math.max(18, r);
+                    return (
+                      <g
+                        key={n.id}
+                        transform={`translate(${n.x ?? 0}, ${n.y ?? 0})`}
+                        onMouseEnter={() => setHovered(n.id)}
+                        onMouseLeave={() => setHovered(null)}
+                        onClick={() => setSelected((prev) => (prev === n.id ? null : n.id))}
+                        onKeyDown={(e) => {
+                          if (e.key !== "Enter" && e.key !== " ") return;
+                          e.preventDefault();
+                          setSelected((prev) => (prev === n.id ? null : n.id));
+                        }}
+                        className="cursor-pointer"
+                        opacity={hi ? 1 : 0.15}
                       >
-                        {n.name}
-                      </text>
-                    )}
-                  </g>
-                );
-              })}
-            </g>
-          </svg>
+                        <circle r={hitR} fill="transparent" />
+                        <circle
+                          r={r}
+                          fill={movementColor(n.movement)}
+                          stroke={selected === n.id ? "#111" : "white"}
+                          strokeWidth={selected === n.id ? 2 : 1}
+                        />
+                        {hi && (hovered === n.id || selected === n.id || n.count > 30) && (
+                          <text
+                            y={-r - 4}
+                            textAnchor="middle"
+                            className="pointer-events-none select-none"
+                            fontSize={11}
+                            fill="var(--foreground)"
+                            paintOrder="stroke"
+                            stroke="var(--background)"
+                            strokeWidth={3}
+                          >
+                            {n.name}
+                          </text>
+                        )}
+                      </g>
+                    );
+                  })}
+                </g>
+              </svg>
+            </TransformComponent>
+          </TransformWrapper>
           {nodes.length === 0 && (
             <div className="absolute inset-0 grid place-items-center text-[var(--muted-foreground)]">
               No artists to display with current filters.
@@ -441,7 +482,7 @@ export function LineageGraph({ artists, connections }: Props) {
             </div>
           ) : (
             <div className="text-sm text-[var(--muted-foreground)]">
-              <p className="mb-2">Hover or click an artist to see their connections.</p>
+              <p className="mb-2">Tap an artist to see their connections — pinch to zoom in.</p>
               <p className="mb-4">
                 Nodes are positioned by birth year (left = earlier). Solid lines mean direct
                 acquaintance; dashed lines share a movement.

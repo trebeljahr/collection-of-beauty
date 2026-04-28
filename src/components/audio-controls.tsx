@@ -19,15 +19,18 @@ export function AudioControls({ className }: Props) {
   const [open, setOpen] = useState(false);
   const rootRef = useRef<HTMLDivElement>(null);
 
-  // Close the popover when the user clicks outside of it.
+  // Close the popover when the user clicks/taps outside of it.
+  // `pointerdown` is the unified mouse + touch event — `mousedown` is
+  // synthesised ~300 ms after a touch on iOS, so the popover would
+  // linger on tap-outside under that listener.
   useEffect(() => {
     if (!open) return;
-    const onDown = (e: MouseEvent) => {
+    const onDown = (e: PointerEvent) => {
       if (!rootRef.current) return;
       if (!rootRef.current.contains(e.target as Node)) setOpen(false);
     };
-    window.addEventListener("mousedown", onDown);
-    return () => window.removeEventListener("mousedown", onDown);
+    window.addEventListener("pointerdown", onDown);
+    return () => window.removeEventListener("pointerdown", onDown);
   }, [open]);
 
   const toggleMute = useCallback(() => {
@@ -58,7 +61,7 @@ export function AudioControls({ className }: Props) {
       {open && (
         <dialog
           open
-          className="absolute right-0 top-[calc(100%+6px)] m-0 w-56 rounded-lg border border-white/10 bg-black/80 p-3 text-xs text-white/85 shadow-xl backdrop-blur"
+          className="absolute right-0 top-[calc(100%+6px)] m-0 w-56 max-w-[calc(100vw-2rem)] rounded-lg border border-white/10 bg-black/80 p-3 text-xs text-white/85 shadow-xl backdrop-blur"
           aria-label="Sound settings"
         >
           <div className="mb-2 flex items-center justify-between">

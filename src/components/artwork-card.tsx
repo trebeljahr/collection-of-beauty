@@ -21,7 +21,7 @@ export function ArtworkCard({ artwork, priority }: Props) {
           fill
           sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 20vw"
           priority={priority}
-          className="transition-transform duration-500 group-hover:scale-105"
+          className="transition-transform duration-500 group-hover:scale-105 group-active:scale-[1.02]"
         />
       </div>
       <div className="space-y-1 p-3">

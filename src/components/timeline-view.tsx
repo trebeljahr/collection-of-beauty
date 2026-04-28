@@ -136,7 +136,11 @@ export function TimelineView({ artworks, movements }: Props) {
                     loading="lazy"
                     className="transition-transform duration-500 group-hover:scale-110"
                   />
-                  <div className="absolute inset-x-0 bottom-0 translate-y-full bg-gradient-to-t from-black/80 to-transparent p-1.5 text-[10px] text-white transition-transform group-hover:translate-y-0">
+                  {/* Caption: always visible on touch (no hover state)
+                      so cards aren't unlabeled stamp-sized thumbs;
+                      slides up on hover from md+ for the desktop
+                      "reveal on hover" feel. */}
+                  <div className="absolute inset-x-0 bottom-0 translate-y-0 bg-gradient-to-t from-black/80 to-transparent p-1.5 text-[10px] text-white transition-transform md:translate-y-full md:group-hover:translate-y-0">
                     <div className="line-clamp-1 font-medium">{a.title}</div>
                     <div className="line-clamp-1 opacity-80">
                       {a.year}
