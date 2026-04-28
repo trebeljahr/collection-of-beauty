@@ -1,12 +1,12 @@
 "use client";
 
-import type { Artwork } from "@/lib/data";
-import type { Placement } from "@/lib/gallery-layout/types";
-import { variantUrl } from "@/lib/utils";
 import { Text } from "@react-three/drei";
 import { useThree } from "@react-three/fiber";
 import { Suspense, useEffect, useRef } from "react";
 import * as THREE from "three";
+import type { Artwork } from "@/lib/data";
+import type { Placement } from "@/lib/gallery-layout/types";
+import { variantUrl } from "@/lib/utils";
 import { type PaintingEntry, registerPainting, unregisterPainting } from "./painting-registry";
 import {
   FRAME_VARIANTS,
@@ -98,7 +98,7 @@ export function Painting({
    *  "Loading first room…" progress bar on the start overlay. */
   onLoaded?: () => void;
 }) {
-  const { artwork, position, rotation, widthM, heightM } = placement;
+  const { artwork, position, rotation, widthM, heightM, plaqueOnLeft } = placement;
   const url = variantUrl(artwork.objectKey, 960, "avif");
 
   const variant = FRAME_VARIANTS[pickFrameVariant(artwork)];
@@ -138,7 +138,7 @@ export function Painting({
           onLoaded={onLoaded}
         />
       </Suspense>
-      <Plaque artwork={artwork} widthM={widthM} />
+      <Plaque artwork={artwork} widthM={widthM} plaqueOnLeft={plaqueOnLeft} />
     </group>
   );
 }
@@ -200,9 +200,10 @@ function pickFrameVariant(artwork: Artwork): FrameVariantId {
 // flush to the wall, with a slightly inset cream face card on top
 // carrying title / artist / year / dimensions in three sized lines.
 
-// Cream face dims. Painting + plaque reach (painting width / 2 + GAP
-// + face / 2) stays under ~1.25 m so neighbouring paintings don't
-// collide.
+// Cream face dims. Painting+plaque collision avoidance is enforced
+// upstream in place-paintings.ts (per-cell width caps + plaque-side
+// flip at right-corner cells), so the dimensions here can stay
+// readable without any half-cell budget juggling.
 const PLAQUE_FACE_W = 0.28;
 const PLAQUE_FACE_H = 0.18;
 const PLAQUE_FACE_DEPTH = 0.004;
@@ -227,11 +228,17 @@ const PLAQUE_WALL_CLEAR = 0.005;
 function Plaque({
   artwork,
   widthM,
+  plaqueOnLeft,
 }: {
   artwork: Artwork;
   widthM: number;
+  plaqueOnLeft: boolean;
 }) {
-  const localX = widthM / 2 + PLAQUE_GAP + PLAQUE_MOUNT_W / 2;
+  // Default hang is to the painting's right (local +X). Flip to the
+  // left at right-corner cells so the plaque doesn't crash through the
+  // perpendicular wall there.
+  const sideSign = plaqueOnLeft ? -1 : 1;
+  const localX = sideSign * (widthM / 2 + PLAQUE_GAP + PLAQUE_MOUNT_W / 2);
   const localY = 0;
   // Mount sits a few mm off the wall so it doesn't z-fight with it; face
   // is parked just in front of the mount; text floats a hair above the

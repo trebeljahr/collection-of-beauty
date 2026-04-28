@@ -16,6 +16,11 @@ export type Placement = {
   widthM: number;
   /** Painting height in world metres (already aspect-fit to the slot). */
   heightM: number;
+  /** Plaque hangs on the painting's left when true, otherwise on its
+   *  right (the default museum convention). Flipped at wall corners
+   *  where the plaque would otherwise crash through the perpendicular
+   *  wall on the viewer's right. */
+  plaqueOnLeft: boolean;
 };
 
 export type Door = {
