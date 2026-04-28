@@ -14,13 +14,12 @@ const treadMaterial = new THREE.MeshStandardMaterial({
   metalness: 0.1,
 });
 const railTopMaterial = new THREE.MeshStandardMaterial({
-  // Polished brass — the top rail is the eye-catching detail, more
-  // metallic and lighter than the dark bronze it replaces so the
-  // gallery's environment light actually picks it out against the
-  // wood treads.
-  color: "#c89855",
-  roughness: 0.32,
-  metalness: 0.85,
+  // Aged brass — visibly metallic but not mirror-bright. Lower
+  // metalness + higher roughness than polished brass, so the rail
+  // catches highlights without screaming "shiny" at the player.
+  color: "#a07a40",
+  roughness: 0.55,
+  metalness: 0.5,
 });
 const balusterMaterial = new THREE.MeshStandardMaterial({
   // Dark wrought iron for the verticals — strong contrast against
@@ -197,11 +196,36 @@ function buildSpiralRail(
   const inGap = (i: number) => gapSteps > 0 && (i < gapAfter || i >= numSteps - gapBefore);
 
   const balusters: Array<[number, number, number]> = [];
+  // Track the start of each contiguous tube segment so we can cap
+  // both ends — when a gap interrupts the rail, or when the loop
+  // finishes, we close the last open segment with a flat end cap so
+  // it doesn't read as an open tube end.
+  let segmentStartIdx = -1;
   let prevBaseIdx = -1;
+
+  const closeSegment = () => {
+    if (segmentStartIdx === -1 || prevBaseIdx === -1) return;
+    if (segmentStartIdx === prevBaseIdx) {
+      // Single-sample segment, nothing to cap.
+      segmentStartIdx = -1;
+      prevBaseIdx = -1;
+      return;
+    }
+    const s = segmentStartIdx;
+    const e = prevBaseIdx;
+    // Start cap (faces −tangent direction at the segment's first sample).
+    indices.push(s + 0, s + 2, s + 1);
+    indices.push(s + 0, s + 3, s + 2);
+    // End cap (faces +tangent direction at the segment's last sample).
+    indices.push(e + 0, e + 1, e + 2);
+    indices.push(e + 0, e + 2, e + 3);
+    segmentStartIdx = -1;
+    prevBaseIdx = -1;
+  };
 
   for (let i = 0; i < numSteps; i++) {
     if (inGap(i)) {
-      prevBaseIdx = -1;
+      closeSegment();
       continue;
     }
     const aStart = entryAngle + i * stepAngle;
@@ -241,6 +265,7 @@ function buildSpiralRail(
         yTop - RAIL_BAR_HEIGHT,
         cz + oz * RAIL_BAR_HALF_WIDTH,
       );
+      if (segmentStartIdx === -1) segmentStartIdx = baseIdx;
 
       if (prevBaseIdx !== -1) {
         const p = prevBaseIdx;
@@ -267,6 +292,8 @@ function buildSpiralRail(
       balR * Math.sin(aStart),
     ]);
   }
+  // Cap the final segment that ran off the loop's end.
+  closeSegment();
   const geom = new THREE.BufferGeometry();
   geom.setAttribute("position", new THREE.Float32BufferAttribute(positions, 3));
   geom.setIndex(indices);
@@ -343,17 +370,23 @@ export function StairSign({
 }) {
   return (
     <group position={position} rotation={[0, rotationY, 0]}>
+      {/* Sign plaque fits within the gate-post panel (0.85 m wide)
+          so post + sign read as one architectural unit, not a + cross.
+          Slightly taller than before to give the wrapped era titles
+          room to breathe across two lines. */}
       <mesh>
-        <boxGeometry args={[1.4, 0.34, 0.025]} />
+        <boxGeometry args={[0.78, 0.42, 0.025]} />
         <primitive object={signBaseMaterial} attach="material" />
       </mesh>
       <Text
         position={[0, 0, 0.014]}
-        fontSize={0.13}
+        fontSize={0.1}
         color="#f2e9d0"
         anchorX="center"
         anchorY="middle"
-        maxWidth={1.3}
+        textAlign="center"
+        lineHeight={1.15}
+        maxWidth={0.7}
       >
         {label}
       </Text>

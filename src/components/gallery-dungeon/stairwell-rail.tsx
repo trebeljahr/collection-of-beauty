@@ -10,9 +10,9 @@ import { StairSign } from "./staircase";
 // Match staircase.tsx exactly so the cutout-edge rail and the spiral
 // rails read as a single material set.
 const railTopMaterial = new THREE.MeshStandardMaterial({
-  color: "#c89855",
-  roughness: 0.32,
-  metalness: 0.85,
+  color: "#a07a40",
+  roughness: 0.55,
+  metalness: 0.5,
 });
 const balusterMaterial = new THREE.MeshStandardMaterial({
   color: "#0f0c08",
@@ -29,7 +29,14 @@ const RAIL_HEIGHT = 1.05;
 const RAIL_BAR_HEIGHT = 0.1;
 const RAIL_BAR_HALF_WIDTH = 0.05;
 const BALUSTER_SIZE = 0.07;
-const GATE_POST_SIZE = 0.32;
+/** Gate-post tangent width — wide enough for the sign plaque to fit
+ *  flush within it (no horizontal "crossbeam" sticking out beyond
+ *  the post), so post + sign reads as one architectural pylon rather
+ *  than a + cross. */
+const GATE_POST_TANGENT_WIDTH = 0.85;
+/** Gate-post radial depth — kept slim so it reads as a wayfinding
+ *  pylon rather than a fat column. */
+const GATE_POST_RADIAL_DEPTH = 0.18;
 const GATE_POST_HEIGHT = 2.4;
 /** Half-arc of the entry gate in radians. The gate is centred on the
  *  spiral's `entryAngle` and the rail is omitted across this arc. */
@@ -51,15 +58,35 @@ function buildCutoutRailGeometry(
   const segments = 80;
   const positions: number[] = [];
   const indices: number[] = [];
+  let segmentStartIdx = -1;
   let prevBaseIdx = -1;
   const yTop = y + RAIL_HEIGHT;
+
+  const closeSegment = () => {
+    if (segmentStartIdx === -1 || prevBaseIdx === -1) return;
+    if (segmentStartIdx === prevBaseIdx) {
+      segmentStartIdx = -1;
+      prevBaseIdx = -1;
+      return;
+    }
+    const s = segmentStartIdx;
+    const e = prevBaseIdx;
+    // Start cap (faces away from the segment's leading direction).
+    indices.push(s + 0, s + 2, s + 1);
+    indices.push(s + 0, s + 3, s + 2);
+    // End cap (faces away from the segment's trailing direction).
+    indices.push(e + 0, e + 1, e + 2);
+    indices.push(e + 0, e + 2, e + 3);
+    segmentStartIdx = -1;
+    prevBaseIdx = -1;
+  };
 
   for (let s = 0; s <= segments; s++) {
     const theta = (s / segments) * Math.PI * 2;
     // Shortest signed angular distance from theta to entryAngle.
     const angDiff = Math.atan2(Math.sin(theta - entryAngle), Math.cos(theta - entryAngle));
     if (Math.abs(angDiff) < gateHalfArc) {
-      prevBaseIdx = -1;
+      closeSegment();
       continue;
     }
     const cx = radius * Math.cos(theta);
@@ -81,6 +108,7 @@ function buildCutoutRailGeometry(
       yTop - RAIL_BAR_HEIGHT,
       cz + oz * RAIL_BAR_HALF_WIDTH,
     );
+    if (segmentStartIdx === -1) segmentStartIdx = baseIdx;
 
     if (prevBaseIdx !== -1) {
       const p = prevBaseIdx;
@@ -97,6 +125,7 @@ function buildCutoutRailGeometry(
     }
     prevBaseIdx = baseIdx;
   }
+  closeSegment();
   const geom = new THREE.BufferGeometry();
   geom.setAttribute("position", new THREE.Float32BufferAttribute(positions, 3));
   geom.setIndex(indices);
@@ -196,7 +225,7 @@ export function StairwellAccents({ floor }: { floor: FloorLayout }) {
   // Each sign hugs the OUTWARD-facing side of its post (away from
   // the spiral centre) and inherits the post's rotation so it sits
   // flush against the post's outward face.
-  const signOffset = GATE_POST_SIZE / 2 + 0.014;
+  const signOffset = GATE_POST_RADIAL_DEPTH / 2 + 0.014;
   const signFor = (post: typeof postA) => ({
     position: [
       post.x + Math.cos(post.angle) * signOffset,
@@ -226,18 +255,21 @@ export function StairwellAccents({ floor }: { floor: FloorLayout }) {
         </>
       )}
 
-      {/* Gate posts — substantial vertical pillars flanking the
-          entry/exit gap, regardless of cutout. They sit on the rail
-          line so the rail terminates into the post (visually merging
-          rail + post into one architectural element), and they're
-          rotated so their outward face is perpendicular to the
-          radial direction, ready to host the sign. */}
+      {/* Gate posts — wayfinding pylons flanking the entry/exit
+          gap. The local +X axis (after the post's Y rotation) lines
+          up with the rail's tangent at this angle, so a wide-but-thin
+          box (TANGENT × HEIGHT × RADIAL = 0.85 × 2.4 × 0.18) reads as
+          a panel facing the player rather than a thin column with a
+          horizontal sign-bar nailed across it. The sign plaque fits
+          flush within the panel's tangent width — no + cross. */}
       <mesh
         position={[postA.x, floor.y + GATE_POST_HEIGHT / 2, postA.z]}
         rotation={[0, postA.rotationY, 0]}
         castShadow
       >
-        <boxGeometry args={[GATE_POST_SIZE, GATE_POST_HEIGHT, GATE_POST_SIZE]} />
+        <boxGeometry
+          args={[GATE_POST_TANGENT_WIDTH, GATE_POST_HEIGHT, GATE_POST_RADIAL_DEPTH]}
+        />
         <primitive object={gatePostMaterial} attach="material" />
       </mesh>
       <mesh
@@ -245,7 +277,9 @@ export function StairwellAccents({ floor }: { floor: FloorLayout }) {
         rotation={[0, postB.rotationY, 0]}
         castShadow
       >
-        <boxGeometry args={[GATE_POST_SIZE, GATE_POST_HEIGHT, GATE_POST_SIZE]} />
+        <boxGeometry
+          args={[GATE_POST_TANGENT_WIDTH, GATE_POST_HEIGHT, GATE_POST_RADIAL_DEPTH]}
+        />
         <primitive object={gatePostMaterial} attach="material" />
       </mesh>
 
