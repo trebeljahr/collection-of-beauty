@@ -1,6 +1,6 @@
+import type { Metadata } from "next";
 import { TimelineView } from "@/components/timeline-view";
 import { artworks, movements, summary } from "@/lib/data";
-import type { Metadata } from "next";
 
 export const metadata: Metadata = {
   title: "Timeline",

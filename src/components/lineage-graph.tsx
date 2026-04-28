@@ -1,9 +1,6 @@
 "use client";
 
-import type { Artist, Connection } from "@/lib/data";
 import {
-  type SimulationLinkDatum,
-  type SimulationNodeDatum,
   forceCenter,
   forceCollide,
   forceLink,
@@ -11,10 +8,13 @@ import {
   forceSimulation,
   forceX,
   forceY,
+  type SimulationLinkDatum,
+  type SimulationNodeDatum,
 } from "d3-force";
 import Link from "next/link";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { TransformComponent, TransformWrapper } from "react-zoom-pan-pinch";
+import type { Artist, Connection } from "@/lib/data";
 
 type Props = {
   artists: Artist[];

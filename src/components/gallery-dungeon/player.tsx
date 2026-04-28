@@ -1,12 +1,12 @@
 "use client";
 
-import type { Artwork } from "@/lib/data";
-import type { FloorLayout, Staircase } from "@/lib/gallery-layout/types";
-import { CELL_SIZE } from "@/lib/gallery-layout/world-coords";
 import { useFrame, useThree } from "@react-three/fiber";
 import type { JoystickOnMove } from "joystick-controller";
 import { useEffect, useRef } from "react";
 import * as THREE from "three";
+import type { Artwork } from "@/lib/data";
+import type { FloorLayout, Staircase } from "@/lib/gallery-layout/types";
+import { CELL_SIZE } from "@/lib/gallery-layout/world-coords";
 import { raycastNearestPainting } from "./painting-registry";
 import {
   findStairAbove,

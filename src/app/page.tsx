@@ -1,7 +1,7 @@
+import type { Metadata } from "next";
 import { GalleryBrowser } from "@/components/gallery-browser";
 import { artworks, movements, summary } from "@/lib/data";
 import { SITE_DESCRIPTION, SITE_NAME, SITE_TAGLINE } from "@/lib/seo";
-import type { Metadata } from "next";
 
 export const metadata: Metadata = {
   // Absolute title on the home page — skips the "%s · Collection of Beauty"

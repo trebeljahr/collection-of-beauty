@@ -1,11 +1,11 @@
 "use client";
 
-import { ResponsiveImage } from "@/components/responsive-image";
-import { Input } from "@/components/ui/input";
-import type { Artist } from "@/lib/data";
 import Fuse from "fuse.js";
 import Link from "next/link";
 import { useDeferredValue, useEffect, useMemo, useRef, useState } from "react";
+import { ResponsiveImage } from "@/components/responsive-image";
+import { Input } from "@/components/ui/input";
+import type { Artist } from "@/lib/data";
 
 const PAGE = 40;
 

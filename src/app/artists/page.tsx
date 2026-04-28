@@ -1,6 +1,6 @@
+import type { Metadata } from "next";
 import { ArtistsBrowser } from "@/components/artists-browser";
 import { artists } from "@/lib/data";
-import type { Metadata } from "next";
 
 export const metadata: Metadata = {
   title: "Artists",

@@ -1,5 +1,7 @@
 "use client";
 
+import { useMemo } from "react";
+import * as THREE from "three";
 import { ERAS } from "@/lib/gallery-eras";
 import type { RoomLayout } from "@/lib/gallery-layout/types";
 import {
@@ -8,8 +10,6 @@ import {
   ROOM_HEIGHT,
   SPIRAL_FLOOR_CUTOUT_RADIUS,
 } from "@/lib/gallery-layout/world-coords";
-import { useMemo } from "react";
-import * as THREE from "three";
 import { Painting } from "./painting";
 import { getPaletteMaterials, getRoomFloorMaterial } from "./palette-materials";
 import { WallWithDoors } from "./wall";

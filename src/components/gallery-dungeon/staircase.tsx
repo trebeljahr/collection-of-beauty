@@ -1,9 +1,9 @@
 "use client";
 
-import type { Staircase } from "@/lib/gallery-layout/types";
 import { Text } from "@react-three/drei";
 import { useMemo } from "react";
 import * as THREE from "three";
+import type { Staircase } from "@/lib/gallery-layout/types";
 import { signBaseMaterial } from "./palette-materials";
 
 // Shared materials — one "stair vocabulary" for every spiral in the
@@ -168,8 +168,7 @@ function buildSpiralRail(
   side: "inner" | "outer",
   gapSteps: number,
 ): { rail: THREE.BufferGeometry; balusters: Array<[number, number, number]> } {
-  const { innerRadius, outerRadius, numSteps, direction, lowerY, upperY, entryAngle } =
-    staircase;
+  const { innerRadius, outerRadius, numSteps, direction, lowerY, upperY, entryAngle } = staircase;
   const stepAngle = ((Math.PI * 2) / numSteps) * direction;
   const stepRise = (upperY - lowerY) / numSteps;
   // Inner rail sits a finger-width INSIDE the inner tread edge so the
@@ -187,8 +186,7 @@ function buildSpiralRail(
   // step 0; for gapSteps=1: skip step 0 only.
   const gapAfter = Math.ceil(gapSteps / 2);
   const gapBefore = Math.floor(gapSteps / 2);
-  const inGap = (i: number) =>
-    gapSteps > 0 && (i < gapAfter || i >= numSteps - gapBefore);
+  const inGap = (i: number) => gapSteps > 0 && (i < gapAfter || i >= numSteps - gapBefore);
 
   const balusters: Array<[number, number, number]> = [];
   let ringIdx = 0;

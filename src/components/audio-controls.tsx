@@ -1,7 +1,7 @@
 "use client";
 
-import { useAudioSettings } from "@/lib/audio-settings";
 import { useCallback, useEffect, useRef, useState } from "react";
+import { useAudioSettings } from "@/lib/audio-settings";
 
 // ─────────────────────────────────────────────────────────────────────────────
 // Floating audio settings pill — sits in the corner of the 3D gallery.

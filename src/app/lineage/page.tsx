@@ -1,6 +1,6 @@
+import type { Metadata } from "next";
 import { LineageGraph } from "@/components/lineage-graph";
 import { artists, connections } from "@/lib/data";
-import type { Metadata } from "next";
 
 export const metadata: Metadata = {
   title: "Lineage",

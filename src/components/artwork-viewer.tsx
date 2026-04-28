@@ -1,8 +1,8 @@
 "use client";
 
-import { artworkAlt } from "@/lib/data";
 import { useRouter } from "next/navigation";
 import { useEffect } from "react";
+import { artworkAlt } from "@/lib/data";
 import { useLightbox } from "./lightbox-provider";
 import { ResponsiveImage } from "./responsive-image";
 

@@ -1,8 +1,8 @@
 "use client";
 
-import { artworkAlt, artworks } from "@/lib/data";
 import { useRouter } from "next/navigation";
-import { type ReactNode, createContext, useCallback, useContext, useMemo, useState } from "react";
+import { createContext, type ReactNode, useCallback, useContext, useMemo, useState } from "react";
+import { artworkAlt, artworks } from "@/lib/data";
 import { Lightbox } from "./lightbox";
 
 type LightboxApi = {

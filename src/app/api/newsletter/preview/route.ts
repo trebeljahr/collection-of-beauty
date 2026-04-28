@@ -1,3 +1,4 @@
+import { type NextRequest, NextResponse } from "next/server";
 import { type Artwork, artworks } from "@/lib/data";
 import { renderDigest } from "@/lib/newsletter/render";
 import {
@@ -7,8 +8,7 @@ import {
   pickArtworks,
   resolveManualPicks,
 } from "@/lib/newsletter/select";
-import { type NewsletterState, loadState, sentArtworkIds } from "@/lib/newsletter/state";
-import { type NextRequest, NextResponse } from "next/server";
+import { loadState, type NewsletterState, sentArtworkIds } from "@/lib/newsletter/state";
 
 // Preview what *would* be sent this week, as a renderable HTML page.
 // Query params:

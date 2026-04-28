@@ -2,14 +2,14 @@ import type { Metadata, Viewport } from "next";
 import "./globals.css";
 import { SiteNav } from "@/components/site-nav";
 import {
+  heroArtwork,
+  jsonLdScriptProps,
+  ogImagesForArtwork,
   SITE_DESCRIPTION,
   SITE_NAME,
   SITE_TAGLINE,
   SITE_URL,
   TWITTER_HANDLE,
-  heroArtwork,
-  jsonLdScriptProps,
-  ogImagesForArtwork,
   websiteJsonLd,
 } from "@/lib/seo";
 
@@ -86,11 +86,7 @@ export const viewport: Viewport = {
   initialScale: 1,
 };
 
-export default function RootLayout({
-  children,
-}: {
-  children: React.ReactNode;
-}) {
+export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="en" suppressHydrationWarning>
       <head>

@@ -8,7 +8,7 @@
 import type { Artwork } from "@/lib/data";
 import { DungeonGenerator3D } from "@/lib/dungeon/generator";
 import { CellType3D, Room3D, Vector3Int } from "@/lib/dungeon/types";
-import { ERAS, type Era, type EraId, assignEra, roomFloorColor } from "@/lib/gallery-eras";
+import { assignEra, ERAS, type Era, type EraId, roomFloorColor } from "@/lib/gallery-eras";
 import { slugify } from "@/lib/utils";
 import { distributePaintings } from "./place-paintings";
 
@@ -22,14 +22,14 @@ import type {
 } from "./types";
 import {
   CELL_SIZE,
+  cellCenterToWorld,
   DOOR_WIDTH,
+  floorY,
   SPIRAL_INNER_RADIUS,
   SPIRAL_OUTER_RADIUS,
   SPIRAL_ROOM_CELLS,
   SPIRAL_STEPS_PER_FLOOR,
   WALL_THICKNESS,
-  cellCenterToWorld,
-  floorY,
 } from "./world-coords";
 
 // --- Configuration --------------------------------------------------------

@@ -1,8 +1,8 @@
 "use client";
 
+import { type RefObject, useEffect, useRef } from "react";
 import type { FloorLayout, RoomLayout } from "@/lib/gallery-layout/types";
 import { CELL_SIZE } from "@/lib/gallery-layout/world-coords";
-import { type RefObject, useEffect, useRef } from "react";
 
 export type PlayerSample = { x: number; z: number; yaw: number };
 

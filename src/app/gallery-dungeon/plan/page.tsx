@@ -8,11 +8,11 @@
 //   label         → room movement name, centred on the room
 //   door ticks    → short marks on room walls where openings sit
 
+import type { Metadata } from "next";
 import { artworks } from "@/lib/data";
 import { layoutMuseum } from "@/lib/gallery-layout/layout-museum";
 import type { FloorLayout, RoomLayout } from "@/lib/gallery-layout/types";
 import { CELL_SIZE } from "@/lib/gallery-layout/world-coords";
-import type { Metadata } from "next";
 
 export const metadata: Metadata = {
   title: "Dungeon floor plan · debug",
@@ -126,15 +126,7 @@ function FloorSvg({ floor }: { floor: FloorLayout }) {
   );
 }
 
-function RoomRect({
-  room,
-  accent,
-  wall,
-}: {
-  room: RoomLayout;
-  accent: string;
-  wall: string;
-}) {
+function RoomRect({ room, accent, wall }: { room: RoomLayout; accent: string; wall: string }) {
   const { xMin, xMax, zMin, zMax } = room.cellBounds;
   const cellW = (xMax - xMin + 1) * CELL_PX;
   const cellH = (zMax - zMin + 1) * CELL_PX;

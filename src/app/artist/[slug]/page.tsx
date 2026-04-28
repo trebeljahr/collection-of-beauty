@@ -1,18 +1,14 @@
+import type { Metadata } from "next";
+import Link from "next/link";
+import { notFound } from "next/navigation";
 import { ArtworkGallery } from "@/components/artwork-gallery";
 import { Badge } from "@/components/ui/badge";
 import { getArtist, getArtworksByArtist, getConnectionsFor } from "@/lib/data";
 import { artistJsonLd, jsonLdScriptProps, ogImagesForArtist } from "@/lib/seo";
-import type { Metadata } from "next";
-import Link from "next/link";
-import { notFound } from "next/navigation";
 
 type Params = { slug: string };
 
-export async function generateMetadata({
-  params,
-}: {
-  params: Promise<Params>;
-}): Promise<Metadata> {
+export async function generateMetadata({ params }: { params: Promise<Params> }): Promise<Metadata> {
   const { slug } = await params;
   const artist = getArtist(slug);
   if (!artist) {
@@ -53,11 +49,7 @@ export async function generateMetadata({
   };
 }
 
-export default async function ArtistPage({
-  params,
-}: {
-  params: Promise<Params>;
-}) {
+export default async function ArtistPage({ params }: { params: Promise<Params> }) {
   const { slug } = await params;
   const artist = getArtist(slug);
   if (!artist) notFound();

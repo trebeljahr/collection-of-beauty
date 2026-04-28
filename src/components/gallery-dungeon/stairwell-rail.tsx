@@ -1,9 +1,9 @@
 "use client";
 
-import type { FloorLayout } from "@/lib/gallery-layout/types";
-import { SPIRAL_FLOOR_CUTOUT_RADIUS } from "@/lib/gallery-layout/world-coords";
 import { useMemo } from "react";
 import * as THREE from "three";
+import type { FloorLayout } from "@/lib/gallery-layout/types";
+import { SPIRAL_FLOOR_CUTOUT_RADIUS } from "@/lib/gallery-layout/world-coords";
 import { StairSign } from "./staircase";
 
 // Local copies of the rail vocabulary so this file is self-contained.
@@ -49,10 +49,7 @@ function buildCutoutRailGeometry(
   for (let s = 0; s <= segments; s++) {
     const theta = (s / segments) * Math.PI * 2;
     // Shortest signed angular distance from theta to entryAngle.
-    const angDiff = Math.atan2(
-      Math.sin(theta - entryAngle),
-      Math.cos(theta - entryAngle),
-    );
+    const angDiff = Math.atan2(Math.sin(theta - entryAngle), Math.cos(theta - entryAngle));
     if (Math.abs(angDiff) < gateHalfArc) {
       prevHadVertex = false;
       continue;
@@ -91,10 +88,7 @@ function buildCutoutBalusters(
   const count = 28;
   for (let i = 0; i < count; i++) {
     const theta = (i / count) * Math.PI * 2;
-    const angDiff = Math.atan2(
-      Math.sin(theta - entryAngle),
-      Math.cos(theta - entryAngle),
-    );
+    const angDiff = Math.atan2(Math.sin(theta - entryAngle), Math.cos(theta - entryAngle));
     if (Math.abs(angDiff) < gateHalfArc) continue;
     out.push([
       radius * Math.cos(theta),
@@ -114,10 +108,7 @@ function buildCutoutBalusters(
  * face-on as you walk up to the staircase.
  */
 export function StairwellAccents({ floor }: { floor: FloorLayout }) {
-  const stairwell = useMemo(
-    () => floor.rooms.find((r) => r.isStairwell) ?? null,
-    [floor.rooms],
-  );
+  const stairwell = useMemo(() => floor.rooms.find((r) => r.isStairwell) ?? null, [floor.rooms]);
 
   const data = useMemo(() => {
     if (!stairwell) return null;
@@ -128,18 +119,8 @@ export function StairwellAccents({ floor }: { floor: FloorLayout }) {
     const cx = reference.centerX;
     const cz = reference.centerZ;
     const railR = SPIRAL_FLOOR_CUTOUT_RADIUS + 0.18;
-    const railGeom = buildCutoutRailGeometry(
-      railR,
-      floor.y,
-      reference.entryAngle,
-      GATE_HALF_ARC,
-    );
-    const balusters = buildCutoutBalusters(
-      railR,
-      floor.y,
-      reference.entryAngle,
-      GATE_HALF_ARC,
-    );
+    const railGeom = buildCutoutRailGeometry(railR, floor.y, reference.entryAngle, GATE_HALF_ARC);
+    const balusters = buildCutoutBalusters(railR, floor.y, reference.entryAngle, GATE_HALF_ARC);
     return {
       cx,
       cz,
@@ -207,11 +188,7 @@ export function StairwellAccents({ floor }: { floor: FloorLayout }) {
             <primitive object={railTopMaterial} attach="material" />
           </mesh>
           {balusters.map((p, i) => (
-            <mesh
-              key={`cutout-bal-${i}`}
-              position={[cx + p[0], p[1], cz + p[2]]}
-              castShadow
-            >
+            <mesh key={`cutout-bal-${i}`} position={[cx + p[0], p[1], cz + p[2]]} castShadow>
               <boxGeometry args={[BALUSTER_SIZE, RAIL_HEIGHT, BALUSTER_SIZE]} />
               <primitive object={balusterMaterial} attach="material" />
             </mesh>

@@ -1,7 +1,7 @@
+import type { Metadata } from "next";
 import { type Artist, type Artwork, artworkAlt, artworks, summary } from "@/lib/data";
 import { getLicenseInfo } from "@/lib/license";
 import { assetUrl, variantUrl } from "@/lib/utils";
-import type { Metadata } from "next";
 
 // ────────────────────────────────────────────────────────────────────────────
 // Identity

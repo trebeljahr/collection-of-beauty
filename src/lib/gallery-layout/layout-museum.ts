@@ -26,7 +26,7 @@
 // compact 3-room plan, sprawling ones fill all 8 slot rooms.
 
 import type { Artwork } from "@/lib/data";
-import { ERAS, type Era, type EraId, assignEra, roomFloorColor } from "@/lib/gallery-eras";
+import { assignEra, ERAS, type Era, type EraId, roomFloorColor } from "@/lib/gallery-eras";
 import { slugify } from "@/lib/utils";
 import { distributePaintings } from "./place-paintings";
 import type {
@@ -40,12 +40,12 @@ import type {
 import {
   CELL_SIZE,
   DOOR_WIDTH,
+  floorY,
   SPIRAL_INNER_RADIUS,
   SPIRAL_OUTER_RADIUS,
   SPIRAL_ROOM_CELLS,
   SPIRAL_STEPS_PER_FLOOR,
   WALL_THICKNESS,
-  floorY,
 } from "./world-coords";
 
 // --- Floor plan geometry (cell coordinates, inclusive) --------------------

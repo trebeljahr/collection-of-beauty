@@ -1,8 +1,8 @@
 "use client";
 
+import * as THREE from "three";
 import type { FloorLayout, HallwayLayout } from "@/lib/gallery-layout/types";
 import { CELL_SIZE, CORRIDOR_HEIGHT } from "@/lib/gallery-layout/world-coords";
-import * as THREE from "three";
 import { Painting } from "./painting";
 import { getPaletteMaterials } from "./palette-materials";
 import { SolidWall } from "./wall";

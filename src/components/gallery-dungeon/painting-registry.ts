@@ -9,8 +9,8 @@
 // Ported from src/components/gallery-3d.tsx's `paintingEntries` pattern
 // — same trick, same benefit.
 
-import type { Artwork } from "@/lib/data";
 import * as THREE from "three";
+import type { Artwork } from "@/lib/data";
 
 export type PaintingEntry = {
   mesh: THREE.Mesh;

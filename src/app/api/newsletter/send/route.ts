@@ -1,3 +1,4 @@
+import { type NextRequest, NextResponse } from "next/server";
 import { type Artwork, artworks } from "@/lib/data";
 import { sendDigest } from "@/lib/newsletter/mailgun";
 import { renderDigest } from "@/lib/newsletter/render";
@@ -9,14 +10,13 @@ import {
   resolveManualPicks,
 } from "@/lib/newsletter/select";
 import {
-  type NewsletterIssue,
-  type NewsletterState,
   findIssue,
   loadState,
+  type NewsletterIssue,
+  type NewsletterState,
   saveState,
   sentArtworkIds,
 } from "@/lib/newsletter/state";
-import { type NextRequest, NextResponse } from "next/server";
 
 // This route must be dynamic (talks to R2 and Mailgun) and must run in Node
 // (AWS SDK + Mailgun SDK both need Node APIs).

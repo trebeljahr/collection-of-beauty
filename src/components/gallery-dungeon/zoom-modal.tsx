@@ -1,8 +1,8 @@
 "use client";
 
+import { useEffect } from "react";
 import { type Artwork, artworkAlt } from "@/lib/data";
 import { assetUrl, variantSrcSet, variantUrl } from "@/lib/utils";
-import { useEffect } from "react";
 
 /**
  * Full-screen overlay with a larger look at one painting plus its
@@ -10,13 +10,7 @@ import { useEffect } from "react";
  * Escape / click-to-close dismisses it. Uses a responsive `<img>` so
  * the browser picks whichever pre-built variant best fits the viewport.
  */
-export function ZoomModal({
-  artwork,
-  onClose,
-}: {
-  artwork: Artwork;
-  onClose: () => void;
-}) {
+export function ZoomModal({ artwork, onClose }: { artwork: Artwork; onClose: () => void }) {
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
       if (e.code === "Escape") onClose();

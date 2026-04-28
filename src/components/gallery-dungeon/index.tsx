@@ -1,5 +1,9 @@
 "use client";
 
+import { Environment, PointerLockControls } from "@react-three/drei";
+import { Canvas } from "@react-three/fiber";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import * as THREE from "three";
 import { AudioControls } from "@/components/audio-controls";
 import { useJoystick } from "@/hooks/use-joystick";
 import { useNeedsRotate, useTouchDevice } from "@/hooks/use-touch-device";
@@ -7,10 +11,6 @@ import { useAudioSettings } from "@/lib/audio-settings";
 import type { Artwork } from "@/lib/data";
 import { layoutMuseum } from "@/lib/gallery-layout/layout-museum";
 import type { FloorLayout } from "@/lib/gallery-layout/types";
-import { Environment, PointerLockControls } from "@react-three/drei";
-import { Canvas } from "@react-three/fiber";
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import * as THREE from "three";
 
 import { HallwayRenderer } from "./hallway";
 import { LandscapePrompt } from "./landscape-prompt";

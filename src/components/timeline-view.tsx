@@ -1,11 +1,11 @@
 "use client";
 
+import Link from "next/link";
+import { useMemo, useState } from "react";
 import { ResponsiveImage } from "@/components/responsive-image";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
 import { type Artwork, artworkAlt } from "@/lib/data";
-import Link from "next/link";
-import { useMemo, useState } from "react";
 
 const DECADE = 10;
 

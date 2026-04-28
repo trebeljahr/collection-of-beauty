@@ -1,12 +1,12 @@
 "use client";
 
+import Fuse from "fuse.js";
+import { useDeferredValue, useMemo, useState } from "react";
 import { ArtworkGallery } from "@/components/artwork-gallery";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import type { Artwork } from "@/lib/data";
-import Fuse from "fuse.js";
-import { useDeferredValue, useMemo, useState } from "react";
 
 type Props = {
   artworks: Artwork[];

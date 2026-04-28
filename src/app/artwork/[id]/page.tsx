@@ -1,3 +1,7 @@
+import type { Metadata } from "next";
+import Link from "next/link";
+import { notFound } from "next/navigation";
+import type { ReactNode } from "react";
 import { ArtworkCard } from "@/components/artwork-card";
 import { ArtworkViewer } from "@/components/artwork-viewer";
 import { LicenseBadge } from "@/components/license-badge";
@@ -5,18 +9,10 @@ import { Badge } from "@/components/ui/badge";
 import { type Artwork, artworks, getArtist, getArtwork, getArtworksByArtist } from "@/lib/data";
 import { getLicenseInfo } from "@/lib/license";
 import { artworkJsonLd, jsonLdScriptProps, ogImagesForArtwork } from "@/lib/seo";
-import type { Metadata } from "next";
-import Link from "next/link";
-import { notFound } from "next/navigation";
-import type { ReactNode } from "react";
 
 type Params = { id: string };
 
-export async function generateMetadata({
-  params,
-}: {
-  params: Promise<Params>;
-}): Promise<Metadata> {
+export async function generateMetadata({ params }: { params: Promise<Params> }): Promise<Metadata> {
   const { id } = await params;
   const art = getArtwork(id);
   if (!art) {
@@ -59,11 +55,7 @@ export async function generateMetadata({
   };
 }
 
-export default async function ArtworkPage({
-  params,
-}: {
-  params: Promise<Params>;
-}) {
+export default async function ArtworkPage({ params }: { params: Promise<Params> }) {
   const { id } = await params;
   const art = getArtwork(id);
   if (!art) notFound();

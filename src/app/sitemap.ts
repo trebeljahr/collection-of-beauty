@@ -1,6 +1,6 @@
+import type { MetadataRoute } from "next";
 import { artists, artworks } from "@/lib/data";
 import { absoluteUrl } from "@/lib/seo";
-import type { MetadataRoute } from "next";
 
 /**
  * Served at /sitemap.xml. Emits every indexable URL:

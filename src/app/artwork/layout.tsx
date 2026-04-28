@@ -1,5 +1,5 @@
-import { LightboxProvider } from "@/components/lightbox-provider";
 import type { ReactNode } from "react";
+import { LightboxProvider } from "@/components/lightbox-provider";
 
 // Persists across /artwork/[id] page transitions, so the lightbox
 // overlay (rendered by LightboxProvider) doesn't unmount when the user

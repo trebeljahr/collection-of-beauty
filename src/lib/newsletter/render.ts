@@ -1,7 +1,7 @@
-import type { Artwork } from "@/lib/data";
-import { variantUrl } from "@/lib/utils";
 import { render } from "@react-email/render";
 import { createElement } from "react";
+import type { Artwork } from "@/lib/data";
+import { variantUrl } from "@/lib/utils";
 import WeeklyDigest, {
   type DigestArtwork,
   type WeeklyDigestProps,
