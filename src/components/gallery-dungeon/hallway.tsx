@@ -2,9 +2,27 @@
 
 import type { FloorLayout, HallwayLayout } from "@/lib/gallery-layout/types";
 import { CELL_SIZE, CORRIDOR_HEIGHT } from "@/lib/gallery-layout/world-coords";
+import * as THREE from "three";
 import { Painting } from "./painting";
 import { getPaletteMaterials } from "./palette-materials";
 import { SolidWall } from "./wall";
+
+// Hallway cells are all identical CELL_SIZE × CELL_SIZE squares, so we
+// can allocate the floor geometry once at module load and reuse it for
+// every cell. UVs are scaled to world units so the bound floor texture
+// (1, 1) repeat tiles every 1 m regardless of which cell it's drawn in
+// — without this each cell would stretch a single tile across 2.5 m.
+const HALLWAY_CELL_FLOOR_GEOM = (() => {
+  const g = new THREE.PlaneGeometry(CELL_SIZE, CELL_SIZE);
+  const uv = g.attributes.uv;
+  if (uv) {
+    for (let i = 0; i < uv.count; i++) {
+      uv.setXY(i, uv.getX(i) * CELL_SIZE, uv.getY(i) * CELL_SIZE);
+    }
+    uv.needsUpdate = true;
+  }
+  return g;
+})();
 
 /** Stride between overhead lamps in the corridor — one lamp every N
  *  cells. Too dense and the cost to the renderer climbs; too sparse
@@ -69,8 +87,11 @@ export function HallwayRenderer({
         const key = `${c.x}-${c.z}`;
         return (
           <group key={key}>
-            <mesh rotation={[-Math.PI / 2, 0, 0]} position={[cx, floorY, cz]}>
-              <planeGeometry args={[CELL_SIZE, CELL_SIZE]} />
+            <mesh
+              rotation={[-Math.PI / 2, 0, 0]}
+              position={[cx, floorY, cz]}
+              geometry={HALLWAY_CELL_FLOOR_GEOM}
+            >
               <primitive object={mats.floor} attach="material" />
             </mesh>
             <mesh rotation={[Math.PI / 2, 0, 0]} position={[cx, floorY + CORRIDOR_HEIGHT, cz]}>

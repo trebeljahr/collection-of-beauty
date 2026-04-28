@@ -61,11 +61,7 @@ function loadSource(slug: string, map: MapKind): THREE.Texture {
 
 /** Clone a source texture and stamp it with a tile density. Cloning
  *  shares the underlying Image — only the UV transform is per-clone. */
-function clonedWithRepeat(
-  src: THREE.Texture,
-  repeatU: number,
-  repeatV: number,
-): THREE.Texture {
+function clonedWithRepeat(src: THREE.Texture, repeatU: number, repeatV: number): THREE.Texture {
   const c = src.clone();
   c.needsUpdate = true;
   c.repeat.set(repeatU, repeatV);
@@ -74,18 +70,22 @@ function clonedWithRepeat(
 
 /**
  * Bundle of PBR maps for a Poly Haven set, ready to spread onto a
- * MeshStandardMaterial / MeshPhysicalMaterial:
+ * MeshStandardMaterial:
  *
- *   const bundle = buildMapBundle("marble_01", 4, 4);
+ *   const bundle = buildMapBundle("marble_01", 1, 1);
  *   new THREE.MeshStandardMaterial({ ...bundle, color: "#fff" });
  *
- * The ARM texture is bound to ao/roughness/metalness simultaneously.
- * three.js reads channel R for AO, G for roughness, B for metalness —
- * the glTF convention, which matches Poly Haven's ARM packing.
+ * The ARM texture is bound to roughnessMap + metalnessMap (channels G
+ * and B). AO (channel R) is intentionally NOT bound — Poly Haven's
+ * diffuse already bakes contact shadows in, so adding aoMap on top
+ * double-darkens the surface and reads as splotchy artefacts. AO also
+ * requires a uv2 attribute on the geometry that PlaneGeometry/
+ * ShapeGeometry don't generate.
  *
- * `repeatU`/`repeatV` control tile density. Walls 2.5 m × 6.2 m at
- * (2, 4) tile every ~1.25 m horiz / ~1.5 m vert. Floors vary in size;
- * (4, 4) is a sensible compromise for rooms in the 5–25 m range.
+ * `repeatU`/`repeatV` control tile density. With per-mesh world-unit
+ * UVs (see `useWorldUVPlane` in room-geometry.tsx), pass `(1, 1)` here
+ * and let the geometry decide how many tiles fit — that way a 4 m
+ * room and a 24 m room both show consistent 1 m² tiles.
  */
 export function buildMapBundle(
   slug: string,
@@ -94,21 +94,18 @@ export function buildMapBundle(
 ): {
   map: THREE.Texture;
   normalMap: THREE.Texture;
-  aoMap: THREE.Texture;
   roughnessMap: THREE.Texture;
   metalnessMap: THREE.Texture;
 } {
   const diff = loadSource(slug, "diff");
   const nor = loadSource(slug, "nor_gl");
   const arm = loadSource(slug, "arm");
-  // Ao/rough/metal share the same source image — three.js samples
-  // different channels but the texture object's .repeat must match.
-  // Cloning each lets us set repeat without aliasing other materials
-  // that use the same slug at a different tile density.
+  // Rough + metal share the same source image — three.js samples
+  // channels G + B respectively — but the texture object's .repeat
+  // must match across all bindings, so each gets its own clone.
   return {
     map: clonedWithRepeat(diff, repeatU, repeatV),
     normalMap: clonedWithRepeat(nor, repeatU, repeatV),
-    aoMap: clonedWithRepeat(arm, repeatU, repeatV),
     roughnessMap: clonedWithRepeat(arm, repeatU, repeatV),
     metalnessMap: clonedWithRepeat(arm, repeatU, repeatV),
   };

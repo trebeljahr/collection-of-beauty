@@ -48,6 +48,11 @@ export function RoomGeometry({
   const floorY = room.worldRect.y;
   const wallMidY = floorY + ROOM_HEIGHT / 2;
 
+  // Floor plane with world-unit UVs so 1 m of floor = 1 m of texture
+  // tile, regardless of room size. Fall-back tile-stretching on big
+  // rooms was the visible "broken tiling" issue with the first pass.
+  const floorGeom = useWorldUVPlane(width, depth);
+
   const doorsBySide = {
     north: room.doors.filter((d) => d.side === "north"),
     south: room.doors.filter((d) => d.side === "south"),
@@ -92,8 +97,11 @@ export function RoomGeometry({
   return (
     <group>
       {hasFloor && (
-        <mesh rotation={[-Math.PI / 2, 0, 0]} position={[cxWorld, floorY, czWorld]}>
-          <planeGeometry args={[width, depth]} />
+        <mesh
+          rotation={[-Math.PI / 2, 0, 0]}
+          position={[cxWorld, floorY, czWorld]}
+          geometry={floorGeom}
+        >
           <primitive object={floorMat} attach="material" />
         </mesh>
       )}
@@ -181,6 +189,28 @@ export function RoomGeometry({
       )}
     </group>
   );
+}
+
+/** PlaneGeometry whose UV attribute is rescaled so 1 unit of UV maps
+ *  to 1 metre of world. Combined with `texture.repeat = (1, 1)` and
+ *  RepeatWrapping on the bound texture, this gives consistent 1 m²
+ *  tile density on a floor of any size — a 22 m room shows ~22 tiles
+ *  across instead of one stretched smear.
+ *
+ *  Memoised on (width, depth): rooms re-rendering with the same
+ *  dimensions reuse the same buffer geometry. */
+function useWorldUVPlane(width: number, depth: number): THREE.PlaneGeometry {
+  return useMemo(() => {
+    const g = new THREE.PlaneGeometry(width, depth);
+    const uv = g.attributes.uv;
+    if (uv) {
+      for (let i = 0; i < uv.count; i++) {
+        uv.setXY(i, uv.getX(i) * width, uv.getY(i) * depth);
+      }
+      uv.needsUpdate = true;
+    }
+    return g;
+  }, [width, depth]);
 }
 
 /** Floor slab for a stairwell room with a circular hole around the

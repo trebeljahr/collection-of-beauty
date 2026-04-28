@@ -20,7 +20,11 @@ export type Palette = {
    *  diffuse / normal / ARM maps land at /public/textures/<slug>/.
    *  Leave undefined to keep the surface as a flat tinted material —
    *  useful while assets are still downloading or for eras that read
-   *  better un-textured. */
+   *  better un-textured.
+   *
+   *  `wallTexture` is currently unused: palette-materials.ts renders
+   *  walls as flat tinted plaster regardless. The field stays here so
+   *  re-enabling is a one-line change in palette-materials. */
   wallTexture?: string;
   floorTexture?: string;
 };
@@ -80,7 +84,6 @@ export const ERAS: Era[] = [
       // Cool stone + plum + teal — medieval cathedral floor stones, each
       // worn a different colour from centuries of foot traffic.
       roomAccents: ["#3a2a1f", "#2e3540", "#3a2e3f", "#293a36", "#3d2e22"],
-      wallTexture: "medieval_blocks_02",
       floorTexture: "worn_planks",
     },
     blurb: "Gold ground and tempera — the long medieval morning.",
@@ -112,7 +115,6 @@ export const ERAS: Era[] = [
       accent: "#b98a4f",
       // Warm earth: terracotta, sienna, olive, chocolate.
       roomAccents: ["#3a2a1f", "#3f2820", "#3a2e1c", "#322318", "#42301f"],
-      wallTexture: "plastered_stone_wall",
       floorTexture: "marble_01",
     },
     blurb: "Leonardo, Michelangelo, Raphael — perspective made a language.",
@@ -143,7 +145,6 @@ export const ERAS: Era[] = [
       accent: "#8a5a2b",
       // Tenebrist velvets: charcoal, wine, midnight, forest.
       roomAccents: ["#221711", "#2a1418", "#1a1822", "#1f261b", "#1a1612"],
-      wallTexture: "plastered_stone_wall",
       floorTexture: "marble_tiles",
     },
     blurb: "Drama, tenebrism, motion — Caravaggio's shadow across Europe.",
@@ -168,7 +169,6 @@ export const ERAS: Era[] = [
       accent: "#c49a66",
       // Refined drawing-room tones: muted plum, sage, rose-brown, dusty blue.
       roomAccents: ["#2e2015", "#3a2a35", "#28332a", "#3a2c22", "#28303a"],
-      wallTexture: "painted_plaster_wall",
       floorTexture: "wood_floor_deck",
     },
     blurb: "Ornament gives way to antique clarity.",
@@ -205,7 +205,6 @@ export const ERAS: Era[] = [
       accent: "#6e4f2e",
       // Stormy weather underfoot: storm-blue, slate, rust, moss.
       roomAccents: ["#1e1711", "#1a2230", "#2a221c", "#2e1f17", "#1f261c"],
-      wallTexture: "beige_wall_001",
       floorTexture: "worn_planks",
     },
     blurb: "The sublime, the storm, and nothing staged.",
@@ -244,7 +243,6 @@ export const ERAS: Era[] = [
       accent: "#c88a47",
       // Garden dapple: sage, dusty rose, lavender, butter.
       roomAccents: ["#2a1d14", "#283325", "#3a2a2e", "#2e2838", "#3a3220"],
-      wallTexture: "painted_plaster_wall",
       floorTexture: "wood_floor_deck",
     },
     blurb: "Plein-air light and interior weather.",
@@ -284,7 +282,6 @@ export const ERAS: Era[] = [
       accent: "#4a3b2a",
       // Bold-but-darkened modernist: brick, cobalt, mustard, jet, teal.
       roomAccents: ["#1a1712", "#3a1f1a", "#1a2230", "#3a2f15", "#1f3030"],
-      wallTexture: "painted_plaster_wall",
       floorTexture: "concrete_floor_painted",
     },
     blurb: "Form shattered, rebuilt, and made raw.",

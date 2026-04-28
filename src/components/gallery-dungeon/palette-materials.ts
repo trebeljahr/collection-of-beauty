@@ -15,17 +15,20 @@ import type { Palette } from "@/lib/gallery-eras";
 import * as THREE from "three";
 import { buildMapBundle } from "./texture-pack";
 
-// Tile densities. UV repeat is global to a texture clone, so a single
-// (slug, density) pair can be shared across every wall on a floor —
-// they all receive the same texture/UV transform via the cached
-// material. The numbers below assume each Poly Haven 1 m² tile reads
-// at roughly its real-world scale on the surface it's bound to.
+// Floor tiles use (1, 1) repeat at the material level; per-mesh
+// world-unit UVs (see room-geometry.tsx + hallway.tsx) drive the
+// actual tile density so 1 unit of UV = 1 m of world. Each Poly
+// Haven 1 m² texture then reads at a consistent scale across rooms
+// of any size.
 //
-// Walls are 2.5 m × 6.2 m planes; (2, 4) gives ~1.25 m × ~1.55 m tiles.
-// Floors / ceilings vary in size; (4, 4) is a sensible compromise for
-// rooms in the 5–25 m range.
-const WALL_REPEAT: [number, number] = [2, 4];
-const FLOOR_REPEAT: [number, number] = [4, 4];
+// Walls are intentionally NOT textured. The first attempt looked
+// worse than the flat-tinted plaster: AO baked into the diffuse
+// fought the engine's lighting around painting frames, and uniform-
+// repeat tiling stretched badly on long room walls. Re-enable later
+// by spreading `buildMapBundle(palette.wallTexture, 1, 1)` into the
+// wall material — the `wallTexture` field on the Palette type is
+// still there.
+const FLOOR_REPEAT: [number, number] = [1, 1];
 
 export type PaletteMaterials = {
   wall: THREE.MeshStandardMaterial;
@@ -40,35 +43,22 @@ export function getPaletteMaterials(palette: Palette): PaletteMaterials {
   let entry = cache.get(palette);
   if (entry) return entry;
 
-  // Wall — when a wallTexture is set we bind diff/normal/ARM maps;
-  // .color stays the era tint and three.js multiplies it onto the
-  // diffuse map. Roughness/metalness clamp to 1 so the map values
-  // pass through unattenuated; without textures, fall back to the
-  // hand-tuned solid-material recipe.
-  const wallTextures = palette.wallTexture
-    ? buildMapBundle(palette.wallTexture, WALL_REPEAT[0], WALL_REPEAT[1])
-    : null;
-  const wall = new THREE.MeshStandardMaterial({
-    color: palette.wallColor,
-    roughness: wallTextures ? 1 : 0.92,
-    metalness: wallTextures ? 1 : 0,
-    side: THREE.DoubleSide,
-    ...(wallTextures ?? {}),
-  });
-
   const floorTextures = palette.floorTexture
     ? buildMapBundle(palette.floorTexture, FLOOR_REPEAT[0], FLOOR_REPEAT[1])
     : null;
-  const floor = new THREE.MeshStandardMaterial({
-    color: palette.floorColor,
-    roughness: floorTextures ? 1 : 0.88,
-    metalness: floorTextures ? 1 : 0.05,
-    ...(floorTextures ?? {}),
-  });
 
   entry = {
-    wall,
-    floor,
+    wall: new THREE.MeshStandardMaterial({
+      color: palette.wallColor,
+      roughness: 0.92,
+      side: THREE.DoubleSide,
+    }),
+    floor: new THREE.MeshStandardMaterial({
+      color: palette.floorColor,
+      roughness: floorTextures ? 1 : 0.88,
+      metalness: floorTextures ? 1 : 0.05,
+      ...(floorTextures ?? {}),
+    }),
     ceiling: new THREE.MeshStandardMaterial({
       color: palette.ceilingColor,
       roughness: 0.96,
@@ -98,10 +88,7 @@ const roomFloorCache = new Map<string, THREE.MeshStandardMaterial>();
  * hallway floors, just tinted by the room's accent. Pass `undefined`
  * to fall back to a flat tinted material.
  */
-export function getRoomFloorMaterial(
-  color: string,
-  slug?: string,
-): THREE.MeshStandardMaterial {
+export function getRoomFloorMaterial(color: string, slug?: string): THREE.MeshStandardMaterial {
   const key = slug ? `${color}|${slug}` : color;
   let mat = roomFloorCache.get(key);
   if (mat) return mat;
