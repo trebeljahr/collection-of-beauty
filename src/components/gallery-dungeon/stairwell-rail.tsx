@@ -155,34 +155,44 @@ export function StairwellAccents({ floor }: { floor: FloorLayout }) {
   if (!stairwell || !data) return null;
   const { cx, cz, railR, railGeom, balusters, entryAngle, stairOut, stairIn } = data;
   const hasCutout = floor.index > 0;
-  // Gate posts flank the gate gap. Post A is one half-arc CCW from
-  // entry, post B one half-arc CW. They sit at the rail radius +
-  // a hair so the post face is flush with the rail end.
-  const gatePostRadius = railR + 0.02;
+  // Gate posts sit ON the rail line — same radius as the rail —
+  // so the rail terminates INTO the post instead of stopping next
+  // to it. We also rotate each post around Y so its outward face
+  // lies perpendicular to the radial direction at its angle: that
+  // makes the rail meet a flat wall (instead of a corner), and lets
+  // the directional sign sit flush against the post.
+  // Post A is one half-arc CCW from entry (the "left" side as you
+  // face the spiral, which is also the ascending direction); post B
+  // is the same arc CW (right side, descending direction).
+  const gatePostRadius = railR;
   const angleA = entryAngle + GATE_HALF_ARC;
   const angleB = entryAngle - GATE_HALF_ARC;
   const postA = {
     x: cx + gatePostRadius * Math.cos(angleA),
     z: cz + gatePostRadius * Math.sin(angleA),
     angle: angleA,
+    /** Rotation that points the post's local +Z (and the sign's +Z
+     *  normal) along the radial outward direction at this angle. */
+    rotationY: Math.PI / 2 - angleA,
   };
   const postB = {
     x: cx + gatePostRadius * Math.cos(angleB),
     z: cz + gatePostRadius * Math.sin(angleB),
     angle: angleB,
+    rotationY: Math.PI / 2 - angleB,
   };
 
-  // Each sign hugs the OUTWARD-facing side of its post (away from the
-  // spiral centre) and rotates so its +Z normal points along that
-  // post's outward radial.
+  // Each sign hugs the OUTWARD-facing side of its post (away from
+  // the spiral centre) and inherits the post's rotation so it sits
+  // flush against the post's outward face.
   const signOffset = GATE_POST_SIZE / 2 + 0.014;
-  const signFor = (post: { x: number; z: number; angle: number }) => ({
+  const signFor = (post: typeof postA) => ({
     position: [
       post.x + Math.cos(post.angle) * signOffset,
       floor.y + 1.65,
       post.z + Math.sin(post.angle) * signOffset,
     ] as [number, number, number],
-    rotationY: Math.PI / 2 - post.angle,
+    rotationY: post.rotationY,
   });
   const signA = signFor(postA);
   const signB = signFor(postB);
@@ -210,13 +220,24 @@ export function StairwellAccents({ floor }: { floor: FloorLayout }) {
       )}
 
       {/* Gate posts — substantial vertical pillars flanking the
-          entry/exit gap, regardless of cutout. They're the anchor
-          for the directional signs. */}
-      <mesh position={[postA.x, floor.y + GATE_POST_HEIGHT / 2, postA.z]} castShadow>
+          entry/exit gap, regardless of cutout. They sit on the rail
+          line so the rail terminates into the post (visually merging
+          rail + post into one architectural element), and they're
+          rotated so their outward face is perpendicular to the
+          radial direction, ready to host the sign. */}
+      <mesh
+        position={[postA.x, floor.y + GATE_POST_HEIGHT / 2, postA.z]}
+        rotation={[0, postA.rotationY, 0]}
+        castShadow
+      >
         <boxGeometry args={[GATE_POST_SIZE, GATE_POST_HEIGHT, GATE_POST_SIZE]} />
         <primitive object={gatePostMaterial} attach="material" />
       </mesh>
-      <mesh position={[postB.x, floor.y + GATE_POST_HEIGHT / 2, postB.z]} castShadow>
+      <mesh
+        position={[postB.x, floor.y + GATE_POST_HEIGHT / 2, postB.z]}
+        rotation={[0, postB.rotationY, 0]}
+        castShadow
+      >
         <boxGeometry args={[GATE_POST_SIZE, GATE_POST_HEIGHT, GATE_POST_SIZE]} />
         <primitive object={gatePostMaterial} attach="material" />
       </mesh>
