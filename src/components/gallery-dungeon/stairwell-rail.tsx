@@ -7,10 +7,12 @@ import { SPIRAL_FLOOR_CUTOUT_RADIUS } from "@/lib/gallery-layout/world-coords";
 import { StairSign } from "./staircase";
 
 // Local copies of the rail vocabulary so this file is self-contained.
+// Match staircase.tsx exactly so the cutout-edge rail and the spiral
+// rails read as a single material set.
 const railTopMaterial = new THREE.MeshStandardMaterial({
-  color: "#6a4a28",
-  roughness: 0.45,
-  metalness: 0.6,
+  color: "#c89855",
+  roughness: 0.32,
+  metalness: 0.85,
 });
 const balusterMaterial = new THREE.MeshStandardMaterial({
   color: "#0f0c08",
@@ -24,7 +26,8 @@ const gatePostMaterial = new THREE.MeshStandardMaterial({
 });
 
 const RAIL_HEIGHT = 1.05;
-const RAIL_TOP_THICKNESS = 0.09;
+const RAIL_BAR_HEIGHT = 0.1;
+const RAIL_BAR_HALF_WIDTH = 0.05;
 const BALUSTER_SIZE = 0.07;
 const GATE_POST_SIZE = 0.32;
 const GATE_POST_HEIGHT = 2.4;
@@ -32,40 +35,67 @@ const GATE_POST_HEIGHT = 2.4;
  *  spiral's `entryAngle` and the rail is omitted across this arc. */
 const GATE_HALF_ARC = 0.34; // ≈ 19.5° each side, ≈ 39° total
 
-/** Build the cutout-edge top rail as a triangle-strip ribbon. The rail
- *  follows a circle of radius `radius` at height `y + RAIL_HEIGHT`,
- *  skipping a centred gate of width 2 * gateHalfArc around `entryAngle`. */
+/** Build the cutout-edge top rail as a CLOSED RECTANGULAR TUBE
+ *  following a circle of radius `radius` at height `y + RAIL_HEIGHT`,
+ *  skipping a centred gate of width 2 * gateHalfArc around
+ *  `entryAngle`. Each ring sample contributes 4 vertices (top-out,
+ *  top-in, bot-in, bot-out) and adjacent rings are stitched by 4
+ *  longitudinal faces (top, inner, bottom, outer) so the rail has
+ *  real volume in every direction — no paper-strip look. */
 function buildCutoutRailGeometry(
   radius: number,
   y: number,
   entryAngle: number,
   gateHalfArc: number,
 ): THREE.BufferGeometry {
-  const segments = 64;
+  const segments = 80;
   const positions: number[] = [];
   const indices: number[] = [];
-  let ringIdx = 0;
-  let prevHadVertex = false;
+  let prevBaseIdx = -1;
+  const yTop = y + RAIL_HEIGHT;
+
   for (let s = 0; s <= segments; s++) {
     const theta = (s / segments) * Math.PI * 2;
     // Shortest signed angular distance from theta to entryAngle.
     const angDiff = Math.atan2(Math.sin(theta - entryAngle), Math.cos(theta - entryAngle));
     if (Math.abs(angDiff) < gateHalfArc) {
-      prevHadVertex = false;
+      prevBaseIdx = -1;
       continue;
     }
-    const x = radius * Math.cos(theta);
-    const z = radius * Math.sin(theta);
-    positions.push(x, y + RAIL_HEIGHT, z);
-    positions.push(x, y + RAIL_HEIGHT - RAIL_TOP_THICKNESS, z);
-    if (prevHadVertex) {
-      const a = (ringIdx - 1) * 2;
-      const b = ringIdx * 2;
-      indices.push(a, b, a + 1);
-      indices.push(a + 1, b, b + 1);
+    const cx = radius * Math.cos(theta);
+    const cz = radius * Math.sin(theta);
+    const ox = Math.cos(theta);
+    const oz = Math.sin(theta);
+
+    const baseIdx = positions.length / 3;
+    // 0=TO, 1=TI, 2=BI, 3=BO (same convention as the spiral rail).
+    positions.push(cx + ox * RAIL_BAR_HALF_WIDTH, yTop, cz + oz * RAIL_BAR_HALF_WIDTH);
+    positions.push(cx - ox * RAIL_BAR_HALF_WIDTH, yTop, cz - oz * RAIL_BAR_HALF_WIDTH);
+    positions.push(
+      cx - ox * RAIL_BAR_HALF_WIDTH,
+      yTop - RAIL_BAR_HEIGHT,
+      cz - oz * RAIL_BAR_HALF_WIDTH,
+    );
+    positions.push(
+      cx + ox * RAIL_BAR_HALF_WIDTH,
+      yTop - RAIL_BAR_HEIGHT,
+      cz + oz * RAIL_BAR_HALF_WIDTH,
+    );
+
+    if (prevBaseIdx !== -1) {
+      const p = prevBaseIdx;
+      const c = baseIdx;
+      // Top (+Y), Bottom (−Y), Outer (+radial), Inner (−radial).
+      indices.push(p + 0, p + 1, c + 1);
+      indices.push(p + 0, c + 1, c + 0);
+      indices.push(p + 3, c + 3, c + 2);
+      indices.push(p + 3, c + 2, p + 2);
+      indices.push(p + 3, p + 0, c + 0);
+      indices.push(p + 3, c + 0, c + 3);
+      indices.push(p + 2, c + 2, c + 1);
+      indices.push(p + 2, c + 1, p + 1);
     }
-    ringIdx++;
-    prevHadVertex = true;
+    prevBaseIdx = baseIdx;
   }
   const geom = new THREE.BufferGeometry();
   geom.setAttribute("position", new THREE.Float32BufferAttribute(positions, 3));
@@ -92,7 +122,7 @@ function buildCutoutBalusters(
     if (Math.abs(angDiff) < gateHalfArc) continue;
     out.push([
       radius * Math.cos(theta),
-      y + (RAIL_HEIGHT - RAIL_TOP_THICKNESS) / 2,
+      y + (RAIL_HEIGHT - RAIL_BAR_HEIGHT) / 2,
       radius * Math.sin(theta),
     ]);
   }

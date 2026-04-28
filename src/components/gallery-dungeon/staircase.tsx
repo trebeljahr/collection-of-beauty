@@ -14,15 +14,18 @@ const treadMaterial = new THREE.MeshStandardMaterial({
   metalness: 0.1,
 });
 const railTopMaterial = new THREE.MeshStandardMaterial({
-  // Warm bronze — the top rail is the eye-catching detail, slightly
-  // metallic so the gallery's environment light catches its arc.
-  color: "#6a4a28",
-  roughness: 0.45,
-  metalness: 0.6,
+  // Polished brass — the top rail is the eye-catching detail, more
+  // metallic and lighter than the dark bronze it replaces so the
+  // gallery's environment light actually picks it out against the
+  // wood treads.
+  color: "#c89855",
+  roughness: 0.32,
+  metalness: 0.85,
 });
 const balusterMaterial = new THREE.MeshStandardMaterial({
   // Dark wrought iron for the verticals — strong contrast against
-  // the warm tread tones so the railing reads at a glance.
+  // the brass top rail and the warm tread tones, so the railing as
+  // a whole reads at a glance.
   color: "#0f0c08",
   roughness: 0.7,
   metalness: 0.4,
@@ -30,7 +33,12 @@ const balusterMaterial = new THREE.MeshStandardMaterial({
 
 const TREAD_THICKNESS = 0.16;
 const RAIL_HEIGHT = 1.05;
-const RAIL_TOP_THICKNESS = 0.09;
+/** Vertical thickness of the rail bar. */
+const RAIL_BAR_HEIGHT = 0.1;
+/** Radial half-width of the rail bar — gives the rail real volume in
+ *  every direction, so it stops reading as a paper strip and starts
+ *  reading as a hand rail you could grip. */
+const RAIL_BAR_HALF_WIDTH = 0.05;
 const BALUSTER_SIZE = 0.07;
 /** Step indices skipped on the OUTER rail — the gap is the player's
  *  entry/exit point onto the spiral, centred on the entry direction.
@@ -151,18 +159,18 @@ function buildSpiralStepsGeometry(staircase: Staircase): THREE.BufferGeometry {
   return geom;
 }
 
-/** Build a spiral railing — a continuous top rail with vertical
- *  balusters at every step. Used for both the inner edge (around the
- *  open well) and the outer edge (between the treads and the
- *  stairwell room). The outer rail skips a configurable number of
- *  steps at the entry direction to leave a gate for the player to
- *  walk onto the spiral.
+/** Build a spiral railing as a CLOSED RECTANGULAR TUBE following the
+ *  rail path. Each ring sample contributes 4 vertices — TO (top-out),
+ *  TI (top-in), BI (bot-in), BO (bot-out) — and adjacent rings are
+ *  stitched by 4 longitudinal faces (top, inner, bottom, outer) so
+ *  the rail has real 3D volume in every direction. No DoubleSide
+ *  hack: the tube is closed, every face has correct outward-facing
+ *  normals, lighting is consistent.
  *
- *  Returns:
- *   - `rail`: a triangle-strip ribbon following the rail path at
- *     RAIL_HEIGHT above each tread, of thickness RAIL_TOP_THICKNESS.
- *   - `balusters`: world-relative XYZ positions for each baluster
- *     (one per step, at the step's start angle). */
+ *  Used for both the inner edge (around the open well) and the outer
+ *  edge (between treads and the stairwell room). The outer rail
+ *  skips a configurable number of steps at the entry direction to
+ *  leave a gate for the player to walk onto the spiral. */
 function buildSpiralRail(
   staircase: Staircase,
   side: "inner" | "outer",
@@ -189,11 +197,11 @@ function buildSpiralRail(
   const inGap = (i: number) => gapSteps > 0 && (i < gapAfter || i >= numSteps - gapBefore);
 
   const balusters: Array<[number, number, number]> = [];
-  let ringIdx = 0;
-  let prevHadVertex = false;
+  let prevBaseIdx = -1;
+
   for (let i = 0; i < numSteps; i++) {
     if (inGap(i)) {
-      prevHadVertex = false;
+      prevBaseIdx = -1;
       continue;
     }
     const aStart = entryAngle + i * stepAngle;
@@ -204,25 +212,58 @@ function buildSpiralRail(
     for (let s = 0; s <= segPerStep; s++) {
       const t = s / segPerStep;
       const theta = lo + (hi - lo) * t;
-      const x = railR * Math.cos(theta);
-      const z = railR * Math.sin(theta);
-      positions.push(x, yTop, z);
-      positions.push(x, yTop - RAIL_TOP_THICKNESS, z);
-      // Only stitch a quad strip when the previous vertex was part of
-      // a continuous arc (no gap between).
-      if (prevHadVertex || s > 0) {
-        const a = (ringIdx - 1) * 2;
-        const b = ringIdx * 2;
-        indices.push(a, b, a + 1);
-        indices.push(a + 1, b, b + 1);
+      const cx = railR * Math.cos(theta);
+      const cz = railR * Math.sin(theta);
+      // Outward radial unit vector at this angle.
+      const ox = Math.cos(theta);
+      const oz = Math.sin(theta);
+
+      const baseIdx = positions.length / 3;
+      // Vertex layout: 0=TO (top-outer), 1=TI (top-inner),
+      //                2=BI (bot-inner), 3=BO (bot-outer).
+      positions.push(
+        cx + ox * RAIL_BAR_HALF_WIDTH,
+        yTop,
+        cz + oz * RAIL_BAR_HALF_WIDTH,
+      );
+      positions.push(
+        cx - ox * RAIL_BAR_HALF_WIDTH,
+        yTop,
+        cz - oz * RAIL_BAR_HALF_WIDTH,
+      );
+      positions.push(
+        cx - ox * RAIL_BAR_HALF_WIDTH,
+        yTop - RAIL_BAR_HEIGHT,
+        cz - oz * RAIL_BAR_HALF_WIDTH,
+      );
+      positions.push(
+        cx + ox * RAIL_BAR_HALF_WIDTH,
+        yTop - RAIL_BAR_HEIGHT,
+        cz + oz * RAIL_BAR_HALF_WIDTH,
+      );
+
+      if (prevBaseIdx !== -1) {
+        const p = prevBaseIdx;
+        const c = baseIdx;
+        // Top face (+Y normal).
+        indices.push(p + 0, p + 1, c + 1);
+        indices.push(p + 0, c + 1, c + 0);
+        // Bottom face (−Y normal).
+        indices.push(p + 3, c + 3, c + 2);
+        indices.push(p + 3, c + 2, p + 2);
+        // Outer face (+radial normal).
+        indices.push(p + 3, p + 0, c + 0);
+        indices.push(p + 3, c + 0, c + 3);
+        // Inner face (−radial normal).
+        indices.push(p + 2, c + 2, c + 1);
+        indices.push(p + 2, c + 1, p + 1);
       }
-      ringIdx++;
-      prevHadVertex = true;
+      prevBaseIdx = baseIdx;
     }
     // One baluster per step at the start angle.
     balusters.push([
       balR * Math.cos(aStart),
-      lowerY + i * stepRise + (RAIL_HEIGHT - RAIL_TOP_THICKNESS) / 2,
+      lowerY + i * stepRise + (RAIL_HEIGHT - RAIL_BAR_HEIGHT) / 2,
       balR * Math.sin(aStart),
     ]);
   }
