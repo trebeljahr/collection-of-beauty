@@ -56,6 +56,13 @@ const RAIL_BAR_HEIGHT = 0.1;
  *  reading as a hand rail you could grip. */
 const RAIL_BAR_HALF_WIDTH = 0.05;
 const BALUSTER_SIZE = 0.07;
+/** Vertical span of a baluster, measured between its top and bottom.
+ *  Stops short of the rail's top by exactly RAIL_BAR_HEIGHT so the
+ *  baluster's top sits flush with the rail's bottom face — without
+ *  this, the baluster's top 5 cm lives INSIDE the rail tube and shows
+ *  as a thin black bar punching through the brass on every camera
+ *  angle that catches the rail in cross-section. */
+const BALUSTER_HEIGHT = RAIL_HEIGHT - RAIL_BAR_HEIGHT;
 /** Half-arc of the entry/exit gate on the OUTER rail — the rail is
  *  omitted across this arc so the player can step onto/off the
  *  spiral. The cutout-edge rail on each floor uses the same value
@@ -106,25 +113,32 @@ function buildTreadGeometry(
     }
   }
 
-  // Top (CCW from above looking down -Y).
+  // Top — wound so (V1−V0)×(V2−V0) gives +Y. Going inner→inner-next→
+  // outer (Z then X under right-hand rule) yields Z×X=+Y, so the
+  // top of every wedge is solid when looked at from above. The
+  // earlier (1,3,1+1) winding produced -Y normals here, which is
+  // why looking down at the spiral showed see-through "sheets" —
+  // the top faces were back-culled and the camera read straight
+  // through to the bottom face one rise below.
   for (let i = 0; i < segments; i++) {
-    indices.push(ring(1, i), ring(3, i), ring(1, i + 1));
-    indices.push(ring(1, i + 1), ring(3, i), ring(3, i + 1));
+    indices.push(ring(1, i), ring(1, i + 1), ring(3, i));
+    indices.push(ring(1, i + 1), ring(3, i + 1), ring(3, i));
   }
-  // Bottom (CCW from below).
+  // Bottom — mirror winding of the top so the normal points -Y;
+  // outer→inner-next→outer-next gives X×Z=−Y on the underside.
   for (let i = 0; i < segments; i++) {
-    indices.push(ring(0, i), ring(0, i + 1), ring(2, i));
-    indices.push(ring(0, i + 1), ring(2, i + 1), ring(2, i));
+    indices.push(ring(0, i), ring(2, i), ring(0, i + 1));
+    indices.push(ring(0, i + 1), ring(2, i), ring(2, i + 1));
   }
-  // Inner curved face (faces toward the well).
+  // Inner curved face (faces toward the well, normal -radial).
   for (let i = 0; i < segments; i++) {
-    indices.push(ring(0, i + 1), ring(0, i), ring(1, i));
-    indices.push(ring(0, i + 1), ring(1, i), ring(1, i + 1));
+    indices.push(ring(0, i + 1), ring(1, i), ring(0, i));
+    indices.push(ring(0, i + 1), ring(1, i + 1), ring(1, i));
   }
-  // Outer curved face.
+  // Outer curved face (faces away from the well, normal +radial).
   for (let i = 0; i < segments; i++) {
-    indices.push(ring(2, i), ring(2, i + 1), ring(3, i));
-    indices.push(ring(2, i + 1), ring(3, i + 1), ring(3, i));
+    indices.push(ring(2, i), ring(3, i), ring(2, i + 1));
+    indices.push(ring(2, i + 1), ring(3, i), ring(3, i + 1));
   }
   // Radial cap at thetaStart (also serves as the riser of THIS step,
   // visible to a player approaching from the previous tread).
@@ -205,6 +219,13 @@ function buildSpiralRail(
   staircase: Staircase,
   side: "inner" | "outer",
   gateHalfArc: number,
+  /** Whether to seal each contiguous segment with flat end caps. The
+   *  outer rail wants caps at its gate (so the rail butts cleanly
+   *  against the gate posts). The inner rail is a continuous helix
+   *  across all revolutions — caps at the per-revolution boundary
+   *  would Z-fight against the next storey's start cap and read as
+   *  visible seams every time the rail crosses a floor. */
+  closeEnds: boolean,
 ): { rail: THREE.BufferGeometry; balusters: Array<[number, number, number]> } {
   const { innerRadius, outerRadius, numSteps, direction, lowerY, upperY, entryAngle } = staircase;
   const stepAngle = ((Math.PI * 2) / numSteps) * direction;
@@ -214,7 +235,12 @@ function buildSpiralRail(
   // toward the well. Outer rail sits a finger-width INSIDE the outer
   // tread edge, same idea on the outside face.
   const railR = side === "inner" ? innerRadius + 0.07 : outerRadius - 0.07;
-  const balR = side === "inner" ? innerRadius + 0.05 : outerRadius - 0.05;
+  // Centre balusters on the rail so they sit fully inside the rail
+  // tube radially (rail half-width 0.05 m, baluster half-width
+  // 0.035 m). The earlier offset (innerRadius+0.05 / outerRadius-0.05)
+  // pushed each baluster 5 mm past the rail's near face on one side,
+  // showing as a thin black sliver protruding through the rail.
+  const balR = railR;
   const positions: number[] = [];
   const indices: number[] = [];
   const segPerStep = 3;
@@ -245,14 +271,16 @@ function buildSpiralRail(
       prevBaseIdx = -1;
       return;
     }
-    const s = segmentStartIdx;
-    const e = prevBaseIdx;
-    // Start cap (faces −tangent direction at the segment's first sample).
-    indices.push(s + 0, s + 2, s + 1);
-    indices.push(s + 0, s + 3, s + 2);
-    // End cap (faces +tangent direction at the segment's last sample).
-    indices.push(e + 0, e + 1, e + 2);
-    indices.push(e + 0, e + 2, e + 3);
+    if (closeEnds) {
+      const s = segmentStartIdx;
+      const e = prevBaseIdx;
+      // Start cap (faces −tangent direction at the segment's first sample).
+      indices.push(s + 0, s + 2, s + 1);
+      indices.push(s + 0, s + 3, s + 2);
+      // End cap (faces +tangent direction at the segment's last sample).
+      indices.push(e + 0, e + 1, e + 2);
+      indices.push(e + 0, e + 2, e + 3);
+    }
     segmentStartIdx = -1;
     prevBaseIdx = -1;
   };
@@ -323,11 +351,15 @@ function buildSpiralRail(
       prevBaseIdx = baseIdx;
     }
     // One baluster per step at the start angle, but only if that
-    // angle falls outside the gate gap.
+    // angle falls outside the gate gap. Centre Y sits halfway between
+    // the step's tread surface and the rail's bottom face — combined
+    // with BALUSTER_HEIGHT, top lands exactly at rail-bottom, bottom
+    // lands at the step's top, so each baluster fills the riser space
+    // without poking into the rail tube above.
     if (!inGap(aStart)) {
       balusters.push([
         balR * Math.cos(aStart),
-        lowerY + i * stepRise + (RAIL_HEIGHT - RAIL_BAR_HEIGHT) / 2,
+        lowerY + i * stepRise + BALUSTER_HEIGHT / 2,
         balR * Math.sin(aStart),
       ]);
     }
@@ -341,46 +373,65 @@ function buildSpiralRail(
   return { rail: geom, balusters };
 }
 
-/** Build a set of horizontal radial brackets — one per step —
- *  anchoring the inner edge of each tread to the central stone
- *  column. Each bracket is a small box laid flat along the radial
- *  axis at the step's start angle, sitting at the step's top Y.
- *  Visually, this turns the spiral from a free-floating ribbon of
- *  wedges into a column-and-bracket structure with each tread
- *  visibly tied back to the spine. */
+/** Build a set of stout horizontal beams — one per step — anchoring
+ *  the inner edge of each tread to the central stone column. Each
+ *  beam overlaps a few centimetres into the column on its inner end
+ *  and a few centimetres into the tread on its outer end, so there's
+ *  no visible gap at either join. They're sized to read as proper
+ *  forged brackets rather than thin strips: tangentially almost as
+ *  wide as the tread's inner edge (0.4 m), vertically a hair under
+ *  the full step rise so they fill most of the riser space without
+ *  fighting the next tread above. Centred under each tread (not at
+ *  the step boundary) so they read as supports for the wedge
+ *  directly above them. */
 function buildStepBrackets(staircase: Staircase): Array<{
   position: [number, number, number];
   rotationY: number;
   length: number;
+  height: number;
+  width: number;
 }> {
   const { numSteps, direction, lowerY, upperY, innerRadius, entryAngle } = staircase;
   const stepAngle = ((Math.PI * 2) / numSteps) * direction;
   const stepRise = (upperY - lowerY) / numSteps;
-  // Brackets reach from just outside the column to a hair short of
-  // the inner tread edge; they tuck under the tread so the visible
-  // top face of each bracket sits flush with the underside of its
-  // step.
-  const innerR = SPIRAL_COLUMN_RADIUS + 0.02;
-  const outerR = innerRadius - 0.02;
+  // Bracket spans from a few cm INSIDE the column (so it merges
+  // visually with the cylinder's surface) out to a few cm INTO the
+  // tread (so it tucks under the wedge with no air gap).
+  const innerR = SPIRAL_COLUMN_RADIUS - 0.05;
+  const outerR = innerRadius + 0.04;
   const length = outerR - innerR;
+  const midR = (innerR + outerR) / 2;
+  // Vertical thickness — most of the step rise, leaving a 4 cm
+  // breathing gap above so the next bracket's top doesn't punch
+  // into this bracket from above when the spiral stacks.
+  const height = stepRise - 0.04;
+  // Tangential thickness — wide enough to look like a real beam
+  // rather than a fishing rod, but narrow enough that adjacent
+  // brackets don't visually overlap (step width along inner
+  // tread edge is ≈ innerRadius * stepAngle ≈ 0.74 m).
+  const width = 0.4;
   const out: Array<{
     position: [number, number, number];
     rotationY: number;
     length: number;
+    height: number;
+    width: number;
   }> = [];
   for (let i = 0; i < numSteps; i++) {
-    const a = entryAngle + i * stepAngle;
-    const midR = (innerR + outerR) / 2;
-    // Bracket top sits a hair under the tread's underside; tread
-    // bottom is at topY - stepRise where topY = lowerY + i*stepRise,
-    // so the bracket centreline is at that Y minus half the
-    // bracket's vertical thickness (0.08 / 2).
-    const treadTopY = lowerY + i * stepRise;
-    const bracketTopY = treadTopY - stepRise - 0.005;
+    // Centred under the tread's middle angle (not its start), so
+    // the bracket sits visually under the wedge it supports.
+    const a = entryAngle + (i + 0.5) * stepAngle;
+    // Tread bottom Y = treadTopY - stepRise where
+    // treadTopY = lowerY + i*stepRise; bracket TOP touches that
+    // exactly, so centreline is half a bracket-height below.
+    const treadBottomY = lowerY + i * stepRise - stepRise;
+    const yCentre = treadBottomY - height / 2;
     out.push({
-      position: [midR * Math.cos(a), bracketTopY - 0.04, midR * Math.sin(a)],
+      position: [midR * Math.cos(a), yCentre, midR * Math.sin(a)],
       rotationY: a,
       length,
+      height,
+      width,
     });
   }
   return out;
@@ -409,9 +460,9 @@ export function StaircaseRenderer({ staircase }: { staircase: Staircase }) {
   const { centerX, centerZ, lowerY, upperY } = staircase;
 
   const stepsGeom = useMemo(() => buildSpiralStepsGeometry(staircase), [staircase]);
-  const innerRail = useMemo(() => buildSpiralRail(staircase, "inner", 0), [staircase]);
+  const innerRail = useMemo(() => buildSpiralRail(staircase, "inner", 0, false), [staircase]);
   const outerRail = useMemo(
-    () => buildSpiralRail(staircase, "outer", spiralGateHalfArc(staircase.numSteps)),
+    () => buildSpiralRail(staircase, "outer", spiralGateHalfArc(staircase.numSteps), true),
     [staircase],
   );
   const brackets = useMemo(() => buildStepBrackets(staircase), [staircase]);
@@ -437,15 +488,16 @@ export function StaircaseRenderer({ staircase }: { staircase: Staircase }) {
         <primitive object={treadMaterial} attach="material" />
       </mesh>
 
-      {/* Per-step radial brackets tying each tread back to the
+      {/* Per-step radial beams tying each tread back to the
           column. Reads as forged iron hardware anchoring the
-          wooden treads to the masonry spine. */}
+          wooden treads to the masonry spine. Box's local axes
+          after Y-rotation:
+            X = radial (length, spanning column → tread),
+            Y = vertical (height, fills most of the step rise),
+            Z = tangential (width, ≈ half the step's inner arc). */}
       {brackets.map((b, i) => (
         <mesh key={`bracket-${i}`} position={b.position} rotation={[0, b.rotationY, 0]} castShadow>
-          {/* Box laid along the +X local axis after Y rotation:
-              X = radial length, Y = vertical thickness (8 cm),
-              Z = tangential thickness (10 cm). */}
-          <boxGeometry args={[b.length, 0.08, 0.1]} />
+          <boxGeometry args={[b.length, b.height, b.width]} />
           <primitive object={bracketMaterial} attach="material" />
         </mesh>
       ))}
@@ -456,7 +508,7 @@ export function StaircaseRenderer({ staircase }: { staircase: Staircase }) {
       </mesh>
       {innerRail.balusters.map((p, i) => (
         <mesh key={`in-bal-${i}`} position={p} castShadow>
-          <boxGeometry args={[BALUSTER_SIZE, RAIL_HEIGHT, BALUSTER_SIZE]} />
+          <boxGeometry args={[BALUSTER_SIZE, BALUSTER_HEIGHT, BALUSTER_SIZE]} />
           <primitive object={balusterMaterial} attach="material" />
         </mesh>
       ))}
@@ -468,7 +520,7 @@ export function StaircaseRenderer({ staircase }: { staircase: Staircase }) {
       </mesh>
       {outerRail.balusters.map((p, i) => (
         <mesh key={`out-bal-${i}`} position={p} castShadow>
-          <boxGeometry args={[BALUSTER_SIZE, RAIL_HEIGHT, BALUSTER_SIZE]} />
+          <boxGeometry args={[BALUSTER_SIZE, BALUSTER_HEIGHT, BALUSTER_SIZE]} />
           <primitive object={balusterMaterial} attach="material" />
         </mesh>
       ))}

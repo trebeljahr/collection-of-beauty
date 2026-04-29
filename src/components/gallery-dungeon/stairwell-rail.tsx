@@ -4,7 +4,7 @@ import { useMemo } from "react";
 import * as THREE from "three";
 import type { FloorLayout } from "@/lib/gallery-layout/types";
 import { SPIRAL_FLOOR_CUTOUT_RADIUS } from "@/lib/gallery-layout/world-coords";
-import { spiralGateHalfArc, StairSign } from "./staircase";
+import { StairSign, spiralGateHalfArc } from "./staircase";
 
 // Local copies of the rail vocabulary so this file is self-contained.
 // Match staircase.tsx exactly so the cutout-edge rail and the spiral
@@ -29,6 +29,10 @@ const RAIL_HEIGHT = 1.05;
 const RAIL_BAR_HEIGHT = 0.1;
 const RAIL_BAR_HALF_WIDTH = 0.05;
 const BALUSTER_SIZE = 0.07;
+/** Vertical span of a baluster — stops at rail-bottom so the
+ *  baluster top doesn't punch into the rail tube. Mirrors the same
+ *  constant in staircase.tsx. */
+const BALUSTER_HEIGHT = RAIL_HEIGHT - RAIL_BAR_HEIGHT;
 /** Gate-post tangent width — wide enough for the sign plaque to fit
  *  flush within it (no horizontal "crossbeam" sticking out beyond
  *  the post), so post + sign reads as one architectural pylon rather
@@ -149,11 +153,7 @@ function buildCutoutBalusters(
     const theta = (i / count) * Math.PI * 2;
     const angDiff = Math.atan2(Math.sin(theta - entryAngle), Math.cos(theta - entryAngle));
     if (Math.abs(angDiff) < gateHalfArc) continue;
-    out.push([
-      radius * Math.cos(theta),
-      y + (RAIL_HEIGHT - RAIL_BAR_HEIGHT) / 2,
-      radius * Math.sin(theta),
-    ]);
+    out.push([radius * Math.cos(theta), y + BALUSTER_HEIGHT / 2, radius * Math.sin(theta)]);
   }
   return out;
 }
@@ -250,7 +250,7 @@ export function StairwellAccents({ floor }: { floor: FloorLayout }) {
           </mesh>
           {balusters.map((p, i) => (
             <mesh key={`cutout-bal-${i}`} position={[cx + p[0], p[1], cz + p[2]]} castShadow>
-              <boxGeometry args={[BALUSTER_SIZE, RAIL_HEIGHT, BALUSTER_SIZE]} />
+              <boxGeometry args={[BALUSTER_SIZE, BALUSTER_HEIGHT, BALUSTER_SIZE]} />
               <primitive object={balusterMaterial} attach="material" />
             </mesh>
           ))}
@@ -269,9 +269,7 @@ export function StairwellAccents({ floor }: { floor: FloorLayout }) {
         rotation={[0, postA.rotationY, 0]}
         castShadow
       >
-        <boxGeometry
-          args={[GATE_POST_TANGENT_WIDTH, GATE_POST_HEIGHT, GATE_POST_RADIAL_DEPTH]}
-        />
+        <boxGeometry args={[GATE_POST_TANGENT_WIDTH, GATE_POST_HEIGHT, GATE_POST_RADIAL_DEPTH]} />
         <primitive object={gatePostMaterial} attach="material" />
       </mesh>
       <mesh
@@ -279,9 +277,7 @@ export function StairwellAccents({ floor }: { floor: FloorLayout }) {
         rotation={[0, postB.rotationY, 0]}
         castShadow
       >
-        <boxGeometry
-          args={[GATE_POST_TANGENT_WIDTH, GATE_POST_HEIGHT, GATE_POST_RADIAL_DEPTH]}
-        />
+        <boxGeometry args={[GATE_POST_TANGENT_WIDTH, GATE_POST_HEIGHT, GATE_POST_RADIAL_DEPTH]} />
         <primitive object={gatePostMaterial} attach="material" />
       </mesh>
 

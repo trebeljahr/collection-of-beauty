@@ -6,7 +6,11 @@ import { useEffect, useRef } from "react";
 import * as THREE from "three";
 import type { Artwork } from "@/lib/data";
 import type { FloorLayout, Staircase } from "@/lib/gallery-layout/types";
-import { CELL_SIZE, SPIRAL_COLUMN_RADIUS } from "@/lib/gallery-layout/world-coords";
+import {
+  CELL_SIZE,
+  SPIRAL_COLUMN_RADIUS,
+  SPIRAL_FLOOR_CUTOUT_RADIUS,
+} from "@/lib/gallery-layout/world-coords";
 import { raycastNearestPainting } from "./painting-registry";
 import {
   findStairAbove,
@@ -29,10 +33,22 @@ const PLAYER_RADIUS = 0.3;
 // clear of the inner and outer railings while walking on the steps.
 // The rails are at innerRadius+0.07 (centre) with 0.05 m radial half
 // width, so the rail's near face sits 0.12 m inside the annulus on
-// each side. Adding PLAYER_RADIUS plus a 0.05 m elbow gives 0.42 m of
-// total clearance — without this the player can plant their face
-// inside the rail bar at either edge of the steps.
-const SPIRAL_RAIL_CLEARANCE = 0.07 + 0.05 + PLAYER_RADIUS + 0.05;
+// each side. Adding PLAYER_RADIUS plus a 0.4 m elbow gives 0.82 m of
+// total clearance — visibly stops the camera from crowding the rail
+// while still leaving a 1.16 m walking strip on the spiral.
+const SPIRAL_RAIL_CLEARANCE = 0.07 + 0.05 + PLAYER_RADIUS + 0.4;
+// Same idea on the OUTSIDE of the spiral — the cutout-edge railing
+// (the floor-level circular rail around the stairwell hole on
+// floors above the ground) sits at SPIRAL_FLOOR_CUTOUT_RADIUS+0.18
+// with a 0.05 m radial half-width. Block any target whose centre
+// would put the player's bbox into that rail tube. The cutout-edge
+// rail has the same gate gap as the spiral's outer rail, so the
+// constraint is dropped inside the gate arc to let the player walk
+// through.
+const CUTOUT_RAIL_RADIUS = SPIRAL_FLOOR_CUTOUT_RADIUS + 0.18;
+const CUTOUT_RAIL_HALF_WIDTH = 0.05;
+const CUTOUT_RAIL_INNER_BOUND = CUTOUT_RAIL_RADIUS - CUTOUT_RAIL_HALF_WIDTH - PLAYER_RADIUS - 0.3;
+const CUTOUT_RAIL_OUTER_BOUND = CUTOUT_RAIL_RADIUS + CUTOUT_RAIL_HALF_WIDTH + PLAYER_RADIUS + 0.3;
 // Max distance (m) at which the crosshair swaps to the magnifying-glass
 // "inspect" affordance. Click-to-zoom still works at any range; this is
 // purely the visual hover threshold so the cursor only changes when the
@@ -523,12 +539,24 @@ function canStepTo(
   // central well (radius < spiral inner radius) on those floors —
   // including when stepping off the spiral inward at a landing,
   // which would otherwise drop the player straight through the cutout.
+  // Same pass also enforces the cutout-edge rail clearance: those
+  // rails ring the cutout on every upper floor, with the same gate
+  // gap as the spiral's outer rail, so we keep the player's bbox out
+  // of the rail tube outside the gate window.
   if (floor.index > 0) {
     for (const s of [...floor.stairsOut, ...floor.stairsIn]) {
       const dx = toX - s.centerX;
       const dz = toZ - s.centerZ;
-      if (dx * dx + dz * dz < s.innerRadius * s.innerRadius) {
-        return false;
+      const r2 = dx * dx + dz * dz;
+      if (r2 < s.innerRadius * s.innerRadius) return false;
+      if (
+        r2 > CUTOUT_RAIL_INNER_BOUND * CUTOUT_RAIL_INNER_BOUND &&
+        r2 < CUTOUT_RAIL_OUTER_BOUND * CUTOUT_RAIL_OUTER_BOUND
+      ) {
+        const theta = Math.atan2(dz, dx);
+        const gateHalfArc = spiralGateHalfArc(s.numSteps);
+        const angDiff = Math.atan2(Math.sin(theta - s.entryAngle), Math.cos(theta - s.entryAngle));
+        if (Math.abs(angDiff) >= gateHalfArc) return false;
       }
     }
   }
