@@ -85,6 +85,15 @@ const RAIL_BAR_HEIGHT = 0.1;
  *  reading as a hand rail you could grip. */
 const RAIL_BAR_HALF_WIDTH = 0.05;
 const BALUSTER_SIZE = 0.07;
+/** Newel-cap finial radius. The rail tube is RAIL_BAR_HEIGHT (0.10) by
+ *  2*RAIL_BAR_HALF_WIDTH (0.10) in cross-section, so its open-end
+ *  rectangle has corners ≈ 0.0707 m from centre. A sphere of 0.085 m
+ *  radius wraps that rectangle with margin to spare, so the finial
+ *  always covers the open tube end (and any tiny inter-segment seam
+ *  between two abutting tubes) on every camera angle. Shared geometry
+ *  so all finials in the scene reuse one buffer. */
+const FINIAL_RADIUS = 0.085;
+const finialGeometry = new THREE.SphereGeometry(FINIAL_RADIUS, 18, 12);
 /** Vertical span of a baluster, measured between its top and bottom.
  *  Stops short of the rail's top by exactly RAIL_BAR_HEIGHT so the
  *  baluster's top sits flush with the rail's bottom face — without
@@ -255,7 +264,15 @@ function buildSpiralRail(
    *  would Z-fight against the next storey's start cap and read as
    *  visible seams every time the rail crosses a floor. */
   closeEnds: boolean,
-): { rail: THREE.BufferGeometry; balusters: Array<[number, number, number]> } {
+): {
+  rail: THREE.BufferGeometry;
+  balusters: Array<[number, number, number]>;
+  /** Centre-line positions where each contiguous tube segment starts
+   *  and ends — one entry per visible rail end. A finial sphere is
+   *  placed on each so the open tube cross-section is hidden and any
+   *  tiny seam between abutting segments is covered. */
+  endpoints: Array<[number, number, number]>;
+} {
   const { innerRadius, outerRadius, numSteps, direction, lowerY, upperY, entryAngle } = staircase;
   const stepAngle = ((Math.PI * 2) / numSteps) * direction;
   const stepRise = (upperY - lowerY) / numSteps;
@@ -285,12 +302,17 @@ function buildSpiralRail(
   };
 
   const balusters: Array<[number, number, number]> = [];
+  const endpoints: Array<[number, number, number]> = [];
   // Track the start of each contiguous tube segment so we can cap
   // both ends — when a gap interrupts the rail, or when the loop
   // finishes, we close the last open segment with a flat end cap so
-  // it doesn't read as an open tube end.
+  // it doesn't read as an open tube end. We also record the centreline
+  // position at each end so the renderer can place a finial sphere
+  // there.
   let segmentStartIdx = -1;
   let prevBaseIdx = -1;
+  let segmentStartCenter: [number, number, number] | null = null;
+  let lastSampleCenter: [number, number, number] | null = null;
 
   const closeSegment = () => {
     if (segmentStartIdx === -1 || prevBaseIdx === -1) return;
@@ -298,6 +320,8 @@ function buildSpiralRail(
       // Single-sample segment, nothing to cap.
       segmentStartIdx = -1;
       prevBaseIdx = -1;
+      segmentStartCenter = null;
+      lastSampleCenter = null;
       return;
     }
     if (closeEnds) {
@@ -310,8 +334,12 @@ function buildSpiralRail(
       indices.push(e + 0, e + 1, e + 2);
       indices.push(e + 0, e + 2, e + 3);
     }
+    if (segmentStartCenter) endpoints.push(segmentStartCenter);
+    if (lastSampleCenter) endpoints.push(lastSampleCenter);
     segmentStartIdx = -1;
     prevBaseIdx = -1;
+    segmentStartCenter = null;
+    lastSampleCenter = null;
   };
 
   for (let i = 0; i < numSteps; i++) {
@@ -319,7 +347,19 @@ function buildSpiralRail(
     const aEnd = entryAngle + (i + 1) * stepAngle;
     const lo = Math.min(aStart, aEnd);
     const hi = Math.max(aStart, aEnd);
-    for (let s = 0; s <= segPerStep; s++) {
+    // Skip s=0 for every step after the first: it sits at the same
+    // theta and Y as the previous step's s=segPerStep sample, so
+    // emitting both produces duplicate vertices at every step
+    // boundary with zero-area "bridge" faces between them.
+    // computeVertexNormals then averages each duplicate's normal
+    // from one side only (each duplicate is incident only to its
+    // OWN step's faces), so the two coincident vertices end up with
+    // DIFFERENT normals — a hard shading kink that reads as a flat
+    // panel-shaped seam every ~16° around the spiral. Step 0 keeps
+    // s=0 because that sample is the segment's first ring and has
+    // no predecessor to duplicate.
+    const sStart = i === 0 ? 0 : 1;
+    for (let s = sStart; s <= segPerStep; s++) {
       const t = s / segPerStep;
       const theta = lo + (hi - lo) * t;
       // Per-sample gating: the gap is an angular window around the
@@ -359,7 +399,15 @@ function buildSpiralRail(
         yTop - RAIL_BAR_HEIGHT,
         cz + oz * RAIL_BAR_HALF_WIDTH,
       );
-      if (segmentStartIdx === -1) segmentStartIdx = baseIdx;
+      // Centre-line of the tube cross-section at this sample — used
+      // for finial placement at each segment end.
+      const centerY = yTop - RAIL_BAR_HEIGHT / 2;
+      const sampleCenter: [number, number, number] = [cx, centerY, cz];
+      if (segmentStartIdx === -1) {
+        segmentStartIdx = baseIdx;
+        segmentStartCenter = sampleCenter;
+      }
+      lastSampleCenter = sampleCenter;
 
       if (prevBaseIdx !== -1) {
         const p = prevBaseIdx;
@@ -399,7 +447,7 @@ function buildSpiralRail(
   geom.setAttribute("position", new THREE.Float32BufferAttribute(positions, 3));
   geom.setIndex(indices);
   geom.computeVertexNormals();
-  return { rail: geom, balusters };
+  return { rail: geom, balusters, endpoints };
 }
 
 /** Build a set of stout horizontal beams — one per step — anchoring
@@ -569,6 +617,30 @@ export function StaircaseRenderer({ staircase }: { staircase: Staircase }) {
         <mesh key={`out-bal-${i}`} position={p} castShadow>
           <boxGeometry args={[BALUSTER_SIZE, BALUSTER_HEIGHT, BALUSTER_SIZE]} />
           <primitive object={balusterMaterial} attach="material" />
+        </mesh>
+      ))}
+
+      {/* Newel-cap finials at every rail terminus. Each open tube end
+          on a hand-built rectangular tube would otherwise expose its
+          interior to any camera looking down the tangent axis (most
+          visible at the entry gate, where the rail is sliced clean
+          through). The brass sphere wraps the cross-section with
+          margin to spare, so it covers the open end AND any tiny
+          shading/positional seam where two abutting tube segments
+          meet — e.g. the inner rail's per-revolution boundaries,
+          where stair N's last vertex ring butts against stair N+1's
+          first ring. Inner rail emits 2 finials per revolution (top
+          and bottom of the helix); the floor-boundary pair from two
+          adjacent stairs overlap into a single visible ball. Outer
+          rail emits 2 finials at the gate ends. */}
+      {innerRail.endpoints.map((p, i) => (
+        <mesh key={`in-finial-${i}`} position={p} geometry={finialGeometry} castShadow>
+          <primitive object={railTopMaterial} attach="material" />
+        </mesh>
+      ))}
+      {outerRail.endpoints.map((p, i) => (
+        <mesh key={`out-finial-${i}`} position={p} geometry={finialGeometry} castShadow>
+          <primitive object={railTopMaterial} attach="material" />
         </mesh>
       ))}
     </group>

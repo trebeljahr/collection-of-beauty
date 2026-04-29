@@ -597,42 +597,6 @@ function canStepTo(
       }
     }
   }
-  // Spiral outer-rail crossing guard. Any move that crosses the
-  // annulus boundary (r = outerRadius) outside the entry-direction
-  // gate would punch through the rendered outer railing. On upper
-  // floors the cutout-rail check above already enforces this with a
-  // larger exclusion ring, but on the ground floor there is no
-  // cutout rail — the spiral's outer rail is the only thing between
-  // the stairwell room and the annulus, and without this guard the
-  // player can walk straight through it at any angle, dropping into
-  // the spiral state machine at a non-gate angular position. The
-  // mismatch between cumulative=0 (where Y init lands) and the
-  // tread-top Y at that angle then puts them visually below the
-  // staircase while still climbing as they walk tangentially.
-  for (const s of [...floor.stairsOut, ...floor.stairsIn]) {
-    const dxF = fromX - s.centerX;
-    const dzF = fromZ - s.centerZ;
-    const fromR2 = dxF * dxF + dzF * dzF;
-    const dxT = toX - s.centerX;
-    const dzT = toZ - s.centerZ;
-    const toR2 = dxT * dxT + dzT * dzT;
-    const outerR2 = s.outerRadius * s.outerRadius;
-    if (fromR2 > outerR2 !== toR2 > outerR2) {
-      const gateHalfArc = spiralGateHalfArc(s.numSteps);
-      const thetaFrom = Math.atan2(dzF, dxF);
-      const angDiffFrom = Math.atan2(
-        Math.sin(thetaFrom - s.entryAngle),
-        Math.cos(thetaFrom - s.entryAngle),
-      );
-      if (Math.abs(angDiffFrom) >= gateHalfArc) return false;
-      const thetaTo = Math.atan2(dzT, dxT);
-      const angDiffTo = Math.atan2(
-        Math.sin(thetaTo - s.entryAngle),
-        Math.cos(thetaTo - s.entryAngle),
-      );
-      if (Math.abs(angDiffTo) >= gateHalfArc) return false;
-    }
-  }
   const stair = findStairAt(floor, toX, toZ);
   if (stair) {
     // On the spiral the inner and outer railings ring the steps

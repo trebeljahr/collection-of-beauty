@@ -29,6 +29,11 @@ const RAIL_HEIGHT = 1.05;
 const RAIL_BAR_HEIGHT = 0.1;
 const RAIL_BAR_HALF_WIDTH = 0.05;
 const BALUSTER_SIZE = 0.07;
+/** Newel-cap finial radius and shared sphere geometry. Mirrors the
+ *  matching constants in staircase.tsx so the cutout-rail's terminal
+ *  ball reads as the same architectural element as the spiral rail's. */
+const FINIAL_RADIUS = 0.085;
+const finialGeometry = new THREE.SphereGeometry(FINIAL_RADIUS, 18, 12);
 /** Vertical span of a baluster — stops at rail-bottom so the
  *  baluster top doesn't punch into the rail tube. Mirrors the same
  *  constant in staircase.tsx. */
@@ -58,19 +63,25 @@ function buildCutoutRailGeometry(
   y: number,
   entryAngle: number,
   gateHalfArc: number,
-): THREE.BufferGeometry {
+): { geom: THREE.BufferGeometry; endpoints: Array<[number, number, number]> } {
   const segments = 80;
   const positions: number[] = [];
   const indices: number[] = [];
+  const endpoints: Array<[number, number, number]> = [];
   let segmentStartIdx = -1;
   let prevBaseIdx = -1;
+  let segmentStartCenter: [number, number, number] | null = null;
+  let lastSampleCenter: [number, number, number] | null = null;
   const yTop = y + RAIL_HEIGHT;
+  const yCenter = yTop - RAIL_BAR_HEIGHT / 2;
 
   const closeSegment = () => {
     if (segmentStartIdx === -1 || prevBaseIdx === -1) return;
     if (segmentStartIdx === prevBaseIdx) {
       segmentStartIdx = -1;
       prevBaseIdx = -1;
+      segmentStartCenter = null;
+      lastSampleCenter = null;
       return;
     }
     const s = segmentStartIdx;
@@ -81,8 +92,12 @@ function buildCutoutRailGeometry(
     // End cap (faces away from the segment's trailing direction).
     indices.push(e + 0, e + 1, e + 2);
     indices.push(e + 0, e + 2, e + 3);
+    if (segmentStartCenter) endpoints.push(segmentStartCenter);
+    if (lastSampleCenter) endpoints.push(lastSampleCenter);
     segmentStartIdx = -1;
     prevBaseIdx = -1;
+    segmentStartCenter = null;
+    lastSampleCenter = null;
   };
 
   for (let s = 0; s <= segments; s++) {
@@ -112,7 +127,12 @@ function buildCutoutRailGeometry(
       yTop - RAIL_BAR_HEIGHT,
       cz + oz * RAIL_BAR_HALF_WIDTH,
     );
-    if (segmentStartIdx === -1) segmentStartIdx = baseIdx;
+    const sampleCenter: [number, number, number] = [cx, yCenter, cz];
+    if (segmentStartIdx === -1) {
+      segmentStartIdx = baseIdx;
+      segmentStartCenter = sampleCenter;
+    }
+    lastSampleCenter = sampleCenter;
 
     if (prevBaseIdx !== -1) {
       const p = prevBaseIdx;
@@ -134,7 +154,7 @@ function buildCutoutRailGeometry(
   geom.setAttribute("position", new THREE.Float32BufferAttribute(positions, 3));
   geom.setIndex(indices);
   geom.computeVertexNormals();
-  return geom;
+  return { geom, endpoints };
 }
 
 /** Sample a regular series of baluster positions around the cutout
@@ -179,13 +199,19 @@ export function StairwellAccents({ floor }: { floor: FloorLayout }) {
     const cz = reference.centerZ;
     const railR = SPIRAL_FLOOR_CUTOUT_RADIUS + 0.18;
     const gateHalfArc = spiralGateHalfArc(reference.numSteps);
-    const railGeom = buildCutoutRailGeometry(railR, floor.y, reference.entryAngle, gateHalfArc);
+    const { geom: railGeom, endpoints: railEndpoints } = buildCutoutRailGeometry(
+      railR,
+      floor.y,
+      reference.entryAngle,
+      gateHalfArc,
+    );
     const balusters = buildCutoutBalusters(railR, floor.y, reference.entryAngle, gateHalfArc);
     return {
       cx,
       cz,
       railR,
       railGeom,
+      railEndpoints,
       balusters,
       entryAngle: reference.entryAngle,
       gateHalfArc,
@@ -205,7 +231,18 @@ export function StairwellAccents({ floor }: { floor: FloorLayout }) {
   );
 
   if (!stairwell || !data) return null;
-  const { cx, cz, railR, railGeom, balusters, entryAngle, gateHalfArc, stairOut, stairIn } = data;
+  const {
+    cx,
+    cz,
+    railR,
+    railGeom,
+    railEndpoints,
+    balusters,
+    entryAngle,
+    gateHalfArc,
+    stairOut,
+    stairIn,
+  } = data;
   const hasCutout = floor.index > 0;
   // Gate posts sit ON the rail line — same radius as the rail —
   // so the rail terminates INTO the post instead of stopping next
@@ -262,6 +299,23 @@ export function StairwellAccents({ floor }: { floor: FloorLayout }) {
             <mesh key={`cutout-bal-${i}`} position={[cx + p[0], p[1], cz + p[2]]} castShadow>
               <boxGeometry args={[BALUSTER_SIZE, BALUSTER_HEIGHT, BALUSTER_SIZE]} />
               <primitive object={balusterMaterial} attach="material" />
+            </mesh>
+          ))}
+          {/* Brass finial caps where the cutout rail terminates at the
+              gate. Without these, the open rectangular tube ends are
+              visible as a black slot whenever the camera looks along
+              the rail's tangent direction (which the player does the
+              moment they walk up to the gate from the stairwell room).
+              The sphere also visually bridges any tiny seam between
+              this rail and the spiral outer rail's nearby terminus. */}
+          {railEndpoints.map((p, i) => (
+            <mesh
+              key={`cutout-finial-${i}`}
+              position={[cx + p[0], p[1], cz + p[2]]}
+              geometry={finialGeometry}
+              castShadow
+            >
+              <primitive object={railTopMaterial} attach="material" />
             </mesh>
           ))}
         </>
