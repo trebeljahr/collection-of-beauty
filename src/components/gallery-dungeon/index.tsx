@@ -394,7 +394,23 @@ export function GalleryDungeon({ artworks }: Props) {
           />
         </div>
       )}
-      {zoomed && <ZoomModal artwork={zoomed} onClose={() => setZoomed(null)} />}
+      {zoomed && (
+        <ZoomModal
+          artwork={zoomed}
+          onClose={(shouldRelock) => {
+            setZoomed(null);
+            // Re-engage pointer lock immediately on E or click — still
+            // inside a user gesture, so requestPointerLock works.
+            // Esc passes shouldRelock=false: Chrome blacklists pointer
+            // lock for ~1 s after the user pressed Esc, so attempting
+            // to relock there is silently denied. Touch devices have
+            // no pointer lock at all.
+            if (shouldRelock && !isTouch) {
+              canvasRef.current?.requestPointerLock?.();
+            }
+          }}
+        />
+      )}
       {/* Ambience player. Streams, loops, hidden from layout but kept
           in the DOM for the lifetime of the gallery so settings
           changes don't interrupt the loop. */}
