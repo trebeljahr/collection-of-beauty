@@ -56,12 +56,15 @@ export function getPaletteMaterials(palette: Palette): PaletteMaterials {
     floor: new THREE.MeshStandardMaterial({
       color: palette.floorColor,
       // roughness=1 with a roughnessMap means "use the map directly".
-      // metalness=0 keeps marble/wood/concrete as dielectrics — env
-      // map contributes only via Fresnel at grazing angles, which now
-      // reads as a subtle warm sheen since the scene's HDRI is the
-      // `sunset` preset (orange) rather than `apartment` (cool).
+      // metalness=0 keeps marble/wood/concrete as dielectrics.
+      // envMapIntensity=0 silences the HDRI's Fresnel contribution at
+      // grazing angles — even with the warm sunset preset the
+      // textured floors picked up reflections that read wrong.
+      // Untextured floors keep the default 1 since flat plaster
+      // benefits from a touch of env reflection.
       roughness: floorTextures ? 1 : 0.88,
       metalness: 0,
+      envMapIntensity: floorTextures ? 0 : 1,
       ...(floorTextures ?? {}),
     }),
     ceiling: new THREE.MeshStandardMaterial({
@@ -104,6 +107,7 @@ export function getRoomFloorMaterial(color: string, slug?: string): THREE.MeshSt
     // mirrors the per-room accent material so rooms and hallways match.
     roughness: textures ? 1 : 0.88,
     metalness: 0,
+    envMapIntensity: textures ? 0 : 1,
     // Stairwell floors above the player are viewed from below (looking
     // up through the well). Single-sided rendering would backface-cull
     // the underside and leave the scene's black backdrop showing through
