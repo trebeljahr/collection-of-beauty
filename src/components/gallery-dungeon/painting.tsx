@@ -200,18 +200,22 @@ function pickFrameVariant(artwork: Artwork): FrameVariantId {
 // flush to the wall, with a slightly inset cream face card on top
 // carrying title / artist / year / dimensions in three sized lines.
 
-// Cream face dims. Painting+plaque collision avoidance is enforced
-// upstream in place-paintings.ts (per-cell width caps + plaque-side
-// flip at right-corner cells), so the dimensions here can stay
-// readable without any half-cell budget juggling.
+// Cream face WIDTH is constant — placement code (place-paintings.ts)
+// caps painting widths against PLAQUE_FOOTPRINT, which is built from
+// this width plus PLAQUE_GAP. Don't change W without re-running
+// placement. HEIGHT is adaptive: long titles bump the plaque taller
+// so the title block doesn't crash through the byline (e.g. Hokusai
+// "Tenman Bridge at Settsu Province (Sesshū Tenmanbashi), from the
+// series Remarkable Views of Bridges in Various Provinces (Shokoku
+// meikyō kiran)" — 144 chars overflows the standard plaque).
 const PLAQUE_FACE_W = 0.28;
-const PLAQUE_FACE_H = 0.18;
+const PLAQUE_FACE_H_BASE = 0.18;
 const PLAQUE_FACE_DEPTH = 0.004;
 // Brushed-steel mount sits a hair larger than the face, framing it
 // like a polished metal rim. Bigger reveal here makes the shimmer
 // from the mount more visible at typical viewing distances.
-const PLAQUE_MOUNT_W = PLAQUE_FACE_W + 0.028;
-const PLAQUE_MOUNT_H = PLAQUE_FACE_H + 0.028;
+const PLAQUE_MOUNT_REVEAL = 0.014;
+const PLAQUE_MOUNT_W = PLAQUE_FACE_W + PLAQUE_MOUNT_REVEAL * 2;
 const PLAQUE_MOUNT_DEPTH = 0.008;
 const PLAQUE_GAP = 0.06;
 // `placement.position` is offset PAINTING_WALL_OFFSET (= 0.02 m) into
@@ -225,6 +229,22 @@ const PAINTING_WALL_OFFSET = 0.02;
 // for far-room viewing without making the plaque look detached.
 const PLAQUE_WALL_CLEAR = 0.005;
 
+const PLAQUE_TITLE_FONT = 0.022;
+const PLAQUE_TITLE_LH = 1.15;
+const PLAQUE_BYLINE_FONT = 0.018;
+const PLAQUE_BYLINE_LH = 1.2;
+const PLAQUE_DIMS_FONT = 0.014;
+const PLAQUE_DIMS_LH = 1.15;
+const PLAQUE_TEXT_PAD = 0.012;
+const PLAQUE_LINE_GAP = 0.006;
+/** Chars per line at the title font / plaque width — used to estimate
+ *  how many lines a title will wrap to so we can size the plaque. The
+ *  drei <Text> default font averages ≈ 0.55 × fontSize per glyph; with
+ *  the title font 0.022 m and useful width 0.258 m that lands at ≈ 21
+ *  chars/line for ASCII and a bit fewer with diacritics. 22 is a safe
+ *  underestimate so the line count rounds up. */
+const PLAQUE_TITLE_CHARS_PER_LINE = 22;
+
 function Plaque({
   artwork,
   widthM,
@@ -234,6 +254,28 @@ function Plaque({
   widthM: number;
   plaqueOnLeft: boolean;
 }) {
+  const title = formatTitle(artwork.title, artwork.artist ?? undefined);
+  const byline = formatByline(artwork);
+  const dims = artwork.realDimensions
+    ? `${artwork.realDimensions.widthCm.toFixed(0)} × ${artwork.realDimensions.heightCm.toFixed(0)} cm`
+    : "";
+
+  // Adaptive plaque height. Estimate the title's line count, then
+  // size the face so title + byline + dims stack with a margin top
+  // and bottom and a small gap between blocks. Standard short titles
+  // (≤ 22 chars / 1 line) come out at the original 0.18 m; longer
+  // titles grow the plaque proportionally so multi-line wraps don't
+  // crash into the byline below.
+  const titleLines = Math.max(1, Math.ceil(title.length / PLAQUE_TITLE_CHARS_PER_LINE));
+  const titleBlockH = titleLines * PLAQUE_TITLE_FONT * PLAQUE_TITLE_LH;
+  const bylineBlockH = PLAQUE_BYLINE_FONT * PLAQUE_BYLINE_LH;
+  const dimsBlockH = dims ? PLAQUE_DIMS_FONT * PLAQUE_DIMS_LH : 0;
+  const dimsGap = dims ? PLAQUE_LINE_GAP : 0;
+  const stackedH =
+    PLAQUE_TEXT_PAD * 2 + titleBlockH + PLAQUE_LINE_GAP + bylineBlockH + dimsGap + dimsBlockH;
+  const PLAQUE_FACE_H = Math.max(PLAQUE_FACE_H_BASE, stackedH);
+  const PLAQUE_MOUNT_H = PLAQUE_FACE_H + PLAQUE_MOUNT_REVEAL * 2;
+
   // Default hang is to the painting's right (local +X). Flip to the
   // left at right-corner cells so the plaque doesn't crash through the
   // perpendicular wall there.
@@ -247,13 +289,14 @@ function Plaque({
   const faceCenterZ = mountCenterZ + PLAQUE_MOUNT_DEPTH / 2 + PLAQUE_FACE_DEPTH / 2;
   const textZ = faceCenterZ + PLAQUE_FACE_DEPTH / 2 + 0.001;
 
-  const title = stripBrackets(artwork.title);
-  const artist = artwork.artist ?? "Unknown";
-  const year = artwork.year ? String(artwork.year) : "";
-  const byline = year ? `${artist}, ${year}` : artist;
-  const dims = artwork.realDimensions
-    ? `${artwork.realDimensions.widthCm.toFixed(0)} × ${artwork.realDimensions.heightCm.toFixed(0)} cm`
-    : "";
+  // Top-aligned text stack — title hugs the top edge, byline sits one
+  // gap below the title block, dims one gap below the byline. Anchor
+  // top so positions describe each block's UPPER edge regardless of
+  // line count.
+  const topY = PLAQUE_FACE_H / 2 - PLAQUE_TEXT_PAD;
+  const titleTopY = topY;
+  const bylineTopY = titleTopY - titleBlockH - PLAQUE_LINE_GAP;
+  const dimsTopY = bylineTopY - bylineBlockH - PLAQUE_LINE_GAP;
 
   return (
     <group position={[localX, localY, 0]}>
@@ -269,13 +312,13 @@ function Plaque({
       </mesh>
       {/* Title — bold and largest. */}
       <Text
-        position={[0, PLAQUE_FACE_H * 0.28, textZ]}
-        fontSize={0.022}
-        lineHeight={1.15}
+        position={[0, titleTopY, textZ]}
+        fontSize={PLAQUE_TITLE_FONT}
+        lineHeight={PLAQUE_TITLE_LH}
         color="#0d0a08"
         fontWeight={700}
         anchorX="center"
-        anchorY="middle"
+        anchorY="top"
         maxWidth={PLAQUE_FACE_W - 0.022}
         textAlign="center"
       >
@@ -283,12 +326,12 @@ function Plaque({
       </Text>
       {/* Artist · year */}
       <Text
-        position={[0, 0, textZ]}
-        fontSize={0.018}
-        lineHeight={1.2}
+        position={[0, bylineTopY, textZ]}
+        fontSize={PLAQUE_BYLINE_FONT}
+        lineHeight={PLAQUE_BYLINE_LH}
         color="#1c1410"
         anchorX="center"
-        anchorY="middle"
+        anchorY="top"
         maxWidth={PLAQUE_FACE_W - 0.022}
         textAlign="center"
       >
@@ -297,12 +340,12 @@ function Plaque({
       {/* Dimensions — smaller, slightly lighter. */}
       {dims && (
         <Text
-          position={[0, -PLAQUE_FACE_H * 0.32, textZ]}
-          fontSize={0.014}
-          lineHeight={1.15}
+          position={[0, dimsTopY, textZ]}
+          fontSize={PLAQUE_DIMS_FONT}
+          lineHeight={PLAQUE_DIMS_LH}
           color="#3a2c22"
           anchorX="center"
-          anchorY="middle"
+          anchorY="top"
           maxWidth={PLAQUE_FACE_W - 0.022}
           textAlign="center"
         >
@@ -313,14 +356,114 @@ function Plaque({
   );
 }
 
-/** Trim Wikimedia title noise: `label QS:Len,"Foo"` → `Foo`, drop
- *  trailing language-tagged duplicates. */
-function stripBrackets(title: string): string {
-  const m = title.match(/label QS:L\w+,"([^"]+)"/);
-  if (m) return m[1];
-  const cut = title.indexOf(" label QS:");
-  if (cut > 0) return title.slice(0, cut).trim();
-  return title;
+/** Normalise an artwork title for plaque display. Strips a handful
+ *  of common upstream-import patterns that bloat the title without
+ *  adding information at gallery-viewing scale:
+ *
+ *   - Wikimedia label noise: `label QS:Len,"Foo"` → `Foo`.
+ *   - Stray `" Alternative title:` Wikidata segments — keep just the
+ *     first quoted variant.
+ *   - "from the series ..." Hokusai-style suffixes plus their
+ *     parenthetical Japanese transliterations: the series name is
+ *     redundant in a gallery setting and pushes single titles past
+ *     150 chars.
+ *   - Dataset breadcrumbs: " - Google Art Project", " - Google
+ *     Cultural Institute", trailing ".jpg" filename remnants.
+ *   - Audubon plate-list titles ("434 I. Little Tyrant Fly-catcher
+ *     - 2. Small-headed Fly-catcher - …") collapsed to "Plate 434:
+ *     Little Tyrant Fly-catcher (and N more)". */
+function formatTitle(rawTitle: string, artist?: string): string {
+  let t = rawTitle.trim();
+
+  const labelMatch = t.match(/label QS:L\w+,"([^"]+)"/);
+  if (labelMatch) t = labelMatch[1];
+  const labelCut = t.indexOf(" label QS:");
+  if (labelCut > 0) t = t.slice(0, labelCut).trim();
+
+  const altIdx = t.indexOf(`" Alternative title:`);
+  if (altIdx > 0) {
+    t = t.slice(0, altIdx).trim();
+    if (t.startsWith(`"`)) t = t.slice(1).trim();
+  }
+  const altIdx2 = t.indexOf("Alternative title");
+  if (altIdx2 > 0)
+    t = t
+      .slice(0, altIdx2)
+      .replace(/[":\s]+$/, "")
+      .trim();
+
+  const seriesIdx = t.indexOf(", from the series ");
+  if (seriesIdx > 0) t = t.slice(0, seriesIdx).trim();
+
+  t = t.replace(/\s+-\s+Google Art Project$/i, "");
+  t = t.replace(/\s+-\s+Google Cultural Institute$/i, "");
+  t = t.replace(/\s+C2RMF(\s+retouched)?\s*$/i, "");
+  t = t.replace(/\.jpe?g$/i, "");
+  t = t.replace(/^\d+px-/, "");
+
+  // "Artist - Title" prefix — if the title leads with the artist's
+  // name followed by a separator, drop it (the byline already shows
+  // the artist). Only fires when the artist field is non-empty so
+  // we don't strip a meaningful word that happens to share the title.
+  if (artist) {
+    const a = artist.trim();
+    const prefix = `${a} - `;
+    if (a.length > 1 && t.toLowerCase().startsWith(prefix.toLowerCase())) {
+      t = t.slice(prefix.length).trim();
+    }
+  }
+
+  const audubonMatch = t.match(/^(\d{2,4})\s+I\.\s+(.+)$/);
+  if (audubonMatch) {
+    const plateNum = audubonMatch[1];
+    const rest = audubonMatch[2];
+    const items = rest.split(/\s*-\s*\d+\.\s*/);
+    const first = items[0]?.trim();
+    const more = items.length - 1;
+    if (first) {
+      t = more > 0 ? `Plate ${plateNum}: ${first} (+${more} more)` : `Plate ${plateNum}: ${first}`;
+    }
+  }
+
+  t = t
+    .replace(/_/g, " ")
+    .replace(/\s{2,}/g, " ")
+    .trim();
+  return t;
+}
+
+/** Format the artist+year line for the plaque. Strips filename junk
+ *  ("Foo_bar.jpg : Artist Name") and dedupes repeated attributions
+ *  from comma/slash-separated artist fields. */
+function formatByline(artwork: Artwork): string {
+  let artist = artwork.artist?.trim() ?? "Unknown";
+  if (artist.includes(".jpg") || artist.includes(".jpeg")) {
+    const colonParts = artist.split(/\s*:\s*/);
+    const named = colonParts.filter((p) => !/\.jpe?g/i.test(p) && p.trim().length > 0);
+    if (named.length > 0) {
+      const seen = new Set<string>();
+      artist = named
+        .filter((p) => {
+          const key = p.toLowerCase();
+          if (seen.has(key)) return false;
+          seen.add(key);
+          return true;
+        })
+        .join(" / ");
+    }
+  }
+  artist = artist
+    .replace(/derivative work[^,]*$/i, "")
+    .trim()
+    .replace(/[,/]\s*$/, "");
+
+  const slashParts = artist.split(/\s*\/\s*/);
+  if (slashParts.length > 2) {
+    artist = `${slashParts[0]} et al.`;
+  }
+
+  const year = artwork.year ? String(artwork.year) : "";
+  return year ? `${artist}, ${year}` : artist;
 }
 
 function PaintingPlane({
