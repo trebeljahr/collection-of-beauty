@@ -6,12 +6,13 @@ import { useEffect, useRef } from "react";
 import * as THREE from "three";
 import type { Artwork } from "@/lib/data";
 import type { FloorLayout, Staircase } from "@/lib/gallery-layout/types";
-import { CELL_SIZE } from "@/lib/gallery-layout/world-coords";
+import { CELL_SIZE, SPIRAL_COLUMN_RADIUS } from "@/lib/gallery-layout/world-coords";
 import { raycastNearestPainting } from "./painting-registry";
 import {
   findStairAbove,
   findStairBelow,
   isInsideStair,
+  spiralGateHalfArc,
   spiralRawAngle,
   stairHeightAt,
 } from "./staircase";
@@ -24,6 +25,14 @@ const GRAVITY = 22;
 // Keep the player this far back from a wall face. Cell-size is 2.5 m;
 // 0.3 m leaves headroom for the wall plane + trim geometry.
 const PLAYER_RADIUS = 0.3;
+// Radial buffer inside the spiral annulus — keeps the player's bbox
+// clear of the inner and outer railings while walking on the steps.
+// The rails are at innerRadius+0.07 (centre) with 0.05 m radial half
+// width, so the rail's near face sits 0.12 m inside the annulus on
+// each side. Adding PLAYER_RADIUS plus a 0.05 m elbow gives 0.42 m of
+// total clearance — without this the player can plant their face
+// inside the rail bar at either edge of the steps.
+const SPIRAL_RAIL_CLEARANCE = 0.07 + 0.05 + PLAYER_RADIUS + 0.05;
 // Max distance (m) at which the crosshair swaps to the magnifying-glass
 // "inspect" affordance. Click-to-zoom still works at any range; this is
 // purely the visual hover threshold so the cursor only changes when the
@@ -494,6 +503,18 @@ function canStepTo(
   currentStairId: string | null,
   currentCum: number,
 ): boolean {
+  // Central column guard — the stone spine sits at every spiral's
+  // centre (SPIRAL_COLUMN_RADIUS). Block targets whose centre lands
+  // inside the column plus a player-radius buffer; on upper floors
+  // this is mostly redundant with the open-well guard below, but on
+  // the ground floor the well is walkable and the column is the
+  // only thing in there.
+  const columnBlockR = SPIRAL_COLUMN_RADIUS + PLAYER_RADIUS;
+  for (const s of [...floor.stairsOut, ...floor.stairsIn]) {
+    const dx = toX - s.centerX;
+    const dz = toZ - s.centerZ;
+    if (dx * dx + dz * dz < columnBlockR * columnBlockR) return false;
+  }
   // Open-well guard. On every floor above the ground there's a
   // circular hole in the stairwell floor exposing the spiral going
   // down; the cells inside that hole are still flagged walkable in
@@ -512,7 +533,33 @@ function canStepTo(
     }
   }
   const stair = findStairAt(floor, toX, toZ);
-  if (stair) return true;
+  if (stair) {
+    // On the spiral the inner and outer railings ring the steps
+    // close enough that the player's bbox would clip through them
+    // at the annulus edges. Constrain the player's centre to a
+    // narrower walking annulus that keeps their bbox a finger's
+    // width clear of both rails. The OUTER rail has a gate gap
+    // around the entry direction (so the player can step on/off
+    // the spiral); inside the gap the outer constraint is dropped,
+    // otherwise the player could enter the spiral but never leave.
+    const dx = toX - stair.centerX;
+    const dz = toZ - stair.centerZ;
+    const r2 = dx * dx + dz * dz;
+    const minR = stair.innerRadius + SPIRAL_RAIL_CLEARANCE;
+    if (r2 < minR * minR) return false;
+    const theta = Math.atan2(dz, dx);
+    const gateHalfArc = spiralGateHalfArc(stair.numSteps);
+    const angDiff = Math.atan2(
+      Math.sin(theta - stair.entryAngle),
+      Math.cos(theta - stair.entryAngle),
+    );
+    const inGate = Math.abs(angDiff) < gateHalfArc;
+    if (!inGate) {
+      const maxR = stair.outerRadius - SPIRAL_RAIL_CLEARANCE;
+      if (r2 > maxR * maxR) return false;
+    }
+    return true;
+  }
   if (currentStairId !== null) {
     // Trying to leave the spiral. Allow only when the player's
     // cumulative is in a "landing" arc near 0 or 2π — the heights

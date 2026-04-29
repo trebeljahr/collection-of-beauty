@@ -23,9 +23,16 @@ export const CORRIDOR_DOOR_HEIGHT = 2.6; // slightly lower on hallway side
 // inner railing and see all the way down. The outer radius leaves
 // breathing room in the stairwell room so the space doesn't read as
 // cramped.
-export const SPIRAL_INNER_RADIUS = 2.6; // open well — no central column
+export const SPIRAL_INNER_RADIUS = 2.6; // inner edge of treads
 export const SPIRAL_OUTER_RADIUS = 5.4; // outer edge of treads
 export const SPIRAL_STEPS_PER_FLOOR = 22; // ~16° per step
+/** Radius of the stone spine running through the centre of the spiral.
+ *  Sized well inside SPIRAL_INNER_RADIUS so it never intrudes on the
+ *  walking annulus, but visible from the well — gives the helix a
+ *  shared masonry anchor instead of looking free-floating. Player
+ *  collision uses this + PLAYER_RADIUS as a hard stop on the ground
+ *  floor, where the well is otherwise unfenced. */
+export const SPIRAL_COLUMN_RADIUS = 0.7;
 /** Stairwell room footprint in cells. Must be odd so it centres cleanly. */
 export const SPIRAL_ROOM_CELLS = 9;
 /** Radius the floor cutout uses around the spiral. Sits just outside

@@ -4,6 +4,7 @@ import { Text } from "@react-three/drei";
 import { useMemo } from "react";
 import * as THREE from "three";
 import type { Staircase } from "@/lib/gallery-layout/types";
+import { SPIRAL_COLUMN_RADIUS } from "@/lib/gallery-layout/world-coords";
 import { signBaseMaterial } from "./palette-materials";
 
 // Shared materials — one "stair vocabulary" for every spiral in the
@@ -29,8 +30,24 @@ const balusterMaterial = new THREE.MeshStandardMaterial({
   roughness: 0.7,
   metalness: 0.4,
 });
+const columnMaterial = new THREE.MeshStandardMaterial({
+  // Warm dark stone for the central column — distinct from the
+  // wood treads (lighter, more matte) and the iron baluster/posts
+  // (lighter, less metallic) so the column reads as the masonry
+  // spine the steps wrap around.
+  color: "#54463a",
+  roughness: 0.85,
+  metalness: 0.05,
+});
+const bracketMaterial = new THREE.MeshStandardMaterial({
+  // Same wrought-iron family as the balusters — the radial
+  // brackets read as forged hardware tying each tread to the
+  // column, not as part of the stone itself.
+  color: "#1a120a",
+  roughness: 0.7,
+  metalness: 0.45,
+});
 
-const TREAD_THICKNESS = 0.16;
 const RAIL_HEIGHT = 1.05;
 /** Vertical thickness of the rail bar. */
 const RAIL_BAR_HEIGHT = 0.1;
@@ -127,7 +144,16 @@ function buildTreadGeometry(
  *  `lowerY + i * stepRise`. Step 0 is flush with the lower floor.
  *  When the player crosses cumulative=2π onto the next stair, that
  *  stair's step 0 is at `upperY`, giving the final +stepRise climb
- *  onto the upper floor with no visual gap or floating tread. */
+ *  onto the upper floor with no visual gap or floating tread.
+ *
+ *  Each wedge is a FULL-RISE-THICK block: bottom at the previous
+ *  step's top Y, top at this step's top Y. The radial side cap
+ *  between adjacent steps therefore covers the entire step rise,
+ *  so there's no see-through gap between treads from any angle.
+ *  The lowest step's bottom sinks one rise below `lowerY`; on the
+ *  ground revolution that's hidden under the slab, on upper
+ *  revolutions it stacks flush on the previous revolution's last
+ *  tread, giving the spiral a single continuous helical mass. */
 function buildSpiralStepsGeometry(staircase: Staircase): THREE.BufferGeometry {
   const { innerRadius, outerRadius, numSteps, direction, lowerY, upperY, entryAngle } = staircase;
   const stepAngle = ((Math.PI * 2) / numSteps) * direction;
@@ -148,7 +174,7 @@ function buildSpiralStepsGeometry(staircase: Staircase): THREE.BufferGeometry {
       lo,
       hi,
       topY,
-      TREAD_THICKNESS,
+      stepRise,
       segPerStep,
     );
     const base = positions.length / 3;
@@ -199,10 +225,7 @@ function buildSpiralRail(
   // with it.
   const inGap = (theta: number): boolean => {
     if (gateHalfArc <= 0) return false;
-    const angDiff = Math.atan2(
-      Math.sin(theta - entryAngle),
-      Math.cos(theta - entryAngle),
-    );
+    const angDiff = Math.atan2(Math.sin(theta - entryAngle), Math.cos(theta - entryAngle));
     return Math.abs(angDiff) < gateHalfArc;
   };
 
@@ -267,16 +290,8 @@ function buildSpiralRail(
       const baseIdx = positions.length / 3;
       // Vertex layout: 0=TO (top-outer), 1=TI (top-inner),
       //                2=BI (bot-inner), 3=BO (bot-outer).
-      positions.push(
-        cx + ox * RAIL_BAR_HALF_WIDTH,
-        yTop,
-        cz + oz * RAIL_BAR_HALF_WIDTH,
-      );
-      positions.push(
-        cx - ox * RAIL_BAR_HALF_WIDTH,
-        yTop,
-        cz - oz * RAIL_BAR_HALF_WIDTH,
-      );
+      positions.push(cx + ox * RAIL_BAR_HALF_WIDTH, yTop, cz + oz * RAIL_BAR_HALF_WIDTH);
+      positions.push(cx - ox * RAIL_BAR_HALF_WIDTH, yTop, cz - oz * RAIL_BAR_HALF_WIDTH);
       positions.push(
         cx - ox * RAIL_BAR_HALF_WIDTH,
         yTop - RAIL_BAR_HEIGHT,
@@ -326,6 +341,51 @@ function buildSpiralRail(
   return { rail: geom, balusters };
 }
 
+/** Build a set of horizontal radial brackets — one per step —
+ *  anchoring the inner edge of each tread to the central stone
+ *  column. Each bracket is a small box laid flat along the radial
+ *  axis at the step's start angle, sitting at the step's top Y.
+ *  Visually, this turns the spiral from a free-floating ribbon of
+ *  wedges into a column-and-bracket structure with each tread
+ *  visibly tied back to the spine. */
+function buildStepBrackets(staircase: Staircase): Array<{
+  position: [number, number, number];
+  rotationY: number;
+  length: number;
+}> {
+  const { numSteps, direction, lowerY, upperY, innerRadius, entryAngle } = staircase;
+  const stepAngle = ((Math.PI * 2) / numSteps) * direction;
+  const stepRise = (upperY - lowerY) / numSteps;
+  // Brackets reach from just outside the column to a hair short of
+  // the inner tread edge; they tuck under the tread so the visible
+  // top face of each bracket sits flush with the underside of its
+  // step.
+  const innerR = SPIRAL_COLUMN_RADIUS + 0.02;
+  const outerR = innerRadius - 0.02;
+  const length = outerR - innerR;
+  const out: Array<{
+    position: [number, number, number];
+    rotationY: number;
+    length: number;
+  }> = [];
+  for (let i = 0; i < numSteps; i++) {
+    const a = entryAngle + i * stepAngle;
+    const midR = (innerR + outerR) / 2;
+    // Bracket top sits a hair under the tread's underside; tread
+    // bottom is at topY - stepRise where topY = lowerY + i*stepRise,
+    // so the bracket centreline is at that Y minus half the
+    // bracket's vertical thickness (0.08 / 2).
+    const treadTopY = lowerY + i * stepRise;
+    const bracketTopY = treadTopY - stepRise - 0.005;
+    out.push({
+      position: [midR * Math.cos(a), bracketTopY - 0.04, midR * Math.sin(a)],
+      rotationY: a,
+      length,
+    });
+  }
+  return out;
+}
+
 /**
  * Render one revolution of the open-well spiral. Treads are real
  * wedge geometry (top, bottom, inner curve, outer curve, riser caps)
@@ -337,9 +397,16 @@ function buildSpiralRail(
  * directional signs themselves live on gate posts placed by the
  * stairwell-accents component, where they can sit flush against
  * substantial railing posts at floor level.
+ *
+ * A central stone column runs through the open well from this
+ * revolution's lower floor to its upper floor; the column segments
+ * stack continuously across stories, giving the entire helix a
+ * shared masonry spine. Per-step iron brackets reach from the
+ * column out to the inner edge of each tread, so the steps read as
+ * cantilevered off the column rather than floating in space.
  */
 export function StaircaseRenderer({ staircase }: { staircase: Staircase }) {
-  const { centerX, centerZ } = staircase;
+  const { centerX, centerZ, lowerY, upperY } = staircase;
 
   const stepsGeom = useMemo(() => buildSpiralStepsGeometry(staircase), [staircase]);
   const innerRail = useMemo(() => buildSpiralRail(staircase, "inner", 0), [staircase]);
@@ -347,13 +414,41 @@ export function StaircaseRenderer({ staircase }: { staircase: Staircase }) {
     () => buildSpiralRail(staircase, "outer", spiralGateHalfArc(staircase.numSteps)),
     [staircase],
   );
+  const brackets = useMemo(() => buildStepBrackets(staircase), [staircase]);
+  const columnHeight = upperY - lowerY;
+  const columnY = (lowerY + upperY) / 2;
 
   return (
     <group position={[centerX, 0, centerZ]}>
+      {/* Central stone column — the structural spine the steps
+          wrap around. Sized well inside the spiral's inner radius
+          (column r = SPIRAL_COLUMN_RADIUS, well inner edge at
+          innerRadius = 2.6 m) so it never intrudes on the walking
+          annulus. Per-revolution segments stack at floor levels
+          to read as one continuous column from floor 0 to the
+          top. */}
+      <mesh position={[0, columnY, 0]} castShadow receiveShadow>
+        <cylinderGeometry args={[SPIRAL_COLUMN_RADIUS, SPIRAL_COLUMN_RADIUS, columnHeight, 32]} />
+        <primitive object={columnMaterial} attach="material" />
+      </mesh>
+
       {/* Treads — single merged mesh per stair. */}
       <mesh geometry={stepsGeom} castShadow receiveShadow>
         <primitive object={treadMaterial} attach="material" />
       </mesh>
+
+      {/* Per-step radial brackets tying each tread back to the
+          column. Reads as forged iron hardware anchoring the
+          wooden treads to the masonry spine. */}
+      {brackets.map((b, i) => (
+        <mesh key={`bracket-${i}`} position={b.position} rotation={[0, b.rotationY, 0]} castShadow>
+          {/* Box laid along the +X local axis after Y rotation:
+              X = radial length, Y = vertical thickness (8 cm),
+              Z = tangential thickness (10 cm). */}
+          <boxGeometry args={[b.length, 0.08, 0.1]} />
+          <primitive object={bracketMaterial} attach="material" />
+        </mesh>
+      ))}
 
       {/* Inner railing around the open well. */}
       <mesh geometry={innerRail.rail} castShadow>
