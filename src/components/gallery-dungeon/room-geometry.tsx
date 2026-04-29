@@ -7,6 +7,7 @@ import type { RoomLayout } from "@/lib/gallery-layout/types";
 import {
   CELL_SIZE,
   DOOR_HEIGHT,
+  FLOOR_THICKNESS,
   ROOM_HEIGHT,
   SPIRAL_FLOOR_CUTOUT_RADIUS,
 } from "@/lib/gallery-layout/world-coords";
@@ -97,13 +98,24 @@ export function RoomGeometry({
   return (
     <group>
       {hasFloor && (
-        <mesh
-          rotation={[-Math.PI / 2, 0, 0]}
-          position={[cxWorld, floorY, czWorld]}
-          geometry={floorGeom}
-        >
-          <primitive object={floorMat} attach="material" />
-        </mesh>
+        <>
+          <mesh
+            rotation={[-Math.PI / 2, 0, 0]}
+            position={[cxWorld, floorY, czWorld]}
+            geometry={floorGeom}
+          >
+            <primitive object={floorMat} attach="material" />
+          </mesh>
+          {/* Slab body — same XZ footprint as the walking surface
+              above, dropped 1 mm so the textured plane wins the
+              z-fight on top. Renders the underside + cross-section
+              edges that make the floor read as a real slab from the
+              open well or any wall opening. */}
+          <mesh position={[cxWorld, floorY - FLOOR_THICKNESS / 2 - 0.001, czWorld]}>
+            <boxGeometry args={[width, FLOOR_THICKNESS, depth]} />
+            <primitive object={floorMat} attach="material" />
+          </mesh>
+        </>
       )}
       {hasCeiling && (
         <mesh rotation={[Math.PI / 2, 0, 0]} position={[cxWorld, floorY + ROOM_HEIGHT, czWorld]}>
@@ -236,7 +248,7 @@ function StairwellFloor({
   floorMat: THREE.MeshStandardMaterial;
   cutHole: boolean;
 }) {
-  const geom = useMemo(() => {
+  const { topGeom, slabGeom } = useMemo(() => {
     const shape = new THREE.Shape();
     const halfW = width / 2;
     const halfD = depth / 2;
@@ -250,14 +262,35 @@ function StairwellFloor({
       hole.absarc(0, 0, SPIRAL_FLOOR_CUTOUT_RADIUS, 0, Math.PI * 2, false);
       shape.holes.push(hole);
     }
-    const g = new THREE.ShapeGeometry(shape, 32);
+    const top = new THREE.ShapeGeometry(shape, 32);
     // Shape lives on XY plane; rotate it down onto XZ so it lies flat.
-    g.rotateX(-Math.PI / 2);
-    return g;
+    top.rotateX(-Math.PI / 2);
+    // Slab body: same shape extruded by FLOOR_THICKNESS so the
+    // underside and the cylindrical inner wall of the cutout (a real
+    // ring of stone visible from below) both render. Local Y after
+    // rotateX(-π/2) ends up in [0, FLOOR_THICKNESS]; offset it to
+    // [-FLOOR_THICKNESS, 0] so the mesh's local origin matches the
+    // top plane and we can position both at the same Y.
+    const slab = new THREE.ExtrudeGeometry(shape, {
+      depth: FLOOR_THICKNESS,
+      bevelEnabled: false,
+      curveSegments: 32,
+    });
+    slab.rotateX(-Math.PI / 2);
+    slab.translate(0, -FLOOR_THICKNESS, 0);
+    return { topGeom: top, slabGeom: slab };
   }, [width, depth, cutHole]);
   return (
-    <mesh geometry={geom} position={[cxWorld, floorY - 0.005, czWorld]} receiveShadow>
-      <primitive object={floorMat} attach="material" />
-    </mesh>
+    <>
+      <mesh geometry={topGeom} position={[cxWorld, floorY - 0.005, czWorld]} receiveShadow>
+        <primitive object={floorMat} attach="material" />
+      </mesh>
+      {/* Slab body — extruded floor underneath the walking surface,
+          with the cutout punched through. Visible from below (open
+          well) and provides the cylindrical inner wall of the hole. */}
+      <mesh geometry={slabGeom} position={[cxWorld, floorY - 0.006, czWorld]}>
+        <primitive object={floorMat} attach="material" />
+      </mesh>
+    </>
   );
 }

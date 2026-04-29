@@ -2,7 +2,7 @@
 
 import * as THREE from "three";
 import type { FloorLayout, HallwayLayout } from "@/lib/gallery-layout/types";
-import { CELL_SIZE, CORRIDOR_HEIGHT } from "@/lib/gallery-layout/world-coords";
+import { CELL_SIZE, CORRIDOR_HEIGHT, FLOOR_THICKNESS } from "@/lib/gallery-layout/world-coords";
 import { Painting } from "./painting";
 import { getPaletteMaterials } from "./palette-materials";
 import { SolidWall } from "./wall";
@@ -23,6 +23,12 @@ const HALLWAY_CELL_FLOOR_GEOM = (() => {
   }
   return g;
 })();
+
+/** Slab body for a hallway cell — gives the corridor visible thickness
+ *  when seen from the open well or any opening in the floor below. The
+ *  walking surface above is the textured plane; this box just renders
+ *  the underside + cross-section edges. */
+const HALLWAY_CELL_SLAB_GEOM = new THREE.BoxGeometry(CELL_SIZE, FLOOR_THICKNESS, CELL_SIZE);
 
 /** Stride between overhead lamps in the corridor — one lamp every N
  *  cells. Too dense and the cost to the renderer climbs; too sparse
@@ -91,6 +97,15 @@ export function HallwayRenderer({
               rotation={[-Math.PI / 2, 0, 0]}
               position={[cx, floorY, cz]}
               geometry={HALLWAY_CELL_FLOOR_GEOM}
+            >
+              <primitive object={mats.floor} attach="material" />
+            </mesh>
+            {/* Slab body — 1 mm below the walking plane, so the
+                visible top is the UV-scaled plane and this just adds
+                the thickness underneath. */}
+            <mesh
+              position={[cx, floorY - FLOOR_THICKNESS / 2 - 0.001, cz]}
+              geometry={HALLWAY_CELL_SLAB_GEOM}
             >
               <primitive object={mats.floor} attach="material" />
             </mesh>

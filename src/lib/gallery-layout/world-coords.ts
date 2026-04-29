@@ -33,6 +33,11 @@ export const SPIRAL_STEPS_PER_FLOOR = 22; // ~16° per step
  *  collision uses this + PLAYER_RADIUS as a hard stop on the ground
  *  floor, where the well is otherwise unfenced. */
 export const SPIRAL_COLUMN_RADIUS = 0.7;
+/** Visible floor slab thickness. The walking surface (a UV-scaled
+ *  plane) stays at `floorY`; an extra slab mesh sits 1 mm under it
+ *  so floors stop reading as paper-thin sheets when seen from below
+ *  (open well) or in cross-section at the cutout edges. */
+export const FLOOR_THICKNESS = 0.35;
 /** Stairwell room footprint in cells. Must be odd so it centres cleanly. */
 export const SPIRAL_ROOM_CELLS = 9;
 /** Radius the floor cutout uses around the spiral. Sits just outside
