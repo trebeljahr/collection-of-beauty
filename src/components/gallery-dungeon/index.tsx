@@ -319,7 +319,11 @@ export function GalleryDungeon({ artworks }: Props) {
           they rotate. */}
       {needsRotate && <LandscapePrompt />}
       {hasStarted && (
-        <div className="absolute top-4 left-1/2 -translate-x-1/2 bg-black/60 text-neutral-100 px-4 py-2 rounded text-sm pointer-events-none">
+        <div
+          className={`absolute bg-black/60 text-neutral-100 px-4 py-2 rounded text-sm pointer-events-none ${
+            isTouch ? "top-4 left-1/2 -translate-x-1/2" : "bottom-4 left-4"
+          }`}
+        >
           <div className="text-xs text-neutral-500 font-mono">
             FLOOR {currentFloorIdx} · {currentFloor.era.title}
           </div>
