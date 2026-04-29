@@ -1,0 +1,16 @@
+{
+  "version": 1,
+  "cliVersion": "0.1.15",
+  "scaffoldedAt": "2026-04-29T10:08:21.180Z",
+  "name": "collection-of-beauty",
+  "domain": "beauty.trebeljahr.com",
+  "features": ["websocket", "s3"],
+  "mlServices": [],
+  "s3Provider": "existing",
+  "deployTarget": "existing",
+  "ports": {
+    "server": 3000,
+    "client": 3001
+  },
+  "surfaces": "client-only"
+}
