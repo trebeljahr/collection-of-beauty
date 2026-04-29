@@ -90,6 +90,7 @@ export function Player({
   onPositionSample,
   onZoomRequest,
   onAimChange,
+  onActiveStairChange,
   joystickMoveGetter,
   joystickLookGetter,
 }: {
@@ -119,6 +120,14 @@ export function Player({
    *  consumers can use it to swap the crosshair to a magnifying-glass
    *  affordance and show a "Press E to inspect" hint. */
   onAimChange?: (artwork: Artwork | null) => void;
+  /** Fires when the player steps on / off a spiral staircase. Lets the
+   *  host preload the connected floor's full geometry while the player
+   *  is on the stair, so the room they're descending into is already
+   *  rendered when they get there — without it the next floor mounts
+   *  only its stairwell when the player crosses the boundary, leaving
+   *  black bands at the slab edge mid-descent. Stair id, not the whole
+   *  Staircase object, so identity comparison is cheap. */
+  onActiveStairChange?: (stairId: string | null) => void;
   /** Polled each frame for left-stick movement (leveledX/Y in -10..10).
    *  Combined additively with WASD so a hybrid keyboard-+-touch session
    *  works without jankily fighting itself. Falsy → keyboard only. */
@@ -143,6 +152,7 @@ export function Player({
   const rayDir = useRef(new THREE.Vector3());
   const aimFrameCount = useRef(0);
   const aimLast = useRef<Artwork | null>(null);
+  const lastStairId = useRef<string | null>(null);
   /** Cumulative-angle state for the spiral. `cumulativeAngle ∈ [0, 2π]`
    *  describes how far around the current stair's revolution the
    *  player has walked; `lastRaw` is the previous frame's raw angle so
@@ -335,6 +345,16 @@ export function Player({
       if (tracked && isInsideStair(tracked, camera.position.x, camera.position.z)) {
         activeStair = tracked;
       }
+    }
+
+    // Notify host on edge-changes only — same-stair frames are silent
+    // so onActiveStairChange isn't a per-frame storm. Edge-fires when
+    // entering a stair, leaving one, or stepping from one stair onto
+    // another (stair-to-stair transition during continuous descent).
+    const newStairId = activeStair?.id ?? null;
+    if (newStairId !== lastStairId.current) {
+      lastStairId.current = newStairId;
+      onActiveStairChange?.(newStairId);
     }
 
     if (activeStair) {

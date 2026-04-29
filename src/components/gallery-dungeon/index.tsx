@@ -40,6 +40,14 @@ export function GalleryDungeon({ artworks }: Props) {
   const [activeRoomIdx, setActiveRoomIdx] = useState<number>(-1);
   const [zoomed, setZoomed] = useState<Artwork | null>(null);
   const [aiming, setAiming] = useState<Artwork | null>(null);
+  // ID of the spiral the player is currently riding (or null if they're
+  // not on a stair). Used to upgrade the *connected* adjacent floor
+  // from stairwell-only to full geometry while the player is on the
+  // stair, so the room they're descending into is already mounted by
+  // the time they arrive — without it the rooms surrounding the next
+  // floor's stairwell mount lazily at the floor-swap boundary, leaving
+  // a black band visible through the spiral cutout mid-descent.
+  const [activeStairId, setActiveStairId] = useState<string | null>(null);
 
   // Entry room — used as the basis for the start-overlay loading bar.
   // We wait for this room's paintings to decode before the player can
@@ -87,6 +95,15 @@ export function GalleryDungeon({ artworks }: Props) {
 
   const currentFloor = layout.floors[currentFloorIdx];
   const activeRoom = activeRoomIdx >= 0 ? currentFloor.rooms[activeRoomIdx] : undefined;
+  // Floor index at the *other* end of the active stair — i.e. the one
+  // we're heading TO. Falsy when not on a stair, in which case the
+  // adjacent-floor blocks below fall back to stairwell-only.
+  const stairOtherFloorIdx = useMemo(() => {
+    if (activeStairId == null) return null;
+    const stair = layout.allStaircases.find((s) => s.id === activeStairId);
+    if (!stair) return null;
+    return stair.lowerFloor === currentFloorIdx ? stair.upperFloor : stair.lowerFloor;
+  }, [activeStairId, currentFloorIdx, layout.allStaircases]);
 
   // Spawn point driver. Default: entry on floor 0. Teleport keys
   // overwrite this to the anchor of the target floor. Stair-driven
@@ -232,13 +249,23 @@ export function GalleryDungeon({ artworks }: Props) {
         {/* Adjacent floors: mount their stairwell rooms only so the
             stair leading up/down has visual continuity into the next
             floor (no painted void overhead or underfoot). Cheap —
-            stairwells hold no paintings. */}
+            stairwells hold no paintings.
+
+            Exception: while the player is on a spiral, upgrade the
+            *connected* floor (the one we're descending or ascending
+            into) to full geometry so its rooms are mounted before we
+            arrive. Without this, the rest of the next floor's rooms
+            mount lazily at the floor-swap boundary and a black band
+            shows through the stairwell cutout mid-descent. The OTHER
+            adjacent floor (above when descending, below when ascending)
+            stays stairwell-only so we don't preload geometry the
+            player isn't heading toward. */}
         {currentFloorIdx > 0 && (
           <FloorScene
             floor={layout.floors[currentFloorIdx - 1]}
             allStaircases={layout.allStaircases}
             activeRoomIdx={-1}
-            showOnly="stairwell"
+            showOnly={stairOtherFloorIdx === currentFloorIdx - 1 ? undefined : "stairwell"}
           />
         )}
         {currentFloorIdx < layout.floors.length - 1 && (
@@ -246,7 +273,7 @@ export function GalleryDungeon({ artworks }: Props) {
             floor={layout.floors[currentFloorIdx + 1]}
             allStaircases={layout.allStaircases}
             activeRoomIdx={-1}
-            showOnly="stairwell"
+            showOnly={stairOtherFloorIdx === currentFloorIdx + 1 ? undefined : "stairwell"}
           />
         )}
 
@@ -264,6 +291,7 @@ export function GalleryDungeon({ artworks }: Props) {
           }}
           onZoomRequest={setZoomed}
           onAimChange={setAiming}
+          onActiveStairChange={setActiveStairId}
           joystickMoveGetter={isTouch ? moveJoystick.getData : undefined}
           joystickLookGetter={isTouch ? lookJoystick.getData : undefined}
         />
