@@ -1,6 +1,9 @@
-// Handcrafted museum floor plan — replaces the procedural dungeon
-// generator with an axis-aligned, courtyard-style composition built
-// around the central spiral staircase.
+// Handcrafted museum floor plan — an axis-aligned, courtyard-style
+// composition built around the central spiral staircase. Earlier
+// iterations used a procedural BSP-style generator; we kept the
+// floor / room / hallway / staircase contract from that experiment
+// (see lib/gallery-layout/types.ts) but author every rectangle by
+// hand here so each era's enfilade reads the same way every reload.
 //
 //   N ↑                                       (z increases north)
 //   ┌─────────────────────────────────────────────┐
@@ -31,9 +34,9 @@ import { slugify } from "@/lib/utils";
 import { distributePaintings } from "./place-paintings";
 import type {
   Door,
-  DungeonLayout,
   FloorLayout,
   HallwayLayout,
+  MuseumLayout,
   RoomLayout,
   Staircase,
 } from "./types";
@@ -239,7 +242,7 @@ const SLOTS: Slot[] = [
 
 // --- Public entry ---------------------------------------------------------
 
-export function layoutMuseum(allArtworks: Artwork[]): DungeonLayout {
+export function layoutMuseum(allArtworks: Artwork[]): MuseumLayout {
   const byEra = bucketByEra(allArtworks);
 
   const floors: FloorLayout[] = [];

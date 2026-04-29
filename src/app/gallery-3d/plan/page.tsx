@@ -1,4 +1,4 @@
-// Top-down 2D debug view of the multi-floor dungeon layout.
+// Top-down 2D debug view of the multi-floor museum layout.
 // Server-rendered SVG — no client JS required. Each floor is one SVG.
 //
 // Colours:
@@ -15,7 +15,7 @@ import type { FloorLayout, RoomLayout } from "@/lib/gallery-layout/types";
 import { CELL_SIZE } from "@/lib/gallery-layout/world-coords";
 
 export const metadata: Metadata = {
-  title: "Dungeon floor plan · debug",
+  title: "Museum floor plan · debug",
   robots: { index: false, follow: false },
 };
 
@@ -31,12 +31,11 @@ export default function FloorPlanPage() {
     <div className="min-h-screen bg-neutral-950 text-neutral-100 px-6 py-10">
       <div className="max-w-6xl mx-auto space-y-10">
         <header className="space-y-2">
-          <h1 className="text-3xl font-semibold">Dungeon floor plans</h1>
+          <h1 className="text-3xl font-semibold">Museum floor plans</h1>
           <p className="text-neutral-400 max-w-3xl text-sm">
             Debug view for the multi-floor gallery layout. Each era is one floor; rooms are
             era-coloured, anchor rooms are saturated, and connecting corridors show in grey. Rooms
-            without a movement label are slots the generator produced that didn&apos;t have a
-            movement to claim them.
+            without a movement label are slots that didn&apos;t have a movement to claim them.
           </p>
           <p className="text-neutral-500 text-xs">
             Floors: {layout.floors.length} · Rooms: {layout.allRooms.length} · Hallways:{" "}

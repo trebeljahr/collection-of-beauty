@@ -29,11 +29,13 @@ const ROOM_TRANSITION_SRC = "/audio/room-transition.mp3";
 type Props = { artworks: Artwork[] };
 
 /**
- * M3 prototype: all 7 floors stacked on Y, but only one is mounted +
- * walkable at a time. Keys 1..7 teleport the player between floors.
- * Staircases and cross-floor walking land in M4.
+ * Multi-floor 3D museum. All era floors are stacked on Y; only the
+ * floor the player is currently on (and its immediate stairwell
+ * neighbours) is mounted at any time. Keys 1..N teleport between
+ * floors; the spiral staircase at the centre of every floor handles
+ * organic floor-to-floor walking.
  */
-export function GalleryDungeon({ artworks }: Props) {
+export function Gallery3D({ artworks }: Props) {
   const layout = useMemo(() => layoutMuseum(artworks), [artworks]);
   const [hasStarted, setHasStarted] = useState(false);
   const [currentFloorIdx, setCurrentFloorIdx] = useState(layout.entry.floorIndex);

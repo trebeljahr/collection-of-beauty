@@ -23,9 +23,9 @@ const FOOTER_H = 48;
  * Overlay minimap driven entirely by the current FloorLayout — walkable
  * cells, room outlines, door positions and staircase footprints are
  * read from the same data the 3D scene uses, so the map stays correct
- * automatically when the dungeon generator shifts the layout. The
- * static plan is baked to an offscreen canvas; only the player arrow
- * is redrawn each frame.
+ * automatically when the museum layout is regenerated. The static
+ * plan is baked to an offscreen canvas; only the player arrow is
+ * redrawn each frame.
  */
 export function Minimap({ floor, activeRoomIdx, playerRef, size = 220, className }: Props) {
   const canvasRef = useRef<HTMLCanvasElement | null>(null);

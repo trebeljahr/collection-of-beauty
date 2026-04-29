@@ -94,7 +94,7 @@ export function Painting({
 }: {
   placement: Placement;
   /** Fires once when the base 960 px texture has finished loading and
-   *  the painting plane mounts. Used by GalleryDungeon to drive the
+   *  the painting plane mounts. Used by Gallery3D to drive the
    *  "Loading first room…" progress bar on the start overlay. */
   onLoaded?: () => void;
 }) {

@@ -1,6 +1,6 @@
-// Grid → world coordinate conversion for the dungeon gallery.
+// Grid → world coordinate conversion for the 3D museum gallery.
 //
-// A cell is a square on the generator grid; in world space it is
+// A cell is a square on the layout grid; in world space it is
 // CELL_SIZE metres on a side. Floors stack vertically separated by
 // FLOOR_SEPARATION metres; the spiral staircase rises one full
 // revolution over that span, so the gap also sets the stair pitch.

@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { GalleryDungeon } from "@/components/gallery-dungeon";
+import { Gallery3D } from "@/components/gallery-3d";
 import { artworks } from "@/lib/data";
 
 export const metadata: Metadata = {
@@ -20,5 +20,5 @@ export const metadata: Metadata = {
 };
 
 export default function Gallery3DPage() {
-  return <GalleryDungeon artworks={artworks} />;
+  return <Gallery3D artworks={artworks} />;
 }

@@ -1,5 +1,5 @@
-// Shared types for the multi-floor dungeon gallery layout.
-// The contract between the dungeon generator, the painting placer, and
+// Shared types for the multi-floor museum gallery layout.
+// The contract between the layout builder, the painting placer, and
 // the R3F renderer lives here.
 
 import type { Artwork } from "@/lib/data";
@@ -135,7 +135,7 @@ export type FloorLayout = {
   stairsOut: Staircase[];
 };
 
-export type DungeonLayout = {
+export type MuseumLayout = {
   floors: FloorLayout[];
   entry: { floorIndex: number; worldPosition: [number, number, number] };
   allRooms: RoomLayout[];
