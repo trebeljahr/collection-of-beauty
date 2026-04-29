@@ -7,13 +7,27 @@ import { assetUrl, variantSrcSet, variantUrl } from "@/lib/utils";
 /**
  * Full-screen overlay with a larger look at one painting plus its
  * metadata. Shown when the Player's raycaster clicks on a painting;
- * Escape / click-to-close dismisses it. Uses a responsive `<img>` so
+ * Escape, E/F, or click dismisses it. Uses a responsive `<img>` so
  * the browser picks whichever pre-built variant best fits the viewport.
+ *
+ * `onClose` receives `shouldRelock` so the host can re-engage pointer
+ * lock immediately on E or click (still inside a user gesture, where
+ * requestPointerLock works) but skip it on Escape — Chrome blacklists
+ * pointer-lock requests for ~1 s after the user pressed Esc to exit
+ * lock, so trying to relock there would be silently denied AND would
+ * block subsequent clicks from re-acquiring until the cooldown ends.
  */
-export function ZoomModal({ artwork, onClose }: { artwork: Artwork; onClose: () => void }) {
+export function ZoomModal({
+  artwork,
+  onClose,
+}: {
+  artwork: Artwork;
+  onClose: (shouldRelock: boolean) => void;
+}) {
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
-      if (e.code === "Escape") onClose();
+      if (e.code === "Escape") onClose(false);
+      else if (e.code === "KeyE" || e.code === "KeyF") onClose(true);
     };
     window.addEventListener("keydown", onKey);
     return () => window.removeEventListener("keydown", onKey);
@@ -35,7 +49,7 @@ export function ZoomModal({ artwork, onClose }: { artwork: Artwork; onClose: () 
   return (
     // biome-ignore lint/a11y/useKeyWithClickEvents: Esc dismisses via the window keydown listener above; the overlay click is just a mouse shortcut, not the only path.
     <div
-      onClick={onClose}
+      onClick={() => onClose(true)}
       className="absolute inset-0 bg-black/85 backdrop-blur-sm z-40 flex flex-col items-center justify-center cursor-zoom-out p-6"
     >
       {/* biome-ignore lint/a11y/useKeyWithClickEvents: stopPropagation only — keyboard activation here would be a no-op */}
@@ -68,10 +82,10 @@ export function ZoomModal({ artwork, onClose }: { artwork: Artwork; onClose: () 
       </div>
       <button
         type="button"
-        onClick={onClose}
+        onClick={() => onClose(true)}
         className="mt-4 text-neutral-500 text-xs hover:text-neutral-300"
       >
-        close · Esc · click anywhere
+        close · Esc · E · click anywhere
       </button>
     </div>
   );
