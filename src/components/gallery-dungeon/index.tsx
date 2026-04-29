@@ -12,6 +12,7 @@ import type { Artwork } from "@/lib/data";
 import { layoutMuseum } from "@/lib/gallery-layout/layout-museum";
 import type { FloorLayout } from "@/lib/gallery-layout/types";
 
+import { FullscreenButton } from "./fullscreen-button";
 import { HallwayRenderer } from "./hallway";
 import { LandscapePrompt } from "./landscape-prompt";
 import { LodController } from "./lod-controller";
@@ -253,9 +254,22 @@ export function GalleryDungeon({ artworks }: Props) {
             move/look, and mobile browsers don't support it anyway.
             selector scopes drei's auto-lock click listener to the
             canvas wrapper; otherwise it binds to document.body and
-            any click (audio gear, HUD) yanks the cursor into lock. */}
+            any click (audio gear, HUD) yanks the cursor into lock.
+            domElement pins the lock to the inner <canvas>. Without it
+            drei's controls.lock() calls requestPointerLock on R3F's
+            event-source <div> (the same element .gallery-canvas-host
+            lives on), so the first painting click TRANSFERS the lock
+            from the canvas (where the Enter handler engaged it) to
+            that outer div. After the transfer, pointer events dispatch
+            with target=outerDiv and bubble UP — they no longer pass
+            through the canvas, so Player's pointerdown listener
+            silently stops firing and click-to-zoom dies even though
+            E (a window keydown) keeps working. */}
         {hasStarted && !zoomed && !isTouch && (
-          <PointerLockControls selector=".gallery-canvas-host" />
+          <PointerLockControls
+            selector=".gallery-canvas-host"
+            domElement={canvasRef.current ?? undefined}
+          />
         )}
       </Canvas>
       {!hasStarted && (
@@ -270,6 +284,13 @@ export function GalleryDungeon({ artworks }: Props) {
             // instead of being consumed by drei's selector relock.
             // Touch devices have no pointer lock — joysticks own look.
             if (!isTouch) canvasRef.current?.requestPointerLock?.();
+            // Take the whole document fullscreen in the same gesture so
+            // the museum visit isn't framed by the site nav + browser
+            // chrome. Promise rejects if the browser denies (Safari on
+            // iOS, embedded view) — silent catch keeps Enter working.
+            if (typeof document !== "undefined" && !document.fullscreenElement) {
+              document.documentElement.requestFullscreen?.().catch(() => {});
+            }
             setHasStarted(true);
           }}
           isTouch={isTouch}
@@ -293,27 +314,32 @@ export function GalleryDungeon({ artworks }: Props) {
           )}
         </div>
       )}
-      {hasStarted && !zoomed && (
-        <div className="absolute bottom-4 left-1/2 -translate-x-1/2 bg-black/55 text-neutral-200 px-3 py-1 rounded text-xs pointer-events-none backdrop-blur-sm">
-          {aiming ? (
-            isTouch ? (
+      {hasStarted &&
+        !zoomed &&
+        (aiming ? (
+          <div className="absolute bottom-6 left-1/2 -translate-x-1/2 flex items-center gap-2 rounded-full border border-white/25 bg-black/70 px-4 py-1.5 text-sm text-white shadow-lg pointer-events-none backdrop-blur-sm">
+            {isTouch ? (
               <>Tap to inspect painting</>
             ) : (
               <>
-                Press <kbd className="rounded border border-white/30 px-1 font-mono">E</kbd> or
+                Press{" "}
+                <kbd className="rounded border border-white/40 px-1.5 font-mono text-xs">E</kbd> or
                 click to inspect painting
               </>
-            )
-          ) : isTouch ? (
-            <>Left stick walks · right stick looks</>
-          ) : (
-            <>
-              1 Gothic · 2 Renaissance · 3 Baroque · 4 Enlightenment · 5 Romantic · 6 Fin-de-siècle
-              · 7 Modern
-            </>
-          )}
-        </div>
-      )}
+            )}
+          </div>
+        ) : (
+          <div className="absolute bottom-4 left-1/2 -translate-x-1/2 bg-black/55 text-neutral-200 px-3 py-1 rounded text-xs pointer-events-none backdrop-blur-sm">
+            {isTouch ? (
+              <>Left stick walks · right stick looks</>
+            ) : (
+              <>
+                1 Gothic · 2 Renaissance · 3 Baroque · 4 Enlightenment · 5 Romantic · 6
+                Fin-de-siècle · 7 Modern
+              </>
+            )}
+          </div>
+        ))}
       {/* Crosshair — small dot in the centre of the screen so the
           player knows exactly where they're aiming. Swaps to a
           magnifying-glass icon when the aim raycast lands on a
@@ -322,9 +348,17 @@ export function GalleryDungeon({ artworks }: Props) {
           hidden during the start overlay and zoom modal so it doesn't
           compete with either. */}
       {hasStarted && !zoomed && <Crosshair inspecting={aiming !== null} />}
-      {/* Audio controls — shown after the start gate (mount on the
-          user's first click, which is also the autoplay gate). */}
-      {hasStarted && !zoomed && <AudioControls className="top-4 right-4" />}
+      {/* Audio + fullscreen pills — shown after the start gate (mount
+          on the user's first click, which is also the autoplay gate).
+          Audio at top-4 right-4; fullscreen toggle sits to its left so
+          the two pills don't overlap and the cluster reads as a single
+          row of controls. */}
+      {hasStarted && !zoomed && (
+        <>
+          <AudioControls className="top-4 right-4" />
+          <FullscreenButton className="top-4 right-24" />
+        </>
+      )}
       {/* Minimap. Bottom-right on desktop; top-left on mobile so the
           look joystick (bottom-right) and audio controls (top-right)
           don't collide with it. Smaller size on mobile to leave room
