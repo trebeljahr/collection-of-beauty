@@ -29,11 +29,6 @@ const RAIL_HEIGHT = 1.05;
 const RAIL_BAR_HEIGHT = 0.1;
 const RAIL_BAR_HALF_WIDTH = 0.05;
 const BALUSTER_SIZE = 0.07;
-/** Newel-cap finial radius and shared sphere geometry. Mirrors the
- *  matching constants in staircase.tsx so the cutout-rail's terminal
- *  ball reads as the same architectural element as the spiral rail's. */
-const FINIAL_RADIUS = 0.13;
-const finialGeometry = new THREE.SphereGeometry(FINIAL_RADIUS, 24, 16);
 /** Vertical span of a baluster — stops at rail-bottom so the
  *  baluster top doesn't punch into the rail tube. Mirrors the same
  *  constant in staircase.tsx. */
@@ -57,57 +52,37 @@ const GATE_POST_HEIGHT = 2.4;
  *  `entryAngle`. Each ring sample contributes 4 vertices (top-out,
  *  top-in, bot-in, bot-out) and adjacent rings are stitched by 4
  *  longitudinal faces (top, inner, bottom, outer) so the rail has
- *  real volume in every direction — no paper-strip look. */
+ *  real volume in every direction — no paper-strip look.
+ *
+ *  We walk a SINGLE linear arc from one gate edge to the other,
+ *  rather than iterating theta in [0, 2π] and skipping the gap. The
+ *  earlier "iterate 0→2π and skip" approach split the rail into two
+ *  segments whenever the gate didn't straddle theta=0, since the
+ *  loop's start (theta=0) and end (theta=2π) sat on the same point
+ *  but inside DIFFERENT segments — leaving a hidden seam at that
+ *  wrap-around and (when we still emitted finials) a redundant pair
+ *  of newel caps at a mid-rail position. Walking the single arc
+ *  guarantees one continuous segment regardless of entryAngle. */
 function buildCutoutRailGeometry(
   radius: number,
   y: number,
   entryAngle: number,
   gateHalfArc: number,
-): { geom: THREE.BufferGeometry; endpoints: Array<[number, number, number]> } {
-  const segments = 80;
+): THREE.BufferGeometry {
   const positions: number[] = [];
   const indices: number[] = [];
-  const endpoints: Array<[number, number, number]> = [];
-  let segmentStartIdx = -1;
-  let prevBaseIdx = -1;
-  let segmentStartCenter: [number, number, number] | null = null;
-  let lastSampleCenter: [number, number, number] | null = null;
   const yTop = y + RAIL_HEIGHT;
-  const yCenter = yTop - RAIL_BAR_HEIGHT / 2;
-
-  const closeSegment = () => {
-    if (segmentStartIdx === -1 || prevBaseIdx === -1) return;
-    if (segmentStartIdx === prevBaseIdx) {
-      segmentStartIdx = -1;
-      prevBaseIdx = -1;
-      segmentStartCenter = null;
-      lastSampleCenter = null;
-      return;
-    }
-    const s = segmentStartIdx;
-    const e = prevBaseIdx;
-    // Start cap (faces away from the segment's leading direction).
-    indices.push(s + 0, s + 2, s + 1);
-    indices.push(s + 0, s + 3, s + 2);
-    // End cap (faces away from the segment's trailing direction).
-    indices.push(e + 0, e + 1, e + 2);
-    indices.push(e + 0, e + 2, e + 3);
-    if (segmentStartCenter) endpoints.push(segmentStartCenter);
-    if (lastSampleCenter) endpoints.push(lastSampleCenter);
-    segmentStartIdx = -1;
-    prevBaseIdx = -1;
-    segmentStartCenter = null;
-    lastSampleCenter = null;
-  };
+  // Single arc from gap-exit to gap-entry. Sample density matches the
+  // old 80-segments-around-2π density so the curve reads equally
+  // smooth at any gate position.
+  const startTheta = entryAngle + gateHalfArc;
+  const totalArc = Math.PI * 2 - 2 * gateHalfArc;
+  const segments = Math.max(2, Math.round((totalArc / (Math.PI * 2)) * 80));
+  let prevBaseIdx = -1;
+  const segmentStartIdx = 0;
 
   for (let s = 0; s <= segments; s++) {
-    const theta = (s / segments) * Math.PI * 2;
-    // Shortest signed angular distance from theta to entryAngle.
-    const angDiff = Math.atan2(Math.sin(theta - entryAngle), Math.cos(theta - entryAngle));
-    if (Math.abs(angDiff) < gateHalfArc) {
-      closeSegment();
-      continue;
-    }
+    const theta = startTheta + (s / segments) * totalArc;
     const cx = radius * Math.cos(theta);
     const cz = radius * Math.sin(theta);
     const ox = Math.cos(theta);
@@ -127,12 +102,6 @@ function buildCutoutRailGeometry(
       yTop - RAIL_BAR_HEIGHT,
       cz + oz * RAIL_BAR_HALF_WIDTH,
     );
-    const sampleCenter: [number, number, number] = [cx, yCenter, cz];
-    if (segmentStartIdx === -1) {
-      segmentStartIdx = baseIdx;
-      segmentStartCenter = sampleCenter;
-    }
-    lastSampleCenter = sampleCenter;
 
     if (prevBaseIdx !== -1) {
       const p = prevBaseIdx;
@@ -149,12 +118,23 @@ function buildCutoutRailGeometry(
     }
     prevBaseIdx = baseIdx;
   }
-  closeSegment();
+  // Cap both ends so the open rectangular cross-section doesn't read
+  // as a black slot when the camera looks down the rail's tangent.
+  // The gate posts mostly hide these ends, but the cap is cheap and
+  // covers any sliver visible past the post's edge.
+  const startEnd = segmentStartIdx;
+  const endEnd = prevBaseIdx;
+  if (endEnd > startEnd) {
+    indices.push(startEnd + 0, startEnd + 2, startEnd + 1);
+    indices.push(startEnd + 0, startEnd + 3, startEnd + 2);
+    indices.push(endEnd + 0, endEnd + 1, endEnd + 2);
+    indices.push(endEnd + 0, endEnd + 2, endEnd + 3);
+  }
   const geom = new THREE.BufferGeometry();
   geom.setAttribute("position", new THREE.Float32BufferAttribute(positions, 3));
   geom.setIndex(indices);
   geom.computeVertexNormals();
-  return { geom, endpoints };
+  return geom;
 }
 
 /** Sample a regular series of baluster positions around the cutout
@@ -199,19 +179,13 @@ export function StairwellAccents({ floor }: { floor: FloorLayout }) {
     const cz = reference.centerZ;
     const railR = SPIRAL_FLOOR_CUTOUT_RADIUS + 0.18;
     const gateHalfArc = spiralGateHalfArc(reference.numSteps);
-    const { geom: railGeom, endpoints: railEndpoints } = buildCutoutRailGeometry(
-      railR,
-      floor.y,
-      reference.entryAngle,
-      gateHalfArc,
-    );
+    const railGeom = buildCutoutRailGeometry(railR, floor.y, reference.entryAngle, gateHalfArc);
     const balusters = buildCutoutBalusters(railR, floor.y, reference.entryAngle, gateHalfArc);
     return {
       cx,
       cz,
       railR,
       railGeom,
-      railEndpoints,
       balusters,
       entryAngle: reference.entryAngle,
       gateHalfArc,
@@ -231,18 +205,7 @@ export function StairwellAccents({ floor }: { floor: FloorLayout }) {
   );
 
   if (!stairwell || !data) return null;
-  const {
-    cx,
-    cz,
-    railR,
-    railGeom,
-    railEndpoints,
-    balusters,
-    entryAngle,
-    gateHalfArc,
-    stairOut,
-    stairIn,
-  } = data;
+  const { cx, cz, railR, railGeom, balusters, entryAngle, gateHalfArc, stairOut, stairIn } = data;
   const hasCutout = floor.index > 0;
   // Gate posts sit ON the rail line — same radius as the rail —
   // so the rail terminates INTO the post instead of stopping next
@@ -273,14 +236,10 @@ export function StairwellAccents({ floor }: { floor: FloorLayout }) {
 
   // Each sign sits OUTWARD of its post (away from the spiral centre)
   // and inherits the post's rotation so it faces approaching players.
-  // Offset must clear the cutout-rail's gate-end finial — the brass
-  // sphere is centred on the gate-post line at radius FINIAL_RADIUS,
-  // so a sign at the bare post-face offset (0.10 m) lives INSIDE the
-  // sphere and reads as a plaque embedded in the knob. Pushing the
-  // sign past the sphere's outward extent leaves a small visible gap
-  // between knob and plaque, restoring the "sign mounted on a post
-  // next to a rail-cap" composition.
-  const signOffset = FINIAL_RADIUS + 0.05;
+  // Offset clears the post's outer face (radial half-depth 0.09 m)
+  // by a finger's width so the plaque reads as bolted onto the post
+  // rather than embedded in it, without leaving an architectural gap.
+  const signOffset = GATE_POST_RADIAL_DEPTH / 2 + 0.02;
   const signFor = (post: typeof postA) => ({
     position: [
       post.x + Math.cos(post.angle) * signOffset,
@@ -305,23 +264,6 @@ export function StairwellAccents({ floor }: { floor: FloorLayout }) {
             <mesh key={`cutout-bal-${i}`} position={[cx + p[0], p[1], cz + p[2]]} castShadow>
               <boxGeometry args={[BALUSTER_SIZE, BALUSTER_HEIGHT, BALUSTER_SIZE]} />
               <primitive object={balusterMaterial} attach="material" />
-            </mesh>
-          ))}
-          {/* Brass finial caps where the cutout rail terminates at the
-              gate. Without these, the open rectangular tube ends are
-              visible as a black slot whenever the camera looks along
-              the rail's tangent direction (which the player does the
-              moment they walk up to the gate from the stairwell room).
-              The sphere also visually bridges any tiny seam between
-              this rail and the spiral outer rail's nearby terminus. */}
-          {railEndpoints.map((p, i) => (
-            <mesh
-              key={`cutout-finial-${i}`}
-              position={[cx + p[0], p[1], cz + p[2]]}
-              geometry={finialGeometry}
-              castShadow
-            >
-              <primitive object={railTopMaterial} attach="material" />
             </mesh>
           ))}
         </>
