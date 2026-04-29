@@ -290,14 +290,16 @@ export function StairwellAccents({ floor }: { floor: FloorLayout }) {
         <StairSign
           position={signA.position}
           rotationY={signA.rotationY}
-          label={`↑ ${stairOut.upperLabel}`}
+          direction="up"
+          label={stairOut.upperLabel}
         />
       )}
       {stairIn && (
         <StairSign
           position={signB.position}
           rotationY={signB.rotationY}
-          label={`↓ ${stairIn.lowerLabel}`}
+          direction="down"
+          label={stairIn.lowerLabel}
         />
       )}
     </group>

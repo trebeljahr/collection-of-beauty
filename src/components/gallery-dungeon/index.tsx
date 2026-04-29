@@ -258,7 +258,6 @@ export function GalleryDungeon({ artworks }: Props) {
           <PointerLockControls selector=".gallery-canvas-host" />
         )}
       </Canvas>
-
       {!hasStarted && (
         <StartOverlay
           title={currentFloor.era.title}
@@ -276,13 +275,11 @@ export function GalleryDungeon({ artworks }: Props) {
           isTouch={isTouch}
         />
       )}
-
       {/* Rotate-to-landscape guard — full-screen overlay shown to
           mobile users in portrait. Sits above every other layer so
           start screen, joysticks, and minimap are all hidden until
           they rotate. */}
       {needsRotate && <LandscapePrompt />}
-
       {hasStarted && (
         <div className="absolute top-4 left-1/2 -translate-x-1/2 bg-black/60 text-neutral-100 px-4 py-2 rounded text-sm pointer-events-none">
           <div className="text-xs text-neutral-500 font-mono">
@@ -296,7 +293,6 @@ export function GalleryDungeon({ artworks }: Props) {
           )}
         </div>
       )}
-
       {hasStarted && !zoomed && (
         <div className="absolute bottom-4 left-1/2 -translate-x-1/2 bg-black/55 text-neutral-200 px-3 py-1 rounded text-xs pointer-events-none backdrop-blur-sm">
           {aiming ? (
@@ -318,7 +314,6 @@ export function GalleryDungeon({ artworks }: Props) {
           )}
         </div>
       )}
-
       {/* Crosshair — small dot in the centre of the screen so the
           player knows exactly where they're aiming. Swaps to a
           magnifying-glass icon when the aim raycast lands on a
@@ -327,11 +322,9 @@ export function GalleryDungeon({ artworks }: Props) {
           hidden during the start overlay and zoom modal so it doesn't
           compete with either. */}
       {hasStarted && !zoomed && <Crosshair inspecting={aiming !== null} />}
-
       {/* Audio controls — shown after the start gate (mount on the
           user's first click, which is also the autoplay gate). */}
       {hasStarted && !zoomed && <AudioControls className="top-4 right-4" />}
-
       {/* Minimap. Bottom-right on desktop; top-left on mobile so the
           look joystick (bottom-right) and audio controls (top-right)
           don't collide with it. Smaller size on mobile to leave room
@@ -350,14 +343,14 @@ export function GalleryDungeon({ artworks }: Props) {
           />
         </div>
       )}
-
       {zoomed && <ZoomModal artwork={zoomed} onClose={() => setZoomed(null)} />}
-
       {/* Ambience player. Streams, loops, hidden from layout but kept
           in the DOM for the lifetime of the gallery so settings
           changes don't interrupt the loop. */}
-      {/* biome-ignore lint/a11y/useMediaCaption: ambient music has no spoken content */}
-      {/* biome-ignore lint/a11y/noAriaHiddenOnFocusable: hidden utility audio with no controls — focus path doesn't apply */}
+      {/* biome-ignore lint/a11y/useMediaCaption: ambient music has no spoken content // biome-ignore */}
+      lint/a11y/noAriaHiddenOnFocusable: hidden utility audio with no controls — focus path doesn't
+      apply
+      {/* biome-ignore lint/a11y/noAriaHiddenOnFocusable: container is decorative wrapper */}
       <audio
         ref={ambienceRef}
         src={AMBIENCE_SRC}
@@ -506,7 +499,8 @@ function StartOverlay({
       }`}
     >
       {/* biome-ignore lint/a11y/useKeyWithClickEvents: stopPropagation only. */}
-      {/* biome-ignore lint/a11y/noStaticElementInteractions: stopPropagation only — purely visual container */}
+      {/* biome-ignore lint/a11y/noStaticElementInteractions: stopPropagation only — purely visual */}
+      container
       <div
         onClick={(e) => e.stopPropagation()}
         className="w-[min(480px,92vw)] rounded-xl border border-white/15 bg-black/60 p-6 text-center text-white shadow-2xl"

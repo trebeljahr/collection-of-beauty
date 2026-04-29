@@ -109,14 +109,14 @@ export function SiteNav() {
         aria-hidden={!open}
       >
         {/* Backdrop */}
-        {/* biome-ignore lint/a11y/useKeyWithClickEvents: ESC is wired up via keydown above; this is a click-outside helper. */}
+        {/* biome-ignore lint/a11y/useKeyWithClickEvents: ESC is wired up via keydown above; this is */}
+        a click-outside helper.
         <div
           className={`absolute inset-0 bg-black/55 transition-opacity duration-200 ${
             open ? "opacity-100" : "opacity-0"
           }`}
           onClick={() => setOpen(false)}
         />
-
         {/* Sheet — semantic <nav> (not a true modal; just a slide-out
             menu) so the link list is exposed as navigation to assistive
             tech and biome's `useSemanticElements` lint stays happy. */}

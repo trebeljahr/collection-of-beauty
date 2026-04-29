@@ -48,6 +48,35 @@ const bracketMaterial = new THREE.MeshStandardMaterial({
   metalness: 0.45,
 });
 
+// Procedural arrow geometry for stair signs. Built as a flat
+// THREE.Shape (same idea as an SVG path) so the up/down indicator is
+// real mesh geometry rather than a unicode glyph through a TTF font —
+// the latter renders inconsistently in drei's <Text> at this scale,
+// missing wings or bleeding into adjacent letters. DoubleSide keeps
+// it visible regardless of the sign's facing rotation.
+function buildArrowShape(direction: "up" | "down"): THREE.Shape {
+  const s = direction === "up" ? 1 : -1;
+  const headHalfW = 0.07;
+  const shaftHalfW = 0.022;
+  const halfH = 0.05;
+  const shape = new THREE.Shape();
+  shape.moveTo(0, s * halfH);
+  shape.lineTo(-headHalfW, 0);
+  shape.lineTo(-shaftHalfW, 0);
+  shape.lineTo(-shaftHalfW, -s * halfH);
+  shape.lineTo(shaftHalfW, -s * halfH);
+  shape.lineTo(shaftHalfW, 0);
+  shape.lineTo(headHalfW, 0);
+  shape.closePath();
+  return shape;
+}
+const upArrowGeometry = new THREE.ShapeGeometry(buildArrowShape("up"));
+const downArrowGeometry = new THREE.ShapeGeometry(buildArrowShape("down"));
+const signGlyphMaterial = new THREE.MeshBasicMaterial({
+  color: "#f2e9d0",
+  side: THREE.DoubleSide,
+});
+
 const RAIL_HEIGHT = 1.05;
 /** Vertical thickness of the rail bar. */
 const RAIL_BAR_HEIGHT = 0.1;
@@ -469,7 +498,7 @@ export function StaircaseRenderer({ staircase }: { staircase: Staircase }) {
   const stepsGeom = useMemo(() => buildSpiralStepsGeometry(staircase), [staircase]);
   const innerRail = useMemo(() => buildSpiralRail(staircase, "inner", 0, false), [staircase]);
   const outerRail = useMemo(
-    () => buildSpiralRail(staircase, "outer", spiralGateHalfArc(staircase.numSteps), true),
+    () => buildSpiralRail(staircase, "outer", spiralGateHalfArc(staircase.numSteps), false),
     [staircase],
   );
   const brackets = useMemo(() => buildStepBrackets(staircase), [staircase]);
@@ -542,10 +571,12 @@ export function StairSign({
   position,
   rotationY,
   label,
+  direction,
 }: {
   position: [number, number, number];
   rotationY: number;
   label: string;
+  direction: "up" | "down";
 }) {
   return (
     <group position={position} rotation={[0, rotationY, 0]}>
@@ -557,9 +588,14 @@ export function StairSign({
         <boxGeometry args={[0.78, 0.42, 0.025]} />
         <primitive object={signBaseMaterial} attach="material" />
       </mesh>
+      <mesh
+        position={[0, 0.13, 0.014]}
+        geometry={direction === "up" ? upArrowGeometry : downArrowGeometry}
+        material={signGlyphMaterial}
+      />
       <Text
-        position={[0, 0, 0.014]}
-        fontSize={0.1}
+        position={[0, -0.07, 0.014]}
+        fontSize={0.09}
         color="#f2e9d0"
         anchorX="center"
         anchorY="middle"
