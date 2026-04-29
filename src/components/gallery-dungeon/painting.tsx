@@ -372,8 +372,66 @@ function Plaque({
  *   - Audubon plate-list titles ("434 I. Little Tyrant Fly-catcher
  *     - 2. Small-headed Fly-catcher - …") collapsed to "Plate 434:
  *     Little Tyrant Fly-catcher (and N more)". */
+/** Specific titles that aren't fixed by any pattern rule — typos,
+ *  museum-tagged suffixes, "by Artist (year, museum)" trailers
+ *  baked into the title field. Keys are NFC-normalised so they match
+ *  regardless of whether the source data stores e.g. "Sesshū" as a
+ *  precomposed glyph or "u + combining macron". */
+const TITLE_REWRITES = new Map<string, string>(
+  [
+    [
+      "Tenman Bridge at Settsu Province (Sesshū Tenmanbashi), from the series Remarkable Views of Bridges in Various Provinces (Shokoku meikyō kiran)",
+      "Tenman Bridge at Settsu Province (Sesshū Tenmanbashi)",
+    ],
+    [
+      "Wang Meng Dwelling in the Qingbian Mountains. ink on paper. 1366. 141x42",
+      "Dwelling in the Qingbian Mountains",
+    ],
+    [
+      "At first glance he looks very fiarce, but he s really a nice person",
+      "At first glance he looks fierce, but he's really a nice person",
+    ],
+    [
+      "Moreno Garden Bordighera 1884 - The Norton Museum Miami Florida",
+      "Moreno Garden, Bordighera",
+    ],
+    [
+      "Mt. Heng, after Juran (active ca. 960–965), from the Mustard Seed Garden Manual of Painting MET DP",
+      "Mt. Heng, after Juran, from the Mustard Seed Garden Manual of Painting",
+    ],
+    [
+      "Alexandra and Elena Pavlovna of Russia by E.Vigee-Lebrun (1796, Hermitage)",
+      "Alexandra and Elena Pavlovna of Russia",
+    ],
+    [
+      "An Experiment on a Bird in an Air Pump by Joseph Wright 'of Derby",
+      "An Experiment on a Bird in an Air Pump",
+    ],
+    [
+      "Famous Views of the 60 Provinces - #23. Yoro Waterfall in Mino Province",
+      "Yoro Waterfall in Mino Province",
+    ],
+    [
+      "36 Views of Mt. Fuji - #11. Wild Goose Hill and the Tone River",
+      "Wild Goose Hill and the Tone River",
+    ],
+    [
+      "A Frank Encampment in the Desert of Mount Sinai. 1842 - The Convent of St. Catherine in the Distance",
+      "A Frank Encampment in the Desert of Mount Sinai",
+    ],
+  ].map(([k, v]) => [k.normalize("NFC"), v]),
+);
+
+/** Abbreviations whose trailing period is part of the word — never
+ *  strip when the title ends with one. */
+const TRAILING_ABBREV_RX =
+  /\b(Mr|Mrs|Ms|Dr|St|Sr|Jr|Inc|Co|Ltd|fl|ca|cm|in|d\. ?J|d\. ?Ä|etc|vs|Ave|Blvd|i\.e|e\.g)\.$/i;
+
 function formatTitle(rawTitle: string, artist?: string): string {
   let t = rawTitle.trim();
+
+  const rewrite = TITLE_REWRITES.get(t.normalize("NFC"));
+  if (rewrite) return rewrite;
 
   const labelMatch = t.match(/label QS:L\w+,"([^"]+)"/);
   if (labelMatch) t = labelMatch[1];
@@ -402,14 +460,27 @@ function formatTitle(rawTitle: string, artist?: string): string {
   t = t.replace(/^\d+px-/, "");
 
   // "Artist - Title" prefix — if the title leads with the artist's
-  // name followed by a separator, drop it (the byline already shows
-  // the artist). Only fires when the artist field is non-empty so
-  // we don't strip a meaningful word that happens to share the title.
+  // name (or just their last token) followed by a separator, drop it
+  // (the byline already shows the artist). Tries the full name first,
+  // then falls back to the last whitespace-separated token so dataset
+  // shorthand like "Turner - The Eruption…" (artist field "J. M. W.
+  // Turner") is also caught.
   if (artist) {
     const a = artist.trim();
-    const prefix = `${a} - `;
-    if (a.length > 1 && t.toLowerCase().startsWith(prefix.toLowerCase())) {
-      t = t.slice(prefix.length).trim();
+    if (a.length > 1) {
+      const fullPrefix = `${a} - `;
+      if (t.toLowerCase().startsWith(fullPrefix.toLowerCase())) {
+        t = t.slice(fullPrefix.length).trim();
+      } else {
+        const tokens = a.split(/\s+/);
+        const last = tokens[tokens.length - 1];
+        if (last && last.length > 2) {
+          const lastPrefix = `${last} - `;
+          if (t.toLowerCase().startsWith(lastPrefix.toLowerCase())) {
+            t = t.slice(lastPrefix.length).trim();
+          }
+        }
+      }
     }
   }
 
@@ -429,6 +500,15 @@ function formatTitle(rawTitle: string, artist?: string): string {
     .replace(/_/g, " ")
     .replace(/\s{2,}/g, " ")
     .trim();
+
+  // Trailing period — many descriptive titles end in `.` because the
+  // source treated them as sentences; museum convention is to omit
+  // it. Skip well-known abbreviations so "Holbein d. J." and "St."
+  // aren't truncated.
+  if (t.endsWith(".") && !t.endsWith("..") && !TRAILING_ABBREV_RX.test(t)) {
+    t = t.slice(0, -1).trim();
+  }
+
   return t;
 }
 
