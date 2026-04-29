@@ -8,6 +8,7 @@ import {
   CELL_SIZE,
   DOOR_HEIGHT,
   FLOOR_THICKNESS,
+  INTER_FLOOR_HEIGHT,
   ROOM_HEIGHT,
   SPIRAL_FLOOR_CUTOUT_RADIUS,
 } from "@/lib/gallery-layout/world-coords";
@@ -47,7 +48,10 @@ export function RoomGeometry({
   const cxWorld = (xMin + xMax) / 2;
   const czWorld = (zMin + zMax) / 2;
   const floorY = room.worldRect.y;
-  const wallMidY = floorY + ROOM_HEIGHT / 2;
+  // Walls span floor-to-next-slab so the building has no visible gap
+  // above the interior ceiling when seen from across the open well;
+  // the ceiling plane at ROOM_HEIGHT covers the plenum from inside.
+  const wallMidY = floorY + INTER_FLOOR_HEIGHT / 2;
 
   // Floor plane with world-unit UVs so 1 m of floor = 1 m of texture
   // tile, regardless of room size. Fall-back tile-stretching on big
@@ -149,7 +153,7 @@ export function RoomGeometry({
           position={[cxWorld, wallMidY, zMin]}
           rotation={[0, 0, 0]}
           width={width}
-          height={ROOM_HEIGHT}
+          height={INTER_FLOOR_HEIGHT}
           material={mats.wall}
           doors={nDoors}
         />
@@ -159,7 +163,7 @@ export function RoomGeometry({
           position={[cxWorld, wallMidY, zMax]}
           rotation={[0, Math.PI, 0]}
           width={width}
-          height={ROOM_HEIGHT}
+          height={INTER_FLOOR_HEIGHT}
           material={mats.wall}
           doors={sDoors}
         />
@@ -169,7 +173,7 @@ export function RoomGeometry({
           position={[xMin, wallMidY, czWorld]}
           rotation={[0, Math.PI / 2, 0]}
           width={depth}
-          height={ROOM_HEIGHT}
+          height={INTER_FLOOR_HEIGHT}
           material={mats.wall}
           doors={wDoors}
         />
@@ -179,7 +183,7 @@ export function RoomGeometry({
           position={[xMax, wallMidY, czWorld]}
           rotation={[0, -Math.PI / 2, 0]}
           width={depth}
-          height={ROOM_HEIGHT}
+          height={INTER_FLOOR_HEIGHT}
           material={mats.wall}
           doors={eDoors}
         />

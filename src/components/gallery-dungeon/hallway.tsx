@@ -2,7 +2,12 @@
 
 import * as THREE from "three";
 import type { FloorLayout, HallwayLayout } from "@/lib/gallery-layout/types";
-import { CELL_SIZE, CORRIDOR_HEIGHT, FLOOR_THICKNESS } from "@/lib/gallery-layout/world-coords";
+import {
+  CELL_SIZE,
+  CORRIDOR_HEIGHT,
+  FLOOR_THICKNESS,
+  INTER_FLOOR_HEIGHT,
+} from "@/lib/gallery-layout/world-coords";
 import { Painting } from "./painting";
 import { getPaletteMaterials } from "./palette-materials";
 import { SolidWall } from "./wall";
@@ -80,7 +85,11 @@ export function HallwayRenderer({
         const z0 = c.z * CELL_SIZE;
         const cx = x0 + CELL_SIZE / 2;
         const cz = z0 + CELL_SIZE / 2;
-        const wallMidY = floorY + CORRIDOR_HEIGHT / 2;
+        // Hallway walls reach the next slab too — the interior
+        // CORRIDOR_HEIGHT ceiling plane keeps the corridor reading as
+        // low and tunnel-like, while the structural wall above it
+        // closes the gap between floors when viewed from the well.
+        const wallMidY = floorY + INTER_FLOOR_HEIGHT / 2;
 
         const needsWall = (nx: number, nz: number): boolean => {
           if (nx < 0 || nx >= floor.gridSize.x || nz < 0 || nz >= floor.gridSize.z) {
@@ -119,7 +128,7 @@ export function HallwayRenderer({
                 position={[cx, wallMidY, z0]}
                 rotation={[0, 0, 0]}
                 width={CELL_SIZE}
-                height={CORRIDOR_HEIGHT}
+                height={INTER_FLOOR_HEIGHT}
                 material={mats.wall}
               />
             )}
@@ -128,7 +137,7 @@ export function HallwayRenderer({
                 position={[cx, wallMidY, z0 + CELL_SIZE]}
                 rotation={[0, Math.PI, 0]}
                 width={CELL_SIZE}
-                height={CORRIDOR_HEIGHT}
+                height={INTER_FLOOR_HEIGHT}
                 material={mats.wall}
               />
             )}
@@ -137,7 +146,7 @@ export function HallwayRenderer({
                 position={[x0, wallMidY, cz]}
                 rotation={[0, Math.PI / 2, 0]}
                 width={CELL_SIZE}
-                height={CORRIDOR_HEIGHT}
+                height={INTER_FLOOR_HEIGHT}
                 material={mats.wall}
               />
             )}
@@ -146,7 +155,7 @@ export function HallwayRenderer({
                 position={[x0 + CELL_SIZE, wallMidY, cz]}
                 rotation={[0, -Math.PI / 2, 0]}
                 width={CELL_SIZE}
-                height={CORRIDOR_HEIGHT}
+                height={INTER_FLOOR_HEIGHT}
                 material={mats.wall}
               />
             )}
