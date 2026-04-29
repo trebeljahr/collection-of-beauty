@@ -192,7 +192,62 @@ function cleanCredit(raw) {
   return c;
 }
 
-function cleanTitle(raw, fname) {
+/** Specific titles that aren't fixed by any pattern rule — typos,
+ *  museum-tagged suffixes, "by Artist (year, museum)" trailers
+ *  baked into the title field. NFC-normalised for stable matching
+ *  across composed/decomposed Unicode (e.g. "Sesshū" stored as a
+ *  precomposed glyph vs u + combining macron). Mirror set lives in
+ *  src/components/gallery-dungeon/painting.tsx so the runtime
+ *  formatter catches anything that slips past the build. */
+const TITLE_REWRITES = new Map(
+  [
+    [
+      "Tenman Bridge at Settsu Province (Sesshū Tenmanbashi), from the series Remarkable Views of Bridges in Various Provinces (Shokoku meikyō kiran)",
+      "Tenman Bridge at Settsu Province (Sesshū Tenmanbashi)",
+    ],
+    [
+      "Wang Meng Dwelling in the Qingbian Mountains. ink on paper. 1366. 141x42",
+      "Dwelling in the Qingbian Mountains",
+    ],
+    [
+      "At first glance he looks very fiarce, but he s really a nice person",
+      "At first glance he looks fierce, but he's really a nice person",
+    ],
+    [
+      "Moreno Garden Bordighera 1884 - The Norton Museum Miami Florida",
+      "Moreno Garden, Bordighera",
+    ],
+    [
+      "Mt. Heng, after Juran (active ca. 960–965), from the Mustard Seed Garden Manual of Painting MET DP",
+      "Mt. Heng, after Juran, from the Mustard Seed Garden Manual of Painting",
+    ],
+    [
+      "Alexandra and Elena Pavlovna of Russia by E.Vigee-Lebrun (1796, Hermitage)",
+      "Alexandra and Elena Pavlovna of Russia",
+    ],
+    [
+      "An Experiment on a Bird in an Air Pump by Joseph Wright 'of Derby",
+      "An Experiment on a Bird in an Air Pump",
+    ],
+    [
+      "Famous Views of the 60 Provinces - #23. Yoro Waterfall in Mino Province",
+      "Yoro Waterfall in Mino Province",
+    ],
+    [
+      "36 Views of Mt. Fuji - #11. Wild Goose Hill and the Tone River",
+      "Wild Goose Hill and the Tone River",
+    ],
+    [
+      "A Frank Encampment in the Desert of Mount Sinai. 1842 - The Convent of St. Catherine in the Distance",
+      "A Frank Encampment in the Desert of Mount Sinai",
+    ],
+  ].map(([k, v]) => [k.normalize("NFC"), v]),
+);
+
+const TRAILING_ABBREV_RX =
+  /\b(Mr|Mrs|Ms|Dr|St|Sr|Jr|Inc|Co|Ltd|fl|ca|cm|in|d\. ?J|d\. ?Ä|etc|vs|Ave|Blvd|i\.e|e\.g)\.$/i;
+
+function cleanTitle(raw, fname, artist) {
   const fallback = (fname ?? "").replace(/\.[^.]+$/, "").replace(/[_]/g, " ");
   if (!raw) return fallback;
 
@@ -213,7 +268,59 @@ function cleanTitle(raw, fname) {
     if (english) cleaned = english;
   }
 
-  return cleaned || fallback;
+  cleaned = cleaned || fallback;
+
+  // 4. Targeted rewrites for titles that no general rule cleans up.
+  const rewrite = TITLE_REWRITES.get(cleaned.normalize("NFC"));
+  if (rewrite) return rewrite;
+
+  // 5. Generic late-stage cleanups for whatever slipped through:
+  //    — Hokusai-style ", from the series ..." suffix that the
+  //      filename-extracted English title sometimes preserves.
+  //    — " - Google Art Project" / " - Google Cultural Institute"
+  //      dataset breadcrumbs and "C2RMF retouched" technical noise.
+  //    — "MET DP" identifier the filename extractor doesn't always
+  //      strip cleanly.
+  //    — " - {ArtistLastName}" prefix when the filename mirrors the
+  //      "Artist - Title" Wikipedia naming convention.
+  const seriesIdx = cleaned.indexOf(", from the series ");
+  if (seriesIdx > 0) cleaned = cleaned.slice(0, seriesIdx).trim();
+  cleaned = cleaned
+    .replace(/\s+-\s+Google Art Project$/i, "")
+    .replace(/\s+-\s+Google Cultural Institute$/i, "")
+    .replace(/\s+C2RMF(\s+retouched)?\s*$/i, "")
+    .replace(/\s+MET\s+DP[\w\d]*$/i, "");
+
+  if (artist) {
+    const a = String(artist).trim();
+    if (a.length > 1) {
+      const fullPrefix = `${a} - `;
+      if (cleaned.toLowerCase().startsWith(fullPrefix.toLowerCase())) {
+        cleaned = cleaned.slice(fullPrefix.length).trim();
+      } else {
+        const tokens = a.split(/\s+/);
+        const last = tokens[tokens.length - 1];
+        if (last && last.length > 2) {
+          const lastPrefix = `${last} - `;
+          if (cleaned.toLowerCase().startsWith(lastPrefix.toLowerCase())) {
+            cleaned = cleaned.slice(lastPrefix.length).trim();
+          }
+        }
+      }
+    }
+  }
+
+  // 6. Trailing period — descriptive titles often end in `.` from the
+  // source; museum convention drops it. Skip abbreviations.
+  if (
+    cleaned.endsWith(".") &&
+    !cleaned.endsWith("..") &&
+    !TRAILING_ABBREV_RX.test(cleaned)
+  ) {
+    cleaned = cleaned.slice(0, -1).trim();
+  }
+
+  return cleaned;
 }
 
 // Pull a few sentences out of the raw description rather than the
@@ -574,7 +681,7 @@ async function main() {
       }
 
       const normalizedArtistName = normalizeArtistName(entry.artist) ?? null;
-      const title = cleanTitle(entry.title, fname);
+      const title = cleanTitle(entry.title, fname, normalizedArtistName);
       const year = extractYear(entry);
       const artistInfo = entry.artist_info ?? matchArtist(normalizedArtistName, byAlias);
       // Prefer the canonical name from the artists DB so casing variants
