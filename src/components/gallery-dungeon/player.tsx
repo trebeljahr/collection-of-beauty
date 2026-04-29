@@ -641,7 +641,15 @@ function canStepTo(
 /** Walk every cell-boundary edge the player's bbox sweeps through and
  *  reject if any of them is wall-blocked. Splits the move into single
  *  cell-boundary crossings so a fast diagonal step can't slip through
- *  a corner. */
+ *  a corner.
+ *
+ *  Also rejects destinations whose bbox already STRADDLES a blocked
+ *  edge — without this, a player standing inside a doorway (bbox
+ *  spans the door's two cells, edge between them is the door = open)
+ *  could slide sideways one cell and end up straddling the adjacent
+ *  solid wall: no cell-x changes, the move is "free", but the bbox
+ *  is now half inside the wall. The straddle check is the post-step
+ *  invariant that makes such positions unreachable in the first place. */
 function canCrossEdges(
   floor: FloorLayout,
   fromX: number,
@@ -657,6 +665,27 @@ function canCrossEdges(
   const toCellsX = [Math.floor((toX - r) / CELL_SIZE), Math.floor((toX + r) / CELL_SIZE)];
   const fromCellsZ = [Math.floor((fromZ - r) / CELL_SIZE), Math.floor((fromZ + r) / CELL_SIZE)];
   const toCellsZ = [Math.floor((toZ - r) / CELL_SIZE), Math.floor((toZ + r) / CELL_SIZE)];
+
+  // Destination straddle check — if the bbox at (toX, toZ) spans two
+  // adjacent cells, the edge between them must not be blocked.
+  if (toCellsX[0] !== toCellsX[1]) {
+    const xx = toCellsX[0];
+    if (xx >= 0 && xx < floor.gridSize.x - 1) {
+      for (const cz of [toCellsZ[0], toCellsZ[1]]) {
+        if (cz < 0 || cz >= floor.gridSize.z) continue;
+        if (floor.blockedEdgesEW[cz * (floor.gridSize.x - 1) + xx]) return false;
+      }
+    }
+  }
+  if (toCellsZ[0] !== toCellsZ[1]) {
+    const zz = toCellsZ[0];
+    if (zz >= 0 && zz < floor.gridSize.z - 1) {
+      for (const cx of [toCellsX[0], toCellsX[1]]) {
+        if (cx < 0 || cx >= floor.gridSize.x) continue;
+        if (floor.blockedEdgesNS[zz * floor.gridSize.x + cx]) return false;
+      }
+    }
+  }
 
   // EW edge crossings — for each (front, back) corner pair, if the
   // x-cell changes, the player crosses an EW edge between min and max.

@@ -178,6 +178,20 @@ export function GalleryDungeon({ artworks }: Props) {
     return () => window.removeEventListener("keydown", down);
   }, [layout, teleportToFloor, playTransition]);
 
+  // Pointer-lock release when the zoom modal opens. Unmounting drei's
+  // PointerLockControls only removes its event listeners — it does NOT
+  // call document.exitPointerLock(), so the cursor stays hidden and
+  // captured underneath the modal. Without this the user can see the
+  // overlay but can't move the mouse to dismiss it; Escape works only
+  // because the browser auto-unlocks on Esc. Pressing E (or clicking)
+  // to open never exited the lock, hence the "E doesn't release"
+  // report. Touch devices have no pointer lock so the call is a no-op.
+  useEffect(() => {
+    if (zoomed && document.pointerLockElement) {
+      document.exitPointerLock();
+    }
+  }, [zoomed]);
+
   return (
     <div className="relative w-full h-screen bg-black">
       <Canvas
