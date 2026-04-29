@@ -644,16 +644,19 @@ export function spiralRawAngle(stair: Staircase, worldX: number, worldZ: number)
 }
 
 /** Y the player's feet should sit at given a cumulative angle on this
- *  stair. Continuous along the spiral so on/off ramping is smooth and
- *  flush with the floor at both ends — at cumulative=0 the player is
- *  exactly on lowerY (= the floor below), at cumulative=2π exactly on
- *  upperY (= the floor above), with a continuous climb between. The
- *  visual rendered treads at lowerY + i*stepRise sit *under* the
- *  player while they walk that tread's arc; the top of that tread is
- *  the moving goal as they cross it. */
+ *  stair. Tread-locked step function: while the player walks tread `i`
+ *  (cumulative ∈ [i*stepAngle, (i+1)*stepAngle)) their feet are pinned
+ *  to that tread's top (`lowerY + i*stepRise`), exactly matching the
+ *  rendered geometry instead of gliding along an invisible ramp above
+ *  it. cumulative=2π returns upperY so the final climb onto the upper
+ *  floor (or the top-floor clamp) lands flush with the destination
+ *  floor. The camera damp at λ=20 turns the per-step Y jumps into a
+ *  perceptible "climbing stairs" feel rather than a teleport. */
 export function stairHeightAt(stair: Staircase, cumulativeAngle: number): number {
-  const t = Math.max(0, Math.min(1, cumulativeAngle / (Math.PI * 2)));
-  return stair.lowerY + t * (stair.upperY - stair.lowerY);
+  const stepAngle = (Math.PI * 2) / stair.numSteps;
+  const stepRise = (stair.upperY - stair.lowerY) / stair.numSteps;
+  const idx = Math.max(0, Math.min(stair.numSteps, Math.floor(cumulativeAngle / stepAngle)));
+  return stair.lowerY + idx * stepRise;
 }
 
 /** Find the stair connected above this one (its upperFloor matches

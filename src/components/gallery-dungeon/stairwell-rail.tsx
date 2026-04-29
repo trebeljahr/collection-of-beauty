@@ -273,23 +273,31 @@ export function StairwellAccents({ floor }: { floor: FloorLayout }) {
           box (TANGENT × HEIGHT × RADIAL = 0.85 × 2.4 × 0.18) reads as
           a panel facing the player rather than a thin column with a
           horizontal sign-bar nailed across it. The sign plaque fits
-          flush within the panel's tangent width — no + cross. */}
-      <mesh
-        position={[postA.x, floor.y + GATE_POST_HEIGHT / 2, postA.z]}
-        rotation={[0, postA.rotationY, 0]}
-        castShadow
-      >
-        <boxGeometry args={[GATE_POST_TANGENT_WIDTH, GATE_POST_HEIGHT, GATE_POST_RADIAL_DEPTH]} />
-        <primitive object={gatePostMaterial} attach="material" />
-      </mesh>
-      <mesh
-        position={[postB.x, floor.y + GATE_POST_HEIGHT / 2, postB.z]}
-        rotation={[0, postB.rotationY, 0]}
-        castShadow
-      >
-        <boxGeometry args={[GATE_POST_TANGENT_WIDTH, GATE_POST_HEIGHT, GATE_POST_RADIAL_DEPTH]} />
-        <primitive object={gatePostMaterial} attach="material" />
-      </mesh>
+          flush within the panel's tangent width — no + cross. Each
+          post is suppressed when its direction has no destination —
+          ground floor has no DOWN, top floor has no UP — so the gap
+          reads as a single wayfinding marker rather than an
+          asymmetric pair with one bare post. */}
+      {stairOut && (
+        <mesh
+          position={[postA.x, floor.y + GATE_POST_HEIGHT / 2, postA.z]}
+          rotation={[0, postA.rotationY, 0]}
+          castShadow
+        >
+          <boxGeometry args={[GATE_POST_TANGENT_WIDTH, GATE_POST_HEIGHT, GATE_POST_RADIAL_DEPTH]} />
+          <primitive object={gatePostMaterial} attach="material" />
+        </mesh>
+      )}
+      {stairIn && (
+        <mesh
+          position={[postB.x, floor.y + GATE_POST_HEIGHT / 2, postB.z]}
+          rotation={[0, postB.rotationY, 0]}
+          castShadow
+        >
+          <boxGeometry args={[GATE_POST_TANGENT_WIDTH, GATE_POST_HEIGHT, GATE_POST_RADIAL_DEPTH]} />
+          <primitive object={gatePostMaterial} attach="material" />
+        </mesh>
+      )}
 
       {/* Directional signs. UP goes on the post that's CCW from the
           entry direction (left-hand side of the gap as you walk in);

@@ -301,6 +301,32 @@ export function Player({
     // long spiral from floor 0 to the top without per-storey jumps).
     // Off the spiral, normal gravity + floor-plane clamp.
     let activeStair = findStairAt(floor, camera.position.x, camera.position.z);
+    // FRESH activation requires entering through the gate angularly —
+    // the spiral has a single physical entry/exit at `entryAngle` (the
+    // bottom step on the lower floor, the top step on the upper floor).
+    // Without this gate, walking into the annulus at the side (easy on
+    // the ground floor where the stairwell room has no cutout, so the
+    // floor cells under the spiral are walkable) would snap the player
+    // onto cumulative=0 — the bottom-step Y — at an angular position
+    // where the visible tread is several steps higher up. The "walk
+    // in, walk left, climb without ever being on the stairs" bug.
+    // Once already on the spiral the gate check is skipped, so the
+    // player walks the full revolution to climb.
+    if (
+      activeStair &&
+      (!spiralState.current || spiralState.current.staircaseId !== activeStair.id)
+    ) {
+      const dx = camera.position.x - activeStair.centerX;
+      const dz = camera.position.z - activeStair.centerZ;
+      const theta = Math.atan2(dz, dx);
+      const angDiff = Math.atan2(
+        Math.sin(theta - activeStair.entryAngle),
+        Math.cos(theta - activeStair.entryAngle),
+      );
+      if (Math.abs(angDiff) >= spiralGateHalfArc(activeStair.numSteps)) {
+        activeStair = null;
+      }
+    }
     // Prefer the stair the player is already tracked on, even when
     // both stairsIn and stairsOut overlap the same annulus on this
     // floor — the existing state's stair is the one we want.
