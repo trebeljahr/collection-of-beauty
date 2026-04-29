@@ -30,7 +30,7 @@ export function RoomGeometry({
   room: RoomLayout;
   isActive: boolean;
   /** Fires once per painting after its 960 px texture loads. Optional —
-   *  GalleryDungeon only passes it for the entry room so the start
+   *  Gallery3D only passes it for the entry room so the start
    *  overlay can show first-room load progress. */
   onPaintingLoaded?: () => void;
 }) {

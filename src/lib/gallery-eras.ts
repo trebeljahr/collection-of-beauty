@@ -1,6 +1,6 @@
-// Era definitions for the multi-floor dungeon gallery.
+// Era definitions for the multi-floor 3D gallery.
 // Each era becomes one floor: floor 0 (ground) = oldest, floor N = newest.
-// Eras group art movements into 7 broader historical periods. Movement
+// Eras group art movements into broader historical periods. Movement
 // names match what `scripts/build-data.mjs` emits.
 
 import type { Artwork } from "./data";

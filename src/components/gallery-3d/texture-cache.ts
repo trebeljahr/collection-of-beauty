@@ -1,10 +1,10 @@
 "use client";
 
-// Shared texture LRU + GPU upload queue for the dungeon gallery.
-// Ported from src/components/gallery-3d.tsx's texture pipeline; the
-// corridor version evolved these patterns to keep a ~200-painting
-// scene smooth, and the dungeon needs the same treatment now that it
-// can mount several hundred paintings at once on a busy floor.
+// Shared texture LRU + GPU upload queue for the 3D museum gallery.
+// Ported from an earlier corridor-style gallery's texture pipeline,
+// which evolved these patterns to keep a ~200-painting scene smooth.
+// The museum needs the same treatment now that a busy floor can
+// mount several hundred paintings at once.
 //
 // Two pieces:
 //
