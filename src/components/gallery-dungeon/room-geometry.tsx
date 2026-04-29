@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo } from "react";
+import { useEffect, useMemo } from "react";
 import * as THREE from "three";
 import { ERAS } from "@/lib/gallery-eras";
 import type { RoomLayout } from "@/lib/gallery-layout/types";
@@ -210,9 +210,12 @@ export function RoomGeometry({
  *  across instead of one stretched smear.
  *
  *  Memoised on (width, depth): rooms re-rendering with the same
- *  dimensions reuse the same buffer geometry. */
+ *  dimensions reuse the same buffer geometry. The companion useEffect
+ *  disposes the GPU buffer when the geometry is replaced (deps change)
+ *  or the room unmounts — without it, every floor swap leaks a fresh
+ *  PlaneGeometry per room into VRAM. */
 function useWorldUVPlane(width: number, depth: number): THREE.PlaneGeometry {
-  return useMemo(() => {
+  const geom = useMemo(() => {
     const g = new THREE.PlaneGeometry(width, depth);
     const uv = g.attributes.uv;
     if (uv) {
@@ -223,6 +226,8 @@ function useWorldUVPlane(width: number, depth: number): THREE.PlaneGeometry {
     }
     return g;
   }, [width, depth]);
+  useEffect(() => () => geom.dispose(), [geom]);
+  return geom;
 }
 
 /** Floor slab for a stairwell room with a circular hole around the
@@ -280,6 +285,16 @@ function StairwellFloor({
     slab.translate(0, -FLOOR_THICKNESS, 0);
     return { topGeom: top, slabGeom: slab };
   }, [width, depth, cutHole]);
+  // Free GPU buffers when the stairwell unmounts or its dimensions
+  // change. R3F only auto-disposes geometries it created from JSX
+  // intrinsics; these were allocated by us, so we own teardown.
+  useEffect(
+    () => () => {
+      topGeom.dispose();
+      slabGeom.dispose();
+    },
+    [topGeom, slabGeom],
+  );
   return (
     <>
       <mesh geometry={topGeom} position={[cxWorld, floorY - 0.005, czWorld]} receiveShadow>

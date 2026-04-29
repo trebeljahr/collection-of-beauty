@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo } from "react";
+import { useEffect, useMemo } from "react";
 import * as THREE from "three";
 import type { FloorLayout } from "@/lib/gallery-layout/types";
 import { SPIRAL_FLOOR_CUTOUT_RADIUS } from "@/lib/gallery-layout/world-coords";
@@ -193,6 +193,16 @@ export function StairwellAccents({ floor }: { floor: FloorLayout }) {
       stairIn,
     };
   }, [floor, stairwell]);
+
+  // Free the cutout rail's BufferGeometry on unmount / floor swap.
+  // R3F doesn't auto-dispose externally-created geometries, so without
+  // this every floor change strands one rail tube per floor in VRAM.
+  useEffect(
+    () => () => {
+      data?.railGeom.dispose();
+    },
+    [data],
+  );
 
   if (!stairwell || !data) return null;
   const { cx, cz, railR, railGeom, balusters, entryAngle, gateHalfArc, stairOut, stairIn } = data;

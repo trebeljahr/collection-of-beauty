@@ -347,10 +347,8 @@ export function GalleryDungeon({ artworks }: Props) {
       {/* Ambience player. Streams, loops, hidden from layout but kept
           in the DOM for the lifetime of the gallery so settings
           changes don't interrupt the loop. */}
-      {/* biome-ignore lint/a11y/useMediaCaption: ambient music has no spoken content // biome-ignore */}
-      lint/a11y/noAriaHiddenOnFocusable: hidden utility audio with no controls — focus path doesn't
-      apply
-      {/* biome-ignore lint/a11y/noAriaHiddenOnFocusable: container is decorative wrapper */}
+      {/* biome-ignore lint/a11y/useMediaCaption: ambient music has no spoken content */}
+      {/* biome-ignore lint/a11y/noAriaHiddenOnFocusable: hidden utility audio with no controls — focus path doesn't apply */}
       <audio
         ref={ambienceRef}
         src={AMBIENCE_SRC}
@@ -499,8 +497,7 @@ function StartOverlay({
       }`}
     >
       {/* biome-ignore lint/a11y/useKeyWithClickEvents: stopPropagation only. */}
-      {/* biome-ignore lint/a11y/noStaticElementInteractions: stopPropagation only — purely visual */}
-      container
+      {/* biome-ignore lint/a11y/noStaticElementInteractions: stopPropagation only — purely visual container */}
       <div
         onClick={(e) => e.stopPropagation()}
         className="w-[min(480px,92vw)] rounded-xl border border-white/15 bg-black/60 p-6 text-center text-white shadow-2xl"

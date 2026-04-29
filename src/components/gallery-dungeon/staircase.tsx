@@ -1,7 +1,7 @@
 "use client";
 
 import { Text } from "@react-three/drei";
-import { useMemo } from "react";
+import { useEffect, useMemo } from "react";
 import * as THREE from "three";
 import type { Staircase } from "@/lib/gallery-layout/types";
 import { SPIRAL_COLUMN_RADIUS } from "@/lib/gallery-layout/world-coords";
@@ -502,6 +502,17 @@ export function StaircaseRenderer({ staircase }: { staircase: Staircase }) {
     [staircase],
   );
   const brackets = useMemo(() => buildStepBrackets(staircase), [staircase]);
+  // Hand-built BufferGeometries don't get R3F's automatic teardown when
+  // the parent <mesh> unmounts. Without this, every floor swap leaks
+  // the previous floor's spirals (treads + both rail tubes) into VRAM.
+  useEffect(
+    () => () => {
+      stepsGeom.dispose();
+      innerRail.rail.dispose();
+      outerRail.rail.dispose();
+    },
+    [stepsGeom, innerRail, outerRail],
+  );
   const columnHeight = upperY - lowerY;
   const columnY = (lowerY + upperY) / 2;
 
