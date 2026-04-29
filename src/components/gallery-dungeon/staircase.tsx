@@ -426,9 +426,16 @@ function buildStepBrackets(staircase: Staircase): Array<{
     // exactly, so centreline is half a bracket-height below.
     const treadBottomY = lowerY + i * stepRise - stepRise;
     const yCentre = treadBottomY - height / 2;
+    // rotationY = -a, NOT +a: three.js's Y-rotation maps local +X
+    // to (cos θ, 0, -sin θ), but we need it to land on the radial
+    // outward direction at angle a, which is (cos a, 0, sin a).
+    // That requires θ = -a. Using +a here pointed every bracket at
+    // the mirror angle across the X-axis, so they fanned in random
+    // directions instead of lying along the radial line under each
+    // tread.
     out.push({
       position: [midR * Math.cos(a), yCentre, midR * Math.sin(a)],
-      rotationY: a,
+      rotationY: -a,
       length,
       height,
       width,
