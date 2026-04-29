@@ -32,8 +32,8 @@ const BALUSTER_SIZE = 0.07;
 /** Newel-cap finial radius and shared sphere geometry. Mirrors the
  *  matching constants in staircase.tsx so the cutout-rail's terminal
  *  ball reads as the same architectural element as the spiral rail's. */
-const FINIAL_RADIUS = 0.085;
-const finialGeometry = new THREE.SphereGeometry(FINIAL_RADIUS, 18, 12);
+const FINIAL_RADIUS = 0.13;
+const finialGeometry = new THREE.SphereGeometry(FINIAL_RADIUS, 24, 16);
 /** Vertical span of a baluster — stops at rail-bottom so the
  *  baluster top doesn't punch into the rail tube. Mirrors the same
  *  constant in staircase.tsx. */
@@ -271,10 +271,16 @@ export function StairwellAccents({ floor }: { floor: FloorLayout }) {
     rotationY: Math.PI / 2 - angleB,
   };
 
-  // Each sign hugs the OUTWARD-facing side of its post (away from
-  // the spiral centre) and inherits the post's rotation so it sits
-  // flush against the post's outward face.
-  const signOffset = GATE_POST_RADIAL_DEPTH / 2 + 0.014;
+  // Each sign sits OUTWARD of its post (away from the spiral centre)
+  // and inherits the post's rotation so it faces approaching players.
+  // Offset must clear the cutout-rail's gate-end finial — the brass
+  // sphere is centred on the gate-post line at radius FINIAL_RADIUS,
+  // so a sign at the bare post-face offset (0.10 m) lives INSIDE the
+  // sphere and reads as a plaque embedded in the knob. Pushing the
+  // sign past the sphere's outward extent leaves a small visible gap
+  // between knob and plaque, restoring the "sign mounted on a post
+  // next to a rail-cap" composition.
+  const signOffset = FINIAL_RADIUS + 0.05;
   const signFor = (post: typeof postA) => ({
     position: [
       post.x + Math.cos(post.angle) * signOffset,

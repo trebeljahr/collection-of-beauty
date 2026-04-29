@@ -85,15 +85,20 @@ const RAIL_BAR_HEIGHT = 0.1;
  *  reading as a hand rail you could grip. */
 const RAIL_BAR_HALF_WIDTH = 0.05;
 const BALUSTER_SIZE = 0.07;
-/** Newel-cap finial radius. The rail tube is RAIL_BAR_HEIGHT (0.10) by
- *  2*RAIL_BAR_HALF_WIDTH (0.10) in cross-section, so its open-end
- *  rectangle has corners ≈ 0.0707 m from centre. A sphere of 0.085 m
- *  radius wraps that rectangle with margin to spare, so the finial
- *  always covers the open tube end (and any tiny inter-segment seam
- *  between two abutting tubes) on every camera angle. Shared geometry
- *  so all finials in the scene reuse one buffer. */
-const FINIAL_RADIUS = 0.085;
-const finialGeometry = new THREE.SphereGeometry(FINIAL_RADIUS, 18, 12);
+/** Newel-cap finial radius. Has to be enough larger than the rail
+ *  tube's cross-section that the sphere reads as a distinct
+ *  decorative ball rather than a tight swelling at the rail end:
+ *  the tube is RAIL_BAR_HEIGHT × 2*RAIL_BAR_HALF_WIDTH = 0.10 × 0.10,
+ *  with corners ≈ 0.0707 m from centre. At R=0.085 the tube
+ *  emerges from the sphere at distance √(R²−h²) ≈ 0.069 m from the
+ *  centre — visually the rail appears to grow out of a tiny bump,
+ *  with a sharp crease where the flat tube face meets the curved
+ *  sphere. R=0.13 pushes that intersection back to ≈ 0.12 m and
+ *  the sphere clearly stands proud of the rail, reading as a
+ *  proper newel cap. Shared geometry so all finials in the scene
+ *  reuse one buffer. */
+const FINIAL_RADIUS = 0.13;
+const finialGeometry = new THREE.SphereGeometry(FINIAL_RADIUS, 24, 16);
 /** Vertical span of a baluster, measured between its top and bottom.
  *  Stops short of the rail's top by exactly RAIL_BAR_HEIGHT so the
  *  baluster's top sits flush with the rail's bottom face — without
@@ -540,8 +545,22 @@ function buildStepBrackets(staircase: Staircase): Array<{
  * column out to the inner edge of each tread, so the steps read as
  * cantilevered off the column rather than floating in space.
  */
-export function StaircaseRenderer({ staircase }: { staircase: Staircase }) {
+export function StaircaseRenderer({
+  staircase,
+  allStaircases,
+}: {
+  staircase: Staircase;
+  /** Every staircase in the building. Used to determine whether this
+   *  flight is the helix's lowest or highest revolution — only the
+   *  absolute ends emit inner-rail newel finials, since the inner
+   *  rail is continuous between adjacent flights and per-revolution
+   *  finials at every floor boundary would render as overlapping
+   *  knobs at every storey crossing. */
+  allStaircases: readonly Staircase[];
+}) {
   const { centerX, centerZ, lowerY, upperY } = staircase;
+  const hasFlightBelow = findStairBelow(staircase, allStaircases) !== undefined;
+  const hasFlightAbove = findStairAbove(staircase, allStaircases) !== undefined;
 
   const stepsGeom = useMemo(() => buildSpiralStepsGeometry(staircase), [staircase]);
   const innerRail = useMemo(() => buildSpiralRail(staircase, "inner", 0, false), [staircase]);
@@ -627,17 +646,23 @@ export function StaircaseRenderer({ staircase }: { staircase: Staircase }) {
           through). The brass sphere wraps the cross-section with
           margin to spare, so it covers the open end AND any tiny
           shading/positional seam where two abutting tube segments
-          meet — e.g. the inner rail's per-revolution boundaries,
-          where stair N's last vertex ring butts against stair N+1's
-          first ring. Inner rail emits 2 finials per revolution (top
-          and bottom of the helix); the floor-boundary pair from two
-          adjacent stairs overlap into a single visible ball. Outer
-          rail emits 2 finials at the gate ends. */}
-      {innerRail.endpoints.map((p, i) => (
-        <mesh key={`in-finial-${i}`} position={p} geometry={finialGeometry} castShadow>
+          meet.
+          Inner rail finials are emitted ONLY at the absolute top and
+          bottom of the helix — the per-revolution endpoints at every
+          intermediate floor boundary would otherwise stack into a
+          single visible knob at every storey, even though the inner
+          rail is continuous through the boundary. endpoints[0] is the
+          segment's start (low Y), endpoints[1] its end (high Y). */}
+      {!hasFlightBelow && innerRail.endpoints[0] && (
+        <mesh position={innerRail.endpoints[0]} geometry={finialGeometry} castShadow>
           <primitive object={railTopMaterial} attach="material" />
         </mesh>
-      ))}
+      )}
+      {!hasFlightAbove && innerRail.endpoints[1] && (
+        <mesh position={innerRail.endpoints[1]} geometry={finialGeometry} castShadow>
+          <primitive object={railTopMaterial} attach="material" />
+        </mesh>
+      )}
       {outerRail.endpoints.map((p, i) => (
         <mesh key={`out-finial-${i}`} position={p} geometry={finialGeometry} castShadow>
           <primitive object={railTopMaterial} attach="material" />
@@ -716,18 +741,38 @@ export function spiralRawAngle(stair: Staircase, worldX: number, worldZ: number)
 }
 
 /** Y the player's feet should sit at given a cumulative angle on this
- *  stair. Tread-locked step function: while the player walks tread `i`
- *  (cumulative ∈ [i*stepAngle, (i+1)*stepAngle)) their feet are pinned
- *  to that tread's top (`lowerY + i*stepRise`), exactly matching the
- *  rendered geometry instead of gliding along an invisible ramp above
- *  it. cumulative=2π returns upperY so the final climb onto the upper
- *  floor (or the top-floor clamp) lands flush with the destination
- *  floor. The camera damp at λ=20 turns the per-step Y jumps into a
- *  perceptible "climbing stairs" feel rather than a teleport. */
+ *  stair. Mostly a tread-locked step function: while the player walks
+ *  tread `i` their feet are pinned to that tread's top (`lowerY +
+ *  i*stepRise`), exactly matching the rendered geometry instead of
+ *  gliding along an invisible ramp above it.
+ *
+ *  EXCEPT the FIRST and LAST tread's arcs, which are smoothed into
+ *  ramps so on/off-ramping is flush with the destination floor. A
+ *  pure step function leaves the player one stepRise below the upper
+ *  floor for the entire last tread (cum ∈ [21*stepAngle, 2π) → idx=21
+ *  → Y = upperY−stepRise), and the player only "lands" on upperY at
+ *  the cum=2π boundary — by which point canStepTo's STAIR_LANDING_TOL
+ *  has already permitted them to step off the spiral. Result: the
+ *  camera was 40 cm under the upper floor mesh as they walked toward
+ *  the gate, with the floor slab clipping through their view, and the
+ *  exit move triggered a Y-snap teleport. The smoothed first/last
+ *  arc lifts the player flush with the destination floor by the time
+ *  they reach the landing arc. The middle treads stay discrete so
+ *  the per-step "climbing stairs" feel is preserved. */
 export function stairHeightAt(stair: Staircase, cumulativeAngle: number): number {
   const stepAngle = (Math.PI * 2) / stair.numSteps;
   const stepRise = (stair.upperY - stair.lowerY) / stair.numSteps;
-  const idx = Math.max(0, Math.min(stair.numSteps, Math.floor(cumulativeAngle / stepAngle)));
+  if (cumulativeAngle <= 0) return stair.lowerY;
+  if (cumulativeAngle >= Math.PI * 2) return stair.upperY;
+  const idx = Math.floor(cumulativeAngle / stepAngle);
+  if (idx === 0) {
+    const t = cumulativeAngle / stepAngle;
+    return stair.lowerY + t * stepRise;
+  }
+  if (idx >= stair.numSteps - 1) {
+    const t = (cumulativeAngle - (stair.numSteps - 1) * stepAngle) / stepAngle;
+    return stair.lowerY + (stair.numSteps - 1) * stepRise + t * stepRise;
+  }
   return stair.lowerY + idx * stepRise;
 }
 

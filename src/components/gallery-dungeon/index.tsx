@@ -10,7 +10,7 @@ import { useNeedsRotate, useTouchDevice } from "@/hooks/use-touch-device";
 import { useAudioSettings } from "@/lib/audio-settings";
 import type { Artwork } from "@/lib/data";
 import { layoutMuseum } from "@/lib/gallery-layout/layout-museum";
-import type { FloorLayout } from "@/lib/gallery-layout/types";
+import type { FloorLayout, Staircase } from "@/lib/gallery-layout/types";
 
 import { FullscreenButton } from "./fullscreen-button";
 import { HallwayRenderer } from "./hallway";
@@ -220,6 +220,7 @@ export function GalleryDungeon({ artworks }: Props) {
 
         <FloorScene
           floor={currentFloor}
+          allStaircases={layout.allStaircases}
           activeRoomIdx={activeRoomIdx}
           // Only the entry floor wires the load-tally callback; once the
           // player has started, further floors don't need it.
@@ -235,6 +236,7 @@ export function GalleryDungeon({ artworks }: Props) {
         {currentFloorIdx > 0 && (
           <FloorScene
             floor={layout.floors[currentFloorIdx - 1]}
+            allStaircases={layout.allStaircases}
             activeRoomIdx={-1}
             showOnly="stairwell"
           />
@@ -242,6 +244,7 @@ export function GalleryDungeon({ artworks }: Props) {
         {currentFloorIdx < layout.floors.length - 1 && (
           <FloorScene
             floor={layout.floors[currentFloorIdx + 1]}
+            allStaircases={layout.allStaircases}
             activeRoomIdx={-1}
             showOnly="stairwell"
           />
@@ -411,12 +414,18 @@ export function GalleryDungeon({ artworks }: Props) {
 
 function FloorScene({
   floor,
+  allStaircases,
   activeRoomIdx,
   showOnly,
   entryRoomId,
   onEntryPaintingLoaded,
 }: {
   floor: FloorLayout;
+  /** Every staircase in the building. Threaded into StaircaseRenderer
+   *  so it can suppress inner-rail finials at intermediate floor
+   *  boundaries (only the absolute top/bottom of the helix should
+   *  show a newel cap). */
+  allStaircases: readonly Staircase[];
   activeRoomIdx: number;
   /** "stairwell" keeps only the stairwell room and its stair geometry —
    *  used for adjacent floors so the stair has visual continuity
@@ -448,7 +457,7 @@ function FloorScene({
         <HallwayRenderer key={hw.id} hallway={hw} floor={floor} />
       ))}
       {stairs.map((s) => (
-        <StaircaseRenderer key={s.id} staircase={s} />
+        <StaircaseRenderer key={s.id} staircase={s} allStaircases={allStaircases} />
       ))}
       {/* Cutout-edge railing + entry gate posts + signage. Rendered
           for every floor that has a stairwell, including adjacent
