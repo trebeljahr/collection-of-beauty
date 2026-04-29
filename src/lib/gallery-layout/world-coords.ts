@@ -2,12 +2,12 @@
 //
 // A cell is a square on the generator grid; in world space it is
 // CELL_SIZE metres on a side. Floors stack vertically separated by
-// FLOOR_SEPARATION metres (room height + a slab + breathing room so
-// the staircase ramp has a sensible incline).
+// FLOOR_SEPARATION metres; the spiral staircase rises one full
+// revolution over that span, so the gap also sets the stair pitch.
 
 export const CELL_SIZE = 2.5; // metres per cell on the XZ plane
-export const ROOM_HEIGHT = 6.2; // interior ceiling of a room
-export const CORRIDOR_HEIGHT = 3.4; // lower ceiling in hallways
+export const ROOM_HEIGHT = 6.2; // interior ceiling plane of a room
+export const CORRIDOR_HEIGHT = 3.4; // lower interior ceiling in hallways
 export const FLOOR_SEPARATION = 9; // metres between floor surfaces
 export const WALL_THICKNESS = 0.1;
 
@@ -38,6 +38,14 @@ export const SPIRAL_COLUMN_RADIUS = 0.7;
  *  so floors stop reading as paper-thin sheets when seen from below
  *  (open well) or in cross-section at the cutout edges. */
 export const FLOOR_THICKNESS = 0.35;
+/** Height of a structural wall — from a floor surface up to the
+ *  underside of the slab on the floor above. Walls always span this
+ *  full height so the building reads as continuous masonry across
+ *  the open spiral well; the visible interior ceiling plane (at
+ *  ROOM_HEIGHT or CORRIDOR_HEIGHT) hides the plenum above it from
+ *  inside the room, so rooms still feel architecturally sized rather
+ *  than cavernous. */
+export const INTER_FLOOR_HEIGHT = FLOOR_SEPARATION - FLOOR_THICKNESS;
 /** Stairwell room footprint in cells. Must be odd so it centres cleanly. */
 export const SPIRAL_ROOM_CELLS = 9;
 /** Radius the floor cutout uses around the spiral. Sits just outside
