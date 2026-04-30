@@ -58,6 +58,7 @@ export type EraId =
   | "baroque"
   | "enlightenment"
   | "romantic"
+  | "ukiyo-e"
   | "fin-de-siecle"
   | "modern";
 
@@ -160,7 +161,7 @@ export const ERAS: Era[] = [
     title: "Rococo & Neoclassicism",
     yearMin: 1700,
     yearMax: 1799,
-    movements: ["Rococo", "Neoclassicism", "Enlightenment", "Ukiyo-e"],
+    movements: ["Rococo", "Neoclassicism", "Enlightenment"],
     palette: {
       wallColor: "#e4d7b4",
       floorColor: "#2e2015",
@@ -215,8 +216,39 @@ export const ERAS: Era[] = [
     },
   },
   {
-    id: "fin-de-siecle",
+    id: "ukiyo-e",
     index: 5,
+    title: "Ukiyo-e — The Floating World",
+    // Movement-tag only: yearMin > yearMax keeps the year-fallback in
+    // assignEra from accidentally placing untagged 18th/19th-c work
+    // here. Edo prints span 1700-1890 chronologically, but slotting
+    // them by year would scoop up Western painting from the same
+    // period.
+    yearMin: 9999,
+    yearMax: 0,
+    movements: ["Ukiyo-e"],
+    palette: {
+      // Rice-paper warm white walls, dark walnut + black floor, red
+      // lacquer accent. Mirrors a traditional Edo gallery — the
+      // redLacquer frame variant is already coded for these works.
+      wallColor: "#efe6ce",
+      floorColor: "#1a120c",
+      ceilingColor: "#f3eccf",
+      lampTint: "#ffcf94",
+      accent: "#a23b2c",
+      roomAccents: ["#1a120c", "#2c1a18", "#1a1c25", "#1f2418", "#2a1a16"],
+      floorTexture: "wood_floor_deck",
+    },
+    blurb: "Edo woodblock prints — pictures of the floating world.",
+    anchor: {
+      movement: "Ukiyo-e",
+      minCells: { x: 9, z: 9 },
+      preferredLocation: "center",
+    },
+  },
+  {
+    id: "fin-de-siecle",
+    index: 6,
     title: "Impressionism & Fin-de-siècle",
     yearMin: 1870,
     yearMax: 1909,
@@ -254,7 +286,7 @@ export const ERAS: Era[] = [
   },
   {
     id: "modern",
-    index: 6,
+    index: 7,
     title: "Modernism",
     yearMin: 1910,
     yearMax: 9999,
