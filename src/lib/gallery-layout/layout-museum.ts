@@ -299,11 +299,14 @@ function bucketByEra(all: Artwork[]): Map<EraId, Artwork[]> {
   for (const a of all) {
     if (a.folder !== "collection-of-beauty") continue;
     if (!a.objectKey) continue;
-    if (a.year == null) continue;
-    if (!a.realDimensions) continue;
-    const { widthCm, heightCm } = a.realDimensions;
-    if (widthCm < 15 || widthCm > 450) continue;
-    if (heightCm < 15 || heightCm > 450) continue;
+    // Skip absurd dimensions when known. Missing dimensions are fine —
+    // slotToPlacement falls back to a pixel-aspect estimate (or 80×100
+    // cm) and assignEra needs only a movement OR a year, not both.
+    if (a.realDimensions) {
+      const { widthCm, heightCm } = a.realDimensions;
+      if (widthCm < 15 || widthCm > 450) continue;
+      if (heightCm < 15 || heightCm > 450) continue;
+    }
     const era = assignEra(a);
     if (!era) continue;
     m.get(era)!.push(a);
