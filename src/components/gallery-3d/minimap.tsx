@@ -14,6 +14,10 @@ type Props = {
   /** CSS pixel side of the map area (the footer adds extra height). */
   size?: number;
   className?: string;
+  /** When false, suppress the player-arrow draw — used by the
+   *  expanded big-map view when the user is previewing a floor that
+   *  isn't the one they're physically standing on. Default: true. */
+  showPlayer?: boolean;
 };
 
 const PAD = 6;
@@ -27,7 +31,14 @@ const FOOTER_H = 48;
  * plan is baked to an offscreen canvas; only the player arrow is
  * redrawn each frame.
  */
-export function Minimap({ floor, activeRoomIdx, playerRef, size = 220, className }: Props) {
+export function Minimap({
+  floor,
+  activeRoomIdx,
+  playerRef,
+  size = 220,
+  className,
+  showPlayer = true,
+}: Props) {
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
   const staticRef = useRef<HTMLCanvasElement | null>(null);
   const totalH = size + FOOTER_H;
@@ -218,7 +229,7 @@ export function Minimap({ floor, activeRoomIdx, playerRef, size = 220, className
       }
       ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
 
-      const p = playerRef.current;
+      const p = showPlayer ? playerRef.current : null;
       if (p) {
         const { x: gx, z: gz } = floor.gridSize;
         const scale = Math.min((size - PAD * 2) / gx, (size - PAD * 2) / gz);
@@ -253,7 +264,7 @@ export function Minimap({ floor, activeRoomIdx, playerRef, size = 220, className
     };
     raf = requestAnimationFrame(draw);
     return () => cancelAnimationFrame(raf);
-  }, [floor, playerRef, size, totalH]);
+  }, [floor, playerRef, size, totalH, showPlayer]);
 
   return (
     <canvas

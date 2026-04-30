@@ -50,6 +50,17 @@ export function Gallery3D({ artworks }: Props) {
   // floor's stairwell mount lazily at the floor-swap boundary, leaving
   // a black band visible through the spiral cutout mid-descent.
   const [activeStairId, setActiveStairId] = useState<string | null>(null);
+  // Big-map overlay state. Press M to toggle. While open, player input
+  // is paused and the user can cycle through floor plans with the
+  // arrow keys / PgUp / PgDn, then commit a teleport with Enter or
+  // dismiss with M / Esc. `viewedMapFloorIdx` mirrors `currentFloorIdx`
+  // until the map opens; the user's cycling drives it from then on.
+  const [mapOpen, setMapOpen] = useState(false);
+  const [viewedMapFloorIdx, setViewedMapFloorIdx] = useState(layout.entry.floorIndex);
+  // Big-map size — sized once on open, doesn't track viewport resize
+  // (rare during a play session). Capped so it doesn't dominate the
+  // screen on huge monitors.
+  const [bigMapSize, setBigMapSize] = useState(600);
 
   // Entry room — used as the basis for the start-overlay loading bar.
   // We wait for this room's paintings to decode before the player can
@@ -69,7 +80,7 @@ export function Gallery3D({ artworks }: Props) {
   // `joystick-controller` package as my ricos.site demo.
   const isTouch = useTouchDevice() === true;
   const needsRotate = useNeedsRotate();
-  const joysticksActive = isTouch && hasStarted && !zoomed && !needsRotate;
+  const joysticksActive = isTouch && hasStarted && !zoomed && !mapOpen && !needsRotate;
   const moveJoystick = useJoystick({
     enabled: joysticksActive,
     params: { x: "12%", y: "18%" },
@@ -197,6 +208,61 @@ export function Gallery3D({ artworks }: Props) {
     return () => window.removeEventListener("keydown", down);
   }, [layout, teleportToFloor, playTransition]);
 
+  // M opens / closes the big map. Inside the big map, ↑/↓ + PgUp/PgDn
+  // cycle through floor plans without teleporting; Enter commits the
+  // jump to whichever floor is currently being previewed; Esc / M
+  // close. Pointer-lock is dropped on open so the user can interact
+  // with whatever overlay UI we add later (clickable floor list, etc.)
+  // without fighting a captured cursor.
+  useEffect(() => {
+    if (!hasStarted || zoomed) return;
+    const down = (e: KeyboardEvent) => {
+      if (e.code === "KeyM") {
+        e.preventDefault();
+        if (!mapOpen) {
+          setViewedMapFloorIdx(currentFloorIdx);
+          const s = Math.max(300, Math.min(window.innerHeight - 180, window.innerWidth - 160, 760));
+          setBigMapSize(s);
+          setMapOpen(true);
+          if (!isTouch && document.pointerLockElement) document.exitPointerLock();
+        } else {
+          setMapOpen(false);
+        }
+        return;
+      }
+      if (!mapOpen) return;
+      if (e.code === "Escape") {
+        e.preventDefault();
+        setMapOpen(false);
+      } else if (e.code === "ArrowUp" || e.code === "PageUp") {
+        e.preventDefault();
+        setViewedMapFloorIdx((i) => Math.min(layout.floors.length - 1, i + 1));
+      } else if (e.code === "ArrowDown" || e.code === "PageDown") {
+        e.preventDefault();
+        setViewedMapFloorIdx((i) => Math.max(0, i - 1));
+      } else if (e.code === "Enter" || e.code === "NumpadEnter") {
+        e.preventDefault();
+        if (viewedMapFloorIdx !== currentFloorIdx) {
+          teleportToFloor(viewedMapFloorIdx);
+          playTransition();
+        }
+        setMapOpen(false);
+      }
+    };
+    window.addEventListener("keydown", down);
+    return () => window.removeEventListener("keydown", down);
+  }, [
+    hasStarted,
+    zoomed,
+    mapOpen,
+    currentFloorIdx,
+    viewedMapFloorIdx,
+    isTouch,
+    layout.floors.length,
+    teleportToFloor,
+    playTransition,
+  ]);
+
   // Pointer-lock release when the zoom modal opens. Unmounting drei's
   // PointerLockControls only removes its event listeners — it does NOT
   // call document.exitPointerLock(), so the cursor stays hidden and
@@ -282,7 +348,7 @@ export function Gallery3D({ artworks }: Props) {
         <LodController />
 
         <Player
-          enabled={hasStarted && !zoomed}
+          enabled={hasStarted && !zoomed && !mapOpen}
           floor={currentFloor}
           allStaircases={layout.allStaircases}
           spawnAt={spawnForFloor.current}
@@ -312,7 +378,7 @@ export function Gallery3D({ artworks }: Props) {
             through the canvas, so Player's pointerdown listener
             silently stops firing and click-to-zoom dies even though
             E (a window keydown) keeps working. */}
-        {hasStarted && !zoomed && !isTouch && (
+        {hasStarted && !zoomed && !mapOpen && !isTouch && (
           <PointerLockControls
             selector=".gallery-canvas-host"
             domElement={canvasRef.current ?? undefined}
@@ -348,7 +414,7 @@ export function Gallery3D({ artworks }: Props) {
           start screen, joysticks, and minimap are all hidden until
           they rotate. */}
       {needsRotate && <LandscapePrompt />}
-      {hasStarted && (
+      {hasStarted && !mapOpen && (
         <div
           className={`absolute bg-black/60 text-neutral-100 px-4 py-2 rounded text-sm pointer-events-none ${
             isTouch ? "top-4 left-1/2 -translate-x-1/2" : "bottom-4 left-4"
@@ -367,6 +433,7 @@ export function Gallery3D({ artworks }: Props) {
       )}
       {hasStarted &&
         !zoomed &&
+        !mapOpen &&
         (aiming ? (
           <div className="absolute bottom-6 left-1/2 -translate-x-1/2 flex items-center gap-2 rounded-full border border-white/25 bg-black/70 px-4 py-1.5 text-sm text-white shadow-lg pointer-events-none backdrop-blur-sm">
             {isTouch ? (
@@ -385,7 +452,8 @@ export function Gallery3D({ artworks }: Props) {
               <>Left stick walks · right stick looks</>
             ) : (
               <>
-                1 Gothic · 2 Renaissance · 3 Baroque · 4 Enlightenment · 5 Romantic · 6 Ukiyo-e · 7
+                <kbd className="rounded border border-white/30 px-1 font-mono">M</kbd> map · 1
+                Gothic · 2 Renaissance · 3 Baroque · 4 Enlightenment · 5 Romantic · 6 Ukiyo-e · 7
                 Fin-de-siècle · 8 Modern
               </>
             )}
@@ -398,13 +466,13 @@ export function Gallery3D({ artworks }: Props) {
           the inspect/zoom affordance. Always visible while walking;
           hidden during the start overlay and zoom modal so it doesn't
           compete with either. */}
-      {hasStarted && !zoomed && <Crosshair inspecting={aiming !== null} />}
+      {hasStarted && !zoomed && !mapOpen && <Crosshair inspecting={aiming !== null} />}
       {/* Audio + fullscreen pills — shown after the start gate (mount
           on the user's first click, which is also the autoplay gate).
           Audio at top-4 right-4; fullscreen toggle sits to its left so
           the two pills don't overlap and the cluster reads as a single
           row of controls. */}
-      {hasStarted && !zoomed && (
+      {hasStarted && !zoomed && !mapOpen && (
         <>
           <AudioControls className="top-4 right-4" />
           <FullscreenButton className="top-4 right-24" />
@@ -414,7 +482,7 @@ export function Gallery3D({ artworks }: Props) {
           look joystick (bottom-right) and audio controls (top-right)
           don't collide with it. Smaller size on mobile to leave room
           for the centred floor banner on narrow viewports. */}
-      {hasStarted && !zoomed && (
+      {hasStarted && !zoomed && !mapOpen && (
         <div
           className={`absolute pointer-events-none ${
             isTouch ? "top-4 left-4" : "bottom-4 right-4"
@@ -427,6 +495,35 @@ export function Gallery3D({ artworks }: Props) {
             size={isTouch ? 140 : 220}
           />
         </div>
+      )}
+      {/* Big-map overlay (toggled with M). Shows the full floor plan
+          for whichever floor the user is previewing — defaults to the
+          one they're physically on. ↑ / ↓ + PgUp / PgDn cycle
+          floors; Enter teleports there; M / Esc dismisses. The dim
+          backdrop closes it on click so users who can't recall the
+          shortcut have a way out. */}
+      {hasStarted && !zoomed && mapOpen && (
+        <BigMapOverlay
+          floor={layout.floors[viewedMapFloorIdx]}
+          activeRoomIdx={viewedMapFloorIdx === currentFloorIdx ? activeRoomIdx : -1}
+          playerRef={lastCameraRef}
+          showPlayer={viewedMapFloorIdx === currentFloorIdx}
+          floorCount={layout.floors.length}
+          floorTitles={layout.floors.map((f) => f.era.title)}
+          viewedFloorIdx={viewedMapFloorIdx}
+          currentFloorIdx={currentFloorIdx}
+          size={bigMapSize}
+          onSelect={(idx) => setViewedMapFloorIdx(idx)}
+          onClose={() => setMapOpen(false)}
+          onJump={(idx) => {
+            if (idx !== currentFloorIdx) {
+              teleportToFloor(idx);
+              playTransition();
+            }
+            setMapOpen(false);
+          }}
+          isTouch={isTouch}
+        />
       )}
       {zoomed && (
         <ZoomModal
@@ -628,7 +725,8 @@ function StartOverlay({
               <kbd className="rounded border border-white/30 px-1.5">D</kbd> to walk · mouse to look
               · <kbd className="rounded border border-white/30 px-1.5">Shift</kbd> to run ·{" "}
               <kbd className="rounded border border-white/30 px-1.5">Space</kbd> to jump · click a
-              painting to zoom · 1–7 teleports between floors
+              painting to zoom · <kbd className="rounded border border-white/30 px-1.5">M</kbd> for
+              the full map · 1–8 teleports between floors
             </>
           )}
         </p>
@@ -653,6 +751,132 @@ function StartOverlay({
         >
           {ready ? "Enter" : "Preparing…"}
         </button>
+      </div>
+    </div>
+  );
+}
+
+/**
+ * Full-screen big-map overlay. Renders the floor plan of whichever
+ * floor is currently being previewed (the *viewed* floor — not
+ * necessarily the one the player is standing on), with a vertical
+ * floor-stack picker on the side and a hint footer. The keyboard
+ * shortcuts driving navigation live up in Gallery3D so they keep
+ * working even if focus isn't on this overlay; this component fires
+ * `onSelect` / `onJump` / `onClose` for click-driven equivalents.
+ */
+function BigMapOverlay({
+  floor,
+  activeRoomIdx,
+  playerRef,
+  showPlayer,
+  floorCount,
+  floorTitles,
+  viewedFloorIdx,
+  currentFloorIdx,
+  size,
+  onSelect,
+  onJump,
+  onClose,
+  isTouch,
+}: {
+  floor: FloorLayout;
+  activeRoomIdx: number;
+  playerRef: React.RefObject<PlayerSample | null>;
+  showPlayer: boolean;
+  floorCount: number;
+  floorTitles: string[];
+  viewedFloorIdx: number;
+  currentFloorIdx: number;
+  size: number;
+  onSelect: (idx: number) => void;
+  onJump: (idx: number) => void;
+  onClose: () => void;
+  isTouch: boolean;
+}) {
+  return (
+    // biome-ignore lint/a11y/useKeyWithClickEvents: backdrop dismiss is a courtesy mouse shortcut; keyboard already maps Esc / M to close at the parent.
+    // biome-ignore lint/a11y/noStaticElementInteractions: full-screen click target gating the overlay
+    <div
+      onClick={onClose}
+      className="absolute inset-0 z-30 flex items-center justify-center gap-6 bg-black/85 backdrop-blur-md p-6"
+    >
+      {/* Floor-stack picker — newest on top so it visually mirrors
+          the building's vertical stack. Click any row to preview that
+          floor; double-click (or Enter / button to the right) jumps. */}
+      {/* biome-ignore lint/a11y/useKeyWithClickEvents: stopPropagation only — keyboard nav is handled at the parent. */}
+      {/* biome-ignore lint/a11y/noStaticElementInteractions: stopPropagation only — purely visual container */}
+      <div
+        onClick={(e) => e.stopPropagation()}
+        className="flex flex-col-reverse gap-1 rounded-lg border border-white/15 bg-black/60 p-3 text-sm text-white/90 shadow-xl max-h-[80vh] overflow-y-auto"
+      >
+        <div className="text-[10px] uppercase tracking-wider text-white/45 mb-1 px-2">Floors</div>
+        {Array.from({ length: floorCount }, (_, i) => {
+          const isViewed = i === viewedFloorIdx;
+          const isCurrent = i === currentFloorIdx;
+          return (
+            <button
+              type="button"
+              key={i}
+              onClick={() => onSelect(i)}
+              onDoubleClick={() => onJump(i)}
+              className={`flex items-center gap-2 rounded px-2 py-1 text-left transition ${
+                isViewed
+                  ? "bg-white/15 text-white"
+                  : "text-white/70 hover:bg-white/10 hover:text-white"
+              }`}
+            >
+              <span
+                className={`inline-block w-5 text-right font-mono text-xs ${
+                  isCurrent ? "text-amber-300" : "text-white/55"
+                }`}
+              >
+                F{i}
+              </span>
+              <span className="flex-1 truncate text-sm">{floorTitles[i]}</span>
+              {isCurrent && (
+                <span
+                  aria-label="You are here"
+                  className="text-[10px] uppercase tracking-wider text-amber-300"
+                >
+                  here
+                </span>
+              )}
+            </button>
+          );
+        })}
+      </div>
+
+      {/* Map + footer hint. */}
+      {/* biome-ignore lint/a11y/useKeyWithClickEvents: stopPropagation only — keyboard nav is handled at the parent. */}
+      {/* biome-ignore lint/a11y/noStaticElementInteractions: stopPropagation only — purely visual container */}
+      <div onClick={(e) => e.stopPropagation()} className="flex flex-col items-center gap-3">
+        <Minimap
+          floor={floor}
+          activeRoomIdx={activeRoomIdx}
+          playerRef={playerRef}
+          showPlayer={showPlayer}
+          size={size}
+        />
+        <div className="flex items-center gap-3 text-xs text-white/75">
+          {isTouch ? (
+            <>Tap a floor on the left · double-tap to jump · tap outside to close</>
+          ) : (
+            <>
+              <kbd className="rounded border border-white/30 px-1.5 font-mono">↑</kbd>
+              <kbd className="rounded border border-white/30 px-1.5 font-mono">↓</kbd>
+              <span>cycle floors</span>
+              <span className="text-white/35">·</span>
+              <kbd className="rounded border border-white/30 px-1.5 font-mono">Enter</kbd>
+              <span>jump</span>
+              <span className="text-white/35">·</span>
+              <kbd className="rounded border border-white/30 px-1.5 font-mono">M</kbd>
+              <span>/</span>
+              <kbd className="rounded border border-white/30 px-1.5 font-mono">Esc</kbd>
+              <span>close</span>
+            </>
+          )}
+        </div>
       </div>
     </div>
   );
