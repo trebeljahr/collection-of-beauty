@@ -181,7 +181,7 @@ export function Gallery3D({ artworks }: Props) {
     [currentFloorIdx, playTransition],
   );
 
-  // Debug 1..7 teleport keys.
+  // Debug 1..N teleport keys (one per floor).
   useEffect(() => {
     const down = (e: KeyboardEvent) => {
       if (e.code.startsWith("Digit")) {
@@ -385,8 +385,8 @@ export function Gallery3D({ artworks }: Props) {
               <>Left stick walks · right stick looks</>
             ) : (
               <>
-                1 Gothic · 2 Renaissance · 3 Baroque · 4 Enlightenment · 5 Romantic · 6
-                Fin-de-siècle · 7 Modern
+                1 Gothic · 2 Renaissance · 3 Baroque · 4 Enlightenment · 5 Romantic · 6 Ukiyo-e · 7
+                Fin-de-siècle · 8 Modern
               </>
             )}
           </div>
