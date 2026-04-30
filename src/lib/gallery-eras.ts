@@ -161,7 +161,7 @@ export const ERAS: Era[] = [
     title: "Rococo & Neoclassicism",
     yearMin: 1700,
     yearMax: 1799,
-    movements: ["Rococo", "Neoclassicism", "Enlightenment"],
+    movements: ["Rococo", "Neoclassicism", "Rococo / Neoclassicism", "Enlightenment"],
     palette: {
       wallColor: "#e4d7b4",
       floorColor: "#2e2015",

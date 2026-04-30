@@ -609,9 +609,29 @@ export function distributePaintings(floor: FloorLayout, eraArtworks: Artwork[]):
  *  z-fights the wall plane behind it. */
 function slotToPlacement(slot: Slot, artwork: Artwork): Placement {
   const dims = artwork.realDimensions;
-  // Default dimensions if realDimensions missing: 80x100 cm.
-  let wM = dims ? dims.widthCm / 100 : 0.8;
-  let hM = dims ? dims.heightCm / 100 : 1.0;
+  // Fallback when realDimensions missing: derive shape from the image's
+  // pixel aspect ratio so unknown-size works don't all render as the
+  // same 80×100 cm rectangle. Long-edge ≈ 90 cm reads as a typical
+  // gallery painting. If we don't even have pixel dims, fall back to
+  // 80×100 cm.
+  let wM: number;
+  let hM: number;
+  if (dims) {
+    wM = dims.widthCm / 100;
+    hM = dims.heightCm / 100;
+  } else if (artwork.width && artwork.height) {
+    const aspect = artwork.width / artwork.height;
+    if (aspect >= 1) {
+      wM = 0.9;
+      hM = 0.9 / aspect;
+    } else {
+      hM = 0.9;
+      wM = 0.9 * aspect;
+    }
+  } else {
+    wM = 0.8;
+    hM = 1.0;
+  }
 
   // Sanity-clamp absurd aspect ratios. Some Wikimedia metadata records
   // a panel's predella height (e.g. Botticelli's Coronation lists
