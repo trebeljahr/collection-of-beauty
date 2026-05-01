@@ -12,7 +12,13 @@
 # Re-runnable: rclone's `sync` is incremental (skips files whose size
 # matches), so this is safe to call after every `pnpm shrink`.
 #
-# Env (auto-loaded from .env.local if present, same vars as the JS path):
+# Env loading: package.json's `assets:sync` invokes this via `dotenvx run`
+# which decrypts .env.production and layers .env.local on top before exec.
+# So the four R2 vars below can live in either file (encrypted in
+# .env.production for cross-machine sharing, plaintext in .env.local for
+# per-machine overrides).
+#
+# Required env:
 #   R2_ENDPOINT             https://<account-id>.r2.cloudflarestorage.com
 #   R2_ACCESS_KEY_ID        R2 API token, write access to the assets bucket
 #   R2_SECRET_ACCESS_KEY    ↑
@@ -30,19 +36,10 @@ SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 ROOT="$( dirname "$SCRIPT_DIR" )"
 ASSETS_DIR="$ROOT/assets-web"
 
-# Auto-export every var declared after `set -a`. Mirrors what next dev
-# does with .env.local so this script's env model is the same.
-if [ -f "$ROOT/.env.local" ]; then
-  set -a
-  # shellcheck disable=SC1090,SC1091
-  source "$ROOT/.env.local"
-  set +a
-fi
-
 require() {
   if [ -z "${!1:-}" ]; then
     echo "Missing required env var: $1" >&2
-    echo "Set it in .env.local or export it in your shell." >&2
+    echo "Add it (encrypted) to .env.production or to .env.local." >&2
     exit 1
   fi
 }
