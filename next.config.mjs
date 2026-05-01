@@ -21,6 +21,7 @@ const ASSETS_REWRITE_TARGET = assetsRewriteTarget();
 
 /** @type {import('next').NextConfig} */
 const nextConfig = {
+  output: "standalone",
   outputFileTracingRoot: __dirname,
   // No `images` config: we serve pre-built AVIF/WebP variants directly
   // via <picture>/<source> from rclone. Next's image optimizer isn't in

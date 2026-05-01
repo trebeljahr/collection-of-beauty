@@ -1,10 +1,10 @@
 # syntax=docker/dockerfile:1
 #
-# Static-site image for collection-of-beauty.
+# Next.js image for collection-of-beauty.
 # Built by .github/workflows/deploy.yml, pushed to GHCR, pulled by
-# Coolify via docker-compose.yml. nginx serves the built bundle —
-# no runtime Node, so any sensitive values must be build-time-only
-# (baked into the static bundle) or non-sensitive.
+# Coolify via docker-compose.yml. The final stage runs Next's standalone
+# server because this app includes dynamic route handlers for the newsletter
+# flow; a static nginx image cannot serve those routes.
 #
 # .env.production is committed to the repo dotenvx-encrypted. The
 # build stage decrypts it via the dotenvx_private_key BuildKit secret
@@ -20,15 +20,15 @@
 # which enables it).
 #
 # What ends up in the bundle: NEXT_PUBLIC_* / VITE_* / similar values
-# that the framework explicitly inlines into client JS. What does NOT:
-# any non-public values, since this static site has no runtime to
-# read them.
+# that the framework explicitly inlines into client JS. Runtime secrets stay
+# encrypted in .env.production and are decrypted by dotenvx only when the
+# server process starts.
 ARG NODE_VERSION=24
 
 FROM node:${NODE_VERSION}-alpine AS build
 WORKDIR /app
 COPY package.json pnpm-lock.yaml* ./
-RUN corepack enable && pnpm install --frozen-lockfile
+RUN corepack enable && HUSKY=0 pnpm install --frozen-lockfile
 COPY . .
 # `--mount=type=secret,id=dotenvx_private_key,env=DOTENV_PRIVATE_KEY_PRODUCTION`
 # exposes the secret value as the env var the wrapped command reads,
@@ -52,6 +52,26 @@ RUN --mount=type=secret,id=dotenvx_private_key,env=DOTENV_PRIVATE_KEY_PRODUCTION
 RUN --mount=type=secret,id=dotenvx_private_key,env=DOTENV_PRIVATE_KEY_PRODUCTION \
     pnpm dlx @dotenvx/dotenvx run -- pnpm build
 
-FROM nginx:alpine AS runner
-COPY --from=build /app/dist /usr/share/nginx/html
+FROM node:${NODE_VERSION}-alpine AS runner
+WORKDIR /app
+
+ENV NODE_ENV=production
+ENV NEXT_TELEMETRY_DISABLED=1
+ENV HOSTNAME=0.0.0.0
+ENV PORT=80
+
+# Next's standalone output contains the traced production server files.
+# public/ and .next/static are intentionally copied separately per Next's
+# standalone deployment model.
+COPY --from=build /app/.next/standalone ./
+COPY --from=build /app/public ./public
+COPY --from=build /app/.next/static ./.next/static
+
+# Keep dotenvx available in the runner so encrypted runtime env values can be
+# decrypted from .env.production without persisting plaintext secrets in a
+# layer. The standalone trace does not include CLI-only dev dependencies.
+COPY --from=build /app/node_modules ./node_modules
+COPY --from=build /app/.env.production ./.env.production
+
 EXPOSE 80
+CMD ["node_modules/.bin/dotenvx", "run", "-f", ".env.production", "--", "node", "server.js"]

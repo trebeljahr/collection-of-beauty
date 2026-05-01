@@ -13,6 +13,7 @@ services:
       - "80:80"
     environment:
       - NODE_ENV=production
-      # Forwarded from Coolify's app env. dotenvx inside the
-      # container uses this to decrypt .env.production at runtime.
+      # Forwarded from Coolify's app env. The container entrypoint runs
+      # dotenvx so runtime API routes can read decrypted .env.production
+      # values without baking plaintext secrets into the image.
       - DOTENV_PRIVATE_KEY_PRODUCTION
