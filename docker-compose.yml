@@ -1,24 +1,18 @@
+# Coolify reads this file (build pack: dockercompose) to deploy
+# collection-of-beauty. The image is built by .github/workflows/deploy.yml and
+# pushed to GHCR; Coolify pulls it and (re)starts the service when
+# the workflow's deploy webhook fires.
+#
+# To pin a specific version, change the tag below from `latest` to a
+# git sha, semver tag, or whatever your release process uses.
 services:
-  # rclone serves ./assets-web/ as a read-only HTTP file server.
-  # assets-web/ holds the web-ready derivatives built by `pnpm shrink` —
-  # originals in assets/ are preserved untouched. Each subfolder
-  # (collection-of-beauty, audubon-birds, kunstformen-images) becomes the
-  # first path segment: /<folder>/<filename>.
-  #
-  # Next.js itself runs on the host via `npm run dev` (not in docker) —
-  # containerised hot-reload is fiddly and the asset server is the only
-  # piece that actually benefits from being pinned in a container.
-  assets:
-    image: rclone/rclone:latest
-    container_name: cob-assets
+  app:
+    image: ghcr.io/trebeljahr/collection-of-beauty:latest
     restart: unless-stopped
     ports:
-      - "9100:8080"
-    volumes:
-      - ./assets-web:/data:ro
-    command:
-      - serve
-      - http
-      - /data
-      - --addr=:8080
-      - --read-only
+      - "80:80"
+    environment:
+      - NODE_ENV=production
+      # Forwarded from Coolify's app env. dotenvx inside the
+      # container uses this to decrypt .env.production at runtime.
+      - DOTENV_PRIVATE_KEY_PRODUCTION
