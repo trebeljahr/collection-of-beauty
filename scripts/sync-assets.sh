@@ -72,16 +72,21 @@ if [ -t 0 ] && [ -t 1 ]; then
 fi
 
 echo "[sync] starting rclone (assets-web/ → :s3:$R2_ASSETS_BUCKET)"
-echo "[sync] first 30–60s are silent: rclone walks the local tree and"
-echo "[sync] paginates the remote bucket before transfers begin."
+echo "[sync] expect a quiet ~30s while --fast-list pulls the remote index,"
+echo "[sync] then per-file activity once transfers begin."
 
 # `:s3:<bucket>` is rclone's ad-hoc remote prefix — backend config comes
 # from RCLONE_S3_* env vars, no rclone.conf needed. provider=Cloudflare
 # picks the R2-specific quirks (region=auto, etc.).
 #
-# -v + --progress + --stats 5s = a line per file action and a
-# refreshing progress block. Verbose mode also makes the listing
-# phase visible (otherwise rclone is silent until the first transfer).
+# Flag rationale:
+#   --fast-list   one recursive ListObjects pass instead of per-dir; on
+#                 a 31k-object bucket this is the difference between
+#                 30s and many minutes of listing.
+#   -v --progress per-file lines + refreshing dashboard, so the listing
+#                 phase isn't silent and transfer activity is visible.
+#   --stats 5s    fallback for non-TTY pnpm-wrapped runs where progress
+#                 falls back to log lines.
 exec docker run "${DOCKER_FLAGS[@]}" \
   -v "$ASSETS_DIR:/data:ro" \
   -e RCLONE_S3_PROVIDER=Cloudflare \
@@ -92,6 +97,7 @@ exec docker run "${DOCKER_FLAGS[@]}" \
   sync /data ":s3:$R2_ASSETS_BUCKET" \
   --header-upload "Cache-Control: public, max-age=31536000, immutable" \
   --size-only \
+  --fast-list \
   --transfers 16 \
   --checkers 32 \
   --stats 5s \
