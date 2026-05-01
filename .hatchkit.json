@@ -1,7 +1,7 @@
 {
   "version": 1,
-  "cliVersion": "0.1.29",
-  "scaffoldedAt": "2026-05-01T13:05:48.273Z",
+  "cliVersion": "0.1.31",
+  "scaffoldedAt": "2026-05-01T14:40:09.411Z",
   "name": "collection-of-beauty",
   "domain": "beauty.trebeljahr.com",
   "features": ["s3"],
@@ -17,6 +17,8 @@
     "assets": {
       "name": "collection-of-beauty-assets",
       "publicUrl": "https://s3.beauty.trebeljahr.com"
-    }
+    },
+    "tokenId": "e2c804122e400439408fe759503ca976",
+    "accountId": "236db6b7957ea3079844334856fc162e"
   }
 }
