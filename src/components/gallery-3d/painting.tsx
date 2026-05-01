@@ -2,7 +2,7 @@
 
 import { Text } from "@react-three/drei";
 import { useThree } from "@react-three/fiber";
-import { Suspense, useEffect, useRef } from "react";
+import { Suspense, useCallback, useEffect, useRef, useState } from "react";
 import * as THREE from "three";
 import type { Artwork } from "@/lib/data";
 import type { Placement } from "@/lib/gallery-layout/types";
@@ -237,13 +237,30 @@ const PLAQUE_DIMS_FONT = 0.014;
 const PLAQUE_DIMS_LH = 1.15;
 const PLAQUE_TEXT_PAD = 0.012;
 const PLAQUE_LINE_GAP = 0.006;
-/** Chars per line at the title font / plaque width — used to estimate
- *  how many lines a title will wrap to so we can size the plaque. The
- *  drei <Text> default font averages ≈ 0.55 × fontSize per glyph; with
- *  the title font 0.022 m and useful width 0.258 m that lands at ≈ 21
- *  chars/line for ASCII and a bit fewer with diacritics. 22 is a safe
- *  underestimate so the line count rounds up. */
-const PLAQUE_TITLE_CHARS_PER_LINE = 22;
+/** Initial chars/line guess for the title font + plaque width — only
+ *  used for the first frame before troika reports its actual rendered
+ *  bounds via onSync. The bold title font averages ≈ 0.6 × fontSize
+ *  per glyph; with title font 0.022 m and useful width 0.258 m that
+ *  lands near ≈ 19 chars/line for ASCII and fewer with caps/diacritics.
+ *  Pick conservative so the initial render usually OVERshoots, then
+ *  we shrink to the measured size — better than the reverse, which
+ *  flashes overlapping text. */
+const PLAQUE_TITLE_CHARS_PER_LINE = 18;
+const PLAQUE_BYLINE_CHARS_PER_LINE = 24;
+
+const PLAQUE_TEXT_MAX_WIDTH = PLAQUE_FACE_W - 0.022;
+
+/** Pull the rendered block height (in world meters) from a troika
+ *  TextMesh's textRenderInfo. blockBounds is `[minX, minY, maxX, maxY]`
+ *  and includes the line-height padding, so it equals the height the
+ *  layout actually consumed. Returns null if sync hasn't completed yet. */
+function readTroikaBlockHeight(mesh: unknown): number | null {
+  const info = (mesh as { textRenderInfo?: { blockBounds?: ArrayLike<number> } } | null)
+    ?.textRenderInfo;
+  const bb = info?.blockBounds;
+  if (!bb || bb.length < 4) return null;
+  return Math.abs(bb[3] - bb[1]);
+}
 
 function Plaque({
   artwork,
@@ -260,15 +277,35 @@ function Plaque({
     ? `${artwork.realDimensions.widthCm.toFixed(0)} × ${artwork.realDimensions.heightCm.toFixed(0)} cm`
     : "";
 
-  // Adaptive plaque height. Estimate the title's line count, then
-  // size the face so title + byline + dims stack with a margin top
-  // and bottom and a small gap between blocks. Standard short titles
-  // (≤ 22 chars / 1 line) come out at the original 0.18 m; longer
-  // titles grow the plaque proportionally so multi-line wraps don't
-  // crash into the byline below.
-  const titleLines = Math.max(1, Math.ceil(title.length / PLAQUE_TITLE_CHARS_PER_LINE));
-  const titleBlockH = titleLines * PLAQUE_TITLE_FONT * PLAQUE_TITLE_LH;
-  const bylineBlockH = PLAQUE_BYLINE_FONT * PLAQUE_BYLINE_LH;
+  // Pre-render estimates — used for the first paint before troika
+  // syncs and reports actual block bounds. The estimates use a word-
+  // aware wrap so a single oversized word doesn't get overcounted, and
+  // a conservative chars/line so the plaque starts a touch tall (and
+  // shrinks to fit), never short (which would overlap text).
+  const estTitleLines = estimateWrappedLines(title, PLAQUE_TITLE_CHARS_PER_LINE);
+  const estBylineLines = estimateWrappedLines(byline, PLAQUE_BYLINE_CHARS_PER_LINE);
+  const estTitleH = estTitleLines * PLAQUE_TITLE_FONT * PLAQUE_TITLE_LH;
+  const estBylineH = estBylineLines * PLAQUE_BYLINE_FONT * PLAQUE_BYLINE_LH;
+
+  // Measured block heights from troika onSync. Initialised to null so
+  // the first render uses the estimates above; on the next frame the
+  // measured values take over.
+  const [titleH, setTitleH] = useState<number | null>(null);
+  const [bylineH, setBylineH] = useState<number | null>(null);
+
+  const handleTitleSync = useCallback((mesh: unknown) => {
+    const h = readTroikaBlockHeight(mesh);
+    if (h === null) return;
+    setTitleH((prev) => (prev !== null && Math.abs(prev - h) < 0.0001 ? prev : h));
+  }, []);
+  const handleBylineSync = useCallback((mesh: unknown) => {
+    const h = readTroikaBlockHeight(mesh);
+    if (h === null) return;
+    setBylineH((prev) => (prev !== null && Math.abs(prev - h) < 0.0001 ? prev : h));
+  }, []);
+
+  const titleBlockH = titleH ?? estTitleH;
+  const bylineBlockH = bylineH ?? estBylineH;
   const dimsBlockH = dims ? PLAQUE_DIMS_FONT * PLAQUE_DIMS_LH : 0;
   const dimsGap = dims ? PLAQUE_LINE_GAP : 0;
   const stackedH =
@@ -319,8 +356,9 @@ function Plaque({
         fontWeight={700}
         anchorX="center"
         anchorY="top"
-        maxWidth={PLAQUE_FACE_W - 0.022}
+        maxWidth={PLAQUE_TEXT_MAX_WIDTH}
         textAlign="center"
+        onSync={handleTitleSync}
       >
         {title}
       </Text>
@@ -332,12 +370,14 @@ function Plaque({
         color="#1c1410"
         anchorX="center"
         anchorY="top"
-        maxWidth={PLAQUE_FACE_W - 0.022}
+        maxWidth={PLAQUE_TEXT_MAX_WIDTH}
         textAlign="center"
+        onSync={handleBylineSync}
       >
         {byline}
       </Text>
-      {/* Dimensions — smaller, slightly lighter. */}
+      {/* Dimensions — smaller, slightly lighter. Never wraps (X × Y cm
+          fits comfortably) so we don't need to measure it. */}
       {dims && (
         <Text
           position={[0, dimsTopY, textZ]}
@@ -346,7 +386,7 @@ function Plaque({
           color="#3a2c22"
           anchorX="center"
           anchorY="top"
-          maxWidth={PLAQUE_FACE_W - 0.022}
+          maxWidth={PLAQUE_TEXT_MAX_WIDTH}
           textAlign="center"
         >
           {dims}
@@ -354,6 +394,30 @@ function Plaque({
       )}
     </group>
   );
+}
+
+/** Word-aware wrap line counter — walks the words and pushes to a new
+ *  line whenever the next word would exceed `maxChars`. Better than
+ *  `ceil(len/maxChars)` because text wraps at word boundaries; a
+ *  single oversized word past the boundary forces a fresh line even
+ *  if the running total is well under `maxChars`. */
+function estimateWrappedLines(text: string, maxChars: number): number {
+  const trimmed = text.trim();
+  if (!trimmed) return 1;
+  const words = trimmed.split(/\s+/);
+  let lines = 1;
+  let lineLen = 0;
+  for (const word of words) {
+    if (lineLen === 0) {
+      lineLen = word.length;
+    } else if (lineLen + 1 + word.length <= maxChars) {
+      lineLen += 1 + word.length;
+    } else {
+      lines++;
+      lineLen = word.length;
+    }
+  }
+  return Math.max(1, lines);
 }
 
 /** Normalise an artwork title for plaque display. Strips a handful
