@@ -1,0 +1,49 @@
+# syntax=docker/dockerfile:1
+#
+# Static-site image for collection-of-beauty.
+# Built by .github/workflows/deploy.yml, pushed to GHCR, pulled by
+# Coolify via docker-compose.yml. nginx serves the built bundle —
+# no runtime Node, so any secrets that DO touch this image must be
+# build-time-only (baked into the static bundle) or non-sensitive.
+#
+# .env.production is committed to the repo dotenvx-encrypted. The
+# build stage decrypts it via the dotenvx_private_key BuildKit
+# secret (passed by .github/workflows/deploy.yml from the GH Actions
+# secret DOTENV_PRIVATE_KEY_PRODUCTION) so `next build` sees the plain
+# values when it bakes them into the static output.
+#
+# Why BuildKit secrets and not ARG: ARG values land in `docker
+# history` and the image manifest. BuildKit secrets are mounted as
+# tmpfs at build time and never persist — `docker history` won't
+# show them, the final image won't either. Requires BuildKit
+# (default in modern Docker; the GH Actions workflow uses
+# docker/setup-buildx-action which enables it).
+#
+# What ends up in the bundle: NEXT_PUBLIC_* values (these are
+# explicitly safe-to-ship — Next.js inlines them in client JS).
+# What does NOT: any non-NEXT_PUBLIC_ values, since this static
+# site has no runtime to read them.
+ARG NODE_VERSION=22
+
+FROM node:${NODE_VERSION}-alpine AS build
+WORKDIR /app
+COPY package.json pnpm-lock.yaml* ./
+RUN corepack enable && pnpm install --frozen-lockfile
+COPY . .
+# `--mount=type=secret,id=dotenvx_private_key,env=DOTENV_PRIVATE_KEY_PRODUCTION`
+# exposes the secret value as the env var the wrapped command reads,
+# only for the duration of this RUN. dotenvx picks it up, decrypts
+# .env.production in memory, and re-exports each KEY=VALUE for
+# `pnpm build`. If the secret isn't supplied, dotenvx silently
+# skips decryption and `next build` would bake `encrypted:...`
+# strings into asset URLs — fail fast instead.
+RUN --mount=type=secret,id=dotenvx_private_key,env=DOTENV_PRIVATE_KEY_PRODUCTION \
+    if [ -z "$DOTENV_PRIVATE_KEY_PRODUCTION" ]; then \
+      echo "ERROR: dotenvx_private_key build secret not supplied. The workflow at .github/workflows/deploy.yml should pass it via 'secrets:' from the GH Actions secret DOTENV_PRIVATE_KEY_PRODUCTION." >&2; \
+      exit 1; \
+    fi && \
+    pnpm dlx @dotenvx/dotenvx run -- pnpm build
+
+FROM nginx:alpine AS runner
+COPY --from=build /app/dist /usr/share/nginx/html
+EXPOSE 80
