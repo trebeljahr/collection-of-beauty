@@ -1,6 +1,8 @@
 # Image archives — too heavy for git; reproduce via download scripts
+assets
 assets/
 # Web-ready derivatives built by `pnpm shrink` from assets/
+assets-web
 assets-web/
 # Poly Haven PBR textures — too heavy for git; reproduce via `pnpm textures`
 public/textures/
@@ -9,6 +11,7 @@ public/textures/
 metadata/.cache/
 
 # Dependencies
+node_modules
 node_modules/
 .pnpm-store/
 
@@ -23,12 +26,8 @@ out/
 *.tsbuildinfo
 next-env.d.ts
 
-# Generated gallery data (rebuilt via `pnpm build:data`)
-/src/data/artworks.json
-/src/data/artists.json
-/src/data/movements.json
-/src/data/connections.json
-/src/data/summary.json
+# Generated gallery data is committed so Docker/CI builds do not need the
+# heavy local assets archive. Regenerate intentionally with `pnpm build:data`.
 
 # react-email dev server scratch dir
 .react-email/
