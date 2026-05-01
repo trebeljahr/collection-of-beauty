@@ -58,6 +58,13 @@ if ! command -v docker >/dev/null 2>&1; then
   exit 1
 fi
 
+# pnpm forwards `pnpm assets:sync -- <args>` to the script as `-- <args>`.
+# rclone interprets a literal `--` as end-of-flags, which would turn
+# `--dry-run` etc. into positional args. Drop the leading separator so
+# both `pnpm assets:sync --dry-run` and `pnpm assets:sync -- --dry-run`
+# work the same way.
+if [ "${1:-}" = "--" ]; then shift; fi
+
 # Allocate a TTY only when invoked interactively; pnpm + CI both pipe.
 DOCKER_FLAGS=(--rm)
 if [ -t 0 ] && [ -t 1 ]; then
