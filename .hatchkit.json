@@ -1,7 +1,7 @@
 {
   "version": 1,
-  "cliVersion": "0.1.23",
-  "scaffoldedAt": "2026-04-30T14:29:22.611Z",
+  "cliVersion": "0.1.28",
+  "scaffoldedAt": "2026-05-01T12:55:14.624Z",
   "name": "collection-of-beauty",
   "domain": "beauty.trebeljahr.com",
   "features": ["s3"],
@@ -16,7 +16,7 @@
   "s3Buckets": {
     "assets": {
       "name": "collection-of-beauty-assets",
-      "publicUrl": "https://assets.beauty.trebeljahr.com"
+      "publicUrl": "https://s3.beauty.trebeljahr.com"
     },
     "state": {
       "name": "collection-of-beauty-state",
