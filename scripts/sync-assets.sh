@@ -65,10 +65,15 @@ fi
 # work the same way.
 if [ "${1:-}" = "--" ]; then shift; fi
 
-# Allocate a TTY only when invoked interactively; pnpm + CI both pipe.
+# Allocate a pseudo-TTY when stdout is a terminal so rclone's --progress
+# can draw its refreshing dashboard. Only check stdout: pnpm inherits
+# stdout from the user's terminal but routinely closes/pipes stdin, so
+# requiring `-t 0` would force the log-line fallback for every
+# pnpm-wrapped invocation. -t alone (no -i) avoids docker errors when
+# stdin isn't attached.
 DOCKER_FLAGS=(--rm)
-if [ -t 0 ] && [ -t 1 ]; then
-  DOCKER_FLAGS+=(-it)
+if [ -t 1 ]; then
+  DOCKER_FLAGS+=(-t)
 fi
 
 echo "[sync] starting rclone (assets-web/ → :s3:$R2_ASSETS_BUCKET)"
@@ -83,10 +88,12 @@ echo "[sync] then per-file activity once transfers begin."
 #   --fast-list   one recursive ListObjects pass instead of per-dir; on
 #                 a 31k-object bucket this is the difference between
 #                 30s and many minutes of listing.
-#   -v --progress per-file lines + refreshing dashboard, so the listing
-#                 phase isn't silent and transfer activity is visible.
-#   --stats 5s    fallback for non-TTY pnpm-wrapped runs where progress
-#                 falls back to log lines.
+#   --progress    refreshing dashboard rendered in place when stdout is a
+#                 TTY (the -t we passed to docker above). Without -v the
+#                 dashboard isn't pushed up the screen by per-file logs.
+#   --stats 5s    fallback rate when there's no TTY — progress degrades
+#                 to periodic stats blocks instead of in-place redraw.
+# To opt back into per-file lines for debugging: pnpm assets:sync -- -v
 exec docker run "${DOCKER_FLAGS[@]}" \
   -v "$ASSETS_DIR:/data:ro" \
   -e RCLONE_S3_PROVIDER=Cloudflare \
@@ -102,5 +109,4 @@ exec docker run "${DOCKER_FLAGS[@]}" \
   --checkers 32 \
   --stats 5s \
   --progress \
-  -v \
   "$@"
