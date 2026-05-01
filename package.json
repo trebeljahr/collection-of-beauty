@@ -9,6 +9,7 @@
   "scripts": {
     "build:data": "node scripts/build-data.mjs",
     "assets:serve": "node scripts/serve-assets.mjs",
+    "assets:sync": "bash scripts/sync-assets.sh",
     "assets:docker:up": "docker-compose up -d assets",
     "assets:docker:down": "docker-compose down",
     "assets:docker:logs": "docker-compose logs -f assets",
