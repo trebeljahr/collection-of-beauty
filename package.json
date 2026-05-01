@@ -9,7 +9,7 @@
   "scripts": {
     "build:data": "node scripts/build-data.mjs",
     "assets:serve": "node scripts/serve-assets.mjs",
-    "assets:sync": "bash scripts/sync-assets.sh",
+    "assets:sync": "dotenvx run -f .env.production -f .env.local --ignore=MISSING_ENV_FILE --quiet -- bash scripts/sync-assets.sh",
     "assets:docker:up": "docker-compose up -d assets",
     "assets:docker:down": "docker-compose down",
     "assets:docker:logs": "docker-compose logs -f assets",
@@ -58,6 +58,7 @@
   },
   "devDependencies": {
     "@biomejs/biome": "^2.4.13",
+    "@dotenvx/dotenvx": "^1.64.0",
     "@tailwindcss/postcss": "^4.2.2",
     "@types/d3-force": "^3.0.10",
     "@types/node": "^25.6.0",
