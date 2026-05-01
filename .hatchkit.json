@@ -1,10 +1,10 @@
 {
   "version": 1,
-  "cliVersion": "0.1.15",
-  "scaffoldedAt": "2026-04-29T10:08:21.180Z",
+  "cliVersion": "0.1.23",
+  "scaffoldedAt": "2026-04-30T14:29:22.611Z",
   "name": "collection-of-beauty",
   "domain": "beauty.trebeljahr.com",
-  "features": ["websocket", "s3"],
+  "features": ["s3"],
   "mlServices": [],
   "s3Provider": "existing",
   "deployTarget": "existing",
@@ -12,5 +12,15 @@
     "server": 3000,
     "client": 3001
   },
-  "surfaces": "client-only"
+  "surfaces": "client-only",
+  "s3Buckets": {
+    "assets": {
+      "name": "collection-of-beauty-assets",
+      "publicUrl": "https://assets.beauty.trebeljahr.com"
+    },
+    "state": {
+      "name": "collection-of-beauty-state",
+      "publicUrl": null
+    }
+  }
 }

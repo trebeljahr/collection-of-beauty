@@ -43,10 +43,14 @@ next-env.d.ts
 .idea/
 
 # Logs / env
+# `.env.production` is dotenvx-encrypted (the file's content is `KEY="encrypted:..."`)
+# and SAFE to commit — the encryption is the whole point. Only the *.keys
+# file (which holds the private key) must stay out of git.
 *.log
 .env
 .env.local
 .env.*.local
+.env.keys
 
 # Lockfile cruft (keep package-lock.json / pnpm-lock.yaml)
 yarn.lock
@@ -74,12 +78,10 @@ venv/
 *.log
 
 # env files (mirrors ~/.config/git/ignore — defense in depth)
+# Note: dotenvx-encrypted env files (.env.production etc.) are intentionally
+# allowed; only the unencrypted ones + the *.keys file are kept out.
 .env
 .env.local
-.env.dev
-.env.development
-.env.production
-.env.staging
-.env.test
 .envrc.local
+.env.keys
 .vercel/
