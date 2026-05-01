@@ -9,8 +9,8 @@ services:
   app:
     image: ghcr.io/trebeljahr/collection-of-beauty:latest
     restart: unless-stopped
-    ports:
-      - "80:80"
+    expose:
+      - "80"
     environment:
       - NODE_ENV=production
       # Forwarded from Coolify's app env. The container entrypoint runs
