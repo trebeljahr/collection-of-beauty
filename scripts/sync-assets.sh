@@ -71,9 +71,17 @@ if [ -t 0 ] && [ -t 1 ]; then
   DOCKER_FLAGS+=(-it)
 fi
 
+echo "[sync] starting rclone (assets-web/ → :s3:$R2_ASSETS_BUCKET)"
+echo "[sync] first 30–60s are silent: rclone walks the local tree and"
+echo "[sync] paginates the remote bucket before transfers begin."
+
 # `:s3:<bucket>` is rclone's ad-hoc remote prefix — backend config comes
 # from RCLONE_S3_* env vars, no rclone.conf needed. provider=Cloudflare
 # picks the R2-specific quirks (region=auto, etc.).
+#
+# -v + --progress + --stats 5s = a line per file action and a
+# refreshing progress block. Verbose mode also makes the listing
+# phase visible (otherwise rclone is silent until the first transfer).
 exec docker run "${DOCKER_FLAGS[@]}" \
   -v "$ASSETS_DIR:/data:ro" \
   -e RCLONE_S3_PROVIDER=Cloudflare \
@@ -86,6 +94,7 @@ exec docker run "${DOCKER_FLAGS[@]}" \
   --size-only \
   --transfers 16 \
   --checkers 32 \
-  --stats 10s \
-  --stats-one-line \
+  --stats 5s \
+  --progress \
+  -v \
   "$@"
