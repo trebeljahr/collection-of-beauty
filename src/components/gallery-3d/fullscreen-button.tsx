@@ -11,9 +11,12 @@ import { useCallback, useEffect, useState } from "react";
 type Props = {
   /** Extra classes for positioning from the parent (e.g. "top-4 right-16"). */
   className?: string;
+  /** Element to fullscreen. When omitted, falls back to `document.documentElement`.
+   *  Pass the gallery container so the site nav above it stays out of fullscreen. */
+  targetRef?: React.RefObject<HTMLElement | null>;
 };
 
-export function FullscreenButton({ className }: Props) {
+export function FullscreenButton({ className, targetRef }: Props) {
   const [fs, setFs] = useState(false);
 
   useEffect(() => {
@@ -27,9 +30,10 @@ export function FullscreenButton({ className }: Props) {
     if (document.fullscreenElement) {
       document.exitFullscreen?.().catch(() => {});
     } else {
-      document.documentElement.requestFullscreen?.().catch(() => {});
+      const target = targetRef?.current ?? document.documentElement;
+      target.requestFullscreen?.().catch(() => {});
     }
-  }, []);
+  }, [targetRef]);
 
   return (
     <div className={`pointer-events-auto absolute ${className ?? ""}`}>

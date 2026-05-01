@@ -134,6 +134,10 @@ export function Gallery3D({ artworks }: Props) {
   // the player would enter the gallery un-locked, and their first
   // painting click would just be the relock click rather than a zoom.
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
+  // Wrapper around the canvas + HUD overlays. Used as the fullscreen
+  // target so the SiteNav above it stays in the page flow rather than
+  // being captured into fullscreen along with the museum.
+  const galleryHostRef = useRef<HTMLDivElement | null>(null);
 
   const teleportToFloor = useCallback(
     (idx: number) => {
@@ -278,7 +282,7 @@ export function Gallery3D({ artworks }: Props) {
   }, [zoomed]);
 
   return (
-    <div className="relative w-full h-screen bg-black">
+    <div ref={galleryHostRef} className="relative w-full h-screen bg-black">
       <Canvas
         className="gallery-canvas-host"
         camera={{ fov: 75, near: 0.1, far: 500 }}
@@ -397,12 +401,14 @@ export function Gallery3D({ artworks }: Props) {
             // instead of being consumed by drei's selector relock.
             // Touch devices have no pointer lock — joysticks own look.
             if (!isTouch) canvasRef.current?.requestPointerLock?.();
-            // Take the whole document fullscreen in the same gesture so
-            // the museum visit isn't framed by the site nav + browser
-            // chrome. Promise rejects if the browser denies (Safari on
-            // iOS, embedded view) — silent catch keeps Enter working.
+            // Take the gallery container fullscreen in the same gesture
+            // so the museum visit isn't framed by the site nav + browser
+            // chrome. Fullscreening just the gallery host (not <html>)
+            // keeps the nav out — the user gets canvas-only. Promise
+            // rejects if the browser denies (Safari on iOS, embedded
+            // view) — silent catch keeps Enter working.
             if (typeof document !== "undefined" && !document.fullscreenElement) {
-              document.documentElement.requestFullscreen?.().catch(() => {});
+              galleryHostRef.current?.requestFullscreen?.().catch(() => {});
             }
             setHasStarted(true);
           }}
@@ -475,7 +481,7 @@ export function Gallery3D({ artworks }: Props) {
       {hasStarted && !zoomed && !mapOpen && (
         <>
           <AudioControls className="top-4 right-4" />
-          <FullscreenButton className="top-4 right-24" />
+          <FullscreenButton className="top-4 right-24" targetRef={galleryHostRef} />
         </>
       )}
       {/* Minimap. Bottom-right on desktop; top-left on mobile so the
