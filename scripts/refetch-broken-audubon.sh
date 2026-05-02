@@ -22,10 +22,10 @@ ROOT="$( dirname "$SCRIPT_DIR" )"
 OUT_DIR="$ROOT/assets/audubon-birds"
 META="$ROOT/metadata/audubon-broken.json"
 
-DELAY=3        # seconds between downloads (Wikimedia courtesy)
+DELAY=8         # seconds between downloads (Wikimedia courtesy)
 RATE=2M
-RETRIES=3
-RETRY_DELAY=10
+RETRIES=5
+RETRY_DELAY=20  # seconds — multiplied by attempt number (20, 40, 60, …)
 
 DRY_RUN=0
 if [ "${1:-}" = "--dry-run" ]; then
@@ -89,21 +89,39 @@ for i in "${!entries[@]}"; do
     continue
   fi
 
+  # Skip if a previous run already pulled this file successfully — full
+  # plates are 13 MB+ in this collection, the truncated ones cap out at
+  # ~4 MB. 10 MB is a comfortable threshold.
+  if [ -f "$out" ]; then
+    size=$(stat -f%z "$out" 2>/dev/null || stat -c%s "$out" 2>/dev/null || echo 0)
+    if [ "$size" -ge 10485760 ]; then
+      echo -e "[$index/$total] ${GREEN}skip${NC} $filename (already $size bytes)"
+      ok=$((ok + 1))
+      continue
+    fi
+  fi
+
   echo -e "[$index/$total] ${YELLOW}refetching${NC} $filename"
 
-  rm -f "$out"
+  # Download to a temp path and only swap into place on success — a 429
+  # or network error mid-stream must not leave the destination missing
+  # or half-written, since `rm` + failed `curl` is what nuked 60 files
+  # the first time around.
+  tmp="$out.tmp"
+  rm -f "$tmp"
 
   retry=0
   status=1
   while [ $retry -le $RETRIES ]; do
     if curl -L -fS --limit-rate "$RATE" \
-            --retry 3 --retry-delay 5 \
+            --retry 3 --retry-delay 5 --retry-all-errors \
             -H "User-Agent: Mozilla/5.0 (compatible; EducationalProject/1.0)" \
-            -o "$out" "$url"; then
+            -o "$tmp" "$url"; then
       status=0
       break
     fi
     retry=$((retry + 1))
+    rm -f "$tmp"
     if [ $retry -le $RETRIES ]; then
       wait_time=$((RETRY_DELAY * retry))
       echo -e "    ${YELLOW}retry $retry/$RETRIES in ${wait_time}s${NC}"
@@ -112,13 +130,15 @@ for i in "${!entries[@]}"; do
   done
 
   if [ $status -eq 0 ]; then
+    mv "$tmp" "$out"
     ok=$((ok + 1))
     size=$(stat -f%z "$out" 2>/dev/null || stat -c%s "$out" 2>/dev/null || echo "?")
     echo -e "    ${GREEN}✓${NC} $size bytes"
   else
+    rm -f "$tmp"
     fail=$((fail + 1))
     failed_files+=("$filename")
-    echo -e "    ${RED}✗ failed${NC}"
+    echo -e "    ${RED}✗ failed${NC} (existing file at $out left untouched)"
   fi
 
   if [ $index -lt $total ]; then
