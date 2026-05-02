@@ -1,0 +1,2465 @@
+{
+  "generated_at": "2026-05-02T15:49:42.155Z",
+  "source_dir": "assets/audubon-birds",
+  "thresholds": {
+    "meanMin": 100,
+    "meanMax": 230,
+    "channelDelta": 8,
+    "variance": 50
+  },
+  "decoded_strip_width_px": 4,
+  "file_count": 435,
+  "broken_count": 70,
+  "broken": [
+    {
+      "id": "215_Hyperborean_phalarope",
+      "filename": "215_Hyperborean_phalarope.jpg",
+      "objectKey": "audubon-birds/215_Hyperborean_phalarope.jpg",
+      "edge": "bottom",
+      "fileUrl": "https://upload.wikimedia.org/wikipedia/commons/a/a3/215_Hyperborean_phalarope.jpg",
+      "meanRGB": {
+        "right": [
+          136,
+          136,
+          135
+        ],
+        "bottom": [
+          128,
+          128,
+          128
+        ]
+      },
+      "variance": {
+        "right": [
+          986,
+          956,
+          769
+        ],
+        "bottom": [
+          0,
+          0,
+          0
+        ]
+      },
+      "decodedSize": [
+        1024,
+        717
+      ]
+    },
+    {
+      "id": "216_Wood_Ibiss",
+      "filename": "216_Wood_Ibiss.jpg",
+      "objectKey": "audubon-birds/216_Wood_Ibiss.jpg",
+      "edge": "bottom",
+      "fileUrl": "https://upload.wikimedia.org/wikipedia/commons/0/0c/216_Wood_Ibiss.jpg",
+      "meanRGB": {
+        "right": [
+          150,
+          149,
+          147
+        ],
+        "bottom": [
+          128,
+          128,
+          128
+        ]
+      },
+      "variance": {
+        "right": [
+          2113,
+          2071,
+          1645
+        ],
+        "bottom": [
+          0,
+          0,
+          0
+        ]
+      },
+      "decodedSize": [
+        1024,
+        1463
+      ]
+    },
+    {
+      "id": "217_Louisiana_Heron",
+      "filename": "217_Louisiana_Heron.jpg",
+      "objectKey": "audubon-birds/217_Louisiana_Heron.jpg",
+      "edge": "bottom",
+      "fileUrl": "https://upload.wikimedia.org/wikipedia/commons/6/61/217_Louisiana_Heron.jpg",
+      "meanRGB": {
+        "right": [
+          173,
+          172,
+          167
+        ],
+        "bottom": [
+          128,
+          128,
+          128
+        ]
+      },
+      "variance": {
+        "right": [
+          3634,
+          3523,
+          2826
+        ],
+        "bottom": [
+          0,
+          0,
+          0
+        ]
+      },
+      "decodedSize": [
+        1024,
+        716
+      ]
+    },
+    {
+      "id": "218_Foolish_Guillemot",
+      "filename": "218_Foolish_Guillemot.jpg",
+      "objectKey": "audubon-birds/218_Foolish_Guillemot.jpg",
+      "edge": "bottom",
+      "fileUrl": "https://upload.wikimedia.org/wikipedia/commons/7/75/218_Foolish_Guillemot.jpg",
+      "meanRGB": {
+        "right": [
+          179,
+          178,
+          173
+        ],
+        "bottom": [
+          128,
+          128,
+          128
+        ]
+      },
+      "variance": {
+        "right": [
+          3845,
+          3748,
+          3008
+        ],
+        "bottom": [
+          0,
+          0,
+          0
+        ]
+      },
+      "decodedSize": [
+        1024,
+        718
+      ]
+    },
+    {
+      "id": "219_Black_Guillemot",
+      "filename": "219_Black_Guillemot.jpg",
+      "objectKey": "audubon-birds/219_Black_Guillemot.jpg",
+      "edge": "bottom",
+      "fileUrl": "https://upload.wikimedia.org/wikipedia/commons/a/aa/219_Black_Guillemot.jpg",
+      "meanRGB": {
+        "right": [
+          175,
+          175,
+          170
+        ],
+        "bottom": [
+          128,
+          128,
+          128
+        ]
+      },
+      "variance": {
+        "right": [
+          3737,
+          3650,
+          2981
+        ],
+        "bottom": [
+          0,
+          0,
+          0
+        ]
+      },
+      "decodedSize": [
+        1024,
+        717
+      ]
+    },
+    {
+      "id": "220_Piping_Plover",
+      "filename": "220_Piping_Plover.jpg",
+      "objectKey": "audubon-birds/220_Piping_Plover.jpg",
+      "edge": "bottom",
+      "fileUrl": "https://upload.wikimedia.org/wikipedia/commons/0/0f/220_Piping_Plover.jpg",
+      "meanRGB": {
+        "right": [
+          167,
+          166,
+          162
+        ],
+        "bottom": [
+          128,
+          128,
+          128
+        ]
+      },
+      "variance": {
+        "right": [
+          3349,
+          3228,
+          2536
+        ],
+        "bottom": [
+          0,
+          0,
+          0
+        ]
+      },
+      "decodedSize": [
+        1024,
+        717
+      ]
+    },
+    {
+      "id": "221_Mallard_Duck",
+      "filename": "221_Mallard_Duck.jpg",
+      "objectKey": "audubon-birds/221_Mallard_Duck.jpg",
+      "edge": "bottom",
+      "fileUrl": "https://upload.wikimedia.org/wikipedia/commons/a/a9/221_Mallard_Duck.jpg",
+      "meanRGB": {
+        "right": [
+          164,
+          164,
+          160
+        ],
+        "bottom": [
+          128,
+          128,
+          128
+        ]
+      },
+      "variance": {
+        "right": [
+          3082,
+          2958,
+          2359
+        ],
+        "bottom": [
+          0,
+          0,
+          0
+        ]
+      },
+      "decodedSize": [
+        1024,
+        717
+      ]
+    },
+    {
+      "id": "222_White_Ibis",
+      "filename": "222_White_Ibis.jpg",
+      "objectKey": "audubon-birds/222_White_Ibis.jpg",
+      "edge": "bottom",
+      "fileUrl": "https://upload.wikimedia.org/wikipedia/commons/8/84/222_White_Ibis.jpg",
+      "meanRGB": {
+        "right": [
+          163,
+          162,
+          159
+        ],
+        "bottom": [
+          128,
+          128,
+          128
+        ]
+      },
+      "variance": {
+        "right": [
+          3123,
+          2990,
+          2398
+        ],
+        "bottom": [
+          0,
+          0,
+          0
+        ]
+      },
+      "decodedSize": [
+        1024,
+        712
+      ]
+    },
+    {
+      "id": "223_Pied_oyster-catcher",
+      "filename": "223_Pied_oyster-catcher.jpg",
+      "objectKey": "audubon-birds/223_Pied_oyster-catcher.jpg",
+      "edge": "bottom",
+      "fileUrl": "https://upload.wikimedia.org/wikipedia/commons/c/c6/223_Pied_oyster-catcher.jpg",
+      "meanRGB": {
+        "right": [
+          184,
+          183,
+          177
+        ],
+        "bottom": [
+          128,
+          128,
+          128
+        ]
+      },
+      "variance": {
+        "right": [
+          3762,
+          3597,
+          2792
+        ],
+        "bottom": [
+          0,
+          0,
+          0
+        ]
+      },
+      "decodedSize": [
+        1024,
+        716
+      ]
+    },
+    {
+      "id": "224_Kittiwake_Gull",
+      "filename": "224_Kittiwake_Gull.jpg",
+      "objectKey": "audubon-birds/224_Kittiwake_Gull.jpg",
+      "edge": "bottom",
+      "fileUrl": "https://upload.wikimedia.org/wikipedia/commons/4/4c/224_Kittiwake_Gull.jpg",
+      "meanRGB": {
+        "right": [
+          170,
+          169,
+          165
+        ],
+        "bottom": [
+          128,
+          128,
+          128
+        ]
+      },
+      "variance": {
+        "right": [
+          3459,
+          3309,
+          2650
+        ],
+        "bottom": [
+          0,
+          0,
+          0
+        ]
+      },
+      "decodedSize": [
+        1024,
+        719
+      ]
+    },
+    {
+      "id": "225_Kildeer_Plover",
+      "filename": "225_Kildeer_Plover.jpg",
+      "objectKey": "audubon-birds/225_Kildeer_Plover.jpg",
+      "edge": "bottom",
+      "fileUrl": "https://upload.wikimedia.org/wikipedia/commons/7/7b/225_Kildeer_Plover.jpg",
+      "meanRGB": {
+        "right": [
+          169,
+          169,
+          164
+        ],
+        "bottom": [
+          128,
+          128,
+          128
+        ]
+      },
+      "variance": {
+        "right": [
+          3431,
+          3304,
+          2636
+        ],
+        "bottom": [
+          0,
+          0,
+          0
+        ]
+      },
+      "decodedSize": [
+        1024,
+        718
+      ]
+    },
+    {
+      "id": "226_Hooping_Crane",
+      "filename": "226_Hooping_Crane.jpg",
+      "objectKey": "audubon-birds/226_Hooping_Crane.jpg",
+      "edge": "bottom",
+      "fileUrl": "https://upload.wikimedia.org/wikipedia/commons/b/b1/226_Hooping_Crane.jpg",
+      "meanRGB": {
+        "right": [
+          159,
+          159,
+          155
+        ],
+        "bottom": [
+          128,
+          128,
+          128
+        ]
+      },
+      "variance": {
+        "right": [
+          2645,
+          2565,
+          2019
+        ],
+        "bottom": [
+          0,
+          0,
+          0
+        ]
+      },
+      "decodedSize": [
+        1024,
+        1464
+      ]
+    },
+    {
+      "id": "227_Pin_tailed_Duck",
+      "filename": "227_Pin_tailed_Duck.jpg",
+      "objectKey": "audubon-birds/227_Pin_tailed_Duck.jpg",
+      "edge": "bottom",
+      "fileUrl": "https://upload.wikimedia.org/wikipedia/commons/3/3e/227_Pin_tailed_Duck.jpg",
+      "meanRGB": {
+        "right": [
+          179,
+          178,
+          172
+        ],
+        "bottom": [
+          128,
+          128,
+          128
+        ]
+      },
+      "variance": {
+        "right": [
+          3748,
+          3592,
+          2783
+        ],
+        "bottom": [
+          0,
+          0,
+          0
+        ]
+      },
+      "decodedSize": [
+        1024,
+        718
+      ]
+    },
+    {
+      "id": "228_American_Green_winged_Teal",
+      "filename": "228_American_Green_winged_Teal.jpg",
+      "objectKey": "audubon-birds/228_American_Green_winged_Teal.jpg",
+      "edge": "bottom",
+      "fileUrl": "https://upload.wikimedia.org/wikipedia/commons/9/98/228_American_Green_winged_Teal.jpg",
+      "meanRGB": {
+        "right": [
+          177,
+          176,
+          171
+        ],
+        "bottom": [
+          128,
+          128,
+          128
+        ]
+      },
+      "variance": {
+        "right": [
+          3696,
+          3526,
+          2822
+        ],
+        "bottom": [
+          0,
+          0,
+          0
+        ]
+      },
+      "decodedSize": [
+        1024,
+        717
+      ]
+    },
+    {
+      "id": "229_Scaup_Duck",
+      "filename": "229_Scaup_Duck.jpg",
+      "objectKey": "audubon-birds/229_Scaup_Duck.jpg",
+      "edge": "bottom",
+      "fileUrl": "https://upload.wikimedia.org/wikipedia/commons/e/e6/229_Scaup_Duck.jpg",
+      "meanRGB": {
+        "right": [
+          191,
+          190,
+          182
+        ],
+        "bottom": [
+          128,
+          128,
+          128
+        ]
+      },
+      "variance": {
+        "right": [
+          3942,
+          3773,
+          2930
+        ],
+        "bottom": [
+          0,
+          0,
+          0
+        ]
+      },
+      "decodedSize": [
+        1024,
+        708
+      ]
+    },
+    {
+      "id": "230_Ruddy_Plover",
+      "filename": "230_Ruddy_Plover.jpg",
+      "objectKey": "audubon-birds/230_Ruddy_Plover.jpg",
+      "edge": "bottom",
+      "fileUrl": "https://upload.wikimedia.org/wikipedia/commons/2/2c/230_Ruddy_Plover.jpg",
+      "meanRGB": {
+        "right": [
+          166,
+          165,
+          161
+        ],
+        "bottom": [
+          128,
+          128,
+          128
+        ]
+      },
+      "variance": {
+        "right": [
+          3318,
+          3175,
+          2466
+        ],
+        "bottom": [
+          0,
+          0,
+          0
+        ]
+      },
+      "decodedSize": [
+        1024,
+        717
+      ]
+    },
+    {
+      "id": "231_Long-billed_Curlew",
+      "filename": "231_Long-billed_Curlew.jpg",
+      "objectKey": "audubon-birds/231_Long-billed_Curlew.jpg",
+      "edge": "bottom",
+      "fileUrl": "https://upload.wikimedia.org/wikipedia/commons/c/c2/231_Long-billed_Curlew.jpg",
+      "meanRGB": {
+        "right": [
+          167,
+          166,
+          162
+        ],
+        "bottom": [
+          128,
+          128,
+          128
+        ]
+      },
+      "variance": {
+        "right": [
+          3258,
+          3131,
+          2498
+        ],
+        "bottom": [
+          0,
+          0,
+          0
+        ]
+      },
+      "decodedSize": [
+        1024,
+        710
+      ]
+    },
+    {
+      "id": "232_Hooded_Merganser",
+      "filename": "232_Hooded_Merganser.jpg",
+      "objectKey": "audubon-birds/232_Hooded_Merganser.jpg",
+      "edge": "bottom",
+      "fileUrl": "https://upload.wikimedia.org/wikipedia/commons/8/8b/232_Hooded_Merganser.jpg",
+      "meanRGB": {
+        "right": [
+          177,
+          176,
+          171
+        ],
+        "bottom": [
+          128,
+          128,
+          128
+        ]
+      },
+      "variance": {
+        "right": [
+          3734,
+          3608,
+          2865
+        ],
+        "bottom": [
+          0,
+          0,
+          0
+        ]
+      },
+      "decodedSize": [
+        1024,
+        715
+      ]
+    },
+    {
+      "id": "233_Sora_or_Rail",
+      "filename": "233_Sora_or_Rail.jpg",
+      "objectKey": "audubon-birds/233_Sora_or_Rail.jpg",
+      "edge": "bottom",
+      "fileUrl": "https://upload.wikimedia.org/wikipedia/commons/2/2a/233_Sora_or_Rail.jpg",
+      "meanRGB": {
+        "right": [
+          179,
+          178,
+          173
+        ],
+        "bottom": [
+          128,
+          128,
+          128
+        ]
+      },
+      "variance": {
+        "right": [
+          3838,
+          3723,
+          2990
+        ],
+        "bottom": [
+          0,
+          0,
+          0
+        ]
+      },
+      "decodedSize": [
+        1024,
+        715
+      ]
+    },
+    {
+      "id": "234_Tufted_Duck",
+      "filename": "234_Tufted_Duck.jpg",
+      "objectKey": "audubon-birds/234_Tufted_Duck.jpg",
+      "edge": "bottom",
+      "fileUrl": "https://upload.wikimedia.org/wikipedia/commons/a/aa/234_Tufted_Duck.jpg",
+      "meanRGB": {
+        "right": [
+          194,
+          193,
+          186
+        ],
+        "bottom": [
+          128,
+          128,
+          128
+        ]
+      },
+      "variance": {
+        "right": [
+          3979,
+          3858,
+          3097
+        ],
+        "bottom": [
+          0,
+          0,
+          0
+        ]
+      },
+      "decodedSize": [
+        1024,
+        712
+      ]
+    },
+    {
+      "id": "235_Sooty_Tern",
+      "filename": "235_Sooty_Tern.jpg",
+      "objectKey": "audubon-birds/235_Sooty_Tern.jpg",
+      "edge": "bottom",
+      "fileUrl": "https://upload.wikimedia.org/wikipedia/commons/8/85/235_Sooty_Tern.jpg",
+      "meanRGB": {
+        "right": [
+          180,
+          179,
+          174
+        ],
+        "bottom": [
+          128,
+          128,
+          128
+        ]
+      },
+      "variance": {
+        "right": [
+          3841,
+          3719,
+          2970
+        ],
+        "bottom": [
+          0,
+          0,
+          0
+        ]
+      },
+      "decodedSize": [
+        1024,
+        714
+      ]
+    },
+    {
+      "id": "236_Night_Heron_or_Qua_bird",
+      "filename": "236_Night_Heron_or_Qua_bird.jpg",
+      "objectKey": "audubon-birds/236_Night_Heron_or_Qua_bird.jpg",
+      "edge": "bottom",
+      "fileUrl": "https://upload.wikimedia.org/wikipedia/commons/2/21/236_Night_Heron_or_Qua_bird.jpg",
+      "meanRGB": {
+        "right": [
+          171,
+          170,
+          166
+        ],
+        "bottom": [
+          128,
+          128,
+          128
+        ]
+      },
+      "variance": {
+        "right": [
+          3444,
+          3331,
+          2690
+        ],
+        "bottom": [
+          0,
+          0,
+          0
+        ]
+      },
+      "decodedSize": [
+        1024,
+        706
+      ]
+    },
+    {
+      "id": "237_Great_Esquimaux_Curlew",
+      "filename": "237_Great_Esquimaux_Curlew.jpg",
+      "objectKey": "audubon-birds/237_Great_Esquimaux_Curlew.jpg",
+      "edge": "bottom",
+      "fileUrl": "https://upload.wikimedia.org/wikipedia/commons/2/22/237_Great_Esquimaux_Curlew.jpg",
+      "meanRGB": {
+        "right": [
+          179,
+          178,
+          172
+        ],
+        "bottom": [
+          128,
+          128,
+          128
+        ]
+      },
+      "variance": {
+        "right": [
+          3745,
+          3586,
+          2870
+        ],
+        "bottom": [
+          0,
+          0,
+          0
+        ]
+      },
+      "decodedSize": [
+        1024,
+        715
+      ]
+    },
+    {
+      "id": "238_Great_Marbled_Godwit",
+      "filename": "238_Great_Marbled_Godwit.jpg",
+      "objectKey": "audubon-birds/238_Great_Marbled_Godwit.jpg",
+      "edge": "bottom",
+      "fileUrl": "https://upload.wikimedia.org/wikipedia/commons/9/97/238_Great_Marbled_Godwit.jpg",
+      "meanRGB": {
+        "right": [
+          180,
+          179,
+          174
+        ],
+        "bottom": [
+          128,
+          128,
+          128
+        ]
+      },
+      "variance": {
+        "right": [
+          3787,
+          3625,
+          2910
+        ],
+        "bottom": [
+          0,
+          0,
+          0
+        ]
+      },
+      "decodedSize": [
+        1024,
+        714
+      ]
+    },
+    {
+      "id": "239_American_Coot",
+      "filename": "239_American_Coot.jpg",
+      "objectKey": "audubon-birds/239_American_Coot.jpg",
+      "edge": "bottom",
+      "fileUrl": "https://upload.wikimedia.org/wikipedia/commons/b/ba/239_American_Coot.jpg",
+      "meanRGB": {
+        "right": [
+          178,
+          176,
+          171
+        ],
+        "bottom": [
+          128,
+          128,
+          128
+        ]
+      },
+      "variance": {
+        "right": [
+          3692,
+          3509,
+          2801
+        ],
+        "bottom": [
+          0,
+          0,
+          0
+        ]
+      },
+      "decodedSize": [
+        1024,
+        717
+      ]
+    },
+    {
+      "id": "240_Roseate_Tern",
+      "filename": "240_Roseate_Tern.jpg",
+      "objectKey": "audubon-birds/240_Roseate_Tern.jpg",
+      "edge": "bottom",
+      "fileUrl": "https://upload.wikimedia.org/wikipedia/commons/4/4c/240_Roseate_Tern.jpg",
+      "meanRGB": {
+        "right": [
+          175,
+          174,
+          168
+        ],
+        "bottom": [
+          128,
+          128,
+          128
+        ]
+      },
+      "variance": {
+        "right": [
+          3427,
+          3295,
+          2505
+        ],
+        "bottom": [
+          0,
+          0,
+          0
+        ]
+      },
+      "decodedSize": [
+        1024,
+        1466
+      ]
+    },
+    {
+      "id": "241_Black_Backed_Gull",
+      "filename": "241_Black_Backed_Gull.jpg",
+      "objectKey": "audubon-birds/241_Black_Backed_Gull.jpg",
+      "edge": "bottom",
+      "fileUrl": "https://upload.wikimedia.org/wikipedia/commons/c/c9/241_Black_Backed_Gull.jpg",
+      "meanRGB": {
+        "right": [
+          168,
+          167,
+          163
+        ],
+        "bottom": [
+          128,
+          128,
+          128
+        ]
+      },
+      "variance": {
+        "right": [
+          3190,
+          3068,
+          2436
+        ],
+        "bottom": [
+          0,
+          0,
+          0
+        ]
+      },
+      "decodedSize": [
+        1024,
+        1459
+      ]
+    },
+    {
+      "id": "242_Snowy_Heron_or_White_Egret",
+      "filename": "242_Snowy_Heron_or_White_Egret.jpg",
+      "objectKey": "audubon-birds/242_Snowy_Heron_or_White_Egret.jpg",
+      "edge": "bottom",
+      "fileUrl": "https://upload.wikimedia.org/wikipedia/commons/9/99/242_Snowy_Heron_or_White_Egret.jpg",
+      "meanRGB": {
+        "right": [
+          166,
+          165,
+          161
+        ],
+        "bottom": [
+          128,
+          128,
+          128
+        ]
+      },
+      "variance": {
+        "right": [
+          3139,
+          3043,
+          2361
+        ],
+        "bottom": [
+          0,
+          0,
+          0
+        ]
+      },
+      "decodedSize": [
+        1024,
+        1461
+      ]
+    },
+    {
+      "id": "243_American_Snipe",
+      "filename": "243_American_Snipe.jpg",
+      "objectKey": "audubon-birds/243_American_Snipe.jpg",
+      "edge": "bottom",
+      "fileUrl": "https://upload.wikimedia.org/wikipedia/commons/5/52/243_American_Snipe.jpg",
+      "meanRGB": {
+        "right": [
+          177,
+          177,
+          172
+        ],
+        "bottom": [
+          128,
+          128,
+          128
+        ]
+      },
+      "variance": {
+        "right": [
+          3798,
+          3719,
+          3017
+        ],
+        "bottom": [
+          0,
+          0,
+          0
+        ]
+      },
+      "decodedSize": [
+        1024,
+        714
+      ]
+    },
+    {
+      "id": "244_Common_Gallinule",
+      "filename": "244_Common_Gallinule.jpg",
+      "objectKey": "audubon-birds/244_Common_Gallinule.jpg",
+      "edge": "bottom",
+      "fileUrl": "https://upload.wikimedia.org/wikipedia/commons/0/04/244_Common_Gallinule.jpg",
+      "meanRGB": {
+        "right": [
+          180,
+          179,
+          174
+        ],
+        "bottom": [
+          128,
+          128,
+          128
+        ]
+      },
+      "variance": {
+        "right": [
+          3865,
+          3757,
+          3007
+        ],
+        "bottom": [
+          0,
+          0,
+          0
+        ]
+      },
+      "decodedSize": [
+        1024,
+        713
+      ]
+    },
+    {
+      "id": "245_Thick-billed_Murre",
+      "filename": "245_Thick-billed_Murre.jpg",
+      "objectKey": "audubon-birds/245_Thick-billed_Murre.jpg",
+      "edge": "bottom",
+      "fileUrl": "https://upload.wikimedia.org/wikipedia/commons/e/e5/245_Thick-billed_Murre.jpg",
+      "meanRGB": {
+        "right": [
+          174,
+          174,
+          169
+        ],
+        "bottom": [
+          128,
+          128,
+          128
+        ]
+      },
+      "variance": {
+        "right": [
+          3702,
+          3597,
+          2905
+        ],
+        "bottom": [
+          0,
+          0,
+          0
+        ]
+      },
+      "decodedSize": [
+        1024,
+        712
+      ]
+    },
+    {
+      "id": "246_Eider_Duck",
+      "filename": "246_Eider_Duck.jpg",
+      "objectKey": "audubon-birds/246_Eider_Duck.jpg",
+      "edge": "bottom",
+      "fileUrl": "https://upload.wikimedia.org/wikipedia/commons/b/bd/246_Eider_Duck.jpg",
+      "meanRGB": {
+        "right": [
+          166,
+          165,
+          161
+        ],
+        "bottom": [
+          128,
+          128,
+          128
+        ]
+      },
+      "variance": {
+        "right": [
+          3201,
+          3097,
+          2464
+        ],
+        "bottom": [
+          0,
+          0,
+          0
+        ]
+      },
+      "decodedSize": [
+        1024,
+        710
+      ]
+    },
+    {
+      "id": "247_Velvet_Duck",
+      "filename": "247_Velvet_Duck.jpg",
+      "objectKey": "audubon-birds/247_Velvet_Duck.jpg",
+      "edge": "bottom",
+      "fileUrl": "https://upload.wikimedia.org/wikipedia/commons/5/54/247_Velvet_Duck.jpg",
+      "meanRGB": {
+        "right": [
+          184,
+          183,
+          177
+        ],
+        "bottom": [
+          128,
+          128,
+          128
+        ]
+      },
+      "variance": {
+        "right": [
+          3790,
+          3603,
+          2850
+        ],
+        "bottom": [
+          0,
+          0,
+          0
+        ]
+      },
+      "decodedSize": [
+        1024,
+        716
+      ]
+    },
+    {
+      "id": "248_American_Pied-bill_Dobchick",
+      "filename": "248_American_Pied-bill_Dobchick.jpg",
+      "objectKey": "audubon-birds/248_American_Pied-bill_Dobchick.jpg",
+      "edge": "bottom",
+      "fileUrl": "https://upload.wikimedia.org/wikipedia/commons/2/23/248_American_Pied-bill_Dobchick.jpg",
+      "meanRGB": {
+        "right": [
+          179,
+          178,
+          173
+        ],
+        "bottom": [
+          128,
+          128,
+          128
+        ]
+      },
+      "variance": {
+        "right": [
+          3749,
+          3587,
+          2869
+        ],
+        "bottom": [
+          0,
+          0,
+          0
+        ]
+      },
+      "decodedSize": [
+        1024,
+        715
+      ]
+    },
+    {
+      "id": "249_Tufted_Auk",
+      "filename": "249_Tufted_Auk.jpg",
+      "objectKey": "audubon-birds/249_Tufted_Auk.jpg",
+      "edge": "bottom",
+      "fileUrl": "https://upload.wikimedia.org/wikipedia/commons/b/b6/249_Tufted_Auk.jpg",
+      "meanRGB": {
+        "right": [
+          183,
+          182,
+          176
+        ],
+        "bottom": [
+          128,
+          128,
+          128
+        ]
+      },
+      "variance": {
+        "right": [
+          3849,
+          3689,
+          2901
+        ],
+        "bottom": [
+          0,
+          0,
+          0
+        ]
+      },
+      "decodedSize": [
+        1024,
+        710
+      ]
+    },
+    {
+      "id": "250_Arctic_Tern",
+      "filename": "250_Arctic_Tern.jpg",
+      "objectKey": "audubon-birds/250_Arctic_Tern.jpg",
+      "edge": "bottom",
+      "fileUrl": "https://upload.wikimedia.org/wikipedia/commons/9/9c/250_Arctic_Tern.jpg",
+      "meanRGB": {
+        "right": [
+          168,
+          168,
+          163
+        ],
+        "bottom": [
+          128,
+          128,
+          128
+        ]
+      },
+      "variance": {
+        "right": [
+          3249,
+          3130,
+          2410
+        ],
+        "bottom": [
+          0,
+          0,
+          0
+        ]
+      },
+      "decodedSize": [
+        1024,
+        1467
+      ]
+    },
+    {
+      "id": "251_Brown_Pelican",
+      "filename": "251_Brown_Pelican.jpg",
+      "objectKey": "audubon-birds/251_Brown_Pelican.jpg",
+      "edge": "bottom",
+      "fileUrl": "https://upload.wikimedia.org/wikipedia/commons/f/f3/251_Brown_Pelican.jpg",
+      "meanRGB": {
+        "right": [
+          157,
+          157,
+          154
+        ],
+        "bottom": [
+          128,
+          128,
+          128
+        ]
+      },
+      "variance": {
+        "right": [
+          2620,
+          2540,
+          2004
+        ],
+        "bottom": [
+          0,
+          0,
+          0
+        ]
+      },
+      "decodedSize": [
+        1024,
+        1471
+      ]
+    },
+    {
+      "id": "252_Florida_Cormorant",
+      "filename": "252_Florida_Cormorant.jpg",
+      "objectKey": "audubon-birds/252_Florida_Cormorant.jpg",
+      "edge": "bottom",
+      "fileUrl": "https://upload.wikimedia.org/wikipedia/commons/2/2c/252_Florida_Cormorant.jpg",
+      "meanRGB": {
+        "right": [
+          173,
+          172,
+          168
+        ],
+        "bottom": [
+          128,
+          128,
+          128
+        ]
+      },
+      "variance": {
+        "right": [
+          3523,
+          3347,
+          2708
+        ],
+        "bottom": [
+          0,
+          0,
+          0
+        ]
+      },
+      "decodedSize": [
+        1024,
+        711
+      ]
+    },
+    {
+      "id": "253_Jager",
+      "filename": "253_Jager.jpg",
+      "objectKey": "audubon-birds/253_Jager.jpg",
+      "edge": "bottom",
+      "fileUrl": "https://upload.wikimedia.org/wikipedia/commons/1/17/253_Jager.jpg",
+      "meanRGB": {
+        "right": [
+          177,
+          176,
+          171
+        ],
+        "bottom": [
+          128,
+          128,
+          128
+        ]
+      },
+      "variance": {
+        "right": [
+          3757,
+          3640,
+          2884
+        ],
+        "bottom": [
+          0,
+          0,
+          0
+        ]
+      },
+      "decodedSize": [
+        1024,
+        711
+      ]
+    },
+    {
+      "id": "254_Wilson's_Phalarope",
+      "filename": "254_Wilson's_Phalarope.jpg",
+      "objectKey": "audubon-birds/254_Wilson's_Phalarope.jpg",
+      "edge": "bottom",
+      "fileUrl": "https://upload.wikimedia.org/wikipedia/commons/0/09/254_Wilson%27s_Phalarope.jpg",
+      "meanRGB": {
+        "right": [
+          179,
+          178,
+          172
+        ],
+        "bottom": [
+          128,
+          128,
+          128
+        ]
+      },
+      "variance": {
+        "right": [
+          3777,
+          3650,
+          2891
+        ],
+        "bottom": [
+          0,
+          0,
+          0
+        ]
+      },
+      "decodedSize": [
+        1024,
+        710
+      ]
+    },
+    {
+      "id": "255_Red_Phalarope",
+      "filename": "255_Red_Phalarope.jpg",
+      "objectKey": "audubon-birds/255_Red_Phalarope.jpg",
+      "edge": "bottom",
+      "fileUrl": "https://upload.wikimedia.org/wikipedia/commons/5/5a/255_Red_Phalarope.jpg",
+      "meanRGB": {
+        "right": [
+          163,
+          163,
+          160
+        ],
+        "bottom": [
+          128,
+          128,
+          128
+        ]
+      },
+      "variance": {
+        "right": [
+          3234,
+          3182,
+          2566
+        ],
+        "bottom": [
+          0,
+          0,
+          0
+        ]
+      },
+      "decodedSize": [
+        1024,
+        710
+      ]
+    },
+    {
+      "id": "256_Purple_Heron",
+      "filename": "256_Purple_Heron.jpg",
+      "objectKey": "audubon-birds/256_Purple_Heron.jpg",
+      "edge": "bottom",
+      "fileUrl": "https://upload.wikimedia.org/wikipedia/commons/a/af/256_Purple_Heron.jpg",
+      "meanRGB": {
+        "right": [
+          173,
+          172,
+          168
+        ],
+        "bottom": [
+          128,
+          128,
+          128
+        ]
+      },
+      "variance": {
+        "right": [
+          3601,
+          3492,
+          2812
+        ],
+        "bottom": [
+          0,
+          0,
+          0
+        ]
+      },
+      "decodedSize": [
+        1024,
+        709
+      ]
+    },
+    {
+      "id": "257_Double-crested_Cormorant",
+      "filename": "257_Double-crested_Cormorant.jpg",
+      "objectKey": "audubon-birds/257_Double-crested_Cormorant.jpg",
+      "edge": "bottom",
+      "fileUrl": "https://upload.wikimedia.org/wikipedia/commons/b/bb/257_Double-crested_Cormorant.jpg",
+      "meanRGB": {
+        "right": [
+          174,
+          173,
+          169
+        ],
+        "bottom": [
+          128,
+          128,
+          128
+        ]
+      },
+      "variance": {
+        "right": [
+          3571,
+          3462,
+          2795
+        ],
+        "bottom": [
+          0,
+          0,
+          0
+        ]
+      },
+      "decodedSize": [
+        1024,
+        1476
+      ]
+    },
+    {
+      "id": "258_Hudsonian_Godwit",
+      "filename": "258_Hudsonian_Godwit.jpg",
+      "objectKey": "audubon-birds/258_Hudsonian_Godwit.jpg",
+      "edge": "bottom",
+      "fileUrl": "https://upload.wikimedia.org/wikipedia/commons/3/32/258_Hudsonian_Godwit.jpg",
+      "meanRGB": {
+        "right": [
+          178,
+          178,
+          172
+        ],
+        "bottom": [
+          128,
+          128,
+          128
+        ]
+      },
+      "variance": {
+        "right": [
+          3817,
+          3701,
+          2974
+        ],
+        "bottom": [
+          0,
+          0,
+          0
+        ]
+      },
+      "decodedSize": [
+        1024,
+        711
+      ]
+    },
+    {
+      "id": "259_Horned_Grebe",
+      "filename": "259_Horned_Grebe.jpg",
+      "objectKey": "audubon-birds/259_Horned_Grebe.jpg",
+      "edge": "bottom",
+      "fileUrl": "https://upload.wikimedia.org/wikipedia/commons/f/f4/259_Horned_Grebe.jpg",
+      "meanRGB": {
+        "right": [
+          180,
+          179,
+          174
+        ],
+        "bottom": [
+          128,
+          128,
+          128
+        ]
+      },
+      "variance": {
+        "right": [
+          3848,
+          3730,
+          3010
+        ],
+        "bottom": [
+          0,
+          0,
+          0
+        ]
+      },
+      "decodedSize": [
+        1024,
+        708
+      ]
+    },
+    {
+      "id": "260_Fork-tail_Petrel",
+      "filename": "260_Fork-tail_Petrel.jpg",
+      "objectKey": "audubon-birds/260_Fork-tail_Petrel.jpg",
+      "edge": "bottom",
+      "fileUrl": "https://upload.wikimedia.org/wikipedia/commons/8/8a/260_Fork-tail_Petrel.jpg",
+      "meanRGB": {
+        "right": [
+          177,
+          177,
+          172
+        ],
+        "bottom": [
+          128,
+          128,
+          128
+        ]
+      },
+      "variance": {
+        "right": [
+          3780,
+          3758,
+          3062
+        ],
+        "bottom": [
+          0,
+          0,
+          0
+        ]
+      },
+      "decodedSize": [
+        1024,
+        711
+      ]
+    },
+    {
+      "id": "261_Hooping_Crane",
+      "filename": "261_Hooping_Crane.jpg",
+      "objectKey": "audubon-birds/261_Hooping_Crane.jpg",
+      "edge": "bottom",
+      "fileUrl": "https://upload.wikimedia.org/wikipedia/commons/1/1d/261_Hooping_Crane.jpg",
+      "meanRGB": {
+        "right": [
+          170,
+          169,
+          165
+        ],
+        "bottom": [
+          128,
+          128,
+          128
+        ]
+      },
+      "variance": {
+        "right": [
+          3449,
+          3348,
+          2704
+        ],
+        "bottom": [
+          0,
+          0,
+          0
+        ]
+      },
+      "decodedSize": [
+        1024,
+        1479
+      ]
+    },
+    {
+      "id": "262_Tropic_Bird",
+      "filename": "262_Tropic_Bird.jpg",
+      "objectKey": "audubon-birds/262_Tropic_Bird.jpg",
+      "edge": "bottom",
+      "fileUrl": "https://upload.wikimedia.org/wikipedia/commons/a/af/262_Tropic_Bird.jpg",
+      "meanRGB": {
+        "right": [
+          164,
+          164,
+          160
+        ],
+        "bottom": [
+          128,
+          128,
+          128
+        ]
+      },
+      "variance": {
+        "right": [
+          3259,
+          3169,
+          2590
+        ],
+        "bottom": [
+          0,
+          0,
+          0
+        ]
+      },
+      "decodedSize": [
+        1024,
+        711
+      ]
+    },
+    {
+      "id": "263_Pigmy_Curlew",
+      "filename": "263_Pigmy_Curlew.jpg",
+      "objectKey": "audubon-birds/263_Pigmy_Curlew.jpg",
+      "edge": "bottom",
+      "fileUrl": "https://upload.wikimedia.org/wikipedia/commons/4/47/263_Pigmy_Curlew.jpg",
+      "meanRGB": {
+        "right": [
+          176,
+          176,
+          172
+        ],
+        "bottom": [
+          128,
+          128,
+          128
+        ]
+      },
+      "variance": {
+        "right": [
+          3750,
+          3743,
+          3064
+        ],
+        "bottom": [
+          0,
+          0,
+          0
+        ]
+      },
+      "decodedSize": [
+        1024,
+        711
+      ]
+    },
+    {
+      "id": "264_Fulmar_Petrel",
+      "filename": "264_Fulmar_Petrel.jpg",
+      "objectKey": "audubon-birds/264_Fulmar_Petrel.jpg",
+      "edge": "bottom",
+      "fileUrl": "https://upload.wikimedia.org/wikipedia/commons/e/eb/264_Fulmar_Petrel.jpg",
+      "meanRGB": {
+        "right": [
+          182,
+          181,
+          175
+        ],
+        "bottom": [
+          128,
+          128,
+          128
+        ]
+      },
+      "variance": {
+        "right": [
+          3795,
+          3655,
+          2927
+        ],
+        "bottom": [
+          0,
+          0,
+          0
+        ]
+      },
+      "decodedSize": [
+        1024,
+        710
+      ]
+    },
+    {
+      "id": "265_Buff_breasted_Sandpiper",
+      "filename": "265_Buff_breasted_Sandpiper.jpg",
+      "objectKey": "audubon-birds/265_Buff_breasted_Sandpiper.jpg",
+      "edge": "bottom",
+      "fileUrl": "https://upload.wikimedia.org/wikipedia/commons/9/94/265_Buff_breasted_Sandpiper.jpg",
+      "meanRGB": {
+        "right": [
+          185,
+          184,
+          178
+        ],
+        "bottom": [
+          128,
+          128,
+          128
+        ]
+      },
+      "variance": {
+        "right": [
+          3862,
+          3726,
+          2987
+        ],
+        "bottom": [
+          0,
+          0,
+          0
+        ]
+      },
+      "decodedSize": [
+        1024,
+        715
+      ]
+    },
+    {
+      "id": "266_Common_Cormorant",
+      "filename": "266_Common_Cormorant.jpg",
+      "objectKey": "audubon-birds/266_Common_Cormorant.jpg",
+      "edge": "bottom",
+      "fileUrl": "https://upload.wikimedia.org/wikipedia/commons/e/ec/266_Common_Cormorant.jpg",
+      "meanRGB": {
+        "right": [
+          134,
+          133,
+          133
+        ],
+        "bottom": [
+          128,
+          128,
+          128
+        ]
+      },
+      "variance": {
+        "right": [
+          655,
+          636,
+          508
+        ],
+        "bottom": [
+          0,
+          0,
+          0
+        ]
+      },
+      "decodedSize": [
+        1024,
+        711
+      ]
+    },
+    {
+      "id": "267_Arctic_Yager",
+      "filename": "267_Arctic_Yager.jpg",
+      "objectKey": "audubon-birds/267_Arctic_Yager.jpg",
+      "edge": "bottom",
+      "fileUrl": "https://upload.wikimedia.org/wikipedia/commons/a/a6/267_Arctic_Yager.jpg",
+      "meanRGB": {
+        "right": [
+          176,
+          175,
+          170
+        ],
+        "bottom": [
+          128,
+          128,
+          128
+        ]
+      },
+      "variance": {
+        "right": [
+          3541,
+          3422,
+          2723
+        ],
+        "bottom": [
+          0,
+          0,
+          0
+        ]
+      },
+      "decodedSize": [
+        1024,
+        1470
+      ]
+    },
+    {
+      "id": "268_American_Woodcock",
+      "filename": "268_American_Woodcock.jpg",
+      "objectKey": "audubon-birds/268_American_Woodcock.jpg",
+      "edge": "bottom",
+      "fileUrl": "https://upload.wikimedia.org/wikipedia/commons/3/3b/268_American_Woodcock.jpg",
+      "meanRGB": {
+        "right": [
+          172,
+          171,
+          167
+        ],
+        "bottom": [
+          128,
+          128,
+          128
+        ]
+      },
+      "variance": {
+        "right": [
+          3603,
+          3489,
+          2799
+        ],
+        "bottom": [
+          0,
+          0,
+          0
+        ]
+      },
+      "decodedSize": [
+        1024,
+        712
+      ]
+    },
+    {
+      "id": "269_Greenshank",
+      "filename": "269_Greenshank.jpg",
+      "objectKey": "audubon-birds/269_Greenshank.jpg",
+      "edge": "bottom",
+      "fileUrl": "https://upload.wikimedia.org/wikipedia/commons/d/d9/269_Greenshank.jpg",
+      "meanRGB": {
+        "right": [
+          184,
+          183,
+          177
+        ],
+        "bottom": [
+          128,
+          128,
+          128
+        ]
+      },
+      "variance": {
+        "right": [
+          3883,
+          3755,
+          3013
+        ],
+        "bottom": [
+          0,
+          0,
+          0
+        ]
+      },
+      "decodedSize": [
+        1024,
+        720
+      ]
+    },
+    {
+      "id": "270_Stormy_Petrel",
+      "filename": "270_Stormy_Petrel.jpg",
+      "objectKey": "audubon-birds/270_Stormy_Petrel.jpg",
+      "edge": "bottom",
+      "fileUrl": "https://upload.wikimedia.org/wikipedia/commons/d/d1/270_Stormy_Petrel.jpg",
+      "meanRGB": {
+        "right": [
+          191,
+          190,
+          184
+        ],
+        "bottom": [
+          128,
+          128,
+          128
+        ]
+      },
+      "variance": {
+        "right": [
+          3883,
+          3741,
+          3000
+        ],
+        "bottom": [
+          0,
+          0,
+          0
+        ]
+      },
+      "decodedSize": [
+        1024,
+        713
+      ]
+    },
+    {
+      "id": "271_Frigate_Pelican",
+      "filename": "271_Frigate_Pelican.jpg",
+      "objectKey": "audubon-birds/271_Frigate_Pelican.jpg",
+      "edge": "bottom",
+      "fileUrl": "https://upload.wikimedia.org/wikipedia/commons/a/ab/271_Frigate_Pelican.jpg",
+      "meanRGB": {
+        "right": [
+          167,
+          166,
+          162
+        ],
+        "bottom": [
+          128,
+          128,
+          128
+        ]
+      },
+      "variance": {
+        "right": [
+          3166,
+          3066,
+          2449
+        ],
+        "bottom": [
+          0,
+          0,
+          0
+        ]
+      },
+      "decodedSize": [
+        1024,
+        1470
+      ]
+    },
+    {
+      "id": "272_Richardson's_Jager",
+      "filename": "272_Richardson's_Jager.jpg",
+      "objectKey": "audubon-birds/272_Richardson's_Jager.jpg",
+      "edge": "bottom",
+      "fileUrl": "https://upload.wikimedia.org/wikipedia/commons/b/b8/272_Richardson%27s_Jager.jpg",
+      "meanRGB": {
+        "right": [
+          182,
+          181,
+          175
+        ],
+        "bottom": [
+          128,
+          128,
+          128
+        ]
+      },
+      "variance": {
+        "right": [
+          3903,
+          3781,
+          2974
+        ],
+        "bottom": [
+          0,
+          0,
+          0
+        ]
+      },
+      "decodedSize": [
+        1024,
+        714
+      ]
+    },
+    {
+      "id": "273_Cayenne_Tern",
+      "filename": "273_Cayenne_Tern.jpg",
+      "objectKey": "audubon-birds/273_Cayenne_Tern.jpg",
+      "edge": "bottom",
+      "fileUrl": "https://upload.wikimedia.org/wikipedia/commons/a/a0/273_Cayenne_Tern.jpg",
+      "meanRGB": {
+        "right": [
+          179,
+          178,
+          173
+        ],
+        "bottom": [
+          128,
+          128,
+          128
+        ]
+      },
+      "variance": {
+        "right": [
+          3719,
+          3514,
+          2828
+        ],
+        "bottom": [
+          0,
+          0,
+          0
+        ]
+      },
+      "decodedSize": [
+        1024,
+        712
+      ]
+    },
+    {
+      "id": "274_Semipalmated_Snipe,_or_Willet",
+      "filename": "274_Semipalmated_Snipe,_or_Willet.jpg",
+      "objectKey": "audubon-birds/274_Semipalmated_Snipe,_or_Willet.jpg",
+      "edge": "bottom",
+      "fileUrl": "https://upload.wikimedia.org/wikipedia/commons/c/ca/274_Semipalmated_Snipe%2C_or_Willet.jpg",
+      "meanRGB": {
+        "right": [
+          177,
+          175,
+          170
+        ],
+        "bottom": [
+          128,
+          128,
+          128
+        ]
+      },
+      "variance": {
+        "right": [
+          3587,
+          3382,
+          2695
+        ],
+        "bottom": [
+          0,
+          0,
+          0
+        ]
+      },
+      "decodedSize": [
+        1024,
+        718
+      ]
+    },
+    {
+      "id": "275_Noddy_Tern",
+      "filename": "275_Noddy_Tern.jpg",
+      "objectKey": "audubon-birds/275_Noddy_Tern.jpg",
+      "edge": "bottom",
+      "fileUrl": "https://upload.wikimedia.org/wikipedia/commons/9/9c/275_Noddy_Tern.jpg",
+      "meanRGB": {
+        "right": [
+          184,
+          182,
+          177
+        ],
+        "bottom": [
+          128,
+          128,
+          128
+        ]
+      },
+      "variance": {
+        "right": [
+          3831,
+          3652,
+          2947
+        ],
+        "bottom": [
+          0,
+          0,
+          0
+        ]
+      },
+      "decodedSize": [
+        1024,
+        706
+      ]
+    },
+    {
+      "id": "276_King_Duck",
+      "filename": "276_King_Duck.jpg",
+      "objectKey": "audubon-birds/276_King_Duck.jpg",
+      "edge": "bottom",
+      "fileUrl": "https://upload.wikimedia.org/wikipedia/commons/a/a6/276_King_Duck.jpg",
+      "meanRGB": {
+        "right": [
+          166,
+          165,
+          161
+        ],
+        "bottom": [
+          128,
+          128,
+          128
+        ]
+      },
+      "variance": {
+        "right": [
+          3168,
+          2991,
+          2386
+        ],
+        "bottom": [
+          0,
+          0,
+          0
+        ]
+      },
+      "decodedSize": [
+        1024,
+        714
+      ]
+    },
+    {
+      "id": "277_Hutchins's_Barnacle_Goose",
+      "filename": "277_Hutchins's_Barnacle_Goose.jpg",
+      "objectKey": "audubon-birds/277_Hutchins's_Barnacle_Goose.jpg",
+      "edge": "bottom",
+      "fileUrl": "https://upload.wikimedia.org/wikipedia/commons/4/4c/277_Hutchins%27s_Barnacle_Goose.jpg",
+      "meanRGB": {
+        "right": [
+          184,
+          182,
+          176
+        ],
+        "bottom": [
+          128,
+          128,
+          128
+        ]
+      },
+      "variance": {
+        "right": [
+          3587,
+          3404,
+          2720
+        ],
+        "bottom": [
+          0,
+          0,
+          0
+        ]
+      },
+      "decodedSize": [
+        1024,
+        1476
+      ]
+    },
+    {
+      "id": "278_Schinz's_Sandpiper_restored",
+      "filename": "278_Schinz's_Sandpiper_restored.jpg",
+      "objectKey": "audubon-birds/278_Schinz's_Sandpiper_restored.jpg",
+      "edge": "bottom",
+      "fileUrl": "https://upload.wikimedia.org/wikipedia/commons/e/e5/278_Schinz%27s_Sandpiper_restored.jpg",
+      "meanRGB": {
+        "right": [
+          204,
+          204,
+          204
+        ],
+        "bottom": [
+          128,
+          128,
+          128
+        ]
+      },
+      "variance": {
+        "right": [
+          3791,
+          3795,
+          3772
+        ],
+        "bottom": [
+          0,
+          0,
+          0
+        ]
+      },
+      "decodedSize": [
+        1024,
+        761
+      ]
+    },
+    {
+      "id": "279_Cabot's_Tern",
+      "filename": "279_Cabot's_Tern.jpg",
+      "objectKey": "audubon-birds/279_Cabot's_Tern.jpg",
+      "edge": "bottom",
+      "fileUrl": "https://upload.wikimedia.org/wikipedia/commons/a/aa/279_Cabot%27s_Tern.jpg",
+      "meanRGB": {
+        "right": [
+          174,
+          173,
+          169
+        ],
+        "bottom": [
+          128,
+          128,
+          128
+        ]
+      },
+      "variance": {
+        "right": [
+          3577,
+          3405,
+          2736
+        ],
+        "bottom": [
+          0,
+          0,
+          0
+        ]
+      },
+      "decodedSize": [
+        1024,
+        722
+      ]
+    },
+    {
+      "id": "280_Black_Tern",
+      "filename": "280_Black_Tern.jpg",
+      "objectKey": "audubon-birds/280_Black_Tern.jpg",
+      "edge": "bottom",
+      "fileUrl": "https://upload.wikimedia.org/wikipedia/commons/1/11/280_Black_Tern.jpg",
+      "meanRGB": {
+        "right": [
+          190,
+          189,
+          183
+        ],
+        "bottom": [
+          128,
+          128,
+          128
+        ]
+      },
+      "variance": {
+        "right": [
+          3684,
+          3551,
+          2833
+        ],
+        "bottom": [
+          0,
+          0,
+          0
+        ]
+      },
+      "decodedSize": [
+        1024,
+        1469
+      ]
+    },
+    {
+      "id": "380_Tengmalm's_Owl",
+      "filename": "380_Tengmalm's_Owl.jpg",
+      "objectKey": "audubon-birds/380_Tengmalm's_Owl.jpg",
+      "edge": "bottom",
+      "fileUrl": "https://upload.wikimedia.org/wikipedia/commons/6/63/380_Tengmalm%27s_Owl.jpg",
+      "meanRGB": {
+        "right": [
+          218,
+          216,
+          205
+        ],
+        "bottom": [
+          128,
+          128,
+          128
+        ]
+      },
+      "variance": {
+        "right": [
+          2744,
+          2608,
+          1990
+        ],
+        "bottom": [
+          0,
+          0,
+          0
+        ]
+      },
+      "decodedSize": [
+        1024,
+        1471
+      ]
+    },
+    {
+      "id": "381_Snow_Goose",
+      "filename": "381_Snow_Goose.jpg",
+      "objectKey": "audubon-birds/381_Snow_Goose.jpg",
+      "edge": "bottom",
+      "fileUrl": "https://upload.wikimedia.org/wikipedia/commons/6/68/381_Snow_Goose.jpg",
+      "meanRGB": {
+        "right": [
+          175,
+          174,
+          169
+        ],
+        "bottom": [
+          128,
+          128,
+          128
+        ]
+      },
+      "variance": {
+        "right": [
+          3586,
+          3469,
+          2778
+        ],
+        "bottom": [
+          0,
+          0,
+          0
+        ]
+      },
+      "decodedSize": [
+        1024,
+        710
+      ]
+    },
+    {
+      "id": "382_Sharp-tailed_Grous",
+      "filename": "382_Sharp-tailed_Grous.jpg",
+      "objectKey": "audubon-birds/382_Sharp-tailed_Grous.jpg",
+      "edge": "bottom",
+      "fileUrl": "https://upload.wikimedia.org/wikipedia/commons/1/1f/382_Sharp-tailed_Grous.jpg",
+      "meanRGB": {
+        "right": [
+          184,
+          183,
+          177
+        ],
+        "bottom": [
+          128,
+          128,
+          128
+        ]
+      },
+      "variance": {
+        "right": [
+          3920,
+          3761,
+          3016
+        ],
+        "bottom": [
+          0,
+          0,
+          0
+        ]
+      },
+      "decodedSize": [
+        1024,
+        712
+      ]
+    },
+    {
+      "id": "395_I._Audubon's_Warbler_-_2._Hermit_Warbler_-_3._Black-throated_gray_Warbler",
+      "filename": "395_I._Audubon's_Warbler_-_2._Hermit_Warbler_-_3._Black-throated_gray_Warbler.jpg",
+      "objectKey": "audubon-birds/395_I._Audubon's_Warbler_-_2._Hermit_Warbler_-_3._Black-throated_gray_Warbler.jpg",
+      "edge": "bottom",
+      "fileUrl": "https://upload.wikimedia.org/wikipedia/commons/a/a3/395_I._Audubon%27s_Warbler_-_2._Hermit_Warbler_-_3._Black-throated_gray_Warbler.jpg",
+      "meanRGB": {
+        "right": [
+          186,
+          185,
+          178
+        ],
+        "bottom": [
+          128,
+          128,
+          128
+        ]
+      },
+      "variance": {
+        "right": [
+          3720,
+          3579,
+          2767
+        ],
+        "bottom": [
+          0,
+          0,
+          0
+        ]
+      },
+      "decodedSize": [
+        1024,
+        1475
+      ]
+    }
+  ]
+}
