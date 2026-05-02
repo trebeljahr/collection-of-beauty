@@ -5,6 +5,7 @@ import { Canvas } from "@react-three/fiber";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import * as THREE from "three";
 import { AudioControls } from "@/components/audio-controls";
+import { useSetIs3DActive } from "@/components/gallery-3d-state";
 import { useJoystick } from "@/hooks/use-joystick";
 import { useNeedsRotate, useTouchDevice } from "@/hooks/use-touch-device";
 import { useAudioSettings } from "@/lib/audio-settings";
@@ -89,6 +90,16 @@ export function Gallery3D({ artworks }: Props) {
     enabled: joysticksActive,
     params: { x: "88%", y: "18%" },
   });
+
+  // Mirror `hasStarted` into the global Gallery3D context so the
+  // SiteNav can hide itself and the body can lock vertical scroll
+  // while the player is inside the museum. Reset on unmount so a
+  // back-button exit (or any other route change) restores both.
+  const setIs3DActive = useSetIs3DActive();
+  useEffect(() => {
+    setIs3DActive(hasStarted);
+    return () => setIs3DActive(false);
+  }, [hasStarted, setIs3DActive]);
 
   // ── Audio ────────────────────────────────────────────────────────
   // Ambience: long looping <audio> streamed via HTMLAudioElement.
@@ -426,8 +437,8 @@ export function Gallery3D({ artworks }: Props) {
             isTouch ? "top-4 left-1/2 -translate-x-1/2" : "bottom-4 left-4"
           }`}
         >
-          <div className="text-xs text-neutral-500 font-mono">
-            FLOOR {currentFloorIdx} · {currentFloor.era.title}
+          <div className="text-xs text-neutral-500">
+            Floor {currentFloorIdx} · {currentFloor.era.title}
           </div>
           {activeRoom && (
             <>
@@ -458,9 +469,11 @@ export function Gallery3D({ artworks }: Props) {
               <>Left stick walks · right stick looks</>
             ) : (
               <>
-                <kbd className="rounded border border-white/30 px-1 font-mono">M</kbd> map · 1
-                Gothic · 2 Renaissance · 3 Baroque · 4 Enlightenment · 5 Romantic · 6 Ukiyo-e · 7
-                Fin-de-siècle · 8 Modern
+                <kbd className="rounded border border-white/30 px-1 font-mono">M</kbd> map ·{" "}
+                <kbd className="rounded border border-white/30 px-1 font-mono">F</kbd> zoom ·{" "}
+                <kbd className="rounded border border-white/30 px-1 font-mono">C</kbd> duck ·{" "}
+                <kbd className="rounded border border-white/30 px-1 font-mono">R</kbd> tiptoe ·{" "}
+                <kbd className="rounded border border-white/30 px-1 font-mono">E</kbd> inspect
               </>
             )}
           </div>
@@ -732,7 +745,7 @@ function StartOverlay({
               · <kbd className="rounded border border-white/30 px-1.5">Shift</kbd> to run ·{" "}
               <kbd className="rounded border border-white/30 px-1.5">Space</kbd> to jump · click a
               painting to zoom · <kbd className="rounded border border-white/30 px-1.5">M</kbd> for
-              the full map · 1–8 teleports between floors
+              the full map (with teleport shortcuts)
             </>
           )}
         </p>
@@ -833,11 +846,11 @@ function BigMapOverlay({
               }`}
             >
               <span
-                className={`inline-block w-5 text-right font-mono text-xs ${
+                className={`inline-block min-w-[3.5rem] text-right text-xs ${
                   isCurrent ? "text-amber-300" : "text-white/55"
                 }`}
               >
-                F{i}
+                Floor {i}
               </span>
               <span className="flex-1 truncate text-sm">{floorTitles[i]}</span>
               {isCurrent && (
@@ -864,22 +877,33 @@ function BigMapOverlay({
           showPlayer={showPlayer}
           size={size}
         />
-        <div className="flex items-center gap-3 text-xs text-white/75">
+        <div className="flex flex-col items-center gap-2 text-xs text-white/75">
           {isTouch ? (
-            <>Tap a floor on the left · double-tap to jump · tap outside to close</>
+            <span>Tap a floor on the left · double-tap to jump · tap outside to close</span>
           ) : (
             <>
-              <kbd className="rounded border border-white/30 px-1.5 font-mono">↑</kbd>
-              <kbd className="rounded border border-white/30 px-1.5 font-mono">↓</kbd>
-              <span>cycle floors</span>
-              <span className="text-white/35">·</span>
-              <kbd className="rounded border border-white/30 px-1.5 font-mono">Enter</kbd>
-              <span>jump</span>
-              <span className="text-white/35">·</span>
-              <kbd className="rounded border border-white/30 px-1.5 font-mono">M</kbd>
-              <span>/</span>
-              <kbd className="rounded border border-white/30 px-1.5 font-mono">Esc</kbd>
-              <span>close</span>
+              <div className="flex flex-wrap items-center justify-center gap-3">
+                <kbd className="rounded border border-white/30 px-1.5 font-mono">↑</kbd>
+                <kbd className="rounded border border-white/30 px-1.5 font-mono">↓</kbd>
+                <span>cycle floors</span>
+                <span className="text-white/35">·</span>
+                <kbd className="rounded border border-white/30 px-1.5 font-mono">Enter</kbd>
+                <span>jump</span>
+                <span className="text-white/35">·</span>
+                <kbd className="rounded border border-white/30 px-1.5 font-mono">M</kbd>
+                <span>/</span>
+                <kbd className="rounded border border-white/30 px-1.5 font-mono">Esc</kbd>
+                <span>close</span>
+              </div>
+              <div className="flex flex-wrap items-center justify-center gap-2 text-white/55">
+                <span>Quick teleport:</span>
+                {Array.from({ length: floorCount }, (_, i) => (
+                  <span key={i} className="flex items-center gap-1">
+                    <kbd className="rounded border border-white/25 px-1.5 font-mono">{i + 1}</kbd>
+                    <span className="truncate max-w-[7rem]">{floorTitles[i]}</span>
+                  </span>
+                ))}
+              </div>
             </>
           )}
         </div>

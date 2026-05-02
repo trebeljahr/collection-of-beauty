@@ -21,7 +21,11 @@ import {
   stairHeightAt,
 } from "./staircase";
 
-const EYE_HEIGHT = 1.7;
+const EYE_HEIGHT = 1.75;
+const DUCK_EYE_HEIGHT = 1.05;
+const TIPTOE_EYE_HEIGHT = 2.15;
+const FOV_DEFAULT = 75;
+const FOV_ZOOMED = 35;
 const WALK_SPEED = 5;
 const RUN_SPEED = 10;
 const JUMP_IMPULSE = 6;
@@ -68,8 +72,8 @@ const LOOK_SPEED = 2.0;
 // promoted to the destination floor when they enter one — without that
 // promotion an upper-landing exit would teleport them into the lower
 // floor's grid frame and they'd fall through the upper floor's annular
-// ring on the way down. Tied to ~28° of revolution = ~0.7 m of vertical
-// slack at FLOOR_SEPARATION = 9 m.
+// ring on the way down. Tied to ~28° of revolution = ~0.4 m of vertical
+// slack at FLOOR_SEPARATION = 5.1 m.
 const STAIR_LANDING_TOL = 0.5;
 const _lookEuler = new THREE.Euler(0, 0, 0, "YXZ");
 const PITCH_LIMIT = Math.PI / 2 - 0.05;
@@ -141,6 +145,19 @@ export function Player({
   const velocityY = useRef(0);
   const grounded = useRef(true);
   const lastRoomIdx = useRef<number>(-2);
+  /** Posture state — drives the rendered eye height. C cycles through
+   *  duck / standing; R cycles through tiptoe / standing. Pressing the
+   *  opposite key while in a non-standing posture jumps directly there
+   *  (so duck → R → tiptoe is one keypress, not two). */
+  const posture = useRef<"stand" | "duck" | "tiptoe">("stand");
+  /** F toggles a narrowed-FOV "partial zoom" so the player can read
+   *  details on a painting without opening the modal — useful for
+   *  large works where the inspect overlay isn't worth invoking. */
+  const zoomFov = useRef(false);
+  /** Smoothed eye height — damps toward the target posture height each
+   *  frame so C / R don't snap the camera. Starts at full standing
+   *  height so spawn matches what the camera Y is set to in useEffect. */
+  const eyeHeight = useRef(EYE_HEIGHT);
   // Click and aim raycasters share the same INSPECT_RANGE so the
   // crosshair affordance and the click-to-zoom action agree: if the
   // magnifying-glass cursor isn't showing, the click won't open
@@ -168,8 +185,11 @@ export function Player({
 
   useEffect(() => {
     camera.position.set(spawnAt[0], spawnAt[1] + EYE_HEIGHT, spawnAt[2]);
-    // Face "into" the floor from the spawn point.
-    camera.lookAt(spawnAt[0] + 5, spawnAt[1] + EYE_HEIGHT, spawnAt[2]);
+    // Face north (-Z) toward the stairwell room. Each floor's anchor
+    // sits directly south of the central spiral, so on spawn the player
+    // is looking straight at the stairs they can climb up to the next
+    // era — sets the orientation for the rest of the visit.
+    camera.lookAt(spawnAt[0], spawnAt[1] + EYE_HEIGHT, spawnAt[2] - 5);
   }, [camera, spawnAt]);
 
   useEffect(() => {
@@ -197,7 +217,19 @@ export function Player({
         grounded.current = false;
         e.preventDefault();
       }
-      if (e.code === "KeyE" || e.code === "KeyF") tryZoom();
+      if (e.code === "KeyE") tryZoom();
+      if (e.code === "KeyF") {
+        zoomFov.current = !zoomFov.current;
+        e.preventDefault();
+      }
+      if (e.code === "KeyC") {
+        posture.current = posture.current === "duck" ? "stand" : "duck";
+        e.preventDefault();
+      }
+      if (e.code === "KeyR") {
+        posture.current = posture.current === "tiptoe" ? "stand" : "tiptoe";
+        e.preventDefault();
+      }
     };
     const up = (e: KeyboardEvent) => {
       keys.current[e.code] = false;
@@ -228,6 +260,30 @@ export function Player({
   useFrame((_, delta) => {
     if (!enabled) return;
     const dt = Math.min(delta, 0.1);
+
+    // Smoothly damp eye height toward the active posture target. Updates
+    // here so floor-clamp and stair-Y math below all use the same
+    // eyeHeight value the camera will end up rendered at this frame.
+    const targetEye =
+      posture.current === "duck"
+        ? DUCK_EYE_HEIGHT
+        : posture.current === "tiptoe"
+          ? TIPTOE_EYE_HEIGHT
+          : EYE_HEIGHT;
+    eyeHeight.current = THREE.MathUtils.damp(eyeHeight.current, targetEye, 14, dt);
+
+    // FOV zoom toggle. Damp toward the target FOV so the transition
+    // feels mechanical rather than instantaneous. Three's PerspectiveCamera
+    // exposes both .fov and .updateProjectionMatrix.
+    if ((camera as THREE.PerspectiveCamera).isPerspectiveCamera) {
+      const cam = camera as THREE.PerspectiveCamera;
+      const targetFov = zoomFov.current ? FOV_ZOOMED : FOV_DEFAULT;
+      const nextFov = THREE.MathUtils.damp(cam.fov, targetFov, 12, dt);
+      if (Math.abs(nextFov - cam.fov) > 0.01) {
+        cam.fov = nextFov;
+        cam.updateProjectionMatrix();
+      }
+    }
 
     // Look stick → continuous yaw/pitch. We extract the camera's
     // current Euler each frame so PointerLockControls (desktop) and
@@ -303,6 +359,20 @@ export function Player({
         camera.position.x = nx;
       } else if (canStepTo(floor, curX, curZ, curX, nz, currentStairId, currentCum)) {
         camera.position.z = nz;
+      } else {
+        // Capsule-style tangent slide for the circular obstacles
+        // (spiral railings, well cutouts, central column). Axis-aligned
+        // slide can't help there — moving in either X or Z keeps the
+        // player inside the forbidden ring. Project the desired move
+        // onto the tangent at the player's angular position around the
+        // nearest blocking spiral, and step that way instead. Without
+        // this, walking into the inner spiral railing or the cutout
+        // edge feels like hitting fly paper.
+        const slid = trySlideAroundCircles(floor, curX, curZ, nx, nz, currentStairId, currentCum);
+        if (slid) {
+          camera.position.x = slid.x;
+          camera.position.z = slid.z;
+        }
       }
     }
 
@@ -445,7 +515,7 @@ export function Player({
         }
       }
 
-      const targetY = stairHeightAt(activeStair, st.cumulativeAngle) + EYE_HEIGHT;
+      const targetY = stairHeightAt(activeStair, st.cumulativeAngle) + eyeHeight.current;
       camera.position.y = THREE.MathUtils.damp(camera.position.y, targetY, 20, dt);
       velocityY.current = 0;
       grounded.current = true;
@@ -453,7 +523,7 @@ export function Player({
       spiralState.current = null;
       velocityY.current -= GRAVITY * dt;
       camera.position.y += velocityY.current * dt;
-      const floorHeight = floor.y + EYE_HEIGHT;
+      const floorHeight = floor.y + eyeHeight.current;
       if (camera.position.y <= floorHeight) {
         camera.position.y = floorHeight;
         velocityY.current = 0;
@@ -528,6 +598,65 @@ function findStairAt(floor: FloorLayout, worldX: number, worldZ: number): Stairc
   return null;
 }
 
+/** Capsule-style slide around the spiral's circular obstacles. When the
+ *  diagonal step AND both axis-aligned axis slides all fail, the
+ *  blocking thing is usually a railing, the cutout edge, or the central
+ *  column — none of which has a useful axis-aligned tangent. Project
+ *  the desired move onto the tangent at the player's current angular
+ *  position around each spiral and try the closest projection that's
+ *  walkable. Returns the slid position, or null if no spiral is in
+ *  range / no projection is valid. */
+function trySlideAroundCircles(
+  floor: FloorLayout,
+  fromX: number,
+  fromZ: number,
+  toX: number,
+  toZ: number,
+  currentStairId: string | null,
+  currentCum: number,
+): { x: number; z: number } | null {
+  const moveX = toX - fromX;
+  const moveZ = toZ - fromZ;
+  if (moveX * moveX + moveZ * moveZ < 1e-6) return null;
+
+  let bestX = fromX;
+  let bestZ = fromZ;
+  let bestDistSq = 0;
+
+  for (const s of [...floor.stairsOut, ...floor.stairsIn]) {
+    const dx = fromX - s.centerX;
+    const dz = fromZ - s.centerZ;
+    const r2 = dx * dx + dz * dz;
+    // Only consider spirals whose blocking rings are remotely near
+    // the player — a spiral on the far side of the floor has nothing
+    // to do with the current move.
+    const reach = Math.max(s.outerRadius, CUTOUT_RAIL_OUTER_BOUND) + 1;
+    if (r2 > reach * reach) continue;
+
+    // Tangent at the player's angular position around this spiral.
+    const norm = Math.atan2(dz, dx);
+    const tx = -Math.sin(norm);
+    const tz = Math.cos(norm);
+
+    const dot = moveX * tx + moveZ * tz;
+    if (Math.abs(dot) < 1e-6) continue;
+    const slideX = fromX + tx * dot;
+    const slideZ = fromZ + tz * dot;
+    if (!canStepTo(floor, fromX, fromZ, slideX, slideZ, currentStairId, currentCum)) continue;
+
+    const dxSlide = slideX - fromX;
+    const dzSlide = slideZ - fromZ;
+    const distSq = dxSlide * dxSlide + dzSlide * dzSlide;
+    if (distSq > bestDistSq) {
+      bestDistSq = distSq;
+      bestX = slideX;
+      bestZ = slideZ;
+    }
+  }
+
+  return bestDistSq > 0 ? { x: bestX, z: bestZ } : null;
+}
+
 /** True if the grid cell at (worldX, worldZ) is walkable for a player of
  *  PLAYER_RADIUS — i.e. none of the four corners of the player's bbox
  *  lie in a non-walkable cell. Keeps the player's silhouette out of
@@ -595,11 +724,36 @@ function canStepTo(
   // gap as the spiral's outer rail, so we keep the player's bbox out
   // of the rail tube outside the gate window.
   if (floor.index > 0) {
+    // Floor-level dead-end booleans. The gate gap in the cutout rail
+    // is shared between two halves: the "up" half (CCW from entry,
+    // angDiff > 0) is only meaningful when this floor has a stair
+    // going further up; same for "down" with stairsIn. On the top
+    // floor, stairsOut is empty so the up half is a dead end and the
+    // gate must close it. On the ground floor, stairsIn is empty so
+    // the down half is the dead end. Aggregating across all spirals on
+    // the floor (all sharing the same central well) keeps this stable
+    // when multiple stairs stack at the same XZ.
+    const upHalfHasStair = floor.stairsOut.length > 0;
+    const downHalfHasStair = floor.stairsIn.length > 0;
     for (const s of [...floor.stairsOut, ...floor.stairsIn]) {
       const dx = toX - s.centerX;
       const dz = toZ - s.centerZ;
       const r2 = dx * dx + dz * dz;
       if (r2 < s.innerRadius * s.innerRadius) return false;
+      // Cutout-ring guard. The visible floor cutout extends beyond the
+      // spiral's outer step edge to SPIRAL_FLOOR_CUTOUT_RADIUS — the
+      // thin annulus between (outerRadius, cutoutRadius) is over the
+      // open well even though the underlying grid cells are still
+      // flagged walkable. Without this, a player exiting the spiral
+      // through the gate window can briefly stand over the hole. Same
+      // bug as the original "fall through the floor" report, repeated
+      // for the gate-window case after the inner guard wasn't enough.
+      if (
+        r2 > s.outerRadius * s.outerRadius &&
+        r2 < SPIRAL_FLOOR_CUTOUT_RADIUS * SPIRAL_FLOOR_CUTOUT_RADIUS
+      ) {
+        return false;
+      }
       // Cutout-edge rail collision only applies off the spiral —
       // the spiral physics owns clearance from its own inner/outer
       // rails, and the cutout-rail elbow is intentionally large
@@ -613,7 +767,9 @@ function canStepTo(
         const theta = Math.atan2(dz, dx);
         const gateHalfArc = spiralGateHalfArc(s.numSteps);
         const angDiff = Math.atan2(Math.sin(theta - s.entryAngle), Math.cos(theta - s.entryAngle));
-        if (Math.abs(angDiff) >= gateHalfArc) return false;
+        const inUpHalf = angDiff > 0;
+        const halfHasStair = inUpHalf ? upHalfHasStair : downHalfHasStair;
+        if (Math.abs(angDiff) >= gateHalfArc || !halfHasStair) return false;
       }
     }
   }

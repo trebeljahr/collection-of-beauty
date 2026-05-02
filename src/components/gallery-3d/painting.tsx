@@ -101,6 +101,36 @@ export function Painting({
   const { artwork, position, rotation, widthM, heightM, plaqueOnLeft } = placement;
   const url = variantUrl(artwork.objectKey, 960, "avif");
 
+  // Aspect-corrected plane size. The slot's widthM/heightM are derived
+  // from realDimensions (or pixel aspect, or a default) — but those can
+  // disagree with the texture's actual aspect, in which case the
+  // texture would be stretched onto a mismatched plane and the painting
+  // would visibly distort. Once the texture loads we re-fit the plane
+  // to the texture's true aspect within the slot bounds. The frame and
+  // plaque resize alongside it so the whole assembly stays aspect-true.
+  const [renderDims, setRenderDims] = useState({ widthM, heightM });
+  // Reset when the placement changes (room/floor swap).
+  useEffect(() => {
+    setRenderDims({ widthM, heightM });
+  }, [widthM, heightM]);
+
+  const handleTextureAspect = useCallback(
+    (texAspect: number) => {
+      if (!Number.isFinite(texAspect) || texAspect <= 0) return;
+      const fitted = fitToAspect(texAspect, widthM, heightM);
+      setRenderDims((prev) => {
+        if (
+          Math.abs(prev.widthM - fitted.widthM) < 0.001 &&
+          Math.abs(prev.heightM - fitted.heightM) < 0.001
+        ) {
+          return prev;
+        }
+        return fitted;
+      });
+    },
+    [widthM, heightM],
+  );
+
   const variant = FRAME_VARIANTS[pickFrameVariant(artwork)];
   const frameDepth = variant.depth;
   const frameInset = variant.inset;
@@ -115,32 +145,54 @@ export function Painting({
   const linerClearance = 0.0015;
   const linerZ = frameDepth / 2 + linerClearance + linerDepth / 2;
 
+  const dW = renderDims.widthM;
+  const dH = renderDims.heightM;
+
   return (
     <group position={position} rotation={rotation}>
       <mesh>
-        <boxGeometry args={[widthM + frameInset * 2, heightM + frameInset * 2, frameDepth]} />
+        <boxGeometry args={[dW + frameInset * 2, dH + frameInset * 2, frameDepth]} />
         <primitive object={variant.material} attach="material" />
       </mesh>
       {variant.liner && (
         <mesh position={[0, 0, linerZ]}>
           <boxGeometry
-            args={[widthM + variant.liner.width * 2, heightM + variant.liner.width * 2, linerDepth]}
+            args={[dW + variant.liner.width * 2, dH + variant.liner.width * 2, linerDepth]}
           />
           <primitive object={variant.liner.material} attach="material" />
         </mesh>
       )}
-      <Suspense fallback={<FallbackSwatch widthM={widthM} heightM={heightM} artwork={artwork} />}>
+      <Suspense fallback={<FallbackSwatch widthM={dW} heightM={dH} artwork={artwork} />}>
         <PaintingPlane
           url={url}
-          widthM={widthM}
-          heightM={heightM}
+          widthM={dW}
+          heightM={dH}
           artwork={artwork}
           onLoaded={onLoaded}
+          onTextureAspect={handleTextureAspect}
         />
       </Suspense>
-      <Plaque artwork={artwork} widthM={widthM} plaqueOnLeft={plaqueOnLeft} />
+      <Plaque artwork={artwork} widthM={dW} plaqueOnLeft={plaqueOnLeft} />
     </group>
   );
+}
+
+/** Refit a plane size to match a texture aspect while staying inside
+ *  the slot's max bounds. Width-first: if width-fit overshoots height,
+ *  fall back to height-fit. The returned dimensions are <= the input
+ *  bounds in both axes — never grows beyond the slot. */
+function fitToAspect(
+  texAspect: number,
+  maxWidthM: number,
+  maxHeightM: number,
+): { widthM: number; heightM: number } {
+  let w = maxWidthM;
+  let h = maxWidthM / texAspect;
+  if (h > maxHeightM) {
+    h = maxHeightM;
+    w = maxHeightM * texAspect;
+  }
+  return { widthM: w, heightM: h };
 }
 
 // Pick a frame variant that complements the painting's era. Each rule
@@ -616,12 +668,17 @@ function PaintingPlane({
   heightM,
   artwork,
   onLoaded,
+  onTextureAspect,
 }: {
   url: string;
   widthM: number;
   heightM: number;
   artwork: Placement["artwork"];
   onLoaded?: () => void;
+  /** Reports the loaded texture's true pixel aspect (w/h). Parent uses
+   *  this to refit the plane + frame to the texture's real shape, so a
+   *  bad realDimensions value can't visibly distort the painting. */
+  onTextureAspect?: (aspect: number) => void;
 }) {
   const texture = useCachedTexture(url);
   const meshRef = useRef<THREE.Mesh>(null);
@@ -635,6 +692,17 @@ function PaintingPlane({
   useEffect(() => {
     onLoaded?.();
   }, []);
+
+  // Report the loaded texture's pixel aspect once. The same aspect
+  // applies to every LOD tier (they're rescaled copies of the same
+  // source), so we only need the base 960 px load. If realDimensions
+  // disagrees with what the player actually sees, the parent fits the
+  // plane to this aspect.
+  useEffect(() => {
+    const img = texture.image as { width?: number; height?: number } | undefined;
+    if (!img || !img.width || !img.height) return;
+    onTextureAspect?.(img.width / img.height);
+  }, [texture, onTextureAspect]);
 
   useEffect(() => {
     const mesh = meshRef.current;
@@ -727,7 +795,12 @@ function PaintingPlane({
   );
 }
 
-/** Shown while the real texture is still fetching. */
+/** Shown while the real texture is still fetching. Eagerly loads the
+ *  smallest available variant (256 px) and shows it as soon as it
+ *  arrives — typically a few hundred milliseconds before the 960 px
+ *  base resolves. Means a fresh floor renders with low-res images
+ *  almost immediately instead of a wall of brown swatches, while the
+ *  high-res tier streams in behind the Suspense boundary. */
 function FallbackSwatch({
   widthM,
   heightM,
@@ -738,6 +811,7 @@ function FallbackSwatch({
   artwork: Placement["artwork"];
 }) {
   const meshRef = useRef<THREE.Mesh>(null);
+  const [thumb, setThumb] = useState<THREE.Texture | null>(null);
 
   useEffect(() => {
     const mesh = meshRef.current;
@@ -751,10 +825,54 @@ function FallbackSwatch({
     return () => unregisterPainting(entry);
   }, [artwork]);
 
+  useEffect(() => {
+    // Skip if the artwork has no 256 variant (some scrape sources
+    // produced sub-256 px originals and stop at the largest available
+    // variant).
+    const widths = artwork.variantWidths;
+    if (widths && !widths.includes(256)) return;
+    const url = variantUrl(artwork.objectKey, 256, "avif");
+    let cancelled = false;
+    const loader = new THREE.TextureLoader();
+    loader.load(
+      url,
+      (tex) => {
+        if (cancelled) {
+          tex.dispose();
+          return;
+        }
+        tex.colorSpace = THREE.SRGBColorSpace;
+        setThumb(tex);
+      },
+      undefined,
+      () => {
+        // Variant might 404 if the manifest is stale — fall back to
+        // the brown swatch silently.
+      },
+    );
+    return () => {
+      cancelled = true;
+    };
+  }, [artwork]);
+
+  // Free the thumb texture when the swatch unmounts (Suspense unwrap or
+  // floor swap). Without this, every fallback render leaks one tiny
+  // texture into VRAM that the LRU never sees.
+  useEffect(
+    () => () => {
+      thumb?.dispose();
+    },
+    [thumb],
+  );
+
   return (
     <mesh ref={meshRef} position={[0, 0, 0.014]} userData={{ artwork }}>
       <planeGeometry args={[widthM, heightM]} />
-      <meshBasicMaterial color="#3a2e20" toneMapped={false} />
+      {thumb ? (
+        <meshBasicMaterial map={thumb} toneMapped={false} />
+      ) : (
+        <meshBasicMaterial color="#3a2e20" toneMapped={false} />
+      )}
     </mesh>
   );
 }

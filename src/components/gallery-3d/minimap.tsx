@@ -21,7 +21,7 @@ type Props = {
 };
 
 const PAD = 6;
-const FOOTER_H = 48;
+const FOOTER_H = 60;
 
 /**
  * Overlay minimap driven entirely by the current FloorLayout — walkable
@@ -187,8 +187,8 @@ export function Minimap({
       const cy = ry + rh / 2;
       const icon = room.isStairwell ? "↑" : room.isAnchor ? "⌂" : null;
       ctx.font = icon
-        ? "bold 11px ui-sans-serif, system-ui, sans-serif"
-        : "9px ui-sans-serif, system-ui, sans-serif";
+        ? "bold 13px ui-sans-serif, system-ui, sans-serif"
+        : "11px ui-sans-serif, system-ui, sans-serif";
       ctx.fillStyle = isActive ? "#1a120b" : "rgba(255, 240, 210, 0.78)";
       const text = icon ?? truncateToFit(ctx, room.title, rw - 4);
       if (text) ctx.fillText(text, cx, cy);
@@ -199,8 +199,8 @@ export function Minimap({
     ctx.textAlign = "left";
     ctx.textBaseline = "top";
     ctx.fillStyle = "rgba(255, 240, 210, 0.72)";
-    ctx.font = "10px ui-monospace, SFMono-Regular, Menlo, monospace";
-    ctx.fillText(`F${floor.index} · ${floor.era.title}`, 6, 5);
+    ctx.font = "11px ui-sans-serif, system-ui, sans-serif";
+    ctx.fillText(`Floor ${floor.index} · ${floor.era.title}`, 6, 5);
 
     // Footer — active room title + description, or a hint when the
     // player isn't standing in any one room.
@@ -304,20 +304,20 @@ function drawFooter(
   ctx.textBaseline = "top";
   if (!room) {
     ctx.fillStyle = "rgba(255, 240, 210, 0.45)";
-    ctx.font = "11px ui-sans-serif, system-ui, sans-serif";
+    ctx.font = "13px ui-sans-serif, system-ui, sans-serif";
     ctx.fillText("— in corridor —", innerX, yTop + 8);
     return;
   }
   ctx.fillStyle = "#fff1c8";
-  ctx.font = "bold 12px ui-sans-serif, system-ui, sans-serif";
+  ctx.font = "bold 14px ui-sans-serif, system-ui, sans-serif";
   ctx.fillText(truncateToFit(ctx, room.title, innerW), innerX, yTop + 6);
 
   ctx.fillStyle = "rgba(255, 240, 210, 0.65)";
-  ctx.font = "10px ui-sans-serif, system-ui, sans-serif";
+  ctx.font = "12px ui-sans-serif, system-ui, sans-serif";
   // Two short lines of description; word-wrap inside innerW.
   const lines = wrapLines(ctx, room.description, innerW, 2);
   for (let i = 0; i < lines.length; i++) {
-    ctx.fillText(lines[i], innerX, yTop + 22 + i * 12);
+    ctx.fillText(lines[i], innerX, yTop + 24 + i * 14);
   }
 }
 

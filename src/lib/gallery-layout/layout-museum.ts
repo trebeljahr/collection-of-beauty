@@ -297,7 +297,10 @@ function bucketByEra(all: Artwork[]): Map<EraId, Artwork[]> {
   for (const era of ERAS) m.set(era.id, []);
 
   for (const a of all) {
-    if (a.folder !== "collection-of-beauty") continue;
+    // No folder filter — Audubon plates, Kunstformen images, and any
+    // future source land in the appropriate era too. Era assignment
+    // below routes them by movement (Natural-history illustration →
+    // Romantic, Art-Nouveau-adjacent → Fin-de-siècle) or by year.
     if (!a.objectKey) continue;
     // Skip absurd dimensions when known. Missing dimensions are fine —
     // slotToPlacement falls back to a pixel-aspect estimate (or 80×100
@@ -664,7 +667,7 @@ function computeBlockedEdges(
 ): { blockedEdgesEW: Uint8Array; blockedEdgesNS: Uint8Array } {
   const blockedEdgesEW = new Uint8Array((gridSize - 1) * gridSize);
   const blockedEdgesNS = new Uint8Array(gridSize * (gridSize - 1));
-  const HALF_DOOR = 1.0; // half of DOOR_WIDTH; tolerance for "covers".
+  const HALF_DOOR = DOOR_WIDTH / 2; // tolerance for "covers".
 
   for (let z = 0; z < gridSize; z++) {
     for (let x = 0; x < gridSize - 1; x++) {
