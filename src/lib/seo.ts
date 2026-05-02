@@ -34,13 +34,13 @@ export const SITE_DESCRIPTION =
   `${summary.totalArtworks.toLocaleString()} works by ${summary.totalArtists.toLocaleString()} artists ` +
   `across ${summary.totalMovements} movements, spanning ${summary.yearRange.min}–${summary.yearRange.max}. ` +
   `Every piece in the public domain or openly licensed, sourced from Wikimedia Commons and presented in a ` +
-  `gallery, timeline, artist-lineage graph, and virtual 3D room.`;
+  `gallery, timeline, and virtual 3D room.`;
 
 export const TWITTER_HANDLE = process.env.NEXT_PUBLIC_TWITTER_HANDLE ?? undefined;
 
 // ────────────────────────────────────────────────────────────────────────────
 // Hero picker — a single well-known artwork used as the OG image on pages
-// that don't have their own subject (home, timeline, lineage, artists, 3D).
+// that don't have their own subject (home, timeline, artists, 3D).
 // Deterministic so social cache doesn't flap between deploys.
 // ────────────────────────────────────────────────────────────────────────────
 

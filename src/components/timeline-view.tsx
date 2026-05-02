@@ -121,12 +121,16 @@ export function TimelineView({ artworks, movements }: Props) {
             </div>
             <div className="grid grid-cols-3 gap-2 sm:grid-cols-4 md:grid-cols-6 lg:grid-cols-8">
               {b.works.map((a) => (
-                <Link
+                <div
                   key={a.id}
-                  href={`/artwork/${a.id}`}
-                  className="group relative block aspect-square overflow-hidden rounded-md bg-[var(--muted)]"
-                  title={`${a.title}${a.artist ? " — " + a.artist : ""} (${a.year})`}
+                  className="group relative aspect-square overflow-hidden rounded-md bg-[var(--muted)]"
                 >
+                  <Link
+                    href={`/artwork/${a.id}`}
+                    className="absolute inset-0 z-10 focus:outline-none focus-visible:ring-2 focus-visible:ring-[var(--ring)]"
+                    title={`${a.title}${a.artist ? " — " + a.artist : ""} (${a.year})`}
+                    aria-label={artworkAlt(a)}
+                  />
                   <ResponsiveImage
                     objectKey={a.objectKey}
                     variantWidths={a.variantWidths}
@@ -144,10 +148,20 @@ export function TimelineView({ artworks, movements }: Props) {
                     <div className="line-clamp-1 font-medium">{a.title}</div>
                     <div className="line-clamp-1 opacity-80">
                       {a.year}
-                      {a.artist ? ` · ${a.artist}` : ""}
+                      {a.artist ? (
+                        <>
+                          {" · "}
+                          <Link
+                            href={`/artist/${a.artistSlug}`}
+                            className="relative z-20 underline-offset-2 hover:underline"
+                          >
+                            {a.artist}
+                          </Link>
+                        </>
+                      ) : null}
                     </div>
                   </div>
-                </Link>
+                </div>
               ))}
             </div>
           </section>
