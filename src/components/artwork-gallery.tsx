@@ -82,6 +82,12 @@ export function ArtworkGallery({
       key={resetKey}
       photos={seed}
       fetch={fetchPage}
+      // Solve a single row layout across every fetched batch — without this,
+      // InfiniteScroll renders one RowsPhotoAlbum per batch and each batch
+      // ends with an unjustified last row, producing a visible stair-step
+      // at every page boundary. Per-tile offscreen virtualisation still
+      // applies via the library's `track` render prop.
+      singleton
       fetchRootMargin="1200px"
       offscreenRootMargin="2400px"
       loading={
