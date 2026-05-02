@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { useMemo, useState } from "react";
+import { useNsfw } from "@/components/nsfw-provider";
 import { ResponsiveImage } from "@/components/responsive-image";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
@@ -22,12 +23,14 @@ type Bucket = {
 export function TimelineView({ artworks, movements }: Props) {
   const [movement, setMovement] = useState<string>("");
   const [query, setQuery] = useState("");
+  const { mode, hydrated } = useNsfw();
 
   const filtered = useMemo(() => {
     const q = query.trim().toLowerCase();
     return artworks.filter((a) => {
       if (a.year == null) return false;
       if (movement && a.movement !== movement) return false;
+      if (hydrated && mode === "hide" && a.nsfw) return false;
       if (q) {
         const hay = [a.title, a.artist, a.movement, a.nationality]
           .filter(Boolean)
@@ -37,7 +40,7 @@ export function TimelineView({ artworks, movements }: Props) {
       }
       return true;
     });
-  }, [artworks, movement, query]);
+  }, [artworks, movement, query, mode, hydrated]);
 
   const buckets = useMemo<Bucket[]>(() => {
     const map = new Map<number, Artwork[]>();
@@ -139,6 +142,7 @@ export function TimelineView({ artworks, movements }: Props) {
                     sizes="(max-width: 640px) 33vw, (max-width: 1024px) 20vw, 12vw"
                     loading="lazy"
                     className="transition-transform duration-500 group-hover:scale-110"
+                    nsfw={a.nsfw === true && mode === "blur"}
                   />
                   {/* Caption: always visible on touch (no hover state)
                       so cards aren't unlabeled stamp-sized thumbs;

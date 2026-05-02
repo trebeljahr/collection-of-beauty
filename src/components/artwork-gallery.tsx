@@ -5,6 +5,7 @@ import { useCallback, useMemo } from "react";
 import { RowsPhotoAlbum } from "react-photo-album";
 import InfiniteScroll from "react-photo-album/scroll";
 import "react-photo-album/rows.css";
+import { useNsfw } from "@/components/nsfw-provider";
 import { ResponsiveImage } from "@/components/responsive-image";
 import { type Artwork, artworkAlt } from "@/lib/data";
 
@@ -22,6 +23,7 @@ export type GalleryPhoto = {
   title: string;
   artist: string | null;
   year: number | null;
+  nsfw: boolean;
 };
 
 export function toGalleryPhoto(a: Artwork): GalleryPhoto {
@@ -36,6 +38,7 @@ export function toGalleryPhoto(a: Artwork): GalleryPhoto {
     title: a.title,
     artist: a.artist,
     year: a.year,
+    nsfw: a.nsfw === true,
   };
 }
 
@@ -59,7 +62,17 @@ export function ArtworkGallery({
   resetKey,
   targetRowHeight,
 }: Props) {
-  const photos = useMemo(() => artworks.map(toGalleryPhoto), [artworks]);
+  const { mode, hydrated } = useNsfw();
+  // First paint must match SSR — `hydrated` is false until the
+  // post-mount effect reads localStorage, and we treat the pre-
+  // hydration mode as the default ("blur"). On "hide", drop the
+  // photo from the album entirely so layout reflows around the gap.
+  const photos = useMemo(() => {
+    const all = artworks.map(toGalleryPhoto);
+    if (!hydrated) return all;
+    if (mode === "hide") return all.filter((p) => !p.nsfw);
+    return all;
+  }, [artworks, mode, hydrated]);
   const seed = useMemo(() => photos.slice(0, initialSeed), [photos, initialSeed]);
 
   const fetchPage = useCallback(
@@ -77,9 +90,15 @@ export function ArtworkGallery({
     return <div className="py-16 text-center text-[var(--muted-foreground)]">No works.</div>;
   }
 
+  // Toggle changes (especially hide → show) need to remount the
+  // infinite scroller so its internal cursor resets and the seed
+  // covers the right slice. Combine the user-supplied resetKey with
+  // mode so changes to either trigger a fresh mount.
+  const remountKey = `${resetKey ?? "all"}|${mode}`;
+
   return (
     <InfiniteScroll
-      key={resetKey}
+      key={remountKey}
       photos={seed}
       fetch={fetchPage}
       // Solve a single row layout across every fetched batch — without this,
@@ -129,6 +148,7 @@ export function ArtworkGallery({
                 sizes={`${Math.ceil(width)}px`}
                 loading="lazy"
                 style={{ width: "100%", height: "100%", objectFit: "cover" }}
+                nsfw={p.nsfw && mode === "blur"}
               />
             );
           },
