@@ -179,6 +179,36 @@ function englishFromFilename(fname) {
   return best;
 }
 
+// Some `source.credit` values are just Commons license-template
+// boilerplate scraped along with real provenance ("This image is
+// available from the United States Library of Congress…", "print
+// scan", bare "Public Domain", etc.). They convey nothing the license
+// badge doesn't already, so detect and drop them.
+function looksLikeBoilerplate(text) {
+  if (!text) return true;
+  const t = String(text).trim();
+  if (t.length < 10) return true;
+  if (/^https?:\/\/\S+$/.test(t)) return true;
+
+  const lower = t.toLowerCase();
+  if (lower === "print scan") return true;
+  if (lower === "public domain") return true;
+
+  if (
+    /this tag does not indicate/i.test(t) ||
+    /commons:licensing/i.test(t) ||
+    /a normal copyright tag/i.test(t) ||
+    /this image is available from/i.test(t)
+  ) {
+    return true;
+  }
+
+  // Bare "digital ID xyz" with no surrounding prose.
+  if (/digital id/i.test(t) && t.length < 50) return true;
+
+  return false;
+}
+
 // `entry.source.credit` is the Wikimedia uploader's free-text entry,
 // often "Own work" (the uploader photographed the painting themselves
 // — true but uninformative for attribution) or a museum/auction
@@ -189,6 +219,7 @@ function cleanCredit(raw) {
   const c = String(raw).trim();
   if (!c) return null;
   if (/^own\s*work$/i.test(c)) return null;
+  if (looksLikeBoilerplate(c)) return null;
   return c;
 }
 
