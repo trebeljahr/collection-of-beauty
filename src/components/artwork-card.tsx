@@ -9,10 +9,12 @@ type Props = {
 
 export function ArtworkCard({ artwork, priority }: Props) {
   return (
-    <Link
-      href={`/artwork/${artwork.id}`}
-      className="group block overflow-hidden rounded-lg border border-[var(--border)] bg-[var(--card)] transition-shadow hover:shadow-lg"
-    >
+    <div className="group relative overflow-hidden rounded-lg border border-[var(--border)] bg-[var(--card)] transition-shadow hover:shadow-lg">
+      <Link
+        href={`/artwork/${artwork.id}`}
+        aria-label={artworkAlt(artwork)}
+        className="absolute inset-0 z-10 focus:outline-none focus-visible:ring-2 focus-visible:ring-[var(--ring)]"
+      />
       <div className="relative aspect-[4/5] overflow-hidden bg-[var(--muted)]">
         <ResponsiveImage
           objectKey={artwork.objectKey}
@@ -27,10 +29,19 @@ export function ArtworkCard({ artwork, priority }: Props) {
       <div className="space-y-1 p-3">
         <h3 className="line-clamp-2 text-sm font-medium">{artwork.title}</h3>
         <p className="truncate text-xs text-[var(--muted-foreground)]">
-          {artwork.artist ?? "Unknown artist"}
+          {artwork.artist ? (
+            <Link
+              href={`/artist/${artwork.artistSlug}`}
+              className="relative z-20 underline-offset-2 hover:underline"
+            >
+              {artwork.artist}
+            </Link>
+          ) : (
+            "Unknown artist"
+          )}
           {artwork.year ? ` · ${artwork.year}` : ""}
         </p>
       </div>
-    </Link>
+    </div>
   );
 }

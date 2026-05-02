@@ -4,7 +4,7 @@ import { absoluteUrl } from "@/lib/seo";
 
 /**
  * Served at /sitemap.xml. Emits every indexable URL:
- *   - Static pages (home, timeline, artists index, lineage, 3D gallery)
+ *   - Static pages (home, timeline, artists index, 3D gallery)
  *   - One entry per artist (~329)
  *   - One entry per artwork (~2,947)
  *
@@ -18,7 +18,6 @@ export default function sitemap(): MetadataRoute.Sitemap {
     { url: absoluteUrl("/"), lastModified: now, changeFrequency: "weekly", priority: 1.0 },
     { url: absoluteUrl("/timeline"), lastModified: now, changeFrequency: "monthly", priority: 0.7 },
     { url: absoluteUrl("/artists"), lastModified: now, changeFrequency: "monthly", priority: 0.7 },
-    { url: absoluteUrl("/lineage"), lastModified: now, changeFrequency: "monthly", priority: 0.6 },
     {
       url: absoluteUrl("/gallery-3d"),
       lastModified: now,

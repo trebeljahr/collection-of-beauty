@@ -8,13 +8,12 @@ const LINKS = [
   { href: "/", label: "Gallery" },
   { href: "/timeline", label: "Timeline" },
   { href: "/artists", label: "Artists" },
-  { href: "/lineage", label: "Lineage" },
   { href: "/gallery-3d", label: "3D Room" },
 ];
 
 /**
  * Site header. Inline link row on `md+`; hamburger + slide-in drawer
- * on mobile. The flat 5-link row would otherwise overflow horizontally
+ * on mobile. The flat link row would otherwise overflow horizontally
  * below ~500px — which is every phone. Drawer closes on link tap, ESC,
  * backdrop tap, or route change.
  */
