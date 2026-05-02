@@ -1,4 +1,5 @@
 import type { Metadata, Viewport } from "next";
+import Link from "next/link";
 import "./globals.css";
 import { SiteNav } from "@/components/site-nav";
 import {
@@ -98,8 +99,16 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         <SiteNav />
         <main>{children}</main>
         <footer className="mt-16 border-t border-[var(--border)] py-6 text-center text-xs text-[var(--muted-foreground)]">
-          All works shown are in the public domain or openly licensed. Metadata sourced from
-          Wikimedia Commons.
+          <p>
+            All works shown are in the public domain or openly licensed. Metadata sourced from
+            Wikimedia Commons.
+          </p>
+          <p className="mt-2">
+            © {new Date().getFullYear()} Rico Trebeljahr ·{" "}
+            <Link href="/impressum" className="hover:text-[var(--foreground)]">
+              Impressum
+            </Link>
+          </p>
         </footer>
       </body>
     </html>
