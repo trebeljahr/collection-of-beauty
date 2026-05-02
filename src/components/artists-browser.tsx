@@ -7,7 +7,8 @@ import { ResponsiveImage } from "@/components/responsive-image";
 import { Input } from "@/components/ui/input";
 import type { Artist } from "@/lib/data";
 
-const PAGE = 40;
+const PAGE = 24;
+const INITIAL = 60;
 
 type Props = {
   artists: Artist[];
@@ -16,7 +17,7 @@ type Props = {
 export function ArtistsBrowser({ artists }: Props) {
   const [query, setQuery] = useState("");
   const deferredQuery = useDeferredValue(query);
-  const [limit, setLimit] = useState(PAGE);
+  const [limit, setLimit] = useState(INITIAL);
   const sentinelRef = useRef<HTMLDivElement | null>(null);
 
   const fuse = useMemo(
@@ -38,13 +39,11 @@ export function ArtistsBrowser({ artists }: Props) {
     return fuse.search(deferredQuery).map((r) => r.item);
   }, [artists, deferredQuery, fuse]);
 
-  // Reset limit when the filter changes so we don't strand users mid-scroll
   // biome-ignore lint/correctness/useExhaustiveDependencies: deferredQuery IS the trigger; setLimit is a stable setter.
   useEffect(() => {
-    setLimit(PAGE);
+    setLimit(INITIAL);
   }, [deferredQuery]);
 
-  // IntersectionObserver on the sentinel grows the visible slice.
   useEffect(() => {
     const el = sentinelRef.current;
     if (!el) return;
@@ -54,7 +53,7 @@ export function ArtistsBrowser({ artists }: Props) {
           setLimit((prev) => Math.min(prev + PAGE, filtered.length));
         }
       },
-      { rootMargin: "800px" },
+      { rootMargin: "1600px" },
     );
     io.observe(el);
     return () => io.disconnect();
@@ -111,11 +110,7 @@ export function ArtistsBrowser({ artists }: Props) {
         ))}
       </div>
 
-      {hasMore && (
-        <div ref={sentinelRef} className="py-6 text-center text-sm text-[var(--muted-foreground)]">
-          Loading more artists…
-        </div>
-      )}
+      {hasMore && <div ref={sentinelRef} aria-hidden className="h-px w-full" />}
 
       {!hasMore && filtered.length > 0 && (
         <div className="py-6 text-center text-sm text-[var(--muted-foreground)]">
