@@ -3,6 +3,7 @@
 import { useRouter } from "next/navigation";
 import { useEffect } from "react";
 import { artworkAlt } from "@/lib/data";
+import { suggestFixUrl } from "@/lib/links";
 import { useLightbox } from "./lightbox-provider";
 import { ResponsiveImage } from "./responsive-image";
 
@@ -61,23 +62,35 @@ export function ArtworkViewer({ art, prevId, nextId }: Props) {
   const alt = artworkAlt(art);
 
   return (
-    <button
-      type="button"
-      onClick={() => open(art.id)}
-      title="View fullscreen"
-      aria-label={`Open ${art.title} in fullscreen viewer`}
-      className="block w-full cursor-zoom-in rounded-md border-0 bg-transparent p-0 focus:outline-none focus-visible:ring-2 focus-visible:ring-[var(--ring)]"
-    >
-      <ResponsiveImage
-        objectKey={art.objectKey}
-        variantWidths={art.variantWidths}
-        alt={alt}
-        srcWidth={art.width ?? 1600}
-        srcHeight={art.height ?? 2000}
-        sizes="(max-width: 768px) 100vw, 65vw"
-        priority
-        className="mx-auto max-h-[80vh] w-auto rounded-md"
-      />
-    </button>
+    <div>
+      <button
+        type="button"
+        onClick={() => open(art.id)}
+        title="View fullscreen"
+        aria-label={`Open ${art.title} in fullscreen viewer`}
+        className="block w-full cursor-zoom-in rounded-md border-0 bg-transparent p-0 focus:outline-none focus-visible:ring-2 focus-visible:ring-[var(--ring)]"
+      >
+        <ResponsiveImage
+          objectKey={art.objectKey}
+          variantWidths={art.variantWidths}
+          alt={alt}
+          srcWidth={art.width ?? 1600}
+          srcHeight={art.height ?? 2000}
+          sizes="(max-width: 768px) 100vw, 65vw"
+          priority
+          className="mx-auto max-h-[80vh] w-auto rounded-md"
+        />
+      </button>
+      <div className="mt-2 text-right">
+        <a
+          href={suggestFixUrl(art.id, art.title)}
+          target="_blank"
+          rel="noreferrer"
+          className="text-xs text-[var(--muted-foreground)] underline-offset-2 hover:text-[var(--foreground)] hover:underline"
+        >
+          Suggest a fix
+        </a>
+      </div>
+    </div>
   );
 }
