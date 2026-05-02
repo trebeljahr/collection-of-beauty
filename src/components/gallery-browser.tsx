@@ -2,11 +2,14 @@
 
 import Fuse from "fuse.js";
 import { useDeferredValue, useMemo, useState } from "react";
+import seedrandom from "seedrandom";
 import { ArtworkGallery } from "@/components/artwork-gallery";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import type { Artwork } from "@/lib/data";
+
+type SortBy = "shuffle" | "year" | "artist" | "title";
 
 type Props = {
   artworks: Artwork[];
@@ -19,7 +22,21 @@ export function GalleryBrowser({ artworks, movements }: Props) {
   const [movement, setMovement] = useState<string>("");
   const [minYear, setMinYear] = useState<string>("");
   const [maxYear, setMaxYear] = useState<string>("");
-  const [sortBy, setSortBy] = useState<"year" | "artist" | "title">("year");
+  const [sortBy, setSortBy] = useState<SortBy>("shuffle");
+
+  // Seed once per browser day so the homepage feels fresh on revisits but
+  // stays stable while the user scrolls/types.
+  const shuffleSeed = useMemo(() => new Date().toISOString().slice(0, 10), []);
+
+  const shuffled = useMemo(() => {
+    const rng = seedrandom(shuffleSeed);
+    const arr = [...artworks];
+    for (let i = arr.length - 1; i > 0; i--) {
+      const j = Math.floor(rng() * (i + 1));
+      [arr[i], arr[j]] = [arr[j], arr[i]];
+    }
+    return arr;
+  }, [artworks, shuffleSeed]);
 
   const fuse = useMemo(
     () =>
@@ -41,7 +58,7 @@ export function GalleryBrowser({ artworks, movements }: Props) {
     if (deferredQuery.trim()) {
       list = fuse.search(deferredQuery).map((r) => r.item);
     } else {
-      list = [...artworks];
+      list = sortBy === "shuffle" ? [...shuffled] : [...artworks];
     }
     if (movement) list = list.filter((a) => a.movement === movement);
     const lo = minYear ? Number(minYear) : null;
@@ -53,13 +70,13 @@ export function GalleryBrowser({ artworks, movements }: Props) {
       list.sort((a, b) => (a.year ?? 99999) - (b.year ?? 99999));
     } else if (sortBy === "artist") {
       list.sort((a, b) => (a.artist ?? "zzz").localeCompare(b.artist ?? "zzz"));
-    } else {
+    } else if (sortBy === "title") {
       list.sort((a, b) => a.title.localeCompare(b.title));
     }
     return list;
-  }, [deferredQuery, fuse, artworks, movement, minYear, maxYear, sortBy]);
+  }, [deferredQuery, fuse, artworks, shuffled, movement, minYear, maxYear, sortBy]);
 
-  const filterKey = `${deferredQuery}|${movement}|${minYear}|${maxYear}|${sortBy}`;
+  const filterKey = `${deferredQuery}|${movement}|${minYear}|${maxYear}|${sortBy}|${shuffleSeed}`;
 
   const activeFilterCount = (movement ? 1 : 0) + (minYear ? 1 : 0) + (maxYear ? 1 : 0);
 
@@ -72,12 +89,12 @@ export function GalleryBrowser({ artworks, movements }: Props) {
 
   return (
     <div className="space-y-6">
-      <div className="flex flex-col gap-3 rounded-xl border border-[var(--border)] bg-[var(--card)] p-4 md:flex-row md:items-center">
+      <div className="flex flex-col gap-3 rounded-xl border border-[var(--border)] bg-[var(--card)] p-4">
         <Input
           placeholder="Search by title, artist, movement, description..."
           value={query}
           onChange={(e) => setQuery(e.target.value)}
-          className="md:max-w-lg"
+          className="w-full"
         />
         <div className="flex flex-wrap items-center gap-2 text-sm">
           <select
@@ -108,9 +125,10 @@ export function GalleryBrowser({ artworks, movements }: Props) {
           />
           <select
             value={sortBy}
-            onChange={(e) => setSortBy(e.target.value as typeof sortBy)}
+            onChange={(e) => setSortBy(e.target.value as SortBy)}
             className="h-9 rounded-md border border-[var(--input)] bg-transparent px-2"
           >
+            <option value="shuffle">Sort: shuffled</option>
             <option value="year">Sort: chronological</option>
             <option value="artist">Sort: artist</option>
             <option value="title">Sort: title</option>
