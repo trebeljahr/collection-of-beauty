@@ -504,7 +504,7 @@
         "license_url": null,
         "usage_terms": "Public domain"
       },
-      "year_source": "wiki",
+      "year_source": "date_created_plain",
       "pd_status": "public_domain",
       "pd_status_reason": "Commons PD license",
       "story": "Turner's sly answer to a Royal Academy prize he felt snubbed by. In 1814 he submitted this canvas to the British Institution's landscape competition, lifting the composition almost directly from a Claude Lorrain the judges had praised. The trees, the gold light, the tiny figures searching for the shepherd Appullus, all Claude in costume. The judges rejected it anyway. It now hangs in Tate Britain."
@@ -516,7 +516,7 @@
       "title": "Lake Lucerne: the Bay of Uri from above Brunnen",
       "artist": "J. M. W. Turner",
       "date_created": "circa 1841–1842",
-      "year": 1842,
+      "year": 1841,
       "description": null,
       "source": {
         "type": "Wikimedia Commons",
@@ -535,7 +535,7 @@
       },
       "pd_status": "public_domain",
       "pd_status_reason": "Commons PD license",
-      "year_source": "wiki"
+      "year_source": "date_created_plain"
     },
     "(Barcelona)_Shipping_-_1825-30_-_William_Turner_in_Tate_Britain.jpg": {
       "filename": "(Barcelona)_Shipping_-_1825-30_-_William_Turner_in_Tate_Britain.jpg",
@@ -561,7 +561,7 @@
         "license_url": null,
         "usage_terms": "Public domain"
       },
-      "year_source": "wiki",
+      "year_source": "date_created_plain",
       "pd_status": "public_domain",
       "pd_status_reason": "Commons PD license",
       "story": "Masts dissolve into weather. Turner spent the late 1820s losing interest in the edges of things, and this small unfinished study shows it, ships half-born out of a bruised sky. No drama, no shipwreck, just the sea doing its daily work. The canvas sat unexhibited in his studio until his death in 1851, when the Turner Bequest delivered nearly 300 oils to the nation."
@@ -590,7 +590,7 @@
         "license_url": null,
         "usage_terms": "Public domain"
       },
-      "year_source": "wiki",
+      "year_source": "date_created_plain",
       "pd_status": "public_domain",
       "pd_status_reason": "Commons PD license",
       "story": "Apollo chases, Daphne flees, and Turner barely cares about either of them. The real subject is a hazy Italian valley liquefied by late afternoon sun. The myth supplies only the excuse. He exhibited it at the Royal Academy in 1837, the same year Victoria took the throne, and critics complained as usual that his figures looked like smears."
@@ -621,7 +621,7 @@
       },
       "pd_status": "public_domain",
       "pd_status_reason": "Commons PD license",
-      "year_source": "wiki"
+      "year_source": "date_created_plain"
     },
     "(Barcelona)_The_Lake,_Petworth,_Sunset;_Sample_Study_-_William_Turner_-_Tate_Britain.jpg": {
       "filename": "(Barcelona)_The_Lake,_Petworth,_Sunset;_Sample_Study_-_William_Turner_-_Tate_Britain.jpg",
@@ -649,7 +649,7 @@
       },
       "pd_status": "public_domain",
       "pd_status_reason": "Commons PD license",
-      "year_source": "wiki"
+      "year_source": "date_created_plain"
     },
     "(Barcelona)_The_New_Moon;_or,_‘I’ve_lost_My_Boat,_You_shan’t_have_Your_Hoop’_-_William_Turner_-_Tate_Britain.jpg": {
       "filename": "(Barcelona)_The_New_Moon;_or,_‘I’ve_lost_My_Boat,_You_shan’t_have_Your_Hoop’_-_William_Turner_-_Tate_Britain.jpg",
@@ -677,7 +677,7 @@
       },
       "pd_status": "public_domain",
       "pd_status_reason": "Commons PD license",
-      "year_source": "wiki"
+      "year_source": "date_created_plain"
     },
     "(Venice)_Aristotele_by_Francesco_Hayez_in_gallerie_Accademia_Venice.jpg": {
       "filename": "(Venice)_Aristotele_by_Francesco_Hayez_in_gallerie_Accademia_Venice.jpg",
@@ -705,7 +705,7 @@
       },
       "pd_status": "public_domain",
       "pd_status_reason": "Commons PD license",
-      "year_source": "wiki"
+      "year_source": "date_created_plain"
     },
     "(Venice)_La_distruzione_del_tempio_di_Gerusalemme_-Francesco_Hayez_-_gallerie_Accademia_Venice.jpg": {
       "filename": "(Venice)_La_distruzione_del_tempio_di_Gerusalemme_-Francesco_Hayez_-_gallerie_Accademia_Venice.jpg",
@@ -733,7 +733,7 @@
       },
       "pd_status": "public_domain",
       "pd_status_reason": "Commons PD license",
-      "year_source": "wiki"
+      "year_source": "date_created_plain"
     },
     "01_-_Ichikobu_Bridge.jpg": {
       "filename": "01_-_Ichikobu_Bridge.jpg",
@@ -1996,7 +1996,7 @@
         "license_url": "http://creativecommons.org/publicdomain/zero/1.0/deed.en",
         "usage_terms": "Creative Commons Zero, Public Domain Dedication"
       },
-      "year_source": "wiki",
+      "year_source": "date_created_plain",
       "pd_status": "copyrighted",
       "pd_status_reason": "Commons copyrighted license"
     },
@@ -2825,7 +2825,7 @@
         "license_url": null,
         "usage_terms": "Public domain"
       },
-      "year_source": "wiki",
+      "year_source": "date_created_plain",
       "pd_status": "public_domain",
       "pd_status_reason": "Commons PD license",
       "story": "Schinkel's 'Medieval City on a River' is a Romantic fantasia more than a real place: a rose-coloured Gothic cathedral shoots up behind a wooded ridge, flanked by a rainbow arcing out of retreating storm clouds, while a procession of banners and horsemen winds toward the west portal and a dreamy city of spires stretches to the horizon. Painted in 1815, the architect-painter fused his two obsessions — idealised Gothic and post-Napoleonic national hope. The canvas hangs at the Alte Nationalgalerie in Berlin; this high-resolution capture comes via the Commons photographer anagoria."
@@ -5841,7 +5841,7 @@
       "title": "Wheat Stacks with Reaper",
       "artist": "Vincent van Gogh",
       "date_created": "Arles, June 1888",
-      "year": 1890,
+      "year": 1888,
       "description": null,
       "source": {
         "type": "Wikimedia Commons",
@@ -5859,7 +5859,7 @@
         "license_url": null,
         "usage_terms": "Public domain"
       },
-      "year_source": "story_research",
+      "year_source": "date_created_plain",
       "pd_status": "public_domain",
       "pd_status_reason": "Commons PD license",
       "story": "Painted in June 1890, not 1888: this is Auvers-sur-Oise, the village north of Paris where Van Gogh spent the last two months of his life under Dr Gachet's care. The reaper recurs in his late letters as a figure of the final harvest, mankind cut down like ripe wheat, though he insisted to Theo there was nothing sad in it, just a thing seen in full sun. Six weeks after finishing the picture he shot himself in a field like this. It's at the Toledo Museum of Art.",
@@ -6023,7 +6023,7 @@
       "title": "Finches and bamboo",
       "artist": "Emperor Huizong of Song",
       "date_created": "between 1100 and 1127 date QS:P,+1150-00-00T00:00:00Z/7,P1319,+1100-00-00T00:00:00Z/9,P1326,+1127-00-00T00:00:00Z/9",
-      "year": 1110,
+      "year": 1100,
       "description": "China; Handscroll; Paintings",
       "source": {
         "type": "Wikimedia Commons",
@@ -6055,7 +6055,7 @@
           "zh-hant": "北宋 徽宗 竹禽圖 卷"
         }
       },
-      "year_source": "story_research",
+      "year_source": "wikidata_qs",
       "pd_status": "public_domain",
       "pd_status_reason": "Commons PD license",
       "story": "Huizong lost a dynasty but kept his brush. The last serious painter-emperor of Northern Song, he founded an imperial painting academy, invented the \"slender gold\" calligraphic script, and in 1127 was carried off as a captive by the Jurchen Jin when they sacked his capital. This short handscroll, only about 33 centimetres tall, puts two finches on a thin branch of bamboo, ink and colour on silk, a closely observed little thing made when he still ruled. Chinese handscrolls read right to left; the inscription and seals on the left tell you who has owned it since. The Met has it now.",
@@ -7535,7 +7535,7 @@
       "title": "The Accolade",
       "artist": "Edmund Blair Leighton",
       "date_created": "1901 date QS:P571,+1901-00-00T00:00:00Z/9",
-      "year": 1901,
+      "year": null,
       "description": null,
       "source": {
         "type": "Wikimedia Commons",
@@ -7575,7 +7575,6 @@
           "ru": "Посвящение"
         }
       },
-      "year_source": "wikidata_qs",
       "pd_status": "public_domain",
       "pd_status_reason": "Commons PD license",
       "story": "A queen in white satin lowers a sword to a young knight's shoulder, and a whole hall of onlookers holds its breath. Leighton painted this in 1901 and it became the image of medieval knighting, endlessly reproduced on biscuit tins, greeting cards, and paperback covers ever since. The historical accuracy is frankly invented; women rarely performed the accolade. But look at the fall of her sleeve and try to care."
@@ -7898,7 +7897,7 @@
       "title": "Frederick the Great Playing the Flute at Sanssouci",
       "artist": "Adolph von Menzel",
       "date_created": "from 1850 until 1852 date QS:P571,+1850-00-00T00:00:00Z/8,P580,+1850-00-00T00:00:00Z/9,P582,+1852-00-00T00:00:00Z/9",
-      "year": 1852,
+      "year": 1850,
       "description": "Middle: Frederick the Great ; far right: Johann Joachim Quantz , the king's flute teacher; to his left with a violin and wearing dark clothing: Franz Benda ; leftmost in the foreground: Gustav Adolf von Gotter ; behind him: Jakob Friedrich von Bielfeld ; behind him, looking at the ceiling: Pierre Louis Maupertuis ; in the background, sitting on a pink sofa: Wilhelmine of Bayreuth ; on her right: Amalia of Prussia with a maid of honor; behind them, Carl Heinrich Graun ; the elderly lady behind the music stand: Sophie Caroline ; behind her: Egmont of Chasot ; at the harpsichord: Carl Philipp Emanuel Bach .",
       "source": {
         "type": "Wikimedia Commons",
@@ -7930,7 +7929,7 @@
           "da": "Fløjtekoncert med Frederik den store i Sanssouci"
         }
       },
-      "year_source": "story_research",
+      "year_source": "wikidata_qs",
       "pd_status": "public_domain",
       "pd_status_reason": "Commons PD license",
       "story": "Menzel worked on this for two years, 1850 to 1852, obsessively. Frederick the Great had been dead seventy years, but Menzel knew his Sanssouci — he had been drawing the king's world for a decade, from uniform buttons to silverware. So the room is accurate: the rococo gilding, the candles in their branching sconces, C.P.E. Bach at the harpsichord. Frederick plays his own composition while his sister Wilhelmine listens from a pink sofa. The chandelier is the only real light source, and Menzel makes you squint into it — the whole painting hums around that glow.",
@@ -8179,7 +8178,7 @@
         "license_url": "http://creativecommons.org/publicdomain/zero/1.0/deed.en",
         "usage_terms": "Creative Commons Zero, Public Domain Dedication"
       },
-      "year_source": "wiki",
+      "year_source": "date_created_plain",
       "pd_status": "uraa_restricted",
       "pd_status_reason": "year 1957 is >= 1931; US 95-year copyright term not yet expired"
     },
@@ -8234,7 +8233,7 @@
         "license_url": null,
         "usage_terms": "Public domain"
       },
-      "year_source": "wiki",
+      "year_source": "date_created_plain",
       "pd_status": "public_domain",
       "pd_status_reason": "Commons PD license",
       "story": "The Dutch anatomist Albinus wanted his atlas to outlast every rival, so he hired the engraver Jan Wandelaar to draw the skeleton standing upright, in landscape, next to a live Indian rhinoceros named Clara who was touring Europe at the time. The conceit is absurd and it works. The bones are measured from a real cadaver using a grid system Albinus designed himself; the rhino lends scale and a kind of pastoral calm. Plate IV of the 1749 Tabulae, later reissued in London by Castigne, whose name sits at the bottom."
@@ -8263,7 +8262,7 @@
         "license_url": null,
         "usage_terms": "Public domain"
       },
-      "year_source": "wiki",
+      "year_source": "date_created_plain",
       "pd_status": "public_domain",
       "pd_status_reason": "Commons PD license",
       "story": "Companion to plate IV, now with the superficial muscles laid back onto the skeleton. The figure still stands in the same contrapposto, right arm out, but a storm is rolling in behind instead of a rhino, and a leafy branch fills the space where Clara stood. Albinus insisted his anatomies be shown outdoors, in dignified poses, because he thought a body stripped of skin still deserved to look like a person. Engraved by Wandelaar, published at Leiden 1749, re-issued in London."
@@ -8891,7 +8890,7 @@
       "title": "Wing of a European Roller",
       "artist": "Albrecht Dürer",
       "date_created": "1500",
-      "year": 1512,
+      "year": 1500,
       "description": null,
       "source": {
         "type": "Wikimedia Commons",
@@ -8947,7 +8946,7 @@
           "br": "Askell Korag-Europa"
         }
       },
-      "year_source": "story_research",
+      "year_source": "date_created_plain",
       "pd_status": "public_domain",
       "pd_status_reason": "Commons PD license",
       "story": "Dürer painted the wing from a dead bird — a European roller, a dove-sized cousin of the kingfisher with turquoise primaries that keep their color long after the bird stops breathing. He worked on vellum, in watercolor and gouache heightened with gold, feather by feather, until the gradation from teal to cobalt to near-black at the tips comes out right. The filename says 1500 but the painting is signed and dated 1512, made during the stretch when Dürer was amassing reference for his theoretical treatises. It now sits in a dim drawer at the Albertina; color that fragile doesn't belong in daylight.",
@@ -9333,7 +9332,7 @@
       "title": "The Rhinoceros",
       "artist": "Albrecht Dürer",
       "date_created": "between 1512 and 1515 date QS:P,+1512-00-00T00:00:00Z/8,P1319,+1512-00-00T00:00:00Z/9,P1326,+1515-00-00T00:00:00Z/9 / 1515",
-      "year": 1515,
+      "year": 1512,
       "description": null,
       "source": {
         "type": "Wikimedia Commons",
@@ -9406,7 +9405,7 @@
           "hy": "Ռնգեղջյուր"
         }
       },
-      "year_source": "story_research",
+      "year_source": "wikidata_qs",
       "pd_status": "public_domain",
       "pd_status_reason": "Commons PD license",
       "story": "In 1515 King Manuel I of Portugal received an Indian rhinoceros in Lisbon — the first seen alive in Europe since Roman times — and tried to ship it on to the Pope. The animal drowned off the coast of Italy. Dürer never laid eyes on it. Working in Nuremberg from a letter and a sketch sent north from Lisbon, he gave the beast riveted armour plates, a little twisted horn on its shoulder, and scaly legs, and captioned the top RHINOCERVS, 1515. The woodcut was copied and reprinted for nearly three centuries; generations of Europeans learned what a rhino looked like from a picture drawn second-hand.",
@@ -10628,7 +10627,7 @@
       "title": "Susanna and the Elders",
       "artist": "Annibale Carracci",
       "date_created": "16 th century date QS:P571,+1550-00-00T00:00:00Z/7",
-      "year": 1590,
+      "year": 1550,
       "description": null,
       "source": {
         "type": "Wikimedia Commons",
@@ -10645,7 +10644,7 @@
         "license_url": null,
         "usage_terms": "Public domain"
       },
-      "year_source": "story_research",
+      "year_source": "era_phrase",
       "pd_status": "public_domain",
       "pd_status_reason": "Commons PD license",
       "story": "A lesser-known treatment from Annibale's Bolognese-Roman middle years, usually dated around 1590. Susanna sits nude at the rim of a stone basin, twisting sharply when two elders crane over a low fence to leer. Annibale keeps it domestic rather than operatic: the grain of the stonework, the rumple of a dropped linen, a single bare foot still dangling in water. The pose plants the kind of muscular, grounded naturalism his academy in Bologna was teaching as an antidote to Mannerist twist. A related etched version entered circulation in the same years."
@@ -11431,7 +11430,7 @@
       "title": "Penitent Mary Magdalene",
       "artist": "Artemisia Gentileschi",
       "date_created": "1620",
-      "year": 1617,
+      "year": 1620,
       "description": "Penitent Magdalene",
       "source": {
         "type": "Wikimedia Commons",
@@ -11460,7 +11459,7 @@
           "sl": "Marija Magdalena – spokornica"
         }
       },
-      "year_source": "story_research",
+      "year_source": "date_created_plain",
       "pd_status": "public_domain",
       "pd_status_reason": "Commons PD license",
       "story": "Painted during Artemisia's Florentine years, around 1616-1618, and still in the Pitti. Mary Magdalene sprawls in a huge saffron-yellow silk dress, one hand clutching her chest, the other pushing away a small mirror engraved with 'Optimam partem elegit' - 'she has chosen the best part.' The hair is loose, almost tangled, lit from the right by a narrow, sharp beam in the Caravaggesque manner. The commission likely came through Grand Duchess Maria Maddalena de' Medici, whose name the saint shared. Artemisia signed it 'Artemisia Lomi,' the surname she used while working in Florence."
@@ -11643,7 +11642,7 @@
       },
       "pd_status": "copyrighted",
       "pd_status_reason": "Commons copyrighted license",
-      "year_source": "wiki"
+      "year_source": "date_created_plain"
     },
     "At_first_glance_he_looks_very_fiarce,_but_he_s_really_a_nice_person.jpg": {
       "filename": "At_first_glance_he_looks_very_fiarce,_but_he_s_really_a_nice_person.jpg",
@@ -11871,7 +11870,7 @@
       },
       "pd_status": "public_domain",
       "pd_status_reason": "Commons PD license",
-      "year_source": "wiki"
+      "year_source": "date_created_plain"
     },
     "Autoportrait_au_turban_(Perpignan).jpg": {
       "filename": "Autoportrait_au_turban_(Perpignan).jpg",
@@ -12518,7 +12517,7 @@
         "license_url": null,
         "usage_terms": "Public domain"
       },
-      "year_source": "wiki",
+      "year_source": "date_created_plain",
       "pd_status": "public_domain",
       "pd_status_reason": "Commons PD license",
       "story": "Monet went to Etretat in the winter of 1883 partly to get out of Paris and partly to paint the same cliffs Courbet and Boudin had worked before him. Here the famous arch of the Porte d'Aval sits quietly in the middle distance while a long row of beached fishing boats takes the foreground - blunt wooden hulls, tarred and patched, hauled up above the tideline. The sea is calm and silvery, the beach a scatter of tiny figures. Less a grand motif than a working shore, caught on a bright, chilly day."
@@ -12547,7 +12546,7 @@
         "license_url": null,
         "usage_terms": "Public domain"
       },
-      "year_source": "wiki",
+      "year_source": "date_created_plain",
       "pd_status": "public_domain",
       "pd_status_reason": "Commons PD license",
       "story": "A small oil self-portrait left deliberately half-finished: a young Fantin-Latour emerges from near-total blackness, only a blade of forehead, a cheekbone, the bridge of the nose and a reddish-brown beard picked out in thick paint. The rest dissolves into an unmodulated dark ground. He was twenty-four when he painted it in 1860 and would spend the next decade assembling the group portraits of Manet's circle that made his name. The panel hangs in the Fondation Bemberg in Toulouse."
@@ -12675,7 +12674,7 @@
       "title": "An Interesting Story",
       "artist": "Eugene de Blaas",
       "date_created": "2008 (upload date)",
-      "year": 2008,
+      "year": null,
       "description": "An Interesting Story",
       "source": {
         "type": "Wikimedia Commons",
@@ -12692,7 +12691,6 @@
         "license_url": null,
         "usage_terms": "Public domain"
       },
-      "year_source": "date_created_plain",
       "pd_status": "uraa_restricted",
       "pd_status_reason": "year 2008 is >= 1931; US 95-year copyright term not yet expired"
     },
@@ -12703,7 +12701,7 @@
       "title": "Blue Irises",
       "artist": "Ohara Koson",
       "date_created": "circa 1900–1930",
-      "year": 1915,
+      "year": 1900,
       "description": "Identificatie Titel(s): Blauwe irissen Objecttype: prent Objectnummer: RP-P-1999-419 Vervaardiging Vervaardiger: naar ontwerp van: Ohara Koson (vermeld op object), prentmaker: anoniem Plaats vervaardiging: Tokyo Datering: 1900 - 1930 Fysieke kenmerken: kleurenhoutsnede; lijnblok in zwart met kleurblokken op Japans papier Materiaal: Japans papier Techniek: kleurenhoutsnede Afmetingen: blad: h 254 mm × b 128 mm Verwerving en rechten Credit line: Schenking van de heer J. Perrée, Eindhoven Verwerving: schenking 1999 Copyright: Publiek domein",
       "source": {
         "type": "Wikimedia Commons",
@@ -12720,7 +12718,7 @@
         "license_url": "http://creativecommons.org/publicdomain/zero/1.0/deed.en",
         "usage_terms": "Creative Commons Zero, Public Domain Dedication"
       },
-      "year_source": "wiki",
+      "year_source": "date_created_plain",
       "pd_status": "copyrighted",
       "pd_status_reason": "Commons copyrighted license"
     },
@@ -12916,7 +12914,7 @@
       "title": "Madonna and Child with an Angel",
       "artist": "Sandro Botticelli",
       "date_created": "15 th century date QS:P571,+1450-00-00T00:00:00Z/7",
-      "year": 1466,
+      "year": 1450,
       "description": "Madonna and Child",
       "source": {
         "type": "Wikimedia Commons",
@@ -12953,7 +12951,7 @@
           "nl": "La Vierge à l'Enfant soutenu par un ange sous une guirlande"
         }
       },
-      "year_source": "story_research",
+      "year_source": "era_phrase",
       "pd_status": "public_domain",
       "pd_status_reason": "Commons PD license",
       "story": "A grave young Madonna balances the Christ Child while an angel offers a bowl of grapes and wheat, Eucharist food dressed up as a snack. The pale faces, almond eyes, and high foreheads owe everything to Botticelli's master Filippo Lippi, who trained him while this tempera panel was being worked out. It now hangs at the Spedale degli Innocenti in Florence, the foundling hospital designed by Brunelleschi, which feels right: a painting about a mother and a fed child in a building built for abandoned ones. Botticelli was born in 1445, so the Innocenti itself now dates this panel around 1465-1467.",
@@ -13400,7 +13398,7 @@
       "title": "Frost at Giverny",
       "artist": "Claude Monet",
       "date_created": "15 January 2013, 16:36:14",
-      "year": 1885,
+      "year": 1840,
       "description": "CLAUDE MONET (1840 - 1926), LE GIVRE À GIVERNY, signed Claude Monet (lower left), oil on canvas, 54 by 71 cm. Painted in 1885.",
       "source": {
         "type": "Wikimedia Commons",
@@ -13435,7 +13433,7 @@
           "fr": "Le givre à Giverny"
         }
       },
-      "year_source": "story_research",
+      "year_source": "filename",
       "pd_status": "public_domain",
       "pd_status_reason": "Commons PD license",
       "story": "Painted in 1885, Monet's second winter at Giverny, before the famous garden existed. He had rented the pink house two years earlier and was still learning the valley: its fogs, its meadows, the way hoarfrost silvered the grass at dawn. Fifty-four by seventy-one centimeters, signed lower left, the whole canvas tuned to a chalky blue-white with a single pinkish-ochre streak of earth. It surfaced at auction and now hangs in Hasso Plattner's collection at the Museum Barberini in Potsdam, accession MB-Mon-18.",
@@ -13934,7 +13932,7 @@
       "title": "The Blue Grotto on Capri",
       "artist": "Carl Friedrich Seiffert",
       "date_created": "1860 date QS:P571,+1860-00-00T00:00:00Z/9",
-      "year": 1860,
+      "year": null,
       "description": null,
       "source": {
         "type": "Wikimedia Commons",
@@ -13969,7 +13967,6 @@
           "de": "Die Blaue Grotte auf Capri"
         }
       },
-      "year_source": "wikidata_qs",
       "pd_status": "public_domain",
       "pd_status_reason": "Commons PD license",
       "story": "Seiffert ducks inside the famous Capri grotto and paints what the guidebooks promised: water lit from below in that impossible cobalt, the low stone arch framing a scrap of Mediterranean daylight, a small rowboat drifting in from the glare. The Berlin-trained Late Romantic went to Italy in search of exactly this kind of luminous set-piece. He signed and dated the canvas 1860."
@@ -14886,7 +14883,7 @@
       "title": "Life stages",
       "artist": "Caspar David Friedrich",
       "date_created": "1834",
-      "year": 1835,
+      "year": 1834,
       "description": null,
       "source": {
         "type": "Wikimedia Commons",
@@ -14936,7 +14933,7 @@
           "ca": "Les edats de la vida"
         }
       },
-      "year_source": "story_research",
+      "year_source": "date_created_plain",
       "pd_status": "public_domain",
       "pd_status_reason": "Commons PD license",
       "story": "Five ships at five distances from shore, five people at five ages of life. The setting is Utkiek near Wieck, the promenade where Greifswalders went to watch boats come in - Friedrich's hometown. The old man in the foreground, back turned, is often read as the painter himself, around sixty; the children playing with the little Swedish pennant are his own son Gustav Adolf and daughter Agnes Adelheid. Greifswald had belonged to Sweden in Friedrich's childhood before passing to Prussia in 1815. Painted around 1835, now in the Museum der bildenden Kunste, Leipzig.",
@@ -15657,7 +15654,7 @@
       },
       "pd_status": "copyrighted",
       "pd_status_reason": "Commons copyrighted license",
-      "year_source": "wiki"
+      "year_source": "date_created_plain"
     },
     "Christian_IX_of_Denmark_with_family_(Tuxen).jpg": {
       "filename": "Christian_IX_of_Denmark_with_family_(Tuxen).jpg",
@@ -15702,7 +15699,7 @@
       "title": "Winter Landscape with a Bird Trap",
       "artist": "Pieter Brueghel the Younger",
       "date_created": "1601",
-      "year": 1601,
+      "year": 1564,
       "description": "Rund 100 Kopien sprechen für die außerordentliche Beliebtheit dieser Komposition nach Pieter Bruegel dem Älteren. Man hat vermutet, dass der ungewöhnlich strenge Winter des Jahres 1564/65 auslösendes Moment für Bruegels zweimalige Beschäftigung mit dem Thema der Winterlandschaft gewesen sein könnte. Der Vogelfalle (rechts) und den Eisläufern wurde sprichwörtlicher bzw. moralisierender Hintersinn unterlegt (Ermahnung zur Wachsamkeit, Schlüpfrigkeit der Lebensbahn), doch ohne überzeugenden Beweis. Diese Kopie gilt als eines der ältesten und qualitätvollsten Exemplare.",
       "source": {
         "type": "Wikimedia Commons",
@@ -15742,7 +15739,7 @@
           "ru": "Зимний пейзаж с ловушкой птицы"
         }
       },
-      "year_source": "date_created_plain",
+      "year_source": "description",
       "pd_status": "public_domain",
       "pd_status_reason": "Commons PD license",
       "story": "Bruegel the Elder's 1565 composition, one of his most copied, survives in roughly a hundred versions turned out by sons, workshop, and followers. This one, from the circle around the family business, is considered among the earliest and best. Villagers skate on thin ice while, almost too casual to notice on the right, a heavy door is propped over scattered seed: a bird trap. Contemporary viewers would have read it as a warning about slippery footing, snared souls, and the ordinary dangers of being alive. The harsh winter of 1564-65 probably set Bruegel on the subject in the first place."
@@ -19935,7 +19932,7 @@
       "title": "Waterloo Bridge. Effect of Fog",
       "artist": "Claude Monet",
       "date_created": "from 1899 until 1903 date QS:P,+1500-00-00T00:00:00Z/6,P580,+1899-00-00T00:00:00Z/9,P582,+1903-00-00T00:00:00Z/9",
-      "year": 1903,
+      "year": 1899,
       "description": null,
       "source": {
         "type": "Wikimedia Commons",
@@ -19979,7 +19976,7 @@
           "ca": "El Pont de Waterloo"
         }
       },
-      "year_source": "story_research",
+      "year_source": "wikidata_qs",
       "pd_status": "public_domain",
       "pd_status_reason": "Commons PD license",
       "story": "Waterloo Bridge sat directly across from Monet's Savoy suite, and he painted it roughly forty times. This one, now in the Hermitage, carries the date 1903 — meaning he'd hauled the unfinished canvas back to Giverny and kept pushing it long after the last London trip in 1901. Barges chuff past in muted orange and violet. The bridge dissolves into its own steam. Monet wrote that without the fog, London wouldn't be beautiful — and he only exhibited the Thames series in 1904, after four years of studio work.",
@@ -20266,7 +20263,7 @@
       "title": "Jeanne-Marguerite Lecadre in the Garden Sainte-Adresse",
       "artist": "Claude Monet",
       "date_created": "1867 date QS:P571,+1867-00-00T00:00:00Z/9",
-      "year": 1866,
+      "year": 1867,
       "description": null,
       "source": {
         "type": "Wikimedia Commons",
@@ -20295,7 +20292,7 @@
         "movement": "Impressionism",
         "pd_status": "public_domain_worldwide"
       },
-      "year_source": "story_research",
+      "year_source": "wikidata_qs",
       "pd_status": "public_domain",
       "pd_status_reason": "Commons PD license",
       "story": "Jeanne-Marguerite Lecadre, the wife of Monet's better-off cousin Paul-Eugène, stands in a pale dress at the garden fence, a path of red geraniums and roses running away from her. Monet painted it outdoors at Le Coteau in Sainte-Adresse, the family's country place, in the summer of 1866. The handling is still tight and descriptive, years before he loosened into true impressionism. It hangs at the Hermitage in Saint Petersburg.",
@@ -21874,7 +21871,7 @@
       },
       "pd_status": "public_domain",
       "pd_status_reason": "Commons PD license",
-      "year_source": "wiki"
+      "year_source": "date_created_plain"
     },
     "Cult-of-beauty-001.jpg": {
       "filename": "Cult-of-beauty-001.jpg",
@@ -22360,7 +22357,7 @@
         "license_url": "http://creativecommons.org/publicdomain/zero/1.0/deed.en",
         "usage_terms": "Creative Commons Zero, Public Domain Dedication"
       },
-      "year_source": "wiki",
+      "year_source": "date_created_plain",
       "pd_status": "uraa_restricted",
       "pd_status_reason": "year 1934 is >= 1931; US 95-year copyright term not yet expired"
     },
@@ -22546,7 +22543,7 @@
         "license_url": "http://creativecommons.org/publicdomain/zero/1.0/deed.en",
         "usage_terms": "Creative Commons Zero, Public Domain Dedication"
       },
-      "year_source": "wiki",
+      "year_source": "date_created_plain",
       "pd_status": "uraa_restricted",
       "pd_status_reason": "year 1932 is >= 1931; US 95-year copyright term not yet expired"
     },
@@ -22574,7 +22571,7 @@
         "license_url": "http://creativecommons.org/publicdomain/zero/1.0/deed.en",
         "usage_terms": "Creative Commons Zero, Public Domain Dedication"
       },
-      "year_source": "wiki",
+      "year_source": "date_created_plain",
       "pd_status": "uraa_restricted",
       "pd_status_reason": "year 1937 is >= 1931; US 95-year copyright term not yet expired"
     },
@@ -23333,7 +23330,7 @@
       "title": "Squirrel",
       "artist": "Albrecht Dürer",
       "date_created": "1492 date QS:P571,+1492-00-00T00:00:00Z/9",
-      "year": 1512,
+      "year": 1492,
       "description": "Two squirrels",
       "source": {
         "type": "Wikimedia Commons",
@@ -23363,7 +23360,7 @@
         "movement": "Northern Renaissance",
         "pd_status": "public_domain_worldwide"
       },
-      "year_source": "story_research",
+      "year_source": "wikidata_qs",
       "pd_status": "public_domain",
       "pd_status_reason": "Commons PD license",
       "story": "Dürer kept a kind of menagerie on paper — a hare, a stag beetle, a roller's wing, this pair of red squirrels. He painted them on vellum in watercolor and gouache, one gnawing a hazelnut, the other alert, tail curled overhead like a question mark. The fur is built up whisker by whisker. He was about forty when he made it, at the height of his powers, working for his own study rather than any commission. The Albertina in Vienna holds it now, in a drawer that only opens on occasion — vellum and daylight don't mix.",
@@ -24030,7 +24027,7 @@
       "title": "Ribbons and Laces for Very Pretty Faces",
       "artist": "Edmund Blair Leighton",
       "date_created": "1902 date QS:P571,+1902-00-00T00:00:00Z/9",
-      "year": 1902,
+      "year": null,
       "description": "Ribbons and Lace",
       "source": {
         "type": "Wikimedia Commons",
@@ -24059,7 +24056,6 @@
         "movement": "Academicism",
         "pd_status": "public_domain_worldwide"
       },
-      "year_source": "wikidata_qs",
       "pd_status": "public_domain",
       "pd_status_reason": "Commons PD license",
       "story": "The full title is the street-seller's cry: \"Ribbons and laces for very pretty faces.\" A peddler has set down his tray in a sunlit courtyard and two young women are rummaging through it while a third hangs back, already in love with something. Leighton dates the costumes to the Regency and lights the whole scene like a candy-shop window. Painted 1902."
@@ -24071,7 +24067,7 @@
       "title": "The Dedication",
       "artist": "Edmund Blair Leighton",
       "date_created": "1908 date QS:P571,+1908-00-00T00:00:00Z/9",
-      "year": 1908,
+      "year": null,
       "description": "(See source) « The Dedication is an important rediscovery in Edmund Blair Leighton 's oeuvre . Known only through a black and white photogravure published in 1908 it has not appeared on the open market for over seventy-five years. [...]»",
       "source": {
         "type": "Wikimedia Commons",
@@ -24100,7 +24096,6 @@
         "movement": "Academicism",
         "pd_status": "public_domain_worldwide"
       },
-      "year_source": "wikidata_qs",
       "pd_status": "public_domain",
       "pd_status_reason": "Commons PD license",
       "story": "A Templar kneels at a country altar, sword held out flat in both hands, asking a blessing on the steel before he rides to war. His lady kneels beside him, eyes closed, hands folded. Leighton loads the chapel with tapestries and stained glass so the light does the praying. Shown at the Royal Academy in 1908 and bought out of the show by a Captain Mendoza, it then vanished into private hands for over seventy years."
@@ -24153,7 +24148,7 @@
       "title": "The End of the Song",
       "artist": "Edmund Blair Leighton",
       "date_created": "1902 date QS:P571,+1902-00-00T00:00:00Z/9",
-      "year": 1902,
+      "year": null,
       "description": "[...] Although The End of the Song illustrates no specific incident in history or literature, it recalls two well-known literary subjects, Tristram and Iseult and Paolo and Francesca . [...] (Christie's)",
       "source": {
         "type": "Wikimedia Commons",
@@ -24182,7 +24177,6 @@
         "movement": "Academicism",
         "pd_status": "public_domain_worldwide"
       },
-      "year_source": "wikidata_qs",
       "pd_status": "public_domain",
       "pd_status_reason": "Commons PD license",
       "story": "A lute has just gone quiet in a tower chamber; the singer and his listener are still looking at each other. Leighton said the painting illustrated no specific story, but anyone who knew their Dante or their Malory filled in Paolo and Francesca, or Tristan and Iseult, without being asked. The Christie's catalogue makes exactly that point. 1902, oil on canvas."
@@ -24194,7 +24188,7 @@
       "title": "Edmund Blair Leighton - The Hostage",
       "artist": "Edmund Blair Leighton",
       "date_created": "1912 date QS:P571,+1912-00-00T00:00:00Z/9",
-      "year": 1912,
+      "year": null,
       "description": "The Hostage , oil on canvas",
       "source": {
         "type": "Wikimedia Commons",
@@ -24223,7 +24217,6 @@
         "movement": "Academicism",
         "pd_status": "public_domain_worldwide"
       },
-      "year_source": "wikidata_qs",
       "pd_status": "public_domain",
       "pd_status_reason": "Commons PD license",
       "story": "An aristocratic young woman stands at the center of a group of very polite captors, everyone pretending this is a civilized arrangement. Leighton's genius was staging coercion without violence: the guards' hands rest on sword hilts, a retainer offers her a cup, and the whole room is a negotiation frozen mid-sentence. Painted in 1912, a decade before his death and deep in the Edwardian appetite for chivalric tableaux. Oil on canvas."
@@ -24509,7 +24502,7 @@
       "title": "Starry Night",
       "artist": "Edvard Munch",
       "date_created": "1922–24",
-      "year": 1923,
+      "year": 1922,
       "description": null,
       "source": {
         "type": "Wikimedia Commons",
@@ -24538,7 +24531,7 @@
         "movement": "Symbolism / Expressionism",
         "pd_status": "public_domain_in_most_jurisdictions"
       },
-      "year_source": "story_research",
+      "year_source": "date_created_plain",
       "pd_status": "public_domain",
       "pd_status_reason": "Commons PD license",
       "story": "This isn't the famous 1893 Starry Night. By 1922 Munch had retreated to Ekely, his property on the edge of Kristiania, and spent the deep winter evenings at the top of his veranda steps painting the sky above his own garden. It belongs to a short, concentrated run of blue-tinted night pictures made between 1922 and 1924: same veranda, same railing, same hill, the stars placed like pinpricks over a snowfield. He was almost sixty, already deaf in one ear from an old hemorrhage, painting essentially alone. The silence is the subject.",
@@ -24627,7 +24620,7 @@
           "fr": "Jalousie"
         }
       },
-      "year_source": "story_research",
+      "year_source": "wikidata_qs",
       "pd_status": "public_domain",
       "pd_status_reason": "Commons PD license",
       "story": "Munch came back to jealousy obsessively, painting the scene no fewer than eleven times over his lifetime. The setup is always the same: a green-faced man stares straight out at us in the foreground while behind him a woman in red offers an apple to another man, Eve and her suitor glimpsed over the cuckold's shoulder. This 1913 version from the Munch Museum turns the colour up; the man's complexion has gone almost gangrenous. The woman is usually read as Dagny Juel Przybyszewska, the woman Munch's friend Stanisław married, and whose name hangs over half his love pictures.",
@@ -24729,7 +24722,7 @@
       "title": "Two Human Beings (The Lonely Ones)",
       "artist": "Edvard Munch",
       "date_created": "from 1906 until 1908 date QS:P,+1906-00-00T00:00:00Z/8,P580,+1906-00-00T00:00:00Z/9,P582,+1908-00-00T00:00:00Z/9",
-      "year": 1907,
+      "year": 1906,
       "description": null,
       "source": {
         "type": "Wikimedia Commons",
@@ -24767,7 +24760,7 @@
           "fr": "Deux Êtres humains. Les Solitaires"
         }
       },
-      "year_source": "story_research",
+      "year_source": "wikidata_qs",
       "pd_status": "public_domain",
       "pd_status_reason": "Commons PD license",
       "story": "Munch first painted this pair in 1892, then lost the canvas in 1901 when the ship carrying his exhibition exploded at sea. He kept the image alive in prints, famously a woodcut where he sawed the block into three pieces, one for the man, one for the woman, one for the beach and sky, inking each separately. This oil from 1906-08 rebuilds the composition from those prints, which is why the figures face the opposite way from the lost original. A man and a woman stand on the shore, shoulders almost touching, looking out. Nothing passes between them.",
@@ -24821,7 +24814,7 @@
       "title": "Weeping Nude",
       "artist": "Edvard Munch",
       "date_created": "from 1913 until 1914 date QS:P,+1913-00-00T00:00:00Z/8,P580,+1913-00-00T00:00:00Z/9,P582,+1914-00-00T00:00:00Z/9",
-      "year": 1914,
+      "year": 1913,
       "description": null,
       "source": {
         "type": "Wikimedia Commons",
@@ -24857,7 +24850,7 @@
           "fr": "Nu pleurant"
         }
       },
-      "year_source": "story_research",
+      "year_source": "wikidata_qs",
       "pd_status": "public_domain",
       "pd_status_reason": "Commons PD license",
       "story": "A woman kneels on a bed, head sunk into her hands, body turned in on itself. Munch painted her in 1913-14, one year before the war, in drenched carmine and cinnabar that pool across the coverlet like a blood-warm tide. Nobody knows who she is or what she is crying about. Softer pinks and yellow-greens push in from the edges of the room, almost kind, but the red refuses to let her up. He kept the canvas himself, and it stayed in Oslo with the rest of his estate after he died.",
@@ -25144,7 +25137,7 @@
       "title": "Christ as Savior",
       "artist": "El Greco",
       "date_created": "between 1610 and 1614 date QS:P571,+1610-00-00T00:00:00Z/8,P1319,+1610-00-00T00:00:00Z/9,P1326,+1614-00-00T00:00:00Z/9",
-      "year": 1612,
+      "year": 1610,
       "description": "The work shows Jesus Christ as the Savior of the world, and is part of the Apostolate painted by El Greco that is preserved in the Museum of El Greco in Toledo .",
       "source": {
         "type": "Wikimedia Commons",
@@ -25173,7 +25166,7 @@
         "movement": "Mannerism",
         "pd_status": "public_domain_worldwide"
       },
-      "year_source": "story_research",
+      "year_source": "wikidata_qs",
       "pd_status": "public_domain",
       "pd_status_reason": "Commons PD license",
       "story": "El Greco ran a busy Toledo workshop at the end of his life painting sets of the twelve apostles for churches and private patrons. This Salvador, dated between 1610 and his death in 1614, is the head of one such Apostolado, now at the Museo del Greco in Toledo. Christ faces us frontally in the old Byzantine manner of El Greco's Cretan youth, right hand raised in blessing, left hand resting on the terra orbis. He's the only figure in the whole series who looks straight out; the apostles are painted turned toward him. The canvas is signed, and more carefully finished than any apostle beside it.",
@@ -25283,7 +25276,7 @@
       "title": "The Third of May 1808",
       "artist": "El_Tres_de_Mayo,_by_Francisco_de_Goya,_from_Prado_in_Google_Earth.jpg : Francisco de Goya derivative work: Papa Lima Whiskey 2",
       "date_created": "2012-03-21 14:01",
-      "year": null,
+      "year": 1808,
       "description": "The Third of May by Francisco Goya",
       "source": {
         "type": "Wikimedia Commons",
@@ -25313,7 +25306,8 @@
         "pd_status": "public_domain_worldwide"
       },
       "pd_status": "public_domain",
-      "pd_status_reason": "Commons PD license"
+      "pd_status_reason": "Commons PD license",
+      "year_source": "title"
     },
     "El_coloso.jpg": {
       "filename": "El_coloso.jpg",
@@ -26445,7 +26439,7 @@
       },
       "pd_status": "copyrighted",
       "pd_status_reason": "Commons copyrighted license",
-      "year_source": "wiki"
+      "year_source": "date_created_plain"
     },
     "FRANCESCO_HAYEZ_-_Incontro_di_Giobbe_ed_Esaù_(1844).jpg": {
       "filename": "FRANCESCO_HAYEZ_-_Incontro_di_Giobbe_ed_Esaù_(1844).jpg",
@@ -26471,7 +26465,7 @@
         "license_url": "https://creativecommons.org/licenses/by-sa/4.0",
         "usage_terms": "Creative Commons Attribution-Share Alike 4.0"
       },
-      "year_source": "wiki",
+      "year_source": "date_created_plain",
       "pd_status": "copyrighted",
       "pd_status_reason": "Commons copyrighted license"
     },
@@ -26928,7 +26922,7 @@
       },
       "pd_status": "copyrighted",
       "pd_status_reason": "Commons copyrighted license",
-      "year_source": "wiki"
+      "year_source": "date_created_plain"
     },
     "Flowers_in_a_Rococo_Vase_A24470.jpg": {
       "filename": "Flowers_in_a_Rococo_Vase_A24470.jpg",
@@ -30476,7 +30470,7 @@
       "title": "Atalanta and Hippomenes (Ovid, Metamorphoses, X, 560-680)",
       "artist": "After Peter Paul Rubens / Peter Paul Rubens / Jacob Peter Gowy",
       "date_created": "between 1635 and 1637 date QS:P571,+1635-00-00T00:00:00Z/8,P1319,+1635-00-00T00:00:00Z/9,P1326,+1637-00-00T00:00:00Z/9",
-      "year": 1637,
+      "year": 1635,
       "description": "Spanish: Hipómenes y Atalanta",
       "source": {
         "type": "Wikimedia Commons",
@@ -30515,7 +30509,7 @@
           "es": "Hipómenes y Atalanta"
         }
       },
-      "year_source": "story_research",
+      "year_source": "wikidata_qs",
       "pd_status": "public_domain",
       "pd_status_reason": "Commons PD license",
       "story": "Philip IV wanted his new hunting lodge outside Madrid — the Torre de la Parada — papered with Ovid, and in 1636 he commissioned Rubens to design sixty-odd mythological scenes. Rubens, by then in his late fifties and riddled with gout, sketched the compositions on small oil panels and farmed the big canvases out to Antwerp's younger painters. Jacob Peter Gowy got Atalanta, caught mid-stride after Hippomenes has chucked the third golden apple — Aphrodite's trick to break her stride. Gowy signed it on the column at right. The panel Rubens painted for him to copy is in Rotterdam; this, the final version, hangs in the Prado.",
@@ -32857,7 +32851,7 @@
       },
       "pd_status": "copyrighted",
       "pd_status_reason": "Commons copyrighted license",
-      "year_source": "wiki"
+      "year_source": "date_created_plain"
     },
     "Henry_Fuseli_-_Titania_and_Bottom_-_Google_Art_Project.jpg": {
       "filename": "Henry_Fuseli_-_Titania_and_Bottom_-_Google_Art_Project.jpg",
@@ -32922,7 +32916,7 @@
       "title": "Lake Suwa in Shinano Province, from Thirty-six Views of Mount Fuji",
       "artist": "Katsushika Hokusai",
       "date_created": "circa 1829–1833",
-      "year": 1830,
+      "year": 1829,
       "description": "Identificatie Titel(s): Het Suwa meer in de provincie Shinano. Shinshu Suwako (titel op object). 36 gezichten op de berg Fuji (serietitel). Fugaku sanjurokkei (serietitel op object) Objecttype: prent Objectnummer: RP-P-1956-730 Catalogusreferentie: Jap Cat III 65 Omschrijving: Gezicht over het Suwa meer met de berg Fuji op de achtergrond; op de voorgrond een rots waarop een heiligdom en twee bomen. Vervaardiging Vervaardiger: prentmaker: Katsushika Hokusai (vermeld op object), uitgever: Nishimura Yohachi (vermeld op object) Plaats vervaardiging: prentmaker: Japan, uitgever: Tokyo Datering: 1829 - 1833 Fysieke kenmerken: kleurenhoutsnede; lijnblok en kleurblokken in verschillende tinten blauw Materiaal: papier Techniek: kleurenhoutsnede / aizuri-e Afmetingen: blad: h 254 mm × b 367 mm Onderwerp Waar: Fuji Verwerving en rechten Verwerving: aankoop 1956 Copyright: Publiek domein",
       "source": {
         "type": "Wikimedia Commons",
@@ -32939,7 +32933,7 @@
         "license_url": "http://creativecommons.org/publicdomain/zero/1.0/deed.en",
         "usage_terms": "Creative Commons Zero, Public Domain Dedication"
       },
-      "year_source": "wiki",
+      "year_source": "date_created_plain",
       "pd_status": "copyrighted",
       "pd_status_reason": "Commons copyrighted license"
     },
@@ -32996,7 +32990,7 @@
         "license_url": "http://creativecommons.org/publicdomain/zero/1.0/deed.en",
         "usage_terms": "Creative Commons Zero, Public Domain Dedication"
       },
-      "year_source": "wiki",
+      "year_source": "date_created_plain",
       "pd_status": "uraa_restricted",
       "pd_status_reason": "year 1934 is >= 1931; US 95-year copyright term not yet expired"
     },
@@ -34860,7 +34854,7 @@
       "title": "Hokusai Manga 01",
       "artist": "Katsushika Hokusai",
       "date_created": "early 19 th century date QS:P,+1850-00-00T00:00:00Z/7,P4241,Q40719727",
-      "year": 1814,
+      "year": 1850,
       "description": "A page from Hokusai Manga Volume I",
       "source": {
         "type": "Wikimedia Commons",
@@ -34889,7 +34883,7 @@
         "movement": "Ukiyo-e",
         "pd_status": "public_domain_worldwide"
       },
-      "year_source": "story_research",
+      "year_source": "date_created_plain",
       "pd_status": "public_domain",
       "pd_status_reason": "Commons PD license",
       "story": "Don't let the word fool you. Hokusai's manga meant brush gone wild, not comics, and this first volume came off the blocks in 1814 when he was 55 and short on money. The aim was practical: a sketchbook for students to copy from. He filled it with immortals, Buddhas, scholars, fishermen, wrestlers, grasses, birds, expressions of rage and boredom, all in black, grey, and a flush of pale pink. Fifteen volumes followed, over four thousand drawings in total.",
@@ -34902,7 +34896,7 @@
       "title": "Hokusai Manga 02",
       "artist": "Katsushika Hokusai",
       "date_created": "early 19 th century date QS:P,+1850-00-00T00:00:00Z/7,P4241,Q40719727",
-      "year": 1815,
+      "year": 1850,
       "description": "A page from Hokusai Manga",
       "source": {
         "type": "Wikimedia Commons",
@@ -34931,7 +34925,7 @@
         "movement": "Ukiyo-e",
         "pd_status": "public_domain_worldwide"
       },
-      "year_source": "story_research",
+      "year_source": "date_created_plain",
       "pd_status": "public_domain",
       "pd_status_reason": "Commons PD license",
       "story": "Volume two, same hungry eye. Hokusai's Manga was block-printed in only three inks, black, grey, and a dusty pink, and every page crams in dozens of figures, as if he couldn't waste the paper. Wrestlers bend, cranes preen, a scholar dozes, a child yawns. He called the project brush gone wild, and the second volume appeared in 1815, riding the runaway success of the first. The set eventually grew to fifteen volumes and around four thousand images, the last three published posthumously.",
@@ -36276,7 +36270,7 @@
       },
       "pd_status": "copyrighted",
       "pd_status_reason": "Commons copyrighted license",
-      "year_source": "wiki"
+      "year_source": "date_created_plain"
     },
     "Homère_déifié,_dit_aussi_L'apothéose_d'Homère_-_Jean-Auguste_Dominique_Ingres_-_Musée_du_Louvre_Peintures_INV_5417_;_C_196.jpg": {
       "filename": "Homère_déifié,_dit_aussi_L'apothéose_d'Homère_-_Jean-Auguste_Dominique_Ingres_-_Musée_du_Louvre_Peintures_INV_5417_;_C_196.jpg",
@@ -36412,7 +36406,7 @@
         "license_url": "http://creativecommons.org/publicdomain/zero/1.0/deed.en",
         "usage_terms": "Creative Commons Zero, Public Domain Dedication"
       },
-      "year_source": "wiki",
+      "year_source": "date_created_plain",
       "pd_status": "copyrighted",
       "pd_status_reason": "Commons copyrighted license"
     },
@@ -37516,7 +37510,7 @@
       "title": "Irises",
       "artist": "Ohara Koson",
       "date_created": "circa 1925–1936",
-      "year": 1930,
+      "year": 1925,
       "description": "Identificatie Titel(s): Irissen Objecttype: prent Objectnummer: RP-P-1999-553 Opschriften / Merken: verzamelaarsmerk, verso, gestempeld: Lugt 2228 Omschrijving: Bloeiende irissen tegen een zachte achtergrond in rood, wit en blauw. Vervaardiging Vervaardiger: prentmaker: Ohara Koson (vermeld op object), uitgever: Watanabe Shôzaburô (vermeld op object) Plaats vervaardiging: prentmaker: Japan, uitgever: Tokyo Datering: 1925 - 1936 Fysieke kenmerken: kleurenhoutsnede Materiaal: papier Techniek: kleurenhoutsnede Afmetingen: beeld: h 395 mm × b 265 mm Onderwerp Wat: flowers (with NAME) Verwerving en rechten Credit line: Schenking van de heer J. Perrée, Eindhoven Verwerving: schenking 1999 Copyright: Publiek domein",
       "source": {
         "type": "Wikimedia Commons",
@@ -37533,7 +37527,7 @@
         "license_url": "http://creativecommons.org/publicdomain/zero/1.0/deed.en",
         "usage_terms": "Creative Commons Zero, Public Domain Dedication"
       },
-      "year_source": "wiki",
+      "year_source": "date_created_plain",
       "pd_status": "copyrighted",
       "pd_status_reason": "Commons copyrighted license"
     },
@@ -37544,7 +37538,7 @@
       "title": "Concert of Angels (Isenheim Altarpiece)",
       "artist": "Matthias Grünewald",
       "date_created": "circa 1512–1516",
-      "year": 1515,
+      "year": 1512,
       "description": "Isenheim Altarpiece - Concert of Angels",
       "source": {
         "type": "Wikimedia Commons",
@@ -37563,7 +37557,7 @@
       },
       "pd_status": "public_domain",
       "pd_status_reason": "Commons PD license",
-      "year_source": "wiki"
+      "year_source": "date_created_plain"
     },
     "Iván_el_Terrible_y_su_hijo,_por_Iliá_Repin.jpg": {
       "filename": "Iván_el_Terrible_y_su_hijo,_por_Iliá_Repin.jpg",
@@ -38068,7 +38062,7 @@
       "title": "The Creation of the Animals",
       "artist": "Tintoretto",
       "date_created": "circa 1550–1553",
-      "year": 1551,
+      "year": 1550,
       "description": "Jacopo Tintoretto — Creation of the Animals",
       "source": {
         "type": "Wikimedia Commons",
@@ -38087,7 +38081,7 @@
       },
       "pd_status": "public_domain",
       "pd_status_reason": "Commons PD license",
-      "year_source": "wiki"
+      "year_source": "date_created_plain"
     },
     "James_Abbot_McNeill_Whistler_006.jpg": {
       "filename": "James_Abbot_McNeill_Whistler_006.jpg",
@@ -38563,7 +38557,7 @@
       "title": "Allegory of sight",
       "artist": "Jan Brueghel the Elder / Peter Paul Rubens",
       "date_created": "1617 / between 1585 and 1625 date QS:P,+1500-00-00T00:00:00Z/6,P1319,+1585-00-00T00:00:00Z/9,P1326,+1625-00-00T00:00:00Z/9",
-      "year": 1617,
+      "year": 1585,
       "description": null,
       "source": {
         "type": "Wikimedia Commons",
@@ -38603,7 +38597,7 @@
           "de": "Sehsinn"
         }
       },
-      "year_source": "story_research",
+      "year_source": "wikidata_qs",
       "pd_status": "public_domain",
       "pd_status_reason": "Commons PD license",
       "story": "The year on the file is wrong; this is 1617, not 1585. Brueghel was still a teenager then, and Rubens unborn. Sight is the first of a five-part collaboration: Brueghel painted the setting (a collector's cabinet crammed with telescopes, globes, tapestries, and roughly eighty paintings), Rubens added the nude Venus and the winged putto holding up a picture of Christ healing a blind man. The series was a gift from the Count Palatine to the Cardinal-Infante in 1634, later Philip IV's. It's been at the Prado since the museum opened in 1819."
@@ -39116,7 +39110,7 @@
       "title": "Reclining Venus",
       "artist": "Jean-Auguste-Dominique Ingres / After Titian",
       "date_created": "1822",
-      "year": 1822,
+      "year": 1538,
       "description": "Ingres was deeply inspired by ancient Greek and Roman art as well by Italian painting of the High Renaissance. Although he spent much of his career in Rome, he resided in Florence from 1820 to 1824, where he painted this copy of Titian's \"Venus of Urbino\" (1538), from the collection at the Pitti Palace. \"The Venus of Urbino\" had inspired generations of artists. Ingres's version is the same size as the original. He intended it to serve as a model for his close friend, the sculptor Lorenzo Bartolini (1777-1850), who was creating a sculpture based on the same subject.",
       "source": {
         "type": "Wikimedia Commons",
@@ -39150,7 +39144,7 @@
           "pt": "Vénus reclinada"
         }
       },
-      "year_source": "date_created_plain",
+      "year_source": "description",
       "pd_status": "public_domain",
       "pd_status_reason": "Commons PD license",
       "story": "Ingres was in his Florence years, 1820 to 1824, when he copied Titian's Venus of Urbino full-size from the Pitti Palace. Not a student exercise: he made it for his friend the sculptor Lorenzo Bartolini, who was planning a marble of the same pose and wanted a working reference. The point was to feel Titian's warmth through his own cold, flawless line - and for once, to let himself lose. The canvas ended up with Henry Walters in Baltimore, where it still lives."
@@ -40995,7 +40989,7 @@
       "title": "Thor's Battle with the Midgard Serpent",
       "artist": "Henry Fuseli",
       "date_created": "1788 date QS:P571,+1788-00-00T00:00:00Z/9",
-      "year": 1790,
+      "year": 1788,
       "description": null,
       "source": {
         "type": "Wikimedia Commons",
@@ -41013,7 +41007,7 @@
         "license_url": null,
         "usage_terms": "Public domain"
       },
-      "year_source": "story_research",
+      "year_source": "wikidata_qs",
       "pd_status": "public_domain",
       "pd_status_reason": "Commons PD license",
       "story": "Thor leans so far over the gunwale his ox-head bait drags the water, and up from the deep rises Jörmungandr, the world-girdling serpent. The giant Hymir cowers astern; Odin watches from a bank of cloud. Fuseli, an enthusiast of the French Revolution, half-admitted that the god thrashing the monster had contemporary overtones. He submitted the canvas as his diploma work and was elected to the Royal Academy on the strength of it in 1790. It still hangs in the RA's collection in Burlington House.",
@@ -42321,7 +42315,7 @@
       "title": "John Liston Byam Shaw Boer War",
       "artist": "John Byam Liston Shaw",
       "date_created": "2008 (upload date)",
-      "year": 2008,
+      "year": null,
       "description": "Boer War",
       "source": {
         "type": "Wikimedia Commons",
@@ -42338,7 +42332,6 @@
         "license_url": null,
         "usage_terms": "Public domain"
       },
-      "year_source": "date_created_plain",
       "pd_status": "uraa_restricted",
       "pd_status_reason": "year 2008 is >= 1931; US 95-year copyright term not yet expired"
     },
@@ -44717,7 +44710,7 @@
       "title": "Fall of the Rhine at Schaffhausen",
       "artist": "J. M. W. Turner",
       "date_created": "between circa 1805 and circa 1806 date QS:P,+1805-00-00T00:00:00Z/8,P1319,+1805-00-00T00:00:00Z/9,P1326,+1806-00-00T00:00:00Z/9,P1480,Q5727902",
-      "year": 1806,
+      "year": 1805,
       "description": null,
       "source": {
         "type": "Wikimedia Commons",
@@ -44747,7 +44740,7 @@
         "movement": "Romanticism",
         "pd_status": "public_domain_worldwide"
       },
-      "year_source": "story_research",
+      "year_source": "wikidata_qs",
       "pd_status": "public_domain",
       "pd_status_reason": "Commons PD license",
       "story": "Turner stood at the Rhine Falls in 1802 and came back obsessed. Exhibited in 1806, this canvas catches the thunder by flattening white paint with a palette knife so the water looks as solid as the rocks. In the foreground, a mother snatches her child away from fighting carthorses - a small human panic dwarfed by geology. The Museum of Fine Arts in Boston bought it in 1913 and it's been theirs ever since.",
@@ -45864,7 +45857,7 @@
       "title": "Judith Beheading Holofernes",
       "artist": "Artemisia Gentileschi",
       "date_created": "from 1614 until 1620 date QS:P571,+1650-00-00T00:00:00Z/7,P580,+1614-00-00T00:00:00Z/9,P582,+1620-00-00T00:00:00Z/9",
-      "year": 1612,
+      "year": 1614,
       "description": "Two women pin down a man on a bed. With one hand, Judith holds his head; with the other, she slices his throat with a long sword. The intensity of the scene is highlighted by the dripping blood soaking the white bed sheets and the man's eyes wide open — conscious, but helpless. Artemisia is more a champion of strong women rather than a woman obsessed with violence and revenge.",
       "source": {
         "type": "Wikimedia Commons",
@@ -45891,7 +45884,7 @@
           "ru": "Юдифь, обезглавливающая Олоферна"
         }
       },
-      "year_source": "story_research",
+      "year_source": "wikidata_qs",
       "pd_status": "public_domain",
       "pd_status_reason": "Commons PD license",
       "story": "The earlier of Artemisia's two great 'Judiths,' painted around 1612-1613 and now at the Museo di Capodimonte in Naples; the better-known Uffizi version followed about a decade later. Judith and her maid Abra pin the drunken Assyrian general to the bed; Judith, sleeves rolled up, braces one hand against his head while the other drives a long sword through his throat. Blood soaks the white sheets in thick ropes. She was around twenty when she painted it, roughly a year after her rape trial against Agostino Tassi."
@@ -46174,7 +46167,7 @@
       "title": "Jupiter and Juno (fragment)",
       "artist": "Annibale Carracci",
       "date_created": "circa 1597–1602",
-      "year": 1602,
+      "year": 1597,
       "description": "Jupiter and Juno (1602), Palazzo Farnese",
       "source": {
         "type": "Wikimedia Commons",
@@ -46191,7 +46184,7 @@
         "license_url": "https://creativecommons.org/licenses/by-sa/4.0",
         "usage_terms": "Creative Commons Attribution-Share Alike 4.0"
       },
-      "year_source": "wiki",
+      "year_source": "date_created_plain",
       "pd_status": "copyrighted",
       "pd_status_reason": "Commons copyrighted license"
     },
@@ -47089,7 +47082,7 @@
       "title": "Katsushika Hokusai, Goten-yama hill, Shinagawa on the Tōkaidō, ca. 1832",
       "artist": "Katsushika Hokusai",
       "date_created": "between 1890 and 1940 date QS:P,+1500-00-00T00:00:00Z/6,P1319,+1890-00-00T00:00:00Z/9,P1326,+1940-00-00T00:00:00Z/9 (this print)",
-      "year": 1890,
+      "year": 1832,
       "description": "東海道品川御殿山の不二 ( Tōkaidō Shinagawa Goten'yama no Fuji , Goten-yama hill, Shinagawa on the Tōkaidō)",
       "source": {
         "type": "Wikimedia Commons",
@@ -47107,7 +47100,7 @@
         "license_url": null,
         "usage_terms": "Public domain"
       },
-      "year_source": "wikidata_qs",
+      "year_source": "filename",
       "pd_status": "public_domain",
       "pd_status_reason": "Commons PD license",
       "story": "Cherry trees lean out over the bluff at Goten-yama, their blossoms crowding the top of the frame while tiny picnickers cluster below and travellers on the Tokaido road thread past thatched teahouses. Way back across Edo Bay, Mount Fuji sits small and blue, almost an afterthought - the whole point of the Thirty-six Views series was to catch the mountain from every ordinary angle people actually saw it. This is the spring version: the famous peak reduced to a blue triangle behind a wall of pink, which is really what hanami in Edo felt like anyway."
@@ -47166,7 +47159,7 @@
         "license_url": "https://creativecommons.org/licenses/by/3.0",
         "usage_terms": "Creative Commons Attribution 3.0"
       },
-      "year_source": "wiki",
+      "year_source": "date_created_plain",
       "pd_status": "copyrighted",
       "pd_status_reason": "Commons copyrighted license"
     },
@@ -47211,7 +47204,7 @@
           "ja": "相州大山ろうべんの滝"
         }
       },
-      "year_source": "story_research",
+      "year_source": "wikidata_qs",
       "pd_status": "public_domain",
       "pd_status_reason": "Commons PD license",
       "story": "The falls at Oyama were no scenic stop. Pilgrims climbing to the mountain's shrines had to strip, stand beneath the cascade, and let the cold water hammer them clean. Hokusai catches them mid-ritual: some braced under the torrent, others dressing, a few cradling wooden swords meant as offerings higher up the slope. Prussian blue deepens the plunge pool. It's part of A Tour of Waterfalls in Various Provinces, the first ukiyo-e series ever devoted entirely to falling water, published around 1833.",
@@ -47272,7 +47265,7 @@
       "title": "下野黒髪山きりふりの滝（しもつけくろかみやまきりふるのたき）",
       "artist": "Katsushika Hokusai",
       "date_created": "2014-11-25 1835",
-      "year": 1833,
+      "year": 1835,
       "description": "Katsushika Hokusai (1760-1849), Kirifuri waterfall near Kurokami mountain (1835). Collection of Japanese prints of Centre Céramique, Maastricht, the Netherlands",
       "source": {
         "type": "Wikimedia Commons",
@@ -47301,7 +47294,7 @@
         "movement": "Ukiyo-e",
         "pd_status": "public_domain_worldwide"
       },
-      "year_source": "story_research",
+      "year_source": "date_created_plain",
       "pd_status": "public_domain",
       "pd_status_reason": "Commons PD license",
       "story": "The water doesn't fall so much as braid, splitting into pale ropes that coil down the rock like tentacles. Three travellers stare up from the base; two more peer down from a ledge, so small you almost miss them. That's the trick: the pilgrims exist to make the cascade enormous. Kirifuri, on Mount Kurokami in Shimotsuke, is still ranked among Japan's hundred most beautiful waterfalls. This print is part of Hokusai's A Tour of Waterfalls in Various Provinces, published around 1832-33.",
@@ -47688,7 +47681,7 @@
       "title": "Hairdresser (Kamiyui) from the series 'Twelve types of women's handicraft (Fujin tewaza juniko)'",
       "artist": "Kitagawa Utamaro",
       "date_created": "c.1797-98",
-      "year": 1798,
+      "year": 1797,
       "description": null,
       "source": {
         "type": "Wikimedia Commons",
@@ -47717,7 +47710,7 @@
         "movement": "Ukiyo-e",
         "pd_status": "public_domain_worldwide"
       },
-      "year_source": "story_research",
+      "year_source": "date_created_plain",
       "pd_status": "public_domain",
       "pd_status_reason": "Commons PD license",
       "story": "One woman's hands are deep in another woman's hair, combing and shaping while the client holds perfectly still. Utamaro's Twelve Types of Women's Handicraft went through the working life of Edo women one craft at a time, cotton ginning, weaving, sewing, embroidery, painting. Hairdressing got its own sheet. The series was published by Wakasaya Yoichi around 1798-99 as vertical oban prints, and this one puts the viewer close enough to feel the tug at the scalp.",
@@ -47898,7 +47891,7 @@
         "license_url": null,
         "usage_terms": "Public domain"
       },
-      "year_source": "wiki",
+      "year_source": "date_created_plain",
       "pd_status": "public_domain",
       "pd_status_reason": "Commons PD license",
       "story": "Kunisada rarely worked landscape, and this 1832 view of Futamigaura feels like the pupil of portraitists stretching into something new. The Meoto Iwa — the 'Wedded Rocks' linked by a shimenawa rope — sit centre as tiny worshippers kneel on the shore. What's striking is the sky: black night still hanging at the crown, a prismatic sunrise breaking in hard diagonal rays, a flock of birds thrown across them. It's less Hokusai's patient geometry than a sudden splash of theatre lighting on a sacred site."
@@ -48325,7 +48318,7 @@
         "license_url": null,
         "usage_terms": "Public domain"
       },
-      "year_source": "wiki",
+      "year_source": "date_created_plain",
       "pd_status": "public_domain",
       "pd_status_reason": "Commons PD license",
       "story": "A photograph of Raphael's painting on the wall of the Galleria Nazionale d'Arte Antica in Rome, gilt frame and all. The sitter, by tradition Margherita Luti, a baker's daughter from Trastevere and Raphael's lover, holds a sheer veil across her body with studied casualness. Look at her left arm: a blue ribbon bears the inscription RAPHAEL VRBINAS, as if she were a work he signed. The picture was on his easel, unfinished, when he died in 1520. The wide pristine frame and the slight glare are Livioandronico2013's photograph; the painting inside is Raphael's."
@@ -49665,7 +49658,7 @@
       "title": "Alain Chartier Alternative title: Margaret of Scotland, Dauphine of France, one day discovered Alain Chartier, the poet, asleep. In the prescence of her attendants, she stopped and kissed his lips, saying, \"Parce qu'elles avaient dit de si belles choses.\"",
       "artist": "Edmund Blair Leighton",
       "date_created": "1903 date QS:P571,+1903-00-00T00:00:00Z/9",
-      "year": 1903,
+      "year": null,
       "description": "Description from Christie's.",
       "source": {
         "type": "Wikimedia Commons",
@@ -49694,7 +49687,6 @@
         "movement": "Academicism",
         "pd_status": "public_domain_worldwide"
       },
-      "year_source": "wikidata_qs",
       "pd_status": "public_domain",
       "pd_status_reason": "Commons PD license",
       "story": "The story goes that Margaret of Scotland, passing through a French court around 1428, found the poet Alain Chartier asleep in a chair and kissed him on the mouth. Her scandalized ladies asked how she could kiss so ugly a man. \"I did not kiss the man,\" she said, \"but the mouth that has uttered so many beautiful things.\" Leighton stages the kiss itself: Margaret bent low, the attendants in frozen disbelief, Chartier still oblivious. Exhibited 1903."
@@ -49706,7 +49698,7 @@
       "title": "God Speed",
       "artist": "Edmund Blair Leighton",
       "date_created": "1900",
-      "year": 1900,
+      "year": null,
       "description": null,
       "source": {
         "type": "Wikimedia Commons",
@@ -49751,7 +49743,6 @@
           "el": "God Speed (πίνακας)"
         }
       },
-      "year_source": "date_created_plain",
       "pd_status": "public_domain",
       "pd_status_reason": "Commons PD license",
       "story": "A knight in polished plate leans from his saddle; his lady, halfway up a turret step, ties a red sash to his arm. Her maids watch with the careful blankness of people who have seen this scene end both ways. Leighton painted it in 1900, at the high tide of Victorian chivalric nostalgia, and it became one of his most reproduced images. The little dog at the bottom of the stairs is the giveaway that he never took himself too seriously."
@@ -49763,7 +49754,7 @@
       "title": "Stitching the Standard",
       "artist": "Edmund Blair Leighton",
       "date_created": "1911 date QS:P571,+1911-00-00T00:00:00Z/9",
-      "year": 1911,
+      "year": null,
       "description": "See Sotheby's for more info.",
       "source": {
         "type": "Wikimedia Commons",
@@ -49792,7 +49783,6 @@
         "movement": "Academicism",
         "pd_status": "public_domain_worldwide"
       },
-      "year_source": "wikidata_qs",
       "pd_status": "public_domain",
       "pd_status_reason": "Commons PD license",
       "story": "A young woman on a castle battlement puts the last stitches into a banner, a black eagle on gold, while her gaze drifts out over the valley to wherever the war actually is. Leighton painted it in 1911, three years before the whole medieval-revival daydream would collide with the Somme. In hindsight the picture feels less innocent than it meant to. Oil on canvas."
@@ -49804,7 +49794,7 @@
       "title": "The King and the Beggar-maid",
       "artist": "Edmund Blair Leighton",
       "date_created": "1898 date QS:P571,+1898-00-00T00:00:00Z/9",
-      "year": 1898,
+      "year": null,
       "description": null,
       "source": {
         "type": "Wikimedia Commons",
@@ -49833,7 +49823,6 @@
         "movement": "Academicism",
         "pd_status": "public_domain_worldwide"
       },
-      "year_source": "wikidata_qs",
       "pd_status": "public_domain",
       "pd_status_reason": "Commons PD license",
       "story": "Tennyson's poem told the old legend in miniature: King Cophetua, bored of princesses, falls for a barefoot beggar girl and crowns her on the spot. Leighton paints the crowning itself. She stands pale and still in her rags while the king's courtiers pretend very hard not to gossip. The throne room is done up in jewel tones and gold leaf, as if the painting itself can't quite believe what's happening. 1898."
@@ -50022,7 +50011,7 @@
         "license_url": "http://creativecommons.org/publicdomain/zero/1.0/deed.en",
         "usage_terms": "Creative Commons Zero, Public Domain Dedication"
       },
-      "year_source": "wiki",
+      "year_source": "date_created_plain",
       "pd_status": "copyrighted",
       "pd_status_reason": "Commons copyrighted license"
     },
@@ -50263,7 +50252,7 @@
       },
       "pd_status": "copyrighted",
       "pd_status_reason": "Commons copyrighted license",
-      "year_source": "wiki"
+      "year_source": "date_created_plain"
     },
     "Los_horrores_de_la_guerra.jpg": {
       "filename": "Los_horrores_de_la_guerra.jpg",
@@ -50749,7 +50738,7 @@
       "title": "Hercules Relieving Atlas of the Globe",
       "artist": "Lucas Cranach the Elder",
       "date_created": "circa 1530 date QS:P571,+1530-00-00T00:00:00Z/9,P1480,Q5727902",
-      "year": 1537,
+      "year": 1530,
       "description": null,
       "source": {
         "type": "Wikimedia Commons",
@@ -50772,7 +50761,7 @@
           "de": "Herkules nimmt Atlas die Last der Weltenkugel"
         }
       },
-      "year_source": "story_research",
+      "year_source": "wikidata_qs",
       "pd_status": "public_domain",
       "pd_status_reason": "Commons PD license",
       "story": "Atlas has been holding up the sky for eternity and his shoulders have had enough. Hercules, mid-labour, takes over the load while Atlas fetches the golden apples of the Hesperides. Cranach pins the two men in a narrow vertical panel, letting the weight of the celestial globe compress everything downward. A Latin inscription at top-left, SYDEREVM FESSO GESTAT ATLANTE POLVM, notes that a weary Atlas carries the starry pole. The painting dates to around 1537.",
@@ -53301,7 +53290,7 @@
       "title": "Madame X (Madame Pierre Gautreau)",
       "artist": "John Singer Sargent (American, Florence 1856–1925 London) (1856 - 1925) – Artist Details on Google Art Project",
       "date_created": "1883–84",
-      "year": 1884,
+      "year": 1883,
       "description": null,
       "source": {
         "type": "Wikimedia Commons",
@@ -53330,7 +53319,7 @@
         "movement": "Realism / Impressionism",
         "pd_status": "public_domain_worldwide"
       },
-      "year_source": "story_research",
+      "year_source": "date_created_plain",
       "story": "Virginie Amelie Avegno Gautreau was Louisiana-born, Paris-married, and famous for powdering her skin a pale lavender. Sargent chased her for months before she sat. When he finally showed the portrait at the Salon of 1884 under the alias 'Portrait de Mme ***,' the one jeweled strap slipping off her right shoulder read as a nightgown falling open - the crowd jeered, her mother begged him to withdraw it, and Sargent painted the strap back up onto her shoulder after the exhibition closed. He kept the canvas in his studio for over thirty years. 'I suppose it is the best thing I have done,' he finally wrote when the Met bought it in 1916.",
       "pd_status": "public_domain",
       "pd_status_reason": "Commons PD license"
@@ -54442,7 +54431,7 @@
         "license_url": null,
         "usage_terms": "Public domain"
       },
-      "year_source": "wiki",
+      "year_source": "date_created_plain",
       "pd_status": "public_domain",
       "pd_status_reason": "Commons PD license",
       "story": "A red-chalk study for the Libyan Sibyl on the Sistine ceiling, around 1511. Michelangelo worked out the twisting pose from a male studio model, then painted the figure as a woman high above the altar. You can see him testing the torso over and over, the great diagonal of the shoulders, the foreshortened toe, close-ups of the left hand and the profile head. The paper is worn and foxed; his initials are scrawled along the bottom. Drawings like this are where the ceiling was actually invented. Metropolitan Museum of Art, New York."
@@ -54471,7 +54460,7 @@
         "license_url": null,
         "usage_terms": "Public domain"
       },
-      "year_source": "wiki",
+      "year_source": "date_created_plain",
       "pd_status": "uraa_restricted",
       "pd_status_reason": "year 1931 is >= 1931; US 95-year copyright term not yet expired"
     },
@@ -54846,7 +54835,7 @@
       "title": "Pond at Montgeron",
       "artist": "Claude Monet",
       "date_created": "1877 date QS:P571,+1877-00-00T00:00:00Z/9",
-      "year": 1876,
+      "year": 1877,
       "description": "Monet, Pond-at-Montgeron.jpg",
       "source": {
         "type": "Wikimedia Commons",
@@ -54885,7 +54874,7 @@
           "ru": "Пруд в Монжероне"
         }
       },
-      "year_source": "story_research",
+      "year_source": "wikidata_qs",
       "pd_status": "public_domain",
       "pd_status_reason": "Commons PD license",
       "story": "Ernest Hoschedé, a department-store financier, commissioned four big decorative canvases for the round salon of his Montgeron château. This is one of them: a lily-dabbed pond with the barely-there silhouette of a woman holding a fishing rod in the middle distance. That woman is almost certainly Alice Hoschedé, Ernest's wife, who a few years later, after Ernest's bankruptcy, would move in with the Monets and eventually become Monet's second wife. The canvas is huge, nearly two metres across, and now hangs at the Hermitage in Saint Petersburg.",
@@ -55538,7 +55527,7 @@
       "title": "Grainstacks, White Frost Effect",
       "artist": "Claude Monet",
       "date_created": "from 1888 until 1889 date QS:P,+1888-00-00T00:00:00Z/8,P580,+1888-00-00T00:00:00Z/9,P582,+1889-00-00T00:00:00Z/9",
-      "year": 1889,
+      "year": 1888,
       "description": null,
       "source": {
         "type": "Wikimedia Commons",
@@ -55572,7 +55561,7 @@
           "fr": "Les Meules, effet de gelée blanche"
         }
       },
-      "year_source": "story_research",
+      "year_source": "wikidata_qs",
       "pd_status": "public_domain",
       "pd_status_reason": "Commons PD license",
       "story": "Two grainstacks in a field outside Giverny, furred with morning frost, the sun just burning through. This is one of the precursors to Monet's famous Haystacks series — painted in the winter of 1888–89, two years before he properly launched the sequence of twenty-five. The stacks belonged to a neighbor farmer and stood just behind Monet's house. The picture is held at the Hill-Stead Museum in Farmington, Connecticut, in a room arranged exactly as its collector Theodate Pope left it in 1946."
@@ -56289,7 +56278,7 @@
       "title": "Monet - Wildenstein 1996, 1497",
       "artist": "Claude Monet",
       "date_created": null,
-      "year": 1897,
+      "year": null,
       "description": null,
       "source": {
         "type": "Wikimedia Commons",
@@ -56318,7 +56307,6 @@
         "movement": "Impressionism",
         "pd_status": "public_domain_worldwide"
       },
-      "year_source": "story_research",
       "pd_status": "public_domain",
       "pd_status_reason": "Commons PD license",
       "story": "By 1897 Monet barely needed to leave his garden - Giverny was the motif. This clump of chrysanthemums, painted close up and almost filling the frame, is practically abstract: a hot orange and crimson mat with nothing behind it, no horizon, no ground. You can feel him working his way toward the huge lily pictures still twenty years off. Signed and dated '97, catalogued as W.1497 in Wildenstein's 1996 raisonne.",
@@ -56331,7 +56319,7 @@
       "title": "Monet - Wildenstein 1996, 1661",
       "artist": "Claude Monet",
       "date_created": null,
-      "year": 1907,
+      "year": null,
       "description": null,
       "source": {
         "type": "Wikimedia Commons",
@@ -56360,7 +56348,6 @@
         "movement": "Impressionism",
         "pd_status": "public_domain_worldwide"
       },
-      "year_source": "story_research",
       "pd_status": "public_domain",
       "pd_status_reason": "Commons PD license",
       "story": "By 1907 Monet had been painting his lily pond for a decade and had stopped including the banks. No horizon, no ground - just water, sky reflected in water, and the flat pink pads. He was sixty-seven, his eyesight already troubling him, and he'd destroy canvases he wasn't satisfied with by kicking them. This one survived. It catalogued as Wildenstein 1661 and belongs to the Musee Marmottan Monet in Paris, which holds the largest Monet collection in the world thanks to a bequest from his son Michel.",
@@ -56373,7 +56360,7 @@
       "title": "Monet - Wildenstein 1996, 1823",
       "artist": "Claude Monet",
       "date_created": null,
-      "year": 1823,
+      "year": null,
       "description": null,
       "source": {
         "type": "Wikimedia Commons",
@@ -56402,7 +56389,6 @@
         "movement": "Impressionism",
         "pd_status": "public_domain_worldwide"
       },
-      "year_source": "filename",
       "pd_status": "public_domain",
       "pd_status_reason": "Commons PD license",
       "story": "Water lilies with irises spiking up through the reflections — a Giverny motif Monet worked hard in the war years. He was in his seventies, half-blind from cataracts, and still carrying easels down to the pond at dawn. The purple stabs of iris break the horizontal drift of the pads and the mirrored sky, a vertical he liked when he felt a canvas needed an anchor. It is catalogued in Daniel Wildenstein's 1996 raisonné at number 1823, part of the long last reckoning with his garden."
@@ -56414,7 +56400,7 @@
       "title": "Monet - dahlias",
       "artist": "Claude Monet",
       "date_created": "before 1926 date QS:P571,+1926-00-00T00:00:00Z/7,P1326,+1926-00-00T00:00:00Z/9",
-      "year": 1873,
+      "year": 1926,
       "description": "Work by Claude Monet",
       "source": {
         "type": "Wikimedia Commons",
@@ -56443,7 +56429,7 @@
         "movement": "Impressionism",
         "pd_status": "public_domain_worldwide"
       },
-      "year_source": "story_research",
+      "year_source": "wikidata_qs",
       "pd_status": "public_domain",
       "pd_status_reason": "Commons PD license",
       "story": "Painted in 1873 while Monet was renting the pink house at Argenteuil, this is his own back garden: tall dahlias blazing red and pink against a wooden fence, the steep roofs of suburban villas pushing up behind. He was thirty-three, newly flush from a run of sales, and would plant and paint this garden obsessively for the next three years until the rent caught up with him. Dahlias were a relatively new flower in France at the time, prized for their outrageous colour in the Paris flower market.",
@@ -56589,7 +56575,7 @@
       "title": "Monet 1401",
       "artist": "Claude Monet",
       "date_created": "2021-01-02",
-      "year": 1895,
+      "year": null,
       "description": "Claude Monet, The Fjord near Christiania, W.1401",
       "source": {
         "type": "Wikimedia Commons",
@@ -56618,7 +56604,6 @@
         "movement": "Impressionism",
         "pd_status": "public_domain_worldwide"
       },
-      "year_source": "story_research",
       "pd_status": "public_domain",
       "pd_status_reason": "Commons PD license",
       "story": "Monet turned 55 in Norway. In early 1895 he went to visit his stepson Jacques Hoschede in Sandviken, outside Christiania (today's Oslo), and ended up staying two months, painting in snowshoes. The fjord paintings are all about that strange pale northern light bouncing off frozen water - no shadows, no warmth, just lilac and rose on white. He wrote home that Mount Kolsaas reminded him of Fuji. Twenty-nine canvases came back with him. This one is W.1401.",
@@ -57286,7 +57271,7 @@
       "title": "Monet w1001",
       "artist": "Claude Monet",
       "date_created": "1856-01-01",
-      "year": 1885,
+      "year": 1856,
       "description": "Claude Monet",
       "source": {
         "type": "Wikimedia Commons",
@@ -57315,7 +57300,7 @@
         "movement": "Impressionism",
         "pd_status": "public_domain_worldwide"
       },
-      "year_source": "story_research",
+      "year_source": "date_created_plain",
       "pd_status": "public_domain",
       "pd_status_reason": "Commons PD license",
       "story": "Almost certainly the departmental road climbing the left bank of the Seine toward Notre-Dame-de-la-Mer, with the houses of Port-Villez visible on the left. 65 by 81 cm, signed 85. The collector Georges Viau owned it, then Mrs Gustavia A. Senff of New York from 1916, before it surfaced at a Sotheby Parke Bernet sale in 1974 and went to a Swiss private buyer.",
@@ -57328,7 +57313,7 @@
       "title": "Monet w1003",
       "artist": "Claude Monet",
       "date_created": "1856-01-01",
-      "year": 1885,
+      "year": 1856,
       "description": "Claude Monet",
       "source": {
         "type": "Wikimedia Commons",
@@ -57357,7 +57342,7 @@
         "movement": "Impressionism",
         "pd_status": "public_domain_worldwide"
       },
-      "year_source": "story_research",
+      "year_source": "date_created_plain",
       "pd_status": "public_domain",
       "pd_status_reason": "Commons PD license",
       "story": "The houses of Port-Villez on the right, dominated by the Gibet hill, are half-masked by the trees of a little island in the foreground. 65 by 92 cm, signed 85. Durand-Ruel probably bought it that December. It then passed through the Desfosses collection, sold at the Hotel Desfosses in 1899, and eventually to Herbert and Elizabeth Wechsler in the United States around 1965.",
@@ -57625,7 +57610,7 @@
       "title": "Monet w1050",
       "artist": "Claude Monet",
       "date_created": "1851-01-01",
-      "year": 1886,
+      "year": 1851,
       "description": "Claude Monet",
       "source": {
         "type": "Wikimedia Commons",
@@ -57654,7 +57639,7 @@
         "movement": "Impressionism",
         "pd_status": "public_domain_worldwide"
       },
-      "year_source": "story_research",
+      "year_source": "date_created_plain",
       "pd_status": "public_domain",
       "pd_status_reason": "Commons PD license",
       "story": "Monet catches the Needle framed through the Porte d'Aval at Etretat, but only at the few hours of low tide when the sea retreats from the arch's feet. He had just months before been racing the light on the Riviera; now, back on the Normandy chalk, the palette cools to grey-greens and foam. Bernheim-Jeune and Durand-Ruel bought it jointly from Monet in May 1920, decades after its 1885-86 making.",
@@ -57667,7 +57652,7 @@
       "title": "Monet w1054",
       "artist": "Claude Monet",
       "date_created": "1851-01-01",
-      "year": 1886,
+      "year": 1851,
       "description": "Claude Monet",
       "source": {
         "type": "Wikimedia Commons",
@@ -57696,7 +57681,7 @@
         "movement": "Impressionism",
         "pd_status": "public_domain_worldwide"
       },
-      "year_source": "story_research",
+      "year_source": "date_created_plain",
       "pd_status": "public_domain",
       "pd_status_reason": "Commons PD license",
       "story": "January 1886, and Monet is out in the snow at Falaise, writing to Alice about the cold. This 66 by 81 cm canvas shows the village from the south, the val de Falaise climbing the slope to the left of the buildings. Faure bought it direct in 1886, then Durand-Ruel in 1893, and eventually Edward G. Robinson the actor owned it in Los Angeles. It went through Sotheby's in 1973.",
@@ -57709,7 +57694,7 @@
       "title": "Monet w1056",
       "artist": "Claude Monet",
       "date_created": "1851-01-01",
-      "year": 1886,
+      "year": 1851,
       "description": "Claude Monet",
       "source": {
         "type": "Wikimedia Commons",
@@ -57738,7 +57723,7 @@
         "movement": "Impressionism",
         "pd_status": "public_domain_worldwide"
       },
-      "year_source": "story_research",
+      "year_source": "date_created_plain",
       "pd_status": "public_domain",
       "pd_status_reason": "Commons PD license",
       "story": "Painted in the main street of Limetz, near the western edge of the village, with the hills of Port-Villez glimpsed at the far end through the snow. One of the winter 1886 canvases Monet squeezed in between the Etretat trips. It passed through Bernheim-Jeune and Durand-Ruel, then Cassirer in 1900, then sat with Parisian collectors until Rene Drouet gave it to the University of California, San Diego in 1972.",
@@ -57778,7 +57763,7 @@
       "title": "Monet w1065",
       "artist": "Claude Monet",
       "date_created": "1851-01-01",
-      "year": 1886,
+      "year": 1851,
       "description": "Claude Monet",
       "source": {
         "type": "Wikimedia Commons",
@@ -57807,7 +57792,7 @@
         "movement": "Impressionism",
         "pd_status": "public_domain_worldwide"
       },
-      "year_source": "story_research",
+      "year_source": "date_created_plain",
       "pd_status": "public_domain",
       "pd_status_reason": "Commons PD license",
       "story": "Before Monet's famous gardens existed, the plot at Giverny was mostly orchard, and here Suzanne Hoschede, his favorite model, stands among the spring blossom. Signed Claude Monet 86, shown at Georges Petit's fifth international exhibition that summer, where Feneon singled Monet out in La Vogue. Durand-Ruel probably bought it off Monet in January 1887. It later went through the dealer Stephen Hahn to a Swiss private collection around 1973.",
@@ -57820,7 +57805,7 @@
       "title": "Monet w1075",
       "artist": "Claude Monet",
       "date_created": "1851-01-01",
-      "year": 1886,
+      "year": 1851,
       "description": "Claude Monet",
       "source": {
         "type": "Wikimedia Commons",
@@ -57849,7 +57834,7 @@
         "movement": "Impressionism",
         "pd_status": "public_domain_worldwide"
       },
-      "year_source": "story_research",
+      "year_source": "date_created_plain",
       "pd_status": "public_domain",
       "pd_status_reason": "Commons PD license",
       "story": "A sketch, not a finished painting: 1.02 by 0.75 m, no signature. Out boating at the ile aux Orties where he kept his skiffs, Monet saw his stepdaughters Germaine and Suzanne Hoschede, their mother Alice, and his son Michel silhouetted against the sky on a raised bank. He blocked in the group left to right in one go, a first pass for the larger plein-air figure studies (W1076, W1077) that followed. It surfaced at the Bonnard sale in Paris in 1954.",
@@ -57862,7 +57847,7 @@
       "title": "Monet w1089",
       "artist": "Claude Monet",
       "date_created": "1851-01-01",
-      "year": 1886,
+      "year": 1851,
       "description": "Claude Monet",
       "source": {
         "type": "Wikimedia Commons",
@@ -57891,7 +57876,7 @@
         "movement": "Impressionism",
         "pd_status": "public_domain_worldwide"
       },
-      "year_source": "story_research",
+      "year_source": "date_created_plain",
       "pd_status": "public_domain",
       "pd_status_reason": "Commons PD license",
       "story": "Signed Claude Monet 87 but actually begun on Belle-Ile in autumn 1886, during the two-month campaign where Monet produced around 39 canvases of the Atlantic cliffs. He finished and dated several back at Giverny the following year. Durand-Ruel bought it from him in November 1887; it drifted through Wiesbaden, then reemerged at a 1975 Johannesburg Sotheby's sale.",
@@ -57945,7 +57930,7 @@
       "title": "Monet w1120",
       "artist": "Claude Monet",
       "date_created": "1851-01-01",
-      "year": 1886,
+      "year": 1851,
       "description": "Claude Monet",
       "source": {
         "type": "Wikimedia Commons",
@@ -57974,7 +57959,7 @@
         "movement": "Impressionism",
         "pd_status": "public_domain_worldwide"
       },
-      "year_source": "story_research",
+      "year_source": "date_created_plain",
       "pd_status": "public_domain",
       "pd_status_reason": "Commons PD license",
       "story": "On the bad-weather days when the Belle-Ile coast was off-limits, Monet set up at a window in Kervilahouen and painted inland. A 60 by 60 cm square: to the left a windmill on the Donnant road, in the middle the hamlet of Cosquet, all of it smeared by rain. His son Michel inherited it and gave it in 1927 to the Societe des Amis de Gustave Geffroy, the critic who'd been Monet's Belle-Ile companion. It hangs today in the Musee des Beaux-Arts in Morlaix.",
@@ -58026,7 +58011,7 @@
       "title": "Poplars in the Sun",
       "artist": "Claude Monet",
       "date_created": "1 January 1851 date QS:P571,+1851-01-01T00:00:00Z/11",
-      "year": 1887,
+      "year": 1851,
       "description": "Claude Monet",
       "source": {
         "type": "Wikimedia Commons",
@@ -58063,7 +58048,7 @@
           "de": "Felder im Frühling"
         }
       },
-      "year_source": "story_research",
+      "year_source": "wikidata_qs",
       "pd_status": "public_domain",
       "pd_status_reason": "Commons PD license",
       "story": "Suzanne Hoschede again, carrying the green parasol from last year's big outdoor decorations, in the flowering meadows of Les Essarts between the two branches of the Epte. Dappled sun, not the later Poplars series. The baritone Jean-Baptiste Faure owned it first; Durand-Ruel and Cassirer passed it on in 1906, and Stuttgart's Gemaldegalerie acquired it that same year, where it still hangs.",
@@ -58115,7 +58100,7 @@
       "title": "Monet w1155",
       "artist": "Claude Monet",
       "date_created": "1851-01-01",
-      "year": 1887,
+      "year": 1851,
       "description": "Claude Monet",
       "source": {
         "type": "Wikimedia Commons",
@@ -58144,7 +58129,7 @@
         "movement": "Impressionism",
         "pd_status": "public_domain_worldwide"
       },
-      "year_source": "story_research",
+      "year_source": "date_created_plain",
       "pd_status": "public_domain",
       "pd_status_reason": "Commons PD license",
       "story": "A double line of poplars in the plaine des Ajoux south of Giverny, a first run at a motif Monet would return to and serialize in 1891. Signed Claude Monet 87. Durand-Ruel bought it from him in 1890, and it passed to Robert Treat Paine of Boston in 1911, who kept it in the family for decades.",
@@ -58198,7 +58183,7 @@
       "title": "Monet w1200",
       "artist": "Claude Monet",
       "date_created": "2015-05-18 18:12:22",
-      "year": 1888,
+      "year": null,
       "description": "Claude Monet, Meadow at Giverny Morning Effect, W.1200",
       "source": {
         "type": "Wikimedia Commons",
@@ -58227,7 +58212,6 @@
         "movement": "Impressionism",
         "pd_status": "public_domain_worldwide"
       },
-      "year_source": "story_research",
       "pd_status": "public_domain",
       "pd_status_reason": "Commons PD license",
       "story": "By 1888 Monet had been at Giverny five years and was walking the same meadows over and over, tracking how a single field changed with the hour. This canvas catches one of them at morning: pale light flooding the grass, a rhythm of thin trees, everything in that cool green-and-lavender key he loved before sunlight hardens. No drama, no figures - just the minute when dew is still on the ground. Catalogued as Wildenstein number 1200 in the 1996 raisonne.",
@@ -58240,7 +58224,7 @@
       "title": "Monet w1245",
       "artist": "Claude Monet",
       "date_created": "2012-08-25 16:22:09",
-      "year": 1890,
+      "year": null,
       "description": "Claude Monet, Effect of Spring at Giverny, W.1245",
       "source": {
         "type": "Wikimedia Commons",
@@ -58269,7 +58253,6 @@
         "movement": "Impressionism",
         "pd_status": "public_domain_worldwide"
       },
-      "year_source": "story_research",
       "pd_status": "public_domain",
       "pd_status_reason": "Commons PD license",
       "story": "Spring 1890, Monet's seventh year at Giverny and the year he started buying the house he'd been renting. The field by his door is in full explosion - young poplars, powdery pink blossom, grass the saturated green that only lasts a week or two. He's about to launch the Grainstacks series in the same fields a few months later; you can already feel him noticing how the same spot reads completely differently at a different hour. Catalogue number W.1245.",
@@ -58323,7 +58306,7 @@
       "title": "Monet w1336",
       "artist": "Claude Monet",
       "date_created": "2020-12-28",
-      "year": 1893,
+      "year": null,
       "description": "Claude Monet, Floating Ice near Bennecourt, W.1336",
       "source": {
         "type": "Wikimedia Commons",
@@ -58352,7 +58335,6 @@
         "movement": "Impressionism",
         "pd_status": "public_domain_worldwide"
       },
-      "year_source": "story_research",
       "pd_status": "public_domain",
       "pd_status_reason": "Commons PD license",
       "story": "January 1893, bitter cold, the Seine freezing up near Bennecourt - the same bend where Monet had painted Camille in a white dress twenty-five years earlier. This time no figures. Just ice floes shouldering each other downstream, bare poplars, a sky the colour of pewter. He did a whole small run of these icefloe pictures that winter, working fast before the thaw. Wildenstein catalogue number 1336.",
@@ -58453,7 +58435,7 @@
       "title": "Monet w1524",
       "artist": "Claude Monet",
       "date_created": "2020-12-03",
-      "year": 1903,
+      "year": null,
       "description": "Claude Monet, Charing Cross Bridge, W.1524",
       "source": {
         "type": "Wikimedia Commons",
@@ -58482,7 +58464,6 @@
         "movement": "Impressionism",
         "pd_status": "public_domain_worldwide"
       },
-      "year_source": "story_research",
       "pd_status": "public_domain",
       "pd_status_reason": "Commons PD license",
       "story": "Monet hauled himself to London three winters running, 1899 through 1901, and rented a room at the Savoy with a view over the Thames. From the balcony he worked Charing Cross Bridge in the morning, then turned the easel to Waterloo in the afternoon, chasing the fog. Back in Giverny he kept reworking the canvases for years - this one probably began in 1900 or 1901 and was only signed around 1903. He was after the coal smoke, really: that orange-pink filter London got from a million chimneys. W.1524.",
@@ -58495,7 +58476,7 @@
       "title": "Monet w1558",
       "artist": "Claude Monet",
       "date_created": "2014-04-21 17:36:54",
-      "year": 1903,
+      "year": null,
       "description": "Claude Monet, Waterloo Bridge Overcast, W.1558",
       "source": {
         "type": "Wikimedia Commons",
@@ -58524,7 +58505,6 @@
         "movement": "Impressionism",
         "pd_status": "public_domain_worldwide"
       },
-      "year_source": "story_research",
       "pd_status": "public_domain",
       "pd_status_reason": "Commons PD license",
       "story": "Waterloo Bridge, looking downstream from the Savoy, with the Lambeth factory chimneys smoking on the far bank - Monet loved those chimneys, he told Clemenceau the smoke was what made London worth painting. \"Overcast\" means the sun never really arrives; the whole picture settles into a wet lilac haze with the bridge's arches just barely drawn. Begun on one of his London trips between 1900 and 1901, finished in the studio at Giverny and dated around 1903. Catalogue number W.1558.",
@@ -58578,7 +58558,7 @@
       "title": "Camille sitting on the beach at Trouville",
       "artist": "Claude Monet",
       "date_created": "14 November 1840 date QS:P571,+1840-11-14T00:00:00Z/11",
-      "year": 1870,
+      "year": 1840,
       "description": "Claude Monet",
       "source": {
         "type": "Wikimedia Commons",
@@ -58612,7 +58592,7 @@
           "fr": "Camille assise sur la plage à Trouville"
         }
       },
-      "year_source": "story_research",
+      "year_source": "wikidata_qs",
       "pd_status": "public_domain",
       "pd_status_reason": "Commons PD license",
       "story": "Summer of 1870. Monet, just married to Camille, took her and their three-year-old son Jean to Trouville for a working honeymoon. This small canvas — 38 by 46 centimeters — shows Camille cropped like a snapshot, cut by the frame. Grains of beach sand are stuck into the paint: proof he set the easel up right there on the sand. Weeks later France declared war on Prussia and Monet fled to London to dodge the draft. The picture is at the Yale University Art Gallery, from the Whitney collection.",
@@ -58746,7 +58726,7 @@
       "title": "Monet w1675",
       "artist": "Claude Monet",
       "date_created": "2021-01-23",
-      "year": 1675,
+      "year": null,
       "description": "Claude Monet, Water Lilies, W.1675",
       "source": {
         "type": "Wikimedia Commons",
@@ -58775,7 +58755,6 @@
         "movement": "Impressionism",
         "pd_status": "public_domain_worldwide"
       },
-      "year_source": "description",
       "pd_status": "public_domain",
       "pd_status_reason": "Commons PD license",
       "story": "Late Monet, with the motif almost swallowed by reflection. By the time he worked canvases in the W.1670s range of the Wildenstein catalogue, his eyesight was failing from cataracts and the pond at Giverny had become less a subject than an excuse to mix color. No horizon, no shore, no clear up or down. Just water, sky, and the thick pads of nymphéas pushed across the surface with a loaded brush. He insisted the garden was his most beautiful masterpiece, and he kept returning to it until the year he died, in 1926."
@@ -58787,7 +58766,7 @@
       "title": "Monet w1695",
       "artist": "Clause Monet",
       "date_created": "2021-02-14",
-      "year": 1695,
+      "year": null,
       "description": "Claude Monet, Water Lilies, W.1695",
       "source": {
         "type": "Wikimedia Commons",
@@ -58816,7 +58795,6 @@
         "movement": "Impressionism",
         "pd_status": "public_domain_worldwide"
       },
-      "year_source": "description",
       "pd_status": "public_domain",
       "pd_status_reason": "Commons PD license",
       "story": "Catalogue number W.1695 in Daniel Wildenstein's raisonné, this is one of the Water Lily canvases Monet painted at Giverny in his late seventies. The attribution to 'Clause Monet' on Wikimedia is a transcription slip — it is Claude. By this stage the pond had become his entire subject: the banks are gone, the horizon is gone, and what remains is a floating field of lilies and reflected sky, painted with eyes so clouded by cataracts that he worked largely by colour memory."
@@ -58910,7 +58888,7 @@
       "title": "Monet w1726",
       "artist": "Claude Monet",
       "date_created": "2014-06-24 10:45:50",
-      "year": 1726,
+      "year": null,
       "description": "Claude Monet, Water Lilies, W.1726",
       "source": {
         "type": "Wikimedia Commons",
@@ -58939,7 +58917,6 @@
         "movement": "Impressionism",
         "pd_status": "public_domain_worldwide"
       },
-      "year_source": "description",
       "pd_status": "public_domain",
       "pd_status_reason": "Commons PD license",
       "story": "One canvas in the enormous late water-lily harvest. By the 1900s Monet had turned his Giverny pond into a private motif factory, painting the same few square meters of water in every hour of light. The pads sit, the reflections drift, and the eye never quite finds a place to rest. He told a visitor the pond took him a long time to understand before he could paint it, and then all at once he saw it. This one belongs to that patient, obsessive looking, and lives in a private collection."
@@ -59033,7 +59010,7 @@
       "title": "Monet w182",
       "artist": "Claude Monet",
       "date_created": "1840-11-14",
-      "year": 1871,
+      "year": 1840,
       "description": "Claude Monet",
       "source": {
         "type": "Wikimedia Commons",
@@ -59062,7 +59039,7 @@
         "movement": "Impressionism",
         "pd_status": "public_domain_worldwide"
       },
-      "year_source": "story_research",
+      "year_source": "date_created_plain",
       "pd_status": "public_domain",
       "pd_status_reason": "Commons PD license",
       "story": "Holland, summer 1871. Exiled by the Franco-Prussian War, Monet detoured from London to Zaandam on Daubigny's tip and stayed five months. He painted twenty-odd canvases of windmills, canals, and the flat lit horizon of the Voorzaan. The mills were working industry, not picturesque ruins — sawing timber, grinding spices, pressing oil — and he painted them as machines against sky. W.182 is one of the Zaandam group, the trip that reset his eye just before he settled into Argenteuil.",
@@ -59075,7 +59052,7 @@
       "title": "The Water-Lily Pond",
       "artist": "Claude Monet",
       "date_created": "14 November 1840 date QS:P571,+1840-11-14T00:00:00Z/11",
-      "year": 1919,
+      "year": 1840,
       "description": "Claude Monet",
       "source": {
         "type": "Wikimedia Commons",
@@ -59110,7 +59087,7 @@
           "de": "Das Seerosenbecken"
         }
       },
-      "year_source": "story_research",
+      "year_source": "wikidata_qs",
       "pd_status": "public_domain",
       "pd_status_reason": "Commons PD license",
       "story": "Oil on canvas, 131 by 201 centimeters, painted in 1919. Monet was seventy-nine. He had drained and re-stocked the lily pond, had cataract surgery looming, and was already deep into the room-sized panels for the state. This Water-Lily Pond is one of a handful of two-meter canvases in which he let the motif go wide and almost abstract — pads and reflections, no shore, no sky except the sky caught in the water. It's at the Museum Folkwang in Essen (inv. G 343).",
@@ -59367,7 +59344,7 @@
       "title": "Monet w222",
       "artist": "Claude Monet",
       "date_created": "1840-11-14",
-      "year": 1872,
+      "year": 1840,
       "description": "Claude Monet",
       "source": {
         "type": "Wikimedia Commons",
@@ -59396,7 +59373,7 @@
         "movement": "Impressionism",
         "pd_status": "public_domain_worldwide"
       },
-      "year_source": "story_research",
+      "year_source": "date_created_plain",
       "pd_status": "public_domain",
       "pd_status_reason": "Commons PD license",
       "story": "A strolling couple in a straw hat and a dark dress, a child in tow — Monet painting his own patch of Argenteuil in 1872, the year he'd moved his family into a rented house along the Seine. He was 32 and broke, dodging creditors, but the garden paths and tree-lined promenades of this river suburb gave him subject after subject. Quick, broken strokes for the leaves; a softer wash for the sky. The picture has stayed in private hands."
@@ -59486,7 +59463,7 @@
       "title": "Monet w265",
       "artist": "Claude Monet",
       "date_created": "1840-11-14",
-      "year": 1873,
+      "year": 1840,
       "description": "Claude Monet",
       "source": {
         "type": "Wikimedia Commons",
@@ -59515,7 +59492,7 @@
         "movement": "Impressionism",
         "pd_status": "public_domain_worldwide"
       },
-      "year_source": "story_research",
+      "year_source": "date_created_plain",
       "pd_status": "public_domain",
       "pd_status_reason": "Commons PD license",
       "story": "Sainte-Adresse, 1873 — the Norman coast just north of Le Havre, where Monet's father and aunt had a villa and where he kept returning to paint the Channel. A regatta scene: small sails tipping across choppy water, the kind of brisk day that turns the sea silver-green. He'd already painted the same shore in 1867 with his family parked on the terrace; six years later he'd dropped the figures and gone straight for weather. Private collection."
@@ -59566,7 +59543,7 @@
       "title": "Monet w327",
       "artist": "Claude Monet",
       "date_created": "1840-11-14",
-      "year": 1875,
+      "year": 1840,
       "description": "Claude Monet",
       "source": {
         "type": "Wikimedia Commons",
@@ -59595,7 +59572,7 @@
         "movement": "Impressionism",
         "pd_status": "public_domain_worldwide"
       },
-      "year_source": "story_research",
+      "year_source": "date_created_plain",
       "pd_status": "public_domain",
       "pd_status_reason": "Commons PD license",
       "story": "A low sun burning through sea haze, a schooner crossing the light — Monet in roughly 1875, painting the coast in a looser, more atmospheric register than his Argenteuil river scenes. He stacks thin horizontal bands of orange and violet across the water, letting the sun do most of the work. No drama, no staffage. The Philadelphia Museum of Art bought it for their Impressionist holdings, where it hangs today as Marine View with a Sunset."
@@ -59607,7 +59584,7 @@
       "title": "Monet w357",
       "artist": "Claude Monet",
       "date_created": "1840-11-14",
-      "year": 1875,
+      "year": 1840,
       "description": null,
       "source": {
         "type": "Wikimedia Commons",
@@ -59636,7 +59613,7 @@
         "movement": "Impressionism",
         "pd_status": "public_domain_worldwide"
       },
-      "year_source": "story_research",
+      "year_source": "date_created_plain",
       "pd_status": "public_domain",
       "pd_status_reason": "Commons PD license",
       "story": "Argenteuil under snow, winter 1875 — the Boulevard Saint-Denis vanishing into a grey-white smear of sky and track. Monet painted at least eighteen snow scenes that winter, often standing outside in it, gloves off, layering cold whites over warmer underpaint so the picture seems to shiver. A train steams through the background. The canvas hangs at the Musée d'Art et d'Histoire in Geneva."
@@ -59648,7 +59625,7 @@
       "title": "Monet w368",
       "artist": "Claude Monet",
       "date_created": "14 November 1840 date QS:P571,+1840-11-14T00:00:00Z/11",
-      "year": 1875,
+      "year": 1840,
       "description": null,
       "source": {
         "type": "Wikimedia Commons",
@@ -59677,7 +59654,7 @@
         "movement": "Impressionism",
         "pd_status": "public_domain_worldwide"
       },
-      "year_source": "story_research",
+      "year_source": "wikidata_qs",
       "pd_status": "public_domain",
       "pd_status_reason": "Commons PD license",
       "story": "Red Boats, Argenteuil, 1875 — three gaudy pleasure craft moored along the Seine, their hulls doubled in the water as wobbling vertical strokes. Argenteuil was a weekend sailing town for Parisians, and Monet lived the life: he kept his own studio boat here, paddled up and down the river, and painted the marina over and over. The red is almost violent against the greens. Private collection."
@@ -59689,7 +59666,7 @@
       "title": "Monet w386",
       "artist": "Claude Monet",
       "date_created": "1840-11-14",
-      "year": 1875,
+      "year": 1840,
       "description": "Claude Monet",
       "source": {
         "type": "Wikimedia Commons",
@@ -59718,7 +59695,7 @@
         "movement": "Impressionism",
         "pd_status": "public_domain_worldwide"
       },
-      "year_source": "story_research",
+      "year_source": "date_created_plain",
       "pd_status": "public_domain",
       "pd_status_reason": "Commons PD license",
       "story": "Argenteuil, summer 1875 — Camille and little Jean half-lost among roses and gladioli in the garden of Monet's second rented house. He was painting his family as motif, not portrait: the figures dissolve into the flowerbeds, foliage stitched together in short, dry strokes. The baritone Jean-Baptiste Faure bought it straight from Monet, one of the first serious collectors to back him, and hung onto it for over thirty years before Durand-Ruel took it in 1907."
@@ -59771,7 +59748,7 @@
       "title": "Monet w397",
       "artist": "Claude Monet",
       "date_created": "1840-11-14",
-      "year": 1876,
+      "year": 1840,
       "description": "Claude Monet",
       "source": {
         "type": "Wikimedia Commons",
@@ -59800,7 +59777,7 @@
         "movement": "Impressionism",
         "pd_status": "public_domain_worldwide"
       },
-      "year_source": "story_research",
+      "year_source": "date_created_plain",
       "pd_status": "public_domain",
       "pd_status_reason": "Commons PD license",
       "story": "Argenteuil, 1876 — a quiet stretch of bank where trees lean out over still water and the reflections run almost the full height of the canvas. Monet had been living here four years and knew every willow along the Seine. The picture has stayed in private hands."
@@ -59812,7 +59789,7 @@
       "title": "Monet w419",
       "artist": "Claude Monet",
       "date_created": "1840-11-14",
-      "year": 1876,
+      "year": 1840,
       "description": "The Pond at Montgeron",
       "source": {
         "type": "Wikimedia Commons",
@@ -59841,7 +59818,7 @@
         "movement": "Impressionism",
         "pd_status": "public_domain_worldwide"
       },
-      "year_source": "story_research",
+      "year_source": "date_created_plain",
       "pd_status": "public_domain",
       "pd_status_reason": "Commons PD license",
       "story": "One of four big decorative panels the department-store tycoon Ernest Hoschedé commissioned for the salon of his chateau at Montgeron in 1876 — the same Hoschedé who'd go bankrupt within two years, sending his wife Alice and their six children into a shared household with the Monets. The pond itself: green water, a slip of far bank, everything loosened into patches of color. Over six feet wide. The Hermitage in St Petersburg now owns it."
@@ -59892,7 +59869,7 @@
       "title": "Evening at Argenteuil",
       "artist": "Claude Monet",
       "date_created": "14 November 1840 date QS:P571,+1840-11-14T00:00:00Z/11",
-      "year": 1876,
+      "year": 1840,
       "description": null,
       "source": {
         "type": "Wikimedia Commons",
@@ -59921,7 +59898,7 @@
         "movement": "Impressionism",
         "pd_status": "public_domain_worldwide"
       },
-      "year_source": "story_research",
+      "year_source": "wikidata_qs",
       "pd_status": "public_domain",
       "pd_status_reason": "Commons PD license",
       "story": "Argenteuil, 1876 — the Seine going pink and orange under a late sky, the far bank just a ragged horizontal smudge. Monet painted the river here dozens of times; this one strips it down to color and reflection, water doing nearly all the work. The picture remains in private hands."
@@ -59974,7 +59951,7 @@
       "title": "Bouquet de glaïeuls, lis et marguerites",
       "artist": "Claude Monet",
       "date_created": "14 November 1840 date QS:P571,+1840-11-14T00:00:00Z/11",
-      "year": 1878,
+      "year": 1840,
       "description": "Claude Monet",
       "source": {
         "type": "Wikimedia Commons",
@@ -60011,7 +59988,7 @@
           "nl": "Bouquet de glaïeuls, lis et marguerites"
         }
       },
-      "year_source": "story_research",
+      "year_source": "wikidata_qs",
       "pd_status": "public_domain",
       "pd_status_reason": "Commons PD license",
       "story": "Vétheuil, 1878 — Monet had just fled Argenteuil for this smaller, cheaper village on the Seine, Camille was dying, money was gone, and he painted flowers. Gladioli, lilies, daisies crammed into a vase, handled with thick, bright, almost impatient strokes. The American railroad baron Collis P. Huntington picked it up at a New York auction in 1892; it stayed in private collections and was sold again at Sotheby's in 2018."
@@ -60023,7 +60000,7 @@
       "title": "Monet w502",
       "artist": "Claude Monet",
       "date_created": "1840-11-14",
-      "year": 1878,
+      "year": 1840,
       "description": "Claude Monet",
       "source": {
         "type": "Wikimedia Commons",
@@ -60052,7 +60029,7 @@
         "movement": "Impressionism",
         "pd_status": "public_domain_worldwide"
       },
-      "year_source": "story_research",
+      "year_source": "date_created_plain",
       "pd_status": "public_domain",
       "pd_status_reason": "Commons PD license",
       "story": "The road running out of Vétheuil toward La Roche-Guyon, 1878 — a dirt track, a scatter of houses, trees going coppery. Monet had just moved here from Argenteuil, broke and with a sick wife, and he painted the road home over and over through the changing seasons. Private collection."
@@ -60144,7 +60121,7 @@
       "title": "Monet w58",
       "artist": "Claude Monet",
       "date_created": "1840-11-14",
-      "year": 1865,
+      "year": 1840,
       "description": "Claude Monet",
       "source": {
         "type": "Wikimedia Commons",
@@ -60173,7 +60150,7 @@
         "movement": "Impressionism",
         "pd_status": "public_domain_worldwide"
       },
-      "year_source": "story_research",
+      "year_source": "date_created_plain",
       "pd_status": "public_domain",
       "pd_status_reason": "Commons PD license",
       "story": "Fontainebleau, 1865 — Monet at 25, not yet the Monet of haystacks and lily ponds, painting the forest in a register closer to Courbet and the Barbizon painters he was trying to outgrow. A cart track runs into shadow under heavy trees; the brushwork is still tight, the palette dark-green and brown. The picture sits in the Sammlung Rau für UNICEF, now on long-term loan at the Arp Museum in Rolandseck."
@@ -60232,7 +60209,7 @@
       "title": "Monet w601",
       "artist": "Claude Monet",
       "date_created": "1840-11-14",
-      "year": 1880,
+      "year": 1840,
       "description": "Claude Monet",
       "source": {
         "type": "Wikimedia Commons",
@@ -60261,7 +60238,7 @@
         "movement": "Impressionism",
         "pd_status": "public_domain_worldwide"
       },
-      "year_source": "story_research",
+      "year_source": "date_created_plain",
       "pd_status": "public_domain",
       "pd_status_reason": "Commons PD license",
       "story": "Vétheuil, 1880 — the Seine running low past the village, poplars along the far bank, sky taking up half the canvas. Monet had been in the village two years by then and was painting his way out of the worst stretch of his life: Camille had died the previous autumn. The picture has stayed in private hands."
@@ -60435,7 +60412,7 @@
       "title": "Monet w649",
       "artist": "Claude Monet",
       "date_created": "1840-11-14",
-      "year": 1881,
+      "year": 1840,
       "description": "Claude Monet",
       "source": {
         "type": "Wikimedia Commons",
@@ -60464,7 +60441,7 @@
         "movement": "Impressionism",
         "pd_status": "public_domain_worldwide"
       },
-      "year_source": "story_research",
+      "year_source": "date_created_plain",
       "pd_status": "public_domain",
       "pd_status_reason": "Commons PD license",
       "story": "Fécamp, on the Normandy coast, spring 1881 — Monet had come up to stay near his brother Léon and spent a few weeks climbing the cliffs at Grainval with his easel. Chalk face dropping into the Channel, scrub clinging to the ledges, the water a hard green. Short, rapid strokes, the kind of thing he could set down while the light held. The painting passed through private collections."
@@ -60517,7 +60494,7 @@
       "title": "Monet w653",
       "artist": "Claude Monet",
       "date_created": "14 November 1840 date QS:P571,+1840-11-14T00:00:00Z/11",
-      "year": 1881,
+      "year": 1840,
       "description": null,
       "source": {
         "type": "Wikimedia Commons",
@@ -60546,7 +60523,7 @@
         "movement": "Impressionism",
         "pd_status": "public_domain_worldwide"
       },
-      "year_source": "story_research",
+      "year_source": "wikidata_qs",
       "pd_status": "public_domain",
       "pd_status_reason": "Commons PD license",
       "story": "Another of the Grainval cliff studies, 1881 — Monet scrambling around the chalk headlands south of Fécamp to catch the coast from a different angle. The foreground vegetation is done in quick dabs, the sea in broad horizontal sweeps. He'd come back to Normandy repeatedly over the next few years; these 1881 canvases are where the habit began."
@@ -60558,7 +60535,7 @@
       "title": "Monet w658",
       "artist": "Claude Monet",
       "date_created": "1840-11-14",
-      "year": 1881,
+      "year": 1840,
       "description": "Claude Monet",
       "source": {
         "type": "Wikimedia Commons",
@@ -60587,7 +60564,7 @@
         "movement": "Impressionism",
         "pd_status": "public_domain_worldwide"
       },
-      "year_source": "story_research",
+      "year_source": "date_created_plain",
       "pd_status": "public_domain",
       "pd_status_reason": "Commons PD license",
       "story": "March 1881. Monet had written to Durand-Ruel: \"I'm leaving tomorrow for Fécamp where I'm going to do some seascapes.\" He stayed a month, knocking out roughly twenty canvases in the salt wind off the Côte d'Albâtre. This is one of them. Chalk cliffs, working boats, and a sky that shifts while you're still mixing paint. Monet was forty, newly widowed, broke, and Camille's death two years earlier had hollowed him out. The sea gave him something to fight. He finished many of these pieces back in the studio, but they were begun on the sand, in a hurry, with the tide closing in.",
@@ -60600,7 +60577,7 @@
       "title": "Monet w662",
       "artist": "Claude Monet",
       "date_created": "1840-11-14",
-      "year": 1881,
+      "year": 1840,
       "description": "Claude Monet",
       "source": {
         "type": "Wikimedia Commons",
@@ -60629,7 +60606,7 @@
         "movement": "Impressionism",
         "pd_status": "public_domain_worldwide"
       },
-      "year_source": "story_research",
+      "year_source": "date_created_plain",
       "pd_status": "public_domain",
       "pd_status_reason": "Commons PD license",
       "story": "A small seascape out of Monet's Normandy campaign. He was working in bursts along the Alabaster Coast, sometimes starting a canvas, abandoning it to the light, and beginning another twenty paces down the beach. This one stays with the water itself, horizon high, and builds the sea out of short, dragging strokes loaded wet into wet. Pigment is gritty where the wind kicked sand into it, a hazard Monet complained about in letters home. The painting passed through the Simonow collection and now sits in a private holding, catalogued W662 in Wildenstein.",
@@ -60642,7 +60619,7 @@
       "title": "Monet w663",
       "artist": "Claude Monet",
       "date_created": "1840-11-14",
-      "year": 1881,
+      "year": 1840,
       "description": "Claude Monet",
       "source": {
         "type": "Wikimedia Commons",
@@ -60671,7 +60648,7 @@
         "movement": "Impressionism",
         "pd_status": "public_domain_worldwide"
       },
-      "year_source": "story_research",
+      "year_source": "date_created_plain",
       "pd_status": "public_domain",
       "pd_status_reason": "Commons PD license",
       "story": "Rough Sea, 1881, now at the National Gallery of Canada in Ottawa. Monet painted it on the beach at Fécamp or Les Petites-Dalles - he was shuttling between both that spring, staying part of the time with his brother Léon, a chemist who had a villa up the coast. Notice how little land there is: a sliver of cliff, a strip of sand, the rest churn. He was testing how much sky and water a canvas could hold before it tipped into abstraction. The answer, apparently, was: quite a lot.",
@@ -60684,7 +60661,7 @@
       "title": "Monet w664",
       "artist": "Claude Monet",
       "date_created": "1840-11-14",
-      "year": 1880,
+      "year": 1840,
       "description": "Claude Monet",
       "source": {
         "type": "Wikimedia Commons",
@@ -60713,7 +60690,7 @@
         "movement": "Impressionism",
         "pd_status": "public_domain_worldwide"
       },
-      "year_source": "story_research",
+      "year_source": "date_created_plain",
       "pd_status": "public_domain",
       "pd_status_reason": "Commons PD license",
       "story": "The cliffs at Les Petites-Dalles, painted in September 1880 on Monet's first trip to the little Norman resort where brother Léon had a summer house. He came for two weeks and ended up returning every year through 1886. The chalk face here catches hard morning light; the shadow at its foot is a cold violet, not black. Monet had just broken publicly with the Salon that spring and was painting to sell, to survive. Camille had died the previous September. The cliffs weren't a retreat - they were work.",
@@ -60726,7 +60703,7 @@
       "title": "Monet w668",
       "artist": "Claude Monet",
       "date_created": "1840-11-14",
-      "year": 1880,
+      "year": 1840,
       "description": "Claude Monet",
       "source": {
         "type": "Wikimedia Commons",
@@ -60755,7 +60732,7 @@
         "movement": "Impressionism",
         "pd_status": "public_domain_worldwide"
       },
-      "year_source": "story_research",
+      "year_source": "date_created_plain",
       "pd_status": "public_domain",
       "pd_status_reason": "Commons PD license",
       "story": "The Seine at Vétheuil at sunset. Monet had moved to the village on the Seine in 1878 with his wife Camille, the children, and the Hoschedé family - a chaotic blended household that only got messier when Camille died there in 1879. He painted the river obsessively: the same reach, different hours. Here the water holds more colour than the sky. He worked from his studio-boat, a modified fishing skiff moored at the bank, which let him sit low on the water and watch the reflections break up as barges went past.",
@@ -60809,7 +60786,7 @@
       "title": "Monet w679",
       "artist": "Claude Monet",
       "date_created": "1840-11-14",
-      "year": 1880,
+      "year": 1840,
       "description": "Claude Monet",
       "source": {
         "type": "Wikimedia Commons",
@@ -60838,7 +60815,7 @@
         "movement": "Impressionism",
         "pd_status": "public_domain_worldwide"
       },
-      "year_source": "story_research",
+      "year_source": "date_created_plain",
       "pd_status": "public_domain",
       "pd_status_reason": "Commons PD license",
       "story": "Vétheuil, 1880. The village sits on a horseshoe bend of the Seine about sixty kilometres northwest of Paris, and Monet painted it from every angle - across the water, from the hillside, in snow, in flood. He'd arrived in 1878 nearly destitute, sharing rent with Ernest Hoschedé, a bankrupt department-store owner whose wife Alice would eventually become Monet's second wife. By 1880 the arrangement was strange and permanent. The brushwork here is quick and comma-like; the church tower anchors the composition, as it does in dozens of other canvases from these years.",
@@ -60851,7 +60828,7 @@
       "title": "Monet w683",
       "artist": "Claude Monet",
       "date_created": "1840-11-14",
-      "year": 1881,
+      "year": 1840,
       "description": "Claude Monet",
       "source": {
         "type": "Wikimedia Commons",
@@ -60880,7 +60857,7 @@
         "movement": "Impressionism",
         "pd_status": "public_domain_worldwide"
       },
-      "year_source": "story_research",
+      "year_source": "date_created_plain",
       "pd_status": "public_domain",
       "pd_status_reason": "Commons PD license",
       "story": "The garden at Vétheuil, summer 1881. Monet painted four closely related canvases of this same view: a path shaded by towering sunflowers, blue-and-white delft pots flanking the steps, a small child (probably his son Michel, or one of the Hoschedé boys) halfway up. He'd planted the garden himself, digging in soil that wasn't really his - he was renting. The sunflowers are almost at eye level. You can practically smell the dust in the gravel. Within two years Monet would leave Vétheuil for Giverny and start again from scratch.",
@@ -60893,7 +60870,7 @@
       "title": "Monet w684",
       "artist": "Claude Monet",
       "date_created": "1840-11-14",
-      "year": 1881,
+      "year": 1840,
       "description": "Claude Monet",
       "source": {
         "type": "Wikimedia Commons",
@@ -60922,7 +60899,7 @@
         "movement": "Impressionism",
         "pd_status": "public_domain_worldwide"
       },
-      "year_source": "story_research",
+      "year_source": "date_created_plain",
       "pd_status": "public_domain",
       "pd_status_reason": "Commons PD license",
       "story": "Another of the 1881 Vétheuil garden studies - same sunflower-lined steps, same blue pots, different light. Monet worked in series long before the haystacks made it famous; at Vétheuil he already understood that painting the same thing twice wasn't repetition, it was how you caught time. The children on the steps are small, almost decorative. What he cared about was the yellow of the flower heads against the cool green behind them, a complementary clash that makes the whole canvas vibrate. The National Gallery of Art version of this motif is the best-known; this is one of its close siblings.",
@@ -60935,7 +60912,7 @@
       "title": "Monet w691",
       "artist": "Claude Monet",
       "date_created": "1840-11-14",
-      "year": 1881,
+      "year": 1840,
       "description": "Claude Monet",
       "source": {
         "type": "Wikimedia Commons",
@@ -60964,7 +60941,7 @@
         "movement": "Impressionism",
         "pd_status": "public_domain_worldwide"
       },
-      "year_source": "story_research",
+      "year_source": "date_created_plain",
       "pd_status": "public_domain",
       "pd_status_reason": "Commons PD license",
       "story": "Vétheuil, Monet's garden again, but broader now - the flowers spilling toward the Seine instead of climbing the steps. He was at the end of his time in the village. The rent was unpaid, Durand-Ruel had started buying again after a long drought, and Alice Hoschedé was increasingly running the household. Note the warm pinks and oranges worked dry into the foliage; Monet liked to load a loaded brush and drag it, leaving a ridge of pigment you can see in raking light. In 1883 he'd move the whole tribe to Giverny.",
@@ -60977,7 +60954,7 @@
       "title": "Monet w694",
       "artist": "Claude Monet",
       "date_created": "1840-11-14",
-      "year": 1881,
+      "year": 1840,
       "description": "Claude Monet",
       "source": {
         "type": "Wikimedia Commons",
@@ -61006,7 +60983,7 @@
         "movement": "Impressionism",
         "pd_status": "public_domain_worldwide"
       },
-      "year_source": "story_research",
+      "year_source": "date_created_plain",
       "pd_status": "public_domain",
       "pd_status_reason": "Commons PD license",
       "story": "Gladioli in a vase, 1881, an oil on canvas now at the Pola Museum of Art in Hakone, Japan. The canvas is tall and narrow - only 41 centimetres wide but nearly a metre high - to match the upright spike of the flowers themselves. Monet rarely painted still life compared to his friend Renoir, but when he did he went at it the same way he went at the river: quick, wet, loaded. These gladioli almost certainly came out of the Vétheuil garden, the same one feeding his sunflower paintings that summer. Cut, vased, and in the studio before they wilted.",
@@ -61060,7 +61037,7 @@
       "title": "Monet w706",
       "artist": "Claude Monet",
       "date_created": "1840-11-14",
-      "year": 1882,
+      "year": 1840,
       "description": "Claude Monet",
       "source": {
         "type": "Wikimedia Commons",
@@ -61089,7 +61066,7 @@
         "movement": "Impressionism",
         "pd_status": "public_domain_worldwide"
       },
-      "year_source": "story_research",
+      "year_source": "date_created_plain",
       "pd_status": "public_domain",
       "pd_status_reason": "Commons PD license",
       "story": "A seascape on the Normandy coast, 1882. After three difficult years at Vétheuil, Monet went back to the Channel that winter: Dieppe first, then Pourville in February, then Varengeville. He travelled cheaply, stayed in modest hotels, and painted in the cold. This canvas belongs to that campaign. The paint is dry and scratchy in the sky, wet and rolling in the water; you can see where the brush skipped over the tooth of the canvas and left little islands of unpainted ground. The cliffs of the Alabaster Coast were his subject, but really the weather was.",
@@ -61143,7 +61120,7 @@
       "title": "Monet w717",
       "artist": "Claude Monet",
       "date_created": "1840-11-14",
-      "year": 1882,
+      "year": 1840,
       "description": "Claude Monet",
       "source": {
         "type": "Wikimedia Commons",
@@ -61172,7 +61149,7 @@
         "movement": "Impressionism",
         "pd_status": "public_domain_worldwide"
       },
-      "year_source": "story_research",
+      "year_source": "date_created_plain",
       "pd_status": "public_domain",
       "pd_status_reason": "Commons PD license",
       "story": "Pourville, 1882. Monet arrived in February after a short stop in Dieppe and stayed through April in the small fishing village west of the port. He later wrote that he sometimes worked on as many as eight canvases in a single day, carrying them up and down the cliff path as the light shifted. The sea here is that particular Channel green-grey, and the cliffs drop sheer to the beach. A tiny figure or two gives you the scale. Alice and the children joined him for part of the stay; the letters from Pourville are some of the most practical and least anguished Monet ever wrote.",
@@ -61185,7 +61162,7 @@
       "title": "Monet w724",
       "artist": "Claude Monet",
       "date_created": "1840-11-14",
-      "year": 1882,
+      "year": 1840,
       "description": "Claude Monet",
       "source": {
         "type": "Wikimedia Commons",
@@ -61214,7 +61191,7 @@
         "movement": "Impressionism",
         "pd_status": "public_domain_worldwide"
       },
-      "year_source": "story_research",
+      "year_source": "date_created_plain",
       "pd_status": "public_domain",
       "pd_status_reason": "Commons PD license",
       "story": "Normandy coast, 1882. Part of the long winter-into-spring campaign Monet mounted that year along the Channel - Dieppe, Pourville, Varengeville - chasing weather. He had just come off a period of serious money trouble; Durand-Ruel's restarted buying was the only reason the trip was possible. You can see him thinking about Japanese prints here in the cropping, the way a cliff or a slope runs off the edge of the canvas instead of sitting politely inside it. He'd been collecting ukiyo-e since the 1870s, and by this point they were rearranging how he framed a view.",
@@ -61275,7 +61252,7 @@
       "title": "Monet w736",
       "artist": "Claude Monet",
       "date_created": "1840-11-14",
-      "year": 1882,
+      "year": 1840,
       "description": "Claude Monet",
       "source": {
         "type": "Wikimedia Commons",
@@ -61304,7 +61281,7 @@
         "movement": "Impressionism",
         "pd_status": "public_domain_worldwide"
       },
-      "year_source": "story_research",
+      "year_source": "date_created_plain",
       "pd_status": "public_domain",
       "pd_status_reason": "Commons PD license",
       "story": "Another Normandy coast canvas from 1882. Monet was forty-one, finally starting to sell well enough to stop panicking about the rent, and painting the cliffs with a new confidence - long horizontal strokes in the sea, shorter upright ones in the chalk face, the whole thing built in maybe two or three sittings before he'd declare it blocked-in and move to the next. He kept several going at once on the beach. The salt air wasn't kind to the canvases; some of these works arrived back in Paris already slightly warped, and Durand-Ruel's framer had to nurse them flat.",
@@ -61317,7 +61294,7 @@
       "title": "Monet w752",
       "artist": "Claude Monet",
       "date_created": "1840-11-14",
-      "year": 1882,
+      "year": 1840,
       "description": "Claude Monet",
       "source": {
         "type": "Wikimedia Commons",
@@ -61346,7 +61323,7 @@
         "movement": "Impressionism",
         "pd_status": "public_domain_worldwide"
       },
-      "year_source": "story_research",
+      "year_source": "date_created_plain",
       "pd_status": "public_domain",
       "pd_status_reason": "Commons PD license",
       "story": "A late canvas from the 1882 Normandy campaign. By April, Monet was heading home from Pourville with dozens of marines and cliff studies rolled and crated. It had been a turning-point trip: the sea paintings sold, Durand-Ruel kept buying, and within a year Monet would be able to move the household to Giverny and stop renting. You can feel some of that confidence in the brushwork - fewer hesitations, bigger shapes. The Côte d'Albâtre gave Monet the same subject Courbet and Daubigny had painted before him, but he came back with weather instead of scenery.",
@@ -61359,7 +61336,7 @@
       "title": "Monet w753",
       "artist": "Claude Monet",
       "date_created": "1840-11-14",
-      "year": 1882,
+      "year": 1840,
       "description": "Claude Monet",
       "source": {
         "type": "Wikimedia Commons",
@@ -61388,7 +61365,7 @@
         "movement": "Impressionism",
         "pd_status": "public_domain_worldwide"
       },
-      "year_source": "story_research",
+      "year_source": "date_created_plain",
       "pd_status": "public_domain",
       "pd_status_reason": "Commons PD license",
       "story": "February 1882, and Monet has fled a sour Paris winter for the Normandy coast. He settles in Pourville, a fishing village west of Dieppe, and spends two months hauling his easel up cliff paths and down to the shingle. This canvas, catalogued as Wildenstein 753, belongs to that burst of roughly thirty-six works he brought back — sky, cliff face, a slice of Channel water, all painted quickly before the light turned. Durand-Ruel bought the lot. No sitters, no story: just chalk cliffs and salt air.",
@@ -61401,7 +61378,7 @@
       "title": "Monet w757",
       "artist": "Claude Monet",
       "date_created": "1840-11-14",
-      "year": 1882,
+      "year": 1840,
       "description": "Claude Monet",
       "source": {
         "type": "Wikimedia Commons",
@@ -61430,7 +61407,7 @@
         "movement": "Impressionism",
         "pd_status": "public_domain_worldwide"
       },
-      "year_source": "story_research",
+      "year_source": "date_created_plain",
       "pd_status": "public_domain",
       "pd_status_reason": "Commons PD license",
       "story": "Monet rented a holiday house in Pourville after his 1882 Impressionist exhibition paid off, and for weeks he clambered along these clifftops with canvases strapped to his back. Here he paints directly into the sun: the cliff edge glows, wildflowers nod in the meadow grass, and sailboats drift on a sea that dissolves into the sky. The backlighting was the point — coast and water made to read as a single luminous thing. It's 60 by 73 cm, signed 1882, and hangs today at the Staatsgalerie Stuttgart.",
@@ -61443,7 +61420,7 @@
       "title": "Monet w759",
       "artist": "Claude Monet",
       "date_created": "1840-11-14",
-      "year": 1882,
+      "year": 1840,
       "description": "Claude Monet",
       "source": {
         "type": "Wikimedia Commons",
@@ -61472,7 +61449,7 @@
         "movement": "Impressionism",
         "pd_status": "public_domain_worldwide"
       },
-      "year_source": "story_research",
+      "year_source": "date_created_plain",
       "pd_status": "public_domain",
       "pd_status_reason": "Commons PD license",
       "story": "Signed \"Claude Monet 82\" in the lower left, this is Dieppe seen from the cliffs — not the picturesque harbour but the raw geology behind it. Monet had tried Dieppe proper and found it too urban, too full of promenaders. So he walked out to where the chalk broke off into the Channel and worked there instead. The paint is scrubby, the horizon high, the sea a cold green-grey. It measures 65 by 81 cm and sits now in the Kunsthaus Zürich, accession 2252.",
@@ -61485,7 +61462,7 @@
       "title": "Monet w764",
       "artist": "Claude Monet",
       "date_created": "1840-11-14",
-      "year": 1882,
+      "year": 1840,
       "description": "Claude Monet",
       "source": {
         "type": "Wikimedia Commons",
@@ -61514,7 +61491,7 @@
         "movement": "Impressionism",
         "pd_status": "public_domain_worldwide"
       },
-      "year_source": "story_research",
+      "year_source": "date_created_plain",
       "pd_status": "public_domain",
       "pd_status_reason": "Commons PD license",
       "story": "Another of the Normandy coast canvases Monet produced during his feverish 1882 campaign along the chalk cliffs between Dieppe and Pourville. He was painting fast — dozens of canvases in weeks — trying to fix the light before the Channel weather changed it. Look for the loose, hurried brushwork and a horizon that refuses to sit still. Catalogued as Wildenstein 764.",
@@ -61527,7 +61504,7 @@
       "title": "Monet w767",
       "artist": "Claude Monet",
       "date_created": "1840-11-14",
-      "year": 1882,
+      "year": 1840,
       "description": "Claude Monet",
       "source": {
         "type": "Wikimedia Commons",
@@ -61556,7 +61533,7 @@
         "movement": "Impressionism",
         "pd_status": "public_domain_worldwide"
       },
-      "year_source": "story_research",
+      "year_source": "date_created_plain",
       "pd_status": "public_domain",
       "pd_status_reason": "Commons PD license",
       "story": "Low tide at Pourville exposes the jagged black rocks that the sea spends half its day hiding. Monet planted himself on the shore in 1882 and painted them bare — foam breaking white against the foreground teeth, the water beyond flecked grey. The angular shoreline pushes hard against smoother waves, the kind of collision Monet was beginning to hunt for. Emily Sibley Watson later gave the canvas to the Memorial Art Gallery in Rochester, where it hangs at 64 by 79 cm.",
@@ -61569,7 +61546,7 @@
       "title": "Monet w772",
       "artist": "Claude Monet",
       "date_created": "1840-11-14",
-      "year": 1882,
+      "year": 1840,
       "description": "Claude Monet",
       "source": {
         "type": "Wikimedia Commons",
@@ -61598,7 +61575,7 @@
         "movement": "Impressionism",
         "pd_status": "public_domain_worldwide"
       },
-      "year_source": "story_research",
+      "year_source": "date_created_plain",
       "pd_status": "public_domain",
       "pd_status_reason": "Commons PD license",
       "story": "A patch of Channel water off Étretat, no cliffs in frame, no famous arch — just sea, sky, and a sliver of shore. Monet painted it in 1882, between the Pourville campaign and his later Étretat obsession with the Manneporte. It's a study in restraint: 55 by 74 cm of grey-green swell under a pearled sky. The Philadelphia Museum of Art holds it now, part of their substantial Monet collection.",
@@ -61611,7 +61588,7 @@
       "title": "Monet w776",
       "artist": "Claude Monet",
       "date_created": "1840-11-14",
-      "year": 1882,
+      "year": 1840,
       "description": "Claude Monet",
       "source": {
         "type": "Wikimedia Commons",
@@ -61640,7 +61617,7 @@
         "movement": "Impressionism",
         "pd_status": "public_domain_worldwide"
       },
-      "year_source": "story_research",
+      "year_source": "date_created_plain",
       "pd_status": "public_domain",
       "pd_status_reason": "Commons PD license",
       "story": "This belongs to a run of roughly sixteen canvases Monet painted looking west from the Pourville cliffs toward the setting sun — Wildenstein numbers 776 through 791, more or less. He'd often climb down the steep Moutiers Gorge trail to reach his vantage. The evening light here is the whole point: sea and sky pinked and bronzed, the cliff edge going dark. It stayed in private hands after leaving his studio.",
@@ -61653,7 +61630,7 @@
       "title": "Monet w778a",
       "artist": "Claude Monet",
       "date_created": "1840-11-14",
-      "year": 1882,
+      "year": 1840,
       "description": "Claude Monet",
       "source": {
         "type": "Wikimedia Commons",
@@ -61682,7 +61659,7 @@
         "movement": "Impressionism",
         "pd_status": "public_domain_worldwide"
       },
-      "year_source": "story_research",
+      "year_source": "date_created_plain",
       "pd_status": "public_domain",
       "pd_status_reason": "Commons PD license",
       "story": "Pointe de l'Ailly at low tide, 1882. Monet walked out along the headland west of Pourville when the sea had pulled back far enough to leave puddles of Channel water glinting in the foreground. The composition is unusually horizontal — 60 by 100 cm — with the horizon slung right across the middle, so the eye moves between tide pools and distant cliff like a slow sweep. The canvas belongs now to the Kerry Stokes Collection in Perth, Australia.",
@@ -61695,7 +61672,7 @@
       "title": "Monet w787",
       "artist": "Claude Monet",
       "date_created": "1840-11-14",
-      "year": 1882,
+      "year": 1840,
       "description": "Claude Monet",
       "source": {
         "type": "Wikimedia Commons",
@@ -61724,7 +61701,7 @@
         "movement": "Impressionism",
         "pd_status": "public_domain_worldwide"
       },
-      "year_source": "story_research",
+      "year_source": "date_created_plain",
       "pd_status": "public_domain",
       "pd_status_reason": "Commons PD license",
       "story": "Another of Monet's westward-facing Pourville cliff views from 1882, part of the Wildenstein 776–791 cluster painted from vantage points he reached via the Moutiers Gorge. The cliff mass fills the left, the Channel opens beyond, and the brushwork is fast — he was working against the light more than the weather. Monet returned home to Poissy in mid-April with almost forty canvases; this one went with him.",
@@ -61737,7 +61714,7 @@
       "title": "Monet w807",
       "artist": "Claude Monet",
       "date_created": "1840-11-14",
-      "year": 1882,
+      "year": 1840,
       "description": "Claude Monet",
       "source": {
         "type": "Wikimedia Commons",
@@ -61766,7 +61743,7 @@
         "movement": "Impressionism",
         "pd_status": "public_domain_worldwide"
       },
-      "year_source": "story_research",
+      "year_source": "date_created_plain",
       "pd_status": "public_domain",
       "pd_status_reason": "Commons PD license",
       "story": "The Normandy cliffs again, 1882 — Monet hauling his easel up another chalk bluff between Dieppe and Pourville while the light moved faster than he could. The Pourville and Varengeville campaigns that spring produced a small mountain of work, most of which Durand-Ruel promptly bought to keep his painter afloat through the French economic slump. This one, Wildenstein 807, keeps the same fast, scrubby handling of sea and stone.",
@@ -61779,7 +61756,7 @@
       "title": "Monet w81",
       "artist": "Claude Monet",
       "date_created": "1840-11-14",
-      "year": 1867,
+      "year": 1840,
       "description": "Claude Monet",
       "source": {
         "type": "Wikimedia Commons",
@@ -61808,7 +61785,7 @@
         "movement": "Impressionism",
         "pd_status": "public_domain_worldwide"
       },
-      "year_source": "story_research",
+      "year_source": "date_created_plain",
       "pd_status": "public_domain",
       "pd_status_reason": "Commons PD license",
       "story": "January 1867, and Monet is twenty-six and broke. Camille is pregnant, his family in Le Havre is furious, and a heavy snowfall has blanketed the road past the Ferme Saint-Siméon near Honfleur — the farm where Boudin and Jongkind had taught him to paint outdoors. He goes out anyway with his easel. The result is one of his earliest snow scenes, bare trees black against the white lane, part of his first real serial experiment: he'd paint this same road at least ten times between 1864 and 1867.",
@@ -61950,7 +61927,7 @@
       "title": "Monet w835",
       "artist": "Claude Monet",
       "date_created": "1840-11-14",
-      "year": 1883,
+      "year": 1840,
       "description": "Claude Monet",
       "source": {
         "type": "Wikimedia Commons",
@@ -61979,7 +61956,7 @@
         "movement": "Impressionism",
         "pd_status": "public_domain_worldwide"
       },
-      "year_source": "story_research",
+      "year_source": "date_created_plain",
       "pd_status": "public_domain",
       "pd_status_reason": "Commons PD license",
       "story": "Port-Villez sits on the Seine just across from Giverny, and in 1883 — the year Monet moved into the pink house that would anchor the rest of his life — he rowed across and painted the bend of the river from a boat moored in the current. The bluff rises on the far bank, dawn pink just catching the top of it. He'd return to this exact stretch of water again and again over the next decade; this canvas is among the earliest of those looks.",
@@ -61992,7 +61969,7 @@
       "title": "Monet w844",
       "artist": "Claude Monet",
       "date_created": "1840-11-14",
-      "year": 1883,
+      "year": 1840,
       "description": "Claude Monet",
       "source": {
         "type": "Wikimedia Commons",
@@ -62021,7 +61998,7 @@
         "movement": "Impressionism",
         "pd_status": "public_domain_worldwide"
       },
-      "year_source": "story_research",
+      "year_source": "date_created_plain",
       "pd_status": "public_domain",
       "pd_status_reason": "Commons PD license",
       "story": "The collégiale Notre-Dame at Vernon, seen from the Seine — the medieval church that rises above the town just downstream of Monet's new home at Giverny. He painted it three times in 1883, the year he moved in, mostly from a boat. A decade later he'd return to the same motif and turn out a full serial meditation on mist and architecture (Wildenstein 1386–1391). This is the first look, more straightforward, less dissolved.",
@@ -62073,7 +62050,7 @@
       "title": "Monet w867",
       "artist": "Claude Monet",
       "date_created": "1840-11-14",
-      "year": 1883,
+      "year": 1840,
       "description": "Claude Monet",
       "source": {
         "type": "Wikimedia Commons",
@@ -62102,7 +62079,7 @@
         "movement": "Impressionism",
         "pd_status": "public_domain_worldwide"
       },
-      "year_source": "story_research",
+      "year_source": "date_created_plain",
       "pd_status": "public_domain",
       "pd_status_reason": "Commons PD license",
       "story": "\"Maison du jardinier\" — the gardener's house, tucked somewhere in the cliff-backed landscape Monet worked during his Étretat campaigns of the mid-1880s. He'd rented rooms in the village every winter between 1883 and 1886, usually in the off-season when the resort emptied out and the light on the chalk turned hard and cold. Most of those canvases fixate on the three great rock arches; this one looks inland instead, to a quieter building with a roof and a garden.",
@@ -62115,7 +62092,7 @@
       "title": "Monet w868",
       "artist": "Claude Monet",
       "date_created": "14 November 1840 date QS:P571,+1840-11-14T00:00:00Z/11",
-      "year": 1884,
+      "year": 1840,
       "description": null,
       "source": {
         "type": "Wikimedia Commons",
@@ -62144,7 +62121,7 @@
         "movement": "Impressionism",
         "pd_status": "public_domain_worldwide"
       },
-      "year_source": "story_research",
+      "year_source": "wikidata_qs",
       "pd_status": "public_domain",
       "pd_status_reason": "Commons PD license",
       "story": "Early 1884, and Monet has traded the Channel for the Italian Riviera. He's in Bordighera, just across the French border, painting the Moreno gardens and dazzled by olive trees he'd never seen in full Mediterranean light. This is a study — \"Étude d'oliviers,\" 73 by 60 cm — one of the tighter, quieter pieces from a trip that would produce about fifty canvases and nearly break him (\"this blue, this pink\" he complained in letters, \"I can't manage it\"). It stayed in private hands.",
@@ -62235,7 +62212,7 @@
       "title": "Monet w885",
       "artist": "Claude Monet",
       "date_created": "1840-11-14",
-      "year": 1884,
+      "year": 1840,
       "description": "Claude Monet",
       "source": {
         "type": "Wikimedia Commons",
@@ -62264,7 +62241,7 @@
         "movement": "Impressionism",
         "pd_status": "public_domain_worldwide"
       },
-      "year_source": "story_research",
+      "year_source": "date_created_plain",
       "pd_status": "public_domain",
       "pd_status_reason": "Commons PD license",
       "story": "Perched above the Nervia, Monet pins down Dolceacqua from the south: the Doria towers stepping up on the right, the little bell tower of Sant'Antonio tucked lower to the left. He had come to Bordighera in early 1884 to chase light he'd only glimpsed from Menton with Renoir. A 65 by 81 cm canvas, it stayed with his son Michel at Giverny for decades before drifting into private hands around 1972.",
@@ -62277,7 +62254,7 @@
       "title": "Monet w891a",
       "artist": "Claude Monet",
       "date_created": "1840-11-14",
-      "year": 1884,
+      "year": 1840,
       "description": "Claude Monet",
       "source": {
         "type": "Wikimedia Commons",
@@ -62306,7 +62283,7 @@
         "movement": "Impressionism",
         "pd_status": "public_domain_worldwide"
       },
-      "year_source": "story_research",
+      "year_source": "date_created_plain",
       "pd_status": "public_domain",
       "pd_status_reason": "Commons PD license",
       "story": "An unsigned, half-finished portrait of a bearded, beret-wearing Monet slouched with a cigarette, arms on his thighs, a Cap Martin landscape hanging behind him. Long paraded as a Monet self-portrait, then reattributed by Wildenstein to Sargent in 1979, then re-upgraded to Monet in 1996 after Wildenstein himself had bought it. Joachim Pissarro argues it's Charles Giron's, based on an 1885 diary entry describing an hour-long sitting at Giverny. In 2020 the Musee Marmottan downgraded it.",
@@ -62319,7 +62296,7 @@
       "title": "Monet w891b",
       "artist": "Claude Monet",
       "date_created": "1840-11-14",
-      "year": 1884,
+      "year": 1840,
       "description": "Claude Monet",
       "source": {
         "type": "Wikimedia Commons",
@@ -62348,7 +62325,7 @@
         "movement": "Impressionism",
         "pd_status": "public_domain_worldwide"
       },
-      "year_source": "story_research",
+      "year_source": "date_created_plain",
       "pd_status": "public_domain",
       "pd_status_reason": "Commons PD license",
       "story": "A big studio canvas, 1.39 by 1.80 m, worked up at Giverny from the smaller Corniche de Monaco study (W890) Monet had brought home. The path hugs Cap Martin with the Tete de Chien looming over Monte-Carlo and the rock of Monaco in the distance. Durand-Ruel bought it off him in May 1885; it later appeared as a backdrop in John Singer Sargent's portrait of Monet before passing through Chicago and into private American hands.",
@@ -62361,7 +62338,7 @@
       "title": "Monet w892",
       "artist": "Claude Monet",
       "date_created": "1840-11-14",
-      "year": 1884,
+      "year": 1840,
       "description": "Claude Monet",
       "source": {
         "type": "Wikimedia Commons",
@@ -62390,7 +62367,7 @@
         "movement": "Impressionism",
         "pd_status": "public_domain_worldwide"
       },
-      "year_source": "story_research",
+      "year_source": "date_created_plain",
       "pd_status": "public_domain",
       "pd_status_reason": "Commons PD license",
       "story": "Painted from the lower corniche road near Roquebrune, looking down on Monte-Carlo with the Tete de Chien as backdrop. 65 by 81 cm, signed but not dated. Part of the haul Monet brought back from his 1884 Riviera campaign, when he complained to Alice that the blue and pink of the Mediterranean were impossible and that nobody would believe him. The canvas passed through Potter Palmer of Chicago and Wildenstein before landing with the Somlo collection in New York.",
@@ -63172,7 +63149,7 @@
       "title": "Moreno Garden Bordighera 1884 - The Norton Museum Miami Florida",
       "artist": "Claude Monet",
       "date_created": "1883-01-18",
-      "year": 1884,
+      "year": 1883,
       "description": "Painting by Claude Monet visiting Bordighera 1884",
       "source": {
         "type": "Wikimedia Commons",
@@ -63201,7 +63178,7 @@
         "movement": "Impressionism",
         "pd_status": "public_domain_worldwide"
       },
-      "year_source": "story_research",
+      "year_source": "date_created_plain",
       "pd_status": "public_domain",
       "pd_status_reason": "Commons PD license",
       "story": "Monet arrived in Bordighera in January 1884 and immediately begged his way into the Moreno estate — reportedly the finest garden on the Riviera, a jungle of palms, olives, and citrus. He wrote to Alice that the colours were so intense he feared nobody would believe them. This canvas is pure Mediterranean delirium, greens shot through with pink and gold. It now hangs at the Norton Museum of Art in West Palm Beach, Florida.",
@@ -65955,7 +65932,7 @@
       "title": "Nishikawa Sukenobu, 1739, Ehon Asakayama,16 gris",
       "artist": "Nishikawa Sukenobu",
       "date_created": "5/12/2011",
-      "year": 2011,
+      "year": 1739,
       "description": "Sixteenth page of the Ehon Asakayama by Japanese artist Sukenobu",
       "source": {
         "type": "Wikimedia Commons",
@@ -65972,7 +65949,7 @@
         "license_url": null,
         "usage_terms": "Public domain"
       },
-      "year_source": "date_created_plain",
+      "year_source": "filename",
       "pd_status": "uraa_restricted",
       "pd_status_reason": "year 2011 is >= 1931; US 95-year copyright term not yet expired"
     },
@@ -66323,7 +66300,7 @@
         "license_url": null,
         "usage_terms": "Public domain"
       },
-      "year_source": "wiki",
+      "year_source": "date_created_plain",
       "pd_status": "uraa_restricted",
       "pd_status_reason": "year 1933 is >= 1931; US 95-year copyright term not yet expired"
     },
@@ -66628,7 +66605,7 @@
       "title": "Susanna and the Elders",
       "artist": "Peter Paul Rubens",
       "date_created": "circa 1636–1639",
-      "year": 1638,
+      "year": 1636,
       "description": "Painting of Susanna and the Elders by Rubens",
       "source": {
         "type": "Wikimedia Commons",
@@ -66647,7 +66624,7 @@
       },
       "pd_status": "copyrighted",
       "pd_status_reason": "Commons copyrighted license",
-      "year_source": "wiki"
+      "year_source": "date_created_plain"
     },
     "Paisaje_con_san_Jerónimo,_Joachim_Patinir,_Museo_del_Prado.jpg": {
       "filename": "Paisaje_con_san_Jerónimo,_Joachim_Patinir,_Museo_del_Prado.jpg",
@@ -70315,7 +70292,7 @@
       "title": "Old Woman with a Basket of Coal",
       "artist": "Peter Paul Rubens",
       "date_created": "17 th century date QS:P,+1650-00-00T00:00:00Z/7",
-      "year": 1650,
+      "year": null,
       "description": null,
       "source": {
         "type": "Wikimedia Commons",
@@ -70351,7 +70328,6 @@
           "nl": "Oude vrouw zich de handen warmend boven een vuurtest"
         }
       },
-      "year_source": "date_created_plain",
       "pd_status": "public_domain",
       "pd_status_reason": "Commons PD license",
       "story": "A hunched woman cups her hand around a glowing coal, and her face leaps out of the dark. This is Rubens doing Caravaggio — a nocturne where the only light source is the ember itself, reddening her knuckles and the creased skin of her cheek. Look at the hand: three colors of flesh in the span of a finger. The picture sits in Dresden's Gemäldegalerie and is dated around 1618, not 1650. Rubens was testing what a single point of fire could do."
@@ -72326,7 +72302,7 @@
       "title": "Susanna and the Elders",
       "artist": "Peter Paul Rubens",
       "date_created": "circa 1605–1607",
-      "year": 1606,
+      "year": 1605,
       "description": "Paintings in Galleria Borghese (Rome)",
       "source": {
         "type": "Wikimedia Commons",
@@ -72343,7 +72319,7 @@
         "license_url": null,
         "usage_terms": "Public domain"
       },
-      "year_source": "wiki",
+      "year_source": "date_created_plain",
       "pd_status": "public_domain",
       "pd_status_reason": "Commons PD license",
       "story": "Rubens painted this early in his Italian years, when he was still digesting Caravaggio and the Venetians and turning them into something of his own. The biblical Susanna is caught bathing by two town elders who try to blackmail her into sex; she refuses, they lie, she nearly dies for it. Here she twists away, mouth open, eyes thrown skyward, while the leering pair crowd in from the right, one of them hushing the other with a finger to his lips. Galleria Borghese, Rome. The photograph is by Sailko, the Wikimedia documentarian Francesco Bini, not a painter himself."
@@ -73187,7 +73163,7 @@
       "title": "Landscape with the Fall of Icarus",
       "artist": "After Pieter Brueghel the Elder",
       "date_created": "from 1582 until 1625 date QS:P,+1500-00-00T00:00:00Z/6,P580,+1582-00-00T00:00:00Z/9,P582,+1625-00-00T00:00:00Z/9",
-      "year": 1582,
+      "year": null,
       "description": null,
       "source": {
         "type": "Wikimedia Commons",
@@ -73249,7 +73225,6 @@
           "ru": "Падение Икара"
         }
       },
-      "year_source": "wikidata_qs",
       "pd_status": "public_domain",
       "pd_status_reason": "Commons PD license",
       "story": "The most famous Bruegel that probably isn't one. The ploughman turns his back, the shepherd stares at the sky, the fisherman tends his line, and in the lower right a pair of legs vanishes into the harbour — Icarus, unnoticed. Technical examinations in 1996 found the canvas itself dates from around 1600, three decades after Bruegel's death, so the Brussels picture is now usually read as a very good early copy of a lost original of about 1558. Auden wrote his famous poem about suffering happening while someone else is eating in front of this exact copy."
@@ -74222,7 +74197,7 @@
       "title": "The Disasters of War, No. 4: The Women Give Courage",
       "artist": "Francisco Goya",
       "date_created": "2008-07-29 11:22:55",
-      "year": 1863,
+      "year": null,
       "description": "Los desastres de la guerra , plate No. 4, (1st edition, Madrid: Real Academia de Bellas Artes de San Fernando, 1863)",
       "source": {
         "type": "Wikimedia Commons",
@@ -74251,7 +74226,6 @@
         "movement": "Romanticism",
         "pd_status": "public_domain_worldwide"
       },
-      "year_source": "description",
       "pd_status": "public_domain",
       "pd_status_reason": "Commons PD license",
       "story": "A woman drives a pike into a French soldier while another clutches a baby and still finds a hand for a rock. Goya titles the plate \"Las mugeres dan valor\" — \"The women give courage.\" He etched the Disasters of War between 1810 and 1820, working from things he'd seen during the Peninsular War and the famine that followed. The plates were considered too hot to publish in his lifetime. The Real Academia de Bellas Artes de San Fernando finally brought out the first edition in Madrid in 1863, thirty-five years after his death."
@@ -74263,7 +74237,7 @@
       "title": "The Disasters of War, No. 46: This Is Bad",
       "artist": "Francisco Goya",
       "date_created": "2008-07-29 11:51:16",
-      "year": 1863,
+      "year": null,
       "description": "Los desastres de la guerra , plate No. 46, (1st edition, Madrid: Real Academia de Bellas Artes de San Fernando, 1863)",
       "source": {
         "type": "Wikimedia Commons",
@@ -74292,7 +74266,6 @@
         "movement": "Romanticism",
         "pd_status": "public_domain_worldwide"
       },
-      "year_source": "description",
       "pd_status": "public_domain",
       "pd_status_reason": "Commons PD license",
       "story": "A friar lies bleeding on the ground while a fat monk turns away. Goya's caption is short: \"Esto es malo\" — \"This is bad.\" Plate 46 of the Disasters of War, etched during or just after the Peninsular War, published only in 1863 by the Real Academia in Madrid. Goya saved his sharpest scorn for the Church when it failed the people it was supposed to comfort. The composition is almost empty — a corpse, a coward, a smear of aquatint for shadow — and that's the whole point."
@@ -74304,7 +74277,7 @@
       "title": "The Disasters of War, No. 47: This Is How It Happened",
       "artist": "Francisco Goya",
       "date_created": "2008-07-29 12:49:04",
-      "year": 1863,
+      "year": null,
       "description": "Los desastres de la guerra , plate No. 47, (1st edition, Madrid: Real Academia de Bellas Artes de San Fernando, 1863)",
       "source": {
         "type": "Wikimedia Commons",
@@ -74322,7 +74295,6 @@
         "license_url": null,
         "usage_terms": "Public domain"
       },
-      "year_source": "description",
       "pd_status": "public_domain",
       "pd_status_reason": "Commons PD license",
       "story": "French soldiers strip a church. One drags an altar cloth, another hauls off a silver reliquary, a third steps over a dying priest without slowing down. Goya's three-word caption underneath: \"Así sucedió\" — \"This is how it happened.\" No allegory, no muses, just looted property and a body on the flagstones. Plate 47 of the Disasters of War, etched in the decade after 1810 and held back from print until the Real Academia finally published the set in 1863."
@@ -76353,7 +76325,7 @@
       "title": "Portrait of Innocent X",
       "artist": "Diego Velázquez",
       "date_created": "from 1649 until 1650 date QS:P,+1650-00-00T00:00:00Z/7,P580,+1649-00-00T00:00:00Z/9,P582,+1650-00-00T00:00:00Z/9",
-      "year": 1650,
+      "year": 1649,
       "description": null,
       "source": {
         "type": "Wikimedia Commons",
@@ -76421,7 +76393,7 @@
           "mk": "Инокентиј X"
         }
       },
-      "year_source": "story_research",
+      "year_source": "wikidata_qs",
       "pd_status": "public_domain",
       "pd_status_reason": "Commons PD license",
       "story": "The pope took one look and muttered that it was troppo vero, too truthful. Velázquez caught Innocent X mid-glare, jowls heavy, eyes suspicious, the reds of his cape and chair vibrating against each other like a warning. Painted in Rome in 1650, it's still in the Doria Pamphilj palace where the family has kept it since. Francis Bacon spent the 1950s trying to scream his way out of it.",
@@ -77473,7 +77445,7 @@
       "title": "Christ between the two malefactors, the 'coup de lance'",
       "artist": "Peter Paul Rubens",
       "date_created": "between circa 1610 and circa 1799 date QS:P,+1500-00-00T00:00:00Z/6,P1319,+1610-00-00T00:00:00Z/9,P1326,+1799-00-00T00:00:00Z/9,P1480,Q5727902",
-      "year": 1620,
+      "year": 1610,
       "description": null,
       "source": {
         "type": "Wikimedia Commons",
@@ -77508,7 +77480,7 @@
           "nl": "Hoofd van Christus (aan het kruis tussen de twee moordenaars, van de 'De lanssteek')"
         }
       },
-      "year_source": "story_research",
+      "year_source": "wikidata_qs",
       "pd_status": "public_domain",
       "pd_status_reason": "Commons PD license",
       "story": "The soldier Longinus drives his lance into Christ's side and blood streams down the cross. Mary swoons. The thieves twist on their crosses, one still alive and howling. Rubens painted this huge altarpiece, called the Coup de Lance, in 1620 for the Recollects in Antwerp, not 1610. It now hangs in the Royal Museum of Fine Arts Antwerp, over fourteen feet tall.",
@@ -79786,7 +79758,7 @@
       "title": "Shaw John Byam Liston Now is Pilgrim Fair Autumn-s Charge",
       "artist": "John Byam Liston Shaw",
       "date_created": "2008 (upload date)",
-      "year": 2008,
+      "year": null,
       "description": "\"Now Is the Pilgrim Year Fair Autumn's Charge\" // \"The title of the work is an enigma. It appears to be a poetic quotation, but is from none of Shaw's preferred writers, including Christina and Dante Gabriel Rossetti, Tennyson, and Shakespeare.\"",
       "source": {
         "type": "Wikimedia Commons",
@@ -79803,7 +79775,6 @@
         "license_url": null,
         "usage_terms": "Public domain"
       },
-      "year_source": "date_created_plain",
       "pd_status": "uraa_restricted",
       "pd_status_reason": "year 2008 is >= 1931; US 95-year copyright term not yet expired"
     },
@@ -79885,7 +79856,7 @@
       "title": "Siberian Blue Nightingale by a Peony beneath a Snow-laden Sheaf",
       "artist": "Ohara Koson",
       "date_created": "circa 1925–1936",
-      "year": 1930,
+      "year": 1925,
       "description": "Identificatie Titel(s): Siberische Blauwe Nachtegaal bij een pioenroos onder een besneeuwde schoof Objecttype: prent Objectnummer: RP-P-2001-731 Opschriften / Merken: verzamelaarsmerk, verso, gestempeld: Lugt 2228 Omschrijving: Bloeiende roze pioenroos onder met sneeuw bedekte rieten afscherming, waarop een groen vogeltje; tegen zwarte achtergrond. Vervaardiging Vervaardiger: prentmaker: Ohara Koson (vermeld op object), prentmaker: anoniem, uitgever: Watanabe Shôzaburô (vermeld op object) Plaats vervaardiging: prentmaker: Japanprentmaker: Tokyouitgever: Tokyo Datering: 1925 - 1936 Fysieke kenmerken: kleurenhoutsnede; lijnblok in zwart met kleurblokken Materiaal: papier Techniek: kleurenhoutsnede Afmetingen: beeld: h 362 mm × b 239 mm Verwerving en rechten Credit line: Schenking van de heer J. Perrée, Eindhoven Verwerving: schenking 2001 Copyright: Publiek domein",
       "source": {
         "type": "Wikimedia Commons",
@@ -79902,7 +79873,7 @@
         "license_url": "http://creativecommons.org/publicdomain/zero/1.0/deed.en",
         "usage_terms": "Creative Commons Zero, Public Domain Dedication"
       },
-      "year_source": "wiki",
+      "year_source": "date_created_plain",
       "pd_status": "copyrighted",
       "pd_status_reason": "Commons copyrighted license"
     },
@@ -80030,7 +80001,7 @@
         "license_url": "https://creativecommons.org/licenses/by-sa/4.0",
         "usage_terms": "Creative Commons Attribution-Share Alike 4.0"
       },
-      "year_source": "wiki",
+      "year_source": "date_created_plain",
       "pd_status": "copyrighted",
       "pd_status_reason": "Commons copyrighted license"
     },
@@ -80953,7 +80924,7 @@
         "license_url": null,
         "usage_terms": "Public domain"
       },
-      "year_source": "wiki",
+      "year_source": "date_created_plain",
       "pd_status": "public_domain",
       "pd_status_reason": "Commons PD license",
       "story": "One of the thirty-six panels Joseph Karl Stieler painted for Ludwig I's Schönheitengalerie at Nymphenburg, this 1827 portrait sets Auguste Strobl against a gusty blue-grey sky. The red-and-gold ribbon tied into fat bows above each ear is the same watered silk that cinches her waist — a detail of Munich dress-up 1820s style. Stieler keeps the face cool and pink-cheeked, the pearls understated, the gauze sleeves almost transparent. A bourgeois sitter held to the same specification as duchesses and dancers in the king's roster of favourite faces."
@@ -83770,7 +83741,7 @@
       },
       "pd_status": "public_domain",
       "pd_status_reason": "Commons PD license",
-      "year_source": "wiki"
+      "year_source": "date_created_plain"
     },
     "The_Bathing_Posts,_Brittany_by_James_McNeill_Whistler,_1893.jpg": {
       "filename": "The_Bathing_Posts,_Brittany_by_James_McNeill_Whistler,_1893.jpg",
@@ -84010,7 +83981,7 @@
       "title": "The Conspiracy of the Batavians under Claudius Civilis",
       "artist": "Rembrandt",
       "date_created": "Unknown date",
-      "year": 1661,
+      "year": 1597,
       "description": "“Civilis summoned the leaders of the tribe and those prepared to fight for liberty to a sacred grove ostensibly for a banquet and when he beheld that their senses had been overcome by the nocturnal festivities he began to speak of the honour and glory of the tribe and went on to list the wrongs they had suffered. His words met with great acclaim and he bonded them together with patriotic oaths and barbaric rites.” This is how the Roman historian Tacitus describes the beginning of the revolt during the 2nd century by the Germanic Batavian tribe against the Romans under the leadership of their chief, Claudius Civilis. The Batavians’ struggle for liberty was used in the 17th century as an emblem for Dutch liberation from Spanish rule. In 1597 the northern provinces seceded from the empire of the Spanish Habsburgs and established a republic “the Seven United Provinces”. Tacitus’s account was chosen as the motif for some of the paintings decorating the walls of Amsterdam’s Town Hall. Begun in 1648, the Town Hall and was the Republic’s largest building project. It was intended to symbolise its power and wealth. The commission to depict the struggle for liberation by their ancestors originally went to Govaert Flinck, one of Rembrandt’s pupils. Flinck had hardly started the work before his sudden and untimely death. Rembrandt was then asked to complete the motif of the oath of loyalty, which was the only one Flinck had started. Following tradition, Flinck placed the Batavians and Romans on equal terms, painting them in classical armour. Rembrandt chose instead to follow Tacitus’s account more closely. In Rembrandt’s interpretation of Tacitus, Claudius Civilis dominates the scene in his costly garments and tall blue and orange headdress. He raises his heavy sword majestically to enable the men around the table to swear their oath of loyalty to him. According to legend, Claudius had lost an eye while prisoner of the Romans. Rembrandt defies tradition by depicting him full-face, so that the lack of one eye cannot be concealed. Rembrandt completed the work in 1662 and the monumental painting was hung in its intended place. Later in the same year it was removed for unknown reasons. There are no contemporary documents to explain why it was not allowed to remain, but a number of scholars believe that Rembrandt’s unconventional presentation did not please those who had commissioned the work. His style, with the use of light and shadow and thick layers of paint, was also somewhat old-fashioned at a time when history painting was increasingly characterised by austere classicism. Today a painting of the same motif by another of Rembrandt’s pupils, Jurian Ovens hangs on the same wall of Amsterdam’s Town Hall. The master’s own bold interpretation can now be seen here, somewhat smaller in size, at the Nationalmuseum, Stockholm, Sweden.",
       "source": {
         "type": "Wikimedia Commons",
@@ -84039,7 +84010,7 @@
         "movement": "Dutch Golden Age",
         "pd_status": "public_domain_worldwide"
       },
-      "year_source": "story_research",
+      "year_source": "description",
       "pd_status": "public_domain",
       "pd_status_reason": "Commons PD license",
       "story": "A one-eyed chieftain raises his heavy sword at a banquet table and his Batavian warriors cross their blades against his to swear the revolt against Rome. Amsterdam's new Town Hall commissioned it in 1661 as patriotic decoration, the tribe being a flattering national ancestor. Rembrandt painted Claudius Civilis full-face, missing eye and all, slathered the paint on thick, and lit the scene from below like a nightmare. The city hung it, then took it down within months. Rembrandt cut it up, probably to sell, and only the central fragment survives. It's the largest picture he ever made, now in Stockholm.",
@@ -84093,7 +84064,7 @@
       "title": "The Devil's Bridge, St Gotthard Pass",
       "artist": "J. M. W. Turner",
       "date_created": "circa 1803–1804",
-      "year": 1804,
+      "year": 1803,
       "description": null,
       "source": {
         "type": "Wikimedia Commons",
@@ -84112,7 +84083,7 @@
       },
       "pd_status": "copyrighted",
       "pd_status_reason": "Commons copyrighted license",
-      "year_source": "wiki"
+      "year_source": "date_created_plain"
     },
     "The_Disquieting_Muses.jpg": {
       "filename": "The_Disquieting_Muses.jpg",
@@ -84579,7 +84550,7 @@
         "license_url": "http://creativecommons.org/publicdomain/zero/1.0/deed.en",
         "usage_terms": "Creative Commons Zero, Public Domain Dedication"
       },
-      "year_source": "wiki",
+      "year_source": "date_created_plain",
       "pd_status": "copyrighted",
       "pd_status_reason": "Commons copyrighted license"
     },
@@ -85146,7 +85117,7 @@
       },
       "pd_status": "copyrighted",
       "pd_status_reason": "Commons copyrighted license",
-      "year_source": "wiki"
+      "year_source": "date_created_plain"
     },
     "The_Massacre_of_the_Innocents_MET_DP839588.jpg": {
       "filename": "The_Massacre_of_the_Innocents_MET_DP839588.jpg",
@@ -85281,7 +85252,7 @@
         "license_url": null,
         "usage_terms": "Public domain"
       },
-      "year_source": "wiki",
+      "year_source": "date_created_plain",
       "pd_status": "public_domain",
       "pd_status_reason": "Commons PD license",
       "story": "Gérôme paints the muezzin mid-call: a solitary figure on a minaret balcony, his mouth just slightly open, a smear of birds wheeling past. Cairo stretches below in hazy ochre, other minarets rising from the sprawl like thin fingers. The wooden railing and cage-like cupola are rendered with almost pedantic precision, which was Gérôme's brand. There's no crowd, no response, no ritual spectacle: just one man, the city, and a voice you can't hear. It's atypical for nineteenth-century Orientalism in how quiet it is. The photograph is by Bruce M. White for the Joslyn Art Museum."
@@ -85434,7 +85405,7 @@
       "title": "The Rising Squall, Hot Wells, from St Vincent's Rock, Bristol",
       "artist": "J. M. W. Turner",
       "date_created": "1775–1851",
-      "year": 1792,
+      "year": 1775,
       "description": "See source for more information.",
       "source": {
         "type": "Wikimedia Commons",
@@ -85464,7 +85435,7 @@
         "movement": "Romanticism",
         "pd_status": "public_domain_worldwide"
       },
-      "year_source": "story_research",
+      "year_source": "date_created_plain",
       "pd_status": "public_domain",
       "pd_status_reason": "Commons PD license",
       "story": "Wind shoves rain across the Avon gorge; a small boat tilts below St Vincent's Rock. Turner was seventeen when he painted it in 1792, working up an oil from sketchbook drawings he'd made the previous summer near Bristol. It was his very first oil to be exhibited at the Royal Academy, shown in 1793 a few days before his eighteenth birthday. The picture vanished for 150 years, was mistaken for a lesser hand, then resurfaced at Sotheby's in 2024 and sold the following year for about 2 million pounds.",
@@ -86872,7 +86843,7 @@
       },
       "pd_status": "public_domain",
       "pd_status_reason": "Commons PD license",
-      "year_source": "wiki"
+      "year_source": "date_created_plain"
     },
     "Tintoretto_-_St_Mary_Magdalen.jpg": {
       "filename": "Tintoretto_-_St_Mary_Magdalen.jpg",
@@ -86900,7 +86871,7 @@
       },
       "pd_status": "public_domain",
       "pd_status_reason": "Commons PD license",
-      "year_source": "wiki"
+      "year_source": "date_created_plain"
     },
     "Tintoretto_-_The_Baptism_of_Christ.jpg": {
       "filename": "Tintoretto_-_The_Baptism_of_Christ.jpg",
@@ -86909,7 +86880,7 @@
       "title": "The Baptism of Christ",
       "artist": "Tintoretto",
       "date_created": "circa 1578–1581",
-      "year": 1580,
+      "year": 1578,
       "description": "Tintoretto - The Baptism of Christ",
       "source": {
         "type": "Wikimedia Commons",
@@ -86928,7 +86899,7 @@
       },
       "pd_status": "public_domain",
       "pd_status_reason": "Commons PD license",
-      "year_source": "wiki"
+      "year_source": "date_created_plain"
     },
     "Tintoretto_and_lukrecja.jpeg": {
       "filename": "Tintoretto_and_lukrecja.jpeg",
@@ -87926,7 +87897,7 @@
       "title": "The Great Wave off Kanagawa",
       "artist": "Katsushika Hokusai",
       "date_created": "First publication: between circa 1830 and circa 1832 date QS:P571,+1830-00-00T00:00:00Z/8,P1319,+1830-00-00T00:00:00Z/9,P1326,+1832-00-00T00:00:00Z/9,P1480,Q5727902 .",
-      "year": 1831,
+      "year": 1830,
       "description": "Although it is often used in tsunami literature, there is no reason to suspect that Hokusai intended it to be interpreted in that way. The waves in this work are sometimes mistakenly referred to as tsunami (津波), but they are more accurately called okinami (沖波), great off-shore waves.",
       "source": {
         "type": "Wikimedia Commons",
@@ -87966,7 +87937,7 @@
           "ar": "الموجة الكبيرة في كاناغاوا"
         }
       },
-      "year_source": "story_research",
+      "year_source": "wikidata_qs",
       "pd_status": "public_domain",
       "pd_status_reason": "Commons PD license",
       "story": "Call it the Great Wave, not a tsunami. Hokusai's cresting claw is actually an okinami, a towering offshore swell, with three slender fishing boats pitched against it and tiny Mount Fuji holding still in the trough. The deep, saturated blue was new to Japan: Prussian blue pigment arrived in quantity around 1829, and Hokusai saturated his prints with it. Published around 1831 as the opening image of Thirty-six Views of Mount Fuji, it went on to become, by many counts, the most reproduced image in art history.",
@@ -88728,7 +88699,7 @@
       },
       "pd_status": "public_domain",
       "pd_status_reason": "Commons PD license",
-      "year_source": "wiki"
+      "year_source": "date_created_plain"
     },
     "Turner_-_Walton_bridges,_c._1806,_981-3.jpg": {
       "filename": "Turner_-_Walton_bridges,_c._1806,_981-3.jpg",
@@ -88821,7 +88792,7 @@
       "title": "Two Cockatoos on a Branch with Plum Blossom",
       "artist": "Ohara Koson",
       "date_created": "circa 1925–1936",
-      "year": 1930,
+      "year": 1925,
       "description": "Identificatie Titel(s): Twee kaketoes op tak met pruimenbloesem Objecttype: prent Objectnummer: RP-P-2005-472 Catalogusreferentie: Newland 36-3. Opmerking: S Opschriften / Merken: verzamelaarsmerk, verso, gestempeld: Lugt 2228 Vervaardiging Vervaardiger: prentmaker: Ohara Koson (vermeld op object), uitgever: Watanabe Shôzaburô Plaats vervaardiging: Tokyo Datering: 1925 - 1936 Fysieke kenmerken: kleurenhoutsnedelijnblok in zwart met kleurblokken Materiaal: papier Techniek: kleurenhoutsnede Afmetingen: blad: h 137 mm × b 88 mm Verwerving en rechten Credit line: Schenking van de heer J. Perrée, Eindhoven Verwerving: schenking 2005 Copyright: Publiek domein",
       "source": {
         "type": "Wikimedia Commons",
@@ -88838,7 +88809,7 @@
         "license_url": "http://creativecommons.org/publicdomain/zero/1.0/deed.en",
         "usage_terms": "Creative Commons Zero, Public Domain Dedication"
       },
-      "year_source": "wiki",
+      "year_source": "date_created_plain",
       "pd_status": "copyrighted",
       "pd_status_reason": "Commons copyrighted license"
     },
@@ -89298,7 +89269,7 @@
       "title": "Pieter Bruegel the Younger",
       "artist": "Anthony van Dyck",
       "date_created": "early 17 th century date QS:P571,+1650-00-00T00:00:00Z/7",
-      "year": 1632,
+      "year": 1620,
       "description": null,
       "source": {
         "type": "Wikimedia Commons",
@@ -89320,7 +89291,7 @@
           "de": "Porträt Pieter Brueghel des Jüngeren"
         }
       },
-      "year_source": "story_research",
+      "year_source": "era_phrase",
       "pd_status": "public_domain",
       "pd_status_reason": "Commons PD license",
       "story": "A sheet from Van Dyck's 'Iconography,' the print project he launched after returning to Antwerp from Italy, collecting likenesses of painters, scholars and statesmen. Pieter Brueghel the Younger, son of the great peasant-scene painter, appears in three-quarter profile, turned slightly away, one hand gathering a heavy cloak at the chest. The etched lines are loose and sketch-like around the face, tighter in the hair and collar. Van Dyck himself etched only eighteen of the series' hundred-odd plates; this is one of the earliest states of that group."
@@ -92564,7 +92535,7 @@
       "title": "Water Lilies p",
       "artist": "Claude Monet",
       "date_created": "Taken in February 2009",
-      "year": 2009,
+      "year": 1840,
       "description": "Claude Monet (French, 1840–1926) Water Lilies, 1919 Oil on canvas; 39 3/4 x 78 3/4 in. (101 x 200 cm) The Metropolitan Museum of Art, New York, The Walter H. and Leonore Annenberg Collection, Gift of Walter H. and Leonore Annenberg, 1998, Bequest of Walter H. Annenberg, 2002 (1998.325.2) View at the Metropolitan Museum of Art website Wikipedia Loves Art at the Metropolitan Museum of Art This photo of item # 1998.325.2 at the Metropolitan Museum of Art was contributed under the team name \" shooting_brooklyn \" as part of the Wikipedia Loves Art project in February 2009. Metropolitan Museum of Art The original photograph on Flickr was taken by shooting brooklyn — please add a comment to the original Flickr page whenever a use has been made on Wikipedia or another project. Project galleries on Flickr: this institution , this team",
       "source": {
         "type": "Wikimedia Commons",
@@ -92604,7 +92575,7 @@
           "mk": "Водни лилјани (1919)"
         }
       },
-      "year_source": "date_created_plain",
+      "year_source": "description",
       "pd_status": "uraa_restricted",
       "pd_status_reason": "year 2009 is >= 1931; US 95-year copyright term not yet expired"
     },
@@ -92615,7 +92586,7 @@
       "title": "Reflections of Clouds on the Water-Lily Pond",
       "artist": "Claude Monet",
       "date_created": "circa 1914–1926",
-      "year": 1920,
+      "year": 1914,
       "description": "Claude Monet. Reflections of Clouds on the Water-Lily Pond. c. 1920. Oil on canvas, three panels, Each 6' 6 3/4\" x 13' 11 1/4\" (200 x 424.8 cm), overall 6' 6 3/4\" x 41' 10 3/8\" (200 x 1276 cm). Mrs. Simon Guggenheim Fund. © 2008 Artists Rights Society (ARS), New York / ADAGP, Paris Wikipedia Loves Art at the Museum of Modern Art This photo of item # 666.1959.a-c at the Museum of Modern Art was contributed under the team name \" Stephen_Sandoval \" as part of the Wikipedia Loves Art project in February 2009. Museum of Modern Art The original photograph on Flickr was taken by Stephen Sandoval — please add a comment to the original Flickr page whenever a use has been made on Wikipedia or another project. Project galleries on Flickr: this institution , this team",
       "source": {
         "type": "Wikimedia Commons",
@@ -92632,7 +92603,7 @@
         "license_url": null,
         "usage_terms": "Public domain"
       },
-      "year_source": "wiki",
+      "year_source": "date_created_plain",
       "pd_status": "uraa_restricted",
       "pd_status_reason": "year 2009 is >= 1931; US 95-year copyright term not yet expired"
     },
@@ -96673,7 +96644,7 @@
         "license_url": null,
         "usage_terms": "Public domain"
       },
-      "year_source": "wiki",
+      "year_source": "date_created_plain",
       "pd_status": "public_domain",
       "pd_status_reason": "Commons PD license",
       "story": "Fantin-Latour paints his friend Manet the way Manet painted his own dandies: against a flat putty ground, half-length, all presence. Top hat, trim ginger beard, blue cravat knotted loose, cane balanced in gloved and ungloved hands — the scandalous author of Olympia as impeccable boulevardier. The dedication at lower left reads 'A mon ami Manet / Fantin 1867,' the year of Manet's rejected one-man show at the Exposition Universelle. The portrait went to the Salon and won Manet more respect than his own pictures did. It hangs at the Art Institute of Chicago."
@@ -96702,7 +96673,7 @@
         "license_url": null,
         "usage_terms": "Public domain"
       },
-      "year_source": "wiki",
+      "year_source": "date_created_plain",
       "pd_status": "public_domain",
       "pd_status_reason": "Commons PD license",
       "story": "Vigée Le Brun painted her friend Hubert Robert the year before the Revolution uprooted them both. Robert was the great French painter of romantic ruins; here he leans on a ledge with palette and brushes, hair thrown back, cravat loose at the throat, caught mid-thought as if she'd interrupted him at the easel. The face is alert, slightly ruddy, entirely unposed. Vigée Le Brun knew exactly how to make a sitter look like themselves on a good day, and this is her doing it for someone she actually liked. Now at the Louvre. (The Wikimedia uploader Sammyday is not the artist.)"
@@ -98560,7 +98531,7 @@
       "title": "Finches and bamboo",
       "artist": "Emperor Huizong of Song",
       "date_created": "between 1100 and 1127 date QS:P,+1150-00-00T00:00:00Z/7,P1319,+1100-00-00T00:00:00Z/9,P1326,+1127-00-00T00:00:00Z/9",
-      "year": 1110,
+      "year": 1100,
       "description": "China; Handscroll; Paintings",
       "source": {
         "type": "Wikimedia Commons",
@@ -98591,7 +98562,7 @@
           "zh-hant": "北宋 徽宗 竹禽圖 卷"
         }
       },
-      "year_source": "story_research",
+      "year_source": "wikidata_qs",
       "pd_status": "public_domain",
       "pd_status_reason": "Commons PD license",
       "story": "Huizong ruled Northern Song from 1100 until 1125, founded the imperial painting academy, and invented the wiry \"slender gold\" calligraphy that still bears his name. Two years after he abdicated, the Jurchen Jin armies sacked his capital and carried him off as a prisoner; he died in captivity in 1135. This small handscroll, ink and colour on silk, was painted when he still ruled: two finches balancing on a thin bamboo stem, feathers finely stippled, each claw placed with the same precision he brought to his calligraphy. It reads right to left, and the Met acquired it from the Crawford collection.",

@@ -1,11 +1,11 @@
 # Copyright review — looks recent
-# Generated: 2026-04-24T13:05:25.862Z
+# Generated: 2026-05-02T15:57:10.677Z
 # Cutoff: year < 1926 (artwork must be at least 100 years old).
 # Entries here have year >= 1926 after heuristic re-extraction,
 # so they may be copyrighted. Review and remove if they cannot be
 # confirmed as public domain.
 
-## collection-of-beauty.json  (131)
+## collection-of-beauty.json  (125)
 
 2016 [filename]             ? — Snow on Ayase river, Rijksmuseum RP-P-2016-66-8 (1)
        file: Snow_on_Ayase_river,_Rijksmuseum_RP-P-2016-66-8 (1).jpg
@@ -119,37 +119,13 @@
        file: 2013_HGK_03211_1176_000(luo_ming_mount_hua014457).jpg
        date_created: 2013
 
-2011 [date_created_plain]   Nishikawa Sukenobu — Nishikawa Sukenobu, 1739, Ehon Asakayama,16 gris
-       file: Nishikawa_Sukenobu,_1739,_Ehon_Asakayama,16_gris.jpg
-       date_created: 5/12/2011
-
-2009 [date_created_plain]   Claude Monet — Water Lilies p
-       file: WLA_metmuseum_Water_Lilies_by_Claude_Monet.jpg
-       date_created: Taken in February 2009
-
-2009 [date_created_plain]   Wikipedia Loves Art participant " Stephen_Sandoval " — WLA moma Monet Reflections of Clouds on the Water-Lily Pond
-       file: WLA_moma_Monet_Reflections_of_Clouds_on_the_Water-Lily_Pond.jpg
-       date_created: Taken in February 2009
-
-2008 [date_created_plain]   Eugene de Blaas — Blaas Eugen Von An Interesting Story
-       file: Blaas_Eugen_Von_An_Interesting_Story.jpg
-       date_created: 2008 (upload date)
-
 2008 [description]          Dong Yuan — The Immortal Paradise Building in the Mountain
        file: Dong_Yuan_Mountain_Hall.jpg
        date_created: 10 th century date QS:P,+950-00-00T00:00:00Z/7
 
-2008 [date_created_plain]   John Byam Liston Shaw — John Liston Byam Shaw Boer War
-       file: John_Liston_Byam_Shaw_Boer_War.jpg
-       date_created: 2008 (upload date)
-
-2008 [date_created_plain]   John Byam Liston Shaw — Shaw John Byam Liston Now is Pilgrim Fair Autumn-s Charge
-       file: Shaw_John_Byam_Liston_Now_is_Pilgrim_Fair_Autumn-s_Charge.jpg
-       date_created: 2008 (upload date)
-
-1957 [wikidata_qs]          Rijksmuseum — Akashi strand Akashi no hama (titel op object), AK-MAK-1637
+1957 [date_created_plain]   Tsuchiya Kōitsu — Akashi Beach (Akashi no Hama)
        file: Akashi_strand_Akashi_no_hama_(titel_op_object),_AK-MAK-1637.jpg
-       date_created: after 1957 date QS:P,+1957-00-00T00:00:00Z/7,P1319,+1957-00-00T00:00:00Z/9
+       date_created: after 1957
 
 1957 [jp_era]               Hasui Kawase — Kawase Hasui-No Series-Konjikido in Snow Hiraizumi
        file: Kawase_Hasui-No_Series-Konjikido_in_Snow_Hiraizumi.jpg
@@ -215,7 +191,7 @@
        file: Tsuchiya_Kōitsu_-_Sketches_of_Famous_Places_in_Japan-_Asakusa_Kinryūzan_Temple_-_2016.76_-_Cleveland_Museum_of_Art_(cropped).tif
        date_created: 1938 date QS:P571,+1938-00-00T00:00:00Z/9
 
-1937 [date_created_plain]   Rijksmuseum — De warme bronnen van Shuzenji Shuzenji onsen (titel op object), RP-P-1968-277
+1937 [date_created_plain]   Kasamatsu Shirō — The Hot Springs of Shuzenji (Shuzenji Onsen)
        file: De_warme_bronnen_van_Shuzenji_Shuzenji_onsen_(titel_op_object),_RP-P-1968-277.jpg
        date_created: 1937
 
@@ -251,13 +227,13 @@
        file: Yoshida_Hiroshi_Suzukawa,_1935.jpg
        date_created: 1935 date QS:P571,+1935-00-00T00:00:00Z/9
 
-1934 [date_created_plain]   Rijksmuseum — De grote lantaarn van de Kannon tempel in Asakusa Asakusa Kannondo ochochin (serietitel op object), RP-P-1968-275
+1934 [date_created_plain]   Kasamatsu Shirō — The Great Lantern of the Kannon Temple at Asakusa (Asakusa Kannondō Ōchōchin)
        file: De_grote_lantaarn_van_de_Kannon_tempel_in_Asakusa_Asakusa_Kannondo_ochochin_(serietitel_op_object),_RP-P-1968-275.jpg
        date_created: 1934
 
-1934 [date_created_plain]   Rijksmuseum — Het drijvende paviljoen te Katada in de sneeuw Yuki no Katada Ukimido (titel op object), AK-MAK-1636
+1934 [date_created_plain]   Tsuchiya Kōitsu — The Floating Pavilion at Katada in Snow (Yuki no Katada Ukimidō)
        file: Het_drijvende_paviljoen_te_Katada_in_de_sneeuw_Yuki_no_Katada_Ukimido_(titel_op_object),_AK-MAK-1636.jpg
-       date_created: 1934-03
+       date_created: March 1934
 
 1933 [wikidata_qs]          Hasui Kawase — 川瀬巴水版画集二
        file: NDL-DC_2586550-50_Kawase_Hasui_S0806_crd.jpg
@@ -271,15 +247,15 @@
        file: NDL-DC_2586550-74_Kawase_Hasui_S0812_crd.jpg
        date_created: 1933 date QS:P571,+1933-00-00T00:00:00Z/9
 
-1933 [filename]             Sailko — Ohara koson, gatto e vasca con pesci rossi, 1933, xilografia colorata
+1933 [date_created_plain]   Ohara Koson — Cat and Goldfish Bowl
        file: Ohara_koson,_gatto_e_vasca_con_pesci_rossi,_1933,_xilografia_colorata.jpg
-       date_created: 2016-11-03 22:02:33
+       date_created: 1933
 
 1933 [date_created_plain]   Hiroshi Yoshida — The Golden Pavilion
        file: The_Golden_Pavilion_(5759027207).jpg
        date_created: Published in 1933
 
-1932 [date_created_plain]   Rijksmuseum — De rand van de Shinobazu vijver tijdens een mistige avond. Kasumu yube Shinobazu chihan (titel op object), RP-P-1998-389
+1932 [date_created_plain]   Kasamatsu Shirō — Misty Evening at Shinobazu Pond (Kasumu Yūbe Shinobazu Chihan)
        file: De_rand_van_de_Shinobazu_vijver_tijdens_een_mistige_avond._Kasumu_yube_Shinobazu_chihan_(titel_op_object),_RP-P-1998-389.jpg
        date_created: 1932
 
@@ -303,7 +279,7 @@
        file: Kawase_Hasui_(1931)_Snow_in_Mukojima.jpg
        date_created: 昭和6年出版
 
-1931 [date_created_plain]   TG 642 — Midnight Ride of Paul Revere
+1931 [date_created_plain]   Grant Wood — The Midnight Ride of Paul Revere
        file: Midnight_Ride_of_Paul_Revere.jpg
        date_created: 1931
 
@@ -467,7 +443,7 @@
        file: Monet_-_Das_Nachtessen,_1868-69.jpg
        date_created: 1868/1869 before 1926 date QS:P571,+1926-00-00T00:00:00Z/7,P1326,+1926-00-00T00:00:00Z/9
 
-1926 [wikidata_qs]          Claude Monet — Glaçons à Bougival
+1926 [wikidata_qs]          Claude Monet — Ice Floes at Bougival
        file: Monet_-_ice-floes-on-the-seine-at-bougival-1868.jpg
        date_created: before 1926 date QS:P571,+1926-00-00T00:00:00Z/7,P1326,+1926-00-00T00:00:00Z/9
 
