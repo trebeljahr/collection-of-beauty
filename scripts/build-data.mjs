@@ -3,6 +3,7 @@ import { mkdir, readFile, writeFile } from "node:fs/promises";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { imageSize } from "image-size";
+import sharp from "sharp";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const ROOT = path.resolve(__dirname, "..");
@@ -47,7 +48,7 @@ function variantWidthsFor(folderKey, filename) {
   return widths;
 }
 
-function dimensionsFor(folderKey, filename) {
+async function dimensionsFor(folderKey, filename) {
   const key = `${folderKey}/${filename}`;
   if (dimensionCache.has(key)) return dimensionCache.get(key);
   let result = null;
@@ -61,7 +62,22 @@ function dimensionsFor(folderKey, filename) {
       const { width, height } = imageSize(slice);
       if (width && height) result = { width, height };
     } catch {
-      // leave null
+      // image-size needs the SOF marker within the probe; some JPEGs
+      // bury it past 64 KB behind large EXIF/thumbnail blocks. Fall
+      // through to the sharp path below.
+    }
+    if (!result) {
+      // Sharp streams the file header rather than buffering the whole
+      // image, so it's safe on the 16 MB plates that motivated the 64 KB
+      // probe in the first place.
+      try {
+        const meta = await sharp(file).metadata();
+        if (meta.width && meta.height) {
+          result = { width: meta.width, height: meta.height };
+        }
+      } catch {
+        // leave null
+      }
     }
   }
   dimensionCache.set(key, result);
@@ -696,7 +712,7 @@ async function main() {
   const artistAggregates = new Map();
   const droppedMissing = { count: 0, samples: [] };
 
-  function pushFromFolder(folderKey, data) {
+  async function pushFromFolder(folderKey, data) {
     for (const [fname, entry] of Object.entries(data.entries)) {
       if (!keepEntry(entry)) continue;
 
@@ -727,7 +743,7 @@ async function main() {
       const artistSlug = artistName ? slugify(artistName) : "unknown";
       const id = slugify(`${folderKey}-${fname.replace(/\.[^.]+$/, "")}`).slice(0, 120);
 
-      const dims = dimensionsFor(folderKey, fname);
+      const dims = await dimensionsFor(folderKey, fname);
       const real = realDimensions.get(id) || null;
       const variantWidths = variantWidthsFor(folderKey, fname);
       artworks.push({
@@ -787,9 +803,9 @@ async function main() {
     }
   }
 
-  pushFromFolder("collection-of-beauty", cob);
-  pushFromFolder("audubon-birds", birds);
-  pushFromFolder("kunstformen-images", haeckel);
+  await pushFromFolder("collection-of-beauty", cob);
+  await pushFromFolder("audubon-birds", birds);
+  await pushFromFolder("kunstformen-images", haeckel);
 
   if (artworks.length === 0) {
     throw new Error(
