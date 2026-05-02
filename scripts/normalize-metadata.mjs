@@ -32,6 +32,41 @@ const DEFAULT_FILES = [
 
 const COPYRIGHT_CUTOFF_YEAR = 1926; // today - 100y (2026-04 -> anything >= 1926 is borderline)
 
+// Curated artist DB — used to look up an artist's birth/death years when the
+// per-entry artist_info wasn't populated by the upstream fetch script. Lazy-
+// loaded on first use so this module stays usable as a library.
+let artistsByAlias = null;
+function loadArtistsDb() {
+  if (artistsByAlias) return artistsByAlias;
+  const dbPath = path.join(ROOT, "scripts", "artists-db.json");
+  artistsByAlias = new Map();
+  if (!fs.existsSync(dbPath)) return artistsByAlias;
+  try {
+    const { artists } = JSON.parse(fs.readFileSync(dbPath, "utf8"));
+    for (const a of artists || []) {
+      for (const alias of a.aliases || [a.name]) {
+        artistsByAlias.set(alias.toLowerCase(), a);
+      }
+      artistsByAlias.set(a.name.toLowerCase(), a);
+    }
+  } catch {
+    // ignore — guard just won't fire for unmatched entries
+  }
+  return artistsByAlias;
+}
+
+function artistDates(entry) {
+  if (entry.artist_info) return entry.artist_info;
+  if (!entry.artist) return null;
+  const db = loadArtistsDb();
+  const lc = String(entry.artist).toLowerCase();
+  if (db.has(lc)) return db.get(lc);
+  for (const [alias, a] of db) {
+    if (lc.includes(alias) || alias.includes(lc)) return a;
+  }
+  return null;
+}
+
 // --- localization parsing -------------------------------------------------
 
 // Maps a leading "German:" / "French:" etc. prefix to the QS language code, so
@@ -238,9 +273,15 @@ function yearsFromString(s) {
 function isUploadDate(s) {
   if (!s) return false;
   const t = s.trim();
-  if (/^taken on /i.test(t)) return true;
+  if (/^taken (on|in) /i.test(t)) return true;
+  if (/\b\(?\s*(?:original\s+)?upload\s+date\s*\)?/i.test(t)) return true; // "2008 (upload date)", "27 April 2007 (original upload date)"
   if (/^\d{4}-\d{2}-\d{2}[\sT]\d{2}:\d{2}/.test(t)) return true; // 2013-11-05 16:15:40
   if (/^\d{1,2}\s+\w+\s+\d{4},?\s*\d{2}:\d{2}/.test(t)) return true; // 21 August 2009, 08:09:03
+  // "5/12/2011" / "5-12-2011" — slashed/dashed numeric date, year >= 2000.
+  // Artists working pre-2000 wouldn't produce a creation-date in this format;
+  // it's an uploader's local-format timestamp.
+  const slashed = t.match(/^\d{1,2}[\/\-]\d{1,2}[\/\-](\d{4})$/);
+  if (slashed && parseInt(slashed[1], 10) >= 2000) return true;
   // Bare ISO date like "2020-11-29" with nothing else — treat as upload date
   // (an artwork date range would be "1886-01-01/1886-12-31"). Wikimedia
   // Commons only launched in 2004, so any year before ~2000 is far more
@@ -366,29 +407,49 @@ function yearFromJapaneseEra(s) {
 }
 
 function resolveYear(entry) {
+  // Reject any candidate year that falls outside the artist's documented
+  // working life. Artists do not produce work before being born or after
+  // dying. The "+1 / -10" slack covers 1-year posthumous publication and
+  // child-prodigy starts; everything else is a stray number masquerading as
+  // a date — usually an upload timestamp (post-died) or a Wildenstein-style
+  // catalog number ("Monet W.1200") (pre-born).
+  const dates = artistDates(entry);
+  const born = dates?.born;
+  const died = dates?.died;
+  const isPlausible = (y) => {
+    if (y == null) return true;
+    if (typeof died === "number" && y > died + 1) return false;
+    if (typeof born === "number" && y < born - 10) return false;
+    return true;
+  };
+
   const fromDc = yearFromDateCreated(entry.date_created);
-  if (fromDc.year != null) return { year: fromDc.year, source: fromDc.source };
+  if (fromDc.year != null && isPlausible(fromDc.year))
+    return { year: fromDc.year, source: fromDc.source };
 
   const jp = yearFromJapaneseEra(entry.date_created);
-  if (jp != null) return { year: jp, source: "jp_era" };
+  if (jp != null && isPlausible(jp)) return { year: jp, source: "jp_era" };
 
   const fnYear = yearFromFilename(entry.filename);
-  if (fnYear != null) return { year: fnYear, source: "filename" };
+  if (fnYear != null && isPlausible(fnYear))
+    return { year: fnYear, source: "filename" };
 
   // Title (strip the QS markup first so we do not pick years out of Wikidata IDs)
   const titleClean = String(entry.title || "").replace(/QS:[^ ]+/g, " ");
-  const ts = yearsFromString(titleClean);
+  const ts = yearsFromString(titleClean).filter(isPlausible);
   if (ts.length) return { year: Math.min(...ts), source: "title" };
 
   const descClean = String(entry.description || "").replace(/QS:[^ ]+/g, " ");
-  const ds = yearsFromString(descClean);
+  const ds = yearsFromString(descClean).filter(isPlausible);
   if (ds.length) return { year: Math.min(...ds), source: "description" };
 
   // Era phrases like "late 18th century"
   const eraDc = yearFromEraPhrase(entry.date_created);
-  if (eraDc != null) return { year: eraDc, source: "era_phrase" };
+  if (eraDc != null && isPlausible(eraDc))
+    return { year: eraDc, source: "era_phrase" };
   const eraDesc = yearFromEraPhrase(entry.description);
-  if (eraDesc != null) return { year: eraDesc, source: "era_phrase" };
+  if (eraDesc != null && isPlausible(eraDesc))
+    return { year: eraDesc, source: "era_phrase" };
 
   return { year: null, source: null };
 }
@@ -396,7 +457,7 @@ function resolveYear(entry) {
 // If we still have no explicit year but the enriched artist_info tells us the
 // artist died long before the copyright cutoff, the work is inherently old.
 function safelyOldByArtistDeath(entry) {
-  const died = entry.artist_info?.died;
+  const died = artistDates(entry)?.died;
   if (typeof died !== "number") return false;
   // Artist died more than 100 years before our cutoff of 1926? They are
   // conclusively pre-cutoff. Use died + 0 < COPYRIGHT_CUTOFF_YEAR.

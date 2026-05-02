@@ -350,7 +350,11 @@ function firstLineDescription(raw) {
 }
 
 function extractYear(entry) {
-  if (typeof entry.year === "number") return entry.year;
+  // normalize-metadata.mjs writes `year: null` deliberately when date_created
+  // is an upload timestamp / EXIF photo date. Respect that — the previous
+  // fallback of "any 4-digit number in date_created" picked the upload year
+  // back up and produced impossible artwork dates (Monets in the 2000s).
+  if ("year" in entry) return entry.year;
   if (!entry.date_created) return null;
   const m = entry.date_created.match(/\b(\d{3,4})\b/);
   return m ? Number(m[1]) : null;
