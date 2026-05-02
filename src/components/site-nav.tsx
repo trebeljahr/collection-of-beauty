@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useEffect, useState } from "react";
+import { NSFW_MODE_LABELS, useNsfw } from "./nsfw-provider";
 
 const LINKS = [
   { href: "/", label: "Gallery" },
@@ -10,6 +11,20 @@ const LINKS = [
   { href: "/artists", label: "Artists" },
   { href: "/gallery-3d", label: "3D Room" },
 ];
+
+function NsfwToggle({ className }: { className?: string }) {
+  const { mode, cycleMode } = useNsfw();
+  return (
+    <button
+      type="button"
+      onClick={cycleMode}
+      title="Cycle: blurred → shown → hidden"
+      className={`rounded-md border border-[var(--border)] px-2 py-1 text-xs text-[var(--muted-foreground)] hover:bg-[var(--accent)] hover:text-[var(--foreground)] ${className ?? ""}`}
+    >
+      {NSFW_MODE_LABELS[mode]}
+    </button>
+  );
+}
 
 /**
  * Site header. Inline link row on `md+`; hamburger + slide-in drawer
@@ -65,6 +80,7 @@ export function SiteNav() {
               {l.label}
             </Link>
           ))}
+          <NsfwToggle className="ml-2" />
         </div>
 
         {/* Hamburger */}
@@ -159,6 +175,9 @@ export function SiteNav() {
               {l.label}
             </Link>
           ))}
+          <div className="mt-3 border-t border-[var(--border)] pt-3">
+            <NsfwToggle className="w-full text-sm" />
+          </div>
         </nav>
       </div>
     </header>

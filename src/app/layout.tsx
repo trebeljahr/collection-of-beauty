@@ -1,6 +1,7 @@
 import type { Metadata, Viewport } from "next";
 import Link from "next/link";
 import "./globals.css";
+import { NsfwProvider } from "@/components/nsfw-provider";
 import { SiteNav } from "@/components/site-nav";
 import {
   heroArtwork,
@@ -96,28 +97,30 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         <script {...jsonLdScriptProps(websiteJsonLd())} />
       </head>
       <body className="min-h-screen antialiased" suppressHydrationWarning>
-        <SiteNav />
-        <main>{children}</main>
-        <footer className="mt-16 border-t border-[var(--border)] py-6 text-center text-xs text-[var(--muted-foreground)]">
-          <nav
-            aria-label="Footer"
-            className="mb-2 flex flex-wrap items-center justify-center gap-x-4 gap-y-1"
-          >
-            <Link href="/about" className="hover:text-[var(--foreground)] hover:underline">
-              About
-            </Link>
-          </nav>
-          <p>
-            All works shown are in the public domain or openly licensed. Metadata sourced from
-            Wikimedia Commons.
-          </p>
-          <p className="mt-2">
-            © {new Date().getFullYear()} Rico Trebeljahr ·{" "}
-            <Link href="/impressum" className="hover:text-[var(--foreground)]">
-              Impressum
-            </Link>
-          </p>
-        </footer>
+        <NsfwProvider>
+          <SiteNav />
+          <main>{children}</main>
+          <footer className="mt-16 border-t border-[var(--border)] py-6 text-center text-xs text-[var(--muted-foreground)]">
+            <nav
+              aria-label="Footer"
+              className="mb-2 flex flex-wrap items-center justify-center gap-x-4 gap-y-1"
+            >
+              <Link href="/about" className="hover:text-[var(--foreground)] hover:underline">
+                About
+              </Link>
+            </nav>
+            <p>
+              All works shown are in the public domain or openly licensed. Metadata sourced from
+              Wikimedia Commons.
+            </p>
+            <p className="mt-2">
+              © {new Date().getFullYear()} Rico Trebeljahr ·{" "}
+              <Link href="/impressum" className="hover:text-[var(--foreground)]">
+                Impressum
+              </Link>
+            </p>
+          </footer>
+        </NsfwProvider>
       </body>
     </html>
   );

@@ -7,6 +7,7 @@ import * as THREE from "three";
 import type { Artwork } from "@/lib/data";
 import type { Placement } from "@/lib/gallery-layout/types";
 import { variantUrl } from "@/lib/utils";
+import { useNsfw } from "../nsfw-provider";
 import { type PaintingEntry, registerPainting, unregisterPainting } from "./painting-registry";
 import {
   FRAME_VARIANTS,
@@ -100,6 +101,14 @@ export function Painting({
 }) {
   const { artwork, position, rotation, widthM, heightM, plaqueOnLeft } = placement;
   const url = variantUrl(artwork.objectKey, 960, "avif");
+  const { mode } = useNsfw();
+  // NSFW visibility for 3D paintings is binary: full texture, or
+  // placeholder swatch. The placeholder takes the place of the
+  // textured plane entirely so we never even fetch the high-res
+  // variant for hidden/blurred items. The plaque + frame still
+  // render so the gap doesn't look broken — visually similar to a
+  // painting in conservation.
+  const nsfwHidden = artwork.nsfw === true && mode !== "show";
 
   // Aspect-corrected plane size. The slot's widthM/heightM are derived
   // from realDimensions (or pixel aspect, or a default) — but those can
@@ -162,16 +171,26 @@ export function Painting({
           <primitive object={variant.liner.material} attach="material" />
         </mesh>
       )}
-      <Suspense fallback={<FallbackSwatch widthM={dW} heightM={dH} artwork={artwork} />}>
-        <PaintingPlane
-          url={url}
+      {nsfwHidden ? (
+        <NsfwPlaceholder
           widthM={dW}
           heightM={dH}
           artwork={artwork}
+          mode={mode}
           onLoaded={onLoaded}
-          onTextureAspect={handleTextureAspect}
         />
-      </Suspense>
+      ) : (
+        <Suspense fallback={<FallbackSwatch widthM={dW} heightM={dH} artwork={artwork} />}>
+          <PaintingPlane
+            url={url}
+            widthM={dW}
+            heightM={dH}
+            artwork={artwork}
+            onLoaded={onLoaded}
+            onTextureAspect={handleTextureAspect}
+          />
+        </Suspense>
+      )}
       <Plaque artwork={artwork} widthM={dW} plaqueOnLeft={plaqueOnLeft} />
     </group>
   );
@@ -873,6 +892,59 @@ function FallbackSwatch({
       ) : (
         <meshBasicMaterial color="#3a2e20" toneMapped={false} />
       )}
+    </mesh>
+  );
+}
+
+/** Stand-in plane for an NSFW painting when the user has chosen
+ *  hide / blur. Registers with the painting-registry so the
+ *  player's aim raycast still resolves and they can press E to
+ *  inspect (the zoom modal then shows the actual artwork — same
+ *  reveal flow as the 2D gallery's blur overlay). v1: a flat
+ *  colour swatch tinted slightly differently from the loading
+ *  fallback so the player can read "intentionally hidden" vs
+ *  "still loading". */
+function NsfwPlaceholder({
+  widthM,
+  heightM,
+  artwork,
+  mode,
+  onLoaded,
+}: {
+  widthM: number;
+  heightM: number;
+  artwork: Placement["artwork"];
+  mode: "hide" | "blur" | "show";
+  onLoaded?: () => void;
+}) {
+  const meshRef = useRef<THREE.Mesh>(null);
+
+  useEffect(() => {
+    const mesh = meshRef.current;
+    if (!mesh) return;
+    const entry: PaintingEntry = {
+      mesh,
+      worldPos: mesh.getWorldPosition(new THREE.Vector3()),
+      artwork,
+    };
+    registerPainting(entry);
+    return () => unregisterPainting(entry);
+  }, [artwork]);
+
+  // Tally the "loaded" callback the same as a real painting does —
+  // the entry-room progress bar measures total painting slots, not
+  // texture decodes per se, and a placeholder is "ready" instantly.
+  // biome-ignore lint/correctness/useExhaustiveDependencies: one-shot, mirroring PaintingPlane's behaviour
+  useEffect(() => {
+    onLoaded?.();
+  }, []);
+
+  const color = mode === "hide" ? "#241a14" : "#4a3a2c";
+
+  return (
+    <mesh ref={meshRef} position={[0, 0, 0.014]} userData={{ artwork }}>
+      <planeGeometry args={[widthM, heightM]} />
+      <meshBasicMaterial color={color} toneMapped={false} />
     </mesh>
   );
 }

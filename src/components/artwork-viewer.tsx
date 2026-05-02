@@ -5,6 +5,7 @@ import { useEffect } from "react";
 import { artworkAlt } from "@/lib/data";
 import { suggestFixUrl } from "@/lib/links";
 import { useLightbox } from "./lightbox-provider";
+import { useNsfw } from "./nsfw-provider";
 import { ResponsiveImage } from "./responsive-image";
 
 type ArtworkLike = {
@@ -16,6 +17,7 @@ type ArtworkLike = {
   year: number | null;
   width: number | null;
   height: number | null;
+  nsfw?: boolean;
 };
 
 type Props = {
@@ -27,6 +29,7 @@ type Props = {
 export function ArtworkViewer({ art, prevId, nextId }: Props) {
   const router = useRouter();
   const { open, isOpen } = useLightbox();
+  const { mode } = useNsfw();
 
   useEffect(() => {
     if (prevId) router.prefetch(`/artwork/${prevId}`);
@@ -79,6 +82,7 @@ export function ArtworkViewer({ art, prevId, nextId }: Props) {
           sizes="(max-width: 768px) 100vw, 65vw"
           priority
           className="mx-auto max-h-[80vh] w-auto rounded-md"
+          nsfw={art.nsfw === true && mode !== "show"}
         />
       </button>
       <div className="mt-2 text-right">
