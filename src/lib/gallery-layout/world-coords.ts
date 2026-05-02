@@ -6,16 +6,21 @@
 // revolution over that span, so the gap also sets the stair pitch.
 
 export const CELL_SIZE = 2.5; // metres per cell on the XZ plane
-export const ROOM_HEIGHT = 6.2; // interior ceiling plane of a room
-export const CORRIDOR_HEIGHT = 3.4; // lower interior ceiling in hallways
-export const FLOOR_SEPARATION = 9; // metres between floor surfaces
+export const ROOM_HEIGHT = 3.5; // interior ceiling plane of a room
+export const CORRIDOR_HEIGHT = 2.6; // lower interior ceiling in hallways
+// Metres between floor surfaces. Sized so the room-height : floor-pitch
+// ratio matches the previous 6.2 / 9 ≈ 0.69 — the spiral staircase still
+// climbs a full revolution per storey at a comfortable rise per tread.
+export const FLOOR_SEPARATION = 5.1;
 export const WALL_THICKNESS = 0.1;
 
-// Door openings. 2.0 m wide leaves ≥ 0.25 m of wall on each side of a
+// Door openings. 1.4 m wide leaves ≥ 0.55 m of wall on each side of a
 // CELL_SIZE-wide cell so doorframes look architectural, not just a hole.
-export const DOOR_WIDTH = 2.0;
-export const DOOR_HEIGHT = 2.8;
-export const CORRIDOR_DOOR_HEIGHT = 2.6; // slightly lower on hallway side
+// 2.4 m tall reads as a real door against the 3.5 m ceiling, with a more
+// vertical aspect ratio (~1.71) than the previous broad 2.0×2.8 cutout.
+export const DOOR_WIDTH = 1.4;
+export const DOOR_HEIGHT = 2.4;
+export const CORRIDOR_DOOR_HEIGHT = 2.2; // slightly lower on hallway side
 
 // ── Central open-well spiral staircase ───────────────────────────────
 // One full revolution per storey. The inner radius is generous so the
@@ -37,7 +42,7 @@ export const SPIRAL_COLUMN_RADIUS = 0.7;
  *  plane) stays at `floorY`; an extra slab mesh sits 1 mm under it
  *  so floors stop reading as paper-thin sheets when seen from below
  *  (open well) or in cross-section at the cutout edges. */
-export const FLOOR_THICKNESS = 0.35;
+export const FLOOR_THICKNESS = 0.2;
 /** Height of a structural wall — from a floor surface up to the
  *  underside of the slab on the floor above. Walls always span this
  *  full height so the building reads as continuous masonry across

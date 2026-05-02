@@ -16,20 +16,23 @@ import { artworkBand, partitionByBand } from "./painting-bands";
 import type { Door, FloorLayout, HallwayLayout, Placement, RoomLayout } from "./types";
 import { CELL_SIZE } from "./world-coords";
 
-/** Eye-height-ish centre for every wall-mounted painting. */
-const CANONICAL_Y_CENTER_OFFSET = 1.55;
-/** Lower/upper row heights in hallways — salon hang. Ceiling is 3.4 m so
- *  the upper row caps below that to leave visual breathing room. */
-const HALLWAY_ROW_LOWER_Y = 1.1;
-const HALLWAY_ROW_UPPER_Y = 2.5;
+/** Eye-height-ish centre for every wall-mounted painting. Sized so a
+ *  MAX_PAINTING_H_ROOM-tall painting clears the 3.5 m ceiling at the
+ *  top and stays at least 0.4 m off the floor at the bottom — i.e.
+ *  paintings never crash into the ceiling and never hang into the floor. */
+const CANONICAL_Y_CENTER_OFFSET = 1.7;
+/** Lower-row hallway height — single salon row only since the corridor
+ *  ceiling at 2.6 m no longer leaves headroom for two stacked rows. */
+const HALLWAY_ROW_LOWER_Y = 1.4;
 /** Max painting dimensions in metres, independent of real-world size.
  *  Acts as an upper bound; per-slot sizing further constrains this so
  *  paintings don't crash into perpendicular walls or each other's
- *  plaques. */
+ *  plaques. Sized to fill the 3.5 m room generously: a 2.6 m painting
+ *  centred at 1.7 m tops out at 3.0 m (0.5 m head clearance) and
+ *  bottoms at 0.4 m (off-the-floor breathing room). */
 const MAX_PAINTING_W = 2.2;
-const MAX_PAINTING_H_ROOM = 3.0;
-const MAX_PAINTING_H_HALLWAY = 1.6; // lower-row cap
-const MAX_PAINTING_H_HALLWAY_UPPER = 0.8;
+const MAX_PAINTING_H_ROOM = 2.6;
+const MAX_PAINTING_H_HALLWAY = 1.6;
 /** Inset from the wall surface so paintings don't z-fight. Sized to
  *  put the back of the painting frame box flush against the wall —
  *  frame box depth in painting.tsx is 0.025 m, half-depth + a 1 mm
@@ -77,52 +80,46 @@ type Slot = {
  *  - `none`  → interior cell, no perpendicular wall on either side */
 type CornerStatus = "left" | "right" | "both" | "none";
 
-/** Decide plaque side and max painting width for a room-wall cell, based
- *  on its position relative to the wall's perpendicular ends.
+/** Decide max painting width for a room-wall cell, based on its position
+ *  relative to the wall's perpendicular ends.
  *
- *  The default plaque hang is on the painting's right. We flip it to the
- *  left for `right` corner cells so it doesn't crash through the
- *  perpendicular wall there.
- *
- *  Width caps:
- *  - corner cells leave SIDE_WALL_CLEARANCE between the painting and
- *    the perpendicular wall
- *  - cells next to a right-corner have to fit two plaques in the gap
- *    between them and the right-corner cell
+ *  Plaques always hang on the painting's right (museum convention) and
+ *  never flip — so a right-corner cell has to fit BOTH the painting and
+ *  its plaque inside the SIDE_WALL_CLEARANCE budget, which gives a
+ *  narrower painting there. Width caps:
+ *  - corner cells leave SIDE_WALL_CLEARANCE between the painting (or
+ *    its plaque) and the perpendicular wall
  *  - pure interior cells just need to leave room for one plaque + the
- *    next painting */
-function widthAndPlaqueForRoomCell(args: {
-  cornerStatus: CornerStatus;
-  isAdjacentToRightCorner: boolean;
-}): { maxWidth: number; plaqueOnLeft: boolean } {
-  const { cornerStatus, isAdjacentToRightCorner } = args;
+ *    next painting (ADJACENT_GAP between cells) */
+function widthAndPlaqueForRoomCell(args: { cornerStatus: CornerStatus }): {
+  maxWidth: number;
+  plaqueOnLeft: boolean;
+} {
+  const { cornerStatus } = args;
   const half = CELL_SIZE / 2;
 
-  let plaqueOnLeft = false;
   let maxWidth: number;
 
   if (cornerStatus === "both") {
-    // 1-cell wall: perpendicular walls on both sides AND the plaque
-    // needs to fit. Doesn't occur in rooms today (ROOM_MIN_CELLS = 3),
-    // but the formula keeps things sane if it ever does.
-    maxWidth = 2 * (half - SIDE_WALL_CLEARANCE - PLAQUE_FOOTPRINT);
+    // 1-cell wall: perpendicular walls on both sides; plaque must fit
+    // inside the right-side clearance budget. Doesn't occur in rooms
+    // today (ROOM_MIN_CELLS = 3), but the formula keeps things sane.
+    maxWidth = 2 * (half - SIDE_WALL_CLEARANCE) - PLAQUE_FOOTPRINT;
   } else if (cornerStatus === "right") {
-    plaqueOnLeft = true;
-    maxWidth = 2 * (half - SIDE_WALL_CLEARANCE);
+    // Right perpendicular wall: painting + plaque must both clear it.
+    maxWidth = 2 * (half - SIDE_WALL_CLEARANCE - PLAQUE_FOOTPRINT);
   } else if (cornerStatus === "left") {
+    // Left perpendicular wall: only the painting needs the SIDE_WALL_CLEARANCE
+    // (plaque is on the right, far from the perpendicular wall).
     maxWidth = 2 * (half - SIDE_WALL_CLEARANCE);
-  } else if (isAdjacentToRightCorner) {
-    // Right neighbour has plaque on its left — both plaques sit in the
-    // gap between us, so each of our halves has to clear one plaque.
-    maxWidth = CELL_SIZE - 2 * PLAQUE_FOOTPRINT - ADJACENT_GAP;
   } else {
-    // Pure interior: only one plaque (ours, or the right neighbour's)
-    // sits in the gap to either side.
+    // Pure interior: ours is the only plaque sitting in the gap to the
+    // right neighbour's painting.
     maxWidth = CELL_SIZE - PLAQUE_FOOTPRINT - ADJACENT_GAP;
   }
 
   return {
-    plaqueOnLeft,
+    plaqueOnLeft: false,
     maxWidth: Math.max(0, Math.min(MAX_PAINTING_W, maxWidth)),
   };
 }
@@ -177,11 +174,6 @@ export function computeRoomSlots(room: RoomLayout): Slot[] {
 
     const rightCornerIdx = args.viewerRightIsHigher ? args.cellMax : args.cellMin;
     const leftCornerIdx = args.viewerRightIsHigher ? args.cellMin : args.cellMax;
-    // The cell adjacent to (and inside of) the right corner. If the
-    // wall has only two cells, this lands on the left corner — so we
-    // explicitly exclude that case below; the corner-status branch
-    // already constrains size for that cell.
-    const adjacentToRightIdx = args.viewerRightIsHigher ? rightCornerIdx - 1 : rightCornerIdx + 1;
 
     for (let cellIdx = args.cellMin; cellIdx <= args.cellMax; cellIdx++) {
       if (!cellHasSlot(cellIdx)) continue;
@@ -189,12 +181,6 @@ export function computeRoomSlots(room: RoomLayout): Slot[] {
       const isLeftCorner = cellIdx === leftCornerIdx && args.cellMax > args.cellMin;
       const isRightCorner = cellIdx === rightCornerIdx && args.cellMax > args.cellMin;
       const isBothCorners = args.cellMin === args.cellMax;
-      const isAdjacentToRightCorner =
-        !isLeftCorner &&
-        !isRightCorner &&
-        !isBothCorners &&
-        cellIdx === adjacentToRightIdx &&
-        cellHasSlot(rightCornerIdx);
 
       const cornerStatus: CornerStatus = isBothCorners
         ? "both"
@@ -204,10 +190,7 @@ export function computeRoomSlots(room: RoomLayout): Slot[] {
             ? "right"
             : "none";
 
-      const sizing = widthAndPlaqueForRoomCell({
-        cornerStatus,
-        isAdjacentToRightCorner,
-      });
+      const sizing = widthAndPlaqueForRoomCell({ cornerStatus });
       if (sizing.maxWidth <= 0) continue;
 
       slots.push({
@@ -310,7 +293,6 @@ export function computeRoomSlots(room: RoomLayout): Slot[] {
  *  corner-aware width + plaque-side rules as room walls. */
 export function computeHallwaySlots(hallway: HallwayLayout, floor: FloorLayout): Slot[] {
   const yLow = floor.y + HALLWAY_ROW_LOWER_Y;
-  const yHigh = floor.y + HALLWAY_ROW_UPPER_Y;
   const slots: Slot[] = [];
 
   const neighbourIsNone = (nx: number, nz: number): boolean => {
@@ -341,13 +323,9 @@ export function computeHallwaySlots(hallway: HallwayLayout, floor: FloorLayout):
     return neighbourIsNone(nx + sideDx, nz + sideDz);
   };
 
-  // Two rows per side: lower + upper. Ordered so the lower row fills
-  // across all sides of the hallway first (nicer distribution than
-  // filling one side floor-to-ceiling before moving to the next).
-  const rows = [
-    { wallY: yLow, maxHeight: MAX_PAINTING_H_HALLWAY },
-    { wallY: yHigh, maxHeight: MAX_PAINTING_H_HALLWAY_UPPER },
-  ];
+  // Single salon row — the 2.6 m corridor ceiling no longer leaves
+  // headroom for two stacked rows of paintings.
+  const rows = [{ wallY: yLow, maxHeight: MAX_PAINTING_H_HALLWAY }];
 
   type SideSpec = {
     side: "north" | "south" | "west" | "east";
@@ -424,14 +402,7 @@ export function computeHallwaySlots(hallway: HallwayLayout, floor: FloorLayout):
                 ? "left"
                 : "none";
 
-        // Hallways don't currently chain three-deep corner detection
-        // (a cell next to a flipped right-corner) — the wall topology
-        // changes too much per cell. We accept the slightly tighter
-        // cap that comes with treating those cells as plain interior.
-        const sizing = widthAndPlaqueForRoomCell({
-          cornerStatus,
-          isAdjacentToRightCorner: false,
-        });
+        const sizing = widthAndPlaqueForRoomCell({ cornerStatus });
         if (sizing.maxWidth <= 0) continue;
 
         // Position + rotation per side.

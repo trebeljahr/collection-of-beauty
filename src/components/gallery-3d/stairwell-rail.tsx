@@ -49,10 +49,11 @@ const GATE_POST_HEIGHT = 2.4;
 /** Build the cutout-edge top rail as a CLOSED RECTANGULAR TUBE
  *  following a circle of radius `radius` at height `y + RAIL_HEIGHT`,
  *  skipping a centred gate of width 2 * gateHalfArc around
- *  `entryAngle`. Each ring sample contributes 4 vertices (top-out,
- *  top-in, bot-in, bot-out) and adjacent rings are stitched by 4
- *  longitudinal faces (top, inner, bottom, outer) so the rail has
- *  real volume in every direction — no paper-strip look.
+ *  `entryAngle` — except where one of the gate's halves has no stair
+ *  to continue onto. On a dead-end half (top-floor up / ground-floor
+ *  down), the rail extends right up to entryAngle so the gap in the
+ *  rail only opens onto solid floor or onto an actual stair, never
+ *  onto empty air over the spiral well.
  *
  *  We walk a SINGLE linear arc from one gate edge to the other,
  *  rather than iterating theta in [0, 2π] and skipping the gap. The
@@ -68,15 +69,22 @@ function buildCutoutRailGeometry(
   y: number,
   entryAngle: number,
   gateHalfArc: number,
+  upSideOpen: boolean,
+  downSideOpen: boolean,
 ): THREE.BufferGeometry {
   const positions: number[] = [];
   const indices: number[] = [];
   const yTop = y + RAIL_HEIGHT;
-  // Single arc from gap-exit to gap-entry. Sample density matches the
-  // old 80-segments-around-2π density so the curve reads equally
-  // smooth at any gate position.
-  const startTheta = entryAngle + gateHalfArc;
-  const totalArc = Math.PI * 2 - 2 * gateHalfArc;
+  // Single arc from gap-exit to gap-entry. The "up" half of the gate
+  // (CCW of entry) is left open when upSideOpen; otherwise the rail
+  // extends all the way to entryAngle so the dead-end half is closed.
+  // Same for downSideOpen on the CW side.
+  const upGap = upSideOpen ? gateHalfArc : 0;
+  const downGap = downSideOpen ? gateHalfArc : 0;
+  const startTheta = entryAngle + upGap;
+  const totalArc = Math.PI * 2 - upGap - downGap;
+  // Sample density matches the old 80-segments-around-2π density so
+  // the curve reads equally smooth at any gate position.
   const segments = Math.max(2, Math.round((totalArc / (Math.PI * 2)) * 80));
   let prevBaseIdx = -1;
   const segmentStartIdx = 0;
@@ -138,12 +146,16 @@ function buildCutoutRailGeometry(
 }
 
 /** Sample a regular series of baluster positions around the cutout
- *  rail, again skipping the gate arc. */
+ *  rail, skipping each gate-half only when that half opens onto an
+ *  actual stair. Dead-end halves get a full set of balusters so the
+ *  rail visually closes the gap. */
 function buildCutoutBalusters(
   radius: number,
   y: number,
   entryAngle: number,
   gateHalfArc: number,
+  upSideOpen: boolean,
+  downSideOpen: boolean,
 ): Array<[number, number, number]> {
   const out: Array<[number, number, number]> = [];
   // ~30 cm arc length between balusters at radius=5.5 → 30 balusters
@@ -152,10 +164,70 @@ function buildCutoutBalusters(
   for (let i = 0; i < count; i++) {
     const theta = (i / count) * Math.PI * 2;
     const angDiff = Math.atan2(Math.sin(theta - entryAngle), Math.cos(theta - entryAngle));
-    if (Math.abs(angDiff) < gateHalfArc) continue;
+    if (Math.abs(angDiff) < gateHalfArc) {
+      if (angDiff > 0 && upSideOpen) continue;
+      if (angDiff <= 0 && downSideOpen) continue;
+    }
     out.push([radius * Math.cos(theta), y + BALUSTER_HEIGHT / 2, radius * Math.sin(theta)]);
   }
   return out;
+}
+
+/**
+ * Short railing arm that extends radially inward from a gate post on
+ * a dead-end side, forming the second arm of the L that closes the
+ * top of a flight. Same brass tube + dark balusters as the cutout
+ * rail so the two reads as one continuous piece. The arm stops just
+ * inside the spiral's outer edge — far enough that it visually meets
+ * the top of the inner spiral rail without trying to weld onto it.
+ */
+function DeadEndLBridge({
+  cx,
+  cz,
+  y,
+  post,
+  railR,
+}: {
+  cx: number;
+  cz: number;
+  y: number;
+  post: { x: number; z: number; angle: number };
+  railR: number;
+}) {
+  const innerR = SPIRAL_FLOOR_CUTOUT_RADIUS - 1.2;
+  const dx = post.x - cx;
+  const dz = post.z - cz;
+  const radialLen = railR - innerR;
+  const radialMid = (railR + innerR) / 2;
+  const midX = cx + Math.cos(post.angle) * radialMid;
+  const midZ = cz + Math.sin(post.angle) * radialMid;
+  const yTop = y + RAIL_HEIGHT - RAIL_BAR_HEIGHT / 2;
+  // Tangent (perpendicular to radial) at the post's angle.
+  const tangentRotY = Math.atan2(dz, dx);
+
+  // Two balusters along the bridge (count grows with span — ~30 cm spacing).
+  const balusterCount = Math.max(2, Math.round(radialLen / 0.4));
+  const balusters: Array<{ x: number; z: number }> = [];
+  for (let i = 1; i <= balusterCount; i++) {
+    const t = i / (balusterCount + 1);
+    const r = railR - radialLen * t;
+    balusters.push({ x: cx + Math.cos(post.angle) * r, z: cz + Math.sin(post.angle) * r });
+  }
+
+  return (
+    <group>
+      <mesh position={[midX, yTop, midZ]} rotation={[0, tangentRotY, 0]} castShadow>
+        <boxGeometry args={[radialLen, RAIL_BAR_HEIGHT, RAIL_BAR_HALF_WIDTH * 2]} />
+        <primitive object={railTopMaterial} attach="material" />
+      </mesh>
+      {balusters.map((b, i) => (
+        <mesh key={`l-bal-${i}`} position={[b.x, y + BALUSTER_HEIGHT / 2, b.z]} castShadow>
+          <boxGeometry args={[BALUSTER_SIZE, BALUSTER_HEIGHT, BALUSTER_SIZE]} />
+          <primitive object={balusterMaterial} attach="material" />
+        </mesh>
+      ))}
+    </group>
+  );
 }
 
 /**
@@ -179,8 +251,28 @@ export function StairwellAccents({ floor }: { floor: FloorLayout }) {
     const cz = reference.centerZ;
     const railR = SPIRAL_FLOOR_CUTOUT_RADIUS + 0.18;
     const gateHalfArc = spiralGateHalfArc(reference.numSteps);
-    const railGeom = buildCutoutRailGeometry(railR, floor.y, reference.entryAngle, gateHalfArc);
-    const balusters = buildCutoutBalusters(railR, floor.y, reference.entryAngle, gateHalfArc);
+    // The "up" half of the gate is only meaningful when this floor
+    // actually has an upgoing stair; same for the "down" half. On the
+    // top floor, stairsOut is empty so the up-half is a dead end and
+    // the rail closes there. On the ground floor, stairsIn is empty.
+    const upSideOpen = !!stairOut;
+    const downSideOpen = !!stairIn;
+    const railGeom = buildCutoutRailGeometry(
+      railR,
+      floor.y,
+      reference.entryAngle,
+      gateHalfArc,
+      upSideOpen,
+      downSideOpen,
+    );
+    const balusters = buildCutoutBalusters(
+      railR,
+      floor.y,
+      reference.entryAngle,
+      gateHalfArc,
+      upSideOpen,
+      downSideOpen,
+    );
     return {
       cx,
       cz,
@@ -191,6 +283,8 @@ export function StairwellAccents({ floor }: { floor: FloorLayout }) {
       gateHalfArc,
       stairOut,
       stairIn,
+      upSideOpen,
+      downSideOpen,
     };
   }, [floor, stairwell]);
 
@@ -205,7 +299,19 @@ export function StairwellAccents({ floor }: { floor: FloorLayout }) {
   );
 
   if (!stairwell || !data) return null;
-  const { cx, cz, railR, railGeom, balusters, entryAngle, gateHalfArc, stairOut, stairIn } = data;
+  const {
+    cx,
+    cz,
+    railR,
+    railGeom,
+    balusters,
+    entryAngle,
+    gateHalfArc,
+    stairOut,
+    stairIn,
+    upSideOpen,
+    downSideOpen,
+  } = data;
   const hasCutout = floor.index > 0;
   // Gate posts sit ON the rail line — same radius as the rail —
   // so the rail terminates INTO the post instead of stopping next
@@ -275,31 +381,34 @@ export function StairwellAccents({ floor }: { floor: FloorLayout }) {
           box (TANGENT × HEIGHT × RADIAL = 0.85 × 2.4 × 0.18) reads as
           a panel facing the player rather than a thin column with a
           horizontal sign-bar nailed across it. The sign plaque fits
-          flush within the panel's tangent width — no + cross. Each
-          post is suppressed when its direction has no destination —
-          ground floor has no DOWN, top floor has no UP — so the gap
-          reads as a single wayfinding marker rather than an
-          asymmetric pair with one bare post. */}
-      {stairOut && (
-        <mesh
-          position={[postA.x, floor.y + GATE_POST_HEIGHT / 2, postA.z]}
-          rotation={[0, postA.rotationY, 0]}
-          castShadow
-        >
-          <boxGeometry args={[GATE_POST_TANGENT_WIDTH, GATE_POST_HEIGHT, GATE_POST_RADIAL_DEPTH]} />
-          <primitive object={gatePostMaterial} attach="material" />
-        </mesh>
-      )}
-      {stairIn && (
-        <mesh
-          position={[postB.x, floor.y + GATE_POST_HEIGHT / 2, postB.z]}
-          rotation={[0, postB.rotationY, 0]}
-          castShadow
-        >
-          <boxGeometry args={[GATE_POST_TANGENT_WIDTH, GATE_POST_HEIGHT, GATE_POST_RADIAL_DEPTH]} />
-          <primitive object={gatePostMaterial} attach="material" />
-        </mesh>
-      )}
+          flush within the panel's tangent width — no + cross.
+          Always rendered regardless of whether this side has a stair —
+          on a dead-end side the post is the structural cap closing the
+          rail extension, even though no sign hangs on it. */}
+      <mesh
+        position={[postA.x, floor.y + GATE_POST_HEIGHT / 2, postA.z]}
+        rotation={[0, postA.rotationY, 0]}
+        castShadow
+      >
+        <boxGeometry args={[GATE_POST_TANGENT_WIDTH, GATE_POST_HEIGHT, GATE_POST_RADIAL_DEPTH]} />
+        <primitive object={gatePostMaterial} attach="material" />
+      </mesh>
+      <mesh
+        position={[postB.x, floor.y + GATE_POST_HEIGHT / 2, postB.z]}
+        rotation={[0, postB.rotationY, 0]}
+        castShadow
+      >
+        <boxGeometry args={[GATE_POST_TANGENT_WIDTH, GATE_POST_HEIGHT, GATE_POST_RADIAL_DEPTH]} />
+        <primitive object={gatePostMaterial} attach="material" />
+      </mesh>
+
+      {/* L-shaped inner extension on each dead-end side. Bridges from
+          the gate post inward (radially) to the inner spiral railing,
+          so the top of a flight reads as an architectural ending
+          rather than an unfinished gap into the well. The radial arm
+          sits at rail height, the same brass tube as the cutout rail. */}
+      {!upSideOpen && <DeadEndLBridge cx={cx} cz={cz} y={floor.y} post={postA} railR={railR} />}
+      {!downSideOpen && <DeadEndLBridge cx={cx} cz={cz} y={floor.y} post={postB} railR={railR} />}
 
       {/* Directional signs. UP goes on the post that's CCW from the
           entry direction (left-hand side of the gap as you walk in);
