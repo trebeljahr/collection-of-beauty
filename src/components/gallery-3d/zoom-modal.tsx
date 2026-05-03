@@ -45,14 +45,22 @@ export function ZoomModal({
     return () => window.removeEventListener("keydown", onKey);
   }, [onClose]);
 
-  // Pull the largest available variant for the high-res copy. Falls
-  // back to the original asset when the artwork hasn't been shrunk
-  // (variantWidths empty), matching the lightbox's strategy.
+  // Pull the highest-resolution copy available. The shrink pipeline
+  // emits a per-source full-size AVIF for sources > 4096 px on top of
+  // the standard ladder, so the largest variant width covers the source
+  // for any artwork that's been re-shrunk. We fall back to the raw
+  // asset only when the largest available variant is smaller than the
+  // source — which today only happens for paintings that haven't been
+  // re-shrunk yet (Google Arts scans pre-update) or weren't shrunk at
+  // all.
   const widths = artwork.variantWidths ?? [];
   const hasVariants = widths.length > 0;
-  const highWidth = hasVariants ? widths[widths.length - 1] : null;
-  const highSrc = highWidth
-    ? variantUrl(artwork.objectKey, highWidth, "avif")
+  const largestVariant = hasVariants ? widths[widths.length - 1] : null;
+  const sourceWidth = artwork.width;
+  const useFullVariant =
+    largestVariant != null && (sourceWidth == null || largestVariant >= sourceWidth);
+  const highSrc = useFullVariant
+    ? variantUrl(artwork.objectKey, largestVariant, "avif")
     : assetUrl(artwork.objectKey);
   const fallbackSrc = assetUrl(artwork.objectKey);
   const avifSrcSet = hasVariants ? variantSrcSet(artwork.objectKey, "avif", widths) : "";
