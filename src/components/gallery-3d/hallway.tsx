@@ -1,5 +1,6 @@
 "use client";
 
+import { useEffect, useMemo } from "react";
 import * as THREE from "three";
 import type { FloorLayout, HallwayLayout } from "@/lib/gallery-layout/types";
 import {
@@ -12,22 +13,33 @@ import { Painting } from "./painting";
 import { getPaletteMaterials } from "./palette-materials";
 import { SolidWall } from "./wall";
 
-// Hallway cells are all identical CELL_SIZE × CELL_SIZE squares, so we
-// can allocate the floor geometry once at module load and reuse it for
-// every cell. UVs are scaled to world units so the bound floor texture
-// (1, 1) repeat tiles every 1 m regardless of which cell it's drawn in
-// — without this each cell would stretch a single tile across 2.5 m.
-const HALLWAY_CELL_FLOOR_GEOM = (() => {
+/** Build a CELL_SIZE × CELL_SIZE plane with UVs in WORLD units, anchored
+ *  to the cell's grid position. World-anchored UVs are essential here:
+ *  the floor texture uses RepeatWrapping with `repeat=1`, so it tiles
+ *  every 1 m of UV-space. If every cell started its UVs at 0,0, the
+ *  tile pattern would restart at every cell boundary — visible as a
+ *  seam down the planks where two cells meet. Anchoring the UVs to the
+ *  cell's world origin gives every cell a unique UV range that joins
+ *  cleanly to its neighbours.
+ *
+ *  The Y inversion (1 - getY) is because the plane is rotated by
+ *  -π/2 around X so it lies on the world XZ plane: local +Y then
+ *  maps to world -Z, so without the flip the V axis would run
+ *  opposite to world_z and two adjacent cells would see the V at the
+ *  shared edge differ by depth, not 0. */
+function buildCellFloorGeom(cellX: number, cellZ: number): THREE.PlaneGeometry {
   const g = new THREE.PlaneGeometry(CELL_SIZE, CELL_SIZE);
   const uv = g.attributes.uv;
   if (uv) {
+    const x0 = cellX * CELL_SIZE;
+    const z0 = cellZ * CELL_SIZE;
     for (let i = 0; i < uv.count; i++) {
-      uv.setXY(i, uv.getX(i) * CELL_SIZE, uv.getY(i) * CELL_SIZE);
+      uv.setXY(i, uv.getX(i) * CELL_SIZE + x0, (1 - uv.getY(i)) * CELL_SIZE + z0);
     }
     uv.needsUpdate = true;
   }
   return g;
-})();
+}
 
 /** Slab body for a hallway cell — gives the corridor visible thickness
  *  when seen from the open well or any opening in the floor below. The
@@ -59,6 +71,23 @@ export function HallwayRenderer({
 
   const lampCells = hallway.cells.filter((_, i) => i % CORRIDOR_LAMP_STRIDE === 0);
 
+  // Per-cell floor geometries with world-anchored UVs. Allocating one
+  // PlaneGeometry per cell sounds wasteful, but each is just 4 verts +
+  // 6 indices (~few hundred bytes), and three batches them under the
+  // shared material so draw-call count stays bounded by material, not
+  // cell count. Disposed when the hallway unmounts so floor swaps
+  // don't leak the old set into VRAM.
+  const cellFloorGeoms = useMemo(
+    () => hallway.cells.map((c) => buildCellFloorGeom(c.x, c.z)),
+    [hallway.cells],
+  );
+  useEffect(
+    () => () => {
+      for (const g of cellFloorGeoms) g.dispose();
+    },
+    [cellFloorGeoms],
+  );
+
   return (
     <group>
       {hallway.placements.map((p, i) => (
@@ -80,11 +109,12 @@ export function HallwayRenderer({
         );
       })}
 
-      {hallway.cells.map((c) => {
+      {hallway.cells.map((c, idx) => {
         const x0 = c.x * CELL_SIZE;
         const z0 = c.z * CELL_SIZE;
         const cx = x0 + CELL_SIZE / 2;
         const cz = z0 + CELL_SIZE / 2;
+        const cellFloorGeom = cellFloorGeoms[idx];
         // Hallway walls reach the next slab too — the interior
         // CORRIDOR_HEIGHT ceiling plane keeps the corridor reading as
         // low and tunnel-like, while the structural wall above it
@@ -105,7 +135,7 @@ export function HallwayRenderer({
             <mesh
               rotation={[-Math.PI / 2, 0, 0]}
               position={[cx, floorY, cz]}
-              geometry={HALLWAY_CELL_FLOOR_GEOM}
+              geometry={cellFloorGeom}
             >
               <primitive object={mats.floor} attach="material" />
             </mesh>

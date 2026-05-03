@@ -54,9 +54,13 @@ export function RoomGeometry({
   const wallMidY = floorY + INTER_FLOOR_HEIGHT / 2;
 
   // Floor plane with world-unit UVs so 1 m of floor = 1 m of texture
-  // tile, regardless of room size. Fall-back tile-stretching on big
-  // rooms was the visible "broken tiling" issue with the first pass.
-  const floorGeom = useWorldUVPlane(width, depth);
+  // tile, regardless of room size. UVs are anchored to the room's
+  // world-space corner (xMin, zMin) so the tile pattern joins
+  // continuously across room-to-room and room-to-hallway boundaries
+  // — without that anchor, every room would restart its UVs at 0,0
+  // and adjacent floors with the same texture would seam visibly at
+  // the doorway thresholds.
+  const floorGeom = useWorldUVPlane(width, depth, xMin, zMin);
 
   const doorsBySide = {
     north: room.doors.filter((d) => d.side === "north"),
@@ -218,18 +222,30 @@ export function RoomGeometry({
  *  disposes the GPU buffer when the geometry is replaced (deps change)
  *  or the room unmounts — without it, every floor swap leaks a fresh
  *  PlaneGeometry per room into VRAM. */
-function useWorldUVPlane(width: number, depth: number): THREE.PlaneGeometry {
+function useWorldUVPlane(
+  width: number,
+  depth: number,
+  originX: number,
+  originZ: number,
+): THREE.PlaneGeometry {
   const geom = useMemo(() => {
     const g = new THREE.PlaneGeometry(width, depth);
     const uv = g.attributes.uv;
     if (uv) {
       for (let i = 0; i < uv.count; i++) {
-        uv.setXY(i, uv.getX(i) * width, uv.getY(i) * depth);
+        // The plane is rotated -π/2 around X by the caller so it lies
+        // on the world XZ plane: local +X → world +X (so U just adds
+        // originX), but local +Y → world -Z, so V has to be inverted
+        // (1 - getY) before adding originZ — without that, two
+        // neighbouring floors at the same world_z would see V values
+        // that differ by depth and the texture would discontinue at
+        // their shared edge.
+        uv.setXY(i, uv.getX(i) * width + originX, (1 - uv.getY(i)) * depth + originZ);
       }
       uv.needsUpdate = true;
     }
     return g;
-  }, [width, depth]);
+  }, [width, depth, originX, originZ]);
   useEffect(() => () => geom.dispose(), [geom]);
   return geom;
 }
