@@ -6,18 +6,18 @@
 // revolution over that span, so the gap also sets the stair pitch.
 
 export const CELL_SIZE = 2.5; // metres per cell on the XZ plane
-export const ROOM_HEIGHT = 5.25; // interior ceiling plane of a room
-export const CORRIDOR_HEIGHT = 3.9; // lower interior ceiling in hallways
+export const ROOM_HEIGHT = 4.2; // interior ceiling plane of a room
+export const CORRIDOR_HEIGHT = 3.12; // lower interior ceiling in hallways
 // Metres between floor surfaces. Sized so the room-height : floor-pitch
-// ratio matches 5.25 / 7.65 ≈ 0.69 — the spiral staircase still climbs
+// ratio matches 4.2 / 6.12 ≈ 0.69 — the spiral staircase still climbs
 // a full revolution per storey at a comfortable rise per tread.
-export const FLOOR_SEPARATION = 7.65;
+export const FLOOR_SEPARATION = 6.12;
 export const WALL_THICKNESS = 0.1;
 
 // Door openings. 1.4 m wide leaves ≥ 0.55 m of wall on each side of a
 // CELL_SIZE-wide cell so doorframes look architectural, not just a hole.
 // 2.4 m tall is a normal human-scale door — kept compact against the
-// taller 5.25 m ceiling so paintings and doors still set the room scale
+// taller 4.2 m ceiling so paintings and doors still set the room scale
 // rather than the ceiling dominating.
 export const DOOR_WIDTH = 1.4;
 export const DOOR_HEIGHT = 2.4;
@@ -31,7 +31,7 @@ export const CORRIDOR_DOOR_HEIGHT = 2.2; // slightly lower on hallway side
 // cramped.
 export const SPIRAL_INNER_RADIUS = 2.6; // inner edge of treads
 export const SPIRAL_OUTER_RADIUS = 5.4; // outer edge of treads
-export const SPIRAL_STEPS_PER_FLOOR = 33; // ~10.9° per step (rise ≈ 0.23 m)
+export const SPIRAL_STEPS_PER_FLOOR = 26; // ~13.8° per step (rise ≈ 0.24 m)
 /** Radius of the stone spine running through the centre of the spiral.
  *  Sized well inside SPIRAL_INNER_RADIUS so it never intrudes on the
  *  walking annulus, but visible from the well — gives the helix a
