@@ -226,7 +226,14 @@ export const ERAS: Era[] = [
     // period.
     yearMin: 9999,
     yearMax: 0,
-    movements: ["Ukiyo-e"],
+    // Ukiyo-e proper is the Edo woodblock tradition, but the early-20th
+    // century Shin-hanga ("new prints") and Sōsaku-hanga ("creative
+    // prints") movements are its direct lineage — same medium, same
+    // visual vocabulary, same rooms work for them. Without these
+    // aliases the Hasui Kawase / Hiroshi Yoshida / Ohara Koson cohort
+    // (>150 prints) falls through to the Modern floor by year (≥1910)
+    // and reads as wildly out of place next to Cubism + Surrealism.
+    movements: ["Ukiyo-e", "Shin-hanga", "Sōsaku-hanga", "Sosaku-hanga"],
     palette: {
       // Rice-paper warm white walls, dark walnut + black floor, red
       // lacquer accent. Mirrors a traditional Edo gallery — the

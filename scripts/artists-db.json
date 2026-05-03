@@ -576,11 +576,92 @@
     },
     {
       "name": "Charles W. Bartlett",
-      "aliases": ["Charles W. Bartlett", "Charles Bartlett"],
+      "aliases": ["Charles W. Bartlett", "Charles William Bartlett", "Charles Bartlett"],
       "born": 1860,
       "died": 1940,
       "nationality": "English / American",
       "movement": "Shin-hanga",
+      "pd_status": "public_domain_in_most_jurisdictions"
+    },
+    {
+      "name": "Kawase Hasui",
+      "aliases": ["Kawase Hasui", "Hasui Kawase", "Hasui"],
+      "born": 1883,
+      "died": 1957,
+      "nationality": "Japanese",
+      "movement": "Shin-hanga",
+      "pd_status": "public_domain_in_most_jurisdictions"
+    },
+    {
+      "name": "Hiroshi Yoshida",
+      "aliases": ["Hiroshi Yoshida", "Yoshida Hiroshi"],
+      "born": 1876,
+      "died": 1950,
+      "nationality": "Japanese",
+      "movement": "Shin-hanga",
+      "pd_status": "public_domain_in_most_jurisdictions"
+    },
+    {
+      "name": "Ohara Koson",
+      "aliases": ["Ohara Koson", "Ohara Shōson", "Ohara Shoson", "Koson"],
+      "born": 1877,
+      "died": 1945,
+      "nationality": "Japanese",
+      "movement": "Shin-hanga",
+      "pd_status": "public_domain_in_most_jurisdictions"
+    },
+    {
+      "name": "Hashiguchi Goyō",
+      "aliases": ["Hashiguchi Goyō", "Hashiguchi Goyo", "Goyō Hashiguchi", "Goyo Hashiguchi"],
+      "born": 1880,
+      "died": 1921,
+      "nationality": "Japanese",
+      "movement": "Shin-hanga",
+      "pd_status": "public_domain_worldwide"
+    },
+    {
+      "name": "Torii Kotondo",
+      "aliases": ["Torii Kotondo", "Kotondo"],
+      "born": 1900,
+      "died": 1976,
+      "nationality": "Japanese",
+      "movement": "Shin-hanga",
+      "pd_status": "public_domain_in_most_jurisdictions"
+    },
+    {
+      "name": "Takahashi Shōtei",
+      "aliases": ["Takahashi Shōtei", "Takahashi Shotei", "Shōtei Takahashi", "Shotei Takahashi", "Shōtei", "Shotei"],
+      "born": 1871,
+      "died": 1945,
+      "nationality": "Japanese",
+      "movement": "Shin-hanga",
+      "pd_status": "public_domain_in_most_jurisdictions"
+    },
+    {
+      "name": "Kanae Yamamoto",
+      "aliases": ["Kanae Yamamoto", "Yamamoto Kanae"],
+      "born": 1882,
+      "died": 1946,
+      "nationality": "Japanese",
+      "movement": "Sōsaku-hanga",
+      "pd_status": "public_domain_in_most_jurisdictions"
+    },
+    {
+      "name": "Kawai Gyokudō",
+      "aliases": ["Kawai Gyokudō", "Kawai Gyokudo", "Gyokudō", "Gyokudo"],
+      "born": 1873,
+      "died": 1957,
+      "nationality": "Japanese",
+      "movement": "Nihonga / Bijinga",
+      "pd_status": "public_domain_in_most_jurisdictions"
+    },
+    {
+      "name": "Hayami Gyoshū",
+      "aliases": ["Hayami Gyoshū", "Hayami Gyoshu", "Gyoshū", "Gyoshu"],
+      "born": 1894,
+      "died": 1935,
+      "nationality": "Japanese",
+      "movement": "Nihonga / Bijinga",
       "pd_status": "public_domain_in_most_jurisdictions"
     },
     {
