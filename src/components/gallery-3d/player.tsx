@@ -35,12 +35,13 @@ const GRAVITY = 22;
 const PLAYER_RADIUS = 0.3;
 // Radial buffer inside the spiral annulus — keeps the player's bbox
 // clear of the inner and outer railings while walking on the steps.
-// The rails are at innerRadius+0.07 (centre) with 0.05 m radial half
-// width, so the rail's near face sits 0.12 m inside the annulus on
-// each side. Adding PLAYER_RADIUS plus a 0.23 m elbow gives 0.65 m
-// of total clearance — enough to keep the bbox out of either rail
-// without shrinking the walking strip uncomfortably.
-const SPIRAL_RAIL_CLEARANCE = 0.07 + 0.05 + PLAYER_RADIUS + 0.23;
+// The rails are at innerRadius+0.05 (centre) with 0.05 m radial half
+// width — i.e. the rail's near face sits 0.10 m inside the annulus
+// on each side, with the rail's far face flush with the step edge.
+// Adding PLAYER_RADIUS plus a 0.23 m elbow gives 0.63 m of total
+// clearance — enough to keep the bbox out of either rail without
+// shrinking the walking strip uncomfortably.
+const SPIRAL_RAIL_CLEARANCE = 0.05 + 0.05 + PLAYER_RADIUS + 0.23;
 // Same idea on the OUTSIDE of the spiral — the cutout-edge railing
 // (the floor-level circular rail around the stairwell hole on
 // floors above the ground) sits at SPIRAL_FLOOR_CUTOUT_RADIUS+0.18

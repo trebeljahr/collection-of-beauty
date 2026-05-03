@@ -329,17 +329,23 @@ function buildSpiralRail(
   const { innerRadius, outerRadius, numSteps, direction, lowerY, upperY, entryAngle } = staircase;
   const stepAngle = ((Math.PI * 2) / numSteps) * direction;
   const stepRise = (upperY - lowerY) / numSteps;
-  // Inner rail sits a finger-width INSIDE the inner tread edge so the
-  // player at the rim has the rail "in front of" them as they look
-  // toward the well. Outer rail sits a finger-width INSIDE the outer
-  // tread edge, same idea on the outside face.
-  const railR = side === "inner" ? innerRadius + 0.07 : outerRadius - 0.07;
-  // Centre balusters on the rail so they sit fully inside the rail
-  // tube radially (rail half-width 0.05 m, baluster half-width
-  // 0.035 m). The earlier offset (innerRadius+0.05 / outerRadius-0.05)
-  // pushed each baluster 5 mm past the rail's near face on one side,
-  // showing as a thin black sliver protruding through the rail.
-  const balR = railR;
+  // Rail and balusters sit so their step-side face is FLUSH with the
+  // step's edge — the rail's outer face at outerRadius (or its inner
+  // face at innerRadius for the inner rail), and each baluster's
+  // matching face on the same plane. So the line of posts marches
+  // along the step corner, not 2 cm shy of it.
+  //
+  // Rail centre and baluster centre differ by 1.5 cm because the rail
+  // tube (10 cm) is wider than the baluster (7 cm); aligning both
+  // outer faces to the step edge means the centres can't coincide.
+  // The baluster top still sits inside the rail-bottom footprint
+  // (baluster half-width 3.5 cm, rail half-width 5 cm) so there's no
+  // sliver protruding through — just an asymmetric overhang on the
+  // well-facing side, which reads naturally as a rail mounted to the
+  // posts from above.
+  const railR =
+    side === "inner" ? innerRadius + RAIL_BAR_HALF_WIDTH : outerRadius - RAIL_BAR_HALF_WIDTH;
+  const balR = side === "inner" ? innerRadius + BALUSTER_SIZE / 2 : outerRadius - BALUSTER_SIZE / 2;
   const positions: number[] = [];
   const indices: number[] = [];
   const segPerStep = 3;
