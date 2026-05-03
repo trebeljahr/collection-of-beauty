@@ -138,10 +138,28 @@
   animation: page-slide-in-top 320ms ease-out;
 }
 
+/* Indeterminate progress bar for the /gallery-3d route loading state.
+   Sweeps a 25% wide pill across a track to signal "we're working" while
+   the WebGL bundle downloads — feedback the user gets immediately on
+   click, before the StartOverlay's per-painting bar can take over. */
+@keyframes loading-bar-sweep {
+  0% {
+    transform: translateX(-100%);
+  }
+  100% {
+    transform: translateX(400%);
+  }
+}
+
+.animate-loading-bar {
+  animation: loading-bar-sweep 1.4s cubic-bezier(0.4, 0, 0.2, 1) infinite;
+}
+
 @media (prefers-reduced-motion: reduce) {
   .animate-nav-fade-in,
   .animate-nav-slide-out-down,
-  .animate-page-slide-in-top {
+  .animate-page-slide-in-top,
+  .animate-loading-bar {
     animation: none;
   }
 }
