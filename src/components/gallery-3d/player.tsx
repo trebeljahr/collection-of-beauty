@@ -72,8 +72,8 @@ const LOOK_SPEED = 2.0;
 // promoted to the destination floor when they enter one — without that
 // promotion an upper-landing exit would teleport them into the lower
 // floor's grid frame and they'd fall through the upper floor's annular
-// ring on the way down. Tied to ~28° of revolution = ~0.4 m of vertical
-// slack at FLOOR_SEPARATION = 5.1 m.
+// ring on the way down. Tied to ~28° of revolution = ~0.6 m of vertical
+// slack at FLOOR_SEPARATION = 7.65 m.
 const STAIR_LANDING_TOL = 0.5;
 const _lookEuler = new THREE.Euler(0, 0, 0, "YXZ");
 const PITCH_LIMIT = Math.PI / 2 - 0.05;
