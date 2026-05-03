@@ -132,6 +132,25 @@ export function Gallery3D({ artworks }: Props) {
     return stair.lowerFloor === currentFloorIdx ? stair.upperFloor : stair.lowerFloor;
   }, [activeStairId, currentFloorIdx, layout.allStaircases]);
 
+  // Floor index TWO levels away from the player in the direction of the
+  // active stair — i.e. one floor BEYOND the destination. While the
+  // player rides a spiral, looking down (or up) through the well shows
+  // the destination floor's stairwell cutout, and through THAT cutout
+  // the next flight should be visible. Without preloading this floor,
+  // its stair geometry isn't mounted and the cutout reads as a black
+  // void where the next flight ought to be. We mount it in a new
+  // "stairs"-only mode (no rooms, no hallways, no accents) per the
+  // user's request: "load the stairs for the room below but nothing
+  // else." Falsy when not on a stair or when the beyond floor is
+  // outside the building.
+  const stairBeyondFloorIdx = useMemo(() => {
+    if (stairOtherFloorIdx == null) return null;
+    const dir = stairOtherFloorIdx - currentFloorIdx;
+    const beyond = stairOtherFloorIdx + dir;
+    if (beyond < 0 || beyond >= layout.floors.length) return null;
+    return beyond;
+  }, [stairOtherFloorIdx, currentFloorIdx, layout.floors.length]);
+
   // Spawn point driver. Default: entry on floor 0. Teleport keys
   // overwrite this to the anchor of the target floor. Stair-driven
   // floor changes set it to the *current* XZ so the player continues
@@ -372,6 +391,20 @@ export function Gallery3D({ artworks }: Props) {
             showOnly={stairOtherFloorIdx === currentFloorIdx + 1 ? undefined : "stairwell"}
           />
         )}
+        {/* Beyond-floor stair-only mount. When the player enters a
+            spiral, the floor TWO levels away (one beyond the
+            destination) gets just its stair geometry rendered so the
+            next flight is visible through the destination's spiral
+            cutout. Without it, looking down through F-1's well from
+            F shows a black void where F-2's stair should be. */}
+        {stairBeyondFloorIdx != null && (
+          <FloorScene
+            floor={layout.floors[stairBeyondFloorIdx]}
+            allStaircases={layout.allStaircases}
+            activeRoomIdx={-1}
+            showOnly="stairs"
+          />
+        )}
 
         <LodController />
 
@@ -607,17 +640,26 @@ function FloorScene({
    *  show a newel cap). */
   allStaircases: readonly Staircase[];
   activeRoomIdx: number;
-  /** "stairwell" keeps only the stairwell room and its stair geometry —
-   *  used for adjacent floors so the stair has visual continuity
-   *  without mounting every room + painting. */
-  showOnly?: "stairwell";
+  /** "stairwell" keeps the stairwell room + its stair geometry +
+   *  cutout-edge railings — used for adjacent floors so the stair has
+   *  visual continuity without mounting every room + painting.
+   *  "stairs" keeps ONLY the stair geometry — used for the floor TWO
+   *  levels away from the player while they ride a spiral, so the
+   *  next flight is visible through the destination floor's well
+   *  cutout without paying for a full stairwell mount. */
+  showOnly?: "stairwell" | "stairs";
   /** Room whose paintings should report load progress. Undefined →
    *  no room reports (e.g. once the player has entered). */
   entryRoomId?: string;
   onEntryPaintingLoaded?: () => void;
 }) {
-  const rooms = showOnly === "stairwell" ? floor.rooms.filter((r) => r.isStairwell) : floor.rooms;
-  const hallways = showOnly === "stairwell" ? [] : floor.hallways;
+  const rooms =
+    showOnly === "stairs"
+      ? []
+      : showOnly === "stairwell"
+        ? floor.rooms.filter((r) => r.isStairwell)
+        : floor.rooms;
+  const hallways = showOnly ? [] : floor.hallways;
   // Stair geometry only mounts once per Staircase (from the lower
   // floor's stairsOut). Skipping stairsIn here avoids double-rendering
   // the same stair on the upper floor — the geometry is the same
@@ -640,10 +682,11 @@ function FloorScene({
         <StaircaseRenderer key={s.id} staircase={s} allStaircases={allStaircases} />
       ))}
       {/* Cutout-edge railing + entry gate posts + signage. Rendered
-          for every floor that has a stairwell, including adjacent
-          floors in showOnly="stairwell" mode — the player sees the
-          full vertical stack of railings as they travel up. */}
-      <StairwellAccents floor={floor} />
+          for the active floor and showOnly="stairwell" adjacent floors
+          so the player sees the full vertical stack of railings as
+          they travel up. Skipped in showOnly="stairs" mode (beyond
+          floor) per the user's "stairs but nothing else" intent. */}
+      {showOnly !== "stairs" && <StairwellAccents floor={floor} />}
     </group>
   );
 }
