@@ -5,9 +5,19 @@
 #
 # To pin a specific version, change the tag below from `latest` to a
 # git sha, semver tag, or whatever your release process uses.
+#
+# Routing: Coolify normally generates Traefik labels from the Domain field
+# in its UI. We declare them explicitly here instead so the routing config
+# lives in the repo and survives UI mishaps. Coolify's "Raw Compose
+# Deployment" mode passes these labels straight through to Traefik.
+# Mirrors the label set Coolify auto-generates for asteroid-game / chess-app.
 services:
   app:
     image: ghcr.io/trebeljahr/collection-of-beauty:latest
+    # Without this Coolify keeps whichever image tag was first pulled — even
+    # when the GH Actions webhook fires, a stale `:latest` digest in the
+    # local cache may stick around and the container never picks up new builds.
+    pull_policy: always
     restart: unless-stopped
     expose:
       - "80"
@@ -17,3 +27,29 @@ services:
       # dotenvx so runtime API routes can read decrypted .env.production
       # values without baking plaintext secrets into the image.
       - DOTENV_PRIVATE_KEY_PRODUCTION
+    labels:
+      - "traefik.enable=true"
+      # Shared middleware definitions. Same names Coolify generates for
+      # other apps on the host, so duplicate definitions are harmless —
+      # Traefik dedupes by name and the bodies are identical.
+      - "traefik.http.middlewares.gzip.compress=true"
+      - "traefik.http.middlewares.redirect-to-https.redirectscheme.scheme=https"
+      # HTTP entrypoint (port 80): catch the request, redirect to HTTPS.
+      # Without this Traefik would 404 plain http:// requests.
+      - "traefik.http.routers.beauty-app-http.entryPoints=http"
+      - "traefik.http.routers.beauty-app-http.rule=Host(`beauty.trebeljahr.com`)"
+      - "traefik.http.routers.beauty-app-http.middlewares=redirect-to-https"
+      # HTTPS entrypoint (port 443): TLS via Let's Encrypt, gzip on the way out.
+      # `letsencrypt` is the resolver name Coolify configures by default in
+      # its bundled Traefik (matches the `tls.certresolver` value asteroid-game
+      # gets auto-generated). If you ever rename the resolver in Coolify's
+      # proxy settings, update this string too.
+      - "traefik.http.routers.beauty-app-https.entryPoints=https"
+      - "traefik.http.routers.beauty-app-https.rule=Host(`beauty.trebeljahr.com`)"
+      - "traefik.http.routers.beauty-app-https.middlewares=gzip"
+      - "traefik.http.routers.beauty-app-https.tls=true"
+      - "traefik.http.routers.beauty-app-https.tls.certresolver=letsencrypt"
+      # Tell Traefik which container port to forward to. The Dockerfile
+      # also EXPOSEs 80, but being explicit means a future port change in
+      # the Dockerfile won't silently break routing.
+      - "traefik.http.services.beauty-app.loadbalancer.server.port=80"
