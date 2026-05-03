@@ -22,10 +22,11 @@ ROOT="$( dirname "$SCRIPT_DIR" )"
 OUT_DIR="$ROOT/assets/audubon-birds"
 META="$ROOT/metadata/audubon-broken.json"
 
-DELAY=8         # seconds between downloads (Wikimedia courtesy)
-RATE=2M
-RETRIES=5
-RETRY_DELAY=20  # seconds — multiplied by attempt number (20, 40, 60, …)
+DELAY=12         # seconds between downloads (Wikimedia courtesy)
+RATE=1M          # slower per-file is gentler on Wikimedia's bandwidth budget
+PER_FILE_BACKOFFS=(60 120 180 300 300)  # waits between attempt-N and attempt-(N+1)
+COOLDOWN_AFTER=3 # consecutive failures before pausing the whole batch
+COOLDOWN_SECONDS=600  # 10-minute pause when we suspect a rate-limit window
 
 DRY_RUN=0
 if [ "${1:-}" = "--dry-run" ]; then
@@ -75,6 +76,7 @@ echo ""
 ok=0
 fail=0
 failed_files=()
+consecutive_fail=0
 
 for i in "${!entries[@]}"; do
   line="${entries[$i]}"
@@ -110,35 +112,45 @@ for i in "${!entries[@]}"; do
   tmp="$out.tmp"
   rm -f "$tmp"
 
-  retry=0
+  attempt=0
   status=1
-  while [ $retry -le $RETRIES ]; do
+  max_attempts=${#PER_FILE_BACKOFFS[@]}
+  while [ $attempt -le $max_attempts ]; do
     if curl -L -fS --limit-rate "$RATE" \
-            --retry 3 --retry-delay 5 --retry-all-errors \
+            --retry 3 --retry-delay 10 --retry-all-errors \
             -H "User-Agent: Mozilla/5.0 (compatible; EducationalProject/1.0)" \
             -o "$tmp" "$url"; then
       status=0
       break
     fi
-    retry=$((retry + 1))
     rm -f "$tmp"
-    if [ $retry -le $RETRIES ]; then
-      wait_time=$((RETRY_DELAY * retry))
-      echo -e "    ${YELLOW}retry $retry/$RETRIES in ${wait_time}s${NC}"
-      sleep $wait_time
+    if [ $attempt -lt $max_attempts ]; then
+      wait_time=${PER_FILE_BACKOFFS[$attempt]}
+      echo -e "    ${YELLOW}retry $((attempt + 1))/${max_attempts} in ${wait_time}s${NC}"
+      sleep "$wait_time"
     fi
+    attempt=$((attempt + 1))
   done
 
   if [ $status -eq 0 ]; then
     mv "$tmp" "$out"
     ok=$((ok + 1))
+    consecutive_fail=0
     size=$(stat -f%z "$out" 2>/dev/null || stat -c%s "$out" 2>/dev/null || echo "?")
     echo -e "    ${GREEN}✓${NC} $size bytes"
   else
     rm -f "$tmp"
     fail=$((fail + 1))
     failed_files+=("$filename")
+    consecutive_fail=$((consecutive_fail + 1))
     echo -e "    ${RED}✗ failed${NC} (existing file at $out left untouched)"
+    # If failures cluster, Wikimedia is in a rate-limit window — pause
+    # the whole batch instead of marching through and burning every URL.
+    if [ "$consecutive_fail" -ge "$COOLDOWN_AFTER" ]; then
+      echo -e "    ${YELLOW}cooldown: $consecutive_fail consecutive failures — sleeping ${COOLDOWN_SECONDS}s${NC}"
+      sleep "$COOLDOWN_SECONDS"
+      consecutive_fail=0
+    fi
   fi
 
   if [ $index -lt $total ]; then
