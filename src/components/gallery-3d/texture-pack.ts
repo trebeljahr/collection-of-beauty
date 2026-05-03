@@ -27,6 +27,16 @@ type MapKind = "diff" | "nor_gl" | "arm";
  *  before binding lets each surface set its own .repeat / .offset. */
 const sourceCache = new Map<string, THREE.Texture>();
 
+/** Per-source clone registry. `Texture.clone()` shares `.source` (and
+ *  thus the image data) but each clone has its own `.version` counter
+ *  and `.needsUpdate` flag. If we set `needsUpdate = true` on a clone
+ *  before the image has loaded, three.js prints "Texture marked for
+ *  update but no image data found" and consumes the flag — the clone
+ *  then never re-uploads when the image finally arrives. So we keep
+ *  track of every clone and bump its needsUpdate from the source's
+ *  onLoad callback instead. */
+const cloneRegistry = new Map<THREE.Texture, Set<THREE.Texture>>();
+
 /** Load (and cache) the source texture for a slug + map kind. The
  *  returned texture is the *source* — call `.clone()` on it before
  *  binding to a material that needs its own tile density. */
@@ -39,10 +49,15 @@ function loadSource(slug: string, map: MapKind): THREE.Texture {
   tex = loader.load(
     url,
     (t) => {
-      // Image arrived — three.js sets needsUpdate internally on the
-      // first call, but flag again so any clones referencing this
-      // image refresh on the next frame too.
-      t.needsUpdate = true;
+      // Image arrived. Wake up every clone so they upload the image to
+      // the GPU on the next render — without this, clones that were
+      // created before load completed stay stuck on their initial
+      // empty-image state (the source mutates in place but each clone's
+      // version counter is independent).
+      const clones = cloneRegistry.get(t);
+      if (clones) {
+        for (const c of clones) c.needsUpdate = true;
+      }
     },
     undefined,
     (err) => {
@@ -60,11 +75,21 @@ function loadSource(slug: string, map: MapKind): THREE.Texture {
 }
 
 /** Clone a source texture and stamp it with a tile density. Cloning
- *  shares the underlying Image — only the UV transform is per-clone. */
+ *  shares the underlying Image — only the UV transform is per-clone.
+ *  needsUpdate is deferred until the source's onLoad fires (or set
+ *  immediately if the source is already loaded). */
 function clonedWithRepeat(src: THREE.Texture, repeatU: number, repeatV: number): THREE.Texture {
   const c = src.clone();
-  c.needsUpdate = true;
   c.repeat.set(repeatU, repeatV);
+  let registry = cloneRegistry.get(src);
+  if (!registry) {
+    registry = new Set();
+    cloneRegistry.set(src, registry);
+  }
+  registry.add(c);
+  // Late binding: if the source's image already arrived, mark this
+  // clone immediately. Otherwise the registry above will get it.
+  if (src.image) c.needsUpdate = true;
   return c;
 }
 
