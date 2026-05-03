@@ -25,9 +25,20 @@ export function TimelineView({ artworks, movements }: Props) {
   const [query, setQuery] = useState("");
   const { mode, hydrated } = useNsfw();
 
+  // Defensive dedupe by id so a future merge regression (slug collision in
+  // build-data.mjs) can't crash React with duplicate keys.
+  const uniqueArtworks = useMemo(() => {
+    const seen = new Set<string>();
+    return artworks.filter((a) => {
+      if (seen.has(a.id)) return false;
+      seen.add(a.id);
+      return true;
+    });
+  }, [artworks]);
+
   const filtered = useMemo(() => {
     const q = query.trim().toLowerCase();
-    return artworks.filter((a) => {
+    return uniqueArtworks.filter((a) => {
       if (a.year == null) return false;
       if (movement && a.movement !== movement) return false;
       if (hydrated && mode === "hide" && a.nsfw) return false;
@@ -40,7 +51,7 @@ export function TimelineView({ artworks, movements }: Props) {
       }
       return true;
     });
-  }, [artworks, movement, query, mode, hydrated]);
+  }, [uniqueArtworks, movement, query, mode, hydrated]);
 
   const buckets = useMemo<Bucket[]>(() => {
     const map = new Map<number, Artwork[]>();
