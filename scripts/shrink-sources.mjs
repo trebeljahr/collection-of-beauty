@@ -7,12 +7,17 @@
  *
  *   assets/<bucket>/foo.jpg   (original, untouched)
  *         └──► assets-web/<bucket>/foo/<w>.avif
- *                where <w> ∈ [256, 480, 640, 960, 1280, 1920, 2560]
+ *                where <w> ∈ [256, 480, 640, 960, 1280, 1920, 2560, 4096]
  *              assets-web/<bucket>/foo/1280.webp
  *                (single width — OG meta + email clients that don't grok AVIF)
+ *              assets-web/<bucket>/foo/<sourceW>.avif
+ *                (only when source > 4096 px — full-resolution AVIF
+ *                 used by the 3D gallery's close-up LOD and the modal's
+ *                 deep zoom, so we never have to ship the raw JPEG)
  *
- * So each source produces 8 variant files (7 AVIF + 1 WebP). For the full
- * catalog (~3000 artworks) that's ~24k files totalling ~2–3 GB. Each
+ * So each source produces 9 variant files (8 AVIF + 1 WebP), plus one
+ * extra AVIF for sources beyond the standard ladder. For the full
+ * catalog (~3000 artworks) that's ~28k files totalling ~3-4 GB. Each
  * file is tiny (10–600 KB) so serving is fast and CDN-friendly.
  *
  * WIDTHS is duplicated (as VARIANT_WIDTHS) in src/lib/utils.ts — keep
@@ -80,6 +85,16 @@ const FOLDERS = args.folder
 // stops at 2560 px.
 const WIDTHS = [256, 480, 640, 960, 1280, 1920, 2560, 4096];
 const MAX_WIDTH = Math.max(...WIDTHS);
+
+// Sources bigger than MAX_WIDTH (Google Arts scans regularly hit
+// 8–12k px) get an extra AVIF at the source's actual width on top of
+// the standard ladder. Lets the close-up LOD and the modal's deep
+// zoom show the full source resolution without falling back to
+// shipping the original JPEG. Capped at 16384 to stay inside libavif's
+// safe range and inside typical GPU MAX_TEXTURE_SIZE; sources larger
+// than that quietly clamp to 16384 and the runtime falls back to the
+// raw asset for the (very few) cases that need more.
+const FULL_SIZE_MAX = 16384;
 // AVIF q=60 looks indistinguishable from q=85 JPEG but is ~3× smaller.
 // WebP q=75 is the usual balance for photographs.
 //
@@ -127,7 +142,11 @@ function fmtDuration(ms) {
 // Map a source path to its variant directory and expected variant files.
 //   assets/<bucket>/<filename>.<ext>
 //     → assets-web/<bucket>/<basename>/{<w>.<ext>}
-function variantPaths(folder, name) {
+//
+// `sourceWidth` (when known) controls whether we plan a per-source
+// full-size AVIF entry on top of the standard ladder. Pass 0 / null to
+// skip it (caller doesn't have dimensions yet).
+function variantPaths(folder, name, sourceWidth) {
   const basename = path.basename(name, path.extname(name));
   const destDir = path.join(DEST_ROOT, folder, basename);
   const files = [];
@@ -139,6 +158,15 @@ function variantPaths(folder, name) {
         path: path.join(destDir, `${w}.${f.ext}`),
       });
     }
+  }
+  if (sourceWidth && sourceWidth > MAX_WIDTH) {
+    const fullW = Math.min(sourceWidth, FULL_SIZE_MAX);
+    files.push({
+      width: fullW,
+      format: FORMATS[0], // AVIF
+      path: path.join(destDir, `${fullW}.avif`),
+      isFullSize: true,
+    });
   }
   return { destDir, files };
 }
@@ -164,8 +192,22 @@ async function collectJobs() {
       if (!IMAGE_EXTS.has(path.extname(name).toLowerCase())) continue;
       const srcPath = path.join(srcDir, name);
       const srcStat = await stat(srcPath);
-      const { destDir, files } = variantPaths(folder, name);
-      jobs.push({ folder, name, srcPath, srcStat, destDir, variants: files });
+      // Probe source dimensions so variantPaths can plan the per-source
+      // full-size AVIF when applicable. Sharp reads only the file
+      // header here, so it's fast even on the 700 MB Wikimedia scans.
+      let sourceWidth = 0;
+      try {
+        const meta = await sharp(srcPath, {
+          unlimited: true,
+          limitInputPixels: false,
+        }).metadata();
+        sourceWidth = meta.width ?? 0;
+      } catch {
+        // Probe failure → just emit the standard variants; processFile
+        // will fail loudly if the source is truly unreadable.
+      }
+      const { destDir, files } = variantPaths(folder, name, sourceWidth);
+      jobs.push({ folder, name, srcPath, srcStat, sourceWidth, destDir, variants: files });
     }
   }
   // Smallest first: fast early progress + big files spread across workers
@@ -192,17 +234,33 @@ async function processFile(job) {
 
   // 2. From that intermediate, emit each variant. Each is cheap because
   //    the expensive JPEG decode + EXIF rotate + alpha flatten is done.
+  //    Full-size variants (sources beyond MAX_WIDTH) re-decode the
+  //    source at full resolution — the bounded intermediate above would
+  //    have lost detail by the time we get here.
   let bytesAfter = 0;
   for (const v of job.variants) {
-    const targetW = Math.min(v.width, info.width);
-    const pipeline = sharp(base, {
-      raw: {
-        width: info.width,
-        height: info.height,
-        channels: info.channels,
-      },
-    }).resize({ width: targetW, withoutEnlargement: true });
-    await v.format.encode(pipeline).toFile(v.path);
+    if (v.isFullSize) {
+      await sharp(job.srcPath, {
+        failOn: "none",
+        unlimited: true,
+        limitInputPixels: false,
+      })
+        .rotate()
+        .flatten({ background: "#ffffff" })
+        .resize({ width: v.width, withoutEnlargement: true })
+        .avif({ quality: 60, effort: 2 })
+        .toFile(v.path);
+    } else {
+      const targetW = Math.min(v.width, info.width);
+      const pipeline = sharp(base, {
+        raw: {
+          width: info.width,
+          height: info.height,
+          channels: info.channels,
+        },
+      }).resize({ width: targetW, withoutEnlargement: true });
+      await v.format.encode(pipeline).toFile(v.path);
+    }
     bytesAfter += (await stat(v.path)).size;
   }
 
@@ -271,9 +329,11 @@ async function main() {
   process.stdout.write(`[shrink] scanning sources…`);
   const jobs = await collectJobs();
   const totalBytes = jobs.reduce((a, j) => a + j.srcStat.size, 0);
+  const totalVariants = jobs.reduce((a, j) => a + j.variants.length, 0);
+  const fullSizeJobs = jobs.filter((j) => j.variants.some((v) => v.isFullSize)).length;
   console.log(`\r[shrink] scanning sources… ${jobs.length} files, ${fmt(totalBytes)} total`);
   console.log(
-    `[shrink] will produce ${jobs.length * WIDTHS.length * FORMATS.length} variant files (if nothing is fresh)`,
+    `[shrink] will produce ${totalVariants} variant files (${fullSizeJobs} full-size AVIFs for >${MAX_WIDTH}px sources) if nothing is fresh`,
   );
 
   const totals = await runPool(jobs, (t, job, result) => {

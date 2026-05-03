@@ -76,6 +76,20 @@ class TextureLRU {
 const cache = new TextureLRU(TEXTURE_CACHE_CAPACITY);
 const inFlight = new Map<string, Promise<THREE.Texture>>();
 
+/** Read the GPU's max anisotropy if available, else fall back to a
+ *  conservative 4. Most desktop GPUs report 16; mobile typically 4–8.
+ *  Higher anisotropy mainly helps when paintings are viewed at a
+ *  glancing angle — the flat 4× we used before was visibly softer than
+ *  a 1:1 zoom view of the same image. */
+function aniso(renderer: THREE.WebGLRenderer | null): number {
+  if (!renderer) return 4;
+  try {
+    return renderer.capabilities.getMaxAnisotropy?.() ?? 4;
+  } catch {
+    return 4;
+  }
+}
+
 const hiresCache = new TextureLRU(HIRES_CACHE_CAPACITY);
 const hiresInFlight = new Map<string, Promise<THREE.Texture>>();
 
@@ -145,7 +159,7 @@ async function loadTextureCached(
     });
     const tex = new THREE.Texture(bitmap as unknown as HTMLImageElement);
     tex.colorSpace = THREE.SRGBColorSpace;
-    tex.anisotropy = 4;
+    tex.anisotropy = aniso(renderer);
     tex.minFilter = THREE.LinearMipMapLinearFilter;
     tex.magFilter = THREE.LinearFilter;
     tex.generateMipmaps = true;
@@ -188,10 +202,24 @@ export function peekHiRes(url: string): THREE.Texture | undefined {
   return hiresCache.peek(url);
 }
 
+/** Optional knobs for `loadHiRes`. `maxSize` + the source dimensions
+ *  let us cap the decoded bitmap at the GPU's MAX_TEXTURE_SIZE so an
+ *  oversized original (16k+ px Google Arts scans) doesn't fail upload
+ *  on devices with smaller texture limits. createImageBitmap honours
+ *  resizeWidth/Height — and the browser will downscale during decode
+ *  on JPEG/PNG, saving GPU memory (it doesn't shrink the network
+ *  fetch or CPU decode cost). */
+export type LoadHiResOpts = {
+  maxSize?: number;
+  sourceWidth?: number;
+  sourceHeight?: number;
+};
+
 export function loadHiRes(
   url: string,
   renderer: THREE.WebGLRenderer | null,
   signal?: AbortSignal,
+  opts?: LoadHiResOpts,
 ): Promise<THREE.Texture> {
   const cached = hiresCache.get(url);
   if (cached) return Promise.resolve(cached);
@@ -203,11 +231,21 @@ export function loadHiRes(
     if (!res.ok) throw new Error(`fetch ${url}: ${res.status}`);
     const blob = await res.blob();
     if (signal?.aborted) throw new DOMException("aborted", "AbortError");
-    const bitmap = await createImageBitmap(blob, { imageOrientation: "flipY" });
+    const bitmapOpts: ImageBitmapOptions = { imageOrientation: "flipY" };
+    if (opts?.maxSize && opts.sourceWidth && opts.sourceHeight) {
+      const longest = Math.max(opts.sourceWidth, opts.sourceHeight);
+      if (longest > opts.maxSize) {
+        const scale = opts.maxSize / longest;
+        bitmapOpts.resizeWidth = Math.round(opts.sourceWidth * scale);
+        bitmapOpts.resizeHeight = Math.round(opts.sourceHeight * scale);
+        bitmapOpts.resizeQuality = "high";
+      }
+    }
+    const bitmap = await createImageBitmap(blob, bitmapOpts);
     if (signal?.aborted) throw new DOMException("aborted", "AbortError");
     const tex = new THREE.Texture(bitmap as unknown as HTMLImageElement);
     tex.colorSpace = THREE.SRGBColorSpace;
-    tex.anisotropy = 4;
+    tex.anisotropy = aniso(renderer);
     tex.minFilter = THREE.LinearMipMapLinearFilter;
     tex.magFilter = THREE.LinearFilter;
     tex.generateMipmaps = true;
