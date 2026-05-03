@@ -54,12 +54,25 @@ const SIDE_WALL_CLEARANCE = 0.5;
 /** Minimum gap between a painting/plaque and the next painting/plaque
  *  on the same wall. Prevents paintings from grazing each other. */
 const ADJACENT_GAP = 0.1;
+/** Minimum air gap between a painting's bottom edge and the floor. The
+ *  canonical wallY centre puts a max-height (3.2 m) painting's bottom at
+ *  ~0.05 m, which reads as touching the floor. For tall paintings we lift
+ *  the centre so the bottom clears the floor by this much; shorter paintings
+ *  whose bottom already exceeds this clearance keep their canonical centre
+ *  (the "salon hang" eye-line is the priority for typical works). */
+const PAINTING_FLOOR_GAP = 0.2;
 
 type Slot = {
   /** Anchor point (wall surface) in world space. */
   wallX: number;
   wallY: number;
   wallZ: number;
+  /** World-space Y of the floor for this slot's room/hallway. Used at
+   *  placement time to lift tall paintings off the floor — slot.wallY is
+   *  the canonical CENTRE, but for paintings tall enough that
+   *  centre - hM/2 < floorY + PAINTING_FLOOR_GAP we override the centre
+   *  to keep a 20 cm air gap. */
+  floorY: number;
   /** Rotation of the painting plane so its normal points into the room
    *  or hallway (away from the wall it hangs on). */
   rotationY: number;
@@ -219,6 +232,7 @@ export function computeRoomSlots(room: RoomLayout): Slot[] {
       wallX: (x + 0.5) * CELL_SIZE,
       wallY: y,
       wallZ: zNorth,
+      floorY: worldRect.y,
       rotationY: 0,
       normalX: 0,
       normalZ: 1, // north wall faces +Z
@@ -238,6 +252,7 @@ export function computeRoomSlots(room: RoomLayout): Slot[] {
       wallX: (x + 0.5) * CELL_SIZE,
       wallY: y,
       wallZ: zSouth,
+      floorY: worldRect.y,
       rotationY: Math.PI,
       normalX: 0,
       normalZ: -1, // faces -Z
@@ -257,6 +272,7 @@ export function computeRoomSlots(room: RoomLayout): Slot[] {
       wallX: xWest,
       wallY: y,
       wallZ: (z + 0.5) * CELL_SIZE,
+      floorY: worldRect.y,
       rotationY: Math.PI / 2,
       normalX: 1, // west wall faces +X
       normalZ: 0,
@@ -276,6 +292,7 @@ export function computeRoomSlots(room: RoomLayout): Slot[] {
       wallX: xEast,
       wallY: y,
       wallZ: (z + 0.5) * CELL_SIZE,
+      floorY: worldRect.y,
       rotationY: -Math.PI / 2,
       normalX: -1, // east wall faces -X
       normalZ: 0,
@@ -441,6 +458,7 @@ export function computeHallwaySlots(hallway: HallwayLayout, floor: FloorLayout):
           wallX: wallXOut,
           wallY: row.wallY,
           wallZ: wallZOut,
+          floorY: floor.y,
           rotationY,
           normalX,
           normalZ,
@@ -639,9 +657,18 @@ function slotToPlacement(slot: Slot, artwork: Artwork): Placement {
     hM *= scale;
   }
 
+  // Lift the centre for paintings tall enough that the canonical hang
+  // would put their bottom edge into the floor. Most paintings keep the
+  // canonical eye-line; only the tallest (≥ 3.0 m, which after fitting
+  // is essentially the floor-to-near-ceiling altarpieces) get raised so
+  // the bottom clears the floor by PAINTING_FLOOR_GAP. Top is bounded by
+  // the slot's maxHeight cap above, so even after lifting the painting
+  // can't reach the ceiling.
+  const minCenterY = slot.floorY + PAINTING_FLOOR_GAP + hM / 2;
+  const centerY = Math.max(slot.wallY, minCenterY);
   const pos: [number, number, number] = [
     slot.wallX + slot.normalX * PAINTING_WALL_OFFSET,
-    slot.wallY,
+    centerY,
     slot.wallZ + slot.normalZ * PAINTING_WALL_OFFSET,
   ];
   const rot: [number, number, number] = [0, slot.rotationY, 0];
