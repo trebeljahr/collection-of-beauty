@@ -480,7 +480,11 @@ function buildFloor(era: Era, eraArtworks: Artwork[]): FloorLayout {
     stairsOut: [],
   };
 
-  distributePaintings(floor, eraArtworks);
+  // Ukiyo-e prints are small (~25–40 cm tall) and there are now ~280
+  // of them on this one floor — a single eye-level row leaves the upper
+  // half of every wall awkwardly bare. Stack them in two rows centred
+  // just above and just below the camera's eye-line instead.
+  distributePaintings(floor, eraArtworks, { doubleRow: era.id === "ukiyo-e" });
 
   return floor;
 }
