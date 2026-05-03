@@ -254,6 +254,13 @@ function DeadEndLBridge({
 export function StairwellAccents({ floor }: { floor: FloorLayout }) {
   const stairwell = useMemo(() => floor.rooms.find((r) => r.isStairwell) ?? null, [floor.rooms]);
 
+  // The ground floor has no cutout — the spiral rises out of solid
+  // ground — so there's nothing to fence off. Render only the gate
+  // posts + signs (still useful wayfinding) and skip the cutout-edge
+  // rail, balusters, and dead-end L-bridge, which would otherwise float
+  // around an imaginary hole in a solid floor.
+  const hasCutout = floor.index > 0;
+
   const data = useMemo(() => {
     if (!stairwell) return null;
     const stairOut = floor.stairsOut[0];
@@ -270,29 +277,31 @@ export function StairwellAccents({ floor }: { floor: FloorLayout }) {
     // the rail closes there. On the ground floor, stairsIn is empty.
     const upSideOpen = !!stairOut;
     const downSideOpen = !!stairIn;
-    // The rail leaves a gap wherever the gate-half won't be closed by
-    // an L-bridge. Up-side closes ONLY on the top floor (stair coming
-    // up into nothing), via the L-bridge above. Down-side never closes
-    // — bottom-floor dead-ends are solid stairwell-room floor with no
-    // fall hazard, so we don't fence them. So the rail's gap on the
-    // up side maps to upSideOpen, but the gap on the down side is
-    // always open regardless of whether there's a downgoing stair.
-    const railGeom = buildCutoutRailGeometry(
-      railR,
-      floor.y,
-      reference.entryAngle,
-      gateHalfArc,
-      upSideOpen,
-      true,
-    );
-    const balusters = buildCutoutBalusters(
-      railR,
-      floor.y,
-      reference.entryAngle,
-      gateHalfArc,
-      upSideOpen,
-      true,
-    );
+    // Skipped on the ground floor (hasCutout=false). On floors that do
+    // have a cutout, downSideOpen is always true here (every non-ground
+    // floor has a stair coming up from below), so the rail's down-side
+    // gap stays open — there's no "dead-end down-side" left to close
+    // with the L-bridge once the ground-floor case is excluded.
+    const railGeom = hasCutout
+      ? buildCutoutRailGeometry(
+          railR,
+          floor.y,
+          reference.entryAngle,
+          gateHalfArc,
+          upSideOpen,
+          downSideOpen,
+        )
+      : null;
+    const balusters = hasCutout
+      ? buildCutoutBalusters(
+          railR,
+          floor.y,
+          reference.entryAngle,
+          gateHalfArc,
+          upSideOpen,
+          downSideOpen,
+        )
+      : [];
     return {
       cx,
       cz,
@@ -306,14 +315,16 @@ export function StairwellAccents({ floor }: { floor: FloorLayout }) {
       upSideOpen,
       downSideOpen,
     };
-  }, [floor, stairwell]);
+  }, [floor, stairwell, hasCutout]);
 
   // Free the cutout rail's BufferGeometry on unmount / floor swap.
   // R3F doesn't auto-dispose externally-created geometries, so without
   // this every floor change strands one rail tube per floor in VRAM.
+  // Null on the ground floor (no rail), in which case there's nothing
+  // to dispose.
   useEffect(
     () => () => {
-      data?.railGeom.dispose();
+      data?.railGeom?.dispose();
     },
     [data],
   );
@@ -378,16 +389,15 @@ export function StairwellAccents({ floor }: { floor: FloorLayout }) {
 
   return (
     <group>
-      {/* Cutout-edge railing — circles the spiral well at rail height.
-          On floors above the ground it's the fall-prevention rail
-          around the floor cutout. On the ground floor (no cutout) it
-          still reads as the architectural fence framing the spiral
-          entrance, anchors the gate posts and the dead-end L-bridges,
-          and gives the open well a visible perimeter from below as
-          the player ascends. */}
-      <mesh geometry={railGeom} position={[cx, 0, cz]} castShadow>
-        <primitive object={railTopMaterial} attach="material" />
-      </mesh>
+      {/* Cutout-edge railing — fall-prevention rail circling the spiral
+          well at rail height. Only rendered on floors that actually have
+          a cutout (floor.index > 0); the ground floor has solid ground
+          under the spiral, so a rail there would fence off nothing. */}
+      {railGeom && (
+        <mesh geometry={railGeom} position={[cx, 0, cz]} castShadow>
+          <primitive object={railTopMaterial} attach="material" />
+        </mesh>
+      )}
       {balusters.map((p, i) => (
         <mesh key={`cutout-bal-${i}`} position={[cx + p[0], p[1], cz + p[2]]} castShadow>
           <boxGeometry args={[BALUSTER_SIZE, BALUSTER_HEIGHT, BALUSTER_SIZE]} />
@@ -434,13 +444,12 @@ export function StairwellAccents({ floor }: { floor: FloorLayout }) {
       )}
 
       {/* L-shaped inner extension. Bridges from the gate post inward
-          (radially) to the inner spiral railing. We only emit it on
-          the TOP floor's up-side dead-end — there the spiral comes
-          up into nothing and the bridge reads as the architectural
-          ending of the flight. The bottom floor doesn't need it: the
-          stairwell room has no floor cutout and no spiral coming in
-          from below, so a closing rail on the down side would just
-          fence off solid floor. */}
+          (radially) to the inner spiral railing. Only emitted on the
+          top floor's up-side dead-end — there the spiral comes up into
+          nothing and the bridge reads as the architectural ending of
+          the flight. Bottom-floor down-side is excluded by the
+          hasCutout gate above (no rail to extend from in the first
+          place). */}
       {!upSideOpen && <DeadEndLBridge cx={cx} cz={cz} y={floor.y} post={postA} />}
 
       {/* Directional signs. UP goes on the post that's CCW from the
