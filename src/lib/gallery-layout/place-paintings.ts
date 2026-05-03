@@ -20,10 +20,10 @@ import { CELL_SIZE } from "./world-coords";
  *  human scale (door height is 2.4 m), not the ceiling — so paintings
  *  hang at the same physical height regardless of how tall the room is.
  *  A 2.6 m painting centred at 1.7 m tops out at 3.0 m and bottoms at
- *  0.4 m: well under the 5.25 m ceiling, well off the floor. */
+ *  0.4 m: well under the 4.2 m ceiling, well off the floor. */
 const CANONICAL_Y_CENTER_OFFSET = 1.7;
 /** Lower-row hallway height. Single salon row — kept that way for
- *  visual calm even though the 3.9 m corridor ceiling could now host
+ *  visual calm even though the 3.12 m corridor ceiling could now host
  *  a second stacked row. */
 const HALLWAY_ROW_LOWER_Y = 1.4;
 /** Max painting dimensions in metres, independent of real-world size.
@@ -325,7 +325,7 @@ export function computeHallwaySlots(hallway: HallwayLayout, floor: FloorLayout):
     return neighbourIsNone(nx + sideDx, nz + sideDz);
   };
 
-  // Single salon row — kept simple even though the 3.9 m corridor
+  // Single salon row — kept simple even though the 3.12 m corridor
   // ceiling could fit a second stacked row.
   const rows = [{ wallY: yLow, maxHeight: MAX_PAINTING_H_HALLWAY }];
 
