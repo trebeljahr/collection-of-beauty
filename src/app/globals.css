@@ -86,3 +86,62 @@
     scroll-behavior: smooth;
   }
 }
+
+/* ── Site-nav modal + 3D-route choreography ────────────────────────
+   The fullscreen menu modal uses `nav-fade-in` for a tasteful entrance
+   (slight slide-down + fade). Clicking "3D Room" inside the modal
+   swaps the class to `nav-slide-out-down` so the menu slides off the
+   bottom of the viewport while `/gallery-3d` mounts; the gallery's
+   own root applies `page-slide-in-top` simultaneously, so the two
+   motions read as a single sheet sliding downward — gallery dropping
+   in from above, menu falling out below. `forwards` on the slide-out
+   keeps the modal off-screen until React unmounts it on the
+   onAnimationEnd handler. */
+@keyframes nav-fade-in {
+  from {
+    opacity: 0;
+    transform: translateY(-8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes nav-slide-out-down {
+  from {
+    transform: translateY(0);
+  }
+  to {
+    transform: translateY(100%);
+  }
+}
+
+@keyframes page-slide-in-top {
+  from {
+    transform: translateY(-100%);
+  }
+  to {
+    transform: translateY(0);
+  }
+}
+
+.animate-nav-fade-in {
+  animation: nav-fade-in 220ms ease-out;
+}
+
+.animate-nav-slide-out-down {
+  animation: nav-slide-out-down 320ms ease-out forwards;
+}
+
+.animate-page-slide-in-top {
+  animation: page-slide-in-top 320ms ease-out;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .animate-nav-fade-in,
+  .animate-nav-slide-out-down,
+  .animate-page-slide-in-top {
+    animation: none;
+  }
+}
