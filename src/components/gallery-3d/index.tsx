@@ -76,11 +76,25 @@ export function Gallery3D({ artworks }: Props) {
     setEntryRoomLoaded((n) => n + 1);
   }, []);
 
+  // Wrapper around the canvas + HUD overlays. Used as the fullscreen
+  // target so the SiteNav above it stays in the page flow rather than
+  // being captured into fullscreen along with the museum. Hoisted
+  // above the joystick block so `useJoystick` can reparent its DOM
+  // into the fullscreen subtree (otherwise the joysticks vanish the
+  // moment the user enters the gallery — see the comment below).
+  const galleryHostRef = useRef<HTMLDivElement | null>(null);
+
   // Mobile UX: replace pointer-lock + WASD with two on-screen
   // joysticks (movement on the left, look on the right) and gate
   // entry on landscape orientation. The rotate prompt follows the
   // raptor-runner pattern; the joysticks come from the same
   // `joystick-controller` package as my ricos.site demo.
+  //
+  // The joysticks are reparented into `galleryHostRef` so they stay
+  // visible after the Enter click triggers `requestFullscreen()` —
+  // joystick-controller appends to `document.body` by default, but
+  // fullscreen only paints the fullscreen subtree, so any DOM outside
+  // it disappears the moment the user enters the gallery.
   const isTouch = useTouchDevice() === true;
   const needsRotate = useNeedsRotate();
   const joysticksActive =
@@ -88,10 +102,12 @@ export function Gallery3D({ artworks }: Props) {
   const moveJoystick = useJoystick({
     enabled: joysticksActive,
     params: { x: "12%", y: "18%" },
+    parentRef: galleryHostRef,
   });
   const lookJoystick = useJoystick({
     enabled: joysticksActive,
     params: { x: "88%", y: "18%" },
+    parentRef: galleryHostRef,
   });
 
   // Mirror `hasStarted` into the global Gallery3D context so the
@@ -167,10 +183,6 @@ export function Gallery3D({ artworks }: Props) {
   // the player would enter the gallery un-locked, and their first
   // painting click would just be the relock click rather than a zoom.
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
-  // Wrapper around the canvas + HUD overlays. Used as the fullscreen
-  // target so the SiteNav above it stays in the page flow rather than
-  // being captured into fullscreen along with the museum.
-  const galleryHostRef = useRef<HTMLDivElement | null>(null);
 
   const teleportToFloor = useCallback(
     (idx: number) => {
