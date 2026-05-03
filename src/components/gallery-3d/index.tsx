@@ -4,7 +4,6 @@ import { Environment, PointerLockControls } from "@react-three/drei";
 import { Canvas } from "@react-three/fiber";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import * as THREE from "three";
-import { AudioControls } from "@/components/audio-controls";
 import { useSetIs3DActive } from "@/components/gallery-3d-state";
 import { useJoystick } from "@/hooks/use-joystick";
 import { useNeedsRotate, useTouchDevice } from "@/hooks/use-touch-device";
@@ -13,13 +12,13 @@ import type { Artwork } from "@/lib/data";
 import { layoutMuseum } from "@/lib/gallery-layout/layout-museum";
 import type { FloorLayout, Staircase } from "@/lib/gallery-layout/types";
 
-import { FullscreenButton } from "./fullscreen-button";
 import { HallwayRenderer } from "./hallway";
 import { LandscapePrompt } from "./landscape-prompt";
 import { LodController } from "./lod-controller";
 import { Minimap, type PlayerSample } from "./minimap";
 import { Player } from "./player";
 import { RoomGeometry } from "./room-geometry";
+import { Gallery3DSettings } from "./settings-modal";
 import { StaircaseRenderer } from "./staircase";
 import { StairwellAccents } from "./stairwell-rail";
 import { ZoomModal } from "./zoom-modal";
@@ -57,6 +56,9 @@ export function Gallery3D({ artworks }: Props) {
   // dismiss with M / Esc. `viewedMapFloorIdx` mirrors `currentFloorIdx`
   // until the map opens; the user's cycling drives it from then on.
   const [mapOpen, setMapOpen] = useState(false);
+  // Settings modal — pauses player input + drops pointer-lock so the
+  // user can interact with sliders / buttons / the home link.
+  const [settingsOpen, setSettingsOpen] = useState(false);
   const [viewedMapFloorIdx, setViewedMapFloorIdx] = useState(layout.entry.floorIndex);
   // Big-map size — sized once on open, doesn't track viewport resize
   // (rare during a play session). Capped so it doesn't dominate the
@@ -81,7 +83,8 @@ export function Gallery3D({ artworks }: Props) {
   // `joystick-controller` package as my ricos.site demo.
   const isTouch = useTouchDevice() === true;
   const needsRotate = useNeedsRotate();
-  const joysticksActive = isTouch && hasStarted && !zoomed && !mapOpen && !needsRotate;
+  const joysticksActive =
+    isTouch && hasStarted && !zoomed && !mapOpen && !settingsOpen && !needsRotate;
   const moveJoystick = useJoystick({
     enabled: joysticksActive,
     params: { x: "12%", y: "18%" },
@@ -230,7 +233,7 @@ export function Gallery3D({ artworks }: Props) {
   // with whatever overlay UI we add later (clickable floor list, etc.)
   // without fighting a captured cursor.
   useEffect(() => {
-    if (!hasStarted || zoomed) return;
+    if (!hasStarted || zoomed || settingsOpen) return;
     const down = (e: KeyboardEvent) => {
       if (e.code === "KeyM") {
         e.preventDefault();
@@ -269,6 +272,7 @@ export function Gallery3D({ artworks }: Props) {
   }, [
     hasStarted,
     zoomed,
+    settingsOpen,
     mapOpen,
     currentFloorIdx,
     viewedMapFloorIdx,
@@ -291,6 +295,15 @@ export function Gallery3D({ artworks }: Props) {
       document.exitPointerLock();
     }
   }, [zoomed]);
+
+  // Same release for the settings modal: without dropping the lock the
+  // cursor stays captured under the overlay and the user can't reach
+  // the sliders or close button.
+  useEffect(() => {
+    if (settingsOpen && document.pointerLockElement) {
+      document.exitPointerLock();
+    }
+  }, [settingsOpen]);
 
   return (
     <div ref={galleryHostRef} className="relative w-full h-screen bg-black">
@@ -363,7 +376,7 @@ export function Gallery3D({ artworks }: Props) {
         <LodController />
 
         <Player
-          enabled={hasStarted && !zoomed && !mapOpen}
+          enabled={hasStarted && !zoomed && !mapOpen && !settingsOpen}
           floor={currentFloor}
           allStaircases={layout.allStaircases}
           spawnAt={spawnForFloor.current}
@@ -393,7 +406,7 @@ export function Gallery3D({ artworks }: Props) {
             through the canvas, so Player's pointerdown listener
             silently stops firing and click-to-zoom dies even though
             E (a window keydown) keeps working. */}
-        {hasStarted && !zoomed && !mapOpen && !isTouch && (
+        {hasStarted && !zoomed && !mapOpen && !settingsOpen && !isTouch && (
           <PointerLockControls
             selector=".gallery-canvas-host"
             domElement={canvasRef.current ?? undefined}
@@ -486,16 +499,17 @@ export function Gallery3D({ artworks }: Props) {
           hidden during the start overlay and zoom modal so it doesn't
           compete with either. */}
       {hasStarted && !zoomed && !mapOpen && <Crosshair inspecting={aiming !== null} />}
-      {/* Audio + fullscreen pills — shown after the start gate (mount
-          on the user's first click, which is also the autoplay gate).
-          Audio at top-4 right-4; fullscreen toggle sits to its left so
-          the two pills don't overlap and the cluster reads as a single
-          row of controls. */}
+      {/* Settings cog — single trigger at top-4 right-4 that opens a
+          fullscreen settings modal (sound + fullscreen toggle + exit
+          link). Mount-gated on `hasStarted` so the cog only appears
+          after the user clicks Enter; hidden under zoom/map overlays
+          so it doesn't fight for the corner. */}
       {hasStarted && !zoomed && !mapOpen && (
-        <>
-          <AudioControls className="top-4 right-4" />
-          <FullscreenButton className="top-4 right-24" targetRef={galleryHostRef} />
-        </>
+        <Gallery3DSettings
+          fullscreenTarget={galleryHostRef}
+          isOpen={settingsOpen}
+          onOpenChange={setSettingsOpen}
+        />
       )}
       {/* Minimap. Bottom-right on desktop; top-left on mobile so the
           look joystick (bottom-right) and audio controls (top-right)

@@ -166,10 +166,27 @@ export function SiteNav() {
           Collection of Beauty
         </Link>
 
+        {/* Desktop link row: visible from md+. The mobile hamburger
+            below (md:hidden) opens a full-screen modal with the same
+            destinations — the link list would otherwise overflow on
+            narrow viewports. */}
+        <div className="hidden items-center gap-1 text-sm md:flex">
+          {LINKS.map((l) => (
+            <Link
+              key={l.href}
+              href={l.href}
+              aria-current={pathname === l.href ? "page" : undefined}
+              className="rounded-md px-3 py-1.5 hover:bg-[var(--accent)] aria-[current=page]:bg-[var(--accent)]"
+            >
+              {l.label}
+            </Link>
+          ))}
+        </div>
+
         <button
           ref={triggerRef}
           type="button"
-          className="-mr-2 inline-flex size-11 items-center justify-center rounded-md hover:bg-[var(--accent)]"
+          className="-mr-2 inline-flex size-11 items-center justify-center rounded-md hover:bg-[var(--accent)] md:hidden"
           aria-label={open ? "Close navigation" : "Open navigation"}
           aria-expanded={open}
           aria-controls="site-nav-modal"
@@ -216,8 +233,8 @@ export function SiteNav() {
           // address bar shrinks the layout viewport on scroll.
           style={{ minHeight: "100dvh" }}
         >
-          <div className="mx-auto flex w-full max-w-5xl items-center justify-between px-6 py-4 md:py-6">
-            <Link href="/" className="font-serif text-lg tracking-wide hover:opacity-70 md:text-xl">
+          <div className="mx-auto flex w-full max-w-md items-center justify-between px-5 py-4">
+            <Link href="/" className="font-serif text-base tracking-wide hover:opacity-70">
               Collection of Beauty
             </Link>
             <button
@@ -228,8 +245,8 @@ export function SiteNav() {
             >
               <svg
                 xmlns="http://www.w3.org/2000/svg"
-                width="24"
-                height="24"
+                width="22"
+                height="22"
                 viewBox="0 0 24 24"
                 fill="none"
                 stroke="currentColor"
@@ -243,8 +260,8 @@ export function SiteNav() {
             </button>
           </div>
 
-          <div className="mx-auto flex w-full max-w-5xl flex-1 flex-col justify-center px-6 pb-12">
-            <ul className="flex flex-col gap-2 md:gap-3">
+          <div className="mx-auto flex w-full max-w-md flex-1 flex-col justify-center px-5 pb-10">
+            <ul className="flex flex-col gap-2">
               {LINKS.map((l) => {
                 const active = pathname === l.href;
                 const is3D = l.href === ROUTE_3D;
@@ -254,23 +271,19 @@ export function SiteNav() {
                       href={l.href}
                       onClick={is3D ? handleClick3D : undefined}
                       aria-current={active ? "page" : undefined}
-                      className={`group flex items-baseline justify-between gap-6 rounded-lg border border-transparent px-5 py-5 transition hover:border-[var(--border)] hover:bg-[var(--accent)] md:py-7 ${
+                      className={`group flex items-baseline justify-between gap-4 rounded-lg border border-transparent px-4 py-3.5 transition hover:border-[var(--border)] hover:bg-[var(--accent)] ${
                         active ? "border-[var(--border)] bg-[var(--accent)]" : ""
                       }`}
                     >
-                      <div className="flex flex-col gap-1">
-                        <span className="font-serif text-3xl tracking-tight md:text-5xl">
-                          {l.label}
-                        </span>
+                      <div className="flex flex-col gap-0.5">
+                        <span className="font-serif text-xl tracking-tight">{l.label}</span>
                         {l.sub && (
-                          <span className="text-sm text-[var(--muted-foreground)] md:text-base">
-                            {l.sub}
-                          </span>
+                          <span className="text-xs text-[var(--muted-foreground)]">{l.sub}</span>
                         )}
                       </div>
                       <span
                         aria-hidden="true"
-                        className="font-serif text-2xl text-[var(--muted-foreground)] transition group-hover:translate-x-1 group-hover:text-[var(--foreground)] md:text-3xl"
+                        className="font-serif text-lg text-[var(--muted-foreground)] transition group-hover:translate-x-1 group-hover:text-[var(--foreground)]"
                       >
                         →
                       </span>
