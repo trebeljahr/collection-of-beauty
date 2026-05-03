@@ -16,20 +16,22 @@ import { artworkBand, partitionByBand } from "./painting-bands";
 import type { Door, FloorLayout, HallwayLayout, Placement, RoomLayout } from "./types";
 import { CELL_SIZE } from "./world-coords";
 
-/** Eye-height-ish centre for every wall-mounted painting. Sized so a
- *  MAX_PAINTING_H_ROOM-tall painting clears the 3.5 m ceiling at the
- *  top and stays at least 0.4 m off the floor at the bottom — i.e.
- *  paintings never crash into the ceiling and never hang into the floor. */
+/** Eye-height-ish centre for every wall-mounted painting. Anchored to
+ *  human scale (door height is 2.4 m), not the ceiling — so paintings
+ *  hang at the same physical height regardless of how tall the room is.
+ *  A 2.6 m painting centred at 1.7 m tops out at 3.0 m and bottoms at
+ *  0.4 m: well under the 5.25 m ceiling, well off the floor. */
 const CANONICAL_Y_CENTER_OFFSET = 1.7;
-/** Lower-row hallway height — single salon row only since the corridor
- *  ceiling at 2.6 m no longer leaves headroom for two stacked rows. */
+/** Lower-row hallway height. Single salon row — kept that way for
+ *  visual calm even though the 3.9 m corridor ceiling could now host
+ *  a second stacked row. */
 const HALLWAY_ROW_LOWER_Y = 1.4;
 /** Max painting dimensions in metres, independent of real-world size.
  *  Acts as an upper bound; per-slot sizing further constrains this so
  *  paintings don't crash into perpendicular walls or each other's
- *  plaques. Sized to fill the 3.5 m room generously: a 2.6 m painting
- *  centred at 1.7 m tops out at 3.0 m (0.5 m head clearance) and
- *  bottoms at 0.4 m (off-the-floor breathing room). */
+ *  plaques. Capped at 2.6 m tall so paintings stay sized to human/door
+ *  scale; the room reads as taller-than-the-art rather than the art
+ *  filling the wall floor-to-ceiling. */
 const MAX_PAINTING_W = 2.2;
 const MAX_PAINTING_H_ROOM = 2.6;
 const MAX_PAINTING_H_HALLWAY = 1.6;
@@ -323,8 +325,8 @@ export function computeHallwaySlots(hallway: HallwayLayout, floor: FloorLayout):
     return neighbourIsNone(nx + sideDx, nz + sideDz);
   };
 
-  // Single salon row — the 2.6 m corridor ceiling no longer leaves
-  // headroom for two stacked rows of paintings.
+  // Single salon row — kept simple even though the 3.9 m corridor
+  // ceiling could fit a second stacked row.
   const rows = [{ wallY: yLow, maxHeight: MAX_PAINTING_H_HALLWAY }];
 
   type SideSpec = {
