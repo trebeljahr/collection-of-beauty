@@ -72,9 +72,10 @@ function saveAudioSettings(settings: AudioSettings): void {
 }
 
 // ── In-process pub/sub ──────────────────────────────────────────────────────
-// Two <AudioControls> mounted in the same tab should agree immediately when
-// either is toggled — localStorage's `storage` event doesn't fire within the
-// same document. A tiny internal subscriber list solves it.
+// Multiple `useAudioSettings` consumers in the same tab should agree
+// immediately when one of them mutates — localStorage's `storage` event
+// doesn't fire within the same document. A tiny internal subscriber list
+// solves it.
 
 const listeners = new Set<(s: AudioSettings) => void>();
 
