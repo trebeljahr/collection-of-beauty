@@ -74,4 +74,13 @@ COPY --from=build /app/node_modules ./node_modules
 COPY --from=build /app/.env.production ./.env.production
 
 EXPOSE 80
+
+# Coolify's bundled Traefik consults the container's Docker healthcheck before
+# considering the backend healthy. Without one the container reports
+# `health: starting` indefinitely and the proxy may keep returning 502s even
+# after Next has bound to $PORT. Hit `/` because Next standalone has no
+# built-in /healthz; node 24's global fetch keeps the check dependency-free.
+HEALTHCHECK --interval=30s --timeout=10s --start-period=30s --retries=5 \
+  CMD node -e "fetch('http://127.0.0.1:' + (process.env.PORT || '80') + '/').then(r => { if (!r.ok) process.exit(1); }).catch(() => process.exit(1))"
+
 CMD ["node_modules/.bin/dotenvx", "run", "-f", ".env.production", "--", "node", "server.js"]
