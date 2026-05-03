@@ -21,5 +21,14 @@ export const metadata: Metadata = {
 };
 
 export default function Gallery3DPage() {
-  return <Gallery3D artworks={artworks} />;
+  // Slide-in-from-top animation runs every time the route mounts,
+  // pairing with the SiteNav modal's slide-out-down so opening the 3D
+  // route from the menu reads as a single downward sweep instead of a
+  // route-loading flash. Animation is suppressed under
+  // `prefers-reduced-motion`; see globals.css.
+  return (
+    <div className="animate-page-slide-in-top">
+      <Gallery3D artworks={artworks} />
+    </div>
+  );
 }
