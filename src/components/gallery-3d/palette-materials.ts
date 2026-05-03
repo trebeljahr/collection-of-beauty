@@ -70,6 +70,13 @@ export function getPaletteMaterials(palette: Palette): PaletteMaterials {
     ceiling: new THREE.MeshStandardMaterial({
       color: palette.ceilingColor,
       roughness: 0.96,
+      // Ceilings sit between two floors as a single plane (no slab on
+      // top, unlike floors). Looking down from a higher level through a
+      // stairwell well lands on the backface — backface-culled — and
+      // the env map / scene behind shows through. DoubleSide closes the
+      // hole at the cost of one extra triangle worth of shading per
+      // ceiling cell, which is negligible.
+      side: THREE.DoubleSide,
     }),
     lampHousing: new THREE.MeshStandardMaterial({
       color: "#2a1d14",

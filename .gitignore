@@ -4,9 +4,6 @@ assets/
 # Web-ready derivatives built by `pnpm shrink` from assets/
 assets-web
 assets-web/
-# Poly Haven PBR textures — too heavy for git; reproduce via `pnpm textures`
-public/textures/
-
 # Regeneratable Wikimedia API response cache
 metadata/.cache/
 
