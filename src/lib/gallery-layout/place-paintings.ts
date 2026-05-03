@@ -580,38 +580,51 @@ export function distributePaintings(floor: FloorLayout, eraArtworks: Artwork[]):
  *  z-fights the wall plane behind it. */
 function slotToPlacement(slot: Slot, artwork: Artwork): Placement {
   const dims = artwork.realDimensions;
-  // Fallback when realDimensions missing: derive shape from the image's
-  // pixel aspect ratio so unknown-size works don't all render as the
-  // same 80×100 cm rectangle. Long-edge ≈ 90 cm reads as a typical
-  // gallery painting. If we don't even have pixel dims, fall back to
-  // 80×100 cm.
+  // Pixel aspect drives SHAPE; realDimensions drives SIZE (long edge in
+  // metres). The metadata's widthCm/heightCm is unreliable as a shape
+  // signal — the file we actually render can disagree with it for several
+  // reasons:
+  //   - Predella case: Wikimedia records a strip's height for an
+  //     altarpiece file (e.g. Botticelli's Coronation: 269 × 21 cm
+  //     metadata vs ~3:1 scan).
+  //   - Orientation flip: ~44 of 109 Turner sketchbook pages have
+  //     widthCm/heightCm swapped relative to the scan.
+  //   - Cropped scan: handscroll metadata records the full physical
+  //     painting; the scan covers a shorter section (Eight Flowers:
+  //     333.9 × 29.4 cm vs 6920 × 835 px = 8.29:1).
+  // The pixel aspect is what the user actually sees, so use it for shape
+  // and only fall back when missing. realDimensions still controls the
+  // long-edge scale so a small miniature stays smaller than an altarpiece.
   let wM: number;
   let hM: number;
-  if (dims) {
-    wM = dims.widthCm / 100;
-    hM = dims.heightCm / 100;
-  } else if (artwork.width && artwork.height) {
-    const aspect = artwork.width / artwork.height;
-    if (aspect >= 1) {
+  const pxAspect = artwork.width && artwork.height ? artwork.width / artwork.height : null;
+  if (pxAspect != null && dims) {
+    const longEdgeM = Math.max(dims.widthCm, dims.heightCm) / 100;
+    if (pxAspect >= 1) {
+      wM = longEdgeM;
+      hM = longEdgeM / pxAspect;
+    } else {
+      hM = longEdgeM;
+      wM = longEdgeM * pxAspect;
+    }
+  } else if (pxAspect != null) {
+    // No realDimensions — long edge ≈ 0.9 m reads as a typical gallery
+    // painting; pixel aspect drives shape.
+    if (pxAspect >= 1) {
       wM = 0.9;
-      hM = 0.9 / aspect;
+      hM = 0.9 / pxAspect;
     } else {
       hM = 0.9;
-      wM = 0.9 * aspect;
+      wM = 0.9 * pxAspect;
     }
+  } else if (dims) {
+    // No pixel dims (rare; ~9 of 2849 artworks) — use realDimensions
+    // verbatim. The texture-aspect refit in painting.tsx will correct
+    // visible distortion once the texture loads.
+    wM = dims.widthCm / 100;
+    hM = dims.heightCm / 100;
   } else {
     wM = 0.8;
-    hM = 1.0;
-  }
-
-  // Sanity-clamp absurd aspect ratios. Some Wikimedia metadata records
-  // a panel's predella height (e.g. Botticelli's Coronation lists
-  // 269 × 21 cm — that's the predella strip, but the texture we load
-  // is the full altarpiece). Anything outside [1:4 .. 4:1] gets a
-  // square-ish default so the frame isn't squashed into a sliver.
-  const aspect = wM / hM;
-  if (aspect > 4 || aspect < 0.25) {
-    wM = 1.2;
     hM = 1.0;
   }
 
