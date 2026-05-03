@@ -21,14 +21,14 @@ export const metadata: Metadata = {
 };
 
 export default function Gallery3DPage() {
-  // Slide-in-from-top animation runs every time the route mounts,
-  // pairing with the SiteNav modal's slide-out-down so opening the 3D
-  // route from the menu reads as a single downward sweep instead of a
-  // route-loading flash. Animation is suppressed under
-  // `prefers-reduced-motion`; see globals.css.
-  return (
-    <div className="animate-page-slide-in-top">
-      <Gallery3D artworks={artworks} />
-    </div>
-  );
+  // The slide-in-from-top choreography lives on loading.tsx, not here.
+  // Loading.tsx renders during the route's pending state (while the
+  // WebGL bundle streams) and slides in from the top to pair with the
+  // SiteNav modal's slide-out-down. When the chunk lands, page.tsx
+  // replaces loading.tsx in place — no animation, no flash of the
+  // layout bg behind a sliding panel. Direct navigation skips
+  // loading.tsx entirely (Next only uses it for client transitions);
+  // those visits arrive on the gallery without choreography, which is
+  // fine — there's no menu to coordinate with.
+  return <Gallery3D artworks={artworks} />;
 }
