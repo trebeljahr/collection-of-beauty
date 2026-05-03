@@ -17,14 +17,17 @@ import type { Door, FloorLayout, HallwayLayout, Placement, RoomLayout } from "./
 import { CELL_SIZE } from "./world-coords";
 
 /** Eye-height-ish centre for every wall-mounted painting. Sized so the
- *  largest 3.2 m painting tops out at 3.5 m and bottoms at 0.3 m —
+ *  largest 3.2 m painting tops out at 3.25 m and bottoms at 0.05 m —
  *  noticeably more monumental than the door (2.4 m) without crashing
- *  into the 4.2 m ceiling or hanging into the floor. */
-const CANONICAL_Y_CENTER_OFFSET = 1.9;
+ *  into the 4.2 m ceiling or hanging into the floor. Lowered from
+ *  1.9 m to read closer to a real-museum hang (where centres land
+ *  around 1.45-1.55 m, slightly below the player's 1.75 m eye line). */
+const CANONICAL_Y_CENTER_OFFSET = 1.65;
 /** Lower-row hallway height. Single salon row — kept that way for
  *  visual calm even though the 3.12 m corridor ceiling could now host
- *  a second stacked row. */
-const HALLWAY_ROW_LOWER_Y = 1.45;
+ *  a second stacked row. Mirrors the room offset's drop so corridor
+ *  paintings sit at the same eye-line as room paintings. */
+const HALLWAY_ROW_LOWER_Y = 1.2;
 /** Max painting dimensions in metres, independent of real-world size.
  *  Acts as an upper bound; per-slot sizing further constrains this so
  *  paintings don't crash into perpendicular walls or each other's
