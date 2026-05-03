@@ -145,18 +145,15 @@ export function Player({
   const velocityY = useRef(0);
   const grounded = useRef(true);
   const lastRoomIdx = useRef<number>(-2);
-  /** Posture state — drives the rendered eye height. C cycles through
-   *  duck / standing; R cycles through tiptoe / standing. Pressing the
-   *  opposite key while in a non-standing posture jumps directly there
-   *  (so duck → R → tiptoe is one keypress, not two). */
-  const posture = useRef<"stand" | "duck" | "tiptoe">("stand");
   /** F toggles a narrowed-FOV "partial zoom" so the player can read
    *  details on a painting without opening the modal — useful for
    *  large works where the inspect overlay isn't worth invoking. */
   const zoomFov = useRef(false);
   /** Smoothed eye height — damps toward the target posture height each
-   *  frame so C / R don't snap the camera. Starts at full standing
-   *  height so spawn matches what the camera Y is set to in useEffect. */
+   *  frame. C held → drifts down toward DUCK_EYE_HEIGHT; R held → drifts
+   *  up toward TIPTOE_EYE_HEIGHT; release returns to EYE_HEIGHT. Starts
+   *  at full standing height so spawn matches what the camera Y is set
+   *  to in useEffect. */
   const eyeHeight = useRef(EYE_HEIGHT);
   // Click and aim raycasters share the same INSPECT_RANGE so the
   // crosshair affordance and the click-to-zoom action agree: if the
@@ -222,14 +219,7 @@ export function Player({
         zoomFov.current = !zoomFov.current;
         e.preventDefault();
       }
-      if (e.code === "KeyC") {
-        posture.current = posture.current === "duck" ? "stand" : "duck";
-        e.preventDefault();
-      }
-      if (e.code === "KeyR") {
-        posture.current = posture.current === "tiptoe" ? "stand" : "tiptoe";
-        e.preventDefault();
-      }
+      if (e.code === "KeyC" || e.code === "KeyR") e.preventDefault();
     };
     const up = (e: KeyboardEvent) => {
       keys.current[e.code] = false;
@@ -261,16 +251,20 @@ export function Player({
     if (!enabled) return;
     const dt = Math.min(delta, 0.1);
 
-    // Smoothly damp eye height toward the active posture target. Updates
-    // here so floor-clamp and stair-Y math below all use the same
-    // eyeHeight value the camera will end up rendered at this frame.
-    const targetEye =
-      posture.current === "duck"
-        ? DUCK_EYE_HEIGHT
-        : posture.current === "tiptoe"
-          ? TIPTOE_EYE_HEIGHT
-          : EYE_HEIGHT;
-    eyeHeight.current = THREE.MathUtils.damp(eyeHeight.current, targetEye, 14, dt);
+    // Smoothly damp eye height toward the held-key target. Hold C to
+    // drift down toward DUCK, hold R to drift up toward TIPTOE; release
+    // both and the camera rises back to EYE_HEIGHT. Lambda is low so the
+    // transition feels deliberate (~700ms to reach full crouch/tiptoe)
+    // rather than snapping. C wins over R if the player somehow holds
+    // both — crouching is the safer default. Updates here so the
+    // floor-clamp and stair-Y math below all use the same eyeHeight
+    // value the camera will end up rendered at this frame.
+    const targetEye = keys.current.KeyC
+      ? DUCK_EYE_HEIGHT
+      : keys.current.KeyR
+        ? TIPTOE_EYE_HEIGHT
+        : EYE_HEIGHT;
+    eyeHeight.current = THREE.MathUtils.damp(eyeHeight.current, targetEye, 3, dt);
 
     // FOV zoom toggle. Damp toward the target FOV so the transition
     // feels mechanical rather than instantaneous. Three's PerspectiveCamera
