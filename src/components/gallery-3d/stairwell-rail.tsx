@@ -325,8 +325,12 @@ function DeadEndLBridge({
    *  closed (rail-extended) half of the gate. */
   arcSweep: number;
 }) {
+  // outerR = the gate post's distance from the spiral centre (i.e.
+  // the cutout-rail radius). innerR = the spiral inner rail's
+  // centerline — the curve's inner end coincides with it so the
+  // L-bridge picks up where the helical rail leaves off.
   const outerR = Math.hypot(post.x - cx, post.z - cz);
-  const innerR = SPIRAL_INNER_RADIUS + 0.07;
+  const innerR = SPIRAL_INNER_RADIUS + RAIL_BAR_HALF_WIDTH;
   // yTop is the TOP face of the bar — same convention as the cutout
   // rail's tube vertices, which place TO/TI at yTop and BI/BO at
   // yTop - RAIL_BAR_HEIGHT.
