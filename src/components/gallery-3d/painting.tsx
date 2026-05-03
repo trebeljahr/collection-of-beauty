@@ -29,7 +29,10 @@ import { getHiRes, loadHiRes, useCachedTexture } from "./texture-cache";
  * uploads so a floor-wide burst of loads doesn't hitch the frame.
  */
 // Tiered proximity LOD. Each tier names a variant width and four
-// distance bands:
+// distance bands. Distances are CLOSEST-POINT to the painting's
+// rectangular surface (see LodController) — not to its centre. So
+// "0.55 m" means "0.55 m from any point on the canvas", which is
+// what the player actually intuits as "I'm right up against it".
 //
 //   prefetch ─ start the network fetch eagerly so the swap feels
 //              instantaneous when the player crosses upgrade.
@@ -683,6 +686,7 @@ function PaintingPlane({
   const texture = useCachedTexture(url);
   const meshRef = useRef<THREE.Mesh>(null);
   const matRef = useRef<THREE.MeshBasicMaterial>(null);
+  const entryRef = useRef<PaintingEntry | null>(null);
   const { gl } = useThree();
 
   // PaintingPlane only mounts after Suspense resolves — i.e. after the
@@ -704,6 +708,7 @@ function PaintingPlane({
     onTextureAspect?.(img.width / img.height);
   }, [texture, onTextureAspect]);
 
+  // biome-ignore lint/correctness/useExhaustiveDependencies: widthM/heightM are intentionally omitted — registering allocates AbortControllers and resets displayedTier, which we don't want to redo every time the parent refits the plane to the texture's true aspect. The follow-up effect mutates entry.halfW/halfH instead.
   useEffect(() => {
     const mesh = meshRef.current;
     const material = matRef.current;
@@ -774,18 +779,44 @@ function PaintingPlane({
       }
     };
 
+    // World-space basis. Paintings don't move, so this is a one-shot
+    // capture. The parent group's rotation is around Y (walls are
+    // vertical), so worldUp comes out as (0, 1, 0) and worldRight ends
+    // up in the XZ plane — but the math below is general for any
+    // orientation.
+    const worldQuat = mesh.getWorldQuaternion(new THREE.Quaternion());
+    const worldRight = new THREE.Vector3(1, 0, 0).applyQuaternion(worldQuat);
+    const worldUp = new THREE.Vector3(0, 1, 0).applyQuaternion(worldQuat);
+
     const entry: PaintingEntry = {
       mesh,
       worldPos: mesh.getWorldPosition(new THREE.Vector3()),
+      worldRight,
+      worldUp,
+      halfW: widthM / 2,
+      halfH: heightM / 2,
       artwork,
       lodUpdate,
     };
+    entryRef.current = entry;
     registerPainting(entry);
     return () => {
       unregisterPainting(entry);
+      entryRef.current = null;
       for (const ctl of pending) ctl?.abort();
     };
   }, [artwork, texture, gl]);
+
+  // The parent re-fits widthM/heightM to the texture's true aspect once
+  // the 960 px load reports it. Keep the registered entry's half-extents
+  // in sync without re-running the heavy registration effect (which
+  // would abort in-flight prefetches and reset the displayed tier).
+  useEffect(() => {
+    const entry = entryRef.current;
+    if (!entry) return;
+    entry.halfW = widthM / 2;
+    entry.halfH = heightM / 2;
+  }, [widthM, heightM]);
 
   return (
     <mesh ref={meshRef} position={[0, 0, 0.014]} userData={{ artwork }}>
@@ -816,14 +847,24 @@ function FallbackSwatch({
   useEffect(() => {
     const mesh = meshRef.current;
     if (!mesh) return;
+    // Fallback swatches are still raycast targets, so they need full
+    // PaintingEntry shape — but no lodUpdate (no hi-res texture to
+    // upgrade until the real PaintingPlane suspends in).
+    const worldQuat = mesh.getWorldQuaternion(new THREE.Quaternion());
+    const worldRight = new THREE.Vector3(1, 0, 0).applyQuaternion(worldQuat);
+    const worldUp = new THREE.Vector3(0, 1, 0).applyQuaternion(worldQuat);
     const entry: PaintingEntry = {
       mesh,
       worldPos: mesh.getWorldPosition(new THREE.Vector3()),
+      worldRight,
+      worldUp,
+      halfW: widthM / 2,
+      halfH: heightM / 2,
       artwork,
     };
     registerPainting(entry);
     return () => unregisterPainting(entry);
-  }, [artwork]);
+  }, [artwork, widthM, heightM]);
 
   useEffect(() => {
     // Skip if the artwork has no 256 variant (some scrape sources

@@ -17,12 +17,27 @@ export type PaintingEntry = {
   /** Painting group's world position. Captured on registration —
    *  paintings don't move, so no need to re-read every frame. */
   worldPos: THREE.Vector3;
+  /** World-space basis for closest-point distance: the painting's local
+   *  +X (right, along width) and +Y (up, along height) after the parent
+   *  group's rotation. Paintings don't move, so captured once. */
+  worldRight: THREE.Vector3;
+  worldUp: THREE.Vector3;
+  /** Painting half-extents in metres. Mutable: the parent re-fits the
+   *  plane to the texture's true aspect once the 960 px load reports it,
+   *  so these can change shortly after register. The LodController reads
+   *  them every tick to compute the closest-point distance against the
+   *  painting's rectangular surface (rather than its centre — the
+   *  difference matters for large paintings: a player face-pressed
+   *  against the right edge of a 3 m work is centre-distance ~1.5 m
+   *  away but should still be in the 4096 px band). */
+  halfW: number;
+  halfH: number;
   artwork: Artwork;
   /** Optional LOD tick. Called by the LodController with the squared
-   *  distance from the camera to this painting; the painting decides
-   *  whether to prefetch, swap, or release its hi-res texture. Only
-   *  PaintingPlane sets this — fallback swatches don't have a texture
-   *  to upgrade. */
+   *  closest-point distance from the camera to this painting's surface;
+   *  the painting decides whether to prefetch, swap, or release its
+   *  hi-res texture. Only PaintingPlane sets this — fallback swatches
+   *  don't have a texture to upgrade. */
   lodUpdate?: (distSq: number) => void;
 };
 
