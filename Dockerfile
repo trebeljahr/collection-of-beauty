@@ -58,7 +58,7 @@ WORKDIR /app
 ENV NODE_ENV=production
 ENV NEXT_TELEMETRY_DISABLED=1
 ENV HOSTNAME=0.0.0.0
-ENV PORT=80
+ENV PORT=3000
 
 # Next's standalone output contains the traced production server files.
 # public/ and .next/static are intentionally copied separately per Next's
@@ -73,5 +73,5 @@ COPY --from=build /app/.next/static ./.next/static
 COPY --from=build /app/node_modules ./node_modules
 COPY --from=build /app/.env.production ./.env.production
 
-EXPOSE 80
+EXPOSE 3000
 CMD ["node_modules/.bin/dotenvx", "run", "-f", ".env.production", "--", "node", "server.js"]
