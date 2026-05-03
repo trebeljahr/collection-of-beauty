@@ -541,17 +541,20 @@ export function StairwellAccents({ floor }: { floor: FloorLayout }) {
           post anchors that bridge. The bottom-floor down-side has
           neither, so it stays empty rather than showing a textless
           panel that reads as a broken sign. */}
-      {/* postA: always rendered. Carries the up-arrow sign on
-          floors with a stair leading up; on the top floor it's the
-          structural anchor for the dead-end L-bridge below. */}
-      <mesh
-        position={[postA.x, floor.y + GATE_POST_HEIGHT / 2, postA.z]}
-        rotation={[0, postA.rotationY, 0]}
-        castShadow
-      >
-        <boxGeometry args={[GATE_POST_TANGENT_WIDTH, GATE_POST_HEIGHT, GATE_POST_RADIAL_DEPTH]} />
-        <primitive object={gatePostMaterial} attach="material" />
-      </mesh>
+      {/* postA: rendered only when there's an actual upgoing stair to
+          sign for. On the top floor the up-side is a dead end and the
+          L-bridge handles the rail closure on its own — adding a post
+          here would just float a textless sign-pylon mid-rail. */}
+      {upSideOpen && (
+        <mesh
+          position={[postA.x, floor.y + GATE_POST_HEIGHT / 2, postA.z]}
+          rotation={[0, postA.rotationY, 0]}
+          castShadow
+        >
+          <boxGeometry args={[GATE_POST_TANGENT_WIDTH, GATE_POST_HEIGHT, GATE_POST_RADIAL_DEPTH]} />
+          <primitive object={gatePostMaterial} attach="material" />
+        </mesh>
+      )}
       {/* postB: only when there's an actual down-stair to sign. The
           bottom-floor down side is dead-end and has no L-bridge to
           anchor either, so emitting an empty post there would just

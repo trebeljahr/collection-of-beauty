@@ -758,19 +758,18 @@ export function StaircaseRenderer({
           margin to spare, so it covers the open end AND any tiny
           shading/positional seam where two abutting tube segments
           meet.
-          Inner rail finials are emitted ONLY at the absolute top and
-          bottom of the helix — the per-revolution endpoints at every
-          intermediate floor boundary would otherwise stack into a
-          single visible knob at every storey, even though the inner
-          rail is continuous through the boundary. endpoints[0] is the
+          Inner rail finials are emitted ONLY at the absolute bottom of
+          the helix — the per-revolution endpoints at every intermediate
+          floor boundary would otherwise stack into a single visible
+          knob at every storey, even though the inner rail is
+          continuous through the boundary. The TOP end is left uncapped
+          on purpose: the curved L-bridge in stairwell-rail.tsx picks up
+          there and sweeps the rail out to the cutout perimeter, so a
+          finial at the spiral's top would show as a brass knob in the
+          middle of one continuous handrail. endpoints[0] is the
           segment's start (low Y), endpoints[1] its end (high Y). */}
       {!hasFlightBelow && innerRail.endpoints[0] && (
         <mesh position={innerRail.endpoints[0]} geometry={finialGeometry} castShadow>
-          <primitive object={railTopMaterial} attach="material" />
-        </mesh>
-      )}
-      {!hasFlightAbove && innerRail.endpoints[1] && (
-        <mesh position={innerRail.endpoints[1]} geometry={finialGeometry} castShadow>
           <primitive object={railTopMaterial} attach="material" />
         </mesh>
       )}
