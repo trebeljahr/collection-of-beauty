@@ -4,7 +4,6 @@ import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { useIs3DActive } from "@/components/gallery-3d-state";
-import { NSFW_MODE_LABELS, useNsfw } from "./nsfw-provider";
 
 const LINKS: ReadonlyArray<{ href: string; label: string; sub?: string }> = [
   { href: "/", label: "Gallery", sub: "Browse the full collection" },
@@ -16,20 +15,6 @@ const LINKS: ReadonlyArray<{ href: string; label: string; sub?: string }> = [
 const ROUTE_3D = "/gallery-3d";
 // Must stay in sync with `--animate-nav-slide-out-down` in globals.css.
 const SLIDE_OUT_MS = 320;
-
-function NsfwToggle({ className }: { className?: string }) {
-  const { mode, cycleMode } = useNsfw();
-  return (
-    <button
-      type="button"
-      onClick={cycleMode}
-      title="Cycle: blurred → shown → hidden"
-      className={`rounded-md border border-[var(--border)] px-2 py-1 text-xs text-[var(--muted-foreground)] hover:bg-[var(--accent)] hover:text-[var(--foreground)] ${className ?? ""}`}
-    >
-      {NSFW_MODE_LABELS[mode]}
-    </button>
-  );
-}
 
 /**
  * Site header. The site-wide nav is presented as a full-screen modal
@@ -294,9 +279,6 @@ export function SiteNav() {
                 );
               })}
             </ul>
-            <div className="mt-8 flex justify-end">
-              <NsfwToggle />
-            </div>
           </div>
         </div>
       )}
