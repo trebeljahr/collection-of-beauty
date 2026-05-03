@@ -3,7 +3,7 @@
 import { useEffect, useMemo } from "react";
 import * as THREE from "three";
 import type { FloorLayout } from "@/lib/gallery-layout/types";
-import { SPIRAL_FLOOR_CUTOUT_RADIUS } from "@/lib/gallery-layout/world-coords";
+import { SPIRAL_FLOOR_CUTOUT_RADIUS, SPIRAL_INNER_RADIUS } from "@/lib/gallery-layout/world-coords";
 import { StairSign, spiralGateHalfArc } from "./staircase";
 
 // Local copies of the rail vocabulary so this file is self-contained.
@@ -174,49 +174,62 @@ function buildCutoutBalusters(
 }
 
 /**
- * Short railing arm that extends radially inward from a gate post on
- * a dead-end side, forming the second arm of the L that closes the
- * top of a flight. Same brass tube + dark balusters as the cutout
- * rail so the two reads as one continuous piece. The arm stops just
- * inside the spiral's outer edge — far enough that it visually meets
- * the top of the inner spiral rail without trying to weld onto it.
+ * Railing arm that extends radially inward from a gate post on a
+ * dead-end side, all the way across the spiral annulus to where the
+ * spiral's inner rail circles the open well. Same brass tube + dark
+ * balusters as the cutout rail so the two read as one continuous piece;
+ * the inner end butts up against the inner spiral rail, sealing the
+ * dead-end half off from being mistaken for a walking surface.
+ *
+ * Three.js's Y-rotation maps local +X to (cos θ, 0, −sin θ). To make
+ * the box's long axis (local +X) lie on the radial outward direction
+ * (cos a, 0, sin a) we therefore need θ = −a, NOT +a — the same sign
+ * trick used by the spiral's per-step brackets in staircase.tsx. The
+ * earlier `Math.atan2(dz, dx)` here resolved to +post.angle, which
+ * pointed the bridge bar at the angle's mirror across the X-axis;
+ * visibly the bar floated off the radial line and never met the post.
  */
 function DeadEndLBridge({
   cx,
   cz,
   y,
   post,
-  railR,
 }: {
   cx: number;
   cz: number;
   y: number;
   post: { x: number; z: number; angle: number };
-  railR: number;
 }) {
-  const innerR = SPIRAL_FLOOR_CUTOUT_RADIUS - 1.2;
-  const dx = post.x - cx;
-  const dz = post.z - cz;
-  const radialLen = railR - innerR;
-  const radialMid = (railR + innerR) / 2;
-  const midX = cx + Math.cos(post.angle) * radialMid;
-  const midZ = cz + Math.sin(post.angle) * radialMid;
+  // Radial extent: from the post (at the cutout-rail radius, where the
+  // post centreline sits) inward to the spiral's inner rail (which
+  // hugs SPIRAL_INNER_RADIUS + 0.07 — see staircase.tsx). Going all the
+  // way to the inner rail means the bridge looks like a continuous
+  // hand-rail spanning from the cutout edge to the inner well edge,
+  // not a stub floating mid-spiral above one of the treads.
+  const outerR = Math.hypot(post.x - cx, post.z - cz);
+  const innerR = SPIRAL_INNER_RADIUS + 0.07;
+  const radialLen = outerR - innerR;
+  const radialMid = (outerR + innerR) / 2;
+  const cosA = Math.cos(post.angle);
+  const sinA = Math.sin(post.angle);
+  const midX = cx + cosA * radialMid;
+  const midZ = cz + sinA * radialMid;
   const yTop = y + RAIL_HEIGHT - RAIL_BAR_HEIGHT / 2;
-  // Tangent (perpendicular to radial) at the post's angle.
-  const tangentRotY = Math.atan2(dz, dx);
 
-  // Two balusters along the bridge (count grows with span — ~30 cm spacing).
+  // ~40 cm spacing between balusters along the bridge. radialLen ≈ 2.95 m
+  // → 7 balusters; gives the bar visual weight as a real fence rather
+  // than a single brass beam over empty space.
   const balusterCount = Math.max(2, Math.round(radialLen / 0.4));
   const balusters: Array<{ x: number; z: number }> = [];
   for (let i = 1; i <= balusterCount; i++) {
     const t = i / (balusterCount + 1);
-    const r = railR - radialLen * t;
-    balusters.push({ x: cx + Math.cos(post.angle) * r, z: cz + Math.sin(post.angle) * r });
+    const r = outerR - radialLen * t;
+    balusters.push({ x: cx + cosA * r, z: cz + sinA * r });
   }
 
   return (
     <group>
-      <mesh position={[midX, yTop, midZ]} rotation={[0, tangentRotY, 0]} castShadow>
+      <mesh position={[midX, yTop, midZ]} rotation={[0, -post.angle, 0]} castShadow>
         <boxGeometry args={[radialLen, RAIL_BAR_HEIGHT, RAIL_BAR_HALF_WIDTH * 2]} />
         <primitive object={railTopMaterial} attach="material" />
       </mesh>
@@ -312,7 +325,6 @@ export function StairwellAccents({ floor }: { floor: FloorLayout }) {
     upSideOpen,
     downSideOpen,
   } = data;
-  const hasCutout = floor.index > 0;
   // Gate posts sit ON the rail line — same radius as the rail —
   // so the rail terminates INTO the post instead of stopping next
   // to it. We also rotate each post around Y so its outward face
@@ -359,21 +371,22 @@ export function StairwellAccents({ floor }: { floor: FloorLayout }) {
 
   return (
     <group>
-      {/* Cutout-edge railing — only meaningful when there's actually a
-          hole to fall into. */}
-      {hasCutout && (
-        <>
-          <mesh geometry={railGeom} position={[cx, 0, cz]} castShadow>
-            <primitive object={railTopMaterial} attach="material" />
-          </mesh>
-          {balusters.map((p, i) => (
-            <mesh key={`cutout-bal-${i}`} position={[cx + p[0], p[1], cz + p[2]]} castShadow>
-              <boxGeometry args={[BALUSTER_SIZE, BALUSTER_HEIGHT, BALUSTER_SIZE]} />
-              <primitive object={balusterMaterial} attach="material" />
-            </mesh>
-          ))}
-        </>
-      )}
+      {/* Cutout-edge railing — circles the spiral well at rail height.
+          On floors above the ground it's the fall-prevention rail
+          around the floor cutout. On the ground floor (no cutout) it
+          still reads as the architectural fence framing the spiral
+          entrance, anchors the gate posts and the dead-end L-bridges,
+          and gives the open well a visible perimeter from below as
+          the player ascends. */}
+      <mesh geometry={railGeom} position={[cx, 0, cz]} castShadow>
+        <primitive object={railTopMaterial} attach="material" />
+      </mesh>
+      {balusters.map((p, i) => (
+        <mesh key={`cutout-bal-${i}`} position={[cx + p[0], p[1], cz + p[2]]} castShadow>
+          <boxGeometry args={[BALUSTER_SIZE, BALUSTER_HEIGHT, BALUSTER_SIZE]} />
+          <primitive object={balusterMaterial} attach="material" />
+        </mesh>
+      ))}
 
       {/* Gate posts — wayfinding pylons flanking the entry/exit
           gap. The local +X axis (after the post's Y rotation) lines
@@ -407,8 +420,8 @@ export function StairwellAccents({ floor }: { floor: FloorLayout }) {
           so the top of a flight reads as an architectural ending
           rather than an unfinished gap into the well. The radial arm
           sits at rail height, the same brass tube as the cutout rail. */}
-      {!upSideOpen && <DeadEndLBridge cx={cx} cz={cz} y={floor.y} post={postA} railR={railR} />}
-      {!downSideOpen && <DeadEndLBridge cx={cx} cz={cz} y={floor.y} post={postB} railR={railR} />}
+      {!upSideOpen && <DeadEndLBridge cx={cx} cz={cz} y={floor.y} post={postA} />}
+      {!downSideOpen && <DeadEndLBridge cx={cx} cz={cz} y={floor.y} post={postB} />}
 
       {/* Directional signs. UP goes on the post that's CCW from the
           entry direction (left-hand side of the gap as you walk in);

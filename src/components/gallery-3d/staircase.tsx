@@ -455,6 +455,45 @@ function buildSpiralRail(
   return { rail: geom, balusters, endpoints };
 }
 
+/** Build a flat annular-sector slab at the spiral's upper end, filling
+ *  the half of the well OPPOSITE the entry gate. Used only for the
+ *  topmost staircase: the up-half of the gate is a dead end (no further
+ *  flight above), so there's no spiral wrapping that side at upperY —
+ *  visually a yawning gap into the well below. The slab caps the
+ *  staircase: the player arriving at the top now stands across from a
+ *  proper flat landing instead of empty air, and the helix reads as
+ *  "ending in a platform" rather than just stopping mid-spiral.
+ *
+ *  Geometry is the same wedge-of-annulus the spiral treads use — full
+ *  spiral annulus radially, dead-end half angularly — at upperY with
+ *  one tread's worth of thickness. */
+function buildTopLandingGeometry(staircase: Staircase): THREE.BufferGeometry {
+  const { innerRadius, outerRadius, direction, lowerY, upperY, entryAngle, numSteps } = staircase;
+  // Span the half-revolution past the entry gate, in the direction the
+  // ascending player WOULD continue if there were a flight above. On
+  // the topmost staircase that direction is a dead end at upperY; the
+  // landing occupies its angular footprint as a flat platform.
+  const start = entryAngle;
+  const end = entryAngle + direction * Math.PI;
+  const lo = Math.min(start, end);
+  const hi = Math.max(start, end);
+  const stepRise = (upperY - lowerY) / numSteps;
+  const { positions, indices } = buildTreadGeometry(
+    innerRadius,
+    outerRadius,
+    lo,
+    hi,
+    upperY,
+    stepRise,
+    32,
+  );
+  const geom = new THREE.BufferGeometry();
+  geom.setAttribute("position", new THREE.Float32BufferAttribute(positions, 3));
+  geom.setIndex(indices);
+  geom.computeVertexNormals();
+  return geom;
+}
+
 /** Build a set of stout horizontal beams — one per step — anchoring
  *  the inner edge of each tread to the central stone column. Each
  *  beam overlaps a few centimetres into the column on its inner end
@@ -569,6 +608,14 @@ export function StaircaseRenderer({
     [staircase],
   );
   const brackets = useMemo(() => buildStepBrackets(staircase), [staircase]);
+  // Top landing — only the helix's topmost flight gets one. It caps
+  // the spiral with a flat half-revolution at upperY so the climb has
+  // a visible architectural ending; intermediate flights stack
+  // continuously into the next revolution above and don't need it.
+  const landingGeom = useMemo(
+    () => (hasFlightAbove ? null : buildTopLandingGeometry(staircase)),
+    [staircase, hasFlightAbove],
+  );
   // Hand-built BufferGeometries don't get R3F's automatic teardown when
   // the parent <mesh> unmounts. Without this, every floor swap leaks
   // the previous floor's spirals (treads + both rail tubes) into VRAM.
@@ -577,8 +624,9 @@ export function StaircaseRenderer({
       stepsGeom.dispose();
       innerRail.rail.dispose();
       outerRail.rail.dispose();
+      landingGeom?.dispose();
     },
-    [stepsGeom, innerRail, outerRail],
+    [stepsGeom, innerRail, outerRail, landingGeom],
   );
   const columnHeight = upperY - lowerY;
   const columnY = (lowerY + upperY) / 2;
@@ -601,6 +649,15 @@ export function StaircaseRenderer({
       <mesh geometry={stepsGeom} castShadow receiveShadow>
         <primitive object={treadMaterial} attach="material" />
       </mesh>
+
+      {/* Top landing — flat half-revolution slab capping the helix's
+          topmost flight. Renders only when there's no flight above
+          this one. */}
+      {landingGeom && (
+        <mesh geometry={landingGeom} castShadow receiveShadow>
+          <primitive object={treadMaterial} attach="material" />
+        </mesh>
+      )}
 
       {/* Per-step radial beams tying each tread back to the
           column. Reads as forged iron hardware anchoring the
