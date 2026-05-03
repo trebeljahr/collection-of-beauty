@@ -16,25 +16,24 @@ import { artworkBand, partitionByBand } from "./painting-bands";
 import type { Door, FloorLayout, HallwayLayout, Placement, RoomLayout } from "./types";
 import { CELL_SIZE } from "./world-coords";
 
-/** Eye-height-ish centre for every wall-mounted painting. Anchored to
- *  human scale (door height is 2.4 m), not the ceiling — so paintings
- *  hang at the same physical height regardless of how tall the room is.
- *  A 2.6 m painting centred at 1.7 m tops out at 3.0 m and bottoms at
- *  0.4 m: well under the 4.2 m ceiling, well off the floor. */
-const CANONICAL_Y_CENTER_OFFSET = 1.7;
+/** Eye-height-ish centre for every wall-mounted painting. Sized so the
+ *  largest 3.2 m painting tops out at 3.5 m and bottoms at 0.3 m —
+ *  noticeably more monumental than the door (2.4 m) without crashing
+ *  into the 4.2 m ceiling or hanging into the floor. */
+const CANONICAL_Y_CENTER_OFFSET = 1.9;
 /** Lower-row hallway height. Single salon row — kept that way for
  *  visual calm even though the 3.12 m corridor ceiling could now host
  *  a second stacked row. */
-const HALLWAY_ROW_LOWER_Y = 1.4;
+const HALLWAY_ROW_LOWER_Y = 1.45;
 /** Max painting dimensions in metres, independent of real-world size.
  *  Acts as an upper bound; per-slot sizing further constrains this so
  *  paintings don't crash into perpendicular walls or each other's
- *  plaques. Capped at 2.6 m tall so paintings stay sized to human/door
- *  scale; the room reads as taller-than-the-art rather than the art
- *  filling the wall floor-to-ceiling. */
-const MAX_PAINTING_W = 2.2;
-const MAX_PAINTING_H_ROOM = 2.6;
-const MAX_PAINTING_H_HALLWAY = 1.6;
+ *  plaques. Sized to feel monumental against the 2.4 m door (≈ 1.3×
+ *  taller) while still leaving 0.7 m of head clearance to the 4.2 m
+ *  ceiling so the wall doesn't read as floor-to-ceiling collage. */
+const MAX_PAINTING_W = 2.4;
+const MAX_PAINTING_H_ROOM = 3.2;
+const MAX_PAINTING_H_HALLWAY = 1.9;
 /** Inset from the wall surface so paintings don't z-fight. Sized to
  *  put the back of the painting frame box flush against the wall —
  *  frame box depth in painting.tsx is 0.025 m, half-depth + a 1 mm
