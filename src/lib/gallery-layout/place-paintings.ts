@@ -23,6 +23,16 @@ import { CELL_SIZE } from "./world-coords";
  *  1.9 m to read closer to a real-museum hang (where centres land
  *  around 1.45-1.55 m, slightly below the player's 1.75 m eye line). */
 const CANONICAL_Y_CENTER_OFFSET = 1.65;
+/** Two-row stacking, used on the Ukiyo-e floor where the prints are
+ *  small (~25–40 cm tall) and numerous — a single eye-level row would
+ *  leave the upper half of every wall awkwardly empty. Rows bracket the
+ *  canonical hang by ±0.35 m: upper ≈ 2.0 m (slight head-tilt up from
+ *  the player's 1.75 m eye line), lower ≈ 1.3 m (slight head-tilt down).
+ *  The 0.6 m per-row height cap keeps the rows from meeting in the
+ *  middle even if a larger Japanese print sneaks in. */
+const DOUBLE_ROW_UPPER_OFFSET = 2.0;
+const DOUBLE_ROW_LOWER_OFFSET = 1.3;
+const DOUBLE_ROW_MAX_HEIGHT = 0.6;
 /** Lower-row hallway height. Single salon row — kept that way for
  *  visual calm even though the 3.12 m corridor ceiling could now host
  *  a second stacked row. Mirrors the room offset's drop so corridor
@@ -150,10 +160,20 @@ function widthAndPlaqueForRoomCell(args: { cornerStatus: CornerStatus }): {
  * cells at wall corners get tighter caps (so paintings don't crash
  * through perpendicular walls), and the plaque flips to the painting's
  * left at right-corner cells so it has somewhere to hang.
+ *
+ * `doubleRow` switches to a two-row stack per cell — used on the
+ * Ukiyo-e floor where most prints are small enough that one eye-level
+ * row leaves three quarters of the wall empty. The two rows sit just
+ * above and below eye-level with a tighter per-row height cap.
  */
-export function computeRoomSlots(room: RoomLayout): Slot[] {
+export function computeRoomSlots(room: RoomLayout, opts: { doubleRow?: boolean } = {}): Slot[] {
   const { cellBounds, worldRect } = room;
-  const y = worldRect.y + CANONICAL_Y_CENTER_OFFSET;
+  const rows = opts.doubleRow
+    ? [
+        { y: worldRect.y + DOUBLE_ROW_UPPER_OFFSET, maxHeight: DOUBLE_ROW_MAX_HEIGHT },
+        { y: worldRect.y + DOUBLE_ROW_LOWER_OFFSET, maxHeight: DOUBLE_ROW_MAX_HEIGHT },
+      ]
+    : [{ y: worldRect.y + CANONICAL_Y_CENTER_OFFSET, maxHeight: MAX_PAINTING_H_ROOM }];
   const slots: Slot[] = [];
 
   const doorsBySide = {
@@ -179,9 +199,11 @@ export function computeRoomSlots(room: RoomLayout): Slot[] {
     viewerRightIsHigher: boolean;
     doorsOnSide: Door[];
     doorAxis: "x" | "z";
-    /** Returns a slot prototype (without sizing/plaque side) for cell
-     *  index `cellIdx` along the wall axis. */
-    buildBase: (cellIdx: number) => Omit<Slot, "maxWidth" | "maxHeight" | "plaqueOnLeft">;
+    /** Returns a slot prototype (without Y / sizing / plaque side) for
+     *  cell index `cellIdx` along the wall axis. The Y is filled in per
+     *  row so a single buildBase covers both single- and double-row
+     *  rooms. */
+    buildBase: (cellIdx: number) => Omit<Slot, "wallY" | "maxWidth" | "maxHeight" | "plaqueOnLeft">;
     /** World coordinate along the wall axis for cell `cellIdx`'s
      *  centre — used to test against door openings. */
     cellCenterCoord: (cellIdx: number) => number;
@@ -210,12 +232,16 @@ export function computeRoomSlots(room: RoomLayout): Slot[] {
       const sizing = widthAndPlaqueForRoomCell({ cornerStatus });
       if (sizing.maxWidth <= 0) continue;
 
-      slots.push({
-        ...args.buildBase(cellIdx),
-        maxWidth: sizing.maxWidth,
-        maxHeight: MAX_PAINTING_H_ROOM,
-        plaqueOnLeft: sizing.plaqueOnLeft,
-      });
+      const base = args.buildBase(cellIdx);
+      for (const row of rows) {
+        slots.push({
+          ...base,
+          wallY: row.y,
+          maxWidth: sizing.maxWidth,
+          maxHeight: row.maxHeight,
+          plaqueOnLeft: sizing.plaqueOnLeft,
+        });
+      }
     }
   };
 
@@ -230,7 +256,6 @@ export function computeRoomSlots(room: RoomLayout): Slot[] {
     cellCenterCoord: (x) => (x + 0.5) * CELL_SIZE,
     buildBase: (x) => ({
       wallX: (x + 0.5) * CELL_SIZE,
-      wallY: y,
       wallZ: zNorth,
       floorY: worldRect.y,
       rotationY: 0,
@@ -250,7 +275,6 @@ export function computeRoomSlots(room: RoomLayout): Slot[] {
     cellCenterCoord: (x) => (x + 0.5) * CELL_SIZE,
     buildBase: (x) => ({
       wallX: (x + 0.5) * CELL_SIZE,
-      wallY: y,
       wallZ: zSouth,
       floorY: worldRect.y,
       rotationY: Math.PI,
@@ -270,7 +294,6 @@ export function computeRoomSlots(room: RoomLayout): Slot[] {
     cellCenterCoord: (z) => (z + 0.5) * CELL_SIZE,
     buildBase: (z) => ({
       wallX: xWest,
-      wallY: y,
       wallZ: (z + 0.5) * CELL_SIZE,
       floorY: worldRect.y,
       rotationY: Math.PI / 2,
@@ -290,7 +313,6 @@ export function computeRoomSlots(room: RoomLayout): Slot[] {
     cellCenterCoord: (z) => (z + 0.5) * CELL_SIZE,
     buildBase: (z) => ({
       wallX: xEast,
-      wallY: y,
       wallZ: (z + 0.5) * CELL_SIZE,
       floorY: worldRect.y,
       rotationY: -Math.PI / 2,
@@ -492,7 +514,11 @@ export type DistributionStats = {
  *    (wall shows through). If we have more artworks than slots, the
  *    overflow is dropped.
  */
-export function distributePaintings(floor: FloorLayout, eraArtworks: Artwork[]): DistributionStats {
+export function distributePaintings(
+  floor: FloorLayout,
+  eraArtworks: Artwork[],
+  opts: { doubleRow?: boolean } = {},
+): DistributionStats {
   const bands = partitionByBand(eraArtworks);
 
   // --- Rooms: large first (biggest rooms), then medium. Stairwell
@@ -503,7 +529,7 @@ export function distributePaintings(floor: FloorLayout, eraArtworks: Artwork[]):
     .map((r) => {
       const w = r.cellBounds.xMax - r.cellBounds.xMin + 1;
       const d = r.cellBounds.zMax - r.cellBounds.zMin + 1;
-      return { room: r, area: w * d, slots: computeRoomSlots(r), filled: 0 };
+      return { room: r, area: w * d, slots: computeRoomSlots(r, opts), filled: 0 };
     })
     .sort((a, b) => b.area - a.area);
 
