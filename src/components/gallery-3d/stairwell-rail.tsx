@@ -270,13 +270,20 @@ export function StairwellAccents({ floor }: { floor: FloorLayout }) {
     // the rail closes there. On the ground floor, stairsIn is empty.
     const upSideOpen = !!stairOut;
     const downSideOpen = !!stairIn;
+    // The rail leaves a gap wherever the gate-half won't be closed by
+    // an L-bridge. Up-side closes ONLY on the top floor (stair coming
+    // up into nothing), via the L-bridge above. Down-side never closes
+    // — bottom-floor dead-ends are solid stairwell-room floor with no
+    // fall hazard, so we don't fence them. So the rail's gap on the
+    // up side maps to upSideOpen, but the gap on the down side is
+    // always open regardless of whether there's a downgoing stair.
     const railGeom = buildCutoutRailGeometry(
       railR,
       floor.y,
       reference.entryAngle,
       gateHalfArc,
       upSideOpen,
-      downSideOpen,
+      true,
     );
     const balusters = buildCutoutBalusters(
       railR,
@@ -284,7 +291,7 @@ export function StairwellAccents({ floor }: { floor: FloorLayout }) {
       reference.entryAngle,
       gateHalfArc,
       upSideOpen,
-      downSideOpen,
+      true,
     );
     return {
       cx,
@@ -395,9 +402,14 @@ export function StairwellAccents({ floor }: { floor: FloorLayout }) {
           a panel facing the player rather than a thin column with a
           horizontal sign-bar nailed across it. The sign plaque fits
           flush within the panel's tangent width — no + cross.
-          Always rendered regardless of whether this side has a stair —
-          on a dead-end side the post is the structural cap closing the
-          rail extension, even though no sign hangs on it. */}
+          A post renders only when (a) its side has a stair to sign on,
+          or (b) we're closing the dead-end with an L-bridge so the
+          post anchors that bridge. The bottom-floor down-side has
+          neither, so it stays empty rather than showing a textless
+          panel that reads as a broken sign. */}
+      {/* postA: always rendered. Carries the up-arrow sign on
+          floors with a stair leading up; on the top floor it's the
+          structural anchor for the dead-end L-bridge below. */}
       <mesh
         position={[postA.x, floor.y + GATE_POST_HEIGHT / 2, postA.z]}
         rotation={[0, postA.rotationY, 0]}
@@ -406,22 +418,30 @@ export function StairwellAccents({ floor }: { floor: FloorLayout }) {
         <boxGeometry args={[GATE_POST_TANGENT_WIDTH, GATE_POST_HEIGHT, GATE_POST_RADIAL_DEPTH]} />
         <primitive object={gatePostMaterial} attach="material" />
       </mesh>
-      <mesh
-        position={[postB.x, floor.y + GATE_POST_HEIGHT / 2, postB.z]}
-        rotation={[0, postB.rotationY, 0]}
-        castShadow
-      >
-        <boxGeometry args={[GATE_POST_TANGENT_WIDTH, GATE_POST_HEIGHT, GATE_POST_RADIAL_DEPTH]} />
-        <primitive object={gatePostMaterial} attach="material" />
-      </mesh>
+      {/* postB: only when there's an actual down-stair to sign. The
+          bottom-floor down side is dead-end and has no L-bridge to
+          anchor either, so emitting an empty post there would just
+          show as a textless sign-pylon. */}
+      {downSideOpen && (
+        <mesh
+          position={[postB.x, floor.y + GATE_POST_HEIGHT / 2, postB.z]}
+          rotation={[0, postB.rotationY, 0]}
+          castShadow
+        >
+          <boxGeometry args={[GATE_POST_TANGENT_WIDTH, GATE_POST_HEIGHT, GATE_POST_RADIAL_DEPTH]} />
+          <primitive object={gatePostMaterial} attach="material" />
+        </mesh>
+      )}
 
-      {/* L-shaped inner extension on each dead-end side. Bridges from
-          the gate post inward (radially) to the inner spiral railing,
-          so the top of a flight reads as an architectural ending
-          rather than an unfinished gap into the well. The radial arm
-          sits at rail height, the same brass tube as the cutout rail. */}
+      {/* L-shaped inner extension. Bridges from the gate post inward
+          (radially) to the inner spiral railing. We only emit it on
+          the TOP floor's up-side dead-end — there the spiral comes
+          up into nothing and the bridge reads as the architectural
+          ending of the flight. The bottom floor doesn't need it: the
+          stairwell room has no floor cutout and no spiral coming in
+          from below, so a closing rail on the down side would just
+          fence off solid floor. */}
       {!upSideOpen && <DeadEndLBridge cx={cx} cz={cz} y={floor.y} post={postA} />}
-      {!downSideOpen && <DeadEndLBridge cx={cx} cz={cz} y={floor.y} post={postB} />}
 
       {/* Directional signs. UP goes on the post that's CCW from the
           entry direction (left-hand side of the gap as you walk in);
