@@ -10,8 +10,10 @@
 //
 // Trade-off: textures load asynchronously after `<Canvas>` mounts. The
 // existing "Click to enter" overlay covers the brief blank-mapped
-// frame. Once the JPG arrives, three.js auto-flags `needsUpdate` and
-// the next render uses the textured map.
+// frame. Once the JPG arrives, three.js's TextureLoader sets
+// `needsUpdate = true` on the source texture, the renderer uploads on
+// the next frame, and every material that bound the source picks up
+// the textured map automatically.
 
 import * as THREE from "three";
 
@@ -22,48 +24,22 @@ const loader = new THREE.TextureLoader();
  *  slot here — it's downloaded for future displacement work. */
 type MapKind = "diff" | "nor_gl" | "arm";
 
-/** Cache key: `${slug}/${map}`. Returned textures share their
- *  underlying image (so one download → one GPU upload), but cloning
- *  before binding lets each surface set its own .repeat / .offset. */
+/** Cache key: `${slug}/${map}`. Returned textures are SHARED across
+ *  every binding — we don't clone. Materials that want different
+ *  `.repeat` values would conflict, but every caller in this codebase
+ *  passes (1, 1) and lets per-mesh world-unit UVs handle tiling, so
+ *  cloning was paying complexity (see commit history) for nothing. */
 const sourceCache = new Map<string, THREE.Texture>();
 
-/** Per-source clone registry. `Texture.clone()` shares `.source` (and
- *  thus the image data) but each clone has its own `.version` counter
- *  and `.needsUpdate` flag. If we set `needsUpdate = true` on a clone
- *  before the image has loaded, three.js prints "Texture marked for
- *  update but no image data found" and consumes the flag — the clone
- *  then never re-uploads when the image finally arrives. So we keep
- *  track of every clone and bump its needsUpdate from the source's
- *  onLoad callback instead. */
-const cloneRegistry = new Map<THREE.Texture, Set<THREE.Texture>>();
-
-/** Load (and cache) the source texture for a slug + map kind. The
- *  returned texture is the *source* — call `.clone()` on it before
- *  binding to a material that needs its own tile density. */
 function loadSource(slug: string, map: MapKind): THREE.Texture {
   const key = `${slug}/${map}`;
-  let tex = sourceCache.get(key);
-  if (tex) return tex;
+  const cached = sourceCache.get(key);
+  if (cached) return cached;
   // Mirror the layout written by scripts/download-textures.mjs.
   const url = `/textures/${slug}/${slug}_${map}_1k.jpg`;
-  tex = loader.load(
-    url,
-    (t) => {
-      // Image arrived. Wake up every clone so they upload the image to
-      // the GPU on the next render — without this, clones that were
-      // created before load completed stay stuck on their initial
-      // empty-image state (the source mutates in place but each clone's
-      // version counter is independent).
-      const clones = cloneRegistry.get(t);
-      if (clones) {
-        for (const c of clones) c.needsUpdate = true;
-      }
-    },
-    undefined,
-    (err) => {
-      console.warn(`[texture-pack] failed to load ${url}:`, err);
-    },
-  );
+  const tex = loader.load(url, undefined, undefined, (err) => {
+    console.warn(`[texture-pack] failed to load ${url}:`, err);
+  });
   // Diffuse is sRGB; everything else (normal, roughness, metalness,
   // ao) is linear data so it must NOT be gamma-decoded.
   tex.colorSpace = map === "diff" ? THREE.SRGBColorSpace : THREE.NoColorSpace;
@@ -72,25 +48,6 @@ function loadSource(slug: string, map: MapKind): THREE.Texture {
   tex.anisotropy = 8;
   sourceCache.set(key, tex);
   return tex;
-}
-
-/** Clone a source texture and stamp it with a tile density. Cloning
- *  shares the underlying Image — only the UV transform is per-clone.
- *  needsUpdate is deferred until the source's onLoad fires (or set
- *  immediately if the source is already loaded). */
-function clonedWithRepeat(src: THREE.Texture, repeatU: number, repeatV: number): THREE.Texture {
-  const c = src.clone();
-  c.repeat.set(repeatU, repeatV);
-  let registry = cloneRegistry.get(src);
-  if (!registry) {
-    registry = new Set();
-    cloneRegistry.set(src, registry);
-  }
-  registry.add(c);
-  // Late binding: if the source's image already arrived, mark this
-  // clone immediately. Otherwise the registry above will get it.
-  if (src.image) c.needsUpdate = true;
-  return c;
 }
 
 /**
@@ -112,10 +69,18 @@ function clonedWithRepeat(src: THREE.Texture, repeatU: number, repeatV: number):
  *   blue reflection at grazing angles. The host material sets
  *   `metalness: 0` instead.
  *
- * `repeatU`/`repeatV` control tile density. With per-mesh world-unit
- * UVs (see `useWorldUVPlane` in room-geometry.tsx), pass `(1, 1)` here
- * and let the geometry decide how many tiles fit — that way a 4 m
- * room and a 24 m room both show consistent 1 m² tiles.
+ * `repeatU`/`repeatV` set the source texture's tile density. With
+ * per-mesh world-unit UVs (see `useWorldUVPlane` in room-geometry.tsx),
+ * pass `(1, 1)` and let the geometry decide how many tiles fit — that
+ * way a 4 m room and a 24 m room both show consistent 1 m² tiles.
+ *
+ * Note: the returned textures are SHARED across every call with the
+ * same slug. Mutating `.repeat` etc. on the returned texture mutates
+ * it for every other surface using the same Poly Haven set too. With
+ * the current single-callsite-per-slug pattern this is fine; if a
+ * future caller needs a different repeat per binding, switch back to
+ * cloning (and accept the needsUpdate sync complexity that comes with
+ * it — the renderer treats clones as separate textures).
  */
 export function buildMapBundle(
   slug: string,
@@ -129,9 +94,8 @@ export function buildMapBundle(
   const diff = loadSource(slug, "diff");
   const nor = loadSource(slug, "nor_gl");
   const arm = loadSource(slug, "arm");
-  return {
-    map: clonedWithRepeat(diff, repeatU, repeatV),
-    normalMap: clonedWithRepeat(nor, repeatU, repeatV),
-    roughnessMap: clonedWithRepeat(arm, repeatU, repeatV),
-  };
+  diff.repeat.set(repeatU, repeatV);
+  nor.repeat.set(repeatU, repeatV);
+  arm.repeat.set(repeatU, repeatV);
+  return { map: diff, normalMap: nor, roughnessMap: arm };
 }
