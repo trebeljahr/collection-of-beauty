@@ -1,3 +1,4 @@
+import { createHash } from "node:crypto";
 import { closeSync, existsSync, openSync, readSync, readdirSync } from "node:fs";
 import { mkdir, readFile, writeFile } from "node:fs/promises";
 import path from "node:path";
@@ -729,6 +730,37 @@ async function main() {
   const artistAggregates = new Map();
   const droppedMissing = { count: 0, samples: [] };
 
+  // Slugified IDs collide for two reasons: (1) the 120-char cap collapses two
+  // filenames that differ only past the prefix (e.g. Turner's
+  // "...Regatta_Beating_to_Windward_No._1" and "..._No._2"), and (2) basenames
+  // composed entirely of non-Latin script (Cyrillic, CJK) slugify to the empty
+  // string, leaving every such file with the bare folder name. Append a
+  // stable 6-char hash of the source path on collision so IDs stay unique
+  // across rebuilds without depending on iteration order. The prefix is
+  // shortened to make room for the suffix — otherwise the cap would strip the
+  // disambiguator right back off and we'd loop forever.
+  const ID_MAX = 120;
+  const usedIds = new Set();
+  function uniqueId(baseId, sourcePath) {
+    if (!usedIds.has(baseId)) {
+      usedIds.add(baseId);
+      return baseId;
+    }
+    const suffix = createHash("sha1").update(sourcePath).digest("hex").slice(0, 6);
+    let n = 1;
+    while (true) {
+      const tag = n === 1 ? suffix : `${suffix}-${n}`;
+      const room = ID_MAX - tag.length - 1; // -1 for the joining dash
+      const prefix = baseId.slice(0, Math.max(1, room)).replace(/-+$/, "");
+      const id = `${prefix}-${tag}`;
+      if (!usedIds.has(id)) {
+        usedIds.add(id);
+        return id;
+      }
+      n++;
+    }
+  }
+
   async function pushFromFolder(folderKey, data) {
     for (const [fname, entry] of Object.entries(data.entries)) {
       if (!keepEntry(entry)) continue;
@@ -758,7 +790,8 @@ async function main() {
       // → "Kanae Yamamoto") collapse onto a single artist page.
       const artistName = artistInfo?.name ?? normalizedArtistName;
       const artistSlug = artistName ? slugify(artistName) : "unknown";
-      const id = slugify(`${folderKey}-${fname.replace(/\.[^.]+$/, "")}`).slice(0, 120);
+      const baseId = slugify(`${folderKey}-${fname.replace(/\.[^.]+$/, "")}`).slice(0, 120);
+      const id = uniqueId(baseId, `${folderKey}/${fname}`);
 
       const dims = await dimensionsFor(folderKey, fname);
       const real = realDimensions.get(id) || null;
