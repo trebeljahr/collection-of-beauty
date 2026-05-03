@@ -127,6 +127,24 @@ export function spiralGateHalfArc(numSteps: number): number {
  *  - top + bottom annular faces
  *  - inner + outer curved faces (visible from the well / outside)
  *  - two radial side caps that double as risers between adjacent steps
+ *
+ * Each face owns its OWN copies of its corner vertices. We share
+ * vertices ONLY along the segmented curves (inner / outer faces),
+ * where adjacent segment quads should blend smoothly so the curve
+ * reads as a curve rather than a string of facets. Top, bottom, and
+ * the two radial caps are completely independent: their vertices are
+ * not reused by any other face. computeVertexNormals therefore
+ * produces a clean +Y on the top, −Y on the bottom, ±tangent on the
+ * caps, and a smoothly varying −radial / +radial across the inner
+ * and outer curves.
+ *
+ * The earlier 4-ring layout (20 verts per wedge, every corner shared
+ * across up to 5 incident faces) caused computeVertexNormals to
+ * average all of those face normals into a single diagonal direction.
+ * That averaged normal varies smoothly across each face, so what
+ * should be a flat riser/underside picked up a soft graduated sheen
+ * — the geometry was hard-edged, but it shaded as if it were a
+ * lump of clay.
  */
 function buildTreadGeometry(
   innerR: number,
@@ -139,57 +157,87 @@ function buildTreadGeometry(
 ): { positions: number[]; indices: number[] } {
   const positions: number[] = [];
   const indices: number[] = [];
-  const ring = (which: 0 | 1 | 2 | 3, i: number) => which * (segments + 1) + i;
-
   const bottomY = topY - thickness;
-  // 4 rings × (segments+1) verts: ib, it, ob, ot.
-  for (const [r, y] of [
-    [innerR, bottomY],
-    [innerR, topY],
-    [outerR, bottomY],
-    [outerR, topY],
-  ] as const) {
+
+  const pushVertex = (x: number, y: number, z: number): number => {
+    const idx = positions.length / 3;
+    positions.push(x, y, z);
+    return idx;
+  };
+
+  // Helper: build a row of (segments+1) verts at a fixed radius and
+  // height, returning the index of each.
+  const ringAt = (r: number, y: number): number[] => {
+    const out: number[] = [];
     for (let i = 0; i <= segments; i++) {
       const t = i / segments;
       const theta = thetaStart + (thetaEnd - thetaStart) * t;
-      positions.push(r * Math.cos(theta), y, r * Math.sin(theta));
+      out.push(pushVertex(r * Math.cos(theta), y, r * Math.sin(theta)));
     }
+    return out;
+  };
+
+  // ── Top face (+Y normal) — independent inner & outer rows.
+  // Going inner→inner-next→outer (Z then X under the right-hand
+  // rule) yields Z×X=+Y, so looking down on the spiral hits a solid
+  // surface. The earlier (1,3,1+1) winding produced −Y normals here,
+  // which is why looking down on the spiral showed see-through
+  // "sheets" — the top faces were back-culled and the camera read
+  // straight through to the bottom face one rise below.
+  const topInner = ringAt(innerR, topY);
+  const topOuter = ringAt(outerR, topY);
+  for (let i = 0; i < segments; i++) {
+    indices.push(topInner[i], topInner[i + 1], topOuter[i]);
+    indices.push(topInner[i + 1], topOuter[i + 1], topOuter[i]);
   }
 
-  // Top — wound so (V1−V0)×(V2−V0) gives +Y. Going inner→inner-next→
-  // outer (Z then X under right-hand rule) yields Z×X=+Y, so the
-  // top of every wedge is solid when looked at from above. The
-  // earlier (1,3,1+1) winding produced -Y normals here, which is
-  // why looking down at the spiral showed see-through "sheets" —
-  // the top faces were back-culled and the camera read straight
-  // through to the bottom face one rise below.
-  for (let i = 0; i < segments; i++) {
-    indices.push(ring(1, i), ring(1, i + 1), ring(3, i));
-    indices.push(ring(1, i + 1), ring(3, i + 1), ring(3, i));
-  }
-  // Bottom — mirror winding of the top so the normal points -Y;
+  // ── Bottom face (−Y normal) — mirrored winding of the top.
   // outer→inner-next→outer-next gives X×Z=−Y on the underside.
+  const bottomInner = ringAt(innerR, bottomY);
+  const bottomOuter = ringAt(outerR, bottomY);
   for (let i = 0; i < segments; i++) {
-    indices.push(ring(0, i), ring(2, i), ring(0, i + 1));
-    indices.push(ring(0, i + 1), ring(2, i), ring(2, i + 1));
+    indices.push(bottomInner[i], bottomOuter[i], bottomInner[i + 1]);
+    indices.push(bottomInner[i + 1], bottomOuter[i], bottomOuter[i + 1]);
   }
-  // Inner curved face (faces toward the well, normal -radial).
+
+  // ── Inner curved face (−radial normal, smooth across segments).
+  // Verts at top and bottom of the inner cylinder share a single
+  // copy across the two segments that meet at each angle, so
+  // computeVertexNormals averages the −radial(θ_{i−1}) and
+  // −radial(θ_i) face normals into a smoothly interpolated direction
+  // along the curve.
+  const innerCurveTop = ringAt(innerR, topY);
+  const innerCurveBot = ringAt(innerR, bottomY);
   for (let i = 0; i < segments; i++) {
-    indices.push(ring(0, i + 1), ring(1, i), ring(0, i));
-    indices.push(ring(0, i + 1), ring(1, i + 1), ring(1, i));
+    indices.push(innerCurveBot[i + 1], innerCurveTop[i], innerCurveBot[i]);
+    indices.push(innerCurveBot[i + 1], innerCurveTop[i + 1], innerCurveTop[i]);
   }
-  // Outer curved face (faces away from the well, normal +radial).
+
+  // ── Outer curved face (+radial normal, smooth across segments).
+  const outerCurveTop = ringAt(outerR, topY);
+  const outerCurveBot = ringAt(outerR, bottomY);
   for (let i = 0; i < segments; i++) {
-    indices.push(ring(2, i), ring(3, i), ring(2, i + 1));
-    indices.push(ring(2, i + 1), ring(3, i), ring(3, i + 1));
+    indices.push(outerCurveBot[i], outerCurveTop[i], outerCurveBot[i + 1]);
+    indices.push(outerCurveBot[i + 1], outerCurveTop[i], outerCurveTop[i + 1]);
   }
-  // Radial cap at thetaStart (also serves as the riser of THIS step,
-  // visible to a player approaching from the previous tread).
-  indices.push(ring(0, 0), ring(1, 0), ring(2, 0));
-  indices.push(ring(1, 0), ring(3, 0), ring(2, 0));
-  // Radial cap at thetaEnd.
-  indices.push(ring(0, segments), ring(2, segments), ring(1, segments));
-  indices.push(ring(1, segments), ring(2, segments), ring(3, segments));
+
+  // ── Cap at thetaStart (−tangent normal). Owns its own 4 verts so
+  // the riser reads as a hard-edged flat panel rather than blending
+  // into the adjacent tread top / bottom / curve normals.
+  const startIB = pushVertex(innerR * Math.cos(thetaStart), bottomY, innerR * Math.sin(thetaStart));
+  const startIT = pushVertex(innerR * Math.cos(thetaStart), topY, innerR * Math.sin(thetaStart));
+  const startOB = pushVertex(outerR * Math.cos(thetaStart), bottomY, outerR * Math.sin(thetaStart));
+  const startOT = pushVertex(outerR * Math.cos(thetaStart), topY, outerR * Math.sin(thetaStart));
+  indices.push(startIB, startIT, startOB);
+  indices.push(startIT, startOT, startOB);
+
+  // ── Cap at thetaEnd (+tangent normal). Same idea.
+  const endIB = pushVertex(innerR * Math.cos(thetaEnd), bottomY, innerR * Math.sin(thetaEnd));
+  const endIT = pushVertex(innerR * Math.cos(thetaEnd), topY, innerR * Math.sin(thetaEnd));
+  const endOB = pushVertex(outerR * Math.cos(thetaEnd), bottomY, outerR * Math.sin(thetaEnd));
+  const endOT = pushVertex(outerR * Math.cos(thetaEnd), topY, outerR * Math.sin(thetaEnd));
+  indices.push(endIB, endOB, endIT);
+  indices.push(endIT, endOB, endOT);
 
   return { positions, indices };
 }
