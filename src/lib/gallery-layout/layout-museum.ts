@@ -506,7 +506,9 @@ function groupMovements(era: Era, eraArtworks: Artwork[]): Map<string, Artwork[]
  * year-binned with.
  */
 function isEastAsianMovement(name: string): boolean {
-  return /Ukiyo-e|Nihonga|Bijinga|Yamato-e|Sumi-e|Edo|Heian|Song|Ming|Qing|Tang/i.test(name);
+  return /Ukiyo-e|Shin-hanga|S(ō|o)saku-hanga|Nihonga|Bijinga|Yamato-e|Sumi-e|Edo|Heian|Song|Ming|Qing|Tang/i.test(
+    name,
+  );
 }
 
 function resolveAnchorMovement(era: Era, byMovement: Map<string, Artwork[]>): string {
