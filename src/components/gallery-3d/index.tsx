@@ -418,15 +418,27 @@ export function Gallery3D({ artworks }: Props) {
         }}
       >
         <color attach="background" args={["#0a0805"]} />
-        {/* Global fill so rooms read clearly even before the player walks
-            in and triggers their per-room point light. Earlier intensities
-            (ambient 0.35 + hemi 0.45) left non-active rooms too dim — the
-            painting walls were almost unreadable from the doorway. The
-            warm sky / dark-floor split on the hemi keeps the slight
-            top-down gradient that gave the scene some depth, just much
-            brighter overall. */}
-        <ambientLight intensity={0.85} />
-        <hemisphereLight args={["#fff3d0", "#1a120b", 1.1]} position={[0, 20, 0]} />
+        {/* Global fill for non-active rooms. Tuning is a balance between
+            three failure modes:
+              - too dim (was 0.35 + 0.45): non-active rooms unreadable
+                from the doorway.
+              - too flat (was 0.85 + 1.1): per-room lamps got washed out
+                and the gallery lost depth.
+              - too directional (high hemi, dark groundColor): the ground
+                floor (floor 0) reads darker than upper floors because
+                most of what's visible from there is undersides — the
+                stair going up and the underside of floor 1's annular
+                stairwell slab — and undersides receive the hemi's
+                groundColor only. Upper floors don't have this problem
+                because the cutout gives them bright top-face surfaces
+                visible through the well as well.
+            Today's mix biases toward ambient (uniform from every
+            direction) and warms + dims the hemi so undersides on floor
+            0 are not pitch black. The hemi position is purely cosmetic;
+            HemisphereLight ignores it for shading and shines from
+            world-up regardless. */}
+        <ambientLight intensity={0.6} />
+        <hemisphereLight args={["#fff3d0", "#2a1f15", 0.45]} position={[0, 20, 0]} />
         {/* Procedural environment map painted from the active era's
             palette (ceiling/wall/floor colours). Replaces a `sunset`
             HDRI preset that gave metallic surfaces something to reflect
