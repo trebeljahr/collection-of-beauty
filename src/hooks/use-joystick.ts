@@ -3,6 +3,22 @@
 import JoystickController, { type JoystickOnMove, type JoystickOptions } from "joystick-controller";
 import { type RefObject, useEffect, useRef } from "react";
 
+// joystick-controller (v2) calls `crypto.randomUUID()` to mint per-
+// instance DOM ids. That API is restricted to *secure contexts* (HTTPS
+// or localhost), so on a phone hitting the dev server via LAN IP
+// (http://192.168.x.x:PORT) the call throws "randomUUID is not a
+// function" and the joystick never mounts. Polyfill with a unique-
+// enough string at import time — the library only uses the result as
+// a DOM id suffix (it strips dashes and concatenates), so any
+// alphanumeric collision-resistant id works.
+if (typeof window !== "undefined" && typeof window.crypto?.randomUUID !== "function") {
+  Object.defineProperty(window.crypto, "randomUUID", {
+    value: () => `${Date.now().toString(36)}-${Math.random().toString(36).slice(2)}`,
+    configurable: true,
+    writable: true,
+  });
+}
+
 const ZERO: JoystickOnMove = {
   x: 0,
   y: 0,
