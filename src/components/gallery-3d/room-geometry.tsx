@@ -16,6 +16,30 @@ import { Painting } from "./painting";
 import { getPaletteMaterials, getRoomFloorMaterial } from "./palette-materials";
 import { WallWithDoors } from "./wall";
 
+// ── Lamp fixture geometries ──────────────────────────────────────────
+// Hoisted to module scope so the 4 lamps × N rooms don't each allocate
+// fresh BufferGeometries on every active-room swap. Room height and
+// lamp dimensions are constants, so a single instance per shape covers
+// every fixture in the museum. Materials are still per-era, see
+// PaletteMaterials.lampHousing / lampBulb.
+//
+// Anatomy of one fixture, top-down (Y descending from ceiling):
+//
+//   y=0           ceiling plane
+//                 ┌─────────────┐  rosette  (wide flat disc, partially
+//   y=-0.03       └─────────────┘            embedded into the ceiling)
+//                  ╲           ╱   canopy   (truncated cone narrowing
+//   y=-0.09         ╲_________╱              from rosette down to stem)
+//                       │
+//                       │           stem    (thin straight rod)
+//   y=-0.39             │
+//                      ◯◯           bulb    (glowing sphere)
+//   y=-0.55         ◯◯◯◯◯◯
+const LAMP_ROSETTE_GEOM = new THREE.CylinderGeometry(0.12, 0.12, 0.03, 20);
+const LAMP_CANOPY_GEOM = new THREE.CylinderGeometry(0.1, 0.04, 0.06, 20);
+const LAMP_STEM_GEOM = new THREE.CylinderGeometry(0.015, 0.015, 0.3, 8);
+const LAMP_BULB_GEOM = new THREE.SphereGeometry(0.16, 18, 12);
+
 /**
  * Render a single room: floor, ceiling, 4 walls with the room's door
  * openings cut out, plus simple lighting. Uses shared per-palette
@@ -198,13 +222,17 @@ export function RoomGeometry({
         <Painting key={`${room.id}-p${i}`} placement={p} onLoaded={onPaintingLoaded} />
       ))}
 
-      {/* Four ceiling lamps at the centres of the room's quadrants
+      {/* Four pendant lamps at the centres of the room's quadrants
           instead of one in the middle. The single centre lamp left a
           dim band along each wall — paintings furthest from the centre
           had to live off the global hemi/ambient. With one lamp per
           quadrant each painting is at most ~half a quadrant's diagonal
           from a light, so wall coverage is much more even and the room
-          reads brighter overall (4 × 14 ≈ 2× the previous total). */}
+          reads brighter overall (4 × 14 ≈ 2× the previous total). Each
+          fixture is rosette → canopy → stem → bulb so the eye can trace
+          the lamp back up to the ceiling. The point light lives inside
+          the bulb sphere; Three.js point lights don't cast shadows by
+          default, so the geometry doesn't block the illumination. */}
       {isActive &&
         (
           [
@@ -213,20 +241,47 @@ export function RoomGeometry({
             [-1, 1],
             [1, 1],
           ] as const
-        ).map(([sx, sz]) => (
-          <pointLight
-            key={`lamp-${sx}-${sz}`}
-            position={[
-              cxWorld + sx * (width / 4),
-              floorY + ROOM_HEIGHT - 0.2,
-              czWorld + sz * (depth / 4),
-            ]}
-            intensity={14}
-            distance={Math.max(width, depth) * 1.2}
-            decay={2}
-            color={era.palette.lampTint}
-          />
-        ))}
+        ).map(([sx, sz]) => {
+          const lx = cxWorld + sx * (width / 4);
+          const lz = czWorld + sz * (depth / 4);
+          const ceilingY = floorY + ROOM_HEIGHT;
+          const bulbY = ceilingY - 0.55;
+          return (
+            <group key={`lamp-${sx}-${sz}`}>
+              {/* Rosette — wide flat disc partially embedded in the
+                  ceiling plane. Reads as the flush mounting plate that
+                  anchors the fixture to the ceiling. */}
+              <mesh position={[lx, ceilingY - 0.015, lz]}>
+                <primitive object={LAMP_ROSETTE_GEOM} attach="geometry" />
+                <primitive object={mats.lampHousing} attach="material" />
+              </mesh>
+              {/* Canopy — short cone tapering from rosette to stem,
+                  hides where the stem clamps into the housing. */}
+              <mesh position={[lx, ceilingY - 0.06, lz]}>
+                <primitive object={LAMP_CANOPY_GEOM} attach="geometry" />
+                <primitive object={mats.lampHousing} attach="material" />
+              </mesh>
+              {/* Stem — thin rod from canopy down to the bulb. */}
+              <mesh position={[lx, ceilingY - 0.24, lz]}>
+                <primitive object={LAMP_STEM_GEOM} attach="geometry" />
+                <primitive object={mats.lampHousing} attach="material" />
+              </mesh>
+              {/* Bulb — unlit MeshBasicMaterial in the era's lamp tint
+                  so it always reads as the bright source. */}
+              <mesh position={[lx, bulbY, lz]}>
+                <primitive object={LAMP_BULB_GEOM} attach="geometry" />
+                <primitive object={mats.lampBulb} attach="material" />
+              </mesh>
+              <pointLight
+                position={[lx, bulbY, lz]}
+                intensity={16}
+                distance={Math.max(width, depth) * 1.2}
+                decay={2}
+                color={era.palette.lampTint}
+              />
+            </group>
+          );
+        })}
     </group>
   );
 }
