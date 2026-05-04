@@ -12,14 +12,15 @@
 // GC pressure in the corridor gallery (50+ paintings × 4 walls each).
 
 import * as THREE from "three";
-import { ERAS, type Palette } from "@/lib/gallery-eras";
+import type { Palette } from "@/lib/gallery-eras";
 import { buildMapBundle } from "./texture-pack";
 
-// All floors of the building share floor 0's texture so the museum
-// reads as one continuous structure underfoot rather than a stack of
-// era-themed pads. Tile patterns join cleanly at every staircase
-// landing and room↔hallway threshold instead of switching abruptly.
-const SHARED_FLOOR_TEXTURE_SLUG = ERAS[0].palette.floorTexture;
+// One floor texture for the whole building. Eras tint the floor with
+// `floorColor` (and rooms with `roomAccents`), but the underlying
+// surface is always patterned brick so tiles join cleanly at every
+// staircase landing and room↔hallway threshold instead of switching
+// abruptly between era-themed pads.
+const SHARED_FLOOR_TEXTURE_SLUG = "patterned_brick_floor";
 
 // Floor tiles use (1, 1) repeat at the material level; per-mesh
 // world-unit UVs (see room-geometry.tsx + hallway.tsx) drive the
@@ -56,9 +57,7 @@ export function getPaletteMaterials(palette: Palette): PaletteMaterials {
   let entry = cache.get(palette);
   if (entry) return entry;
 
-  const floorTextures = SHARED_FLOOR_TEXTURE_SLUG
-    ? buildMapBundle(SHARED_FLOOR_TEXTURE_SLUG, FLOOR_REPEAT[0], FLOOR_REPEAT[1])
-    : null;
+  const floorTextures = buildMapBundle(SHARED_FLOOR_TEXTURE_SLUG, FLOOR_REPEAT[0], FLOOR_REPEAT[1]);
 
   entry = {
     wall: new THREE.MeshStandardMaterial({
@@ -68,7 +67,7 @@ export function getPaletteMaterials(palette: Palette): PaletteMaterials {
     }),
     floor: new THREE.MeshStandardMaterial({
       color: palette.floorColor,
-      ...(floorTextures ?? {}),
+      ...floorTextures,
       // Override the roughnessMap from the bundle with a fixed
       // moderate scalar. Per-set roughness ARM channels vary wildly
       // (herringbone_parquet ≈ 0.10 = mirror, patterned_brick_floor
@@ -134,12 +133,10 @@ const roomFloorCache = new Map<string, THREE.MeshStandardMaterial>();
 export function getRoomFloorMaterial(color: string): THREE.MeshStandardMaterial {
   let mat = roomFloorCache.get(color);
   if (mat) return mat;
-  const textures = SHARED_FLOOR_TEXTURE_SLUG
-    ? buildMapBundle(SHARED_FLOOR_TEXTURE_SLUG, FLOOR_REPEAT[0], FLOOR_REPEAT[1])
-    : null;
+  const textures = buildMapBundle(SHARED_FLOOR_TEXTURE_SLUG, FLOOR_REPEAT[0], FLOOR_REPEAT[1]);
   mat = new THREE.MeshStandardMaterial({
     color,
-    ...(textures ?? {}),
+    ...textures,
     // See getPaletteMaterials' floor for why we override roughnessMap
     // with a uniform scalar — keeps all eras' floors equally readable
     // regardless of texture-pack roughness.

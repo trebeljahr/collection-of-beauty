@@ -16,17 +16,13 @@ export type Palette = {
    *  the era as a whole still feels cohesive. Authored dark — these
    *  multiply against the era's `floorColor` mood, they don't pop. */
   roomAccents: string[];
-  /** Poly Haven texture slugs (downloaded by `pnpm textures`). The
-   *  diffuse / normal / ARM maps land at /public/textures/<slug>/.
-   *  Leave undefined to keep the surface as a flat tinted material —
-   *  useful while assets are still downloading or for eras that read
-   *  better un-textured.
-   *
-   *  `wallTexture` is currently unused: palette-materials.ts renders
-   *  walls as flat tinted plaster regardless. The field stays here so
-   *  re-enabling is a one-line change in palette-materials. */
+  /** Poly Haven wall texture slug (downloaded by `pnpm textures`).
+   *  Currently unused: palette-materials.ts renders walls as flat
+   *  tinted plaster regardless. The field stays here so re-enabling
+   *  per-era wall textures is a one-line change in palette-materials.
+   *  Floors are handled separately — every era shares one
+   *  building-wide floor texture, hard-coded in palette-materials. */
   wallTexture?: string;
-  floorTexture?: string;
 };
 
 export type AnchorSpec = {
@@ -85,7 +81,6 @@ export const ERAS: Era[] = [
       // Cool stone + plum + teal — medieval cathedral floor stones, each
       // worn a different colour from centuries of foot traffic.
       roomAccents: ["#3a2a1f", "#2e3540", "#3a2e3f", "#293a36", "#3d2e22"],
-      floorTexture: "patterned_brick_floor",
     },
     blurb: "Gold ground and tempera — the long medieval morning.",
     anchor: {
@@ -116,7 +111,6 @@ export const ERAS: Era[] = [
       accent: "#b98a4f",
       // Warm earth: terracotta, sienna, olive, chocolate.
       roomAccents: ["#3a2a1f", "#3f2820", "#3a2e1c", "#322318", "#42301f"],
-      floorTexture: "marble_01",
     },
     blurb: "Leonardo, Michelangelo, Raphael — perspective made a language.",
     anchor: {
@@ -146,7 +140,6 @@ export const ERAS: Era[] = [
       accent: "#8a5a2b",
       // Tenebrist velvets: charcoal, wine, midnight, forest.
       roomAccents: ["#221711", "#2a1418", "#1a1822", "#1f261b", "#1a1612"],
-      floorTexture: "checkered_pavement_tiles",
     },
     blurb: "Drama, tenebrism, motion — Caravaggio's shadow across Europe.",
     anchor: {
@@ -170,7 +163,6 @@ export const ERAS: Era[] = [
       accent: "#c49a66",
       // Refined drawing-room tones: muted plum, sage, rose-brown, dusty blue.
       roomAccents: ["#2e2015", "#3a2a35", "#28332a", "#3a2c22", "#28303a"],
-      floorTexture: "herringbone_parquet",
     },
     blurb: "Ornament gives way to antique clarity.",
     anchor: {
@@ -206,7 +198,6 @@ export const ERAS: Era[] = [
       accent: "#6e4f2e",
       // Stormy weather underfoot: storm-blue, slate, rust, moss.
       roomAccents: ["#1e1711", "#1a2230", "#2a221c", "#2e1f17", "#1f261c"],
-      floorTexture: "grey_cartago_02",
     },
     blurb: "The sublime, the storm, and nothing staged.",
     anchor: {
@@ -244,7 +235,6 @@ export const ERAS: Era[] = [
       lampTint: "#ffcf94",
       accent: "#a23b2c",
       roomAccents: ["#1a120c", "#2c1a18", "#1a1c25", "#1f2418", "#2a1a16"],
-      floorTexture: "granite_tile",
     },
     blurb: "Edo woodblock prints — pictures of the floating world.",
     anchor: {
@@ -282,7 +272,6 @@ export const ERAS: Era[] = [
       accent: "#c88a47",
       // Garden dapple: sage, dusty rose, lavender, butter.
       roomAccents: ["#2a1d14", "#283325", "#3a2a2e", "#2e2838", "#3a3220"],
-      floorTexture: "interior_tiles",
     },
     blurb: "Plein-air light and interior weather.",
     anchor: {
@@ -321,7 +310,6 @@ export const ERAS: Era[] = [
       accent: "#4a3b2a",
       // Bold-but-darkened modernist: brick, cobalt, mustard, jet, teal.
       roomAccents: ["#1a1712", "#3a1f1a", "#1a2230", "#3a2f15", "#1f3030"],
-      floorTexture: "old_linoleum_flooring_01",
     },
     blurb: "Form shattered, rebuilt, and made raw.",
     anchor: {
