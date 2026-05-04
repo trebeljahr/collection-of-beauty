@@ -107,7 +107,7 @@ export function getPaletteMaterials(palette: Palette): PaletteMaterials {
     lampBulbOn: new THREE.MeshStandardMaterial({
       color: palette.lampTint,
       emissive: new THREE.Color(palette.lampTint),
-      emissiveIntensity: 2.4,
+      emissiveIntensity: 1.4,
       // Setting toneMapped=false keeps the emissive value in linear HDR
       // space when the renderer's ACES tone mapper applies — without
       // it, intensity > 1 gets compressed back below the bloom

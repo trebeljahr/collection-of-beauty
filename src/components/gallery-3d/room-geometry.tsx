@@ -223,7 +223,7 @@ export function RoomGeometry({
           era={era}
           lit={isActive}
           bulbDrop={0.65}
-          intensity={16}
+          intensity={11}
           distance={Math.max(width, depth) * 1.2}
         />
       ))}
