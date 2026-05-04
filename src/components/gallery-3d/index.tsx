@@ -22,8 +22,6 @@ import { RoomGeometry } from "./room-geometry";
 import { Gallery3DSettings } from "./settings-modal";
 import { StaircaseRenderer } from "./staircase";
 import { StairwellAccents } from "./stairwell-rail";
-import { markCachedTexturesForReupload } from "./texture-cache";
-import { markPackTexturesForReupload } from "./texture-pack";
 import { ZoomModal } from "./zoom-modal";
 
 const AMBIENCE_SRC = "/audio/ambience-loop.mp3";
@@ -67,29 +65,23 @@ export function Gallery3D({ artworks }: Props) {
   // (rare during a play session). Capped so it doesn't dominate the
   // screen on huge monitors.
   const [bigMapSize, setBigMapSize] = useState(600);
-  // True between a webglcontextlost and the matching webglcontextrestored.
-  // Drives an overlay so the player sees "Restoring 3D scene…" instead of
-  // a frozen black canvas. Without this, a transient context loss (browser
-  // backgrounding the tab, driver hiccup) goes silent and the gallery
-  // appears broken even after the GPU comes back.
+  // True between a webglcontextlost event firing and the remount that
+  // replaces the lost canvas. Drives an overlay so the player sees
+  // "Restoring 3D scene…" instead of a frozen black canvas during the
+  // brief gap between loss and the new canvas mounting.
   const [contextLost, setContextLost] = useState(false);
-  // Bumped to force-remount the <Canvas>. Used as a hard fallback when the
-  // browser drops the GL context but never fires `webglcontextrestored` on
-  // its own — common with DevTools-triggered loss and some real GPU-process
-  // crashes. Remount tears down R3F and creates a fresh WebGL context;
-  // module-scope texture caches survive so paintings re-upload without a
-  // refetch.
+  // Bumped to force-remount the <Canvas> after a context loss. We don't
+  // try to recover in place via webglcontextrestored — Three.js's
+  // WebGLProperties WeakMap keeps stale GL handles from before the loss
+  // (its initGLContext only re-creates manager objects, not the
+  // properties cache), so the next render spams "object does not belong
+  // to this context" warnings and paintings draw black. Remounting tears
+  // down R3F entirely so the new renderer starts with empty caches; the
+  // module-scope texture LRU survives so painting bitmaps don't refetch.
   const [canvasKey, setCanvasKey] = useState(0);
-  // Timer handles for the soft-restore attempt and the hard remount
-  // fallback. Cleared on `webglcontextrestored` and on unmount.
-  const restoreAttemptRef = useRef<number | null>(null);
-  const remountFallbackRef = useRef<number | null>(null);
-  // WEBGL_lose_context extension captured per-renderer in onCreated so the
-  // lost-event handler can call restoreContext() without re-querying. The
-  // browser only auto-restores reliably for genuine GPU recoveries; calls
-  // from DevTools / extensions need an explicit restoreContext() to come
-  // back at all.
-  const loseContextExtRef = useRef<WEBGL_lose_context | null>(null);
+  // Timer handle for the scheduled remount. Cleared on unmount so a
+  // route change away from the gallery can't fire stale setState calls.
+  const remountTimerRef = useRef<number | null>(null);
 
   // Entry room — used as the basis for the start-overlay loading bar.
   // We wait for this room's paintings to decode before the player can
@@ -362,23 +354,22 @@ export function Gallery3D({ artworks }: Props) {
     }
   }, [settingsOpen]);
 
-  // Clear any pending context-loss recovery timers if the gallery itself
+  // Clear any pending context-loss remount timer if the gallery itself
   // unmounts (route change away from the museum). Without this, a remount
   // bump could fire after the component is gone and warn about a setState
   // on an unmounted tree.
   useEffect(() => {
     return () => {
-      if (restoreAttemptRef.current != null) clearTimeout(restoreAttemptRef.current);
-      if (remountFallbackRef.current != null) clearTimeout(remountFallbackRef.current);
+      if (remountTimerRef.current != null) clearTimeout(remountTimerRef.current);
     };
   }, []);
 
   return (
     <div ref={galleryHostRef} className="relative w-full h-screen bg-black">
       <Canvas
-        // Bumped on hard-fallback recovery (see onCreated below) to tear
-        // down and rebuild the entire R3F tree when the browser refuses
-        // to auto-restore a lost GL context.
+        // Bumped after a webglcontextlost event so the entire R3F tree
+        // unmounts and rebuilds with a fresh WebGLRenderer — see the
+        // onCreated handler below for why in-place restore doesn't work.
         key={canvasKey}
         className="gallery-canvas-host"
         camera={{ fov: 75, near: 0.1, far: 500 }}
@@ -388,60 +379,29 @@ export function Gallery3D({ artworks }: Props) {
           gl.toneMappingExposure = 1.0;
           scene.fog = new THREE.Fog("#0a0805", 20, 80);
           canvasRef.current = gl.domElement;
-          loseContextExtRef.current = gl.getContext().getExtension("WEBGL_lose_context");
 
           // WebGL context-loss recovery. The GPU can yank the context for
           // any of: tab backgrounded, driver hiccup, OS-level memory
-          // pressure, GPU process restart. preventDefault() on the
-          // `webglcontextlost` event signals to the browser that we want
-          // it back; without it the canvas would stay dead forever (the
-          // exact symptom behind the "WebGLRenderer: Context Lost." log
-          // with a frozen scene). On restore we mark every cached texture
-          // and every scene material as needsUpdate so Three re-uploads
-          // them on the next frame — the ImageBitmaps / Images held by
-          // each Texture's `.image` are still alive in JS land, so this
-          // costs one decode-free texImage2D per surface, no refetch.
-          //
-          // BUT preventDefault alone isn't enough: in practice the browser
-          // often never fires `webglcontextrestored` (always for DevTools-
-          // triggered losses, sometimes for real GPU-process crashes), so
-          // we layer two recovery paths on top of the passive listener:
-          //
-          //   1. Soft restore — call WEBGL_lose_context.restoreContext()
-          //      after a short delay. Resolves DevTools and other
-          //      programmatic losses by triggering the matching
-          //      `webglcontextrestored` event ourselves.
-          //   2. Hard remount — if neither the browser nor the soft
-          //      restore brings the context back within ~2.5s, bump
-          //      `canvasKey` to fully unmount and rebuild R3F. This costs
-          //      a scene rebuild but ImageBitmaps in the texture LRU
-          //      survive the remount so paintings come back without
-          //      refetching from the network.
-          const canvas = gl.domElement;
-          canvas.addEventListener(
+          // pressure, GPU process restart, and (very common in dev) HMR
+          // bundling memory churn. preventDefault() on `webglcontextlost`
+          // signals we want it back, but the in-place restore path is
+          // unreliable: even when `webglcontextrestored` fires, Three.js's
+          // WebGLProperties WeakMap still holds stale GL handles from
+          // before the loss, so the next render spams "object does not
+          // belong to this context" and paintings draw black. Instead we
+          // tear down the whole Canvas and let R3F build a fresh one — a
+          // ~300ms blink behind the "Restoring 3D scene…" overlay. Player
+          // XZ is preserved through `spawnForFloor`; the module-scope
+          // texture LRU outlives the remount so painting bitmaps don't
+          // refetch from the network.
+          gl.domElement.addEventListener(
             "webglcontextlost",
             (e) => {
               e.preventDefault();
               setContextLost(true);
-
-              if (restoreAttemptRef.current != null) clearTimeout(restoreAttemptRef.current);
-              restoreAttemptRef.current = window.setTimeout(() => {
-                restoreAttemptRef.current = null;
-                try {
-                  loseContextExtRef.current?.restoreContext();
-                } catch {
-                  // restoreContext() throws when the loss wasn't from the
-                  // extension's own loseContext() call. That's expected for
-                  // real GPU losses — the hard remount below handles those.
-                }
-              }, 200);
-
-              if (remountFallbackRef.current != null) clearTimeout(remountFallbackRef.current);
-              remountFallbackRef.current = window.setTimeout(() => {
-                remountFallbackRef.current = null;
-                // Preserve the player's current XZ across the remount
-                // (Y stays the floor's Y) so they respawn where they were
-                // standing rather than back at the floor anchor.
+              if (remountTimerRef.current != null) clearTimeout(remountTimerRef.current);
+              remountTimerRef.current = window.setTimeout(() => {
+                remountTimerRef.current = null;
                 if (lastCameraRef.current) {
                   spawnForFloor.current = [
                     lastCameraRef.current.x,
@@ -451,32 +411,7 @@ export function Gallery3D({ artworks }: Props) {
                 }
                 setContextLost(false);
                 setCanvasKey((k) => k + 1);
-              }, 2500);
-            },
-            false,
-          );
-          canvas.addEventListener(
-            "webglcontextrestored",
-            () => {
-              if (restoreAttemptRef.current != null) {
-                clearTimeout(restoreAttemptRef.current);
-                restoreAttemptRef.current = null;
-              }
-              if (remountFallbackRef.current != null) {
-                clearTimeout(remountFallbackRef.current);
-                remountFallbackRef.current = null;
-              }
-              markCachedTexturesForReupload();
-              markPackTexturesForReupload();
-              scene.traverse((obj) => {
-                const mesh = obj as THREE.Mesh;
-                if (!mesh.isMesh) return;
-                const mats = Array.isArray(mesh.material) ? mesh.material : [mesh.material];
-                for (const m of mats) {
-                  if (m) m.needsUpdate = true;
-                }
-              });
-              setContextLost(false);
+              }, 300);
             },
             false,
           );
