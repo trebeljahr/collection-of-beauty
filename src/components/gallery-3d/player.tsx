@@ -169,10 +169,20 @@ export function Player({
   const zoomFov = useRef(false);
   /** Smoothed eye height — damps toward the target posture height each
    *  frame. C held → drifts down toward DUCK_EYE_HEIGHT; R held → drifts
-   *  up toward TIPTOE_EYE_HEIGHT; release returns to EYE_HEIGHT. Starts
-   *  at full standing height so spawn matches what the camera Y is set
-   *  to in useEffect. */
+   *  up toward TIPTOE_EYE_HEIGHT; release latches at the held height
+   *  (see latchedEyeHeight) instead of springing back to EYE_HEIGHT.
+   *  Starts at full standing height so spawn matches what the camera Y
+   *  is set to in useEffect. */
   const eyeHeight = useRef(EYE_HEIGHT);
+  /** When the player releases C or R, we freeze the current eyeHeight
+   *  here as the new "no-key-held" target — so a half-crouch held for
+   *  a moment and released stays at that height instead of springing
+   *  back. Cleared when the player actually starts moving (any movement
+   *  key or joystick deflection past the deadzone), at which point the
+   *  next frame's target reverts to EYE_HEIGHT. Pressing C/R again
+   *  keeps working — the held key takes priority over the latch in the
+   *  useFrame target calc. */
+  const latchedEyeHeight = useRef<number | null>(null);
   // Click and aim raycasters share the same INSPECT_RANGE so the
   // crosshair affordance and the click-to-zoom action agree: if the
   // magnifying-glass cursor isn't showing, the click won't open
@@ -241,6 +251,13 @@ export function Player({
     };
     const up = (e: KeyboardEvent) => {
       keys.current[e.code] = false;
+      // C/R release latches the current eye height instead of letting
+      // it spring back to EYE_HEIGHT. The latch sticks until movement
+      // clears it (see useFrame below) or another posture key takes
+      // precedence.
+      if (e.code === "KeyC" || e.code === "KeyR") {
+        latchedEyeHeight.current = eyeHeight.current;
+      }
     };
     // Tap/click on the canvas raycasts the centred crosshair. On
     // desktop we still gate on pointerLockElement so the first click
@@ -271,17 +288,18 @@ export function Player({
 
     // Smoothly damp eye height toward the held-key target. Hold C to
     // drift down toward DUCK, hold R to drift up toward TIPTOE; release
-    // both and the camera rises back to EYE_HEIGHT. Lambda is low so the
-    // transition feels deliberate (~700ms to reach full crouch/tiptoe)
-    // rather than snapping. C wins over R if the player somehow holds
-    // both — crouching is the safer default. Updates here so the
-    // floor-clamp and stair-Y math below all use the same eyeHeight
-    // value the camera will end up rendered at this frame.
+    // and the height latches (see latchedEyeHeight) until the player
+    // moves. Lambda is low so the transition feels deliberate (~700ms
+    // to reach full crouch/tiptoe) rather than snapping. C wins over
+    // R if the player somehow holds both — crouching is the safer
+    // default. Updates here so the floor-clamp and stair-Y math below
+    // all use the same eyeHeight value the camera will end up rendered
+    // at this frame.
     const targetEye = keys.current.KeyC
       ? DUCK_EYE_HEIGHT
       : keys.current.KeyR
         ? TIPTOE_EYE_HEIGHT
-        : EYE_HEIGHT;
+        : (latchedEyeHeight.current ?? EYE_HEIGHT);
     eyeHeight.current = THREE.MathUtils.damp(eyeHeight.current, targetEye, 3, dt);
 
     // FOV zoom toggle. Damp toward the target FOV so the transition
@@ -371,6 +389,10 @@ export function Player({
       // useful, so drop back to FOV_DEFAULT and let the FOV-damp loop
       // above ease the camera back out over the next ~150 ms.
       zoomFov.current = false;
+      // Movement also releases any latched crouch/tiptoe height — the
+      // next frame's target falls back to EYE_HEIGHT so the player
+      // stands up as they start walking.
+      latchedEyeHeight.current = null;
       // Cap magnitude to 1 — diagonal keyboard combined with a fully
       // deflected joystick must not double the speed.
       if (move.lengthSq() > 1) move.normalize();
