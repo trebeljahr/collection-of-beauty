@@ -91,14 +91,30 @@ export function useJoystick({ params, cb, enabled = true, parentRef }: Options =
     // while the host element is in fullscreen. The library exposes its
     // unique `id`; the container's DOM id is `joystick-container-${id}`.
     // Also bumps z-index so the joystick paints above any HUD overlay
-    // that establishes its own stacking context.
+    // that establishes its own stacking context, and forces
+    // `touch-action: none` inline on the whole subtree so mobile
+    // browsers can't reinterpret a finger-drag as a scroll/zoom and
+    // fire pointercancel — which the library handles by snapping the
+    // knob back to centre. CSS class rules in globals.css cover the
+    // same ground but inline-style wins over any specificity surprise.
     const parentEl = parentRef?.current;
-    if (parentEl) {
-      const containerEl = document.getElementById(`joystick-container-${joystick.id}`);
-      if (containerEl) {
-        parentEl.appendChild(containerEl);
-        containerEl.style.zIndex = "40";
-      }
+    const containerEl = document.getElementById(`joystick-container-${joystick.id}`);
+    const controllerEl = document.getElementById(`joystick-controller-${joystick.id}`);
+    const knobEl = document.getElementById(`joystick-${joystick.id}`);
+    if (parentEl && containerEl) {
+      parentEl.appendChild(containerEl);
+      containerEl.style.zIndex = "40";
+    }
+    for (const el of [containerEl, controllerEl, knobEl]) {
+      if (!el) continue;
+      el.style.touchAction = "none";
+      el.style.userSelect = "none";
+      el.style.webkitUserSelect = "none";
+      // The two -webkit-* properties below aren't typed on
+      // CSSStyleDeclaration but iOS Safari reads them — set via
+      // setProperty so TypeScript's typings don't trip us.
+      el.style.setProperty("-webkit-touch-callout", "none");
+      el.style.setProperty("-webkit-tap-highlight-color", "transparent");
     }
     return () => {
       joystick.destroy();
