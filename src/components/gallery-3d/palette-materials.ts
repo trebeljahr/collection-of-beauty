@@ -57,14 +57,21 @@ export function getPaletteMaterials(palette: Palette): PaletteMaterials {
       color: palette.floorColor,
       // roughness=1 with a roughnessMap means "use the map directly".
       // metalness=0 keeps marble/wood/concrete as dielectrics.
-      // envMapIntensity=0 silences the env map's contribution entirely
-      // — the only reflections we want on the floor are the per-room
-      // point-lights' specular highlights, not an ambient sheen from
-      // the room env map (see room-env-map.tsx). Applies to textured
-      // AND untextured floors so every storey reads the same way.
+      // envMapIntensity=0.5 gives floors a diffuse fill from the
+      // procedural room env map (warm-wall-biased — see
+      // room-env-map.tsx). Without it, floors only receive
+      // ambientLight + hemisphereLight while walls also get the
+      // env map's full 1.6 — that ~2.5× imbalance made textured
+      // floors read as crushed (especially the matte ones like
+      // patterned_brick_floor whose roughnessMap is near 1, killing
+      // any specular pickup from the room lamps). The legacy
+      // "envMapIntensity=0 silences cool-blue reflections" worry
+      // was about the old `sunset` HDRI; the new env map is keyed
+      // off the room's own palette, so its diffuse contribution
+      // is warm and matches the room.
       roughness: floorTextures ? 1 : 0.88,
       metalness: 0,
-      envMapIntensity: 0,
+      envMapIntensity: 0.5,
       ...(floorTextures ?? {}),
     }),
     ceiling: new THREE.MeshStandardMaterial({
@@ -114,7 +121,7 @@ export function getRoomFloorMaterial(color: string, slug?: string): THREE.MeshSt
     // mirrors the per-room accent material so rooms and hallways match.
     roughness: textures ? 1 : 0.88,
     metalness: 0,
-    envMapIntensity: 0,
+    envMapIntensity: 0.5,
     // Stairwell floors above the player are viewed from below (looking
     // up through the well). Single-sided rendering would backface-cull
     // the underside and leave the scene's black backdrop showing through
