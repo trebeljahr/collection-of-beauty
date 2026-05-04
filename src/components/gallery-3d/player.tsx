@@ -66,21 +66,21 @@ const CUTOUT_RAIL_OUTER_BOUND = CUTOUT_RAIL_RADIUS + RAIL_BAR_HALF_WIDTH + PLAYE
 const AIM_MAX_DIST = 2;
 // Look joystick → angular velocity. The stick is binary above the
 // deadzone (no faster-with-more-drag), so this is the actual turn
-// rate while engaged — not a max. 1.8 rad/s ≈ 103°/sec feels brisk
-// but stays controllable; fine aim comes from short stick taps,
-// not partial deflection.
-const LOOK_SPEED = 1.8;
+// rate while engaged — not a max. 1.2 rad/s ≈ 69°/sec feels
+// deliberate without being sluggish; fine aim comes from short
+// stick taps, not partial deflection.
+const LOOK_SPEED = 1.2;
 // Joystick max-range in pixels — must match `defaultParameters.maxRange`
 // in `use-joystick.ts`. Used to normalise the library's raw x/y back
-// into a [-1, 1] range. 30 px matches the pad-minus-knob radius so the
-// knob never drifts past the pad edge at full deflection.
-const JOYSTICK_MAX_RANGE = 30;
+// into a [-1, 1] range so the deadzone fractions below are anchored
+// to the right scale.
+const JOYSTICK_MAX_RANGE = 60;
 // Radial deadzone (fraction of full deflection) — inputs below this
 // magnitude are treated as zero, anything past it engages at full
-// rate. ~30 % means ~9 px of throw before either stick fires, so a
-// resting thumb doesn't drift the camera or shuffle the player.
-const LOOK_DEADZONE = 0.3;
-const MOVE_DEADZONE = 0.3;
+// rate. 0.15 of 60 px ≈ 9 px of physical throw before either stick
+// fires, regardless of how big maxRange is set.
+const LOOK_DEADZONE = 0.15;
+const MOVE_DEADZONE = 0.15;
 // Width of the "you're at a real floor" arc at each end of a spiral
 // revolution. Stepping off the spiral (canStepTo's exit branch) is only
 // allowed inside one of these arcs, AND the player's `floor.index` is
