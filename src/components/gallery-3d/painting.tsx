@@ -881,6 +881,20 @@ function PaintingPlane({
     let displayedTier = -1;
 
     const lodUpdate = (distSq: number) => {
+      // Touch the base 960 px texture in the LRU on every tick so it
+      // can't be evicted while this painting is mounted. The texture
+      // cache disposes evicted entries (frees the GPU upload), and a
+      // painting still holding a now-disposed texture renders as
+      // nothing — that was the "images don't show up after going back
+      // down a floor" symptom: a fresh floor's load burst pushed the
+      // previous floor's textures past the LRU's 96-entry capacity,
+      // disposed them, and on revisit the painting tried to render a
+      // ghost. The old useCachedTexture path got this for free because
+      // it called cache.get() (an MRU-touch) on every render; the
+      // progressive loader peeks once on mount and otherwise wouldn't
+      // touch the cache at all.
+      peekCached(url);
+
       // Prefetch each tier as the player enters its radius. getHiRes
       // (used as our "is it cached?" check) touches MRU as a side effect,
       // so prefetched tiers stay alive in the LRU as long as we're still
