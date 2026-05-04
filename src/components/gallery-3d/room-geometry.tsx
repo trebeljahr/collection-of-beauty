@@ -214,9 +214,8 @@ export function RoomGeometry({
           inside one is the underside of the next floor's slab at
           INTER_FLOOR_HEIGHT. Mounting the rosette there keeps the cap
           flush with that surface; otherwise it would dangle 1.7 m
-          below it in mid-air. The bulbDrop is bumped to keep the bulb
-          near painting/walking height instead of stuck at the high
-          stairwell ceiling. */}
+          below it in mid-air. Same bulbDrop as regular rooms so it
+          reads as the *same* fixture, just hung from a higher ceiling. */}
       {(
         [
           [-1, -1],
@@ -234,7 +233,7 @@ export function RoomGeometry({
           ]}
           era={era}
           lit={isActive}
-          bulbDrop={room.isStairwell ? 1.8 : 0.65}
+          bulbDrop={0.65}
           intensity={11}
           distance={Math.max(width, depth) * 1.2}
         />
