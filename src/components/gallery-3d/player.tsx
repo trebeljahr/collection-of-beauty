@@ -235,7 +235,7 @@ export function Player({
       }
       if (e.code === "KeyE") tryZoom();
       if (e.code === "KeyF") {
-        zoomFov.current = !zoomFov.current;
+        if (!e.repeat) zoomFov.current = !zoomFov.current;
         e.preventDefault();
       }
       if (e.code === "KeyC" || e.code === "KeyR") e.preventDefault();
