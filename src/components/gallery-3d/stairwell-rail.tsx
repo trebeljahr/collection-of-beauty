@@ -3,7 +3,7 @@
 import { useEffect, useMemo } from "react";
 import * as THREE from "three";
 import type { FloorLayout } from "@/lib/gallery-layout/types";
-import { SPIRAL_FLOOR_CUTOUT_RADIUS, SPIRAL_INNER_RADIUS } from "@/lib/gallery-layout/world-coords";
+import { SPIRAL_FLOOR_CUTOUT_RADIUS } from "@/lib/gallery-layout/world-coords";
 import {
   BALUSTER_HEIGHT,
   BALUSTER_SIZE,
@@ -181,192 +181,6 @@ function buildCutoutBalusters(
   return out;
 }
 
-/** Build a swept rectangular-tube geometry for the dead-end L-bridge.
- *  The curve scrolls inward from the up-side gate post (postA), sweeping
- *  CW back toward the entry direction while spiralling radially in from
- *  the cutout-rail outer radius to the spiral inner rail's centerline.
- *  The cutout rail's CCW start lives at exactly the angle where this
- *  curve ends, so the two pieces merge cleanly into one continuous
- *  handrail closing off the up-side dead-end.
- *
- *  Path:
- *    r(t) = innerR + (outerR - innerR) · smoothstep(t)
- *    θ(t) = postAngle + arcDirection · arcSweep · t
- *
- *  The smoothstep on r flattens the radial component near the
- *  endpoints so the tangent at t=0 and t=1 is mostly angular,
- *  matching the directions of the spiral and cutout rails respectively.
- *  The cross-section uses the radial (cos θ, sin θ) as the "outward"
- *  axis at each sample — same convention as buildCutoutRailGeometry,
- *  so the merger's outer end mates cleanly with the cutout rail's
- *  cross-section at the merge angle. */
-function buildDeadEndArcGeom(
-  cx: number,
-  cz: number,
-  yTop: number,
-  postAngle: number,
-  innerR: number,
-  outerR: number,
-  arcDirection: number,
-  arcSweep: number,
-): {
-  rail: THREE.BufferGeometry;
-  balusters: Array<[number, number, number]>;
-} {
-  const N = 28;
-  const positions: number[] = [];
-  const indices: number[] = [];
-  const balusters: Array<[number, number, number]> = [];
-  let prevBaseIdx = -1;
-  const sampleCenters: Array<[number, number, number]> = [];
-
-  for (let i = 0; i <= N; i++) {
-    const t = i / N;
-    const u = t * t * (3 - 2 * t); // smoothstep
-    const r = innerR + (outerR - innerR) * u;
-    const theta = postAngle + arcDirection * arcSweep * t;
-    const x = cx + r * Math.cos(theta);
-    const z = cz + r * Math.sin(theta);
-    const ox = Math.cos(theta);
-    const oz = Math.sin(theta);
-
-    const baseIdx = positions.length / 3;
-    // Same TO/TI/BI/BO layout as the cutout rail tube.
-    positions.push(x + ox * RAIL_BAR_HALF_WIDTH, yTop, z + oz * RAIL_BAR_HALF_WIDTH);
-    positions.push(x - ox * RAIL_BAR_HALF_WIDTH, yTop, z - oz * RAIL_BAR_HALF_WIDTH);
-    positions.push(
-      x - ox * RAIL_BAR_HALF_WIDTH,
-      yTop - RAIL_BAR_HEIGHT,
-      z - oz * RAIL_BAR_HALF_WIDTH,
-    );
-    positions.push(
-      x + ox * RAIL_BAR_HALF_WIDTH,
-      yTop - RAIL_BAR_HEIGHT,
-      z + oz * RAIL_BAR_HALF_WIDTH,
-    );
-
-    if (prevBaseIdx !== -1) {
-      const p = prevBaseIdx;
-      const c = baseIdx;
-      indices.push(p + 0, p + 1, c + 1);
-      indices.push(p + 0, c + 1, c + 0);
-      indices.push(p + 3, c + 3, c + 2);
-      indices.push(p + 3, c + 2, p + 2);
-      indices.push(p + 3, p + 0, c + 0);
-      indices.push(p + 3, c + 0, c + 3);
-      indices.push(p + 2, c + 2, c + 1);
-      indices.push(p + 2, c + 1, p + 1);
-    }
-    prevBaseIdx = baseIdx;
-    sampleCenters.push([x, yTop - RAIL_BAR_HEIGHT / 2, z]);
-  }
-
-  // End caps so the open cross-section doesn't read as a slot when
-  // viewed end-on (the spiral rail's finial covers the inner end and
-  // the cutout rail butts into the outer end, but the caps are cheap
-  // insurance).
-  if (sampleCenters.length >= 2) {
-    const startBase = 0;
-    const endBase = positions.length / 3 - 4;
-    indices.push(startBase + 0, startBase + 2, startBase + 1);
-    indices.push(startBase + 0, startBase + 3, startBase + 2);
-    indices.push(endBase + 0, endBase + 1, endBase + 2);
-    indices.push(endBase + 0, endBase + 2, endBase + 3);
-  }
-
-  // ~40 cm baluster spacing along the curve. With radialLen ≈ 2.95 m
-  // and an extra ~10° of arc, the curve is roughly 3 m long → 7
-  // balusters reads as a real fence rather than a beam over empty
-  // space. Skip the very first and last samples so the balusters don't
-  // crash into the spiral rail's finial or the cutout rail's start.
-  const balusterCount = 7;
-  for (let i = 1; i <= balusterCount; i++) {
-    const t = i / (balusterCount + 1);
-    const idx = Math.round(t * N);
-    const [x, , z] = sampleCenters[idx];
-    balusters.push([x, yTop - RAIL_BAR_HEIGHT - BALUSTER_HEIGHT / 2, z]);
-  }
-
-  const rail = new THREE.BufferGeometry();
-  rail.setAttribute("position", new THREE.Float32BufferAttribute(positions, 3));
-  rail.setIndex(indices);
-  rail.computeVertexNormals();
-  return { rail, balusters };
-}
-
-/**
- * Curved L-bridge: a swept rectangular-tube handrail that closes off
- * the up-side dead-end on the topmost flight (where there's no flight
- * continuing up). Anchored at the up-side gate post (postA) and curls
- * CW toward the entry direction, sweeping radially inward from the
- * cutout rail's outer radius down to the spiral inner rail's centerline.
- * The cutout rail's CCW start lives exactly `arcSweep` radians CW of
- * postA (see the upGap math in StairwellAccents), so the two pieces
- * meet at the merge angle with no overlap and no floating gap.
- *
- * The curve is purely a function of postA's geometry — it doesn't
- * depend on the spiral's rotation direction. The spiral's inner rail
- * terminates at postB on every direction=+1 flight (every flight in
- * this codebase), so an L-bridge anchored at postA is by design a
- * separate architectural piece, not a continuation of the spiral's
- * helical rail. Trying to anchor at postB instead would force the
- * cutout rail to encroach on the down-side walkway, which would block
- * the stair the player came up.
- */
-function DeadEndLBridge({
-  cx,
-  cz,
-  y,
-  post,
-  arcSweep,
-}: {
-  cx: number;
-  cz: number;
-  y: number;
-  post: { x: number; z: number; angle: number };
-  /** How far the merger arc sweeps angularly before joining the cutout
-   *  rail. Must be < gateHalfArc so the merge point still lands on the
-   *  closed (rail-extended) half of the gate. */
-  arcSweep: number;
-}) {
-  // outerR = the gate post's distance from the spiral centre (i.e.
-  // the cutout-rail radius). innerR = the spiral inner rail's
-  // centerline.
-  const outerR = Math.hypot(post.x - cx, post.z - cz);
-  const innerR = SPIRAL_INNER_RADIUS + RAIL_BAR_HALF_WIDTH;
-  // yTop is the TOP face of the bar — same convention as the cutout
-  // rail's tube vertices, which place TO/TI at yTop and BI/BO at
-  // yTop - RAIL_BAR_HEIGHT.
-  const yTop = y + RAIL_HEIGHT;
-  // Sweep CW from postA toward entry. The cutout rail's CCW start sits
-  // at postA-angle - arcSweep (see upGap in StairwellAccents), so this
-  // gives a clean merge with no overlap. Earlier this followed
-  // spiralDirection — that produced a CCW sweep on direction=+1 spirals
-  // (every spiral in this codebase), which curved AWAY from entry and
-  // overlapped the cutout rail going CCW past postA, with the L-bridge
-  // visibly wrapping over the rail.
-  const arcDirection = -1;
-
-  const { rail, balusters } = useMemo(
-    () => buildDeadEndArcGeom(cx, cz, yTop, post.angle, innerR, outerR, arcDirection, arcSweep),
-    [cx, cz, yTop, post.angle, innerR, outerR, arcDirection, arcSweep],
-  );
-  useEffect(() => () => rail.dispose(), [rail]);
-
-  return (
-    <group>
-      <mesh geometry={rail} castShadow>
-        <primitive object={railTopMaterial} attach="material" />
-      </mesh>
-      {balusters.map((b, i) => (
-        <mesh key={`l-bal-${i}`} position={b} castShadow>
-          <boxGeometry args={[BALUSTER_SIZE, BALUSTER_HEIGHT, BALUSTER_SIZE]} />
-          <primitive object={balusterMaterial} attach="material" />
-        </mesh>
-      ))}
-    </group>
-  );
-}
 
 /**
  * Per-floor stairwell accents: cutout-edge railing (only on floors
@@ -402,23 +216,13 @@ export function StairwellAccents({ floor }: { floor: FloorLayout }) {
     // the rail closes there. On the ground floor, stairsIn is empty.
     const upSideOpen = !!stairOut;
     const downSideOpen = !!stairIn;
-    // The dead-end L-bridge on the top floor doesn't terminate at the
-    // gate post — it sweeps angularly past it as a curved scroll and
-    // merges tangentially with the cutout rail. The cutout rail has
-    // to make room for that merger by leaving a small gap on the
-    // up-side equal to the merger's arcSweep. ~60% of gateHalfArc
-    // gives a curve big enough to read as an architectural scroll
-    // without nibbling so far into the closure that the rail's
-    // missing chunk reads as a second gap.
-    const lBridgeArcSweep = gateHalfArc * 0.6;
-    // upGap: how much arc the rail leaves uncovered on the CCW (up)
-    // side of entry. When there's an upgoing stair, the full gateHalfArc
-    // is the player's walkway. On the top floor we close most of that
-    // half but leave lBridgeArcSweep of gap so the curved L-bridge
-    // can mate tangentially. downGap mirrors downSideOpen — every
-    // non-ground floor has a downgoing stair, so the rail leaves a
-    // full walkway gap there.
-    const upGap = upSideOpen ? gateHalfArc : gateHalfArc - lBridgeArcSweep;
+    // upGap / downGap: how much arc the rail leaves uncovered on the
+    // CCW (up) and CW (down) sides of entryAngle. When the side has a
+    // stair to walk through, gateHalfArc is the player's walkway.
+    // When it's a dead end (top floor's up, bottom floor's down), the
+    // rail closes that side entirely so the perimeter reads as a
+    // continuous loop with only the actual walkway open.
+    const upGap = upSideOpen ? gateHalfArc : 0;
     const downGap = downSideOpen ? gateHalfArc : 0;
     // Skipped on the ground floor — see hasCutout above. The bottom
     // floor's spiral rises out of solid ground, so there's no fall
@@ -441,7 +245,6 @@ export function StairwellAccents({ floor }: { floor: FloorLayout }) {
       stairIn,
       upSideOpen,
       downSideOpen,
-      lBridgeArcSweep,
     };
   }, [floor, stairwell, hasCutout]);
 
@@ -470,7 +273,6 @@ export function StairwellAccents({ floor }: { floor: FloorLayout }) {
     stairIn,
     upSideOpen,
     downSideOpen,
-    lBridgeArcSweep,
   } = data;
   // Gate posts sit ON the rail line — same radius as the rail —
   // so the rail terminates INTO the post instead of stopping next
@@ -550,14 +352,11 @@ export function StairwellAccents({ floor }: { floor: FloorLayout }) {
           horizontal sign-bar nailed across it. The sign plaque fits
           flush within the panel's tangent width — no + cross.
           A post renders only when (a) its side has a stair to sign on,
-          or (b) we're closing the dead-end with an L-bridge so the
-          post anchors that bridge. The bottom-floor down-side has
-          neither, so it stays empty rather than showing a textless
-          panel that reads as a broken sign. */}
-      {/* postA: rendered only when there's an actual upgoing stair to
-          sign for. On the top floor the up-side is a dead end and the
-          L-bridge handles the rail closure on its own — adding a post
-          here would just float a textless sign-pylon mid-rail. */}
+          A post renders only when its side has an actual stair to sign;
+          dead-end sides (top floor's up, bottom floor's down) close the
+          cutout rail fully across that half of the gate, so emitting a
+          textless pylon there would read as a broken sign. */}
+      {/* postA: only when there's an upgoing stair to sign. */}
       {upSideOpen && (
         <mesh
           position={[postA.x, floor.y + GATE_POST_HEIGHT / 2, postA.z]}
@@ -568,10 +367,7 @@ export function StairwellAccents({ floor }: { floor: FloorLayout }) {
           <primitive object={gatePostMaterial} attach="material" />
         </mesh>
       )}
-      {/* postB: only when there's an actual down-stair to sign. The
-          bottom-floor down side is dead-end and has no L-bridge to
-          anchor either, so emitting an empty post there would just
-          show as a textless sign-pylon. */}
+      {/* postB: only when there's a downgoing stair to sign. */}
       {downSideOpen && (
         <mesh
           position={[postB.x, floor.y + GATE_POST_HEIGHT / 2, postB.z]}
@@ -581,16 +377,6 @@ export function StairwellAccents({ floor }: { floor: FloorLayout }) {
           <boxGeometry args={[GATE_POST_TANGENT_WIDTH, GATE_POST_HEIGHT, GATE_POST_RADIAL_DEPTH]} />
           <primitive object={gatePostMaterial} attach="material" />
         </mesh>
-      )}
-
-      {/* Curved L-bridge that sweeps the spiral inner rail outward
-          across the top landing and merges tangentially into the
-          cutout rail. Only emitted on the top floor's up-side dead-end
-          (where the spiral arrives into nothing). Excluded on the
-          ground floor by the hasCutout gate above — no cutout rail to
-          merge into there in the first place. */}
-      {!upSideOpen && hasCutout && (
-        <DeadEndLBridge cx={cx} cz={cz} y={floor.y} post={postA} arcSweep={lBridgeArcSweep} />
       )}
 
       {/* Directional signs. UP goes on the post that's CCW from the
