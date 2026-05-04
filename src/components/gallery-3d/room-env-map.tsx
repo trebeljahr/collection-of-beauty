@@ -12,11 +12,11 @@
 // reads on the underside of metallic frames, and there's no synthetic
 // "exterior" leaking in.
 //
-// Implementation: a tiny equirectangular canvas (3-band vertical
-// gradient) is run through PMREMGenerator once per palette. Output is
-// cached by Palette identity (stable — `ERAS` is a module-level const)
-// so the seven era maps are built lazily and reused for the lifetime
-// of the page.
+// Implementation: a tiny equirectangular canvas painted with a
+// wall-colour-biased vertical gradient is run through PMREMGenerator
+// once per palette. Output is cached by Palette identity (stable —
+// `ERAS` is a module-level const) so the seven era maps are built
+// lazily and reused for the lifetime of the page.
 
 import { useThree } from "@react-three/fiber";
 import { useEffect } from "react";
@@ -25,12 +25,44 @@ import type { Palette } from "@/lib/gallery-eras";
 
 const cache = new Map<Palette, THREE.WebGLRenderTarget>();
 
-// Equirect maps latitude → vertical canvas axis. Top row of pixels
-// projects to the north pole (straight up), bottom row to the south
-// pole (straight down), middle row to the horizon. A purely vertical
-// gradient therefore reads as: ceiling overhead, walls at eye level,
-// floor underfoot — which is exactly what we want a closed room's
-// reflection to look like.
+function hexToRgb(hex: string): [number, number, number] {
+  const h = hex.replace("#", "");
+  return [
+    Number.parseInt(h.slice(0, 2), 16),
+    Number.parseInt(h.slice(2, 4), 16),
+    Number.parseInt(h.slice(4, 6), 16),
+  ];
+}
+
+function rgbToHex(r: number, g: number, b: number): string {
+  const clamp = (n: number) =>
+    Math.max(0, Math.min(255, Math.round(n)))
+      .toString(16)
+      .padStart(2, "0");
+  return `#${clamp(r)}${clamp(g)}${clamp(b)}`;
+}
+
+function mix(a: string, b: string, t: number): string {
+  const [ar, ag, ab] = hexToRgb(a);
+  const [br, bg, bb] = hexToRgb(b);
+  return rgbToHex(ar * (1 - t) + br * t, ag * (1 - t) + bg * t, ab * (1 - t) + bb * t);
+}
+
+// Equirect maps latitude → vertical canvas axis: top row projects to
+// straight up, bottom row to straight down. Real interiors converge —
+// after enough diffuse bounces — to an ambient that's roughly wall-
+// coloured, because walls dominate the surface area. We fake that
+// equilibrium in a single sample by using the wall colour as the
+// dominant tone over the whole sphere, mixing partway toward the
+// ceiling at the top and partway toward the floor at the bottom.
+//
+// Why not pure ceiling/wall/floor bands: vertical surfaces (every
+// wall in the museum) integrate the upper AND lower hemispheres for
+// their diffuse term. A literal floor-coloured lower hemisphere drops
+// the wall's averaged irradiance to a muddy mid-tone that reads as
+// dim. Biasing the whole map toward the wall colour keeps walls
+// looking creamy from every viewing angle while still giving metallic
+// reflections a sense of "ceiling above, floor below".
 function paintRoomEquirect(palette: Palette): HTMLCanvasElement {
   const canvas = document.createElement("canvas");
   canvas.width = 256;
@@ -38,18 +70,14 @@ function paintRoomEquirect(palette: Palette): HTMLCanvasElement {
   const ctx = canvas.getContext("2d");
   if (!ctx) return canvas;
 
+  const top = mix(palette.wallColor, palette.ceilingColor, 0.55);
+  const bottom = mix(palette.wallColor, palette.floorColor, 0.4);
+
   const grad = ctx.createLinearGradient(0, 0, 0, 128);
-  // Hard-ish bands with short cross-fades. A pure gradient over the
-  // full height blurs the wall colour into a wide twilight band that
-  // doesn't match what the eye sees standing in the room — real walls
-  // dominate the horizon, so we keep ~30 % of the latitude range as
-  // each surface and use the remaining ~10 % as cross-fades.
-  grad.addColorStop(0.0, palette.ceilingColor);
-  grad.addColorStop(0.32, palette.ceilingColor);
-  grad.addColorStop(0.42, palette.wallColor);
-  grad.addColorStop(0.58, palette.wallColor);
-  grad.addColorStop(0.68, palette.floorColor);
-  grad.addColorStop(1.0, palette.floorColor);
+  grad.addColorStop(0.0, top);
+  grad.addColorStop(0.4, palette.wallColor);
+  grad.addColorStop(0.6, palette.wallColor);
+  grad.addColorStop(1.0, bottom);
   ctx.fillStyle = grad;
   ctx.fillRect(0, 0, 256, 128);
 
@@ -86,12 +114,14 @@ type Props = {
 
 /**
  * Drop-in replacement for drei's `<Environment>`. Builds (or recalls
- * from cache) the procedural map for `palette`, assigns it to
- * `scene.environment`, and sets `scene.environmentIntensity` so the
- * existing materials read at the same level they did under the
- * `sunset` preset.
+ * from cache) the procedural map for `palette` and binds it to
+ * `scene.environment`. Default intensity sits well above 1: the
+ * sunset preset we replaced was an HDRI with super-bright sky values
+ * baked in, so its irradiance at 0.4 was much higher than an LDR
+ * canvas at 0.4 can deliver. 1.6 brings the room's creamy ambient
+ * back to roughly the level the gallery shipped with.
  */
-export function RoomEnvironment({ palette, intensity = 0.4 }: Props) {
+export function RoomEnvironment({ palette, intensity = 1.6 }: Props) {
   const gl = useThree((s) => s.gl);
   const scene = useThree((s) => s.scene);
 
