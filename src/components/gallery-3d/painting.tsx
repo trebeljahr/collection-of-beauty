@@ -103,8 +103,16 @@ const LOD_TIERS: LodTier[] = [
   },
   {
     kind: "variant",
+    // 1920 prefetch used to fire at sq(4.0) — 4 m — which meant every
+    // painting on every wall of a typical 5 m × 5 m room started
+    // fetching its 1920 px texture the moment the player crossed the
+    // doorway. Twenty-plus simultaneous AVIFs hammered both network
+    // and GPU upload. Tightened to sq(2.0): the player gets 960 px on
+    // every painting in the room and the 1920 only fetches on the one
+    // they're walking up to inspect (which is also when the higher
+    // tiers — 2560/4096/original — kick in, by design).
     width: 1920,
-    prefetchSq: sq(4.0),
+    prefetchSq: sq(2.0),
     upgradeSq: sq(1.8),
     downgradeSq: sq(2.8),
     releaseSq: sq(5.5),
