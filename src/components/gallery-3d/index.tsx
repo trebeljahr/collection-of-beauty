@@ -2,6 +2,7 @@
 
 import { PointerLockControls } from "@react-three/drei";
 import { Canvas } from "@react-three/fiber";
+import { Bloom, EffectComposer } from "@react-three/postprocessing";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import * as THREE from "three";
 import { useSetIs3DActive } from "@/components/gallery-3d-state";
@@ -437,8 +438,8 @@ export function Gallery3D({ artworks }: Props) {
             0 are not pitch black. The hemi position is purely cosmetic;
             HemisphereLight ignores it for shading and shines from
             world-up regardless. */}
-        <ambientLight intensity={0.38} />
-        <hemisphereLight args={["#fff3d0", "#2a1f15", 0.29]} position={[0, 20, 0]} />
+        <ambientLight intensity={0.3} />
+        <hemisphereLight args={["#fff3d0", "#2a1f15", 0.23]} position={[0, 20, 0]} />
         {/* Procedural environment map painted from the active era's
             palette (ceiling/wall/floor colours). Replaces a `sunset`
             HDRI preset that gave metallic surfaces something to reflect
@@ -543,6 +544,18 @@ export function Gallery3D({ artworks }: Props) {
             domElement={canvasRef.current ?? undefined}
           />
         )}
+        {/* Selective bloom on the lamp bulbs. The bulb material's
+            emissiveIntensity > 1 pushes its colour above the
+            luminanceThreshold so only the bulbs (and any equally bright
+            highlights) bloom — paintings, walls, and floors stay
+            unaffected. mipmapBlur gives a softer, less ringy halo than
+            the default Gaussian. Bloom registers regardless of `lit`
+            because the LampFixture's bulb material drops its emissive
+            to zero when off, so unlit fixtures simply don't pass the
+            threshold. */}
+        <EffectComposer>
+          <Bloom intensity={0.8} luminanceThreshold={0.85} luminanceSmoothing={0.2} mipmapBlur />
+        </EffectComposer>
       </Canvas>
       {!hasStarted && (
         <StartOverlay
