@@ -784,11 +784,47 @@ function PaintingPlane({
     };
   }, [url, thumbUrl, gl]);
 
-  // Painting registration + proximity LOD upgrades. Gated on
-  // `baseLoaded` so we don't try to swap to a hi-res tier before the
-  // base is even up — until then there's nothing to demote back to.
-  // The painting still raycasts as a target via the early-mount
-  // registration in the second effect below.
+  // Early registration so the painting raycasts as a target the
+  // moment its mesh exists, even before any texture has loaded. The
+  // LOD effect below attaches lodUpdate once the base texture lands;
+  // until then this entry just contributes a clickable plane.
+  //
+  // CRITICAL: this effect is declared BEFORE the LOD effect so React
+  // runs it first on mount. If the order were swapped, a cache-hit
+  // mount (where baseLoaded starts true) would have the LOD effect
+  // run first and find entryRef.current === null, so lodUpdate would
+  // never get attached and the painting would be stuck at 960 px for
+  // the rest of the session — even when the player walks right up to
+  // it. Don't reorder.
+  // biome-ignore lint/correctness/useExhaustiveDependencies: widthM/heightM are intentionally omitted — see lodUpdate effect for the same reason. The follow-up effect below keeps the entry's halfW/halfH in sync.
+  useEffect(() => {
+    const mesh = meshRef.current;
+    if (!mesh) return;
+    const worldQuat = mesh.getWorldQuaternion(new THREE.Quaternion());
+    const worldRight = new THREE.Vector3(1, 0, 0).applyQuaternion(worldQuat);
+    const worldUp = new THREE.Vector3(0, 1, 0).applyQuaternion(worldQuat);
+    const entry: PaintingEntry = {
+      mesh,
+      worldPos: mesh.getWorldPosition(new THREE.Vector3()),
+      worldRight,
+      worldUp,
+      halfW: widthM / 2,
+      halfH: heightM / 2,
+      artwork,
+    };
+    entryRef.current = entry;
+    registerPainting(entry);
+    return () => {
+      unregisterPainting(entry);
+      entryRef.current = null;
+    };
+  }, [artwork]);
+
+  // Proximity LOD upgrades. Gated on `baseLoaded` so we don't try to
+  // swap to a hi-res tier before the base is even up — until then
+  // there's nothing to demote back to. Always runs AFTER the early-
+  // registration effect above (declaration order); see the warning
+  // there.
   // biome-ignore lint/correctness/useExhaustiveDependencies: widthM/heightM are intentionally omitted — registering allocates AbortControllers and resets displayedTier, which we don't want to redo every time the parent refits the plane to the texture's true aspect. The follow-up effect mutates entry.halfW/halfH instead.
   useEffect(() => {
     if (!baseLoaded) return;
@@ -916,34 +952,6 @@ function PaintingPlane({
       if (e) e.lodUpdate = undefined;
     };
   }, [baseLoaded, artwork, gl]);
-
-  // Early registration so the painting raycasts as a target the
-  // moment its mesh exists, even before any texture has loaded. The
-  // LOD effect above attaches lodUpdate once the base texture lands;
-  // until then this entry just contributes a clickable plane.
-  // biome-ignore lint/correctness/useExhaustiveDependencies: widthM/heightM are intentionally omitted — see lodUpdate effect for the same reason. The follow-up effect below keeps the entry's halfW/halfH in sync.
-  useEffect(() => {
-    const mesh = meshRef.current;
-    if (!mesh) return;
-    const worldQuat = mesh.getWorldQuaternion(new THREE.Quaternion());
-    const worldRight = new THREE.Vector3(1, 0, 0).applyQuaternion(worldQuat);
-    const worldUp = new THREE.Vector3(0, 1, 0).applyQuaternion(worldQuat);
-    const entry: PaintingEntry = {
-      mesh,
-      worldPos: mesh.getWorldPosition(new THREE.Vector3()),
-      worldRight,
-      worldUp,
-      halfW: widthM / 2,
-      halfH: heightM / 2,
-      artwork,
-    };
-    entryRef.current = entry;
-    registerPainting(entry);
-    return () => {
-      unregisterPainting(entry);
-      entryRef.current = null;
-    };
-  }, [artwork]);
 
   // The parent re-fits widthM/heightM to the texture's true aspect once
   // the 960 px load reports it. Keep the registered entry's half-extents
