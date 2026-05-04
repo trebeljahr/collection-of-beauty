@@ -37,12 +37,14 @@ const defaultParameters: JoystickOptions = {
   // grabs) while keeping the surrounding pad subtler. Setting opacity
   // < 1 here would multiply through and dim everything together.
   opacity: 1,
-  // 30 px max throw matches `radius - joystickRadius`, so the knob
-  // full-deflects exactly at the pad's edge — short drags hit max
-  // and the knob never floats outside the pad. The Player's deadzone
-  // (~30 % of this) means a ~9 px deflection is enough to engage,
-  // and once engaged the input is binary (no faster-with-more-drag).
-  maxRange: 30,
+  // 60 px max throw — knob can drift past the pad edge by 30 px at
+  // full deflection (pad-radius minus knob-radius is 30), but the
+  // Player's deadzone is set in pixels-equivalent so the engagement
+  // threshold stays around ~9 px regardless of this value. Bigger
+  // throw room gives the thumb more "give" without changing when
+  // the stick fires; binary speed past the deadzone means it never
+  // matters how far past you drag.
+  maxRange: 60,
   radius: 70,
   joystickRadius: 40,
   joystickClass: "gallery-joystick-knob",
