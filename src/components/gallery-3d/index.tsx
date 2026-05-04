@@ -437,8 +437,8 @@ export function Gallery3D({ artworks }: Props) {
             0 are not pitch black. The hemi position is purely cosmetic;
             HemisphereLight ignores it for shading and shines from
             world-up regardless. */}
-        <ambientLight intensity={0.168} />
-        <hemisphereLight args={["#fff3d0", "#2a1f15", 0.128]} position={[0, 20, 0]} />
+        <ambientLight intensity={0.336} />
+        <hemisphereLight args={["#fff3d0", "#2a1f15", 0.256]} position={[0, 20, 0]} />
         {/* Procedural environment map painted from the active era's
             palette (ceiling/wall/floor colours). Replaces a `sunset`
             HDRI preset that gave metallic surfaces something to reflect
