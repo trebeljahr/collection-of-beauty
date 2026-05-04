@@ -87,13 +87,15 @@ const WIDTHS = [256, 480, 640, 960, 1280, 1920, 2560, 4096];
 const MAX_WIDTH = Math.max(...WIDTHS);
 
 // Sources bigger than MAX_WIDTH (Google Arts scans regularly hit
-// 8–12k px) get an extra AVIF at the source's actual width on top of
-// the standard ladder. Lets the close-up LOD and the modal's deep
-// zoom show the full source resolution without falling back to
-// shipping the original JPEG. Capped at 16384 to stay inside libavif's
-// safe range and inside typical GPU MAX_TEXTURE_SIZE; sources larger
-// than that quietly clamp to 16384 and the runtime falls back to the
-// raw asset for the (very few) cases that need more.
+// 8–12k px, Prado gigapixel scans push 25–30k) get an extra AVIF on
+// top of the standard ladder. Lets the close-up LOD and the modal's
+// deep zoom show the full source resolution without falling back to
+// shipping the original JPEG. Capped at 16384 on the LONG side to
+// stay inside libheif's encoder limit (it rejects either dim > 16384
+// with "Processed image is too large for the HEIF format") and inside
+// typical GPU MAX_TEXTURE_SIZE; oversize sources scale down
+// proportionally and the runtime falls back to the raw asset for the
+// (very few) cases that need more.
 const FULL_SIZE_MAX = 16384;
 // AVIF q=60 looks indistinguishable from q=85 JPEG but is ~3× smaller.
 // WebP q=75 is the usual balance for photographs.
@@ -143,10 +145,10 @@ function fmtDuration(ms) {
 //   assets/<bucket>/<filename>.<ext>
 //     → assets-web/<bucket>/<basename>/{<w>.<ext>}
 //
-// `sourceWidth` (when known) controls whether we plan a per-source
-// full-size AVIF entry on top of the standard ladder. Pass 0 / null to
-// skip it (caller doesn't have dimensions yet).
-function variantPaths(folder, name, sourceWidth) {
+// `sourceWidth`/`sourceHeight` (when known) control whether we plan a
+// per-source full-size AVIF entry on top of the standard ladder. Pass
+// 0 / null to skip it (caller doesn't have dimensions yet).
+function variantPaths(folder, name, sourceWidth, sourceHeight) {
   const basename = path.basename(name, path.extname(name));
   const destDir = path.join(DEST_ROOT, folder, basename);
   const files = [];
@@ -159,14 +161,25 @@ function variantPaths(folder, name, sourceWidth) {
       });
     }
   }
-  if (sourceWidth && sourceWidth > MAX_WIDTH) {
-    const fullW = Math.min(sourceWidth, FULL_SIZE_MAX);
-    files.push({
-      width: fullW,
-      format: FORMATS[0], // AVIF
-      path: path.join(destDir, `${fullW}.avif`),
-      isFullSize: true,
-    });
+  // The full-size variant clamps the LONG side (not just width) to
+  // FULL_SIZE_MAX, since libheif rejects either dim > 16384. For
+  // portrait gigapixel scans (Prado, Whistler) this means the encoded
+  // width can be smaller than sourceWidth — store the actual encoded
+  // width in the filename so the runtime can address it directly. Skip
+  // emission when the scaled width drops at or below MAX_WIDTH (extreme
+  // 1:4+ aspect ratios) — the standard ladder already covers it.
+  const longSide = Math.max(sourceWidth || 0, sourceHeight || 0);
+  if (longSide > MAX_WIDTH) {
+    const scale = Math.min(1, FULL_SIZE_MAX / longSide);
+    const fullW = Math.round(sourceWidth * scale);
+    if (fullW > MAX_WIDTH) {
+      files.push({
+        width: fullW,
+        format: FORMATS[0], // AVIF
+        path: path.join(destDir, `${fullW}.avif`),
+        isFullSize: true,
+      });
+    }
   }
   return { destDir, files };
 }
@@ -196,18 +209,29 @@ async function collectJobs() {
       // full-size AVIF when applicable. Sharp reads only the file
       // header here, so it's fast even on the 700 MB Wikimedia scans.
       let sourceWidth = 0;
+      let sourceHeight = 0;
       try {
         const meta = await sharp(srcPath, {
           unlimited: true,
           limitInputPixels: false,
         }).metadata();
         sourceWidth = meta.width ?? 0;
+        sourceHeight = meta.height ?? 0;
       } catch {
         // Probe failure → just emit the standard variants; processFile
         // will fail loudly if the source is truly unreadable.
       }
-      const { destDir, files } = variantPaths(folder, name, sourceWidth);
-      jobs.push({ folder, name, srcPath, srcStat, sourceWidth, destDir, variants: files });
+      const { destDir, files } = variantPaths(folder, name, sourceWidth, sourceHeight);
+      jobs.push({
+        folder,
+        name,
+        srcPath,
+        srcStat,
+        sourceWidth,
+        sourceHeight,
+        destDir,
+        variants: files,
+      });
     }
   }
   // Smallest first: fast early progress + big files spread across workers
@@ -228,7 +252,12 @@ async function processFile(job) {
   })
     .rotate() // apply EXIF rotation then discard the tag
     .flatten({ background: "#ffffff" }) // PNG/webp alpha → flat white
-    .resize({ width: MAX_WIDTH, withoutEnlargement: true })
+    .resize({
+      width: MAX_WIDTH,
+      height: FULL_SIZE_MAX,
+      fit: "inside",
+      withoutEnlargement: true,
+    })
     .raw()
     .toBuffer({ resolveWithObject: true });
 
@@ -247,7 +276,12 @@ async function processFile(job) {
       })
         .rotate()
         .flatten({ background: "#ffffff" })
-        .resize({ width: v.width, withoutEnlargement: true })
+        .resize({
+          width: FULL_SIZE_MAX,
+          height: FULL_SIZE_MAX,
+          fit: "inside",
+          withoutEnlargement: true,
+        })
         .avif({ quality: 60, effort: 2 })
         .toFile(v.path);
     } else {
