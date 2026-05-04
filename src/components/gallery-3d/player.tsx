@@ -90,6 +90,16 @@ const MOVE_DEADZONE = 0.15;
 // ring on the way down. Tied to ~28° of revolution = ~0.49 m of vertical
 // slack at FLOOR_SEPARATION = 6.12 m.
 const STAIR_LANDING_TOL = 0.5;
+// Early-entry trigger when descending a spiral. Once the player has
+// completed ⅓ of the descent (cumulativeAngle drops below 2π·⅔), we
+// promote floor.index to the destination floor — well before the
+// landing-tolerance arc above. The destination room's active-room
+// state and lit lamps then come on while the player is still mid-
+// descent, so arriving at the bottom feels like *entering* a room
+// already alive instead of stepping into one that has to wake up.
+// Only the descent branch uses this; ascent stays on STAIR_LANDING_TOL
+// per request.
+const STAIR_DESCEND_EARLY_ENTRY = (Math.PI * 2 * 2) / 3;
 const _lookEuler = new THREE.Euler(0, 0, 0, "YXZ");
 const PITCH_LIMIT = Math.PI / 2 - 0.05;
 
@@ -571,6 +581,12 @@ export function Player({
       // would yank them down through the upper floor's annular ring.
       // handleStairFloorChange short-circuits same-floor calls so
       // firing this every frame in the arc is cheap.
+      // The descent branch uses STAIR_DESCEND_EARLY_ENTRY (⅔·2π) so
+      // the destination floor activates a third of the way down,
+      // making arrival feel like entering a live room. Ascent keeps
+      // the tight landing tolerance — there's no equivalent ask for
+      // it, and "wake the upstairs early" interacts oddly with the
+      // canStepTo gate that the comment above is about.
       if (onFloorChange) {
         if (
           st.cumulativeAngle >= Math.PI * 2 - STAIR_LANDING_TOL &&
@@ -578,7 +594,7 @@ export function Player({
         ) {
           onFloorChange(activeStair.upperFloor);
         } else if (
-          st.cumulativeAngle <= STAIR_LANDING_TOL &&
+          st.cumulativeAngle <= STAIR_DESCEND_EARLY_ENTRY &&
           floor.index !== activeStair.lowerFloor
         ) {
           onFloorChange(activeStair.lowerFloor);
