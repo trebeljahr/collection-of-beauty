@@ -2,7 +2,7 @@
 
 import { Text } from "@react-three/drei";
 import { useThree } from "@react-three/fiber";
-import { Suspense, useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import * as THREE from "three";
 import type { Artwork } from "@/lib/data";
 import { PAINTING_WALL_OFFSET } from "@/lib/gallery-layout/place-paintings";
@@ -15,7 +15,7 @@ import {
   plaqueBaseMaterial,
   plaqueMountMaterial,
 } from "./palette-materials";
-import { getHiRes, type LoadHiResOpts, loadHiRes, useCachedTexture } from "./texture-cache";
+import { getHiRes, type LoadHiResOpts, loadCached, loadHiRes, peekCached } from "./texture-cache";
 
 /**
  * One painting on a wall. Renders a thin box behind the canvas so the
@@ -185,16 +185,15 @@ export function Painting({
           <primitive object={variant.liner.material} attach="material" />
         </mesh>
       )}
-      <Suspense fallback={<FallbackSwatch widthM={dW} heightM={dH} artwork={artwork} />}>
-        <PaintingPlane
-          url={url}
-          widthM={dW}
-          heightM={dH}
-          artwork={artwork}
-          onLoaded={onLoaded}
-          onTextureAspect={handleTextureAspect}
-        />
-      </Suspense>
+      <PaintingPlane
+        url={url}
+        thumbUrl={variantUrl(artwork.objectKey, 256, "avif")}
+        widthM={dW}
+        heightM={dH}
+        artwork={artwork}
+        onLoaded={onLoaded}
+        onTextureAspect={handleTextureAspect}
+      />
       <Plaque artwork={artwork} widthM={dW} plaqueOnLeft={plaqueOnLeft} />
     </group>
   );
@@ -686,13 +685,20 @@ function formatByline(artwork: Artwork): string {
 
 function PaintingPlane({
   url,
+  thumbUrl,
   widthM,
   heightM,
   artwork,
   onLoaded,
   onTextureAspect,
 }: {
+  /** 960 px AVIF — the base "good enough" texture; once it lands the
+   *  painting reads as fully loaded. */
   url: string;
+  /** 256 px AVIF — tiny placeholder, typically lands within ~100 ms.
+   *  Stretched onto the painting plane it reads as a soft blur of the
+   *  real artwork, replacing the old solid-brown swatch flash. */
+  thumbUrl: string;
   widthM: number;
   heightM: number;
   artwork: Placement["artwork"];
@@ -702,36 +708,95 @@ function PaintingPlane({
    *  bad realDimensions value can't visibly distort the painting. */
   onTextureAspect?: (aspect: number) => void;
 }) {
-  const texture = useCachedTexture(url);
   const meshRef = useRef<THREE.Mesh>(null);
   const matRef = useRef<THREE.MeshBasicMaterial>(null);
   const entryRef = useRef<PaintingEntry | null>(null);
   const { gl } = useThree();
 
-  // PaintingPlane only mounts after Suspense resolves — i.e. after the
-  // 960 px texture is decoded and uploaded. Fire once so the parent can
-  // tally progress for the start-overlay "Loading first room…" bar.
-  // biome-ignore lint/correctness/useExhaustiveDependencies: one-shot — onLoaded identity changes shouldn't refire.
-  useEffect(() => {
-    onLoaded?.();
-  }, []);
+  // Sync cache lookup on mount — if either tier was loaded by an
+  // earlier visit, install it before the first paint so the swatch
+  // never flashes. Prefer 960 over 256; if neither is cached, the
+  // material starts on the brown swatch color and the load effect
+  // below installs whatever lands first.
+  const [initialMap] = useState<THREE.Texture | null>(
+    () => peekCached(url) ?? peekCached(thumbUrl) ?? null,
+  );
 
-  // Report the loaded texture's pixel aspect once. The same aspect
-  // applies to every LOD tier (they're rescaled copies of the same
-  // source), so we only need the base 960 px load. If realDimensions
-  // disagrees with what the player actually sees, the parent fits the
-  // plane to this aspect.
-  useEffect(() => {
-    const img = texture.image as { width?: number; height?: number } | undefined;
-    if (!img || !img.width || !img.height) return;
-    onTextureAspect?.(img.width / img.height);
-  }, [texture, onTextureAspect]);
+  // Track the base 960 px texture. The LOD effect uses this as the
+  // "demote target" when the player retreats past every higher tier.
+  // Held in a ref (not state) so swapping it doesn't re-run the LOD
+  // registration effect — that would abort in-flight prefetches and
+  // reset displayedTier mid-walk.
+  const baseTextureRef = useRef<THREE.Texture | null>(
+    initialMap && peekCached(url) === initialMap ? initialMap : null,
+  );
+  const [baseLoaded, setBaseLoaded] = useState(baseTextureRef.current !== null);
 
+  // Progressive loader: kick off both the 256 placeholder and the 960
+  // base in parallel. Whichever lands first paints. If 256 wins (the
+  // common case — it's 10× smaller), the 960 then upgrades on top of
+  // it; if 960 wins (return-visit cache hit, or fast network), the
+  // thumb is silently discarded and we never bother painting it.
+  // biome-ignore lint/correctness/useExhaustiveDependencies: onLoaded / onTextureAspect identity is unstable; we want one-shot fire on base load.
+  useEffect(() => {
+    const material = matRef.current;
+    if (!material) return;
+    let cancelled = false;
+    let baseInstalled = baseTextureRef.current !== null;
+
+    if (!baseInstalled) {
+      loadCached(thumbUrl, gl)
+        .then((tex) => {
+          if (cancelled || baseInstalled) return;
+          // Install the placeholder. The 960 will overwrite this when
+          // it lands; the texture itself stays in the LRU (cheap, ~tens
+          // of KB) so a return visit is instant.
+          material.map = tex;
+          material.color.setHex(0xffffff);
+          material.needsUpdate = true;
+        })
+        .catch(() => {
+          // 256 might 404 for a sub-256 px source — silent fallback to
+          // the brown swatch until the base lands.
+        });
+    }
+
+    loadCached(url, gl)
+      .then((tex) => {
+        if (cancelled) return;
+        baseInstalled = true;
+        baseTextureRef.current = tex;
+        material.map = tex;
+        material.color.setHex(0xffffff);
+        material.needsUpdate = true;
+        setBaseLoaded(true);
+        onLoaded?.();
+        const img = tex.image as { width?: number; height?: number } | undefined;
+        if (img?.width && img?.height) {
+          onTextureAspect?.(img.width / img.height);
+        }
+      })
+      .catch((err) => {
+        console.warn(`[painting] failed to load ${url}:`, err);
+      });
+
+    return () => {
+      cancelled = true;
+    };
+  }, [url, thumbUrl, gl]);
+
+  // Painting registration + proximity LOD upgrades. Gated on
+  // `baseLoaded` so we don't try to swap to a hi-res tier before the
+  // base is even up — until then there's nothing to demote back to.
+  // The painting still raycasts as a target via the early-mount
+  // registration in the second effect below.
   // biome-ignore lint/correctness/useExhaustiveDependencies: widthM/heightM are intentionally omitted — registering allocates AbortControllers and resets displayedTier, which we don't want to redo every time the parent refits the plane to the texture's true aspect. The follow-up effect mutates entry.halfW/halfH instead.
   useEffect(() => {
+    if (!baseLoaded) return;
     const mesh = meshRef.current;
     const material = matRef.current;
-    if (!mesh || !material) return;
+    const baseTexture = baseTextureRef.current;
+    if (!mesh || !material || !baseTexture) return;
 
     // Skip tiers whose variant wasn't generated for this artwork. If
     // the source is only 1800 px, the 1920/2560/4096 tiers never built —
@@ -816,7 +881,8 @@ function PaintingPlane({
       }
 
       if (targetTier !== displayedTier) {
-        material.map = targetTier === -1 ? texture : (getHiRes(tierUrls[targetTier]) ?? texture);
+        material.map =
+          targetTier === -1 ? baseTexture : (getHiRes(tierUrls[targetTier]) ?? baseTexture);
         material.needsUpdate = true;
         displayedTier = targetTier;
       }
@@ -835,15 +901,34 @@ function PaintingPlane({
       }
     };
 
-    // World-space basis. Paintings don't move, so this is a one-shot
-    // capture. The parent group's rotation is around Y (walls are
-    // vertical), so worldUp comes out as (0, 1, 0) and worldRight ends
-    // up in the XZ plane — but the math below is general for any
-    // orientation.
+    const entry = entryRef.current;
+    if (entry) {
+      // Painting was already registered (raycast-only) by the early
+      // mount effect below. Upgrade it in place so we don't churn the
+      // registry, and so we don't lose the entry mid-frame for a tick.
+      entry.lodUpdate = lodUpdate;
+    }
+    return () => {
+      // Abort any prefetches; leave the entry in the registry — the
+      // early-mount effect owns its lifecycle. Strip lodUpdate so a
+      // stale closure can't fire after baseLoaded flips back.
+      for (const ctl of pending) ctl?.abort();
+      const e = entryRef.current;
+      if (e) e.lodUpdate = undefined;
+    };
+  }, [baseLoaded, artwork, gl]);
+
+  // Early registration so the painting raycasts as a target the
+  // moment its mesh exists, even before any texture has loaded. The
+  // LOD effect above attaches lodUpdate once the base texture lands;
+  // until then this entry just contributes a clickable plane.
+  // biome-ignore lint/correctness/useExhaustiveDependencies: widthM/heightM are intentionally omitted — see lodUpdate effect for the same reason. The follow-up effect below keeps the entry's halfW/halfH in sync.
+  useEffect(() => {
+    const mesh = meshRef.current;
+    if (!mesh) return;
     const worldQuat = mesh.getWorldQuaternion(new THREE.Quaternion());
     const worldRight = new THREE.Vector3(1, 0, 0).applyQuaternion(worldQuat);
     const worldUp = new THREE.Vector3(0, 1, 0).applyQuaternion(worldQuat);
-
     const entry: PaintingEntry = {
       mesh,
       worldPos: mesh.getWorldPosition(new THREE.Vector3()),
@@ -852,21 +937,18 @@ function PaintingPlane({
       halfW: widthM / 2,
       halfH: heightM / 2,
       artwork,
-      lodUpdate,
     };
     entryRef.current = entry;
     registerPainting(entry);
     return () => {
       unregisterPainting(entry);
       entryRef.current = null;
-      for (const ctl of pending) ctl?.abort();
     };
-  }, [artwork, texture, gl]);
+  }, [artwork]);
 
   // The parent re-fits widthM/heightM to the texture's true aspect once
   // the 960 px load reports it. Keep the registered entry's half-extents
-  // in sync without re-running the heavy registration effect (which
-  // would abort in-flight prefetches and reset the displayed tier).
+  // in sync without re-running the heavy registration effects.
   useEffect(() => {
     const entry = entryRef.current;
     if (!entry) return;
@@ -874,102 +956,21 @@ function PaintingPlane({
     entry.halfH = heightM / 2;
   }, [widthM, heightM]);
 
-  return (
-    <mesh ref={meshRef} position={[0, 0, 0.014]} userData={{ artwork }}>
-      <planeGeometry args={[widthM, heightM]} />
-      <meshBasicMaterial ref={matRef} map={texture} toneMapped={false} />
-    </mesh>
-  );
-}
-
-/** Shown while the real texture is still fetching. Eagerly loads the
- *  smallest available variant (256 px) and shows it as soon as it
- *  arrives — typically a few hundred milliseconds before the 960 px
- *  base resolves. Means a fresh floor renders with low-res images
- *  almost immediately instead of a wall of brown swatches, while the
- *  high-res tier streams in behind the Suspense boundary. */
-function FallbackSwatch({
-  widthM,
-  heightM,
-  artwork,
-}: {
-  widthM: number;
-  heightM: number;
-  artwork: Placement["artwork"];
-}) {
-  const meshRef = useRef<THREE.Mesh>(null);
-  const [thumb, setThumb] = useState<THREE.Texture | null>(null);
-
-  useEffect(() => {
-    const mesh = meshRef.current;
-    if (!mesh) return;
-    // Fallback swatches are still raycast targets, so they need full
-    // PaintingEntry shape — but no lodUpdate (no hi-res texture to
-    // upgrade until the real PaintingPlane suspends in).
-    const worldQuat = mesh.getWorldQuaternion(new THREE.Quaternion());
-    const worldRight = new THREE.Vector3(1, 0, 0).applyQuaternion(worldQuat);
-    const worldUp = new THREE.Vector3(0, 1, 0).applyQuaternion(worldQuat);
-    const entry: PaintingEntry = {
-      mesh,
-      worldPos: mesh.getWorldPosition(new THREE.Vector3()),
-      worldRight,
-      worldUp,
-      halfW: widthM / 2,
-      halfH: heightM / 2,
-      artwork,
-    };
-    registerPainting(entry);
-    return () => unregisterPainting(entry);
-  }, [artwork, widthM, heightM]);
-
-  useEffect(() => {
-    // Skip if the artwork has no 256 variant (some scrape sources
-    // produced sub-256 px originals and stop at the largest available
-    // variant).
-    const widths = artwork.variantWidths;
-    if (widths && !widths.includes(256)) return;
-    const url = variantUrl(artwork.objectKey, 256, "avif");
-    let cancelled = false;
-    const loader = new THREE.TextureLoader();
-    loader.load(
-      url,
-      (tex) => {
-        if (cancelled) {
-          tex.dispose();
-          return;
-        }
-        tex.colorSpace = THREE.SRGBColorSpace;
-        setThumb(tex);
-      },
-      undefined,
-      () => {
-        // Variant might 404 if the manifest is stale — fall back to
-        // the brown swatch silently.
-      },
-    );
-    return () => {
-      cancelled = true;
-    };
-  }, [artwork]);
-
-  // Free the thumb texture when the swatch unmounts (Suspense unwrap or
-  // floor swap). Without this, every fallback render leaks one tiny
-  // texture into VRAM that the LRU never sees.
-  useEffect(
-    () => () => {
-      thumb?.dispose();
-    },
-    [thumb],
-  );
+  // Initial color: white if we already have a cached texture so the
+  // texture's color shows through; brown swatch (#3a2e20) until either
+  // tier lands, so the wall isn't a hole. The load effect flips color
+  // to white on first install.
+  const initialColor = initialMap ? "#ffffff" : "#3a2e20";
 
   return (
     <mesh ref={meshRef} position={[0, 0, 0.014]} userData={{ artwork }}>
       <planeGeometry args={[widthM, heightM]} />
-      {thumb ? (
-        <meshBasicMaterial map={thumb} toneMapped={false} />
-      ) : (
-        <meshBasicMaterial color="#3a2e20" toneMapped={false} />
-      )}
+      <meshBasicMaterial
+        ref={matRef}
+        map={initialMap ?? undefined}
+        color={initialColor}
+        toneMapped={false}
+      />
     </mesh>
   );
 }
