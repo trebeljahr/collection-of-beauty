@@ -27,10 +27,11 @@ const SLIDE_OUT_MS = 320;
  * entire header renders `null` — read from `useIs3DActive()` — so the
  * museum visit isn't framed by the page header.
  *
- * Clicking the "3D Room" entry kicks off a synchronised cross-fade:
- * the modal slides downward off-screen while the new route mounts and
- * its content slides in from the top, so the user feels the gallery
- * "drop in" from the menu rather than seeing a flash of route loading.
+ * Clicking the "3D Room" entry triggers `nav-slide-out-down` so the
+ * menu drops off the bottom of the viewport while the gallery's
+ * StartOverlay loads in place behind it — the WebGL bundle takes a
+ * second or two to stream in, then the user sees the museum's own
+ * "Enter the museum" panel rather than a duplicate route loading card.
  */
 export function SiteNav() {
   const [open, setOpen] = useState(false);
@@ -112,13 +113,13 @@ export function SiteNav() {
   }, [open]);
 
   // 3D-Room click: animate the modal sliding down while the route push
-  // mounts the gallery (which has its own slide-in-from-top animation).
-  // The two motions look like a single sheet sliding downward — the
-  // menu off-screen at the bottom, the gallery into place from above.
-  // Under `prefers-reduced-motion` the animation is skipped (in CSS),
-  // so we close the modal up-front rather than waiting for the
-  // SLIDE_OUT_MS timer, which would otherwise leave the modal mounted
-  // for 320ms with nothing visibly animating.
+  // mounts the gallery behind it. The StartOverlay handles its own
+  // loading state in place — no separate route-level loading screen
+  // — so once the WebGL bundle streams in the user lands directly on
+  // "Enter the museum". Under `prefers-reduced-motion` the animation
+  // is skipped (in CSS), so we close the modal up-front rather than
+  // waiting for the SLIDE_OUT_MS timer, which would otherwise leave
+  // the modal mounted for 320ms with nothing visibly animating.
   const handleClick3D = useCallback(
     (e: React.MouseEvent<HTMLAnchorElement>) => {
       // If the user is already on /gallery-3d we just close — no
