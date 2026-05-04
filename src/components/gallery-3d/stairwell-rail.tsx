@@ -161,8 +161,8 @@ function buildCutoutBalusters(
   entryAngle: number,
   upGap: number,
   downGap: number,
-): Array<[number, number, number]> {
-  const out: Array<[number, number, number]> = [];
+): Array<{ pos: [number, number, number]; angle: number }> {
+  const out: Array<{ pos: [number, number, number]; angle: number }> = [];
   // ~30 cm arc length between balusters at radius=5.5 → 30 balusters
   // around 2π. Round to a nice integer.
   const count = 28;
@@ -173,7 +173,10 @@ function buildCutoutBalusters(
     // tube doesn't cover that arc, so balusters there would float.
     if (angDiff > 0 && angDiff < upGap) continue;
     if (angDiff <= 0 && -angDiff < downGap) continue;
-    out.push([radius * Math.cos(theta), y + BALUSTER_HEIGHT / 2, radius * Math.sin(theta)]);
+    out.push({
+      pos: [radius * Math.cos(theta), y + BALUSTER_HEIGHT / 2, radius * Math.sin(theta)],
+      angle: theta,
+    });
   }
   return out;
 }
@@ -524,8 +527,16 @@ export function StairwellAccents({ floor }: { floor: FloorLayout }) {
           <primitive object={railTopMaterial} attach="material" />
         </mesh>
       )}
-      {balusters.map((p, i) => (
-        <mesh key={`cutout-bal-${i}`} position={[cx + p[0], p[1], cz + p[2]]} castShadow>
+      {balusters.map((b, i) => (
+        // Rotate so the box's faces lie in radial / tangential planes —
+        // see the matching note in staircase.tsx's spiral baluster
+        // render.
+        <mesh
+          key={`cutout-bal-${i}`}
+          position={[cx + b.pos[0], b.pos[1], cz + b.pos[2]]}
+          rotation={[0, -b.angle, 0]}
+          castShadow
+        >
           <boxGeometry args={[BALUSTER_SIZE, BALUSTER_HEIGHT, BALUSTER_SIZE]} />
           <primitive object={balusterMaterial} attach="material" />
         </mesh>
