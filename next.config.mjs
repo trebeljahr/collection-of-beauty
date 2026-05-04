@@ -23,6 +23,9 @@ const ASSETS_REWRITE_TARGET = assetsRewriteTarget();
 const nextConfig = {
   output: "standalone",
   outputFileTracingRoot: __dirname,
+  ...(process.env.NODE_ENV === "development"
+    ? { allowedDevOrigins: ["192.168.1.119", "192.168.1.*", "*.local"] }
+    : {}),
   // No `images` config: we serve pre-built AVIF/WebP variants directly
   // via <picture>/<source> from rclone. Next's image optimizer isn't in
   // the hot path, so remotePatterns / formats / sizes are all moot.
