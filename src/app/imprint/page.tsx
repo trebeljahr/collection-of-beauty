@@ -15,8 +15,13 @@ export default function ImprintPage() {
       </header>
 
       <section className="space-y-6 text-[var(--foreground)]">
+        <p>
+          Information pursuant to § 5 DDG (German Digital Services Act) and § 18 (2) MStV
+          (Interstate Media Treaty).
+        </p>
+
         <div>
-          <h2 className="font-serif text-xl md:text-2xl">Operator</h2>
+          <h2 className="font-serif text-xl md:text-2xl">Service Provider</h2>
           <p className="mt-2">
             Rico Trebeljahr
             <br />
@@ -44,7 +49,9 @@ export default function ImprintPage() {
         </div>
 
         <div>
-          <h2 className="font-serif text-xl md:text-2xl">Responsible for content</h2>
+          <h2 className="font-serif text-xl md:text-2xl">
+            Person Responsible for Content (§ 18 (2) MStV)
+          </h2>
           <p className="mt-2">
             Rico Trebeljahr
             <br />
@@ -59,31 +66,46 @@ export default function ImprintPage() {
         </div>
 
         <div>
-          <h2 className="font-serif text-xl md:text-2xl">Liability</h2>
-
-          <h3 className="mt-3 font-serif text-lg">Liability for content</h3>
-          <p className="mt-1 text-[var(--muted-foreground)]">
-            The contents of this site have been compiled with care, but no guarantee can be given
-            for the accuracy, completeness, or timeliness of the information. As a service provider
-            I am responsible for my own content on these pages under general law, but I am not
-            obliged to monitor third-party information transmitted or stored on my behalf, nor to
-            investigate circumstances that suggest illegal activity.
+          <h2 className="font-serif text-xl md:text-2xl">Liability for Content</h2>
+          <p className="mt-2 text-[var(--muted-foreground)]">
+            As a service provider, I am responsible for my own content on these pages in accordance
+            with § 7 (1) DDG and general laws. However, pursuant to §§ 8 to 10 DDG, I am not
+            obligated as a service provider to monitor transmitted or stored third-party information
+            or to investigate circumstances that indicate illegal activity.
           </p>
-
-          <h3 className="mt-4 font-serif text-lg">Liability for links</h3>
-          <p className="mt-1 text-[var(--muted-foreground)]">
-            This site contains links to external websites whose contents I do not control. No
-            guarantee can therefore be given for that third-party content; the operator of each
-            linked site is solely responsible for it. If I am made aware of any legal violations
-            among linked sites, the link in question will be removed.
+          <p className="mt-2 text-[var(--muted-foreground)]">
+            Obligations to remove or block the use of information under general laws remain
+            unaffected. Liability in this regard is only possible from the point at which a specific
+            legal violation becomes known. Upon becoming aware of such violations I will remove the
+            content immediately.
           </p>
+        </div>
 
-          <h3 className="mt-4 font-serif text-lg">Copyright</h3>
-          <p className="mt-1 text-[var(--muted-foreground)]">
-            The works shown on this site are, to the best of my knowledge, in the public domain or
-            available under open licences, with metadata sourced from Wikimedia Commons. If you do
-            notice a copyright issue, please get in touch and the affected content will be removed
-            promptly.
+        <div>
+          <h2 className="font-serif text-xl md:text-2xl">Liability for Links</h2>
+          <p className="mt-2 text-[var(--muted-foreground)]">
+            This site contains links to external websites of third parties over whose content I have
+            no influence. I cannot assume any liability for these third-party contents; the
+            respective provider or operator of the linked pages is solely responsible. Linked pages
+            were checked for possible legal violations at the time of linking. Permanent monitoring
+            of the linked content is not reasonable without concrete evidence of a violation. If I
+            become aware of any legal violations, I will remove the link immediately.
+          </p>
+        </div>
+
+        <div>
+          <h2 className="font-serif text-xl md:text-2xl">Copyright</h2>
+          <p className="mt-2 text-[var(--muted-foreground)]">
+            The artworks shown on this site are, to the best of my knowledge, in the public domain
+            or available under open licences. Source files and metadata are drawn from Wikimedia
+            Commons; per-work attribution and licence details are linked from each artwork page. If
+            you believe a work has been published here in error, please get in touch and the
+            affected content will be removed promptly.
+          </p>
+          <p className="mt-2 text-[var(--muted-foreground)]">
+            Original content created by the site operator (page text, layout, code) is subject to
+            German copyright law. Duplication, processing, distribution, and any kind of use outside
+            the limits of copyright require written consent.
           </p>
         </div>
       </section>
