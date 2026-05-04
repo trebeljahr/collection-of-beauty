@@ -37,7 +37,12 @@ const defaultParameters: JoystickOptions = {
   // grabs) while keeping the surrounding pad subtler. Setting opacity
   // < 1 here would multiply through and dim everything together.
   opacity: 1,
-  maxRange: 80,
+  // 30 px max throw matches `radius - joystickRadius`, so the knob
+  // full-deflects exactly at the pad's edge — short drags hit max
+  // and the knob never floats outside the pad. The Player's deadzone
+  // (~30 % of this) means a ~9 px deflection is enough to engage,
+  // and once engaged the input is binary (no faster-with-more-drag).
+  maxRange: 30,
   radius: 70,
   joystickRadius: 40,
   joystickClass: "gallery-joystick-knob",

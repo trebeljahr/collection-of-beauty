@@ -64,24 +64,23 @@ const CUTOUT_RAIL_OUTER_BOUND = CUTOUT_RAIL_RADIUS + RAIL_BAR_HALF_WIDTH + PLAYE
 // purely the visual hover threshold so the cursor only changes when the
 // player is right up against the painting they're looking at.
 const AIM_MAX_DIST = 2;
-// Look joystick → angular velocity. Fully-deflected stick (after the
-// quadratic response curve below) sweeps ~3.5 rad/s ≈ 200°/sec —
-// responsive enough for FPS-style turning without overshooting on
-// fine aim, because the curve squeezes near-centre deflection so 50%
-// stick = 25% rate.
-const LOOK_SPEED = 3.5;
-// Smooth-analog joystick reads use raw x/y (integer pixels in
-// ±JOYSTICK_MAX_RANGE) divided by this. Matches `defaultParameters.maxRange`
-// in `use-joystick.ts`. With 80 we get 161 steps per axis vs. only 21
-// for `leveledX/leveledY` — that quantisation was the source of the
-// "stair-step" feel on the look + walk sticks.
-const JOYSTICK_MAX_RANGE = 80;
-// Radial deadzone (fraction of full deflection) — inputs whose
-// magnitude is below this are treated as zero. Prevents drift from
-// resting-thumb pressure and stops the camera from creeping when the
-// player isn't actively touching the stick.
-const LOOK_DEADZONE = 0.08;
-const MOVE_DEADZONE = 0.1;
+// Look joystick → angular velocity. The stick is binary above the
+// deadzone (no faster-with-more-drag), so this is the actual turn
+// rate while engaged — not a max. 1.8 rad/s ≈ 103°/sec feels brisk
+// but stays controllable; fine aim comes from short stick taps,
+// not partial deflection.
+const LOOK_SPEED = 1.8;
+// Joystick max-range in pixels — must match `defaultParameters.maxRange`
+// in `use-joystick.ts`. Used to normalise the library's raw x/y back
+// into a [-1, 1] range. 30 px matches the pad-minus-knob radius so the
+// knob never drifts past the pad edge at full deflection.
+const JOYSTICK_MAX_RANGE = 30;
+// Radial deadzone (fraction of full deflection) — inputs below this
+// magnitude are treated as zero, anything past it engages at full
+// rate. ~30 % means ~9 px of throw before either stick fires, so a
+// resting thumb doesn't drift the camera or shuffle the player.
+const LOOK_DEADZONE = 0.3;
+const MOVE_DEADZONE = 0.3;
 // Width of the "you're at a real floor" arc at each end of a spiral
 // revolution. Stepping off the spiral (canStepTo's exit branch) is only
 // allowed inside one of these arcs, AND the player's `floor.index` is
@@ -298,27 +297,22 @@ export function Player({
       }
     }
 
-    // Look stick → continuous yaw/pitch. We extract the camera's
+    // Look stick → constant-rate yaw/pitch. We extract the camera's
     // current Euler each frame so PointerLockControls (desktop) and
     // the joystick (mobile) coexist without fighting over a stored
-    // look state. Read raw x/y (integer pixels in ±JOYSTICK_MAX_RANGE)
-    // for smooth analog input — leveledX/leveledY only exposes 21
-    // discrete steps, which reads as visible stair-stepping on a
-    // continuous-yaw camera. Radial deadzone + quadratic curve give
-    // a steady centre and fine aim near-zero with full speed at edge.
+    // look state. Binary above the deadzone: any drag past LOOK_DEADZONE
+    // turns at LOOK_SPEED in the stick's direction, so dragging further
+    // doesn't accelerate the rotation — fine aim is a short tap, full
+    // turn is a sustained hold. Direction is still continuous (any
+    // angle around the stick), only magnitude is gated.
     if (joystickLookGetter) {
       const look = joystickLookGetter();
       const lx = look.x / JOYSTICK_MAX_RANGE;
       const ly = look.y / JOYSTICK_MAX_RANGE;
       const lmag = Math.hypot(lx, ly);
       if (lmag > LOOK_DEADZONE) {
-        // Rescale post-deadzone magnitude to 0..1 then square for the
-        // response curve. Direction comes from the original (lx, ly)
-        // so diagonals don't pull onto an axis.
-        const scaled = Math.min(1, (lmag - LOOK_DEADZONE) / (1 - LOOK_DEADZONE));
-        const curve = scaled * scaled;
-        const nx = (lx / lmag) * curve;
-        const ny = (ly / lmag) * curve;
+        const nx = lx / lmag;
+        const ny = ly / lmag;
         _lookEuler.setFromQuaternion(camera.quaternion, "YXZ");
         _lookEuler.y -= nx * LOOK_SPEED * dt;
         _lookEuler.x += ny * LOOK_SPEED * dt;
@@ -345,21 +339,19 @@ export function Player({
     if (keys.current.KeyD || keys.current.ArrowRight) move.add(right);
     if (keys.current.KeyA || keys.current.ArrowLeft) move.sub(right);
 
-    // Movement stick → contributes to the same `move` vector, scaled
-    // by deflection so half-stick → half-speed. Additive with WASD so
-    // an iPad with a Bluetooth keyboard works either way. Same smooth-
-    // analog read as the look stick (raw x/y over JOYSTICK_MAX_RANGE),
-    // with a radial deadzone but no curve — walking should feel direct,
-    // not eased.
+    // Movement stick → contributes to the same `move` vector. Same
+    // binary-above-deadzone behaviour as the look stick: any drag past
+    // MOVE_DEADZONE walks at full WALK_SPEED in the stick's direction,
+    // and partial deflection isn't slow-walk. Additive with WASD so an
+    // iPad with a Bluetooth keyboard still works either way.
     if (joystickMoveGetter) {
       const m = joystickMoveGetter();
       const mx = m.x / JOYSTICK_MAX_RANGE;
       const my = m.y / JOYSTICK_MAX_RANGE;
       const mmag = Math.hypot(mx, my);
       if (mmag > MOVE_DEADZONE) {
-        const scaled = Math.min(1, (mmag - MOVE_DEADZONE) / (1 - MOVE_DEADZONE));
-        const fx = (my / mmag) * scaled;
-        const sx = (mx / mmag) * scaled;
+        const fx = my / mmag;
+        const sx = mx / mmag;
         move.addScaledVector(forward, fx);
         move.addScaledVector(right, sx);
       }
