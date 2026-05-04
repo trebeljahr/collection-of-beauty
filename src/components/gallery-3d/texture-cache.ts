@@ -55,11 +55,6 @@ class TextureLRU {
     return tex;
   }
 
-  /** Read without touching MRU order. */
-  peek(key: string): THREE.Texture | undefined {
-    return this.map.get(key);
-  }
-
   put(key: string, tex: THREE.Texture): void {
     if (this.map.has(key)) this.map.delete(key);
     this.map.set(key, tex);
@@ -192,18 +187,14 @@ async function loadTextureCached(
 // out hi-res textures the player is currently looking at, and the
 // other way round.
 //
-// `peekHiRes` returns the cached texture without touching MRU — used
-// when we just want to know if it's available. `getHiRes` touches MRU,
-// used when a painting is actively displaying or about to display the
-// texture (so it stays alive until the player walks away).
+// `getHiRes` touches MRU on read, which is what callers in the LOD
+// loop want: anything they query is either currently displayed or
+// about to be, so pinning it in the LRU until the player walks away
+// is exactly the right behaviour.
 // ─────────────────────────────────────────────────────────────────────
 
 export function getHiRes(url: string): THREE.Texture | undefined {
   return hiresCache.get(url);
-}
-
-export function peekHiRes(url: string): THREE.Texture | undefined {
-  return hiresCache.peek(url);
 }
 
 /** Optional knobs for `loadHiRes`. `maxSize` + the source dimensions
