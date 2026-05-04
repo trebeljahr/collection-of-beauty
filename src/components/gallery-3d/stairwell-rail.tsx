@@ -4,11 +4,19 @@ import { useEffect, useMemo } from "react";
 import * as THREE from "three";
 import type { FloorLayout } from "@/lib/gallery-layout/types";
 import { SPIRAL_FLOOR_CUTOUT_RADIUS, SPIRAL_INNER_RADIUS } from "@/lib/gallery-layout/world-coords";
+import {
+  BALUSTER_HEIGHT,
+  BALUSTER_SIZE,
+  RAIL_BAR_HALF_WIDTH,
+  RAIL_BAR_HEIGHT,
+  RAIL_HEIGHT,
+} from "./rail-constants";
 import { StairSign, spiralGateHalfArc } from "./staircase";
 
-// Local copies of the rail vocabulary so this file is self-contained.
-// Match staircase.tsx exactly so the cutout-edge rail and the spiral
-// rails read as a single material set.
+// Materials are still local — the cutout-edge rail and the spiral rails
+// share the same colour vocabulary, but allocating duplicate
+// MeshStandardMaterial instances is cheap and keeps each file's
+// material set obvious at a glance.
 const railTopMaterial = new THREE.MeshStandardMaterial({
   color: "#a07a40",
   roughness: 0.55,
@@ -25,14 +33,6 @@ const gatePostMaterial = new THREE.MeshStandardMaterial({
   metalness: 0.45,
 });
 
-const RAIL_HEIGHT = 1.05;
-const RAIL_BAR_HEIGHT = 0.1;
-const RAIL_BAR_HALF_WIDTH = 0.05;
-const BALUSTER_SIZE = 0.07;
-/** Vertical span of a baluster — stops at rail-bottom so the
- *  baluster top doesn't punch into the rail tube. Mirrors the same
- *  constant in staircase.tsx. */
-const BALUSTER_HEIGHT = RAIL_HEIGHT - RAIL_BAR_HEIGHT;
 /** Gate-post tangent width — wide enough for the sign plaque to fit
  *  flush within it (no horizontal "crossbeam" sticking out beyond
  *  the post), so post + sign reads as one architectural pylon rather
@@ -42,6 +42,12 @@ const GATE_POST_TANGENT_WIDTH = 0.85;
  *  pylon rather than a fat column. */
 const GATE_POST_RADIAL_DEPTH = 0.18;
 const GATE_POST_HEIGHT = 2.4;
+/** Radial offset of the cutout-edge rail's centerline from the
+ *  stairwell hole's edge. Exported because player.tsx needs the same
+ *  number for collision clearance — keeping the two in lockstep
+ *  prevents the player from walking through the rail (or floating
+ *  away from it) after a tweak here. */
+export const CUTOUT_RAIL_RADIUS = SPIRAL_FLOOR_CUTOUT_RADIUS + 0.18;
 // Half-arc of the entry gate is now derived per-stair from the
 // spiral's numSteps (`spiralGateHalfArc(numSteps)`), so the cutout-edge
 // gate aligns exactly with the spiral rail's gap above and below.
@@ -387,7 +393,7 @@ export function StairwellAccents({ floor }: { floor: FloorLayout }) {
     if (!reference) return null;
     const cx = reference.centerX;
     const cz = reference.centerZ;
-    const railR = SPIRAL_FLOOR_CUTOUT_RADIUS + 0.18;
+    const railR = CUTOUT_RAIL_RADIUS;
     const gateHalfArc = spiralGateHalfArc(reference.numSteps);
     // The "up" half of the gate is only meaningful when this floor
     // actually has an upgoing stair; same for the "down" half. On the

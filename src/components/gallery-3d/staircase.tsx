@@ -6,6 +6,13 @@ import * as THREE from "three";
 import type { Staircase } from "@/lib/gallery-layout/types";
 import { SPIRAL_COLUMN_RADIUS } from "@/lib/gallery-layout/world-coords";
 import { signBaseMaterial } from "./palette-materials";
+import {
+  BALUSTER_HEIGHT,
+  BALUSTER_SIZE,
+  RAIL_BAR_HALF_WIDTH,
+  RAIL_BAR_HEIGHT,
+  RAIL_HEIGHT,
+} from "./rail-constants";
 
 // Shared materials — one "stair vocabulary" for every spiral in the
 // building. Allocated once at module load.
@@ -77,14 +84,6 @@ const signGlyphMaterial = new THREE.MeshBasicMaterial({
   side: THREE.DoubleSide,
 });
 
-const RAIL_HEIGHT = 1.05;
-/** Vertical thickness of the rail bar. */
-const RAIL_BAR_HEIGHT = 0.1;
-/** Radial half-width of the rail bar — gives the rail real volume in
- *  every direction, so it stops reading as a paper strip and starts
- *  reading as a hand rail you could grip. */
-const RAIL_BAR_HALF_WIDTH = 0.05;
-const BALUSTER_SIZE = 0.07;
 /** Newel-cap finial radius. Has to be enough larger than the rail
  *  tube's cross-section that the sphere reads as a distinct
  *  decorative ball rather than a tight swelling at the rail end:
@@ -99,13 +98,6 @@ const BALUSTER_SIZE = 0.07;
  *  reuse one buffer. */
 const FINIAL_RADIUS = 0.13;
 const finialGeometry = new THREE.SphereGeometry(FINIAL_RADIUS, 24, 16);
-/** Vertical span of a baluster, measured between its top and bottom.
- *  Stops short of the rail's top by exactly RAIL_BAR_HEIGHT so the
- *  baluster's top sits flush with the rail's bottom face — without
- *  this, the baluster's top 5 cm lives INSIDE the rail tube and shows
- *  as a thin black bar punching through the brass on every camera
- *  angle that catches the rail in cross-section. */
-const BALUSTER_HEIGHT = RAIL_HEIGHT - RAIL_BAR_HEIGHT;
 /** Half-arc of the entry/exit gate on the OUTER rail — the rail is
  *  omitted across this arc so the player can step onto/off the
  *  spiral. The cutout-edge rail on each floor uses the same value

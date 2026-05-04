@@ -51,8 +51,10 @@ const MAX_PAINTING_H_HALLWAY = 1.9;
  *  put the back of the painting frame box flush against the wall —
  *  frame box depth in painting.tsx is 0.025 m, half-depth + a 1 mm
  *  z-fight margin = ~0.014 m. Bumped to 0.02 for a comfortable hair
- *  of clearance. */
-const PAINTING_WALL_OFFSET = 0.02;
+ *  of clearance. Exported because painting.tsx also needs it (the
+ *  plaque parks itself at -PAINTING_WALL_OFFSET in local space to land
+ *  back on the wall surface). */
+export const PAINTING_WALL_OFFSET = 0.02;
 /** Combined width of the museum plaque to the side of every painting.
  *  Sum of `PLAQUE_GAP` (0.06) and `PLAQUE_MOUNT_W` (0.308) in
  *  painting.tsx — keep in sync if those move. */
