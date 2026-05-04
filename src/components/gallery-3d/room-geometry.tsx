@@ -198,15 +198,35 @@ export function RoomGeometry({
         <Painting key={`${room.id}-p${i}`} placement={p} onLoaded={onPaintingLoaded} />
       ))}
 
-      {isActive && (
-        <pointLight
-          position={[cxWorld, floorY + ROOM_HEIGHT - 0.2, czWorld]}
-          intensity={26}
-          distance={Math.max(width, depth) * 1.6}
-          decay={2}
-          color={era.palette.lampTint}
-        />
-      )}
+      {/* Four ceiling lamps at the centres of the room's quadrants
+          instead of one in the middle. The single centre lamp left a
+          dim band along each wall — paintings furthest from the centre
+          had to live off the global hemi/ambient. With one lamp per
+          quadrant each painting is at most ~half a quadrant's diagonal
+          from a light, so wall coverage is much more even and the room
+          reads brighter overall (4 × 14 ≈ 2× the previous total). */}
+      {isActive &&
+        (
+          [
+            [-1, -1],
+            [1, -1],
+            [-1, 1],
+            [1, 1],
+          ] as const
+        ).map(([sx, sz]) => (
+          <pointLight
+            key={`lamp-${sx}-${sz}`}
+            position={[
+              cxWorld + sx * (width / 4),
+              floorY + ROOM_HEIGHT - 0.2,
+              czWorld + sz * (depth / 4),
+            ]}
+            intensity={14}
+            distance={Math.max(width, depth) * 1.2}
+            decay={2}
+            color={era.palette.lampTint}
+          />
+        ))}
     </group>
   );
 }
