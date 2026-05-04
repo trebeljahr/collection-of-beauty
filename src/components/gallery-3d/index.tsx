@@ -21,6 +21,8 @@ import { RoomGeometry } from "./room-geometry";
 import { Gallery3DSettings } from "./settings-modal";
 import { StaircaseRenderer } from "./staircase";
 import { StairwellAccents } from "./stairwell-rail";
+import { markCachedTexturesForReupload } from "./texture-cache";
+import { markPackTexturesForReupload } from "./texture-pack";
 import { ZoomModal } from "./zoom-modal";
 
 const AMBIENCE_SRC = "/audio/ambience-loop.mp3";
@@ -64,6 +66,12 @@ export function Gallery3D({ artworks }: Props) {
   // (rare during a play session). Capped so it doesn't dominate the
   // screen on huge monitors.
   const [bigMapSize, setBigMapSize] = useState(600);
+  // True between a webglcontextlost and the matching webglcontextrestored.
+  // Drives an overlay so the player sees "Restoring 3D scene…" instead of
+  // a frozen black canvas. Without this, a transient context loss (browser
+  // backgrounding the tab, driver hiccup) goes silent and the gallery
+  // appears broken even after the GPU comes back.
+  const [contextLost, setContextLost] = useState(false);
 
   // Entry room — used as the basis for the start-overlay loading bar.
   // We wait for this room's paintings to decode before the player can
@@ -347,6 +355,44 @@ export function Gallery3D({ artworks }: Props) {
           gl.toneMappingExposure = 1.0;
           scene.fog = new THREE.Fog("#0a0805", 20, 80);
           canvasRef.current = gl.domElement;
+
+          // WebGL context-loss recovery. The GPU can yank the context for
+          // any of: tab backgrounded, driver hiccup, OS-level memory
+          // pressure, GPU process restart. preventDefault() on the
+          // `webglcontextlost` event signals to the browser that we want
+          // it back; without it the canvas would stay dead forever (the
+          // exact symptom behind the "WebGLRenderer: Context Lost." log
+          // with a frozen scene). On restore we mark every cached texture
+          // and every scene material as needsUpdate so Three re-uploads
+          // them on the next frame — the ImageBitmaps / Images held by
+          // each Texture's `.image` are still alive in JS land, so this
+          // costs one decode-free texImage2D per surface, no refetch.
+          const canvas = gl.domElement;
+          canvas.addEventListener(
+            "webglcontextlost",
+            (e) => {
+              e.preventDefault();
+              setContextLost(true);
+            },
+            false,
+          );
+          canvas.addEventListener(
+            "webglcontextrestored",
+            () => {
+              markCachedTexturesForReupload();
+              markPackTexturesForReupload();
+              scene.traverse((obj) => {
+                const mesh = obj as THREE.Mesh;
+                if (!mesh.isMesh) return;
+                const mats = Array.isArray(mesh.material) ? mesh.material : [mesh.material];
+                for (const m of mats) {
+                  if (m) m.needsUpdate = true;
+                }
+              });
+              setContextLost(false);
+            },
+            false,
+          );
         }}
       >
         <color attach="background" args={["#0a0805"]} />
@@ -489,6 +535,26 @@ export function Gallery3D({ artworks }: Props) {
           start screen, joysticks, and minimap are all hidden until
           they rotate. */}
       {needsRotate && <LandscapePrompt />}
+      {/* WebGL context-loss curtain. Shown between webglcontextlost and
+          webglcontextrestored — usually a few hundred ms. Above every
+          other overlay so the user isn't staring at a frozen canvas
+          while Three rebuilds its GPU state on the next frame. The
+          shared loading-bar animation matches the route loading state
+          so the visual language stays consistent across "scene not
+          ready yet" moments. */}
+      {contextLost && (
+        <div className="absolute inset-0 z-[60] flex items-center justify-center bg-black/80 backdrop-blur-sm">
+          <div className="w-[min(360px,88vw)] rounded-xl border border-white/15 bg-black/70 p-5 text-center text-white shadow-2xl">
+            <h2 className="font-serif text-lg tracking-wide">Restoring 3D scene</h2>
+            <p className="mt-2 text-xs leading-relaxed text-white/70">
+              The browser dropped the graphics context. Reconnecting…
+            </p>
+            <div className="mt-4 h-1 w-full overflow-hidden rounded-full bg-white/10">
+              <div className="h-full w-1/4 rounded-full bg-white/70 animate-loading-bar" />
+            </div>
+          </div>
+        </div>
+      )}
       {hasStarted && !mapOpen && (
         <div
           className={`absolute bg-black/60 text-neutral-100 px-4 py-2 rounded text-sm pointer-events-none ${
