@@ -96,7 +96,7 @@ export function Gallery3DSettings({ fullscreenTarget, isOpen, onOpenChange }: Pr
           }}
           className="absolute inset-0 z-30 flex flex-col bg-black/85 text-white backdrop-blur-md animate-nav-fade-in"
         >
-          <div className="mx-auto flex w-full max-w-md items-center justify-between px-5 py-4">
+          <div className="mx-auto flex w-full max-w-md flex-none items-center justify-between px-5 py-4 landscape:py-2">
             <h2 id="gallery-3d-settings" className="font-serif text-base tracking-wide">
               Settings
             </h2>
@@ -110,11 +110,16 @@ export function Gallery3DSettings({ fullscreenTarget, isOpen, onOpenChange }: Pr
             </button>
           </div>
 
+          {/* `min-h-0` lets the flex item shrink below its content's
+              intrinsic height so `overflow-y-auto` can take over —
+              without it the content would push past the viewport
+              (especially in mobile landscape) and clip rather than
+              scroll. */}
           {/* biome-ignore lint/a11y/useKeyWithClickEvents: stopPropagation only — keyboard ESC is handled at the parent. */}
           {/* biome-ignore lint/a11y/noStaticElementInteractions: stopPropagation only — purely visual container */}
           <div
             onClick={(e) => e.stopPropagation()}
-            className="mx-auto flex w-full max-w-md flex-1 flex-col gap-5 px-5 pb-8"
+            className="mx-auto flex min-h-0 w-full max-w-md flex-1 flex-col gap-5 overflow-y-auto px-5 pb-8 landscape:gap-3 landscape:pb-4"
           >
             <Section label="Sound">
               <div className="flex items-center justify-between">
