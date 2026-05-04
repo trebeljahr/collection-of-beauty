@@ -9,6 +9,7 @@ import {
   FLOOR_THICKNESS,
   INTER_FLOOR_HEIGHT,
 } from "@/lib/gallery-layout/world-coords";
+import { LampFixture } from "./lamp-fixture";
 import { Painting } from "./painting";
 import { getPaletteMaterials } from "./palette-materials";
 import { SolidWall } from "./wall";
@@ -94,17 +95,23 @@ export function HallwayRenderer({
         <Painting key={`${hallway.id}-p${i}`} placement={p} />
       ))}
 
+      {/* Corridor lamps — same fixture as room pendants, but with a
+          much shorter drop so the bulb sits close to the lower
+          corridor ceiling (3.12 m vs 4.2 m in rooms) and the player
+          isn't ducking under stems. Hallways stay lit at all times,
+          so `lit` is unconditionally true here. */}
       {lampCells.map((c) => {
         const cx = c.x * CELL_SIZE + CELL_SIZE / 2;
         const cz = c.z * CELL_SIZE + CELL_SIZE / 2;
         return (
-          <pointLight
+          <LampFixture
             key={`${hallway.id}-lamp-${c.x}-${c.z}`}
-            position={[cx, floorY + CORRIDOR_HEIGHT - 0.25, cz]}
+            position={[cx, floorY + CORRIDOR_HEIGHT, cz]}
+            era={floor.era}
+            lit={true}
+            bulbDrop={0.3}
             intensity={6}
             distance={9}
-            decay={2}
-            color={floor.era.palette.lampTint}
           />
         );
       })}
