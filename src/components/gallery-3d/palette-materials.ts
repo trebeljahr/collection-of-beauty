@@ -34,7 +34,13 @@ export type PaletteMaterials = {
   wall: THREE.MeshStandardMaterial;
   floor: THREE.MeshStandardMaterial;
   ceiling: THREE.MeshStandardMaterial;
+  /** Dark non-emissive material for the lamp's ceiling cap + stem.
+   *  Reads as a backlit metal fixture against the ceiling. */
   lampHousing: THREE.MeshStandardMaterial;
+  /** Pure-glow material for the bulb sphere — MeshBasic so the bulb
+   *  always reads bright regardless of room lighting (no shading,
+   *  no env map influence). Tinted per-era to match the point light. */
+  lampBulb: THREE.MeshBasicMaterial;
 };
 
 const cache = new Map<Palette, PaletteMaterials>();
@@ -84,10 +90,12 @@ export function getPaletteMaterials(palette: Palette): PaletteMaterials {
       side: THREE.DoubleSide,
     }),
     lampHousing: new THREE.MeshStandardMaterial({
-      color: "#2a1d14",
-      emissive: new THREE.Color(palette.lampTint),
-      emissiveIntensity: 1.6,
-      roughness: 0.5,
+      color: "#1d130a",
+      roughness: 0.55,
+      metalness: 0.5,
+    }),
+    lampBulb: new THREE.MeshBasicMaterial({
+      color: palette.lampTint,
     }),
   };
   cache.set(palette, entry);
