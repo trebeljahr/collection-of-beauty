@@ -99,3 +99,14 @@ export function buildMapBundle(
   arm.repeat.set(repeatU, repeatV);
   return { map: diff, normalMap: nor, roughnessMap: arm };
 }
+
+/** Mark every cached Poly Haven source texture for re-upload after a
+ *  `webglcontextrestored` event. The HTMLImageElements held by each
+ *  Texture's `.image` are alive in the browser's image cache, so the
+ *  next frame uploads them again without a network round-trip — just
+ *  one decode + texImage2D per surface, identical to a cold load. */
+export function markPackTexturesForReupload(): void {
+  for (const tex of sourceCache.values()) {
+    tex.needsUpdate = true;
+  }
+}

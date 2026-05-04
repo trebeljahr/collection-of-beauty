@@ -71,6 +71,10 @@ class TextureLRU {
       old?.dispose();
     }
   }
+
+  forEach(fn: (tex: THREE.Texture) => void): void {
+    for (const tex of this.map.values()) fn(tex);
+  }
 }
 
 const cache = new TextureLRU(TEXTURE_CACHE_CAPACITY);
@@ -272,6 +276,22 @@ export function useCachedTexture(url: string): THREE.Texture {
     if (hit) return hit;
     throw loadTextureCached(url, gl);
   }, [url]);
+}
+
+/** After a `webglcontextrestored` event, every cached THREE.Texture's
+ *  GPU-side upload is gone but its CPU-side `image` (an ImageBitmap or
+ *  HTMLImageElement) is still alive. Setting `needsUpdate = true` makes
+ *  the renderer re-upload from `image` on the next frame, so paintings
+ *  and hi-res LOD tiers come back without us having to refetch them
+ *  from the network. Called from the gallery's context-restored
+ *  handler — never on a cold load. */
+export function markCachedTexturesForReupload(): void {
+  cache.forEach((t) => {
+    t.needsUpdate = true;
+  });
+  hiresCache.forEach((t) => {
+    t.needsUpdate = true;
+  });
 }
 
 export const _textureCacheDebug = {
