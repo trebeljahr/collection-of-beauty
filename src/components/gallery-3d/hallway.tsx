@@ -110,7 +110,7 @@ export function HallwayRenderer({
             era={floor.era}
             lit={true}
             bulbDrop={0.3}
-            intensity={6}
+            intensity={4}
             distance={9}
           />
         );

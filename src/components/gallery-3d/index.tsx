@@ -554,7 +554,7 @@ export function Gallery3D({ artworks }: Props) {
             to zero when off, so unlit fixtures simply don't pass the
             threshold. */}
         <EffectComposer>
-          <Bloom intensity={0.8} luminanceThreshold={0.85} luminanceSmoothing={0.2} mipmapBlur />
+          <Bloom intensity={0.35} luminanceThreshold={0.9} luminanceSmoothing={0.2} mipmapBlur />
         </EffectComposer>
       </Canvas>
       {!hasStarted && (
