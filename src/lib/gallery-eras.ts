@@ -85,7 +85,7 @@ export const ERAS: Era[] = [
       // Cool stone + plum + teal — medieval cathedral floor stones, each
       // worn a different colour from centuries of foot traffic.
       roomAccents: ["#3a2a1f", "#2e3540", "#3a2e3f", "#293a36", "#3d2e22"],
-      floorTexture: "worn_planks",
+      floorTexture: "patterned_brick_floor",
     },
     blurb: "Gold ground and tempera — the long medieval morning.",
     anchor: {
@@ -146,7 +146,7 @@ export const ERAS: Era[] = [
       accent: "#8a5a2b",
       // Tenebrist velvets: charcoal, wine, midnight, forest.
       roomAccents: ["#221711", "#2a1418", "#1a1822", "#1f261b", "#1a1612"],
-      floorTexture: "marble_tiles",
+      floorTexture: "checkered_pavement_tiles",
     },
     blurb: "Drama, tenebrism, motion — Caravaggio's shadow across Europe.",
     anchor: {
@@ -170,7 +170,7 @@ export const ERAS: Era[] = [
       accent: "#c49a66",
       // Refined drawing-room tones: muted plum, sage, rose-brown, dusty blue.
       roomAccents: ["#2e2015", "#3a2a35", "#28332a", "#3a2c22", "#28303a"],
-      floorTexture: "wood_floor_deck",
+      floorTexture: "herringbone_parquet",
     },
     blurb: "Ornament gives way to antique clarity.",
     anchor: {
@@ -206,7 +206,7 @@ export const ERAS: Era[] = [
       accent: "#6e4f2e",
       // Stormy weather underfoot: storm-blue, slate, rust, moss.
       roomAccents: ["#1e1711", "#1a2230", "#2a221c", "#2e1f17", "#1f261c"],
-      floorTexture: "worn_planks",
+      floorTexture: "grey_cartago_02",
     },
     blurb: "The sublime, the storm, and nothing staged.",
     anchor: {
@@ -244,7 +244,7 @@ export const ERAS: Era[] = [
       lampTint: "#ffcf94",
       accent: "#a23b2c",
       roomAccents: ["#1a120c", "#2c1a18", "#1a1c25", "#1f2418", "#2a1a16"],
-      floorTexture: "wood_floor_deck",
+      floorTexture: "granite_tile",
     },
     blurb: "Edo woodblock prints — pictures of the floating world.",
     anchor: {
@@ -282,7 +282,7 @@ export const ERAS: Era[] = [
       accent: "#c88a47",
       // Garden dapple: sage, dusty rose, lavender, butter.
       roomAccents: ["#2a1d14", "#283325", "#3a2a2e", "#2e2838", "#3a3220"],
-      floorTexture: "wood_floor_deck",
+      floorTexture: "interior_tiles",
     },
     blurb: "Plein-air light and interior weather.",
     anchor: {
@@ -321,7 +321,7 @@ export const ERAS: Era[] = [
       accent: "#4a3b2a",
       // Bold-but-darkened modernist: brick, cobalt, mustard, jet, teal.
       roomAccents: ["#1a1712", "#3a1f1a", "#1a2230", "#3a2f15", "#1f3030"],
-      floorTexture: "concrete_floor_painted",
+      floorTexture: "old_linoleum_flooring_01",
     },
     blurb: "Form shattered, rebuilt, and made raw.",
     anchor: {

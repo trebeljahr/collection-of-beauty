@@ -38,23 +38,24 @@ const WANTED_MAPS = [
 ];
 
 // Curated picks. Each entry: { slug, why }. Slugs verified against
-// /assets?type=textures — Poly Haven only has one true marble set
-// (marble_01); marble_tiles is the closest tile-pattern variant.
+// /assets?type=textures. One floor texture per era — see ERAS in
+// src/lib/gallery-eras.ts for the era↔slug mapping.
 const TEXTURE_SETS = [
-  // ── Stone / marble (gallery floors, era surfaces) ─────────────────
-  { slug: "marble_01", why: "white veined marble — Renaissance floors" },
-  { slug: "marble_tiles", why: "patterned marble tiles — Baroque floors" },
+  // ── Floors, one per era (gallery-eras.ts) ─────────────────────────
+  { slug: "patterned_brick_floor", why: "Gothic — medieval tile pattern" },
+  { slug: "marble_01", why: "Renaissance — white veined marble" },
+  { slug: "checkered_pavement_tiles", why: "Baroque — Vermeer-style checkered floor" },
+  { slug: "herringbone_parquet", why: "Enlightenment — Versailles parquet" },
+  { slug: "grey_cartago_02", why: "Romantic — grey 19th c. gallery stone" },
+  { slug: "granite_tile", why: "Ukiyo-e — polished Japanese temple stone" },
+  { slug: "interior_tiles", why: "Fin-de-siècle — Art Nouveau patterned tile" },
+  { slug: "old_linoleum_flooring_01", why: "Modern — mid-20th c. linoleum" },
   // ── Stone walls (Gothic / dungeon vibe) ───────────────────────────
   { slug: "medieval_blocks_02", why: "Gothic stone block walls" },
   { slug: "plastered_stone_wall", why: "Renaissance plastered stone walls" },
   // ── Plaster / paint (Enlightenment, Modern) ───────────────────────
   { slug: "painted_plaster_wall", why: "clean gallery walls" },
   { slug: "beige_wall_001", why: "warm gallery walls (Romantic)" },
-  // ── Wood floors (Enlightenment, Romantic, Fin-de-siècle) ──────────
-  { slug: "wood_floor_deck", why: "parquet floor" },
-  { slug: "worn_planks", why: "aged plank floor" },
-  // ── Concrete (Modern era) ─────────────────────────────────────────
-  { slug: "concrete_floor_painted", why: "Modern era polished floor" },
 ];
 
 const PH_FILES = (slug) => `https://api.polyhaven.com/files/${slug}`;
