@@ -339,10 +339,13 @@ export function Player({
     if (keys.current.KeyD || keys.current.ArrowRight) move.add(right);
     if (keys.current.KeyA || keys.current.ArrowLeft) move.sub(right);
 
-    // Movement stick → contributes to the same `move` vector. Same
-    // binary-above-deadzone behaviour as the look stick: any drag past
-    // MOVE_DEADZONE walks at full WALK_SPEED in the stick's direction,
-    // and partial deflection isn't slow-walk. Additive with WASD so an
+    // Movement stick → contributes to the same `move` vector.
+    // Proportional speed: deflection magnitude past MOVE_DEADZONE remaps
+    // linearly to a [0, 1] speed scale, so a light drag inches the
+    // player forward (great for fine alignment near a painting) and
+    // full deflection walks at WALK_SPEED. Look stick stays binary —
+    // fine aim there comes from short taps, not partial throw, so the
+    // two sticks read differently on purpose. Additive with WASD so an
     // iPad with a Bluetooth keyboard still works either way.
     if (joystickMoveGetter) {
       const m = joystickMoveGetter();
@@ -352,8 +355,12 @@ export function Player({
       if (mmag > MOVE_DEADZONE) {
         const fx = my / mmag;
         const sx = mx / mmag;
-        move.addScaledVector(forward, fx);
-        move.addScaledVector(right, sx);
+        // Remap [MOVE_DEADZONE, 1] → [0, 1]; clamp so a fully deflected
+        // diagonal (raw mmag up to √2) saturates at full speed instead
+        // of overshooting it.
+        const t = Math.min(1, (mmag - MOVE_DEADZONE) / (1 - MOVE_DEADZONE));
+        move.addScaledVector(forward, fx * t);
+        move.addScaledVector(right, sx * t);
       }
     }
 
