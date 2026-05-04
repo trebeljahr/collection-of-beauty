@@ -20,12 +20,13 @@ export default function ImprintPage() {
           <p className="mt-2">
             Rico Trebeljahr
             <br />
-            {/* TODO: fill in real address */}
-            <span className="text-[var(--muted-foreground)]">[Street and number]</span>
+            c/o Block Services
             <br />
-            <span className="text-[var(--muted-foreground)]">[Postal code, City]</span>
+            Stuttgarter Str. 106
             <br />
-            <span className="text-[var(--muted-foreground)]">Germany</span>
+            70736 Fellbach
+            <br />
+            Germany
           </p>
         </div>
 
@@ -34,10 +35,10 @@ export default function ImprintPage() {
           <p className="mt-2">
             Email:{" "}
             <a
-              href="mailto:ricotrebeljahr@gmail.com"
+              href="mailto:imprint+collection-of-beauty@trebeljahr.com"
               className="underline hover:text-[var(--muted-foreground)]"
             >
-              ricotrebeljahr@gmail.com
+              imprint+collection-of-beauty@trebeljahr.com
             </a>
           </p>
         </div>
@@ -47,7 +48,13 @@ export default function ImprintPage() {
           <p className="mt-2">
             Rico Trebeljahr
             <br />
-            <span className="text-[var(--muted-foreground)]">[address as above]</span>
+            c/o Block Services
+            <br />
+            Stuttgarter Str. 106
+            <br />
+            70736 Fellbach
+            <br />
+            Germany
           </p>
         </div>
 
