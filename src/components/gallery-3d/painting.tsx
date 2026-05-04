@@ -2,7 +2,7 @@
 
 import { Text } from "@react-three/drei";
 import { useThree } from "@react-three/fiber";
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useLayoutEffect, useRef, useState } from "react";
 import * as THREE from "three";
 import type { Artwork } from "@/lib/data";
 import { PAINTING_WALL_OFFSET } from "@/lib/gallery-layout/place-paintings";
@@ -712,30 +712,55 @@ function PaintingPlane({
   const entryRef = useRef<PaintingEntry | null>(null);
   const { gl } = useThree();
 
-  // Sync cache lookup on mount — if either tier was loaded by an
-  // earlier visit, install it before the first paint so the swatch
-  // never flashes. Prefer 960 over 256; if neither is cached, the
-  // material starts on the brown swatch color and the load effect
-  // below installs whatever lands first.
-  const [initialMap] = useState<THREE.Texture | null>(
-    () => peekCached(url) ?? peekCached(thumbUrl) ?? null,
-  );
-
   // Track the base 960 px texture. The LOD effect uses this as the
   // "demote target" when the player retreats past every higher tier.
   // Held in a ref (not state) so swapping it doesn't re-run the LOD
   // registration effect — that would abort in-flight prefetches and
   // reset displayedTier mid-walk.
-  const baseTextureRef = useRef<THREE.Texture | null>(
-    initialMap && peekCached(url) === initialMap ? initialMap : null,
-  );
-  const [baseLoaded, setBaseLoaded] = useState(baseTextureRef.current !== null);
+  const baseTextureRef = useRef<THREE.Texture | null>(null);
+  const [baseLoaded, setBaseLoaded] = useState(false);
+
+  // Sync the material's initial map + color BEFORE the first paint so
+  // the swatch never flashes on a return visit. Runs once after the
+  // mesh + material refs land. We do NOT bind `map` or `color` as JSX
+  // props on <meshBasicMaterial> below, because R3F re-applies prop
+  // values on every reconciliation — that would silently overwrite
+  // both this initial install AND the .then mutations from the load
+  // effect (you'd see paintings stuck at the brown swatch even after
+  // the texture loaded).
+  useLayoutEffect(() => {
+    const material = matRef.current;
+    if (!material) return;
+    const cachedBase = peekCached(url);
+    const cachedThumb = cachedBase ? null : peekCached(thumbUrl);
+    const initial = cachedBase ?? cachedThumb;
+    if (initial) {
+      material.map = initial;
+      material.color.setHex(0xffffff);
+      if (cachedBase) {
+        baseTextureRef.current = cachedBase;
+        setBaseLoaded(true);
+        onLoaded?.();
+        const img = cachedBase.image as { width?: number; height?: number } | undefined;
+        if (img?.width && img?.height) {
+          onTextureAspect?.(img.width / img.height);
+        }
+      }
+    } else {
+      material.color.setHex(0x3a2e20);
+    }
+    material.needsUpdate = true;
+    // biome-ignore lint/correctness/useExhaustiveDependencies: one-shot mount setup; the load effect below handles updates after.
+  }, []);
 
   // Progressive loader: kick off both the 256 placeholder and the 960
   // base in parallel. Whichever lands first paints. If 256 wins (the
   // common case — it's 10× smaller), the 960 then upgrades on top of
   // it; if 960 wins (return-visit cache hit, or fast network), the
   // thumb is silently discarded and we never bother painting it.
+  //
+  // Same warning as the layout effect above: we mutate material.map
+  // and material.color directly here, not via JSX props.
   // biome-ignore lint/correctness/useExhaustiveDependencies: onLoaded / onTextureAspect identity is unstable; we want one-shot fire on base load.
   useEffect(() => {
     const material = matRef.current;
@@ -977,21 +1002,17 @@ function PaintingPlane({
     entry.halfH = heightM / 2;
   }, [widthM, heightM]);
 
-  // Initial color: white if we already have a cached texture so the
-  // texture's color shows through; brown swatch (#3a2e20) until either
-  // tier lands, so the wall isn't a hole. The load effect flips color
-  // to white on first install.
-  const initialColor = initialMap ? "#ffffff" : "#3a2e20";
-
   return (
     <mesh ref={meshRef} position={[0, 0, 0.014]} userData={{ artwork }}>
       <planeGeometry args={[widthM, heightM]} />
-      <meshBasicMaterial
-        ref={matRef}
-        map={initialMap ?? undefined}
-        color={initialColor}
-        toneMapped={false}
-      />
+      {/* No `map` or `color` props — both are mutated directly on the
+          material via the layout effect (initial state) and load effect
+          (progressive install + LOD upgrades). Binding them as JSX
+          props would let R3F's reconciler re-apply them on every
+          re-render, silently overwriting the install (paintings would
+          stay stuck on the brown swatch even after the texture
+          loaded). `toneMapped` is the only stable prop. */}
+      <meshBasicMaterial ref={matRef} toneMapped={false} />
     </mesh>
   );
 }
