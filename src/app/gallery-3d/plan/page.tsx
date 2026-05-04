@@ -68,7 +68,7 @@ function FloorSvg({ floor }: { floor: FloorLayout }) {
   return (
     <section className="space-y-3">
       <div className="flex items-baseline gap-3">
-        <span className="text-xs font-mono text-neutral-500">FLOOR {floor.index}</span>
+        <span className="text-xs font-mono text-neutral-500">FLOOR {floor.index + 1}</span>
         <h2 className="text-xl font-semibold">{floor.era.title}</h2>
         <span className="text-neutral-500 text-xs">
           {floor.era.yearMin}–{floor.era.yearMax === 9999 ? "now" : floor.era.yearMax} ·{" "}

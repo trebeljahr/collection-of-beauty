@@ -200,7 +200,7 @@ export function Minimap({
     ctx.textBaseline = "top";
     ctx.fillStyle = "rgba(255, 240, 210, 0.72)";
     ctx.font = "11px ui-sans-serif, system-ui, sans-serif";
-    ctx.fillText(`Floor ${floor.index} · ${floor.era.title}`, 6, 5);
+    ctx.fillText(`Floor ${floor.index + 1} · ${floor.era.title}`, 6, 5);
 
     // Footer — active room title + description, or a hint when the
     // player isn't standing in any one room.
