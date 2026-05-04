@@ -15,12 +15,18 @@ const ZERO: JoystickOnMove = {
 const defaultParameters: JoystickOptions = {
   x: "15%",
   y: "15%",
-  opacity: 0.55,
+  // Library-side opacity is 1.0 — we set per-element alpha in the CSS
+  // overrides keyed off `controllerClass` / `joystickClass` below so we
+  // can give the knob full opacity (it's the bit the user actually
+  // grabs) while keeping the surrounding pad subtler. Setting opacity
+  // < 1 here would multiply through and dim everything together.
+  opacity: 1,
   maxRange: 80,
   radius: 70,
   joystickRadius: 40,
-  joystickClass: "joystick",
-  containerClass: "joystick-container",
+  joystickClass: "gallery-joystick-knob",
+  controllerClass: "gallery-joystick-pad",
+  containerClass: "gallery-joystick-container",
   distortion: false,
   mouseClickButton: "ALL",
   hideContextMenu: true,
