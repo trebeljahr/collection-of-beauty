@@ -365,6 +365,12 @@ export function Player({
     }
 
     if (move.lengthSq() > 0) {
+      // Walking cancels FOV zoom. The zoomed FOV is meant for standing
+      // and reading a painting from across the room — once the player
+      // starts moving, the narrow field is more disorienting than
+      // useful, so drop back to FOV_DEFAULT and let the FOV-damp loop
+      // above ease the camera back out over the next ~150 ms.
+      zoomFov.current = false;
       // Cap magnitude to 1 — diagonal keyboard combined with a fully
       // deflected joystick must not double the speed.
       if (move.lengthSq() > 1) move.normalize();
