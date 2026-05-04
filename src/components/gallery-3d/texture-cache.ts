@@ -269,6 +269,28 @@ export function useCachedTexture(url: string): THREE.Texture {
   }, [url]);
 }
 
+/** Synchronous cache lookup. Returns the cached texture if present
+ *  (with an MRU touch — querying a texture you're about to display
+ *  is exactly the right time to pin it), else undefined.
+ *
+ *  Used by `PaintingPlane` so a return visit installs the cached
+ *  texture into the material on the first render — no Suspense
+ *  fallback flash. Public counterpart of `getHiRes`. */
+export function peekCached(url: string): THREE.Texture | undefined {
+  return cache.get(url);
+}
+
+/** Eager async load that goes through the same LRU + upload queue as
+ *  the Suspense path. Used by the painting's progressive loader to
+ *  fire-and-forget both the 256 px placeholder and the 960 px base
+ *  in parallel. */
+export function loadCached(
+  url: string,
+  renderer: THREE.WebGLRenderer | null,
+): Promise<THREE.Texture> {
+  return loadTextureCached(url, renderer);
+}
+
 /** After a `webglcontextrestored` event, every cached THREE.Texture's
  *  GPU-side upload is gone but its CPU-side `image` (an ImageBitmap or
  *  HTMLImageElement) is still alive. Setting `needsUpdate = true` makes
