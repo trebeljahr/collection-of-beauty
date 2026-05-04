@@ -37,6 +37,18 @@ const nextConfig = {
       },
     ];
   },
+  // The old German /impressum route was renamed to /imprint when the
+  // page was translated. Permanent redirect so any external links or
+  // search-engine entries still resolve.
+  async redirects() {
+    return [
+      {
+        source: "/impressum",
+        destination: "/imprint",
+        permanent: true,
+      },
+    ];
+  },
 };
 
 export default nextConfig;

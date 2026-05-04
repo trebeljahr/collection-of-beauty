@@ -210,12 +210,39 @@
   touch-action: none;
 }
 
+/* "Made with ♥" beating-heart animation in the footer byline. Same
+   four-beat curve used in raptor-runner / playtiao so the across-site
+   signature reads as one author. */
+@keyframes heartbeat {
+  0%,
+  100% {
+    transform: scale(1);
+  }
+  14% {
+    transform: scale(1.2);
+  }
+  28% {
+    transform: scale(1);
+  }
+  42% {
+    transform: scale(1.15);
+  }
+  56% {
+    transform: scale(1);
+  }
+}
+
+.heartbeat {
+  animation: heartbeat 2s ease-in-out infinite;
+}
+
 @media (prefers-reduced-motion: reduce) {
   .animate-nav-fade-in,
   .animate-nav-slide-out-down,
   .animate-page-slide-in-top,
   .animate-loading-bar,
-  .gallery-joystick-pad {
+  .gallery-joystick-pad,
+  .heartbeat {
     animation: none;
   }
 }

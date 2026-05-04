@@ -105,19 +105,36 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
               aria-label="Footer"
               className="mb-2 flex flex-wrap items-center justify-center gap-x-4 gap-y-1"
             >
-              <Link href="/about" className="hover:text-[var(--foreground)] hover:underline">
+              <Link href="/about" className="underline hover:text-[var(--foreground)]">
                 About
+              </Link>
+              <Link href="/imprint" className="underline hover:text-[var(--foreground)]">
+                Imprint
               </Link>
             </nav>
             <p>
               All works shown are in the public domain or openly licensed. Metadata sourced from
               Wikimedia Commons.
             </p>
-            <p className="mt-2">
-              © {new Date().getFullYear()} Rico Trebeljahr ·{" "}
-              <Link href="/impressum" className="hover:text-[var(--foreground)]">
-                Impressum
-              </Link>
+            <p className="mt-2 inline-flex items-center justify-center gap-1">
+              Made with{" "}
+              <svg
+                className="heartbeat inline-block h-3 w-3 fill-current text-[#e8839b]"
+                viewBox="0 0 24 24"
+                aria-hidden="true"
+              >
+                <title>love</title>
+                <path d="M11.645 20.91l-.007-.003-.022-.012a15.247 15.247 0 01-.383-.218 25.18 25.18 0 01-4.244-3.17C4.688 15.36 2.25 12.174 2.25 8.25 2.25 5.322 4.714 3 7.688 3A5.5 5.5 0 0112 5.052 5.5 5.5 0 0116.313 3c2.973 0 5.437 2.322 5.437 5.25 0 3.925-2.438 7.111-4.739 9.256a25.175 25.175 0 01-4.244 3.17 15.247 15.247 0 01-.383.219l-.022.012-.007.004-.003.001a.752.752 0 01-.704 0l-.003-.001z" />
+              </svg>{" "}
+              by{" "}
+              <a
+                href="https://portfolio.trebeljahr.com"
+                target="_blank"
+                rel="noreferrer noopener"
+                className="underline hover:text-[var(--foreground)]"
+              >
+                Rico Trebeljahr
+              </a>
             </p>
           </footer>
         </Gallery3DProvider>
