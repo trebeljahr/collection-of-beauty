@@ -37,7 +37,15 @@ export function RoomGeometry({
 }) {
   const era = ERAS[room.floorIndex];
   const mats = getPaletteMaterials(era.palette);
-  const floorMat = getRoomFloorMaterial(room.floorColor, era.palette.floorTexture);
+  // Stairwell rooms drop the per-room accent and use the era's base
+  // floor colour instead, so the floor reads as continuous when
+  // stepping between the spiral and the surrounding corridor — accents
+  // created a visible colour edge at the doorway into the stairwell.
+  // Regular rooms keep their accent: their walls + frames break the
+  // line of sight to the corridor floor, so any edge stays hidden.
+  const floorMat = getRoomFloorMaterial(
+    room.isStairwell ? era.palette.floorColor : room.floorColor,
+  );
   const { cellBounds } = room;
 
   const xMin = cellBounds.xMin * CELL_SIZE;

@@ -12,8 +12,14 @@
 // GC pressure in the corridor gallery (50+ paintings × 4 walls each).
 
 import * as THREE from "three";
-import type { Palette } from "@/lib/gallery-eras";
+import { ERAS, type Palette } from "@/lib/gallery-eras";
 import { buildMapBundle } from "./texture-pack";
+
+// All floors of the building share floor 0's texture so the museum
+// reads as one continuous structure underfoot rather than a stack of
+// era-themed pads. Tile patterns join cleanly at every staircase
+// landing and room↔hallway threshold instead of switching abruptly.
+const SHARED_FLOOR_TEXTURE_SLUG = ERAS[0].palette.floorTexture;
 
 // Floor tiles use (1, 1) repeat at the material level; per-mesh
 // world-unit UVs (see room-geometry.tsx + hallway.tsx) drive the
@@ -50,8 +56,8 @@ export function getPaletteMaterials(palette: Palette): PaletteMaterials {
   let entry = cache.get(palette);
   if (entry) return entry;
 
-  const floorTextures = palette.floorTexture
-    ? buildMapBundle(palette.floorTexture, FLOOR_REPEAT[0], FLOOR_REPEAT[1])
+  const floorTextures = SHARED_FLOOR_TEXTURE_SLUG
+    ? buildMapBundle(SHARED_FLOOR_TEXTURE_SLUG, FLOOR_REPEAT[0], FLOOR_REPEAT[1])
     : null;
 
   entry = {
@@ -115,24 +121,22 @@ export function getPaletteMaterials(palette: Palette): PaletteMaterials {
 }
 
 // ── Per-room floor materials ──────────────────────────────────────────
-// Rooms now carry their own floor tint (see Era.palette.roomAccents).
-// Materials are cached by (color, slug) so two rooms picking the same
-// accent + era share one material — bounded by the union of authored
-// accents × floor textures (≤ 5 × 7 = 35 max) regardless of room count.
+// Rooms carry their own floor tint (see Era.palette.roomAccents) but
+// share one texture across the whole building. Cached by colour alone.
 
 const roomFloorCache = new Map<string, THREE.MeshStandardMaterial>();
 
 /**
- * Per-room floor material. The slug is the era's `floorTexture` so
- * room floors carry the same marble/wood/concrete look as their
- * hallway floors, just tinted by the room's accent. Pass `undefined`
- * to fall back to a flat tinted material.
+ * Per-room floor material. Reuses the building-wide shared floor
+ * texture (floor 0's slug) so adjacent rooms and hallways tile
+ * continuously, with only the colour tint distinguishing rooms.
  */
-export function getRoomFloorMaterial(color: string, slug?: string): THREE.MeshStandardMaterial {
-  const key = slug ? `${color}|${slug}` : color;
-  let mat = roomFloorCache.get(key);
+export function getRoomFloorMaterial(color: string): THREE.MeshStandardMaterial {
+  let mat = roomFloorCache.get(color);
   if (mat) return mat;
-  const textures = slug ? buildMapBundle(slug, FLOOR_REPEAT[0], FLOOR_REPEAT[1]) : null;
+  const textures = SHARED_FLOOR_TEXTURE_SLUG
+    ? buildMapBundle(SHARED_FLOOR_TEXTURE_SLUG, FLOOR_REPEAT[0], FLOOR_REPEAT[1])
+    : null;
   mat = new THREE.MeshStandardMaterial({
     color,
     ...(textures ?? {}),
@@ -150,7 +154,7 @@ export function getRoomFloorMaterial(color: string, slug?: string): THREE.MeshSt
     // viewed from below, so DoubleSide is a no-op there.
     side: THREE.DoubleSide,
   });
-  roomFloorCache.set(key, mat);
+  roomFloorCache.set(color, mat);
   return mat;
 }
 
