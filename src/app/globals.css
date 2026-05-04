@@ -155,11 +155,55 @@
   animation: loading-bar-sweep 1.4s cubic-bezier(0.4, 0, 0.2, 1) infinite;
 }
 
+/* ── Mobile gallery joysticks ──────────────────────────────────────
+   joystick-controller writes its own per-instance scoped styles via a
+   <style> tag with selectors like `.joystick-controller-{id}`. Those
+   beat plain element selectors on specificity, so we use !important on
+   the few properties we care about (background, outline, knob). The
+   library defaults render at low alpha against a light page; the 3D
+   gallery is a dark warm interior, so the defaults read as "where did
+   my joysticks go?" — these overrides give the pad a darker washed
+   surface with a bright outline, and the knob a cream highlight + drop
+   shadow so it pops as the touchable element.
+
+   The fade-in masks the 200-400ms iOS Safari fullscreen transition
+   that follows the Enter tap — without it, the joysticks pop in
+   mid-reflow which the eye reads as "delayed". */
+@keyframes joystick-fade-in {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+.gallery-joystick-pad {
+  background: radial-gradient(
+    circle,
+    rgba(20, 16, 12, 0.55),
+    rgba(8, 6, 4, 0.4)
+  ) !important;
+  outline: 2px solid rgba(255, 245, 220, 0.7) !important;
+  animation: joystick-fade-in 260ms ease-out;
+}
+
+.gallery-joystick-knob {
+  background: radial-gradient(
+    rgba(250, 240, 220, 0.98),
+    rgba(200, 185, 155, 0.92)
+  ) !important;
+  box-shadow:
+    0 4px 12px rgba(0, 0, 0, 0.55),
+    inset 0 1px 0 rgba(255, 255, 255, 0.5);
+}
+
 @media (prefers-reduced-motion: reduce) {
   .animate-nav-fade-in,
   .animate-nav-slide-out-down,
   .animate-page-slide-in-top,
-  .animate-loading-bar {
+  .animate-loading-bar,
+  .gallery-joystick-pad {
     animation: none;
   }
 }
