@@ -483,29 +483,28 @@ function buildSpiralRail(
       }
       prevBaseIdx = baseIdx;
     }
-    // One baluster per step, mounted on step i's tread with its
-    // trailing face flush against the riser at aStart (so the
-    // baluster sits fully ON step i instead of straddling the riser
-    // halfway into step i-1's territory). Shift the centre angle by
-    // half a baluster-width along the spiral's ascending direction —
-    // for direction=+1 (CCW), that's +tangent; for direction=-1 (CW),
-    // -tangent. Either way the trailing corner lands exactly on the
-    // step's leading edge.
+    // One baluster per step, centred on the riser angle (aStart). The
+    // box sits with its trailing corner half a baluster-width from
+    // aStart on each side — straddling the riser slightly — but the
+    // alternative (shifting along the spiral's ascending direction so
+    // the trailing face lands on the riser) puts the baluster top
+    // under a slightly higher rail Y, since the helical rail rises
+    // continuously with angle. The visible gap between baluster top
+    // and rail bottom is more disruptive than the half-width straddle.
     //
     // Centre Y sits halfway between the step's tread surface and the
     // rail's bottom face — combined with BALUSTER_HEIGHT, top lands
     // exactly at rail-bottom, bottom lands at the step's top, so each
     // baluster fills the riser space without poking into the rail
     // tube above.
-    const balAngle = aStart + (direction * BALUSTER_SIZE) / (2 * balR);
-    if (!inGap(balAngle)) {
+    if (!inGap(aStart)) {
       balusters.push({
         pos: [
-          balR * Math.cos(balAngle),
+          balR * Math.cos(aStart),
           lowerY + i * stepRise + BALUSTER_HEIGHT / 2,
-          balR * Math.sin(balAngle),
+          balR * Math.sin(aStart),
         ],
-        angle: balAngle,
+        angle: aStart,
       });
     }
   }
