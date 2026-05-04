@@ -37,14 +37,10 @@ export type PaletteMaterials = {
   /** Dark non-emissive material for the lamp's ceiling cap + stem.
    *  Reads as a backlit metal fixture against the ceiling. */
   lampHousing: THREE.MeshStandardMaterial;
-  /** Bulb when the room is unlit — dim base colour, no emission. The
-   *  bulb still reads as physically present (a cream sphere) but
-   *  doesn't trigger bloom. */
+  /** Bulb when the room is unlit — dim base colour, no emission. */
   lampBulbOff: THREE.MeshStandardMaterial;
-  /** Bulb when the room is lit — emissiveIntensity > 1 pushes its
-   *  framebuffer values above the bloom threshold (0.85) so the
-   *  EffectComposer's Bloom pass haloes only the active bulbs and not
-   *  paintings or walls. */
+  /** Bulb when the room is lit — self-illuminated via emissive so the
+   *  sphere reads as visibly glowing against the dim ceiling. */
   lampBulbOn: THREE.MeshStandardMaterial;
 };
 
@@ -108,10 +104,9 @@ export function getPaletteMaterials(palette: Palette): PaletteMaterials {
       color: palette.lampTint,
       emissive: new THREE.Color(palette.lampTint),
       emissiveIntensity: 1.4,
-      // Setting toneMapped=false keeps the emissive value in linear HDR
-      // space when the renderer's ACES tone mapper applies — without
-      // it, intensity > 1 gets compressed back below the bloom
-      // threshold and the bulbs barely glow.
+      // toneMapped=false keeps the emissive in linear space so the
+      // bulb reads as bright cream against the ACES-tone-mapped scene
+      // rather than getting compressed back toward mid-grey.
       toneMapped: false,
     }),
   };

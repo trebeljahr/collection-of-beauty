@@ -99,10 +99,8 @@ export function LampFixture({
         </mesh>
       )}
       {/* Bulb material swaps with `lit`: a dim non-emissive sphere
-          when the room's off (still visually present, doesn't bloom),
-          an HDR-emissive sphere when on (emissiveIntensity > 1 +
-          toneMapped=false push its framebuffer value above the bloom
-          threshold so the EffectComposer haloes it). */}
+          when the room's off, an emissive sphere when on so the bulb
+          visibly glows as the player enters. */}
       <mesh position={[lx, bulbCenterY, lz]}>
         <primitive object={LAMP_BULB_GEOM} attach="geometry" />
         <primitive object={lit ? mats.lampBulbOn : mats.lampBulbOff} attach="material" />
