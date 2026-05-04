@@ -208,7 +208,15 @@ export function RoomGeometry({
           light is gated on `isActive`, so adjacent rooms visible
           through doorways still show their lamps (with the bulbs
           glowing via the basic-material colour) and the lights
-          "switch on" only as the player walks in. */}
+          "switch on" only as the player walks in.
+          Stairwell rooms have no rendered ceiling at ROOM_HEIGHT — the
+          well is open all the way up, so the visible "ceiling" from
+          inside one is the underside of the next floor's slab at
+          INTER_FLOOR_HEIGHT. Mounting the rosette there keeps the cap
+          flush with that surface; otherwise it would dangle 1.7 m
+          below it in mid-air. The bulbDrop is bumped to keep the bulb
+          near painting/walking height instead of stuck at the high
+          stairwell ceiling. */}
       {(
         [
           [-1, -1],
@@ -219,10 +227,14 @@ export function RoomGeometry({
       ).map(([sx, sz]) => (
         <LampFixture
           key={`lamp-${sx}-${sz}`}
-          position={[cxWorld + sx * (width / 4), floorY + ROOM_HEIGHT, czWorld + sz * (depth / 4)]}
+          position={[
+            cxWorld + sx * (width / 4),
+            floorY + (room.isStairwell ? INTER_FLOOR_HEIGHT : ROOM_HEIGHT),
+            czWorld + sz * (depth / 4),
+          ]}
           era={era}
           lit={isActive}
-          bulbDrop={0.65}
+          bulbDrop={room.isStairwell ? 1.8 : 0.65}
           intensity={11}
           distance={Math.max(width, depth) * 1.2}
         />
