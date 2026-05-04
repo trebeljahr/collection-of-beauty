@@ -178,12 +178,13 @@ function buildCutoutBalusters(
   return out;
 }
 
-/** Build a swept rectangular-tube geometry for the dead-end L-bridge,
- *  following an Archimedean-style polar curve from the spiral inner
- *  rail's top out to a tangent merge with the cutout rail. The
- *  result reads as one continuous handrail: the spiral inner rail
- *  flows out across the landing platform, curves around, and merges
- *  tangentially into the perimeter (cutout) rail at the merge angle.
+/** Build a swept rectangular-tube geometry for the dead-end L-bridge.
+ *  The curve scrolls inward from the up-side gate post (postA), sweeping
+ *  CW back toward the entry direction while spiralling radially in from
+ *  the cutout-rail outer radius to the spiral inner rail's centerline.
+ *  The cutout rail's CCW start lives at exactly the angle where this
+ *  curve ends, so the two pieces merge cleanly into one continuous
+ *  handrail closing off the up-side dead-end.
  *
  *  Path:
  *    r(t) = innerR + (outerR - innerR) · smoothstep(t)
@@ -195,11 +196,7 @@ function buildCutoutBalusters(
  *  The cross-section uses the radial (cos θ, sin θ) as the "outward"
  *  axis at each sample — same convention as buildCutoutRailGeometry,
  *  so the merger's outer end mates cleanly with the cutout rail's
- *  cross-section at the merge angle.
- *
- *  arcDirection is set to -spiralDirection so the curve sweeps in the
- *  SAME angular direction the spiral was rotating — extending the
- *  spiral's natural motion past its top and out across the platform. */
+ *  cross-section at the merge angle. */
 function buildDeadEndArcGeom(
   cx: number,
   cz: number,
@@ -295,37 +292,35 @@ function buildDeadEndArcGeom(
 }
 
 /**
- * Curved L-bridge: a swept rectangular-tube handrail that transitions
- * the spiral's inner rail out across the landing platform and merges
- * tangentially into the cutout rail. Used at the topmost flight's
- * dead-end (no flight above), where a player ascending the stairs
- * lands on the platform and would naturally let the rail guide them
- * out toward the perimeter — a continuous handrail reads as
- * "architectural finish" rather than "stub floating mid-air".
+ * Curved L-bridge: a swept rectangular-tube handrail that closes off
+ * the up-side dead-end on the topmost flight (where there's no flight
+ * continuing up). Anchored at the up-side gate post (postA) and curls
+ * CW toward the entry direction, sweeping radially inward from the
+ * cutout rail's outer radius down to the spiral inner rail's centerline.
+ * The cutout rail's CCW start lives exactly `arcSweep` radians CW of
+ * postA (see the upGap math in StairwellAccents), so the two pieces
+ * meet at the merge angle with no overlap and no floating gap.
  *
- * The merge point is `arcSweep` radians from the gate post in the
- * spiral's natural rotation direction, so the curve extends the
- * spiral's motion through its scroll. The cutout rail's up-side gap
- * is widened by the same `arcSweep` (see StairwellAccents) so the
- * cutout rail starts exactly where this curve ends, with no overlap.
+ * The curve is purely a function of postA's geometry — it doesn't
+ * depend on the spiral's rotation direction. The spiral's inner rail
+ * terminates at postB on every direction=+1 flight (every flight in
+ * this codebase), so an L-bridge anchored at postA is by design a
+ * separate architectural piece, not a continuation of the spiral's
+ * helical rail. Trying to anchor at postB instead would force the
+ * cutout rail to encroach on the down-side walkway, which would block
+ * the stair the player came up.
  */
 function DeadEndLBridge({
   cx,
   cz,
   y,
   post,
-  spiralDirection,
   arcSweep,
 }: {
   cx: number;
   cz: number;
   y: number;
   post: { x: number; z: number; angle: number };
-  /** Direction the spiral rotates as it climbs (matches Staircase.direction).
-   *  +1 = CCW going up, -1 = CW going up. The merger arc sweeps in the
-   *  SAME direction so it reads as an extension of the spiral's last
-   *  half-revolution rather than a sharp counter-turn. */
-  spiralDirection: number;
   /** How far the merger arc sweeps angularly before joining the cutout
    *  rail. Must be < gateHalfArc so the merge point still lands on the
    *  closed (rail-extended) half of the gate. */
@@ -333,18 +328,21 @@ function DeadEndLBridge({
 }) {
   // outerR = the gate post's distance from the spiral centre (i.e.
   // the cutout-rail radius). innerR = the spiral inner rail's
-  // centerline — the curve's inner end coincides with it so the
-  // L-bridge picks up where the helical rail leaves off.
+  // centerline.
   const outerR = Math.hypot(post.x - cx, post.z - cz);
   const innerR = SPIRAL_INNER_RADIUS + RAIL_BAR_HALF_WIDTH;
   // yTop is the TOP face of the bar — same convention as the cutout
   // rail's tube vertices, which place TO/TI at yTop and BI/BO at
   // yTop - RAIL_BAR_HEIGHT.
   const yTop = y + RAIL_HEIGHT;
-  // We want the curve to extend in the SAME angular direction the
-  // spiral rotates — for a CW-ascending spiral (direction=-1) the
-  // top tangent points CW (decreasing θ), so arcDirection = -1.
-  const arcDirection = spiralDirection > 0 ? 1 : -1;
+  // Sweep CW from postA toward entry. The cutout rail's CCW start sits
+  // at postA-angle - arcSweep (see upGap in StairwellAccents), so this
+  // gives a clean merge with no overlap. Earlier this followed
+  // spiralDirection — that produced a CCW sweep on direction=+1 spirals
+  // (every spiral in this codebase), which curved AWAY from entry and
+  // overlapped the cutout rail going CCW past postA, with the L-bridge
+  // visibly wrapping over the rail.
+  const arcDirection = -1;
 
   const { rail, balusters } = useMemo(
     () => buildDeadEndArcGeom(cx, cz, yTop, post.angle, innerR, outerR, arcDirection, arcSweep),
@@ -441,7 +439,6 @@ export function StairwellAccents({ floor }: { floor: FloorLayout }) {
       upSideOpen,
       downSideOpen,
       lBridgeArcSweep,
-      lBridgeSpiralDirection: reference.direction,
     };
   }, [floor, stairwell, hasCutout]);
 
@@ -471,7 +468,6 @@ export function StairwellAccents({ floor }: { floor: FloorLayout }) {
     upSideOpen,
     downSideOpen,
     lBridgeArcSweep,
-    lBridgeSpiralDirection,
   } = data;
   // Gate posts sit ON the rail line — same radius as the rail —
   // so the rail terminates INTO the post instead of stopping next
@@ -583,14 +579,7 @@ export function StairwellAccents({ floor }: { floor: FloorLayout }) {
           ground floor by the hasCutout gate above — no cutout rail to
           merge into there in the first place. */}
       {!upSideOpen && hasCutout && (
-        <DeadEndLBridge
-          cx={cx}
-          cz={cz}
-          y={floor.y}
-          post={postA}
-          spiralDirection={lBridgeSpiralDirection}
-          arcSweep={lBridgeArcSweep}
-        />
+        <DeadEndLBridge cx={cx} cz={cz} y={floor.y} post={postA} arcSweep={lBridgeArcSweep} />
       )}
 
       {/* Directional signs. UP goes on the post that's CCW from the
