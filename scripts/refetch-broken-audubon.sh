@@ -174,4 +174,4 @@ fi
 
 echo ""
 echo "Next: rerun 'node scripts/find-broken-audubon.mjs' to verify, then"
-echo "      'pnpm shrink --folder=audubon-birds' to refresh assets-web/."
+echo "      'pnpm assets:shrink --folder=audubon-birds' to refresh assets-web/."

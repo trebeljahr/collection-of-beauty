@@ -44,7 +44,7 @@ export type Artwork = {
   } | null;
   /** Widths (in px) for which a pre-built variant exists under
    *  assets-web/<folder>/<basename>/<width>.{avif,webp}. Emitted by
-   *  `pnpm build:data` at build time; consumers use it to avoid
+   *  `pnpm assets:build-data` at build time; consumers use it to avoid
    *  attempting fetches for variants that don't exist yet. `null` when
    *  nothing has been shrunk for this artwork. */
   variantWidths: number[] | null;

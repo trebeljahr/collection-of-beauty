@@ -169,7 +169,9 @@ export default function AboutPage() {
               database, probes image dimensions, and emits the JSON in{" "}
               <code className="rounded bg-[var(--muted)] px-1 text-xs">src/data/</code>. After
               changing a metadata file, run{" "}
-              <code className="rounded bg-[var(--muted)] px-1 text-xs">pnpm run build:data</code>{" "}
+              <code className="rounded bg-[var(--muted)] px-1 text-xs">
+                pnpm run assets:build-data
+              </code>{" "}
               and commit both the metadata change and the regenerated{" "}
               <code className="rounded bg-[var(--muted)] px-1 text-xs">src/data/*.json</code>.
             </li>

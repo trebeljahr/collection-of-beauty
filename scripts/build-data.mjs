@@ -21,7 +21,7 @@ const probeBuf = Buffer.alloc(PROBE_BYTES);
 const dimensionCache = new Map();
 
 // Scan assets-web/<folder>/<basename>/ for pre-built variant files
-// (emitted by `pnpm shrink`). Returns the sorted list of widths for
+// (emitted by `pnpm assets:shrink`). Returns the sorted list of widths for
 // which at least one format (AVIF preferred, WebP acceptable) exists.
 // Lets the runtime skip fetches for variants that don't exist yet,
 // which eliminates the 404 noise on artworks that haven't been shrunk.

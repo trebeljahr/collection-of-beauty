@@ -10,7 +10,7 @@
 #   - mature progress + stats reporting
 #
 # Re-runnable: rclone's `sync` is incremental (skips files whose size
-# matches), so this is safe to call after every `pnpm shrink`.
+# matches), so this is safe to call after every `pnpm assets:shrink`.
 #
 # Env loading: package.json's `assets:sync` invokes this via `dotenvx run`
 # which decrypts .env.production and layers .env.local on top before exec.
@@ -49,7 +49,7 @@ require R2_SECRET_ACCESS_KEY
 require R2_ASSETS_BUCKET
 
 if [ ! -d "$ASSETS_DIR" ]; then
-  echo "assets-web/ not found at $ASSETS_DIR — run \`pnpm shrink\` first." >&2
+  echo "assets-web/ not found at $ASSETS_DIR — run \`pnpm assets:shrink\` first." >&2
   exit 1
 fi
 

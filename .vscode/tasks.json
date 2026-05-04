@@ -2,9 +2,9 @@
   "version": "2.0.0",
   "tasks": [
     {
-      "label": "build:data",
+      "label": "assets:build-data",
       "type": "shell",
-      "command": "pnpm build:data",
+      "command": "pnpm assets:build-data",
       "problemMatcher": []
     },
     {
@@ -106,9 +106,9 @@
       "problemMatcher": []
     },
     {
-      "label": "shrink",
+      "label": "assets:shrink",
       "type": "shell",
-      "command": "pnpm shrink",
+      "command": "pnpm assets:shrink",
       "problemMatcher": []
     },
     {

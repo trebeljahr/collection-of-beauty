@@ -7,9 +7,10 @@
     "node": ">=24"
   },
   "scripts": {
-    "build:data": "node scripts/build-data.mjs",
+    "assets:build-data": "node scripts/build-data.mjs",
     "assets:serve": "node scripts/serve-assets.mjs",
     "assets:sync": "dotenvx run -f .env.production -f .env.local --ignore=MISSING_ENV_FILE --quiet -- bash scripts/sync-assets.sh",
+    "assets:prepare": "pnpm assets:shrink && pnpm assets:build-data && pnpm assets:sync",
     "assets:docker:up": "docker-compose up -d assets",
     "assets:docker:down": "docker-compose down",
     "assets:docker:logs": "docker-compose logs -f assets",
@@ -24,7 +25,7 @@
     "scrape:provenance": "node scripts/fetch-provenance.mjs",
     "download:birds": "bash scripts/download-birds-of-america.sh",
     "download:kunstformen": "bash scripts/download-kunstformen.sh",
-    "shrink": "node scripts/shrink-sources.mjs",
+    "assets:shrink": "node scripts/shrink-sources.mjs",
     "textures": "node scripts/download-textures.mjs",
     "format": "biome format --write .",
     "lint": "biome lint .",
