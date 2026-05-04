@@ -311,12 +311,22 @@ function buildSpiralRail(
   closeEnds: boolean,
 ): {
   rail: THREE.BufferGeometry;
-  /** One entry per baluster. `angle` is the world-space theta of the
-   *  baluster's centre — used by the renderer to rotate each box so its
-   *  faces lie on radial / tangential planes (instead of pointing at
-   *  world ±X / ±Z, which made every other baluster around the spiral
-   *  read as visibly cocked relative to the step it stands on). */
-  balusters: Array<{ pos: [number, number, number]; angle: number }>;
+  /** One entry per baluster.
+   *  - `angle` is the world-space theta of the baluster's centre, used
+   *    by the renderer to rotate each box so its faces lie on radial /
+   *    tangential planes (instead of pointing at world ±X / ±Z, which
+   *    made every other baluster around the spiral read as visibly
+   *    cocked relative to the step it stands on).
+   *  - `height` is the per-baluster vertical extent. The helical rail
+   *    rises continuously with angle, so a baluster shifted along its
+   *    step's tangent — to seat it fully on the tread instead of
+   *    straddling the riser — needs to be slightly taller than the
+   *    nominal BALUSTER_HEIGHT to reach the rail's bottom. */
+  balusters: Array<{
+    pos: [number, number, number];
+    angle: number;
+    height: number;
+  }>;
   /** Centre-line positions where each contiguous tube segment starts
    *  and ends — one entry per visible rail end. A finial sphere is
    *  placed on each so the open tube cross-section is hidden and any
@@ -357,7 +367,11 @@ function buildSpiralRail(
     return Math.abs(angDiff) < gateHalfArc;
   };
 
-  const balusters: Array<{ pos: [number, number, number]; angle: number }> = [];
+  const balusters: Array<{
+    pos: [number, number, number];
+    angle: number;
+    height: number;
+  }> = [];
   const endpoints: Array<[number, number, number]> = [];
   // Track the start of each contiguous tube segment so we can cap
   // both ends — when a gap interrupts the rail, or when the loop
@@ -483,28 +497,30 @@ function buildSpiralRail(
       }
       prevBaseIdx = baseIdx;
     }
-    // One baluster per step, centred on the riser angle (aStart). The
-    // box sits with its trailing corner half a baluster-width from
-    // aStart on each side — straddling the riser slightly — but the
-    // alternative (shifting along the spiral's ascending direction so
-    // the trailing face lands on the riser) puts the baluster top
-    // under a slightly higher rail Y, since the helical rail rises
-    // continuously with angle. The visible gap between baluster top
-    // and rail bottom is more disruptive than the half-width straddle.
+    // One baluster per step, mounted on step i's tread with its
+    // trailing face flush against the riser at aStart. Shift the
+    // centre angle by half a baluster-width along the spiral's
+    // ascending direction so the trailing corner lands exactly on the
+    // step's leading edge instead of straddling the riser halfway
+    // into step i-1's territory.
     //
-    // Centre Y sits halfway between the step's tread surface and the
-    // rail's bottom face — combined with BALUSTER_HEIGHT, top lands
-    // exactly at rail-bottom, bottom lands at the step's top, so each
-    // baluster fills the riser space without poking into the rail
-    // tube above.
-    if (!inGap(aStart)) {
+    // The helical rail rises continuously with angle, so the rail's Y
+    // at the SHIFTED baluster angle is slightly higher than at aStart.
+    // We compute the per-baluster height to bridge the gap: bottom
+    // still sits on step i's tread, top reaches the rail's bottom
+    // face at this baluster's angle. Without this extension a visible
+    // ~1 cm gap opens up between baluster top and rail underside.
+    const balAngle = aStart + (direction * BALUSTER_SIZE) / (2 * balR);
+    if (!inGap(balAngle)) {
+      // tStep = how far along step i the baluster sits, in [0, 1] —
+      // same parametrisation the rail uses to interpolate Y.
+      const tStep = (balAngle - Math.min(aStart, aEnd)) / Math.abs(stepAngle);
+      const balHeight = BALUSTER_HEIGHT + tStep * stepRise;
+      const balBottomY = lowerY + i * stepRise;
       balusters.push({
-        pos: [
-          balR * Math.cos(aStart),
-          lowerY + i * stepRise + BALUSTER_HEIGHT / 2,
-          balR * Math.sin(aStart),
-        ],
-        angle: aStart,
+        pos: [balR * Math.cos(balAngle), balBottomY + balHeight / 2, balR * Math.sin(balAngle)],
+        angle: balAngle,
+        height: balHeight,
       });
     }
   }
@@ -746,7 +762,7 @@ export function StaircaseRenderer({
         // relative to its step (its corners pointing at world ±X / ±Z
         // regardless of where it lives on the curve).
         <mesh key={`in-bal-${i}`} position={b.pos} rotation={[0, -b.angle, 0]} castShadow>
-          <boxGeometry args={[BALUSTER_SIZE, BALUSTER_HEIGHT, BALUSTER_SIZE]} />
+          <boxGeometry args={[BALUSTER_SIZE, b.height, BALUSTER_SIZE]} />
           <primitive object={balusterMaterial} attach="material" />
         </mesh>
       ))}
@@ -758,7 +774,7 @@ export function StaircaseRenderer({
       </mesh>
       {outerRail.balusters.map((b, i) => (
         <mesh key={`out-bal-${i}`} position={b.pos} rotation={[0, -b.angle, 0]} castShadow>
-          <boxGeometry args={[BALUSTER_SIZE, BALUSTER_HEIGHT, BALUSTER_SIZE]} />
+          <boxGeometry args={[BALUSTER_SIZE, b.height, BALUSTER_SIZE]} />
           <primitive object={balusterMaterial} attach="material" />
         </mesh>
       ))}
