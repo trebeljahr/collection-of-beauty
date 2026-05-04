@@ -311,7 +311,12 @@ function buildSpiralRail(
   closeEnds: boolean,
 ): {
   rail: THREE.BufferGeometry;
-  balusters: Array<[number, number, number]>;
+  /** One entry per baluster. `angle` is the world-space theta of the
+   *  baluster's centre — used by the renderer to rotate each box so its
+   *  faces lie on radial / tangential planes (instead of pointing at
+   *  world ±X / ±Z, which made every other baluster around the spiral
+   *  read as visibly cocked relative to the step it stands on). */
+  balusters: Array<{ pos: [number, number, number]; angle: number }>;
   /** Centre-line positions where each contiguous tube segment starts
    *  and ends — one entry per visible rail end. A finial sphere is
    *  placed on each so the open tube cross-section is hidden and any
@@ -352,7 +357,7 @@ function buildSpiralRail(
     return Math.abs(angDiff) < gateHalfArc;
   };
 
-  const balusters: Array<[number, number, number]> = [];
+  const balusters: Array<{ pos: [number, number, number]; angle: number }> = [];
   const endpoints: Array<[number, number, number]> = [];
   // Track the start of each contiguous tube segment so we can cap
   // both ends — when a gap interrupts the rail, or when the loop
@@ -478,18 +483,30 @@ function buildSpiralRail(
       }
       prevBaseIdx = baseIdx;
     }
-    // One baluster per step at the start angle, but only if that
-    // angle falls outside the gate gap. Centre Y sits halfway between
-    // the step's tread surface and the rail's bottom face — combined
-    // with BALUSTER_HEIGHT, top lands exactly at rail-bottom, bottom
-    // lands at the step's top, so each baluster fills the riser space
-    // without poking into the rail tube above.
-    if (!inGap(aStart)) {
-      balusters.push([
-        balR * Math.cos(aStart),
-        lowerY + i * stepRise + BALUSTER_HEIGHT / 2,
-        balR * Math.sin(aStart),
-      ]);
+    // One baluster per step, mounted on step i's tread with its
+    // trailing face flush against the riser at aStart (so the
+    // baluster sits fully ON step i instead of straddling the riser
+    // halfway into step i-1's territory). Shift the centre angle by
+    // half a baluster-width along the spiral's ascending direction —
+    // for direction=+1 (CCW), that's +tangent; for direction=-1 (CW),
+    // -tangent. Either way the trailing corner lands exactly on the
+    // step's leading edge.
+    //
+    // Centre Y sits halfway between the step's tread surface and the
+    // rail's bottom face — combined with BALUSTER_HEIGHT, top lands
+    // exactly at rail-bottom, bottom lands at the step's top, so each
+    // baluster fills the riser space without poking into the rail
+    // tube above.
+    const balAngle = aStart + (direction * BALUSTER_SIZE) / (2 * balR);
+    if (!inGap(balAngle)) {
+      balusters.push({
+        pos: [
+          balR * Math.cos(balAngle),
+          lowerY + i * stepRise + BALUSTER_HEIGHT / 2,
+          balR * Math.sin(balAngle),
+        ],
+        angle: balAngle,
+      });
     }
   }
   // Cap the final segment that ran off the loop's end.
@@ -723,8 +740,13 @@ export function StaircaseRenderer({
       <mesh geometry={innerRail.rail} castShadow>
         <primitive object={railTopMaterial} attach="material" />
       </mesh>
-      {innerRail.balusters.map((p, i) => (
-        <mesh key={`in-bal-${i}`} position={p} castShadow>
+      {innerRail.balusters.map((b, i) => (
+        // Rotate by -angle around Y so the box's local +X / +Z axes
+        // align with the radial / tangential directions at this point
+        // around the spiral. Without this each box reads as cocked
+        // relative to its step (its corners pointing at world ±X / ±Z
+        // regardless of where it lives on the curve).
+        <mesh key={`in-bal-${i}`} position={b.pos} rotation={[0, -b.angle, 0]} castShadow>
           <boxGeometry args={[BALUSTER_SIZE, BALUSTER_HEIGHT, BALUSTER_SIZE]} />
           <primitive object={balusterMaterial} attach="material" />
         </mesh>
@@ -735,8 +757,8 @@ export function StaircaseRenderer({
       <mesh geometry={outerRail.rail} castShadow>
         <primitive object={railTopMaterial} attach="material" />
       </mesh>
-      {outerRail.balusters.map((p, i) => (
-        <mesh key={`out-bal-${i}`} position={p} castShadow>
+      {outerRail.balusters.map((b, i) => (
+        <mesh key={`out-bal-${i}`} position={b.pos} rotation={[0, -b.angle, 0]} castShadow>
           <boxGeometry args={[BALUSTER_SIZE, BALUSTER_HEIGHT, BALUSTER_SIZE]} />
           <primitive object={balusterMaterial} attach="material" />
         </mesh>
