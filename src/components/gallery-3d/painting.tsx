@@ -5,6 +5,7 @@ import { useThree } from "@react-three/fiber";
 import { Suspense, useCallback, useEffect, useRef, useState } from "react";
 import * as THREE from "three";
 import type { Artwork } from "@/lib/data";
+import { PAINTING_WALL_OFFSET } from "@/lib/gallery-layout/place-paintings";
 import type { Placement } from "@/lib/gallery-layout/types";
 import { assetUrl, variantUrl } from "@/lib/utils";
 import { type PaintingEntry, registerPainting, unregisterPainting } from "./painting-registry";
@@ -293,10 +294,9 @@ const PLAQUE_MOUNT_W = PLAQUE_FACE_W + PLAQUE_MOUNT_REVEAL * 2;
 const PLAQUE_MOUNT_DEPTH = 0.008;
 const PLAQUE_GAP = 0.06;
 // `placement.position` is offset PAINTING_WALL_OFFSET (= 0.02 m) into
-// the room from the wall plane, so localZ = -0.02 lands the plaque
-// back exactly on the wall surface. Keep this in sync with
-// PAINTING_WALL_OFFSET in src/lib/gallery-layout/place-paintings.ts.
-const PAINTING_WALL_OFFSET = 0.02;
+// the room from the wall plane, so localZ = -PAINTING_WALL_OFFSET
+// lands the plaque back exactly on the wall surface. Imported so the
+// two ends of this contract can never drift apart silently.
 // Small clearance so the plaque mount's back doesn't sit coplanar with
 // the wall — coplanar geometry z-fights from any camera and shows
 // through DoubleSide walls as wedge-shaped artefacts. 5 mm is enough

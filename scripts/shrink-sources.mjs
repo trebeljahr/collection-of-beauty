@@ -20,9 +20,9 @@
  * catalog (~3000 artworks) that's ~28k files totalling ~3-4 GB. Each
  * file is tiny (10–600 KB) so serving is fast and CDN-friendly.
  *
- * WIDTHS is duplicated (as VARIANT_WIDTHS) in src/lib/utils.ts — keep
- * the two in sync; they're the contract between the builder and the
- * runtime <picture> renderer.
+ * WIDTHS / FULL_SIZE_MAX are imported from src/lib/variant-config.mjs,
+ * shared with the runtime URL builder in src/lib/utils.ts so the
+ * encoder and the runtime can never drift apart on which widths exist.
  *
  * Idempotent: a source is skipped when every one of its 14 variant files
  * exists and has an mtime ≥ the source's. Drop a new original into
@@ -50,6 +50,7 @@ import os from "node:os";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 import sharp from "sharp";
+import { FULL_SIZE_MAX, VARIANT_WIDTHS } from "../src/lib/variant-config.mjs";
 
 // One libvips thread per op; parallelize at the JS level instead.
 sharp.concurrency(1);
@@ -80,23 +81,27 @@ const FOLDERS = args.folder
   : ["collection-of-beauty", "audubon-birds", "kunstformen-images"];
 
 // ─── Variant schema ────────────────────────────────────────────────────────
-// Keep in sync with VARIANT_WIDTHS in src/lib/utils.ts. The 4096 px
-// width is for the 3D gallery's close-up LOD; the responsive <picture>
-// stops at 2560 px.
-const WIDTHS = [256, 480, 640, 960, 1280, 1920, 2560, 4096];
+// VARIANT_WIDTHS and FULL_SIZE_MAX are imported from
+// src/lib/variant-config.mjs so this script and the runtime URL builder
+// (src/lib/utils.ts) reference the same arrays. WIDTHS / MAX_WIDTH are
+// kept as local aliases for readability — half the math below talks
+// about "the standard ladder's max", and the renamed reference is
+// shorter. The 4096 px width is for the 3D gallery's close-up LOD; the
+// responsive <picture> stops at 2560 px.
+//
+// Per-source full-resolution variant: sources bigger than MAX_WIDTH
+// (Google Arts scans regularly hit 8–12k px, Prado gigapixel scans
+// push 25–30k) get an extra AVIF on top of the standard ladder. Lets
+// the close-up LOD and the modal's deep zoom show the full source
+// resolution without falling back to shipping the original JPEG.
+// Capped at FULL_SIZE_MAX on the LONG side to stay inside libheif's
+// encoder limit (it rejects either dim > 16384 with "Processed image
+// is too large for the HEIF format") and inside typical GPU
+// MAX_TEXTURE_SIZE; oversize sources scale down proportionally and the
+// runtime falls back to the raw asset for the (very few) cases that
+// need more.
+const WIDTHS = VARIANT_WIDTHS;
 const MAX_WIDTH = Math.max(...WIDTHS);
-
-// Sources bigger than MAX_WIDTH (Google Arts scans regularly hit
-// 8–12k px, Prado gigapixel scans push 25–30k) get an extra AVIF on
-// top of the standard ladder. Lets the close-up LOD and the modal's
-// deep zoom show the full source resolution without falling back to
-// shipping the original JPEG. Capped at 16384 on the LONG side to
-// stay inside libheif's encoder limit (it rejects either dim > 16384
-// with "Processed image is too large for the HEIF format") and inside
-// typical GPU MAX_TEXTURE_SIZE; oversize sources scale down
-// proportionally and the runtime falls back to the raw asset for the
-// (very few) cases that need more.
-const FULL_SIZE_MAX = 16384;
 // AVIF q=60 looks indistinguishable from q=85 JPEG but is ~3× smaller.
 // WebP q=75 is the usual balance for photographs.
 //

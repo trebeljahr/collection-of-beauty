@@ -1,5 +1,6 @@
 import { type ClassValue, clsx } from "clsx";
 import { twMerge } from "tailwind-merge";
+import { VARIANT_WIDTHS } from "./variant-config.mjs";
 
 export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
@@ -34,12 +35,14 @@ function assetsBaseUrl(): string {
 
 const ASSETS_BASE_URL = assetsBaseUrl();
 
-// Variant set emitted by shrink-sources.mjs. The script hardcodes the same
-// list — keep them in sync. Chosen to cover typical responsive breakpoints
+// Variant set is shared from `variant-config.mjs` so the encoder
+// (scripts/shrink-sources.mjs) and this runtime URL builder reference
+// the same array — they used to be duplicated with hand-kept "keep in
+// sync" comments. Chosen to cover typical responsive breakpoints
 // (mobile, tablet, desktop, 4K) plus a small thumb size. The 4096 px
 // variant is for the 3D gallery's close-up LOD only; sources smaller
 // than 4096 px just don't generate that file.
-export const VARIANT_WIDTHS = [256, 480, 640, 960, 1280, 1920, 2560, 4096] as const;
+export { VARIANT_WIDTHS } from "./variant-config.mjs";
 
 export type VariantFormat = "avif" | "webp";
 

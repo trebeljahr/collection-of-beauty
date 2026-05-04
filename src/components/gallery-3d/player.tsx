@@ -12,6 +12,7 @@ import {
   SPIRAL_FLOOR_CUTOUT_RADIUS,
 } from "@/lib/gallery-layout/world-coords";
 import { raycastNearestPainting } from "./painting-registry";
+import { RAIL_BAR_HALF_WIDTH } from "./rail-constants";
 import {
   findStairAbove,
   findStairBelow,
@@ -20,6 +21,7 @@ import {
   spiralRawAngle,
   stairHeightAt,
 } from "./staircase";
+import { CUTOUT_RAIL_RADIUS } from "./stairwell-rail";
 
 const EYE_HEIGHT = 1.75;
 const DUCK_EYE_HEIGHT = 1.05;
@@ -35,30 +37,28 @@ const GRAVITY = 22;
 const PLAYER_RADIUS = 0.3;
 // Radial buffer inside the spiral annulus — keeps the player's bbox
 // clear of the inner and outer railings while walking on the steps.
-// The rails are at innerRadius+0.05 (centre) with 0.05 m radial half
-// width — i.e. the rail's near face sits 0.10 m inside the annulus
-// on each side, with the rail's far face flush with the step edge.
-// Adding PLAYER_RADIUS plus a 0.23 m elbow gives 0.63 m of total
-// clearance — enough to keep the bbox out of either rail without
-// shrinking the walking strip uncomfortably.
-const SPIRAL_RAIL_CLEARANCE = 0.05 + 0.05 + PLAYER_RADIUS + 0.23;
+// The rails are at innerRadius + RAIL_BAR_HALF_WIDTH (centre) with the
+// same radial half-width as the cross-section — i.e. the rail's near
+// face sits 2 × RAIL_BAR_HALF_WIDTH inside the annulus on each side,
+// with the rail's far face flush with the step edge. Adding
+// PLAYER_RADIUS plus a 0.23 m elbow gives 0.63 m of total clearance —
+// enough to keep the bbox out of either rail without shrinking the
+// walking strip uncomfortably.
+const SPIRAL_RAIL_CLEARANCE = 2 * RAIL_BAR_HALF_WIDTH + PLAYER_RADIUS + 0.23;
 // Same idea on the OUTSIDE of the spiral — the cutout-edge railing
-// (the floor-level circular rail around the stairwell hole on
-// floors above the ground) sits at SPIRAL_FLOOR_CUTOUT_RADIUS+0.18
-// with a 0.05 m radial half-width. Block any target whose centre
+// (the floor-level circular rail around the stairwell hole on floors
+// above the ground) sits at CUTOUT_RAIL_RADIUS with the same
+// RAIL_BAR_HALF_WIDTH cross-section. Block any target whose centre
 // would put the player's bbox into that rail tube. The cutout-edge
 // rail has the same gate gap as the spiral's outer rail, so the
 // constraint is dropped inside the gate arc to let the player walk
-// through. 0.55 m of elbow past the rail's near face means the
-// camera stays a comfortable shoulder's width from the brass tube
-// when the player walks the stairwell room — no more nose-to-rail
-// glitching on approach. Inner bound is constrained so it can never
-// blot out the spiral walking annulus (see the off-spiral guard in
-// canStepTo).
-const CUTOUT_RAIL_RADIUS = SPIRAL_FLOOR_CUTOUT_RADIUS + 0.18;
-const CUTOUT_RAIL_HALF_WIDTH = 0.05;
-const CUTOUT_RAIL_INNER_BOUND = CUTOUT_RAIL_RADIUS - CUTOUT_RAIL_HALF_WIDTH - PLAYER_RADIUS - 0.55;
-const CUTOUT_RAIL_OUTER_BOUND = CUTOUT_RAIL_RADIUS + CUTOUT_RAIL_HALF_WIDTH + PLAYER_RADIUS + 0.55;
+// through. 0.55 m of elbow past the rail's near face means the camera
+// stays a comfortable shoulder's width from the brass tube when the
+// player walks the stairwell room — no more nose-to-rail glitching on
+// approach. Inner bound is constrained so it can never blot out the
+// spiral walking annulus (see the off-spiral guard in canStepTo).
+const CUTOUT_RAIL_INNER_BOUND = CUTOUT_RAIL_RADIUS - RAIL_BAR_HALF_WIDTH - PLAYER_RADIUS - 0.55;
+const CUTOUT_RAIL_OUTER_BOUND = CUTOUT_RAIL_RADIUS + RAIL_BAR_HALF_WIDTH + PLAYER_RADIUS + 0.55;
 // Max distance (m) at which the crosshair swaps to the magnifying-glass
 // "inspect" affordance. Click-to-zoom still works at any range; this is
 // purely the visual hover threshold so the cursor only changes when the
