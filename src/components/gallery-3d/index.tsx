@@ -1,6 +1,6 @@
 "use client";
 
-import { Environment, PointerLockControls } from "@react-three/drei";
+import { PointerLockControls } from "@react-three/drei";
 import { Canvas } from "@react-three/fiber";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import * as THREE from "three";
@@ -17,6 +17,7 @@ import { LandscapePrompt } from "./landscape-prompt";
 import { LodController } from "./lod-controller";
 import { Minimap, type PlayerSample } from "./minimap";
 import { Player } from "./player";
+import { RoomEnvironment } from "./room-env-map";
 import { RoomGeometry } from "./room-geometry";
 import { Gallery3DSettings } from "./settings-modal";
 import { StaircaseRenderer } from "./staircase";
@@ -398,15 +399,14 @@ export function Gallery3D({ artworks }: Props) {
         <color attach="background" args={["#0a0805"]} />
         <ambientLight intensity={0.35} />
         <hemisphereLight args={["#fff3d0", "#1a120b", 0.45]} position={[0, 20, 0]} />
-        {/* Environment map for metallic surfaces (plaque chrome rims,
-            painting frame highlights) — without something to reflect,
-            metalness=1 materials render as flat dark grey. `sunset` is
-            warm and matches the orange lamp tints throughout the
-            gallery; the previous `apartment` preset cast cool window
-            light that read as a blue sheen on polished floors when
-            viewed at grazing angles. background:false leaves the
-            existing fog/black backdrop alone. */}
-        <Environment preset="sunset" background={false} environmentIntensity={0.4} />
+        {/* Procedural environment map painted from the active era's
+            palette (ceiling/wall/floor colours). Replaces a `sunset`
+            HDRI preset that gave metallic surfaces something to reflect
+            but tinted walls and ceilings with light that read as
+            "outside the building" — the museum is a closed interior, so
+            the env map should reflect the room itself. See
+            room-env-map.tsx for the canvas → PMREM pipeline. */}
+        <RoomEnvironment palette={currentFloor.era.palette} />
 
         <FloorScene
           floor={currentFloor}

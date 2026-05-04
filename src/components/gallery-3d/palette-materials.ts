@@ -57,11 +57,11 @@ export function getPaletteMaterials(palette: Palette): PaletteMaterials {
       color: palette.floorColor,
       // roughness=1 with a roughnessMap means "use the map directly".
       // metalness=0 keeps marble/wood/concrete as dielectrics.
-      // envMapIntensity=0 silences the HDRI's contribution entirely —
-      // the only reflections we want on the floor are the per-room
-      // point-lights' specular highlights, not the warm sunset HDRI's
-      // ambient sheen. Applies to textured AND untextured floors so
-      // every storey reads the same way.
+      // envMapIntensity=0 silences the env map's contribution entirely
+      // — the only reflections we want on the floor are the per-room
+      // point-lights' specular highlights, not an ambient sheen from
+      // the room env map (see room-env-map.tsx). Applies to textured
+      // AND untextured floors so every storey reads the same way.
       roughness: floorTextures ? 1 : 0.88,
       metalness: 0,
       envMapIntensity: 0,
