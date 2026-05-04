@@ -18,19 +18,27 @@ export function slugify(input: string): string {
   );
 }
 
-// Single URL for everything — the rclone HTTP server. Serves both:
-//   - Originals at      <bucket>/<filename>.<ext>   (download links only)
-//   - Pre-built variants at <bucket>/<basename>/<width>.<avif|webp>
+// Base for all asset URLs. Serves both:
+//   - Originals at      <base>/<bucket>/<filename>.<ext>   (download links only)
+//   - Pre-built variants at <base>/<bucket>/<basename>/<width>.<avif|webp>
 //     (emitted by scripts/shrink-sources.mjs, consumed by <ResponsiveImage>)
-// There is no longer a separate ORIGIN_URL — all image fetching is
-// browser-direct, Next.js is no longer in the image pipeline.
+//
+// Production: NEXT_PUBLIC_ASSETS_BASE_URL points at the CDN (absolute).
+// Dev: returns the same-origin path "/assets-raw", which next.config.mjs
+// rewrites to the local rclone server. The same-origin path keeps things
+// working when the dev server is hit over LAN (a phone at
+// 192.168.x.y:3000 doesn't have the rclone server on its OWN localhost
+// — it has it on the dev machine's localhost, reachable only by going
+// back through the dev server). Letting the dev server do the proxy
+// makes asset URLs follow the page wherever the browser ends up
+// connecting from.
 function assetsBaseUrl(): string {
   const explicit = process.env.NEXT_PUBLIC_ASSETS_BASE_URL;
   if (explicit) return explicit.replace(/\/$/, "");
   if (process.env.NODE_ENV === "production") {
     throw new Error("NEXT_PUBLIC_ASSETS_BASE_URL must be set in production.");
   }
-  return "http://localhost:9100";
+  return "/assets-raw";
 }
 
 const ASSETS_BASE_URL = assetsBaseUrl();
