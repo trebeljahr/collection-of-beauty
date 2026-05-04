@@ -385,12 +385,13 @@ export function Player({
       //  - Otherwise the grid mask + per-edge wall mask decides.
       const currentStairId = spiralState.current?.staircaseId ?? null;
       const currentCum = spiralState.current?.cumulativeAngle ?? 0;
-      if (canStepTo(floor, curX, curZ, nx, nz, currentStairId, currentCum)) {
+      const playerHeadY = camera.position.y;
+      if (canStepTo(floor, curX, curZ, nx, nz, currentStairId, currentCum, playerHeadY)) {
         camera.position.x = nx;
         camera.position.z = nz;
-      } else if (canStepTo(floor, curX, curZ, nx, curZ, currentStairId, currentCum)) {
+      } else if (canStepTo(floor, curX, curZ, nx, curZ, currentStairId, currentCum, playerHeadY)) {
         camera.position.x = nx;
-      } else if (canStepTo(floor, curX, curZ, curX, nz, currentStairId, currentCum)) {
+      } else if (canStepTo(floor, curX, curZ, curX, nz, currentStairId, currentCum, playerHeadY)) {
         camera.position.z = nz;
       } else {
         // Capsule-style tangent slide for the circular obstacles
@@ -401,7 +402,16 @@ export function Player({
         // nearest blocking spiral, and step that way instead. Without
         // this, walking into the inner spiral railing or the cutout
         // edge feels like hitting fly paper.
-        const slid = trySlideAroundCircles(floor, curX, curZ, nx, nz, currentStairId, currentCum);
+        const slid = trySlideAroundCircles(
+          floor,
+          curX,
+          curZ,
+          nx,
+          nz,
+          currentStairId,
+          currentCum,
+          playerHeadY,
+        );
         if (slid) {
           camera.position.x = slid.x;
           camera.position.z = slid.z;
@@ -647,6 +657,7 @@ function trySlideAroundCircles(
   toZ: number,
   currentStairId: string | null,
   currentCum: number,
+  playerHeadY: number,
 ): { x: number; z: number } | null {
   const moveX = toX - fromX;
   const moveZ = toZ - fromZ;
@@ -675,7 +686,8 @@ function trySlideAroundCircles(
     if (Math.abs(dot) < 1e-6) continue;
     const slideX = fromX + tx * dot;
     const slideZ = fromZ + tz * dot;
-    if (!canStepTo(floor, fromX, fromZ, slideX, slideZ, currentStairId, currentCum)) continue;
+    if (!canStepTo(floor, fromX, fromZ, slideX, slideZ, currentStairId, currentCum, playerHeadY))
+      continue;
 
     const dxSlide = slideX - fromX;
     const dzSlide = slideZ - fromZ;
@@ -731,6 +743,12 @@ function canStepTo(
   toZ: number,
   currentStairId: string | null,
   currentCum: number,
+  /** World Y of the player's head (camera position). Used by the
+   *  spiral-rail clearance to skip blocking when the helix at this
+   *  angular position has risen above the player — they can walk
+   *  under freely (especially important on the ground floor where
+   *  the cutout-edge perimeter rail isn't there to fence the well). */
+  playerHeadY: number,
 ): boolean {
   // Central column guard — the stone spine sits at every spiral's
   // centre (SPIRAL_COLUMN_RADIUS). Block targets whose centre lands
@@ -816,11 +834,24 @@ function canStepTo(
     // around the entry direction (so the player can step on/off
     // the spiral); inside the gap the outer constraint is dropped,
     // otherwise the player could enter the spiral but never leave.
+    //
+    // Y-aware bypass: the spiral helix rises one full storey per
+    // revolution, so at angular positions far from the entry the
+    // step (and the rails sitting 1.05 m above it) is metres above
+    // the player's head — they can walk under freely. Only enforce
+    // when the step at this angular position is at or below head.
+    // Without this gate, walking around the back of the spiral on
+    // the ground floor (where the cutout-edge perimeter rail isn't
+    // there either, since there's no cutout) feels like hitting an
+    // invisible wall — the collision is for an overhead rail nobody
+    // would visually expect to block them.
     const dx = toX - stair.centerX;
     const dz = toZ - stair.centerZ;
     const r2 = dx * dx + dz * dz;
-    const minR = stair.innerRadius + SPIRAL_RAIL_CLEARANCE;
-    if (r2 < minR * minR) return false;
+    const cumAngle = spiralRawAngle(stair, toX, toZ);
+    const tGlobal = cumAngle / (Math.PI * 2);
+    const stepY = stair.lowerY + tGlobal * (stair.upperY - stair.lowerY);
+    const stepIsOverhead = stepY >= playerHeadY;
     const theta = Math.atan2(dz, dx);
     const gateHalfArc = spiralGateHalfArc(stair.numSteps);
     const angDiff = Math.atan2(
@@ -828,9 +859,13 @@ function canStepTo(
       Math.cos(theta - stair.entryAngle),
     );
     const inGate = Math.abs(angDiff) < gateHalfArc;
-    if (!inGate) {
-      const maxR = stair.outerRadius - SPIRAL_RAIL_CLEARANCE;
-      if (r2 > maxR * maxR) return false;
+    if (!stepIsOverhead) {
+      const minR = stair.innerRadius + SPIRAL_RAIL_CLEARANCE;
+      if (r2 < minR * minR) return false;
+      if (!inGate) {
+        const maxR = stair.outerRadius - SPIRAL_RAIL_CLEARANCE;
+        if (r2 > maxR * maxR) return false;
+      }
     }
     return true;
   }
