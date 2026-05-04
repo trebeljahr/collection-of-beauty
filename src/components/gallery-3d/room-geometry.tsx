@@ -325,6 +325,31 @@ function useWorldUVPlane(
   return geom;
 }
 
+/** Rewrite a geometry's UV attribute so each vertex samples the floor
+ *  texture at its WORLD (x, z) position. Combined with `texture.repeat
+ *  = (1, 1)` and RepeatWrapping, this gives consistent 1 m² tile
+ *  density and — more importantly — keeps the tile pattern continuous
+ *  across geometry boundaries (room ↔ hallway ↔ stairwell), so seams
+ *  don't show underfoot when the player crosses room edges.
+ *
+ *  Pass the world-space center the mesh will be positioned at; the
+ *  function adds it to each local-space vertex position to derive the
+ *  vertex's eventual world XZ.
+ *
+ *  Used by `StairwellFloor` whose ShapeGeometry / ExtrudeGeometry
+ *  default UVs are the local shape XY (offset from world by an
+ *  arbitrary amount per stairwell), which doesn't match the world-
+ *  origin convention `useWorldUVPlane` uses for plain rooms. */
+function applyWorldXZ_UV(geom: THREE.BufferGeometry, cxWorld: number, czWorld: number): void {
+  const pos = geom.attributes.position;
+  const uv = geom.attributes.uv;
+  if (!pos || !uv) return;
+  for (let i = 0; i < uv.count; i++) {
+    uv.setXY(i, pos.getX(i) + cxWorld, pos.getZ(i) + czWorld);
+  }
+  uv.needsUpdate = true;
+}
+
 /** Floor slab for a stairwell room with a circular hole around the
  *  spiral well. Built once via ShapeGeometry — the hole hugs the
  *  spiral's outer radius (plus a tiny margin) so the descending
@@ -378,8 +403,21 @@ function StairwellFloor({
     });
     slab.rotateX(-Math.PI / 2);
     slab.translate(0, -FLOOR_THICKNESS, 0);
+    // Rewrite UVs so the texture pattern is keyed off WORLD (x, z)
+    // instead of the geometry's local XY bounds. Without this, the
+    // stairwell floor samples the texture from its own local origin
+    // while the adjacent hallway / room floors sample from world
+    // origin (see `useWorldUVPlane`), so the tile pattern jumps at
+    // the shared edge — the seam is visible underfoot whenever you
+    // walk from a hallway into the stairwell.
+    //
+    // The mesh is later positioned at (cxWorld, floorY, czWorld), so
+    // a vertex at local (lx, _, lz) renders at world (cxWorld + lx,
+    // _, czWorld + lz). Set UV = (world.x, world.z) directly.
+    applyWorldXZ_UV(top, cxWorld, czWorld);
+    applyWorldXZ_UV(slab, cxWorld, czWorld);
     return { topGeom: top, slabGeom: slab };
-  }, [width, depth, cutHole]);
+  }, [width, depth, cutHole, cxWorld, czWorld]);
   // Free GPU buffers when the stairwell unmounts or its dimensions
   // change. R3F only auto-disposes geometries it created from JSX
   // intrinsics; these were allocated by us, so we own teardown.
