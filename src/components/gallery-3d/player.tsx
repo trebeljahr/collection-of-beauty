@@ -101,6 +101,14 @@ const STAIR_LANDING_TOL = 0.5;
 // per request.
 const STAIR_DESCEND_EARLY_ENTRY = (Math.PI * 2 * 2) / 3;
 const _lookEuler = new THREE.Euler(0, 0, 0, "YXZ");
+// Module-scope scratches reused every frame in useFrame to avoid the
+// Vector3/Quaternion churn that would otherwise allocate ~5 objects per
+// frame at 60 fps. Single-threaded React/R3F means there's no risk of
+// concurrent mutation, and there's only one Player instance per gallery.
+const _forwardScratch = new THREE.Vector3();
+const _rightScratch = new THREE.Vector3();
+const _moveScratch = new THREE.Vector3();
+const _UP_SCRATCH = new THREE.Vector3(0, 1, 0);
 const PITCH_LIMIT = Math.PI / 2 - 0.05;
 
 /**
@@ -354,14 +362,15 @@ export function Player({
     const running = keys.current.ShiftLeft || keys.current.ShiftRight || false;
     const speed = running ? RUN_SPEED : WALK_SPEED;
 
-    const forward = new THREE.Vector3();
+    // Reuse module-scope vectors to avoid per-frame GC pressure.
+    const forward = _forwardScratch;
     camera.getWorldDirection(forward);
     forward.y = 0;
     if (forward.lengthSq() > 0) forward.normalize();
-    const right = new THREE.Vector3().crossVectors(forward, new THREE.Vector3(0, 1, 0));
+    const right = _rightScratch.crossVectors(forward, _UP_SCRATCH);
     if (right.lengthSq() > 0) right.normalize();
 
-    const move = new THREE.Vector3();
+    const move = _moveScratch.set(0, 0, 0);
     if (keys.current.KeyW || keys.current.ArrowUp) move.add(forward);
     if (keys.current.KeyS || keys.current.ArrowDown) move.sub(forward);
     if (keys.current.KeyD || keys.current.ArrowRight) move.add(right);

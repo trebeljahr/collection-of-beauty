@@ -42,6 +42,9 @@ export type PaintingEntry = {
 };
 
 const entries = new Set<PaintingEntry>();
+// Module-scope scratch reused by raycastNearestPainting — called on
+// every aim raycast (~10 Hz) plus every click. Single-threaded.
+const _raycastScratch = new THREE.Vector3();
 
 export function registerPainting(e: PaintingEntry): void {
   entries.add(e);
@@ -73,15 +76,14 @@ export function raycastNearestPainting(
   maxDistance = 12,
 ): Artwork | null {
   const candidates: THREE.Mesh[] = [];
-  const _tmp = new THREE.Vector3();
   for (const e of entries) {
-    _tmp.subVectors(e.worldPos, cameraPos);
-    const dist = _tmp.length();
+    _raycastScratch.subVectors(e.worldPos, cameraPos);
+    const dist = _raycastScratch.length();
     if (dist > maxDistance + 1) continue;
     // Normalise in place and take dot with camera direction. Skip
     // anything that's behind the camera (forwardDot < 0.2 ≈ > 80° off).
-    _tmp.divideScalar(dist || 1);
-    if (_tmp.dot(cameraDir) < 0.2) continue;
+    _raycastScratch.divideScalar(dist || 1);
+    if (_raycastScratch.dot(cameraDir) < 0.2) continue;
     candidates.push(e.mesh);
   }
   if (candidates.length === 0) return null;
