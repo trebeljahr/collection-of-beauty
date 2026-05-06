@@ -61,18 +61,24 @@ export function Lightbox({
 
   // Preload the high-res variant. Re-runs whenever the artwork (highSrc)
   // or open state changes. Cancellation prevents a stale onload from
-  // flipping highReady true after a fast prev/next.
+  // flipping highReady true after a fast prev/next. onerror unblocks
+  // the spinner if the URL 404s or the network is dropped — without it
+  // the lightbox spins forever and the user has no way to know the
+  // load broke.
   useEffect(() => {
     if (!open) return;
     let cancelled = false;
     const img = new Image();
-    img.onload = () => {
+    const finish = () => {
       if (!cancelled) setHighReady(true);
     };
+    img.onload = finish;
+    img.onerror = finish;
     img.src = highSrc;
     return () => {
       cancelled = true;
       img.onload = null;
+      img.onerror = null;
     };
   }, [open, highSrc]);
 
