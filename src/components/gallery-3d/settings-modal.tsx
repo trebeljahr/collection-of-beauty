@@ -56,10 +56,17 @@ export function Gallery3DSettings({ fullscreenTarget, isOpen, onOpenChange }: Pr
 
   const toggleFullscreen = useCallback(() => {
     if (document.fullscreenElement) {
-      document.exitFullscreen?.().catch(() => {});
+      document.exitFullscreen?.().catch((err) => {
+        console.warn("[gallery-3d] exitFullscreen rejected:", err);
+      });
     } else {
       const target = fullscreenTarget.current ?? document.documentElement;
-      target.requestFullscreen?.().catch(() => {});
+      target.requestFullscreen?.().catch((err) => {
+        // Safari + iOS UA-Webview deny here. Logging at warn so a
+        // user reporting "the fullscreen button does nothing" leaves a
+        // breadcrumb in the console rather than a silent no-op.
+        console.warn("[gallery-3d] requestFullscreen rejected:", err);
+      });
     }
   }, [fullscreenTarget]);
 
