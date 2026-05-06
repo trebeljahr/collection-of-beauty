@@ -1,13 +1,42 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import {
   type ReactZoomPanPinchRef,
   TransformComponent,
   TransformWrapper,
 } from "react-zoom-pan-pinch";
 import { type Artwork, artworkAlt } from "@/lib/data";
-import { assetUrl, cn, variantSrcSet, variantUrl } from "@/lib/utils";
+import { assetUrl, cn, variantUrl } from "@/lib/utils";
+import { getHiRes, peekCached } from "./texture-cache";
+
+/** Walk this artwork's variant widths from largest to smallest and
+ *  return the URL of the highest one that's already in either of the
+ *  3D-gallery texture caches. The browser's HTTP cache holds the
+ *  matching AVIF bytes from when the texture loaded, so an `<img
+ *  src=...>` for that URL paints from disk-cache in tens of ms instead
+ *  of round-tripping the network for the multi-MB high-res variant.
+ *
+ *  Returns null if nothing is cached — the modal falls back to the
+ *  smallest variant URL as a placeholder while it fetches the
+ *  high-res copy. */
+function peekBestCachedVariantUrl(artwork: Artwork): string | null {
+  const widths = artwork.variantWidths ?? [];
+  for (let i = widths.length - 1; i >= 0; i--) {
+    const w = widths[i];
+    const url = variantUrl(artwork.objectKey, w, "avif");
+    if (peekCached(url) || getHiRes(url)) return url;
+  }
+  // Original-source tier — only present in the hi-res cache when the
+  // player walked right up to the painting in 3D and triggered the
+  // close-up LOD's `original` fetch.
+  const sourceW = artwork.width;
+  if (sourceW != null && sourceW > 4096) {
+    const origUrl = assetUrl(artwork.objectKey);
+    if (peekCached(origUrl) || getHiRes(origUrl)) return origUrl;
+  }
+  return null;
+}
 
 /**
  * Full-screen overlay with a zoom/pan view of one painting plus its
@@ -33,8 +62,6 @@ export function ZoomModal({
   onClose: (shouldRelock: boolean) => void;
 }) {
   const transformRef = useRef<ReactZoomPanPinchRef | null>(null);
-  const [placeholderLoaded, setPlaceholderLoaded] = useState(false);
-  const [highReady, setHighReady] = useState(false);
 
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
@@ -62,13 +89,34 @@ export function ZoomModal({
   const highSrc = useFullVariant
     ? variantUrl(artwork.objectKey, largestVariant, "avif")
     : assetUrl(artwork.objectKey);
-  const fallbackSrc = assetUrl(artwork.objectKey);
-  const avifSrcSet = hasVariants ? variantSrcSet(artwork.objectKey, "avif", widths) : "";
 
-  // Preload the high-res variant. Cancellation prevents a stale onload
-  // from flipping highReady true after the modal has already been
-  // dismissed.
+  // Placeholder src — picked once on mount. Walks the texture LRU
+  // largest-to-smallest and returns the URL of the highest cached
+  // variant; the browser's HTTP cache holds those bytes too, so
+  // `<img src=...>` paints from disk in tens of ms. If nothing is
+  // cached, fall back to the smallest variant (256 px) which is the
+  // fastest cold load — much better than waiting for the multi-MB
+  // high-res copy to arrive over the network.
+  const placeholderSrc = useMemo(() => {
+    const cached = peekBestCachedVariantUrl(artwork);
+    if (cached) return cached;
+    if (widths.length > 0) return variantUrl(artwork.objectKey, widths[0], "avif");
+    return assetUrl(artwork.objectKey);
+    // biome-ignore lint/correctness/useExhaustiveDependencies: artwork id captures the variant set; widths is derived from artwork.
+  }, [artwork.objectKey]);
+
+  // If the placeholder IS already the high-res, skip the preload step
+  // and start with `highReady` true so the high-res `<img>` paints
+  // immediately and the cross-fade overlay is a no-op.
+  const startReady = placeholderSrc === highSrc;
+  const [highReady, setHighReady] = useState(startReady);
+
+  // Preload the high-res variant in the background. Cancellation
+  // prevents a stale onload from flipping highReady true after the
+  // modal has already been dismissed. Skipped when the placeholder is
+  // already the high-res (no fetch needed).
   useEffect(() => {
+    if (startReady) return;
     let cancelled = false;
     const img = new Image();
     img.onload = () => {
@@ -79,9 +127,13 @@ export function ZoomModal({
       cancelled = true;
       img.onload = null;
     };
-  }, [highSrc]);
+  }, [highSrc, startReady]);
 
   const dims = artwork.realDimensions;
+  // Spinner only when we have NO image to show at all — the placeholder
+  // is the smallest variant and it's still loading. With a cache hit
+  // the placeholder paints fast and the spinner never shows.
+  const [placeholderLoaded, setPlaceholderLoaded] = useState(false);
   const showSpinner = !placeholderLoaded && !highReady;
 
   return (
@@ -107,41 +159,43 @@ export function ZoomModal({
           contentStyle={{ width: "100%", height: "100%" }}
         >
           <div className="relative h-full w-full">
-            {/* Placeholder: cached responsive variant, shown until the
-                high-res copy is decoded. */}
-            {hasVariants && (
-              <picture
+            {/* Placeholder: highest cached variant (HTTP-cached AVIF
+                bytes paint in tens of ms) or the smallest variant if
+                nothing is cached. Stays visible until the high-res
+                cross-fades over it. Skipped entirely when the
+                placeholder IS the high-res — no point rendering it
+                twice. */}
+            {!startReady && (
+              // biome-ignore lint/a11y/useAltText: decorative placeholder; the high-res img below carries the alt text.
+              // biome-ignore lint/performance/noImgElement: react-zoom-pan-pinch needs a plain <img>; next/image's wrapper interferes with its transform layer.
+              <img
+                src={placeholderSrc}
+                alt=""
+                width={artwork.width ?? undefined}
+                height={artwork.height ?? undefined}
+                draggable={false}
+                onLoad={() => setPlaceholderLoaded(true)}
                 className={cn(
-                  "absolute inset-0 transition-opacity duration-300",
+                  "absolute inset-0 h-full w-full object-contain transition-opacity duration-300",
                   highReady ? "opacity-0" : "opacity-100",
                 )}
-              >
-                <source type="image/avif" srcSet={avifSrcSet} sizes="100vw" />
-                {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img
-                  src={fallbackSrc}
-                  alt=""
-                  width={artwork.width ?? undefined}
-                  height={artwork.height ?? undefined}
-                  draggable={false}
-                  onLoad={() => setPlaceholderLoaded(true)}
-                  className="h-full w-full object-contain"
-                />
-              </picture>
+              />
             )}
-            {/* eslint-disable-next-line @next/next/no-img-element */}
+            {/* High-res copy. Hidden until the preloader resolves so a
+                half-decoded scan doesn't pop in over the placeholder. */}
+            {/* biome-ignore lint/performance/noImgElement: see above. */}
             <img
-              src={highReady ? highSrc : fallbackSrc}
+              src={highSrc}
               alt={artworkAlt(artwork)}
               width={artwork.width ?? undefined}
               height={artwork.height ?? undefined}
               draggable={false}
               onLoad={() => {
-                if (!hasVariants) setPlaceholderLoaded(true);
+                if (startReady) setPlaceholderLoaded(true);
               }}
               className={cn(
                 "absolute inset-0 h-full w-full select-none object-contain transition-opacity duration-300",
-                highReady ? "opacity-100" : hasVariants ? "opacity-0" : "opacity-100",
+                highReady ? "opacity-100" : "opacity-0",
               )}
             />
           </div>
