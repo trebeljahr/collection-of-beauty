@@ -77,6 +77,14 @@ type LodTier = {
 
 const sq = (n: number) => n * n;
 
+// Module-scope scratch reused by the registration effect to avoid
+// allocating a fresh Quaternion per painting on mount. A floor swap
+// can mount hundreds of paintings in one frame; reusing this drops one
+// allocation per painting from a hot-ish path. The Vector3s for the
+// entry's worldPos / worldRight / worldUp must stay per-painting (they
+// live for the painting's whole lifetime in the registry).
+const _registerScratchQuat = new THREE.Quaternion();
+
 // Common bands for the three top tiers (original / 4096 / 2560). They
 // share a 1 m upgrade and 0.5 m prefetch buffer; the picker order
 // (original first, then 4096, then 2560) decides which one displays.
@@ -825,9 +833,9 @@ function PaintingPlane({
   useEffect(() => {
     const mesh = meshRef.current;
     if (!mesh) return;
-    const worldQuat = mesh.getWorldQuaternion(new THREE.Quaternion());
-    const worldRight = new THREE.Vector3(1, 0, 0).applyQuaternion(worldQuat);
-    const worldUp = new THREE.Vector3(0, 1, 0).applyQuaternion(worldQuat);
+    mesh.getWorldQuaternion(_registerScratchQuat);
+    const worldRight = new THREE.Vector3(1, 0, 0).applyQuaternion(_registerScratchQuat);
+    const worldUp = new THREE.Vector3(0, 1, 0).applyQuaternion(_registerScratchQuat);
     const entry: PaintingEntry = {
       mesh,
       worldPos: mesh.getWorldPosition(new THREE.Vector3()),
