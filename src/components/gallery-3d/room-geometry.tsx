@@ -109,12 +109,14 @@ export function RoomGeometry({
     height: DOOR_HEIGHT,
   }));
 
-  const hasFloor = !room.isStairwell;
-  const hasCeiling = !room.isStairwell;
+  // Stairwell rooms render no floor (the well is open down to the
+  // storey below) and no ceiling (open up to the storey above) — the
+  // walls + the spiral itself give the well its visible shape.
+  const isStandardRoom = !room.isStairwell;
 
   return (
     <group>
-      {hasFloor && (
+      {isStandardRoom && (
         <>
           <mesh
             rotation={[-Math.PI / 2, 0, 0]}
@@ -134,7 +136,7 @@ export function RoomGeometry({
           </mesh>
         </>
       )}
-      {hasCeiling && (
+      {isStandardRoom && (
         <mesh rotation={[Math.PI / 2, 0, 0]} position={[cxWorld, floorY + ROOM_HEIGHT, czWorld]}>
           <planeGeometry args={[width, depth]} />
           <primitive object={mats.ceiling} attach="material" />

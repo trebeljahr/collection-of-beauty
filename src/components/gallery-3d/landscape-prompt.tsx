@@ -12,8 +12,7 @@ export function LandscapePrompt() {
   return (
     <div
       className="fixed inset-0 z-[3000] flex items-center justify-center bg-[#0a0805] text-amber-50 text-center px-8"
-      aria-hidden="false"
-      role="alert"
+      role="status"
     >
       <div className="max-w-xs">
         <svg

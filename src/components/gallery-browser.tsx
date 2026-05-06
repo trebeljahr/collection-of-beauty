@@ -98,6 +98,7 @@ export function GalleryBrowser({ artworks, movements }: Props) {
         />
         <div className="flex flex-wrap items-center gap-2 text-sm">
           <select
+            aria-label="Filter by movement"
             value={movement}
             onChange={(e) => setMovement(e.target.value)}
             className="h-9 rounded-md border border-[var(--input)] bg-transparent px-2"
@@ -111,6 +112,7 @@ export function GalleryBrowser({ artworks, movements }: Props) {
           </select>
           <Input
             type="number"
+            aria-label="Earliest year"
             placeholder="From"
             value={minYear}
             onChange={(e) => setMinYear(e.target.value)}
@@ -118,12 +120,14 @@ export function GalleryBrowser({ artworks, movements }: Props) {
           />
           <Input
             type="number"
+            aria-label="Latest year"
             placeholder="To"
             value={maxYear}
             onChange={(e) => setMaxYear(e.target.value)}
             className="w-24"
           />
           <select
+            aria-label="Sort artworks by"
             value={sortBy}
             onChange={(e) => setSortBy(e.target.value as SortBy)}
             className="h-9 rounded-md border border-[var(--input)] bg-transparent px-2"
