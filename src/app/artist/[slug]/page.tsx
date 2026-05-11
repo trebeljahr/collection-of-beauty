@@ -3,10 +3,19 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { ArtworkGallery } from "@/components/artwork-gallery";
 import { Badge } from "@/components/ui/badge";
-import { getArtist, getArtworksByArtist, getConnectionsFor } from "@/lib/data";
+import { artists, getArtist, getArtworksByArtist, getConnectionsFor } from "@/lib/data";
 import { artistJsonLd, jsonLdScriptProps, ogImagesForArtist } from "@/lib/seo";
 
 type Params = { slug: string };
+
+// Prebuild artist pages that have at least a small body of work — the
+// artists most likely to be linked from the home grid, OG previews, or
+// search results. Single-work / unknown-attribution slugs render on
+// demand instead, since their volume is high (~hundreds) and per-page
+// traffic is low.
+export function generateStaticParams(): Params[] {
+  return artists.filter((a) => a.count >= 3).map((a) => ({ slug: a.slug }));
+}
 
 export async function generateMetadata({ params }: { params: Promise<Params> }): Promise<Metadata> {
   const { slug } = await params;

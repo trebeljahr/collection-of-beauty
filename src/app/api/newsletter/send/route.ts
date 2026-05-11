@@ -72,12 +72,29 @@ export async function POST(request: NextRequest) {
   return runSend(request, body);
 }
 
+// Structured one-line logger. Coolify's docker logs collector keys on
+// stdout/stderr, so plain console.{info,error} with a stable prefix is
+// enough for grep + alerting; no need for a logging library yet. Every
+// log line carries weekKey so a failed run can be correlated with its
+// follow-up retry.
+function log(level: "info" | "error", weekKey: string, event: string, extra: object = {}): void {
+  const line = JSON.stringify({ scope: "newsletter.send", level, weekKey, event, ...extra });
+  if (level === "error") console.error(line);
+  else console.info(line);
+}
+
 async function runSend(request: NextRequest, body: SendBody): Promise<NextResponse> {
   const now = new Date();
   const weekKey = isoWeekKey(now);
   const issueDate = issueDateLabel(now);
   const siteUrl = getSiteUrl(request);
   const dryRun = body.dryRun ?? false;
+
+  log("info", weekKey, "start", {
+    dryRun,
+    forced: body.force ?? false,
+    manualPicks: body.artworkIds?.length ?? 0,
+  });
 
   // For dry-runs we don't require R2 to be configured — fall back to empty
   // state so previews work during initial setup. Real sends still fail loudly.
@@ -88,6 +105,7 @@ async function runSend(request: NextRequest, body: SendBody): Promise<NextRespon
     if (dryRun) {
       state = { issues: [] };
     } else {
+      log("error", weekKey, "state_load_failed", { message: (err as Error).message });
       return NextResponse.json(
         {
           error: "state_load_failed",
@@ -102,6 +120,7 @@ async function runSend(request: NextRequest, body: SendBody): Promise<NextRespon
   // Idempotency: refuse to re-send an already-sent week unless forced.
   const existing = findIssue(state, weekKey);
   if (existing && !body.force && !dryRun) {
+    log("info", weekKey, "skipped_already_sent", { issueNumber: existing.issueNumber });
     return NextResponse.json(
       {
         error: "already_sent_this_week",
@@ -138,6 +157,7 @@ async function runSend(request: NextRequest, body: SendBody): Promise<NextRespon
       mode = "random";
     }
   } catch (err) {
+    log("error", weekKey, "selection_failed", { message: (err as Error).message });
     return NextResponse.json(
       { error: "selection_failed", message: (err as Error).message },
       { status: 400 },
@@ -154,6 +174,7 @@ async function runSend(request: NextRequest, body: SendBody): Promise<NextRespon
   });
 
   if (dryRun) {
+    log("info", weekKey, "dry_run_complete", { issueNumber, pickCount: picks.length });
     return NextResponse.json({
       dryRun: true,
       weekKey,
@@ -171,11 +192,17 @@ async function runSend(request: NextRequest, body: SendBody): Promise<NextRespon
   // Fire the send, then record it. We record regardless of mailgun's async
   // delivery state — once Mailgun has accepted the message, we consider the
   // issue "sent" for the purpose of no-repeat tracking.
-  const result = await sendDigest({
-    subject: rendered.subject,
-    html: rendered.html,
-    text: rendered.text,
-  });
+  let result: Awaited<ReturnType<typeof sendDigest>>;
+  try {
+    result = await sendDigest({
+      subject: rendered.subject,
+      html: rendered.html,
+      text: rendered.text,
+    });
+  } catch (err) {
+    log("error", weekKey, "send_failed", { message: (err as Error).message });
+    throw err;
+  }
 
   const issue: NewsletterIssue = {
     weekKey,
@@ -188,6 +215,13 @@ async function runSend(request: NextRequest, body: SendBody): Promise<NextRespon
 
   const nextState = { issues: [...state.issues, issue] };
   await saveState(nextState);
+
+  log("info", weekKey, "sent", {
+    issueNumber,
+    mailgunId: result.id,
+    pickCount: picks.length,
+    mode,
+  });
 
   return NextResponse.json({
     ok: true,

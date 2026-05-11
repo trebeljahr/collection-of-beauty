@@ -2,6 +2,12 @@ import type { MetadataRoute } from "next";
 import { artists, artworks } from "@/lib/data";
 import { absoluteUrl } from "@/lib/seo";
 
+// Cache the rendered sitemap for a day. Iterating ~3,300 entries on
+// every crawler hit is wasteful — the underlying data only changes
+// when `pnpm assets:build-data` runs and the site redeploys, so the
+// next build invalidates this naturally.
+export const revalidate = 86400;
+
 /**
  * Served at /sitemap.xml. Emits every indexable URL:
  *   - Static pages (home, timeline, artists index, 3D gallery)
