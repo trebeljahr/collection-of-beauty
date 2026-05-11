@@ -4,7 +4,7 @@ import { useFrame, useThree } from "@react-three/fiber";
 import type { JoystickOnMove } from "joystick-controller";
 import { useEffect, useRef } from "react";
 import * as THREE from "three";
-import type { Artwork } from "@/lib/data";
+import type { ArtworkListing } from "@/lib/data";
 import type { FloorLayout, Staircase } from "@/lib/gallery-layout/types";
 import {
   CELL_SIZE,
@@ -149,14 +149,14 @@ export function Player({
    *  right). Used by the host to remember position across floor-swap
    *  remounts and to drive the minimap compass arrow. */
   onPositionSample?: (x: number, z: number, yaw: number) => void;
-  /** Called with an Artwork when the player clicks/aims at a painting,
+  /** Called with an ArtworkListing when the player clicks/aims at a painting,
    *  so the host can open an inspect/zoom overlay. */
-  onZoomRequest?: (artwork: Artwork) => void;
+  onZoomRequest?: (artwork: ArtworkListing) => void;
   /** Fires when the painting under the crosshair changes (or null when
    *  none is in range). Throttled to ~10 Hz inside this component;
    *  consumers can use it to swap the crosshair to a magnifying-glass
    *  affordance and show a "Press E to inspect" hint. */
-  onAimChange?: (artwork: Artwork | null) => void;
+  onAimChange?: (artwork: ArtworkListing | null) => void;
   /** Fires when the player steps on / off a spiral staircase. Lets the
    *  host preload the connected floor's full geometry while the player
    *  is on the stair, so the room they're descending into is already
@@ -211,7 +211,7 @@ export function Player({
   const rayOrigin = useRef(new THREE.Vector3());
   const rayDir = useRef(new THREE.Vector3());
   const aimFrameCount = useRef(0);
-  const aimLast = useRef<Artwork | null>(null);
+  const aimLast = useRef<ArtworkListing | null>(null);
   const lastStairId = useRef<string | null>(null);
   /** Cumulative-angle state for the spiral. `cumulativeAngle ∈ [0, 2π]`
    *  describes how far around the current stair's revolution the

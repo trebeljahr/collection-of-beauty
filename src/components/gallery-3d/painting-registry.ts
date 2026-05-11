@@ -10,7 +10,7 @@
 // — same trick, same benefit.
 
 import * as THREE from "three";
-import type { Artwork } from "@/lib/data";
+import type { ArtworkListing } from "@/lib/data";
 
 export type PaintingEntry = {
   mesh: THREE.Mesh;
@@ -32,7 +32,7 @@ export type PaintingEntry = {
    *  away but should still be in the 4096 px band). */
   halfW: number;
   halfH: number;
-  artwork: Artwork;
+  artwork: ArtworkListing;
   /** Optional LOD tick. Called by the LodController with the squared
    *  closest-point distance from the camera to this painting's surface;
    *  the painting decides whether to prefetch, swap, or release its
@@ -60,7 +60,7 @@ export function forEachPainting(fn: (e: PaintingEntry) => void): void {
 
 /**
  * Raycast against only the registered paintings, prefiltered by
- * distance + rough forward direction. Returns the nearest Artwork hit
+ * distance + rough forward direction. Returns the nearest ArtworkListing hit
  * or null.
  *
  * Pre-filter parameters chosen to match the range of interactive aim:
@@ -74,7 +74,7 @@ export function raycastNearestPainting(
   cameraPos: THREE.Vector3,
   cameraDir: THREE.Vector3,
   maxDistance = 12,
-): Artwork | null {
+): ArtworkListing | null {
   const candidates: THREE.Mesh[] = [];
   for (const e of entries) {
     _raycastScratch.subVectors(e.worldPos, cameraPos);
@@ -90,7 +90,7 @@ export function raycastNearestPainting(
 
   const hits = raycaster.intersectObjects(candidates, false);
   for (const hit of hits) {
-    const artwork = hit.object.userData?.artwork as Artwork | undefined;
+    const artwork = hit.object.userData?.artwork as ArtworkListing | undefined;
     if (artwork) return artwork;
   }
   return null;

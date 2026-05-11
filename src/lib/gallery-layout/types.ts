@@ -2,13 +2,13 @@
 // The contract between the layout builder, the painting placer, and
 // the R3F renderer lives here.
 
-import type { Artwork } from "@/lib/data";
+import type { ArtworkListing } from "@/lib/data";
 import type { Era } from "@/lib/gallery-eras";
 
 export type Band = "small" | "medium" | "large";
 
 export type Placement = {
-  artwork: Artwork;
+  artwork: ArtworkListing;
   position: [number, number, number];
   rotation: [number, number, number];
   band: Band;
@@ -55,7 +55,7 @@ export type RoomLayout = {
   doors: Door[];
   hasBench: boolean;
   placements: Placement[];
-  artworks: Artwork[];
+  artworks: ArtworkListing[];
   /** Per-room floor tint, picked deterministically from the era's
    *  palette so reloads are stable and floors read as a coherent set
    *  while individual rooms feel distinct underfoot. */

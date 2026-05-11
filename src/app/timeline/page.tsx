@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import { TimelineView } from "@/components/timeline-view";
-import { artworks, movements, summary } from "@/lib/data";
+import { artworkListings, movements, summary } from "@/lib/data";
 
 export const metadata: Metadata = {
   title: "Timeline",
@@ -26,7 +26,7 @@ export default function TimelinePage() {
           Works grouped by decade. Hover a column to see the count; click to jump there.
         </p>
       </header>
-      <TimelineView artworks={artworks} movements={movements} />
+      <TimelineView artworks={artworkListings} movements={movements} />
     </div>
   );
 }

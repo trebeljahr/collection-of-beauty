@@ -6,7 +6,7 @@ import {
   TransformComponent,
   TransformWrapper,
 } from "react-zoom-pan-pinch";
-import { type Artwork, artworkAlt } from "@/lib/data";
+import { type ArtworkListing, artworkAlt } from "@/lib/data";
 import { assetUrl, cn, variantUrl } from "@/lib/utils";
 import { getHiRes, peekCached } from "./texture-cache";
 
@@ -20,7 +20,7 @@ import { getHiRes, peekCached } from "./texture-cache";
  *  Returns null if nothing is cached — the modal falls back to the
  *  smallest variant URL as a placeholder while it fetches the
  *  high-res copy. */
-function peekBestCachedVariantUrl(artwork: Artwork): string | null {
+function peekBestCachedVariantUrl(artwork: ArtworkListing): string | null {
   const widths = artwork.variantWidths ?? [];
   for (let i = widths.length - 1; i >= 0; i--) {
     const w = widths[i];
@@ -58,7 +58,7 @@ export function ZoomModal({
   artwork,
   onClose,
 }: {
-  artwork: Artwork;
+  artwork: ArtworkListing;
   onClose: (shouldRelock: boolean) => void;
 }) {
   const transformRef = useRef<ReactZoomPanPinchRef | null>(null);

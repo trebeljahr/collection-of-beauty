@@ -7,12 +7,12 @@ import { ArtworkGallery } from "@/components/artwork-gallery";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import type { Artwork } from "@/lib/data";
+import type { ArtworkListing } from "@/lib/data";
 
 type SortBy = "shuffle" | "year" | "artist" | "title";
 
 type Props = {
-  artworks: Artwork[];
+  artworks: ArtworkListing[];
   movements: string[];
 };
 
@@ -54,7 +54,7 @@ export function GalleryBrowser({ artworks, movements }: Props) {
   );
 
   const filtered = useMemo(() => {
-    let list: Artwork[];
+    let list: ArtworkListing[];
     if (deferredQuery.trim()) {
       list = fuse.search(deferredQuery).map((r) => r.item);
     } else {

@@ -89,6 +89,47 @@ export const artworks = artworksJson as Artwork[];
 export const artists = artistsJson as Artist[];
 export const movements = movementsJson as string[];
 export const connections = connectionsJson as Connection[];
+
+/** Slim projection of Artwork — the fields that listing pages, browsers,
+ *  the timeline, the lightbox, and the 3D gallery actually read. The
+ *  full Artwork (~3.4 MB / 1.15 KB per row across descriptions,
+ *  provenance, credit, source URLs) was being serialised into the RSC
+ *  payload on every home / timeline / gallery-3d visit because the
+ *  client components took `Artwork[]`. Server pages should pass
+ *  `artworkListings` to anything client; only the /artwork/[id] detail
+ *  page (server component) still pulls the full record via
+ *  getArtwork(). */
+export type ArtworkListing = Pick<
+  Artwork,
+  | "id"
+  | "title"
+  | "artist"
+  | "artistSlug"
+  | "year"
+  | "movement"
+  | "nationality"
+  | "objectKey"
+  | "variantWidths"
+  | "width"
+  | "height"
+  | "realDimensions"
+>;
+
+const _artworkListings: ArtworkListing[] = (artworksJson as Artwork[]).map((a) => ({
+  id: a.id,
+  title: a.title,
+  artist: a.artist,
+  artistSlug: a.artistSlug,
+  year: a.year,
+  movement: a.movement,
+  nationality: a.nationality,
+  objectKey: a.objectKey,
+  variantWidths: a.variantWidths,
+  width: a.width,
+  height: a.height,
+  realDimensions: a.realDimensions,
+}));
+export const artworkListings: ArtworkListing[] = _artworkListings;
 export const summary = summaryJson as {
   totalArtworks: number;
   totalArtists: number;
