@@ -336,7 +336,7 @@ const MOVEMENT_TO_ERA: Map<string, EraId> = (() => {
  * Assign an artwork to an era. Priority: explicit movement → year fallback.
  * Returns null only if neither year nor movement produces a match.
  */
-export function assignEra(artwork: Artwork): EraId | null {
+export function assignEra(artwork: Pick<Artwork, "movement" | "year">): EraId | null {
   if (artwork.movement) {
     const hit = MOVEMENT_TO_ERA.get(artwork.movement.toLowerCase());
     if (hit) return hit;

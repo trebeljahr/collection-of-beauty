@@ -28,7 +28,7 @@
 // Per-floor room count adapts to the era's size — quiet eras get a
 // compact 3-room plan, sprawling ones fill all 8 slot rooms.
 
-import type { Artwork } from "@/lib/data";
+import type { ArtworkListing } from "@/lib/data";
 import { assignEra, ERAS, type Era, type EraId, roomFloorColor } from "@/lib/gallery-eras";
 import { slugify } from "@/lib/utils";
 import { distributePaintings } from "./place-paintings";
@@ -242,7 +242,7 @@ const SLOTS: Slot[] = [
 
 // --- Public entry ---------------------------------------------------------
 
-export function layoutMuseum(allArtworks: Artwork[]): MuseumLayout {
+export function layoutMuseum(allArtworks: ArtworkListing[]): MuseumLayout {
   const byEra = bucketByEra(allArtworks);
 
   const floors: FloorLayout[] = [];
@@ -292,8 +292,8 @@ export function layoutMuseum(allArtworks: Artwork[]): MuseumLayout {
 
 // --- Era bucketing --------------------------------------------------------
 
-function bucketByEra(all: Artwork[]): Map<EraId, Artwork[]> {
-  const m = new Map<EraId, Artwork[]>();
+function bucketByEra(all: ArtworkListing[]): Map<EraId, ArtworkListing[]> {
+  const m = new Map<EraId, ArtworkListing[]>();
   for (const era of ERAS) m.set(era.id, []);
 
   for (const a of all) {
@@ -320,7 +320,7 @@ function bucketByEra(all: Artwork[]): Map<EraId, Artwork[]> {
 
 // --- Per-floor layout -----------------------------------------------------
 
-function buildFloor(era: Era, eraArtworks: Artwork[]): FloorLayout {
+function buildFloor(era: Era, eraArtworks: ArtworkListing[]): FloorLayout {
   const byMovement = groupMovements(era, eraArtworks);
   const anchorMovement = resolveAnchorMovement(era, byMovement);
 
@@ -335,7 +335,7 @@ function buildFloor(era: Era, eraArtworks: Artwork[]): FloorLayout {
   // history tradition than European Renaissance/Baroque/etc, so they
   // earn a dedicated room rather than being lumped in with whatever
   // European overflow exists. Then by popularity for the rest.
-  const expanded: Array<{ name: string; artworks: Artwork[] }> = [];
+  const expanded: Array<{ name: string; artworks: ArtworkListing[] }> = [];
   const orderedMovements = Array.from(byMovement.entries()).sort((a, b) => {
     if (a[0] === anchorMovement) return -1;
     if (b[0] === anchorMovement) return 1;
@@ -364,7 +364,7 @@ function buildFloor(era: Era, eraArtworks: Artwork[]): FloorLayout {
       : { name: anchorMovement, artworks: [] };
   const grandHallArtworks = grandHallEntry.artworks;
 
-  const slotEntries: Array<{ name: string; artworks: Artwork[] }> = [];
+  const slotEntries: Array<{ name: string; artworks: ArtworkListing[] }> = [];
   if (totalSlots === 0) {
     grandHallArtworks.push(...expanded.flatMap((e) => e.artworks));
   } else {
@@ -491,8 +491,8 @@ function buildFloor(era: Era, eraArtworks: Artwork[]): FloorLayout {
 
 // --- Helpers --------------------------------------------------------------
 
-function groupMovements(era: Era, eraArtworks: Artwork[]): Map<string, Artwork[]> {
-  const byMovement = new Map<string, Artwork[]>();
+function groupMovements(era: Era, eraArtworks: ArtworkListing[]): Map<string, ArtworkListing[]> {
+  const byMovement = new Map<string, ArtworkListing[]>();
   for (const a of eraArtworks) {
     const key = a.movement?.trim() ? a.movement : era.title;
     if (!byMovement.has(key)) byMovement.set(key, []);
@@ -515,7 +515,7 @@ function isEastAsianMovement(name: string): boolean {
   );
 }
 
-function resolveAnchorMovement(era: Era, byMovement: Map<string, Artwork[]>): string {
+function resolveAnchorMovement(era: Era, byMovement: Map<string, ArtworkListing[]>): string {
   const configured = era.anchor.movement;
   if ((byMovement.get(configured)?.length ?? 0) > 0) return configured;
   const biggest = Array.from(byMovement.entries()).sort((a, b) => b[1].length - a[1].length)[0];
@@ -527,7 +527,7 @@ function buildRoom(opts: {
   id: string;
   rect: CellRect;
   movement: string;
-  artworks: Artwork[];
+  artworks: ArtworkListing[];
   isAnchor: boolean;
   isStairwell: boolean;
   suppressWalls?: RoomLayout["suppressWalls"];
@@ -790,7 +790,7 @@ function buildStaircase(lower: FloorLayout, upper: FloorLayout): Staircase | nul
 
 // --- Copy helpers ---------------------------------------------------------
 
-function describeRoom(movement: string, artworks: Artwork[]): string {
+function describeRoom(movement: string, artworks: ArtworkListing[]): string {
   if (artworks.length === 0) return movement;
   const years = artworks.map((a) => a.year).filter((y): y is number => y != null);
   if (years.length === 0) return `${movement} · ${artworks.length} works`;

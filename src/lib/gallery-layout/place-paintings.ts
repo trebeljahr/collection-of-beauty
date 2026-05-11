@@ -11,7 +11,7 @@
 // the wall and sits in the middle of that cell. Any slot whose centre
 // falls inside a door opening is skipped.
 
-import type { Artwork } from "@/lib/data";
+import type { ArtworkListing } from "@/lib/data";
 import { artworkBand, partitionByBand } from "./painting-bands";
 import type { Door, FloorLayout, HallwayLayout, Placement, RoomLayout } from "./types";
 import { CELL_SIZE } from "./world-coords";
@@ -518,7 +518,7 @@ export type DistributionStats = {
  */
 export function distributePaintings(
   floor: FloorLayout,
-  eraArtworks: Artwork[],
+  eraArtworks: ArtworkListing[],
   opts: { doubleRow?: boolean } = {},
 ): DistributionStats {
   const bands = partitionByBand(eraArtworks);
@@ -556,7 +556,7 @@ export function distributePaintings(
     push: (p) => hw.placements.push(p),
   }));
 
-  const pour = (supply: Artwork[], containers: SlotContainer[]): number => {
+  const pour = (supply: ArtworkListing[], containers: SlotContainer[]): number => {
     let placed = 0;
     let progressed = true;
     while (placed < supply.length && progressed) {
@@ -628,7 +628,7 @@ export function distributePaintings(
  *  aspect ratio; scales down if either dimension exceeds the slot's cap.
  *  Also handles the subtle off-wall translation so the plane never
  *  z-fights the wall plane behind it. */
-function slotToPlacement(slot: Slot, artwork: Artwork): Placement {
+function slotToPlacement(slot: Slot, artwork: ArtworkListing): Placement {
   const dims = artwork.realDimensions;
   // Pixel aspect drives SHAPE; realDimensions drives SIZE (long edge in
   // metres). The metadata's widthCm/heightCm is unreliable as a shape

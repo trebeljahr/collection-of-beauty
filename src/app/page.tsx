@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import { GalleryBrowser } from "@/components/gallery-browser";
-import { artworks, movements, summary } from "@/lib/data";
+import { artworkListings, movements, summary } from "@/lib/data";
 import { SITE_DESCRIPTION, SITE_NAME, SITE_TAGLINE } from "@/lib/seo";
 
 export const metadata: Metadata = {
@@ -26,7 +26,7 @@ export default function HomePage() {
           </p>
         </div>
       </section>
-      <GalleryBrowser artworks={artworks} movements={movements} />
+      <GalleryBrowser artworks={artworkListings} movements={movements} />
     </div>
   );
 }

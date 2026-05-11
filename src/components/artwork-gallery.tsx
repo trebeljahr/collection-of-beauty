@@ -6,7 +6,7 @@ import { RowsPhotoAlbum } from "react-photo-album";
 import InfiniteScroll from "react-photo-album/scroll";
 import "react-photo-album/rows.css";
 import { ResponsiveImage } from "@/components/responsive-image";
-import { type Artwork, artworkAlt } from "@/lib/data";
+import { type ArtworkListing, artworkAlt } from "@/lib/data";
 
 export type GalleryPhoto = {
   // react-photo-album needs a src string to place tiles, even though we
@@ -24,7 +24,7 @@ export type GalleryPhoto = {
   year: number | null;
 };
 
-export function toGalleryPhoto(a: Artwork): GalleryPhoto {
+export function toGalleryPhoto(a: ArtworkListing): GalleryPhoto {
   return {
     src: a.objectKey,
     variantWidths: a.variantWidths,
@@ -40,7 +40,7 @@ export function toGalleryPhoto(a: Artwork): GalleryPhoto {
 }
 
 type Props = {
-  artworks: Artwork[];
+  artworks: ArtworkListing[];
   /** Page size for infinite-scroll materialisation. */
   pageSize?: number;
   /** How many photos to seed the album with on first render. Makes the top

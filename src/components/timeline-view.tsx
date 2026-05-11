@@ -5,18 +5,18 @@ import { useMemo, useState } from "react";
 import { ResponsiveImage } from "@/components/responsive-image";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
-import { type Artwork, artworkAlt } from "@/lib/data";
+import { type ArtworkListing, artworkAlt } from "@/lib/data";
 
 const DECADE = 10;
 
 type Props = {
-  artworks: Artwork[];
+  artworks: ArtworkListing[];
   movements: string[];
 };
 
 type Bucket = {
   decade: number;
-  works: Artwork[];
+  works: ArtworkListing[];
 };
 
 export function TimelineView({ artworks, movements }: Props) {
@@ -51,7 +51,7 @@ export function TimelineView({ artworks, movements }: Props) {
   }, [uniqueArtworks, movement, query]);
 
   const buckets = useMemo<Bucket[]>(() => {
-    const map = new Map<number, Artwork[]>();
+    const map = new Map<number, ArtworkListing[]>();
     for (const a of filtered) {
       if (a.year == null) continue;
       const d = Math.floor(a.year / DECADE) * DECADE;

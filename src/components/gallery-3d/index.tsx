@@ -8,7 +8,7 @@ import { useSetIs3DActive } from "@/components/gallery-3d-state";
 import { useJoystick } from "@/hooks/use-joystick";
 import { useNeedsRotate, useTouchDevice } from "@/hooks/use-touch-device";
 import { useAudioSettings } from "@/lib/audio-settings";
-import type { Artwork } from "@/lib/data";
+import type { ArtworkListing } from "@/lib/data";
 import { layoutMuseum } from "@/lib/gallery-layout/layout-museum";
 import type { FloorLayout, Staircase } from "@/lib/gallery-layout/types";
 
@@ -27,7 +27,7 @@ import { ZoomModal } from "./zoom-modal";
 const AMBIENCE_SRC = "/audio/ambience-loop.mp3";
 const ROOM_TRANSITION_SRC = "/audio/room-transition.mp3";
 
-type Props = { artworks: Artwork[] };
+type Props = { artworks: ArtworkListing[] };
 
 /**
  * Multi-floor 3D museum. All era floors are stacked on Y; only the
@@ -41,8 +41,8 @@ export function Gallery3D({ artworks }: Props) {
   const [hasStarted, setHasStarted] = useState(false);
   const [currentFloorIdx, setCurrentFloorIdx] = useState(layout.entry.floorIndex);
   const [activeRoomIdx, setActiveRoomIdx] = useState<number>(-1);
-  const [zoomed, setZoomed] = useState<Artwork | null>(null);
-  const [aiming, setAiming] = useState<Artwork | null>(null);
+  const [zoomed, setZoomed] = useState<ArtworkListing | null>(null);
+  const [aiming, setAiming] = useState<ArtworkListing | null>(null);
   // ID of the spiral the player is currently riding (or null if they're
   // not on a stair). Used to upgrade the *connected* adjacent floor
   // from stairwell-only to full geometry while the player is on the

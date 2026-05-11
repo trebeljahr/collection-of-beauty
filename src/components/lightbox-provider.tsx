@@ -2,7 +2,13 @@
 
 import { useRouter } from "next/navigation";
 import { createContext, type ReactNode, useCallback, useContext, useMemo, useState } from "react";
-import { artworkAlt, artworks } from "@/lib/data";
+// Use the slim listing projection rather than the full artworks export
+// — the lightbox only reads id/title/artist/year/objectKey/
+// variantWidths/width/height, all of which are in the slim shape, so
+// importing the full Artwork list here was leaking ~3 MB of
+// description / provenance / credit / source URL data into the client
+// bundle just to power the prev/next index lookup.
+import { artworkAlt, artworkListings as artworks } from "@/lib/data";
 import { Lightbox } from "./lightbox";
 
 type LightboxApi = {
