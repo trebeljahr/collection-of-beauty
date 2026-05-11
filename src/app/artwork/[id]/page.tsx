@@ -12,6 +12,22 @@ import { artworkJsonLd, jsonLdScriptProps, ogImagesForArtwork } from "@/lib/seo"
 
 type Params = { id: string };
 
+// Prebuild the most-likely-to-be-hit artwork pages so first paint on
+// shared/featured works is instant; the rest render on demand and get
+// cached at the edge from then on. Picking "has a known artist with
+// ≥5 works AND has a year AND has variant widths" as a cheap proxy
+// for "page worth prerendering" — it correlates with works that
+// actually show on the home grid, get linked from artist pages, or
+// land in OG previews. Caps the prebuilt set so the build doesn't
+// fan out to all 2,947 pages.
+const STATIC_PARAMS_CAP = 250;
+export function generateStaticParams(): Params[] {
+  return artworks
+    .filter((a) => a.year != null && a.artist != null && a.variantWidths != null)
+    .slice(0, STATIC_PARAMS_CAP)
+    .map((a) => ({ id: a.id }));
+}
+
 export async function generateMetadata({ params }: { params: Promise<Params> }): Promise<Metadata> {
   const { id } = await params;
   const art = getArtwork(id);

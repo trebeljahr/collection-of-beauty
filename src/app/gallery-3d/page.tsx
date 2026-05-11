@@ -1,6 +1,12 @@
 import type { Metadata } from "next";
-import { Gallery3D } from "@/components/gallery-3d";
 import { artworkListings } from "@/lib/data";
+import { Gallery3DClient } from "./gallery-3d-client";
+
+// Three.js + R3F + drei + postprocessing is ~600 KB gzipped; the
+// Gallery3DClient wrapper performs the `dynamic(..., { ssr: false })`
+// import (a Server Component can't do that directly in Next 16) so
+// the route shell renders immediately and the loading.tsx fallback
+// shows while the bundle downloads.
 
 export const metadata: Metadata = {
   title: "3D Gallery",
@@ -21,5 +27,5 @@ export const metadata: Metadata = {
 };
 
 export default function Gallery3DPage() {
-  return <Gallery3D artworks={artworkListings} />;
+  return <Gallery3DClient artworks={artworkListings} />;
 }
