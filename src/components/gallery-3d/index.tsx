@@ -89,9 +89,20 @@ export function Gallery3D({ artworks }: Props) {
   const entryFloor = layout.floors[layout.entry.floorIndex];
   const entryRoom = entryFloor.rooms.find((r) => r.isAnchor) ?? entryFloor.rooms[0];
   const entryRoomTotal = entryRoom?.placements.length ?? 0;
-  const [entryRoomLoaded, setEntryRoomLoaded] = useState(0);
-  const handleEntryPaintingLoaded = useCallback(() => {
-    setEntryRoomLoaded((n) => n + 1);
+  const [entryRoomResults, setEntryRoomResults] = useState<Record<string, "loaded" | "failed">>({});
+  const entryRoomStatuses = Object.values(entryRoomResults);
+  const entryRoomLoaded = entryRoomStatuses.filter((status) => status === "loaded").length;
+  const entryRoomFailed = entryRoomStatuses.filter((status) => status === "failed").length;
+  const entryRoomSettled = entryRoomLoaded + entryRoomFailed;
+  const handleEntryPaintingSettled = useCallback((key: string, status: "loaded" | "failed") => {
+    setEntryRoomResults((prev) => {
+      if (prev[key]) return prev;
+      return { ...prev, [key]: status };
+    });
+  }, []);
+  const retryEntryRoomLoads = useCallback(() => {
+    setEntryRoomResults({});
+    setCanvasKey((k) => k + 1);
   }, []);
 
   // Wrapper around the canvas + HUD overlays. Used as the fullscreen
@@ -457,7 +468,7 @@ export function Gallery3D({ artworks }: Props) {
           entryRoomId={
             !hasStarted && currentFloorIdx === layout.entry.floorIndex ? entryRoom?.id : undefined
           }
-          onEntryPaintingLoaded={handleEntryPaintingLoaded}
+          onEntryPaintingSettled={handleEntryPaintingSettled}
         />
         {/* Adjacent floors: mount their stairwell rooms only so the
             stair leading up/down has visual continuity into the next
@@ -548,8 +559,10 @@ export function Gallery3D({ artworks }: Props) {
         <StartOverlay
           title={currentFloor.era.title}
           blurb={currentFloor.era.blurb}
-          loaded={Math.min(entryRoomLoaded, entryRoomTotal)}
+          settled={Math.min(entryRoomSettled, entryRoomTotal)}
+          failed={entryRoomFailed}
           total={entryRoomTotal}
+          onRetry={retryEntryRoomLoads}
           onStart={() => {
             // Engage pointer lock inside the Enter click's user gesture so
             // the very first painting click opens the inspect overlay
@@ -749,7 +762,7 @@ function FloorScene({
   activeRoomIdx,
   showOnly,
   entryRoomId,
-  onEntryPaintingLoaded,
+  onEntryPaintingSettled,
 }: {
   floor: FloorLayout;
   /** Every staircase in the building. Threaded into StaircaseRenderer
@@ -769,7 +782,7 @@ function FloorScene({
   /** Room whose paintings should report load progress. Undefined →
    *  no room reports (e.g. once the player has entered). */
   entryRoomId?: string;
-  onEntryPaintingLoaded?: () => void;
+  onEntryPaintingSettled?: (key: string, status: "loaded" | "failed") => void;
 }) {
   const rooms =
     showOnly === "stairs"
@@ -790,7 +803,7 @@ function FloorScene({
           key={room.id}
           room={room}
           isActive={i === activeRoomIdx}
-          onPaintingLoaded={room.id === entryRoomId ? onEntryPaintingLoaded : undefined}
+          onPaintingSettled={room.id === entryRoomId ? onEntryPaintingSettled : undefined}
         />
       ))}
       {hallways.map((hw) => (
@@ -867,23 +880,27 @@ function Crosshair({ inspecting }: { inspecting: boolean }) {
  */
 function StartOverlay({
   onStart,
-  loaded,
+  settled,
+  failed,
   total,
   title,
   blurb,
+  onRetry,
   isTouch = false,
 }: {
   onStart: () => void;
-  loaded: number;
+  settled: number;
+  failed: number;
   total: number;
   title: string;
   blurb: string;
+  onRetry: () => void;
   /** When true, the controls hint reads as joystick / tap instructions
    *  instead of WASD + mouse. Driven by `useTouchDevice()` upstream. */
   isTouch?: boolean;
 }) {
-  const ready = total === 0 || loaded >= total;
-  const pct = total > 0 ? Math.round((loaded / total) * 100) : 100;
+  const ready = total === 0 || settled >= total;
+  const pct = total > 0 ? Math.round((settled / total) * 100) : 100;
 
   return (
     // biome-ignore lint/a11y/useKeyWithClickEvents: pointer-lock entry requires a real mouse click; keyboard activation can't grant pointer-lock
@@ -933,18 +950,39 @@ function StartOverlay({
             />
           </div>
           <div className="text-xs text-white/55">
-            {ready ? "First room ready" : `Loading first room… ${loaded}/${total}`}
+            {ready
+              ? failed > 0
+                ? `${failed} painting${failed === 1 ? "" : "s"} could not load`
+                : "First room ready"
+              : `Loading first room… ${settled}/${total}`}
           </div>
+          {failed > 0 && (
+            <p className="text-xs leading-relaxed text-amber-200/80">
+              Network or image decoding failed after retries. You can enter with placeholders or
+              retry the room.
+            </p>
+          )}
         </div>
 
-        <button
-          type="button"
-          onClick={onStart}
-          disabled={!ready}
-          className="mt-5 rounded-md bg-white px-5 py-2 text-sm font-medium text-black transition hover:bg-white/85 disabled:cursor-not-allowed disabled:bg-white/30 disabled:text-white/60"
-        >
-          {ready ? "Enter" : "Preparing…"}
-        </button>
+        <div className="mt-5 flex flex-wrap items-center justify-center gap-2">
+          {failed > 0 && (
+            <button
+              type="button"
+              onClick={onRetry}
+              className="rounded-md border border-white/25 px-5 py-2 text-sm font-medium text-white transition hover:bg-white/10"
+            >
+              Retry
+            </button>
+          )}
+          <button
+            type="button"
+            onClick={onStart}
+            disabled={!ready}
+            className="rounded-md bg-white px-5 py-2 text-sm font-medium text-black transition hover:bg-white/85 disabled:cursor-not-allowed disabled:bg-white/30 disabled:text-white/60"
+          >
+            {ready ? (failed > 0 ? "Enter anyway" : "Enter") : "Preparing…"}
+          </button>
+        </div>
       </div>
     </div>
   );

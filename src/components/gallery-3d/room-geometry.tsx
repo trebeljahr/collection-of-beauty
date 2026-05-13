@@ -26,14 +26,14 @@ import { WallWithDoors } from "./wall";
 export function RoomGeometry({
   room,
   isActive,
-  onPaintingLoaded,
+  onPaintingSettled,
 }: {
   room: RoomLayout;
   isActive: boolean;
   /** Fires once per painting after its 960 px texture loads. Optional —
    *  Gallery3D only passes it for the entry room so the start
-   *  overlay can show first-room load progress. */
-  onPaintingLoaded?: () => void;
+   *  overlay can show first-room load progress / failures. */
+  onPaintingSettled?: (key: string, status: "loaded" | "failed") => void;
 }) {
   const era = ERAS[room.floorIndex];
   const mats = getPaletteMaterials(era.palette);
@@ -205,9 +205,18 @@ export function RoomGeometry({
       )}
 
       {/* Paintings */}
-      {room.placements.map((p, i) => (
-        <Painting key={`${room.id}-p${i}`} placement={p} onLoaded={onPaintingLoaded} />
-      ))}
+      {room.placements.map((p) => {
+        const paintingKey = `${room.id}-${p.artwork.id}-${p.position.join(",")}`;
+        return (
+          <Painting
+            key={paintingKey}
+            placement={p}
+            onSettled={
+              onPaintingSettled ? (status) => onPaintingSettled(paintingKey, status) : undefined
+            }
+          />
+        );
+      })}
 
       {/* Four pendant lamps at the centres of the room's quadrants
           instead of one in the middle. With one lamp per quadrant each

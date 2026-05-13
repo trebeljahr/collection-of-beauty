@@ -120,13 +120,13 @@ const LOD_TIERS: LodTier[] = [
 
 export function Painting({
   placement,
-  onLoaded,
+  onSettled,
 }: {
   placement: Placement;
   /** Fires once when the base 960 px texture has finished loading and
-   *  the painting plane mounts. Used by Gallery3D to drive the
-   *  "Loading first room…" progress bar on the start overlay. */
-  onLoaded?: () => void;
+   *  also fires on final failure after retries. Used by Gallery3D to
+   *  drive the start overlay without allowing one bad image to hang it. */
+  onSettled?: (status: "loaded" | "failed") => void;
 }) {
   const { artwork, position, rotation, widthM, heightM, plaqueOnLeft } = placement;
   const url = variantUrl(artwork.objectKey, 960, "avif");
@@ -198,7 +198,7 @@ export function Painting({
         widthM={dW}
         heightM={dH}
         artwork={artwork}
-        onLoaded={onLoaded}
+        onSettled={onSettled}
         onTextureAspect={handleTextureAspect}
       />
       <Plaque artwork={artwork} widthM={dW} plaqueOnLeft={plaqueOnLeft} />
@@ -696,7 +696,7 @@ function PaintingPlane({
   widthM,
   heightM,
   artwork,
-  onLoaded,
+  onSettled,
   onTextureAspect,
 }: {
   /** 960 px AVIF — the base "good enough" texture; once it lands the
@@ -709,7 +709,7 @@ function PaintingPlane({
   widthM: number;
   heightM: number;
   artwork: Placement["artwork"];
-  onLoaded?: () => void;
+  onSettled?: (status: "loaded" | "failed") => void;
   /** Reports the loaded texture's true pixel aspect (w/h). Parent uses
    *  this to refit the plane + frame to the texture's real shape, so a
    *  bad realDimensions value can't visibly distort the painting. */
@@ -736,6 +736,7 @@ function PaintingPlane({
   // both this initial install AND the .then mutations from the load
   // effect (you'd see paintings stuck at the brown swatch even after
   // the texture loaded).
+  // biome-ignore lint/correctness/useExhaustiveDependencies: one-shot mount setup; the load effect below handles updates after.
   useLayoutEffect(() => {
     const material = matRef.current;
     if (!material) return;
@@ -748,7 +749,7 @@ function PaintingPlane({
       if (cachedBase) {
         baseTextureRef.current = cachedBase;
         setBaseLoaded(true);
-        onLoaded?.();
+        onSettled?.("loaded");
         const img = cachedBase.image as { width?: number; height?: number } | undefined;
         if (img?.width && img?.height) {
           onTextureAspect?.(img.width / img.height);
@@ -758,7 +759,6 @@ function PaintingPlane({
       material.color.setHex(0x3a2e20);
     }
     material.needsUpdate = true;
-    // biome-ignore lint/correctness/useExhaustiveDependencies: one-shot mount setup; the load effect below handles updates after.
   }, []);
 
   // Progressive loader: kick off both the 256 placeholder and the 960
@@ -769,7 +769,7 @@ function PaintingPlane({
   //
   // Same warning as the layout effect above: we mutate material.map
   // and material.color directly here, not via JSX props.
-  // biome-ignore lint/correctness/useExhaustiveDependencies: onLoaded / onTextureAspect identity is unstable; we want one-shot fire on base load.
+  // biome-ignore lint/correctness/useExhaustiveDependencies: onSettled / onTextureAspect identity is unstable; we want one-shot fire on base load.
   useEffect(() => {
     const material = matRef.current;
     if (!material) return;
@@ -802,14 +802,15 @@ function PaintingPlane({
         material.color.setHex(0xffffff);
         material.needsUpdate = true;
         setBaseLoaded(true);
-        onLoaded?.();
+        onSettled?.("loaded");
         const img = tex.image as { width?: number; height?: number } | undefined;
         if (img?.width && img?.height) {
           onTextureAspect?.(img.width / img.height);
         }
       })
       .catch((err) => {
-        console.warn(`[painting] failed to load ${url}:`, err);
+        console.warn(`[painting] failed to load ${url}: ${formatLoadError(err)}`);
+        onSettled?.("failed");
       });
 
     return () => {
@@ -1023,4 +1024,9 @@ function PaintingPlane({
       <meshBasicMaterial ref={matRef} toneMapped={false} />
     </mesh>
   );
+}
+
+function formatLoadError(err: unknown): string {
+  if (err instanceof Error) return err.message;
+  return String(err);
 }
