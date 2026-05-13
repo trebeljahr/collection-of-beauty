@@ -29,6 +29,9 @@ import { useMemo } from "react";
 import * as THREE from "three";
 
 const TEXTURE_CACHE_CAPACITY = 96;
+const TEXTURE_LOAD_ATTEMPTS = 3;
+const TEXTURE_LOAD_TIMEOUT_MS = 15_000;
+const TEXTURE_RETRY_DELAY_MS = 500;
 // Hi-res cache is small on purpose — at most a handful of paintings are
 // inside the upgrade radius at any moment, and these textures are 4–32×
 // the GPU memory of a 960 px base. Eviction frees GPU memory quickly
@@ -74,6 +77,16 @@ class TextureLRU {
 
 const cache = new TextureLRU(TEXTURE_CACHE_CAPACITY);
 const inFlight = new Map<string, Promise<THREE.Texture>>();
+
+class TextureHttpError extends Error {
+  constructor(
+    url: string,
+    readonly status: number,
+  ) {
+    super(`fetch ${url}: ${status}`);
+    this.name = "TextureHttpError";
+  }
+}
 
 /** Read the GPU's max anisotropy if available, else fall back to a
  *  conservative 4. Most desktop GPUs report 16; mobile typically 4–8.
@@ -132,6 +145,40 @@ function enqueueUpload(tex: THREE.Texture, renderer: THREE.WebGLRenderer): Promi
   });
 }
 
+function delay(ms: number): Promise<void> {
+  return new Promise((resolve) => window.setTimeout(resolve, ms));
+}
+
+function isPermanentHttpError(err: unknown): boolean {
+  return (
+    err instanceof TextureHttpError &&
+    err.status >= 400 &&
+    err.status < 500 &&
+    err.status !== 408 &&
+    err.status !== 429
+  );
+}
+
+async function withTextureTimeout<T>(
+  url: string,
+  operation: (signal: AbortSignal) => Promise<T>,
+): Promise<T> {
+  const controller = new AbortController();
+  let timeoutId: number | null = null;
+  const timeout = new Promise<never>((_, reject) => {
+    timeoutId = window.setTimeout(() => {
+      controller.abort();
+      reject(new Error(`Timed out loading texture ${url} after ${TEXTURE_LOAD_TIMEOUT_MS}ms`));
+    }, TEXTURE_LOAD_TIMEOUT_MS);
+  });
+
+  try {
+    return await Promise.race([operation(controller.signal), timeout]);
+  } finally {
+    if (timeoutId != null) window.clearTimeout(timeoutId);
+  }
+}
+
 // ─────────────────────────────────────────────────────────────────────
 // Main entry — fetch, decode, upload, cache.
 // ─────────────────────────────────────────────────────────────────────
@@ -147,26 +194,43 @@ async function loadTextureCached(
   if (existing) return existing;
 
   const promise = (async () => {
-    // createImageBitmap decodes off-thread, which matters for a burst
-    // of painting loads. `imageOrientation: flipY` avoids the expensive
-    // CPU flip THREE does on upload when `flipY` is left true.
-    const res = await fetch(url, { credentials: "omit" });
-    if (!res.ok) throw new Error(`fetch ${url}: ${res.status}`);
-    const blob = await res.blob();
-    const bitmap = await createImageBitmap(blob, {
-      imageOrientation: "flipY",
-    });
-    const tex = new THREE.Texture(bitmap as unknown as HTMLImageElement);
-    tex.colorSpace = THREE.SRGBColorSpace;
-    tex.anisotropy = aniso(renderer);
-    tex.minFilter = THREE.LinearMipMapLinearFilter;
-    tex.magFilter = THREE.LinearFilter;
-    tex.generateMipmaps = true;
-    tex.flipY = false; // already flipped during createImageBitmap
-    tex.needsUpdate = true;
-    if (renderer) await enqueueUpload(tex, renderer);
-    cache.put(url, tex);
-    return tex;
+    let lastError: unknown;
+
+    for (let attempt = 1; attempt <= TEXTURE_LOAD_ATTEMPTS; attempt++) {
+      try {
+        const tex = await withTextureTimeout(url, async (signal) => {
+          // createImageBitmap decodes off-thread, which matters for a burst
+          // of painting loads. `imageOrientation: flipY` avoids the expensive
+          // CPU flip THREE does on upload when `flipY` is left true.
+          const res = await fetch(url, { credentials: "omit", signal });
+          if (!res.ok) throw new TextureHttpError(url, res.status);
+          const blob = await res.blob();
+          if (signal.aborted) throw new DOMException("aborted", "AbortError");
+          const bitmap = await createImageBitmap(blob, {
+            imageOrientation: "flipY",
+          });
+          if (signal.aborted) throw new DOMException("aborted", "AbortError");
+          const texture = new THREE.Texture(bitmap as unknown as HTMLImageElement);
+          texture.colorSpace = THREE.SRGBColorSpace;
+          texture.anisotropy = aniso(renderer);
+          texture.minFilter = THREE.LinearMipMapLinearFilter;
+          texture.magFilter = THREE.LinearFilter;
+          texture.generateMipmaps = true;
+          texture.flipY = false; // already flipped during createImageBitmap
+          texture.needsUpdate = true;
+          if (renderer) await enqueueUpload(texture, renderer);
+          return texture;
+        });
+        cache.put(url, tex);
+        return tex;
+      } catch (err) {
+        lastError = err;
+        if (attempt === TEXTURE_LOAD_ATTEMPTS || isPermanentHttpError(err)) break;
+        await delay(TEXTURE_RETRY_DELAY_MS * attempt);
+      }
+    }
+
+    throw lastError;
   })().finally(() => {
     inFlight.delete(url);
   });
