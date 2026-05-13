@@ -11,6 +11,9 @@ importers:
       '@aws-sdk/client-s3':
         specifier: ^3.1032.0
         version: 3.1032.0
+      '@hatchkit/dev-plugin-next':
+        specifier: ^0.1.47
+        version: 0.1.47(next@16.2.4(react-dom@19.2.5(react@19.2.5))(react@19.2.5))
       '@react-email/components':
         specifier: ^1.0.12
         version: 1.0.12(react-dom@19.2.5(react@19.2.5))(react@19.2.5)
@@ -588,6 +591,14 @@ packages:
     engines: {node: '>=18'}
     cpu: [x64]
     os: [win32]
+
+  '@hatchkit/dev-plugin-next@0.1.47':
+    resolution: {integrity: sha512-di6cz/Jjm3iy5Y0UYN/u4EyHuIjG1tcri1//k4yu4bnUlMnpf/TQIf6pro/Yh8NCjc+gKlh+5riYRomu7opAKQ==}
+    peerDependencies:
+      next: '>=14'
+
+  '@hatchkit/dev-shared@0.1.47':
+    resolution: {integrity: sha512-fCsMfi8OYDKA/NYl8r+CUT25PaCsCv4faN0A86MjeOaN/pw6I3oOGuQPmLaOh0Ccg8qH0PeaqtSkxJtQnGmqUw==}
 
   '@img/colour@1.1.0':
     resolution: {integrity: sha512-Td76q7j57o/tLVdgS746cYARfSyxk8iEfRxewL9h4OMzYhbW4TAcppl0mT4eyqXddh6L/jwoM75mo7ixa/pCeQ==}
@@ -3640,6 +3651,13 @@ snapshots:
 
   '@esbuild/win32-x64@0.27.5':
     optional: true
+
+  '@hatchkit/dev-plugin-next@0.1.47(next@16.2.4(react-dom@19.2.5(react@19.2.5))(react@19.2.5))':
+    dependencies:
+      '@hatchkit/dev-shared': 0.1.47
+      next: 16.2.4(react-dom@19.2.5(react@19.2.5))(react@19.2.5)
+
+  '@hatchkit/dev-shared@0.1.47': {}
 
   '@img/colour@1.1.0': {}
 

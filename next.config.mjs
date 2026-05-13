@@ -1,3 +1,4 @@
+import { withLocalDev } from "@hatchkit/dev-plugin-next";
 import bundleAnalyzer from "@next/bundle-analyzer";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
@@ -86,4 +87,5 @@ const nextConfig = {
   },
 };
 
-export default withBundleAnalyzer(nextConfig);
+const __hatchkitLocalDevConfig = withBundleAnalyzer(nextConfig);
+export default withLocalDev(__hatchkitLocalDevConfig, { slug: "collection-of-beauty" });
