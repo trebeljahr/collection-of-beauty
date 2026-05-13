@@ -57,7 +57,15 @@ const nextConfig = {
   output: "standalone",
   outputFileTracingRoot: __dirname,
   ...(process.env.NODE_ENV === "development"
-    ? { allowedDevOrigins: ["192.168.1.119", "192.168.1.*", "*.local"] }
+    ? {
+        allowedDevOrigins: [
+          "192.168.1.119",
+          "192.168.1.*",
+          "*.local",
+          "*.local.ricoslabs.com",
+          "collection-of-beauty.local.ricoslabs.com",
+        ],
+      }
     : {}),
   // No `images` config: we serve pre-built AVIF/WebP variants directly
   // via <picture>/<source> from rclone. Next's image optimizer isn't in
