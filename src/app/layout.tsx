@@ -1,5 +1,6 @@
 import type { Metadata, Viewport } from "next";
 import Link from "next/link";
+import Script from "next/script";
 import "./globals.css";
 import { Gallery3DProvider } from "@/components/gallery-3d-state";
 import { SiteNav } from "@/components/site-nav";
@@ -17,6 +18,10 @@ import {
 
 const hero = heroArtwork();
 const defaultOgImages = ogImagesForArtwork(hero);
+const plausibleDomain = "beauty.trebeljahr.com";
+const plausibleScriptUrl =
+  "https://plausible.trebeljahr.com/js/script.file-downloads.hash.outbound-links.pageview-props.revenue.tagged-events.js";
+const shouldLoadPlausible = process.env.NODE_ENV === "production";
 
 export const metadata: Metadata = {
   metadataBase: new URL(SITE_URL),
@@ -97,6 +102,24 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         <script {...jsonLdScriptProps(websiteJsonLd())} />
       </head>
       <body className="min-h-screen antialiased" suppressHydrationWarning>
+        {shouldLoadPlausible ? (
+          <Script id="plausible-loader" strategy="afterInteractive">
+            {`
+              (function () {
+                var domain = ${JSON.stringify(plausibleDomain)};
+                if (location.hostname !== domain) return;
+                window.plausible = window.plausible || function() {
+                  (window.plausible.q = window.plausible.q || []).push(arguments);
+                };
+                var script = document.createElement("script");
+                script.defer = true;
+                script.dataset.domain = domain;
+                script.src = ${JSON.stringify(plausibleScriptUrl)};
+                document.head.appendChild(script);
+              })();
+            `}
+          </Script>
+        ) : null}
         <Gallery3DProvider>
           <SiteNav />
           <main>{children}</main>
