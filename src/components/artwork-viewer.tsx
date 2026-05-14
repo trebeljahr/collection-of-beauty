@@ -2,7 +2,7 @@
 
 import { useRouter } from "next/navigation";
 import { useEffect } from "react";
-import { artworkAlt } from "@/lib/data";
+import { artworkAlt } from "@/lib/artwork-format";
 import { suggestFixUrl } from "@/lib/links";
 import { useLightbox } from "./lightbox-provider";
 import { ResponsiveImage } from "./responsive-image";
@@ -65,7 +65,7 @@ export function ArtworkViewer({ art, prevId, nextId }: Props) {
     <div>
       <button
         type="button"
-        onClick={() => open(art.id)}
+        onClick={() => open(art)}
         title="View fullscreen"
         aria-label={`Open ${art.title} in fullscreen viewer`}
         className="block w-full cursor-zoom-in rounded-md border-0 bg-transparent p-0 focus:outline-none focus-visible:ring-2 focus-visible:ring-[var(--ring)]"

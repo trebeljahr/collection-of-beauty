@@ -7,15 +7,12 @@ export function cn(...inputs: ClassValue[]) {
 }
 
 export function slugify(input: string): string {
-  return (
-    input
-      .toLowerCase()
-      .normalize("NFKD")
-      // biome-ignore lint/suspicious/noMisleadingCharacterClass: stripping NFKD combining marks is the intent
-      .replace(/[\u0300-\u036f]/g, "")
-      .replace(/[^a-z0-9]+/g, "-")
-      .replace(/(^-|-$)+/g, "")
-  );
+  return input
+    .toLowerCase()
+    .normalize("NFKD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .replace(/[^a-z0-9]+/g, "-")
+    .replace(/(^-|-$)+/g, "");
 }
 
 // Base for all asset URLs. Serves both:
@@ -42,6 +39,7 @@ function assetsBaseUrl(): string {
 }
 
 const ASSETS_BASE_URL = assetsBaseUrl();
+const ASSETS_PROXY_BASE_URL = "/assets-raw";
 
 // Variant set is shared from `variant-config.mjs` so the encoder
 // (scripts/shrink-sources.mjs) and this runtime URL builder reference
@@ -62,6 +60,10 @@ export function assetUrl(objectKey: string): string {
   return `${ASSETS_BASE_URL}/${encodePath(objectKey.split("/"))}`;
 }
 
+export function assetProxyUrl(objectKey: string): string {
+  return `${ASSETS_PROXY_BASE_URL}/${encodePath(objectKey.split("/"))}`;
+}
+
 // Variants live at <bucket>/<basename>/<width>.<format>, where <basename>
 // is the original filename minus its extension. Example:
 //   objectKey = "collection-of-beauty/Dong_Yuan_Mountain_Hall.jpg"
@@ -74,6 +76,15 @@ export function variantUrl(objectKey: string, width: number, format: VariantForm
   const basename = filename.replace(/\.[^.]+$/, "");
   const segments = [...dir.split("/"), basename, `${width}.${format}`];
   return `${ASSETS_BASE_URL}/${encodePath(segments)}`;
+}
+
+export function variantProxyUrl(objectKey: string, width: number, format: VariantFormat): string {
+  const lastSlash = objectKey.lastIndexOf("/");
+  const dir = objectKey.slice(0, lastSlash);
+  const filename = objectKey.slice(lastSlash + 1);
+  const basename = filename.replace(/\.[^.]+$/, "");
+  const segments = [...dir.split("/"), basename, `${width}.${format}`];
+  return `${ASSETS_PROXY_BASE_URL}/${encodePath(segments)}`;
 }
 
 // Full srcSet string for a <source> element. Emits only the widths the

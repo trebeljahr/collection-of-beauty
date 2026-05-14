@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { ResponsiveImage } from "@/components/responsive-image";
-import { type ArtworkListing, artworkAlt } from "@/lib/data";
+import { artworkAlt } from "@/lib/artwork-format";
+import type { ArtworkListing } from "@/lib/data";
 
 type Props = {
   artwork: ArtworkListing;

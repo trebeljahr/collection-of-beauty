@@ -6,7 +6,8 @@ import { RowsPhotoAlbum } from "react-photo-album";
 import InfiniteScroll from "react-photo-album/scroll";
 import "react-photo-album/rows.css";
 import { ResponsiveImage } from "@/components/responsive-image";
-import { type ArtworkListing, artworkAlt } from "@/lib/data";
+import { artworkAlt } from "@/lib/artwork-format";
+import type { ArtworkListing } from "@/lib/data";
 
 export type GalleryPhoto = {
   // react-photo-album needs a src string to place tiles, even though we

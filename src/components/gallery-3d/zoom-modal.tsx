@@ -6,8 +6,9 @@ import {
   TransformComponent,
   TransformWrapper,
 } from "react-zoom-pan-pinch";
-import { type ArtworkListing, artworkAlt } from "@/lib/data";
-import { assetUrl, cn, variantUrl } from "@/lib/utils";
+import { artworkAlt } from "@/lib/artwork-format";
+import type { ArtworkListing } from "@/lib/data";
+import { assetProxyUrl, assetUrl, cn, variantProxyUrl, variantUrl } from "@/lib/utils";
 import { getHiRes, peekCached } from "./texture-cache";
 
 /** Walk this artwork's variant widths from largest to smallest and
@@ -25,6 +26,8 @@ function peekBestCachedVariantUrl(artwork: ArtworkListing): string | null {
   for (let i = widths.length - 1; i >= 0; i--) {
     const w = widths[i];
     const url = variantUrl(artwork.objectKey, w, "avif");
+    const proxyUrl = variantProxyUrl(artwork.objectKey, w, "avif");
+    if (peekCached(proxyUrl) || getHiRes(proxyUrl)) return proxyUrl;
     if (peekCached(url) || getHiRes(url)) return url;
   }
   // Original-source tier — only present in the hi-res cache when the
@@ -33,6 +36,8 @@ function peekBestCachedVariantUrl(artwork: ArtworkListing): string | null {
   const sourceW = artwork.width;
   if (sourceW != null && sourceW > 4096) {
     const origUrl = assetUrl(artwork.objectKey);
+    const proxyOrigUrl = assetProxyUrl(artwork.objectKey);
+    if (peekCached(proxyOrigUrl) || getHiRes(proxyOrigUrl)) return proxyOrigUrl;
     if (peekCached(origUrl) || getHiRes(origUrl)) return origUrl;
   }
   return null;
@@ -102,8 +107,7 @@ export function ZoomModal({
     if (cached) return cached;
     if (widths.length > 0) return variantUrl(artwork.objectKey, widths[0], "avif");
     return assetUrl(artwork.objectKey);
-    // biome-ignore lint/correctness/useExhaustiveDependencies: artwork id captures the variant set; widths is derived from artwork.
-  }, [artwork.objectKey]);
+  }, [artwork, widths]);
 
   // If the placeholder IS already the high-res, skip the preload step
   // and start with `highReady` true so the high-res `<img>` paints
@@ -166,7 +170,6 @@ export function ZoomModal({
                 placeholder IS the high-res — no point rendering it
                 twice. */}
             {!startReady && (
-              // biome-ignore lint/a11y/useAltText: decorative placeholder; the high-res img below carries the alt text.
               // biome-ignore lint/performance/noImgElement: react-zoom-pan-pinch needs a plain <img>; next/image's wrapper interferes with its transform layer.
               <img
                 src={placeholderSrc}

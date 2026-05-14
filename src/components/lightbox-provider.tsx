@@ -1,18 +1,31 @@
 "use client";
 
 import { useRouter } from "next/navigation";
-import { createContext, type ReactNode, useCallback, useContext, useMemo, useState } from "react";
-// Use the slim listing projection rather than the full artworks export
-// — the lightbox only reads id/title/artist/year/objectKey/
-// variantWidths/width/height, all of which are in the slim shape, so
-// importing the full Artwork list here was leaking ~3 MB of
-// description / provenance / credit / source URL data into the client
-// bundle just to power the prev/next index lookup.
-import { artworkAlt, artworkListings as artworks } from "@/lib/data";
+import {
+  createContext,
+  type ReactNode,
+  useCallback,
+  useContext,
+  useMemo,
+  useRef,
+  useState,
+} from "react";
+import { artworkAlt } from "@/lib/artwork-format";
 import { Lightbox } from "./lightbox";
 
+type LightboxArtwork = {
+  id: string;
+  objectKey: string;
+  variantWidths: readonly number[] | null;
+  title: string;
+  artist: string | null;
+  year: number | null;
+  width: number | null;
+  height: number | null;
+};
+
 type LightboxApi = {
-  open: (id: string) => void;
+  open: (artwork: LightboxArtwork) => void;
   close: () => void;
   isOpen: boolean;
 };
@@ -29,27 +42,60 @@ export function useLightbox(): LightboxApi {
 
 // Hosted at the /artwork layout level so prev/next navigation inside the
 // lightbox doesn't unmount the overlay. The lightbox holds its own index
-// into the global artworks array; route changes are fired in parallel
-// (router.push, scroll: false) so URL stays in sync without closing the
-// modal.
+// into the global artworks array after lazily fetching it; route changes
+// are fired in parallel (router.push, scroll: false) so URL stays in sync
+// without closing the modal.
 export function LightboxProvider({ children }: { children: ReactNode }) {
   const router = useRouter();
-  const [index, setIndex] = useState<number | null>(null);
+  const [current, setCurrent] = useState<LightboxArtwork | null>(null);
+  const [artworks, setArtworks] = useState<LightboxArtwork[] | null>(null);
+  const artworksPromiseRef = useRef<Promise<LightboxArtwork[]> | null>(null);
 
-  const open = useCallback((id: string) => {
-    const i = artworks.findIndex((a) => a.id === id);
-    if (i < 0) return;
-    setIndex(i);
-  }, []);
+  const loadArtworks = useCallback(() => {
+    if (artworks) return Promise.resolve(artworks);
+    if (!artworksPromiseRef.current) {
+      artworksPromiseRef.current = fetch("/api/artworks")
+        .then((res) => {
+          if (!res.ok) throw new Error(`fetch /api/artworks: ${res.status}`);
+          return res.json() as Promise<LightboxArtwork[]>;
+        })
+        .then((data) => {
+          setArtworks(data);
+          return data;
+        })
+        .catch((err) => {
+          artworksPromiseRef.current = null;
+          throw err;
+        });
+    }
+    return artworksPromiseRef.current;
+  }, [artworks]);
 
-  const close = useCallback(() => setIndex(null), []);
+  const open = useCallback(
+    (artwork: LightboxArtwork) => {
+      setCurrent(artwork);
+      void loadArtworks();
+    },
+    [loadArtworks],
+  );
+
+  const close = useCallback(() => setCurrent(null), []);
+
+  const index = useMemo(() => {
+    if (!current || !artworks) return -1;
+    return artworks.findIndex((a) => a.id === current.id);
+  }, [artworks, current]);
 
   const navigate = useCallback(
     (delta: number) => {
-      if (index == null) return;
+      if (!artworks || index < 0) {
+        void loadArtworks();
+        return;
+      }
       const target = index + delta;
       if (target < 0 || target >= artworks.length) return;
-      setIndex(target);
+      const artwork = artworks[target];
+      setCurrent(artwork);
       // Soft URL sync: page below the modal swaps for the new artwork
       // (so closing the lightbox lands on what the user was viewing,
       // and reload preserves state). The provider lives in the layout
@@ -57,19 +103,18 @@ export function LightboxProvider({ children }: { children: ReactNode }) {
       // Fired outside the setState updater because router.push triggers
       // an update in the Router component, which React forbids during
       // the render phase that the updater function runs in.
-      router.push(`/artwork/${artworks[target].id}`, { scroll: false });
+      router.push(`/artwork/${artwork.id}`, { scroll: false });
     },
-    [index, router],
+    [artworks, index, loadArtworks, router],
   );
 
   const api = useMemo<LightboxApi>(
-    () => ({ open, close, isOpen: index != null }),
-    [open, close, index],
+    () => ({ open, close, isOpen: current != null }),
+    [open, close, current],
   );
 
-  const current = index != null ? artworks[index] : null;
-  const hasPrev = index != null && index > 0;
-  const hasNext = index != null && index < artworks.length - 1;
+  const hasPrev = artworks != null && index > 0;
+  const hasNext = artworks != null && index >= 0 && index < artworks.length - 1;
 
   return (
     <LightboxContext.Provider value={api}>
