@@ -96,6 +96,9 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
   return (
     <html lang="en" suppressHydrationWarning>
       <head>
+        <link rel="icon" href="/favicon.ico" sizes="any" />
+        <link rel="icon" type="image/png" sizes="512x512" href="/favicon.png" />
+        <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png" />
         {/* Site-level structured data. Per-page pages can emit additional
             JSON-LD blocks for their specific entities (VisualArtwork, Person). */}
         <script {...jsonLdScriptProps(websiteJsonLd())} />
