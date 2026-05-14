@@ -5,7 +5,7 @@
  * serve files. Now everything is native Node:
  *
  *   - scripts/build-data.mjs runs once up front
- *   - scripts/serve-assets.mjs spawns as a background child (port 9100)
+ *   - scripts/serve-assets.mjs spawns as a background child (port 9837)
  *   - `next dev -p 3547` runs in the foreground, with its Node heap
  *     capped at 2 GB so Turbopack can't balloon on long sessions
  *
@@ -93,7 +93,7 @@ for (const sig of ["SIGINT", "SIGTERM"]) {
   });
 }
 
-log("dev", "starting asset server on :9100");
+log("dev", "starting asset server on :9837");
 children.push(startAssets());
 
 log("dev", "==> http://localhost:3547");

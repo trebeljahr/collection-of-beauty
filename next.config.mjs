@@ -47,7 +47,7 @@ function assetsRewriteTarget() {
   if (process.env.NODE_ENV === "production") {
     throw new Error("NEXT_PUBLIC_ASSETS_BASE_URL must be set in production.");
   }
-  return "http://localhost:9100";
+  return "http://localhost:9837";
 }
 
 const ASSETS_REWRITE_TARGET = assetsRewriteTarget();
