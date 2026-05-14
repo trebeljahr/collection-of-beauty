@@ -7,7 +7,7 @@ import * as THREE from "three";
 import type { ArtworkListing } from "@/lib/data";
 import { PAINTING_WALL_OFFSET } from "@/lib/gallery-layout/place-paintings";
 import type { Placement } from "@/lib/gallery-layout/types";
-import { assetUrl, variantUrl } from "@/lib/utils";
+import { assetProxyUrl, variantProxyUrl } from "@/lib/utils";
 import { type PaintingEntry, registerPainting, unregisterPainting } from "./painting-registry";
 import {
   FRAME_VARIANTS,
@@ -129,7 +129,7 @@ export function Painting({
   onSettled?: (status: "loaded" | "failed") => void;
 }) {
   const { artwork, position, rotation, widthM, heightM, plaqueOnLeft } = placement;
-  const url = variantUrl(artwork.objectKey, 960, "avif");
+  const url = variantProxyUrl(artwork.objectKey, 960, "avif");
 
   // Aspect-corrected plane size. The slot's widthM/heightM are derived
   // from realDimensions (or pixel aspect, or a default) — but those can
@@ -194,7 +194,7 @@ export function Painting({
       )}
       <PaintingPlane
         url={url}
-        thumbUrl={variantUrl(artwork.objectKey, 256, "avif")}
+        thumbUrl={variantProxyUrl(artwork.objectKey, 256, "avif")}
         widthM={dW}
         heightM={dH}
         artwork={artwork}
@@ -892,10 +892,10 @@ function PaintingPlane({
       t.kind === "variant" ? available.has(t.width) : hasBiggerOriginal,
     );
     const tierUrls = tiers.map((t) => {
-      if (t.kind === "variant") return variantUrl(artwork.objectKey, t.width, "avif");
+      if (t.kind === "variant") return variantProxyUrl(artwork.objectKey, t.width, "avif");
       return fullSizeAvifWidth != null
-        ? variantUrl(artwork.objectKey, fullSizeAvifWidth, "avif")
-        : assetUrl(artwork.objectKey);
+        ? variantProxyUrl(artwork.objectKey, fullSizeAvifWidth, "avif")
+        : assetProxyUrl(artwork.objectKey);
     });
     // Per-tier load options. Only the original tier needs them — we cap
     // the decoded bitmap at the GPU's MAX_TEXTURE_SIZE so a 16k+ px

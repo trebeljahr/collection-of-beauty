@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
-import { type Artist, type Artwork, artworkAlt, artworks, summary } from "@/lib/data";
+import { artworkAlt } from "@/lib/artwork-format";
+import { type Artist, type Artwork, artworks, summary } from "@/lib/data";
 import { getLicenseInfo } from "@/lib/license";
 import { assetUrl, variantUrl } from "@/lib/utils";
 

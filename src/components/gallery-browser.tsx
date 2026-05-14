@@ -1,7 +1,6 @@
 "use client";
 
-import Fuse from "fuse.js";
-import { useDeferredValue, useMemo, useState } from "react";
+import { startTransition, useDeferredValue, useEffect, useMemo, useState } from "react";
 import seedrandom from "seedrandom";
 import { ArtworkGallery } from "@/components/artwork-gallery";
 import { Badge } from "@/components/ui/badge";
@@ -12,21 +11,88 @@ import type { ArtworkListing } from "@/lib/data";
 type SortBy = "shuffle" | "year" | "artist" | "title";
 
 type Props = {
-  artworks: ArtworkListing[];
+  initialArtworks: ArtworkListing[];
   movements: string[];
+  totalArtworks: number;
 };
 
-export function GalleryBrowser({ artworks, movements }: Props) {
+type FuseSearch = {
+  search: (query: string) => Array<{ item: ArtworkListing }>;
+};
+type FuseCtor = new (list: ArtworkListing[], options: Record<string, unknown>) => FuseSearch;
+
+const FULL_COLLECTION_ENDPOINT = "/api/artworks";
+
+export function GalleryBrowser({ initialArtworks, movements, totalArtworks }: Props) {
   const [query, setQuery] = useState("");
   const deferredQuery = useDeferredValue(query);
   const [movement, setMovement] = useState<string>("");
   const [minYear, setMinYear] = useState<string>("");
   const [maxYear, setMaxYear] = useState<string>("");
   const [sortBy, setSortBy] = useState<SortBy>("shuffle");
+  const [allArtworks, setAllArtworks] = useState<ArtworkListing[] | null>(null);
+  const [collectionState, setCollectionState] = useState<"loading" | "loaded" | "failed">(
+    "loading",
+  );
+  const [Fuse, setFuse] = useState<FuseCtor | null>(null);
+  const artworks = allArtworks ?? initialArtworks;
+  const hasFullCollection = allArtworks !== null;
 
   // Seed once per browser day so the homepage feels fresh on revisits but
   // stays stable while the user scrolls/types.
   const shuffleSeed = useMemo(() => new Date().toISOString().slice(0, 10), []);
+
+  useEffect(() => {
+    let cancelled = false;
+    const controller = new AbortController();
+    const load = () => {
+      fetch(FULL_COLLECTION_ENDPOINT, { signal: controller.signal })
+        .then((res) => {
+          if (!res.ok) throw new Error(`fetch ${FULL_COLLECTION_ENDPOINT}: ${res.status}`);
+          return res.json() as Promise<ArtworkListing[]>;
+        })
+        .then((data) => {
+          if (cancelled) return;
+          startTransition(() => {
+            setAllArtworks(data);
+            setCollectionState("loaded");
+          });
+        })
+        .catch(() => {
+          if (cancelled || controller.signal.aborted) return;
+          setCollectionState("failed");
+        });
+    };
+
+    const requestIdle = window.requestIdleCallback;
+    if (typeof requestIdle === "function") {
+      const cancelIdle = window.cancelIdleCallback;
+      const id = requestIdle(load, { timeout: 1500 });
+      return () => {
+        cancelled = true;
+        controller.abort();
+        cancelIdle(id);
+      };
+    }
+
+    const id = window.setTimeout(load, 600);
+    return () => {
+      cancelled = true;
+      controller.abort();
+      window.clearTimeout(id);
+    };
+  }, []);
+
+  useEffect(() => {
+    if (!hasFullCollection || Fuse) return;
+    let cancelled = false;
+    import("fuse.js").then((mod) => {
+      if (!cancelled) setFuse(() => mod.default as FuseCtor);
+    });
+    return () => {
+      cancelled = true;
+    };
+  }, [Fuse, hasFullCollection]);
 
   const shuffled = useMemo(() => {
     const rng = seedrandom(shuffleSeed);
@@ -38,25 +104,27 @@ export function GalleryBrowser({ artworks, movements }: Props) {
     return arr;
   }, [artworks, shuffleSeed]);
 
-  const fuse = useMemo(
-    () =>
-      new Fuse(artworks, {
-        keys: [
-          { name: "title", weight: 0.45 },
-          { name: "artist", weight: 0.35 },
-          { name: "movement", weight: 0.1 },
-          { name: "description", weight: 0.1 },
-        ],
-        threshold: 0.33,
-        ignoreLocation: true,
-      }),
-    [artworks],
-  );
+  const fuse = useMemo(() => {
+    if (!Fuse) return null;
+    return new Fuse(artworks, {
+      keys: [
+        { name: "title", weight: 0.45 },
+        { name: "artist", weight: 0.35 },
+        { name: "movement", weight: 0.1 },
+        { name: "nationality", weight: 0.1 },
+      ],
+      threshold: 0.33,
+      ignoreLocation: true,
+    });
+  }, [Fuse, artworks]);
 
   const filtered = useMemo(() => {
     let list: ArtworkListing[];
-    if (deferredQuery.trim()) {
+    const trimmedQuery = deferredQuery.trim();
+    if (trimmedQuery && fuse) {
       list = fuse.search(deferredQuery).map((r) => r.item);
+    } else if (trimmedQuery) {
+      list = simpleSearch(artworks, trimmedQuery);
     } else {
       list = sortBy === "shuffle" ? [...shuffled] : [...artworks];
     }
@@ -76,9 +144,12 @@ export function GalleryBrowser({ artworks, movements }: Props) {
     return list;
   }, [deferredQuery, fuse, artworks, shuffled, movement, minYear, maxYear, sortBy]);
 
-  const filterKey = `${deferredQuery}|${movement}|${minYear}|${maxYear}|${sortBy}|${shuffleSeed}`;
+  const filterKey = `${hasFullCollection}|${deferredQuery}|${movement}|${minYear}|${maxYear}|${sortBy}|${shuffleSeed}`;
 
   const activeFilterCount = (movement ? 1 : 0) + (minYear ? 1 : 0) + (maxYear ? 1 : 0);
+  const hasCollectionConstraint = Boolean(deferredQuery.trim() || movement || minYear || maxYear);
+  const visibleCount =
+    !hasFullCollection && !hasCollectionConstraint ? totalArtworks : filtered.length;
 
   function clearFilters() {
     setMovement("");
@@ -147,8 +218,8 @@ export function GalleryBrowser({ artworks, movements }: Props) {
 
       <div className="flex items-baseline justify-between px-1 text-sm text-[var(--muted-foreground)]">
         <span>
-          {filtered.length.toLocaleString()} work
-          {filtered.length === 1 ? "" : "s"}
+          {visibleCount.toLocaleString()} work
+          {visibleCount === 1 ? "" : "s"}
           {activeFilterCount > 0 && (
             <Badge variant="secondary" className="ml-2">
               {activeFilterCount} filter
@@ -156,9 +227,25 @@ export function GalleryBrowser({ artworks, movements }: Props) {
             </Badge>
           )}
         </span>
+        {collectionState !== "loaded" && (
+          <span>
+            {collectionState === "failed"
+              ? "Full collection unavailable"
+              : "Loading full collection..."}
+          </span>
+        )}
       </div>
 
       <ArtworkGallery artworks={filtered} resetKey={filterKey} />
     </div>
+  );
+}
+
+function simpleSearch(artworks: ArtworkListing[], query: string): ArtworkListing[] {
+  const q = query.toLocaleLowerCase();
+  return artworks.filter((a) =>
+    [a.title, a.artist, a.movement, a.nationality].some((value) =>
+      value?.toLocaleLowerCase().includes(q),
+    ),
   );
 }

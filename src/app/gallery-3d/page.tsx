@@ -1,5 +1,4 @@
 import type { Metadata } from "next";
-import { artworkListings } from "@/lib/data";
 import { Gallery3DClient } from "./gallery-3d-client";
 
 // Three.js + R3F + drei + postprocessing is ~600 KB gzipped; the
@@ -27,5 +26,5 @@ export const metadata: Metadata = {
 };
 
 export default function Gallery3DPage() {
-  return <Gallery3DClient artworks={artworkListings} />;
+  return <Gallery3DClient />;
 }

@@ -3,6 +3,8 @@ import { GalleryBrowser } from "@/components/gallery-browser";
 import { artworkListings, movements, summary } from "@/lib/data";
 import { SITE_DESCRIPTION, SITE_NAME, SITE_TAGLINE } from "@/lib/seo";
 
+const INITIAL_ARTWORK_COUNT = 80;
+
 export const metadata: Metadata = {
   // Absolute title on the home page — skips the "%s · Collection of Beauty"
   // template so the tagline gets first-class billing in tab chrome and search.
@@ -26,7 +28,11 @@ export default function HomePage() {
           </p>
         </div>
       </section>
-      <GalleryBrowser artworks={artworkListings} movements={movements} />
+      <GalleryBrowser
+        initialArtworks={artworkListings.slice(0, INITIAL_ARTWORK_COUNT)}
+        movements={movements}
+        totalArtworks={summary.totalArtworks}
+      />
     </div>
   );
 }
