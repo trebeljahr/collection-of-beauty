@@ -42,6 +42,8 @@ export function toGalleryPhoto(a: ArtworkListing): GalleryPhoto {
 
 type Props = {
   artworks: ArtworkListing[];
+  loadMoreArtworks?: () => Promise<ArtworkListing[]>;
+  hasMoreArtworks?: boolean;
   /** Page size for infinite-scroll materialisation. */
   pageSize?: number;
   /** How many photos to seed the album with on first render. Makes the top
@@ -55,6 +57,8 @@ type Props = {
 
 export function ArtworkGallery({
   artworks,
+  loadMoreArtworks,
+  hasMoreArtworks = false,
   pageSize = 40,
   initialSeed = 40,
   resetKey,
@@ -66,10 +70,15 @@ export function ArtworkGallery({
   const fetchPage = useCallback(
     async (index: number): Promise<GalleryPhoto[] | null> => {
       const start = initialSeed + index * pageSize;
-      if (start >= photos.length) return null;
-      return photos.slice(start, start + pageSize);
+      const localPage = photos.slice(start, start + pageSize);
+      if (localPage.length > 0) return localPage;
+      if (!hasMoreArtworks || !loadMoreArtworks) return null;
+
+      const nextArtworks = await loadMoreArtworks();
+      if (nextArtworks.length === 0) return null;
+      return nextArtworks.map(toGalleryPhoto);
     },
-    [photos, pageSize, initialSeed],
+    [photos, pageSize, initialSeed, hasMoreArtworks, loadMoreArtworks],
   );
 
   const rowHeight = targetRowHeight ?? ((w: number) => (w < 640 ? 160 : w < 1024 ? 220 : 260));

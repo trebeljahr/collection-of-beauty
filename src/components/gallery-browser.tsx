@@ -1,14 +1,25 @@
 "use client";
 
-import { startTransition, useDeferredValue, useEffect, useMemo, useState } from "react";
-import seedrandom from "seedrandom";
+import {
+  startTransition,
+  useCallback,
+  useDeferredValue,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+} from "react";
 import { ArtworkGallery } from "@/components/artwork-gallery";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import {
+  type ArtworkPage,
+  type ArtworkSort,
+  DEFAULT_ARTWORK_PAGE_SIZE,
+  DEFAULT_SHUFFLE_SEED,
+} from "@/lib/artwork-page-schema";
 import type { ArtworkListing } from "@/lib/data";
-
-type SortBy = "shuffle" | "year" | "artist" | "title";
 
 type Props = {
   initialArtworks: ArtworkListing[];
@@ -21,7 +32,20 @@ type FuseSearch = {
 };
 type FuseCtor = new (list: ArtworkListing[], options: Record<string, unknown>) => FuseSearch;
 
-const FULL_COLLECTION_ENDPOINT = "/api/artworks";
+type PageStatus = "idle" | "loading" | "loading-more" | "failed";
+
+type PageInfo = Pick<ArtworkPage, "total" | "nextOffset" | "hasMore">;
+
+type PageParams = {
+  q: string;
+  movement: string;
+  minYear: string;
+  maxYear: string;
+  sort: ArtworkSort;
+};
+
+const PAGE_ENDPOINT = "/api/artworks/page";
+const PAGE_SIZE = DEFAULT_ARTWORK_PAGE_SIZE;
 
 export function GalleryBrowser({ initialArtworks, movements, totalArtworks }: Props) {
   const [query, setQuery] = useState("");
@@ -29,62 +53,94 @@ export function GalleryBrowser({ initialArtworks, movements, totalArtworks }: Pr
   const [movement, setMovement] = useState<string>("");
   const [minYear, setMinYear] = useState<string>("");
   const [maxYear, setMaxYear] = useState<string>("");
-  const [sortBy, setSortBy] = useState<SortBy>("shuffle");
-  const [allArtworks, setAllArtworks] = useState<ArtworkListing[] | null>(null);
-  const [collectionState, setCollectionState] = useState<"loading" | "loaded" | "failed">(
-    "loading",
-  );
+  const [sortBy, setSortBy] = useState<ArtworkSort>("shuffle");
+  const [loadedArtworks, setLoadedArtworks] = useState(initialArtworks);
+  const [pageInfo, setPageInfo] = useState<PageInfo>({
+    total: totalArtworks,
+    nextOffset: initialArtworks.length < totalArtworks ? initialArtworks.length : null,
+    hasMore: initialArtworks.length < totalArtworks,
+  });
+  const [pageStatus, setPageStatus] = useState<PageStatus>("idle");
   const [Fuse, setFuse] = useState<FuseCtor | null>(null);
-  const artworks = allArtworks ?? initialArtworks;
-  const hasFullCollection = allArtworks !== null;
+  const pageInfoRef = useRef(pageInfo);
+  const pageKeyRef = useRef("");
+  const loadedIdsRef = useRef(new Set(initialArtworks.map((artwork) => artwork.id)));
+  const requestSeqRef = useRef(0);
+  const loadingMoreRef = useRef(false);
 
-  // Seed once per browser day so the homepage feels fresh on revisits but
-  // stays stable while the user scrolls/types.
-  const shuffleSeed = useMemo(() => new Date().toISOString().slice(0, 10), []);
+  const pageParams = useMemo<PageParams>(
+    () => ({
+      q: deferredQuery.trim(),
+      movement,
+      minYear,
+      maxYear,
+      sort: sortBy,
+    }),
+    [deferredQuery, movement, minYear, maxYear, sortBy],
+  );
+
+  const pageKey = useMemo(() => JSON.stringify(pageParams), [pageParams]);
+  const isDefaultPage =
+    pageParams.q === "" &&
+    pageParams.movement === "" &&
+    pageParams.minYear === "" &&
+    pageParams.maxYear === "" &&
+    pageParams.sort === "shuffle";
 
   useEffect(() => {
-    let cancelled = false;
-    const controller = new AbortController();
-    const load = () => {
-      fetch(FULL_COLLECTION_ENDPOINT, { signal: controller.signal })
-        .then((res) => {
-          if (!res.ok) throw new Error(`fetch ${FULL_COLLECTION_ENDPOINT}: ${res.status}`);
-          return res.json() as Promise<ArtworkListing[]>;
-        })
-        .then((data) => {
-          if (cancelled) return;
-          startTransition(() => {
-            setAllArtworks(data);
-            setCollectionState("loaded");
-          });
-        })
-        .catch(() => {
-          if (cancelled || controller.signal.aborted) return;
-          setCollectionState("failed");
-        });
-    };
+    pageInfoRef.current = pageInfo;
+  }, [pageInfo]);
 
-    const requestIdle = window.requestIdleCallback;
-    if (typeof requestIdle === "function") {
-      const cancelIdle = window.cancelIdleCallback;
-      const id = requestIdle(load, { timeout: 1500 });
-      return () => {
-        cancelled = true;
-        controller.abort();
-        cancelIdle(id);
-      };
+  useEffect(() => {
+    loadedIdsRef.current = new Set(loadedArtworks.map((artwork) => artwork.id));
+  }, [loadedArtworks]);
+
+  useEffect(() => {
+    pageKeyRef.current = pageKey;
+    loadingMoreRef.current = false;
+
+    if (isDefaultPage) {
+      requestSeqRef.current += 1;
+      startTransition(() => {
+        setLoadedArtworks(initialArtworks);
+        setPageInfo({
+          total: totalArtworks,
+          nextOffset: initialArtworks.length < totalArtworks ? initialArtworks.length : null,
+          hasMore: initialArtworks.length < totalArtworks,
+        });
+        setPageStatus("idle");
+      });
+      return;
     }
 
-    const id = window.setTimeout(load, 600);
-    return () => {
-      cancelled = true;
-      controller.abort();
-      window.clearTimeout(id);
-    };
-  }, []);
+    const requestId = requestSeqRef.current + 1;
+    requestSeqRef.current = requestId;
+    const controller = new AbortController();
+    setPageStatus("loading");
+
+    fetchArtworkPage(pageParams, 0, controller.signal)
+      .then((page) => {
+        if (requestSeqRef.current !== requestId) return;
+        startTransition(() => {
+          setLoadedArtworks(page.items);
+          setPageInfo({
+            total: page.total,
+            nextOffset: page.nextOffset,
+            hasMore: page.hasMore,
+          });
+          setPageStatus("idle");
+        });
+      })
+      .catch(() => {
+        if (controller.signal.aborted || requestSeqRef.current !== requestId) return;
+        setPageStatus("failed");
+      });
+
+    return () => controller.abort();
+  }, [initialArtworks, isDefaultPage, pageKey, pageParams, totalArtworks]);
 
   useEffect(() => {
-    if (!hasFullCollection || Fuse) return;
+    if (!pageParams.q || Fuse) return;
     let cancelled = false;
     import("fuse.js").then((mod) => {
       if (!cancelled) setFuse(() => mod.default as FuseCtor);
@@ -92,21 +148,11 @@ export function GalleryBrowser({ initialArtworks, movements, totalArtworks }: Pr
     return () => {
       cancelled = true;
     };
-  }, [Fuse, hasFullCollection]);
-
-  const shuffled = useMemo(() => {
-    const rng = seedrandom(shuffleSeed);
-    const arr = [...artworks];
-    for (let i = arr.length - 1; i > 0; i--) {
-      const j = Math.floor(rng() * (i + 1));
-      [arr[i], arr[j]] = [arr[j], arr[i]];
-    }
-    return arr;
-  }, [artworks, shuffleSeed]);
+  }, [Fuse, pageParams.q]);
 
   const fuse = useMemo(() => {
-    if (!Fuse) return null;
-    return new Fuse(artworks, {
+    if (!Fuse || !pageParams.q) return null;
+    return new Fuse(loadedArtworks, {
       keys: [
         { name: "title", weight: 0.45 },
         { name: "artist", weight: 0.35 },
@@ -116,40 +162,49 @@ export function GalleryBrowser({ initialArtworks, movements, totalArtworks }: Pr
       threshold: 0.33,
       ignoreLocation: true,
     });
-  }, [Fuse, artworks]);
+  }, [Fuse, loadedArtworks, pageParams.q]);
 
-  const filtered = useMemo(() => {
-    let list: ArtworkListing[];
-    const trimmedQuery = deferredQuery.trim();
-    if (trimmedQuery && fuse) {
-      list = fuse.search(deferredQuery).map((r) => r.item);
-    } else if (trimmedQuery) {
-      list = simpleSearch(artworks, trimmedQuery);
-    } else {
-      list = sortBy === "shuffle" ? [...shuffled] : [...artworks];
+  const visibleArtworks = useMemo(() => {
+    if (!fuse || pageParams.sort !== "shuffle") return loadedArtworks;
+    return rankLoadedArtworks(loadedArtworks, fuse, pageParams.q);
+  }, [fuse, loadedArtworks, pageParams.q, pageParams.sort]);
+
+  const loadMoreArtworks = useCallback(async (): Promise<ArtworkListing[]> => {
+    const info = pageInfoRef.current;
+    const offset = info.nextOffset;
+    const activeKey = pageKeyRef.current;
+    if (loadingMoreRef.current || !info.hasMore || offset == null) return [];
+
+    loadingMoreRef.current = true;
+    setPageStatus("loading-more");
+
+    try {
+      const page = await fetchArtworkPage(pageParams, offset);
+      if (activeKey !== pageKeyRef.current) return [];
+      const incoming = page.items.filter((artwork) => !loadedIdsRef.current.has(artwork.id));
+
+      startTransition(() => {
+        setLoadedArtworks((current) => appendUniqueArtworks(current, incoming));
+        setPageInfo({
+          total: page.total,
+          nextOffset: page.nextOffset,
+          hasMore: page.hasMore,
+        });
+        setPageStatus("idle");
+      });
+
+      return incoming;
+    } catch {
+      if (activeKey === pageKeyRef.current) setPageStatus("failed");
+      return [];
+    } finally {
+      loadingMoreRef.current = false;
     }
-    if (movement) list = list.filter((a) => a.movement === movement);
-    const lo = minYear ? Number(minYear) : null;
-    const hi = maxYear ? Number(maxYear) : null;
-    if (lo != null) list = list.filter((a) => a.year != null && a.year >= lo);
-    if (hi != null) list = list.filter((a) => a.year != null && a.year <= hi);
+  }, [pageParams]);
 
-    if (sortBy === "year") {
-      list.sort((a, b) => (a.year ?? 99999) - (b.year ?? 99999));
-    } else if (sortBy === "artist") {
-      list.sort((a, b) => (a.artist ?? "zzz").localeCompare(b.artist ?? "zzz"));
-    } else if (sortBy === "title") {
-      list.sort((a, b) => a.title.localeCompare(b.title));
-    }
-    return list;
-  }, [deferredQuery, fuse, artworks, shuffled, movement, minYear, maxYear, sortBy]);
-
-  const filterKey = `${hasFullCollection}|${deferredQuery}|${movement}|${minYear}|${maxYear}|${sortBy}|${shuffleSeed}`;
-
+  const filterKey = pageKey;
   const activeFilterCount = (movement ? 1 : 0) + (minYear ? 1 : 0) + (maxYear ? 1 : 0);
-  const hasCollectionConstraint = Boolean(deferredQuery.trim() || movement || minYear || maxYear);
-  const visibleCount =
-    !hasFullCollection && !hasCollectionConstraint ? totalArtworks : filtered.length;
+  const loadedCount = loadedArtworks.length;
 
   function clearFilters() {
     setMovement("");
@@ -162,7 +217,7 @@ export function GalleryBrowser({ initialArtworks, movements, totalArtworks }: Pr
     <div className="space-y-6">
       <div className="flex flex-col gap-3 rounded-xl border border-[var(--border)] bg-[var(--card)] p-4">
         <Input
-          placeholder="Search by title, artist, movement, description..."
+          placeholder="Search by title, artist, movement..."
           value={query}
           onChange={(e) => setQuery(e.target.value)}
           className="w-full"
@@ -200,7 +255,7 @@ export function GalleryBrowser({ initialArtworks, movements, totalArtworks }: Pr
           <select
             aria-label="Sort artworks by"
             value={sortBy}
-            onChange={(e) => setSortBy(e.target.value as SortBy)}
+            onChange={(e) => setSortBy(e.target.value as ArtworkSort)}
             className="h-9 rounded-md border border-[var(--input)] bg-transparent px-2"
           >
             <option value="shuffle">Sort: shuffled</option>
@@ -218,8 +273,8 @@ export function GalleryBrowser({ initialArtworks, movements, totalArtworks }: Pr
 
       <div className="flex items-baseline justify-between px-1 text-sm text-[var(--muted-foreground)]">
         <span>
-          {visibleCount.toLocaleString()} work
-          {visibleCount === 1 ? "" : "s"}
+          {pageInfo.total.toLocaleString()} work
+          {pageInfo.total === 1 ? "" : "s"}
           {activeFilterCount > 0 && (
             <Badge variant="secondary" className="ml-2">
               {activeFilterCount} filter
@@ -227,25 +282,74 @@ export function GalleryBrowser({ initialArtworks, movements, totalArtworks }: Pr
             </Badge>
           )}
         </span>
-        {collectionState !== "loaded" && (
-          <span>
-            {collectionState === "failed"
-              ? "Full collection unavailable"
-              : "Loading full collection..."}
-          </span>
-        )}
+        <span>{statusLabel(pageStatus, loadedCount, pageInfo.total)}</span>
       </div>
 
-      <ArtworkGallery artworks={filtered} resetKey={filterKey} />
+      {pageStatus === "loading" ? (
+        <div className="py-16 text-center text-[var(--muted-foreground)]">Loading works...</div>
+      ) : (
+        <ArtworkGallery
+          artworks={visibleArtworks}
+          loadMoreArtworks={loadMoreArtworks}
+          hasMoreArtworks={pageInfo.hasMore}
+          pageSize={PAGE_SIZE}
+          initialSeed={Math.min(PAGE_SIZE, visibleArtworks.length)}
+          resetKey={filterKey}
+        />
+      )}
     </div>
   );
 }
 
-function simpleSearch(artworks: ArtworkListing[], query: string): ArtworkListing[] {
-  const q = query.toLocaleLowerCase();
-  return artworks.filter((a) =>
-    [a.title, a.artist, a.movement, a.nationality].some((value) =>
-      value?.toLocaleLowerCase().includes(q),
-    ),
-  );
+async function fetchArtworkPage(
+  params: PageParams,
+  offset: number,
+  signal?: AbortSignal,
+): Promise<ArtworkPage> {
+  const url = new URL(PAGE_ENDPOINT, window.location.origin);
+  url.searchParams.set("offset", String(offset));
+  url.searchParams.set("limit", String(PAGE_SIZE));
+  url.searchParams.set("sort", params.sort);
+  url.searchParams.set("seed", DEFAULT_SHUFFLE_SEED);
+  appendParam(url, "q", params.q);
+  appendParam(url, "movement", params.movement);
+  appendParam(url, "minYear", params.minYear);
+  appendParam(url, "maxYear", params.maxYear);
+
+  const res = await fetch(url, { signal });
+  if (!res.ok) throw new Error(`fetch ${url.pathname}: ${res.status}`);
+  return res.json() as Promise<ArtworkPage>;
+}
+
+function appendParam(url: URL, key: string, value: string) {
+  if (value) url.searchParams.set(key, value);
+}
+
+function appendUniqueArtworks(
+  current: ArtworkListing[],
+  incoming: ArtworkListing[],
+): ArtworkListing[] {
+  if (incoming.length === 0) return current;
+  const seen = new Set(current.map((artwork) => artwork.id));
+  const next = incoming.filter((artwork) => !seen.has(artwork.id));
+  return next.length > 0 ? [...current, ...next] : current;
+}
+
+function rankLoadedArtworks(
+  artworks: ArtworkListing[],
+  fuse: FuseSearch,
+  query: string,
+): ArtworkListing[] {
+  const ranked = fuse.search(query).map((result) => result.item);
+  if (ranked.length === 0) return artworks;
+  const seen = new Set(ranked.map((artwork) => artwork.id));
+  return [...ranked, ...artworks.filter((artwork) => !seen.has(artwork.id))];
+}
+
+function statusLabel(status: PageStatus, loaded: number, total: number): string {
+  if (status === "loading") return "Loading...";
+  if (status === "loading-more") return `Loading more... ${loaded.toLocaleString()} loaded`;
+  if (status === "failed") return "More works unavailable";
+  if (loaded >= total) return total === 0 ? "" : "All loaded";
+  return `${loaded.toLocaleString()} loaded`;
 }
