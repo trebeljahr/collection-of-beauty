@@ -21,7 +21,6 @@ const defaultOgImages = ogImagesForArtwork(hero);
 const plausibleDomain = "beauty.trebeljahr.com";
 const plausibleScriptUrl =
   "https://plausible.trebeljahr.com/js/script.file-downloads.hash.outbound-links.pageview-props.revenue.tagged-events.js";
-const shouldLoadPlausible = process.env.NODE_ENV === "production";
 
 export const metadata: Metadata = {
   metadataBase: new URL(SITE_URL),
@@ -102,9 +101,8 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         <script {...jsonLdScriptProps(websiteJsonLd())} />
       </head>
       <body className="min-h-screen antialiased" suppressHydrationWarning>
-        {shouldLoadPlausible ? (
-          <Script id="plausible-loader" strategy="afterInteractive">
-            {`
+        <Script id="plausible-loader" strategy="afterInteractive">
+          {`
               (function () {
                 var domain = ${JSON.stringify(plausibleDomain)};
                 if (location.hostname !== domain) return;
@@ -118,8 +116,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
                 document.head.appendChild(script);
               })();
             `}
-          </Script>
-        ) : null}
+        </Script>
         <Gallery3DProvider>
           <SiteNav />
           <main>{children}</main>

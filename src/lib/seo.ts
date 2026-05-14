@@ -22,7 +22,9 @@ export const SITE_URL: string = (() => {
   if (prod) return `https://${prod}`;
   const anyVercel = process.env.VERCEL_URL;
   if (anyVercel) return `https://${anyVercel}`;
-  return "http://localhost:3547";
+  return process.env.NODE_ENV === "production"
+    ? "https://beauty.trebeljahr.com"
+    : "http://localhost:3547";
 })();
 
 export const SITE_NAME = "Collection of Beauty";
