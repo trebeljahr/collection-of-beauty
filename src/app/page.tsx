@@ -1,9 +1,9 @@
 import type { Metadata } from "next";
 import { GalleryBrowser } from "@/components/gallery-browser";
-import { artworkListings, movements, summary } from "@/lib/data";
+import { DEFAULT_ARTWORK_PAGE_SIZE } from "@/lib/artwork-page-schema";
+import { getArtworkListingPage } from "@/lib/artwork-pagination";
+import { movements, summary } from "@/lib/data";
 import { SITE_DESCRIPTION, SITE_NAME, SITE_TAGLINE } from "@/lib/seo";
-
-const INITIAL_ARTWORK_COUNT = 80;
 
 export const metadata: Metadata = {
   // Absolute title on the home page — skips the "%s · Collection of Beauty"
@@ -14,6 +14,8 @@ export const metadata: Metadata = {
 };
 
 export default function HomePage() {
+  const initialPage = getArtworkListingPage({ limit: DEFAULT_ARTWORK_PAGE_SIZE });
+
   return (
     <div className="mx-auto max-w-7xl px-4 py-8 md:py-12">
       <section className="mb-10 flex flex-col gap-3 md:flex-row md:items-end md:justify-between">
@@ -29,9 +31,9 @@ export default function HomePage() {
         </div>
       </section>
       <GalleryBrowser
-        initialArtworks={artworkListings.slice(0, INITIAL_ARTWORK_COUNT)}
+        initialArtworks={initialPage.items}
         movements={movements}
-        totalArtworks={summary.totalArtworks}
+        totalArtworks={initialPage.total}
       />
     </div>
   );
