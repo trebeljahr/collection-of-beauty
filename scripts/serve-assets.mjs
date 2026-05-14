@@ -21,7 +21,7 @@ import { fileURLToPath } from "node:url";
 
 const __dirname = fileURLToPath(new URL(".", import.meta.url));
 const ROOT = resolve(__dirname, "..", "assets-web");
-const PORT = Number.parseInt(process.env.PORT ?? "9100", 10);
+const PORT = Number.parseInt(process.env.PORT ?? "9837", 10);
 const HOST = process.env.HOST ?? "127.0.0.1";
 
 const MIME = /** @type {const} */ ({
