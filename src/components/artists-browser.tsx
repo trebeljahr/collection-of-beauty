@@ -1,6 +1,5 @@
 "use client";
 
-import Fuse from "fuse.js";
 import Link from "next/link";
 import { useDeferredValue, useEffect, useMemo, useRef, useState } from "react";
 import { ResponsiveImage } from "@/components/responsive-image";
@@ -14,30 +13,48 @@ type Props = {
   artists: Artist[];
 };
 
+type FuseSearch = {
+  search: (query: string) => Array<{ item: Artist }>;
+};
+type FuseCtor = new (list: Artist[], options: Record<string, unknown>) => FuseSearch;
+
 export function ArtistsBrowser({ artists }: Props) {
   const [query, setQuery] = useState("");
   const deferredQuery = useDeferredValue(query);
   const [limit, setLimit] = useState(INITIAL);
+  const [Fuse, setFuse] = useState<FuseCtor | null>(null);
   const sentinelRef = useRef<HTMLDivElement | null>(null);
 
-  const fuse = useMemo(
-    () =>
-      new Fuse(artists, {
-        keys: [
-          { name: "name", weight: 0.6 },
-          { name: "movement", weight: 0.25 },
-          { name: "nationality", weight: 0.15 },
-        ],
-        threshold: 0.33,
-        ignoreLocation: true,
-      }),
-    [artists],
-  );
+  const trimmedQuery = deferredQuery.trim();
+
+  useEffect(() => {
+    if (!trimmedQuery || Fuse) return;
+    let cancelled = false;
+    import("fuse.js").then((mod) => {
+      if (!cancelled) setFuse(() => mod.default as FuseCtor);
+    });
+    return () => {
+      cancelled = true;
+    };
+  }, [Fuse, trimmedQuery]);
+
+  const fuse = useMemo(() => {
+    if (!Fuse) return null;
+    return new Fuse(artists, {
+      keys: [
+        { name: "name", weight: 0.6 },
+        { name: "movement", weight: 0.25 },
+        { name: "nationality", weight: 0.15 },
+      ],
+      threshold: 0.33,
+      ignoreLocation: true,
+    });
+  }, [Fuse, artists]);
 
   const filtered = useMemo(() => {
-    if (!deferredQuery.trim()) return artists;
-    return fuse.search(deferredQuery).map((r) => r.item);
-  }, [artists, deferredQuery, fuse]);
+    if (!trimmedQuery || !fuse) return artists;
+    return fuse.search(trimmedQuery).map((r) => r.item);
+  }, [artists, trimmedQuery, fuse]);
 
   // biome-ignore lint/correctness/useExhaustiveDependencies: deferredQuery IS the trigger; setLimit is a stable setter.
   useEffect(() => {
