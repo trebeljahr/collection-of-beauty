@@ -12,17 +12,11 @@ import { assetUrl, variantUrl } from "@/lib/utils";
  * Canonical origin for absolute URLs in metadata, sitemaps, and JSON-LD.
  * Resolution order:
  *   1. NEXT_PUBLIC_SITE_URL (explicit, preferred in prod)
- *   2. VERCEL_PROJECT_PRODUCTION_URL (Vercel's prod alias, set automatically)
- *   3. VERCEL_URL (the current deployment's generated URL — preview builds)
- *   4. Hardcoded fallback so local dev, docker, and tests don't crash.
+ *   2. Hardcoded fallback so local dev, docker, and tests don't crash.
  */
 export const SITE_URL: string = (() => {
   const explicit = process.env.NEXT_PUBLIC_SITE_URL;
   if (explicit) return stripTrailingSlash(explicit);
-  const prod = process.env.VERCEL_PROJECT_PRODUCTION_URL;
-  if (prod) return `https://${prod}`;
-  const anyVercel = process.env.VERCEL_URL;
-  if (anyVercel) return `https://${anyVercel}`;
   return process.env.NODE_ENV === "production"
     ? "https://beauty.trebeljahr.com"
     : "http://localhost:3547";
