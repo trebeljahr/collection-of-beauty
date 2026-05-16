@@ -138,7 +138,7 @@ export function GalleryBrowser({ initialArtworks, movements, totalArtworks }: Pr
   }, [initialArtworks, isDefaultPage, pageKey, pageParams, totalArtworks]);
 
   useEffect(() => {
-    if (!pageParams.q || Fuse) return;
+    if (!pageParams.q || pageParams.sort !== "shuffle" || Fuse) return;
     let cancelled = false;
     import("fuse.js").then((mod) => {
       if (!cancelled) setFuse(() => mod.default as FuseCtor);
@@ -146,10 +146,10 @@ export function GalleryBrowser({ initialArtworks, movements, totalArtworks }: Pr
     return () => {
       cancelled = true;
     };
-  }, [Fuse, pageParams.q]);
+  }, [Fuse, pageParams.q, pageParams.sort]);
 
   const fuse = useMemo(() => {
-    if (!Fuse || !pageParams.q) return null;
+    if (!Fuse || !pageParams.q || pageParams.sort !== "shuffle") return null;
     return new Fuse(loadedArtworks, {
       keys: [
         { name: "title", weight: 0.45 },
@@ -160,12 +160,12 @@ export function GalleryBrowser({ initialArtworks, movements, totalArtworks }: Pr
       threshold: 0.33,
       ignoreLocation: true,
     });
-  }, [Fuse, loadedArtworks, pageParams.q]);
+  }, [Fuse, loadedArtworks, pageParams.q, pageParams.sort]);
 
   const visibleArtworks = useMemo(() => {
-    if (!fuse || pageParams.sort !== "shuffle") return loadedArtworks;
+    if (!fuse) return loadedArtworks;
     return rankLoadedArtworks(loadedArtworks, fuse, pageParams.q);
-  }, [fuse, loadedArtworks, pageParams.q, pageParams.sort]);
+  }, [fuse, loadedArtworks, pageParams.q]);
 
   const loadMoreArtworks = useCallback(async (): Promise<ArtworkListing[]> => {
     const info = pageInfoRef.current;
