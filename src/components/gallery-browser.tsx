@@ -92,15 +92,12 @@ export function GalleryBrowser({ initialArtworks, movements, totalArtworks }: Pr
   }, [pageInfo]);
 
   useEffect(() => {
-    loadedIdsRef.current = new Set(loadedArtworks.map((artwork) => artwork.id));
-  }, [loadedArtworks]);
-
-  useEffect(() => {
     pageKeyRef.current = pageKey;
     loadingMoreRef.current = false;
 
     if (isDefaultPage) {
       requestSeqRef.current += 1;
+      loadedIdsRef.current = new Set(initialArtworks.map((artwork) => artwork.id));
       startTransition(() => {
         setLoadedArtworks(initialArtworks);
         setPageInfo({
@@ -121,6 +118,7 @@ export function GalleryBrowser({ initialArtworks, movements, totalArtworks }: Pr
     fetchArtworkPage(pageParams, 0, controller.signal)
       .then((page) => {
         if (requestSeqRef.current !== requestId) return;
+        loadedIdsRef.current = new Set(page.items.map((artwork) => artwork.id));
         startTransition(() => {
           setLoadedArtworks(page.items);
           setPageInfo({
@@ -182,6 +180,7 @@ export function GalleryBrowser({ initialArtworks, movements, totalArtworks }: Pr
       const page = await fetchArtworkPage(pageParams, offset);
       if (activeKey !== pageKeyRef.current) return [];
       const incoming = page.items.filter((artwork) => !loadedIdsRef.current.has(artwork.id));
+      for (const artwork of incoming) loadedIdsRef.current.add(artwork.id);
 
       startTransition(() => {
         setLoadedArtworks((current) => appendUniqueArtworks(current, incoming));
