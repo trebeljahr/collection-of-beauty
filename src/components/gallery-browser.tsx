@@ -67,6 +67,14 @@ export function GalleryBrowser({ initialArtworks, movements, totalArtworks }: Pr
   const loadedIdsRef = useRef(new Set(initialArtworks.map((artwork) => artwork.id)));
   const requestSeqRef = useRef(0);
   const loadingMoreRef = useRef(false);
+  const pageParamsRef = useRef<PageParams>({
+    q: "",
+    movement: "",
+    minYear: "",
+    maxYear: "",
+    sort: "shuffle",
+  });
+  const loadMoreControllerRef = useRef<AbortController | null>(null);
 
   const pageParams = useMemo<PageParams>(
     () => ({
@@ -92,8 +100,14 @@ export function GalleryBrowser({ initialArtworks, movements, totalArtworks }: Pr
   }, [pageInfo]);
 
   useEffect(() => {
+    pageParamsRef.current = pageParams;
+  }, [pageParams]);
+
+  useEffect(() => {
     pageKeyRef.current = pageKey;
     loadingMoreRef.current = false;
+    loadMoreControllerRef.current?.abort();
+    loadMoreControllerRef.current = null;
 
     if (isDefaultPage) {
       requestSeqRef.current += 1;
@@ -175,10 +189,12 @@ export function GalleryBrowser({ initialArtworks, movements, totalArtworks }: Pr
 
     loadingMoreRef.current = true;
     setPageStatus("loading-more");
+    const controller = new AbortController();
+    loadMoreControllerRef.current = controller;
 
     try {
-      const page = await fetchArtworkPage(pageParams, offset);
-      if (activeKey !== pageKeyRef.current) return [];
+      const page = await fetchArtworkPage(pageParamsRef.current, offset, controller.signal);
+      if (controller.signal.aborted || activeKey !== pageKeyRef.current) return [];
       const incoming = page.items.filter((artwork) => !loadedIdsRef.current.has(artwork.id));
       for (const artwork of incoming) loadedIdsRef.current.add(artwork.id);
 
@@ -194,12 +210,16 @@ export function GalleryBrowser({ initialArtworks, movements, totalArtworks }: Pr
 
       return incoming;
     } catch {
+      if (controller.signal.aborted) return [];
       if (activeKey === pageKeyRef.current) setPageStatus("failed");
       return [];
     } finally {
       loadingMoreRef.current = false;
+      if (loadMoreControllerRef.current === controller) {
+        loadMoreControllerRef.current = null;
+      }
     }
-  }, [pageParams]);
+  }, []);
 
   const filterKey = pageKey;
   const activeFilterCount = (movement ? 1 : 0) + (minYear ? 1 : 0) + (maxYear ? 1 : 0);
