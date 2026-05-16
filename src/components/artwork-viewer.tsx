@@ -3,7 +3,6 @@
 import { useRouter } from "next/navigation";
 import { useEffect } from "react";
 import { artworkAlt } from "@/lib/artwork-format";
-import { suggestFixUrl } from "@/lib/links";
 import { useLightbox } from "./lightbox-provider";
 import { ResponsiveImage } from "./responsive-image";
 
@@ -81,16 +80,6 @@ export function ArtworkViewer({ art, prevId, nextId }: Props) {
           className="h-auto max-h-full w-auto max-w-full rounded-md object-contain"
         />
       </button>
-      <div className="mt-2 text-right">
-        <a
-          href={suggestFixUrl(art.id, art.title)}
-          target="_blank"
-          rel="noreferrer"
-          className="text-xs text-[var(--muted-foreground)] underline-offset-2 hover:text-[var(--foreground)] hover:underline"
-        >
-          Suggest a fix
-        </a>
-      </div>
     </div>
   );
 }
