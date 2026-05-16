@@ -62,13 +62,13 @@ export function ArtworkViewer({ art, prevId, nextId }: Props) {
   const alt = artworkAlt(art);
 
   return (
-    <div>
+    <div className="flex min-h-0 flex-1 flex-col">
       <button
         type="button"
         onClick={() => open(art)}
         title="View fullscreen"
         aria-label={`Open ${art.title} in fullscreen viewer`}
-        className="block w-full cursor-zoom-in rounded-md border-0 bg-transparent p-0 focus:outline-none focus-visible:ring-2 focus-visible:ring-[var(--ring)]"
+        className="flex min-h-0 w-full flex-1 cursor-zoom-in items-center justify-center rounded-md border-0 bg-transparent p-0 focus:outline-none focus-visible:ring-2 focus-visible:ring-[var(--ring)]"
       >
         <ResponsiveImage
           objectKey={art.objectKey}
@@ -78,7 +78,7 @@ export function ArtworkViewer({ art, prevId, nextId }: Props) {
           srcHeight={art.height ?? 2000}
           sizes="(max-width: 768px) 100vw, 65vw"
           priority
-          className="mx-auto max-h-[80vh] w-auto rounded-md"
+          className="h-auto max-h-full w-auto max-w-full rounded-md object-contain"
         />
       </button>
       <div className="mt-2 text-right">
