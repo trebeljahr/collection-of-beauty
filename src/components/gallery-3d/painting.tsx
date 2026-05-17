@@ -296,7 +296,8 @@ const PLAQUE_FACE_DEPTH = 0.004;
 // like a polished metal rim. Bigger reveal here makes the shimmer
 // from the mount more visible at typical viewing distances.
 const PLAQUE_MOUNT_REVEAL = 0.014;
-const PLAQUE_MOUNT_W = PLAQUE_FACE_W + PLAQUE_MOUNT_REVEAL * 2;
+const PLAQUE_MOUNT_PAD = PLAQUE_MOUNT_REVEAL * 2;
+const PLAQUE_MOUNT_W = PLAQUE_FACE_W + PLAQUE_MOUNT_PAD;
 const PLAQUE_MOUNT_DEPTH = 0.008;
 const PLAQUE_GAP = 0.06;
 // `placement.position` is offset PAINTING_WALL_OFFSET (= 0.02 m) into
@@ -391,7 +392,7 @@ function Plaque({
   const stackedH =
     PLAQUE_TEXT_PAD * 2 + titleBlockH + PLAQUE_LINE_GAP + bylineBlockH + dimsGap + dimsBlockH;
   const PLAQUE_FACE_H = Math.max(PLAQUE_FACE_H_BASE, stackedH);
-  const PLAQUE_MOUNT_H = PLAQUE_FACE_H + PLAQUE_MOUNT_REVEAL * 2;
+  const PLAQUE_MOUNT_H = PLAQUE_FACE_H + PLAQUE_MOUNT_PAD;
 
   // Default hang is to the painting's right (local +X). Flip to the
   // left at right-corner cells so the plaque doesn't crash through the
