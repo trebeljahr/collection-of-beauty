@@ -58,7 +58,7 @@ export default async function EditionPage({ params }: { params: Promise<Params> 
 
   return (
     <article className="mx-auto max-w-3xl px-4 py-12 md:py-20">
-      <header className="mb-14 md:mb-20">
+      <header className="mb-10 md:mb-14">
         <div className="flex flex-wrap items-baseline gap-x-3 gap-y-1 text-xs uppercase tracking-[0.18em] text-[var(--muted-foreground)]">
           <span>Issue {edition.number}</span>
           <span aria-hidden="true">·</span>
@@ -90,12 +90,12 @@ export default async function EditionPage({ params }: { params: Promise<Params> 
       </header>
 
       {edition.body.length > 0 && (
-        <section className="prose-newsletter mb-14 md:mb-20 text-[var(--foreground)]">
+        <section className="prose-newsletter mb-10 md:mb-12 text-[var(--foreground)]">
           <Markdown remarkPlugins={[remarkGfm]}>{edition.body}</Markdown>
         </section>
       )}
 
-      <section className="space-y-28 md:space-y-40">
+      <section className="flex flex-col gap-28 md:gap-40">
         {resolved.map(({ artwork, note }) => (
           <figure key={artwork.id} className="m-0">
             <Link
