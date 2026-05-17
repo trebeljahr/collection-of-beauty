@@ -6,7 +6,7 @@ import {
   TransformComponent,
   TransformWrapper,
 } from "react-zoom-pan-pinch";
-import { artworkAlt } from "@/lib/artwork-format";
+import { artworkAlt, displayTitle } from "@/lib/artwork-format";
 import type { ArtworkListing } from "@/lib/data";
 import { suggestFixUrl } from "@/lib/links";
 import { assetProxyUrl, assetUrl, cn, variantProxyUrl, variantUrl } from "@/lib/utils";
@@ -258,7 +258,7 @@ export function ZoomModal({
           shortcuts wired up above. The artist link re-enables pointer
           events on itself so it can be clicked without breaking pan. */}
       <div className="pointer-events-none absolute inset-x-0 bottom-0 z-10 flex flex-col items-center gap-1 bg-gradient-to-t from-black/80 via-black/50 to-transparent px-6 pt-12 pb-5 text-center text-neutral-200">
-        <div className="text-xl font-semibold">{artwork.title}</div>
+        <div className="text-xl font-semibold">{displayTitle(artwork)}</div>
         <div className="text-sm text-neutral-400">
           {artwork.artist && artwork.artistSlug ? (
             <a

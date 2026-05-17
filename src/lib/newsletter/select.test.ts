@@ -6,10 +6,12 @@ function makeArtwork(id: string): Artwork {
   return {
     id,
     title: id,
+    englishTitle: null,
     artist: null,
     artistSlug: "unknown",
     year: null,
     dateCreated: null,
+    originalDateString: null,
     description: null,
     folder: "x",
     objectKey: `x/${id}.jpg`,

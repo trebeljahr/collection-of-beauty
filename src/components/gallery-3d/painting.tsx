@@ -344,7 +344,7 @@ function readTroikaBlockHeight(mesh: unknown): number | null {
 }
 
 function Plaque({ artwork, widthM }: { artwork: ArtworkListing; widthM: number }) {
-  const title = formatTitle(artwork.title, artwork.artist ?? undefined);
+  const title = formatTitle(artwork.englishTitle?.trim() || artwork.title, artwork.artist ?? undefined);
   const byline = formatByline(artwork);
   const dims = artwork.realDimensions
     ? `${artwork.realDimensions.widthCm.toFixed(0)} × ${artwork.realDimensions.heightCm.toFixed(0)} cm`

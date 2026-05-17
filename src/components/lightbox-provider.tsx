@@ -18,6 +18,7 @@ type LightboxArtwork = {
   objectKey: string;
   variantWidths: readonly number[] | null;
   title: string;
+  englishTitle: string | null;
   artist: string | null;
   year: number | null;
   width: number | null;

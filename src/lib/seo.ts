@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { artworkAlt } from "@/lib/artwork-format";
+import { artworkAlt, displayTitle } from "@/lib/artwork-format";
 import { type Artist, type Artwork, artworks, summary } from "@/lib/data";
 import { getLicenseInfo } from "@/lib/license";
 import { SITE_URL } from "@/lib/links";
@@ -128,7 +128,10 @@ export function artworkJsonLd(artwork: Artwork): Record<string, unknown> {
   return {
     "@context": "https://schema.org",
     "@type": "VisualArtwork",
-    name: artwork.title,
+    name: displayTitle(artwork),
+    ...(artwork.englishTitle && artwork.englishTitle !== artwork.title
+      ? { alternateName: artwork.title }
+      : {}),
     ...(artwork.artist
       ? {
           creator: {

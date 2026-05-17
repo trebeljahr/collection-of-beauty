@@ -1,5 +1,6 @@
 import { render } from "@react-email/render";
 import { createElement } from "react";
+import { displayTitle } from "@/lib/artwork-format";
 import type { Artwork } from "@/lib/data";
 import { variantUrl } from "@/lib/utils";
 import WeeklyDigest, {
@@ -25,7 +26,7 @@ export type BuildDigestInput = {
 export function toDigestArtwork(artwork: Artwork, siteUrl: string): DigestArtwork {
   return {
     id: artwork.id,
-    title: artwork.title,
+    title: displayTitle(artwork),
     artist: artwork.artist,
     year: artwork.year,
     description: artwork.description,

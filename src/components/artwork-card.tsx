@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { NsfwScrim } from "@/components/nsfw-scrim";
 import { ResponsiveImage } from "@/components/responsive-image";
-import { artworkAlt } from "@/lib/artwork-format";
+import { artworkAlt, displayTitle } from "@/lib/artwork-format";
 import type { ArtworkListing } from "@/lib/data";
 
 type Props = {
@@ -31,7 +31,7 @@ export function ArtworkCard({ artwork, priority }: Props) {
         </NsfwScrim>
       </div>
       <div className="space-y-1 p-3">
-        <h3 className="line-clamp-2 text-sm font-medium">{artwork.title}</h3>
+        <h3 className="line-clamp-2 text-sm font-medium">{displayTitle(artwork)}</h3>
         <p className="truncate text-xs text-[var(--muted-foreground)]">
           {artwork.artist ? (
             <Link

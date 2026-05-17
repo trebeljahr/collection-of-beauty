@@ -6,7 +6,7 @@ import { NsfwScrim } from "@/components/nsfw-scrim";
 import { ResponsiveImage } from "@/components/responsive-image";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
-import { artworkAlt } from "@/lib/artwork-format";
+import { artworkAlt, displayTitle } from "@/lib/artwork-format";
 import type { ArtworkListing } from "@/lib/data";
 
 const DECADE = 10;
@@ -42,7 +42,7 @@ export function TimelineView({ artworks, movements }: Props) {
       if (a.year == null) return false;
       if (movement && a.movement !== movement) return false;
       if (q) {
-        const hay = [a.title, a.artist, a.movement, a.nationality]
+        const hay = [a.title, a.englishTitle, a.artist, a.movement, a.nationality]
           .filter(Boolean)
           .join(" ")
           .toLowerCase();
@@ -144,7 +144,7 @@ export function TimelineView({ artworks, movements }: Props) {
                   <Link
                     href={`/artwork/${a.id}`}
                     className="absolute inset-0 z-10 focus:outline-none focus-visible:ring-2 focus-visible:ring-[var(--ring)]"
-                    title={`${a.title}${a.artist ? " — " + a.artist : ""} (${a.year})`}
+                    title={`${displayTitle(a)}${a.artist ? " — " + a.artist : ""} (${a.year})`}
                     aria-label={artworkAlt(a)}
                   />
                   <NsfwScrim nsfw={a.nsfw} compact>
@@ -163,7 +163,7 @@ export function TimelineView({ artworks, movements }: Props) {
                       slides up on hover from md+ for the desktop
                       "reveal on hover" feel. */}
                   <div className="absolute inset-x-0 bottom-0 translate-y-0 bg-gradient-to-t from-black/80 to-transparent p-1.5 text-[10px] text-white transition-transform md:translate-y-full md:group-hover:translate-y-0">
-                    <div className="line-clamp-1 font-medium">{a.title}</div>
+                    <div className="line-clamp-1 font-medium">{displayTitle(a)}</div>
                     <div className="line-clamp-1 opacity-80">
                       {a.year}
                       {a.artist ? (
