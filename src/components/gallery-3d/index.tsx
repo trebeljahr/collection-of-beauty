@@ -690,7 +690,7 @@ export function Gallery3D({ artworks }: Props) {
             floor={currentFloor}
             activeRoomIdx={activeRoomIdx}
             playerRef={lastCameraRef}
-            size={isTouch ? 140 : 220}
+            size={isTouch ? 196 : 308}
           />
         </div>
       )}

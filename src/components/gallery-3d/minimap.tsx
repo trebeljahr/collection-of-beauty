@@ -187,8 +187,8 @@ export function Minimap({
       const cy = ry + rh / 2;
       const icon = room.isStairwell ? "↑" : room.isAnchor ? "⌂" : null;
       ctx.font = icon
-        ? "bold 13px ui-sans-serif, system-ui, sans-serif"
-        : "11px ui-sans-serif, system-ui, sans-serif";
+        ? "bold 15px ui-sans-serif, system-ui, sans-serif"
+        : "13px ui-sans-serif, system-ui, sans-serif";
       ctx.fillStyle = isActive ? "#1a120b" : "rgba(255, 240, 210, 0.78)";
       const text = icon ?? truncateToFit(ctx, room.title, rw - 4);
       if (text) ctx.fillText(text, cx, cy);
@@ -199,8 +199,8 @@ export function Minimap({
     ctx.textAlign = "left";
     ctx.textBaseline = "top";
     ctx.fillStyle = "rgba(255, 240, 210, 0.72)";
-    ctx.font = "11px ui-sans-serif, system-ui, sans-serif";
-    ctx.fillText(`Floor ${floor.index + 1} · ${floor.era.title}`, 6, 5);
+    ctx.font = "12px ui-sans-serif, system-ui, sans-serif";
+    ctx.fillText(`Floor ${floor.index} · ${floor.era.title}`, 6, 5);
 
     // Footer — active room title + description, or a hint when the
     // player isn't standing in any one room.
