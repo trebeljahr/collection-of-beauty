@@ -19,7 +19,14 @@ Match the ricos.site house voice:
 - Concrete sensory detail over adjectives. "The post-rider's umbrella is the only solid shape" beats "a breathtaking depiction of resilience".
 - Short sentences are fine. Fragments are fine.
 - Prose, not bullets, in the editorial body. No emoji. No marketing voice.
-- Open editorial copy on the theme, not the project. Don't write "this issue explores…" — just start.
+- Open editorial copy on the theme, not the project. Don't write "this issue explores…", just start.
+
+**Avoid the LLM tells** (the user has flagged these explicitly):
+
+- **No em-dashes (`—`).** Use commas, periods, semicolons, parentheses, or rephrase. Applies to body, notes, excerpt, subject. Hyphens in compound modifiers (`shin-hanga`, `off-centre`) are fine.
+- **No "curator-narrator" connective paragraphs.** Don't write "The thread runs through X, through Y, and arrives at Z." Don't sum up with "Five painters, three centuries, three continents." Both read as templated AI prose.
+- **No abstract framing openers.** Don't start the body with a first-principles essay sentence ("A painter who puts one person in a landscape is making a decision about scale."). Start with a concrete observation about the works, or with a single plain claim.
+- **No meta closers.** Don't end with "What they share is...", "What this tells us is...", "In the end, all five...". End on an observation, an image, or a small concrete sentence and stop.
 
 ## Steps
 
