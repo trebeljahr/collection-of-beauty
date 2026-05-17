@@ -1,7 +1,7 @@
 # Collection of Beauty
 
 A public-domain art gallery built as a Next.js App Router site, with a
-WebGL multi-floor museum, a weekly Mailgun newsletter, and a pre-built
+WebGL multi-floor museum, a curated Mailgun newsletter, and a pre-built
 asset pipeline (no Next image optimizer in the hot path).
 
 ## Stack
@@ -89,8 +89,20 @@ on staged files only.
   door positions, and painting placements. Covered by unit tests.
 - `src/lib/seo.ts`, `src/app/sitemap.ts`, `src/app/robots.ts` — SEO
   surface. Sitemap is revalidated daily.
-- `src/app/api/newsletter/` — Mailgun-backed weekly digest. Cron in
-  [`vercel.json`](vercel.json); state in R2.
+- `content/newsletter/NNNN-<theme>.md` — newsletter editions, one
+  markdown file per issue. Frontmatter + body. The git history is the
+  archive; there is no state file. See
+  [`content/newsletter/README.md`](content/newsletter/README.md).
+- `src/app/newsletter/` — public archive index + per-edition pages.
+- `src/lib/newsletter/` — edition loader, email render, subscribe-flow
+  HMAC + rate limit, Mailgun client.
+- `src/app/api/newsletter/{subscribe,confirm}/` — only the
+  user-facing double-opt-in routes. **Sending is CLI-only** — see
+  `pnpm newsletter:send`. There is no cron, no scheduled task, no
+  send API route.
+- `scripts/newsletter-draft.ts` / `scripts/newsletter-send.ts` — the
+  CLI surface. `pnpm newsletter:draft <slug>` scaffolds a new issue;
+  `pnpm newsletter:send <slug> [--test|--confirm]` renders and sends.
 
 ## Deployment
 

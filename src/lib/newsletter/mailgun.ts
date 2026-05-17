@@ -27,14 +27,26 @@ export type SendDigestParams = {
   /**
    * For mailing lists, Mailgun rewrites per-recipient. We send to the list
    * address (e.g. `weekly@mg.example.com`) and Mailgun fans it out.
+   * Defaults to `MAILGUN_LIST` env var.
    */
   to?: string;
 };
+
+/**
+ * Which list to send to. `live` reads MAILGUN_LIST (the real subscriber
+ * list); `test` reads MAILGUN_TEST_LIST (a separate Mailgun list that
+ * should only contain your own address).
+ */
+export type SendTarget = "live" | "test";
 
 export type SendResult = {
   id: string | null;
   message: string | null;
 };
+
+export function resolveListAddress(target: SendTarget): string {
+  return target === "test" ? required("MAILGUN_TEST_LIST") : required("MAILGUN_LIST");
+}
 
 export async function sendDigest(params: SendDigestParams): Promise<SendResult> {
   const client = getClient();

@@ -181,7 +181,6 @@ function buildCutoutBalusters(
   return out;
 }
 
-
 /** Sweeping arc that bridges the topmost spiral inner rail's free end
  *  out to the cutout-edge rail. Without it the spiral terminates in a
  *  finial floating in the well centre while the cutout rail circles

@@ -1,5 +1,6 @@
 import type { MetadataRoute } from "next";
 import { artists, artworks } from "@/lib/data";
+import { loadPublishedEditions } from "@/lib/newsletter/editions";
 import { absoluteUrl } from "@/lib/seo";
 
 // Cache the rendered sitemap for a day. Iterating ~3,300 entries on
@@ -49,7 +50,20 @@ export default function sitemap(): MetadataRoute.Sitemap {
       changeFrequency: "yearly",
       priority: 0.3,
     },
+    {
+      url: absoluteUrl("/newsletter"),
+      lastModified: now,
+      changeFrequency: "weekly",
+      priority: 0.7,
+    },
   ];
+
+  const editionEntries: MetadataRoute.Sitemap = loadPublishedEditions().map((ed) => ({
+    url: absoluteUrl(`/newsletter/${ed.fileSlug}`),
+    lastModified: new Date(`${ed.publishedAt}T12:00:00Z`),
+    changeFrequency: "yearly",
+    priority: 0.6,
+  }));
 
   const artistEntries: MetadataRoute.Sitemap = artists.map((a) => ({
     url: absoluteUrl(`/artist/${a.slug}`),
@@ -66,5 +80,5 @@ export default function sitemap(): MetadataRoute.Sitemap {
     priority: 0.5,
   }));
 
-  return [...staticEntries, ...artistEntries, ...artworkEntries];
+  return [...staticEntries, ...editionEntries, ...artistEntries, ...artworkEntries];
 }
