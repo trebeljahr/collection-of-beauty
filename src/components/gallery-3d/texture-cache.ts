@@ -210,7 +210,7 @@ async function loadTextureCached(
             imageOrientation: "flipY",
           });
           if (signal.aborted) throw new DOMException("aborted", "AbortError");
-          const texture = new THREE.Texture(bitmap as unknown as HTMLImageElement);
+          const texture = new THREE.Texture(bitmap);
           texture.colorSpace = THREE.SRGBColorSpace;
           texture.anisotropy = aniso(renderer);
           texture.minFilter = THREE.LinearMipMapLinearFilter;
@@ -302,7 +302,7 @@ export function loadHiRes(
     }
     const bitmap = await createImageBitmap(blob, bitmapOpts);
     if (signal?.aborted) throw new DOMException("aborted", "AbortError");
-    const tex = new THREE.Texture(bitmap as unknown as HTMLImageElement);
+    const tex = new THREE.Texture(bitmap);
     tex.colorSpace = THREE.SRGBColorSpace;
     tex.anisotropy = aniso(renderer);
     tex.minFilter = THREE.LinearMipMapLinearFilter;
