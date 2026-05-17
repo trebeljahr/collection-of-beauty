@@ -90,12 +90,12 @@ export default async function EditionPage({ params }: { params: Promise<Params> 
       </header>
 
       {edition.body.length > 0 && (
-        <section className="prose-newsletter mb-20 md:mb-28 text-[var(--foreground)]">
+        <section className="prose-newsletter mb-14 md:mb-20 text-[var(--foreground)]">
           <Markdown remarkPlugins={[remarkGfm]}>{edition.body}</Markdown>
         </section>
       )}
 
-      <section className="space-y-24 md:space-y-32">
+      <section className="space-y-16 md:space-y-20">
         {resolved.map(({ artwork, note }) => (
           <figure key={artwork.id} className="m-0">
             <Link
@@ -112,7 +112,7 @@ export default async function EditionPage({ params }: { params: Promise<Params> 
                 className="w-full h-auto"
               />
             </Link>
-            <figcaption className="mt-6">
+            <figcaption className="mt-8 md:mt-10">
               <h2 className="font-serif text-2xl md:text-3xl leading-tight">
                 <Link
                   href={`/artwork/${artwork.id}`}
@@ -127,7 +127,7 @@ export default async function EditionPage({ params }: { params: Promise<Params> 
                 {artwork.movement ? ` · ${artwork.movement}` : ""}
               </p>
               {note && (
-                <p className="mt-5 text-[var(--foreground)] leading-[1.75] text-[1.0625rem]">
+                <p className="mt-6 text-[var(--foreground)] leading-[1.75] text-[1.0625rem]">
                   {note}
                 </p>
               )}
@@ -136,7 +136,7 @@ export default async function EditionPage({ params }: { params: Promise<Params> 
         ))}
       </section>
 
-      <footer className="mt-24 md:mt-32 border-t border-[var(--border)] pt-10 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 text-sm">
+      <footer className="mt-20 md:mt-24 border-t border-[var(--border)] pt-8 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 text-sm">
         <Link href="/newsletter" className="underline underline-offset-2 hover:opacity-70">
           ← All editions
         </Link>
