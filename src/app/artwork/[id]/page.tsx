@@ -196,6 +196,9 @@ export default async function ArtworkPage({ params }: { params: Promise<Params> 
           <AttributionBlock artwork={art} />
 
           <div>
+            <p className="mb-2 text-xs text-[var(--muted-foreground)]">
+              Metadata is imperfect — corrections welcome.
+            </p>
             <a
               href={suggestFixUrl({
                 id: art.id,
