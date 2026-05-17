@@ -1,65 +1,34 @@
 # Duplicate image sweep
 
-_Generated 2026-05-17T17:13:53.142Z from 2870/2870 artworks (0 skipped: no resolvable image)._
+_Generated 2026-05-17T17:39:54.315Z from 2861/2861 artworks (0 skipped: no resolvable image)._
 
 - Exact dHash collisions: **0** clusters covering **0** artworks
 - Near duplicates (hamming ≤ 4): **7** clusters covering **14** artworks
-- Same artist + same normalized title: **53** clusters covering **133** artworks
+- Same artist + same normalized title: **42** clusters covering **107** artworks
 
 ## Same artist + same title
 
 _Sorted by min pairwise hamming distance: low Δ likely = same work scanned twice; high Δ likely = a legitimate series sharing one title._
 
-### `vincent-van-gogh::irises` — min Δ5
-- `collection-of-beauty-1280px-irissen-s0050v1962-van-gogh-museum` — Irises — `collection-of-beauty/1280px-Irissen_-_s0050V1962_-_Van_Gogh_Museum.jpg`
-- `collection-of-beauty-vincent-van-gogh-irises-1890` — Irises — `collection-of-beauty/Vincent_van_Gogh_-_Irises_(1890).jpg`
-- `collection-of-beauty-vincent-van-gogh-irises-google-art-project` — Irises — `collection-of-beauty/Vincent_van_Gogh_-_Irises_-_Google_Art_Project.jpg`
-
-### `peter-paul-rubens::a view of het steen in the early morning` — min Δ8
-- `collection-of-beauty-peter-paul-rubens-a-view-of-het-steen-in-the-early-morning` — A View of Het Steen in the Early Morning — `collection-of-beauty/Peter_Paul_Rubens_-_A_View_of_Het_Steen_in_the_Early_Morning.jpg`
-- `collection-of-beauty-peter-paul-rubens-view-of-het-steen-castle-in-the-early-morning` — A View of Het Steen in the Early Morning — `collection-of-beauty/Peter_Paul_Rubens_-_View_of_Het_Steen_Castle_in_the_Early_Morning.jpg`
-
-### `vincent-van-gogh::wheatfield under thunderclouds` — min Δ9
-- `collection-of-beauty-vincent-van-gogh-wheatfield-under-thunderclouds-google-art-project` — Wheatfield under thunderclouds — `collection-of-beauty/Vincent_van_Gogh_-_Wheatfield_under_thunderclouds_-_Google_Art_Project.jpg`
-- `collection-of-beauty-2560px-korenveld-onder-onweerslucht-s0106v1962-van-gogh-museum` — Wheatfield under Thunderclouds — `collection-of-beauty/2560px-Korenveld_onder_onweerslucht_-_s0106V1962_-_Van_Gogh_Museum.jpg`
+### `vincent-van-gogh::starry night over the rh ne` — min Δ6
+- `collection-of-beauty-starry-night-over-the-rhone` — Starry Night Over the Rhône — `collection-of-beauty/Starry_Night_Over_the_Rhone.jpg`
+- `collection-of-beauty-vincent-van-gogh-starry-night-google-art-project` — The Starry Night / Starry Night Over the Rhône — `collection-of-beauty/Vincent_van_Gogh_-_Starry_Night_-_Google_Art_Project.jpg`
 
 ### `jean-auguste-dominique-ingres::odalisque with slave` — min Δ10
-- `collection-of-beauty-ingres-odalisque-esclave-fogg-art` — Odalisque with Slave — `collection-of-beauty/Ingres_Odalisque_esclave_Fogg_Art.jpeg`
-- `collection-of-beauty-jean-paul-flandrin-odalisque-with-slave-walters-37887` — Odalisque with Slave — `collection-of-beauty/Jean-Paul_Flandrin_-_Odalisque_with_Slave_-_Walters_37887.jpg`
-
-### `vincent-van-gogh::self portrait` — min Δ11
-- `collection-of-beauty-vincent-van-gogh-self-portrait-google-art-project-454045` — Self-Portrait — `collection-of-beauty/Vincent_van_Gogh_-_Self-Portrait_-_Google_Art_Project_(454045).jpg`
-- `collection-of-beauty-1280px-self-portrait-van-gogh-september-1889` — Self-portrait — `collection-of-beauty/1280px-Self-Portrait_(Van_Gogh_September_1889).jpg`
-- `collection-of-beauty-vincent-van-gogh-self-portrait-google-art-project` — Self-portrait — `collection-of-beauty/Vincent_van_Gogh_-_Self-Portrait_-_Google_Art_Project.jpg`
-
-### `fernand-le-quesne::the two pearls` — min Δ11
-- `collection-of-beauty-fernand-le-quesne-les-deux-perles` — The Two Pearls — `collection-of-beauty/Fernand_Le_Quesne_-_Les_deux_perles.jpg`
-- `collection-of-beauty-fernand-le-quesne-les-deux-perles-the-two-pearls-1889` — The Two Pearls — `collection-of-beauty/Fernand_Le_Quesne_-_Les_deux_perles_(The_two_pearls)_(1889).png`
+- `collection-of-beauty-ingres-odalisque-esclave-fogg-art` — Odalisque with Slave / Odalisque with Slave (Fogg Art Museum, 1839) — `collection-of-beauty/Ingres_Odalisque_esclave_Fogg_Art.jpeg`
+- `collection-of-beauty-jean-paul-flandrin-odalisque-with-slave-walters-37887` — Odalisque with Slave / Odalisque with Slave (Walters Art Museum, 1842; landscape by Jean-Paul Flandrin) — `collection-of-beauty/Jean-Paul_Flandrin_-_Odalisque_with_Slave_-_Walters_37887.jpg`
 
 ### `vincent-van-gogh::wheat field with cypresses` — min Δ12
-- `collection-of-beauty-vincent-van-gogh-wheat-field-with-cypresses-national-gallery-version` — Wheat Field with Cypresses — `collection-of-beauty/Vincent_van_Gogh_-_Wheat_Field_with_Cypresses_(National_Gallery_version).jpg`
-- `collection-of-beauty-vincent-van-gogh-wheat-field-with-cypresses-google-art-project` — Wheat Field with Cypresses — `collection-of-beauty/Vincent_van_Gogh_-_Wheat_Field_with_Cypresses_-_Google_Art_Project.jpg`
-
-### `hieronymus-bosch::the garden of earthly delights` — min Δ13
-- `collection-of-beauty-the-garden-of-earthly-delights` — The Garden of earthly delights — `collection-of-beauty/The_Garden_of_earthly_delights.jpg`
-- `collection-of-beauty-el-jardin-de-las-delicias-de-el-bosco` — The Garden of Earthly Delights — `collection-of-beauty/El_jardín_de_las_Delicias,_de_El_Bosco.jpg`
-
-### `peter-paul-rubens::the brazen serpent` — min Δ14
-- `collection-of-beauty-peter-paul-rubens-1577-1640-after-the-brazen-serpent-twcms-c161-shipley-art-gallery` — The Brazen Serpent — `collection-of-beauty/Peter_Paul_Rubens_(1577-1640)_(after)_-_The_Brazen_Serpent_-_TWCMS_,_C161_-_Shipley_Art_Gallery.jpg`
-- `collection-of-beauty-peter-paul-rubens-the-brazen-serpent` — The Brazen Serpent — `collection-of-beauty/Peter_Paul_Rubens_-_The_Brazen_Serpent.jpg`
+- `collection-of-beauty-vincent-van-gogh-wheat-field-with-cypresses-national-gallery-version` — Wheat Field with Cypresses / Wheat Field with Cypresses (National Gallery, September 1889) — `collection-of-beauty/Vincent_van_Gogh_-_Wheat_Field_with_Cypresses_(National_Gallery_version).jpg`
+- `collection-of-beauty-vincent-van-gogh-wheat-field-with-cypresses-google-art-project` — Wheat Field with Cypresses / Wheat Field with Cypresses (Metropolitan Museum, June 1889) — `collection-of-beauty/Vincent_van_Gogh_-_Wheat_Field_with_Cypresses_-_Google_Art_Project.jpg`
 
 ### `peter-paul-rubens::head of medusa` — min Δ14
 - `collection-of-beauty-medusarubens` — Head of Medusa — `collection-of-beauty/MedusaRubens.jpg`
 - `collection-of-beauty-rubens-medusa` — Head of Medusa — `collection-of-beauty/Rubens_Medusa.jpeg`
 
 ### `caravaggio::the lute player` — min Δ15
-- `collection-of-beauty-michelangelo-caravaggio-020` — The Lute Player — `collection-of-beauty/Michelangelo_Caravaggio_020.jpg`
-- `collection-of-beauty-1596-caravaggio-the-lute-player-new-york` — The Lute Player — `collection-of-beauty/1596_Caravaggio,_The_Lute_Player_New_York.jpg`
-
-### `vincent-van-gogh::the starry night` — min Δ16
-- `collection-of-beauty-vincent-van-gogh-starry-night-google-art-project` — The Starry Night — `collection-of-beauty/Vincent_van_Gogh_-_Starry_Night_-_Google_Art_Project.jpg`
-- `collection-of-beauty-thestarrynightbyvincentvangogh` — The Starry Night — `collection-of-beauty/TheStarryNightByVincentVanGogh.jpg`
-- `collection-of-beauty-vangogh-starry-night-ballance1` — The Starry Night — `collection-of-beauty/VanGogh-starry_night_ballance1.jpg`
+- `collection-of-beauty-michelangelo-caravaggio-020` — The Lute Player / The Lute Player (Hermitage) — `collection-of-beauty/Michelangelo_Caravaggio_020.jpg`
+- `collection-of-beauty-1596-caravaggio-the-lute-player-new-york` — The Lute Player / The Lute Player (Metropolitan Museum) — `collection-of-beauty/1596_Caravaggio,_The_Lute_Player_New_York.jpg`
 
 ### `claude-monet::water lilies` — min Δ16
 - `collection-of-beauty-monet-nenufares` — Water Lilies — `collection-of-beauty/Monet_-_Nenúfares.jpg`
@@ -80,10 +49,6 @@ _Sorted by min pairwise hamming distance: low Δ likely = same work scanned twic
 - `collection-of-beauty-claude-monet-water-lilies-1917-1919` — Water Lilies — `collection-of-beauty/Claude_Monet_-_Water_Lilies,_1917-1919.jpeg`
 - `collection-of-beauty-los-nenufares-monet` — Water Lilies — `collection-of-beauty/Los_nenúfares_(Monet).jpg`
 
-### `artemisia-gentileschi::virgin with the child` — min Δ17
-- `collection-of-beauty-artemisia-gentileschi-madonna-con-bambino-1609-1610` — Virgin with the Child — `collection-of-beauty/Artemisia_Gentileschi_-_Madonna_con_Bambino_(1609-1610).jpg`
-- `collection-of-beauty-madonna-and-child-gentileschi` — Virgin with the Child — `collection-of-beauty/Madonna-and-child-Gentileschi.jpg`
-
 ### `unknown::anatomy` — min Δ17
 - `collection-of-beauty-anatomy-wellcome-l0021853` — Anatomy — `collection-of-beauty/Anatomy_Wellcome_L0021853.jpg`
 - `collection-of-beauty-anatomy-wellcome-l0021854` — Anatomy — `collection-of-beauty/Anatomy_Wellcome_L0021854.jpg`
@@ -99,26 +64,29 @@ _Sorted by min pairwise hamming distance: low Δ likely = same work scanned twic
 - `collection-of-beauty-waterloo-bridge-london-at-sunset-e11705` — Waterloo Bridge — `collection-of-beauty/Waterloo_Bridge,_London,_at_Sunset_E11705.jpg`
 
 ### `peter-paul-rubens::adam and eve` — min Δ25
-- `collection-of-beauty-rubens-painting-adam-eve` — Adam and Eve — `collection-of-beauty/Rubens_Painting_Adam_Eve.jpg`
-- `collection-of-beauty-peter-paul-rubens-adam-and-eve-after-titian-between-1628-and-1629` — Adam and Eve — `collection-of-beauty/Peter_Paul_Rubens_-_Adam_and_Eve,_after_Titian,_between_1628_and_1629.jpg`
+- `collection-of-beauty-rubens-painting-adam-eve` — Adam and Eve / Adam and Eve (Rubenshuis, c. 1599) — `collection-of-beauty/Rubens_Painting_Adam_Eve.jpg`
+- `collection-of-beauty-peter-paul-rubens-adam-and-eve-after-titian-between-1628-and-1629` — Adam and Eve / Adam and Eve (after Titian, 1628–29) — `collection-of-beauty/Peter_Paul_Rubens_-_Adam_and_Eve,_after_Titian,_between_1628_and_1629.jpg`
 
 ### `peter-paul-rubens::descent from the cross` — min Δ25
-- `collection-of-beauty-peter-paul-rubens-descent-from-the-cross-outside-right-wga20217` — Descent from the Cross — `collection-of-beauty/Peter_Paul_Rubens_-_Descent_from_the_Cross_(outside_right)_-_WGA20217.jpg`
-- `collection-of-beauty-kalisz-rubens` — Descent from the Cross — `collection-of-beauty/Kalisz_Rubens.jpg`
-- `collection-of-beauty-descente-de-croix-rubens` — Descent from the Cross — `collection-of-beauty/Descente_de_croix_rubens.jpg`
+- `collection-of-beauty-kalisz-rubens` — Descent from the Cross / Descent from the Cross (Kalisz Cathedral) — `collection-of-beauty/Kalisz_Rubens.jpg`
+- `collection-of-beauty-descente-de-croix-rubens` — Descent from the Cross / Descent from the Cross (Hermitage) — `collection-of-beauty/Descente_de_croix_rubens.jpg`
 
 ### `claude-monet::charing cross bridge` — min Δ25
 - `collection-of-beauty-charing-cross-bridge-monet` — Charing Cross Bridge — `collection-of-beauty/Charing_Cross_Bridge,_Monet.jpg`
 - `collection-of-beauty-charing-cross-bridge-reflections-on-the-thames` — Charing Cross Bridge — `collection-of-beauty/Charing_Cross_Bridge,_Reflections_on_the_Thames.jpg`
 
 ### `albrecht-durer::adam and eve` — min Δ28
-- `collection-of-beauty-albrecht-durer-adam-and-eve-1504-engraving` — Adam and Eve — `collection-of-beauty/Albrecht_Dürer,_Adam_and_Eve,_1504,_Engraving.jpg`
-- `collection-of-beauty-albrecht-durer-adam-and-eve-prado-2` — Adam and Eve — `collection-of-beauty/Albrecht_Dürer_-_Adam_and_Eve_(Prado)_2.jpg`
+- `collection-of-beauty-albrecht-durer-adam-and-eve-1504-engraving` — Adam and Eve / Adam and Eve (engraving, 1504) — `collection-of-beauty/Albrecht_Dürer,_Adam_and_Eve,_1504,_Engraving.jpg`
+- `collection-of-beauty-albrecht-durer-adam-and-eve-prado-2` — Adam and Eve / Adam and Eve (Prado oil diptych, 1507) — `collection-of-beauty/Albrecht_Dürer_-_Adam_and_Eve_(Prado)_2.jpg`
 
-### `vincent-van-gogh::dance at the moulin de la galette` — min Δ28
-- `collection-of-beauty-960px-van-gogh-le-moulin-de-la-galette4` — Dance at the Moulin de la Galette — `collection-of-beauty/960px-Van_Gogh_-_Le_Moulin_de_la_Galette4.jpeg`
-- `collection-of-beauty-van-gogh-le-moulin-de-la-galette` — Dance at the Moulin de la Galette — `collection-of-beauty/Van_Gogh_-_Le_Moulin_de_la_Galette.jpeg`
-- `collection-of-beauty-vincent-van-gogh-le-moulin-de-la-galette` — Dance at the Moulin de la Galette — `collection-of-beauty/Vincent_van_Gogh_-_Le_Moulin_de_la_Galette.jpg`
+### `vincent-van-gogh::le moulin de la galette` — min Δ28
+- `collection-of-beauty-960px-van-gogh-le-moulin-de-la-galette4` — Dance at the Moulin de la Galette / Le Moulin de la Galette (spring view with gardener) — `collection-of-beauty/960px-Van_Gogh_-_Le_Moulin_de_la_Galette4.jpeg`
+- `collection-of-beauty-van-gogh-le-moulin-de-la-galette` — Dance at the Moulin de la Galette / Le Moulin de la Galette (hilltop view with elevated platform) — `collection-of-beauty/Van_Gogh_-_Le_Moulin_de_la_Galette.jpeg`
+- `collection-of-beauty-vincent-van-gogh-le-moulin-de-la-galette` — Dance at the Moulin de la Galette / Le Moulin de la Galette (slope view from below) — `collection-of-beauty/Vincent_van_Gogh_-_Le_Moulin_de_la_Galette.jpg`
+
+### `vincent-van-gogh::irises` — min Δ28
+- `collection-of-beauty-vincent-van-gogh-irises-1890` — Irises / Irises (Metropolitan Museum, 1890) — `collection-of-beauty/Vincent_van_Gogh_-_Irises_(1890).jpg`
+- `collection-of-beauty-vincent-van-gogh-irises-google-art-project` — Irises / Irises (Van Gogh Museum, 1890) — `collection-of-beauty/Vincent_van_Gogh_-_Irises_-_Google_Art_Project.jpg`
 
 ### `claude-monet::houses of parliament` — min Δ28
 - `collection-of-beauty-monet-houses-of-parliament-sunset` — Houses of Parliament — `collection-of-beauty/Monet_Houses_of_Parliament,_Sunset.jpg`
@@ -131,21 +99,13 @@ _Sorted by min pairwise hamming distance: low Δ likely = same work scanned twic
 - `collection-of-beauty-water-lilies-and-japanese-bridge-1897-1899-monet` — the-water-lily-pond — `collection-of-beauty/Water-Lilies-and-Japanese-Bridge-(1897-1899)-Monet.jpg`
 - `collection-of-beauty-le-bassin-aux-nympheas-claude-monet` — The Water Lily Pond — `collection-of-beauty/Le_bassin_aux_nymphéas_-_Claude_Monet.jpg`
 
-### `jean-leon-gerome::bashi bazouk` — min Δ29
-- `collection-of-beauty-jean-leon-gerome-bashi-bazouk-2014-435-1-metropolitan-museum-of-art` — Bashi-Bazouk — `collection-of-beauty/Jean-Léon_Gérôme_-_Bashi-Bazouk_-_2014.435.1_-_Metropolitan_Museum_of_Art.jpg`
-- `collection-of-beauty-1280px-gerome-black-bashi-bazouk-c-1869` — Bashi-Bazouk — `collection-of-beauty/1280px-Gérôme-Black_Bashi-Bazouk-c._1869.jpg`
-
 ### `claude-monet::the luncheon` — min Δ29
 - `collection-of-beauty-the-luncheon-by-claude-monet-stadel-frankfurt-am-main-germany-2017` — The Luncheon — `collection-of-beauty/The_Luncheon_by_Claude_Monet_-_Städel_-_Frankfurt_am_Main_-_Germany_2017.jpg`
 - `collection-of-beauty-monet-luncheon` — The Luncheon — `collection-of-beauty/Monet_Luncheon.jpg`
 
-### `ma-yuan::dancing and singing` — min Δ30
-- `collection-of-beauty-ma-yuan-dancing-and-singing-peasants-returning-from-work` — Dancing and Singing — `collection-of-beauty/Ma_Yuan_-_Dancing_and_Singing-_Peasants_Returning_from_Work.jpg`
-- `collection-of-beauty-ma-yuan-dancing-and-singing-peasants-returning-from-work-detail-1` — Dancing and Singing — `collection-of-beauty/Ma_Yuan_-_Dancing_and_Singing-_Peasants_Returning_from_Work_-_Detail_1.jpg`
-
 ### `lucas-cranach-the-elder::adam and eve in paradise` — min Δ31
-- `collection-of-beauty-adameveparadisecranach` — Adam and Eve in Paradise — `collection-of-beauty/AdamEveParadiseCranach.jpg`
-- `collection-of-beauty-lucas-cranach-the-elder-adam-und-eva-im-paradies-sundenfall-google-art-project` — Adam and Eve in paradise — `collection-of-beauty/Lucas_Cranach_the_Elder_-_Adam_und_Eva_im_Paradies_(Sündenfall)_-_Google_Art_Project.jpg`
+- `collection-of-beauty-adameveparadisecranach` — Adam and Eve in Paradise / Adam and Eve in Paradise (woodcut, 1509) — `collection-of-beauty/AdamEveParadiseCranach.jpg`
+- `collection-of-beauty-lucas-cranach-the-elder-adam-und-eva-im-paradies-sundenfall-google-art-project` — Adam and Eve in paradise / Adam and Eve in Paradise (Gemäldegalerie Berlin, 1531) — `collection-of-beauty/Lucas_Cranach_the_Elder_-_Adam_und_Eva_im_Paradies_(Sündenfall)_-_Google_Art_Project.jpg`
 
 ### `claude-monet::the seine at lavacourt` — min Δ31
 - `collection-of-beauty-la-seine-a-lavacourt` — The Seine at Lavacourt — `collection-of-beauty/La_Seine_à_Lavacourt.jpeg`
@@ -160,8 +120,8 @@ _Sorted by min pairwise hamming distance: low Δ likely = same work scanned twic
 - `collection-of-beauty-claude-monet-dahlias-16035439250` — Dahlias — `collection-of-beauty/Claude_Monet_-_Dahlias_(16035439250).jpg`
 
 ### `peter-paul-rubens::the raising of the cross` — min Δ32
-- `collection-of-beauty-peter-paul-rubens-the-elevation-of-the-cross` — The raising of the cross — `collection-of-beauty/Peter_Paul_Rubens_-_The_Elevation_of_the_Cross.jpeg`
-- `collection-of-beauty-peter-paul-rubens-the-raising-of-the-cross-1638` — The Raising of the Cross — `collection-of-beauty/Peter_Paul_Rubens_-_The_Raising_of_the_Cross_(1638).jpeg`
+- `collection-of-beauty-peter-paul-rubens-the-elevation-of-the-cross` — The raising of the cross / The Raising of the Cross (oil sketch, Metropolitan Museum) — `collection-of-beauty/Peter_Paul_Rubens_-_The_Elevation_of_the_Cross.jpeg`
+- `collection-of-beauty-peter-paul-rubens-the-raising-of-the-cross-1638` — The Raising of the Cross / The Raising of the Cross (modello after the Antwerp triptych, 1638) — `collection-of-beauty/Peter_Paul_Rubens_-_The_Raising_of_the_Cross_(1638).jpeg`
 
 ### `gustave-courbet::the wave` — min Δ32
 - `collection-of-beauty-1869-courbet-die-woge-anagoria` — The Wave — `collection-of-beauty/1869_Courbet_Die_Woge_anagoria.JPG`
@@ -180,13 +140,9 @@ _Sorted by min pairwise hamming distance: low Δ likely = same work scanned twic
 - `collection-of-beauty-monet-wildenstein-1996-1661` — Wildenstein 1996 — `collection-of-beauty/Monet_-_Wildenstein_1996,_1661.jpg`
 - `collection-of-beauty-monet-wildenstein-1996-1823` — Wildenstein 1996 — `collection-of-beauty/Monet_-_Wildenstein_1996,_1823.jpg`
 
-### `peter-paul-rubens::the judgment of paris` — min Δ33
-- `collection-of-beauty-peter-paul-rubens-the-judgement-of-paris-c-1606-museo-del-prado` — The Judgment of Paris — `collection-of-beauty/Peter_Paul_Rubens_-_The_Judgement_of_Paris,_c.1606_(Museo_del_Prado).jpg`
-- `collection-of-beauty-peter-paul-rubens-115` — The Judgment of Paris — `collection-of-beauty/Peter_Paul_Rubens_115.jpg`
-
-### `peter-paul-rubens::landscape with a rainbow` — min Δ33
-- `collection-of-beauty-rubens-landscape-with-rainbow1632-1635` — Landscape with a Rainbow — `collection-of-beauty/Rubens-Landscape.with.Rainbow1632-1635.jpg`
-- `collection-of-beauty-peter-paul-rubens-landscape-with-a-rainbow-wga20411` — Landscape with a Rainbow — `collection-of-beauty/Peter_Paul_Rubens_-_Landscape_with_a_Rainbow_-_WGA20411.jpg`
+### `peter-paul-rubens::the judgement of paris` — min Δ33
+- `collection-of-beauty-peter-paul-rubens-the-judgement-of-paris-c-1606-museo-del-prado` — The Judgment of Paris / The Judgement of Paris (early version, c. 1606) — `collection-of-beauty/Peter_Paul_Rubens_-_The_Judgement_of_Paris,_c.1606_(Museo_del_Prado).jpg`
+- `collection-of-beauty-peter-paul-rubens-115` — The Judgment of Paris / The Judgement of Paris (late version, c. 1638) — `collection-of-beauty/Peter_Paul_Rubens_115.jpg`
 
 ### `claude-monet::the studio boat` — min Δ33
 - `collection-of-beauty-monet-w392` — The Studio Boat — `collection-of-beauty/Monet_w392.jpg`
@@ -209,41 +165,37 @@ _Sorted by min pairwise hamming distance: low Δ likely = same work scanned twic
 - `collection-of-beauty-claude-monet-vetheuil-google-art-project-427751` — Vétheuil — `collection-of-beauty/Claude_Monet_-_Vétheuil_-_Google_Art_Project_(427751).jpg`
 - `collection-of-beauty-claude-monet-vetheuil-01` — Vétheuil — `collection-of-beauty/Claude_Monet_Vetheuil_01.jpg`
 
-### `georges-seurat::seated nude study for bathers at asni res` — min Δ34
-- `collection-of-beauty-georges-seurat-seated-nude-study-for-une-baignade-1883-scottish-national-gallery` — Seated Nude: Study for 'Bathers at Asnières — `collection-of-beauty/Georges_Seurat,_Seated_Nude,_Study_for_Une_Baignade,_1883,_Scottish_National_Gallery.jpg`
-- `collection-of-beauty-baigneurs-a-asnieres` — Seated Nude: Study for 'Bathers at Asnières — `collection-of-beauty/Baigneurs_a_Asnieres.jpg`
-
-### `peter-paul-rubens::madonna and child` — min Δ35
-- `collection-of-beauty-peter-paul-rubens-1577-1640-copy-after-madonna-and-child-pcf48-lady-margaret-hall` — Madonna and Child — `collection-of-beauty/Peter_Paul_Rubens_(1577-1640)_(copy_after)_-_Madonna_and_Child_-_PCF48_-_Lady_Margaret_Hall.jpg`
-- `collection-of-beauty-1627-rubens-maria-mit-dem-kind-anagoria` — Madonna and Child — `collection-of-beauty/1627_Rubens_Maria_mit_dem_Kind_anagoria.jpeg`
-
 ### `james-mcneill-whistler::symphony in white` — min Δ35
 - `collection-of-beauty-whistler-james-symphony-in-white-no-1-the-white-girl-1862` — Symphony in White — `collection-of-beauty/Whistler_James_Symphony_in_White_no_1_(The_White_Girl)_1862.jpg`
 - `collection-of-beauty-cult-of-beauty-001` — Symphony in White — `collection-of-beauty/Cult-of-beauty-001.jpg`
 
 ### `vasily-vereshchagin::the afghan` — min Δ36
-- `collection-of-beauty` — Афганец / The Afghan — `collection-of-beauty/Афганец.jpg`
-- `collection-of-beauty-2` — Афганец / The Afghan — `collection-of-beauty/Афганец_(2).jpg`
+- `collection-of-beauty` — Афганец / The Afghan (white tunic, green turban) — `collection-of-beauty/Афганец.jpg`
+- `collection-of-beauty-2` — Афганец / The Afghan (chain mail, striped skirt) — `collection-of-beauty/Афганец_(2).jpg`
 
 ### `vasily-vereshchagin::in the alatau mountains` — min Δ37
-- `collection-of-beauty-d8932e` — In the Alatau Mountains — `collection-of-beauty/В_горах_Алатау.jpg`
-- `collection-of-beauty-2-3ff4e9` — В горах Алатау / In the Alatau Mountains — `collection-of-beauty/В_горах_Алатау_2.jpg`
+- `collection-of-beauty-d8932e` — In the Alatau Mountains / In the Alatau Mountains (deer in meadow) — `collection-of-beauty/В_горах_Алатау.jpg`
+- `collection-of-beauty-2-3ff4e9` — В горах Алатау / In the Alatau Mountains (horsemen on slope) — `collection-of-beauty/В_горах_Алатау_2.jpg`
 
 ### `claude-monet::the bridge at argenteuil` — min Δ37
 - `collection-of-beauty-claude-monet-the-argenteuil-bridge-google-art-project` — The Bridge at Argenteuil — `collection-of-beauty/Claude_Monet_-_The_Argenteuil_Bridge_-_Google_Art_Project.jpg`
 - `collection-of-beauty-le-pont-d-argenteuil-claude-monet` — The Bridge at Argenteuil — `collection-of-beauty/Le_Pont_d`_Argenteuil_-_Claude_Monet.jpg`
 
 ### `artemisia-gentileschi::susanna and the elders` — min Δ38
-- `collection-of-beauty-susanna-and-the-elders-1610-artemisia-gentileschi` — Susanna and the Elders — `collection-of-beauty/Susanna_and_the_Elders_(1610),_Artemisia_Gentileschi.jpg`
-- `collection-of-beauty-susanna-and-the-elders` — Susanna and the Elders — `collection-of-beauty/Susanna_and_the_Elders.jpg`
+- `collection-of-beauty-susanna-and-the-elders-1610-artemisia-gentileschi` — Susanna and the Elders / Susanna and the Elders (Pommersfelden, 1610) — `collection-of-beauty/Susanna_and_the_Elders_(1610),_Artemisia_Gentileschi.jpg`
+- `collection-of-beauty-susanna-and-the-elders` — Susanna and the Elders / Susanna and the Elders (later autograph version) — `collection-of-beauty/Susanna_and_the_Elders.jpg`
 
 ### `peter-paul-rubens::the massacre of the innocents` — min Δ38
-- `collection-of-beauty-rubens-peter-paul-massacre-of-the-innocents-art-gallery-of-ontario` — The Massacre of the Innocents — `collection-of-beauty/Rubens,_Peter_Paul_-_Massacre_of_the_Innocents_-_Art_Gallery_of_Ontario.jpg`
-- `collection-of-beauty-the-massacre-of-the-innocents-peter-paul-rubens-unframed` — The Massacre of the Innocents — `collection-of-beauty/The_Massacre_of_the_Innocents_-_Peter_Paul_Rubens_(Unframed).jpg`
+- `collection-of-beauty-rubens-peter-paul-massacre-of-the-innocents-art-gallery-of-ontario` — The Massacre of the Innocents / The Massacre of the Innocents (Art Gallery of Ontario, c. 1611) — `collection-of-beauty/Rubens,_Peter_Paul_-_Massacre_of_the_Innocents_-_Art_Gallery_of_Ontario.jpg`
+- `collection-of-beauty-the-massacre-of-the-innocents-peter-paul-rubens-unframed` — The Massacre of the Innocents / The Massacre of the Innocents (Alte Pinakothek, c. 1638) — `collection-of-beauty/The_Massacre_of_the_Innocents_-_Peter_Paul_Rubens_(Unframed).jpg`
 
 ### `claude-monet::summer` — min Δ38
 - `collection-of-beauty-claude-monet-l-ete-google-art-project` — Summer — `collection-of-beauty/Claude_Monet_-_L'Été_-_Google_Art_Project.jpg`
 - `collection-of-beauty-claude-monet-l-ete-champ-de-coquelicots` — Summer — `collection-of-beauty/Claude_Monet_-_L'été_-_Champ_de_coquelicots.jpeg`
+
+### `vincent-van-gogh::self portrait` — min Δ38
+- `collection-of-beauty-vincent-van-gogh-self-portrait-google-art-project-454045` — Self-Portrait / Self-Portrait (Art Institute of Chicago, 1887) — `collection-of-beauty/Vincent_van_Gogh_-_Self-Portrait_-_Google_Art_Project_(454045).jpg`
+- `collection-of-beauty-vincent-van-gogh-self-portrait-google-art-project` — Self-portrait / Self-Portrait (Musée d'Orsay, 1889) — `collection-of-beauty/Vincent_van_Gogh_-_Self-Portrait_-_Google_Art_Project.jpg`
 
 ### `rembrandt-van-rijn::self portrait` — min Δ39
 - `collection-of-beauty-rembrandt-zelfportret-google-art-project` — Self-portrait — `collection-of-beauty/Rembrandt_-_Zelfportret_-_Google_Art_Project.jpg`

@@ -1,9 +1,9 @@
 {
-  "generatedAt": "2026-05-17T17:13:53.137Z",
+  "generatedAt": "2026-05-17T17:39:54.310Z",
   "threshold": 4,
   "stats": {
-    "total": 2870,
-    "hashed": 2870,
+    "total": 2861,
+    "hashed": 2861,
     "skipped": 0
   },
   "exact": [],
@@ -158,69 +158,22 @@
   ],
   "titleClusters": [
     {
-      "key": "vincent-van-gogh::irises",
-      "minDistance": 5,
+      "key": "vincent-van-gogh::starry night over the rh ne",
+      "minDistance": 6,
       "members": [
         {
-          "id": "collection-of-beauty-1280px-irissen-s0050v1962-van-gogh-museum",
-          "title": "Irises",
+          "id": "collection-of-beauty-starry-night-over-the-rhone",
+          "title": "Starry Night Over the Rhône",
           "englishTitle": null,
           "artist": "Vincent van Gogh",
-          "objectKey": "collection-of-beauty/1280px-Irissen_-_s0050V1962_-_Van_Gogh_Museum.jpg"
+          "objectKey": "collection-of-beauty/Starry_Night_Over_the_Rhone.jpg"
         },
         {
-          "id": "collection-of-beauty-vincent-van-gogh-irises-1890",
-          "title": "Irises",
-          "englishTitle": null,
+          "id": "collection-of-beauty-vincent-van-gogh-starry-night-google-art-project",
+          "title": "The Starry Night",
+          "englishTitle": "Starry Night Over the Rhône",
           "artist": "Vincent van Gogh",
-          "objectKey": "collection-of-beauty/Vincent_van_Gogh_-_Irises_(1890).jpg"
-        },
-        {
-          "id": "collection-of-beauty-vincent-van-gogh-irises-google-art-project",
-          "title": "Irises",
-          "englishTitle": null,
-          "artist": "Vincent van Gogh",
-          "objectKey": "collection-of-beauty/Vincent_van_Gogh_-_Irises_-_Google_Art_Project.jpg"
-        }
-      ]
-    },
-    {
-      "key": "peter-paul-rubens::a view of het steen in the early morning",
-      "minDistance": 8,
-      "members": [
-        {
-          "id": "collection-of-beauty-peter-paul-rubens-a-view-of-het-steen-in-the-early-morning",
-          "title": "A View of Het Steen in the Early Morning",
-          "englishTitle": null,
-          "artist": "Peter Paul Rubens",
-          "objectKey": "collection-of-beauty/Peter_Paul_Rubens_-_A_View_of_Het_Steen_in_the_Early_Morning.jpg"
-        },
-        {
-          "id": "collection-of-beauty-peter-paul-rubens-view-of-het-steen-castle-in-the-early-morning",
-          "title": "A View of Het Steen in the Early Morning",
-          "englishTitle": null,
-          "artist": "Peter Paul Rubens",
-          "objectKey": "collection-of-beauty/Peter_Paul_Rubens_-_View_of_Het_Steen_Castle_in_the_Early_Morning.jpg"
-        }
-      ]
-    },
-    {
-      "key": "vincent-van-gogh::wheatfield under thunderclouds",
-      "minDistance": 9,
-      "members": [
-        {
-          "id": "collection-of-beauty-vincent-van-gogh-wheatfield-under-thunderclouds-google-art-project",
-          "title": "Wheatfield under thunderclouds",
-          "englishTitle": null,
-          "artist": "Vincent van Gogh",
-          "objectKey": "collection-of-beauty/Vincent_van_Gogh_-_Wheatfield_under_thunderclouds_-_Google_Art_Project.jpg"
-        },
-        {
-          "id": "collection-of-beauty-2560px-korenveld-onder-onweerslucht-s0106v1962-van-gogh-museum",
-          "title": "Wheatfield under Thunderclouds",
-          "englishTitle": null,
-          "artist": "Vincent van Gogh",
-          "objectKey": "collection-of-beauty/2560px-Korenveld_onder_onweerslucht_-_s0106V1962_-_Van_Gogh_Museum.jpg"
+          "objectKey": "collection-of-beauty/Vincent_van_Gogh_-_Starry_Night_-_Google_Art_Project.jpg"
         }
       ]
     },
@@ -231,63 +184,16 @@
         {
           "id": "collection-of-beauty-ingres-odalisque-esclave-fogg-art",
           "title": "Odalisque with Slave",
-          "englishTitle": null,
+          "englishTitle": "Odalisque with Slave (Fogg Art Museum, 1839)",
           "artist": "Jean-Auguste-Dominique Ingres",
           "objectKey": "collection-of-beauty/Ingres_Odalisque_esclave_Fogg_Art.jpeg"
         },
         {
           "id": "collection-of-beauty-jean-paul-flandrin-odalisque-with-slave-walters-37887",
           "title": "Odalisque with Slave",
-          "englishTitle": null,
+          "englishTitle": "Odalisque with Slave (Walters Art Museum, 1842; landscape by Jean-Paul Flandrin)",
           "artist": "Jean-Auguste-Dominique Ingres",
           "objectKey": "collection-of-beauty/Jean-Paul_Flandrin_-_Odalisque_with_Slave_-_Walters_37887.jpg"
-        }
-      ]
-    },
-    {
-      "key": "vincent-van-gogh::self portrait",
-      "minDistance": 11,
-      "members": [
-        {
-          "id": "collection-of-beauty-vincent-van-gogh-self-portrait-google-art-project-454045",
-          "title": "Self-Portrait",
-          "englishTitle": null,
-          "artist": "Vincent van Gogh",
-          "objectKey": "collection-of-beauty/Vincent_van_Gogh_-_Self-Portrait_-_Google_Art_Project_(454045).jpg"
-        },
-        {
-          "id": "collection-of-beauty-1280px-self-portrait-van-gogh-september-1889",
-          "title": "Self-portrait",
-          "englishTitle": null,
-          "artist": "Vincent van Gogh",
-          "objectKey": "collection-of-beauty/1280px-Self-Portrait_(Van_Gogh_September_1889).jpg"
-        },
-        {
-          "id": "collection-of-beauty-vincent-van-gogh-self-portrait-google-art-project",
-          "title": "Self-portrait",
-          "englishTitle": null,
-          "artist": "Vincent van Gogh",
-          "objectKey": "collection-of-beauty/Vincent_van_Gogh_-_Self-Portrait_-_Google_Art_Project.jpg"
-        }
-      ]
-    },
-    {
-      "key": "fernand-le-quesne::the two pearls",
-      "minDistance": 11,
-      "members": [
-        {
-          "id": "collection-of-beauty-fernand-le-quesne-les-deux-perles",
-          "title": "The Two Pearls",
-          "englishTitle": null,
-          "artist": "Fernand Le Quesne",
-          "objectKey": "collection-of-beauty/Fernand_Le_Quesne_-_Les_deux_perles.jpg"
-        },
-        {
-          "id": "collection-of-beauty-fernand-le-quesne-les-deux-perles-the-two-pearls-1889",
-          "title": "The Two Pearls",
-          "englishTitle": null,
-          "artist": "Fernand Le Quesne",
-          "objectKey": "collection-of-beauty/Fernand_Le_Quesne_-_Les_deux_perles_(The_two_pearls)_(1889).png"
         }
       ]
     },
@@ -298,56 +204,16 @@
         {
           "id": "collection-of-beauty-vincent-van-gogh-wheat-field-with-cypresses-national-gallery-version",
           "title": "Wheat Field with Cypresses",
-          "englishTitle": null,
+          "englishTitle": "Wheat Field with Cypresses (National Gallery, September 1889)",
           "artist": "Vincent van Gogh",
           "objectKey": "collection-of-beauty/Vincent_van_Gogh_-_Wheat_Field_with_Cypresses_(National_Gallery_version).jpg"
         },
         {
           "id": "collection-of-beauty-vincent-van-gogh-wheat-field-with-cypresses-google-art-project",
           "title": "Wheat Field with Cypresses",
-          "englishTitle": null,
+          "englishTitle": "Wheat Field with Cypresses (Metropolitan Museum, June 1889)",
           "artist": "Vincent van Gogh",
           "objectKey": "collection-of-beauty/Vincent_van_Gogh_-_Wheat_Field_with_Cypresses_-_Google_Art_Project.jpg"
-        }
-      ]
-    },
-    {
-      "key": "hieronymus-bosch::the garden of earthly delights",
-      "minDistance": 13,
-      "members": [
-        {
-          "id": "collection-of-beauty-the-garden-of-earthly-delights",
-          "title": "The Garden of earthly delights",
-          "englishTitle": null,
-          "artist": "Hieronymus Bosch",
-          "objectKey": "collection-of-beauty/The_Garden_of_earthly_delights.jpg"
-        },
-        {
-          "id": "collection-of-beauty-el-jardin-de-las-delicias-de-el-bosco",
-          "title": "The Garden of Earthly Delights",
-          "englishTitle": null,
-          "artist": "Hieronymus Bosch",
-          "objectKey": "collection-of-beauty/El_jardín_de_las_Delicias,_de_El_Bosco.jpg"
-        }
-      ]
-    },
-    {
-      "key": "peter-paul-rubens::the brazen serpent",
-      "minDistance": 14,
-      "members": [
-        {
-          "id": "collection-of-beauty-peter-paul-rubens-1577-1640-after-the-brazen-serpent-twcms-c161-shipley-art-gallery",
-          "title": "The Brazen Serpent",
-          "englishTitle": null,
-          "artist": "Peter Paul Rubens",
-          "objectKey": "collection-of-beauty/Peter_Paul_Rubens_(1577-1640)_(after)_-_The_Brazen_Serpent_-_TWCMS_,_C161_-_Shipley_Art_Gallery.jpg"
-        },
-        {
-          "id": "collection-of-beauty-peter-paul-rubens-the-brazen-serpent",
-          "title": "The Brazen Serpent",
-          "englishTitle": null,
-          "artist": "Peter Paul Rubens",
-          "objectKey": "collection-of-beauty/Peter_Paul_Rubens_-_The_Brazen_Serpent.jpg"
         }
       ]
     },
@@ -378,43 +244,16 @@
         {
           "id": "collection-of-beauty-michelangelo-caravaggio-020",
           "title": "The Lute Player",
-          "englishTitle": null,
+          "englishTitle": "The Lute Player (Hermitage)",
           "artist": "Caravaggio",
           "objectKey": "collection-of-beauty/Michelangelo_Caravaggio_020.jpg"
         },
         {
           "id": "collection-of-beauty-1596-caravaggio-the-lute-player-new-york",
           "title": "The Lute Player",
-          "englishTitle": null,
+          "englishTitle": "The Lute Player (Metropolitan Museum)",
           "artist": "Caravaggio",
           "objectKey": "collection-of-beauty/1596_Caravaggio,_The_Lute_Player_New_York.jpg"
-        }
-      ]
-    },
-    {
-      "key": "vincent-van-gogh::the starry night",
-      "minDistance": 16,
-      "members": [
-        {
-          "id": "collection-of-beauty-vincent-van-gogh-starry-night-google-art-project",
-          "title": "The Starry Night",
-          "englishTitle": null,
-          "artist": "Vincent van Gogh",
-          "objectKey": "collection-of-beauty/Vincent_van_Gogh_-_Starry_Night_-_Google_Art_Project.jpg"
-        },
-        {
-          "id": "collection-of-beauty-thestarrynightbyvincentvangogh",
-          "title": "The Starry Night",
-          "englishTitle": null,
-          "artist": "Vincent van Gogh",
-          "objectKey": "collection-of-beauty/TheStarryNightByVincentVanGogh.jpg"
-        },
-        {
-          "id": "collection-of-beauty-vangogh-starry-night-ballance1",
-          "title": "The Starry Night",
-          "englishTitle": null,
-          "artist": "Vincent van Gogh",
-          "objectKey": "collection-of-beauty/VanGogh-starry_night_ballance1.jpg"
         }
       ]
     },
@@ -544,26 +383,6 @@
       ]
     },
     {
-      "key": "artemisia-gentileschi::virgin with the child",
-      "minDistance": 17,
-      "members": [
-        {
-          "id": "collection-of-beauty-artemisia-gentileschi-madonna-con-bambino-1609-1610",
-          "title": "Virgin with the Child",
-          "englishTitle": null,
-          "artist": "Artemisia Gentileschi",
-          "objectKey": "collection-of-beauty/Artemisia_Gentileschi_-_Madonna_con_Bambino_(1609-1610).jpg"
-        },
-        {
-          "id": "collection-of-beauty-madonna-and-child-gentileschi",
-          "title": "Virgin with the Child",
-          "englishTitle": null,
-          "artist": "Artemisia Gentileschi",
-          "objectKey": "collection-of-beauty/Madonna-and-child-Gentileschi.jpg"
-        }
-      ]
-    },
-    {
       "key": "unknown::anatomy",
       "minDistance": 17,
       "members": [
@@ -644,14 +463,14 @@
         {
           "id": "collection-of-beauty-rubens-painting-adam-eve",
           "title": "Adam and Eve",
-          "englishTitle": null,
+          "englishTitle": "Adam and Eve (Rubenshuis, c. 1599)",
           "artist": "Peter Paul Rubens",
           "objectKey": "collection-of-beauty/Rubens_Painting_Adam_Eve.jpg"
         },
         {
           "id": "collection-of-beauty-peter-paul-rubens-adam-and-eve-after-titian-between-1628-and-1629",
           "title": "Adam and Eve",
-          "englishTitle": null,
+          "englishTitle": "Adam and Eve (after Titian, 1628–29)",
           "artist": "Peter Paul Rubens",
           "objectKey": "collection-of-beauty/Peter_Paul_Rubens_-_Adam_and_Eve,_after_Titian,_between_1628_and_1629.jpg"
         }
@@ -662,23 +481,16 @@
       "minDistance": 25,
       "members": [
         {
-          "id": "collection-of-beauty-peter-paul-rubens-descent-from-the-cross-outside-right-wga20217",
-          "title": "Descent from the Cross",
-          "englishTitle": null,
-          "artist": "Peter Paul Rubens",
-          "objectKey": "collection-of-beauty/Peter_Paul_Rubens_-_Descent_from_the_Cross_(outside_right)_-_WGA20217.jpg"
-        },
-        {
           "id": "collection-of-beauty-kalisz-rubens",
           "title": "Descent from the Cross",
-          "englishTitle": null,
+          "englishTitle": "Descent from the Cross (Kalisz Cathedral)",
           "artist": "Peter Paul Rubens",
           "objectKey": "collection-of-beauty/Kalisz_Rubens.jpg"
         },
         {
           "id": "collection-of-beauty-descente-de-croix-rubens",
           "title": "Descent from the Cross",
-          "englishTitle": null,
+          "englishTitle": "Descent from the Cross (Hermitage)",
           "artist": "Peter Paul Rubens",
           "objectKey": "collection-of-beauty/Descente_de_croix_rubens.jpg"
         }
@@ -711,43 +523,63 @@
         {
           "id": "collection-of-beauty-albrecht-durer-adam-and-eve-1504-engraving",
           "title": "Adam and Eve",
-          "englishTitle": null,
+          "englishTitle": "Adam and Eve (engraving, 1504)",
           "artist": "Albrecht Dürer",
           "objectKey": "collection-of-beauty/Albrecht_Dürer,_Adam_and_Eve,_1504,_Engraving.jpg"
         },
         {
           "id": "collection-of-beauty-albrecht-durer-adam-and-eve-prado-2",
           "title": "Adam and Eve",
-          "englishTitle": null,
+          "englishTitle": "Adam and Eve (Prado oil diptych, 1507)",
           "artist": "Albrecht Dürer",
           "objectKey": "collection-of-beauty/Albrecht_Dürer_-_Adam_and_Eve_(Prado)_2.jpg"
         }
       ]
     },
     {
-      "key": "vincent-van-gogh::dance at the moulin de la galette",
+      "key": "vincent-van-gogh::le moulin de la galette",
       "minDistance": 28,
       "members": [
         {
           "id": "collection-of-beauty-960px-van-gogh-le-moulin-de-la-galette4",
           "title": "Dance at the Moulin de la Galette",
-          "englishTitle": null,
+          "englishTitle": "Le Moulin de la Galette (spring view with gardener)",
           "artist": "Vincent van Gogh",
           "objectKey": "collection-of-beauty/960px-Van_Gogh_-_Le_Moulin_de_la_Galette4.jpeg"
         },
         {
           "id": "collection-of-beauty-van-gogh-le-moulin-de-la-galette",
           "title": "Dance at the Moulin de la Galette",
-          "englishTitle": null,
+          "englishTitle": "Le Moulin de la Galette (hilltop view with elevated platform)",
           "artist": "Vincent van Gogh",
           "objectKey": "collection-of-beauty/Van_Gogh_-_Le_Moulin_de_la_Galette.jpeg"
         },
         {
           "id": "collection-of-beauty-vincent-van-gogh-le-moulin-de-la-galette",
           "title": "Dance at the Moulin de la Galette",
-          "englishTitle": null,
+          "englishTitle": "Le Moulin de la Galette (slope view from below)",
           "artist": "Vincent van Gogh",
           "objectKey": "collection-of-beauty/Vincent_van_Gogh_-_Le_Moulin_de_la_Galette.jpg"
+        }
+      ]
+    },
+    {
+      "key": "vincent-van-gogh::irises",
+      "minDistance": 28,
+      "members": [
+        {
+          "id": "collection-of-beauty-vincent-van-gogh-irises-1890",
+          "title": "Irises",
+          "englishTitle": "Irises (Metropolitan Museum, 1890)",
+          "artist": "Vincent van Gogh",
+          "objectKey": "collection-of-beauty/Vincent_van_Gogh_-_Irises_(1890).jpg"
+        },
+        {
+          "id": "collection-of-beauty-vincent-van-gogh-irises-google-art-project",
+          "title": "Irises",
+          "englishTitle": "Irises (Van Gogh Museum, 1890)",
+          "artist": "Vincent van Gogh",
+          "objectKey": "collection-of-beauty/Vincent_van_Gogh_-_Irises_-_Google_Art_Project.jpg"
         }
       ]
     },
@@ -813,26 +645,6 @@
       ]
     },
     {
-      "key": "jean-leon-gerome::bashi bazouk",
-      "minDistance": 29,
-      "members": [
-        {
-          "id": "collection-of-beauty-jean-leon-gerome-bashi-bazouk-2014-435-1-metropolitan-museum-of-art",
-          "title": "Bashi-Bazouk",
-          "englishTitle": null,
-          "artist": "Jean-Léon Gérôme",
-          "objectKey": "collection-of-beauty/Jean-Léon_Gérôme_-_Bashi-Bazouk_-_2014.435.1_-_Metropolitan_Museum_of_Art.jpg"
-        },
-        {
-          "id": "collection-of-beauty-1280px-gerome-black-bashi-bazouk-c-1869",
-          "title": "Bashi-Bazouk",
-          "englishTitle": null,
-          "artist": "Jean-Léon Gérôme",
-          "objectKey": "collection-of-beauty/1280px-Gérôme-Black_Bashi-Bazouk-c._1869.jpg"
-        }
-      ]
-    },
-    {
       "key": "claude-monet::the luncheon",
       "minDistance": 29,
       "members": [
@@ -853,40 +665,20 @@
       ]
     },
     {
-      "key": "ma-yuan::dancing and singing",
-      "minDistance": 30,
-      "members": [
-        {
-          "id": "collection-of-beauty-ma-yuan-dancing-and-singing-peasants-returning-from-work",
-          "title": "Dancing and Singing",
-          "englishTitle": null,
-          "artist": "Ma Yuan",
-          "objectKey": "collection-of-beauty/Ma_Yuan_-_Dancing_and_Singing-_Peasants_Returning_from_Work.jpg"
-        },
-        {
-          "id": "collection-of-beauty-ma-yuan-dancing-and-singing-peasants-returning-from-work-detail-1",
-          "title": "Dancing and Singing",
-          "englishTitle": null,
-          "artist": "Ma Yuan",
-          "objectKey": "collection-of-beauty/Ma_Yuan_-_Dancing_and_Singing-_Peasants_Returning_from_Work_-_Detail_1.jpg"
-        }
-      ]
-    },
-    {
       "key": "lucas-cranach-the-elder::adam and eve in paradise",
       "minDistance": 31,
       "members": [
         {
           "id": "collection-of-beauty-adameveparadisecranach",
           "title": "Adam and Eve in Paradise",
-          "englishTitle": null,
+          "englishTitle": "Adam and Eve in Paradise (woodcut, 1509)",
           "artist": "Lucas Cranach the Elder",
           "objectKey": "collection-of-beauty/AdamEveParadiseCranach.jpg"
         },
         {
           "id": "collection-of-beauty-lucas-cranach-the-elder-adam-und-eva-im-paradies-sundenfall-google-art-project",
           "title": "Adam and Eve in paradise",
-          "englishTitle": null,
+          "englishTitle": "Adam and Eve in Paradise (Gemäldegalerie Berlin, 1531)",
           "artist": "Lucas Cranach the Elder",
           "objectKey": "collection-of-beauty/Lucas_Cranach_the_Elder_-_Adam_und_Eva_im_Paradies_(Sündenfall)_-_Google_Art_Project.jpg"
         }
@@ -959,14 +751,14 @@
         {
           "id": "collection-of-beauty-peter-paul-rubens-the-elevation-of-the-cross",
           "title": "The raising of the cross",
-          "englishTitle": null,
+          "englishTitle": "The Raising of the Cross (oil sketch, Metropolitan Museum)",
           "artist": "Peter Paul Rubens",
           "objectKey": "collection-of-beauty/Peter_Paul_Rubens_-_The_Elevation_of_the_Cross.jpeg"
         },
         {
           "id": "collection-of-beauty-peter-paul-rubens-the-raising-of-the-cross-1638",
           "title": "The Raising of the Cross",
-          "englishTitle": null,
+          "englishTitle": "The Raising of the Cross (modello after the Antwerp triptych, 1638)",
           "artist": "Peter Paul Rubens",
           "objectKey": "collection-of-beauty/Peter_Paul_Rubens_-_The_Raising_of_the_Cross_(1638).jpeg"
         }
@@ -1060,42 +852,22 @@
       ]
     },
     {
-      "key": "peter-paul-rubens::the judgment of paris",
+      "key": "peter-paul-rubens::the judgement of paris",
       "minDistance": 33,
       "members": [
         {
           "id": "collection-of-beauty-peter-paul-rubens-the-judgement-of-paris-c-1606-museo-del-prado",
           "title": "The Judgment of Paris",
-          "englishTitle": null,
+          "englishTitle": "The Judgement of Paris (early version, c. 1606)",
           "artist": "Peter Paul Rubens",
           "objectKey": "collection-of-beauty/Peter_Paul_Rubens_-_The_Judgement_of_Paris,_c.1606_(Museo_del_Prado).jpg"
         },
         {
           "id": "collection-of-beauty-peter-paul-rubens-115",
           "title": "The Judgment of Paris",
-          "englishTitle": null,
+          "englishTitle": "The Judgement of Paris (late version, c. 1638)",
           "artist": "Peter Paul Rubens",
           "objectKey": "collection-of-beauty/Peter_Paul_Rubens_115.jpg"
-        }
-      ]
-    },
-    {
-      "key": "peter-paul-rubens::landscape with a rainbow",
-      "minDistance": 33,
-      "members": [
-        {
-          "id": "collection-of-beauty-rubens-landscape-with-rainbow1632-1635",
-          "title": "Landscape with a Rainbow",
-          "englishTitle": null,
-          "artist": "Peter Paul Rubens",
-          "objectKey": "collection-of-beauty/Rubens-Landscape.with.Rainbow1632-1635.jpg"
-        },
-        {
-          "id": "collection-of-beauty-peter-paul-rubens-landscape-with-a-rainbow-wga20411",
-          "title": "Landscape with a Rainbow",
-          "englishTitle": null,
-          "artist": "Peter Paul Rubens",
-          "objectKey": "collection-of-beauty/Peter_Paul_Rubens_-_Landscape_with_a_Rainbow_-_WGA20411.jpg"
         }
       ]
     },
@@ -1207,46 +979,6 @@
       ]
     },
     {
-      "key": "georges-seurat::seated nude study for bathers at asni res",
-      "minDistance": 34,
-      "members": [
-        {
-          "id": "collection-of-beauty-georges-seurat-seated-nude-study-for-une-baignade-1883-scottish-national-gallery",
-          "title": "Seated Nude: Study for 'Bathers at Asnières",
-          "englishTitle": null,
-          "artist": "Georges Seurat",
-          "objectKey": "collection-of-beauty/Georges_Seurat,_Seated_Nude,_Study_for_Une_Baignade,_1883,_Scottish_National_Gallery.jpg"
-        },
-        {
-          "id": "collection-of-beauty-baigneurs-a-asnieres",
-          "title": "Seated Nude: Study for 'Bathers at Asnières",
-          "englishTitle": null,
-          "artist": "Georges Seurat",
-          "objectKey": "collection-of-beauty/Baigneurs_a_Asnieres.jpg"
-        }
-      ]
-    },
-    {
-      "key": "peter-paul-rubens::madonna and child",
-      "minDistance": 35,
-      "members": [
-        {
-          "id": "collection-of-beauty-peter-paul-rubens-1577-1640-copy-after-madonna-and-child-pcf48-lady-margaret-hall",
-          "title": "Madonna and Child",
-          "englishTitle": null,
-          "artist": "Peter Paul Rubens",
-          "objectKey": "collection-of-beauty/Peter_Paul_Rubens_(1577-1640)_(copy_after)_-_Madonna_and_Child_-_PCF48_-_Lady_Margaret_Hall.jpg"
-        },
-        {
-          "id": "collection-of-beauty-1627-rubens-maria-mit-dem-kind-anagoria",
-          "title": "Madonna and Child",
-          "englishTitle": null,
-          "artist": "Peter Paul Rubens",
-          "objectKey": "collection-of-beauty/1627_Rubens_Maria_mit_dem_Kind_anagoria.jpeg"
-        }
-      ]
-    },
-    {
       "key": "james-mcneill-whistler::symphony in white",
       "minDistance": 35,
       "members": [
@@ -1273,14 +1005,14 @@
         {
           "id": "collection-of-beauty",
           "title": "Афганец",
-          "englishTitle": "The Afghan",
+          "englishTitle": "The Afghan (white tunic, green turban)",
           "artist": "Vasily Vereshchagin",
           "objectKey": "collection-of-beauty/Афганец.jpg"
         },
         {
           "id": "collection-of-beauty-2",
           "title": "Афганец",
-          "englishTitle": "The Afghan",
+          "englishTitle": "The Afghan (chain mail, striped skirt)",
           "artist": "Vasily Vereshchagin",
           "objectKey": "collection-of-beauty/Афганец_(2).jpg"
         }
@@ -1293,14 +1025,14 @@
         {
           "id": "collection-of-beauty-d8932e",
           "title": "In the Alatau Mountains",
-          "englishTitle": null,
+          "englishTitle": "In the Alatau Mountains (deer in meadow)",
           "artist": "Vasily Vereshchagin",
           "objectKey": "collection-of-beauty/В_горах_Алатау.jpg"
         },
         {
           "id": "collection-of-beauty-2-3ff4e9",
           "title": "В горах Алатау",
-          "englishTitle": "In the Alatau Mountains",
+          "englishTitle": "In the Alatau Mountains (horsemen on slope)",
           "artist": "Vasily Vereshchagin",
           "objectKey": "collection-of-beauty/В_горах_Алатау_2.jpg"
         }
@@ -1333,14 +1065,14 @@
         {
           "id": "collection-of-beauty-susanna-and-the-elders-1610-artemisia-gentileschi",
           "title": "Susanna and the Elders",
-          "englishTitle": null,
+          "englishTitle": "Susanna and the Elders (Pommersfelden, 1610)",
           "artist": "Artemisia Gentileschi",
           "objectKey": "collection-of-beauty/Susanna_and_the_Elders_(1610),_Artemisia_Gentileschi.jpg"
         },
         {
           "id": "collection-of-beauty-susanna-and-the-elders",
           "title": "Susanna and the Elders",
-          "englishTitle": null,
+          "englishTitle": "Susanna and the Elders (later autograph version)",
           "artist": "Artemisia Gentileschi",
           "objectKey": "collection-of-beauty/Susanna_and_the_Elders.jpg"
         }
@@ -1353,14 +1085,14 @@
         {
           "id": "collection-of-beauty-rubens-peter-paul-massacre-of-the-innocents-art-gallery-of-ontario",
           "title": "The Massacre of the Innocents",
-          "englishTitle": null,
+          "englishTitle": "The Massacre of the Innocents (Art Gallery of Ontario, c. 1611)",
           "artist": "Peter Paul Rubens",
           "objectKey": "collection-of-beauty/Rubens,_Peter_Paul_-_Massacre_of_the_Innocents_-_Art_Gallery_of_Ontario.jpg"
         },
         {
           "id": "collection-of-beauty-the-massacre-of-the-innocents-peter-paul-rubens-unframed",
           "title": "The Massacre of the Innocents",
-          "englishTitle": null,
+          "englishTitle": "The Massacre of the Innocents (Alte Pinakothek, c. 1638)",
           "artist": "Peter Paul Rubens",
           "objectKey": "collection-of-beauty/The_Massacre_of_the_Innocents_-_Peter_Paul_Rubens_(Unframed).jpg"
         }
@@ -1383,6 +1115,26 @@
           "englishTitle": null,
           "artist": "Claude Monet",
           "objectKey": "collection-of-beauty/Claude_Monet_-_L'été_-_Champ_de_coquelicots.jpeg"
+        }
+      ]
+    },
+    {
+      "key": "vincent-van-gogh::self portrait",
+      "minDistance": 38,
+      "members": [
+        {
+          "id": "collection-of-beauty-vincent-van-gogh-self-portrait-google-art-project-454045",
+          "title": "Self-Portrait",
+          "englishTitle": "Self-Portrait (Art Institute of Chicago, 1887)",
+          "artist": "Vincent van Gogh",
+          "objectKey": "collection-of-beauty/Vincent_van_Gogh_-_Self-Portrait_-_Google_Art_Project_(454045).jpg"
+        },
+        {
+          "id": "collection-of-beauty-vincent-van-gogh-self-portrait-google-art-project",
+          "title": "Self-portrait",
+          "englishTitle": "Self-Portrait (Musée d'Orsay, 1889)",
+          "artist": "Vincent van Gogh",
+          "objectKey": "collection-of-beauty/Vincent_van_Gogh_-_Self-Portrait_-_Google_Art_Project.jpg"
         }
       ]
     },

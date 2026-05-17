@@ -299,16 +299,6 @@
     "describedAt": null,
     "sourceLinks": []
   },
-  "1280px-Irissen_-_s0050V1962_-_Van_Gogh_Museum.jpg": {
-    "wikidataId": "Q4008950",
-    "wikidataUrl": "https://www.wikidata.org/wiki/Q4008950",
-    "collection": "Van Gogh Museum",
-    "collectionWikidataId": "Q224124",
-    "location": "Van Gogh Museum",
-    "inventory": "s0050V1962",
-    "describedAt": "http://www.vangoghmuseum.nl/nl/collectie/s0050V1962",
-    "sourceLinks": []
-  },
   "1280px-Jean_Léon_Gerome_1896_La_Vérité_sortant_du_puits.jpeg": {
     "wikidataId": "Q17275221",
     "wikidataUrl": "https://www.wikidata.org/wiki/Q17275221",
@@ -9199,16 +9189,6 @@
     "describedAt": null,
     "sourceLinks": []
   },
-  "Peter_Paul_Rubens_(1577-1640)_(after)_-_The_Brazen_Serpent_-_TWCMS_,_C161_-_Shipley_Art_Gallery.jpg": {
-    "wikidataId": "Q119940745",
-    "wikidataUrl": "https://www.wikidata.org/wiki/Q119940745",
-    "collection": "Shipley Art Gallery",
-    "collectionWikidataId": "Q7498014",
-    "location": "Shipley Art Gallery",
-    "inventory": "TWCMS : C161",
-    "describedAt": null,
-    "sourceLinks": []
-  },
   "Peter_Paul_Rubens_(1577-1640)_(copy_after)_-_Madonna_and_Child_-_PCF48_-_Lady_Margaret_Hall.jpg": {
     "wikidataId": "Q119926800",
     "wikidataUrl": "https://www.wikidata.org/wiki/Q119926800",
@@ -14933,25 +14913,6 @@
       {
         "label": "avaxsphere.com",
         "url": "http://avaxsphere.com/graphics/gallery/artbyjohnlistonbyam.html"
-      }
-    ]
-  },
-  "TheStarryNightByVincentVanGogh.jpg": {
-    "wikidataId": null,
-    "wikidataUrl": null,
-    "collection": null,
-    "collectionWikidataId": null,
-    "location": null,
-    "inventory": null,
-    "describedAt": null,
-    "sourceLinks": [
-      {
-        "label": "vggallery.com",
-        "url": "http://www.vggallery.com/"
-      },
-      {
-        "label": "abcgallery.com",
-        "url": "http://www.abcgallery.com/V/vangogh/vangogh49.html"
       }
     ]
   },
