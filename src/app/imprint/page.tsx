@@ -4,7 +4,6 @@ export const metadata: Metadata = {
   title: "Imprint",
   description: "Operator and contact information for Collection of Beauty.",
   alternates: { canonical: "/imprint" },
-  robots: { index: true, follow: true },
 };
 
 export default function ImprintPage() {
