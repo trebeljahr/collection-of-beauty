@@ -384,6 +384,7 @@ export function Gallery3D({ artworks }: Props) {
         key={canvasKey}
         className="gallery-canvas-host"
         camera={{ fov: 75, near: 0.1, far: 500 }}
+        dpr={[1, 2]}
         gl={{ antialias: true, powerPreference: "high-performance" }}
         onCreated={({ gl, scene }) => {
           gl.toneMapping = THREE.ACESFilmicToneMapping;
