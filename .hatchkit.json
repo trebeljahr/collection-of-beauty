@@ -12,7 +12,7 @@
     "server": 3000,
     "client": 3001
   },
-  "surfaces": "client-only",
+  "surfaces": "shared",
   "s3Buckets": {
     "assets": {
       "name": "collection-of-beauty-assets",
