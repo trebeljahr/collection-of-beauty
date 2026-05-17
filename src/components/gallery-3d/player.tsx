@@ -81,6 +81,14 @@ const JOYSTICK_MAX_RANGE = 60;
 // fires, regardless of how big maxRange is set.
 const LOOK_DEADZONE = 0.15;
 const MOVE_DEADZONE = 0.15;
+// Radius (m) at which the player counts as "approaching" a staircase.
+// Past this distance the FloorPreloader has time to fetch + GPU-upload
+// the destination floor's thumb textures at low priority before the
+// player actually steps on the stair. Sized to outerRadius (5.4 m) +
+// generous buffer so a brisk walk (~3 m/s) gives ~2 s of preload runway
+// before the first stair tread.
+const STAIR_PROXIMITY_RADIUS = 12;
+const STAIR_PROXIMITY_RADIUS_SQ = STAIR_PROXIMITY_RADIUS * STAIR_PROXIMITY_RADIUS;
 // Width of the "you're at a real floor" arc at each end of a spiral
 // revolution. Stepping off the spiral (canStepTo's exit branch) is only
 // allowed inside one of these arcs, AND the player's `floor.index` is
@@ -128,6 +136,7 @@ export function Player({
   onZoomRequest,
   onAimChange,
   onActiveStairChange,
+  onNearbyStairChange,
   joystickMoveGetter,
   joystickLookGetter,
 }: {
@@ -165,6 +174,14 @@ export function Player({
    *  black bands at the slab edge mid-descent. Stair id, not the whole
    *  Staircase object, so identity comparison is cheap. */
   onActiveStairChange?: (stairId: string | null) => void;
+  /** Edge-fired when the player crosses STAIR_PROXIMITY_RADIUS around
+   *  any current-floor staircase. Lets the host kick off a low-priority
+   *  texture preload for the connected floor's paintings before the
+   *  player actually steps onto the stair — so the destination room
+   *  doesn't open on a wall of brown placeholder swatches. Argument is
+   *  the staircase id (or null when leaving every proximity zone);
+   *  same-id frames are silent. */
+  onNearbyStairChange?: (stairId: string | null) => void;
   /** Polled each frame for left-stick movement. We read raw x/y
    *  (integer pixels in ±JOYSTICK_MAX_RANGE) — leveledX/Y is too coarse
    *  (only 21 discrete steps) and reads as stair-stepping motion.
@@ -218,6 +235,12 @@ export function Player({
   const aimFrameCount = useRef(0);
   const aimLast = useRef<ArtworkListing | null>(null);
   const lastStairId = useRef<string | null>(null);
+  // Edge-fire memo for onNearbyStairChange. Holds the id of the
+  // staircase the player is currently within STAIR_PROXIMITY_RADIUS of
+  // (nearest one if multiple overlap), or null. Compared against the
+  // freshly-computed nearest stair each frame so the callback only
+  // fires when crossing in or out, not every tick.
+  const lastNearbyStairId = useRef<string | null>(null);
   /** Cumulative-angle state for the spiral. `cumulativeAngle ∈ [0, 2π]`
    *  describes how far around the current stair's revolution the
    *  player has walked; `lastRaw` is the previous frame's raw angle so
@@ -650,6 +673,43 @@ export function Player({
         console.warn("[player] spiral calc failed", err);
       }
       spiralState.current = null;
+    }
+
+    // Staircase-proximity edge detector. Walks current-floor stairs
+    // and picks the nearest one whose XZ centre is within
+    // STAIR_PROXIMITY_RADIUS. Edge-fires on entering/leaving any zone,
+    // or when crossing from one stair's zone into another's. Same-id
+    // frames are silent so the host's preload kickoff effect only runs
+    // once per approach. Cheap: a floor has at most a handful of
+    // stairs, and the per-stair check is two subtractions + a squared
+    // length.
+    if (onNearbyStairChange) {
+      let nearestId: string | null = null;
+      let nearestDistSq = STAIR_PROXIMITY_RADIUS_SQ;
+      const cx = camera.position.x;
+      const cz = camera.position.z;
+      for (const s of floor.stairsOut) {
+        const dx = cx - s.centerX;
+        const dz = cz - s.centerZ;
+        const d2 = dx * dx + dz * dz;
+        if (d2 < nearestDistSq) {
+          nearestDistSq = d2;
+          nearestId = s.id;
+        }
+      }
+      for (const s of floor.stairsIn) {
+        const dx = cx - s.centerX;
+        const dz = cz - s.centerZ;
+        const d2 = dx * dx + dz * dz;
+        if (d2 < nearestDistSq) {
+          nearestDistSq = d2;
+          nearestId = s.id;
+        }
+      }
+      if (nearestId !== lastNearbyStairId.current) {
+        lastNearbyStairId.current = nearestId;
+        onNearbyStairChange(nearestId);
+      }
     }
 
     if (onPositionSample) {
