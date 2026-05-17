@@ -16,7 +16,12 @@ export default function PrivacyPage() {
     <div className="mx-auto max-w-2xl px-4 py-8 md:py-12">
       <header className="mb-8">
         <h1 className="font-serif text-3xl md:text-4xl">Privacy Policy</h1>
-        <p className="mt-2 text-sm text-[var(--muted-foreground)]">Last updated: 2026-05-17</p>
+        <p className="mt-2 text-sm text-[var(--muted-foreground)]">
+          Last updated: 2026-05-17 ·{" "}
+          <Link href="/datenschutz" className="underline hover:text-[var(--foreground)]">
+            Deutsche Fassung
+          </Link>
+        </p>
       </header>
 
       <section className="space-y-6 text-[var(--foreground)]">
@@ -49,11 +54,13 @@ export default function PrivacyPage() {
         <div>
           <h2 className="font-serif text-xl md:text-2xl">Hosting</h2>
           <p className="mt-2 text-[var(--muted-foreground)]">
-            The site is hosted on a server in the European Union. The hosting provider processes
-            access data (IP address, request timestamp, requested URL, referrer, user agent) in
-            short-lived server logs for the technical operation and security of the site (legal
-            basis: Art. 6(1)(f) GDPR — legitimate interest in operating a secure service). Logs are
-            not used for analytics and are rotated within a few days.
+            The site runs in a Docker container on a server located in the European Union (Hetzner
+            Online GmbH, Gunzenhausen / Falkenstein, Germany). The reverse proxy and the container
+            runtime write technical access logs (IP address, request timestamp, requested URL, HTTP
+            status, referrer, user agent) that are kept only for as long as is necessary to operate
+            and secure the service, and are then overwritten by log rotation. The logs are not used
+            for analytics or any other purpose. Legal basis: Art. 6(1)(f) GDPR — legitimate interest
+            in operating a secure service.
           </p>
         </div>
 
@@ -88,9 +95,9 @@ export default function PrivacyPage() {
           <h2 className="font-serif text-xl md:text-2xl">Newsletter</h2>
           <p className="mt-2 text-[var(--muted-foreground)]">
             The site offers a weekly email digest of five artworks from the collection. The mailing
-            list is managed by Mailgun, an email-delivery service operated from the United States.
-            To subscribe you provide your email address; this is the only personal datum stored for
-            the newsletter.
+            list is managed by Mailgun (operated by Sinch Email, Inc., United States), an
+            email-delivery service. To subscribe you provide your email address; this is the only
+            personal datum stored for the newsletter.
           </p>
           <p className="mt-2 text-[var(--muted-foreground)]">
             Legal basis: Art. 6(1)(a) GDPR — your explicit consent given at subscription. Consent is
@@ -120,12 +127,13 @@ export default function PrivacyPage() {
         <div>
           <h2 className="font-serif text-xl md:text-2xl">Transfers to Third Countries</h2>
           <p className="mt-2 text-[var(--muted-foreground)]">
-            Mailgun is operated from the United States. Sending the newsletter therefore involves a
-            transfer of your email address (and the engagement metrics described above) to a third
-            country within the meaning of Chapter V GDPR. The transfer is covered by the EU Standard
-            Contractual Clauses (Art. 46(2)(c) GDPR) concluded with the processor. The U.S. legal
-            environment may permit government access to personal data that would not occur under EU
-            law; you have the rights set out below regardless of where the data is processed.
+            Sinch Email, Inc. (Mailgun) is established in the United States. Sending the newsletter
+            therefore involves a transfer of your email address (and the engagement metrics
+            described above) to a third country within the meaning of Chapter V GDPR. The transfer
+            is covered by the EU Standard Contractual Clauses (Art. 46(2)(c) GDPR) concluded with
+            the processor. The U.S. legal environment may permit government access to personal data
+            that would not occur under EU law; you have the rights set out below regardless of where
+            the data is processed.
           </p>
           <p className="mt-2 text-[var(--muted-foreground)]">
             No other transfers to third countries take place. Plausible runs on EU infrastructure
@@ -136,7 +144,10 @@ export default function PrivacyPage() {
         <div>
           <h2 className="font-serif text-xl md:text-2xl">Storage Period</h2>
           <ul className="mt-2 list-disc space-y-1 pl-5 text-[var(--muted-foreground)]">
-            <li>Server logs: rotated within a few days.</li>
+            <li>
+              Server access logs: kept only as long as necessary to operate and secure the service,
+              then overwritten by log rotation.
+            </li>
             <li>Plausible event data: aggregate counters only; no per-visitor record exists.</li>
             <li>
               Newsletter address: retained until you unsubscribe. Mailgun suppression records may be
