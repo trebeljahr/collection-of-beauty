@@ -1,10 +1,10 @@
 # Duplicate image sweep
 
-_Generated 2026-05-17T17:07:12.830Z from 2870/2870 artworks (0 skipped: no resolvable image)._
+_Generated 2026-05-17T17:13:53.142Z from 2870/2870 artworks (0 skipped: no resolvable image)._
 
 - Exact dHash collisions: **0** clusters covering **0** artworks
 - Near duplicates (hamming ≤ 4): **7** clusters covering **14** artworks
-- Same artist + same normalized title: **63** clusters covering **166** artworks
+- Same artist + same normalized title: **53** clusters covering **133** artworks
 
 ## Same artist + same title
 
@@ -14,13 +14,6 @@ _Sorted by min pairwise hamming distance: low Δ likely = same work scanned twic
 - `collection-of-beauty-1280px-irissen-s0050v1962-van-gogh-museum` — Irises — `collection-of-beauty/1280px-Irissen_-_s0050V1962_-_Van_Gogh_Museum.jpg`
 - `collection-of-beauty-vincent-van-gogh-irises-1890` — Irises — `collection-of-beauty/Vincent_van_Gogh_-_Irises_(1890).jpg`
 - `collection-of-beauty-vincent-van-gogh-irises-google-art-project` — Irises — `collection-of-beauty/Vincent_van_Gogh_-_Irises_-_Google_Art_Project.jpg`
-
-### `hiroshi-yoshida::sailing boats` — min Δ7
-- `collection-of-beauty-sailing-boats-afternoon-hiroshi-yoshida` — Sailing Boats — `collection-of-beauty/Sailing_Boats,_Afternoon,_Hiroshi_Yoshida.jpg`
-- `collection-of-beauty-sailing-boats-evening-hiroshi-yoshida` — Sailing Boats — `collection-of-beauty/Sailing_Boats,_Evening,_Hiroshi_Yoshida.jpg`
-- `collection-of-beauty-sailing-boats-mist-hiroshi-yoshida` — Sailing Boats — `collection-of-beauty/Sailing_Boats,_Mist,_Hiroshi_Yoshida.jpg`
-- `collection-of-beauty-sailing-boats-morning-hiroshi-yoshida` — Sailing Boats — `collection-of-beauty/Sailing_Boats,_Morning,_Hiroshi_Yoshida.jpg`
-- `collection-of-beauty-sailing-boats-night-hiroshi-yoshida` — Sailing Boats — `collection-of-beauty/Sailing_Boats,_Night,_Hiroshi_Yoshida.jpg`
 
 ### `peter-paul-rubens::a view of het steen in the early morning` — min Δ8
 - `collection-of-beauty-peter-paul-rubens-a-view-of-het-steen-in-the-early-morning` — A View of Het Steen in the Early Morning — `collection-of-beauty/Peter_Paul_Rubens_-_A_View_of_Het_Steen_in_the_Early_Morning.jpg`
@@ -51,12 +44,6 @@ _Sorted by min pairwise hamming distance: low Δ likely = same work scanned twic
 - `collection-of-beauty-the-garden-of-earthly-delights` — The Garden of earthly delights — `collection-of-beauty/The_Garden_of_earthly_delights.jpg`
 - `collection-of-beauty-el-jardin-de-las-delicias-de-el-bosco` — The Garden of Earthly Delights — `collection-of-beauty/El_jardín_de_las_Delicias,_de_El_Bosco.jpg`
 
-### `jean-leon-gerome::jean l on g r me` — min Δ13
-- `collection-of-beauty-jean-leon-gerome-the-story-of-anacreon-1-cupid-at-the-door-in-a-rainstorm-c-1899` — Jean-Léon Gérôme — `collection-of-beauty/Jean-Léon_Gérôme,_The_Story_of_Anacreon_1--Cupid_at_the_Door_in_a_Rainstorm,_c_1899.jpg`
-- `collection-of-beauty-jean-leon-gerome-the-story-of-anacreon-2-young-love-s-shivering-limbs-the-embers-warm-c-1899` — Jean-Léon Gérôme — `collection-of-beauty/Jean-Léon_Gérôme,_The_Story_of_Anacreon_2--Young_Love's_Shivering_Limbs_the_Embers_Warm,_c_1899.jpg`
-- `collection-of-beauty-jean-leon-gerome-the-story-of-anacreon-3-cupid-runs-out-the-door-c1899` — Jean-Léon Gérôme — `collection-of-beauty/Jean-Léon_Gérôme,_The_Story_of_Anacreon_3--Cupid_Runs_out_the_Door,_c1899.jpg`
-- `collection-of-beauty-jean-leon-gerome-the-story-of-anacreon-4-the-poet-dreams-of-cupid-by-the-fire-c-1899` — Jean-Léon Gérôme — `collection-of-beauty/Jean-Léon_Gérôme,_The_Story_of_Anacreon_4--The_Poet_Dreams_of_Cupid_by_the_Fire,_c_1899.jpg`
-
 ### `peter-paul-rubens::the brazen serpent` — min Δ14
 - `collection-of-beauty-peter-paul-rubens-1577-1640-after-the-brazen-serpent-twcms-c161-shipley-art-gallery` — The Brazen Serpent — `collection-of-beauty/Peter_Paul_Rubens_(1577-1640)_(after)_-_The_Brazen_Serpent_-_TWCMS_,_C161_-_Shipley_Art_Gallery.jpg`
 - `collection-of-beauty-peter-paul-rubens-the-brazen-serpent` — The Brazen Serpent — `collection-of-beauty/Peter_Paul_Rubens_-_The_Brazen_Serpent.jpg`
@@ -68,14 +55,6 @@ _Sorted by min pairwise hamming distance: low Δ likely = same work scanned twic
 ### `caravaggio::the lute player` — min Δ15
 - `collection-of-beauty-michelangelo-caravaggio-020` — The Lute Player — `collection-of-beauty/Michelangelo_Caravaggio_020.jpg`
 - `collection-of-beauty-1596-caravaggio-the-lute-player-new-york` — The Lute Player — `collection-of-beauty/1596_Caravaggio,_The_Lute_Player_New_York.jpg`
-
-### `kawase-hasui::t ky j nidai` — min Δ15
-- `collection-of-beauty-tokyo-junidai-samidare-furu-sanno-by-kawase-hasui` — Tōkyō jūnidai — `collection-of-beauty/Tōkyō_jūnidai,_Samidare_furu_Sannō_by_Kawase_Hasui.jpg`
-- `collection-of-beauty-tokyo-junidai-daikon-gashi-by-kawase-hasui` — Tōkyō jūnidai — `collection-of-beauty/Tōkyō_jūnidai,_Daikon-gashi_by_Kawase_Hasui.jpg`
-- `collection-of-beauty-tokyo-junidai-fukagawa-kaminohashi-by-kawase-hasui` — Tōkyō jūnidai — `collection-of-beauty/Tōkyō_jūnidai,_Fukagawa_Kaminohashi_by_Kawase_Hasui.jpg`
-- `collection-of-beauty-tokyo-junidai-kiba-no-yugure-by-kawase-hasui` — Tōkyō jūnidai — `collection-of-beauty/Tōkyō_jūnidai,_Kiba_no_yūgure_by_Kawase_Hasui.jpg`
-- `collection-of-beauty-tokyo-junidai-shinagawa-oki-by-kawase-hasui` — Tōkyō jūnidai — `collection-of-beauty/Tōkyō_jūnidai,_Shinagawa_oki_by_Kawase_Hasui.jpg`
-- `collection-of-beauty-tokyo-junidai-toyama-no-hara-by-kawase-hasui` — Tōkyō jūnidai — `collection-of-beauty/Tōkyō_jūnidai,_Toyama-no-hara_by_Kawase_Hasui.jpg`
 
 ### `vincent-van-gogh::the starry night` — min Δ16
 - `collection-of-beauty-vincent-van-gogh-starry-night-google-art-project` — The Starry Night — `collection-of-beauty/Vincent_van_Gogh_-_Starry_Night_-_Google_Art_Project.jpg`
@@ -115,20 +94,6 @@ _Sorted by min pairwise hamming distance: low Δ likely = same work scanned twic
 - `collection-of-beauty-rubens-der-gefesselte-prometheus-um-1613-landesmuseum-oldenburg-923340078c` — Prometheus bound — `collection-of-beauty/Rubens_-_Der_gefesselte_Prometheus,_um_1613,_Landesmuseum_Oldenburg_923340078c.jpg`
 - `collection-of-beauty-peter-paul-rubens-flemish-active-italy-antwerp-and-england-prometheus-bound-google-art-project` — Prometheus Bound — `collection-of-beauty/Peter_Paul_Rubens,_Flemish_(active_Italy,_Antwerp,_and_England)_-_Prometheus_Bound_-_Google_Art_Project.jpg`
 
-### `francisco-goya::the disasters of war` — min Δ19
-- `collection-of-beauty-prado-los-desastres-de-la-guerra-no-04-las-mugeres-dan-valor` — The Disasters of War — `collection-of-beauty/Prado_-_Los_Desastres_de_la_Guerra_-_No._04_-_Las_mugeres_dan_valor.jpg`
-- `collection-of-beauty-prado-los-desastres-de-la-guerra-no-46-esto-es-malo` — The Disasters of War — `collection-of-beauty/Prado_-_Los_Desastres_de_la_Guerra_-_No._46_-_Esto_es_malo.jpg`
-- `collection-of-beauty-prado-los-desastres-de-la-guerra-no-47-asi-sucedio` — The Disasters of War — `collection-of-beauty/Prado_-_Los_Desastres_de_la_Guerra_-_No._47_-_Así_sucedió.jpg`
-
-### `andreas-vesalius::on the fabric of the human body` — min Δ23
-- `collection-of-beauty-de-humani-corporis-fabrica-24` — On the Fabric of the Human Body — `collection-of-beauty/De_humani_corporis_fabrica_(24).jpg`
-- `collection-of-beauty-de-humani-corporis-fabrica-25` — On the Fabric of the Human Body — `collection-of-beauty/De_humani_corporis_fabrica_(25).jpg`
-- `collection-of-beauty-de-humani-corporis-fabrica-26` — On the Fabric of the Human Body — `collection-of-beauty/De_humani_corporis_fabrica_(26).jpg`
-
-### `utagawa-kunisada::utagawa kunisada` — min Δ23
-- `collection-of-beauty-utagawa-kunisada-1857-imayo-mitate-shino-kosho-yori-shokunin` — Utagawa Kunisada — `collection-of-beauty/Utagawa_Kunisada_(1857)_Imayō_mitate_shinō_kōshō_yori_shokunin.jpg`
-- `collection-of-beauty-ndl-dc-1301809-utagawa-kunisada-cmb` — Utagawa Kunisada — `collection-of-beauty/NDL-DC_1301809-Utagawa_Kunisada-うゑ野ノ暮雪-cmb.jpg`
-
 ### `claude-monet::waterloo bridge` — min Δ23
 - `collection-of-beauty-1902-monet-die-waterloo-brucke-anagoria` — Waterloo-Bridge — `collection-of-beauty/1902_Monet_Die_Waterloo-Brücke_anagoria.jpeg`
 - `collection-of-beauty-waterloo-bridge-london-at-sunset-e11705` — Waterloo Bridge — `collection-of-beauty/Waterloo_Bridge,_London,_at_Sunset_E11705.jpg`
@@ -145,11 +110,6 @@ _Sorted by min pairwise hamming distance: low Δ likely = same work scanned twic
 ### `claude-monet::charing cross bridge` — min Δ25
 - `collection-of-beauty-charing-cross-bridge-monet` — Charing Cross Bridge — `collection-of-beauty/Charing_Cross_Bridge,_Monet.jpg`
 - `collection-of-beauty-charing-cross-bridge-reflections-on-the-thames` — Charing Cross Bridge — `collection-of-beauty/Charing_Cross_Bridge,_Reflections_on_the_Thames.jpg`
-
-### `unknown::kuniyoshi utagawa` — min Δ27
-- `collection-of-beauty-500px-kuniyoshi-utagawa-hawk` — Kuniyoshi Utagawa — `collection-of-beauty/500px-Kuniyoshi_Utagawa,_Hawk.jpg`
-- `collection-of-beauty-kuniyoshi-utagawa-at-the-shore-of-the-sumida-river` — Kuniyoshi Utagawa — `collection-of-beauty/Kuniyoshi_Utagawa,_At_the_shore_of_the_Sumida_river.jpg`
-- `collection-of-beauty-kuniyoshi-utagawa-pilgrims-in-the-waterfall` — Kuniyoshi Utagawa — `collection-of-beauty/Kuniyoshi_Utagawa,_Pilgrims_in_the_waterfall.jpg`
 
 ### `albrecht-durer::adam and eve` — min Δ28
 - `collection-of-beauty-albrecht-durer-adam-and-eve-1504-engraving` — Adam and Eve — `collection-of-beauty/Albrecht_Dürer,_Adam_and_Eve,_1504,_Engraving.jpg`
@@ -171,10 +131,6 @@ _Sorted by min pairwise hamming distance: low Δ likely = same work scanned twic
 - `collection-of-beauty-water-lilies-and-japanese-bridge-1897-1899-monet` — the-water-lily-pond — `collection-of-beauty/Water-Lilies-and-Japanese-Bridge-(1897-1899)-Monet.jpg`
 - `collection-of-beauty-le-bassin-aux-nympheas-claude-monet` — The Water Lily Pond — `collection-of-beauty/Le_bassin_aux_nymphéas_-_Claude_Monet.jpg`
 
-### `james-mcneill-whistler::james abbott mcneill whistler` — min Δ29
-- `collection-of-beauty-james-abbott-mcneill-whistler-rotherhithe-etching-1860-dallas-museum-of-art` — James Abbott McNeill Whistler — `collection-of-beauty/James_Abbott_McNeill_Whistler,_Rotherhithe,_etching,_1860,_Dallas_Museum_of_Art.jpg`
-- `collection-of-beauty-james-abbott-mcneill-whistler-fishing-boat-1879-1880-etching-on-laid-paper` — James Abbott McNeill Whistler — `collection-of-beauty/James_Abbott_McNeill_Whistler,_Fishing_Boat,_1879-1880,_etching_on_laid_paper.jpg`
-
 ### `jean-leon-gerome::bashi bazouk` — min Δ29
 - `collection-of-beauty-jean-leon-gerome-bashi-bazouk-2014-435-1-metropolitan-museum-of-art` — Bashi-Bazouk — `collection-of-beauty/Jean-Léon_Gérôme_-_Bashi-Bazouk_-_2014.435.1_-_Metropolitan_Museum_of_Art.jpg`
 - `collection-of-beauty-1280px-gerome-black-bashi-bazouk-c-1869` — Bashi-Bazouk — `collection-of-beauty/1280px-Gérôme-Black_Bashi-Bazouk-c._1869.jpg`
@@ -186,11 +142,6 @@ _Sorted by min pairwise hamming distance: low Δ likely = same work scanned twic
 ### `ma-yuan::dancing and singing` — min Δ30
 - `collection-of-beauty-ma-yuan-dancing-and-singing-peasants-returning-from-work` — Dancing and Singing — `collection-of-beauty/Ma_Yuan_-_Dancing_and_Singing-_Peasants_Returning_from_Work.jpg`
 - `collection-of-beauty-ma-yuan-dancing-and-singing-peasants-returning-from-work-detail-1` — Dancing and Singing — `collection-of-beauty/Ma_Yuan_-_Dancing_and_Singing-_Peasants_Returning_from_Work_-_Detail_1.jpg`
-
-### `philipp-otto-runge::philipp otto runge` — min Δ30
-- `collection-of-beauty-philipp-otto-runge-head-of-a-dog-1805-06-chalk-lead` — Philipp Otto Runge — `collection-of-beauty/Philipp_Otto_Runge,_Head_of_a_Dog_(1805-06),_chalk_&_lead.jpg`
-- `collection-of-beauty-philipp-otto-runge-study-for-the-great-morning-1809-chalk-pencil` — Philipp Otto Runge — `collection-of-beauty/Philipp_Otto_Runge,_Study_for_The_Great_Morning_(1809),_chalk_&_pencil.jpg`
-- `collection-of-beauty-philipp-otto-runge-sophia-sieveking-on-her-deathbed-1810-black-white-chalk` — Philipp Otto Runge — `collection-of-beauty/Philipp_Otto_Runge,_Sophia_Sieveking_on_Her_Deathbed_(1810),_black_&_white_chalk.jpg`
 
 ### `lucas-cranach-the-elder::adam and eve in paradise` — min Δ31
 - `collection-of-beauty-adameveparadisecranach` — Adam and Eve in Paradise — `collection-of-beauty/AdamEveParadiseCranach.jpg`
@@ -219,10 +170,6 @@ _Sorted by min pairwise hamming distance: low Δ likely = same work scanned twic
 ### `franz-von-stuck::salome` — min Δ32
 - `collection-of-beauty-franz-von-stuck-salome` — Salome — `collection-of-beauty/Franz_von_Stuck_Salome.jpg`
 - `collection-of-beauty-stuck-franz-von-salome-google-art-project` — Salome — `collection-of-beauty/Stuck,_Franz_von_-_Salome_-_Google_Art_Project.jpg`
-
-### `kanae-yamamoto::kanae yamamoto` — min Δ32
-- `collection-of-beauty-kanae-yamamoto-1915-cow` — Kanae Yamamoto — `collection-of-beauty/Kanae_Yamamoto_(1915)_Cow.jpg`
-- `collection-of-beauty-kanae-yamamoto-1926-tokko-sanroku-shui` — Kanae Yamamoto — `collection-of-beauty/Kanae_Yamamoto_(1926)_Tokko_Sanroku_Shūi.jpg`
 
 ### `kawai-gyokudo::parting spring by kawai gyokudo` — min Δ32
 - `collection-of-beauty-parting-spring-by-kawai-gyokudo-national-museum-of-modern-art-tokyo-l` — Parting Spring by Kawai Gyokudo — `collection-of-beauty/Parting_Spring_by_Kawai_Gyokudo_(National_Museum_of_Modern_Art,_Tokyo)_L.jpg`
