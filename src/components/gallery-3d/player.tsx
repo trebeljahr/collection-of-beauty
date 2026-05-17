@@ -178,6 +178,11 @@ export function Player({
 }) {
   const { camera, gl } = useThree();
   const keys = useRef<Record<string, boolean>>({});
+  // Mirror of the `enabled` prop. Keyboard/pointer handlers read this
+  // instead of the prop so the closure captured by the mount-time
+  // useEffect stays in sync without re-binding listeners on every
+  // toggle.
+  const enabledRef = useRef(enabled);
   const velocityY = useRef(0);
   const grounded = useRef(true);
   const lastRoomIdx = useRef<number>(-2);
@@ -225,6 +230,13 @@ export function Player({
     cumulativeAngle: number;
     lastRaw: number;
   } | null>(null);
+  // Once-per-session guard so a recurring throw inside the spiral
+  // calc doesn't spam the console at 60 Hz.
+  const spiralCalcWarned = useRef(false);
+
+  useEffect(() => {
+    enabledRef.current = enabled;
+  }, [enabled]);
 
   useEffect(() => {
     camera.position.set(spawnAt[0], spawnAt[1] + EYE_HEIGHT, spawnAt[2]);
@@ -254,7 +266,7 @@ export function Player({
     };
     const down = (e: KeyboardEvent) => {
       keys.current[e.code] = true;
-      if (!enabled) return;
+      if (!enabledRef.current) return;
       if (e.code === "Space" && grounded.current) {
         velocityY.current = JUMP_IMPULSE;
         grounded.current = false;
@@ -285,7 +297,7 @@ export function Player({
     // doesn't reach, so any tap on the canvas is intentional.
     const canvas = gl.domElement;
     const pointer = (e: PointerEvent) => {
-      if (!enabled) return;
+      if (!enabledRef.current) return;
       if (e.pointerType === "mouse" && e.button !== 0) return;
       if (e.pointerType === "mouse" && !document.pointerLockElement) return;
       tryZoom();
@@ -298,7 +310,7 @@ export function Player({
       window.removeEventListener("keyup", up);
       canvas.removeEventListener("pointerdown", pointer);
     };
-  }, [enabled, camera, gl, onZoomRequest]);
+  }, [camera, gl, onZoomRequest]);
 
   useFrame((_, delta) => {
     if (!enabled) return;
@@ -469,163 +481,175 @@ export function Player({
     // (continuous across flight boundaries so the player walks one
     // long spiral from floor 0 to the top without per-storey jumps).
     // Off the spiral, normal gravity + floor-plane clamp.
-    let activeStair = findStairAt(floor, camera.position.x, camera.position.z);
-    // FRESH activation requires entering through the gate angularly —
-    // the spiral has a single physical entry/exit at `entryAngle` (the
-    // bottom step on the lower floor, the top step on the upper floor).
-    // Without this gate, walking into the annulus at the side (easy on
-    // the ground floor where the stairwell room has no cutout, so the
-    // floor cells under the spiral are walkable) would snap the player
-    // onto cumulative=0 — the bottom-step Y — at an angular position
-    // where the visible tread is several steps higher up. The "walk
-    // in, walk left, climb without ever being on the stairs" bug.
-    // Once already on the spiral the gate check is skipped, so the
-    // player walks the full revolution to climb.
-    if (
-      activeStair &&
-      (!spiralState.current || spiralState.current.staircaseId !== activeStair.id)
-    ) {
-      const dx = camera.position.x - activeStair.centerX;
-      const dz = camera.position.z - activeStair.centerZ;
-      const theta = Math.atan2(dz, dx);
-      const angDiff = Math.atan2(
-        Math.sin(theta - activeStair.entryAngle),
-        Math.cos(theta - activeStair.entryAngle),
-      );
-      if (Math.abs(angDiff) >= spiralGateHalfArc(activeStair.numSteps)) {
-        activeStair = null;
+    try {
+      let activeStair = findStairAt(floor, camera.position.x, camera.position.z);
+      // FRESH activation requires entering through the gate angularly —
+      // the spiral has a single physical entry/exit at `entryAngle` (the
+      // bottom step on the lower floor, the top step on the upper floor).
+      // Without this gate, walking into the annulus at the side (easy on
+      // the ground floor where the stairwell room has no cutout, so the
+      // floor cells under the spiral are walkable) would snap the player
+      // onto cumulative=0 — the bottom-step Y — at an angular position
+      // where the visible tread is several steps higher up. The "walk
+      // in, walk left, climb without ever being on the stairs" bug.
+      // Once already on the spiral the gate check is skipped, so the
+      // player walks the full revolution to climb.
+      if (
+        activeStair &&
+        (!spiralState.current || spiralState.current.staircaseId !== activeStair.id)
+      ) {
+        const dx = camera.position.x - activeStair.centerX;
+        const dz = camera.position.z - activeStair.centerZ;
+        const theta = Math.atan2(dz, dx);
+        const angDiff = Math.atan2(
+          Math.sin(theta - activeStair.entryAngle),
+          Math.cos(theta - activeStair.entryAngle),
+        );
+        if (Math.abs(angDiff) >= spiralGateHalfArc(activeStair.numSteps)) {
+          activeStair = null;
+        }
       }
-    }
-    // Prefer the stair the player is already tracked on, even when
-    // both stairsIn and stairsOut overlap the same annulus on this
-    // floor — the existing state's stair is the one we want.
-    if (spiralState.current) {
-      const tracked = allStaircases.find((s) => s.id === spiralState.current!.staircaseId);
-      if (tracked && isInsideStair(tracked, camera.position.x, camera.position.z)) {
-        activeStair = tracked;
-      }
-    }
-
-    // Notify host on edge-changes only — same-stair frames are silent
-    // so onActiveStairChange isn't a per-frame storm. Edge-fires when
-    // entering a stair, leaving one, or stepping from one stair onto
-    // another (stair-to-stair transition during continuous descent).
-    const newStairId = activeStair?.id ?? null;
-    if (newStairId !== lastStairId.current) {
-      lastStairId.current = newStairId;
-      onActiveStairChange?.(newStairId);
-    }
-
-    if (activeStair) {
-      const raw = spiralRawAngle(activeStair, camera.position.x, camera.position.z);
-      let st = spiralState.current;
-      if (!st || st.staircaseId !== activeStair.id) {
-        // Stepping onto the spiral fresh. If we're entering at the
-        // floor that is this stair's lowerFloor, start at cumulative=0
-        // (bottom). If we're entering at upperFloor, start at 2π (top).
-        const initial = floor.index === activeStair.upperFloor ? Math.PI * 2 : 0;
-        st = { staircaseId: activeStair.id, cumulativeAngle: initial, lastRaw: raw };
-        spiralState.current = st;
-      } else {
-        let d = raw - st.lastRaw;
-        if (d > Math.PI) d -= Math.PI * 2;
-        if (d < -Math.PI) d += Math.PI * 2;
-        st.cumulativeAngle += d;
-        st.lastRaw = raw;
+      // Prefer the stair the player is already tracked on, even when
+      // both stairsIn and stairsOut overlap the same annulus on this
+      // floor — the existing state's stair is the one we want.
+      if (spiralState.current) {
+        const tracked = allStaircases.find((s) => s.id === spiralState.current!.staircaseId);
+        if (tracked && isInsideStair(tracked, camera.position.x, camera.position.z)) {
+          activeStair = tracked;
+        }
       }
 
-      // Stair-to-stair transitions. Walking past the top of this
-      // revolution rolls cumulative back to 0 on the next stair up
-      // and fires onFloorChange(upperFloor); walking past the bottom
-      // rolls it forward to 2π on the stair below and fires
-      // onFloorChange(lowerFloor). When there's no next/prev stair
-      // (top of building or ground floor) we clamp AND emit a
-      // matching floor change so the player's `floor` prop is always
-      // the one whose Y matches their feet by the time they exit.
-      while (st.cumulativeAngle >= Math.PI * 2) {
-        const next = findStairAbove(activeStair, allStaircases);
-        if (!next) {
-          st.cumulativeAngle = Math.PI * 2;
-          if (onFloorChange && floor.index !== activeStair.upperFloor) {
+      // Notify host on edge-changes only — same-stair frames are silent
+      // so onActiveStairChange isn't a per-frame storm. Edge-fires when
+      // entering a stair, leaving one, or stepping from one stair onto
+      // another (stair-to-stair transition during continuous descent).
+      const newStairId = activeStair?.id ?? null;
+      if (newStairId !== lastStairId.current) {
+        lastStairId.current = newStairId;
+        onActiveStairChange?.(newStairId);
+      }
+
+      if (activeStair) {
+        const raw = spiralRawAngle(activeStair, camera.position.x, camera.position.z);
+        let st = spiralState.current;
+        if (!st || st.staircaseId !== activeStair.id) {
+          // Stepping onto the spiral fresh. If we're entering at the
+          // floor that is this stair's lowerFloor, start at cumulative=0
+          // (bottom). If we're entering at upperFloor, start at 2π (top).
+          const initial = floor.index === activeStair.upperFloor ? Math.PI * 2 : 0;
+          st = { staircaseId: activeStair.id, cumulativeAngle: initial, lastRaw: raw };
+          spiralState.current = st;
+        } else {
+          let d = raw - st.lastRaw;
+          if (d > Math.PI) d -= Math.PI * 2;
+          if (d < -Math.PI) d += Math.PI * 2;
+          st.cumulativeAngle += d;
+          st.lastRaw = raw;
+        }
+
+        // Stair-to-stair transitions. Walking past the top of this
+        // revolution rolls cumulative back to 0 on the next stair up
+        // and fires onFloorChange(upperFloor); walking past the bottom
+        // rolls it forward to 2π on the stair below and fires
+        // onFloorChange(lowerFloor). When there's no next/prev stair
+        // (top of building or ground floor) we clamp AND emit a
+        // matching floor change so the player's `floor` prop is always
+        // the one whose Y matches their feet by the time they exit.
+        while (st.cumulativeAngle >= Math.PI * 2) {
+          const next = findStairAbove(activeStair, allStaircases);
+          if (!next) {
+            st.cumulativeAngle = Math.PI * 2;
+            if (onFloorChange && floor.index !== activeStair.upperFloor) {
+              onFloorChange(activeStair.upperFloor);
+            }
+            break;
+          }
+          st.staircaseId = next.id;
+          st.cumulativeAngle -= Math.PI * 2;
+          activeStair = next;
+          if (onFloorChange && floor.index !== next.lowerFloor) {
+            onFloorChange(next.lowerFloor);
+          }
+        }
+        while (st.cumulativeAngle <= 0) {
+          if (st.cumulativeAngle === 0) {
+            if (onFloorChange && floor.index !== activeStair.lowerFloor) {
+              onFloorChange(activeStair.lowerFloor);
+            }
+            break;
+          }
+          const prev = findStairBelow(activeStair, allStaircases);
+          if (!prev) {
+            st.cumulativeAngle = 0;
+            if (onFloorChange && floor.index !== activeStair.lowerFloor) {
+              onFloorChange(activeStair.lowerFloor);
+            }
+            break;
+          }
+          st.staircaseId = prev.id;
+          st.cumulativeAngle += Math.PI * 2;
+          activeStair = prev;
+          if (onFloorChange && floor.index !== prev.upperFloor) {
+            onFloorChange(prev.upperFloor);
+          }
+        }
+
+        // Promote floor.index as soon as the player enters a landing arc
+        // — the same arc canStepTo permits exit in. Without this, an
+        // exit at the upper landing (cumulative ≈ 2π−ε) would still be
+        // checked against the LOWER floor's grid; the player would step
+        // onto a "walkable" stairwell cell at the lower floor while
+        // their visual Y is already through the cutout, then gravity
+        // would yank them down through the upper floor's annular ring.
+        // handleStairFloorChange short-circuits same-floor calls so
+        // firing this every frame in the arc is cheap.
+        // The descent branch uses STAIR_DESCEND_EARLY_ENTRY (⅔·2π) so
+        // the destination floor activates a third of the way down,
+        // making arrival feel like entering a live room. Ascent keeps
+        // the tight landing tolerance — there's no equivalent ask for
+        // it, and "wake the upstairs early" interacts oddly with the
+        // canStepTo gate that the comment above is about.
+        if (onFloorChange) {
+          if (
+            st.cumulativeAngle >= Math.PI * 2 - STAIR_LANDING_TOL &&
+            floor.index !== activeStair.upperFloor
+          ) {
             onFloorChange(activeStair.upperFloor);
-          }
-          break;
-        }
-        st.staircaseId = next.id;
-        st.cumulativeAngle -= Math.PI * 2;
-        activeStair = next;
-        if (onFloorChange && floor.index !== next.lowerFloor) {
-          onFloorChange(next.lowerFloor);
-        }
-      }
-      while (st.cumulativeAngle <= 0) {
-        if (st.cumulativeAngle === 0) {
-          if (onFloorChange && floor.index !== activeStair.lowerFloor) {
+          } else if (
+            st.cumulativeAngle <= STAIR_DESCEND_EARLY_ENTRY &&
+            floor.index !== activeStair.lowerFloor
+          ) {
             onFloorChange(activeStair.lowerFloor);
           }
-          break;
         }
-        const prev = findStairBelow(activeStair, allStaircases);
-        if (!prev) {
-          st.cumulativeAngle = 0;
-          if (onFloorChange && floor.index !== activeStair.lowerFloor) {
-            onFloorChange(activeStair.lowerFloor);
-          }
-          break;
-        }
-        st.staircaseId = prev.id;
-        st.cumulativeAngle += Math.PI * 2;
-        activeStair = prev;
-        if (onFloorChange && floor.index !== prev.upperFloor) {
-          onFloorChange(prev.upperFloor);
-        }
-      }
 
-      // Promote floor.index as soon as the player enters a landing arc
-      // — the same arc canStepTo permits exit in. Without this, an
-      // exit at the upper landing (cumulative ≈ 2π−ε) would still be
-      // checked against the LOWER floor's grid; the player would step
-      // onto a "walkable" stairwell cell at the lower floor while
-      // their visual Y is already through the cutout, then gravity
-      // would yank them down through the upper floor's annular ring.
-      // handleStairFloorChange short-circuits same-floor calls so
-      // firing this every frame in the arc is cheap.
-      // The descent branch uses STAIR_DESCEND_EARLY_ENTRY (⅔·2π) so
-      // the destination floor activates a third of the way down,
-      // making arrival feel like entering a live room. Ascent keeps
-      // the tight landing tolerance — there's no equivalent ask for
-      // it, and "wake the upstairs early" interacts oddly with the
-      // canStepTo gate that the comment above is about.
-      if (onFloorChange) {
-        if (
-          st.cumulativeAngle >= Math.PI * 2 - STAIR_LANDING_TOL &&
-          floor.index !== activeStair.upperFloor
-        ) {
-          onFloorChange(activeStair.upperFloor);
-        } else if (
-          st.cumulativeAngle <= STAIR_DESCEND_EARLY_ENTRY &&
-          floor.index !== activeStair.lowerFloor
-        ) {
-          onFloorChange(activeStair.lowerFloor);
-        }
-      }
-
-      const targetY = stairHeightAt(activeStair, st.cumulativeAngle) + eyeHeight.current;
-      camera.position.y = THREE.MathUtils.damp(camera.position.y, targetY, 20, dt);
-      velocityY.current = 0;
-      grounded.current = true;
-    } else {
-      spiralState.current = null;
-      velocityY.current -= GRAVITY * dt;
-      camera.position.y += velocityY.current * dt;
-      const floorHeight = floor.y + eyeHeight.current;
-      if (camera.position.y <= floorHeight) {
-        camera.position.y = floorHeight;
+        const targetY = stairHeightAt(activeStair, st.cumulativeAngle) + eyeHeight.current;
+        camera.position.y = THREE.MathUtils.damp(camera.position.y, targetY, 20, dt);
         velocityY.current = 0;
         grounded.current = true;
       } else {
-        grounded.current = false;
+        spiralState.current = null;
+        velocityY.current -= GRAVITY * dt;
+        camera.position.y += velocityY.current * dt;
+        const floorHeight = floor.y + eyeHeight.current;
+        if (camera.position.y <= floorHeight) {
+          camera.position.y = floorHeight;
+          velocityY.current = 0;
+          grounded.current = true;
+        } else {
+          grounded.current = false;
+        }
       }
+    } catch (err) {
+      // Malformed staircase/floor layout shouldn't kill the render
+      // loop — log once per session, reset spiral state so the next
+      // frame retries from scratch, and let the rest of useFrame
+      // (aim, room change, position sample) keep running.
+      if (!spiralCalcWarned.current) {
+        spiralCalcWarned.current = true;
+        console.warn("[player] spiral calc failed", err);
+      }
+      spiralState.current = null;
     }
 
     if (onPositionSample) {
