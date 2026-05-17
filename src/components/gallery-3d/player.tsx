@@ -491,15 +491,17 @@ export function Player({
       } else if (canStepTo(floor, curX, curZ, curX, nz, currentStairId, currentCum, playerHeadY)) {
         camera.position.z = nz;
       } else {
-        // Capsule-style tangent slide for the circular obstacles
-        // (spiral railings, well cutouts, central column). Axis-aligned
-        // slide can't help there — moving in either X or Z keeps the
-        // player inside the forbidden ring. Project the desired move
-        // onto the tangent at the player's angular position around the
-        // nearest blocking spiral, and step that way instead. Without
-        // this, walking into the inner spiral railing or the cutout
-        // edge feels like hitting fly paper.
-        const slid = trySlideAroundCircles(
+        // Capsule-style tangent slide. Axis-aligned slides handle most
+        // flat-wall cases, but they can't help with curved obstacles
+        // (spiral railings, cutout ring, column) where moving along
+        // either X or Z keeps the player inside the forbidden region,
+        // and they can't help with corner cases where the blocking
+        // surface isn't grid-aligned. Probe the local neighbourhood for
+        // a collision normal, project the desired move onto the
+        // perpendicular tangent, and step along that. Without this,
+        // walking diagonally into a wall or along the inner spiral
+        // railing feels like hitting fly paper instead of sliding.
+        const slid = trySlideAlongTangent(
           floor,
           curX,
           curZ,
@@ -793,15 +795,31 @@ function findStairAt(floor: FloorLayout, worldX: number, worldZ: number): Stairc
   return null;
 }
 
-/** Capsule-style slide around the spiral's circular obstacles. When the
- *  diagonal step AND both axis-aligned axis slides all fail, the
- *  blocking thing is usually a railing, the cutout edge, or the central
- *  column — none of which has a useful axis-aligned tangent. Project
- *  the desired move onto the tangent at the player's current angular
- *  position around each spiral and try the closest projection that's
- *  walkable. Returns the slid position, or null if no spiral is in
- *  range / no projection is valid. */
-function trySlideAroundCircles(
+/** Capsule-style tangent slide. Probes the local neighbourhood to find
+ *  which directions are blocked, derives an approximate collision
+ *  normal from the blocked probes, and projects the desired move onto
+ *  the tangent perpendicular to that normal. Works for any obstacle
+ *  shape — flat walls, spiral railings, cutout ring, central column,
+ *  corners — because the normal estimate is geometry-agnostic.
+ *
+ *  8 unit-length probes from the player's current position (4 axis +
+ *  4 diagonal) catch both grid-aligned walls and curved rings. Each
+ *  blocked probe contributes its direction (inverted) to the normal
+ *  accumulator; tangent = normal rotated 90°. The slide is then a
+ *  pure projection of the original move onto that tangent, so a fully
+ *  perpendicular move into a wall stops naturally (dot product → 0)
+ *  while a glancing move slides at the full tangential speed. */
+const _PROBE_DIRS: ReadonlyArray<readonly [number, number]> = [
+  [1, 0],
+  [-1, 0],
+  [0, 1],
+  [0, -1],
+  [Math.SQRT1_2, Math.SQRT1_2],
+  [-Math.SQRT1_2, Math.SQRT1_2],
+  [Math.SQRT1_2, -Math.SQRT1_2],
+  [-Math.SQRT1_2, -Math.SQRT1_2],
+];
+function trySlideAlongTangent(
   floor: FloorLayout,
   fromX: number,
   fromZ: number,
@@ -815,43 +833,39 @@ function trySlideAroundCircles(
   const moveZ = toZ - fromZ;
   if (moveX * moveX + moveZ * moveZ < 1e-6) return null;
 
-  let bestX = fromX;
-  let bestZ = fromZ;
-  let bestDistSq = 0;
-
-  for (const s of [...floor.stairsOut, ...floor.stairsIn]) {
-    const dx = fromX - s.centerX;
-    const dz = fromZ - s.centerZ;
-    const r2 = dx * dx + dz * dz;
-    // Only consider spirals whose blocking rings are remotely near
-    // the player — a spiral on the far side of the floor has nothing
-    // to do with the current move.
-    const reach = Math.max(s.outerRadius, CUTOUT_RAIL_OUTER_BOUND) + 1;
-    if (r2 > reach * reach) continue;
-
-    // Tangent at the player's angular position around this spiral.
-    const norm = Math.atan2(dz, dx);
-    const tx = -Math.sin(norm);
-    const tz = Math.cos(norm);
-
-    const dot = moveX * tx + moveZ * tz;
-    if (Math.abs(dot) < 1e-6) continue;
-    const slideX = fromX + tx * dot;
-    const slideZ = fromZ + tz * dot;
-    if (!canStepTo(floor, fromX, fromZ, slideX, slideZ, currentStairId, currentCum, playerHeadY))
-      continue;
-
-    const dxSlide = slideX - fromX;
-    const dzSlide = slideZ - fromZ;
-    const distSq = dxSlide * dxSlide + dzSlide * dzSlide;
-    if (distSq > bestDistSq) {
-      bestDistSq = distSq;
-      bestX = slideX;
-      bestZ = slideZ;
+  // Probe distance: a player-radius step is enough to register against
+  // anything the bbox is already brushing up against. Smaller and the
+  // probes miss railings the player isn't quite touching yet; larger
+  // and the normal estimate is dominated by far-away geometry.
+  const probeDist = PLAYER_RADIUS;
+  let normX = 0;
+  let normZ = 0;
+  for (const [dx, dz] of _PROBE_DIRS) {
+    const px = fromX + dx * probeDist;
+    const pz = fromZ + dz * probeDist;
+    if (!canStepTo(floor, fromX, fromZ, px, pz, currentStairId, currentCum, playerHeadY)) {
+      // Normal points away from the blocker.
+      normX -= dx;
+      normZ -= dz;
     }
   }
-
-  return bestDistSq > 0 ? { x: bestX, z: bestZ } : null;
+  const nlen = Math.hypot(normX, normZ);
+  if (nlen < 1e-6) return null;
+  normX /= nlen;
+  normZ /= nlen;
+  // Tangent = normal rotated 90°. Either chirality works; the dot
+  // product below picks the sign aligned with the player's intended
+  // direction.
+  const tx = -normZ;
+  const tz = normX;
+  const dot = moveX * tx + moveZ * tz;
+  if (Math.abs(dot) < 1e-6) return null;
+  const slideX = fromX + tx * dot;
+  const slideZ = fromZ + tz * dot;
+  if (!canStepTo(floor, fromX, fromZ, slideX, slideZ, currentStairId, currentCum, playerHeadY)) {
+    return null;
+  }
+  return { x: slideX, z: slideZ };
 }
 
 /** True if the grid cell at (worldX, worldZ) is walkable for a player of
@@ -1017,6 +1031,33 @@ function canStepTo(
       if (!inGate) {
         const maxR = stair.outerRadius - SPIRAL_RAIL_CLEARANCE;
         if (r2 > maxR * maxR) return false;
+      }
+    }
+    // Top-landing edge fence. When this is the helix's topmost flight
+    // (no flight continues above), `buildTopLandingGeometry` only
+    // covers raw ∈ [0, π] of the annulus — the dead-end half. The
+    // opposite half (π, 2π) is empty air above the descending helix
+    // below. Without a fence the player can walk past raw=π and end
+    // up pinned at the landing's clamped upperY while their feet are
+    // visually over nothing — the same "walk into the air" class as
+    // the cutout-edge floor-cells bug. Block any step whose short
+    // angular path crosses raw=π; the descent path across raw=0
+    // (wraparound) is unaffected because that crossing is far from
+    // raw=π. Only enforced while the player is actually at landing
+    // height — a player walking the helix mid-descent passes through
+    // the same angular range legitimately.
+    const isTopStair =
+      floor.stairsOut.length === 0 && floor.stairsIn.some((s) => s.id === stair.id);
+    if (isTopStair && playerHeadY > stair.upperY + 0.5) {
+      const fromRaw = spiralRawAngle(stair, fromX, fromZ);
+      const toRaw = spiralRawAngle(stair, toX, toZ);
+      const TOL = Math.PI / 2;
+      if (
+        Math.abs(fromRaw - Math.PI) < TOL &&
+        Math.abs(toRaw - Math.PI) < TOL &&
+        Math.sign(fromRaw - Math.PI) !== Math.sign(toRaw - Math.PI)
+      ) {
+        return false;
       }
     }
     return true;
