@@ -171,7 +171,8 @@ export function SubscribeForm() {
       )}
 
       <p className="text-xs text-[var(--muted-foreground)]">
-        One email a week. The unsubscribe link sits at the bottom of every issue. Leave whenever.
+        <em>A Drop of Beauty</em> — one email a week. The unsubscribe link sits at the bottom of
+        every issue. Leave whenever.
       </p>
     </form>
   );

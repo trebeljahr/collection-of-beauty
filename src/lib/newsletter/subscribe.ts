@@ -145,7 +145,7 @@ export async function sendConfirmationEmail(params: {
   await client.messages.create(domain, {
     from,
     to: params.to,
-    subject: "Confirm your subscription · Collection of Beauty",
+    subject: "Confirm your subscription · A Drop of Beauty",
     html,
     text,
     "o:tracking": "no",

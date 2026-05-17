@@ -92,12 +92,12 @@ export default function PrivacyPage() {
         </div>
 
         <div>
-          <h2 className="font-serif text-xl md:text-2xl">Newsletter</h2>
+          <h2 className="font-serif text-xl md:text-2xl">Newsletter — A Drop of Beauty</h2>
           <p className="mt-2 text-[var(--muted-foreground)]">
-            The site offers a weekly email digest of five artworks from the collection. The mailing
-            list is managed by Mailgun (operated by Sinch Email, Inc., United States), an
-            email-delivery service. To subscribe you provide your email address; this is the only
-            personal datum stored for the newsletter.
+            The site offers a weekly email digest, <em>A Drop of Beauty</em>, of five artworks from
+            the collection. The mailing list is managed by Mailgun (operated by Sinch Email, Inc.,
+            United States), an email-delivery service. To subscribe you provide your email address;
+            this is the only personal datum stored for the newsletter.
           </p>
           <p className="mt-2 text-[var(--muted-foreground)]">
             Legal basis: Art. 6(1)(a) GDPR — your explicit consent given at subscription. Consent is

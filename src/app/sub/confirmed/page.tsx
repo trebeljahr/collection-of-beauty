@@ -26,6 +26,9 @@ export default async function ConfirmedPage({
     <div className="mx-auto max-w-xl px-4 py-16 text-center">
       <ConfettiBurst />
       <h1 className="font-serif text-3xl md:text-4xl">You&apos;re in.</h1>
+      <p className="mt-3 text-[var(--muted-foreground)]">
+        Subscribed to <em>A Drop of Beauty</em>.
+      </p>
       {welcomeSent && (
         <p className="mt-4 text-[var(--muted-foreground)]">
           We&apos;ve just sent the most recent issue to your inbox so you can see what an edition

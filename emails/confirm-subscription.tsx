@@ -25,7 +25,7 @@ export default function ConfirmSubscription({
   return (
     <Html>
       <Head />
-      <Preview>Confirm your subscription to Collection of Beauty</Preview>
+      <Preview>Confirm your subscription to A Drop of Beauty</Preview>
       <Tailwind>
         <Body className="bg-stone-50 font-serif text-stone-900">
           <Container className="mx-auto max-w-[560px] bg-white px-8 py-10">
@@ -37,8 +37,9 @@ export default function ConfirmSubscription({
                 Confirm your subscription
               </Heading>
               <Text className="mt-4 text-base leading-relaxed text-stone-800">
-                Thanks for subscribing to the <strong>Collection of Beauty</strong> Sunday edition.
-                Each week brings five works from the public-domain catalogue, all on one theme.
+                Thanks for subscribing to <strong>A Drop of Beauty</strong>, the Collection of
+                Beauty newsletter. Each Sunday brings five works from the public-domain catalogue,
+                all on one theme.
               </Text>
               <Text className="mt-3 text-base leading-relaxed text-stone-800">
                 Click the button below to confirm.
