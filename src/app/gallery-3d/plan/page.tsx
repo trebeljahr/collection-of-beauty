@@ -9,8 +9,7 @@
 //   door ticks    → short marks on room walls where openings sit
 
 import type { Metadata } from "next";
-import { artworks } from "@/lib/data";
-import { layoutMuseum } from "@/lib/gallery-layout/layout-museum";
+import { museumLayout } from "@/lib/gallery-layout/precomputed";
 import type { FloorLayout, RoomLayout } from "@/lib/gallery-layout/types";
 import { CELL_SIZE } from "@/lib/gallery-layout/world-coords";
 
@@ -23,9 +22,7 @@ const CELL_PX = 18; // svg px per grid cell
 const PADDING = 16;
 
 export default function FloorPlanPage() {
-  const layout = layoutMuseum(artworks);
-
-  const totalDoors = layout.allRooms.reduce((n, r) => n + r.doors.length, 0);
+  const totalDoors = museumLayout.allRooms.reduce((n, r) => n + r.doors.length, 0);
 
   return (
     <div className="min-h-screen bg-neutral-950 text-neutral-100 px-6 py-10">
@@ -38,12 +35,12 @@ export default function FloorPlanPage() {
             without a movement label are slots that didn&apos;t have a movement to claim them.
           </p>
           <p className="text-neutral-500 text-xs">
-            Floors: {layout.floors.length} · Rooms: {layout.allRooms.length} · Hallways:{" "}
-            {layout.allHallways.length} · Doors: {totalDoors}
+            Floors: {museumLayout.floors.length} · Rooms: {museumLayout.allRooms.length} · Hallways:{" "}
+            {museumLayout.allHallways.length} · Doors: {totalDoors}
           </p>
         </header>
 
-        {layout.floors.map((floor) => (
+        {museumLayout.floors.map((floor) => (
           <FloorSvg key={floor.index} floor={floor} />
         ))}
       </div>
