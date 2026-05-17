@@ -5,9 +5,7 @@ import "./globals.css";
 import { Gallery3DProvider } from "@/components/gallery-3d-state";
 import { SiteNav } from "@/components/site-nav";
 import {
-  heroArtwork,
   jsonLdScriptProps,
-  ogImagesForArtwork,
   SITE_DESCRIPTION,
   SITE_NAME,
   SITE_TAGLINE,
@@ -16,8 +14,6 @@ import {
   websiteJsonLd,
 } from "@/lib/seo";
 
-const hero = heroArtwork();
-const defaultOgImages = ogImagesForArtwork(hero);
 const plausibleDomain = "beauty.trebeljahr.com";
 const plausibleScriptUrl =
   "https://plausible.trebeljahr.com/js/script.file-downloads.hash.outbound-links.pageview-props.revenue.tagged-events.js";
@@ -55,13 +51,15 @@ export const metadata: Metadata = {
     siteName: SITE_NAME,
     title: `${SITE_NAME} — ${SITE_TAGLINE}`,
     description: SITE_DESCRIPTION,
-    images: defaultOgImages,
+    // Image comes from src/app/opengraph-image.tsx (file convention),
+    // which guarantees a 1200x630 PNG with the wordmark.
   },
   twitter: {
     card: "summary_large_image",
     title: `${SITE_NAME} — ${SITE_TAGLINE}`,
     description: SITE_DESCRIPTION,
-    images: defaultOgImages,
+    // Twitter image inherited from the opengraph-image route when no
+    // twitter-image file is present, per Next.js metadata conventions.
     ...(TWITTER_HANDLE ? { creator: TWITTER_HANDLE, site: TWITTER_HANDLE } : {}),
   },
   robots: {
