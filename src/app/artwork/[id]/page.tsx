@@ -232,7 +232,12 @@ function AttributionBlock({ artwork }: { artwork: Artwork }) {
       {prov && <ProvenanceBlock prov={prov} />}
       {fallbackCredit && (
         <p className="mt-1.5">
-          <span className="font-medium text-[var(--foreground)]">Provenance:</span> {fallbackCredit}
+          <span className="font-medium text-[var(--foreground)]">Provenance:</span>{" "}
+          {/^https?:\/\//.test(fallbackCredit) ? (
+            <ExternalLink href={fallbackCredit}>{hostnameOf(fallbackCredit)}</ExternalLink>
+          ) : (
+            fallbackCredit
+          )}
         </p>
       )}
     </div>

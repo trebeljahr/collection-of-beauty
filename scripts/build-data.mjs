@@ -196,33 +196,75 @@ function englishFromFilename(fname) {
   return best;
 }
 
-// Some `source.credit` values are just Commons license-template
-// boilerplate scraped along with real provenance ("This image is
-// available from the United States Library of Congress…", "print
-// scan", bare "Public Domain", etc.). They convey nothing the license
-// badge doesn't already, so detect and drop them.
+// Stock boilerplate fragments commonly scraped along with real
+// provenance. Match per whole-string OR per item in a numbered
+// citation list ("1. X 2. Y"). Anchor with ^ / $ so a real citation
+// that merely contains one of these phrases isn't dropped wholesale.
+const BOILERPLATE_FRAGMENTS = [
+  /^the yorck project \(?2002\)?.*meisterwerke der malerei/i,
+  /^this file was donated to wikimedia commons as part of a project by/i,
+  /^unknown source(?:\s+unknown source)?(?:[,\s]+scanned by uploader)?$/i,
+  /^self[-\s]?scanned$/i,
+  /^copied from an art ?book$/i,
+  /^repro from art ?book$/i,
+  /^scan of painting$/i,
+  /^see below$/i,
+  /^catalog photo$/i,
+  /^gallery link$/i,
+  /^one or more third parties have made copyright claims/i,
+  /^print scan(?:\s+original at library of congress)?$/i,
+  /^public domain$/i,
+  /^this tag does not indicate/i,
+  /^commons:licensing$/i,
+  /^a normal copyright tag/i,
+  /^this image is available from/i,
+];
+
+function isBoilerplateFragment(s) {
+  const t = String(s)
+    .trim()
+    .replace(/[.,;:\s\]\[]+$/g, "")
+    .replace(/^\[\d+\]\s*/, "")
+    .trim();
+  if (!t) return true;
+  return BOILERPLATE_FRAGMENTS.some((rx) => rx.test(t));
+}
+
+// LoC `jpd.NNNNN` digital IDs appear in the boilerplate "This image is
+// available from the United States Library of Congress 's Prints and
+// Photographs division under the digital ID jpd.01320…" — the prose
+// is noise, but the ID resolves to a canonical LoC page worth keeping.
+function extractLocUrl(text) {
+  const m = /\b(jpd|cph|ppmsca|pga|highsm|ds|fsa|matpc)\.\d+[a-z0-9]*\b/i.exec(text);
+  if (!m) return null;
+  return `https://www.loc.gov/pictures/item/${m[0].toLowerCase()}/`;
+}
+
+// Numbered citation lists ("1. Source A . 2. Source B"). Returns the
+// per-item array or null when the string doesn't look like a list.
+// Accepts out-of-order numbering ("2. … 1. …") and single-item lists
+// where the leading "1." is stray enumeration on its own.
+function splitCitationList(s) {
+  if (!/^\s*\d+\.?\s+\S/.test(s)) return null;
+  const stripped = s.replace(/^\s*\d+\.?\s+/, "");
+  const parts = stripped
+    .split(/\s+\d+\.\s+/)
+    .map((p) => p.trim().replace(/[.,;\s]+$/g, ""))
+    .filter(Boolean);
+  return parts.length > 0 ? parts : null;
+}
+
+// Catch-all sanity check: too short, bare URL, or matches one of the
+// known boilerplate phrases. Kept narrow — the per-fragment list above
+// does most of the work.
 function looksLikeBoilerplate(text) {
   if (!text) return true;
   const t = String(text).trim();
   if (t.length < 10) return true;
   if (/^https?:\/\/\S+$/.test(t)) return true;
-
-  const lower = t.toLowerCase();
-  if (lower === "print scan") return true;
-  if (lower === "public domain") return true;
-
-  if (
-    /this tag does not indicate/i.test(t) ||
-    /commons:licensing/i.test(t) ||
-    /a normal copyright tag/i.test(t) ||
-    /this image is available from/i.test(t)
-  ) {
-    return true;
-  }
-
+  if (isBoilerplateFragment(t)) return true;
   // Bare "digital ID xyz" with no surrounding prose.
   if (/digital id/i.test(t) && t.length < 50) return true;
-
   return false;
 }
 
@@ -233,9 +275,32 @@ function looksLikeBoilerplate(text) {
 // render attribution noise.
 function cleanCredit(raw) {
   if (!raw) return null;
-  const c = String(raw).trim();
+  let c = String(raw).trim();
   if (!c) return null;
   if (/^own\s*work$/i.test(c)) return null;
+
+  // Strip trailing Yorck Project DVD-ROM clauses ("…; Former version:
+  // The Yorck Project (2002)…"). The DVD scan is always boilerplate;
+  // leaving it tacked onto a legitimate museum citation just adds noise.
+  c = c
+    .replace(/[\s.;,]+(?:former version\s*:?\s*)?the yorck project\b[\s\S]*$/i, "")
+    .trim();
+  if (!c) return null;
+
+  // Library of Congress license boilerplate — promote the digital ID
+  // to a canonical LoC URL when present, otherwise drop.
+  if (/this image is available from the united states library of congress/i.test(c)) {
+    return extractLocUrl(c);
+  }
+
+  // Numbered citation list — drop boilerplate items, keep real ones.
+  const list = splitCitationList(c);
+  if (list) {
+    const kept = list.filter((item) => !isBoilerplateFragment(item));
+    if (kept.length === 0) return null;
+    c = kept.join("; ");
+  }
+
   if (looksLikeBoilerplate(c)) return null;
   return c;
 }
