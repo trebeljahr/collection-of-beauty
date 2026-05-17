@@ -3,9 +3,9 @@
   "kind": "wikimedia_image_collection",
   "generated_at": "2026-04-09T12:15:46.778Z",
   "source_api": "Wikimedia Commons action=query&prop=imageinfo",
-  "file_count": 2624,
-  "resolved_count": 2412,
-  "unresolved_count": 212,
+  "file_count": 2593,
+  "resolved_count": 2385,
+  "unresolved_count": 208,
   "entries": {
     "'Garden_at_Bordighera,_Impression_of_Morning'_by_Claude_Monet,_1884,_Hermitage.jpeg": {
       "filename": "'Garden_at_Bordighera,_Impression_of_Morning'_by_Claude_Monet,_1884,_Hermitage.jpeg",
@@ -957,50 +957,6 @@
       "pd_status": "public_domain",
       "pd_status_reason": "Commons PD license",
       "story": "Rubens painted this copy around 1613 from a portrait by Jan Cornelisz Vermeyen, who had actually travelled to Tunis with Charles V in 1535. Mulay Ahmad — the Hafsid sultan deposed in that campaign — stands in a deep green robe cinched by a red-and-gold baldric, a curved dagger slung at his waist, the ruined Roman amphitheatre at El Djem rising behind him. Rubens clearly relished the turban's white architecture and the sheen of the silk, treating the commission less as ethnography than as a chance to study a great early Netherlandish source firsthand."
-    },
-    "0_Prométhée_supplicié_-_Rubens_-_Snyders_-_Philadelphia_Museum_of_Art_(W1950-3-1)_-_(1).jpeg": {
-      "filename": "0_Prométhée_supplicié_-_Rubens_-_Snyders_-_Philadelphia_Museum_of_Art_(W1950-3-1)_-_(1).jpeg",
-      "resolved": true,
-      "needs_review": false,
-      "title": "Prometheus Bound",
-      "artist": "Frans Snyders / Peter Paul Rubens",
-      "date_created": "commencée entre 1611 et 1612 et achevée en 1618",
-      "year": 1611,
-      "description": null,
-      "source": {
-        "type": "Wikimedia Commons",
-        "canonical_title": "File:0 Prométhée supplicié - Rubens - Snyders - Philadelphia Museum of Art (W1950-3-1) - (1).JPG",
-        "resolved_via_variant": "0_Prométhée_supplicié_-_Rubens_-_Snyders_-_Philadelphia_Museum_of_Art_(W1950-3-1)_-_(1).JPG",
-        "url": "https://commons.wikimedia.org/wiki/File%3A0_Prom%C3%A9th%C3%A9e_supplici%C3%A9_-_Rubens_-_Snyders_-_Philadelphia_Museum_of_Art_(W1950-3-1)_-_(1).JPG",
-        "file_url": "https://upload.wikimedia.org/wikipedia/commons/9/9b/0_Prom%C3%A9th%C3%A9e_supplici%C3%A9_-_Rubens_-_Snyders_-_Philadelphia_Museum_of_Art_%28W1950-3-1%29_-_%281%29.JPG",
-        "credit": "User:Jean-Pol GRANDMONT (2013) This illustration was made by Jean-Pol GRANDMONT Please credit this : Jean-Pol GRANDMONT An email to Jean-Pol GRANDMONT would be appreciated.",
-        "permission": null,
-        "attribution": null
-      },
-      "copyright": {
-        "copyrighted": false,
-        "license_short": "Public domain",
-        "license_url": null,
-        "usage_terms": "Public domain"
-      },
-      "translations": {
-        "title": {
-          "es": "Prometeo encadenado",
-          "ja": "繋がれたプロメテウス",
-          "fr": "Prométhée supplicié",
-          "pl": "Prometeusz skowany",
-          "uk": "Прометей закутий (картина Рубенса)",
-          "nl": "De bestraffing van Prometheus door de adelaar van Zeus",
-          "it": "Prometeo incatenato",
-          "sl": "Vklenjeni Prometej (Rubens)",
-          "de": "Gefesselter Prometheus",
-          "ru": "Прометей прикованный (Рубенс)"
-        }
-      },
-      "year_source": "date_created_plain",
-      "pd_status": "public_domain",
-      "pd_status_reason": "Commons PD license",
-      "story": "Prometheus is chained face down across the whole canvas, upside down to the viewer, while a huge eagle stands on his ribs and drives its beak into his side. His left foot is still shackled to the rock. Rubens painted the body, all that heaving flesh, around 1611; his friend Frans Snyders painted the eagle, which is the real engine of the picture, every feather taut with effort. The collaboration ran for years afterwards, but this early panel is the one where you can see both men working at the top of their game."
     },
     "100_views_edo_063.jpg": {
       "filename": "100_views_edo_063.jpg",
@@ -15250,35 +15206,6 @@
       "pd_status_reason": "Commons PD license",
       "story": "A long handscroll, unrolled here as one horizontal strip: columns of Chinese colophon text on the left give way to ink clouds, rock, and surging water out of which dragons twist, chase a flaming pearl and dive back into mist. The ink is extraordinarily wet where the storm gathers and bone-dry where scales catch light. Chen Rong finished it in 1244; it carries inscriptions and seals from centuries of later owners and now lives in the Museum of Fine Arts, Boston."
     },
-    "Chicago_art_inst_turner_vallee_aoste.jpeg": {
-      "filename": "Chicago_art_inst_turner_vallee_aoste.jpeg",
-      "resolved": true,
-      "needs_review": false,
-      "title": "Valley of Aosta: Snowstorm, Avalanche and Thunderstorm",
-      "artist": "J. M. W. Turner",
-      "date_created": "1836/37",
-      "year": 1836,
-      "description": null,
-      "source": {
-        "type": "Wikimedia Commons",
-        "canonical_title": "File:Chicago art inst turner vallee aoste.JPG",
-        "resolved_via_variant": "Chicago_art_inst_turner_vallee_aoste.JPG",
-        "url": "https://commons.wikimedia.org/wiki/File%3AChicago_art_inst_turner_vallee_aoste.JPG",
-        "file_url": "https://upload.wikimedia.org/wikipedia/commons/e/e1/Chicago_art_inst_turner_vallee_aoste.JPG",
-        "credit": "Own work",
-        "permission": null,
-        "attribution": null
-      },
-      "copyright": {
-        "copyrighted": true,
-        "license_short": "CC0",
-        "license_url": "http://creativecommons.org/publicdomain/zero/1.0/deed.en",
-        "usage_terms": "Creative Commons Zero, Public Domain Dedication"
-      },
-      "year_source": "date_created_plain",
-      "pd_status": "copyrighted",
-      "pd_status_reason": "Commons copyrighted license"
-    },
     "Chichester_Canal_(1828).jpg": {
       "filename": "Chichester_Canal_(1828).jpg",
       "resolved": true,
@@ -23083,55 +23010,6 @@
       "pd_status": "public_domain",
       "pd_status_reason": "Commons PD license",
       "story": "Eleonora Duse was then the most famous actress in Europe — d'Annunzio's muse, rival to Sarah Bernhardt, and notorious for refusing stage makeup. She was touring Russia in the winter of 1891 when Repin caught her. He worked in charcoal on a huge canvas, over 100 by 139 cm — almost life-size — and got her in a long dark dress, standing, hand at her chin. The sittings were short and reportedly tense; what he wanted was presence, not likeness. The drawing hangs in the Tretyakov and is usually cited as one of his best charcoal portraits of a sitter who barely sat."
-    },
-    "Dziewczyna_w_ramie_obrazu_1.jpg": {
-      "filename": "Dziewczyna_w_ramie_obrazu_1.jpg",
-      "resolved": true,
-      "needs_review": false,
-      "title": "The Girl in a Picture Frame (The Jewish Bride).",
-      "artist": "Rembrandt",
-      "date_created": "1641 date QS:P571,+1641-00-00T00:00:00Z/9",
-      "year": 1641,
-      "description": "Scholar at his Writing Table",
-      "source": {
-        "type": "Wikimedia Commons",
-        "canonical_title": "File:Dziewczyna w ramie obrazu 1.jpg",
-        "url": "https://commons.wikimedia.org/wiki/File%3ADziewczyna_w_ramie_obrazu_1.jpg",
-        "file_url": "https://upload.wikimedia.org/wikipedia/commons/b/bf/Dziewczyna_w_ramie_obrazu_1.jpg",
-        "credit": "www.zamek-krolewski.pl",
-        "permission": null,
-        "attribution": null
-      },
-      "copyright": {
-        "copyrighted": false,
-        "license_short": "Public domain",
-        "license_url": null,
-        "usage_terms": "Public domain"
-      },
-      "artist_info": {
-        "name": "Rembrandt van Rijn",
-        "aliases": [
-          "Rembrandt van Rijn",
-          "Rembrandt"
-        ],
-        "born": 1606,
-        "died": 1669,
-        "nationality": "Dutch",
-        "movement": "Dutch Golden Age",
-        "pd_status": "public_domain_worldwide"
-      },
-      "translations": {
-        "description": {
-          "fr": "Savant à son pupitre",
-          "pl": "Uczony przy pulpicie",
-          "de": "Gelehrter an seinem Schreibtisch",
-          "nl": "Geleerde aan een lessenaar\" ."
-        }
-      },
-      "year_source": "wikidata_qs",
-      "pd_status": "public_domain",
-      "pd_status_reason": "Commons PD license",
-      "story": "She leans out of her own painting. Fingers curl over the edge of the gilt frame as if she's climbing down, lips parted, a red-feathered hat tilted back. It's a trompe-l'oeil trick Rembrandt loved in the early 1640s, not a portrait but a tronie, a head study done for the open market. Beneath the paint, X-rays show he'd started a different woman in a ruff before scraping her out. Signed and dated 1641, it hangs in the Royal Castle in Warsaw and is nicknamed the Warsaw Mona Lisa."
     },
     "Dürer_-_Académie_de_femme_debout,_de_dos,_la_main_sur_une_hampe_d'où_part_un_voile,_INV_19058,_Recto.jpg": {
       "filename": "Dürer_-_Académie_de_femme_debout,_de_dos,_la_main_sur_une_hampe_d'où_part_un_voile,_INV_19058,_Recto.jpg",
@@ -71764,35 +71642,6 @@
       "pd_status_reason": "Commons PD license",
       "story": "Three tall crosses against a bruised sky, Christ in the middle, the two thieves writhing either side. It's a small panel, and Rubens apparently never meant it to feel as vertiginous as it does; later hands set it into a larger panel, which stretched the sky and exaggerated the height of those crosses. The effect is now part of the painting's identity. Dated around 1620, it's in Rotterdam's Museum Boijmans Van Beuningen."
     },
-    "Peter_paul_rubens,_susanna_e_i_vecchioni,_1605-07_(cropped).jpg": {
-      "filename": "Peter_paul_rubens,_susanna_e_i_vecchioni,_1605-07_(cropped).jpg",
-      "resolved": true,
-      "needs_review": false,
-      "title": "Susanna and the Elders",
-      "artist": "Peter Paul Rubens",
-      "date_created": "circa 1605–1607",
-      "year": 1605,
-      "description": "Paintings in Galleria Borghese (Rome)",
-      "source": {
-        "type": "Wikimedia Commons",
-        "canonical_title": "File:Peter paul rubens, susanna e i vecchioni, 1605-07 (cropped).jpg",
-        "url": "https://commons.wikimedia.org/wiki/File%3APeter_paul_rubens%2C_susanna_e_i_vecchioni%2C_1605-07_(cropped).jpg",
-        "file_url": "https://upload.wikimedia.org/wikipedia/commons/3/3e/Peter_paul_rubens%2C_susanna_e_i_vecchioni%2C_1605-07_%28cropped%29.jpg",
-        "credit": "Own work",
-        "permission": "I, the copyright holder of this work, hereby publish it under the following license:",
-        "attribution": null
-      },
-      "copyright": {
-        "copyrighted": false,
-        "license_short": "Public domain",
-        "license_url": null,
-        "usage_terms": "Public domain"
-      },
-      "year_source": "date_created_plain",
-      "pd_status": "public_domain",
-      "pd_status_reason": "Commons PD license",
-      "story": "Rubens painted this early in his Italian years, when he was still digesting Caravaggio and the Venetians and turning them into something of his own. The biblical Susanna is caught bathing by two town elders who try to blackmail her into sex; she refuses, they lie, she nearly dies for it. Here she twists away, mouth open, eyes thrown skyward, while the leering pair crowd in from the right, one of them hushing the other with a finger to his lips. Galleria Borghese, Rome. The photograph is by Sailko, the Wikimedia documentarian Francesco Bini, not a painter himself."
-    },
     "Philipp_Otto_Runge,_Head_of_a_Dog_(1805-06),_chalk_&_lead.jpg": {
       "filename": "Philipp_Otto_Runge,_Head_of_a_Dog_(1805-06),_chalk_&_lead.jpg",
       "resolved": true,
@@ -72879,48 +72728,6 @@
       "pd_status": "public_domain",
       "pd_status_reason": "Commons PD license",
       "story": "Bruegel's tower rears up like a Roman Colosseum mid-construction, clouds snagging on the upper tiers, the whole thing listing slightly and already cracking. King Nimrod stands in the foreground with stonecutters bowing before him. Painted around 1563 after Bruegel's trip over the Alps to Rome, it is the larger and grander of the two surviving Babel paintings, about 114 by 155 centimeters. It has hung in the Kunsthistorisches Museum in Vienna since Emperor Rudolf II's collection."
-    },
-    "Pitágoras_prohíbe_comer_animales_y_habas_(Rubens_y_Snyders).jpg": {
-      "filename": "Pitágoras_prohíbe_comer_animales_y_habas_(Rubens_y_Snyders).jpg",
-      "resolved": true,
-      "needs_review": false,
-      "title": "Pythagoras advocating vegetarianism",
-      "artist": "Peter Paul Rubens / Frans Snyders",
-      "date_created": "between 1618 and 1630 date QS:P571,+1650-00-00T00:00:00Z/7,P1319,+1618-00-00T00:00:00Z/9,P1326,+1630-00-00T00:00:00Z/9",
-      "year": 1618,
-      "description": null,
-      "source": {
-        "type": "Wikimedia Commons",
-        "canonical_title": "File:Pitágoras prohíbe comer animales y habas (Rubens y Snyders).jpg",
-        "url": "https://commons.wikimedia.org/wiki/File%3APit%C3%A1goras_proh%C3%ADbe_comer_animales_y_habas_(Rubens_y_Snyders).jpg",
-        "file_url": "https://upload.wikimedia.org/wikipedia/commons/5/56/Pit%C3%A1goras_proh%C3%ADbe_comer_animales_y_habas_%28Rubens_y_Snyders%29.jpg",
-        "credit": "[2]",
-        "permission": null,
-        "attribution": null
-      },
-      "copyright": {
-        "copyrighted": false,
-        "license_short": "Public domain",
-        "license_url": null,
-        "usage_terms": "Public domain"
-      },
-      "artist_info": {
-        "name": "Peter Paul Rubens",
-        "aliases": [
-          "Peter Paul Rubens",
-          "P.P. Rubens",
-          "Rubens"
-        ],
-        "born": 1577,
-        "died": 1640,
-        "nationality": "Flemish",
-        "movement": "Baroque",
-        "pd_status": "public_domain_worldwide"
-      },
-      "year_source": "wikidata_qs",
-      "pd_status": "public_domain",
-      "pd_status_reason": "Commons PD license",
-      "story": "Rubens and Snyders again, this time staging Pythagoras as a vegetarian preacher. The philosopher gestures past a cornucopia of fruit and vegetables — Snyders in full harvest mode, grapes and melons and gourds tumbling toward the viewer — while a nymph offers the bounty of the earth. Behind them, a darker vision: the Golden Age giving way to slaughter. The painting illustrates a passage from Ovid's Metamorphoses where Pythagoras rails against eating flesh. Now in the Prado."
     },
     "Plompton_Rocks_(Turner,_2).png": {
       "filename": "Plompton_Rocks_(Turner,_2).png",
@@ -77153,48 +76960,6 @@
       "pd_status_reason": "Commons PD license",
       "story": "13 May 1610 at Saint-Denis. Marie de' Medici kneels as the Cardinal de Joyeuse sets the crown on her head — Henry IV watches from a gallery at upper right. What the painting doesn't say: the next day, Henry was stabbed to death by Ravaillac in a Paris traffic jam, and Marie became regent of France. Rubens crammed around a hundred identifiable figures into the canvas, more portraiture than most artists manage in a decade. Painted 1622-25 for the Luxembourg Palace, it now hangs in the Louvre's Galerie Médicis."
     },
-    "Rubens_Venus_at_a_Mirror_c1615.jpg": {
-      "filename": "Rubens_Venus_at_a_Mirror_c1615.jpg",
-      "resolved": true,
-      "needs_review": false,
-      "title": "The Toilet of Venus",
-      "artist": "Peter Paul Rubens",
-      "date_created": "between 1613 and 1614 date QS:P571,+1613-00-00T00:00:00Z/8,P1319,+1613-00-00T00:00:00Z/9,P1326,+1614-00-00T00:00:00Z/9",
-      "year": 1613,
-      "description": "Venus of Urbino",
-      "source": {
-        "type": "Wikimedia Commons",
-        "canonical_title": "File:Rubens Venus at a Mirror c1615.jpg",
-        "url": "https://commons.wikimedia.org/wiki/File%3ARubens_Venus_at_a_Mirror_c1615.jpg",
-        "file_url": "https://upload.wikimedia.org/wikipedia/commons/c/c6/Rubens_Venus_at_a_Mirror_c1615.jpg",
-        "credit": "Liechtenstein Museum, Wenen, particuliere collectie Vorst van Liechtenstein, Vaduz.",
-        "permission": "This image is in the public domain ; PD-US; PD-ART.",
-        "attribution": null
-      },
-      "copyright": {
-        "copyrighted": false,
-        "license_short": "Public domain",
-        "license_url": null,
-        "usage_terms": "Public domain"
-      },
-      "artist_info": {
-        "name": "Peter Paul Rubens",
-        "aliases": [
-          "Peter Paul Rubens",
-          "P.P. Rubens",
-          "Rubens"
-        ],
-        "born": 1577,
-        "died": 1640,
-        "nationality": "Flemish",
-        "movement": "Baroque",
-        "pd_status": "public_domain_worldwide"
-      },
-      "year_source": "wikidata_qs",
-      "pd_status": "public_domain",
-      "pd_status_reason": "Commons PD license",
-      "story": "Venus doesn't meet your eye, she meets her own, reflected in a mirror a cupid holds steady for her. A Black attendant braids her blonde hair; pearls wait on the table. Rubens borrows Titian's setup and turns up the flesh tones until the skin looks lit from inside. The panel, painted around 1614-15, was acquired by Prince Johann Adam Andreas I von Liechtenstein and still belongs to the Princely Collections in Vienna. The joke is the mirror: she sees herself, and so, illicitly, do we."
-    },
     "Rubens_and_Snyders-Philopoemen.jpg": {
       "filename": "Rubens_and_Snyders-Philopoemen.jpg",
       "resolved": true,
@@ -78771,84 +78536,6 @@
       "pd_status": "public_domain",
       "pd_status_reason": "Commons PD license",
       "story": "She's asleep, or pretending to be. The satyr leans in, one goat-hoof crossing the other, lifting the drapery from her thigh with the practiced delicacy of a thief — the whole scene calibrated for voyeuristic charge. Ricci picks up the Venetian tradition of Titian's sleeping Venuses but speeds up the brushwork and sweetens the palette for eighteenth-century tastes. He painted this around 1716-20, after returning to Venice from his successful stay in London, where he'd decorated Burlington House. The painting is at the Getty Museum in Los Angeles, a companion in spirit to his other mythological cabinet works."
-    },
-    "Selbstporträt,_by_Albrecht_Dürer,_from_Prado_in_Google_Earth.jpg": {
-      "filename": "Selbstporträt,_by_Albrecht_Dürer,_from_Prado_in_Google_Earth.jpg",
-      "resolved": true,
-      "needs_review": false,
-      "title": "Self-Portrait",
-      "artist": "Albrecht Dürer",
-      "date_created": "1498",
-      "year": 1498,
-      "description": "Dürer painted himself half-length and slightly turned, beside a window that opens onto a mountainous landscape. Dürer painted himself with an open black and white doublet with a striped cap, an undershirt trimmed with gold and a silk cord of blue and white threads holding up a grey-brown cloak that falls over his right shoulder and grey kidskin gloves. He wears long hair and is shown in half-length three-quarter view. The choice of elegant, aristocratic clothing and the severe gaze he directs at the viewer with haughty serenity indicate Dürer’s wish to show off his social standing. This work is outstanding for its rich details, the meticulous treatment of qualities, and its brilliant, gold-toned color scheme, all of which complement an impeccably precise drawing. His satisfaction with his own artistic capacity is manifest in the German inscription on the window ledge, which reads: “1498, I painted it according to my figure. I was twenty-six years old Albrecht Dürer.”",
-      "source": {
-        "type": "Wikimedia Commons",
-        "canonical_title": "File:Selbstporträt, by Albrecht Dürer, from Prado in Google Earth.jpg",
-        "resolved_via_variant": null,
-        "url": "https://commons.wikimedia.org/wiki/File%3ASelbstportr%C3%A4t%2C_by_Albrecht_D%C3%BCrer%2C_from_Prado_in_Google_Earth.jpg",
-        "file_url": "https://upload.wikimedia.org/wikipedia/commons/1/11/Selbstportr%C3%A4t%2C_by_Albrecht_D%C3%BCrer%2C_from_Prado_in_Google_Earth.jpg",
-        "credit": "The Prado in Google Earth: Home - 7 th level of zoom, JPEG compression quality: 9.",
-        "permission": "This is a faithful photographic reproduction of a two-dimensional, public domain work of art. The work of art itself is in the public domain for the following reason: Public domain Public domain false false The author died in 1528, so this work is in the public domain in its country of origin and other countries and areas where the copyright term is the author's life plus 100 years or fewer . This work is in the public domain in the United States because it was published (or registered with the U.S. Copyright Office ) before January 1, 1931. This file has been identified as being free of known restrictions under copyright law, including all related and neighboring rights. https://creativecommons.org/publicdomain/mark/1.0/ PDM Creative Commons Public Domain Mark 1.0 false false The official position taken by the Wikimedia Foundation is that \" faithful reproductions of two-dimensional public domain works of art are public domain \". This photographic reproduction is therefore also considered to be in the public domain in the United States. In other jurisdictions, re-use of this content may be restricted; see Reuse of PD-Art photographs for details.",
-        "attribution": null
-      },
-      "copyright": {
-        "copyrighted": false,
-        "license_short": "Public domain",
-        "license_url": null,
-        "usage_terms": "Public domain"
-      },
-      "translations": {
-        "title": {
-          "es": "Autorretrato",
-          "hu": "Önarckép",
-          "ca": "Autoretrat",
-          "cy": "Hunanbortread",
-          "be": "Аўтапартрэт",
-          "fa": "چهرهٔ خود",
-          "bg": "Автопортрет",
-          "da": "Selvportræt",
-          "ro": "Autoportret",
-          "ja": "自画像",
-          "arz": "تصوير شخصى",
-          "uk": "Автопортрет Дюрера (1498)",
-          "la": "Effigies sui ipsius",
-          "fi": "Omakuva",
-          "kk": "Автопортрет",
-          "eo": "Memportreto de Dürer",
-          "bs": "Autoportret",
-          "it": "Autoritratto con guanti",
-          "fr": "Autoportrait à 26 ans",
-          "et": "Autoportree",
-          "ko": "26세의 자화상",
-          "vec": "Autoritrato",
-          "sv": "Självporträtt",
-          "pt": "Auto-retrato",
-          "lt": "Autoportretas",
-          "hr": "Autoportret",
-          "nds": "Sülvstporträt",
-          "sr": "Аутопортрет",
-          "sl": "Avtoportret",
-          "mk": "Автопортрет",
-          "ru": "Автопортрет Дюрера",
-          "he": "דיוקן עצמי",
-          "th": "ภาพเหมือนตนเอง",
-          "pl": "Autoportret",
-          "zh": "自畫像",
-          "nl": "Zelfportret met 26",
-          "ga": "féinphortráid",
-          "de": "Selbstporträt im Alter von 26 Jahren",
-          "hy": "Դյուրերի ինքնադիմանկար",
-          "sk": "Autoportrét",
-          "gl": "Autorretrato de Dürer",
-          "ar": "بورتريه ذاتي",
-          "el": "Αυτοπροσωπογραφία",
-          "cs": "Autoportrét"
-        }
-      },
-      "year_source": "date_created_plain",
-      "pd_status": "public_domain",
-      "pd_status_reason": "Commons PD license",
-      "story": "This is the same 1498 Prado self-portrait, photographed for Google's high-resolution project. Dürer had just returned from Italy and wanted, badly, to be understood as a gentleman rather than a craftsman. The grey kidskin gloves are the tell: hands that don't labor. Through the window, the Alps — the mountains he'd crossed twice to get to Venice and back. Look closely at the fine blue-and-white silk cord holding his cloak, and at the individual strands of hair, each one laid in with a brush of maybe three squirrel hairs. He inscribed the date and his age on the sill."
     },
     "Self-portrait_as_the_Allegory_of_Painting_(La_Pittura)_-_Artemisia_Gentileschi.jpg": {
       "filename": "Self-portrait_as_the_Allegory_of_Painting_(La_Pittura)_-_Artemisia_Gentileschi.jpg",
