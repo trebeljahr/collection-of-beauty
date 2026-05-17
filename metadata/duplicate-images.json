@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-05-17T17:07:12.824Z",
+  "generatedAt": "2026-05-17T17:13:53.137Z",
   "threshold": 4,
   "stats": {
     "total": 2870,
@@ -185,47 +185,6 @@
       ]
     },
     {
-      "key": "hiroshi-yoshida::sailing boats",
-      "minDistance": 7,
-      "members": [
-        {
-          "id": "collection-of-beauty-sailing-boats-afternoon-hiroshi-yoshida",
-          "title": "Sailing Boats",
-          "englishTitle": null,
-          "artist": "Hiroshi Yoshida",
-          "objectKey": "collection-of-beauty/Sailing_Boats,_Afternoon,_Hiroshi_Yoshida.jpg"
-        },
-        {
-          "id": "collection-of-beauty-sailing-boats-evening-hiroshi-yoshida",
-          "title": "Sailing Boats",
-          "englishTitle": null,
-          "artist": "Hiroshi Yoshida",
-          "objectKey": "collection-of-beauty/Sailing_Boats,_Evening,_Hiroshi_Yoshida.jpg"
-        },
-        {
-          "id": "collection-of-beauty-sailing-boats-mist-hiroshi-yoshida",
-          "title": "Sailing Boats",
-          "englishTitle": null,
-          "artist": "Hiroshi Yoshida",
-          "objectKey": "collection-of-beauty/Sailing_Boats,_Mist,_Hiroshi_Yoshida.jpg"
-        },
-        {
-          "id": "collection-of-beauty-sailing-boats-morning-hiroshi-yoshida",
-          "title": "Sailing Boats",
-          "englishTitle": null,
-          "artist": "Hiroshi Yoshida",
-          "objectKey": "collection-of-beauty/Sailing_Boats,_Morning,_Hiroshi_Yoshida.jpg"
-        },
-        {
-          "id": "collection-of-beauty-sailing-boats-night-hiroshi-yoshida",
-          "title": "Sailing Boats",
-          "englishTitle": null,
-          "artist": "Hiroshi Yoshida",
-          "objectKey": "collection-of-beauty/Sailing_Boats,_Night,_Hiroshi_Yoshida.jpg"
-        }
-      ]
-    },
-    {
       "key": "peter-paul-rubens::a view of het steen in the early morning",
       "minDistance": 8,
       "members": [
@@ -373,40 +332,6 @@
       ]
     },
     {
-      "key": "jean-leon-gerome::jean l on g r me",
-      "minDistance": 13,
-      "members": [
-        {
-          "id": "collection-of-beauty-jean-leon-gerome-the-story-of-anacreon-1-cupid-at-the-door-in-a-rainstorm-c-1899",
-          "title": "Jean-Léon Gérôme",
-          "englishTitle": null,
-          "artist": "Jean-Léon Gérôme",
-          "objectKey": "collection-of-beauty/Jean-Léon_Gérôme,_The_Story_of_Anacreon_1--Cupid_at_the_Door_in_a_Rainstorm,_c_1899.jpg"
-        },
-        {
-          "id": "collection-of-beauty-jean-leon-gerome-the-story-of-anacreon-2-young-love-s-shivering-limbs-the-embers-warm-c-1899",
-          "title": "Jean-Léon Gérôme",
-          "englishTitle": null,
-          "artist": "Jean-Léon Gérôme",
-          "objectKey": "collection-of-beauty/Jean-Léon_Gérôme,_The_Story_of_Anacreon_2--Young_Love's_Shivering_Limbs_the_Embers_Warm,_c_1899.jpg"
-        },
-        {
-          "id": "collection-of-beauty-jean-leon-gerome-the-story-of-anacreon-3-cupid-runs-out-the-door-c1899",
-          "title": "Jean-Léon Gérôme",
-          "englishTitle": null,
-          "artist": "Jean-Léon Gérôme",
-          "objectKey": "collection-of-beauty/Jean-Léon_Gérôme,_The_Story_of_Anacreon_3--Cupid_Runs_out_the_Door,_c1899.jpg"
-        },
-        {
-          "id": "collection-of-beauty-jean-leon-gerome-the-story-of-anacreon-4-the-poet-dreams-of-cupid-by-the-fire-c-1899",
-          "title": "Jean-Léon Gérôme",
-          "englishTitle": null,
-          "artist": "Jean-Léon Gérôme",
-          "objectKey": "collection-of-beauty/Jean-Léon_Gérôme,_The_Story_of_Anacreon_4--The_Poet_Dreams_of_Cupid_by_the_Fire,_c_1899.jpg"
-        }
-      ]
-    },
-    {
       "key": "peter-paul-rubens::the brazen serpent",
       "minDistance": 14,
       "members": [
@@ -463,54 +388,6 @@
           "englishTitle": null,
           "artist": "Caravaggio",
           "objectKey": "collection-of-beauty/1596_Caravaggio,_The_Lute_Player_New_York.jpg"
-        }
-      ]
-    },
-    {
-      "key": "kawase-hasui::t ky j nidai",
-      "minDistance": 15,
-      "members": [
-        {
-          "id": "collection-of-beauty-tokyo-junidai-samidare-furu-sanno-by-kawase-hasui",
-          "title": "Tōkyō jūnidai",
-          "englishTitle": null,
-          "artist": "Kawase Hasui",
-          "objectKey": "collection-of-beauty/Tōkyō_jūnidai,_Samidare_furu_Sannō_by_Kawase_Hasui.jpg"
-        },
-        {
-          "id": "collection-of-beauty-tokyo-junidai-daikon-gashi-by-kawase-hasui",
-          "title": "Tōkyō jūnidai",
-          "englishTitle": null,
-          "artist": "Kawase Hasui",
-          "objectKey": "collection-of-beauty/Tōkyō_jūnidai,_Daikon-gashi_by_Kawase_Hasui.jpg"
-        },
-        {
-          "id": "collection-of-beauty-tokyo-junidai-fukagawa-kaminohashi-by-kawase-hasui",
-          "title": "Tōkyō jūnidai",
-          "englishTitle": null,
-          "artist": "Kawase Hasui",
-          "objectKey": "collection-of-beauty/Tōkyō_jūnidai,_Fukagawa_Kaminohashi_by_Kawase_Hasui.jpg"
-        },
-        {
-          "id": "collection-of-beauty-tokyo-junidai-kiba-no-yugure-by-kawase-hasui",
-          "title": "Tōkyō jūnidai",
-          "englishTitle": null,
-          "artist": "Kawase Hasui",
-          "objectKey": "collection-of-beauty/Tōkyō_jūnidai,_Kiba_no_yūgure_by_Kawase_Hasui.jpg"
-        },
-        {
-          "id": "collection-of-beauty-tokyo-junidai-shinagawa-oki-by-kawase-hasui",
-          "title": "Tōkyō jūnidai",
-          "englishTitle": null,
-          "artist": "Kawase Hasui",
-          "objectKey": "collection-of-beauty/Tōkyō_jūnidai,_Shinagawa_oki_by_Kawase_Hasui.jpg"
-        },
-        {
-          "id": "collection-of-beauty-tokyo-junidai-toyama-no-hara-by-kawase-hasui",
-          "title": "Tōkyō jūnidai",
-          "englishTitle": null,
-          "artist": "Kawase Hasui",
-          "objectKey": "collection-of-beauty/Tōkyō_jūnidai,_Toyama-no-hara_by_Kawase_Hasui.jpg"
         }
       ]
     },
@@ -741,80 +618,6 @@
       ]
     },
     {
-      "key": "francisco-goya::the disasters of war",
-      "minDistance": 19,
-      "members": [
-        {
-          "id": "collection-of-beauty-prado-los-desastres-de-la-guerra-no-04-las-mugeres-dan-valor",
-          "title": "The Disasters of War",
-          "englishTitle": null,
-          "artist": "Francisco Goya",
-          "objectKey": "collection-of-beauty/Prado_-_Los_Desastres_de_la_Guerra_-_No._04_-_Las_mugeres_dan_valor.jpg"
-        },
-        {
-          "id": "collection-of-beauty-prado-los-desastres-de-la-guerra-no-46-esto-es-malo",
-          "title": "The Disasters of War",
-          "englishTitle": null,
-          "artist": "Francisco Goya",
-          "objectKey": "collection-of-beauty/Prado_-_Los_Desastres_de_la_Guerra_-_No._46_-_Esto_es_malo.jpg"
-        },
-        {
-          "id": "collection-of-beauty-prado-los-desastres-de-la-guerra-no-47-asi-sucedio",
-          "title": "The Disasters of War",
-          "englishTitle": null,
-          "artist": "Francisco Goya",
-          "objectKey": "collection-of-beauty/Prado_-_Los_Desastres_de_la_Guerra_-_No._47_-_Así_sucedió.jpg"
-        }
-      ]
-    },
-    {
-      "key": "andreas-vesalius::on the fabric of the human body",
-      "minDistance": 23,
-      "members": [
-        {
-          "id": "collection-of-beauty-de-humani-corporis-fabrica-24",
-          "title": "On the Fabric of the Human Body",
-          "englishTitle": null,
-          "artist": "Andreas Vesalius",
-          "objectKey": "collection-of-beauty/De_humani_corporis_fabrica_(24).jpg"
-        },
-        {
-          "id": "collection-of-beauty-de-humani-corporis-fabrica-25",
-          "title": "On the Fabric of the Human Body",
-          "englishTitle": null,
-          "artist": "Andreas Vesalius",
-          "objectKey": "collection-of-beauty/De_humani_corporis_fabrica_(25).jpg"
-        },
-        {
-          "id": "collection-of-beauty-de-humani-corporis-fabrica-26",
-          "title": "On the Fabric of the Human Body",
-          "englishTitle": null,
-          "artist": "Andreas Vesalius",
-          "objectKey": "collection-of-beauty/De_humani_corporis_fabrica_(26).jpg"
-        }
-      ]
-    },
-    {
-      "key": "utagawa-kunisada::utagawa kunisada",
-      "minDistance": 23,
-      "members": [
-        {
-          "id": "collection-of-beauty-utagawa-kunisada-1857-imayo-mitate-shino-kosho-yori-shokunin",
-          "title": "Utagawa Kunisada",
-          "englishTitle": null,
-          "artist": "Utagawa Kunisada",
-          "objectKey": "collection-of-beauty/Utagawa_Kunisada_(1857)_Imayō_mitate_shinō_kōshō_yori_shokunin.jpg"
-        },
-        {
-          "id": "collection-of-beauty-ndl-dc-1301809-utagawa-kunisada-cmb",
-          "title": "Utagawa Kunisada",
-          "englishTitle": null,
-          "artist": "Utagawa Kunisada",
-          "objectKey": "collection-of-beauty/NDL-DC_1301809-Utagawa_Kunisada-うゑ野ノ暮雪-cmb.jpg"
-        }
-      ]
-    },
-    {
       "key": "claude-monet::waterloo bridge",
       "minDistance": 23,
       "members": [
@@ -898,33 +701,6 @@
           "englishTitle": null,
           "artist": "Claude Monet",
           "objectKey": "collection-of-beauty/Charing_Cross_Bridge,_Reflections_on_the_Thames.jpg"
-        }
-      ]
-    },
-    {
-      "key": "unknown::kuniyoshi utagawa",
-      "minDistance": 27,
-      "members": [
-        {
-          "id": "collection-of-beauty-500px-kuniyoshi-utagawa-hawk",
-          "title": "Kuniyoshi Utagawa",
-          "englishTitle": null,
-          "artist": null,
-          "objectKey": "collection-of-beauty/500px-Kuniyoshi_Utagawa,_Hawk.jpg"
-        },
-        {
-          "id": "collection-of-beauty-kuniyoshi-utagawa-at-the-shore-of-the-sumida-river",
-          "title": "Kuniyoshi Utagawa",
-          "englishTitle": null,
-          "artist": null,
-          "objectKey": "collection-of-beauty/Kuniyoshi_Utagawa,_At_the_shore_of_the_Sumida_river.jpg"
-        },
-        {
-          "id": "collection-of-beauty-kuniyoshi-utagawa-pilgrims-in-the-waterfall",
-          "title": "Kuniyoshi Utagawa",
-          "englishTitle": null,
-          "artist": null,
-          "objectKey": "collection-of-beauty/Kuniyoshi_Utagawa,_Pilgrims_in_the_waterfall.jpg"
         }
       ]
     },
@@ -1037,26 +813,6 @@
       ]
     },
     {
-      "key": "james-mcneill-whistler::james abbott mcneill whistler",
-      "minDistance": 29,
-      "members": [
-        {
-          "id": "collection-of-beauty-james-abbott-mcneill-whistler-rotherhithe-etching-1860-dallas-museum-of-art",
-          "title": "James Abbott McNeill Whistler",
-          "englishTitle": null,
-          "artist": "James McNeill Whistler",
-          "objectKey": "collection-of-beauty/James_Abbott_McNeill_Whistler,_Rotherhithe,_etching,_1860,_Dallas_Museum_of_Art.jpg"
-        },
-        {
-          "id": "collection-of-beauty-james-abbott-mcneill-whistler-fishing-boat-1879-1880-etching-on-laid-paper",
-          "title": "James Abbott McNeill Whistler",
-          "englishTitle": null,
-          "artist": "James McNeill Whistler",
-          "objectKey": "collection-of-beauty/James_Abbott_McNeill_Whistler,_Fishing_Boat,_1879-1880,_etching_on_laid_paper.jpg"
-        }
-      ]
-    },
-    {
       "key": "jean-leon-gerome::bashi bazouk",
       "minDistance": 29,
       "members": [
@@ -1113,33 +869,6 @@
           "englishTitle": null,
           "artist": "Ma Yuan",
           "objectKey": "collection-of-beauty/Ma_Yuan_-_Dancing_and_Singing-_Peasants_Returning_from_Work_-_Detail_1.jpg"
-        }
-      ]
-    },
-    {
-      "key": "philipp-otto-runge::philipp otto runge",
-      "minDistance": 30,
-      "members": [
-        {
-          "id": "collection-of-beauty-philipp-otto-runge-head-of-a-dog-1805-06-chalk-lead",
-          "title": "Philipp Otto Runge",
-          "englishTitle": null,
-          "artist": "Philipp Otto Runge",
-          "objectKey": "collection-of-beauty/Philipp_Otto_Runge,_Head_of_a_Dog_(1805-06),_chalk_&_lead.jpg"
-        },
-        {
-          "id": "collection-of-beauty-philipp-otto-runge-study-for-the-great-morning-1809-chalk-pencil",
-          "title": "Philipp Otto Runge",
-          "englishTitle": null,
-          "artist": "Philipp Otto Runge",
-          "objectKey": "collection-of-beauty/Philipp_Otto_Runge,_Study_for_The_Great_Morning_(1809),_chalk_&_pencil.jpg"
-        },
-        {
-          "id": "collection-of-beauty-philipp-otto-runge-sophia-sieveking-on-her-deathbed-1810-black-white-chalk",
-          "title": "Philipp Otto Runge",
-          "englishTitle": null,
-          "artist": "Philipp Otto Runge",
-          "objectKey": "collection-of-beauty/Philipp_Otto_Runge,_Sophia_Sieveking_on_Her_Deathbed_(1810),_black_&_white_chalk.jpg"
         }
       ]
     },
@@ -1280,26 +1009,6 @@
           "englishTitle": null,
           "artist": "Franz von Stuck",
           "objectKey": "collection-of-beauty/Stuck,_Franz_von_-_Salome_-_Google_Art_Project.jpg"
-        }
-      ]
-    },
-    {
-      "key": "kanae-yamamoto::kanae yamamoto",
-      "minDistance": 32,
-      "members": [
-        {
-          "id": "collection-of-beauty-kanae-yamamoto-1915-cow",
-          "title": "Kanae Yamamoto",
-          "englishTitle": null,
-          "artist": "Kanae Yamamoto",
-          "objectKey": "collection-of-beauty/Kanae_Yamamoto_(1915)_Cow.jpg"
-        },
-        {
-          "id": "collection-of-beauty-kanae-yamamoto-1926-tokko-sanroku-shui",
-          "title": "Kanae Yamamoto",
-          "englishTitle": null,
-          "artist": "Kanae Yamamoto",
-          "objectKey": "collection-of-beauty/Kanae_Yamamoto_(1926)_Tokko_Sanroku_Shūi.jpg"
         }
       ]
     },
