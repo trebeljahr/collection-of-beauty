@@ -1,7 +1,7 @@
 "use client";
 
 import { PointerLockControls } from "@react-three/drei";
-import { Canvas } from "@react-three/fiber";
+import { Canvas, useThree } from "@react-three/fiber";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import * as THREE from "three";
 import { useSetIs3DActive } from "@/components/gallery-3d-state";
@@ -10,7 +10,8 @@ import { useNeedsRotate, useTouchDevice } from "@/hooks/use-touch-device";
 import { useAudioSettings } from "@/lib/audio-settings";
 import type { ArtworkListing } from "@/lib/data";
 import { layoutMuseum } from "@/lib/gallery-layout/layout-museum";
-import type { FloorLayout, Staircase } from "@/lib/gallery-layout/types";
+import type { FloorLayout, MuseumLayout, Staircase } from "@/lib/gallery-layout/types";
+import { variantProxyUrl } from "@/lib/utils";
 
 import { HallwayRenderer } from "./hallway";
 import { LandscapePrompt } from "./landscape-prompt";
@@ -22,6 +23,7 @@ import { RoomGeometry } from "./room-geometry";
 import { Gallery3DSettings } from "./settings-modal";
 import { StaircaseRenderer } from "./staircase";
 import { StairwellAccents } from "./stairwell-rail";
+import { preloadCached } from "./texture-cache";
 import { ZoomModal } from "./zoom-modal";
 
 const AMBIENCE_SRC = "/audio/ambience-loop.mp3";
@@ -51,6 +53,13 @@ export function Gallery3D({ artworks }: Props) {
   // floor's stairwell mount lazily at the floor-swap boundary, leaving
   // a black band visible through the spiral cutout mid-descent.
   const [activeStairId, setActiveStairId] = useState<string | null>(null);
+  // Id of the staircase the player is currently within
+  // STAIR_PROXIMITY_RADIUS of (Player edge-fires on cross). Drives
+  // FloorPreloader: when set, prime the adjacent floor's 256 px thumbs
+  // through the texture cache's low-priority queue so by the time the
+  // player rides the stair into the destination floor those paintings
+  // can paint on the first frame instead of flashing the brown swatch.
+  const [nearbyStairId, setNearbyStairId] = useState<string | null>(null);
   // Big-map overlay state. Press M to toggle. While open, player input
   // is paused and the user can cycle through floor plans with the
   // arrow keys / PgUp / PgDn, then commit a teleport with Enter or
@@ -517,6 +526,11 @@ export function Gallery3D({ artworks }: Props) {
         )}
 
         <LodController />
+        <FloorPreloader
+          layout={layout}
+          currentFloorIdx={currentFloorIdx}
+          nearbyStairId={nearbyStairId}
+        />
 
         <Player
           enabled={hasStarted && !zoomed && !mapOpen && !settingsOpen}
@@ -531,6 +545,7 @@ export function Gallery3D({ artworks }: Props) {
           onZoomRequest={setZoomed}
           onAimChange={setAiming}
           onActiveStairChange={setActiveStairId}
+          onNearbyStairChange={setNearbyStairId}
           joystickMoveGetter={isTouch ? moveJoystick.getData : undefined}
           joystickLookGetter={isTouch ? lookJoystick.getData : undefined}
         />
@@ -821,6 +836,64 @@ function FloorScene({
       {showOnly !== "stairs" && <StairwellAccents floor={floor} />}
     </group>
   );
+}
+
+/**
+ * Adjacent-floor texture preloader. Fires when the Player edge-reports
+ * crossing into a staircase's proximity radius. Walks every painting
+ * placement on the connected floor and pumps its 256 px AVIF thumb
+ * through the texture cache's low-priority preload queue — so by the
+ * time the player rides the stair into the destination, the painting
+ * planes can install a thumb on first mount rather than flashing the
+ * brown swatch while the cold 256 fetches.
+ *
+ * Lives inside <Canvas> because it needs the renderer (via useThree)
+ * to drive the GPU upload step of the preload pipeline. The work is
+ * pure side-effect; it returns null and never re-renders.
+ *
+ * Cancellation: when the player leaves proximity (nearbyStairId →
+ * null), the effect's cleanup aborts any still-pending fetches. The
+ * uploads that already landed stay in the preload cache and serve a
+ * later approach for free.
+ */
+function FloorPreloader({
+  layout,
+  currentFloorIdx,
+  nearbyStairId,
+}: {
+  layout: MuseumLayout;
+  currentFloorIdx: number;
+  nearbyStairId: string | null;
+}) {
+  const { gl } = useThree();
+  useEffect(() => {
+    if (!nearbyStairId) return;
+    const stair = layout.allStaircases.find((s) => s.id === nearbyStairId);
+    if (!stair) return;
+    const otherIdx = stair.lowerFloor === currentFloorIdx ? stair.upperFloor : stair.lowerFloor;
+    if (otherIdx < 0 || otherIdx >= layout.floors.length) return;
+    const other = layout.floors[otherIdx];
+    const controller = new AbortController();
+    // Walk rooms + hallway placements — both can carry paintings.
+    // Dedup by objectKey so a multi-room placement (rare, but cheap to
+    // guard) doesn't enqueue the same thumb twice.
+    const seen = new Set<string>();
+    const enqueue = (objectKey: string | undefined) => {
+      if (!objectKey || seen.has(objectKey)) return;
+      seen.add(objectKey);
+      preloadCached(variantProxyUrl(objectKey, 256, "avif"), gl, controller.signal);
+    };
+    for (const room of other.rooms) {
+      for (const p of room.placements) enqueue(p.artwork.objectKey);
+    }
+    for (const hw of other.hallways) {
+      for (const p of hw.placements) enqueue(p.artwork.objectKey);
+    }
+    return () => {
+      controller.abort();
+    };
+  }, [layout, currentFloorIdx, nearbyStairId, gl]);
+  return null;
 }
 
 /**

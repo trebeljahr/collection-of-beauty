@@ -39,6 +39,13 @@ const TEXTURE_RETRY_DELAY_MS = 500;
 // 2560 px) across the paintings visible from the current room with
 // some headroom for the next room's prefetch.
 const HIRES_CACHE_CAPACITY = 20;
+// Preload pool — holds tiny 256 px thumbs primed for the next floor
+// while the player approaches a staircase. Kept separate from the main
+// `cache` so a busy preload (potentially every painting on the
+// destination floor) can't evict the texture the player is currently
+// staring at. Capacity is generous: 256 thumbs × ~340 KB decoded with
+// mipmaps ≈ 90 MB, dwarfed by the base 960 px cache budget.
+const PRELOAD_CACHE_CAPACITY = 256;
 
 class TextureLRU {
   private map = new Map<string, THREE.Texture>();
@@ -73,10 +80,19 @@ class TextureLRU {
   forEach(fn: (tex: THREE.Texture) => void): void {
     for (const tex of this.map.values()) fn(tex);
   }
+
+  /** Drop an entry without disposing its GPU texture. Used to hand off
+   *  a preloaded thumb into the main cache — the texture itself stays
+   *  alive in the destination LRU. */
+  evictWithoutDispose(key: string): void {
+    this.map.delete(key);
+  }
 }
 
 const cache = new TextureLRU(TEXTURE_CACHE_CAPACITY);
 const inFlight = new Map<string, Promise<THREE.Texture>>();
+const preloadCache = new TextureLRU(PRELOAD_CACHE_CAPACITY);
+const preloadInFlight = new Map<string, Promise<THREE.Texture | null>>();
 
 class TextureHttpError extends Error {
   constructor(
@@ -114,7 +130,12 @@ type UploadTask = {
   renderer: THREE.WebGLRenderer;
   resolve: () => void;
 };
+type UploadPriority = "high" | "low";
+// Two queues, drained high-before-low. "low" backs preload uploads so a
+// floor's worth of thumb uploads can't push past a hi-res upgrade the
+// player is actively walking toward.
 const uploadQueue: UploadTask[] = [];
+const lowUploadQueue: UploadTask[] = [];
 let pumpScheduled = false;
 
 function schedulePump() {
@@ -125,7 +146,7 @@ function schedulePump() {
 
 function pumpUploads() {
   pumpScheduled = false;
-  const task = uploadQueue.shift();
+  const task = uploadQueue.shift() ?? lowUploadQueue.shift();
   if (task) {
     try {
       task.renderer.initTexture(task.tex);
@@ -135,12 +156,17 @@ function pumpUploads() {
     }
     task.resolve();
   }
-  if (uploadQueue.length > 0) schedulePump();
+  if (uploadQueue.length > 0 || lowUploadQueue.length > 0) schedulePump();
 }
 
-function enqueueUpload(tex: THREE.Texture, renderer: THREE.WebGLRenderer): Promise<void> {
+function enqueueUpload(
+  tex: THREE.Texture,
+  renderer: THREE.WebGLRenderer,
+  priority: UploadPriority = "high",
+): Promise<void> {
   return new Promise((resolve) => {
-    uploadQueue.push({ tex, renderer, resolve });
+    const q = priority === "low" ? lowUploadQueue : uploadQueue;
+    q.push({ tex, renderer, resolve });
     schedulePump();
   });
 }
@@ -189,6 +215,18 @@ async function loadTextureCached(
 ): Promise<THREE.Texture> {
   const cached = cache.get(url);
   if (cached) return cached;
+
+  // Promote any matching preloaded thumb into the main cache — the
+  // thumb is about to be displayed, so it belongs in the LRU that
+  // current-floor LodController touches keep alive. Detaches from
+  // preloadCache without disposing (TextureLRU.delete is destructive,
+  // so reach in through get + manual eviction-skip).
+  const preloaded = preloadCache.get(url);
+  if (preloaded) {
+    preloadCache.evictWithoutDispose(url);
+    cache.put(url, preloaded);
+    return preloaded;
+  }
 
   const existing = inFlight.get(url);
   if (existing) return existing;
@@ -337,11 +375,85 @@ export function useCachedTexture(url: string): THREE.Texture {
  *  (with an MRU touch — querying a texture you're about to display
  *  is exactly the right time to pin it), else undefined.
  *
+ *  Also checks the preload pool: if a thumb was primed there for a
+ *  staircase-proximity preload and the painting just mounted, promote
+ *  the texture into the main cache so the LodController's per-tick MRU
+ *  touch keeps it alive. The preload pool itself isn't tickled by the
+ *  LOD loop, so without this hand-off the thumb would age out the
+ *  moment the player walks deeper into the new floor.
+ *
  *  Used by `PaintingPlane` so a return visit installs the cached
  *  texture into the material on the first render — no Suspense
  *  fallback flash. Public counterpart of `getHiRes`. */
 export function peekCached(url: string): THREE.Texture | undefined {
-  return cache.get(url);
+  const cached = cache.get(url);
+  if (cached) return cached;
+  const preloaded = preloadCache.get(url);
+  if (preloaded) {
+    preloadCache.evictWithoutDispose(url);
+    cache.put(url, preloaded);
+    return preloaded;
+  }
+  return undefined;
+}
+
+// ─────────────────────────────────────────────────────────────────────
+// Preload — same fetch + decode + upload pipeline as `loadCached`, but
+// targets the dedicated preload pool and routes the GPU upload through
+// the low-priority queue. Used by FloorPreloader to prime the adjacent
+// floor's 256 px thumbs while the player is still approaching the
+// staircase — by the time the destination floor mounts, the thumbs are
+// resident in the cache and PaintingPlane installs them on first paint
+// instead of flashing the brown swatch.
+//
+// Single attempt (not the 3-retry pipeline that the main loader uses)
+// because a preload miss is not visually fatal — the painting just
+// falls back to its normal cold load. Aborting on `signal` lets the
+// host short-circuit the queue when the player walks away from the
+// stair before the preload finishes.
+// ─────────────────────────────────────────────────────────────────────
+
+export function preloadCached(
+  url: string,
+  renderer: THREE.WebGLRenderer | null,
+  signal?: AbortSignal,
+): Promise<THREE.Texture | null> {
+  if (!url) return Promise.resolve(null);
+  const cached = cache.get(url);
+  if (cached) return Promise.resolve(cached);
+  const alreadyPreloaded = preloadCache.get(url);
+  if (alreadyPreloaded) return Promise.resolve(alreadyPreloaded);
+  const existing = preloadInFlight.get(url);
+  if (existing) return existing;
+
+  const promise = (async () => {
+    try {
+      const res = await fetch(url, { credentials: "omit", signal });
+      if (!res.ok) return null;
+      const blob = await res.blob();
+      if (signal?.aborted) return null;
+      const bitmap = await createImageBitmap(blob, { imageOrientation: "flipY" });
+      if (signal?.aborted) return null;
+      const texture = new THREE.Texture(bitmap);
+      texture.colorSpace = THREE.SRGBColorSpace;
+      texture.anisotropy = aniso(renderer);
+      texture.minFilter = THREE.LinearMipMapLinearFilter;
+      texture.magFilter = THREE.LinearFilter;
+      texture.generateMipmaps = true;
+      texture.flipY = false;
+      texture.needsUpdate = true;
+      if (renderer) await enqueueUpload(texture, renderer, "low");
+      preloadCache.put(url, texture);
+      return texture;
+    } catch {
+      return null;
+    }
+  })().finally(() => {
+    preloadInFlight.delete(url);
+  });
+
+  preloadInFlight.set(url, promise);
+  return promise;
 }
 
 /** Eager async load that goes through the same LRU + upload queue as
@@ -369,6 +481,9 @@ export function markCachedTexturesForReupload(): void {
   hiresCache.forEach((t) => {
     t.needsUpdate = true;
   });
+  preloadCache.forEach((t) => {
+    t.needsUpdate = true;
+  });
 }
 
 export const _textureCacheDebug = {
@@ -386,5 +501,14 @@ export const _textureCacheDebug = {
   },
   get hiresInFlight() {
     return hiresInFlight.size;
+  },
+  get preloadSize() {
+    return preloadCache.size;
+  },
+  get preloadInFlight() {
+    return preloadInFlight.size;
+  },
+  get lowQueued() {
+    return lowUploadQueue.length;
   },
 };
