@@ -33,6 +33,7 @@
     "download:kunstformen": "bash scripts/download-kunstformen.sh",
     "assets:shrink": "node scripts/shrink-sources.mjs",
     "textures": "node scripts/download-textures.mjs",
+    "marketing:images": "node scripts/build-marketing-images.mjs",
     "format": "biome format --write .",
     "lint": "biome lint .",
     "check": "biome check --write .",
