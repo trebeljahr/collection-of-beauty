@@ -56,11 +56,18 @@ function encodePath(segments: string[]): string {
   return segments.map(encodeURIComponent).join("/");
 }
 
+// Guards below return empty string when `objectKey` is missing/empty.
+// The data type says `Artwork.objectKey: string`, but the JSON is
+// generated and can in theory land here with a missing field; without
+// a guard, `.lastIndexOf` / `.split` on null/undefined crashes the
+// page. Empty src renders a broken image, which beats a hard crash.
 export function assetUrl(objectKey: string): string {
+  if (!objectKey) return "";
   return `${ASSETS_BASE_URL}/${encodePath(objectKey.split("/"))}`;
 }
 
 export function assetProxyUrl(objectKey: string): string {
+  if (!objectKey) return "";
   return `${ASSETS_PROXY_BASE_URL}/${encodePath(objectKey.split("/"))}`;
 }
 
@@ -70,6 +77,7 @@ export function assetProxyUrl(objectKey: string): string {
 //   width=960, format="avif"
 //   → "<base>/collection-of-beauty/Dong_Yuan_Mountain_Hall/960.avif"
 export function variantUrl(objectKey: string, width: number, format: VariantFormat): string {
+  if (!objectKey) return "";
   const lastSlash = objectKey.lastIndexOf("/");
   const dir = objectKey.slice(0, lastSlash);
   const filename = objectKey.slice(lastSlash + 1);
@@ -79,6 +87,7 @@ export function variantUrl(objectKey: string, width: number, format: VariantForm
 }
 
 export function variantProxyUrl(objectKey: string, width: number, format: VariantFormat): string {
+  if (!objectKey) return "";
   const lastSlash = objectKey.lastIndexOf("/");
   const dir = objectKey.slice(0, lastSlash);
   const filename = objectKey.slice(lastSlash + 1);
@@ -97,5 +106,6 @@ export function variantSrcSet(
   format: VariantFormat,
   widths: readonly number[] = VARIANT_WIDTHS,
 ): string {
+  if (!objectKey) return "";
   return widths.map((w) => `${variantUrl(objectKey, w, format)} ${w}w`).join(", ");
 }
