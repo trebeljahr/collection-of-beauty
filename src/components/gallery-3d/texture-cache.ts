@@ -23,6 +23,62 @@
 // Paintings call `loadTextureCached(url, renderer)` instead of
 // `useLoader(TextureLoader, url)`. The result is Suspense-friendly via
 // the bundled `useCachedTexture` hook.
+//
+// ─────────────────────────────────────────────────────────────────────
+// Two prefetch pipelines share this module. They are non-overlapping
+// by design — read this before touching either or adding a third.
+// ─────────────────────────────────────────────────────────────────────
+//
+//   A. Per-painting LOD (painting.tsx + lod-controller.tsx)
+//      Drives the *current floor's* paintings. The LodController ticks
+//      at ~5 Hz, walks the painting registry, and per-painting:
+//        • MRU-touches the 960 px base in `cache` so it can't age out
+//          while mounted (a busy floor mounts > 96 paintings — without
+//          this the LRU would dispose textures the player is still
+//          looking at).
+//        • Prefetches the next-higher LOD tier into `hiresCache` as the
+//          player crosses each tier's `prefetchSq` radius, and upgrades
+//          `material.map` once the tier is resident. Demotes back on
+//          retreat past `releaseSq` (hysteresis).
+//      Capacity-wise this pipeline owns `cache` (96, base/thumb) and
+//      `hiresCache` (20, hi-res tiers). Both use the *high* upload
+//      queue. Eviction is per-pool LRU with disposal; the per-tick MRU
+//      touch is what keeps in-view textures from being evicted.
+//
+//   B. Staircase-approach preload (FloorPreloader in index.tsx)
+//      Drives the *adjacent floor's* thumbs before the player crosses
+//      the stair. The Player edge-fires `nearbyStairId` when the camera
+//      crosses STAIR_PROXIMITY_RADIUS (12 m) around any stair; the
+//      FloorPreloader walks the connected floor's placements and primes
+//      every 256 px AVIF thumb into `preloadCache` via the *low* upload
+//      queue. None of those paintings are mounted yet (`FloorScene`
+//      keeps adjacent floors at `showOnly="stairwell"` until the player
+//      actually rides the stair), so pipeline A *cannot* be touching
+//      them — there are no PaintingPlanes to fire useLayoutEffects yet.
+//      When the player rides the stair, the destination floor upgrades
+//      to full geometry, paintings mount, and their useLayoutEffect
+//      calls `peekCached(thumbUrl)` → finds the preloaded thumb →
+//      promotes it into `cache` (evictWithoutDispose + put) → installs
+//      it on `material.map` *before first paint*. No brown-swatch flash.
+//
+// Invariants this module enforces:
+//
+//   • Three separate Maps (`cache`, `hiresCache`, `preloadCache`). No
+//     cross-pool eviction — a preload burst of an entire floor's worth
+//     of thumbs (256 cap) cannot push out current-floor base textures.
+//   • Upload queue is high-before-low. A floor-wide preload (potentially
+//     hundreds of `initTexture` calls) cannot delay a hi-res upgrade the
+//     player is actively walking toward.
+//   • Promotion is destructive on the preload side only: the thumb's
+//     GPU texture survives via `evictWithoutDispose`, and from that
+//     point the LodController's per-tick MRU touch keeps it alive in
+//     `cache`. The preload pool itself isn't tickled by the LOD loop,
+//     so without the handoff a promoted-not-removed thumb would age out
+//     the moment the player walked deeper into the new floor.
+//
+// If you add a third prefetch path, decide up front which pool it owns
+// and whether it should ride the high or low upload queue — the
+// invariants above only hold for these two callers.
 
 import { useThree } from "@react-three/fiber";
 import { useMemo } from "react";
