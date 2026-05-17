@@ -63,8 +63,10 @@ const artworkById = new Map(artworks.map((a) => [a.id, a]));
 
 function bestVariant(objectKey: string, widths: number[] | null): string | null {
   if (!widths?.length) return null;
+  // Use avif; the shrink pipeline emits webp only at width 1280 for many
+  // works, so a webp request at 480/640 returns 404.
   const target = [640, 480, 960, 1280].find((w) => widths.includes(w)) ?? widths[0];
-  return variantUrl(objectKey, target, "webp");
+  return variantUrl(objectKey, target, "avif");
 }
 
 function distanceTone(d: number | null): string {
