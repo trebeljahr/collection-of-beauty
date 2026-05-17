@@ -93,17 +93,28 @@ export default async function ArtworkPage({ params }: { params: Promise<Params> 
     <div className="mx-auto max-w-6xl px-4 py-8">
       <script {...jsonLdScriptProps(artworkJsonLd(art))} />
       <div className="mb-6 flex items-center justify-between text-sm text-[var(--muted-foreground)]">
-        <Link href="/" className="hover:underline">
+        <Link
+          href="/"
+          className="rounded-sm hover:underline focus:outline-none focus-visible:ring-2 focus-visible:ring-[var(--ring)]"
+        >
           ← Back to gallery
         </Link>
         <div className="flex items-center gap-3">
           {prev && (
-            <Link href={`/artwork/${prev.id}`} className="hover:underline" title={prev.title}>
+            <Link
+              href={`/artwork/${prev.id}`}
+              className="rounded-sm hover:underline focus:outline-none focus-visible:ring-2 focus-visible:ring-[var(--ring)]"
+              title={prev.title}
+            >
               ← Previous
             </Link>
           )}
           {next && (
-            <Link href={`/artwork/${next.id}`} className="hover:underline" title={next.title}>
+            <Link
+              href={`/artwork/${next.id}`}
+              className="rounded-sm hover:underline focus:outline-none focus-visible:ring-2 focus-visible:ring-[var(--ring)]"
+              title={next.title}
+            >
               Next →
             </Link>
           )}
@@ -135,7 +146,7 @@ export default async function ArtworkPage({ params }: { params: Promise<Params> 
               <p className="text-lg">
                 <Link
                   href={`/artist/${art.artistSlug}`}
-                  className="underline-offset-4 hover:underline"
+                  className="rounded-sm underline-offset-4 hover:underline focus:outline-none focus-visible:ring-2 focus-visible:ring-[var(--ring)]"
                 >
                   {art.artist}
                 </Link>
@@ -223,7 +234,7 @@ function AttributionBlock({ artwork }: { artwork: Artwork }) {
           href={artwork.commonsUrl}
           target="_blank"
           rel="noreferrer"
-          className="underline underline-offset-2 hover:text-[var(--foreground)]"
+          className="rounded-sm underline underline-offset-2 hover:text-[var(--foreground)] focus:outline-none focus-visible:ring-2 focus-visible:ring-[var(--ring)]"
         >
           Wikimedia Commons
         </a>
@@ -312,7 +323,7 @@ function ExternalLink({ href, children }: { href: string; children: ReactNode })
       href={href}
       target="_blank"
       rel="noreferrer"
-      className="underline underline-offset-2 hover:text-[var(--foreground)]"
+      className="rounded-sm underline underline-offset-2 hover:text-[var(--foreground)] focus:outline-none focus-visible:ring-2 focus-visible:ring-[var(--ring)]"
     >
       {children}
     </a>
@@ -336,7 +347,7 @@ function LicenseInline({ license }: { license: string | null | undefined }) {
       href={info.url}
       target="_blank"
       rel="license noreferrer"
-      className="underline underline-offset-2 hover:text-[var(--foreground)]"
+      className="rounded-sm underline underline-offset-2 hover:text-[var(--foreground)] focus:outline-none focus-visible:ring-2 focus-visible:ring-[var(--ring)]"
     >
       {info.short}
     </a>

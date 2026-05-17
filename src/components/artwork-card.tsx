@@ -33,7 +33,7 @@ export function ArtworkCard({ artwork, priority }: Props) {
           {artwork.artist ? (
             <Link
               href={`/artist/${artwork.artistSlug}`}
-              className="relative z-20 underline-offset-2 hover:underline"
+              className="relative z-20 rounded-sm underline-offset-2 hover:underline focus:outline-none focus-visible:ring-2 focus-visible:ring-[var(--ring)]"
             >
               {artwork.artist}
             </Link>

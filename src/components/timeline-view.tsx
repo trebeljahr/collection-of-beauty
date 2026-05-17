@@ -73,15 +73,18 @@ export function TimelineView({ artworks, movements }: Props) {
     <div className="space-y-8">
       <div className="flex flex-col gap-3 rounded-xl border border-[var(--border)] bg-[var(--card)] p-4 md:flex-row md:items-center">
         <Input
+          type="search"
+          aria-label="Filter timeline by title, artist, or nationality"
           placeholder="Filter by title, artist, nationality..."
           value={query}
           onChange={(e) => setQuery(e.target.value)}
           className="md:max-w-md"
         />
         <select
+          aria-label="Filter by movement"
           value={movement}
           onChange={(e) => setMovement(e.target.value)}
-          className="h-9 rounded-md border border-[var(--input)] bg-transparent px-2 text-sm"
+          className="h-9 rounded-md border border-[var(--input)] bg-transparent px-2 text-sm focus:outline-none focus-visible:ring-2 focus-visible:ring-[var(--ring)]"
         >
           <option value="">All movements</option>
           {movements.map((m) => (
@@ -105,7 +108,7 @@ export function TimelineView({ artworks, movements }: Props) {
             <a
               key={b.decade}
               href={`#decade-${b.decade}`}
-              className="flex-1 min-w-[3px] rounded-t-sm bg-[var(--primary)]/70 transition-colors hover:bg-[var(--primary)]"
+              className="flex-1 min-w-[3px] rounded-t-sm bg-[var(--primary)]/70 transition-colors hover:bg-[var(--primary)] focus:outline-none focus-visible:ring-2 focus-visible:ring-[var(--ring)]"
               style={{
                 height: `${(b.works.length / maxInBucket) * 100}%`,
               }}
@@ -165,7 +168,7 @@ export function TimelineView({ artworks, movements }: Props) {
                           {" · "}
                           <Link
                             href={`/artist/${a.artistSlug}`}
-                            className="relative z-20 underline-offset-2 hover:underline"
+                            className="relative z-20 rounded-sm underline-offset-2 hover:underline focus:outline-none focus-visible:ring-2 focus-visible:ring-[var(--ring)]"
                           >
                             {a.artist}
                           </Link>

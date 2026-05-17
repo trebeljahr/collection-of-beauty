@@ -163,7 +163,10 @@ export function SiteNav() {
   return (
     <header className="sticky top-0 z-40 border-b border-[var(--border)] bg-[var(--background)]/80 backdrop-blur">
       <nav className="mx-auto flex max-w-7xl items-center justify-between px-4 py-3">
-        <Link href="/" className="font-serif text-lg tracking-wide hover:opacity-70">
+        <Link
+          href="/"
+          className="rounded-sm font-serif text-lg tracking-wide hover:opacity-70 focus:outline-none focus-visible:ring-2 focus-visible:ring-[var(--ring)] focus-visible:ring-offset-2 focus-visible:ring-offset-[var(--background)]"
+        >
           Collection of Beauty
         </Link>
 
@@ -177,7 +180,7 @@ export function SiteNav() {
               key={l.href}
               href={l.href}
               aria-current={pathname === l.href ? "page" : undefined}
-              className="rounded-md px-3 py-1.5 hover:bg-[var(--accent)] aria-[current=page]:bg-[var(--accent)]"
+              className="rounded-md px-3 py-1.5 hover:bg-[var(--accent)] focus:outline-none focus-visible:ring-2 focus-visible:ring-[var(--ring)] aria-[current=page]:bg-[var(--accent)]"
             >
               {l.label}
             </Link>
@@ -187,7 +190,7 @@ export function SiteNav() {
         <button
           ref={triggerRef}
           type="button"
-          className="-mr-2 inline-flex size-11 items-center justify-center rounded-md hover:bg-[var(--accent)] md:hidden"
+          className="-mr-2 inline-flex size-11 items-center justify-center rounded-md hover:bg-[var(--accent)] focus:outline-none focus-visible:ring-2 focus-visible:ring-[var(--ring)] md:hidden"
           aria-label={open ? "Close navigation" : "Open navigation"}
           aria-expanded={open}
           aria-controls="site-nav-modal"
@@ -235,14 +238,17 @@ export function SiteNav() {
           style={{ minHeight: "100dvh" }}
         >
           <div className="mx-auto flex w-full max-w-md items-center justify-between px-5 py-4">
-            <Link href="/" className="font-serif text-base tracking-wide hover:opacity-70">
+            <Link
+              href="/"
+              className="rounded-sm font-serif text-base tracking-wide hover:opacity-70 focus:outline-none focus-visible:ring-2 focus-visible:ring-[var(--ring)]"
+            >
               Collection of Beauty
             </Link>
             <button
               type="button"
               onClick={() => setOpen(false)}
               aria-label="Close navigation"
-              className="-mr-2 inline-flex size-11 items-center justify-center rounded-md hover:bg-[var(--accent)]"
+              className="-mr-2 inline-flex size-11 items-center justify-center rounded-md hover:bg-[var(--accent)] focus:outline-none focus-visible:ring-2 focus-visible:ring-[var(--ring)]"
             >
               <svg
                 xmlns="http://www.w3.org/2000/svg"
@@ -272,7 +278,7 @@ export function SiteNav() {
                       href={l.href}
                       onClick={is3D ? handleClick3D : undefined}
                       aria-current={active ? "page" : undefined}
-                      className={`group flex items-baseline justify-between gap-4 rounded-lg border border-transparent px-4 py-3.5 transition hover:border-[var(--border)] hover:bg-[var(--accent)] ${
+                      className={`group flex items-baseline justify-between gap-4 rounded-lg border border-transparent px-4 py-3.5 transition hover:border-[var(--border)] hover:bg-[var(--accent)] focus:outline-none focus-visible:ring-2 focus-visible:ring-[var(--ring)] ${
                         active ? "border-[var(--border)] bg-[var(--accent)]" : ""
                       }`}
                     >

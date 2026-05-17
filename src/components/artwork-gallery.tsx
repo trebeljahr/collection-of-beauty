@@ -113,13 +113,15 @@ export function ArtworkGallery({
         spacing={6}
         sizes={{ size: "640px" }}
         render={{
-          link: ({ href, children, ...rest }, { photo }) => {
+          link: ({ href, children, className, ...rest }, { photo }) => {
             const p = photo as GalleryPhoto;
             return (
               <Link
                 {...rest}
                 href={p.href}
+                aria-label={p.alt}
                 title={`${p.title}${p.artist ? " — " + p.artist : ""}${p.year ? " (" + p.year + ")" : ""}`}
+                className={`${className ?? ""} rounded-sm focus:outline-none focus-visible:ring-2 focus-visible:ring-[var(--ring)] focus-visible:ring-offset-2 focus-visible:ring-offset-[var(--background)]`.trim()}
               >
                 {children}
               </Link>
