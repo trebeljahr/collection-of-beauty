@@ -99,6 +99,38 @@
   }
 }
 
+/* Magazine-style prose for the newsletter editorial body. Tailwind v4
+   strips its default paragraph spacing inside `.prose-*` containers
+   when you don't include @tailwindcss/typography, so markdown
+   paragraphs collapse with zero gap. These rules give the body real
+   vertical rhythm: a generous lead paragraph, ~1em gaps between
+   paragraphs, italic for emphasis, restrained link underlines. Scoped
+   to `.prose-newsletter` so it can't bleed into other markdown
+   surfaces. */
+.prose-newsletter {
+  font-size: 1.0625rem;
+  line-height: 1.7;
+}
+.prose-newsletter > * + * {
+  margin-top: 1.25em;
+}
+.prose-newsletter > p:first-child {
+  font-size: 1.1875rem;
+  line-height: 1.6;
+  color: var(--foreground);
+}
+.prose-newsletter em,
+.prose-newsletter i {
+  font-style: italic;
+}
+.prose-newsletter a {
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+.prose-newsletter a:hover {
+  opacity: 0.7;
+}
+
 /* Skip-to-content link — visually hidden until it receives keyboard
    focus, then pinned to the top-left so a keyboard user can jump
    straight to <main> without tabbing through the header. */

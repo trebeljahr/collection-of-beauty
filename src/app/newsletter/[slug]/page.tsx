@@ -57,8 +57,8 @@ export default async function EditionPage({ params }: { params: Promise<Params> 
   const resolved = resolveArtworks(edition);
 
   return (
-    <article className="mx-auto max-w-3xl px-4 py-10 md:py-16">
-      <header className="mb-10">
+    <article className="mx-auto max-w-3xl px-4 py-12 md:py-20">
+      <header className="mb-14 md:mb-20">
         <div className="flex flex-wrap items-baseline gap-x-3 gap-y-1 text-xs uppercase tracking-[0.18em] text-[var(--muted-foreground)]">
           <span>Issue {String(edition.number).padStart(4, "0")}</span>
           <span aria-hidden="true">·</span>
@@ -75,9 +75,11 @@ export default async function EditionPage({ params }: { params: Promise<Params> 
             </span>
           )}
         </div>
-        <h1 className="mt-3 font-serif text-3xl md:text-5xl tracking-tight">{edition.title}</h1>
+        <h1 className="mt-5 font-serif text-3xl md:text-5xl tracking-tight leading-tight">
+          {edition.title}
+        </h1>
         {edition.tags.length > 0 && (
-          <ul className="mt-4 flex flex-wrap gap-1.5 text-[10px] uppercase tracking-widest text-[var(--muted-foreground)]">
+          <ul className="mt-6 flex flex-wrap gap-1.5 text-[10px] uppercase tracking-widest text-[var(--muted-foreground)]">
             {edition.tags.map((t) => (
               <li key={t} className="rounded border border-[var(--border)] px-1.5 py-0.5">
                 {t}
@@ -88,12 +90,12 @@ export default async function EditionPage({ params }: { params: Promise<Params> 
       </header>
 
       {edition.body.length > 0 && (
-        <section className="prose-newsletter mb-12 text-[var(--foreground)] leading-relaxed">
+        <section className="prose-newsletter mb-20 md:mb-28 text-[var(--foreground)]">
           <Markdown remarkPlugins={[remarkGfm]}>{edition.body}</Markdown>
         </section>
       )}
 
-      <section className="space-y-16">
+      <section className="space-y-24 md:space-y-32">
         {resolved.map(({ artwork, note }) => (
           <figure key={artwork.id} className="m-0">
             <Link
@@ -110,8 +112,8 @@ export default async function EditionPage({ params }: { params: Promise<Params> 
                 className="w-full h-auto"
               />
             </Link>
-            <figcaption className="mt-4">
-              <h2 className="font-serif text-2xl">
+            <figcaption className="mt-6">
+              <h2 className="font-serif text-2xl md:text-3xl leading-tight">
                 <Link
                   href={`/artwork/${artwork.id}`}
                   className="hover:opacity-70 transition-opacity"
@@ -119,18 +121,22 @@ export default async function EditionPage({ params }: { params: Promise<Params> 
                   {artwork.title}
                 </Link>
               </h2>
-              <p className="mt-1 text-sm text-[var(--muted-foreground)]">
+              <p className="mt-2 text-sm text-[var(--muted-foreground)]">
                 {artwork.artist ?? "Unknown artist"}
                 {artwork.year ? ` · ${artwork.year}` : ""}
                 {artwork.movement ? ` · ${artwork.movement}` : ""}
               </p>
-              {note && <p className="mt-3 text-[var(--foreground)] leading-relaxed">{note}</p>}
+              {note && (
+                <p className="mt-5 text-[var(--foreground)] leading-[1.75] text-[1.0625rem]">
+                  {note}
+                </p>
+              )}
             </figcaption>
           </figure>
         ))}
       </section>
 
-      <footer className="mt-16 border-t border-[var(--border)] pt-8 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 text-sm">
+      <footer className="mt-24 md:mt-32 border-t border-[var(--border)] pt-10 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 text-sm">
         <Link href="/newsletter" className="underline underline-offset-2 hover:opacity-70">
           ← All editions
         </Link>

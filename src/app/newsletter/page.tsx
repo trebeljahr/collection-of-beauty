@@ -21,14 +21,16 @@ export default function NewsletterIndexPage() {
   const editions = loadUiVisibleEditions().slice().reverse();
 
   return (
-    <div className="mx-auto max-w-3xl px-4 py-10 md:py-16">
-      <header className="mb-10">
-        <h1 className="font-serif text-3xl md:text-4xl">A Drop of Beauty</h1>
-        <p className="mt-3 text-[var(--muted-foreground)]">
+    <div className="mx-auto max-w-3xl px-4 py-12 md:py-20">
+      <header className="mb-14 md:mb-20">
+        <h1 className="font-serif text-3xl md:text-5xl tracking-tight leading-tight">
+          A Drop of Beauty
+        </h1>
+        <p className="mt-5 text-[var(--muted-foreground)] leading-relaxed text-lg">
           The {SITE_NAME} newsletter. Each Sunday edition picks five public-domain works around a
           single idea — a movement, a motif, a palette, a moment in time.
         </p>
-        <p className="mt-4 flex flex-wrap items-center gap-x-4 gap-y-1 text-sm">
+        <p className="mt-6 flex flex-wrap items-center gap-x-4 gap-y-1 text-sm">
           <Link href="/sub" className="underline underline-offset-2 hover:opacity-70">
             Subscribe by email →
           </Link>
@@ -52,14 +54,14 @@ export default function NewsletterIndexPage() {
           {editions.map((ed) => {
             const cover = resolveEditionCover(ed);
             return (
-              <li key={ed.fileSlug} className="py-6">
+              <li key={ed.fileSlug} className="py-10 md:py-12">
                 <Link
                   href={`/newsletter/${ed.fileSlug}`}
                   className="group block rounded-md focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--ring)]"
                 >
-                  <div className="flex flex-col gap-4 sm:flex-row">
+                  <div className="flex flex-col gap-6 sm:flex-row sm:gap-8">
                     {cover && (
-                      <div className="shrink-0 overflow-hidden rounded-md border border-[var(--border)] sm:w-40">
+                      <div className="shrink-0 overflow-hidden rounded-md border border-[var(--border)] sm:w-48">
                         {/* eslint-disable-next-line @next/next/no-img-element */}
                         <img
                           src={cover.url}
@@ -86,14 +88,14 @@ export default function NewsletterIndexPage() {
                           </span>
                         )}
                       </div>
-                      <h2 className="mt-2 font-serif text-2xl transition-opacity group-hover:opacity-70">
+                      <h2 className="mt-3 font-serif text-2xl md:text-3xl leading-tight transition-opacity group-hover:opacity-70">
                         {ed.title}
                       </h2>
-                      <p className="mt-2 text-[var(--muted-foreground)] leading-relaxed">
+                      <p className="mt-4 text-[var(--muted-foreground)] leading-relaxed">
                         {ed.excerpt}
                       </p>
                       {ed.tags.length > 0 && (
-                        <ul className="mt-3 flex flex-wrap gap-1.5 text-[10px] uppercase tracking-widest text-[var(--muted-foreground)]">
+                        <ul className="mt-5 flex flex-wrap gap-1.5 text-[10px] uppercase tracking-widest text-[var(--muted-foreground)]">
                           {ed.tags.map((t) => (
                             <li
                               key={t}
