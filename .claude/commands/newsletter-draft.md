@@ -44,7 +44,11 @@ Short declarative sentences about what is on the canvas. Fragments OK. One concr
 
 ### Per-artwork notes
 
-One to three sentences, each anchored in a thing you can see in the picture. The note is a pointer to one specific image, not a summary of the painting. If the note's last sentence tries to explain why the image matters, delete it.
+A short paragraph of three to five sentences. The structure: one or two sentences anchored in something you can see in the picture, then two or three sentences of a documented story or fact about how the work came to be. Examples of usable facts: a line from the artist's own letters; a known exhibition controversy; a technical decision visible in x-ray or infrared studies; the identity of a sitter or model; a documented event in the artist's life that produced the work; a verifiable detail about materials, dates, or location.
+
+**Every fact must be checkable in at least one of:** a museum collection page for the work itself, the artist's published correspondence or diaries, a peer-reviewed monograph, or a Wikipedia article whose claim cites a real source you have read. Vague provenance ("said to have inspired", "is thought to depict", "is believed to be") is forbidden — either the claim is sourced or it stays out. If a fact sounds too perfect (a romantic backstory, a tidy one-line origin), assume it is apocryphal and verify before keeping.
+
+Do not end the note with an interpretive sentence about what the work *means* or what it "asks" of us. End on a concrete fact, a date, a quote, an object. The note is a pointer to one specific image plus one verifiable story; it is never a summary of the painting's significance.
 
 ## Steps
 

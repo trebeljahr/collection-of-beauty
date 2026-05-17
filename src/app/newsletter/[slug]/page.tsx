@@ -95,7 +95,7 @@ export default async function EditionPage({ params }: { params: Promise<Params> 
         </section>
       )}
 
-      <section className="flex flex-col gap-28 md:gap-40">
+      <section className="flex flex-col gap-7 md:gap-10">
         {resolved.map(({ artwork, note }) => (
           <figure key={artwork.id} className="m-0">
             <Link
