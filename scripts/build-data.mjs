@@ -719,6 +719,56 @@ async function loadRealDimensions() {
   return m;
 }
 
+// English-title overrides for foreign-script or romaji-stub titles.
+// Keyed by `<folder>/<filename>` (matches the objectKey emitted below).
+// Optional — when the file isn't present, every artwork ends up with
+// `englishTitle: null` and the UI falls back to the cleaned source
+// title. Used for ukiyo-e series like "Tabi miyage dai sanshū" where
+// the source title is just the series name without a painting label,
+// plus pure Cyrillic/CJK titles that have no Latin form upstream.
+async function loadTitleOverrides() {
+  const p = path.join(META, "title-overrides.json");
+  if (!existsSync(p)) {
+    console.log(`[build-data] title overrides: skipped (no metadata/title-overrides.json)`);
+    return new Map();
+  }
+  const raw = JSON.parse(await readFile(p, "utf8"));
+  const m = new Map();
+  for (const [key, value] of Object.entries(raw)) {
+    if (typeof value !== "string") continue;
+    const v = value.trim();
+    if (!v) continue;
+    // Source filenames on disk mix NFC and NFD (combining-macron) forms;
+    // normalize both sides to NFC so lookup is form-insensitive.
+    m.set(key.normalize("NFC"), v);
+  }
+  console.log(`[build-data] title overrides: ${m.size}`);
+  return m;
+}
+
+// Original (pre-conversion) date strings, keyed by Wikimedia metadata
+// `filename`. Populated for entries whose `date_created` was a Japanese
+// era expression (e.g. "大正15年出版") that `scripts/clean-japanese-dates.mjs`
+// rewrote to a Gregorian year. Surfaced as `originalDateString` so the
+// detail page can show the source date alongside the cleaned form.
+async function loadDateOriginals() {
+  const p = path.join(META, "date-originals.json");
+  if (!existsSync(p)) {
+    console.log(`[build-data] date originals: skipped (no metadata/date-originals.json)`);
+    return new Map();
+  }
+  const raw = JSON.parse(await readFile(p, "utf8"));
+  const m = new Map();
+  for (const [fname, original] of Object.entries(raw)) {
+    if (typeof original !== "string") continue;
+    const t = original.trim();
+    if (!t) continue;
+    m.set(fname.normalize("NFC"), t);
+  }
+  console.log(`[build-data] date originals: ${m.size}`);
+  return m;
+}
+
 // Curator overrides — manually-written or LLM-generated English
 // descriptions keyed by artwork id. Loaded from
 // metadata/curator-descriptions.json (optional). Used for entries
@@ -773,6 +823,8 @@ async function main() {
   const realDimensions = await loadRealDimensions();
   const curatorDescriptions = await loadCuratorDescriptions();
   const provenanceMap = await loadProvenance();
+  const titleOverrides = await loadTitleOverrides();
+  const dateOriginals = await loadDateOriginals();
 
   const artworks = [];
   const artistAggregates = new Map();
@@ -844,16 +896,21 @@ async function main() {
       const dims = await dimensionsFor(folderKey, fname);
       const real = realDimensions.get(id) || null;
       const variantWidths = variantWidthsFor(folderKey, fname);
+      const objectKey = `${folderKey}/${fname}`;
+      const englishTitle = titleOverrides.get(objectKey.normalize("NFC")) ?? null;
+      const originalDateString = dateOriginals.get(fname.normalize("NFC")) ?? null;
       artworks.push({
         id,
         title,
+        englishTitle,
         artist: artistName,
         artistSlug,
         year,
         dateCreated: stripQuickStatements(entry.date_created) || null,
+        originalDateString,
         description: curatorDescriptions.get(id) ?? firstLineDescription(entry.description),
         folder: folderKey,
-        objectKey: `${folderKey}/${fname}`,
+        objectKey,
         width: dims?.width ?? null,
         height: dims?.height ?? null,
         realDimensions: real,
@@ -893,8 +950,8 @@ async function main() {
         }
         if (!agg.coverFileUrl) {
           agg.coverFileUrl = entry.source.file_url;
-          agg.coverObjectKey = `${folderKey}/${fname}`;
-          agg.coverTitle = title;
+          agg.coverObjectKey = objectKey;
+          agg.coverTitle = englishTitle ?? title;
           agg.coverVariantWidths = variantWidths.length > 0 ? variantWidths : null;
         }
       }

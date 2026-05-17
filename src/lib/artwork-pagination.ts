@@ -133,7 +133,7 @@ function normalizeQuery(query: string | undefined): string[] {
 
 function matchesQuery(artwork: ArtworkListing, terms: string[]): boolean {
   const haystack = foldText(
-    [artwork.title, artwork.artist, artwork.movement, artwork.nationality]
+    [artwork.title, artwork.englishTitle, artwork.artist, artwork.movement, artwork.nationality]
       .filter(Boolean)
       .join(" "),
   );

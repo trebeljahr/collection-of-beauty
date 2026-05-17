@@ -10,6 +10,7 @@ import { buttonVariants } from "@/components/ui/button";
 import {
   type Artwork,
   artworks,
+  displayTitle,
   getArtist,
   getArtwork,
   getArtworkListingsByArtist,
@@ -50,12 +51,13 @@ export async function generateMetadata({ params }: { params: Promise<Params> }):
     art.movement,
   ].filter(Boolean);
   const byline = bylineBits.join(" · ");
-  const title = art.artist ? `${art.title} — ${art.artist}` : art.title;
+  const displayed = displayTitle(art);
+  const title = art.artist ? `${displayed} — ${art.artist}` : displayed;
   const description = art.description
     ? `${art.description}${byline ? ` (${byline})` : ""}`
     : byline
-      ? `${art.title} — ${byline}. From the Collection of Beauty, a public-domain art gallery.`
-      : `${art.title}. From the Collection of Beauty, a public-domain art gallery.`;
+      ? `${displayed} — ${byline}. From the Collection of Beauty, a public-domain art gallery.`
+      : `${displayed}. From the Collection of Beauty, a public-domain art gallery.`;
 
   const images = ogImagesForArtwork(art);
 
@@ -95,6 +97,7 @@ export default async function ArtworkPage({ params }: { params: Promise<Params> 
   const idx = artworks.findIndex((a) => a.id === art.id);
   const prev = idx > 0 ? artworks[idx - 1] : null;
   const next = idx < artworks.length - 1 ? artworks[idx + 1] : null;
+  const displayed = displayTitle(art);
 
   return (
     <div className="mx-auto max-w-6xl px-4 py-8">
@@ -111,7 +114,7 @@ export default async function ArtworkPage({ params }: { params: Promise<Params> 
             <Link
               href={`/artwork/${prev.id}`}
               className="rounded-sm hover:underline focus:outline-none focus-visible:ring-2 focus-visible:ring-[var(--ring)]"
-              title={prev.title}
+              title={displayTitle(prev)}
             >
               ← Previous
             </Link>
@@ -120,7 +123,7 @@ export default async function ArtworkPage({ params }: { params: Promise<Params> 
             <Link
               href={`/artwork/${next.id}`}
               className="rounded-sm hover:underline focus:outline-none focus-visible:ring-2 focus-visible:ring-[var(--ring)]"
-              title={next.title}
+              title={displayTitle(next)}
             >
               Next →
             </Link>
@@ -136,6 +139,7 @@ export default async function ArtworkPage({ params }: { params: Promise<Params> 
               objectKey: art.objectKey,
               variantWidths: art.variantWidths,
               title: art.title,
+              englishTitle: art.englishTitle,
               artist: art.artist,
               year: art.year,
               width: art.width,
@@ -149,7 +153,12 @@ export default async function ArtworkPage({ params }: { params: Promise<Params> 
 
         <aside className="space-y-5">
           <div className="space-y-1">
-            <h1 className="font-serif text-2xl md:text-3xl">{art.title}</h1>
+            <h1 className="font-serif text-2xl md:text-3xl">{displayed}</h1>
+            {art.englishTitle && art.englishTitle !== art.title && (
+              <p className="font-serif text-base italic text-[var(--muted-foreground)]" lang="ja">
+                {art.title}
+              </p>
+            )}
             {art.artist && (
               <p className="text-lg">
                 <Link
@@ -166,7 +175,14 @@ export default async function ArtworkPage({ params }: { params: Promise<Params> 
                 )}
               </p>
             )}
-            {art.dateCreated && <p className="text-[var(--muted-foreground)]">{art.dateCreated}</p>}
+            {art.dateCreated && (
+              <p className="text-[var(--muted-foreground)]">
+                {art.dateCreated}
+                {art.originalDateString && art.originalDateString !== art.dateCreated && (
+                  <span className="ml-2 italic">({art.originalDateString})</span>
+                )}
+              </p>
+            )}
           </div>
 
           <div className="flex flex-wrap items-center gap-2">
@@ -185,7 +201,7 @@ export default async function ArtworkPage({ params }: { params: Promise<Params> 
             <a
               href={suggestFixUrl({
                 id: art.id,
-                title: art.title,
+                title: displayed,
                 artist: art.artist,
                 sourceUrl: art.commonsUrl,
               })}
@@ -225,7 +241,7 @@ export default async function ArtworkPage({ params }: { params: Promise<Params> 
  * `credit` string with footnote refs cleaned up.
  */
 function AttributionBlock({ artwork }: { artwork: Artwork }) {
-  const titleText = artwork.title;
+  const titleText = displayTitle(artwork);
   const author = artwork.artist ?? "Unknown artist";
   const prov = artwork.provenance;
   const fallbackCredit = !prov ? meaningfulCredit(artwork.credit) : null;

@@ -5,7 +5,7 @@ import movementsJson from "@/data/movements.json";
 import summaryJson from "@/data/summary.json";
 import { isNsfwTitle } from "@/lib/nsfw";
 
-export { artworkAlt } from "@/lib/artwork-format";
+export { artworkAlt, displayTitle } from "@/lib/artwork-format";
 
 export type Provenance = {
   /** Wikidata QID for the painting itself (e.g. "Q12418" for Mona Lisa).
@@ -31,10 +31,21 @@ export type Provenance = {
 export type Artwork = {
   id: string;
   title: string;
+  /** Curator-supplied English title used in preference to `title` when the
+   *  source title is romaji/native script or a non-Latin original (e.g.
+   *  "Tabi miyage dai sanshū" → "Souvenirs of Travel III: Tazawako
+   *  Gozanoishi"). Populated from `metadata/title-overrides.json` keyed
+   *  by `<folder>/<filename>`. */
+  englishTitle: string | null;
   artist: string | null;
   artistSlug: string;
   year: number | null;
   dateCreated: string | null;
+  /** Raw non-Gregorian date string before `scripts/clean-japanese-dates.mjs`
+   *  rewrote it (e.g. "大正15年出版" for the cleaned "1926"). Preserved for
+   *  transparency on the artwork detail page; null when no conversion
+   *  happened. Loaded from `metadata/date-originals.json`. */
+  originalDateString: string | null;
   description: string | null;
   folder: string;
   objectKey: string;
@@ -111,6 +122,7 @@ export type ArtworkListing = Pick<
   Artwork,
   | "id"
   | "title"
+  | "englishTitle"
   | "artist"
   | "artistSlug"
   | "year"
@@ -131,6 +143,7 @@ export type ArtworkListing = Pick<
 const _artworkListings: ArtworkListing[] = (artworksJson as Artwork[]).map((a) => ({
   id: a.id,
   title: a.title,
+  englishTitle: a.englishTitle,
   artist: a.artist,
   artistSlug: a.artistSlug,
   year: a.year,

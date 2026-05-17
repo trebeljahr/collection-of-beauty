@@ -12,6 +12,7 @@ function makeArtwork(
   return {
     id: "test",
     title: "test",
+    englishTitle: null,
     artist: null,
     artistSlug: "unknown",
     year: null,

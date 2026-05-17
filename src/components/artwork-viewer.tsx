@@ -2,7 +2,7 @@
 
 import { useRouter } from "next/navigation";
 import { useEffect } from "react";
-import { artworkAlt } from "@/lib/artwork-format";
+import { artworkAlt, displayTitle } from "@/lib/artwork-format";
 import { useLightbox } from "./lightbox-provider";
 import { NsfwScrim } from "./nsfw-scrim";
 import { ResponsiveImage } from "./responsive-image";
@@ -12,6 +12,7 @@ type ArtworkLike = {
   objectKey: string;
   variantWidths: readonly number[] | null;
   title: string;
+  englishTitle: string | null;
   artist: string | null;
   year: number | null;
   width: number | null;
@@ -68,7 +69,7 @@ export function ArtworkViewer({ art, prevId, nextId }: Props) {
         type="button"
         onClick={() => open(art)}
         title="View fullscreen"
-        aria-label={`Open ${art.title} in fullscreen viewer`}
+        aria-label={`Open ${displayTitle(art)} in fullscreen viewer`}
         className="relative flex min-h-0 w-full flex-1 cursor-zoom-in items-center justify-center rounded-md border-0 bg-transparent p-0 focus:outline-none focus-visible:ring-2 focus-visible:ring-[var(--ring)]"
       >
         <NsfwScrim nsfw={art.nsfw} className="flex h-full w-full items-center justify-center">

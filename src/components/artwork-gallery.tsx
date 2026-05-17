@@ -7,7 +7,7 @@ import InfiniteScroll from "react-photo-album/scroll";
 import "react-photo-album/rows.css";
 import { NsfwScrim } from "@/components/nsfw-scrim";
 import { ResponsiveImage } from "@/components/responsive-image";
-import { artworkAlt } from "@/lib/artwork-format";
+import { artworkAlt, displayTitle } from "@/lib/artwork-format";
 import type { ArtworkListing } from "@/lib/data";
 
 export type GalleryPhoto = {
@@ -36,7 +36,7 @@ export function toGalleryPhoto(a: ArtworkListing): GalleryPhoto {
     key: a.id,
     alt: artworkAlt(a),
     href: `/artwork/${a.id}`,
-    title: a.title,
+    title: displayTitle(a),
     artist: a.artist,
     year: a.year,
     nsfw: a.nsfw,
