@@ -48,8 +48,8 @@ export function SubscribeForm() {
       <div className="rounded-lg border border-[var(--border)] bg-[var(--accent)] p-5 text-sm">
         <p className="font-medium">Check your inbox.</p>
         <p className="mt-1 text-[var(--muted-foreground)]">
-          A confirmation link is on its way. Click it within 48 hours to finish subscribing. If it
-          doesn't arrive, check your spam folder.
+          Tap the confirmation link to finish. Spam folder is the usual suspect if it doesn't
+          surface.
         </p>
       </div>
     );
@@ -116,7 +116,7 @@ export function SubscribeForm() {
       )}
 
       <p className="text-xs text-[var(--muted-foreground)]">
-        One email per week. Unsubscribe any time — the link is in every issue.
+        One email a week. The unsubscribe link sits at the bottom of every issue — leave whenever.
       </p>
     </form>
   );

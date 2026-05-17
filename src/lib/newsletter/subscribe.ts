@@ -5,11 +5,11 @@ import Mailgun from "mailgun.js";
 import { createElement } from "react";
 import ConfirmSubscription from "../../../emails/confirm-subscription";
 
-// Confirmation tokens are valid for 48 hours from issue. Past that the
-// user has to start over from /sub. Keeps stale tokens from sitting in
-// inboxes for months and pretending to still be one click from a live
+// Confirmation tokens are valid for 21 days. Long enough that an email
+// sitting in a vacation inbox still works on return, short enough that
+// truly abandoned tokens eventually stop being one click from a live
 // subscription.
-export const CONFIRM_TOKEN_TTL_MS = 48 * 60 * 60 * 1000;
+export const CONFIRM_TOKEN_TTL_MS = 21 * 24 * 60 * 60 * 1000;
 
 function tokenSecret(): string {
   const explicit = process.env.NEWSLETTER_TOKEN_SECRET;
