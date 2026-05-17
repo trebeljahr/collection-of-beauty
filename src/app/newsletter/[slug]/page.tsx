@@ -132,6 +132,9 @@ export default async function EditionPage({ params }: { params: Promise<Params> 
                   {artwork.artist ?? "Unknown artist"}
                   {artwork.year ? ` · ${artwork.year}` : ""}
                   {artwork.movement ? ` · ${artwork.movement}` : ""}
+                  {artwork.realDimensions
+                    ? ` · ${artwork.realDimensions.widthCm.toFixed(0)} × ${artwork.realDimensions.heightCm.toFixed(0)} cm`
+                    : ""}
                 </p>
                 {note && (
                   <p className="mt-5 text-[var(--foreground)] leading-[1.75] text-[1.0625rem]">
