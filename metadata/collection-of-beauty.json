@@ -1515,8 +1515,8 @@
       "pd_status_reason": "Commons PD license",
       "story": "An August afternoon at the family estate in Yerres, just southeast of Paris. Caillebotte's brother Martial lounges in a cane chair with a book, back to us, while their cousin Zoé stands primly under a parasol. The orange trees are pruned into neat compact balls, very Caillebotte: he loved manicured geometry where his Impressionist friends loved wildness. He painted it outdoors in 1878. The canvas is over five feet tall, and it now hangs at the Museum of Fine Arts, Houston."
     },
-    "1280px-Ingres_-_Mme_Victor_Baltard_&_sa_fille_Paule.jpg": {
-      "filename": "1280px-Ingres_-_Mme_Victor_Baltard_&_sa_fille_Paule.jpg",
+    "Ingres_-_Mme_Victor_Baltard_&_sa_fille_Paule.jpg": {
+      "filename": "Ingres_-_Mme_Victor_Baltard_&_sa_fille_Paule.jpg",
       "resolved": true,
       "needs_review": false,
       "title": "Ingres - Mme Victor Baltard & sa fille Paule",
@@ -1527,7 +1527,6 @@
       "source": {
         "type": "Wikimedia Commons",
         "canonical_title": "File:Ingres - Mme Victor Baltard & sa fille Paule.jpg",
-        "resolved_via_variant": "Ingres_-_Mme_Victor_Baltard_&_sa_fille_Paule.jpg",
         "url": "https://commons.wikimedia.org/wiki/File%3AIngres_-_Mme_Victor_Baltard_%26_sa_fille_Paule.jpg",
         "file_url": "https://upload.wikimedia.org/wikipedia/commons/8/83/Ingres_-_Mme_Victor_Baltard_%26_sa_fille_Paule.jpg",
         "credit": null,
@@ -1741,8 +1740,8 @@
       "pd_status_reason": "pre-1931 (URAA-exempt)",
       "story": "Uchisange is a central district of Okayama, the approach to the castle where daimyō retainers once kept their residences. Hasui drew it in 1923 for the ongoing Selected Views of Japan series, focusing on everyday roofs and a quiet intersection rather than the fortifications nearby. The timing matters: the same year, the Great Kantō earthquake destroyed his publisher Watanabe Shōzaburō's Tokyo workshop, taking most of the series' original blocks and 188 sketchbooks with it. Many late prints in the set, including this one, exist only in first impressions made before the fire."
     },
-    "1280px-Peter_Paul_Rubens_-_Old_Woman_and_Boy_with_Candles.jpg": {
-      "filename": "1280px-Peter_Paul_Rubens_-_Old_Woman_and_Boy_with_Candles.jpg",
+    "Peter_Paul_Rubens_-_Old_Woman_and_Boy_with_Candles.jpg": {
+      "filename": "Peter_Paul_Rubens_-_Old_Woman_and_Boy_with_Candles.jpg",
       "resolved": true,
       "needs_review": false,
       "title": "Old woman and boy with candles",
@@ -1753,7 +1752,6 @@
       "source": {
         "type": "Wikimedia Commons",
         "canonical_title": "File:Peter Paul Rubens - Old Woman and Boy with Candles.jpg",
-        "resolved_via_variant": "Peter_Paul_Rubens_-_Old_Woman_and_Boy_with_Candles.jpg",
         "url": "https://commons.wikimedia.org/wiki/File%3APeter_Paul_Rubens_-_Old_Woman_and_Boy_with_Candles.jpg",
         "file_url": "https://upload.wikimedia.org/wikipedia/commons/c/c2/Peter_Paul_Rubens_-_Old_Woman_and_Boy_with_Candles.jpg",
         "credit": "Mauritshuis",
@@ -1766,10 +1764,23 @@
         "license_url": null,
         "usage_terms": "Public domain"
       },
+      "artist_info": {
+        "name": "Peter Paul Rubens",
+        "aliases": [
+          "Peter Paul Rubens",
+          "P.P. Rubens",
+          "Rubens"
+        ],
+        "born": 1577,
+        "died": 1640,
+        "nationality": "Flemish",
+        "movement": "Baroque",
+        "pd_status": "public_domain_worldwide"
+      },
       "year_source": "wikidata_qs",
       "pd_status": "public_domain",
       "pd_status_reason": "Commons PD license",
-      "story": "A small, strange picture for Rubens — no saints, no heroes, just a crone cupping a candle against the dark while a boy leans in to light his own from hers. The whole painting is a tenebrist experiment, built on the trembling orange glow between two flames. Rubens was thinking about Dutch and Italian candlelight studies of the period, trying out how flesh holds light. The woman's wrinkled hand and the boy's smooth cheek are two different meditations on skin in firelight, painted for the pleasure of the problem."
+      "story": "A boy leans in to light his candle from an old woman's, cheeks lit from below, her mouth slightly open as she steadies the flame. It is Rubens in Caravaggesque mode, a single wick doing all the illumination, shadows pooling in every wrinkle. The composition descends from a famous lost Gerard Dou-style tronie tradition, but Rubens paints it with buttery oil and real warmth. It hangs in the Mauritshuis in The Hague."
     },
     "1280px-Pierre_Puvis_de_Chavannes_-_Young_Girls_by_the_Seaside_-_Google_Art_Project.jpg": {
       "filename": "1280px-Pierre_Puvis_de_Chavannes_-_Young_Girls_by_the_Seaside_-_Google_Art_Project.jpg",
@@ -1971,8 +1982,8 @@
       "pd_status_reason": "Commons PD license",
       "story": "Two men bent over a chessboard in a tiled Cairo interior, a third watching from the side. Deutsch loved this kind of subject — quiet, contained, entirely about the play of light on costly surfaces. Every inch of the room is worked up: the glazed tiles, the inlaid table, the striped silk of the robes, the Qurans and brass lamps on the shelves behind. The game itself barely matters; what matters is the hush. Painted at the height of his powers, it is the sort of picture that sold immediately to a European collector who wanted a corner of Cairo hung on a Paris wall, and got it in almost hallucinatory detail."
     },
-    "1280px-The_Gold_Scab_-_Eruption_in_Frilthy_Lucre_(The_Creditor)_by_James_McNeill_Whistler,_1879,_oil_on_canvas_-_De_Young_Museum_-_DSC00889.jpeg": {
-      "filename": "1280px-The_Gold_Scab_-_Eruption_in_Frilthy_Lucre_(The_Creditor)_by_James_McNeill_Whistler,_1879,_oil_on_canvas_-_De_Young_Museum_-_DSC00889.jpeg",
+    "The_Gold_Scab_-_Eruption_in_Frilthy_Lucre_(The_Creditor)_by_James_McNeill_Whistler,_1879,_oil_on_canvas_-_De_Young_Museum_-_DSC00889.jpeg": {
+      "filename": "The_Gold_Scab_-_Eruption_in_Frilthy_Lucre_(The_Creditor)_by_James_McNeill_Whistler,_1879,_oil_on_canvas_-_De_Young_Museum_-_DSC00889.jpeg",
       "resolved": true,
       "needs_review": false,
       "title": "The Gold Scab: Eruption in Frilthy Lucre (The Creditor)",
@@ -3058,41 +3069,6 @@
       "pd_status": "public_domain",
       "pd_status_reason": "Commons PD license",
       "story": "The Emir of Bukhara receives the trophies of a victorious campaign in the tiled courtyard of his palace — and the trophies, piled at the base of the columns, are severed heads. Vereshchagin built the scene from what he had seen and heard during the Turkestan wars, and he refused to soften it. The contrast is the whole argument: exquisite architecture, attentive courtiers, a heap of human remains treated as accounting. Painted in Munich in 1872, it belongs to the same bleak sequence as Apotheosis of War."
-    },
-    "1872_Vereshchagin_Triumphierend_anagoria.JPG": {
-      "filename": "1872_Vereshchagin_Triumphierend_anagoria.JPG",
-      "resolved": true,
-      "needs_review": false,
-      "title": "They are triumphant",
-      "artist": "Vasily Vereshchagin",
-      "date_created": "1872 date QS:P571,+1872-00-00T00:00:00Z/9",
-      "year": 1872,
-      "description": "Central Asia , Samarkand , Registan . A celebration of victory over an enemy. The Emir of Bukhara and the notables of the city watch how the heads of Russian soldiers are impaled on poles.",
-      "source": {
-        "type": "Wikimedia Commons",
-        "canonical_title": "File:1872 Vereshchagin Triumphierend anagoria.JPG",
-        "url": "https://commons.wikimedia.org/wiki/File%3A1872_Vereshchagin_Triumphierend_anagoria.JPG",
-        "file_url": "https://upload.wikimedia.org/wikipedia/commons/6/60/1872_Vereshchagin_Triumphierend_anagoria.JPG",
-        "credit": "Tretyakov Gallery",
-        "permission": null,
-        "attribution": null
-      },
-      "copyright": {
-        "copyrighted": false,
-        "license_short": "Public domain",
-        "license_url": null,
-        "usage_terms": "Public domain"
-      },
-      "translations": {
-        "title": {
-          "ru": "Торжествуют",
-          "de": "Triumphierend"
-        }
-      },
-      "year_source": "wikidata_qs",
-      "pd_status": "public_domain",
-      "pd_status_reason": "Commons PD license",
-      "story": "Samarkand, the Registan. The Emir of Bukhara and his notables are gathered in celebration, and the poles rising above the crowd carry the heads of Russian soldiers. Vereshchagin had survived the 1868 siege of Samarkand himself and came away with the Cross of St George and a cold clarity about what conquest looked like from the other side of the wall. He painted the tilework behind the crowd with the same care he gave the heads on the spikes, letting the beauty and the barbarism share one canvas without apology."
     },
     "1872_Vereshchagin_Triumphierend_anagoria.jpeg": {
       "filename": "1872_Vereshchagin_Triumphierend_anagoria.jpeg",
@@ -4894,8 +4870,8 @@
       "pd_status_reason": "Commons PD license",
       "story": "A Roman bridge near Lunel, stranded halfway across the Vidourle after centuries of floods knocked out the rest. Courbet painted it in 1857 while staying with the collector François Sabatier, working fast on paper later mounted to wood. No shepherdesses, no picturesque ruin dressing — just mottled stone, scrub, and the hard shadow of the surviving arch. That blunt refusal to prettify is exactly what he meant by Realism. Now at the Musée Fabre in Montpellier, where it slipped into the collection by 1892."
     },
-    "2560px-Hiroshi_Yoshida_-_Kumoi-Zakura_(Kumoi_Cherry_Trees)_-_Google_Art_Project.jpg": {
-      "filename": "2560px-Hiroshi_Yoshida_-_Kumoi-Zakura_(Kumoi_Cherry_Trees)_-_Google_Art_Project.jpg",
+    "Hiroshi_Yoshida_-_Kumoi-Zakura_(Kumoi_Cherry_Trees)_-_Google_Art_Project.jpg": {
+      "filename": "Hiroshi_Yoshida_-_Kumoi-Zakura_(Kumoi_Cherry_Trees)_-_Google_Art_Project.jpg",
       "resolved": true,
       "needs_review": false,
       "title": "雲井櫻",
@@ -4906,7 +4882,6 @@
       "source": {
         "type": "Wikimedia Commons",
         "canonical_title": "File:Hiroshi Yoshida - Kumoi-Zakura (Kumoi Cherry Trees) - Google Art Project.jpg",
-        "resolved_via_variant": "Hiroshi_Yoshida_-_Kumoi-Zakura_(Kumoi_Cherry_Trees)_-_Google_Art_Project.jpg",
         "url": "https://commons.wikimedia.org/wiki/File%3AHiroshi_Yoshida_-_Kumoi-Zakura_(Kumoi_Cherry_Trees)_-_Google_Art_Project.jpg",
         "file_url": "https://upload.wikimedia.org/wikipedia/commons/e/e0/Hiroshi_Yoshida_-_Kumoi-Zakura_%28Kumoi_Cherry_Trees%29_-_Google_Art_Project.jpg",
         "credit": "2wHA6qvg4l6i2g at Google Cultural Institute maximum zoom level",
@@ -4922,7 +4897,7 @@
       "year_source": "wikidata_qs",
       "pd_status": "public_domain",
       "pd_status_reason": "pre-1931 (URAA-exempt)",
-      "story": "Two women in kimono stand ankle-deep in moonlit mist at Mount Yoshino, dwarfed by a veil of cherry blossom. Yoshida printed it at nearly 60 by 75 cm, too big for one block, so he cut the composition into three and registered the sheets together. The figures are the daughters of his friend, the painter Kawai Shinzo. Of the roughly 257 prints Yoshida designed in his lifetime, only eight were this oversized, and he pulled just fifty impressions of Kumoi-Zakura in 1926."
+      "story": "Moonlight, mist, and a wall of cherry blossom at Mount Yoshino; two small figures in kimono look up. Yoshida, trained as a Western-style oil painter before he turned to woodblock at forty-four, supervised every cut and every pull himself. The sheet is huge, almost 60 by 75 cm, printed from three separately carved sections aligned by hand. The women in the foreground are the daughters of his friend Kawai Shinzo. Yoshida made the edition in 1926 and stopped after fifty impressions."
     },
     "2560px-Hiroshige24_shimada.jpg": {
       "filename": "2560px-Hiroshige24_shimada.jpg",
@@ -5110,8 +5085,8 @@
       "pd_status_reason": "Commons PD license",
       "story": "Painted in the last weeks of his life at Auvers, on a double-square canvas he used for the wide Auvers wheatfields. A low bruised sky presses on the green crop, no figures, no horizon incident, just weather and wheat. He wrote to Theo and Jo that he was trying to express 'sadness and extreme loneliness' in these broad formats — but also, he insisted, the health and fortifying power of the countryside. Both things at once. He shot himself in a field like this about two weeks later."
     },
-    "2560px-Landscape_with_a_Gnarled_Tree_and_a_Farm_MET_DT4127.jpg": {
-      "filename": "2560px-Landscape_with_a_Gnarled_Tree_and_a_Farm_MET_DT4127.jpg",
+    "Landscape_with_a_Gnarled_Tree_and_a_Farm_MET_DT4127.jpg": {
+      "filename": "Landscape_with_a_Gnarled_Tree_and_a_Farm_MET_DT4127.jpg",
       "resolved": true,
       "needs_review": false,
       "title": "Landscape with a Gnarled Tree and a Farm",
@@ -5122,7 +5097,6 @@
       "source": {
         "type": "Wikimedia Commons",
         "canonical_title": "File:Landscape with a Gnarled Tree and a Farm MET DT4127.jpg",
-        "resolved_via_variant": "Landscape_with_a_Gnarled_Tree_and_a_Farm_MET_DT4127.jpg",
         "url": "https://commons.wikimedia.org/wiki/File%3ALandscape_with_a_Gnarled_Tree_and_a_Farm_MET_DT4127.jpg",
         "file_url": "https://upload.wikimedia.org/wikipedia/commons/c/c7/Landscape_with_a_Gnarled_Tree_and_a_Farm_MET_DT4127.jpg",
         "credit": "This file was donated to Wikimedia Commons as part of a project by the Metropolitan Museum of Art . See the Image and Data Resources Open Access Policy",
@@ -5327,8 +5301,8 @@
       "pd_status": "public_domain",
       "pd_status_reason": "Commons PD license"
     },
-    "2560px-Saint_Francis_of_Assisi_in_Ecstasy-Caravaggio_(c.1595).jpg": {
-      "filename": "2560px-Saint_Francis_of_Assisi_in_Ecstasy-Caravaggio_(c.1595).jpg",
+    "Saint_Francis_of_Assisi_in_Ecstasy-Caravaggio_(c.1595).jpg": {
+      "filename": "Saint_Francis_of_Assisi_in_Ecstasy-Caravaggio_(c.1595).jpg",
       "resolved": true,
       "needs_review": false,
       "title": "Francis of Assisi in Ecstasy",
@@ -5339,7 +5313,6 @@
       "source": {
         "type": "Wikimedia Commons",
         "canonical_title": "File:Saint Francis of Assisi in Ecstasy-Caravaggio (c.1595).jpg",
-        "resolved_via_variant": "Saint_Francis_of_Assisi_in_Ecstasy-Caravaggio_(c.1595).jpg",
         "url": "https://commons.wikimedia.org/wiki/File%3ASaint_Francis_of_Assisi_in_Ecstasy-Caravaggio_(c.1595).jpg",
         "file_url": "https://upload.wikimedia.org/wikipedia/commons/b/b0/Saint_Francis_of_Assisi_in_Ecstasy-Caravaggio_%28c.1595%29.jpg",
         "credit": "Self-scanned",
@@ -5352,6 +5325,18 @@
         "license_url": null,
         "usage_terms": "Public domain"
       },
+      "artist_info": {
+        "name": "Caravaggio",
+        "aliases": [
+          "Michelangelo Merisi",
+          "Caravaggio"
+        ],
+        "born": 1571,
+        "died": 1610,
+        "nationality": "Italian",
+        "movement": "Baroque",
+        "pd_status": "public_domain_worldwide"
+      },
       "translations": {
         "title": {
           "de": "Ekstase des Heiligen Franziskus",
@@ -5362,10 +5347,10 @@
       "year_source": "wikidata_qs",
       "pd_status": "public_domain",
       "pd_status_reason": "Commons PD license",
-      "story": "Francis collapses backwards into the arms of a smooth-cheeked angel, eyes half-closed, habit cinched at the waist; no streams of fire, no seraphim, just the hush of a dark Umbrian field and two shepherds too far off to matter. It is thought to be Caravaggio's first religious canvas, made soon after he entered Cardinal Del Monte's household. In 1943 the Wadsworth Atheneum in Hartford bought it for $17,000, making it the first authenticated Caravaggio in an American museum."
+      "story": "No stigmata bleeding here, no ecstatic swoon in a rocky grotto — just a tired man cradled in the dark by a boy with wings. It's Caravaggio's first religious commission, painted soon after Cardinal Francesco Maria del Monte took him into his household. Some have noted Francis's face resembles del Monte's own. Behind them an unearthly glow breaks over the night landscape; the rest is shadow. It hangs in Hartford now, at the Wadsworth Atheneum — a long way from a Roman palazzo."
     },
-    "2560px-Saint_Jerome_Writing-Caravaggio_(1605-6).jpg": {
-      "filename": "2560px-Saint_Jerome_Writing-Caravaggio_(1605-6).jpg",
+    "Saint_Jerome_Writing-Caravaggio_(1605-6).jpg": {
+      "filename": "Saint_Jerome_Writing-Caravaggio_(1605-6).jpg",
       "resolved": true,
       "needs_review": false,
       "title": "Saint Jerome",
@@ -5376,7 +5361,6 @@
       "source": {
         "type": "Wikimedia Commons",
         "canonical_title": "File:Saint Jerome Writing-Caravaggio (1605-6).jpg",
-        "resolved_via_variant": "Saint_Jerome_Writing-Caravaggio_(1605-6).jpg",
         "url": "https://commons.wikimedia.org/wiki/File%3ASaint_Jerome_Writing-Caravaggio_(1605-6).jpg",
         "file_url": "https://upload.wikimedia.org/wikipedia/commons/4/4d/Saint_Jerome_Writing-Caravaggio_%281605-6%29.jpg",
         "credit": "Self-scanned",
@@ -5388,6 +5372,18 @@
         "license_short": "Public domain",
         "license_url": null,
         "usage_terms": "Public domain"
+      },
+      "artist_info": {
+        "name": "Caravaggio",
+        "aliases": [
+          "Michelangelo Merisi",
+          "Caravaggio"
+        ],
+        "born": 1571,
+        "died": 1610,
+        "nationality": "Italian",
+        "movement": "Baroque",
+        "pd_status": "public_domain_worldwide"
       },
       "translations": {
         "title": {
@@ -5415,7 +5411,7 @@
       "year_source": "wikidata_qs",
       "pd_status": "public_domain",
       "pd_status_reason": "Commons PD license",
-      "story": "A balding old man leans across a plain table, quill poised above the inkwell, skull weighting the page like a paperweight. Caravaggio gives Jerome not as penitent but as working translator — the Vulgate in mid-sentence — with the same raking light he used on cardsharps and tavern boys. Commissioned by Cardinal Scipione Borghese around 1605 to 1606, it still hangs in his Galleria Borghese in Rome, where inventories misattributed it to Ribera for nearly two centuries."
+      "story": "A bald old scholar, naked from the waist up except for a blood-red cloak, leans across a table strewn with books and a skull. His quill is poised mid-word — probably translating the Vulgate. Painted around 1605-6 for Scipione Borghese, probably, though oddly it doesn't show up in his 1613 inventory. For nearly two centuries the Borghese catalog credited it to the Spaniard Jusepe de Ribera instead; it wasn't returned to Caravaggio until 1893."
     },
     "2560px-The_Big_wave_from_100_views_of_the_Fuji,_2nd_volume.jpg": {
       "filename": "2560px-The_Big_wave_from_100_views_of_the_Fuji,_2nd_volume.jpg",
@@ -5510,8 +5506,8 @@
       "pd_status_reason": "Commons PD license",
       "story": "A little wooden drawbridge on the canal south of Arles, the kind Dutch engineers had built across Provence. Van Gogh painted it obsessively in spring 1888 — four oils, watercolours, drawings — because it reminded him of home. In this version a carriage clatters across and a woman with a parasol walks the towpath; the water is hard cobalt, the grass a chemical green. He wrote to Theo that he wanted paintings you could send as postcards of happiness. The real bridge was destroyed in WWII; a replacement stands a few kilometres upstream."
     },
-    "2560px-The_Taking_of_Christ-Caravaggio_(c.1602).jpg": {
-      "filename": "2560px-The_Taking_of_Christ-Caravaggio_(c.1602).jpg",
+    "The_Taking_of_Christ-Caravaggio_(c.1602).jpg": {
+      "filename": "The_Taking_of_Christ-Caravaggio_(c.1602).jpg",
       "resolved": true,
       "needs_review": false,
       "title": "The Taking of Christ",
@@ -5522,7 +5518,6 @@
       "source": {
         "type": "Wikimedia Commons",
         "canonical_title": "File:The Taking of Christ-Caravaggio (c.1602).jpg",
-        "resolved_via_variant": "The_Taking_of_Christ-Caravaggio_(c.1602).jpg",
         "url": "https://commons.wikimedia.org/wiki/File%3AThe_Taking_of_Christ-Caravaggio_(c.1602).jpg",
         "file_url": "https://upload.wikimedia.org/wikipedia/commons/4/4d/The_Taking_of_Christ-Caravaggio_%28c.1602%29.jpg",
         "credit": "Self-scanned",
@@ -5534,6 +5529,18 @@
         "license_short": "Public domain",
         "license_url": null,
         "usage_terms": "Public domain"
+      },
+      "artist_info": {
+        "name": "Caravaggio",
+        "aliases": [
+          "Michelangelo Merisi",
+          "Caravaggio"
+        ],
+        "born": 1571,
+        "died": 1610,
+        "nationality": "Italian",
+        "movement": "Baroque",
+        "pd_status": "public_domain_worldwide"
       },
       "translations": {
         "title": {
@@ -5565,10 +5572,10 @@
       "year_source": "date_created_plain",
       "pd_status": "public_domain",
       "pd_status_reason": "Commons PD license",
-      "story": "Judas's kiss is still landing as the soldier's steel gauntlet closes on Christ's throat; on the far right, a lantern-bearer peers in over the scuffle — a self-portrait of Caravaggio himself. Commissioned in 1602 by the Roman nobleman Ciriaco Mattei, the painting vanished in the nineteenth century under a Honthorst attribution. It was found in 1990 in the dining room of the Jesuit house on Leeson Street, Dublin, where it still hangs on indefinite loan to the National Gallery of Ireland."
+      "story": "Judas's kiss lands just as the soldier's steel gauntlet comes down on Christ's shoulder — one gesture completing the other. At the right edge a man lifts a lantern to light the scene; he's almost certainly Caravaggio, stuck inside his own picture. Commissioned in 1602 by Ciriaco Mattei, it disappeared for two centuries and was found in 1990 hanging in a Jesuit dining room in Dublin, written off as a copy. It's now on long loan to the National Gallery of Ireland."
     },
-    "2560px-Van_Dyck,_Sir_Anthony_-_Venetia,_Lady_Digby,_on_her_Deathbed_-_Google_Art_Project.jpg": {
-      "filename": "2560px-Van_Dyck,_Sir_Anthony_-_Venetia,_Lady_Digby,_on_her_Deathbed_-_Google_Art_Project.jpg",
+    "Van_Dyck,_Sir_Anthony_-_Venetia,_Lady_Digby,_on_her_Deathbed_-_Google_Art_Project.jpg": {
+      "filename": "Van_Dyck,_Sir_Anthony_-_Venetia,_Lady_Digby,_on_her_Deathbed_-_Google_Art_Project.jpg",
       "resolved": true,
       "needs_review": false,
       "title": "Venetia, Lady Digby, on her Deathbed",
@@ -5579,7 +5586,6 @@
       "source": {
         "type": "Wikimedia Commons",
         "canonical_title": "File:Van Dyck, Sir Anthony - Venetia, Lady Digby, on her Deathbed - Google Art Project.jpg",
-        "resolved_via_variant": "Van_Dyck,_Sir_Anthony_-_Venetia,_Lady_Digby,_on_her_Deathbed_-_Google_Art_Project.jpg",
         "url": "https://commons.wikimedia.org/wiki/File%3AVan_Dyck%2C_Sir_Anthony_-_Venetia%2C_Lady_Digby%2C_on_her_Deathbed_-_Google_Art_Project.jpg",
         "file_url": "https://upload.wikimedia.org/wikipedia/commons/c/c1/Van_Dyck%2C_Sir_Anthony_-_Venetia%2C_Lady_Digby%2C_on_her_Deathbed_-_Google_Art_Project.jpg",
         "credit": "oAFUhDfXH7qEdQ at Google Cultural Institute maximum zoom level",
@@ -5901,34 +5907,6 @@
       "pd_status_reason": "Commons PD license",
       "story": "Hunt dragged his easel out to the poisonous salt flats of the Dead Sea in 1854, set up under an armed guard, and painted a goat from life as it slowly died in front of him. It is Leviticus in oil: the ram driven out bearing the sins of Israel, red wool around its horns, bones and mountains behind. Critics hated it. Hunt was unrepentant — for him, Pre-Raphaelite truth meant truth to the actual ground on which scripture happened."
     },
-    "2560px-thumbnail.jpg": {
-      "filename": "2560px-thumbnail.jpg",
-      "resolved": true,
-      "needs_review": false,
-      "title": "Name",
-      "artist": "",
-      "date_created": "2026-04-02",
-      "year": null,
-      "description": "Please use a more precise name for your image.",
-      "source": {
-        "type": "Wikimedia Commons",
-        "canonical_title": "File:Name.jpg",
-        "resolved_via_variant": "thumbnail.jpg",
-        "url": "https://commons.wikimedia.org/wiki/File%3AThumbnail.jpg",
-        "file_url": "https://upload.wikimedia.org/wikipedia/commons/5/5b/Name.jpg",
-        "credit": "Own work",
-        "permission": "The depicted text is ineligible for copyright and therefore in the public domain because it is not a “literary work” or other protected type in sense of the local copyright law. Facts, data, and unoriginal information which is common property without sufficiently creative authorship in a general typeface or basic handwriting, and simple geometric shapes are not protected by copyright. This tag does not generally apply to all images of texts. Particular countries can have different legal definition of the “literary work” as the subject of copyright and different courts' interpretation practices. Some countries protect almost every written work, while other countries protect distinctively artistic or scientific texts and databases only. Extent of creativeness, function and length of the text can be relevant. The copyright protection can be limited to the literary form – the included information itself can be excluded from protection.",
-        "attribution": null
-      },
-      "copyright": {
-        "copyrighted": false,
-        "license_short": "Public domain",
-        "license_url": null,
-        "usage_terms": "Public domain"
-      },
-      "pd_status": "public_domain",
-      "pd_status_reason": "Commons PD license"
-    },
     "2560px-冨嶽三十六景_上総の海路-At_Sea_off_Kazusa_(Kazusa_no_kairo),_from_the_series_Thirty-six_Views_of_Mount_Fuji_(Fugaku_sanjūrokkei)_MET_DP141056.jpg": {
       "filename": "2560px-冨嶽三十六景_上総の海路-At_Sea_off_Kazusa_(Kazusa_no_kairo),_from_the_series_Thirty-six_Views_of_Mount_Fuji_(Fugaku_sanjūrokkei)_MET_DP141056.jpg",
       "resolved": true,
@@ -6016,8 +5994,8 @@
       "pd_status": "copyrighted",
       "pd_status_reason": "Commons copyrighted license"
     },
-    "2560px-北宋_徽宗_竹禽圖_卷-Finches_and_bamboo_MET_DP151504.jpg": {
-      "filename": "2560px-北宋_徽宗_竹禽圖_卷-Finches_and_bamboo_MET_DP151504.jpg",
+    "北宋_徽宗_竹禽圖_卷-Finches_and_bamboo_MET_DP151504.jpg": {
+      "filename": "北宋_徽宗_竹禽圖_卷-Finches_and_bamboo_MET_DP151504.jpg",
       "resolved": true,
       "needs_review": false,
       "title": "Finches and bamboo",
@@ -6028,7 +6006,6 @@
       "source": {
         "type": "Wikimedia Commons",
         "canonical_title": "File:北宋 徽宗 竹禽圖 卷-Finches and bamboo MET DP151504.jpg",
-        "resolved_via_variant": "北宋_徽宗_竹禽圖_卷-Finches_and_bamboo_MET_DP151504.jpg",
         "url": "https://commons.wikimedia.org/wiki/File%3A%E5%8C%97%E5%AE%8B_%E5%BE%BD%E5%AE%97_%E7%AB%B9%E7%A6%BD%E5%9C%96_%E5%8D%B7-Finches_and_bamboo_MET_DP151504.jpg",
         "file_url": "https://upload.wikimedia.org/wikipedia/commons/5/5b/%E5%8C%97%E5%AE%8B_%E5%BE%BD%E5%AE%97_%E7%AB%B9%E7%A6%BD%E5%9C%96_%E5%8D%B7-Finches_and_bamboo_MET_DP151504.jpg",
         "credit": "This file was donated to Wikimedia Commons as part of a project by the Metropolitan Museum of Art . See the Image and Data Resources Open Access Policy",
@@ -6058,8 +6035,8 @@
       "year_source": "wikidata_qs",
       "pd_status": "public_domain",
       "pd_status_reason": "Commons PD license",
-      "story": "Huizong lost a dynasty but kept his brush. The last serious painter-emperor of Northern Song, he founded an imperial painting academy, invented the \"slender gold\" calligraphic script, and in 1127 was carried off as a captive by the Jurchen Jin when they sacked his capital. This short handscroll, only about 33 centimetres tall, puts two finches on a thin branch of bamboo, ink and colour on silk, a closely observed little thing made when he still ruled. Chinese handscrolls read right to left; the inscription and seals on the left tell you who has owned it since. The Met has it now.",
-      "year_note": "The Met dates Finches and bamboo to the early 12th century (Huizong's reign 1100-1125); 1100 is the accession year and looks like a placeholder. Shifted to c. 1110 within the reign."
+      "story": "Huizong ruled Northern Song from 1100 until 1125, founded the imperial painting academy, and invented the wiry \"slender gold\" calligraphy that still bears his name. Two years after he abdicated, the Jurchen Jin armies sacked his capital and carried him off as a prisoner; he died in captivity in 1135. This small handscroll, ink and colour on silk, was painted when he still ruled: two finches balancing on a thin bamboo stem, feathers finely stippled, each claw placed with the same precision he brought to his calligraphy. It reads right to left, and the Met acquired it from the Crawford collection.",
+      "year_note": "Same object as the 2560px duplicate; Met dates it early 12th century. 1100 is the accession year / placeholder, corrected to c. 1110."
     },
     "25_-_Fuji_on_the_Left_of_Tokaido_Road.jpg": {
       "filename": "25_-_Fuji_on_the_Left_of_Tokaido_Road.jpg",
@@ -6675,8 +6652,8 @@
       "pd_status_reason": "Commons PD license",
       "story": "Plate 13 of Hiroshige's late Thirty-Six Views of Mount Fuji. The Tama River ran west of Edo through farmland and was associated with cloth-bleaching — women spreading long strips of dyed cotton in the shallows, a sight old enough to be in Heian poetry. Hiroshige keeps Fuji as a pale cone at the horizon and lets the foreground do the work: figures at the river, pale sky, a low cut of bank. Understated, almost Whistler-ish, a quarter-century before Whistler got there."
     },
-    "960px-Evening_Snow_at_Terashima_Village.jpg": {
-      "filename": "960px-Evening_Snow_at_Terashima_Village.jpg",
+    "Evening_Snow_at_Terashima_Village.jpg": {
+      "filename": "Evening_Snow_at_Terashima_Village.jpg",
       "resolved": true,
       "needs_review": false,
       "title": "Evening Snow at Terajima Village (Yuki ni Kururu, Terajima-mura) from the series Twelve Subjects of Tokyo",
@@ -6687,7 +6664,6 @@
       "source": {
         "type": "Wikimedia Commons",
         "canonical_title": "File:Evening Snow at Terashima Village.jpg",
-        "resolved_via_variant": "Evening_Snow_at_Terashima_Village.jpg",
         "url": "https://commons.wikimedia.org/wiki/File%3AEvening_Snow_at_Terashima_Village.jpg",
         "file_url": "https://upload.wikimedia.org/wikipedia/commons/6/6f/Evening_Snow_at_Terashima_Village.jpg",
         "credit": "1000 Museums",
@@ -6974,44 +6950,6 @@
       "pd_status": "public_domain",
       "pd_status_reason": "Commons PD license",
       "story": "An artist slumps asleep at his desk while owls, bats and a lynx close in behind him. The inscription on the desk reads: \"The sleep of reason produces monsters.\" Goya meant it as the hinge of the whole Caprichos — plate 43 of 80, originally intended as the frontispiece. The etching-and-aquatint was published in Madrid in 1799; Goya pulled it from sale days later, nervous about the Inquisition. He handed the plates to the king in exchange for a pension for his son."
-    },
-    "960px-Pieter_Bruegel_the_Elder_-_Hunters_in_the_Snow_(Winter)_-_Google_Art_Project.jpg": {
-      "filename": "960px-Pieter_Bruegel_the_Elder_-_Hunters_in_the_Snow_(Winter)_-_Google_Art_Project.jpg",
-      "resolved": true,
-      "needs_review": false,
-      "title": "monthly cycle, scene: The Hunters in the Snow (winter)",
-      "artist": "Pieter Brueghel the Elder",
-      "date_created": "1565 date QS:P571,+1565-00-00T00:00:00Z/9",
-      "year": 1565,
-      "description": "\" The Hunters in the Snow \" by Pieter Bruegel the Elder . 1565. oil on panel , 117 cm × 162 cm. Kunsthistorisches Museum , Vienna",
-      "source": {
-        "type": "Wikimedia Commons",
-        "canonical_title": "File:Pieter Bruegel the Elder - Hunters in the Snow (Winter) - Google Art Project.jpg",
-        "resolved_via_variant": "Pieter_Bruegel_the_Elder_-_Hunters_in_the_Snow_(Winter)_-_Google_Art_Project.jpg",
-        "url": "https://commons.wikimedia.org/wiki/File%3APieter_Bruegel_the_Elder_-_Hunters_in_the_Snow_(Winter)_-_Google_Art_Project.jpg",
-        "file_url": "https://upload.wikimedia.org/wikipedia/commons/d/d8/Pieter_Bruegel_the_Elder_-_Hunters_in_the_Snow_%28Winter%29_-_Google_Art_Project.jpg",
-        "credit": "WgFmzFNNN74nUg at Google Cultural Institute maximum zoom level",
-        "permission": null,
-        "attribution": null
-      },
-      "copyright": {
-        "copyrighted": false,
-        "license_short": "Public domain",
-        "license_url": null,
-        "usage_terms": "Public domain"
-      },
-      "translations": {
-        "title": {
-          "de": "Zyklus der Jahreszeitenbilder, Szene: Heimkehr der Jäger (Winter)",
-          "pl": "Myśliwi na śniegu",
-          "nl": "De seizoenen van het jaar: De terugkeer van de jagers (winter)",
-          "fr": "Cycle des mois:Les chasseurs dans la neige (hiver)"
-        }
-      },
-      "year_source": "wikidata_qs",
-      "pd_status": "public_domain",
-      "pd_status_reason": "Commons PD license",
-      "story": "Three hunters trudge home over a ridge with a single scrawny fox to show for the day, their dogs slinking with tails down. Below, villagers skate on frozen ponds and a chimney burns on the left where someone's singeing a pig. The snow isn't white so much as green-grey, and the air has that flat winter silence you can almost hear. It's part of a cycle of six panels Bruegel painted in 1565 for the Antwerp merchant Niclaes Jongelinck, tracking the seasons. Five survive. This one's been in Vienna's Kunsthistorisches Museum since the archdukes inherited it."
     },
     "960px-Robert_Delaunay,_1926,_Tour_Eiffel,_oil_on_canvas,_169_×_86_cm,_Musée_d'Art_Moderne_de_la_ville_de_Paris.jpg": {
       "filename": "960px-Robert_Delaunay,_1926,_Tour_Eiffel,_oil_on_canvas,_169_×_86_cm,_Musée_d'Art_Moderne_de_la_ville_de_Paris.jpg",
@@ -7681,79 +7619,6 @@
       "pd_status": "public_domain",
       "pd_status_reason": "Commons PD license",
       "story": "A small, dark-ground cabinet picture — Cranach's first crack at the subject he would paint for the rest of his life. Adam and Eve stand on either side of the Tree of Knowledge, the serpent coiled above, creatures of the garden scattered around them. Tiny (under 60 cm tall), intimate, meant for close looking. It became the template for dozens of later Wittenberg-workshop variants, all sharing the same black backdrop and slim, almost weightless nudes. The original lives today at the National Museum in Warsaw."
-    },
-    "Adam_and_Eve_(UK_CIA_P-1947-LF-77).jpg": {
-      "filename": "Adam_and_Eve_(UK_CIA_P-1947-LF-77).jpg",
-      "resolved": true,
-      "needs_review": false,
-      "title": "Adam and Eve",
-      "artist": "Lucas Cranach the Elder",
-      "date_created": "1526",
-      "year": 1526,
-      "description": "Adam and Eve brilliantly combines devotional meaning with pictorial elegance and invention. The scene is set in a forest clearing where Eve stands before the Tree of Knowledge, caught in the act of handing an apple to a bewildered Adam. Entwined in the tree's branches above, the serpent looks on as Adam succumbs to temptation. A rich menagerie of birds and animals - a stag, a hind, a sheep, a roe-buck with its mate, a lion, a wild boar and a horse, and partridges, a stork and a heron - completes this seductive vision of Paradise. On the tree-trunk are the date 1526 and the bat-winged serpent which formed part of Cranach's coat of arms. The painting is particularly admired for its treatment of the human figure and for the profusion of finely painted details, including animals and vegetation. Cranach delights in capturing details such as the roe-buck catching its reflection in the foreground pool of water.",
-      "source": {
-        "type": "Wikimedia Commons",
-        "canonical_title": "File:Adam and Eve (UK CIA P-1947-LF-77).jpg",
-        "url": "https://commons.wikimedia.org/wiki/File%3AAdam_and_Eve_(UK_CIA_P-1947-LF-77).jpg",
-        "file_url": "https://upload.wikimedia.org/wikipedia/commons/0/04/Adam_and_Eve_%28UK_CIA_P-1947-LF-77%29.jpg",
-        "credit": "http://lucascranach.org/UK_CIA_P-1947-LF-77 Alternate: Courtauld Institute of Art",
-        "permission": null,
-        "attribution": null
-      },
-      "copyright": {
-        "copyrighted": false,
-        "license_short": "Public domain",
-        "license_url": null,
-        "usage_terms": "Public domain"
-      },
-      "translations": {
-        "title": {
-          "es": "Adán y Eva",
-          "hu": "Ádám és Éva",
-          "ca": "L'Adam i l'Eva",
-          "cy": "Adda ac Efa",
-          "sq": "Adami dhe Eva",
-          "fa": "آدم و حوا",
-          "bg": "Адам и Ева",
-          "fy": "Adam en Eva",
-          "ro": "Adam și Eva",
-          "ja": "アダムとイヴ",
-          "no": "Adam og Eva",
-          "he": "אדם וחוה",
-          "hi": "आदम और हव्वा",
-          "fi": "Aatami ja Eeva",
-          "wa": "Adan ey Eve",
-          "eo": "Adamo kaj Evo",
-          "cs": "Adam a Eva",
-          "it": "Adamo ed Eva",
-          "fr": "Adam et Ève",
-          "hr": "Adam i Eva",
-          "pt": "Adão e Eva",
-          "zh": "亚当和夏娃",
-          "vi": "Adam và Eva",
-          "af": "Adam en Eva",
-          "lt": "Adomas ir Ieva",
-          "sl": "Adam in Eva",
-          "tl": "Adan at Eba",
-          "ur": "حوّا",
-          "sv": "Adam och Eva",
-          "id": "Adam dan Hawa",
-          "nn": "Adam og Eva",
-          "sr": "Адам и Ева",
-          "nl": "Adam en Eva",
-          "sk": "Adam a Eva",
-          "ru": "Адам и Ева",
-          "mk": "Адам и Ева",
-          "pl": "Adam i Ewa",
-          "de": "Adam und Eva",
-          "ko": "아담과 하와",
-          "gl": "Adán e Eva"
-        }
-      },
-      "year_source": "date_created_plain",
-      "pd_status": "public_domain",
-      "pd_status_reason": "Commons PD license",
-      "story": "Cranach's grandest shot at Eden, now at the Courtauld. He fills a forest clearing with a working menagerie — stag, hind, sheep, roebuck, lion, boar, horse, partridges, a stork, a heron — and stages the Fall almost as theatre: Eve already handing over the apple, Adam looking faintly bewildered, the serpent watching from the branches. A roebuck catches its own reflection in a pool. The signature bat-winged dragon and the date 1526 sit on the trunk. For all the moral weight of the subject, the picture reads as a celebration of everything Cranach could paint."
     },
     "Admiral_of_the_White_by_Thomas_Gainsborough.jpg": {
       "filename": "Admiral_of_the_White_by_Thomas_Gainsborough.jpg",
@@ -9324,92 +9189,6 @@
       "pd_status": "public_domain",
       "pd_status_reason": "Commons PD license",
       "story": "Six naked men around a wooden tub: one leans on a water spigot shaped suspiciously like what you'd expect, two more play flute and fiddle, another drinks from a tankard. The rotund one is said to be Willibald Pirckheimer, Dürer's best friend; at least one of the others may be Dürer himself. The woodcut came out in 1496 or 1497, just as Nuremberg was closing its public baths to stop an outbreak of syphilis — which probably helped sales. It's one of the first Northern European prints of male nudes with no saint, no myth, no excuse."
-    },
-    "Albrecht_Dürer_-_The_Rhinoceros_(NGA_1964.8.697).jpg": {
-      "filename": "Albrecht_Dürer_-_The_Rhinoceros_(NGA_1964.8.697).jpg",
-      "resolved": true,
-      "needs_review": false,
-      "title": "The Rhinoceros",
-      "artist": "Albrecht Dürer",
-      "date_created": "between 1512 and 1515 date QS:P,+1512-00-00T00:00:00Z/8,P1319,+1512-00-00T00:00:00Z/9,P1326,+1515-00-00T00:00:00Z/9 / 1515",
-      "year": 1512,
-      "description": null,
-      "source": {
-        "type": "Wikimedia Commons",
-        "canonical_title": "File:Albrecht Dürer - The Rhinoceros (NGA 1964.8.697).jpg",
-        "url": "https://commons.wikimedia.org/wiki/File%3AAlbrecht_D%C3%BCrer_-_The_Rhinoceros_(NGA_1964.8.697).jpg",
-        "file_url": "https://upload.wikimedia.org/wikipedia/commons/7/77/Albrecht_D%C3%BCrer_-_The_Rhinoceros_%28NGA_1964.8.697%29.jpg",
-        "credit": "National Gallery of Art .",
-        "permission": null,
-        "attribution": null
-      },
-      "copyright": {
-        "copyrighted": false,
-        "license_short": "Public domain",
-        "license_url": null,
-        "usage_terms": "Public domain"
-      },
-      "artist_info": {
-        "name": "Albrecht Dürer",
-        "aliases": [
-          "Albrecht Dürer",
-          "Albrecht Durer",
-          "Dürer"
-        ],
-        "born": 1471,
-        "died": 1528,
-        "nationality": "German",
-        "movement": "Northern Renaissance",
-        "pd_status": "public_domain_worldwide"
-      },
-      "translations": {
-        "title": {
-          "la": "Rhinocerus",
-          "es": "Rinoceronte",
-          "hu": "Rinocérosz",
-          "ru": "Носорог",
-          "de": "Rhinocerus",
-          "sr-ec": "Direrov Nosorog",
-          "zh": "丟勒的犀牛",
-          "da": "Næsehornet",
-          "tr": "Gergedan",
-          "zh-hk": "丟勒的犀牛",
-          "sv": "Noshörning",
-          "he": "הקרנף של דירר",
-          "zh-hant": "丟勒的犀牛",
-          "hi": "गैंडा",
-          "ko": "뒤러의 코뿔소",
-          "eo": "Rinocero de Dürer",
-          "ta": "டியூரரின் காண்டாமிருகம்",
-          "it": "Rinoceronte di Dürer",
-          "fr": "Rhinocéros",
-          "fa": "کرگدن دورر",
-          "pt": "Rinoceronte",
-          "el": "Ρινόκερος",
-          "fi": "Sarvikuono",
-          "gl": "Rinoceronte de Dürer",
-          "sr": "Direrov Nosorog",
-          "sl": "Dürerjev nosorog",
-          "tl": "Rhinoceros ni Dürer",
-          "pt-br": "Rinoceronte",
-          "ca": "Rinoceront de Dürer",
-          "pl": "Nosorożec Dürera",
-          "arz": "لوحة وحيد القرن",
-          "nl": "Rhinocerus",
-          "ja": "犀",
-          "uk": "Носоріг",
-          "vi": "Rhinocerus",
-          "wuu": "丢勒个犀牛",
-          "ar": "لوحة وحيد القرن",
-          "zh-hans": "丢勒的犀牛",
-          "hy": "Ռնգեղջյուր"
-        }
-      },
-      "year_source": "wikidata_qs",
-      "pd_status": "public_domain",
-      "pd_status_reason": "Commons PD license",
-      "story": "In 1515 King Manuel I of Portugal received an Indian rhinoceros in Lisbon — the first seen alive in Europe since Roman times — and tried to ship it on to the Pope. The animal drowned off the coast of Italy. Dürer never laid eyes on it. Working in Nuremberg from a letter and a sketch sent north from Lisbon, he gave the beast riveted armour plates, a little twisted horn on its shoulder, and scaly legs, and captioned the top RHINOCERVS, 1515. The woodcut was copied and reprinted for nearly three centuries; generations of Europeans learned what a rhino looked like from a picture drawn second-hand.",
-      "year_note": "Dürer's Rhinoceros woodcut is dated 1515 (the year Manuel I of Portugal received the rhinoceros in Lisbon), not 1512."
     },
     "Albrecht_Dürer_Druckplatte_Christus_am_Ölberg.jpg": {
       "filename": "Albrecht_Dürer_Druckplatte_Christus_am_Ölberg.jpg",
@@ -15846,47 +15625,6 @@
       "pd_status": "public_domain",
       "pd_status_reason": "Commons PD license",
       "story": "High tide, stiff wind, white sails crowded against a flat horizon. Monet spent the summer of 1867 broke and living with his aunt at Sainte-Adresse, grinding out twenty paintings at once. On June 25 he wrote to Bazille that he was working on \"regattas at Le Havre with many figures on the beach.\" This sunny scene was conceived as a pair with a gray, low-tide beach painting now at the Art Institute of Chicago."
-    },
-    "Claude_Monet,_1870,_Le_port_de_Trouville_(Breakwater_at_Trouville,_Low_Tide),_oil_on_canvas,_54_x_65.7_cm,_Museum_of_Fine_Arts,_Budapest.jpg": {
-      "filename": "Claude_Monet,_1870,_Le_port_de_Trouville_(Breakwater_at_Trouville,_Low_Tide),_oil_on_canvas,_54_x_65.7_cm,_Museum_of_Fine_Arts,_Budapest.jpg",
-      "resolved": true,
-      "needs_review": false,
-      "title": "Breakwater at Trouville, Low Tide",
-      "artist": "Claude Monet",
-      "date_created": "1870 date QS:P571,+1870-00-00T00:00:00Z/9",
-      "year": 1870,
-      "description": null,
-      "source": {
-        "type": "Wikimedia Commons",
-        "canonical_title": "File:Claude Monet, 1870, Le port de Trouville (Breakwater at Trouville, Low Tide), oil on canvas, 54 x 65.7 cm, Museum of Fine Arts, Budapest.jpg",
-        "url": "https://commons.wikimedia.org/wiki/File%3AClaude_Monet%2C_1870%2C_Le_port_de_Trouville_(Breakwater_at_Trouville%2C_Low_Tide)%2C_oil_on_canvas%2C_54_x_65.7_cm%2C_Museum_of_Fine_Arts%2C_Budapest.jpg",
-        "file_url": "https://upload.wikimedia.org/wikipedia/commons/e/e6/Claude_Monet%2C_1870%2C_Le_port_de_Trouville_%28Breakwater_at_Trouville%2C_Low_Tide%29%2C_oil_on_canvas%2C_54_x_65.7_cm%2C_Museum_of_Fine_Arts%2C_Budapest.jpg",
-        "credit": "Breakwater at Trouville, Low Tide, Museum of Fine Arts (Budapest)",
-        "permission": null,
-        "attribution": null
-      },
-      "copyright": {
-        "copyrighted": false,
-        "license_short": "Public domain",
-        "license_url": null,
-        "usage_terms": "Public domain"
-      },
-      "artist_info": {
-        "name": "Claude Monet",
-        "aliases": [
-          "Claude Monet",
-          "Monet"
-        ],
-        "born": 1840,
-        "died": 1926,
-        "nationality": "French",
-        "movement": "Impressionism",
-        "pd_status": "public_domain_worldwide"
-      },
-      "year_source": "wikidata_qs",
-      "pd_status": "public_domain",
-      "pd_status_reason": "Commons PD license",
-      "story": "June 1870, Monet's honeymoon. He'd married Camille on 28 June and they'd gone to Trouville, the fashionable Normandy resort. No beach parasols here, though, and no hint of the Franco-Prussian War about to break. Just the Touques flowing out to meet the sea, a dark line on the horizon where river becomes ocean, and a few anglers. The strong diagonals and flat bands of color betray Monet's eye for Japanese woodcuts. Oil on canvas, 54 by 65.7 cm, Museum of Fine Arts, Budapest."
     },
     "Claude_Monet,_1875,_Train_in_the_Snow,_oil_on_canvas,_59_×_78_cm,_Musée_Marmottan_Monet.jpg": {
       "filename": "Claude_Monet,_1875,_Train_in_the_Snow,_oil_on_canvas,_59_×_78_cm,_Musée_Marmottan_Monet.jpg",
@@ -23205,55 +22943,6 @@
       "pd_status_reason": "Commons PD license",
       "story": "Plate for the 1876 edition of Coleridge's Rime of the Ancient Mariner — the moment after the bird falls. Doré puts the sailor in the crows-nest, ratlines around him, the crossbow still in his hand, and leaves the albatross offstage. The sea below is vast and unbothered, which is the point: the Mariner has just crossed a line and the universe hasn't noticed yet. That edition sold out and went through thirty printings in twenty-five years."
     },
-    "DortorDordrecht.jpg": {
-      "filename": "DortorDordrecht.jpg",
-      "resolved": true,
-      "needs_review": false,
-      "title": "Dort, or Dordrecht: The Dort packet-boat from Rotterdam becalmed",
-      "artist": "J. M. W. Turner",
-      "date_created": "1818 date QS:P571,+1818-00-00T00:00:00Z/9",
-      "year": 1818,
-      "description": "cropped to image, recto, unframed",
-      "source": {
-        "type": "Wikimedia Commons",
-        "canonical_title": "File:DortorDordrecht.jpg",
-        "url": "https://commons.wikimedia.org/wiki/File%3ADortorDordrecht.jpg",
-        "file_url": "https://upload.wikimedia.org/wikipedia/commons/0/08/DortorDordrecht.jpg",
-        "credit": "Yale Center for British Art",
-        "permission": null,
-        "attribution": null
-      },
-      "copyright": {
-        "copyrighted": false,
-        "license_short": "Public domain",
-        "license_url": null,
-        "usage_terms": "Public domain"
-      },
-      "artist_info": {
-        "name": "J. M. W. Turner",
-        "aliases": [
-          "J. M. W. Turner",
-          "William Turner",
-          "Turner"
-        ],
-        "born": 1775,
-        "died": 1851,
-        "nationality": "English",
-        "movement": "Romanticism",
-        "pd_status": "public_domain_worldwide"
-      },
-      "translations": {
-        "title": {
-          "de": "Dort oder Dordrecht: Das von Rotterdam nach Dordrecht fahrende Packetboot in einer Flaute",
-          "pt": "Paquete Dort de Roterdã em Calmaria",
-          "nl": "Dort or Dordrecht: The Dort packet-boat from Rotterdam becalmed"
-        }
-      },
-      "year_source": "wikidata_qs",
-      "pd_status": "public_domain",
-      "pd_status_reason": "Commons PD license",
-      "story": "The packet-boat Swan drifts down the Meuse toward Dordrecht, sails hanging slack in windless heat. Turner has drenched the whole Dutch scene in a honeyed glow cribbed from Cuyp, then packed the deck with fussing passengers and provisioning skiffs to keep the eye busy while the boat itself goes nowhere. Hung at the Royal Academy in 1818, it stunned the room. The Morning Chronicle called it one of the most magnificent pictures ever exhibited there."
-    },
     "Dragomirov_by_Repin.jpg": {
       "filename": "Dragomirov_by_Repin.jpg",
       "resolved": true,
@@ -26383,35 +26072,6 @@
       "pd_status": "public_domain",
       "pd_status_reason": "Commons PD license",
       "story": "In 1832 Delacroix and his diplomat companion hid in an attic in Tangier and watched through shutters as the Aïssaoua brotherhood whirled through the street in ecstatic trance. Five years later he painted it from memory and sketches, pouring the crowd down a narrow lane in a flash of white robes and raised arms. It is Orientalism, yes, but also a genuine attempt to render a religious frenzy he found bewildering and unforgettable. Minneapolis Institute of Art."
-    },
-    "Evening_Snow_at_Terashima_Village.jpg": {
-      "filename": "Evening_Snow_at_Terashima_Village.jpg",
-      "resolved": true,
-      "needs_review": false,
-      "title": "Evening Snow at Terajima Village (Yuki ni Kururu, Terajima-mura) from the series Twelve Subjects of Tokyo",
-      "artist": "Hasui Kawase",
-      "date_created": "1920",
-      "year": 1920,
-      "description": null,
-      "source": {
-        "type": "Wikimedia Commons",
-        "canonical_title": "File:Evening Snow at Terashima Village.jpg",
-        "url": "https://commons.wikimedia.org/wiki/File%3AEvening_Snow_at_Terashima_Village.jpg",
-        "file_url": "https://upload.wikimedia.org/wikipedia/commons/6/6f/Evening_Snow_at_Terashima_Village.jpg",
-        "credit": "1000 Museums",
-        "permission": null,
-        "attribution": null
-      },
-      "copyright": {
-        "copyrighted": false,
-        "license_short": "Public domain",
-        "license_url": null,
-        "usage_terms": "Public domain"
-      },
-      "year_source": "jp_era",
-      "pd_status": "public_domain",
-      "pd_status_reason": "pre-1931 (URAA-exempt)",
-      "story": "Hasui called Terajima a favorite: a long, gentle slope in the Mukōjima district north of the Sumida, a few telephone poles, houses going dark on either side of a drainage ditch. In the print a single figure trudges off into snow that thickens and turns a bruised purple toward dusk, the only warmth leaking from paper screens. Terajima has since been absorbed into Sumida ward; the village he knew is gone. From the 1920 Twelve Scenes of Tokyo — the design Narazaki picked for the cover of his 1979 monograph, and one of the most-reproduced Hasui prints there is."
     },
     "Evening_landscape_at_moonrise_-_Van_Gogh.jpg": {
       "filename": "Evening_landscape_at_moonrise_-_Van_Gogh.jpg",
@@ -33215,35 +32875,6 @@
       "pd_status_reason": "pre-1931 (URAA-exempt)",
       "story": "Two sailboats lean into a breeze on a sea so bright the water reads almost white, the wake picked out in the thinnest grey line. Hikaru umi, \"the sparkling sea,\" opens Yoshida's 1926 series of eight Seto Inland Sea views, all cut from the same six keyblocks and varied only by colour inking. He rated this version the most demanding of the group: to get the glitter, the printer had to leave large islands of paper completely untouched."
     },
-    "Hiroshi_Yoshida_-_Kumoi-Zakura_(Kumoi_Cherry_Trees)_-_Google_Art_Project.jpg": {
-      "filename": "Hiroshi_Yoshida_-_Kumoi-Zakura_(Kumoi_Cherry_Trees)_-_Google_Art_Project.jpg",
-      "resolved": true,
-      "needs_review": false,
-      "title": "雲井櫻",
-      "artist": "Hiroshi Yoshida (1876 - 1950) (Japanese) Details on Google Art Project",
-      "date_created": "1926 date QS:P571,+1926-00-00T00:00:00Z/9",
-      "year": 1926,
-      "description": null,
-      "source": {
-        "type": "Wikimedia Commons",
-        "canonical_title": "File:Hiroshi Yoshida - Kumoi-Zakura (Kumoi Cherry Trees) - Google Art Project.jpg",
-        "url": "https://commons.wikimedia.org/wiki/File%3AHiroshi_Yoshida_-_Kumoi-Zakura_(Kumoi_Cherry_Trees)_-_Google_Art_Project.jpg",
-        "file_url": "https://upload.wikimedia.org/wikipedia/commons/e/e0/Hiroshi_Yoshida_-_Kumoi-Zakura_%28Kumoi_Cherry_Trees%29_-_Google_Art_Project.jpg",
-        "credit": "2wHA6qvg4l6i2g at Google Cultural Institute maximum zoom level",
-        "permission": null,
-        "attribution": null
-      },
-      "copyright": {
-        "copyrighted": false,
-        "license_short": "Public domain",
-        "license_url": null,
-        "usage_terms": "Public domain"
-      },
-      "year_source": "wikidata_qs",
-      "pd_status": "public_domain",
-      "pd_status_reason": "pre-1931 (URAA-exempt)",
-      "story": "Moonlight, mist, and a wall of cherry blossom at Mount Yoshino; two small figures in kimono look up. Yoshida, trained as a Western-style oil painter before he turned to woodblock at forty-four, supervised every cut and every pull himself. The sheet is huge, almost 60 by 75 cm, printed from three separately carved sections aligned by hand. The women in the foreground are the daughters of his friend Kawai Shinzo. Yoshida made the edition in 1926 and stopped after fifty impressions."
-    },
     "Hiroshi_Yoshida_-_Yomei_Gate.jpg": {
       "filename": "Hiroshi_Yoshida_-_Yomei_Gate.jpg",
       "resolved": true,
@@ -33323,29 +32954,6 @@
       "resolved": false,
       "needs_review": false,
       "title": "Hiroshige Moon Bridge in Meguro",
-      "artist": null,
-      "date_created": null,
-      "source": {
-        "type": "unknown",
-        "url": null
-      },
-      "copyright": {
-        "copyrighted": false,
-        "license": "Public domain",
-        "notes": "All listed artists died well before the 70-year PMA cutoff."
-      },
-      "classification_rule": "hiroshige_hokusai_shotei_yoshida_spaced",
-      "guessed_source": "Wikimedia Commons — file uses spaces or variant naming not found directly; underlying work is a known Japanese woodblock print",
-      "guessed_artists": "Japanese woodblock/shin-hanga artists: Hiroshige (1797–1858), Hokusai (1760–1849), Takahashi Shōtei / Hiroaki (1871–1945), Hiroshi Yoshida (1876–1950), Keisai Eisen (1790–1848), Nishikawa Sukenobu (1671–1750)",
-      "year": null,
-      "pd_status": "public_domain",
-      "pd_status_reason": "Commons PD license"
-    },
-    "Hiroshige Sukiyagahsi.jpg": {
-      "filename": "Hiroshige Sukiyagahsi.jpg",
-      "resolved": false,
-      "needs_review": false,
-      "title": "Hiroshige Sukiyagahsi",
       "artist": null,
       "date_created": null,
       "source": {
@@ -37304,33 +36912,6 @@
       "pd_status": "public_domain",
       "pd_status_reason": "Commons PD license",
       "story": "A studio version of Ingres' 'Roger Freeing Angelica,' the subject drawn from Ariosto: Angelica chained naked to a rock as the knight Roger swoops in on his hippogriff to kill the sea monster. Ingres painted the original in 1819 for Louis XVIII and returned to the motif for years, with pupils producing replicas under his eye. This one hangs at La Piscine in Roubaix, the converted art-deco swimming pool turned museum. The pose — Angelica's arched neck, closed eyes, impossible marble torso — is pure Ingres: erotic and glacial at once."
-    },
-    "Ingres_-_Mme_Victor_Baltard_&_sa_fille_Paule.jpg": {
-      "filename": "Ingres_-_Mme_Victor_Baltard_&_sa_fille_Paule.jpg",
-      "resolved": true,
-      "needs_review": false,
-      "title": "Ingres - Mme Victor Baltard & sa fille Paule",
-      "artist": null,
-      "date_created": null,
-      "year": null,
-      "description": null,
-      "source": {
-        "type": "Wikimedia Commons",
-        "canonical_title": "File:Ingres - Mme Victor Baltard & sa fille Paule.jpg",
-        "url": "https://commons.wikimedia.org/wiki/File%3AIngres_-_Mme_Victor_Baltard_%26_sa_fille_Paule.jpg",
-        "file_url": "https://upload.wikimedia.org/wikipedia/commons/8/83/Ingres_-_Mme_Victor_Baltard_%26_sa_fille_Paule.jpg",
-        "credit": null,
-        "permission": null,
-        "attribution": null
-      },
-      "copyright": {
-        "copyrighted": false,
-        "license_short": "Public domain",
-        "license_url": null,
-        "usage_terms": "Public domain"
-      },
-      "pd_status": "public_domain",
-      "pd_status_reason": "Commons PD license"
     },
     "Ingres_-_estudo_de_nu_-_1801.jpg": {
       "filename": "Ingres_-_estudo_de_nu_-_1801.jpg",
@@ -48913,34 +48494,6 @@
       "pd_status": "public_domain",
       "pd_status_reason": "Commons PD license",
       "story": "Jan Brueghel the Younger's daybook for 1626 records: \"Made another piece of Pan and Syrinx, Sig. Rubens did the figures, priced at 120.\" This is almost certainly it. Ovid tells how the nymph Syrinx, pledged to Diana's chastity, ran from Pan to the river Ladon and begged to be changed into reeds - which Pan then cut and bound into the first panpipe. Rubens paints the grab; Brueghel surrounds it with densely observed foliage and water. Desire gets frustrated and turns into music, just offstage."
-    },
-    "Landscape_with_a_Gnarled_Tree_and_a_Farm_MET_DT4127.jpg": {
-      "filename": "Landscape_with_a_Gnarled_Tree_and_a_Farm_MET_DT4127.jpg",
-      "resolved": true,
-      "needs_review": false,
-      "title": "Landscape with a Gnarled Tree and a Farm",
-      "artist": "Anthony van Dyck",
-      "date_created": "early 17 th century date QS:P571,+1650-00-00T00:00:00Z/7,P4241,Q40719727",
-      "year": 1620,
-      "description": "Drawing; Drawings",
-      "source": {
-        "type": "Wikimedia Commons",
-        "canonical_title": "File:Landscape with a Gnarled Tree and a Farm MET DT4127.jpg",
-        "url": "https://commons.wikimedia.org/wiki/File%3ALandscape_with_a_Gnarled_Tree_and_a_Farm_MET_DT4127.jpg",
-        "file_url": "https://upload.wikimedia.org/wikipedia/commons/c/c7/Landscape_with_a_Gnarled_Tree_and_a_Farm_MET_DT4127.jpg",
-        "credit": "This file was donated to Wikimedia Commons as part of a project by the Metropolitan Museum of Art . See the Image and Data Resources Open Access Policy",
-        "permission": "This file is made available under the Creative Commons CC0 1.0 Universal Public Domain Dedication . The person who associated a work with this deed has dedicated the work to the public domain by waiving all of their rights to the work worldwide under copyright law, including all related and neighboring rights, to the extent allowed by law. You can copy, modify, distribute and perform the work, even for commercial purposes, all without asking permission. http://creativecommons.org/publicdomain/zero/1.0/deed.en CC0 Creative Commons Zero, Public Domain Dedication false false",
-        "attribution": null
-      },
-      "copyright": {
-        "copyrighted": true,
-        "license_short": "CC0",
-        "license_url": "http://creativecommons.org/publicdomain/zero/1.0/deed.en",
-        "usage_terms": "Creative Commons Zero, Public Domain Dedication"
-      },
-      "year_source": "era_phrase",
-      "pd_status": "copyrighted",
-      "pd_status_reason": "Commons copyrighted license"
     },
     "Landscape_with_the_Good_Samaritan_-_Rembrandt.jpg": {
       "filename": "Landscape_with_the_Good_Samaritan_-_Rembrandt.jpg",
@@ -68275,48 +67828,6 @@
       "pd_status_reason": "Commons PD license",
       "story": "Christ's body across Mary's lap, Magdalene at the feet, John bent forward — the grief choreography Rubens returned to again and again. This Lamentation at Durham University is school-of Rubens, painted by someone trained in his Antwerp workshop rather than the master himself. Rubens ran one of the largest studios in Europe; pupils prepared panels, blocked in compositions, and specialized in drapery or flowers while he handled the faces. A good school piece like this one is the next best thing."
     },
-    "Peter_Paul_Rubens_(1577-1640)_-_Cain_Slaying_Abel_-_P.1978.PG.353_-_Courtauld_Gallery.jpg": {
-      "filename": "Peter_Paul_Rubens_(1577-1640)_-_Cain_Slaying_Abel_-_P.1978.PG.353_-_Courtauld_Gallery.jpg",
-      "resolved": true,
-      "needs_review": false,
-      "title": "Cain Slaying Abel",
-      "artist": "Peter Paul Rubens",
-      "date_created": "between 1608 and 1609 date QS:P,+1608-00-00T00:00:00Z/8,P1319,+1608-00-00T00:00:00Z/9,P1326,+1609-00-00T00:00:00Z/9",
-      "year": 1608,
-      "description": null,
-      "source": {
-        "type": "Wikimedia Commons",
-        "canonical_title": "File:Peter Paul Rubens (1577-1640) - Cain Slaying Abel - P.1978.PG.353 - Courtauld Gallery.jpg",
-        "url": "https://commons.wikimedia.org/wiki/File%3APeter_Paul_Rubens_(1577-1640)_-_Cain_Slaying_Abel_-_P.1978.PG.353_-_Courtauld_Gallery.jpg",
-        "file_url": "https://upload.wikimedia.org/wikipedia/commons/0/03/Peter_Paul_Rubens_%281577-1640%29_-_Cain_Slaying_Abel_-_P.1978.PG.353_-_Courtauld_Gallery.jpg",
-        "credit": "Art UK",
-        "permission": null,
-        "attribution": null
-      },
-      "copyright": {
-        "copyrighted": false,
-        "license_short": "Public domain",
-        "license_url": null,
-        "usage_terms": "Public domain"
-      },
-      "artist_info": {
-        "name": "Peter Paul Rubens",
-        "aliases": [
-          "Peter Paul Rubens",
-          "P.P. Rubens",
-          "Rubens"
-        ],
-        "born": 1577,
-        "died": 1640,
-        "nationality": "Flemish",
-        "movement": "Baroque",
-        "pd_status": "public_domain_worldwide"
-      },
-      "year_source": "wikidata_qs",
-      "pd_status": "public_domain",
-      "pd_status_reason": "Commons PD license",
-      "story": "Cain has his brother's head pinned to the ground and the jawbone raised for the next blow — Rubens gives you the exact moment before the strike. The bodies twist around each other in a single diagonal, the sky over them bruised and smoking. Oil on oak panel, painted around 1608 to 1609, just as he came home from Italy and opened his Antwerp studio. The Courtauld Gallery in London bought it in 1978; its inventory number there is P.1978.PG.353."
-    },
     "Peter_Paul_Rubens_(1577-1640)_-_Christ_Giving_the_Keys_of_Heaven_to_Saint_Peter_-_B.116_-_Gemäldegalerie.jpg": {
       "filename": "Peter_Paul_Rubens_(1577-1640)_-_Christ_Giving_the_Keys_of_Heaven_to_Saint_Peter_-_B.116_-_Gemäldegalerie.jpg",
       "resolved": true,
@@ -70242,48 +69753,6 @@
       "year_source": "wikidata_qs",
       "pd_status": "public_domain",
       "pd_status_reason": "Commons PD license"
-    },
-    "Peter_Paul_Rubens_-_Old_Woman_and_Boy_with_Candles.jpg": {
-      "filename": "Peter_Paul_Rubens_-_Old_Woman_and_Boy_with_Candles.jpg",
-      "resolved": true,
-      "needs_review": false,
-      "title": "Old woman and boy with candles",
-      "artist": "Peter Paul Rubens",
-      "date_created": "between 1616 and 1617 date QS:P571,+1616-00-00T00:00:00Z/8,P1319,+1616-00-00T00:00:00Z/9,P1326,+1617-00-00T00:00:00Z/9",
-      "year": 1616,
-      "description": null,
-      "source": {
-        "type": "Wikimedia Commons",
-        "canonical_title": "File:Peter Paul Rubens - Old Woman and Boy with Candles.jpg",
-        "url": "https://commons.wikimedia.org/wiki/File%3APeter_Paul_Rubens_-_Old_Woman_and_Boy_with_Candles.jpg",
-        "file_url": "https://upload.wikimedia.org/wikipedia/commons/c/c2/Peter_Paul_Rubens_-_Old_Woman_and_Boy_with_Candles.jpg",
-        "credit": "Mauritshuis",
-        "permission": "This is a faithful photographic reproduction of a two-dimensional, public domain work of art. The work of art itself is in the public domain for the following reason: Public domain Public domain false false The author died in 1640, so this work is in the public domain in its country of origin and other countries and areas where the copyright term is the author's life plus 100 years or fewer . This work is in the public domain in the United States because it was published (or registered with the U.S. Copyright Office ) before January 1, 1931. This file has been identified as being free of known restrictions under copyright law, including all related and neighboring rights. https://creativecommons.org/publicdomain/mark/1.0/ PDM Creative Commons Public Domain Mark 1.0 false false The official position taken by the Wikimedia Foundation is that \" faithful reproductions of two-dimensional public domain works of art are public domain \". This photographic reproduction is therefore also considered to be in the public domain in the United States. In other jurisdictions, re-use of this content may be restricted; see Reuse of PD-Art photographs for details.",
-        "attribution": null
-      },
-      "copyright": {
-        "copyrighted": false,
-        "license_short": "Public domain",
-        "license_url": null,
-        "usage_terms": "Public domain"
-      },
-      "artist_info": {
-        "name": "Peter Paul Rubens",
-        "aliases": [
-          "Peter Paul Rubens",
-          "P.P. Rubens",
-          "Rubens"
-        ],
-        "born": 1577,
-        "died": 1640,
-        "nationality": "Flemish",
-        "movement": "Baroque",
-        "pd_status": "public_domain_worldwide"
-      },
-      "year_source": "wikidata_qs",
-      "pd_status": "public_domain",
-      "pd_status_reason": "Commons PD license",
-      "story": "A boy leans in to light his candle from an old woman's, cheeks lit from below, her mouth slightly open as she steadies the flame. It is Rubens in Caravaggesque mode, a single wick doing all the illumination, shadows pooling in every wrinkle. The composition descends from a famous lost Gerard Dou-style tronie tradition, but Rubens paints it with buttery oil and real warmth. It hangs in the Mauritshuis in The Hague."
     },
     "Peter_Paul_Rubens_-_Old_Woman_with_a_Basket_of_Coal_-_Google_Art_Project.jpg": {
       "filename": "Peter_Paul_Rubens_-_Old_Woman_with_a_Basket_of_Coal_-_Google_Art_Project.jpg",
@@ -78221,118 +77690,6 @@
       "pd_status": "copyrighted",
       "pd_status_reason": "Commons copyrighted license"
     },
-    "Saint_Francis_of_Assisi_in_Ecstasy-Caravaggio_(c.1595).jpg": {
-      "filename": "Saint_Francis_of_Assisi_in_Ecstasy-Caravaggio_(c.1595).jpg",
-      "resolved": true,
-      "needs_review": false,
-      "title": "Francis of Assisi in Ecstasy",
-      "artist": "Caravaggio",
-      "date_created": "1594 date QS:P571,+1594-00-00T00:00:00Z/9",
-      "year": 1594,
-      "description": null,
-      "source": {
-        "type": "Wikimedia Commons",
-        "canonical_title": "File:Saint Francis of Assisi in Ecstasy-Caravaggio (c.1595).jpg",
-        "url": "https://commons.wikimedia.org/wiki/File%3ASaint_Francis_of_Assisi_in_Ecstasy-Caravaggio_(c.1595).jpg",
-        "file_url": "https://upload.wikimedia.org/wikipedia/commons/b/b0/Saint_Francis_of_Assisi_in_Ecstasy-Caravaggio_%28c.1595%29.jpg",
-        "credit": "Self-scanned",
-        "permission": null,
-        "attribution": null
-      },
-      "copyright": {
-        "copyrighted": false,
-        "license_short": "Public domain",
-        "license_url": null,
-        "usage_terms": "Public domain"
-      },
-      "artist_info": {
-        "name": "Caravaggio",
-        "aliases": [
-          "Michelangelo Merisi",
-          "Caravaggio"
-        ],
-        "born": 1571,
-        "died": 1610,
-        "nationality": "Italian",
-        "movement": "Baroque",
-        "pd_status": "public_domain_worldwide"
-      },
-      "translations": {
-        "title": {
-          "de": "Ekstase des Heiligen Franziskus",
-          "fr": "L'extase de Saint François",
-          "pl": "Ekstaza św. Franciszka"
-        }
-      },
-      "year_source": "wikidata_qs",
-      "pd_status": "public_domain",
-      "pd_status_reason": "Commons PD license",
-      "story": "No stigmata bleeding here, no ecstatic swoon in a rocky grotto — just a tired man cradled in the dark by a boy with wings. It's Caravaggio's first religious commission, painted soon after Cardinal Francesco Maria del Monte took him into his household. Some have noted Francis's face resembles del Monte's own. Behind them an unearthly glow breaks over the night landscape; the rest is shadow. It hangs in Hartford now, at the Wadsworth Atheneum — a long way from a Roman palazzo."
-    },
-    "Saint_Jerome_Writing-Caravaggio_(1605-6).jpg": {
-      "filename": "Saint_Jerome_Writing-Caravaggio_(1605-6).jpg",
-      "resolved": true,
-      "needs_review": false,
-      "title": "Saint Jerome",
-      "artist": "Caravaggio",
-      "date_created": "between 1605 and 1606 date QS:P571,+1605-00-00T00:00:00Z/8,P1319,+1605-00-00T00:00:00Z/9,P1326,+1606-00-00T00:00:00Z/9",
-      "year": 1605,
-      "description": null,
-      "source": {
-        "type": "Wikimedia Commons",
-        "canonical_title": "File:Saint Jerome Writing-Caravaggio (1605-6).jpg",
-        "url": "https://commons.wikimedia.org/wiki/File%3ASaint_Jerome_Writing-Caravaggio_(1605-6).jpg",
-        "file_url": "https://upload.wikimedia.org/wikipedia/commons/4/4d/Saint_Jerome_Writing-Caravaggio_%281605-6%29.jpg",
-        "credit": "Self-scanned",
-        "permission": "This is a faithful photographic reproduction of a two-dimensional, public domain work of art. The work of art itself is in the public domain for the following reason: Public domain Public domain false false This work is in the public domain in its country of origin and other countries and areas where the copyright term is the author's life plus 100 years or fewer . This work is in the public domain in the United States because it was published (or registered with the U.S. Copyright Office ) before January 1, 1931. This file has been identified as being free of known restrictions under copyright law, including all related and neighboring rights. https://creativecommons.org/publicdomain/mark/1.0/ PDM Creative Commons Public Domain Mark 1.0 false false The official position taken by the Wikimedia Foundation is that \" faithful reproductions of two-dimensional public domain works of art are public domain \". This photographic reproduction is therefore also considered to be in the public domain in the United States. In other jurisdictions, re-use of this content may be restricted; see Reuse of PD-Art photographs for details.",
-        "attribution": null
-      },
-      "copyright": {
-        "copyrighted": false,
-        "license_short": "Public domain",
-        "license_url": null,
-        "usage_terms": "Public domain"
-      },
-      "artist_info": {
-        "name": "Caravaggio",
-        "aliases": [
-          "Michelangelo Merisi",
-          "Caravaggio"
-        ],
-        "born": 1571,
-        "died": 1610,
-        "nationality": "Italian",
-        "movement": "Baroque",
-        "pd_status": "public_domain_worldwide"
-      },
-      "translations": {
-        "title": {
-          "es": "San Jerónimo escribiendo",
-          "fr": "Saint Jérôme",
-          "eu": "San Jeronimo idazten (Caravaggio, Borghese)",
-          "de": "Hl. Hieronymus",
-          "pt": "São Jerônimo Escrevendo",
-          "lv": "Svētais Hieronīms",
-          "af": "Skrywende Sint Jerome",
-          "tr": "Aziz Hieronymus",
-          "ja": "書斎の聖ヒエロニムス",
-          "sv": "Den helige Hieronymus",
-          "pl": "Św. Hieronim piszący",
-          "he": "הירונימוס הקדוש כותב",
-          "nl": "De heilige Hieronymus",
-          "avk": "Sutese Girolamo tumtikye (1) (trutca ke Caravaggio)",
-          "arz": "القديس جيروم يكتب",
-          "it": "San Girolamo",
-          "ar": "القديس جيروم يكتب",
-          "zh": "聖傑洛姆 (卡拉瓦喬)",
-          "th": "นักบุญเจอโรมเขียนหนังสือ"
-        }
-      },
-      "year_source": "wikidata_qs",
-      "pd_status": "public_domain",
-      "pd_status_reason": "Commons PD license",
-      "story": "A bald old scholar, naked from the waist up except for a blood-red cloak, leans across a table strewn with books and a skull. His quill is poised mid-word — probably translating the Vulgate. Painted around 1605-6 for Scipione Borghese, probably, though oddly it doesn't show up in his 1613 inventory. For nearly two centuries the Borghese catalog credited it to the Spaniard Jusepe de Ribera instead; it wasn't returned to Caravaggio until 1893."
-    },
     "Saint_John_on_Patmos_MET_DP819993.jpg": {
       "filename": "Saint_John_on_Patmos_MET_DP819993.jpg",
       "resolved": true,
@@ -84526,35 +83883,6 @@
       "pd_status_reason": "Commons PD license",
       "story": "Three panels: Eden on the left where God introduces Adam to Eve, a wild garden in the centre where naked couples cavort with giant strawberries and owls, and hell on the right where a man's body is a cracked eggshell tavern. Art historians have argued about the middle panel for five centuries, is it warning or celebration, sin or prelapsarian joy? Bosch painted it probably between 1490 and 1510 for a private patron, not a church. It entered the Spanish royal collection in 1591 and hangs now in the Prado."
     },
-    "The_Gold_Scab_-_Eruption_in_Frilthy_Lucre_(The_Creditor)_by_James_McNeill_Whistler,_1879,_oil_on_canvas_-_De_Young_Museum_-_DSC00889.jpeg": {
-      "filename": "The_Gold_Scab_-_Eruption_in_Frilthy_Lucre_(The_Creditor)_by_James_McNeill_Whistler,_1879,_oil_on_canvas_-_De_Young_Museum_-_DSC00889.jpeg",
-      "resolved": true,
-      "needs_review": false,
-      "title": "The Gold Scab: Eruption in Frilthy Lucre (The Creditor)",
-      "artist": "James McNeill Whistler",
-      "date_created": "1879",
-      "year": 1879,
-      "description": "The Gold Scab: Eruption in Frilthy Lucre (The Creditor), 1879, oil on canvas. De Young Museum",
-      "source": {
-        "type": "Wikimedia Commons",
-        "canonical_title": "File:The Gold Scab - Eruption in Frilthy Lucre (The Creditor) by James McNeill Whistler, 1879, oil on canvas - De Young Museum - DSC00889.JPG",
-        "resolved_via_variant": "The_Gold_Scab_-_Eruption_in_Frilthy_Lucre_(The_Creditor)_by_James_McNeill_Whistler,_1879,_oil_on_canvas_-_De_Young_Museum_-_DSC00889.JPG",
-        "url": "https://commons.wikimedia.org/wiki/File%3AThe_Gold_Scab_-_Eruption_in_Frilthy_Lucre_(The_Creditor)_by_James_McNeill_Whistler%2C_1879%2C_oil_on_canvas_-_De_Young_Museum_-_DSC00889.JPG",
-        "file_url": "https://upload.wikimedia.org/wikipedia/commons/8/88/The_Gold_Scab_-_Eruption_in_Frilthy_Lucre_%28The_Creditor%29_by_James_McNeill_Whistler%2C_1879%2C_oil_on_canvas_-_De_Young_Museum_-_DSC00889.JPG",
-        "credit": "Own work",
-        "permission": null,
-        "attribution": null
-      },
-      "copyright": {
-        "copyrighted": true,
-        "license_short": "CC0",
-        "license_url": "http://creativecommons.org/publicdomain/zero/1.0/deed.en",
-        "usage_terms": "Creative Commons Zero, Public Domain Dedication"
-      },
-      "year_source": "date_created_plain",
-      "pd_status": "copyrighted",
-      "pd_status_reason": "Commons copyrighted license"
-    },
     "The_Golden_Pavilion_(5759027207).jpg": {
       "filename": "The_Golden_Pavilion_(5759027207).jpg",
       "resolved": true,
@@ -85572,74 +84900,6 @@
       "pd_status": "public_domain",
       "pd_status_reason": "Commons PD license",
       "story": "Two women entangled in sleep after sex, pearls scattered, a broken hairpin on the sheet. Courbet painted it in 1866 for Khalil-Bey, an Ottoman diplomat with a taste for erotic commissions (he also owned Courbet's Origin of the World). It skipped the Salon entirely and hid in private hands. French authorities wouldn't permit public display until 1988. Today it hangs at the Petit Palais in Paris."
-    },
-    "The_Taking_of_Christ-Caravaggio_(c.1602).jpg": {
-      "filename": "The_Taking_of_Christ-Caravaggio_(c.1602).jpg",
-      "resolved": true,
-      "needs_review": false,
-      "title": "The Taking of Christ",
-      "artist": "Caravaggio",
-      "date_created": "1602",
-      "year": 1602,
-      "description": "arrest of Jesus Kiss of Judas",
-      "source": {
-        "type": "Wikimedia Commons",
-        "canonical_title": "File:The Taking of Christ-Caravaggio (c.1602).jpg",
-        "url": "https://commons.wikimedia.org/wiki/File%3AThe_Taking_of_Christ-Caravaggio_(c.1602).jpg",
-        "file_url": "https://upload.wikimedia.org/wikipedia/commons/4/4d/The_Taking_of_Christ-Caravaggio_%28c.1602%29.jpg",
-        "credit": "Self-scanned",
-        "permission": "This is a faithful photographic reproduction of a two-dimensional, public domain work of art. The work of art itself is in the public domain for the following reason: Public domain Public domain false false This work is in the public domain in its country of origin and other countries and areas where the copyright term is the author's life plus 100 years or fewer . This work is in the public domain in the United States because it was published (or registered with the U.S. Copyright Office ) before January 1, 1931. This file has been identified as being free of known restrictions under copyright law, including all related and neighboring rights. https://creativecommons.org/publicdomain/mark/1.0/ PDM Creative Commons Public Domain Mark 1.0 false false The official position taken by the Wikimedia Foundation is that \" faithful reproductions of two-dimensional public domain works of art are public domain \". This photographic reproduction is therefore also considered to be in the public domain in the United States. In other jurisdictions, re-use of this content may be restricted; see Reuse of PD-Art photographs for details.",
-        "attribution": null
-      },
-      "copyright": {
-        "copyrighted": false,
-        "license_short": "Public domain",
-        "license_url": null,
-        "usage_terms": "Public domain"
-      },
-      "artist_info": {
-        "name": "Caravaggio",
-        "aliases": [
-          "Michelangelo Merisi",
-          "Caravaggio"
-        ],
-        "born": 1571,
-        "died": 1610,
-        "nationality": "Italian",
-        "movement": "Baroque",
-        "pd_status": "public_domain_worldwide"
-      },
-      "translations": {
-        "title": {
-          "es": "La captura de Cristo",
-          "hu": "Krisztus elfogatása",
-          "co": "L'Arrestu di Cristu",
-          "ru": "Поцелуй Иуды",
-          "de": "Die Gefangennahme Christi",
-          "pt": "A Captura de Cristo",
-          "ga": "Gabháil Chríost",
-          "fa": "دستگیری عیسی",
-          "fr": "L'Arrestation du Christ",
-          "sv": "Judaskyssen",
-          "sl": "Prijetje Jezusa (Caravaggio)",
-          "arz": "اخذ المسيح",
-          "pt-br": "A Captura de Cristo",
-          "it": "La cattura di Cristo nell’orto",
-          "id": "Penangkapan Kristus",
-          "pl": "Pojmanie Chrystusa",
-          "he": "מאסרו של ישו",
-          "la": "Captura Christi",
-          "nl": "De gevangenneming van Christus",
-          "avk": "Sopera va Krist (trutca ke Caravaggio)",
-          "hy": "Հուդայի համբույրը (նկար, Կարավաջո)",
-          "uk": "Христа беруть під варту",
-          "eo": "La Aresto de Kristo"
-        }
-      },
-      "year_source": "date_created_plain",
-      "pd_status": "public_domain",
-      "pd_status_reason": "Commons PD license",
-      "story": "Judas's kiss lands just as the soldier's steel gauntlet comes down on Christ's shoulder — one gesture completing the other. At the right edge a man lifts a lantern to light the scene; he's almost certainly Caravaggio, stuck inside his own picture. Commissioned in 1602 by Ciriaco Mattei, it disappeared for two centuries and was found in 1990 hanging in a Jesuit dining room in Dublin, written off as a copy. It's now on long loan to the National Gallery of Ireland."
     },
     "The_Tea_plantation_of_Katakura_in_the_Suruga_province.jpg": {
       "filename": "The_Tea_plantation_of_Katakura_in_the_Suruga_province.jpg",
@@ -88674,34 +87934,6 @@
       "pd_status_reason": "Commons PD license",
       "story": "A homage to the poet James Thomson, whose 'Ode on Aeolus's Harp' gives the picture its title. Turner plants an imaginary classical tomb above a soft arc of the Thames near Richmond, where Thomson is actually buried. Three barefoot dancers, the Graces, ring-dance in the foreground while the Four Seasons decorate the wind-harp. Shown at the Royal Academy in 1809 with verses Turner wrote himself, it's now at Manchester Art Gallery, a rare moment where he lets poetry drive the weather rather than the other way around."
     },
-    "Turner_-_Venice-The_Dogana_and_San_Giorgio_Maggiore.jpg": {
-      "filename": "Turner_-_Venice-The_Dogana_and_San_Giorgio_Maggiore.jpg",
-      "resolved": true,
-      "needs_review": false,
-      "title": "Venice — The Dogana and San Giorgio Maggiore",
-      "artist": "J. M. W. Turner",
-      "date_created": "1834",
-      "year": 1834,
-      "description": null,
-      "source": {
-        "type": "Wikimedia Commons",
-        "canonical_title": "File:Turner - Venice-The Dogana and San Giorgio Maggiore.jpg",
-        "url": "https://commons.wikimedia.org/wiki/File%3ATurner_-_Venice-The_Dogana_and_San_Giorgio_Maggiore.jpg",
-        "file_url": "https://upload.wikimedia.org/wikipedia/commons/0/02/Turner_-_Venice-The_Dogana_and_San_Giorgio_Maggiore.jpg",
-        "credit": "National Gallery of Art .",
-        "permission": null,
-        "attribution": null
-      },
-      "copyright": {
-        "copyrighted": false,
-        "license_short": "Public domain",
-        "license_url": null,
-        "usage_terms": "Public domain"
-      },
-      "pd_status": "public_domain",
-      "pd_status_reason": "Commons PD license",
-      "year_source": "date_created_plain"
-    },
     "Turner_-_Walton_bridges,_c._1806,_981-3.jpg": {
       "filename": "Turner_-_Walton_bridges,_c._1806,_981-3.jpg",
       "resolved": true,
@@ -89233,35 +88465,6 @@
       "pd_status": "public_domain",
       "pd_status_reason": "Commons PD license",
       "story": "The same Starry Night of June 1889, painted at the asylum in Saint-Remy. Those swirls aren't invention for invention's sake — Van Gogh told Theo he'd been staring at the pre-dawn sky through his barred window and wanted to capture a Venus 'very big' above the cypress. The eleven stars, the crescent moon, the sleeping hamlet: all composed indoors, from memory. Since 1941 it has hung at the Museum of Modern Art in New York."
-    },
-    "Van_Dyck,_Sir_Anthony_-_Venetia,_Lady_Digby,_on_her_Deathbed_-_Google_Art_Project.jpg": {
-      "filename": "Van_Dyck,_Sir_Anthony_-_Venetia,_Lady_Digby,_on_her_Deathbed_-_Google_Art_Project.jpg",
-      "resolved": true,
-      "needs_review": false,
-      "title": "Venetia, Lady Digby, on her Deathbed",
-      "artist": "van Dyck, Sir Anthony (1599 - 1641) – Artist Details on Google Art Project",
-      "date_created": "1633 date QS:P571,+1633-00-00T00:00:00Z/9",
-      "year": 1633,
-      "description": null,
-      "source": {
-        "type": "Wikimedia Commons",
-        "canonical_title": "File:Van Dyck, Sir Anthony - Venetia, Lady Digby, on her Deathbed - Google Art Project.jpg",
-        "url": "https://commons.wikimedia.org/wiki/File%3AVan_Dyck%2C_Sir_Anthony_-_Venetia%2C_Lady_Digby%2C_on_her_Deathbed_-_Google_Art_Project.jpg",
-        "file_url": "https://upload.wikimedia.org/wikipedia/commons/c/c1/Van_Dyck%2C_Sir_Anthony_-_Venetia%2C_Lady_Digby%2C_on_her_Deathbed_-_Google_Art_Project.jpg",
-        "credit": "oAFUhDfXH7qEdQ at Google Cultural Institute maximum zoom level",
-        "permission": null,
-        "attribution": null
-      },
-      "copyright": {
-        "copyrighted": false,
-        "license_short": "Public domain",
-        "license_url": null,
-        "usage_terms": "Public domain"
-      },
-      "year_source": "wikidata_qs",
-      "pd_status": "public_domain",
-      "pd_status_reason": "Commons PD license",
-      "story": "Venetia Stanley, celebrated beauty of the Caroline court, died in her sleep at thirty-two. Her husband Sir Kenelm summoned Van Dyck the next morning and had him paint her while she was still in bed — a single pink rose wilting by her pillow stands in for her fled life. Kenelm later wrote that the picture was \"the only constant companion I now have.\" Van Dyck finished it in 1633; it hangs today at the Dulwich Picture Gallery in London."
     },
     "Van_Dyck_Pieter_Brueghel_the_Younger.jpg": {
       "filename": "Van_Dyck_Pieter_Brueghel_the_Younger.jpg",
@@ -96124,80 +95327,11 @@
       "pd_status": "public_domain",
       "pd_status_reason": "Commons PD license"
     },
-    "dürer hase.jpg": {
-      "filename": "dürer hase.jpg",
-      "resolved": false,
-      "needs_review": false,
-      "title": "dürer hase",
-      "artist": null,
-      "date_created": null,
-      "source": {
-        "type": "unknown",
-        "url": null
-      },
-      "copyright": {
-        "copyrighted": false,
-        "license": "Public domain",
-        "notes": "Author died 1528. Public domain worldwide."
-      },
-      "classification_rule": "durer",
-      "guessed_source": "Wikimedia Commons (file renamed locally — filename starts with lowercase 'dürer' so the API lookup missed it)",
-      "guessed_artists": "Albrecht Dürer (1471–1528)",
-      "year": null,
-      "pd_status": "public_domain",
-      "pd_status_reason": "Commons PD license"
-    },
     "dürer lion.jpg": {
       "filename": "dürer lion.jpg",
       "resolved": false,
       "needs_review": false,
       "title": "dürer lion",
-      "artist": null,
-      "date_created": null,
-      "source": {
-        "type": "unknown",
-        "url": null
-      },
-      "copyright": {
-        "copyrighted": false,
-        "license": "Public domain",
-        "notes": "Author died 1528. Public domain worldwide."
-      },
-      "classification_rule": "durer",
-      "guessed_source": "Wikimedia Commons (file renamed locally — filename starts with lowercase 'dürer' so the API lookup missed it)",
-      "guessed_artists": "Albrecht Dürer (1471–1528)",
-      "year": null,
-      "pd_status": "public_domain",
-      "pd_status_reason": "Commons PD license"
-    },
-    "dürer praying hands.jpg": {
-      "filename": "dürer praying hands.jpg",
-      "resolved": false,
-      "needs_review": false,
-      "title": "dürer praying hands",
-      "artist": null,
-      "date_created": null,
-      "source": {
-        "type": "unknown",
-        "url": null
-      },
-      "copyright": {
-        "copyrighted": false,
-        "license": "Public domain",
-        "notes": "Author died 1528. Public domain worldwide."
-      },
-      "classification_rule": "durer",
-      "guessed_source": "Wikimedia Commons (file renamed locally — filename starts with lowercase 'dürer' so the API lookup missed it)",
-      "guessed_artists": "Albrecht Dürer (1471–1528)",
-      "year": null,
-      "pd_status": "public_domain",
-      "pd_status_reason": "Commons PD license"
-    },
-    "dürer rasenstück.jpg": {
-      "filename": "dürer rasenstück.jpg",
-      "resolved": false,
-      "needs_review": false,
-      "title": "dürer rasenstück",
       "artist": null,
       "date_created": null,
       "source": {
@@ -98524,50 +97658,6 @@
       "year_source": "wikidata_qs",
       "pd_status": "copyrighted",
       "pd_status_reason": "Commons copyrighted license"
-    },
-    "北宋_徽宗_竹禽圖_卷-Finches_and_bamboo_MET_DP151504.jpg": {
-      "filename": "北宋_徽宗_竹禽圖_卷-Finches_and_bamboo_MET_DP151504.jpg",
-      "resolved": true,
-      "needs_review": false,
-      "title": "Finches and bamboo",
-      "artist": "Emperor Huizong of Song",
-      "date_created": "between 1100 and 1127 date QS:P,+1150-00-00T00:00:00Z/7,P1319,+1100-00-00T00:00:00Z/9,P1326,+1127-00-00T00:00:00Z/9",
-      "year": 1100,
-      "description": "China; Handscroll; Paintings",
-      "source": {
-        "type": "Wikimedia Commons",
-        "canonical_title": "File:北宋 徽宗 竹禽圖 卷-Finches and bamboo MET DP151504.jpg",
-        "url": "https://commons.wikimedia.org/wiki/File%3A%E5%8C%97%E5%AE%8B_%E5%BE%BD%E5%AE%97_%E7%AB%B9%E7%A6%BD%E5%9C%96_%E5%8D%B7-Finches_and_bamboo_MET_DP151504.jpg",
-        "file_url": "https://upload.wikimedia.org/wikipedia/commons/5/5b/%E5%8C%97%E5%AE%8B_%E5%BE%BD%E5%AE%97_%E7%AB%B9%E7%A6%BD%E5%9C%96_%E5%8D%B7-Finches_and_bamboo_MET_DP151504.jpg",
-        "credit": "This file was donated to Wikimedia Commons as part of a project by the Metropolitan Museum of Art . See the Image and Data Resources Open Access Policy",
-        "permission": "This file is made available under the Creative Commons CC0 1.0 Universal Public Domain Dedication . The person who associated a work with this deed has dedicated the work to the public domain by waiving all of their rights to the work worldwide under copyright law, including all related and neighboring rights, to the extent allowed by law. You can copy, modify, distribute and perform the work, even for commercial purposes, all without asking permission. http://creativecommons.org/publicdomain/zero/1.0/deed.en CC0 Creative Commons Zero, Public Domain Dedication false false This is a faithful photographic reproduction of a two-dimensional, public domain work of art. The work of art itself is in the public domain for the following reason: Public domain Public domain false false This work is in the public domain in its country of origin and other countries and areas where the copyright term is the author's life plus 100 years or fewer . This work is in the public domain in the United States because it was published (or registered with the U.S. Copyright Office ) before January 1, 1931. This file has been identified as being free of known restrictions under copyright law, including all related and neighboring rights. https://creativecommons.org/publicdomain/mark/1.0/ PDM Creative Commons Public Domain Mark 1.0 false false The official position taken by the Wikimedia Foundation is that \" faithful reproductions of two-dimensional public domain works of art are public domain \". This photographic reproduction is therefore also considered to be in the public domain in the United States. In other jurisdictions, re-use of this content may be restricted; see Reuse of PD-Art photographs for details.",
-        "attribution": null
-      },
-      "copyright": {
-        "copyrighted": false,
-        "license_short": "Public domain",
-        "license_url": null,
-        "usage_terms": "Public domain"
-      },
-      "translations": {
-        "title": {
-          "it": "Fringuelli e bambù",
-          "ja": "翠竹雙禽図巻",
-          "fr": "Pinsons et bambous",
-          "es": "Pinzones y bambú",
-          "zh": "翠竹双雀图",
-          "ru": "Певчие птицы и бамбук",
-          "pt": "Tentilhões e bambu",
-          "ko": "취죽쌍금도",
-          "de": "Finken und Bambus",
-          "zh-hant": "北宋 徽宗 竹禽圖 卷"
-        }
-      },
-      "year_source": "wikidata_qs",
-      "pd_status": "public_domain",
-      "pd_status_reason": "Commons PD license",
-      "story": "Huizong ruled Northern Song from 1100 until 1125, founded the imperial painting academy, and invented the wiry \"slender gold\" calligraphy that still bears his name. Two years after he abdicated, the Jurchen Jin armies sacked his capital and carried him off as a prisoner; he died in captivity in 1135. This small handscroll, ink and colour on silk, was painted when he still ruled: two finches balancing on a thin bamboo stem, feathers finely stippled, each claw placed with the same precision he brought to his calligraphy. It reads right to left, and the Met acquired it from the Crawford collection.",
-      "year_note": "Same object as the 2560px duplicate; Met dates it early 12th century. 1100 is the accession year / placeholder, corrected to c. 1110."
     },
     "名绘集珍册_9_宋_李迪_春潮带雨.jpg": {
       "filename": "名绘集珍册_9_宋_李迪_春潮带雨.jpg",
