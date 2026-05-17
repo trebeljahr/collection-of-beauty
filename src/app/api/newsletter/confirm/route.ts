@@ -1,5 +1,8 @@
 import { type NextRequest, NextResponse } from "next/server";
-import { addListMember, verifyConfirmToken } from "@/lib/newsletter/subscribe";
+import { loadPublishedEditions } from "@/lib/newsletter/editions";
+import { sendDigest } from "@/lib/newsletter/mailgun";
+import { renderEdition } from "@/lib/newsletter/render";
+import { addListMember, isAlreadySubscribed, verifyConfirmToken } from "@/lib/newsletter/subscribe";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -13,6 +16,30 @@ function log(level: "info" | "error", event: string, extra: object = {}): void {
 function getSiteUrl(request: NextRequest): string {
   if (process.env.NEXT_PUBLIC_SITE_URL) return process.env.NEXT_PUBLIC_SITE_URL;
   return request.nextUrl.origin;
+}
+
+/**
+ * Render the most recent published edition and send it to the address
+ * that just finished double opt-in. Gives the new subscriber an
+ * immediate look at what an issue actually feels like in their inbox.
+ *
+ * Throws are swallowed by the caller — if Mailgun blips here, the
+ * confirmation has already succeeded; we don't want to bounce the user
+ * to the error page over a "welcome bonus" failure.
+ */
+async function sendWelcomeIssue(email: string, siteUrl: string): Promise<boolean> {
+  const editions = loadPublishedEditions();
+  if (editions.length === 0) return false;
+  const latest = editions[editions.length - 1];
+  const rendered = await renderEdition({ edition: latest, siteUrl });
+  await sendDigest({
+    subject: `Welcome — ${rendered.subject}`,
+    html: rendered.html,
+    text: rendered.text,
+    to: email,
+  });
+  log("info", "welcome_sent", { edition: latest.fileSlug });
+  return true;
 }
 
 export async function GET(request: NextRequest) {
@@ -29,6 +56,11 @@ export async function GET(request: NextRequest) {
     return NextResponse.redirect(`${siteUrl}/sub/error?reason=${result.reason}`, { status: 303 });
   }
 
+  // Re-confirmation case: the user clicked a stale token for an address
+  // that's already subscribed. Skip the welcome send so they don't get a
+  // duplicate latest-issue email every time they revisit the link.
+  const alreadyConfirmed = await isAlreadySubscribed(result.email);
+
   try {
     await addListMember(result.email, true);
   } catch (err) {
@@ -36,6 +68,21 @@ export async function GET(request: NextRequest) {
     return NextResponse.redirect(`${siteUrl}/sub/error?reason=list_add_failed`, { status: 303 });
   }
 
-  log("info", "confirmed");
-  return NextResponse.redirect(`${siteUrl}/sub/confirmed`, { status: 303 });
+  let welcomeSent = false;
+  if (!alreadyConfirmed) {
+    try {
+      welcomeSent = await sendWelcomeIssue(result.email, siteUrl);
+    } catch (err) {
+      // Don't fail the confirmation over a welcome-send error — the
+      // subscription itself is already live. They'll get the next
+      // regular issue at the usual cadence.
+      log("error", "welcome_send_failed", { message: (err as Error).message });
+    }
+  }
+
+  log("info", "confirmed", { welcomeSent });
+  const destination = welcomeSent
+    ? `${siteUrl}/sub/confirmed?welcome=1`
+    : `${siteUrl}/sub/confirmed`;
+  return NextResponse.redirect(destination, { status: 303 });
 }
