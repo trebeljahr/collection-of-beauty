@@ -15,6 +15,10 @@ const LINKS: ReadonlyArray<{ href: string; label: string; sub?: string }> = [
 const ROUTE_3D = "/gallery-3d";
 // Must stay in sync with `--animate-nav-slide-out-down` in globals.css.
 const SLIDE_OUT_MS = 320;
+// Slide-in-from-top duration when the nav reappears after the 3D
+// experience hands focus back (open menu / return to start overlay).
+// Must stay in sync with `nav-slide-down-in` in globals.css.
+const SLIDE_IN_MS = 320;
 
 /**
  * Site header. The site-wide nav is presented as a full-screen modal
@@ -43,6 +47,21 @@ export function SiteNav() {
   const pathname = usePathname();
   const router = useRouter();
   const is3DActive = useIs3DActive();
+  // One-shot flag set whenever is3DActive flips from true → false so
+  // the reappearing header animates down from the top edge rather than
+  // popping in. Cleared after the animation duration so subsequent
+  // route changes (which keep the nav mounted) don't re-trigger it.
+  const [slideInFromTop, setSlideInFromTop] = useState(false);
+  const prevActiveRef = useRef(is3DActive);
+  useEffect(() => {
+    const wasActive = prevActiveRef.current;
+    prevActiveRef.current = is3DActive;
+    if (wasActive && !is3DActive) {
+      setSlideInFromTop(true);
+      const id = window.setTimeout(() => setSlideInFromTop(false), SLIDE_IN_MS);
+      return () => window.clearTimeout(id);
+    }
+  }, [is3DActive]);
 
   const modalRef = useRef<HTMLDivElement | null>(null);
   // Hamburger gets focus back on close so keyboard users don't lose
@@ -161,7 +180,11 @@ export function SiteNav() {
   if (is3DActive) return null;
 
   return (
-    <header className="sticky top-0 z-40 border-b border-[var(--border)] bg-[var(--background)]/80 backdrop-blur">
+    <header
+      className={`sticky top-0 z-40 border-b border-[var(--border)] bg-[var(--background)]/80 backdrop-blur ${
+        slideInFromTop ? "animate-nav-slide-down-in" : ""
+      }`}
+    >
       <nav className="mx-auto flex max-w-7xl items-center justify-between px-4 py-3">
         <Link
           href="/"
