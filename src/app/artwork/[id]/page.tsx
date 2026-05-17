@@ -13,11 +13,10 @@ import {
   displayTitle,
   getArtist,
   getArtwork,
-  getArtworkListingsByArtist,
+  getArtworksByArtist,
 } from "@/lib/data";
 import { getLicenseInfo } from "@/lib/license";
 import { suggestFixUrl } from "@/lib/links";
-import { isNsfwArtwork } from "@/lib/nsfw";
 import { artworkJsonLd, jsonLdScriptProps, ogImagesForArtwork } from "@/lib/seo";
 
 type Params = { id: string };
@@ -89,7 +88,7 @@ export default async function ArtworkPage({ params }: { params: Promise<Params> 
 
   const artist = art.artistSlug ? getArtist(art.artistSlug) : null;
   const moreByArtist = art.artistSlug
-    ? getArtworkListingsByArtist(art.artistSlug)
+    ? getArtworksByArtist(art.artistSlug)
         .filter((a) => a.id !== art.id)
         .slice(0, 12)
     : [];
@@ -144,7 +143,6 @@ export default async function ArtworkPage({ params }: { params: Promise<Params> 
               year: art.year,
               width: art.width,
               height: art.height,
-              nsfw: isNsfwArtwork(art),
             }}
             prevId={prev?.id ?? null}
             nextId={next?.id ?? null}

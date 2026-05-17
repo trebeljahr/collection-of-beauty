@@ -5,7 +5,6 @@ import { useCallback, useMemo } from "react";
 import { RowsPhotoAlbum } from "react-photo-album";
 import InfiniteScroll from "react-photo-album/scroll";
 import "react-photo-album/rows.css";
-import { NsfwScrim } from "@/components/nsfw-scrim";
 import { ResponsiveImage } from "@/components/responsive-image";
 import { artworkAlt, displayTitle } from "@/lib/artwork-format";
 import type { ArtworkListing } from "@/lib/data";
@@ -24,7 +23,6 @@ export type GalleryPhoto = {
   title: string;
   artist: string | null;
   year: number | null;
-  nsfw: boolean;
 };
 
 export function toGalleryPhoto(a: ArtworkListing): GalleryPhoto {
@@ -39,7 +37,6 @@ export function toGalleryPhoto(a: ArtworkListing): GalleryPhoto {
     title: displayTitle(a),
     artist: a.artist,
     year: a.year,
-    nsfw: a.nsfw,
   };
 }
 
@@ -135,18 +132,16 @@ export function ArtworkGallery({
           image: (_, { photo, width }) => {
             const p = photo as GalleryPhoto;
             return (
-              <NsfwScrim nsfw={p.nsfw}>
-                <ResponsiveImage
-                  objectKey={p.src}
-                  variantWidths={p.variantWidths}
-                  alt={p.alt ?? ""}
-                  srcWidth={p.width}
-                  srcHeight={p.height}
-                  sizes={`${Math.ceil(width)}px`}
-                  loading="lazy"
-                  style={{ width: "100%", height: "100%", objectFit: "cover" }}
-                />
-              </NsfwScrim>
+              <ResponsiveImage
+                objectKey={p.src}
+                variantWidths={p.variantWidths}
+                alt={p.alt ?? ""}
+                srcWidth={p.width}
+                srcHeight={p.height}
+                sizes={`${Math.ceil(width)}px`}
+                loading="lazy"
+                style={{ width: "100%", height: "100%", objectFit: "cover" }}
+              />
             );
           },
         }}
