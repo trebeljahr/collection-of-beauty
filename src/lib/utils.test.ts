@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { slugify, variantSrcSet, variantUrl } from "./utils";
+import { assetUrl, slugify, variantSrcSet, variantUrl } from "./utils";
 
 describe("slugify", () => {
   it("flattens diacritics and lowercases", () => {
@@ -42,6 +42,17 @@ describe("variantUrl", () => {
     const url = variantUrl("collection/Düsseldorf.jpg", 480, "avif");
     expect(url).not.toMatch(/[üÄ]/);
     expect(url).toMatch(/D%C3%BCsseldorf/);
+  });
+
+  it("returns empty string for missing objectKey instead of crashing", () => {
+    // Generated JSON occasionally lands here with a missing field; the
+    // page should render a broken image, not throw on `.lastIndexOf`.
+    expect(variantUrl("", 480, "avif")).toBe("");
+    expect(variantUrl(null as unknown as string, 480, "avif")).toBe("");
+    expect(variantUrl(undefined as unknown as string, 480, "avif")).toBe("");
+    expect(assetUrl("")).toBe("");
+    expect(assetUrl(null as unknown as string)).toBe("");
+    expect(variantSrcSet("", "avif", [256, 480])).toBe("");
   });
 });
 
