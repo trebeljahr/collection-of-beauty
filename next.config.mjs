@@ -1,7 +1,7 @@
-import { withLocalDev } from "@hatchkit/dev-plugin-next";
-import bundleAnalyzer from "@next/bundle-analyzer";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
+import { withLocalDev } from "@hatchkit/dev-plugin-next";
+import bundleAnalyzer from "@next/bundle-analyzer";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 

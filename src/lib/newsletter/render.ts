@@ -1,63 +1,105 @@
 import { render } from "@react-email/render";
 import { createElement } from "react";
 import { displayTitle } from "@/lib/artwork-format";
-import type { Artwork } from "@/lib/data";
+import { artworks as ALL_ARTWORKS, type Artwork } from "@/lib/data";
 import { variantUrl } from "@/lib/utils";
 import WeeklyDigest, {
   type DigestArtwork,
   type WeeklyDigestProps,
 } from "../../../emails/weekly-digest";
+import { markdownToHtml } from "./markdown";
+import type { Edition } from "./types";
 
-export type RenderedDigest = {
+export type RenderedEdition = {
   subject: string;
   html: string;
   text: string;
 };
 
-export type BuildDigestInput = {
-  issueNumber: number;
-  weekKey: string;
-  issueDate: string;
-  artworks: Artwork[];
-  siteUrl: string;
-};
-
-/** Shape an Artwork for the email template (public image URL + link). */
-export function toDigestArtwork(artwork: Artwork, siteUrl: string): DigestArtwork {
+/** Build the per-artwork shape the email template needs. */
+export function toDigestArtwork(
+  artwork: Artwork,
+  note: string | undefined,
+  siteUrl: string,
+): DigestArtwork {
   return {
     id: artwork.id,
     title: displayTitle(artwork),
     artist: artwork.artist,
     year: artwork.year,
-    description: artwork.description,
     movement: artwork.movement,
     // 1280w WebP: readable on retina, ~150-300 KB, supported by every
-    // modern client (Gmail, Apple Mail, Outlook 2019+). Pinned to 1280
-    // because that's the only WebP width shrink-sources.mjs emits —
-    // AVIF covers the rest, but email clients don't grok AVIF yet.
+    // modern client. Pinned to 1280 because that's the only WebP width
+    // shrink-sources.mjs emits — AVIF covers the rest, but email
+    // clients don't grok AVIF yet.
     imageUrl: variantUrl(artwork.objectKey, 1280, "webp"),
     artworkUrl: `${siteUrl.replace(/\/$/, "")}/artwork/${artwork.id}`,
+    note: note ?? null,
   };
 }
 
-export async function renderDigest(input: BuildDigestInput): Promise<RenderedDigest> {
-  const digestArtworks = input.artworks.map((a) => toDigestArtwork(a, input.siteUrl));
+/**
+ * Resolve the edition's artwork ids against the catalogue. Throws on
+ * unknown ids so a typo in frontmatter fails the build loudly.
+ */
+export function resolveEditionArtworks(
+  edition: Edition,
+): Array<{ artwork: Artwork; note?: string }> {
+  const byId = new Map(ALL_ARTWORKS.map((a) => [a.id, a]));
+  return edition.artworks.map((entry, i) => {
+    const artwork = byId.get(entry.id);
+    if (!artwork) {
+      throw new Error(
+        `Edition ${edition.fileSlug}: artworks[${i}] references unknown id "${entry.id}".`,
+      );
+    }
+    return { artwork, note: entry.note };
+  });
+}
+
+export type RenderEditionInput = {
+  edition: Edition;
+  siteUrl: string;
+};
+
+export async function renderEdition(input: RenderEditionInput): Promise<RenderedEdition> {
+  const { edition, siteUrl } = input;
+  const resolved = resolveEditionArtworks(edition);
+  const digestArtworks = resolved.map((r) => toDigestArtwork(r.artwork, r.note, siteUrl));
+  const introHtml = edition.body.length > 0 ? await markdownToHtml(edition.body) : "";
+
+  const issueDate = formatIssueDate(edition.publishedAt);
+  const archiveUrl = `${siteUrl.replace(/\/$/, "")}/newsletter/${edition.fileSlug}`;
+
   const props: WeeklyDigestProps = {
-    issueNumber: input.issueNumber,
-    issueDate: input.issueDate,
-    weekKey: input.weekKey,
+    issueNumber: edition.number,
+    issueDate,
+    title: edition.title,
+    introHtml,
     artworks: digestArtworks,
-    siteUrl: input.siteUrl,
+    siteUrl,
+    archiveUrl,
   };
+
   const element = createElement(WeeklyDigest, props);
   const [html, text] = await Promise.all([render(element), render(element, { plainText: true })]);
-  const subject = buildSubject(input.issueNumber, digestArtworks);
+  const subject = buildSubject(edition);
   return { subject, html, text };
 }
 
-function buildSubject(issueNumber: number, artworks: DigestArtwork[]): string {
-  const lead = artworks[0];
-  if (!lead) return `Collection of Beauty · Issue ${issueNumber}`;
-  const byline = lead.artist ? ` by ${lead.artist}` : "";
-  return `Collection of Beauty #${issueNumber}: ${lead.title}${byline} + 4 more`;
+function buildSubject(edition: Edition): string {
+  // The user can override via frontmatter `subject`. Otherwise the title
+  // is good enough on its own — adding "Issue #N" feels redundant when
+  // every email already has that in its header.
+  return edition.subject;
+}
+
+function formatIssueDate(iso: string): string {
+  const d = new Date(`${iso}T12:00:00Z`);
+  return d.toLocaleDateString("en-US", {
+    timeZone: "UTC",
+    year: "numeric",
+    month: "long",
+    day: "numeric",
+  });
 }

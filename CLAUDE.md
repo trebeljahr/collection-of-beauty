@@ -27,8 +27,9 @@ required by the Dockerfile — don't remove it.
   - `Artwork` (full record with description, provenance, credit, etc.)
   - `ArtworkListing` (slim Pick used by every client component)
 - The full `Artwork` only belongs in **server-only** code paths: the
-  `/artwork/[id]` detail page, `/api/newsletter/*` routes, and the SEO
-  / JSON-LD generators. Anywhere a client component takes an artworks
+  `/artwork/[id]` detail page, `/newsletter/*` pages, the newsletter
+  CLI (`scripts/newsletter-*.ts`), and the SEO / JSON-LD generators.
+  Anywhere a client component takes an artworks
   array, it should be `ArtworkListing[]`. Server pages pass
   `artworkListings` (the precomputed slim array) — passing `artworks`
   to a client component is a regression (3.4 MB into the RSC payload).
@@ -63,6 +64,28 @@ required by the Dockerfile — don't remove it.
   inside a component or hook.
 - The pendant lamp fixture lives in `lamp-fixture.tsx`. Geometry is
   module-scope so room swaps don't reallocate buffers.
+
+## Newsletter
+
+- Editions live in `content/newsletter/NNNN-<theme-slug>.md` — one
+  markdown file per issue. Frontmatter holds title, publishedAt,
+  excerpt, draft flag, and exactly five `artworks` entries (id +
+  optional editorial note).
+- The git history of `content/newsletter/` *is* the archive. No R2
+  state file, no database, no "have we sent this artwork before"
+  table. `sentArtworkIds()` in `src/lib/newsletter/editions.ts` walks
+  the markdown files (drafts included) and returns the union of every
+  featured id.
+- **Drafting**: `/newsletter-draft` slash command guides the curation
+  flow, then calls `pnpm newsletter:draft <theme-slug>` to scaffold
+  the file. The file lands with `draft: true` — flip it after editing.
+- **Sending**: CLI only. `pnpm newsletter:send <slug>` (dry-run),
+  `--test` (to `MAILGUN_TEST_LIST`), `--confirm` (to `MAILGUN_LIST`).
+  No API route, no cron job. Sending requires `.env.local` decrypted
+  on the user's machine.
+- The public archive lives at `/newsletter` (index) and
+  `/newsletter/<slug>` (per-edition magazine-style page). Both are
+  in the sitemap. Drafts never reach the public surface.
 
 ## Worktree workflow
 
