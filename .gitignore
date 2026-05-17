@@ -12,8 +12,11 @@ node_modules
 node_modules/
 .pnpm-store/
 
-# Claude Code local scratch
-.claude/
+# Claude Code local scratch — ignore everything by default, then re-include
+# the bits we want versioned (project-local slash commands, etc.). Using
+# `.claude/*` instead of `.claude/` so child re-includes below actually work.
+.claude/*
+!.claude/commands/
 
 # Build artifacts
 dist/
