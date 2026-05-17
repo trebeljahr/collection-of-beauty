@@ -120,18 +120,11 @@ const PATCH = {
   // === Second pass: disambiguation for distinct works that share a title
   // (each confirmed by side-by-side visual inspection of the variants). ===
 
-  // Van Gogh Wheat Field with Cypresses — National Gallery (Sept 1889) +
-  // Metropolitan Museum (June 1889 plein-air version).
-  "Vincent_van_Gogh_-_Wheat_Field_with_Cypresses_(National_Gallery_version).jpg":
-    "Wheat Field with Cypresses (National Gallery, September 1889)",
+  // Van Gogh Wheat Field with Cypresses — Met (June 1889 plein-air
+  // version); the National Gallery sibling was deduped out after the
+  // curator picked the Met as the canonical keeper.
   "Vincent_van_Gogh_-_Wheat_Field_with_Cypresses_-_Google_Art_Project.jpg":
     "Wheat Field with Cypresses (Metropolitan Museum, June 1889)",
-
-  // Van Gogh — the Google Art Project file in the "Starry Night" cluster
-  // is actually *Starry Night Over the Rhône* (Musée d'Orsay, 1888), a
-  // different painting from the MoMA Starry Night.
-  "Vincent_van_Gogh_-_Starry_Night_-_Google_Art_Project.jpg":
-    "Starry Night Over the Rhône",
 
   // Van Gogh Self-Portrait — pointillist 1887 Art Institute Chicago vs
   // swirling-blue 1889 Musée d'Orsay.
@@ -158,10 +151,9 @@ const PATCH = {
   "Vincent_van_Gogh_-_Le_Moulin_de_la_Galette.jpg":
     "Le Moulin de la Galette (slope view from below)",
 
-  // Caravaggio Lute Player — Hermitage (with flowers, fruit, violin) +
-  // Met / Wildenstein (with red carpet, spinet, recorder).
-  "Michelangelo_Caravaggio_020.jpg":
-    "The Lute Player (Hermitage)",
+  // Caravaggio Lute Player — Met / Wildenstein (with red carpet, spinet,
+  // recorder). The Hermitage sibling was deduped out after the curator
+  // picked the Met as the canonical keeper.
   "1596_Caravaggio,_The_Lute_Player_New_York.jpg":
     "The Lute Player (Metropolitan Museum)",
 
@@ -228,10 +220,9 @@ const PATCH = {
   "Susanna_and_the_Elders.jpg":
     "Susanna and the Elders (later autograph version)",
 
-  // Ingres Odalisque with Slave — Fogg Art Museum (1839, by Ingres) vs
-  // Walters (1842, composition by Ingres with landscape by Flandrin).
-  "Ingres_Odalisque_esclave_Fogg_Art.jpeg":
-    "Odalisque with Slave (Fogg Art Museum, 1839)",
+  // Ingres Odalisque with Slave — Walters (1842, composition by Ingres
+  // with landscape by Flandrin). The Fogg version was deduped out after
+  // the curator picked the Walters as the canonical keeper.
   "Jean-Paul_Flandrin_-_Odalisque_with_Slave_-_Walters_37887.jpg":
     "Odalisque with Slave (Walters Art Museum, 1842; landscape by Jean-Paul Flandrin)",
 
@@ -276,11 +267,23 @@ const PATCH = {
     "In the Alatau Mountains (horsemen on slope)",
 };
 
+// Filenames whose source asset was removed in a later dedup pass. The
+// override entries are now orphaned (build-data silently ignores them
+// since the artwork no longer exists) — clean them out so the file
+// stays in sync with what's actually on disk.
+const REMOVE_OVERRIDES = [
+  "Vincent_van_Gogh_-_Starry_Night_-_Google_Art_Project.jpg",
+  "Ingres_Odalisque_esclave_Fogg_Art.jpeg",
+  "Vincent_van_Gogh_-_Wheat_Field_with_Cypresses_(National_Gallery_version).jpg",
+  "Michelangelo_Caravaggio_020.jpg",
+];
+
 async function main() {
   const raw = JSON.parse(await fs.readFile(OVERRIDES_PATH, "utf8"));
   const before = Object.keys(raw).length;
   let added = 0;
   let changed = 0;
+  let removed = 0;
 
   for (const [filename, englishTitle] of Object.entries(PATCH)) {
     const key = `${FOLDER}/${filename}`.normalize("NFC");
@@ -291,6 +294,14 @@ async function main() {
     raw[key] = englishTitle;
   }
 
+  for (const filename of REMOVE_OVERRIDES) {
+    const key = `${FOLDER}/${filename}`.normalize("NFC");
+    if (Object.hasOwn(raw, key)) {
+      delete raw[key];
+      removed += 1;
+    }
+  }
+
   // Re-sort the file alphabetically so diffs stay readable.
   const sorted = Object.fromEntries(
     Object.entries(raw).sort(([a], [b]) => a.localeCompare(b)),
@@ -298,7 +309,7 @@ async function main() {
 
   await fs.writeFile(OVERRIDES_PATH, `${JSON.stringify(sorted, null, 2)}\n`);
   console.log(
-    `Patched ${OVERRIDES_PATH}: ${added} added, ${changed} updated. Total entries: ${before} → ${Object.keys(sorted).length}.`,
+    `Patched ${OVERRIDES_PATH}: ${added} added, ${changed} updated, ${removed} removed. Total entries: ${before} → ${Object.keys(sorted).length}.`,
   );
   console.log("Now run: pnpm assets:build-data");
 }
