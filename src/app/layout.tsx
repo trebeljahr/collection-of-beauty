@@ -118,24 +118,39 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
               })();
             `}
         </Script>
+        <a href="#main-content" className="skip-link">
+          Skip to main content
+        </a>
         <Gallery3DProvider>
           <SiteNav />
-          <main>{children}</main>
+          <main id="main-content">{children}</main>
           <footer className="mt-16 border-t border-[var(--border)] py-6 text-center text-xs text-[var(--muted-foreground)]">
             <nav
               aria-label="Footer"
               className="mb-2 flex flex-wrap items-center justify-center gap-x-4 gap-y-1"
             >
-              <Link href="/about" className="underline hover:text-[var(--foreground)]">
+              <Link
+                href="/about"
+                className="rounded-sm underline hover:text-[var(--foreground)] focus:outline-none focus-visible:ring-2 focus-visible:ring-[var(--ring)]"
+              >
                 About
               </Link>
-              <Link href="/artists" className="underline hover:text-[var(--foreground)]">
+              <Link
+                href="/artists"
+                className="rounded-sm underline hover:text-[var(--foreground)] focus:outline-none focus-visible:ring-2 focus-visible:ring-[var(--ring)]"
+              >
                 Browse all artists
               </Link>
-              <Link href="/imprint" className="underline hover:text-[var(--foreground)]">
+              <Link
+                href="/imprint"
+                className="rounded-sm underline hover:text-[var(--foreground)] focus:outline-none focus-visible:ring-2 focus-visible:ring-[var(--ring)]"
+              >
                 Imprint
               </Link>
-              <Link href="/privacy" className="underline hover:text-[var(--foreground)]">
+              <Link
+                href="/privacy"
+                className="rounded-sm underline hover:text-[var(--foreground)] focus:outline-none focus-visible:ring-2 focus-visible:ring-[var(--ring)]"
+              >
                 Privacy
               </Link>
             </nav>
@@ -145,7 +160,10 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
             </p>
             <p className="mt-1">
               Metadata is imperfect —{" "}
-              <Link href="/about#metadata" className="underline hover:text-[var(--foreground)]">
+              <Link
+                href="/about#metadata"
+                className="rounded-sm underline hover:text-[var(--foreground)] focus:outline-none focus-visible:ring-2 focus-visible:ring-[var(--ring)]"
+              >
                 corrections welcome
               </Link>
               .
@@ -165,7 +183,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
                 href="https://portfolio.trebeljahr.com"
                 target="_blank"
                 rel="noreferrer noopener"
-                className="underline hover:text-[var(--foreground)]"
+                className="rounded-sm underline hover:text-[var(--foreground)] focus:outline-none focus-visible:ring-2 focus-visible:ring-[var(--ring)]"
               >
                 Rico Trebeljahr
               </a>

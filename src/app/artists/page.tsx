@@ -24,6 +24,7 @@ export default function ArtistsPage() {
           {artists.length} artists represented, sorted by number of works.
         </p>
       </header>
+      <h2 className="sr-only">All artists</h2>
       <ArtistsBrowser artists={artists} />
     </div>
   );

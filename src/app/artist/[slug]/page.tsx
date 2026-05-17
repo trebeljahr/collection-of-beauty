@@ -80,7 +80,10 @@ export default async function ArtistPage({ params }: { params: Promise<Params> }
   return (
     <div className="mx-auto max-w-6xl px-4 py-8">
       <script {...jsonLdScriptProps(artistJsonLd(artist))} />
-      <Link href="/artists" className="text-sm text-[var(--muted-foreground)] hover:underline">
+      <Link
+        href="/artists"
+        className="rounded-sm text-sm text-[var(--muted-foreground)] hover:underline focus:outline-none focus-visible:ring-2 focus-visible:ring-[var(--ring)]"
+      >
         ← All artists
       </Link>
 
@@ -111,7 +114,7 @@ export default async function ArtistPage({ params }: { params: Promise<Params> }
               <Link
                 key={c.artist.slug}
                 href={`/artist/${c.artist.slug}`}
-                className="rounded-full border border-[var(--border)] bg-[var(--card)] px-3 py-1.5 text-sm hover:bg-[var(--accent)]"
+                className="rounded-full border border-[var(--border)] bg-[var(--card)] px-3 py-1.5 text-sm hover:bg-[var(--accent)] focus:outline-none focus-visible:ring-2 focus-visible:ring-[var(--ring)]"
                 title={c.label}
               >
                 {c.artist.name}
@@ -131,7 +134,7 @@ export default async function ArtistPage({ params }: { params: Promise<Params> }
               <Link
                 key={c.artist.slug}
                 href={`/artist/${c.artist.slug}`}
-                className="rounded-full border border-[var(--border)] px-3 py-1 text-xs text-[var(--muted-foreground)] hover:bg-[var(--accent)]"
+                className="rounded-full border border-[var(--border)] px-3 py-1 text-xs text-[var(--muted-foreground)] hover:bg-[var(--accent)] focus:outline-none focus-visible:ring-2 focus-visible:ring-[var(--ring)]"
               >
                 {c.artist.name}
               </Link>

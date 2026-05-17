@@ -168,7 +168,7 @@ export default function AboutPage() {
               href={GITHUB_URL}
               target="_blank"
               rel="noreferrer"
-              className="underline underline-offset-2 hover:text-[var(--muted-foreground)]"
+              className="rounded-sm underline underline-offset-2 hover:text-[var(--muted-foreground)] focus:outline-none focus-visible:ring-2 focus-visible:ring-[var(--ring)]"
             >
               {GITHUB_URL.replace(/^https?:\/\//, "")}
             </a>
@@ -177,7 +177,7 @@ export default function AboutPage() {
               href={`${GITHUB_URL}/issues/new`}
               target="_blank"
               rel="noreferrer"
-              className="underline underline-offset-2 hover:text-[var(--muted-foreground)]"
+              className="rounded-sm underline underline-offset-2 hover:text-[var(--muted-foreground)] focus:outline-none focus-visible:ring-2 focus-visible:ring-[var(--ring)]"
             >
               open an issue
             </a>{" "}
@@ -219,7 +219,10 @@ export default function AboutPage() {
         </section>
 
         <section className="pt-4">
-          <Link href="/" className="text-sm underline underline-offset-2 hover:opacity-70">
+          <Link
+            href="/"
+            className="rounded-sm text-sm underline underline-offset-2 hover:opacity-70 focus:outline-none focus-visible:ring-2 focus-visible:ring-[var(--ring)]"
+          >
             ← Back to the gallery
           </Link>
         </section>

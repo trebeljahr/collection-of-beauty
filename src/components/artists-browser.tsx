@@ -83,6 +83,8 @@ export function ArtistsBrowser({ artists }: Props) {
     <div className="space-y-6">
       <div className="flex flex-col gap-3 rounded-xl border border-[var(--border)] bg-[var(--card)] p-4 md:flex-row md:items-center">
         <Input
+          type="search"
+          aria-label="Search artists by name, movement, or nationality"
           placeholder="Search artists by name, movement, nationality..."
           value={query}
           onChange={(e) => setQuery(e.target.value)}
@@ -98,7 +100,7 @@ export function ArtistsBrowser({ artists }: Props) {
           <Link
             key={a.slug}
             href={`/artist/${a.slug}`}
-            className="group block overflow-hidden rounded-lg border border-[var(--border)] bg-[var(--card)] transition-shadow hover:shadow-lg"
+            className="group block overflow-hidden rounded-lg border border-[var(--border)] bg-[var(--card)] transition-shadow hover:shadow-lg focus:outline-none focus-visible:ring-2 focus-visible:ring-[var(--ring)] focus-visible:ring-offset-2 focus-visible:ring-offset-[var(--background)]"
           >
             <div className="relative aspect-square overflow-hidden bg-[var(--muted)]">
               {a.coverObjectKey && (

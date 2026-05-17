@@ -30,6 +30,7 @@ export default function HomePage() {
           </p>
         </div>
       </section>
+      <h2 className="sr-only">Browse all works</h2>
       <GalleryBrowser
         initialArtworks={initialPage.items}
         movements={movements}

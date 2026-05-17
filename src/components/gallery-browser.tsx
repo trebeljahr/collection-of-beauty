@@ -260,6 +260,8 @@ export function GalleryBrowser({ initialArtworks, movements, totalArtworks }: Pr
       <div className="flex flex-col gap-3 rounded-xl border border-[var(--border)] bg-[var(--card)] p-4">
         <div className="flex flex-col gap-2 sm:flex-row sm:items-center">
           <Input
+            type="search"
+            aria-label="Search artworks by title, artist, or movement"
             placeholder="Search by title, artist, movement..."
             value={query}
             onChange={(e) => setQuery(e.target.value)}
@@ -269,7 +271,7 @@ export function GalleryBrowser({ initialArtworks, movements, totalArtworks }: Pr
             aria-label="Sort artworks by"
             value={sortBy}
             onChange={(e) => setSortBy(e.target.value as ArtworkSort)}
-            className="h-9 rounded-md border border-[var(--input)] bg-transparent px-2 text-sm sm:w-auto sm:min-w-[12rem]"
+            className="h-9 rounded-md border border-[var(--input)] bg-transparent px-2 text-sm focus:outline-none focus-visible:ring-2 focus-visible:ring-[var(--ring)] sm:w-auto sm:min-w-[12rem]"
           >
             <option value="shuffle">Sort: shuffled</option>
             <option value="year">Sort: chronological</option>
@@ -282,7 +284,7 @@ export function GalleryBrowser({ initialArtworks, movements, totalArtworks }: Pr
             aria-label="Filter by movement"
             value={movement}
             onChange={(e) => setMovement(e.target.value)}
-            className="h-9 rounded-md border border-[var(--input)] bg-transparent px-2"
+            className="h-9 rounded-md border border-[var(--input)] bg-transparent px-2 focus:outline-none focus-visible:ring-2 focus-visible:ring-[var(--ring)]"
           >
             <option value="">All movements</option>
             {movements.map((m) => (

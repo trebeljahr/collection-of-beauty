@@ -15,7 +15,10 @@
   --secondary: oklch(0.95 0.01 80);
   --secondary-foreground: oklch(0.28 0.03 40);
   --muted: oklch(0.95 0.01 80);
-  --muted-foreground: oklch(0.5 0.02 60);
+  /* L=0.45 lifts contrast vs --background (oklch 0.99) above 4.5:1.
+     L=0.5 sits right at the WCAG AA threshold and fails on some
+     viewers. */
+  --muted-foreground: oklch(0.45 0.02 60);
   --accent: oklch(0.93 0.03 70);
   --accent-foreground: oklch(0.28 0.04 40);
   --destructive: oklch(0.58 0.21 27);
@@ -85,6 +88,40 @@
   html {
     scroll-behavior: smooth;
   }
+
+  /* Default keyboard focus indicator for any interactive element that
+     doesn't supply its own. `:where()` keeps specificity at 0 so
+     component-level `focus-visible:ring-*` utilities still win. */
+  :where(a, button, [role="button"], summary, [tabindex]):focus-visible {
+    outline: 2px solid var(--ring);
+    outline-offset: 2px;
+    border-radius: 2px;
+  }
+}
+
+/* Skip-to-content link — visually hidden until it receives keyboard
+   focus, then pinned to the top-left so a keyboard user can jump
+   straight to <main> without tabbing through the header. */
+.skip-link {
+  position: absolute;
+  top: 0.5rem;
+  left: 0.5rem;
+  z-index: 100;
+  padding: 0.5rem 0.75rem;
+  border-radius: 0.375rem;
+  background: var(--background);
+  color: var(--foreground);
+  border: 1px solid var(--border);
+  font-size: 0.875rem;
+  transform: translateY(-150%);
+  transition: transform 150ms ease-out;
+}
+
+.skip-link:focus,
+.skip-link:focus-visible {
+  transform: translateY(0);
+  outline: 2px solid var(--ring);
+  outline-offset: 2px;
 }
 
 /* ── Site-nav modal animations ─────────────────────────────────────
@@ -227,5 +264,18 @@
   .gallery-joystick-pad,
   .heartbeat {
     animation: none;
+  }
+  /* Belt-and-braces: collapse every CSS transition/animation and
+     disable smooth scrolling for users who asked the OS to cut motion.
+     The 3D gallery does its own motion-management on the canvas. */
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
+  }
+  html {
+    scroll-behavior: auto !important;
   }
 }

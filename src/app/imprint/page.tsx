@@ -40,7 +40,7 @@ export default function ImprintPage() {
             Email:{" "}
             <a
               href="mailto:imprint+collection-of-beauty@trebeljahr.com"
-              className="underline hover:text-[var(--muted-foreground)]"
+              className="rounded-sm underline hover:text-[var(--muted-foreground)] focus:outline-none focus-visible:ring-2 focus-visible:ring-[var(--ring)]"
             >
               imprint+collection-of-beauty@trebeljahr.com
             </a>
