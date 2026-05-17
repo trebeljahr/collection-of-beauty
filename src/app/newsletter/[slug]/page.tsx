@@ -60,7 +60,7 @@ export default async function EditionPage({ params }: { params: Promise<Params> 
     <article className="mx-auto max-w-3xl px-4 py-12 md:py-20">
       <header className="mb-14 md:mb-20">
         <div className="flex flex-wrap items-baseline gap-x-3 gap-y-1 text-xs uppercase tracking-[0.18em] text-[var(--muted-foreground)]">
-          <span>Issue {String(edition.number).padStart(4, "0")}</span>
+          <span>Issue {edition.number}</span>
           <span aria-hidden="true">·</span>
           <time dateTime={edition.publishedAt}>{formatDate(edition.publishedAt)}</time>
           {edition.readingTimeMinutes > 0 && (
@@ -95,57 +95,49 @@ export default async function EditionPage({ params }: { params: Promise<Params> 
         </section>
       )}
 
-      <ol className="space-y-28 md:space-y-40 list-none pl-0">
-        {resolved.map(({ artwork, note }, idx) => (
-          <li key={artwork.id} className="m-0">
-            <figure className="m-0">
-              <div
-                aria-hidden="true"
-                className="mb-4 font-serif text-2xl md:text-3xl tabular-nums text-[var(--muted-foreground)]"
-              >
-                {idx + 1}
-              </div>
-              <Link
-                href={`/artwork/${artwork.id}`}
-                className="block focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--ring)] rounded-md overflow-hidden"
-              >
-                <ResponsiveImage
-                  objectKey={artwork.objectKey}
-                  alt={artwork.title}
-                  sizes="(max-width: 768px) 100vw, 768px"
-                  variantWidths={artwork.variantWidths}
-                  srcWidth={artwork.width ?? undefined}
-                  srcHeight={artwork.height ?? undefined}
-                  className="w-full h-auto"
-                />
-              </Link>
-              <figcaption className="mt-3 md:mt-4">
-                <h2 className="font-serif text-2xl md:text-3xl leading-tight">
-                  <Link
-                    href={`/artwork/${artwork.id}`}
-                    className="hover:opacity-70 transition-opacity"
-                  >
-                    {artwork.title}
-                  </Link>
-                </h2>
-                <p className="mt-1.5 text-sm text-[var(--muted-foreground)]">
-                  {artwork.artist ?? "Unknown artist"}
-                  {artwork.year ? ` · ${artwork.year}` : ""}
-                  {artwork.movement ? ` · ${artwork.movement}` : ""}
-                  {artwork.realDimensions
-                    ? ` · ${artwork.realDimensions.widthCm.toFixed(0)} × ${artwork.realDimensions.heightCm.toFixed(0)} cm`
-                    : ""}
+      <section className="space-y-28 md:space-y-40">
+        {resolved.map(({ artwork, note }) => (
+          <figure key={artwork.id} className="m-0">
+            <Link
+              href={`/artwork/${artwork.id}`}
+              className="block focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--ring)] rounded-md overflow-hidden"
+            >
+              <ResponsiveImage
+                objectKey={artwork.objectKey}
+                alt={artwork.title}
+                sizes="(max-width: 768px) 100vw, 768px"
+                variantWidths={artwork.variantWidths}
+                srcWidth={artwork.width ?? undefined}
+                srcHeight={artwork.height ?? undefined}
+                className="w-full h-auto"
+              />
+            </Link>
+            <figcaption className="mt-3 md:mt-4">
+              <h2 className="font-serif text-2xl md:text-3xl leading-tight">
+                <Link
+                  href={`/artwork/${artwork.id}`}
+                  className="hover:opacity-70 transition-opacity"
+                >
+                  {artwork.title}
+                </Link>
+              </h2>
+              <p className="mt-1.5 text-sm text-[var(--muted-foreground)]">
+                {artwork.artist ?? "Unknown artist"}
+                {artwork.year ? ` · ${artwork.year}` : ""}
+                {artwork.movement ? ` · ${artwork.movement}` : ""}
+                {artwork.realDimensions
+                  ? ` · ${artwork.realDimensions.widthCm.toFixed(0)} × ${artwork.realDimensions.heightCm.toFixed(0)} cm`
+                  : ""}
+              </p>
+              {note && (
+                <p className="mt-5 text-[var(--foreground)] leading-[1.75] text-[1.0625rem]">
+                  {note}
                 </p>
-                {note && (
-                  <p className="mt-5 text-[var(--foreground)] leading-[1.75] text-[1.0625rem]">
-                    {note}
-                  </p>
-                )}
-              </figcaption>
-            </figure>
-          </li>
+              )}
+            </figcaption>
+          </figure>
         ))}
-      </ol>
+      </section>
 
       <footer className="mt-20 md:mt-24 border-t border-[var(--border)] pt-8 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 text-sm">
         <Link href="/newsletter" className="underline underline-offset-2 hover:opacity-70">

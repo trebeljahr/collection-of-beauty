@@ -1,6 +1,6 @@
 ---
 title: "Solitary figures in landscape"
-subject: "Issue 01: Solitary figures in landscape"
+subject: "Issue 1: Solitary figures in landscape"
 publishedAt: "2026-05-17"
 excerpt: "Five works built around a single figure standing in weather and space, from Friedrich's monk to Hasui's snowbound walker."
 draft: true
@@ -24,6 +24,6 @@ artworks:
     note: "Fresh snow on the roofs of a Tokyo suburb. The walker has left the only tracks in the print, a single line of dark holes across the foreground."
 ---
 
-(1) Friedrich painted *The Monk by the Sea* in 1808 and showed it without a frame. Two bands of dune and sea sit under a sky that takes most of the canvas, and against them stands a single figure smaller than a thumbnail.
+Friedrich painted *The Monk by the Sea* in 1808 and showed it without a frame. Two bands of dune and sea sit under a sky that takes most of the canvas, and against them stands a single figure smaller than a thumbnail.
 
-(2) Hiroshige's traveller loses his hat to a gust at the Yokkaichi river bend. (3) Van Gogh's sower walks into yellow wheat with the sun lined up behind his head. (4) Homer reduces a canoeist on a still Adirondack lake to one horizontal line. (5) Hasui's walker leaves the first tracks of the evening across fresh snow in a Tokyo suburb.
+Hiroshige's traveller loses his hat to a gust at the Yokkaichi river bend. Van Gogh's sower walks into yellow wheat with the sun lined up behind his head. Homer reduces a canoeist on a still Adirondack lake to one horizontal line. Hasui's walker leaves the first tracks of the evening across fresh snow in a Tokyo suburb.
