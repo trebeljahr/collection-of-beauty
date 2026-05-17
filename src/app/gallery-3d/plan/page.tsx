@@ -104,6 +104,7 @@ function FloorSvg({ floor }: { floor: FloorLayout }) {
           {floor.rooms.flatMap((room) =>
             room.doors.map((d, di) => (
               <DoorMark
+                // biome-ignore lint/suspicious/noArrayIndexKey: deterministic geometry list, never reorders.
                 key={`${room.id}-door-${di}`}
                 worldX={d.worldX}
                 worldZ={d.worldZ}

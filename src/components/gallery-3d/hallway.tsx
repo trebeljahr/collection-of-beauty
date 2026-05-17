@@ -92,6 +92,7 @@ export function HallwayRenderer({
   return (
     <group>
       {hallway.placements.map((p, i) => (
+        // biome-ignore lint/suspicious/noArrayIndexKey: deterministic per-hallway placements, never reorders.
         <Painting key={`${hallway.id}-p${i}`} placement={p} />
       ))}
 

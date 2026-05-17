@@ -112,7 +112,6 @@ export function Lightbox({
   const showSpinner = !placeholderLoaded && !highReady;
 
   return createPortal(
-    // biome-ignore lint/a11y/useSemanticElements: <dialog> with showModal() conflicts with the portal+gesture stack — div+role is fine here.
     <div
       role="dialog"
       aria-modal="true"
@@ -158,6 +157,7 @@ export function Lightbox({
               </picture>
             )}
             {/* eslint-disable-next-line @next/next/no-img-element */}
+            {/* biome-ignore lint/performance/noImgElement: variant selection + highReady swap is done manually by this component; next/image's pipeline does not fit our rclone-backed variant ladder. */}
             <img
               src={highReady ? highSrc : fallbackSrc}
               alt={alt}

@@ -66,6 +66,7 @@ export function ResponsiveImage({
     // browsers that pick a missing candidate.
     return (
       // eslint-disable-next-line @next/next/no-img-element
+      // biome-ignore lint/performance/noImgElement: fallback when no variants exist; next/image does not fit the rclone-backed pipeline (variants are pre-built, not optimized at request time).
       <img
         src={assetUrl(objectKey)}
         alt={alt}

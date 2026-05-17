@@ -482,6 +482,7 @@ export function StairwellAccents({ floor }: { floor: FloorLayout }) {
         // see the matching note in staircase.tsx's spiral baluster
         // render.
         <mesh
+          // biome-ignore lint/suspicious/noArrayIndexKey: deterministic baluster ring around a fixed cutout, never reorders.
           key={`cutout-bal-${i}`}
           position={[cx + b.pos[0], b.pos[1], cz + b.pos[2]]}
           rotation={[0, -b.angle, 0]}
