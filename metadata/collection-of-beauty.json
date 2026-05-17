@@ -3,8 +3,8 @@
   "kind": "wikimedia_image_collection",
   "generated_at": "2026-04-09T12:15:46.778Z",
   "source_api": "Wikimedia Commons action=query&prop=imageinfo",
-  "file_count": 2593,
-  "resolved_count": 2385,
+  "file_count": 2584,
+  "resolved_count": 2376,
   "unresolved_count": 208,
   "entries": {
     "'Garden_at_Bordighera,_Impression_of_Morning'_by_Claude_Monet,_1884,_Hermitage.jpeg": {
@@ -1498,36 +1498,6 @@
       "pd_status": "public_domain",
       "pd_status_reason": "Commons PD license"
     },
-    "1280px-Irissen_-_s0050V1962_-_Van_Gogh_Museum.jpg": {
-      "filename": "1280px-Irissen_-_s0050V1962_-_Van_Gogh_Museum.jpg",
-      "resolved": true,
-      "needs_review": false,
-      "title": "Irises",
-      "artist": "Vincent van Gogh",
-      "date_created": "1890 date QS:P571,+1890-00-00T00:00:00Z/9",
-      "year": 1890,
-      "description": "Painting by Vincent van Gogh, 1890",
-      "source": {
-        "type": "Wikimedia Commons",
-        "canonical_title": "File:Irissen - s0050V1962 - Van Gogh Museum.jpg",
-        "resolved_via_variant": "Irissen_-_s0050V1962_-_Van_Gogh_Museum.jpg",
-        "url": "https://commons.wikimedia.org/wiki/File%3AIrissen_-_s0050V1962_-_Van_Gogh_Museum.jpg",
-        "file_url": "https://upload.wikimedia.org/wikipedia/commons/9/96/Irissen_-_s0050V1962_-_Van_Gogh_Museum.jpg",
-        "credit": "Van Gogh Museum",
-        "permission": null,
-        "attribution": null
-      },
-      "copyright": {
-        "copyrighted": false,
-        "license_short": "Public domain",
-        "license_url": null,
-        "usage_terms": "Public domain"
-      },
-      "year_source": "wikidata_qs",
-      "pd_status": "public_domain",
-      "pd_status_reason": "Commons PD license",
-      "story": "Painted in May 1890 at Saint-Rémy, one of four floral still lifes he made in his final week at the asylum before heading north to Auvers. A tangled bunch of irises crammed into an earthenware jar, set against a lemon-yellow background that would have been a fresh pigment experiment — he was testing colour harmonies the way a composer tests chords. Writhing petals, sharp sword-leaves, that complementary violet-on-yellow vibrato. He told Theo these were studies, meant as 'tranquillisers' before the journey. Two months later he was dead."
-    },
     "1280px-Jean-Léon_Gérôme_-_Slave_Market_in_Rome_-_WGA8652.jpg": {
       "filename": "1280px-Jean-Léon_Gérôme_-_Slave_Market_in_Rome_-_WGA8652.jpg",
       "resolved": true,
@@ -1842,36 +1812,6 @@
       "pd_status": "public_domain",
       "pd_status_reason": "Commons PD license",
       "story": "The rocks Friedrich piles up here are real — the Neurathen gate in Saxon Switzerland, a famous sandstone formation southeast of Dresden — but he stitched them together with peaks from entirely different sketches, because topography was never the point. A dead fir lies across the foreground, splintered stumps bracket the gorge, and the far summits dissolve into a bright haze. Painted around 1822-23 and now at the Belvedere in Vienna, it is one of his most concentrated sermons in stone: a ravine of death below, the unreachable divine above."
-    },
-    "1280px-Self-Portrait_(Van_Gogh_September_1889).jpg": {
-      "filename": "1280px-Self-Portrait_(Van_Gogh_September_1889).jpg",
-      "resolved": true,
-      "needs_review": false,
-      "title": "Self-portrait",
-      "artist": "Vincent van Gogh",
-      "date_created": "September 1889 date QS:P571,+1889-09-00T00:00:00Z/10",
-      "year": 1889,
-      "description": null,
-      "source": {
-        "type": "Wikimedia Commons",
-        "canonical_title": "File:Self-Portrait (Van Gogh September 1889).jpg",
-        "resolved_via_variant": "Self-Portrait_(Van_Gogh_September_1889).jpg",
-        "url": "https://commons.wikimedia.org/wiki/File%3ASelf-Portrait_(Van_Gogh_September_1889).jpg",
-        "file_url": "https://upload.wikimedia.org/wikipedia/commons/e/ee/Self-Portrait_%28Van_Gogh_September_1889%29.jpg",
-        "credit": "Photograph: Szilas",
-        "permission": null,
-        "attribution": null
-      },
-      "copyright": {
-        "copyrighted": false,
-        "license_short": "Public domain",
-        "license_url": null,
-        "usage_terms": "Public domain"
-      },
-      "year_source": "wikidata_qs",
-      "pd_status": "public_domain",
-      "pd_status_reason": "Commons PD license",
-      "story": "The Musée d'Orsay self-portrait, painted a few weeks after recovering from a severe breakdown at Saint-Rémy. He wrote to Theo that he'd tried for something simple, and that he hoped you could see he was calm — 'though my gaze is vaguer than before'. The turquoise background swirls around him in those tight arabesques that also fill the cypresses and starry skies of that autumn. Clean-shaven, gaunt, in the grey suit he wore on good days. He gave it to his mother. It's possibly the last self-portrait he painted."
     },
     "1280px-Suzuki_Harunobu_-_Evening_Snow_on_the_Heater.jpg": {
       "filename": "1280px-Suzuki_Harunobu_-_Evening_Snow_on_the_Heater.jpg",
@@ -5010,36 +4950,6 @@
       "pd_status": "public_domain",
       "pd_status_reason": "Commons PD license",
       "story": "The Epsom Derby, painted during Gericault's 1820-21 stay in England, where he became obsessed with horses, racing and the damp open country. The composition shows four thoroughbreds at full gallop, all legs stretched fore and aft — the old 'flying gallop' convention that photographers would later prove biomechanically impossible. No matter; what Gericault wanted was the velocity, the blur of turf and cloud, the jockeys leaning into the wind. It became one of the defining images of Romantic horseflesh."
-    },
-    "2560px-Korenveld_onder_onweerslucht_-_s0106V1962_-_Van_Gogh_Museum.jpg": {
-      "filename": "2560px-Korenveld_onder_onweerslucht_-_s0106V1962_-_Van_Gogh_Museum.jpg",
-      "resolved": true,
-      "needs_review": false,
-      "title": "Wheatfield under Thunderclouds",
-      "artist": "Vincent van Gogh",
-      "date_created": "1890 date QS:P571,+1890-00-00T00:00:00Z/9",
-      "year": 1890,
-      "description": "Painting by Vincent van Gogh, 1890",
-      "source": {
-        "type": "Wikimedia Commons",
-        "canonical_title": "File:Korenveld onder onweerslucht - s0106V1962 - Van Gogh Museum.jpg",
-        "resolved_via_variant": "Korenveld_onder_onweerslucht_-_s0106V1962_-_Van_Gogh_Museum.jpg",
-        "url": "https://commons.wikimedia.org/wiki/File%3AKorenveld_onder_onweerslucht_-_s0106V1962_-_Van_Gogh_Museum.jpg",
-        "file_url": "https://upload.wikimedia.org/wikipedia/commons/5/5c/Korenveld_onder_onweerslucht_-_s0106V1962_-_Van_Gogh_Museum.jpg",
-        "credit": "Van Gogh Museum",
-        "permission": null,
-        "attribution": null
-      },
-      "copyright": {
-        "copyrighted": false,
-        "license_short": "Public domain",
-        "license_url": null,
-        "usage_terms": "Public domain"
-      },
-      "year_source": "wikidata_qs",
-      "pd_status": "public_domain",
-      "pd_status_reason": "Commons PD license",
-      "story": "Painted in the last weeks of his life at Auvers, on a double-square canvas he used for the wide Auvers wheatfields. A low bruised sky presses on the green crop, no figures, no horizon incident, just weather and wheat. He wrote to Theo and Jo that he was trying to express 'sadness and extreme loneliness' in these broad formats — but also, he insisted, the health and fortifying power of the countryside. Both things at once. He shot himself in a field like this about two weeks later."
     },
     "Landscape_with_a_Gnarled_Tree_and_a_Farm_MET_DT4127.jpg": {
       "filename": "Landscape_with_a_Gnarled_Tree_and_a_Farm_MET_DT4127.jpg",
@@ -26203,35 +26113,6 @@
       "pd_status": "public_domain",
       "pd_status_reason": "Commons PD license",
       "story": "Khnopff painted his sister Marguerite many times, always as this smooth, sealed presence. Here she stands full length in a tight white tailor-made, high collar buttoned to the throat, one gloved hand resting lightly on her forearm, the other on what might be a door handle. The whole picture is pale grey and bone white; a small bronze disc floats on the wall beside her like a planet. Marguerite was her brother's private emblem of chastity and refusal, and this 1887 portrait is the quietest version of the cult."
-    },
-    "Fernand_Le_Quesne_-_Les_deux_perles.jpg": {
-      "filename": "Fernand_Le_Quesne_-_Les_deux_perles.jpg",
-      "resolved": true,
-      "needs_review": false,
-      "title": "The Two Pearls",
-      "artist": "Fernand Le Quesne",
-      "date_created": "1889 date QS:P571,+1889-00-00T00:00:00Z/9",
-      "year": 1889,
-      "description": "Les Deux Perles",
-      "source": {
-        "type": "Wikimedia Commons",
-        "canonical_title": "File:Fernand Le Quesne - Les deux perles.jpg",
-        "url": "https://commons.wikimedia.org/wiki/File%3AFernand_Le_Quesne_-_Les_deux_perles.jpg",
-        "file_url": "https://upload.wikimedia.org/wikipedia/commons/7/76/Fernand_Le_Quesne_-_Les_deux_perles.jpg",
-        "credit": "http://www.iment.com/maida/family/mother/vicars/images/p080.jpg",
-        "permission": null,
-        "attribution": null
-      },
-      "copyright": {
-        "copyrighted": false,
-        "license_short": "Public domain",
-        "license_url": null,
-        "usage_terms": "Public domain"
-      },
-      "year_source": "wikidata_qs",
-      "pd_status": "public_domain",
-      "pd_status_reason": "Commons PD license",
-      "story": "A salon fantasy played straight: the sea god Glaucus, bronzed and crouching on a rock, reaches out to press a pearl into the palm of a sleeping white nereid stretched across a giant open shell. Two small sailboats drift on the horizon. Le Quesne, son of a sculptor, built his Parisian career on exactly this kind of polished mythological alibi, a pretext for two carefully lit nudes and a lot of mother-of-pearl. Shown at the Salon of 1889, the year of the Universal Exposition."
     },
     "Fernand_Le_Quesne_-_Les_deux_perles_(The_two_pearls)_(1889).png": {
       "filename": "Fernand_Le_Quesne_-_Les_deux_perles_(The_two_pearls)_(1889).png",
@@ -52550,35 +52431,6 @@
       "pd_status_reason": "Commons PD license",
       "story": "Classic Ma Yuan: the mountains shoved against one edge, cliff faces dropping into mist, a long diagonal of pines, and down in the corner a string of peasants dancing their way home along a path. He was nicknamed One-Corner Ma for exactly this kind of composition, where most of the silk is empty and the eye does the rest. Painted at the Southern Song court around 1200, it is also a piece of quiet politics: the emperor likes to see that the peasants are happy. The inscription at upper right is a later imperial hand joining the consensus."
     },
-    "Ma_Yuan_-_Dancing_and_Singing-_Peasants_Returning_from_Work_-_Detail_1.jpg": {
-      "filename": "Ma_Yuan_-_Dancing_and_Singing-_Peasants_Returning_from_Work_-_Detail_1.jpg",
-      "resolved": true,
-      "needs_review": false,
-      "title": "Dancing and Singing (Peasants Returning from Work) (detail)",
-      "artist": "Ma Yuan",
-      "date_created": "from 1160 until 1225 date QS:P571,+1500-00-00T00:00:00Z/6,P580,+1160-00-00T00:00:00Z/9,P582,+1225-00-00T00:00:00Z/9",
-      "year": 1160,
-      "description": null,
-      "source": {
-        "type": "Wikimedia Commons",
-        "canonical_title": "File:Ma Yuan - Dancing and Singing- Peasants Returning from Work - Detail 1.jpg",
-        "url": "https://commons.wikimedia.org/wiki/File%3AMa_Yuan_-_Dancing_and_Singing-_Peasants_Returning_from_Work_-_Detail_1.jpg",
-        "file_url": "https://upload.wikimedia.org/wikipedia/commons/4/46/Ma_Yuan_-_Dancing_and_Singing-_Peasants_Returning_from_Work_-_Detail_1.jpg",
-        "credit": "http://140.112.185.185/fineart/painter-ch/mayuan/mayuan.htm",
-        "permission": "This is a faithful photographic reproduction of a two-dimensional, public domain work of art. The work of art itself is in the public domain for the following reason: Public domain Public domain false false The author died in 1225, so this work is in the public domain in its country of origin and other countries and areas where the copyright term is the author's life plus 100 years or fewer . This work is in the public domain in the United States because it was published (or registered with the U.S. Copyright Office ) before January 1, 1931. This file has been identified as being free of known restrictions under copyright law, including all related and neighboring rights. https://creativecommons.org/publicdomain/mark/1.0/ PDM Creative Commons Public Domain Mark 1.0 false false The official position taken by the Wikimedia Foundation is that \" faithful reproductions of two-dimensional public domain works of art are public domain \". This photographic reproduction is therefore also considered to be in the public domain in the United States. In other jurisdictions, re-use of this content may be restricted; see Reuse of PD-Art photographs for details.",
-        "attribution": null
-      },
-      "copyright": {
-        "copyrighted": false,
-        "license_short": "Public domain",
-        "license_url": null,
-        "usage_terms": "Public domain"
-      },
-      "year_source": "wikidata_qs",
-      "pd_status": "public_domain",
-      "pd_status_reason": "Commons PD license",
-      "story": "A detail from Ma Yuan's scroll, zoomed into the middle: twisted pines, a covered bridge over a ravine, a pavilion half-swallowed by mist on the far slope. In the full composition these trees sit at the waist of the picture; pulled out like this you notice how each needle-cluster is a deliberate ink stamp, how the bridge is three strokes, how the mist is simply bare silk. This is the Ma-Xia school's economy at close range: a whole landscape built from a handful of marks and a great deal of trust in what you leave out."
-    },
     "Macke,_August_-_Promenade_-_Google_Art_Project.jpg": {
       "filename": "Macke,_August_-_Promenade_-_Google_Art_Project.jpg",
       "resolved": true,
@@ -67580,48 +67432,6 @@
       "pd_status_reason": "Commons PD license",
       "story": "A stout, bearded man in a cartwheel ruff stares out of a dark ground — the kind of starched linen collar that required its own wire frame and the attention of a servant. This is a copy after a Rubens portrait type, held by Colchester and Ipswich Museums. Rubens was brilliant at ruffs: he painted the linen with loose flicks of lead white over gray, letting the weave suggest itself rather than counting threads. Even a later hand following him had to reckon with that trick."
     },
-    "Peter_Paul_Rubens_(1577-1640)_(after)_-_The_Brazen_Serpent_-_TWCMS_,_C161_-_Shipley_Art_Gallery.jpg": {
-      "filename": "Peter_Paul_Rubens_(1577-1640)_(after)_-_The_Brazen_Serpent_-_TWCMS_,_C161_-_Shipley_Art_Gallery.jpg",
-      "resolved": true,
-      "needs_review": false,
-      "title": "The Brazen Serpent",
-      "artist": "Peter Paul Rubens",
-      "date_created": null,
-      "year": 1577,
-      "description": null,
-      "source": {
-        "type": "Wikimedia Commons",
-        "canonical_title": "File:Peter Paul Rubens (1577-1640) (after) - The Brazen Serpent - TWCMS , C161 - Shipley Art Gallery.jpg",
-        "url": "https://commons.wikimedia.org/wiki/File%3APeter_Paul_Rubens_(1577-1640)_(after)_-_The_Brazen_Serpent_-_TWCMS_%2C_C161_-_Shipley_Art_Gallery.jpg",
-        "file_url": "https://upload.wikimedia.org/wikipedia/commons/3/3d/Peter_Paul_Rubens_%281577-1640%29_%28after%29_-_The_Brazen_Serpent_-_TWCMS_%2C_C161_-_Shipley_Art_Gallery.jpg",
-        "credit": "Art UK",
-        "permission": null,
-        "attribution": null
-      },
-      "copyright": {
-        "copyrighted": false,
-        "license_short": "Public domain",
-        "license_url": null,
-        "usage_terms": "Public domain"
-      },
-      "artist_info": {
-        "name": "Peter Paul Rubens",
-        "aliases": [
-          "Peter Paul Rubens",
-          "P.P. Rubens",
-          "Rubens"
-        ],
-        "born": 1577,
-        "died": 1640,
-        "nationality": "Flemish",
-        "movement": "Baroque",
-        "pd_status": "public_domain_worldwide"
-      },
-      "year_source": "filename",
-      "pd_status": "public_domain",
-      "pd_status_reason": "Commons PD license",
-      "story": "Numbers 21: the Israelites in the wilderness are dying of snakebite, and Moses lifts up a bronze serpent on a pole — look at it and live. Rubens treated the subject in a heaving, muscular canvas now in the National Gallery, London, and this version at Gateshead's Shipley Art Gallery is a later hand working after him. The tangle of writhing bodies and actual snakes is pure Rubens: a pile-up of flesh that early Christians read as a foreshadowing of the crucifixion."
-    },
     "Peter_Paul_Rubens_(1577-1640)_(copy_after)_-_Madonna_and_Child_-_PCF48_-_Lady_Margaret_Hall.jpg": {
       "filename": "Peter_Paul_Rubens_(1577-1640)_(copy_after)_-_Madonna_and_Child_-_PCF48_-_Lady_Margaret_Hall.jpg",
       "resolved": true,
@@ -68211,48 +68021,6 @@
       "pd_status": "public_domain",
       "pd_status_reason": "Commons PD license",
       "story": "Democritus, the laughing philosopher of Abdera, is grinning at you. He's the ancient who reportedly could not stop laughing at the absurdity of human behavior — paired, in the old tradition, with the weeping Heraclitus. Rubens painted a famous pair of the two in 1603 during his time at the Spanish court in Valladolid, now in the Prado. This Munich canvas (inventory 7043) is a workshop or school-of version that descends from that pairing, and it keeps the open mouth and tilted head that make Democritus immediately readable."
-    },
-    "Peter_Paul_Rubens_-_A_View_of_Het_Steen_in_the_Early_Morning.jpg": {
-      "filename": "Peter_Paul_Rubens_-_A_View_of_Het_Steen_in_the_Early_Morning.jpg",
-      "resolved": true,
-      "needs_review": false,
-      "title": "A View of Het Steen in the Early Morning",
-      "artist": "Peter Paul Rubens",
-      "date_created": "circa 1636 date QS:P571,+1636-00-00T00:00:00Z/9,P1480,Q5727902",
-      "year": 1636,
-      "description": null,
-      "source": {
-        "type": "Wikimedia Commons",
-        "canonical_title": "File:Peter Paul Rubens - A View of Het Steen in the Early Morning.jpg",
-        "url": "https://commons.wikimedia.org/wiki/File%3APeter_Paul_Rubens_-_A_View_of_Het_Steen_in_the_Early_Morning.jpg",
-        "file_url": "https://upload.wikimedia.org/wikipedia/commons/7/78/Peter_Paul_Rubens_-_A_View_of_Het_Steen_in_the_Early_Morning.jpg",
-        "credit": "http://www.nationalgallery.org.uk/paintings/peter-paul-rubens-a-view-of-het-steen-in-the-early-morning",
-        "permission": "[1]",
-        "attribution": null
-      },
-      "copyright": {
-        "copyrighted": false,
-        "license_short": "Public domain",
-        "license_url": null,
-        "usage_terms": "Public domain"
-      },
-      "artist_info": {
-        "name": "Peter Paul Rubens",
-        "aliases": [
-          "Peter Paul Rubens",
-          "P.P. Rubens",
-          "Rubens"
-        ],
-        "born": 1577,
-        "died": 1640,
-        "nationality": "Flemish",
-        "movement": "Baroque",
-        "pd_status": "public_domain_worldwide"
-      },
-      "year_source": "wikidata_qs",
-      "pd_status": "public_domain",
-      "pd_status_reason": "Commons PD license",
-      "story": "Rubens bought the manor of Het Steen in 1635 and, semi-retired at fifty-eight, started painting what he could see from his own door. It's sunrise: a hunter stalks partridges with his spaniel, a wagon rolls out for market, the chateau's towers catch first light, the land rolls away for miles. The painting's pendant is the Wallace Collection's Rainbow Landscape; the two were developed together and hung together at Het Steen. This one ended up in London's National Gallery, bought for Sir George Beaumont and bequeathed to the nation."
     },
     "Peter_Paul_Rubens_-_Adam_and_Eve,_after_Titian,_between_1628_and_1629.jpg": {
       "filename": "Peter_Paul_Rubens_-_Adam_and_Eve,_after_Titian,_between_1628_and_1629.jpg",
@@ -82469,129 +82237,6 @@
       "pd_status": "public_domain",
       "pd_status_reason": "Commons PD license"
     },
-    "TheStarryNightByVincentVanGogh.jpg": {
-      "filename": "TheStarryNightByVincentVanGogh.jpg",
-      "resolved": true,
-      "needs_review": false,
-      "title": "The Starry Night",
-      "artist": "Vincent van Gogh",
-      "date_created": "June 1889 date QS:P571,+1889-06-00T00:00:00Z/10",
-      "year": 1889,
-      "description": "La noche estrellada",
-      "source": {
-        "type": "Wikimedia Commons",
-        "canonical_title": "File:TheStarryNightByVincentVanGogh.jpg",
-        "url": "https://commons.wikimedia.org/wiki/File%3ATheStarryNightByVincentVanGogh.jpg",
-        "file_url": "https://upload.wikimedia.org/wikipedia/commons/b/ba/TheStarryNightByVincentVanGogh.jpg",
-        "credit": "[1]",
-        "permission": null,
-        "attribution": null
-      },
-      "copyright": {
-        "copyrighted": false,
-        "license_short": "Public domain",
-        "license_url": null,
-        "usage_terms": "Public domain"
-      },
-      "artist_info": {
-        "name": "Vincent van Gogh",
-        "aliases": [
-          "Vincent van Gogh",
-          "van Gogh"
-        ],
-        "born": 1853,
-        "died": 1890,
-        "nationality": "Dutch",
-        "movement": "Post-Impressionism",
-        "pd_status": "public_domain_worldwide"
-      },
-      "translations": {
-        "title": {
-          "nl": "Sterrennacht",
-          "es": "La noche estrellada",
-          "co": "Notte stillata",
-          "ms": "The Starry Night",
-          "bg": "Звездна нощ",
-          "tr": "Yıldızlı Gece",
-          "zh-hk": "星夜",
-          "sv": "De sterrennacht",
-          "uk": "Зоряна ніч",
-          "zh-cn": "星夜",
-          "uz": "Yulduzli tun",
-          "kk": "Жұлдызды түн",
-          "eo": "Stela nokto",
-          "cs": "Hvězdná noc",
-          "bs": "Zvjezdana noć",
-          "bn": "তারাময় রাত",
-          "fr": "La Nuit étoilée",
-          "hr": "Zvjezdana noć",
-          "vi": "Đêm đầy sao",
-          "lv": "Zvaigžņotā nakts",
-          "af": "Die Sterrenag",
-          "sr": "Звездана ноћ",
-          "nb": "Stjernenatt",
-          "az": "Ulduzlu gecə",
-          "ckb": "شەوی ئەستێرەکان",
-          "ar": "ليلة النجوم",
-          "br": "An Noz stergannek",
-          "yue": "星夜",
-          "hu": "Csillagos éj",
-          "eu": "Gau izartsua",
-          "ast": "La nueche estrellada",
-          "ru": "Звёздная ночь",
-          "ba": "Йондоҙло төн",
-          "cy": "Y Noson Serennog",
-          "be": "Зорная ноч",
-          "sr-ec": "Звездана ноћ",
-          "zh": "星夜",
-          "da": "Stjernenatten",
-          "ka": "ვარსკვლავებიანი ღამე",
-          "ja": "星月夜",
-          "arz": "ليله النجوم",
-          "he": "ליל כוכבים",
-          "la": "Nox stellans",
-          "hi": "तारों वाली रात",
-          "te": "ది స్టార్రీ నైట్",
-          "fi": "Tähtikirkas yö",
-          "ta": "விண்மீன்கள் நிறைந்த இரவு",
-          "it": "Notte stellata",
-          "ne": "तारामय रात",
-          "ht": "Nuit zetwal (1889)",
-          "et": "Tähistaevas",
-          "km": "រាត្រីពោរពេញដោយផ្កាយ",
-          "sh": "Zvjezdana noć",
-          "wuu": "星夜",
-          "as": "দ্য ষ্টাৰী নাইট",
-          "tt": "Йолдызлы төн",
-          "hy": "Աստղալից գիշեր",
-          "pt": "A Noite Estrelada",
-          "be-tarask": "Зорная ноч",
-          "de": "Sternennacht",
-          "tw": "The Starry Night",
-          "lt": "Žvaigždėta naktis",
-          "sl": "Zvezdna noč",
-          "fa": "شب پر ستاره",
-          "ro": "Noapte înstelată",
-          "th": "ราตรีประดับดาว",
-          "war": "An Mabitun-on nga Gab-i",
-          "pl": "Gwiaździsta noc",
-          "ml": "ദ സ്റ്റാറി നൈറ്റ്",
-          "zh-tw": "星夜",
-          "ga": "An Oíche Réaltach",
-          "id": "Malam Berbintang",
-          "mk": "Ѕвездена ноќ",
-          "pa": "ਤਾਰਿਆਂ ਭਰੀ ਰਾਤ",
-          "gl": "A noite estrelada",
-          "ko": "별이 빛나는 밤",
-          "el": "Η έναστρη νύχτα",
-          "ca": "La nit estelada"
-        }
-      },
-      "year_source": "wikidata_qs",
-      "pd_status": "public_domain",
-      "pd_status_reason": "Commons PD license",
-      "story": "Saint-Remy, June 1889. Van Gogh painted this from memory in his room at the asylum of Saint-Paul-de-Mausole, working from the view out his barred east-facing window before sunrise. The village below is invented; the cypress, flame-like, is not. He didn't think much of the canvas at the time — called it a 'failure' in a letter to Theo. MoMA acquired it in 1941 and it has barely left since."
-    },
     "The_Accommodations_of_Desire.jpg": {
       "filename": "The_Accommodations_of_Desire.jpg",
       "resolved": false,
@@ -83528,47 +83173,6 @@
       "pd_status": "public_domain",
       "pd_status_reason": "Commons PD license",
       "story": "The Oi River was the worst obstacle on the Tokaido: no bridge, by shogunal policy, so armies couldn't cross it in wartime. Travelers had to be carried. Hokusai shows the circus in full — coolies ferrying passengers piggyback through chest-deep water, whole teams of porters hoisting palanquins on a ladderlike platform. The river writhes in stylized swirls. Behind the chaos, a calm monochrome Fuji, unbothered."
-    },
-    "The_Garden_of_earthly_delights.jpg": {
-      "filename": "The_Garden_of_earthly_delights.jpg",
-      "resolved": true,
-      "needs_review": false,
-      "title": "The Garden of earthly delights",
-      "artist": "Hieronymus Bosch",
-      "date_created": "between 1480 and 1505 date QS:P,+1500-00-00T00:00:00Z/6,P1319,+1480-00-00T00:00:00Z/9,P1326,+1505-00-00T00:00:00Z/9",
-      "year": 1480,
-      "description": "Le Jardin des délices par Jérôme Bosch, version haute définition téléchargée par dezoomify-rs",
-      "source": {
-        "type": "Wikimedia Commons",
-        "canonical_title": "File:The Garden of earthly delights.jpg",
-        "url": "https://commons.wikimedia.org/wiki/File%3AThe_Garden_of_earthly_delights.jpg",
-        "file_url": "https://upload.wikimedia.org/wikipedia/commons/9/96/The_Garden_of_earthly_delights.jpg",
-        "credit": "http://boschproject.org/dzi/00MCPVIS.dzi (downloaded with dezoomify-rs )",
-        "permission": null,
-        "attribution": null
-      },
-      "copyright": {
-        "copyrighted": false,
-        "license_short": "Public domain",
-        "license_url": null,
-        "usage_terms": "Public domain"
-      },
-      "artist_info": {
-        "name": "Hieronymus Bosch",
-        "aliases": [
-          "Hieronymus Bosch",
-          "Bosch"
-        ],
-        "born": 1450,
-        "died": 1516,
-        "nationality": "Early Netherlandish",
-        "movement": "Northern Renaissance",
-        "pd_status": "public_domain_worldwide"
-      },
-      "year_source": "wikidata_qs",
-      "pd_status": "public_domain",
-      "pd_status_reason": "Commons PD license",
-      "story": "Three panels: Eden on the left where God introduces Adam to Eve, a wild garden in the centre where naked couples cavort with giant strawberries and owls, and hell on the right where a man's body is a cracked eggshell tavern. Art historians have argued about the middle panel for five centuries, is it warning or celebration, sin or prelapsarian joy? Bosch painted it probably between 1490 and 1510 for a private patron, not a church. It entered the Spanish royal collection in 1591 and hangs now in the Prado."
     },
     "The_Golden_Pavilion_(5759027207).jpg": {
       "filename": "The_Golden_Pavilion_(5759027207).jpg",

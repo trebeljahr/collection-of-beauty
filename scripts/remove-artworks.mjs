@@ -33,7 +33,12 @@ const ASSETS_WEB = process.env.ASSETS_WEB_DIR ? path.resolve(process.env.ASSETS_
 // Curated removal list. Each entry: keep filename → remove filename.
 // All entries are duplicate scans of the same painting; the kept file is
 // higher-resolution and/or has a cleaner canonical filename.
+//
+// This array is re-used between passes; entries already removed in a
+// previous run are no-ops because rmIfExists() and the metadata checks
+// short-circuit on missing files / keys.
 const REMOVALS = [
+  // First pass (committed in 7a0adf0) — kept for the audit trail.
   {
     folder: "collection-of-beauty",
     remove: "Pitágoras_prohíbe_comer_animales_y_habas_(Rubens_y_Snyders).jpg",
@@ -75,6 +80,62 @@ const REMOVALS = [
     remove: "0_Prométhée_supplicié_-_Rubens_-_Snyders_-_Philadelphia_Museum_of_Art_(W1950-3-1)_-_(1).jpeg",
     keep: "Peter_Paul_Rubens,_Flemish_(active_Italy,_Antwerp,_and_England)_-_Prometheus_Bound_-_Google_Art_Project.jpg",
     reason: "same Philadelphia Museum Prometheus Bound; Google Art Project scan is higher-res",
+  },
+
+  // Second pass — confirmed by side-by-side visual inspection.
+  {
+    folder: "collection-of-beauty",
+    remove: "2560px-Korenveld_onder_onweerslucht_-_s0106V1962_-_Van_Gogh_Museum.jpg",
+    keep: "Vincent_van_Gogh_-_Wheatfield_under_thunderclouds_-_Google_Art_Project.jpg",
+    reason: "same Van Gogh Museum painting (s0106V1962); GAP scan is the canonical distribution",
+  },
+  {
+    folder: "collection-of-beauty",
+    remove: "TheStarryNightByVincentVanGogh.jpg",
+    keep: "VanGogh-starry_night_ballance1.jpg",
+    reason: "same MoMA Starry Night; this copy is only 1000×790 (305 KB)",
+  },
+  {
+    folder: "collection-of-beauty",
+    remove: "The_Garden_of_earthly_delights.jpg",
+    keep: "El_jardín_de_las_Delicias,_de_El_Bosco.jpg",
+    reason: "same Bosch triptych (Prado); Spanish-titled scan is 4× larger (5.7 MB / 2952×1574)",
+  },
+  {
+    folder: "collection-of-beauty",
+    remove: "Peter_Paul_Rubens_-_A_View_of_Het_Steen_in_the_Early_Morning.jpg",
+    keep: "Peter_Paul_Rubens_-_View_of_Het_Steen_Castle_in_the_Early_Morning.jpg",
+    reason: "same NG London 'Het Steen'; keeper is the museum's 21100×12384 ultra-hi-res scan",
+  },
+  {
+    folder: "collection-of-beauty",
+    remove: "1280px-Self-Portrait_(Van_Gogh_September_1889).jpg",
+    keep: "Vincent_van_Gogh_-_Self-Portrait_-_Google_Art_Project.jpg",
+    reason: "same Musée d'Orsay 1889 self-portrait; GAP scan is sharper",
+  },
+  {
+    folder: "collection-of-beauty",
+    remove: "1280px-Irissen_-_s0050V1962_-_Van_Gogh_Museum.jpg",
+    keep: "Vincent_van_Gogh_-_Irises_-_Google_Art_Project.jpg",
+    reason: "same Van Gogh Museum 1890 Irises still life; GAP scan is sharper at same width",
+  },
+  {
+    folder: "collection-of-beauty",
+    remove: "Fernand_Le_Quesne_-_Les_deux_perles.jpg",
+    keep: "Fernand_Le_Quesne_-_Les_deux_perles_(The_two_pearls)_(1889).png",
+    reason: "same Le Quesne 1889 painting; this is a tiny 642×770 sepia repro of the colour scan",
+  },
+  {
+    folder: "collection-of-beauty",
+    remove: "Peter_Paul_Rubens_(1577-1640)_(after)_-_The_Brazen_Serpent_-_TWCMS_,_C161_-_Shipley_Art_Gallery.jpg",
+    keep: "Peter_Paul_Rubens_-_The_Brazen_Serpent.jpg",
+    reason: "Shipley copy 'after' Rubens of same composition; only 800×630 (77 KB) vs NG London 6000×4237 autograph",
+  },
+  {
+    folder: "collection-of-beauty",
+    remove: "Ma_Yuan_-_Dancing_and_Singing-_Peasants_Returning_from_Work_-_Detail_1.jpg",
+    keep: "Ma_Yuan_-_Dancing_and_Singing-_Peasants_Returning_from_Work.jpg",
+    reason: "detail crop of the same Ma Yuan hanging scroll; redundant alongside the full work",
   },
 ];
 
