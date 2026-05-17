@@ -6,20 +6,21 @@ import remarkGfm from "remark-gfm";
 import { ResponsiveImage } from "@/components/responsive-image";
 import { artworks as ALL_ARTWORKS } from "@/lib/data";
 import { resolveEditionCover } from "@/lib/newsletter/cover";
-import { findEdition, loadPublishedEditions } from "@/lib/newsletter/editions";
+import { findEdition, loadUiVisibleEditions, showDraftsInUi } from "@/lib/newsletter/editions";
 import type { Edition } from "@/lib/newsletter/types";
 import { SITE_NAME, SITE_URL } from "@/lib/seo";
 
 type Params = { slug: string };
 
 export function generateStaticParams(): Params[] {
-  return loadPublishedEditions().map((e) => ({ slug: e.fileSlug }));
+  return loadUiVisibleEditions().map((e) => ({ slug: e.fileSlug }));
 }
 
 export async function generateMetadata({ params }: { params: Promise<Params> }): Promise<Metadata> {
   const { slug } = await params;
   const edition = findEdition(slug);
-  if (!edition || edition.draft) return {};
+  if (!edition) return {};
+  if (edition.draft && !showDraftsInUi()) return {};
   const cover = resolveEditionCover(edition);
   const ogImages = cover
     ? [{ url: cover.url, alt: cover.alt, width: 1280, height: 960 }]
@@ -50,7 +51,8 @@ export async function generateMetadata({ params }: { params: Promise<Params> }):
 export default async function EditionPage({ params }: { params: Promise<Params> }) {
   const { slug } = await params;
   const edition = findEdition(slug);
-  if (!edition || edition.draft) notFound();
+  if (!edition) notFound();
+  if (edition.draft && !showDraftsInUi()) notFound();
 
   const resolved = resolveArtworks(edition);
 
@@ -66,6 +68,11 @@ export default async function EditionPage({ params }: { params: Promise<Params> 
               <span aria-hidden="true">·</span>
               <span>{edition.readingTimeMinutes} min read</span>
             </>
+          )}
+          {edition.draft && (
+            <span className="rounded border border-amber-500 px-1.5 py-0.5 text-amber-600 dark:text-amber-400">
+              Draft
+            </span>
           )}
         </div>
         <h1 className="mt-3 font-serif text-3xl md:text-5xl tracking-tight">{edition.title}</h1>

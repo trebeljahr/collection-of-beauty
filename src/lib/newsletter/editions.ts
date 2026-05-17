@@ -185,6 +185,22 @@ export function loadPublishedEditions(): Edition[] {
   return loadEditions().filter((e) => !e.draft);
 }
 
+/**
+ * Editions visible in the on-site UI. Production hides drafts; dev shows
+ * them so you can preview an in-progress edition locally. Use this for
+ * the newsletter index + per-edition page only — sitemap, RSS, and the
+ * confirm-flow link must stay published-only.
+ */
+export function loadUiVisibleEditions(): Edition[] {
+  if (process.env.NODE_ENV === "production") return loadPublishedEditions();
+  return loadEditions();
+}
+
+/** Whether the current runtime should surface draft editions in the UI. */
+export function showDraftsInUi(): boolean {
+  return process.env.NODE_ENV !== "production";
+}
+
 export function findEdition(slug: string): Edition | undefined {
   return loadEditions().find((e) => e.fileSlug === slug || e.themeSlug === slug);
 }

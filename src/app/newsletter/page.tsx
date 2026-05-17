@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { resolveEditionCover } from "@/lib/newsletter/cover";
-import { loadPublishedEditions } from "@/lib/newsletter/editions";
+import { loadUiVisibleEditions } from "@/lib/newsletter/editions";
 import { SITE_NAME } from "@/lib/seo";
 
 export const metadata: Metadata = {
@@ -18,7 +18,7 @@ export const metadata: Metadata = {
 };
 
 export default function NewsletterIndexPage() {
-  const editions = loadPublishedEditions().slice().reverse();
+  const editions = loadUiVisibleEditions().slice().reverse();
 
   return (
     <div className="mx-auto max-w-3xl px-4 py-10 md:py-16">
@@ -79,6 +79,11 @@ export default function NewsletterIndexPage() {
                             <span aria-hidden="true">·</span>
                             <span>{ed.readingTimeMinutes} min read</span>
                           </>
+                        )}
+                        {ed.draft && (
+                          <span className="rounded border border-amber-500 px-1.5 py-0.5 text-amber-600 dark:text-amber-400">
+                            Draft
+                          </span>
                         )}
                       </div>
                       <h2 className="mt-2 font-serif text-2xl transition-opacity group-hover:opacity-70">
