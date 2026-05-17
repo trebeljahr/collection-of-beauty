@@ -95,46 +95,54 @@ export default async function EditionPage({ params }: { params: Promise<Params> 
         </section>
       )}
 
-      <section className="space-y-16 md:space-y-20">
-        {resolved.map(({ artwork, note }) => (
-          <figure key={artwork.id} className="m-0">
-            <Link
-              href={`/artwork/${artwork.id}`}
-              className="block focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--ring)] rounded-md overflow-hidden"
-            >
-              <ResponsiveImage
-                objectKey={artwork.objectKey}
-                alt={artwork.title}
-                sizes="(max-width: 768px) 100vw, 768px"
-                variantWidths={artwork.variantWidths}
-                srcWidth={artwork.width ?? undefined}
-                srcHeight={artwork.height ?? undefined}
-                className="w-full h-auto"
-              />
-            </Link>
-            <figcaption className="mt-8 md:mt-10">
-              <h2 className="font-serif text-2xl md:text-3xl leading-tight">
-                <Link
-                  href={`/artwork/${artwork.id}`}
-                  className="hover:opacity-70 transition-opacity"
-                >
-                  {artwork.title}
-                </Link>
-              </h2>
-              <p className="mt-2 text-sm text-[var(--muted-foreground)]">
-                {artwork.artist ?? "Unknown artist"}
-                {artwork.year ? ` · ${artwork.year}` : ""}
-                {artwork.movement ? ` · ${artwork.movement}` : ""}
-              </p>
-              {note && (
-                <p className="mt-6 text-[var(--foreground)] leading-[1.75] text-[1.0625rem]">
-                  {note}
+      <ol className="space-y-28 md:space-y-40 list-none pl-0">
+        {resolved.map(({ artwork, note }, idx) => (
+          <li key={artwork.id} className="m-0">
+            <figure className="m-0">
+              <div
+                aria-hidden="true"
+                className="mb-4 font-serif text-2xl md:text-3xl tabular-nums text-[var(--muted-foreground)]"
+              >
+                {idx + 1}
+              </div>
+              <Link
+                href={`/artwork/${artwork.id}`}
+                className="block focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--ring)] rounded-md overflow-hidden"
+              >
+                <ResponsiveImage
+                  objectKey={artwork.objectKey}
+                  alt={artwork.title}
+                  sizes="(max-width: 768px) 100vw, 768px"
+                  variantWidths={artwork.variantWidths}
+                  srcWidth={artwork.width ?? undefined}
+                  srcHeight={artwork.height ?? undefined}
+                  className="w-full h-auto"
+                />
+              </Link>
+              <figcaption className="mt-3 md:mt-4">
+                <h2 className="font-serif text-2xl md:text-3xl leading-tight">
+                  <Link
+                    href={`/artwork/${artwork.id}`}
+                    className="hover:opacity-70 transition-opacity"
+                  >
+                    {artwork.title}
+                  </Link>
+                </h2>
+                <p className="mt-1.5 text-sm text-[var(--muted-foreground)]">
+                  {artwork.artist ?? "Unknown artist"}
+                  {artwork.year ? ` · ${artwork.year}` : ""}
+                  {artwork.movement ? ` · ${artwork.movement}` : ""}
                 </p>
-              )}
-            </figcaption>
-          </figure>
+                {note && (
+                  <p className="mt-5 text-[var(--foreground)] leading-[1.75] text-[1.0625rem]">
+                    {note}
+                  </p>
+                )}
+              </figcaption>
+            </figure>
+          </li>
         ))}
-      </section>
+      </ol>
 
       <footer className="mt-20 md:mt-24 border-t border-[var(--border)] pt-8 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 text-sm">
         <Link href="/newsletter" className="underline underline-offset-2 hover:opacity-70">
