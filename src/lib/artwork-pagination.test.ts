@@ -46,6 +46,28 @@ describe("getArtworkListingPage", () => {
     expect(page.items.some((item) => item.artist === "Jean-Léon Gérôme")).toBe(true);
   });
 
+  it("spreads adjacent artists when shuffling", () => {
+    const page = getArtworkListingPage({ limit: 100, seed: "spread-test" });
+    let adjacentSameArtist = 0;
+    for (let i = 1; i < page.items.length; i++) {
+      const prev = page.items[i - 1].artist;
+      const curr = page.items[i].artist;
+      if (prev && curr && prev === curr) adjacentSameArtist += 1;
+    }
+    // Anti-cluster pass should keep adjacent same-artist count near zero
+    // (only possible when a single artist's bucket exceeds the artist
+    // count, which is far above 100 works for this collection).
+    expect(adjacentSameArtist).toBe(0);
+  });
+
+  it("produces a different shuffle order for different seeds", () => {
+    const a = getArtworkListingPage({ limit: 40, seed: "alpha" });
+    const b = getArtworkListingPage({ limit: 40, seed: "beta" });
+    const aIds = a.items.map((item) => item.id).join("|");
+    const bIds = b.items.map((item) => item.id).join("|");
+    expect(aIds).not.toBe(bIds);
+  });
+
   it("caps large page requests", () => {
     const page = getArtworkListingPage({ limit: MAX_ARTWORK_PAGE_SIZE + 100 });
 
