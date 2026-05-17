@@ -1,6 +1,7 @@
 import { type NextRequest, NextResponse } from "next/server";
 import {
   checkRateLimit,
+  isAlreadySubscribed,
   mintConfirmToken,
   normalizeEmail,
   sendConfirmationEmail,
@@ -70,6 +71,15 @@ export async function POST(request: NextRequest) {
       { error: "invalid_email", message: "Please enter a valid email address." },
       { status: 400 },
     );
+  }
+
+  // Short-circuit confirmed members — no point sending another confirmation
+  // email and re-issuing a token that does nothing. UX-wise this also lets
+  // the form tell the user "you're already on the list" instead of "check
+  // your inbox" (which never arrives because the address is already live).
+  if (await isAlreadySubscribed(email)) {
+    log("info", "already_subscribed", { ip });
+    return NextResponse.json({ ok: true, alreadySubscribed: true });
   }
 
   const token = mintConfirmToken(email);

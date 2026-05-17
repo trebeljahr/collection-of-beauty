@@ -4,12 +4,13 @@ export type EditionArtworkEntry = {
 };
 
 /**
- * Parsed shape of a single newsletter edition markdown file in
- * content/newsletter/<NNNN>-<slug>.md.
- *
- * `number` and `themeSlug` are derived from the filename. Everything
- * else comes from frontmatter or the markdown body.
+ * Cover image for an edition. Either references an artwork already in
+ * the issue (preferred — keeps everything addressable by artwork id) or
+ * an explicit url + alt for one-off covers (e.g. a photograph or a
+ * composite). Used for OG tags and the archive index card.
  */
+export type EditionCover = { artworkId: string; alt?: string } | { src: string; alt: string };
+
 export type Edition = {
   /** Zero-padded issue number, parsed from the filename prefix. */
   number: number;
@@ -31,4 +32,16 @@ export type Edition = {
   body: string;
   /** Frontmatter `draft: true` keeps the edition out of public surfaces. */
   draft: boolean;
+  /** Optional editorial tags. */
+  tags: string[];
+  /**
+   * Cover image. If not set, the renderer falls back to the first
+   * artwork in `artworks`.
+   */
+  cover: EditionCover | null;
+  /**
+   * Estimated reading time, in minutes, derived from the markdown body
+   * at parse time. 0 when the body is empty.
+   */
+  readingTimeMinutes: number;
 };

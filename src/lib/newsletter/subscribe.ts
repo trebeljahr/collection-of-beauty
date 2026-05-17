@@ -1,6 +1,9 @@
 import { createHmac, timingSafeEqual } from "node:crypto";
+import { render } from "@react-email/render";
 import formData from "form-data";
 import Mailgun from "mailgun.js";
+import { createElement } from "react";
+import ConfirmSubscription from "../../../emails/confirm-subscription";
 
 // Confirmation tokens are valid for 48 hours from issue. Past that the
 // user has to start over from /sub. Keeps stale tokens from sitting in
@@ -106,6 +109,27 @@ export async function addListMember(email: string, subscribed: boolean = true): 
   });
 }
 
+/**
+ * Returns `true` when the email is already a confirmed (`subscribed`)
+ * member of the list. Used by the subscribe endpoint to short-circuit
+ * and skip the confirmation send for repeat signups.
+ *
+ * Returns `false` on any error (member not found, network blip, etc.) —
+ * the caller falls through to the normal "send a confirmation" path,
+ * which is the right thing to do. Mailgun's `upsert: "yes"` makes the
+ * downstream add idempotent.
+ */
+export async function isAlreadySubscribed(email: string): Promise<boolean> {
+  try {
+    const client = getClient();
+    const listAddress = required("MAILGUN_LIST");
+    const member = await client.lists.members.getMember(listAddress, email);
+    return Boolean(member.subscribed);
+  } catch {
+    return false;
+  }
+}
+
 export async function sendConfirmationEmail(params: {
   to: string;
   confirmUrl: string;
@@ -114,27 +138,13 @@ export async function sendConfirmationEmail(params: {
   const domain = required("MAILGUN_DOMAIN");
   const from = required("MAILGUN_FROM");
 
-  const subject = "Confirm your subscription · Collection of Beauty";
-  const text =
-    `Thanks for subscribing to the Collection of Beauty weekly digest.\n\n` +
-    `Click the link below to confirm your email address. The link expires in 48 hours.\n\n` +
-    `${params.confirmUrl}\n\n` +
-    `If you didn't sign up, ignore this email — no list membership was created until you click.\n`;
-  const html = `<!doctype html>
-<html><body style="font-family: Georgia, serif; max-width: 560px; margin: 0 auto; padding: 24px; color: #222; line-height: 1.55;">
-  <h1 style="font-size: 20px; margin: 0 0 16px;">Confirm your subscription</h1>
-  <p style="margin: 0 0 12px;">Thanks for subscribing to the <strong>Collection of Beauty</strong> weekly digest — five public-domain works in your inbox, every Sunday.</p>
-  <p style="margin: 0 0 24px;">Click the button below to confirm. The link expires in 48 hours.</p>
-  <p style="margin: 0 0 24px;"><a href="${params.confirmUrl}" style="display: inline-block; background: #111; color: #fff; padding: 12px 20px; text-decoration: none; border-radius: 6px;">Confirm subscription</a></p>
-  <p style="margin: 0 0 12px; font-size: 13px; color: #666;">Or paste this URL into your browser:</p>
-  <p style="margin: 0 0 24px; font-size: 13px; color: #666; word-break: break-all;">${params.confirmUrl}</p>
-  <p style="margin: 0; font-size: 13px; color: #666;">If you didn't sign up, ignore this email — no list membership is created until you click.</p>
-</body></html>`;
+  const element = createElement(ConfirmSubscription, { confirmUrl: params.confirmUrl });
+  const [html, text] = await Promise.all([render(element), render(element, { plainText: true })]);
 
   await client.messages.create(domain, {
     from,
     to: params.to,
-    subject,
+    subject: "Confirm your subscription · Collection of Beauty",
     html,
     text,
     "o:tracking": "no",
