@@ -1,9 +1,9 @@
 {
-  "generatedAt": "2026-05-17T17:39:54.310Z",
+  "generatedAt": "2026-05-17T19:24:27.987Z",
   "threshold": 4,
   "stats": {
-    "total": 2861,
-    "hashed": 2861,
+    "total": 2855,
+    "hashed": 2855,
     "skipped": 0
   },
   "exact": [],
@@ -157,106 +157,6 @@
     }
   ],
   "titleClusters": [
-    {
-      "key": "vincent-van-gogh::starry night over the rh ne",
-      "minDistance": 6,
-      "members": [
-        {
-          "id": "collection-of-beauty-starry-night-over-the-rhone",
-          "title": "Starry Night Over the Rhône",
-          "englishTitle": null,
-          "artist": "Vincent van Gogh",
-          "objectKey": "collection-of-beauty/Starry_Night_Over_the_Rhone.jpg"
-        },
-        {
-          "id": "collection-of-beauty-vincent-van-gogh-starry-night-google-art-project",
-          "title": "The Starry Night",
-          "englishTitle": "Starry Night Over the Rhône",
-          "artist": "Vincent van Gogh",
-          "objectKey": "collection-of-beauty/Vincent_van_Gogh_-_Starry_Night_-_Google_Art_Project.jpg"
-        }
-      ]
-    },
-    {
-      "key": "jean-auguste-dominique-ingres::odalisque with slave",
-      "minDistance": 10,
-      "members": [
-        {
-          "id": "collection-of-beauty-ingres-odalisque-esclave-fogg-art",
-          "title": "Odalisque with Slave",
-          "englishTitle": "Odalisque with Slave (Fogg Art Museum, 1839)",
-          "artist": "Jean-Auguste-Dominique Ingres",
-          "objectKey": "collection-of-beauty/Ingres_Odalisque_esclave_Fogg_Art.jpeg"
-        },
-        {
-          "id": "collection-of-beauty-jean-paul-flandrin-odalisque-with-slave-walters-37887",
-          "title": "Odalisque with Slave",
-          "englishTitle": "Odalisque with Slave (Walters Art Museum, 1842; landscape by Jean-Paul Flandrin)",
-          "artist": "Jean-Auguste-Dominique Ingres",
-          "objectKey": "collection-of-beauty/Jean-Paul_Flandrin_-_Odalisque_with_Slave_-_Walters_37887.jpg"
-        }
-      ]
-    },
-    {
-      "key": "vincent-van-gogh::wheat field with cypresses",
-      "minDistance": 12,
-      "members": [
-        {
-          "id": "collection-of-beauty-vincent-van-gogh-wheat-field-with-cypresses-national-gallery-version",
-          "title": "Wheat Field with Cypresses",
-          "englishTitle": "Wheat Field with Cypresses (National Gallery, September 1889)",
-          "artist": "Vincent van Gogh",
-          "objectKey": "collection-of-beauty/Vincent_van_Gogh_-_Wheat_Field_with_Cypresses_(National_Gallery_version).jpg"
-        },
-        {
-          "id": "collection-of-beauty-vincent-van-gogh-wheat-field-with-cypresses-google-art-project",
-          "title": "Wheat Field with Cypresses",
-          "englishTitle": "Wheat Field with Cypresses (Metropolitan Museum, June 1889)",
-          "artist": "Vincent van Gogh",
-          "objectKey": "collection-of-beauty/Vincent_van_Gogh_-_Wheat_Field_with_Cypresses_-_Google_Art_Project.jpg"
-        }
-      ]
-    },
-    {
-      "key": "peter-paul-rubens::head of medusa",
-      "minDistance": 14,
-      "members": [
-        {
-          "id": "collection-of-beauty-medusarubens",
-          "title": "Head of Medusa",
-          "englishTitle": null,
-          "artist": "Peter Paul Rubens",
-          "objectKey": "collection-of-beauty/MedusaRubens.jpg"
-        },
-        {
-          "id": "collection-of-beauty-rubens-medusa",
-          "title": "Head of Medusa",
-          "englishTitle": null,
-          "artist": "Peter Paul Rubens",
-          "objectKey": "collection-of-beauty/Rubens_Medusa.jpeg"
-        }
-      ]
-    },
-    {
-      "key": "caravaggio::the lute player",
-      "minDistance": 15,
-      "members": [
-        {
-          "id": "collection-of-beauty-michelangelo-caravaggio-020",
-          "title": "The Lute Player",
-          "englishTitle": "The Lute Player (Hermitage)",
-          "artist": "Caravaggio",
-          "objectKey": "collection-of-beauty/Michelangelo_Caravaggio_020.jpg"
-        },
-        {
-          "id": "collection-of-beauty-1596-caravaggio-the-lute-player-new-york",
-          "title": "The Lute Player",
-          "englishTitle": "The Lute Player (Metropolitan Museum)",
-          "artist": "Caravaggio",
-          "objectKey": "collection-of-beauty/1596_Caravaggio,_The_Lute_Player_New_York.jpg"
-        }
-      ]
-    },
     {
       "key": "claude-monet::water lilies",
       "minDistance": 16,
@@ -413,26 +313,6 @@
           "englishTitle": null,
           "artist": null,
           "objectKey": "collection-of-beauty/Anatomy_Wellcome_L0021856.jpg"
-        }
-      ]
-    },
-    {
-      "key": "peter-paul-rubens::prometheus bound",
-      "minDistance": 19,
-      "members": [
-        {
-          "id": "collection-of-beauty-rubens-der-gefesselte-prometheus-um-1613-landesmuseum-oldenburg-923340078c",
-          "title": "Prometheus bound",
-          "englishTitle": null,
-          "artist": "Peter Paul Rubens",
-          "objectKey": "collection-of-beauty/Rubens_-_Der_gefesselte_Prometheus,_um_1613,_Landesmuseum_Oldenburg_923340078c.jpg"
-        },
-        {
-          "id": "collection-of-beauty-peter-paul-rubens-flemish-active-italy-antwerp-and-england-prometheus-bound-google-art-project",
-          "title": "Prometheus Bound",
-          "englishTitle": null,
-          "artist": "Peter Paul Rubens",
-          "objectKey": "collection-of-beauty/Peter_Paul_Rubens,_Flemish_(active_Italy,_Antwerp,_and_England)_-_Prometheus_Bound_-_Google_Art_Project.jpg"
         }
       ]
     },

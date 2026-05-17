@@ -1,34 +1,14 @@
 # Duplicate image sweep
 
-_Generated 2026-05-17T17:39:54.315Z from 2861/2861 artworks (0 skipped: no resolvable image)._
+_Generated 2026-05-17T19:24:27.989Z from 2855/2855 artworks (0 skipped: no resolvable image)._
 
 - Exact dHash collisions: **0** clusters covering **0** artworks
 - Near duplicates (hamming ≤ 4): **7** clusters covering **14** artworks
-- Same artist + same normalized title: **42** clusters covering **107** artworks
+- Same artist + same normalized title: **36** clusters covering **95** artworks
 
 ## Same artist + same title
 
 _Sorted by min pairwise hamming distance: low Δ likely = same work scanned twice; high Δ likely = a legitimate series sharing one title._
-
-### `vincent-van-gogh::starry night over the rh ne` — min Δ6
-- `collection-of-beauty-starry-night-over-the-rhone` — Starry Night Over the Rhône — `collection-of-beauty/Starry_Night_Over_the_Rhone.jpg`
-- `collection-of-beauty-vincent-van-gogh-starry-night-google-art-project` — The Starry Night / Starry Night Over the Rhône — `collection-of-beauty/Vincent_van_Gogh_-_Starry_Night_-_Google_Art_Project.jpg`
-
-### `jean-auguste-dominique-ingres::odalisque with slave` — min Δ10
-- `collection-of-beauty-ingres-odalisque-esclave-fogg-art` — Odalisque with Slave / Odalisque with Slave (Fogg Art Museum, 1839) — `collection-of-beauty/Ingres_Odalisque_esclave_Fogg_Art.jpeg`
-- `collection-of-beauty-jean-paul-flandrin-odalisque-with-slave-walters-37887` — Odalisque with Slave / Odalisque with Slave (Walters Art Museum, 1842; landscape by Jean-Paul Flandrin) — `collection-of-beauty/Jean-Paul_Flandrin_-_Odalisque_with_Slave_-_Walters_37887.jpg`
-
-### `vincent-van-gogh::wheat field with cypresses` — min Δ12
-- `collection-of-beauty-vincent-van-gogh-wheat-field-with-cypresses-national-gallery-version` — Wheat Field with Cypresses / Wheat Field with Cypresses (National Gallery, September 1889) — `collection-of-beauty/Vincent_van_Gogh_-_Wheat_Field_with_Cypresses_(National_Gallery_version).jpg`
-- `collection-of-beauty-vincent-van-gogh-wheat-field-with-cypresses-google-art-project` — Wheat Field with Cypresses / Wheat Field with Cypresses (Metropolitan Museum, June 1889) — `collection-of-beauty/Vincent_van_Gogh_-_Wheat_Field_with_Cypresses_-_Google_Art_Project.jpg`
-
-### `peter-paul-rubens::head of medusa` — min Δ14
-- `collection-of-beauty-medusarubens` — Head of Medusa — `collection-of-beauty/MedusaRubens.jpg`
-- `collection-of-beauty-rubens-medusa` — Head of Medusa — `collection-of-beauty/Rubens_Medusa.jpeg`
-
-### `caravaggio::the lute player` — min Δ15
-- `collection-of-beauty-michelangelo-caravaggio-020` — The Lute Player / The Lute Player (Hermitage) — `collection-of-beauty/Michelangelo_Caravaggio_020.jpg`
-- `collection-of-beauty-1596-caravaggio-the-lute-player-new-york` — The Lute Player / The Lute Player (Metropolitan Museum) — `collection-of-beauty/1596_Caravaggio,_The_Lute_Player_New_York.jpg`
 
 ### `claude-monet::water lilies` — min Δ16
 - `collection-of-beauty-monet-nenufares` — Water Lilies — `collection-of-beauty/Monet_-_Nenúfares.jpg`
@@ -54,10 +34,6 @@ _Sorted by min pairwise hamming distance: low Δ likely = same work scanned twic
 - `collection-of-beauty-anatomy-wellcome-l0021854` — Anatomy — `collection-of-beauty/Anatomy_Wellcome_L0021854.jpg`
 - `collection-of-beauty-anatomy-wellcome-l0021855` — Anatomy — `collection-of-beauty/Anatomy_Wellcome_L0021855.jpg`
 - `collection-of-beauty-anatomy-wellcome-l0021856` — Anatomy — `collection-of-beauty/Anatomy_Wellcome_L0021856.jpg`
-
-### `peter-paul-rubens::prometheus bound` — min Δ19
-- `collection-of-beauty-rubens-der-gefesselte-prometheus-um-1613-landesmuseum-oldenburg-923340078c` — Prometheus bound — `collection-of-beauty/Rubens_-_Der_gefesselte_Prometheus,_um_1613,_Landesmuseum_Oldenburg_923340078c.jpg`
-- `collection-of-beauty-peter-paul-rubens-flemish-active-italy-antwerp-and-england-prometheus-bound-google-art-project` — Prometheus Bound — `collection-of-beauty/Peter_Paul_Rubens,_Flemish_(active_Italy,_Antwerp,_and_England)_-_Prometheus_Bound_-_Google_Art_Project.jpg`
 
 ### `claude-monet::waterloo bridge` — min Δ23
 - `collection-of-beauty-1902-monet-die-waterloo-brucke-anagoria` — Waterloo-Bridge — `collection-of-beauty/1902_Monet_Die_Waterloo-Brücke_anagoria.jpeg`

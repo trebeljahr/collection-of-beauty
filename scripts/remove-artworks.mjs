@@ -137,6 +137,44 @@ const REMOVALS = [
     keep: "Ma_Yuan_-_Dancing_and_Singing-_Peasants_Returning_from_Work.jpg",
     reason: "detail crop of the same Ma Yuan hanging scroll; redundant alongside the full work",
   },
+
+  // Third pass — curator-reviewed via the /dedup-review panel.
+  {
+    folder: "collection-of-beauty",
+    remove: "Vincent_van_Gogh_-_Starry_Night_-_Google_Art_Project.jpg",
+    keep: "Starry_Night_Over_the_Rhone.jpg",
+    reason: "same Musée d'Orsay 'Starry Night Over the Rhône'; keeping the file already correctly named for the painting",
+  },
+  {
+    folder: "collection-of-beauty",
+    remove: "Ingres_Odalisque_esclave_Fogg_Art.jpeg",
+    keep: "Jean-Paul_Flandrin_-_Odalisque_with_Slave_-_Walters_37887.jpg",
+    reason: "curator keeps the Walters / Flandrin-collaboration version over the Fogg variant",
+  },
+  {
+    folder: "collection-of-beauty",
+    remove: "Vincent_van_Gogh_-_Wheat_Field_with_Cypresses_(National_Gallery_version).jpg",
+    keep: "Vincent_van_Gogh_-_Wheat_Field_with_Cypresses_-_Google_Art_Project.jpg",
+    reason: "curator keeps the Met (June 1889) version over the NG (September 1889) one",
+  },
+  {
+    folder: "collection-of-beauty",
+    remove: "MedusaRubens.jpg",
+    keep: "Rubens_Medusa.jpeg",
+    reason: "curator keeps the wider-canvas version (with surrounding landscape + drapery)",
+  },
+  {
+    folder: "collection-of-beauty",
+    remove: "Rubens_-_Der_gefesselte_Prometheus,_um_1613,_Landesmuseum_Oldenburg_923340078c.jpg",
+    keep: "Peter_Paul_Rubens,_Flemish_(active_Italy,_Antwerp,_and_England)_-_Prometheus_Bound_-_Google_Art_Project.jpg",
+    reason: "two autograph versions exist (Philadelphia + Oldenburg); curator keeps Philadelphia; second version is noted in the curator description",
+  },
+  {
+    folder: "collection-of-beauty",
+    remove: "Michelangelo_Caravaggio_020.jpg",
+    keep: "1596_Caravaggio,_The_Lute_Player_New_York.jpg",
+    reason: "two autograph versions exist (Met + Hermitage); curator keeps Met; second version is noted in the curator description",
+  },
 ];
 
 // Mirror scripts/build-data.mjs slugify() exactly so the ids we generate

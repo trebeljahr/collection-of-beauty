@@ -3,8 +3,8 @@
   "kind": "wikimedia_image_collection",
   "generated_at": "2026-04-09T12:15:46.778Z",
   "source_api": "Wikimedia Commons action=query&prop=imageinfo",
-  "file_count": 2584,
-  "resolved_count": 2376,
+  "file_count": 2578,
+  "resolved_count": 2370,
   "unresolved_count": 208,
   "entries": {
     "'Garden_at_Bordighera,_Impression_of_Morning'_by_Claude_Monet,_1884,_Hermitage.jpeg": {
@@ -36802,47 +36802,6 @@
       "pd_status_reason": "Commons PD license",
       "story": "A working drawing from the Louvre's cabinet des dessins, made while Ingres was wrestling his great late harem picture into its final round form. Pencil, chalk, the outlines of stacked nudes overlapping in the steam. He was 79, still drawing bodies from memory and from the squared-up tracings of figures he'd invented decades earlier. The sheet is dated 1859. Three years later he'd cut the painting down from a rectangle into the tondo we know now as Le Bain turc."
     },
-    "Ingres_Odalisque_esclave_Fogg_Art.jpeg": {
-      "filename": "Ingres_Odalisque_esclave_Fogg_Art.jpeg",
-      "resolved": true,
-      "needs_review": false,
-      "title": "Odalisque with Slave",
-      "artist": "Jean-Auguste-Dominique Ingres",
-      "date_created": "between 1839 and 1840 date QS:P571,+1850-00-00T00:00:00Z/7,P1319,+1839-00-00T00:00:00Z/9,P1326,+1840-00-00T00:00:00Z/9",
-      "year": 1839,
-      "description": "Ingres, L'Odalisque à l'esclave , 1839 Fogg art museum",
-      "source": {
-        "type": "Wikimedia Commons",
-        "canonical_title": "File:Ingres Odalisque esclave Fogg Art.jpeg",
-        "url": "https://commons.wikimedia.org/wiki/File%3AIngres_Odalisque_esclave_Fogg_Art.jpeg",
-        "file_url": "https://upload.wikimedia.org/wikipedia/commons/a/a4/Ingres_Odalisque_esclave_Fogg_Art.jpeg",
-        "credit": "http://taotothetruth.blogspot.fr/2011/04/master-copy-3.html",
-        "permission": null,
-        "attribution": null
-      },
-      "copyright": {
-        "copyrighted": false,
-        "license_short": "Public domain",
-        "license_url": null,
-        "usage_terms": "Public domain"
-      },
-      "artist_info": {
-        "name": "Jean-Auguste-Dominique Ingres",
-        "aliases": [
-          "Jean-Auguste-Dominique Ingres",
-          "Ingres"
-        ],
-        "born": 1780,
-        "died": 1867,
-        "nationality": "French",
-        "movement": "Neoclassicism",
-        "pd_status": "public_domain_worldwide"
-      },
-      "year_source": "wikidata_qs",
-      "pd_status": "public_domain",
-      "pd_status_reason": "Commons PD license",
-      "story": "A harem scene with the volume turned down. The odalisque lies back on cushions, one arm flung overhead, her eyes half-closed; at her feet, a slave in striped silks plays a long-necked tanbur while a Black eunuch keeps watch at the far door. Peacock feathers, a hookah, a small fountain in the garden beyond. The music is the whole point, even though you can't hear it. Ingres painted two versions; the Harvard Art Museums' Fogg holds this one, signed and dated 1839."
-    },
     "Irissen,_RP-P-1999-553_(cropped).jpg": {
       "filename": "Irissen,_RP-P-1999-553_(cropped).jpg",
       "resolved": true,
@@ -53432,57 +53391,6 @@
       "pd_status_reason": "Commons PD license",
       "story": "Eakins painted his old schoolmate Max Schmitt on the Schuylkill in October 1871, just after Schmitt won the Philadelphia single-sculls championship. A second sculler in the middle distance, glancing out at us from his own boat, is Eakins himself. This was his first major rowing picture and you can feel the care: the reflections worked out with near-architectural precision, the Girard Avenue Bridge diagrammed stroke by stroke, the low autumn light catching one side of the yellow hull. Sport painting treated as seriously as a history picture."
     },
-    "MedusaRubens.jpg": {
-      "filename": "MedusaRubens.jpg",
-      "resolved": true,
-      "needs_review": false,
-      "title": "Head of Medusa",
-      "artist": "Peter Paul Rubens",
-      "date_created": "between 1600 and 1625 date QS:P,+1650-00-00T00:00:00Z/7,P1319,+1600-00-00T00:00:00Z/9,P1326,+1625-00-00T00:00:00Z/9",
-      "year": 1600,
-      "description": null,
-      "source": {
-        "type": "Wikimedia Commons",
-        "canonical_title": "File:MedusaRubens.jpg",
-        "url": "https://commons.wikimedia.org/wiki/File%3AMedusaRubens.jpg",
-        "file_url": "https://upload.wikimedia.org/wikipedia/commons/1/1f/MedusaRubens.jpg",
-        "credit": "1. Moravská Galerie v Brně 2. schwerin-news.de 3. Web umenia, on-line katalóg",
-        "permission": null,
-        "attribution": null
-      },
-      "copyright": {
-        "copyrighted": false,
-        "license_short": "Public domain",
-        "license_url": null,
-        "usage_terms": "Public domain"
-      },
-      "artist_info": {
-        "name": "Peter Paul Rubens",
-        "aliases": [
-          "Peter Paul Rubens",
-          "P.P. Rubens",
-          "Rubens"
-        ],
-        "born": 1577,
-        "died": 1640,
-        "nationality": "Flemish",
-        "movement": "Baroque",
-        "pd_status": "public_domain_worldwide"
-      },
-      "translations": {
-        "title": {
-          "nl": "Hoofd van Medusa",
-          "ru": "Голова Медузы",
-          "cs": "Hlava medúsy",
-          "sk": "Hlava Medusy",
-          "de": "Haupt der Medusa"
-        }
-      },
-      "year_source": "wikidata_qs",
-      "pd_status": "public_domain",
-      "pd_status_reason": "Commons PD license",
-      "story": "Severed and still twitching, Medusa's head lies flung across a rock, the eyes rolled, the mouth open, and a whole writhing riot of snakes spilling from her skull onto the stone. Lizards and a scorpion scuttle in for good measure. The snakes, art historians now agree, were not Rubens at all — they're by his frequent collaborator Frans Snyders, the great painter of animals and still life. Dated around 1617 to 1618, it lives at the Kunsthistorisches Museum in Vienna, where viewers still flinch at the scorpion before they flinch at the head."
-    },
     "Mehmet_Alí,_pachá_de_Egipto,_por_David_Wilkie.jpg": {
       "filename": "Mehmet_Alí,_pachá_de_Egipto,_por_David_Wilkie.jpg",
       "resolved": true,
@@ -53648,47 +53556,6 @@
       "year_source": "wikidata_qs",
       "pd_status": "copyrighted",
       "pd_status_reason": "Commons copyrighted license"
-    },
-    "Michelangelo_Caravaggio_020.jpg": {
-      "filename": "Michelangelo_Caravaggio_020.jpg",
-      "resolved": true,
-      "needs_review": false,
-      "title": "The Lute Player",
-      "artist": "Caravaggio",
-      "date_created": "circa 1595 date QS:P571,+1595-00-00T00:00:00Z/9,P1480,Q5727902",
-      "year": 1595,
-      "description": null,
-      "source": {
-        "type": "Wikimedia Commons",
-        "canonical_title": "File:Michelangelo Caravaggio 020.jpg",
-        "url": "https://commons.wikimedia.org/wiki/File%3AMichelangelo_Caravaggio_020.jpg",
-        "file_url": "https://upload.wikimedia.org/wikipedia/commons/6/6a/Michelangelo_Caravaggio_020.jpg",
-        "credit": "The Yorck Project (2002) 10.000 Meisterwerke der Malerei (DVD-ROM), distributed by DIRECTMEDIA Publishing GmbH. ISBN : 3936122202 .",
-        "permission": "[1]",
-        "attribution": null
-      },
-      "copyright": {
-        "copyrighted": false,
-        "license_short": "Public domain",
-        "license_url": null,
-        "usage_terms": "Public domain"
-      },
-      "artist_info": {
-        "name": "Caravaggio",
-        "aliases": [
-          "Michelangelo Merisi",
-          "Caravaggio"
-        ],
-        "born": 1571,
-        "died": 1610,
-        "nationality": "Italian",
-        "movement": "Baroque",
-        "pd_status": "public_domain_worldwide"
-      },
-      "year_source": "wikidata_qs",
-      "pd_status": "public_domain",
-      "pd_status_reason": "Commons PD license",
-      "story": "This is the Hermitage Lute Player, the more polished of the two versions, on a bare marble tabletop instead of a carpet. A violin and bow lie ready on one side, a cluster of flowers and split fruit on the other; the madrigal on the open book is by Jacques Arcadelt, a love song. The boy's lips are parted mid-phrase. Del Monte commissioned it, hung it in his palazzo, and later Vincenzo Giustiniani — who owned the other version — apparently liked it enough to want one of his own."
     },
     "Michelangelo_libyan.jpg": {
       "filename": "Michelangelo_libyan.jpg",
@@ -76338,48 +76205,6 @@
       "pd_status_reason": "Commons PD license",
       "story": "A huge arc of rain-wash bends across the Flemish countryside near Rubens' manor Het Steen, which he'd bought in 1635. Haymakers load a wagon, cattle amble down a track, milkmaids joke with a farmhand. Long evening shadows say the work is nearly done. Rubens kept this painting and its morning-light partner until he died, and scholars think he hung the pair together at Het Steen itself. The Rainbow Landscape now lives in London's Wallace Collection."
     },
-    "Rubens_-_Der_gefesselte_Prometheus,_um_1613,_Landesmuseum_Oldenburg_923340078c.jpg": {
-      "filename": "Rubens_-_Der_gefesselte_Prometheus,_um_1613,_Landesmuseum_Oldenburg_923340078c.jpg",
-      "resolved": true,
-      "needs_review": false,
-      "title": "Prometheus bound",
-      "artist": "Peter Paul Rubens",
-      "date_created": "1602",
-      "year": 1602,
-      "description": null,
-      "source": {
-        "type": "Wikimedia Commons",
-        "canonical_title": "File:Rubens - Der gefesselte Prometheus, um 1613, Landesmuseum Oldenburg 923340078c.jpg",
-        "url": "https://commons.wikimedia.org/wiki/File%3ARubens_-_Der_gefesselte_Prometheus%2C_um_1613%2C_Landesmuseum_Oldenburg_923340078c.jpg",
-        "file_url": "https://upload.wikimedia.org/wikipedia/commons/1/1e/Rubens_-_Der_gefesselte_Prometheus%2C_um_1613%2C_Landesmuseum_Oldenburg_923340078c.jpg",
-        "credit": "https://www.landesmuseum-ol.de/bedeutender-ankauf-der-gefesselte-prometheus.html",
-        "permission": null,
-        "attribution": null
-      },
-      "copyright": {
-        "copyrighted": false,
-        "license_short": "Public domain",
-        "license_url": null,
-        "usage_terms": "Public domain"
-      },
-      "artist_info": {
-        "name": "Peter Paul Rubens",
-        "aliases": [
-          "Peter Paul Rubens",
-          "P.P. Rubens",
-          "Rubens"
-        ],
-        "born": 1577,
-        "died": 1640,
-        "nationality": "Flemish",
-        "movement": "Baroque",
-        "pd_status": "public_domain_worldwide"
-      },
-      "year_source": "date_created_plain",
-      "pd_status": "public_domain",
-      "pd_status_reason": "Commons PD license",
-      "story": "Chained to his rock, Prometheus kicks and twists while the eagle digs a beak into his liver — Rubens painting pain as choreography. The work dates to around 1613 or 1614, shortly after his return from Italy. Its story since is almost as brutal as its subject: seized from the Jewish dealer Jacques Goudstikker's circle under Nazi persecution, earmarked for Hitler's planned Führermuseum in Linz, damaged in a salt-mine store during the war, and only restituted to the rightful heirs in 2009. It now hangs in the Landesmuseum Kunst und Kultur in Oldenburg."
-    },
     "Rubens_-_Mars_et_Rhea_Silvia.jpg": {
       "filename": "Rubens_-_Mars_et_Rhea_Silvia.jpg",
       "resolved": true,
@@ -90328,47 +90153,6 @@
       "pd_status_reason": "Commons PD license",
       "story": "Dark coat, felt hat, pipe clenched between his teeth — Van Gogh staring himself down in a mirror in autumn 1886, newly arrived in Paris. He painted roughly thirty-five self-portraits in his life, mostly because sitters were cheaper when they were himself. This one is still Dutch-dim, the brown-green gloom he brought from Antwerp. Within a year Impressionism and Japanese prints would blow the palette wide open. The little panel, about 46 by 38 cm, belongs to the Van Gogh Museum in Amsterdam."
     },
-    "Vincent_van_Gogh_-_Starry_Night_-_Google_Art_Project.jpg": {
-      "filename": "Vincent_van_Gogh_-_Starry_Night_-_Google_Art_Project.jpg",
-      "resolved": true,
-      "needs_review": false,
-      "title": "The Starry Night",
-      "artist": "Vincent van Gogh",
-      "date_created": "1888 date QS:P571,+1888-00-00T00:00:00Z/9",
-      "year": 1888,
-      "description": "Vincent van Gogh - Starry Night on the Rhone, 1888",
-      "source": {
-        "type": "Wikimedia Commons",
-        "canonical_title": "File:Vincent van Gogh - Starry Night - Google Art Project.jpg",
-        "url": "https://commons.wikimedia.org/wiki/File%3AVincent_van_Gogh_-_Starry_Night_-_Google_Art_Project.jpg",
-        "file_url": "https://upload.wikimedia.org/wikipedia/commons/0/01/Vincent_van_Gogh_-_Starry_Night_-_Google_Art_Project.jpg",
-        "credit": "uQE3XORhSK37Dw at Google Cultural Institute maximum zoom level",
-        "permission": null,
-        "attribution": null
-      },
-      "copyright": {
-        "copyrighted": false,
-        "license_short": "Public domain",
-        "license_url": null,
-        "usage_terms": "Public domain"
-      },
-      "artist_info": {
-        "name": "Vincent van Gogh",
-        "aliases": [
-          "Vincent van Gogh",
-          "van Gogh"
-        ],
-        "born": 1853,
-        "died": 1890,
-        "nationality": "Dutch",
-        "movement": "Post-Impressionism",
-        "pd_status": "public_domain_worldwide"
-      },
-      "year_source": "wikidata_qs",
-      "story": "Arles, September 1888. Van Gogh carried his easel down to the bank of the Rhône a minute's walk from the Yellow House and painted this outdoors, at night, under a gas lamp. A few days later he wrote Theo describing exactly what you see: the sky green-blue, the water royal blue, the Great Bear sparkling green and pink against it, the gaslights' reflections dropping into the river as red gold and green bronze. Down on the quay, a couple walks arm in arm. This is the first of his night pictures — the famous swirling one at Saint-Rémy came nine months later, from a different window, a different state of mind.",
-      "pd_status": "public_domain",
-      "pd_status_reason": "Commons PD license"
-    },
     "Vincent_van_Gogh_-_The_Bedroom_-_Google_Art_Project.jpg": {
       "filename": "Vincent_van_Gogh_-_The_Bedroom_-_Google_Art_Project.jpg",
       "resolved": true,
@@ -90586,47 +90370,6 @@
       "pd_status": "public_domain",
       "pd_status_reason": "Commons PD license",
       "story": "Summer 1888. Van Gogh had fled grey Paris for the Provencal light and couldn't stop painting the wildflower strips at the edge of the Arles wheatfields. Crushed yellows, buttercup greens, a horizon shoved high so the flowers do most of the talking. He works thick and fast here, paint squeezed almost straight from the tube. The canvas lives at the Van Gogh Museum in Amsterdam."
-    },
-    "Vincent_van_Gogh_-_Wheat_Field_with_Cypresses_(National_Gallery_version).jpg": {
-      "filename": "Vincent_van_Gogh_-_Wheat_Field_with_Cypresses_(National_Gallery_version).jpg",
-      "resolved": true,
-      "needs_review": false,
-      "title": "Wheat Field with Cypresses",
-      "artist": "Vincent van Gogh",
-      "date_created": "1889 date QS:P571,+1889-00-00T00:00:00Z/9",
-      "year": 1889,
-      "description": null,
-      "source": {
-        "type": "Wikimedia Commons",
-        "canonical_title": "File:Vincent van Gogh - Wheat Field with Cypresses (National Gallery version).jpg",
-        "url": "https://commons.wikimedia.org/wiki/File%3AVincent_van_Gogh_-_Wheat_Field_with_Cypresses_(National_Gallery_version).jpg",
-        "file_url": "https://upload.wikimedia.org/wikipedia/commons/1/15/Vincent_van_Gogh_-_Wheat_Field_with_Cypresses_%28National_Gallery_version%29.jpg",
-        "credit": "National Gallery ( NG3861 ), London",
-        "permission": null,
-        "attribution": null
-      },
-      "copyright": {
-        "copyrighted": false,
-        "license_short": "Public domain",
-        "license_url": null,
-        "usage_terms": "Public domain"
-      },
-      "artist_info": {
-        "name": "Vincent van Gogh",
-        "aliases": [
-          "Vincent van Gogh",
-          "van Gogh"
-        ],
-        "born": 1853,
-        "died": 1890,
-        "nationality": "Dutch",
-        "movement": "Post-Impressionism",
-        "pd_status": "public_domain_worldwide"
-      },
-      "year_source": "wikidata_qs",
-      "pd_status": "public_domain",
-      "pd_status_reason": "Commons PD license",
-      "story": "Saint-Remy, September 1889. Van Gogh painted three versions of this motif; this one he made in his asylum studio after the original, and kept for himself as a 'souvenir.' The cypresses are 'as beautiful of line and proportion as an Egyptian obelisk,' he told Theo — and he meant it literally. Churned clouds, a field bending in the mistral. It has been at the National Gallery in London since 1923."
     },
     "Vincent_van_Gogh_-_Wheat_Field_with_Cypresses_-_Google_Art_Project.jpg": {
       "filename": "Vincent_van_Gogh_-_Wheat_Field_with_Cypresses_-_Google_Art_Project.jpg",
