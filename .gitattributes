@@ -7,8 +7,11 @@
 # checkouts.
 src/app/icon.png !filter !diff !merge -text
 src/app/apple-icon.png !filter !diff !merge -text
+src/app/opengraph-image.png !filter !diff !merge -text
 public/favicon.png !filter !diff !merge -text
 public/apple-touch-icon.png !filter !diff !merge -text
+public/marketing/hero.png !filter !diff !merge -text
+public/marketing/hero.jpg !filter !diff !merge -text
 
 # Poly Haven PBR textures are small (≤2 MB each, ~18 MB total) and
 # CC0, so we ship them as regular Git blobs rather than LFS objects.
