@@ -63,7 +63,7 @@ export default function WeeklyDigest({
 }: WeeklyDigestProps) {
   const previewText =
     artworks.length > 0
-      ? `${title} — ${artworks[0].title}${artworks[0].artist ? ` by ${artworks[0].artist}` : ""} and ${artworks.length - 1} more.`
+      ? `${title}. ${artworks[0].title}${artworks[0].artist ? ` by ${artworks[0].artist}` : ""} and ${artworks.length - 1} more.`
       : title;
 
   return (

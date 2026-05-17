@@ -104,8 +104,8 @@ export function SubscribeForm() {
       >
         <p className="font-medium">You're already on the list.</p>
         <p className="mt-1 text-[var(--muted-foreground)]">
-          That address is already a confirmed subscriber — no need to do anything. The next issue
-          will arrive at the usual cadence.
+          That address is already a confirmed subscriber. Nothing to do. The next issue arrives at
+          the usual cadence.
         </p>
       </div>
     );
@@ -171,7 +171,7 @@ export function SubscribeForm() {
       )}
 
       <p className="text-xs text-[var(--muted-foreground)]">
-        One email a week. The unsubscribe link sits at the bottom of every issue — leave whenever.
+        One email a week. The unsubscribe link sits at the bottom of every issue. Leave whenever.
       </p>
     </form>
   );
