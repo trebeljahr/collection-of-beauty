@@ -68,7 +68,7 @@ export function ArtworkViewer({ art, prevId, nextId }: Props) {
         onClick={() => open(art)}
         title="View fullscreen"
         aria-label={`Open ${displayTitle(art)} in fullscreen viewer`}
-        className="flex min-h-0 w-full flex-1 cursor-zoom-in items-center justify-center rounded-md border-0 bg-transparent p-0 focus:outline-none focus-visible:ring-2 focus-visible:ring-[var(--ring)]"
+        className="flex min-h-0 w-full flex-1 cursor-zoom-in items-start justify-center rounded-md border-0 bg-transparent p-0 focus:outline-none focus-visible:ring-2 focus-visible:ring-[var(--ring)]"
       >
         <ResponsiveImage
           objectKey={art.objectKey}
