@@ -261,13 +261,29 @@ export function Player({
     enabledRef.current = enabled;
   }, [enabled]);
 
+  // Latest `floor` mirrored into a ref so the spawn effect below can
+  // pick the floor's central spiral as a lookAt target without taking
+  // `floor` as an effect dep — that would re-fire the spawn teleport on
+  // every stair-driven floor swap.
+  const latestFloorRef = useRef(floor);
+  latestFloorRef.current = floor;
+
   useEffect(() => {
-    camera.position.set(spawnAt[0], spawnAt[1] + EYE_HEIGHT, spawnAt[2]);
-    // Face north (-Z) toward the stairwell room. Each floor's anchor
-    // sits directly south of the central spiral, so on spawn the player
-    // is looking straight at the stairs they can climb up to the next
-    // era — sets the orientation for the rest of the visit.
-    camera.lookAt(spawnAt[0], spawnAt[1] + EYE_HEIGHT, spawnAt[2] - 5);
+    const eyeY = spawnAt[1] + EYE_HEIGHT;
+    camera.position.set(spawnAt[0], eyeY, spawnAt[2]);
+    // Face the central spiral so the navigation affordance is the first
+    // thing the player sees on spawn / teleport. Anchor and stair centres
+    // aren't always axis-aligned (anchor centre X drifts off the stair X
+    // depending on era-specific room sizing), so a hardcoded -Z lookAt
+    // isn't reliable. Use the actual stair centre on the current floor;
+    // fall back to a north-facing default if a floor has no spiral.
+    const f = latestFloorRef.current;
+    const stair = f.stairsOut[0] ?? f.stairsIn[0] ?? null;
+    if (stair) {
+      camera.lookAt(stair.centerX, eyeY, stair.centerZ);
+    } else {
+      camera.lookAt(spawnAt[0], eyeY, spawnAt[2] - 5);
+    }
   }, [camera, spawnAt]);
 
   useEffect(() => {
