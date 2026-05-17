@@ -11,16 +11,52 @@ type Status =
   | { kind: "already-subscribed" }
   | { kind: "error"; message: string };
 
+// Same regex as the server (src/lib/newsletter/subscribe.ts) so client and
+// server agree on what "looks like an email". The server is still
+// authoritative — this is purely a UX layer that avoids a slow round-trip
+// for obviously-malformed input.
+const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
+function looksLikeEmail(value: string): boolean {
+  const trimmed = value.trim();
+  return trimmed.length > 0 && trimmed.length <= 254 && EMAIL_RE.test(trimmed);
+}
+
 export function SubscribeForm() {
   const [email, setEmail] = useState("");
   // Honeypot — wired but never shown to the user. Bots that fill every
   // input get filtered server-side before any Mailgun call.
   const [website, setWebsite] = useState("");
   const [status, setStatus] = useState<Status>({ kind: "idle" });
+  // Inline validation error, surfaced on blur. Kept separate from a
+  // submit-time `status: error` so a transient format complaint doesn't
+  // look like a server failure.
+  const [formatError, setFormatError] = useState<string | null>(null);
+
+  function handleEmailChange(value: string) {
+    setEmail(value);
+    // Stale messages disappear the moment the user starts fixing things.
+    if (formatError !== null) setFormatError(null);
+    if (status.kind === "error") setStatus({ kind: "idle" });
+  }
+
+  function handleEmailBlur() {
+    if (email.trim().length === 0) {
+      setFormatError(null);
+      return;
+    }
+    setFormatError(looksLikeEmail(email) ? null : "That doesn't look like an email address.");
+  }
 
   async function onSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
     if (status.kind === "submitting") return;
+
+    if (!looksLikeEmail(email)) {
+      setFormatError("That doesn't look like an email address.");
+      return;
+    }
+    setFormatError(null);
     setStatus({ kind: "submitting" });
     try {
       const res = await fetch("/api/newsletter/subscribe", {
@@ -45,7 +81,11 @@ export function SubscribeForm() {
 
   if (status.kind === "success") {
     return (
-      <div className="rounded-lg border border-[var(--border)] bg-[var(--accent)] p-5 text-sm">
+      <div
+        role="status"
+        aria-live="polite"
+        className="rounded-lg border border-[var(--border)] bg-[var(--accent)] p-5 text-sm"
+      >
         <p className="font-medium">Check your inbox.</p>
         <p className="mt-1 text-[var(--muted-foreground)]">
           Tap the confirmation link to finish. Spam folder is the usual suspect if it doesn't
@@ -57,7 +97,11 @@ export function SubscribeForm() {
 
   if (status.kind === "already-subscribed") {
     return (
-      <div className="rounded-lg border border-[var(--border)] bg-[var(--accent)] p-5 text-sm">
+      <div
+        role="status"
+        aria-live="polite"
+        className="rounded-lg border border-[var(--border)] bg-[var(--accent)] p-5 text-sm"
+      >
         <p className="font-medium">You're already on the list.</p>
         <p className="mt-1 text-[var(--muted-foreground)]">
           That address is already a confirmed subscriber — no need to do anything. The next issue
@@ -66,6 +110,9 @@ export function SubscribeForm() {
       </div>
     );
   }
+
+  const inlineErrorId = "newsletter-email-error";
+  const visibleError = formatError ?? (status.kind === "error" ? status.message : null);
 
   return (
     <form onSubmit={onSubmit} className="space-y-3" noValidate>
@@ -81,8 +128,11 @@ export function SubscribeForm() {
           required
           placeholder="you@example.com"
           value={email}
-          onChange={(e) => setEmail(e.target.value)}
+          onChange={(e) => handleEmailChange(e.target.value)}
+          onBlur={handleEmailBlur}
           disabled={status.kind === "submitting"}
+          aria-invalid={visibleError !== null}
+          aria-describedby={visibleError !== null ? inlineErrorId : undefined}
           className="h-11 flex-1 text-base"
         />
         <Button
@@ -109,9 +159,14 @@ export function SubscribeForm() {
         />
       </div>
 
-      {status.kind === "error" && (
-        <p role="alert" className="text-sm text-[var(--destructive,#b00020)]">
-          {status.message}
+      {visibleError !== null && (
+        <p
+          id={inlineErrorId}
+          role="alert"
+          aria-live="assertive"
+          className="text-sm text-[var(--destructive,#b00020)]"
+        >
+          {visibleError}
         </p>
       )}
 
