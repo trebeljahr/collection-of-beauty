@@ -13,21 +13,17 @@ tags:
   - "shin-hanga"
 artworks:
   - id: "collection-of-beauty-caspar-david-friedrich-der-monch-am-meer-google-art-project"
-    note: "Three horizontal bands. Pale dune at the bottom, dark sea above, vast sky over both. One dark vertical stands against them, slightly off-centre, small enough that the eye almost loses him. Friedrich strips the picture down until the figure is barely a smudge of pigment, and the painting becomes about that decision."
+    note: "One vertical figure stands off-centre on a pale strip of dune. Sea and sky take the rest of the picture in two near-equal bands. The figure is small enough that on a phone screen you might mistake him for a fleck of pigment."
   - id: "collection-of-beauty-hiroshige-53-stations-hoeido-44-yokkaichi-mfa-01"
     note: "The hat is already in the air. The traveller leans into the wind at the same angle the reeds are bent, and the river bends with them. Every diagonal on the sheet points the wrong way for the man."
   - id: "collection-of-beauty-sower-at-sunset-vincent-van-gogh"
-    note: "The sun sits on the horizon directly behind the sower's head, the size of a halo placed there by accident. Yellow wheat in long strokes, violet earth in short ones, one figure stepping into the field."
+    note: "The sun sits on the horizon directly behind the sower's head, the size of a halo placed there by accident. Yellow wheat in long strokes above violet earth in short ones."
   - id: "collection-of-beauty-winslow-homer-the-adirondack-guide"
-    note: "Watercolour, with the white of the paper doing the work for the highlight on his shirt and the wake behind the canoe. The boat and the man read as a single horizontal line. No second figure anywhere on the lake."
+    note: "Watercolour, with the white of the paper doing the work for the highlight on his shirt and the wake behind the canoe. The boat and the man read as a single horizontal line on still water."
   - id: "collection-of-beauty-evening-snow-at-terashima-village"
-    note: "Snow on every roof, every branch, every shoulder. The walker is the only thing still moving in a print where everything else has stopped. Even the dusk seems to have settled."
+    note: "Fresh snow on the roofs of a Tokyo suburb. The walker has left the only tracks in the print, a single line of dark holes across the foreground."
 ---
 
-Each of these five painters put one figure into the picture and let everything else be space.
+(1) Friedrich painted *The Monk by the Sea* in 1808 and showed it without a frame. Two bands of dune and sea sit under a sky that takes most of the canvas, and against them stands a single figure smaller than a thumbnail.
 
-Friedrich keeps the most. *The Monk by the Sea* (1808) is three horizontal bands of dune, sea, and sky, with one vertical figure standing against them, slightly off-centre, small enough that the eye almost loses him. Hiroshige's traveller at Yokkaichi-juku is dwarfed too, though by weather rather than cosmos. The hat is already mid-air. The reeds are bent at the same angle as the man.
-
-Van Gogh's sower steps into the wheat with the sun directly behind his head, the size of a halo placed there by accident. Homer's late watercolour reduces an Adirondack canoeist and his boat to a single horizontal line on a still lake. Hasui's walker passes a snow-buried cottage in the suburbs of Tokyo and leaves the only fresh tracks in the print.
-
-None of the five figures share a posture or a purpose. The painters do.
+(2) Hiroshige's traveller loses his hat to a gust at the Yokkaichi river bend. (3) Van Gogh's sower walks into yellow wheat with the sun lined up behind his head. (4) Homer reduces a canoeist on a still Adirondack lake to one horizontal line. (5) Hasui's walker leaves the first tracks of the evening across fresh snow in a Tokyo suburb.
