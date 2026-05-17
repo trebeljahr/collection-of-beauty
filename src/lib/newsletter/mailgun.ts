@@ -27,32 +27,39 @@ export type SendDigestParams = {
   /**
    * For mailing lists, Mailgun rewrites per-recipient. We send to the list
    * address (e.g. `weekly@mg.example.com`) and Mailgun fans it out.
-   * Defaults to `MAILGUN_LIST` env var.
+   * Defaults to the NODE_ENV-resolved list — `MAILGUN_LIST` in production,
+   * `MAILGUN_TEST_LIST` otherwise.
    */
   to?: string;
 };
-
-/**
- * Which list to send to. `live` reads MAILGUN_LIST (the real subscriber
- * list); `test` reads MAILGUN_TEST_LIST (a separate Mailgun list that
- * should only contain your own address).
- */
-export type SendTarget = "live" | "test";
 
 export type SendResult = {
   id: string | null;
   message: string | null;
 };
 
-export function resolveListAddress(target: SendTarget): string {
-  return target === "test" ? required("MAILGUN_TEST_LIST") : required("MAILGUN_LIST");
+/**
+ * Pick the destination list by environment. Production sends to the real
+ * subscriber list (`MAILGUN_LIST`); every other environment sends to a
+ * separate test list (`MAILGUN_TEST_LIST`) that should only contain
+ * your own address. This is the only thing that decides which list a
+ * send hits — there is no per-invocation override.
+ */
+export function resolveListAddress(): string {
+  return process.env.NODE_ENV === "production"
+    ? required("MAILGUN_LIST")
+    : required("MAILGUN_TEST_LIST");
+}
+
+export function isProductionSend(): boolean {
+  return process.env.NODE_ENV === "production";
 }
 
 export async function sendDigest(params: SendDigestParams): Promise<SendResult> {
   const client = getClient();
   const domain = required("MAILGUN_DOMAIN");
   const from = params.from ?? required("MAILGUN_FROM");
-  const to = params.to ?? required("MAILGUN_LIST");
+  const to = params.to ?? resolveListAddress();
 
   const res = await client.messages.create(domain, {
     from,

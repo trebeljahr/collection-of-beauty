@@ -123,8 +123,8 @@ Output a short summary:
 - the five chosen artworks (`id` — short title — artist) with the one-line variety justification for each
 - the three CLI commands the user runs next:
   - `pnpm newsletter:send <fileSlug>` — dry run
-  - `pnpm newsletter:send <fileSlug> --test` — to `MAILGUN_TEST_LIST`
-  - `pnpm newsletter:send <fileSlug> --confirm` — real send to `MAILGUN_LIST`
+  - `pnpm newsletter:send <fileSlug> --confirm` — sends to `MAILGUN_TEST_LIST` (any non-production NODE_ENV picks the test list)
+  - `NODE_ENV=production pnpm newsletter:send <fileSlug> --confirm` — real send to `MAILGUN_LIST`
 
 ## Hard rules
 
