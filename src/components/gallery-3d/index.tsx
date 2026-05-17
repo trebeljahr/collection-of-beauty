@@ -37,6 +37,14 @@ type Props = { artworks: ArtworkListing[] };
  * neighbours) is mounted at any time. Keys 1..N teleport between
  * floors; the spiral staircase at the centre of every floor handles
  * organic floor-to-floor walking.
+ *
+ * TODO(nsfw): the 2D site honours `ArtworkListing.nsfw` + the
+ * `cob.nsfw.blur` preference by wrapping every thumbnail in
+ * <NsfwScrim>. The 3D museum still renders painting textures
+ * unconditionally — out of scope for the launch chip. Likely path:
+ * swap in a placeholder texture (or a GPU-side blur material) when
+ * `useNsfw().blur` is true and `artwork.nsfw` is set, with a "tap to
+ * reveal" interaction wired through ZoomModal.
  */
 export function Gallery3D({ artworks }: Props) {
   const layout = useMemo(() => layoutMuseum(artworks), [artworks]);

@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { NsfwScrim } from "@/components/nsfw-scrim";
 import { ResponsiveImage } from "@/components/responsive-image";
 import { artworkAlt } from "@/lib/artwork-format";
 import type { ArtworkListing } from "@/lib/data";
@@ -17,15 +18,17 @@ export function ArtworkCard({ artwork, priority }: Props) {
         className="absolute inset-0 z-10 focus:outline-none focus-visible:ring-2 focus-visible:ring-[var(--ring)]"
       />
       <div className="relative aspect-[4/5] overflow-hidden bg-[var(--muted)]">
-        <ResponsiveImage
-          objectKey={artwork.objectKey}
-          variantWidths={artwork.variantWidths}
-          alt={artworkAlt(artwork)}
-          fill
-          sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 20vw"
-          priority={priority}
-          className="transition-transform duration-500 group-hover:scale-105 group-active:scale-[1.02]"
-        />
+        <NsfwScrim nsfw={artwork.nsfw}>
+          <ResponsiveImage
+            objectKey={artwork.objectKey}
+            variantWidths={artwork.variantWidths}
+            alt={artworkAlt(artwork)}
+            fill
+            sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 20vw"
+            priority={priority}
+            className="transition-transform duration-500 group-hover:scale-105 group-active:scale-[1.02]"
+          />
+        </NsfwScrim>
       </div>
       <div className="space-y-1 p-3">
         <h3 className="line-clamp-2 text-sm font-medium">{artwork.title}</h3>

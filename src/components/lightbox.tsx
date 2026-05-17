@@ -7,6 +7,7 @@ import {
   TransformComponent,
   TransformWrapper,
 } from "react-zoom-pan-pinch";
+import { NsfwScrim } from "@/components/nsfw-scrim";
 import { assetUrl, cn, variantSrcSet, variantUrl } from "@/lib/utils";
 
 type Props = {
@@ -18,6 +19,7 @@ type Props = {
   srcWidth?: number | null;
   srcHeight?: number | null;
   caption?: string;
+  nsfw?: boolean;
   onPrev?: (() => void) | null;
   onNext?: (() => void) | null;
 };
@@ -31,6 +33,7 @@ export function Lightbox({
   srcWidth,
   srcHeight,
   caption,
+  nsfw = false,
   onPrev,
   onNext,
 }: Props) {
@@ -134,7 +137,7 @@ export function Lightbox({
           wrapperStyle={{ width: "100vw", height: "100vh" }}
           contentStyle={{ width: "100vw", height: "100vh" }}
         >
-          <div className="relative h-screen w-screen">
+          <NsfwScrim nsfw={nsfw} key={objectKey} className="relative h-screen w-screen">
             {/* Placeholder: cached responsive variant from the detail page,
                 shown until the high-res copy is decoded. */}
             {hasVariants && (
@@ -172,7 +175,7 @@ export function Lightbox({
                 highReady ? "opacity-100" : hasVariants ? "opacity-0" : "opacity-100",
               )}
             />
-          </div>
+          </NsfwScrim>
         </TransformComponent>
       </TransformWrapper>
 

@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { useMemo, useState } from "react";
+import { NsfwScrim } from "@/components/nsfw-scrim";
 import { ResponsiveImage } from "@/components/responsive-image";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
@@ -146,15 +147,17 @@ export function TimelineView({ artworks, movements }: Props) {
                     title={`${a.title}${a.artist ? " — " + a.artist : ""} (${a.year})`}
                     aria-label={artworkAlt(a)}
                   />
-                  <ResponsiveImage
-                    objectKey={a.objectKey}
-                    variantWidths={a.variantWidths}
-                    alt={artworkAlt(a)}
-                    fill
-                    sizes="(max-width: 640px) 33vw, (max-width: 1024px) 20vw, 12vw"
-                    loading="lazy"
-                    className="transition-transform duration-500 group-hover:scale-110"
-                  />
+                  <NsfwScrim nsfw={a.nsfw} compact>
+                    <ResponsiveImage
+                      objectKey={a.objectKey}
+                      variantWidths={a.variantWidths}
+                      alt={artworkAlt(a)}
+                      fill
+                      sizes="(max-width: 640px) 33vw, (max-width: 1024px) 20vw, 12vw"
+                      loading="lazy"
+                      className="transition-transform duration-500 group-hover:scale-110"
+                    />
+                  </NsfwScrim>
                   {/* Caption: always visible on touch (no hover state)
                       so cards aren't unlabeled stamp-sized thumbs;
                       slides up on hover from md+ for the desktop

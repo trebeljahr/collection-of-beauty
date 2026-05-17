@@ -4,6 +4,7 @@ import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { useIs3DActive } from "@/components/gallery-3d-state";
+import { useNsfw } from "@/components/nsfw-provider";
 
 const LINKS: ReadonlyArray<{ href: string; label: string; sub?: string }> = [
   { href: "/", label: "Gallery", sub: "Browse the full collection" },
@@ -62,6 +63,7 @@ export function SiteNav() {
       return () => window.clearTimeout(id);
     }
   }, [is3DActive]);
+  const { blur, setBlur } = useNsfw();
 
   const modalRef = useRef<HTMLDivElement | null>(null);
   // Hamburger gets focus back on close so keyboard users don't lose
@@ -208,6 +210,45 @@ export function SiteNav() {
               {l.label}
             </Link>
           ))}
+          <button
+            type="button"
+            onClick={() => setBlur(!blur)}
+            aria-pressed={blur}
+            title={
+              blur
+                ? "Sensitive works are blurred — click to show"
+                : "Sensitive works are shown — click to blur"
+            }
+            className="ml-1 inline-flex items-center gap-1.5 rounded-md px-3 py-1.5 hover:bg-[var(--accent)] aria-pressed:bg-[var(--accent)]"
+          >
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              width="16"
+              height="16"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="2"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              aria-hidden="true"
+            >
+              {blur ? (
+                <>
+                  <path d="m2 2 20 20" />
+                  <path d="M6.71 6.71A13.5 13.5 0 0 0 2 12s3.5 7 10 7a9.7 9.7 0 0 0 5.29-1.71" />
+                  <path d="M9.88 5.09A11 11 0 0 1 12 5c6.5 0 10 7 10 7a13.5 13.5 0 0 1-2.05 2.66" />
+                  <path d="M14.12 14.12A3 3 0 0 1 9.88 9.88" />
+                </>
+              ) : (
+                <>
+                  <path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7S2 12 2 12z" />
+                  <circle cx="12" cy="12" r="3" />
+                </>
+              )}
+            </svg>
+            <span className="text-xs">{blur ? "Blur on" : "Blur off"}</span>
+          </button>
         </div>
 
         <button
@@ -290,7 +331,22 @@ export function SiteNav() {
             </button>
           </div>
 
-          <div className="mx-auto flex w-full max-w-md flex-1 flex-col justify-center px-5 pb-10">
+          <div className="mx-auto flex w-full max-w-md flex-1 flex-col justify-center gap-6 px-5 pb-10">
+            <label className="flex cursor-pointer items-center justify-between gap-4 rounded-lg border border-[var(--border)] px-4 py-3 text-sm">
+              <span className="flex flex-col gap-0.5">
+                <span className="font-medium">Blur sensitive works</span>
+                <span className="text-xs text-[var(--muted-foreground)]">
+                  Nudes and figurative studies stay blurred until you reveal them.
+                </span>
+              </span>
+              <input
+                type="checkbox"
+                checked={blur}
+                onChange={(e) => setBlur(e.target.checked)}
+                className="h-5 w-5 cursor-pointer accent-[var(--primary)]"
+                aria-label="Blur sensitive works"
+              />
+            </label>
             <ul className="flex flex-col gap-2">
               {LINKS.map((l) => {
                 const active = pathname === l.href;

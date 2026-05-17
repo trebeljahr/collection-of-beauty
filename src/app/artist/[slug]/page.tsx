@@ -3,7 +3,7 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { ArtworkGallery } from "@/components/artwork-gallery";
 import { Badge } from "@/components/ui/badge";
-import { artists, getArtist, getArtworksByArtist, getConnectionsFor } from "@/lib/data";
+import { artists, getArtist, getArtworkListingsByArtist, getConnectionsFor } from "@/lib/data";
 import { artistJsonLd, jsonLdScriptProps, ogImagesForArtist } from "@/lib/seo";
 
 type Params = { slug: string };
@@ -63,7 +63,9 @@ export default async function ArtistPage({ params }: { params: Promise<Params> }
   const artist = getArtist(slug);
   if (!artist) notFound();
 
-  const works = getArtworksByArtist(slug).sort((a, b) => (a.year ?? 99999) - (b.year ?? 99999));
+  const works = getArtworkListingsByArtist(slug).sort(
+    (a, b) => (a.year ?? 99999) - (b.year ?? 99999),
+  );
   const connections = getConnectionsFor(slug);
   const connected = connections
     .map((c) => {
