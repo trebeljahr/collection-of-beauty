@@ -2,25 +2,17 @@ import type { Metadata } from "next";
 import { artworkAlt } from "@/lib/artwork-format";
 import { type Artist, type Artwork, artworks, summary } from "@/lib/data";
 import { getLicenseInfo } from "@/lib/license";
+import { SITE_URL } from "@/lib/links";
 import { assetUrl, variantUrl } from "@/lib/utils";
 
 // ────────────────────────────────────────────────────────────────────────────
 // Identity
 // ────────────────────────────────────────────────────────────────────────────
 
-/**
- * Canonical origin for absolute URLs in metadata, sitemaps, and JSON-LD.
- * Resolution order:
- *   1. NEXT_PUBLIC_SITE_URL (explicit, preferred in prod)
- *   2. Hardcoded fallback so local dev, docker, and tests don't crash.
- */
-export const SITE_URL: string = (() => {
-  const explicit = process.env.NEXT_PUBLIC_SITE_URL;
-  if (explicit) return stripTrailingSlash(explicit);
-  return process.env.NODE_ENV === "production"
-    ? "https://beauty.trebeljahr.com"
-    : "http://localhost:3547";
-})();
+// Canonical origin lives in @/lib/links so the suggest-fix URL builder can
+// embed an absolute permalink without dragging seo.ts's full metadata + data
+// imports into client bundles. Re-exported here for existing callers.
+export { SITE_URL };
 
 export const SITE_NAME = "Collection of Beauty";
 
@@ -120,10 +112,6 @@ export function ogImagesForArtist(artist: Artist): NonNullable<Metadata["openGra
 export function absoluteUrl(path: string): string {
   const clean = path.startsWith("/") ? path : `/${path}`;
   return `${SITE_URL}${clean}`;
-}
-
-function stripTrailingSlash(s: string): string {
-  return s.endsWith("/") ? s.slice(0, -1) : s;
 }
 
 // ────────────────────────────────────────────────────────────────────────────

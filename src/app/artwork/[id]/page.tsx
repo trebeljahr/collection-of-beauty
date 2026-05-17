@@ -164,7 +164,12 @@ export default async function ArtworkPage({ params }: { params: Promise<Params> 
 
           <div>
             <a
-              href={suggestFixUrl(art.id, art.title)}
+              href={suggestFixUrl({
+                id: art.id,
+                title: art.title,
+                artist: art.artist,
+                sourceUrl: art.commonsUrl,
+              })}
               target="_blank"
               rel="noreferrer"
               className={buttonVariants({ variant: "outline", size: "sm" })}

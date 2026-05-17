@@ -8,6 +8,7 @@ import {
 } from "react-zoom-pan-pinch";
 import { artworkAlt } from "@/lib/artwork-format";
 import type { ArtworkListing } from "@/lib/data";
+import { suggestFixUrl } from "@/lib/links";
 import { assetProxyUrl, assetUrl, cn, variantProxyUrl, variantUrl } from "@/lib/utils";
 import { getHiRes, peekCached } from "./texture-cache";
 
@@ -280,6 +281,28 @@ export function ZoomModal({
             {dims.widthCm.toFixed(0)} × {dims.heightCm.toFixed(0)} cm
           </div>
         )}
+        <a
+          href={suggestFixUrl({
+            id: artwork.id,
+            title: artwork.title,
+            artist: artwork.artist,
+          })}
+          target="_blank"
+          rel="noreferrer"
+          className="pointer-events-auto mt-2 inline-flex items-center gap-1.5 rounded-full border border-white/20 bg-white/5 px-3 py-1 text-xs text-neutral-200 transition-colors hover:bg-white/15 focus:outline-none focus-visible:ring-2 focus-visible:ring-white"
+        >
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            width="14"
+            height="14"
+            viewBox="0 0 24 24"
+            fill="currentColor"
+            aria-hidden="true"
+          >
+            <path d="M12 .5a11.5 11.5 0 0 0-3.633 22.41c.575.106.784-.25.784-.555 0-.273-.01-.997-.015-1.957-3.196.695-3.871-1.541-3.871-1.541-.522-1.326-1.275-1.679-1.275-1.679-1.042-.713.079-.699.079-.699 1.152.081 1.758 1.183 1.758 1.183 1.024 1.754 2.687 1.247 3.343.954.103-.742.4-1.247.728-1.534-2.552-.29-5.236-1.276-5.236-5.677 0-1.254.448-2.28 1.183-3.083-.119-.29-.513-1.459.112-3.041 0 0 .965-.309 3.165 1.177a11.005 11.005 0 0 1 5.766 0c2.198-1.486 3.162-1.177 3.162-1.177.626 1.582.232 2.751.114 3.041.737.803 1.182 1.829 1.182 3.083 0 4.412-2.689 5.384-5.249 5.668.412.355.78 1.054.78 2.125 0 1.534-.014 2.771-.014 3.148 0 .308.207.667.79.554A11.502 11.502 0 0 0 12 .5Z" />
+          </svg>
+          Suggest a fix
+        </a>
         <div className="mt-2 text-[11px] uppercase tracking-wider text-neutral-500">
           close · Esc · E
         </div>
