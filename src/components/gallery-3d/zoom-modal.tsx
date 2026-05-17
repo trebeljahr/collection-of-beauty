@@ -254,11 +254,24 @@ export function ZoomModal({
 
       {/* Bottom bar: artwork metadata. Pointer-events off so pan/zoom
           drags pass through; the close hint mirrors the keyboard
-          shortcuts wired up above. */}
+          shortcuts wired up above. The artist link re-enables pointer
+          events on itself so it can be clicked without breaking pan. */}
       <div className="pointer-events-none absolute inset-x-0 bottom-0 z-10 flex flex-col items-center gap-1 bg-gradient-to-t from-black/80 via-black/50 to-transparent px-6 pt-12 pb-5 text-center text-neutral-200">
         <div className="text-xl font-semibold">{artwork.title}</div>
         <div className="text-sm text-neutral-400">
-          {artwork.artist ?? "Unknown artist"}
+          {artwork.artist && artwork.artistSlug ? (
+            <a
+              href={`/artist/${artwork.artistSlug}`}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="pointer-events-auto underline-offset-2 hover:text-neutral-200 hover:underline focus:outline-none focus-visible:underline"
+              title={`Open ${artwork.artist}'s page in a new tab`}
+            >
+              {artwork.artist}
+            </a>
+          ) : (
+            (artwork.artist ?? "Unknown artist")
+          )}
           {artwork.year != null && <> · {artwork.year}</>}
           {artwork.movement && <> · {artwork.movement}</>}
         </div>

@@ -131,6 +131,9 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
               <Link href="/about" className="underline hover:text-[var(--foreground)]">
                 About
               </Link>
+              <Link href="/artists" className="underline hover:text-[var(--foreground)]">
+                Browse all artists
+              </Link>
               <Link href="/imprint" className="underline hover:text-[var(--foreground)]">
                 Imprint
               </Link>
