@@ -118,14 +118,12 @@ async function runSend(request: NextRequest, body: SendBody): Promise<NextRespon
   const existing = findIssue(state, weekKey);
   if (existing && !body.force && !dryRun) {
     log("info", weekKey, "skipped_already_sent", { issueNumber: existing.issueNumber });
-    return NextResponse.json(
-      {
-        error: "already_sent_this_week",
-        weekKey,
-        issue: existing,
-      },
-      { status: 409 },
-    );
+    const payload: { error: string; weekKey: string; issue?: NewsletterIssue } = {
+      error: "already_sent_this_week",
+      weekKey,
+    };
+    if (process.env.NODE_ENV !== "production") payload.issue = existing;
+    return NextResponse.json(payload, { status: 409 });
   }
 
   // Pick the 5 artworks (manual or random, always respecting sent history).
