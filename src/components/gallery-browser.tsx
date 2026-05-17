@@ -42,10 +42,12 @@ type PageParams = {
   minYear: string;
   maxYear: string;
   sort: ArtworkSort;
+  seed: string;
 };
 
 const PAGE_ENDPOINT = "/api/artworks/page";
 const PAGE_SIZE = DEFAULT_ARTWORK_PAGE_SIZE;
+const SESSION_SEED_KEY = "cob:shuffle-seed";
 
 export function GalleryBrowser({ initialArtworks, movements, totalArtworks }: Props) {
   const [query, setQuery] = useState("");
@@ -54,6 +56,7 @@ export function GalleryBrowser({ initialArtworks, movements, totalArtworks }: Pr
   const [minYear, setMinYear] = useState<string>("");
   const [maxYear, setMaxYear] = useState<string>("");
   const [sortBy, setSortBy] = useState<ArtworkSort>("shuffle");
+  const [sessionSeed, setSessionSeed] = useState<string>(DEFAULT_SHUFFLE_SEED);
   const [loadedArtworks, setLoadedArtworks] = useState(initialArtworks);
   const [pageInfo, setPageInfo] = useState<PageInfo>({
     total: totalArtworks,
@@ -73,6 +76,7 @@ export function GalleryBrowser({ initialArtworks, movements, totalArtworks }: Pr
     minYear: "",
     maxYear: "",
     sort: "shuffle",
+    seed: DEFAULT_SHUFFLE_SEED,
   });
   const loadMoreControllerRef = useRef<AbortController | null>(null);
 
@@ -83,8 +87,9 @@ export function GalleryBrowser({ initialArtworks, movements, totalArtworks }: Pr
       minYear,
       maxYear,
       sort: sortBy,
+      seed: sessionSeed,
     }),
-    [deferredQuery, movement, minYear, maxYear, sortBy],
+    [deferredQuery, movement, minYear, maxYear, sortBy, sessionSeed],
   );
 
   const pageKey = useMemo(() => JSON.stringify(pageParams), [pageParams]);
@@ -93,7 +98,25 @@ export function GalleryBrowser({ initialArtworks, movements, totalArtworks }: Pr
     pageParams.movement === "" &&
     pageParams.minYear === "" &&
     pageParams.maxYear === "" &&
-    pageParams.sort === "shuffle";
+    pageParams.sort === "shuffle" &&
+    pageParams.seed === DEFAULT_SHUFFLE_SEED;
+
+  useEffect(() => {
+    try {
+      const stored = window.sessionStorage.getItem(SESSION_SEED_KEY);
+      if (stored) {
+        setSessionSeed(stored);
+        return;
+      }
+      const fresh = generateSessionSeed();
+      window.sessionStorage.setItem(SESSION_SEED_KEY, fresh);
+      setSessionSeed(fresh);
+    } catch {
+      // sessionStorage may be unavailable (privacy mode); fall back to a
+      // one-shot per-mount seed so the order still varies across loads.
+      setSessionSeed(generateSessionSeed());
+    }
+  }, []);
 
   useEffect(() => {
     pageInfoRef.current = pageInfo;
@@ -235,12 +258,25 @@ export function GalleryBrowser({ initialArtworks, movements, totalArtworks }: Pr
   return (
     <div className="space-y-6">
       <div className="flex flex-col gap-3 rounded-xl border border-[var(--border)] bg-[var(--card)] p-4">
-        <Input
-          placeholder="Search by title, artist, movement..."
-          value={query}
-          onChange={(e) => setQuery(e.target.value)}
-          className="w-full"
-        />
+        <div className="flex flex-col gap-2 sm:flex-row sm:items-center">
+          <Input
+            placeholder="Search by title, artist, movement..."
+            value={query}
+            onChange={(e) => setQuery(e.target.value)}
+            className="w-full sm:flex-1"
+          />
+          <select
+            aria-label="Sort artworks by"
+            value={sortBy}
+            onChange={(e) => setSortBy(e.target.value as ArtworkSort)}
+            className="h-9 rounded-md border border-[var(--input)] bg-transparent px-2 text-sm sm:w-auto sm:min-w-[12rem]"
+          >
+            <option value="shuffle">Sort: shuffled</option>
+            <option value="year">Sort: chronological</option>
+            <option value="artist">Sort: artist</option>
+            <option value="title">Sort: title</option>
+          </select>
+        </div>
         <div className="flex flex-wrap items-center gap-2 text-sm">
           <select
             aria-label="Filter by movement"
@@ -271,17 +307,6 @@ export function GalleryBrowser({ initialArtworks, movements, totalArtworks }: Pr
             onChange={(e) => setMaxYear(e.target.value)}
             className="w-24"
           />
-          <select
-            aria-label="Sort artworks by"
-            value={sortBy}
-            onChange={(e) => setSortBy(e.target.value as ArtworkSort)}
-            className="h-9 rounded-md border border-[var(--input)] bg-transparent px-2"
-          >
-            <option value="shuffle">Sort: shuffled</option>
-            <option value="year">Sort: chronological</option>
-            <option value="artist">Sort: artist</option>
-            <option value="title">Sort: title</option>
-          </select>
           {(activeFilterCount > 0 || query) && (
             <Button variant="ghost" size="sm" onClick={clearFilters}>
               Clear
@@ -329,7 +354,7 @@ async function fetchArtworkPage(
   url.searchParams.set("offset", String(offset));
   url.searchParams.set("limit", String(PAGE_SIZE));
   url.searchParams.set("sort", params.sort);
-  url.searchParams.set("seed", DEFAULT_SHUFFLE_SEED);
+  url.searchParams.set("seed", params.seed);
   appendParam(url, "q", params.q);
   appendParam(url, "movement", params.movement);
   appendParam(url, "minYear", params.minYear);
@@ -342,6 +367,11 @@ async function fetchArtworkPage(
 
 function appendParam(url: URL, key: string, value: string) {
   if (value) url.searchParams.set(key, value);
+}
+
+function generateSessionSeed(): string {
+  const random = Math.random().toString(36).slice(2, 10);
+  return `${Date.now().toString(36)}-${random}`;
 }
 
 function appendUniqueArtworks(

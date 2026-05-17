@@ -78,9 +78,50 @@ function sortArtworkListings(
   }
   if (sort === "title") return list.sort((a, b) => a.title.localeCompare(b.title));
 
-  return list.sort(
-    (a, b) => seededScore(a.id, seed) - seededScore(b.id, seed) || a.id.localeCompare(b.id),
+  return shuffleWithArtistSpread(list, seed);
+}
+
+function shuffleWithArtistSpread(artworks: ArtworkListing[], seed: string): ArtworkListing[] {
+  const buckets = new Map<string, ArtworkListing[]>();
+  for (const artwork of artworks) {
+    const key = artwork.artist ?? `__unknown__:${artwork.id}`;
+    const bucket = buckets.get(key);
+    if (bucket) bucket.push(artwork);
+    else buckets.set(key, [artwork]);
+  }
+
+  for (const bucket of buckets.values()) {
+    bucket.sort(
+      (a, b) => seededScore(a.id, seed) - seededScore(b.id, seed) || a.id.localeCompare(b.id),
+    );
+  }
+
+  const artistOrder = [...buckets.keys()].sort(
+    (a, b) =>
+      seededScore(a, `${seed}\0artist`) - seededScore(b, `${seed}\0artist`) || a.localeCompare(b),
   );
+
+  const queues = artistOrder.map((key) => buckets.get(key)!);
+  const result: ArtworkListing[] = [];
+  let round = 0;
+  let remaining = artworks.length;
+  while (remaining > 0) {
+    let added = 0;
+    for (const queue of queues) {
+      if (queue.length === 0) continue;
+      result.push(queue.shift()!);
+      added += 1;
+    }
+    if (added === 0) break;
+    remaining -= added;
+    round += 1;
+    // Rotate the artist order between rounds so the same artists don't
+    // appear in a fixed cadence; the rotation amount is seed-derived so
+    // every round still picks a deterministic permutation.
+    const rotation = seededScore(`${seed}\0round\0${round}`, seed) % queues.length;
+    if (rotation > 0) queues.push(...queues.splice(0, rotation));
+  }
+  return result;
 }
 
 function normalizeQuery(query: string | undefined): string[] {
