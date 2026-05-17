@@ -29,6 +29,42 @@ export default function AboutPage() {
       </header>
 
       <div className="space-y-10 text-[var(--foreground)] leading-relaxed">
+        <section
+          id="metadata"
+          className="space-y-3 rounded-md border border-[var(--border)] bg-[var(--muted)] p-4 md:p-5"
+        >
+          <h2 className="font-serif text-xl">About the metadata</h2>
+          <p>
+            The catalogue is largely scraped from public archives — Wikimedia Commons, Wikidata, the
+            Library of Congress, and a handful of bespoke sources. Each work cites where its image
+            and metadata came from on its detail page.
+          </p>
+          <p>
+            That metadata is imperfect. Wrong dates, missing dimensions, stub titles, and the
+            occasional misattributed artist are likely on a meaningful slice of the corpus.
+            Corrections are very welcome: every artwork has a <em>Suggest a fix</em> link that opens
+            a pre-filled{" "}
+            <a
+              href={`${GITHUB_URL}/issues/new`}
+              target="_blank"
+              rel="noreferrer"
+              className="underline underline-offset-2 hover:text-[var(--muted-foreground)]"
+            >
+              GitHub issue
+            </a>
+            , or you can send a PR straight against the metadata files in{" "}
+            <a
+              href={GITHUB_URL}
+              target="_blank"
+              rel="noreferrer"
+              className="underline underline-offset-2 hover:text-[var(--muted-foreground)]"
+            >
+              the repo
+            </a>
+            .
+          </p>
+        </section>
+
         <section className="space-y-3">
           <h2 className="font-serif text-xl">What this is</h2>
           <p>
