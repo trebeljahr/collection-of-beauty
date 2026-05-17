@@ -11,7 +11,7 @@ export const metadata: Metadata = {
   robots: { index: false, follow: false },
   openGraph: {
     title: `Subscribe · ${SITE_NAME}`,
-    description: "Five works, one idea, every Sunday.",
+    description: "Five works on one theme, every Sunday.",
   },
 };
 
@@ -21,28 +21,24 @@ export default function SubscribePage() {
       <header className="mb-8">
         <h1 className="font-serif text-3xl md:text-4xl">The Sunday edition</h1>
         <p className="mt-3 text-[var(--muted-foreground)]">
-          Five works from the public-domain canon, arranged around a single idea — a motif, a
-          movement, a palette, a particular hour of light. One email, every Sunday morning.
+          Five works from the public-domain canon, arranged around a single theme. One email, every
+          Sunday morning.
         </p>
       </header>
 
       <section className="space-y-6">
         <div className="space-y-3 text-[var(--foreground)] leading-relaxed">
           <p>
-            Some weeks it's Hokusai's waves beside Turner's storms. Some weeks it's nothing but red,
-            or interiors lit by a single window, or every horse in the catalogue running the same
-            direction. Five pieces, chosen by hand, with a few sentences on why they belong
-            together.
+            Each edition stays with one theme across five works. Sometimes the theme is broad, like
+            Hokusai's waves or Dutch interiors. Sometimes it's narrower than that, like the hour
+            just after sunset, or the way Hammershøi paints an empty room.
           </p>
           <p>
             Small enough to read with coffee. Slow enough to actually look. Every image links back
-            to the full record — where the work lives now, what it's made of, who painted it — for
-            the Sundays when one piece refuses to let you go.
+            to its full record, with provenance and a longer reading, for the Sundays when one piece
+            refuses to let you go.
           </p>
-          <p>
-            No feed. No recommendations following you across the web. No algorithm deciding which
-            painting you ought to want next.
-          </p>
+          <p>Curated by hand. No feed, no algorithm picking the next painting.</p>
         </div>
 
         <div className="rounded-lg border border-[var(--border)] bg-[var(--background)] p-5 md:p-6">

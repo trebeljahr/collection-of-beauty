@@ -37,8 +37,8 @@ export default function ConfirmSubscription({
                 Confirm your subscription
               </Heading>
               <Text className="mt-4 text-base leading-relaxed text-stone-800">
-                Thanks for subscribing to the <strong>Collection of Beauty</strong> Sunday edition —
-                five public-domain works, one idea, every week.
+                Thanks for subscribing to the <strong>Collection of Beauty</strong> Sunday edition.
+                Each week brings five works from the public-domain catalogue, all on one theme.
               </Text>
               <Text className="mt-3 text-base leading-relaxed text-stone-800">
                 Click the button below to confirm.
@@ -67,7 +67,7 @@ export default function ConfirmSubscription({
 
             <Section className="mt-8 border-t border-stone-200 pt-6">
               <Text className="m-0 text-xs leading-relaxed text-stone-500">
-                If you didn&apos;t sign up, ignore this email — no list membership is created until
+                If you didn&apos;t sign up, ignore this email. No list membership is created until
                 you click.
               </Text>
             </Section>
