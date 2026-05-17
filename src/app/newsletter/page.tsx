@@ -73,7 +73,7 @@ export default function NewsletterIndexPage() {
                     )}
                     <div className="min-w-0 flex-1">
                       <div className="flex flex-wrap items-baseline gap-x-3 gap-y-1 text-xs uppercase tracking-[0.18em] text-[var(--muted-foreground)]">
-                        <span>Issue {String(ed.number).padStart(4, "0")}</span>
+                        <span>Issue {ed.number}</span>
                         <span aria-hidden="true">·</span>
                         <time dateTime={ed.publishedAt}>{formatDate(ed.publishedAt)}</time>
                         {ed.readingTimeMinutes > 0 && (

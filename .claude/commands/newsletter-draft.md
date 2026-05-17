@@ -129,7 +129,7 @@ If the script errors on a slug collision or unknown id, fix and retry.
 The scaffolded file has placeholder frontmatter and a `TODO` body. Edit it:
 
 - **`title`**: short and specific. "Japanese rain" — good. "An exploration of rain in Edo-period woodblock printing" — too long.
-- **`subject`**: usually `Issue NN — <title>`. This is the email subject line; keep it under ~60 chars.
+- **`subject`**: usually `Issue N: <title>` with a plain integer (no zero-padding). Filenames stay zero-padded for sort order; user-facing copy never is. This is the email subject line; keep it under ~60 chars.
 - **`excerpt`**: one sentence, ~140 chars. Used for OG tags and the archive index. State what the issue contains in concrete terms, not why it's beautiful.
 - **`tags`**: 2–4 lowercase kebab-case tags. E.g. `ukiyo-e`, `weather`, `edo-period`.
 - **`cover`**: leave it pointing at the lead artwork (the first id), or swap to the work that has the strongest single image at small sizes.
