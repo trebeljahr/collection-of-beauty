@@ -137,6 +137,9 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
               <Link href="/imprint" className="underline hover:text-[var(--foreground)]">
                 Imprint
               </Link>
+              <Link href="/privacy" className="underline hover:text-[var(--foreground)]">
+                Privacy
+              </Link>
             </nav>
             <p>
               All works shown are in the public domain or openly licensed. Metadata sourced from
