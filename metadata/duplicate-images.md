@@ -1,10 +1,10 @@
 # Duplicate image sweep
 
-_Generated 2026-05-17T19:24:27.989Z from 2855/2855 artworks (0 skipped: no resolvable image)._
+_Generated 2026-05-17T19:30:47.365Z from 2855/2855 artworks (0 skipped: no resolvable image)._
 
 - Exact dHash collisions: **0** clusters covering **0** artworks
 - Near duplicates (hamming ≤ 4): **7** clusters covering **14** artworks
-- Same artist + same normalized title: **36** clusters covering **95** artworks
+- Same artist + same normalized title: **30** clusters covering **79** artworks
 
 ## Same artist + same title
 
@@ -12,32 +12,22 @@ _Sorted by min pairwise hamming distance: low Δ likely = same work scanned twic
 
 ### `claude-monet::water lilies` — min Δ16
 - `collection-of-beauty-monet-nenufares` — Water Lilies — `collection-of-beauty/Monet_-_Nenúfares.jpg`
-- `collection-of-beauty-claude-monet-nympheas-1905` — Water Lilies — `collection-of-beauty/Claude_Monet_-_Nymphéas_(1905).jpg`
-- `collection-of-beauty-claude-monet-water-lilies-1906-ryerson` — Water Lilies — `collection-of-beauty/Claude_Monet_-_Water_Lilies_-_1906,_Ryerson.jpg`
-- `collection-of-beauty-claude-monet-nympheas-w-1698` — Water Lilies — `collection-of-beauty/Claude_Monet_-_Nymphéas_(W_1698).jpg`
-- `collection-of-beauty-monet-water-lilies-1907-19-170` — Water Lilies — `collection-of-beauty/Monet_-_Water_Lilies,_1907,_19.170.jpg`
-- `collection-of-beauty-monet-w1708` — Water Lilies — `collection-of-beauty/Monet_w1708.jpg`
-- `collection-of-beauty-claude-monet-waterlilies-nympheas-1908` — Water Lilies — `collection-of-beauty/Claude_Monet_-_Waterlilies_-_Nympheas_(1908).jpg`
+- `collection-of-beauty-claude-monet-nympheas-1905` — Water Lilies / Water Lilies (1905) — `collection-of-beauty/Claude_Monet_-_Nymphéas_(1905).jpg`
+- `collection-of-beauty-claude-monet-water-lilies-1906-ryerson` — Water Lilies / Water Lilies (Art Institute of Chicago, 1906) — `collection-of-beauty/Claude_Monet_-_Water_Lilies_-_1906,_Ryerson.jpg`
+- `collection-of-beauty-claude-monet-nympheas-w-1698` — Water Lilies / Water Lilies (Wildenstein no. 1698) — `collection-of-beauty/Claude_Monet_-_Nymphéas_(W_1698).jpg`
+- `collection-of-beauty-monet-water-lilies-1907-19-170` — Water Lilies / Water Lilies (Museum of Fine Arts Boston, 1907) — `collection-of-beauty/Monet_-_Water_Lilies,_1907,_19.170.jpg`
+- `collection-of-beauty-monet-w1708` — Water Lilies / Water Lilies (Wildenstein no. 1708) — `collection-of-beauty/Monet_w1708.jpg`
+- `collection-of-beauty-claude-monet-waterlilies-nympheas-1908` — Water Lilies / Water Lilies (1908) — `collection-of-beauty/Claude_Monet_-_Waterlilies_-_Nympheas_(1908).jpg`
 - `collection-of-beauty-claude-monet-water-lilies-1908` — Water-Lilies — `collection-of-beauty/Claude_Monet_Water_Lilies_1908.jpg`
-- `collection-of-beauty-claude-monet-nympheas-w1852-musee-marmottan-monet` — Water Lilies — `collection-of-beauty/Claude_Monet_-_Nymphéas_W1852_-_Musée_Marmottan-Monet.jpg`
-- `collection-of-beauty-monet-water-lilies-1914-26-712-1959` — Water Lilies — `collection-of-beauty/Monet_-_Water_Lilies,_1914-26,_712.1959.jpg`
+- `collection-of-beauty-claude-monet-nympheas-w1852-musee-marmottan-monet` — Water Lilies / Water Lilies (Musée Marmottan, Wildenstein no. 1852) — `collection-of-beauty/Claude_Monet_-_Nymphéas_W1852_-_Musée_Marmottan-Monet.jpg`
+- `collection-of-beauty-monet-water-lilies-1914-26-712-1959` — Water Lilies / Water Lilies (Museum of Fine Arts Boston, 1914–1926) — `collection-of-beauty/Monet_-_Water_Lilies,_1914-26,_712.1959.jpg`
 - `collection-of-beauty-monet-water-lilies-1914-26` — Water Lilies — `collection-of-beauty/Monet_-_Water_Lilies,_1914-26.jpg`
-- `collection-of-beauty-claude-monet-nympheas-1915-musee-marmottan-paris` — Water Lilies — `collection-of-beauty/Claude_Monet_Nympheas_1915_Musee_Marmottan_Paris.jpg`
+- `collection-of-beauty-claude-monet-nympheas-1915-musee-marmottan-paris` — Water Lilies / Water Lilies (Musée Marmottan, 1915) — `collection-of-beauty/Claude_Monet_Nympheas_1915_Musee_Marmottan_Paris.jpg`
 - `collection-of-beauty-nympheas-71293-3` — Water Lilies — `collection-of-beauty/Nympheas_71293_3.jpg`
-- `collection-of-beauty-water-lilies-agapanthus-by-claude-monet-cleveland-museum-of-art-1960-81` — Water Lilies — `collection-of-beauty/Water_Lilies_(Agapanthus),_by_Claude_Monet,_Cleveland_Museum_of_Art,_1960.81.jpg`
+- `collection-of-beauty-water-lilies-agapanthus-by-claude-monet-cleveland-museum-of-art-1960-81` — Water Lilies / Water Lilies (Agapanthus) (Cleveland Museum of Art) — `collection-of-beauty/Water_Lilies_(Agapanthus),_by_Claude_Monet,_Cleveland_Museum_of_Art,_1960.81.jpg`
 - `collection-of-beauty-claude-monet-044` — Water-Lilies — `collection-of-beauty/Claude_Monet_044.jpg`
-- `collection-of-beauty-claude-monet-water-lilies-1917-1919` — Water Lilies — `collection-of-beauty/Claude_Monet_-_Water_Lilies,_1917-1919.jpeg`
+- `collection-of-beauty-claude-monet-water-lilies-1917-1919` — Water Lilies / Water Lilies (1917–1919) — `collection-of-beauty/Claude_Monet_-_Water_Lilies,_1917-1919.jpeg`
 - `collection-of-beauty-los-nenufares-monet` — Water Lilies — `collection-of-beauty/Los_nenúfares_(Monet).jpg`
-
-### `unknown::anatomy` — min Δ17
-- `collection-of-beauty-anatomy-wellcome-l0021853` — Anatomy — `collection-of-beauty/Anatomy_Wellcome_L0021853.jpg`
-- `collection-of-beauty-anatomy-wellcome-l0021854` — Anatomy — `collection-of-beauty/Anatomy_Wellcome_L0021854.jpg`
-- `collection-of-beauty-anatomy-wellcome-l0021855` — Anatomy — `collection-of-beauty/Anatomy_Wellcome_L0021855.jpg`
-- `collection-of-beauty-anatomy-wellcome-l0021856` — Anatomy — `collection-of-beauty/Anatomy_Wellcome_L0021856.jpg`
-
-### `claude-monet::waterloo bridge` — min Δ23
-- `collection-of-beauty-1902-monet-die-waterloo-brucke-anagoria` — Waterloo-Bridge — `collection-of-beauty/1902_Monet_Die_Waterloo-Brücke_anagoria.jpeg`
-- `collection-of-beauty-waterloo-bridge-london-at-sunset-e11705` — Waterloo Bridge — `collection-of-beauty/Waterloo_Bridge,_London,_at_Sunset_E11705.jpg`
 
 ### `peter-paul-rubens::adam and eve` — min Δ25
 - `collection-of-beauty-rubens-painting-adam-eve` — Adam and Eve / Adam and Eve (Rubenshuis, c. 1599) — `collection-of-beauty/Rubens_Painting_Adam_Eve.jpg`
@@ -46,10 +36,6 @@ _Sorted by min pairwise hamming distance: low Δ likely = same work scanned twic
 ### `peter-paul-rubens::descent from the cross` — min Δ25
 - `collection-of-beauty-kalisz-rubens` — Descent from the Cross / Descent from the Cross (Kalisz Cathedral) — `collection-of-beauty/Kalisz_Rubens.jpg`
 - `collection-of-beauty-descente-de-croix-rubens` — Descent from the Cross / Descent from the Cross (Hermitage) — `collection-of-beauty/Descente_de_croix_rubens.jpg`
-
-### `claude-monet::charing cross bridge` — min Δ25
-- `collection-of-beauty-charing-cross-bridge-monet` — Charing Cross Bridge — `collection-of-beauty/Charing_Cross_Bridge,_Monet.jpg`
-- `collection-of-beauty-charing-cross-bridge-reflections-on-the-thames` — Charing Cross Bridge — `collection-of-beauty/Charing_Cross_Bridge,_Reflections_on_the_Thames.jpg`
 
 ### `albrecht-durer::adam and eve` — min Δ28
 - `collection-of-beauty-albrecht-durer-adam-and-eve-1504-engraving` — Adam and Eve / Adam and Eve (engraving, 1504) — `collection-of-beauty/Albrecht_Dürer,_Adam_and_Eve,_1504,_Engraving.jpg`
@@ -64,19 +50,17 @@ _Sorted by min pairwise hamming distance: low Δ likely = same work scanned twic
 - `collection-of-beauty-vincent-van-gogh-irises-1890` — Irises / Irises (Metropolitan Museum, 1890) — `collection-of-beauty/Vincent_van_Gogh_-_Irises_(1890).jpg`
 - `collection-of-beauty-vincent-van-gogh-irises-google-art-project` — Irises / Irises (Van Gogh Museum, 1890) — `collection-of-beauty/Vincent_van_Gogh_-_Irises_-_Google_Art_Project.jpg`
 
-### `claude-monet::houses of parliament` — min Δ28
-- `collection-of-beauty-monet-houses-of-parliament-sunset` — Houses of Parliament — `collection-of-beauty/Monet_Houses_of_Parliament,_Sunset.jpg`
-- `collection-of-beauty-claude-monet-houses-of-parliament-sunlight-effect-le-parlement-effet-de-soleil-google-art-project` — Houses of Parliament — `collection-of-beauty/Claude_Monet_-_Houses_of_Parliament,_Sunlight_Effect_(Le_Parlement,_effet_de_soleil)_-_Google_Art_Project.jpg`
-- `collection-of-beauty-claude-monet-le-parlement-coucher-de-soleil-kunsthaus-zurich` — Houses of Parliament — `collection-of-beauty/Claude_Monet_-_Le_Parlement,_coucher_de_soleil_-_Kunsthaus_Zürich.jpg`
+### `claude-monet::houses of parliament sunset` — min Δ28
+- `collection-of-beauty-monet-houses-of-parliament-sunset` — Houses of Parliament / Houses of Parliament, Sunset — `collection-of-beauty/Monet_Houses_of_Parliament,_Sunset.jpg`
+- `collection-of-beauty-claude-monet-le-parlement-coucher-de-soleil-kunsthaus-zurich` — Houses of Parliament / Houses of Parliament, Sunset (Kunsthaus Zürich) — `collection-of-beauty/Claude_Monet_-_Le_Parlement,_coucher_de_soleil_-_Kunsthaus_Zürich.jpg`
 
 ### `claude-monet::the water lily pond` — min Δ29
-- `collection-of-beauty-monet-w1883` — The Water-Lily Pond — `collection-of-beauty/Monet_w1883.jpg`
+- `collection-of-beauty-monet-w1883` — The Water-Lily Pond / The Water Lily Pond (Wildenstein no. 1883) — `collection-of-beauty/Monet_w1883.jpg`
 - `collection-of-beauty-the-water-lily-pond-google-arts-culture` — the-water-lily-pond — `collection-of-beauty/The_Water-Lily_Pond_-_Google_Arts_&_Culture.jpg`
-- `collection-of-beauty-water-lilies-and-japanese-bridge-1897-1899-monet` — the-water-lily-pond — `collection-of-beauty/Water-Lilies-and-Japanese-Bridge-(1897-1899)-Monet.jpg`
 - `collection-of-beauty-le-bassin-aux-nympheas-claude-monet` — The Water Lily Pond — `collection-of-beauty/Le_bassin_aux_nymphéas_-_Claude_Monet.jpg`
 
 ### `claude-monet::the luncheon` — min Δ29
-- `collection-of-beauty-the-luncheon-by-claude-monet-stadel-frankfurt-am-main-germany-2017` — The Luncheon — `collection-of-beauty/The_Luncheon_by_Claude_Monet_-_Städel_-_Frankfurt_am_Main_-_Germany_2017.jpg`
+- `collection-of-beauty-the-luncheon-by-claude-monet-stadel-frankfurt-am-main-germany-2017` — The Luncheon / The Luncheon (Städel Museum, Frankfurt) — `collection-of-beauty/The_Luncheon_by_Claude_Monet_-_Städel_-_Frankfurt_am_Main_-_Germany_2017.jpg`
 - `collection-of-beauty-monet-luncheon` — The Luncheon — `collection-of-beauty/Monet_Luncheon.jpg`
 
 ### `lucas-cranach-the-elder::adam and eve in paradise` — min Δ31
@@ -107,9 +91,9 @@ _Sorted by min pairwise hamming distance: low Δ likely = same work scanned twic
 - `collection-of-beauty-franz-von-stuck-salome` — Salome — `collection-of-beauty/Franz_von_Stuck_Salome.jpg`
 - `collection-of-beauty-stuck-franz-von-salome-google-art-project` — Salome — `collection-of-beauty/Stuck,_Franz_von_-_Salome_-_Google_Art_Project.jpg`
 
-### `kawai-gyokudo::parting spring by kawai gyokudo` — min Δ32
-- `collection-of-beauty-parting-spring-by-kawai-gyokudo-national-museum-of-modern-art-tokyo-l` — Parting Spring by Kawai Gyokudo — `collection-of-beauty/Parting_Spring_by_Kawai_Gyokudo_(National_Museum_of_Modern_Art,_Tokyo)_L.jpg`
-- `collection-of-beauty-parting-spring-by-kawai-gyokudo-national-museum-of-modern-art-tokyo-r` — Parting Spring by Kawai Gyokudo — `collection-of-beauty/Parting_Spring_by_Kawai_Gyokudo_(National_Museum_of_Modern_Art,_Tokyo)_R.jpg`
+### `kawai-gyokudo::parting spring` — min Δ32
+- `collection-of-beauty-parting-spring-by-kawai-gyokudo-national-museum-of-modern-art-tokyo-l` — Parting Spring by Kawai Gyokudo / Parting Spring (left panel) — `collection-of-beauty/Parting_Spring_by_Kawai_Gyokudo_(National_Museum_of_Modern_Art,_Tokyo)_L.jpg`
+- `collection-of-beauty-parting-spring-by-kawai-gyokudo-national-museum-of-modern-art-tokyo-r` — Parting Spring by Kawai Gyokudo / Parting Spring (right panel) — `collection-of-beauty/Parting_Spring_by_Kawai_Gyokudo_(National_Museum_of_Modern_Art,_Tokyo)_R.jpg`
 
 ### `claude-monet::wildenstein 1996` — min Δ32
 - `collection-of-beauty-monet-wildenstein-1996-1497` — Wildenstein 1996 — `collection-of-beauty/Monet_-_Wildenstein_1996,_1497.png`
@@ -121,29 +105,21 @@ _Sorted by min pairwise hamming distance: low Δ likely = same work scanned twic
 - `collection-of-beauty-peter-paul-rubens-115` — The Judgment of Paris / The Judgement of Paris (late version, c. 1638) — `collection-of-beauty/Peter_Paul_Rubens_115.jpg`
 
 ### `claude-monet::the studio boat` — min Δ33
-- `collection-of-beauty-monet-w392` — The Studio Boat — `collection-of-beauty/Monet_w392.jpg`
-- `collection-of-beauty-claude-monet-le-bateau-atelier-mah-neuchatel` — The Studio Boat — `collection-of-beauty/Claude_Monet_-_Le_bateau-atelier_-_MAH_Neuchâtel.jpg`
+- `collection-of-beauty-monet-w392` — The Studio Boat / The Studio Boat (Wildenstein no. 392) — `collection-of-beauty/Monet_w392.jpg`
+- `collection-of-beauty-claude-monet-le-bateau-atelier-mah-neuchatel` — The Studio Boat / The Studio Boat (Musée d'Art et d'Histoire, Neuchâtel) — `collection-of-beauty/Claude_Monet_-_Le_bateau-atelier_-_MAH_Neuchâtel.jpg`
 - `collection-of-beauty-claude-monet-le-bateau-atelier` — The Studio Boat — `collection-of-beauty/Claude_Monet_Le_bateau_atelier.jpg`
 
 ### `claude-monet::the road to v theuil` — min Δ33
 - `collection-of-beauty-claude-monet-the-road-to-vetheuil-google-art-project` — The Road to Vétheuil — `collection-of-beauty/Claude_Monet_-_The_Road_to_Vétheuil_-_Google_Art_Project.jpg`
-- `collection-of-beauty-la-route-de-vetheuil-effet-de-neige-by-claude-monet` — The Road to Vétheuil — `collection-of-beauty/La_route_de_Vétheuil,_effet_de_neige_by_Claude_Monet.jpg`
-
-### `j-m-w-turner::sketch for east cowes castle` — min Δ34
-- `collection-of-beauty-joseph-mallord-william-turner-1775-1851-sketch-for-east-cowes-castle-the-regatta-beating-to-windwar` — Sketch for ‘East Cowes Castle — `collection-of-beauty/Joseph_Mallord_William_Turner_(1775-1851)_-_Sketch_for_'East_Cowes_Castle,_the_Regatta_Beating_to_Windward'_No._1_-_N01995_-_National_Gallery.jpg`
-- `collection-of-beauty-joseph-mallord-william-turner-1775-1851-sketch-for-east-cowes-castle-the-regatta-beating-to-aa9d91` — Sketch for ‘East Cowes Castle — `collection-of-beauty/Joseph_Mallord_William_Turner_(1775-1851)_-_Sketch_for_'East_Cowes_Castle,_the_Regatta_Beating_to_Windward'_No._2_-_N01994_-_National_Gallery.jpg`
+- `collection-of-beauty-la-route-de-vetheuil-effet-de-neige-by-claude-monet` — The Road to Vétheuil / The Road to Vétheuil (Snow Effect) — `collection-of-beauty/La_route_de_Vétheuil,_effet_de_neige_by_Claude_Monet.jpg`
 
 ### `claude-monet::the seine at v theuil` — min Δ34
 - `collection-of-beauty-la-seine-a-vetheuil-monet` — The Seine at Vétheuil — `collection-of-beauty/La_Seine_à_Vétheuil_(Monet).jpg`
-- `collection-of-beauty-claude-monet-la-seine-a-vetheuil-1881` — The Seine at Vétheuil — `collection-of-beauty/Claude_Monet_-_La_Seine_à_Vétheuil_(1881).jpg`
+- `collection-of-beauty-claude-monet-la-seine-a-vetheuil-1881` — The Seine at Vétheuil / The Seine at Vétheuil (1881) — `collection-of-beauty/Claude_Monet_-_La_Seine_à_Vétheuil_(1881).jpg`
 
 ### `claude-monet::v theuil` — min Δ34
 - `collection-of-beauty-claude-monet-vetheuil-google-art-project-427751` — Vétheuil — `collection-of-beauty/Claude_Monet_-_Vétheuil_-_Google_Art_Project_(427751).jpg`
 - `collection-of-beauty-claude-monet-vetheuil-01` — Vétheuil — `collection-of-beauty/Claude_Monet_Vetheuil_01.jpg`
-
-### `james-mcneill-whistler::symphony in white` — min Δ35
-- `collection-of-beauty-whistler-james-symphony-in-white-no-1-the-white-girl-1862` — Symphony in White — `collection-of-beauty/Whistler_James_Symphony_in_White_no_1_(The_White_Girl)_1862.jpg`
-- `collection-of-beauty-cult-of-beauty-001` — Symphony in White — `collection-of-beauty/Cult-of-beauty-001.jpg`
 
 ### `vasily-vereshchagin::the afghan` — min Δ36
 - `collection-of-beauty` — Афганец / The Afghan (white tunic, green turban) — `collection-of-beauty/Афганец.jpg`
@@ -164,10 +140,6 @@ _Sorted by min pairwise hamming distance: low Δ likely = same work scanned twic
 ### `peter-paul-rubens::the massacre of the innocents` — min Δ38
 - `collection-of-beauty-rubens-peter-paul-massacre-of-the-innocents-art-gallery-of-ontario` — The Massacre of the Innocents / The Massacre of the Innocents (Art Gallery of Ontario, c. 1611) — `collection-of-beauty/Rubens,_Peter_Paul_-_Massacre_of_the_Innocents_-_Art_Gallery_of_Ontario.jpg`
 - `collection-of-beauty-the-massacre-of-the-innocents-peter-paul-rubens-unframed` — The Massacre of the Innocents / The Massacre of the Innocents (Alte Pinakothek, c. 1638) — `collection-of-beauty/The_Massacre_of_the_Innocents_-_Peter_Paul_Rubens_(Unframed).jpg`
-
-### `claude-monet::summer` — min Δ38
-- `collection-of-beauty-claude-monet-l-ete-google-art-project` — Summer — `collection-of-beauty/Claude_Monet_-_L'Été_-_Google_Art_Project.jpg`
-- `collection-of-beauty-claude-monet-l-ete-champ-de-coquelicots` — Summer — `collection-of-beauty/Claude_Monet_-_L'été_-_Champ_de_coquelicots.jpeg`
 
 ### `vincent-van-gogh::self portrait` — min Δ38
 - `collection-of-beauty-vincent-van-gogh-self-portrait-google-art-project-454045` — Self-Portrait / Self-Portrait (Art Institute of Chicago, 1887) — `collection-of-beauty/Vincent_van_Gogh_-_Self-Portrait_-_Google_Art_Project_(454045).jpg`

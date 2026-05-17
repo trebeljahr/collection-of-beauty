@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-05-17T19:24:27.987Z",
+  "generatedAt": "2026-05-17T19:30:47.363Z",
   "threshold": 4,
   "stats": {
     "total": 2855,
@@ -171,42 +171,42 @@
         {
           "id": "collection-of-beauty-claude-monet-nympheas-1905",
           "title": "Water Lilies",
-          "englishTitle": null,
+          "englishTitle": "Water Lilies (1905)",
           "artist": "Claude Monet",
           "objectKey": "collection-of-beauty/Claude_Monet_-_Nymphéas_(1905).jpg"
         },
         {
           "id": "collection-of-beauty-claude-monet-water-lilies-1906-ryerson",
           "title": "Water Lilies",
-          "englishTitle": null,
+          "englishTitle": "Water Lilies (Art Institute of Chicago, 1906)",
           "artist": "Claude Monet",
           "objectKey": "collection-of-beauty/Claude_Monet_-_Water_Lilies_-_1906,_Ryerson.jpg"
         },
         {
           "id": "collection-of-beauty-claude-monet-nympheas-w-1698",
           "title": "Water Lilies",
-          "englishTitle": null,
+          "englishTitle": "Water Lilies (Wildenstein no. 1698)",
           "artist": "Claude Monet",
           "objectKey": "collection-of-beauty/Claude_Monet_-_Nymphéas_(W_1698).jpg"
         },
         {
           "id": "collection-of-beauty-monet-water-lilies-1907-19-170",
           "title": "Water Lilies",
-          "englishTitle": null,
+          "englishTitle": "Water Lilies (Museum of Fine Arts Boston, 1907)",
           "artist": "Claude Monet",
           "objectKey": "collection-of-beauty/Monet_-_Water_Lilies,_1907,_19.170.jpg"
         },
         {
           "id": "collection-of-beauty-monet-w1708",
           "title": "Water Lilies",
-          "englishTitle": null,
+          "englishTitle": "Water Lilies (Wildenstein no. 1708)",
           "artist": "Claude Monet",
           "objectKey": "collection-of-beauty/Monet_w1708.jpg"
         },
         {
           "id": "collection-of-beauty-claude-monet-waterlilies-nympheas-1908",
           "title": "Water Lilies",
-          "englishTitle": null,
+          "englishTitle": "Water Lilies (1908)",
           "artist": "Claude Monet",
           "objectKey": "collection-of-beauty/Claude_Monet_-_Waterlilies_-_Nympheas_(1908).jpg"
         },
@@ -220,14 +220,14 @@
         {
           "id": "collection-of-beauty-claude-monet-nympheas-w1852-musee-marmottan-monet",
           "title": "Water Lilies",
-          "englishTitle": null,
+          "englishTitle": "Water Lilies (Musée Marmottan, Wildenstein no. 1852)",
           "artist": "Claude Monet",
           "objectKey": "collection-of-beauty/Claude_Monet_-_Nymphéas_W1852_-_Musée_Marmottan-Monet.jpg"
         },
         {
           "id": "collection-of-beauty-monet-water-lilies-1914-26-712-1959",
           "title": "Water Lilies",
-          "englishTitle": null,
+          "englishTitle": "Water Lilies (Museum of Fine Arts Boston, 1914–1926)",
           "artist": "Claude Monet",
           "objectKey": "collection-of-beauty/Monet_-_Water_Lilies,_1914-26,_712.1959.jpg"
         },
@@ -241,7 +241,7 @@
         {
           "id": "collection-of-beauty-claude-monet-nympheas-1915-musee-marmottan-paris",
           "title": "Water Lilies",
-          "englishTitle": null,
+          "englishTitle": "Water Lilies (Musée Marmottan, 1915)",
           "artist": "Claude Monet",
           "objectKey": "collection-of-beauty/Claude_Monet_Nympheas_1915_Musee_Marmottan_Paris.jpg"
         },
@@ -255,7 +255,7 @@
         {
           "id": "collection-of-beauty-water-lilies-agapanthus-by-claude-monet-cleveland-museum-of-art-1960-81",
           "title": "Water Lilies",
-          "englishTitle": null,
+          "englishTitle": "Water Lilies (Agapanthus) (Cleveland Museum of Art)",
           "artist": "Claude Monet",
           "objectKey": "collection-of-beauty/Water_Lilies_(Agapanthus),_by_Claude_Monet,_Cleveland_Museum_of_Art,_1960.81.jpg"
         },
@@ -269,7 +269,7 @@
         {
           "id": "collection-of-beauty-claude-monet-water-lilies-1917-1919",
           "title": "Water Lilies",
-          "englishTitle": null,
+          "englishTitle": "Water Lilies (1917–1919)",
           "artist": "Claude Monet",
           "objectKey": "collection-of-beauty/Claude_Monet_-_Water_Lilies,_1917-1919.jpeg"
         },
@@ -279,60 +279,6 @@
           "englishTitle": null,
           "artist": "Claude Monet",
           "objectKey": "collection-of-beauty/Los_nenúfares_(Monet).jpg"
-        }
-      ]
-    },
-    {
-      "key": "unknown::anatomy",
-      "minDistance": 17,
-      "members": [
-        {
-          "id": "collection-of-beauty-anatomy-wellcome-l0021853",
-          "title": "Anatomy",
-          "englishTitle": null,
-          "artist": null,
-          "objectKey": "collection-of-beauty/Anatomy_Wellcome_L0021853.jpg"
-        },
-        {
-          "id": "collection-of-beauty-anatomy-wellcome-l0021854",
-          "title": "Anatomy",
-          "englishTitle": null,
-          "artist": null,
-          "objectKey": "collection-of-beauty/Anatomy_Wellcome_L0021854.jpg"
-        },
-        {
-          "id": "collection-of-beauty-anatomy-wellcome-l0021855",
-          "title": "Anatomy",
-          "englishTitle": null,
-          "artist": null,
-          "objectKey": "collection-of-beauty/Anatomy_Wellcome_L0021855.jpg"
-        },
-        {
-          "id": "collection-of-beauty-anatomy-wellcome-l0021856",
-          "title": "Anatomy",
-          "englishTitle": null,
-          "artist": null,
-          "objectKey": "collection-of-beauty/Anatomy_Wellcome_L0021856.jpg"
-        }
-      ]
-    },
-    {
-      "key": "claude-monet::waterloo bridge",
-      "minDistance": 23,
-      "members": [
-        {
-          "id": "collection-of-beauty-1902-monet-die-waterloo-brucke-anagoria",
-          "title": "Waterloo-Bridge",
-          "englishTitle": null,
-          "artist": "Claude Monet",
-          "objectKey": "collection-of-beauty/1902_Monet_Die_Waterloo-Brücke_anagoria.jpeg"
-        },
-        {
-          "id": "collection-of-beauty-waterloo-bridge-london-at-sunset-e11705",
-          "title": "Waterloo Bridge",
-          "englishTitle": null,
-          "artist": "Claude Monet",
-          "objectKey": "collection-of-beauty/Waterloo_Bridge,_London,_at_Sunset_E11705.jpg"
         }
       ]
     },
@@ -373,26 +319,6 @@
           "englishTitle": "Descent from the Cross (Hermitage)",
           "artist": "Peter Paul Rubens",
           "objectKey": "collection-of-beauty/Descente_de_croix_rubens.jpg"
-        }
-      ]
-    },
-    {
-      "key": "claude-monet::charing cross bridge",
-      "minDistance": 25,
-      "members": [
-        {
-          "id": "collection-of-beauty-charing-cross-bridge-monet",
-          "title": "Charing Cross Bridge",
-          "englishTitle": null,
-          "artist": "Claude Monet",
-          "objectKey": "collection-of-beauty/Charing_Cross_Bridge,_Monet.jpg"
-        },
-        {
-          "id": "collection-of-beauty-charing-cross-bridge-reflections-on-the-thames",
-          "title": "Charing Cross Bridge",
-          "englishTitle": null,
-          "artist": "Claude Monet",
-          "objectKey": "collection-of-beauty/Charing_Cross_Bridge,_Reflections_on_the_Thames.jpg"
         }
       ]
     },
@@ -464,27 +390,20 @@
       ]
     },
     {
-      "key": "claude-monet::houses of parliament",
+      "key": "claude-monet::houses of parliament sunset",
       "minDistance": 28,
       "members": [
         {
           "id": "collection-of-beauty-monet-houses-of-parliament-sunset",
           "title": "Houses of Parliament",
-          "englishTitle": null,
+          "englishTitle": "Houses of Parliament, Sunset",
           "artist": "Claude Monet",
           "objectKey": "collection-of-beauty/Monet_Houses_of_Parliament,_Sunset.jpg"
         },
         {
-          "id": "collection-of-beauty-claude-monet-houses-of-parliament-sunlight-effect-le-parlement-effet-de-soleil-google-art-project",
-          "title": "Houses of Parliament",
-          "englishTitle": null,
-          "artist": "Claude Monet",
-          "objectKey": "collection-of-beauty/Claude_Monet_-_Houses_of_Parliament,_Sunlight_Effect_(Le_Parlement,_effet_de_soleil)_-_Google_Art_Project.jpg"
-        },
-        {
           "id": "collection-of-beauty-claude-monet-le-parlement-coucher-de-soleil-kunsthaus-zurich",
           "title": "Houses of Parliament",
-          "englishTitle": null,
+          "englishTitle": "Houses of Parliament, Sunset (Kunsthaus Zürich)",
           "artist": "Claude Monet",
           "objectKey": "collection-of-beauty/Claude_Monet_-_Le_Parlement,_coucher_de_soleil_-_Kunsthaus_Zürich.jpg"
         }
@@ -497,7 +416,7 @@
         {
           "id": "collection-of-beauty-monet-w1883",
           "title": "The Water-Lily Pond",
-          "englishTitle": null,
+          "englishTitle": "The Water Lily Pond (Wildenstein no. 1883)",
           "artist": "Claude Monet",
           "objectKey": "collection-of-beauty/Monet_w1883.jpg"
         },
@@ -507,13 +426,6 @@
           "englishTitle": null,
           "artist": "Claude Monet",
           "objectKey": "collection-of-beauty/The_Water-Lily_Pond_-_Google_Arts_&_Culture.jpg"
-        },
-        {
-          "id": "collection-of-beauty-water-lilies-and-japanese-bridge-1897-1899-monet",
-          "title": "the-water-lily-pond",
-          "englishTitle": null,
-          "artist": "Claude Monet",
-          "objectKey": "collection-of-beauty/Water-Lilies-and-Japanese-Bridge-(1897-1899)-Monet.jpg"
         },
         {
           "id": "collection-of-beauty-le-bassin-aux-nympheas-claude-monet",
@@ -531,7 +443,7 @@
         {
           "id": "collection-of-beauty-the-luncheon-by-claude-monet-stadel-frankfurt-am-main-germany-2017",
           "title": "The Luncheon",
-          "englishTitle": null,
+          "englishTitle": "The Luncheon (Städel Museum, Frankfurt)",
           "artist": "Claude Monet",
           "objectKey": "collection-of-beauty/The_Luncheon_by_Claude_Monet_-_Städel_-_Frankfurt_am_Main_-_Germany_2017.jpg"
         },
@@ -685,20 +597,20 @@
       ]
     },
     {
-      "key": "kawai-gyokudo::parting spring by kawai gyokudo",
+      "key": "kawai-gyokudo::parting spring",
       "minDistance": 32,
       "members": [
         {
           "id": "collection-of-beauty-parting-spring-by-kawai-gyokudo-national-museum-of-modern-art-tokyo-l",
           "title": "Parting Spring by Kawai Gyokudo",
-          "englishTitle": null,
+          "englishTitle": "Parting Spring (left panel)",
           "artist": "Kawai Gyokudō",
           "objectKey": "collection-of-beauty/Parting_Spring_by_Kawai_Gyokudo_(National_Museum_of_Modern_Art,_Tokyo)_L.jpg"
         },
         {
           "id": "collection-of-beauty-parting-spring-by-kawai-gyokudo-national-museum-of-modern-art-tokyo-r",
           "title": "Parting Spring by Kawai Gyokudo",
-          "englishTitle": null,
+          "englishTitle": "Parting Spring (right panel)",
           "artist": "Kawai Gyokudō",
           "objectKey": "collection-of-beauty/Parting_Spring_by_Kawai_Gyokudo_(National_Museum_of_Modern_Art,_Tokyo)_R.jpg"
         }
@@ -758,14 +670,14 @@
         {
           "id": "collection-of-beauty-monet-w392",
           "title": "The Studio Boat",
-          "englishTitle": null,
+          "englishTitle": "The Studio Boat (Wildenstein no. 392)",
           "artist": "Claude Monet",
           "objectKey": "collection-of-beauty/Monet_w392.jpg"
         },
         {
           "id": "collection-of-beauty-claude-monet-le-bateau-atelier-mah-neuchatel",
           "title": "The Studio Boat",
-          "englishTitle": null,
+          "englishTitle": "The Studio Boat (Musée d'Art et d'Histoire, Neuchâtel)",
           "artist": "Claude Monet",
           "objectKey": "collection-of-beauty/Claude_Monet_-_Le_bateau-atelier_-_MAH_Neuchâtel.jpg"
         },
@@ -792,29 +704,9 @@
         {
           "id": "collection-of-beauty-la-route-de-vetheuil-effet-de-neige-by-claude-monet",
           "title": "The Road to Vétheuil",
-          "englishTitle": null,
+          "englishTitle": "The Road to Vétheuil (Snow Effect)",
           "artist": "Claude Monet",
           "objectKey": "collection-of-beauty/La_route_de_Vétheuil,_effet_de_neige_by_Claude_Monet.jpg"
-        }
-      ]
-    },
-    {
-      "key": "j-m-w-turner::sketch for east cowes castle",
-      "minDistance": 34,
-      "members": [
-        {
-          "id": "collection-of-beauty-joseph-mallord-william-turner-1775-1851-sketch-for-east-cowes-castle-the-regatta-beating-to-windwar",
-          "title": "Sketch for ‘East Cowes Castle",
-          "englishTitle": null,
-          "artist": "J. M. W. Turner",
-          "objectKey": "collection-of-beauty/Joseph_Mallord_William_Turner_(1775-1851)_-_Sketch_for_'East_Cowes_Castle,_the_Regatta_Beating_to_Windward'_No._1_-_N01995_-_National_Gallery.jpg"
-        },
-        {
-          "id": "collection-of-beauty-joseph-mallord-william-turner-1775-1851-sketch-for-east-cowes-castle-the-regatta-beating-to-aa9d91",
-          "title": "Sketch for ‘East Cowes Castle",
-          "englishTitle": null,
-          "artist": "J. M. W. Turner",
-          "objectKey": "collection-of-beauty/Joseph_Mallord_William_Turner_(1775-1851)_-_Sketch_for_'East_Cowes_Castle,_the_Regatta_Beating_to_Windward'_No._2_-_N01994_-_National_Gallery.jpg"
         }
       ]
     },
@@ -832,7 +724,7 @@
         {
           "id": "collection-of-beauty-claude-monet-la-seine-a-vetheuil-1881",
           "title": "The Seine at Vétheuil",
-          "englishTitle": null,
+          "englishTitle": "The Seine at Vétheuil (1881)",
           "artist": "Claude Monet",
           "objectKey": "collection-of-beauty/Claude_Monet_-_La_Seine_à_Vétheuil_(1881).jpg"
         }
@@ -855,26 +747,6 @@
           "englishTitle": null,
           "artist": "Claude Monet",
           "objectKey": "collection-of-beauty/Claude_Monet_Vetheuil_01.jpg"
-        }
-      ]
-    },
-    {
-      "key": "james-mcneill-whistler::symphony in white",
-      "minDistance": 35,
-      "members": [
-        {
-          "id": "collection-of-beauty-whistler-james-symphony-in-white-no-1-the-white-girl-1862",
-          "title": "Symphony in White",
-          "englishTitle": null,
-          "artist": "James McNeill Whistler",
-          "objectKey": "collection-of-beauty/Whistler_James_Symphony_in_White_no_1_(The_White_Girl)_1862.jpg"
-        },
-        {
-          "id": "collection-of-beauty-cult-of-beauty-001",
-          "title": "Symphony in White",
-          "englishTitle": null,
-          "artist": "James McNeill Whistler",
-          "objectKey": "collection-of-beauty/Cult-of-beauty-001.jpg"
         }
       ]
     },
@@ -975,26 +847,6 @@
           "englishTitle": "The Massacre of the Innocents (Alte Pinakothek, c. 1638)",
           "artist": "Peter Paul Rubens",
           "objectKey": "collection-of-beauty/The_Massacre_of_the_Innocents_-_Peter_Paul_Rubens_(Unframed).jpg"
-        }
-      ]
-    },
-    {
-      "key": "claude-monet::summer",
-      "minDistance": 38,
-      "members": [
-        {
-          "id": "collection-of-beauty-claude-monet-l-ete-google-art-project",
-          "title": "Summer",
-          "englishTitle": null,
-          "artist": "Claude Monet",
-          "objectKey": "collection-of-beauty/Claude_Monet_-_L'Été_-_Google_Art_Project.jpg"
-        },
-        {
-          "id": "collection-of-beauty-claude-monet-l-ete-champ-de-coquelicots",
-          "title": "Summer",
-          "englishTitle": null,
-          "artist": "Claude Monet",
-          "objectKey": "collection-of-beauty/Claude_Monet_-_L'été_-_Champ_de_coquelicots.jpeg"
         }
       ]
     },
