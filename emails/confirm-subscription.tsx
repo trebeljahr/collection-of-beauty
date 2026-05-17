@@ -37,12 +37,11 @@ export default function ConfirmSubscription({
                 Confirm your subscription
               </Heading>
               <Text className="mt-4 text-base leading-relaxed text-stone-800">
-                Thanks for subscribing to the <strong>Collection of Beauty</strong> newsletter —
-                themed selections from the public-domain catalogue, delivered when an issue is
-                ready.
+                Thanks for subscribing to the <strong>Collection of Beauty</strong> Sunday edition —
+                five public-domain works, one idea, every week.
               </Text>
               <Text className="mt-3 text-base leading-relaxed text-stone-800">
-                Click the button below to confirm. The link expires in 48 hours.
+                Click the button below to confirm.
               </Text>
             </Section>
 

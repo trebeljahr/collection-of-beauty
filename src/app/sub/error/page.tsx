@@ -10,7 +10,7 @@ const MESSAGES: Record<string, string> = {
   missing: "The confirmation link was missing its token. Try subscribing again.",
   malformed: "The confirmation link is malformed. Try subscribing again.",
   bad_signature: "The confirmation link is invalid. Try subscribing again.",
-  expired: "The confirmation link has expired. Tokens are valid for 48 hours — please resubscribe.",
+  expired: "This confirmation link has expired. Please resubscribe to get a fresh one.",
   list_add_failed:
     "Something went wrong on our end while adding you to the list. Please try again.",
 };
