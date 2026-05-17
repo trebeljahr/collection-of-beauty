@@ -10,6 +10,7 @@ const LINKS: ReadonlyArray<{ href: string; label: string; sub?: string }> = [
   { href: "/timeline", label: "Timeline", sub: "Eight centuries of art, in order" },
   { href: "/artists", label: "Artists", sub: "Painters, illustrators, makers" },
   { href: "/gallery-3d", label: "3D Room", sub: "Walk through a virtual museum" },
+  { href: "/newsletter", label: "Newsletter", sub: "A Drop of Beauty — five works every Sunday" },
 ];
 
 const ROUTE_3D = "/gallery-3d";
