@@ -158,16 +158,6 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
               All works shown are in the public domain or openly licensed. Metadata sourced from
               Wikimedia Commons.
             </p>
-            <p className="mt-1">
-              Metadata is imperfect —{" "}
-              <Link
-                href="/about#metadata"
-                className="rounded-sm underline hover:text-[var(--foreground)] focus:outline-none focus-visible:ring-2 focus-visible:ring-[var(--ring)]"
-              >
-                corrections welcome
-              </Link>
-              .
-            </p>
             <p className="mt-2 inline-flex items-center justify-center gap-1">
               Made with{" "}
               <svg
