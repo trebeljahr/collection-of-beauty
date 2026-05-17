@@ -102,7 +102,9 @@ on staged files only.
   send API route.
 - `scripts/newsletter-draft.ts` / `scripts/newsletter-send.ts` — the
   CLI surface. `pnpm newsletter:draft <slug>` scaffolds a new issue;
-  `pnpm newsletter:send <slug> [--test|--confirm]` renders and sends.
+  `pnpm newsletter:send <slug>` is a dry-run; add `--confirm` to send
+  (defaults to `MAILGUN_TEST_LIST`; prefix `NODE_ENV=production` to
+  reach `MAILGUN_LIST`).
 
 ## Deployment
 

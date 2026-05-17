@@ -4,6 +4,7 @@ import formData from "form-data";
 import Mailgun from "mailgun.js";
 import { createElement } from "react";
 import ConfirmSubscription from "../../../emails/confirm-subscription";
+import { resolveListAddress } from "./mailgun";
 
 // Confirmation tokens are valid for 21 days. Long enough that an email
 // sitting in a vacation inbox still works on return, short enough that
@@ -101,7 +102,7 @@ function getClient() {
  */
 export async function addListMember(email: string, subscribed: boolean = true): Promise<void> {
   const client = getClient();
-  const listAddress = required("MAILGUN_LIST");
+  const listAddress = resolveListAddress();
   await client.lists.members.createMember(listAddress, {
     address: email,
     subscribed,
@@ -122,7 +123,7 @@ export async function addListMember(email: string, subscribed: boolean = true): 
 export async function isAlreadySubscribed(email: string): Promise<boolean> {
   try {
     const client = getClient();
-    const listAddress = required("MAILGUN_LIST");
+    const listAddress = resolveListAddress();
     const member = await client.lists.members.getMember(listAddress, email);
     return Boolean(member.subscribed);
   } catch {

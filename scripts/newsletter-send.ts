@@ -2,15 +2,19 @@
 /**
  * CLI sender for newsletter editions.
  *
- *   pnpm newsletter:send <slug>            → dry-run, prints summary
- *   pnpm newsletter:send <slug> --test     → real send to MAILGUN_TEST_LIST
- *   pnpm newsletter:send <slug> --confirm  → real send to MAILGUN_LIST
+ *   pnpm newsletter:send <slug>                              → dry-run
+ *   pnpm newsletter:send <slug> --confirm                    → send to MAILGUN_TEST_LIST
+ *   NODE_ENV=production pnpm newsletter:send <slug> --confirm → send to MAILGUN_LIST
  *
- * The slug is the filename without `.md`: e.g. `0001-spring-light`. Bare
+ * The destination list is decided by NODE_ENV, not by a flag — production
+ * goes to the real subscriber list (`MAILGUN_LIST`), every other
+ * environment goes to a test list (`MAILGUN_TEST_LIST`) that should only
+ * contain your own address. `--confirm` is the dry-run-vs-actual-send
+ * switch; without it the script just builds the email and prints what
+ * would be sent.
+ *
+ * Slug is the filename without `.md`: e.g. `0001-spring-light`. Bare
  * theme slugs also work (the loader matches on either).
- *
- * Sending happens only when --test or --confirm is passed. The default
- * is a dry run that builds the email and prints what would be sent.
  *
  * This script is the only way to send. There is no /api/newsletter/send
  * route, no cron job. Run it from a machine that has the decrypted
@@ -20,10 +24,8 @@ import path from "node:path";
 import { fileURLToPath } from "node:url";
 
 import { findEdition } from "../src/lib/newsletter/editions";
-import { resolveListAddress, sendDigest } from "../src/lib/newsletter/mailgun";
+import { isProductionSend, resolveListAddress, sendDigest } from "../src/lib/newsletter/mailgun";
 import { renderEdition } from "../src/lib/newsletter/render";
-
-type Target = "dry-run" | "test" | "live";
 
 async function main(): Promise<void> {
   const __dirname = fileURLToPath(new URL(".", import.meta.url));
@@ -36,20 +38,17 @@ async function main(): Promise<void> {
   const slug = positional[0];
 
   if (!slug) {
-    console.error("usage: pnpm newsletter:send <slug> [--test|--confirm]");
+    console.error("usage: pnpm newsletter:send <slug> [--confirm]");
+    console.error("       NODE_ENV=production … --confirm sends to the real list");
     process.exit(1);
   }
 
-  if (flags.has("--test") && flags.has("--confirm")) {
-    console.error("--test and --confirm are mutually exclusive.");
+  if (flags.has("--test")) {
+    console.error(
+      "--test is no longer supported. The test list is selected automatically when NODE_ENV !== 'production'.",
+    );
     process.exit(1);
   }
-
-  const target: Target = flags.has("--confirm")
-    ? "live"
-    : flags.has("--test")
-      ? "test"
-      : "dry-run";
 
   const edition = findEdition(slug);
   if (!edition) {
@@ -58,31 +57,38 @@ async function main(): Promise<void> {
   }
 
   const siteUrl = process.env.NEXT_PUBLIC_SITE_URL ?? "https://beauty.trebeljahr.com";
+  const production = isProductionSend();
 
   console.info(`[newsletter] ${edition.fileSlug} — "${edition.title}"`);
   console.info(`[newsletter] published: ${edition.publishedAt}`);
   console.info(`[newsletter] subject:   ${edition.subject}`);
   console.info(`[newsletter] artworks:  ${edition.artworks.map((a) => a.id).join(", ")}`);
+  console.info(`[newsletter] env:       NODE_ENV=${process.env.NODE_ENV ?? "(unset)"}`);
+  console.info(
+    `[newsletter] list:      ${production ? "MAILGUN_LIST (production)" : "MAILGUN_TEST_LIST (non-production)"}`,
+  );
   if (edition.draft) {
     console.info(`[newsletter] note:      draft=true — won't appear on the public archive yet`);
   }
 
   const rendered = await renderEdition({ edition, siteUrl });
 
-  if (target === "dry-run") {
+  if (!flags.has("--confirm")) {
     console.info(`[newsletter] dry-run — no email sent.`);
     console.info(`[newsletter] html bytes: ${rendered.html.length}`);
     console.info(`[newsletter] text bytes: ${rendered.text.length}`);
     console.info(
-      `[newsletter] pass --test to send to MAILGUN_TEST_LIST or --confirm to send to MAILGUN_LIST.`,
+      production
+        ? `[newsletter] pass --confirm to send to MAILGUN_LIST (the real subscriber list).`
+        : `[newsletter] pass --confirm to send to MAILGUN_TEST_LIST. Set NODE_ENV=production to target the real list.`,
     );
     return;
   }
 
-  const to = resolveListAddress(target === "test" ? "test" : "live");
-  const subject = target === "test" ? `[TEST] ${rendered.subject}` : rendered.subject;
+  const to = resolveListAddress();
+  const subject = production ? rendered.subject : `[TEST] ${rendered.subject}`;
 
-  console.info(`[newsletter] sending to: ${to} (target=${target})`);
+  console.info(`[newsletter] sending to: ${to}`);
   const result = await sendDigest({
     subject,
     html: rendered.html,

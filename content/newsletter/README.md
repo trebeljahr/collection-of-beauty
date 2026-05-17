@@ -21,10 +21,14 @@ The intended flow is **semi-automatic, manual send**:
    `subject`.
 3. Flip `draft: true` → `draft: false`.
 4. `pnpm newsletter:send <slug>` — dry run, prints summary.
-5. `pnpm newsletter:send <slug> --test` — sends to `MAILGUN_TEST_LIST`
-   (a Mailgun list with only your address).
-6. `pnpm newsletter:send <slug> --confirm` — real send to
-   `MAILGUN_LIST`.
+5. `pnpm newsletter:send <slug> --confirm` — sends to
+   `MAILGUN_TEST_LIST` (a Mailgun list with only your address). The
+   destination list is decided by `NODE_ENV`, not by a flag, so any
+   non-production shell hits the test list.
+6. `NODE_ENV=production pnpm newsletter:send <slug> --confirm` — real
+   send to `MAILGUN_LIST`. Only this incantation can reach actual
+   subscribers; without `NODE_ENV=production` the script refuses to
+   resolve the live list.
 
 There is **no** API send route and **no** cron job. Sending happens
 exclusively from the CLI on a machine with a decrypted `.env.local`.

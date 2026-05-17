@@ -79,10 +79,23 @@ required by the Dockerfile — don't remove it.
 - **Drafting**: `/newsletter-draft` slash command guides the curation
   flow, then calls `pnpm newsletter:draft <theme-slug>` to scaffold
   the file. The file lands with `draft: true` — flip it after editing.
-- **Sending**: CLI only. `pnpm newsletter:send <slug>` (dry-run),
-  `--test` (to `MAILGUN_TEST_LIST`), `--confirm` (to `MAILGUN_LIST`).
-  No API route, no cron job. Sending requires `.env.local` decrypted
-  on the user's machine.
+- **Sending**: CLI only. `pnpm newsletter:send <slug>` is a dry-run.
+  `pnpm newsletter:send <slug> --confirm` sends to `MAILGUN_TEST_LIST`
+  by default and only hits `MAILGUN_LIST` when invoked as
+  `NODE_ENV=production pnpm newsletter:send <slug> --confirm`. The
+  destination list is decided by `NODE_ENV`, not by a flag. No API
+  route, no cron job. Sending requires `.env.local` decrypted on the
+  user's machine.
+- **Mailgun setup**: this project must use its own Mailgun sending
+  subdomain and lists (e.g. `mg.beauty.trebeljahr.com`), distinct from
+  `ricos.site`/`newsletter.trebeljahr.com`. Required env vars:
+  `MAILGUN_API_KEY`, `MAILGUN_DOMAIN`, `MAILGUN_FROM`, `MAILGUN_LIST`
+  (live), `MAILGUN_TEST_LIST` (your address only), and `MAILGUN_API_URL`
+  if the domain is on Mailgun EU. The subscribe/confirm API routes pick
+  the same list via `resolveListAddress()` in
+  `src/lib/newsletter/mailgun.ts` — production deployment env must set
+  `NODE_ENV=production` (Next does this for you) so signups land in
+  `MAILGUN_LIST`.
 - The public archive lives at `/newsletter` (index) and
   `/newsletter/<slug>` (per-edition magazine-style page). Both are
   in the sitemap. Drafts never reach the public surface.
