@@ -124,6 +124,25 @@
   outline-offset: 2px;
 }
 
+/* ── NSFW scrim ────────────────────────────────────────────────────
+   `data-nsfw-blur="1"` on <html> is set by the inline boot script in
+   layout.tsx (and kept in sync by NsfwProvider). The scrim wrapper
+   carries class `nsfw-scrim` and applies a heavy blur to its descendant
+   <img>/<picture> only while that root attribute is on AND the wrapper
+   has not been individually revealed. Reveal flips `data-revealed=true`
+   on the wrapper, which strips the blur and hides the overlay. */
+html[data-nsfw-blur="1"] .nsfw-scrim:not([data-revealed="true"]) img,
+html[data-nsfw-blur="1"] .nsfw-scrim:not([data-revealed="true"]) picture {
+  filter: blur(28px);
+  transform: scale(1.06);
+  transition: filter 200ms ease, transform 200ms ease;
+}
+
+.nsfw-scrim[data-revealed="true"] .nsfw-reveal,
+html:not([data-nsfw-blur="1"]) .nsfw-reveal {
+  display: none;
+}
+
 /* ── Site-nav modal animations ─────────────────────────────────────
    The fullscreen menu modal uses `nav-fade-in` for a tasteful entrance
    (slight slide-down + fade). Clicking "3D Room" inside the modal

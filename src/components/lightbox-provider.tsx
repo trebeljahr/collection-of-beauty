@@ -22,6 +22,7 @@ type LightboxArtwork = {
   year: number | null;
   width: number | null;
   height: number | null;
+  nsfw: boolean;
 };
 
 type LightboxApi = {
@@ -128,6 +129,7 @@ export function LightboxProvider({ children }: { children: ReactNode }) {
         srcWidth={current?.width}
         srcHeight={current?.height}
         caption={current ? artworkAlt(current) : undefined}
+        nsfw={current?.nsfw ?? false}
         onPrev={hasPrev ? () => navigate(-1) : null}
         onNext={hasNext ? () => navigate(1) : null}
       />

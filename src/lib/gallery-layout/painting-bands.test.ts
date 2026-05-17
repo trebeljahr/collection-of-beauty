@@ -23,6 +23,7 @@ function makeArtwork(
     height: null,
     realDimensions:
       widthCm != null && heightCm != null ? { widthCm, heightCm, source: "static" } : null,
+    nsfw: false,
     ...rest,
   };
 }

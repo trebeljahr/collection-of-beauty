@@ -4,6 +4,7 @@ import { useRouter } from "next/navigation";
 import { useEffect } from "react";
 import { artworkAlt } from "@/lib/artwork-format";
 import { useLightbox } from "./lightbox-provider";
+import { NsfwScrim } from "./nsfw-scrim";
 import { ResponsiveImage } from "./responsive-image";
 
 type ArtworkLike = {
@@ -15,6 +16,7 @@ type ArtworkLike = {
   year: number | null;
   width: number | null;
   height: number | null;
+  nsfw: boolean;
 };
 
 type Props = {
@@ -67,18 +69,20 @@ export function ArtworkViewer({ art, prevId, nextId }: Props) {
         onClick={() => open(art)}
         title="View fullscreen"
         aria-label={`Open ${art.title} in fullscreen viewer`}
-        className="flex min-h-0 w-full flex-1 cursor-zoom-in items-center justify-center rounded-md border-0 bg-transparent p-0 focus:outline-none focus-visible:ring-2 focus-visible:ring-[var(--ring)]"
+        className="relative flex min-h-0 w-full flex-1 cursor-zoom-in items-center justify-center rounded-md border-0 bg-transparent p-0 focus:outline-none focus-visible:ring-2 focus-visible:ring-[var(--ring)]"
       >
-        <ResponsiveImage
-          objectKey={art.objectKey}
-          variantWidths={art.variantWidths}
-          alt={alt}
-          srcWidth={art.width ?? 1600}
-          srcHeight={art.height ?? 2000}
-          sizes="(max-width: 768px) 100vw, 65vw"
-          priority
-          className="h-auto max-h-full w-auto max-w-full rounded-md object-contain"
-        />
+        <NsfwScrim nsfw={art.nsfw} className="flex h-full w-full items-center justify-center">
+          <ResponsiveImage
+            objectKey={art.objectKey}
+            variantWidths={art.variantWidths}
+            alt={alt}
+            srcWidth={art.width ?? 1600}
+            srcHeight={art.height ?? 2000}
+            sizes="(max-width: 768px) 100vw, 65vw"
+            priority
+            className="h-auto max-h-full w-auto max-w-full rounded-md object-contain"
+          />
+        </NsfwScrim>
       </button>
     </div>
   );
