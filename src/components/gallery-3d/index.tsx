@@ -640,7 +640,7 @@ export function Gallery3D({ artworks }: Props) {
           }`}
         >
           <div className="text-xs text-neutral-500">
-            Floor {currentFloorIdx} · {currentFloor.era.title}
+            Floor {currentFloorIdx + 1} · {currentFloor.era.title}
           </div>
           {activeRoom && (
             <>
@@ -1146,7 +1146,7 @@ function BigMapOverlay({
                   isCurrent ? "text-amber-300" : "text-white/55"
                 }`}
               >
-                Floor {i}
+                Floor {i + 1}
               </span>
               <span className="flex-1 truncate text-sm">{floorTitles[i]}</span>
               {/* Digit teleport hint. Lives next to each floor (was
