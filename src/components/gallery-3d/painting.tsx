@@ -128,7 +128,7 @@ export function Painting({
    *  drive the start overlay without allowing one bad image to hang it. */
   onSettled?: (status: "loaded" | "failed") => void;
 }) {
-  const { artwork, position, rotation, widthM, heightM, plaqueOnLeft } = placement;
+  const { artwork, position, rotation, widthM, heightM } = placement;
   const url = variantProxyUrl(artwork.objectKey, 960, "avif");
 
   // Aspect-corrected plane size. The slot's widthM/heightM are derived
@@ -201,7 +201,7 @@ export function Painting({
         onSettled={onSettled}
         onTextureAspect={handleTextureAspect}
       />
-      <Plaque artwork={artwork} widthM={dW} plaqueOnLeft={plaqueOnLeft} />
+      <Plaque artwork={artwork} widthM={dW} />
     </group>
   );
 }
@@ -343,15 +343,7 @@ function readTroikaBlockHeight(mesh: unknown): number | null {
   return Math.abs(bb[3] - bb[1]);
 }
 
-function Plaque({
-  artwork,
-  widthM,
-  plaqueOnLeft,
-}: {
-  artwork: ArtworkListing;
-  widthM: number;
-  plaqueOnLeft: boolean;
-}) {
+function Plaque({ artwork, widthM }: { artwork: ArtworkListing; widthM: number }) {
   const title = formatTitle(artwork.title, artwork.artist ?? undefined);
   const byline = formatByline(artwork);
   const dims = artwork.realDimensions
@@ -394,11 +386,10 @@ function Plaque({
   const PLAQUE_FACE_H = Math.max(PLAQUE_FACE_H_BASE, stackedH);
   const PLAQUE_MOUNT_H = PLAQUE_FACE_H + PLAQUE_MOUNT_PAD;
 
-  // Default hang is to the painting's right (local +X). Flip to the
-  // left at right-corner cells so the plaque doesn't crash through the
-  // perpendicular wall there.
-  const sideSign = plaqueOnLeft ? -1 : 1;
-  const localX = sideSign * (widthM / 2 + PLAQUE_GAP + PLAQUE_MOUNT_W / 2);
+  // Plaque always hangs on the painting's right (local +X). Slot sizing
+  // in place-paintings.ts guarantees painting + plaque clear the wall
+  // margin even at right-corner cells, so no flip is needed.
+  const localX = widthM / 2 + PLAQUE_GAP + PLAQUE_MOUNT_W / 2;
   const localY = 0;
   // Mount sits a few mm off the wall so it doesn't z-fight with it; face
   // is parked just in front of the mount; text floats a hair above the

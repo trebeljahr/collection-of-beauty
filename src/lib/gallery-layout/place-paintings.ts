@@ -60,9 +60,9 @@ export const PAINTING_WALL_OFFSET = 0.02;
  *  painting.tsx — keep in sync if those move. */
 const PLAQUE_FOOTPRINT = 0.06 + 0.308;
 /** Minimum gap from a painting (or its plaque) to a perpendicular room
- *  wall at wall corners. The user-facing target is "50 cm – 1 m of
- *  breathing room from the sides of the room". 50 cm is the floor. */
-const SIDE_WALL_CLEARANCE = 0.5;
+ *  wall at wall corners. Enforced for both the painting's far edge and
+ *  the plaque's far edge, so neither pushes into the side wall. */
+const WALL_MARGIN = 0.3;
 /** Minimum gap between a painting/plaque and the next painting/plaque
  *  on the same wall. Prevents paintings from grazing each other. */
 const ADJACENT_GAP = 0.1;
@@ -95,10 +95,6 @@ type Slot = {
   maxWidth: number;
   /** Max painting height this slot can hold, metres. */
   maxHeight: number;
-  /** Hang the plaque on the painting's left rather than its default
-   *  right, so the plaque doesn't crash through a perpendicular wall on
-   *  the viewer's right. */
-  plaqueOnLeft: boolean;
 };
 
 /** Position of a wall cell relative to the wall's two perpendicular
@@ -112,45 +108,40 @@ type CornerStatus = "left" | "right" | "both" | "none";
 /** Decide max painting width for a room-wall cell, based on its position
  *  relative to the wall's perpendicular ends.
  *
- *  Plaques always hang on the painting's right (museum convention) and
- *  never flip — so a right-corner cell has to fit BOTH the painting and
- *  its plaque inside the SIDE_WALL_CLEARANCE budget, which gives a
- *  narrower painting there. Width caps:
- *  - corner cells leave SIDE_WALL_CLEARANCE between the painting (or
- *    its plaque) and the perpendicular wall
+ *  Plaques always hang on the painting's right (museum convention), so
+ *  a right-corner cell has to fit BOTH the painting and its plaque
+ *  inside the WALL_MARGIN budget — giving a narrower painting there.
+ *  Width caps:
+ *  - corner cells leave WALL_MARGIN between the painting (or its
+ *    plaque) and the perpendicular wall
  *  - pure interior cells just need to leave room for one plaque + the
  *    next painting (ADJACENT_GAP between cells) */
-function widthAndPlaqueForRoomCell(args: { cornerStatus: CornerStatus }): {
-  maxWidth: number;
-  plaqueOnLeft: boolean;
-} {
+function widthForRoomCell(args: { cornerStatus: CornerStatus }): number {
   const { cornerStatus } = args;
   const half = CELL_SIZE / 2;
 
   let maxWidth: number;
 
   if (cornerStatus === "both") {
-    // 1-cell wall: perpendicular walls on both sides; plaque must fit
-    // inside the right-side clearance budget. Doesn't occur in rooms
-    // today (ROOM_MIN_CELLS = 3), but the formula keeps things sane.
-    maxWidth = 2 * (half - SIDE_WALL_CLEARANCE) - PLAQUE_FOOTPRINT;
+    // 1-cell wall: perpendicular walls on both sides. Painting's left
+    // edge must clear the left wall, and painting+plaque's right edge
+    // must clear the right wall. Doesn't occur in rooms today
+    // (ROOM_MIN_CELLS = 3), but the formula keeps things sane.
+    maxWidth = 2 * (half - WALL_MARGIN) - PLAQUE_FOOTPRINT;
   } else if (cornerStatus === "right") {
     // Right perpendicular wall: painting + plaque must both clear it.
-    maxWidth = 2 * (half - SIDE_WALL_CLEARANCE - PLAQUE_FOOTPRINT);
+    maxWidth = 2 * (half - WALL_MARGIN - PLAQUE_FOOTPRINT);
   } else if (cornerStatus === "left") {
-    // Left perpendicular wall: only the painting needs the SIDE_WALL_CLEARANCE
+    // Left perpendicular wall: only the painting needs WALL_MARGIN
     // (plaque is on the right, far from the perpendicular wall).
-    maxWidth = 2 * (half - SIDE_WALL_CLEARANCE);
+    maxWidth = 2 * (half - WALL_MARGIN);
   } else {
     // Pure interior: ours is the only plaque sitting in the gap to the
     // right neighbour's painting.
     maxWidth = CELL_SIZE - PLAQUE_FOOTPRINT - ADJACENT_GAP;
   }
 
-  return {
-    plaqueOnLeft: false,
-    maxWidth: Math.max(0, Math.min(MAX_PAINTING_W, maxWidth)),
-  };
+  return Math.max(0, Math.min(MAX_PAINTING_W, maxWidth));
 }
 
 /**
@@ -159,9 +150,8 @@ function widthAndPlaqueForRoomCell(args: { cornerStatus: CornerStatus }): {
  * centre.
  *
  * Each slot is sized with awareness of where it sits along the wall:
- * cells at wall corners get tighter caps (so paintings don't crash
- * through perpendicular walls), and the plaque flips to the painting's
- * left at right-corner cells so it has somewhere to hang.
+ * cells at wall corners get tighter caps so neither the painting nor
+ * its right-side plaque crashes through a perpendicular wall.
  *
  * `doubleRow` switches to a two-row stack per cell — used on the
  * Ukiyo-e floor where most prints are small enough that one eye-level
@@ -186,9 +176,9 @@ export function computeRoomSlots(room: RoomLayout, opts: { doubleRow?: boolean }
   };
 
   // Per-wall slot construction. `viewerRightIsHigher` says whether the
-  // viewer's right (the default plaque side) corresponds to the higher
-  // or lower coordinate along the wall axis — i.e., which end of the
-  // wall is the "right corner" where we flip the plaque.
+  // viewer's right (the plaque side) corresponds to the higher or lower
+  // coordinate along the wall axis — i.e., which end of the wall is
+  // the "right corner" that must fit both painting and plaque.
   //
   // Mapping (verified from rotationY + normal):
   //   north → viewer faces -Z, right = +X (higher x) → right corner = xMax
@@ -205,7 +195,7 @@ export function computeRoomSlots(room: RoomLayout, opts: { doubleRow?: boolean }
      *  cell index `cellIdx` along the wall axis. The Y is filled in per
      *  row so a single buildBase covers both single- and double-row
      *  rooms. */
-    buildBase: (cellIdx: number) => Omit<Slot, "wallY" | "maxWidth" | "maxHeight" | "plaqueOnLeft">;
+    buildBase: (cellIdx: number) => Omit<Slot, "wallY" | "maxWidth" | "maxHeight">;
     /** World coordinate along the wall axis for cell `cellIdx`'s
      *  centre — used to test against door openings. */
     cellCenterCoord: (cellIdx: number) => number;
@@ -231,17 +221,16 @@ export function computeRoomSlots(room: RoomLayout, opts: { doubleRow?: boolean }
             ? "right"
             : "none";
 
-      const sizing = widthAndPlaqueForRoomCell({ cornerStatus });
-      if (sizing.maxWidth <= 0) continue;
+      const maxWidth = widthForRoomCell({ cornerStatus });
+      if (maxWidth <= 0) continue;
 
       const base = args.buildBase(cellIdx);
       for (const row of rows) {
         slots.push({
           ...base,
           wallY: row.y,
-          maxWidth: sizing.maxWidth,
+          maxWidth,
           maxHeight: row.maxHeight,
-          plaqueOnLeft: sizing.plaqueOnLeft,
         });
       }
     }
@@ -335,7 +324,7 @@ export function computeRoomSlots(room: RoomLayout, opts: { doubleRow?: boolean }
  *  one side), or it might be just this cell wide (a one-cell stub).
  *  We classify the slot as left/right/both/none corner based on whether
  *  the wall continues into the cells on either side, and use the same
- *  corner-aware width + plaque-side rules as room walls. */
+ *  corner-aware width rules as room walls. */
 export function computeHallwaySlots(hallway: HallwayLayout, floor: FloorLayout): Slot[] {
   const yLow = floor.y + HALLWAY_ROW_LOWER_Y;
   const slots: Slot[] = [];
@@ -447,8 +436,8 @@ export function computeHallwaySlots(hallway: HallwayLayout, floor: FloorLayout):
                 ? "left"
                 : "none";
 
-        const sizing = widthAndPlaqueForRoomCell({ cornerStatus });
-        if (sizing.maxWidth <= 0) continue;
+        const maxWidth = widthForRoomCell({ cornerStatus });
+        if (maxWidth <= 0) continue;
 
         // Position + rotation per side.
         let wallXOut = cx;
@@ -486,9 +475,8 @@ export function computeHallwaySlots(hallway: HallwayLayout, floor: FloorLayout):
           rotationY,
           normalX,
           normalZ,
-          maxWidth: sizing.maxWidth,
+          maxWidth,
           maxHeight: row.maxHeight,
-          plaqueOnLeft: sizing.plaqueOnLeft,
         });
       }
     }
@@ -708,7 +696,6 @@ function slotToPlacement(slot: Slot, artwork: ArtworkListing): Placement {
     band: artworkBand(artwork),
     widthM: wM,
     heightM: hM,
-    plaqueOnLeft: slot.plaqueOnLeft,
   };
 }
 
