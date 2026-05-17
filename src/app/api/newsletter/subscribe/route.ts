@@ -55,7 +55,10 @@ export async function POST(request: NextRequest) {
   try {
     body = (await request.json()) as SubscribeBody;
   } catch {
-    return NextResponse.json({ error: "invalid_json" }, { status: 400 });
+    return NextResponse.json(
+      { error: "invalid_json", message: "Couldn't read the request. Please try again." },
+      { status: 400 },
+    );
   }
 
   // Honeypot: real users never fill this. Return a 200-shaped success so
