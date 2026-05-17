@@ -265,6 +265,125 @@ const PATCH = {
     "In the Alatau Mountains (deer in meadow)",
   "В_горах_Алатау_2.jpg":
     "In the Alatau Mountains (horsemen on slope)",
+
+  // === Third pass: disambiguation for the long-tail clusters surfaced
+  // by the /dedup-review panel after the curator confirmed each pair is
+  // a real distinct work. Sources for the catalogued series:
+  // - Monet Wildenstein numbers from the catalogue raisonné when present
+  //   in the filename.
+  // - Wellcome anatomy L-numbers looked up directly on wellcomecollection.org. ===
+
+  // Monet "Water Lilies" / Nymphéas — the series of 250+ canvases. Many
+  // members of the cluster carry a year, museum, or Wildenstein number
+  // in the filename; use that as the disambiguator. A handful (generic
+  // names like Claude_Monet_044, Nympheas_71293_3, the Spanish-titled
+  // scans) carry no identifying tag and are left with the default
+  // "Water Lilies" rather than fabricated specifics.
+  "Claude_Monet_-_Nymphéas_(1905).jpg":
+    "Water Lilies (1905)",
+  "Claude_Monet_-_Water_Lilies_-_1906,_Ryerson.jpg":
+    "Water Lilies (Art Institute of Chicago, 1906)",
+  "Claude_Monet_-_Nymphéas_(W_1698).jpg":
+    "Water Lilies (Wildenstein no. 1698)",
+  "Monet_-_Water_Lilies,_1907,_19.170.jpg":
+    "Water Lilies (Museum of Fine Arts Boston, 1907)",
+  "Monet_w1708.jpg":
+    "Water Lilies (Wildenstein no. 1708)",
+  "Claude_Monet_-_Waterlilies_-_Nympheas_(1908).jpg":
+    "Water Lilies (1908)",
+  "Claude_Monet_-_Nymphéas_W1852_-_Musée_Marmottan-Monet.jpg":
+    "Water Lilies (Musée Marmottan, Wildenstein no. 1852)",
+  "Monet_-_Water_Lilies,_1914-26,_712.1959.jpg":
+    "Water Lilies (Museum of Fine Arts Boston, 1914–1926)",
+  "Claude_Monet_Nympheas_1915_Musee_Marmottan_Paris.jpg":
+    "Water Lilies (Musée Marmottan, 1915)",
+  "Water_Lilies_(Agapanthus),_by_Claude_Monet,_Cleveland_Museum_of_Art,_1960.81.jpg":
+    "Water Lilies (Agapanthus) (Cleveland Museum of Art)",
+  "Claude_Monet_-_Water_Lilies,_1917-1919.jpeg":
+    "Water Lilies (1917–1919)",
+
+  // Monet Houses of Parliament series — distinguishing by time-of-day
+  // effect / museum, matching the Commons file naming.
+  "Monet_Houses_of_Parliament,_Sunset.jpg":
+    "Houses of Parliament, Sunset",
+  "Claude_Monet_-_Houses_of_Parliament,_Sunlight_Effect_(Le_Parlement,_effet_de_soleil)_-_Google_Art_Project.jpg":
+    "Houses of Parliament, Sunlight Effect",
+  "Claude_Monet_-_Le_Parlement,_coucher_de_soleil_-_Kunsthaus_Zürich.jpg":
+    "Houses of Parliament, Sunset (Kunsthaus Zürich)",
+
+  // Monet Waterloo Bridge series.
+  "1902_Monet_Die_Waterloo-Brücke_anagoria.jpeg":
+    "Waterloo Bridge (1902)",
+  "Waterloo_Bridge,_London,_at_Sunset_E11705.jpg":
+    "Waterloo Bridge, London, at Sunset",
+
+  // Monet Charing Cross Bridge series.
+  "Charing_Cross_Bridge,_Reflections_on_the_Thames.jpg":
+    "Charing Cross Bridge, Reflections on the Thames",
+
+  // Monet Water Lily Pond series.
+  "Monet_w1883.jpg":
+    "The Water Lily Pond (Wildenstein no. 1883)",
+  "Water-Lilies-and-Japanese-Bridge-(1897-1899)-Monet.jpg":
+    "Water Lilies and Japanese Bridge (1897–1899)",
+
+  // Monet The Studio Boat series — Wildenstein number when in filename,
+  // otherwise museum location.
+  "Monet_w392.jpg":
+    "The Studio Boat (Wildenstein no. 392)",
+  "Claude_Monet_-_Le_bateau-atelier_-_MAH_Neuchâtel.jpg":
+    "The Studio Boat (Musée d'Art et d'Histoire, Neuchâtel)",
+
+  // Monet Road to Vétheuil.
+  "La_route_de_Vétheuil,_effet_de_neige_by_Claude_Monet.jpg":
+    "The Road to Vétheuil (Snow Effect)",
+
+  // Monet Seine at Vétheuil (1881 version).
+  "Claude_Monet_-_La_Seine_à_Vétheuil_(1881).jpg":
+    "The Seine at Vétheuil (1881)",
+
+  // Monet "Summer" cluster — the second file is the Mannheim "Champ de
+  // coquelicots" (Field of Poppies), not the generic Summer.
+  "Claude_Monet_-_L'été_-_Champ_de_coquelicots.jpeg":
+    "Summer: Field of Poppies",
+
+  // Monet "The Luncheon" — Städel Frankfurt is the bigger of the two
+  // Luncheon canvases; the other is from Musée d'Orsay (Le Déjeuner).
+  "The_Luncheon_by_Claude_Monet_-_Städel_-_Frankfurt_am_Main_-_Germany_2017.jpg":
+    "The Luncheon (Städel Museum, Frankfurt)",
+
+  // Turner — pair of sketches at the National Gallery (N01994 / N01995).
+  "Joseph_Mallord_William_Turner_(1775-1851)_-_Sketch_for_'East_Cowes_Castle,_the_Regatta_Beating_to_Windward'_No._1_-_N01995_-_National_Gallery.jpg":
+    "Sketch for 'East Cowes Castle, the Regatta Beating to Windward', No. 1",
+  "Joseph_Mallord_William_Turner_(1775-1851)_-_Sketch_for_'East_Cowes_Castle,_the_Regatta_Beating_to_Windward'_No._2_-_N01994_-_National_Gallery.jpg":
+    "Sketch for 'East Cowes Castle, the Regatta Beating to Windward', No. 2",
+
+  // Kawai Gyokudo — *Parting Spring* is a pair of folding-screen panels.
+  "Parting_Spring_by_Kawai_Gyokudo_(National_Museum_of_Modern_Art,_Tokyo)_L.jpg":
+    "Parting Spring (left panel)",
+  "Parting_Spring_by_Kawai_Gyokudo_(National_Museum_of_Modern_Art,_Tokyo)_R.jpg":
+    "Parting Spring (right panel)",
+
+  // Whistler "Symphony in White, No. 1: The White Girl" — only the
+  // clearly-named file gets the canonical title; the "Cult-of-beauty-001"
+  // scan is left alone (the catalogue subject is uncertain without an
+  // exhibition cross-check).
+  "Whistler_James_Symphony_in_White_no_1_(The_White_Girl)_1862.jpg":
+    "Symphony in White, No. 1: The White Girl",
+
+  // Wellcome anatomy plates — all four are 1747 engravings after
+  // Bernhard Siegfried Albinus, identified by L-number on
+  // wellcomecollection.org. The work attribution would ideally also
+  // change to Albinus, but the artist database is out of scope for
+  // a title-only patch.
+  "Anatomy_Wellcome_L0021853.jpg":
+    "Skeleton, back view, with left arm extended (Scotin after Albinus, 1747)",
+  "Anatomy_Wellcome_L0021854.jpg":
+    "Standing skeleton, side view, with left arm extended (Ravenet after Albinus, 1747)",
+  "Anatomy_Wellcome_L0021855.jpg":
+    "Écorché figure, front view, with rhinoceros in the background (Grignion after Albinus, 1747)",
+  "Anatomy_Wellcome_L0021856.jpg":
+    "Écorché figure, back view, with rhinoceros in the background (Grignion after Albinus, 1747)",
 };
 
 // Filenames whose source asset was removed in a later dedup pass. The
