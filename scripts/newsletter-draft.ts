@@ -112,6 +112,14 @@ subject: "${title}"
 publishedAt: "${today}"
 excerpt: "TODO — one-sentence summary used in OG tags and the archive index."
 draft: true
+# Optional: drop in the lead artwork's id (or remove this block to fall back
+# to the first entry under "artworks:"). Use { src, alt } instead for a
+# non-artwork cover.
+cover:
+  artworkId: "${chosenIds[0]}"
+tags:
+  # - "impressionism"
+  # - "spring"
 artworks:
 ${yamlArtworks}
 ---

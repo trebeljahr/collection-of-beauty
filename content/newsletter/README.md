@@ -38,6 +38,13 @@ subject: "Issue #1 — Spring light"             # optional, overrides email sub
 publishedAt: "2026-05-17"                       # required, ISO date
 excerpt: "One paragraph for OG tags and the archive index."  # required
 draft: false                                    # optional, default false
+cover:                                          # optional; defaults to artworks[0]
+  artworkId: "claude-monet-impression-sunrise"
+  alt: "Sunrise over Le Havre, 1872"           # optional override
+# Alternatively: cover: { src: "/path/foo.webp", alt: "..." } for non-artwork covers.
+tags:                                           # optional
+  - "impressionism"
+  - "spring"
 artworks:                                       # exactly 5 entries
   - id: "claude-monet-impression-sunrise"
     note: "Optional editorial blurb shown below this artwork."
@@ -50,6 +57,9 @@ artworks:                                       # exactly 5 entries
 Markdown body — the editorial intro for this issue. Two to four
 paragraphs that thread the five works together.
 ```
+
+Reading time is derived from the body word count (~225 wpm) at parse
+time — no need to set it manually.
 
 ## "Already sent" tracking
 

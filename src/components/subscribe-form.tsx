@@ -8,6 +8,7 @@ type Status =
   | { kind: "idle" }
   | { kind: "submitting" }
   | { kind: "success" }
+  | { kind: "already-subscribed" }
   | { kind: "error"; message: string };
 
 export function SubscribeForm() {
@@ -35,7 +36,8 @@ export function SubscribeForm() {
         });
         return;
       }
-      setStatus({ kind: "success" });
+      const data = (await res.json().catch(() => ({}))) as { alreadySubscribed?: boolean };
+      setStatus({ kind: data.alreadySubscribed ? "already-subscribed" : "success" });
     } catch {
       setStatus({ kind: "error", message: "Network error. Please try again." });
     }
@@ -48,6 +50,18 @@ export function SubscribeForm() {
         <p className="mt-1 text-[var(--muted-foreground)]">
           A confirmation link is on its way. Click it within 48 hours to finish subscribing. If it
           doesn't arrive, check your spam folder.
+        </p>
+      </div>
+    );
+  }
+
+  if (status.kind === "already-subscribed") {
+    return (
+      <div className="rounded-lg border border-[var(--border)] bg-[var(--accent)] p-5 text-sm">
+        <p className="font-medium">You're already on the list.</p>
+        <p className="mt-1 text-[var(--muted-foreground)]">
+          That address is already a confirmed subscriber — no need to do anything. The next issue
+          will arrive at the usual cadence.
         </p>
       </div>
     );

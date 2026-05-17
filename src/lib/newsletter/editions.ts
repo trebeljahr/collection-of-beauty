@@ -1,7 +1,20 @@
 import { readdirSync, readFileSync } from "node:fs";
 import path from "node:path";
 import matter from "gray-matter";
-import type { Edition, EditionArtworkEntry } from "./types";
+import type { Edition, EditionArtworkEntry, EditionCover } from "./types";
+
+/**
+ * Average adult reads ~225 words per minute on prose. We round up so a
+ * 1-second skim doesn't show as "0 min read", which looks broken.
+ */
+const WORDS_PER_MINUTE = 225;
+
+export function estimateReadingTimeMinutes(body: string): number {
+  const trimmed = body.trim();
+  if (trimmed.length === 0) return 0;
+  const words = trimmed.split(/\s+/).filter(Boolean).length;
+  return Math.max(1, Math.ceil(words / WORDS_PER_MINUTE));
+}
 
 /**
  * Newsletter editions live as plain markdown under content/newsletter/ at
@@ -52,6 +65,9 @@ export function parseEdition(filename: string, raw: string): Edition {
   const excerpt = need("excerpt", data.excerpt as string | undefined, "string");
   const draft = Boolean(data.draft);
 
+  const tags = parseTags(filename, data.tags);
+  const cover = parseCover(filename, data.cover);
+
   const rawArtworks = data.artworks;
   if (!Array.isArray(rawArtworks) || rawArtworks.length !== 5) {
     throw new Error(
@@ -73,6 +89,7 @@ export function parseEdition(filename: string, raw: string): Edition {
     throw new Error(`${filename}: artworks[${i}] must be a string id or { id, note } object.`);
   });
 
+  const body = content.trim();
   return {
     number,
     themeSlug,
@@ -82,9 +99,46 @@ export function parseEdition(filename: string, raw: string): Edition {
     publishedAt,
     excerpt,
     artworks,
-    body: content.trim(),
+    body,
     draft,
+    tags,
+    cover,
+    readingTimeMinutes: estimateReadingTimeMinutes(body),
   };
+}
+
+function parseTags(filename: string, raw: unknown): string[] {
+  if (raw === undefined || raw === null) return [];
+  if (!Array.isArray(raw)) {
+    throw new Error(`${filename}: frontmatter "tags" must be an array of strings.`);
+  }
+  return raw.map((t, i) => {
+    if (typeof t !== "string" || t.length === 0) {
+      throw new Error(`${filename}: tags[${i}] must be a non-empty string.`);
+    }
+    return t;
+  });
+}
+
+function parseCover(filename: string, raw: unknown): EditionCover | null {
+  if (raw === undefined || raw === null) return null;
+  if (typeof raw !== "object") {
+    throw new Error(
+      `${filename}: frontmatter "cover" must be either { artworkId, alt? } or { src, alt }.`,
+    );
+  }
+  const obj = raw as Record<string, unknown>;
+  if (typeof obj.artworkId === "string" && obj.artworkId.length > 0) {
+    const alt = typeof obj.alt === "string" && obj.alt.length > 0 ? obj.alt : undefined;
+    return alt !== undefined ? { artworkId: obj.artworkId, alt } : { artworkId: obj.artworkId };
+  }
+  if (typeof obj.src === "string" && obj.src.length > 0) {
+    if (typeof obj.alt !== "string" || obj.alt.length === 0) {
+      throw new Error(`${filename}: cover.alt is required when cover.src is set.`);
+    }
+    return { src: obj.src, alt: obj.alt };
+  }
+  throw new Error(`${filename}: cover must set either "artworkId" or "src" + "alt".`);
 }
 
 /**

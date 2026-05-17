@@ -5,6 +5,7 @@ import Markdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 import { ResponsiveImage } from "@/components/responsive-image";
 import { artworks as ALL_ARTWORKS } from "@/lib/data";
+import { resolveEditionCover } from "@/lib/newsletter/cover";
 import { findEdition, loadPublishedEditions } from "@/lib/newsletter/editions";
 import type { Edition } from "@/lib/newsletter/types";
 import { SITE_NAME, SITE_URL } from "@/lib/seo";
@@ -19,9 +20,14 @@ export async function generateMetadata({ params }: { params: Promise<Params> }):
   const { slug } = await params;
   const edition = findEdition(slug);
   if (!edition || edition.draft) return {};
+  const cover = resolveEditionCover(edition);
+  const ogImages = cover
+    ? [{ url: cover.url, alt: cover.alt, width: 1280, height: 960 }]
+    : undefined;
   return {
     title: edition.title,
     description: edition.excerpt,
+    keywords: edition.tags.length > 0 ? edition.tags : undefined,
     alternates: { canonical: `/newsletter/${edition.fileSlug}` },
     openGraph: {
       type: "article",
@@ -29,6 +35,14 @@ export async function generateMetadata({ params }: { params: Promise<Params> }):
       description: edition.excerpt,
       url: `${SITE_URL}/newsletter/${edition.fileSlug}`,
       publishedTime: edition.publishedAt,
+      tags: edition.tags,
+      images: ogImages,
+    },
+    twitter: {
+      card: "summary_large_image",
+      title: `${edition.title} · ${SITE_NAME}`,
+      description: edition.excerpt,
+      images: ogImages?.map((img) => img.url),
     },
   };
 }
@@ -43,12 +57,27 @@ export default async function EditionPage({ params }: { params: Promise<Params> 
   return (
     <article className="mx-auto max-w-3xl px-4 py-10 md:py-16">
       <header className="mb-10">
-        <div className="flex items-baseline gap-3 text-xs uppercase tracking-[0.18em] text-[var(--muted-foreground)]">
+        <div className="flex flex-wrap items-baseline gap-x-3 gap-y-1 text-xs uppercase tracking-[0.18em] text-[var(--muted-foreground)]">
           <span>Issue {String(edition.number).padStart(4, "0")}</span>
           <span aria-hidden="true">·</span>
           <time dateTime={edition.publishedAt}>{formatDate(edition.publishedAt)}</time>
+          {edition.readingTimeMinutes > 0 && (
+            <>
+              <span aria-hidden="true">·</span>
+              <span>{edition.readingTimeMinutes} min read</span>
+            </>
+          )}
         </div>
         <h1 className="mt-3 font-serif text-3xl md:text-5xl tracking-tight">{edition.title}</h1>
+        {edition.tags.length > 0 && (
+          <ul className="mt-4 flex flex-wrap gap-1.5 text-[10px] uppercase tracking-widest text-[var(--muted-foreground)]">
+            {edition.tags.map((t) => (
+              <li key={t} className="rounded border border-[var(--border)] px-1.5 py-0.5">
+                {t}
+              </li>
+            ))}
+          </ul>
+        )}
       </header>
 
       {edition.body.length > 0 && (
