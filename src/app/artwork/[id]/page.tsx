@@ -131,7 +131,7 @@ export default async function ArtworkPage({ params }: { params: Promise<Params> 
       </div>
 
       <div className="grid gap-8 md:grid-cols-[1.3fr_1fr]">
-        <div className="flex min-h-[80vh] flex-col rounded-xl border border-[var(--border)] bg-[var(--muted)] p-[10px]">
+        <div className="flex max-h-[85vh] flex-col self-start rounded-xl border border-[var(--border)] bg-[var(--muted)] p-[10px]">
           <ArtworkViewer
             art={{
               id: art.id,
