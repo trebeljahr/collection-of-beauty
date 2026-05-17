@@ -758,6 +758,7 @@ export function StaircaseRenderer({
             Y = vertical (height, fills most of the step rise),
             Z = tangential (width, ≈ half the step's inner arc). */}
       {brackets.map((b, i) => (
+        // biome-ignore lint/suspicious/noArrayIndexKey: deterministic geometry list, never reorders.
         <mesh key={`bracket-${i}`} position={b.position} rotation={[0, b.rotationY, 0]} castShadow>
           <boxGeometry args={[b.length, b.height, b.width]} />
           <primitive object={bracketMaterial} attach="material" />
@@ -774,6 +775,7 @@ export function StaircaseRenderer({
         // around the spiral. Without this each box reads as cocked
         // relative to its step (its corners pointing at world ±X / ±Z
         // regardless of where it lives on the curve).
+        // biome-ignore lint/suspicious/noArrayIndexKey: deterministic baluster list around a fixed spiral, never reorders.
         <mesh key={`in-bal-${i}`} position={b.pos} rotation={[0, -b.angle, 0]} castShadow>
           <boxGeometry args={[BALUSTER_SIZE, b.height, BALUSTER_SIZE]} />
           <primitive object={balusterMaterial} attach="material" />
@@ -786,6 +788,7 @@ export function StaircaseRenderer({
         <primitive object={railTopMaterial} attach="material" />
       </mesh>
       {outerRail.balusters.map((b, i) => (
+        // biome-ignore lint/suspicious/noArrayIndexKey: deterministic baluster list, never reorders.
         <mesh key={`out-bal-${i}`} position={b.pos} rotation={[0, -b.angle, 0]} castShadow>
           <boxGeometry args={[BALUSTER_SIZE, b.height, BALUSTER_SIZE]} />
           <primitive object={balusterMaterial} attach="material" />
@@ -817,6 +820,7 @@ export function StaircaseRenderer({
         </mesh>
       )}
       {outerRail.endpoints.map((p, i) => (
+        // biome-ignore lint/suspicious/noArrayIndexKey: endpoints array is fixed-length per rail, never reorders.
         <mesh key={`out-finial-${i}`} position={p} geometry={finialGeometry} castShadow>
           <primitive object={railTopMaterial} attach="material" />
         </mesh>

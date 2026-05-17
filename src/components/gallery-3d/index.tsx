@@ -1124,6 +1124,7 @@ function BigMapOverlay({
           return (
             <button
               type="button"
+              // biome-ignore lint/suspicious/noArrayIndexKey: floorCount is fixed for a session; floors never reorder.
               key={i}
               onClick={() => onSelect(i)}
               onDoubleClick={() => onJump(i)}
@@ -1151,11 +1152,8 @@ function BigMapOverlay({
                 </kbd>
               )}
               {isCurrent && (
-                <span
-                  aria-label="You are here"
-                  className="text-[10px] uppercase tracking-wider text-amber-300"
-                >
-                  here
+                <span className="text-[10px] uppercase tracking-wider text-amber-300">
+                  <span className="sr-only">You are </span>here
                 </span>
               )}
             </button>
