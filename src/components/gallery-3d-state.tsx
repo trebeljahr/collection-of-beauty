@@ -30,10 +30,16 @@ export function Gallery3DProvider({ children }: { children: React.ReactNode }) {
 
   useEffect(() => {
     if (!is3DActive) return;
-    const prev = document.body.style.overflow;
+    const prevBody = document.body.style.overflow;
+    const prevHtml = document.documentElement.style.overflow;
     document.body.style.overflow = "hidden";
+    // Lock the root element too so the viewport scrollbar disappears
+    // entirely. Without it, body's overflow:hidden alone leaves the
+    // page scrollbar visible on the right edge of the museum.
+    document.documentElement.style.overflow = "hidden";
     return () => {
-      document.body.style.overflow = prev;
+      document.body.style.overflow = prevBody;
+      document.documentElement.style.overflow = prevHtml;
     };
   }, [is3DActive]);
 

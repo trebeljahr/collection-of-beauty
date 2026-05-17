@@ -159,6 +159,23 @@
   animation: nav-slide-out-down 320ms ease-out forwards;
 }
 
+/* Used when the SiteNav reappears after the 3D experience releases
+   control (menu opened, or back to start overlay). Slides the whole
+   header bar in from above the viewport so the return doesn't feel
+   like an abrupt pop. Pairs with `SLIDE_IN_MS` in site-nav.tsx. */
+@keyframes nav-slide-down-in {
+  from {
+    transform: translateY(-100%);
+  }
+  to {
+    transform: translateY(0);
+  }
+}
+
+.animate-nav-slide-down-in {
+  animation: nav-slide-down-in 320ms cubic-bezier(0.16, 1, 0.3, 1);
+}
+
 /* Indeterminate progress bar — used by the WebGL context-loss curtain
    inside the 3D gallery. Sweeps a 25% wide pill across a track so
    "we're working on it" reads visually while Three.js rebuilds its
@@ -260,6 +277,7 @@
 @media (prefers-reduced-motion: reduce) {
   .animate-nav-fade-in,
   .animate-nav-slide-out-down,
+  .animate-nav-slide-down-in,
   .animate-loading-bar,
   .gallery-joystick-pad,
   .heartbeat {

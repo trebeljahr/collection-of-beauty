@@ -150,13 +150,16 @@ export function Gallery3D({ artworks }: Props) {
 
   // Mirror `hasStarted` into the global Gallery3D context so the
   // SiteNav can hide itself and the body can lock vertical scroll
-  // while the player is inside the museum. Reset on unmount so a
-  // back-button exit (or any other route change) restores both.
+  // while the player is inside the museum. While the settings modal
+  // is open the nav comes back so the user has a familiar way to
+  // navigate away — the modal already takes over the full screen, so
+  // restoring the page header underneath it doesn't fight for space.
+  // Reset on unmount so a back-button exit restores both.
   const setIs3DActive = useSetIs3DActive();
   useEffect(() => {
-    setIs3DActive(hasStarted);
+    setIs3DActive(hasStarted && !settingsOpen);
     return () => setIs3DActive(false);
-  }, [hasStarted, setIs3DActive]);
+  }, [hasStarted, settingsOpen, setIs3DActive]);
 
   // ── Audio ────────────────────────────────────────────────────────
   // Ambience: long looping <audio> streamed via HTMLAudioElement.
@@ -585,15 +588,13 @@ export function Gallery3D({ artworks }: Props) {
             // instead of being consumed by drei's selector relock.
             // Touch devices have no pointer lock — joysticks own look.
             if (!isTouch) canvasRef.current?.requestPointerLock?.();
-            // Take the gallery container fullscreen in the same gesture
-            // so the museum visit isn't framed by the site nav + browser
-            // chrome. Fullscreening just the gallery host (not <html>)
-            // keeps the nav out — the user gets canvas-only. Promise
-            // rejects if the browser denies (Safari on iOS, embedded
-            // view) — silent catch keeps Enter working.
-            if (typeof document !== "undefined" && !document.fullscreenElement) {
-              galleryHostRef.current?.requestFullscreen?.().catch(() => {});
-            }
+            // Site nav + page scrollbar are hidden via the Gallery3D
+            // context (driven by `hasStarted`) so the museum visit
+            // isn't framed by page chrome. Browser fullscreen stays
+            // user-driven through the settings modal — auto-engaging
+            // it on Enter would hide the page nav so completely that
+            // re-revealing it for the settings modal wouldn't work
+            // without yanking the user out of fullscreen.
             setHasStarted(true);
           }}
           isTouch={isTouch}
@@ -1140,6 +1141,15 @@ function BigMapOverlay({
                 Floor {i}
               </span>
               <span className="flex-1 truncate text-sm">{floorTitles[i]}</span>
+              {/* Digit teleport hint. Lives next to each floor (was
+                  previously a separate "Quick teleport" row in the
+                  footer) so the key-to-floor binding is immediately
+                  obvious. Hidden on touch — the row is tappable. */}
+              {!isTouch && i < 9 && (
+                <kbd className="rounded border border-white/25 px-1.5 font-mono text-[10px] text-white/65">
+                  {i + 1}
+                </kbd>
+              )}
               {isCurrent && (
                 <span
                   aria-label="You are here"
@@ -1168,30 +1178,26 @@ function BigMapOverlay({
           {isTouch ? (
             <span>Tap a floor on the left · double-tap to jump · tap outside to close</span>
           ) : (
-            <>
-              <div className="flex flex-wrap items-center justify-center gap-3">
-                <kbd className="rounded border border-white/30 px-1.5 font-mono">↑</kbd>
-                <kbd className="rounded border border-white/30 px-1.5 font-mono">↓</kbd>
-                <span>cycle floors</span>
-                <span className="text-white/35">·</span>
-                <kbd className="rounded border border-white/30 px-1.5 font-mono">Enter</kbd>
-                <span>jump</span>
-                <span className="text-white/35">·</span>
-                <kbd className="rounded border border-white/30 px-1.5 font-mono">M</kbd>
-                <span>/</span>
-                <kbd className="rounded border border-white/30 px-1.5 font-mono">Esc</kbd>
-                <span>close</span>
-              </div>
-              <div className="flex flex-wrap items-center justify-center gap-2 text-white/55">
-                <span>Quick teleport:</span>
-                {Array.from({ length: floorCount }, (_, i) => (
-                  <span key={i} className="flex items-center gap-1">
-                    <kbd className="rounded border border-white/25 px-1.5 font-mono">{i + 1}</kbd>
-                    <span className="truncate max-w-[7rem]">{floorTitles[i]}</span>
-                  </span>
-                ))}
-              </div>
-            </>
+            <div className="flex flex-wrap items-center justify-center gap-3">
+              <kbd className="rounded border border-white/30 px-1.5 font-mono">↑</kbd>
+              <kbd className="rounded border border-white/30 px-1.5 font-mono">↓</kbd>
+              <span>cycle floors</span>
+              <span className="text-white/35">·</span>
+              <kbd className="rounded border border-white/30 px-1.5 font-mono">Enter</kbd>
+              <span>jump</span>
+              <span className="text-white/35">·</span>
+              <kbd className="rounded border border-white/30 px-1.5 font-mono">1</kbd>
+              <span className="text-white/35">…</span>
+              <kbd className="rounded border border-white/30 px-1.5 font-mono">
+                {Math.min(9, floorCount)}
+              </kbd>
+              <span>teleport</span>
+              <span className="text-white/35">·</span>
+              <kbd className="rounded border border-white/30 px-1.5 font-mono">M</kbd>
+              <span>/</span>
+              <kbd className="rounded border border-white/30 px-1.5 font-mono">Esc</kbd>
+              <span>close</span>
+            </div>
           )}
         </div>
       </div>
