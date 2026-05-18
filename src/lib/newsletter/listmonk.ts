@@ -66,8 +66,14 @@ async function listmonkFetch<T = unknown>(path: string, init: RequestInit = {}):
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
-// Environment helpers — same NODE_ENV switch as the old Mailgun setup, but
-// resolving to ListMonk list IDs instead of list email addresses.
+// Environment helpers
+//
+// Hatchkit provisions one ListMonk list per environment (prod + dev) and
+// renders a single `LISTMONK_LIST_ID` env var into each env file —
+// `.env.production` carries the live list id, `.env.development` carries
+// the test list id. The runtime just reads the variable; selecting the
+// right env file is the deploy layer's job (Next.js does this for you;
+// the newsletter-send CLI uses `scripts/newsletter-send.sh` to pick).
 // ─────────────────────────────────────────────────────────────────────────────
 
 export function isProductionSend(): boolean {
@@ -75,7 +81,7 @@ export function isProductionSend(): boolean {
 }
 
 export function resolveListId(): number {
-  const raw = isProductionSend() ? required("LISTMONK_LIST_ID") : required("LISTMONK_TEST_LIST_ID");
+  const raw = required("LISTMONK_LIST_ID");
   const n = Number(raw);
   if (!Number.isFinite(n) || n <= 0) {
     throw new Error(`Invalid ListMonk list id: ${raw}`);
@@ -84,9 +90,20 @@ export function resolveListId(): number {
 }
 
 export function describeListTarget(): string {
+  const id = process.env.LISTMONK_LIST_ID;
   return isProductionSend()
-    ? `LISTMONK_LIST_ID=${process.env.LISTMONK_LIST_ID} (production)`
-    : `LISTMONK_TEST_LIST_ID=${process.env.LISTMONK_TEST_LIST_ID} (non-production)`;
+    ? `LISTMONK_LIST_ID=${id} (production env file)`
+    : `LISTMONK_LIST_ID=${id} (development env file)`;
+}
+
+/**
+ * From-address for outbound campaigns. Defaults to the SES verified
+ * sender that Hatchkit emits as `SES_FROM_EMAIL`; an explicit
+ * `LISTMONK_FROM` (display-name + address) overrides it when a richer
+ * header is wanted.
+ */
+function resolveFromAddress(): string {
+  return process.env.LISTMONK_FROM ?? required("SES_FROM_EMAIL");
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
@@ -255,7 +272,7 @@ export type CampaignResult = { id: number; url: string };
  */
 export async function sendCampaign(params: SendCampaignParams): Promise<CampaignResult> {
   const listId = resolveListId();
-  const fromEmail = required("LISTMONK_FROM");
+  const fromEmail = resolveFromAddress();
   const templateId = Number(required("LISTMONK_CAMPAIGN_TEMPLATE_ID"));
 
   type CreateResp = { data: { id: number } };
