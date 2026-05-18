@@ -102,22 +102,29 @@ on staged files only.
   send API route.
 - `scripts/newsletter-draft.ts` / `scripts/newsletter-send.ts` — the
   CLI surface. `pnpm newsletter:draft <slug>` scaffolds a new issue;
-  `pnpm newsletter:send <slug>` is a dry-run; add `--confirm` to send
-  (defaults to `LISTMONK_TEST_LIST_ID`; prefix `NODE_ENV=production`
-  to reach `LISTMONK_LIST_ID`).
+  `pnpm newsletter:send <slug>` is a dry-run against `.env.development`
+  (the test list); `--confirm` actually sends; prefixing
+  `NODE_ENV=production` switches to `.env.production` (the live list).
+  Env-file selection happens in `scripts/newsletter-send.sh`.
 
 ### ListMonk + SES
 
 Subscriber storage and dispatch live in a self-hosted ListMonk instance
-configured to deliver via Amazon SES SMTP. The app never talks to SES
-directly — it talks to ListMonk's HTTP API, which in turn fans out via
-SES. The double-opt-in confirmation email is rendered from React Email
-(`emails/confirm-subscription.tsx`) and dispatched through ListMonk's
-transactional template; weekly digests go through ListMonk campaigns,
-which auto-substitute `{{ UnsubscribeURL }}` per recipient.
+configured (by Hatchkit) to deliver via Amazon SES SMTP in eu-west-1.
+The app never talks to SES directly — it talks to ListMonk's HTTP API,
+which in turn fans out via SES. The double-opt-in confirmation email
+is rendered from React Email (`emails/confirm-subscription.tsx`) and
+dispatched through ListMonk's transactional template; weekly digests
+go through ListMonk campaigns, which auto-substitute
+`{{ UnsubscribeURL }}` per recipient.
 
-See `.env.example` for the full one-time ListMonk admin setup (two
-templates, two lists, one API user).
+`hatchkit provision` creates the prod + dev lists, the API user, the
+SES SMTP wiring, and all `LISTMONK_*` / `SES_*` env vars except the
+two template ids. After provisioning, run `pnpm listmonk:bootstrap`
+once to create the two passthrough templates the app needs; the
+script prints the resulting `LISTMONK_TX_TEMPLATE_ID` and
+`LISTMONK_CAMPAIGN_TEMPLATE_ID` to paste into both env files. See
+`.env.example` for the full contract.
 
 ## Deployment
 
