@@ -45,12 +45,6 @@ export default function sitemap(): MetadataRoute.Sitemap {
       priority: 0.3,
     },
     {
-      url: absoluteUrl("/privacy-de"),
-      lastModified: now,
-      changeFrequency: "yearly",
-      priority: 0.3,
-    },
-    {
       url: absoluteUrl("/newsletter"),
       lastModified: now,
       changeFrequency: "weekly",

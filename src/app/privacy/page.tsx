@@ -16,12 +16,7 @@ export default function PrivacyPage() {
     <div className="mx-auto max-w-2xl px-4 py-8 md:py-12">
       <header className="mb-8">
         <h1 className="font-serif text-3xl md:text-4xl">Privacy Policy</h1>
-        <p className="mt-2 text-sm text-[var(--muted-foreground)]">
-          Last updated: 2026-05-17 ·{" "}
-          <Link href="/privacy-de" className="underline hover:text-[var(--foreground)]">
-            Deutsche Fassung
-          </Link>
-        </p>
+        <p className="mt-2 text-sm text-[var(--muted-foreground)]">Last updated: 2026-05-17</p>
       </header>
 
       <section className="space-y-6 text-[var(--foreground)]">
