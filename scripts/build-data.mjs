@@ -204,6 +204,7 @@ const BOILERPLATE_FRAGMENTS = [
   /^the yorck project \(?2002\)?.*meisterwerke der malerei/i,
   /^this file was donated to wikimedia commons as part of a project by/i,
   /^unknown source(?:\s+unknown source)?(?:[,\s]+scanned by uploader)?$/i,
+  /^own work\b(?:\s*,.*|\s+current photo taken by user\b.*)?$/i,
   /^self[-\s]?scanned$/i,
   /^copied from an art ?book$/i,
   /^repro from art ?book$/i,
@@ -211,6 +212,14 @@ const BOILERPLATE_FRAGMENTS = [
   /^see below$/i,
   /^catalog photo$/i,
   /^gallery link$/i,
+  /^art database$/i,
+  /^google cultural institute$/i,
+  /^[-\w]+ at google cultural institute\b\s*,?\s*(?:(?:zoom level\s*)?(?:maximum|scaled down(?:\s+from\s+[\w-]+)?|scaled down maximum)|maximum\s+zoom\s+level)$/i,
+  /^google art project(?::\s*(?:home\s*[-\u2013]\s*)?pic(?:\s+maximum resolution\.?)?(?:\s+colou?rs edited by uploader)?)?$/i,
+  /^google arts? (?:&|and) culture(?:\s*[\u2013\u2014-]\s*[-\w]+|:\s*home\s*[-\u2013]\s*pic(?:\s+maximum resolution\.?)?(?:\s+\(appears to have been taken down\))?)?$/i,
+  /^\[\s*dead link\s*\]?$/i,
+  /^(?:and|und)\s+\[\d+\]?$/i,
+  /^aufgerufen\b/i,
   /^one or more third parties have made copyright claims/i,
   /^print scan(?:\s+original at library of congress)?$/i,
   /^public domain$/i,
@@ -245,10 +254,13 @@ function extractLocUrl(text) {
 // Accepts out-of-order numbering ("2. … 1. …") and single-item lists
 // where the leading "1." is stray enumeration on its own.
 function splitCitationList(s) {
-  if (!/^\s*\d+\.?\s+\S/.test(s)) return null;
-  const stripped = s.replace(/^\s*\d+\.?\s+/, "");
+  const marker = /\d+(?:\.\/\d+)?[.:]?/;
+  const nextMarker = /\d+(?:\.\/\d+)?[.:]/;
+  const firstMarker = new RegExp(`^\\s*${marker.source}\\s+\\S`);
+  if (!firstMarker.test(s)) return null;
+  const stripped = s.replace(new RegExp(`^\\s*${marker.source}\\s+`), "");
   const parts = stripped
-    .split(/\s+\d+\.\s+/)
+    .split(new RegExp(`\\s+${nextMarker.source}\\s+`))
     .map((p) => p.trim().replace(/[.,;\s]+$/g, ""))
     .filter(Boolean);
   return parts.length > 0 ? parts : null;
@@ -273,7 +285,7 @@ function looksLikeBoilerplate(text) {
 // — true but uninformative for attribution) or a museum/auction
 // reference. Drop the boilerplate so the artwork detail page doesn't
 // render attribution noise.
-function cleanCredit(raw) {
+export function cleanCredit(raw) {
   if (!raw) return null;
   let c = String(raw).trim();
   if (!c) return null;
@@ -1053,7 +1065,9 @@ async function main() {
   console.log("[build-data]", summary);
 }
 
-main().catch((err) => {
-  console.error(err);
-  process.exit(1);
-});
+if (process.argv[1] && path.resolve(process.argv[1]) === fileURLToPath(import.meta.url)) {
+  main().catch((err) => {
+    console.error(err);
+    process.exit(1);
+  });
+}
