@@ -149,6 +149,12 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
                 Imprint
               </Link>
               <Link
+                href="/press"
+                className="rounded-sm underline hover:text-[var(--foreground)] focus:outline-none focus-visible:ring-2 focus-visible:ring-[var(--ring)]"
+              >
+                Press
+              </Link>
+              <Link
                 href="/privacy"
                 className="rounded-sm underline hover:text-[var(--foreground)] focus:outline-none focus-visible:ring-2 focus-visible:ring-[var(--ring)]"
               >
