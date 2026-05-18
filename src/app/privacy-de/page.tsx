@@ -5,7 +5,7 @@ export const metadata: Metadata = {
   title: "Datenschutzerklärung",
   description:
     "Wie Collection of Beauty mit personenbezogenen Daten umgeht: Analyse, Newsletter, Auftragsverarbeiter und Ihre Rechte nach der DSGVO.",
-  alternates: { canonical: "/datenschutz" },
+  alternates: { canonical: "/privacy-de" },
   robots: { index: true, follow: true },
 };
 

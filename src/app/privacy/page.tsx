@@ -18,7 +18,7 @@ export default function PrivacyPage() {
         <h1 className="font-serif text-3xl md:text-4xl">Privacy Policy</h1>
         <p className="mt-2 text-sm text-[var(--muted-foreground)]">
           Last updated: 2026-05-17 ·{" "}
-          <Link href="/datenschutz" className="underline hover:text-[var(--foreground)]">
+          <Link href="/privacy-de" className="underline hover:text-[var(--foreground)]">
             Deutsche Fassung
           </Link>
         </p>
