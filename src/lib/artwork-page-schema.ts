@@ -12,4 +12,4 @@ export type ArtworkPage = {
 export const DEFAULT_ARTWORK_PAGE_SIZE = 80;
 export const MAX_ARTWORK_PAGE_SIZE = 120;
 export const DEFAULT_ARTWORK_SORT: ArtworkSort = "shuffle";
-export const DEFAULT_SHUFFLE_SEED = "collection-of-beauty";
+export const DEFAULT_SHUFFLE_SEED = "salon-2026";
