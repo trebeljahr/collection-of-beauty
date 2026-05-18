@@ -246,7 +246,6 @@ export function GalleryBrowser({ initialArtworks, movements, totalArtworks }: Pr
 
   const filterKey = pageKey;
   const activeFilterCount = (movement ? 1 : 0) + (minYear ? 1 : 0) + (maxYear ? 1 : 0);
-  const loadedCount = loadedArtworks.length;
 
   function clearFilters() {
     setMovement("");
@@ -328,7 +327,6 @@ export function GalleryBrowser({ initialArtworks, movements, totalArtworks }: Pr
             </Badge>
           )}
         </span>
-        <span>{statusLabel(pageStatus, loadedCount, pageInfo.total)}</span>
       </div>
 
       {pageStatus === "loading" ? (
@@ -395,12 +393,4 @@ function rankLoadedArtworks(
   if (ranked.length === 0) return artworks;
   const seen = new Set(ranked.map((artwork) => artwork.id));
   return [...ranked, ...artworks.filter((artwork) => !seen.has(artwork.id))];
-}
-
-function statusLabel(status: PageStatus, loaded: number, total: number): string {
-  if (status === "loading") return "Loading...";
-  if (status === "loading-more") return `Loading more... ${loaded.toLocaleString()} loaded`;
-  if (status === "failed") return "More works unavailable";
-  if (loaded >= total) return total === 0 ? "" : "All loaded";
-  return `${loaded.toLocaleString()} loaded`;
 }
