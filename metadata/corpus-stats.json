@@ -1,0 +1,6594 @@
+{
+  "generatedAt": "2026-05-18T22:54:59.069Z",
+  "inputs": {
+    "artworks": "src/data/artworks.json",
+    "artistsDb": "scripts/artists-db.json"
+  },
+  "outputs": {
+    "json": "metadata/corpus-stats.json",
+    "markdown": "/Users/rico/projects/ricos.site/src/content/Notes/texts/misc/claude-chat-gpt-generated/projects/collection-of-beauty/_corpus-stats.md"
+  },
+  "totals": {
+    "artworks": 2855,
+    "uniqueArtists": 228,
+    "mappedArtists": 66,
+    "mappedArtistShare": 28.9,
+    "unmappedArtists": 162,
+    "mappedArtworks": 2199,
+    "mappedArtworkShare": 77,
+    "unmappedArtworks": 656,
+    "unmappedArtworkShare": 23,
+    "artistsDbEntries": 89
+  },
+  "nationalities": [
+    {
+      "name": "French",
+      "artistCount": 16,
+      "artworkCount": 612,
+      "artworkShare": 21.4,
+      "artists": [
+        "Claude Monet",
+        "Edgar Degas",
+        "Édouard Manet",
+        "Élisabeth Louise Vigée Le Brun",
+        "Eugène Delacroix",
+        "Georges Seurat",
+        "Gustave Courbet",
+        "Henri Matisse",
+        "Henri Rousseau",
+        "Jacques-Louis David",
+        "Jean-Auguste-Dominique Ingres",
+        "Jean-Léon Gérôme",
+        "Paul Cézanne",
+        "Paul Gauguin",
+        "Pierre-Auguste Renoir",
+        "Théodore Géricault"
+      ]
+    },
+    {
+      "name": "American / French",
+      "artistCount": 1,
+      "artworkCount": 435,
+      "artworkShare": 15.2,
+      "artists": [
+        "John James Audubon"
+      ]
+    },
+    {
+      "name": "Japanese",
+      "artistCount": 12,
+      "artworkCount": 283,
+      "artworkShare": 9.9,
+      "artists": [
+        "Hashiguchi Goyō",
+        "Hayami Gyoshū",
+        "Hiroshi Yoshida",
+        "Kanae Yamamoto",
+        "Katsushika Hokusai",
+        "Kawai Gyokudō",
+        "Kawase Hasui",
+        "Kitagawa Utamaro",
+        "Ohara Koson",
+        "Takahashi Shōtei",
+        "Torii Kotondo",
+        "Utagawa Hiroshige"
+      ]
+    },
+    {
+      "name": "Flemish",
+      "artistCount": 4,
+      "artworkCount": 203,
+      "artworkShare": 7.1,
+      "artists": [
+        "Anthony van Dyck",
+        "Frans Snyders",
+        "Peter Paul Rubens",
+        "Pieter Bruegel the Elder"
+      ]
+    },
+    {
+      "name": "English",
+      "artistCount": 5,
+      "artworkCount": 157,
+      "artworkShare": 5.5,
+      "artists": [
+        "Frederic Leighton",
+        "J. M. W. Turner",
+        "John Constable",
+        "John Everett Millais",
+        "William Blake"
+      ]
+    },
+    {
+      "name": "German",
+      "artistCount": 3,
+      "artworkCount": 146,
+      "artworkShare": 5.1,
+      "artists": [
+        "Albrecht Dürer",
+        "Caspar David Friedrich",
+        "Ernst Haeckel"
+      ]
+    },
+    {
+      "name": "Dutch",
+      "artistCount": 4,
+      "artworkCount": 137,
+      "artworkShare": 4.8,
+      "artists": [
+        "Hendrick Goltzius",
+        "Johannes Vermeer",
+        "Rembrandt van Rijn",
+        "Vincent van Gogh"
+      ]
+    },
+    {
+      "name": "Italian",
+      "artistCount": 9,
+      "artworkCount": 93,
+      "artworkShare": 3.3,
+      "artists": [
+        "Caravaggio",
+        "Francesco Hayez",
+        "Giuseppe Arcimboldo",
+        "Leonardo da Vinci",
+        "Michelangelo Buonarroti",
+        "Raphael",
+        "Sandro Botticelli",
+        "Tintoretto",
+        "Titian"
+      ]
+    },
+    {
+      "name": "American",
+      "artistCount": 5,
+      "artworkCount": 78,
+      "artworkShare": 2.7,
+      "artists": [
+        "Edward Hopper",
+        "Grant Wood",
+        "James McNeill Whistler",
+        "John Singer Sargent",
+        "Winslow Homer"
+      ]
+    },
+    {
+      "name": "Spanish",
+      "artistCount": 2,
+      "artworkCount": 17,
+      "artworkShare": 0.6,
+      "artists": [
+        "Diego Velázquez",
+        "Francisco Goya"
+      ]
+    },
+    {
+      "name": "Czech",
+      "artistCount": 1,
+      "artworkCount": 13,
+      "artworkShare": 0.5,
+      "artists": [
+        "Alphonse Mucha"
+      ]
+    },
+    {
+      "name": "Norwegian",
+      "artistCount": 1,
+      "artworkCount": 13,
+      "artworkShare": 0.5,
+      "artists": [
+        "Edvard Munch"
+      ]
+    },
+    {
+      "name": "Early Netherlandish",
+      "artistCount": 1,
+      "artworkCount": 8,
+      "artworkShare": 0.3,
+      "artists": [
+        "Hieronymus Bosch"
+      ]
+    },
+    {
+      "name": "Greek / Spanish",
+      "artistCount": 1,
+      "artworkCount": 3,
+      "artworkShare": 0.1,
+      "artists": [
+        "El Greco"
+      ]
+    },
+    {
+      "name": "English / American",
+      "artistCount": 1,
+      "artworkCount": 1,
+      "artworkShare": 0,
+      "artists": [
+        "Charles W. Bartlett"
+      ]
+    }
+  ],
+  "nationalityFacets": [
+    {
+      "name": "French",
+      "artistCount": 17,
+      "artworkCount": 1047,
+      "artworkShare": 36.7,
+      "artists": [
+        "Claude Monet",
+        "Edgar Degas",
+        "Édouard Manet",
+        "Élisabeth Louise Vigée Le Brun",
+        "Eugène Delacroix",
+        "Georges Seurat",
+        "Gustave Courbet",
+        "Henri Matisse",
+        "Henri Rousseau",
+        "Jacques-Louis David",
+        "Jean-Auguste-Dominique Ingres",
+        "Jean-Léon Gérôme",
+        "John James Audubon",
+        "Paul Cézanne",
+        "Paul Gauguin",
+        "Pierre-Auguste Renoir",
+        "Théodore Géricault"
+      ]
+    },
+    {
+      "name": "American",
+      "artistCount": 7,
+      "artworkCount": 514,
+      "artworkShare": 18,
+      "artists": [
+        "Charles W. Bartlett",
+        "Edward Hopper",
+        "Grant Wood",
+        "James McNeill Whistler",
+        "John James Audubon",
+        "John Singer Sargent",
+        "Winslow Homer"
+      ]
+    },
+    {
+      "name": "Japanese",
+      "artistCount": 12,
+      "artworkCount": 283,
+      "artworkShare": 9.9,
+      "artists": [
+        "Hashiguchi Goyō",
+        "Hayami Gyoshū",
+        "Hiroshi Yoshida",
+        "Kanae Yamamoto",
+        "Katsushika Hokusai",
+        "Kawai Gyokudō",
+        "Kawase Hasui",
+        "Kitagawa Utamaro",
+        "Ohara Koson",
+        "Takahashi Shōtei",
+        "Torii Kotondo",
+        "Utagawa Hiroshige"
+      ]
+    },
+    {
+      "name": "Flemish",
+      "artistCount": 4,
+      "artworkCount": 203,
+      "artworkShare": 7.1,
+      "artists": [
+        "Anthony van Dyck",
+        "Frans Snyders",
+        "Peter Paul Rubens",
+        "Pieter Bruegel the Elder"
+      ]
+    },
+    {
+      "name": "English",
+      "artistCount": 6,
+      "artworkCount": 158,
+      "artworkShare": 5.5,
+      "artists": [
+        "Charles W. Bartlett",
+        "Frederic Leighton",
+        "J. M. W. Turner",
+        "John Constable",
+        "John Everett Millais",
+        "William Blake"
+      ]
+    },
+    {
+      "name": "German",
+      "artistCount": 3,
+      "artworkCount": 146,
+      "artworkShare": 5.1,
+      "artists": [
+        "Albrecht Dürer",
+        "Caspar David Friedrich",
+        "Ernst Haeckel"
+      ]
+    },
+    {
+      "name": "Dutch",
+      "artistCount": 4,
+      "artworkCount": 137,
+      "artworkShare": 4.8,
+      "artists": [
+        "Hendrick Goltzius",
+        "Johannes Vermeer",
+        "Rembrandt van Rijn",
+        "Vincent van Gogh"
+      ]
+    },
+    {
+      "name": "Italian",
+      "artistCount": 9,
+      "artworkCount": 93,
+      "artworkShare": 3.3,
+      "artists": [
+        "Caravaggio",
+        "Francesco Hayez",
+        "Giuseppe Arcimboldo",
+        "Leonardo da Vinci",
+        "Michelangelo Buonarroti",
+        "Raphael",
+        "Sandro Botticelli",
+        "Tintoretto",
+        "Titian"
+      ]
+    },
+    {
+      "name": "Spanish",
+      "artistCount": 3,
+      "artworkCount": 20,
+      "artworkShare": 0.7,
+      "artists": [
+        "Diego Velázquez",
+        "El Greco",
+        "Francisco Goya"
+      ]
+    },
+    {
+      "name": "Czech",
+      "artistCount": 1,
+      "artworkCount": 13,
+      "artworkShare": 0.5,
+      "artists": [
+        "Alphonse Mucha"
+      ]
+    },
+    {
+      "name": "Norwegian",
+      "artistCount": 1,
+      "artworkCount": 13,
+      "artworkShare": 0.5,
+      "artists": [
+        "Edvard Munch"
+      ]
+    },
+    {
+      "name": "Early Netherlandish",
+      "artistCount": 1,
+      "artworkCount": 8,
+      "artworkShare": 0.3,
+      "artists": [
+        "Hieronymus Bosch"
+      ]
+    },
+    {
+      "name": "Greek",
+      "artistCount": 1,
+      "artworkCount": 3,
+      "artworkShare": 0.1,
+      "artists": [
+        "El Greco"
+      ]
+    }
+  ],
+  "movements": [
+    {
+      "name": "Natural history illustration",
+      "artistCount": 1,
+      "artworkCount": 435,
+      "artworkShare": 15.2,
+      "artists": [
+        "John James Audubon"
+      ]
+    },
+    {
+      "name": "Impressionism",
+      "artistCount": 3,
+      "artworkCount": 410,
+      "artworkShare": 14.4,
+      "artists": [
+        "Claude Monet",
+        "Edgar Degas",
+        "Pierre-Auguste Renoir"
+      ]
+    },
+    {
+      "name": "Baroque",
+      "artistCount": 5,
+      "artworkCount": 213,
+      "artworkShare": 7.5,
+      "artists": [
+        "Anthony van Dyck",
+        "Caravaggio",
+        "Diego Velázquez",
+        "Frans Snyders",
+        "Peter Paul Rubens"
+      ]
+    },
+    {
+      "name": "Romanticism",
+      "artistCount": 8,
+      "artworkCount": 197,
+      "artworkShare": 6.9,
+      "artists": [
+        "Caspar David Friedrich",
+        "Eugène Delacroix",
+        "Francesco Hayez",
+        "Francisco Goya",
+        "J. M. W. Turner",
+        "John Constable",
+        "Théodore Géricault",
+        "William Blake"
+      ]
+    },
+    {
+      "name": "Shin-hanga",
+      "artistCount": 7,
+      "artworkCount": 150,
+      "artworkShare": 5.3,
+      "artists": [
+        "Charles W. Bartlett",
+        "Hashiguchi Goyō",
+        "Hiroshi Yoshida",
+        "Kawase Hasui",
+        "Ohara Koson",
+        "Takahashi Shōtei",
+        "Torii Kotondo"
+      ]
+    },
+    {
+      "name": "Ukiyo-e",
+      "artistCount": 3,
+      "artworkCount": 127,
+      "artworkShare": 4.4,
+      "artists": [
+        "Katsushika Hokusai",
+        "Kitagawa Utamaro",
+        "Utagawa Hiroshige"
+      ]
+    },
+    {
+      "name": "Scientific illustration / Art Nouveau influence",
+      "artistCount": 1,
+      "artworkCount": 100,
+      "artworkShare": 3.5,
+      "artists": [
+        "Ernst Haeckel"
+      ]
+    },
+    {
+      "name": "Post-Impressionism",
+      "artistCount": 3,
+      "artworkCount": 96,
+      "artworkShare": 3.4,
+      "artists": [
+        "Paul Cézanne",
+        "Paul Gauguin",
+        "Vincent van Gogh"
+      ]
+    },
+    {
+      "name": "Academicism / Orientalism",
+      "artistCount": 1,
+      "artworkCount": 72,
+      "artworkShare": 2.5,
+      "artists": [
+        "Jean-Léon Gérôme"
+      ]
+    },
+    {
+      "name": "Realism",
+      "artistCount": 2,
+      "artworkCount": 51,
+      "artworkShare": 1.8,
+      "artists": [
+        "Gustave Courbet",
+        "Winslow Homer"
+      ]
+    },
+    {
+      "name": "Northern Renaissance",
+      "artistCount": 3,
+      "artworkCount": 46,
+      "artworkShare": 1.6,
+      "artists": [
+        "Albrecht Dürer",
+        "Hieronymus Bosch",
+        "Pieter Bruegel the Elder"
+      ]
+    },
+    {
+      "name": "Dutch Golden Age",
+      "artistCount": 2,
+      "artworkCount": 40,
+      "artworkShare": 1.4,
+      "artists": [
+        "Johannes Vermeer",
+        "Rembrandt van Rijn"
+      ]
+    },
+    {
+      "name": "Rococo / Neoclassicism",
+      "artistCount": 1,
+      "artworkCount": 31,
+      "artworkShare": 1.1,
+      "artists": [
+        "Élisabeth Louise Vigée Le Brun"
+      ]
+    },
+    {
+      "name": "Tonalism / Aestheticism",
+      "artistCount": 1,
+      "artworkCount": 22,
+      "artworkShare": 0.8,
+      "artists": [
+        "James McNeill Whistler"
+      ]
+    },
+    {
+      "name": "Mannerism",
+      "artistCount": 3,
+      "artworkCount": 20,
+      "artworkShare": 0.7,
+      "artists": [
+        "El Greco",
+        "Giuseppe Arcimboldo",
+        "Tintoretto"
+      ]
+    },
+    {
+      "name": "Realism / Impressionism",
+      "artistCount": 1,
+      "artworkCount": 19,
+      "artworkShare": 0.7,
+      "artists": [
+        "John Singer Sargent"
+      ]
+    },
+    {
+      "name": "Neoclassicism",
+      "artistCount": 2,
+      "artworkCount": 18,
+      "artworkShare": 0.6,
+      "artists": [
+        "Jacques-Louis David",
+        "Jean-Auguste-Dominique Ingres"
+      ]
+    },
+    {
+      "name": "Early Renaissance",
+      "artistCount": 1,
+      "artworkCount": 17,
+      "artworkShare": 0.6,
+      "artists": [
+        "Sandro Botticelli"
+      ]
+    },
+    {
+      "name": "Impressionism / Realism",
+      "artistCount": 1,
+      "artworkCount": 15,
+      "artworkShare": 0.5,
+      "artists": [
+        "Édouard Manet"
+      ]
+    },
+    {
+      "name": "High Renaissance",
+      "artistCount": 3,
+      "artworkCount": 14,
+      "artworkShare": 0.5,
+      "artists": [
+        "Leonardo da Vinci",
+        "Michelangelo Buonarroti",
+        "Raphael"
+      ]
+    },
+    {
+      "name": "Academicism",
+      "artistCount": 1,
+      "artworkCount": 14,
+      "artworkShare": 0.5,
+      "artists": [
+        "Frederic Leighton"
+      ]
+    },
+    {
+      "name": "Pre-Raphaelite",
+      "artistCount": 1,
+      "artworkCount": 14,
+      "artworkShare": 0.5,
+      "artists": [
+        "John Everett Millais"
+      ]
+    },
+    {
+      "name": "Art Nouveau",
+      "artistCount": 1,
+      "artworkCount": 13,
+      "artworkShare": 0.5,
+      "artists": [
+        "Alphonse Mucha"
+      ]
+    },
+    {
+      "name": "Symbolism / Expressionism",
+      "artistCount": 1,
+      "artworkCount": 13,
+      "artworkShare": 0.5,
+      "artists": [
+        "Edvard Munch"
+      ]
+    },
+    {
+      "name": "Venetian Renaissance",
+      "artistCount": 1,
+      "artworkCount": 13,
+      "artworkShare": 0.5,
+      "artists": [
+        "Titian"
+      ]
+    },
+    {
+      "name": "Northern Mannerism",
+      "artistCount": 1,
+      "artworkCount": 12,
+      "artworkShare": 0.4,
+      "artists": [
+        "Hendrick Goltzius"
+      ]
+    },
+    {
+      "name": "Neo-Impressionism",
+      "artistCount": 1,
+      "artworkCount": 11,
+      "artworkShare": 0.4,
+      "artists": [
+        "Georges Seurat"
+      ]
+    },
+    {
+      "name": "Post-Impressionism / Naïve Art",
+      "artistCount": 1,
+      "artworkCount": 5,
+      "artworkShare": 0.2,
+      "artists": [
+        "Henri Rousseau"
+      ]
+    },
+    {
+      "name": "Nihonga / Bijinga",
+      "artistCount": 2,
+      "artworkCount": 4,
+      "artworkShare": 0.1,
+      "artists": [
+        "Hayami Gyoshū",
+        "Kawai Gyokudō"
+      ]
+    },
+    {
+      "name": "Sōsaku-hanga",
+      "artistCount": 1,
+      "artworkCount": 3,
+      "artworkShare": 0.1,
+      "artists": [
+        "Kanae Yamamoto"
+      ]
+    },
+    {
+      "name": "Fauvism / Modernism",
+      "artistCount": 1,
+      "artworkCount": 2,
+      "artworkShare": 0.1,
+      "artists": [
+        "Henri Matisse"
+      ]
+    },
+    {
+      "name": "American Realism",
+      "artistCount": 1,
+      "artworkCount": 1,
+      "artworkShare": 0,
+      "artists": [
+        "Edward Hopper"
+      ]
+    },
+    {
+      "name": "Regionalism",
+      "artistCount": 1,
+      "artworkCount": 1,
+      "artworkShare": 0,
+      "artists": [
+        "Grant Wood"
+      ]
+    }
+  ],
+  "movementFacets": [
+    {
+      "name": "Impressionism",
+      "artistCount": 5,
+      "artworkCount": 444,
+      "artworkShare": 15.6,
+      "artists": [
+        "Claude Monet",
+        "Edgar Degas",
+        "Édouard Manet",
+        "John Singer Sargent",
+        "Pierre-Auguste Renoir"
+      ]
+    },
+    {
+      "name": "Natural history illustration",
+      "artistCount": 1,
+      "artworkCount": 435,
+      "artworkShare": 15.2,
+      "artists": [
+        "John James Audubon"
+      ]
+    },
+    {
+      "name": "Baroque",
+      "artistCount": 5,
+      "artworkCount": 213,
+      "artworkShare": 7.5,
+      "artists": [
+        "Anthony van Dyck",
+        "Caravaggio",
+        "Diego Velázquez",
+        "Frans Snyders",
+        "Peter Paul Rubens"
+      ]
+    },
+    {
+      "name": "Romanticism",
+      "artistCount": 8,
+      "artworkCount": 197,
+      "artworkShare": 6.9,
+      "artists": [
+        "Caspar David Friedrich",
+        "Eugène Delacroix",
+        "Francesco Hayez",
+        "Francisco Goya",
+        "J. M. W. Turner",
+        "John Constable",
+        "Théodore Géricault",
+        "William Blake"
+      ]
+    },
+    {
+      "name": "Shin-hanga",
+      "artistCount": 7,
+      "artworkCount": 150,
+      "artworkShare": 5.3,
+      "artists": [
+        "Charles W. Bartlett",
+        "Hashiguchi Goyō",
+        "Hiroshi Yoshida",
+        "Kawase Hasui",
+        "Ohara Koson",
+        "Takahashi Shōtei",
+        "Torii Kotondo"
+      ]
+    },
+    {
+      "name": "Ukiyo-e",
+      "artistCount": 3,
+      "artworkCount": 127,
+      "artworkShare": 4.4,
+      "artists": [
+        "Katsushika Hokusai",
+        "Kitagawa Utamaro",
+        "Utagawa Hiroshige"
+      ]
+    },
+    {
+      "name": "Post-Impressionism",
+      "artistCount": 4,
+      "artworkCount": 101,
+      "artworkShare": 3.5,
+      "artists": [
+        "Henri Rousseau",
+        "Paul Cézanne",
+        "Paul Gauguin",
+        "Vincent van Gogh"
+      ]
+    },
+    {
+      "name": "Art Nouveau influence",
+      "artistCount": 1,
+      "artworkCount": 100,
+      "artworkShare": 3.5,
+      "artists": [
+        "Ernst Haeckel"
+      ]
+    },
+    {
+      "name": "Scientific illustration",
+      "artistCount": 1,
+      "artworkCount": 100,
+      "artworkShare": 3.5,
+      "artists": [
+        "Ernst Haeckel"
+      ]
+    },
+    {
+      "name": "Academicism",
+      "artistCount": 2,
+      "artworkCount": 86,
+      "artworkShare": 3,
+      "artists": [
+        "Frederic Leighton",
+        "Jean-Léon Gérôme"
+      ]
+    },
+    {
+      "name": "Realism",
+      "artistCount": 4,
+      "artworkCount": 85,
+      "artworkShare": 3,
+      "artists": [
+        "Édouard Manet",
+        "Gustave Courbet",
+        "John Singer Sargent",
+        "Winslow Homer"
+      ]
+    },
+    {
+      "name": "Orientalism",
+      "artistCount": 1,
+      "artworkCount": 72,
+      "artworkShare": 2.5,
+      "artists": [
+        "Jean-Léon Gérôme"
+      ]
+    },
+    {
+      "name": "Neoclassicism",
+      "artistCount": 3,
+      "artworkCount": 49,
+      "artworkShare": 1.7,
+      "artists": [
+        "Élisabeth Louise Vigée Le Brun",
+        "Jacques-Louis David",
+        "Jean-Auguste-Dominique Ingres"
+      ]
+    },
+    {
+      "name": "Northern Renaissance",
+      "artistCount": 3,
+      "artworkCount": 46,
+      "artworkShare": 1.6,
+      "artists": [
+        "Albrecht Dürer",
+        "Hieronymus Bosch",
+        "Pieter Bruegel the Elder"
+      ]
+    },
+    {
+      "name": "Dutch Golden Age",
+      "artistCount": 2,
+      "artworkCount": 40,
+      "artworkShare": 1.4,
+      "artists": [
+        "Johannes Vermeer",
+        "Rembrandt van Rijn"
+      ]
+    },
+    {
+      "name": "Rococo",
+      "artistCount": 1,
+      "artworkCount": 31,
+      "artworkShare": 1.1,
+      "artists": [
+        "Élisabeth Louise Vigée Le Brun"
+      ]
+    },
+    {
+      "name": "Aestheticism",
+      "artistCount": 1,
+      "artworkCount": 22,
+      "artworkShare": 0.8,
+      "artists": [
+        "James McNeill Whistler"
+      ]
+    },
+    {
+      "name": "Tonalism",
+      "artistCount": 1,
+      "artworkCount": 22,
+      "artworkShare": 0.8,
+      "artists": [
+        "James McNeill Whistler"
+      ]
+    },
+    {
+      "name": "Mannerism",
+      "artistCount": 3,
+      "artworkCount": 20,
+      "artworkShare": 0.7,
+      "artists": [
+        "El Greco",
+        "Giuseppe Arcimboldo",
+        "Tintoretto"
+      ]
+    },
+    {
+      "name": "Early Renaissance",
+      "artistCount": 1,
+      "artworkCount": 17,
+      "artworkShare": 0.6,
+      "artists": [
+        "Sandro Botticelli"
+      ]
+    },
+    {
+      "name": "High Renaissance",
+      "artistCount": 3,
+      "artworkCount": 14,
+      "artworkShare": 0.5,
+      "artists": [
+        "Leonardo da Vinci",
+        "Michelangelo Buonarroti",
+        "Raphael"
+      ]
+    },
+    {
+      "name": "Pre-Raphaelite",
+      "artistCount": 1,
+      "artworkCount": 14,
+      "artworkShare": 0.5,
+      "artists": [
+        "John Everett Millais"
+      ]
+    },
+    {
+      "name": "Art Nouveau",
+      "artistCount": 1,
+      "artworkCount": 13,
+      "artworkShare": 0.5,
+      "artists": [
+        "Alphonse Mucha"
+      ]
+    },
+    {
+      "name": "Expressionism",
+      "artistCount": 1,
+      "artworkCount": 13,
+      "artworkShare": 0.5,
+      "artists": [
+        "Edvard Munch"
+      ]
+    },
+    {
+      "name": "Symbolism",
+      "artistCount": 1,
+      "artworkCount": 13,
+      "artworkShare": 0.5,
+      "artists": [
+        "Edvard Munch"
+      ]
+    },
+    {
+      "name": "Venetian Renaissance",
+      "artistCount": 1,
+      "artworkCount": 13,
+      "artworkShare": 0.5,
+      "artists": [
+        "Titian"
+      ]
+    },
+    {
+      "name": "Northern Mannerism",
+      "artistCount": 1,
+      "artworkCount": 12,
+      "artworkShare": 0.4,
+      "artists": [
+        "Hendrick Goltzius"
+      ]
+    },
+    {
+      "name": "Neo-Impressionism",
+      "artistCount": 1,
+      "artworkCount": 11,
+      "artworkShare": 0.4,
+      "artists": [
+        "Georges Seurat"
+      ]
+    },
+    {
+      "name": "Naïve Art",
+      "artistCount": 1,
+      "artworkCount": 5,
+      "artworkShare": 0.2,
+      "artists": [
+        "Henri Rousseau"
+      ]
+    },
+    {
+      "name": "Bijinga",
+      "artistCount": 2,
+      "artworkCount": 4,
+      "artworkShare": 0.1,
+      "artists": [
+        "Hayami Gyoshū",
+        "Kawai Gyokudō"
+      ]
+    },
+    {
+      "name": "Nihonga",
+      "artistCount": 2,
+      "artworkCount": 4,
+      "artworkShare": 0.1,
+      "artists": [
+        "Hayami Gyoshū",
+        "Kawai Gyokudō"
+      ]
+    },
+    {
+      "name": "Sōsaku-hanga",
+      "artistCount": 1,
+      "artworkCount": 3,
+      "artworkShare": 0.1,
+      "artists": [
+        "Kanae Yamamoto"
+      ]
+    },
+    {
+      "name": "Fauvism",
+      "artistCount": 1,
+      "artworkCount": 2,
+      "artworkShare": 0.1,
+      "artists": [
+        "Henri Matisse"
+      ]
+    },
+    {
+      "name": "Modernism",
+      "artistCount": 1,
+      "artworkCount": 2,
+      "artworkShare": 0.1,
+      "artists": [
+        "Henri Matisse"
+      ]
+    },
+    {
+      "name": "American Realism",
+      "artistCount": 1,
+      "artworkCount": 1,
+      "artworkShare": 0,
+      "artists": [
+        "Edward Hopper"
+      ]
+    },
+    {
+      "name": "Regionalism",
+      "artistCount": 1,
+      "artworkCount": 1,
+      "artworkShare": 0,
+      "artists": [
+        "Grant Wood"
+      ]
+    }
+  ],
+  "underrepresentedChecks": [
+    {
+      "label": "African nationalities or movements",
+      "artistCount": 0,
+      "artworkCount": 0,
+      "artworkShare": 0,
+      "artists": []
+    },
+    {
+      "label": "Pre-Columbian or Mesoamerican categories",
+      "artistCount": 0,
+      "artworkCount": 0,
+      "artworkShare": 0,
+      "artists": []
+    },
+    {
+      "label": "South or Southeast Asian nationalities/movements",
+      "artistCount": 0,
+      "artworkCount": 0,
+      "artworkShare": 0,
+      "artists": []
+    },
+    {
+      "label": "Islamic calligraphy or manuscript categories",
+      "artistCount": 0,
+      "artworkCount": 0,
+      "artworkShare": 0,
+      "artists": []
+    },
+    {
+      "label": "Indigenous Americas, Australia, or Oceania categories",
+      "artistCount": 0,
+      "artworkCount": 0,
+      "artworkShare": 0,
+      "artists": []
+    }
+  ],
+  "dateCoverage": {
+    "from1900": {
+      "artworkCount": 367,
+      "artworkShare": 12.9,
+      "artistCount": 35
+    },
+    "from1926": {
+      "artworkCount": 55,
+      "artworkShare": 1.9,
+      "artistCount": 10
+    },
+    "from1945": {
+      "artworkCount": 0,
+      "artworkShare": 0,
+      "artistCount": 0
+    },
+    "byCentury": [
+      {
+        "name": "10th century",
+        "artworkCount": 2,
+        "artistCount": 2
+      },
+      {
+        "name": "11th century",
+        "artworkCount": 1,
+        "artistCount": 1
+      },
+      {
+        "name": "12th century",
+        "artworkCount": 3,
+        "artistCount": 3
+      },
+      {
+        "name": "13th century",
+        "artworkCount": 5,
+        "artistCount": 4
+      },
+      {
+        "name": "14th century",
+        "artworkCount": 2,
+        "artistCount": 2
+      },
+      {
+        "name": "15th century",
+        "artworkCount": 68,
+        "artistCount": 15
+      },
+      {
+        "name": "16th century",
+        "artworkCount": 166,
+        "artistCount": 37
+      },
+      {
+        "name": "17th century",
+        "artworkCount": 313,
+        "artistCount": 40
+      },
+      {
+        "name": "18th century",
+        "artworkCount": 100,
+        "artistCount": 26
+      },
+      {
+        "name": "19th century",
+        "artworkCount": 1659,
+        "artistCount": 91
+      },
+      {
+        "name": "20th century",
+        "artworkCount": 361,
+        "artistCount": 34
+      }
+    ]
+  },
+  "artists": [
+    {
+      "name": "John James Audubon",
+      "slug": "john-james-audubon",
+      "artworkCount": 435,
+      "artworkShare": 15.2,
+      "yearRange": {
+        "min": 1827,
+        "max": 1827
+      },
+      "nationality": "American / French",
+      "movement": "Natural history illustration",
+      "matchSource": "artists-db",
+      "matchedArtist": "John James Audubon"
+    },
+    {
+      "name": "Claude Monet",
+      "slug": "claude-monet",
+      "artworkCount": 383,
+      "artworkShare": 13.4,
+      "yearRange": {
+        "min": 1840,
+        "max": 1926
+      },
+      "nationality": "French",
+      "movement": "Impressionism",
+      "matchSource": "artists-db",
+      "matchedArtist": "Claude Monet"
+    },
+    {
+      "name": "Peter Paul Rubens",
+      "slug": "peter-paul-rubens",
+      "artworkCount": 171,
+      "artworkShare": 6,
+      "yearRange": {
+        "min": 1577,
+        "max": 1640
+      },
+      "nationality": "Flemish",
+      "movement": "Baroque",
+      "matchSource": "artists-db",
+      "matchedArtist": "Peter Paul Rubens"
+    },
+    {
+      "name": "Kawase Hasui",
+      "slug": "kawase-hasui",
+      "artworkCount": 122,
+      "artworkShare": 4.3,
+      "yearRange": {
+        "min": 1919,
+        "max": 1930
+      },
+      "nationality": "Japanese",
+      "movement": "Shin-hanga",
+      "matchSource": "artists-db",
+      "matchedArtist": "Kawase Hasui"
+    },
+    {
+      "name": "J. M. W. Turner",
+      "slug": "j-m-w-turner",
+      "artworkCount": 118,
+      "artworkShare": 4.1,
+      "yearRange": {
+        "min": 1775,
+        "max": 1849
+      },
+      "nationality": "English",
+      "movement": "Romanticism",
+      "matchSource": "artists-db",
+      "matchedArtist": "J. M. W. Turner"
+    },
+    {
+      "name": "Ernst Haeckel",
+      "slug": "ernst-haeckel",
+      "artworkCount": 100,
+      "artworkShare": 3.5,
+      "yearRange": {
+        "min": 1904,
+        "max": 1904
+      },
+      "nationality": "German",
+      "movement": "Scientific illustration / Art Nouveau influence",
+      "matchSource": "artists-db",
+      "matchedArtist": "Ernst Haeckel"
+    },
+    {
+      "name": "Vincent van Gogh",
+      "slug": "vincent-van-gogh",
+      "artworkCount": 85,
+      "artworkShare": 3,
+      "yearRange": {
+        "min": 1853,
+        "max": 1890
+      },
+      "nationality": "Dutch",
+      "movement": "Post-Impressionism",
+      "matchSource": "artists-db",
+      "matchedArtist": "Vincent van Gogh"
+    },
+    {
+      "name": "Unknown",
+      "slug": "unknown",
+      "artworkCount": 76,
+      "artworkShare": 2.7,
+      "yearRange": {
+        "min": 1180,
+        "max": 1881
+      },
+      "nationality": null,
+      "movement": null,
+      "matchSource": "unmapped",
+      "matchedArtist": null
+    },
+    {
+      "name": "Jean-Léon Gérôme",
+      "slug": "jean-leon-gerome",
+      "artworkCount": 72,
+      "artworkShare": 2.5,
+      "yearRange": {
+        "min": 1852,
+        "max": 1903
+      },
+      "nationality": "French",
+      "movement": "Academicism / Orientalism",
+      "matchSource": "artists-db",
+      "matchedArtist": "Jean-Léon Gérôme"
+    },
+    {
+      "name": "Utagawa Hiroshige",
+      "slug": "utagawa-hiroshige",
+      "artworkCount": 66,
+      "artworkShare": 2.3,
+      "yearRange": {
+        "min": 1833,
+        "max": 1859
+      },
+      "nationality": "Japanese",
+      "movement": "Ukiyo-e",
+      "matchSource": "artists-db",
+      "matchedArtist": "Utagawa Hiroshige"
+    },
+    {
+      "name": "Katsushika Hokusai",
+      "slug": "katsushika-hokusai",
+      "artworkCount": 59,
+      "artworkShare": 2.1,
+      "yearRange": {
+        "min": 1760,
+        "max": 1850
+      },
+      "nationality": "Japanese",
+      "movement": "Ukiyo-e",
+      "matchSource": "artists-db",
+      "matchedArtist": "Katsushika Hokusai"
+    },
+    {
+      "name": "Vasily Vereshchagin",
+      "slug": "vasily-vereshchagin",
+      "artworkCount": 48,
+      "artworkShare": 1.7,
+      "yearRange": {
+        "min": 1867,
+        "max": 1903
+      },
+      "nationality": null,
+      "movement": null,
+      "matchSource": "unmapped",
+      "matchedArtist": null
+    },
+    {
+      "name": "Winslow Homer",
+      "slug": "winslow-homer",
+      "artworkCount": 35,
+      "artworkShare": 1.2,
+      "yearRange": {
+        "min": 1868,
+        "max": 1899
+      },
+      "nationality": "American",
+      "movement": "Realism",
+      "matchSource": "artists-db",
+      "matchedArtist": "Winslow Homer"
+    },
+    {
+      "name": "Élisabeth Louise Vigée Le Brun",
+      "slug": "elisabeth-louise-vigee-le-brun",
+      "artworkCount": 31,
+      "artworkShare": 1.1,
+      "yearRange": {
+        "min": 1773,
+        "max": 1807
+      },
+      "nationality": "French",
+      "movement": "Rococo / Neoclassicism",
+      "matchSource": "artists-db",
+      "matchedArtist": "Élisabeth Louise Vigée Le Brun"
+    },
+    {
+      "name": "Rembrandt van Rijn",
+      "slug": "rembrandt-van-rijn",
+      "artworkCount": 28,
+      "artworkShare": 1,
+      "yearRange": {
+        "min": 1597,
+        "max": 1665
+      },
+      "nationality": "Dutch",
+      "movement": "Dutch Golden Age",
+      "matchSource": "artists-db",
+      "matchedArtist": "Rembrandt van Rijn"
+    },
+    {
+      "name": "Albrecht Dürer",
+      "slug": "albrecht-durer",
+      "artworkCount": 27,
+      "artworkShare": 0.9,
+      "yearRange": {
+        "min": 1492,
+        "max": 1526
+      },
+      "nationality": "German",
+      "movement": "Northern Renaissance",
+      "matchSource": "artists-db",
+      "matchedArtist": "Albrecht Dürer"
+    },
+    {
+      "name": "Ilya Repin",
+      "slug": "ilya-repin",
+      "artworkCount": 23,
+      "artworkShare": 0.8,
+      "yearRange": {
+        "min": 1864,
+        "max": 1903
+      },
+      "nationality": null,
+      "movement": null,
+      "matchSource": "unmapped",
+      "matchedArtist": null
+    },
+    {
+      "name": "James McNeill Whistler",
+      "slug": "james-mcneill-whistler",
+      "artworkCount": 22,
+      "artworkShare": 0.8,
+      "yearRange": {
+        "min": 1860,
+        "max": 1893
+      },
+      "nationality": "American",
+      "movement": "Tonalism / Aestheticism",
+      "matchSource": "artists-db",
+      "matchedArtist": "James McNeill Whistler"
+    },
+    {
+      "name": "Pierre-Auguste Renoir",
+      "slug": "pierre-auguste-renoir",
+      "artworkCount": 20,
+      "artworkShare": 0.7,
+      "yearRange": {
+        "min": 1864,
+        "max": 1894
+      },
+      "nationality": "French",
+      "movement": "Impressionism",
+      "matchSource": "artists-db",
+      "matchedArtist": "Pierre-Auguste Renoir"
+    },
+    {
+      "name": "Caspar David Friedrich",
+      "slug": "caspar-david-friedrich",
+      "artworkCount": 19,
+      "artworkShare": 0.7,
+      "yearRange": {
+        "min": 1807,
+        "max": 1837
+      },
+      "nationality": "German",
+      "movement": "Romanticism",
+      "matchSource": "artists-db",
+      "matchedArtist": "Caspar David Friedrich"
+    },
+    {
+      "name": "John Singer Sargent",
+      "slug": "john-singer-sargent",
+      "artworkCount": 19,
+      "artworkShare": 0.7,
+      "yearRange": {
+        "min": 1878,
+        "max": 1922
+      },
+      "nationality": "American",
+      "movement": "Realism / Impressionism",
+      "matchSource": "artists-db",
+      "matchedArtist": "John Singer Sargent"
+    },
+    {
+      "name": "Artemisia Gentileschi",
+      "slug": "artemisia-gentileschi",
+      "artworkCount": 18,
+      "artworkShare": 0.6,
+      "yearRange": {
+        "min": 1609,
+        "max": 1649
+      },
+      "nationality": null,
+      "movement": null,
+      "matchSource": "unmapped",
+      "matchedArtist": null
+    },
+    {
+      "name": "Lucas Cranach the Elder",
+      "slug": "lucas-cranach-the-elder",
+      "artworkCount": 18,
+      "artworkShare": 0.6,
+      "yearRange": {
+        "min": 1503,
+        "max": 1546
+      },
+      "nationality": null,
+      "movement": null,
+      "matchSource": "unmapped",
+      "matchedArtist": null
+    },
+    {
+      "name": "William Merritt Chase",
+      "slug": "william-merritt-chase",
+      "artworkCount": 18,
+      "artworkShare": 0.6,
+      "yearRange": {
+        "min": 1849,
+        "max": 1915
+      },
+      "nationality": null,
+      "movement": null,
+      "matchSource": "unmapped",
+      "matchedArtist": null
+    },
+    {
+      "name": "Francesco Hayez",
+      "slug": "francesco-hayez",
+      "artworkCount": 17,
+      "artworkShare": 0.6,
+      "yearRange": {
+        "min": 1811,
+        "max": 1869
+      },
+      "nationality": "Italian",
+      "movement": "Romanticism",
+      "matchSource": "artists-db",
+      "matchedArtist": "Francesco Hayez"
+    },
+    {
+      "name": "Jean-Auguste-Dominique Ingres",
+      "slug": "jean-auguste-dominique-ingres",
+      "artworkCount": 17,
+      "artworkShare": 0.6,
+      "yearRange": {
+        "min": 1801,
+        "max": 1862
+      },
+      "nationality": "French",
+      "movement": "Neoclassicism",
+      "matchSource": "artists-db",
+      "matchedArtist": "Jean-Auguste-Dominique Ingres"
+    },
+    {
+      "name": "Sandro Botticelli",
+      "slug": "sandro-botticelli",
+      "artworkCount": 17,
+      "artworkShare": 0.6,
+      "yearRange": {
+        "min": 1450,
+        "max": 1496
+      },
+      "nationality": "Italian",
+      "movement": "Early Renaissance",
+      "matchSource": "artists-db",
+      "matchedArtist": "Sandro Botticelli"
+    },
+    {
+      "name": "Gustave Courbet",
+      "slug": "gustave-courbet",
+      "artworkCount": 16,
+      "artworkShare": 0.6,
+      "yearRange": {
+        "min": 1843,
+        "max": 1869
+      },
+      "nationality": "French",
+      "movement": "Realism",
+      "matchSource": "artists-db",
+      "matchedArtist": "Gustave Courbet"
+    },
+    {
+      "name": "Gustave Doré",
+      "slug": "gustave-dore",
+      "artworkCount": 16,
+      "artworkShare": 0.6,
+      "yearRange": {
+        "min": 1860,
+        "max": 1884
+      },
+      "nationality": null,
+      "movement": null,
+      "matchSource": "unmapped",
+      "matchedArtist": null
+    },
+    {
+      "name": "Martin Schongauer",
+      "slug": "martin-schongauer",
+      "artworkCount": 16,
+      "artworkShare": 0.6,
+      "yearRange": {
+        "min": 1450,
+        "max": 1480
+      },
+      "nationality": null,
+      "movement": null,
+      "matchSource": "unmapped",
+      "matchedArtist": null
+    },
+    {
+      "name": "Caravaggio",
+      "slug": "caravaggio",
+      "artworkCount": 15,
+      "artworkShare": 0.5,
+      "yearRange": {
+        "min": 1593,
+        "max": 1608
+      },
+      "nationality": "Italian",
+      "movement": "Baroque",
+      "matchSource": "artists-db",
+      "matchedArtist": "Caravaggio"
+    },
+    {
+      "name": "Édouard Manet",
+      "slug": "edouard-manet",
+      "artworkCount": 15,
+      "artworkShare": 0.5,
+      "yearRange": {
+        "min": 1862,
+        "max": 1882
+      },
+      "nationality": "French",
+      "movement": "Impressionism / Realism",
+      "matchSource": "artists-db",
+      "matchedArtist": "Édouard Manet"
+    },
+    {
+      "name": "Frederic Leighton",
+      "slug": "frederic-leighton",
+      "artworkCount": 14,
+      "artworkShare": 0.5,
+      "yearRange": {
+        "min": 1882,
+        "max": 1897
+      },
+      "nationality": "English",
+      "movement": "Academicism",
+      "matchSource": "artists-db",
+      "matchedArtist": "Frederic Leighton"
+    },
+    {
+      "name": "Gustave Caillebotte",
+      "slug": "gustave-caillebotte",
+      "artworkCount": 14,
+      "artworkShare": 0.5,
+      "yearRange": {
+        "min": 1873,
+        "max": 1894
+      },
+      "nationality": null,
+      "movement": null,
+      "matchSource": "unmapped",
+      "matchedArtist": null
+    },
+    {
+      "name": "John Everett Millais",
+      "slug": "john-everett-millais",
+      "artworkCount": 14,
+      "artworkShare": 0.5,
+      "yearRange": {
+        "min": 1846,
+        "max": 1892
+      },
+      "nationality": "English",
+      "movement": "Pre-Raphaelite",
+      "matchSource": "artists-db",
+      "matchedArtist": "John Everett Millais"
+    },
+    {
+      "name": "Alphonse Mucha",
+      "slug": "alphonse-mucha",
+      "artworkCount": 13,
+      "artworkShare": 0.5,
+      "yearRange": {
+        "min": 1896,
+        "max": 1926
+      },
+      "nationality": "Czech",
+      "movement": "Art Nouveau",
+      "matchSource": "artists-db",
+      "matchedArtist": "Alphonse Mucha"
+    },
+    {
+      "name": "Carl Spitzweg",
+      "slug": "carl-spitzweg",
+      "artworkCount": 13,
+      "artworkShare": 0.5,
+      "yearRange": {
+        "min": 1839,
+        "max": 1871
+      },
+      "nationality": null,
+      "movement": null,
+      "matchSource": "unmapped",
+      "matchedArtist": null
+    },
+    {
+      "name": "Edvard Munch",
+      "slug": "edvard-munch",
+      "artworkCount": 13,
+      "artworkShare": 0.5,
+      "yearRange": {
+        "min": 1880,
+        "max": 1930
+      },
+      "nationality": "Norwegian",
+      "movement": "Symbolism / Expressionism",
+      "matchSource": "artists-db",
+      "matchedArtist": "Edvard Munch"
+    },
+    {
+      "name": "Eugene de Blaas",
+      "slug": "eugene-de-blaas",
+      "artworkCount": 13,
+      "artworkShare": 0.5,
+      "yearRange": {
+        "min": 1843,
+        "max": 1913
+      },
+      "nationality": null,
+      "movement": null,
+      "matchSource": "unmapped",
+      "matchedArtist": null
+    },
+    {
+      "name": "Eugène Delacroix",
+      "slug": "eugene-delacroix",
+      "artworkCount": 13,
+      "artworkShare": 0.5,
+      "yearRange": {
+        "min": 1824,
+        "max": 1862
+      },
+      "nationality": "French",
+      "movement": "Romanticism",
+      "matchSource": "artists-db",
+      "matchedArtist": "Eugène Delacroix"
+    },
+    {
+      "name": "Hiroshi Yoshida",
+      "slug": "hiroshi-yoshida",
+      "artworkCount": 13,
+      "artworkShare": 0.5,
+      "yearRange": {
+        "min": 1921,
+        "max": 1928
+      },
+      "nationality": "Japanese",
+      "movement": "Shin-hanga",
+      "matchSource": "artists-db",
+      "matchedArtist": "Hiroshi Yoshida"
+    },
+    {
+      "name": "Titian",
+      "slug": "titian",
+      "artworkCount": 13,
+      "artworkShare": 0.5,
+      "yearRange": {
+        "min": 1508,
+        "max": 1570
+      },
+      "nationality": "Italian",
+      "movement": "Venetian Renaissance",
+      "matchSource": "artists-db",
+      "matchedArtist": "Titian"
+    },
+    {
+      "name": "Anthony van Dyck",
+      "slug": "anthony-van-dyck",
+      "artworkCount": 12,
+      "artworkShare": 0.4,
+      "yearRange": {
+        "min": 1620,
+        "max": 1640
+      },
+      "nationality": "Flemish",
+      "movement": "Baroque",
+      "matchSource": "artists-db",
+      "matchedArtist": "Anthony van Dyck"
+    },
+    {
+      "name": "Hendrick Goltzius",
+      "slug": "hendrick-goltzius",
+      "artworkCount": 12,
+      "artworkShare": 0.4,
+      "yearRange": {
+        "min": 1582,
+        "max": 1616
+      },
+      "nationality": "Dutch",
+      "movement": "Northern Mannerism",
+      "matchSource": "artists-db",
+      "matchedArtist": "Hendrick Goltzius"
+    },
+    {
+      "name": "Johannes Vermeer",
+      "slug": "johannes-vermeer",
+      "artworkCount": 12,
+      "artworkShare": 0.4,
+      "yearRange": {
+        "min": 1654,
+        "max": 1670
+      },
+      "nationality": "Dutch",
+      "movement": "Dutch Golden Age",
+      "matchSource": "artists-db",
+      "matchedArtist": "Johannes Vermeer"
+    },
+    {
+      "name": "Joseph Karl Stieler",
+      "slug": "joseph-karl-stieler",
+      "artworkCount": 12,
+      "artworkShare": 0.4,
+      "yearRange": {
+        "min": 1827,
+        "max": 1847
+      },
+      "nationality": null,
+      "movement": null,
+      "matchSource": "unmapped",
+      "matchedArtist": null
+    },
+    {
+      "name": "Francisco Goya",
+      "slug": "francisco-goya",
+      "artworkCount": 11,
+      "artworkShare": 0.4,
+      "yearRange": {
+        "min": 1780,
+        "max": 1820
+      },
+      "nationality": "Spanish",
+      "movement": "Romanticism",
+      "matchSource": "artists-db",
+      "matchedArtist": "Francisco Goya"
+    },
+    {
+      "name": "Georges Seurat",
+      "slug": "georges-seurat",
+      "artworkCount": 11,
+      "artworkShare": 0.4,
+      "yearRange": {
+        "min": 1878,
+        "max": 1891
+      },
+      "nationality": "French",
+      "movement": "Neo-Impressionism",
+      "matchSource": "artists-db",
+      "matchedArtist": "Georges Seurat"
+    },
+    {
+      "name": "Pieter Bruegel the Elder",
+      "slug": "pieter-bruegel-the-elder",
+      "artworkCount": 11,
+      "artworkShare": 0.4,
+      "yearRange": {
+        "min": 1559,
+        "max": 1568
+      },
+      "nationality": "Flemish",
+      "movement": "Northern Renaissance",
+      "matchSource": "artists-db",
+      "matchedArtist": "Pieter Bruegel the Elder"
+    },
+    {
+      "name": "Raphael",
+      "slug": "raphael",
+      "artworkCount": 11,
+      "artworkShare": 0.4,
+      "yearRange": {
+        "min": 1509,
+        "max": 1519
+      },
+      "nationality": "Italian",
+      "movement": "High Renaissance",
+      "matchSource": "artists-db",
+      "matchedArtist": "Raphael"
+    },
+    {
+      "name": "Yoshitoshi",
+      "slug": "yoshitoshi",
+      "artworkCount": 11,
+      "artworkShare": 0.4,
+      "yearRange": {
+        "min": 1880,
+        "max": 1892
+      },
+      "nationality": null,
+      "movement": null,
+      "matchSource": "unmapped",
+      "matchedArtist": null
+    },
+    {
+      "name": "John Constable",
+      "slug": "john-constable",
+      "artworkCount": 10,
+      "artworkShare": 0.4,
+      "yearRange": {
+        "min": 1816,
+        "max": 1835
+      },
+      "nationality": "English",
+      "movement": "Romanticism",
+      "matchSource": "artists-db",
+      "matchedArtist": "John Constable"
+    },
+    {
+      "name": "Thomas Gainsborough",
+      "slug": "thomas-gainsborough",
+      "artworkCount": 10,
+      "artworkShare": 0.4,
+      "yearRange": {
+        "min": 1744,
+        "max": 1787
+      },
+      "nationality": null,
+      "movement": null,
+      "matchSource": "unmapped",
+      "matchedArtist": null
+    },
+    {
+      "name": "Frans Snyders",
+      "slug": "frans-snyders",
+      "artworkCount": 9,
+      "artworkShare": 0.3,
+      "yearRange": {
+        "min": 1614,
+        "max": 1650
+      },
+      "nationality": "Flemish",
+      "movement": "Baroque",
+      "matchSource": "artists-db",
+      "matchedArtist": "Frans Snyders"
+    },
+    {
+      "name": "Georges de La Tour",
+      "slug": "georges-de-la-tour",
+      "artworkCount": 9,
+      "artworkShare": 0.3,
+      "yearRange": {
+        "min": 1600,
+        "max": 1646
+      },
+      "nationality": null,
+      "movement": null,
+      "matchSource": "unmapped",
+      "matchedArtist": null
+    },
+    {
+      "name": "Giuseppe Arcimboldo",
+      "slug": "giuseppe-arcimboldo",
+      "artworkCount": 9,
+      "artworkShare": 0.3,
+      "yearRange": {
+        "min": 1563,
+        "max": 1591
+      },
+      "nationality": "Italian",
+      "movement": "Mannerism",
+      "matchSource": "artists-db",
+      "matchedArtist": "Giuseppe Arcimboldo"
+    },
+    {
+      "name": "Henri Fantin-Latour",
+      "slug": "henri-fantin-latour",
+      "artworkCount": 9,
+      "artworkShare": 0.3,
+      "yearRange": {
+        "min": 1858,
+        "max": 1884
+      },
+      "nationality": null,
+      "movement": null,
+      "matchSource": "unmapped",
+      "matchedArtist": null
+    },
+    {
+      "name": "Jacob Jordaens",
+      "slug": "jacob-jordaens",
+      "artworkCount": 9,
+      "artworkShare": 0.3,
+      "yearRange": {
+        "min": 1600,
+        "max": 1652
+      },
+      "nationality": null,
+      "movement": null,
+      "matchSource": "unmapped",
+      "matchedArtist": null
+    },
+    {
+      "name": "Ohara Koson",
+      "slug": "ohara-koson",
+      "artworkCount": 9,
+      "artworkShare": 0.3,
+      "yearRange": {
+        "min": 1900,
+        "max": 1930
+      },
+      "nationality": "Japanese",
+      "movement": "Shin-hanga",
+      "matchSource": "artists-db",
+      "matchedArtist": "Ohara Koson"
+    },
+    {
+      "name": "Utagawa Kuniyoshi",
+      "slug": "utagawa-kuniyoshi",
+      "artworkCount": 9,
+      "artworkShare": 0.3,
+      "yearRange": {
+        "min": 1833,
+        "max": 1849
+      },
+      "nationality": null,
+      "movement": null,
+      "matchSource": "unmapped",
+      "matchedArtist": null
+    },
+    {
+      "name": "Adolph von Menzel",
+      "slug": "adolph-von-menzel",
+      "artworkCount": 8,
+      "artworkShare": 0.3,
+      "yearRange": {
+        "min": 1845,
+        "max": 1883
+      },
+      "nationality": null,
+      "movement": null,
+      "matchSource": "unmapped",
+      "matchedArtist": null
+    },
+    {
+      "name": "Gustav Bauernfeind",
+      "slug": "gustav-bauernfeind",
+      "artworkCount": 8,
+      "artworkShare": 0.3,
+      "yearRange": {
+        "min": 1877,
+        "max": 1902
+      },
+      "nationality": null,
+      "movement": null,
+      "matchSource": "unmapped",
+      "matchedArtist": null
+    },
+    {
+      "name": "Hans Holbein the Younger",
+      "slug": "hans-holbein-the-younger",
+      "artworkCount": 8,
+      "artworkShare": 0.3,
+      "yearRange": {
+        "min": 1521,
+        "max": 1528
+      },
+      "nationality": null,
+      "movement": null,
+      "matchSource": "unmapped",
+      "matchedArtist": null
+    },
+    {
+      "name": "Hieronymus Bosch",
+      "slug": "hieronymus-bosch",
+      "artworkCount": 8,
+      "artworkShare": 0.3,
+      "yearRange": {
+        "min": 1455,
+        "max": 1515
+      },
+      "nationality": "Early Netherlandish",
+      "movement": "Northern Renaissance",
+      "matchSource": "artists-db",
+      "matchedArtist": "Hieronymus Bosch"
+    },
+    {
+      "name": "John Frederick Lewis",
+      "slug": "john-frederick-lewis",
+      "artworkCount": 8,
+      "artworkShare": 0.3,
+      "yearRange": {
+        "min": 1804,
+        "max": 1876
+      },
+      "nationality": null,
+      "movement": null,
+      "matchSource": "unmapped",
+      "matchedArtist": null
+    },
+    {
+      "name": "Paolo Veronese",
+      "slug": "paolo-veronese",
+      "artworkCount": 8,
+      "artworkShare": 0.3,
+      "yearRange": {
+        "min": 1548,
+        "max": 1585
+      },
+      "nationality": null,
+      "movement": null,
+      "matchSource": "unmapped",
+      "matchedArtist": null
+    },
+    {
+      "name": "Philipp Otto Runge",
+      "slug": "philipp-otto-runge",
+      "artworkCount": 8,
+      "artworkShare": 0.3,
+      "yearRange": {
+        "min": 1805,
+        "max": 1810
+      },
+      "nationality": null,
+      "movement": null,
+      "matchSource": "unmapped",
+      "matchedArtist": null
+    },
+    {
+      "name": "Suzuki Harunobu",
+      "slug": "suzuki-harunobu",
+      "artworkCount": 8,
+      "artworkShare": 0.3,
+      "yearRange": {
+        "min": 1750,
+        "max": 1780
+      },
+      "nationality": null,
+      "movement": null,
+      "matchSource": "unmapped",
+      "matchedArtist": null
+    },
+    {
+      "name": "Théodore Géricault",
+      "slug": "theodore-gericault",
+      "artworkCount": 8,
+      "artworkShare": 0.3,
+      "yearRange": {
+        "min": 1812,
+        "max": 1822
+      },
+      "nationality": "French",
+      "movement": "Romanticism",
+      "matchSource": "artists-db",
+      "matchedArtist": "Théodore Géricault"
+    },
+    {
+      "name": "Tintoretto",
+      "slug": "tintoretto",
+      "artworkCount": 8,
+      "artworkShare": 0.3,
+      "yearRange": {
+        "min": 1550,
+        "max": 1592
+      },
+      "nationality": "Italian",
+      "movement": "Mannerism",
+      "matchSource": "artists-db",
+      "matchedArtist": "Tintoretto"
+    },
+    {
+      "name": "Edgar Degas",
+      "slug": "edgar-degas",
+      "artworkCount": 7,
+      "artworkShare": 0.2,
+      "yearRange": {
+        "min": 1856,
+        "max": 1886
+      },
+      "nationality": "French",
+      "movement": "Impressionism",
+      "matchSource": "artists-db",
+      "matchedArtist": "Edgar Degas"
+    },
+    {
+      "name": "Henry Fuseli",
+      "slug": "henry-fuseli",
+      "artworkCount": 7,
+      "artworkShare": 0.2,
+      "yearRange": {
+        "min": 1778,
+        "max": 1800
+      },
+      "nationality": null,
+      "movement": null,
+      "matchSource": "unmapped",
+      "matchedArtist": null
+    },
+    {
+      "name": "Joachim Patinir",
+      "slug": "joachim-patinir",
+      "artworkCount": 7,
+      "artworkShare": 0.2,
+      "yearRange": {
+        "min": 1515,
+        "max": 1550
+      },
+      "nationality": null,
+      "movement": null,
+      "matchSource": "unmapped",
+      "matchedArtist": null
+    },
+    {
+      "name": "Robert Delaunay",
+      "slug": "robert-delaunay",
+      "artworkCount": 7,
+      "artworkShare": 0.2,
+      "yearRange": {
+        "min": 1906,
+        "max": 1926
+      },
+      "nationality": null,
+      "movement": null,
+      "matchSource": "unmapped",
+      "matchedArtist": null
+    },
+    {
+      "name": "William Holman Hunt",
+      "slug": "william-holman-hunt",
+      "artworkCount": 7,
+      "artworkShare": 0.2,
+      "yearRange": {
+        "min": 1849,
+        "max": 1870
+      },
+      "nationality": null,
+      "movement": null,
+      "matchSource": "unmapped",
+      "matchedArtist": null
+    },
+    {
+      "name": "Annibale Carracci",
+      "slug": "annibale-carracci",
+      "artworkCount": 6,
+      "artworkShare": 0.2,
+      "yearRange": {
+        "min": 1550,
+        "max": 1603
+      },
+      "nationality": null,
+      "movement": null,
+      "matchSource": "unmapped",
+      "matchedArtist": null
+    },
+    {
+      "name": "David Wilkie",
+      "slug": "david-wilkie",
+      "artworkCount": 6,
+      "artworkShare": 0.2,
+      "yearRange": {
+        "min": 1818,
+        "max": 1841
+      },
+      "nationality": null,
+      "movement": null,
+      "matchSource": "unmapped",
+      "matchedArtist": null
+    },
+    {
+      "name": "Diego Velázquez",
+      "slug": "diego-velazquez",
+      "artworkCount": 6,
+      "artworkShare": 0.2,
+      "yearRange": {
+        "min": 1618,
+        "max": 1656
+      },
+      "nationality": "Spanish",
+      "movement": "Baroque",
+      "matchSource": "artists-db",
+      "matchedArtist": "Diego Velázquez"
+    },
+    {
+      "name": "Franz von Stuck",
+      "slug": "franz-von-stuck",
+      "artworkCount": 6,
+      "artworkShare": 0.2,
+      "yearRange": {
+        "min": 1893,
+        "max": 1923
+      },
+      "nationality": null,
+      "movement": null,
+      "matchSource": "unmapped",
+      "matchedArtist": null
+    },
+    {
+      "name": "Nicolas Poussin",
+      "slug": "nicolas-poussin",
+      "artworkCount": 6,
+      "artworkShare": 0.2,
+      "yearRange": {
+        "min": 1625,
+        "max": 1651
+      },
+      "nationality": null,
+      "movement": null,
+      "matchSource": "unmapped",
+      "matchedArtist": null
+    },
+    {
+      "name": "Paul Gauguin",
+      "slug": "paul-gauguin",
+      "artworkCount": 6,
+      "artworkShare": 0.2,
+      "yearRange": {
+        "min": 1880,
+        "max": 1894
+      },
+      "nationality": "French",
+      "movement": "Post-Impressionism",
+      "matchSource": "artists-db",
+      "matchedArtist": "Paul Gauguin"
+    },
+    {
+      "name": "Rogier van der Weyden",
+      "slug": "rogier-van-der-weyden",
+      "artworkCount": 6,
+      "artworkShare": 0.2,
+      "yearRange": {
+        "min": 1435,
+        "max": 1460
+      },
+      "nationality": null,
+      "movement": null,
+      "matchSource": "unmapped",
+      "matchedArtist": null
+    },
+    {
+      "name": "Bartolomé Esteban Murillo",
+      "slug": "bartolome-esteban-murillo",
+      "artworkCount": 5,
+      "artworkShare": 0.2,
+      "yearRange": {
+        "min": 1650,
+        "max": 1670
+      },
+      "nationality": null,
+      "movement": null,
+      "matchSource": "unmapped",
+      "matchedArtist": null
+    },
+    {
+      "name": "Henri Rousseau",
+      "slug": "henri-rousseau",
+      "artworkCount": 5,
+      "artworkShare": 0.2,
+      "yearRange": {
+        "min": 1891,
+        "max": 1910
+      },
+      "nationality": "French",
+      "movement": "Post-Impressionism / Naïve Art",
+      "matchSource": "artists-db",
+      "matchedArtist": "Henri Rousseau"
+    },
+    {
+      "name": "Hyacinthe Rigaud",
+      "slug": "hyacinthe-rigaud",
+      "artworkCount": 5,
+      "artworkShare": 0.2,
+      "yearRange": {
+        "min": 1694,
+        "max": 1739
+      },
+      "nationality": null,
+      "movement": null,
+      "matchSource": "unmapped",
+      "matchedArtist": null
+    },
+    {
+      "name": "Joseph Wright of Derby",
+      "slug": "joseph-wright-of-derby",
+      "artworkCount": 5,
+      "artworkShare": 0.2,
+      "yearRange": {
+        "min": 1768,
+        "max": 1789
+      },
+      "nationality": null,
+      "movement": null,
+      "matchSource": "unmapped",
+      "matchedArtist": null
+    },
+    {
+      "name": "Laurits Tuxen",
+      "slug": "laurits-tuxen",
+      "artworkCount": 5,
+      "artworkShare": 0.2,
+      "yearRange": {
+        "min": 1879,
+        "max": 1909
+      },
+      "nationality": null,
+      "movement": null,
+      "matchSource": "unmapped",
+      "matchedArtist": null
+    },
+    {
+      "name": "Ludwig Deutsch",
+      "slug": "ludwig-deutsch",
+      "artworkCount": 5,
+      "artworkShare": 0.2,
+      "yearRange": {
+        "min": 1883,
+        "max": 1903
+      },
+      "nationality": null,
+      "movement": null,
+      "matchSource": "unmapped",
+      "matchedArtist": null
+    },
+    {
+      "name": "Paul Cézanne",
+      "slug": "paul-cezanne",
+      "artworkCount": 5,
+      "artworkShare": 0.2,
+      "yearRange": {
+        "min": 1867,
+        "max": 1896
+      },
+      "nationality": "French",
+      "movement": "Post-Impressionism",
+      "matchSource": "artists-db",
+      "matchedArtist": "Paul Cézanne"
+    },
+    {
+      "name": "Utagawa Kunisada",
+      "slug": "utagawa-kunisada",
+      "artworkCount": 5,
+      "artworkShare": 0.2,
+      "yearRange": {
+        "min": 1800,
+        "max": 1857
+      },
+      "nationality": null,
+      "movement": null,
+      "matchSource": "unmapped",
+      "matchedArtist": null
+    },
+    {
+      "name": "Andreas Vesalius",
+      "slug": "andreas-vesalius",
+      "artworkCount": 4,
+      "artworkShare": 0.1,
+      "yearRange": {
+        "min": 1543,
+        "max": 1543
+      },
+      "nationality": null,
+      "movement": null,
+      "matchSource": "unmapped",
+      "matchedArtist": null
+    },
+    {
+      "name": "Francisco de Zurbarán",
+      "slug": "francisco-de-zurbaran",
+      "artworkCount": 4,
+      "artworkShare": 0.1,
+      "yearRange": {
+        "min": 1627,
+        "max": 1635
+      },
+      "nationality": null,
+      "movement": null,
+      "matchSource": "unmapped",
+      "matchedArtist": null
+    },
+    {
+      "name": "Mary Cassatt",
+      "slug": "mary-cassatt",
+      "artworkCount": 4,
+      "artworkShare": 0.1,
+      "yearRange": {
+        "min": 1880,
+        "max": 1893
+      },
+      "nationality": null,
+      "movement": null,
+      "matchSource": "unmapped",
+      "matchedArtist": null
+    },
+    {
+      "name": "Mikhail Nesterov",
+      "slug": "mikhail-nesterov",
+      "artworkCount": 4,
+      "artworkShare": 0.1,
+      "yearRange": {
+        "min": 1888,
+        "max": 1917
+      },
+      "nationality": null,
+      "movement": null,
+      "matchSource": "unmapped",
+      "matchedArtist": null
+    },
+    {
+      "name": "Pierre Puvis de Chavannes",
+      "slug": "pierre-puvis-de-chavannes",
+      "artworkCount": 4,
+      "artworkShare": 0.1,
+      "yearRange": {
+        "min": 1872,
+        "max": 1883
+      },
+      "nationality": null,
+      "movement": null,
+      "matchSource": "unmapped",
+      "matchedArtist": null
+    },
+    {
+      "name": "Andrea Mantegna",
+      "slug": "andrea-mantegna",
+      "artworkCount": 3,
+      "artworkShare": 0.1,
+      "yearRange": {
+        "min": 1457,
+        "max": 1490
+      },
+      "nationality": null,
+      "movement": null,
+      "matchSource": "unmapped",
+      "matchedArtist": null
+    },
+    {
+      "name": "August Macke",
+      "slug": "august-macke",
+      "artworkCount": 3,
+      "artworkShare": 0.1,
+      "yearRange": {
+        "min": 1911,
+        "max": 1913
+      },
+      "nationality": null,
+      "movement": null,
+      "matchSource": "unmapped",
+      "matchedArtist": null
+    },
+    {
+      "name": "Charles-Joseph Natoire",
+      "slug": "charles-joseph-natoire",
+      "artworkCount": 3,
+      "artworkShare": 0.1,
+      "yearRange": {
+        "min": 1734,
+        "max": 1740
+      },
+      "nationality": null,
+      "movement": null,
+      "matchSource": "unmapped",
+      "matchedArtist": null
+    },
+    {
+      "name": "Cornelis van Haarlem",
+      "slug": "cornelis-van-haarlem",
+      "artworkCount": 3,
+      "artworkShare": 0.1,
+      "yearRange": {
+        "min": 1588,
+        "max": 1591
+      },
+      "nationality": null,
+      "movement": null,
+      "matchSource": "unmapped",
+      "matchedArtist": null
+    },
+    {
+      "name": "El Greco",
+      "slug": "el-greco",
+      "artworkCount": 3,
+      "artworkShare": 0.1,
+      "yearRange": {
+        "min": 1596,
+        "max": 1610
+      },
+      "nationality": "Greek / Spanish",
+      "movement": "Mannerism",
+      "matchSource": "artists-db",
+      "matchedArtist": "El Greco"
+    },
+    {
+      "name": "Kanae Yamamoto",
+      "slug": "kanae-yamamoto",
+      "artworkCount": 3,
+      "artworkShare": 0.1,
+      "yearRange": {
+        "min": 1904,
+        "max": 1926
+      },
+      "nationality": "Japanese",
+      "movement": "Sōsaku-hanga",
+      "matchSource": "artists-db",
+      "matchedArtist": "Kanae Yamamoto"
+    },
+    {
+      "name": "Kawai Gyokudō",
+      "slug": "kawai-gyokudo",
+      "artworkCount": 3,
+      "artworkShare": 0.1,
+      "yearRange": {
+        "min": 1907,
+        "max": 1916
+      },
+      "nationality": "Japanese",
+      "movement": "Nihonga / Bijinga",
+      "matchSource": "artists-db",
+      "matchedArtist": "Kawai Gyokudō"
+    },
+    {
+      "name": "Parmigianino",
+      "slug": "parmigianino",
+      "artworkCount": 3,
+      "artworkShare": 0.1,
+      "yearRange": {
+        "min": 1527,
+        "max": 1534
+      },
+      "nationality": null,
+      "movement": null,
+      "matchSource": "unmapped",
+      "matchedArtist": null
+    },
+    {
+      "name": "Paul de Vos",
+      "slug": "paul-de-vos",
+      "artworkCount": 3,
+      "artworkShare": 0.1,
+      "yearRange": {
+        "min": 1630,
+        "max": 1650
+      },
+      "nationality": null,
+      "movement": null,
+      "matchSource": "unmapped",
+      "matchedArtist": null
+    },
+    {
+      "name": "Sebastiano Ricci",
+      "slug": "sebastiano-ricci",
+      "artworkCount": 3,
+      "artworkShare": 0.1,
+      "yearRange": {
+        "min": 1659,
+        "max": 1716
+      },
+      "nationality": null,
+      "movement": null,
+      "matchSource": "unmapped",
+      "matchedArtist": null
+    },
+    {
+      "name": "Thomas Eakins",
+      "slug": "thomas-eakins",
+      "artworkCount": 3,
+      "artworkShare": 0.1,
+      "yearRange": {
+        "min": 1871,
+        "max": 1899
+      },
+      "nationality": null,
+      "movement": null,
+      "matchSource": "unmapped",
+      "matchedArtist": null
+    },
+    {
+      "name": "Wilhelm von Kobell",
+      "slug": "wilhelm-von-kobell",
+      "artworkCount": 3,
+      "artworkShare": 0.1,
+      "yearRange": {
+        "min": 1808,
+        "max": 1832
+      },
+      "nationality": null,
+      "movement": null,
+      "matchSource": "unmapped",
+      "matchedArtist": null
+    },
+    {
+      "name": "Antonio da Correggio",
+      "slug": "antonio-da-correggio",
+      "artworkCount": 2,
+      "artworkShare": 0.1,
+      "yearRange": {
+        "min": 1517,
+        "max": 1532
+      },
+      "nationality": null,
+      "movement": null,
+      "matchSource": "unmapped",
+      "matchedArtist": null
+    },
+    {
+      "name": "Artemisia Gentileschi / Orazio Gentileschi",
+      "slug": "artemisia-gentileschi-orazio-gentileschi",
+      "artworkCount": 2,
+      "artworkShare": 0.1,
+      "yearRange": {
+        "min": 1612,
+        "max": 1613
+      },
+      "nationality": null,
+      "movement": null,
+      "matchSource": "unmapped",
+      "matchedArtist": null
+    },
+    {
+      "name": "Bernhard Siegfried Albinus",
+      "slug": "bernhard-siegfried-albinus",
+      "artworkCount": 2,
+      "artworkShare": 0.1,
+      "yearRange": {
+        "min": 1747,
+        "max": 1747
+      },
+      "nationality": null,
+      "movement": null,
+      "matchSource": "unmapped",
+      "matchedArtist": null
+    },
+    {
+      "name": "Fernand Khnopff",
+      "slug": "fernand-khnopff",
+      "artworkCount": 2,
+      "artworkShare": 0.1,
+      "yearRange": {
+        "min": 1883,
+        "max": 1887
+      },
+      "nationality": null,
+      "movement": null,
+      "matchSource": "unmapped",
+      "matchedArtist": null
+    },
+    {
+      "name": "Gerhard von Kügelgen",
+      "slug": "gerhard-von-kugelgen",
+      "artworkCount": 2,
+      "artworkShare": 0.1,
+      "yearRange": {
+        "min": 1808,
+        "max": 1808
+      },
+      "nationality": null,
+      "movement": null,
+      "matchSource": "unmapped",
+      "matchedArtist": null
+    },
+    {
+      "name": "Hashiguchi Goyō",
+      "slug": "hashiguchi-goyo",
+      "artworkCount": 2,
+      "artworkShare": 0.1,
+      "yearRange": {
+        "min": 1915,
+        "max": 1920
+      },
+      "nationality": "Japanese",
+      "movement": "Shin-hanga",
+      "matchSource": "artists-db",
+      "matchedArtist": "Hashiguchi Goyō"
+    },
+    {
+      "name": "Henri Matisse",
+      "slug": "henri-matisse",
+      "artworkCount": 2,
+      "artworkShare": 0.1,
+      "yearRange": {
+        "min": 1902,
+        "max": 1920
+      },
+      "nationality": "French",
+      "movement": "Fauvism / Modernism",
+      "matchSource": "artists-db",
+      "matchedArtist": "Henri Matisse"
+    },
+    {
+      "name": "Henry Raeburn",
+      "slug": "henry-raeburn",
+      "artworkCount": 2,
+      "artworkShare": 0.1,
+      "yearRange": {
+        "min": 1755,
+        "max": 1812
+      },
+      "nationality": null,
+      "movement": null,
+      "matchSource": "unmapped",
+      "matchedArtist": null
+    },
+    {
+      "name": "Hugo van der Goes",
+      "slug": "hugo-van-der-goes",
+      "artworkCount": 2,
+      "artworkShare": 0.1,
+      "yearRange": {
+        "min": 1470,
+        "max": 1470
+      },
+      "nationality": null,
+      "movement": null,
+      "matchSource": "unmapped",
+      "matchedArtist": null
+    },
+    {
+      "name": "Jean-Antoine Watteau",
+      "slug": "jean-antoine-watteau",
+      "artworkCount": 2,
+      "artworkShare": 0.1,
+      "yearRange": {
+        "min": 1717,
+        "max": 1718
+      },
+      "nationality": null,
+      "movement": null,
+      "matchSource": "unmapped",
+      "matchedArtist": null
+    },
+    {
+      "name": "John Byam Liston Shaw",
+      "slug": "john-byam-liston-shaw",
+      "artworkCount": 2,
+      "artworkShare": 0.1,
+      "yearRange": {
+        "min": 1911,
+        "max": 1914
+      },
+      "nationality": null,
+      "movement": null,
+      "matchSource": "unmapped",
+      "matchedArtist": null
+    },
+    {
+      "name": "Keisai Eisen",
+      "slug": "keisai-eisen",
+      "artworkCount": 2,
+      "artworkShare": 0.1,
+      "yearRange": {
+        "min": 1830,
+        "max": 1830
+      },
+      "nationality": null,
+      "movement": null,
+      "matchSource": "unmapped",
+      "matchedArtist": null
+    },
+    {
+      "name": "Kitagawa Utamaro",
+      "slug": "kitagawa-utamaro",
+      "artworkCount": 2,
+      "artworkShare": 0.1,
+      "yearRange": {
+        "min": 1795,
+        "max": 1797
+      },
+      "nationality": "Japanese",
+      "movement": "Ukiyo-e",
+      "matchSource": "artists-db",
+      "matchedArtist": "Kitagawa Utamaro"
+    },
+    {
+      "name": "Ma Yuan",
+      "slug": "ma-yuan",
+      "artworkCount": 2,
+      "artworkShare": 0.1,
+      "yearRange": {
+        "min": 1160,
+        "max": 1160
+      },
+      "nationality": null,
+      "movement": null,
+      "matchSource": "unmapped",
+      "matchedArtist": null
+    },
+    {
+      "name": "Michelangelo Buonarroti",
+      "slug": "michelangelo-buonarroti",
+      "artworkCount": 2,
+      "artworkShare": 0.1,
+      "yearRange": {
+        "min": 1511,
+        "max": 1511
+      },
+      "nationality": "Italian",
+      "movement": "High Renaissance",
+      "matchSource": "artists-db",
+      "matchedArtist": "Michelangelo Buonarroti"
+    },
+    {
+      "name": "Paolo Uccello",
+      "slug": "paolo-uccello",
+      "artworkCount": 2,
+      "artworkShare": 0.1,
+      "yearRange": {
+        "min": 1438,
+        "max": 1470
+      },
+      "nationality": null,
+      "movement": null,
+      "matchSource": "unmapped",
+      "matchedArtist": null
+    },
+    {
+      "name": "Qian Xuan",
+      "slug": "qian-xuan",
+      "artworkCount": 2,
+      "artworkShare": 0.1,
+      "yearRange": {
+        "min": 1250,
+        "max": 1250
+      },
+      "nationality": null,
+      "movement": null,
+      "matchSource": "unmapped",
+      "matchedArtist": null
+    },
+    {
+      "name": "Sesshū Tōyō",
+      "slug": "sesshu-toyo",
+      "artworkCount": 2,
+      "artworkShare": 0.1,
+      "yearRange": {
+        "min": 1470,
+        "max": 1496
+      },
+      "nationality": null,
+      "movement": null,
+      "matchSource": "unmapped",
+      "matchedArtist": null
+    },
+    {
+      "name": "Torii Kotondo",
+      "slug": "torii-kotondo",
+      "artworkCount": 2,
+      "artworkShare": 0.1,
+      "yearRange": {
+        "min": 1929,
+        "max": 1930
+      },
+      "nationality": "Japanese",
+      "movement": "Shin-hanga",
+      "matchSource": "artists-db",
+      "matchedArtist": "Torii Kotondo"
+    },
+    {
+      "name": "Tsuchiya Kōitsu",
+      "slug": "tsuchiya-koitsu",
+      "artworkCount": 2,
+      "artworkShare": 0.1,
+      "yearRange": {
+        "min": 1895,
+        "max": 1900
+      },
+      "nationality": null,
+      "movement": null,
+      "matchSource": "unmapped",
+      "matchedArtist": null
+    },
+    {
+      "name": "After Jacob Jordaens / Attributed to Remoldus Eynhoudt",
+      "slug": "after-jacob-jordaens-attributed-to-remoldus-eynhoudt",
+      "artworkCount": 1,
+      "artworkShare": 0,
+      "yearRange": {
+        "min": 1652,
+        "max": 1652
+      },
+      "nationality": null,
+      "movement": null,
+      "matchSource": "unmapped",
+      "matchedArtist": null
+    },
+    {
+      "name": "After Jacob Jordaens / Marinus Robyn van der Goes",
+      "slug": "after-jacob-jordaens-marinus-robyn-van-der-goes",
+      "artworkCount": 1,
+      "artworkShare": 0,
+      "yearRange": {
+        "min": 1630,
+        "max": 1630
+      },
+      "nationality": null,
+      "movement": null,
+      "matchSource": "unmapped",
+      "matchedArtist": null
+    },
+    {
+      "name": "Albrecht Altdorfer",
+      "slug": "albrecht-altdorfer",
+      "artworkCount": 1,
+      "artworkShare": 0,
+      "yearRange": {
+        "min": 1529,
+        "max": 1529
+      },
+      "nationality": null,
+      "movement": null,
+      "matchSource": "unmapped",
+      "matchedArtist": null
+    },
+    {
+      "name": "Attributed to Louis Le Nain / Antoine Le Nain",
+      "slug": "attributed-to-louis-le-nain-antoine-le-nain",
+      "artworkCount": 1,
+      "artworkShare": 0,
+      "yearRange": {
+        "min": 1642,
+        "max": 1642
+      },
+      "nationality": null,
+      "movement": null,
+      "matchSource": "unmapped",
+      "matchedArtist": null
+    },
+    {
+      "name": "Aubrey Beardsley",
+      "slug": "aubrey-beardsley",
+      "artworkCount": 1,
+      "artworkShare": 0,
+      "yearRange": {
+        "min": 1894,
+        "max": 1894
+      },
+      "nationality": null,
+      "movement": null,
+      "matchSource": "unmapped",
+      "matchedArtist": null
+    },
+    {
+      "name": "Charles Grignion the Younger",
+      "slug": "charles-grignion-the-younger",
+      "artworkCount": 1,
+      "artworkShare": 0,
+      "yearRange": {
+        "min": 1747,
+        "max": 1747
+      },
+      "nationality": null,
+      "movement": null,
+      "matchSource": "unmapped",
+      "matchedArtist": null
+    },
+    {
+      "name": "Charles W. Bartlett",
+      "slug": "charles-w-bartlett",
+      "artworkCount": 1,
+      "artworkShare": 0,
+      "yearRange": {
+        "min": 1916,
+        "max": 1916
+      },
+      "nationality": "English / American",
+      "movement": "Shin-hanga",
+      "matchSource": "artists-db",
+      "matchedArtist": "Charles W. Bartlett"
+    },
+    {
+      "name": "Chen Rong",
+      "slug": "chen-rong",
+      "artworkCount": 1,
+      "artworkShare": 0,
+      "yearRange": {
+        "min": 1244,
+        "max": 1244
+      },
+      "nationality": null,
+      "movement": null,
+      "matchSource": "unmapped",
+      "matchedArtist": null
+    },
+    {
+      "name": "Cornelis de Vos",
+      "slug": "cornelis-de-vos",
+      "artworkCount": 1,
+      "artworkShare": 0,
+      "yearRange": {
+        "min": 1650,
+        "max": 1650
+      },
+      "nationality": null,
+      "movement": null,
+      "matchSource": "unmapped",
+      "matchedArtist": null
+    },
+    {
+      "name": "Daniel Maclise",
+      "slug": "daniel-maclise",
+      "artworkCount": 1,
+      "artworkShare": 0,
+      "yearRange": {
+        "min": 1830,
+        "max": 1830
+      },
+      "nationality": null,
+      "movement": null,
+      "matchSource": "unmapped",
+      "matchedArtist": null
+    },
+    {
+      "name": "Dong Yuan",
+      "slug": "dong-yuan",
+      "artworkCount": 1,
+      "artworkShare": 0,
+      "yearRange": {
+        "min": 950,
+        "max": 950
+      },
+      "nationality": null,
+      "movement": null,
+      "matchSource": "unmapped",
+      "matchedArtist": null
+    },
+    {
+      "name": "Edmund Joseph Sullivan",
+      "slug": "edmund-joseph-sullivan",
+      "artworkCount": 1,
+      "artworkShare": 0,
+      "yearRange": {
+        "min": 1898,
+        "max": 1898
+      },
+      "nationality": null,
+      "movement": null,
+      "matchSource": "unmapped",
+      "matchedArtist": null
+    },
+    {
+      "name": "Eduard Magnus",
+      "slug": "eduard-magnus",
+      "artworkCount": 1,
+      "artworkShare": 0,
+      "yearRange": {
+        "min": 1836,
+        "max": 1836
+      },
+      "nationality": null,
+      "movement": null,
+      "matchSource": "unmapped",
+      "matchedArtist": null
+    },
+    {
+      "name": "Edward Hopper",
+      "slug": "edward-hopper",
+      "artworkCount": 1,
+      "artworkShare": 0,
+      "yearRange": {
+        "min": 1922,
+        "max": 1922
+      },
+      "nationality": "American",
+      "movement": "American Realism",
+      "matchSource": "artists-db",
+      "matchedArtist": "Edward Hopper"
+    },
+    {
+      "name": "Egbert van der Poel",
+      "slug": "egbert-van-der-poel",
+      "artworkCount": 1,
+      "artworkShare": 0,
+      "yearRange": {
+        "min": 1654,
+        "max": 1654
+      },
+      "nationality": null,
+      "movement": null,
+      "matchSource": "unmapped",
+      "matchedArtist": null
+    },
+    {
+      "name": "Emperor Huizong of Song",
+      "slug": "emperor-huizong-of-song",
+      "artworkCount": 1,
+      "artworkShare": 0,
+      "yearRange": {
+        "min": 1100,
+        "max": 1100
+      },
+      "nationality": null,
+      "movement": null,
+      "matchSource": "unmapped",
+      "matchedArtist": null
+    },
+    {
+      "name": "Erasmus Quellinus II",
+      "slug": "erasmus-quellinus-ii",
+      "artworkCount": 1,
+      "artworkShare": 0,
+      "yearRange": {
+        "min": 1635,
+        "max": 1635
+      },
+      "nationality": null,
+      "movement": null,
+      "matchSource": "unmapped",
+      "matchedArtist": null
+    },
+    {
+      "name": "Ernst Stückelberg",
+      "slug": "ernst-stuckelberg",
+      "artworkCount": 1,
+      "artworkShare": 0,
+      "yearRange": {
+        "min": 1897,
+        "max": 1897
+      },
+      "nationality": null,
+      "movement": null,
+      "matchSource": "unmapped",
+      "matchedArtist": null
+    },
+    {
+      "name": "Fan Kuan",
+      "slug": "fan-kuan",
+      "artworkCount": 1,
+      "artworkShare": 0,
+      "yearRange": {
+        "min": 1000,
+        "max": 1000
+      },
+      "nationality": null,
+      "movement": null,
+      "matchSource": "unmapped",
+      "matchedArtist": null
+    },
+    {
+      "name": "Félicien Rops",
+      "slug": "felicien-rops",
+      "artworkCount": 1,
+      "artworkShare": 0,
+      "yearRange": {
+        "min": 1878,
+        "max": 1878
+      },
+      "nationality": null,
+      "movement": null,
+      "matchSource": "unmapped",
+      "matchedArtist": null
+    },
+    {
+      "name": "Fernand Le Quesne",
+      "slug": "fernand-le-quesne",
+      "artworkCount": 1,
+      "artworkShare": 0,
+      "yearRange": {
+        "min": 1889,
+        "max": 1889
+      },
+      "nationality": null,
+      "movement": null,
+      "matchSource": "unmapped",
+      "matchedArtist": null
+    },
+    {
+      "name": "Follower of Rogier van der Weyden",
+      "slug": "follower-of-rogier-van-der-weyden",
+      "artworkCount": 1,
+      "artworkShare": 0,
+      "yearRange": {
+        "min": 1490,
+        "max": 1490
+      },
+      "nationality": null,
+      "movement": null,
+      "matchSource": "unmapped",
+      "matchedArtist": null
+    },
+    {
+      "name": "Franz Krüger",
+      "slug": "franz-kruger",
+      "artworkCount": 1,
+      "artworkShare": 0,
+      "yearRange": {
+        "min": 1824,
+        "max": 1824
+      },
+      "nationality": null,
+      "movement": null,
+      "matchSource": "unmapped",
+      "matchedArtist": null
+    },
+    {
+      "name": "Franz Marc",
+      "slug": "franz-marc",
+      "artworkCount": 1,
+      "artworkShare": 0,
+      "yearRange": {
+        "min": 1912,
+        "max": 1912
+      },
+      "nationality": null,
+      "movement": null,
+      "matchSource": "unmapped",
+      "matchedArtist": null
+    },
+    {
+      "name": "Gerard van Honthorst",
+      "slug": "gerard-van-honthorst",
+      "artworkCount": 1,
+      "artworkShare": 0,
+      "yearRange": {
+        "min": 1625,
+        "max": 1625
+      },
+      "nationality": null,
+      "movement": null,
+      "matchSource": "unmapped",
+      "matchedArtist": null
+    },
+    {
+      "name": "Giorgione",
+      "slug": "giorgione",
+      "artworkCount": 1,
+      "artworkShare": 0,
+      "yearRange": {
+        "min": 1503,
+        "max": 1503
+      },
+      "nationality": null,
+      "movement": null,
+      "matchSource": "unmapped",
+      "matchedArtist": null
+    },
+    {
+      "name": "Giovanni Baglione",
+      "slug": "giovanni-baglione",
+      "artworkCount": 1,
+      "artworkShare": 0,
+      "yearRange": {
+        "min": 1602,
+        "max": 1602
+      },
+      "nationality": null,
+      "movement": null,
+      "matchSource": "unmapped",
+      "matchedArtist": null
+    },
+    {
+      "name": "Giuseppe Bartolomeo Chiari",
+      "slug": "giuseppe-bartolomeo-chiari",
+      "artworkCount": 1,
+      "artworkShare": 0,
+      "yearRange": {
+        "min": 1700,
+        "max": 1700
+      },
+      "nationality": null,
+      "movement": null,
+      "matchSource": "unmapped",
+      "matchedArtist": null
+    },
+    {
+      "name": "Grant Wood",
+      "slug": "grant-wood",
+      "artworkCount": 1,
+      "artworkShare": 0,
+      "yearRange": {
+        "min": 1930,
+        "max": 1930
+      },
+      "nationality": "American",
+      "movement": "Regionalism",
+      "matchSource": "artists-db",
+      "matchedArtist": "Grant Wood"
+    },
+    {
+      "name": "Guercino",
+      "slug": "guercino",
+      "artworkCount": 1,
+      "artworkShare": 0,
+      "yearRange": {
+        "min": 1630,
+        "max": 1630
+      },
+      "nationality": null,
+      "movement": null,
+      "matchSource": "unmapped",
+      "matchedArtist": null
+    },
+    {
+      "name": "Guo Zhongshu",
+      "slug": "guo-zhongshu",
+      "artworkCount": 1,
+      "artworkShare": 0,
+      "yearRange": {
+        "min": 1279,
+        "max": 1279
+      },
+      "nationality": null,
+      "movement": null,
+      "matchSource": "unmapped",
+      "matchedArtist": null
+    },
+    {
+      "name": "Gustave Doré / Adam Cuerden",
+      "slug": "gustave-dore-adam-cuerden",
+      "artworkCount": 1,
+      "artworkShare": 0,
+      "yearRange": {
+        "min": 1866,
+        "max": 1866
+      },
+      "nationality": null,
+      "movement": null,
+      "matchSource": "unmapped",
+      "matchedArtist": null
+    },
+    {
+      "name": "Harada Naojirō",
+      "slug": "harada-naojiro",
+      "artworkCount": 1,
+      "artworkShare": 0,
+      "yearRange": {
+        "min": 1890,
+        "max": 1890
+      },
+      "nationality": null,
+      "movement": null,
+      "matchSource": "unmapped",
+      "matchedArtist": null
+    },
+    {
+      "name": "Hasegawa Tōhaku",
+      "slug": "hasegawa-tohaku",
+      "artworkCount": 1,
+      "artworkShare": 0,
+      "yearRange": {
+        "min": 1539,
+        "max": 1539
+      },
+      "nationality": null,
+      "movement": null,
+      "matchSource": "unmapped",
+      "matchedArtist": null
+    },
+    {
+      "name": "Hayami Gyoshū",
+      "slug": "hayami-gyoshu",
+      "artworkCount": 1,
+      "artworkShare": 0,
+      "yearRange": {
+        "min": 1925,
+        "max": 1925
+      },
+      "nationality": "Japanese",
+      "movement": "Nihonga / Bijinga",
+      "matchSource": "artists-db",
+      "matchedArtist": "Hayami Gyoshū"
+    },
+    {
+      "name": "Hendrick Avercamp",
+      "slug": "hendrick-avercamp",
+      "artworkCount": 1,
+      "artworkShare": 0,
+      "yearRange": {
+        "min": 1615,
+        "max": 1615
+      },
+      "nationality": null,
+      "movement": null,
+      "matchSource": "unmapped",
+      "matchedArtist": null
+    },
+    {
+      "name": "Hendrik Martenszoon Sorgh",
+      "slug": "hendrik-martenszoon-sorgh",
+      "artworkCount": 1,
+      "artworkShare": 0,
+      "yearRange": {
+        "min": 1661,
+        "max": 1661
+      },
+      "nationality": null,
+      "movement": null,
+      "matchSource": "unmapped",
+      "matchedArtist": null
+    },
+    {
+      "name": "Henri Meunier",
+      "slug": "henri-meunier",
+      "artworkCount": 1,
+      "artworkShare": 0,
+      "yearRange": {
+        "min": 1897,
+        "max": 1897
+      },
+      "nationality": null,
+      "movement": null,
+      "matchSource": "unmapped",
+      "matchedArtist": null
+    },
+    {
+      "name": "Henri-Julien-Félix Rousseau",
+      "slug": "henri-julien-felix-rousseau",
+      "artworkCount": 1,
+      "artworkShare": 0,
+      "yearRange": {
+        "min": 1886,
+        "max": 1886
+      },
+      "nationality": null,
+      "movement": null,
+      "matchSource": "unmapped",
+      "matchedArtist": null
+    },
+    {
+      "name": "Henry Hoppner Meyer",
+      "slug": "henry-hoppner-meyer",
+      "artworkCount": 1,
+      "artworkShare": 0,
+      "yearRange": null,
+      "nationality": null,
+      "movement": null,
+      "matchSource": "unmapped",
+      "matchedArtist": null
+    },
+    {
+      "name": "Huian Kang",
+      "slug": "huian-kang",
+      "artworkCount": 1,
+      "artworkShare": 0,
+      "yearRange": {
+        "min": 1450,
+        "max": 1450
+      },
+      "nationality": null,
+      "movement": null,
+      "matchSource": "unmapped",
+      "matchedArtist": null
+    },
+    {
+      "name": "Ike no Taiga",
+      "slug": "ike-no-taiga",
+      "artworkCount": 1,
+      "artworkShare": 0,
+      "yearRange": {
+        "min": 1723,
+        "max": 1723
+      },
+      "nationality": null,
+      "movement": null,
+      "matchSource": "unmapped",
+      "matchedArtist": null
+    },
+    {
+      "name": "Illufant",
+      "slug": "illufant",
+      "artworkCount": 1,
+      "artworkShare": 0,
+      "yearRange": null,
+      "nationality": null,
+      "movement": null,
+      "matchSource": "unmapped",
+      "matchedArtist": null
+    },
+    {
+      "name": "Jacques-Louis David",
+      "slug": "jacques-louis-david",
+      "artworkCount": 1,
+      "artworkShare": 0,
+      "yearRange": {
+        "min": 1789,
+        "max": 1789
+      },
+      "nationality": "French",
+      "movement": "Neoclassicism",
+      "matchSource": "artists-db",
+      "matchedArtist": "Jacques-Louis David"
+    },
+    {
+      "name": "Jan Cossiers",
+      "slug": "jan-cossiers",
+      "artworkCount": 1,
+      "artworkShare": 0,
+      "yearRange": {
+        "min": 1650,
+        "max": 1650
+      },
+      "nationality": null,
+      "movement": null,
+      "matchSource": "unmapped",
+      "matchedArtist": null
+    },
+    {
+      "name": "Jan Matsys",
+      "slug": "jan-matsys",
+      "artworkCount": 1,
+      "artworkShare": 0,
+      "yearRange": {
+        "min": 1566,
+        "max": 1566
+      },
+      "nationality": null,
+      "movement": null,
+      "matchSource": "unmapped",
+      "matchedArtist": null
+    },
+    {
+      "name": "Jean-Marc Pascolo",
+      "slug": "jean-marc-pascolo",
+      "artworkCount": 1,
+      "artworkShare": 0,
+      "yearRange": {
+        "min": 1849,
+        "max": 1849
+      },
+      "nationality": null,
+      "movement": null,
+      "matchSource": "unmapped",
+      "matchedArtist": null
+    },
+    {
+      "name": "Ji-Elle",
+      "slug": "ji-elle",
+      "artworkCount": 1,
+      "artworkShare": 0,
+      "yearRange": null,
+      "nationality": null,
+      "movement": null,
+      "matchSource": "unmapped",
+      "matchedArtist": null
+    },
+    {
+      "name": "Jl FilpoC",
+      "slug": "jl-filpoc",
+      "artworkCount": 1,
+      "artworkShare": 0,
+      "yearRange": null,
+      "nationality": null,
+      "movement": null,
+      "matchSource": "unmapped",
+      "matchedArtist": null
+    },
+    {
+      "name": "John Atkinson Grimshaw",
+      "slug": "john-atkinson-grimshaw",
+      "artworkCount": 1,
+      "artworkShare": 0,
+      "yearRange": {
+        "min": 1850,
+        "max": 1850
+      },
+      "nationality": null,
+      "movement": null,
+      "matchSource": "unmapped",
+      "matchedArtist": null
+    },
+    {
+      "name": "Kaigetsudō Ando",
+      "slug": "kaigetsudo-ando",
+      "artworkCount": 1,
+      "artworkShare": 0,
+      "yearRange": {
+        "min": 1705,
+        "max": 1705
+      },
+      "nationality": null,
+      "movement": null,
+      "matchSource": "unmapped",
+      "matchedArtist": null
+    },
+    {
+      "name": "Kanō Eitoku",
+      "slug": "kano-eitoku",
+      "artworkCount": 1,
+      "artworkShare": 0,
+      "yearRange": null,
+      "nationality": null,
+      "movement": null,
+      "matchSource": "unmapped",
+      "matchedArtist": null
+    },
+    {
+      "name": "Kano Hideyori",
+      "slug": "kano-hideyori",
+      "artworkCount": 1,
+      "artworkShare": 0,
+      "yearRange": {
+        "min": 1550,
+        "max": 1550
+      },
+      "nationality": null,
+      "movement": null,
+      "matchSource": "unmapped",
+      "matchedArtist": null
+    },
+    {
+      "name": "Kanō Sansetsu",
+      "slug": "kano-sansetsu",
+      "artworkCount": 1,
+      "artworkShare": 0,
+      "yearRange": {
+        "min": 1631,
+        "max": 1631
+      },
+      "nationality": null,
+      "movement": null,
+      "matchSource": "unmapped",
+      "matchedArtist": null
+    },
+    {
+      "name": "Kenkō Shōkei",
+      "slug": "kenko-shokei",
+      "artworkCount": 1,
+      "artworkShare": 0,
+      "yearRange": {
+        "min": 1520,
+        "max": 1520
+      },
+      "nationality": null,
+      "movement": null,
+      "matchSource": "unmapped",
+      "matchedArtist": null
+    },
+    {
+      "name": "Konrad Witz",
+      "slug": "konrad-witz",
+      "artworkCount": 1,
+      "artworkShare": 0,
+      "yearRange": {
+        "min": 1435,
+        "max": 1435
+      },
+      "nationality": null,
+      "movement": null,
+      "matchSource": "unmapped",
+      "matchedArtist": null
+    },
+    {
+      "name": "Kuroda Seiki",
+      "slug": "kuroda-seiki",
+      "artworkCount": 1,
+      "artworkShare": 0,
+      "yearRange": {
+        "min": 1897,
+        "max": 1897
+      },
+      "nationality": null,
+      "movement": null,
+      "matchSource": "unmapped",
+      "matchedArtist": null
+    },
+    {
+      "name": "Leonardo da Vinci",
+      "slug": "leonardo-da-vinci",
+      "artworkCount": 1,
+      "artworkShare": 0,
+      "yearRange": {
+        "min": 1510,
+        "max": 1510
+      },
+      "nationality": "Italian",
+      "movement": "High Renaissance",
+      "matchSource": "artists-db",
+      "matchedArtist": "Leonardo da Vinci"
+    },
+    {
+      "name": "Li Di",
+      "slug": "li-di",
+      "artworkCount": 1,
+      "artworkShare": 0,
+      "yearRange": null,
+      "nationality": null,
+      "movement": null,
+      "matchSource": "unmapped",
+      "matchedArtist": null
+    },
+    {
+      "name": "Li Shi",
+      "slug": "li-shi",
+      "artworkCount": 1,
+      "artworkShare": 0,
+      "yearRange": {
+        "min": 1150,
+        "max": 1150
+      },
+      "nationality": null,
+      "movement": null,
+      "matchSource": "unmapped",
+      "matchedArtist": null
+    },
+    {
+      "name": "Luca Signorelli",
+      "slug": "luca-signorelli",
+      "artworkCount": 1,
+      "artworkShare": 0,
+      "yearRange": {
+        "min": 1492,
+        "max": 1492
+      },
+      "nationality": null,
+      "movement": null,
+      "matchSource": "unmapped",
+      "matchedArtist": null
+    },
+    {
+      "name": "Marcantonio Raimondi",
+      "slug": "marcantonio-raimondi",
+      "artworkCount": 1,
+      "artworkShare": 0,
+      "yearRange": {
+        "min": 1515,
+        "max": 1515
+      },
+      "nationality": null,
+      "movement": null,
+      "matchSource": "unmapped",
+      "matchedArtist": null
+    },
+    {
+      "name": "Mary Stevenson Cassatt",
+      "slug": "mary-stevenson-cassatt",
+      "artworkCount": 1,
+      "artworkShare": 0,
+      "yearRange": {
+        "min": 1879,
+        "max": 1879
+      },
+      "nationality": null,
+      "movement": null,
+      "matchSource": "unmapped",
+      "matchedArtist": null
+    },
+    {
+      "name": "Matteo Ripa",
+      "slug": "matteo-ripa",
+      "artworkCount": 1,
+      "artworkShare": 0,
+      "yearRange": {
+        "min": 1711,
+        "max": 1711
+      },
+      "nationality": null,
+      "movement": null,
+      "matchSource": "unmapped",
+      "matchedArtist": null
+    },
+    {
+      "name": "Matthias Grünewald",
+      "slug": "matthias-grunewald",
+      "artworkCount": 1,
+      "artworkShare": 0,
+      "yearRange": {
+        "min": 1512,
+        "max": 1512
+      },
+      "nationality": null,
+      "movement": null,
+      "matchSource": "unmapped",
+      "matchedArtist": null
+    },
+    {
+      "name": "Michael Wolgemut",
+      "slug": "michael-wolgemut",
+      "artworkCount": 1,
+      "artworkShare": 0,
+      "yearRange": {
+        "min": 1440,
+        "max": 1440
+      },
+      "nationality": null,
+      "movement": null,
+      "matchSource": "unmapped",
+      "matchedArtist": null
+    },
+    {
+      "name": "Muqi",
+      "slug": "muqi",
+      "artworkCount": 1,
+      "artworkShare": 0,
+      "yearRange": {
+        "min": 1250,
+        "max": 1250
+      },
+      "nationality": null,
+      "movement": null,
+      "matchSource": "unmapped",
+      "matchedArtist": null
+    },
+    {
+      "name": "Ogata Kōrin",
+      "slug": "ogata-korin",
+      "artworkCount": 1,
+      "artworkShare": 0,
+      "yearRange": {
+        "min": 1716,
+        "max": 1716
+      },
+      "nationality": null,
+      "movement": null,
+      "matchSource": "unmapped",
+      "matchedArtist": null
+    },
+    {
+      "name": "Paolo Veronese / Formerly attributed to Francesco Montemezzano / Formerly attributed to Carlo Caliari",
+      "slug": "paolo-veronese-formerly-attributed-to-francesco-montemezzano-formerly-attributed-to-carlo-caliari",
+      "artworkCount": 1,
+      "artworkShare": 0,
+      "yearRange": {
+        "min": 1575,
+        "max": 1575
+      },
+      "nationality": null,
+      "movement": null,
+      "matchSource": "unmapped",
+      "matchedArtist": null
+    },
+    {
+      "name": "Paul Berthon",
+      "slug": "paul-berthon",
+      "artworkCount": 1,
+      "artworkShare": 0,
+      "yearRange": {
+        "min": 1897,
+        "max": 1897
+      },
+      "nationality": null,
+      "movement": null,
+      "matchSource": "unmapped",
+      "matchedArtist": null
+    },
+    {
+      "name": "Paul de Vos / Jan Wildens",
+      "slug": "paul-de-vos-jan-wildens",
+      "artworkCount": 1,
+      "artworkShare": 0,
+      "yearRange": null,
+      "nationality": null,
+      "movement": null,
+      "matchSource": "unmapped",
+      "matchedArtist": null
+    },
+    {
+      "name": "Paul de Vos / Possibly Cornelis de Vos",
+      "slug": "paul-de-vos-possibly-cornelis-de-vos",
+      "artworkCount": 1,
+      "artworkShare": 0,
+      "yearRange": {
+        "min": 1678,
+        "max": 1678
+      },
+      "nationality": null,
+      "movement": null,
+      "matchSource": "unmapped",
+      "matchedArtist": null
+    },
+    {
+      "name": "Pieter van Hanselaere",
+      "slug": "pieter-van-hanselaere",
+      "artworkCount": 1,
+      "artworkShare": 0,
+      "yearRange": {
+        "min": 1820,
+        "max": 1820
+      },
+      "nationality": null,
+      "movement": null,
+      "matchSource": "unmapped",
+      "matchedArtist": null
+    },
+    {
+      "name": "Possibly Lambert Sustris",
+      "slug": "possibly-lambert-sustris",
+      "artworkCount": 1,
+      "artworkShare": 0,
+      "yearRange": {
+        "min": 1570,
+        "max": 1570
+      },
+      "nationality": null,
+      "movement": null,
+      "matchSource": "unmapped",
+      "matchedArtist": null
+    },
+    {
+      "name": "Rudolf Weisse",
+      "slug": "rudolf-weisse",
+      "artworkCount": 1,
+      "artworkShare": 0,
+      "yearRange": {
+        "min": 1887,
+        "max": 1887
+      },
+      "nationality": null,
+      "movement": null,
+      "matchSource": "unmapped",
+      "matchedArtist": null
+    },
+    {
+      "name": "Sabine Lepsius",
+      "slug": "sabine-lepsius",
+      "artworkCount": 1,
+      "artworkShare": 0,
+      "yearRange": {
+        "min": 1885,
+        "max": 1885
+      },
+      "nationality": null,
+      "movement": null,
+      "matchSource": "unmapped",
+      "matchedArtist": null
+    },
+    {
+      "name": "Sharaku",
+      "slug": "sharaku",
+      "artworkCount": 1,
+      "artworkShare": 0,
+      "yearRange": {
+        "min": 1794,
+        "max": 1794
+      },
+      "nationality": null,
+      "movement": null,
+      "matchSource": "unmapped",
+      "matchedArtist": null
+    },
+    {
+      "name": "Shen Yuan",
+      "slug": "shen-yuan",
+      "artworkCount": 1,
+      "artworkShare": 0,
+      "yearRange": null,
+      "nationality": null,
+      "movement": null,
+      "matchSource": "unmapped",
+      "matchedArtist": null
+    },
+    {
+      "name": "Shen Zhou",
+      "slug": "shen-zhou",
+      "artworkCount": 1,
+      "artworkShare": 0,
+      "yearRange": {
+        "min": 1467,
+        "max": 1467
+      },
+      "nationality": null,
+      "movement": null,
+      "matchSource": "unmapped",
+      "matchedArtist": null
+    },
+    {
+      "name": "Shitao",
+      "slug": "shitao",
+      "artworkCount": 1,
+      "artworkShare": 0,
+      "yearRange": null,
+      "nationality": null,
+      "movement": null,
+      "matchSource": "unmapped",
+      "matchedArtist": null
+    },
+    {
+      "name": "Takahashi Shōtei",
+      "slug": "takahashi-shotei",
+      "artworkCount": 1,
+      "artworkShare": 0,
+      "yearRange": {
+        "min": 1924,
+        "max": 1924
+      },
+      "nationality": "Japanese",
+      "movement": "Shin-hanga",
+      "matchSource": "artists-db",
+      "matchedArtist": "Takahashi Shōtei"
+    },
+    {
+      "name": "Takiyasha_the_Witch_and_the_Skeleton_Spectre_1.jpg : Utagawa Kuniyoshi Takiyasha_the_Witch_and_the_Skeleton_Spectre_2.jpg : Utagawa Kuniyoshi Takiyasha_the_Witch_and_the_Skeleton_Spectre_3.jpg : Utagawa Kuniyoshi derivative work: Crisco 1492",
+      "slug": "takiyasha-the-witch-and-the-skeleton-spectre-1-jpg-utagawa-kuniyoshi-takiyasha-the-witch-and-the-skeleton-spectre-2-jpg-utagawa-kuniyoshi-takiyasha-the-witch-and-the-skeleton-spectre-3-jpg-utagawa-kuniyoshi-derivative-work-crisco-1492",
+      "artworkCount": 1,
+      "artworkShare": 0,
+      "yearRange": {
+        "min": 1844,
+        "max": 1844
+      },
+      "nationality": null,
+      "movement": null,
+      "matchSource": "unmapped",
+      "matchedArtist": null
+    },
+    {
+      "name": "Tawaraya Sotatsu",
+      "slug": "tawaraya-sotatsu",
+      "artworkCount": 1,
+      "artworkShare": 0,
+      "yearRange": {
+        "min": 1610,
+        "max": 1610
+      },
+      "nationality": null,
+      "movement": null,
+      "matchSource": "unmapped",
+      "matchedArtist": null
+    },
+    {
+      "name": "Thomas Willeboirts Bosschaert / Paul de Vos",
+      "slug": "thomas-willeboirts-bosschaert-paul-de-vos",
+      "artworkCount": 1,
+      "artworkShare": 0,
+      "yearRange": {
+        "min": 1650,
+        "max": 1650
+      },
+      "nationality": null,
+      "movement": null,
+      "matchSource": "unmapped",
+      "matchedArtist": null
+    },
+    {
+      "name": "Torii Kiyonaga",
+      "slug": "torii-kiyonaga",
+      "artworkCount": 1,
+      "artworkShare": 0,
+      "yearRange": {
+        "min": 1780,
+        "max": 1780
+      },
+      "nationality": null,
+      "movement": null,
+      "matchSource": "unmapped",
+      "matchedArtist": null
+    },
+    {
+      "name": "Torii Kiyonobu",
+      "slug": "torii-kiyonobu",
+      "artworkCount": 1,
+      "artworkShare": 0,
+      "yearRange": {
+        "min": 1714,
+        "max": 1714
+      },
+      "nationality": null,
+      "movement": null,
+      "matchSource": "unmapped",
+      "matchedArtist": null
+    },
+    {
+      "name": "Tsukioka Yoshitoshi",
+      "slug": "tsukioka-yoshitoshi",
+      "artworkCount": 1,
+      "artworkShare": 0,
+      "yearRange": {
+        "min": 1883,
+        "max": 1883
+      },
+      "nationality": null,
+      "movement": null,
+      "matchSource": "unmapped",
+      "matchedArtist": null
+    },
+    {
+      "name": "Vittore Carpaccio",
+      "slug": "vittore-carpaccio",
+      "artworkCount": 1,
+      "artworkShare": 0,
+      "yearRange": null,
+      "nationality": null,
+      "movement": null,
+      "matchSource": "unmapped",
+      "matchedArtist": null
+    },
+    {
+      "name": "Wang Gai",
+      "slug": "wang-gai",
+      "artworkCount": 1,
+      "artworkShare": 0,
+      "yearRange": {
+        "min": 1679,
+        "max": 1679
+      },
+      "nationality": null,
+      "movement": null,
+      "matchSource": "unmapped",
+      "matchedArtist": null
+    },
+    {
+      "name": "Wang Meng",
+      "slug": "wang-meng",
+      "artworkCount": 1,
+      "artworkShare": 0,
+      "yearRange": {
+        "min": 1366,
+        "max": 1366
+      },
+      "nationality": null,
+      "movement": null,
+      "matchSource": "unmapped",
+      "matchedArtist": null
+    },
+    {
+      "name": "Wilhelm Gentz",
+      "slug": "wilhelm-gentz",
+      "artworkCount": 1,
+      "artworkShare": 0,
+      "yearRange": {
+        "min": 1876,
+        "max": 1876
+      },
+      "nationality": null,
+      "movement": null,
+      "matchSource": "unmapped",
+      "matchedArtist": null
+    },
+    {
+      "name": "Wilhelm von Kaulbach",
+      "slug": "wilhelm-von-kaulbach",
+      "artworkCount": 1,
+      "artworkShare": 0,
+      "yearRange": {
+        "min": 1860,
+        "max": 1860
+      },
+      "nationality": null,
+      "movement": null,
+      "matchSource": "unmapped",
+      "matchedArtist": null
+    },
+    {
+      "name": "William Blake",
+      "slug": "william-blake",
+      "artworkCount": 1,
+      "artworkShare": 0,
+      "yearRange": {
+        "min": 1804,
+        "max": 1804
+      },
+      "nationality": "English",
+      "movement": "Romanticism",
+      "matchSource": "artists-db",
+      "matchedArtist": "William Blake"
+    },
+    {
+      "name": "William Collins",
+      "slug": "william-collins",
+      "artworkCount": 1,
+      "artworkShare": 0,
+      "yearRange": {
+        "min": 1841,
+        "max": 1841
+      },
+      "nationality": null,
+      "movement": null,
+      "matchSource": "unmapped",
+      "matchedArtist": null
+    },
+    {
+      "name": "Workshop of Lucas Cranach the Elder",
+      "slug": "workshop-of-lucas-cranach-the-elder",
+      "artworkCount": 1,
+      "artworkShare": 0,
+      "yearRange": {
+        "min": 1530,
+        "max": 1530
+      },
+      "nationality": null,
+      "movement": null,
+      "matchSource": "unmapped",
+      "matchedArtist": null
+    },
+    {
+      "name": "Xia Gui",
+      "slug": "xia-gui",
+      "artworkCount": 1,
+      "artworkShare": 0,
+      "yearRange": {
+        "min": 1368,
+        "max": 1368
+      },
+      "nationality": null,
+      "movement": null,
+      "matchSource": "unmapped",
+      "matchedArtist": null
+    },
+    {
+      "name": "Yoshitoshi Tsukioka",
+      "slug": "yoshitoshi-tsukioka",
+      "artworkCount": 1,
+      "artworkShare": 0,
+      "yearRange": {
+        "min": 1885,
+        "max": 1885
+      },
+      "nationality": null,
+      "movement": null,
+      "matchSource": "unmapped",
+      "matchedArtist": null
+    },
+    {
+      "name": "Zhao Mengjian",
+      "slug": "zhao-mengjian",
+      "artworkCount": 1,
+      "artworkShare": 0,
+      "yearRange": null,
+      "nationality": null,
+      "movement": null,
+      "matchSource": "unmapped",
+      "matchedArtist": null
+    },
+    {
+      "name": "Նարե Մանուկյան",
+      "slug": "",
+      "artworkCount": 1,
+      "artworkShare": 0,
+      "yearRange": {
+        "min": 1905,
+        "max": 1905
+      },
+      "nationality": null,
+      "movement": null,
+      "matchSource": "unmapped",
+      "matchedArtist": null
+    },
+    {
+      "name": "俵屋宗達",
+      "slug": "",
+      "artworkCount": 1,
+      "artworkShare": 0,
+      "yearRange": {
+        "min": 1650,
+        "max": 1650
+      },
+      "nationality": null,
+      "movement": null,
+      "matchSource": "unmapped",
+      "matchedArtist": null
+    },
+    {
+      "name": "歌川国芳",
+      "slug": "",
+      "artworkCount": 1,
+      "artworkShare": 0,
+      "yearRange": {
+        "min": 1850,
+        "max": 1850
+      },
+      "nationality": null,
+      "movement": null,
+      "matchSource": "unmapped",
+      "matchedArtist": null
+    }
+  ],
+  "unmappedArtists": [
+    {
+      "name": "Unknown",
+      "slug": "unknown",
+      "artworkCount": 76,
+      "artworkShare": 2.7,
+      "yearRange": {
+        "min": 1180,
+        "max": 1881
+      },
+      "nationality": null,
+      "movement": null,
+      "matchSource": "unmapped",
+      "matchedArtist": null
+    },
+    {
+      "name": "Vasily Vereshchagin",
+      "slug": "vasily-vereshchagin",
+      "artworkCount": 48,
+      "artworkShare": 1.7,
+      "yearRange": {
+        "min": 1867,
+        "max": 1903
+      },
+      "nationality": null,
+      "movement": null,
+      "matchSource": "unmapped",
+      "matchedArtist": null
+    },
+    {
+      "name": "Ilya Repin",
+      "slug": "ilya-repin",
+      "artworkCount": 23,
+      "artworkShare": 0.8,
+      "yearRange": {
+        "min": 1864,
+        "max": 1903
+      },
+      "nationality": null,
+      "movement": null,
+      "matchSource": "unmapped",
+      "matchedArtist": null
+    },
+    {
+      "name": "Artemisia Gentileschi",
+      "slug": "artemisia-gentileschi",
+      "artworkCount": 18,
+      "artworkShare": 0.6,
+      "yearRange": {
+        "min": 1609,
+        "max": 1649
+      },
+      "nationality": null,
+      "movement": null,
+      "matchSource": "unmapped",
+      "matchedArtist": null
+    },
+    {
+      "name": "Lucas Cranach the Elder",
+      "slug": "lucas-cranach-the-elder",
+      "artworkCount": 18,
+      "artworkShare": 0.6,
+      "yearRange": {
+        "min": 1503,
+        "max": 1546
+      },
+      "nationality": null,
+      "movement": null,
+      "matchSource": "unmapped",
+      "matchedArtist": null
+    },
+    {
+      "name": "William Merritt Chase",
+      "slug": "william-merritt-chase",
+      "artworkCount": 18,
+      "artworkShare": 0.6,
+      "yearRange": {
+        "min": 1849,
+        "max": 1915
+      },
+      "nationality": null,
+      "movement": null,
+      "matchSource": "unmapped",
+      "matchedArtist": null
+    },
+    {
+      "name": "Gustave Doré",
+      "slug": "gustave-dore",
+      "artworkCount": 16,
+      "artworkShare": 0.6,
+      "yearRange": {
+        "min": 1860,
+        "max": 1884
+      },
+      "nationality": null,
+      "movement": null,
+      "matchSource": "unmapped",
+      "matchedArtist": null
+    },
+    {
+      "name": "Martin Schongauer",
+      "slug": "martin-schongauer",
+      "artworkCount": 16,
+      "artworkShare": 0.6,
+      "yearRange": {
+        "min": 1450,
+        "max": 1480
+      },
+      "nationality": null,
+      "movement": null,
+      "matchSource": "unmapped",
+      "matchedArtist": null
+    },
+    {
+      "name": "Gustave Caillebotte",
+      "slug": "gustave-caillebotte",
+      "artworkCount": 14,
+      "artworkShare": 0.5,
+      "yearRange": {
+        "min": 1873,
+        "max": 1894
+      },
+      "nationality": null,
+      "movement": null,
+      "matchSource": "unmapped",
+      "matchedArtist": null
+    },
+    {
+      "name": "Carl Spitzweg",
+      "slug": "carl-spitzweg",
+      "artworkCount": 13,
+      "artworkShare": 0.5,
+      "yearRange": {
+        "min": 1839,
+        "max": 1871
+      },
+      "nationality": null,
+      "movement": null,
+      "matchSource": "unmapped",
+      "matchedArtist": null
+    },
+    {
+      "name": "Eugene de Blaas",
+      "slug": "eugene-de-blaas",
+      "artworkCount": 13,
+      "artworkShare": 0.5,
+      "yearRange": {
+        "min": 1843,
+        "max": 1913
+      },
+      "nationality": null,
+      "movement": null,
+      "matchSource": "unmapped",
+      "matchedArtist": null
+    },
+    {
+      "name": "Joseph Karl Stieler",
+      "slug": "joseph-karl-stieler",
+      "artworkCount": 12,
+      "artworkShare": 0.4,
+      "yearRange": {
+        "min": 1827,
+        "max": 1847
+      },
+      "nationality": null,
+      "movement": null,
+      "matchSource": "unmapped",
+      "matchedArtist": null
+    },
+    {
+      "name": "Yoshitoshi",
+      "slug": "yoshitoshi",
+      "artworkCount": 11,
+      "artworkShare": 0.4,
+      "yearRange": {
+        "min": 1880,
+        "max": 1892
+      },
+      "nationality": null,
+      "movement": null,
+      "matchSource": "unmapped",
+      "matchedArtist": null
+    },
+    {
+      "name": "Thomas Gainsborough",
+      "slug": "thomas-gainsborough",
+      "artworkCount": 10,
+      "artworkShare": 0.4,
+      "yearRange": {
+        "min": 1744,
+        "max": 1787
+      },
+      "nationality": null,
+      "movement": null,
+      "matchSource": "unmapped",
+      "matchedArtist": null
+    },
+    {
+      "name": "Georges de La Tour",
+      "slug": "georges-de-la-tour",
+      "artworkCount": 9,
+      "artworkShare": 0.3,
+      "yearRange": {
+        "min": 1600,
+        "max": 1646
+      },
+      "nationality": null,
+      "movement": null,
+      "matchSource": "unmapped",
+      "matchedArtist": null
+    },
+    {
+      "name": "Henri Fantin-Latour",
+      "slug": "henri-fantin-latour",
+      "artworkCount": 9,
+      "artworkShare": 0.3,
+      "yearRange": {
+        "min": 1858,
+        "max": 1884
+      },
+      "nationality": null,
+      "movement": null,
+      "matchSource": "unmapped",
+      "matchedArtist": null
+    },
+    {
+      "name": "Jacob Jordaens",
+      "slug": "jacob-jordaens",
+      "artworkCount": 9,
+      "artworkShare": 0.3,
+      "yearRange": {
+        "min": 1600,
+        "max": 1652
+      },
+      "nationality": null,
+      "movement": null,
+      "matchSource": "unmapped",
+      "matchedArtist": null
+    },
+    {
+      "name": "Utagawa Kuniyoshi",
+      "slug": "utagawa-kuniyoshi",
+      "artworkCount": 9,
+      "artworkShare": 0.3,
+      "yearRange": {
+        "min": 1833,
+        "max": 1849
+      },
+      "nationality": null,
+      "movement": null,
+      "matchSource": "unmapped",
+      "matchedArtist": null
+    },
+    {
+      "name": "Adolph von Menzel",
+      "slug": "adolph-von-menzel",
+      "artworkCount": 8,
+      "artworkShare": 0.3,
+      "yearRange": {
+        "min": 1845,
+        "max": 1883
+      },
+      "nationality": null,
+      "movement": null,
+      "matchSource": "unmapped",
+      "matchedArtist": null
+    },
+    {
+      "name": "Gustav Bauernfeind",
+      "slug": "gustav-bauernfeind",
+      "artworkCount": 8,
+      "artworkShare": 0.3,
+      "yearRange": {
+        "min": 1877,
+        "max": 1902
+      },
+      "nationality": null,
+      "movement": null,
+      "matchSource": "unmapped",
+      "matchedArtist": null
+    },
+    {
+      "name": "Hans Holbein the Younger",
+      "slug": "hans-holbein-the-younger",
+      "artworkCount": 8,
+      "artworkShare": 0.3,
+      "yearRange": {
+        "min": 1521,
+        "max": 1528
+      },
+      "nationality": null,
+      "movement": null,
+      "matchSource": "unmapped",
+      "matchedArtist": null
+    },
+    {
+      "name": "John Frederick Lewis",
+      "slug": "john-frederick-lewis",
+      "artworkCount": 8,
+      "artworkShare": 0.3,
+      "yearRange": {
+        "min": 1804,
+        "max": 1876
+      },
+      "nationality": null,
+      "movement": null,
+      "matchSource": "unmapped",
+      "matchedArtist": null
+    },
+    {
+      "name": "Paolo Veronese",
+      "slug": "paolo-veronese",
+      "artworkCount": 8,
+      "artworkShare": 0.3,
+      "yearRange": {
+        "min": 1548,
+        "max": 1585
+      },
+      "nationality": null,
+      "movement": null,
+      "matchSource": "unmapped",
+      "matchedArtist": null
+    },
+    {
+      "name": "Philipp Otto Runge",
+      "slug": "philipp-otto-runge",
+      "artworkCount": 8,
+      "artworkShare": 0.3,
+      "yearRange": {
+        "min": 1805,
+        "max": 1810
+      },
+      "nationality": null,
+      "movement": null,
+      "matchSource": "unmapped",
+      "matchedArtist": null
+    },
+    {
+      "name": "Suzuki Harunobu",
+      "slug": "suzuki-harunobu",
+      "artworkCount": 8,
+      "artworkShare": 0.3,
+      "yearRange": {
+        "min": 1750,
+        "max": 1780
+      },
+      "nationality": null,
+      "movement": null,
+      "matchSource": "unmapped",
+      "matchedArtist": null
+    },
+    {
+      "name": "Henry Fuseli",
+      "slug": "henry-fuseli",
+      "artworkCount": 7,
+      "artworkShare": 0.2,
+      "yearRange": {
+        "min": 1778,
+        "max": 1800
+      },
+      "nationality": null,
+      "movement": null,
+      "matchSource": "unmapped",
+      "matchedArtist": null
+    },
+    {
+      "name": "Joachim Patinir",
+      "slug": "joachim-patinir",
+      "artworkCount": 7,
+      "artworkShare": 0.2,
+      "yearRange": {
+        "min": 1515,
+        "max": 1550
+      },
+      "nationality": null,
+      "movement": null,
+      "matchSource": "unmapped",
+      "matchedArtist": null
+    },
+    {
+      "name": "Robert Delaunay",
+      "slug": "robert-delaunay",
+      "artworkCount": 7,
+      "artworkShare": 0.2,
+      "yearRange": {
+        "min": 1906,
+        "max": 1926
+      },
+      "nationality": null,
+      "movement": null,
+      "matchSource": "unmapped",
+      "matchedArtist": null
+    },
+    {
+      "name": "William Holman Hunt",
+      "slug": "william-holman-hunt",
+      "artworkCount": 7,
+      "artworkShare": 0.2,
+      "yearRange": {
+        "min": 1849,
+        "max": 1870
+      },
+      "nationality": null,
+      "movement": null,
+      "matchSource": "unmapped",
+      "matchedArtist": null
+    },
+    {
+      "name": "Annibale Carracci",
+      "slug": "annibale-carracci",
+      "artworkCount": 6,
+      "artworkShare": 0.2,
+      "yearRange": {
+        "min": 1550,
+        "max": 1603
+      },
+      "nationality": null,
+      "movement": null,
+      "matchSource": "unmapped",
+      "matchedArtist": null
+    },
+    {
+      "name": "David Wilkie",
+      "slug": "david-wilkie",
+      "artworkCount": 6,
+      "artworkShare": 0.2,
+      "yearRange": {
+        "min": 1818,
+        "max": 1841
+      },
+      "nationality": null,
+      "movement": null,
+      "matchSource": "unmapped",
+      "matchedArtist": null
+    },
+    {
+      "name": "Franz von Stuck",
+      "slug": "franz-von-stuck",
+      "artworkCount": 6,
+      "artworkShare": 0.2,
+      "yearRange": {
+        "min": 1893,
+        "max": 1923
+      },
+      "nationality": null,
+      "movement": null,
+      "matchSource": "unmapped",
+      "matchedArtist": null
+    },
+    {
+      "name": "Nicolas Poussin",
+      "slug": "nicolas-poussin",
+      "artworkCount": 6,
+      "artworkShare": 0.2,
+      "yearRange": {
+        "min": 1625,
+        "max": 1651
+      },
+      "nationality": null,
+      "movement": null,
+      "matchSource": "unmapped",
+      "matchedArtist": null
+    },
+    {
+      "name": "Rogier van der Weyden",
+      "slug": "rogier-van-der-weyden",
+      "artworkCount": 6,
+      "artworkShare": 0.2,
+      "yearRange": {
+        "min": 1435,
+        "max": 1460
+      },
+      "nationality": null,
+      "movement": null,
+      "matchSource": "unmapped",
+      "matchedArtist": null
+    },
+    {
+      "name": "Bartolomé Esteban Murillo",
+      "slug": "bartolome-esteban-murillo",
+      "artworkCount": 5,
+      "artworkShare": 0.2,
+      "yearRange": {
+        "min": 1650,
+        "max": 1670
+      },
+      "nationality": null,
+      "movement": null,
+      "matchSource": "unmapped",
+      "matchedArtist": null
+    },
+    {
+      "name": "Hyacinthe Rigaud",
+      "slug": "hyacinthe-rigaud",
+      "artworkCount": 5,
+      "artworkShare": 0.2,
+      "yearRange": {
+        "min": 1694,
+        "max": 1739
+      },
+      "nationality": null,
+      "movement": null,
+      "matchSource": "unmapped",
+      "matchedArtist": null
+    },
+    {
+      "name": "Joseph Wright of Derby",
+      "slug": "joseph-wright-of-derby",
+      "artworkCount": 5,
+      "artworkShare": 0.2,
+      "yearRange": {
+        "min": 1768,
+        "max": 1789
+      },
+      "nationality": null,
+      "movement": null,
+      "matchSource": "unmapped",
+      "matchedArtist": null
+    },
+    {
+      "name": "Laurits Tuxen",
+      "slug": "laurits-tuxen",
+      "artworkCount": 5,
+      "artworkShare": 0.2,
+      "yearRange": {
+        "min": 1879,
+        "max": 1909
+      },
+      "nationality": null,
+      "movement": null,
+      "matchSource": "unmapped",
+      "matchedArtist": null
+    },
+    {
+      "name": "Ludwig Deutsch",
+      "slug": "ludwig-deutsch",
+      "artworkCount": 5,
+      "artworkShare": 0.2,
+      "yearRange": {
+        "min": 1883,
+        "max": 1903
+      },
+      "nationality": null,
+      "movement": null,
+      "matchSource": "unmapped",
+      "matchedArtist": null
+    },
+    {
+      "name": "Utagawa Kunisada",
+      "slug": "utagawa-kunisada",
+      "artworkCount": 5,
+      "artworkShare": 0.2,
+      "yearRange": {
+        "min": 1800,
+        "max": 1857
+      },
+      "nationality": null,
+      "movement": null,
+      "matchSource": "unmapped",
+      "matchedArtist": null
+    },
+    {
+      "name": "Andreas Vesalius",
+      "slug": "andreas-vesalius",
+      "artworkCount": 4,
+      "artworkShare": 0.1,
+      "yearRange": {
+        "min": 1543,
+        "max": 1543
+      },
+      "nationality": null,
+      "movement": null,
+      "matchSource": "unmapped",
+      "matchedArtist": null
+    },
+    {
+      "name": "Francisco de Zurbarán",
+      "slug": "francisco-de-zurbaran",
+      "artworkCount": 4,
+      "artworkShare": 0.1,
+      "yearRange": {
+        "min": 1627,
+        "max": 1635
+      },
+      "nationality": null,
+      "movement": null,
+      "matchSource": "unmapped",
+      "matchedArtist": null
+    },
+    {
+      "name": "Mary Cassatt",
+      "slug": "mary-cassatt",
+      "artworkCount": 4,
+      "artworkShare": 0.1,
+      "yearRange": {
+        "min": 1880,
+        "max": 1893
+      },
+      "nationality": null,
+      "movement": null,
+      "matchSource": "unmapped",
+      "matchedArtist": null
+    },
+    {
+      "name": "Mikhail Nesterov",
+      "slug": "mikhail-nesterov",
+      "artworkCount": 4,
+      "artworkShare": 0.1,
+      "yearRange": {
+        "min": 1888,
+        "max": 1917
+      },
+      "nationality": null,
+      "movement": null,
+      "matchSource": "unmapped",
+      "matchedArtist": null
+    },
+    {
+      "name": "Pierre Puvis de Chavannes",
+      "slug": "pierre-puvis-de-chavannes",
+      "artworkCount": 4,
+      "artworkShare": 0.1,
+      "yearRange": {
+        "min": 1872,
+        "max": 1883
+      },
+      "nationality": null,
+      "movement": null,
+      "matchSource": "unmapped",
+      "matchedArtist": null
+    },
+    {
+      "name": "Andrea Mantegna",
+      "slug": "andrea-mantegna",
+      "artworkCount": 3,
+      "artworkShare": 0.1,
+      "yearRange": {
+        "min": 1457,
+        "max": 1490
+      },
+      "nationality": null,
+      "movement": null,
+      "matchSource": "unmapped",
+      "matchedArtist": null
+    },
+    {
+      "name": "August Macke",
+      "slug": "august-macke",
+      "artworkCount": 3,
+      "artworkShare": 0.1,
+      "yearRange": {
+        "min": 1911,
+        "max": 1913
+      },
+      "nationality": null,
+      "movement": null,
+      "matchSource": "unmapped",
+      "matchedArtist": null
+    },
+    {
+      "name": "Charles-Joseph Natoire",
+      "slug": "charles-joseph-natoire",
+      "artworkCount": 3,
+      "artworkShare": 0.1,
+      "yearRange": {
+        "min": 1734,
+        "max": 1740
+      },
+      "nationality": null,
+      "movement": null,
+      "matchSource": "unmapped",
+      "matchedArtist": null
+    },
+    {
+      "name": "Cornelis van Haarlem",
+      "slug": "cornelis-van-haarlem",
+      "artworkCount": 3,
+      "artworkShare": 0.1,
+      "yearRange": {
+        "min": 1588,
+        "max": 1591
+      },
+      "nationality": null,
+      "movement": null,
+      "matchSource": "unmapped",
+      "matchedArtist": null
+    },
+    {
+      "name": "Parmigianino",
+      "slug": "parmigianino",
+      "artworkCount": 3,
+      "artworkShare": 0.1,
+      "yearRange": {
+        "min": 1527,
+        "max": 1534
+      },
+      "nationality": null,
+      "movement": null,
+      "matchSource": "unmapped",
+      "matchedArtist": null
+    },
+    {
+      "name": "Paul de Vos",
+      "slug": "paul-de-vos",
+      "artworkCount": 3,
+      "artworkShare": 0.1,
+      "yearRange": {
+        "min": 1630,
+        "max": 1650
+      },
+      "nationality": null,
+      "movement": null,
+      "matchSource": "unmapped",
+      "matchedArtist": null
+    },
+    {
+      "name": "Sebastiano Ricci",
+      "slug": "sebastiano-ricci",
+      "artworkCount": 3,
+      "artworkShare": 0.1,
+      "yearRange": {
+        "min": 1659,
+        "max": 1716
+      },
+      "nationality": null,
+      "movement": null,
+      "matchSource": "unmapped",
+      "matchedArtist": null
+    },
+    {
+      "name": "Thomas Eakins",
+      "slug": "thomas-eakins",
+      "artworkCount": 3,
+      "artworkShare": 0.1,
+      "yearRange": {
+        "min": 1871,
+        "max": 1899
+      },
+      "nationality": null,
+      "movement": null,
+      "matchSource": "unmapped",
+      "matchedArtist": null
+    },
+    {
+      "name": "Wilhelm von Kobell",
+      "slug": "wilhelm-von-kobell",
+      "artworkCount": 3,
+      "artworkShare": 0.1,
+      "yearRange": {
+        "min": 1808,
+        "max": 1832
+      },
+      "nationality": null,
+      "movement": null,
+      "matchSource": "unmapped",
+      "matchedArtist": null
+    },
+    {
+      "name": "Antonio da Correggio",
+      "slug": "antonio-da-correggio",
+      "artworkCount": 2,
+      "artworkShare": 0.1,
+      "yearRange": {
+        "min": 1517,
+        "max": 1532
+      },
+      "nationality": null,
+      "movement": null,
+      "matchSource": "unmapped",
+      "matchedArtist": null
+    },
+    {
+      "name": "Artemisia Gentileschi / Orazio Gentileschi",
+      "slug": "artemisia-gentileschi-orazio-gentileschi",
+      "artworkCount": 2,
+      "artworkShare": 0.1,
+      "yearRange": {
+        "min": 1612,
+        "max": 1613
+      },
+      "nationality": null,
+      "movement": null,
+      "matchSource": "unmapped",
+      "matchedArtist": null
+    },
+    {
+      "name": "Bernhard Siegfried Albinus",
+      "slug": "bernhard-siegfried-albinus",
+      "artworkCount": 2,
+      "artworkShare": 0.1,
+      "yearRange": {
+        "min": 1747,
+        "max": 1747
+      },
+      "nationality": null,
+      "movement": null,
+      "matchSource": "unmapped",
+      "matchedArtist": null
+    },
+    {
+      "name": "Fernand Khnopff",
+      "slug": "fernand-khnopff",
+      "artworkCount": 2,
+      "artworkShare": 0.1,
+      "yearRange": {
+        "min": 1883,
+        "max": 1887
+      },
+      "nationality": null,
+      "movement": null,
+      "matchSource": "unmapped",
+      "matchedArtist": null
+    },
+    {
+      "name": "Gerhard von Kügelgen",
+      "slug": "gerhard-von-kugelgen",
+      "artworkCount": 2,
+      "artworkShare": 0.1,
+      "yearRange": {
+        "min": 1808,
+        "max": 1808
+      },
+      "nationality": null,
+      "movement": null,
+      "matchSource": "unmapped",
+      "matchedArtist": null
+    },
+    {
+      "name": "Henry Raeburn",
+      "slug": "henry-raeburn",
+      "artworkCount": 2,
+      "artworkShare": 0.1,
+      "yearRange": {
+        "min": 1755,
+        "max": 1812
+      },
+      "nationality": null,
+      "movement": null,
+      "matchSource": "unmapped",
+      "matchedArtist": null
+    },
+    {
+      "name": "Hugo van der Goes",
+      "slug": "hugo-van-der-goes",
+      "artworkCount": 2,
+      "artworkShare": 0.1,
+      "yearRange": {
+        "min": 1470,
+        "max": 1470
+      },
+      "nationality": null,
+      "movement": null,
+      "matchSource": "unmapped",
+      "matchedArtist": null
+    },
+    {
+      "name": "Jean-Antoine Watteau",
+      "slug": "jean-antoine-watteau",
+      "artworkCount": 2,
+      "artworkShare": 0.1,
+      "yearRange": {
+        "min": 1717,
+        "max": 1718
+      },
+      "nationality": null,
+      "movement": null,
+      "matchSource": "unmapped",
+      "matchedArtist": null
+    },
+    {
+      "name": "John Byam Liston Shaw",
+      "slug": "john-byam-liston-shaw",
+      "artworkCount": 2,
+      "artworkShare": 0.1,
+      "yearRange": {
+        "min": 1911,
+        "max": 1914
+      },
+      "nationality": null,
+      "movement": null,
+      "matchSource": "unmapped",
+      "matchedArtist": null
+    },
+    {
+      "name": "Keisai Eisen",
+      "slug": "keisai-eisen",
+      "artworkCount": 2,
+      "artworkShare": 0.1,
+      "yearRange": {
+        "min": 1830,
+        "max": 1830
+      },
+      "nationality": null,
+      "movement": null,
+      "matchSource": "unmapped",
+      "matchedArtist": null
+    },
+    {
+      "name": "Ma Yuan",
+      "slug": "ma-yuan",
+      "artworkCount": 2,
+      "artworkShare": 0.1,
+      "yearRange": {
+        "min": 1160,
+        "max": 1160
+      },
+      "nationality": null,
+      "movement": null,
+      "matchSource": "unmapped",
+      "matchedArtist": null
+    },
+    {
+      "name": "Paolo Uccello",
+      "slug": "paolo-uccello",
+      "artworkCount": 2,
+      "artworkShare": 0.1,
+      "yearRange": {
+        "min": 1438,
+        "max": 1470
+      },
+      "nationality": null,
+      "movement": null,
+      "matchSource": "unmapped",
+      "matchedArtist": null
+    },
+    {
+      "name": "Qian Xuan",
+      "slug": "qian-xuan",
+      "artworkCount": 2,
+      "artworkShare": 0.1,
+      "yearRange": {
+        "min": 1250,
+        "max": 1250
+      },
+      "nationality": null,
+      "movement": null,
+      "matchSource": "unmapped",
+      "matchedArtist": null
+    },
+    {
+      "name": "Sesshū Tōyō",
+      "slug": "sesshu-toyo",
+      "artworkCount": 2,
+      "artworkShare": 0.1,
+      "yearRange": {
+        "min": 1470,
+        "max": 1496
+      },
+      "nationality": null,
+      "movement": null,
+      "matchSource": "unmapped",
+      "matchedArtist": null
+    },
+    {
+      "name": "Tsuchiya Kōitsu",
+      "slug": "tsuchiya-koitsu",
+      "artworkCount": 2,
+      "artworkShare": 0.1,
+      "yearRange": {
+        "min": 1895,
+        "max": 1900
+      },
+      "nationality": null,
+      "movement": null,
+      "matchSource": "unmapped",
+      "matchedArtist": null
+    },
+    {
+      "name": "After Jacob Jordaens / Attributed to Remoldus Eynhoudt",
+      "slug": "after-jacob-jordaens-attributed-to-remoldus-eynhoudt",
+      "artworkCount": 1,
+      "artworkShare": 0,
+      "yearRange": {
+        "min": 1652,
+        "max": 1652
+      },
+      "nationality": null,
+      "movement": null,
+      "matchSource": "unmapped",
+      "matchedArtist": null
+    },
+    {
+      "name": "After Jacob Jordaens / Marinus Robyn van der Goes",
+      "slug": "after-jacob-jordaens-marinus-robyn-van-der-goes",
+      "artworkCount": 1,
+      "artworkShare": 0,
+      "yearRange": {
+        "min": 1630,
+        "max": 1630
+      },
+      "nationality": null,
+      "movement": null,
+      "matchSource": "unmapped",
+      "matchedArtist": null
+    },
+    {
+      "name": "Albrecht Altdorfer",
+      "slug": "albrecht-altdorfer",
+      "artworkCount": 1,
+      "artworkShare": 0,
+      "yearRange": {
+        "min": 1529,
+        "max": 1529
+      },
+      "nationality": null,
+      "movement": null,
+      "matchSource": "unmapped",
+      "matchedArtist": null
+    },
+    {
+      "name": "Attributed to Louis Le Nain / Antoine Le Nain",
+      "slug": "attributed-to-louis-le-nain-antoine-le-nain",
+      "artworkCount": 1,
+      "artworkShare": 0,
+      "yearRange": {
+        "min": 1642,
+        "max": 1642
+      },
+      "nationality": null,
+      "movement": null,
+      "matchSource": "unmapped",
+      "matchedArtist": null
+    },
+    {
+      "name": "Aubrey Beardsley",
+      "slug": "aubrey-beardsley",
+      "artworkCount": 1,
+      "artworkShare": 0,
+      "yearRange": {
+        "min": 1894,
+        "max": 1894
+      },
+      "nationality": null,
+      "movement": null,
+      "matchSource": "unmapped",
+      "matchedArtist": null
+    },
+    {
+      "name": "Charles Grignion the Younger",
+      "slug": "charles-grignion-the-younger",
+      "artworkCount": 1,
+      "artworkShare": 0,
+      "yearRange": {
+        "min": 1747,
+        "max": 1747
+      },
+      "nationality": null,
+      "movement": null,
+      "matchSource": "unmapped",
+      "matchedArtist": null
+    },
+    {
+      "name": "Chen Rong",
+      "slug": "chen-rong",
+      "artworkCount": 1,
+      "artworkShare": 0,
+      "yearRange": {
+        "min": 1244,
+        "max": 1244
+      },
+      "nationality": null,
+      "movement": null,
+      "matchSource": "unmapped",
+      "matchedArtist": null
+    },
+    {
+      "name": "Cornelis de Vos",
+      "slug": "cornelis-de-vos",
+      "artworkCount": 1,
+      "artworkShare": 0,
+      "yearRange": {
+        "min": 1650,
+        "max": 1650
+      },
+      "nationality": null,
+      "movement": null,
+      "matchSource": "unmapped",
+      "matchedArtist": null
+    },
+    {
+      "name": "Daniel Maclise",
+      "slug": "daniel-maclise",
+      "artworkCount": 1,
+      "artworkShare": 0,
+      "yearRange": {
+        "min": 1830,
+        "max": 1830
+      },
+      "nationality": null,
+      "movement": null,
+      "matchSource": "unmapped",
+      "matchedArtist": null
+    },
+    {
+      "name": "Dong Yuan",
+      "slug": "dong-yuan",
+      "artworkCount": 1,
+      "artworkShare": 0,
+      "yearRange": {
+        "min": 950,
+        "max": 950
+      },
+      "nationality": null,
+      "movement": null,
+      "matchSource": "unmapped",
+      "matchedArtist": null
+    },
+    {
+      "name": "Edmund Joseph Sullivan",
+      "slug": "edmund-joseph-sullivan",
+      "artworkCount": 1,
+      "artworkShare": 0,
+      "yearRange": {
+        "min": 1898,
+        "max": 1898
+      },
+      "nationality": null,
+      "movement": null,
+      "matchSource": "unmapped",
+      "matchedArtist": null
+    },
+    {
+      "name": "Eduard Magnus",
+      "slug": "eduard-magnus",
+      "artworkCount": 1,
+      "artworkShare": 0,
+      "yearRange": {
+        "min": 1836,
+        "max": 1836
+      },
+      "nationality": null,
+      "movement": null,
+      "matchSource": "unmapped",
+      "matchedArtist": null
+    },
+    {
+      "name": "Egbert van der Poel",
+      "slug": "egbert-van-der-poel",
+      "artworkCount": 1,
+      "artworkShare": 0,
+      "yearRange": {
+        "min": 1654,
+        "max": 1654
+      },
+      "nationality": null,
+      "movement": null,
+      "matchSource": "unmapped",
+      "matchedArtist": null
+    },
+    {
+      "name": "Emperor Huizong of Song",
+      "slug": "emperor-huizong-of-song",
+      "artworkCount": 1,
+      "artworkShare": 0,
+      "yearRange": {
+        "min": 1100,
+        "max": 1100
+      },
+      "nationality": null,
+      "movement": null,
+      "matchSource": "unmapped",
+      "matchedArtist": null
+    },
+    {
+      "name": "Erasmus Quellinus II",
+      "slug": "erasmus-quellinus-ii",
+      "artworkCount": 1,
+      "artworkShare": 0,
+      "yearRange": {
+        "min": 1635,
+        "max": 1635
+      },
+      "nationality": null,
+      "movement": null,
+      "matchSource": "unmapped",
+      "matchedArtist": null
+    },
+    {
+      "name": "Ernst Stückelberg",
+      "slug": "ernst-stuckelberg",
+      "artworkCount": 1,
+      "artworkShare": 0,
+      "yearRange": {
+        "min": 1897,
+        "max": 1897
+      },
+      "nationality": null,
+      "movement": null,
+      "matchSource": "unmapped",
+      "matchedArtist": null
+    },
+    {
+      "name": "Fan Kuan",
+      "slug": "fan-kuan",
+      "artworkCount": 1,
+      "artworkShare": 0,
+      "yearRange": {
+        "min": 1000,
+        "max": 1000
+      },
+      "nationality": null,
+      "movement": null,
+      "matchSource": "unmapped",
+      "matchedArtist": null
+    },
+    {
+      "name": "Félicien Rops",
+      "slug": "felicien-rops",
+      "artworkCount": 1,
+      "artworkShare": 0,
+      "yearRange": {
+        "min": 1878,
+        "max": 1878
+      },
+      "nationality": null,
+      "movement": null,
+      "matchSource": "unmapped",
+      "matchedArtist": null
+    },
+    {
+      "name": "Fernand Le Quesne",
+      "slug": "fernand-le-quesne",
+      "artworkCount": 1,
+      "artworkShare": 0,
+      "yearRange": {
+        "min": 1889,
+        "max": 1889
+      },
+      "nationality": null,
+      "movement": null,
+      "matchSource": "unmapped",
+      "matchedArtist": null
+    },
+    {
+      "name": "Follower of Rogier van der Weyden",
+      "slug": "follower-of-rogier-van-der-weyden",
+      "artworkCount": 1,
+      "artworkShare": 0,
+      "yearRange": {
+        "min": 1490,
+        "max": 1490
+      },
+      "nationality": null,
+      "movement": null,
+      "matchSource": "unmapped",
+      "matchedArtist": null
+    },
+    {
+      "name": "Franz Krüger",
+      "slug": "franz-kruger",
+      "artworkCount": 1,
+      "artworkShare": 0,
+      "yearRange": {
+        "min": 1824,
+        "max": 1824
+      },
+      "nationality": null,
+      "movement": null,
+      "matchSource": "unmapped",
+      "matchedArtist": null
+    },
+    {
+      "name": "Franz Marc",
+      "slug": "franz-marc",
+      "artworkCount": 1,
+      "artworkShare": 0,
+      "yearRange": {
+        "min": 1912,
+        "max": 1912
+      },
+      "nationality": null,
+      "movement": null,
+      "matchSource": "unmapped",
+      "matchedArtist": null
+    },
+    {
+      "name": "Gerard van Honthorst",
+      "slug": "gerard-van-honthorst",
+      "artworkCount": 1,
+      "artworkShare": 0,
+      "yearRange": {
+        "min": 1625,
+        "max": 1625
+      },
+      "nationality": null,
+      "movement": null,
+      "matchSource": "unmapped",
+      "matchedArtist": null
+    },
+    {
+      "name": "Giorgione",
+      "slug": "giorgione",
+      "artworkCount": 1,
+      "artworkShare": 0,
+      "yearRange": {
+        "min": 1503,
+        "max": 1503
+      },
+      "nationality": null,
+      "movement": null,
+      "matchSource": "unmapped",
+      "matchedArtist": null
+    },
+    {
+      "name": "Giovanni Baglione",
+      "slug": "giovanni-baglione",
+      "artworkCount": 1,
+      "artworkShare": 0,
+      "yearRange": {
+        "min": 1602,
+        "max": 1602
+      },
+      "nationality": null,
+      "movement": null,
+      "matchSource": "unmapped",
+      "matchedArtist": null
+    },
+    {
+      "name": "Giuseppe Bartolomeo Chiari",
+      "slug": "giuseppe-bartolomeo-chiari",
+      "artworkCount": 1,
+      "artworkShare": 0,
+      "yearRange": {
+        "min": 1700,
+        "max": 1700
+      },
+      "nationality": null,
+      "movement": null,
+      "matchSource": "unmapped",
+      "matchedArtist": null
+    },
+    {
+      "name": "Guercino",
+      "slug": "guercino",
+      "artworkCount": 1,
+      "artworkShare": 0,
+      "yearRange": {
+        "min": 1630,
+        "max": 1630
+      },
+      "nationality": null,
+      "movement": null,
+      "matchSource": "unmapped",
+      "matchedArtist": null
+    },
+    {
+      "name": "Guo Zhongshu",
+      "slug": "guo-zhongshu",
+      "artworkCount": 1,
+      "artworkShare": 0,
+      "yearRange": {
+        "min": 1279,
+        "max": 1279
+      },
+      "nationality": null,
+      "movement": null,
+      "matchSource": "unmapped",
+      "matchedArtist": null
+    },
+    {
+      "name": "Gustave Doré / Adam Cuerden",
+      "slug": "gustave-dore-adam-cuerden",
+      "artworkCount": 1,
+      "artworkShare": 0,
+      "yearRange": {
+        "min": 1866,
+        "max": 1866
+      },
+      "nationality": null,
+      "movement": null,
+      "matchSource": "unmapped",
+      "matchedArtist": null
+    },
+    {
+      "name": "Harada Naojirō",
+      "slug": "harada-naojiro",
+      "artworkCount": 1,
+      "artworkShare": 0,
+      "yearRange": {
+        "min": 1890,
+        "max": 1890
+      },
+      "nationality": null,
+      "movement": null,
+      "matchSource": "unmapped",
+      "matchedArtist": null
+    },
+    {
+      "name": "Hasegawa Tōhaku",
+      "slug": "hasegawa-tohaku",
+      "artworkCount": 1,
+      "artworkShare": 0,
+      "yearRange": {
+        "min": 1539,
+        "max": 1539
+      },
+      "nationality": null,
+      "movement": null,
+      "matchSource": "unmapped",
+      "matchedArtist": null
+    },
+    {
+      "name": "Hendrick Avercamp",
+      "slug": "hendrick-avercamp",
+      "artworkCount": 1,
+      "artworkShare": 0,
+      "yearRange": {
+        "min": 1615,
+        "max": 1615
+      },
+      "nationality": null,
+      "movement": null,
+      "matchSource": "unmapped",
+      "matchedArtist": null
+    },
+    {
+      "name": "Hendrik Martenszoon Sorgh",
+      "slug": "hendrik-martenszoon-sorgh",
+      "artworkCount": 1,
+      "artworkShare": 0,
+      "yearRange": {
+        "min": 1661,
+        "max": 1661
+      },
+      "nationality": null,
+      "movement": null,
+      "matchSource": "unmapped",
+      "matchedArtist": null
+    },
+    {
+      "name": "Henri Meunier",
+      "slug": "henri-meunier",
+      "artworkCount": 1,
+      "artworkShare": 0,
+      "yearRange": {
+        "min": 1897,
+        "max": 1897
+      },
+      "nationality": null,
+      "movement": null,
+      "matchSource": "unmapped",
+      "matchedArtist": null
+    },
+    {
+      "name": "Henri-Julien-Félix Rousseau",
+      "slug": "henri-julien-felix-rousseau",
+      "artworkCount": 1,
+      "artworkShare": 0,
+      "yearRange": {
+        "min": 1886,
+        "max": 1886
+      },
+      "nationality": null,
+      "movement": null,
+      "matchSource": "unmapped",
+      "matchedArtist": null
+    },
+    {
+      "name": "Henry Hoppner Meyer",
+      "slug": "henry-hoppner-meyer",
+      "artworkCount": 1,
+      "artworkShare": 0,
+      "yearRange": null,
+      "nationality": null,
+      "movement": null,
+      "matchSource": "unmapped",
+      "matchedArtist": null
+    },
+    {
+      "name": "Huian Kang",
+      "slug": "huian-kang",
+      "artworkCount": 1,
+      "artworkShare": 0,
+      "yearRange": {
+        "min": 1450,
+        "max": 1450
+      },
+      "nationality": null,
+      "movement": null,
+      "matchSource": "unmapped",
+      "matchedArtist": null
+    },
+    {
+      "name": "Ike no Taiga",
+      "slug": "ike-no-taiga",
+      "artworkCount": 1,
+      "artworkShare": 0,
+      "yearRange": {
+        "min": 1723,
+        "max": 1723
+      },
+      "nationality": null,
+      "movement": null,
+      "matchSource": "unmapped",
+      "matchedArtist": null
+    },
+    {
+      "name": "Illufant",
+      "slug": "illufant",
+      "artworkCount": 1,
+      "artworkShare": 0,
+      "yearRange": null,
+      "nationality": null,
+      "movement": null,
+      "matchSource": "unmapped",
+      "matchedArtist": null
+    },
+    {
+      "name": "Jan Cossiers",
+      "slug": "jan-cossiers",
+      "artworkCount": 1,
+      "artworkShare": 0,
+      "yearRange": {
+        "min": 1650,
+        "max": 1650
+      },
+      "nationality": null,
+      "movement": null,
+      "matchSource": "unmapped",
+      "matchedArtist": null
+    },
+    {
+      "name": "Jan Matsys",
+      "slug": "jan-matsys",
+      "artworkCount": 1,
+      "artworkShare": 0,
+      "yearRange": {
+        "min": 1566,
+        "max": 1566
+      },
+      "nationality": null,
+      "movement": null,
+      "matchSource": "unmapped",
+      "matchedArtist": null
+    },
+    {
+      "name": "Jean-Marc Pascolo",
+      "slug": "jean-marc-pascolo",
+      "artworkCount": 1,
+      "artworkShare": 0,
+      "yearRange": {
+        "min": 1849,
+        "max": 1849
+      },
+      "nationality": null,
+      "movement": null,
+      "matchSource": "unmapped",
+      "matchedArtist": null
+    },
+    {
+      "name": "Ji-Elle",
+      "slug": "ji-elle",
+      "artworkCount": 1,
+      "artworkShare": 0,
+      "yearRange": null,
+      "nationality": null,
+      "movement": null,
+      "matchSource": "unmapped",
+      "matchedArtist": null
+    },
+    {
+      "name": "Jl FilpoC",
+      "slug": "jl-filpoc",
+      "artworkCount": 1,
+      "artworkShare": 0,
+      "yearRange": null,
+      "nationality": null,
+      "movement": null,
+      "matchSource": "unmapped",
+      "matchedArtist": null
+    },
+    {
+      "name": "John Atkinson Grimshaw",
+      "slug": "john-atkinson-grimshaw",
+      "artworkCount": 1,
+      "artworkShare": 0,
+      "yearRange": {
+        "min": 1850,
+        "max": 1850
+      },
+      "nationality": null,
+      "movement": null,
+      "matchSource": "unmapped",
+      "matchedArtist": null
+    },
+    {
+      "name": "Kaigetsudō Ando",
+      "slug": "kaigetsudo-ando",
+      "artworkCount": 1,
+      "artworkShare": 0,
+      "yearRange": {
+        "min": 1705,
+        "max": 1705
+      },
+      "nationality": null,
+      "movement": null,
+      "matchSource": "unmapped",
+      "matchedArtist": null
+    },
+    {
+      "name": "Kanō Eitoku",
+      "slug": "kano-eitoku",
+      "artworkCount": 1,
+      "artworkShare": 0,
+      "yearRange": null,
+      "nationality": null,
+      "movement": null,
+      "matchSource": "unmapped",
+      "matchedArtist": null
+    },
+    {
+      "name": "Kano Hideyori",
+      "slug": "kano-hideyori",
+      "artworkCount": 1,
+      "artworkShare": 0,
+      "yearRange": {
+        "min": 1550,
+        "max": 1550
+      },
+      "nationality": null,
+      "movement": null,
+      "matchSource": "unmapped",
+      "matchedArtist": null
+    },
+    {
+      "name": "Kanō Sansetsu",
+      "slug": "kano-sansetsu",
+      "artworkCount": 1,
+      "artworkShare": 0,
+      "yearRange": {
+        "min": 1631,
+        "max": 1631
+      },
+      "nationality": null,
+      "movement": null,
+      "matchSource": "unmapped",
+      "matchedArtist": null
+    },
+    {
+      "name": "Kenkō Shōkei",
+      "slug": "kenko-shokei",
+      "artworkCount": 1,
+      "artworkShare": 0,
+      "yearRange": {
+        "min": 1520,
+        "max": 1520
+      },
+      "nationality": null,
+      "movement": null,
+      "matchSource": "unmapped",
+      "matchedArtist": null
+    },
+    {
+      "name": "Konrad Witz",
+      "slug": "konrad-witz",
+      "artworkCount": 1,
+      "artworkShare": 0,
+      "yearRange": {
+        "min": 1435,
+        "max": 1435
+      },
+      "nationality": null,
+      "movement": null,
+      "matchSource": "unmapped",
+      "matchedArtist": null
+    },
+    {
+      "name": "Kuroda Seiki",
+      "slug": "kuroda-seiki",
+      "artworkCount": 1,
+      "artworkShare": 0,
+      "yearRange": {
+        "min": 1897,
+        "max": 1897
+      },
+      "nationality": null,
+      "movement": null,
+      "matchSource": "unmapped",
+      "matchedArtist": null
+    },
+    {
+      "name": "Li Di",
+      "slug": "li-di",
+      "artworkCount": 1,
+      "artworkShare": 0,
+      "yearRange": null,
+      "nationality": null,
+      "movement": null,
+      "matchSource": "unmapped",
+      "matchedArtist": null
+    },
+    {
+      "name": "Li Shi",
+      "slug": "li-shi",
+      "artworkCount": 1,
+      "artworkShare": 0,
+      "yearRange": {
+        "min": 1150,
+        "max": 1150
+      },
+      "nationality": null,
+      "movement": null,
+      "matchSource": "unmapped",
+      "matchedArtist": null
+    },
+    {
+      "name": "Luca Signorelli",
+      "slug": "luca-signorelli",
+      "artworkCount": 1,
+      "artworkShare": 0,
+      "yearRange": {
+        "min": 1492,
+        "max": 1492
+      },
+      "nationality": null,
+      "movement": null,
+      "matchSource": "unmapped",
+      "matchedArtist": null
+    },
+    {
+      "name": "Marcantonio Raimondi",
+      "slug": "marcantonio-raimondi",
+      "artworkCount": 1,
+      "artworkShare": 0,
+      "yearRange": {
+        "min": 1515,
+        "max": 1515
+      },
+      "nationality": null,
+      "movement": null,
+      "matchSource": "unmapped",
+      "matchedArtist": null
+    },
+    {
+      "name": "Mary Stevenson Cassatt",
+      "slug": "mary-stevenson-cassatt",
+      "artworkCount": 1,
+      "artworkShare": 0,
+      "yearRange": {
+        "min": 1879,
+        "max": 1879
+      },
+      "nationality": null,
+      "movement": null,
+      "matchSource": "unmapped",
+      "matchedArtist": null
+    },
+    {
+      "name": "Matteo Ripa",
+      "slug": "matteo-ripa",
+      "artworkCount": 1,
+      "artworkShare": 0,
+      "yearRange": {
+        "min": 1711,
+        "max": 1711
+      },
+      "nationality": null,
+      "movement": null,
+      "matchSource": "unmapped",
+      "matchedArtist": null
+    },
+    {
+      "name": "Matthias Grünewald",
+      "slug": "matthias-grunewald",
+      "artworkCount": 1,
+      "artworkShare": 0,
+      "yearRange": {
+        "min": 1512,
+        "max": 1512
+      },
+      "nationality": null,
+      "movement": null,
+      "matchSource": "unmapped",
+      "matchedArtist": null
+    },
+    {
+      "name": "Michael Wolgemut",
+      "slug": "michael-wolgemut",
+      "artworkCount": 1,
+      "artworkShare": 0,
+      "yearRange": {
+        "min": 1440,
+        "max": 1440
+      },
+      "nationality": null,
+      "movement": null,
+      "matchSource": "unmapped",
+      "matchedArtist": null
+    },
+    {
+      "name": "Muqi",
+      "slug": "muqi",
+      "artworkCount": 1,
+      "artworkShare": 0,
+      "yearRange": {
+        "min": 1250,
+        "max": 1250
+      },
+      "nationality": null,
+      "movement": null,
+      "matchSource": "unmapped",
+      "matchedArtist": null
+    },
+    {
+      "name": "Ogata Kōrin",
+      "slug": "ogata-korin",
+      "artworkCount": 1,
+      "artworkShare": 0,
+      "yearRange": {
+        "min": 1716,
+        "max": 1716
+      },
+      "nationality": null,
+      "movement": null,
+      "matchSource": "unmapped",
+      "matchedArtist": null
+    },
+    {
+      "name": "Paolo Veronese / Formerly attributed to Francesco Montemezzano / Formerly attributed to Carlo Caliari",
+      "slug": "paolo-veronese-formerly-attributed-to-francesco-montemezzano-formerly-attributed-to-carlo-caliari",
+      "artworkCount": 1,
+      "artworkShare": 0,
+      "yearRange": {
+        "min": 1575,
+        "max": 1575
+      },
+      "nationality": null,
+      "movement": null,
+      "matchSource": "unmapped",
+      "matchedArtist": null
+    },
+    {
+      "name": "Paul Berthon",
+      "slug": "paul-berthon",
+      "artworkCount": 1,
+      "artworkShare": 0,
+      "yearRange": {
+        "min": 1897,
+        "max": 1897
+      },
+      "nationality": null,
+      "movement": null,
+      "matchSource": "unmapped",
+      "matchedArtist": null
+    },
+    {
+      "name": "Paul de Vos / Jan Wildens",
+      "slug": "paul-de-vos-jan-wildens",
+      "artworkCount": 1,
+      "artworkShare": 0,
+      "yearRange": null,
+      "nationality": null,
+      "movement": null,
+      "matchSource": "unmapped",
+      "matchedArtist": null
+    },
+    {
+      "name": "Paul de Vos / Possibly Cornelis de Vos",
+      "slug": "paul-de-vos-possibly-cornelis-de-vos",
+      "artworkCount": 1,
+      "artworkShare": 0,
+      "yearRange": {
+        "min": 1678,
+        "max": 1678
+      },
+      "nationality": null,
+      "movement": null,
+      "matchSource": "unmapped",
+      "matchedArtist": null
+    },
+    {
+      "name": "Pieter van Hanselaere",
+      "slug": "pieter-van-hanselaere",
+      "artworkCount": 1,
+      "artworkShare": 0,
+      "yearRange": {
+        "min": 1820,
+        "max": 1820
+      },
+      "nationality": null,
+      "movement": null,
+      "matchSource": "unmapped",
+      "matchedArtist": null
+    },
+    {
+      "name": "Possibly Lambert Sustris",
+      "slug": "possibly-lambert-sustris",
+      "artworkCount": 1,
+      "artworkShare": 0,
+      "yearRange": {
+        "min": 1570,
+        "max": 1570
+      },
+      "nationality": null,
+      "movement": null,
+      "matchSource": "unmapped",
+      "matchedArtist": null
+    },
+    {
+      "name": "Rudolf Weisse",
+      "slug": "rudolf-weisse",
+      "artworkCount": 1,
+      "artworkShare": 0,
+      "yearRange": {
+        "min": 1887,
+        "max": 1887
+      },
+      "nationality": null,
+      "movement": null,
+      "matchSource": "unmapped",
+      "matchedArtist": null
+    },
+    {
+      "name": "Sabine Lepsius",
+      "slug": "sabine-lepsius",
+      "artworkCount": 1,
+      "artworkShare": 0,
+      "yearRange": {
+        "min": 1885,
+        "max": 1885
+      },
+      "nationality": null,
+      "movement": null,
+      "matchSource": "unmapped",
+      "matchedArtist": null
+    },
+    {
+      "name": "Sharaku",
+      "slug": "sharaku",
+      "artworkCount": 1,
+      "artworkShare": 0,
+      "yearRange": {
+        "min": 1794,
+        "max": 1794
+      },
+      "nationality": null,
+      "movement": null,
+      "matchSource": "unmapped",
+      "matchedArtist": null
+    },
+    {
+      "name": "Shen Yuan",
+      "slug": "shen-yuan",
+      "artworkCount": 1,
+      "artworkShare": 0,
+      "yearRange": null,
+      "nationality": null,
+      "movement": null,
+      "matchSource": "unmapped",
+      "matchedArtist": null
+    },
+    {
+      "name": "Shen Zhou",
+      "slug": "shen-zhou",
+      "artworkCount": 1,
+      "artworkShare": 0,
+      "yearRange": {
+        "min": 1467,
+        "max": 1467
+      },
+      "nationality": null,
+      "movement": null,
+      "matchSource": "unmapped",
+      "matchedArtist": null
+    },
+    {
+      "name": "Shitao",
+      "slug": "shitao",
+      "artworkCount": 1,
+      "artworkShare": 0,
+      "yearRange": null,
+      "nationality": null,
+      "movement": null,
+      "matchSource": "unmapped",
+      "matchedArtist": null
+    },
+    {
+      "name": "Takiyasha_the_Witch_and_the_Skeleton_Spectre_1.jpg : Utagawa Kuniyoshi Takiyasha_the_Witch_and_the_Skeleton_Spectre_2.jpg : Utagawa Kuniyoshi Takiyasha_the_Witch_and_the_Skeleton_Spectre_3.jpg : Utagawa Kuniyoshi derivative work: Crisco 1492",
+      "slug": "takiyasha-the-witch-and-the-skeleton-spectre-1-jpg-utagawa-kuniyoshi-takiyasha-the-witch-and-the-skeleton-spectre-2-jpg-utagawa-kuniyoshi-takiyasha-the-witch-and-the-skeleton-spectre-3-jpg-utagawa-kuniyoshi-derivative-work-crisco-1492",
+      "artworkCount": 1,
+      "artworkShare": 0,
+      "yearRange": {
+        "min": 1844,
+        "max": 1844
+      },
+      "nationality": null,
+      "movement": null,
+      "matchSource": "unmapped",
+      "matchedArtist": null
+    },
+    {
+      "name": "Tawaraya Sotatsu",
+      "slug": "tawaraya-sotatsu",
+      "artworkCount": 1,
+      "artworkShare": 0,
+      "yearRange": {
+        "min": 1610,
+        "max": 1610
+      },
+      "nationality": null,
+      "movement": null,
+      "matchSource": "unmapped",
+      "matchedArtist": null
+    },
+    {
+      "name": "Thomas Willeboirts Bosschaert / Paul de Vos",
+      "slug": "thomas-willeboirts-bosschaert-paul-de-vos",
+      "artworkCount": 1,
+      "artworkShare": 0,
+      "yearRange": {
+        "min": 1650,
+        "max": 1650
+      },
+      "nationality": null,
+      "movement": null,
+      "matchSource": "unmapped",
+      "matchedArtist": null
+    },
+    {
+      "name": "Torii Kiyonaga",
+      "slug": "torii-kiyonaga",
+      "artworkCount": 1,
+      "artworkShare": 0,
+      "yearRange": {
+        "min": 1780,
+        "max": 1780
+      },
+      "nationality": null,
+      "movement": null,
+      "matchSource": "unmapped",
+      "matchedArtist": null
+    },
+    {
+      "name": "Torii Kiyonobu",
+      "slug": "torii-kiyonobu",
+      "artworkCount": 1,
+      "artworkShare": 0,
+      "yearRange": {
+        "min": 1714,
+        "max": 1714
+      },
+      "nationality": null,
+      "movement": null,
+      "matchSource": "unmapped",
+      "matchedArtist": null
+    },
+    {
+      "name": "Tsukioka Yoshitoshi",
+      "slug": "tsukioka-yoshitoshi",
+      "artworkCount": 1,
+      "artworkShare": 0,
+      "yearRange": {
+        "min": 1883,
+        "max": 1883
+      },
+      "nationality": null,
+      "movement": null,
+      "matchSource": "unmapped",
+      "matchedArtist": null
+    },
+    {
+      "name": "Vittore Carpaccio",
+      "slug": "vittore-carpaccio",
+      "artworkCount": 1,
+      "artworkShare": 0,
+      "yearRange": null,
+      "nationality": null,
+      "movement": null,
+      "matchSource": "unmapped",
+      "matchedArtist": null
+    },
+    {
+      "name": "Wang Gai",
+      "slug": "wang-gai",
+      "artworkCount": 1,
+      "artworkShare": 0,
+      "yearRange": {
+        "min": 1679,
+        "max": 1679
+      },
+      "nationality": null,
+      "movement": null,
+      "matchSource": "unmapped",
+      "matchedArtist": null
+    },
+    {
+      "name": "Wang Meng",
+      "slug": "wang-meng",
+      "artworkCount": 1,
+      "artworkShare": 0,
+      "yearRange": {
+        "min": 1366,
+        "max": 1366
+      },
+      "nationality": null,
+      "movement": null,
+      "matchSource": "unmapped",
+      "matchedArtist": null
+    },
+    {
+      "name": "Wilhelm Gentz",
+      "slug": "wilhelm-gentz",
+      "artworkCount": 1,
+      "artworkShare": 0,
+      "yearRange": {
+        "min": 1876,
+        "max": 1876
+      },
+      "nationality": null,
+      "movement": null,
+      "matchSource": "unmapped",
+      "matchedArtist": null
+    },
+    {
+      "name": "Wilhelm von Kaulbach",
+      "slug": "wilhelm-von-kaulbach",
+      "artworkCount": 1,
+      "artworkShare": 0,
+      "yearRange": {
+        "min": 1860,
+        "max": 1860
+      },
+      "nationality": null,
+      "movement": null,
+      "matchSource": "unmapped",
+      "matchedArtist": null
+    },
+    {
+      "name": "William Collins",
+      "slug": "william-collins",
+      "artworkCount": 1,
+      "artworkShare": 0,
+      "yearRange": {
+        "min": 1841,
+        "max": 1841
+      },
+      "nationality": null,
+      "movement": null,
+      "matchSource": "unmapped",
+      "matchedArtist": null
+    },
+    {
+      "name": "Workshop of Lucas Cranach the Elder",
+      "slug": "workshop-of-lucas-cranach-the-elder",
+      "artworkCount": 1,
+      "artworkShare": 0,
+      "yearRange": {
+        "min": 1530,
+        "max": 1530
+      },
+      "nationality": null,
+      "movement": null,
+      "matchSource": "unmapped",
+      "matchedArtist": null
+    },
+    {
+      "name": "Xia Gui",
+      "slug": "xia-gui",
+      "artworkCount": 1,
+      "artworkShare": 0,
+      "yearRange": {
+        "min": 1368,
+        "max": 1368
+      },
+      "nationality": null,
+      "movement": null,
+      "matchSource": "unmapped",
+      "matchedArtist": null
+    },
+    {
+      "name": "Yoshitoshi Tsukioka",
+      "slug": "yoshitoshi-tsukioka",
+      "artworkCount": 1,
+      "artworkShare": 0,
+      "yearRange": {
+        "min": 1885,
+        "max": 1885
+      },
+      "nationality": null,
+      "movement": null,
+      "matchSource": "unmapped",
+      "matchedArtist": null
+    },
+    {
+      "name": "Zhao Mengjian",
+      "slug": "zhao-mengjian",
+      "artworkCount": 1,
+      "artworkShare": 0,
+      "yearRange": null,
+      "nationality": null,
+      "movement": null,
+      "matchSource": "unmapped",
+      "matchedArtist": null
+    },
+    {
+      "name": "Նարե Մանուկյան",
+      "slug": "",
+      "artworkCount": 1,
+      "artworkShare": 0,
+      "yearRange": {
+        "min": 1905,
+        "max": 1905
+      },
+      "nationality": null,
+      "movement": null,
+      "matchSource": "unmapped",
+      "matchedArtist": null
+    },
+    {
+      "name": "俵屋宗達",
+      "slug": "",
+      "artworkCount": 1,
+      "artworkShare": 0,
+      "yearRange": {
+        "min": 1650,
+        "max": 1650
+      },
+      "nationality": null,
+      "movement": null,
+      "matchSource": "unmapped",
+      "matchedArtist": null
+    },
+    {
+      "name": "歌川国芳",
+      "slug": "",
+      "artworkCount": 1,
+      "artworkShare": 0,
+      "yearRange": {
+        "min": 1850,
+        "max": 1850
+      },
+      "nationality": null,
+      "movement": null,
+      "matchSource": "unmapped",
+      "matchedArtist": null
+    }
+  ]
+}
