@@ -1,4 +1,5 @@
 import { type NextRequest, NextResponse } from "next/server";
+import { resolveConfirmHero } from "@/lib/newsletter/confirmation-cover";
 import {
   checkRateLimit,
   isAlreadySubscribed,
@@ -7,7 +8,7 @@ import {
   sendConfirmationEmail,
 } from "@/lib/newsletter/subscribe";
 
-// Hits Mailgun + does work outside the static-export world, so this must
+// Hits ListMonk + does work outside the static-export world, so this must
 // run on Node and never get cached.
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -88,9 +89,17 @@ export async function POST(request: NextRequest) {
   const token = mintConfirmToken(email);
   const siteUrl = getSiteUrl(request).replace(/\/$/, "");
   const confirmUrl = `${siteUrl}/api/newsletter/confirm?token=${encodeURIComponent(token)}`;
+  const hero = resolveConfirmHero(siteUrl);
 
   try {
-    await sendConfirmationEmail({ to: email, confirmUrl });
+    await sendConfirmationEmail({
+      to: email,
+      confirmUrl,
+      heroImageUrl: hero.imageUrl,
+      heroArtworkUrl: hero.artworkUrl,
+      heroCaption: hero.caption,
+      heroAlt: hero.alt,
+    });
   } catch (err) {
     log("error", "send_confirmation_failed", { ip, message: (err as Error).message });
     return NextResponse.json(

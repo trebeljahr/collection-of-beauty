@@ -1,8 +1,12 @@
 import { type NextRequest, NextResponse } from "next/server";
 import { loadPublishedEditions } from "@/lib/newsletter/editions";
-import { sendDigest } from "@/lib/newsletter/mailgun";
+import { sendTransactional } from "@/lib/newsletter/listmonk";
 import { renderEdition } from "@/lib/newsletter/render";
-import { addListMember, isAlreadySubscribed, verifyConfirmToken } from "@/lib/newsletter/subscribe";
+import {
+  confirmSubscription,
+  isAlreadySubscribed,
+  verifyConfirmToken,
+} from "@/lib/newsletter/subscribe";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -23,20 +27,28 @@ function getSiteUrl(request: NextRequest): string {
  * that just finished double opt-in. Gives the new subscriber an
  * immediate look at what an issue actually feels like in their inbox.
  *
- * Throws are swallowed by the caller — if Mailgun blips here, the
- * confirmation has already succeeded; we don't want to bounce the user
- * to the error page over a "welcome bonus" failure.
+ * Goes through ListMonk's transactional API rather than a one-off
+ * campaign — the tx wrapper template provides the unsubscribe footer,
+ * so we render the digest body with `unsubscribeMode: "tx-template"`
+ * to suppress the in-body unsub block.
+ *
+ * Throws are swallowed by the caller — if the send blips here, the
+ * confirmation has already succeeded; no point bouncing the user to the
+ * error page over a "welcome bonus" failure.
  */
 async function sendWelcomeIssue(email: string, siteUrl: string): Promise<boolean> {
   const editions = loadPublishedEditions();
   if (editions.length === 0) return false;
   const latest = editions[editions.length - 1];
-  const rendered = await renderEdition({ edition: latest, siteUrl });
-  await sendDigest({
+  const rendered = await renderEdition({
+    edition: latest,
+    siteUrl,
+    unsubscribeMode: "tx-template",
+  });
+  await sendTransactional({
+    to: email,
     subject: `Welcome — ${rendered.subject}`,
     html: rendered.html,
-    text: rendered.text,
-    to: email,
   });
   log("info", "welcome_sent", { edition: latest.fileSlug });
   return true;
@@ -62,7 +74,7 @@ export async function GET(request: NextRequest) {
   const alreadyConfirmed = await isAlreadySubscribed(result.email);
 
   try {
-    await addListMember(result.email, true);
+    await confirmSubscription(result.email);
   } catch (err) {
     log("error", "list_add_failed", { message: (err as Error).message });
     return NextResponse.redirect(`${siteUrl}/sub/error?reason=list_add_failed`, { status: 303 });

@@ -60,10 +60,21 @@ export function resolveEditionArtworks(
 export type RenderEditionInput = {
   edition: Edition;
   siteUrl: string;
+  /**
+   * Where the unsubscribe link comes from in the final email.
+   *
+   *   - `"listmonk-campaign"` (default): emit ListMonk's `{{ UnsubscribeURL }}`
+   *     placeholder inline. ListMonk's Go template engine substitutes it
+   *     per recipient when the campaign body is rendered for delivery.
+   *   - `"tx-template"`: omit the in-body unsubscribe block entirely. The
+   *     ListMonk transactional template that wraps `{{ .Tx.Data.body }}`
+   *     is expected to render its own unsubscribe footer.
+   */
+  unsubscribeMode?: "listmonk-campaign" | "tx-template";
 };
 
 export async function renderEdition(input: RenderEditionInput): Promise<RenderedEdition> {
-  const { edition, siteUrl } = input;
+  const { edition, siteUrl, unsubscribeMode = "listmonk-campaign" } = input;
   const resolved = resolveEditionArtworks(edition);
   const digestArtworks = resolved.map((r) => toDigestArtwork(r.artwork, r.note, siteUrl));
   const introHtml = edition.body.length > 0 ? await markdownToHtml(edition.body) : "";
@@ -79,6 +90,9 @@ export async function renderEdition(input: RenderEditionInput): Promise<Rendered
     artworks: digestArtworks,
     siteUrl,
     archiveUrl,
+    // Default prop is the ListMonk placeholder; setting `null` removes
+    // the block entirely (the tx template wraps with its own footer).
+    unsubscribeUrl: unsubscribeMode === "tx-template" ? null : undefined,
   };
 
   const element = createElement(WeeklyDigest, props);

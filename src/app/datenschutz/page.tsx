@@ -97,48 +97,62 @@ export default function DatenschutzPage() {
           <h2 className="font-serif text-xl md:text-2xl">Newsletter</h2>
           <p className="mt-2 text-[var(--muted-foreground)]">
             Die Website bietet einen wöchentlichen E-Mail-Newsletter mit fünf Werken aus der
-            Sammlung an. Die Verteilerliste wird über Mailgun (betrieben von Sinch Email, Inc., USA)
-            verwaltet, einem E-Mail-Versanddienst. Zur Anmeldung geben Sie Ihre E-Mail-Adresse an;
-            dies ist die einzige personenbezogene Information, die für den Newsletter gespeichert
-            wird.
+            Sammlung an. Die Verteilerliste wird in einer vom Verantwortlichen selbst betriebenen
+            Instanz der quelloffenen Software{" "}
+            <a
+              href="https://listmonk.app/"
+              className="underline hover:text-[var(--foreground)]"
+              rel="noopener noreferrer"
+              target="_blank"
+            >
+              ListMonk
+            </a>{" "}
+            geführt, die auf einem Server in der Europäischen Union läuft. Der eigentliche Versand
+            an Ihr Postfach erfolgt über Amazon Web Services Simple Email Service in der Region
+            eu-west-1 (Irland). Zur Anmeldung geben Sie Ihre E-Mail-Adresse an; dies ist die einzige
+            personenbezogene Information, die für den Newsletter gespeichert wird.
           </p>
           <p className="mt-2 text-[var(--muted-foreground)]">
             Rechtsgrundlage: Art. 6 Abs. 1 lit. a DSGVO — Ihre ausdrückliche Einwilligung bei der
-            Anmeldung. Die Einwilligung wird von Mailgun zusammen mit Zeitstempel und IP-Adresse
-            protokolliert. Sie können Ihre Einwilligung jederzeit mit Wirkung für die Zukunft
-            widerrufen, indem Sie den Abmeldelink in jeder Ausgabe nutzen oder eine E-Mail an{" "}
+            Anmeldung. Die Einwilligung wird im Double-Opt-In-Verfahren eingeholt: Sie geben Ihre
+            Adresse ein, erhalten eine Bestätigungs-E-Mail und erst nach Klick auf den darin
+            enthaltenen Link wird Ihre Adresse als bestätigtes Listenmitglied markiert. Der
+            Anmeldezeitpunkt wird in ListMonk protokolliert; Ihre IP-Adresse wird ausschließlich vom
+            Rate Limiter für das konfigurierte Zeitfenster (derzeit 60 Sekunden) verarbeitet und
+            anschließend verworfen. Sie können Ihre Einwilligung jederzeit mit Wirkung für die
+            Zukunft widerrufen, indem Sie den Abmeldelink in jeder Ausgabe nutzen oder eine E-Mail
+            an{" "}
             <a
               href={`mailto:${CONTACT_EMAIL}`}
               className="underline hover:text-[var(--foreground)]"
             >
               {CONTACT_EMAIL}
             </a>{" "}
-            schreiben. Nach der Abmeldung wird Ihre Adresse aus dem aktiven Verteiler entfernt;
-            Mailgun kann einen Sperrvermerk (die gehashte Adresse mit Abmelde-Status) dauerhaft
-            speichern, um zukünftige Sendungen zu unterbinden.
+            schreiben. Nach der Abmeldung wird Ihre Adresse in ListMonk in den Status „abgemeldet"
+            überführt, sodass keine weiteren Ausgaben mehr zugestellt werden.
           </p>
           <p className="mt-2 text-[var(--muted-foreground)]">
-            Die E-Mail selbst enthält einen Zählpixel und umgeschriebene Links, sodass Mailgun
-            Öffnungs- und Klickzahlen pro Ausgabe an den Betreiber meldet. Diese Kennzahlen dienen
-            ausschließlich der Feststellung, ob der Newsletter ankommt und gelesen wird; es werden
-            keine Profile gebildet und die Daten werden weder für Werbung verwendet noch an Dritte
-            weitergegeben. Wenn Sie diese Messung nicht wünschen, unterdrücken Sie den Zählpixel
-            über die Einstellung „Externe Bilder blockieren" in Ihrem E-Mail-Programm; der
-            Abmeldelink funktioniert auch ohne Klick-Tracking.
+            Die E-Mail selbst enthält einen Zählpixel und umgeschriebene Links, sodass ListMonk
+            Öffnungs- und Klickzahlen pro Ausgabe meldet. Diese Kennzahlen dienen ausschließlich der
+            Feststellung, ob der Newsletter ankommt und gelesen wird; es werden keine Profile
+            gebildet und die Daten werden nicht an Dritte weitergegeben. Wenn Sie diese Messung
+            nicht wünschen, unterdrücken Sie den Zählpixel über die Einstellung „Externe Bilder
+            blockieren" in Ihrem E-Mail-Programm; der Abmeldelink funktioniert auch ohne
+            Klick-Tracking.
           </p>
         </div>
 
         <div>
           <h2 className="font-serif text-xl md:text-2xl">Übermittlung in Drittländer</h2>
           <p className="mt-2 text-[var(--muted-foreground)]">
-            Sinch Email, Inc. (Mailgun) ist in den Vereinigten Staaten ansässig. Der Versand des
-            Newsletters umfasst daher eine Übermittlung Ihrer E-Mail-Adresse (und der oben
-            beschriebenen Engagement-Daten) in ein Drittland im Sinne von Kapitel V DSGVO. Die
-            Übermittlung erfolgt auf Grundlage der EU-Standardvertragsklauseln (Art. 46 Abs. 2 lit.
-            c DSGVO), die mit dem Auftragsverarbeiter abgeschlossen wurden. Das US-amerikanische
-            Rechtssystem ermöglicht behördliche Zugriffe auf personenbezogene Daten, die nach
-            EU-Recht nicht erfolgen würden; die unten genannten Rechte stehen Ihnen unabhängig vom
-            Verarbeitungsort zu.
+            ListMonk wird vom Verantwortlichen auf EU-Infrastruktur betrieben; eine Drittlands­
+            übermittlung findet hierfür nicht statt. Die Zustellung der E-Mails erfolgt über Amazon
+            Web Services EMEA SARL mit Sitz in Luxemburg in der Region eu-west-1 (Irland). Die
+            Konzernmutter ist in den Vereinigten Staaten ansässig; ein Zugriff durch US-Behörden
+            nach dortigem Recht kann daher nicht vollständig ausgeschlossen werden. Mit AWS EMEA
+            sind die EU-Standardvertragsklauseln (Art. 46 Abs. 2 lit. c DSGVO) abgeschlossen; AWS
+            ergänzt diese durch technische Maßnahmen wie Transport- und Ruheverschlüsselung. Die
+            unten genannten Rechte stehen Ihnen unabhängig vom Verarbeitungsort zu.
           </p>
           <p className="mt-2 text-[var(--muted-foreground)]">
             Weitere Übermittlungen in Drittländer finden nicht statt. Plausible läuft auf
@@ -158,8 +172,10 @@ export default function DatenschutzPage() {
               personenbezogener Datensatz.
             </li>
             <li>
-              Newsletter-Adresse: bis zur Abmeldung. Sperrvermerke bei Mailgun können dauerhaft
-              gespeichert werden, um nach einem Widerruf erneute Zusendungen zu verhindern.
+              Newsletter-Adresse: bis zur Abmeldung. Abgemeldete Einträge bleiben in ListMonk als
+              Sperrvermerk erhalten, damit nach einem Widerruf keine erneute Zustellung erfolgt;
+              eine vollständige Löschung kann jederzeit unter der oben genannten Adresse verlangt
+              werden.
             </li>
           </ul>
         </div>

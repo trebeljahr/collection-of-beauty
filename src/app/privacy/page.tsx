@@ -95,45 +95,58 @@ export default function PrivacyPage() {
           <h2 className="font-serif text-xl md:text-2xl">Newsletter — A Drop of Beauty</h2>
           <p className="mt-2 text-[var(--muted-foreground)]">
             The site offers a weekly email digest, <em>A Drop of Beauty</em>, of five artworks from
-            the collection. The mailing list is managed by Mailgun (operated by Sinch Email, Inc.,
-            United States), an email-delivery service. To subscribe you provide your email address;
-            this is the only personal datum stored for the newsletter.
+            the collection. The mailing list is stored in a self-hosted{" "}
+            <a
+              href="https://listmonk.app/"
+              className="underline hover:text-[var(--foreground)]"
+              rel="noopener noreferrer"
+              target="_blank"
+            >
+              ListMonk
+            </a>{" "}
+            instance running on the controller's own server in the European Union, and delivered to
+            inboxes via Amazon Web Services Simple Email Service in the eu-west-1 (Ireland) region.
+            To subscribe you provide your email address; this is the only personal datum stored for
+            the newsletter.
           </p>
           <p className="mt-2 text-[var(--muted-foreground)]">
             Legal basis: Art. 6(1)(a) GDPR — your explicit consent given at subscription. Consent is
-            recorded by Mailgun with the subscription timestamp and IP. You may withdraw consent at
-            any time, with effect for the future, by using the unsubscribe link in every issue or by
-            emailing{" "}
+            captured under a double opt-in flow: you enter your address, receive a confirmation
+            email, and only after clicking the confirmation link is the address marked as a
+            confirmed list member. The subscription timestamp is logged by ListMonk; the originating
+            IP address is held only by the rate limiter for the configured window (currently 60
+            seconds) and then discarded. You may withdraw consent at any time, with effect for the
+            future, by using the unsubscribe link in every issue or by emailing{" "}
             <a
               href={`mailto:${CONTACT_EMAIL}`}
               className="underline hover:text-[var(--foreground)]"
             >
               {CONTACT_EMAIL}
             </a>
-            . After you unsubscribe, your address is removed from the active list; Mailgun may keep
-            a suppression record (the hashed address marked as unsubscribed) to honour your opt-out
-            on future sends.
+            . After you unsubscribe, your address is moved to the unsubscribed bucket inside
+            ListMonk so that no further issues are sent to you.
           </p>
           <p className="mt-2 text-[var(--muted-foreground)]">
-            The email content itself contains a tracking pixel and rewritten links, so that Mailgun
-            reports per-issue open and click counts to the operator. These metrics are used solely
-            to assess whether the newsletter is being received and read; no profiles are built and
-            the data is not used for advertising or shared with third parties. If you do not wish to
-            be measured this way, your email client's "block remote images" setting suppresses the
-            open pixel, and the unsubscribe link works without click tracking.
+            The email content itself contains a tracking pixel and rewritten links, so that ListMonk
+            reports per-issue open and click counts. These metrics are used solely to assess whether
+            the newsletter is being received and read; no profiles are built and the data is not
+            shared with third parties. If you do not wish to be measured this way, your email
+            client's "block remote images" setting suppresses the open pixel, and the unsubscribe
+            link works without click tracking.
           </p>
         </div>
 
         <div>
           <h2 className="font-serif text-xl md:text-2xl">Transfers to Third Countries</h2>
           <p className="mt-2 text-[var(--muted-foreground)]">
-            Sinch Email, Inc. (Mailgun) is established in the United States. Sending the newsletter
-            therefore involves a transfer of your email address (and the engagement metrics
-            described above) to a third country within the meaning of Chapter V GDPR. The transfer
-            is covered by the EU Standard Contractual Clauses (Art. 46(2)(c) GDPR) concluded with
-            the processor. The U.S. legal environment may permit government access to personal data
-            that would not occur under EU law; you have the rights set out below regardless of where
-            the data is processed.
+            ListMonk is operated by the controller on EU infrastructure and does not involve a
+            third-country transfer. Email delivery is handed off to Amazon Web Services EMEA SARL,
+            Luxembourg, which processes the dispatch in its eu-west-1 (Ireland) region. AWS EMEA's
+            parent company is established in the United States; access by U.S. authorities under
+            applicable U.S. law cannot be fully excluded. The data exporter and AWS EMEA have
+            concluded the EU Standard Contractual Clauses (Art. 46(2)(c) GDPR) and AWS applies
+            supplementary technical measures, including encryption in transit and at rest. You have
+            the rights set out below regardless of where the data is processed.
           </p>
           <p className="mt-2 text-[var(--muted-foreground)]">
             No other transfers to third countries take place. Plausible runs on EU infrastructure
@@ -150,8 +163,9 @@ export default function PrivacyPage() {
             </li>
             <li>Plausible event data: aggregate counters only; no per-visitor record exists.</li>
             <li>
-              Newsletter address: retained until you unsubscribe. Mailgun suppression records may be
-              kept indefinitely to prevent re-mailing after opt-out.
+              Newsletter address: retained until you unsubscribe. Unsubscribed entries are kept in
+              ListMonk as a suppression record so that re-mailing does not happen after opt-out; you
+              may request full deletion by emailing the address above.
             </li>
           </ul>
         </div>

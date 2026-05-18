@@ -1,10 +1,13 @@
 import { createHmac, timingSafeEqual } from "node:crypto";
 import { render } from "@react-email/render";
-import formData from "form-data";
-import Mailgun from "mailgun.js";
 import { createElement } from "react";
 import ConfirmSubscription from "../../../emails/confirm-subscription";
-import { resolveListAddress } from "./mailgun";
+import {
+  isConfirmedOnList,
+  confirmSubscription as listmonkConfirm,
+  sendTransactional,
+  upsertSubscriber,
+} from "./listmonk";
 
 // Confirmation tokens are valid for 21 days. Long enough that an email
 // sitting in a vacation inbox still works on return, short enough that
@@ -79,87 +82,77 @@ export function normalizeEmail(raw: unknown): string | null {
   return trimmed;
 }
 
-function required(name: string): string {
-  const v = process.env[name];
-  if (!v) throw new Error(`Missing required env var: ${name}`);
-  return v;
-}
-
-function getClient() {
-  const mg = new Mailgun(formData);
-  return mg.client({
-    username: "api",
-    key: required("MAILGUN_API_KEY"),
-    url: process.env.MAILGUN_API_URL ?? "https://api.mailgun.net",
-  });
-}
-
 /**
- * Add (or upsert) a member to the configured Mailgun mailing list. We use
- * upsert=yes so re-confirming an existing address is a no-op rather than
- * an error, and `subscribed` defaults to true since this only runs after
- * the user clicked the confirmation link.
+ * Adds (or upserts) the subscriber on the configured ListMonk list with
+ * the given subscription status. Re-exported under the historical
+ * `addListMember` name so existing call sites in the API routes stay
+ * tidy.
  */
-export async function addListMember(email: string, subscribed: boolean = true): Promise<void> {
-  const client = getClient();
-  const listAddress = resolveListAddress();
-  await client.lists.members.createMember(listAddress, {
-    address: email,
-    subscribed,
-    upsert: "yes",
-  });
+export async function addListMember(email: string, confirmed: boolean = true): Promise<void> {
+  await upsertSubscriber(email, confirmed ? "confirmed" : "unconfirmed");
 }
 
 /**
- * Returns `true` when the email is already a confirmed (`subscribed`)
- * member of the list. Used by the subscribe endpoint to short-circuit
- * and skip the confirmation send for repeat signups.
+ * `true` when the address is already a confirmed member of the
+ * environment-resolved list. Used by the subscribe endpoint to
+ * short-circuit and skip the confirmation send for repeat signups.
  *
- * Returns `false` on any error (member not found, network blip, etc.) —
- * the caller falls through to the normal "send a confirmation" path,
- * which is the right thing to do. Mailgun's `upsert: "yes"` makes the
- * downstream add idempotent.
+ * Swallows network errors and returns `false` so a ListMonk hiccup
+ * falls through to the normal send-confirmation path rather than 500ing
+ * the public form.
  */
 export async function isAlreadySubscribed(email: string): Promise<boolean> {
   try {
-    const client = getClient();
-    const listAddress = resolveListAddress();
-    const member = await client.lists.members.getMember(listAddress, email);
-    return Boolean(member.subscribed);
+    return await isConfirmedOnList(email);
   } catch {
     return false;
   }
 }
 
-export async function sendConfirmationEmail(params: {
+export type SendConfirmationEmailParams = {
   to: string;
   confirmUrl: string;
-}): Promise<void> {
-  const client = getClient();
-  const domain = required("MAILGUN_DOMAIN");
-  const from = required("MAILGUN_FROM");
+  /** Public URL of the cover artwork shown in the email header. */
+  heroImageUrl: string;
+  /** Permalink to the artwork's detail page on the site. */
+  heroArtworkUrl: string;
+  /** Short caption shown under the hero image. */
+  heroCaption: string;
+  /** Alt text — read by screen readers and shown when images are off. */
+  heroAlt: string;
+};
 
-  const element = createElement(ConfirmSubscription, { confirmUrl: params.confirmUrl });
-  const [html, text] = await Promise.all([render(element), render(element, { plainText: true })]);
+export async function sendConfirmationEmail(params: SendConfirmationEmailParams): Promise<void> {
+  // The recipient must exist as a ListMonk subscriber before /api/tx
+  // will accept the send. Create them as `unconfirmed` so they show up
+  // in the admin UI even if they never click the confirmation link.
+  await upsertSubscriber(params.to, "unconfirmed");
 
-  await client.messages.create(domain, {
-    from,
+  const element = createElement(ConfirmSubscription, {
+    confirmUrl: params.confirmUrl,
+    heroImageUrl: params.heroImageUrl,
+    heroArtworkUrl: params.heroArtworkUrl,
+    heroCaption: params.heroCaption,
+    heroAlt: params.heroAlt,
+  });
+  const html = await render(element);
+
+  await sendTransactional({
     to: params.to,
     subject: "Confirm your subscription · A Drop of Beauty",
     html,
-    text,
-    "o:tracking": "no",
-    "o:tracking-clicks": "no",
-    "o:tracking-opens": "no",
   });
 }
+
+/** Thin re-export so route code can stay close to its previous shape. */
+export { listmonkConfirm as confirmSubscription };
 
 // ────────────────────────────────────────────────────────────────────────────
 // Rate limiter — per-IP, sliding window, in-memory.
 //
 // This intentionally resets on container restart. Subscribe is a low-volume
 // endpoint (~one POST per legitimate user, ever) and the worst-case after a
-// restart is a small spam burst that ends at the Mailgun layer (dedupe via
+// restart is a small spam burst that ends at the ListMonk layer (dedupe via
 // upsert) anyway. A real shared store would be overkill.
 // ────────────────────────────────────────────────────────────────────────────
 
