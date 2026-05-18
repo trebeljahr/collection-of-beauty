@@ -80,22 +80,25 @@ required by the Dockerfile — don't remove it.
   flow, then calls `pnpm newsletter:draft <theme-slug>` to scaffold
   the file. The file lands with `draft: true` — flip it after editing.
 - **Sending**: CLI only. `pnpm newsletter:send <slug>` is a dry-run.
-  `pnpm newsletter:send <slug> --confirm` sends to `MAILGUN_TEST_LIST`
-  by default and only hits `MAILGUN_LIST` when invoked as
+  `pnpm newsletter:send <slug> --confirm` sends via ListMonk's campaign
+  API to `LISTMONK_TEST_LIST_ID` by default and only hits
+  `LISTMONK_LIST_ID` when invoked as
   `NODE_ENV=production pnpm newsletter:send <slug> --confirm`. The
   destination list is decided by `NODE_ENV`, not by a flag. No API
   route, no cron job. Sending requires `.env.local` decrypted on the
   user's machine.
-- **Mailgun setup**: this project must use its own Mailgun sending
-  subdomain and lists (e.g. `mg.beauty.trebeljahr.com`), distinct from
-  `ricos.site`/`newsletter.trebeljahr.com`. Required env vars:
-  `MAILGUN_API_KEY`, `MAILGUN_DOMAIN`, `MAILGUN_FROM`, `MAILGUN_LIST`
-  (live), `MAILGUN_TEST_LIST` (your address only), and `MAILGUN_API_URL`
-  if the domain is on Mailgun EU. The subscribe/confirm API routes pick
-  the same list via `resolveListAddress()` in
-  `src/lib/newsletter/mailgun.ts` — production deployment env must set
-  `NODE_ENV=production` (Next does this for you) so signups land in
-  `MAILGUN_LIST`.
+- **ListMonk + SES setup**: subscriber storage + dispatch live in a
+  self-hosted ListMonk instance configured to deliver via Amazon SES
+  SMTP. The app talks to ListMonk over HTTP; SES credentials live
+  inside ListMonk's settings, not in `.env`. Required env vars:
+  `LISTMONK_URL`, `LISTMONK_API_USER`, `LISTMONK_API_TOKEN`,
+  `LISTMONK_LIST_ID`, `LISTMONK_TEST_LIST_ID`,
+  `LISTMONK_TX_TEMPLATE_ID`, `LISTMONK_CAMPAIGN_TEMPLATE_ID`,
+  `LISTMONK_FROM`. List-id selection lives in `resolveListId()` in
+  `src/lib/newsletter/listmonk.ts` — production deployment env must
+  set `NODE_ENV=production` (Next does this for you) so signups land
+  in `LISTMONK_LIST_ID`. One-time admin steps (template bodies, list
+  creation, API user) are documented in `.env.example`.
 - The public archive lives at `/newsletter` (index) and
   `/newsletter/<slug>` (per-edition magazine-style page). Both are
   in the sitemap. Drafts never reach the public surface.

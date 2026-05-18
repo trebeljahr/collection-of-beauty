@@ -25,7 +25,7 @@ function looksLikeEmail(value: string): boolean {
 export function SubscribeForm() {
   const [email, setEmail] = useState("");
   // Honeypot — wired but never shown to the user. Bots that fill every
-  // input get filtered server-side before any Mailgun call.
+  // input get filtered server-side before any ListMonk call.
   const [website, setWebsite] = useState("");
   const [status, setStatus] = useState<Status>({ kind: "idle" });
   // Inline validation error, surfaced on blur. Kept separate from a

@@ -43,13 +43,20 @@ export type WeeklyDigestProps = {
   /** Permalink to the public archive page for this edition. */
   archiveUrl: string;
   /**
-   * Literal Mailgun variable for the per-recipient unsubscribe URL. Kept
-   * as a templated string so Mailgun substitutes per recipient.
+   * Literal ListMonk variable for the per-recipient unsubscribe URL.
+   * Kept as a templated string so ListMonk substitutes per recipient
+   * when it renders the campaign body for delivery. Pass `null` to omit
+   * the unsubscribe block entirely — used when the email is sent
+   * through a ListMonk transactional template that injects its own
+   * unsubscribe footer.
    */
-  unsubscribeUrl?: string;
+  unsubscribeUrl?: string | null;
 };
 
-const MAILGUN_UNSUBSCRIBE_TOKEN = "%mailing_list_unsubscribe_url%";
+// ListMonk substitutes this in the rendered campaign body (Go template
+// engine). The double-brace literal stays verbatim in the HTML we hand
+// off, and ListMonk swaps it for the recipient's signed unsub URL.
+const LISTMONK_UNSUBSCRIBE_TOKEN = "{{ UnsubscribeURL }}";
 
 export default function WeeklyDigest({
   issueNumber = 1,
@@ -59,7 +66,7 @@ export default function WeeklyDigest({
   artworks = PREVIEW_ARTWORKS,
   siteUrl = "https://example.com",
   archiveUrl = "https://example.com/newsletter/0001-preview",
-  unsubscribeUrl = MAILGUN_UNSUBSCRIBE_TOKEN,
+  unsubscribeUrl = LISTMONK_UNSUBSCRIBE_TOKEN,
 }: WeeklyDigestProps) {
   const previewText =
     artworks.length > 0
@@ -148,17 +155,19 @@ export default function WeeklyDigest({
                   Browse the full gallery
                 </Link>
               </Text>
-              <Text className="mt-6 text-xs leading-relaxed text-stone-500">
-                You&apos;re receiving this because you subscribed to <em>A Drop of Beauty</em>, the
-                Collection of Beauty newsletter.
-                <br />
-                <Link
-                  href={unsubscribeUrl}
-                  className="text-stone-500 underline decoration-stone-300 underline-offset-2"
-                >
-                  Unsubscribe
-                </Link>
-              </Text>
+              {unsubscribeUrl !== null && (
+                <Text className="mt-6 text-xs leading-relaxed text-stone-500">
+                  You&apos;re receiving this because you subscribed to <em>A Drop of Beauty</em>,
+                  the Collection of Beauty newsletter.
+                  <br />
+                  <Link
+                    href={unsubscribeUrl}
+                    className="text-stone-500 underline decoration-stone-300 underline-offset-2"
+                  >
+                    Unsubscribe
+                  </Link>
+                </Text>
+              )}
               <Text className="mt-4 text-[10px] uppercase tracking-widest text-stone-400">
                 All works public domain or openly licensed.
               </Text>

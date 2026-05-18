@@ -5,7 +5,7 @@ import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 // subscribe module — token mint reads the env at first call.
 process.env.NEWSLETTER_TOKEN_SECRET = "test-secret-for-route-tests";
 
-// Mailgun-touching exports are replaced with stubs so the test never
+// ListMonk-touching exports are replaced with stubs so the test never
 // makes a real API call. The non-IO helpers (token mint, email
 // normalize, rate limiter) are kept from the actual module so we
 // exercise the real validation/limiter rules.
@@ -59,7 +59,7 @@ describe("POST /api/newsletter/subscribe", () => {
     expect(sendConfirmationEmail.mock.calls[0][0].to).toBe("new@example.com");
   });
 
-  it("returns 400 + skips Mailgun on malformed email", async () => {
+  it("returns 400 + skips the send on malformed email", async () => {
     const res = await POST(makeRequest({ email: "not-an-email" }));
     expect(res.status).toBe(400);
     expect(await res.json()).toMatchObject({ error: "invalid_email" });
@@ -88,8 +88,8 @@ describe("POST /api/newsletter/subscribe", () => {
     expect(sendConfirmationEmail).not.toHaveBeenCalled();
   });
 
-  it("returns 502 when Mailgun send fails", async () => {
-    sendConfirmationEmail.mockRejectedValueOnce(new Error("mailgun down"));
+  it("returns 502 when the confirmation send fails", async () => {
+    sendConfirmationEmail.mockRejectedValueOnce(new Error("listmonk down"));
     const res = await POST(makeRequest({ email: "fresh@example.com" }));
     expect(res.status).toBe(502);
     expect(await res.json()).toMatchObject({ error: "send_failed" });

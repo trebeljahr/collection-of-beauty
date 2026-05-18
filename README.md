@@ -1,7 +1,7 @@
 # Collection of Beauty
 
 A public-domain art gallery built as a Next.js App Router site, with a
-WebGL multi-floor museum, a curated Mailgun newsletter, and a pre-built
+WebGL multi-floor museum, a curated weekly newsletter, and a pre-built
 asset pipeline (no Next image optimizer in the hot path).
 
 ## Stack
@@ -95,7 +95,7 @@ on staged files only.
   [`content/newsletter/README.md`](content/newsletter/README.md).
 - `src/app/newsletter/` — public archive index + per-edition pages.
 - `src/lib/newsletter/` — edition loader, email render, subscribe-flow
-  HMAC + rate limit, Mailgun client.
+  HMAC + rate limit, ListMonk HTTP client.
 - `src/app/api/newsletter/{subscribe,confirm}/` — only the
   user-facing double-opt-in routes. **Sending is CLI-only** — see
   `pnpm newsletter:send`. There is no cron, no scheduled task, no
@@ -103,16 +103,29 @@ on staged files only.
 - `scripts/newsletter-draft.ts` / `scripts/newsletter-send.ts` — the
   CLI surface. `pnpm newsletter:draft <slug>` scaffolds a new issue;
   `pnpm newsletter:send <slug>` is a dry-run; add `--confirm` to send
-  (defaults to `MAILGUN_TEST_LIST`; prefix `NODE_ENV=production` to
-  reach `MAILGUN_LIST`).
+  (defaults to `LISTMONK_TEST_LIST_ID`; prefix `NODE_ENV=production`
+  to reach `LISTMONK_LIST_ID`).
+
+### ListMonk + SES
+
+Subscriber storage and dispatch live in a self-hosted ListMonk instance
+configured to deliver via Amazon SES SMTP. The app never talks to SES
+directly — it talks to ListMonk's HTTP API, which in turn fans out via
+SES. The double-opt-in confirmation email is rendered from React Email
+(`emails/confirm-subscription.tsx`) and dispatched through ListMonk's
+transactional template; weekly digests go through ListMonk campaigns,
+which auto-substitute `{{ UnsubscribeURL }}` per recipient.
+
+See `.env.example` for the full one-time ListMonk admin setup (two
+templates, two lists, one API user).
 
 ## Deployment
 
 CI builds the Docker image on push to `main` and pushes
 `ghcr.io/trebeljahr/collection-of-beauty:latest`. Coolify pulls and
 restarts on a webhook. No staging environment — the asset bucket and
-the Mailgun account are shared between dev and prod, so a careful
-local `--dry-run` is the only pre-flight.
+the ListMonk instance are shared between dev and prod (separated by
+list id), so a careful local `--dry-run` is the only pre-flight.
 
 ## Memory & onboarding for AI agents
 

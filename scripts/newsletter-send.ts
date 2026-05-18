@@ -3,13 +3,13 @@
  * CLI sender for newsletter editions.
  *
  *   pnpm newsletter:send <slug>                              → dry-run
- *   pnpm newsletter:send <slug> --confirm                    → send to MAILGUN_TEST_LIST
- *   NODE_ENV=production pnpm newsletter:send <slug> --confirm → send to MAILGUN_LIST
+ *   pnpm newsletter:send <slug> --confirm                    → send via ListMonk to LISTMONK_TEST_LIST_ID
+ *   NODE_ENV=production pnpm newsletter:send <slug> --confirm → send via ListMonk to LISTMONK_LIST_ID
  *
  * The destination list is decided by NODE_ENV, not by a flag — production
- * goes to the real subscriber list (`MAILGUN_LIST`), every other
- * environment goes to a test list (`MAILGUN_TEST_LIST`) that should only
- * contain your own address. `--confirm` is the dry-run-vs-actual-send
+ * goes to the real subscriber list (`LISTMONK_LIST_ID`), every other
+ * environment goes to a test list (`LISTMONK_TEST_LIST_ID`) that should
+ * only contain your own address. `--confirm` is the dry-run-vs-actual-send
  * switch; without it the script just builds the email and prints what
  * would be sent.
  *
@@ -19,12 +19,16 @@
  * This script is the only way to send. There is no /api/newsletter/send
  * route, no cron job. Run it from a machine that has the decrypted
  * .env.local — typically your laptop, never the deployed server.
+ *
+ * Sending uses ListMonk's campaign API: a draft campaign is created
+ * with the rendered HTML body, then flipped to `running`. ListMonk
+ * delivers via its configured Amazon SES SMTP transport.
  */
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 
 import { findEdition } from "../src/lib/newsletter/editions";
-import { isProductionSend, resolveListAddress, sendDigest } from "../src/lib/newsletter/mailgun";
+import { describeListTarget, isProductionSend, sendCampaign } from "../src/lib/newsletter/listmonk";
 import { renderEdition } from "../src/lib/newsletter/render";
 
 async function main(): Promise<void> {
@@ -64,14 +68,16 @@ async function main(): Promise<void> {
   console.info(`[newsletter] subject:   ${edition.subject}`);
   console.info(`[newsletter] artworks:  ${edition.artworks.map((a) => a.id).join(", ")}`);
   console.info(`[newsletter] env:       NODE_ENV=${process.env.NODE_ENV ?? "(unset)"}`);
-  console.info(
-    `[newsletter] list:      ${production ? "MAILGUN_LIST (production)" : "MAILGUN_TEST_LIST (non-production)"}`,
-  );
+  console.info(`[newsletter] target:    ${describeListTarget()}`);
   if (edition.draft) {
     console.info(`[newsletter] note:      draft=true — won't appear on the public archive yet`);
   }
 
-  const rendered = await renderEdition({ edition, siteUrl });
+  // Always render with the ListMonk campaign placeholder. The CLI never
+  // sends via the tx path, so the `{{ UnsubscribeURL }}` literal in the
+  // rendered HTML is exactly what ListMonk needs to substitute per
+  // recipient when delivering the campaign.
+  const rendered = await renderEdition({ edition, siteUrl, unsubscribeMode: "listmonk-campaign" });
 
   if (!flags.has("--confirm")) {
     console.info(`[newsletter] dry-run — no email sent.`);
@@ -79,23 +85,27 @@ async function main(): Promise<void> {
     console.info(`[newsletter] text bytes: ${rendered.text.length}`);
     console.info(
       production
-        ? `[newsletter] pass --confirm to send to MAILGUN_LIST (the real subscriber list).`
-        : `[newsletter] pass --confirm to send to MAILGUN_TEST_LIST. Set NODE_ENV=production to target the real list.`,
+        ? `[newsletter] pass --confirm to send to the production list.`
+        : `[newsletter] pass --confirm to send to the test list. Set NODE_ENV=production to target the real list.`,
     );
     return;
   }
 
-  const to = resolveListAddress();
+  const campaignName = production
+    ? `[A Drop of Beauty] ${edition.fileSlug}`
+    : `[TEST · ${new Date().toISOString().slice(0, 16)}] ${edition.fileSlug}`;
   const subject = production ? rendered.subject : `[TEST] ${rendered.subject}`;
 
-  console.info(`[newsletter] sending to: ${to}`);
-  const result = await sendDigest({
+  console.info(`[newsletter] creating campaign…`);
+  const result = await sendCampaign({
+    name: campaignName,
     subject,
     html: rendered.html,
     text: rendered.text,
-    to,
   });
-  console.info(`[newsletter] mailgun id: ${result.id ?? "(none)"}`);
+  console.info(`[newsletter] campaign id: ${result.id}`);
+  console.info(`[newsletter] admin URL:   ${result.url}`);
+  console.info(`[newsletter] status:      running (ListMonk is dispatching via SES)`);
   console.info(`[newsletter] done.`);
 }
 
