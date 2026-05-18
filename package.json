@@ -35,6 +35,7 @@
     "assets:shrink": "node scripts/shrink-sources.mjs",
     "textures": "node scripts/download-textures.mjs",
     "marketing:images": "node scripts/build-marketing-images.mjs",
+    "marketing:press-kit-zip": "node scripts/build-press-kit-zip.mjs",
     "format": "biome format --write .",
     "lint": "biome lint .",
     "check": "biome check --write .",
