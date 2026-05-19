@@ -7,6 +7,7 @@ import {
   MAX_ARTWORK_PAGE_SIZE,
 } from "@/lib/artwork-page-schema";
 import { type ArtworkListing, artworkListings } from "@/lib/data";
+import { PINNED_FIRST_PAGE_IDS } from "@/lib/pinned-first-page";
 
 export type ArtworkPageInput = {
   offset?: number;
@@ -40,7 +41,16 @@ export function getArtworkListingPage(input: ArtworkPageInput = {}): ArtworkPage
   }
 
   const sorted = sortArtworkListings(list, sort, seed);
-  const items = sorted.slice(offset, offset + limit);
+  const ordered =
+    sort === "shuffle" &&
+    seed === DEFAULT_SHUFFLE_SEED &&
+    query.length === 0 &&
+    !input.movement &&
+    minYear == null &&
+    maxYear == null
+      ? applyPinnedHead(sorted, PINNED_FIRST_PAGE_IDS)
+      : sorted;
+  const items = ordered.slice(offset, offset + limit);
   const nextOffset = offset + items.length;
 
   return {
@@ -122,6 +132,18 @@ function shuffleWithArtistSpread(artworks: ArtworkListing[], seed: string): Artw
     if (rotation > 0) queues.push(...queues.splice(0, rotation));
   }
   return result;
+}
+
+function applyPinnedHead(sorted: ArtworkListing[], pinnedIds: readonly string[]): ArtworkListing[] {
+  const byId = new Map(sorted.map((artwork) => [artwork.id, artwork]));
+  const pinnedSet = new Set(pinnedIds);
+  const head: ArtworkListing[] = [];
+  for (const id of pinnedIds) {
+    const found = byId.get(id);
+    if (found) head.push(found);
+  }
+  const tail = sorted.filter((artwork) => !pinnedSet.has(artwork.id));
+  return [...head, ...tail];
 }
 
 function normalizeQuery(query: string | undefined): string[] {
