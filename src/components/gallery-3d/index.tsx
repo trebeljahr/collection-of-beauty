@@ -199,6 +199,43 @@ export function Gallery3D({ artworks }: Props) {
     return beyond;
   }, [stairOtherFloorIdx, currentFloorIdx, layout.floors.length]);
 
+  // Which floors render this frame, and in what mode:
+  //   "full"      — current floor, plus the floor being ridden into so
+  //                 its rooms are up before the player arrives.
+  //   "stairwell" — the other stair-neighbour(s): stairwell room + stair
+  //                 geometry only, for vertical continuity (cheap — no
+  //                 paintings) so there's no void over/underfoot.
+  //   "stairs"    — the floor one beyond the stair destination: stair
+  //                 geometry only, so the next flight is visible through
+  //                 the destination floor's well cutout.
+  // Keyed by floor INDEX (not render-slot): the floor mounted as the
+  // stair destination during a climb keeps the SAME FloorScene instance
+  // when it becomes the current floor, so it doesn't unmount + remount
+  // (and restart its progressive room reveal) at the floor-swap
+  // boundary — that double-mount was a second freeze just as the player
+  // crested the stairs.
+  const floorModes = useMemo(() => {
+    const modes = new Map<number, "full" | "stairwell" | "stairs">();
+    modes.set(currentFloorIdx, "full");
+    const lastIdx = layout.floors.length - 1;
+    if (currentFloorIdx > 0) {
+      modes.set(
+        currentFloorIdx - 1,
+        stairOtherFloorIdx === currentFloorIdx - 1 ? "full" : "stairwell",
+      );
+    }
+    if (currentFloorIdx < lastIdx) {
+      modes.set(
+        currentFloorIdx + 1,
+        stairOtherFloorIdx === currentFloorIdx + 1 ? "full" : "stairwell",
+      );
+    }
+    if (stairBeyondFloorIdx != null && !modes.has(stairBeyondFloorIdx)) {
+      modes.set(stairBeyondFloorIdx, "stairs");
+    }
+    return modes;
+  }, [currentFloorIdx, stairOtherFloorIdx, stairBeyondFloorIdx, layout.floors.length]);
+
   // Spawn point driver. Default: entry on floor 0. Teleport keys
   // overwrite this to the anchor of the target floor. Stair-driven
   // floor changes set it to the *current* XZ so the player continues
@@ -448,61 +485,28 @@ export function Gallery3D({ artworks }: Props) {
             room-env-map.tsx for the canvas → PMREM pipeline. */}
         <RoomEnvironment palette={currentFloor.era.palette} />
 
-        <FloorScene
-          floor={currentFloor}
-          allStaircases={layout.allStaircases}
-          activeRoomIdx={activeRoomIdx}
-          // Only the entry floor wires the load-tally callback; once the
-          // player has started, further floors don't need it.
-          entryRoomId={
-            !hasStarted && currentFloorIdx === layout.entry.floorIndex ? entryRoom?.id : undefined
-          }
-          onEntryPaintingSettled={handleEntryPaintingSettled}
-        />
-        {/* Adjacent floors: mount their stairwell rooms only so the
-            stair leading up/down has visual continuity into the next
-            floor (no painted void overhead or underfoot). Cheap —
-            stairwells hold no paintings.
-
-            Exception: while the player is on a spiral, upgrade the
-            *connected* floor (the one we're descending or ascending
-            into) to full geometry so its rooms are mounted before we
-            arrive. Without this, the rest of the next floor's rooms
-            mount lazily at the floor-swap boundary and a black band
-            shows through the stairwell cutout mid-descent. The OTHER
-            adjacent floor (above when descending, below when ascending)
-            stays stairwell-only so we don't preload geometry the
-            player isn't heading toward. */}
-        {currentFloorIdx > 0 && (
-          <FloorScene
-            floor={layout.floors[currentFloorIdx - 1]}
-            allStaircases={layout.allStaircases}
-            activeRoomIdx={-1}
-            showOnly={stairOtherFloorIdx === currentFloorIdx - 1 ? undefined : "stairwell"}
-          />
-        )}
-        {currentFloorIdx < layout.floors.length - 1 && (
-          <FloorScene
-            floor={layout.floors[currentFloorIdx + 1]}
-            allStaircases={layout.allStaircases}
-            activeRoomIdx={-1}
-            showOnly={stairOtherFloorIdx === currentFloorIdx + 1 ? undefined : "stairwell"}
-          />
-        )}
-        {/* Beyond-floor stair-only mount. When the player enters a
-            spiral, the floor TWO levels away (one beyond the
-            destination) gets just its stair geometry rendered so the
-            next flight is visible through the destination's spiral
-            cutout. Without it, looking down through F-1's well from
-            F shows a black void where F-2's stair should be. */}
-        {stairBeyondFloorIdx != null && (
-          <FloorScene
-            floor={layout.floors[stairBeyondFloorIdx]}
-            allStaircases={layout.allStaircases}
-            activeRoomIdx={-1}
-            showOnly="stairs"
-          />
-        )}
+        {/* One FloorScene per visible floor, keyed by floor index so a
+            floor keeps its instance (and its in-progress room reveal)
+            as the player rides between floors — see `floorModes`. The
+            current floor reveals its rooms progressively; stairwell /
+            stairs neighbours mount their small fixed set at once. */}
+        {[...floorModes.entries()]
+          .sort((a, b) => a[0] - b[0])
+          .map(([idx, mode]) => (
+            <FloorScene
+              key={idx}
+              floor={layout.floors[idx]}
+              allStaircases={layout.allStaircases}
+              activeRoomIdx={idx === currentFloorIdx ? activeRoomIdx : -1}
+              showOnly={mode === "full" ? undefined : mode}
+              // Only the entry floor wires the load-tally callback, and
+              // only before the player starts.
+              entryRoomId={
+                !hasStarted && idx === layout.entry.floorIndex ? entryRoom?.id : undefined
+              }
+              onEntryPaintingSettled={handleEntryPaintingSettled}
+            />
+          ))}
 
         <LodController />
         <FloorPreloader
@@ -748,6 +752,44 @@ export function Gallery3D({ artworks }: Props) {
   );
 }
 
+// Progressive room reveal for a full floor (see FloorScene). Mount this
+// many rooms immediately, then REVEAL_ROOMS_PER_FRAME more each frame
+// until the floor is complete — spreads the otherwise one-frame mount of
+// a whole floor's paintings over ~a dozen frames so the floor swap
+// doesn't freeze.
+const INITIAL_REVEAL_ROOMS = 3;
+const REVEAL_ROOMS_PER_FRAME = 1;
+
+/** How many rooms a FloorScene should currently render. When `active`
+ *  (a full floor that should stagger), starts at INITIAL_REVEAL_ROOMS
+ *  and ramps one batch per animation frame up to `total`; the ramp
+ *  restarts whenever `active` flips on. When inactive, returns `total`
+ *  at once — the small stairwell / stairs sets, and the start-gated
+ *  entry floor, have nothing to gain from staggering. */
+function useStaggeredRoomReveal(total: number, active: boolean): number {
+  const [count, setCount] = useState(() =>
+    active ? Math.min(total, INITIAL_REVEAL_ROOMS) : total,
+  );
+  useEffect(() => {
+    if (!active) {
+      setCount(total);
+      return;
+    }
+    let current = Math.min(total, INITIAL_REVEAL_ROOMS);
+    setCount(current);
+    if (current >= total) return;
+    let raf = 0;
+    const tick = () => {
+      current = Math.min(total, current + REVEAL_ROOMS_PER_FRAME);
+      setCount(current);
+      if (current < total) raf = requestAnimationFrame(tick);
+    };
+    raf = requestAnimationFrame(tick);
+    return () => cancelAnimationFrame(raf);
+  }, [active, total]);
+  return Math.min(count, total);
+}
+
 function FloorScene({
   floor,
   allStaircases,
@@ -776,12 +818,39 @@ function FloorScene({
   entryRoomId?: string;
   onEntryPaintingSettled?: (key: string, status: "loaded" | "failed") => void;
 }) {
-  const rooms =
-    showOnly === "stairs"
-      ? []
-      : showOnly === "stairwell"
-        ? floor.rooms.filter((r) => r.isStairwell)
-        : floor.rooms;
+  // Rooms to render. "stairs" → none; "stairwell" → just the stairwell
+  // room; full → every room, ordered nearest-the-central-stair first so
+  // the player's arrival view fills in before the far corners stream in.
+  const orderedRooms = useMemo(() => {
+    if (showOnly === "stairs") return [];
+    if (showOnly === "stairwell") return floor.rooms.filter((r) => r.isStairwell);
+    const stair = floor.stairsOut[0] ?? floor.stairsIn[0] ?? null;
+    const cx = stair?.centerX ?? 0;
+    const cz = stair?.centerZ ?? 0;
+    return [...floor.rooms].sort((a, b) => {
+      const ax = (a.worldRect.xMin + a.worldRect.xMax) / 2 - cx;
+      const az = (a.worldRect.zMin + a.worldRect.zMax) / 2 - cz;
+      const bx = (b.worldRect.xMin + b.worldRect.xMax) / 2 - cx;
+      const bz = (b.worldRect.zMin + b.worldRect.zMax) / 2 - cz;
+      return ax * ax + az * az - (bx * bx + bz * bz);
+    });
+  }, [floor, showOnly]);
+
+  // Stagger the full-floor mount across frames. A big era floor holds
+  // ~900 paintings (each with troika-text plaques); mounting them all in
+  // the floor-swap commit froze the frame. Reveal a few rooms at once
+  // then stream the rest in over the next frames. Skipped while the
+  // start gate is up (entryRoomId set) so the entry room's load tally
+  // isn't held back, and for the small stairwell/stairs neighbour sets.
+  const staggered = !showOnly && !entryRoomId;
+  const revealCount = useStaggeredRoomReveal(orderedRooms.length, staggered);
+  const rooms = orderedRooms.slice(0, revealCount);
+
+  // Active-room highlight matches by id, not array position: orderedRooms
+  // is re-sorted, but activeRoomIdx indexes floor.rooms in its original
+  // layout order (the same order cellOwner uses to report the owner).
+  const activeRoomId = activeRoomIdx >= 0 ? floor.rooms[activeRoomIdx]?.id : undefined;
+
   const hallways = showOnly ? [] : floor.hallways;
   // Stair geometry only mounts once per Staircase (from the lower
   // floor's stairsOut). Skipping stairsIn here avoids double-rendering
@@ -790,11 +859,11 @@ function FloorScene({
   const stairs = floor.stairsOut;
   return (
     <group>
-      {rooms.map((room, i) => (
+      {rooms.map((room) => (
         <RoomGeometry
           key={room.id}
           room={room}
-          isActive={i === activeRoomIdx}
+          isActive={room.id === activeRoomId}
           onPaintingSettled={room.id === entryRoomId ? onEntryPaintingSettled : undefined}
         />
       ))}
