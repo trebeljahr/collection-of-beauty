@@ -47,7 +47,6 @@ type PageParams = {
 
 const PAGE_ENDPOINT = "/api/artworks/page";
 const PAGE_SIZE = DEFAULT_ARTWORK_PAGE_SIZE;
-const SESSION_SEED_KEY = "cob:shuffle-seed";
 
 export function GalleryBrowser({ initialArtworks, movements, totalArtworks }: Props) {
   const [query, setQuery] = useState("");
@@ -56,7 +55,6 @@ export function GalleryBrowser({ initialArtworks, movements, totalArtworks }: Pr
   const [minYear, setMinYear] = useState<string>("");
   const [maxYear, setMaxYear] = useState<string>("");
   const [sortBy, setSortBy] = useState<ArtworkSort>("shuffle");
-  const [sessionSeed, setSessionSeed] = useState<string>(DEFAULT_SHUFFLE_SEED);
   const [loadedArtworks, setLoadedArtworks] = useState(initialArtworks);
   const [pageInfo, setPageInfo] = useState<PageInfo>({
     total: totalArtworks,
@@ -87,9 +85,9 @@ export function GalleryBrowser({ initialArtworks, movements, totalArtworks }: Pr
       minYear,
       maxYear,
       sort: sortBy,
-      seed: sessionSeed,
+      seed: DEFAULT_SHUFFLE_SEED,
     }),
-    [deferredQuery, movement, minYear, maxYear, sortBy, sessionSeed],
+    [deferredQuery, movement, minYear, maxYear, sortBy],
   );
 
   const pageKey = useMemo(() => JSON.stringify(pageParams), [pageParams]);
@@ -100,23 +98,6 @@ export function GalleryBrowser({ initialArtworks, movements, totalArtworks }: Pr
     pageParams.maxYear === "" &&
     pageParams.sort === "shuffle" &&
     pageParams.seed === DEFAULT_SHUFFLE_SEED;
-
-  useEffect(() => {
-    try {
-      const stored = window.sessionStorage.getItem(SESSION_SEED_KEY);
-      if (stored) {
-        setSessionSeed(stored);
-        return;
-      }
-      const fresh = generateSessionSeed();
-      window.sessionStorage.setItem(SESSION_SEED_KEY, fresh);
-      setSessionSeed(fresh);
-    } catch {
-      // sessionStorage may be unavailable (privacy mode); fall back to a
-      // one-shot per-mount seed so the order still varies across loads.
-      setSessionSeed(generateSessionSeed());
-    }
-  }, []);
 
   useEffect(() => {
     pageInfoRef.current = pageInfo;
@@ -367,11 +348,6 @@ async function fetchArtworkPage(
 
 function appendParam(url: URL, key: string, value: string) {
   if (value) url.searchParams.set(key, value);
-}
-
-function generateSessionSeed(): string {
-  const random = Math.random().toString(36).slice(2, 10);
-  return `${Date.now().toString(36)}-${random}`;
 }
 
 function appendUniqueArtworks(
