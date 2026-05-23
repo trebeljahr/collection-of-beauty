@@ -15,13 +15,10 @@
 //
 //   2. Upload queue    — `renderer.initTexture(tex)` is the one
 //      unavoidable main-thread step in a texture load (WebGL single-
-//      threaded). Doing it for several heavy textures in the same frame
+//      threaded). Doing it for dozens of textures in the same frame
 //      is what makes the scene hitch when the player walks into a
-//      crowded floor — so heavy uploads (bases + hi-res) are paced at
-//      one per rAF tick. Cheap 256 px placeholder thumbs ride a
-//      separate lane drained a few per tick, so a freshly mounted floor
-//      sheds its brown swatches fast without the heavy uploads stalling
-//      the walk.
+//      crowded floor. The queue serialises uploads across rAF ticks
+//      so at most one hitch per frame.
 //
 // Paintings call `loadTextureCached(url, renderer)` instead of
 // `useLoader(TextureLoader, url)`. The result is Suspense-friendly via
@@ -69,10 +66,9 @@
 //   • Three separate Maps (`cache`, `hiresCache`, `preloadCache`). No
 //     cross-pool eviction — a preload burst of an entire floor's worth
 //     of thumbs (256 cap) cannot push out current-floor base textures.
-//   • Upload queue is placeholder-before-high-before-low. Placeholder
-//     thumbs paint first; a floor-wide preload (potentially hundreds of
-//     `initTexture` calls) on the low queue cannot delay a hi-res
-//     upgrade the player is actively walking toward.
+//   • Upload queue is high-before-low. A floor-wide preload (potentially
+//     hundreds of `initTexture` calls) cannot delay a hi-res upgrade the
+//     player is actively walking toward.
 //   • Promotion is destructive on the preload side only: the thumb's
 //     GPU texture survives via `evictWithoutDispose`, and from that
 //     point the LodController's per-tick MRU touch keeps it alive in
@@ -190,36 +186,13 @@ type UploadTask = {
   renderer: THREE.WebGLRenderer;
   resolve: () => void;
 };
-type UploadPriority = "placeholder" | "high" | "low";
-// Three queues, drained placeholder-before-high-before-low.
-//   placeholder — 256 px blur thumbs a freshly-mounted painting shows
-//                 in place of the brown swatch. Jump ahead of bases so
-//                 a floor-swap burst clears its placeholders fast.
-//   high        — 960 px bases + proximity hi-res tiers.
-//   low         — staircase-approach preload of the adjacent floor.
-const placeholderQueue: UploadTask[] = [];
+type UploadPriority = "high" | "low";
+// Two queues, drained high-before-low. "low" backs preload uploads so a
+// floor's worth of thumb uploads can't push past a hi-res upgrade the
+// player is actively walking toward.
 const uploadQueue: UploadTask[] = [];
 const lowUploadQueue: UploadTask[] = [];
 let pumpScheduled = false;
-
-// Per-frame upload pacing. initTexture is a synchronous GPU upload +
-// mipmap generation; its real cost lands on the GPU after the call
-// returns, so a wall-clock budget can't see it (performance.now()
-// undercounts and the frame hitches anyway). Pace by COUNT, split by
-// cost:
-//
-//   • Placeholders (256 px thumbs) are tiny — drain a few per frame so
-//     a freshly-mounted floor sheds its brown swatches fast.
-//   • Bases / hi-res tiers (960 px … original) are heavy enough that
-//     more than one per frame visibly hitches the walk. Exactly one per
-//     frame — the cap the gallery shipped with before the brown-swatch
-//     work, which is why the walk stayed smooth.
-//
-// An earlier pass here drained up to a dozen heavy uploads per frame on
-// a time budget; on a floor swap that tanked FPS, which starved the LOD
-// useFrame tick so hi-res tiers stopped arriving. Counts, not time, and
-// one heavy upload per frame.
-const PLACEHOLDER_UPLOADS_PER_FRAME = 4;
 
 function schedulePump() {
   if (pumpScheduled) return;
@@ -227,35 +200,19 @@ function schedulePump() {
   requestAnimationFrame(pumpUploads);
 }
 
-function runUpload(task: UploadTask) {
-  try {
-    task.renderer.initTexture(task.tex);
-  } catch {
-    // Some drivers occasionally reject — R3F will upload lazily at
-    // draw time instead. Not fatal.
-  }
-  task.resolve();
-}
-
 function pumpUploads() {
   pumpScheduled = false;
-  // Cheap placeholders first — a handful per frame.
-  let placed = 0;
-  while (placed < PLACEHOLDER_UPLOADS_PER_FRAME) {
-    const task = placeholderQueue.shift();
-    if (!task) break;
-    runUpload(task);
-    placed++;
+  const task = uploadQueue.shift() ?? lowUploadQueue.shift();
+  if (task) {
+    try {
+      task.renderer.initTexture(task.tex);
+    } catch {
+      // Some drivers occasionally reject — R3F will upload lazily at
+      // draw time instead. Not fatal.
+    }
+    task.resolve();
   }
-  // Then exactly one heavy upload: high (base / hi-res) before low
-  // (preload) so a floor-wide preload can't delay a tier the player
-  // needs right now.
-  const heavy = uploadQueue.shift() ?? lowUploadQueue.shift();
-  if (heavy) runUpload(heavy);
-
-  if (placeholderQueue.length > 0 || uploadQueue.length > 0 || lowUploadQueue.length > 0) {
-    schedulePump();
-  }
+  if (uploadQueue.length > 0 || lowUploadQueue.length > 0) schedulePump();
 }
 
 function enqueueUpload(
@@ -264,12 +221,7 @@ function enqueueUpload(
   priority: UploadPriority = "high",
 ): Promise<void> {
   return new Promise((resolve) => {
-    const q =
-      priority === "low"
-        ? lowUploadQueue
-        : priority === "placeholder"
-          ? placeholderQueue
-          : uploadQueue;
+    const q = priority === "low" ? lowUploadQueue : uploadQueue;
     q.push({ tex, renderer, resolve });
     schedulePump();
   });
@@ -316,7 +268,6 @@ async function withTextureTimeout<T>(
 async function loadTextureCached(
   url: string,
   renderer: THREE.WebGLRenderer | null,
-  priority: UploadPriority = "high",
 ): Promise<THREE.Texture> {
   const cached = cache.get(url);
   if (cached) return cached;
@@ -361,7 +312,7 @@ async function loadTextureCached(
           texture.generateMipmaps = true;
           texture.flipY = false; // already flipped during createImageBitmap
           texture.needsUpdate = true;
-          if (renderer) await enqueueUpload(texture, renderer, priority);
+          if (renderer) await enqueueUpload(texture, renderer);
           return texture;
         });
         cache.put(url, tex);
@@ -564,15 +515,12 @@ export function preloadCached(
 /** Eager async load that goes through the same LRU + upload queue as
  *  the Suspense path. Used by the painting's progressive loader to
  *  fire-and-forget both the 256 px placeholder and the 960 px base
- *  in parallel. Pass priority "placeholder" for the thumb so it jumps
- *  ahead of bases during a floor-swap upload burst — the blur paints
- *  fast, the base upgrades on top once its turn comes. */
+ *  in parallel. */
 export function loadCached(
   url: string,
   renderer: THREE.WebGLRenderer | null,
-  priority: UploadPriority = "high",
 ): Promise<THREE.Texture> {
-  return loadTextureCached(url, renderer, priority);
+  return loadTextureCached(url, renderer);
 }
 
 /** After a `webglcontextrestored` event, every cached THREE.Texture's
