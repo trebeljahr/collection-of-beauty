@@ -13,7 +13,6 @@ import {
   ROOM_HEIGHT,
   SPIRAL_FLOOR_CUTOUT_RADIUS,
 } from "@/lib/gallery-layout/world-coords";
-import { LampFixture } from "./lamp-fixture";
 import { Painting } from "./painting";
 import { getPaletteMaterials, getRoomFloorMaterial } from "./palette-materials";
 import { WallWithDoors } from "./wall";
@@ -26,18 +25,10 @@ import { WallWithDoors } from "./wall";
  */
 export function RoomGeometry({
   room,
-  isLit,
-  isGlowing,
   stairCenter,
   onPaintingSettled,
 }: {
   room: RoomLayout;
-  /** Player occupies this room — mount its real point lights. */
-  isLit: boolean;
-  /** Room is in the pre-lit set (occupied room or a door-neighbour) —
-   *  light the bulbs' emissive material so it reads as lit through the
-   *  doorway without paying for point lights until the player enters. */
-  isGlowing: boolean;
   /** Central-stair XZ for this floor. Used to order this room's painting
    *  reveal nearest-the-stair first. */
   stairCenter: [number, number];
@@ -234,49 +225,6 @@ export function RoomGeometry({
           />
         );
       })}
-
-      {/* Four pendant lamps at the centres of the room's quadrants
-          instead of one in the middle. With one lamp per quadrant each
-          painting is at most ~half a quadrant's diagonal from a light,
-          so wall coverage is much more even than the old single centre
-          lamp left it. The fixture geometry is rendered for every room,
-          regardless of whether the player is inside. The real point
-          light is gated on `isLit` (occupied room only) while the bulb
-          glow is gated on `isGlowing` (occupied room + door-neighbours),
-          so an approaching room reads as lit through the doorway via its
-          glowing bulbs + the scene's ambient/env baseline, and the warm
-          point-light pools "switch on" only as the player walks in —
-          keeping the live point-light count to a single room's lamps.
-          Stairwell rooms have no rendered ceiling at ROOM_HEIGHT — the
-          well is open all the way up, so the visible "ceiling" from
-          inside one is the underside of the next floor's slab at
-          INTER_FLOOR_HEIGHT. Mounting the rosette there keeps the cap
-          flush with that surface; otherwise it would dangle 1.7 m
-          below it in mid-air. Same bulbDrop as regular rooms so it
-          reads as the *same* fixture, just hung from a higher ceiling. */}
-      {(
-        [
-          [-1, -1],
-          [1, -1],
-          [-1, 1],
-          [1, 1],
-        ] as const
-      ).map(([sx, sz]) => (
-        <LampFixture
-          key={`lamp-${sx}-${sz}`}
-          position={[
-            cxWorld + sx * (width / 4),
-            floorY + (room.isStairwell ? INTER_FLOOR_HEIGHT : ROOM_HEIGHT),
-            czWorld + sz * (depth / 4),
-          ]}
-          era={era}
-          lit={isLit}
-          glow={isGlowing}
-          bulbDrop={0.65}
-          intensity={11}
-          distance={Math.max(width, depth) * 1.2}
-        />
-      ))}
     </group>
   );
 }

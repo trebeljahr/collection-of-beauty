@@ -28,10 +28,6 @@ import { ZoomModal } from "./zoom-modal";
 
 const AMBIENCE_SRC = "/audio/ambience-loop.mp3";
 
-// Stable empty lit set for floors that contribute no lit rooms (every
-// floor except the one the player is on).
-const NO_LIT_ROOMS: ReadonlySet<string> = new Set();
-
 type Props = { artworks: ArtworkListing[] };
 
 /**
@@ -46,14 +42,6 @@ export function Gallery3D({ artworks }: Props) {
   const [hasStarted, setHasStarted] = useState(false);
   const [currentFloorIdx, setCurrentFloorIdx] = useState(layout.entry.floorIndex);
   const [activeRoomIdx, setActiveRoomIdx] = useState<number>(-1);
-  // Room lighting is keyed off a "lit set" — the room the player is in
-  // plus its door-neighbours — so the next room is already lit before
-  // they cross the doorway (no on-screen switch-on) while the scene only
-  // ever carries point lights for that bounded handful of rooms.
-  // `litAnchorId` is the room the set is centred on. It persists while
-  // the player is on a staircase (room owner = -1) so rooms around the
-  // stairwell stay lit mid-climb, and is cleared on a floor change.
-  const [litAnchorId, setLitAnchorId] = useState<string | null>(null);
   const [zoomed, setZoomed] = useState<ArtworkListing | null>(null);
   const [aiming, setAiming] = useState<ArtworkListing | null>(null);
   // ID of the spiral the player is currently riding (or null if they're
@@ -183,44 +171,11 @@ export function Gallery3D({ artworks }: Props) {
   const currentFloor = layout.floors[currentFloorIdx];
   const activeRoom = activeRoomIdx >= 0 ? currentFloor.rooms[activeRoomIdx] : undefined;
 
-  // For every room on the current floor, the set of room ids to light
-  // when the player is standing in it: itself plus its door-neighbours.
-  // Rooms connect only by shared-wall doors (no corridors), so a door
-  // frames the next room directly — pre-lighting neighbours means the
-  // room you walk into is already lit, with no fade or pop. Door targets
-  // are encoded as `room:<id>` (see wireDoors in layout-museum.ts).
-  const roomLitSets = useMemo(() => {
-    const ids = new Set(currentFloor.rooms.map((r) => r.id));
-    const byId = new Map<string, ReadonlySet<string>>();
-    for (const room of currentFloor.rooms) {
-      const set = new Set<string>([room.id]);
-      for (const door of room.doors) {
-        if (door.connectsTo.kind !== "hallway") continue;
-        const target = door.connectsTo.hallwayId;
-        if (!target.startsWith("room:")) continue;
-        const neighbourId = target.slice("room:".length);
-        if (ids.has(neighbourId)) set.add(neighbourId);
-      }
-      byId.set(room.id, set);
-    }
-    return byId;
-  }, [currentFloor]);
-
-  const litRoomIds = litAnchorId ? (roomLitSets.get(litAnchorId) ?? NO_LIT_ROOMS) : NO_LIT_ROOMS;
-
   // Player reports the owning room of the cell it's in (-1 on a stair).
-  // Track the exact owner for the HUD / minimap, and the last real room
-  // as the lighting anchor so the lit set survives stair crossings.
-  const handleRoomChange = useCallback(
-    (owner: number) => {
-      setActiveRoomIdx(owner);
-      if (owner >= 0) {
-        const id = currentFloor.rooms[owner]?.id;
-        if (id) setLitAnchorId(id);
-      }
-    },
-    [currentFloor],
-  );
+  // Track the exact owner for the HUD / minimap.
+  const handleRoomChange = useCallback((owner: number) => {
+    setActiveRoomIdx(owner);
+  }, []);
   // Floor index at the *other* end of the active stair — i.e. the one
   // we're heading TO. Falsy when not on a stair, in which case the
   // adjacent-floor blocks below fall back to stairwell-only.
@@ -316,9 +271,6 @@ export function Gallery3D({ artworks }: Props) {
       ];
       setCurrentFloorIdx(idx);
       setActiveRoomIdx(-1);
-      // Pre-light the spawn (anchor) room so it's already lit when the
-      // teleport lands, rather than switching on a frame later.
-      setLitAnchorId(anchor.id);
     },
     [layout],
   );
@@ -360,13 +312,8 @@ export function Gallery3D({ artworks }: Props) {
       // keeps riding it smoothly.
       setCurrentFloorIdx(newIdx);
       setActiveRoomIdx(-1);
-      // Pre-light the destination floor's stairwell room (where the
-      // player steps off) so arriving up/down the spiral doesn't switch
-      // its lights on in view.
-      const stairwell = layout.floors[newIdx]?.rooms.find((r) => r.isStairwell);
-      setLitAnchorId(stairwell?.id ?? null);
     },
-    [currentFloorIdx, layout],
+    [currentFloorIdx],
   );
 
   // Debug 1..N teleport keys (one per floor).
@@ -564,8 +511,6 @@ export function Gallery3D({ artworks }: Props) {
               key={idx}
               floor={layout.floors[idx]}
               allStaircases={layout.allStaircases}
-              litRoomIds={idx === currentFloorIdx ? litRoomIds : NO_LIT_ROOMS}
-              lightRoomId={idx === currentFloorIdx ? litAnchorId : null}
               showOnly={mode === "full" ? undefined : mode}
               // Only the entry floor wires the load-tally callback, and
               // only before the player starts.
@@ -841,8 +786,6 @@ export function Gallery3D({ artworks }: Props) {
 function FloorScene({
   floor,
   allStaircases,
-  litRoomIds,
-  lightRoomId,
   showOnly,
   entryRoomId,
   onEntryPaintingSettled,
@@ -853,15 +796,6 @@ function FloorScene({
    *  boundaries (only the absolute top/bottom of the helix should
    *  show a newel cap). */
   allStaircases: readonly Staircase[];
-  /** Room ids whose bulbs should glow — the player's room plus its
-   *  door-neighbours — so the next room reads as lit through the doorway
-   *  on arrival. Glow is a free emissive material swap; the real point
-   *  lights are gated separately on `lightRoomId` to keep the live light
-   *  count to a single room. */
-  litRoomIds: ReadonlySet<string>;
-  /** The one room that carries real point lights — the room the player
-   *  occupies (the lit set's anchor). Null when off-floor / pre-start. */
-  lightRoomId: string | null;
   /** "stairwell" keeps the stairwell room + its stair geometry +
    *  cutout-edge railings — used for adjacent floors so the stair has
    *  visual continuity without mounting every room + painting.
@@ -875,14 +809,11 @@ function FloorScene({
   entryRoomId?: string;
   onEntryPaintingSettled?: (key: string, status: "loaded" | "failed") => void;
 }) {
-  // Every room's shell (walls / floor / ceiling / lamps) renders as soon
-  // as the floor mounts — shells are cheap, and rendering them all keeps
-  // the building solid (no voids through the enfilade doorways). The
+  // Every room's shell (walls / floor / ceiling) renders as soon as the
+  // floor mounts — shells are cheap, and rendering them all keeps the
+  // building solid (no voids through the enfilade doorways). The
   // expensive, numerous part — the paintings — is what loads lazily, per
   // room, image by image (see RoomGeometry's proximity-gated reveal).
-  // Lighting is decided by room id: `lightRoomId` (the occupied room)
-  // mounts real point lights, `litRoomIds` (occupied + neighbours) glows
-  // the bulbs. Render order here doesn't affect lighting.
   const rooms =
     showOnly === "stairs"
       ? []
@@ -909,8 +840,6 @@ function FloorScene({
         <RoomGeometry
           key={room.id}
           room={room}
-          isLit={room.id === lightRoomId}
-          isGlowing={litRoomIds.has(room.id)}
           stairCenter={stairCenter}
           onPaintingSettled={room.id === entryRoomId ? onEntryPaintingSettled : undefined}
         />

@@ -102,9 +102,8 @@ const STAIR_LANDING_TOL = 0.5;
 // completed ⅓ of the descent (cumulativeAngle drops below 2π·⅔), we
 // promote floor.index to the destination floor — well before the
 // landing-tolerance arc above. The destination room's active-room
-// state and lit lamps then come on while the player is still mid-
-// descent, so arriving at the bottom feels like *entering* a room
-// already alive instead of stepping into one that has to wake up.
+// state then updates while the player is still mid-descent, so the HUD
+// reflects the room they're entering before they reach the bottom.
 // Only the descent branch uses this; ascent stays on STAIR_LANDING_TOL
 // per request.
 const STAIR_DESCEND_EARLY_ENTRY = (Math.PI * 2 * 2) / 3;
