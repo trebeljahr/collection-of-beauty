@@ -1,9 +1,10 @@
 "use client";
 
-import { useEffect, useMemo } from "react";
+import { useFrame } from "@react-three/fiber";
+import { useEffect, useMemo, useRef, useState } from "react";
 import * as THREE from "three";
 import { ERAS } from "@/lib/gallery-eras";
-import type { RoomLayout } from "@/lib/gallery-layout/types";
+import type { Placement, RoomLayout } from "@/lib/gallery-layout/types";
 import {
   CELL_SIZE,
   DOOR_HEIGHT,
@@ -26,10 +27,14 @@ import { WallWithDoors } from "./wall";
 export function RoomGeometry({
   room,
   isActive,
+  stairCenter,
   onPaintingSettled,
 }: {
   room: RoomLayout;
   isActive: boolean;
+  /** Central-stair XZ for this floor. Used to order this room's painting
+   *  reveal nearest-the-stair first. */
+  stairCenter: [number, number];
   /** Fires once per painting after its 960 px texture loads. Optional —
    *  Gallery3D only passes it for the entry room so the start
    *  overlay can show first-room load progress / failures. */
@@ -113,6 +118,11 @@ export function RoomGeometry({
   // storey below) and no ceiling (open up to the storey above) — the
   // walls + the spiral itself give the well its visible shape.
   const isStandardRoom = !room.isStairwell;
+
+  // Paintings load lazily, image by image, only once the player is near
+  // this room (see useRevealedPlacements). The shell above always
+  // renders, so an unloaded room reads as bare walls, never a hole.
+  const revealedPlacements = useRevealedPlacements(room, stairCenter);
 
   return (
     <group>
@@ -204,8 +214,9 @@ export function RoomGeometry({
         />
       )}
 
-      {/* Paintings */}
-      {room.placements.map((p) => {
+      {/* Paintings — revealed lazily once the player nears this room,
+          then a few per frame, nearest the stair first. */}
+      {revealedPlacements.map((p) => {
         const paintingKey = `${room.id}-${p.artwork.id}-${p.position.join(",")}`;
         return (
           <Painting
@@ -259,6 +270,74 @@ export function RoomGeometry({
       ))}
     </group>
   );
+}
+
+// Painting reveal tuning. A room's paintings mount only once the camera
+// is within PAINTING_LOAD_RADIUS (metres, XZ) of the room — so far rooms
+// stay paintless until approached (bare walls, never a hole, since the
+// shell always renders) — and then PAINTINGS_PER_FRAME at a time, so a
+// dense room never mounts its whole wall of paintings (each carrying
+// troika-text plaques) in one hitching frame. ~14 m reaches the rooms
+// directly off the stairwell while the player is still on the spiral, so
+// the arrival view is loading before they crest.
+const PAINTING_LOAD_RADIUS = 14;
+const PAINTING_LOAD_RADIUS_SQ = PAINTING_LOAD_RADIUS * PAINTING_LOAD_RADIUS;
+const PAINTINGS_PER_FRAME = 2;
+
+/** Which of a room's paintings to render right now. Returns none until
+ *  the camera comes within PAINTING_LOAD_RADIUS of the room, then ramps
+ *  PAINTINGS_PER_FRAME per frame up to all of them, ordered nearest the
+ *  central stair first. Once revealed they stay (no churn on a return
+ *  visit). Drives the per-image, proximity-gated load that keeps a floor
+ *  swap from mounting hundreds of paintings in a single frame. */
+function useRevealedPlacements(room: RoomLayout, stairCenter: [number, number]): Placement[] {
+  const ordered = useMemo(() => {
+    const [scx, scz] = stairCenter;
+    return [...room.placements].sort((a, b) => {
+      const da = (a.position[0] - scx) ** 2 + (a.position[2] - scz) ** 2;
+      const db = (b.position[0] - scx) ** 2 + (b.position[2] - scz) ** 2;
+      return da - db;
+    });
+  }, [room, stairCenter]);
+
+  const bounds = useMemo(() => {
+    const cb = room.cellBounds;
+    return {
+      xMin: cb.xMin * CELL_SIZE,
+      xMax: (cb.xMax + 1) * CELL_SIZE,
+      zMin: cb.zMin * CELL_SIZE,
+      zMax: (cb.zMax + 1) * CELL_SIZE,
+    };
+  }, [room]);
+
+  const total = ordered.length;
+  const [count, setCount] = useState(0);
+  const countRef = useRef(0);
+  const nearRef = useRef(false);
+
+  // Reset if this instance is ever reused for a different room.
+  useEffect(() => {
+    countRef.current = 0;
+    nearRef.current = false;
+    setCount(0);
+  }, [room]);
+
+  useFrame((state) => {
+    if (countRef.current >= total) return;
+    if (!nearRef.current) {
+      const { x, z } = state.camera.position;
+      const nx = Math.min(Math.max(x, bounds.xMin), bounds.xMax);
+      const nz = Math.min(Math.max(z, bounds.zMin), bounds.zMax);
+      const dx = x - nx;
+      const dz = z - nz;
+      if (dx * dx + dz * dz > PAINTING_LOAD_RADIUS_SQ) return;
+      nearRef.current = true;
+    }
+    countRef.current = Math.min(total, countRef.current + PAINTINGS_PER_FRAME);
+    setCount(countRef.current);
+  });
+
+  return count >= total ? ordered : ordered.slice(0, count);
 }
 
 /** PlaneGeometry whose UV attribute is rescaled so 1 unit of UV maps
