@@ -910,10 +910,9 @@ function canStepTo(
   currentStairId: string | null,
   currentCum: number,
   /** World Y of the player's head (camera position). Used by the
-   *  spiral-rail clearance to skip blocking when the helix at this
-   *  angular position has risen above the player — they can walk
-   *  under freely (especially important on the ground floor where
-   *  the cutout-edge perimeter rail isn't there to fence the well). */
+   *  top-landing edge fence to tell whether the player is standing at
+   *  the helix's top landing (so the dead-end half of the landing can
+   *  be blocked) versus walking the flight below it. */
   playerHeadY: number,
 ): boolean {
   // Central column guard — the stone spine sits at every spiral's
@@ -992,41 +991,33 @@ function canStepTo(
   }
   const stair = findStairAt(floor, toX, toZ);
   if (stair) {
-    // On the spiral the inner and outer railings ring the steps
-    // close enough that the player's bbox would clip through them
-    // at the annulus edges. Constrain the player's centre to a
-    // narrower walking annulus that keeps their bbox a finger's
-    // width clear of both rails. The OUTER rail has a gate gap
-    // around the entry direction (so the player can step on/off
-    // the spiral); inside the gap the outer constraint is dropped,
-    // otherwise the player could enter the spiral but never leave.
+    // The spiral footprint is a no-enter zone from every angle except
+    // the gate. The player may only step onto the helix through the gate
+    // window centred on the entry direction; from every other angle both
+    // the inner and outer edges are walls. Concretely:
     //
-    // Y-aware bypass: the spiral helix rises one full storey per
-    // revolution, so at angular positions far from the entry the
-    // step (and the rails sitting 1.05 m above it) is metres above
-    // the player's head — they can walk under the OUTER overhang
-    // freely. Only enforce the outer constraint when the step at this
-    // angular position is at or below head. Without it, walking around
-    // the back of the spiral on the ground floor (where the cutout-edge
-    // perimeter rail isn't there either, since there's no cutout) feels
-    // like hitting an invisible wall — the collision is for an overhead
-    // rail nobody would visually expect to block them.
+    //  - INNER constraint (always on): keeps the player's bbox clear of
+    //    the inner rail and out of the central well. On upper floors the
+    //    open-well guard above already blocks r < innerRadius; the ground
+    //    floor skips that guard, so this clearance is the only thing
+    //    fencing the well there.
+    //  - OUTER constraint (dropped only inside the gate): keeps the bbox
+    //    clear of the outer rail. Crossing the (maxR, outerRadius) band
+    //    from the surrounding room is the only way onto the annulus, so
+    //    blocking it everywhere but the gate means the player can't climb
+    //    onto the steps from the back or the side — they walk around the
+    //    spiral in the room and on through the gate.
     //
-    // The INNER constraint is NOT subject to this bypass. The central
-    // well must stay fenced on every floor: on upper floors the
-    // open-well guard above already blocks r < innerRadius, but the
-    // ground floor skips that guard, so the inner-rail clearance is the
-    // only thing keeping the player out of the well. Dropping it when
-    // the back of the helix is overhead let the player duck under the
-    // raised steps, cross the well past the central column, and walk
-    // out the far side — "through the stairs from behind".
+    // No Y-aware overhead bypass: an earlier version dropped the outer
+    // constraint wherever the helix had risen above head height, to avoid
+    // an "invisible wall" when walking under the raised back of the
+    // spiral on the ground floor. That let the player duck under and
+    // glitch onto the steps (and, before the inner fence, clean through
+    // the well) from behind. The room is far wider than the spiral, so
+    // fencing the whole footprint just routes the player around it.
     const dx = toX - stair.centerX;
     const dz = toZ - stair.centerZ;
     const r2 = dx * dx + dz * dz;
-    const cumAngle = spiralRawAngle(stair, toX, toZ);
-    const tGlobal = cumAngle / (Math.PI * 2);
-    const stepY = stair.lowerY + tGlobal * (stair.upperY - stair.lowerY);
-    const stepIsOverhead = stepY >= playerHeadY;
     const theta = Math.atan2(dz, dx);
     const gateHalfArc = spiralGateHalfArc(stair.numSteps);
     const angDiff = Math.atan2(
@@ -1036,7 +1027,7 @@ function canStepTo(
     const inGate = Math.abs(angDiff) < gateHalfArc;
     const minR = stair.innerRadius + SPIRAL_RAIL_CLEARANCE;
     if (r2 < minR * minR) return false;
-    if (!stepIsOverhead && !inGate) {
+    if (!inGate) {
       const maxR = stair.outerRadius - SPIRAL_RAIL_CLEARANCE;
       if (r2 > maxR * maxR) return false;
     }
