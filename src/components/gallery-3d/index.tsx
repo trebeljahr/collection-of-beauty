@@ -323,6 +323,18 @@ export function Gallery3D({ artworks }: Props) {
     [layout],
   );
 
+  // Open the big-map overlay. Shared by the M-key shortcut (desktop) and
+  // a tap on the corner minimap (touch). Snaps the previewed floor to
+  // the one the player stands on, sizes the map to the viewport, and
+  // drops pointer-lock so the overlay UI is interactive.
+  const openBigMap = useCallback(() => {
+    setViewedMapFloorIdx(currentFloorIdx);
+    const s = Math.max(300, Math.min(window.innerHeight - 180, window.innerWidth - 160, 760));
+    setBigMapSize(s);
+    setMapOpen(true);
+    if (!isTouch && document.pointerLockElement) document.exitPointerLock();
+  }, [currentFloorIdx, isTouch]);
+
   // Ambience follows user preferences + entry gate. play() may reject if
   // Chrome hasn't yet decided the gesture is "valid enough" — harmless,
   // the next state change (setting toggle, teleport, stair swap) retries
@@ -384,11 +396,7 @@ export function Gallery3D({ artworks }: Props) {
       if (e.code === "KeyM") {
         e.preventDefault();
         if (!mapOpen) {
-          setViewedMapFloorIdx(currentFloorIdx);
-          const s = Math.max(300, Math.min(window.innerHeight - 180, window.innerWidth - 160, 760));
-          setBigMapSize(s);
-          setMapOpen(true);
-          if (!isTouch && document.pointerLockElement) document.exitPointerLock();
+          openBigMap();
         } else {
           setMapOpen(false);
         }
@@ -421,7 +429,7 @@ export function Gallery3D({ artworks }: Props) {
     mapOpen,
     currentFloorIdx,
     viewedMapFloorIdx,
-    isTouch,
+    openBigMap,
     layout.floors.length,
     teleportToFloor,
   ]);
@@ -735,20 +743,38 @@ export function Gallery3D({ artworks }: Props) {
           look joystick (bottom-right) and audio controls (top-right)
           don't collide with it. Smaller size on mobile to leave room
           for the centred floor banner on narrow viewports. */}
-      {hasStarted && !zoomed && !mapOpen && (
-        <div
-          className={`absolute pointer-events-none ${
-            isTouch ? "top-4 left-4" : "bottom-4 right-4"
-          }`}
-        >
-          <Minimap
-            floor={currentFloor}
-            activeRoomIdx={activeRoomIdx}
-            playerRef={lastCameraRef}
-            size={isTouch ? 196 : 308}
-          />
-        </div>
-      )}
+      {hasStarted &&
+        !zoomed &&
+        !mapOpen &&
+        (isTouch ? (
+          // Touch: the corner minimap is a tap target that opens the
+          // big map (the desktop M-key has no mobile equivalent).
+          <button
+            type="button"
+            onClick={openBigMap}
+            aria-label="Open full map"
+            className="absolute top-4 left-4 cursor-pointer appearance-none border-0 bg-transparent p-0 pointer-events-auto active:opacity-80"
+          >
+            <Minimap
+              floor={currentFloor}
+              activeRoomIdx={activeRoomIdx}
+              playerRef={lastCameraRef}
+              size={196}
+            />
+            <span className="pointer-events-none absolute top-1 right-1 rounded bg-black/55 px-1.5 py-0.5 text-[10px] font-medium text-white/85">
+              Tap to expand
+            </span>
+          </button>
+        ) : (
+          <div className="absolute bottom-4 right-4 pointer-events-none">
+            <Minimap
+              floor={currentFloor}
+              activeRoomIdx={activeRoomIdx}
+              playerRef={lastCameraRef}
+              size={308}
+            />
+          </div>
+        ))}
       {/* Big-map overlay (toggled with M). Shows the full floor plan
           for whichever floor the user is previewing — defaults to the
           one they're physically on. ↑ / ↓ + PgUp / PgDn cycle
