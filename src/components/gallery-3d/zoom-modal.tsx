@@ -9,40 +9,8 @@ import {
 import { artworkAlt, displayTitle } from "@/lib/artwork-format";
 import type { ArtworkListing } from "@/lib/data";
 import { suggestFixUrl } from "@/lib/links";
-import { assetProxyUrl, assetUrl, cn, variantProxyUrl, variantUrl } from "@/lib/utils";
-import { getHiRes, peekCached } from "./texture-cache";
-
-/** Walk this artwork's variant widths from largest to smallest and
- *  return the URL of the highest one that's already in either of the
- *  3D-gallery texture caches. The browser's HTTP cache holds the
- *  matching AVIF bytes from when the texture loaded, so an `<img
- *  src=...>` for that URL paints from disk-cache in tens of ms instead
- *  of round-tripping the network for the multi-MB high-res variant.
- *
- *  Returns null if nothing is cached — the modal falls back to the
- *  smallest variant URL as a placeholder while it fetches the
- *  high-res copy. */
-function peekBestCachedVariantUrl(artwork: ArtworkListing): string | null {
-  const widths = artwork.variantWidths ?? [];
-  for (let i = widths.length - 1; i >= 0; i--) {
-    const w = widths[i];
-    const url = variantUrl(artwork.objectKey, w, "avif");
-    const proxyUrl = variantProxyUrl(artwork.objectKey, w, "avif");
-    if (peekCached(proxyUrl) || getHiRes(proxyUrl)) return proxyUrl;
-    if (peekCached(url) || getHiRes(url)) return url;
-  }
-  // Original-source tier — only present in the hi-res cache when the
-  // player walked right up to the painting in 3D and triggered the
-  // close-up LOD's `original` fetch.
-  const sourceW = artwork.width;
-  if (sourceW != null && sourceW > 4096) {
-    const origUrl = assetUrl(artwork.objectKey);
-    const proxyOrigUrl = assetProxyUrl(artwork.objectKey);
-    if (peekCached(proxyOrigUrl) || getHiRes(proxyOrigUrl)) return proxyOrigUrl;
-    if (peekCached(origUrl) || getHiRes(origUrl)) return origUrl;
-  }
-  return null;
-}
+import { assetUrl, cn, variantUrl } from "@/lib/utils";
+import { peekBestCachedTexture } from "./texture-cache";
 
 /**
  * Full-screen overlay with a zoom/pan view of one painting plus its
@@ -96,50 +64,79 @@ export function ZoomModal({
     ? variantUrl(artwork.objectKey, largestVariant, "avif")
     : assetUrl(artwork.objectKey);
 
-  // Placeholder src — picked once on mount. Walks the texture LRU
-  // largest-to-smallest and returns the URL of the highest cached
-  // variant; the browser's HTTP cache holds those bytes too, so
-  // `<img src=...>` paints from disk in tens of ms. If nothing is
-  // cached, fall back to the smallest variant (256 px) which is the
-  // fastest cold load — much better than waiting for the multi-MB
-  // high-res copy to arrive over the network.
-  const placeholderSrc = useMemo(() => {
-    const cached = peekBestCachedVariantUrl(artwork);
-    if (cached) return cached;
-    if (widths.length > 0) return variantUrl(artwork.objectKey, widths[0], "avif");
-    return assetUrl(artwork.objectKey);
-  }, [artwork, widths]);
+  // The sharpest already-decoded texture the player loaded while walking
+  // the 3D scene. When present we draw it straight to a canvas (below) —
+  // instant, no network, no re-decode — and never show a spinner. A
+  // painting the player just clicked always has at least its 960 px base
+  // resident, so this is the common path.
+  const cachedTexture = useMemo(
+    () => peekBestCachedTexture(artwork.objectKey, widths, sourceWidth),
+    [artwork.objectKey, widths, sourceWidth],
+  );
 
-  // If the placeholder IS already the high-res, skip the preload step
-  // and start with `highReady` true so the high-res `<img>` paints
-  // immediately and the cross-fade overlay is a no-op.
-  const startReady = placeholderSrc === highSrc;
-  const [highReady, setHighReady] = useState(startReady);
+  // Fallback placeholder when no texture is cached (rare — e.g. the base
+  // aged out of the LRU between click and modal open). Smallest variant
+  // is the fastest cold load.
+  const fallbackPlaceholderSrc = hasVariants
+    ? variantUrl(artwork.objectKey, widths[0], "avif")
+    : assetUrl(artwork.objectKey);
 
-  // Preload the high-res variant in the background. Cancellation
-  // prevents a stale onload from flipping highReady true after the
-  // modal has already been dismissed. Skipped when the placeholder is
-  // already the high-res (no fetch needed).
+  const [highReady, setHighReady] = useState(false);
+
+  // Preload the high-res variant in the background, then cross-fade it
+  // over the canvas / fallback placeholder. Cancellation prevents a
+  // stale onload from flipping highReady true after the modal closed.
   useEffect(() => {
-    if (startReady) return;
     let cancelled = false;
     const img = new Image();
-    img.onload = () => {
+    const done = () => {
       if (!cancelled) setHighReady(true);
     };
+    img.onload = done;
+    img.onerror = done;
     img.src = highSrc;
     return () => {
       cancelled = true;
       img.onload = null;
+      img.onerror = null;
     };
-  }, [highSrc, startReady]);
+  }, [highSrc]);
+
+  // Paint the cached texture's decoded bitmap onto the canvas placeholder.
+  // Textures decode with imageOrientation:"flipY" (WebGL's origin is
+  // bottom-left), so the bitmap is upside down for a top-left 2D canvas —
+  // mirror vertically to draw it upright.
+  const canvasRef = useRef<HTMLCanvasElement | null>(null);
+  const [canvasPainted, setCanvasPainted] = useState(false);
+  useEffect(() => {
+    setCanvasPainted(false);
+    const canvas = canvasRef.current;
+    if (!canvas || !cachedTexture) return;
+    const bmp = cachedTexture.image as
+      | (CanvasImageSource & { width?: number; height?: number })
+      | undefined;
+    const w = bmp?.width;
+    const h = bmp?.height;
+    if (!bmp || !w || !h) return;
+    canvas.width = w;
+    canvas.height = h;
+    const ctx = canvas.getContext("2d");
+    if (!ctx) return;
+    const flipY = typeof ImageBitmap !== "undefined" && bmp instanceof ImageBitmap;
+    if (flipY) {
+      ctx.translate(0, h);
+      ctx.scale(1, -1);
+    }
+    ctx.drawImage(bmp, 0, 0);
+    setCanvasPainted(true);
+  }, [cachedTexture]);
 
   const dims = artwork.realDimensions;
-  // Spinner only when we have NO image to show at all — the placeholder
-  // is the smallest variant and it's still loading. With a cache hit
-  // the placeholder paints fast and the spinner never shows.
+  // Track the fallback placeholder's load only when there's no cached
+  // texture to draw. With the canvas (or once high-res lands) the spinner
+  // never shows.
   const [placeholderLoaded, setPlaceholderLoaded] = useState(false);
-  const showSpinner = !placeholderLoaded && !highReady;
+  const showSpinner = !canvasPainted && !placeholderLoaded && !highReady;
 
   return (
     <div
@@ -164,16 +161,23 @@ export function ZoomModal({
           contentStyle={{ width: "100%", height: "100%" }}
         >
           <div className="relative h-full w-full">
-            {/* Placeholder: highest cached variant (HTTP-cached AVIF
-                bytes paint in tens of ms) or the smallest variant if
-                nothing is cached. Stays visible until the high-res
-                cross-fades over it. Skipped entirely when the
-                placeholder IS the high-res — no point rendering it
-                twice. */}
-            {!startReady && (
+            {/* Instant placeholder: the sharpest already-decoded texture
+                the player loaded in the 3D scene, drawn straight to a
+                canvas — zero network, zero re-decode. Falls back to the
+                smallest variant <img> only when nothing is cached. Stays
+                visible until the high-res copy cross-fades over it. */}
+            {cachedTexture ? (
+              <canvas
+                ref={canvasRef}
+                className={cn(
+                  "absolute inset-0 h-full w-full object-contain transition-opacity duration-300",
+                  highReady ? "opacity-0" : "opacity-100",
+                )}
+              />
+            ) : (
               // biome-ignore lint/performance/noImgElement: react-zoom-pan-pinch needs a plain <img>; next/image's wrapper interferes with its transform layer.
               <img
-                src={placeholderSrc}
+                src={fallbackPlaceholderSrc}
                 alt=""
                 width={artwork.width ?? undefined}
                 height={artwork.height ?? undefined}
@@ -194,9 +198,6 @@ export function ZoomModal({
               width={artwork.width ?? undefined}
               height={artwork.height ?? undefined}
               draggable={false}
-              onLoad={() => {
-                if (startReady) setPlaceholderLoaded(true);
-              }}
               className={cn(
                 "absolute inset-0 h-full w-full select-none object-contain transition-opacity duration-300",
                 highReady ? "opacity-100" : "opacity-0",

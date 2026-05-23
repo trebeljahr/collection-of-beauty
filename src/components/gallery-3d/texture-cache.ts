@@ -83,6 +83,7 @@
 import { useThree } from "@react-three/fiber";
 import { useMemo } from "react";
 import * as THREE from "three";
+import { assetProxyUrl, assetUrl, variantProxyUrl, variantUrl } from "@/lib/utils";
 
 const TEXTURE_CACHE_CAPACITY = 96;
 const TEXTURE_LOAD_ATTEMPTS = 3;
@@ -449,6 +450,40 @@ export function peekCached(url: string): THREE.Texture | undefined {
     preloadCache.evictWithoutDispose(url);
     cache.put(url, preloaded);
     return preloaded;
+  }
+  return undefined;
+}
+
+/** Walk an artwork's variant ladder from largest to smallest and return
+ *  the highest-resolution THREE.Texture that's already resident in any
+ *  of the three pools (base/thumb, hi-res, preload). The zoom modal
+ *  draws this decoded bitmap straight to a canvas, so opening the detail
+ *  view from the 3D scene paints the sharpest copy the player has
+ *  already loaded with zero network and zero re-decode — no spinner,
+ *  no waiting on the HTTP cache to re-serve the same bytes.
+ *
+ *  Checks both the same-origin proxy URL (what the 3D paintings load) and
+ *  the direct CDN URL for each width, mirroring the URL forms the gallery
+ *  may have fetched. Returns undefined when nothing is cached. */
+export function peekBestCachedTexture(
+  objectKey: string,
+  variantWidths: readonly number[] | null | undefined,
+  sourceWidth: number | null | undefined,
+): THREE.Texture | undefined {
+  const peekAny = (url: string): THREE.Texture | undefined => peekCached(url) ?? getHiRes(url);
+  const widths = variantWidths ?? [];
+  for (let i = widths.length - 1; i >= 0; i--) {
+    const w = widths[i];
+    const hit =
+      peekAny(variantProxyUrl(objectKey, w, "avif")) ?? peekAny(variantUrl(objectKey, w, "avif"));
+    if (hit) return hit;
+  }
+  // Original-source tier — only ever resident when the player walked
+  // right up to the painting in 3D and triggered the close-up LOD's
+  // `original` fetch.
+  if (sourceWidth != null && sourceWidth > 4096) {
+    const hit = peekAny(assetProxyUrl(objectKey)) ?? peekAny(assetUrl(objectKey));
+    if (hit) return hit;
   }
   return undefined;
 }

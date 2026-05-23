@@ -7,7 +7,8 @@ import {
   TransformComponent,
   TransformWrapper,
 } from "react-zoom-pan-pinch";
-import { assetUrl, cn, variantSrcSet, variantUrl } from "@/lib/utils";
+import { getLoadedVariant, recordLoadedVariant } from "@/lib/image-cache";
+import { assetUrl, cn, variantUrl } from "@/lib/utils";
 
 type Props = {
   open: boolean;
@@ -46,7 +47,13 @@ export function Lightbox({
   const highWidth = hasVariants ? widths[widths.length - 1] : null;
   const highSrc = highWidth ? variantUrl(objectKey, highWidth, "avif") : assetUrl(objectKey);
   const fallbackSrc = assetUrl(objectKey);
-  const avifSrcSet = hasVariants ? variantSrcSet(objectKey, "avif", widths) : "";
+  // Placeholder: the exact variant the page below already loaded (so it's
+  // in the HTTP cache and paints instantly), else the smallest variant as
+  // a fast cold load. Reused across grid → detail page → fullscreen so
+  // each step shows the previous step's bytes while the larger copy
+  // arrives.
+  const smallestSrc = hasVariants ? variantUrl(objectKey, widths[0], "avif") : fallbackSrc;
+  const placeholderSrc = getLoadedVariant(objectKey) ?? smallestSrc;
 
   // Reset everything when the displayed artwork changes (objectKey is the
   // unique identifier here). Without this, prev/next inside the lightbox
@@ -134,42 +141,38 @@ export function Lightbox({
           contentStyle={{ width: "100vw", height: "100vh" }}
         >
           <div className="relative h-screen w-screen">
-            {/* Placeholder: cached responsive variant from the detail page,
-                shown until the high-res copy is decoded. */}
-            {hasVariants && (
-              <picture
-                className={cn(
-                  "absolute inset-0 transition-opacity duration-300",
-                  highReady ? "opacity-0" : "opacity-100",
-                )}
-              >
-                <source type="image/avif" srcSet={avifSrcSet} sizes="100vw" />
-                {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img
-                  src={fallbackSrc}
-                  alt=""
-                  width={srcWidth ?? undefined}
-                  height={srcHeight ?? undefined}
-                  draggable={false}
-                  onLoad={() => setPlaceholderLoaded(true)}
-                  className="h-full w-full object-contain"
-                />
-              </picture>
-            )}
+            {/* Placeholder: the variant already cached from the grid /
+                detail page, shown until the high-res copy is decoded. */}
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            {/* biome-ignore lint/performance/noImgElement: manual variant selection + highReady swap; next/image's pipeline does not fit our rclone-backed variant ladder. */}
+            <img
+              src={placeholderSrc}
+              alt=""
+              width={srcWidth ?? undefined}
+              height={srcHeight ?? undefined}
+              draggable={false}
+              onLoad={() => setPlaceholderLoaded(true)}
+              className={cn(
+                "absolute inset-0 h-full w-full object-contain transition-opacity duration-300",
+                highReady ? "opacity-0" : "opacity-100",
+              )}
+            />
             {/* eslint-disable-next-line @next/next/no-img-element */}
             {/* biome-ignore lint/performance/noImgElement: variant selection + highReady swap is done manually by this component; next/image's pipeline does not fit our rclone-backed variant ladder. */}
             <img
-              src={highReady ? highSrc : fallbackSrc}
+              src={highReady ? highSrc : placeholderSrc}
               alt={alt}
               width={srcWidth ?? undefined}
               height={srcHeight ?? undefined}
               draggable={false}
-              onLoad={() => {
-                if (!hasVariants) setPlaceholderLoaded(true);
+              onLoad={(e) => {
+                if (highReady) {
+                  recordLoadedVariant(objectKey, e.currentTarget.currentSrc || e.currentTarget.src);
+                }
               }}
               className={cn(
                 "absolute inset-0 h-full w-full select-none object-contain transition-opacity duration-300",
-                highReady ? "opacity-100" : hasVariants ? "opacity-0" : "opacity-100",
+                highReady ? "opacity-100" : "opacity-0",
               )}
             />
           </div>

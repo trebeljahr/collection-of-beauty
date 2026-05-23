@@ -70,6 +70,7 @@ export function ResponsiveImage({
       <img
         src={assetUrl(objectKey)}
         alt={alt}
+        data-object-key={objectKey}
         width={fill ? undefined : srcWidth}
         height={fill ? undefined : srcHeight}
         loading={resolvedLoading}
@@ -95,6 +96,7 @@ export function ResponsiveImage({
         <img
           src={fallback}
           alt={alt}
+          data-object-key={objectKey}
           sizes={sizes}
           loading={resolvedLoading}
           fetchPriority={fetchPriority}
@@ -112,6 +114,7 @@ export function ResponsiveImage({
       <img
         src={fallback}
         alt={alt}
+        data-object-key={objectKey}
         width={srcWidth}
         height={srcHeight}
         sizes={sizes}
