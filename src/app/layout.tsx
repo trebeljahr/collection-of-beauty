@@ -3,6 +3,7 @@ import Link from "next/link";
 import Script from "next/script";
 import "./globals.css";
 import { Gallery3DProvider } from "@/components/gallery-3d-state";
+import { ImageCacheTracker } from "@/components/image-cache-tracker";
 import { SiteNav } from "@/components/site-nav";
 import {
   jsonLdScriptProps,
@@ -123,6 +124,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
           Skip to main content
         </a>
         <Gallery3DProvider>
+          <ImageCacheTracker />
           <SiteNav />
           <main id="main-content">{children}</main>
           <footer className="mt-16 border-t border-[var(--border)] py-6 text-center text-xs text-[var(--muted-foreground)]">
