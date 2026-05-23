@@ -55,11 +55,17 @@ type Props = {
   position: readonly [number, number, number];
   /** Era for material lookup + lamp tint colour. */
   era: Era;
-  /** When false the point light isn't rendered, but the geometry still
-   *  is — so an unlit room still shows its (dark) fixtures. The lit set
-   *  pre-includes door-neighbours, so a room is already lit before the
-   *  player crosses into it; no on-screen switch-on. */
+  /** Mounts the actual <pointLight>. Only the room the player occupies
+   *  carries real point lights — three.js prices every mounted light
+   *  into the fragment shader, so this stays a bounded handful (one
+   *  room's lamps) rather than scaling with the pre-lit neighbour set. */
   lit: boolean;
+  /** Lights the bulb's emissive material (free — a static material swap,
+   *  no per-fragment cost). Door-neighbour rooms `glow` without `lit`,
+   *  so the next room reads as lit through the doorway (glowing bulbs +
+   *  the scene's ambient/hemisphere/env baseline) without paying for a
+   *  point light until the player actually steps in. */
+  glow: boolean;
   /** How far the bulb's centre hangs below the ceiling, in metres.
    *  Anything below ~0.27 collapses the stem to zero (canopy + bulb
    *  flush). 0.65 is a comfortable room pendant; 0.30 is a corridor
@@ -73,6 +79,7 @@ export function LampFixture({
   position,
   era,
   lit,
+  glow,
   bulbDrop = 0.65,
   intensity = 16,
   distance = 12,
@@ -101,12 +108,13 @@ export function LampFixture({
           <primitive object={mats.lampHousing} attach="material" />
         </mesh>
       )}
-      {/* Bulb material swaps with `lit`: a dim non-emissive sphere when
+      {/* Bulb material swaps with `glow`: a dim non-emissive sphere when
           the room's off, an emissive sphere when on so the bulb reads as
-          glowing. */}
+          glowing — even in a pre-lit neighbour that carries no point
+          light yet. */}
       <mesh position={[lx, bulbCenterY, lz]}>
         <primitive object={LAMP_BULB_GEOM} attach="geometry" />
-        <primitive object={lit ? mats.lampBulbOn : mats.lampBulbOff} attach="material" />
+        <primitive object={glow ? mats.lampBulbOn : mats.lampBulbOff} attach="material" />
       </mesh>
       {lit && (
         <pointLight

@@ -26,12 +26,18 @@ import { WallWithDoors } from "./wall";
  */
 export function RoomGeometry({
   room,
-  isActive,
+  isLit,
+  isGlowing,
   stairCenter,
   onPaintingSettled,
 }: {
   room: RoomLayout;
-  isActive: boolean;
+  /** Player occupies this room — mount its real point lights. */
+  isLit: boolean;
+  /** Room is in the pre-lit set (occupied room or a door-neighbour) —
+   *  light the bulbs' emissive material so it reads as lit through the
+   *  doorway without paying for point lights until the player enters. */
+  isGlowing: boolean;
   /** Central-stair XZ for this floor. Used to order this room's painting
    *  reveal nearest-the-stair first. */
   stairCenter: [number, number];
@@ -234,11 +240,13 @@ export function RoomGeometry({
           painting is at most ~half a quadrant's diagonal from a light,
           so wall coverage is much more even than the old single centre
           lamp left it. The fixture geometry is rendered for every room,
-          regardless of whether the player is inside — only the point
-          light is gated on `isActive`, so adjacent rooms visible
-          through doorways still show their lamps (with the bulbs
-          glowing via the basic-material colour) and the lights
-          "switch on" only as the player walks in.
+          regardless of whether the player is inside. The real point
+          light is gated on `isLit` (occupied room only) while the bulb
+          glow is gated on `isGlowing` (occupied room + door-neighbours),
+          so an approaching room reads as lit through the doorway via its
+          glowing bulbs + the scene's ambient/env baseline, and the warm
+          point-light pools "switch on" only as the player walks in —
+          keeping the live point-light count to a single room's lamps.
           Stairwell rooms have no rendered ceiling at ROOM_HEIGHT — the
           well is open all the way up, so the visible "ceiling" from
           inside one is the underside of the next floor's slab at
@@ -262,7 +270,8 @@ export function RoomGeometry({
             czWorld + sz * (depth / 4),
           ]}
           era={era}
-          lit={isActive}
+          lit={isLit}
+          glow={isGlowing}
           bulbDrop={0.65}
           intensity={11}
           distance={Math.max(width, depth) * 1.2}
