@@ -909,8 +909,11 @@ function canStepTo(
   toZ: number,
   currentStairId: string | null,
   currentCum: number,
-  /** World Y of the player's head (camera position). Used by the
-   *  top-landing edge fence to tell whether the player is standing at
+  /** World Y of the player's head (camera position). Used by (a) the
+   *  outer-rail overhead bypass — where the helix at this angular
+   *  position has risen above the player's head, the outer wall is
+   *  dropped so they can walk under the overhang — and (b) the
+   *  top-landing edge fence, to tell whether the player is standing at
    *  the helix's top landing (so the dead-end half of the landing can
    *  be blocked) versus walking the flight below it. */
   playerHeadY: number,
@@ -991,33 +994,38 @@ function canStepTo(
   }
   const stair = findStairAt(floor, toX, toZ);
   if (stair) {
-    // The spiral footprint is a no-enter zone from every angle except
-    // the gate. The player may only step onto the helix through the gate
-    // window centred on the entry direction; from every other angle both
-    // the inner and outer edges are walls. Concretely:
+    // Solid where the structure actually is, free where it isn't. The
+    // spiral occupies one XZ footprint at many heights, so collision
+    // here is height-aware rather than a flat no-enter footprint:
     //
     //  - INNER constraint (always on): keeps the player's bbox clear of
     //    the inner rail and out of the central well. On upper floors the
     //    open-well guard above already blocks r < innerRadius; the ground
     //    floor skips that guard, so this clearance is the only thing
     //    fencing the well there.
-    //  - OUTER constraint (dropped only inside the gate): keeps the bbox
-    //    clear of the outer rail. Crossing the (maxR, outerRadius) band
-    //    from the surrounding room is the only way onto the annulus, so
-    //    blocking it everywhere but the gate means the player can't climb
-    //    onto the steps from the back or the side — they walk around the
-    //    spiral in the room and on through the gate.
+    //  - OUTER constraint (the outer rail): a solid wall only where the
+    //    tread at this angle is at or below the player's head. Where the
+    //    helix has wound up overhead — the raised back of the spiral seen
+    //    from the ground floor — the rail and steps are metres above the
+    //    player, so the wall is dropped and they walk under the overhang
+    //    freely. Inside the gate window the outer wall is also dropped so
+    //    the player can step on/off; outside the gate, only the overhead
+    //    bypass relaxes it.
     //
-    // No Y-aware overhead bypass: an earlier version dropped the outer
-    // constraint wherever the helix had risen above head height, to avoid
-    // an "invisible wall" when walking under the raised back of the
-    // spiral on the ground floor. That let the player duck under and
-    // glitch onto the steps (and, before the inner fence, clean through
-    // the well) from behind. The room is far wider than the spiral, so
-    // fencing the whole footprint just routes the player around it.
+    // This is height-aware on purpose: a flat "fence the whole footprint
+    // except the gate" cages the player on the ground floor (everything
+    // but a narrow onramp reads as an invisible wall). Boarding the helix
+    // from a wrong angle is still prevented — fresh activation requires
+    // the gate arc (see useFrame), and the central well stays sealed by
+    // the always-on inner fence — so dropping the overhead wall only
+    // frees up genuine empty space under the overhang.
     const dx = toX - stair.centerX;
     const dz = toZ - stair.centerZ;
     const r2 = dx * dx + dz * dz;
+    const cumAngle = spiralRawAngle(stair, toX, toZ);
+    const tGlobal = cumAngle / (Math.PI * 2);
+    const stepY = stair.lowerY + tGlobal * (stair.upperY - stair.lowerY);
+    const stepIsOverhead = stepY >= playerHeadY;
     const theta = Math.atan2(dz, dx);
     const gateHalfArc = spiralGateHalfArc(stair.numSteps);
     const angDiff = Math.atan2(
@@ -1027,7 +1035,7 @@ function canStepTo(
     const inGate = Math.abs(angDiff) < gateHalfArc;
     const minR = stair.innerRadius + SPIRAL_RAIL_CLEARANCE;
     if (r2 < minR * minR) return false;
-    if (!inGate) {
+    if (!stepIsOverhead && !inGate) {
       const maxR = stair.outerRadius - SPIRAL_RAIL_CLEARANCE;
       if (r2 > maxR * maxR) return false;
     }
