@@ -17,8 +17,11 @@
 //      unavoidable main-thread step in a texture load (WebGL single-
 //      threaded). Doing it for dozens of textures in the same frame
 //      is what makes the scene hitch when the player walks into a
-//      crowded floor. The queue serialises uploads across rAF ticks
-//      so at most one hitch per frame.
+//      crowded floor. The queue drains a time-boxed batch per rAF tick
+//      (UPLOAD_BUDGET_MS / UPLOAD_MAX_PER_FRAME) — enough to clear a
+//      floor-swap burst in a fraction of a second without blowing a
+//      frame. Placeholder thumbs jump ahead of bases so a freshly
+//      mounted floor paints its 256 px blurs fast, then upgrades.
 //
 // Paintings call `loadTextureCached(url, renderer)` instead of
 // `useLoader(TextureLoader, url)`. The result is Suspense-friendly via
@@ -66,9 +69,10 @@
 //   • Three separate Maps (`cache`, `hiresCache`, `preloadCache`). No
 //     cross-pool eviction — a preload burst of an entire floor's worth
 //     of thumbs (256 cap) cannot push out current-floor base textures.
-//   • Upload queue is high-before-low. A floor-wide preload (potentially
-//     hundreds of `initTexture` calls) cannot delay a hi-res upgrade the
-//     player is actively walking toward.
+//   • Upload queue is placeholder-before-high-before-low. Placeholder
+//     thumbs paint first; a floor-wide preload (potentially hundreds of
+//     `initTexture` calls) on the low queue cannot delay a hi-res
+//     upgrade the player is actively walking toward.
 //   • Promotion is destructive on the preload side only: the thumb's
 //     GPU texture survives via `evictWithoutDispose`, and from that
 //     point the LodController's per-tick MRU touch keeps it alive in
@@ -186,13 +190,28 @@ type UploadTask = {
   renderer: THREE.WebGLRenderer;
   resolve: () => void;
 };
-type UploadPriority = "high" | "low";
-// Two queues, drained high-before-low. "low" backs preload uploads so a
-// floor's worth of thumb uploads can't push past a hi-res upgrade the
-// player is actively walking toward.
+type UploadPriority = "placeholder" | "high" | "low";
+// Three queues, drained placeholder-before-high-before-low.
+//   placeholder — 256 px blur thumbs a freshly-mounted painting shows
+//                 in place of the brown swatch. Jump ahead of bases so
+//                 a floor-swap burst clears its placeholders fast.
+//   high        — 960 px bases + proximity hi-res tiers.
+//   low         — staircase-approach preload of the adjacent floor.
+const placeholderQueue: UploadTask[] = [];
 const uploadQueue: UploadTask[] = [];
 const lowUploadQueue: UploadTask[] = [];
 let pumpScheduled = false;
+
+// Per-frame upload budget. The single-upload-per-rAF cap this replaced
+// serialised a floor swap (the whole destination floor mounts at once —
+// hundreds of paintings) into hundreds of frames: the player crested
+// the stairs into a wall of brown swatches while the queue trickled out
+// one texture per frame. A time-boxed batch keeps the original anti-
+// hitch intent (stop before the frame budget is spent) while draining a
+// burst in a fraction of a second. MAX is a hard ceiling so a slow GPU
+// can't overshoot the budget by much on a run of big 960 px uploads.
+const UPLOAD_BUDGET_MS = 3;
+const UPLOAD_MAX_PER_FRAME = 12;
 
 function schedulePump() {
   if (pumpScheduled) return;
@@ -200,10 +219,17 @@ function schedulePump() {
   requestAnimationFrame(pumpUploads);
 }
 
+function nextUploadTask(): UploadTask | undefined {
+  return placeholderQueue.shift() ?? uploadQueue.shift() ?? lowUploadQueue.shift();
+}
+
 function pumpUploads() {
   pumpScheduled = false;
-  const task = uploadQueue.shift() ?? lowUploadQueue.shift();
-  if (task) {
+  const start = performance.now();
+  let uploaded = 0;
+  while (uploaded < UPLOAD_MAX_PER_FRAME) {
+    const task = nextUploadTask();
+    if (!task) break;
     try {
       task.renderer.initTexture(task.tex);
     } catch {
@@ -211,8 +237,12 @@ function pumpUploads() {
       // draw time instead. Not fatal.
     }
     task.resolve();
+    uploaded++;
+    if (performance.now() - start > UPLOAD_BUDGET_MS) break;
   }
-  if (uploadQueue.length > 0 || lowUploadQueue.length > 0) schedulePump();
+  if (placeholderQueue.length > 0 || uploadQueue.length > 0 || lowUploadQueue.length > 0) {
+    schedulePump();
+  }
 }
 
 function enqueueUpload(
@@ -221,7 +251,12 @@ function enqueueUpload(
   priority: UploadPriority = "high",
 ): Promise<void> {
   return new Promise((resolve) => {
-    const q = priority === "low" ? lowUploadQueue : uploadQueue;
+    const q =
+      priority === "low"
+        ? lowUploadQueue
+        : priority === "placeholder"
+          ? placeholderQueue
+          : uploadQueue;
     q.push({ tex, renderer, resolve });
     schedulePump();
   });
@@ -268,6 +303,7 @@ async function withTextureTimeout<T>(
 async function loadTextureCached(
   url: string,
   renderer: THREE.WebGLRenderer | null,
+  priority: UploadPriority = "high",
 ): Promise<THREE.Texture> {
   const cached = cache.get(url);
   if (cached) return cached;
@@ -312,7 +348,7 @@ async function loadTextureCached(
           texture.generateMipmaps = true;
           texture.flipY = false; // already flipped during createImageBitmap
           texture.needsUpdate = true;
-          if (renderer) await enqueueUpload(texture, renderer);
+          if (renderer) await enqueueUpload(texture, renderer, priority);
           return texture;
         });
         cache.put(url, tex);
@@ -515,12 +551,15 @@ export function preloadCached(
 /** Eager async load that goes through the same LRU + upload queue as
  *  the Suspense path. Used by the painting's progressive loader to
  *  fire-and-forget both the 256 px placeholder and the 960 px base
- *  in parallel. */
+ *  in parallel. Pass priority "placeholder" for the thumb so it jumps
+ *  ahead of bases during a floor-swap upload burst — the blur paints
+ *  fast, the base upgrades on top once its turn comes. */
 export function loadCached(
   url: string,
   renderer: THREE.WebGLRenderer | null,
+  priority: UploadPriority = "high",
 ): Promise<THREE.Texture> {
-  return loadTextureCached(url, renderer);
+  return loadTextureCached(url, renderer, priority);
 }
 
 /** After a `webglcontextrestored` event, every cached THREE.Texture's

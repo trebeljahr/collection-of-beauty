@@ -772,7 +772,7 @@ function PaintingPlane({
     let baseInstalled = baseTextureRef.current !== null;
 
     if (!baseInstalled) {
-      loadCached(thumbUrl, gl)
+      loadCached(thumbUrl, gl, "placeholder")
         .then((tex) => {
           if (cancelled || baseInstalled) return;
           // Install the placeholder. The 960 will overwrite this when
