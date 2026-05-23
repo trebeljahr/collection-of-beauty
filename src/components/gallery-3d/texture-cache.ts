@@ -15,13 +15,13 @@
 //
 //   2. Upload queue    — `renderer.initTexture(tex)` is the one
 //      unavoidable main-thread step in a texture load (WebGL single-
-//      threaded). Doing it for dozens of textures in the same frame
+//      threaded). Doing it for several heavy textures in the same frame
 //      is what makes the scene hitch when the player walks into a
-//      crowded floor. The queue drains a time-boxed batch per rAF tick
-//      (UPLOAD_BUDGET_MS / UPLOAD_MAX_PER_FRAME) — enough to clear a
-//      floor-swap burst in a fraction of a second without blowing a
-//      frame. Placeholder thumbs jump ahead of bases so a freshly
-//      mounted floor paints its 256 px blurs fast, then upgrades.
+//      crowded floor — so heavy uploads (bases + hi-res) are paced at
+//      one per rAF tick. Cheap 256 px placeholder thumbs ride a
+//      separate lane drained a few per tick, so a freshly mounted floor
+//      sheds its brown swatches fast without the heavy uploads stalling
+//      the walk.
 //
 // Paintings call `loadTextureCached(url, renderer)` instead of
 // `useLoader(TextureLoader, url)`. The result is Suspense-friendly via
@@ -202,16 +202,24 @@ const uploadQueue: UploadTask[] = [];
 const lowUploadQueue: UploadTask[] = [];
 let pumpScheduled = false;
 
-// Per-frame upload budget. The single-upload-per-rAF cap this replaced
-// serialised a floor swap (the whole destination floor mounts at once —
-// hundreds of paintings) into hundreds of frames: the player crested
-// the stairs into a wall of brown swatches while the queue trickled out
-// one texture per frame. A time-boxed batch keeps the original anti-
-// hitch intent (stop before the frame budget is spent) while draining a
-// burst in a fraction of a second. MAX is a hard ceiling so a slow GPU
-// can't overshoot the budget by much on a run of big 960 px uploads.
-const UPLOAD_BUDGET_MS = 3;
-const UPLOAD_MAX_PER_FRAME = 12;
+// Per-frame upload pacing. initTexture is a synchronous GPU upload +
+// mipmap generation; its real cost lands on the GPU after the call
+// returns, so a wall-clock budget can't see it (performance.now()
+// undercounts and the frame hitches anyway). Pace by COUNT, split by
+// cost:
+//
+//   • Placeholders (256 px thumbs) are tiny — drain a few per frame so
+//     a freshly-mounted floor sheds its brown swatches fast.
+//   • Bases / hi-res tiers (960 px … original) are heavy enough that
+//     more than one per frame visibly hitches the walk. Exactly one per
+//     frame — the cap the gallery shipped with before the brown-swatch
+//     work, which is why the walk stayed smooth.
+//
+// An earlier pass here drained up to a dozen heavy uploads per frame on
+// a time budget; on a floor swap that tanked FPS, which starved the LOD
+// useFrame tick so hi-res tiers stopped arriving. Counts, not time, and
+// one heavy upload per frame.
+const PLACEHOLDER_UPLOADS_PER_FRAME = 4;
 
 function schedulePump() {
   if (pumpScheduled) return;
@@ -219,27 +227,32 @@ function schedulePump() {
   requestAnimationFrame(pumpUploads);
 }
 
-function nextUploadTask(): UploadTask | undefined {
-  return placeholderQueue.shift() ?? uploadQueue.shift() ?? lowUploadQueue.shift();
+function runUpload(task: UploadTask) {
+  try {
+    task.renderer.initTexture(task.tex);
+  } catch {
+    // Some drivers occasionally reject — R3F will upload lazily at
+    // draw time instead. Not fatal.
+  }
+  task.resolve();
 }
 
 function pumpUploads() {
   pumpScheduled = false;
-  const start = performance.now();
-  let uploaded = 0;
-  while (uploaded < UPLOAD_MAX_PER_FRAME) {
-    const task = nextUploadTask();
+  // Cheap placeholders first — a handful per frame.
+  let placed = 0;
+  while (placed < PLACEHOLDER_UPLOADS_PER_FRAME) {
+    const task = placeholderQueue.shift();
     if (!task) break;
-    try {
-      task.renderer.initTexture(task.tex);
-    } catch {
-      // Some drivers occasionally reject — R3F will upload lazily at
-      // draw time instead. Not fatal.
-    }
-    task.resolve();
-    uploaded++;
-    if (performance.now() - start > UPLOAD_BUDGET_MS) break;
+    runUpload(task);
+    placed++;
   }
+  // Then exactly one heavy upload: high (base / hi-res) before low
+  // (preload) so a floor-wide preload can't delay a tier the player
+  // needs right now.
+  const heavy = uploadQueue.shift() ?? lowUploadQueue.shift();
+  if (heavy) runUpload(heavy);
+
   if (placeholderQueue.length > 0 || uploadQueue.length > 0 || lowUploadQueue.length > 0) {
     schedulePump();
   }
