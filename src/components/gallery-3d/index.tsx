@@ -839,14 +839,23 @@ function FloorScene({
   );
 }
 
+// Upper bound on thumbs primed per staircase approach. Kept at the
+// texture cache's PRELOAD_CACHE_CAPACITY so the nearest-the-stairwell
+// thumbs we prime never get evicted from the pool before the player
+// arrives. Floors larger than this (romantic, fin-de-siècle) only get
+// their stairwell-adjacent paintings preloaded; the rest cold-load on
+// approach behind the fast placeholder upload queue.
+const MAX_STAIR_PRELOAD = 256;
+
 /**
  * Adjacent-floor texture preloader. Fires when the Player edge-reports
- * crossing into a staircase's proximity radius. Walks every painting
- * placement on the connected floor and pumps its 256 px AVIF thumb
- * through the texture cache's low-priority preload queue — so by the
- * time the player rides the stair into the destination, the painting
- * planes can install a thumb on first mount rather than flashing the
- * brown swatch while the cold 256 fetches.
+ * crossing into a staircase's proximity radius. Walks the connected
+ * floor's painting placements nearest the stairwell and pumps their
+ * 256 px AVIF thumbs through the texture cache's low-priority preload
+ * queue — so by the time the player rides the stair into the
+ * destination, those painting planes can install a thumb on first
+ * mount rather than flashing the brown swatch while the cold 256
+ * fetches.
  *
  * Lives inside <Canvas> because it needs the renderer (via useThree)
  * to drive the GPU upload step of the preload pipeline. The work is
@@ -875,20 +884,38 @@ function FloorPreloader({
     if (otherIdx < 0 || otherIdx >= layout.floors.length) return;
     const other = layout.floors[otherIdx];
     const controller = new AbortController();
-    // Walk rooms + hallway placements — both can carry paintings.
-    // Dedup by objectKey so a multi-room placement (rare, but cheap to
-    // guard) doesn't enqueue the same thumb twice.
+    // The preload pool is capped (PRELOAD_CACHE_CAPACITY). A big era
+    // floor holds far more paintings than that (romantic ≈ 923,
+    // fin-de-siècle ≈ 849), so enqueueing the whole floor blindly let
+    // the pool's LRU dispose most primed thumbs before the player
+    // arrived — they crested the stairs into brown swatches. Prime the
+    // paintings NEAREST the stairwell first (those are what the player
+    // walks into on arrival) and cap the count at the pool size so
+    // nothing we prime gets evicted before it's needed. Paintings
+    // deeper in the floor fall back to their own cold load on approach,
+    // which now paints the 256 px blur fast via the placeholder upload
+    // queue. Both rooms + hallways can carry paintings; dedup by
+    // objectKey so a multi-room placement doesn't prime the same thumb
+    // twice.
+    const cx = stair.centerX;
+    const cz = stair.centerZ;
+    const placements = [
+      ...other.rooms.flatMap((r) => r.placements),
+      ...other.hallways.flatMap((h) => h.placements),
+    ].sort((a, b) => {
+      const da = (a.position[0] - cx) ** 2 + (a.position[2] - cz) ** 2;
+      const db = (b.position[0] - cx) ** 2 + (b.position[2] - cz) ** 2;
+      return da - db;
+    });
     const seen = new Set<string>();
-    const enqueue = (objectKey: string | undefined) => {
-      if (!objectKey || seen.has(objectKey)) return;
+    let queued = 0;
+    for (const p of placements) {
+      if (queued >= MAX_STAIR_PRELOAD) break;
+      const objectKey = p.artwork.objectKey;
+      if (!objectKey || seen.has(objectKey)) continue;
       seen.add(objectKey);
       preloadCached(variantProxyUrl(objectKey, 256, "avif"), gl, controller.signal);
-    };
-    for (const room of other.rooms) {
-      for (const p of room.placements) enqueue(p.artwork.objectKey);
-    }
-    for (const hw of other.hallways) {
-      for (const p of hw.placements) enqueue(p.artwork.objectKey);
+      queued++;
     }
     return () => {
       controller.abort();
