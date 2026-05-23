@@ -13,17 +13,26 @@
 // "exterior" leaking in.
 //
 // Implementation: a tiny equirectangular canvas painted with a
-// wall-colour-biased vertical gradient is run through PMREMGenerator
-// once per palette. Output is cached by Palette identity (stable —
-// `ERAS` is a module-level const) so the seven era maps are built
-// lazily and reused for the lifetime of the page.
+// wall-colour-biased vertical gradient is run through PMREMGenerator,
+// then cached per renderer → palette and reused for the lifetime of
+// that renderer.
 
 import { useThree } from "@react-three/fiber";
 import { useEffect } from "react";
 import * as THREE from "three";
 import type { Palette } from "@/lib/gallery-eras";
 
-const cache = new Map<Palette, THREE.WebGLRenderTarget>();
+// A PMREM WebGLRenderTarget's texture is bound to the GL context that
+// built it. Keying the cache by Palette alone (module-scope, lifetime
+// of the page) meant that after the Canvas remounts to recover from a
+// WebGL context loss (see `canvasKey` in index.tsx), env maps built
+// against the now-dead context sampled to nothing — the entry floor
+// lost all ambient fill (only lamps left), while floors first entered
+// after the remount rebuilt fresh and looked fine. So key by the live
+// renderer first: a remount misses the cache and rebuilds against the
+// new context. WeakMap so a dead renderer's targets are GC'd once it is
+// (its GPU memory already died with the context — no manual dispose).
+const cacheByRenderer = new WeakMap<THREE.WebGLRenderer, Map<Palette, THREE.WebGLRenderTarget>>();
 
 function hexToRgb(hex: string): [number, number, number] {
   const h = hex.replace("#", "");
@@ -85,7 +94,12 @@ function paintRoomEquirect(palette: Palette): HTMLCanvasElement {
 }
 
 function getRoomEnvironmentMap(palette: Palette, renderer: THREE.WebGLRenderer): THREE.Texture {
-  const cached = cache.get(palette);
+  let perPalette = cacheByRenderer.get(renderer);
+  if (!perPalette) {
+    perPalette = new Map();
+    cacheByRenderer.set(renderer, perPalette);
+  }
+  const cached = perPalette.get(palette);
   if (cached) return cached.texture;
 
   const canvas = paintRoomEquirect(palette);
@@ -102,7 +116,7 @@ function getRoomEnvironmentMap(palette: Palette, renderer: THREE.WebGLRenderer):
   pmrem.dispose();
   equirect.dispose();
 
-  cache.set(palette, target);
+  perPalette.set(palette, target);
   return target.texture;
 }
 
