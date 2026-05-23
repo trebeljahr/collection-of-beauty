@@ -9,7 +9,6 @@ import {
   FLOOR_THICKNESS,
   INTER_FLOOR_HEIGHT,
 } from "@/lib/gallery-layout/world-coords";
-import { LampFixture } from "./lamp-fixture";
 import { Painting } from "./painting";
 import { getPaletteMaterials } from "./palette-materials";
 import { SolidWall } from "./wall";
@@ -48,12 +47,6 @@ function buildCellFloorGeom(cellX: number, cellZ: number): THREE.PlaneGeometry {
  *  the underside + cross-section edges. */
 const HALLWAY_CELL_SLAB_GEOM = new THREE.BoxGeometry(CELL_SIZE, FLOOR_THICKNESS, CELL_SIZE);
 
-/** Stride between overhead lamps in the corridor — one lamp every N
- *  cells. Too dense and the cost to the renderer climbs; too sparse
- *  and paintings on the walls are invisible. 3 cells ≈ 7.5 m and
- *  reads as "a lamp halfway between every bay of paintings". */
-const CORRIDOR_LAMP_STRIDE = 3;
-
 /**
  * Render a hallway as a run of cells: floor + ceiling per cell, and a
  * wall segment on each side where the adjacent cell is non-walkable.
@@ -69,8 +62,6 @@ export function HallwayRenderer({
 }) {
   const floorY = floor.y;
   const mats = getPaletteMaterials(floor.era.palette);
-
-  const lampCells = hallway.cells.filter((_, i) => i % CORRIDOR_LAMP_STRIDE === 0);
 
   // Per-cell floor geometries with world-anchored UVs. Allocating one
   // PlaneGeometry per cell sounds wasteful, but each is just 4 verts +
@@ -95,28 +86,6 @@ export function HallwayRenderer({
         // biome-ignore lint/suspicious/noArrayIndexKey: deterministic per-hallway placements, never reorders.
         <Painting key={`${hallway.id}-p${i}`} placement={p} />
       ))}
-
-      {/* Corridor lamps — same fixture as room pendants, but with a
-          much shorter drop so the bulb sits close to the lower
-          corridor ceiling (3.12 m vs 4.2 m in rooms) and the player
-          isn't ducking under stems. Hallways stay lit at all times,
-          so `lit` is unconditionally true here. */}
-      {lampCells.map((c) => {
-        const cx = c.x * CELL_SIZE + CELL_SIZE / 2;
-        const cz = c.z * CELL_SIZE + CELL_SIZE / 2;
-        return (
-          <LampFixture
-            key={`${hallway.id}-lamp-${c.x}-${c.z}`}
-            position={[cx, floorY + CORRIDOR_HEIGHT, cz]}
-            era={floor.era}
-            lit={true}
-            glow={true}
-            bulbDrop={0.3}
-            intensity={4}
-            distance={9}
-          />
-        );
-      })}
 
       {hallway.cells.map((c, idx) => {
         const x0 = c.x * CELL_SIZE;

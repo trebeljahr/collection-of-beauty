@@ -41,14 +41,6 @@ export type PaletteMaterials = {
   wall: THREE.MeshStandardMaterial;
   floor: THREE.MeshStandardMaterial;
   ceiling: THREE.MeshStandardMaterial;
-  /** Dark non-emissive material for the lamp's ceiling cap + stem.
-   *  Reads as a backlit metal fixture against the ceiling. */
-  lampHousing: THREE.MeshStandardMaterial;
-  /** Bulb when the room is unlit — dim base colour, no emission. */
-  lampBulbOff: THREE.MeshStandardMaterial;
-  /** Bulb when the room is lit — self-illuminated via emissive so the
-   *  sphere reads as visibly glowing against the dim ceiling. */
-  lampBulbOn: THREE.MeshStandardMaterial;
 };
 
 const cache = new Map<Palette, PaletteMaterials>();
@@ -94,25 +86,6 @@ export function getPaletteMaterials(palette: Palette): PaletteMaterials {
       // hole at the cost of one extra triangle worth of shading per
       // ceiling cell, which is negligible.
       side: THREE.DoubleSide,
-    }),
-    lampHousing: new THREE.MeshStandardMaterial({
-      color: "#1d130a",
-      roughness: 0.55,
-      metalness: 0.5,
-    }),
-    lampBulbOff: new THREE.MeshStandardMaterial({
-      color: "#3a2f25",
-      roughness: 0.4,
-      metalness: 0,
-    }),
-    lampBulbOn: new THREE.MeshStandardMaterial({
-      color: palette.lampTint,
-      emissive: new THREE.Color(palette.lampTint),
-      emissiveIntensity: 1.4,
-      // toneMapped=false keeps the emissive in linear space so the
-      // bulb reads as bright cream against the ACES-tone-mapped scene
-      // rather than getting compressed back toward mid-grey.
-      toneMapped: false,
     }),
   };
   cache.set(palette, entry);

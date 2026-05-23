@@ -3,7 +3,7 @@
 // Global registry of mounted painting meshes for the Player's aim
 // raycaster. Traversing scene.children recursively on every click
 // scales with total mesh count (walls + floors + ceilings + paintings +
-// stair steps + signs + lamps = hundreds per floor). The registry
+// stair steps + signs = hundreds per floor). The registry
 // keeps raycasting bounded to O(mounted paintings) instead.
 //
 // Ported from src/components/gallery-3d.tsx's `paintingEntries` pattern
