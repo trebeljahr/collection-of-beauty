@@ -14,19 +14,16 @@ import { useCallback, useEffect, useRef, useState } from "react";
 // `storage` event.
 
 export type AudioSettings = {
-  /** Master toggle. When off, both ambience and SFX are silent. */
+  /** Master toggle. When off, ambience is silent. */
   enabled: boolean;
   /** Background ambience-loop volume, 0..1. */
   ambienceVolume: number;
-  /** Room-transition / click SFX volume, 0..1. */
-  sfxVolume: number;
 };
 
 export const DEFAULT_AUDIO_SETTINGS: AudioSettings = {
   enabled: true,
   // Ambience is meant to sit under everything else, not dominate.
   ambienceVolume: 0.35,
-  sfxVolume: 0.6,
 };
 
 const STORAGE_KEY = "cob-audio-settings";
@@ -44,9 +41,6 @@ function sanitize(raw: Partial<AudioSettings> | null | undefined): AudioSettings
       typeof raw.ambienceVolume === "number"
         ? raw.ambienceVolume
         : DEFAULT_AUDIO_SETTINGS.ambienceVolume,
-    ),
-    sfxVolume: clamp01(
-      typeof raw.sfxVolume === "number" ? raw.sfxVolume : DEFAULT_AUDIO_SETTINGS.sfxVolume,
     ),
   };
 }

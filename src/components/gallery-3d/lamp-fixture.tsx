@@ -10,8 +10,12 @@
 // The light is a point light at the bulb's centre; Three.js point lights
 // don't cast shadows by default, so the surrounding fixture geometry
 // doesn't block illumination. Splitting `lit` from the geometry render
-// lets rooms keep their fixtures visible at all times while only
-// switching the point light on when the player walks in.
+// lets rooms keep their fixtures visible at all times while the point
+// light + bulb glow *ramp* on as the player walks in (see the per-frame
+// fade in the component body) rather than snapping. Only the active
+// room's lights are ever mounted — a fading-out room keeps its light
+// alive until it's fully dark, then unmounts — so the scene still
+// carries a bounded handful of point lights at any instant.
 //
 // Anatomy of one fixture, top-down (Y descending from ceiling):
 //
@@ -28,6 +32,8 @@
 //                   ◯◯◯◯◯◯◯◯           bulb    (basic-material sphere;
 //                       ◯◯                     point light at centre)
 
+import { useFrame } from "@react-three/fiber";
+import { useEffect, useMemo, useRef, useState } from "react";
 import * as THREE from "three";
 import type { Era } from "@/lib/gallery-eras";
 import { getPaletteMaterials } from "./palette-materials";
@@ -48,14 +54,20 @@ const CANOPY_BOTTOM_OFFSET = 0.09;
 // just z-fight with the canopy/bulb.
 const MIN_VISIBLE_STEM = 0.005;
 
+// Seconds for a room's lights to ramp fully on or off as the player
+// crosses the threshold. Short enough to feel responsive, long enough
+// to read as a soft fade rather than a switch snapping.
+const LIGHT_FADE_SECONDS = 0.35;
+
 type Props = {
   /** World position of the ceiling mount (top of the rosette). */
   position: readonly [number, number, number];
   /** Era for material lookup + lamp tint colour. */
   era: Era;
-  /** When false the point light isn't rendered, but the geometry still
-   *  is — so an unlit room still shows its fixtures, the lights just
-   *  switch on as the player walks in. */
+  /** Drives the light: when it flips the point light + bulb glow ramp
+   *  toward on (true) or off (false). The fixture geometry is always
+   *  rendered regardless — an unlit room still shows its fixtures, the
+   *  lights just fade up as the player walks in. */
   lit: boolean;
   /** How far the bulb's centre hangs below the ceiling, in metres.
    *  Anything below ~0.27 collapses the stem to zero (canopy + bulb
@@ -82,6 +94,61 @@ export function LampFixture({
   const stemLen = Math.max(0, stemTopY - bulbTopY);
   const stemCenterY = (stemTopY + bulbTopY) / 2;
 
+  // Per-frame fade state. `level` is the eased 0..1 illumination amount,
+  // held in a ref so the ramp doesn't churn React state every frame.
+  // `lightMounted` gates the actual <pointLight> element: we mount it the
+  // instant the room activates and keep it mounted while it still emits
+  // anything, unmounting only once it's faded fully dark. That preserves
+  // the "only the active (+ just-left) room carries point lights" budget
+  // — three.js prices every mounted light into the fragment shader, so we
+  // never want every room's lamps live at once.
+  const level = useRef(lit ? 1 : 0);
+  const [lightMounted, setLightMounted] = useState(lit);
+  const lightRef = useRef<THREE.PointLight>(null);
+
+  // Mount the point light synchronously the frame the room activates so
+  // the ramp-up starts from this render rather than one frame late.
+  if (lit && !lightMounted) setLightMounted(true);
+
+  // Per-fixture bulb material so each lamp's glow can fade independently.
+  // The shared palette `lampBulbOn` is reused across every room on the
+  // floor (same era ⇒ same Palette identity), so mutating it would light
+  // up bulbs in inactive rooms too — hence a clone per fixture. Bulb
+  // materials are tiny (no textures), so the clone is far cheaper than
+  // the shared-material trick that matters for walls/floors. Initialised
+  // to match `lit` at mount; the frame loop owns it afterwards.
+  // biome-ignore lint/correctness/useExhaustiveDependencies: `lit` is read once for the initial paint; subsequent changes are driven by the per-frame fade, not a re-clone.
+  const bulbMat = useMemo(() => {
+    const m = mats.lampBulbOn.clone();
+    if (!lit) {
+      m.emissiveIntensity = 0;
+      m.color.copy(mats.lampBulbOff.color);
+    }
+    return m;
+  }, [mats]);
+
+  // Dispose the cloned material when the fixture unmounts (floor swap) so
+  // the GPU program/uniform allocation doesn't leak across floors.
+  useEffect(() => () => bulbMat.dispose(), [bulbMat]);
+
+  useFrame((_, dt) => {
+    const target = lit ? 1 : 0;
+    if (level.current === target) {
+      // Settled. Once fully dark, drop the point light from the scene.
+      if (target === 0 && lightMounted) setLightMounted(false);
+      return;
+    }
+    const step = dt / LIGHT_FADE_SECONDS;
+    level.current =
+      level.current < target
+        ? Math.min(target, level.current + step)
+        : Math.max(target, level.current - step);
+    const l = level.current;
+    if (lightRef.current) lightRef.current.intensity = intensity * l;
+    bulbMat.emissiveIntensity = mats.lampBulbOn.emissiveIntensity * l;
+    bulbMat.color.lerpColors(mats.lampBulbOff.color, mats.lampBulbOn.color, l);
+  });
+
   return (
     <group>
       <mesh position={[lx, ly - 0.015, lz]}>
@@ -98,17 +165,19 @@ export function LampFixture({
           <primitive object={mats.lampHousing} attach="material" />
         </mesh>
       )}
-      {/* Bulb material swaps with `lit`: a dim non-emissive sphere
-          when the room's off, an emissive sphere when on so the bulb
-          visibly glows as the player enters. */}
+      {/* Bulb sphere. Its per-fixture material (above) eases between the
+          dim non-emissive "off" look and the emissive "on" glow in step
+          with the point light, so the bulb brightens with the room
+          instead of popping. */}
       <mesh position={[lx, bulbCenterY, lz]}>
         <primitive object={LAMP_BULB_GEOM} attach="geometry" />
-        <primitive object={lit ? mats.lampBulbOn : mats.lampBulbOff} attach="material" />
+        <primitive object={bulbMat} attach="material" />
       </mesh>
-      {lit && (
+      {lightMounted && (
         <pointLight
+          ref={lightRef}
           position={[lx, bulbCenterY, lz]}
-          intensity={intensity}
+          intensity={intensity * level.current}
           distance={distance}
           decay={2}
           color={era.palette.lampTint}
