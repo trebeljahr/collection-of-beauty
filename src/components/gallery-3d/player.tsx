@@ -1004,13 +1004,22 @@ function canStepTo(
     // Y-aware bypass: the spiral helix rises one full storey per
     // revolution, so at angular positions far from the entry the
     // step (and the rails sitting 1.05 m above it) is metres above
-    // the player's head — they can walk under freely. Only enforce
-    // when the step at this angular position is at or below head.
-    // Without this gate, walking around the back of the spiral on
-    // the ground floor (where the cutout-edge perimeter rail isn't
-    // there either, since there's no cutout) feels like hitting an
-    // invisible wall — the collision is for an overhead rail nobody
-    // would visually expect to block them.
+    // the player's head — they can walk under the OUTER overhang
+    // freely. Only enforce the outer constraint when the step at this
+    // angular position is at or below head. Without it, walking around
+    // the back of the spiral on the ground floor (where the cutout-edge
+    // perimeter rail isn't there either, since there's no cutout) feels
+    // like hitting an invisible wall — the collision is for an overhead
+    // rail nobody would visually expect to block them.
+    //
+    // The INNER constraint is NOT subject to this bypass. The central
+    // well must stay fenced on every floor: on upper floors the
+    // open-well guard above already blocks r < innerRadius, but the
+    // ground floor skips that guard, so the inner-rail clearance is the
+    // only thing keeping the player out of the well. Dropping it when
+    // the back of the helix is overhead let the player duck under the
+    // raised steps, cross the well past the central column, and walk
+    // out the far side — "through the stairs from behind".
     const dx = toX - stair.centerX;
     const dz = toZ - stair.centerZ;
     const r2 = dx * dx + dz * dz;
@@ -1025,13 +1034,11 @@ function canStepTo(
       Math.cos(theta - stair.entryAngle),
     );
     const inGate = Math.abs(angDiff) < gateHalfArc;
-    if (!stepIsOverhead) {
-      const minR = stair.innerRadius + SPIRAL_RAIL_CLEARANCE;
-      if (r2 < minR * minR) return false;
-      if (!inGate) {
-        const maxR = stair.outerRadius - SPIRAL_RAIL_CLEARANCE;
-        if (r2 > maxR * maxR) return false;
-      }
+    const minR = stair.innerRadius + SPIRAL_RAIL_CLEARANCE;
+    if (r2 < minR * minR) return false;
+    if (!stepIsOverhead && !inGate) {
+      const maxR = stair.outerRadius - SPIRAL_RAIL_CLEARANCE;
+      if (r2 > maxR * maxR) return false;
     }
     // Top-landing edge fence. When this is the helix's topmost flight
     // (no flight continues above), `buildTopLandingGeometry` only
