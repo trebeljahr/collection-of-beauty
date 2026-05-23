@@ -27,7 +27,6 @@ import { preloadCached } from "./texture-cache";
 import { ZoomModal } from "./zoom-modal";
 
 const AMBIENCE_SRC = "/audio/ambience-loop.mp3";
-const ROOM_TRANSITION_SRC = "/audio/room-transition.mp3";
 
 type Props = { artworks: ArtworkListing[] };
 
@@ -162,20 +161,12 @@ export function Gallery3D({ artworks }: Props) {
   }, [hasStarted, settingsOpen, setIs3DActive]);
 
   // ── Audio ────────────────────────────────────────────────────────
-  // Ambience: long looping <audio> streamed via HTMLAudioElement.
-  // SFX: tiny preloaded Audio that fires on every floor change.
-  // Both are gated on the user's Start-click (browsers block autoplay).
-  // AudioControls writes to the same localStorage-backed hook, so we
-  // only need the read half here.
+  // Ambience: long looping <audio> streamed via HTMLAudioElement, gated
+  // on the user's Start-click (browsers block autoplay). AudioControls
+  // writes to the same localStorage-backed hook, so we only need the
+  // read half here.
   const [audio] = useAudioSettings();
   const ambienceRef = useRef<HTMLAudioElement | null>(null);
-  const sfxRef = useRef<HTMLAudioElement | null>(null);
-  useEffect(() => {
-    if (sfxRef.current) return;
-    const a = new Audio(ROOM_TRANSITION_SRC);
-    a.preload = "auto";
-    sfxRef.current = a;
-  }, []);
 
   const currentFloor = layout.floors[currentFloorIdx];
   const activeRoom = activeRoomIdx >= 0 ? currentFloor.rooms[activeRoomIdx] : undefined;
@@ -256,17 +247,6 @@ export function Gallery3D({ artworks }: Props) {
     }
   }, [audio.enabled, audio.ambienceVolume, hasStarted]);
 
-  // One-shot SFX on floor change — gives a "room transition" feel as
-  // the player walks up stairs or teleports.
-  const playTransition = useCallback(() => {
-    if (!audio.enabled) return;
-    const a = sfxRef.current;
-    if (!a) return;
-    a.currentTime = 0;
-    a.volume = audio.sfxVolume;
-    void a.play().catch(() => {});
-  }, [audio.enabled, audio.sfxVolume]);
-
   const handleStairFloorChange = useCallback(
     (newIdx: number) => {
       if (newIdx === currentFloorIdx) return;
@@ -277,9 +257,8 @@ export function Gallery3D({ artworks }: Props) {
       // keeps riding it smoothly.
       setCurrentFloorIdx(newIdx);
       setActiveRoomIdx(-1);
-      playTransition();
     },
-    [currentFloorIdx, playTransition],
+    [currentFloorIdx],
   );
 
   // Debug 1..N teleport keys (one per floor).
@@ -290,13 +269,12 @@ export function Gallery3D({ artworks }: Props) {
         const idx = digit - 1;
         if (Number.isInteger(idx) && idx >= 0 && idx < layout.floors.length) {
           teleportToFloor(idx);
-          playTransition();
         }
       }
     };
     window.addEventListener("keydown", down);
     return () => window.removeEventListener("keydown", down);
-  }, [layout, teleportToFloor, playTransition]);
+  }, [layout, teleportToFloor]);
 
   // M opens / closes the big map. Inside the big map, ↑/↓ + PgUp/PgDn
   // cycle through floor plans without teleporting; Enter commits the
@@ -334,7 +312,6 @@ export function Gallery3D({ artworks }: Props) {
         e.preventDefault();
         if (viewedMapFloorIdx !== currentFloorIdx) {
           teleportToFloor(viewedMapFloorIdx);
-          playTransition();
         }
         setMapOpen(false);
       }
@@ -351,7 +328,6 @@ export function Gallery3D({ artworks }: Props) {
     isTouch,
     layout.floors.length,
     teleportToFloor,
-    playTransition,
   ]);
 
   // Pointer-lock release when the zoom modal opens. Unmounting drei's
@@ -732,7 +708,6 @@ export function Gallery3D({ artworks }: Props) {
           onJump={(idx) => {
             if (idx !== currentFloorIdx) {
               teleportToFloor(idx);
-              playTransition();
             }
             setMapOpen(false);
           }}

@@ -146,12 +146,6 @@ export function Gallery3DSettings({ fullscreenTarget, isOpen, onOpenChange }: Pr
                 disabled={!audio.enabled}
                 onChange={(v) => updateAudio({ ambienceVolume: v })}
               />
-              <VolumeRow
-                label="Room transitions"
-                value={audio.sfxVolume}
-                disabled={!audio.enabled}
-                onChange={(v) => updateAudio({ sfxVolume: v })}
-              />
             </Section>
 
             <Section label="Display">
