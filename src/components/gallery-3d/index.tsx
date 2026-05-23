@@ -752,44 +752,6 @@ export function Gallery3D({ artworks }: Props) {
   );
 }
 
-// Progressive room reveal for a full floor (see FloorScene). Mount this
-// many rooms immediately, then REVEAL_ROOMS_PER_FRAME more each frame
-// until the floor is complete — spreads the otherwise one-frame mount of
-// a whole floor's paintings over ~a dozen frames so the floor swap
-// doesn't freeze.
-const INITIAL_REVEAL_ROOMS = 3;
-const REVEAL_ROOMS_PER_FRAME = 1;
-
-/** How many rooms a FloorScene should currently render. When `active`
- *  (a full floor that should stagger), starts at INITIAL_REVEAL_ROOMS
- *  and ramps one batch per animation frame up to `total`; the ramp
- *  restarts whenever `active` flips on. When inactive, returns `total`
- *  at once — the small stairwell / stairs sets, and the start-gated
- *  entry floor, have nothing to gain from staggering. */
-function useStaggeredRoomReveal(total: number, active: boolean): number {
-  const [count, setCount] = useState(() =>
-    active ? Math.min(total, INITIAL_REVEAL_ROOMS) : total,
-  );
-  useEffect(() => {
-    if (!active) {
-      setCount(total);
-      return;
-    }
-    let current = Math.min(total, INITIAL_REVEAL_ROOMS);
-    setCount(current);
-    if (current >= total) return;
-    let raf = 0;
-    const tick = () => {
-      current = Math.min(total, current + REVEAL_ROOMS_PER_FRAME);
-      setCount(current);
-      if (current < total) raf = requestAnimationFrame(tick);
-    };
-    raf = requestAnimationFrame(tick);
-    return () => cancelAnimationFrame(raf);
-  }, [active, total]);
-  return Math.min(count, total);
-}
-
 function FloorScene({
   floor,
   allStaircases,
@@ -818,38 +780,26 @@ function FloorScene({
   entryRoomId?: string;
   onEntryPaintingSettled?: (key: string, status: "loaded" | "failed") => void;
 }) {
-  // Rooms to render. "stairs" → none; "stairwell" → just the stairwell
-  // room; full → every room, ordered nearest-the-central-stair first so
-  // the player's arrival view fills in before the far corners stream in.
-  const orderedRooms = useMemo(() => {
-    if (showOnly === "stairs") return [];
-    if (showOnly === "stairwell") return floor.rooms.filter((r) => r.isStairwell);
-    const stair = floor.stairsOut[0] ?? floor.stairsIn[0] ?? null;
-    const cx = stair?.centerX ?? 0;
-    const cz = stair?.centerZ ?? 0;
-    return [...floor.rooms].sort((a, b) => {
-      const ax = (a.worldRect.xMin + a.worldRect.xMax) / 2 - cx;
-      const az = (a.worldRect.zMin + a.worldRect.zMax) / 2 - cz;
-      const bx = (b.worldRect.xMin + b.worldRect.xMax) / 2 - cx;
-      const bz = (b.worldRect.zMin + b.worldRect.zMax) / 2 - cz;
-      return ax * ax + az * az - (bx * bx + bz * bz);
-    });
-  }, [floor, showOnly]);
+  // Every room's shell (walls / floor / ceiling / lamps) renders as soon
+  // as the floor mounts — shells are cheap, and rendering them all keeps
+  // the building solid (no voids through the enfilade doorways). The
+  // expensive, numerous part — the paintings — is what loads lazily, per
+  // room, image by image (see RoomGeometry's proximity-gated reveal).
+  // Room order is unchanged from the layout, so activeRoomIdx still
+  // indexes it directly.
+  const rooms =
+    showOnly === "stairs"
+      ? []
+      : showOnly === "stairwell"
+        ? floor.rooms.filter((r) => r.isStairwell)
+        : floor.rooms;
 
-  // Stagger the full-floor mount across frames. A big era floor holds
-  // ~900 paintings (each with troika-text plaques); mounting them all in
-  // the floor-swap commit froze the frame. Reveal a few rooms at once
-  // then stream the rest in over the next frames. Skipped while the
-  // start gate is up (entryRoomId set) so the entry room's load tally
-  // isn't held back, and for the small stairwell/stairs neighbour sets.
-  const staggered = !showOnly && !entryRoomId;
-  const revealCount = useStaggeredRoomReveal(orderedRooms.length, staggered);
-  const rooms = orderedRooms.slice(0, revealCount);
-
-  // Active-room highlight matches by id, not array position: orderedRooms
-  // is re-sorted, but activeRoomIdx indexes floor.rooms in its original
-  // layout order (the same order cellOwner uses to report the owner).
-  const activeRoomId = activeRoomIdx >= 0 ? floor.rooms[activeRoomIdx]?.id : undefined;
+  // Central-stair XZ, handed to each room so its paintings reveal
+  // nearest-the-stair first.
+  const stairCenter = useMemo<[number, number]>(() => {
+    const s = floor.stairsOut[0] ?? floor.stairsIn[0] ?? null;
+    return s ? [s.centerX, s.centerZ] : [0, 0];
+  }, [floor]);
 
   const hallways = showOnly ? [] : floor.hallways;
   // Stair geometry only mounts once per Staircase (from the lower
@@ -859,11 +809,12 @@ function FloorScene({
   const stairs = floor.stairsOut;
   return (
     <group>
-      {rooms.map((room) => (
+      {rooms.map((room, i) => (
         <RoomGeometry
           key={room.id}
           room={room}
-          isActive={room.id === activeRoomId}
+          isActive={i === activeRoomIdx}
+          stairCenter={stairCenter}
           onPaintingSettled={room.id === entryRoomId ? onEntryPaintingSettled : undefined}
         />
       ))}
