@@ -565,6 +565,7 @@ export function Gallery3D({ artworks }: Props) {
               floor={layout.floors[idx]}
               allStaircases={layout.allStaircases}
               litRoomIds={idx === currentFloorIdx ? litRoomIds : NO_LIT_ROOMS}
+              lightRoomId={idx === currentFloorIdx ? litAnchorId : null}
               showOnly={mode === "full" ? undefined : mode}
               // Only the entry floor wires the load-tally callback, and
               // only before the player starts.
@@ -841,6 +842,7 @@ function FloorScene({
   floor,
   allStaircases,
   litRoomIds,
+  lightRoomId,
   showOnly,
   entryRoomId,
   onEntryPaintingSettled,
@@ -851,9 +853,15 @@ function FloorScene({
    *  boundaries (only the absolute top/bottom of the helix should
    *  show a newel cap). */
   allStaircases: readonly Staircase[];
-  /** Room ids whose lamps should be lit — the player's room plus its
-   *  door-neighbours, so the next room is already lit on arrival. */
+  /** Room ids whose bulbs should glow — the player's room plus its
+   *  door-neighbours — so the next room reads as lit through the doorway
+   *  on arrival. Glow is a free emissive material swap; the real point
+   *  lights are gated separately on `lightRoomId` to keep the live light
+   *  count to a single room. */
   litRoomIds: ReadonlySet<string>;
+  /** The one room that carries real point lights — the room the player
+   *  occupies (the lit set's anchor). Null when off-floor / pre-start. */
+  lightRoomId: string | null;
   /** "stairwell" keeps the stairwell room + its stair geometry +
    *  cutout-edge railings — used for adjacent floors so the stair has
    *  visual continuity without mounting every room + painting.
@@ -872,8 +880,9 @@ function FloorScene({
   // the building solid (no voids through the enfilade doorways). The
   // expensive, numerous part — the paintings — is what loads lazily, per
   // room, image by image (see RoomGeometry's proximity-gated reveal).
-  // Which lamps are lit is decided by `litRoomIds` (room ids), so the
-  // render order here doesn't affect lighting.
+  // Lighting is decided by room id: `lightRoomId` (the occupied room)
+  // mounts real point lights, `litRoomIds` (occupied + neighbours) glows
+  // the bulbs. Render order here doesn't affect lighting.
   const rooms =
     showOnly === "stairs"
       ? []
@@ -900,7 +909,8 @@ function FloorScene({
         <RoomGeometry
           key={room.id}
           room={room}
-          isActive={litRoomIds.has(room.id)}
+          isLit={room.id === lightRoomId}
+          isGlowing={litRoomIds.has(room.id)}
           stairCenter={stairCenter}
           onPaintingSettled={room.id === entryRoomId ? onEntryPaintingSettled : undefined}
         />

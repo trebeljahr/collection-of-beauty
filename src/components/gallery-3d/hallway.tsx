@@ -110,6 +110,7 @@ export function HallwayRenderer({
             position={[cx, floorY + CORRIDOR_HEIGHT, cz]}
             era={floor.era}
             lit={true}
+            glow={true}
             bulbDrop={0.3}
             intensity={4}
             distance={9}
