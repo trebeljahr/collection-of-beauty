@@ -232,6 +232,56 @@ function delay(ms: number): Promise<void> {
   return new Promise((resolve) => window.setTimeout(resolve, ms));
 }
 
+// ─────────────────────────────────────────────────────────────────────
+// Network concurrency gate.
+//
+// The browser caps connections per origin (~6 on HTTP/1.1), and in dev
+// every texture request is proxied through Next over plain HTTP/1.1.
+// When a floor mounts, ~100 paintings each fire a fetch in the same
+// tick (thumb + 960 base), and the FloorPreloader can add a whole
+// adjacent floor's worth on top. Left ungated they all pile onto those
+// few connections and the tail sits in the browser's request queue long
+// enough to trip the 15 s load timeout — the dev "[painting] … Timed
+// out" flood. Capping in-flight fetches to a small budget keeps every
+// request actively moving instead of stalling.
+//
+// Crucially the per-load timeout is armed *inside* withLoadSlot — only
+// once a slot is held and the fetch is about to go out — so time spent
+// waiting for a slot never counts against the timeout. High-before-low
+// mirrors the upload queue: player-facing base/hi-res loads jump ahead
+// of a low-priority preload burst.
+const NETWORK_CONCURRENCY = 6;
+let activeLoads = 0;
+const highLoadWaiters: (() => void)[] = [];
+const lowLoadWaiters: (() => void)[] = [];
+
+function acquireLoadSlot(priority: UploadPriority): Promise<void> {
+  if (activeLoads < NETWORK_CONCURRENCY) {
+    activeLoads++;
+    return Promise.resolve();
+  }
+  return new Promise((resolve) => {
+    (priority === "low" ? lowLoadWaiters : highLoadWaiters).push(resolve);
+  });
+}
+
+function releaseLoadSlot(): void {
+  // Hand the slot straight to the next waiter (high first) without
+  // touching the counter; only drop the count when nobody is waiting.
+  const next = highLoadWaiters.shift() ?? lowLoadWaiters.shift();
+  if (next) next();
+  else activeLoads--;
+}
+
+async function withLoadSlot<T>(priority: UploadPriority, fn: () => Promise<T>): Promise<T> {
+  await acquireLoadSlot(priority);
+  try {
+    return await fn();
+  } finally {
+    releaseLoadSlot();
+  }
+}
+
 function isPermanentHttpError(err: unknown): boolean {
   return (
     err instanceof TextureHttpError &&
@@ -293,29 +343,34 @@ async function loadTextureCached(
 
     for (let attempt = 1; attempt <= TEXTURE_LOAD_ATTEMPTS; attempt++) {
       try {
-        const tex = await withTextureTimeout(url, async (signal) => {
-          // createImageBitmap decodes off-thread, which matters for a burst
-          // of painting loads. `imageOrientation: flipY` avoids the expensive
-          // CPU flip THREE does on upload when `flipY` is left true.
-          const res = await fetch(url, { credentials: "omit", signal });
-          if (!res.ok) throw new TextureHttpError(url, res.status);
-          const blob = await res.blob();
-          if (signal.aborted) throw new DOMException("aborted", "AbortError");
-          const bitmap = await createImageBitmap(blob, {
-            imageOrientation: "flipY",
-          });
-          if (signal.aborted) throw new DOMException("aborted", "AbortError");
-          const texture = new THREE.Texture(bitmap);
-          texture.colorSpace = THREE.SRGBColorSpace;
-          texture.anisotropy = aniso(renderer);
-          texture.minFilter = THREE.LinearMipMapLinearFilter;
-          texture.magFilter = THREE.LinearFilter;
-          texture.generateMipmaps = true;
-          texture.flipY = false; // already flipped during createImageBitmap
-          texture.needsUpdate = true;
-          if (renderer) await enqueueUpload(texture, renderer);
-          return texture;
-        });
+        const tex = await withLoadSlot("high", () =>
+          withTextureTimeout(url, async (signal) => {
+            // createImageBitmap decodes off-thread, which matters for a burst
+            // of painting loads. `imageOrientation: flipY` avoids the expensive
+            // CPU flip THREE does on upload when `flipY` is left true.
+            const res = await fetch(url, { credentials: "omit", signal });
+            if (!res.ok) throw new TextureHttpError(url, res.status);
+            const blob = await res.blob();
+            if (signal.aborted) throw new DOMException("aborted", "AbortError");
+            const bitmap = await createImageBitmap(blob, {
+              imageOrientation: "flipY",
+            });
+            if (signal.aborted) throw new DOMException("aborted", "AbortError");
+            const texture = new THREE.Texture(bitmap);
+            texture.colorSpace = THREE.SRGBColorSpace;
+            texture.anisotropy = aniso(renderer);
+            texture.minFilter = THREE.LinearMipMapLinearFilter;
+            texture.magFilter = THREE.LinearFilter;
+            texture.generateMipmaps = true;
+            texture.flipY = false; // already flipped during createImageBitmap
+            texture.needsUpdate = true;
+            return texture;
+          }),
+        );
+        // GPU upload runs outside the network gate + timeout: it has its
+        // own rAF-paced queue, so a backed-up upload mustn't hold a
+        // network slot or count toward the load timeout.
+        if (renderer) await enqueueUpload(tex, renderer);
         cache.put(url, tex);
         return tex;
       } catch (err) {
@@ -381,30 +436,33 @@ export function loadHiRes(
   if (existing) return existing;
 
   const promise = (async () => {
-    const res = await fetch(url, { credentials: "omit", signal });
-    if (!res.ok) throw new Error(`fetch ${url}: ${res.status}`);
-    const blob = await res.blob();
-    if (signal?.aborted) throw new DOMException("aborted", "AbortError");
-    const bitmapOpts: ImageBitmapOptions = { imageOrientation: "flipY" };
-    if (opts?.maxSize && opts.sourceWidth && opts.sourceHeight) {
-      const longest = Math.max(opts.sourceWidth, opts.sourceHeight);
-      if (longest > opts.maxSize) {
-        const scale = opts.maxSize / longest;
-        bitmapOpts.resizeWidth = Math.round(opts.sourceWidth * scale);
-        bitmapOpts.resizeHeight = Math.round(opts.sourceHeight * scale);
-        bitmapOpts.resizeQuality = "high";
+    const tex = await withLoadSlot("high", async () => {
+      const res = await fetch(url, { credentials: "omit", signal });
+      if (!res.ok) throw new Error(`fetch ${url}: ${res.status}`);
+      const blob = await res.blob();
+      if (signal?.aborted) throw new DOMException("aborted", "AbortError");
+      const bitmapOpts: ImageBitmapOptions = { imageOrientation: "flipY" };
+      if (opts?.maxSize && opts.sourceWidth && opts.sourceHeight) {
+        const longest = Math.max(opts.sourceWidth, opts.sourceHeight);
+        if (longest > opts.maxSize) {
+          const scale = opts.maxSize / longest;
+          bitmapOpts.resizeWidth = Math.round(opts.sourceWidth * scale);
+          bitmapOpts.resizeHeight = Math.round(opts.sourceHeight * scale);
+          bitmapOpts.resizeQuality = "high";
+        }
       }
-    }
-    const bitmap = await createImageBitmap(blob, bitmapOpts);
-    if (signal?.aborted) throw new DOMException("aborted", "AbortError");
-    const tex = new THREE.Texture(bitmap);
-    tex.colorSpace = THREE.SRGBColorSpace;
-    tex.anisotropy = aniso(renderer);
-    tex.minFilter = THREE.LinearMipMapLinearFilter;
-    tex.magFilter = THREE.LinearFilter;
-    tex.generateMipmaps = true;
-    tex.flipY = false;
-    tex.needsUpdate = true;
+      const bitmap = await createImageBitmap(blob, bitmapOpts);
+      if (signal?.aborted) throw new DOMException("aborted", "AbortError");
+      const texture = new THREE.Texture(bitmap);
+      texture.colorSpace = THREE.SRGBColorSpace;
+      texture.anisotropy = aniso(renderer);
+      texture.minFilter = THREE.LinearMipMapLinearFilter;
+      texture.magFilter = THREE.LinearFilter;
+      texture.generateMipmaps = true;
+      texture.flipY = false;
+      texture.needsUpdate = true;
+      return texture;
+    });
     if (renderer) await enqueueUpload(tex, renderer);
     hiresCache.put(url, tex);
     return tex;
@@ -519,20 +577,24 @@ export function preloadCached(
 
   const promise = (async () => {
     try {
-      const res = await fetch(url, { credentials: "omit", signal });
-      if (!res.ok) return null;
-      const blob = await res.blob();
-      if (signal?.aborted) return null;
-      const bitmap = await createImageBitmap(blob, { imageOrientation: "flipY" });
-      if (signal?.aborted) return null;
-      const texture = new THREE.Texture(bitmap);
-      texture.colorSpace = THREE.SRGBColorSpace;
-      texture.anisotropy = aniso(renderer);
-      texture.minFilter = THREE.LinearMipMapLinearFilter;
-      texture.magFilter = THREE.LinearFilter;
-      texture.generateMipmaps = true;
-      texture.flipY = false;
-      texture.needsUpdate = true;
+      const texture = await withLoadSlot("low", async () => {
+        const res = await fetch(url, { credentials: "omit", signal });
+        if (!res.ok) return null;
+        const blob = await res.blob();
+        if (signal?.aborted) return null;
+        const bitmap = await createImageBitmap(blob, { imageOrientation: "flipY" });
+        if (signal?.aborted) return null;
+        const t = new THREE.Texture(bitmap);
+        t.colorSpace = THREE.SRGBColorSpace;
+        t.anisotropy = aniso(renderer);
+        t.minFilter = THREE.LinearMipMapLinearFilter;
+        t.magFilter = THREE.LinearFilter;
+        t.generateMipmaps = true;
+        t.flipY = false;
+        t.needsUpdate = true;
+        return t;
+      });
+      if (!texture) return null;
       if (renderer) await enqueueUpload(texture, renderer, "low");
       preloadCache.put(url, texture);
       return texture;
@@ -601,5 +663,11 @@ export const _textureCacheDebug = {
   },
   get lowQueued() {
     return lowUploadQueue.length;
+  },
+  get activeLoads() {
+    return activeLoads;
+  },
+  get queuedLoads() {
+    return highLoadWaiters.length + lowLoadWaiters.length;
   },
 };
