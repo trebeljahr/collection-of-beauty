@@ -97,7 +97,7 @@ const signGlyphMaterial = new THREE.MeshBasicMaterial({
  *  proper newel cap. Shared geometry so all finials in the scene
  *  reuse one buffer. */
 const FINIAL_RADIUS = 0.13;
-const finialGeometry = new THREE.SphereGeometry(FINIAL_RADIUS, 24, 16);
+export const finialGeometry = new THREE.SphereGeometry(FINIAL_RADIUS, 24, 16);
 /** Half-arc of the entry/exit gate on the OUTER rail — the rail is
  *  omitted across this arc so the player can step onto/off the
  *  spiral. The cutout-edge rail on each floor uses the same value
