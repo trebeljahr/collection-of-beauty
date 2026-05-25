@@ -19,32 +19,7 @@
 import dynamic from "next/dynamic";
 import { useEffect, useState } from "react";
 import type { ArtworkListing } from "@/lib/data";
-
-// Full-height curtain shared by the two pre-mount waits: the artworks
-// fetch and the Three/R3F chunk download. Both must stay h-screen — the
-// root layout appends a footer (mt-16) right after <main>, so if any
-// loading state collapses to 0 height the footer flashes into the
-// viewport before the canvas takes over. Keeping every state h-screen
-// pins the footer below the fold throughout the load.
-function GalleryCurtain({ failed = false }: { failed?: boolean }) {
-  return (
-    <div className="flex h-screen items-center justify-center bg-[#0a0805] px-4 text-white">
-      <div className="w-[min(360px,88vw)] text-center">
-        <h1 className="font-serif text-xl tracking-wide">
-          {failed ? "Could not load museum" : "Loading museum"}
-        </h1>
-        <p className="mt-2 text-sm text-white/60">
-          {failed ? "Refresh to try again." : "Preparing the collection..."}
-        </p>
-        {!failed && (
-          <div className="mt-4 h-1 w-full overflow-hidden rounded-full bg-white/10">
-            <div className="h-full w-1/4 rounded-full bg-white/70 animate-loading-bar" />
-          </div>
-        )}
-      </div>
-    </div>
-  );
-}
+import { GalleryCurtain } from "./gallery-curtain";
 
 const Gallery3D = dynamic(() => import("@/components/gallery-3d").then((m) => m.Gallery3D), {
   ssr: false,
@@ -59,6 +34,17 @@ export function Gallery3DClient() {
   const [failed, setFailed] = useState(false);
 
   useEffect(() => {
+    // Warm the Three/R3F chunk in parallel with the data fetch. Without
+    // this the two pre-mount waits run back-to-back: the dynamic import
+    // isn't referenced until `artworks` resolves (the `if (!artworks)`
+    // guard below), so the chunk download only *started* after the fetch
+    // finished — and each wait rendered its own GalleryCurtain instance,
+    // remounting the DOM node and restarting the loading bar, so the
+    // curtain looked like it reappeared. Kicking the import here overlaps
+    // the two; by the time the fetch resolves the chunk is usually
+    // already cached and <Gallery3D> mounts straight to its StartOverlay.
+    void import("@/components/gallery-3d");
+
     const controller = new AbortController();
     fetch("/api/artworks", { signal: controller.signal })
       .then((res) => {
