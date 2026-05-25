@@ -11,7 +11,7 @@ import {
   RAIL_BAR_HEIGHT,
   RAIL_HEIGHT,
 } from "./rail-constants";
-import { StairSign, spiralGateHalfArc } from "./staircase";
+import { finialGeometry, StairSign, spiralGateHalfArc } from "./staircase";
 
 // Materials are still local — the cutout-edge rail and the spiral rails
 // share the same colour vocabulary, but allocating duplicate
@@ -181,105 +181,6 @@ function buildCutoutBalusters(
   return out;
 }
 
-/** Sweeping arc that bridges the topmost spiral inner rail's free end
- *  out to the cutout-edge rail. Without it the spiral terminates in a
- *  finial floating in the well centre while the cutout rail circles
- *  the perimeter, with a 3 m radial gap between them. With it, both
- *  read as one continuous handrail wrapping through the well.
- *
- *  The curve is a 3D sweep:
- *    r(t)     = startR + (endR - startR) · smoothstep(t)    // radial
- *    θ(t)     = startAngle + (endAngle - startAngle) · t    // tangential
- *    yTop(t)  = startY + (endY  - startY ) · smoothstep(t)  // vertical
- *
- *  smoothstep on r/y flattens the radial+vertical motion at the ends,
- *  so the curve enters and leaves each rail mostly tangentially —
- *  good for the cutout-rail merge (whose tangent is purely angular)
- *  and good enough for the spiral end (whose tangent is angular + a
- *  small vertical component — the spiral rises continuously). The
- *  finial sphere at the spiral's top covers any residual mismatch.
- *
- *  Cross-section is the same RAIL_BAR_HEIGHT × 2·RAIL_BAR_HALF_WIDTH
- *  rectangle the cutout rail uses, with the radial / vertical axes
- *  fixed (not perpendicular to the swept tangent). For a curve this
- *  gentle the visual twist is imperceptible, and matching axes makes
- *  the join with the cutout rail's cross-section pixel-clean. */
-function buildSpiralToCutoutBridgeGeom(
-  cx: number,
-  cz: number,
-  startAngle: number,
-  startR: number,
-  startYTop: number,
-  endAngle: number,
-  endR: number,
-  endYTop: number,
-): THREE.BufferGeometry {
-  const N = 32;
-  const positions: number[] = [];
-  const indices: number[] = [];
-  let prevBaseIdx = -1;
-
-  for (let i = 0; i <= N; i++) {
-    const t = i / N;
-    const u = t * t * (3 - 2 * t); // smoothstep
-    const r = startR + (endR - startR) * u;
-    const theta = startAngle + (endAngle - startAngle) * t;
-    const yTop = startYTop + (endYTop - startYTop) * u;
-    const x = cx + r * Math.cos(theta);
-    const z = cz + r * Math.sin(theta);
-    const ox = Math.cos(theta);
-    const oz = Math.sin(theta);
-
-    const baseIdx = positions.length / 3;
-    // Same TO/TI/BI/BO layout as the cutout rail tube.
-    positions.push(x + ox * RAIL_BAR_HALF_WIDTH, yTop, z + oz * RAIL_BAR_HALF_WIDTH);
-    positions.push(x - ox * RAIL_BAR_HALF_WIDTH, yTop, z - oz * RAIL_BAR_HALF_WIDTH);
-    positions.push(
-      x - ox * RAIL_BAR_HALF_WIDTH,
-      yTop - RAIL_BAR_HEIGHT,
-      z - oz * RAIL_BAR_HALF_WIDTH,
-    );
-    positions.push(
-      x + ox * RAIL_BAR_HALF_WIDTH,
-      yTop - RAIL_BAR_HEIGHT,
-      z + oz * RAIL_BAR_HALF_WIDTH,
-    );
-
-    if (prevBaseIdx !== -1) {
-      const p = prevBaseIdx;
-      const c = baseIdx;
-      indices.push(p + 0, p + 1, c + 1);
-      indices.push(p + 0, c + 1, c + 0);
-      indices.push(p + 3, c + 3, c + 2);
-      indices.push(p + 3, c + 2, p + 2);
-      indices.push(p + 3, p + 0, c + 0);
-      indices.push(p + 3, c + 0, c + 3);
-      indices.push(p + 2, c + 2, c + 1);
-      indices.push(p + 2, c + 1, p + 1);
-    }
-    prevBaseIdx = baseIdx;
-  }
-
-  // End caps so the open cross-section doesn't read as a slot when
-  // viewed end-on. The spiral end's brass finial covers the inner cap
-  // (and obscures the small tangent kink between rail and bridge); the
-  // cutout rail tube butts directly into the outer cap.
-  const startBase = 0;
-  const endBase = positions.length / 3 - 4;
-  if (endBase > startBase) {
-    indices.push(startBase + 0, startBase + 2, startBase + 1);
-    indices.push(startBase + 0, startBase + 3, startBase + 2);
-    indices.push(endBase + 0, endBase + 1, endBase + 2);
-    indices.push(endBase + 0, endBase + 2, endBase + 3);
-  }
-
-  const geom = new THREE.BufferGeometry();
-  geom.setAttribute("position", new THREE.Float32BufferAttribute(positions, 3));
-  geom.setIndex(indices);
-  geom.computeVertexNormals();
-  return geom;
-}
-
 /**
  * Per-floor stairwell accents: cutout-edge railing (only on floors
  * above the ground, where there's a hole in the floor to fall into),
@@ -314,15 +215,15 @@ export function StairwellAccents({ floor }: { floor: FloorLayout }) {
     // the rail closes there. On the ground floor, stairsIn is empty.
     const upSideOpen = !!stairOut;
     const downSideOpen = !!stairIn;
-    // On the topmost floor we also render a sweeping arc that bridges
-    // the spiral inner rail's free top end out to the cutout rail.
-    // That bridge needs an angular slice of the cutout rail's CW side
-    // to merge into, so we shorten the rail by `bridgeArcSweep` past
-    // the down-side gate edge — equivalent to widening downGap. ~60% of
-    // gateHalfArc gives a curve big enough to read as an architectural
-    // scroll without nibbling so far that the down-side walkway shrinks
-    // uncomfortably (gateHalfArc ≈ 16°, bridgeArcSweep ≈ 10°, leaving
-    // ~26° of walkway = ~2.6 m of arc at the cutout radius).
+    // On the topmost floor we also render an L-shaped connector from the
+    // spiral inner rail's free top end out to the cutout rail's CW
+    // terminus. The connector's radial arm docks into that terminus, so
+    // we stop the cutout rail `bridgeArcSweep` past the down-side gate
+    // edge (equivalent to widening downGap) — pushing the terminus clear
+    // of the gate post so the connector lands on open rail rather than
+    // into the post. ~60% of gateHalfArc puts the terminus a comfortable
+    // step past the post without shrinking the down-side walkway
+    // uncomfortably (gateHalfArc ≈ 14°, bridgeArcSweep ≈ 8°).
     const hasSpiralEnd = !upSideOpen && !!stairIn;
     const bridgeArcSweep = hasSpiralEnd ? gateHalfArc * 0.6 : 0;
     // upGap / downGap: how much arc the rail leaves uncovered on the
@@ -345,37 +246,76 @@ export function StairwellAccents({ floor }: { floor: FloorLayout }) {
       ? buildCutoutBalusters(railR, floor.y, reference.entryAngle, upGap, downGap)
       : [];
 
-    // Sweeping arc connecting the topmost spiral inner rail's free end
-    // out to the cutout rail's (now shortened) CW endpoint. Both the
-    // spiral rail's top end and the bridge's inner end live at theta =
-    // entryAngle - gateHalfArc; the bridge then sweeps CW by
-    // bridgeArcSweep while growing radially from the spiral's inner
-    // rail centerline out to railR, and rising vertically by one
-    // stepRise (the spiral rail's top sits one rise below the cutout
-    // rail's height because the helical rail rises continuously).
-    let bridgeGeom: THREE.BufferGeometry | null = null;
+    // L-shaped connector from the topmost spiral inner rail's free end
+    // (knob A) out to the cutout rail's CW terminus (knob B). Both knobs
+    // sit at the SAME height: the spiral inner rail's top is at
+    // upperY + RAIL_HEIGHT, the cutout rail at floor.y + RAIL_HEIGHT, and
+    // upperY === floor.y (the top flight lands on this floor). So the
+    // connector is a flat L in the horizontal plane — a first arm leaving
+    // A along the spiral's exit tangent ("continuing the direction the
+    // spiral ends"), then one right angle into a radial arm that lands on
+    // B. Finials at the corner and at B cap the tube ends and hide the
+    // elbows, exactly like every other rail joint in the scene.
+    //
+    // The earlier version swept a single curved tube and started it at
+    // the WRONG place — angle entryAngle - gateHalfArc (the spiral inner
+    // rail has no gate, so its top is at entryAngle) and one stepRise too
+    // low (it reaches upperY, not upperY - stepRise) — so the bridge
+    // floated ~14° sideways and ~24 cm below the spiral knob.
+    let lBridge: {
+      seg1Mid: [number, number, number];
+      seg1RotY: number;
+      seg1Len: number;
+      seg2Mid: [number, number, number];
+      seg2RotY: number;
+      seg2Len: number;
+      cornerPos: [number, number, number];
+      endPos: [number, number, number];
+    } | null = null;
     if (hasCutout && hasSpiralEnd && stairIn) {
-      const stepRise = (stairIn.upperY - stairIn.lowerY) / stairIn.numSteps;
-      // Spiral inner rail's TOP end — same point the brass finial is
-      // placed at in staircase.tsx. The rail's helical Y formula at
-      // step (numSteps-2)'s last sample (theta = entryAngle -
-      // gateHalfArc, t=1) gives this Y_top.
-      const spiralStartAngle = stairIn.entryAngle - gateHalfArc;
-      const spiralStartR = stairIn.innerRadius + RAIL_BAR_HALF_WIDTH;
-      const spiralStartYTop = stairIn.lowerY + (stairIn.numSteps - 1) * stepRise + RAIL_HEIGHT;
-      const cutoutEndAngle = stairIn.entryAngle - gateHalfArc - bridgeArcSweep;
-      const cutoutEndR = railR;
-      const cutoutEndYTop = floor.y + RAIL_HEIGHT;
-      bridgeGeom = buildSpiralToCutoutBridgeGeom(
-        cx,
-        cz,
-        spiralStartAngle,
-        spiralStartR,
-        spiralStartYTop,
-        cutoutEndAngle,
-        cutoutEndR,
-        cutoutEndYTop,
-      );
+      // Knob A — spiral inner rail's TOP finial. The inner rail is a
+      // gate-less continuous helix, so its top end is exactly at
+      // entryAngle (one full revolution from the start), radius
+      // innerRadius + RAIL_BAR_HALF_WIDTH, top-of-tube at
+      // upperY + RAIL_HEIGHT.
+      const aAngle = stairIn.entryAngle;
+      const aR = stairIn.innerRadius + RAIL_BAR_HALF_WIDTH;
+      const ax = aR * Math.cos(aAngle);
+      const az = aR * Math.sin(aAngle);
+      // Knob B — cutout rail's CW terminus (where the rail stops, one
+      // gate + bridgeArcSweep CW of entryAngle), at the cutout radius.
+      const bAngle = stairIn.entryAngle - gateHalfArc - bridgeArcSweep;
+      const bx = railR * Math.cos(bAngle);
+      const bz = railR * Math.sin(bAngle);
+      // Spiral exit frame at A: unit tangent (circumferential) + unit
+      // radial (outward). Arm 1 runs along the tangent, arm 2 along the
+      // radial, so decomposing (B − A) in this frame gives the corner:
+      // travel tangentially until level with B, turn 90°, go radial to B.
+      const tx = -Math.sin(aAngle);
+      const tz = Math.cos(aAngle);
+      const rx = Math.cos(aAngle);
+      const rz = Math.sin(aAngle);
+      const dx = bx - ax;
+      const dz = bz - az;
+      const tComp = dx * tx + dz * tz;
+      const rComp = dx * rx + dz * rz;
+      const cornerX = ax + tComp * tx;
+      const cornerZ = az + tComp * tz;
+      // Both arms' centre-line sits at rail height; the boxes hang
+      // RAIL_BAR_HEIGHT down from the top, matching the cutout tube.
+      const railY = floor.y + RAIL_HEIGHT - RAIL_BAR_HEIGHT / 2;
+      // rotateY = -atan2(dz, dx) aligns a box's local +X with its run —
+      // same convention as TopLandingEndRail in staircase.tsx.
+      lBridge = {
+        seg1Mid: [(ax + cornerX) / 2, railY, (az + cornerZ) / 2],
+        seg1RotY: -Math.atan2(cornerZ - az, cornerX - ax),
+        seg1Len: Math.abs(tComp),
+        seg2Mid: [(cornerX + bx) / 2, railY, (cornerZ + bz) / 2],
+        seg2RotY: -Math.atan2(bz - cornerZ, bx - cornerX),
+        seg2Len: Math.abs(rComp),
+        cornerPos: [cornerX, railY, cornerZ],
+        endPos: [bx, railY, bz],
+      };
     }
 
     return {
@@ -384,7 +324,7 @@ export function StairwellAccents({ floor }: { floor: FloorLayout }) {
       railR,
       railGeom,
       balusters,
-      bridgeGeom,
+      lBridge,
       entryAngle: reference.entryAngle,
       gateHalfArc,
       stairOut,
@@ -394,15 +334,15 @@ export function StairwellAccents({ floor }: { floor: FloorLayout }) {
     };
   }, [floor, stairwell, hasCutout]);
 
-  // Free the cutout rail's + bridge's BufferGeometries on unmount /
-  // floor swap. R3F doesn't auto-dispose externally-created geometries,
-  // so without this every floor change strands rail tubes in VRAM.
-  // Null on the ground floor (no rail), in which case there's nothing
-  // to dispose.
+  // Free the cutout rail's BufferGeometry on unmount / floor swap. R3F
+  // doesn't auto-dispose externally-created geometries, so without this
+  // every floor change strands rail tubes in VRAM. Null on the ground
+  // floor (no rail), in which case there's nothing to dispose. The
+  // L-bridge uses declarative <boxGeometry> + the shared finialGeometry,
+  // both R3F-managed, so neither needs disposing here.
   useEffect(
     () => () => {
       data?.railGeom?.dispose();
-      data?.bridgeGeom?.dispose();
     },
     [data],
   );
@@ -414,7 +354,7 @@ export function StairwellAccents({ floor }: { floor: FloorLayout }) {
     railR,
     railGeom,
     balusters,
-    bridgeGeom,
+    lBridge,
     entryAngle,
     gateHalfArc,
     stairOut,
@@ -493,18 +433,46 @@ export function StairwellAccents({ floor }: { floor: FloorLayout }) {
         </mesh>
       ))}
 
-      {/* Sweeping bridge from the topmost spiral inner rail's free end
-          out to the cutout rail's CW endpoint. Only rendered on the
-          top floor (where the spiral terminates without continuing
-          into another flight); built into `data.bridgeGeom` only when
-          that condition holds. The rail's brass finial at the spiral's
-          top covers the inner end's flat cap and the small tangent
-          mismatch where the helical rail hands off to the bridge's
-          curve. */}
-      {bridgeGeom && (
-        <mesh geometry={bridgeGeom} position={[0, 0, 0]} castShadow>
-          <primitive object={railTopMaterial} attach="material" />
-        </mesh>
+      {/* L-shaped connector from the topmost spiral inner rail's free
+          end (knob A) to the cutout rail's CW terminus (knob B). Only
+          present on the top floor (spiral terminates without another
+          flight above). Arm 1 leaves A along the spiral's exit tangent;
+          arm 2 turns one right angle and runs radially into B. The
+          spiral rail's own brass finial sits at A (rendered in
+          staircase.tsx); finials here cap the corner and B. */}
+      {lBridge && (
+        <group>
+          <mesh
+            position={[cx + lBridge.seg1Mid[0], lBridge.seg1Mid[1], cz + lBridge.seg1Mid[2]]}
+            rotation={[0, lBridge.seg1RotY, 0]}
+            castShadow
+          >
+            <boxGeometry args={[lBridge.seg1Len, RAIL_BAR_HEIGHT, 2 * RAIL_BAR_HALF_WIDTH]} />
+            <primitive object={railTopMaterial} attach="material" />
+          </mesh>
+          <mesh
+            position={[cx + lBridge.seg2Mid[0], lBridge.seg2Mid[1], cz + lBridge.seg2Mid[2]]}
+            rotation={[0, lBridge.seg2RotY, 0]}
+            castShadow
+          >
+            <boxGeometry args={[lBridge.seg2Len, RAIL_BAR_HEIGHT, 2 * RAIL_BAR_HALF_WIDTH]} />
+            <primitive object={railTopMaterial} attach="material" />
+          </mesh>
+          <mesh
+            position={[cx + lBridge.cornerPos[0], lBridge.cornerPos[1], cz + lBridge.cornerPos[2]]}
+            geometry={finialGeometry}
+            castShadow
+          >
+            <primitive object={railTopMaterial} attach="material" />
+          </mesh>
+          <mesh
+            position={[cx + lBridge.endPos[0], lBridge.endPos[1], cz + lBridge.endPos[2]]}
+            geometry={finialGeometry}
+            castShadow
+          >
+            <primitive object={railTopMaterial} attach="material" />
+          </mesh>
+        </group>
       )}
 
       {/* Gate posts — wayfinding pylons flanking the entry/exit
