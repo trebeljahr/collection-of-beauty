@@ -42,6 +42,10 @@ const GATE_POST_TANGENT_WIDTH = 0.85;
  *  pylon rather than a fat column. */
 const GATE_POST_RADIAL_DEPTH = 0.18;
 const GATE_POST_HEIGHT = 2.4;
+/** Sideways nudge for the sign plaques along the gate tangent. Each
+ *  plaque moves away from the walking gap, keeping the stair entry
+ *  clearer while preserving the post orientation. */
+const SIGN_GATE_CLEARANCE_OFFSET = 0.34;
 /** Radial offset of the cutout-edge rail's centerline from the
  *  stairwell hole's edge. Exported because player.tsx needs the same
  *  number for collision clearance — keeping the two in lockstep
@@ -55,11 +59,10 @@ export const CUTOUT_RAIL_RADIUS = SPIRAL_FLOOR_CUTOUT_RADIUS + 0.18;
 /** Build the cutout-edge top rail as a CLOSED RECTANGULAR TUBE
  *  following a circle of radius `radius` at height `y + RAIL_HEIGHT`,
  *  skipping a centred gate of width 2 * gateHalfArc around
- *  `entryAngle` — except where one of the gate's halves has no stair
- *  to continue onto. On a dead-end half (top-floor up / ground-floor
- *  down), the rail extends right up to entryAngle so the gap in the
- *  rail only opens onto solid floor or onto an actual stair, never
- *  onto empty air over the spiral well.
+ *  `entryAngle`. Callers choose how much of each half remains open:
+ *  actual stair halves keep a walking gap, dead-end halves usually
+ *  close to entryAngle, and the top-floor L connector reserves its own
+ *  attach slice on the dead-end side.
  *
  *  We walk a SINGLE linear arc from one gate edge to the other,
  *  rather than iterating theta in [0, 2π] and skipping the gap. The
@@ -212,30 +215,28 @@ export function StairwellAccents({ floor }: { floor: FloorLayout }) {
     // The "up" half of the gate is only meaningful when this floor
     // actually has an upgoing stair; same for the "down" half. On the
     // top floor, stairsOut is empty so the up-half is a dead end and
-    // the rail closes there. On the ground floor, stairsIn is empty.
+    // the rail/L connector closes there. On the ground floor, stairsIn
+    // is empty.
     const upSideOpen = !!stairOut;
     const downSideOpen = !!stairIn;
     // On the topmost floor we also render an L-shaped connector from the
-    // spiral inner rail's free top end out to the cutout rail's CW
-    // terminus. The connector's radial arm docks into that terminus, so
-    // we stop the cutout rail `bridgeArcSweep` past the down-side gate
-    // edge (equivalent to widening downGap) — pushing the terminus clear
-    // of the gate post so the connector lands on open rail rather than
-    // into the post. ~60% of gateHalfArc puts the terminus a comfortable
-    // step past the post without shrinking the down-side walkway
-    // uncomfortably (gateHalfArc ≈ 14°, bridgeArcSweep ≈ 8°).
+    // spiral inner rail's free top end out to the cutout rail's CCW
+    // terminus. That is the dead-end / left side when standing in front
+    // of the stairs, so the connector closes the non-stair side and
+    // leaves the down-stair side clear.
     const hasSpiralEnd = !upSideOpen && !!stairIn;
-    const bridgeArcSweep = hasSpiralEnd ? gateHalfArc * 0.6 : 0;
+    const bridgeArcSweep = hasSpiralEnd ? gateHalfArc : 0;
     // upGap / downGap: how much arc the rail leaves uncovered on the
     // CCW (up) and CW (down) sides of entryAngle. When the side has a
     // stair to walk through, gateHalfArc is the player's walkway. When
     // it's a dead end (top floor's up, bottom floor's down), the rail
     // closes that side entirely so the perimeter reads as a continuous
-    // loop with only the actual walkway open. The bridge widens the
-    // CW gap by bridgeArcSweep on the top floor so the cutout rail's
-    // CW endpoint lines up with the bridge's outer end.
-    const upGap = upSideOpen ? gateHalfArc : 0;
-    const downGap = (downSideOpen ? gateHalfArc : 0) + bridgeArcSweep;
+    // loop with only the actual walkway open. On the top floor, the
+    // L-bridge owns the dead-end / CCW side, so upGap reserves exactly
+    // that attach point while downGap stays only as wide as the real
+    // descending stair opening.
+    const upGap = upSideOpen ? gateHalfArc : bridgeArcSweep;
+    const downGap = downSideOpen ? gateHalfArc : 0;
     // Skipped on the ground floor — see hasCutout above. The bottom
     // floor's spiral rises out of solid ground, so there's no fall
     // hazard and any rail there would fence off nothing.
@@ -247,15 +248,15 @@ export function StairwellAccents({ floor }: { floor: FloorLayout }) {
       : [];
 
     // L-shaped connector from the topmost spiral inner rail's free end
-    // (knob A) out to the cutout rail's CW terminus (knob B). Both knobs
+    // (knob A) out to the cutout rail's CCW terminus (knob B). Both knobs
     // sit at the SAME height: the spiral inner rail's top is at
     // upperY + RAIL_HEIGHT, the cutout rail at floor.y + RAIL_HEIGHT, and
     // upperY === floor.y (the top flight lands on this floor). So the
-    // connector is a flat L in the horizontal plane — a first arm leaving
-    // A along the spiral's exit tangent ("continuing the direction the
-    // spiral ends"), then one right angle into a radial arm that lands on
-    // B. Finials at the corner and at B cap the tube ends and hide the
-    // elbows, exactly like every other rail joint in the scene.
+    // connector is a flat L in the horizontal plane on the left/dead-end
+    // side — a first arm leaving A along the spiral's exit tangent, then
+    // one right angle into a radial arm that lands on B. Finials at the
+    // corner and at B cap the tube ends and hide the elbows, exactly like
+    // every other rail joint in the scene.
     //
     // The earlier version swept a single curved tube and started it at
     // the WRONG place — angle entryAngle - gateHalfArc (the spiral inner
@@ -282,9 +283,9 @@ export function StairwellAccents({ floor }: { floor: FloorLayout }) {
       const aR = stairIn.innerRadius + RAIL_BAR_HALF_WIDTH;
       const ax = aR * Math.cos(aAngle);
       const az = aR * Math.sin(aAngle);
-      // Knob B — cutout rail's CW terminus (where the rail stops, one
-      // gate + bridgeArcSweep CW of entryAngle), at the cutout radius.
-      const bAngle = stairIn.entryAngle - gateHalfArc - bridgeArcSweep;
+      // Knob B — cutout rail's CCW terminus, at the left-side column
+      // where the top landing's dead-end rail section begins.
+      const bAngle = stairIn.entryAngle + bridgeArcSweep;
       const bx = railR * Math.cos(bAngle);
       const bz = railR * Math.sin(bAngle);
       // Spiral exit frame at A: unit tangent (circumferential) + unit
@@ -392,19 +393,28 @@ export function StairwellAccents({ floor }: { floor: FloorLayout }) {
   // Each sign sits OUTWARD of its post (away from the spiral centre)
   // and inherits the post's rotation so it faces approaching players.
   // Offset clears the post's outer face (radial half-depth 0.09 m)
-  // by a finger's width so the plaque reads as bolted onto the post
-  // rather than embedded in it, without leaving an architectural gap.
+  // by a finger's width, then slides away from the gate opening so the
+  // plaque does not block the stair path.
   const signOffset = GATE_POST_RADIAL_DEPTH / 2 + 0.02;
-  const signFor = (post: typeof postA) => ({
-    position: [
-      post.x + Math.cos(post.angle) * signOffset,
-      floor.y + 1.65,
-      post.z + Math.sin(post.angle) * signOffset,
-    ] as [number, number, number],
-    rotationY: post.rotationY,
-  });
-  const signA = signFor(postA);
-  const signB = signFor(postB);
+  const signFor = (post: typeof postA, side: "left" | "right") => {
+    const sideSign = side === "left" ? -1 : 1;
+    const tangentX = Math.sin(post.angle);
+    const tangentZ = -Math.cos(post.angle);
+    return {
+      position: [
+        post.x +
+          Math.cos(post.angle) * signOffset +
+          sideSign * tangentX * SIGN_GATE_CLEARANCE_OFFSET,
+        floor.y + 1.65,
+        post.z +
+          Math.sin(post.angle) * signOffset +
+          sideSign * tangentZ * SIGN_GATE_CLEARANCE_OFFSET,
+      ] as [number, number, number],
+      rotationY: post.rotationY,
+    };
+  };
+  const signA = signFor(postA, "left");
+  const signB = signFor(postB, "right");
 
   return (
     <group>
@@ -434,12 +444,12 @@ export function StairwellAccents({ floor }: { floor: FloorLayout }) {
       ))}
 
       {/* L-shaped connector from the topmost spiral inner rail's free
-          end (knob A) to the cutout rail's CW terminus (knob B). Only
+          end (knob A) to the cutout rail's CCW terminus (knob B). Only
           present on the top floor (spiral terminates without another
-          flight above). Arm 1 leaves A along the spiral's exit tangent;
-          arm 2 turns one right angle and runs radially into B. The
-          spiral rail's own brass finial sits at A (rendered in
-          staircase.tsx); finials here cap the corner and B. */}
+          flight above). It sits on the left/dead-end side, away from the
+          descending stair gap. The spiral rail's own brass finial sits
+          at A (rendered in staircase.tsx); finials here cap the corner
+          and B. */}
       {lBridge && (
         <group>
           <mesh
