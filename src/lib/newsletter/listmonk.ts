@@ -132,17 +132,16 @@ type SubscribersQueryResponse = {
   data: { results: ListmonkSubscriber[]; total: number };
 };
 
-/** Escape single quotes for ListMonk's SQL-ish query string. */
-function escSqlString(s: string): string {
-  return s.replace(/'/g, "''");
-}
-
 export async function findSubscriber(email: string): Promise<ListmonkSubscriber | null> {
-  const q = `subscribers.email = '${escSqlString(email.toLowerCase())}'`;
+  const normalized = email.toLowerCase();
+  const params = new URLSearchParams({
+    search: normalized,
+    per_page: "all",
+  });
   const res = await listmonkFetch<SubscribersQueryResponse>(
-    `/api/subscribers?query=${encodeURIComponent(q)}&per_page=1`,
+    `/api/subscribers?${params.toString()}`,
   );
-  return res.data.results[0] ?? null;
+  return res.data.results.find((sub) => sub.email.toLowerCase() === normalized) ?? null;
 }
 
 /**
