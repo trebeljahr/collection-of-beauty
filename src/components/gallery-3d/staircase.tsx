@@ -834,8 +834,9 @@ export function StaircaseRenderer({
  *  and only empty air over the descending helix begins. Two arms in
  *  one piece: a radial bar spanning innerR → outerR at raw=π
  *  (landing-height + RAIL_HEIGHT), plus a short tangential extension
- *  at the outer corner sweeping into the descending-helix side so the
- *  rail reads as a real banister terminus. Coordinates are emitted
+ *  at the outer corner sweeping back over the landing side so the rail
+ *  reads as a real banister terminus without crowding the descending
+ *  stair side. Coordinates are emitted
  *  relative to the staircase's centre — caller renders inside the
  *  `<group position={[centerX, 0, centerZ]}>` wrapper. */
 function TopLandingEndRail({ staircase }: { staircase: Staircase }) {
@@ -857,13 +858,13 @@ function TopLandingEndRail({ staircase }: { staircase: Staircase }) {
   const radialLen = outerRadius - innerRadius - 2 * RAIL_BAR_HALF_WIDTH;
 
   // Tangential arm: a chord at radius = outerR - RAIL_BAR_HALF_WIDTH,
-  // running from (farAngle) to (farAngle + direction * arcExt). The
-  // chord is a straight box rather than a curved tube — π/12 of arc
-  // at the spiral's outer radius is short enough that the chord
-  // approximation reads as a clean elbow rather than a visible chord.
+  // running from (farAngle) back toward the landing side. The chord is
+  // a straight box rather than a curved tube — π/12 of arc at the
+  // spiral's outer radius is short enough that the chord approximation
+  // reads as a clean elbow rather than a visible chord.
   const arcExt = Math.PI / 12;
   const tangentR = outerRadius - RAIL_BAR_HALF_WIDTH;
-  const arm2AngleEnd = farAngle + direction * arcExt;
+  const arm2AngleEnd = farAngle - direction * arcExt;
   const arm2StartX = tangentR * cosF;
   const arm2StartZ = tangentR * sinF;
   const arm2EndX = tangentR * Math.cos(arm2AngleEnd);
