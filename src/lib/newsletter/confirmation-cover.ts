@@ -1,6 +1,6 @@
 import { displayTitle } from "@/lib/artwork-format";
 import { artworks as ALL_ARTWORKS } from "@/lib/data";
-import { variantUrl } from "@/lib/utils";
+import { publicVariantUrl } from "@/lib/utils";
 
 /**
  * Hero image used in the double-opt-in confirmation email. One curated
@@ -34,7 +34,7 @@ export function resolveConfirmHero(siteUrl: string): ConfirmHero {
     // 1280w WebP: readable on retina inboxes, supported by every modern
     // mail client, ~150–300 KB. AVIF skipped because Apple Mail still
     // can't decode it inline.
-    imageUrl: variantUrl(artwork.objectKey, 1280, "webp"),
+    imageUrl: publicVariantUrl(artwork.objectKey, 1280, "webp"),
     artworkUrl: `${siteUrl.replace(/\/$/, "")}/artwork/${artwork.id}`,
     caption: `${title} · ${artistBit}${yearBit}`,
     alt: `${title} — ${artistBit}`,

@@ -2,7 +2,7 @@ import { render } from "@react-email/render";
 import { createElement } from "react";
 import { displayTitle } from "@/lib/artwork-format";
 import { artworks as ALL_ARTWORKS, type Artwork } from "@/lib/data";
-import { variantUrl } from "@/lib/utils";
+import { publicVariantUrl } from "@/lib/utils";
 import WeeklyDigest, {
   type DigestArtwork,
   type WeeklyDigestProps,
@@ -32,7 +32,7 @@ export function toDigestArtwork(
     // modern client. Pinned to 1280 because that's the only WebP width
     // shrink-sources.mjs emits — AVIF covers the rest, but email
     // clients don't grok AVIF yet.
-    imageUrl: variantUrl(artwork.objectKey, 1280, "webp"),
+    imageUrl: publicVariantUrl(artwork.objectKey, 1280, "webp"),
     artworkUrl: `${siteUrl.replace(/\/$/, "")}/artwork/${artwork.id}`,
     note: note ?? null,
   };
