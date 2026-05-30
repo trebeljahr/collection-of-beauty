@@ -7,6 +7,7 @@ import * as THREE from "three";
 import type { ArtworkListing } from "@/lib/data";
 import type { FloorLayout, Staircase } from "@/lib/gallery-layout/types";
 import { CELL_SIZE } from "@/lib/gallery-layout/world-coords";
+import { fitsDoorwayApertures, nudgeTowardDoorwayCenter } from "./doorway-collision";
 import {
   createGalleryCollisionController,
   type GalleryCollisionController,
@@ -32,6 +33,12 @@ const GRAVITY = 22;
 // Keep the player this far back from a wall face. Cell-size is 2.5 m;
 // 0.3 m leaves headroom for the wall plane + trim geometry.
 const PLAYER_RADIUS = 0.3;
+// Extra lateral headroom while passing through doorways. The physical
+// capsule still uses PLAYER_RADIUS, but near a door jamb we gently bias
+// the movement target toward this wider comfort band so the camera
+// doesn't skim the cut wall plane.
+const DOORWAY_CAMERA_CLEARANCE = 0.45;
+const DOORWAY_NUDGE_MAX_CORRECTION = 0.35;
 // Max distance (m) at which the crosshair swaps to the magnifying-glass
 // "inspect" affordance. Click-to-zoom still works at any range; this is
 // purely the visual hover threshold so the cursor only changes when the
@@ -468,29 +475,101 @@ export function Player({
       const curZ = camera.position.z;
       const currentStairId = spiralState.current?.staircaseId ?? null;
       const currentCum = spiralState.current?.cumulativeAngle ?? 0;
+      const rawNx = curX + move.x;
+      const rawNz = curZ + move.z;
+      const doorwayNudge = nudgeTowardDoorwayCenter(
+        floor,
+        curX,
+        curZ,
+        rawNx,
+        rawNz,
+        PLAYER_RADIUS,
+        DOORWAY_CAMERA_CLEARANCE,
+        Math.min(DOORWAY_NUDGE_MAX_CORRECTION, Math.max(0.04, move.length() * 3)),
+      );
+      const desiredMoveX = doorwayNudge ? doorwayNudge.x - curX : move.x;
+      const desiredMoveZ = doorwayNudge ? doorwayNudge.z - curZ : move.z;
       const physics = physicsRef.current;
       const feetY = camera.position.y - eyeHeight.current;
       if (physics) {
         const allowed = physics.move(
           { x: curX, y: feetY, z: curZ },
-          { x: move.x, y: 0, z: move.z },
+          { x: desiredMoveX, y: 0, z: desiredMoveZ },
         );
         const nx = curX + allowed.x;
         const nz = curZ + allowed.z;
         if (canAcceptPhysicsMove(floor, curX, curZ, nx, nz, currentStairId, currentCum)) {
           camera.position.x = nx;
           camera.position.z = nz;
+        } else if (doorwayNudge) {
+          const sideOnlyX = Math.abs(doorwayNudge.x - rawNx) > 1e-6 ? doorwayNudge.x : curX;
+          const sideOnlyZ = Math.abs(doorwayNudge.z - rawNz) > 1e-6 ? doorwayNudge.z : curZ;
+          const sideMoveX = sideOnlyX - curX;
+          const sideMoveZ = sideOnlyZ - curZ;
+          if (Math.abs(sideMoveX) > 1e-6 || Math.abs(sideMoveZ) > 1e-6) {
+            const sideAllowed = physics.move(
+              { x: curX, y: feetY, z: curZ },
+              { x: sideMoveX, y: 0, z: sideMoveZ },
+            );
+            const sx = curX + sideAllowed.x;
+            const sz = curZ + sideAllowed.z;
+            if (canAcceptPhysicsMove(floor, curX, curZ, sx, sz, currentStairId, currentCum)) {
+              camera.position.x = sx;
+              camera.position.z = sz;
+            }
+          }
         }
       } else {
-        const nx = curX + move.x;
-        const nz = curZ + move.z;
-        if (canAcceptPhysicsMove(floor, curX, curZ, nx, nz, currentStairId, currentCum)) {
-          camera.position.x = nx;
-          camera.position.z = nz;
-        } else if (canAcceptPhysicsMove(floor, curX, curZ, nx, curZ, currentStairId, currentCum)) {
-          camera.position.x = nx;
-        } else if (canAcceptPhysicsMove(floor, curX, curZ, curX, nz, currentStairId, currentCum)) {
-          camera.position.z = nz;
+        let moved = false;
+        if (
+          doorwayNudge &&
+          canAcceptPhysicsMove(
+            floor,
+            curX,
+            curZ,
+            doorwayNudge.x,
+            doorwayNudge.z,
+            currentStairId,
+            currentCum,
+          )
+        ) {
+          camera.position.x = doorwayNudge.x;
+          camera.position.z = doorwayNudge.z;
+          moved = true;
+        } else if (doorwayNudge) {
+          const sideOnlyX = Math.abs(doorwayNudge.x - rawNx) > 1e-6 ? doorwayNudge.x : curX;
+          const sideOnlyZ = Math.abs(doorwayNudge.z - rawNz) > 1e-6 ? doorwayNudge.z : curZ;
+          if (
+            (Math.abs(sideOnlyX - curX) > 1e-6 || Math.abs(sideOnlyZ - curZ) > 1e-6) &&
+            canAcceptPhysicsMove(
+              floor,
+              curX,
+              curZ,
+              sideOnlyX,
+              sideOnlyZ,
+              currentStairId,
+              currentCum,
+            )
+          ) {
+            camera.position.x = sideOnlyX;
+            camera.position.z = sideOnlyZ;
+            moved = true;
+          }
+        }
+
+        if (!moved) {
+          if (canAcceptPhysicsMove(floor, curX, curZ, rawNx, rawNz, currentStairId, currentCum)) {
+            camera.position.x = rawNx;
+            camera.position.z = rawNz;
+          } else if (
+            canAcceptPhysicsMove(floor, curX, curZ, rawNx, curZ, currentStairId, currentCum)
+          ) {
+            camera.position.x = rawNx;
+          } else if (
+            canAcceptPhysicsMove(floor, curX, curZ, curX, rawNz, currentStairId, currentCum)
+          ) {
+            camera.position.z = rawNz;
+          }
         }
       }
     }
@@ -827,6 +906,7 @@ function canAcceptPhysicsMove(
   }
   if (!isWalkable(floor, toX, toZ)) return false;
   if (!canCrossEdges(floor, fromX, fromZ, toX, toZ)) return false;
+  if (!fitsDoorwayApertures(floor, toX, toZ, PLAYER_RADIUS)) return false;
   return true;
 }
 
