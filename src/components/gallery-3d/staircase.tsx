@@ -105,8 +105,10 @@ export const finialGeometry = new THREE.SphereGeometry(FINIAL_RADIUS, 24, 16);
  *  vertically and the spiral rail flows smoothly out of one floor's
  *  cutout rail and into the next. */
 export function spiralGateHalfArc(numSteps: number): number {
-  // One step's worth of arc on each side ≈ 16° at numSteps=22.
-  return (Math.PI * 2) / numSteps;
+  // A little over one step of arc on each side. One exact step felt
+  // visually and physically too narrow once the sign pylon sat on the
+  // post instead of floating beside it.
+  return ((Math.PI * 2) / numSteps) * 1.35;
 }
 
 /**
@@ -737,19 +739,6 @@ export function StaircaseRenderer({
         </mesh>
       )}
 
-      {/* Top-landing end railing. The landing only covers half the
-          annulus (raw ∈ [0, π]); past raw=π is open air above the
-          descending helix below. Without a fence the player could walk
-          straight off the platform's far edge — same "walk into air"
-          class as the cutout-edge bug fixed for the floor. An
-          L-shaped rail closes the gap: one radial arm spans the
-          landing's far edge from inner spiral rail to outer spiral
-          rail, and a short tangential arm at the outer corner
-          extends a finger's width into the descending side so the
-          rail reads as a proper banister terminus rather than a
-          loose bar floating across the well. */}
-      {!hasFlightAbove && <TopLandingEndRail staircase={staircase} />}
-
       {/* Per-step radial beams tying each tread back to the
           column. Reads as forged iron hardware anchoring the
           wooden treads to the masonry spine. Box's local axes
@@ -825,102 +814,6 @@ export function StaircaseRenderer({
           <primitive object={railTopMaterial} attach="material" />
         </mesh>
       ))}
-    </group>
-  );
-}
-
-/** L-shaped rail at the top landing's far edge. The landing covers
- *  raw ∈ [0, π]; this rail closes the (π) edge where the slab ends
- *  and only empty air over the descending helix begins. Two arms in
- *  one piece: a radial bar spanning innerR → outerR at raw=π
- *  (landing-height + RAIL_HEIGHT), plus a short tangential extension
- *  at the outer corner sweeping back over the landing side so the rail
- *  reads as a real banister terminus without crowding the descending
- *  stair side. Coordinates are emitted
- *  relative to the staircase's centre — caller renders inside the
- *  `<group position={[centerX, 0, centerZ]}>` wrapper. */
-function TopLandingEndRail({ staircase }: { staircase: Staircase }) {
-  const { innerRadius, outerRadius, direction, upperY, entryAngle } = staircase;
-  const farAngle = entryAngle + direction * Math.PI;
-  const cosF = Math.cos(farAngle);
-  const sinF = Math.sin(farAngle);
-  const railY = upperY + RAIL_HEIGHT - RAIL_BAR_HEIGHT / 2;
-
-  // Radial arm: a single box centred on the landing's far radial line.
-  // Local +X (after Y-rotation = -farAngle) aligns with the outward
-  // radial direction at farAngle, so the box's length lies along the
-  // radius from innerRadius+RAIL_BAR_HALF_WIDTH (flush with the inner
-  // spiral rail) to outerRadius-RAIL_BAR_HALF_WIDTH (flush with the
-  // outer spiral rail). 2*RAIL_BAR_HALF_WIDTH along the tangential
-  // axis keeps the rail's cross-section identical to the spiral and
-  // cutout rails so it visually matches the rest of the brass.
-  const radialMidR = (innerRadius + outerRadius) / 2;
-  const radialLen = outerRadius - innerRadius - 2 * RAIL_BAR_HALF_WIDTH;
-
-  // Tangential arm: a chord at radius = outerR - RAIL_BAR_HALF_WIDTH,
-  // running from (farAngle) back toward the landing side. The chord is
-  // a straight box rather than a curved tube — π/12 of arc at the
-  // spiral's outer radius is short enough that the chord approximation
-  // reads as a clean elbow rather than a visible chord.
-  const arcExt = Math.PI / 12;
-  const tangentR = outerRadius - RAIL_BAR_HALF_WIDTH;
-  const arm2AngleEnd = farAngle - direction * arcExt;
-  const arm2StartX = tangentR * cosF;
-  const arm2StartZ = tangentR * sinF;
-  const arm2EndX = tangentR * Math.cos(arm2AngleEnd);
-  const arm2EndZ = tangentR * Math.sin(arm2AngleEnd);
-  const arm2MidX = (arm2StartX + arm2EndX) / 2;
-  const arm2MidZ = (arm2StartZ + arm2EndZ) / 2;
-  const arm2Len = Math.hypot(arm2EndX - arm2StartX, arm2EndZ - arm2StartZ);
-  // Three's rotateY maps local +X to (cos(-θ), 0, sin(-θ)) =
-  // (cosθ, 0, -sinθ). To align local +X with world chord direction
-  // (dx, dz), set θ = -atan2(dz, dx).
-  const arm2RotY = -Math.atan2(arm2EndZ - arm2StartZ, arm2EndX - arm2StartX);
-
-  // Finial positions: inner end of arm 1, outer corner (shared join
-  // between arm 1 and arm 2's start), and the free end of arm 2.
-  const innerEndX = (innerRadius + RAIL_BAR_HALF_WIDTH) * cosF;
-  const innerEndZ = (innerRadius + RAIL_BAR_HALF_WIDTH) * sinF;
-
-  // Vertical drop posts under each rail end so the railing is
-  // physically anchored to the landing slab. Two posts at the corners
-  // are enough to read as supports without crowding the platform.
-  const postHeight = RAIL_HEIGHT - RAIL_BAR_HEIGHT;
-  const postY = upperY + postHeight / 2;
-
-  return (
-    <group>
-      <mesh
-        position={[radialMidR * cosF, railY, radialMidR * sinF]}
-        rotation={[0, -farAngle, 0]}
-        castShadow
-      >
-        <boxGeometry args={[radialLen, RAIL_BAR_HEIGHT, 2 * RAIL_BAR_HALF_WIDTH]} />
-        <primitive object={railTopMaterial} attach="material" />
-      </mesh>
-      <mesh position={[arm2MidX, railY, arm2MidZ]} rotation={[0, arm2RotY, 0]} castShadow>
-        <boxGeometry args={[arm2Len, RAIL_BAR_HEIGHT, 2 * RAIL_BAR_HALF_WIDTH]} />
-        <primitive object={railTopMaterial} attach="material" />
-      </mesh>
-      <mesh position={[innerEndX, railY, innerEndZ]} geometry={finialGeometry} castShadow>
-        <primitive object={railTopMaterial} attach="material" />
-      </mesh>
-      <mesh position={[arm2EndX, railY, arm2EndZ]} geometry={finialGeometry} castShadow>
-        <primitive object={railTopMaterial} attach="material" />
-      </mesh>
-      {/* Drop posts under the inner end and the elbow corner. */}
-      <mesh position={[innerEndX, postY, innerEndZ]} rotation={[0, -farAngle, 0]} castShadow>
-        <boxGeometry args={[BALUSTER_SIZE, postHeight, BALUSTER_SIZE]} />
-        <primitive object={balusterMaterial} attach="material" />
-      </mesh>
-      <mesh position={[arm2StartX, postY, arm2StartZ]} rotation={[0, -farAngle, 0]} castShadow>
-        <boxGeometry args={[BALUSTER_SIZE, postHeight, BALUSTER_SIZE]} />
-        <primitive object={balusterMaterial} attach="material" />
-      </mesh>
-      <mesh position={[arm2EndX, postY, arm2EndZ]} rotation={[0, arm2RotY, 0]} castShadow>
-        <boxGeometry args={[BALUSTER_SIZE, postHeight, BALUSTER_SIZE]} />
-        <primitive object={balusterMaterial} attach="material" />
-      </mesh>
     </group>
   );
 }

@@ -42,10 +42,6 @@ const GATE_POST_TANGENT_WIDTH = 0.85;
  *  pylon rather than a fat column. */
 const GATE_POST_RADIAL_DEPTH = 0.18;
 const GATE_POST_HEIGHT = 2.4;
-/** Sideways nudge for the sign plaques along the gate tangent. Each
- *  plaque moves away from the walking gap, keeping the stair entry
- *  clearer while preserving the post orientation. */
-const SIGN_GATE_CLEARANCE_OFFSET = 0.34;
 /** Radial offset of the cutout-edge rail's centerline from the
  *  stairwell hole's edge. Exported because player.tsx needs the same
  *  number for collision clearance — keeping the two in lockstep
@@ -272,6 +268,7 @@ export function StairwellAccents({ floor }: { floor: FloorLayout }) {
       seg2Len: number;
       cornerPos: [number, number, number];
       endPos: [number, number, number];
+      supportPosts: Array<[number, number, number]>;
     } | null = null;
     if (hasCutout && hasSpiralEnd && stairIn) {
       // Knob A — spiral inner rail's TOP finial. The inner rail is a
@@ -305,8 +302,19 @@ export function StairwellAccents({ floor }: { floor: FloorLayout }) {
       // Both arms' centre-line sits at rail height; the boxes hang
       // RAIL_BAR_HEIGHT down from the top, matching the cutout tube.
       const railY = floor.y + RAIL_HEIGHT - RAIL_BAR_HEIGHT / 2;
+      const postY = floor.y + BALUSTER_HEIGHT / 2;
+      const supportPosts: Array<[number, number, number]> = [
+        [cornerX, postY, cornerZ],
+        [bx, postY, bz],
+      ];
+      if (Math.abs(tComp) > 1) {
+        supportPosts.push([(ax + cornerX) / 2, postY, (az + cornerZ) / 2]);
+      }
+      if (Math.abs(rComp) > 1) {
+        supportPosts.push([(cornerX + bx) / 2, postY, (cornerZ + bz) / 2]);
+      }
       // rotateY = -atan2(dz, dx) aligns a box's local +X with its run —
-      // same convention as TopLandingEndRail in staircase.tsx.
+      // same convention as the other straight rail sections.
       lBridge = {
         seg1Mid: [(ax + cornerX) / 2, railY, (az + cornerZ) / 2],
         seg1RotY: -Math.atan2(cornerZ - az, cornerX - ax),
@@ -316,6 +324,7 @@ export function StairwellAccents({ floor }: { floor: FloorLayout }) {
         seg2Len: Math.abs(rComp),
         cornerPos: [cornerX, railY, cornerZ],
         endPos: [bx, railY, bz],
+        supportPosts,
       };
     }
 
@@ -393,28 +402,19 @@ export function StairwellAccents({ floor }: { floor: FloorLayout }) {
   // Each sign sits OUTWARD of its post (away from the spiral centre)
   // and inherits the post's rotation so it faces approaching players.
   // Offset clears the post's outer face (radial half-depth 0.09 m)
-  // by a finger's width, then slides away from the gate opening so the
-  // plaque does not block the stair path.
+  // by a finger's width so the plaque stays visually bolted to the
+  // pylon. The larger gate arc moves the whole pylon, not just the sign.
   const signOffset = GATE_POST_RADIAL_DEPTH / 2 + 0.02;
-  const signFor = (post: typeof postA, side: "left" | "right") => {
-    const sideSign = side === "left" ? -1 : 1;
-    const tangentX = Math.sin(post.angle);
-    const tangentZ = -Math.cos(post.angle);
-    return {
-      position: [
-        post.x +
-          Math.cos(post.angle) * signOffset +
-          sideSign * tangentX * SIGN_GATE_CLEARANCE_OFFSET,
-        floor.y + 1.65,
-        post.z +
-          Math.sin(post.angle) * signOffset +
-          sideSign * tangentZ * SIGN_GATE_CLEARANCE_OFFSET,
-      ] as [number, number, number],
-      rotationY: post.rotationY,
-    };
-  };
-  const signA = signFor(postA, "left");
-  const signB = signFor(postB, "right");
+  const signFor = (post: typeof postA) => ({
+    position: [
+      post.x + Math.cos(post.angle) * signOffset,
+      floor.y + 1.65,
+      post.z + Math.sin(post.angle) * signOffset,
+    ] as [number, number, number],
+    rotationY: post.rotationY,
+  });
+  const signA = signFor(postA);
+  const signB = signFor(postB);
 
   return (
     <group>
@@ -482,6 +482,17 @@ export function StairwellAccents({ floor }: { floor: FloorLayout }) {
           >
             <primitive object={railTopMaterial} attach="material" />
           </mesh>
+          {lBridge.supportPosts.map((p, i) => (
+            <mesh
+              // biome-ignore lint/suspicious/noArrayIndexKey: fixed support set for one L bridge.
+              key={`l-bridge-support-${i}`}
+              position={[cx + p[0], p[1], cz + p[2]]}
+              castShadow
+            >
+              <boxGeometry args={[BALUSTER_SIZE, BALUSTER_HEIGHT, BALUSTER_SIZE]} />
+              <primitive object={balusterMaterial} attach="material" />
+            </mesh>
+          ))}
         </group>
       )}
 
