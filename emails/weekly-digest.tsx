@@ -75,7 +75,22 @@ export default function WeeklyDigest({
 
   return (
     <Html>
-      <Head />
+      <Head>
+        {/*
+          Descendant styling for the markdown-rendered intro block.
+          react-email's <Tailwind> compiler can't reliably express
+          arbitrary descendant variants like `[&_a]:underline` — it
+          flattens them onto the wrapping <div>, and CSS inheritance
+          then underlines every <p> inside. So we hand-write the
+          descendant rules into a real <style> block instead.
+        */}
+        <style>{`
+          .intro-prose a { color: #1c1917; text-decoration: underline; text-decoration-color: #d6d3d1; text-underline-offset: 4px; }
+          .intro-prose em { font-style: italic; }
+          .intro-prose p { margin-top: 0.75rem; margin-bottom: 0.75rem; }
+          .intro-prose strong { font-weight: 600; }
+        `}</style>
+      </Head>
       <Preview>{previewText}</Preview>
       <Tailwind>
         <Body className="bg-stone-50 font-serif text-stone-900">
@@ -106,7 +121,7 @@ export default function WeeklyDigest({
                 <>
                   <Section>
                     <div
-                      className="text-base leading-relaxed text-stone-800 [&_a]:text-stone-900 [&_a]:underline [&_a]:decoration-stone-300 [&_a]:underline-offset-4 [&_em]:italic [&_p]:my-3 [&_strong]:font-semibold"
+                      className="intro-prose text-base leading-relaxed text-stone-800"
                       // biome-ignore lint/security/noDangerouslySetInnerHtml: trusted in-repo markdown rendered via remark
                       dangerouslySetInnerHTML={{ __html: introHtml }}
                     />
