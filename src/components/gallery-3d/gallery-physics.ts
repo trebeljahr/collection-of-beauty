@@ -77,6 +77,12 @@ export class GalleryCollisionController {
   move(fromFeet: Vec3, desired: Vec3): Vec3 {
     const centerY = fromFeet.y + PLAYER_COLLIDER_TOTAL_HEIGHT / 2;
     this.body.setTranslation({ x: fromFeet.x, y: centerY, z: fromFeet.z }, false);
+    // Rapier's character controller queries the broad phase. The
+    // camera owns the player pose, so every frame we teleport the
+    // kinematic body to match it; stepping the zero-gravity world here
+    // flushes that pose into the collider sets before the KCC casts
+    // against rail/wall colliders.
+    this.world.step();
     this.controller.computeColliderMovement(
       this.collider,
       desired,
