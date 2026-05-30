@@ -6,22 +6,19 @@ import { useEffect, useRef } from "react";
 import * as THREE from "three";
 import type { ArtworkListing } from "@/lib/data";
 import type { FloorLayout, Staircase } from "@/lib/gallery-layout/types";
+import { CELL_SIZE } from "@/lib/gallery-layout/world-coords";
 import {
-  CELL_SIZE,
-  SPIRAL_COLUMN_RADIUS,
-  SPIRAL_FLOOR_CUTOUT_RADIUS,
-} from "@/lib/gallery-layout/world-coords";
+  createGalleryCollisionController,
+  type GalleryCollisionController,
+} from "./gallery-physics";
 import { raycastNearestPainting } from "./painting-registry";
-import { RAIL_BAR_HALF_WIDTH } from "./rail-constants";
 import {
   findStairAbove,
   findStairBelow,
   isInsideStair,
-  spiralGateHalfArc,
   spiralRawAngle,
   stairHeightAt,
 } from "./staircase";
-import { CUTOUT_RAIL_RADIUS } from "./stairwell-rail";
 
 const EYE_HEIGHT = 1.75;
 const DUCK_EYE_HEIGHT = 1.05;
@@ -35,30 +32,6 @@ const GRAVITY = 22;
 // Keep the player this far back from a wall face. Cell-size is 2.5 m;
 // 0.3 m leaves headroom for the wall plane + trim geometry.
 const PLAYER_RADIUS = 0.3;
-// Radial buffer inside the spiral annulus — keeps the player's bbox
-// clear of the inner and outer railings while walking on the steps.
-// The rails are at innerRadius + RAIL_BAR_HALF_WIDTH (centre) with the
-// same radial half-width as the cross-section — i.e. the rail's near
-// face sits 2 × RAIL_BAR_HALF_WIDTH inside the annulus on each side,
-// with the rail's far face flush with the step edge. Adding
-// PLAYER_RADIUS plus a 0.23 m elbow gives 0.63 m of total clearance —
-// enough to keep the bbox out of either rail without shrinking the
-// walking strip uncomfortably.
-const SPIRAL_RAIL_CLEARANCE = 2 * RAIL_BAR_HALF_WIDTH + PLAYER_RADIUS + 0.23;
-// Same idea on the OUTSIDE of the spiral — the cutout-edge railing
-// (the floor-level circular rail around the stairwell hole on floors
-// above the ground) sits at CUTOUT_RAIL_RADIUS with the same
-// RAIL_BAR_HALF_WIDTH cross-section. Block any target whose centre
-// would put the player's bbox into that rail tube. The cutout-edge
-// rail has the same gate gap as the spiral's outer rail, so the
-// constraint is dropped inside the gate arc to let the player walk
-// through. 0.55 m of elbow past the rail's near face means the camera
-// stays a comfortable shoulder's width from the brass tube when the
-// player walks the stairwell room — no more nose-to-rail glitching on
-// approach. Inner bound is constrained so it can never blot out the
-// spiral walking annulus (see the off-spiral guard in canStepTo).
-const CUTOUT_RAIL_INNER_BOUND = CUTOUT_RAIL_RADIUS - RAIL_BAR_HALF_WIDTH - PLAYER_RADIUS - 0.55;
-const CUTOUT_RAIL_OUTER_BOUND = CUTOUT_RAIL_RADIUS + RAIL_BAR_HALF_WIDTH + PLAYER_RADIUS + 0.55;
 // Max distance (m) at which the crosshair swaps to the magnifying-glass
 // "inspect" affordance. Click-to-zoom still works at any range; this is
 // purely the visual hover threshold so the cursor only changes when the
@@ -255,10 +228,35 @@ export function Player({
   // Once-per-session guard so a recurring throw inside the spiral
   // calc doesn't spam the console at 60 Hz.
   const spiralCalcWarned = useRef(false);
+  const physicsRef = useRef<GalleryCollisionController | null>(null);
 
   useEffect(() => {
     enabledRef.current = enabled;
   }, [enabled]);
+
+  useEffect(() => {
+    let cancelled = false;
+    physicsRef.current?.dispose();
+    physicsRef.current = null;
+
+    createGalleryCollisionController(floor, allStaircases, PLAYER_RADIUS)
+      .then((controller) => {
+        if (cancelled) {
+          controller.dispose();
+          return;
+        }
+        physicsRef.current = controller;
+      })
+      .catch((err) => {
+        console.warn("[player] Rapier collision setup failed", err);
+      });
+
+    return () => {
+      cancelled = true;
+      physicsRef.current?.dispose();
+      physicsRef.current = null;
+    };
+  }, [floor, allStaircases]);
 
   // Latest `floor` mirrored into a ref so the spawn effect below can
   // pick the floor's central spiral as a lookAt target without taking
@@ -468,51 +466,31 @@ export function Player({
       move.multiplyScalar(speed * dt);
       const curX = camera.position.x;
       const curZ = camera.position.z;
-      const nx = curX + move.x;
-      const nz = curZ + move.z;
-
-      // Collision model:
-      //  - The spiral annulus passes always when entering, so the
-      //    player can step onto the on-ramp from any direction.
-      //  - LEAVING the spiral is gated on cumulative ≈ 0 / 2π — the
-      //    player has to be at a real floor's height to step off,
-      //    otherwise canStepTo refuses (no more "beam up/down" when
-      //    they wander out mid-flight).
-      //  - Otherwise the grid mask + per-edge wall mask decides.
       const currentStairId = spiralState.current?.staircaseId ?? null;
       const currentCum = spiralState.current?.cumulativeAngle ?? 0;
-      const playerHeadY = camera.position.y;
-      if (canStepTo(floor, curX, curZ, nx, nz, currentStairId, currentCum, playerHeadY)) {
-        camera.position.x = nx;
-        camera.position.z = nz;
-      } else if (canStepTo(floor, curX, curZ, nx, curZ, currentStairId, currentCum, playerHeadY)) {
-        camera.position.x = nx;
-      } else if (canStepTo(floor, curX, curZ, curX, nz, currentStairId, currentCum, playerHeadY)) {
-        camera.position.z = nz;
-      } else {
-        // Capsule-style tangent slide. Axis-aligned slides handle most
-        // flat-wall cases, but they can't help with curved obstacles
-        // (spiral railings, cutout ring, column) where moving along
-        // either X or Z keeps the player inside the forbidden region,
-        // and they can't help with corner cases where the blocking
-        // surface isn't grid-aligned. Probe the local neighbourhood for
-        // a collision normal, project the desired move onto the
-        // perpendicular tangent, and step along that. Without this,
-        // walking diagonally into a wall or along the inner spiral
-        // railing feels like hitting fly paper instead of sliding.
-        const slid = trySlideAlongTangent(
-          floor,
-          curX,
-          curZ,
-          nx,
-          nz,
-          currentStairId,
-          currentCum,
-          playerHeadY,
+      const physics = physicsRef.current;
+      const feetY = camera.position.y - eyeHeight.current;
+      if (physics) {
+        const allowed = physics.move(
+          { x: curX, y: feetY, z: curZ },
+          { x: move.x, y: 0, z: move.z },
         );
-        if (slid) {
-          camera.position.x = slid.x;
-          camera.position.z = slid.z;
+        const nx = curX + allowed.x;
+        const nz = curZ + allowed.z;
+        if (canAcceptPhysicsMove(floor, curX, curZ, nx, nz, currentStairId, currentCum)) {
+          camera.position.x = nx;
+          camera.position.z = nz;
+        }
+      } else {
+        const nx = curX + move.x;
+        const nz = curZ + move.z;
+        if (canAcceptPhysicsMove(floor, curX, curZ, nx, nz, currentStairId, currentCum)) {
+          camera.position.x = nx;
+          camera.position.z = nz;
+        } else if (canAcceptPhysicsMove(floor, curX, curZ, nx, curZ, currentStairId, currentCum)) {
+          camera.position.x = nx;
+        } else if (canAcceptPhysicsMove(floor, curX, curZ, curX, nz, currentStairId, currentCum)) {
+          camera.position.z = nz;
         }
       }
     }
@@ -523,29 +501,18 @@ export function Player({
     // Off the spiral, normal gravity + floor-plane clamp.
     try {
       let activeStair = findStairAt(floor, camera.position.x, camera.position.z);
-      // FRESH activation requires entering through the gate angularly —
-      // the spiral has a single physical entry/exit at `entryAngle` (the
-      // bottom step on the lower floor, the top step on the upper floor).
-      // Without this gate, walking into the annulus at the side (easy on
-      // the ground floor where the stairwell room has no cutout, so the
-      // floor cells under the spiral are walkable) would snap the player
-      // onto cumulative=0 — the bottom-step Y — at an angular position
-      // where the visible tread is several steps higher up. The "walk
-      // in, walk left, climb without ever being on the stairs" bug.
-      // Once already on the spiral the gate check is skipped, so the
-      // player walks the full revolution to climb.
+      // Fresh activation is height-based now. The physical rail/gate
+      // colliders decide whether the player can enter the annulus; the
+      // stair state only starts when the visible tread at this angle is
+      // actually at the player's feet. That prevents side-entry snaps
+      // without another hand-sized angular entrance constant.
       if (
         activeStair &&
         (!spiralState.current || spiralState.current.staircaseId !== activeStair.id)
       ) {
-        const dx = camera.position.x - activeStair.centerX;
-        const dz = camera.position.z - activeStair.centerZ;
-        const theta = Math.atan2(dz, dx);
-        const angDiff = Math.atan2(
-          Math.sin(theta - activeStair.entryAngle),
-          Math.cos(theta - activeStair.entryAngle),
-        );
-        if (Math.abs(angDiff) >= spiralGateHalfArc(activeStair.numSteps)) {
+        const feetY = camera.position.y - eyeHeight.current;
+        const raw = spiralRawAngle(activeStair, camera.position.x, camera.position.z);
+        if (!isAtStairSurface(floor.index, activeStair, raw, feetY)) {
           activeStair = null;
         }
       }
@@ -794,77 +761,20 @@ function findStairAt(floor: FloorLayout, worldX: number, worldZ: number): Stairc
   return null;
 }
 
-/** Capsule-style tangent slide. Probes the local neighbourhood to find
- *  which directions are blocked, derives an approximate collision
- *  normal from the blocked probes, and projects the desired move onto
- *  the tangent perpendicular to that normal. Works for any obstacle
- *  shape — flat walls, spiral railings, cutout ring, central column,
- *  corners — because the normal estimate is geometry-agnostic.
- *
- *  8 unit-length probes from the player's current position (4 axis +
- *  4 diagonal) catch both grid-aligned walls and curved rings. Each
- *  blocked probe contributes its direction (inverted) to the normal
- *  accumulator; tangent = normal rotated 90°. The slide is then a
- *  pure projection of the original move onto that tangent, so a fully
- *  perpendicular move into a wall stops naturally (dot product → 0)
- *  while a glancing move slides at the full tangential speed. */
-const _PROBE_DIRS: ReadonlyArray<readonly [number, number]> = [
-  [1, 0],
-  [-1, 0],
-  [0, 1],
-  [0, -1],
-  [Math.SQRT1_2, Math.SQRT1_2],
-  [-Math.SQRT1_2, Math.SQRT1_2],
-  [Math.SQRT1_2, -Math.SQRT1_2],
-  [-Math.SQRT1_2, -Math.SQRT1_2],
-];
-function trySlideAlongTangent(
-  floor: FloorLayout,
-  fromX: number,
-  fromZ: number,
-  toX: number,
-  toZ: number,
-  currentStairId: string | null,
-  currentCum: number,
-  playerHeadY: number,
-): { x: number; z: number } | null {
-  const moveX = toX - fromX;
-  const moveZ = toZ - fromZ;
-  if (moveX * moveX + moveZ * moveZ < 1e-6) return null;
-
-  // Probe distance: a player-radius step is enough to register against
-  // anything the bbox is already brushing up against. Smaller and the
-  // probes miss railings the player isn't quite touching yet; larger
-  // and the normal estimate is dominated by far-away geometry.
-  const probeDist = PLAYER_RADIUS;
-  let normX = 0;
-  let normZ = 0;
-  for (const [dx, dz] of _PROBE_DIRS) {
-    const px = fromX + dx * probeDist;
-    const pz = fromZ + dz * probeDist;
-    if (!canStepTo(floor, fromX, fromZ, px, pz, currentStairId, currentCum, playerHeadY)) {
-      // Normal points away from the blocker.
-      normX -= dx;
-      normZ -= dz;
-    }
-  }
-  const nlen = Math.hypot(normX, normZ);
-  if (nlen < 1e-6) return null;
-  normX /= nlen;
-  normZ /= nlen;
-  // Tangent = normal rotated 90°. Either chirality works; the dot
-  // product below picks the sign aligned with the player's intended
-  // direction.
-  const tx = -normZ;
-  const tz = normX;
-  const dot = moveX * tx + moveZ * tz;
-  if (Math.abs(dot) < 1e-6) return null;
-  const slideX = fromX + tx * dot;
-  const slideZ = fromZ + tz * dot;
-  if (!canStepTo(floor, fromX, fromZ, slideX, slideZ, currentStairId, currentCum, playerHeadY)) {
-    return null;
-  }
-  return { x: slideX, z: slideZ };
+function isAtStairSurface(
+  floorIndex: number,
+  stair: Staircase,
+  rawAngle: number,
+  feetY: number,
+): boolean {
+  const stepRise = (stair.upperY - stair.lowerY) / stair.numSteps;
+  const stepAngle = (Math.PI * 2) / stair.numSteps;
+  const tolerance = stepRise * 1.75;
+  const surfaceY =
+    floorIndex === stair.upperFloor && rawAngle < stepAngle * 1.5
+      ? stair.upperY
+      : stairHeightAt(stair, rawAngle);
+  return Math.abs(surfaceY - feetY) <= tolerance;
 }
 
 /** True if the grid cell at (worldX, worldZ) is walkable for a player of
@@ -889,18 +799,14 @@ function isWalkable(floor: FloorLayout, worldX: number, worldZ: number): boolean
   return true;
 }
 
-/** Top-level predicate used by movement.
+/** Sanity gate after Rapier computes slide movement.
  *
- *  - Stepping ONTO the spiral always passes — the cumulative-angle
- *    init in useFrame snaps the player's Y to the right floor.
- *  - Stepping OFF the spiral (target outside the annulus while
- *    `currentStairId` is set) only passes if the player is at a real
- *    floor's height — i.e. cumulative is near 0 (lower floor) or near
- *    2π (upper floor). Mid-flight exit is blocked, which is what
- *    kills the old "beam up/down to the wrong floor" bug when the
- *    player wandered off mid-spiral.
- *  - Off the spiral, the grid mask + per-edge wall mask decide. */
-function canStepTo(
+ *  Real colliders own walls, rails, posts, signs, columns, and top
+ *  landing edges. This predicate only preserves layout invariants that
+ *  are not yet represented as full walkable-surface physics: grid
+ *  membership for normal floors and the "don't step off a spiral
+ *  mid-flight through a rail gap" rule. */
+function canAcceptPhysicsMove(
   floor: FloorLayout,
   fromX: number,
   fromZ: number,
@@ -908,165 +814,9 @@ function canStepTo(
   toZ: number,
   currentStairId: string | null,
   currentCum: number,
-  /** World Y of the player's head (camera position). Used by (a) the
-   *  outer-rail overhead bypass — where the helix at this angular
-   *  position has risen above the player's head, the outer wall is
-   *  dropped so they can walk under the overhang — and (b) the
-   *  top-landing edge fence, to tell whether the player is standing at
-   *  the helix's top landing (so the dead-end half of the landing can
-   *  be blocked) versus walking the flight below it. */
-  playerHeadY: number,
 ): boolean {
-  // Central column guard — the stone spine sits at every spiral's
-  // centre (SPIRAL_COLUMN_RADIUS). Block targets whose centre lands
-  // inside the column plus a player-radius buffer; on upper floors
-  // this is mostly redundant with the open-well guard below, but on
-  // the ground floor the well is walkable and the column is the
-  // only thing in there.
-  const columnBlockR = SPIRAL_COLUMN_RADIUS + PLAYER_RADIUS;
-  for (const s of [...floor.stairsOut, ...floor.stairsIn]) {
-    const dx = toX - s.centerX;
-    const dz = toZ - s.centerZ;
-    if (dx * dx + dz * dz < columnBlockR * columnBlockR) return false;
-  }
-  // Open-well guard. On every floor above the ground there's a
-  // circular hole in the stairwell floor exposing the spiral going
-  // down; the cells inside that hole are still flagged walkable in
-  // the cell mask, so without an explicit check the player would
-  // happily walk over the abyss. Block any target inside the
-  // central well (radius < spiral inner radius) on those floors —
-  // including when stepping off the spiral inward at a landing,
-  // which would otherwise drop the player straight through the cutout.
-  // Same pass also enforces the cutout-edge rail clearance: those
-  // rails ring the cutout on every upper floor, with the same gate
-  // gap as the spiral's outer rail, so we keep the player's bbox out
-  // of the rail tube outside the gate window.
-  if (floor.index > 0) {
-    // Floor-level dead-end booleans. The gate gap in the cutout rail
-    // is shared between two halves: the "up" half (CCW from entry,
-    // angDiff > 0) is only meaningful when this floor has a stair
-    // going further up; same for "down" with stairsIn. On the top
-    // floor, stairsOut is empty so the up half is a dead end and the
-    // gate must close it. On the ground floor, stairsIn is empty so
-    // the down half is the dead end. Aggregating across all spirals on
-    // the floor (all sharing the same central well) keeps this stable
-    // when multiple stairs stack at the same XZ.
-    const upHalfHasStair = floor.stairsOut.length > 0;
-    const downHalfHasStair = floor.stairsIn.length > 0;
-    for (const s of [...floor.stairsOut, ...floor.stairsIn]) {
-      const dx = toX - s.centerX;
-      const dz = toZ - s.centerZ;
-      const r2 = dx * dx + dz * dz;
-      if (r2 < s.innerRadius * s.innerRadius) return false;
-      // Cutout-ring guard. The visible floor cutout extends beyond the
-      // spiral's outer step edge to SPIRAL_FLOOR_CUTOUT_RADIUS — the
-      // thin annulus between (outerRadius, cutoutRadius) is over the
-      // open well even though the underlying grid cells are still
-      // flagged walkable. Without this, a player exiting the spiral
-      // through the gate window can briefly stand over the hole. Same
-      // bug as the original "fall through the floor" report, repeated
-      // for the gate-window case after the inner guard wasn't enough.
-      if (
-        r2 > s.outerRadius * s.outerRadius &&
-        r2 < SPIRAL_FLOOR_CUTOUT_RADIUS * SPIRAL_FLOOR_CUTOUT_RADIUS
-      ) {
-        return false;
-      }
-      // Cutout-edge rail collision only applies off the spiral —
-      // the spiral physics owns clearance from its own inner/outer
-      // rails, and the cutout-rail elbow is intentionally large
-      // enough that without this guard it could blot out part of
-      // the spiral's walking annulus.
-      if (
-        r2 > s.outerRadius * s.outerRadius &&
-        r2 < CUTOUT_RAIL_OUTER_BOUND * CUTOUT_RAIL_OUTER_BOUND &&
-        r2 > CUTOUT_RAIL_INNER_BOUND * CUTOUT_RAIL_INNER_BOUND
-      ) {
-        const theta = Math.atan2(dz, dx);
-        const gateHalfArc = spiralGateHalfArc(s.numSteps);
-        const angDiff = Math.atan2(Math.sin(theta - s.entryAngle), Math.cos(theta - s.entryAngle));
-        const inUpHalf = angDiff > 0;
-        const halfHasStair = inUpHalf ? upHalfHasStair : downHalfHasStair;
-        if (Math.abs(angDiff) >= gateHalfArc || !halfHasStair) return false;
-      }
-    }
-  }
   const stair = findStairAt(floor, toX, toZ);
-  if (stair) {
-    // Solid where the structure actually is, free where it isn't. The
-    // spiral occupies one XZ footprint at many heights, so collision
-    // here is height-aware rather than a flat no-enter footprint:
-    //
-    //  - INNER constraint (always on): keeps the player's bbox clear of
-    //    the inner rail and out of the central well. On upper floors the
-    //    open-well guard above already blocks r < innerRadius; the ground
-    //    floor skips that guard, so this clearance is the only thing
-    //    fencing the well there.
-    //  - OUTER constraint (the outer rail): a solid wall only where the
-    //    tread at this angle is at or below the player's head. Where the
-    //    helix has wound up overhead — the raised back of the spiral seen
-    //    from the ground floor — the rail and steps are metres above the
-    //    player, so the wall is dropped and they walk under the overhang
-    //    freely. Inside the gate window the outer wall is also dropped so
-    //    the player can step on/off; outside the gate, only the overhead
-    //    bypass relaxes it.
-    //
-    // This is height-aware on purpose: a flat "fence the whole footprint
-    // except the gate" cages the player on the ground floor (everything
-    // but a narrow onramp reads as an invisible wall). Boarding the helix
-    // from a wrong angle is still prevented — fresh activation requires
-    // the gate arc (see useFrame), and the central well stays sealed by
-    // the always-on inner fence — so dropping the overhead wall only
-    // frees up genuine empty space under the overhang.
-    const dx = toX - stair.centerX;
-    const dz = toZ - stair.centerZ;
-    const r2 = dx * dx + dz * dz;
-    const cumAngle = spiralRawAngle(stair, toX, toZ);
-    const tGlobal = cumAngle / (Math.PI * 2);
-    const stepY = stair.lowerY + tGlobal * (stair.upperY - stair.lowerY);
-    const stepIsOverhead = stepY >= playerHeadY;
-    const theta = Math.atan2(dz, dx);
-    const gateHalfArc = spiralGateHalfArc(stair.numSteps);
-    const angDiff = Math.atan2(
-      Math.sin(theta - stair.entryAngle),
-      Math.cos(theta - stair.entryAngle),
-    );
-    const inGate = Math.abs(angDiff) < gateHalfArc;
-    const minR = stair.innerRadius + SPIRAL_RAIL_CLEARANCE;
-    if (r2 < minR * minR) return false;
-    if (!stepIsOverhead && !inGate) {
-      const maxR = stair.outerRadius - SPIRAL_RAIL_CLEARANCE;
-      if (r2 > maxR * maxR) return false;
-    }
-    // Top-landing edge fence. When this is the helix's topmost flight
-    // (no flight continues above), `buildTopLandingGeometry` only
-    // covers raw ∈ [0, π] of the annulus — the dead-end half. The
-    // opposite half (π, 2π) is empty air above the descending helix
-    // below. Without a fence the player can walk past raw=π and end
-    // up pinned at the landing's clamped upperY while their feet are
-    // visually over nothing — the same "walk into the air" class as
-    // the cutout-edge floor-cells bug. Block any step whose short
-    // angular path crosses raw=π; the descent path across raw=0
-    // (wraparound) is unaffected because that crossing is far from
-    // raw=π. Only enforced while the player is actually at landing
-    // height — a player walking the helix mid-descent passes through
-    // the same angular range legitimately.
-    const isTopStair =
-      floor.stairsOut.length === 0 && floor.stairsIn.some((s) => s.id === stair.id);
-    if (isTopStair && playerHeadY > stair.upperY + 0.5) {
-      const fromRaw = spiralRawAngle(stair, fromX, fromZ);
-      const toRaw = spiralRawAngle(stair, toX, toZ);
-      const TOL = Math.PI / 2;
-      if (
-        Math.abs(fromRaw - Math.PI) < TOL &&
-        Math.abs(toRaw - Math.PI) < TOL &&
-        Math.sign(fromRaw - Math.PI) !== Math.sign(toRaw - Math.PI)
-      ) {
-        return false;
-      }
-    }
-    return true;
-  }
+  if (stair) return true;
   if (currentStairId !== null) {
     // Trying to leave the spiral. Allow only when the player's
     // cumulative is in a "landing" arc near 0 or 2π — the heights
