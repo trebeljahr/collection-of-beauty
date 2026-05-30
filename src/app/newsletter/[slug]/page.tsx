@@ -140,7 +140,7 @@ export default async function EditionPage({ params }: { params: Promise<Params> 
       </section>
 
       <footer className="mt-20 md:mt-24 border-t border-[var(--border)] pt-8 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 text-sm">
-        <Link href="/newsletter" className="underline underline-offset-2 hover:opacity-70">
+        <Link href="/drops" className="underline underline-offset-2 hover:opacity-70">
           ← All editions
         </Link>
         <Link href="/sub" className="underline underline-offset-2 hover:opacity-70">

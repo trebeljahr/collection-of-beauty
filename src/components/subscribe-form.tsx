@@ -1,8 +1,9 @@
 "use client";
 
-import { useState } from "react";
+import { useId, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { cn } from "@/lib/utils";
 
 type Status =
   | { kind: "idle" }
@@ -22,7 +23,23 @@ function looksLikeEmail(value: string): boolean {
   return trimmed.length > 0 && trimmed.length <= 254 && EMAIL_RE.test(trimmed);
 }
 
-export function SubscribeForm() {
+type SubscribeFormProps = {
+  variant?: "default" | "compact";
+  submitLabel?: string;
+  placeholder?: string;
+  className?: string;
+};
+
+export function SubscribeForm({
+  variant = "default",
+  submitLabel,
+  placeholder = "you@example.com",
+  className,
+}: SubscribeFormProps = {}) {
+  const id = useId();
+  const emailId = `${id}-newsletter-email`;
+  const websiteId = `${id}-newsletter-website`;
+  const inlineErrorId = `${id}-newsletter-email-error`;
   const [email, setEmail] = useState("");
   // Honeypot — wired but never shown to the user. Bots that fill every
   // input get filtered server-side before any ListMonk call.
@@ -79,18 +96,27 @@ export function SubscribeForm() {
     }
   }
 
+  const compact = variant === "compact";
+  const buttonText = submitLabel ?? (compact ? "Join" : "Subscribe");
+
   if (status.kind === "success") {
     return (
       <div
         role="status"
         aria-live="polite"
-        className="rounded-lg border border-[var(--border)] bg-[var(--accent)] p-5 text-sm"
+        className={cn(
+          "rounded-lg border border-[var(--border)] bg-[var(--accent)] text-sm",
+          compact ? "p-3 text-xs" : "p-5",
+          className,
+        )}
       >
         <p className="font-medium">Check your inbox.</p>
-        <p className="mt-1 text-[var(--muted-foreground)]">
-          Tap the confirmation link to finish. Spam folder is the usual suspect if it doesn't
-          surface.
-        </p>
+        {!compact && (
+          <p className="mt-1 text-[var(--muted-foreground)]">
+            Tap the confirmation link to finish. Spam folder is the usual suspect if it doesn't
+            surface.
+          </p>
+        )}
       </div>
     );
   }
@@ -100,56 +126,65 @@ export function SubscribeForm() {
       <div
         role="status"
         aria-live="polite"
-        className="rounded-lg border border-[var(--border)] bg-[var(--accent)] p-5 text-sm"
+        className={cn(
+          "rounded-lg border border-[var(--border)] bg-[var(--accent)] text-sm",
+          compact ? "p-3 text-xs" : "p-5",
+          className,
+        )}
       >
-        <p className="font-medium">You're already on the list.</p>
-        <p className="mt-1 text-[var(--muted-foreground)]">
-          That address is already a confirmed subscriber. Nothing to do. The next issue arrives at
-          the usual cadence.
-        </p>
+        <p className="font-medium">You&apos;re already on the list.</p>
+        {!compact && (
+          <p className="mt-1 text-[var(--muted-foreground)]">
+            That address is already a confirmed subscriber. Nothing to do. The next issue arrives at
+            the usual cadence.
+          </p>
+        )}
       </div>
     );
   }
 
-  const inlineErrorId = "newsletter-email-error";
   const visibleError = formatError ?? (status.kind === "error" ? status.message : null);
 
   return (
-    <form onSubmit={onSubmit} className="space-y-3" noValidate>
-      <label htmlFor="newsletter-email" className="sr-only">
+    <form
+      onSubmit={onSubmit}
+      className={cn(compact ? "space-y-2" : "space-y-3", className)}
+      noValidate
+    >
+      <label htmlFor={emailId} className="sr-only">
         Email address
       </label>
-      <div className="flex flex-col gap-2 sm:flex-row">
+      <div className={compact ? "flex gap-2" : "flex flex-col gap-2 sm:flex-row"}>
         <Input
-          id="newsletter-email"
+          id={emailId}
           name="email"
           type="email"
           autoComplete="email"
           required
-          placeholder="you@example.com"
+          placeholder={placeholder}
           value={email}
           onChange={(e) => handleEmailChange(e.target.value)}
           onBlur={handleEmailBlur}
           disabled={status.kind === "submitting"}
           aria-invalid={visibleError !== null}
           aria-describedby={visibleError !== null ? inlineErrorId : undefined}
-          className="h-11 flex-1 text-base"
+          className={cn("flex-1", compact ? "h-9 min-w-0 text-sm" : "h-11 text-base")}
         />
         <Button
           type="submit"
           disabled={status.kind === "submitting" || email.trim().length === 0}
-          className="h-11 sm:w-auto"
+          className={cn(compact ? "h-9 shrink-0 px-3 text-xs" : "h-11 sm:w-auto")}
         >
-          {status.kind === "submitting" ? "Sending…" : "Subscribe"}
+          {status.kind === "submitting" ? "Sending..." : buttonText}
         </Button>
       </div>
 
       {/* Honeypot — visually hidden + aria-hidden + tab-skipped. Real users
           won't see it; bots that fill every input trip it server-side. */}
       <div aria-hidden="true" className="absolute -left-[9999px] h-0 w-0 overflow-hidden">
-        <label htmlFor="newsletter-website">Website</label>
+        <label htmlFor={websiteId}>Website</label>
         <input
-          id="newsletter-website"
+          id={websiteId}
           name="website"
           type="text"
           tabIndex={-1}
@@ -170,10 +205,12 @@ export function SubscribeForm() {
         </p>
       )}
 
-      <p className="text-xs text-[var(--muted-foreground)]">
-        <em>A Drop of Beauty</em> — one email a week. The unsubscribe link sits at the bottom of
-        every issue. Leave whenever.
-      </p>
+      {!compact && (
+        <p className="text-xs text-[var(--muted-foreground)]">
+          <em>A Drop of Beauty</em> - one email a week. The unsubscribe link sits at the bottom of
+          every issue. Leave whenever.
+        </p>
+      )}
     </form>
   );
 }

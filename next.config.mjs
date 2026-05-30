@@ -84,6 +84,46 @@ const nextConfig = {
   async redirects() {
     return [
       {
+        source: "/drop",
+        destination: "/drops",
+        permanent: true,
+      },
+      {
+        source: "/drop/:path*",
+        destination: "/drops/:path*",
+        permanent: true,
+      },
+      {
+        source: "/drops-of-beauty",
+        destination: "/drops",
+        permanent: true,
+      },
+      {
+        source: "/drops-of-beauty/:path*",
+        destination: "/drops/:path*",
+        permanent: true,
+      },
+      {
+        source: "/drop-of-beauty",
+        destination: "/drops",
+        permanent: true,
+      },
+      {
+        source: "/drop-of-beauty/:path*",
+        destination: "/drops/:path*",
+        permanent: true,
+      },
+      {
+        source: "/a-drop-of-beauty",
+        destination: "/drops",
+        permanent: true,
+      },
+      {
+        source: "/a-drop-of-beauty/:path*",
+        destination: "/drops/:path*",
+        permanent: true,
+      },
+      {
         source: "/impressum",
         destination: "/imprint",
         permanent: true,

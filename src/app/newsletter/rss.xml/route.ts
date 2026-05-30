@@ -5,7 +5,7 @@ import type { Edition } from "@/lib/newsletter/types";
 import { SITE_NAME, SITE_URL } from "@/lib/seo";
 
 /**
- * RSS 2.0 feed for the newsletter archive. Readers (Feedly, NetNewsWire,
+ * RSS 2.0 feed for the Drops archive. Readers (Feedly, NetNewsWire,
  * etc.) and search engines both consume this. Regenerated on every build;
  * Next caches the route output, which we refresh hourly so a new edition
  * appears in feed readers without waiting for the next deploy.
@@ -53,8 +53,8 @@ export async function GET(): Promise<Response> {
   const editions = loadPublishedEditions().slice().reverse();
   const items = await Promise.all(editions.map(renderItem));
   const buildDate = new Date().toUTCString();
-  const feedUrl = `${SITE_URL}/newsletter/rss.xml`;
-  const siteFeedUrl = `${SITE_URL}/newsletter`;
+  const feedUrl = `${SITE_URL}/drops/rss.xml`;
+  const siteFeedUrl = `${SITE_URL}/drops`;
 
   const xml = [
     '<?xml version="1.0" encoding="UTF-8"?>',

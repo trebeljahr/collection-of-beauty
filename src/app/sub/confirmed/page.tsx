@@ -40,7 +40,7 @@ export default async function ConfirmedPage({
         {dayWord}.
       </p>
       <p className="mt-8 flex justify-center gap-6 text-sm">
-        <Link href="/newsletter" className="underline underline-offset-2 hover:opacity-70">
+        <Link href="/drops" className="underline underline-offset-2 hover:opacity-70">
           Browse the archive →
         </Link>
         <Link href="/" className="underline underline-offset-2 hover:opacity-70">
