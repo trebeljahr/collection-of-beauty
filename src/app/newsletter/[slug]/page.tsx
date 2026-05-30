@@ -3,6 +3,7 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import Markdown from "react-markdown";
 import remarkGfm from "remark-gfm";
+import { NewsletterEditionSubscribe } from "@/components/newsletter-edition-subscribe";
 import { ResponsiveImage } from "@/components/responsive-image";
 import { artworks as ALL_ARTWORKS } from "@/lib/data";
 import { resolveEditionCover } from "@/lib/newsletter/cover";
@@ -139,13 +140,11 @@ export default async function EditionPage({ params }: { params: Promise<Params> 
         ))}
       </section>
 
-      <footer className="mt-20 md:mt-24 border-t border-[var(--border)] pt-8 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 text-sm">
+      <footer className="mt-20 md:mt-24 border-t border-[var(--border)] pt-8">
         <Link href="/drops" className="underline underline-offset-2 hover:opacity-70">
           ← All editions
         </Link>
-        <Link href="/sub" className="underline underline-offset-2 hover:opacity-70">
-          Subscribe to new editions →
-        </Link>
+        <NewsletterEditionSubscribe />
       </footer>
     </article>
   );

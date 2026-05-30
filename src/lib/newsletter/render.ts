@@ -73,6 +73,10 @@ export type RenderEditionInput = {
   unsubscribeMode?: "listmonk-campaign" | "tx-template";
 };
 
+export function editionArchiveUrl(siteUrl: string, fileSlug: string): string {
+  return `${siteUrl.replace(/\/$/, "")}/newsletter/${fileSlug}?from=email`;
+}
+
 export async function renderEdition(input: RenderEditionInput): Promise<RenderedEdition> {
   const { edition, siteUrl, unsubscribeMode = "listmonk-campaign" } = input;
   const resolved = resolveEditionArtworks(edition);
@@ -80,7 +84,7 @@ export async function renderEdition(input: RenderEditionInput): Promise<Rendered
   const introHtml = edition.body.length > 0 ? await markdownToHtml(edition.body) : "";
 
   const issueDate = formatIssueDate(edition.publishedAt);
-  const archiveUrl = `${siteUrl.replace(/\/$/, "")}/newsletter/${edition.fileSlug}`;
+  const archiveUrl = editionArchiveUrl(siteUrl, edition.fileSlug);
 
   const props: WeeklyDigestProps = {
     issueNumber: edition.number,
