@@ -46,7 +46,7 @@ const factSheet = [
   ["Price", "Free. No login, no ads, no paywall, no tracking beyond self-hosted Plausible."],
   [
     "Collection size",
-    "~2,877 works, ~225 artists at launch (numbers move; live count visible on the home page)",
+    "~2,855 works, ~225 artists at launch (numbers move; live count visible on the home page)",
   ],
   [
     "Coverage",
@@ -62,13 +62,16 @@ const factSheet = [
   ],
   [
     "Platforms",
-    "Web. 3D museum requires WebGL; tested on Chrome/Firefox/Safari on macOS, Windows, Linux. 2D pages work on mobile; 3D museum is desktop-first.",
+    "Web. 3D museum requires WebGL; tested on Chrome/Firefox/Safari on macOS, Windows, Linux, and on iOS / Android in landscape. Desktop uses pointer-lock + WASD; touch devices get an on-screen joystick and a landscape-rotate prompt.",
   ],
   [
     "Languages",
     "English UI. Original-language titles preserved alongside English where applicable (Japanese, Russian, German, French, etc.).",
   ],
-  ["Newsletter", "Weekly plaintext, opt-in, run via Mailgun. One featured work per issue."],
+  [
+    "Newsletter",
+    "Periodic edition, opt-in, run via self-hosted ListMonk + Amazon SES. Each edition features five works around a theme.",
+  ],
   ["Press contact", pressEmail],
   ["Social", 'See "Social" section below. Some accounts are still being warmed up at launch.'],
   ["Press page", "https://beauty.trebeljahr.com/press"],
@@ -84,20 +87,20 @@ const descriptionTiers = [
   {
     title: "Short (about 40 words)",
     body: [
-      "Collection of Beauty is a one-person public-domain art gallery on the web. It holds roughly 2,877 works from about 225 artists and includes a multi-floor 3D museum, built with WebGL, that you can walk through in a browser tab.",
+      "Collection of Beauty is a one-person public-domain art gallery on the web. It holds roughly 2,855 works from about 225 artists and includes a multi-floor 3D museum, built with WebGL, that you can walk through in a browser tab.",
     ],
   },
   {
     title: "Medium (about 80 words)",
     body: [
-      "Collection of Beauty is a hand-curated public-domain art gallery, built and maintained by one person. The collection currently holds around 2,877 works across ~225 artists, sourced from open archives such as Wikimedia Commons and the Library of Congress. Alongside a standard 2D gallery and artist pages, the site includes a multi-floor 3D museum, built with React Three Fiber, where each floor is a different historical era and a spiral staircase connects them.",
+      "Collection of Beauty is a hand-curated public-domain art gallery, built and maintained by one person. The collection currently holds around 2,855 works across ~225 artists, sourced from open archives such as Wikimedia Commons and the Library of Congress. Alongside a standard 2D gallery and artist pages, the site includes a multi-floor 3D museum, built with React Three Fiber, where each floor is a different historical era and a spiral staircase connects them. The 3D museum runs in any modern browser, on desktop with mouse + keyboard and on mobile with a touch joystick.",
     ],
   },
   {
     title: "Long (about 150 words)",
     body: [
-      'Collection of Beauty is a personal gallery of public-domain art, made and maintained by a single developer. The collection grew out of a private bookmark folder and now holds around 2,877 works across ~225 artists, drawn from public archives such as Wikimedia Commons and the Library of Congress. Each work shows its source, provenance, and a permalink, with a "suggest a fix" button that opens a GitHub issue. Metadata is treated as a living, correctable document rather than a closed catalog.',
-      "The site is free and runs without ads, sign-ups, or third-party tracking. The headline feature is a multi-floor 3D museum built in WebGL: each floor is a historical era, paintings are sized to their real-world dimensions where known, and a spiral staircase connects the floors. It runs in a browser tab and needs no install.",
+      'Collection of Beauty is a personal gallery of public-domain art, made and maintained by a single developer. The collection grew out of a private bookmark folder and now holds around 2,855 works across ~225 artists, drawn from public archives such as Wikimedia Commons and the Library of Congress. Each work shows its source, provenance, and a permalink, with a "suggest a fix" button that opens a GitHub issue. Metadata is treated as a living, correctable document rather than a closed catalog.',
+      "The site is free and runs without ads, sign-ups, or third-party tracking. The headline feature is a multi-floor 3D museum built in WebGL: each floor is a historical era, paintings are sized to their real-world dimensions where known, and a spiral staircase connects the floors. It runs in any browser tab - pointer-lock + WASD on desktop, an on-screen touch joystick on mobile - and needs no install.",
     ],
   },
 ] as const;
@@ -112,7 +115,7 @@ const history = [
 const hooks = [
   {
     title: "A walkable 3D museum in a browser.",
-    body: "Multi-floor, real-world painting sizes, runs on a laptop. Built with React Three Fiber and Three.js.",
+    body: "Multi-floor, real-world painting sizes, runs on a laptop or a phone. Built with React Three Fiber and Three.js.",
   },
   {
     title: "An honest, imperfect dataset.",
@@ -133,7 +136,7 @@ const features = [
   "2D gallery with shuffle, sort, search, movement and year filters, and an artists page with per-artist sub-galleries.",
   'Per-work detail pages with provenance, source URL, dimensions, movement, credit line, and a permalink. A "suggest a fix" button on every work opens a pre-filled GitHub issue against the metadata.',
   "Timeline view that scrolls through the collection chronologically.",
-  "Weekly newsletter featuring one work per issue. Plaintext, opt-in, runs on Mailgun. No marketing scoring.",
+  "Newsletter featuring five works per themed edition. Opt-in, runs on self-hosted ListMonk + Amazon SES. No marketing scoring.",
   "Open source. Code, asset pipeline, and metadata corrections all live on GitHub. The same images and metadata that drive the site are reusable by anyone.",
   "Quiet site furniture. No ads, no third-party trackers, no cookie banners. Analytics are self-hosted Plausible (cookieless, EU-hosted).",
   "Branded 404 and stable permalinks so links shared today still resolve later.",
@@ -145,7 +148,7 @@ const engineering = [
   "3D texture loading: per-painting LOD with a 256 px thumbnail and a 960 px base loaded on mount, then progressively upgraded to 1920 / 2560 / 4096 / original tiers as the player approaches. Three LRU pools and a frame-paced GPU upload queue keep the frame budget bounded.",
   "Deployment: Docker image to GHCR, pulled by self-hosted Coolify.",
   "Analytics: self-hosted Plausible. Cookieless, EU-hosted, no third-party processors.",
-  "Newsletter: Mailgun for delivery, double opt-in.",
+  "Newsletter: self-hosted ListMonk + Amazon SES for delivery, double opt-in. Provisioned via Hatchkit.",
   "SEO: per-artist and per-work pages with VisualArtwork JSON-LD including license, dimensions, movement, credit, image refs.",
 ] as const;
 
@@ -175,8 +178,8 @@ const faq = [
     "A bulk dataset release is on the post-launch list. In the interim, the metadata is in the GitHub repo and the source URLs let any scraper reproduce the corpus from the original archives.",
   ],
   [
-    "Is there a mobile version of the 3D museum?",
-    "The 2D gallery, artist pages, and timeline work on mobile. The 3D museum is desktop-first by design - controls and pixel budget are tuned for a laptop. Mobile users get a 2D fallback.",
+    "Does the 3D museum work on mobile?",
+    "Yes. On a touch device the pointer-lock + WASD controls swap out for an on-screen joystick, and a prompt asks for landscape orientation before entering. The texture LOD ladder backs off on smaller screens. The 2D gallery, artist pages, and timeline also work on mobile if you prefer scrolling to walking.",
   ],
   [
     "Will you add more artists / more works?",
@@ -235,13 +238,13 @@ const redistribution = [
 const social = [
   "Bluesky: warming up at launch - handle to be confirmed.",
   "Mastodon: warming up at launch - handle to be confirmed.",
-  "Newsletter: signup on beauty.trebeljahr.com.",
+  "Newsletter: signup at beauty.trebeljahr.com/sub (also linked from every issue page and the site nav).",
   "GitHub: repository link visible from the site footer.",
   "Personal blog: ricos.site (long-form pieces and a launch retrospective will live there).",
 ] as const;
 
 const boilerplate =
-  "Collection of Beauty is a personal public-domain art gallery, built and maintained by Rico Trebeljahr in 2026. The site holds about 2,877 works from ~225 artists, sourced from Wikimedia Commons, the Library of Congress, and adjacent open archives. Alongside a standard 2D gallery, it includes a multi-floor 3D museum, built with WebGL, that you can walk through in a browser tab. It runs at beauty.trebeljahr.com, free, without ads or sign-ups.";
+  "Collection of Beauty is a personal public-domain art gallery, built and maintained by Rico Trebeljahr in 2026. The site holds about 2,855 works from ~225 artists, sourced from Wikimedia Commons, the Library of Congress, and adjacent open archives. Alongside a standard 2D gallery, it includes a multi-floor 3D museum, built with WebGL, that you can walk through in a browser tab on desktop or mobile. It runs at beauty.trebeljahr.com, free, without ads or sign-ups.";
 
 function contactPointJsonLd(): Record<string, unknown> {
   return {
