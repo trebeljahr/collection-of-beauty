@@ -6,7 +6,7 @@ export const metadata: Metadata = {
   title: "Subscribe to A Drop of Beauty",
   description: `A Drop of Beauty — five public-domain works, arranged around a single idea. One email from ${SITE_NAME}, every Sunday.`,
   alternates: { canonical: "/sub" },
-  // /newsletter is the indexable archive surface; /sub is the
+  // /drops is the indexable archive surface; /sub is the
   // signup conversion page reached from that archive (and direct links).
   robots: { index: false, follow: false },
   openGraph: {

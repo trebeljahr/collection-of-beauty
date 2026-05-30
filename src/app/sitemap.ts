@@ -44,12 +44,7 @@ export default function sitemap(): MetadataRoute.Sitemap {
       changeFrequency: "yearly",
       priority: 0.3,
     },
-    {
-      url: absoluteUrl("/newsletter"),
-      lastModified: now,
-      changeFrequency: "weekly",
-      priority: 0.7,
-    },
+    { url: absoluteUrl("/drops"), lastModified: now, changeFrequency: "weekly", priority: 0.7 },
   ];
 
   const editionEntries: MetadataRoute.Sitemap = loadPublishedEditions().map((ed) => ({

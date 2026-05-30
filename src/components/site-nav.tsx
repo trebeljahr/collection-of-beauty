@@ -4,12 +4,25 @@ import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { useIs3DActive } from "@/components/gallery-3d-state";
+import { SubscribeForm } from "@/components/subscribe-form";
 
-const LINKS: ReadonlyArray<{ href: string; label: string; sub?: string }> = [
+const LINKS: ReadonlyArray<{
+  href: string;
+  label: string;
+  sub?: string;
+  isActive?: (pathname: string) => boolean;
+}> = [
   { href: "/", label: "Gallery", sub: "Browse the full collection" },
   { href: "/timeline", label: "Timeline", sub: "Eight centuries of art, in order" },
   { href: "/artists", label: "Artists", sub: "Painters, illustrators, makers" },
   { href: "/gallery-3d", label: "3D Room", sub: "Walk through a virtual museum" },
+  {
+    href: "/drops",
+    label: "Drops",
+    sub: "Weekly email and archive",
+    isActive: (pathname) =>
+      pathname === "/drops" || pathname === "/sub" || pathname.startsWith("/newsletter"),
+  },
 ];
 
 const ROUTE_3D = "/gallery-3d";
@@ -89,8 +102,13 @@ export function SiteNav() {
     const focusables = (): HTMLElement[] => {
       if (!root) return [];
       return Array.from(
-        root.querySelectorAll<HTMLElement>('a, button, [tabindex]:not([tabindex="-1"])'),
-      ).filter((el) => !el.hasAttribute("disabled"));
+        root.querySelectorAll<HTMLElement>(
+          'a, button, input, select, textarea, [tabindex]:not([tabindex="-1"])',
+        ),
+      ).filter(
+        (el) =>
+          !el.hasAttribute("disabled") && el.tabIndex >= 0 && !el.closest('[aria-hidden="true"]'),
+      );
     };
 
     const onKey = (e: KeyboardEvent) => {
@@ -185,10 +203,10 @@ export function SiteNav() {
         slideInFromTop ? "animate-nav-slide-down-in" : ""
       }`}
     >
-      <nav className="mx-auto flex max-w-7xl items-center justify-between px-4 py-3">
+      <nav className="mx-auto flex max-w-7xl items-center gap-4 px-4 py-3">
         <Link
           href="/"
-          className="rounded-sm font-serif text-lg tracking-wide hover:opacity-70 focus:outline-none focus-visible:ring-2 focus-visible:ring-[var(--ring)] focus-visible:ring-offset-2 focus-visible:ring-offset-[var(--background)]"
+          className="shrink-0 rounded-sm font-serif text-lg tracking-wide hover:opacity-70 focus:outline-none focus-visible:ring-2 focus-visible:ring-[var(--ring)] focus-visible:ring-offset-2 focus-visible:ring-offset-[var(--background)]"
         >
           Collection of Beauty
         </Link>
@@ -197,17 +215,32 @@ export function SiteNav() {
             below (md:hidden) opens a full-screen modal with the same
             destinations — the link list would otherwise overflow on
             narrow viewports. */}
-        <div className="hidden items-center gap-1 text-sm md:flex">
-          {LINKS.map((l) => (
-            <Link
-              key={l.href}
-              href={l.href}
-              aria-current={pathname === l.href ? "page" : undefined}
-              className="rounded-md px-3 py-1.5 hover:bg-[var(--accent)] focus:outline-none focus-visible:ring-2 focus-visible:ring-[var(--ring)] aria-[current=page]:bg-[var(--accent)]"
-            >
-              {l.label}
-            </Link>
-          ))}
+        <div className="hidden min-w-0 flex-1 items-center justify-end gap-3 md:flex">
+          <div className="flex items-center gap-1 text-sm">
+            {LINKS.map((l) => {
+              const active = l.isActive ? l.isActive(pathname) : pathname === l.href;
+              return (
+                <Link
+                  key={l.href}
+                  href={l.href}
+                  aria-current={active ? "page" : undefined}
+                  className="rounded-md px-3 py-1.5 hover:bg-[var(--accent)] focus:outline-none focus-visible:ring-2 focus-visible:ring-[var(--ring)] aria-[current=page]:bg-[var(--accent)]"
+                >
+                  {l.label}
+                </Link>
+              );
+            })}
+          </div>
+
+          <section
+            className="hidden w-[18rem] shrink-0 xl:block"
+            aria-labelledby="drops-nav-inline-heading"
+          >
+            <h2 id="drops-nav-inline-heading" className="sr-only">
+              Drops newsletter signup
+            </h2>
+            <SubscribeForm variant="compact" placeholder="Email for Drops" submitLabel="Join" />
+          </section>
         </div>
 
         <button
@@ -253,7 +286,7 @@ export function SiteNav() {
           role="dialog"
           aria-modal="true"
           aria-label="Site navigation"
-          className={`fixed inset-0 z-50 flex flex-col bg-[var(--background)]/95 backdrop-blur-md ${
+          className={`fixed inset-0 z-50 flex flex-col overflow-y-auto bg-[var(--background)]/95 backdrop-blur-md ${
             closingTo3D ? "animate-nav-slide-out-down" : "animate-nav-fade-in"
           }`}
           // 100dvh keeps the modal full-height on mobile browsers whose
@@ -290,10 +323,10 @@ export function SiteNav() {
             </button>
           </div>
 
-          <div className="mx-auto flex w-full max-w-md flex-1 flex-col justify-center px-5 pb-10">
+          <div className="mx-auto flex w-full max-w-md flex-1 flex-col gap-8 px-5 py-8 sm:justify-center">
             <ul className="flex flex-col gap-2">
               {LINKS.map((l) => {
-                const active = pathname === l.href;
+                const active = l.isActive ? l.isActive(pathname) : pathname === l.href;
                 const is3D = l.href === ROUTE_3D;
                 return (
                   <li key={l.href}>
@@ -322,6 +355,26 @@ export function SiteNav() {
                 );
               })}
             </ul>
+
+            <section
+              className="border-t border-[var(--border)] pt-6"
+              aria-labelledby="drops-nav-heading"
+            >
+              <div className="mb-3">
+                <h2 id="drops-nav-heading" className="font-serif text-xl tracking-tight">
+                  Drops
+                </h2>
+                <p className="mt-1 text-xs text-[var(--muted-foreground)]">
+                  Five works, one Sunday email.
+                </p>
+              </div>
+              <SubscribeForm variant="compact" placeholder="Email address" submitLabel="Join" />
+              <p className="mt-3 text-xs text-[var(--muted-foreground)]">
+                <Link href="/drops" className="underline underline-offset-2 hover:opacity-70">
+                  Archive and RSS
+                </Link>
+              </p>
+            </section>
           </div>
         </div>
       )}
