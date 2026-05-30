@@ -67,8 +67,8 @@ export type RenderEditionInput = {
    *     placeholder inline. ListMonk's Go template engine substitutes it
    *     per recipient when the campaign body is rendered for delivery.
    *   - `"tx-template"`: omit the in-body unsubscribe block entirely. The
-   *     ListMonk transactional template that wraps `{{ .Tx.Data.body }}`
-   *     is expected to render its own unsubscribe footer.
+   *     ListMonk transactional template renders the already-built body
+   *     without trying to evaluate campaign-only unsubscribe helpers.
    */
   unsubscribeMode?: "listmonk-campaign" | "tx-template";
 };
@@ -91,7 +91,7 @@ export async function renderEdition(input: RenderEditionInput): Promise<Rendered
     siteUrl,
     archiveUrl,
     // Default prop is the ListMonk placeholder; setting `null` removes
-    // the block entirely (the tx template wraps with its own footer).
+    // the block entirely for transactional sends.
     unsubscribeUrl: unsubscribeMode === "tx-template" ? null : undefined,
   };
 

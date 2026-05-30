@@ -8,9 +8,10 @@
  *
  *   1. A transactional template ("Collection of Beauty — Tx Passthrough")
  *      consumed by `POST /api/tx` for the confirmation + welcome emails.
- *      Body wraps `{{ .Tx.Data.body | safeHTML }}` and renders a footer
- *      with `{{ UnsubscribeURL }}` so transactional welcomes still carry
- *      a working opt-out link.
+ *      Body renders `{{ .Tx.Data.body | Safe }}`. ListMonk does not
+ *      expose `{{ UnsubscribeURL }}` while compiling transactional
+ *      templates in the deployed version, so unsubscribe substitution
+ *      stays on the campaign send path.
  *   2. A campaign template ("Collection of Beauty — Campaign Passthrough")
  *      consumed by `POST /api/campaigns` for the weekly digest. Body is
  *      just `{{ template "content" . }}` because the digest HTML already
@@ -32,11 +33,7 @@ const CAMPAIGN_TEMPLATE_NAME = "Collection of Beauty — Campaign Passthrough";
 const TX_TEMPLATE_SUBJECT = "{{ .Tx.Data.subject }}";
 const TX_TEMPLATE_BODY = `<!doctype html>
 <html><body>
-{{ .Tx.Data.body | safeHTML }}
-<p style="margin-top:24px;font-size:11px;color:#888;text-align:center;font-family:Georgia,serif">
-  You're receiving this because you signed up for the Collection of Beauty newsletter.<br>
-  <a href="{{ UnsubscribeURL }}" style="color:#888;text-decoration:underline">Unsubscribe</a>
-</p>
+{{ .Tx.Data.body | Safe }}
 </body></html>`;
 
 const CAMPAIGN_TEMPLATE_BODY = `{{ template "content" . }}`;

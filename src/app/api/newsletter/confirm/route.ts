@@ -28,9 +28,10 @@ function getSiteUrl(request: NextRequest): string {
  * immediate look at what an issue actually feels like in their inbox.
  *
  * Goes through ListMonk's transactional API rather than a one-off
- * campaign — the tx wrapper template provides the unsubscribe footer,
- * so we render the digest body with `unsubscribeMode: "tx-template"`
- * to suppress the in-body unsub block.
+ * campaign. The tx template cannot use campaign-only unsubscribe
+ * helpers, so we render the digest body with `unsubscribeMode:
+ * "tx-template"` to suppress unsub placeholders that would not be
+ * substituted on this path.
  *
  * Throws are swallowed by the caller — if the send blips here, the
  * confirmation has already succeeded; no point bouncing the user to the
