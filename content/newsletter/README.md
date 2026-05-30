@@ -20,15 +20,15 @@ The intended flow is **semi-automatic, manual send**:
    (markdown body), add per-artwork `note:` blurbs, set `excerpt` and
    `subject`.
 3. Flip `draft: true` → `draft: false`.
-4. `pnpm newsletter:send <slug>` — dry run, prints summary.
-5. `pnpm newsletter:send <slug> --confirm` — sends via ListMonk's
-   campaign API to `LISTMONK_TEST_LIST_ID` (a ListMonk list with only
-   your address). The destination list is decided by `NODE_ENV`, not by
-   a flag, so any non-production shell hits the test list.
-6. `NODE_ENV=production pnpm newsletter:send <slug> --confirm` — real
-   send to `LISTMONK_LIST_ID`. Only this incantation can reach actual
-   subscribers; without `NODE_ENV=production` the script refuses to
-   resolve the live list.
+4. `pnpm sendNewsletter --dry-run` — renders the latest published issue
+   without sending.
+5. `pnpm sendNewsletter` — sends the latest published issue via
+   ListMonk's campaign API to the test list from `.env.development`.
+   Use `pnpm sendNewsletter <slug>` to send a specific issue.
+6. `NODE_ENV=production pnpm sendNewsletter` — real send to the live
+   `LISTMONK_LIST_ID` from `.env.production`. Use
+   `NODE_ENV=production pnpm sendNewsletter <slug>` to send a specific
+   published issue.
 
 There is **no** API send route and **no** cron job. Sending happens
 exclusively from the CLI on a machine with a decrypted `.env.local`.

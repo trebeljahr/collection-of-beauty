@@ -2,8 +2,8 @@
 # Picks the right Hatchkit-emitted env file before invoking the
 # newsletter-send TypeScript entrypoint:
 #
-#   pnpm newsletter:send …                    → .env.development (test list)
-#   NODE_ENV=production pnpm newsletter:send … → .env.production  (live list)
+#   pnpm sendNewsletter                    → .env.development (test list)
+#   NODE_ENV=production pnpm sendNewsletter → .env.production  (live list)
 #
 # Both env files carry the same `LISTMONK_LIST_ID` variable name; the
 # value differs (Hatchkit provisions one list per environment). The app
