@@ -65,6 +65,19 @@ paragraphs that thread the five works together.
 Reading time is derived from the body word count (~225 wpm) at parse
 time — no need to set it manually.
 
+## Links in editorial copy
+
+Use ordinary markdown links in `note:` strings and in the body. Link
+specialised art terms the first time they appear when a reader may need
+the term defined, and prefer the precise Wikipedia article for the
+technical sense. Example: `[bokashi](https://en.wikipedia.org/wiki/Bokashi_(printing))`
+for Japanese print gradation.
+
+Cross-link editions only when the sentence names a real visual or
+technical parallel, using archive paths such as
+`[Japanese rain](/newsletter/0002-japanese-rain)`. Do not turn common
+theme words into links.
+
 ## "Already sent" tracking
 
 The `sentArtworkIds()` function in `src/lib/newsletter/editions.ts`
