@@ -120,6 +120,8 @@ go through ListMonk campaigns, which auto-substitute
 Email image URLs always use the deployed assets bucket (or
 `NEWSLETTER_ASSETS_BASE_URL`) so inboxes never receive localhost-only
 image sources from local dev.
+The visible sender is controlled by `LISTMONK_FROM`; set it to a full
+mailbox string such as `Drops of Beauty <noreply@mail.beauty.trebeljahr.com>`.
 
 `hatchkit provision` creates the prod + dev lists, the API user, the
 SES SMTP wiring, and all `LISTMONK_*` / `SES_*` env vars except the
