@@ -140,6 +140,17 @@ The scaffolded file has placeholder frontmatter and a `TODO` body. Edit it:
 - **Per-artwork `note:`** blurbs — uncomment the `# note:` line for each work and write one to three sentences. Each sentence is a thing you can see in the picture. Not "this striking work depicts a rainy scene" — instead "Three figures lean into the same diagonal, the only verticals are the umbrella ribs." Do not end the note with a sentence about what the painting *means* — if you wrote one, delete it.
 - **Body (editorial intro)**, replacing the `TODO` paragraph: two to four short paragraphs of plain prose, no headings. Open inside one specific painting, not on the theme or the count of works. Move to the next painting by jumping, not by transitioning ("Hiroshige does the same thing differently" — no; just describe the next work). End on a concrete image and stop — no summary, no meta beat, no "the painters do" inversion. Then run the body through the **Hard prohibitions** checklist above and cut anything that fails it.
 
+### 6a. Link art terms and edition parallels
+
+Before the final self-review, add useful markdown links. These should feel like footnotes in the prose, not SEO decoration.
+
+- Link specialised art-history, printmaking, book, textile, natural-history, and religious-image terms the first time they appear in a body or note, when a careful reader might want the term defined. Examples: [bokashi](https://en.wikipedia.org/wiki/Bokashi_(printing)), [shin-hanga](https://en.wikipedia.org/wiki/Shin-hanga), [ukiyo-e](https://en.wikipedia.org/wiki/Ukiyo-e), [grisaille](https://en.wikipedia.org/wiki/Grisaille), [predella](https://en.wikipedia.org/wiki/Predella), [bodegon](https://en.wikipedia.org/wiki/Bodeg%C3%B3n), [aquatint](https://en.wikipedia.org/wiki/Aquatint), [drypoint](https://en.wikipedia.org/wiki/Drypoint), [chiaroscuro](https://en.wikipedia.org/wiki/Chiaroscuro), [tenebrism](https://en.wikipedia.org/wiki/Tenebrism), [Mannerism](https://en.wikipedia.org/wiki/Mannerism), [Ruckenfigur](https://en.wikipedia.org/wiki/R%C3%BCckenfigur).
+- Prefer the precise Wikipedia article for the technical sense. For example, `bokashi` in Japanese woodblock printing links to `https://en.wikipedia.org/wiki/Bokashi_(printing)`, not gardening compost or generic shading.
+- Do not link common words just because they have articles. "Landscape", "portrait", "rain", "winter", and artist names usually stay unlinked unless the sentence is specifically about a named movement, method, or tradition.
+- Keep a term linked once per edition, unless repeated in a different context far below.
+- Add one or two cross-edition links when there is a real visual or technical parallel. Use archive paths such as `[Japanese rain](/newsletter/0002-japanese-rain)`. Good parallels: bokashi in a Hasui rain print and a Yoshida fog print; ice in Bruegel and Avercamp after an earlier snow issue; mirrors after a reading or window issue. Bad parallels: linking every mention of "blue" or "figure" to a loosely related issue.
+- Cross-links should sit inside a concrete sentence about a shared surface detail, not a summary sentence about "themes".
+
 ### Self-review pass before reporting
 
 After writing the file, re-read it once with the **Hard prohibitions** list open. Specifically check:
@@ -151,6 +162,7 @@ After writing the file, re-read it once with the **Hard prohibitions** list open
 5. Does any per-artwork note end with an interpretive sentence ("becomes about", "speaks to", "the painting is about")? Cut that sentence.
 6. Does a vivid phrase appear in both a note and the body? Keep one, rewrite the other.
 7. Did weather, light, or time get a verb of intent ("the dusk settled", "the rain remembers")? Replace with a description of the surface.
+8. Do specialised terms have precise links, and are cross-edition links limited to real parallels?
 
 Do this pass before reporting. It is the difference between draft and shippable.
 
