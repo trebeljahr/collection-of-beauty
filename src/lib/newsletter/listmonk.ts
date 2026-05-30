@@ -97,8 +97,8 @@ export function describeListTarget(): string {
 /**
  * From-address for outbound campaigns. Defaults to the SES verified
  * sender that Hatchkit emits as `SES_FROM_EMAIL`; an explicit
- * `LISTMONK_FROM` (display-name + address) overrides it when a richer
- * header is wanted.
+ * `LISTMONK_FROM` (display-name + address) overrides it for both
+ * campaign and transactional sends when a richer header is wanted.
  */
 function resolveFromAddress(): string {
   return process.env.LISTMONK_FROM ?? required("SES_FROM_EMAIL");
@@ -234,6 +234,7 @@ export async function sendTransactional(params: SendTransactionalParams): Promis
     body: JSON.stringify({
       subscriber_email: params.to.toLowerCase(),
       template_id: templateId,
+      from_email: resolveFromAddress(),
       data: { subject: params.subject, body: params.html },
       content_type: "html",
       messenger: "email",

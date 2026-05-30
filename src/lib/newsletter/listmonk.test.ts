@@ -1,5 +1,5 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
-import { findSubscriber, isConfirmedOnList, upsertSubscriber } from "./listmonk";
+import { findSubscriber, isConfirmedOnList, sendTransactional, upsertSubscriber } from "./listmonk";
 
 const subscriber = {
   id: 42,
@@ -29,6 +29,9 @@ beforeEach(() => {
   process.env.LISTMONK_API_USER = "api-user";
   process.env.LISTMONK_API_TOKEN = "api-token";
   process.env.LISTMONK_LIST_ID = "4";
+  process.env.LISTMONK_TX_TEMPLATE_ID = "5";
+  process.env.SES_FROM_EMAIL = "noreply@example.com";
+  delete process.env.LISTMONK_FROM;
 });
 
 afterEach(() => {
@@ -65,6 +68,29 @@ describe("findSubscriber", () => {
     vi.stubGlobal("fetch", fetchMock);
 
     await expect(findSubscriber("reader@example.com")).resolves.toBeNull();
+  });
+});
+
+describe("sendTransactional", () => {
+  it("passes the configured ListMonk sender override", async () => {
+    process.env.LISTMONK_FROM = "Drops of Beauty <noreply@example.com>";
+    const fetchMock = vi.fn(async (_input: RequestInfo | URL, _init?: RequestInit) =>
+      jsonResponse({ data: true }),
+    );
+    vi.stubGlobal("fetch", fetchMock);
+
+    await sendTransactional({
+      to: "reader@example.com",
+      subject: "Confirm your subscription",
+      html: "<p>Hello</p>",
+    });
+
+    const body = JSON.parse((fetchMock.mock.calls[0][1] as RequestInit).body as string);
+    expect(body).toMatchObject({
+      subscriber_email: "reader@example.com",
+      template_id: 5,
+      from_email: "Drops of Beauty <noreply@example.com>",
+    });
   });
 });
 
