@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
+import { SubscribeForm } from "@/components/subscribe-form";
 import { resolveEditionCover } from "@/lib/newsletter/cover";
 import { loadUiVisibleEditions } from "@/lib/newsletter/editions";
 import { SITE_NAME } from "@/lib/seo";
@@ -30,10 +31,10 @@ export default function NewsletterIndexPage() {
           The {SITE_NAME} newsletter. Each Sunday edition picks five public-domain works around a
           single idea — a movement, a motif, a palette, a moment in time.
         </p>
-        <p className="mt-6 flex flex-wrap items-center gap-x-4 gap-y-1 text-sm">
-          <Link href="/sub" className="underline underline-offset-2 hover:opacity-70">
-            Subscribe by email →
-          </Link>
+        <div className="mt-8 rounded-lg border border-[var(--border)] bg-[var(--background)] p-5 md:p-6">
+          <SubscribeForm />
+        </div>
+        <p className="mt-5 text-sm">
           <Link
             href="/newsletter/rss.xml"
             className="underline underline-offset-2 hover:opacity-70"
