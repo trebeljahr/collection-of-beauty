@@ -15,10 +15,8 @@
  * Required ListMonk setup (one-time, in the admin UI):
  *
  *   - Two templates created under Campaigns → Templates:
- *       • A transactional template whose body is just
- *         `{{ template "content" . }}` and whose content is
- *         `{{ .Tx.Data.body | safeHTML }}` (and an optional unsub
- *         footer using `{{ UnsubscribeURL }}`). Subject:
+ *       • A transactional template whose body renders
+ *         `{{ .Tx.Data.body | Safe }}`. Subject:
  *         `{{ .Tx.Data.subject }}`.
  *       • A campaign template whose body is just
  *         `{{ template "content" . }}` (the digest HTML already
@@ -224,9 +222,7 @@ export type SendTransactionalParams = {
  * Send a one-off transactional email through ListMonk's `/api/tx`
  * endpoint. Uses the passthrough template configured via
  * `LISTMONK_TX_TEMPLATE_ID` — that template should consume
- * `{{ .Tx.Data.subject }}` and `{{ .Tx.Data.body | safeHTML }}` and
- * optionally render an unsubscribe footer using ListMonk's built-in
- * `{{ UnsubscribeURL }}` (which is substituted per recipient).
+ * `{{ .Tx.Data.subject }}` and `{{ .Tx.Data.body | Safe }}`.
  *
  * The recipient must already exist as a subscriber. Call
  * `upsertSubscriber` before sending the confirmation email.
