@@ -23,6 +23,7 @@
     "test:watch": "vitest",
     "test:coverage": "vitest run --coverage",
     "email:dev": "email dev --dir ./emails --port 3001",
+    "sendNewsletter": "bash scripts/newsletter-send.sh",
     "newsletter:send": "bash scripts/newsletter-send.sh",
     "newsletter:draft": "tsx scripts/newsletter-draft.ts",
     "listmonk:bootstrap": "dotenvx run -f .env.production -f .env.local --ignore=MISSING_ENV_FILE -- tsx scripts/listmonk-bootstrap.ts",

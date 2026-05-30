@@ -138,9 +138,9 @@ console.info(`Artworks: ${chosenIds.join(", ")}`);
 console.info(`\nNext steps:`);
 console.info(`  1. Edit the file — replace TODO bits, refine artwork picks, write blurbs/intro.`);
 console.info(`  2. Flip "draft: true" → "draft: false" when ready.`);
-console.info(`  3. pnpm newsletter:send ${fileSlug}                                   # dry-run`);
-console.info(`  4. pnpm newsletter:send ${fileSlug} --confirm                         # send to LISTMONK_TEST_LIST_ID`);
-console.info(`  5. NODE_ENV=production pnpm newsletter:send ${fileSlug} --confirm     # send to LISTMONK_LIST_ID (real)`);
+console.info(`  3. pnpm sendNewsletter ${fileSlug} --dry-run                         # render preview`);
+console.info(`  4. pnpm sendNewsletter ${fileSlug}                                   # send to the test list`);
+console.info(`  5. NODE_ENV=production pnpm sendNewsletter ${fileSlug}                # send to the live list`);
 
 function titleFromSlug(slug: string): string {
   return slug

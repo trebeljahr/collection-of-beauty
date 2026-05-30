@@ -21,8 +21,8 @@
  *       • A campaign template whose body is just
  *         `{{ template "content" . }}` (the digest HTML already
  *         carries the wrapper, including the unsubscribe link).
- *   - One list per environment (prod + test), with each list ID
- *     wired into `LISTMONK_LIST_ID` / `LISTMONK_TEST_LIST_ID`.
+ *   - One list per environment (prod + test). Hatchkit writes each
+ *     environment's list id into that env file as `LISTMONK_LIST_ID`.
  *   - An API user with both Subscribers + Campaigns + Templates +
  *     Transactional roles; the user + token go into
  *     `LISTMONK_API_USER` / `LISTMONK_API_TOKEN`.

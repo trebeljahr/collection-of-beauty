@@ -98,14 +98,16 @@ on staged files only.
   HMAC + rate limit, ListMonk HTTP client.
 - `src/app/api/newsletter/{subscribe,confirm}/` — only the
   user-facing double-opt-in routes. **Sending is CLI-only** — see
-  `pnpm newsletter:send`. There is no cron, no scheduled task, no
+  `pnpm sendNewsletter`. There is no cron, no scheduled task, no
   send API route.
 - `scripts/newsletter-draft.ts` / `scripts/newsletter-send.ts` — the
   CLI surface. `pnpm newsletter:draft <slug>` scaffolds a new issue;
-  `pnpm newsletter:send <slug>` is a dry-run against `.env.development`
-  (the test list); `--confirm` actually sends; prefixing
+  `pnpm sendNewsletter` sends the latest published issue against
+  `.env.development` (the test list); `pnpm sendNewsletter <slug>`
+  sends a specific issue; `--dry-run` renders without sending; prefixing
   `NODE_ENV=production` switches to `.env.production` (the live list).
-  Env-file selection happens in `scripts/newsletter-send.sh`.
+  `pnpm newsletter:send` remains an alias. Env-file selection happens
+  in `scripts/newsletter-send.sh`.
 
 ### ListMonk + SES
 
@@ -137,7 +139,7 @@ CI builds the Docker image on push to `main` and pushes
 `ghcr.io/trebeljahr/collection-of-beauty:latest`. Coolify pulls and
 restarts on a webhook. No staging environment — the asset bucket and
 the ListMonk instance are shared between dev and prod (separated by
-list id), so a careful local `--dry-run` is the only pre-flight.
+list id), so `pnpm sendNewsletter --dry-run` is the pre-flight.
 
 ## Memory & onboarding for AI agents
 
