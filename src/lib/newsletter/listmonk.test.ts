@@ -30,8 +30,10 @@ beforeEach(() => {
   process.env.LISTMONK_API_TOKEN = "api-token";
   process.env.LISTMONK_LIST_ID = "4";
   process.env.LISTMONK_TX_TEMPLATE_ID = "5";
+  process.env.LISTMONK_CAMPAIGN_TEMPLATE_ID = "6";
   process.env.SES_FROM_EMAIL = "noreply@example.com";
   delete process.env.LISTMONK_FROM;
+  delete process.env.LISTMONK_REPLY_TO;
 });
 
 afterEach(() => {
@@ -72,8 +74,9 @@ describe("findSubscriber", () => {
 });
 
 describe("sendTransactional", () => {
-  it("passes the configured ListMonk sender override", async () => {
+  it("passes the configured ListMonk sender and reply-to overrides", async () => {
     process.env.LISTMONK_FROM = "Drops of Beauty <noreply@example.com>";
+    process.env.LISTMONK_REPLY_TO = "Drops of Beauty <hello@example.com>";
     const fetchMock = vi.fn(async (_input: RequestInfo | URL, _init?: RequestInit) =>
       jsonResponse({ data: true }),
     );
@@ -90,6 +93,7 @@ describe("sendTransactional", () => {
       subscriber_email: "reader@example.com",
       template_id: 5,
       from_email: "Drops of Beauty <noreply@example.com>",
+      headers: [{ "Reply-To": "Drops of Beauty <hello@example.com>" }],
     });
   });
 });

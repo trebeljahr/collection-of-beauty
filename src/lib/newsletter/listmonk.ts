@@ -104,6 +104,11 @@ function resolveFromAddress(): string {
   return process.env.LISTMONK_FROM ?? required("SES_FROM_EMAIL");
 }
 
+function resolveEmailHeaders(): Array<Record<string, string>> {
+  const replyTo = process.env.LISTMONK_REPLY_TO;
+  return replyTo ? [{ "Reply-To": replyTo }] : [];
+}
+
 // ─────────────────────────────────────────────────────────────────────────────
 // Subscriber operations
 // ─────────────────────────────────────────────────────────────────────────────
@@ -229,12 +234,14 @@ export type SendTransactionalParams = {
  */
 export async function sendTransactional(params: SendTransactionalParams): Promise<void> {
   const templateId = Number(required("LISTMONK_TX_TEMPLATE_ID"));
+  const headers = resolveEmailHeaders();
   await listmonkFetch("/api/tx", {
     method: "POST",
     body: JSON.stringify({
       subscriber_email: params.to.toLowerCase(),
       template_id: templateId,
       from_email: resolveFromAddress(),
+      ...(headers.length > 0 ? { headers } : {}),
       data: { subject: params.subject, body: params.html },
       content_type: "html",
       messenger: "email",
@@ -269,6 +276,7 @@ export type CampaignResult = { id: number; url: string };
 export async function sendCampaign(params: SendCampaignParams): Promise<CampaignResult> {
   const listId = resolveListId();
   const fromEmail = resolveFromAddress();
+  const headers = resolveEmailHeaders();
   const templateId = Number(required("LISTMONK_CAMPAIGN_TEMPLATE_ID"));
 
   type CreateResp = { data: { id: number } };
@@ -284,6 +292,7 @@ export async function sendCampaign(params: SendCampaignParams): Promise<Campaign
       altbody: params.text,
       type: "regular",
       template_id: templateId,
+      ...(headers.length > 0 ? { headers } : {}),
       send_later: false,
     }),
   });
