@@ -3,7 +3,7 @@ title: "Solitary figures in landscape"
 subject: "Issue 1: Solitary figures in landscape"
 publishedAt: "2026-05-17"
 excerpt: "Five works built around a single figure standing in weather and space, from Friedrich's monk to Hasui's snowbound walker."
-draft: true
+draft: false
 cover:
   artworkId: "collection-of-beauty-caspar-david-friedrich-der-monch-am-meer-google-art-project"
 tags:
