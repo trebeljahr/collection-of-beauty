@@ -1,5 +1,9 @@
-import { describe, expect, it } from "vitest";
-import { assetUrl, slugify, variantSrcSet, variantUrl } from "./utils";
+import { afterEach, describe, expect, it, vi } from "vitest";
+import { assetUrl, publicVariantUrl, slugify, variantSrcSet, variantUrl } from "./utils";
+
+afterEach(() => {
+  vi.unstubAllEnvs();
+});
 
 describe("slugify", () => {
   it("flattens diacritics and lowercases", () => {
@@ -53,6 +57,24 @@ describe("variantUrl", () => {
     expect(assetUrl("")).toBe("");
     expect(assetUrl(null as unknown as string)).toBe("");
     expect(variantSrcSet("", "avif", [256, 480])).toBe("");
+  });
+});
+
+describe("publicVariantUrl", () => {
+  it("uses the deployed asset bucket when local dev serves assets through localhost", () => {
+    vi.stubEnv("NEXT_PUBLIC_ASSETS_BASE_URL", "http://localhost:9837");
+
+    expect(publicVariantUrl("collection/Foo.jpg", 1280, "webp")).toBe(
+      "https://assets.beauty.trebeljahr.com/collection/Foo/1280.webp",
+    );
+  });
+
+  it("honors the newsletter asset override", () => {
+    vi.stubEnv("NEWSLETTER_ASSETS_BASE_URL", "https://cdn.example.test/assets/");
+
+    expect(publicVariantUrl("collection/Foo.jpg", 1280, "webp")).toBe(
+      "https://cdn.example.test/assets/collection/Foo/1280.webp",
+    );
   });
 });
 

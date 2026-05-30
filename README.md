@@ -117,6 +117,9 @@ is rendered from React Email (`emails/confirm-subscription.tsx`) and
 dispatched through ListMonk's transactional template; weekly digests
 go through ListMonk campaigns, which auto-substitute
 `{{ UnsubscribeURL }}` per recipient.
+Email image URLs always use the deployed assets bucket (or
+`NEWSLETTER_ASSETS_BASE_URL`) so inboxes never receive localhost-only
+image sources from local dev.
 
 `hatchkit provision` creates the prod + dev lists, the API user, the
 SES SMTP wiring, and all `LISTMONK_*` / `SES_*` env vars except the

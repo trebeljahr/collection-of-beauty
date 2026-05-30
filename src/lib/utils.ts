@@ -40,6 +40,7 @@ function assetsBaseUrl(): string {
 
 const ASSETS_BASE_URL = assetsBaseUrl();
 const ASSETS_PROXY_BASE_URL = "/assets-raw";
+const DEFAULT_PUBLIC_ASSETS_BASE_URL = "https://assets.beauty.trebeljahr.com";
 
 // Variant set is shared from `variant-config.mjs` so the encoder
 // (scripts/shrink-sources.mjs) and this runtime URL builder reference
@@ -78,12 +79,42 @@ export function assetProxyUrl(objectKey: string): string {
 //   → "<base>/collection-of-beauty/Dong_Yuan_Mountain_Hall/960.avif"
 export function variantUrl(objectKey: string, width: number, format: VariantFormat): string {
   if (!objectKey) return "";
+  return `${ASSETS_BASE_URL}/${variantPath(objectKey, width, format)}`;
+}
+
+function publicAssetsBaseUrl(): string {
+  const explicit = process.env.NEWSLETTER_ASSETS_BASE_URL;
+  if (explicit) return explicit.replace(/\/$/, "");
+
+  const browserBase = process.env.NEXT_PUBLIC_ASSETS_BASE_URL;
+  if (browserBase && isPublicHttpsUrl(browserBase)) {
+    return browserBase.replace(/\/$/, "");
+  }
+
+  return DEFAULT_PUBLIC_ASSETS_BASE_URL;
+}
+
+function isPublicHttpsUrl(value: string): boolean {
+  try {
+    const url = new URL(value);
+    return url.protocol === "https:" && !["localhost", "127.0.0.1", "[::1]"].includes(url.hostname);
+  } catch {
+    return false;
+  }
+}
+
+function variantPath(objectKey: string, width: number, format: VariantFormat): string {
   const lastSlash = objectKey.lastIndexOf("/");
   const dir = objectKey.slice(0, lastSlash);
   const filename = objectKey.slice(lastSlash + 1);
   const basename = filename.replace(/\.[^.]+$/, "");
   const segments = [...dir.split("/"), basename, `${width}.${format}`];
-  return `${ASSETS_BASE_URL}/${encodePath(segments)}`;
+  return encodePath(segments);
+}
+
+export function publicVariantUrl(objectKey: string, width: number, format: VariantFormat): string {
+  if (!objectKey) return "";
+  return `${publicAssetsBaseUrl()}/${variantPath(objectKey, width, format)}`;
 }
 
 export function variantProxyUrl(objectKey: string, width: number, format: VariantFormat): string {
