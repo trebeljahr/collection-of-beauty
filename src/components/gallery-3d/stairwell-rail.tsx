@@ -3,10 +3,13 @@
 import { useEffect, useMemo } from "react";
 import * as THREE from "three";
 import type { FloorLayout } from "@/lib/gallery-layout/types";
-import { SPIRAL_FLOOR_CUTOUT_RADIUS } from "@/lib/gallery-layout/world-coords";
 import {
   BALUSTER_HEIGHT,
   BALUSTER_SIZE,
+  CUTOUT_RAIL_RADIUS,
+  GATE_POST_HEIGHT,
+  GATE_POST_RADIAL_DEPTH,
+  GATE_POST_TANGENT_WIDTH,
   RAIL_BAR_HALF_WIDTH,
   RAIL_BAR_HEIGHT,
   RAIL_HEIGHT,
@@ -33,21 +36,6 @@ const gatePostMaterial = new THREE.MeshStandardMaterial({
   metalness: 0.45,
 });
 
-/** Gate-post tangent width — wide enough for the sign plaque to fit
- *  flush within it (no horizontal "crossbeam" sticking out beyond
- *  the post), so post + sign reads as one architectural pylon rather
- *  than a + cross. */
-const GATE_POST_TANGENT_WIDTH = 0.85;
-/** Gate-post radial depth — kept slim so it reads as a wayfinding
- *  pylon rather than a fat column. */
-const GATE_POST_RADIAL_DEPTH = 0.18;
-const GATE_POST_HEIGHT = 2.4;
-/** Radial offset of the cutout-edge rail's centerline from the
- *  stairwell hole's edge. Exported because player.tsx needs the same
- *  number for collision clearance — keeping the two in lockstep
- *  prevents the player from walking through the rail (or floating
- *  away from it) after a tweak here. */
-export const CUTOUT_RAIL_RADIUS = SPIRAL_FLOOR_CUTOUT_RADIUS + 0.18;
 // Half-arc of the entry gate is now derived per-stair from the
 // spiral's numSteps (`spiralGateHalfArc(numSteps)`), so the cutout-edge
 // gate aligns exactly with the spiral rail's gap above and below.

@@ -1,9 +1,11 @@
+import { SPIRAL_FLOOR_CUTOUT_RADIUS } from "@/lib/gallery-layout/world-coords";
+
 // Shared "rail vocabulary" — geometric constants that have to match
 // across the spiral rail (staircase.tsx), the cutout-edge rail and
-// the dead-end L-bridge (stairwell-rail.tsx), and the player's
-// collision constraints (player.tsx). They were duplicated in three
-// places with hand-kept "match X exactly" comments — easy for a tweak
-// here to drift out of sync there. One source of truth instead.
+// the dead-end L-bridge (stairwell-rail.tsx), and the physics collider
+// generator. They were duplicated in three places with hand-kept
+// "match X exactly" comments — easy for a tweak here to drift out of
+// sync there. One source of truth instead.
 
 /** Top of the rail above the floor — also the player's grip height. */
 export const RAIL_HEIGHT = 1.05;
@@ -26,3 +28,17 @@ export const BALUSTER_SIZE = 0.07;
  *  as a thin black bar punching through the brass on every camera
  *  angle that catches the rail in cross-section. */
 export const BALUSTER_HEIGHT = RAIL_HEIGHT - RAIL_BAR_HEIGHT;
+
+/** Radial offset of the cutout-edge rail's centerline from the
+ *  stairwell hole's edge. Shared by the visible rail and its collider. */
+export const CUTOUT_RAIL_RADIUS = SPIRAL_FLOOR_CUTOUT_RADIUS + 0.18;
+
+/** Gate-post tangent width — wide enough for the sign plaque to fit
+ *  flush within it, so post + sign reads as one architectural pylon. */
+export const GATE_POST_TANGENT_WIDTH = 0.85;
+
+/** Gate-post radial depth — kept slim so it reads as a wayfinding
+ *  pylon rather than a fat column. */
+export const GATE_POST_RADIAL_DEPTH = 0.18;
+
+export const GATE_POST_HEIGHT = 2.4;
