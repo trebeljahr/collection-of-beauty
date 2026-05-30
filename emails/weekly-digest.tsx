@@ -79,98 +79,101 @@ export default function WeeklyDigest({
       <Preview>{previewText}</Preview>
       <Tailwind>
         <Body className="bg-stone-50 font-serif text-stone-900">
-          <Container className="mx-auto max-w-[640px] bg-white px-8 py-10">
-            <Section className="text-center">
-              <Text className="m-0 text-xs uppercase tracking-[0.2em] text-stone-500">
-                A Drop of Beauty · Issue {issueNumber} · {issueDate}
+          <Container className="mx-auto max-w-[640px] bg-white px-0 py-0">
+            <Section className="bg-stone-950 px-8 py-9 text-center">
+              <Text className="m-0 text-[11px] uppercase tracking-[0.24em] text-stone-300">
+                A Drop of Beauty
               </Text>
               <Heading
                 as="h1"
-                className="mt-3 mb-0 font-serif text-3xl font-normal tracking-tight text-stone-900"
+                className="mx-auto mt-4 mb-0 max-w-[520px] font-serif text-[34px] font-normal leading-tight text-stone-50"
               >
                 {title}
               </Heading>
+              <Text className="mt-4 mb-0 text-xs uppercase tracking-[0.18em] text-stone-400">
+                Issue {issueNumber} · {issueDate}
+              </Text>
+              <Link
+                href={archiveUrl}
+                className="mt-6 inline-block rounded-full border border-stone-600 px-4 py-2 text-xs uppercase tracking-[0.16em] text-stone-100 no-underline"
+              >
+                Read on the web
+              </Link>
             </Section>
 
-            {introHtml.length > 0 && (
-              <>
-                <Hr className="my-8 border-stone-200" />
-                <Section>
-                  <div
-                    className="text-base leading-relaxed text-stone-800 [&_a]:text-stone-900 [&_a]:underline [&_a]:decoration-stone-300 [&_a]:underline-offset-4 [&_em]:italic [&_p]:my-3 [&_strong]:font-semibold"
-                    // biome-ignore lint/security/noDangerouslySetInnerHtml: trusted in-repo markdown rendered via remark
-                    dangerouslySetInnerHTML={{ __html: introHtml }}
-                  />
-                </Section>
-              </>
-            )}
-
-            <Hr className="my-8 border-stone-200" />
-
-            {artworks.map((a, i) => (
-              <Section key={a.id} className={i > 0 ? "mt-10" : ""}>
-                <Link href={a.artworkUrl} className="block no-underline">
-                  <Img
-                    src={a.imageUrl}
-                    alt={a.title}
-                    width="576"
-                    className="w-full rounded-md border border-stone-200"
-                  />
-                </Link>
-                <Heading
-                  as="h2"
-                  className="mt-4 mb-1 font-serif text-xl font-normal text-stone-900"
-                >
-                  <Link href={a.artworkUrl} className="text-stone-900 no-underline">
-                    {a.title}
-                  </Link>
-                </Heading>
-                <Text className="m-0 text-sm text-stone-600">
-                  {a.artist ?? "Unknown artist"}
-                  {a.year ? ` · ${a.year}` : ""}
-                  {a.movement ? ` · ${a.movement}` : ""}
-                </Text>
-                {a.note && (
-                  <Text className="mt-3 mb-0 text-sm leading-relaxed text-stone-700">{a.note}</Text>
-                )}
-              </Section>
-            ))}
-
-            <Hr className="my-10 border-stone-200" />
-
-            <Section className="text-center">
-              <Text className="m-0 text-sm text-stone-600">
-                <Link
-                  href={archiveUrl}
-                  className="text-stone-700 underline decoration-stone-300 underline-offset-4"
-                >
-                  Read this issue on the web →
-                </Link>
-              </Text>
-              <Text className="mt-2 text-sm text-stone-600">
-                <Link
-                  href={siteUrl}
-                  className="text-stone-700 underline decoration-stone-300 underline-offset-4"
-                >
-                  Browse the full gallery
-                </Link>
-              </Text>
-              {unsubscribeUrl !== null && (
-                <Text className="mt-6 text-xs leading-relaxed text-stone-500">
-                  You&apos;re receiving this because you subscribed to <em>A Drop of Beauty</em>,
-                  the Collection of Beauty newsletter.
-                  <br />
-                  <Link
-                    href={unsubscribeUrl}
-                    className="text-stone-500 underline decoration-stone-300 underline-offset-2"
-                  >
-                    Unsubscribe
-                  </Link>
-                </Text>
+            <Section className="px-8 py-10">
+              {introHtml.length > 0 && (
+                <>
+                  <Section>
+                    <div
+                      className="text-base leading-relaxed text-stone-800 [&_a]:text-stone-900 [&_a]:underline [&_a]:decoration-stone-300 [&_a]:underline-offset-4 [&_em]:italic [&_p]:my-3 [&_strong]:font-semibold"
+                      // biome-ignore lint/security/noDangerouslySetInnerHtml: trusted in-repo markdown rendered via remark
+                      dangerouslySetInnerHTML={{ __html: introHtml }}
+                    />
+                  </Section>
+                  <Hr className="my-8 border-stone-200" />
+                </>
               )}
-              <Text className="mt-4 text-[10px] uppercase tracking-widest text-stone-400">
-                All works public domain or openly licensed.
-              </Text>
+
+              {artworks.map((a, i) => (
+                <Section key={a.id} className={i > 0 ? "mt-10" : ""}>
+                  <Link href={a.artworkUrl} className="block no-underline">
+                    <Img
+                      src={a.imageUrl}
+                      alt={a.title}
+                      width="576"
+                      className="w-full rounded-md border border-stone-200"
+                    />
+                  </Link>
+                  <Heading
+                    as="h2"
+                    className="mt-4 mb-1 font-serif text-xl font-normal text-stone-900"
+                  >
+                    <Link href={a.artworkUrl} className="text-stone-900 no-underline">
+                      {a.title}
+                    </Link>
+                  </Heading>
+                  <Text className="m-0 text-sm text-stone-600">
+                    {a.artist ?? "Unknown artist"}
+                    {a.year ? ` · ${a.year}` : ""}
+                    {a.movement ? ` · ${a.movement}` : ""}
+                  </Text>
+                  {a.note && (
+                    <Text className="mt-3 mb-0 text-sm leading-relaxed text-stone-700">
+                      {a.note}
+                    </Text>
+                  )}
+                </Section>
+              ))}
+
+              <Hr className="my-10 border-stone-200" />
+
+              <Section className="text-center">
+                <Text className="m-0 text-sm text-stone-600">
+                  <Link
+                    href={siteUrl}
+                    className="text-stone-700 underline decoration-stone-300 underline-offset-4"
+                  >
+                    Browse the full gallery
+                  </Link>
+                </Text>
+                {unsubscribeUrl !== null && (
+                  <Text className="mt-6 text-xs leading-relaxed text-stone-500">
+                    You&apos;re receiving this because you subscribed to <em>A Drop of Beauty</em>,
+                    the Collection of Beauty newsletter.
+                    <br />
+                    <Link
+                      href={unsubscribeUrl}
+                      className="text-stone-500 underline decoration-stone-300 underline-offset-2"
+                    >
+                      Unsubscribe
+                    </Link>
+                  </Text>
+                )}
+                <Text className="mt-4 text-[10px] uppercase tracking-widest text-stone-400">
+                  All works public domain or openly licensed.
+                </Text>
+              </Section>
             </Section>
           </Container>
         </Body>
