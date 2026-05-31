@@ -1,20 +1,27 @@
 # Duplicate image sweep
 
-_Generated 2026-05-17T19:30:47.365Z from 2855/2855 artworks (0 skipped: no resolvable image)._
+_Generated 2026-05-31T10:07:22.437Z from 3367/3367 artworks (0 skipped: no resolvable image)._
 
 - Exact dHash collisions: **0** clusters covering **0** artworks
-- Near duplicates (hamming ≤ 4): **7** clusters covering **14** artworks
-- Same artist + same normalized title: **30** clusters covering **79** artworks
+- Near duplicates (hamming ≤ 4): **10** clusters covering **20** artworks
+- Same artist + same normalized title: **35** clusters covering **94** artworks
 
 ## Same artist + same title
 
 _Sorted by min pairwise hamming distance: low Δ likely = same work scanned twice; high Δ likely = a legitimate series sharing one title._
 
-### `claude-monet::water lilies` — min Δ16
-- `collection-of-beauty-monet-nenufares` — Water Lilies — `collection-of-beauty/Monet_-_Nenúfares.jpg`
+### `viktor-vasnetsov::knight at the crossroads` — min Δ1
+- `collection-of-beauty-theknightatthecrossroads` — Knight at the Crossroads — `collection-of-beauty/TheKnightAtTheCrossroads.jpg`
+- `collection-of-beauty-victor-vasnetsov-knight-at-the-crossroads-google-art-project` — Knight at the Crossroads — `collection-of-beauty/Victor_Vasnetsov_-_Knight_at_the_Crossroads_-_Google_Art_Project.jpg`
+
+### `caravaggio::the entombment of christ` — min Δ2
+- `collection-of-beauty-the-entombment-of-christ-caravaggio-c-1602-3` — The Entombment of Christ — `collection-of-beauty/The_Entombment_of_Christ-Caravaggio_(c.1602-3).jpg`
+- `collection-of-beauty-caravaggio-la-deposizione-di-cristo` — The Entombment of Christ — `collection-of-beauty/Caravaggio_-_La_Deposizione_di_Cristo.jpg`
+
+### `claude-monet::water lilies` — min Δ18
 - `collection-of-beauty-claude-monet-nympheas-1905` — Water Lilies / Water Lilies (1905) — `collection-of-beauty/Claude_Monet_-_Nymphéas_(1905).jpg`
 - `collection-of-beauty-claude-monet-water-lilies-1906-ryerson` — Water Lilies / Water Lilies (Art Institute of Chicago, 1906) — `collection-of-beauty/Claude_Monet_-_Water_Lilies_-_1906,_Ryerson.jpg`
-- `collection-of-beauty-claude-monet-nympheas-w-1698` — Water Lilies / Water Lilies (Wildenstein no. 1698) — `collection-of-beauty/Claude_Monet_-_Nymphéas_(W_1698).jpg`
+- `collection-of-beauty-claude-monet-nympheas-w-1698` — Nymphéas / Water Lilies (Wildenstein no. 1698) — `collection-of-beauty/Claude_Monet_-_Nymphéas_(W_1698).jpg`
 - `collection-of-beauty-monet-water-lilies-1907-19-170` — Water Lilies / Water Lilies (Museum of Fine Arts Boston, 1907) — `collection-of-beauty/Monet_-_Water_Lilies,_1907,_19.170.jpg`
 - `collection-of-beauty-monet-w1708` — Water Lilies / Water Lilies (Wildenstein no. 1708) — `collection-of-beauty/Monet_w1708.jpg`
 - `collection-of-beauty-claude-monet-waterlilies-nympheas-1908` — Water Lilies / Water Lilies (1908) — `collection-of-beauty/Claude_Monet_-_Waterlilies_-_Nympheas_(1908).jpg`
@@ -26,8 +33,35 @@ _Sorted by min pairwise hamming distance: low Δ likely = same work scanned twic
 - `collection-of-beauty-nympheas-71293-3` — Water Lilies — `collection-of-beauty/Nympheas_71293_3.jpg`
 - `collection-of-beauty-water-lilies-agapanthus-by-claude-monet-cleveland-museum-of-art-1960-81` — Water Lilies / Water Lilies (Agapanthus) (Cleveland Museum of Art) — `collection-of-beauty/Water_Lilies_(Agapanthus),_by_Claude_Monet,_Cleveland_Museum_of_Art,_1960.81.jpg`
 - `collection-of-beauty-claude-monet-044` — Water-Lilies — `collection-of-beauty/Claude_Monet_044.jpg`
-- `collection-of-beauty-claude-monet-water-lilies-1917-1919` — Water Lilies / Water Lilies (1917–1919) — `collection-of-beauty/Claude_Monet_-_Water_Lilies,_1917-1919.jpeg`
-- `collection-of-beauty-los-nenufares-monet` — Water Lilies — `collection-of-beauty/Los_nenúfares_(Monet).jpg`
+
+### `el-greco::saint jerome` — min Δ21
+- `collection-of-beauty-el-greco-domenikos-theotokopoulos-saint-jerome-c-1610-1614-nga-12204` — Saint Jerome — `collection-of-beauty/El_Greco_(Domenikos_Theotokopoulos),_Saint_Jerome,_c._1610-1614,_NGA_12204.jpg`
+- `collection-of-beauty-el-greco-domenikos-theotokopoulos-saint-jerome-a73-hispanic-society-of-america` — Saint Jerome — `collection-of-beauty/El_Greco_(Doménikos_Theotokópoulos)_-_Saint_Jerome_-_A73_-_Hispanic_Society_of_America.jpg`
+
+### `robert-delaunay::eiffel tower` — min Δ21
+- `collection-of-beauty-robert-delaunay-eiffel-tower-1911-solomon-r-guggenheim-museum` — Eiffel Tower — `collection-of-beauty/Robert_Delaunay_-_Eiffel_Tower_-_1911_-_Solomon_R._Guggenheim_Museum.jpg`
+- `collection-of-beauty-gugg-eiffel-tower` — Eiffel Tower — `collection-of-beauty/GUGG_Eiffel_Tower.jpg`
+
+### `kim-hong-do::kim hong do` — min Δ23
+- `collection-of-beauty-kim-hong-do-hwaseongpalgyeong` — Kim Hong-do — `collection-of-beauty/Kim_Hong-do,_Hwaseongpalgyeong.jpg`
+- `collection-of-beauty-kim-hong-do-kyujanggak` — Kim Hong-do — `collection-of-beauty/Kim_Hong-do,_Kyujanggak.jpg`
+- `collection-of-beauty-kim-hong-do-feast-for-the-pyongyang-governor-1-dinner` — Kim Hong-do — `collection-of-beauty/Kim_Hong-do,_Feast_for_the_Pyongyang_Governor_(1,_Dinner).jpg`
+- `collection-of-beauty-kim-hong-do-songhachwisaengdo` — Kim Hong-do — `collection-of-beauty/Kim_Hong-do,_Songhachwisaengdo.jpg`
+- `collection-of-beauty-kim-hong-do-samgongbulhwando` — Kim Hong-do — `collection-of-beauty/Kim_Hong-do,_Samgongbulhwando.jpg`
+- `collection-of-beauty-kim-hong-do-chuseongbu-large` — Kim Hong-do — `collection-of-beauty/Kim_Hong-do,_Chuseongbu-large.jpg`
+
+### `gilbert-stuart::george washington` — min Δ23
+- `collection-of-beauty-gilbert-stuart-george-washington-lansdowne-portrait-google-art-project` — George Washington — `collection-of-beauty/Gilbert_Stuart_-_George_Washington_(Lansdowne_Portrait)_-_Google_Art_Project.jpg`
+- `collection-of-beauty-gilbert-stuart-george-washington-the-athenaeum-portrait-google-art-project` — George Washington — `collection-of-beauty/Gilbert_Stuart_-_George_Washington_(The_Athenaeum_Portrait)_-_Google_Art_Project.jpg`
+- `collection-of-beauty-stuart-george-washington-constable-1797` — George Washington — `collection-of-beauty/Stuart-george-washington-constable-1797.jpg`
+
+### `w-albert-gleizes::albert gleizes` — min Δ24
+- `collection-of-beauty-albert-gleizes-1910-femme-aux-phlox-oil-on-canvas-81-x-100-cm-exhibited-armory-show-new-york-1913-t` — Albert Gleizes — `collection-of-beauty/Albert_Gleizes,_1910,_Femme_aux_Phlox,_oil_on_canvas,_81_x_100_cm,_exhibited_Armory_Show,_New_York,_1913,_The_Museum_of_Fine_Arts,_Houston..jpg`
+- `collection-of-beauty-albert-gleizes-1912-13-les-joueurs-de-football-football-players-oil-on-canvas-225-4-x-183-cm-nation` — Albert Gleizes — `collection-of-beauty/Albert_Gleizes,_1912-13,_Les_Joueurs_de_football_(Football_Players),_oil_on_canvas,_225.4_x_183_cm,_National_Gallery_of_Art.jpg`
+- `collection-of-beauty-albert-gleizes-1915-retour-published-in-le-mot-n-20-1-july-1915` — Albert Gleizes — `collection-of-beauty/Albert_Gleizes,_1915,_Retour,_published_in_Le_Mot,_n._20,_1_July_1915.jpg`
+- `collection-of-beauty-albert-gleizes-1915-16-esquisse-pour-le-portrait-de-jean-cocteau` — Albert Gleizes — `collection-of-beauty/Albert_Gleizes,_1915-16,_Esquisse_pour_le_portrait_de_Jean_Cocteau.jpg`
+- `collection-of-beauty-albert-gleizes-1920-femme-portant-un-enfant-exposition-internationale-d-art-moderne-geneva-26-decem` — Albert Gleizes — `collection-of-beauty/Albert_Gleizes,_1920,_Femme_portant_un_enfant,_Exposition_Internationale_d'Art_Moderne,_Geneva,_26_December_1920_-_25_January_1921,_No._185.jpg`
+- `collection-of-beauty-albert-gleizes-1920-femme-et-enfant-woman-and-child` — Albert Gleizes — `collection-of-beauty/Albert_Gleizes,_1920,_Femme_et_enfant_(Woman_and_child).jpg`
 
 ### `peter-paul-rubens::adam and eve` — min Δ25
 - `collection-of-beauty-rubens-painting-adam-eve` — Adam and Eve / Adam and Eve (Rubenshuis, c. 1599) — `collection-of-beauty/Rubens_Painting_Adam_Eve.jpg`
@@ -37,14 +71,19 @@ _Sorted by min pairwise hamming distance: low Δ likely = same work scanned twic
 - `collection-of-beauty-kalisz-rubens` — Descent from the Cross / Descent from the Cross (Kalisz Cathedral) — `collection-of-beauty/Kalisz_Rubens.jpg`
 - `collection-of-beauty-descente-de-croix-rubens` — Descent from the Cross / Descent from the Cross (Hermitage) — `collection-of-beauty/Descente_de_croix_rubens.jpg`
 
+### `rembrandt-van-rijn::self portrait` — min Δ27
+- `collection-of-beauty-self-portrait-1628-1629-by-rembrandt` — Self-portrait — `collection-of-beauty/Self-portrait_(1628-1629),_by_Rembrandt.jpg`
+- `collection-of-beauty-rembrandt-zelfportret-google-art-project` — Self-portrait — `collection-of-beauty/Rembrandt_-_Zelfportret_-_Google_Art_Project.jpg`
+- `collection-of-beauty-rembrandt-van-rijn-self-portrait-google-art-project` — Self-portrait — `collection-of-beauty/Rembrandt_van_Rijn_-_Self-Portrait_-_Google_Art_Project.jpg`
+- `collection-of-beauty-rembrant-self-portrait-1660` — Self-portrait — `collection-of-beauty/Rembrant_Self-Portrait,_1660.jpg`
+
 ### `albrecht-durer::adam and eve` — min Δ28
 - `collection-of-beauty-albrecht-durer-adam-and-eve-1504-engraving` — Adam and Eve / Adam and Eve (engraving, 1504) — `collection-of-beauty/Albrecht_Dürer,_Adam_and_Eve,_1504,_Engraving.jpg`
 - `collection-of-beauty-albrecht-durer-adam-and-eve-prado-2` — Adam and Eve / Adam and Eve (Prado oil diptych, 1507) — `collection-of-beauty/Albrecht_Dürer_-_Adam_and_Eve_(Prado)_2.jpg`
 
-### `vincent-van-gogh::le moulin de la galette` — min Δ28
-- `collection-of-beauty-960px-van-gogh-le-moulin-de-la-galette4` — Dance at the Moulin de la Galette / Le Moulin de la Galette (spring view with gardener) — `collection-of-beauty/960px-Van_Gogh_-_Le_Moulin_de_la_Galette4.jpeg`
-- `collection-of-beauty-van-gogh-le-moulin-de-la-galette` — Dance at the Moulin de la Galette / Le Moulin de la Galette (hilltop view with elevated platform) — `collection-of-beauty/Van_Gogh_-_Le_Moulin_de_la_Galette.jpeg`
-- `collection-of-beauty-vincent-van-gogh-le-moulin-de-la-galette` — Dance at the Moulin de la Galette / Le Moulin de la Galette (slope view from below) — `collection-of-beauty/Vincent_van_Gogh_-_Le_Moulin_de_la_Galette.jpg`
+### `paul-gauguin::self portrait` — min Δ28
+- `collection-of-beauty-self-portrait-by-paul-gauguin-1885` — Self-Portrait — `collection-of-beauty/Self-Portrait_by_Paul_Gauguin,_1885.jpg`
+- `collection-of-beauty-paul-gauguin-self-portrait-1903-kunstmuseum-basel-1943` — Self-portrait — `collection-of-beauty/Paul_Gauguin_-_Self_Portrait_1903_-_Kunstmuseum_Basel_1943.jpg`
 
 ### `vincent-van-gogh::irises` — min Δ28
 - `collection-of-beauty-vincent-van-gogh-irises-1890` — Irises / Irises (Metropolitan Museum, 1890) — `collection-of-beauty/Vincent_van_Gogh_-_Irises_(1890).jpg`
@@ -54,22 +93,21 @@ _Sorted by min pairwise hamming distance: low Δ likely = same work scanned twic
 - `collection-of-beauty-monet-houses-of-parliament-sunset` — Houses of Parliament / Houses of Parliament, Sunset — `collection-of-beauty/Monet_Houses_of_Parliament,_Sunset.jpg`
 - `collection-of-beauty-claude-monet-le-parlement-coucher-de-soleil-kunsthaus-zurich` — Houses of Parliament / Houses of Parliament, Sunset (Kunsthaus Zürich) — `collection-of-beauty/Claude_Monet_-_Le_Parlement,_coucher_de_soleil_-_Kunsthaus_Zürich.jpg`
 
-### `claude-monet::the water lily pond` — min Δ29
-- `collection-of-beauty-monet-w1883` — The Water-Lily Pond / The Water Lily Pond (Wildenstein no. 1883) — `collection-of-beauty/Monet_w1883.jpg`
-- `collection-of-beauty-the-water-lily-pond-google-arts-culture` — the-water-lily-pond — `collection-of-beauty/The_Water-Lily_Pond_-_Google_Arts_&_Culture.jpg`
-- `collection-of-beauty-le-bassin-aux-nympheas-claude-monet` — The Water Lily Pond — `collection-of-beauty/Le_bassin_aux_nymphéas_-_Claude_Monet.jpg`
-
 ### `claude-monet::the luncheon` — min Δ29
 - `collection-of-beauty-the-luncheon-by-claude-monet-stadel-frankfurt-am-main-germany-2017` — The Luncheon / The Luncheon (Städel Museum, Frankfurt) — `collection-of-beauty/The_Luncheon_by_Claude_Monet_-_Städel_-_Frankfurt_am_Main_-_Germany_2017.jpg`
 - `collection-of-beauty-monet-luncheon` — The Luncheon — `collection-of-beauty/Monet_Luncheon.jpg`
+
+### `w-francis-picabia::francis picabia` — min Δ29
+- `collection-of-beauty-francis-picabia-1912-la-source-the-spring-oil-on-canvas-249-6-x-249-3-cm-museum-of-modern-art-new-y` — Francis Picabia — `collection-of-beauty/Francis_Picabia,_1912,_La_Source,_The_Spring,_oil_on_canvas,_249.6_x_249.3_cm,_Museum_of_Modern_Art,_New_York._Exhibited,_1912_Salon_d'Automne,_Paris.jpg`
+- `collection-of-beauty-francis-picabia-1912-the-procession-seville-oil-on-canvas-121-9-x-121-9-cm-national-gallery-of-art-` — Francis Picabia — `collection-of-beauty/Francis_Picabia,_1912,_The_Procession,_Seville,_oil_on_canvas,_121.9_x_121.9_cm,_National_Gallery_of_Art,_Washington_DC.jpg`
 
 ### `lucas-cranach-the-elder::adam and eve in paradise` — min Δ31
 - `collection-of-beauty-adameveparadisecranach` — Adam and Eve in Paradise / Adam and Eve in Paradise (woodcut, 1509) — `collection-of-beauty/AdamEveParadiseCranach.jpg`
 - `collection-of-beauty-lucas-cranach-the-elder-adam-und-eva-im-paradies-sundenfall-google-art-project` — Adam and Eve in paradise / Adam and Eve in Paradise (Gemäldegalerie Berlin, 1531) — `collection-of-beauty/Lucas_Cranach_the_Elder_-_Adam_und_Eva_im_Paradies_(Sündenfall)_-_Google_Art_Project.jpg`
 
-### `claude-monet::the seine at lavacourt` — min Δ31
-- `collection-of-beauty-la-seine-a-lavacourt` — The Seine at Lavacourt — `collection-of-beauty/La_Seine_à_Lavacourt.jpeg`
-- `collection-of-beauty-monet-lavacourt` — The Seine at Lavacourt — `collection-of-beauty/Monet_Lavacourt.jpg`
+### `paul-gauguin::riders on the beach` — min Δ31
+- `collection-of-beauty-paul-gauguin-105` — Riders on the Beach — `collection-of-beauty/Paul_Gauguin_105.jpg`
+- `collection-of-beauty-paul-gauguin-106` — Riders on the Beach — `collection-of-beauty/Paul_Gauguin_106.jpg`
 
 ### `claude-monet::waterlilies` — min Δ31
 - `collection-of-beauty-claude-monet-waterlilies-google-art-project` — Waterlilies — `collection-of-beauty/Claude_Monet_-_Waterlilies_-_Google_Art_Project.jpg`
@@ -78,10 +116,6 @@ _Sorted by min pairwise hamming distance: low Δ likely = same work scanned twic
 ### `claude-monet::dahlias` — min Δ31
 - `collection-of-beauty-monet-dahlias` — dahlias — `collection-of-beauty/Monet_-_dahlias.jpg`
 - `collection-of-beauty-claude-monet-dahlias-16035439250` — Dahlias — `collection-of-beauty/Claude_Monet_-_Dahlias_(16035439250).jpg`
-
-### `peter-paul-rubens::the raising of the cross` — min Δ32
-- `collection-of-beauty-peter-paul-rubens-the-elevation-of-the-cross` — The raising of the cross / The Raising of the Cross (oil sketch, Metropolitan Museum) — `collection-of-beauty/Peter_Paul_Rubens_-_The_Elevation_of_the_Cross.jpeg`
-- `collection-of-beauty-peter-paul-rubens-the-raising-of-the-cross-1638` — The Raising of the Cross / The Raising of the Cross (modello after the Antwerp triptych, 1638) — `collection-of-beauty/Peter_Paul_Rubens_-_The_Raising_of_the_Cross_(1638).jpeg`
 
 ### `gustave-courbet::the wave` — min Δ32
 - `collection-of-beauty-1869-courbet-die-woge-anagoria` — The Wave — `collection-of-beauty/1869_Courbet_Die_Woge_anagoria.JPG`
@@ -106,48 +140,39 @@ _Sorted by min pairwise hamming distance: low Δ likely = same work scanned twic
 
 ### `claude-monet::the studio boat` — min Δ33
 - `collection-of-beauty-monet-w392` — The Studio Boat / The Studio Boat (Wildenstein no. 392) — `collection-of-beauty/Monet_w392.jpg`
-- `collection-of-beauty-claude-monet-le-bateau-atelier-mah-neuchatel` — The Studio Boat / The Studio Boat (Musée d'Art et d'Histoire, Neuchâtel) — `collection-of-beauty/Claude_Monet_-_Le_bateau-atelier_-_MAH_Neuchâtel.jpg`
-- `collection-of-beauty-claude-monet-le-bateau-atelier` — The Studio Boat — `collection-of-beauty/Claude_Monet_Le_bateau_atelier.jpg`
+- `collection-of-beauty-claude-monet-le-bateau-atelier-mah-neuchatel` — Le bateau-atelier - MAH Neuchâtel / The Studio Boat (Musée d'Art et d'Histoire, Neuchâtel) — `collection-of-beauty/Claude_Monet_-_Le_bateau-atelier_-_MAH_Neuchâtel.jpg`
 
 ### `claude-monet::the road to v theuil` — min Δ33
+- `collection-of-beauty-la-route-de-vetheuil-effet-de-neige-by-claude-monet` — La route de Vétheuil / The Road to Vétheuil (Snow Effect) — `collection-of-beauty/La_route_de_Vétheuil,_effet_de_neige_by_Claude_Monet.jpg`
 - `collection-of-beauty-claude-monet-the-road-to-vetheuil-google-art-project` — The Road to Vétheuil — `collection-of-beauty/Claude_Monet_-_The_Road_to_Vétheuil_-_Google_Art_Project.jpg`
-- `collection-of-beauty-la-route-de-vetheuil-effet-de-neige-by-claude-monet` — The Road to Vétheuil / The Road to Vétheuil (Snow Effect) — `collection-of-beauty/La_route_de_Vétheuil,_effet_de_neige_by_Claude_Monet.jpg`
-
-### `claude-monet::the seine at v theuil` — min Δ34
-- `collection-of-beauty-la-seine-a-vetheuil-monet` — The Seine at Vétheuil — `collection-of-beauty/La_Seine_à_Vétheuil_(Monet).jpg`
-- `collection-of-beauty-claude-monet-la-seine-a-vetheuil-1881` — The Seine at Vétheuil / The Seine at Vétheuil (1881) — `collection-of-beauty/Claude_Monet_-_La_Seine_à_Vétheuil_(1881).jpg`
 
 ### `claude-monet::v theuil` — min Δ34
 - `collection-of-beauty-claude-monet-vetheuil-google-art-project-427751` — Vétheuil — `collection-of-beauty/Claude_Monet_-_Vétheuil_-_Google_Art_Project_(427751).jpg`
 - `collection-of-beauty-claude-monet-vetheuil-01` — Vétheuil — `collection-of-beauty/Claude_Monet_Vetheuil_01.jpg`
 
-### `vasily-vereshchagin::the afghan` — min Δ36
-- `collection-of-beauty` — Афганец / The Afghan (white tunic, green turban) — `collection-of-beauty/Афганец.jpg`
-- `collection-of-beauty-2` — Афганец / The Afghan (chain mail, striped skirt) — `collection-of-beauty/Афганец_(2).jpg`
+### `vincent-van-gogh::le moulin de la galette` — min Δ34
+- `collection-of-beauty-van-gogh-le-moulin-de-la-galette` — Le Moulin de la Galette / Le Moulin de la Galette (hilltop view with elevated platform) — `collection-of-beauty/Van_Gogh_-_Le_Moulin_de_la_Galette.jpeg`
+- `collection-of-beauty-vincent-van-gogh-le-moulin-de-la-galette` — Le Moulin de la Galette / Le Moulin de la Galette (slope view from below) — `collection-of-beauty/Vincent_van_Gogh_-_Le_Moulin_de_la_Galette.jpg`
 
-### `vasily-vereshchagin::in the alatau mountains` — min Δ37
-- `collection-of-beauty-d8932e` — In the Alatau Mountains / In the Alatau Mountains (deer in meadow) — `collection-of-beauty/В_горах_Алатау.jpg`
-- `collection-of-beauty-2-3ff4e9` — В горах Алатау / In the Alatau Mountains (horsemen on slope) — `collection-of-beauty/В_горах_Алатау_2.jpg`
+### `albert-gleizes::albert gleizes` — min Δ34
+- `collection-of-beauty-albert-gleizes-1914-15-portrait-de-florent-schmitt-le-pianiste-pastel-36-x-27-cm` — Albert Gleizes — `collection-of-beauty/Albert_Gleizes,_1914-15,_Portrait_de_Florent_Schmitt_(Le_Pianiste),_pastel,_36_x_27_cm.jpg`
+- `collection-of-beauty-albert-gleizes-1920-femme-au-gant-noir-woman-with-black-glove-oil-on-canvas-126-x-100-cm-private-co` — Albert Gleizes — `collection-of-beauty/Albert_Gleizes,_1920,_Femme_au_gant_noir_(Woman_with_Black_Glove),_oil_on_canvas,_126_x_100_cm._Private_collection.jpg`
 
-### `claude-monet::the bridge at argenteuil` — min Δ37
-- `collection-of-beauty-claude-monet-the-argenteuil-bridge-google-art-project` — The Bridge at Argenteuil — `collection-of-beauty/Claude_Monet_-_The_Argenteuil_Bridge_-_Google_Art_Project.jpg`
-- `collection-of-beauty-le-pont-d-argenteuil-claude-monet` — The Bridge at Argenteuil — `collection-of-beauty/Le_Pont_d`_Argenteuil_-_Claude_Monet.jpg`
+### `claude-monet::the water lily pond` — min Δ35
+- `collection-of-beauty-monet-w1883` — The Water-Lily Pond / The Water Lily Pond (Wildenstein no. 1883) — `collection-of-beauty/Monet_w1883.jpg`
+- `collection-of-beauty-the-water-lily-pond-google-arts-culture` — the-water-lily-pond — `collection-of-beauty/The_Water-Lily_Pond_-_Google_Arts_&_Culture.jpg`
+
+### `eugene-delacroix::christ on the sea of galilee` — min Δ35
+- `collection-of-beauty-eugene-delacroix-christ-on-the-sea-of-galilee-google-art-project` — Christ on the Sea of Galilee — `collection-of-beauty/Eugène_Delacroix_-_Christ_on_the_Sea_of_Galilee_-_Google_Art_Project.jpg`
+- `collection-of-beauty-eugene-delacroix-christ-on-the-sea-of-galilee-google-art-project-27796212` — Christ on the Sea of Galilee — `collection-of-beauty/Eugène_Delacroix_-_Christ_on_the_Sea_of_Galilee_-_Google_Art_Project_(27796212).jpg`
 
 ### `artemisia-gentileschi::susanna and the elders` — min Δ38
 - `collection-of-beauty-susanna-and-the-elders-1610-artemisia-gentileschi` — Susanna and the Elders / Susanna and the Elders (Pommersfelden, 1610) — `collection-of-beauty/Susanna_and_the_Elders_(1610),_Artemisia_Gentileschi.jpg`
 - `collection-of-beauty-susanna-and-the-elders` — Susanna and the Elders / Susanna and the Elders (later autograph version) — `collection-of-beauty/Susanna_and_the_Elders.jpg`
 
-### `peter-paul-rubens::the massacre of the innocents` — min Δ38
-- `collection-of-beauty-rubens-peter-paul-massacre-of-the-innocents-art-gallery-of-ontario` — The Massacre of the Innocents / The Massacre of the Innocents (Art Gallery of Ontario, c. 1611) — `collection-of-beauty/Rubens,_Peter_Paul_-_Massacre_of_the_Innocents_-_Art_Gallery_of_Ontario.jpg`
-- `collection-of-beauty-the-massacre-of-the-innocents-peter-paul-rubens-unframed` — The Massacre of the Innocents / The Massacre of the Innocents (Alte Pinakothek, c. 1638) — `collection-of-beauty/The_Massacre_of_the_Innocents_-_Peter_Paul_Rubens_(Unframed).jpg`
-
 ### `vincent-van-gogh::self portrait` — min Δ38
 - `collection-of-beauty-vincent-van-gogh-self-portrait-google-art-project-454045` — Self-Portrait / Self-Portrait (Art Institute of Chicago, 1887) — `collection-of-beauty/Vincent_van_Gogh_-_Self-Portrait_-_Google_Art_Project_(454045).jpg`
 - `collection-of-beauty-vincent-van-gogh-self-portrait-google-art-project` — Self-portrait / Self-Portrait (Musée d'Orsay, 1889) — `collection-of-beauty/Vincent_van_Gogh_-_Self-Portrait_-_Google_Art_Project.jpg`
-
-### `rembrandt-van-rijn::self portrait` — min Δ39
-- `collection-of-beauty-rembrandt-zelfportret-google-art-project` — Self-portrait — `collection-of-beauty/Rembrandt_-_Zelfportret_-_Google_Art_Project.jpg`
-- `collection-of-beauty-rembrandt-van-rijn-self-portrait-google-art-project` — Self-portrait — `collection-of-beauty/Rembrandt_van_Rijn_-_Self-Portrait_-_Google_Art_Project.jpg`
 
 ## Exact dHash matches
 
@@ -157,6 +182,14 @@ _None._
 ### Seed `070717170f0f0707`
 - (seed) `collection-of-beauty-guo-zhongshu-traveling-on-the-river-in-snow` — Traveling on the River in Snow — Guo Zhongshu — `collection-of-beauty/Guo_Zhongshu-Traveling_on_the_River_in_Snow.jpg`
 - (Δ3) `collection-of-beauty-monet-w977` — House at Falaise in the Fog — Claude Monet — `collection-of-beauty/Monet_w977.jpg`
+
+### Seed `c8ec1d1747495164`
+- (seed) `collection-of-beauty-the-entombment-of-christ-caravaggio-c-1602-3` — The Entombment of Christ — Caravaggio — `collection-of-beauty/The_Entombment_of_Christ-Caravaggio_(c.1602-3).jpg`
+- (Δ2) `collection-of-beauty-caravaggio-la-deposizione-di-cristo` — The Entombment of Christ — Caravaggio — `collection-of-beauty/Caravaggio_-_La_Deposizione_di_Cristo.jpg`
+
+### Seed `1e12133b395d355c`
+- (seed) `collection-of-beauty-gerrit-van-honthorst-de-koppelaarster` — The Matchmaker or The Procuress — Gerard van Honthorst — `collection-of-beauty/Gerrit_van_Honthorst_-_De_koppelaarster.jpg`
+- (Δ2) `collection-of-beauty-gerard-van-honthorst-the-procuress-google-art-project` — The procuress — Gerard van Honthorst — `collection-of-beauty/Gerard_van_Honthorst_-_The_procuress_-_Google_Art_Project.jpg`
 
 ### Seed `a296f0f8f0f08e82`
 - (seed) `audubon-birds-165-bachmans-finch` — 165 Bachmans Finch — John James Audubon — `audubon-birds/165_Bachmans_Finch.jpg`
@@ -181,4 +214,8 @@ _None._
 ### Seed `a090e6e0f8f8a0a0`
 - (seed) `audubon-birds-4-purple-finch` — 4 Purple Finch — John James Audubon — `audubon-birds/4_Purple_Finch.jpg`
 - (Δ3) `audubon-birds-65-rathbone-warbler` — 65 Rathbone Warbler — John James Audubon — `audubon-birds/65_Rathbone_Warbler.jpg`
+
+### Seed `1d6dad29a96535dd`
+- (seed) `collection-of-beauty-theknightatthecrossroads` — Knight at the Crossroads — Viktor Vasnetsov — `collection-of-beauty/TheKnightAtTheCrossroads.jpg`
+- (Δ1) `collection-of-beauty-victor-vasnetsov-knight-at-the-crossroads-google-art-project` — Knight at the Crossroads — Viktor Vasnetsov — `collection-of-beauty/Victor_Vasnetsov_-_Knight_at_the_Crossroads_-_Google_Art_Project.jpg`
 
