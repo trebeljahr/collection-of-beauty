@@ -915,6 +915,51 @@
       "nationality": "Italian",
       "movement": "Academicism",
       "pd_status": "public_domain_worldwide"
+    },
+    {
+      "name": "Joseph Karl Stieler",
+      "aliases": ["Joseph Karl Stieler", "Joseph Stieler", "Karl Stieler"],
+      "born": 1781,
+      "died": 1858,
+      "nationality": "German",
+      "movement": "Romanticism",
+      "pd_status": "public_domain_worldwide"
+    },
+    {
+      "name": "Tsukioka Yoshitoshi",
+      "aliases": ["Tsukioka Yoshitoshi", "Yoshitoshi Tsukioka", "Taiso Yoshitoshi", "Yoshitoshi"],
+      "born": 1839,
+      "died": 1892,
+      "nationality": "Japanese",
+      "movement": "Ukiyo-e",
+      "pd_status": "public_domain_worldwide"
+    },
+    {
+      "name": "Thomas Gainsborough",
+      "aliases": ["Thomas Gainsborough", "Gainsborough"],
+      "born": 1727,
+      "died": 1788,
+      "nationality": "English",
+      "movement": "Rococo",
+      "pd_status": "public_domain_worldwide"
+    },
+    {
+      "name": "Jacob Jordaens",
+      "aliases": ["Jacob Jordaens", "Jordaens", "Jacques Jordaens"],
+      "born": 1593,
+      "died": 1678,
+      "nationality": "Flemish",
+      "movement": "Baroque",
+      "pd_status": "public_domain_worldwide"
+    },
+    {
+      "name": "Georges de La Tour",
+      "aliases": ["Georges de La Tour", "de La Tour"],
+      "born": 1593,
+      "died": 1652,
+      "nationality": "French",
+      "movement": "Baroque",
+      "pd_status": "public_domain_worldwide"
     }
   ]
 }
