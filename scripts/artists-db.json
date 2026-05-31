@@ -112,7 +112,7 @@
       "born": 1755,
       "died": 1842,
       "nationality": "French",
-      "movement": "Rococo / Neoclassicism",
+      "movement": "Neoclassicism",
       "pd_status": "public_domain_worldwide"
     },
     {
@@ -184,7 +184,7 @@
       "born": 1832,
       "died": 1883,
       "nationality": "French",
-      "movement": "Impressionism / Realism",
+      "movement": "Impressionism",
       "pd_status": "public_domain_worldwide"
     },
     {
@@ -247,7 +247,7 @@
       "born": 1869,
       "died": 1954,
       "nationality": "French",
-      "movement": "Fauvism / Modernism",
+      "movement": "Fauvism",
       "pd_status": "copyrighted_in_most_jurisdictions_until_2025"
     },
     {
@@ -256,7 +256,7 @@
       "born": 1881,
       "died": 1973,
       "nationality": "Spanish",
-      "movement": "Cubism / Modernism",
+      "movement": "Cubism",
       "pd_status": "copyrighted"
     },
     {
@@ -274,7 +274,7 @@
       "born": 1866,
       "died": 1944,
       "nationality": "Russian / French",
-      "movement": "Abstract / Expressionism",
+      "movement": "Expressionism",
       "pd_status": "public_domain_in_most_jurisdictions"
     },
     {
@@ -283,7 +283,7 @@
       "born": 1879,
       "died": 1940,
       "nationality": "Swiss / German",
-      "movement": "Expressionism / Bauhaus",
+      "movement": "Bauhaus",
       "pd_status": "public_domain_in_most_jurisdictions"
     },
     {
@@ -292,7 +292,7 @@
       "born": 1863,
       "died": 1944,
       "nationality": "Norwegian",
-      "movement": "Symbolism / Expressionism",
+      "movement": "Symbolism",
       "pd_status": "public_domain_in_most_jurisdictions"
     },
     {
@@ -301,7 +301,7 @@
       "born": 1862,
       "died": 1918,
       "nationality": "Austrian",
-      "movement": "Symbolism / Art Nouveau / Vienna Secession",
+      "movement": "Art Nouveau",
       "pd_status": "public_domain_worldwide"
     },
     {
@@ -337,7 +337,7 @@
       "born": 1887,
       "died": 1986,
       "nationality": "American",
-      "movement": "American Modernism",
+      "movement": "Precisionism",
       "pd_status": "copyrighted"
     },
     {
@@ -355,7 +355,7 @@
       "born": 1856,
       "died": 1925,
       "nationality": "American",
-      "movement": "Realism / Impressionism",
+      "movement": "Impressionism",
       "pd_status": "public_domain_worldwide"
     },
     {
@@ -364,7 +364,7 @@
       "born": 1834,
       "died": 1903,
       "nationality": "American",
-      "movement": "Tonalism / Aestheticism",
+      "movement": "Tonalism",
       "pd_status": "public_domain_worldwide"
     },
     {
@@ -454,7 +454,7 @@
       "born": 1824,
       "died": 1904,
       "nationality": "French",
-      "movement": "Academicism / Orientalism",
+      "movement": "Academicism",
       "pd_status": "public_domain_worldwide"
     },
     {
@@ -481,7 +481,7 @@
       "born": 1814,
       "died": 1875,
       "nationality": "French",
-      "movement": "Realism / Barbizon",
+      "movement": "Realism",
       "pd_status": "public_domain_worldwide"
     },
     {
@@ -490,7 +490,7 @@
       "born": 1796,
       "died": 1875,
       "nationality": "French",
-      "movement": "Realism / Barbizon",
+      "movement": "Realism",
       "pd_status": "public_domain_worldwide"
     },
     {
@@ -526,7 +526,7 @@
       "born": 1558,
       "died": 1617,
       "nationality": "Dutch",
-      "movement": "Northern Mannerism",
+      "movement": "Mannerism",
       "pd_status": "public_domain_worldwide"
     },
     {
@@ -643,7 +643,7 @@
       "born": 1882,
       "died": 1946,
       "nationality": "Japanese",
-      "movement": "Sōsaku-hanga",
+      "movement": "Shin-hanga",
       "pd_status": "public_domain_in_most_jurisdictions"
     },
     {
@@ -652,7 +652,7 @@
       "born": 1873,
       "died": 1957,
       "nationality": "Japanese",
-      "movement": "Nihonga / Bijinga",
+      "movement": "Nihonga",
       "pd_status": "public_domain_in_most_jurisdictions"
     },
     {
@@ -661,7 +661,7 @@
       "born": 1894,
       "died": 1935,
       "nationality": "Japanese",
-      "movement": "Nihonga / Bijinga",
+      "movement": "Nihonga",
       "pd_status": "public_domain_in_most_jurisdictions"
     },
     {
@@ -670,7 +670,7 @@
       "born": 1898,
       "died": 1944,
       "nationality": "Japanese",
-      "movement": "Nihonga / Bijinga",
+      "movement": "Nihonga",
       "pd_status": "public_domain_in_most_jurisdictions"
     },
     {
@@ -688,7 +688,7 @@
       "born": 1834,
       "died": 1919,
       "nationality": "German",
-      "movement": "Scientific illustration / Art Nouveau influence",
+      "movement": "Natural history illustration",
       "pd_status": "public_domain_worldwide"
     },
     {
@@ -697,7 +697,7 @@
       "born": 1844,
       "died": 1910,
       "nationality": "French",
-      "movement": "Post-Impressionism / Naïve Art",
+      "movement": "Post-Impressionism",
       "pd_status": "public_domain_worldwide"
     },
     {
@@ -760,7 +760,7 @@
       "born": 1849,
       "died": 1917,
       "nationality": "English",
-      "movement": "Pre-Raphaelite / Academicism",
+      "movement": "Pre-Raphaelite",
       "pd_status": "public_domain_worldwide"
     },
     {
@@ -787,7 +787,7 @@
       "born": 1887,
       "died": 1985,
       "nationality": "Russian / French",
-      "movement": "Modernism / Surrealism",
+      "movement": "Surrealism",
       "pd_status": "copyrighted"
     },
     {

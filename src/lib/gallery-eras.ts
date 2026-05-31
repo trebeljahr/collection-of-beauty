@@ -54,8 +54,7 @@ export type EraId =
   | "enlightenment"
   | "romantic"
   | "ukiyo-e"
-  | "fin-de-siecle"
-  | "modern";
+  | "fin-de-siecle";
 
 export const ERAS: Era[] = [
   {
@@ -98,7 +97,6 @@ export const ERAS: Era[] = [
       "Northern Renaissance",
       "Venetian Renaissance",
       "Mannerism",
-      "Northern Mannerism",
       "Renaissance",
     ],
     palette: {
@@ -150,7 +148,7 @@ export const ERAS: Era[] = [
     title: "Rococo & Neoclassicism",
     yearMin: 1700,
     yearMax: 1799,
-    movements: ["Rococo", "Neoclassicism", "Rococo / Neoclassicism", "Enlightenment"],
+    movements: ["Rococo", "Neoclassicism", "Enlightenment"],
     palette: {
       wallColor: "#e4d7b4",
       floorColor: "#2e2015",
@@ -179,11 +177,10 @@ export const ERAS: Era[] = [
       "Pre-Raphaelite Brotherhood",
       "Hudson River School",
       "Academicism",
-      "Academicism / Orientalism",
       "Academic art",
       "Orientalism",
       "Natural history illustration",
-      "Tonalism / Aestheticism",
+      "Tonalism",
     ],
     palette: {
       wallColor: "#c8c1ad",
@@ -212,13 +209,15 @@ export const ERAS: Era[] = [
     yearMin: 9999,
     yearMax: 0,
     // Ukiyo-e proper is the Edo woodblock tradition, but the early-20th
-    // century Shin-hanga ("new prints") and Sōsaku-hanga ("creative
-    // prints") movements are its direct lineage — same medium, same
-    // visual vocabulary, same rooms work for them. Without these
+    // century Shin-hanga ("new prints") movement is its direct lineage
+    // — same medium, same visual vocabulary, same rooms work for them.
+    // Nihonga ("Japanese painting") is the parallel turn-of-century
+    // Japanese painting tradition; same cultural moment, belongs on
+    // the East-Asian floor rather than Fin-de-siècle. Without these
     // aliases the Hasui Kawase / Hiroshi Yoshida / Ohara Koson cohort
-    // (>150 prints) falls through to the Modern floor by year (≥1910)
-    // and reads as wildly out of place next to Cubism + Surrealism.
-    movements: ["Ukiyo-e", "Shin-hanga", "Sōsaku-hanga", "Sosaku-hanga"],
+    // and the Nihonga painters fall through by year (≥1910) and read
+    // as wildly out of place next to European modernism.
+    movements: ["Ukiyo-e", "Shin-hanga", "Nihonga"],
     palette: {
       // Rice-paper warm white walls, dark walnut + black floor, red
       // lacquer accent. Mirrors a traditional Edo gallery — the
@@ -239,23 +238,35 @@ export const ERAS: Era[] = [
   {
     id: "fin-de-siecle",
     index: 6,
-    title: "Impressionism & Fin-de-siècle",
+    // Combined Impressionism-through-Modernism floor. We had a
+    // separate Modernism floor once; with only ~20 modern works in a
+    // public-domain collection (most early-20th-c masters are still
+    // copyrighted), it read as cavernous. Merging keeps Modernism
+    // present without giving it its own underpopulated storey.
+    title: "Impressionism & Modernism",
     yearMin: 1870,
-    yearMax: 1909,
+    yearMax: 9999,
     movements: [
       "Impressionism",
-      "Impressionism / Realism",
-      "Realism / Impressionism",
       "Post-Impressionism",
-      "Post-Impressionism / Naïve Art",
       "Neo-Impressionism",
-      "Symbolism",
-      "Symbolism / Expressionism",
-      "Art Nouveau",
-      "Scientific illustration / Art Nouveau influence",
-      "Nihonga / Bijinga",
       "Pointillism",
       "Les Nabis",
+      "Symbolism",
+      "Art Nouveau",
+      "Fauvism",
+      "Expressionism",
+      "Cubism",
+      "Surrealism",
+      "Abstract Expressionism",
+      "Regionalism",
+      "American Realism",
+      "Dada",
+      "Futurism",
+      "Constructivism",
+      "Bauhaus",
+      "De Stijl",
+      "Precisionism",
     ],
     palette: {
       wallColor: "#f0e7d2",
@@ -265,48 +276,11 @@ export const ERAS: Era[] = [
       // Garden dapple: sage, dusty rose, lavender, butter.
       roomAccents: ["#2a1d14", "#283325", "#3a2a2e", "#2e2838", "#3a3220"],
     },
-    blurb: "Plein-air light and interior weather.",
+    blurb: "Plein-air light, interior weather, and the early 20th century's break.",
     anchor: {
       movement: "Impressionism",
       minCells: { x: 9, z: 9 },
       preferredLocation: "center",
-    },
-  },
-  {
-    id: "modern",
-    index: 7,
-    title: "Modernism",
-    yearMin: 1910,
-    yearMax: 9999,
-    movements: [
-      "Fauvism / Modernism",
-      "Expressionism",
-      "Cubism",
-      "Surrealism",
-      "Abstract Expressionism",
-      "Regionalism",
-      "American Realism",
-      "Fauvism",
-      "Dada",
-      "Futurism",
-      "Constructivism",
-      "Bauhaus",
-      "De Stijl",
-      "Precisionism",
-    ],
-    palette: {
-      wallColor: "#e8e5de",
-      floorColor: "#1a1712",
-      ceilingColor: "#f2efe8",
-      accent: "#4a3b2a",
-      // Bold-but-darkened modernist: brick, cobalt, mustard, jet, teal.
-      roomAccents: ["#1a1712", "#3a1f1a", "#1a2230", "#3a2f15", "#1f3030"],
-    },
-    blurb: "Form shattered, rebuilt, and made raw.",
-    anchor: {
-      movement: "Fauvism / Modernism",
-      minCells: { x: 7, z: 7 },
-      preferredLocation: "wing",
     },
   },
 ];
