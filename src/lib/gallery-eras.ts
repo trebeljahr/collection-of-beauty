@@ -63,13 +63,7 @@ export const ERAS: Era[] = [
     title: "Gothic & Early Renaissance",
     yearMin: 0,
     yearMax: 1499,
-    movements: [
-      "Early Renaissance",
-      "Gothic",
-      "International Gothic",
-      "Proto-Renaissance",
-      "Byzantine",
-    ],
+    movements: ["Gothic", "International Gothic", "Proto-Renaissance", "Byzantine"],
     palette: {
       wallColor: "#e8dcbd",
       floorColor: "#3a2a1f",
@@ -81,7 +75,11 @@ export const ERAS: Era[] = [
     },
     blurb: "Gold ground and tempera — the long medieval morning.",
     anchor: {
-      movement: "Early Renaissance",
+      // Most pre-1500 works in the corpus lack an explicit movement tag
+      // and bucket under the era title. The configured anchor is mainly
+      // a hint; resolveAnchorMovement falls back to the biggest bucket
+      // when this name isn't present, which is the right behaviour here.
+      movement: "Gothic",
       minCells: { x: 7, z: 7 },
       preferredLocation: "center",
     },
@@ -92,13 +90,7 @@ export const ERAS: Era[] = [
     title: "Renaissance & Mannerism",
     yearMin: 1500,
     yearMax: 1599,
-    movements: [
-      "High Renaissance",
-      "Northern Renaissance",
-      "Venetian Renaissance",
-      "Mannerism",
-      "Renaissance",
-    ],
+    movements: ["Renaissance", "Northern Renaissance", "Mannerism"],
     palette: {
       wallColor: "#ece2c9",
       floorColor: "#3a2a1f",
@@ -109,7 +101,7 @@ export const ERAS: Era[] = [
     },
     blurb: "Leonardo, Michelangelo, Raphael — perspective made a language.",
     anchor: {
-      movement: "High Renaissance",
+      movement: "Renaissance",
       minCells: { x: 9, z: 9 },
       preferredLocation: "center",
     },
