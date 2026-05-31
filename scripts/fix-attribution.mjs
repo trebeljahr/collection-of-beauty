@@ -528,6 +528,83 @@ const fixes = {
     date_created: "1867",
     year_source: "wiki",
   },
+
+  // --- 2026 audit pass: artist_info cache was poisoned by matchArtist's
+  //     substring fallback (e.g. "Friedrich" alias swallowed Schinkel/Seiffert
+  //     through their middle name). The substring rule was tightened; these
+  //     entries need artist_info cleared so build-data re-runs the lookup.
+  "Karl_Friedrich_Schinkel_-_Der_Morgen_-_Google_Art_Project.jpg": {
+    artist_info: CLEAR,
+  },
+  "Karl_Friedrich_Schinkel_-_Gotische_Kirche_auf_einem_Felsen_am_Meer_-_Google_Art_Project.jpg":
+    { artist_info: CLEAR },
+  "Karl_Friedrich_Schinkel_-_Schloß_am_Strom_-_Google_Art_Project.jpg": {
+    artist_info: CLEAR,
+  },
+  "Karl_Friedrich_Schinkel_-_The_Gate_in_the_Rocks_-_WGA20999.jpg": {
+    artist_info: CLEAR,
+  },
+  "Karl_Friedrich_Schinkel_Gotischer_Dom_am_Wasser.tif": {
+    artist_info: CLEAR,
+  },
+  "Karl_Friedrich_Schinkel_Allegorie_auf_Beuth,_den_Pegasus_reitend,_1837.tif": {
+    artist_info: CLEAR,
+  },
+  "1813_Schinkel_Blick_auf_den_Mont_Blanc_anagoria.jpeg": {
+    artist_info: CLEAR,
+  },
+  "Carl_Friedrich_Seiffert_-_Die_Blaue_Grotte_auf_Capri_(1860).jpg": {
+    artist_info: CLEAR,
+  },
+
+  // --- 2026 audit pass: metadata.artist itself was a Commons uploader handle
+  //     or a multi-source slash-joined string. Override to the actual painter
+  //     and clear stale artist_info so build-data picks up the correction.
+  "Carl_Spitzweg_-_Im_Dachstübchen_(v.1849).jpg": {
+    artist: "Carl Spitzweg",
+    artist_info: CLEAR,
+    year: 1849,
+    date_created: "circa 1849",
+    year_source: "wiki",
+  },
+  "Jean-Auguste-Dominique_Ingres_-_Reclining_Venus_-_Walters_372392.jpg": {
+    artist: "Jean-Auguste-Dominique Ingres",
+    artist_info: CLEAR,
+    year: 1822,
+    date_created: "1822 (after Titian)",
+    year_source: "wiki",
+  },
+  "Claude_Monet-Soleil_couchant_à_Etretat.jpg": {
+    artist: "Claude Monet",
+    artist_info: CLEAR,
+  },
+  "Urteil_des_Paris.jpg": {
+    artist: "Marcantonio Raimondi",
+    artist_info: CLEAR,
+    date_created: "circa 1515 (engraving after Raphael)",
+    year_source: "wiki",
+  },
+  "Erasmus_Quellinus_(II)-_El_Amor_dormido,_1630.jpg": {
+    artist: "Erasmus Quellinus II",
+    artist_info: CLEAR,
+    year: 1630,
+    date_created: "1630 (after Rubens)",
+    year_source: "wiki",
+  },
+  "Don_Quijote_illustrated_by_Gustav_Dore_V.jpg": {
+    artist: "Gustave Doré",
+    artist_info: CLEAR,
+    date_created: "1863",
+    year: 1863,
+    year_source: "wiki",
+  },
+  "Takiyasha_the_Witch_and_the_Skeleton_Spectre.jpg": {
+    artist: "Utagawa Kuniyoshi",
+    artist_info: CLEAR,
+    date_created: "circa 1844",
+    year: 1844,
+    year_source: "wiki",
+  },
 };
 
 const raw = JSON.parse(fs.readFileSync(FILE, "utf8"));

@@ -61,7 +61,13 @@ function artistDates(entry) {
   const db = loadArtistsDb();
   const lc = String(entry.artist).toLowerCase();
   if (db.has(lc)) return db.get(lc);
+  const lcLast = lc.split(/\s+/).filter(Boolean).pop();
   for (const [alias, a] of db) {
+    const aliasTokens = alias.split(/\s+/).filter(Boolean);
+    if (aliasTokens.length === 1) {
+      if (alias === lcLast) return a;
+      continue;
+    }
     if (lc.includes(alias) || alias.includes(lc)) return a;
   }
   return null;
