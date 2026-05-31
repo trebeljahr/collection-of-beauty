@@ -134,7 +134,7 @@ export default async function EditionPage({ params }: { params: Promise<Params> 
               <h2 className="font-serif text-2xl md:text-3xl leading-tight">
                 <Link
                   href={`/artwork/${artwork.id}`}
-                  className="hover:opacity-70 transition-opacity"
+                  className="underline underline-offset-4 decoration-[var(--border)] hover:opacity-70 transition-opacity"
                 >
                   {artwork.title}
                 </Link>
