@@ -870,6 +870,51 @@
       "nationality": "American",
       "movement": "Impressionism",
       "pd_status": "public_domain_worldwide"
+    },
+    {
+      "name": "Martin Schongauer",
+      "aliases": ["Martin Schongauer", "Schongauer"],
+      "born": 1450,
+      "died": 1491,
+      "nationality": "German",
+      "movement": "Northern Renaissance",
+      "pd_status": "public_domain_worldwide"
+    },
+    {
+      "name": "Gustave Doré",
+      "aliases": ["Gustave Doré", "Gustave Dore", "Paul Gustave Doré"],
+      "born": 1832,
+      "died": 1883,
+      "nationality": "French",
+      "movement": "Romanticism",
+      "pd_status": "public_domain_worldwide"
+    },
+    {
+      "name": "Gustave Caillebotte",
+      "aliases": ["Gustave Caillebotte", "Caillebotte"],
+      "born": 1848,
+      "died": 1894,
+      "nationality": "French",
+      "movement": "Impressionism",
+      "pd_status": "public_domain_worldwide"
+    },
+    {
+      "name": "Carl Spitzweg",
+      "aliases": ["Carl Spitzweg", "Karl Spitzweg", "Spitzweg"],
+      "born": 1808,
+      "died": 1885,
+      "nationality": "German",
+      "movement": "Romanticism",
+      "pd_status": "public_domain_worldwide"
+    },
+    {
+      "name": "Eugene de Blaas",
+      "aliases": ["Eugene de Blaas", "Eugene von Blaas", "Eugenio Blaas"],
+      "born": 1843,
+      "died": 1931,
+      "nationality": "Italian",
+      "movement": "Academicism",
+      "pd_status": "public_domain_worldwide"
     }
   ]
 }
