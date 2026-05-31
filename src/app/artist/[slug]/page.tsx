@@ -4,6 +4,7 @@ import { notFound } from "next/navigation";
 import { ArtworkGallery } from "@/components/artwork-gallery";
 import { Badge } from "@/components/ui/badge";
 import { artists, getArtist, getArtworksByArtist, getConnectionsFor } from "@/lib/data";
+import { assignEra, type EraId, getEra } from "@/lib/gallery-eras";
 import { artistJsonLd, jsonLdScriptProps, ogImagesForArtist } from "@/lib/seo";
 
 type Params = { slug: string };
@@ -77,6 +78,19 @@ export default async function ArtistPage({ params }: { params: Promise<Params> }
   const known = connected.filter((c) => c.kind === "known");
   const contemporaries = connected.filter((c) => c.kind === "movement");
 
+  // Most artists land in one era; a few span two (Monet → fin-de-siècle
+  // + modern). Preserve era chronological order so the line reads
+  // earliest → latest, mirroring the works grid below.
+  const eraIds: EraId[] = [];
+  const seen = new Set<EraId>();
+  for (const w of works) {
+    const id = assignEra({ movement: w.movement, year: w.year });
+    if (id && !seen.has(id)) {
+      seen.add(id);
+      eraIds.push(id);
+    }
+  }
+
   return (
     <div className="mx-auto max-w-6xl px-4 py-8">
       <script {...jsonLdScriptProps(artistJsonLd(artist))} />
@@ -102,6 +116,22 @@ export default async function ArtistPage({ params }: { params: Promise<Params> }
             · {artist.count} work{artist.count === 1 ? "" : "s"}
           </span>
         </div>
+        {eraIds.length > 0 && (
+          <div className="text-sm text-[var(--muted-foreground)]">
+            {eraIds.length === 1 ? "Era: " : "Eras: "}
+            {eraIds.map((id, i) => (
+              <span key={id}>
+                {i > 0 ? " · " : null}
+                <Link
+                  href={`/era/${id}`}
+                  className="rounded-sm underline-offset-2 hover:underline focus:outline-none focus-visible:ring-2 focus-visible:ring-[var(--ring)]"
+                >
+                  {getEra(id).title}
+                </Link>
+              </span>
+            ))}
+          </div>
+        )}
       </header>
 
       {known.length > 0 && (

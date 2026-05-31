@@ -14,6 +14,7 @@ const LINKS: ReadonlyArray<{
   { href: "/", label: "Gallery", sub: "Browse the full collection" },
   { href: "/timeline", label: "Timeline", sub: "Eight centuries of art, in order" },
   { href: "/artists", label: "Artists", sub: "Painters, illustrators, makers" },
+  { href: "/eras", label: "Eras", sub: "Group history into rooms" },
   { href: "/gallery-3d", label: "3D Room", sub: "Walk through a virtual museum" },
   {
     href: "/drops",
