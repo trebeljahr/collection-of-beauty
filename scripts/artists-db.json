@@ -825,6 +825,51 @@
       "nationality": "Dutch",
       "movement": "De Stijl",
       "pd_status": "public_domain_in_most_jurisdictions"
+    },
+    {
+      "name": "Vasily Vereshchagin",
+      "aliases": ["Vasily Vereshchagin", "Vereshchagin", "Verestchagin", "Vereschagin"],
+      "born": 1842,
+      "died": 1904,
+      "nationality": "Russian",
+      "movement": "Realism",
+      "pd_status": "public_domain_worldwide"
+    },
+    {
+      "name": "Ilya Repin",
+      "aliases": ["Ilya Repin", "Ilya Yefimovich Repin", "Ilia Repin"],
+      "born": 1844,
+      "died": 1930,
+      "nationality": "Russian",
+      "movement": "Realism",
+      "pd_status": "public_domain_worldwide"
+    },
+    {
+      "name": "Lucas Cranach the Elder",
+      "aliases": ["Lucas Cranach the Elder", "Lucas Cranach d. Ä.", "Cranach the Elder"],
+      "born": 1472,
+      "died": 1553,
+      "nationality": "German",
+      "movement": "Northern Renaissance",
+      "pd_status": "public_domain_worldwide"
+    },
+    {
+      "name": "Artemisia Gentileschi",
+      "aliases": ["Artemisia Gentileschi", "Artemisia Lomi"],
+      "born": 1593,
+      "died": 1654,
+      "nationality": "Italian",
+      "movement": "Baroque",
+      "pd_status": "public_domain_worldwide"
+    },
+    {
+      "name": "William Merritt Chase",
+      "aliases": ["William Merritt Chase", "W. M. Chase", "William M. Chase"],
+      "born": 1849,
+      "died": 1916,
+      "nationality": "American",
+      "movement": "Impressionism",
+      "pd_status": "public_domain_worldwide"
     }
   ]
 }
