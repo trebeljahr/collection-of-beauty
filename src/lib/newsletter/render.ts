@@ -7,7 +7,7 @@ import WeeklyDigest, {
   type DigestArtwork,
   type WeeklyDigestProps,
 } from "../../../emails/weekly-digest";
-import { markdownToHtml } from "./markdown";
+import { inlineEmailLinkStyles, markdownToHtml } from "./markdown";
 import type { Edition } from "./types";
 
 export type RenderedEdition = {
@@ -17,11 +17,12 @@ export type RenderedEdition = {
 };
 
 /** Build the per-artwork shape the email template needs. */
-export function toDigestArtwork(
+export async function toDigestArtwork(
   artwork: Artwork,
   note: string | undefined,
   siteUrl: string,
-): DigestArtwork {
+): Promise<DigestArtwork> {
+  const noteHtml = note ? inlineEmailLinkStyles(await markdownToHtml(note)) : null;
   return {
     id: artwork.id,
     title: displayTitle(artwork),
@@ -34,7 +35,7 @@ export function toDigestArtwork(
     // clients don't grok AVIF yet.
     imageUrl: publicVariantUrl(artwork.objectKey, 1280, "webp"),
     artworkUrl: `${siteUrl.replace(/\/$/, "")}/artwork/${artwork.id}`,
-    note: note ?? null,
+    noteHtml,
   };
 }
 
@@ -80,8 +81,11 @@ export function editionArchiveUrl(siteUrl: string, fileSlug: string): string {
 export async function renderEdition(input: RenderEditionInput): Promise<RenderedEdition> {
   const { edition, siteUrl, unsubscribeMode = "listmonk-campaign" } = input;
   const resolved = resolveEditionArtworks(edition);
-  const digestArtworks = resolved.map((r) => toDigestArtwork(r.artwork, r.note, siteUrl));
-  const introHtml = edition.body.length > 0 ? await markdownToHtml(edition.body) : "";
+  const digestArtworks = await Promise.all(
+    resolved.map((r) => toDigestArtwork(r.artwork, r.note, siteUrl)),
+  );
+  const introHtml =
+    edition.body.length > 0 ? inlineEmailLinkStyles(await markdownToHtml(edition.body)) : "";
 
   const issueDate = formatIssueDate(edition.publishedAt);
   const archiveUrl = editionArchiveUrl(siteUrl, edition.fileSlug);

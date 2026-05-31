@@ -148,9 +148,25 @@ export default async function EditionPage({ params }: { params: Promise<Params> 
                   : ""}
               </p>
               {note && (
-                <p className="mt-5 text-[var(--foreground)] leading-[1.75] text-[1.0625rem]">
-                  {note}
-                </p>
+                <div className="mt-5 text-[var(--foreground)] leading-[1.75] text-[1.0625rem]">
+                  <Markdown
+                    remarkPlugins={[remarkGfm]}
+                    components={{
+                      p: ({ children }) => <p className="first:mt-0 mt-3">{children}</p>,
+                      a: ({ href, children }) => (
+                        <a href={href} className="underline underline-offset-2 hover:opacity-70">
+                          {children}
+                        </a>
+                      ),
+                      em: ({ children }) => <em className="italic">{children}</em>,
+                      strong: ({ children }) => (
+                        <strong className="font-semibold">{children}</strong>
+                      ),
+                    }}
+                  >
+                    {note}
+                  </Markdown>
+                </div>
               )}
             </figcaption>
           </figure>
