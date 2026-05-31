@@ -13,19 +13,19 @@ tags:
   - "travel"
 artworks:
   - id: "collection-of-beauty-crossing-the-river-styx"
-    note: "Charon's boat sits between two opposite banks, one green and one burning. Patinir makes the crossing small and central, with the moral map spread wide around it. The panel belongs to the early Netherlandish [world landscape](https://en.wikipedia.org/wiki/World_landscape) tradition, where high viewpoints turn a whole country into a stage."
+    note: "Charon's small skiff sits dead-centre between a green paradise on the left and a burning hell on the right. Patinir painted the panel around 1520 in Antwerp and it is now in the Prado. He was the first northern painter the Flemish guild registered specifically as a landscape master, and his contracts let collaborators add the figures while he handled the country. The water across the centre is narrow enough to step over, and the moral choice is exactly that wide."
   - id: "collection-of-beauty-annibale-carracci-river-landscape-google-art-project"
-    note: "A wooden bridge crosses the river almost as an afterthought, low in a landscape of trees, water and pale distance. Carracci helped establish the classical landscape in Bologna and Rome, using figures to measure the breadth of the view. The bridge is a small piece of carpentry inside a much larger arrangement of bank and sky."
+    note: "A wooden footbridge spans the middle distance under a wide Italian sky, with two figures crossing as small marks in a much bigger geometry. Carracci painted the scene around 1590 during the period when he and his cousins were running their reform academy in Bologna. The canvas now hangs at the National Gallery of Art in Washington and is one of the earliest classical landscapes that Claude and Poussin would later codify. The bridge is plain carpentry, but it gives the whole composition its one horizontal seam."
   - id: "collection-of-beauty-tempelskatten-peter-finder-m-nten-i-fiskens-gab"
-    note: "Jordaens packs the ferry with passengers, bundles, animals and raised hands. The boat is not empty space between banks; it is a crowded room on water. Antwerp's river traffic made this kind of crossing a daily public interior, as full of elbows and barter as any market."
+    note: "Jordaens crowds the open ferry with passengers, livestock, baggage and raised hands. The Antwerp catalogue title points to the Tribute Money episode, with Peter finding the coin in the fish's mouth, but the panel is really a portrait of the Scheldt river traffic Jordaens watched from his own quayside. He painted it around 1616, when he was still working through Rubens's manner in his early twenties. The boat sits low in the water because the cargo has nowhere left to go."
   - id: "collection-of-beauty-joseph-mallord-william-turner-tummel-bridge-perthshire-google-art-project"
-    note: "Turner's Highland bridge sits low under the slope, with water pressed into a narrow run below it. The sheet comes from his Scottish tours around 1801, when bridges, passes and ruined castles fed both watercolours and engravings. The packhorse bridge makes the landscape legible by giving it one passage across."
+    note: "A grey packhorse bridge straddles the narrow Tummel under a Highland slope. Turner sketched the structure in 1801 on the tour through Scotland that filled his 'Scottish Pencils' sketchbook and supplied subjects for the engraved Liber Studiorum and his later Walter Scott illustrations. The watercolour was worked up the following year. The arch is just wide enough for one loaded horse, which is what the bridge was named for."
   - id: "collection-of-beauty-john-constable-flatford-mill"
-    note: "Constable starts near a footbridge on the River Stour, close enough for the barge and towpath to feel worked rather than scenic. The canvas belongs to the Suffolk subjects he knew from childhood. The crossing is plain timber, but it fixes the whole painting to a usable place."
+    note: "Constable looks from a footbridge on the Stour while a barge is unhitched from its tow-horse below. He painted most of the canvas outdoors on his father's land in 1816 and 1817, working over the summer between his engagement to Maria Bicknell and their marriage. The picture was exhibited at the Royal Academy in 1817 and now belongs to Tate Britain. The bridge planks are level with the eye, close enough to feel the boards underfoot."
 ---
 
-Patinir puts a small boat in the centre and lets two shores argue around it. The water is dark and narrow. The crossing is less than the width of a finger.
+Patinir gives Charon a strip of water no wider than a finger and lets two whole afterlives argue along its banks.
 
-Carracci's bridge is quieter. Jordaens makes the ferry loud with bodies and cargo. Turner sets a packhorse bridge under a Highland slope, and Constable leaves the planks close to work, rope and towpath.
+Carracci makes the bridge almost incidental, a piece of carpentry pinned across a Bolognese sky. Jordaens packs the ferry until the boat itself becomes the room. Turner climbs into the Highlands for an arch built for one horse at a time.
 
-Issue 2 used rain lines to cut through streets and bridges in [Japanese rain](/newsletter/0002-japanese-rain). Here the crossings do the opposite. They hold the picture still long enough for a traveller to choose a bank.
+Constable stands on planks close enough to count and lets the Stour barge work below his feet.

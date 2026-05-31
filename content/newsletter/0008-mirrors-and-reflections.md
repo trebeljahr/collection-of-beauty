@@ -13,19 +13,19 @@ tags:
   - "reflection"
 artworks:
   - id: "collection-of-beauty-narcissus-caravaggio-1594-96-edited"
-    note: "Narcissus bends over a dark pool, his arms and reflection closing the composition into a ring. Caravaggio removes the wider landscape from the Ovid story. The doubled face is lit, but the water around it is nearly black."
+    note: "Narcissus bends over a black pool, his lit shoulder rhyming with the reflected face below until the body closes into a ring. Caravaggio painted the canvas in Rome around 1597 to 1599 and the picture surfaced as a Caravaggio only in the 1910s, when the young Roberto Longhi attributed it. Some scholars still hold the attribution to a Roman follower, but the work is exhibited as Caravaggio's at the Palazzo Barberini. The pool is dark enough that the body and the image meet without a horizon between them."
   - id: "collection-of-beauty-peter-paul-rubens-the-toilet-of-venus"
-    note: "Venus turns toward a mirror held by Cupid while a maid works at her hair. Rubens takes the mirror subject from Venetian prototypes, especially Titian. The reflected face is small, framed by flesh, cloth and blond hair."
+    note: "Venus tilts toward a hand mirror held up by Cupid while a dark maid arranges her hair. Rubens painted the small panel around 1614 to 1615 and it is now at the Sammlungen des Fürsten von Liechtenstein in Vienna. The composition is openly indebted to Titian's Venetian *Venus with a Mirror*, which Rubens had studied during his Italian years. The face in the mirror is small and met head-on, while the painted body is turned away."
   - id: "collection-of-beauty-las-meninas-by-diego-velazquez-from-prado-in-google-earth"
-    note: "The royal couple appears as a small rectangle in the rear mirror, while the Infanta and attendants occupy the room. Velazquez includes himself at the easel, making the act of looking part of the subject. The mirror is tiny, but it changes every body around it."
+    note: "The Infanta Margarita and her attendants fill the foreground while Philip IV and Queen Mariana appear as a small bright rectangle in a mirror on the back wall. Velázquez painted the canvas in 1656, four years before his death, and painted himself into it at the easel wearing the red cross of the Order of Santiago that he would only be admitted to in 1659. The reflection has been argued over for three centuries: is the royal couple the subject the painter is painting, or are they reflected from a canvas turned away from us? The mirror is small enough to cover with a hand."
   - id: "collection-of-beauty-kitagawa-utamaro-takashima-ohisa-using-two-mirrors-to-observe-her-coiffure-night-of-the-asakusa-mar"
-    note: "Ohisa uses two mirrors to inspect the back of her coiffure. Utamaro's [bijin-ga](https://en.wikipedia.org/wiki/Bijin-ga) close-up holds the face, hands and hairpins against a shallow ground. The doubled mirror is practical first, elegant second."
+    note: "Takashima Ohisa, a teahouse server in Edo whose looks the print trade had turned into a brand, holds two mirrors to inspect the back of her coiffure. Utamaro printed the sheet around 1795, with the silver mica ground that the Tokugawa censors would soon ban for being too expensive. The format is [okubi-e](https://en.wikipedia.org/wiki/Bijin-ga), the half-length bust portrait that made Utamaro famous and that his publisher Tsutaya Jūzaburō pushed to the front of the bijin market. The doubled mirror is a working tool first and an elegant geometry second."
   - id: "collection-of-beauty-jean-auguste-dominique-ingres-comtesse-d-haussonville-google-art-project"
-    note: "Ingres places the Comtesse d'Haussonville before a mantel mirror that catches the back of her head and the curve of the room. He worked on the portrait for years, smoothing contour until the pose feels almost enamelled. The reflected profile makes the still sitter turn twice."
+    note: "Louise de Broglie, Comtesse d'Haussonville, stands before a mantel mirror that catches the back of her head and the curve of the room behind her. Ingres worked on the portrait between 1842 and 1845, complaining in letters to friends that the sitter was beautiful but the work would not come right; he abandoned and restarted the composition. The finished picture is now in the Frick Collection in New York. Her right arm is anatomically impossible, drawn long because the room asked for the line."
 ---
 
-Caravaggio gives Narcissus a pool and almost nothing else. The body folds over its own image. The reflection is close enough to touch and dark enough to vanish.
+Caravaggio leaves Narcissus with only a pool and a knee. The body folds onto its own image and the rest of the painting is dark.
 
-Rubens uses a hand mirror; Velazquez hides a royal reflection at the back of the room. Utamaro makes the mirror a tool for hair, and Ingres lets polished glass repeat a profile.
+Rubens hands Venus a small hand mirror. Velázquez hides a king and queen in one at the back of the room. The letter readers in [Books and reading](/newsletter/0004-books-and-reading) turned a room inward over a written page; these rooms do the same work in glass.
 
-The letter readers in [Books and reading](/newsletter/0004-books-and-reading) turn rooms inward. These mirrors do it with glass.
+Utamaro stands two mirrors against the back of Ohisa's coiffure for a working view. Ingres labours three years on the Comtesse and lets a polished mantel mirror behind her repeat the profile.

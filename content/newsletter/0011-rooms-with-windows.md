@@ -13,19 +13,17 @@ tags:
   - "light"
 artworks:
   - id: "collection-of-beauty-jan-vermeer-van-delft-the-glass-of-wine-google-art-project"
-    note: "A woman finishes a glass of wine while a man waits beside her. The window's stained-glass roundel casts the moral emblem into the scene without stopping the courtship. Vermeer lets daylight make the room exact, from tile to chair rail."
+    note: "A young woman finishes a roemer of wine while a man waits beside her with a jug. The stained-glass roundel in the open window shows a personification of Temperance carrying bridle and square, painting an emblem against the very excess being staged in the room. Vermeer painted *The Wine Glass* around 1659 to 1661 in Delft, and the picture has been in the Gemäldegalerie in Berlin since 1901. The leaded panes are real lead lines in his composition, dividing the daylight into squares before it reaches the floor."
   - id: "collection-of-beauty-woman-writing-a-letter-with-her-maid-by-johannes-vermeer"
-    note: "A seated woman writes while her maid stands by a bright window. The floor tiles lead back to the wall, but the maid's gaze pulls sideways toward the light. The letter links this room to [Books and reading](/newsletter/0004-books-and-reading), where reading also changed the room's centre."
+    note: "A seated lady writes at a green-draped table while her standing maid waits and looks toward the bright window. Vermeer painted the canvas around 1670 and the picture is now at the National Gallery of Ireland in Dublin. The painting was stolen twice from Russborough House, the Beit collection in County Wicklow, in 1974 and again in 1986; each time it was recovered. A crumpled letter and a stick of sealing wax sit on the floor at the foreground."
   - id: "collection-of-beauty-adolph-menzel-das-balkonzimmer-google-art-project"
-    note: "White curtains lift at an open balcony door in an empty room. Menzel painted the small oil for himself, without the official finish of his history pictures. The mirror catches a sofa, but the moving air is the strongest presence."
+    note: "White curtains lift at an open balcony door in an empty room. Menzel painted the small oil in 1845 for himself, not for sale, in his studio at the Schöneberger Strasse in Berlin. The work was found only after his death in 1905, when it entered the Nationalgalerie, and Berlin Impressionists like Liebermann claimed him in retrospect as a forerunner. The reflected sofa in the mirror is the only piece of furniture the picture admits."
   - id: "collection-of-beauty-vincent-van-gogh-the-bedroom-google-art-project"
-    note: "Van Gogh's room in Arles tilts forward with paired chairs, framed prints and a narrow window. He painted the first version in 1888 for the Yellow House. The colours are plain blocks, with the floor and walls leaning harder than the furniture."
+    note: "The bedroom in the Yellow House in Arles tilts forward with paired chairs, paired pillows and a row of framed prints above the bed. Van Gogh painted the first version in October 1888 for his bedroom there and wrote to Theo that the colours were chosen to suggest absolute rest. He painted two more versions during his 1889 confinement at Saint-Rémy; the canvas reproduced here is the Van Gogh Museum's first one. The narrow window faces onto the Place Lamartine and is closed."
   - id: "collection-of-beauty-john-frederick-lewis-004"
-    note: "A woman steps through a sunlit doorway with a brass coffee tray. Lewis spent years in Cairo and built his later interiors from studied tile, woodwork and costume. The threshold is low, but the patterned room makes the passage ceremonial."
+    note: "A young woman steps through a low Cairo doorway carrying a brass coffee tray. John Frederick Lewis spent ten years living in a house in the Ezbekiya district of Cairo, from 1841 to 1851, and went on supplying Cairo interiors to the Royal Academy until his death in 1876. Critics including John Ruskin singled him out for the miniaturist watercolour precision he carried into oil. The doorway is the strongest light in the picture, almost white."
 ---
 
-Menzel leaves the room empty. The balcony door is open, the curtain bends, and the furniture waits without people.
+Menzel leaves the balcony room empty. The curtains lift in a draft and the only piece of furniture admitted to the picture is a sofa reflected in the wall mirror.
 
-Vermeer keeps people inside the geometry of walls and windows. Van Gogh makes the whole room lean toward colour. Lewis turns a doorway into a strip of white light.
-
-After the candles of [Candlelight and night](/newsletter/0010-candlelight-and-night), these rooms belong to daylight.
+Vermeer keeps two figures inside the geometry of leaded glass and tiled floor, with the stained-glass Temperance painting a warning over the wine. Van Gogh tilts a bedroom in Arles into flat blocks of colour. After the candles of [Candlelight and night](/newsletter/0010-candlelight-and-night), Lewis lets a Cairo doorway be the strongest light in the room.

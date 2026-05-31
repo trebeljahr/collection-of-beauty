@@ -2,7 +2,7 @@
 title: "Artists at work"
 subject: "Issue 20: Artists at work"
 publishedAt: "2026-09-27"
-excerpt: "Five images of artists, hands, studios and self-portraits from Durer to Courbet."
+excerpt: "Five images of artists, hands, studios and self-portraits from Dürer to Courbet."
 draft: true
 cover:
   artworkId: "collection-of-beauty-2560px-courbet-latelier-du-peintre"
@@ -13,19 +13,19 @@ tags:
   - "hands"
 artworks:
   - id: "collection-of-beauty-albrecht-durer-selbstbildnis-mit-26-jahren-prado-madrid"
-    note: "Durer presents himself in a cap, gloves and a view of landscape beyond the window. The self-portrait was painted after his first Italian journey. He looks less like a workshop craftsman than a gentleman who has learned how artists can be seen."
+    note: "Dürer presents himself at twenty-six in a striped cap, tasselled cord, kid gloves and a silk-trimmed jacket, with an Alpine landscape behind the half-open window. He painted the panel in 1498 in Nuremberg, two years after his first journey across the Alps to Venice, and inscribed his age and signed monogram in the picture as proof of date. The portrait is at the Prado and was a gift from Charles I of England to Philip IV of Spain in 1636. He looks less like a craftsman than a gentleman who has worked out how artists ought to be seen."
   - id: "collection-of-beauty-goltzius-s-right-hand"
-    note: "Goltzius draws his own right hand, deformed by a childhood burn. The sheet turns injury into proof of skill, with swollen joints and tendons carefully modelled. It is a self-portrait without a face."
+    note: "Hendrick Goltzius draws his own right hand, deformed since a childhood fire that left the tendons fused and the fingers permanently curled. He made the pen-and-ink study around 1588 in Haarlem and signed it with his monogram. The sheet uses his swelling-and-tapering hatchings, the system he had developed for engraving that was being copied across Europe. It is a self-portrait without a face, kept since 1790 at the Teylers Museum in Haarlem."
   - id: "collection-of-beauty-b320-rembrandt"
-    note: "Rembrandt studies himself in a cap through etched line and shadow. The small print belongs to his Leiden years, when he repeatedly tested expressions and costume on his own face. [Etching](https://en.wikipedia.org/wiki/Etching) lets the image stay quick and searching."
+    note: "Rembrandt studies his own face under a soft cap through quick [etched](https://en.wikipedia.org/wiki/Etching) line and surrounding shadow. The plate is one of dozens of small self-portrait studies he made during his Leiden years around 1628 to 1631, when he was in his early twenties and not yet settled in Amsterdam. These prints functioned as study sheets in physiognomy and as advertisements of his graphic virtuosity to potential buyers. The eye is exaggerated and the mouth open, both worked in a few seconds of drypoint over the etched ground."
   - id: "collection-of-beauty-rembrandt-van-rijn-self-portrait-google-art-project"
-    note: "The late Rembrandt sits frontally, hands folded, robe heavy around him. The paint is broad and uneven, holding the face without flattering it. It answers the young etched self with weight and age."
+    note: "The late Rembrandt sits frontally in a fur-collared robe and a soft dark cap, hands folded, the paint built up in coarse ridges around the face. He painted the canvas in 1659, the year after his bankruptcy auction had sold off his house on the Sint-Anthoniesbreestraat and his collection of antique sculpture and prints. The Andrew W. Mellon Collection at the National Gallery of Art in Washington has held it since the museum opened in 1937. The robe is gold and worn, painted heavier than the face it surrounds."
   - id: "collection-of-beauty-2560px-courbet-latelier-du-peintre"
-    note: "Courbet sits at the easel in the centre of a room filled with patrons, critics, workers and a nude model. He called the painting a real allegory of seven years of his artistic life. The studio becomes a public room, not a private corner."
+    note: "Courbet sits at his easel in the centre of a crowded studio that contains a nude model, a small boy, a dog, the friend and patron Champfleury, Charles Baudelaire reading at the right, and a row of anonymous figures at the left. He painted the canvas in 1854 to 1855 and subtitled it 'a real allegory summing up seven years of my artistic and moral life'. The jury of the 1855 Exposition Universelle rejected it on grounds of size, so Courbet built a wooden Pavillon du Réalisme next to the official exhibition and charged a franc admission. The Musée d'Orsay has held the canvas since 1986."
 ---
 
-Goltzius gives the hand alone. Durer gives the artist a coat, gloves and a window. Rembrandt gives the face twice, young in bitten line and old in paint.
+Goltzius draws the burnt hand alone, tendon-tight and finger-curled. Dürer gives himself a striped cap, kid gloves and a window onto the Alps.
 
-Courbet puts the painter in the middle of a crowded studio. The room is not tidy enough to be symbolic only. It has a model, a child, a dog, a canvas and people waiting at the edges.
+Rembrandt etches the young face in a few minutes of bitten line and paints the old one in built-up gold and brown. The bankruptcy auction sits behind the late canvas without ever appearing in it.
 
-The instruments in [Science tables](/newsletter/0019-science-tables) measured the world. These tools measure the maker.
+The instruments in [Science tables](/newsletter/0019-science-tables) measured the world. Courbet sets the painter at the centre of a working room with a nude, a child, a dog, Baudelaire reading at the right and several friends and strangers arranged on either side.
