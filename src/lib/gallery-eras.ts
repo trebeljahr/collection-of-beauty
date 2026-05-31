@@ -192,24 +192,25 @@ export const ERAS: Era[] = [
   {
     id: "ukiyo-e",
     index: 5,
-    title: "Ukiyo-e — The Floating World",
+    title: "East Asian Painting",
     // Movement-tag only: yearMin > yearMax keeps the year-fallback in
-    // assignEra from accidentally placing untagged 18th/19th-c work
-    // here. Edo prints span 1700-1890 chronologically, but slotting
-    // them by year would scoop up Western painting from the same
-    // period.
+    // assignEra from accidentally placing untagged 18th/19th-c
+    // European work here. East Asian paintings span ~900–1940
+    // chronologically; slotting them by year would scoop up Western
+    // painting from the same period.
     yearMin: 9999,
     yearMax: 0,
-    // Ukiyo-e proper is the Edo woodblock tradition, but the early-20th
-    // century Shin-hanga ("new prints") movement is its direct lineage
-    // — same medium, same visual vocabulary, same rooms work for them.
-    // Nihonga ("Japanese painting") is the parallel turn-of-century
-    // Japanese painting tradition; same cultural moment, belongs on
-    // the East-Asian floor rather than Fin-de-siècle. Without these
-    // aliases the Hasui Kawase / Hiroshi Yoshida / Ohara Koson cohort
-    // and the Nihonga painters fall through by year (≥1910) and read
-    // as wildly out of place next to European modernism.
-    movements: ["Ukiyo-e", "Shin-hanga", "Nihonga"],
+    // The floor covers four East Asian traditions:
+    //   - Ukiyo-e: Edo woodblock prints
+    //   - Shin-hanga: early-20th-c successor to Ukiyo-e
+    //   - Nihonga: Meiji-era Japanese painting (incl. Western-style Yōga)
+    //   - Classical East Asian: everything pre-Edo — Song/Yuan/Ming
+    //     Chinese landscape, Zen ink, Kanō school, Rinpa, Sumi-e.
+    // Without these aliases the East Asian cohort falls through by
+    // year and reads as wildly out of place on European floors
+    // (Chinese Song-dynasty ink on the Gothic floor, Hokusai-era
+    // prints on the Romantic floor, etc.).
+    movements: ["Ukiyo-e", "Shin-hanga", "Nihonga", "Classical East Asian"],
     palette: {
       // Rice-paper warm white walls, dark walnut + black floor, red
       // lacquer accent. Mirrors a traditional Edo gallery — the
@@ -220,7 +221,7 @@ export const ERAS: Era[] = [
       accent: "#a23b2c",
       roomAccents: ["#1a120c", "#2c1a18", "#1a1c25", "#1f2418", "#2a1a16"],
     },
-    blurb: "Edo woodblock prints — pictures of the floating world.",
+    blurb: "Edo woodblock prints, Song-dynasty ink, and the Floating World.",
     anchor: {
       movement: "Ukiyo-e",
       minCells: { x: 9, z: 9 },
