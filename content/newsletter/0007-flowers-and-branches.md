@@ -13,19 +13,19 @@ tags:
   - "nature"
 artworks:
   - id: "collection-of-beauty-finches-and-bamboo-met-dp151504"
-    note: "Small finches sit on bamboo stems, each feather and leaf handled with courtly exactness. The work is attributed to Emperor Huizong, whose academy prized close bird-and-flower observation. This is [bird-and-flower painting](https://en.wikipedia.org/wiki/Bird-and-flower_painting) at its most controlled."
+    note: "Two finches perch on slender bamboo stems, each feather and leaf set down with brush-tip precision. The handscroll is attributed to Emperor Huizong of Song, whose Hanlin academy raised [bird-and-flower painting](https://en.wikipedia.org/wiki/Bird-and-flower_painting) into a state discipline by requiring candidates to paint a flower exactly as it appeared at a stated season and hour. Huizong was an indifferent ruler whose neglect of military affairs lost the northern half of the empire to the Jurchen, but his painted birds outlived his dynasty. The scroll is now in the Metropolitan Museum of Art."
   - id: "collection-of-beauty-15-qian-xuan-eight-flowers-national-palace-museum-beijing"
-    note: "Qian Xuan lines up eight flowering plants on a pale ground, with the handscroll format turning botany into sequence. He was a Song loyalist who worked under the Yuan without taking official service. The flowers are separate specimens, but the ink line gives them the same quiet pressure."
+    note: "Eight flowering plants pass across a pale silk ground, each one named and isolated, the format turning botany into sequence. Qian Xuan was a Song-trained scholar who refused to take office under the Mongol Yuan after 1279 and spent the rest of his life painting in a deliberately archaic boneless manner. The colour is laid in flat without contour, so each flower reads as a held breath rather than a study. The scroll is now in the Palace Museum, Beijing."
   - id: "collection-of-beauty-1280px-giuseppe-arcimboldo-la-primavera-google-art-project"
-    note: "Arcimboldo builds a profile from petals, buds and leaves. The face is a catalogue before it is a person. Painted for the Habsburg court, the Seasons belong to his composite heads, a courtly joke made with exact plant parts."
+    note: "Spring is a profile head built entirely from petals, buds, leaves and small flowering stems. Arcimboldo painted the *Four Seasons* in 1563 for Emperor Maximilian II, and the Habsburg court read the cycle as flattery: the emperor's harmonious rule made the natural order legible enough to be reassembled into a face. The plants are botanically exact and the face is a courtly joke. This *Primavera* hangs at the Real Academia de Bellas Artes de San Fernando in Madrid."
   - id: "collection-of-beauty-peter-paul-rubens-the-virgin-and-child-in-a-garland-of-flowers-wga20240"
-    note: "The Madonna and Child appear inside a wreath of flowers, the sacred figures held by painted bloom. Rubens often collaborated with Jan Brueghel the Elder on such garland pictures. The format joins devotional painting to the Antwerp flower-piece market."
+    note: "The Madonna and Child sit inside a thick painted wreath of blossoms, with the religious image held by the botanical one. Rubens did the figures in the centre and his friend Jan Brueghel the Elder, the Antwerp flower specialist nicknamed 'Velvet' Brueghel, painted the surround. The two collaborated on at least four such garland pictures between roughly 1616 and 1621, after the Counter-Reformation had revived Marian devotion. The version reproduced here is the canvas at the Alte Pinakothek in Munich."
   - id: "collection-of-beauty-kano-sansetsu-frolicking-birds-in-plum-and-willow-trees"
-    note: "Birds move through a flowering plum and a willow on a gold ground. Kanō Sansetsu bends the trunks into hard calligraphic curves, so the branches read almost as written strokes. The screen format makes the blank gold as active as the tree."
+    note: "Songbirds move between a flowering plum and a weeping willow on a gold ground, the trunks bent into hard calligraphic curves. Kanō Sansetsu was the adopted son and heir of Kanō Sanraku and ran the Kyoto branch of the school in the mid-seventeenth century, a generation after the main Kanō line had moved to Edo. He pushed the bird-and-flower repertoire into a mannered late-Momoyama elegance that contemporaries called eccentric. The screen is now in the Metropolitan Museum of Art."
 ---
 
-Huizong's bamboo gives the finches a measured place to perch. Qian Xuan sets flowers one after another, like a slow inventory opened by hand.
+Huizong's finches stand on bamboo cut by a court's ruler. Each leaf has its assigned width and angle.
 
-Arcimboldo turns the inventory into a face. Rubens and Brueghel make flowers into a frame. Sansetsu lets birds slip through plum and willow branches over gold.
+Qian Xuan lays eight flowers across an empty scroll like a private inventory. Arcimboldo packs the same botany into a courtier's face. Rubens and Brueghel ring a Madonna with garden bloom. Sansetsu pulls his plum and willow into curves over gold leaf.
 
-The snow branch in [Japanese rain](/newsletter/0002-japanese-rain) held weather. These branches hold bodies, faces and small birds.
+The Karasaki pine in [Japanese rain](/newsletter/0002-japanese-rain) held a storm in one black shape. These branches hold faces, gold ground and small birds instead.
