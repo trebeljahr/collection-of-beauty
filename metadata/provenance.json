@@ -980,14 +980,19 @@
     "sourceLinks": []
   },
   "A_Sunday_on_La_Grande_Jatte,_Georges_Seurat,_1884.jpg": {
-    "wikidataId": "Q1044742",
-    "wikidataUrl": "https://www.wikidata.org/wiki/Q1044742",
-    "collection": "Art Institute of Chicago",
-    "collectionWikidataId": "Q239303",
-    "location": "Art Institute of Chicago",
-    "inventory": "1926.224",
-    "describedAt": "https://www.bbc.co.uk/sounds/play/m0002z3g",
-    "sourceLinks": []
+    "wikidataId": null,
+    "wikidataUrl": null,
+    "collection": null,
+    "collectionWikidataId": null,
+    "location": null,
+    "inventory": null,
+    "describedAt": null,
+    "sourceLinks": [
+      {
+        "label": "artic.edu",
+        "url": "http://www.artic.edu/aic/collections/artwork/27992"
+      }
+    ]
   },
   "A_View_of_the_Archbishop's_Palace,_Lambeth.jpg": {
     "wikidataId": "Q16038609",
@@ -1110,14 +1115,19 @@
     "sourceLinks": []
   },
   "Adoration_of_the_Shepherds,_Murillo_(Prado_Museum).jpg": {
-    "wikidataId": "Q19809",
-    "wikidataUrl": "https://www.wikidata.org/wiki/Q19809",
+    "wikidataId": null,
+    "wikidataUrl": null,
     "collection": null,
     "collectionWikidataId": null,
     "location": null,
     "inventory": null,
-    "describedAt": "https://baike.sogou.com/v50740.htm",
-    "sourceLinks": []
+    "describedAt": null,
+    "sourceLinks": [
+      {
+        "label": "museodelprado.es",
+        "url": "https://www.museodelprado.es/coleccion/obra-de-arte/adoracion-de-los-pastores/612bacfa-afd6-4325-b17d-df6febb13b7c"
+      }
+    ]
   },
   "After_Rubens_-_Anne_of_Austria,_Queen_of_France_-_Louvre_INV_1794.jpg": {
     "wikidataId": "Q29655311",
@@ -1730,14 +1740,19 @@
     "sourceLinks": []
   },
   "Bartolomé_Esteban_Murillo_-_Saint_Rose_of_Lima_-_Google_Art_Project.jpg": {
-    "wikidataId": "Q28777906",
-    "wikidataUrl": "https://www.wikidata.org/wiki/Q28777906",
-    "collection": "Lázaro Galdiano Museum",
-    "collectionWikidataId": "Q386570",
-    "location": "Lázaro Galdiano Museum",
-    "inventory": "05310",
+    "wikidataId": null,
+    "wikidataUrl": null,
+    "collection": null,
+    "collectionWikidataId": null,
+    "location": null,
+    "inventory": null,
     "describedAt": null,
-    "sourceLinks": []
+    "sourceLinks": [
+      {
+        "label": "ceres.mcu.es",
+        "url": "http://ceres.mcu.es/pages/Main"
+      }
+    ]
   },
   "Bathsheba_(c.1827),_by_Francesco_Hayez.jpg": {
     "wikidataId": "Q131413521",
@@ -1810,14 +1825,19 @@
     "sourceLinks": []
   },
   "BodhidharmaYoshitoshi1887.jpg": {
-    "wikidataId": "Q187172",
-    "wikidataUrl": "https://www.wikidata.org/wiki/Q187172",
+    "wikidataId": null,
+    "wikidataUrl": null,
     "collection": null,
     "collectionWikidataId": null,
     "location": null,
     "inventory": null,
     "describedAt": null,
-    "sourceLinks": []
+    "sourceLinks": [
+      {
+        "label": "sumally.com",
+        "url": "https://sumally.com/p/908652"
+      }
+    ]
   },
   "Botticelli_-_A_Virgem_e_o_Menino_com_um_anjo.jpg": {
     "wikidataId": "Q3213798",
@@ -2030,14 +2050,19 @@
     "sourceLinks": []
   },
   "CasinCaillebotte.jpg": {
-    "wikidataId": "Q105162144",
-    "wikidataUrl": "https://www.wikidata.org/wiki/Q105162144",
-    "collection": "Museum of Art and History Baron Gérard",
-    "collectionWikidataId": "Q3329086",
-    "location": "Museum of Art and History Baron Gérard",
-    "inventory": "P0225",
-    "describedAt": "https://www.bayeuxmuseum.com/musee-dart-et-dhistoire-baron-gerard/les-collections-du-mahb/les-oeuvres-cles-du-mahb/portraits-a-la-campagne-caillebotte/",
-    "sourceLinks": []
+    "wikidataId": null,
+    "wikidataUrl": null,
+    "collection": null,
+    "collectionWikidataId": null,
+    "location": null,
+    "inventory": null,
+    "describedAt": null,
+    "sourceLinks": [
+      {
+        "label": "eldibujante.com",
+        "url": "http://eldibujante.com/?p=1906"
+      }
+    ]
   },
   "Caspar_David_Friedrich_-_Abtei_im_Eichwald_-_Google_Art_Project.jpg": {
     "wikidataId": "Q334360",
@@ -2050,14 +2075,19 @@
     "sourceLinks": []
   },
   "Caspar_David_Friedrich_-_Das_Kreuz_im_Gebirge.jpg": {
-    "wikidataId": "Q884782",
-    "wikidataUrl": "https://www.wikidata.org/wiki/Q884782",
-    "collection": "Staatliche Kunstsammlungen Dresden",
-    "collectionWikidataId": "Q653002",
-    "location": "Galerie Neue Meister",
-    "inventory": "2197 D",
+    "wikidataId": null,
+    "wikidataUrl": null,
+    "collection": null,
+    "collectionWikidataId": null,
+    "location": null,
+    "inventory": null,
     "describedAt": null,
-    "sourceLinks": []
+    "sourceLinks": [
+      {
+        "label": "cp12.nevsepic.com.ua",
+        "url": "http://cp12.nevsepic.com.ua/83/1350251220-1808-caspar-david-friedrich--le-retable-de-tetschen--huile-sur-toile--115x1105-cm--dresde-gemgldegalerie-neue-meister.jpg"
+      }
+    ]
   },
   "Caspar_David_Friedrich_-_Der_Mönch_am_Meer_-_Google_Art_Project.jpg": {
     "wikidataId": "Q15850575",
@@ -2320,14 +2350,19 @@
     "sourceLinks": []
   },
   "Claude_Monet_-_Antibes.jpg": {
-    "wikidataId": "Q66625806",
-    "wikidataUrl": "https://www.wikidata.org/wiki/Q66625806",
-    "collection": "Pérez Simón Collection",
-    "collectionWikidataId": "Q66481459",
+    "wikidataId": null,
+    "wikidataUrl": null,
+    "collection": null,
+    "collectionWikidataId": null,
     "location": null,
     "inventory": null,
     "describedAt": null,
-    "sourceLinks": []
+    "sourceLinks": [
+      {
+        "label": "untitledmag.fr",
+        "url": "http://untitledmag.fr/wp-content/uploads/2014/03/monet_claude_antibes.jpg"
+      }
+    ]
   },
   "Claude_Monet_-_Argenteuil_-_1872_-_Musée_d'Orsay.jpg": {
     "wikidataId": "Q17490740",
@@ -3240,14 +3275,19 @@
     "sourceLinks": []
   },
   "Constable_-_Seascape_Study_with_Rain_Cloud.jpg": {
-    "wikidataId": "Q114605694",
-    "wikidataUrl": "https://www.wikidata.org/wiki/Q114605694",
-    "collection": "Royal Academy of Arts",
-    "collectionWikidataId": "Q270920",
-    "location": "Royal Academy of Arts",
-    "inventory": "03/1390",
+    "wikidataId": null,
+    "wikidataUrl": null,
+    "collection": null,
+    "collectionWikidataId": null,
+    "location": null,
+    "inventory": null,
     "describedAt": null,
-    "sourceLinks": []
+    "sourceLinks": [
+      {
+        "label": "flandern.se",
+        "url": "http://www.flandern.se/bryssel/"
+      }
+    ]
   },
   "Constable_Salisbury_meadows.jpg": {
     "wikidataId": "Q398126",
@@ -3620,14 +3660,19 @@
     "sourceLinks": []
   },
   "EL_JALEO-SINGER.jpg": {
-    "wikidataId": "Q5351449",
-    "wikidataUrl": "https://www.wikidata.org/wiki/Q5351449",
-    "collection": "Isabella Stewart Gardner Museum",
-    "collectionWikidataId": "Q49135",
-    "location": "Isabella Stewart Gardner Museum",
-    "inventory": "P7s1",
-    "describedAt": "https://www.gardnermuseum.org/experience/collection/13259",
-    "sourceLinks": []
+    "wikidataId": null,
+    "wikidataUrl": null,
+    "collection": null,
+    "collectionWikidataId": null,
+    "location": null,
+    "inventory": null,
+    "describedAt": null,
+    "sourceLinks": [
+      {
+        "label": "archive.org",
+        "url": "https://archive.org/details/catalogofcopyrig204libr/page/287/mode/1up"
+      }
+    ]
   },
   "Eakins,_Thomas_-_Wrestlers_1899.jpg": {
     "wikidataId": "Q8037781",
@@ -3850,14 +3895,19 @@
     "sourceLinks": []
   },
   "El_Greco_-_Christ_as_Saviour_-_Google_Art_Project.jpg": {
-    "wikidataId": "Q16536552",
-    "wikidataUrl": "https://www.wikidata.org/wiki/Q16536552",
-    "collection": "El Greco Museum",
-    "collectionWikidataId": "Q3848124",
-    "location": "El Greco Museum",
-    "inventory": "CE00001",
+    "wikidataId": null,
+    "wikidataUrl": null,
+    "collection": null,
+    "collectionWikidataId": null,
+    "location": null,
+    "inventory": null,
     "describedAt": null,
-    "sourceLinks": []
+    "sourceLinks": [
+      {
+        "label": "ceres.mcu.es",
+        "url": "http://ceres.mcu.es/pages/Main"
+      }
+    ]
   },
   "El_Greco_View_of_Toledo.jpg": {
     "wikidataId": "Q18759464",
@@ -3920,14 +3970,19 @@
     "sourceLinks": []
   },
   "Elisabeth_Vigée-Lebrun_-_Lady_Hamilton_as_the_Persian_Sibyl.jpg": {
-    "wikidataId": "Q122834523",
-    "wikidataUrl": "https://www.wikidata.org/wiki/Q122834523",
-    "collection": "http://www.wikidata.org/.well-known/genid/2a930bb282da76c5cad19ff9460d745f",
-    "collectionWikidataId": "http://www.wikidata.org/.well-known/genid/2a930bb282da76c5cad19ff9460d745f",
+    "wikidataId": null,
+    "wikidataUrl": null,
+    "collection": null,
+    "collectionWikidataId": null,
     "location": null,
     "inventory": null,
     "describedAt": null,
-    "sourceLinks": []
+    "sourceLinks": [
+      {
+        "label": "metmuseum.org",
+        "url": "https://www.metmuseum.org/art/collection/search/656960"
+      }
+    ]
   },
   "Elisabeth_Vigée-Lebrun_-_Portrait_of_Hyacinthe_Gabrielle_Roland.jpg": {
     "wikidataId": "Q19868575",
@@ -3970,14 +4025,23 @@
     "sourceLinks": []
   },
   "Erasmus_Quellinus_(II)-_El_Amor_dormido,_1630.jpg": {
-    "wikidataId": "Q27701474",
-    "wikidataUrl": "https://www.wikidata.org/wiki/Q27701474",
-    "collection": "Museo del Prado",
-    "collectionWikidataId": "Q160112",
-    "location": "Museo del Prado",
-    "inventory": "P001718",
+    "wikidataId": null,
+    "wikidataUrl": null,
+    "collection": null,
+    "collectionWikidataId": null,
+    "location": null,
+    "inventory": null,
     "describedAt": null,
-    "sourceLinks": []
+    "sourceLinks": [
+      {
+        "label": "museodelprado.es",
+        "url": "https://www.museodelprado.es/coleccion/galeria-on-line/galeria-on-line/obra/el-amor-dormido/"
+      },
+      {
+        "label": "museodelprado.es",
+        "url": "https://www.museodelprado.es/uploads/tx_gbobras/P01718_01.jpg"
+      }
+    ]
   },
   "Erasmus_Quellinus_(II)_-_The_Rape_of_Europe.jpg": {
     "wikidataId": "Q27701442",
@@ -4180,14 +4244,19 @@
     "sourceLinks": []
   },
   "Francisco_de_Goya,_Saturno_devorando_a_su_hijo_(1819-1823).jpg": {
-    "wikidataId": "Q1150997",
-    "wikidataUrl": "https://www.wikidata.org/wiki/Q1150997",
-    "collection": "Museo del Prado",
-    "collectionWikidataId": "Q160112",
-    "location": "Museo del Prado",
-    "inventory": "P000763",
-    "describedAt": "https://www.museodelprado.es/en/the-collection/art-work/saturn/18110a75-b0e7-430c-bc73-2a4d55893bd6",
-    "sourceLinks": []
+    "wikidataId": null,
+    "wikidataUrl": null,
+    "collection": null,
+    "collectionWikidataId": null,
+    "location": null,
+    "inventory": null,
+    "describedAt": null,
+    "sourceLinks": [
+      {
+        "label": "museodelprado.es",
+        "url": "http://www.museodelprado.es/coleccion/galeria-on-line/galeria-on-line/obra/saturno-devorando-a-un-hijo/"
+      }
+    ]
   },
   "Francisco_de_Zurbarán_006.jpg": {
     "wikidataId": "Q2436699",
@@ -4500,14 +4569,19 @@
     "sourceLinks": []
   },
   "GericaultHorseman.jpg": {
-    "wikidataId": "Q3084220",
-    "wikidataUrl": "https://www.wikidata.org/wiki/Q3084220",
+    "wikidataId": null,
+    "wikidataUrl": null,
     "collection": null,
     "collectionWikidataId": null,
     "location": null,
     "inventory": null,
     "describedAt": null,
-    "sourceLinks": []
+    "sourceLinks": [
+      {
+        "label": "fak09.uni-muenchen.de",
+        "url": "https://www.fak09.uni-muenchen.de/Kunstgeschichte/sds_malerei/frz_malerei/41-dt-franz-malerei/studieneinheiten/1815_1830_f/4b/gruppe_3/b.htm"
+      }
+    ]
   },
   "Gerome--Haggin--Horse-Market.jpg": {
     "wikidataId": "Q86471867",
@@ -4900,14 +4974,19 @@
     "sourceLinks": []
   },
   "Hatsuhana_doing_penance_under_the_Tonosawa_waterfall.jpg": {
-    "wikidataId": "Q948709",
-    "wikidataUrl": "https://www.wikidata.org/wiki/Q948709",
+    "wikidataId": null,
+    "wikidataUrl": null,
     "collection": null,
     "collectionWikidataId": null,
     "location": null,
     "inventory": null,
     "describedAt": null,
-    "sourceLinks": []
+    "sourceLinks": [
+      {
+        "label": "visipix.com",
+        "url": "http://visipix.com/search/search.php?userid=1616934267&q=%272aAuthors/K/Kuniyoshi%201797-1861%2C%20Utagawa%2C%20Japan%27&s=22&l=en&u=2&ub=1&k=1"
+      }
+    ]
   },
   "HavreMonet.jpg": {
     "wikidataId": "Q90913879",
@@ -5050,14 +5129,19 @@
     "sourceLinks": []
   },
   "Henri_Fantin-Latour_-_Retrato_de_M._e_Mme_Edwards,_1875.jpg": {
-    "wikidataId": "Q26492745",
-    "wikidataUrl": "https://www.wikidata.org/wiki/Q26492745",
-    "collection": "National Gallery",
-    "collectionWikidataId": "Q180788",
-    "location": "National Gallery",
-    "inventory": "N01952",
-    "describedAt": "http://www.tate.org.uk/art/artworks/fantin-latour-mr-and-mrs-edwin-edwards-n01952",
-    "sourceLinks": []
+    "wikidataId": null,
+    "wikidataUrl": null,
+    "collection": null,
+    "collectionWikidataId": null,
+    "location": null,
+    "inventory": null,
+    "describedAt": null,
+    "sourceLinks": [
+      {
+        "label": "gulbenkian.pt",
+        "url": "http://www.gulbenkian.pt/index.php?article=1725&langId=1&format=402&yearD=191&pageD=2"
+      }
+    ]
   },
   "Henri_Fantin-Latour_-_Still_Life_with_a_Carafe,_Flowers_and_Fruit_-_Google_Art_Project.jpg": {
     "wikidataId": "Q23948075",
@@ -5110,14 +5194,19 @@
     "sourceLinks": []
   },
   "Hieronymus_Bosch_-_The_Trees_have_Ears_and_the_Field_has_Eyes_-_Kupferstichkabinett_Berlin_KdZ_549.jpg": {
-    "wikidataId": "Q2238709",
-    "wikidataUrl": "https://www.wikidata.org/wiki/Q2238709",
-    "collection": "Kupferstichkabinett Berlin",
-    "collectionWikidataId": "Q555946",
+    "wikidataId": null,
+    "wikidataUrl": null,
+    "collection": null,
+    "collectionWikidataId": null,
     "location": null,
-    "inventory": "KdZ 549",
+    "inventory": null,
     "describedAt": null,
-    "sourceLinks": []
+    "sourceLinks": [
+      {
+        "label": "id.smb.museum",
+        "url": "https://id.smb.museum/object/457472/das-feld-hat-augen%2C-der-wald-hat-ohren"
+      }
+    ]
   },
   "Hiroshi_Yoshida_-_Kumoi-Zakura_(Kumoi_Cherry_Trees)_-_Google_Art_Project.jpg": {
     "wikidataId": "Q113487261",
@@ -5380,14 +5469,19 @@
     "sourceLinks": []
   },
   "Ingres_(atelier)_-_Angélique_-_Piscine_Roubaix.jpg": {
-    "wikidataId": "Q62035061",
-    "wikidataUrl": "https://www.wikidata.org/wiki/Q62035061",
-    "collection": "La Piscine",
-    "collectionWikidataId": "Q1955748",
-    "location": "La Piscine",
-    "inventory": "11747.155.141",
-    "describedAt": "https://www.roubaix-lapiscine.com/collections/peintures/jean-auguste-dominique-ingres-atelier-de-montauban1780-paris-1867/",
-    "sourceLinks": []
+    "wikidataId": null,
+    "wikidataUrl": null,
+    "collection": null,
+    "collectionWikidataId": null,
+    "location": null,
+    "inventory": null,
+    "describedAt": null,
+    "sourceLinks": [
+      {
+        "label": "roubaix-lapiscine.com",
+        "url": "https://www.roubaix-lapiscine.com/wp-content/uploads/2015/06/1-Ingres.jpg"
+      }
+    ]
   },
   "Ingres_-_estudo_de_nu_-_1801.jpg": {
     "wikidataId": "Q100726445",
@@ -5600,14 +5694,19 @@
     "sourceLinks": []
   },
   "Jan_Brueghel_I_&_Peter_Paul_Rubens_-_Smell_(Museo_del_Prado).jpg": {
-    "wikidataId": "Q27016884",
-    "wikidataUrl": "https://www.wikidata.org/wiki/Q27016884",
-    "collection": "Museo del Prado",
-    "collectionWikidataId": "Q160112",
-    "location": "Museo del Prado",
-    "inventory": "P001396",
+    "wikidataId": null,
+    "wikidataUrl": null,
+    "collection": null,
+    "collectionWikidataId": null,
+    "location": null,
+    "inventory": null,
     "describedAt": null,
-    "sourceLinks": []
+    "sourceLinks": [
+      {
+        "label": "museodelprado.es",
+        "url": "http://www.museodelprado.es/coleccion/galeria-on-line/galeria-on-line/obra/el-olfato/?no_cache=1"
+      }
+    ]
   },
   "Jan_Brueghel_de_Oude_en_Peter_Paul_Rubens_-_Het_aards_paradijs_met_de_zondeval_van_Adam_en_Eva.jpg": {
     "wikidataId": "L1374089",
@@ -5720,14 +5819,19 @@
     "sourceLinks": []
   },
   "Jean-Leon_Gerome_-_Egyptian_Recruits_Crossing_the_Desert.jpg": {
-    "wikidataId": "Q132158925",
-    "wikidataUrl": "https://www.wikidata.org/wiki/Q132158925",
-    "collection": "Najd Collection",
-    "collectionWikidataId": "Q132158401",
+    "wikidataId": null,
+    "wikidataUrl": null,
+    "collection": null,
+    "collectionWikidataId": null,
     "location": null,
     "inventory": null,
-    "describedAt": "https://www.sothebys.com/en/buy/auction/2021/the-orientalist-sale-including-works-from-the-najd-collection/egyptian-recruits-crossing-the-desert-2",
-    "sourceLinks": []
+    "describedAt": null,
+    "sourceLinks": [
+      {
+        "label": "sothebys.com",
+        "url": "https://www.sothebys.com/en/buy/auction/2021/the-orientalist-sale-including-works-from-the-najd-collection/egyptian-recruits-crossing-the-desert-2"
+      }
+    ]
   },
   "Jean-Leon_Gerome_Pollice_Verso.jpg": {
     "wikidataId": "Q482999",
@@ -6260,14 +6364,19 @@
     "sourceLinks": []
   },
   "John_Liston_Byam_Shaw_The_Woman_The_Man_the_Serpent.jpg": {
-    "wikidataId": "Q99646800",
-    "wikidataUrl": "https://www.wikidata.org/wiki/Q99646800",
-    "collection": "http://www.wikidata.org/.well-known/genid/df2fa87ad3165867cb732c6c41e3f284",
-    "collectionWikidataId": "http://www.wikidata.org/.well-known/genid/df2fa87ad3165867cb732c6c41e3f284",
+    "wikidataId": null,
+    "wikidataUrl": null,
+    "collection": null,
+    "collectionWikidataId": null,
     "location": null,
     "inventory": null,
-    "describedAt": "https://www.artrenewal.org/artworks/the-woman-the-man-and-the-serpent/john-byam-liston-shaw/3483",
-    "sourceLinks": []
+    "describedAt": null,
+    "sourceLinks": [
+      {
+        "label": "avaxsphere.com",
+        "url": "http://avaxsphere.com/graphics/gallery/artbyjohnlistonbyam.html"
+      }
+    ]
   },
   "John_Singer_Sargent,_Synagogue,_1919.jpg": {
     "wikidataId": "Q115907605",
@@ -7000,14 +7109,19 @@
     "sourceLinks": []
   },
   "Joseph_Wright_of_Derby_The_Alchemist.jpg": {
-    "wikidataId": "Q1652023",
-    "wikidataUrl": "https://www.wikidata.org/wiki/Q1652023",
-    "collection": "Derby Museum and Art Gallery",
-    "collectionWikidataId": "Q8012",
-    "location": "Derby Museum and Art Gallery",
-    "inventory": "1883-152",
-    "describedAt": "https://books.google.com/books?id=x9PCBsiP4oIC&pg=PT511&dq=Alchemy:+The+Great+Secret+Andrea+Aromatico&hl=en&sa=X&ved=2ahUKEwiLgY3Ej6v0AhVJUhoKHYIGAmUQ6AF6BAgJEAI#v=onepage&q=Alchemy%3A%20The%20Great%20Secret%20Andrea%20Aromatico&f=false",
-    "sourceLinks": []
+    "wikidataId": null,
+    "wikidataUrl": null,
+    "collection": null,
+    "collectionWikidataId": null,
+    "location": null,
+    "inventory": null,
+    "describedAt": null,
+    "sourceLinks": [
+      {
+        "label": "revolutionaryplayers.org.uk",
+        "url": "https://www.revolutionaryplayers.org.uk/the-alchymist-in-search-of-the-philosophers-stone-exhibited-1771/"
+      }
+    ]
   },
   "Judith_and_her_maid_Abra_with_the_Head_of_Holofernes_by_Artemisia_Gentileschi_ca._1645-1650.jpg": {
     "wikidataId": "Q29021053",
@@ -7740,14 +7854,19 @@
     "sourceLinks": []
   },
   "Ludwig_Deutsch_-_The_Sahleb_Vendor_Cairo,_1886.jpg": {
-    "wikidataId": "Q20406511",
-    "wikidataUrl": "https://www.wikidata.org/wiki/Q20406511",
+    "wikidataId": null,
+    "wikidataUrl": null,
     "collection": null,
     "collectionWikidataId": null,
     "location": null,
     "inventory": null,
     "describedAt": null,
-    "sourceLinks": []
+    "sourceLinks": [
+      {
+        "label": "19thcenturyrealism.com",
+        "url": "http://19thcenturyrealism.com/category/ludwig-deutsch/"
+      }
+    ]
   },
   "Luisa_Maria_Amelia_Teresa_di_Borbone-Due_Sicilie_V2.jpg": {
     "wikidataId": "Q71828579",
@@ -8170,14 +8289,19 @@
     "sourceLinks": []
   },
   "Monet_-_Die_Zaan_bei_Zaandam.jpg": {
-    "wikidataId": "Q50772902",
-    "wikidataUrl": "https://www.wikidata.org/wiki/Q50772902",
-    "collection": "http://www.wikidata.org/.well-known/genid/f7a7bf32faba168da1e51ad5e96cacb9",
-    "collectionWikidataId": "http://www.wikidata.org/.well-known/genid/f7a7bf32faba168da1e51ad5e96cacb9",
+    "wikidataId": null,
+    "wikidataUrl": null,
+    "collection": null,
+    "collectionWikidataId": null,
     "location": null,
     "inventory": null,
     "describedAt": null,
-    "sourceLinks": []
+    "sourceLinks": [
+      {
+        "label": "farm5.staticflickr.com",
+        "url": "http://farm5.staticflickr.com/4059/4265797328_7ac658228e_o.jpg"
+      }
+    ]
   },
   "Monet_-_Fisherman's_Cottage_on_the_Cliffs_at_Varengeville,_1882.jpg": {
     "wikidataId": "Q20538904",
@@ -8410,14 +8534,19 @@
     "sourceLinks": []
   },
   "Monet_Meadow-with-Poplars-Homepage.jpg": {
-    "wikidataId": "Q20538828",
-    "wikidataUrl": "https://www.wikidata.org/wiki/Q20538828",
-    "collection": "Museum of Fine Arts Boston",
-    "collectionWikidataId": "Q49133",
-    "location": "Museum of Fine Arts Boston",
-    "inventory": "23.505",
+    "wikidataId": null,
+    "wikidataUrl": null,
+    "collection": null,
+    "collectionWikidataId": null,
+    "location": null,
+    "inventory": null,
     "describedAt": null,
-    "sourceLinks": []
+    "sourceLinks": [
+      {
+        "label": "davidrumsey.com",
+        "url": "http://www.davidrumsey.com/amica/amico731867-16001.html"
+      }
+    ]
   },
   "Monet_Pointe_de_la_Hève.jpg": {
     "wikidataId": "Q24953802",
@@ -8660,14 +8789,23 @@
     "sourceLinks": []
   },
   "Murillo_Descanso_en_la_huida_a_Egipto.jpg": {
-    "wikidataId": "Q3427290",
-    "wikidataUrl": "https://www.wikidata.org/wiki/Q3427290",
-    "collection": "Hermitage Museum",
-    "collectionWikidataId": "Q132783",
-    "location": "Hermitage Museum",
-    "inventory": "ГЭ-340",
-    "describedAt": "https://www.arthermitage.org/Bartolome-Esteban-Murillo/Rest-on-the-Flight-into-Egypt.html",
-    "sourceLinks": []
+    "wikidataId": null,
+    "wikidataUrl": null,
+    "collection": null,
+    "collectionWikidataId": null,
+    "location": null,
+    "inventory": null,
+    "describedAt": null,
+    "sourceLinks": [
+      {
+        "label": "oceansbridge.com",
+        "url": "http://www.oceansbridge.com/paintings/museums/new-hermitage/Murillo_Bartolome_Esteban-ZZZ-Rest_on_the_Flight_into_Egypt.jpg"
+      },
+      {
+        "label": "arthermitage.org",
+        "url": "https://www.arthermitage.org/Bartolome-Esteban-Murillo/Rest-on-the-Flight-into-Egypt.html"
+      }
+    ]
   },
   "NDL-DC_2586549-03_Kawase_Hasui_S02_crd.jpg": {
     "wikidataId": "Q102669637",
@@ -8730,14 +8868,19 @@
     "sourceLinks": []
   },
   "NesterovMV_NaRusi206x483GTG.jpg": {
-    "wikidataId": "Q11788444",
-    "wikidataUrl": "https://www.wikidata.org/wiki/Q11788444",
-    "collection": "Tretyakov Gallery",
-    "collectionWikidataId": "Q183334",
-    "location": "Tretyakov Gallery",
-    "inventory": "Ж-347",
+    "wikidataId": null,
+    "wikidataUrl": null,
+    "collection": null,
+    "collectionWikidataId": null,
+    "location": null,
+    "inventory": null,
     "describedAt": null,
-    "sourceLinks": []
+    "sourceLinks": [
+      {
+        "label": "gallerix.ru",
+        "url": "http://gallerix.ru/fullpic/d0ebb50a4e7097d98b35c8b1dd0168b2/"
+      }
+    ]
   },
   "Newton-WilliamBlake.jpg": {
     "wikidataId": "Q1996494",
@@ -8940,14 +9083,19 @@
     "sourceLinks": []
   },
   "Paolo_Uccello_Heiliger_Georg_und_der_Drachen_1_470.jpg": {
-    "wikidataId": "Q780466",
-    "wikidataUrl": "https://www.wikidata.org/wiki/Q780466",
-    "collection": "National Gallery",
-    "collectionWikidataId": "Q180788",
-    "location": "Italy",
-    "inventory": "NG6294",
+    "wikidataId": null,
+    "wikidataUrl": null,
+    "collection": null,
+    "collectionWikidataId": null,
+    "location": null,
+    "inventory": null,
     "describedAt": null,
-    "sourceLinks": []
+    "sourceLinks": [
+      {
+        "label": "nationalgallery.org.uk",
+        "url": "http://www.nationalgallery.org.uk/cgi-bin/WebObjects.dll/CollectionPublisher.woa/wa/largeImage?workNumber=NG6294&collectionPublisherSection=work"
+      }
+    ]
   },
   "Paolo_Veronese,_The_Conversion_of_Mary_Magdalene.jpg": {
     "wikidataId": "Q19574577",
@@ -8980,14 +9128,19 @@
     "sourceLinks": []
   },
   "PatenierChristopher.jpg": {
-    "wikidataId": "Q29450706",
-    "wikidataUrl": "https://www.wikidata.org/wiki/Q29450706",
-    "collection": "Royal Monastery of San Lorenzo de El Escorial",
-    "collectionWikidataId": "Q28471",
-    "location": "Royal Monastery of San Lorenzo de El Escorial",
+    "wikidataId": null,
+    "wikidataUrl": null,
+    "collection": null,
+    "collectionWikidataId": null,
+    "location": null,
     "inventory": null,
     "describedAt": null,
-    "sourceLinks": []
+    "sourceLinks": [
+      {
+        "label": "patrimonionacional.es",
+        "url": "http://www.patrimonionacional.es/escorial2014/guia_final.pdf"
+      }
+    ]
   },
   "Paul_Cézanne_-_Montagne_Saint-victoire_-_Google_Art_Project.jpg": {
     "wikidataId": "Q17494319",
@@ -9010,14 +9163,19 @@
     "sourceLinks": []
   },
   "Paul_Gauguin_085.jpg": {
-    "wikidataId": "Q17493569",
-    "wikidataUrl": "https://www.wikidata.org/wiki/Q17493569",
-    "collection": "Musée d'Orsay",
-    "collectionWikidataId": "Q23402",
-    "location": "Musée d'Orsay",
-    "inventory": "RF 1938 47",
+    "wikidataId": null,
+    "wikidataUrl": null,
+    "collection": null,
+    "collectionWikidataId": null,
+    "location": null,
+    "inventory": null,
     "describedAt": null,
-    "sourceLinks": []
+    "sourceLinks": [
+      {
+        "label": "musee-orsay.fr",
+        "url": "http://www.musee-orsay.fr/en/collections/index-of-works/notice.html?no_cache=1&nnumid=000276&cHash=b2e1ef02d2"
+      }
+    ]
   },
   "Paul_Gustave_Dore_Andromeda.jpg": {
     "wikidataId": "Q371093",
@@ -9540,14 +9698,19 @@
     "sourceLinks": []
   },
   "Peter_Paul_Rubens_-_Mercury_and_Argos,_1636-1638.jpg": {
-    "wikidataId": "Q27701421",
-    "wikidataUrl": "https://www.wikidata.org/wiki/Q27701421",
-    "collection": "Museo del Prado",
-    "collectionWikidataId": "Q160112",
-    "location": "Museo del Prado",
-    "inventory": "P001673",
+    "wikidataId": null,
+    "wikidataUrl": null,
+    "collection": null,
+    "collectionWikidataId": null,
+    "location": null,
+    "inventory": null,
     "describedAt": null,
-    "sourceLinks": []
+    "sourceLinks": [
+      {
+        "label": "en.free-artworks.gatag.net",
+        "url": "http://en.free-artworks.gatag.net/2013/03/07/010000.html"
+      }
+    ]
   },
   "Peter_Paul_Rubens_-_Moses_and_the_Brazen_Serpent.jpg": {
     "wikidataId": "Q71962883",
@@ -9640,14 +9803,19 @@
     "sourceLinks": []
   },
   "Peter_Paul_Rubens_-_Silenus,_1636-1638.jpg": {
-    "wikidataId": "Q27701528",
-    "wikidataUrl": "https://www.wikidata.org/wiki/Q27701528",
-    "collection": "Museo del Prado",
-    "collectionWikidataId": "Q160112",
-    "location": "Museo del Prado",
-    "inventory": "P001681",
+    "wikidataId": null,
+    "wikidataUrl": null,
+    "collection": null,
+    "collectionWikidataId": null,
+    "location": null,
+    "inventory": null,
     "describedAt": null,
-    "sourceLinks": []
+    "sourceLinks": [
+      {
+        "label": "en.free-artworks.gatag.net",
+        "url": "http://en.free-artworks.gatag.net/2013/03/07/080000.html"
+      }
+    ]
   },
   "Peter_Paul_Rubens_-_Sleeping_Silenus.jpg": {
     "wikidataId": "Q26000816",
@@ -9690,14 +9858,19 @@
     "sourceLinks": []
   },
   "Peter_Paul_Rubens_-_The_Birth_of_the_Milky_Way,_1636-1637.jpg": {
-    "wikidataId": "Q3885854",
-    "wikidataUrl": "https://www.wikidata.org/wiki/Q3885854",
-    "collection": "Museo del Prado",
-    "collectionWikidataId": "Q160112",
-    "location": "Museo del Prado",
-    "inventory": "P001668",
+    "wikidataId": null,
+    "wikidataUrl": null,
+    "collection": null,
+    "collectionWikidataId": null,
+    "location": null,
+    "inventory": null,
     "describedAt": null,
-    "sourceLinks": []
+    "sourceLinks": [
+      {
+        "label": "free-artworks.gatag.net",
+        "url": "http://free-artworks.gatag.net/2013/03/07/030000.html"
+      }
+    ]
   },
   "Peter_Paul_Rubens_-_The_Brazen_Serpent.jpg": {
     "wikidataId": "Q3957935",
@@ -9940,14 +10113,19 @@
     "sourceLinks": []
   },
   "Peter_Paul_Rubens_137.jpg": {
-    "wikidataId": "Q571269",
-    "wikidataUrl": "https://www.wikidata.org/wiki/Q571269",
-    "collection": "Liechtenstein Museum",
-    "collectionWikidataId": "Q1824069",
-    "location": "Mount Vesuvius",
-    "inventory": "GE 51",
+    "wikidataId": null,
+    "wikidataUrl": null,
+    "collection": null,
+    "collectionWikidataId": null,
+    "location": null,
+    "inventory": null,
     "describedAt": null,
-    "sourceLinks": []
+    "sourceLinks": [
+      {
+        "label": "liechtensteinmuseum.at",
+        "url": "http://www.liechtensteinmuseum.at/de/pages/1502.asp"
+      }
+    ]
   },
   "Peter_Paul_Rubens_148.jpg": {
     "wikidataId": "Q27979760",
@@ -10240,14 +10418,19 @@
     "sourceLinks": []
   },
   "Portrait_of_George_Villiers,_1st_Duke_of_Buckingham_(by_Peter_Paul_Rubens).jpg": {
-    "wikidataId": "Q313817",
-    "wikidataUrl": "https://www.wikidata.org/wiki/Q313817",
-    "collection": "Pollok House",
-    "collectionWikidataId": "Q1489852",
-    "location": "Pollok House",
-    "inventory": "PC.49",
+    "wikidataId": null,
+    "wikidataUrl": null,
+    "collection": null,
+    "collectionWikidataId": null,
+    "location": null,
+    "inventory": null,
     "describedAt": null,
-    "sourceLinks": []
+    "sourceLinks": [
+      {
+        "label": "theculturetrip.com",
+        "url": "https://theculturetrip.com/europe/united-kingdom/scotland/articles/copy-of-painting-turns-out-to-be-400-year-old-lost-masterpiece-by-rubens/"
+      }
+    ]
   },
   "Portrait_of_Peder_Severin_Krøyer_by_Laurits_Tuxen.jpg": {
     "wikidataId": "Q50948742",
@@ -10300,14 +10483,19 @@
     "sourceLinks": []
   },
   "Prayer_in_the_Mosque.jpg": {
-    "wikidataId": "Q19905195",
-    "wikidataUrl": "https://www.wikidata.org/wiki/Q19905195",
-    "collection": "Metropolitan Museum of Art",
-    "collectionWikidataId": "Q160236",
-    "location": "Metropolitan Museum of Art",
-    "inventory": "87.15.130",
+    "wikidataId": null,
+    "wikidataUrl": null,
+    "collection": null,
+    "collectionWikidataId": null,
+    "location": null,
+    "inventory": null,
     "describedAt": null,
-    "sourceLinks": []
+    "sourceLinks": [
+      {
+        "label": "thevelvetrocket.files.wordpress.com",
+        "url": "http://thevelvetrocket.files.wordpress.com/2012/05/jean-leon-gerome-prayer-in-the-mosque.jpg"
+      }
+    ]
   },
   "Promenade_sur_la_falaise_de_Sainte-Adresse,_by_Claude_Monet,_1867,_oil_on_canvas_-_Matsuoka_Museum_of_Art_-_Tokyo,_Japan_-_DSC07396.jpeg": {
     "wikidataId": "Q50807666",
@@ -10480,14 +10668,19 @@
     "sourceLinks": []
   },
   "Rembrandt_The_Artist_in_his_studio.jpg": {
-    "wikidataId": "Q3905873",
-    "wikidataUrl": "https://www.wikidata.org/wiki/Q3905873",
-    "collection": "Museum of Fine Arts Boston",
-    "collectionWikidataId": "Q49133",
-    "location": "Museum of Fine Arts Boston",
-    "inventory": "38.1838",
-    "describedAt": "http://www.rembrandtdatabase.org/Rembrandt/painting/41122/artist-in-his-studio",
-    "sourceLinks": []
+    "wikidataId": null,
+    "wikidataUrl": null,
+    "collection": null,
+    "collectionWikidataId": null,
+    "location": null,
+    "inventory": null,
+    "describedAt": null,
+    "sourceLinks": [
+      {
+        "label": "eev.liu.edu",
+        "url": "http://eev.liu.edu/nehrembrandt/works/artistinstudio.htm"
+      }
+    ]
   },
   "Rembrandt_Winterlandschap_1646.jpg": {
     "wikidataId": "Q21406281",
@@ -10530,24 +10723,34 @@
     "sourceLinks": []
   },
   "Repin_studying_exam.jpg": {
-    "wikidataId": "Q105565021",
-    "wikidataUrl": "https://www.wikidata.org/wiki/Q105565021",
-    "collection": "Russian Museum",
-    "collectionWikidataId": "Q211043",
-    "location": "Russian Museum",
-    "inventory": "Ж-4016",
-    "describedAt": "https://rusmuseumvrm.ru/data/collections/painting/19_20/zh_4016/",
-    "sourceLinks": []
+    "wikidataId": null,
+    "wikidataUrl": null,
+    "collection": null,
+    "collectionWikidataId": null,
+    "location": null,
+    "inventory": null,
+    "describedAt": null,
+    "sourceLinks": [
+      {
+        "label": "art-catalog.ru",
+        "url": "http://www.art-catalog.ru/picture.php?id_picture=4244"
+      }
+    ]
   },
   "Repin_turf_bench.jpg": {
-    "wikidataId": "Q105564939",
-    "wikidataUrl": "https://www.wikidata.org/wiki/Q105564939",
-    "collection": "Russian Museum",
-    "collectionWikidataId": "Q211043",
-    "location": "Russian Museum",
-    "inventory": "Ж-4045",
-    "describedAt": "https://rusmuseumvrm.ru/data/collections/painting/19_20/zh-4045/",
-    "sourceLinks": []
+    "wikidataId": null,
+    "wikidataUrl": null,
+    "collection": null,
+    "collectionWikidataId": null,
+    "location": null,
+    "inventory": null,
+    "describedAt": null,
+    "sourceLinks": [
+      {
+        "label": "art-catalog.ru",
+        "url": "http://www.art-catalog.ru/picture.php?id_picture=4243"
+      }
+    ]
   },
   "Retrato_de_Juan_Pareja,_by_Diego_Velázquez.jpg": {
     "wikidataId": "Q191923",
@@ -10650,14 +10853,23 @@
     "sourceLinks": []
   },
   "Rogier_van_der_Weyden_-_Virgin_and_Child_(Durán_Madonna)_-_Prado_P02722.jpg": {
-    "wikidataId": "Q5316837",
-    "wikidataUrl": "https://www.wikidata.org/wiki/Q5316837",
-    "collection": "Museo del Prado",
-    "collectionWikidataId": "Q160112",
-    "location": "Museo del Prado",
-    "inventory": "P002722",
+    "wikidataId": null,
+    "wikidataUrl": null,
+    "collection": null,
+    "collectionWikidataId": null,
+    "location": null,
+    "inventory": null,
     "describedAt": null,
-    "sourceLinks": []
+    "sourceLinks": [
+      {
+        "label": "museodelprado.es",
+        "url": "https://www.museodelprado.es/coleccion/obra-de-arte/la-virgen-con-el-nio-llamada-la-madonna-duran/71eaabd3-2232-449e-9e01-4f302ebbe3e0"
+      },
+      {
+        "label": "museodelprado.es",
+        "url": "http://www.museodelprado.es/en/the-collection/online-gallery/on-line-gallery/obra/virgin-and-child-1/"
+      }
+    ]
   },
   "Romaine_Lacaux,_by_Pierre-Auguste_Renoir,_Cleveland_Museum_of_Art,_1942.1065.jpg": {
     "wikidataId": "Q15880875",
@@ -10900,14 +11112,23 @@
     "sourceLinks": []
   },
   "San_Jerónimo_leyendo_(Murillo).jpg": {
-    "wikidataId": "Q19162885",
-    "wikidataUrl": "https://www.wikidata.org/wiki/Q19162885",
-    "collection": "Museo del Prado",
-    "collectionWikidataId": "Q160112",
-    "location": "Biblioteca Museu Víctor Balaguer",
-    "inventory": "8601",
+    "wikidataId": null,
+    "wikidataUrl": null,
+    "collection": null,
+    "collectionWikidataId": null,
+    "location": null,
+    "inventory": null,
     "describedAt": null,
-    "sourceLinks": []
+    "sourceLinks": [
+      {
+        "label": "ceres.mcu.es",
+        "url": "http://ceres.mcu.es/pages/Main"
+      },
+      {
+        "label": "museodelprado.es",
+        "url": "http://www.museodelprado.es/imagen/alta_resolucion/P00988.jpg"
+      }
+    ]
   },
   "San_Romano_Battle_(Paolo_Uccello,_London)_01.jpg": {
     "wikidataId": "Q18564234",
@@ -11150,14 +11371,19 @@
     "sourceLinks": []
   },
   "Sinite_Parvulos_-_A._Gentileschi.png": {
-    "wikidataId": "Q29021344",
-    "wikidataUrl": "https://www.wikidata.org/wiki/Q29021344",
-    "collection": "Metropolitan Museum of Art",
-    "collectionWikidataId": "Q160236",
-    "location": "San Carlo al Corso",
-    "inventory": "27.106",
-    "describedAt": "http://www.metmuseum.org/art/metpublications/Orazio_and_Artemisia_Gentileschi",
-    "sourceLinks": []
+    "wikidataId": null,
+    "wikidataUrl": null,
+    "collection": null,
+    "collectionWikidataId": null,
+    "location": null,
+    "inventory": null,
+    "describedAt": null,
+    "sourceLinks": [
+      {
+        "label": "burlington.org.uk",
+        "url": "http://burlington.org.uk/archive/back-issues/201212"
+      }
+    ]
   },
   "Sir_Anthony_Van_Dyck_-_Charles_I_(1600-49)_-_Google_Art_Project.jpg": {
     "wikidataId": "Q2284765",
@@ -11360,14 +11586,19 @@
     "sourceLinks": []
   },
   "Stieler_-_Portrait_of_Caroline_Grafin_von_Holnstein.jpg": {
-    "wikidataId": "Q77928",
-    "wikidataUrl": "https://www.wikidata.org/wiki/Q77928",
-    "collection": "Nymphenburg Palace",
-    "collectionWikidataId": "Q131631",
-    "location": "Nymphenburg Palace",
+    "wikidataId": null,
+    "wikidataUrl": null,
+    "collection": null,
+    "collectionWikidataId": null,
+    "location": null,
     "inventory": null,
     "describedAt": null,
-    "sourceLinks": []
+    "sourceLinks": [
+      {
+        "label": "flickr.com",
+        "url": "https://www.flickr.com/photos/145003604@N02/36952436126/in/photolist-YqmrcH-2iv9TwP-9zbX9m-9gsMoT-9gsr4M-9gwaHj-YwDRJi-2iv7kJr-YimTRG-2ivb71W-2iv7nFx-pkL9ao-9gtsSn-9ftJkf-as7sHW-9gmHdt-9gpBmh-qpzi6A-9gsDYg-8m9GkS-8m9GjU-8m6wQg-e9Gen3-qF5Y1V-9gtAdk-8gDmfg-bkzLwQ-2Kmzk1-fDEVeW-4BvfZw-2ayqD3r-DiZeCE-29SmSsg-29N5UcL-29SmRBD/"
+      }
+    ]
   },
   "Stieler_-_Portrait_of_Friederike_Freiin_Von_Gumppenberg.jpg": {
     "wikidataId": "Q94773290",
@@ -12950,13 +13181,13 @@
     "sourceLinks": []
   },
   "Whistler-Nocturne_in_black_and_gold.jpg": {
-    "wikidataId": "Q1786363",
-    "wikidataUrl": "https://www.wikidata.org/wiki/Q1786363",
-    "collection": null,
-    "collectionWikidataId": null,
-    "location": null,
-    "inventory": null,
-    "describedAt": null,
+    "wikidataId": "Q646337",
+    "wikidataUrl": "https://www.wikidata.org/wiki/Q646337",
+    "collection": "Detroit Institute of Arts",
+    "collectionWikidataId": "Q1201549",
+    "location": "Detroit Institute of Arts",
+    "inventory": "46.309",
+    "describedAt": "https://whistlerpaintings.gla.ac.uk/catalogue/display/?mid=y170",
     "sourceLinks": []
   },
   "Whistler_-_Nocturne._Grey_and_Gold,_Westminster_Bridge_(1871-1872)_y145.jpg": {
@@ -13380,8 +13611,8 @@
     "sourceLinks": []
   },
   "YoshiClimber.jpg": {
-    "wikidataId": "Q62580641",
-    "wikidataUrl": "https://www.wikidata.org/wiki/Q62580641",
+    "wikidataId": "Q24897650",
+    "wikidataUrl": "https://www.wikidata.org/wiki/Q24897650",
     "collection": null,
     "collectionWikidataId": null,
     "location": null,
@@ -14988,6 +15219,1339 @@
       {
         "label": "art-catalog.ru",
         "url": "http://www.art-catalog.ru/picture.php?id_picture=8015"
+      }
+    ]
+  },
+  "The_Beautiful_Servant_(Jean-Honoré_Fragonard)_-_Nationalmuseum_-_22465.tif": {
+    "wikidataId": "Q18600965",
+    "wikidataUrl": "https://www.wikidata.org/wiki/Q18600965",
+    "collection": "Nationalmuseum",
+    "collectionWikidataId": "Q842858",
+    "location": "Nationalmuseum",
+    "inventory": "NM 5415",
+    "describedAt": null,
+    "sourceLinks": []
+  },
+  "The_Burning_of_the_Turkish_Flagship_by_Kanaris_-_Ivan_Aivazovsky,_1881.png": {
+    "wikidataId": "Q101208231",
+    "wikidataUrl": "https://www.wikidata.org/wiki/Q101208231",
+    "collection": "National Gallery of Athens",
+    "collectionWikidataId": "Q1167467",
+    "location": "National Gallery of Athens",
+    "inventory": null,
+    "describedAt": null,
+    "sourceLinks": []
+  },
+  "The_Collector_of_Prints_MET_DT1920.jpg": {
+    "wikidataId": "Q19911849",
+    "wikidataUrl": "https://www.wikidata.org/wiki/Q19911849",
+    "collection": "Metropolitan Museum of Art",
+    "collectionWikidataId": "Q160236",
+    "location": "Metropolitan Museum of Art",
+    "inventory": "29.100.44",
+    "describedAt": "https://www.metmuseum.org/art/collection/search/436122?",
+    "sourceLinks": []
+  },
+  "The_Concert_A22894.jpg": {
+    "wikidataId": "Q20177016",
+    "wikidataUrl": "https://www.wikidata.org/wiki/Q20177016",
+    "collection": "National Gallery of Art",
+    "collectionWikidataId": "Q214867",
+    "location": "National Gallery of Art",
+    "inventory": "2013.38.1",
+    "describedAt": null,
+    "sourceLinks": []
+  },
+  "The_Death_of_the_Earl_of_Chatham_by_John_Singleton_Copley.jpg": {
+    "wikidataId": "Q6119110",
+    "wikidataUrl": "https://www.wikidata.org/wiki/Q6119110",
+    "collection": "National Gallery",
+    "collectionWikidataId": "Q180788",
+    "location": "National Portrait Gallery",
+    "inventory": "N00100",
+    "describedAt": "http://www.tate.org.uk/art/artworks/copley-the-collapse-of-the-earl-of-chatham-in-the-house-of-lords-7-july-1778-n00100",
+    "sourceLinks": []
+  },
+  "The_Descent_from_the_Cross_LACMA_M.2004.239.jpg": {
+    "wikidataId": "Q17484814",
+    "wikidataUrl": "https://www.wikidata.org/wiki/Q17484814",
+    "collection": "Los Angeles County Museum of Art",
+    "collectionWikidataId": "Q1641836",
+    "location": "Los Angeles County Museum of Art",
+    "inventory": "M.2004.239",
+    "describedAt": null,
+    "sourceLinks": []
+  },
+  "The_Entombment_of_Christ-Caravaggio_(c.1602-3).jpg": {
+    "wikidataId": "Q7016",
+    "wikidataUrl": "https://www.wikidata.org/wiki/Q7016",
+    "collection": "Pinacoteca Vaticana",
+    "collectionWikidataId": "Q774940",
+    "location": "Holy Sepulchre",
+    "inventory": "MV.40386",
+    "describedAt": "https://catalogo.museivaticani.va/index.php/Detail/objects/MV.40386.0.0",
+    "sourceLinks": []
+  },
+  "The_Intervention_of_the_Sabine_Women_-_David_(Louvre_INV_3691).jpg": {
+    "wikidataId": "Q1314013",
+    "wikidataUrl": "https://www.wikidata.org/wiki/Q1314013",
+    "collection": "Department of Paintings of the Louvre",
+    "collectionWikidataId": "Q3044768",
+    "location": "Room 702",
+    "inventory": "INV 3691",
+    "describedAt": "http://www.louvre.fr/en/oeuvre-notices/intervention-sabine-women",
+    "sourceLinks": []
+  },
+  "The_Kitchen_Maid_(Rembrandt_Harmensz._van_Rijn)_-_Nationalmuseum_-_17587.tif": {
+    "wikidataId": "Q18089111",
+    "wikidataUrl": "https://www.wikidata.org/wiki/Q18089111",
+    "collection": "Nationalmuseum",
+    "collectionWikidataId": "Q842858",
+    "location": "Nationalmuseum",
+    "inventory": "NM 584",
+    "describedAt": "http://collection.nationalmuseum.se/eMuseumPlus?service=ExternalInterface&module=collection&objectId=17587",
+    "sourceLinks": []
+  },
+  "The_Knife_Grinder_Principle_of_Glittering_by_Kazimir_Malevich.jpeg": {
+    "wikidataId": "Q18112999",
+    "wikidataUrl": "https://www.wikidata.org/wiki/Q18112999",
+    "collection": "Yale University Art Gallery",
+    "collectionWikidataId": "Q1568434",
+    "location": "Yale University Art Gallery",
+    "inventory": "1941.553",
+    "describedAt": null,
+    "sourceLinks": []
+  },
+  "The_Lawyer,_possibly_Ulrich_Zasius,_1461-1536,_humanist,_jurist_(Giuseppe_Arcimboldo)_-_Nationalmuseum_-_15897.tif": {
+    "wikidataId": "Q1194663",
+    "wikidataUrl": "https://www.wikidata.org/wiki/Q1194663",
+    "collection": "Nationalmuseum",
+    "collectionWikidataId": "Q842858",
+    "location": "Nationalmuseum",
+    "inventory": "NMGrh 1227",
+    "describedAt": null,
+    "sourceLinks": []
+  },
+  "The_Mocking_of_Christ_LACMA.jpg": {
+    "wikidataId": "Q20880210",
+    "wikidataUrl": "https://www.wikidata.org/wiki/Q20880210",
+    "collection": "Los Angeles County Museum of Art",
+    "collectionWikidataId": "Q1641836",
+    "location": "Los Angeles County Museum of Art",
+    "inventory": "AC1999.92.1",
+    "describedAt": null,
+    "sourceLinks": []
+  },
+  "The_Painter's_Daughters_with_a_Cat,_by_Thomas_Gainsborough_017.jpg": {
+    "wikidataId": "Q26708017",
+    "wikidataUrl": "https://www.wikidata.org/wiki/Q26708017",
+    "collection": "National Gallery",
+    "collectionWikidataId": "Q180788",
+    "location": "National Gallery",
+    "inventory": "NG3812",
+    "describedAt": null,
+    "sourceLinks": []
+  },
+  "The_Siege_and_Relief_of_Gibraltar_(2).jpg": {
+    "wikidataId": "Q815145",
+    "wikidataUrl": "https://www.wikidata.org/wiki/Q815145",
+    "collection": "Guildhall",
+    "collectionWikidataId": "Q81279",
+    "location": "Gibraltar",
+    "inventory": null,
+    "describedAt": null,
+    "sourceLinks": []
+  },
+  "The_Toilet_of_Venus,_by_François_Boucher.jpg": {
+    "wikidataId": "Q19911802",
+    "wikidataUrl": "https://www.wikidata.org/wiki/Q19911802",
+    "collection": "Metropolitan Museum of Art",
+    "collectionWikidataId": "Q160236",
+    "location": "Metropolitan Museum of Art",
+    "inventory": "20.155.9",
+    "describedAt": null,
+    "sourceLinks": []
+  },
+  "The_Tribute_Money_(John_Singleton_Copley).jpg": {
+    "wikidataId": "Q33133529",
+    "wikidataUrl": "https://www.wikidata.org/wiki/Q33133529",
+    "collection": "Royal Academy of Arts",
+    "collectionWikidataId": "Q270920",
+    "location": "Royal Academy of Arts",
+    "inventory": "03/994",
+    "describedAt": null,
+    "sourceLinks": []
+  },
+  "The_secret_message,_by_François_Boucher.jpg": {
+    "wikidataId": "Q114354613",
+    "wikidataUrl": "https://www.wikidata.org/wiki/Q114354613",
+    "collection": "Herzog Anton Ulrich Museum",
+    "collectionWikidataId": "Q678082",
+    "location": "Herzog Anton Ulrich Museum",
+    "inventory": "GG 808",
+    "describedAt": "https://ku-ni.de/isil_DE-MUS-026819_opal_herzanulm_kunshe_GG808",
+    "sourceLinks": []
+  },
+  "The_soldier_and_the_girl,_by_Gerard_van_Honthorst.jpg": {
+    "wikidataId": "Q46454578",
+    "wikidataUrl": "https://www.wikidata.org/wiki/Q46454578",
+    "collection": "Herzog Anton Ulrich Museum",
+    "collectionWikidataId": "Q678082",
+    "location": "Herzog Anton Ulrich Museum",
+    "inventory": "GG 178",
+    "describedAt": "http://kulturerbe.niedersachsen.de/viewer/image/isil_DE-MUS-026819_opal_herzanulm_kunshe_GG178/1/",
+    "sourceLinks": []
+  },
+  "Thomas_Cole_-_A_View_of_the_Two_Lakes_and_Mountain_House,_Catskill_Mountains,_Morning_(1844)_-_Google_Art_Project.jpg": {
+    "wikidataId": "Q18689372",
+    "wikidataUrl": "https://www.wikidata.org/wiki/Q18689372",
+    "collection": "Brooklyn Museum",
+    "collectionWikidataId": "Q632682",
+    "location": "Brooklyn Museum",
+    "inventory": "52.16",
+    "describedAt": null,
+    "sourceLinks": []
+  },
+  "Thomas_Cole_-_Architect’s_Dream_-_Google_Art_Project.jpg": {
+    "wikidataId": "Q8180985",
+    "wikidataUrl": "https://www.wikidata.org/wiki/Q8180985",
+    "collection": "Toledo Museum of Art",
+    "collectionWikidataId": "Q1743116",
+    "location": "Toledo Museum of Art",
+    "inventory": "1949.162",
+    "describedAt": "https://emuseum.toledomuseum.org/objects/54973",
+    "sourceLinks": []
+  },
+  "Thomas_Cole_-_Prometheus_Bound_-_Google_Art_Project.jpg": {
+    "wikidataId": "Q19899993",
+    "wikidataUrl": "https://www.wikidata.org/wiki/Q19899993",
+    "collection": "Fine Arts Museums of San Francisco",
+    "collectionWikidataId": "Q1416890",
+    "location": "M. H. de Young Memorial Museum",
+    "inventory": "1997.28",
+    "describedAt": "https://www.famsf.org/artworks/prometheus-bound",
+    "sourceLinks": []
+  },
+  "Thomas_Cole_-_The_Voyage_of_Life_Childhood,_1842_(National_Gallery_of_Art).jpg": {
+    "wikidataId": "Q3277782",
+    "wikidataUrl": "https://www.wikidata.org/wiki/Q3277782",
+    "collection": "National Gallery of Art",
+    "collectionWikidataId": "Q214867",
+    "location": "National Gallery of Art",
+    "inventory": "1971.16.1",
+    "describedAt": null,
+    "sourceLinks": []
+  },
+  "Thomas_Cole_-_The_Voyage_of_Life_Manhood,_1842_(National_Gallery_of_Art).jpg": {
+    "wikidataId": "Q19900102",
+    "wikidataUrl": "https://www.wikidata.org/wiki/Q19900102",
+    "collection": "National Gallery of Art",
+    "collectionWikidataId": "Q214867",
+    "location": "National Gallery of Art",
+    "inventory": "1971.16.3",
+    "describedAt": null,
+    "sourceLinks": []
+  },
+  "Thomas_Cole_-_The_Voyage_of_Life_Old_Age,_1842_(National_Gallery_of_Art).jpg": {
+    "wikidataId": "Q19900107",
+    "wikidataUrl": "https://www.wikidata.org/wiki/Q19900107",
+    "collection": "National Gallery of Art",
+    "collectionWikidataId": "Q214867",
+    "location": "National Gallery of Art",
+    "inventory": "1971.16.4",
+    "describedAt": null,
+    "sourceLinks": []
+  },
+  "Thomas_Cole_-_The_Voyage_of_Life_Youth,_1842_(National_Gallery_of_Art).jpg": {
+    "wikidataId": "Q19900113",
+    "wikidataUrl": "https://www.wikidata.org/wiki/Q19900113",
+    "collection": "National Gallery of Art",
+    "collectionWikidataId": "Q214867",
+    "location": "National Gallery of Art",
+    "inventory": "1971.16.2",
+    "describedAt": null,
+    "sourceLinks": []
+  },
+  "Thomas_Eakins,_The_Biglin_Brothers_Racing,_1872,_NGA_42848.jpg": {
+    "wikidataId": "Q20188744",
+    "wikidataUrl": "https://www.wikidata.org/wiki/Q20188744",
+    "collection": "National Gallery of Art",
+    "collectionWikidataId": "Q214867",
+    "location": "National Gallery of Art",
+    "inventory": "1953.7.1",
+    "describedAt": null,
+    "sourceLinks": []
+  },
+  "Thomas_Eakins_005.jpg": {
+    "wikidataId": "Q6875987",
+    "wikidataUrl": "https://www.wikidata.org/wiki/Q6875987",
+    "collection": "The Phillips Collection",
+    "collectionWikidataId": "Q578485",
+    "location": "The Phillips Collection",
+    "inventory": "0632",
+    "describedAt": "https://www.phillipscollection.org/collection/browse-the-collection?id=0632",
+    "sourceLinks": []
+  },
+  "Thomas_Gage_John_Singleton_Copley.jpeg": {
+    "wikidataId": "Q581935",
+    "wikidataUrl": "https://www.wikidata.org/wiki/Q581935",
+    "collection": null,
+    "collectionWikidataId": null,
+    "location": null,
+    "inventory": null,
+    "describedAt": null,
+    "sourceLinks": []
+  },
+  "Thomas_Gainsborough_(1727-1788)_-_Commodore,_Later_Vice-Admiral,_The_Honourable_Augustus_Hervey_(1724–1779),_3rd_Earl_of_Bristol_-_851720_-_National_Trust.jpg": {
+    "wikidataId": "Q52212797",
+    "wikidataUrl": "https://www.wikidata.org/wiki/Q52212797",
+    "collection": "National Trust",
+    "collectionWikidataId": "Q333515",
+    "location": "Ickworth House",
+    "inventory": "851720",
+    "describedAt": null,
+    "sourceLinks": []
+  },
+  "Thomas_Gainsborough_(1727-1788)_-_Romantic_Landscape_with_Sheep_at_a_Spring_-_03-1396_-_Royal_Academy_of_Arts.jpg": {
+    "wikidataId": "Q119012795",
+    "wikidataUrl": "https://www.wikidata.org/wiki/Q119012795",
+    "collection": "Royal Academy of Arts",
+    "collectionWikidataId": "Q270920",
+    "location": "Royal Academy of Arts",
+    "inventory": "03/1396",
+    "describedAt": null,
+    "sourceLinks": []
+  },
+  "Thomas_Gainsborough_(English_-_Portrait_of_Anne,_Countess_of_Chesterfield_-_Google_Art_Project.jpg": {
+    "wikidataId": "Q20179916",
+    "wikidataUrl": "https://www.wikidata.org/wiki/Q20179916",
+    "collection": "J. Paul Getty Museum",
+    "collectionWikidataId": "Q731126",
+    "location": "Getty Center",
+    "inventory": "71.PA.8",
+    "describedAt": null,
+    "sourceLinks": []
+  },
+  "Thomas_Gainsborough_-_A_Man_Called_Mr._Wood,_the_Dancing_Master_-_Google_Art_Project.jpg": {
+    "wikidataId": "Q23759452",
+    "wikidataUrl": "https://www.wikidata.org/wiki/Q23759452",
+    "collection": "Yale Center for British Art",
+    "collectionWikidataId": "Q6352575",
+    "location": "Yale Center for British Art",
+    "inventory": "B1981.25.304",
+    "describedAt": null,
+    "sourceLinks": []
+  },
+  "Thomas_Gainsborough_-_An_officer_of_the_4th_Regiment_of_Foot_-_Google_Art_Project.jpg": {
+    "wikidataId": "Q20425798",
+    "wikidataUrl": "https://www.wikidata.org/wiki/Q20425798",
+    "collection": "National Gallery of Victoria",
+    "collectionWikidataId": "Q1464509",
+    "location": "National Gallery of Victoria",
+    "inventory": "1223-3",
+    "describedAt": null,
+    "sourceLinks": []
+  },
+  "Thomas_Gainsborough_-_Clayton_Jones_-_Google_Art_Project.jpg": {
+    "wikidataId": "Q23700568",
+    "wikidataUrl": "https://www.wikidata.org/wiki/Q23700568",
+    "collection": "Yale Center for British Art",
+    "collectionWikidataId": "Q6352575",
+    "location": "Yale Center for British Art",
+    "inventory": "B1973.1.17",
+    "describedAt": null,
+    "sourceLinks": []
+  },
+  "Thomas_Gainsborough_-_Landscape_in_Suffolk_-_Google_Art_Project.jpg": {
+    "wikidataId": "Q27981958",
+    "wikidataUrl": "https://www.wikidata.org/wiki/Q27981958",
+    "collection": "Kunsthistorisches Museum",
+    "collectionWikidataId": "Q95569",
+    "location": "Kunsthistorisches Museum",
+    "inventory": "GG_6271",
+    "describedAt": null,
+    "sourceLinks": []
+  },
+  "Thomas_Gainsborough_-_Landscape_with_Stream_and_Weir_-_Google_Art_Project.jpg": {
+    "wikidataId": "Q23757235",
+    "wikidataUrl": "https://www.wikidata.org/wiki/Q23757235",
+    "collection": "Yale Center for British Art",
+    "collectionWikidataId": "Q6352575",
+    "location": "Yale Center for British Art",
+    "inventory": "B1977.14.57",
+    "describedAt": null,
+    "sourceLinks": []
+  },
+  "Thomas_Gainsborough_-_Madame_Lebrun_-_Google_Art_Project.jpg": {
+    "wikidataId": "Q28797223",
+    "wikidataUrl": "https://www.wikidata.org/wiki/Q28797223",
+    "collection": "Art Gallery of South Australia",
+    "collectionWikidataId": "Q705557",
+    "location": "Art Gallery of South Australia",
+    "inventory": "0.2025",
+    "describedAt": null,
+    "sourceLinks": []
+  },
+  "Thomas_Gainsborough_-_Mary,_Countess_of_Howe_-_WGA08407.jpg": {
+    "wikidataId": "Q63088833",
+    "wikidataUrl": "https://www.wikidata.org/wiki/Q63088833",
+    "collection": "Kenwood House",
+    "collectionWikidataId": "Q764804",
+    "location": "Kenwood House",
+    "inventory": "88028783",
+    "describedAt": null,
+    "sourceLinks": []
+  },
+  "Thomas_Gainsborough_-_Mary_Little,_Later_Lady_Carr_-_Google_Art_Project.jpg": {
+    "wikidataId": "Q23759671",
+    "wikidataUrl": "https://www.wikidata.org/wiki/Q23759671",
+    "collection": "Yale Center for British Art",
+    "collectionWikidataId": "Q6352575",
+    "location": "Yale Center for British Art",
+    "inventory": "B1987.6.2",
+    "describedAt": null,
+    "sourceLinks": []
+  },
+  "Thomas_Gainsborough_-_Portrait_of_John_Plampin_(1752).jpg": {
+    "wikidataId": "Q26706598",
+    "wikidataUrl": "https://www.wikidata.org/wiki/Q26706598",
+    "collection": "National Gallery",
+    "collectionWikidataId": "Q180788",
+    "location": "National Gallery",
+    "inventory": "NG5984",
+    "describedAt": null,
+    "sourceLinks": []
+  },
+  "Thomas_Gainsborough_-_Portrait_of_a_Lady_in_Blue_-_WGA8414.jpg": {
+    "wikidataId": "Q3700536",
+    "wikidataUrl": "https://www.wikidata.org/wiki/Q3700536",
+    "collection": "Hermitage Museum",
+    "collectionWikidataId": "Q132783",
+    "location": "Winter Palace",
+    "inventory": "ГЭ-3509",
+    "describedAt": null,
+    "sourceLinks": []
+  },
+  "Thomas_Gainsborough_-_The_Gravenor_Family_-_Google_Art_Project.jpg": {
+    "wikidataId": "Q23758090",
+    "wikidataUrl": "https://www.wikidata.org/wiki/Q23758090",
+    "collection": "Yale Center for British Art",
+    "collectionWikidataId": "Q6352575",
+    "location": "Yale Center for British Art",
+    "inventory": "B1977.14.56",
+    "describedAt": null,
+    "sourceLinks": []
+  },
+  "Thomas_Gainsborough_-_The_Honourable_Mrs_Graham_(1757_-_1792)_-_Google_Art_Project.jpg": {
+    "wikidataId": "Q4373352",
+    "wikidataUrl": "https://www.wikidata.org/wiki/Q4373352",
+    "collection": "National Galleries Scotland",
+    "collectionWikidataId": "Q2051997",
+    "location": "Scottish National Gallery",
+    "inventory": "NG 332",
+    "describedAt": null,
+    "sourceLinks": []
+  },
+  "Thomas_Gainsborough_-_The_Mall_in_St._James's_Park_-_Google_Art_Project.jpg": {
+    "wikidataId": "Q18689381",
+    "wikidataUrl": "https://www.wikidata.org/wiki/Q18689381",
+    "collection": "The Frick Collection",
+    "collectionWikidataId": "Q682827",
+    "location": "The Frick Collection",
+    "inventory": "1916.1.62",
+    "describedAt": "http://collections.frick.org/view/objects/asitem/items$0040:186",
+    "sourceLinks": []
+  },
+  "Thomas_Gainsborough_-_The_Marsham_Children_-_Google_Art_Project.jpg": {
+    "wikidataId": "Q18689380",
+    "wikidataUrl": "https://www.wikidata.org/wiki/Q18689380",
+    "collection": "Gemäldegalerie Berlin",
+    "collectionWikidataId": "Q165631",
+    "location": "Gemäldegalerie Berlin",
+    "inventory": "82.4",
+    "describedAt": null,
+    "sourceLinks": []
+  },
+  "Thomas_Gainsborough_015.jpg": {
+    "wikidataId": "Q234746",
+    "wikidataUrl": "https://www.wikidata.org/wiki/Q234746",
+    "collection": "National Gallery",
+    "collectionWikidataId": "Q180788",
+    "location": "National Gallery",
+    "inventory": "NG683",
+    "describedAt": null,
+    "sourceLinks": []
+  },
+  "Thomas_Gainsborough_by_Thomas_Gainsborough.jpg": {
+    "wikidataId": "Q192720",
+    "wikidataUrl": "https://www.wikidata.org/wiki/Q192720",
+    "collection": "National Portrait Gallery",
+    "collectionWikidataId": "Q238587",
+    "location": "National Portrait Gallery",
+    "inventory": "NPG 4446",
+    "describedAt": null,
+    "sourceLinks": []
+  },
+  "Titian_-_Venus_with_a_Mirror_-_Google_Art_Project.jpg": {
+    "wikidataId": "Q7920648",
+    "wikidataUrl": "https://www.wikidata.org/wiki/Q7920648",
+    "collection": "National Gallery of Art",
+    "collectionWikidataId": "Q214867",
+    "location": "National Gallery of Art",
+    "inventory": "1937.1.34",
+    "describedAt": null,
+    "sourceLinks": []
+  },
+  "Tizian_080.jpg": {
+    "wikidataId": "Q3760161",
+    "wikidataUrl": "https://www.wikidata.org/wiki/Q3760161",
+    "collection": "National Gallery of Art",
+    "collectionWikidataId": "Q214867",
+    "location": "National Gallery of Art",
+    "inventory": "1939.1.258",
+    "describedAt": null,
+    "sourceLinks": []
+  },
+  "Transfiguration_Raphael.jpg": {
+    "wikidataId": "Q12007312",
+    "wikidataUrl": "https://www.wikidata.org/wiki/Q12007312",
+    "collection": null,
+    "collectionWikidataId": null,
+    "location": null,
+    "inventory": null,
+    "describedAt": null,
+    "sourceLinks": []
+  },
+  "Treaty_of_Paris_by_Benjamin_West_1783.jpg": {
+    "wikidataId": "Q20655979",
+    "wikidataUrl": "https://www.wikidata.org/wiki/Q20655979",
+    "collection": "Winterthur Museum, Garden and Library",
+    "collectionWikidataId": "Q137759039",
+    "location": "Winterthur Museum, Garden and Library",
+    "inventory": "1957.0856",
+    "describedAt": null,
+    "sourceLinks": []
+  },
+  "Valentin_Serov_-_Portrait_of_Princess_Olga_Orlova_-_Google_Art_Project.jpg": {
+    "wikidataId": "Q4373348",
+    "wikidataUrl": "https://www.wikidata.org/wiki/Q4373348",
+    "collection": "Russian Museum",
+    "collectionWikidataId": "Q211043",
+    "location": "Russian Museum",
+    "inventory": "Ж-4289",
+    "describedAt": null,
+    "sourceLinks": []
+  },
+  "Valentin_Serov_-_Портрет_Г.Л.Гиршман_-_Google_Art_Project.jpg": {
+    "wikidataId": "Q18689406",
+    "wikidataUrl": "https://www.wikidata.org/wiki/Q18689406",
+    "collection": "Tretyakov Gallery",
+    "collectionWikidataId": "Q183334",
+    "location": "Tretyakov Gallery",
+    "inventory": null,
+    "describedAt": null,
+    "sourceLinks": []
+  },
+  "Van_Gogh_-_In_the_Orchard_-_1883.jpg": {
+    "wikidataId": "Q26221349",
+    "wikidataUrl": "https://www.wikidata.org/wiki/Q26221349",
+    "collection": "British Museum",
+    "collectionWikidataId": "Q6373",
+    "location": null,
+    "inventory": "1929,1109.4",
+    "describedAt": null,
+    "sourceLinks": []
+  },
+  "Vasily_Surikov_-_Suvorov_Crossing_the_Alps_in_1799_-_Google_Art_Project.jpg": {
+    "wikidataId": "Q18689416",
+    "wikidataUrl": "https://www.wikidata.org/wiki/Q18689416",
+    "collection": "Russian Museum",
+    "collectionWikidataId": "Q211043",
+    "location": "Russian Museum",
+    "inventory": "Ж-4242",
+    "describedAt": null,
+    "sourceLinks": []
+  },
+  "Vasily_Surikov_-_Боярыня_Морозова_-_Google_Art_Project.jpg": {
+    "wikidataId": "Q4095553",
+    "wikidataUrl": "https://www.wikidata.org/wiki/Q4095553",
+    "collection": "Tretyakov Gallery",
+    "collectionWikidataId": "Q183334",
+    "location": "Tretyakov Gallery",
+    "inventory": "781",
+    "describedAt": null,
+    "sourceLinks": []
+  },
+  "Vasnetsov_Ioann_4.jpg": {
+    "wikidataId": "Q56042970",
+    "wikidataUrl": "https://www.wikidata.org/wiki/Q56042970",
+    "collection": "Tretyakov Gallery",
+    "collectionWikidataId": "Q183334",
+    "location": "Tretyakov Gallery",
+    "inventory": null,
+    "describedAt": null,
+    "sourceLinks": []
+  },
+  "Vasnetsov_Moving_House.jpg": {
+    "wikidataId": "Q4402935",
+    "wikidataUrl": "https://www.wikidata.org/wiki/Q4402935",
+    "collection": "Tretyakov Gallery",
+    "collectionWikidataId": "Q183334",
+    "location": "Tretyakov Gallery",
+    "inventory": null,
+    "describedAt": null,
+    "sourceLinks": []
+  },
+  "Vasnetsov_samolet.jpg": {
+    "wikidataId": "Q740881",
+    "wikidataUrl": "https://www.wikidata.org/wiki/Q740881",
+    "collection": "Nizhny Novgorod State Art Museum",
+    "collectionWikidataId": "Q4318653",
+    "location": "Nizhny Novgorod State Art Museum",
+    "inventory": null,
+    "describedAt": null,
+    "sourceLinks": []
+  },
+  "Venus_Consoling_Love,_François_Boucher,_1751.jpg": {
+    "wikidataId": "Q12860070",
+    "wikidataUrl": "https://www.wikidata.org/wiki/Q12860070",
+    "collection": "National Gallery of Art",
+    "collectionWikidataId": "Q214867",
+    "location": "National Gallery of Art",
+    "inventory": "1943.7.2",
+    "describedAt": "https://www.nga.gov/collection/art-object-page.12200.html",
+    "sourceLinks": []
+  },
+  "View_of_constantinople_by_evening_light.jpg": {
+    "wikidataId": "Q105194253",
+    "wikidataUrl": "https://www.wikidata.org/wiki/Q105194253",
+    "collection": "Cottage Palace",
+    "collectionWikidataId": "Q4236314",
+    "location": "Cottage Palace",
+    "inventory": null,
+    "describedAt": null,
+    "sourceLinks": []
+  },
+  "View_of_the_Brenta,_near_Dolo_MET_LC-1975_1_091-001.jpg": {
+    "wikidataId": "Q20184472",
+    "wikidataUrl": "https://www.wikidata.org/wiki/Q20184472",
+    "collection": "Metropolitan Museum of Art",
+    "collectionWikidataId": "Q160236",
+    "location": "Metropolitan Museum of Art",
+    "inventory": "1975.1.91",
+    "describedAt": null,
+    "sourceLinks": []
+  },
+  "Viktor_Vasnetsov_-_Богатыри_-_Google_Art_Project.jpg": {
+    "wikidataId": "Q890402",
+    "wikidataUrl": "https://www.wikidata.org/wiki/Q890402",
+    "collection": null,
+    "collectionWikidataId": null,
+    "location": null,
+    "inventory": null,
+    "describedAt": null,
+    "sourceLinks": []
+  },
+  "Virgin_and_Child_with_the_Young_Saint_John_the_Baptist_and_Angels_MET_DP123935.jpg": {
+    "wikidataId": "Q19912320",
+    "wikidataUrl": "https://www.wikidata.org/wiki/Q19912320",
+    "collection": "Metropolitan Museum of Art",
+    "collectionWikidataId": "Q160236",
+    "location": "Metropolitan Museum of Art",
+    "inventory": "66.167",
+    "describedAt": null,
+    "sourceLinks": []
+  },
+  "Walentin_Alexandrowitsch_Serow_Children.jpg": {
+    "wikidataId": "Q118502192",
+    "wikidataUrl": "https://www.wikidata.org/wiki/Q118502192",
+    "collection": "Russian Museum",
+    "collectionWikidataId": "Q211043",
+    "location": "Russian Museum",
+    "inventory": null,
+    "describedAt": null,
+    "sourceLinks": []
+  },
+  "Walpurgis_Night,_1935_-_Paul_Klee.jpg": {
+    "wikidataId": "Q28551816",
+    "wikidataUrl": "https://www.wikidata.org/wiki/Q28551816",
+    "collection": "Tate",
+    "collectionWikidataId": "Q430682",
+    "location": "Tate",
+    "inventory": "T00669",
+    "describedAt": "http://www.tate.org.uk/art/artworks/klee-walpurgis-night-t00669",
+    "sourceLinks": []
+  },
+  "WashingtonAtDorchesterHeightsByStuart.jpeg": {
+    "wikidataId": "Q20634936",
+    "wikidataUrl": "https://www.wikidata.org/wiki/Q20634936",
+    "collection": "Museum of Fine Arts Boston",
+    "collectionWikidataId": "Q49133",
+    "location": "Museum of Fine Arts Boston",
+    "inventory": "L-R 30.76a",
+    "describedAt": null,
+    "sourceLinks": []
+  },
+  "Wiktor_Michajlowitsch_Wassnezow_004.jpg": {
+    "wikidataId": "Q1676032",
+    "wikidataUrl": "https://www.wikidata.org/wiki/Q1676032",
+    "collection": "Tretyakov Gallery",
+    "collectionWikidataId": "Q183334",
+    "location": "Tretyakov Gallery",
+    "inventory": null,
+    "describedAt": null,
+    "sourceLinks": []
+  },
+  "William_Curtis_1775,_RHS_Lindley_Collections.jpg": {
+    "wikidataId": "Q460867",
+    "wikidataUrl": "https://www.wikidata.org/wiki/Q460867",
+    "collection": null,
+    "collectionWikidataId": null,
+    "location": null,
+    "inventory": null,
+    "describedAt": null,
+    "sourceLinks": []
+  },
+  "William_Holman_Hunt_-_The_Finding_of_the_Saviour_in_the_Temple_-_Google_Art_Project.jpg": {
+    "wikidataId": "Q4314748",
+    "wikidataUrl": "https://www.wikidata.org/wiki/Q4314748",
+    "collection": "Birmingham Museums Trust",
+    "collectionWikidataId": "Q4916759",
+    "location": "Birmingham Museum and Art Gallery",
+    "inventory": "1896P80",
+    "describedAt": "https://www.birminghammuseums.org.uk/explore-art/items/1896P80/the-finding-of-the-saviour-in-the-temple",
+    "sourceLinks": []
+  },
+  "Yermolova.jpg": {
+    "wikidataId": "Q292599",
+    "wikidataUrl": "https://www.wikidata.org/wiki/Q292599",
+    "collection": "Tretyakov Gallery",
+    "collectionWikidataId": "Q183334",
+    "location": "Tretyakov Gallery",
+    "inventory": "28079",
+    "describedAt": null,
+    "sourceLinks": []
+  },
+  "Young_Spartans_Exercising_National_Gallery_NG3860.jpg": {
+    "wikidataId": "Q387377",
+    "wikidataUrl": "https://www.wikidata.org/wiki/Q387377",
+    "collection": "National Gallery",
+    "collectionWikidataId": "Q180788",
+    "location": "National Gallery",
+    "inventory": "NG3860",
+    "describedAt": "https://www.degascatalogueraisonne.com/catalogue/artworks/detail?a=105",
+    "sourceLinks": []
+  },
+  "Young_tiger_playing_with_its_mother.jpg": {
+    "wikidataId": "Q23912",
+    "wikidataUrl": "https://www.wikidata.org/wiki/Q23912",
+    "collection": "Department of Paintings of the Louvre",
+    "collectionWikidataId": "Q3044768",
+    "location": "Louvre storage (depot)",
+    "inventory": "RF 1943",
+    "describedAt": null,
+    "sourceLinks": []
+  },
+  "Yuliya_Samoylova.jpg": {
+    "wikidataId": "Q125446983",
+    "wikidataUrl": "https://www.wikidata.org/wiki/Q125446983",
+    "collection": "Russian Museum",
+    "collectionWikidataId": "Q211043",
+    "location": "Russian Museum",
+    "inventory": "Ж-5093",
+    "describedAt": "https://rusmuseumvrm.ru/data/collections/painting/18_19/zh_5093/",
+    "sourceLinks": []
+  },
+  "Zbvenigorod_Savvinskaja_Sloboda_Levitan1884.jpg": {
+    "wikidataId": "Q67203880",
+    "wikidataUrl": "https://www.wikidata.org/wiki/Q67203880",
+    "collection": null,
+    "collectionWikidataId": null,
+    "location": null,
+    "inventory": null,
+    "describedAt": null,
+    "sourceLinks": []
+  },
+  "Zinaida_Yusupova_by_V.Serov_(1900-1902,_GRM).jpg": {
+    "wikidataId": "L14471-S1",
+    "wikidataUrl": "https://www.wikidata.org/wiki/L14471-S1",
+    "collection": "Russian Museum",
+    "collectionWikidataId": "Q211043",
+    "location": "Russian Museum",
+    "inventory": "Ж-4307",
+    "describedAt": null,
+    "sourceLinks": []
+  },
+  "Zmei_Gorinich_(colour_fixed).jpg": {
+    "wikidataId": "Q620939",
+    "wikidataUrl": "https://www.wikidata.org/wiki/Q620939",
+    "collection": null,
+    "collectionWikidataId": null,
+    "location": null,
+    "inventory": null,
+    "describedAt": null,
+    "sourceLinks": []
+  },
+  "Айвазовский_(Гайвазовский)_Иван_(Оганес)_Константинович_Лунная_ночь_на_Босфоре.jpg": {
+    "wikidataId": "Q7234368",
+    "wikidataUrl": "https://www.wikidata.org/wiki/Q7234368",
+    "collection": "Tretyakov Gallery",
+    "collectionWikidataId": "Q183334",
+    "location": "Tretyakov Gallery",
+    "inventory": null,
+    "describedAt": null,
+    "sourceLinks": []
+  },
+  "Aivazovsky,_Brig_Mercury_Attacked_by_Two_Turkish_Ships_1892.jpg": {
+    "wikidataId": null,
+    "wikidataUrl": null,
+    "collection": null,
+    "collectionWikidataId": null,
+    "location": null,
+    "inventory": null,
+    "describedAt": null,
+    "sourceLinks": [
+      {
+        "label": "lj.rossia.org",
+        "url": "http://lj.rossia.org/users/john_petrov/491883.html"
+      }
+    ]
+  },
+  "Anisimov_Alexander_Ivanovich_(Boris_Kustodiev).jpg": {
+    "wikidataId": null,
+    "wikidataUrl": null,
+    "collection": null,
+    "collectionWikidataId": null,
+    "location": null,
+    "inventory": null,
+    "describedAt": null,
+    "sourceLinks": [
+      {
+        "label": "uniyar.ac.ru",
+        "url": "http://www.uniyar.ac.ru/index.php/Файл:Anisimov.jpg"
+      }
+    ]
+  },
+  "Benjamin_West_-_Venus_At_Her_Birth_Attired_By_The_Three_Graces.jpg": {
+    "wikidataId": null,
+    "wikidataUrl": null,
+    "collection": null,
+    "collectionWikidataId": null,
+    "location": null,
+    "inventory": null,
+    "describedAt": null,
+    "sourceLinks": [
+      {
+        "label": "sothebys.com",
+        "url": "http://www.sothebys.com/en/auctions/ecatalogue/2011/old-master-paintings-n08760/lot.114.html"
+      }
+    ]
+  },
+  "Benjamin_West_King_Lear_Act_III_scene_4.jpg": {
+    "wikidataId": null,
+    "wikidataUrl": null,
+    "collection": null,
+    "collectionWikidataId": null,
+    "location": null,
+    "inventory": null,
+    "describedAt": null,
+    "sourceLinks": [
+      {
+        "label": "cgfa.dotsrc.org",
+        "url": "http://cgfa.dotsrc.org/west/p-west12.htm"
+      }
+    ]
+  },
+  "Brjullov_Italianskij_Poldenj.jpg": {
+    "wikidataId": null,
+    "wikidataUrl": null,
+    "collection": null,
+    "collectionWikidataId": null,
+    "location": null,
+    "inventory": null,
+    "describedAt": null,
+    "sourceLinks": [
+      {
+        "label": "art-catalog.ru",
+        "url": "http://www.art-catalog.ru/picture.php?id_picture=3743"
+      },
+      {
+        "label": "belygorod.ru",
+        "url": "http://www.belygorod.ru/img2/RusskieKartinki/Used/0Brullov%20ital%20polden.jpg"
+      }
+    ]
+  },
+  "Cole_Thomas_Expulsion_from_the_Garden_of_Eden_1828.jpg": {
+    "wikidataId": null,
+    "wikidataUrl": null,
+    "collection": null,
+    "collectionWikidataId": null,
+    "location": null,
+    "inventory": null,
+    "describedAt": null,
+    "sourceLinks": [
+      {
+        "label": "mfa.org",
+        "url": "http://www.mfa.org/collections/search_art.asp?recview=true&id=33060"
+      }
+    ]
+  },
+  "Dancers-(1900)-Degas.jpg": {
+    "wikidataId": null,
+    "wikidataUrl": null,
+    "collection": null,
+    "collectionWikidataId": null,
+    "location": null,
+    "inventory": null,
+    "describedAt": null,
+    "sourceLinks": [
+      {
+        "label": "artmuseum.princeton.edu",
+        "url": "https://artmuseum.princeton.edu/collections/objects/9449"
+      },
+      {
+        "label": "the-athenaeum.org",
+        "url": "http://www.the-athenaeum.org/art/detail.php?ID=5631"
+      }
+    ]
+  },
+  "Delaunay_Portuguese_Woman.jpg": {
+    "wikidataId": null,
+    "wikidataUrl": null,
+    "collection": null,
+    "collectionWikidataId": null,
+    "location": null,
+    "inventory": null,
+    "describedAt": null,
+    "sourceLinks": [
+      {
+        "label": "columbusmuseum.org",
+        "url": "http://www.columbusmuseum.org/collection/detail.php?id=10"
+      }
+    ]
+  },
+  "Dolley_Madison.jpg": {
+    "wikidataId": null,
+    "wikidataUrl": null,
+    "collection": null,
+    "collectionWikidataId": null,
+    "location": null,
+    "inventory": null,
+    "describedAt": null,
+    "sourceLinks": [
+      {
+        "label": "whha.org",
+        "url": "http://www.whha.org/whha_about/whitehouse_collection/whitehouse_collection-art-01.html"
+      }
+    ]
+  },
+  "Drawing_of_mules_by_Claude_Lorrain.jpg": {
+    "wikidataId": null,
+    "wikidataUrl": null,
+    "collection": null,
+    "collectionWikidataId": null,
+    "location": null,
+    "inventory": null,
+    "describedAt": null,
+    "sourceLinks": [
+      {
+        "label": "britishmuseum.org",
+        "url": "http://www.britishmuseum.org/research/search_the_collection_database/search_object_details.aspx?objectid=722328&partid=1&output=People%2f!!%2fOR%2f!!%2f129122%2f!%2f129122-2-9%2f!%2fDrawn+by+Claude+Lorrain%2f!%2f%2f!!%2f%2f!!!%2f&orig=%2fresearch%2fsearch_the_collection_database%2fadvanced_search.aspx&currentPage=2&numpages=10"
+      }
+    ]
+  },
+  "Eakins,_Ashbury_W_Lee_1905.jpg": {
+    "wikidataId": null,
+    "wikidataUrl": null,
+    "collection": null,
+    "collectionWikidataId": null,
+    "location": null,
+    "inventory": null,
+    "describedAt": null,
+    "sourceLinks": [
+      {
+        "label": "picasaweb.google.com",
+        "url": "http://picasaweb.google.com/revswain/EakinsThomas#5292374853576329122"
+      }
+    ]
+  },
+  "Eduard_Gaertner_-_Ansicht_der_Rückfront_der_Häuser_an_der_Schloßfreiheit_-_Google_Art_Project.jpg": {
+    "wikidataId": null,
+    "wikidataUrl": null,
+    "collection": null,
+    "collectionWikidataId": null,
+    "location": null,
+    "inventory": null,
+    "describedAt": null,
+    "sourceLinks": [
+      {
+        "label": "google.com",
+        "url": "http://www.google.com/culturalinstitute/asset-viewer/rear-view-of-the-houses-at-schlo%C3%9Ffreiheit/TAGL_EOvuc-TPw"
+      }
+    ]
+  },
+  "El_Greco_-_Portrait_of_the_Artist's_Son_Jorge_Manuel_Theotokopoulos_-_WGA10567.jpg": {
+    "wikidataId": null,
+    "wikidataUrl": null,
+    "collection": null,
+    "collectionWikidataId": null,
+    "location": null,
+    "inventory": null,
+    "describedAt": null,
+    "sourceLinks": [
+      {
+        "label": "ceres.mcu.es",
+        "url": "http://ceres.mcu.es/pages/Main"
+      },
+      {
+        "label": "museosdeandalucia.es",
+        "url": "http://www.museosdeandalucia.es/cultura/museos/GENERICO/S2_3_1_1nolupa.jsp?idpieza=877&pagina=1"
+      }
+    ]
+  },
+  "El_caballero_de_la_mano_en_el_pecho,_by_El_Greco,_from_Prado_in_Google_Earth.jpg": {
+    "wikidataId": null,
+    "wikidataUrl": null,
+    "collection": null,
+    "collectionWikidataId": null,
+    "location": null,
+    "inventory": null,
+    "describedAt": null,
+    "sourceLinks": [
+      {
+        "label": "museodelprado.es",
+        "url": "https://www.museodelprado.es/coleccion/obra-de-arte/el-caballero-de-la-mano-en-el-pecho/9cb73bdf-66e8-4826-a79c-5de2b15a1da6"
+      }
+    ]
+  },
+  "Fiesta_campestre.jpg": {
+    "wikidataId": null,
+    "wikidataUrl": null,
+    "collection": null,
+    "collectionWikidataId": null,
+    "location": null,
+    "inventory": null,
+    "describedAt": null,
+    "sourceLinks": [
+      {
+        "label": "fortunecity.es",
+        "url": "http://www.fortunecity.es/bohemio/pintura/149/Giorgione.htm"
+      },
+      {
+        "label": "fortunecity.es",
+        "url": "http://www.fortunecity.es/bohemio/pintura/149/Conciertopastoral.jpg"
+      }
+    ]
+  },
+  "File-Ivan_Aivazovsky_-_Tempset_by_Sounion.jpg": {
+    "wikidataId": null,
+    "wikidataUrl": null,
+    "collection": null,
+    "collectionWikidataId": null,
+    "location": null,
+    "inventory": null,
+    "describedAt": null,
+    "sourceLinks": [
+      {
+        "label": "nationalgallery.gr",
+        "url": "http://www.nationalgallery.gr/site/content.php?sel=247&artwork_id=74280"
+      }
+    ]
+  },
+  "Hampstead_Heath_by_John_Constable_watercolour.jpg": {
+    "wikidataId": null,
+    "wikidataUrl": null,
+    "collection": null,
+    "collectionWikidataId": null,
+    "location": null,
+    "inventory": null,
+    "describedAt": null,
+    "sourceLinks": [
+      {
+        "label": "britishmuseum.org",
+        "url": "http://www.britishmuseum.org/research/search_the_collection_database/search_object_details.aspx?objectid=745419&partid=1&searchText=john+constable+hampstead+heath&fromADBC=ad&toADBC=ad&numpages=10&images=on&orig=%2fresearch%2fsearch_the_collection_database.aspx&currentPage=1"
+      }
+    ]
+  },
+  "Jean-Honoré_Fragonard_-_Cabra-cega.jpg": {
+    "wikidataId": null,
+    "wikidataUrl": null,
+    "collection": null,
+    "collectionWikidataId": null,
+    "location": null,
+    "inventory": null,
+    "describedAt": null,
+    "sourceLinks": [
+      {
+        "label": "media.artfinder.com",
+        "url": "http://media.artfinder.com/works/r/timken/d/r/a/timken_fragonard_full_736x1024.jpg"
+      }
+    ]
+  },
+  "Jérôme_Bonaparte_by_Gilbert_Stuart_1804.jpeg": {
+    "wikidataId": null,
+    "wikidataUrl": null,
+    "collection": null,
+    "collectionWikidataId": null,
+    "location": null,
+    "inventory": null,
+    "describedAt": null,
+    "sourceLinks": [
+      {
+        "label": "the-athenaeum.org",
+        "url": "http://www.the-athenaeum.org/art/full.php?ID=24874"
+      }
+    ]
+  },
+  "KustodievB_Provinc.jpg": {
+    "wikidataId": null,
+    "wikidataUrl": null,
+    "collection": null,
+    "collectionWikidataId": null,
+    "location": null,
+    "inventory": null,
+    "describedAt": null,
+    "sourceLinks": [
+      {
+        "label": "mvolodarsky.ru",
+        "url": "http://mvolodarsky.ru/tutaev/romanov.htm"
+      }
+    ]
+  },
+  "Kustodiev_Merchants_Wife.jpg": {
+    "wikidataId": null,
+    "wikidataUrl": null,
+    "collection": null,
+    "collectionWikidataId": null,
+    "location": null,
+    "inventory": null,
+    "describedAt": null,
+    "sourceLinks": [
+      {
+        "label": "bertc.com",
+        "url": "http://www.bertc.com/subone/kustodiev.htm"
+      }
+    ]
+  },
+  "La_Inmaculada_Concepción,_de_El_Greco_y_su_hijo_(Museo_Thyssen-Bornemisza).jpg": {
+    "wikidataId": null,
+    "wikidataUrl": null,
+    "collection": null,
+    "collectionWikidataId": null,
+    "location": null,
+    "inventory": null,
+    "describedAt": null,
+    "sourceLinks": [
+      {
+        "label": "museothyssen.org",
+        "url": "http://www.museothyssen.org/thyssen/ficha_obra/378"
+      }
+    ]
+  },
+  "Madame_Récamier_by_Jacques-Louis_David.jpg": {
+    "wikidataId": null,
+    "wikidataUrl": null,
+    "collection": null,
+    "collectionWikidataId": null,
+    "location": null,
+    "inventory": null,
+    "describedAt": null,
+    "sourceLinks": [
+      {
+        "label": "photos-galeries.com",
+        "url": "http://www.photos-galeries.com/portrait-de-madame-recamier-de-jacques-louis-david/"
+      },
+      {
+        "label": "photos-galeries.com",
+        "url": "http://www.photos-galeries.com/wp-content/uploads/2009/01/recamier.jpg"
+      }
+    ]
+  },
+  "Maslenitsa_kustodiev.jpg": {
+    "wikidataId": null,
+    "wikidataUrl": null,
+    "collection": null,
+    "collectionWikidataId": null,
+    "location": null,
+    "inventory": null,
+    "describedAt": null,
+    "sourceLinks": [
+      {
+        "label": "belygorod.ru",
+        "url": "http://www.belygorod.ru/img2/Maslennica/0KUSTODiev_Masl1916.jpg"
+      }
+    ]
+  },
+  "Miss_Frances_Sherborne_Ridley_Watts.jpg": {
+    "wikidataId": null,
+    "wikidataUrl": null,
+    "collection": null,
+    "collectionWikidataId": null,
+    "location": null,
+    "inventory": null,
+    "describedAt": null,
+    "sourceLinks": [
+      {
+        "label": "mintaka.sdsu.edu",
+        "url": "http://mintaka.sdsu.edu/faculty/erics/web/art/sargent_female.html"
+      },
+      {
+        "label": "philamuseum.org",
+        "url": "http://www.philamuseum.org/collections/permanent/58933.html?mulR=1843376448"
+      }
+    ]
+  },
+  "Mr_and_Mrs_Ralph_Izard_by_John_Singleton_Copley_1775.jpeg": {
+    "wikidataId": null,
+    "wikidataUrl": null,
+    "collection": null,
+    "collectionWikidataId": null,
+    "location": null,
+    "inventory": null,
+    "describedAt": null,
+    "sourceLinks": [
+      {
+        "label": "the-athenaeum.org",
+        "url": "http://www.the-athenaeum.org/art/full.php?ID=20545"
+      }
+    ]
+  },
+  "Notes_Nocturne_lithograph_by_James_McNeill_Whistler_1878.jpg": {
+    "wikidataId": null,
+    "wikidataUrl": null,
+    "collection": null,
+    "collectionWikidataId": null,
+    "location": null,
+    "inventory": null,
+    "describedAt": null,
+    "sourceLinks": [
+      {
+        "label": "britishmuseum.org",
+        "url": "http://www.britishmuseum.org/research/search_the_collection_database/search_object_details.aspx?objectid=1344129&partid=1&searchText=james+mcneill+whistler+nocturne&fromADBC=ad&toADBC=ad&numpages=10&images=on&orig=%2fresearch%2fsearch_the_collection_database.aspx&currentPage=1"
+      }
+    ]
+  },
+  "Peter_Paul_Ruben's_copy_of_the_lost_Battle_of_Anghiari.jpg": {
+    "wikidataId": null,
+    "wikidataUrl": null,
+    "collection": null,
+    "collectionWikidataId": null,
+    "location": null,
+    "inventory": null,
+    "describedAt": null,
+    "sourceLinks": [
+      {
+        "label": "visi.com",
+        "url": "http://www.visi.com/~reuteler/leonardo.html"
+      }
+    ]
+  },
+  "Portrait_of_Alexandrine_Le_Normant_d'Étiolles_(daughter_of_Madame_de_Pompadour),_playing_with_a_Goldfinch.jpg": {
+    "wikidataId": null,
+    "wikidataUrl": null,
+    "collection": null,
+    "collectionWikidataId": null,
+    "location": null,
+    "inventory": null,
+    "describedAt": null,
+    "sourceLinks": [
+      {
+        "label": "sothebys.com",
+        "url": "https://www.sothebys.com/en/auctions/ecatalogue/2008/old-master-paintings-and-drawings-pf8011/lot.66.html"
+      }
+    ]
+  },
+  "Portrait_of_Ida_Rubenstein1.jpg": {
+    "wikidataId": null,
+    "wikidataUrl": null,
+    "collection": null,
+    "collectionWikidataId": null,
+    "location": null,
+    "inventory": null,
+    "describedAt": null,
+    "sourceLinks": [
+      {
+        "label": "podol.ru",
+        "url": "http://podol.ru/serov/"
+      }
+    ]
+  },
+  "Recoveredgleizes.jpg": {
+    "wikidataId": null,
+    "wikidataUrl": null,
+    "collection": null,
+    "collectionWikidataId": null,
+    "location": null,
+    "inventory": null,
+    "describedAt": null,
+    "sourceLinks": [
+      {
+        "label": "writing.upenn.edu",
+        "url": "http://www.writing.upenn.edu/~afilreis/Holocaust/gleizes.html"
+      }
+    ]
+  },
+  "SerovElizabethDepartingOnAHunt.jpg": {
+    "wikidataId": null,
+    "wikidataUrl": null,
+    "collection": null,
+    "collectionWikidataId": null,
+    "location": null,
+    "inventory": null,
+    "describedAt": null,
+    "sourceLinks": [
+      {
+        "label": "rollins.edu",
+        "url": "http://www.rollins.edu/Foreign_Lang/Russian/Lubok/lubok.html"
+      }
+    ]
+  },
+  "Surikov-Horseman2.jpg": {
+    "wikidataId": null,
+    "wikidataUrl": null,
+    "collection": null,
+    "collectionWikidataId": null,
+    "location": null,
+    "inventory": null,
+    "describedAt": null,
+    "sourceLinks": [
+      {
+        "label": "allart.biz",
+        "url": "http://allart.biz/photos/image/Surikov_Bronzen_horseman.html"
+      }
+    ]
+  },
+  "Trinidad_El_Greco2.jpg": {
+    "wikidataId": null,
+    "wikidataUrl": null,
+    "collection": null,
+    "collectionWikidataId": null,
+    "location": null,
+    "inventory": null,
+    "describedAt": null,
+    "sourceLinks": [
+      {
+        "label": "museodelprado.es",
+        "url": "https://www.museodelprado.es/coleccion/obra-de-arte/la-trinidad/8b502bfc-bc6d-43d1-b72b-b047eeea033c"
+      },
+      {
+        "label": "content2.museodelprado.es",
+        "url": "https://content2.museodelprado.es/imagenes/Documentos/imgsem/8b/8b50/8b502bfc-bc6d-43d1-b72b-b047eeea033c/07205995-0f8f-4246-beac-2c89d49cdbfe.jpg"
+      }
+    ]
+  },
+  "Vasnetsov_Acrobats.jpg": {
+    "wikidataId": null,
+    "wikidataUrl": null,
+    "collection": null,
+    "collectionWikidataId": null,
+    "location": null,
+    "inventory": null,
+    "describedAt": null,
+    "sourceLinks": [
+      {
+        "label": "rusmuseumvrm.ru",
+        "url": "http://rusmuseumvrm.ru/data/collections/painting/19_20/vasnecov_vm_akrobati_na_prazdnike_v_okrestnostyah_parizha_1877_zh4213/index.php"
       }
     ]
   }
