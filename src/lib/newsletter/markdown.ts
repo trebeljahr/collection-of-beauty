@@ -4,6 +4,44 @@ import remarkParse from "remark-parse";
 import remarkRehype from "remark-rehype";
 import { unified } from "unified";
 
+type HastNode = {
+  type: string;
+  tagName?: string;
+  properties?: Record<string, unknown>;
+  children?: HastNode[];
+};
+
+/**
+ * Rehype plugin: open absolute http(s) links in a new tab with
+ * `rel="noopener noreferrer nofollow"`. Internal links (relative or
+ * site-rooted) are left alone so cross-edition links stay same-tab.
+ */
+export function rehypeExternalLinks() {
+  const visitAnchor = (node: HastNode) => {
+    if (node.type === "element" && node.tagName === "a") {
+      const props = node.properties ?? {};
+      const href = typeof props.href === "string" ? props.href : "";
+      if (/^https?:\/\//i.test(href)) {
+        props.target = "_blank";
+        const existingRel = Array.isArray(props.rel)
+          ? (props.rel as string[])
+          : typeof props.rel === "string"
+            ? props.rel.split(/\s+/).filter(Boolean)
+            : [];
+        const needed = ["noopener", "noreferrer", "nofollow"];
+        props.rel = Array.from(new Set([...existingRel, ...needed]));
+        node.properties = props;
+      }
+    }
+    if (node.children) {
+      for (const child of node.children) visitAnchor(child);
+    }
+  };
+  return (tree: HastNode) => {
+    visitAnchor(tree);
+  };
+}
+
 /**
  * Render a markdown string to plain HTML. Used by the email render path
  * (the website uses react-markdown directly via the React component).
@@ -17,6 +55,7 @@ export async function markdownToHtml(markdown: string): Promise<string> {
     .use(remarkParse)
     .use(remarkGfm)
     .use(remarkRehype)
+    .use(rehypeExternalLinks)
     .use(rehypeStringify)
     .process(markdown);
   return String(file);

@@ -9,6 +9,7 @@ import { ResponsiveImage } from "@/components/responsive-image";
 import { artworks as ALL_ARTWORKS } from "@/lib/data";
 import { resolveEditionCover } from "@/lib/newsletter/cover";
 import { findEdition, loadUiVisibleEditions, showDraftsInUi } from "@/lib/newsletter/editions";
+import { rehypeExternalLinks } from "@/lib/newsletter/markdown";
 import type { Edition } from "@/lib/newsletter/types";
 import { SITE_NAME, SITE_URL } from "@/lib/seo";
 
@@ -109,7 +110,9 @@ export default async function EditionPage({ params }: { params: Promise<Params> 
 
       {edition.body.length > 0 && (
         <section className="prose-newsletter mb-10 md:mb-12 text-[var(--foreground)]">
-          <Markdown remarkPlugins={[remarkGfm]}>{edition.body}</Markdown>
+          <Markdown remarkPlugins={[remarkGfm]} rehypePlugins={[rehypeExternalLinks]}>
+            {edition.body}
+          </Markdown>
         </section>
       )}
 
@@ -151,10 +154,16 @@ export default async function EditionPage({ params }: { params: Promise<Params> 
                 <div className="mt-5 text-[var(--foreground)] leading-[1.75] text-[1.0625rem]">
                   <Markdown
                     remarkPlugins={[remarkGfm]}
+                    rehypePlugins={[rehypeExternalLinks]}
                     components={{
                       p: ({ children }) => <p className="first:mt-0 mt-3">{children}</p>,
-                      a: ({ href, children }) => (
-                        <a href={href} className="underline underline-offset-2 hover:opacity-70">
+                      a: ({ href, children, target, rel }) => (
+                        <a
+                          href={href}
+                          target={target}
+                          rel={rel}
+                          className="underline underline-offset-2 hover:opacity-70"
+                        >
                           {children}
                         </a>
                       ),
