@@ -112,7 +112,7 @@ async function main(): Promise<void> {
   }
 
   const campaignName = production
-    ? `[A Drop of Beauty] ${edition.fileSlug}`
+    ? `[Drops of Beauty] ${edition.fileSlug}`
     : `[TEST · ${new Date().toISOString().slice(0, 16)}] ${edition.fileSlug}`;
   const subject = production ? rendered.subject : `[TEST] ${rendered.subject}`;
 

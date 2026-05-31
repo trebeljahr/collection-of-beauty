@@ -139,7 +139,7 @@ export async function sendConfirmationEmail(params: SendConfirmationEmailParams)
 
   await sendTransactional({
     to: params.to,
-    subject: "Confirm your subscription · A Drop of Beauty",
+    subject: "Confirm your subscription · Drops of Beauty",
     html,
   });
 }

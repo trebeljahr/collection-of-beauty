@@ -101,7 +101,7 @@ export default function WeeklyDigest({
           <Container className="mx-auto max-w-[640px] bg-white px-0 py-0">
             <Section className="bg-stone-950 px-8 py-9 text-center">
               <Text className="m-0 text-[11px] uppercase tracking-[0.24em] text-stone-300">
-                A Drop of Beauty
+                Drops of Beauty
               </Text>
               <Heading
                 as="h1"
@@ -188,7 +188,7 @@ export default function WeeklyDigest({
                 </Text>
                 {unsubscribeUrl !== null && (
                   <Text className="mt-6 text-xs leading-relaxed text-stone-500">
-                    You&apos;re receiving this because you subscribed to <em>A Drop of Beauty</em>,
+                    You&apos;re receiving this because you subscribed to <em>Drops of Beauty</em>,
                     the Collection of Beauty newsletter.
                     <br />
                     <Link

@@ -6,14 +6,14 @@ import { loadUiVisibleEditions } from "@/lib/newsletter/editions";
 import { SITE_NAME } from "@/lib/seo";
 
 export const metadata: Metadata = {
-  title: "Drops - A Drop of Beauty newsletter archive",
-  description: `Drops from ${SITE_NAME}: themed selections from the public-domain catalogue, with email signup and past editions.`,
+  title: "Drops of Beauty - newsletter archive",
+  description: `Drops of Beauty from ${SITE_NAME}: themed selections from the public-domain catalogue, with email signup and past editions.`,
   alternates: {
     canonical: "/drops",
     types: { "application/rss+xml": "/drops/rss.xml" },
   },
   openGraph: {
-    title: `Drops - ${SITE_NAME}`,
+    title: `Drops of Beauty - ${SITE_NAME}`,
     description: "Themed editions from the public-domain catalogue.",
   },
 };
@@ -24,10 +24,9 @@ export default function DropsPage() {
   return (
     <div className="mx-auto max-w-3xl px-4 py-12 md:py-20">
       <header className="mb-14 md:mb-20">
-        <p className="mb-3 text-xs uppercase tracking-[0.18em] text-[var(--muted-foreground)]">
-          A Drop of Beauty
-        </p>
-        <h1 className="font-serif text-3xl leading-tight tracking-tight md:text-5xl">Drops</h1>
+        <h1 className="font-serif text-3xl leading-tight tracking-tight md:text-5xl">
+          Drops of Beauty
+        </h1>
         <p className="mt-5 text-lg leading-relaxed text-[var(--muted-foreground)]">
           Each Sunday edition picks five public-domain works around a single idea - a movement, a
           motif, a palette, a moment in time.

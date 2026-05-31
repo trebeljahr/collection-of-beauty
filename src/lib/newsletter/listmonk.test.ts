@@ -75,8 +75,8 @@ describe("findSubscriber", () => {
 
 describe("sendTransactional", () => {
   it("passes the configured ListMonk sender and reply-to overrides", async () => {
-    process.env.LISTMONK_FROM = "A Drop of Beauty <noreply@example.com>";
-    process.env.LISTMONK_REPLY_TO = "A Drop of Beauty <hello@example.com>";
+    process.env.LISTMONK_FROM = "Drops of Beauty <noreply@example.com>";
+    process.env.LISTMONK_REPLY_TO = "Drops of Beauty <hello@example.com>";
     const fetchMock = vi.fn(async (_input: RequestInfo | URL, _init?: RequestInit) =>
       jsonResponse({ data: true }),
     );
@@ -92,8 +92,8 @@ describe("sendTransactional", () => {
     expect(body).toMatchObject({
       subscriber_email: "reader@example.com",
       template_id: 5,
-      from_email: "A Drop of Beauty <noreply@example.com>",
-      headers: [{ "Reply-To": "A Drop of Beauty <hello@example.com>" }],
+      from_email: "Drops of Beauty <noreply@example.com>",
+      headers: [{ "Reply-To": "Drops of Beauty <hello@example.com>" }],
     });
   });
 });
