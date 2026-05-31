@@ -895,7 +895,13 @@ async function main() {
       const normalizedArtistName = normalizeArtistName(entry.artist) ?? null;
       const title = cleanTitle(entry.title, fname, normalizedArtistName);
       const year = extractYear(entry);
-      const artistInfo = entry.artist_info ?? matchArtist(normalizedArtistName, byAlias);
+      // artists-db.json is the curated source of truth — prefer it over
+      // any snapshot embedded in the metadata sidecar. Earlier the order
+      // was inverted, which meant edits to db (movement renames, etc.)
+      // were silently overridden by stale `artist_info` copies in the
+      // Wikimedia metadata. Fall back to the inline copy when the db has
+      // no match.
+      const artistInfo = matchArtist(normalizedArtistName, byAlias) ?? entry.artist_info ?? null;
       // Prefer the canonical name from the artists DB so casing variants
       // ("Claude monet"), spelling variants ("Rafael" → "Raphael", "Alfons
       // Mucha" → "Alphonse Mucha"), and ordering variants ("Yamamoto Kanae"

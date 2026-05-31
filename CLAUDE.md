@@ -145,3 +145,19 @@ set up; if you need one, scaffold a Testing Library setup separately.
 - ~937 paintings lack `realDimensions` — gallery layout falls back to a
   pixel-aspect estimate. Fix is data-side (Wikidata fetch), not
   filter-tightening. See `~/.claude/projects/.../memory/project_dimension_gap.md`.
+- ~656 paintings lack a `movement` tag (~23% of the corpus) — they
+  fall through to year-based era assignment in
+  [`gallery-eras.ts`](src/lib/gallery-eras.ts). All come from the
+  `collection-of-beauty` folder; `audubon-birds` and
+  `kunstformen-images` are 100% tagged. Top untagged artists who
+  belong in the DB: Vasily Vereshchagin (48), Ilya Repin (23), Lucas
+  Cranach the Elder (18), Artemisia Gentileschi (18), William Merritt
+  Chase (18), Martin Schongauer (16), Gustave Doré (16), Gustave
+  Caillebotte (14), Carl Spitzweg (13), Eugene de Blaas (13), Joseph
+  Karl Stieler (12), Yoshitoshi (11), Thomas Gainsborough (10), Jacob
+  Jordaens (9), Georges de La Tour (9), Utagawa Kuniyoshi (9), Henri
+  Fantin-Latour (9), Hans Holbein the Younger (8), Paolo Veronese
+  (8). Fix is to add these to `scripts/artists-db.json` with a
+  curated movement value. The remaining ~76 paintings are anonymous
+  (no `artist`) and can't be matched by alias — they need per-artwork
+  movement metadata or to stay on year fallback.
