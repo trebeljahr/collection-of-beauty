@@ -145,7 +145,11 @@ export default async function ArtistPage({ params }: { params: Promise<Params> }
 
       <section>
         <h2 className="mb-4 font-serif text-xl">Works in this collection</h2>
-        <ArtworkGallery artworks={works} resetKey={artist.slug} />
+        <ArtworkGallery
+          artworks={works}
+          resetKey={artist.slug}
+          scope={{ kind: "artist", slug: artist.slug }}
+        />
       </section>
     </div>
   );

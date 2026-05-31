@@ -7,6 +7,7 @@ import { ArtworkViewer } from "@/components/artwork-viewer";
 import { LicenseBadge } from "@/components/license-badge";
 import { Badge } from "@/components/ui/badge";
 import { buttonVariants } from "@/components/ui/button";
+import { artworkHref, parseScope, resolveScope, scopeHref, scopeLabel } from "@/lib/artwork-scope";
 import {
   type Artwork,
   artworks,
@@ -81,8 +82,15 @@ export async function generateMetadata({ params }: { params: Promise<Params> }):
   };
 }
 
-export default async function ArtworkPage({ params }: { params: Promise<Params> }) {
+export default async function ArtworkPage({
+  params,
+  searchParams,
+}: {
+  params: Promise<Params>;
+  searchParams: Promise<{ from?: string }>;
+}) {
   const { id } = await params;
+  const { from } = await searchParams;
   const art = getArtwork(id);
   if (!art) notFound();
 
@@ -93,36 +101,61 @@ export default async function ArtworkPage({ params }: { params: Promise<Params> 
         .slice(0, 12)
     : [];
 
-  const idx = artworks.findIndex((a) => a.id === art.id);
-  const prev = idx > 0 ? artworks[idx - 1] : null;
-  const next = idx < artworks.length - 1 ? artworks[idx + 1] : null;
+  // Pick prev/next from the scoped list when a valid scope was supplied
+  // AND the current artwork is in it. Anything else (no scope, scope
+  // malformed, current id not present in scope) falls back to the
+  // global pool — same behaviour as before the scope feature.
+  const scope = parseScope(from ?? null);
+  const scopedList = scope ? resolveScope(scope) : null;
+  const scopedIdx = scopedList != null ? scopedList.findIndex((a) => a.id === art.id) : -1;
+  const useScoped = scopedList != null && scopedIdx >= 0;
+
+  let prevId: string | null;
+  let nextId: string | null;
+  if (useScoped && scopedList) {
+    prevId = scopedIdx > 0 ? scopedList[scopedIdx - 1].id : null;
+    nextId = scopedIdx < scopedList.length - 1 ? scopedList[scopedIdx + 1].id : null;
+  } else {
+    const idx = artworks.findIndex((a) => a.id === art.id);
+    prevId = idx > 0 ? artworks[idx - 1].id : null;
+    nextId = idx < artworks.length - 1 ? artworks[idx + 1].id : null;
+  }
+
+  const navScope = useScoped ? scope : null;
   const displayed = displayTitle(art);
 
   return (
     <div className="mx-auto max-w-6xl px-4 py-8">
       <script {...jsonLdScriptProps(artworkJsonLd(art))} />
       <div className="mb-6 flex items-center justify-between text-sm text-[var(--muted-foreground)]">
-        <Link
-          href="/"
-          className="rounded-sm hover:underline focus:outline-none focus-visible:ring-2 focus-visible:ring-[var(--ring)]"
-        >
-          ← Back to gallery
-        </Link>
+        {navScope ? (
+          <Link
+            href={scopeHref(navScope)}
+            className="rounded-sm hover:underline focus:outline-none focus-visible:ring-2 focus-visible:ring-[var(--ring)]"
+          >
+            ← Back to {scopeLabel(navScope)}
+          </Link>
+        ) : (
+          <Link
+            href="/"
+            className="rounded-sm hover:underline focus:outline-none focus-visible:ring-2 focus-visible:ring-[var(--ring)]"
+          >
+            ← Back to gallery
+          </Link>
+        )}
         <div className="flex items-center gap-3">
-          {prev && (
+          {prevId && (
             <Link
-              href={`/artwork/${prev.id}`}
+              href={artworkHref(prevId, navScope)}
               className="rounded-sm hover:underline focus:outline-none focus-visible:ring-2 focus-visible:ring-[var(--ring)]"
-              title={displayTitle(prev)}
             >
               ← Previous
             </Link>
           )}
-          {next && (
+          {nextId && (
             <Link
-              href={`/artwork/${next.id}`}
+              href={artworkHref(nextId, navScope)}
               className="rounded-sm hover:underline focus:outline-none focus-visible:ring-2 focus-visible:ring-[var(--ring)]"
-              title={displayTitle(next)}
             >
               Next →
             </Link>
@@ -144,8 +177,9 @@ export default async function ArtworkPage({ params }: { params: Promise<Params> 
               width: art.width,
               height: art.height,
             }}
-            prevId={prev?.id ?? null}
-            nextId={next?.id ?? null}
+            prevId={prevId}
+            nextId={nextId}
+            scope={navScope}
           />
         </div>
 
@@ -222,7 +256,11 @@ export default async function ArtworkPage({ params }: { params: Promise<Params> 
           <h2 className="mb-4 font-serif text-xl">More by {art.artist}</h2>
           <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6">
             {moreByArtist.map((a) => (
-              <ArtworkCard key={a.id} artwork={a} />
+              <ArtworkCard
+                key={a.id}
+                artwork={a}
+                scope={{ kind: "artist", slug: art.artistSlug }}
+              />
             ))}
           </div>
         </section>
