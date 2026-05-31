@@ -960,6 +960,51 @@
       "nationality": "French",
       "movement": "Baroque",
       "pd_status": "public_domain_worldwide"
+    },
+    {
+      "name": "Utagawa Kuniyoshi",
+      "aliases": ["Utagawa Kuniyoshi", "Kuniyoshi Utagawa"],
+      "born": 1798,
+      "died": 1861,
+      "nationality": "Japanese",
+      "movement": "Ukiyo-e",
+      "pd_status": "public_domain_worldwide"
+    },
+    {
+      "name": "Henri Fantin-Latour",
+      "aliases": ["Henri Fantin-Latour", "Fantin-Latour"],
+      "born": 1836,
+      "died": 1904,
+      "nationality": "French",
+      "movement": "Realism",
+      "pd_status": "public_domain_worldwide"
+    },
+    {
+      "name": "Hans Holbein the Younger",
+      "aliases": ["Hans Holbein the Younger", "Holbein the Younger", "Hans Holbein d. J."],
+      "born": 1497,
+      "died": 1543,
+      "nationality": "German",
+      "movement": "Northern Renaissance",
+      "pd_status": "public_domain_worldwide"
+    },
+    {
+      "name": "Paolo Veronese",
+      "aliases": ["Paolo Veronese", "Paolo Caliari"],
+      "born": 1528,
+      "died": 1588,
+      "nationality": "Italian",
+      "movement": "Renaissance",
+      "pd_status": "public_domain_worldwide"
+    },
+    {
+      "name": "Suzuki Harunobu",
+      "aliases": ["Suzuki Harunobu", "Harunobu Suzuki", "Harunobu"],
+      "born": 1725,
+      "died": 1770,
+      "nationality": "Japanese",
+      "movement": "Ukiyo-e",
+      "pd_status": "public_domain_worldwide"
     }
   ]
 }
