@@ -572,7 +572,19 @@ function matchArtist(name, byAlias) {
   if (!name) return null;
   const low = fold(name);
   if (byAlias.has(low)) return byAlias.get(low);
+  // Substring fallback for short-form / punctuation variants ("Vincent van Gogh."
+  // → "Vincent van Gogh"). A single-token surname alias may only match when it
+  // is the input's last token — otherwise "Friedrich" swallows
+  // "Karl Friedrich Schinkel" via the middle name.
+  const lowTokens = low.split(/\s+/).filter(Boolean);
+  const lowLast = lowTokens[lowTokens.length - 1];
   for (const [alias, a] of byAlias) {
+    if (!alias) continue;
+    const aliasTokens = alias.split(/\s+/).filter(Boolean);
+    if (aliasTokens.length === 1) {
+      if (alias === lowLast) return a;
+      continue;
+    }
     if (low.includes(alias) || alias.includes(low)) return a;
   }
   return null;

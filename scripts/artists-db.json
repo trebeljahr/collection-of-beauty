@@ -504,9 +504,27 @@
     },
     {
       "name": "Caspar David Friedrich",
-      "aliases": ["Caspar David Friedrich", "Friedrich"],
+      "aliases": ["Caspar David Friedrich", "Caspar Friedrich", "C. D. Friedrich"],
       "born": 1774,
       "died": 1840,
+      "nationality": "German",
+      "movement": "Romanticism",
+      "pd_status": "public_domain_worldwide"
+    },
+    {
+      "name": "Karl Friedrich Schinkel",
+      "aliases": ["Karl Friedrich Schinkel", "Karl Schinkel", "Schinkel"],
+      "born": 1781,
+      "died": 1841,
+      "nationality": "German",
+      "movement": "Romanticism",
+      "pd_status": "public_domain_worldwide"
+    },
+    {
+      "name": "Carl Friedrich Seiffert",
+      "aliases": ["Carl Friedrich Seiffert", "Carl Seiffert", "Seiffert"],
+      "born": 1809,
+      "died": 1891,
       "nationality": "German",
       "movement": "Romanticism",
       "pd_status": "public_domain_worldwide"
