@@ -207,7 +207,7 @@ export function SubscribeForm({
 
       {!compact && (
         <p className="text-xs text-[var(--muted-foreground)]">
-          <em>A Drop of Beauty</em> - one email a week. The unsubscribe link sits at the bottom of
+          <em>Drops of Beauty</em> - one email a week. The unsubscribe link sits at the bottom of
           every issue. Leave whenever.
         </p>
       )}

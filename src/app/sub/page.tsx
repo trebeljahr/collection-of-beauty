@@ -3,14 +3,14 @@ import { SubscribeForm } from "@/components/subscribe-form";
 import { SITE_NAME } from "@/lib/seo";
 
 export const metadata: Metadata = {
-  title: "Subscribe to A Drop of Beauty",
-  description: `A Drop of Beauty — five public-domain works, arranged around a single idea. One email from ${SITE_NAME}, every Sunday.`,
+  title: "Subscribe to Drops of Beauty",
+  description: `Drops of Beauty — five public-domain works, arranged around a single idea. One email from ${SITE_NAME}, every Sunday.`,
   alternates: { canonical: "/sub" },
   // /drops is the indexable archive surface; /sub is the
   // signup conversion page reached from that archive (and direct links).
   robots: { index: false, follow: false },
   openGraph: {
-    title: `A Drop of Beauty · ${SITE_NAME}`,
+    title: `Drops of Beauty · ${SITE_NAME}`,
     description: "Five works on one theme, every Sunday.",
   },
 };
@@ -19,7 +19,7 @@ export default function SubscribePage() {
   return (
     <div className="mx-auto max-w-2xl px-4 py-10 md:py-16">
       <header className="mb-8">
-        <h1 className="font-serif text-3xl md:text-4xl">A Drop of Beauty</h1>
+        <h1 className="font-serif text-3xl md:text-4xl">Drops of Beauty</h1>
         <p className="mt-3 text-[var(--muted-foreground)]">
           Five works from the public-domain canon, arranged around a single theme. One email, every
           Sunday morning.

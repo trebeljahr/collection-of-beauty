@@ -40,13 +40,13 @@ export default function ConfirmSubscription({
   return (
     <Html>
       <Head />
-      <Preview>One click to confirm your subscription to A Drop of Beauty.</Preview>
+      <Preview>One click to confirm your subscription to Drops of Beauty.</Preview>
       <Tailwind>
         <Body className="bg-stone-50 font-serif text-stone-900">
           <Container className="mx-auto max-w-[560px] bg-white px-0 py-0">
             <Section className="px-8 pt-8 pb-2 text-center">
               <Text className="m-0 text-[11px] uppercase tracking-[0.22em] text-stone-500">
-                A Drop of Beauty
+                Drops of Beauty
               </Text>
             </Section>
 
@@ -67,7 +67,7 @@ export default function ConfirmSubscription({
                 Confirm your subscription
               </Heading>
               <Text className="mt-4 text-base leading-relaxed text-stone-800">
-                You're one click away from <strong>A Drop of Beauty</strong>, a weekly letter from
+                You're one click away from <strong>Drops of Beauty</strong>, a weekly letter from
                 the{" "}
                 <Link
                   href={siteUrl}

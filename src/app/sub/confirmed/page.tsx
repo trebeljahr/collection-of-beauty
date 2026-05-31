@@ -27,7 +27,7 @@ export default async function ConfirmedPage({
       <ConfettiBurst />
       <h1 className="font-serif text-3xl md:text-4xl">You&apos;re in.</h1>
       <p className="mt-3 text-[var(--muted-foreground)]">
-        Subscribed to <em>A Drop of Beauty</em>.
+        Subscribed to <em>Drops of Beauty</em>.
       </p>
       {welcomeSent && (
         <p className="mt-4 text-[var(--muted-foreground)]">
