@@ -24,8 +24,12 @@ export type DigestArtwork = {
   movement: string | null;
   imageUrl: string;
   artworkUrl: string;
-  /** Editorial blurb written specifically for this issue. */
-  note: string | null;
+  /**
+   * Editorial blurb written specifically for this issue, pre-rendered
+   * to HTML from markdown (so `[text](url)` links render as real
+   * anchors). Trusted in-repo content. `null` when no note was set.
+   */
+  noteHtml: string | null;
 };
 
 export type WeeklyDigestProps = {
@@ -85,10 +89,10 @@ export default function WeeklyDigest({
           descendant rules into a real <style> block instead.
         */}
         <style>{`
-          .intro-prose a { color: #1c1917; text-decoration: underline; text-decoration-color: #d6d3d1; text-underline-offset: 4px; }
-          .intro-prose em { font-style: italic; }
+          .intro-prose em, .note-prose em { font-style: italic; }
           .intro-prose p { margin-top: 0.75rem; margin-bottom: 0.75rem; }
-          .intro-prose strong { font-weight: 600; }
+          .intro-prose strong, .note-prose strong { font-weight: 600; }
+          .note-prose p { margin: 0; }
         `}</style>
       </Head>
       <Preview>{previewText}</Preview>
@@ -144,8 +148,16 @@ export default function WeeklyDigest({
                     as="h2"
                     className="mt-4 mb-1 font-serif text-xl font-normal text-stone-900"
                   >
-                    <Link href={a.artworkUrl} className="text-stone-900 no-underline">
-                      {a.title}
+                    <Link
+                      href={a.artworkUrl}
+                      style={{
+                        color: "#1c1917",
+                        textDecorationLine: "underline",
+                        textDecorationColor: "#d6d3d1",
+                        textUnderlineOffset: "4px",
+                      }}
+                    >
+                      <span style={{ color: "#1c1917" }}>{a.title}</span>
                     </Link>
                   </Heading>
                   <Text className="m-0 text-sm text-stone-600">
@@ -153,10 +165,12 @@ export default function WeeklyDigest({
                     {a.year ? ` · ${a.year}` : ""}
                     {a.movement ? ` · ${a.movement}` : ""}
                   </Text>
-                  {a.note && (
-                    <Text className="mt-3 mb-0 text-sm leading-relaxed text-stone-700">
-                      {a.note}
-                    </Text>
+                  {a.noteHtml && (
+                    <div
+                      className="note-prose mt-3 text-sm leading-relaxed text-stone-700"
+                      // biome-ignore lint/security/noDangerouslySetInnerHtml: trusted in-repo markdown rendered via remark
+                      dangerouslySetInnerHTML={{ __html: a.noteHtml }}
+                    />
                   )}
                 </Section>
               ))}
@@ -204,7 +218,8 @@ const PREVIEW_ARTWORKS: DigestArtwork[] = [
     artist: "Claude Monet",
     year: 1906,
     movement: "Impressionism",
-    note: "Painted at Giverny in the years Monet ripped up his garden and let the pond take over.",
+    noteHtml:
+      "<p>Painted at Giverny in the years Monet ripped up his garden and let the pond take over.</p>",
     imageUrl:
       "https://upload.wikimedia.org/wikipedia/commons/thumb/1/1b/Claude_Monet%2C_Water_Lilies%2C_1906%2C_Ryerson.jpg/800px-Claude_Monet%2C_Water_Lilies%2C_1906%2C_Ryerson.jpg",
     artworkUrl: "https://example.com/artwork/preview-1",
@@ -215,7 +230,7 @@ const PREVIEW_ARTWORKS: DigestArtwork[] = [
     artist: "Katsushika Hokusai",
     year: 1831,
     movement: "Ukiyo-e",
-    note: null,
+    noteHtml: null,
     imageUrl:
       "https://upload.wikimedia.org/wikipedia/commons/thumb/a/a5/Tsunami_by_hokusai_19th_century.jpg/800px-Tsunami_by_hokusai_19th_century.jpg",
     artworkUrl: "https://example.com/artwork/preview-2",
@@ -226,7 +241,7 @@ const PREVIEW_ARTWORKS: DigestArtwork[] = [
     artist: "Vincent van Gogh",
     year: 1889,
     movement: "Post-Impressionism",
-    note: null,
+    noteHtml: null,
     imageUrl:
       "https://upload.wikimedia.org/wikipedia/commons/thumb/e/ea/Van_Gogh_-_Starry_Night_-_Google_Art_Project.jpg/800px-Van_Gogh_-_Starry_Night_-_Google_Art_Project.jpg",
     artworkUrl: "https://example.com/artwork/preview-3",
@@ -237,7 +252,7 @@ const PREVIEW_ARTWORKS: DigestArtwork[] = [
     artist: "John James Audubon",
     year: 1838,
     movement: null,
-    note: null,
+    noteHtml: null,
     imageUrl:
       "https://upload.wikimedia.org/wikipedia/commons/thumb/6/6d/American_Flamingo.jpg/800px-American_Flamingo.jpg",
     artworkUrl: "https://example.com/artwork/preview-4",
@@ -248,7 +263,7 @@ const PREVIEW_ARTWORKS: DigestArtwork[] = [
     artist: "Ernst Haeckel",
     year: 1904,
     movement: null,
-    note: null,
+    noteHtml: null,
     imageUrl:
       "https://upload.wikimedia.org/wikipedia/commons/thumb/7/7e/Haeckel_Discomedusae_8.jpg/800px-Haeckel_Discomedusae_8.jpg",
     artworkUrl: "https://example.com/artwork/preview-5",
