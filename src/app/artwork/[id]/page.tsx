@@ -16,6 +16,7 @@ import {
   getArtwork,
   getArtworksByArtist,
 } from "@/lib/data";
+import { assignEra, getEra } from "@/lib/gallery-eras";
 import { getLicenseInfo } from "@/lib/license";
 import { suggestFixUrl } from "@/lib/links";
 import { artworkJsonLd, jsonLdScriptProps, ogImagesForArtwork } from "@/lib/seo";
@@ -124,6 +125,20 @@ export default async function ArtworkPage({
   const navScope = useScoped ? scope : null;
   const displayed = displayTitle(art);
 
+  // Era surfacing: same priority order the 3D gallery uses (movement
+  // first, then year). Null when neither lands — badge + section both
+  // hide rather than render an empty rail.
+  const eraId = assignEra({ movement: art.movement, year: art.year });
+  const era = eraId ? getEra(eraId) : null;
+  const eraPool = eraId
+    ? resolveScope({ kind: "era", id: eraId }).filter(
+        (a) => a.id !== art.id && a.artistSlug !== art.artistSlug,
+      )
+    : [];
+  // Deterministic per-artwork sample so the same id always surfaces
+  // the same neighbours — predictable, cacheable, no hydration churn.
+  const moreFromEra = sampleStable(eraPool, MORE_FROM_ERA_COUNT, art.id);
+
   return (
     <div className="mx-auto max-w-6xl px-4 py-8">
       <script {...jsonLdScriptProps(artworkJsonLd(art))} />
@@ -219,6 +234,14 @@ export default async function ArtworkPage({
 
           <div className="flex flex-wrap items-center gap-2">
             {art.movement && <Badge variant="secondary">{art.movement}</Badge>}
+            {era && (
+              <Link
+                href={`/era/${era.id}`}
+                className="rounded-sm focus:outline-none focus-visible:ring-2 focus-visible:ring-[var(--ring)]"
+              >
+                <Badge variant="outline">{era.title}</Badge>
+              </Link>
+            )}
             {art.nationality && <Badge variant="outline">{art.nationality}</Badge>}
             <LicenseBadge license={art.license} />
           </div>
@@ -265,8 +288,51 @@ export default async function ArtworkPage({
           </div>
         </section>
       )}
+
+      {era && eraId && moreFromEra.length > 0 && (
+        <section className="mt-16">
+          <h2 className="mb-4 font-serif text-xl">More from {era.title} by other artists</h2>
+          <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6">
+            {moreFromEra.map((a) => (
+              <ArtworkCard key={a.id} artwork={a} scope={{ kind: "era", id: eraId }} />
+            ))}
+          </div>
+        </section>
+      )}
     </div>
   );
+}
+
+// Cards rendered in the "More from this era" rail. Six fits the 6-col
+// grid at lg cleanly; bumping to 8 leaves a short second row on most
+// pages without enough payoff.
+const MORE_FROM_ERA_COUNT = 6;
+
+/** FNV-1a 32-bit hash — matches the algorithm used by
+ *  `gallery-eras.ts#roomFloorColor`, kept inline to avoid widening that
+ *  module's public surface. Returns an unsigned 32-bit int. */
+function fnv1a(s: string): number {
+  let h = 0x811c9dc5;
+  for (let i = 0; i < s.length; i++) {
+    h ^= s.charCodeAt(i);
+    h = Math.imul(h, 0x01000193);
+  }
+  return h >>> 0;
+}
+
+/** Pick `count` items from `pool` deterministically based on `seed`.
+ *  Strided pick spreads the selection across the pool so the same
+ *  artwork always shows the same neighbours, and the sample reads as
+ *  representative of the era rather than clustered. */
+function sampleStable<T>(pool: T[], count: number, seed: string): T[] {
+  if (pool.length <= count) return pool.slice();
+  const stride = Math.max(1, Math.floor(pool.length / count));
+  const offset = fnv1a(seed) % pool.length;
+  const out: T[] = [];
+  for (let i = 0; i < count; i++) {
+    out.push(pool[(offset + i * stride) % pool.length]);
+  }
+  return out;
 }
 
 /**

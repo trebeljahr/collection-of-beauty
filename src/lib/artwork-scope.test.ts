@@ -9,6 +9,7 @@ import {
   scopeLabel,
 } from "@/lib/artwork-scope";
 import { artworkListings, getArtworksByArtist } from "@/lib/data";
+import { assignEra, getEra } from "@/lib/gallery-eras";
 
 describe("parseScope", () => {
   it("returns null for missing / malformed input", () => {
@@ -28,6 +29,16 @@ describe("parseScope", () => {
       name: "Impressionism",
     });
     expect(parseScope("decade:1880")).toEqual({ kind: "decade", start: 1880 });
+    expect(parseScope("era:fin-de-siecle")).toEqual({ kind: "era", id: "fin-de-siecle" });
+    expect(parseScope("era:ukiyo-e")).toEqual({ kind: "era", id: "ukiyo-e" });
+  });
+
+  it("rejects era ids that aren't in the canonical ERAS list", () => {
+    // Movement name, not an era id — must not be coerced.
+    expect(parseScope("era:impressionism")).toBeNull();
+    expect(parseScope("era:not-an-era")).toBeNull();
+    // Case-sensitive: only the lowercase kebab id is accepted.
+    expect(parseScope("era:Gothic")).toBeNull();
   });
 
   it("URL-decodes the value half", () => {
@@ -52,10 +63,18 @@ describe("encodeScope", () => {
       { kind: "movement", name: "Northern Song" },
       { kind: "movement", name: "Ukiyo-e" },
       { kind: "decade", start: 1880 },
+      { kind: "era", id: "gothic" },
+      { kind: "era", id: "fin-de-siecle" },
+      { kind: "era", id: "ukiyo-e" },
     ];
     for (const scope of cases) {
       expect(parseScope(encodeScope(scope))).toEqual(scope);
     }
+  });
+
+  it("emits era ids without percent-encoding", () => {
+    expect(encodeScope({ kind: "era", id: "fin-de-siecle" })).toBe("era:fin-de-siecle");
+    expect(encodeScope({ kind: "era", id: "ukiyo-e" })).toBe("era:ukiyo-e");
   });
 
   it("percent-encodes spaces in the value half", () => {
@@ -94,6 +113,11 @@ describe("scopeHref", () => {
   it("points decade scope at the corresponding timeline anchor", () => {
     expect(scopeHref({ kind: "decade", start: 1880 })).toBe("/timeline#decade-1880");
   });
+
+  it("points era scope at the per-era page", () => {
+    expect(scopeHref({ kind: "era", id: "fin-de-siecle" })).toBe("/era/fin-de-siecle");
+    expect(scopeHref({ kind: "era", id: "ukiyo-e" })).toBe("/era/ukiyo-e");
+  });
 });
 
 describe("scopeLabel", () => {
@@ -113,6 +137,11 @@ describe("scopeLabel", () => {
 
   it("formats the decade as `<start>s`", () => {
     expect(scopeLabel({ kind: "decade", start: 1880 })).toBe("1880s");
+  });
+
+  it("uses the era title for an era scope", () => {
+    expect(scopeLabel({ kind: "era", id: "fin-de-siecle" })).toBe(getEra("fin-de-siecle").title);
+    expect(scopeLabel({ kind: "era", id: "gothic" })).toBe(getEra("gothic").title);
   });
 });
 
@@ -156,5 +185,43 @@ describe("resolveScope", () => {
     expect(resolveScope({ kind: "artist", slug: "no-such-artist" })).toEqual([]);
     expect(resolveScope({ kind: "movement", name: "No Such Movement" })).toEqual([]);
     expect(resolveScope({ kind: "decade", start: 990 })).toEqual([]);
+  });
+
+  it("filters era scope to works whose assignEra matches and sorts year asc", () => {
+    const resolved = resolveScope({ kind: "era", id: "fin-de-siecle" });
+    expect(resolved.length).toBeGreaterThan(0);
+    expect(resolved.every((a) => assignEra(a) === "fin-de-siecle")).toBe(true);
+    for (let i = 1; i < resolved.length; i++) {
+      const prev = resolved[i - 1].year ?? Number.MAX_SAFE_INTEGER;
+      const curr = resolved[i].year ?? Number.MAX_SAFE_INTEGER;
+      expect(prev).toBeLessThanOrEqual(curr);
+    }
+  });
+
+  it("era scope excludes works whose assignEra returns null", () => {
+    const resolved = resolveScope({ kind: "era", id: "gothic" });
+    expect(resolved.length).toBeGreaterThan(0);
+    // No nulls leak through — every entry resolves to *some* era.
+    expect(resolved.every((a) => assignEra(a) !== null)).toBe(true);
+    expect(resolved.every((a) => assignEra(a) === "gothic")).toBe(true);
+  });
+
+  it("ukiyo-e era returns only movement-tagged works (yearMin > yearMax)", () => {
+    const resolved = resolveScope({ kind: "era", id: "ukiyo-e" });
+    // Each surviving listing must have a movement that maps to ukiyo-e —
+    // the year-fallback can't place anything here because yearMin=9999 > yearMax=0.
+    expect(resolved.every((a) => a.movement != null)).toBe(true);
+    expect(resolved.every((a) => assignEra(a) === "ukiyo-e")).toBe(true);
+  });
+
+  it("era scope sorting uses title localeCompare as the tiebreaker for equal years", () => {
+    const resolved = resolveScope({ kind: "era", id: "fin-de-siecle" });
+    for (let i = 1; i < resolved.length; i++) {
+      const prev = resolved[i - 1];
+      const curr = resolved[i];
+      if ((prev.year ?? -1) === (curr.year ?? -1)) {
+        expect(prev.title.localeCompare(curr.title)).toBeLessThanOrEqual(0);
+      }
+    }
   });
 });
