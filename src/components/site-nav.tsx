@@ -4,7 +4,6 @@ import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { useIs3DActive } from "@/components/gallery-3d-state";
-import { SubscribeForm } from "@/components/subscribe-form";
 
 const LINKS: ReadonlyArray<{
   href: string;
@@ -18,7 +17,7 @@ const LINKS: ReadonlyArray<{
   { href: "/gallery-3d", label: "3D Room", sub: "Walk through a virtual museum" },
   {
     href: "/drops",
-    label: "Drops",
+    label: "Newsletter",
     sub: "Weekly email and archive",
     isActive: (pathname) =>
       pathname === "/drops" || pathname === "/sub" || pathname.startsWith("/newsletter"),
@@ -231,16 +230,6 @@ export function SiteNav() {
               );
             })}
           </div>
-
-          <section
-            className="hidden w-[18rem] shrink-0 xl:block"
-            aria-labelledby="drops-nav-inline-heading"
-          >
-            <h2 id="drops-nav-inline-heading" className="sr-only">
-              Drops newsletter signup
-            </h2>
-            <SubscribeForm variant="compact" placeholder="Email for Drops" submitLabel="Join" />
-          </section>
         </div>
 
         <button
@@ -355,26 +344,6 @@ export function SiteNav() {
                 );
               })}
             </ul>
-
-            <section
-              className="border-t border-[var(--border)] pt-6"
-              aria-labelledby="drops-nav-heading"
-            >
-              <div className="mb-3">
-                <h2 id="drops-nav-heading" className="font-serif text-xl tracking-tight">
-                  Drops
-                </h2>
-                <p className="mt-1 text-xs text-[var(--muted-foreground)]">
-                  Five works, one Sunday email.
-                </p>
-              </div>
-              <SubscribeForm variant="compact" placeholder="Email address" submitLabel="Join" />
-              <p className="mt-3 text-xs text-[var(--muted-foreground)]">
-                <Link href="/drops" className="underline underline-offset-2 hover:opacity-70">
-                  Archive and RSS
-                </Link>
-              </p>
-            </section>
           </div>
         </div>
       )}
