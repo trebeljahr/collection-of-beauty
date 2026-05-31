@@ -911,9 +911,20 @@ async function main() {
       // any snapshot embedded in the metadata sidecar. Earlier the order
       // was inverted, which meant edits to db (movement renames, etc.)
       // were silently overridden by stale `artist_info` copies in the
-      // Wikimedia metadata. Fall back to the inline copy when the db has
-      // no match.
-      const artistInfo = matchArtist(normalizedArtistName, byAlias) ?? entry.artist_info ?? null;
+      // Wikimedia metadata.
+      //
+      // Two-step lookup:
+      //  1. Match the raw `artist` field against db aliases.
+      //  2. If that fails (e.g. "Titian / Giorgione" — a multi-author
+      //     attribution string), retry using `entry.artist_info.name`
+      //     which is usually a single canonical name. This still routes
+      //     through db so the live curated movement wins.
+      //  3. Only as a last resort use the inline snapshot verbatim.
+      let artistInfo = matchArtist(normalizedArtistName, byAlias);
+      if (!artistInfo && entry.artist_info?.name) {
+        artistInfo = matchArtist(entry.artist_info.name, byAlias) ?? entry.artist_info;
+      }
+      artistInfo = artistInfo ?? null;
       // Prefer the canonical name from the artists DB so casing variants
       // ("Claude monet"), spelling variants ("Rafael" → "Raphael", "Alfons
       // Mucha" → "Alphonse Mucha"), and ordering variants ("Yamamoto Kanae"
