@@ -1005,6 +1005,42 @@
       "nationality": "Japanese",
       "movement": "Ukiyo-e",
       "pd_status": "public_domain_worldwide"
+    },
+    {
+      "name": "John Frederick Lewis",
+      "aliases": ["John Frederick Lewis", "J. F. Lewis"],
+      "born": 1804,
+      "died": 1876,
+      "nationality": "English",
+      "movement": "Orientalism",
+      "pd_status": "public_domain_worldwide"
+    },
+    {
+      "name": "Philipp Otto Runge",
+      "aliases": ["Philipp Otto Runge", "Otto Runge"],
+      "born": 1777,
+      "died": 1810,
+      "nationality": "German",
+      "movement": "Romanticism",
+      "pd_status": "public_domain_worldwide"
+    },
+    {
+      "name": "Adolph von Menzel",
+      "aliases": ["Adolph von Menzel", "Adolph Menzel"],
+      "born": 1815,
+      "died": 1905,
+      "nationality": "German",
+      "movement": "Realism",
+      "pd_status": "public_domain_worldwide"
+    },
+    {
+      "name": "Gustav Bauernfeind",
+      "aliases": ["Gustav Bauernfeind", "Bauernfeind"],
+      "born": 1848,
+      "died": 1904,
+      "nationality": "German",
+      "movement": "Orientalism",
+      "pd_status": "public_domain_worldwide"
     }
   ]
 }
