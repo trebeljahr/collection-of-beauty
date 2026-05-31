@@ -6,6 +6,7 @@ import { ResponsiveImage } from "@/components/responsive-image";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
 import { artworkAlt, displayTitle } from "@/lib/artwork-format";
+import { artworkHref } from "@/lib/artwork-scope";
 import type { ArtworkListing } from "@/lib/data";
 
 const DECADE = 10;
@@ -141,7 +142,7 @@ export function TimelineView({ artworks, movements }: Props) {
                   className="group relative aspect-square overflow-hidden rounded-md bg-[var(--muted)]"
                 >
                   <Link
-                    href={`/artwork/${a.id}`}
+                    href={artworkHref(a.id, { kind: "decade", start: b.decade })}
                     className="absolute inset-0 z-10 focus:outline-none focus-visible:ring-2 focus-visible:ring-[var(--ring)]"
                     title={`${displayTitle(a)}${a.artist ? " — " + a.artist : ""} (${a.year})`}
                     aria-label={artworkAlt(a)}

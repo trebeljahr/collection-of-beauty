@@ -1,18 +1,20 @@
 import Link from "next/link";
 import { ResponsiveImage } from "@/components/responsive-image";
 import { artworkAlt, displayTitle } from "@/lib/artwork-format";
+import { artworkHref, type Scope } from "@/lib/artwork-scope";
 import type { ArtworkListing } from "@/lib/data";
 
 type Props = {
   artwork: ArtworkListing;
   priority?: boolean;
+  scope?: Scope | null;
 };
 
-export function ArtworkCard({ artwork, priority }: Props) {
+export function ArtworkCard({ artwork, priority, scope }: Props) {
   return (
     <div className="group relative overflow-hidden rounded-lg border border-[var(--border)] bg-[var(--card)] transition-shadow hover:shadow-lg">
       <Link
-        href={`/artwork/${artwork.id}`}
+        href={artworkHref(artwork.id, scope ?? null)}
         aria-label={artworkAlt(artwork)}
         className="absolute inset-0 z-10 focus:outline-none focus-visible:ring-2 focus-visible:ring-[var(--ring)]"
       />

@@ -3,6 +3,7 @@
 import { useRouter } from "next/navigation";
 import { type SyntheticEvent, useEffect, useRef, useState } from "react";
 import { artworkAlt, displayTitle } from "@/lib/artwork-format";
+import { artworkHref, type Scope } from "@/lib/artwork-scope";
 import { getLoadedVariant, recordLoadedVariant } from "@/lib/image-cache";
 import { assetUrl, cn, variantSrcSet, variantUrl } from "@/lib/utils";
 import { useLightbox } from "./lightbox-provider";
@@ -23,16 +24,20 @@ type Props = {
   art: ArtworkLike;
   prevId: string | null;
   nextId: string | null;
+  scope?: Scope | null;
 };
 
-export function ArtworkViewer({ art, prevId, nextId }: Props) {
+export function ArtworkViewer({ art, prevId, nextId, scope = null }: Props) {
   const router = useRouter();
   const { open, isOpen } = useLightbox();
 
+  const prevHref = prevId ? artworkHref(prevId, scope) : null;
+  const nextHref = nextId ? artworkHref(nextId, scope) : null;
+
   useEffect(() => {
-    if (prevId) router.prefetch(`/artwork/${prevId}`);
-    if (nextId) router.prefetch(`/artwork/${nextId}`);
-  }, [prevId, nextId, router]);
+    if (prevHref) router.prefetch(prevHref);
+    if (nextHref) router.prefetch(nextHref);
+  }, [prevHref, nextHref, router]);
 
   // Page-level keyboard navigation. Skipped while the lightbox is open —
   // the lightbox binds its own arrows that swap the modal image instead.
@@ -48,17 +53,17 @@ export function ArtworkViewer({ art, prevId, nextId }: Props) {
       ) {
         return;
       }
-      if (e.key === "ArrowLeft" && prevId) {
+      if (e.key === "ArrowLeft" && prevHref) {
         e.preventDefault();
-        router.push(`/artwork/${prevId}`);
-      } else if (e.key === "ArrowRight" && nextId) {
+        router.push(prevHref);
+      } else if (e.key === "ArrowRight" && nextHref) {
         e.preventDefault();
-        router.push(`/artwork/${nextId}`);
+        router.push(nextHref);
       }
     };
     window.addEventListener("keydown", onKey);
     return () => window.removeEventListener("keydown", onKey);
-  }, [isOpen, prevId, nextId, router]);
+  }, [isOpen, prevHref, nextHref, router]);
 
   const alt = artworkAlt(art);
 

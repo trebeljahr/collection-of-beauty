@@ -7,6 +7,7 @@ import InfiniteScroll from "react-photo-album/scroll";
 import "react-photo-album/rows.css";
 import { ResponsiveImage } from "@/components/responsive-image";
 import { artworkAlt, displayTitle } from "@/lib/artwork-format";
+import { artworkHref, type Scope } from "@/lib/artwork-scope";
 import type { ArtworkListing } from "@/lib/data";
 
 export type GalleryPhoto = {
@@ -25,7 +26,7 @@ export type GalleryPhoto = {
   year: number | null;
 };
 
-export function toGalleryPhoto(a: ArtworkListing): GalleryPhoto {
+export function toGalleryPhoto(a: ArtworkListing, scope: Scope | null = null): GalleryPhoto {
   return {
     src: a.objectKey,
     variantWidths: a.variantWidths,
@@ -33,7 +34,7 @@ export function toGalleryPhoto(a: ArtworkListing): GalleryPhoto {
     height: a.height ?? 1000,
     key: a.id,
     alt: artworkAlt(a),
-    href: `/artwork/${a.id}`,
+    href: artworkHref(a.id, scope),
     title: displayTitle(a),
     artist: a.artist,
     year: a.year,
@@ -53,6 +54,7 @@ type Props = {
    *  remount so the scroller's internal cursor resets to 0. */
   resetKey?: string;
   targetRowHeight?: number | ((width: number) => number);
+  scope?: Scope | null;
 };
 
 export function ArtworkGallery({
@@ -63,8 +65,13 @@ export function ArtworkGallery({
   initialSeed = 40,
   resetKey,
   targetRowHeight,
+  scope,
 }: Props) {
-  const photos = useMemo(() => artworks.map(toGalleryPhoto), [artworks]);
+  const activeScope = scope ?? null;
+  const photos = useMemo(
+    () => artworks.map((a) => toGalleryPhoto(a, activeScope)),
+    [artworks, activeScope],
+  );
   const seed = useMemo(() => photos.slice(0, initialSeed), [photos, initialSeed]);
 
   const fetchPage = useCallback(
@@ -76,9 +83,9 @@ export function ArtworkGallery({
 
       const nextArtworks = await loadMoreArtworks();
       if (nextArtworks.length === 0) return null;
-      return nextArtworks.map(toGalleryPhoto);
+      return nextArtworks.map((a) => toGalleryPhoto(a, activeScope));
     },
-    [photos, pageSize, initialSeed, hasMoreArtworks, loadMoreArtworks],
+    [photos, pageSize, initialSeed, hasMoreArtworks, loadMoreArtworks, activeScope],
   );
 
   const rowHeight = targetRowHeight ?? ((w: number) => (w < 640 ? 160 : w < 1024 ? 220 : 260));
