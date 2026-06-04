@@ -13,7 +13,7 @@
        file: 'Jupiter_and_Antiope',_oil_on_canvas_painting_by_Hendrick_Goltzius.jpeg
 
 ???? [none]                 ? — "Weeping" from Le Brun,
-       file: "Weeping"_from_Le_Brun,_Wellcome_L0012153.jpg
+       file: _Weeping__from_Le_Brun,_Wellcome_L0012153.jpg
 
 ???? [none]                 Didier Descouens — (Barcelona) Lake Lucerne ; the Bay of Uri from above Brunnen - William Turner - Tate Britain
        file: (Barcelona)_Lake_Lucerne_;_the_Bay_of_Uri_from_above_Brunnen_-_William_Turner_-_Tate_Britain.jpg
