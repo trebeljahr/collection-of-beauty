@@ -1,12 +1,8 @@
-'Arethusa'_by_Benjamin_West,_1802,_High_Museum_of_Art.jpeg
 'Garden_at_Bordighera,_Impression_of_Morning'_by_Claude_Monet,_1884,_Hermitage.jpeg
 'January'_by_Grant_Wood,_1940-41,_Cleveland_Museum_of_Art.jpeg
 'Jupiter_and_Antiope',_oil_on_canvas_painting_by_Hendrick_Goltzius.jpeg
 'Taj_Mahal'_by_Charles_W._Bartlett,_1916,_woodblock_print.jpeg
-'The_Golden_Age',_oil_on_copper_painting_by_Joachim_Wtewael,_1605,_Metropolitan_Museum_of_Art.jpeg
 'The_Grand_Quay_at_Havre'_by_Claude_Monet,_1874,_Hermitage.jpeg
-'Udaipur'_by_Charles_W._Bartlett,_1916,_woodblock_print.jpeg
-'Windows_Open_Simultaneously_(First_Part,_Third_Motif)'_by_Robert_Delaunay.jpeg
 'Winter_Night,_Ekely'_by_Edvard_Munch,_1930-31.jpeg
 0_Entrevue_du_roi_et_de_Marie_de_Médicis_à_Lyon_-_P.P._Rubens_-_Louvre_2.jpeg
 0_Le_Sultan_Mulay_Ahmad_de_Tunis_-_Rubens_-_Museum_of_Fine_Arts,_Boston_-_40.2_-(2).jpeg
@@ -42,9 +38,7 @@
 1280px-Wilhelm_von_Kobell_-_Reiter_am_Tegernsee_-_Google_Art_Project.jpg
 1280px-Zelfportret_als_schilder_-_s0022V1962_-_Van_Gogh_Museum.jpg
 1280px-Zelfportret_met_grijze_vilthoed_-_s0016V1962_-_Van_Gogh_Museum.jpg
-1522_Holbein_d.Ä._Angehöriger_der_Augsburger_Familie_Weiss_anagoria.jpeg
 1529_Cranach_Allegorie_auf_Gesetz_und_Gnade_anagoria.jpeg
-1595_Wtewael_Die_Sintflut_anagoria.jpeg
 15_Qian_Xuan_Eight_Flowers_National_Palace_Museum_Beijing.jpeg
 1627_Rubens_Maria_mit_dem_Kind_anagoria.jpeg
 1813_Schinkel_Blick_auf_den_Mont_Blanc_anagoria.jpeg
@@ -58,8 +52,6 @@
 1878_Vereshchagin_Schlachtfeld_am_Schipkapass_anagoria.jpeg
 1889,_Vincent_Van_Gogh_-_Women_Picking_Olives.webp.png
 1902_Monet_Die_Waterloo-Brücke_anagoria.jpeg
-1913_Malevich_Portrait_von_Mikhail_Matjuschin_anagoria.jpeg
-1915_Kustodiev_die_Schoene_anagoria.jpeg
 2013_HGK_03211_1009_000(wu_changshuo_landscape120225).jpg
 2013_HGK_03211_1015_000(wu_hufan_landscape_in_yuan_dynasty_style120413).jpg
 2013_HGK_03211_1016_000(chen_da_landscape_in_the_style_of_li_xianxi120441).jpg
@@ -156,11 +148,9 @@
 960px-Van_Gogh_-_Le_Moulin_de_la_Galette4.jpeg
 A_Friendly_Call.jpeg
 A_Gate_to_the_Stupa_of_Sanchi,_from_the_Series__India_and_Southeast_Asia_._Hiroshi_Yoshida.jpg
-Aivasovsky_I_C_Ship__Twelve_Apostles_.jpg
 Albrecht_Altdorfer_-_Schlacht_bei_Issus_(Alte_Pinakothek,_München)_-_Google_Art_Project.jpg
 Alfons Much Slavnost_svatovitova_na_rujane.jpg
 Alfons_Mucha_Le_Pater__Lead_us_not_into_temptation__(1899).jpg
-Allegory_of_Painting.jpeg
 Alte_Nationalgalerie-Krüger-Parade_auf_dem_Opernplatz_im_Jahre_1822_DSC8028.jpg
 Amsterdam_musee_van_gogh_monet_tulipes_moulins.jpeg
 An_Afternoon_Stroll_by_William_Merritt_Chase,_San_Diego_Museum_of_Art.jpeg
@@ -173,7 +163,6 @@ Anniversary-Ernie Barnes.webp
 Apparatus_and_Hand.jpg
 Ariko weeps on her boat.jpg
 Ave_Caesar_Morituri_te_Salutant_(Gérôme)_01.jpg
-Bakst_self.jpeg
 Beardsley-peacockskirt.png
 Bridge_over_waterfall (1).jpg
 Carl_Spitzweg_-__The_Bookworm_.jpg
@@ -185,13 +174,10 @@ Claude_Monet_-_Graystaks_I.jpeg
 Claude_Monet_-_L'été_-_Champ_de_coquelicots.jpeg
 Claude_Monet_-_Water_Lilies,_1917-1919.jpeg
 Claude_Monet_012.jpg
-Cole,_Thomas_-_Der_Pokal_des_Riesen_-_hi_res_-_1833.jpeg
-Columbus_and_His_Son_at_La_Rábida.jpeg
 Constable_osmington_bay.tif.jpg
 Corner_in_Voyer-d'Argenson_Park_at_Asnières_by_Vincent_van_Gogh.jpeg
 Creación_de_Adán.jpg
 DaliGreatMasturbator.jpg
-David_dessinant_Marie-Antoinette--van_den_Büssche-IMG_2385.jpeg
 Death and the Maiden Baldung.jpg
 Degas,_A_Woman_Seated_beside_a_Vase_of_Flowers_(Madame_Paul_Valpinçon).jpg
 Delacroix-Marc_Aurèle-MBA-Lyon.jpg
@@ -204,7 +190,6 @@ Edward Gorey Christmas Card with Man and Cat.jpg
 Edward Gorey Christmas Card with Robot.jpg
 Edward Gorey Had Elizabeth Only Known.jpg
 El_Greco_(Domenikos_Theotokopoulos)_-_Laocoön_-_Google_Art_Project.jpg
-El_Greco_-_The_Burial_of_the_Count_of_Orgaz.jpeg
 El_jardín_de_las_Delicias,_de_El_Bosco.jpg
 Entrée_de_cimetière_(1825)_-_Caspar_David_Friedrich_(Galerie_Neue_Meister,_Dresden).jpg
 Escher Metamorphosis.webp
@@ -213,17 +198,14 @@ Eugène_Delacroix_-_Collision_of_Moorish_Horsemen_-_Walters_376.jpg
 Eugène_Delacroix_-_Les_Natchez,_1835_(Metropolitan_Museum_of_Art).jpg
 Eugène_Delacroix_-_Shipwreck_on_the_Coast_-_Google_Art_Project.jpg
 Eugène_Delacroix_-_The_Fanatics_of_Tangier_-_WGA06195.jpg
-Fantômas_-_Juan_Gris.jpeg
 Femmes_d'Alger_dans_leur_appartement,_Eugène_Delacroix_-_Musée_du_Louvre_Peintures_INV_3824.jpg
 Félicien_Rops_-_Pornokratès_-_1878_(2).jpg
 Fischer_und_Frau Alexander Zwick.jpg
 Fish in Baarn.jpg
-Flora_Tristan_1838.jpeg
 François_boucher,_diana_che_esce_dal_bagno,_1742,_01.jpg
 Futsuka_Zuki_by_Kawai_Gyokudō.jpg
 G._Caillebotte_-_Intérieur.jpg
 G._Caillebotte_-_Villas_à_Trouville.jpg
-Georges_Braque,_1909-10,_La_guitare_(Mandora,_La_Mandore),_oil_on_canvas,_71.1_x_55.9_cm,_Tate_Modern,_London.jpg
 Gerhard_von_Kügelgen_portrait_of_Friedrich.jpg
 Gérôme,_Achat_d'une_esclave,_1857_(5613508015).jpg
 Gérôme,_The_Two_Majesties_1883.jpg
@@ -236,7 +218,6 @@ Gérôme_-_Summer_Afternoon_on_a_Lake.jpg
 Gérôme_Eminence_grise_1873.jpg
 Giovanna_Baccelli_(Gainsborough).jpg
 Goethe_Kügelgen.jpg
-Gustaf_Lundberg-Porträtt_av_Friherre_Charles_de_Geer.jpeg
 Gustave_Courbet_-_Le_Désespéré_(1843).jpg
 Gustave_Doré-Mont_Sainte-Odile_avec_mur_païen.jpg
 Gustave_Doré_-_La_Vallée_de_larmes.jpg
@@ -258,11 +239,6 @@ Hiroshige View from massaki.jpg
 His+Effort-Ernie Barnes.webp
 Hokusai Views of Mount Fuji.jpg
 Hugo_van_der_Goes_(Gand,_1440_circa_–_Auderghem,_1482)_Altare_Monforte_-_Adorazione_dei_Magi_(1470_circa)_-_Tecnica_olio_su_tavola_Dimensioni_147×242_cm_-_Gemäldegalerie,_Berlin.jpg
-Ivan_Constantinovich_Aivazovsky_-_Battle_of_Çesme_at_Night.jpeg
-Ivan_Constantinovich_Aivazovsky_-_Boat_Ride_by_Kumkapi_in_Constantinople.jpeg
-Ivan_Constantinovich_Aivazovsky_-_Coffee-house_by_the_Ortaköy_Mosque_in_Constantinople.jpeg
-Ivan_Constantinovich_Aivazovsky_-_Lake_Maggiore_in_the_Evening.jpeg
-Ivan_Constantinovich_Aivazovsky_-_Moscow_in_Winter_from_the_Sparrow_Hills.jpeg
 JEAN_LOUIS_THÉODORE_GÉRICAULT_-_La_Balsa_de_la_Medusa_(Museo_del_Louvre,_1818-19).jpg
 Jacob_Jordaens_01.jpeg
 Jean-Auguste-Dominique_INGRES_-_Tu_Marcellus_Eris_-_Musée_des_Augustins_-_RO_124.jpg
@@ -326,9 +302,6 @@ Katsushika_Hokusai,_Goten-yama_hill,_Shinagawa_on_the_Tōkaidō,_ca._1832.jpg
 Katsushika_Hokusai,_published_by_Nishimuraya_Yohachi_(Eijudō)_-_Peonies_and_Canary_(Shakuyaku,_kanaari),_from_an_untitled_series_known_as_Small_Flowers_-_Google_Art_Project.jpg
 Keisai Eisen Winter Landscape.jpg
 Kenkō_Shōkei_-_Shōshō_Hakkei_-_Enji_Banshō.png
-KustodiyevSemenov_Kapitsa.jpeg
-Kustodiyev_Mate.jpeg
-Kustodiyev_fair.jpeg
 L'Enlèvement,_par_Paul_Cézanne,_FWN_590.jpg
 LE_PORT_DE_ZAANDAM.png
 La gare (sous baguettes) Quickenborne.webp
@@ -339,11 +312,8 @@ Lac_d'Annecy,_par_Paul_Cézanne.jpg
 Le_Concert_champêtre,_by_Titian,_from_C2RMF_retouchedFXD.jpg
 Le_Garçon_au_gilet_rouge,_par_Paul_Cézanne,_National_Gallery_of_Art.jpg
 Le_havre_muma_monet_fecamp.jpeg
-Les_Demoiselles_d'Avignon.jpg
 Levé_de_lune_sur_le_Mont_Nanping.jpg
-Levitan_ozero28.jpeg
 Life-Boat_and_Manby_Apparatus_Going_Off_to_a_Stranded_Vessel_Making_Signal_(Blue_Lights)_of_Distress.png
-Lille_PdBA_delacroix_medee.jpeg
 Lille_PdBA_monet_la_debacle.jpeg
 Lille_Pdba_rubens_marie_madeleine.jpeg
 Lucas_Cranach_-_Der_Jungbrunnen_(Gemäldegalerie_Berlin).jpg
@@ -417,7 +387,6 @@ MC Escher part of metamorphosis.jpg
 Man with a Bat on his Head Edward Gorey.jpg
 Menzel_Adolph_Frederick_the_Great_at_Lissa_Bonsoir,_Messieurs@Kunsthalle_Hamburg.jpeg
 Natoire-Sibylle.jpeg
-Nicolas_Poussin_-_The_Assumption_of_the_Virgin.jpeg
 Nihon_fūkei_senshū,_Abuto_no_Kannon_by_Kawase_Hasui.jpg
 Nihon_fūkei_senshū,_Amakusa_Goryō_by_Kawase_Hasui.jpg
 Nihon_fūkei_senshū,_Amakusa_yori_mitaru_Onsengadake_by_Kawase_Hasui.jpg
@@ -456,17 +425,13 @@ Old_Korea-Keith-BRIDE.jpeg
 Old_guitarist_chicago.jpg
 Olympic+-+The+Rhythmic+Gymnast+(mt)-Ernie Barnes.webp
 Origin-of-the-World Courbet.jpg
-P1110627Wallraf_museum_J.H._Fragonard_Le_chat_angora_WRM3652_rwk.jpeg
 Pablo_Picasso,_1909-10,_Figure_dans_un_Fauteuil_(Seated_Nude,_Femme_nue_assise),_oil_on_canvas,_92.1_x_73_cm,_Tate_Modern,_London.jpg
 Paul_Cézanne,_1892-95,_Les_joueurs_de_carte_(The_Card_Players),_60_x_73_cm,_oil_on_canvas,_Courtauld_Institute_of_Art,_London.jpg
 Paul_Cézanne_-_Montagne_Saint-victoire_-_Google_Art_Project.jpg
 Paul_Gauguin,_Nafea_Faa_Ipoipo__1892,_oil_on_canvas,_101_x_77_cm.jpg
-Paul_Gauguin-_Manao_tupapau_(The_Spirit_of_the_Dead_Keep_Watch).jpeg
 Peter_Paul_Rubens_-_Junger_Mann_mit_schwarzem_Barett.jpeg
 Peter_Paul_Rubens_-_Landscape_with_the_Ruins_of_Mount_Palatine_in_Rome.jpeg
 Peter_Paul_Rubens_-_The_Elevation_of_the_Cross.jpeg
-Picabia_Hera_2.jpeg
-Picture__anger_of_the_seas__by_Aivasovsky.jpg
 Pierre-Cécile_Puvis_de_Chavannes_003.jpg
 Pierre-Cécile_Puvis_de_Chavannes_007.jpg
 Pierre_Paul_RUBENS,__Le_Miracle_de_saint_Just.jpeg
@@ -488,7 +453,6 @@ Réception_du_Grand_Condé_à_Versailles_(Jean-Léon_Gérôme,_1878).png
 Robert_Delaunay,_1912,_La_Ville_de_Paris,_oil_on_canvas,_267_×_406_cm,_Musée_National_d'Art_Moderne.jpg
 Robert_Delaunay,_c.1906,_Paysage_au_disque_solaire,_oil_on_canvas,_54_x_46_cm,_Musée_National_d'Art_Moderne.jpg
 Robert_Delaunay_L'homme_à_la_tulipe_(Portrait_de_Jean_Metzinger)_1906.jpg
-SA_8422-De_Kloveniersdoelen_aan_de_Amstel-De_Kloveniersburgwal_op_de_hoek_van_de_Amstel_met_de_toren__Swijgh_Utrecht_.jpg
 Salvador-Dali-Museum-St.-Petersburg-Florida.jpg
 Sandro_Botticelli_-_Retour_de_Judith_1.jpeg
 Scène_des_massacres_de_Scio,_Eugène_Delacroix_-_Musée_du_Louvre_Peintures_INV_3823_;_C3.jpg
@@ -592,13 +556,8 @@ Vincent_van_Gogh_-_Pietà_(after_Delacroix).jpg
 WATTEAU_Antoine_-_Huit_études_de_têtes_de_femme,_et_une_tête_d'homme.jpg
 Windmill_and_Boats_near_Zaandam,_Holland,_by_Claude_Monet,_1871_-_Ny_Carlsberg_Glyptotek_-_Copenhagen_-_DSC09437.jpeg
 Zentralbibliothek_Zürich_-_Portät_von_Anna_Magdalena_Schweizer_geb_Hess_im_Alter_von_27_Jahren_-_000003019.jpg
-_Horror__from_Le_Brun,_Wellcome_L0012156.jpg
 _L'homme_est_en_mer_,_Vincent_van_Gogh,_d'après_Virginie_Demont-Breton.jpg
-_Portrait_of_a_Man__(Andrea_del_Sarto).jpg
-_Scorn__from_Le_Brun,_Wellcome_L0012155.jpg
-_Simple_bodily_pain__from_Le_Brun,_Wellcome_L0012151.jpg
 _Un_Bar_aux_Folies-Bergère__by_Édouard_Manet_(1882).jpg
-_Weeping__from_Le_Brun,_Wellcome_L0012153.jpg
 a9d3e89a-7152-4bc2-b450-0b49adda1acf.png
 disintegration_20of_20the_20persistence_20of_20memory_7c48a1dd-5afd-4881-bcbd-18518e348bd1.webp
 dürer .jpg
@@ -616,8 +575,6 @@ metamorphoseIII_deel1-1.jpg
 metamorphoseIII_deel2-1.jpg
 metamorphoseIII_deel3-1.jpg
 zhang_shanzi_tiger.jpg
-Айвазовский_(Гайвазовский)_Иван_(Оганес)_Константинович_Радуга.jpg
-Айвазовский_И.К._Волна.jpg
 Афганец.jpg
 Афганец_(2).jpg
 Богатый_киргизский_охотник_с_соколом.jpg

@@ -1,34 +1,19 @@
 # Copyright review — year unknown
-# Generated: 2026-05-31T08:57:02.001Z
+# Generated: 2026-06-04T08:04:01.087Z
 # We could not recover any artwork-creation year from the metadata, the
 # filename, the title, the description, or the artist's death year. These
 # require human review to decide whether to keep or drop.
 
-## collection-of-beauty.json  (724)
-
-???? [none]                 ? —  Horror  from Le Brun, Wellcome L0012156
-       file: _Horror__from_Le_Brun,_Wellcome_L0012156.jpg
+## collection-of-beauty.json  (693)
 
 ???? [none]                 ? —  L'homme est en mer , Vincent van Gogh, d'après Virginie Demont-Breton
        file: _L'homme_est_en_mer_,_Vincent_van_Gogh,_d'après_Virginie_Demont-Breton.jpg
 
-???? [none]                 ? —  Portrait of a Man  (Andrea del Sarto)
-       file: _Portrait_of_a_Man__(Andrea_del_Sarto).jpg
-
-???? [none]                 ? —  Scorn  from Le Brun, Wellcome L0012155
-       file: _Scorn__from_Le_Brun,_Wellcome_L0012155.jpg
-
-???? [none]                 ? —  Simple bodily pain  from Le Brun, Wellcome L0012151
-       file: _Simple_bodily_pain__from_Le_Brun,_Wellcome_L0012151.jpg
-
-???? [none]                 ? —  Weeping  from Le Brun, Wellcome L0012153
-       file: _Weeping__from_Le_Brun,_Wellcome_L0012153.jpg
-
 ???? [none]                 ? — 'Jupiter and Antiope', oil on canvas painting by Hendrick Goltzius
        file: 'Jupiter_and_Antiope',_oil_on_canvas_painting_by_Hendrick_Goltzius.jpeg
 
-???? [none]                 ? — 'Windows Open Simultaneously (First Part, Third Motif)' by Robert Delaunay
-       file: 'Windows_Open_Simultaneously_(First_Part,_Third_Motif)'_by_Robert_Delaunay.jpeg
+???? [none]                 ? — "Weeping" from Le Brun,
+       file: "Weeping"_from_Le_Brun,_Wellcome_L0012153.jpg
 
 ???? [none]                 Didier Descouens — (Barcelona) Lake Lucerne ; the Bay of Uri from above Brunnen - William Turner - Tate Britain
        file: (Barcelona)_Lake_Lucerne_;_the_Bay_of_Uri_from_above_Brunnen_-_William_Turner_-_Tate_Britain.jpg
@@ -283,9 +268,6 @@
 ???? [none]                 ? — a9d3e89a-7152-4bc2-b450-0b49adda1acf
        file: a9d3e89a-7152-4bc2-b450-0b49adda1acf.png
 
-???? [none]                 ? — Aivasovsky I C Ship  Twelve Apostles 
-       file: Aivasovsky_I_C_Ship__Twelve_Apostles_.jpg
-
 ???? [none]                 ? — Albinus, Tabulae sceleti..., tabula II
        file: Albinus,_Tabulae_sceleti...,_tabula_II_Wellcome_L0023549.jpg
 
@@ -294,9 +276,6 @@
 
 ???? [none]                 ? — Alfons Much Slavnost svatovitova na rujane
        file: Alfons Much Slavnost_svatovitova_na_rujane.jpg
-
-???? [none]                 ? — Allegory of Painting
-       file: Allegory_of_Painting.jpeg
 
 ???? [none]                 ? — Amsterdam musee van gogh monet tulipes moulins
        file: Amsterdam_musee_van_gogh_monet_tulipes_moulins.jpeg
@@ -345,9 +324,6 @@
 
 ???? [none]                 ? — Ave Caesar Morituri te Salutant (Gérôme) 01
        file: Ave_Caesar_Morituri_te_Salutant_(Gérôme)_01.jpg
-
-???? [none]                 ? — Bakst self
-       file: Bakst_self.jpeg
 
 ???? [none]                 ? — Beardsley-peacockskirt
        file: Beardsley-peacockskirt.png
@@ -435,9 +411,6 @@
        file: Col_tempo_by_Giorgione.jpg
        date_created: 9 May 2023
 
-???? [none]                 ? — Columbus and His Son at La Rábida
-       file: Columbus_and_His_Son_at_La_Rábida.jpeg
-
 ???? [none]                 ? — Constable osmington bay.tif
        file: Constable_osmington_bay.tif.jpg
 
@@ -452,9 +425,6 @@
 
 ???? [none]                 ? — DaliGreatMasturbator
        file: DaliGreatMasturbator.jpg
-
-???? [none]                 ? — David dessinant Marie-Antoinette--van den Büssche-IMG 2385
-       file: David_dessinant_Marie-Antoinette--van_den_Büssche-IMG_2385.jpeg
 
 ???? [none]                 ? — Death and the Maiden Baldung
        file: Death and the Maiden Baldung.jpg
@@ -519,9 +489,6 @@
 ???? [none]                 ? — Edward Gorey Had Elizabeth Only Known
        file: Edward Gorey Had Elizabeth Only Known.jpg
 
-???? [none]                 ? — El Greco - The Burial of the Count of Orgaz
-       file: El_Greco_-_The_Burial_of_the_Count_of_Orgaz.jpeg
-
 ???? [none]                 ? — El Greco (Domenikos Theotokopoulos) - Laocoön - Google Art Project
        file: El_Greco_(Domenikos_Theotokopoulos)_-_Laocoön_-_Google_Art_Project.jpg
 
@@ -549,9 +516,6 @@
 ???? [none]                 GoldenArtists — Evening landscape at moonrise - Van Gogh
        file: Evening_landscape_at_moonrise_-_Van_Gogh.jpg
        date_created: 2023-07-02 18:14:02
-
-???? [none]                 ? — Fantômas - Juan Gris
-       file: Fantômas_-_Juan_Gris.jpeg
 
 ???? [none]                 ? — Femmes d'Alger dans leur appartement, Eugène Delacroix - Musée du Louvre Peintures INV 3824
        file: Femmes_d'Alger_dans_leur_appartement,_Eugène_Delacroix_-_Musée_du_Louvre_Peintures_INV_3824.jpg
@@ -621,9 +585,6 @@
 
 ???? [none]                 ? — Goethe Kügelgen
        file: Goethe_Kügelgen.jpg
-
-???? [none]                 ? — Gustaf Lundberg-Porträtt av Friherre Charles de Geer
-       file: Gustaf_Lundberg-Porträtt_av_Friherre_Charles_de_Geer.jpeg
 
 ???? [none]                 ? — Gustave Doré - La Vallée de larmes
        file: Gustave_Doré_-_La_Vallée_de_larmes.jpg
@@ -828,6 +789,10 @@
 ???? [none]                 ? — huang-binhong-landscape
        file: huang-binhong-landscape.jpg
 
+???? [none]                 Ilya Repin — The Zaporozhye Cossacks Replying to the Sultan
+       file: Ilja_Jefimowitsch_Repin_-_Reply_of_the_Zaporozhian_Cossacks_-_Yorck.jpg
+       date_created: {
+
 ???? [none]                 ? — Ingres - Mme Victor Baltard & sa fille Paule
        file: Ingres_-_Mme_Victor_Baltard_&_sa_fille_Paule.jpg
 
@@ -844,21 +809,6 @@
 ???? [none]                 Gsimonov — Isenheim Altarpiece — SECOND OPENING
        file: Isenheim_Altarpiece_—_SECOND_OPENING.jpg
        date_created: 2023-12-14
-
-???? [none]                 ? — Ivan Constantinovich Aivazovsky - Battle of Çesme at Night
-       file: Ivan_Constantinovich_Aivazovsky_-_Battle_of_Çesme_at_Night.jpeg
-
-???? [none]                 ? — Ivan Constantinovich Aivazovsky - Boat Ride by Kumkapi in Constantinople
-       file: Ivan_Constantinovich_Aivazovsky_-_Boat_Ride_by_Kumkapi_in_Constantinople.jpeg
-
-???? [none]                 ? — Ivan Constantinovich Aivazovsky - Coffee-house by the Ortaköy Mosque in Constantinople
-       file: Ivan_Constantinovich_Aivazovsky_-_Coffee-house_by_the_Ortaköy_Mosque_in_Constantinople.jpeg
-
-???? [none]                 ? — Ivan Constantinovich Aivazovsky - Lake Maggiore in the Evening
-       file: Ivan_Constantinovich_Aivazovsky_-_Lake_Maggiore_in_the_Evening.jpeg
-
-???? [none]                 ? — Ivan Constantinovich Aivazovsky - Moscow in Winter from the Sparrow Hills
-       file: Ivan_Constantinovich_Aivazovsky_-_Moscow_in_Winter_from_the_Sparrow_Hills.jpeg
 
 ???? [none]                 ? — Jacob Jordaens 01
        file: Jacob_Jordaens_01.jpeg
@@ -1006,15 +956,6 @@
 ???? [none]                 ? — KustodievB Provinc
        file: KustodievB_Provinc.jpg
 
-???? [none]                 ? — Kustodiyev fair
-       file: Kustodiyev_fair.jpeg
-
-???? [none]                 ? — Kustodiyev Mate
-       file: Kustodiyev_Mate.jpeg
-
-???? [none]                 ? — KustodiyevSemenov Kapitsa
-       file: KustodiyevSemenov_Kapitsa.jpeg
-
 ???? [none]                 ? — L'Enlèvement, par Paul Cézanne, FWN 590
        file: L'Enlèvement,_par_Paul_Cézanne,_FWN_590.jpg
 
@@ -1049,23 +990,14 @@
        file: Leonardo_da_Vinci_-_Virgin_and_Child_with_St_Anne_C2RMF_retouched.jpg
        date_created: 2011
 
-???? [none]                 ? — Les Demoiselles d'Avignon
-       file: Les_Demoiselles_d'Avignon.jpg
-
 ???? [none]                 ? — Levé de lune sur le Mont Nanping
        file: Levé_de_lune_sur_le_Mont_Nanping.jpg
-
-???? [none]                 ? — Levitan ozero28
-       file: Levitan_ozero28.jpeg
 
 ???? [none]                 Isaac Levitan — Levitan VesnaVItalii
        file: Levitan_VesnaVItalii.jpg
 
 ???? [none]                 ? — Life-Boat and Manby Apparatus Going Off to a Stranded Vessel Making Signal (Blue Lights) of Distress
        file: Life-Boat_and_Manby_Apparatus_Going_Off_to_a_Stranded_Vessel_Making_Signal_(Blue_Lights)_of_Distress.png
-
-???? [none]                 ? — Lille PdBA delacroix medee
-       file: Lille_PdBA_delacroix_medee.jpeg
 
 ???? [none]                 ? — Lille PdBA monet la debacle
        file: Lille_PdBA_monet_la_debacle.jpeg
@@ -1463,9 +1395,6 @@
 ???? [none]                 ? — Natoire-Sibylle
        file: Natoire-Sibylle.jpeg
 
-???? [none]                 ? — Nicolas Poussin - The Assumption of the Virgin
-       file: Nicolas_Poussin_-_The_Assumption_of_the_Virgin.jpeg
-
 ???? [none]                 ? — Nihon fūkei senshū, Abuto no Kannon by Kawase Hasui
        file: Nihon_fūkei_senshū,_Abuto_no_Kannon_by_Kawase_Hasui.jpg
 
@@ -1580,9 +1509,6 @@
 ???? [none]                 ? — Origin-of-the-World Courbet
        file: Origin-of-the-World Courbet.jpg
 
-???? [none]                 ? — P1110627Wallraf museum J.H. Fragonard Le chat angora WRM3652 rwk
-       file: P1110627Wallraf_museum_J.H._Fragonard_Le_chat_angora_WRM3652_rwk.jpeg
-
 ???? [none]                 Architas — Painting of Susanna and the Elders by Rubens
        file: Painting_of_Susanna_and_the_Elders_by_Rubens.jpg
        date_created: 2018-06-01
@@ -1600,9 +1526,6 @@
 ???? [none]                 Unknown author Unknown author — Paul Gauguin - Te aa no areois - Google Art Project
        file: Paul_Gauguin_-_Te_aa_no_areois_-_Google_Art_Project.jpg
 
-???? [none]                 ? — Paul Gauguin- Manao tupapau (The Spirit of the Dead Keep Watch)
-       file: Paul_Gauguin-_Manao_tupapau_(The_Spirit_of_the_Dead_Keep_Watch).jpeg
-
 ???? [none]                 ? — Paul Gustave Dore Andromeda
        file: Paul_Gustave_Dore_Andromeda.jpg
 
@@ -1614,12 +1537,6 @@
 
 ???? [none]                 ? — Peter Paul Rubens - The Elevation of the Cross
        file: Peter_Paul_Rubens_-_The_Elevation_of_the_Cross.jpeg
-
-???? [none]                 ? — Picabia Hera 2
-       file: Picabia_Hera_2.jpeg
-
-???? [none]                 ? — Picture  anger of the seas  by Aivasovsky
-       file: Picture__anger_of_the_seas__by_Aivasovsky.jpg
 
 ???? [none]                 ? — Pierre Paul RUBENS,  Le Miracle de saint Just
        file: Pierre_Paul_RUBENS,__Le_Miracle_de_saint_Just.jpeg
@@ -1677,9 +1594,6 @@
 
 ???? [none]                 ? — Rogier van der Weyden - Triptych- The Crucifixion - Google Art Project
        file: Rogier_van_der_Weyden_-_Triptych-_The_Crucifixion_-_Google_Art_Project.jpg
-
-???? [none]                 ? — SA 8422-De Kloveniersdoelen aan de Amstel-De Kloveniersburgwal op de hoek van de Amstel met de toren  Swijgh Utrecht 
-       file: SA_8422-De_Kloveniersdoelen_aan_de_Amstel-De_Kloveniersburgwal_op_de_hoek_van_de_Amstel_met_de_toren__Swijgh_Utrecht_.jpg
 
 ???? [none]                 ? — Salvador-Dali-Museum-St.-Petersburg-Florida
        file: Salvador-Dali-Museum-St.-Petersburg-Florida.jpg
@@ -2013,12 +1927,6 @@
 
 ???? [none]                 ? — zhang shanzi tiger
        file: zhang_shanzi_tiger.jpg
-
-???? [none]                 ? — Айвазовский (Гайвазовский) Иван (Оганес) Константинович Радуга
-       file: Айвазовский_(Гайвазовский)_Иван_(Оганес)_Константинович_Радуга.jpg
-
-???? [none]                 ? — Айвазовский И.К. Волна
-       file: Айвазовский_И.К._Волна.jpg
 
 ???? [none]                 ? — Афганец (2)
        file: Афганец_(2).jpg

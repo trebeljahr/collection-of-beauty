@@ -1,11 +1,11 @@
 # Copyright review — looks recent
-# Generated: 2026-05-31T08:57:01.995Z
+# Generated: 2026-06-04T08:04:01.081Z
 # Cutoff: year < 1926 (artwork must be at least 100 years old).
 # Entries here have year >= 1926 after heuristic re-extraction,
 # so they may be copyrighted. Review and remove if they cannot be
 # confirmed as public domain.
 
-## collection-of-beauty.json  (133)
+## collection-of-beauty.json  (134)
 
 2024 [filename]             ? — La Liberté guidant le peuple - Eugène Delacroix - Musée du Louvre Peintures RF 129 - après restauration 2024
        file: La_Liberté_guidant_le_peuple_-_Eugène_Delacroix_-_Musée_du_Louvre_Peintures_RF_129_-_après_restauration_2024.jpg
@@ -377,6 +377,10 @@
 1929 [jp_era]               Hasui Kawase — Evening in Beppu
        file: NDL-DC_2586549-26_Kawase_Hasui_S04_crd.jpg
        date_created: 昭和4年出版
+
+1929 [date_created_plain]   w:Francis Picabia (1879–1953) — Hera
+       file: Picabia_Hera_2.JPG
+       date_created: c. 1929
 
 1929 [date_created_plain]   Hasui Kawase — The Pond at Benten Shrine in Shiba, Kawase Hasui, MFAB 50.2885
        file: The_Pond_at_Benten_Shrine_in_Shiba,_Kawase_Hasui,_MFAB_50.2885.jpg

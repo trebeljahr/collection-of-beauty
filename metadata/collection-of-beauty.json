@@ -1,30 +1,190 @@
 {
   "folder": "collection-of-beauty",
   "kind": "wikimedia_image_collection",
-  "generated_at": "2026-05-31T08:57:01.849Z",
+  "generated_at": "2026-06-04T08:04:00.955Z",
   "source_api": "Wikimedia Commons action=query&prop=imageinfo",
-  "file_count": 3542,
-  "resolved_count": 2832,
-  "unresolved_count": 710,
+  "file_count": 3540,
+  "resolved_count": 2873,
+  "unresolved_count": 667,
   "entries": {
-    "'Arethusa'_by_Benjamin_West,_1802,_High_Museum_of_Art.jpeg": {
-      "filename": "'Arethusa'_by_Benjamin_West,_1802,_High_Museum_of_Art.jpeg",
-      "resolved": false,
-      "needs_review": true,
-      "title": "'Arethusa' by Benjamin West, 1802, High Museum of Art",
-      "artist": null,
-      "date_created": "1802",
+    "\"Horror\"_from_Le_Brun,_Wellcome_L0012156.jpg": {
+      "filename": "\"Horror\"_from_Le_Brun,_Wellcome_L0012156.jpg",
+      "resolved": true,
+      "needs_review": false,
+      "title": "\"Horror\"",
+      "artist": "Charles Le Brun",
+      "date_created": "1785 date QS:P571,+1785-00-00T00:00:00Z/9",
+      "year": 1785,
+      "description": "from Le Brun, Bowles's Passions of the soul, circa 1785 \"Horror\". Red/brown ink. Stipple Engraving Rare Books Keywords: Physiognomy",
       "source": {
-        "type": "unknown",
-        "url": null
+        "type": "Wikimedia Commons",
+        "canonical_title": "File:\"Horror\" from Le Brun, Wellcome L0012156.jpg",
+        "url": "https://commons.wikimedia.org/wiki/File%3A%22Horror%22_from_Le_Brun%2C_Wellcome_L0012156.jpg",
+        "file_url": "https://upload.wikimedia.org/wikipedia/commons/d/d1/%22Horror%22_from_Le_Brun%2C_Wellcome_L0012156.jpg",
+        "credit": "https://wellcomeimages.org/indexplus/obf_images/17/11/9880e0b1b69697862b1a6a517b40.jpg Gallery: https://wellcomeimages.org/indexplus/image/L0012156.html Wellcome Collection gallery (2018-03-21): https://wellcomecollection.org/works/m62pqnjs CC-BY-4.0",
+        "permission": null,
+        "attribution": null
       },
       "copyright": {
-        "copyrighted": null,
-        "license": null,
-        "notes": "Not found on Wikimedia Commons; needs manual review."
+        "copyrighted": true,
+        "license_short": "CC BY 4.0",
+        "license_url": "https://creativecommons.org/licenses/by/4.0",
+        "usage_terms": "Creative Commons Attribution 4.0"
       },
+      "year_source": "wikidata_qs"
+    },
+    "\"Portrait_of_a_Man\"_(Andrea_del_Sarto).jpg": {
+      "filename": "\"Portrait_of_a_Man\"_(Andrea_del_Sarto).jpg",
+      "resolved": true,
+      "needs_review": false,
+      "title": "Portrait of a Man",
+      "artist": "Andrea del Sarto",
+      "date_created": "from 1528 until 1530 date QS:P,+1550-00-00T00:00:00Z/7,P580,+1528-00-00T00:00:00Z/9,P582,+1530-00-00T00:00:00Z/9",
+      "year": 1528,
+      "description": "As the sitter seems to be an ecclesiastic, the picture may be the \"natural-seeming and very beautiful\" portrait of a Canon of Pisa Cathedral that Vasari describes. The canon, a close friend of Sarto's, may have helped the artist secure his last commissions",
+      "source": {
+        "type": "Wikimedia Commons",
+        "canonical_title": "File:\"Portrait of a Man\" (Andrea del Sarto).jpg",
+        "url": "https://commons.wikimedia.org/wiki/File%3A%22Portrait_of_a_Man%22_(Andrea_del_Sarto).jpg",
+        "file_url": "https://upload.wikimedia.org/wikipedia/commons/4/4d/%22Portrait_of_a_Man%22_%28Andrea_del_Sarto%29.jpg",
+        "credit": "https://www.flickr.com/photos/unforth/2821030909/in/set-72157607071463800/",
+        "permission": null,
+        "attribution": null
+      },
+      "copyright": {
+        "copyrighted": true,
+        "license_short": "CC BY-SA 2.0",
+        "license_url": "https://creativecommons.org/licenses/by-sa/2.0",
+        "usage_terms": "Creative Commons Attribution-Share Alike 2.0"
+      },
+      "translations": {
+        "title": {
+          "it": "Ritratto di un uomo",
+          "hu": "Férfi portré",
+          "et": "Mehe portree",
+          "ca": "Retrat d'un home",
+          "cy": "Portread o Ddyn",
+          "pt": "Retrato de um homem",
+          "fa": "چهرهٔ یک مرد",
+          "da": "Portræt af en mand",
+          "ro": "Portret de bărbat",
+          "ja": "男の肖像",
+          "es": "Retrato de un hombre",
+          "pl": "Portret mężczyzny",
+          "vec": "Ritrato de un omo",
+          "nl": "Portret van een man",
+          "sl": "Moški portret",
+          "ru": "Мужской портрет",
+          "fr": "Portrait d’homme",
+          "mk": "Портрет на човек",
+          "cs": "Portrét muže",
+          "de": "Porträt eines Mannes"
+        }
+      },
+      "year_source": "wikidata_qs"
+    },
+    "\"Scorn\"_from_Le_Brun,_Wellcome_L0012155.jpg": {
+      "filename": "\"Scorn\"_from_Le_Brun,_Wellcome_L0012155.jpg",
+      "resolved": true,
+      "needs_review": false,
+      "title": "\"Scorn\" from Le Brun,",
+      "artist": null,
+      "date_created": null,
+      "year": 1785,
+      "description": "\"Scorn\" from Le Brun, Bowles's Passions of the soul, circa 1785 \"Scorn\" . Red/brown ink. Rare Books Keywords: Physiognomy; Charles Le Brun; Charles Le Brun",
+      "source": {
+        "type": "Wikimedia Commons",
+        "canonical_title": "File:\"Scorn\" from Le Brun, Wellcome L0012155.jpg",
+        "url": "https://commons.wikimedia.org/wiki/File%3A%22Scorn%22_from_Le_Brun%2C_Wellcome_L0012155.jpg",
+        "file_url": "https://upload.wikimedia.org/wikipedia/commons/e/e1/%22Scorn%22_from_Le_Brun%2C_Wellcome_L0012155.jpg",
+        "credit": "https://wellcomeimages.org/indexplus/obf_images/52/44/ec51437539e95c5dd6a739a92e8d.jpg Gallery: https://wellcomeimages.org/indexplus/image/L0012155.html Wellcome Collection gallery (2018-03-21): https://wellcomecollection.org/works/xzqa6mqj CC-BY-4.0",
+        "permission": null,
+        "attribution": null
+      },
+      "copyright": {
+        "copyrighted": true,
+        "license_short": "CC BY 4.0",
+        "license_url": "https://creativecommons.org/licenses/by/4.0",
+        "usage_terms": "Creative Commons Attribution 4.0"
+      },
+      "year_source": "description"
+    },
+    "\"Simple_bodily_pain\"_from_Le_Brun,_Wellcome_L0012151.jpg": {
+      "filename": "\"Simple_bodily_pain\"_from_Le_Brun,_Wellcome_L0012151.jpg",
+      "resolved": true,
+      "needs_review": false,
+      "title": "\"Simple bodily pain\"",
+      "artist": "Charles Le Brun",
+      "date_created": "1785 date QS:P571,+1785-00-00T00:00:00Z/9",
+      "year": 1785,
+      "description": "\"Simple bodily pain\". Red/brown ink. Stipple Engraving Rare Books Keywords: Physiognomy",
+      "source": {
+        "type": "Wikimedia Commons",
+        "canonical_title": "File:\"Simple bodily pain\" from Le Brun, Wellcome L0012151.jpg",
+        "url": "https://commons.wikimedia.org/wiki/File%3A%22Simple_bodily_pain%22_from_Le_Brun%2C_Wellcome_L0012151.jpg",
+        "file_url": "https://upload.wikimedia.org/wikipedia/commons/2/26/%22Simple_bodily_pain%22_from_Le_Brun%2C_Wellcome_L0012151.jpg",
+        "credit": "https://wellcomeimages.org/indexplus/obf_images/4a/d2/f9c736554fd6144aee6a52d6bd64.jpg Gallery: https://wellcomeimages.org/indexplus/image/L0012151.html Wellcome Collection gallery (2018-03-21): https://wellcomecollection.org/works/af2tztpn CC-BY-4.0",
+        "permission": null,
+        "attribution": null
+      },
+      "copyright": {
+        "copyrighted": true,
+        "license_short": "CC BY 4.0",
+        "license_url": "https://creativecommons.org/licenses/by/4.0",
+        "usage_terms": "Creative Commons Attribution 4.0"
+      },
+      "year_source": "wikidata_qs"
+    },
+    "\"Weeping\"_from_Le_Brun,_Wellcome_L0012153.jpg": {
+      "filename": "\"Weeping\"_from_Le_Brun,_Wellcome_L0012153.jpg",
+      "resolved": true,
+      "needs_review": false,
+      "title": "\"Weeping\" from Le Brun,",
+      "artist": null,
+      "date_created": null,
+      "year": null,
+      "description": "\"Weeping\". Red/brown ink. Rare Books Keywords: Physiognomy; Charles Le Brun; Charles Le Brun",
+      "source": {
+        "type": "Wikimedia Commons",
+        "canonical_title": "File:\"Weeping\" from Le Brun, Wellcome L0012153.jpg",
+        "url": "https://commons.wikimedia.org/wiki/File%3A%22Weeping%22_from_Le_Brun%2C_Wellcome_L0012153.jpg",
+        "file_url": "https://upload.wikimedia.org/wikipedia/commons/7/76/%22Weeping%22_from_Le_Brun%2C_Wellcome_L0012153.jpg",
+        "credit": "https://wellcomeimages.org/indexplus/obf_images/41/4b/e4c8e2b3bc4c7e196e5b4782513a.jpg Gallery: https://wellcomeimages.org/indexplus/image/L0012153.html Wellcome Collection gallery (2018-03-21): https://wellcomecollection.org/works/z6ry4986 CC-BY-4.0",
+        "permission": null,
+        "attribution": null
+      },
+      "copyright": {
+        "copyrighted": true,
+        "license_short": "CC BY 4.0",
+        "license_url": "https://creativecommons.org/licenses/by/4.0",
+        "usage_terms": "Creative Commons Attribution 4.0"
+      }
+    },
+    "'Arethusa'_by_Benjamin_West,_1802,_High_Museum_of_Art.JPG": {
+      "filename": "'Arethusa'_by_Benjamin_West,_1802,_High_Museum_of_Art.JPG",
+      "resolved": true,
+      "needs_review": false,
+      "title": "'Arethusa' by Benjamin West, 1802, High Museum of Art",
+      "artist": "Benjamin West",
+      "date_created": "1802 date QS:P571,+1802-00-00T00:00:00Z/9",
       "year": 1802,
-      "year_source": "date_created_plain"
+      "description": "Arethusa",
+      "source": {
+        "type": "Wikimedia Commons",
+        "canonical_title": "File:'Arethusa' by Benjamin West, 1802, High Museum of Art.JPG",
+        "url": "https://commons.wikimedia.org/wiki/File%3A'Arethusa'_by_Benjamin_West%2C_1802%2C_High_Museum_of_Art.JPG",
+        "file_url": "https://upload.wikimedia.org/wikipedia/commons/1/17/%27Arethusa%27_by_Benjamin_West%2C_1802%2C_High_Museum_of_Art.JPG",
+        "credit": "Own work",
+        "permission": null,
+        "attribution": null
+      },
+      "copyright": {
+        "copyrighted": false,
+        "license_short": "Public domain",
+        "license_url": null,
+        "usage_terms": "Public domain"
+      },
+      "year_source": "wikidata_qs"
     },
     "'Garden_at_Bordighera,_Impression_of_Morning'_by_Claude_Monet,_1884,_Hermitage.jpeg": {
       "filename": "'Garden_at_Bordighera,_Impression_of_Morning'_by_Claude_Monet,_1884,_Hermitage.jpeg",
@@ -396,24 +556,31 @@
       },
       "year_source": "wikidata_qs"
     },
-    "'The_Golden_Age',_oil_on_copper_painting_by_Joachim_Wtewael,_1605,_Metropolitan_Museum_of_Art.jpeg": {
-      "filename": "'The_Golden_Age',_oil_on_copper_painting_by_Joachim_Wtewael,_1605,_Metropolitan_Museum_of_Art.jpeg",
-      "resolved": false,
-      "needs_review": true,
-      "title": "'The Golden Age', oil on copper painting by Joachim Wtewael, 1605, Metropolitan Museum of Art",
-      "artist": null,
-      "date_created": "1605",
+    "'The_Golden_Age',_oil_on_copper_painting_by_Joachim_Wtewael,_1605,_Metropolitan_Museum_of_Art.JPG": {
+      "filename": "'The_Golden_Age',_oil_on_copper_painting_by_Joachim_Wtewael,_1605,_Metropolitan_Museum_of_Art.JPG",
+      "resolved": true,
+      "needs_review": false,
+      "title": "The Golden Age",
+      "artist": "Joachim Wtewael",
+      "date_created": "1605 date QS:P571,+1605-00-00T00:00:00Z/9",
+      "year": 1605,
+      "description": null,
       "source": {
-        "type": "unknown",
-        "url": null
+        "type": "Wikimedia Commons",
+        "canonical_title": "File:'The Golden Age', oil on copper painting by Joachim Wtewael, 1605, Metropolitan Museum of Art.JPG",
+        "url": "https://commons.wikimedia.org/wiki/File%3A'The_Golden_Age'%2C_oil_on_copper_painting_by_Joachim_Wtewael%2C_1605%2C_Metropolitan_Museum_of_Art.JPG",
+        "file_url": "https://upload.wikimedia.org/wikipedia/commons/6/64/%27The_Golden_Age%27%2C_oil_on_copper_painting_by_Joachim_Wtewael%2C_1605%2C_Metropolitan_Museum_of_Art.JPG",
+        "credit": "{own}",
+        "permission": null,
+        "attribution": null
       },
       "copyright": {
-        "copyrighted": null,
-        "license": null,
-        "notes": "Not found on Wikimedia Commons; needs manual review."
+        "copyrighted": false,
+        "license_short": "Public domain",
+        "license_url": null,
+        "usage_terms": "Public domain"
       },
-      "year": 1605,
-      "year_source": "date_created_plain"
+      "year_source": "wikidata_qs"
     },
     "'The_Grand_Quay_at_Havre'_by_Claude_Monet,_1874,_Hermitage.jpeg": {
       "filename": "'The_Grand_Quay_at_Havre'_by_Claude_Monet,_1874,_Hermitage.jpeg",
@@ -516,23 +683,43 @@
       },
       "year_source": "jp_era"
     },
-    "'Udaipur'_by_Charles_W._Bartlett,_1916,_woodblock_print.jpeg": {
-      "filename": "'Udaipur'_by_Charles_W._Bartlett,_1916,_woodblock_print.jpeg",
-      "resolved": false,
-      "needs_review": true,
+    "'Udaipur'_by_Charles_W._Bartlett,_1916,_woodblock_print.JPG": {
+      "filename": "'Udaipur'_by_Charles_W._Bartlett,_1916,_woodblock_print.JPG",
+      "resolved": true,
+      "needs_review": false,
       "title": "'Udaipur' by Charles W. Bartlett, 1916, woodblock print",
-      "artist": null,
+      "artist": "Charles William Bartlett",
       "date_created": "1916",
+      "year": 1916,
+      "description": "Udaipur by Charles W. Bartlett, 1916, woodblock print, 8 3/4 x 11 3/4",
       "source": {
-        "type": "unknown",
-        "url": null
+        "type": "Wikimedia Commons",
+        "canonical_title": "File:'Udaipur' by Charles W. Bartlett, 1916, woodblock print.JPG",
+        "url": "https://commons.wikimedia.org/wiki/File%3A'Udaipur'_by_Charles_W._Bartlett%2C_1916%2C_woodblock_print.JPG",
+        "file_url": "https://upload.wikimedia.org/wikipedia/commons/e/e1/%27Udaipur%27_by_Charles_W._Bartlett%2C_1916%2C_woodblock_print.JPG",
+        "credit": "Frazier Fine Art",
+        "permission": "According to Japanese Copyright Law (June 1, 2018 grant) the copyright on this work has expired and is as such public domain . According to articles 51, 52, 53 and 57 of the copyright laws of Japan, under the jurisdiction of the Government of Japan works enter the public domain 50 years after the death of the creator (there being multiple creators, the creator who dies last) or 50 years after publication for anonymous or pseudonymous authors or for works whose copyright holder is an organization. Note: The enforcement of the revised Copyright Act on December 30, 2018 extended the copyright term of works whose copyright was valid on that day to 70 years. Do not use this template for works of the copyright holders who died after 1967. Use {{PD-Japan-oldphoto}} for photos published before December 31, 1956, and {{PD-Japan-film}} for films produced prior to 1953. Public domain works must be out of copyright in both the United States and in the source country of the work in order to be hosted on the Commons. The file must have an additional copyright tag indicating the copyright status in the United States. See also Copyright rules by territory .",
+        "attribution": null
       },
       "copyright": {
-        "copyrighted": null,
-        "license": null,
-        "notes": "Not found on Wikimedia Commons; needs manual review."
+        "copyrighted": false,
+        "license_short": "Public domain",
+        "license_url": null,
+        "usage_terms": "Public domain"
       },
-      "year": 1916,
+      "artist_info": {
+        "name": "Charles W. Bartlett",
+        "aliases": [
+          "Charles W. Bartlett",
+          "Charles William Bartlett",
+          "Charles Bartlett"
+        ],
+        "born": 1860,
+        "died": 1940,
+        "nationality": "English / American",
+        "movement": "Shin-hanga",
+        "pd_status": "public_domain_in_most_jurisdictions"
+      },
       "year_source": "date_created_plain"
     },
     "'Udaipur,_1916'_woodblock_print_by_Charles_Bartlett,_1917.jpg": {
@@ -574,23 +761,37 @@
       },
       "year_source": "date_created_plain"
     },
-    "'Windows_Open_Simultaneously_(First_Part,_Third_Motif)'_by_Robert_Delaunay.jpeg": {
-      "filename": "'Windows_Open_Simultaneously_(First_Part,_Third_Motif)'_by_Robert_Delaunay.jpeg",
-      "resolved": false,
-      "needs_review": true,
-      "title": "'Windows Open Simultaneously (First Part, Third Motif)' by Robert Delaunay",
-      "artist": null,
-      "date_created": null,
+    "'Windows_Open_Simultaneously_(First_Part,_Third_Motif)'_by_Robert_Delaunay.JPG": {
+      "filename": "'Windows_Open_Simultaneously_(First_Part,_Third_Motif)'_by_Robert_Delaunay.JPG",
+      "resolved": true,
+      "needs_review": false,
+      "title": "Windows Open Simultaneously (First Part, Third Motif)",
+      "artist": "Robert Delaunay",
+      "date_created": "1912 date QS:P571,+1912-00-00T00:00:00Z/9",
+      "year": 1912,
+      "description": "Robert Delaunay, 1912, Windows Open Simultaneously (First Part, Third Motif) oil on canvas, 45.7 x 37.5 cm, Tate Modern",
       "source": {
-        "type": "unknown",
-        "url": null
+        "type": "Wikimedia Commons",
+        "canonical_title": "File:'Windows Open Simultaneously (First Part, Third Motif)' by Robert Delaunay.JPG",
+        "url": "https://commons.wikimedia.org/wiki/File%3A'Windows_Open_Simultaneously_(First_Part%2C_Third_Motif)'_by_Robert_Delaunay.JPG",
+        "file_url": "https://upload.wikimedia.org/wikipedia/commons/7/76/%27Windows_Open_Simultaneously_%28First_Part%2C_Third_Motif%29%27_by_Robert_Delaunay.JPG",
+        "credit": "Tate Modern, London",
+        "permission": null,
+        "attribution": null
       },
       "copyright": {
-        "copyrighted": null,
-        "license": null,
-        "notes": "Not found on Wikimedia Commons; needs manual review."
+        "copyrighted": false,
+        "license_short": "Public domain",
+        "license_url": null,
+        "usage_terms": "Public domain"
       },
-      "year": null
+      "translations": {
+        "title": {
+          "pl": "Symultanicznie otwarte okna",
+          "fr": "Fenêtres ouvertes simultanément (1re partie, 3e motif)"
+        }
+      },
+      "year_source": "wikidata_qs"
     },
     "'Winter_Night,_Ekely'_by_Edvard_Munch,_1930-31.jpeg": {
       "filename": "'Winter_Night,_Ekely'_by_Edvard_Munch,_1930-31.jpeg",
@@ -1867,24 +2068,31 @@
       },
       "year_source": "wikidata_qs"
     },
-    "1522_Holbein_d.Ä._Angehöriger_der_Augsburger_Familie_Weiss_anagoria.jpeg": {
-      "filename": "1522_Holbein_d.Ä._Angehöriger_der_Augsburger_Familie_Weiss_anagoria.jpeg",
-      "resolved": false,
-      "needs_review": true,
+    "1522_Holbein_d.Ä._Angehöriger_der_Augsburger_Familie_Weiss_anagoria.JPG": {
+      "filename": "1522_Holbein_d.Ä._Angehöriger_der_Augsburger_Familie_Weiss_anagoria.JPG",
+      "resolved": true,
+      "needs_review": false,
       "title": "1522 Holbein d.Ä. Angehöriger der Augsburger Familie Weiss anagoria",
-      "artist": null,
-      "date_created": "1522",
+      "artist": "Hans Holbein the Elder",
+      "date_created": "1522 date QS:P571,+1522-00-00T00:00:00Z/9",
+      "year": 1522,
+      "description": "Portrait of a Member of the Weiss Family of Augsburg",
       "source": {
-        "type": "unknown",
-        "url": null
+        "type": "Wikimedia Commons",
+        "canonical_title": "File:1522 Holbein d.Ä. Angehöriger der Augsburger Familie Weiss anagoria.JPG",
+        "url": "https://commons.wikimedia.org/wiki/File%3A1522_Holbein_d.%C3%84._Angeh%C3%B6riger_der_Augsburger_Familie_Weiss_anagoria.JPG",
+        "file_url": "https://upload.wikimedia.org/wikipedia/commons/3/3e/1522_Holbein_d.%C3%84._Angeh%C3%B6riger_der_Augsburger_Familie_Weiss_anagoria.JPG",
+        "credit": "Städel",
+        "permission": null,
+        "attribution": null
       },
       "copyright": {
-        "copyrighted": null,
-        "license": null,
-        "notes": "Not found on Wikimedia Commons; needs manual review."
+        "copyrighted": false,
+        "license_short": "Public domain",
+        "license_url": null,
+        "usage_terms": "Public domain"
       },
-      "year": 1522,
-      "year_source": "date_created_plain"
+      "year_source": "wikidata_qs"
     },
     "1529_Cranach_Allegorie_auf_Gesetz_und_Gnade_anagoria.jpeg": {
       "filename": "1529_Cranach_Allegorie_auf_Gesetz_und_Gnade_anagoria.jpeg",
@@ -1905,24 +2113,36 @@
       "year": 1529,
       "year_source": "date_created_plain"
     },
-    "1595_Wtewael_Die_Sintflut_anagoria.jpeg": {
-      "filename": "1595_Wtewael_Die_Sintflut_anagoria.jpeg",
-      "resolved": false,
-      "needs_review": true,
-      "title": "1595 Wtewael Die Sintflut anagoria",
-      "artist": null,
-      "date_created": "1595",
+    "1595_Wtewael_Die_Sintflut_anagoria.JPG": {
+      "filename": "1595_Wtewael_Die_Sintflut_anagoria.JPG",
+      "resolved": true,
+      "needs_review": false,
+      "title": "The Great Floode",
+      "artist": "Joachim Wtewael",
+      "date_created": "1595 date QS:P571,+1595-00-00T00:00:00Z/9",
+      "year": 1595,
+      "description": "Genesis flood narrative",
       "source": {
-        "type": "unknown",
-        "url": null
+        "type": "Wikimedia Commons",
+        "canonical_title": "File:1595 Wtewael Die Sintflut anagoria.JPG",
+        "url": "https://commons.wikimedia.org/wiki/File%3A1595_Wtewael_Die_Sintflut_anagoria.JPG",
+        "file_url": "https://upload.wikimedia.org/wikipedia/commons/0/00/1595_Wtewael_Die_Sintflut_anagoria.JPG",
+        "credit": "Own work , anagoria",
+        "permission": null,
+        "attribution": null
       },
       "copyright": {
-        "copyrighted": null,
-        "license": null,
-        "notes": "Not found on Wikimedia Commons; needs manual review."
+        "copyrighted": false,
+        "license_short": "Public domain",
+        "license_url": null,
+        "usage_terms": "Public domain"
       },
-      "year": 1595,
-      "year_source": "date_created_plain"
+      "translations": {
+        "title": {
+          "de": "Die Sintflut"
+        }
+      },
+      "year_source": "wikidata_qs"
     },
     "1596_Caravaggio,_The_Lute_Player_New_York.jpg": {
       "filename": "1596_Caravaggio,_The_Lute_Player_New_York.jpg",
@@ -2043,7 +2263,7 @@
           "ps": "د مرغلرې غوږوالۍ لرونکې نجلۍ",
           "bg": "Момичето с перлената обица",
           "ro": "Fata cu turban",
-          "zh-hk": "戴珍珠耳環的少女",
+          "zh-hk": "戴珍珠耳���的少女",
           "sv": "Flicka med pärlörhänge",
           "uk": "Дівчина з перловою сережкою",
           "zh-hant": "戴珍珠耳環的少女",
@@ -2760,43 +2980,62 @@
       "year": 1902,
       "year_source": "date_created_plain"
     },
-    "1913_Malevich_Portrait_von_Mikhail_Matjuschin_anagoria.jpeg": {
-      "filename": "1913_Malevich_Portrait_von_Mikhail_Matjuschin_anagoria.jpeg",
-      "resolved": false,
-      "needs_review": true,
-      "title": "1913 Malevich Portrait von Mikhail Matjuschin anagoria",
-      "artist": null,
+    "1913_Malevich_Portrait_von_Mikhail_Matjuschin_anagoria.JPG": {
+      "filename": "1913_Malevich_Portrait_von_Mikhail_Matjuschin_anagoria.JPG",
+      "resolved": true,
+      "needs_review": false,
+      "title": "Portrait of Mikhail Matyushin",
+      "artist": "Kazimir Malevich",
       "date_created": "1913",
+      "year": 1913,
+      "description": null,
       "source": {
-        "type": "unknown",
-        "url": null
+        "type": "Wikimedia Commons",
+        "canonical_title": "File:1913 Malevich Portrait von Mikhail Matjuschin anagoria.JPG",
+        "url": "https://commons.wikimedia.org/wiki/File%3A1913_Malevich_Portrait_von_Mikhail_Matjuschin_anagoria.JPG",
+        "file_url": "https://upload.wikimedia.org/wikipedia/commons/2/24/1913_Malevich_Portrait_von_Mikhail_Matjuschin_anagoria.JPG",
+        "credit": "Tretyakov Gallery",
+        "permission": null,
+        "attribution": null
       },
       "copyright": {
-        "copyrighted": null,
-        "license": null,
-        "notes": "Not found on Wikimedia Commons; needs manual review."
+        "copyrighted": false,
+        "license_short": "Public domain",
+        "license_url": null,
+        "usage_terms": "Public domain"
       },
-      "year": 1913,
+      "translations": {
+        "title": {
+          "de": "Porträt Michail Matjuschin"
+        }
+      },
       "year_source": "date_created_plain"
     },
-    "1915_Kustodiev_die_Schoene_anagoria.jpeg": {
-      "filename": "1915_Kustodiev_die_Schoene_anagoria.jpeg",
-      "resolved": false,
-      "needs_review": true,
-      "title": "1915 Kustodiev die Schoene anagoria",
-      "artist": null,
-      "date_created": "1915",
+    "1915_Kustodiev_die_Schoene_anagoria.JPG": {
+      "filename": "1915_Kustodiev_die_Schoene_anagoria.JPG",
+      "resolved": true,
+      "needs_review": false,
+      "title": "The beauty",
+      "artist": "Boris Kustodiev",
+      "date_created": "1915 date QS:P571,+1915-00-00T00:00:00Z/9",
+      "year": 1915,
+      "description": null,
       "source": {
-        "type": "unknown",
-        "url": null
+        "type": "Wikimedia Commons",
+        "canonical_title": "File:1915 Kustodiev die Schoene anagoria.JPG",
+        "url": "https://commons.wikimedia.org/wiki/File%3A1915_Kustodiev_die_Schoene_anagoria.JPG",
+        "file_url": "https://upload.wikimedia.org/wikipedia/commons/0/09/1915_Kustodiev_die_Schoene_anagoria.JPG",
+        "credit": "https://www.tretyakovgallery.ru/en/collection/_show/image/_id/285",
+        "permission": null,
+        "attribution": null
       },
       "copyright": {
-        "copyrighted": null,
-        "license": null,
-        "notes": "Not found on Wikimedia Commons; needs manual review."
+        "copyrighted": false,
+        "license_short": "Public domain",
+        "license_url": null,
+        "usage_terms": "Public domain"
       },
-      "year": 1915,
-      "year_source": "date_created_plain"
+      "year_source": "wikidata_qs"
     },
     "1993-151-1-pma2018.jpg": {
       "filename": "1993-151-1-pma2018.jpg",
@@ -6134,7 +6373,7 @@
       "translations": {
         "title": {
           "es": "Adán y Eva en el Paraíso",
-          "hu": "Ád��m és Éva",
+          "hu": "Ádám és Éva",
           "ca": "Adán y Eva",
           "cy": "Adda ac Efa",
           "sq": "Adami dhe Eva",
@@ -6705,23 +6944,37 @@
       },
       "year_source": "wikidata_qs"
     },
-    "Aivasovsky_I_C_Ship__Twelve_Apostles_.jpg": {
-      "filename": "Aivasovsky_I_C_Ship__Twelve_Apostles_.jpg",
-      "resolved": false,
-      "needs_review": true,
-      "title": "Aivasovsky I C Ship  Twelve Apostles ",
-      "artist": null,
-      "date_created": null,
+    "Aivasovsky_I_C_Ship_\"Twelve_Apostles\".jpg": {
+      "filename": "Aivasovsky_I_C_Ship_\"Twelve_Apostles\".jpg",
+      "resolved": true,
+      "needs_review": false,
+      "title": "Ship \"Twelve Apostles\"",
+      "artist": "Ivan Aivazovsky",
+      "date_created": "1897 date QS:P571,+1897-00-00T00:00:00Z/9",
+      "year": 1897,
+      "description": null,
       "source": {
-        "type": "unknown",
-        "url": null
+        "type": "Wikimedia Commons",
+        "canonical_title": "File:Aivasovsky I C Ship \"Twelve Apostles\".jpg",
+        "url": "https://commons.wikimedia.org/wiki/File%3AAivasovsky_I_C_Ship_%22Twelve_Apostles%22.jpg",
+        "file_url": "https://upload.wikimedia.org/wikipedia/commons/8/8e/Aivasovsky_I_C_Ship_%22Twelve_Apostles%22.jpg",
+        "credit": "http://www.art-catalog.ru/picture.php?id_picture=9104",
+        "permission": null,
+        "attribution": null
       },
       "copyright": {
-        "copyrighted": null,
-        "license": null,
-        "notes": "Not found on Wikimedia Commons; needs manual review."
+        "copyrighted": false,
+        "license_short": "Public domain",
+        "license_url": null,
+        "usage_terms": "Public domain"
       },
-      "year": null
+      "translations": {
+        "title": {
+          "ru": "Корабль \"Двенадцать апостолов\"",
+          "de": "Schiff \"Zwölf Apostel\""
+        }
+      },
+      "year_source": "wikidata_qs"
     },
     "Aivazovsky,_Brig_Mercury_Attacked_by_Two_Turkish_Ships_1892.jpg": {
       "filename": "Aivazovsky,_Brig_Mercury_Attacked_by_Two_Turkish_Ships_1892.jpg",
@@ -9089,23 +9342,31 @@
       },
       "year_source": "date_created_plain"
     },
-    "Allegory_of_Painting.jpeg": {
-      "filename": "Allegory_of_Painting.jpeg",
-      "resolved": false,
-      "needs_review": true,
+    "Allegory_of_Painting.JPG": {
+      "filename": "Allegory_of_Painting.JPG",
+      "resolved": true,
+      "needs_review": false,
       "title": "Allegory of Painting",
-      "artist": null,
-      "date_created": null,
+      "artist": "Gerard van Honthorst",
+      "date_created": "1648 date QS:P571,+1648-00-00T00:00:00Z/9",
+      "year": 1648,
+      "description": "Allegory of Painting",
       "source": {
-        "type": "unknown",
-        "url": null
+        "type": "Wikimedia Commons",
+        "canonical_title": "File:Allegory of Painting.JPG",
+        "url": "https://commons.wikimedia.org/wiki/File%3AAllegory_of_Painting.JPG",
+        "file_url": "https://upload.wikimedia.org/wikipedia/commons/f/f9/Allegory_of_Painting.JPG",
+        "credit": "Self-photographed , Amadscientist , 2012-07-01",
+        "permission": null,
+        "attribution": null
       },
       "copyright": {
-        "copyrighted": null,
-        "license": null,
-        "notes": "Not found on Wikimedia Commons; needs manual review."
+        "copyrighted": true,
+        "license_short": "CC0",
+        "license_url": "http://creativecommons.org/publicdomain/zero/1.0/deed.en",
+        "usage_terms": "Creative Commons Zero, Public Domain Dedication"
       },
-      "year": null
+      "year_source": "wikidata_qs"
     },
     "Allegory_of_Painting_sc493FXD.jpg": {
       "filename": "Allegory_of_Painting_sc493FXD.jpg",
@@ -12224,23 +12485,31 @@
       },
       "year_source": "wikidata_qs"
     },
-    "Bakst_self.jpeg": {
-      "filename": "Bakst_self.jpeg",
-      "resolved": false,
-      "needs_review": true,
-      "title": "Bakst self",
-      "artist": null,
-      "date_created": null,
+    "Bakst_self.JPG": {
+      "filename": "Bakst_self.JPG",
+      "resolved": true,
+      "needs_review": false,
+      "title": "Self Portrait.",
+      "artist": "Léon Bakst",
+      "date_created": "1893 date QS:P571,+1893-00-00T00:00:00Z/9",
+      "year": 1893,
+      "description": null,
       "source": {
-        "type": "unknown",
-        "url": null
+        "type": "Wikimedia Commons",
+        "canonical_title": "File:Bakst self.JPG",
+        "url": "https://commons.wikimedia.org/wiki/File%3ABakst_self.JPG",
+        "file_url": "https://upload.wikimedia.org/wikipedia/commons/0/00/Bakst_self.JPG",
+        "credit": null,
+        "permission": null,
+        "attribution": null
       },
       "copyright": {
-        "copyrighted": null,
-        "license": null,
-        "notes": "Not found on Wikimedia Commons; needs manual review."
+        "copyrighted": false,
+        "license_short": "Public domain",
+        "license_url": null,
+        "usage_terms": "Public domain"
       },
-      "year": null
+      "year_source": "wikidata_qs"
     },
     "Baldassare_Castiglione,_by_Raffaello_Sanzio,_from_C2RMF_retouched.jpg": {
       "filename": "Baldassare_Castiglione,_by_Raffaello_Sanzio,_from_C2RMF_retouched.jpg",
@@ -14646,7 +14915,7 @@
       "translations": {
         "title": {
           "fr": "La Vierge et l'Enfant avec le jeune saint Jean Baptiste",
-          "it": "Madonna con bambino e Giovannino",
+          "it": "Madonna con Bambino e Giovannino",
           "ja": "聖母子と若い洗礼者聖ヨハネ (ボッティチェッリ)",
           "tr": "Meryem ve Çocuk İsa Genç Vaftizci Yahya ile Beraber",
           "nl": "Madonna met kin en de jonge Johannes de doper",
@@ -23114,23 +23383,41 @@
         "usage_terms": "Creative Commons Attribution-Share Alike 4.0"
       }
     },
-    "Cole,_Thomas_-_Der_Pokal_des_Riesen_-_hi_res_-_1833.jpeg": {
-      "filename": "Cole,_Thomas_-_Der_Pokal_des_Riesen_-_hi_res_-_1833.jpeg",
-      "resolved": false,
-      "needs_review": true,
-      "title": "Cole, Thomas - Der Pokal des Riesen - hi res - 1833",
-      "artist": null,
+    "Cole,_Thomas_-_Der_Pokal_des_Riesen_-_hi_res_-_1833.JPG": {
+      "filename": "Cole,_Thomas_-_Der_Pokal_des_Riesen_-_hi_res_-_1833.JPG",
+      "resolved": true,
+      "needs_review": false,
+      "title": "The Titan's Goblet",
+      "artist": "Thomas Cole",
       "date_created": "1833",
+      "year": 1833,
+      "description": null,
       "source": {
-        "type": "unknown",
-        "url": null
+        "type": "Wikimedia Commons",
+        "canonical_title": "File:Cole, Thomas - Der Pokal des Riesen - hi res - 1833.JPG",
+        "url": "https://commons.wikimedia.org/wiki/File%3ACole%2C_Thomas_-_Der_Pokal_des_Riesen_-_hi_res_-_1833.JPG",
+        "file_url": "https://upload.wikimedia.org/wikipedia/commons/0/05/Cole%2C_Thomas_-_Der_Pokal_des_Riesen_-_hi_res_-_1833.JPG",
+        "credit": "Own scan, source: Norbert Wolf, Ingo F. Walther (publ.), Romantik, Taschen, Hong Kong, Köln, London, Los Angeles, Madrid, Paris, Tokyo, 2007, ISBN 978-3-8228-5307-8 , p. 75",
+        "permission": null,
+        "attribution": null
       },
       "copyright": {
-        "copyrighted": null,
-        "license": null,
-        "notes": "Not found on Wikimedia Commons; needs manual review."
+        "copyrighted": false,
+        "license_short": "Public domain",
+        "license_url": null,
+        "usage_terms": "Public domain"
       },
-      "year": 1833,
+      "artist_info": {
+        "name": "Thomas Cole",
+        "aliases": [
+          "Thomas Cole"
+        ],
+        "born": 1801,
+        "died": 1848,
+        "nationality": "American / English",
+        "movement": "Hudson River School",
+        "pd_status": "public_domain_worldwide"
+      },
       "year_source": "date_created_plain"
     },
     "Cole_Thomas_Expulsion_from_the_Garden_of_Eden_1828.jpg": {
@@ -23335,23 +23622,43 @@
       },
       "year_source": "description"
     },
-    "Columbus_and_His_Son_at_La_Rábida.jpeg": {
-      "filename": "Columbus_and_His_Son_at_La_Rábida.jpeg",
-      "resolved": false,
-      "needs_review": true,
-      "title": "Columbus and His Son at La Rábida",
-      "artist": null,
-      "date_created": null,
+    "Columbus_and_His_Son_at_La_Rábida.JPG": {
+      "filename": "Columbus_and_His_Son_at_La_Rábida.JPG",
+      "resolved": true,
+      "needs_review": false,
+      "title": "Christophe Colomb et son fils à La Rábida",
+      "artist": "Eugène Delacroix",
+      "date_created": "1838 date QS:P571,+1838-00-00T00:00:00Z/9",
+      "year": 1838,
+      "description": "Columbus and His Son at La Rábida",
       "source": {
-        "type": "unknown",
-        "url": null
+        "type": "Wikimedia Commons",
+        "canonical_title": "File:Columbus and His Son at La Rábida.JPG",
+        "url": "https://commons.wikimedia.org/wiki/File%3AColumbus_and_His_Son_at_La_R%C3%A1bida.JPG",
+        "file_url": "https://upload.wikimedia.org/wikipedia/commons/2/22/Columbus_and_His_Son_at_La_R%C3%A1bida.JPG",
+        "credit": "National Gallery of Art .",
+        "permission": null,
+        "attribution": null
       },
       "copyright": {
-        "copyrighted": null,
-        "license": null,
-        "notes": "Not found on Wikimedia Commons; needs manual review."
+        "copyrighted": false,
+        "license_short": "Public domain",
+        "license_url": null,
+        "usage_terms": "Public domain"
       },
-      "year": null
+      "artist_info": {
+        "name": "Eugène Delacroix",
+        "aliases": [
+          "Eugène Delacroix",
+          "Delacroix"
+        ],
+        "born": 1798,
+        "died": 1863,
+        "nationality": "French",
+        "movement": "Romanticism",
+        "pd_status": "public_domain_worldwide"
+      },
+      "year_source": "wikidata_qs"
     },
     "Comtesse_de_la_Châtre_(Marie_Charlotte_Louise_Perrette_Aglaé_Bontemps,_1762–1848)_MET_DP320086.jpg": {
       "filename": "Comtesse_de_la_Châtre_(Marie_Charlotte_Louise_Perrette_Aglaé_Bontemps,_1762–1848)_MET_DP320086.jpg",
@@ -25453,23 +25760,31 @@
       },
       "year_source": "wikidata_qs"
     },
-    "David_dessinant_Marie-Antoinette--van_den_Büssche-IMG_2385.jpeg": {
-      "filename": "David_dessinant_Marie-Antoinette--van_den_Büssche-IMG_2385.jpeg",
-      "resolved": false,
-      "needs_review": true,
-      "title": "David dessinant Marie-Antoinette--van den Büssche-IMG 2385",
-      "artist": null,
-      "date_created": null,
+    "David_dessinant_Marie-Antoinette--van_den_Büssche-IMG_2385.JPG": {
+      "filename": "David_dessinant_Marie-Antoinette--van_den_Büssche-IMG_2385.JPG",
+      "resolved": true,
+      "needs_review": false,
+      "title": "Painter David drawing Marie-Antoinette led to her execution, 1793",
+      "artist": "Joseph-Emmanuel van den Büssche (1837-1908)",
+      "date_created": "1900 date QS:P571,+1900-00-00T00:00:00Z/9",
+      "year": 1900,
+      "description": null,
       "source": {
-        "type": "unknown",
-        "url": null
+        "type": "Wikimedia Commons",
+        "canonical_title": "File:David dessinant Marie-Antoinette--van den Büssche-IMG 2385.JPG",
+        "url": "https://commons.wikimedia.org/wiki/File%3ADavid_dessinant_Marie-Antoinette--van_den_B%C3%BCssche-IMG_2385.JPG",
+        "file_url": "https://upload.wikimedia.org/wikipedia/commons/5/58/David_dessinant_Marie-Antoinette--van_den_B%C3%BCssche-IMG_2385.JPG",
+        "credit": "Own work",
+        "permission": "You may select the license of your choice.",
+        "attribution": "Photograph by Rama , Wikimedia Commons, Cc-by-sa-2.0-fr"
       },
       "copyright": {
-        "copyrighted": null,
-        "license": null,
-        "notes": "Not found on Wikimedia Commons; needs manual review."
+        "copyrighted": true,
+        "license_short": "CC BY-SA 2.0 fr",
+        "license_url": "https://creativecommons.org/licenses/by-sa/2.0/fr/deed.en",
+        "usage_terms": "Creative Commons Attribution-Share Alike 2.0 fr"
       },
-      "year": null
+      "year_source": "wikidata_qs"
     },
     "David_with_the_Head_of_Goliath-Caravaggio_(1610).jpg": {
       "filename": "David_with_the_Head_of_Goliath-Caravaggio_(1610).jpg",
@@ -26628,7 +26943,7 @@
       "resolved": true,
       "needs_review": false,
       "title": "Don Quijote illustrated by Gustav Dore V",
-      "artist": "Gustave Dore, Albrecht Dürer",
+      "artist": "Gustave Dore",
       "date_created": "2016-02-24",
       "year": null,
       "description": "Don Quijote illustrated by Gustav Dore VI.",
@@ -26637,7 +26952,7 @@
         "canonical_title": "File:Don Quijote illustrated by Gustav Dore V.jpg",
         "url": "https://commons.wikimedia.org/wiki/File%3ADon_Quijote_illustrated_by_Gustav_Dore_V.jpg",
         "file_url": "https://upload.wikimedia.org/wikipedia/commons/0/01/Don_Quijote_illustrated_by_Gustav_Dore_V.jpg",
-        "credit": "Gustave Dore, Albrecht Dürer",
+        "credit": "Gustave Dore",
         "permission": null,
         "attribution": null
       },
@@ -26648,16 +26963,16 @@
         "usage_terms": "Public domain"
       },
       "artist_info": {
-        "name": "Albrecht Dürer",
+        "name": "Gustave Doré",
         "aliases": [
-          "Albrecht Dürer",
-          "Albrecht Durer",
-          "Dürer"
+          "Gustave Doré",
+          "Gustave Dore",
+          "Paul Gustave Doré"
         ],
-        "born": 1471,
-        "died": 1528,
-        "nationality": "German",
-        "movement": "Northern Renaissance",
+        "born": 1832,
+        "died": 1883,
+        "nationality": "French",
+        "movement": "Romanticism",
         "pd_status": "public_domain_worldwide"
       }
     },
@@ -29005,17 +29320,17 @@
       "filename": "Edmund_Blair_Leighton_-_The_Hostage.jpg",
       "resolved": true,
       "needs_review": false,
-      "title": "Edmund Blair Leighton - The Hostage",
+      "title": "The Hostage",
       "artist": "Edmund Blair Leighton",
       "date_created": "1912 date QS:P571,+1912-00-00T00:00:00Z/9",
       "year": null,
-      "description": "The Hostage , oil on canvas",
+      "description": "(See Sotheby's) «[...] The subject of a beautiful maid or princess gazing out over the ocean and dreaming of an absent lover, was a particular favourite among the Pre-Raphaelities, evoking the poetry of Tennyson and Malory 's Morte d'Arthur but with an emotional charge which was easily understood by all, irrespective of the audience's knowledge of the tale depicted. It has been suggested that the subject of the present picture may be linked to the story of Tristram and Isolde , one of the most inspirational of all the legends of the Morte D'Arthur to painters and poets of the Nineteenth Century. Confusingly, there are two women named Isolde (also known as Iseult or Iseude) in the romance, Isolde the Fair of Ireland and Isolde of the White Hands of Brittany. Blair Leighton 's closest friend Frank Dicksee painted a striking image of Isolde of the White Hands in 1901 (private collection), in which Tristram's wife gazes out to sea awaiting the ship bearing her rival Isolde the Fair who is travelling to Tristram's side as he dies of unrequited love. Blair Leighton's young maiden is certainly not Isolde of the White hands, a vengeful wife who told Tristram that his beloved Isolde the Fair was dead, thus speeding his departure. The picture is more likely to depict the more innocent Isolde the Fair in her father's castle in Ireland awaiting Tristram, who had been instructed to take her to Cornwall to marry King Mark . In 1916 John William Waterhouse , who Leighton also knew well, painted Tristram and Isolde on board the ship carrying them to Cornwall (Sotheby's, 28 November 2002, lot 28). An oil sketch on panel for the present picture (18 by 23cm., Sotheby's, 11 October 1995, lot 609), differs only in minor details, such as the girl in the sketch is holding a book from which she has been distracted by her dreams. [...]»",
       "source": {
         "type": "Wikimedia Commons",
         "canonical_title": "File:Edmund Blair Leighton - The Hostage.jpg",
         "url": "https://commons.wikimedia.org/wiki/File%3AEdmund_Blair_Leighton_-_The_Hostage.jpg",
         "file_url": "https://upload.wikimedia.org/wikipedia/commons/3/3f/Edmund_Blair_Leighton_-_The_Hostage.jpg",
-        "credit": "https://www.sothebys.com/en/auctions/ecatalogue/2003/important-british-pictures-l03123/lot.33.html",
+        "credit": "http://www.artsfairies.com/leighton/leighton_biography.htm [ dead link ]",
         "permission": null,
         "attribution": null
       },
@@ -30617,23 +30932,58 @@
       },
       "year_source": "wikidata_qs"
     },
-    "El_Greco_-_The_Burial_of_the_Count_of_Orgaz.jpeg": {
-      "filename": "El_Greco_-_The_Burial_of_the_Count_of_Orgaz.jpeg",
-      "resolved": false,
-      "needs_review": true,
-      "title": "El Greco - The Burial of the Count of Orgaz",
-      "artist": null,
-      "date_created": null,
+    "El_Greco_-_The_Burial_of_the_Count_of_Orgaz.JPG": {
+      "filename": "El_Greco_-_The_Burial_of_the_Count_of_Orgaz.JPG",
+      "resolved": true,
+      "needs_review": false,
+      "title": "The Burial of the Count of Orgaz",
+      "artist": "El Greco",
+      "date_created": "between 1586 and 1588 date QS:P571,+1586-00-00T00:00:00Z/8,P1319,+1586-00-00T00:00:00Z/9,P1326,+1588-00-00T00:00:00Z/9",
+      "year": 1586,
+      "description": "El entierro del señor de Orgaz , más conocido como El entierro del conde de Orgaz , es un óleo sobre lienzo pintado en estilo manierista por El Greco entre los años 1586 y 1588. Fue realizado para la iglesia de Santo Tomé de Toledo , ( España ), donde aun permanece, y es considerada una de las las mejores obras de su autor. El cuadro representa el milagro en el que, según la tradición, San Esteban y San Agustín de Hipona bajaron del Cielo para enterrar personalmente a Gonzalo Ruiz de Toledo , señor de la villa de Orgaz y fallecido en 1323, en la iglesia de Santo Tomé, como premio por su vida ejemplar de devoción, humildad y obras de caridad. El Greco aceptó el encargo de realizar la obra en 1586, algo más de dos siglos y medio después de los hechos que en ella representó.",
       "source": {
-        "type": "unknown",
-        "url": null
+        "type": "Wikimedia Commons",
+        "canonical_title": "File:El Greco - The Burial of the Count of Orgaz.JPG",
+        "url": "https://commons.wikimedia.org/wiki/File%3AEl_Greco_-_The_Burial_of_the_Count_of_Orgaz.JPG",
+        "file_url": "https://upload.wikimedia.org/wikipedia/commons/f/ff/El_Greco_-_The_Burial_of_the_Count_of_Orgaz.JPG",
+        "credit": "Unknown photographer Unknown photographer",
+        "permission": "Public domain Public domain false false This work is in the public domain in its country of origin and other countries and areas where the copyright term is the author's life plus 100 years or fewer . This work is in the public domain in the United States because it was published (or registered with the U.S. Copyright Office ) before January 1, 1931. This file has been identified as being free of known restrictions under copyright law, including all related and neighboring rights. https://creativecommons.org/publicdomain/mark/1.0/ PDM Creative Commons Public Domain Mark 1.0 false false",
+        "attribution": null
       },
       "copyright": {
-        "copyrighted": null,
-        "license": null,
-        "notes": "Not found on Wikimedia Commons; needs manual review."
+        "copyrighted": false,
+        "license_short": "Public domain",
+        "license_url": null,
+        "usage_terms": "Public domain"
       },
-      "year": null
+      "artist_info": {
+        "name": "El Greco",
+        "aliases": [
+          "Doménikos Theotokópoulos",
+          "El Greco"
+        ],
+        "born": 1541,
+        "died": 1614,
+        "nationality": "Greek / Spanish",
+        "movement": "Mannerism",
+        "pd_status": "public_domain_worldwide"
+      },
+      "translations": {
+        "title": {
+          "es": "El entierro del conde de Orgaz",
+          "fr": "L'Enterrement du comte d'Orgaz",
+          "hr": "Pogreb grofa Orgaze",
+          "eu": "Orgazeko kondearen ehorzketa",
+          "ca": "L'enterrament del comte d'Orgaz",
+          "de": "Begräbnis des Grafen von Orgaz",
+          "ja": "オルガス伯の埋葬",
+          "it": "Sepoltura del conte di Orgaz",
+          "pt": "O Enterro do Conde de Orgaz",
+          "ru": "Погребение графа Оргаса",
+          "pl": "Pogrzeb hrabiego Orgaza"
+        }
+      },
+      "year_source": "wikidata_qs"
     },
     "El_Greco_042.jpg": {
       "filename": "El_Greco_042.jpg",
@@ -32745,7 +33095,7 @@
       "translations": {
         "title": {
           "fr": "Marocain sellant son cheval",
-          "ru": "Марокканец, седлающий коня",
+          "ru": "Марокканец, седлающи�� коня",
           "de": "Marokkaner beim Satteln seines Pferdes"
         }
       },
@@ -32969,23 +33319,31 @@
       },
       "year_source": "wikidata_qs"
     },
-    "Fantômas_-_Juan_Gris.jpeg": {
-      "filename": "Fantômas_-_Juan_Gris.jpeg",
-      "resolved": false,
-      "needs_review": true,
-      "title": "Fantômas - Juan Gris",
-      "artist": null,
-      "date_created": null,
+    "Fantômas_-_Juan_Gris.JPG": {
+      "filename": "Fantômas_-_Juan_Gris.JPG",
+      "resolved": true,
+      "needs_review": false,
+      "title": "Fantômas",
+      "artist": "Juan Gris",
+      "date_created": "1915 date QS:P571,+1915-00-00T00:00:00Z/9",
+      "year": 1915,
+      "description": "Fantômas",
       "source": {
-        "type": "unknown",
-        "url": null
+        "type": "Wikimedia Commons",
+        "canonical_title": "File:Fantômas - Juan Gris.JPG",
+        "url": "https://commons.wikimedia.org/wiki/File%3AFant%C3%B4mas_-_Juan_Gris.JPG",
+        "file_url": "https://upload.wikimedia.org/wikipedia/commons/3/3e/Fant%C3%B4mas_-_Juan_Gris.JPG",
+        "credit": "Own work AgnosticPreachersKid , May 31, 2010",
+        "permission": "I, the copyright holder of this work, hereby publish it under the following license:",
+        "attribution": null
       },
       "copyright": {
-        "copyrighted": null,
-        "license": null,
-        "notes": "Not found on Wikimedia Commons; needs manual review."
+        "copyrighted": false,
+        "license_short": "Public domain",
+        "license_url": null,
+        "usage_terms": "Public domain"
       },
-      "year": null
+      "year_source": "wikidata_qs"
     },
     "Female_Nude_with_Foliage_Shadows.jpg": {
       "filename": "Female_Nude_with_Foliage_Shadows.jpg",
@@ -33457,23 +33815,30 @@
       },
       "year_source": "date_created_plain"
     },
-    "Flora_Tristan_1838.jpeg": {
-      "filename": "Flora_Tristan_1838.jpeg",
-      "resolved": false,
-      "needs_review": true,
+    "Flora_Tristan_1838.JPG": {
+      "filename": "Flora_Tristan_1838.JPG",
+      "resolved": true,
+      "needs_review": false,
       "title": "Flora Tristan 1838",
-      "artist": null,
+      "artist": "Unknown author Unknown author",
       "date_created": "1838",
+      "year": 1838,
+      "description": "Flora Tristan (1803-1844), woman of letters, socialist and French feminist. Lithograph published by Aubert in 1838, published in Le Charivari n ° 53, February 22, 1839.",
       "source": {
-        "type": "unknown",
-        "url": null
+        "type": "Wikimedia Commons",
+        "canonical_title": "File:Flora Tristan 1838.JPG",
+        "url": "https://commons.wikimedia.org/wiki/File%3AFlora_Tristan_1838.JPG",
+        "file_url": "https://upload.wikimedia.org/wikipedia/commons/2/24/Flora_Tristan_1838.JPG",
+        "credit": "https://www.liberation.fr/france/2018/10/10/flora-tristan-une-ouvriere-victime-de-feminicide_1684545 and https://gallica.bnf.fr/ark:/12148/bpt6k30494211/f3.item.zoom",
+        "permission": null,
+        "attribution": null
       },
       "copyright": {
-        "copyrighted": null,
-        "license": null,
-        "notes": "Not found on Wikimedia Commons; needs manual review."
+        "copyrighted": false,
+        "license_short": "Public domain",
+        "license_url": null,
+        "usage_terms": "Public domain"
       },
-      "year": 1838,
       "year_source": "date_created_plain"
     },
     "Flowering_meadow_with_trees_and_dandelions_-_Vincent_Van_Gogh.jpg": {
@@ -36880,25 +37245,6 @@
         "license_url": null,
         "usage_terms": "Public domain"
       },
-      "year_source": "date_created_plain"
-    },
-    "Georges_Braque,_1909-10,_La_guitare_(Mandora,_La_Mandore),_oil_on_canvas,_71.1_x_55.9_cm,_Tate_Modern,_London.jpg": {
-      "filename": "Georges_Braque,_1909-10,_La_guitare_(Mandora,_La_Mandore),_oil_on_canvas,_71.1_x_55.9_cm,_Tate_Modern,_London.jpg",
-      "resolved": false,
-      "needs_review": true,
-      "title": "Georges Braque, 1909-10, La guitare (Mandora, La Mandore), oil on canvas, 71.1 x 55.9 cm, Tate Modern, London",
-      "artist": null,
-      "date_created": "1909",
-      "source": {
-        "type": "unknown",
-        "url": null
-      },
-      "copyright": {
-        "copyrighted": null,
-        "license": null,
-        "notes": "Not found on Wikimedia Commons; needs manual review."
-      },
-      "year": 1909,
       "year_source": "date_created_plain"
     },
     "Georges_Seurat,_Seated_Nude,_Study_for_Une_Baignade,_1883,_Scottish_National_Gallery.jpg": {
@@ -40901,23 +41247,31 @@
       },
       "year_source": "wikidata_qs"
     },
-    "Gustaf_Lundberg-Porträtt_av_Friherre_Charles_de_Geer.jpeg": {
-      "filename": "Gustaf_Lundberg-Porträtt_av_Friherre_Charles_de_Geer.jpeg",
-      "resolved": false,
-      "needs_review": true,
-      "title": "Gustaf Lundberg-Porträtt av Friherre Charles de Geer",
-      "artist": null,
-      "date_created": null,
+    "Gustaf_Lundberg-Porträtt_av_Friherre_Charles_de_Geer.JPG": {
+      "filename": "Gustaf_Lundberg-Porträtt_av_Friherre_Charles_de_Geer.JPG",
+      "resolved": true,
+      "needs_review": false,
+      "title": "Portrait of Charles de Geer (1720-1778)",
+      "artist": "Gustaf Lundberg",
+      "date_created": "second half of 18 th century date QS:P571,+1750-00-00T00:00:00Z/7",
+      "year": 1720,
+      "description": null,
       "source": {
-        "type": "unknown",
-        "url": null
+        "type": "Wikimedia Commons",
+        "canonical_title": "File:Gustaf Lundberg-Porträtt av Friherre Charles de Geer.JPG",
+        "url": "https://commons.wikimedia.org/wiki/File%3AGustaf_Lundberg-Portr%C3%A4tt_av_Friherre_Charles_de_Geer.JPG",
+        "file_url": "https://upload.wikimedia.org/wikipedia/commons/f/f4/Gustaf_Lundberg-Portr%C3%A4tt_av_Friherre_Charles_de_Geer.JPG",
+        "credit": "Unknown source Unknown source",
+        "permission": null,
+        "attribution": null
       },
       "copyright": {
-        "copyrighted": null,
-        "license": null,
-        "notes": "Not found on Wikimedia Commons; needs manual review."
+        "copyrighted": false,
+        "license_short": "Public domain",
+        "license_url": null,
+        "usage_terms": "Public domain"
       },
-      "year": null
+      "year_source": "title"
     },
     "Gustaf_Lundberg-Porträtt_av_Juliana_Dorotea_Henck.jpg": {
       "filename": "Gustaf_Lundberg-Porträtt_av_Juliana_Dorotea_Henck.jpg",
@@ -42595,7 +42949,7 @@
         "url": "https://commons.wikimedia.org/wiki/File%3AHashiguchi_Goyo_-_Woman_in_Blue_Combing_Her_Hair_-_Walters_95880.jpg",
         "file_url": "https://upload.wikimedia.org/wikipedia/commons/f/fd/Hashiguchi_Goyo_-_Woman_in_Blue_Combing_Her_Hair_-_Walters_95880.jpg",
         "credit": "Walters Art Museum : Home page Info about artwork",
-        "permission": ".mw-parser-output .messagebox{margin:4px 0;width:auto;border-collapse:collapse;border:2px solid var(--border-color-progressive,#6485d1);background-color:var(--background-color-neutral-subtle,#fbfcff);color:var(--color-base,#202122);box-sizing:border-box;border-inline-start-width:8px}.mw-parser-output .messagebox.mbox-small{font-size:88%;line-height:1.25em}.mw-parser-output .mbox-warning,.mw-parser-output .mbox-speedy{border:2px solid var(--border-color-error,#b22222);background:var(--background-color-error-subtle,#ffdbdb);border-inline-start-width:8px}.mw-parser-output .mbox-serious,.mw-parser-output .mbox-delete,.mw-parser-output .mbox-stop{border:2px solid var(--border-color-error,#b22222);border-inline-start-width:8px}.mw-parser-output .mbox-issue,.mw-parser-output .mbox-content{border:2px solid #f28500;background:var(--background-color-warning-subtle,#ffe);border-inline-start-width:8px}.mw-parser-output .mbox-query,.mw-parser-output .mbox-style{border:2px solid #f4c430;background:var(--background-color-warning-subtle,#ffe);border-inline-start-width:8px}.mw-parser-output .mbox-shit{border:2px solid #960;border-inline-start-width:8px}.mw-parser-output .mbox-license{border:2px solid #88a;border-inline-start-width:initial}.mw-parser-output .mbox-legal{border:2px solid var(--border-color-notice,#666);background:var(--background-color-base,#fff);border-inline-start-width:8px}.mw-parser-output .mbox-honor{border:2px solid #ca3;background:var(--background-color-warning-subtle,#fcf4db);border-inline-start-width:8px}.mw-parser-output .mbox-growth{border:2px solid #8d4;background:var(--background-color-success-subtle,#d5fdf4);border-inline-start-width:8px}.mw-parser-output .mbox-move{border:2px solid #93c;border-inline-start-width:8px}.mw-parser-output .mbox-protection,.mw-parser-output .mbox-message{border:2px solid var(--border-color-base,#aaa);border-inline-start-width:8px}.mw-parser-output .messagebox .mbox-text{border:none;padding:0.25em 0.9em;width:100%}.mw-parser-output .messagebox .mbox-image{border:none;padding:2px 0 2px 0.9em;text-align:center}.mw-parser-output .messagebox .mbox-imageright{border:none;padding:2px 0.9em 2px 0;text-align:center}.mw-parser-output .messagebox .mbox-empty-cell{border:none;padding:0;width:1px}.mw-parser-output .messagebox .mbox-invalid-type{text-align:center}@media(min-width:720px){.mw-parser-output .messagebox{margin:4px 10%}.mw-parser-output .messagebox.mbox-small{clear:right;float:right;margin:4px 0 4px 1em;width:238px}}body.skin--responsive .mw-parser-output table.messagebox img{max-width:none!important} This work is free and may be used by anyone for any purpose. If you wish to use this content , you do not need to request permission as long as you follow any licensing requirements mentioned on this page. The Wikimedia Foundation has received an e-mail confirming that the copyright holder has approved publication under the terms mentioned on this page. This correspondence has been reviewed by a Volunteer Response Team (VRT) member and stored in our permission archive . The correspondence is available to trusted volunteers as ticket #2012021710000834 . If you have questions about the archived correspondence, please use the VRT noticeboard . Ticket link: https://ticket.wikimedia.org/otrs/index.pl?Action=AgentTicketZoom&TicketNumber=2012021710000834 Find other files from the same ticket:",
+        "permission": "This work is free and may be used by anyone for any purpose. If you wish to use this content , you do not need to request permission as long as you follow any licensing requirements mentioned on this page. The Wikimedia Foundation has received an e-mail confirming that the copyright holder has approved publication under the terms mentioned on this page. This correspondence has been reviewed by a Volunteer Response Team (VRT) member and stored in our permission archive . The correspondence is available to trusted volunteers as ticket #2012021710000834 . If you have questions about the archived correspondence, please use the VRT noticeboard . Ticket link: https://ticket.wikimedia.org/otrs/index.pl?Action=AgentTicketZoom&TicketNumber=2012021710000834 Find other files from the same ticket:",
         "attribution": null
       },
       "copyright": {
@@ -47832,8 +48186,8 @@
       "needs_review": false,
       "title": "The Zaporozhye Cossacks Replying to the Sultan",
       "artist": "Ilya Repin",
-      "date_created": "between 1878 and 1891 date QS:P571,+1850-00-00T00:00:00Z/7,P1319,+1878-00-00T00:00:00Z/9,P1326,+1891-00-00T00:00:00Z/9",
-      "year": 1878,
+      "date_created": "{",
+      "year": null,
       "description": null,
       "source": {
         "type": "Wikimedia Commons",
@@ -47868,8 +48222,7 @@
           "fr": "Les Cosaques zaporogues écrivant une lettre au sultan de Turquie",
           "de": "Saporoschzen schreiben dem türkischen Sultan einen Brief"
         }
-      },
-      "year_source": "wikidata_qs"
+      }
     },
     "Ilya_Repin-What_freedom!.jpg": {
       "filename": "Ilya_Repin-What_freedom!.jpg",
@@ -48866,95 +49219,157 @@
       },
       "year_source": "wikidata_qs"
     },
-    "Ivan_Constantinovich_Aivazovsky_-_Battle_of_Çesme_at_Night.jpeg": {
-      "filename": "Ivan_Constantinovich_Aivazovsky_-_Battle_of_Çesme_at_Night.jpeg",
-      "resolved": false,
-      "needs_review": true,
-      "title": "Ivan Constantinovich Aivazovsky - Battle of Çesme at Night",
-      "artist": null,
-      "date_created": null,
+    "Ivan_Constantinovich_Aivazovsky_-_Battle_of_Çesme_at_Night.JPG": {
+      "filename": "Ivan_Constantinovich_Aivazovsky_-_Battle_of_Çesme_at_Night.JPG",
+      "resolved": true,
+      "needs_review": false,
+      "title": "Battle of Çesme at Night",
+      "artist": "Ivan Aivazovsky",
+      "date_created": "1848 date QS:P571,+1848-00-00T00:00:00Z/9",
+      "year": 1848,
+      "description": "Chesme battle in the night of June 25-26, 1770",
       "source": {
-        "type": "unknown",
-        "url": null
+        "type": "Wikimedia Commons",
+        "canonical_title": "File:Ivan Constantinovich Aivazovsky - Battle of Çesme at Night.JPG",
+        "url": "https://commons.wikimedia.org/wiki/File%3AIvan_Constantinovich_Aivazovsky_-_Battle_of_%C3%87esme_at_Night.JPG",
+        "file_url": "https://upload.wikimedia.org/wikipedia/commons/8/83/Ivan_Constantinovich_Aivazovsky_-_Battle_of_%C3%87esme_at_Night.JPG",
+        "credit": "scan of painting",
+        "permission": null,
+        "attribution": null
       },
       "copyright": {
-        "copyrighted": null,
-        "license": null,
-        "notes": "Not found on Wikimedia Commons; needs manual review."
+        "copyrighted": false,
+        "license_short": "Public domain",
+        "license_url": null,
+        "usage_terms": "Public domain"
       },
-      "year": null
+      "translations": {
+        "title": {
+          "ru": "Чесменский бой",
+          "de": "Schlacht von Çeşme"
+        }
+      },
+      "year_source": "wikidata_qs"
     },
-    "Ivan_Constantinovich_Aivazovsky_-_Boat_Ride_by_Kumkapi_in_Constantinople.jpeg": {
-      "filename": "Ivan_Constantinovich_Aivazovsky_-_Boat_Ride_by_Kumkapi_in_Constantinople.jpeg",
-      "resolved": false,
-      "needs_review": true,
-      "title": "Ivan Constantinovich Aivazovsky - Boat Ride by Kumkapi in Constantinople",
-      "artist": null,
-      "date_created": null,
+    "Ivan_Constantinovich_Aivazovsky_-_Boat_Ride_by_Kumkapi_in_Constantinople.JPG": {
+      "filename": "Ivan_Constantinovich_Aivazovsky_-_Boat_Ride_by_Kumkapi_in_Constantinople.JPG",
+      "resolved": true,
+      "needs_review": false,
+      "title": "Boat Ride by Kumkapi in Constantinople",
+      "artist": "Ivan Aivazovsky",
+      "date_created": "1846 date QS:P571,+1846-00-00T00:00:00Z/9",
+      "year": 1846,
+      "description": null,
       "source": {
-        "type": "unknown",
-        "url": null
+        "type": "Wikimedia Commons",
+        "canonical_title": "File:Ivan Constantinovich Aivazovsky - Boat Ride by Kumkapi in Constantinople.JPG",
+        "url": "https://commons.wikimedia.org/wiki/File%3AIvan_Constantinovich_Aivazovsky_-_Boat_Ride_by_Kumkapi_in_Constantinople.JPG",
+        "file_url": "https://upload.wikimedia.org/wikipedia/commons/a/ac/Ivan_Constantinovich_Aivazovsky_-_Boat_Ride_by_Kumkapi_in_Constantinople.JPG",
+        "credit": "scan of painting",
+        "permission": null,
+        "attribution": null
       },
       "copyright": {
-        "copyrighted": null,
-        "license": null,
-        "notes": "Not found on Wikimedia Commons; needs manual review."
+        "copyrighted": false,
+        "license_short": "Public domain",
+        "license_url": null,
+        "usage_terms": "Public domain"
       },
-      "year": null
+      "translations": {
+        "title": {
+          "de": "Bootsfahrt vor Kumkapi in Konstantinopel"
+        }
+      },
+      "year_source": "wikidata_qs"
     },
-    "Ivan_Constantinovich_Aivazovsky_-_Coffee-house_by_the_Ortaköy_Mosque_in_Constantinople.jpeg": {
-      "filename": "Ivan_Constantinovich_Aivazovsky_-_Coffee-house_by_the_Ortaköy_Mosque_in_Constantinople.jpeg",
-      "resolved": false,
-      "needs_review": true,
-      "title": "Ivan Constantinovich Aivazovsky - Coffee-house by the Ortaköy Mosque in Constantinople",
-      "artist": null,
-      "date_created": null,
+    "Ivan_Constantinovich_Aivazovsky_-_Coffee-house_by_the_Ortaköy_Mosque_in_Constantinople.JPG": {
+      "filename": "Ivan_Constantinovich_Aivazovsky_-_Coffee-house_by_the_Ortaköy_Mosque_in_Constantinople.JPG",
+      "resolved": true,
+      "needs_review": false,
+      "title": "Coffee-house by the Ortaköy Mosque in Constantinople",
+      "artist": "Ivan Aivazovsky",
+      "date_created": "1846 date QS:P571,+1846-00-00T00:00:00Z/9",
+      "year": 1846,
+      "description": null,
       "source": {
-        "type": "unknown",
-        "url": null
+        "type": "Wikimedia Commons",
+        "canonical_title": "File:Ivan Constantinovich Aivazovsky - Coffee-house by the Ortaköy Mosque in Constantinople.JPG",
+        "url": "https://commons.wikimedia.org/wiki/File%3AIvan_Constantinovich_Aivazovsky_-_Coffee-house_by_the_Ortak%C3%B6y_Mosque_in_Constantinople.JPG",
+        "file_url": "https://upload.wikimedia.org/wikipedia/commons/5/55/Ivan_Constantinovich_Aivazovsky_-_Coffee-house_by_the_Ortak%C3%B6y_Mosque_in_Constantinople.JPG",
+        "credit": "scan of painting",
+        "permission": null,
+        "attribution": null
       },
       "copyright": {
-        "copyrighted": null,
-        "license": null,
-        "notes": "Not found on Wikimedia Commons; needs manual review."
+        "copyrighted": false,
+        "license_short": "Public domain",
+        "license_url": null,
+        "usage_terms": "Public domain"
       },
-      "year": null
+      "translations": {
+        "title": {
+          "de": "Kaffeehaus nahe der Ortaköymoschee in Konstantinopel"
+        }
+      },
+      "year_source": "wikidata_qs"
     },
-    "Ivan_Constantinovich_Aivazovsky_-_Lake_Maggiore_in_the_Evening.jpeg": {
-      "filename": "Ivan_Constantinovich_Aivazovsky_-_Lake_Maggiore_in_the_Evening.jpeg",
-      "resolved": false,
-      "needs_review": true,
-      "title": "Ivan Constantinovich Aivazovsky - Lake Maggiore in the Evening",
-      "artist": null,
-      "date_created": null,
+    "Ivan_Constantinovich_Aivazovsky_-_Lake_Maggiore_in_the_Evening.JPG": {
+      "filename": "Ivan_Constantinovich_Aivazovsky_-_Lake_Maggiore_in_the_Evening.JPG",
+      "resolved": true,
+      "needs_review": false,
+      "title": "Italian Landscape (Lago Maggiore), Evening",
+      "artist": "Ivan Aivazovsky",
+      "date_created": "1858 date QS:P571,+1858-00-00T00:00:00Z/9",
+      "year": 1858,
+      "description": null,
       "source": {
-        "type": "unknown",
-        "url": null
+        "type": "Wikimedia Commons",
+        "canonical_title": "File:Ivan Constantinovich Aivazovsky - Lake Maggiore in the Evening.JPG",
+        "url": "https://commons.wikimedia.org/wiki/File%3AIvan_Constantinovich_Aivazovsky_-_Lake_Maggiore_in_the_Evening.JPG",
+        "file_url": "https://upload.wikimedia.org/wikipedia/commons/a/aa/Ivan_Constantinovich_Aivazovsky_-_Lake_Maggiore_in_the_Evening.JPG",
+        "credit": "scan of painting",
+        "permission": null,
+        "attribution": null
       },
       "copyright": {
-        "copyrighted": null,
-        "license": null,
-        "notes": "Not found on Wikimedia Commons; needs manual review."
+        "copyrighted": false,
+        "license_short": "Public domain",
+        "license_url": null,
+        "usage_terms": "Public domain"
       },
-      "year": null
+      "translations": {
+        "title": {
+          "de": "Italienische Landschaft (Lago Maggiore), abends",
+          "ru": "Итальянский пейзаж (Лаго Маджоре). Вечер"
+        }
+      },
+      "year_source": "wikidata_qs"
     },
-    "Ivan_Constantinovich_Aivazovsky_-_Moscow_in_Winter_from_the_Sparrow_Hills.jpeg": {
-      "filename": "Ivan_Constantinovich_Aivazovsky_-_Moscow_in_Winter_from_the_Sparrow_Hills.jpeg",
-      "resolved": false,
-      "needs_review": true,
+    "Ivan_Constantinovich_Aivazovsky_-_Moscow_in_Winter_from_the_Sparrow_Hills.JPG": {
+      "filename": "Ivan_Constantinovich_Aivazovsky_-_Moscow_in_Winter_from_the_Sparrow_Hills.JPG",
+      "resolved": true,
+      "needs_review": false,
       "title": "Ivan Constantinovich Aivazovsky - Moscow in Winter from the Sparrow Hills",
-      "artist": null,
-      "date_created": null,
+      "artist": "Ivan Aivazovsky",
+      "date_created": "1872 date QS:P571,+1872-00-00T00:00:00Z/9",
+      "year": 1872,
+      "description": "Material and Dimensions: Oil on canvas, 46 x 72 cm",
       "source": {
-        "type": "unknown",
-        "url": null
+        "type": "Wikimedia Commons",
+        "canonical_title": "File:Ivan Constantinovich Aivazovsky - Moscow in Winter from the Sparrow Hills.JPG",
+        "url": "https://commons.wikimedia.org/wiki/File%3AIvan_Constantinovich_Aivazovsky_-_Moscow_in_Winter_from_the_Sparrow_Hills.JPG",
+        "file_url": "https://upload.wikimedia.org/wikipedia/commons/e/e4/Ivan_Constantinovich_Aivazovsky_-_Moscow_in_Winter_from_the_Sparrow_Hills.JPG",
+        "credit": "scan of painting",
+        "permission": null,
+        "attribution": null
       },
       "copyright": {
-        "copyrighted": null,
-        "license": null,
-        "notes": "Not found on Wikimedia Commons; needs manual review."
+        "copyrighted": false,
+        "license_short": "Public domain",
+        "license_url": null,
+        "usage_terms": "Public domain"
       },
-      "year": null
+      "year_source": "wikidata_qs"
     },
     "Ivan_Constantinovich_Aivazovsky_-_The_Russian_Squadron_on_the_Sebastopol_Roads.jpg": {
       "filename": "Ivan_Constantinovich_Aivazovsky_-_The_Russian_Squadron_on_the_Sebastopol_Roads.jpg",
@@ -51153,7 +51568,7 @@
         "url": "https://commons.wikimedia.org/wiki/File%3AJean-Auguste-Dominique_Ingres_-_Reclining_Venus_-_Walters_372392.jpg",
         "file_url": "https://upload.wikimedia.org/wikipedia/commons/0/06/Jean-Auguste-Dominique_Ingres_-_Reclining_Venus_-_Walters_372392.jpg",
         "credit": "Walters Art Museum : Home page Info about artwork",
-        "permission": ".mw-parser-output .messagebox{margin:4px 0;width:auto;border-collapse:collapse;border:2px solid var(--border-color-progressive,#6485d1);background-color:var(--background-color-neutral-subtle,#fbfcff);color:var(--color-base,#202122);box-sizing:border-box;border-inline-start-width:8px}.mw-parser-output .messagebox.mbox-small{font-size:88%;line-height:1.25em}.mw-parser-output .mbox-warning,.mw-parser-output .mbox-speedy{border:2px solid var(--border-color-error,#b22222);background:var(--background-color-error-subtle,#ffdbdb);border-inline-start-width:8px}.mw-parser-output .mbox-serious,.mw-parser-output .mbox-delete,.mw-parser-output .mbox-stop{border:2px solid var(--border-color-error,#b22222);border-inline-start-width:8px}.mw-parser-output .mbox-issue,.mw-parser-output .mbox-content{border:2px solid #f28500;background:var(--background-color-warning-subtle,#ffe);border-inline-start-width:8px}.mw-parser-output .mbox-query,.mw-parser-output .mbox-style{border:2px solid #f4c430;background:var(--background-color-warning-subtle,#ffe);border-inline-start-width:8px}.mw-parser-output .mbox-shit{border:2px solid #960;border-inline-start-width:8px}.mw-parser-output .mbox-license{border:2px solid #88a;border-inline-start-width:initial}.mw-parser-output .mbox-legal{border:2px solid var(--border-color-notice,#666);background:var(--background-color-base,#fff);border-inline-start-width:8px}.mw-parser-output .mbox-honor{border:2px solid #ca3;background:var(--background-color-warning-subtle,#fcf4db);border-inline-start-width:8px}.mw-parser-output .mbox-growth{border:2px solid #8d4;background:var(--background-color-success-subtle,#d5fdf4);border-inline-start-width:8px}.mw-parser-output .mbox-move{border:2px solid #93c;border-inline-start-width:8px}.mw-parser-output .mbox-protection,.mw-parser-output .mbox-message{border:2px solid var(--border-color-base,#aaa);border-inline-start-width:8px}.mw-parser-output .messagebox .mbox-text{border:none;padding:0.25em 0.9em;width:100%}.mw-parser-output .messagebox .mbox-image{border:none;padding:2px 0 2px 0.9em;text-align:center}.mw-parser-output .messagebox .mbox-imageright{border:none;padding:2px 0.9em 2px 0;text-align:center}.mw-parser-output .messagebox .mbox-empty-cell{border:none;padding:0;width:1px}.mw-parser-output .messagebox .mbox-invalid-type{text-align:center}@media(min-width:720px){.mw-parser-output .messagebox{margin:4px 10%}.mw-parser-output .messagebox.mbox-small{clear:right;float:right;margin:4px 0 4px 1em;width:238px}}body.skin--responsive .mw-parser-output table.messagebox img{max-width:none!important} This work is free and may be used by anyone for any purpose. If you wish to use this content , you do not need to request permission as long as you follow any licensing requirements mentioned on this page. The Wikimedia Foundation has received an e-mail confirming that the copyright holder has approved publication under the terms mentioned on this page. This correspondence has been reviewed by a Volunteer Response Team (VRT) member and stored in our permission archive . The correspondence is available to trusted volunteers as ticket #2012021710000834 . If you have questions about the archived correspondence, please use the VRT noticeboard . Ticket link: https://ticket.wikimedia.org/otrs/index.pl?Action=AgentTicketZoom&TicketNumber=2012021710000834 Find other files from the same ticket:",
+        "permission": "This work is free and may be used by anyone for any purpose. If you wish to use this content , you do not need to request permission as long as you follow any licensing requirements mentioned on this page. The Wikimedia Foundation has received an e-mail confirming that the copyright holder has approved publication under the terms mentioned on this page. This correspondence has been reviewed by a Volunteer Response Team (VRT) member and stored in our permission archive . The correspondence is available to trusted volunteers as ticket #2012021710000834 . If you have questions about the archived correspondence, please use the VRT noticeboard . Ticket link: https://ticket.wikimedia.org/otrs/index.pl?Action=AgentTicketZoom&TicketNumber=2012021710000834 Find other files from the same ticket:",
         "attribution": null
       },
       "copyright": {
@@ -62004,59 +62419,90 @@
       },
       "year_source": "date_created_plain"
     },
-    "KustodiyevSemenov_Kapitsa.jpeg": {
-      "filename": "KustodiyevSemenov_Kapitsa.jpeg",
-      "resolved": false,
-      "needs_review": true,
+    "KustodiyevSemenov_Kapitsa.JPG": {
+      "filename": "KustodiyevSemenov_Kapitsa.JPG",
+      "resolved": true,
+      "needs_review": false,
       "title": "KustodiyevSemenov Kapitsa",
-      "artist": null,
-      "date_created": null,
+      "artist": "Boris Kustodiev",
+      "date_created": "1921 date QS:P571,+1921-00-00T00:00:00Z/9",
+      "year": 1921,
+      "description": "Portrait of Prof. Pyotr Kapitsa and Prof. Nikolai Semyonov",
       "source": {
-        "type": "unknown",
-        "url": null
+        "type": "Wikimedia Commons",
+        "canonical_title": "File:KustodiyevSemenov Kapitsa.JPG",
+        "url": "https://commons.wikimedia.org/wiki/File%3AKustodiyevSemenov_Kapitsa.JPG",
+        "file_url": "https://upload.wikimedia.org/wikipedia/commons/b/b2/KustodiyevSemenov_Kapitsa.JPG",
+        "credit": "http://www.abcgallery.com/K/kustodiyev/kustodiyev39.html",
+        "permission": null,
+        "attribution": null
       },
       "copyright": {
-        "copyrighted": null,
-        "license": null,
-        "notes": "Not found on Wikimedia Commons; needs manual review."
+        "copyrighted": false,
+        "license_short": "Public domain",
+        "license_url": null,
+        "usage_terms": "Public domain"
       },
-      "year": null
+      "translations": {
+        "title": {
+          "ru": "Портрет профессоров Капицы и Семёнова",
+          "cv": "Капица тата Семёнов профессорсен портречӗ",
+          "uz": "Professorlar P. L. Kapitsa va N. N. Semyonovning portreti"
+        }
+      },
+      "year_source": "wikidata_qs"
     },
-    "Kustodiyev_Mate.jpeg": {
-      "filename": "Kustodiyev_Mate.jpeg",
-      "resolved": false,
-      "needs_review": true,
+    "Kustodiyev_Mate.JPG": {
+      "filename": "Kustodiyev_Mate.JPG",
+      "resolved": true,
+      "needs_review": false,
       "title": "Kustodiyev Mate",
-      "artist": null,
-      "date_created": null,
+      "artist": "Boris Kustodiev",
+      "date_created": "1902 date QS:P571,+1902-00-00T00:00:00Z/9",
+      "year": 1902,
+      "description": "Portrait of Vasily Mathé (1856-1917)",
       "source": {
-        "type": "unknown",
-        "url": null
+        "type": "Wikimedia Commons",
+        "canonical_title": "File:Kustodiyev Mate.JPG",
+        "url": "https://commons.wikimedia.org/wiki/File%3AKustodiyev_Mate.JPG",
+        "file_url": "https://upload.wikimedia.org/wikipedia/commons/2/29/Kustodiyev_Mate.JPG",
+        "credit": "http://www.abcgallery.com/K/kustodiyev/kustodiyev40.html",
+        "permission": null,
+        "attribution": null
       },
       "copyright": {
-        "copyrighted": null,
-        "license": null,
-        "notes": "Not found on Wikimedia Commons; needs manual review."
+        "copyrighted": false,
+        "license_short": "Public domain",
+        "license_url": null,
+        "usage_terms": "Public domain"
       },
-      "year": null
+      "year_source": "wikidata_qs"
     },
-    "Kustodiyev_fair.jpeg": {
-      "filename": "Kustodiyev_fair.jpeg",
-      "resolved": false,
-      "needs_review": true,
-      "title": "Kustodiyev fair",
-      "artist": null,
-      "date_created": null,
+    "Kustodiyev_fair.JPG": {
+      "filename": "Kustodiyev_fair.JPG",
+      "resolved": true,
+      "needs_review": false,
+      "title": "Ярмарка . На заднем плане изображена Церковь Воздвижения Креста Господня в Кинешме (не сохранилась)",
+      "artist": "Boris Kustodiev",
+      "date_created": "1910 date QS:P571,+1910-00-00T00:00:00Z/9",
+      "year": 1910,
+      "description": "Boris Kustodiyev. Fair. 1910. Tempera on cardboard. The A. N. Radishchev Museum of Arts, Saratov, Russia.",
       "source": {
-        "type": "unknown",
-        "url": null
+        "type": "Wikimedia Commons",
+        "canonical_title": "File:Kustodiyev fair.JPG",
+        "url": "https://commons.wikimedia.org/wiki/File%3AKustodiyev_fair.JPG",
+        "file_url": "https://upload.wikimedia.org/wikipedia/commons/5/5e/Kustodiyev_fair.JPG",
+        "credit": "http://art-catalog.ru/picture.php?id_picture=2254",
+        "permission": "This is a faithful photographic reproduction of a two-dimensional, public domain work of art. The work of art itself is in the public domain for the following reason: Public domain Public domain false false The author died in 1927, so this work is in the public domain in its country of origin and other countries and areas where the copyright term is the author's life plus 95 years or fewer . This work is in the public domain in the United States because it was published (or registered with the U.S. Copyright Office ) before January 1, 1931. This file has been identified as being free of known restrictions under copyright law, including all related and neighboring rights. https://creativecommons.org/publicdomain/mark/1.0/ PDM Creative Commons Public Domain Mark 1.0 false false The official position taken by the Wikimedia Foundation is that \" faithful reproductions of two-dimensional public domain works of art are public domain \". This photographic reproduction is therefore also considered to be in the public domain in the United States. In other jurisdictions, re-use of this content may be restricted; see Reuse of PD-Art photographs for details.",
+        "attribution": null
       },
       "copyright": {
-        "copyrighted": null,
-        "license": null,
-        "notes": "Not found on Wikimedia Commons; needs manual review."
+        "copyrighted": false,
+        "license_short": "Public domain",
+        "license_url": null,
+        "usage_terms": "Public domain"
       },
-      "year": null
+      "year_source": "wikidata_qs"
     },
     "L'Embarquement_pour_Cythère,_by_Antoine_Watteau,_from_C2RMF_retouched.jpg": {
       "filename": "L'Embarquement_pour_Cythère,_by_Antoine_Watteau,_from_C2RMF_retouched.jpg",
@@ -64653,24 +65099,6 @@
       },
       "year_source": "wikidata_qs"
     },
-    "Les_Demoiselles_d'Avignon.jpg": {
-      "filename": "Les_Demoiselles_d'Avignon.jpg",
-      "resolved": false,
-      "needs_review": true,
-      "title": "Les Demoiselles d'Avignon",
-      "artist": null,
-      "date_created": null,
-      "source": {
-        "type": "unknown",
-        "url": null
-      },
-      "copyright": {
-        "copyrighted": null,
-        "license": null,
-        "notes": "Not found on Wikimedia Commons; needs manual review."
-      },
-      "year": null
-    },
     "Les_Oceanides_Les_Naiades_de_la_mer.jpg": {
       "filename": "Les_Oceanides_Les_Naiades_de_la_mer.jpg",
       "resolved": true,
@@ -65018,23 +65446,43 @@
       },
       "year_source": "wikidata_qs"
     },
-    "Levitan_ozero28.jpeg": {
-      "filename": "Levitan_ozero28.jpeg",
-      "resolved": false,
-      "needs_review": true,
-      "title": "Levitan ozero28",
-      "artist": null,
-      "date_created": null,
+    "Levitan_ozero28.JPG": {
+      "filename": "Levitan_ozero28.JPG",
+      "resolved": true,
+      "needs_review": false,
+      "title": "Lake. Russia",
+      "artist": "Isaac Levitan",
+      "date_created": "between 1899 and 1900 date QS:P571,+1500-00-00T00:00:00Z/6,P1319,+1899-00-00T00:00:00Z/9,P1326,+1900-00-00T00:00:00Z/9",
+      "year": 1899,
+      "description": "The Lake. Rus'",
       "source": {
-        "type": "unknown",
-        "url": null
+        "type": "Wikimedia Commons",
+        "canonical_title": "File:Levitan ozero28.JPG",
+        "url": "https://commons.wikimedia.org/wiki/File%3ALevitan_ozero28.JPG",
+        "file_url": "https://upload.wikimedia.org/wikipedia/commons/0/0c/Levitan_ozero28.JPG",
+        "credit": "http://lj.rossia.org/users/john_petrov/2490.html",
+        "permission": "This is a faithful photographic reproduction of a two-dimensional, public domain work of art. The work of art itself is in the public domain for the following reason: Public domain Public domain false false The author died in 1900, so this work is in the public domain in its country of origin and other countries and areas where the copyright term is the author's life plus 100 years or fewer . This work is in the public domain in the United States because it was published (or registered with the U.S. Copyright Office ) before January 1, 1931. This file has been identified as being free of known restrictions under copyright law, including all related and neighboring rights. https://creativecommons.org/publicdomain/mark/1.0/ PDM Creative Commons Public Domain Mark 1.0 false false The official position taken by the Wikimedia Foundation is that \" faithful reproductions of two-dimensional public domain works of art are public domain \". This photographic reproduction is therefore also considered to be in the public domain in the United States. In other jurisdictions, re-use of this content may be restricted; see Reuse of PD-Art photographs for details.",
+        "attribution": null
       },
       "copyright": {
-        "copyrighted": null,
-        "license": null,
-        "notes": "Not found on Wikimedia Commons; needs manual review."
+        "copyrighted": false,
+        "license_short": "Public domain",
+        "license_url": null,
+        "usage_terms": "Public domain"
       },
-      "year": null
+      "translations": {
+        "title": {
+          "ru": "Озеро. Русь",
+          "it": "Lago",
+          "fr": "Le lac. La Rus'",
+          "uk": "Озеро",
+          "nl": "Ozero. Roes",
+          "he": "אגם (יצחק לויתן)",
+          "eo": "Lago. Ruslando",
+          "hy": "Լիճ: Ռուսաստան"
+        }
+      },
+      "year_source": "wikidata_qs"
     },
     "Levitan_vesna_bolsh_voda.jpg": {
       "filename": "Levitan_vesna_bolsh_voda.jpg",
@@ -65118,23 +65566,43 @@
       },
       "year": null
     },
-    "Lille_PdBA_delacroix_medee.jpeg": {
-      "filename": "Lille_PdBA_delacroix_medee.jpeg",
-      "resolved": false,
-      "needs_review": true,
-      "title": "Lille PdBA delacroix medee",
-      "artist": null,
-      "date_created": null,
+    "Lille_PdBA_delacroix_medee.JPG": {
+      "filename": "Lille_PdBA_delacroix_medee.JPG",
+      "resolved": true,
+      "needs_review": false,
+      "title": "Médée",
+      "artist": "Eugène Delacroix",
+      "date_created": "1838 date QS:P571,+1838-00-00T00:00:00Z/9",
+      "year": 1838,
+      "description": null,
       "source": {
-        "type": "unknown",
-        "url": null
+        "type": "Wikimedia Commons",
+        "canonical_title": "File:Lille PdBA delacroix medee.JPG",
+        "url": "https://commons.wikimedia.org/wiki/File%3ALille_PdBA_delacroix_medee.JPG",
+        "file_url": "https://upload.wikimedia.org/wikipedia/commons/c/c9/Lille_PdBA_delacroix_medee.JPG",
+        "credit": "Own work",
+        "permission": null,
+        "attribution": null
       },
       "copyright": {
-        "copyrighted": null,
-        "license": null,
-        "notes": "Not found on Wikimedia Commons; needs manual review."
+        "copyrighted": false,
+        "license_short": "Public domain",
+        "license_url": null,
+        "usage_terms": "Public domain"
       },
-      "year": null
+      "artist_info": {
+        "name": "Eugène Delacroix",
+        "aliases": [
+          "Eugène Delacroix",
+          "Delacroix"
+        ],
+        "born": 1798,
+        "died": 1863,
+        "nationality": "French",
+        "movement": "Romanticism",
+        "pd_status": "public_domain_worldwide"
+      },
+      "year_source": "wikidata_qs"
     },
     "Lille_PdBA_monet_la_debacle.jpeg": {
       "filename": "Lille_PdBA_monet_la_debacle.jpeg",
@@ -78564,7 +79032,7 @@
         "canonical_title": "File:Mother of Pearl and Silver The Andalusian.jpg",
         "url": "https://commons.wikimedia.org/wiki/File%3AMother_of_Pearl_and_Silver_The_Andalusian.jpg",
         "file_url": "https://upload.wikimedia.org/wikipedia/commons/7/7a/Mother_of_Pearl_and_Silver_The_Andalusian.jpg",
-        "credit": "The Athenaeum",
+        "credit": "NGA",
         "permission": null,
         "attribution": null
       },
@@ -80552,23 +81020,50 @@
       },
       "year_source": "wikidata_qs"
     },
-    "Nicolas_Poussin_-_The_Assumption_of_the_Virgin.jpeg": {
-      "filename": "Nicolas_Poussin_-_The_Assumption_of_the_Virgin.jpeg",
-      "resolved": false,
-      "needs_review": true,
-      "title": "Nicolas Poussin - The Assumption of the Virgin",
-      "artist": null,
-      "date_created": null,
+    "Nicolas_Poussin_-_The_Assumption_of_the_Virgin.JPG": {
+      "filename": "Nicolas_Poussin_-_The_Assumption_of_the_Virgin.JPG",
+      "resolved": true,
+      "needs_review": false,
+      "title": "The Assumption of the Virgin",
+      "artist": "Nicolas Poussin",
+      "date_created": "1630",
+      "year": 1630,
+      "description": "Assumption of Mary",
       "source": {
-        "type": "unknown",
-        "url": null
+        "type": "Wikimedia Commons",
+        "canonical_title": "File:Nicolas Poussin - The Assumption of the Virgin.JPG",
+        "url": "https://commons.wikimedia.org/wiki/File%3ANicolas_Poussin_-_The_Assumption_of_the_Virgin.JPG",
+        "file_url": "https://upload.wikimedia.org/wikipedia/commons/b/b3/Nicolas_Poussin_-_The_Assumption_of_the_Virgin.JPG",
+        "credit": "https://www.nga.gov/collection/art-object-page.46470.html",
+        "permission": null,
+        "attribution": null
       },
       "copyright": {
-        "copyrighted": null,
-        "license": null,
-        "notes": "Not found on Wikimedia Commons; needs manual review."
+        "copyrighted": false,
+        "license_short": "Public domain",
+        "license_url": null,
+        "usage_terms": "Public domain"
       },
-      "year": null
+      "translations": {
+        "title": {
+          "es": "Asunción de la Virgen",
+          "fr": "L'Assomption de la Vierge",
+          "ru": "Успение Богородицы",
+          "de": "Mariä Himmelfahrt",
+          "pt": "Assunção da Virgem",
+          "zh": "假設的處女",
+          "ja": "聖母被昇天",
+          "sv": "Antaganden om Jungfru",
+          "pl": "Wniebowzięcie NMP",
+          "uk": "Успіння Богородиці",
+          "no": "Jomfruens",
+          "it": "Assunzione della Vergine",
+          "mk": "Успение на Пресв. Богородица",
+          "he": "הנחה של הבתולה",
+          "eo": "Supozo de la Virgulino"
+        }
+      },
+      "year_source": "date_created_plain"
     },
     "Nicolas_Poussin_-_The_Sacrament_of_Ordination_(Christ_Presenting_the_Keys_to_Saint_Peter)_-_Google_Art_Project.jpg": {
       "filename": "Nicolas_Poussin_-_The_Sacrament_of_Ordination_(Christ_Presenting_the_Keys_to_Saint_Peter)_-_Google_Art_Project.jpg",
@@ -82084,23 +82579,39 @@
       },
       "year_source": "date_created_plain"
     },
-    "P1110627Wallraf_museum_J.H._Fragonard_Le_chat_angora_WRM3652_rwk.jpeg": {
-      "filename": "P1110627Wallraf_museum_J.H._Fragonard_Le_chat_angora_WRM3652_rwk.jpeg",
-      "resolved": false,
-      "needs_review": true,
-      "title": "P1110627Wallraf museum J.H. Fragonard Le chat angora WRM3652 rwk",
-      "artist": null,
-      "date_created": null,
+    "P1110627Wallraf_museum_J.H._Fragonard_Le_chat_angora_WRM3652_rwk.JPG": {
+      "filename": "P1110627Wallraf_museum_J.H._Fragonard_Le_chat_angora_WRM3652_rwk.JPG",
+      "resolved": true,
+      "needs_review": false,
+      "title": "The Angora Cat",
+      "artist": "Jean-Honoré Fragonard / Marguerite Gérard",
+      "date_created": "between 1783 and 1785 date QS:P,+1783-00-00T00:00:00Z/8,P1319,+1783-00-00T00:00:00Z/9,P1326,+1785-00-00T00:00:00Z/9",
+      "year": 1783,
+      "description": null,
       "source": {
-        "type": "unknown",
-        "url": null
+        "type": "Wikimedia Commons",
+        "canonical_title": "File:P1110627Wallraf museum J.H. Fragonard Le chat angora WRM3652 rwk.JPG",
+        "url": "https://commons.wikimedia.org/wiki/File%3AP1110627Wallraf_museum_J.H._Fragonard_Le_chat_angora_WRM3652_rwk.JPG",
+        "file_url": "https://upload.wikimedia.org/wikipedia/commons/9/92/P1110627Wallraf_museum_J.H._Fragonard_Le_chat_angora_WRM3652_rwk.JPG",
+        "credit": "Own work , Mbzt",
+        "permission": null,
+        "attribution": null
       },
       "copyright": {
-        "copyrighted": null,
-        "license": null,
-        "notes": "Not found on Wikimedia Commons; needs manual review."
+        "copyrighted": false,
+        "license_short": "Public domain",
+        "license_url": null,
+        "usage_terms": "Public domain"
       },
-      "year": null
+      "translations": {
+        "title": {
+          "de": "Die Angorakatze",
+          "es": "El gato de angora",
+          "fr": "Le Chat angora",
+          "nl": "De angorakat"
+        }
+      },
+      "year_source": "wikidata_qs"
     },
     "PM_147978_B_Tournai.jpg": {
       "filename": "PM_147978_B_Tournai.jpg",
@@ -82882,23 +83393,51 @@
       "year": 1892,
       "year_source": "date_created_plain"
     },
-    "Paul_Gauguin-_Manao_tupapau_(The_Spirit_of_the_Dead_Keep_Watch).jpeg": {
-      "filename": "Paul_Gauguin-_Manao_tupapau_(The_Spirit_of_the_Dead_Keep_Watch).jpeg",
-      "resolved": false,
-      "needs_review": true,
-      "title": "Paul Gauguin- Manao tupapau (The Spirit of the Dead Keep Watch)",
-      "artist": null,
-      "date_created": null,
+    "Paul_Gauguin-_Manao_tupapau_(The_Spirit_of_the_Dead_Keep_Watch).JPG": {
+      "filename": "Paul_Gauguin-_Manao_tupapau_(The_Spirit_of_the_Dead_Keep_Watch).JPG",
+      "resolved": true,
+      "needs_review": false,
+      "title": "The Spirit of the Dead Keeps Watch",
+      "artist": "Paul Gauguin",
+      "date_created": "1892 date QS:P571,+1892-00-00T00:00:00Z/9",
+      "year": 1892,
+      "description": null,
       "source": {
-        "type": "unknown",
-        "url": null
+        "type": "Wikimedia Commons",
+        "canonical_title": "File:Paul Gauguin- Manao tupapau (The Spirit of the Dead Keep Watch).JPG",
+        "url": "https://commons.wikimedia.org/wiki/File%3APaul_Gauguin-_Manao_tupapau_(The_Spirit_of_the_Dead_Keep_Watch).JPG",
+        "file_url": "https://upload.wikimedia.org/wikipedia/commons/0/09/Paul_Gauguin-_Manao_tupapau_%28The_Spirit_of_the_Dead_Keep_Watch%29.JPG",
+        "credit": "proprofs.com",
+        "permission": null,
+        "attribution": null
       },
       "copyright": {
-        "copyrighted": null,
-        "license": null,
-        "notes": "Not found on Wikimedia Commons; needs manual review."
+        "copyrighted": false,
+        "license_short": "Public domain",
+        "license_url": null,
+        "usage_terms": "Public domain"
       },
-      "year": null
+      "artist_info": {
+        "name": "Paul Gauguin",
+        "aliases": [
+          "Paul Gauguin",
+          "Gauguin"
+        ],
+        "born": 1848,
+        "died": 1903,
+        "nationality": "French",
+        "movement": "Post-Impressionism",
+        "pd_status": "public_domain_worldwide"
+      },
+      "translations": {
+        "title": {
+          "ty": "Mana’o tūpāpa’u",
+          "de": "Der Geist der Toten wacht",
+          "fr": "L'esprit des morts veille",
+          "ca": "L'esperit dels morts vetlla"
+        }
+      },
+      "year_source": "wikidata_qs"
     },
     "Paul_Gauguin_-_Contes_barbares_-_Folkwang_G54.jpg": {
       "filename": "Paul_Gauguin_-_Contes_barbares_-_Folkwang_G54.jpg",
@@ -89288,23 +89827,31 @@
       },
       "year_source": "wikidata_qs"
     },
-    "Picabia_Hera_2.jpeg": {
-      "filename": "Picabia_Hera_2.jpeg",
-      "resolved": false,
-      "needs_review": true,
-      "title": "Picabia Hera 2",
-      "artist": null,
-      "date_created": null,
+    "Picabia_Hera_2.JPG": {
+      "filename": "Picabia_Hera_2.JPG",
+      "resolved": true,
+      "needs_review": false,
+      "title": "Hera",
+      "artist": "w:Francis Picabia (1879–1953)",
+      "date_created": "c. 1929",
+      "year": 1929,
+      "description": null,
       "source": {
-        "type": "unknown",
-        "url": null
+        "type": "Wikimedia Commons",
+        "canonical_title": "File:Picabia Hera 2.JPG",
+        "url": "https://commons.wikimedia.org/wiki/File%3APicabia_Hera_2.JPG",
+        "file_url": "https://upload.wikimedia.org/wikipedia/commons/0/03/Picabia_Hera_2.JPG",
+        "credit": "http://www.abcgallery.com/P/picabia/picabia28.html",
+        "permission": "Public domain",
+        "attribution": null
       },
       "copyright": {
-        "copyrighted": null,
-        "license": null,
-        "notes": "Not found on Wikimedia Commons; needs manual review."
+        "copyrighted": false,
+        "license_short": "Public domain",
+        "license_url": null,
+        "usage_terms": "Public domain"
       },
-      "year": null
+      "year_source": "date_created_plain"
     },
     "Picabia_starDancer.jpg": {
       "filename": "Picabia_starDancer.jpg",
@@ -89332,23 +89879,41 @@
       },
       "year_source": "date_created_plain"
     },
-    "Picture__anger_of_the_seas__by_Aivasovsky.jpg": {
-      "filename": "Picture__anger_of_the_seas__by_Aivasovsky.jpg",
-      "resolved": false,
-      "needs_review": true,
-      "title": "Picture  anger of the seas  by Aivasovsky",
-      "artist": null,
-      "date_created": null,
+    "Picture_\"anger_of_the_seas\"_by_Aivasovsky.jpg": {
+      "filename": "Picture_\"anger_of_the_seas\"_by_Aivasovsky.jpg",
+      "resolved": true,
+      "needs_review": false,
+      "title": "The Wrath of the Seas",
+      "artist": "Ivan Aivazovsky",
+      "date_created": "1886 date QS:P571,+1886-00-00T00:00:00Z/9",
+      "year": 1886,
+      "description": "картина \"Гнев морей\" Айвазовского",
       "source": {
-        "type": "unknown",
-        "url": null
+        "type": "Wikimedia Commons",
+        "canonical_title": "File:Picture \"anger of the seas\" by Aivasovsky.jpg",
+        "url": "https://commons.wikimedia.org/wiki/File%3APicture_%22anger_of_the_seas%22_by_Aivasovsky.jpg",
+        "file_url": "https://upload.wikimedia.org/wikipedia/commons/e/e4/Picture_%22anger_of_the_seas%22_by_Aivasovsky.jpg",
+        "credit": "picture \"wrath of the seas\"",
+        "permission": null,
+        "attribution": null
       },
       "copyright": {
-        "copyrighted": null,
-        "license": null,
-        "notes": "Not found on Wikimedia Commons; needs manual review."
+        "copyrighted": false,
+        "license_short": "Public domain",
+        "license_url": null,
+        "usage_terms": "Public domain"
       },
-      "year": null
+      "translations": {
+        "title": {
+          "ro": "Furia mării",
+          "fr": "La Colère de la mer",
+          "pt": "A Ira dos Mares",
+          "hy": "Ծովերի ցասումը (նկար)",
+          "ar": "غضب البحار (لوحة)",
+          "ru": "Гнев морей"
+        }
+      },
+      "year_source": "wikidata_qs"
     },
     "Pierre-Auguste_Renoir,_1880,_Portrait_of_Mademoiselle_Irène_Cahen_d'Anvers,_Sammlung_E.G._Bührle.jpg": {
       "filename": "Pierre-Auguste_Renoir,_1880,_Portrait_of_Mademoiselle_Irène_Cahen_d'Anvers,_Sammlung_E.G._Bührle.jpg",
@@ -90652,7 +91217,7 @@
       "filename": "Portrait_of_Ann_Ford_(Gainsborough).jpg",
       "resolved": true,
       "needs_review": false,
-      "title": "Portrait of Ann Ford (later Mrs.Philip Thicknesse)",
+      "title": "Portrait of Ann Ford",
       "artist": "Thomas Gainsborough",
       "date_created": "1760",
       "year": 1760,
@@ -91302,9 +91867,9 @@
       },
       "translations": {
         "title": {
-          "fr": "Le Docteur Pozzi chez lui",
           "es": "Doctor Samuel Jean Pozzi en casa",
           "ja": "自宅のポッツィ博士",
+          "fr": "Le Docteur Pozzi chez lui",
           "sv": "Doktor Pozzi",
           "de": "Dr. Pozzi at Home",
           "ko": "집에 있는 포지 박사",
@@ -96147,18 +96712,19 @@
       "translations": {
         "title": {
           "it": "Medusa",
-          "ja": "メドューサの頭部",
           "fr": "Tête de Méduse",
-          "arz": "راس ميدوسا",
           "et": "Medusa",
-          "mk": "Медуза (Рубенс)",
-          "uk": "Медуза",
-          "la": "Medusa",
-          "nb": "Medusa",
-          "cs": "Hlava Medúsy",
+          "ru": "Голова Медузы",
           "de": "Haupt der Medusa",
+          "ja": "メドューサの頭部",
+          "arz": "راس ميدوسا",
+          "nb": "Medusa",
+          "la": "Medusa",
+          "uk": "Медуза",
+          "mk": "Медуза (Рубенс)",
+          "he": "ראשה של מדוזה",
           "nl": "Hoofd van Medusa",
-          "ru": "Голова Медузы"
+          "cs": "Hlava Medúsy"
         }
       },
       "year_source": "date_created_plain"
@@ -96625,23 +97191,31 @@
       },
       "year_source": "wikidata_qs"
     },
-    "SA_8422-De_Kloveniersdoelen_aan_de_Amstel-De_Kloveniersburgwal_op_de_hoek_van_de_Amstel_met_de_toren__Swijgh_Utrecht_.jpg": {
-      "filename": "SA_8422-De_Kloveniersdoelen_aan_de_Amstel-De_Kloveniersburgwal_op_de_hoek_van_de_Amstel_met_de_toren__Swijgh_Utrecht_.jpg",
-      "resolved": false,
-      "needs_review": true,
-      "title": "SA 8422-De Kloveniersdoelen aan de Amstel-De Kloveniersburgwal op de hoek van de Amstel met de toren  Swijgh Utrecht ",
-      "artist": null,
-      "date_created": null,
+    "SA_8422-De_Kloveniersdoelen_aan_de_Amstel-De_Kloveniersburgwal_op_de_hoek_van_de_Amstel_met_de_toren_\"Swijgh_Utrecht\".jpg": {
+      "filename": "SA_8422-De_Kloveniersdoelen_aan_de_Amstel-De_Kloveniersburgwal_op_de_hoek_van_de_Amstel_met_de_toren_\"Swijgh_Utrecht\".jpg",
+      "resolved": true,
+      "needs_review": false,
+      "title": "De Kloveniersdoelen aan de Amstel-De Kloveniersburgwal op de hoek van de Amstel met de toren \"Swijgh Utrecht\"",
+      "artist": "Jan Ekels the Elder",
+      "date_created": "1775 date QS:P571,+1775-00-00T00:00:00Z/9",
+      "year": 1775,
+      "description": "schilderij; stadsgezicht; stadsgezicht Amsterdam; Kloveniersburgwal; Kloveniersdoelen; Swijgh Utrecht",
       "source": {
-        "type": "unknown",
-        "url": null
+        "type": "Wikimedia Commons",
+        "canonical_title": "File:SA 8422-De Kloveniersdoelen aan de Amstel-De Kloveniersburgwal op de hoek van de Amstel met de toren \"Swijgh Utrecht\".jpg",
+        "url": "https://commons.wikimedia.org/wiki/File%3ASA_8422-De_Kloveniersdoelen_aan_de_Amstel-De_Kloveniersburgwal_op_de_hoek_van_de_Amstel_met_de_toren_%22Swijgh_Utrecht%22.jpg",
+        "file_url": "https://upload.wikimedia.org/wikipedia/commons/6/6b/SA_8422-De_Kloveniersdoelen_aan_de_Amstel-De_Kloveniersburgwal_op_de_hoek_van_de_Amstel_met_de_toren_%22Swijgh_Utrecht%22.jpg",
+        "credit": "http://hdl.handle.net/11259/collection.38813",
+        "permission": "This image might not be in the public domain outside of the United States; this especially applies in the countries and areas that do not apply the rule of the shorter term for US works, such as Canada, Mainland China (not Hong Kong or Macao), Germany, Mexico, and Switzerland. The creator and year of publication are essential information and must be provided. See Wikipedia:Public domain and Wikipedia:Copyrights for more details.",
+        "attribution": null
       },
       "copyright": {
-        "copyrighted": null,
-        "license": null,
-        "notes": "Not found on Wikimedia Commons; needs manual review."
+        "copyrighted": false,
+        "license_short": "Public domain",
+        "license_url": null,
+        "usage_terms": "Public domain"
       },
-      "year": null
+      "year_source": "wikidata_qs"
     },
     "Sailing_Boats,_Afternoon,_Hiroshi_Yoshida.jpg": {
       "filename": "Sailing_Boats,_Afternoon,_Hiroshi_Yoshida.jpg",
@@ -100094,7 +100668,7 @@
         "canonical_title": "File:Sower at Sunset - Vincent Van Gogh.jpg",
         "url": "https://commons.wikimedia.org/wiki/File%3ASower_at_Sunset_-_Vincent_Van_Gogh.jpg",
         "file_url": "https://upload.wikimedia.org/wikipedia/commons/f/fa/Sower_at_Sunset_-_Vincent_Van_Gogh.jpg",
-        "credit": ".mw-parser-output .ubx-floatdefault[dir=\"ltr\"],.mw-parser-output .ubx-floatopposite[dir=\"rtl\"],.mw-parser-output .ubx-floatleft{float:left}.mw-parser-output .ubx-floatdefault[dir=\"rtl\"],.mw-parser-output .ubx-floatopposite[dir=\"ltr\"],.mw-parser-output .ubx-floatright{float:right}.mw-parser-output .ubx-floatnone{float:none} This user has uploaded 201 quality images to Wikimedia Commons . Self-portrait - Vincent van Gogh",
+        "credit": ".mw-parser-output .ubx-floatdefault[dir=\"ltr\"],.mw-parser-output .ubx-floatopposite[dir=\"rtl\"],.mw-parser-output .ubx-floatleft{float:left}.mw-parser-output .ubx-floatdefault[dir=\"rtl\"],.mw-parser-output .ubx-floatopposite[dir=\"ltr\"],.mw-parser-output .ubx-floatright{float:right}.mw-parser-output .ubx-floatnone{float:none} This user has uploaded 202 quality images to Wikimedia Commons . Self-portrait - Vincent van Gogh",
         "permission": null,
         "attribution": null
       },
@@ -108009,7 +108583,7 @@
       },
       "translations": {
         "title": {
-          "ja": "サラ・シドン���の肖像",
+          "ja": "サラ・シドンズの肖像",
           "ro": "Mrs. Sarah Siddons"
         }
       },
@@ -118062,7 +118636,7 @@
       },
       "translations": {
         "title": {
-          "ru": "Портрет графини Юлии Павловны Самойловой, удаляющейся с бала с приёмной дочерью Амацилией Паччини (Маскарад). Не позднее 1842. Холст, масло. 249 x 176 см. Государственный Русский музей, Санкт-Петербург, Россия"
+          "ru": "Портрет графини Юлии Павловны Самойловой, удаляющейся с бала с приёмной дочерью Амацилией Паччини (Маскарад). Не позднее 1842. Холст, масло. 249 x 176 см. Государственный Русский музей, Санкт-Петербург, Рос��ия"
         }
       },
       "year_source": "wikidata_qs"
@@ -118309,83 +118883,11 @@
       },
       "year_source": "wikidata_qs"
     },
-    "_Horror__from_Le_Brun,_Wellcome_L0012156.jpg": {
-      "filename": "_Horror__from_Le_Brun,_Wellcome_L0012156.jpg",
-      "resolved": false,
-      "needs_review": true,
-      "title": " Horror  from Le Brun, Wellcome L0012156",
-      "artist": null,
-      "date_created": null,
-      "source": {
-        "type": "unknown",
-        "url": null
-      },
-      "copyright": {
-        "copyrighted": null,
-        "license": null,
-        "notes": "Not found on Wikimedia Commons; needs manual review."
-      },
-      "year": null
-    },
     "_L'homme_est_en_mer_,_Vincent_van_Gogh,_d'après_Virginie_Demont-Breton.jpg": {
       "filename": "_L'homme_est_en_mer_,_Vincent_van_Gogh,_d'après_Virginie_Demont-Breton.jpg",
       "resolved": false,
       "needs_review": true,
       "title": " L'homme est en mer , Vincent van Gogh, d'après Virginie Demont-Breton",
-      "artist": null,
-      "date_created": null,
-      "source": {
-        "type": "unknown",
-        "url": null
-      },
-      "copyright": {
-        "copyrighted": null,
-        "license": null,
-        "notes": "Not found on Wikimedia Commons; needs manual review."
-      },
-      "year": null
-    },
-    "_Portrait_of_a_Man__(Andrea_del_Sarto).jpg": {
-      "filename": "_Portrait_of_a_Man__(Andrea_del_Sarto).jpg",
-      "resolved": false,
-      "needs_review": true,
-      "title": " Portrait of a Man  (Andrea del Sarto)",
-      "artist": null,
-      "date_created": null,
-      "source": {
-        "type": "unknown",
-        "url": null
-      },
-      "copyright": {
-        "copyrighted": null,
-        "license": null,
-        "notes": "Not found on Wikimedia Commons; needs manual review."
-      },
-      "year": null
-    },
-    "_Scorn__from_Le_Brun,_Wellcome_L0012155.jpg": {
-      "filename": "_Scorn__from_Le_Brun,_Wellcome_L0012155.jpg",
-      "resolved": false,
-      "needs_review": true,
-      "title": " Scorn  from Le Brun, Wellcome L0012155",
-      "artist": null,
-      "date_created": null,
-      "source": {
-        "type": "unknown",
-        "url": null
-      },
-      "copyright": {
-        "copyrighted": null,
-        "license": null,
-        "notes": "Not found on Wikimedia Commons; needs manual review."
-      },
-      "year": null
-    },
-    "_Simple_bodily_pain__from_Le_Brun,_Wellcome_L0012151.jpg": {
-      "filename": "_Simple_bodily_pain__from_Le_Brun,_Wellcome_L0012151.jpg",
-      "resolved": false,
-      "needs_review": true,
-      "title": " Simple bodily pain  from Le Brun, Wellcome L0012151",
       "artist": null,
       "date_created": null,
       "source": {
@@ -118457,24 +118959,6 @@
       },
       "year": 1882,
       "year_source": "date_created_plain"
-    },
-    "_Weeping__from_Le_Brun,_Wellcome_L0012153.jpg": {
-      "filename": "_Weeping__from_Le_Brun,_Wellcome_L0012153.jpg",
-      "resolved": false,
-      "needs_review": true,
-      "title": " Weeping  from Le Brun, Wellcome L0012153",
-      "artist": null,
-      "date_created": null,
-      "source": {
-        "type": "unknown",
-        "url": null
-      },
-      "copyright": {
-        "copyrighted": null,
-        "license": null,
-        "notes": "Not found on Wikimedia Commons; needs manual review."
-      },
-      "year": null
     },
     "a9d3e89a-7152-4bc2-b450-0b49adda1acf.png": {
       "filename": "a9d3e89a-7152-4bc2-b450-0b49adda1acf.png",
@@ -119280,39 +119764,66 @@
     },
     "Айвазовский_(Гайвазовский)_Иван_(Оганес)_Константинович_Радуга.jpg": {
       "filename": "Айвазовский_(Гайвазовский)_Иван_(Оганес)_Константинович_Радуга.jpg",
-      "resolved": false,
-      "needs_review": true,
-      "title": "Айвазовский (Гайвазовский) Иван (Оганес) Константинович Радуга",
-      "artist": null,
-      "date_created": null,
+      "resolved": true,
+      "needs_review": false,
+      "title": "Rainbow",
+      "artist": "Ivan Aivazovsky",
+      "date_created": "1873 date QS:P571,+1873-00-00T00:00:00Z/9",
+      "year": 1873,
+      "description": "Rainbow",
       "source": {
-        "type": "unknown",
-        "url": null
+        "type": "Wikimedia Commons",
+        "canonical_title": "File:Айвазовский (Гайвазовский) Иван (Оганес) Константинович Радуга.jpg",
+        "url": "https://commons.wikimedia.org/wiki/File%3A%D0%90%D0%B9%D0%B2%D0%B0%D0%B7%D0%BE%D0%B2%D1%81%D0%BA%D0%B8%D0%B9_(%D0%93%D0%B0%D0%B9%D0%B2%D0%B0%D0%B7%D0%BE%D0%B2%D1%81%D0%BA%D0%B8%D0%B9)_%D0%98%D0%B2%D0%B0%D0%BD_(%D0%9E%D0%B3%D0%B0%D0%BD%D0%B5%D1%81)_%D0%9A%D0%BE%D0%BD%D1%81%D1%82%D0%B0%D0%BD%D1%82%D0%B8%D0%BD%D0%BE%D0%B2%D0%B8%D1%87_%D0%A0%D0%B0%D0%B4%D1%83%D0%B3%D0%B0.jpg",
+        "file_url": "https://upload.wikimedia.org/wikipedia/commons/b/b9/%D0%90%D0%B9%D0%B2%D0%B0%D0%B7%D0%BE%D0%B2%D1%81%D0%BA%D0%B8%D0%B9_%28%D0%93%D0%B0%D0%B9%D0%B2%D0%B0%D0%B7%D0%BE%D0%B2%D1%81%D0%BA%D0%B8%D0%B9%29_%D0%98%D0%B2%D0%B0%D0%BD_%28%D0%9E%D0%B3%D0%B0%D0%BD%D0%B5%D1%81%29_%D0%9A%D0%BE%D0%BD%D1%81%D1%82%D0%B0%D0%BD%D1%82%D0%B8%D0%BD%D0%BE%D0%B2%D0%B8%D1%87_%D0%A0%D0%B0%D0%B4%D1%83%D0%B3%D0%B0.jpg",
+        "credit": "Государственная Третьяковская Галерея",
+        "permission": null,
+        "attribution": null
       },
       "copyright": {
-        "copyrighted": null,
-        "license": null,
-        "notes": "Not found on Wikimedia Commons; needs manual review."
+        "copyrighted": false,
+        "license_short": "Public domain",
+        "license_url": null,
+        "usage_terms": "Public domain"
       },
-      "year": null
+      "translations": {
+        "title": {
+          "ru": "Радуга",
+          "ro": "Curcubeul",
+          "ja": "虹",
+          "fr": "Arc-en-ciel",
+          "de": "Regenbogen",
+          "hy": "Ծիածան",
+          "es": "Arcoíris (pintura de Aivazovski)"
+        }
+      },
+      "year_source": "wikidata_qs"
     },
     "Айвазовский_И.К._Волна.jpg": {
       "filename": "Айвазовский_И.К._Волна.jpg",
-      "resolved": false,
-      "needs_review": true,
-      "title": "Айвазовский И.К. Волна",
-      "artist": null,
-      "date_created": null,
+      "resolved": true,
+      "needs_review": false,
+      "title": "Волна",
+      "artist": "Ivan Aivazovsky",
+      "date_created": "1889 date QS:P571,+1889-00-00T00:00:00Z/9",
+      "year": 1889,
+      "description": null,
       "source": {
-        "type": "unknown",
-        "url": null
+        "type": "Wikimedia Commons",
+        "canonical_title": "File:Айвазовский И.К. Волна.jpg",
+        "url": "https://commons.wikimedia.org/wiki/File%3A%D0%90%D0%B9%D0%B2%D0%B0%D0%B7%D0%BE%D0%B2%D1%81%D0%BA%D0%B8%D0%B9_%D0%98.%D0%9A._%D0%92%D0%BE%D0%BB%D0%BD%D0%B0.jpg",
+        "file_url": "https://upload.wikimedia.org/wikipedia/commons/f/fe/%D0%90%D0%B9%D0%B2%D0%B0%D0%B7%D0%BE%D0%B2%D1%81%D0%BA%D0%B8%D0%B9_%D0%98.%D0%9A._%D0%92%D0%BE%D0%BB%D0%BD%D0%B0.jpg",
+        "credit": "Own work",
+        "permission": null,
+        "attribution": null
       },
       "copyright": {
-        "copyrighted": null,
-        "license": null,
-        "notes": "Not found on Wikimedia Commons; needs manual review."
+        "copyrighted": false,
+        "license_short": "Public domain",
+        "license_url": null,
+        "usage_terms": "Public domain"
       },
-      "year": null
+      "year_source": "wikidata_qs"
     },
     "Афганец.jpg": {
       "filename": "Афганец.jpg",
