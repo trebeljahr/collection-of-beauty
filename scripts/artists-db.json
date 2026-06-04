@@ -1859,6 +1859,19 @@
       "nationality": "Korean",
       "movement": "Classical East Asian",
       "pd_status": "public_domain_worldwide"
+    },
+    {
+      "name": "Viktor Vasnetsov",
+      "aliases": [
+        "Viktor Vasnetsov",
+        "Victor Vasnetsov",
+        "Vasnetsov"
+      ],
+      "born": 1848,
+      "died": 1926,
+      "nationality": "Russian",
+      "movement": "Romanticism",
+      "pd_status": "public_domain_worldwide"
     }
   ]
 }
