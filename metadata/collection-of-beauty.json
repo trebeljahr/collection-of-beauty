@@ -3,7 +3,7 @@
   "kind": "wikimedia_image_collection",
   "generated_at": "2026-06-04T08:04:00.955Z",
   "source_api": "Wikimedia Commons action=query&prop=imageinfo",
-  "file_count": 3540,
+  "file_count": 3536,
   "resolved_count": 2873,
   "unresolved_count": 667,
   "entries": {
@@ -38225,32 +38225,6 @@
         }
       },
       "year_source": "date_created_plain"
-    },
-    "Gerard_van_Honthorst_-_The_procuress_-_Google_Art_Project.jpg": {
-      "filename": "Gerard_van_Honthorst_-_The_procuress_-_Google_Art_Project.jpg",
-      "resolved": true,
-      "needs_review": false,
-      "title": "The procuress",
-      "artist": "Gerard van Honthorst",
-      "date_created": "1625 date QS:P571,+1625-00-00T00:00:00Z/9",
-      "year": 1625,
-      "description": null,
-      "source": {
-        "type": "Wikimedia Commons",
-        "canonical_title": "File:Gerard van Honthorst - The procuress - Google Art Project.jpg",
-        "url": "https://commons.wikimedia.org/wiki/File%3AGerard_van_Honthorst_-_The_procuress_-_Google_Art_Project.jpg",
-        "file_url": "https://upload.wikimedia.org/wikipedia/commons/c/ce/Gerard_van_Honthorst_-_The_procuress_-_Google_Art_Project.jpg",
-        "credit": "UgFlQ52tsFTQZg at Google Cultural Institute maximum zoom level",
-        "permission": null,
-        "attribution": null
-      },
-      "copyright": {
-        "copyrighted": false,
-        "license_short": "Public domain",
-        "license_url": null,
-        "usage_terms": "Public domain"
-      },
-      "year_source": "wikidata_qs"
     },
     "Gerard_van_Honthorst_-_Woman_Playing_the_Guitar_-_WGA11669.jpg": {
       "filename": "Gerard_van_Honthorst_-_Woman_Playing_the_Guitar_-_WGA11669.jpg",
@@ -103566,39 +103540,6 @@
         "pd_status": "public_domain_worldwide"
       }
     },
-    "TheKnightAtTheCrossroads.jpg": {
-      "filename": "TheKnightAtTheCrossroads.jpg",
-      "resolved": true,
-      "needs_review": false,
-      "title": "Knight at the Crossroads",
-      "artist": "Viktor Vasnetsov",
-      "date_created": "1882 date QS:P571,+1882-00-00T00:00:00Z/9",
-      "year": 1882,
-      "description": "Stone inscription: \"if you go straight, you won't be alive — there is no way for a drive-by or a passer-by or a fly-by\"",
-      "source": {
-        "type": "Wikimedia Commons",
-        "canonical_title": "File:TheKnightAtTheCrossroads.jpg",
-        "url": "https://commons.wikimedia.org/wiki/File%3ATheKnightAtTheCrossroads.jpg",
-        "file_url": "https://upload.wikimedia.org/wikipedia/commons/1/1b/TheKnightAtTheCrossroads.jpg",
-        "credit": "1. Transferred from en.wikipedia , Original uploader was Tonym88 at English Wikipedia , 19 January 2006 (original upload date) 2. allart.biz 3. Transferred from , en.wikipedia , Original uploader was I1990k at English Wikipedia , 21 June 2015 (original upload date)",
-        "permission": null,
-        "attribution": null
-      },
-      "copyright": {
-        "copyrighted": false,
-        "license_short": "Public domain",
-        "license_url": null,
-        "usage_terms": "Public domain"
-      },
-      "translations": {
-        "title": {
-          "ru": "Витязь на распутье",
-          "fr": "Le Chevalier à la Croisée des Chemins",
-          "de": "Ritter am Kreuzweg"
-        }
-      },
-      "year_source": "wikidata_qs"
-    },
     "The_Accommodations_of_Desire.jpg": {
       "filename": "The_Accommodations_of_Desire.jpg",
       "resolved": false,
@@ -104548,70 +104489,6 @@
         "notes": "Not found on Wikimedia Commons; needs manual review."
       },
       "year": null
-    },
-    "The_Entombment_of_Christ-Caravaggio_(c.1602-3).jpg": {
-      "filename": "The_Entombment_of_Christ-Caravaggio_(c.1602-3).jpg",
-      "resolved": true,
-      "needs_review": false,
-      "title": "The Entombment of Christ",
-      "artist": "Caravaggio",
-      "date_created": "from 1600 until 1602 date QS:P,+1600-00-00T00:00:00Z/8,P580,+1600-00-00T00:00:00Z/9,P582,+1602-00-00T00:00:00Z/9 Baroque (late 16 th century date QS:P,+1550-00-00T00:00:00Z/7,P4241,Q40719766 –1750s date QS:P,+1750-00-00T00:00:00Z/8 )",
-      "year": 1600,
-      "description": "entombment of Christ",
-      "source": {
-        "type": "Wikimedia Commons",
-        "canonical_title": "File:The Entombment of Christ-Caravaggio (c.1602-3).jpg",
-        "url": "https://commons.wikimedia.org/wiki/File%3AThe_Entombment_of_Christ-Caravaggio_(c.1602-3).jpg",
-        "file_url": "https://upload.wikimedia.org/wikipedia/commons/3/34/The_Entombment_of_Christ-Caravaggio_%28c.1602-3%29.jpg",
-        "credit": "Self-scanned",
-        "permission": null,
-        "attribution": null
-      },
-      "copyright": {
-        "copyrighted": false,
-        "license_short": "Public domain",
-        "license_url": null,
-        "usage_terms": "Public domain"
-      },
-      "artist_info": {
-        "name": "Caravaggio",
-        "aliases": [
-          "Michelangelo Merisi",
-          "Caravaggio"
-        ],
-        "born": 1571,
-        "died": 1610,
-        "nationality": "Italian",
-        "movement": "Baroque",
-        "pd_status": "public_domain_worldwide"
-      },
-      "translations": {
-        "title": {
-          "it": "Deposizione",
-          "fr": "La Mise au tombeau",
-          "hr": "Polaganje Krista u grob",
-          "ru": "Положение во гроб (картина Караваджо)",
-          "de": "Die Grablegung Christi",
-          "pt": "O Sepultamento de Cristo",
-          "ca": "Sant Enterrament",
-          "zh": "基督下葬",
-          "lt": "Nuėmimas nuo kryžiaus (Caravaggio)",
-          "sl": "Polaganje Kristusa v grob (Caravaggio)",
-          "ja": "キリストの埋葬",
-          "mk": "Закопот на Христос (Караваџо)",
-          "nl": "graflegging van Christus",
-          "arz": "قبر المسيح (لوحه)",
-          "pl": "Złożenie do grobu",
-          "nb": "Begravelsen av Kristus",
-          "sh": "Polaganje Krista u grob",
-          "tr": "İsa'nın Mezara Konması",
-          "avk": "Daykara va Krist (trutca ke Caravaggio)",
-          "es": "Santo Entierro",
-          "sv": "Kristi gravläggning",
-          "eo": "La Entombigo de Kristo"
-        }
-      },
-      "year_source": "wikidata_qs"
     },
     "The_Equatorial_Jungle.jpeg": {
       "filename": "The_Equatorial_Jungle.jpeg",

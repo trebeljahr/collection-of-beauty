@@ -28,6 +28,10 @@ const ASSETS_RAW = process.env.ASSETS_DIR
   : path.join(ROOT, "assets");
 const OUT_JSON = path.join(ROOT, "metadata/duplicate-images.json");
 const OUT_MD = path.join(ROOT, "metadata/duplicate-images.md");
+// Curator-confirmed not-a-duplicate clusters. Suppressed from the
+// report so we don't re-triage the same "series sharing a title" /
+// "visually similar but distinct works" findings every run.
+const ALLOWLIST_PATH = path.join(ROOT, "metadata/duplicate-images-allowlist.json");
 
 const HASH_W = 9;
 const HASH_H = 8;
@@ -276,8 +280,22 @@ function renderMarkdown(exact, near, titleClusters, stats) {
   return lines.join("\n");
 }
 
+async function loadAllowlist() {
+  try {
+    const raw = await fs.readFile(ALLOWLIST_PATH, "utf8");
+    const parsed = JSON.parse(raw);
+    return {
+      nearSeeds: new Set(parsed.nearSeeds ?? []),
+      titleKeys: new Set(parsed.titleKeys ?? []),
+    };
+  } catch {
+    return { nearSeeds: new Set(), titleKeys: new Set() };
+  }
+}
+
 async function main() {
   const artworks = JSON.parse(await fs.readFile(ARTWORKS_PATH, "utf8"));
+  const allowlist = await loadAllowlist();
   process.stderr.write(`Resolving image paths for ${artworks.length} artworks...\n`);
 
   const records = await mapLimit(artworks, CONCURRENCY, async (a) => {
@@ -295,11 +313,19 @@ async function main() {
 
   const exact = clusterByExact(hashed);
   process.stderr.write(`Found ${exact.length} exact clusters; computing near duplicates...\n`);
-  const near = clusterByNear(hashed, exact);
-  process.stderr.write(`Found ${near.length} near-dup clusters.\n`);
+  const nearAll = clusterByNear(hashed, exact);
+  const near = nearAll.filter((c) => !allowlist.nearSeeds.has(c[0].hash));
+  const nearSuppressed = nearAll.length - near.length;
+  process.stderr.write(
+    `Found ${nearAll.length} near-dup clusters (${nearSuppressed} suppressed via allowlist).\n`,
+  );
   const hashById = new Map(hashed.map((r) => [r.id, r.hash]));
-  const titleClusters = clusterByTitle(artworks, hashById);
-  process.stderr.write(`Found ${titleClusters.length} artist+title clusters.\n`);
+  const titleClustersAll = clusterByTitle(artworks, hashById);
+  const titleClusters = titleClustersAll.filter((c) => !allowlist.titleKeys.has(c.key));
+  const titleSuppressed = titleClustersAll.length - titleClusters.length;
+  process.stderr.write(
+    `Found ${titleClustersAll.length} artist+title clusters (${titleSuppressed} suppressed via allowlist).\n`,
+  );
 
   const stats = { total: artworks.length, hashed: hashed.length, skipped: skipped.length };
   const payload = {
