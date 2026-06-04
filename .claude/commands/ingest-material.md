@@ -28,6 +28,31 @@ If nothing usable, ask for clarification. Do not guess.
 - `pnpm assets:sync` runs automatically after build-data succeeds. The script is dotenvx-gated on `.env.production` + `.env.local`; if those are missing it errors with a clear message — surface that to the user and proceed with the rest, do not retry.
 - After commit, rebase this worktree onto main and ff-merge into main so the dev server picks up the new data. The dev server runs from the main worktree, not this one — until the merge lands the new artworks are invisible in the browser. Use `git -C <main-worktree-abs-path>` for any command against the main checkout; bash `cwd` resets between calls and bare `git` would target the wrong worktree.
 
+## Course-correction philosophy
+
+The scripts (`scrape:fetch`, `assets:shrink`, `build-data`) are dumb — they execute, succeed or fail loudly, and stop. They do **not** investigate why something failed, retry with adapted parameters, or close loops on partial successes. That investigation is the agent's job, not the user's.
+
+The skill must **never** end a step by saying "X items were filtered / N unresolved / sync errored — see the report." Whenever a script's output reveals a recoverable shortfall, spawn an investigator (single Agent or Workflow) that closes the loop before the next step. Specifically:
+
+- **Unresolved Wikimedia filenames** (>0 from this batch) → spawn the resolver workflow (Step 6.5). Common root causes the workflow handles: `.jpeg`↔`.JPG` extension drift on `anagoria` uploads, `1280px-`/`800px-` thumbnail prefixes, double-quote chars replaced by underscores, Cyrillic/CJK encoding, files renamed on Commons since the user's download, copyright violations that should be quarantined.
+- **Heavy `build-data` filter-out** (catalogue gained << files moved) → spawn the filter-explainer (Step 9.5) before continuing. Quote the actual reason for each filter category. Don't ship 466 dark files without explaining.
+- **Voice violations in generated descriptions** → the description workflow has a built-in audit stage (Step 10) that scans every emitted entry for em-dash / tricolon / hype / opener / closer / anthropomorphism / tense and rewrites violators before merging.
+- **Variant/description completeness after merge** → spot-check workflow (Step 13.5) samples ~30 new artwork ids and confirms each has both variantWidths + description before reporting "DONE".
+- **Long-running steps** (shrink, R2 sync) → run in background and continue with independent work (description research, bookmarks-cross-ref prep). Do not block the main thread waiting for shrink while there are agent-driven tasks that don't need shrink to finish.
+
+The "manual" babysit pattern that the user otherwise has to do — re-run the resolver after fixing extensions, write descriptions for the late-arriving entries, quarantine the copyright files, re-sync R2 — should be **inside** the skill, behind a deterministic decision (count thresholds, structured output verdicts), not behind a user prompt.
+
+Concrete trigger rules:
+
+| Signal | Trigger | Action |
+|---|---|---|
+| `unresolved > 0` from new files | always | Step 6.5 resolver workflow |
+| `catalogue_gain < 0.85 × files_moved` | always | Step 9.5 filter explainer |
+| `>3` em-dash/hype/tricolon hits in batch | per-batch | rewrite-violators agent before append |
+| `assets/<bucket>/` has a Commons-deleted entry | found by resolver | move to `assets/.rejected/copyright/`, drop variants, re-sync |
+| `shrink` ETA > 30 min | when reported | run in background; advance to description workflow in parallel |
+| `spot-check` reports <100% pass | always | named-failure investigator: missing variants → re-shrink; missing desc → re-run desc workflow |
+
 ## Step 0 — Verify the worktree is clean enough to commit
 
 ```bash
@@ -190,6 +215,51 @@ node scripts/normalize-metadata.mjs <bucket>.json
 
 This cleans QuickStatement markup, re-extracts years from Wikidata creation dates instead of EXIF upload dates, and writes `metadata/needs_review_dates.txt` for entries dated ≥1926 (copyright cutoff). Read that file and surface any new entries in the final report.
 
+## Step 6.5 — Resolve unresolved filenames (workflow)
+
+After `scrape:fetch` writes `metadata/<bucket>.unresolved.txt`, intersect that file with the set of filenames you just moved into the bucket:
+
+```bash
+comm -12 <(sort metadata/<bucket>.unresolved.txt) <(sort /tmp/to-move.txt) > /tmp/unresolved-new.txt
+```
+
+If `wc -l < /tmp/unresolved-new.txt > 0` (always true at scale — the API hits ≥1 of: 414-URL-length on long titles, anagoria `.JPG` uppercase, thumbnail prefixes, double-quote chars stripped, Cyrillic encoding), spawn a **resolver workflow**:
+
+1. Split the list into batches of ~10. Each agent takes one batch file path via `args.paths`. Also copy `bookmarks.txt` (or whatever name the project uses) to `/tmp/bookmarks-ingest.txt` and tell the agent its path — Wikimedia URLs the user has bookmarked are often the canonical source.
+
+2. Each agent runs four strategies **in order**, stopping at the first hit, per filename:
+   a. **Strip thumbnail prefix.** If the filename matches `^\d+px-`, that prefix isn't part of the canonical Commons title. Confirm via `curl -L -o /dev/null -w "%{http_code}" https://commons.wikimedia.org/wiki/Special:FilePath/<stripped>` — a 302 means resolved.
+   b. **Bookmark cross-reference.** Read `/tmp/bookmarks-ingest.txt` and find a `commons.wikimedia.org/wiki/File:...` URL whose filename component approximates the input filename (accents, underscores, punctuation can drift). The user's bookmarks are the cheapest source of canonical names.
+   c. **Extension drift.** Try the same basename with `.JPG` (uppercase, anagoria's convention), `.jpg`, `.jpeg`, `.png`, `.JPEG`. Probe each via Special:FilePath.
+   d. **WebSearch + Wikipedia fetch.** Search `site:commons.wikimedia.org "<title tokens from filename>"` and, separately, the artist's Wikipedia page — the thumbnail src usually exposes the canonical Commons filename.
+
+3. Per filename return JSON:
+   ```
+   { status: 'resolved' | 'unresolvable' | 'copyright-violation',
+     canonicalFilename?: string,  // exact Commons filename, spaces → underscores
+     commonsUrl?: string,
+     source: 'thumb-prefix' | 'bookmark' | 'extension-swap' | 'websearch' | 'wikipedia-fetch',
+     note?: string }
+   ```
+
+   **Copyright-violation** is its own terminal status, distinct from `unresolvable`. Markers the agent must recognise:
+   - File deleted from Commons with "copyright violation" in the deletion log (e.g. Braque, Picasso, Modigliani works whose copyright hasn't lapsed).
+   - File only exists at `en.wikipedia.org/wiki/File:...` under fair-use, not on Commons.
+   - File:undeleted-after-YYYY category, where YYYY is in the future.
+
+   In those cases the file should be quarantined (Step 6.5d below), not retried.
+
+4. Apply results back to disk in the main thread:
+   - For each `resolved` entry where `canonicalFilename !== inputFilename`, `mv` the file in `assets/<bucket>/` to its canonical name. **Basename without extension is unchanged for the common `.jpeg`→`.JPG` case** — so the existing `assets-web/<bucket>/<basename>/` variants stay valid; do not re-shrink.
+   - For each `copyright-violation` entry, move the source file to `assets/.rejected/copyright/` and `fs.rmSync` its `assets-web/<bucket>/<basename>/` directory so R2 will delete the orphans on next sync.
+   - For each `unresolvable` entry, leave the file in place and surface it in the report — these are real "we don't know what this is" cases the user needs to address.
+
+5. Clear the cache and re-run `pnpm scrape:fetch <bucket>` (only the affected batches will be re-queried because the fetch script caches per batch). Then re-run `node scripts/normalize-metadata.mjs <bucket>.json`.
+
+6. The 4-strategy ordering matters: thumb-prefix and extension-swap are deterministic and cheap (one HTTP HEAD each); bookmark is local; websearch and wikipedia-fetch cost tokens. In practice ~80% resolve via (a), (b), or (c) and the workflow keeps short.
+
+After Step 6.5, your `unresolved-new.txt` should be ≤ a handful of genuinely-untraceable filenames. If anything in this batch remains unresolved past Step 6.5, the report must explicitly name it.
+
 ## Step 7 — Shrink
 
 ```bash
@@ -215,6 +285,34 @@ pnpm assets:build-data
 Writes `src/data/{artworks,artists,movements,connections,summary}.json` from the merged metadata. Filters to entries with a source file present on disk, license = PD/CC0/CC-BY, and `!needs_review` flag. New artists not in `scripts/artists-db.json` get carried with no movement/born/died — capture those names for the report.
 
 Step 10 needs this build to run first so curator-description generation can read the canonical artwork ids that build-data assigned (slugified `<folder>-<filename>`, sha1-suffixed on collision).
+
+## Step 9.5 — Filter-rejection investigator
+
+Diff the new catalogue against the previous main HEAD to see how many works actually landed:
+
+```bash
+git -C "$MAIN_WT" show HEAD:src/data/artworks.json | jq -r '.[] | select(.folder == "<bucket>") | .objectKey' | sort > /tmp/cob-before.txt
+jq -r '.[] | select(.folder == "<bucket>") | .objectKey' src/data/artworks.json | sort > /tmp/cob-after.txt
+diff_count=$(comm -23 /tmp/cob-after.txt /tmp/cob-before.txt | wc -l)
+moved_count=$(wc -l < /tmp/to-move.txt)
+echo "moved: $moved_count → catalogue gain: $diff_count"
+```
+
+If `diff_count < 0.85 * moved_count`, spawn a single investigator Agent (not a workflow — one focused pass) that:
+
+1. Reads the moved filenames + the post-fetch `metadata/<bucket>.json` entries + `metadata/needs_review_dates.txt`.
+2. Categorises each missing-from-catalogue filename by why build-data dropped it:
+   - **`unresolved`** — no entry in `metadata/<bucket>.json` at all (Step 6.5 should have caught these; if any remain post-resolver, name them).
+   - **`needs_review`** — date-flagged (≥1926). Quote the date and the heuristic that fired.
+   - **`license`** — `copyright.license_short` is not PD/CC0/CC-BY.
+   - **`no_source_file`** — present in metadata but missing on disk (rare; usually a rename gone wrong).
+   - **`other`** — anything else; the agent must read `scripts/build-data.mjs` and identify the actual filter clause that excluded it.
+3. For each `needs_review` entry, the agent checks the **filename** for false-positive year markers: auction catalogue codes like `2013_HGK_03211_...` (Sotheby's Hong Kong, the painting itself is decades older), `2024_restored_` (restoration date, not creation date), `_anagoria_2021` (photographer's contribution year). These are dating false positives the user nearly always wants to override via `metadata/title-overrides.json` or `metadata/date-originals.json`.
+4. Returns a structured report keyed by category, with per-filename reasoning. Surface this **before** the report — these are the works that didn't make it onto the site and the user wants to know why.
+
+Don't auto-fix `needs_review` false positives — surface them so the user can choose. Auto-fixes here are easy to get wrong (some `2013` works really are 21st-century).
+
+This step is the difference between "467 works landed and the rest are documented" vs "467 works landed (silently dropping 466)."
 
 ## Step 10 — Generate curator descriptions
 
@@ -267,17 +365,45 @@ For each new artwork that the user wants a description for, gather facts before 
 
 If the web returns nothing usable, write a pure-description sentence about what's in the picture plus one technical fact from the Wikimedia metadata (medium, dimensions, support). Better short and true than long and embellished.
 
-### 10d. Write entries in batches of 10
+### 10d. Workflow: parallel batches of 20-25 with built-in audit pass
 
-For each batch, draft 10 descriptions, then re-read each against the voice rules in 10b before writing the file. Specifically check, for every entry:
+For large batches (>100 entries), the description generation must run as a Workflow, not inline. Inline only works for ≤30 entries.
 
-1. Em-dash anywhere? Replace.
-2. Three-item rhythmic list? Cut to two or rewrite.
-3. Opens with "This work…", "An exquisite…", "A stunning…"? Rewrite to open on a concrete noun.
-4. Ends on a "speaks to / remains / captures" sentence? Cut that sentence.
-5. Any banned hype word? Replace with the concrete observation that prompted the hype.
-6. Anthropomorphism of weather/light/time? Replace with surface description.
-7. Any fact you can't point to a source for? Cut.
+**Setup:**
+
+Split the entries needing descriptions into per-agent JSON files (~25 each) under `/tmp/desc-batches/batch-NN.json`. Each file is a JSON array of `{ id, title, artist, year, dateCreated, commonsUrl, movement, license, credit, wmDescription }`. Workflow `args` carries the list of file paths, not the entries themselves — keeps main-thread tokens minimal because agents Read their own batch.
+
+**Args-as-string caveat (Workflow tool, current version):** the `args` parameter is JSON-serialised in transit. Inside the script, guard with:
+
+```js
+const parsedArgs = typeof args === 'string'
+  ? (function () { try { return JSON.parse(args); } catch (e) { return {}; } })()
+  : (args ?? {});
+const paths = Array.isArray(parsedArgs) ? parsedArgs : (parsedArgs.paths ?? []);
+```
+
+Otherwise `args.paths` is undefined and the script silently runs 0 batches.
+
+**Per-agent prompt** carries:
+- The 6 voice rules from Step 10b verbatim
+- 6 strong corpus exemplars (sampled at Step 10a, preferring non-Audubon)
+- Procedure: Read the batch file → for each artwork, read `wmDescription` first → WebSearch only if metadata thin → write description → self-audit before returning (em-dash / tricolon / opener / closer / hype / anthropomorphism / source-traceability)
+- Schema: `{ descriptions: { <id>: <text>, ... } }` enforced via `StructuredOutput`
+
+**Post-merge audit (the babysitting step):** after the workflow returns and you merge into `metadata/curator-descriptions.json`, run a deterministic regex pass over the new entries:
+
+```js
+const banned = /\b(stunning|breathtaking|iconic|masterpiece|haunting|evocative|striking|powerful|captivating|must-see)\b/i;
+for (const [id, desc] of Object.entries(newDescs)) {
+  if (desc.includes('—')) desc = desc.replace(/—/g, ',');      // em-dash → comma
+  if (desc.includes('–')) desc = desc.replace(/–/g, '-');      // en-dash → hyphen (date ranges OK)
+  if (banned.test(desc)) violations.push({id, desc});           // collect, do not auto-replace hype
+  if (/^(This work|The painting|An exquisite|A stunning)/.test(desc)) openerHits.push(id);
+  if (/(speaks to|remains a touchstone|captures the essence)\W*$/i.test(desc)) closerHits.push(id);
+}
+```
+
+For `violations`, `openerHits`, `closerHits` — spawn a single **rewrite-violators agent** that takes the offending entries + the voice rules + the artwork metadata and returns rewritten versions. Patch the file with those rewrites before continuing. Do not ship descriptions that fail the deterministic audit.
 
 Append entries to the existing `metadata/curator-descriptions.json` (preserve sort order: keys are sorted lexically in the file). Do not rewrite existing entries.
 
@@ -318,6 +444,32 @@ pnpm typecheck
 ```
 
 The data files are typed via `src/lib/data.ts`. A malformed metadata field that build-data lets through can still break the type contract. Fix and re-run build-data if needed.
+
+## Step 13.5 — Spot-check verification workflow
+
+Before the commit, run a spot-check workflow over ~30 random new artwork ids to confirm each is fully wired up. Sample stratification: at least 5 ids per surfacing context — artwork detail page, gallery 3D rendering, newsletter eligibility, sitemap. Otherwise the sample biases toward whichever shape is most common.
+
+```bash
+shuf -n 30 /tmp/cob-just-resolved.txt > /tmp/sample30.txt   # ids that landed this round
+```
+
+Spawn a workflow with 3 batches × 10 ids. Each agent receives a batch of ids and confirms, per id:
+
+- `variantOk`: read `src/data/artworks.json`, find the entry, assert `variantWidths` is a non-empty array
+- `descriptionPresent`: assert `description` is non-null and ≥100 chars
+- `r2Reachable`: HEAD the canonical R2 URL for the 480-width AVIF variant; expect 200
+- `pageStatus`: WebFetch the dev server's `/artwork/<id>` page; expect 200 and the title to appear in the response
+
+Per-id schema: `{ variantOk, descriptionPresent, r2Reachable, pageStatus, notes? }`. Workflow returns a checks map.
+
+After the workflow:
+
+- For each id with `variantOk: false`, re-run `pnpm assets:shrink --folder=<bucket>` for that specific basename only. (Pass the file explicitly; don't full-bucket re-shrink.)
+- For each id with `descriptionPresent: false`, route it back into the description workflow (Step 10) as a one-off batch.
+- For each id with `r2Reachable: false`, this is the most useful signal — it means `assets:sync` did not push the new variants. Re-run sync. If still failing, surface as a blocker.
+- For each id with `pageStatus !== 200`, the artwork is in `src/data` but the page is broken — investigate (usually a Next route param the user is still figuring out; surface to user).
+
+Only proceed to commit when the spot-check is clean. The user expects the new works to actually load on the site, not just appear in JSON.
 
 ## Step 14 — Commit on the worktree
 
@@ -431,7 +583,26 @@ Review queues:
 ## Failure modes to handle
 
 - **`scrape:fetch` returns 0 hits** — the filenames probably aren't Commons titles. Surface this and ask the user where the metadata should come from. Do not proceed to shrink (we'd ship art with no attribution).
+- **`scrape:fetch` returns partial hits with N unresolved from this batch** — do **not** ship the unresolved files as dead bytes on R2. Run the **Step 6.5 resolver workflow**; it covers `.JPG` extension drift, thumbnail prefixes, bookmark cross-references, and copyright quarantine. Only after that should remaining unresolved appear in the report.
+- **`scrape:fetch` or `scrape:resolve` errors with HTTP 414** — a batch's GET URL exceeded the server limit because some Commons titles are very long (Cyrillic/CJK encoding inflates the URL). The script doesn't auto-recover. Halve the batch size and retry just that batch by deleting `metadata/.cache/<bucket>/batch-<N>.json` and re-running fetch. If you patch this systemically, `scripts/resolve-unresolved.mjs` is the right place — bisect on 414 until batch size = 1, then surface remaining failures.
 - **`artsource` files (Met / Rijksmuseum / NGA / etc.)** — Wikimedia API will return nothing. There is no automated fetcher for these in-repo. Surface them with their origin URLs and ask the user whether to (a) skip this batch, (b) hand-write entries into `metadata/non_wikimedia_sources.json` (existing file — follow its shape), or (c) re-upload to Commons first. Do not silently ingest them.
 - **`shrink` runs out of memory** — pass `--concurrency=2` and retry. Some 700 MB Wikimedia scans push the bounded buffer hard.
-- **`build-data` reports filtered-out works** — read its stderr; common reasons are missing license, missing source file, or `needs_review` flag. Each is a real problem; surface in the report and do not silently move on.
-- **A Commons URL 404s** — title may have been renamed on Commons. Surface the URL; do not invent a fallback filename.
+- **`shrink` takes more than 20 minutes** — do not block on it. Confirm the process is alive (`ps -p <pid> -o etime,pcpu`) and producing output (assets-web dir count growing), then advance to the description workflow in parallel. Both are independent: shrink is CPU-bound on libvips, descriptions are network/token-bound.
+- **`build-data` reports filtered-out works** — never just say "N filtered." Run the **Step 9.5 filter-rejection investigator**, which classifies each missing file by reason (`unresolved`, `needs_review`, `license`, `no_source_file`, `other`). The report must explain each category, not just count.
+- **Description workflow returns voice violations** (em-dashes, tricolons, hype words, banned openers/closers) — the **Step 10d audit pass** is mandatory. Patch with a rewrite-violators agent before merging into `metadata/curator-descriptions.json`. Do not ship violations.
+- **`assets:sync` errors on missing `.env.production` or `.env.local`** — surface to the user; the local catalogue still works. Do not retry. Do not delete or rebuild anything to "fix" the env files.
+- **`assets:sync` deletes more files than it uploads on a re-resolve round** — expected: when canonical filenames change basename, the R2 sync deletes the old variants and uploads the new ones. The 19 deleted vs 0 uploaded pattern at the end of a `.jpeg` → `.JPG` rename round is correct (basename unchanged → variants stay valid → only the orphan rejected files get deleted).
+- **A Commons URL 404s** — title may have been renamed on Commons. The Step 6.5 resolver should pick it up via thumb-prefix or bookmark or websearch. If the resolver also fails, the work is genuinely missing — surface the URL; do not invent a fallback filename.
+- **Spot-check (Step 13.5) reports failures** — see the named-failure recovery patterns in Step 13.5. Re-shrink, re-describe, or re-sync per the specific signal. Never report DONE while spot-check shows red.
+- **Workflow `args` reaches the script as `undefined` or string** — current Workflow tool serialises args. Always guard with `typeof args === 'string' ? JSON.parse(args) : args` in the script body. Without this, the workflow silently runs zero agents. Log `args type / keys / first 200 chars` at the top of the script to catch this immediately on the first launch.
+
+## Reflections from real runs
+
+Recurring patterns that bit the pipeline before this skill version baked them in:
+
+- **`.jpeg` vs `.JPG`** — `anagoria`, the prolific Wikimedia photographer of European museum paintings, uploads with uppercase `.JPG`. Browsers re-save them as `.jpeg` on download. ~40 files per ingest round of European 16th-19th century art typically need this rename.
+- **`1280px-` thumbnail prefix** — when a user right-click-saves a Commons preview instead of the full file, the saved filename carries the `<width>px-` prefix. The canonical Commons name has it stripped. Step 6.5 strategy (a) handles this in one HTTP HEAD.
+- **Double-quote chars stripped to underscores** — filenames like `"Horror" from Le Brun.jpg` get saved as `_Horror__from_Le_Brun.jpg` by some browsers/OS combinations. The resolver's regex pass must try `_X_` → `"X"` substitution as a websearch fallback.
+- **Copyright violations slip in** — Picasso, Braque, Modigliani works are widely circulated as digital images, but Commons removes them for copyright. They re-appear on `en.wikipedia.org` under fair-use, which the user's browser may surface as a hit. Step 6.5 strategy must explicitly distinguish `en.wikipedia.org/wikipedia/en/...` (fair-use, do not ingest) from `upload.wikimedia.org/wikipedia/commons/...` (PD, ingest).
+- **Sotheby's Hong Kong auction-code filenames** — `2013_HGK_03211_1009_000(wu_changshuo_landscape120225).jpg` is a 19th-century Wu Changshuo painting catalogued in 2013, not a 2013 work. The needs_review_dates heuristic always misclassifies these. Step 9.5 investigator must flag the pattern and surface the actual work date from the embedded artist name + style.
+- **Newsletter list ID confusion** — irrelevant to this skill but commonly confused with Listmonk imports. If a Listmonk error surfaces during ingest, the user has the wrong .env loaded. Surface; don't try to fix.
