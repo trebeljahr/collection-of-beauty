@@ -1,5 +1,5 @@
 {
-  "version": 1,
+  "version": 3,
   "cliVersion": "0.1.33",
   "scaffoldedAt": "2026-05-01T14:58:07.056Z",
   "name": "collection-of-beauty",
@@ -12,7 +12,7 @@
     "server": 3000,
     "client": 3001
   },
-  "surfaces": "shared",
+  "surfaces": "fullstack",
   "s3Buckets": {
     "assets": {
       "name": "collection-of-beauty-assets",
@@ -23,5 +23,28 @@
   },
   "localDev": {
     "slug": "collection-of-beauty"
+  },
+  "email": {
+    "transactional": "none",
+    "mailingList": "none"
+  },
+  "ses": {
+    "identity": "mail.beauty.trebeljahr.com",
+    "mailFromDomain": "bounce.mail.beauty.trebeljahr.com",
+    "mailFromLabel": "bounce",
+    "mailFromBehaviorOnMxFailure": "UseDefaultValue",
+    "mailFromManagedDnsRecords": [
+      {
+        "type": "MX",
+        "name": "bounce.mail.beauty.trebeljahr.com",
+        "value": "feedback-smtp.eu-west-1.amazonses.com",
+        "priority": 10
+      },
+      {
+        "type": "TXT",
+        "name": "bounce.mail.beauty.trebeljahr.com",
+        "value": "v=spf1 include:amazonses.com ~all"
+      }
+    ]
   }
 }
