@@ -1872,6 +1872,73 @@
       "nationality": "Russian",
       "movement": "Romanticism",
       "pd_status": "public_domain_worldwide"
+    },
+    {
+      "name": "Ivan Aivazovsky",
+      "aliases": [
+        "Ivan Aivazovsky",
+        "Ivan Konstantinovich Aivazovsky",
+        "Hovhannes Aivazovsky",
+        "Hovhannes Ayvazovsky",
+        "Ivan Ayvazovsky",
+        "Aivazovsky"
+      ],
+      "born": 1817,
+      "died": 1900,
+      "nationality": "Russian",
+      "movement": "Romanticism",
+      "pd_status": "public_domain_worldwide"
+    },
+    {
+      "name": "Albert Gleizes",
+      "aliases": [
+        "Albert Gleizes",
+        "Gleizes"
+      ],
+      "born": 1881,
+      "died": 1953,
+      "nationality": "French",
+      "movement": "Cubism",
+      "pd_status": "public_domain_worldwide"
+    },
+    {
+      "name": "Francis Picabia",
+      "aliases": [
+        "Francis Picabia",
+        "Picabia"
+      ],
+      "born": 1879,
+      "died": 1953,
+      "nationality": "French",
+      "movement": "Dada",
+      "pd_status": "public_domain_worldwide"
+    },
+    {
+      "name": "Parmigianino",
+      "aliases": [
+        "Parmigianino",
+        "Francesco Mazzola",
+        "Girolamo Francesco Maria Mazzola"
+      ],
+      "born": 1503,
+      "died": 1540,
+      "nationality": "Italian",
+      "movement": "Mannerism",
+      "pd_status": "public_domain_worldwide"
+    },
+    {
+      "name": "Kasamatsu Shirō",
+      "aliases": [
+        "Kasamatsu Shirō",
+        "Kasamatsu Shiro",
+        "Shirō Kasamatsu",
+        "Shiro Kasamatsu"
+      ],
+      "born": 1898,
+      "died": 1991,
+      "nationality": "Japanese",
+      "movement": "Shin-hanga",
+      "pd_status": "public_domain_in_most_jurisdictions"
     }
   ]
 }
