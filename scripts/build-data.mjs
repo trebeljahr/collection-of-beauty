@@ -517,10 +517,19 @@ function normalizeArtistName(raw) {
   // — keep just the maker.
   let s = raw.includes(";") ? raw.split(";")[0] : raw;
   s = stripQuickStatements(s);
+  // Wiki-link prefix from Commons free-text: "w:Albert Gleizes" → "Albert
+  // Gleizes". Same for the explicit ":w:" form.
+  s = s.replace(/^\s*:?w:\s*/i, "");
   s = s.replace(/\s*\([^)]*\)/g, "");
 
   // Trailing Google Art Project / Met / Wikipedia boilerplate.
   s = s.replace(/\bDetails on Google Art Project\b.*$/i, "");
+  // Biographical tails appended by Wikidata/Wikimedia free-text artist
+  // strings: "Hovhannes Aivazovsky – painter Born in Rossiiskaya imperiya,
+  // Feodosia. Died in ..." — strip from the first "Born in" / "Died in"
+  // / em-dash-prefixed biographical fragment onward.
+  s = s.replace(/\s*[–-]\s*(painter|sculptor|artist|engraver|printmaker)\b.*$/i, "");
+  s = s.replace(/\s+(Born|Died)\s+(in|at)\b.*$/i, "");
   // Trailing free-form date ranges left over from "(1832–1904) Details ...".
   s = s.replace(/[,\-–]?\s*\b1[5-9]\d{2}\s*[-–/]\s*1[5-9]\d{2}\b.*$/, "");
   // "Lastname, Firstname" → "Firstname Lastname" when the right-hand side is
