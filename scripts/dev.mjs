@@ -93,8 +93,19 @@ for (const sig of ["SIGINT", "SIGTERM"]) {
   });
 }
 
-log("dev", "starting asset server on :9837");
-children.push(startAssets());
+// When NEXT_PUBLIC_ASSETS_BASE_URL is set in the environment (e.g. via
+// `pnpm dev:r2`), Next.js points <img>/<source> URLs straight at the
+// remote bucket and the local rewrite at /assets-raw/* is never used.
+// Starting serve-assets in that mode would waste a port and confuse
+// "why is dev hitting prod assets but my local shrink didn't take" —
+// skip it explicitly and log the redirect target so it's obvious.
+const remoteAssetsBase = process.env.NEXT_PUBLIC_ASSETS_BASE_URL;
+if (remoteAssetsBase) {
+  log("dev", `using remote assets from ${remoteAssetsBase} (skipping local :9837 server)`);
+} else {
+  log("dev", "starting asset server on :9837");
+  children.push(startAssets());
+}
 
 log("dev", "==> http://localhost:3547");
 children.push(startNext());
