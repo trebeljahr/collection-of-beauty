@@ -319,7 +319,6 @@ export function GalleryBrowser({ initialArtworks, eras, totalArtworks }: Props) 
           artworks={visibleArtworks}
           loadMoreArtworks={loadMoreArtworks}
           hasMoreArtworks={pageInfo.hasMore}
-          pageSize={PAGE_SIZE}
           initialSeed={Math.min(PAGE_SIZE, visibleArtworks.length)}
           resetKey={filterKey}
         />

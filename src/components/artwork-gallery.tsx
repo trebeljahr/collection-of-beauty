@@ -47,13 +47,14 @@ type Props = {
   artworks: ArtworkListing[];
   loadMoreArtworks?: () => Promise<ArtworkListing[]>;
   hasMoreArtworks?: boolean;
-  /** Page size for infinite-scroll materialisation. */
-  pageSize?: number;
-  /** How many photos to seed the album with on first render. Makes the top
-   *  two-to-three screenfuls available instantly, before any fetch fires. */
+  /** How many photos to seed the album with on first render. Defaults to
+   *  CHUNK_SIZE — enough to fill above-the-fold; the IntersectionObserver
+   *  takes over for everything else. Callers with a larger SSR window
+   *  (e.g. the home page that ships 80 items in the initial RSC payload)
+   *  can override to render the full payload immediately. */
   initialSeed?: number;
-  /** Key that changes when the parent filters/sort change — forces a full
-   *  remount so the scroller's internal cursor resets to 0. */
+  /** Key that changes when the parent filters/sort change — the wrapper
+   *  div remounts on key change so internal state resets cleanly. */
   resetKey?: string;
   targetRowHeight?: number | ((width: number) => number);
   scope?: Scope | null;
@@ -63,7 +64,7 @@ type Props = {
 // whose layout is solved independently of every other chunk.
 //
 // This is the same approach the sister project ricos.site uses for its
-// trip galleries, and it sidesteps the entire class of bugs that came
+// trip galleries, and it sidesteps an entire class of bugs that came
 // from running ONE big album over the growing photos array:
 //
 //   - No DP re-pack of the trailing rows when a new batch arrives —
@@ -77,7 +78,15 @@ type Props = {
 // Bigger chunks = fewer stair-steps but bigger DP cost per re-render;
 // smaller chunks = more stair-steps. 10 matches ricos.site and reads
 // fine in practice.
+//
+// CHUNK_SIZE also gates how many photos are appended per IntersectionObserver
+// trigger. That keeps the math behind the sentinel push predictable:
+// 10 photos at our 160-260 px target row heights and 2-5 columns work
+// out to ~440-660 px of added height, which is comfortably larger than
+// the 300 px prefetch rootMargin — every load pushes the sentinel out
+// of intersection, so the observer reliably re-fires on the next scroll.
 const CHUNK_SIZE = 10;
+const PREFETCH_ROOT_MARGIN = "300px";
 
 function chunk<T>(arr: T[], size: number): T[][] {
   const out: T[][] = [];
@@ -89,8 +98,7 @@ export function ArtworkGallery({
   artworks,
   loadMoreArtworks,
   hasMoreArtworks = false,
-  pageSize = 40,
-  initialSeed = 40,
+  initialSeed = CHUNK_SIZE,
   resetKey,
   targetRowHeight,
   scope,
@@ -101,69 +109,70 @@ export function ArtworkGallery({
     [artworks, activeScope],
   );
 
-  // Two state slots: how much of the parent-supplied `photos` array
-  // we've materialised, plus any extra pages fetched from the server
-  // after exhausting the local set. Both reset on `resetKey` change.
-  const [loadedCount, setLoadedCount] = useState(() => Math.min(initialSeed, photos.length));
-  const [extraPages, setExtraPages] = useState<GalleryPhoto[][]>([]);
-  const [fetchingExtra, setFetchingExtra] = useState(false);
-  const [exhausted, setExhausted] = useState(false);
+  // Single source of truth for what's on screen. New items — local or
+  // server-fetched — append to this array. We deliberately do NOT mirror
+  // the parent's photos array via a slice index: the gallery-browser
+  // surface uses startTransition to commit server fetches into its own
+  // state, and a slice-index model fights with that by re-rendering
+  // mid-transition. Owning the visible array here keeps the gallery
+  // independent of how the parent stitches paginated results together.
+  const [displayed, setDisplayed] = useState<GalleryPhoto[]>(() => photos.slice(0, initialSeed));
+  // Track when the server has signalled "no more items". hasMoreArtworks
+  // is the parent's last-known truth; this captures the moment we
+  // actually saw a zero-length response so we don't re-fire the fetch.
+  const [serverExhausted, setServerExhausted] = useState(false);
 
-  // biome-ignore lint/correctness/useExhaustiveDependencies: deliberate — reset on key change
-  useEffect(() => {
-    setLoadedCount(Math.min(initialSeed, photos.length));
-    setExtraPages([]);
-    setFetchingExtra(false);
-    setExhausted(false);
-  }, [resetKey, initialSeed, photos.length]);
+  // If the parent swaps the underlying set entirely (different scope /
+  // filter / sort), the wrapper div's `key={resetKey}` already forces a
+  // full remount and we re-seed from the new photos. No effect needed:
+  // remount runs the useState initializer afresh.
 
-  const localExhausted = loadedCount >= photos.length;
+  const hasMoreLocal = displayed.length < photos.length;
+  const hasMoreServer = hasMoreArtworks && !!loadMoreArtworks && !serverExhausted;
+  const hasMore = hasMoreLocal || hasMoreServer;
 
   const loadingRef = useRef(false);
   const loadMore = useCallback(async () => {
-    if (loadingRef.current || exhausted) return;
+    if (loadingRef.current) return;
     loadingRef.current = true;
     try {
-      if (!localExhausted) {
-        setLoadedCount((n) => Math.min(n + pageSize, photos.length));
+      // Local pagination first. setDisplayed's updater form lets us read
+      // the freshest length without putting `displayed.length` in the
+      // useCallback deps — keeping loadMore's identity stable across
+      // chunked loads is what makes the IO effect attach the observer
+      // exactly once (not re-attach on every batch).
+      let appendedLocal = false;
+      setDisplayed((prev) => {
+        const next = photos.slice(prev.length, prev.length + CHUNK_SIZE);
+        if (next.length === 0) return prev;
+        appendedLocal = true;
+        return [...prev, ...next];
+      });
+      if (appendedLocal) return;
+
+      // Local exhausted — fall through to the server.
+      if (!hasMoreArtworks || !loadMoreArtworks) return;
+      const next = await loadMoreArtworks();
+      if (next.length === 0) {
+        setServerExhausted(true);
         return;
       }
-      if (!hasMoreArtworks || !loadMoreArtworks) {
-        setExhausted(true);
-        return;
-      }
-      setFetchingExtra(true);
-      try {
-        const next = await loadMoreArtworks();
-        if (next.length === 0) {
-          setExhausted(true);
-        } else {
-          setExtraPages((pages) => [...pages, next.map((a) => toGalleryPhoto(a, activeScope))]);
-        }
-      } finally {
-        setFetchingExtra(false);
-      }
+      setDisplayed((prev) => [...prev, ...next.map((a) => toGalleryPhoto(a, activeScope))]);
     } finally {
-      // Short debounce — IntersectionObserver can fire repeatedly while
-      // the sentinel sits inside the rootMargin window. Without this the
-      // setLoadedCount path queues several increments back-to-back.
-      // Copied from ricos.site's InfiniteScrollGallery.
+      // Short debounce so a rapid burst of IO callbacks (the sentinel
+      // briefly oscillating across the rootMargin boundary) coalesces to
+      // a single load. Matches ricos.site's InfiniteScrollGallery.
       setTimeout(() => {
         loadingRef.current = false;
       }, 100);
     }
-  }, [
-    exhausted,
-    localExhausted,
-    pageSize,
-    photos.length,
-    hasMoreArtworks,
-    loadMoreArtworks,
-    activeScope,
-  ]);
+  }, [photos, hasMoreArtworks, loadMoreArtworks, activeScope]);
 
-  // Plain IntersectionObserver against a 1×1 sentinel below the last
-  // chunk. No `react-photo-album/scroll`, no Offscreen recycler.
+  // Sentinel mounted iff there's more to load. Attaches the IO once;
+  // detaches when hasMore flips to false (end of gallery). This is the
+  // ricos.site pattern verbatim — relies on each chunk-append pushing
+  // the sentinel out of the rootMargin window so the observer's
+  // isIntersecting transitions correctly on the next scroll-in.
   const sentinelRef = useRef<HTMLDivElement | null>(null);
   useEffect(() => {
     const node = sentinelRef.current;
@@ -172,55 +181,26 @@ export function ArtworkGallery({
       loadMore();
       return;
     }
-    const io = new IntersectionObserver(
+    const observer = new IntersectionObserver(
       (entries) => {
-        for (const e of entries) if (e.isIntersecting) loadMore();
+        if (entries[0]?.isIntersecting && hasMore) loadMore();
       },
-      { rootMargin: "1200px" },
+      { rootMargin: PREFETCH_ROOT_MARGIN },
     );
-    io.observe(node);
-    return () => io.disconnect();
-  }, [loadMore]);
+    observer.observe(node);
+    return () => observer.disconnect();
+  }, [hasMore, loadMore]);
 
-  // After every load (local or server), re-check whether the sentinel
-  // is still inside the prefetch window. IntersectionObserver only
-  // fires on isIntersecting *transitions*, so if a single batch doesn't
-  // push the sentinel past the 1200 px rootMargin the observer falls
-  // silent and pagination stalls until the user scrolls. This effect
-  // bridges that gap by polling once per load, after the 100 ms
-  // `loadingRef` debounce in loadMore has cleared.
-  useEffect(() => {
-    if (exhausted) return;
-    const node = sentinelRef.current;
-    if (!node || typeof window === "undefined") return;
-    const timer = setTimeout(() => {
-      if (loadingRef.current || exhausted) return;
-      const rect = node.getBoundingClientRect();
-      if (rect.top - window.innerHeight < 1200) loadMore();
-    }, 150);
-    return () => clearTimeout(timer);
-  }, [loadedCount, extraPages.length, exhausted, loadMore]);
-
-  const visiblePhotos = useMemo(() => {
-    const head = photos.slice(0, loadedCount);
-    if (extraPages.length === 0) return head;
-    return head.concat(...extraPages);
-  }, [photos, loadedCount, extraPages]);
-
-  // Chunk into independent albums. The split is index-based so each
-  // chunk's identity is stable across re-renders — chunk 0 is always
-  // the first 10 photos, chunk 1 the next 10, etc. New batches grow
-  // the tail; existing chunks never recompute.
-  const chunks = useMemo(() => chunk(visiblePhotos, CHUNK_SIZE), [visiblePhotos]);
+  // Chunk into independent albums. Index-based split → chunk identity
+  // stable across re-renders. New batches grow the tail; existing
+  // chunks never recompute their row layout.
+  const chunks = useMemo(() => chunk(displayed, CHUNK_SIZE), [displayed]);
 
   const rowHeight = targetRowHeight ?? ((w: number) => (w < 640 ? 160 : w < 1024 ? 220 : 260));
 
   if (artworks.length === 0) {
     return <div className="py-16 text-center text-[var(--muted-foreground)]">No works.</div>;
   }
-
-  const finished = exhausted || (localExhausted && !hasMoreArtworks && extraPages.length === 0);
-  const hasMore = !finished;
 
   return (
     <div key={resetKey ?? "all"}>
@@ -283,10 +263,7 @@ export function ArtworkGallery({
         </div>
       ))}
       {hasMore && <div ref={sentinelRef} aria-hidden style={{ width: 1, height: 1 }} />}
-      {fetchingExtra && (
-        <div className="py-6 text-center text-sm text-[var(--muted-foreground)]">Loading more…</div>
-      )}
-      {finished && (
+      {!hasMore && (
         <div className="py-6 text-center text-sm text-[var(--muted-foreground)]">— end —</div>
       )}
     </div>
