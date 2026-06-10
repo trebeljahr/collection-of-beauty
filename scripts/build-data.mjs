@@ -49,6 +49,23 @@ function variantWidthsFor(folderKey, filename) {
   return widths;
 }
 
+// Apply EXIF orientation to raw pixel dimensions. Orientations 5-8
+// swap the axes (the image is shown rotated 90°/270° from the way the
+// pixels are encoded). Browsers honour EXIF via the default
+// `image-orientation: from-image` CSS, and `pnpm assets:shrink` bakes
+// the rotation into every variant — so the metadata we ship for the
+// row-layout solver must reflect the rotated geometry too, not the
+// raw sensor dimensions. Without this, EXIF-rotated portraits (e.g.
+// Rubens' "Young man in armor" — raw 1632×1262, orientation 6 → shown
+// 1262×1632 portrait) get packed by react-photo-album as landscape
+// tiles, blow out the row height, and leave a huge empty gap below.
+function applyExifOrientation(width, height, orientation) {
+  if (orientation === 5 || orientation === 6 || orientation === 7 || orientation === 8) {
+    return { width: height, height: width };
+  }
+  return { width, height };
+}
+
 async function dimensionsFor(folderKey, filename) {
   const key = `${folderKey}/${filename}`;
   if (dimensionCache.has(key)) return dimensionCache.get(key);
@@ -60,8 +77,8 @@ async function dimensionsFor(folderKey, filename) {
       const n = readSync(fd, probeBuf, 0, PROBE_BYTES, 0);
       closeSync(fd);
       const slice = n < PROBE_BYTES ? probeBuf.subarray(0, n) : probeBuf;
-      const { width, height } = imageSize(slice);
-      if (width && height) result = { width, height };
+      const { width, height, orientation } = imageSize(slice);
+      if (width && height) result = applyExifOrientation(width, height, orientation);
     } catch {
       // image-size needs the SOF marker within the probe; some JPEGs
       // bury it past 64 KB behind large EXIF/thumbnail blocks. Fall
@@ -74,7 +91,7 @@ async function dimensionsFor(folderKey, filename) {
       try {
         const meta = await sharp(file).metadata();
         if (meta.width && meta.height) {
-          result = { width: meta.width, height: meta.height };
+          result = applyExifOrientation(meta.width, meta.height, meta.orientation);
         }
       } catch {
         // leave null
