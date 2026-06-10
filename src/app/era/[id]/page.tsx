@@ -78,7 +78,7 @@ export default async function EraPage({ params }: { params: Promise<Params> }) {
     <div className="mx-auto max-w-6xl px-4 py-8">
       <Link
         href="/eras"
-        className="rounded-sm text-sm text-[var(--muted-foreground)] hover:underline focus:outline-none focus-visible:ring-2 focus-visible:ring-[var(--ring)]"
+        className="rounded-sm text-sm text-[var(--muted-foreground)] underline focus:outline-none focus-visible:ring-2 focus-visible:ring-[var(--ring)]"
       >
         ← All eras
       </Link>
@@ -115,7 +115,7 @@ export default async function EraPage({ params }: { params: Promise<Params> }) {
           {prev ? (
             <Link
               href={`/era/${prev.id}`}
-              className="rounded-sm hover:underline focus:outline-none focus-visible:ring-2 focus-visible:ring-[var(--ring)]"
+              className="rounded-sm underline focus:outline-none focus-visible:ring-2 focus-visible:ring-[var(--ring)]"
             >
               ← {prev.title}
             </Link>
@@ -125,7 +125,7 @@ export default async function EraPage({ params }: { params: Promise<Params> }) {
           {next ? (
             <Link
               href={`/era/${next.id}`}
-              className="rounded-sm hover:underline focus:outline-none focus-visible:ring-2 focus-visible:ring-[var(--ring)]"
+              className="rounded-sm underline focus:outline-none focus-visible:ring-2 focus-visible:ring-[var(--ring)]"
             >
               {next.title} →
             </Link>
