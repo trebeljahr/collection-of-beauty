@@ -2,7 +2,6 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { ArtworkGallery } from "@/components/artwork-gallery";
-import { Badge } from "@/components/ui/badge";
 import { pillClasses } from "@/components/ui/pill";
 import { artists, getArtist, getArtworksByArtist, getConnectionsFor } from "@/lib/data";
 import { assignEra, type EraId, getEra } from "@/lib/gallery-eras";
@@ -121,24 +120,28 @@ export default async function ArtistPage({ params }: { params: Promise<Params> }
             </span>
           )}
           {artist.nationality && <span>· {artist.nationality}</span>}
-          {artist.movement && <Badge variant="secondary">{artist.movement}</Badge>}
           <span>
             · {artist.count} work{artist.count === 1 ? "" : "s"}
           </span>
         </div>
-        {eraIds.length > 0 && (
-          <div className="text-sm text-[var(--muted-foreground)]">
-            {eraIds.length === 1 ? "Era: " : "Eras: "}
-            {eraIds.map((id, i) => (
-              <span key={id}>
-                {i > 0 ? " · " : null}
-                <Link
-                  href={`/era/${id}`}
-                  className="rounded-sm underline-offset-2 underline focus:outline-none focus-visible:ring-2 focus-visible:ring-[var(--ring)]"
-                >
-                  {getEra(id).title}
-                </Link>
-              </span>
+        {(artist.movement || eraIds.length > 0) && (
+          <div className="mt-1 flex flex-wrap items-center gap-1.5">
+            {artist.movement && (
+              <Link
+                href={`/timeline?movement=${encodeURIComponent(artist.movement)}`}
+                className={`${pillClasses} focus:outline-none focus-visible:ring-2 focus-visible:ring-[var(--ring)]`}
+              >
+                {artist.movement}
+              </Link>
+            )}
+            {eraIds.map((id) => (
+              <Link
+                key={id}
+                href={`/era/${id}`}
+                className={`${pillClasses} focus:outline-none focus-visible:ring-2 focus-visible:ring-[var(--ring)]`}
+              >
+                {getEra(id).title}
+              </Link>
             ))}
           </div>
         )}
@@ -167,7 +170,7 @@ export default async function ArtistPage({ params }: { params: Promise<Params> }
       {contemporaries.length > 0 && (
         <section className="mb-8">
           <h2 className="mb-3 text-sm font-medium uppercase tracking-wide text-[var(--muted-foreground)]">
-            Contemporaries in {artist.movement}
+            Contemporaries
           </h2>
           <div className="flex flex-wrap gap-2">
             {contemporaries.slice(0, 24).map((c) => (
