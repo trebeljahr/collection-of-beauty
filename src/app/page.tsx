@@ -2,7 +2,8 @@ import type { Metadata } from "next";
 import { GalleryBrowser } from "@/components/gallery-browser";
 import { DEFAULT_ARTWORK_PAGE_SIZE } from "@/lib/artwork-page-schema";
 import { getArtworkListingPage } from "@/lib/artwork-pagination";
-import { movements, summary } from "@/lib/data";
+import { summary } from "@/lib/data";
+import { ERAS } from "@/lib/gallery-eras";
 import { SITE_DESCRIPTION, SITE_NAME, SITE_TAGLINE } from "@/lib/seo";
 
 export const metadata: Metadata = {
@@ -33,7 +34,7 @@ export default function HomePage() {
       <h2 className="sr-only">Browse all works</h2>
       <GalleryBrowser
         initialArtworks={initialPage.items}
-        movements={movements}
+        eras={ERAS.map((e) => ({ id: e.id, title: e.title }))}
         totalArtworks={initialPage.total}
       />
     </div>
