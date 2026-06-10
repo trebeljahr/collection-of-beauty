@@ -163,6 +163,14 @@ export function ArtworkGallery({
 
   // Plain IntersectionObserver against a 1×1 sentinel below the last
   // chunk. No `react-photo-album/scroll`, no Offscreen recycler.
+  //
+  // Re-attach the observer after every load (loadedCount / extraPages
+  // change). IntersectionObserver only fires when isIntersecting flips,
+  // so if a freshly-appended batch still leaves the sentinel inside the
+  // prefetch window the callback never re-fires and pagination stalls.
+  // Recreating the observer fires a fresh initial callback that cascades
+  // loadMore() until the sentinel is genuinely out of range — standard
+  // "load until the prefetch buffer is full" behaviour.
   const sentinelRef = useRef<HTMLDivElement | null>(null);
   useEffect(() => {
     const node = sentinelRef.current;
@@ -179,7 +187,7 @@ export function ArtworkGallery({
     );
     io.observe(node);
     return () => io.disconnect();
-  }, [loadMore]);
+  }, [loadMore, loadedCount, extraPages.length]);
 
   const visiblePhotos = useMemo(() => {
     const head = photos.slice(0, loadedCount);
