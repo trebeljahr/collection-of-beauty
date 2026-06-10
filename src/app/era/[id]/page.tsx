@@ -1,8 +1,10 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { ArtworkGallery } from "@/components/artwork-gallery";
+import { ScopedGallery } from "@/components/scoped-gallery";
 import { Badge } from "@/components/ui/badge";
+import { DEFAULT_ARTWORK_PAGE_SIZE } from "@/lib/artwork-page-schema";
+import { getArtworkListingPage } from "@/lib/artwork-pagination";
 import { resolveScope } from "@/lib/artwork-scope";
 import { getArtwork } from "@/lib/data";
 import { ERAS, type EraId, type getEra } from "@/lib/gallery-eras";
@@ -69,7 +71,16 @@ export default async function EraPage({ params }: { params: Promise<Params> }) {
   const era = findEra(id);
   if (!era) notFound();
 
-  const works = resolveScope({ kind: "era", id: era.id });
+  // Server-render only the first page of works; the client paginates
+  // the rest via /api/artworks/page, matching the home gallery's
+  // infinite-scroll pattern. Sort=year mirrors resolveScope's era
+  // ordering so the initial render + subsequent batches stitch into a
+  // single chronological sequence.
+  const initialPage = getArtworkListingPage({
+    era: era.id,
+    sort: "year",
+    limit: DEFAULT_ARTWORK_PAGE_SIZE,
+  });
   const idx = ERAS.findIndex((e) => e.id === era.id);
   const prev = idx > 0 ? ERAS[idx - 1] : null;
   const next = idx < ERAS.length - 1 ? ERAS[idx + 1] : null;
@@ -88,7 +99,7 @@ export default async function EraPage({ params }: { params: Promise<Params> }) {
         <div className="flex flex-wrap items-center gap-3 text-[var(--muted-foreground)]">
           <span>{yearRangeLabel(era)}</span>
           <span>
-            · {works.length} work{works.length === 1 ? "" : "s"}
+            · {initialPage.total} work{initialPage.total === 1 ? "" : "s"}
           </span>
         </div>
         {era.movements.length > 0 && (
@@ -137,10 +148,15 @@ export default async function EraPage({ params }: { params: Promise<Params> }) {
 
       <section>
         <h2 className="mb-4 font-serif text-xl">Works in this era</h2>
-        <ArtworkGallery
-          artworks={works}
-          resetKey={era.id}
+        <ScopedGallery
+          initialArtworks={initialPage.items}
+          initialPageInfo={{
+            total: initialPage.total,
+            nextOffset: initialPage.nextOffset,
+            hasMore: initialPage.hasMore,
+          }}
           scope={{ kind: "era", id: era.id as EraId }}
+          pageQuery={{ era: era.id, sort: "year" }}
         />
       </section>
     </div>
