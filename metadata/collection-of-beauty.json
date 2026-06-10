@@ -15671,11 +15671,11 @@
       "filename": "CLAUDE_MONET_1840_-_1926_LE_GIVRE_À_GIVERNY.jpg",
       "resolved": true,
       "needs_review": false,
-      "title": "CLAUDE MONET 1840 - 1926 LE GIVRE À GIVERNY",
+      "title": "Le givre à Giverny",
       "artist": "Claude Monet",
-      "date_created": "15 January 2013, 16:36:14",
-      "year": 1840,
-      "description": "CLAUDE MONET (1840 - 1926), LE GIVRE À GIVERNY, signed Claude Monet (lower left), oil on canvas, 54 by 71 cm. Painted in 1885.",
+      "date_created": "1885",
+      "year": 1885,
+      "description": "Signed Claude Monet (lower left). Oil on canvas, 54 by 71 cm. Painted in 1885.",
       "source": {
         "type": "Wikimedia Commons",
         "canonical_title": "File:CLAUDE MONET 1840 - 1926 LE GIVRE À GIVERNY.jpg",
@@ -15709,17 +15709,17 @@
           "fr": "Le givre à Giverny"
         }
       },
-      "year_source": "filename"
+      "year_source": "description"
     },
     "CLAUDE_MONET_1840_-_1926_NYMPHÉAS_AVEC_REFLETS_DE_HAUTES_HERBES.jpg": {
       "filename": "CLAUDE_MONET_1840_-_1926_NYMPHÉAS_AVEC_REFLETS_DE_HAUTES_HERBES.jpg",
       "resolved": true,
       "needs_review": false,
-      "title": "CLAUDE MONET 1840 - 1926 NYMPHÉAS AVEC REFLETS DE HAUTES HERBES",
+      "title": "Nymphéas avec reflets de hautes herbes",
       "artist": "Claude Monet",
-      "date_created": "16 January 2013, 16:50:29",
-      "year": 1840,
-      "description": "CLAUDE MONET (1840 - 1926), NYMPHÉAS AVEC REFLETS DE HAUTES HERBES ( Water Lilies, Reflections of Tall Grass ), stamped Claude Monet (lower right), oil on canvas, 130 by 200cm. Painted in 1914-17.",
+      "date_created": "1914–17",
+      "year": 1914,
+      "description": "Stamped Claude Monet (lower right). Oil on canvas, 130 by 200 cm. Painted in 1914–17.",
       "source": {
         "type": "Wikimedia Commons",
         "canonical_title": "File:CLAUDE MONET 1840 - 1926 NYMPHÉAS AVEC REFLETS DE HAUTES HERBES.jpg",
@@ -15747,7 +15747,7 @@
         "movement": "Impressionism",
         "pd_status": "public_domain_worldwide"
       },
-      "year_source": "filename"
+      "year_source": "description"
     },
     "Ca'_Rezzonico_-_Matrimonio_mistico_di_Santa_Caterina_(Inv.236)_-_Biagio_Pupini_detto_Dalle_Lame.jpg": {
       "filename": "Ca'_Rezzonico_-_Matrimonio_mistico_di_Santa_Caterina_(Inv.236)_-_Biagio_Pupini_detto_Dalle_Lame.jpg",
