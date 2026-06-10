@@ -2,10 +2,17 @@
 
 import { useEffect } from "react";
 
-/** sessionStorage key holding the most recent hero snapshot. Read by
- *  the gallery on mount, then cleared so a single back-navigation
- *  produces exactly one FLIP animation. */
-const STORAGE_KEY = "artwork-back-flip";
+/** sessionStorage key holding the most recent hero snapshot — geometry,
+ *  current image src, and the id of the *tile* (not the current
+ *  artwork) we want to merge back into. */
+const SNAPSHOT_KEY = "artwork-back-flip";
+
+/** sessionStorage key holding the id of the tile the user originally
+ *  clicked into. Outlives prev/next chains so the merge-back animation
+ *  always lands on a tile that's guaranteed to be in the gallery DOM —
+ *  prev/next can walk the user to an artwork that was never rendered
+ *  on the home grid. Cleared after the merge completes. */
+const ORIGIN_TILE_KEY = "artwork-back-flip-origin";
 
 /** How fresh a snapshot must be to be used. Older entries are stale —
  *  the user probably reopened a tab or navigated via a top-nav link
@@ -23,16 +30,33 @@ type Snapshot = {
   ts: number;
 };
 
+/** Gallery tile click handler calls this with the id of the tile the
+ *  user just clicked. Subsequent detail-page snapshots target this tile
+ *  even after prev/next, so the merge-back animation always lands on a
+ *  tile that's guaranteed to be in the home grid's DOM. */
+export function setOriginTile(id: string) {
+  if (typeof window === "undefined") return;
+  try {
+    sessionStorage.setItem(ORIGIN_TILE_KEY, id);
+  } catch {
+    /* private mode / quota — fall back to current-artwork targeting */
+  }
+}
+
 /** Detail page calls this whenever the hero img's geometry changes —
  *  on mount, on load, on scroll, on resize. The most recent snapshot
- *  is what the gallery uses to seed the merge-back FLIP. */
-export function saveBackFlipSnapshot(id: string, img: HTMLImageElement) {
+ *  is what the gallery uses to seed the merge-back FLIP. Reads the
+ *  origin tile id from sessionStorage; falls back to the current
+ *  artwork id when no origin was set (e.g. deep-linked detail page). */
+export function saveBackFlipSnapshot(currentId: string, img: HTMLImageElement) {
   if (typeof window === "undefined") return;
   const rect = img.getBoundingClientRect();
   if (rect.width === 0 || rect.height === 0) return;
   const cs = window.getComputedStyle(img);
+  const targetId =
+    (typeof sessionStorage !== "undefined" && sessionStorage.getItem(ORIGIN_TILE_KEY)) || currentId;
   const snapshot: Snapshot = {
-    id,
+    id: targetId,
     top: rect.top,
     left: rect.left,
     width: rect.width,
@@ -42,44 +66,64 @@ export function saveBackFlipSnapshot(id: string, img: HTMLImageElement) {
     ts: Date.now(),
   };
   try {
-    sessionStorage.setItem(STORAGE_KEY, JSON.stringify(snapshot));
+    sessionStorage.setItem(SNAPSHOT_KEY, JSON.stringify(snapshot));
   } catch {
     // Quota / private-mode failure — silently skip the animation rather
     // than break navigation.
   }
 }
 
-/** Gallery hook. On mount, if the detail page left a fresh snapshot in
- *  sessionStorage and the matching tile is in the DOM, animate a fixed
- *  positioned clone of the hero into the tile's bounding box. Mirrors
- *  ricos.site's `animateImageBackToGallery` (manual FLIP — no View
- *  Transitions API, works in every browser that supports CSS
- *  transitions). The tile is scrolled into view before the animation
- *  starts so the user sees the merge-target before the morph. */
+/** Gallery hook. Tries the merge-back FLIP on mount, then registers a
+ *  popstate listener so a back-nav from detail still triggers the
+ *  animation when Next.js's Router Cache restored the gallery without
+ *  remounting the component. Mirrors ricos.site's
+ *  `animateImageBackToGallery` — manual FLIP via a fixed-positioned
+ *  clone img, no View Transitions API. */
 export function useArtworkBackFlip() {
   useEffect(() => {
     if (typeof window === "undefined") return;
-    const raw = sessionStorage.getItem(STORAGE_KEY);
-    if (!raw) return;
-    sessionStorage.removeItem(STORAGE_KEY);
 
-    let snapshot: Snapshot;
-    try {
-      snapshot = JSON.parse(raw) as Snapshot;
-    } catch {
-      return;
-    }
-    if (!snapshot.id || Date.now() - snapshot.ts > SNAPSHOT_TTL_MS) return;
+    // Run once now in case we got here via a back-nav that already
+    // landed before the hook attached its popstate listener (e.g. the
+    // first mount after a back from a fresh-loaded detail tab).
+    scheduleFlip();
 
-    // Wait two animation frames — one for React to commit the gallery
-    // tree, one for react-photo-album's row solver to finish laying out
-    // tile sizes — before measuring the target tile's bounds.
-    requestAnimationFrame(() => {
-      requestAnimationFrame(() => {
-        runFlip(snapshot);
-      });
-    });
+    const onPop = () => scheduleFlip();
+    window.addEventListener("popstate", onPop);
+    return () => window.removeEventListener("popstate", onPop);
   }, []);
+}
+
+function scheduleFlip() {
+  if (typeof window === "undefined") return;
+  // Two rAFs: one for React to commit the route segment, one for
+  // react-photo-album's row solver to finalize tile sizes. Without the
+  // second frame `tileRect` is sometimes measured against a placeholder
+  // row height and the FLIP lands slightly off.
+  requestAnimationFrame(() => {
+    requestAnimationFrame(() => {
+      const raw = sessionStorage.getItem(SNAPSHOT_KEY);
+      if (!raw) return;
+      let snapshot: Snapshot;
+      try {
+        snapshot = JSON.parse(raw) as Snapshot;
+      } catch {
+        sessionStorage.removeItem(SNAPSHOT_KEY);
+        return;
+      }
+      if (!snapshot.id || Date.now() - snapshot.ts > SNAPSHOT_TTL_MS) {
+        sessionStorage.removeItem(SNAPSHOT_KEY);
+        sessionStorage.removeItem(ORIGIN_TILE_KEY);
+        return;
+      }
+      // Consume the snapshot. If the tile isn't in the DOM we still
+      // clear it — leaving it would re-fire on the next popstate and
+      // animate the wrong navigation.
+      sessionStorage.removeItem(SNAPSHOT_KEY);
+      sessionStorage.removeItem(ORIGIN_TILE_KEY);
+      runFlip(snapshot);
+    });
+  });
 }
 
 function runFlip(snapshot: Snapshot) {

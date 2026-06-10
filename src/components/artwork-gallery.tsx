@@ -17,7 +17,7 @@ import { ResponsiveImage } from "@/components/responsive-image";
 import { artworkAlt, displayTitle } from "@/lib/artwork-format";
 import { artworkHref, type Scope } from "@/lib/artwork-scope";
 import type { ArtworkListing } from "@/lib/data";
-import { useArtworkBackFlip } from "@/lib/use-artwork-back-flip";
+import { setOriginTile, useArtworkBackFlip } from "@/lib/use-artwork-back-flip";
 import { useTransitionNav } from "@/lib/use-transition-nav";
 import { artworkHeroVtName } from "@/lib/view-transitions";
 
@@ -328,6 +328,7 @@ function GalleryTileLink({
   });
   const transitionNav = useTransitionNav();
   const onClick = (e: React.MouseEvent<HTMLAnchorElement>) => {
+    setOriginTile(photo.key);
     const img = e.currentTarget.querySelector("img");
     transitionNav(e, photo.href, {
       vtElement: img,
