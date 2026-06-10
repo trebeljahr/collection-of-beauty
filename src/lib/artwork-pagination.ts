@@ -17,6 +17,11 @@ export type ArtworkPageInput = {
   seed?: string;
   query?: string;
   era?: EraId | "" | null;
+  /** Artist slug filter. Lets the artist page reuse the same paginated
+   *  endpoint instead of shipping the full per-artist works array via
+   *  RSC payload — matters most for high-output artists (Audubon ≈435
+   *  works, Monet ≈368). */
+  artistSlug?: string | null;
   minYear?: number | null;
   maxYear?: number | null;
 };
@@ -47,6 +52,9 @@ export function getArtworkListingPage(input: ArtworkPageInput = {}): ArtworkPage
 
   if (query) list = list.filter((artwork) => matchesQuery(artwork, query));
   if (input.era) list = list.filter((artwork) => assignEra(artwork) === input.era);
+  if (input.artistSlug) {
+    list = list.filter((artwork) => artwork.artistSlug === input.artistSlug);
+  }
   const minYear = input.minYear;
   const maxYear = input.maxYear;
   if (minYear != null) {
@@ -62,6 +70,7 @@ export function getArtworkListingPage(input: ArtworkPageInput = {}): ArtworkPage
     seed === DEFAULT_SHUFFLE_SEED &&
     query.length === 0 &&
     !input.era &&
+    !input.artistSlug &&
     minYear == null &&
     maxYear == null
       ? applyPinnedHead(sorted, PINNED_FIRST_PAGE_IDS)

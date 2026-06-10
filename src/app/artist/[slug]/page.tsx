@@ -1,8 +1,10 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { ArtworkGallery } from "@/components/artwork-gallery";
+import { ScopedGallery } from "@/components/scoped-gallery";
 import { pillClasses } from "@/components/ui/pill";
+import { DEFAULT_ARTWORK_PAGE_SIZE } from "@/lib/artwork-page-schema";
+import { getArtworkListingPage } from "@/lib/artwork-pagination";
 import { artists, getArtist, getArtworksByArtist, getConnectionsFor } from "@/lib/data";
 import { assignEra, type EraId, getEra } from "@/lib/gallery-eras";
 import { artistJsonLd, jsonLdScriptProps, ogImagesForArtist } from "@/lib/seo";
@@ -64,7 +66,17 @@ export default async function ArtistPage({ params }: { params: Promise<Params> }
   const artist = getArtist(slug);
   if (!artist) notFound();
 
+  // Full works array stays server-side for the era-line derivation
+  // below — only its length + per-work movement/year is needed there.
+  // The wire payload to the client gallery is the slim first page
+  // produced by getArtworkListingPage, so big-output artists (Audubon
+  // ≈435 works, Monet ≈368) don't ship their full catalogue via RSC.
   const works = getArtworksByArtist(slug).sort((a, b) => (a.year ?? 99999) - (b.year ?? 99999));
+  const initialPage = getArtworkListingPage({
+    artistSlug: slug,
+    sort: "year",
+    limit: DEFAULT_ARTWORK_PAGE_SIZE,
+  });
   const connections = getConnectionsFor(slug);
   const connected = connections
     .map((c) => {
@@ -188,10 +200,15 @@ export default async function ArtistPage({ params }: { params: Promise<Params> }
 
       <section>
         <h2 className="mb-4 font-serif text-xl">Works in this collection</h2>
-        <ArtworkGallery
-          artworks={works}
-          resetKey={artist.slug}
+        <ScopedGallery
+          initialArtworks={initialPage.items}
+          initialPageInfo={{
+            total: initialPage.total,
+            nextOffset: initialPage.nextOffset,
+            hasMore: initialPage.hasMore,
+          }}
           scope={{ kind: "artist", slug: artist.slug }}
+          pageQuery={{ artistSlug: artist.slug, sort: "year" }}
         />
       </section>
     </div>
