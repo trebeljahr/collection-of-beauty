@@ -11,9 +11,21 @@ type Args = {
   delay?: number;
 };
 
-type Pos = { x: number; y: number; placement: "below" | "above" };
+type Pos = { x: number; y: number; flipX: boolean; flipY: boolean };
 
 const FADE_OUT_MS = 150;
+const OFFSET = 14;
+// Conservative width/height estimates so the flip kicks in before the
+// real tooltip clips the viewport. The panel's actual max-width is
+// 18rem (288px); height varies with content but stays under ~80px.
+const EST_W = 288;
+const EST_H = 80;
+
+function clampPos(x: number, y: number): Pos {
+  const flipX = x + OFFSET + EST_W > window.innerWidth - 4;
+  const flipY = y + OFFSET + EST_H > window.innerHeight - 4;
+  return { x, y, flipX, flipY };
+}
 
 export function useArtworkTooltip({ title, artist, year, delay = 450 }: Args) {
   const [pos, setPos] = useState<Pos | null>(null);
@@ -21,28 +33,14 @@ export function useArtworkTooltip({ title, artist, year, delay = 450 }: Args) {
   const [mounted, setMounted] = useState(false);
   const showTimer = useRef<number | null>(null);
   const hideTimer = useRef<number | null>(null);
+  const cursor = useRef<{ x: number; y: number } | null>(null);
+  const visibleRef = useRef(false);
 
   useEffect(() => {
     setMounted(true);
     return () => {
       if (showTimer.current) window.clearTimeout(showTimer.current);
       if (hideTimer.current) window.clearTimeout(hideTimer.current);
-    };
-  }, []);
-
-  const computePos = useCallback((el: HTMLElement): Pos => {
-    const r = el.getBoundingClientRect();
-    const placement: "below" | "above" =
-      r.bottom + 96 > window.innerHeight && r.top > 96 ? "above" : "below";
-    // Center the tooltip on the tile but keep its full width inside the
-    // viewport. The panel is `max-w-[18rem]` (≈288px) and centered via
-    // `translate(-50%, 0)`, so we clamp the centre to half-width + 8px.
-    const HALF = 152;
-    const x = Math.max(HALF, Math.min(window.innerWidth - HALF, r.left + r.width / 2));
-    return {
-      x,
-      y: placement === "below" ? r.bottom + 8 : r.top - 8,
-      placement,
     };
   }, []);
 
@@ -53,27 +51,40 @@ export function useArtworkTooltip({ title, artist, year, delay = 450 }: Args) {
         window.clearTimeout(hideTimer.current);
         hideTimer.current = null;
       }
-      const el = e.currentTarget;
+      cursor.current = { x: e.clientX, y: e.clientY };
       if (showTimer.current) window.clearTimeout(showTimer.current);
       showTimer.current = window.setTimeout(() => {
-        setPos(computePos(el));
+        const c = cursor.current;
+        if (!c) return;
+        setPos(clampPos(c.x, c.y));
+        visibleRef.current = true;
         setVisible(true);
       }, delay);
     },
-    [computePos, delay],
+    [delay],
   );
+
+  const onPointerMove = useCallback((e: PointerEvent<HTMLElement>) => {
+    if (e.pointerType === "touch") return;
+    cursor.current = { x: e.clientX, y: e.clientY };
+    // Once visible, follow the cursor. Before visible, the timer
+    // picks up cursor.current when it fires.
+    if (visibleRef.current) setPos(clampPos(e.clientX, e.clientY));
+  }, []);
 
   const onPointerLeave = useCallback(() => {
     if (showTimer.current) {
       window.clearTimeout(showTimer.current);
       showTimer.current = null;
     }
+    cursor.current = null;
+    visibleRef.current = false;
     setVisible(false);
     if (hideTimer.current) window.clearTimeout(hideTimer.current);
     hideTimer.current = window.setTimeout(() => setPos(null), FADE_OUT_MS + 60);
   }, []);
 
-  const handlers = { onPointerEnter, onPointerLeave };
+  const handlers = { onPointerEnter, onPointerMove, onPointerLeave };
 
   const portal =
     mounted && pos
@@ -105,15 +116,18 @@ function ArtworkTooltipPanel({
   pos: Pos;
   visible: boolean;
 }) {
-  const translateY = pos.placement === "below" ? "0" : "-100%";
+  const offX = pos.flipX ? -OFFSET : OFFSET;
+  const offY = pos.flipY ? -OFFSET : OFFSET;
+  const tx = pos.flipX ? "-100%" : "0";
+  const ty = pos.flipY ? "-100%" : "0";
   return (
     <div
       role="tooltip"
       style={{
         position: "fixed",
-        left: pos.x,
-        top: pos.y,
-        transform: `translate(-50%, ${translateY})`,
+        left: pos.x + offX,
+        top: pos.y + offY,
+        transform: `translate(${tx}, ${ty})`,
         pointerEvents: "none",
         zIndex: 50,
       }}
