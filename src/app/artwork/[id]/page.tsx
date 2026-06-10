@@ -277,7 +277,7 @@ export default async function ArtworkPage({
       {moreByArtist.length > 0 && art.artist && (
         <section className="mt-16">
           <h2 className="mb-4 font-serif text-xl">More by {art.artist}</h2>
-          <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6">
+          <div className="grid grid-cols-1 gap-4 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6">
             {moreByArtist.map((a, i) => (
               <div key={a.id} className={singleRowVisibility(i)}>
                 <ArtworkCard artwork={a} scope={{ kind: "artist", slug: art.artistSlug }} />
@@ -290,7 +290,7 @@ export default async function ArtworkPage({
       {era && eraId && moreFromEra.length > 0 && (
         <section className="mt-16">
           <h2 className="mb-4 font-serif text-xl">More from {era.title} by other artists</h2>
-          <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6">
+          <div className="grid grid-cols-1 gap-4 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6">
             {moreFromEra.map((a, i) => (
               <div key={a.id} className={singleRowVisibility(i)}>
                 <ArtworkCard artwork={a} scope={{ kind: "era", id: eraId }} />
@@ -309,9 +309,9 @@ export default async function ArtworkPage({
 const MORE_FROM_ERA_COUNT = 6;
 
 /** Hide overflow cards so the rail stays one row at every breakpoint.
- *  Grid is 2 / 3 / 4 / 6 cols at base / sm / md / lg respectively. */
+ *  Grid is 1 / 3 / 4 / 6 cols at base / sm / md / lg respectively. */
 function singleRowVisibility(index: number): string {
-  if (index < 2) return "";
+  if (index < 1) return "";
   if (index < 3) return "hidden sm:block";
   if (index < 4) return "hidden md:block";
   return "hidden lg:block";
