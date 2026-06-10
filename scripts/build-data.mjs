@@ -930,8 +930,15 @@ async function main() {
       //     through db so the live curated movement wins.
       //  3. Only as a last resort use the inline snapshot verbatim.
       let artistInfo = matchArtist(normalizedArtistName, byAlias);
-      if (!artistInfo && entry.artist_info?.name) {
-        artistInfo = matchArtist(entry.artist_info.name, byAlias) ?? entry.artist_info;
+      if (!artistInfo && entry.artist_info) {
+        // entry.artist_info acts as a per-record fallback: use its name to
+        // re-query the curated db when present, otherwise inject the
+        // movement/nationality directly. The name-less form is how
+        // genuinely anonymous works (e.g. the Hungry Ghosts Scroll) opt
+        // out of the European year fallback in gallery-eras.
+        artistInfo = entry.artist_info.name
+          ? (matchArtist(entry.artist_info.name, byAlias) ?? entry.artist_info)
+          : entry.artist_info;
       }
       artistInfo = artistInfo ?? null;
       // Prefer the canonical name from the artists DB so casing variants

@@ -16983,6 +16983,10 @@
         "license_short": "Public domain",
         "license_url": null,
         "usage_terms": "Public domain"
+      },
+      "artist_info": {
+        "name": null,
+        "movement": "Classical East Asian"
       }
     },
     "Carracci_-_Der_Bohnenesser.jpeg.jpeg": {
@@ -47779,7 +47783,12 @@
         "license_url": null,
         "usage_terms": "Public domain"
       },
-      "year_source": "era_phrase"
+      "year_source": "era_phrase",
+      "artist_info": {
+        "name": null,
+        "movement": "Classical East Asian",
+        "nationality": "Japanese"
+      }
     },
     "Hunt-AwakeningConscience1853.jpg": {
       "filename": "Hunt-AwakeningConscience1853.jpg",
@@ -60767,7 +60776,7 @@
       "resolved": true,
       "needs_review": false,
       "title": "Katsushika Hokusai, tempesta sotto la vetta, dalla serie delle 36 vedute del monte fuji, 1831 ca",
-      "artist": "Sailko",
+      "artist": "Katsushika Hokusai",
       "date_created": "2017-11-07 05:45:59",
       "year": 1831,
       "description": "Thunderstorm Beneath the Summit, a Japanese woodblock print by Hokusai",
@@ -61945,7 +61954,7 @@
       "resolved": true,
       "needs_review": false,
       "title": "Kuniyoshi Utagawa, At the shore of the Sumida river",
-      "artist": null,
+      "artist": "Utagawa Kuniyoshi",
       "date_created": null,
       "year": null,
       "description": null,
@@ -82313,7 +82322,7 @@
       "resolved": true,
       "needs_review": false,
       "title": "Ohara koson, gatto e vasca con pesci rossi, 1933, xilografia colorata",
-      "artist": "Sailko",
+      "artist": "Ohara Koson",
       "date_created": "2016-11-03 22:02:33",
       "year": 1933,
       "description": "Art of Japan in the Cincinnati Art Museum",
@@ -118286,7 +118295,7 @@
       "resolved": true,
       "needs_review": false,
       "title": "Yoshitoshi The Ghost",
-      "artist": null,
+      "artist": "Tsukioka Yoshitoshi",
       "date_created": null,
       "year": null,
       "description": null,
