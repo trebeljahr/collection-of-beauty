@@ -99,7 +99,7 @@ export default async function ArtworkPage({
   const moreByArtist = art.artistSlug
     ? getArtworksByArtist(art.artistSlug)
         .filter((a) => a.id !== art.id)
-        .slice(0, 12)
+        .slice(0, MORE_FROM_ERA_COUNT)
     : [];
 
   // Pick prev/next from the scoped list when a valid scope was supplied
@@ -278,12 +278,10 @@ export default async function ArtworkPage({
         <section className="mt-16">
           <h2 className="mb-4 font-serif text-xl">More by {art.artist}</h2>
           <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6">
-            {moreByArtist.map((a) => (
-              <ArtworkCard
-                key={a.id}
-                artwork={a}
-                scope={{ kind: "artist", slug: art.artistSlug }}
-              />
+            {moreByArtist.map((a, i) => (
+              <div key={a.id} className={singleRowVisibility(i)}>
+                <ArtworkCard artwork={a} scope={{ kind: "artist", slug: art.artistSlug }} />
+              </div>
             ))}
           </div>
         </section>
@@ -293,8 +291,10 @@ export default async function ArtworkPage({
         <section className="mt-16">
           <h2 className="mb-4 font-serif text-xl">More from {era.title} by other artists</h2>
           <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6">
-            {moreFromEra.map((a) => (
-              <ArtworkCard key={a.id} artwork={a} scope={{ kind: "era", id: eraId }} />
+            {moreFromEra.map((a, i) => (
+              <div key={a.id} className={singleRowVisibility(i)}>
+                <ArtworkCard artwork={a} scope={{ kind: "era", id: eraId }} />
+              </div>
             ))}
           </div>
         </section>
@@ -307,6 +307,15 @@ export default async function ArtworkPage({
 // grid at lg cleanly; bumping to 8 leaves a short second row on most
 // pages without enough payoff.
 const MORE_FROM_ERA_COUNT = 6;
+
+/** Hide overflow cards so the rail stays one row at every breakpoint.
+ *  Grid is 2 / 3 / 4 / 6 cols at base / sm / md / lg respectively. */
+function singleRowVisibility(index: number): string {
+  if (index < 2) return "";
+  if (index < 3) return "hidden sm:block";
+  if (index < 4) return "hidden md:block";
+  return "hidden lg:block";
+}
 
 /** FNV-1a 32-bit hash — matches the algorithm used by
  *  `gallery-eras.ts#roomFloorColor`, kept inline to avoid widening that
