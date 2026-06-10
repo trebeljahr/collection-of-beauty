@@ -80,13 +80,22 @@ export default async function ArtistPage({ params }: { params: Promise<Params> }
 
   // Most artists land in one era; a few span two (Monet → fin-de-siècle
   // + modern). Preserve era chronological order so the line reads
-  // earliest → latest, mirroring the works grid below.
-  const eraIds: EraId[] = [];
-  const seen = new Set<EraId>();
+  // earliest → latest, mirroring the works grid below. Drop eras
+  // representing <5% of the artist's works — keeps real career-spanning
+  // splits (Sargent's portrait/landscape, Gauguin's pre/post-1886) but
+  // suppresses outlier-only eras (e.g. Van Gogh's 2 Dutch-Realism works
+  // out of 56, which would otherwise read as "Van Gogh = Realism" in
+  // the header).
+  const eraCounts = new Map<EraId, number>();
   for (const w of works) {
     const id = assignEra({ movement: w.movement, year: w.year });
-    if (id && !seen.has(id)) {
-      seen.add(id);
+    if (id) eraCounts.set(id, (eraCounts.get(id) ?? 0) + 1);
+  }
+  const eraThreshold = Math.max(1, works.length * 0.05);
+  const eraIds: EraId[] = [];
+  for (const w of works) {
+    const id = assignEra({ movement: w.movement, year: w.year });
+    if (id && (eraCounts.get(id) ?? 0) >= eraThreshold && !eraIds.includes(id)) {
       eraIds.push(id);
     }
   }
