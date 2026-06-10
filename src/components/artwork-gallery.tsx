@@ -1,9 +1,8 @@
 "use client";
 
 import Link from "next/link";
-import { useCallback, useMemo } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { RowsPhotoAlbum } from "react-photo-album";
-import InfiniteScroll from "react-photo-album/scroll";
 import "react-photo-album/rows.css";
 import { ResponsiveImage } from "@/components/responsive-image";
 import { artworkAlt, displayTitle } from "@/lib/artwork-format";
@@ -26,35 +25,19 @@ export type GalleryPhoto = {
   year: number | null;
 };
 
-// The row solver uses `width / height` as the photo aspect and packs
-// rows to minimise (commonHeight − targetRowHeight)². Catalogue
-// outliers like Chinese handscrolls reach 48:1 (the 22517×470 "Ten
-// Thousand Miles of the Yangtze River") which forces the solver to
-// either put the panorama on its own row at ~5 px tall or pair it
-// with another photo and produce a degenerate row that leaves visible
-// gaps. The artwork pages still get the real pixel dimensions via
-// `srcWidth`/`srcHeight`; only the tile aspect used for layout is
-// clamped. Tiles end up object-fit:cover-cropped to the clamped
-// rectangle in the gallery card, which is the same treatment every
-// other thumbnail gets.
-const MAX_TILE_ASPECT = 3.5;
-const MIN_TILE_ASPECT = 1 / 3;
-
-function clampTileDims(width: number, height: number): { width: number; height: number } {
-  if (!width || !height) return { width: 800, height: 1000 };
-  const aspect = width / height;
-  if (aspect > MAX_TILE_ASPECT) return { width: Math.round(height * MAX_TILE_ASPECT), height };
-  if (aspect < MIN_TILE_ASPECT) return { width, height: Math.round(width / MIN_TILE_ASPECT) };
-  return { width, height };
-}
-
 export function toGalleryPhoto(a: ArtworkListing, scope: Scope | null = null): GalleryPhoto {
-  const { width, height } = clampTileDims(a.width ?? 800, a.height ?? 1000);
+  // Pass the real pixel aspect ratio to the row solver. Catalogue
+  // outliers (Chinese handscrolls at 27:1–48:1, Monet Water Lilies
+  // panels) land on their own row at the natural full-width strip
+  // height — clamping the aspect previously forced them into pairs
+  // with normal tiles, which made the row collapse to ~30 px tall and
+  // the panorama unrecognisable. Solo wide strips read as the actual
+  // panorama; one row to the user.
   return {
     src: a.objectKey,
     variantWidths: a.variantWidths,
-    width,
-    height,
+    width: a.width ?? 800,
+    height: a.height ?? 1000,
     key: a.id,
     alt: artworkAlt(a),
     href: artworkHref(a.id, scope),
@@ -95,21 +78,99 @@ export function ArtworkGallery({
     () => artworks.map((a) => toGalleryPhoto(a, activeScope)),
     [artworks, activeScope],
   );
-  const seed = useMemo(() => photos.slice(0, initialSeed), [photos, initialSeed]);
 
-  const fetchPage = useCallback(
-    async (index: number): Promise<GalleryPhoto[] | null> => {
-      const start = initialSeed + index * pageSize;
-      const localPage = photos.slice(start, start + pageSize);
-      if (localPage.length > 0) return localPage;
-      if (!hasMoreArtworks || !loadMoreArtworks) return null;
+  // Materialise tiles in pages of `pageSize`, starting at `initialSeed`.
+  // We deliberately do NOT use react-photo-album/scroll here: its
+  // `singleton` mode wraps every tile in an <Offscreen> recycler that
+  // swaps real tiles for `width: 100%` placeholder <div>s once they
+  // pass the rootMargin window. Those placeholders lack the
+  // `react-photo-album--photo` class, so the rows.css `calc(... *
+  // --photo-width)` rule that gives each tile its row-share is lost,
+  // and the layout collapses to a column-like arrangement with large
+  // unjustified gaps. The library's `offscreenRootMargin="100000px"`
+  // escape hatch only papered over part of it — once a tile was ever
+  // captured offscreen, the placeholder dimensions stuck. Easier to
+  // just render every loaded tile fully. Each is a lazy <img>, so the
+  // DOM cost is small (~1000 nodes at the largest scope).
+  const [loadedCount, setLoadedCount] = useState(() => Math.min(initialSeed, photos.length));
+  const [extraPages, setExtraPages] = useState<GalleryPhoto[][]>([]);
+  const [fetchingExtra, setFetchingExtra] = useState(false);
+  const [exhausted, setExhausted] = useState(false);
 
-      const nextArtworks = await loadMoreArtworks();
-      if (nextArtworks.length === 0) return null;
-      return nextArtworks.map((a) => toGalleryPhoto(a, activeScope));
-    },
-    [photos, pageSize, initialSeed, hasMoreArtworks, loadMoreArtworks, activeScope],
-  );
+  // Reset on filter/sort change. The parent bumps `resetKey`.
+  // biome-ignore lint/correctness/useExhaustiveDependencies: deliberate — reset on key change
+  useEffect(() => {
+    setLoadedCount(Math.min(initialSeed, photos.length));
+    setExtraPages([]);
+    setFetchingExtra(false);
+    setExhausted(false);
+  }, [resetKey, initialSeed, photos.length]);
+
+  const localExhausted = loadedCount >= photos.length;
+
+  const loadMore = useCallback(async () => {
+    if (fetchingExtra || exhausted) return;
+    // First, exhaust the local slice from `photos`.
+    if (!localExhausted) {
+      setLoadedCount((n) => Math.min(n + pageSize, photos.length));
+      return;
+    }
+    // Local set is drained — ask the server for the next page if the
+    // parent gave us a fetcher.
+    if (!hasMoreArtworks || !loadMoreArtworks) {
+      setExhausted(true);
+      return;
+    }
+    setFetchingExtra(true);
+    try {
+      const next = await loadMoreArtworks();
+      if (next.length === 0) {
+        setExhausted(true);
+      } else {
+        setExtraPages((pages) => [...pages, next.map((a) => toGalleryPhoto(a, activeScope))]);
+      }
+    } finally {
+      setFetchingExtra(false);
+    }
+  }, [
+    fetchingExtra,
+    exhausted,
+    localExhausted,
+    pageSize,
+    photos.length,
+    hasMoreArtworks,
+    loadMoreArtworks,
+    activeScope,
+  ]);
+
+  // Sentinel observed by an IntersectionObserver well below the visible
+  // gallery. When it enters the prefetch window we call loadMore(). The
+  // 2400 px rootMargin matches what we used to pass to the library's
+  // InfiniteScroll — keeps the next batch on screen before the previous
+  // one's trailing row could become visible.
+  const sentinelRef = useRef<HTMLDivElement | null>(null);
+  useEffect(() => {
+    const node = sentinelRef.current;
+    if (!node) return;
+    if (typeof IntersectionObserver === "undefined") {
+      loadMore();
+      return;
+    }
+    const io = new IntersectionObserver(
+      (entries) => {
+        for (const e of entries) if (e.isIntersecting) loadMore();
+      },
+      { rootMargin: "2400px" },
+    );
+    io.observe(node);
+    return () => io.disconnect();
+  }, [loadMore]);
+
+  const visiblePhotos = useMemo(() => {
+    const head = photos.slice(0, loadedCount);
+    if (extraPages.length === 0) return head;
+    return head.concat(...extraPages);
+  }, [photos, loadedCount, extraPages]);
 
   const rowHeight = targetRowHeight ?? ((w: number) => (w < 640 ? 160 : w < 1024 ? 220 : 260));
 
@@ -117,68 +178,21 @@ export function ArtworkGallery({
     return <div className="py-16 text-center text-[var(--muted-foreground)]">No works.</div>;
   }
 
+  const finished = exhausted || (localExhausted && !hasMoreArtworks);
+
   return (
-    <InfiniteScroll
-      key={resetKey ?? "all"}
-      photos={seed}
-      fetch={fetchPage}
-      // Solve a single row layout across every fetched batch — without this,
-      // InfiniteScroll renders one RowsPhotoAlbum per batch and each batch
-      // ends with an unjustified last row, producing a visible stair-step
-      // at every page boundary. Per-tile offscreen virtualisation still
-      // applies via the library's `track` render prop.
-      singleton
-      // Trigger the next-batch fetch well before the trailing edge of
-      // the currently-loaded photos can enter the viewport. With
-      // `singleton` mode the album's literal "last row" is the moving
-      // edge of fetched-but-not-yet-justified photos; if that row
-      // becomes visible before the next batch lands, the row solver
-      // hasn't seen enough photos to fill it, and the row renders
-      // un-justified.
-      fetchRootMargin="2400px"
-      // Effectively disable react-photo-album's offscreen tile recycler.
-      //
-      // In `singleton` mode the library wraps every tile in an
-      // <Offscreen> that swaps the tile's element for a bare
-      //   <div style={{ width: "100%", aspectRatio, margin }} />
-      // once it scrolls past `offscreenRootMargin`. The replacement div
-      // does NOT carry the `react-photo-album--photo` class — so the
-      // CSS `calc(... * --photo-width)` rule that gives each tile its
-      // share of the row width is lost. Inside the flex row that becomes
-      // `width: 100%`, which flex resolves as a full-row item:
-      // sibling tiles in the row get pushed around, the next row's
-      // `--container-width` math no longer matches the rendered widths,
-      // and you see the column-like gap reported on the era and
-      // gallery-browser surfaces.
-      //
-      // Going huge here keeps every loaded tile fully rendered (each is
-      // just a lazy <img>, so even ~1000 tiles is manageable) and the
-      // layout stays a clean rows-layout. The fetchRootMargin still
-      // gates how aggressively new batches load.
-      offscreenRootMargin="100000px"
-      loading={
-        <div className="py-6 text-center text-sm text-[var(--muted-foreground)]">Loading more…</div>
-      }
-      finished={
-        <div className="py-6 text-center text-sm text-[var(--muted-foreground)]">— end —</div>
-      }
-    >
+    <div key={resetKey ?? "all"}>
       <RowsPhotoAlbum
-        photos={[]}
+        photos={visiblePhotos}
         targetRowHeight={rowHeight}
         spacing={6}
         sizes={{ size: "640px" }}
-        // Forbid single-photo rows. They show up for two distinct
-        // reasons and both look broken:
-        //   1. An aspect-ratio outlier (e.g. a Chinese handscroll the
-        //      clamp above missed) forces the solver to give it its
-        //      own row at a tiny height.
-        //   2. The trailing edge of the loaded set, where the solver
-        //      hasn't seen enough photos to combine the last one with
-        //      neighbours.
-        // Capping maxPhotos keeps the DP solver's branching factor
-        // bounded as the singleton album grows past ~1000 photos.
-        rowConstraints={{ minPhotos: 2, maxPhotos: 8 }}
+        // Cap maxPhotos to keep the DP solver's branching factor bounded
+        // as the album grows past ~1000 photos. No minPhotos: handscrolls
+        // (aspect 27:1+) MUST be allowed to land on their own row at a
+        // thin strip; pairing them with a normal tile collapses the row
+        // height for both and reads worse than the strip.
+        rowConstraints={{ maxPhotos: 8 }}
         render={{
           link: ({ href, children, className, ...rest }, { photo }) => {
             const p = photo as GalleryPhoto;
@@ -213,6 +227,13 @@ export function ArtworkGallery({
           },
         }}
       />
-    </InfiniteScroll>
+      <div ref={sentinelRef} aria-hidden style={{ width: 1, height: 1 }} />
+      {fetchingExtra && (
+        <div className="py-6 text-center text-sm text-[var(--muted-foreground)]">Loading more…</div>
+      )}
+      {finished && (
+        <div className="py-6 text-center text-sm text-[var(--muted-foreground)]">— end —</div>
+      )}
+    </div>
   );
 }
