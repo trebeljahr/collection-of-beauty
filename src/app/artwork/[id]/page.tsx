@@ -233,7 +233,6 @@ export default async function ArtworkPage({
           </div>
 
           <div className="flex flex-wrap items-center gap-2">
-            {art.movement && <Badge variant="secondary">{art.movement}</Badge>}
             {era && (
               <Link
                 href={`/era/${era.id}`}
@@ -242,7 +241,6 @@ export default async function ArtworkPage({
                 <Badge variant="outline">{era.title}</Badge>
               </Link>
             )}
-            {art.nationality && <Badge variant="outline">{art.nationality}</Badge>}
             <LicenseBadge license={art.license} />
           </div>
 
