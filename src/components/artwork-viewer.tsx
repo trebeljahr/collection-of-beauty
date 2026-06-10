@@ -39,6 +39,14 @@ export function ArtworkViewer({ art, prevId, nextId, scope = null }: Props) {
     if (nextHref) router.prefetch(nextHref);
   }, [prevHref, nextHref, router]);
 
+  // Force scroll to top on prev/next navigation. Next.js App Router's
+  // default scroll handling for same-layout, same-segment transitions
+  // leaves the viewport anchored near the previous artwork's h1, which
+  // hides the top nav row ("Back to gallery", Previous, Next).
+  useEffect(() => {
+    window.scrollTo(0, 0);
+  }, [art.id]);
+
   // Page-level keyboard navigation. Skipped while the lightbox is open —
   // the lightbox binds its own arrows that swap the modal image instead.
   useEffect(() => {
