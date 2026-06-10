@@ -110933,21 +110933,29 @@
     },
     "Utagawa_Hiroshige_I,_published_by_Uoya_Eikichi_-_Horikiri_Iris_Garden_(Horikiri_no_hanashōbu),_from_the_series_One_Hundred_Famous_Views_of_Edo_(Meish..._-_Google_Art_Project.jpg": {
       "filename": "Utagawa_Hiroshige_I,_published_by_Uoya_Eikichi_-_Horikiri_Iris_Garden_(Horikiri_no_hanashōbu),_from_the_series_One_Hundred_Famous_Views_of_Edo_(Meish..._-_Google_Art_Project.jpg",
-      "resolved": false,
-      "needs_review": true,
-      "title": "Utagawa Hiroshige I, published by Uoya Eikichi - Horikiri Iris Garden (Horikiri no hanashōbu), from the series One Hundred Famous Views of Edo (Meish... - Google Art Project",
-      "artist": null,
-      "date_created": null,
+      "resolved": true,
+      "needs_review": false,
+      "title": "Horikiri Iris Garden (Horikiri no hanashōbu), from the series One Hundred Famous Views of Edo (Meisho Edo hyakkei)",
+      "artist": "Utagawa Hiroshige",
+      "date_created": "1857",
+      "year": 1857,
+      "description": "Tall purple irises rise into the foreground so close that the visitors strolling beyond them are reduced to small dark heads. Designed in 1857 for the series One Hundred Famous Views of Edo, on which Hiroshige was still working when he died of cholera the following autumn. Published by Uoya Eikichi.",
       "source": {
-        "type": "unknown",
-        "url": null
+        "type": "Wikimedia Commons",
+        "canonical_title": "File:Utagawa Hiroshige I, published by Uoya Eikichi - Horikiri Iris Garden (Horikiri no hanashōbu), from the series One Hundred Famous Views of Edo (Meish... - Google Art Project.jpg",
+        "url": "https://commons.wikimedia.org/wiki/File:Utagawa_Hiroshige_I,_published_by_Uoya_Eikichi_-_Horikiri_Iris_Garden_(Horikiri_no_hanash%C5%8Dbu),_from_the_series_One_Hundred_Famous_Views_of_Edo_(Meish..._-_Google_Art_Project.jpg",
+        "file_url": "https://upload.wikimedia.org/wikipedia/commons/f/fa/Utagawa_Hiroshige_I%2C_published_by_Uoya_Eikichi_-_Horikiri_Iris_Garden_%28Horikiri_no_hanash%C5%8Dbu%29%2C_from_the_series_One_Hundred_Famous_Views_of_Edo_%28Meish..._-_Google_Art_Project.jpg",
+        "credit": "Museum of Fine Arts Boston (William Sturgis Bigelow Collection, 11.16827) via Google Art Project / Wikimedia Commons",
+        "permission": null,
+        "attribution": null
       },
       "copyright": {
-        "copyrighted": null,
-        "license": null,
-        "notes": "Not found on Wikimedia Commons; needs manual review."
+        "copyrighted": false,
+        "license_short": "Public domain",
+        "license_url": "https://en.wikipedia.org/wiki/Public_domain",
+        "usage_terms": "Public domain — author died 1858 (pre-1929)"
       },
-      "year": null
+      "year_source": "manual_review"
     },
     "Utagawa_Kunisada_(1857)_Imayō_mitate_shinō_kōshō_yori_shokunin.jpg": {
       "filename": "Utagawa_Kunisada_(1857)_Imayō_mitate_shinō_kōshō_yori_shokunin.jpg",
