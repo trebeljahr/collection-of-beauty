@@ -1079,10 +1079,23 @@
       "name": "Frederic Leighton",
       "aliases": [
         "Frederic Leighton",
-        "Leighton"
+        "Frederic, Lord Leighton",
+        "Lord Leighton"
       ],
       "born": 1830,
       "died": 1896,
+      "nationality": "English",
+      "movement": "Academicism",
+      "pd_status": "public_domain_worldwide"
+    },
+    {
+      "name": "Edmund Blair Leighton",
+      "aliases": [
+        "Edmund Blair Leighton",
+        "E. Blair Leighton"
+      ],
+      "born": 1853,
+      "died": 1922,
       "nationality": "English",
       "movement": "Academicism",
       "pd_status": "public_domain_worldwide"
