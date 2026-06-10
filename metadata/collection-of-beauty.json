@@ -3,9 +3,9 @@
   "kind": "wikimedia_image_collection",
   "generated_at": "2026-06-04T08:04:00.955Z",
   "source_api": "Wikimedia Commons action=query&prop=imageinfo",
-  "file_count": 3536,
-  "resolved_count": 2873,
-  "unresolved_count": 667,
+  "file_count": 3535,
+  "resolved_count": 2869,
+  "unresolved_count": 666,
   "entries": {
     "_Horror__from_Le_Brun,_Wellcome_L0012156.jpg": {
       "filename": "_Horror__from_Le_Brun,_Wellcome_L0012156.jpg",
@@ -61934,32 +61934,6 @@
         "pd_status": "public_domain_worldwide"
       },
       "year_source": "description"
-    },
-    "Kunisada_futamigaura.jpg": {
-      "filename": "Kunisada_futamigaura.jpg",
-      "resolved": true,
-      "needs_review": false,
-      "title": "Kunisada futamigaura",
-      "artist": "Utagawa Kunisada",
-      "date_created": "circa 1832",
-      "year": 1832,
-      "description": "Utagawa Kunisada's design of the Wedded Rocks at Futami-ga-ura, the Shinto sunrise pilgrimage site on Ise Bay.",
-      "source": {
-        "type": "Wikimedia Commons",
-        "canonical_title": "File:Kunisada futamigaura.jpg",
-        "url": "https://commons.wikimedia.org/wiki/File%3AKunisada_futamigaura.jpg",
-        "file_url": "https://upload.wikimedia.org/wikipedia/commons/7/7c/Kunisada_futamigaura.jpg",
-        "credit": "Transferred from en.wikipedia to Commons.",
-        "permission": null,
-        "attribution": null
-      },
-      "copyright": {
-        "copyrighted": false,
-        "license_short": "Public domain",
-        "license_url": null,
-        "usage_terms": "Public domain"
-      },
-      "year_source": "date_created_plain"
     },
     "Kuniyoshi_Utagawa,_At_the_shore_of_the_Sumida_river.jpg": {
       "filename": "Kuniyoshi_Utagawa,_At_the_shore_of_the_Sumida_river.jpg",
