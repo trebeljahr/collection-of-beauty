@@ -26,12 +26,35 @@ export type GalleryPhoto = {
   year: number | null;
 };
 
+// The row solver uses `width / height` as the photo aspect and packs
+// rows to minimise (commonHeight − targetRowHeight)². Catalogue
+// outliers like Chinese handscrolls reach 48:1 (the 22517×470 "Ten
+// Thousand Miles of the Yangtze River") which forces the solver to
+// either put the panorama on its own row at ~5 px tall or pair it
+// with another photo and produce a degenerate row that leaves visible
+// gaps. The artwork pages still get the real pixel dimensions via
+// `srcWidth`/`srcHeight`; only the tile aspect used for layout is
+// clamped. Tiles end up object-fit:cover-cropped to the clamped
+// rectangle in the gallery card, which is the same treatment every
+// other thumbnail gets.
+const MAX_TILE_ASPECT = 3.5;
+const MIN_TILE_ASPECT = 1 / 3;
+
+function clampTileDims(width: number, height: number): { width: number; height: number } {
+  if (!width || !height) return { width: 800, height: 1000 };
+  const aspect = width / height;
+  if (aspect > MAX_TILE_ASPECT) return { width: Math.round(height * MAX_TILE_ASPECT), height };
+  if (aspect < MIN_TILE_ASPECT) return { width, height: Math.round(width / MIN_TILE_ASPECT) };
+  return { width, height };
+}
+
 export function toGalleryPhoto(a: ArtworkListing, scope: Scope | null = null): GalleryPhoto {
+  const { width, height } = clampTileDims(a.width ?? 800, a.height ?? 1000);
   return {
     src: a.objectKey,
     variantWidths: a.variantWidths,
-    width: a.width ?? 800,
-    height: a.height ?? 1000,
+    width,
+    height,
     key: a.id,
     alt: artworkAlt(a),
     href: artworkHref(a.id, scope),
@@ -105,7 +128,16 @@ export function ArtworkGallery({
       // at every page boundary. Per-tile offscreen virtualisation still
       // applies via the library's `track` render prop.
       singleton
-      fetchRootMargin="1200px"
+      // Trigger the next-batch fetch well before the trailing edge of
+      // the currently-loaded photos can enter the viewport. With
+      // `singleton` mode the album's literal "last row" is the moving
+      // edge of fetched-but-not-yet-justified photos; if that row
+      // becomes visible before the next batch lands, the row solver
+      // hasn't seen enough photos to fill it, and the row renders
+      // un-justified — leaving the gap that prompted this comment.
+      // Matching offscreenRootMargin keeps prefetch and recycle
+      // windows symmetric.
+      fetchRootMargin="2400px"
       offscreenRootMargin="2400px"
       loading={
         <div className="py-6 text-center text-sm text-[var(--muted-foreground)]">Loading more…</div>
@@ -119,6 +151,17 @@ export function ArtworkGallery({
         targetRowHeight={rowHeight}
         spacing={6}
         sizes={{ size: "640px" }}
+        // Forbid single-photo rows. They show up for two distinct
+        // reasons and both look broken:
+        //   1. An aspect-ratio outlier (e.g. a Chinese handscroll the
+        //      clamp above missed) forces the solver to give it its
+        //      own row at a tiny height.
+        //   2. The trailing edge of the loaded set, where the solver
+        //      hasn't seen enough photos to combine the last one with
+        //      neighbours.
+        // Capping maxPhotos keeps the DP solver's branching factor
+        // bounded as the singleton album grows past ~1000 photos.
+        rowConstraints={{ minPhotos: 2, maxPhotos: 8 }}
         render={{
           link: ({ href, children, className, ...rest }, { photo }) => {
             const p = photo as GalleryPhoto;
