@@ -862,7 +862,7 @@
         "license_url": null,
         "usage_terms": "Public domain"
       },
-      "year_source": "wikidata-inception"
+      "year_source": "date_created_plain"
     },
     "(Barcelona)_Shipping_-_1825-30_-_William_Turner_in_Tate_Britain.jpg": {
       "filename": "(Barcelona)_Shipping_-_1825-30_-_William_Turner_in_Tate_Britain.jpg",
@@ -939,7 +939,8 @@
         "license_short": "Public domain",
         "license_url": null,
         "usage_terms": "Public domain"
-      }
+      },
+      "year_source": "date_created_plain"
     },
     "(Barcelona)_The_Lake,_Petworth,_Sunset;_Sample_Study_-_William_Turner_-_Tate_Britain.jpg": {
       "filename": "(Barcelona)_The_Lake,_Petworth,_Sunset;_Sample_Study_-_William_Turner_-_Tate_Britain.jpg",
@@ -964,7 +965,8 @@
         "license_short": "Public domain",
         "license_url": null,
         "usage_terms": "Public domain"
-      }
+      },
+      "year_source": "date_created_plain"
     },
     "(Barcelona)_The_New_Moon;_or,_‘I’ve_lost_My_Boat,_You_shan’t_have_Your_Hoop’_-_William_Turner_-_Tate_Britain.jpg": {
       "filename": "(Barcelona)_The_New_Moon;_or,_‘I’ve_lost_My_Boat,_You_shan’t_have_Your_Hoop’_-_William_Turner_-_Tate_Britain.jpg",
@@ -989,7 +991,8 @@
         "license_short": "Public domain",
         "license_url": null,
         "usage_terms": "Public domain"
-      }
+      },
+      "year_source": "date_created_plain"
     },
     "(Venice)_Aristotele_by_Francesco_Hayez_in_gallerie_Accademia_Venice.jpg": {
       "filename": "(Venice)_Aristotele_by_Francesco_Hayez_in_gallerie_Accademia_Venice.jpg",
@@ -998,7 +1001,7 @@
       "title": "(Venice) Aristotele by Francesco Hayez in gallerie Accademia Venice",
       "artist": "Francesco Hayez",
       "date_created": "Taken on 9 May 2023",
-      "year": 1811,
+      "year": null,
       "description": "A sober half-length study of the ancient philosopher, draped and meditative, painted by Hayez as a young artist in Venice. The work is an early example of the polished historicism that would later make him the leading painter of Risorgimento-era Italy, and it remains in the Gallerie dell'Accademia in the city where he trained.",
       "source": {
         "type": "Wikimedia Commons",
@@ -1039,7 +1042,8 @@
         "license_short": "Public domain",
         "license_url": null,
         "usage_terms": "Public domain"
-      }
+      },
+      "year_source": "date_created_plain"
     },
     "01_-_Ichikobu_Bridge.jpg": {
       "filename": "01_-_Ichikobu_Bridge.jpg",
@@ -2021,7 +2025,7 @@
           "fr": "Intérieur d'atelier"
         }
       },
-      "year_source": "audit-research"
+      "year_source": "date_created_plain"
     },
     "1520_Portrait_of_a_woman_(Q._Massys).jpg": {
       "filename": "1520_Portrait_of_a_woman_(Q._Massys).jpg",
@@ -3044,8 +3048,8 @@
       "needs_review": false,
       "title": "1993-151-1-pma2018",
       "artist": "Claude Monet",
-      "date_created": "1888-08-08",
-      "year": 1888,
+      "date_created": null,
+      "year": null,
       "description": "Painting by Claude Monet W1191",
       "source": {
         "type": "Wikimedia Commons",
@@ -3073,8 +3077,7 @@
         "nationality": "French",
         "movement": "Impressionism",
         "pd_status": "public_domain_worldwide"
-      },
-      "year_source": "date_created_plain"
+      }
     },
     "19_-_The_Seven_Ri_Beach.jpg": {
       "filename": "19_-_The_Seven_Ri_Beach.jpg",
@@ -4001,8 +4004,8 @@
       "needs_review": false,
       "title": "2022-06-24 at 13-35-16 Pêches (C Monet - W 952)",
       "artist": "Claude Monet",
-      "date_created": "1885-05-05",
-      "year": 1885,
+      "date_created": null,
+      "year": null,
       "description": "Monet Peaches W 952",
       "source": {
         "type": "Wikimedia Commons",
@@ -4030,8 +4033,7 @@
         "nationality": "French",
         "movement": "Impressionism",
         "pd_status": "public_domain_worldwide"
-      },
-      "year_source": "date_created_plain"
+      }
     },
     "2022-06-24_at_13-41-59_W_967_Monet_-_L'Entrée_de_Giverny_en_hiver_1885.png": {
       "filename": "2022-06-24_at_13-41-59_W_967_Monet_-_L'Entrée_de_Giverny_en_hiver_1885.png",
@@ -4039,7 +4041,7 @@
       "needs_review": false,
       "title": "2022-06-24 at 13-41-59 W 967 Monet - L'Entrée de Giverny en hiver 1885",
       "artist": "Claude Monet",
-      "date_created": "1885-05-05",
+      "date_created": null,
       "year": 1885,
       "description": "L'Entrée de Giverny en hiver 1885 W967",
       "source": {
@@ -4069,7 +4071,7 @@
         "movement": "Impressionism",
         "pd_status": "public_domain_worldwide"
       },
-      "year_source": "date_created_plain"
+      "year_source": "filename"
     },
     "20_-_The_Entrance_Gate_at_Enoshima.jpg": {
       "filename": "20_-_The_Entrance_Gate_at_Enoshima.jpg",
@@ -5135,7 +5137,7 @@
         "movement": "Impressionism",
         "pd_status": "public_domain_worldwide"
       },
-      "year_source": "audit-research"
+      "year_source": "date_created_plain"
     },
     "36_-_The_Hoda_Coast.jpg": {
       "filename": "36_-_The_Hoda_Coast.jpg",
@@ -5254,7 +5256,7 @@
           "nl": "Studie van een oude vrouw"
         }
       },
-      "year_source": "wikidata-inception"
+      "year_source": "date_created_plain"
     },
     "500px-Gipsen_vrouwentorso_-_s0199V1962_-_Van_Gogh_Museum.jpg": {
       "filename": "500px-Gipsen_vrouwentorso_-_s0199V1962_-_Van_Gogh_Museum.jpg",
@@ -5658,7 +5660,7 @@
         "movement": "Northern Renaissance",
         "pd_status": "public_domain_worldwide"
       },
-      "year_source": "audit-met-batch"
+      "year_source": "date_created_plain"
     },
     "A_Friendly_Call.jpeg": {
       "filename": "A_Friendly_Call.jpeg",
@@ -6058,7 +6060,7 @@
         "movement": "Ukiyo-e",
         "pd_status": "public_domain_worldwide"
       },
-      "year_source": "audit-research"
+      "year_source": "date_created_plain"
     },
     "A_female_martyr_saint,_probably_Saint_Catherine_of_Alexandria.jpg": {
       "filename": "A_female_martyr_saint,_probably_Saint_Catherine_of_Alexandria.jpg",
@@ -7376,7 +7378,7 @@
         "license_url": "http://creativecommons.org/publicdomain/zero/1.0/deed.en",
         "usage_terms": "Creative Commons Zero, Public Domain Dedication"
       },
-      "year_source": "audit-research"
+      "year_source": "date_created_plain"
     },
     "Albert_Gleizes,_1910,_Femme_aux_Phlox,_oil_on_canvas,_81_x_100_cm,_exhibited_Armory_Show,_New_York,_1913,_The_Museum_of_Fine_Arts,_Houston..jpg": {
       "filename": "Albert_Gleizes,_1910,_Femme_aux_Phlox,_oil_on_canvas,_81_x_100_cm,_exhibited_Armory_Show,_New_York,_1913,_The_Museum_of_Fine_Arts,_Houston..jpg",
@@ -7844,7 +7846,7 @@
       "resolved": true,
       "needs_review": false,
       "title": "Albinus skeleton w less muscles",
-      "artist": "McLeod",
+      "artist": "Jan Wandelaar",
       "date_created": "2008-01",
       "year": 1697,
       "description": "Bernhard Siegfried Albinus (1697-1770): Tables of the Skeleton and Muscles of the Human Body, 1749.",
@@ -7870,7 +7872,7 @@
       "resolved": true,
       "needs_review": false,
       "title": "Albinus skeleton w muscles",
-      "artist": "McLeod",
+      "artist": "Jan Wandelaar",
       "date_created": "2008-01",
       "year": 1697,
       "description": "Bernhard Siegfried Albinus (1697-1770): Tables of the Skeleton and Muscles of the Human Body, 1749.",
@@ -10962,7 +10964,7 @@
         "movement": "Orientalism",
         "pd_status": "public_domain_worldwide"
       },
-      "year_source": "audit-research"
+      "year_source": "date_created_plain"
     },
     "Arcimboldo_-_Les_saisons_-_L'automne.jpg": {
       "filename": "Arcimboldo_-_Les_saisons_-_L'automne.jpg",
@@ -11780,7 +11782,7 @@
         "license_url": "https://creativecommons.org/licenses/by-sa/4.0",
         "usage_terms": "Creative Commons Attribution-Share Alike 4.0"
       },
-      "year_source": "wikidata-inception"
+      "year_source": "date_created_plain"
     },
     "At_The_Stock_Exchange.jpg": {
       "filename": "At_The_Stock_Exchange.jpg",
@@ -12110,7 +12112,8 @@
         "license_short": "Public domain",
         "license_url": null,
         "usage_terms": "Public domain"
-      }
+      },
+      "year_source": "date_created_plain"
     },
     "Autoportrait_au_turban_(Perpignan).jpg": {
       "filename": "Autoportrait_au_turban_(Perpignan).jpg",
@@ -13183,7 +13186,7 @@
       "resolved": true,
       "needs_review": false,
       "title": "Madonna and Child with Saints John the Baptist and Elizabeth",
-      "artist": "Giovanni Bellini and workshop",
+      "artist": "Giovanni Bellini",
       "date_created": "between 1490 and 1500 date QS:P,+1500-00-00T00:00:00Z/6,P1319,+1490-00-00T00:00:00Z/9,P1326,+1500-00-00T00:00:00Z/9",
       "year": 1490,
       "description": "sacra conversazione",
@@ -13219,8 +13222,8 @@
       "resolved": true,
       "needs_review": false,
       "title": "Bellini — Madonna and Child 1510",
-      "artist": "Gleb Simonov",
-      "date_created": "2023-12-17",
+      "artist": "Giovanni Bellini",
+      "date_created": "1510",
       "year": 1510,
       "description": "Bellini — Madonna and Child 1510",
       "source": {
@@ -13238,15 +13241,15 @@
         "license_url": "http://creativecommons.org/publicdomain/zero/1.0/deed.en",
         "usage_terms": "Creative Commons Zero, Public Domain Dedication"
       },
-      "year_source": "filename"
+      "year_source": "date_created_plain"
     },
     "Bellini_—_Pietà_Martinengo.jpg": {
       "filename": "Bellini_—_Pietà_Martinengo.jpg",
       "resolved": true,
       "needs_review": false,
       "title": "Bellini — Pietà Martinengo",
-      "artist": "Gleb Simonov",
-      "date_created": "2023-12-20",
+      "artist": "Giovanni Bellini",
+      "date_created": null,
       "year": null,
       "description": "Bellini — Pietà Martinengo",
       "source": {
@@ -13315,7 +13318,7 @@
         "license_url": null,
         "usage_terms": "Public domain"
       },
-      "year_source": "filename"
+      "year_source": "date_created_plain"
     },
     "Bemberg_Fondation_Toulouse_-_Self-portrait_paintings_by_Henri_Fantin-Latour.jpg": {
       "filename": "Bemberg_Fondation_Toulouse_-_Self-portrait_paintings_by_Henri_Fantin-Latour.jpg",
@@ -13341,7 +13344,7 @@
         "license_url": null,
         "usage_terms": "Public domain"
       },
-      "year_source": "wikidata-inception"
+      "year_source": "date_created_plain"
     },
     "Benjamin_Waterhouse_by_Gilbert_Stuart,_1775.png": {
       "filename": "Benjamin_Waterhouse_by_Gilbert_Stuart,_1775.png",
@@ -14877,7 +14880,7 @@
           "nl": "La Vierge à l'Enfant soutenu par un ange sous une guirlande"
         }
       },
-      "year_source": "wikidata-inception"
+      "year_source": "date_created_plain"
     },
     "Botticelli_04_Louvre.jpg": {
       "filename": "Botticelli_04_Louvre.jpg",
@@ -15712,7 +15715,7 @@
           "fr": "Le givre à Giverny"
         }
       },
-      "year_source": "description"
+      "year_source": "date_created_plain"
     },
     "CLAUDE_MONET_1840_-_1926_NYMPHÉAS_AVEC_REFLETS_DE_HAUTES_HERBES.jpg": {
       "filename": "CLAUDE_MONET_1840_-_1926_NYMPHÉAS_AVEC_REFLETS_DE_HAUTES_HERBES.jpg",
@@ -15750,7 +15753,7 @@
         "movement": "Impressionism",
         "pd_status": "public_domain_worldwide"
       },
-      "year_source": "description"
+      "year_source": "date_created_plain"
     },
     "Ca'_Rezzonico_-_Matrimonio_mistico_di_Santa_Caterina_(Inv.236)_-_Biagio_Pupini_detto_Dalle_Lame.jpg": {
       "filename": "Ca'_Rezzonico_-_Matrimonio_mistico_di_Santa_Caterina_(Inv.236)_-_Biagio_Pupini_detto_Dalle_Lame.jpg",
@@ -15776,7 +15779,7 @@
         "license_url": null,
         "usage_terms": "Public domain"
       },
-      "year_source": "audit-research-low"
+      "year_source": "date_created_plain"
     },
     "Cabin_of_the_Customs_Watch_MET_DT1905.jpg": {
       "filename": "Cabin_of_the_Customs_Watch_MET_DT1905.jpg",
@@ -16558,7 +16561,7 @@
       "needs_review": false,
       "title": "Carl Spitzweg - Im Dachstübchen (v.1849)",
       "artist": "Jean-Marc Pascolo",
-      "date_created": "2012-02-17",
+      "date_created": null,
       "year": 1849,
       "description": "The Garret or The Attic (c. 1840s). Private collection",
       "source": {
@@ -17758,7 +17761,7 @@
       "resolved": true,
       "needs_review": false,
       "title": "Charles Le Brun La Colère",
-      "artist": "Bardadrac",
+      "artist": "Charles Le Brun",
       "date_created": "c. 1668",
       "year": 1668,
       "description": "Étude dessinée du peintre Charles Le Brun, tirée de la série Méthode pour apprendre à dessiner les passions .",
@@ -17777,7 +17780,7 @@
         "license_url": "https://creativecommons.org/licenses/by-sa/4.0",
         "usage_terms": "Creative Commons Attribution-Share Alike 4.0"
       },
-      "year_source": "audit-research"
+      "year_source": "date_created_plain"
     },
     "Charles_W._Bartlett_-_Color_woodblock_print,_Charles_W._Bartlett._Amritsar._Woodcut,_1916..jpg": {
       "filename": "Charles_W._Bartlett_-_Color_woodblock_print,_Charles_W._Bartlett._Amritsar._Woodcut,_1916..jpg",
@@ -17902,7 +17905,7 @@
       "needs_review": false,
       "title": "Charles le Brun, The Expressions",
       "artist": "Charles Le Brun",
-      "date_created": "2011-06-08",
+      "date_created": null,
       "year": null,
       "description": "Study of the expressions - Baroque age -",
       "source": {
@@ -18199,8 +18202,8 @@
       "needs_review": false,
       "title": "Chaumiére Italienne",
       "artist": "Unknown author Unknown author",
-      "date_created": "1775-01-01",
-      "year": 1775,
+      "date_created": null,
+      "year": null,
       "description": "Ets gemaakt door Jean-Honoré Fragonard. Getiteld Chaumiére Italienne.",
       "source": {
         "type": "Wikimedia Commons",
@@ -18216,8 +18219,7 @@
         "license_short": "Public domain",
         "license_url": null,
         "usage_terms": "Public domain"
-      },
-      "year_source": "date_created_plain"
+      }
     },
     "Chen_Rong_-_Nine_Dragons.jpg": {
       "filename": "Chen_Rong_-_Nine_Dragons.jpg",
@@ -18412,7 +18414,7 @@
         "license_url": "https://creativecommons.org/licenses/by/4.0",
         "usage_terms": "Creative Commons Attribution 4.0"
       },
-      "year_source": "wikidata-inception"
+      "year_source": "date_created_plain"
     },
     "Christian_IX_of_Denmark_with_family_(Tuxen).jpg": {
       "filename": "Christian_IX_of_Denmark_with_family_(Tuxen).jpg",
@@ -18537,7 +18539,7 @@
           "fr": "Bords de la Seine à Lavacourt"
         }
       },
-      "year_source": "wikidata-inception"
+      "year_source": "date_created_plain"
     },
     "Claude_Monet,_1867,_Regatta_at_Sainte-Adresse,_Metropolitan_Museum_of_Art.jpg": {
       "filename": "Claude_Monet,_1867,_Regatta_at_Sainte-Adresse,_Metropolitan_Museum_of_Art.jpg",
@@ -18820,7 +18822,7 @@
       "needs_review": false,
       "title": "Claude Monet-Soleil couchant à Etretat",
       "artist": "Ji-Elle",
-      "date_created": "2011-06-29",
+      "date_created": null,
       "year": null,
       "description": null,
       "source": {
@@ -20933,8 +20935,8 @@
       "needs_review": false,
       "title": "Rocks at Belle-lle, Port-Domois",
       "artist": "Claude Monet",
-      "date_created": "1886-01-01/1886-12-31",
-      "year": 1886,
+      "date_created": null,
+      "year": null,
       "description": null,
       "source": {
         "type": "Wikimedia Commons",
@@ -20962,15 +20964,14 @@
         "nationality": "French",
         "movement": "Impressionism",
         "pd_status": "public_domain_worldwide"
-      },
-      "year_source": "date_created_plain"
+      }
     },
     "Claude_Monet_-_Sailing_Boat,_Evening_Effect.jpg": {
       "filename": "Claude_Monet_-_Sailing_Boat,_Evening_Effect.jpg",
       "resolved": true,
       "needs_review": false,
       "title": "Claude Monet - Sailing Boat, Evening Effect",
-      "artist": "Dudva",
+      "artist": "Claude Monet",
       "date_created": "1885",
       "year": 1885,
       "description": null,
@@ -20989,7 +20990,7 @@
         "license_url": "https://creativecommons.org/licenses/by-sa/4.0",
         "usage_terms": "Creative Commons Attribution-Share Alike 4.0"
       },
-      "year_source": "audit-research"
+      "year_source": "date_created_plain"
     },
     "Claude_Monet_-_Springtime_-_Google_Art_Project.jpg": {
       "filename": "Claude_Monet_-_Springtime_-_Google_Art_Project.jpg",
@@ -23393,7 +23394,8 @@
         "license_short": "CC BY-SA 4.0",
         "license_url": "https://creativecommons.org/licenses/by-sa/4.0",
         "usage_terms": "Creative Commons Attribution-Share Alike 4.0"
-      }
+      },
+      "year_source": "description"
     },
     "Cole,_Thomas_-_Der_Pokal_des_Riesen_-_hi_res_-_1833.JPG": {
       "filename": "Cole,_Thomas_-_Der_Pokal_des_Riesen_-_hi_res_-_1833.JPG",
@@ -23603,7 +23605,7 @@
       "title": "Colonel John Bullock",
       "artist": "Thomas Gainsborough",
       "date_created": "early 1770s",
-      "year": 1770,
+      "year": 1731,
       "description": "Portrait of Colonel John Bullock (1731-1809)",
       "source": {
         "type": "Wikimedia Commons",
@@ -23632,7 +23634,7 @@
         "movement": "Rococo",
         "pd_status": "public_domain_worldwide"
       },
-      "year_source": "audit-research"
+      "year_source": "description"
     },
     "Columbus_and_His_Son_at_La_Rábida.JPG": {
       "filename": "Columbus_and_His_Son_at_La_Rábida.JPG",
@@ -24828,7 +24830,7 @@
       "resolved": true,
       "needs_review": false,
       "title": "Crucifixion - Andrea Mantegna - Louvre INV 368",
-      "artist": "Wilfredor",
+      "artist": "Andrea Mantegna",
       "date_created": null,
       "year": null,
       "description": "Images from Paris Project",
@@ -24970,8 +24972,8 @@
       "needs_review": false,
       "title": "Danceringreen",
       "artist": "Edgar Degas",
-      "date_created": "1877-01-02",
-      "year": 1877,
+      "date_created": null,
+      "year": null,
       "description": "Edgar Degas.",
       "source": {
         "type": "Wikimedia Commons",
@@ -24999,8 +25001,7 @@
         "nationality": "French",
         "movement": "Impressionism",
         "pd_status": "public_domain_worldwide"
-      },
-      "year_source": "date_created_plain"
+      }
     },
     "Dancers-(1900)-Degas.jpg": {
       "filename": "Dancers-(1900)-Degas.jpg",
@@ -26205,7 +26206,7 @@
         "movement": "Northern Renaissance",
         "pd_status": "public_domain_worldwide"
       },
-      "year_source": "audit-research"
+      "year_source": "date_created_plain"
     },
     "Degas,_A_Woman_Seated_beside_a_Vase_of_Flowers_(Madame_Paul_Valpinçon).jpg": {
       "filename": "Degas,_A_Woman_Seated_beside_a_Vase_of_Flowers_(Madame_Paul_Valpinçon).jpg",
@@ -26956,7 +26957,7 @@
       "needs_review": false,
       "title": "Don Quijote illustrated by Gustav Dore V",
       "artist": "Gustave Dore",
-      "date_created": "2016-02-24",
+      "date_created": null,
       "year": null,
       "description": "Don Quijote illustrated by Gustav Dore VI.",
       "source": {
@@ -27593,8 +27594,8 @@
       "needs_review": false,
       "title": "E1924-3-16-pma2018",
       "artist": "Claude Monet",
-      "date_created": "1888-08-08",
-      "year": 1888,
+      "date_created": null,
+      "year": null,
       "description": "Bend in the River Epte",
       "source": {
         "type": "Wikimedia Commons",
@@ -27622,8 +27623,7 @@
         "nationality": "French",
         "movement": "Impressionism",
         "pd_status": "public_domain_worldwide"
-      },
-      "year_source": "date_created_plain"
+      }
     },
     "EL_JALEO-SINGER.jpg": {
       "filename": "EL_JALEO-SINGER.jpg",
@@ -31167,7 +31167,7 @@
         "movement": "Romanticism",
         "pd_status": "public_domain_worldwide"
       },
-      "year_source": "audit-research"
+      "year_source": "date_created_plain"
     },
     "El_caballero_de_la_mano_en_el_pecho,_by_El_Greco,_from_Prado_in_Google_Earth.jpg": {
       "filename": "El_caballero_de_la_mano_en_el_pecho,_by_El_Greco,_from_Prado_in_Google_Earth.jpg",
@@ -31533,9 +31533,9 @@
       "resolved": true,
       "needs_review": false,
       "title": "Elisabeth Vigée-Lebrun - Self-Portrait with Her Daughter, Julie - WGA25082",
-      "artist": "Unknown author Unknown author",
-      "date_created": null,
-      "year": null,
+      "artist": "Élisabeth Vigée Le Brun",
+      "date_created": "1789",
+      "year": 1789,
       "description": null,
       "source": {
         "type": "Wikimedia Commons",
@@ -31551,7 +31551,8 @@
         "license_short": "Public domain",
         "license_url": null,
         "usage_terms": "Public domain"
-      }
+      },
+      "year_source": "date_created_plain"
     },
     "Elizabeth_Vigee_Lebrun_-_Portrait_of_Mohammed_Dervish_Khan_366N10007_B3Y2Q.jpg": {
       "filename": "Elizabeth_Vigee_Lebrun_-_Portrait_of_Mohammed_Dervish_Khan_366N10007_B3Y2Q.jpg",
@@ -31965,8 +31966,8 @@
       "needs_review": false,
       "title": "Ernst-ludwig-kirchner-sertig-valley-in-autumn",
       "artist": "Ernst Ludwig Kirchner",
-      "date_created": "1920-04-20",
-      "year": 1920,
+      "date_created": null,
+      "year": null,
       "description": "ERNST LUDWIG KIRCHNER",
       "source": {
         "type": "Wikimedia Commons",
@@ -31982,8 +31983,7 @@
         "license_short": "CC0",
         "license_url": "http://creativecommons.org/publicdomain/zero/1.0/deed.en",
         "usage_terms": "Creative Commons Zero, Public Domain Dedication"
-      },
-      "year_source": "date_created_plain"
+      }
     },
     "Ernst_Ludwig_Kirchner,_Female_Nude,_1908,_NGA_70157.jpg": {
       "filename": "Ernst_Ludwig_Kirchner,_Female_Nude,_1908,_NGA_70157.jpg",
@@ -33215,7 +33215,7 @@
         "license_url": "https://creativecommons.org/licenses/by-sa/4.0",
         "usage_terms": "Creative Commons Attribution-Share Alike 4.0"
       },
-      "year_source": "wikidata-inception"
+      "year_source": "date_created_plain"
     },
     "FRAGONARDsisters.jpg": {
       "filename": "FRAGONARDsisters.jpg",
@@ -33248,8 +33248,8 @@
       "resolved": true,
       "needs_review": false,
       "title": "FRANCESCO HAYEZ - Incontro di Giobbe ed Esaù (1844)",
-      "artist": "Daniele.51",
-      "date_created": "2021-11-11 11:17:56",
+      "artist": "Francesco Hayez",
+      "date_created": "1844",
       "year": 1844,
       "description": "The painting illustrates Jacob's return to his homeland, asking forgiveness from his brother Esau for having deceived his birthright. Biblical subjects had a lot of luck around the mid-nineteenth century, as the suffering of the Jewish people recalled the Italian political situation.",
       "source": {
@@ -33267,7 +33267,7 @@
         "license_url": "https://creativecommons.org/licenses/by-sa/4.0",
         "usage_terms": "Creative Commons Attribution-Share Alike 4.0"
       },
-      "year_source": "filename"
+      "year_source": "date_created_plain"
     },
     "Faded_Laurels_by_Edmund_Leighton.jpg": {
       "filename": "Faded_Laurels_by_Edmund_Leighton.jpg",
@@ -33879,7 +33879,7 @@
         "license_url": "https://creativecommons.org/licenses/by-sa/4.0",
         "usage_terms": "Creative Commons Attribution-Share Alike 4.0"
       },
-      "year_source": "wikidata-inception"
+      "year_source": "date_created_plain"
     },
     "Flowers_in_a_Rococo_Vase_A24470.jpg": {
       "filename": "Flowers_in_a_Rococo_Vase_A24470.jpg",
@@ -34356,7 +34356,7 @@
       "resolved": true,
       "needs_review": false,
       "title": "Francesco Hayez - Self Portrait in a Group of Friend - Google Art Project",
-      "artist": "Unknown author Unknown author",
+      "artist": "Francesco Hayez",
       "date_created": null,
       "year": 1824,
       "description": "Self-Portrait in a Group of Friends (1824 or 1827) by Francesco Hayez. Museo Poldi Pezzoli, Milan. Friends: Tommaso Grossi, Giuseppe Molteni, Giovanni Migliara and Pelagio Pelagi",
@@ -34935,7 +34935,7 @@
       "resolved": true,
       "needs_review": false,
       "title": "Francisco de Zurbarán 006",
-      "artist": "Unknown author Unknown author",
+      "artist": "Francisco de Zurbarán",
       "date_created": null,
       "year": 1635,
       "description": "Agnus Dei (c. 1635–1640), 38 cm × 62 cm. Oil on canvas. Museo del Prado",
@@ -36882,8 +36882,8 @@
       "resolved": true,
       "needs_review": false,
       "title": "Gentile and Giovanni Bellini — Saint Mark Preaching in Alexandria",
-      "artist": "Gleb Simonov",
-      "date_created": "2023-12-17",
+      "artist": "Gentile Bellini",
+      "date_created": null,
       "year": null,
       "description": "Gentile and Giovanni Bellini — Saint Mark Preaching in Alexandria",
       "source": {
@@ -36950,7 +36950,7 @@
           "ru": "Есфирь перед Артаксерксом"
         }
       },
-      "year_source": "wikidata-inception"
+      "year_source": "date_created_plain"
     },
     "Gentileschi-Lucrezia-Potsdam.jpg": {
       "filename": "Gentileschi-Lucrezia-Potsdam.jpg",
@@ -37927,7 +37927,7 @@
           "it": "Apparizione dell'angelo a San Giuseppe"
         }
       },
-      "year_source": "audit-research-correction"
+      "year_source": "date_created_plain"
     },
     "Georges_de_La_Tour_044.jpg": {
       "filename": "Georges_de_La_Tour_044.jpg",
@@ -38990,8 +38990,8 @@
       "resolved": true,
       "needs_review": false,
       "title": "Gherardo delle Notti-Supper with a Lute Player",
-      "artist": "AmarChandra",
-      "date_created": "2023-01-01",
+      "artist": "Gerrit van Honthorst",
+      "date_created": null,
       "year": null,
       "description": "Gherritt van Honthorst (Gherardo delle Notti) - Supper with a Lute Player",
       "source": {
@@ -39065,7 +39065,7 @@
       "needs_review": false,
       "title": "Giambattista Pittoni, portrait by Bartolomeo Nazari",
       "artist": "Bartolomeo Nazari (31 May 1693 – 24 August 1758); engraved by Pietro Monaco, photographed by Filippi",
-      "date_created": "2015-08-12",
+      "date_created": null,
       "year": 1907,
       "description": "Portrait of Giambattista Pittoni by Bartolomeo Nazari , reproduced in: Laura Coggiola Pittoni (1907). Dei Pittoni, Artisti Veneti (in Italian). Bergamo: Istituto Italiani d'Arti Grafiche.",
       "source": {
@@ -40036,8 +40036,8 @@
       "resolved": true,
       "needs_review": false,
       "title": "Giovanni Bellini — Holy Allegory",
-      "artist": "Gleb Simonov",
-      "date_created": "2023-12-27",
+      "artist": "Giovanni Bellini",
+      "date_created": null,
       "year": null,
       "description": "Giovanni Bellini — Holy Allegory",
       "source": {
@@ -40087,8 +40087,8 @@
       "resolved": true,
       "needs_review": false,
       "title": "Giovanni bellini, crocifissione in un cimitero ebraico (crocifisso niccolini da camugliano), 1480-85 ca. 04",
-      "artist": "Sailko",
-      "date_created": "2013-10-13 10:42:16",
+      "artist": "Giovanni Bellini",
+      "date_created": null,
       "year": 1480,
       "description": null,
       "source": {
@@ -41061,7 +41061,7 @@
         "movement": "Northern Renaissance",
         "pd_status": "public_domain_worldwide"
       },
-      "year_source": "audit-research"
+      "year_source": "date_created_plain"
     },
     "Group_portrait_of_the_Mir_Iskusstva_artists.jpg": {
       "filename": "Group_portrait_of_the_Mir_Iskusstva_artists.jpg",
@@ -42064,7 +42064,7 @@
         "movement": "Romanticism",
         "pd_status": "public_domain_worldwide"
       },
-      "year_source": "audit-research-low"
+      "year_source": "date_created_plain"
     },
     "Hans_Holbein,_the_Younger_-_Sir_Thomas_More_-_Google_Art_Project.jpg": {
       "filename": "Hans_Holbein,_the_Younger_-_Sir_Thomas_More_-_Google_Art_Project.jpg",
@@ -42682,7 +42682,7 @@
         "movement": "Romanticism",
         "pd_status": "public_domain_worldwide"
       },
-      "year_source": "audit-research"
+      "year_source": "date_created_plain"
     },
     "Harmensz_van_Rijn_Rembrandt_-_Флора_-_Google_Art_Project.jpg": {
       "filename": "Harmensz_van_Rijn_Rembrandt_-_Флора_-_Google_Art_Project.jpg",
@@ -44096,7 +44096,7 @@
       "needs_review": false,
       "title": "Henri Rousseau — The Hungry Lion Throws Itself on the Antelope",
       "artist": "Gsimonov",
-      "date_created": "2023-12-15",
+      "date_created": null,
       "year": null,
       "description": "Henri Rousseau — The Hungry Lion Throws Itself on the Antelope",
       "source": {
@@ -46100,7 +46100,7 @@
         "movement": "Ukiyo-e",
         "pd_status": "public_domain_worldwide"
       },
-      "year_source": "audit-research"
+      "year_source": "date_created_plain"
     },
     "Hokusai_Manga_02.jpg": {
       "filename": "Hokusai_Manga_02.jpg",
@@ -46138,7 +46138,7 @@
         "movement": "Ukiyo-e",
         "pd_status": "public_domain_worldwide"
       },
-      "year_source": "audit-research"
+      "year_source": "date_created_plain"
     },
     "Holbein_Danse_Macabre_1.jpg": {
       "filename": "Holbein_Danse_Macabre_1.jpg",
@@ -47440,7 +47440,7 @@
       "needs_review": false,
       "title": "Holbein — Dead Christ",
       "artist": "Gsimonov",
-      "date_created": "2023-12-15",
+      "date_created": null,
       "year": null,
       "description": "Holbein — Dead Christ",
       "source": {
@@ -47708,7 +47708,7 @@
         "license_url": null,
         "usage_terms": "Public domain"
       },
-      "year_source": "wikidata_qs"
+      "year_source": "date_created_plain"
     },
     "Hugo_van_der_Goes_(Gand,_1440_circa_–_Auderghem,_1482)_Altare_Monforte_-_Adorazione_dei_Magi_(1470_circa)_-_Tecnica_olio_su_tavola_Dimensioni_147×242_cm_-_Gemäldegalerie,_Berlin.jpg": {
       "filename": "Hugo_van_der_Goes_(Gand,_1440_circa_–_Auderghem,_1482)_Altare_Monforte_-_Adorazione_dei_Magi_(1470_circa)_-_Tecnica_olio_su_tavola_Dimensioni_147×242_cm_-_Gemäldegalerie,_Berlin.jpg",
@@ -48050,7 +48050,7 @@
         "movement": "Classical East Asian",
         "pd_status": "public_domain_worldwide"
       },
-      "year_source": "wikidata-low-precision"
+      "year_source": "date_created_plain"
     },
     "Ildefonso-Altar_-_The_Holy_Family_under_the_appletree,_by_Peter_Paul_Rubens.jpg": {
       "filename": "Ildefonso-Altar_-_The_Holy_Family_under_the_appletree,_by_Peter_Paul_Rubens.jpg",
@@ -48593,7 +48593,7 @@
         "movement": "Academicism",
         "pd_status": "public_domain_worldwide"
       },
-      "year_source": "audit-research-low"
+      "year_source": "date_created_plain"
     },
     "Inada_Kyuzo_Shinsuke.jpg": {
       "filename": "Inada_Kyuzo_Shinsuke.jpg",
@@ -48634,7 +48634,7 @@
         "movement": "Ukiyo-e",
         "pd_status": "public_domain_worldwide"
       },
-      "year_source": "audit-research"
+      "year_source": "date_created_plain"
     },
     "Indischer_Maler_um_1615_(I)_001.jpg": {
       "filename": "Indischer_Maler_um_1615_(I)_001.jpg",
@@ -49094,8 +49094,8 @@
       "resolved": true,
       "needs_review": false,
       "title": "Isenheim Altarpiece - Concert of Angels",
-      "artist": "Gleb Simonov",
-      "date_created": "2023-12-14",
+      "artist": "Matthias Grünewald",
+      "date_created": null,
       "year": null,
       "description": "Isenheim Altarpiece - Concert of Angels",
       "source": {
@@ -49119,7 +49119,7 @@
       "resolved": true,
       "needs_review": false,
       "title": "Isenheim Altarpiece - Saints - Left",
-      "artist": "Gleb Simonov",
+      "artist": "Matthias Grünewald",
       "date_created": null,
       "year": null,
       "description": "Isenheim Altarpiece - Saints - Left",
@@ -49144,7 +49144,7 @@
       "resolved": true,
       "needs_review": false,
       "title": "Isenheim Altarpiece - Saints - Right",
-      "artist": "Gleb Simonov",
+      "artist": "Matthias Grünewald",
       "date_created": null,
       "year": null,
       "description": "Isenheim Altarpiece - Saints - Right",
@@ -49170,7 +49170,7 @@
       "needs_review": false,
       "title": "Isenheim Altarpiece — SECOND OPENING",
       "artist": "Gsimonov",
-      "date_created": "2023-12-14",
+      "date_created": null,
       "year": null,
       "description": "Isenheim Altarpiece — SECOND OPENING",
       "source": {
@@ -49635,7 +49635,7 @@
         "movement": "Baroque",
         "pd_status": "public_domain_worldwide"
       },
-      "year_source": "wikidata-inception"
+      "year_source": "date_created_plain"
     },
     "Jacob_Jordaens_-_Prometheus_bound.jpg": {
       "filename": "Jacob_Jordaens_-_Prometheus_bound.jpg",
@@ -49969,8 +49969,8 @@
       "resolved": true,
       "needs_review": false,
       "title": "Jacopo Tintoretto — Creation of the Animals",
-      "artist": "Gleb Simonov",
-      "date_created": "2019-06-30",
+      "artist": "Jacopo Tintoretto",
+      "date_created": null,
       "year": null,
       "description": "Jacopo Tintoretto — Creation of the Animals",
       "source": {
@@ -50606,7 +50606,7 @@
       "needs_review": false,
       "title": "James Abbott McNeill Whistler, Rotherhithe, etching, 1860, Dallas Museum of Art",
       "artist": "James Abbott McNeill Whistler",
-      "date_created": "2011-03-14 16:11:03",
+      "date_created": null,
       "year": 1860,
       "description": "Rotherhithe is an etching by James Abbott McNeill Whistler that was completed in 1860. It is held by the Dallas Museum of Art.",
       "source": {
@@ -52806,7 +52806,7 @@
       "needs_review": false,
       "title": "Jean Metzinger, c.1905, Baigneuses, Deux nus dans un jardin exotique, oil on canvas, 116 x 88.8 cm, Colección Carmen Thyssen-Bornemisza",
       "artist": "Նարե Մանուկյան",
-      "date_created": "2013-09-23",
+      "date_created": null,
       "year": 1905,
       "description": "nk",
       "source": {
@@ -54660,8 +54660,8 @@
       "needs_review": false,
       "title": "John Constable by Ramsay Richard Reinagle",
       "artist": "Ramsay Richard Reinagle",
-      "date_created": "1799-01-01",
-      "year": 1799,
+      "date_created": null,
+      "year": null,
       "description": "John Constable by Ramsay Richard Reinagle",
       "source": {
         "type": "Wikimedia Commons",
@@ -54677,8 +54677,7 @@
         "license_short": "Public domain",
         "license_url": null,
         "usage_terms": "Public domain"
-      },
-      "year_source": "date_created_plain"
+      }
     },
     "John_Everett_Millais_-_Blow_Blow_Thou_Winter_Wind_-_Google_Art_Project.jpg": {
       "filename": "John_Everett_Millais_-_Blow_Blow_Thou_Winter_Wind_-_Google_Art_Project.jpg",
@@ -56184,8 +56183,8 @@
       "resolved": true,
       "needs_review": false,
       "title": "John singleton copley, testa di negro, 1777-78 ca (cropped)",
-      "artist": "Sailko",
-      "date_created": "2016-11-05 19:04:00",
+      "artist": "John Singleton Copley",
+      "date_created": null,
       "year": 1777,
       "description": null,
       "source": {
@@ -56545,7 +56544,7 @@
           "de": "Strand von Calais bei Ebbe, Poissards sammeln Fischköder"
         }
       },
-      "year_source": "wikidata-inception"
+      "year_source": "date_created_plain"
     },
     "Joseph_Mallord_William_Turner_(1775-1851)_-_Cassiobury_Park,_Reaping_-_N04663_-_National_Gallery.jpg": {
       "filename": "Joseph_Mallord_William_Turner_(1775-1851)_-_Cassiobury_Park,_Reaping_-_N04663_-_National_Gallery.jpg",
@@ -56901,7 +56900,7 @@
         "movement": "Romanticism",
         "pd_status": "public_domain_worldwide"
       },
-      "year_source": "wikidata-low-precision"
+      "year_source": "date_created_plain"
     },
     "Joseph_Mallord_William_Turner_(1775-1851)_-_Shipping_by_a_Breakwater_-_N00469_-_National_Gallery.jpg": {
       "filename": "Joseph_Mallord_William_Turner_(1775-1851)_-_Shipping_by_a_Breakwater_-_N00469_-_National_Gallery.jpg",
@@ -57223,7 +57222,7 @@
           "hu": "A trafalgari csata (Turner-kép)"
         }
       },
-      "year_source": "wikidata-inception"
+      "year_source": "date_created_plain"
     },
     "Joseph_Mallord_William_Turner_(1775-1851)_-_The_Confluence_of_the_Thames_and_the_Medway_-_T03874_-_Tate.jpg": {
       "filename": "Joseph_Mallord_William_Turner_(1775-1851)_-_The_Confluence_of_the_Thames_and_the_Medway_-_T03874_-_Tate.jpg",
@@ -59633,8 +59632,8 @@
       "resolved": true,
       "needs_review": false,
       "title": "Jupiter and Juno Annibale Carracci fragment",
-      "artist": "Aleksandr Sur",
-      "date_created": "2022-12-15",
+      "artist": "Annibale Carracci",
+      "date_created": null,
       "year": 1602,
       "description": "Jupiter and Juno (1602), Palazzo Farnese",
       "source": {
@@ -60790,7 +60789,7 @@
       "needs_review": false,
       "title": "Katsushika Hokusai, tempesta sotto la vetta, dalla serie delle 36 vedute del monte fuji, 1831 ca",
       "artist": "Katsushika Hokusai",
-      "date_created": "2017-11-07 05:45:59",
+      "date_created": null,
       "year": 1831,
       "description": "Thunderstorm Beneath the Summit, a Japanese woodblock print by Hokusai",
       "source": {
@@ -60896,7 +60895,7 @@
           "pl": "Wodospad w Yoshino, gdzie Yoshitsune mył swego konia"
         }
       },
-      "year_source": "audit-research"
+      "year_source": "date_created_plain"
     },
     "Katsushika_Hokusai_(1760-1849),_Kirifuri_waterval_bij_de_Kurokami_berg_(1835).jpg": {
       "filename": "Katsushika_Hokusai_(1760-1849),_Kirifuri_waterval_bij_de_Kurokami_berg_(1835).jpg",
@@ -60904,8 +60903,8 @@
       "needs_review": false,
       "title": "下野黒髪山きりふりの滝（しもつけくろかみやまきりふるのたき）",
       "artist": "Katsushika Hokusai",
-      "date_created": "2014-11-25 1835",
-      "year": 1835,
+      "date_created": null,
+      "year": 1760,
       "description": "Katsushika Hokusai (1760-1849), Kirifuri waterfall near Kurokami mountain (1835). Collection of Japanese prints of Centre Céramique, Maastricht, the Netherlands",
       "source": {
         "type": "Wikimedia Commons",
@@ -60934,7 +60933,7 @@
         "movement": "Ukiyo-e",
         "pd_status": "public_domain_worldwide"
       },
-      "year_source": "date_created_plain"
+      "year_source": "filename"
     },
     "Katsushika_Hokusai_(1760-1849),_Ono_waterval_aan_de_Kisokaido_(1835).jpg": {
       "filename": "Katsushika_Hokusai_(1760-1849),_Ono_waterval_aan_de_Kisokaido_(1835).jpg",
@@ -60978,7 +60977,7 @@
           "de": "Ono-Wasserfall am Kisokaido"
         }
       },
-      "year_source": "wikidata-inception"
+      "year_source": "date_created_plain"
     },
     "Katsushika_Hokusai_(1760-1849),_Veld_in_de_Owari_provincie_(1829-33).jpg": {
       "filename": "Katsushika_Hokusai_(1760-1849),_Veld_in_de_Owari_provincie_(1829-33).jpg",
@@ -61022,7 +61021,7 @@
           "de": "Der Wasserfall von Amida hinter der Kiso-Straße (aus der Serie: Wasserfälle in den Provinzen)"
         }
       },
-      "year_source": "wikidata-inception"
+      "year_source": "date_created_plain"
     },
     "Kawase_Ebisu-11.jpg": {
       "filename": "Kawase_Ebisu-11.jpg",
@@ -61426,7 +61425,7 @@
         "license_url": null,
         "usage_terms": "Public domain"
       },
-      "year_source": "audit-research"
+      "year_source": "date_created_plain"
     },
     "Kim_Hong-do,_Kyujanggak.jpg": {
       "filename": "Kim_Hong-do,_Kyujanggak.jpg",
@@ -61903,8 +61902,8 @@
       "needs_review": false,
       "title": "KorinsScreen",
       "artist": "Ogata Kōrin",
-      "date_created": "1716-01-01",
-      "year": 1716,
+      "date_created": null,
+      "year": 1658,
       "description": "This is the screen from Ogata Kōrin's Waves at Matsushima, a painting from 1658 to 1716",
       "source": {
         "type": "Wikimedia Commons",
@@ -61934,7 +61933,7 @@
         "movement": "Classical East Asian",
         "pd_status": "public_domain_worldwide"
       },
-      "year_source": "date_created_plain"
+      "year_source": "description"
     },
     "Kunisada_futamigaura.jpg": {
       "filename": "Kunisada_futamigaura.jpg",
@@ -61960,7 +61959,7 @@
         "license_url": null,
         "usage_terms": "Public domain"
       },
-      "year_source": "description"
+      "year_source": "date_created_plain"
     },
     "Kuniyoshi_Utagawa,_At_the_shore_of_the_Sumida_river.jpg": {
       "filename": "Kuniyoshi_Utagawa,_At_the_shore_of_the_Sumida_river.jpg",
@@ -62787,8 +62786,8 @@
       "resolved": true,
       "needs_review": false,
       "title": "La Fornarina by Raffaello",
-      "artist": "Livioandronico2013",
-      "date_created": "2017-03-05 15:48:17",
+      "artist": "Raphael",
+      "date_created": null,
       "year": 1518,
       "description": "Portrait of a Young Woman (La Fornarina, Raphael's mistress) (1518-1519). Oil on wood, 85 × 60 cm (33 × 24 in). Galleria Nazionale d'Arte Antica, Rome",
       "source": {
@@ -63198,8 +63197,8 @@
       "needs_review": false,
       "title": "La debacle - Monet w562",
       "artist": "Claude Monet",
-      "date_created": "1880-01-01",
-      "year": 1880,
+      "date_created": null,
+      "year": null,
       "description": "La Debacle",
       "source": {
         "type": "Wikimedia Commons",
@@ -63227,8 +63226,7 @@
         "nationality": "French",
         "movement": "Impressionism",
         "pd_status": "public_domain_worldwide"
-      },
-      "year_source": "date_created_plain"
+      }
     },
     "La_famille_Lafitte_(détail).jpg": {
       "filename": "La_famille_Lafitte_(détail).jpg",
@@ -65780,7 +65778,8 @@
         "license_short": "CC BY-SA 4.0",
         "license_url": "https://creativecommons.org/licenses/by-sa/4.0",
         "usage_terms": "Creative Commons Attribution-Share Alike 4.0"
-      }
+      },
+      "year_source": "date_created_plain"
     },
     "Londres_tate_modern_kirchner_baigneurs.jpg": {
       "filename": "Londres_tate_modern_kirchner_baigneurs.jpg",
@@ -68612,7 +68611,7 @@
         "movement": "Classical East Asian",
         "pd_status": "public_domain_worldwide"
       },
-      "year_source": "audit-research"
+      "year_source": "date_created_plain"
     },
     "Macke,_August_-_Promenade_-_Google_Art_Project.jpg": {
       "filename": "Macke,_August_-_Promenade_-_Google_Art_Project.jpg",
@@ -68912,7 +68911,7 @@
         "movement": "Neoclassicism",
         "pd_status": "public_domain_worldwide"
       },
-      "year_source": "wikidata_qs"
+      "year_source": "date_created_plain"
     },
     "Madonna-and-child-Gentileschi.jpg": {
       "filename": "Madonna-and-child-Gentileschi.jpg",
@@ -69563,8 +69562,8 @@
       "needs_review": false,
       "title": "Christ Bearing His Cross",
       "artist": "Martin Schongauer",
-      "date_created": "1470-01-01/1480-12-31",
-      "year": 1470,
+      "date_created": null,
+      "year": null,
       "description": null,
       "source": {
         "type": "Wikimedia Commons",
@@ -69592,8 +69591,7 @@
         "nationality": "German",
         "movement": "Northern Renaissance",
         "pd_status": "public_domain_worldwide"
-      },
-      "year_source": "date_created_plain"
+      }
     },
     "Martin_Schongauer_-_Nativity_-_WGA21041.jpg": {
       "filename": "Martin_Schongauer_-_Nativity_-_WGA21041.jpg",
@@ -70152,7 +70150,7 @@
       "resolved": true,
       "needs_review": false,
       "title": "Matthias Grünewald - Resurrection",
-      "artist": "Gleb Simonov",
+      "artist": "Matthias Grünewald",
       "date_created": null,
       "year": null,
       "description": "Matthias Grünewald - Resurrection",
@@ -72666,7 +72664,7 @@
           "fr": "Glaçons à Bougival"
         }
       },
-      "year_source": "wikidata-inception"
+      "year_source": "date_created_plain"
     },
     "Monet_-_the-bridge-at-bougival.jpg": {
       "filename": "Monet_-_the-bridge-at-bougival.jpg",
@@ -72718,7 +72716,7 @@
       "title": "Monet - yellow-irises-1917",
       "artist": "Claude Monet",
       "date_created": "c. 1914–1917",
-      "year": 1917,
+      "year": 1914,
       "description": "Work by Claude Monet",
       "source": {
         "type": "Wikimedia Commons",
@@ -72747,7 +72745,7 @@
         "movement": "Impressionism",
         "pd_status": "public_domain_worldwide"
       },
-      "year_source": "audit-research"
+      "year_source": "date_created_plain"
     },
     "Monet_1401.jpg": {
       "filename": "Monet_1401.jpg",
@@ -72755,7 +72753,7 @@
       "needs_review": false,
       "title": "Monet 1401",
       "artist": "Claude Monet",
-      "date_created": "2021-01-02",
+      "date_created": null,
       "year": null,
       "description": "Claude Monet, The Fjord near Christiania, W.1401",
       "source": {
@@ -73178,8 +73176,8 @@
       "needs_review": false,
       "title": "Monet W108",
       "artist": "Claude Monet",
-      "date_created": "1868-08-08",
-      "year": 1868,
+      "date_created": null,
+      "year": null,
       "description": "Jean Monet Sleeping",
       "source": {
         "type": "Wikimedia Commons",
@@ -73207,8 +73205,7 @@
         "nationality": "French",
         "movement": "Impressionism",
         "pd_status": "public_domain_worldwide"
-      },
-      "year_source": "date_created_plain"
+      }
     },
     "Monet_Zaandam_1871_Musee_d'Orsay.jpg": {
       "filename": "Monet_Zaandam_1871_Musee_d'Orsay.jpg",
@@ -73398,7 +73395,7 @@
         "movement": "Impressionism",
         "pd_status": "public_domain_worldwide"
       },
-      "year_source": "audit-research"
+      "year_source": "date_created_plain"
     },
     "Monet_w1001.jpg": {
       "filename": "Monet_w1001.jpg",
@@ -73406,8 +73403,8 @@
       "needs_review": false,
       "title": "Monet w1001",
       "artist": "Claude Monet",
-      "date_created": "1856-01-01",
-      "year": 1856,
+      "date_created": null,
+      "year": null,
       "description": "Claude Monet",
       "source": {
         "type": "Wikimedia Commons",
@@ -73435,8 +73432,7 @@
         "nationality": "French",
         "movement": "Impressionism",
         "pd_status": "public_domain_worldwide"
-      },
-      "year_source": "date_created_plain"
+      }
     },
     "Monet_w1003.jpg": {
       "filename": "Monet_w1003.jpg",
@@ -73444,8 +73440,8 @@
       "needs_review": false,
       "title": "Monet w1003",
       "artist": "Claude Monet",
-      "date_created": "1856-01-01",
-      "year": 1856,
+      "date_created": null,
+      "year": null,
       "description": "Claude Monet",
       "source": {
         "type": "Wikimedia Commons",
@@ -73473,8 +73469,7 @@
         "nationality": "French",
         "movement": "Impressionism",
         "pd_status": "public_domain_worldwide"
-      },
-      "year_source": "date_created_plain"
+      }
     },
     "Monet_w1010.jpg": {
       "filename": "Monet_w1010.jpg",
@@ -73512,7 +73507,7 @@
         "movement": "Impressionism",
         "pd_status": "public_domain_worldwide"
       },
-      "year_source": "audit-research"
+      "year_source": "date_created_plain"
     },
     "Monet_w1016.jpg": {
       "filename": "Monet_w1016.jpg",
@@ -73520,8 +73515,8 @@
       "needs_review": false,
       "title": "Monet w1016",
       "artist": "Claude Monet",
-      "date_created": "1856-01-01",
-      "year": 1856,
+      "date_created": null,
+      "year": null,
       "description": "Claude Monet",
       "source": {
         "type": "Wikimedia Commons",
@@ -73549,8 +73544,7 @@
         "nationality": "French",
         "movement": "Impressionism",
         "pd_status": "public_domain_worldwide"
-      },
-      "year_source": "date_created_plain"
+      }
     },
     "Monet_w1018.jpg": {
       "filename": "Monet_w1018.jpg",
@@ -73588,7 +73582,7 @@
         "movement": "Impressionism",
         "pd_status": "public_domain_worldwide"
       },
-      "year_source": "audit-research"
+      "year_source": "date_created_plain"
     },
     "Monet_w1032.jpg": {
       "filename": "Monet_w1032.jpg",
@@ -73614,7 +73608,7 @@
         "license_url": null,
         "usage_terms": "Public domain"
       },
-      "year_source": "audit-research"
+      "year_source": "date_created_plain"
     },
     "Monet_w1035.jpg": {
       "filename": "Monet_w1035.jpg",
@@ -73622,8 +73616,8 @@
       "needs_review": false,
       "title": "Monet w1035",
       "artist": "Claude Monet",
-      "date_created": "1856-01-01",
-      "year": 1856,
+      "date_created": null,
+      "year": null,
       "description": "Claude Monet",
       "source": {
         "type": "Wikimedia Commons",
@@ -73651,8 +73645,7 @@
         "nationality": "French",
         "movement": "Impressionism",
         "pd_status": "public_domain_worldwide"
-      },
-      "year_source": "date_created_plain"
+      }
     },
     "Monet_w1042.jpg": {
       "filename": "Monet_w1042.jpg",
@@ -73660,8 +73653,8 @@
       "needs_review": false,
       "title": "Monet w1042",
       "artist": "Claude Monet",
-      "date_created": "1856-01-01",
-      "year": 1856,
+      "date_created": null,
+      "year": null,
       "description": "Claude Monet",
       "source": {
         "type": "Wikimedia Commons",
@@ -73689,8 +73682,7 @@
         "nationality": "French",
         "movement": "Impressionism",
         "pd_status": "public_domain_worldwide"
-      },
-      "year_source": "date_created_plain"
+      }
     },
     "Monet_w1048.jpg": {
       "filename": "Monet_w1048.jpg",
@@ -73716,7 +73708,7 @@
         "license_url": null,
         "usage_terms": "Public domain"
       },
-      "year_source": "audit-research"
+      "year_source": "date_created_plain"
     },
     "Monet_w1050.jpg": {
       "filename": "Monet_w1050.jpg",
@@ -73724,8 +73716,8 @@
       "needs_review": false,
       "title": "Monet w1050",
       "artist": "Claude Monet",
-      "date_created": "1851-01-01",
-      "year": 1851,
+      "date_created": null,
+      "year": null,
       "description": "Claude Monet",
       "source": {
         "type": "Wikimedia Commons",
@@ -73753,8 +73745,7 @@
         "nationality": "French",
         "movement": "Impressionism",
         "pd_status": "public_domain_worldwide"
-      },
-      "year_source": "date_created_plain"
+      }
     },
     "Monet_w1054.jpg": {
       "filename": "Monet_w1054.jpg",
@@ -73762,8 +73753,8 @@
       "needs_review": false,
       "title": "Monet w1054",
       "artist": "Claude Monet",
-      "date_created": "1851-01-01",
-      "year": 1851,
+      "date_created": null,
+      "year": null,
       "description": "Claude Monet",
       "source": {
         "type": "Wikimedia Commons",
@@ -73791,8 +73782,7 @@
         "nationality": "French",
         "movement": "Impressionism",
         "pd_status": "public_domain_worldwide"
-      },
-      "year_source": "date_created_plain"
+      }
     },
     "Monet_w1056.jpg": {
       "filename": "Monet_w1056.jpg",
@@ -73800,8 +73790,8 @@
       "needs_review": false,
       "title": "Monet w1056",
       "artist": "Claude Monet",
-      "date_created": "1851-01-01",
-      "year": 1851,
+      "date_created": null,
+      "year": null,
       "description": "Claude Monet",
       "source": {
         "type": "Wikimedia Commons",
@@ -73829,8 +73819,7 @@
         "nationality": "French",
         "movement": "Impressionism",
         "pd_status": "public_domain_worldwide"
-      },
-      "year_source": "date_created_plain"
+      }
     },
     "Monet_w1061.jpg": {
       "filename": "Monet_w1061.jpg",
@@ -73856,7 +73845,7 @@
         "license_url": null,
         "usage_terms": "Public domain"
       },
-      "year_source": "wikidata-inception"
+      "year_source": "date_created_plain"
     },
     "Monet_w1065.jpg": {
       "filename": "Monet_w1065.jpg",
@@ -73864,8 +73853,8 @@
       "needs_review": false,
       "title": "Monet w1065",
       "artist": "Claude Monet",
-      "date_created": "1851-01-01",
-      "year": 1851,
+      "date_created": null,
+      "year": null,
       "description": "Claude Monet",
       "source": {
         "type": "Wikimedia Commons",
@@ -73893,8 +73882,7 @@
         "nationality": "French",
         "movement": "Impressionism",
         "pd_status": "public_domain_worldwide"
-      },
-      "year_source": "date_created_plain"
+      }
     },
     "Monet_w1075.jpg": {
       "filename": "Monet_w1075.jpg",
@@ -73902,8 +73890,8 @@
       "needs_review": false,
       "title": "Monet w1075",
       "artist": "Claude Monet",
-      "date_created": "1851-01-01",
-      "year": 1851,
+      "date_created": null,
+      "year": null,
       "description": "Claude Monet",
       "source": {
         "type": "Wikimedia Commons",
@@ -73931,8 +73919,7 @@
         "nationality": "French",
         "movement": "Impressionism",
         "pd_status": "public_domain_worldwide"
-      },
-      "year_source": "date_created_plain"
+      }
     },
     "Monet_w1089.jpg": {
       "filename": "Monet_w1089.jpg",
@@ -73940,8 +73927,8 @@
       "needs_review": false,
       "title": "Monet w1089",
       "artist": "Claude Monet",
-      "date_created": "1851-01-01",
-      "year": 1851,
+      "date_created": null,
+      "year": null,
       "description": "Claude Monet",
       "source": {
         "type": "Wikimedia Commons",
@@ -73969,8 +73956,7 @@
         "nationality": "French",
         "movement": "Impressionism",
         "pd_status": "public_domain_worldwide"
-      },
-      "year_source": "date_created_plain"
+      }
     },
     "Monet_w109.jpg": {
       "filename": "Monet_w109.jpg",
@@ -74008,7 +73994,7 @@
         "movement": "Impressionism",
         "pd_status": "public_domain_worldwide"
       },
-      "year_source": "audit-research"
+      "year_source": "date_created_plain"
     },
     "Monet_w1120.jpg": {
       "filename": "Monet_w1120.jpg",
@@ -74016,8 +74002,8 @@
       "needs_review": false,
       "title": "Monet w1120",
       "artist": "Claude Monet",
-      "date_created": "1851-01-01",
-      "year": 1851,
+      "date_created": null,
+      "year": null,
       "description": "Claude Monet",
       "source": {
         "type": "Wikimedia Commons",
@@ -74045,8 +74031,7 @@
         "nationality": "French",
         "movement": "Impressionism",
         "pd_status": "public_domain_worldwide"
-      },
-      "year_source": "date_created_plain"
+      }
     },
     "Monet_w1121.jpg": {
       "filename": "Monet_w1121.jpg",
@@ -74054,7 +74039,7 @@
       "needs_review": false,
       "title": "Monet w1121",
       "artist": "Claude Monet",
-      "date_created": "2020-12-12",
+      "date_created": null,
       "year": null,
       "description": "Claude Monet, Rain in Belle-Ile, W.1121",
       "source": {
@@ -74137,7 +74122,7 @@
       "needs_review": false,
       "title": "Monet w1138",
       "artist": "Claude Monet",
-      "date_created": "2020-12-12",
+      "date_created": null,
       "year": null,
       "description": "Claude Monet, Field of Irises at Giverny, W.1138",
       "source": {
@@ -74174,8 +74159,8 @@
       "needs_review": false,
       "title": "Monet w1155",
       "artist": "Claude Monet",
-      "date_created": "1851-01-01",
-      "year": 1851,
+      "date_created": null,
+      "year": null,
       "description": "Claude Monet",
       "source": {
         "type": "Wikimedia Commons",
@@ -74203,8 +74188,7 @@
         "nationality": "French",
         "movement": "Impressionism",
         "pd_status": "public_domain_worldwide"
-      },
-      "year_source": "date_created_plain"
+      }
     },
     "Monet_w1179.jpg": {
       "filename": "Monet_w1179.jpg",
@@ -74212,8 +74196,8 @@
       "needs_review": false,
       "title": "Monet w1179",
       "artist": "Claude Monet",
-      "date_created": "1856-01-01",
-      "year": 1856,
+      "date_created": null,
+      "year": null,
       "description": "Claude Monet",
       "source": {
         "type": "Wikimedia Commons",
@@ -74241,8 +74225,7 @@
         "nationality": "French",
         "movement": "Impressionism",
         "pd_status": "public_domain_worldwide"
-      },
-      "year_source": "date_created_plain"
+      }
     },
     "Monet_w1200.jpg": {
       "filename": "Monet_w1200.jpg",
@@ -74280,7 +74263,7 @@
         "movement": "Impressionism",
         "pd_status": "public_domain_worldwide"
       },
-      "year_source": "audit-research"
+      "year_source": "date_created_plain"
     },
     "Monet_w1245.jpg": {
       "filename": "Monet_w1245.jpg",
@@ -74318,7 +74301,7 @@
         "movement": "Impressionism",
         "pd_status": "public_domain_worldwide"
       },
-      "year_source": "audit-research"
+      "year_source": "date_created_plain"
     },
     "Monet_w1296.jpg": {
       "filename": "Monet_w1296.jpg",
@@ -74326,8 +74309,8 @@
       "needs_review": false,
       "title": "Monet w1296",
       "artist": "Claude Monet",
-      "date_created": "1856-01-01",
-      "year": 1856,
+      "date_created": null,
+      "year": null,
       "description": "Claude Monet",
       "source": {
         "type": "Wikimedia Commons",
@@ -74355,8 +74338,7 @@
         "nationality": "French",
         "movement": "Impressionism",
         "pd_status": "public_domain_worldwide"
-      },
-      "year_source": "date_created_plain"
+      }
     },
     "Monet_w1336.jpg": {
       "filename": "Monet_w1336.jpg",
@@ -74364,7 +74346,7 @@
       "needs_review": false,
       "title": "Monet w1336",
       "artist": "Claude Monet",
-      "date_created": "2020-12-28",
+      "date_created": null,
       "year": null,
       "description": "Claude Monet, Floating Ice near Bennecourt, W.1336",
       "source": {
@@ -74475,7 +74457,7 @@
         "movement": "Impressionism",
         "pd_status": "public_domain_worldwide"
       },
-      "year_source": "audit-research"
+      "year_source": "date_created_plain"
     },
     "Monet_w1524.jpg": {
       "filename": "Monet_w1524.jpg",
@@ -74483,7 +74465,7 @@
       "needs_review": false,
       "title": "Monet w1524",
       "artist": "Claude Monet",
-      "date_created": "2020-12-03",
+      "date_created": null,
       "year": null,
       "description": "Claude Monet, Charing Cross Bridge, W.1524",
       "source": {
@@ -74550,7 +74532,7 @@
         "movement": "Impressionism",
         "pd_status": "public_domain_worldwide"
       },
-      "year_source": "audit-research-low"
+      "year_source": "date_created_plain"
     },
     "Monet_w1563.jpg": {
       "filename": "Monet_w1563.jpg",
@@ -74558,8 +74540,8 @@
       "needs_review": false,
       "title": "Monet w1563",
       "artist": "Claude Monet",
-      "date_created": "1856-01-01",
-      "year": 1856,
+      "date_created": null,
+      "year": null,
       "description": "Claude Monet",
       "source": {
         "type": "Wikimedia Commons",
@@ -74587,8 +74569,7 @@
         "nationality": "French",
         "movement": "Impressionism",
         "pd_status": "public_domain_worldwide"
-      },
-      "year_source": "date_created_plain"
+      }
     },
     "Monet_w159.jpg": {
       "filename": "Monet_w159.jpg",
@@ -74631,7 +74612,7 @@
           "fr": "Camille assise sur la plage à Trouville"
         }
       },
-      "year_source": "audit-research"
+      "year_source": "date_created_plain"
     },
     "Monet_w1636.jpg": {
       "filename": "Monet_w1636.jpg",
@@ -74639,8 +74620,8 @@
       "needs_review": false,
       "title": "Monet w1636",
       "artist": "Claude Monet",
-      "date_created": "1856-01-01",
-      "year": 1856,
+      "date_created": null,
+      "year": null,
       "description": "Claude Monet",
       "source": {
         "type": "Wikimedia Commons",
@@ -74668,8 +74649,7 @@
         "nationality": "French",
         "movement": "Impressionism",
         "pd_status": "public_domain_worldwide"
-      },
-      "year_source": "date_created_plain"
+      }
     },
     "Monet_w1656.jpg": {
       "filename": "Monet_w1656.jpg",
@@ -74707,7 +74687,7 @@
         "movement": "Impressionism",
         "pd_status": "public_domain_worldwide"
       },
-      "year_source": "audit-research"
+      "year_source": "date_created_plain"
     },
     "Monet_w1668.jpg": {
       "filename": "Monet_w1668.jpg",
@@ -74715,8 +74695,8 @@
       "needs_review": false,
       "title": "Monet w1668",
       "artist": "Claude Monet",
-      "date_created": "1926-06-06",
-      "year": 1926,
+      "date_created": null,
+      "year": null,
       "description": "Claude Monet",
       "source": {
         "type": "Wikimedia Commons",
@@ -74744,8 +74724,7 @@
         "nationality": "French",
         "movement": "Impressionism",
         "pd_status": "public_domain_worldwide"
-      },
-      "year_source": "date_created_plain"
+      }
     },
     "Monet_w1675.jpg": {
       "filename": "Monet_w1675.jpg",
@@ -74753,7 +74732,7 @@
       "needs_review": false,
       "title": "Monet w1675",
       "artist": "Claude Monet",
-      "date_created": "2021-01-23",
+      "date_created": null,
       "year": null,
       "description": "Claude Monet, Water Lilies, W.1675",
       "source": {
@@ -74790,7 +74769,7 @@
       "needs_review": false,
       "title": "Monet w1695",
       "artist": "Clause Monet",
-      "date_created": "2021-02-14",
+      "date_created": null,
       "year": null,
       "description": "Claude Monet, Water Lilies, W.1695",
       "source": {
@@ -74895,7 +74874,7 @@
         "movement": "Impressionism",
         "pd_status": "public_domain_worldwide"
       },
-      "year_source": "audit-research"
+      "year_source": "date_created_plain"
     },
     "Monet_w1726.jpg": {
       "filename": "Monet_w1726.jpg",
@@ -74933,7 +74912,7 @@
         "movement": "Impressionism",
         "pd_status": "public_domain_worldwide"
       },
-      "year_source": "audit-research"
+      "year_source": "date_created_plain"
     },
     "Monet_w1781.jpg": {
       "filename": "Monet_w1781.jpg",
@@ -74971,7 +74950,7 @@
         "movement": "Impressionism",
         "pd_status": "public_domain_worldwide"
       },
-      "year_source": "audit-research"
+      "year_source": "date_created_plain"
     },
     "Monet_w1786.jpg": {
       "filename": "Monet_w1786.jpg",
@@ -75009,7 +74988,7 @@
         "movement": "Impressionism",
         "pd_status": "public_domain_worldwide"
       },
-      "year_source": "audit-research"
+      "year_source": "date_created_plain"
     },
     "Monet_w182.jpg": {
       "filename": "Monet_w182.jpg",
@@ -75047,7 +75026,7 @@
         "movement": "Impressionism",
         "pd_status": "public_domain_worldwide"
       },
-      "year_source": "audit-research"
+      "year_source": "date_created_plain"
     },
     "Monet_w1883.jpg": {
       "filename": "Monet_w1883.jpg",
@@ -75091,7 +75070,7 @@
           "de": "Das Seerosenbecken"
         }
       },
-      "year_source": "wikidata-inception"
+      "year_source": "date_created_plain"
     },
     "Monet_w1884.jpg": {
       "filename": "Monet_w1884.jpg",
@@ -75129,7 +75108,7 @@
         "movement": "Impressionism",
         "pd_status": "public_domain_worldwide"
       },
-      "year_source": "audit-research"
+      "year_source": "date_created_plain"
     },
     "Monet_w1897.jpg": {
       "filename": "Monet_w1897.jpg",
@@ -75167,7 +75146,7 @@
         "movement": "Impressionism",
         "pd_status": "public_domain_worldwide"
       },
-      "year_source": "audit-research"
+      "year_source": "date_created_plain"
     },
     "Monet_w1900.jpg": {
       "filename": "Monet_w1900.jpg",
@@ -75205,7 +75184,7 @@
         "movement": "Impressionism",
         "pd_status": "public_domain_worldwide"
       },
-      "year_source": "audit-research"
+      "year_source": "date_created_plain"
     },
     "Monet_w197.jpg": {
       "filename": "Monet_w197.jpg",
@@ -75243,7 +75222,7 @@
         "movement": "Impressionism",
         "pd_status": "public_domain_worldwide"
       },
-      "year_source": "audit-research"
+      "year_source": "date_created_plain"
     },
     "Monet_w1976.jpg": {
       "filename": "Monet_w1976.jpg",
@@ -75281,7 +75260,7 @@
         "movement": "Impressionism",
         "pd_status": "public_domain_worldwide"
       },
-      "year_source": "audit-research"
+      "year_source": "date_created_plain"
     },
     "Monet_w199.jpg": {
       "filename": "Monet_w199.jpg",
@@ -75289,8 +75268,8 @@
       "needs_review": false,
       "title": "Monet w199",
       "artist": "Claude Monet",
-      "date_created": "1872-02-02",
-      "year": 1872,
+      "date_created": null,
+      "year": null,
       "description": "Springtime at Argenteuil",
       "source": {
         "type": "Wikimedia Commons",
@@ -75318,8 +75297,7 @@
         "nationality": "French",
         "movement": "Impressionism",
         "pd_status": "public_domain_worldwide"
-      },
-      "year_source": "date_created_plain"
+      }
     },
     "Monet_w222.jpg": {
       "filename": "Monet_w222.jpg",
@@ -75357,7 +75335,7 @@
         "movement": "Impressionism",
         "pd_status": "public_domain_worldwide"
       },
-      "year_source": "audit-research"
+      "year_source": "date_created_plain"
     },
     "Monet_w224.jpg": {
       "filename": "Monet_w224.jpg",
@@ -75395,7 +75373,7 @@
         "movement": "Impressionism",
         "pd_status": "public_domain_worldwide"
       },
-      "year_source": "audit-research"
+      "year_source": "date_created_plain"
     },
     "Monet_w24.jpg": {
       "filename": "Monet_w24.jpg",
@@ -75433,7 +75411,7 @@
         "movement": "Impressionism",
         "pd_status": "public_domain_worldwide"
       },
-      "year_source": "wikidata-inception"
+      "year_source": "date_created_plain"
     },
     "Monet_w265.jpg": {
       "filename": "Monet_w265.jpg",
@@ -75471,7 +75449,7 @@
         "movement": "Impressionism",
         "pd_status": "public_domain_worldwide"
       },
-      "year_source": "audit-research"
+      "year_source": "date_created_plain"
     },
     "Monet_w288_the_sheltered_path.jpg": {
       "filename": "Monet_w288_the_sheltered_path.jpg",
@@ -75479,7 +75457,7 @@
       "needs_review": false,
       "title": "Monet w288 the sheltered path",
       "artist": "Claude Monet",
-      "date_created": "2009-04-07",
+      "date_created": null,
       "year": null,
       "description": "Claude Monet",
       "source": {
@@ -75546,7 +75524,7 @@
         "movement": "Impressionism",
         "pd_status": "public_domain_worldwide"
       },
-      "year_source": "audit-research"
+      "year_source": "date_created_plain"
     },
     "Monet_w357.jpg": {
       "filename": "Monet_w357.jpg",
@@ -75584,7 +75562,7 @@
         "movement": "Impressionism",
         "pd_status": "public_domain_worldwide"
       },
-      "year_source": "audit-research"
+      "year_source": "date_created_plain"
     },
     "Monet_w368.jpg": {
       "filename": "Monet_w368.jpg",
@@ -75622,7 +75600,7 @@
         "movement": "Impressionism",
         "pd_status": "public_domain_worldwide"
       },
-      "year_source": "audit-research"
+      "year_source": "date_created_plain"
     },
     "Monet_w386.jpg": {
       "filename": "Monet_w386.jpg",
@@ -75660,7 +75638,7 @@
         "movement": "Impressionism",
         "pd_status": "public_domain_worldwide"
       },
-      "year_source": "audit-research"
+      "year_source": "date_created_plain"
     },
     "Monet_w392.jpg": {
       "filename": "Monet_w392.jpg",
@@ -75736,7 +75714,7 @@
         "movement": "Impressionism",
         "pd_status": "public_domain_worldwide"
       },
-      "year_source": "audit-research"
+      "year_source": "date_created_plain"
     },
     "Monet_w419.jpg": {
       "filename": "Monet_w419.jpg",
@@ -75774,7 +75752,7 @@
         "movement": "Impressionism",
         "pd_status": "public_domain_worldwide"
       },
-      "year_source": "audit-research"
+      "year_source": "date_created_plain"
     },
     "Monet_w421.jpg": {
       "filename": "Monet_w421.jpg",
@@ -75812,7 +75790,7 @@
         "movement": "Impressionism",
         "pd_status": "public_domain_worldwide"
       },
-      "year_source": "audit-research"
+      "year_source": "date_created_plain"
     },
     "Monet_w429.jpg": {
       "filename": "Monet_w429.jpg",
@@ -75850,7 +75828,7 @@
         "movement": "Impressionism",
         "pd_status": "public_domain_worldwide"
       },
-      "year_source": "audit-research"
+      "year_source": "date_created_plain"
     },
     "Monet_w433.jpg": {
       "filename": "Monet_w433.jpg",
@@ -75934,7 +75912,7 @@
           "nl": "Bouquet de glaïeuls, lis et marguerites"
         }
       },
-      "year_source": "audit-research"
+      "year_source": "date_created_plain"
     },
     "Monet_w502.jpg": {
       "filename": "Monet_w502.jpg",
@@ -75972,7 +75950,7 @@
         "movement": "Impressionism",
         "pd_status": "public_domain_worldwide"
       },
-      "year_source": "audit-research"
+      "year_source": "date_created_plain"
     },
     "Monet_w526.jpg": {
       "filename": "Monet_w526.jpg",
@@ -76010,7 +75988,7 @@
         "movement": "Impressionism",
         "pd_status": "public_domain_worldwide"
       },
-      "year_source": "audit-research"
+      "year_source": "date_created_plain"
     },
     "Monet_w579_springtime_in_vetheuil.jpg": {
       "filename": "Monet_w579_springtime_in_vetheuil.jpg",
@@ -76018,8 +75996,8 @@
       "needs_review": false,
       "title": "Monet w579 springtime in vetheuil",
       "artist": "Claude Monet",
-      "date_created": "1880-05-05",
-      "year": 1880,
+      "date_created": null,
+      "year": null,
       "description": "Springtime in Vetheuil",
       "source": {
         "type": "Wikimedia Commons",
@@ -76047,8 +76025,7 @@
         "nationality": "French",
         "movement": "Impressionism",
         "pd_status": "public_domain_worldwide"
-      },
-      "year_source": "date_created_plain"
+      }
     },
     "Monet_w58.jpg": {
       "filename": "Monet_w58.jpg",
@@ -76086,7 +76063,7 @@
         "movement": "Impressionism",
         "pd_status": "public_domain_worldwide"
       },
-      "year_source": "audit-research"
+      "year_source": "date_created_plain"
     },
     "Monet_w593(1).jpg": {
       "filename": "Monet_w593(1).jpg",
@@ -76168,7 +76145,7 @@
         "movement": "Impressionism",
         "pd_status": "public_domain_worldwide"
       },
-      "year_source": "audit-research"
+      "year_source": "date_created_plain"
     },
     "Monet_w611.jpg": {
       "filename": "Monet_w611.jpg",
@@ -76176,8 +76153,8 @@
       "needs_review": false,
       "title": "Monet w611",
       "artist": "Claude Monet",
-      "date_created": "1880-06-06",
-      "year": 1880,
+      "date_created": null,
+      "year": null,
       "description": "The Willows Monet W611",
       "source": {
         "type": "Wikimedia Commons",
@@ -76205,8 +76182,7 @@
         "nationality": "French",
         "movement": "Impressionism",
         "pd_status": "public_domain_worldwide"
-      },
-      "year_source": "date_created_plain"
+      }
     },
     "Monet_w646_jetty_at_fecamp_in_rough_weather.jpg": {
       "filename": "Monet_w646_jetty_at_fecamp_in_rough_weather.jpg",
@@ -76214,8 +76190,8 @@
       "needs_review": false,
       "title": "Monet w646 jetty at fecamp in rough weather",
       "artist": "Claude monet",
-      "date_created": "1880-05-05",
-      "year": 1880,
+      "date_created": null,
+      "year": null,
       "description": "Jetty at Fecamp in rough weather",
       "source": {
         "type": "Wikimedia Commons",
@@ -76243,8 +76219,7 @@
         "nationality": "French",
         "movement": "Impressionism",
         "pd_status": "public_domain_worldwide"
-      },
-      "year_source": "date_created_plain"
+      }
     },
     "Monet_w647.jpg": {
       "filename": "Monet_w647.jpg",
@@ -76357,7 +76332,7 @@
         "movement": "Impressionism",
         "pd_status": "public_domain_worldwide"
       },
-      "year_source": "audit-research"
+      "year_source": "date_created_plain"
     },
     "Monet_w651_morning_by_the_sea.jpg": {
       "filename": "Monet_w651_morning_by_the_sea.jpg",
@@ -76365,8 +76340,8 @@
       "needs_review": false,
       "title": "Monet w651 morning by the sea",
       "artist": "Claude monet",
-      "date_created": "1881-01-01",
-      "year": 1881,
+      "date_created": null,
+      "year": null,
       "description": "Morning by the sea",
       "source": {
         "type": "Wikimedia Commons",
@@ -76394,8 +76369,7 @@
         "nationality": "French",
         "movement": "Impressionism",
         "pd_status": "public_domain_worldwide"
-      },
-      "year_source": "date_created_plain"
+      }
     },
     "Monet_w653.jpg": {
       "filename": "Monet_w653.jpg",
@@ -76433,7 +76407,7 @@
         "movement": "Impressionism",
         "pd_status": "public_domain_worldwide"
       },
-      "year_source": "audit-research"
+      "year_source": "date_created_plain"
     },
     "Monet_w658.jpg": {
       "filename": "Monet_w658.jpg",
@@ -76471,7 +76445,7 @@
         "movement": "Impressionism",
         "pd_status": "public_domain_worldwide"
       },
-      "year_source": "audit-research"
+      "year_source": "date_created_plain"
     },
     "Monet_w662.jpg": {
       "filename": "Monet_w662.jpg",
@@ -76509,7 +76483,7 @@
         "movement": "Impressionism",
         "pd_status": "public_domain_worldwide"
       },
-      "year_source": "audit-research"
+      "year_source": "date_created_plain"
     },
     "Monet_w663.jpg": {
       "filename": "Monet_w663.jpg",
@@ -76547,7 +76521,7 @@
         "movement": "Impressionism",
         "pd_status": "public_domain_worldwide"
       },
-      "year_source": "audit-research"
+      "year_source": "date_created_plain"
     },
     "Monet_w664.jpg": {
       "filename": "Monet_w664.jpg",
@@ -76585,7 +76559,7 @@
         "movement": "Impressionism",
         "pd_status": "public_domain_worldwide"
       },
-      "year_source": "audit-research"
+      "year_source": "date_created_plain"
     },
     "Monet_w668.jpg": {
       "filename": "Monet_w668.jpg",
@@ -76623,7 +76597,7 @@
         "movement": "Impressionism",
         "pd_status": "public_domain_worldwide"
       },
-      "year_source": "audit-research"
+      "year_source": "date_created_plain"
     },
     "Monet_w678_lane_in_ile_st_martin.jpg": {
       "filename": "Monet_w678_lane_in_ile_st_martin.jpg",
@@ -76631,8 +76605,8 @@
       "needs_review": false,
       "title": "Monet w678 lane in ile st martin",
       "artist": "Claude Monet",
-      "date_created": "1881-02-02",
-      "year": 1881,
+      "date_created": null,
+      "year": null,
       "description": "Lane at Ile St Martin",
       "source": {
         "type": "Wikimedia Commons",
@@ -76660,8 +76634,7 @@
         "nationality": "French",
         "movement": "Impressionism",
         "pd_status": "public_domain_worldwide"
-      },
-      "year_source": "date_created_plain"
+      }
     },
     "Monet_w679.jpg": {
       "filename": "Monet_w679.jpg",
@@ -76699,7 +76672,7 @@
         "movement": "Impressionism",
         "pd_status": "public_domain_worldwide"
       },
-      "year_source": "audit-research"
+      "year_source": "date_created_plain"
     },
     "Monet_w683.jpg": {
       "filename": "Monet_w683.jpg",
@@ -76737,7 +76710,7 @@
         "movement": "Impressionism",
         "pd_status": "public_domain_worldwide"
       },
-      "year_source": "audit-research"
+      "year_source": "date_created_plain"
     },
     "Monet_w684.jpg": {
       "filename": "Monet_w684.jpg",
@@ -76775,7 +76748,7 @@
         "movement": "Impressionism",
         "pd_status": "public_domain_worldwide"
       },
-      "year_source": "wikidata-inception"
+      "year_source": "date_created_plain"
     },
     "Monet_w691.jpg": {
       "filename": "Monet_w691.jpg",
@@ -76813,7 +76786,7 @@
         "movement": "Impressionism",
         "pd_status": "public_domain_worldwide"
       },
-      "year_source": "audit-research"
+      "year_source": "date_created_plain"
     },
     "Monet_w694.jpg": {
       "filename": "Monet_w694.jpg",
@@ -76851,7 +76824,7 @@
         "movement": "Impressionism",
         "pd_status": "public_domain_worldwide"
       },
-      "year_source": "wikidata-inception"
+      "year_source": "date_created_plain"
     },
     "Monet_w700_near_vetheuil.jpg": {
       "filename": "Monet_w700_near_vetheuil.jpg",
@@ -76859,8 +76832,8 @@
       "needs_review": false,
       "title": "Monet w700 near vetheuil",
       "artist": "Claude Monet",
-      "date_created": "1881-01-01",
-      "year": 1881,
+      "date_created": null,
+      "year": null,
       "description": "Near Vetheuil",
       "source": {
         "type": "Wikimedia Commons",
@@ -76888,8 +76861,7 @@
         "nationality": "French",
         "movement": "Impressionism",
         "pd_status": "public_domain_worldwide"
-      },
-      "year_source": "date_created_plain"
+      }
     },
     "Monet_w706.jpg": {
       "filename": "Monet_w706.jpg",
@@ -76927,7 +76899,7 @@
         "movement": "Impressionism",
         "pd_status": "public_domain_worldwide"
       },
-      "year_source": "audit-research"
+      "year_source": "date_created_plain"
     },
     "Monet_w712_low_tide_at_pourville.jpg": {
       "filename": "Monet_w712_low_tide_at_pourville.jpg",
@@ -76935,8 +76907,8 @@
       "needs_review": false,
       "title": "Monet w712 low tide at pourville",
       "artist": "Claude Monet",
-      "date_created": "1882-02-02",
-      "year": 1882,
+      "date_created": null,
+      "year": null,
       "description": "Low tide at Pourville",
       "source": {
         "type": "Wikimedia Commons",
@@ -76964,8 +76936,7 @@
         "nationality": "French",
         "movement": "Impressionism",
         "pd_status": "public_domain_worldwide"
-      },
-      "year_source": "date_created_plain"
+      }
     },
     "Monet_w717.jpg": {
       "filename": "Monet_w717.jpg",
@@ -77003,7 +76974,7 @@
         "movement": "Impressionism",
         "pd_status": "public_domain_worldwide"
       },
-      "year_source": "audit-research"
+      "year_source": "date_created_plain"
     },
     "Monet_w724.jpg": {
       "filename": "Monet_w724.jpg",
@@ -77041,7 +77012,7 @@
         "movement": "Impressionism",
         "pd_status": "public_domain_worldwide"
       },
-      "year_source": "audit-research"
+      "year_source": "date_created_plain"
     },
     "Monet_w726_the_church_at_varengeville_sunset.jpg": {
       "filename": "Monet_w726_the_church_at_varengeville_sunset.jpg",
@@ -77124,7 +77095,7 @@
         "movement": "Impressionism",
         "pd_status": "public_domain_worldwide"
       },
-      "year_source": "audit-research"
+      "year_source": "date_created_plain"
     },
     "Monet_w752.jpg": {
       "filename": "Monet_w752.jpg",
@@ -77162,7 +77133,7 @@
         "movement": "Impressionism",
         "pd_status": "public_domain_worldwide"
       },
-      "year_source": "audit-research"
+      "year_source": "date_created_plain"
     },
     "Monet_w753.jpg": {
       "filename": "Monet_w753.jpg",
@@ -77200,7 +77171,7 @@
         "movement": "Impressionism",
         "pd_status": "public_domain_worldwide"
       },
-      "year_source": "audit-research"
+      "year_source": "date_created_plain"
     },
     "Monet_w757.jpg": {
       "filename": "Monet_w757.jpg",
@@ -77238,7 +77209,7 @@
         "movement": "Impressionism",
         "pd_status": "public_domain_worldwide"
       },
-      "year_source": "audit-research"
+      "year_source": "date_created_plain"
     },
     "Monet_w759.jpg": {
       "filename": "Monet_w759.jpg",
@@ -77276,7 +77247,7 @@
         "movement": "Impressionism",
         "pd_status": "public_domain_worldwide"
       },
-      "year_source": "wikidata-inception"
+      "year_source": "date_created_plain"
     },
     "Monet_w764.jpg": {
       "filename": "Monet_w764.jpg",
@@ -77314,7 +77285,7 @@
         "movement": "Impressionism",
         "pd_status": "public_domain_worldwide"
       },
-      "year_source": "audit-research"
+      "year_source": "date_created_plain"
     },
     "Monet_w767.jpg": {
       "filename": "Monet_w767.jpg",
@@ -77352,7 +77323,7 @@
         "movement": "Impressionism",
         "pd_status": "public_domain_worldwide"
       },
-      "year_source": "audit-research"
+      "year_source": "date_created_plain"
     },
     "Monet_w772.jpg": {
       "filename": "Monet_w772.jpg",
@@ -77390,7 +77361,7 @@
         "movement": "Impressionism",
         "pd_status": "public_domain_worldwide"
       },
-      "year_source": "audit-research"
+      "year_source": "date_created_plain"
     },
     "Monet_w776.jpg": {
       "filename": "Monet_w776.jpg",
@@ -77428,7 +77399,7 @@
         "movement": "Impressionism",
         "pd_status": "public_domain_worldwide"
       },
-      "year_source": "audit-research"
+      "year_source": "date_created_plain"
     },
     "Monet_w778a.jpg": {
       "filename": "Monet_w778a.jpg",
@@ -77466,7 +77437,7 @@
         "movement": "Impressionism",
         "pd_status": "public_domain_worldwide"
       },
-      "year_source": "audit-research"
+      "year_source": "date_created_plain"
     },
     "Monet_w787.jpg": {
       "filename": "Monet_w787.jpg",
@@ -77504,7 +77475,7 @@
         "movement": "Impressionism",
         "pd_status": "public_domain_worldwide"
       },
-      "year_source": "audit-research"
+      "year_source": "date_created_plain"
     },
     "Monet_w807.jpg": {
       "filename": "Monet_w807.jpg",
@@ -77542,7 +77513,7 @@
         "movement": "Impressionism",
         "pd_status": "public_domain_worldwide"
       },
-      "year_source": "audit-research"
+      "year_source": "date_created_plain"
     },
     "Monet_w81.jpg": {
       "filename": "Monet_w81.jpg",
@@ -77580,7 +77551,7 @@
         "movement": "Impressionism",
         "pd_status": "public_domain_worldwide"
       },
-      "year_source": "audit-research"
+      "year_source": "date_created_plain"
     },
     "Monet_w812_vase_of_chrysantemums.png": {
       "filename": "Monet_w812_vase_of_chrysantemums.png",
@@ -77588,8 +77559,8 @@
       "needs_review": false,
       "title": "Monet w812 vase of chrysantemums",
       "artist": "Claude Monet",
-      "date_created": "1882-02-02",
-      "year": 1882,
+      "date_created": null,
+      "year": null,
       "description": "Vase of Chrysanthemums",
       "source": {
         "type": "Wikimedia Commons",
@@ -77617,8 +77588,7 @@
         "nationality": "French",
         "movement": "Impressionism",
         "pd_status": "public_domain_worldwide"
-      },
-      "year_source": "date_created_plain"
+      }
     },
     "Monet_w816.jpg": {
       "filename": "Monet_w816.jpg",
@@ -77626,8 +77596,8 @@
       "needs_review": false,
       "title": "Monet w816",
       "artist": "Claude Monet",
-      "date_created": "1882-02-02",
-      "year": 1882,
+      "date_created": null,
+      "year": null,
       "description": "Claude Monet",
       "source": {
         "type": "Wikimedia Commons",
@@ -77655,8 +77625,7 @@
         "nationality": "French",
         "movement": "Impressionism",
         "pd_status": "public_domain_worldwide"
-      },
-      "year_source": "date_created_plain"
+      }
     },
     "Monet_w822.jpg": {
       "filename": "Monet_w822.jpg",
@@ -77738,7 +77707,7 @@
         "movement": "Impressionism",
         "pd_status": "public_domain_worldwide"
       },
-      "year_source": "audit-research"
+      "year_source": "date_created_plain"
     },
     "Monet_w844.jpg": {
       "filename": "Monet_w844.jpg",
@@ -77776,7 +77745,7 @@
         "movement": "Impressionism",
         "pd_status": "public_domain_worldwide"
       },
-      "year_source": "audit-research"
+      "year_source": "date_created_plain"
     },
     "Monet_w849.jpg": {
       "filename": "Monet_w849.jpg",
@@ -77784,7 +77753,7 @@
       "needs_review": false,
       "title": "Monet w849",
       "artist": "Claude Monet",
-      "date_created": "2020-12-08",
+      "date_created": null,
       "year": null,
       "description": "Claude Monet, Poppies in a Vase, W.849",
       "source": {
@@ -77851,7 +77820,7 @@
         "movement": "Impressionism",
         "pd_status": "public_domain_worldwide"
       },
-      "year_source": "audit-research"
+      "year_source": "date_created_plain"
     },
     "Monet_w868.jpg": {
       "filename": "Monet_w868.jpg",
@@ -77889,7 +77858,7 @@
         "movement": "Impressionism",
         "pd_status": "public_domain_worldwide"
       },
-      "year_source": "audit-research"
+      "year_source": "date_created_plain"
     },
     "Monet_w871.jpg": {
       "filename": "Monet_w871.jpg",
@@ -77927,7 +77896,7 @@
         "movement": "Impressionism",
         "pd_status": "public_domain_worldwide"
       },
-      "year_source": "audit-research"
+      "year_source": "date_created_plain"
     },
     "Monet_w875.jpg": {
       "filename": "Monet_w875.jpg",
@@ -77965,7 +77934,7 @@
         "movement": "Impressionism",
         "pd_status": "public_domain_worldwide"
       },
-      "year_source": "audit-research"
+      "year_source": "date_created_plain"
     },
     "Monet_w885.jpg": {
       "filename": "Monet_w885.jpg",
@@ -78003,7 +77972,7 @@
         "movement": "Impressionism",
         "pd_status": "public_domain_worldwide"
       },
-      "year_source": "audit-research"
+      "year_source": "date_created_plain"
     },
     "Monet_w891a.jpg": {
       "filename": "Monet_w891a.jpg",
@@ -78041,7 +78010,7 @@
         "movement": "Impressionism",
         "pd_status": "public_domain_worldwide"
       },
-      "year_source": "audit-research"
+      "year_source": "date_created_plain"
     },
     "Monet_w891b.jpg": {
       "filename": "Monet_w891b.jpg",
@@ -78079,7 +78048,7 @@
         "movement": "Impressionism",
         "pd_status": "public_domain_worldwide"
       },
-      "year_source": "audit-research"
+      "year_source": "date_created_plain"
     },
     "Monet_w892.jpg": {
       "filename": "Monet_w892.jpg",
@@ -78117,7 +78086,7 @@
         "movement": "Impressionism",
         "pd_status": "public_domain_worldwide"
       },
-      "year_source": "audit-research"
+      "year_source": "date_created_plain"
     },
     "Monet_w904.jpg": {
       "filename": "Monet_w904.jpg",
@@ -78125,7 +78094,7 @@
       "needs_review": false,
       "title": "Monet w904",
       "artist": "Claude Monet",
-      "date_created": "2020-11-29",
+      "date_created": null,
       "year": null,
       "description": "Claude Monet, Cliffs at Les Petites-Dalles, W.904",
       "source": {
@@ -78192,7 +78161,7 @@
         "movement": "Impressionism",
         "pd_status": "public_domain_worldwide"
       },
-      "year_source": "audit-research"
+      "year_source": "date_created_plain"
     },
     "Monet_w928.jpg": {
       "filename": "Monet_w928.jpg",
@@ -78230,7 +78199,7 @@
         "movement": "Impressionism",
         "pd_status": "public_domain_worldwide"
       },
-      "year_source": "audit-research"
+      "year_source": "date_created_plain"
     },
     "Monet_w948.jpg": {
       "filename": "Monet_w948.jpg",
@@ -78238,8 +78207,8 @@
       "needs_review": false,
       "title": "Monet w948",
       "artist": "Claude Monet",
-      "date_created": "1856-01-01",
-      "year": 1856,
+      "date_created": null,
+      "year": null,
       "description": "Claude Monet",
       "source": {
         "type": "Wikimedia Commons",
@@ -78267,8 +78236,7 @@
         "nationality": "French",
         "movement": "Impressionism",
         "pd_status": "public_domain_worldwide"
-      },
-      "year_source": "date_created_plain"
+      }
     },
     "Monet_w961.jpg": {
       "filename": "Monet_w961.jpg",
@@ -78276,8 +78244,8 @@
       "needs_review": false,
       "title": "Monet w961",
       "artist": "Claude Monet",
-      "date_created": "1856-01-01",
-      "year": 1856,
+      "date_created": null,
+      "year": null,
       "description": "Claude Monet",
       "source": {
         "type": "Wikimedia Commons",
@@ -78305,8 +78273,7 @@
         "nationality": "French",
         "movement": "Impressionism",
         "pd_status": "public_domain_worldwide"
-      },
-      "year_source": "date_created_plain"
+      }
     },
     "Monet_w962.jpg": {
       "filename": "Monet_w962.jpg",
@@ -78314,8 +78281,8 @@
       "needs_review": false,
       "title": "Monet w962",
       "artist": "Claude Monet",
-      "date_created": "1856-01-01",
-      "year": 1856,
+      "date_created": null,
+      "year": null,
       "description": "Claude Monet",
       "source": {
         "type": "Wikimedia Commons",
@@ -78343,8 +78310,7 @@
         "nationality": "French",
         "movement": "Impressionism",
         "pd_status": "public_domain_worldwide"
-      },
-      "year_source": "date_created_plain"
+      }
     },
     "Monet_w965.jpg": {
       "filename": "Monet_w965.jpg",
@@ -78434,7 +78400,7 @@
       "needs_review": false,
       "title": "Monet w982",
       "artist": "Claude Monet",
-      "date_created": "2020-11-29",
+      "date_created": null,
       "year": null,
       "description": "Claude Monet, Trees by the River Springtime in Giverny, W.982",
       "source": {
@@ -78471,7 +78437,7 @@
       "needs_review": false,
       "title": "Monet w986",
       "artist": "Claude Monet",
-      "date_created": "2020-11-29",
+      "date_created": null,
       "year": null,
       "description": "Claude Monet, Spring in Giverny Morning Effect, W.986",
       "source": {
@@ -78508,7 +78474,7 @@
       "needs_review": false,
       "title": "Monet w996",
       "artist": "Claude Monet",
-      "date_created": "2020-11-29",
+      "date_created": null,
       "year": null,
       "description": "Claude Monet, Flowery Meadow, W.996",
       "source": {
@@ -78545,8 +78511,8 @@
       "needs_review": false,
       "title": "Monet w 106",
       "artist": "Claude Monet",
-      "date_created": "1868-08-08",
-      "year": 1868,
+      "date_created": null,
+      "year": null,
       "description": "Claude Monet",
       "source": {
         "type": "Wikimedia Commons",
@@ -78574,8 +78540,7 @@
         "nationality": "French",
         "movement": "Impressionism",
         "pd_status": "public_domain_worldwide"
-      },
-      "year_source": "date_created_plain"
+      }
     },
     "Monet_w_208.jpg": {
       "filename": "Monet_w_208.jpg",
@@ -78583,8 +78548,8 @@
       "needs_review": false,
       "title": "Monet w 208",
       "artist": "Claude Monet",
-      "date_created": "1872-02-02",
-      "year": 1872,
+      "date_created": null,
+      "year": null,
       "description": "Claude Monet",
       "source": {
         "type": "Wikimedia Commons",
@@ -78612,8 +78577,7 @@
         "nationality": "French",
         "movement": "Impressionism",
         "pd_status": "public_domain_worldwide"
-      },
-      "year_source": "date_created_plain"
+      }
     },
     "Monet_w_235.jpg": {
       "filename": "Monet_w_235.jpg",
@@ -78621,8 +78585,8 @@
       "needs_review": false,
       "title": "Monet w 235",
       "artist": "Claude Monet",
-      "date_created": "1872-02-02",
-      "year": 1872,
+      "date_created": null,
+      "year": null,
       "description": "Claude Monet",
       "source": {
         "type": "Wikimedia Commons",
@@ -78650,8 +78614,7 @@
         "nationality": "French",
         "movement": "Impressionism",
         "pd_status": "public_domain_worldwide"
-      },
-      "year_source": "date_created_plain"
+      }
     },
     "Monet_w_272_Apple_Trees_in_Bloom.jpg": {
       "filename": "Monet_w_272_Apple_Trees_in_Bloom.jpg",
@@ -78659,8 +78622,8 @@
       "needs_review": false,
       "title": "Monet w 272 Apple Trees in Bloom",
       "artist": "Claude Monet",
-      "date_created": "1873-03-03",
-      "year": 1873,
+      "date_created": null,
+      "year": null,
       "description": "Apple Trees in Bloom",
       "source": {
         "type": "Wikimedia Commons",
@@ -78688,8 +78651,7 @@
         "nationality": "French",
         "movement": "Impressionism",
         "pd_status": "public_domain_worldwide"
-      },
-      "year_source": "date_created_plain"
+      }
     },
     "Monet_w_290_autumn_effect_in_argenteuil.jpg": {
       "filename": "Monet_w_290_autumn_effect_in_argenteuil.jpg",
@@ -78727,7 +78689,7 @@
         "movement": "Impressionism",
         "pd_status": "public_domain_worldwide"
       },
-      "year_source": "audit-research"
+      "year_source": "date_created_plain"
     },
     "Monet_w_338.jpg": {
       "filename": "Monet_w_338.jpg",
@@ -78735,8 +78697,8 @@
       "needs_review": false,
       "title": "Monet w 338",
       "artist": "Claude Monet",
-      "date_created": "1874-04-04",
-      "year": 1874,
+      "date_created": null,
+      "year": null,
       "description": "Claude Monet",
       "source": {
         "type": "Wikimedia Commons",
@@ -78764,8 +78726,7 @@
         "nationality": "French",
         "movement": "Impressionism",
         "pd_status": "public_domain_worldwide"
-      },
-      "year_source": "date_created_plain"
+      }
     },
     "Monet_w_42.jpg": {
       "filename": "Monet_w_42.jpg",
@@ -78773,8 +78734,8 @@
       "needs_review": false,
       "title": "Monet w 42",
       "artist": "Claude Monet",
-      "date_created": "1864-04-04",
-      "year": 1864,
+      "date_created": null,
+      "year": null,
       "description": "Claude Monet",
       "source": {
         "type": "Wikimedia Commons",
@@ -78802,8 +78763,7 @@
         "nationality": "French",
         "movement": "Impressionism",
         "pd_status": "public_domain_worldwide"
-      },
-      "year_source": "date_created_plain"
+      }
     },
     "Monet_w_763_the_path.jpg": {
       "filename": "Monet_w_763_the_path.jpg",
@@ -78841,7 +78801,7 @@
         "movement": "Impressionism",
         "pd_status": "public_domain_worldwide"
       },
-      "year_source": "audit-research"
+      "year_source": "date_created_plain"
     },
     "Monomakh's_hunting.jpg": {
       "filename": "Monomakh's_hunting.jpg",
@@ -78901,8 +78861,8 @@
       "needs_review": false,
       "title": "Moreno Garden Bordighera 1884 - The Norton Museum Miami Florida",
       "artist": "Claude Monet",
-      "date_created": "1883-01-18",
-      "year": 1883,
+      "date_created": null,
+      "year": 1884,
       "description": "Painting by Claude Monet visiting Bordighera 1884",
       "source": {
         "type": "Wikimedia Commons",
@@ -78931,7 +78891,7 @@
         "movement": "Impressionism",
         "pd_status": "public_domain_worldwide"
       },
-      "year_source": "date_created_plain"
+      "year_source": "filename"
     },
     "Morning_Mist_in_Taj_Mahal,_no._5,_Hiroshi_yoshida.jpg": {
       "filename": "Morning_Mist_in_Taj_Mahal,_no._5,_Hiroshi_yoshida.jpg",
@@ -79432,8 +79392,8 @@
       "resolved": true,
       "needs_review": false,
       "title": "Musée de Capodimonte - Le Gréco, portrait de Giulio Clovio, en 1571-572 -01",
-      "artist": "MOSSOT",
-      "date_created": "2023-08-10 16:30:01",
+      "artist": "El Greco",
+      "date_created": "1571–1572",
       "year": 1571,
       "description": "Musée de Capodimonte - Le Gréco, portrait de Giulio Clavio, en 1571-572",
       "source": {
@@ -79451,7 +79411,7 @@
         "license_url": null,
         "usage_terms": "Public domain"
       },
-      "year_source": "filename"
+      "year_source": "date_created_plain"
     },
     "NDL-DC_1301809-Utagawa_Kunisada-うゑ野ノ暮雪-cmb.jpg": {
       "filename": "NDL-DC_1301809-Utagawa_Kunisada-うゑ野ノ暮雪-cmb.jpg",
@@ -80459,7 +80419,7 @@
           "th": "นาร์ซิสซัสหลงเงา"
         }
       },
-      "year_source": "audit-research"
+      "year_source": "date_created_plain"
     },
     "Nathaniel_Hurd_by_John_Singleton_Copley.jpg": {
       "filename": "Nathaniel_Hurd_by_John_Singleton_Copley.jpg",
@@ -80626,7 +80586,7 @@
         "license_url": null,
         "usage_terms": "Public domain"
       },
-      "year_source": "audit-research"
+      "year_source": "date_created_plain"
     },
     "NesterovMV_NaRusi206x483GTG.jpg": {
       "filename": "NesterovMV_NaRusi206x483GTG.jpg",
@@ -82358,7 +82318,7 @@
       "needs_review": false,
       "title": "Ohara koson, gatto e vasca con pesci rossi, 1933, xilografia colorata",
       "artist": "Ohara Koson",
-      "date_created": "2016-11-03 22:02:33",
+      "date_created": null,
       "year": 1933,
       "description": "Art of Japan in the Cincinnati Art Museum",
       "source": {
@@ -82557,7 +82517,7 @@
         "movement": "Northern Renaissance",
         "pd_status": "public_domain_worldwide"
       },
-      "year_source": "audit-research"
+      "year_source": "date_created_plain"
     },
     "P.1948.SC_.276-scaled-aspect-ratio-16-9-3-scaled.jpg": {
       "filename": "P.1948.SC_.276-scaled-aspect-ratio-16-9-3-scaled.jpg",
@@ -82565,8 +82525,8 @@
       "needs_review": false,
       "title": "P.1948.SC .276-scaled-aspect-ratio-16-9-3-scaled",
       "artist": "Claude Monet",
-      "date_created": "1888-08-08",
-      "year": 1888,
+      "date_created": null,
+      "year": null,
       "description": "Painting by Claude Monet W1192",
       "source": {
         "type": "Wikimedia Commons",
@@ -82594,8 +82554,7 @@
         "nationality": "French",
         "movement": "Impressionism",
         "pd_status": "public_domain_worldwide"
-      },
-      "year_source": "date_created_plain"
+      }
     },
     "P1110627Wallraf_museum_J.H._Fragonard_Le_chat_angora_WRM3652_rwk.JPG": {
       "filename": "P1110627Wallraf_museum_J.H._Fragonard_Le_chat_angora_WRM3652_rwk.JPG",
@@ -82655,7 +82614,7 @@
         "license_url": "https://creativecommons.org/licenses/by-sa/4.0",
         "usage_terms": "Creative Commons Attribution-Share Alike 4.0"
       },
-      "year_source": "audit-research"
+      "year_source": "date_created_plain"
     },
     "Pablo_Picasso,_1909-10,_Figure_dans_un_Fauteuil_(Seated_Nude,_Femme_nue_assise),_oil_on_canvas,_92.1_x_73_cm,_Tate_Modern,_London.jpg": {
       "filename": "Pablo_Picasso,_1909-10,_Figure_dans_un_Fauteuil_(Seated_Nude,_Femme_nue_assise),_oil_on_canvas,_92.1_x_73_cm,_Tate_Modern,_London.jpg",
@@ -82681,8 +82640,8 @@
       "resolved": true,
       "needs_review": false,
       "title": "Painting of Susanna and the Elders by Rubens",
-      "artist": "Architas",
-      "date_created": "2018-06-01",
+      "artist": "Peter Paul Rubens",
+      "date_created": null,
       "year": null,
       "description": "Painting of Susanna and the Elders by Rubens",
       "source": {
@@ -83951,9 +83910,9 @@
       "resolved": true,
       "needs_review": false,
       "title": "Paul Gauguin - Te aa no areois - Google Art Project",
-      "artist": "Unknown author Unknown author",
-      "date_created": null,
-      "year": null,
+      "artist": "Paul Gauguin",
+      "date_created": "1892",
+      "year": 1892,
       "description": "without frame",
       "source": {
         "type": "Wikimedia Commons",
@@ -83969,7 +83928,8 @@
         "license_short": "Public domain",
         "license_url": null,
         "usage_terms": "Public domain"
-      }
+      },
+      "year_source": "date_created_plain"
     },
     "Paul_Gauguin_-_Two_Women.jpg": {
       "filename": "Paul_Gauguin_-_Two_Women.jpg",
@@ -85158,7 +85118,7 @@
         "movement": "Northern Renaissance",
         "pd_status": "public_domain_worldwide"
       },
-      "year_source": "audit-research"
+      "year_source": "date_created_plain"
     },
     "Pedro_Pablo_Rubens_-_Susana_y_los_viejos_-_Google_Art_Project.jpg": {
       "filename": "Pedro_Pablo_Rubens_-_Susana_y_los_viejos_-_Google_Art_Project.jpg",
@@ -85739,7 +85699,7 @@
         "movement": "Baroque",
         "pd_status": "public_domain_worldwide"
       },
-      "year_source": "audit-research-low"
+      "year_source": "date_created_plain"
     },
     "Peter_Paul_Rubens_(1577-1640)_(after)_-_Man_in_a_Ruff_-_R.1990-58.23_-_Colchester_and_Ipswich_Museums_Service.jpg": {
       "filename": "Peter_Paul_Rubens_(1577-1640)_(after)_-_Man_in_a_Ruff_-_R.1990-58.23_-_Colchester_and_Ipswich_Museums_Service.jpg",
@@ -85748,7 +85708,7 @@
       "title": "Man in a Ruff",
       "artist": "Peter Paul Rubens",
       "date_created": "possibly c. 1650–1750",
-      "year": 1650,
+      "year": 1577,
       "description": null,
       "source": {
         "type": "Wikimedia Commons",
@@ -85778,7 +85738,7 @@
         "movement": "Baroque",
         "pd_status": "public_domain_worldwide"
       },
-      "year_source": "audit-research"
+      "year_source": "filename"
     },
     "Peter_Paul_Rubens_(1577-1640)_(copy_after)_-_Madonna_and_Child_-_PCF48_-_Lady_Margaret_Hall.jpg": {
       "filename": "Peter_Paul_Rubens_(1577-1640)_(copy_after)_-_Madonna_and_Child_-_PCF48_-_Lady_Margaret_Hall.jpg",
@@ -85787,7 +85747,7 @@
       "title": "Madonna and Child",
       "artist": "Peter Paul Rubens",
       "date_created": null,
-      "year": null,
+      "year": 1577,
       "description": "Madonna and Child",
       "source": {
         "type": "Wikimedia Commons",
@@ -85817,7 +85777,7 @@
         "movement": "Baroque",
         "pd_status": "public_domain_worldwide"
       },
-      "year_source": "audit-research-low"
+      "year_source": "filename"
     },
     "Peter_Paul_Rubens_(1577-1640)_(school_of)_-_The_Lamentation_-_1.OP.0049_-_Durham_University.jpg": {
       "filename": "Peter_Paul_Rubens_(1577-1640)_(school_of)_-_The_Lamentation_-_1.OP.0049_-_Durham_University.jpg",
@@ -85856,7 +85816,7 @@
         "movement": "Baroque",
         "pd_status": "public_domain_worldwide"
       },
-      "year_source": "audit-research-low"
+      "year_source": "date_created_plain"
     },
     "Peter_Paul_Rubens_(1577-1640)_-_Christ_Giving_the_Keys_of_Heaven_to_Saint_Peter_-_B.116_-_Gemäldegalerie.jpg": {
       "filename": "Peter_Paul_Rubens_(1577-1640)_-_Christ_Giving_the_Keys_of_Heaven_to_Saint_Peter_-_B.116_-_Gemäldegalerie.jpg",
@@ -85902,7 +85862,7 @@
           "nl": "Christus overhandigt de sleutels aan Petrus"
         }
       },
-      "year_source": "wikidata-inception"
+      "year_source": "date_created_plain"
     },
     "Peter_Paul_Rubens_(1577-1640)_-_Diana_and_two_nymphs_surprised_by_satyrs_while_bathing_-_762C_-_Gemäldegalerie.jpg": {
       "filename": "Peter_Paul_Rubens_(1577-1640)_-_Diana_and_two_nymphs_surprised_by_satyrs_while_bathing_-_762C_-_Gemäldegalerie.jpg",
@@ -85947,7 +85907,7 @@
           "de": "Diana mit zwei Nymphen von Satyrn beim Bade überrascht"
         }
       },
-      "year_source": "wikidata-inception"
+      "year_source": "date_created_plain"
     },
     "Peter_Paul_Rubens_(1577-1640)_-_Diana_hunting_deer_-_774_-_Gemäldegalerie.jpg": {
       "filename": "Peter_Paul_Rubens_(1577-1640)_-_Diana_hunting_deer_-_774_-_Gemäldegalerie.jpg",
@@ -85993,7 +85953,7 @@
           "nl": "Diana en haar gevolg tijdens de hertenjacht"
         }
       },
-      "year_source": "wikidata-inception"
+      "year_source": "date_created_plain"
     },
     "Peter_Paul_Rubens_(1577-1640)_-_Head_Study_of_a_Bearded_Man_-_PD.13-1980_-_Fitzwilliam_Museum.jpg": {
       "filename": "Peter_Paul_Rubens_(1577-1640)_-_Head_Study_of_a_Bearded_Man_-_PD.13-1980_-_Fitzwilliam_Museum.jpg",
@@ -86123,7 +86083,7 @@
           "nl": "Portret van een oude man"
         }
       },
-      "year_source": "wikidata-inception"
+      "year_source": "date_created_plain"
     },
     "Peter_Paul_Rubens_(1577-1640)_-_Teresa_of_Avila's_Vision_of_the_Dove_-_PD.43-1999_-_Fitzwilliam_Museum.jpg": {
       "filename": "Peter_Paul_Rubens_(1577-1640)_-_Teresa_of_Avila's_Vision_of_the_Dove_-_PD.43-1999_-_Fitzwilliam_Museum.jpg",
@@ -86168,7 +86128,7 @@
           "nl": "Het visioen van de Heilige Theresa van Avila"
         }
       },
-      "year_source": "wikidata-inception"
+      "year_source": "date_created_plain"
     },
     "Peter_Paul_Rubens_(1577-1640)_-_The_Bacchanal_-_776B_-_Gemäldegalerie.jpg": {
       "filename": "Peter_Paul_Rubens_(1577-1640)_-_The_Bacchanal_-_776B_-_Gemäldegalerie.jpg",
@@ -86212,7 +86172,7 @@
           "de": "Das Bacchanal"
         }
       },
-      "year_source": "wikidata-inception"
+      "year_source": "date_created_plain"
     },
     "Peter_Paul_Rubens_(Flemish)_-_The_Return_from_War-_Mars_Disarmed_by_Venus_-_Google_Art_Project.jpg": {
       "filename": "Peter_Paul_Rubens_(Flemish)_-_The_Return_from_War-_Mars_Disarmed_by_Venus_-_Google_Art_Project.jpg",
@@ -86290,7 +86250,7 @@
         "movement": "Baroque",
         "pd_status": "public_domain_worldwide"
       },
-      "year_source": "wikidata-low-precision"
+      "year_source": "date_created_plain"
     },
     "Peter_Paul_Rubens_(Schule)_-_Der_lachende_Philosoph_(Demokrit)_-_7043_-_Bavarian_State_Painting_Collections.jpg": {
       "filename": "Peter_Paul_Rubens_(Schule)_-_Der_lachende_Philosoph_(Demokrit)_-_7043_-_Bavarian_State_Painting_Collections.jpg",
@@ -86329,7 +86289,7 @@
         "movement": "Baroque",
         "pd_status": "public_domain_worldwide"
       },
-      "year_source": "wikidata-low-precision"
+      "year_source": "date_created_plain"
     },
     "Peter_Paul_Rubens_-_Adam_and_Eve,_after_Titian,_between_1628_and_1629.jpg": {
       "filename": "Peter_Paul_Rubens_-_Adam_and_Eve,_after_Titian,_between_1628_and_1629.jpg",
@@ -90424,9 +90384,9 @@
       "resolved": true,
       "needs_review": false,
       "title": "Landscape with the Fall of Icarus",
-      "artist": "After Miep Gies",
-      "date_created": "from 1582 until 1625 date QS:P,+1500-00-00T00:00:00Z/6,P580,+1582-00-00T00:00:00Z/9,P582,+1625-00-00T00:00:00Z/9",
-      "year": 1582,
+      "artist": "Pieter Bruegel the Elder",
+      "date_created": "c. 1560",
+      "year": 1560,
       "description": null,
       "source": {
         "type": "Wikimedia Commons",
@@ -90475,7 +90435,7 @@
           "ru": "Падение Икара"
         }
       },
-      "year_source": "wikidata_qs"
+      "year_source": "date_created_plain"
     },
     "Pieter_Bruegel_the_Elder_-_Massacre_of_the_Innocents_-_Google_Art_Project.jpg": {
       "filename": "Pieter_Bruegel_the_Elder_-_Massacre_of_the_Innocents_-_Google_Art_Project.jpg",
@@ -90654,7 +90614,7 @@
       "title": "Pinacoteca Querini Stampalia - Angelo Maria Querini - Bartolomeo Nazari (Medium resolution)",
       "artist": "Bartolomeo Nazari",
       "date_created": "Taken on 4 May 2019",
-      "year": 1740,
+      "year": null,
       "description": null,
       "source": {
         "type": "Wikimedia Commons",
@@ -91180,7 +91140,7 @@
       "resolved": true,
       "needs_review": false,
       "title": "Portrait de madame de Verninac by David Louvre RF1942-16 n2",
-      "artist": "Coyau",
+      "artist": "Jacques-Louis David",
       "date_created": "1799",
       "year": 1799,
       "description": "Portrait of Madame de Verninac",
@@ -91199,7 +91159,7 @@
         "license_url": null,
         "usage_terms": "Public domain"
       },
-      "year_source": "audit-research"
+      "year_source": "date_created_plain"
     },
     "Portrait_of_Alexandrine_Le_Normant_d'Étiolles_(daughter_of_Madame_de_Pompadour),_playing_with_a_Goldfinch.jpg": {
       "filename": "Portrait_of_Alexandrine_Le_Normant_d'Étiolles_(daughter_of_Madame_de_Pompadour),_playing_with_a_Goldfinch.jpg",
@@ -91417,9 +91377,9 @@
       "resolved": true,
       "needs_review": false,
       "title": "Portrait of Ivan Morozov2",
-      "artist": "Unknown author Unknown author",
-      "date_created": null,
-      "year": null,
+      "artist": "Valentin Serov",
+      "date_created": "1910",
+      "year": 1910,
       "description": null,
       "source": {
         "type": "Wikimedia Commons",
@@ -91435,7 +91395,8 @@
         "license_short": "Public domain",
         "license_url": null,
         "usage_terms": "Public domain"
-      }
+      },
+      "year_source": "date_created_plain"
     },
     "Portrait_of_Margaret_Gainsborough_-_Thomas_Gainsborough.jpg": {
       "filename": "Portrait_of_Margaret_Gainsborough_-_Thomas_Gainsborough.jpg",
@@ -91934,7 +91895,7 @@
         "movement": "Romanticism",
         "pd_status": "public_domain_worldwide"
       },
-      "year_source": "audit-research"
+      "year_source": "date_created_plain"
     },
     "Prado_-_Los_Desastres_de_la_Guerra_-_No._46_-_Esto_es_malo.jpg": {
       "filename": "Prado_-_Los_Desastres_de_la_Guerra_-_No._46_-_Esto_es_malo.jpg",
@@ -91972,7 +91933,7 @@
         "movement": "Romanticism",
         "pd_status": "public_domain_worldwide"
       },
-      "year_source": "audit-research"
+      "year_source": "date_created_plain"
     },
     "Prado_-_Los_Desastres_de_la_Guerra_-_No._47_-_Así_sucedió.jpg": {
       "filename": "Prado_-_Los_Desastres_de_la_Guerra_-_No._47_-_Así_sucedió.jpg",
@@ -95829,8 +95790,8 @@
       "needs_review": false,
       "title": "Robert Fulton, 1806, London, England, painted by Benjamin West, American, 1738-1820 Fenimore Art Museum, Cooperstown, N.Y. N0218.1961",
       "artist": null,
-      "date_created": "1806-12-31",
-      "year": 1806,
+      "date_created": null,
+      "year": 1738,
       "description": "Benjamin West, American, 1738-1820. Robert Fulton, 1806, London, England. Oil on canvas, 36 1/4 × 28 1/4 in. (92.08 × 71.76 cm). Fenimore Art Museum, Cooperstown, N.Y., gift of Stephen C. Clark, N0218.1961. Photograph by Richard Walker.",
       "source": {
         "type": "Wikimedia Commons",
@@ -95847,7 +95808,7 @@
         "license_url": null,
         "usage_terms": "Public domain"
       },
-      "year_source": "date_created_plain"
+      "year_source": "filename"
     },
     "Rocks_at_Mouthier_by_Gustave_Courbet.jpg": {
       "filename": "Rocks_at_Mouthier_by_Gustave_Courbet.jpg",
@@ -97617,7 +97578,7 @@
         "movement": "Northern Renaissance",
         "pd_status": "public_domain_worldwide"
       },
-      "year_source": "audit-research"
+      "year_source": "date_created_plain"
     },
     "Saint_Sebastian_tended_by_two_angels).jpg": {
       "filename": "Saint_Sebastian_tended_by_two_angels).jpg",
@@ -98705,7 +98666,7 @@
       "resolved": true,
       "needs_review": false,
       "title": "Schinkel2",
-      "artist": "Muesse",
+      "artist": "Karl Friedrich Schinkel",
       "date_created": null,
       "year": 1838,
       "description": "Karl Friedrich Schinkel, Terrasse des Schlosses Orianda auf der Krim, 1838",
@@ -100586,7 +100547,7 @@
         "license_url": null,
         "usage_terms": "Public domain"
       },
-      "year_source": "audit-research"
+      "year_source": "date_created_plain"
     },
     "Sophia_Alekseyevna,_by_Ilya_Repin.jpg": {
       "filename": "Sophia_Alekseyevna,_by_Ilya_Repin.jpg",
@@ -100908,7 +100869,7 @@
         "movement": "Northern Renaissance",
         "pd_status": "public_domain_worldwide"
       },
-      "year_source": "audit-research"
+      "year_source": "date_created_plain"
     },
     "St._Michael_MET_DP820011.jpg": {
       "filename": "St._Michael_MET_DP820011.jpg",
@@ -100946,7 +100907,7 @@
         "movement": "Northern Renaissance",
         "pd_status": "public_domain_worldwide"
       },
-      "year_source": "audit-research"
+      "year_source": "date_created_plain"
     },
     "Stadtschloss_schlueterhof_1.jpg": {
       "filename": "Stadtschloss_schlueterhof_1.jpg",
@@ -103557,7 +103518,7 @@
       "needs_review": false,
       "title": "The-moreno-garden-at-bordighera",
       "artist": "Claude Monet",
-      "date_created": "2015-11-14",
+      "date_created": null,
       "year": null,
       "description": "The Moreno Garden at Bordighera .",
       "source": {
@@ -103765,8 +103726,8 @@
       "resolved": true,
       "needs_review": false,
       "title": "The Barber Institute of Fine Arts - Joseph Mallord William Turner - The Sun Rising through Vapour",
-      "artist": "DeFacto",
-      "date_created": "2018-01-28",
+      "artist": "J. M. W. Turner",
+      "date_created": null,
       "year": null,
       "description": null,
       "source": {
@@ -104249,7 +104210,7 @@
         "movement": "Dutch Golden Age",
         "pd_status": "public_domain_worldwide"
       },
-      "year_source": "wikidata-inception"
+      "year_source": "date_created_plain"
     },
     "The_Creation_of_Adam.jpg": {
       "filename": "The_Creation_of_Adam.jpg",
@@ -104407,7 +104368,7 @@
       "needs_review": false,
       "title": "The Devil's Bridge, St Gotthard Pass",
       "artist": "Andrewrabbott",
-      "date_created": "2015-08-15",
+      "date_created": null,
       "year": null,
       "description": null,
       "source": {
@@ -104644,7 +104605,7 @@
           "ja": "六十余州名所図会 阿波 鳴門の風波"
         }
       },
-      "year_source": "wikidata-inception"
+      "year_source": "date_created_plain"
     },
     "The_Feast_in_the_House_of_Levi_by_Paolo_Veronese_(edited_2).jpg": {
       "filename": "The_Feast_in_the_House_of_Levi_by_Paolo_Veronese_(edited_2).jpg",
@@ -105479,7 +105440,7 @@
         "movement": "Northern Renaissance",
         "pd_status": "public_domain_worldwide"
       },
-      "year_source": "audit-research"
+      "year_source": "date_created_plain"
     },
     "The_ManTree_Bosch.jpg": {
       "filename": "The_ManTree_Bosch.jpg",
@@ -105523,7 +105484,7 @@
           "de": "Der Baummensch"
         }
       },
-      "year_source": "audit-research"
+      "year_source": "date_created_plain"
     },
     "The_Massacre_of_the_Innocents_-_Peter_Paul_Rubens_(Unframed).jpg": {
       "filename": "The_Massacre_of_the_Innocents_-_Peter_Paul_Rubens_(Unframed).jpg",
@@ -105549,7 +105510,7 @@
         "license_url": "https://creativecommons.org/licenses/by/4.0",
         "usage_terms": "Creative Commons Attribution 4.0"
       },
-      "year_source": "audit-research"
+      "year_source": "date_created_plain"
     },
     "The_Massacre_of_the_Innocents_MET_DP839588.jpg": {
       "filename": "The_Massacre_of_the_Innocents_MET_DP839588.jpg",
@@ -105941,7 +105902,7 @@
         "movement": "Romanticism",
         "pd_status": "public_domain_worldwide"
       },
-      "year_source": "wikidata-inception"
+      "year_source": "date_created_plain"
     },
     "The_Sea_at_Le_Havre_1868.jpg": {
       "filename": "The_Sea_at_Le_Havre_1868.jpg",
@@ -106275,7 +106236,7 @@
         "movement": "Northern Renaissance",
         "pd_status": "public_domain_worldwide"
       },
-      "year_source": "audit-research"
+      "year_source": "date_created_plain"
     },
     "The_Toilet_of_Venus,_by_François_Boucher.jpg": {
       "filename": "The_Toilet_of_Venus,_by_François_Boucher.jpg",
@@ -108600,7 +108561,7 @@
       "resolved": true,
       "needs_review": false,
       "title": "Tintoretto - Prayer in the Garden",
-      "artist": "Gleb Simonov",
+      "artist": "Jacopo Tintoretto",
       "date_created": null,
       "year": null,
       "description": "Tintoretto - Prayer in the Garden",
@@ -108625,7 +108586,7 @@
       "resolved": true,
       "needs_review": false,
       "title": "Tintoretto - St Mary Magdalen",
-      "artist": "Gleb Simonov",
+      "artist": "Jacopo Tintoretto",
       "date_created": null,
       "year": null,
       "description": "Tintoretto - St Mary Magdalen",
@@ -108650,7 +108611,7 @@
       "resolved": true,
       "needs_review": false,
       "title": "Tintoretto - The Baptism of Christ",
-      "artist": "Gleb Simonov",
+      "artist": "Jacopo Tintoretto",
       "date_created": null,
       "year": null,
       "description": "Tintoretto - The Baptism of Christ",
@@ -114810,7 +114771,7 @@
           "mk": "Водни лилјани (1919)"
         }
       },
-      "year_source": "wikidata-inception"
+      "year_source": "date_created_plain"
     },
     "WLA_moma_Monet_Reflections_of_Clouds_on_the_Water-Lily_Pond.jpg": {
       "filename": "WLA_moma_Monet_Reflections_of_Clouds_on_the_Water-Lily_Pond.jpg",
@@ -114836,7 +114797,7 @@
         "license_url": null,
         "usage_terms": "Public domain"
       },
-      "year_source": "description"
+      "year_source": "date_created_plain"
     },
     "Walentin_Alexandrowitsch_Serow_004.jpg": {
       "filename": "Walentin_Alexandrowitsch_Serow_004.jpg",
@@ -115722,7 +115683,7 @@
         "movement": "Northern Renaissance",
         "pd_status": "public_domain_worldwide"
       },
-      "year_source": "audit-research"
+      "year_source": "date_created_plain"
     },
     "Wilhelm_Alexander_Wolfgang_von_Kobell_001.jpg": {
       "filename": "Wilhelm_Alexander_Wolfgang_von_Kobell_001.jpg",
@@ -118447,9 +118408,9 @@
       "resolved": true,
       "needs_review": false,
       "title": "Young man in armor, by Peter Paul Rubens, Timken Museum of Art - 2016 - 430 (cropped)",
-      "artist": "Another Believer",
-      "date_created": "2016-10-06",
-      "year": 2016,
+      "artist": "Peter Paul Rubens",
+      "date_created": null,
+      "year": null,
       "description": null,
       "source": {
         "type": "Wikimedia Commons",
@@ -118465,8 +118426,7 @@
         "license_short": "CC BY-SA 4.0",
         "license_url": "https://creativecommons.org/licenses/by-sa/4.0",
         "usage_terms": "Creative Commons Attribution-Share Alike 4.0"
-      },
-      "year_source": "filename"
+      }
     },
     "Young_tiger_playing_with_its_mother.jpg": {
       "filename": "Young_tiger_playing_with_its_mother.jpg",
@@ -119317,9 +119277,9 @@
       "resolved": true,
       "needs_review": false,
       "title": "Édouard Manet by Henri Fantin-Latour (Chicago Art Institute 1905.207)",
-      "artist": "Art Institute of Chicago",
-      "date_created": null,
-      "year": 1905,
+      "artist": "Henri Fantin-Latour",
+      "date_created": "1867",
+      "year": 1867,
       "description": null,
       "source": {
         "type": "Wikimedia Commons",
@@ -119336,15 +119296,15 @@
         "license_url": null,
         "usage_terms": "Public domain"
       },
-      "year_source": "filename"
+      "year_source": "date_created_plain"
     },
     "Élisabeth-Louise_Vigée-Le_Brun_-_Hubert_Robert_(1788).jpg": {
       "filename": "Élisabeth-Louise_Vigée-Le_Brun_-_Hubert_Robert_(1788).jpg",
       "resolved": true,
       "needs_review": false,
       "title": "Élisabeth-Louise Vigée-Le Brun - Hubert Robert (1788)",
-      "artist": "Sammyday",
-      "date_created": "2010-10-23",
+      "artist": "Élisabeth Vigée Le Brun",
+      "date_created": "1788",
       "year": 1788,
       "description": null,
       "source": {
@@ -119362,7 +119322,7 @@
         "license_url": null,
         "usage_terms": "Public domain"
       },
-      "year_source": "filename"
+      "year_source": "date_created_plain"
     },
     "Élisabeth-Louise_Vigée-Le_Brun_-_Joseph_Vernet_(1778).jpg": {
       "filename": "Élisabeth-Louise_Vigée-Le_Brun_-_Joseph_Vernet_(1778).jpg",

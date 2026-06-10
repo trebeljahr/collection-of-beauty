@@ -1,43 +1,19 @@
 # Copyright review — year unknown
-# Generated: 2026-06-04T08:04:01.087Z
+# Generated: 2026-06-10T07:53:05.349Z
 # We could not recover any artwork-creation year from the metadata, the
 # filename, the title, the description, or the artist's death year. These
 # require human review to decide whether to keep or drop.
 
-## collection-of-beauty.json  (693)
+## collection-of-beauty.json  (685)
 
 ???? [none]                 ? —  L'homme est en mer , Vincent van Gogh, d'après Virginie Demont-Breton
        file: _L'homme_est_en_mer_,_Vincent_van_Gogh,_d'après_Virginie_Demont-Breton.jpg
 
-???? [none]                 ? — 'Jupiter and Antiope', oil on canvas painting by Hendrick Goltzius
-       file: 'Jupiter_and_Antiope',_oil_on_canvas_painting_by_Hendrick_Goltzius.jpeg
-
 ???? [none]                 ? — "Weeping" from Le Brun,
        file: _Weeping__from_Le_Brun,_Wellcome_L0012153.jpg
 
-???? [none]                 Didier Descouens — (Barcelona) Lake Lucerne ; the Bay of Uri from above Brunnen - William Turner - Tate Britain
-       file: (Barcelona)_Lake_Lucerne_;_the_Bay_of_Uri_from_above_Brunnen_-_William_Turner_-_Tate_Britain.jpg
-       date_created: Taken on 23 August 2022
-
-???? [none]                 Didier Descouens — (Barcelona) Stromy Sea with Blazing Wreck - William Turner - Tate Britain
-       file: (Barcelona)_Stromy_Sea_with_Blazing_Wreck_-_William_Turner_-_Tate_Britain.jpg
-       date_created: Taken on 23 August 2022
-
-???? [none]                 Didier Descouens — (Barcelona) The Lake, Petworth, Sunset; Sample Study - William Turner - Tate Britain
-       file: (Barcelona)_The_Lake,_Petworth,_Sunset;_Sample_Study_-_William_Turner_-_Tate_Britain.jpg
-       date_created: Taken on 23 August 2022
-
-???? [none]                 Didier Descouens — (Barcelona) The New Moon; or, ‘I’ve lost My Boat, You shan’t have Your Hoop’ - William Turner - Tate Britain
-       file: (Barcelona)_The_New_Moon;_or,_‘I’ve_lost_My_Boat,_You_shan’t_have_Your_Hoop’_-_William_Turner_-_Tate_Britain.jpg
-       date_created: Taken on 23 August 2022
-
-???? [none]                 Didier Descouens — (Venice) Aristotele by Francesco Hayez in gallerie Accademia Venice
-       file: (Venice)_Aristotele_by_Francesco_Hayez_in_gallerie_Accademia_Venice.jpg
-       date_created: Taken on 9 May 2023
-
-???? [none]                 Didier Descouens — (Venice) La distruzione del tempio di Gerusalemme -Francesco Hayez - gallerie Accademia Venice
-       file: (Venice)_La_distruzione_del_tempio_di_Gerusalemme_-Francesco_Hayez_-_gallerie_Accademia_Venice.jpg
-       date_created: Taken on 9 May 2023
+???? [none]                 ? — 'Jupiter and Antiope', oil on canvas painting by Hendrick Goltzius
+       file: 'Jupiter_and_Antiope',_oil_on_canvas_painting_by_Hendrick_Goltzius.jpeg
 
 ???? [none]                 ? — 0 Entrevue du roi et de Marie de Médicis à Lyon - P.P. Rubens - Louvre 2
        file: 0_Entrevue_du_roi_et_de_Marie_de_Médicis_à_Lyon_-_P.P._Rubens_-_Louvre_2.jpeg
@@ -129,6 +105,12 @@
 ???? [none]                 ? — 15 Qian Xuan Eight Flowers National Palace Museum Beijing
        file: 15_Qian_Xuan_Eight_Flowers_National_Palace_Museum_Beijing.jpeg
 
+???? [none]                 Claude Monet — 1993-151-1-pma2018
+       file: 1993-151-1-pma2018.jpg
+
+???? [none]                 Claude Monet — 2022-06-24 at 13-35-16 Pêches (C Monet - W 952)
+       file: 2022-06-24_at_13-35-16_Pêches_(C_Monet_-_W_952).png
+
 ???? [none]                 ? — 2560px-Bonaparte ante la Esfinge, por Jean-Léon Gérôme
        file: 2560px-Bonaparte_ante_la_Esfinge,_por_Jean-Léon_Gérôme.jpg
 
@@ -206,10 +188,6 @@
 
 ???? [none]                 ? — 2560px-冨嶽三十六景 登戸浦-Noboto Bay (Noboto no ura), from the series Thirty-six Views of Mount Fuji (Fugaku sanjūrokkei) MET DP141022
        file: 2560px-冨嶽三十六景_登戸浦-Noboto_Bay_(Noboto_no_ura),_from_the_series_Thirty-six_Views_of_Mount_Fuji_(Fugaku_sanjūrokkei)_MET_DP141022.jpg
-
-???? [none]                 Claude Monet — 35390682010 46099096b2 o w1449
-       file: 35390682010_46099096b2_o_w1449.jpg
-       date_created: 2017-07-07 18:47:38
 
 ???? [none]                 ? — 40606050395 3a1dceb6f4 o
        file: 40606050395_3a1dceb6f4_o.webp
@@ -314,23 +292,14 @@
 ???? [none]                 ? — Ariko weeps on her boat
        file: Ariko weeps on her boat.jpg
 
-???? [none]                 GoldenArtists — At Eternity's Gate - Vincent Van Gogh
-       file: At_Eternity's_Gate_-_Vincent_Van_Gogh.jpg
-       date_created: 2023-07-03 18:22:05
-
-???? [none]                 Didier Descouens — Augustins - Le Christ entre les deux larrons - Rubens
-       file: Augustins_-_Le_Christ_entre_les_deux_larrons_-_Rubens.jpg
-       date_created: Taken on 26 November 2017
-
 ???? [none]                 ? — Ave Caesar Morituri te Salutant (Gérôme) 01
        file: Ave_Caesar_Morituri_te_Salutant_(Gérôme)_01.jpg
 
 ???? [none]                 ? — Beardsley-peacockskirt
        file: Beardsley-peacockskirt.png
 
-???? [none]                 Gleb Simonov — Bellini — Pietà Martinengo
+???? [none]                 Giovanni Bellini — Bellini — Pietà Martinengo
        file: Bellini_—_Pietà_Martinengo.jpg
-       date_created: 2023-12-20
 
 ???? [none]                 Benjamin West — Venus At Her Birth Attired By The Three Graces
        file: Benjamin_West_-_Venus_At_Her_Birth_Attired_By_The_Three_Graces.jpg
@@ -344,10 +313,6 @@
 
 ???? [none]                 Fyodor Bruni — Голова Христа в терновом венце
        file: Bruni_-_Christ.jpg
-
-???? [none]                 Didier Descouens — Ca' Rezzonico - Matrimonio mistico di Santa Caterina (Inv.236) - Biagio Pupini detto Dalle Lame
-       file: Ca'_Rezzonico_-_Matrimonio_mistico_di_Santa_Caterina_(Inv.236)_-_Biagio_Pupini_detto_Dalle_Lame.jpg
-       date_created: Taken on 4 May 2019
 
 ???? [none]                 ? — Carl Spitzweg -  The Bookworm 
        file: Carl_Spitzweg_-__The_Bookworm_.jpg
@@ -368,17 +333,11 @@
        file: Cawing_crow_by_Ohara_Koson.jpg
        date_created: c. 1900s
 
-???? [none]                 Bardadrac — Charles Le Brun La Colère
-       file: Charles_Le_Brun_La_Colère.jpg
-       date_created: 2019-08-14 18:31:56
-
 ???? [none]                 Charles Le Brun — Charles le Brun, The Expressions
        file: Charles_le_Brun,_The_Expressions.jpg
-       date_created: 2011-06-08
 
-???? [none]                 GoldenArtists — Christ on the Cross - Peter Paul Rubens (unframed)
-       file: Christ_on_the_Cross_-_Peter_Paul_Rubens_(unframed).jpg
-       date_created: 2023-08-05 13:23:48
+???? [none]                 Unknown author Unknown author — Chaumiére Italienne
+       file: Chaumiére_Italienne.jpg
 
 ???? [none]                 ? — Claude Monet - Camille Monet sur son lit de mort
        file: Claude_Monet_-_Camille_Monet_sur_son_lit_de_mort.jpeg
@@ -392,24 +351,14 @@
 ???? [none]                 Claude Monet — Claude Monet - Red and Pink Poppies (11538159396)
        file: Claude_Monet_-_Red_and_Pink_Poppies_(11538159396).jpg
 
-???? [none]                 Dudva — Claude Monet - Sailing Boat, Evening Effect
-       file: Claude_Monet_-_Sailing_Boat,_Evening_Effect.jpg
-       date_created: 2018-12-04 10:52:28
+???? [none]                 Claude Monet — Rocks at Belle-lle, Port-Domois
+       file: Claude_Monet_-_Rocks_at_Belle-lle,_Port-Domois_-_Google_Art_Project.jpg
 
 ???? [none]                 ? — Claude Monet 012
        file: Claude_Monet_012.jpg
 
 ???? [none]                 Ji-Elle — Claude Monet-Soleil couchant à Etretat
        file: Claude_Monet-Soleil_couchant_à_Etretat.jpg
-       date_created: 2011-06-29
-
-???? [none]                 Claude Monet — Banks of the Seine at Lavacourt
-       file: ClaudeMonetBanksoftheSeine.jpg
-       date_created: 22 January 2017, 15:58:08 (photo)
-
-???? [none]                 Didier Descouens — Col tempo by Giorgione
-       file: Col_tempo_by_Giorgione.jpg
-       date_created: 9 May 2023
 
 ???? [none]                 ? — Constable osmington bay.tif
        file: Constable_osmington_bay.tif.jpg
@@ -420,7 +369,7 @@
 ???? [none]                 ? — Creación de Adán
        file: Creación_de_Adán.jpg
 
-???? [none]                 Wilfredor — Crucifixion - Andrea Mantegna - Louvre INV 368
+???? [none]                 Andrea Mantegna — Crucifixion - Andrea Mantegna - Louvre INV 368
        file: Crucifixion_-_Andrea_Mantegna_-_Louvre_INV_368.jpg
 
 ???? [none]                 ? — DaliGreatMasturbator
@@ -468,6 +417,9 @@
 ???? [none]                 ? — dürer vier reiter
        file: dürer vier reiter.jpg
 
+???? [none]                 Claude Monet — E1924-3-16-pma2018
+       file: E1924-3-16-pma2018.jpg
+
 ???? [none]                 ? — East Cowes Castle, the Regatta Beating to Windward
        file: East_Cowes_Castle,_the_Regatta_Beating_to_Windward.png
 
@@ -495,8 +447,8 @@
 ???? [none]                 ? — El jardín de las Delicias, de El Bosco
        file: El_jardín_de_las_Delicias,_de_El_Bosco.jpg
 
-???? [none]                 Unknown author Unknown author — Elisabeth Vigée-Lebrun - Self-Portrait with Her Daughter, Julie - WGA25082
-       file: Elisabeth_Vigée-Lebrun_-_Self-Portrait_with_Her_Daughter,_Julie_-_WGA25082.jpg
+???? [none]                 Ernst Ludwig Kirchner — Ernst-ludwig-kirchner-sertig-valley-in-autumn
+       file: Ernst-ludwig-kirchner-sertig-valley-in-autumn.jpg
 
 ???? [none]                 ? — Escher Metamorphosis
        file: Escher Metamorphosis.webp
@@ -513,10 +465,6 @@
 ???? [none]                 ? — Eugène Delacroix - The Fanatics of Tangier - WGA06195
        file: Eugène_Delacroix_-_The_Fanatics_of_Tangier_-_WGA06195.jpg
 
-???? [none]                 GoldenArtists — Evening landscape at moonrise - Van Gogh
-       file: Evening_landscape_at_moonrise_-_Van_Gogh.jpg
-       date_created: 2023-07-02 18:14:02
-
 ???? [none]                 ? — Femmes d'Alger dans leur appartement, Eugène Delacroix - Musée du Louvre Peintures INV 3824
        file: Femmes_d'Alger_dans_leur_appartement,_Eugène_Delacroix_-_Musée_du_Louvre_Peintures_INV_3824.jpg
 
@@ -529,10 +477,6 @@
 ???? [none]                 Ohara Koson — Five Egrets Descending in Snow by Shôson
        file: Five_Egrets_Descending_in_Snow_by_Shôson.jpg
        date_created: 1920s date QS:P571,+1920-00-00T00:00:00Z/8
-
-???? [none]                 GoldenArtists — Flowering meadow with trees and dandelions - Vincent Van Gogh
-       file: Flowering_meadow_with_trees_and_dandelions_-_Vincent_Van_Gogh.jpg
-       date_created: 2023-07-02 18:19:05
 
 ???? [none]                 ? — Fourth muscle man, by Vesalius.
        file: Fourth_muscle_man,_by_Vesalius._Wellcome_L0001647.jpg
@@ -553,9 +497,8 @@
 ???? [none]                 ? — Gaertner6
        file: Gaertner6.jpg
 
-???? [none]                 Gleb Simonov — Gentile and Giovanni Bellini — Saint Mark Preaching in Alexandria
+???? [none]                 Gentile Bellini — Gentile and Giovanni Bellini — Saint Mark Preaching in Alexandria
        file: Gentile_and_Giovanni_Bellini_—_Saint_Mark_Preaching_in_Alexandria.jpg
-       date_created: 2023-12-17
 
 ???? [none]                 ? — Gerhard von Kügelgen portrait of Friedrich
        file: Gerhard_von_Kügelgen_portrait_of_Friedrich.jpg
@@ -572,16 +515,14 @@
 ???? [none]                 ? — Gérôme - Summer Afternoon on a Lake
        file: Gérôme_-_Summer_Afternoon_on_a_Lake.jpg
 
-???? [none]                 AmarChandra — Gherardo delle Notti-Supper with a Lute Player
+???? [none]                 Gerrit van Honthorst — Gherardo delle Notti-Supper with a Lute Player
        file: Gherardo_delle_Notti-Supper_with_a_Lute_Player.jpg
-       date_created: 2023-01-01
 
 ???? [none]                 ? — Giovanna Baccelli (Gainsborough)
        file: Giovanna_Baccelli_(Gainsborough).jpg
 
-???? [none]                 Gleb Simonov — Giovanni Bellini — Holy Allegory
+???? [none]                 Giovanni Bellini — Giovanni Bellini — Holy Allegory
        file: Giovanni_Bellini_—_Holy_Allegory.jpg
-       date_created: 2023-12-27
 
 ???? [none]                 ? — Goethe Kügelgen
        file: Goethe_Kügelgen.jpg
@@ -621,7 +562,6 @@
 
 ???? [none]                 Gsimonov — Henri Rousseau — The Hungry Lion Throws Itself on the Antelope
        file: Henri_Rousseau_—_The_Hungry_Lion_Throws_Itself_on_the_Antelope.jpg
-       date_created: 2023-12-15
 
 ???? [none]                 Henry Hoppner Meyer — Lady Hamilton as Nature
        file: Henry_Hoppner_Meyer_-_Lady_Hamilton_as_Nature_-_B1970.3.335_-_Yale_Center_for_British_Art.jpg
@@ -655,7 +595,6 @@
 
 ???? [none]                 Gsimonov — Holbein — Dead Christ
        file: Holbein_—_Dead_Christ.jpg
-       date_created: 2023-12-15
 
 ???? [none]                 ? — Holbein Danse Macabre 10
        file: Holbein_Danse_Macabre_10.jpg
@@ -796,26 +735,20 @@
 ???? [none]                 ? — Ingres - Mme Victor Baltard & sa fille Paule
        file: Ingres_-_Mme_Victor_Baltard_&_sa_fille_Paule.jpg
 
-???? [none]                 Gleb Simonov — Isenheim Altarpiece - Concert of Angels
+???? [none]                 Matthias Grünewald — Isenheim Altarpiece - Concert of Angels
        file: Isenheim_Altarpiece_-_Concert_of_Angels.jpg
-       date_created: 2023-12-14
 
-???? [none]                 Gleb Simonov — Isenheim Altarpiece - Saints - Left
+???? [none]                 Matthias Grünewald — Isenheim Altarpiece - Saints - Left
        file: Isenheim_Altarpiece_-_Saints_-_Left.jpg
 
-???? [none]                 Gleb Simonov — Isenheim Altarpiece - Saints - Right
+???? [none]                 Matthias Grünewald — Isenheim Altarpiece - Saints - Right
        file: Isenheim_Altarpiece_-_Saints_-_Right.jpg
 
 ???? [none]                 Gsimonov — Isenheim Altarpiece — SECOND OPENING
        file: Isenheim_Altarpiece_—_SECOND_OPENING.jpg
-       date_created: 2023-12-14
 
 ???? [none]                 ? — Jacob Jordaens 01
        file: Jacob_Jordaens_01.jpeg
-
-???? [none]                 Gleb Simonov — Jacopo Tintoretto — Creation of the Animals
-       file: Jacopo_Tintoretto_—_Creation_of_the_Animals.jpg
-       date_created: 2019-06-30
 
 ???? [none]                 ? — Jean-Auguste-Dominique INGRES - Tu Marcellus Eris - Musée des Augustins - RO 124
        file: Jean-Auguste-Dominique_INGRES_-_Tu_Marcellus_Eris_-_Musée_des_Augustins_-_RO_124.jpg
@@ -884,6 +817,9 @@
 ???? [none]                 ? — Johann Heinrich Füssli 064
        file: Johann_Heinrich_Füssli_064.jpg
 
+???? [none]                 Ramsay Richard Reinagle — John Constable by Ramsay Richard Reinagle
+       file: John_Constable_by_Ramsay_Richard_Reinagle.jpg
+
 ???? [none]                 ? — John Everett Millais - Chill October
        file: John_Everett_Millais_-_Chill_October.jpeg
 
@@ -947,9 +883,6 @@
        file: Kirchner_-_Farbentanz.jpg
        date_created: Unknown date
 
-???? [none]                 ? — Kuniyoshi Utagawa, At the shore of the Sumida river
-       file: Kuniyoshi_Utagawa,_At_the_shore_of_the_Sumida_river.jpg
-
 ???? [none]                 ? — Kustodiev GoluboyDomik
        file: Kustodiev_GoluboyDomik.jpg
 
@@ -964,6 +897,9 @@
 
 ???? [none]                 Jl FilpoC — La caída de Faetón (Jan Carel van Eyck)
        file: La_caída_de_Faetón_(Jan_Carel_van_Eyck).jpg
+
+???? [none]                 Claude Monet — La debacle - Monet w562
+       file: La_debacle_-_Monet_w562.jpg
 
 ???? [none]                 ? — La Seine à Lavacourt
        file: La_Seine_à_Lavacourt.jpeg
@@ -1005,10 +941,6 @@
 ???? [none]                 ? — Lille Pdba rubens marie madeleine
        file: Lille_Pdba_rubens_marie_madeleine.jpeg
 
-???? [none]                 Ad Meskens You are free to use this picture for any purpose as long as you credit its author, Ad Meskens . Example: © Ad Meskens / Wikimedia Commons If you use this work outside of the Wikimedia projects, a message or a copy is very much appreciated. This image is not in the public domain. A statement such as "From Wikimedia Commons" or similar is not by itself sufficient. If you do not provide clear attribution to the author you do not comply with the terms of the file's license and you may not use this file. If you are unable or unwilling to provide attribution you should contact Ad Meskens to negotiate a different license. — London National Gallery Turner Hero and Leander
-       file: London_National_Gallery_Turner_Hero_and_Leander.jpg
-       date_created: 2019-09-22 10:49:46
-
 ???? [none]                 Claude Monet — Los nenúfares (Monet)
        file: Los_nenúfares_(Monet).jpg
 
@@ -1027,7 +959,7 @@
 ???? [none]                 ? — Man with a Bat on his Head Edward Gorey
        file: Man with a Bat on his Head Edward Gorey.jpg
 
-???? [none]                 Gleb Simonov — Matthias Grünewald - Resurrection
+???? [none]                 Matthias Grünewald — Matthias Grünewald - Resurrection
        file: Matthias_Grünewald_-_Resurrection.jpg
 
 ???? [none]                 ? — MB-Mon-16 Monet Les-Petites-Dalles-bei-Ebbe
@@ -1251,146 +1183,159 @@
 
 ???? [none]                 Claude Monet — Monet 1401
        file: Monet_1401.jpg
-       date_created: 2021-01-02
 
-???? [none]                 Claude Monet — Monet w 290 autumn effect in argenteuil
-       file: Monet_w_290_autumn_effect_in_argenteuil.jpg
-       date_created: 2010-02-01 20:19:19
+???? [none]                 Claude Monet — Monet w 106
+       file: Monet_w_106.jpg
 
-???? [none]                 Claude Monet — Monet w 763 the path
-       file: Monet_w_763_the_path.jpg
-       date_created: 2019-04-21 17:44:31
+???? [none]                 Claude Monet — Monet w 208
+       file: Monet_w_208.jpg
 
-???? [none]                 Claude Monet — Monet w0145
-       file: Monet_w0145.jpg
-       date_created: 2012-07-22 08:53:00
+???? [none]                 Claude Monet — Monet w 235
+       file: Monet_w_235.jpg
 
-???? [none]                 Claude Monet — Monet w1010
-       file: Monet_w1010.jpg
-       date_created: 2019-05-09 11:19:02
+???? [none]                 Claude Monet — Monet w 272 Apple Trees in Bloom
+       file: Monet_w_272_Apple_Trees_in_Bloom.jpg
 
-???? [none]                 Claude Monet — Monet w1018
-       file: Monet_w1018.jpg
-       date_created: 2019-04-13 13:35:57
+???? [none]                 Claude Monet — Monet w 338
+       file: Monet_w_338.jpg
 
-???? [none]                 flicker — Monet w1032
-       file: Monet_w1032.jpg
-       date_created: 2013-11-05 09:38:02
+???? [none]                 Claude Monet — Monet w 42
+       file: Monet_w_42.jpg
 
-???? [none]                 flicker — Monet w1048
-       file: Monet_w1048.jpg
-       date_created: 2012-06-24 18:11:04
+???? [none]                 Claude Monet — Monet w1001
+       file: Monet_w1001.jpg
 
-???? [none]                 flicker — Monet w1061
-       file: Monet_w1061.jpg
-       date_created: 2013-08-20 15:14:58
+???? [none]                 Claude Monet — Monet w1003
+       file: Monet_w1003.jpg
+
+???? [none]                 Claude Monet — Monet w1016
+       file: Monet_w1016.jpg
+
+???? [none]                 Claude Monet — Monet w1035
+       file: Monet_w1035.jpg
+
+???? [none]                 Claude Monet — Monet w1042
+       file: Monet_w1042.jpg
+
+???? [none]                 Claude Monet — Monet w1050
+       file: Monet_w1050.jpg
+
+???? [none]                 Claude Monet — Monet w1054
+       file: Monet_w1054.jpg
+
+???? [none]                 Claude Monet — Monet w1056
+       file: Monet_w1056.jpg
+
+???? [none]                 Claude Monet — Monet w1065
+       file: Monet_w1065.jpg
+
+???? [none]                 Claude Monet — Monet w1075
+       file: Monet_w1075.jpg
+
+???? [none]                 Claude Monet — Monet W108
+       file: Monet_W108.jpg
+
+???? [none]                 Claude Monet — Monet w1089
+       file: Monet_w1089.jpg
+
+???? [none]                 Claude Monet — Monet w1120
+       file: Monet_w1120.jpg
 
 ???? [none]                 Claude Monet — Monet w1121
        file: Monet_w1121.jpg
-       date_created: 2020-12-12
 
 ???? [none]                 Claude Monet — Monet w1138
        file: Monet_w1138.jpg
-       date_created: 2020-12-12
 
-???? [none]                 Claude Monet — Monet w1200
-       file: Monet_w1200.jpg
-       date_created: 2015-05-18 18:12:22
+???? [none]                 Claude Monet — Monet w1155
+       file: Monet_w1155.jpg
 
-???? [none]                 Claude Monet — Monet w1245
-       file: Monet_w1245.jpg
-       date_created: 2012-08-25 16:22:09
+???? [none]                 Claude Monet — Monet w1179
+       file: Monet_w1179.jpg
+
+???? [none]                 Claude Monet — Monet w1296
+       file: Monet_w1296.jpg
 
 ???? [none]                 Claude Monet — Monet w1336
        file: Monet_w1336.jpg
-       date_created: 2020-12-28
 
 ???? [none]                 Claude Monet — Monet w1524
        file: Monet_w1524.jpg
-       date_created: 2020-12-03
 
-???? [none]                 Claude Monet — Monet w1558
-       file: Monet_w1558.jpg
-       date_created: 2014-04-21 17:36:54
+???? [none]                 Claude Monet — Monet w1563
+       file: Monet_w1563.jpg
 
-???? [none]                 Claude Monet — Monet w1656
-       file: Monet_w1656.jpg
-       date_created: 2010-01-23 11:26:03
+???? [none]                 Claude Monet — Monet w1636
+       file: Monet_w1636.jpg
+
+???? [none]                 Claude Monet — Monet w1668
+       file: Monet_w1668.jpg
 
 ???? [none]                 Claude Monet — Monet w1675
        file: Monet_w1675.jpg
-       date_created: 2021-01-23
 
 ???? [none]                 Clause Monet — Monet w1695
        file: Monet_w1695.jpg
-       date_created: 2021-02-14
 
-???? [none]                 Claude Monet — Monet w1726
-       file: Monet_w1726.jpg
-       date_created: 2014-06-24 10:45:50
-
-???? [none]                 Claude Monet — Monet w1976
-       file: Monet_w1976.jpg
-       date_created: 2021-12-06 14:36:29
-
-???? [none]                 Claude Monet — Monet w224
-       file: Monet_w224.jpg
-       date_created: 2017-07-04 11:30:47
-
-???? [none]                 Claude Monet — Monet w24
-       file: Monet_w24.jpg
-       date_created: 2012-07-12 13:09:37
+???? [none]                 Claude Monet — Monet w199
+       file: Monet_w199.jpg
 
 ???? [none]                 Claude Monet — Monet w288 the sheltered path
        file: Monet_w288_the_sheltered_path.jpg
-       date_created: 2009-04-07
 
-???? [none]                 Claude Monet — Monet w421
-       file: Monet_w421.jpg
-       date_created: 2010-02-03 19:33:44
+???? [none]                 Claude Monet — Monet w579 springtime in vetheuil
+       file: Monet_w579_springtime_in_vetheuil.jpg
 
-???? [none]                 Claude Monet — Monet w526
-       file: Monet_w526.jpg
-       date_created: 2009-08-13 10:17:10
+???? [none]                 Claude Monet — Monet w611
+       file: Monet_w611.jpg
+
+???? [none]                 Claude monet — Monet w646 jetty at fecamp in rough weather
+       file: Monet_w646_jetty_at_fecamp_in_rough_weather.jpg
 
 ???? [none]                 Claude Monet — Monet w648
        file: Monet_w648.jpg
 
+???? [none]                 Claude monet — Monet w651 morning by the sea
+       file: Monet_w651_morning_by_the_sea.jpg
+
+???? [none]                 Claude Monet — Monet w678 lane in ile st martin
+       file: Monet_w678_lane_in_ile_st_martin.jpg
+
+???? [none]                 Claude Monet — Monet w700 near vetheuil
+       file: Monet_w700_near_vetheuil.jpg
+
+???? [none]                 Claude Monet — Monet w712 low tide at pourville
+       file: Monet_w712_low_tide_at_pourville.jpg
+
+???? [none]                 Claude Monet — Monet w812 vase of chrysantemums
+       file: Monet_w812_vase_of_chrysantemums.png
+
+???? [none]                 Claude Monet — Monet w816
+       file: Monet_w816.jpg
+
 ???? [none]                 Claude Monet — Monet w849
        file: Monet_w849.jpg
-       date_created: 2020-12-08
-
-???? [none]                 Claude Monet — Monet w871
-       file: Monet_w871.jpg
-       date_created: 2012-01-10 11:04:04
-
-???? [none]                 Claude Monet — Monet w875
-       file: Monet_w875.jpg
-       date_created: 2012-09-18 15:10:51
 
 ???? [none]                 Claude Monet — Monet w904
        file: Monet_w904.jpg
-       date_created: 2020-11-29
 
-???? [none]                 Claude Monet — Monet w922
-       file: Monet_w922.jpg
-       date_created: 2011-05-11 11:08:10
+???? [none]                 Claude Monet — Monet w948
+       file: Monet_w948.jpg
 
-???? [none]                 Claude Monet — Monet w928
-       file: Monet_w928.jpg
-       date_created: 2013-08-29 09:29:20
+???? [none]                 Claude Monet — Monet w961
+       file: Monet_w961.jpg
+
+???? [none]                 Claude Monet — Monet w962
+       file: Monet_w962.jpg
 
 ???? [none]                 Claude Monet — Monet w982
        file: Monet_w982.jpg
-       date_created: 2020-11-29
 
 ???? [none]                 Claude Monet — Monet w986
        file: Monet_w986.jpg
-       date_created: 2020-11-29
 
 ???? [none]                 Claude Monet — Monet w996
        file: Monet_w996.jpg
-       date_created: 2020-11-29
 
 ???? [none]                 ? — Natoire-Sibylle
        file: Natoire-Sibylle.jpeg
@@ -1509,9 +1454,8 @@
 ???? [none]                 ? — Origin-of-the-World Courbet
        file: Origin-of-the-World Courbet.jpg
 
-???? [none]                 Architas — Painting of Susanna and the Elders by Rubens
-       file: Painting_of_Susanna_and_the_Elders_by_Rubens.jpg
-       date_created: 2018-06-01
+???? [none]                 Claude Monet — P.1948.SC .276-scaled-aspect-ratio-16-9-3-scaled
+       file: P.1948.SC_.276-scaled-aspect-ratio-16-9-3-scaled.jpg
 
 ???? [none]                 Unknown photographer Unknown photographer — Paolo Veronese 008
        file: Paolo_Veronese_008.jpg
@@ -1522,9 +1466,6 @@
 ???? [none]                 Paul de Vos / Jan Wildens — Garden of Eden
        file: Paul_de_Vos,_Jan_Wildens_-_Garden_of_Eden.jpg
        date_created: 1630s date QS:P571,+1630-00-00T00:00:00Z/8
-
-???? [none]                 Unknown author Unknown author — Paul Gauguin - Te aa no areois - Google Art Project
-       file: Paul_Gauguin_-_Te_aa_no_areois_-_Google_Art_Project.jpg
 
 ???? [none]                 ? — Paul Gustave Dore Andromeda
        file: Paul_Gustave_Dore_Andromeda.jpg
@@ -1553,26 +1494,15 @@
 ???? [none]                 ? — Pieter Bruegel der Ältere - Landschaft mit der Flucht nach Ägypten
        file: Pieter_Bruegel_der_Ältere_-_Landschaft_mit_der_Flucht_nach_Ägypten.jpg
 
-???? [none]                 Didier Descouens — Pinacoteca Querini Stampalia - Angelo Maria Querini - Bartolomeo Nazari (Medium resolution)
+???? [none]                 Bartolomeo Nazari — Pinacoteca Querini Stampalia - Angelo Maria Querini - Bartolomeo Nazari (Medium resolution)
        file: Pinacoteca_Querini_Stampalia_-_Angelo_Maria_Querini_-_Bartolomeo_Nazari_(Medium_resolution).jpg
        date_created: Taken on 4 May 2019
 
 ???? [none]                 ? — Plompton Rocks (Turner, 2)
        file: Plompton_Rocks_(Turner,_2).png
 
-???? [none]                 PMRMaeyaert — PM 147978 B Tournai
-       file: PM_147978_B_Tournai.jpg
-       date_created: 2022-12-04 17:09:40
-
 ???? [none]                 ? — Pope's Villa at Twickenham
        file: Pope's_Villa_at_Twickenham.jpeg
-
-???? [none]                 Coyau — Portrait de madame de Verninac by David Louvre RF1942-16 n2
-       file: Portrait_de_madame_de_Verninac_by_David_Louvre_RF1942-16_n2.jpg
-       date_created: 2013-07-14 13:43:41
-
-???? [none]                 Unknown author Unknown author — Portrait of Ivan Morozov2
-       file: Portrait_of_Ivan_Morozov2.jpg
 
 ???? [none]                 ? — Prado - Los Desastres de la Guerra - No. 47 - Así sucedió
        file: Prado_-_Los_Desastres_de_la_Guerra_-_No._47_-_Así_sucedió.jpg
@@ -1772,21 +1702,12 @@
 ???? [none]                 ? — The Accommodations of Desire
        file: The_Accommodations_of_Desire.jpg
 
-???? [none]                 DeFacto — The Barber Institute of Fine Arts - Joseph Mallord William Turner - The Sun Rising through Vapour
-       file: The_Barber_Institute_of_Fine_Arts_-_Joseph_Mallord_William_Turner_-_The_Sun_Rising_through_Vapour.jpg
-       date_created: 2018-01-28
-
 ???? [none]                 Jean-Honoré Fragonard — The Beautiful Servant
        file: The_Beautiful_Servant_(Jean-Honoré_Fragonard)_-_Nationalmuseum_-_22465.tif
        date_created: Unknown date
 
-???? [none]                 Witcher of Izalith — The Course of Empire - Thomas Cole GIF slow
-       file: The_Course_of_Empire_-_Thomas_Cole_GIF_slow.gif
-       date_created: 2022-06-16
-
 ???? [none]                 Andrewrabbott — The Devil's Bridge, St Gotthard Pass
        file: The_Devil's_Bridge,_St_Gotthard_Pass.jpg
-       date_created: 2015-08-15
 
 ???? [none]                 ? — The Disquieting Muses
        file: The_Disquieting_Muses.jpg
@@ -1803,10 +1724,6 @@
 ???? [none]                 ? — The First Days of Spring by Salvador Dalí
        file: The_First_Days_of_Spring_by_Salvador_Dalí.jpg
 
-???? [none]                 GoldenArtists — The Massacre of the Innocents - Peter Paul Rubens (Unframed)
-       file: The_Massacre_of_the_Innocents_-_Peter_Paul_Rubens_(Unframed).jpg
-       date_created: 2023-08-05 13:34:42
-
 ???? [none]                 ? — The Triumph Of Christianity Over Paganism.Gustave Doré
        file: The_Triumph_Of_Christianity_Over_Paganism.Gustave_Doré.jpg
 
@@ -1818,7 +1735,6 @@
 
 ???? [none]                 Claude Monet — The-moreno-garden-at-bordighera
        file: The-moreno-garden-at-bordighera.jpg
-       date_created: 2015-11-14
 
 ???? [none]                 ? — The+Sugar+Shack-Ernie Barnes
        file: The+Sugar+Shack-Ernie Barnes.webp
@@ -1834,15 +1750,6 @@
 
 ???? [none]                 ? — Théodore Géricault - The Kiss - WGA08647
        file: Théodore_Géricault_-_The_Kiss_-_WGA08647.jpg
-
-???? [none]                 Gleb Simonov — Tintoretto - Prayer in the Garden
-       file: Tintoretto_-_Prayer_in_the_Garden.jpg
-
-???? [none]                 Gleb Simonov — Tintoretto - St Mary Magdalen
-       file: Tintoretto_-_St_Mary_Magdalen.jpg
-
-???? [none]                 Gleb Simonov — Tintoretto - The Baptism of Christ
-       file: Tintoretto_-_The_Baptism_of_Christ.jpg
 
 ???? [none]                 ? — Tōkyō jūnidai, Daikon-gashi by Kawase Hasui
        file: Tōkyō_jūnidai,_Daikon-gashi_by_Kawase_Hasui.jpg
@@ -1918,9 +1825,6 @@
 
 ???? [none]                 ? — WATTEAU Antoine - Huit études de têtes de femme, et une tête d'homme
        file: WATTEAU_Antoine_-_Huit_études_de_têtes_de_femme,_et_une_tête_d'homme.jpg
-
-???? [none]                 ? — Yoshitoshi The Ghost
-       file: Yoshitoshi_The_Ghost.jpg
 
 ???? [none]                 ? — Zentralbibliothek Zürich - Portät von Anna Magdalena Schweizer geb Hess im Alter von 27 Jahren - 000003019
        file: Zentralbibliothek_Zürich_-_Portät_von_Anna_Magdalena_Schweizer_geb_Hess_im_Alter_von_27_Jahren_-_000003019.jpg

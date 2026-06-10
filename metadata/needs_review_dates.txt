@@ -1,11 +1,11 @@
 # Copyright review — looks recent
-# Generated: 2026-06-04T08:04:01.081Z
+# Generated: 2026-06-10T07:53:05.344Z
 # Cutoff: year < 1926 (artwork must be at least 100 years old).
 # Entries here have year >= 1926 after heuristic re-extraction,
 # so they may be copyrighted. Review and remove if they cannot be
 # confirmed as public domain.
 
-## collection-of-beauty.json  (134)
+## collection-of-beauty.json  (129)
 
 2024 [filename]             ? — La Liberté guidant le peuple - Eugène Delacroix - Musée du Louvre Peintures RF 129 - après restauration 2024
        file: La_Liberté_guidant_le_peuple_-_Eugène_Delacroix_-_Musée_du_Louvre_Peintures_RF_129_-_après_restauration_2024.jpg
@@ -18,10 +18,6 @@
 2016 [filename]             ? — Snow on Ayase river, Rijksmuseum RP-P-2016-66-8 (1)
        file: Snow_on_Ayase_river,_Rijksmuseum_RP-P-2016-66-8 (1).jpg
        date_created: 2016
-
-2016 [filename]             Another Believer — Young man in armor, by Peter Paul Rubens, Timken Museum of Art - 2016 - 430 (cropped)
-       file: Young_man_in_armor,_by_Peter_Paul_Rubens,_Timken_Museum_of_Art_-_2016_-_430_(cropped).jpg
-       date_created: 2016-10-06
 
 2015 [filename]             ? — 1280px-Leda col Signo (Copy Of Leonardo da Vinci) September 2015-1
        file: 1280px-Leda_col_Signo_(Copy_Of_Leonardo_da_Vinci)_September_2015-1.jpg
@@ -147,10 +143,6 @@
        file: View_of_the_Brenta,_near_Dolo_MET_LC-1975_1_091-001.jpg
        date_created: late 18 th century date QS:P571,+1750-00-00T00:00:00Z/7,P4241,Q40719766
 
-1957 [wikidata_qs]          Rijksmuseum — Akashi strand Akashi no hama (titel op object), AK-MAK-1637
-       file: Akashi_strand_Akashi_no_hama_(titel_op_object),_AK-MAK-1637.jpg
-       date_created: after 1957 date QS:P,+1957-00-00T00:00:00Z/7,P1319,+1957-00-00T00:00:00Z/9
-
 1957 [jp_era]               Hasui Kawase — Kawase Hasui-No Series-Konjikido in Snow Hiraizumi
        file: Kawase_Hasui-No_Series-Konjikido_in_Snow_Hiraizumi.jpg
        date_created: 昭和32年出版
@@ -170,10 +162,6 @@
 1950 [era_phrase]           Léon Bakst — Carnival in Paris in Honour of the Russian Navy
        file: Léon_Bakst_-_Carnival_in_Paris_in_Honour_of_the_Russian_Navy.jpg
        date_created: 20th-century
-
-1950 [date_created_plain]   Léon Bakst — Negro boy by L.Bakst (1910, MAGMA)
-       file: Negro_boy_by_L.Bakst_(1910,_MAGMA).jpg
-       date_created: 20 th century date QS:P,+1950-00-00T00:00:00Z/7
 
 1949 [date_created_plain]   ? — 2560px-Vincent van Gogh - Grapes, Lemons, Pears, and Apples - 1949.215 - Art Institute of Chicago
        file: 2560px-Vincent_van_Gogh_-_Grapes,_Lemons,_Pears,_and_Apples_-_1949.215_-_Art_Institute_of_Chicago.jpg
@@ -230,7 +218,7 @@
        file: Tsuchiya_Kōitsu_-_Sketches_of_Famous_Places_in_Japan-_Asakusa_Kinryūzan_Temple_-_2016.76_-_Cleveland_Museum_of_Art_(cropped).tif
        date_created: 1938 date QS:P571,+1938-00-00T00:00:00Z/9
 
-1937 [date_created_plain]   Rijksmuseum — De warme bronnen van Shuzenji Shuzenji onsen (titel op object), RP-P-1968-277
+1937 [date_created_plain]   Kasamatsu Shirō — De warme bronnen van Shuzenji Shuzenji onsen (titel op object), RP-P-1968-277
        file: De_warme_bronnen_van_Shuzenji_Shuzenji_onsen_(titel_op_object),_RP-P-1968-277.jpg
        date_created: 1937
 
@@ -270,11 +258,15 @@
        file: Yoshida_Hiroshi_Suzukawa,_1935.jpg
        date_created: 1935 date QS:P571,+1935-00-00T00:00:00Z/9
 
-1934 [date_created_plain]   Rijksmuseum — De grote lantaarn van de Kannon tempel in Asakusa Asakusa Kannondo ochochin (serietitel op object), RP-P-1968-275
+1934 [date_created_plain]   Tsuchiya Kōitsu — Akashi strand Akashi no hama (titel op object), AK-MAK-1637
+       file: Akashi_strand_Akashi_no_hama_(titel_op_object),_AK-MAK-1637.jpg
+       date_created: 1934
+
+1934 [date_created_plain]   Kasamatsu Shirō — De grote lantaarn van de Kannon tempel in Asakusa Asakusa Kannondo ochochin (serietitel op object), RP-P-1968-275
        file: De_grote_lantaarn_van_de_Kannon_tempel_in_Asakusa_Asakusa_Kannondo_ochochin_(serietitel_op_object),_RP-P-1968-275.jpg
        date_created: 1934
 
-1934 [date_created_plain]   Rijksmuseum — Het drijvende paviljoen te Katada in de sneeuw Yuki no Katada Ukimido (titel op object), AK-MAK-1636
+1934 [date_created_plain]   Tsuchiya Kōitsu — Het drijvende paviljoen te Katada in de sneeuw Yuki no Katada Ukimido (titel op object), AK-MAK-1636
        file: Het_drijvende_paviljoen_te_Katada_in_de_sneeuw_Yuki_no_Katada_Ukimido_(titel_op_object),_AK-MAK-1636.jpg
        date_created: 1934-03
 
@@ -298,15 +290,14 @@
        file: NDL-DC_2586550-74_Kawase_Hasui_S0812_crd.jpg
        date_created: 1933 date QS:P571,+1933-00-00T00:00:00Z/9
 
-1933 [filename]             Sailko — Ohara koson, gatto e vasca con pesci rossi, 1933, xilografia colorata
+1933 [filename]             Ohara Koson — Ohara koson, gatto e vasca con pesci rossi, 1933, xilografia colorata
        file: Ohara_koson,_gatto_e_vasca_con_pesci_rossi,_1933,_xilografia_colorata.jpg
-       date_created: 2016-11-03 22:02:33
 
 1933 [date_created_plain]   Hiroshi Yoshida — The Golden Pavilion
        file: The_Golden_Pavilion_(5759027207).jpg
        date_created: Published in 1933
 
-1932 [date_created_plain]   Rijksmuseum — De rand van de Shinobazu vijver tijdens een mistige avond. Kasumu yube Shinobazu chihan (titel op object), RP-P-1998-389
+1932 [date_created_plain]   Kasamatsu Shirō — De rand van de Shinobazu vijver tijdens een mistige avond. Kasumu yube Shinobazu chihan (titel op object), RP-P-1998-389
        file: De_rand_van_de_Shinobazu_vijver_tijdens_een_mistige_avond._Kasumu_yube_Shinobazu_chihan_(titel_op_object),_RP-P-1998-389.jpg
        date_created: 1932
 
@@ -330,7 +321,7 @@
        file: Kawase_Hasui_(1931)_Snow_in_Mukojima.jpg
        date_created: 昭和6年出版
 
-1931 [date_created_plain]   TG 642 — Midnight Ride of Paul Revere
+1931 [date_created_plain]   Grant Wood — Midnight Ride of Paul Revere
        file: Midnight_Ride_of_Paul_Revere.jpg
        date_created: 1931
 
@@ -493,18 +484,6 @@
 1926 [wikidata_qs]          Claude Monet — The Dinner
        file: Monet_-_Das_Nachtessen,_1868-69.jpg
        date_created: 1868/1869 before 1926 date QS:P571,+1926-00-00T00:00:00Z/7,P1326,+1926-00-00T00:00:00Z/9
-
-1926 [wikidata_qs]          Claude Monet — Glaçons à Bougival
-       file: Monet_-_ice-floes-on-the-seine-at-bougival-1868.jpg
-       date_created: before 1926 date QS:P571,+1926-00-00T00:00:00Z/7,P1326,+1926-00-00T00:00:00Z/9
-
-1926 [wikidata_qs]          Claude Monet — Monet - yellow-irises-1917
-       file: Monet_-_yellow-irises-1917.jpg
-       date_created: before 1926 date QS:P571,+1926-00-00T00:00:00Z/7,P1326,+1926-00-00T00:00:00Z/9
-
-1926 [date_created_plain]   Claude Monet — Monet w1668
-       file: Monet_w1668.jpg
-       date_created: 1926-06-06
 
 1926 [wikidata_qs]          Alfons Mucha — Apotheosis of the Slavs
        file: Mucha_Apoteoza.jpg
