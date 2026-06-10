@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { useMemo, useState } from "react";
+import { useMemo, useRef, useState } from "react";
 import { useArtworkTooltip } from "@/components/artwork-tooltip";
 import { ResponsiveImage } from "@/components/responsive-image";
 import { Badge } from "@/components/ui/badge";
@@ -9,6 +9,8 @@ import { Input } from "@/components/ui/input";
 import { artworkAlt, displayTitle } from "@/lib/artwork-format";
 import { artworkHref } from "@/lib/artwork-scope";
 import type { ArtworkListing } from "@/lib/data";
+import { useTransitionNav } from "@/lib/use-transition-nav";
+import { artworkHeroVtName } from "@/lib/view-transitions";
 
 const DECADE = 10;
 
@@ -160,13 +162,22 @@ function TimelineTile({ artwork: a, decade }: { artwork: ArtworkListing; decade:
     artist: a.artist,
     year: a.year,
   });
+  const transitionNav = useTransitionNav();
+  const href = artworkHref(a.id, { kind: "decade", start: decade });
+  const tileRef = useRef<HTMLDivElement | null>(null);
+  const onClick = (e: React.MouseEvent<HTMLAnchorElement>) => {
+    const img = tileRef.current?.querySelector("img") ?? null;
+    transitionNav(e, href, { vtElement: img, vtName: artworkHeroVtName(a.id) });
+  };
   return (
     <div
+      ref={tileRef}
       className="group relative aspect-square overflow-hidden rounded-md bg-[var(--muted)]"
       {...handlers}
     >
       <Link
-        href={artworkHref(a.id, { kind: "decade", start: decade })}
+        href={href}
+        onClick={onClick}
         className="absolute inset-0 z-10 focus:outline-none focus-visible:ring-2 focus-visible:ring-[var(--ring)]"
         aria-label={artworkAlt(a)}
       />

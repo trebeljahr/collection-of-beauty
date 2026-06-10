@@ -17,6 +17,8 @@ import { ResponsiveImage } from "@/components/responsive-image";
 import { artworkAlt, displayTitle } from "@/lib/artwork-format";
 import { artworkHref, type Scope } from "@/lib/artwork-scope";
 import type { ArtworkListing } from "@/lib/data";
+import { useTransitionNav } from "@/lib/use-transition-nav";
+import { artworkHeroVtName } from "@/lib/view-transitions";
 
 export type GalleryPhoto = {
   // react-photo-album needs a src string to place tiles, even though we
@@ -321,9 +323,24 @@ function GalleryTileLink({
     artist: photo.artist,
     year: photo.year,
   });
+  const transitionNav = useTransitionNav();
+  const onClick = (e: React.MouseEvent<HTMLAnchorElement>) => {
+    const img = e.currentTarget.querySelector("img");
+    transitionNav(e, photo.href, {
+      vtElement: img,
+      vtName: artworkHeroVtName(photo.key),
+    });
+  };
   return (
     <>
-      <Link {...rest} {...handlers} href={photo.href} aria-label={photo.alt} className={className}>
+      <Link
+        {...rest}
+        {...handlers}
+        href={photo.href}
+        onClick={onClick}
+        aria-label={photo.alt}
+        className={className}
+      >
         {children}
       </Link>
       {portal}

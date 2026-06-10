@@ -161,6 +161,7 @@ export default async function ArtworkPage({
           {prevId && (
             <Link
               href={artworkHref(prevId, navScope)}
+              replace
               className="rounded-sm hover:underline focus:outline-none focus-visible:ring-2 focus-visible:ring-[var(--ring)]"
             >
               ← Previous
@@ -169,6 +170,7 @@ export default async function ArtworkPage({
           {nextId && (
             <Link
               href={artworkHref(nextId, navScope)}
+              replace
               className="rounded-sm hover:underline focus:outline-none focus-visible:ring-2 focus-visible:ring-[var(--ring)]"
             >
               Next →
