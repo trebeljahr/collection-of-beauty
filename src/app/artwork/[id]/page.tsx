@@ -17,7 +17,6 @@ import {
   getArtworksByArtist,
 } from "@/lib/data";
 import { assignEra, getEra } from "@/lib/gallery-eras";
-import { getLicenseInfo } from "@/lib/license";
 import { suggestFixUrl } from "@/lib/links";
 import { artworkJsonLd, jsonLdScriptProps, ogImagesForArtwork } from "@/lib/seo";
 
@@ -242,13 +241,14 @@ export default async function ArtworkPage({
               </Link>
             )}
             <LicenseBadge license={art.license} />
+            <CommonsBadge href={art.commonsUrl} />
           </div>
 
           <p className="text-sm leading-relaxed text-[var(--muted-foreground)]">
             {art.description ?? generatedByline(art)}
           </p>
 
-          <AttributionBlock artwork={art} />
+          <ProvenanceSection artwork={art} />
 
           <div>
             <p className="mb-2 text-xs text-[var(--muted-foreground)]">
@@ -343,52 +343,35 @@ function sampleStable<T>(pool: T[], count: number, seed: string): T[] {
 }
 
 /**
- * Wikimedia Commons attribution block in TASL order — Title, Author,
- * Source, License — per the Commons reuse guidelines:
- *   https://commons.wikimedia.org/wiki/Commons:Reusing_content_outside_Wikimedia
+ * Provenance — Wikidata-sourced collection / inventory / museum page
+ * when available, otherwise falls back to source links from the
+ * Commons file page, and finally to the legacy raw `credit` string
+ * with footnote refs cleaned up. Renders nothing when there is
+ * nothing meaningful to show.
  *
- * Provenance now comes from Wikidata when available (collection,
- * inventory, museum page URL); otherwise we fall back to source links
- * scraped from the Commons file page, and finally to the legacy raw
- * `credit` string with footnote refs cleaned up.
+ * Wikimedia Commons reuse attribution (TASL — Title, Author, Source,
+ * License) is satisfied by the page header (title + artist), the
+ * License badge, and the Commons source badge — no need to restate
+ * any of those here.
  */
-function AttributionBlock({ artwork }: { artwork: Artwork }) {
-  const titleText = displayTitle(artwork);
-  const author = artwork.artist ?? "Unknown artist";
+function ProvenanceSection({ artwork }: { artwork: Artwork }) {
   const prov = artwork.provenance;
   const fallbackCredit = !prov ? meaningfulCredit(artwork.credit) : null;
 
-  return (
-    <div className="rounded-lg border border-[var(--border)] p-4 text-xs leading-relaxed text-[var(--muted-foreground)]">
-      <p className="text-[var(--foreground)]">
-        “{titleText}”{author ? <> by {author}</> : null}
-        {artwork.year ? <>, {artwork.year}</> : null}.
+  if (prov) return <ProvenanceBlock prov={prov} />;
+  if (fallbackCredit) {
+    return (
+      <p className="text-xs leading-relaxed text-[var(--muted-foreground)]">
+        <span className="font-medium text-[var(--foreground)]">Provenance:</span>{" "}
+        {/^https?:\/\//.test(fallbackCredit) ? (
+          <ExternalLink href={fallbackCredit}>{hostnameOf(fallbackCredit)}</ExternalLink>
+        ) : (
+          fallbackCredit
+        )}
       </p>
-      <p className="mt-1.5">
-        Available under <LicenseInline license={artwork.license} />, via{" "}
-        <a
-          href={artwork.commonsUrl}
-          target="_blank"
-          rel="noreferrer"
-          className="rounded-sm underline underline-offset-2 hover:text-[var(--foreground)] focus:outline-none focus-visible:ring-2 focus-visible:ring-[var(--ring)]"
-        >
-          Wikimedia Commons
-        </a>
-        .
-      </p>
-      {prov && <ProvenanceBlock prov={prov} />}
-      {fallbackCredit && (
-        <p className="mt-1.5">
-          <span className="font-medium text-[var(--foreground)]">Provenance:</span>{" "}
-          {/^https?:\/\//.test(fallbackCredit) ? (
-            <ExternalLink href={fallbackCredit}>{hostnameOf(fallbackCredit)}</ExternalLink>
-          ) : (
-            fallbackCredit
-          )}
-        </p>
-      )}
-    </div>
-  );
+    );
+  }
+  return null;
 }
 
 function ProvenanceBlock({ prov }: { prov: NonNullable<Artwork["provenance"]> }) {
@@ -400,7 +383,7 @@ function ProvenanceBlock({ prov }: { prov: NonNullable<Artwork["provenance"]> })
   if (!hasStructured && !hasLinks && !prov.wikidataUrl) return null;
 
   return (
-    <div className="mt-3 border-t border-[var(--border)] pt-3">
+    <div className="text-xs leading-relaxed text-[var(--muted-foreground)]">
       <p className="mb-1.5 font-medium text-[var(--foreground)]">Provenance</p>
       {prov.collection && (
         <p>
@@ -439,6 +422,36 @@ function ProvenanceBlock({ prov }: { prov: NonNullable<Artwork["provenance"]> })
   );
 }
 
+/** Pill linking to the Wikimedia Commons file page — the "Source" leg
+ *  of TASL attribution, styled to sit next to LicenseBadge. */
+function CommonsBadge({ href }: { href: string }) {
+  return (
+    <a
+      href={href}
+      target="_blank"
+      rel="noreferrer"
+      title="View source on Wikimedia Commons"
+      className="inline-flex items-center gap-1.5 rounded-full border border-[var(--border)] bg-[var(--card)] px-2.5 py-1 text-xs font-medium transition-colors hover:bg-[var(--muted)] hover:text-[var(--foreground)]"
+    >
+      Wikimedia Commons
+      <svg
+        viewBox="0 0 24 24"
+        width="11"
+        height="11"
+        fill="none"
+        stroke="currentColor"
+        strokeWidth="2"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+        aria-hidden="true"
+      >
+        <path d="M7 17 17 7" />
+        <path d="M8 7h9v9" />
+      </svg>
+    </a>
+  );
+}
+
 function GitHubIcon() {
   return (
     <svg
@@ -472,22 +485,6 @@ function hostnameOf(url: string): string {
   } catch {
     return url;
   }
-}
-
-function LicenseInline({ license }: { license: string | null | undefined }) {
-  // Inline link variant — same target as the LicenseBadge above, but
-  // styled as flowing text inside the attribution sentence.
-  const info = getLicenseInfo(license);
-  return (
-    <a
-      href={info.url}
-      target="_blank"
-      rel="license noreferrer"
-      className="rounded-sm underline underline-offset-2 hover:text-[var(--foreground)] focus:outline-none focus-visible:ring-2 focus-visible:ring-[var(--ring)]"
-    >
-      {info.short}
-    </a>
-  );
 }
 
 /** Clean up the Wikimedia source.credit before display. The raw field
