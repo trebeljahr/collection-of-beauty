@@ -9,7 +9,7 @@ import { Input } from "@/components/ui/input";
 import { artworkAlt, displayTitle } from "@/lib/artwork-format";
 import { artworkHref } from "@/lib/artwork-scope";
 import type { ArtworkListing } from "@/lib/data";
-import { setOriginTile, useArtworkBackFlip } from "@/lib/use-artwork-back-flip";
+import { useArtworkBackFlip } from "@/lib/use-artwork-back-flip";
 import { useTransitionNav } from "@/lib/use-transition-nav";
 import { artworkHeroVtName } from "@/lib/view-transitions";
 
@@ -168,7 +168,6 @@ function TimelineTile({ artwork: a, decade }: { artwork: ArtworkListing; decade:
   const href = artworkHref(a.id, { kind: "decade", start: decade });
   const tileRef = useRef<HTMLDivElement | null>(null);
   const onClick = (e: React.MouseEvent<HTMLAnchorElement>) => {
-    setOriginTile(a.id);
     const img = tileRef.current?.querySelector("img") ?? null;
     transitionNav(e, href, { vtElement: img, vtName: artworkHeroVtName(a.id) });
   };

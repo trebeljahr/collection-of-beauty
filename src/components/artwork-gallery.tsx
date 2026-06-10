@@ -17,7 +17,7 @@ import { ResponsiveImage } from "@/components/responsive-image";
 import { artworkAlt, displayTitle } from "@/lib/artwork-format";
 import { artworkHref, type Scope } from "@/lib/artwork-scope";
 import type { ArtworkListing } from "@/lib/data";
-import { setOriginTile, useArtworkBackFlip } from "@/lib/use-artwork-back-flip";
+import { useArtworkBackFlip } from "@/lib/use-artwork-back-flip";
 import { useTransitionNav } from "@/lib/use-transition-nav";
 import { artworkHeroVtName } from "@/lib/view-transitions";
 
@@ -120,8 +120,6 @@ export function ArtworkGallery({
     [artworks, activeScope],
   );
 
-  useArtworkBackFlip();
-
   // Single source of truth for what's on screen. New items — local or
   // server-fetched — append to this array. We deliberately do NOT mirror
   // the parent's photos array via a slice index: the gallery-browser
@@ -143,6 +141,12 @@ export function ArtworkGallery({
   const hasMoreLocal = displayed.length < photos.length;
   const hasMoreServer = hasMoreArtworks && !!loadMoreArtworks && !serverExhausted;
   const hasMore = hasMoreLocal || hasMoreServer;
+
+  // Mirror `loadMore` + `hasMore` into refs so the back-flip hook can
+  // chase a tile through additional pagination calls without making the
+  // popstate listener re-attach on every render.
+  const hasMoreRef = useRef(hasMore);
+  hasMoreRef.current = hasMore;
 
   const loadingRef = useRef(false);
   const loadMore = useCallback(async () => {
@@ -180,6 +184,13 @@ export function ArtworkGallery({
       }, 100);
     }
   }, [photos, hasMoreArtworks, loadMoreArtworks, activeScope]);
+
+  const loadMoreRef = useRef(loadMore);
+  loadMoreRef.current = loadMore;
+  useArtworkBackFlip({
+    expand: () => loadMoreRef.current(),
+    canExpand: () => hasMoreRef.current,
+  });
 
   // Sentinel mounted iff there's more to load. Attaches the IO once;
   // detaches when hasMore flips to false (end of gallery). This is the
@@ -328,7 +339,6 @@ function GalleryTileLink({
   });
   const transitionNav = useTransitionNav();
   const onClick = (e: React.MouseEvent<HTMLAnchorElement>) => {
-    setOriginTile(photo.key);
     const img = e.currentTarget.querySelector("img");
     transitionNav(e, photo.href, {
       vtElement: img,
