@@ -10,7 +10,7 @@ import { ogImagesForArtwork } from "@/lib/seo";
 
 type Params = { id: string };
 
-// All 9 eras are static — prebuild every one. Each runs a single
+// All 11 eras are static — prebuild every one. Each runs a single
 // resolveScope pass (~2,950 listings filtered + sorted) at build time
 // which is trivial, and the surface is the canonical landing for any
 // "from=era:<id>" lightbox return so it pays to be instant.
