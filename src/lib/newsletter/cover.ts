@@ -35,6 +35,12 @@ export function resolveEditionCover(edition: Edition): ResolvedCover | null {
   if (!candidateId) return null;
   const artwork = byId.get(candidateId);
   if (!artwork) {
+    if (edition.draft && process.env.NODE_ENV !== "production") {
+      console.warn(
+        `[newsletter] draft ${edition.fileSlug}: cover artworkId "${candidateId}" not in catalogue — rendering without cover.`,
+      );
+      return null;
+    }
     throw new Error(
       `Edition ${edition.fileSlug}: cover references unknown artwork id "${candidateId}".`,
     );

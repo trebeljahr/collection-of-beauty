@@ -305,13 +305,22 @@ function EditionFooterLink({
 
 function resolveArtworks(edition: Edition) {
   const byId = new Map(ALL_ARTWORKS.map((a) => [a.id, a]));
-  return edition.artworks.map((entry) => {
+  const tolerateMissing = edition.draft && process.env.NODE_ENV !== "production";
+  const resolved: { artwork: (typeof ALL_ARTWORKS)[number]; note: string | undefined }[] = [];
+  for (const entry of edition.artworks) {
     const artwork = byId.get(entry.id);
     if (!artwork) {
+      if (tolerateMissing) {
+        console.warn(
+          `[newsletter] draft ${edition.fileSlug}: artwork id "${entry.id}" not in catalogue — skipped.`,
+        );
+        continue;
+      }
       throw new Error(`Edition ${edition.fileSlug}: artworks references unknown id "${entry.id}".`);
     }
-    return { artwork, note: entry.note };
-  });
+    resolved.push({ artwork, note: entry.note });
+  }
+  return resolved;
 }
 
 function formatDate(iso: string): string {
