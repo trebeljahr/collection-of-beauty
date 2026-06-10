@@ -237,7 +237,9 @@ export default async function ArtworkPage({
                 href={`/era/${era.id}`}
                 className="rounded-sm focus:outline-none focus-visible:ring-2 focus-visible:ring-[var(--ring)]"
               >
-                <Badge variant="outline">{era.title}</Badge>
+                <Badge variant="outline" className="rounded-full px-2.5 py-1">
+                  {era.title}
+                </Badge>
               </Link>
             )}
             <LicenseBadge license={art.license} />
