@@ -321,6 +321,12 @@ function bucketByEra(all: ArtworkListing[]): Map<EraId, ArtworkListing[]> {
 // --- Per-floor layout -----------------------------------------------------
 
 function buildFloor(era: Era, eraArtworks: ArtworkListing[]): FloorLayout {
+  // Interleave artists across the floor. The source data is grouped by
+  // folder (audubon-birds, kunstformen-images, collection-of-beauty),
+  // so left untouched the natural-history floor reads Audubon-then-
+  // Haeckel and other eras clump by artist/year. Sorting by a stable
+  // hash of `id` shuffles within the era without breaking determinism.
+  eraArtworks = shuffleByIdHash(eraArtworks);
   const byMovement = groupMovements(era, eraArtworks);
   const anchorMovement = resolveAnchorMovement(era, byMovement);
 
@@ -490,6 +496,22 @@ function buildFloor(era: Era, eraArtworks: ArtworkListing[]): FloorLayout {
 }
 
 // --- Helpers --------------------------------------------------------------
+
+function shuffleByIdHash<T extends { id: string }>(items: T[]): T[] {
+  return items
+    .map((item) => ({ item, h: fnv1aHash(item.id) }))
+    .sort((a, b) => a.h - b.h)
+    .map(({ item }) => item);
+}
+
+function fnv1aHash(s: string): number {
+  let h = 0x811c9dc5;
+  for (let i = 0; i < s.length; i++) {
+    h ^= s.charCodeAt(i);
+    h = Math.imul(h, 0x01000193);
+  }
+  return h >>> 0;
+}
 
 function groupMovements(era: Era, eraArtworks: ArtworkListing[]): Map<string, ArtworkListing[]> {
   const byMovement = new Map<string, ArtworkListing[]>();
