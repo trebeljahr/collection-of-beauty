@@ -1,4 +1,5 @@
 import { describe, expect, it } from "vitest";
+import { getAllListingsInDefaultOrder } from "@/lib/artwork-pagination";
 import {
   artworkHref,
   encodeScope,
@@ -23,6 +24,7 @@ describe("parseScope", () => {
   });
 
   it("parses each kind", () => {
+    expect(parseScope("gallery")).toEqual({ kind: "gallery" });
     expect(parseScope("artist:claude-monet")).toEqual({ kind: "artist", slug: "claude-monet" });
     expect(parseScope("movement:Impressionism")).toEqual({
       kind: "movement",
@@ -59,6 +61,7 @@ describe("parseScope", () => {
 describe("encodeScope", () => {
   it("round-trips with parseScope for each kind", () => {
     const cases: Scope[] = [
+      { kind: "gallery" },
       { kind: "artist", slug: "claude-monet" },
       { kind: "movement", name: "Northern Song" },
       { kind: "movement", name: "Ukiyo-e" },
@@ -90,6 +93,7 @@ describe("artworkHref", () => {
   });
 
   it("appends ?from= encoded scope when present", () => {
+    expect(artworkHref("abc-123", { kind: "gallery" })).toBe("/artwork/abc-123?from=gallery");
     expect(artworkHref("abc-123", { kind: "artist", slug: "claude-monet" })).toBe(
       "/artwork/abc-123?from=artist:claude-monet",
     );
@@ -100,6 +104,10 @@ describe("artworkHref", () => {
 });
 
 describe("scopeHref", () => {
+  it("points gallery scope at the home page", () => {
+    expect(scopeHref({ kind: "gallery" })).toBe("/");
+  });
+
   it("points artist scope at the artist page", () => {
     expect(scopeHref({ kind: "artist", slug: "claude-monet" })).toBe("/artist/claude-monet");
   });
@@ -121,6 +129,10 @@ describe("scopeHref", () => {
 });
 
 describe("scopeLabel", () => {
+  it("labels gallery scope as `gallery`", () => {
+    expect(scopeLabel({ kind: "gallery" })).toBe("gallery");
+  });
+
   it("looks up the artist name for an artist scope", () => {
     expect(scopeLabel({ kind: "artist", slug: "claude-monet" })).toBe("Claude Monet");
   });
@@ -146,6 +158,13 @@ describe("scopeLabel", () => {
 });
 
 describe("resolveScope", () => {
+  it("returns the full collection in the home page's default order for the gallery scope", () => {
+    const resolved = resolveScope({ kind: "gallery" });
+    const expected = getAllListingsInDefaultOrder();
+    expect(resolved).toBe(expected);
+    expect(resolved.length).toBe(artworkListings.length);
+  });
+
   it("returns the artist's works in the same order as the artist page", () => {
     const slug = "claude-monet";
     const resolved = resolveScope({ kind: "artist", slug });

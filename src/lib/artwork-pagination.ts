@@ -21,6 +21,21 @@ export type ArtworkPageInput = {
   maxYear?: number | null;
 };
 
+let cachedDefaultGalleryOrder: ArtworkListing[] | null = null;
+
+/** Full collection in the home page's default display order:
+ *  shuffle-with-artist-spread (default seed) + pinned head. Used by the
+ *  `gallery` scope so prev/next on the artwork detail page walks the
+ *  same sequence visible on the home grid. The order is deterministic
+ *  given the default seed and pinned ids, so a module-scope cache pays
+ *  the ~2,950-item sort exactly once per server instance. */
+export function getAllListingsInDefaultOrder(): ArtworkListing[] {
+  if (cachedDefaultGalleryOrder) return cachedDefaultGalleryOrder;
+  const sorted = sortArtworkListings(artworkListings, DEFAULT_ARTWORK_SORT, DEFAULT_SHUFFLE_SEED);
+  cachedDefaultGalleryOrder = applyPinnedHead(sorted, PINNED_FIRST_PAGE_IDS);
+  return cachedDefaultGalleryOrder;
+}
+
 export function getArtworkListingPage(input: ArtworkPageInput = {}): ArtworkPage {
   const offset = Math.max(0, Math.trunc(input.offset ?? 0));
   const limit = clampLimit(input.limit);
