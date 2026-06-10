@@ -175,6 +175,12 @@ const REMOVALS = [
     keep: "1596_Caravaggio,_The_Lute_Player_New_York.jpg",
     reason: "two autograph versions exist (Met + Hermitage); curator keeps Met; second version is noted in the curator description",
   },
+  {
+    folder: "collection-of-beauty",
+    remove: "Kunisada_futamigaura.jpg",
+    keep: "Utagawa_Kunisada_I_(c._1832)_Dawn_at_Futami-ga-ura.jpg",
+    reason: "same Kunisada c.1832 Wedded Rocks at Futami-ga-ura; keeper is the MFA Boston scan with the title cartouche, full margins and shore figures; remove file is a tighter crop with no provenance",
+  },
 ];
 
 // Mirror scripts/build-data.mjs slugify() exactly so the ids we generate
