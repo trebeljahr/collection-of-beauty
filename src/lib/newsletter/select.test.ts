@@ -19,6 +19,7 @@ function makeArtwork(id: string): Artwork {
     height: null,
     realDimensions: null,
     variantWidths: null,
+    dominantColor: null,
     fileUrl: "",
     commonsUrl: "",
     credit: null,

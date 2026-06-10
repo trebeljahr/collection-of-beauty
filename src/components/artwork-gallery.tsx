@@ -23,6 +23,7 @@ export type GalleryPhoto = {
   title: string;
   artist: string | null;
   year: number | null;
+  dominantColor: string | null;
 };
 
 export function toGalleryPhoto(a: ArtworkListing, scope: Scope | null = null): GalleryPhoto {
@@ -44,6 +45,7 @@ export function toGalleryPhoto(a: ArtworkListing, scope: Scope | null = null): G
     title: displayTitle(a),
     artist: a.artist,
     year: a.year,
+    dominantColor: a.dominantColor,
   };
 }
 
@@ -221,6 +223,7 @@ export function ArtworkGallery({
                 srcHeight={p.height}
                 sizes={`${Math.ceil(width)}px`}
                 loading="lazy"
+                dominantColor={p.dominantColor}
                 style={{ width: "100%", height: "100%", objectFit: "cover" }}
               />
             );

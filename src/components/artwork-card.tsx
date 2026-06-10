@@ -18,7 +18,10 @@ export function ArtworkCard({ artwork, priority, scope }: Props) {
         aria-label={artworkAlt(artwork)}
         className="absolute inset-0 z-10 focus:outline-none focus-visible:ring-2 focus-visible:ring-[var(--ring)]"
       />
-      <div className="relative aspect-[4/5] overflow-hidden bg-[var(--muted)]">
+      <div
+        className="relative aspect-[4/5] overflow-hidden bg-[var(--muted)]"
+        style={artwork.dominantColor ? { backgroundColor: artwork.dominantColor } : undefined}
+      >
         <ResponsiveImage
           objectKey={artwork.objectKey}
           variantWidths={artwork.variantWidths}
@@ -26,6 +29,7 @@ export function ArtworkCard({ artwork, priority, scope }: Props) {
           fill
           sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 20vw"
           priority={priority}
+          dominantColor={artwork.dominantColor}
           className="transition-transform duration-500 group-hover:scale-105 group-active:scale-[1.02]"
         />
       </div>

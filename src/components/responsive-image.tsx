@@ -23,6 +23,12 @@ type Props = {
   loading?: "lazy" | "eager";
   /** Hints the first contentful image — sets fetchpriority=high and eager. */
   priority?: boolean;
+  /** Average RGB hex (e.g. "#a87b4f") painted as the <img>'s
+   *  background-color. While the AVIF variant downloads on slow mobile
+   *  connections the tile shows this tint at the correct aspect ratio
+   *  rather than an empty white box; once pixels decode they cover the
+   *  tint. Mirrors Artwork.dominantColor. Null/undefined = no tint. */
+  dominantColor?: string | null;
   style?: CSSProperties;
 };
 
@@ -50,6 +56,7 @@ export function ResponsiveImage({
   fill,
   loading = "lazy",
   priority,
+  dominantColor,
   style,
 }: Props) {
   // React accepts `fetchPriority` (camelCase) as of 18.3 / 19. Older React
@@ -59,6 +66,9 @@ export function ResponsiveImage({
 
   const hasVariants = variantWidths && variantWidths.length > 0;
   const fillClasses = "absolute inset-0 h-full w-full object-cover";
+  const mergedStyle: CSSProperties | undefined = dominantColor
+    ? { backgroundColor: dominantColor, ...style }
+    : style;
 
   if (!hasVariants) {
     // No shrunk variants — serve the original directly. <picture> tags
@@ -76,7 +86,7 @@ export function ResponsiveImage({
         loading={resolvedLoading}
         fetchPriority={fetchPriority}
         className={cn(fill && fillClasses, className)}
-        style={style}
+        style={mergedStyle}
       />
     );
   }
@@ -101,7 +111,7 @@ export function ResponsiveImage({
           loading={resolvedLoading}
           fetchPriority={fetchPriority}
           className={cn(fillClasses, className)}
-          style={style}
+          style={mergedStyle}
         />
       </picture>
     );
@@ -121,7 +131,7 @@ export function ResponsiveImage({
         loading={resolvedLoading}
         fetchPriority={fetchPriority}
         className={className}
-        style={style}
+        style={mergedStyle}
       />
     </picture>
   );

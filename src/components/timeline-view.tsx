@@ -154,6 +154,7 @@ export function TimelineView({ artworks, movements }: Props) {
                     fill
                     sizes="(max-width: 640px) 33vw, (max-width: 1024px) 20vw, 12vw"
                     loading="lazy"
+                    dominantColor={a.dominantColor}
                     className="transition-transform duration-500 group-hover:scale-110"
                   />
                   {/* Caption: always visible on touch (no hover state)
