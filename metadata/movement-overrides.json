@@ -1,0 +1,32 @@
+{
+  "_comment": "Per-artwork movement overrides. Keyed by artwork id. Applied AFTER the artist-level default from artists-db.json. Use when an artist's by-default movement misclassifies a specific work — typically because the work predates the artist's stylistic transition (e.g. early Van Gogh in Dutch period, early Gauguin under Pissarro), or because the artist's catalogue spans multiple genres with different movements (e.g. Sargent's studio portraits vs his plein-air landscapes).",
+  "_sources": "Generated from an LLM era-fit audit (workflow era-audit-impressionism). 25 works flagged and confirmed by adversarial verification. See git history for the audit run.",
+
+  "collection-of-beauty-13-50-sl1-general-use": "Realism",
+  "collection-of-beauty-chase-william-merritt-still-life-with-watermelon-1869": "Realism",
+  "collection-of-beauty-william-merritt-chase-still-life-with-hummingbird-google-art-project": "Realism",
+  "collection-of-beauty-william-merrit-chase-still-life-with-fruit-1871": "Realism",
+
+  "collection-of-beauty-edgar-degas-the-bellelli-family-google-art-project": "Realism",
+
+  "collection-of-beauty-edouard-manet-olympia-google-art-project-3": "Realism",
+  "collection-of-beauty-edouard-manet-le-christ-mort-et-les-anges": "Realism",
+  "collection-of-beauty-the-ragpicker-1869-edouard-manet": "Realism",
+
+  "collection-of-beauty-georges-seurat-c-1879-81-vase-of-flowers-oil-on-canvas-46-3-x-38-5-cm-fogg-museum": "Impressionism",
+
+  "collection-of-beauty-el-jaleo-singer": "Realism",
+  "collection-of-beauty-lady-with-the-rose-charlotte-louise-burckhardt-met-dt1151": "Realism",
+  "collection-of-beauty-the-daughters-of-edward-darley-boit-john-singer-sargent-1882-unfree-frame-crop": "Realism",
+  "collection-of-beauty-madame-x-madame-pierre-gautreau-john-singer-sargent-1884-unfree-frame-crop": "Realism",
+  "collection-of-beauty-john-singer-sargent-lady-agnew-of-lochnaw-1892": "Realism",
+  "collection-of-beauty-mrs-thomas-lincoln-manson-jr-by-john-singer-sargent": "Realism",
+
+  "collection-of-beauty-paul-gauguin-200": "Impressionism",
+  "collection-of-beauty-paul-gauguin-059": "Impressionism",
+  "collection-of-beauty-paul-gauguin-001": "Impressionism",
+  "collection-of-beauty-paul-gauguin-1880-the-embroiderer-la-brodeuse-oil-on-canvas-116-x-81-cm-foundation-e-g-buhrle": "Impressionism",
+
+  "collection-of-beauty-van-gogh-f1040-jh100": "Realism",
+  "collection-of-beauty-van-gogh-in-the-orchard-1883": "Realism"
+}

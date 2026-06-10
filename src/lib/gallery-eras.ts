@@ -332,7 +332,13 @@ export const ERAS: Era[] = [
     // either the plein-air or fragmentation neighbours.
     yearMin: 9999,
     yearMax: 0,
-    movements: ["Post-Impressionism", "Les Nabis", "Symbolism", "Art Nouveau"],
+    // "Naive art" lives here because Rousseau — the canonical Naive
+    // painter — is chronologically and visually adjacent to the
+    // Post-Impressionists / Symbolists. Musée d'Orsay groups them the
+    // same way. Without this alias Rousseau falls through to the
+    // year-fallback and splits awkwardly across Impressionism and
+    // Modernism floors.
+    movements: ["Post-Impressionism", "Les Nabis", "Symbolism", "Art Nouveau", "Naive art"],
     palette: {
       // Warm wheat walls, deep aubergine floor, violet accent —
       // van Gogh starry-night complementaries crossed with Munch
