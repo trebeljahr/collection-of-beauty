@@ -321,6 +321,7 @@ export function GalleryBrowser({ initialArtworks, eras, totalArtworks }: Props) 
           hasMoreArtworks={pageInfo.hasMore}
           initialSeed={Math.min(PAGE_SIZE, visibleArtworks.length)}
           resetKey={filterKey}
+          scope={{ kind: "gallery" }}
         />
       )}
     </div>
