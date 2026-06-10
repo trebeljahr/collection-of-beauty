@@ -4249,21 +4249,29 @@
     },
     "2560px-Courbet_LAtelier_du_peintre.jpg": {
       "filename": "2560px-Courbet_LAtelier_du_peintre.jpg",
-      "resolved": false,
-      "needs_review": true,
-      "title": "2560px-Courbet LAtelier du peintre",
-      "artist": null,
-      "date_created": null,
+      "resolved": true,
+      "needs_review": false,
+      "title": "The Painter's Studio (L'Atelier du peintre): A Real Allegory Summing Up Seven Years of My Artistic and Moral Life",
+      "artist": "Gustave Courbet",
+      "date_created": "between 1854 and 1855",
+      "year": 1855,
+      "description": "Courbet sits at his easel in the centre of a crowded studio that contains a nude model, a small boy, a dog, the friend and patron Champfleury, Charles Baudelaire reading at the right, and a row of anonymous figures at the left. He subtitled the canvas a real allegory summing up seven years of his artistic and moral life. Rejected by the 1855 Exposition Universelle on grounds of size, Courbet showed it in his own Pavillon du Realisme.",
       "source": {
-        "type": "unknown",
-        "url": null
+        "type": "Wikimedia Commons",
+        "canonical_title": "File:Courbet LAtelier du peintre.jpg",
+        "url": "https://commons.wikimedia.org/wiki/File:Courbet_LAtelier_du_peintre.jpg",
+        "file_url": "https://upload.wikimedia.org/wikipedia/commons/a/a4/Courbet_LAtelier_du_peintre.jpg",
+        "credit": "Musée d'Orsay, Paris (RF 2257) via Wikimedia Commons",
+        "permission": null,
+        "attribution": null
       },
       "copyright": {
-        "copyrighted": null,
-        "license": null,
-        "notes": "Not found on Wikimedia Commons; needs manual review."
+        "copyrighted": false,
+        "license_short": "Public domain",
+        "license_url": "https://en.wikipedia.org/wiki/Public_domain",
+        "usage_terms": "Public domain — author died 1877 (pre-1929)"
       },
-      "year": null
+      "year_source": "manual_review"
     },
     "2560px-De_heuvel_van_Montmartre_met_steengroeve_-_s0012V1962_-_Van_Gogh_Museum.jpg": {
       "filename": "2560px-De_heuvel_van_Montmartre_met_steengroeve_-_s0012V1962_-_Van_Gogh_Museum.jpg",
