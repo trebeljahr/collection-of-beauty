@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { ScopedGallery } from "@/components/scoped-gallery";
-import { Badge } from "@/components/ui/badge";
+import { pillClasses } from "@/components/ui/pill";
 import { DEFAULT_ARTWORK_PAGE_SIZE } from "@/lib/artwork-page-schema";
 import { getArtworkListingPage } from "@/lib/artwork-pagination";
 import { resolveScope } from "@/lib/artwork-scope";
@@ -108,9 +108,9 @@ export default async function EraPage({ params }: { params: Promise<Params> }) {
               <Link
                 key={m}
                 href={`/timeline?movement=${encodeURIComponent(m)}`}
-                className="rounded-sm focus:outline-none focus-visible:ring-2 focus-visible:ring-[var(--ring)]"
+                className={`${pillClasses} focus:outline-none focus-visible:ring-2 focus-visible:ring-[var(--ring)]`}
               >
-                <Badge variant="secondary">{m}</Badge>
+                {m}
               </Link>
             ))}
           </div>
