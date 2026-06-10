@@ -61,6 +61,13 @@ export type Artwork = {
    *  attempting fetches for variants that don't exist yet. `null` when
    *  nothing has been shrunk for this artwork. */
   variantWidths: number[] | null;
+  /** Average RGB hex (e.g. "#a87b4f") of the artwork — used as a CSS
+   *  background-color underneath each gallery tile so slow mobile
+   *  connections show a tinted block in the correct aspect ratio while
+   *  the AVIF variant downloads. Extracted from the smallest pre-built
+   *  variant (or the original) via `sharp().stats()` in build-data.
+   *  Null when nothing on disk was readable at build time. */
+  dominantColor: string | null;
   fileUrl: string;
   commonsUrl: string;
   credit: string | null;
@@ -127,6 +134,7 @@ export type ArtworkListing = Pick<
   | "width"
   | "height"
   | "realDimensions"
+  | "dominantColor"
 >;
 
 const _artworkListings: ArtworkListing[] = (artworksJson as Artwork[]).map((a) => ({
@@ -143,6 +151,7 @@ const _artworkListings: ArtworkListing[] = (artworksJson as Artwork[]).map((a) =
   width: a.width,
   height: a.height,
   realDimensions: a.realDimensions,
+  dominantColor: a.dominantColor,
 }));
 export const artworkListings: ArtworkListing[] = _artworkListings;
 export const summary = summaryJson as {

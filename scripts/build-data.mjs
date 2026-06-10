@@ -85,6 +85,65 @@ async function dimensionsFor(folderKey, filename) {
   return result;
 }
 
+// Compute a single dominant RGB hex (e.g. "#a87b4f") per artwork. Used
+// as a CSS background-color underneath each <img> so slow mobile
+// connections show a tinted block in the correct aspect ratio while the
+// AVIF variant downloads, instead of an empty white tile that pops once
+// the bytes arrive.
+//
+// We prefer the smallest pre-built variant (typically 256.avif, ~10 KB)
+// over the original plate (often 10-30 MB); decoding the variant is
+// orders of magnitude faster and sharp().stats() is already an average
+// over all pixels, so the dominant color is materially the same.
+const colorCache = new Map();
+async function dominantColorFor(folderKey, filename) {
+  const key = `${folderKey}/${filename}`;
+  if (colorCache.has(key)) return colorCache.get(key);
+  let result = null;
+  const basename = filename.replace(/\.[^.]+$/, "");
+  const variantDir = path.join(ASSETS_WEB, folderKey, basename);
+  let source = null;
+  if (existsSync(variantDir)) {
+    try {
+      const files = readdirSync(variantDir);
+      let smallestWidth = Infinity;
+      let smallestFile = null;
+      for (const f of files) {
+        const m = f.match(/^(\d+)\.(avif|webp)$/i);
+        if (!m) continue;
+        const w = Number.parseInt(m[1], 10);
+        if (w < smallestWidth) {
+          smallestWidth = w;
+          smallestFile = f;
+        }
+      }
+      if (smallestFile) source = path.join(variantDir, smallestFile);
+    } catch {
+      // fall through to original
+    }
+  }
+  if (!source) {
+    const file = path.join(ASSETS, folderKey, filename);
+    if (existsSync(file)) source = file;
+  }
+  if (source) {
+    try {
+      const stats = await sharp(source).stats();
+      const channels = stats.channels.slice(0, 3);
+      if (channels.length === 3) {
+        const hex = channels
+          .map((c) => Math.max(0, Math.min(255, Math.round(c.mean))).toString(16).padStart(2, "0"))
+          .join("");
+        result = `#${hex}`;
+      }
+    } catch {
+      // leave null
+    }
+  }
+  colorCache.set(key, result);
+  return result;
+}
+
 const WIKIMEDIA_FOLDERS = ["collection-of-beauty", "audubon-birds", "kunstformen-images"];
 
 function assertRequiredAssetsAvailable() {
@@ -953,6 +1012,7 @@ async function main() {
       const dims = await dimensionsFor(folderKey, fname);
       const real = realDimensions.get(id) || null;
       const variantWidths = variantWidthsFor(folderKey, fname);
+      const dominantColor = await dominantColorFor(folderKey, fname);
       const objectKey = `${folderKey}/${fname}`;
       const englishTitle = titleOverrides.get(objectKey.normalize("NFC")) ?? null;
       const originalDateString = dateOriginals.get(fname.normalize("NFC")) ?? null;
@@ -972,6 +1032,7 @@ async function main() {
         height: dims?.height ?? null,
         realDimensions: real,
         variantWidths: variantWidths.length > 0 ? variantWidths : null,
+        dominantColor,
         fileUrl: entry.source.file_url,
         commonsUrl: entry.source.url,
         credit: cleanCredit(entry.source.credit),
