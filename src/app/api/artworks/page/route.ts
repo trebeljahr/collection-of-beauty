@@ -22,6 +22,7 @@ export function GET(request: Request) {
     seed: params.get("seed") || DEFAULT_SHUFFLE_SEED,
     query: params.get("q") ?? "",
     era: parseEra(params.get("era")),
+    artistSlug: params.get("artistSlug") || null,
     minYear: parseOptionalNumber(params.get("minYear")),
     maxYear: parseOptionalNumber(params.get("maxYear")),
   });

@@ -1,25 +1,22 @@
 "use client";
 
-import {
-  startTransition,
-  useCallback,
-  useDeferredValue,
-  useEffect,
-  useMemo,
-  useRef,
-  useState,
-} from "react";
+import { useCallback, useDeferredValue, useEffect, useMemo, useRef, useState } from "react";
 import { ArtworkGallery } from "@/components/artwork-gallery";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import {
-  type ArtworkPage,
   type ArtworkSort,
   DEFAULT_ARTWORK_PAGE_SIZE,
   DEFAULT_SHUFFLE_SEED,
 } from "@/lib/artwork-page-schema";
 import type { ArtworkListing } from "@/lib/data";
+import {
+  type ArtworkPageInfo,
+  type ArtworkPageQuery,
+  fetchArtworkPage,
+  useArtworkPagination,
+} from "@/lib/use-artwork-pagination";
 
 type EraOption = { id: string; title: string };
 
@@ -34,20 +31,8 @@ type FuseSearch = {
 };
 type FuseCtor = new (list: ArtworkListing[], options: Record<string, unknown>) => FuseSearch;
 
-type PageStatus = "idle" | "loading" | "loading-more" | "failed";
+type PageStatus = "idle" | "loading" | "failed";
 
-type PageInfo = Pick<ArtworkPage, "total" | "nextOffset" | "hasMore">;
-
-type PageParams = {
-  q: string;
-  era: string;
-  minYear: string;
-  maxYear: string;
-  sort: ArtworkSort;
-  seed: string;
-};
-
-const PAGE_ENDPOINT = "/api/artworks/page";
 const PAGE_SIZE = DEFAULT_ARTWORK_PAGE_SIZE;
 
 export function GalleryBrowser({ initialArtworks, eras, totalArtworks }: Props) {
@@ -57,30 +42,11 @@ export function GalleryBrowser({ initialArtworks, eras, totalArtworks }: Props) 
   const [minYear, setMinYear] = useState<string>("");
   const [maxYear, setMaxYear] = useState<string>("");
   const [sortBy, setSortBy] = useState<ArtworkSort>("shuffle");
-  const [loadedArtworks, setLoadedArtworks] = useState(initialArtworks);
-  const [pageInfo, setPageInfo] = useState<PageInfo>({
-    total: totalArtworks,
-    nextOffset: initialArtworks.length < totalArtworks ? initialArtworks.length : null,
-    hasMore: initialArtworks.length < totalArtworks,
-  });
   const [pageStatus, setPageStatus] = useState<PageStatus>("idle");
   const [Fuse, setFuse] = useState<FuseCtor | null>(null);
-  const pageInfoRef = useRef(pageInfo);
-  const pageKeyRef = useRef("");
-  const loadedIdsRef = useRef(new Set(initialArtworks.map((artwork) => artwork.id)));
   const requestSeqRef = useRef(0);
-  const loadingMoreRef = useRef(false);
-  const pageParamsRef = useRef<PageParams>({
-    q: "",
-    era: "",
-    minYear: "",
-    maxYear: "",
-    sort: "shuffle",
-    seed: DEFAULT_SHUFFLE_SEED,
-  });
-  const loadMoreControllerRef = useRef<AbortController | null>(null);
 
-  const pageParams = useMemo<PageParams>(
+  const pageQuery = useMemo<ArtworkPageQuery>(
     () => ({
       q: deferredQuery.trim(),
       era,
@@ -92,73 +58,67 @@ export function GalleryBrowser({ initialArtworks, eras, totalArtworks }: Props) 
     [deferredQuery, era, minYear, maxYear, sortBy],
   );
 
-  const pageKey = useMemo(() => JSON.stringify(pageParams), [pageParams]);
+  const pageKey = useMemo(() => JSON.stringify(pageQuery), [pageQuery]);
   const isDefaultPage =
-    pageParams.q === "" &&
-    pageParams.era === "" &&
-    pageParams.minYear === "" &&
-    pageParams.maxYear === "" &&
-    pageParams.sort === "shuffle" &&
-    pageParams.seed === DEFAULT_SHUFFLE_SEED;
+    pageQuery.q === "" &&
+    pageQuery.era === "" &&
+    pageQuery.minYear === "" &&
+    pageQuery.maxYear === "" &&
+    pageQuery.sort === "shuffle";
 
+  const initialPageInfo = useMemo<ArtworkPageInfo>(
+    () => ({
+      total: totalArtworks,
+      nextOffset: initialArtworks.length < totalArtworks ? initialArtworks.length : null,
+      hasMore: initialArtworks.length < totalArtworks,
+    }),
+    [initialArtworks, totalArtworks],
+  );
+
+  const fetchPage = useCallback(
+    (offset: number, signal: AbortSignal) => fetchArtworkPage(pageQuery, offset, PAGE_SIZE, signal),
+    [pageQuery],
+  );
+
+  const { loadedArtworks, pageInfo, loadMoreArtworks, replacePage } = useArtworkPagination({
+    initialArtworks,
+    initialPageInfo,
+    fetchPage,
+  });
+
+  // Re-seed on filter / sort / query change. Default page snaps back
+  // to the SSR-pinned initialArtworks; any other params re-fetch page
+  // 0 with the new shape and replace atomically (dedup set, in-flight
+  // controller, and loading flag reset inside replacePage).
   useEffect(() => {
-    pageInfoRef.current = pageInfo;
-  }, [pageInfo]);
-
-  useEffect(() => {
-    pageParamsRef.current = pageParams;
-  }, [pageParams]);
-
-  useEffect(() => {
-    pageKeyRef.current = pageKey;
-    loadingMoreRef.current = false;
-    loadMoreControllerRef.current?.abort();
-    loadMoreControllerRef.current = null;
-
     if (isDefaultPage) {
       requestSeqRef.current += 1;
-      loadedIdsRef.current = new Set(initialArtworks.map((artwork) => artwork.id));
-      startTransition(() => {
-        setLoadedArtworks(initialArtworks);
-        setPageInfo({
-          total: totalArtworks,
-          nextOffset: initialArtworks.length < totalArtworks ? initialArtworks.length : null,
-          hasMore: initialArtworks.length < totalArtworks,
-        });
-        setPageStatus("idle");
-      });
+      replacePage({ items: initialArtworks, pageInfo: initialPageInfo });
+      setPageStatus("idle");
       return;
     }
-
     const requestId = requestSeqRef.current + 1;
     requestSeqRef.current = requestId;
     const controller = new AbortController();
     setPageStatus("loading");
-
-    fetchArtworkPage(pageParams, 0, controller.signal)
+    fetchArtworkPage(pageQuery, 0, PAGE_SIZE, controller.signal)
       .then((page) => {
         if (requestSeqRef.current !== requestId) return;
-        loadedIdsRef.current = new Set(page.items.map((artwork) => artwork.id));
-        startTransition(() => {
-          setLoadedArtworks(page.items);
-          setPageInfo({
-            total: page.total,
-            nextOffset: page.nextOffset,
-            hasMore: page.hasMore,
-          });
-          setPageStatus("idle");
+        replacePage({
+          items: page.items,
+          pageInfo: { total: page.total, nextOffset: page.nextOffset, hasMore: page.hasMore },
         });
+        setPageStatus("idle");
       })
       .catch(() => {
         if (controller.signal.aborted || requestSeqRef.current !== requestId) return;
         setPageStatus("failed");
       });
-
     return () => controller.abort();
-  }, [initialArtworks, isDefaultPage, pageKey, pageParams, totalArtworks]);
+  }, [isDefaultPage, pageKey, pageQuery, initialArtworks, initialPageInfo, replacePage]);
 
   useEffect(() => {
-    if (!pageParams.q || pageParams.sort !== "shuffle" || Fuse) return;
+    if (!pageQuery.q || pageQuery.sort !== "shuffle" || Fuse) return;
     let cancelled = false;
     import("fuse.js").then((mod) => {
       if (!cancelled) setFuse(() => mod.default as FuseCtor);
@@ -166,10 +126,10 @@ export function GalleryBrowser({ initialArtworks, eras, totalArtworks }: Props) 
     return () => {
       cancelled = true;
     };
-  }, [Fuse, pageParams.q, pageParams.sort]);
+  }, [Fuse, pageQuery.q, pageQuery.sort]);
 
   const fuse = useMemo(() => {
-    if (!Fuse || !pageParams.q || pageParams.sort !== "shuffle") return null;
+    if (!Fuse || !pageQuery.q || pageQuery.sort !== "shuffle") return null;
     return new Fuse(loadedArtworks, {
       keys: [
         { name: "title", weight: 0.45 },
@@ -180,52 +140,12 @@ export function GalleryBrowser({ initialArtworks, eras, totalArtworks }: Props) 
       threshold: 0.33,
       ignoreLocation: true,
     });
-  }, [Fuse, loadedArtworks, pageParams.q, pageParams.sort]);
+  }, [Fuse, loadedArtworks, pageQuery.q, pageQuery.sort]);
 
   const visibleArtworks = useMemo(() => {
     if (!fuse) return loadedArtworks;
-    return rankLoadedArtworks(loadedArtworks, fuse, pageParams.q);
-  }, [fuse, loadedArtworks, pageParams.q]);
-
-  const loadMoreArtworks = useCallback(async (): Promise<ArtworkListing[]> => {
-    const info = pageInfoRef.current;
-    const offset = info.nextOffset;
-    const activeKey = pageKeyRef.current;
-    if (loadingMoreRef.current || !info.hasMore || offset == null) return [];
-
-    loadingMoreRef.current = true;
-    setPageStatus("loading-more");
-    const controller = new AbortController();
-    loadMoreControllerRef.current = controller;
-
-    try {
-      const page = await fetchArtworkPage(pageParamsRef.current, offset, controller.signal);
-      if (controller.signal.aborted || activeKey !== pageKeyRef.current) return [];
-      const incoming = page.items.filter((artwork) => !loadedIdsRef.current.has(artwork.id));
-      for (const artwork of incoming) loadedIdsRef.current.add(artwork.id);
-
-      startTransition(() => {
-        setLoadedArtworks((current) => appendUniqueArtworks(current, incoming));
-        setPageInfo({
-          total: page.total,
-          nextOffset: page.nextOffset,
-          hasMore: page.hasMore,
-        });
-        setPageStatus("idle");
-      });
-
-      return incoming;
-    } catch {
-      if (controller.signal.aborted) return [];
-      if (activeKey === pageKeyRef.current) setPageStatus("failed");
-      return [];
-    } finally {
-      loadingMoreRef.current = false;
-      if (loadMoreControllerRef.current === controller) {
-        loadMoreControllerRef.current = null;
-      }
-    }
-  }, []);
+    return rankLoadedArtworks(loadedArtworks, fuse, pageQuery.q ?? "");
+  }, [fuse, loadedArtworks, pageQuery.q]);
 
   const filterKey = pageKey;
   const activeFilterCount = (era ? 1 : 0) + (minYear ? 1 : 0) + (maxYear ? 1 : 0);
@@ -326,40 +246,6 @@ export function GalleryBrowser({ initialArtworks, eras, totalArtworks }: Props) 
       )}
     </div>
   );
-}
-
-async function fetchArtworkPage(
-  params: PageParams,
-  offset: number,
-  signal?: AbortSignal,
-): Promise<ArtworkPage> {
-  const url = new URL(PAGE_ENDPOINT, window.location.origin);
-  url.searchParams.set("offset", String(offset));
-  url.searchParams.set("limit", String(PAGE_SIZE));
-  url.searchParams.set("sort", params.sort);
-  url.searchParams.set("seed", params.seed);
-  appendParam(url, "q", params.q);
-  appendParam(url, "era", params.era);
-  appendParam(url, "minYear", params.minYear);
-  appendParam(url, "maxYear", params.maxYear);
-
-  const res = await fetch(url, { signal });
-  if (!res.ok) throw new Error(`fetch ${url.pathname}: ${res.status}`);
-  return res.json() as Promise<ArtworkPage>;
-}
-
-function appendParam(url: URL, key: string, value: string) {
-  if (value) url.searchParams.set(key, value);
-}
-
-function appendUniqueArtworks(
-  current: ArtworkListing[],
-  incoming: ArtworkListing[],
-): ArtworkListing[] {
-  if (incoming.length === 0) return current;
-  const seen = new Set(current.map((artwork) => artwork.id));
-  const next = incoming.filter((artwork) => !seen.has(artwork.id));
-  return next.length > 0 ? [...current, ...next] : current;
 }
 
 function rankLoadedArtworks(

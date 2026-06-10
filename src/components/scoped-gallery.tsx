@@ -1,115 +1,74 @@
 "use client";
 
-import { startTransition, useCallback, useEffect, useRef, useState } from "react";
+import { useMemo } from "react";
 import { ArtworkGallery } from "@/components/artwork-gallery";
-import {
-  type ArtworkPage,
-  type ArtworkSort,
-  DEFAULT_ARTWORK_PAGE_SIZE,
-} from "@/lib/artwork-page-schema";
+import { DEFAULT_ARTWORK_PAGE_SIZE } from "@/lib/artwork-page-schema";
 import type { Scope } from "@/lib/artwork-scope";
 import type { ArtworkListing } from "@/lib/data";
-
-type PageInfo = Pick<ArtworkPage, "total" | "nextOffset" | "hasMore">;
-
-export type ScopedGalleryQuery = {
-  era?: string;
-  sort?: ArtworkSort;
-  minYear?: number;
-  maxYear?: number;
-  q?: string;
-  seed?: string;
-};
+import {
+  type ArtworkPageInfo,
+  type ArtworkPageQuery,
+  type FetchArtworkPageFn,
+  fetchArtworkPage,
+  useArtworkPagination,
+} from "@/lib/use-artwork-pagination";
 
 type Props = {
   initialArtworks: ArtworkListing[];
-  initialPageInfo: PageInfo;
+  initialPageInfo: ArtworkPageInfo;
   /** Scope threaded to the artwork detail page so prev/next cycles
    *  within this surface. */
   scope: Scope;
   /** Params forwarded to /api/artworks/page for each load-more batch.
-   *  Must produce the same ordering as the initial server render. */
-  pageQuery: ScopedGalleryQuery;
+   *  Must produce the same ordering as the initial server render.
+   *  Omit for fully-static surfaces — combined with hasMore=false on
+   *  initialPageInfo, the gallery degrades to local chunking only. */
+  pageQuery?: ArtworkPageQuery;
 };
 
-const PAGE_ENDPOINT = "/api/artworks/page";
-
 /** Thin paginated wrapper around <ArtworkGallery> for scope landing
- *  pages (era, future: artist) that don't need the search/sort UI of
- *  GalleryBrowser but DO want the same infinite-scroll-by-API-page
- *  pattern instead of shipping the full scope's slim listings as a
- *  single RSC payload. */
+ *  pages (era, artist, future single-scope surfaces) that don't need
+ *  the search/sort UI of GalleryBrowser but DO want the same
+ *  infinite-scroll-by-API-page pattern instead of shipping the full
+ *  scope's slim listings as a single RSC payload.
+ *
+ *  Owns no pagination state of its own — useArtworkPagination is the
+ *  single source for loaded + pageInfo + load-more dedup. Any fix or
+ *  feature that lands in the hook propagates to every surface that
+ *  uses ScopedGallery (era, artist) and to GalleryBrowser, which also
+ *  routes through the same hook. */
 export function ScopedGallery({ initialArtworks, initialPageInfo, scope, pageQuery }: Props) {
-  const [loaded, setLoaded] = useState(initialArtworks);
-  const [pageInfo, setPageInfo] = useState(initialPageInfo);
-  const pageInfoRef = useRef(pageInfo);
-  const loadedIdsRef = useRef(new Set(initialArtworks.map((a) => a.id)));
-  const loadingRef = useRef(false);
-  const controllerRef = useRef<AbortController | null>(null);
+  // Scalar-only dep list so a new-but-equal pageQuery object reference
+  // (e.g. caller re-renders inline) doesn't churn fetchPage's identity.
+  // biome-ignore lint/correctness/useExhaustiveDependencies: deps are the unrolled query fields
+  const fetchPage = useMemo<FetchArtworkPageFn | undefined>(
+    () =>
+      pageQuery
+        ? (offset, signal) => fetchArtworkPage(pageQuery, offset, DEFAULT_ARTWORK_PAGE_SIZE, signal)
+        : undefined,
+    [
+      pageQuery?.q,
+      pageQuery?.era,
+      pageQuery?.artistSlug,
+      pageQuery?.minYear,
+      pageQuery?.maxYear,
+      pageQuery?.sort,
+      pageQuery?.seed,
+    ],
+  );
 
-  useEffect(() => {
-    pageInfoRef.current = pageInfo;
-  }, [pageInfo]);
-
-  useEffect(() => () => controllerRef.current?.abort(), []);
-
-  const loadMoreArtworks = useCallback(async (): Promise<ArtworkListing[]> => {
-    if (loadingRef.current) return [];
-    const info = pageInfoRef.current;
-    if (!info.hasMore || info.nextOffset == null) return [];
-    loadingRef.current = true;
-    const controller = new AbortController();
-    controllerRef.current = controller;
-    try {
-      const url = new URL(PAGE_ENDPOINT, window.location.origin);
-      url.searchParams.set("offset", String(info.nextOffset));
-      url.searchParams.set("limit", String(DEFAULT_ARTWORK_PAGE_SIZE));
-      if (pageQuery.sort) url.searchParams.set("sort", pageQuery.sort);
-      if (pageQuery.era) url.searchParams.set("era", pageQuery.era);
-      if (pageQuery.minYear != null) url.searchParams.set("minYear", String(pageQuery.minYear));
-      if (pageQuery.maxYear != null) url.searchParams.set("maxYear", String(pageQuery.maxYear));
-      if (pageQuery.q) url.searchParams.set("q", pageQuery.q);
-      if (pageQuery.seed) url.searchParams.set("seed", pageQuery.seed);
-
-      const res = await fetch(url, { signal: controller.signal });
-      if (!res.ok) throw new Error(`fetch ${url.pathname}: ${res.status}`);
-      const page = (await res.json()) as ArtworkPage;
-      if (controller.signal.aborted) return [];
-
-      const incoming = page.items.filter((a) => !loadedIdsRef.current.has(a.id));
-      for (const a of incoming) loadedIdsRef.current.add(a.id);
-
-      startTransition(() => {
-        setLoaded((cur) => (incoming.length > 0 ? [...cur, ...incoming] : cur));
-        setPageInfo({
-          total: page.total,
-          nextOffset: page.nextOffset,
-          hasMore: page.hasMore,
-        });
-      });
-
-      return incoming;
-    } catch {
-      return [];
-    } finally {
-      loadingRef.current = false;
-      if (controllerRef.current === controller) controllerRef.current = null;
-    }
-  }, [
-    pageQuery.era,
-    pageQuery.sort,
-    pageQuery.minYear,
-    pageQuery.maxYear,
-    pageQuery.q,
-    pageQuery.seed,
-  ]);
+  const { loadedArtworks, pageInfo, loadMoreArtworks } = useArtworkPagination({
+    initialArtworks,
+    initialPageInfo,
+    fetchPage,
+  });
 
   return (
     <ArtworkGallery
-      artworks={loaded}
+      artworks={loadedArtworks}
       loadMoreArtworks={loadMoreArtworks}
       hasMoreArtworks={pageInfo.hasMore}
-      initialSeed={loaded.length}
+      initialSeed={loadedArtworks.length}
       scope={scope}
     />
   );
