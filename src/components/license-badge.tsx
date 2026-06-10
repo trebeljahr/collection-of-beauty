@@ -1,3 +1,4 @@
+import { pillClasses } from "@/components/ui/pill";
 import { getLicenseInfo } from "@/lib/license";
 
 type Props = {
@@ -20,12 +21,7 @@ export function LicenseBadge({ license, className }: Props) {
       target="_blank"
       rel="license noreferrer"
       title={`License: ${info.short} — opens creativecommons.org`}
-      className={[
-        "inline-flex items-center gap-1.5 rounded-full border border-[var(--border)]",
-        "bg-[var(--card)] px-2.5 py-1 text-xs font-medium",
-        "transition-colors hover:bg-[var(--muted)] hover:text-[var(--foreground)]",
-        className ?? "",
-      ].join(" ")}
+      className={[pillClasses, className ?? ""].join(" ")}
     >
       {info.isPublicDomain ? <PublicDomainIcon /> : <CcIcon />}
       <span>{info.short}</span>
