@@ -87,6 +87,13 @@
   }
   html {
     scroll-behavior: smooth;
+    /* Sticky <SiteNav> in src/components/site-nav.tsx is ~53px tall
+       (py-3 + text-lg line + 1px border). Without this offset any
+       hash-anchor jump — the "Skip to main content" link, the press
+       page's section anchors, the timeline-view decade anchors — lands
+       with the target hidden under the header. 4rem leaves a small
+       breathing strip above the title. */
+    scroll-padding-top: 4rem;
   }
 
   /* Default keyboard focus indicator for any interactive element that
