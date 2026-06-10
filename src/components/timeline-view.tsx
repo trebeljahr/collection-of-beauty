@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { useMemo, useState } from "react";
+import { useArtworkTooltip } from "@/components/artwork-tooltip";
 import { ResponsiveImage } from "@/components/responsive-image";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
@@ -137,48 +138,7 @@ export function TimelineView({ artworks, movements }: Props) {
             </div>
             <div className="grid grid-cols-3 gap-2 sm:grid-cols-4 md:grid-cols-6 lg:grid-cols-8">
               {b.works.map((a) => (
-                <div
-                  key={a.id}
-                  className="group relative aspect-square overflow-hidden rounded-md bg-[var(--muted)]"
-                >
-                  <Link
-                    href={artworkHref(a.id, { kind: "decade", start: b.decade })}
-                    className="absolute inset-0 z-10 focus:outline-none focus-visible:ring-2 focus-visible:ring-[var(--ring)]"
-                    title={`${displayTitle(a)}${a.artist ? " — " + a.artist : ""} (${a.year})`}
-                    aria-label={artworkAlt(a)}
-                  />
-                  <ResponsiveImage
-                    objectKey={a.objectKey}
-                    variantWidths={a.variantWidths}
-                    alt={artworkAlt(a)}
-                    fill
-                    sizes="(max-width: 640px) 33vw, (max-width: 1024px) 20vw, 12vw"
-                    loading="lazy"
-                    dominantColor={a.dominantColor}
-                    className="transition-transform duration-500 group-hover:scale-110"
-                  />
-                  {/* Caption: always visible on touch (no hover state)
-                      so cards aren't unlabeled stamp-sized thumbs;
-                      slides up on hover from md+ for the desktop
-                      "reveal on hover" feel. */}
-                  <div className="absolute inset-x-0 bottom-0 translate-y-0 bg-gradient-to-t from-black/80 to-transparent p-1.5 text-[10px] text-white transition-transform md:translate-y-full md:group-hover:translate-y-0">
-                    <div className="line-clamp-1 font-medium">{displayTitle(a)}</div>
-                    <div className="line-clamp-1 opacity-80">
-                      {a.year}
-                      {a.artist ? (
-                        <>
-                          {" · "}
-                          <Link
-                            href={`/artist/${a.artistSlug}`}
-                            className="relative z-20 rounded-sm underline-offset-2 hover:underline focus:outline-none focus-visible:ring-2 focus-visible:ring-[var(--ring)]"
-                          >
-                            {a.artist}
-                          </Link>
-                        </>
-                      ) : null}
-                    </div>
-                  </div>
-                </div>
+                <TimelineTile key={a.id} artwork={a} decade={b.decade} />
               ))}
             </div>
           </section>
@@ -190,6 +150,57 @@ export function TimelineView({ artworks, movements }: Props) {
           No dated works match the filters.
         </div>
       )}
+    </div>
+  );
+}
+
+function TimelineTile({ artwork: a, decade }: { artwork: ArtworkListing; decade: number }) {
+  const { handlers, portal } = useArtworkTooltip({
+    title: displayTitle(a),
+    artist: a.artist,
+    year: a.year,
+  });
+  return (
+    <div
+      className="group relative aspect-square overflow-hidden rounded-md bg-[var(--muted)]"
+      {...handlers}
+    >
+      <Link
+        href={artworkHref(a.id, { kind: "decade", start: decade })}
+        className="absolute inset-0 z-10 focus:outline-none focus-visible:ring-2 focus-visible:ring-[var(--ring)]"
+        aria-label={artworkAlt(a)}
+      />
+      <ResponsiveImage
+        objectKey={a.objectKey}
+        variantWidths={a.variantWidths}
+        alt={artworkAlt(a)}
+        fill
+        sizes="(max-width: 640px) 33vw, (max-width: 1024px) 20vw, 12vw"
+        loading="lazy"
+        dominantColor={a.dominantColor}
+        className="transition-transform duration-500 group-hover:scale-110"
+      />
+      {/* Mobile-only caption: touch has no hover, so stamp-sized tiles
+          still get a label. Desktop hover is served by the floating
+          tooltip portal mounted via useArtworkTooltip. */}
+      <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/80 to-transparent p-1.5 text-[10px] text-white md:hidden">
+        <div className="line-clamp-1 font-medium">{displayTitle(a)}</div>
+        <div className="line-clamp-1 opacity-80">
+          {a.year}
+          {a.artist ? (
+            <>
+              {" · "}
+              <Link
+                href={`/artist/${a.artistSlug}`}
+                className="relative z-20 rounded-sm underline-offset-2 hover:underline focus:outline-none focus-visible:ring-2 focus-visible:ring-[var(--ring)]"
+              >
+                {a.artist}
+              </Link>
+            </>
+          ) : null}
+        </div>
+      </div>
+      {portal}
     </div>
   );
 }

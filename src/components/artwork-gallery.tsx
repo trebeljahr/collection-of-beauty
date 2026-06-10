@@ -1,9 +1,10 @@
 "use client";
 
 import Link from "next/link";
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { type ReactNode, useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { RowsPhotoAlbum } from "react-photo-album";
 import "react-photo-album/rows.css";
+import { useArtworkTooltip } from "@/components/artwork-tooltip";
 import { ResponsiveImage } from "@/components/responsive-image";
 import { artworkAlt, displayTitle } from "@/lib/artwork-format";
 import { artworkHref, type Scope } from "@/lib/artwork-scope";
@@ -232,18 +233,16 @@ export function ArtworkGallery({
             // it — keeps tile sizes within a sane band.
             rowConstraints={{ maxPhotos: 8 }}
             render={{
-              link: ({ href, children, className, ...rest }, { photo }) => {
+              link: ({ href: _href, children, className, ...rest }, { photo }) => {
                 const p = photo as GalleryPhoto;
                 return (
-                  <Link
+                  <GalleryTileLink
                     {...rest}
-                    href={p.href}
-                    aria-label={p.alt}
-                    title={`${p.title}${p.artist ? " — " + p.artist : ""}${p.year ? " (" + p.year + ")" : ""}`}
+                    photo={p}
                     className={`${className ?? ""} rounded-sm focus:outline-none focus-visible:ring-2 focus-visible:ring-[var(--ring)] focus-visible:ring-offset-2 focus-visible:ring-offset-[var(--background)]`.trim()}
                   >
                     {children}
-                  </Link>
+                  </GalleryTileLink>
                 );
               },
               // Render via <picture>/<source> against pre-built rclone
@@ -280,5 +279,30 @@ export function ArtworkGallery({
         <div className="py-6 text-center text-sm text-[var(--muted-foreground)]">— end —</div>
       )}
     </div>
+  );
+}
+
+function GalleryTileLink({
+  photo,
+  className,
+  children,
+  ...rest
+}: {
+  photo: GalleryPhoto;
+  className: string;
+  children: ReactNode;
+} & Omit<React.ComponentPropsWithoutRef<typeof Link>, "href" | "title" | "className">) {
+  const { handlers, portal } = useArtworkTooltip({
+    title: photo.title,
+    artist: photo.artist,
+    year: photo.year,
+  });
+  return (
+    <>
+      <Link {...rest} {...handlers} href={photo.href} aria-label={photo.alt} className={className}>
+        {children}
+      </Link>
+      {portal}
+    </>
   );
 }
