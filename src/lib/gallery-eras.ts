@@ -53,6 +53,8 @@ export type EraId =
   | "baroque"
   | "enlightenment"
   | "romantic"
+  | "natural-history"
+  | "realism"
   | "ukiyo-e"
   | "fin-de-siecle";
 
@@ -159,19 +161,18 @@ export const ERAS: Era[] = [
   {
     id: "romantic",
     index: 4,
-    title: "Romanticism & Realism",
+    title: "Romanticism & the Sublime",
+    // Keeps the 1800–1869 year-fallback bucket — any untagged 19th-c
+    // work without a movement lands here. The two sibling floors below
+    // (natural-history, realism) are movement-only (yearMin>yearMax)
+    // so they never poach the year-fallback.
     yearMin: 1800,
     yearMax: 1869,
     movements: [
       "Romanticism",
-      "Realism",
       "Pre-Raphaelite",
       "Pre-Raphaelite Brotherhood",
       "Hudson River School",
-      "Academicism",
-      "Academic art",
-      "Orientalism",
-      "Natural history illustration",
       "Tonalism",
     ],
     palette: {
@@ -182,16 +183,74 @@ export const ERAS: Era[] = [
       // Stormy weather underfoot: storm-blue, slate, rust, moss.
       roomAccents: ["#1e1711", "#1a2230", "#2a221c", "#2e1f17", "#1f261c"],
     },
-    blurb: "The sublime, the storm, and nothing staged.",
+    blurb: "The sublime, the storm, and the literary dream.",
     anchor: {
       movement: "Romanticism",
+      minCells: { x: 9, z: 9 },
+      preferredLocation: "center",
+    },
+  },
+  {
+    id: "natural-history",
+    index: 5,
+    title: "Natural History Illustration",
+    // Movement-only — see ukiyo-e for the rationale on yearMin>yearMax.
+    // The cohort (Audubon 1827–1838, Haeckel 1899–1904) spans nearly a
+    // century, so a year range would either undershoot Haeckel or
+    // overshoot into Romantic and fin-de-siècle European painting.
+    yearMin: 9999,
+    yearMax: 0,
+    movements: ["Natural history illustration"],
+    palette: {
+      // Specimen-plate cream walls, deep moss floor, brass-olive accent
+      // — Victorian natural-history museum, lit so the plates' fine
+      // line work reads cleanly against the wall.
+      wallColor: "#ddd2af",
+      floorColor: "#1a1f17",
+      ceilingColor: "#ebe1c2",
+      accent: "#6a7d3f",
+      // Field colours under glass: moss, walnut, slate-sky, deep bog, ochre-soil.
+      roomAccents: ["#1a1f17", "#241a12", "#1c2630", "#1a241c", "#2a2218"],
+    },
+    blurb: "Audubon's birds and Haeckel's forms — the natural world catalogued.",
+    anchor: {
+      movement: "Natural history illustration",
+      minCells: { x: 9, z: 9 },
+      preferredLocation: "center",
+    },
+  },
+  {
+    id: "realism",
+    index: 6,
+    title: "Realism & Academy",
+    // Movement-only — see ukiyo-e. Year-fallback for 1800–1869
+    // already lands on the Romanticism floor (above); claiming the
+    // same range here would either split the fallback unpredictably
+    // (first-match-wins iteration order) or duplicate works.
+    yearMin: 9999,
+    yearMax: 0,
+    movements: ["Realism", "Academicism", "Academic art", "Orientalism"],
+    palette: {
+      // Warm rose-tan walls, dark walnut floor, salon-red accent —
+      // 19th-c Paris Salon hang, deep velvet drag on the floor and
+      // brick-red trim where the gilt frames would rest.
+      wallColor: "#d8b9a3",
+      floorColor: "#221814",
+      ceilingColor: "#ecd9c2",
+      accent: "#8a3a2c",
+      // Salon velvets: wine, deep teal, olive, charcoal, plum.
+      roomAccents: ["#221814", "#1c2628", "#262218", "#1d1614", "#28181f"],
+    },
+    blurb: "Studio realism, salon polish, and the gaze East.",
+    anchor: {
+      movement: "Realism",
       minCells: { x: 7, z: 7 },
       preferredLocation: "center",
     },
   },
   {
     id: "ukiyo-e",
-    index: 5,
+    index: 7,
     title: "East Asian Painting",
     // Movement-tag only: yearMin > yearMax keeps the year-fallback in
     // assignEra from accidentally placing untagged 18th/19th-c
@@ -230,7 +289,7 @@ export const ERAS: Era[] = [
   },
   {
     id: "fin-de-siecle",
-    index: 6,
+    index: 8,
     // Combined Impressionism-through-Modernism floor. We had a
     // separate Modernism floor once; with only ~20 modern works in a
     // public-domain collection (most early-20th-c masters are still
