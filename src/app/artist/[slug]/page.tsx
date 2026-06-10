@@ -3,6 +3,7 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { ArtworkGallery } from "@/components/artwork-gallery";
 import { Badge } from "@/components/ui/badge";
+import { pillClasses } from "@/components/ui/pill";
 import { artists, getArtist, getArtworksByArtist, getConnectionsFor } from "@/lib/data";
 import { assignEra, type EraId, getEra } from "@/lib/gallery-eras";
 import { artistJsonLd, jsonLdScriptProps, ogImagesForArtist } from "@/lib/seo";
@@ -153,7 +154,7 @@ export default async function ArtistPage({ params }: { params: Promise<Params> }
               <Link
                 key={c.artist.slug}
                 href={`/artist/${c.artist.slug}`}
-                className="rounded-full border border-[var(--border)] bg-[var(--card)] px-3 py-1.5 text-sm hover:bg-[var(--accent)] focus:outline-none focus-visible:ring-2 focus-visible:ring-[var(--ring)]"
+                className={`${pillClasses} focus:outline-none focus-visible:ring-2 focus-visible:ring-[var(--ring)]`}
                 title={c.label}
               >
                 {c.artist.name}
@@ -173,7 +174,7 @@ export default async function ArtistPage({ params }: { params: Promise<Params> }
               <Link
                 key={c.artist.slug}
                 href={`/artist/${c.artist.slug}`}
-                className="rounded-full border border-[var(--border)] px-3 py-1 text-xs text-[var(--muted-foreground)] hover:bg-[var(--accent)] focus:outline-none focus-visible:ring-2 focus-visible:ring-[var(--ring)]"
+                className={`${pillClasses} focus:outline-none focus-visible:ring-2 focus-visible:ring-[var(--ring)]`}
               >
                 {c.artist.name}
               </Link>
