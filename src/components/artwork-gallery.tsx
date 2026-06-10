@@ -1,7 +1,15 @@
 "use client";
 
 import Link from "next/link";
-import { type ReactNode, useCallback, useEffect, useMemo, useRef, useState } from "react";
+import {
+  type ReactNode,
+  useCallback,
+  useEffect,
+  useLayoutEffect,
+  useMemo,
+  useRef,
+  useState,
+} from "react";
 import { RowsPhotoAlbum } from "react-photo-album";
 import "react-photo-album/rows.css";
 import { useArtworkTooltip } from "@/components/artwork-tooltip";
@@ -198,12 +206,37 @@ export function ArtworkGallery({
 
   const rowHeight = targetRowHeight ?? ((w: number) => (w < 640 ? 160 : w < 1024 ? 220 : 260));
 
+  // Measure the gallery container width and pass it as each chunk's
+  // `defaultContainerWidth`. Without this, every NEW chunk added during
+  // scroll first paints at the static `defaultContainerWidth={1200}`,
+  // then re-paints once its internal ResizeObserver measures the actual
+  // width — a one-frame layout shift per chunk. When the user scrolls
+  // fast the cumulative shift across several batches is the "jump" you
+  // see. useLayoutEffect measures before the first browser paint, so
+  // every chunk renders with the correct width from frame one.
+  const galleryRef = useRef<HTMLDivElement | null>(null);
+  const [containerWidth, setContainerWidth] = useState<number | null>(null);
+  useLayoutEffect(() => {
+    const node = galleryRef.current;
+    if (!node) return;
+    const measure = () => {
+      const w = Math.round(node.getBoundingClientRect().width);
+      if (w > 0) setContainerWidth(w);
+    };
+    measure();
+    if (typeof ResizeObserver === "undefined") return;
+    const ro = new ResizeObserver(measure);
+    ro.observe(node);
+    return () => ro.disconnect();
+  }, []);
+  const initialContainerWidth = containerWidth ?? 1200;
+
   if (artworks.length === 0) {
     return <div className="py-16 text-center text-[var(--muted-foreground)]">No works.</div>;
   }
 
   return (
-    <div key={resetKey ?? "all"}>
+    <div ref={galleryRef} key={resetKey ?? "all"}>
       {chunks.map((group, i) => (
         <div
           // biome-ignore lint/suspicious/noArrayIndexKey: chunks are append-only; index is stable
@@ -214,10 +247,10 @@ export function ArtworkGallery({
             photos={group}
             targetRowHeight={rowHeight}
             spacing={6}
-            // Helps the row solver pick a reasonable initial layout
-            // during SSR before the ResizeObserver has measured the
-            // real container width. Matches ricos.site.
-            defaultContainerWidth={1200}
+            // Pre-measured from the gallery container (see the
+            // useLayoutEffect above). Falls back to 1200 only on the
+            // very first SSR render, before the layout effect has run.
+            defaultContainerWidth={initialContainerWidth}
             sizes={{ size: "640px" }}
             // Cap maxPhotos so the DP solver never tries to combine all
             // 10 chunk photos into a single row when their aspects let
@@ -236,25 +269,28 @@ export function ArtworkGallery({
                   </GalleryTileLink>
                 );
               },
-              // Render via <picture>/<source> against pre-built rclone
-              // variants. height: auto matches the library's default CSS
-              // (.react-photo-album--image), which sets aspect-ratio
-              // from photo-width/photo-height — the image's intrinsic
-              // size then matches the cell exactly, so no object-fit
-              // crop or sub-pixel mismatch.
-              image: (_, { photo, width }) => {
+              // Pass the rendered cell dimensions (in CSS px) from the
+              // row solver as the <img>'s width/height attrs. Matches
+              // ricos.site's CustomImageRenderer — gives the browser
+              // exact pixel space to reserve, instead of the intrinsic
+              // source dimensions (e.g. 4096×5120) it would have to
+              // scale via aspect-ratio. Layout reservation is identical
+              // for the common case but avoids a class of edge-case
+              // re-flows when the browser swaps the layout-aspect for
+              // the loaded image's natural-aspect during decoding.
+              image: (props, { photo, width: renderedWidth, height: renderedHeight }) => {
                 const p = photo as GalleryPhoto;
                 return (
                   <ResponsiveImage
                     objectKey={p.src}
                     variantWidths={p.variantWidths}
                     alt={p.alt ?? ""}
-                    srcWidth={p.width}
-                    srcHeight={p.height}
-                    sizes={`${Math.ceil(width)}px`}
+                    srcWidth={renderedWidth}
+                    srcHeight={renderedHeight}
+                    sizes={props.sizes ?? `${Math.ceil(renderedWidth)}px`}
                     loading="lazy"
                     dominantColor={p.dominantColor}
-                    style={{ width: "100%", height: "auto", display: "block" }}
+                    style={{ width: "100%", height: "auto" }}
                   />
                 );
               },
