@@ -50,6 +50,16 @@ const artistRewrites = {
   "Flowering_meadow_with_trees_and_dandelions_-_Vincent_Van_Gogh.jpg": "Vincent van Gogh",
   "London_National_Gallery_Turner_Hero_and_Leander.jpg": "J. M. W. Turner",
   "The_Massacre_of_the_Innocents_-_Peter_Paul_Rubens_(Unframed).jpg": "Peter Paul Rubens",
+
+  // Grant Wood — sidecar grabbed the museum inventory code "TG 642" from
+  // the Wikimedia metadata block instead of the actual artist.
+  "Midnight_Ride_of_Paul_Revere.jpg": "Grant Wood",
+
+  // Three Monet works whose artist field is the lowercased Flickr uploader
+  // handle "flicker". The real attribution lives in the `credit` field.
+  "Monet_w1032.jpg": "Claude Monet",
+  "Monet_w1048.jpg": "Claude Monet",
+  "Monet_w1061.jpg": "Claude Monet",
 };
 
 // ---- year + description rewrites in the sidecar ---------------------------
@@ -79,6 +89,26 @@ const sidecarRewrites = {
     year: 1850,
     date_created: "1850",
     description: "Ivan Aivazovsky, The Ninth Wave, 1850. Oil on canvas, Russian Museum, Saint Petersburg.",
+  },
+  "Midnight_Ride_of_Paul_Revere.jpg": {
+    description:
+      "Grant Wood, Midnight Ride of Paul Revere, 1931. Oil on Masonite, Metropolitan Museum of Art, New York.",
+  },
+  // The Monet Étretat-period works carry no usable date on Commons; the
+  // sidecar previously held a 2013 Flickr upload timestamp that the year
+  // extractor rightly rejected. Leave year null and replace the
+  // catalog-stub description with one that names the title and series.
+  "Monet_w1032.jpg": {
+    description:
+      "Claude Monet, Sailboats off the Aiguille Rock at Étretat (Wildenstein 1032). From Monet's series of Normandy coast paintings made on repeated visits to Étretat.",
+  },
+  "Monet_w1048.jpg": {
+    description:
+      "Claude Monet, The Cliff and the Porte d'Amont in Rough Weather (Wildenstein 1048). One of Monet's many studies of the Étretat cliffs under shifting weather.",
+  },
+  "Monet_w1061.jpg": {
+    description:
+      "Claude Monet, Panorama of Vernon (Wildenstein 1061). A view of the Seine-side town of Vernon, downstream from Monet's home at Giverny.",
   },
 };
 
@@ -125,6 +155,11 @@ const titleOverrides = {
     "Gion Bridge at Hondo in Amakusa (Amakusa Hondō Gionbashi), from Selected Views of Japan",
   "collection-of-beauty/Het_Zojo_heiligdom_in_Shiba_Shiba_Zojoji_(titel_op_object)_Twintig_gezichten_op_Tokyo_(serietitel)_Tokyo_nijukei_(serietitel_op_object),_RP-P-1979-131.jpg":
     "The Zōjō-ji Temple at Shiba (Shiba Zōjōji), from Twenty Views of Tokyo",
+
+  // Monet works whose live title is just the Wildenstein catalogue stub.
+  "collection-of-beauty/Monet_w1032.jpg": "Sailboats off the Aiguille Rock at Étretat",
+  "collection-of-beauty/Monet_w1048.jpg": "The Cliff and the Porte d'Amont, Rough Sea",
+  "collection-of-beauty/Monet_w1061.jpg": "Panorama of Vernon",
 };
 
 // ---- curator-descriptions keyed by artwork id -----------------------------
@@ -197,6 +232,18 @@ const descriptions = {
     "Kawase Hasui's view of the Gion bridge crossing at Hondo on the Amakusa islands, from his series Selected Views of Japan. The print pairs the cool blues of an evening landscape with the softly graded skies that became his signature.",
   "collection-of-beauty-het-zojo-heiligdom-in-shiba-shiba-zojoji-titel-op-object-twintig-gezichten-op-tokyo-serietitel-toky":
     "The Zōjō-ji temple at Shiba, captured by Kawase Hasui for Twenty Views of Tokyo. Hasui became the most prolific landscape designer of the Shin-hanga revival, working closely with the publisher Watanabe Shōzaburō from the early 1920s.",
+
+  // Grant Wood — Midnight Ride of Paul Revere.
+  "collection-of-beauty-midnight-ride-of-paul-revere":
+    "Grant Wood collapses the night of 18 April 1775 into a single moonlit vista, the white steeple of the Old North Church lit at upper centre as Revere gallops the country road through sleeping Lexington and Concord. Painted in 1931 on Masonite in the Iowa Regionalist's mature style, the canvas entered the collection of the Metropolitan Museum of Art in 1950.",
+
+  // Three Monet Étretat-period works.
+  "collection-of-beauty-monet-w1032":
+    "Sailboats run before the wind beneath the Aiguille — the slender needle rock that rises off the cliffs of Étretat on the Normandy coast. Claude Monet returned to Étretat repeatedly through the 1880s, treating its arches, rocks, and weather in a sustained series catalogued by Daniel Wildenstein as W.1032 and its neighbours.",
+  "collection-of-beauty-monet-w1048":
+    "Heavy seas break against the cliff face beneath the Porte d'Amont, the northern of Étretat's three natural arches. Monet treated the Étretat coast in a long sequence of canvases through the mid-1880s, captured in Wildenstein's catalogue raisonné as W.1048 among neighbouring entries.",
+  "collection-of-beauty-monet-w1061":
+    "A broad view of Vernon on the Seine, the small town a short distance downstream from Monet's home at Giverny. Catalogued in Wildenstein as W.1061, the canvas belongs to the painter's quieter landscapes of the Seine valley made alongside his more famous Giverny garden series.",
 };
 
 // ---- runner ---------------------------------------------------------------
