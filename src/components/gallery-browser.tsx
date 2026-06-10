@@ -21,9 +21,11 @@ import {
 } from "@/lib/artwork-page-schema";
 import type { ArtworkListing } from "@/lib/data";
 
+type EraOption = { id: string; title: string };
+
 type Props = {
   initialArtworks: ArtworkListing[];
-  movements: string[];
+  eras: EraOption[];
   totalArtworks: number;
 };
 
@@ -38,7 +40,7 @@ type PageInfo = Pick<ArtworkPage, "total" | "nextOffset" | "hasMore">;
 
 type PageParams = {
   q: string;
-  movement: string;
+  era: string;
   minYear: string;
   maxYear: string;
   sort: ArtworkSort;
@@ -48,10 +50,10 @@ type PageParams = {
 const PAGE_ENDPOINT = "/api/artworks/page";
 const PAGE_SIZE = DEFAULT_ARTWORK_PAGE_SIZE;
 
-export function GalleryBrowser({ initialArtworks, movements, totalArtworks }: Props) {
+export function GalleryBrowser({ initialArtworks, eras, totalArtworks }: Props) {
   const [query, setQuery] = useState("");
   const deferredQuery = useDeferredValue(query);
-  const [movement, setMovement] = useState<string>("");
+  const [era, setEra] = useState<string>("");
   const [minYear, setMinYear] = useState<string>("");
   const [maxYear, setMaxYear] = useState<string>("");
   const [sortBy, setSortBy] = useState<ArtworkSort>("shuffle");
@@ -70,7 +72,7 @@ export function GalleryBrowser({ initialArtworks, movements, totalArtworks }: Pr
   const loadingMoreRef = useRef(false);
   const pageParamsRef = useRef<PageParams>({
     q: "",
-    movement: "",
+    era: "",
     minYear: "",
     maxYear: "",
     sort: "shuffle",
@@ -81,19 +83,19 @@ export function GalleryBrowser({ initialArtworks, movements, totalArtworks }: Pr
   const pageParams = useMemo<PageParams>(
     () => ({
       q: deferredQuery.trim(),
-      movement,
+      era,
       minYear,
       maxYear,
       sort: sortBy,
       seed: DEFAULT_SHUFFLE_SEED,
     }),
-    [deferredQuery, movement, minYear, maxYear, sortBy],
+    [deferredQuery, era, minYear, maxYear, sortBy],
   );
 
   const pageKey = useMemo(() => JSON.stringify(pageParams), [pageParams]);
   const isDefaultPage =
     pageParams.q === "" &&
-    pageParams.movement === "" &&
+    pageParams.era === "" &&
     pageParams.minYear === "" &&
     pageParams.maxYear === "" &&
     pageParams.sort === "shuffle" &&
@@ -226,10 +228,10 @@ export function GalleryBrowser({ initialArtworks, movements, totalArtworks }: Pr
   }, []);
 
   const filterKey = pageKey;
-  const activeFilterCount = (movement ? 1 : 0) + (minYear ? 1 : 0) + (maxYear ? 1 : 0);
+  const activeFilterCount = (era ? 1 : 0) + (minYear ? 1 : 0) + (maxYear ? 1 : 0);
 
   function clearFilters() {
-    setMovement("");
+    setEra("");
     setMinYear("");
     setMaxYear("");
     setQuery("");
@@ -261,15 +263,15 @@ export function GalleryBrowser({ initialArtworks, movements, totalArtworks }: Pr
         </div>
         <div className="flex flex-wrap items-center gap-2 text-sm">
           <select
-            aria-label="Filter by movement"
-            value={movement}
-            onChange={(e) => setMovement(e.target.value)}
+            aria-label="Filter by era"
+            value={era}
+            onChange={(e) => setEra(e.target.value)}
             className="h-9 rounded-md border border-[var(--input)] bg-transparent px-2 focus:outline-none focus-visible:ring-2 focus-visible:ring-[var(--ring)]"
           >
-            <option value="">All movements</option>
-            {movements.map((m) => (
-              <option key={m} value={m}>
-                {m}
+            <option value="">All eras</option>
+            {eras.map((e) => (
+              <option key={e.id} value={e.id}>
+                {e.title}
               </option>
             ))}
           </select>
@@ -337,7 +339,7 @@ async function fetchArtworkPage(
   url.searchParams.set("sort", params.sort);
   url.searchParams.set("seed", params.seed);
   appendParam(url, "q", params.q);
-  appendParam(url, "movement", params.movement);
+  appendParam(url, "era", params.era);
   appendParam(url, "minYear", params.minYear);
   appendParam(url, "maxYear", params.maxYear);
 

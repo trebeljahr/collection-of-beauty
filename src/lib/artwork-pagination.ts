@@ -7,6 +7,7 @@ import {
   MAX_ARTWORK_PAGE_SIZE,
 } from "@/lib/artwork-page-schema";
 import { type ArtworkListing, artworkListings } from "@/lib/data";
+import { assignEra, type EraId } from "@/lib/gallery-eras";
 import { PINNED_FIRST_PAGE_IDS } from "@/lib/pinned-first-page";
 
 export type ArtworkPageInput = {
@@ -15,7 +16,7 @@ export type ArtworkPageInput = {
   sort?: ArtworkSort;
   seed?: string;
   query?: string;
-  movement?: string;
+  era?: EraId | "" | null;
   minYear?: number | null;
   maxYear?: number | null;
 };
@@ -30,7 +31,7 @@ export function getArtworkListingPage(input: ArtworkPageInput = {}): ArtworkPage
   let list = artworkListings;
 
   if (query) list = list.filter((artwork) => matchesQuery(artwork, query));
-  if (input.movement) list = list.filter((artwork) => artwork.movement === input.movement);
+  if (input.era) list = list.filter((artwork) => assignEra(artwork) === input.era);
   const minYear = input.minYear;
   const maxYear = input.maxYear;
   if (minYear != null) {
@@ -45,7 +46,7 @@ export function getArtworkListingPage(input: ArtworkPageInput = {}): ArtworkPage
     sort === "shuffle" &&
     seed === DEFAULT_SHUFFLE_SEED &&
     query.length === 0 &&
-    !input.movement &&
+    !input.era &&
     minYear == null &&
     maxYear == null
       ? applyPinnedHead(sorted, PINNED_FIRST_PAGE_IDS)

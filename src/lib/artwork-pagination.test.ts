@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
 import { DEFAULT_ARTWORK_PAGE_SIZE, MAX_ARTWORK_PAGE_SIZE } from "@/lib/artwork-page-schema";
 import { getArtworkListingPage } from "@/lib/artwork-pagination";
+import { assignEra } from "@/lib/gallery-eras";
 
 describe("getArtworkListingPage", () => {
   it("returns stable non-overlapping pages", () => {
@@ -22,12 +23,12 @@ describe("getArtworkListingPage", () => {
   it("filters before slicing", () => {
     const page = getArtworkListingPage({
       query: "monet",
-      movement: "Impressionism",
+      era: "fin-de-siecle",
       limit: 10,
     });
 
     expect(page.total).toBeGreaterThan(page.items.length);
-    expect(page.items.every((item) => item.movement === "Impressionism")).toBe(true);
+    expect(page.items.every((item) => assignEra(item) === "fin-de-siecle")).toBe(true);
     expect(
       page.items.every((item) =>
         [item.title, item.artist, item.movement, item.nationality]
