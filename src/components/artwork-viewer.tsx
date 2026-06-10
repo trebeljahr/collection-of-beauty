@@ -5,6 +5,7 @@ import { type SyntheticEvent, useEffect, useRef, useState } from "react";
 import { artworkAlt, displayTitle } from "@/lib/artwork-format";
 import { artworkHref, type Scope } from "@/lib/artwork-scope";
 import { getLoadedVariant, recordLoadedVariant } from "@/lib/image-cache";
+import { saveBackFlipSnapshot } from "@/lib/use-artwork-back-flip";
 import { useTransitionPush } from "@/lib/use-transition-nav";
 import { assetUrl, cn, variantSrcSet, variantUrl } from "@/lib/utils";
 import { artworkHeroVtName } from "@/lib/view-transitions";
@@ -136,6 +137,26 @@ function ArtworkImage({ art, alt }: { art: ArtworkLike; alt: string }) {
     }
     setPlaceholderSrc(getLoadedVariant(art.objectKey) ?? smallestSrc);
   }, [mounted, hasVariants, art.objectKey, smallestSrc]);
+
+  // Snapshot the hero's geometry into sessionStorage so the gallery can
+  // run its merge-back FLIP when the user navigates back. Updated on
+  // mount, after the high-res image loads (size may shift slightly), on
+  // every scroll, and on resize, so whatever bounds are current at the
+  // moment of back-nav is what the FLIP starts from.
+  useEffect(() => {
+    if (!mounted) return;
+    const save = () => {
+      const img = highRef.current;
+      if (img) saveBackFlipSnapshot(art.id, img);
+    };
+    save();
+    window.addEventListener("scroll", save, { passive: true });
+    window.addEventListener("resize", save);
+    return () => {
+      window.removeEventListener("scroll", save);
+      window.removeEventListener("resize", save);
+    };
+  }, [mounted, art.id, highReady]);
 
   const handleHighLoad = (e: SyntheticEvent<HTMLImageElement>) => {
     setHighReady(true);

@@ -9,6 +9,7 @@ import { Input } from "@/components/ui/input";
 import { artworkAlt, displayTitle } from "@/lib/artwork-format";
 import { artworkHref } from "@/lib/artwork-scope";
 import type { ArtworkListing } from "@/lib/data";
+import { useArtworkBackFlip } from "@/lib/use-artwork-back-flip";
 import { useTransitionNav } from "@/lib/use-transition-nav";
 import { artworkHeroVtName } from "@/lib/view-transitions";
 
@@ -27,6 +28,7 @@ type Bucket = {
 export function TimelineView({ artworks, movements }: Props) {
   const [movement, setMovement] = useState<string>("");
   const [query, setQuery] = useState("");
+  useArtworkBackFlip();
 
   // Defensive dedupe by id so a future merge regression (slug collision in
   // build-data.mjs) can't crash React with duplicate keys.
@@ -173,6 +175,7 @@ function TimelineTile({ artwork: a, decade }: { artwork: ArtworkListing; decade:
     <div
       ref={tileRef}
       className="group relative aspect-square overflow-hidden rounded-md bg-[var(--muted)]"
+      data-artwork-id={a.id}
       {...handlers}
     >
       <Link

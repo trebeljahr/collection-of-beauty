@@ -17,6 +17,7 @@ import { ResponsiveImage } from "@/components/responsive-image";
 import { artworkAlt, displayTitle } from "@/lib/artwork-format";
 import { artworkHref, type Scope } from "@/lib/artwork-scope";
 import type { ArtworkListing } from "@/lib/data";
+import { useArtworkBackFlip } from "@/lib/use-artwork-back-flip";
 import { useTransitionNav } from "@/lib/use-transition-nav";
 import { artworkHeroVtName } from "@/lib/view-transitions";
 
@@ -118,6 +119,8 @@ export function ArtworkGallery({
     () => artworks.map((a) => toGalleryPhoto(a, activeScope)),
     [artworks, activeScope],
   );
+
+  useArtworkBackFlip();
 
   // Single source of truth for what's on screen. New items — local or
   // server-fetched — append to this array. We deliberately do NOT mirror
@@ -340,6 +343,7 @@ function GalleryTileLink({
         onClick={onClick}
         aria-label={photo.alt}
         className={className}
+        data-artwork-id={photo.key}
       >
         {children}
       </Link>
