@@ -166,6 +166,12 @@ const sidecarRewrites = {
   "Portrait_of_Ivan_Morozov2.jpg": { year: 1910, date_created: "1910" },
   "Pieter_Bruegel_the_Elder_-_Landscape_with_the_Fall_of_Icarus_-_Brussels,_Royal_Museums_of_Fine_Arts_of_Belgium_-_Google_Arts_&_Culture.jpg":
     { year: 1560, date_created: "c. 1560" },
+  // Picabia 291 cover — the comma-split heuristic in cleanTitle chops the
+  // sidecar title at the first ',', leaving the dangling '"Ici'. Rewrite
+  // the sidecar title so both the raw and english fields are sensible.
+  "Francis_Picabia,_Ici,_c'est_ici_Stieglitz,_foi_et_amour,_cover_of_291,_No1,_1915.jpg": {
+    title: "Ici, c'est ici Stieglitz, foi et amour",
+  },
   // The Monet Étretat-period works carry no usable date on Commons; the
   // sidecar previously held a 2013 Flickr upload timestamp that the year
   // extractor rightly rejected. Leave year null and replace the
@@ -278,6 +284,29 @@ const titleOverrides = {
     "The Crucifixion (predella of the San Zeno Altarpiece)",
   "collection-of-beauty/Gherardo_delle_Notti-Supper_with_a_Lute_Player.jpg":
     "Supper Party with a Lute Player",
+
+  // Titles polluted by raw Wikidata QS markup — fragments of alternative
+  // titles, stray quotation marks, foreign-language labels ("Hungarian: …").
+  // Replace with the canonical English title.
+  "collection-of-beauty/The_Knife_Grinder_Principle_of_Glittering_by_Kazimir_Malevich.jpeg":
+    "The Knife Grinder, or Principle of Glittering",
+  "collection-of-beauty/Peter_Paul_Rubens_072.jpg": "Landscape with the Tower of Het Steen",
+  "collection-of-beauty/SA_8422-De_Kloveniersdoelen_aan_de_Amstel-De_Kloveniersburgwal_op_de_hoek_van_de_Amstel_met_de_toren__Swijgh_Utrecht_.jpg":
+    "The Kloveniersdoelen on the Amstel, with the Tower 'Swijgh Utrecht'",
+  "collection-of-beauty/_Scorn__from_Le_Brun,_Wellcome_L0012155.jpg":
+    "Scorn, from Le Brun's Conférence sur l'expression",
+  "collection-of-beauty/_Weeping__from_Le_Brun,_Wellcome_L0012153.jpg":
+    "Weeping, from Le Brun's Conférence sur l'expression",
+  "collection-of-beauty/Paul_Gauguin,_1880,_The_Embroiderer_(La_Brodeuse),_oil_on_canvas,_116_x_81_cm,_Foundation_E.G._Bührle.jpg":
+    "The Embroiderer (Mette Gauguin)",
+  "collection-of-beauty/Paul_Gauguin_091.jpg": "Nevermore (O Taïti)",
+  "collection-of-beauty/Aivasovsky_I_C_Ship__Twelve_Apostles_.jpg": "The Ship 'Twelve Apostles'",
+  "collection-of-beauty/Albert_Gleizes,_1915,_Composition_pour_Jazz,_oil_on_cardboard,_73_x_73_cm,_Solomon_R._Guggenheim_Museum,_New_York.jpg":
+    "Composition for Jazz",
+  "collection-of-beauty/Leighton-Alain_Chartier-1903.jpg":
+    "Alain Chartier (Margaret of Scotland Kissing the Sleeping Poet)",
+  "collection-of-beauty/Francis_Picabia,_Ici,_c'est_ici_Stieglitz,_foi_et_amour,_cover_of_291,_No1,_1915.jpg":
+    "Ici, c'est ici Stieglitz, foi et amour (cover of 291, No. 1)",
 };
 
 // ---- curator-descriptions keyed by artwork id -----------------------------

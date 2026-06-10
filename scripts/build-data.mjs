@@ -193,11 +193,26 @@ function slugify(input) {
     .replace(/(^-|-$)+/g, "");
 }
 
+// Wikidata language-tagged label fragments that leak through the Commons
+// alt-title extractor: "Alternative title: …", "Hungarian: A késélező …",
+// etc. Strip from the first occurrence to end-of-string.
+const QS_LANG_LABELS = [
+  "Hungarian", "Russian", "German", "French", "Italian", "Dutch", "Spanish",
+  "Japanese", "English", "Polish", "Czech", "Portuguese", "Romanian", "Greek",
+  "Latin", "Norwegian", "Danish", "Swedish", "Korean", "Chinese", "Arabic",
+  "Hebrew", "Turkish", "Finnish", "Ukrainian", "Catalan",
+];
+const QS_LABEL_RX = new RegExp(
+  `\\s+(?:Alternative\\s+title|${QS_LANG_LABELS.join("|")}):\\s.*$`,
+  "i",
+);
+
 function stripQuickStatements(input) {
   if (!input) return input;
   return input
     .replace(/\s*(title|label)\s+QS:[^,]+(,[^,]+)*/g, "")
     .replace(/\s*date\s+QS:[^,\s]+(,[^,\s]+)*/g, "")
+    .replace(QS_LABEL_RX, "")
     .replace(/\s+/g, " ")
     .trim();
 }
@@ -455,9 +470,23 @@ function cleanTitle(raw, fname, artist) {
   // 1. Drop QuickStatements clutter and bracketed asides; commas often
   //    fold a date / location after the actual title.
   const first = raw.split(/[,(]/)[0];
-  let cleaned = stripQuickStatements(first)
-    .replace(/^["']|["']$/g, "")
-    .trim();
+  let cleaned = stripQuickStatements(first).trim();
+  // Only peel paired wrapping quotes — `"Title"` → `Title`. Skip if the
+  // pair is unbalanced (one outer quote and one inside) so we don't leave
+  // a dangling `"Steen` after dropping the trailing `"` of `Castle "Steen"`.
+  while (
+    cleaned.length > 1 &&
+    /^["']/.test(cleaned) &&
+    /["']$/.test(cleaned) &&
+    cleaned[0] === cleaned[cleaned.length - 1] &&
+    (cleaned.match(/["']/g) || []).length % 2 === 0
+  ) {
+    cleaned = cleaned.slice(1, -1).trim();
+  }
+  // Solo trailing quote after a QS-label strip ("Nevermore\"") — peel it.
+  if (/["']$/.test(cleaned) && (cleaned.match(/["']/g) || []).length === 1) {
+    cleaned = cleaned.slice(0, -1).trim();
+  }
 
   // 2. Strip leading upload timestamps.
   cleaned = stripUploadTimestamp(cleaned);
