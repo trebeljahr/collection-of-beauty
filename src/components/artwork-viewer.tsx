@@ -5,7 +5,9 @@ import { type SyntheticEvent, useEffect, useRef, useState } from "react";
 import { artworkAlt, displayTitle } from "@/lib/artwork-format";
 import { artworkHref, type Scope } from "@/lib/artwork-scope";
 import { getLoadedVariant, recordLoadedVariant } from "@/lib/image-cache";
+import { useTransitionPush } from "@/lib/use-transition-nav";
 import { assetUrl, cn, variantSrcSet, variantUrl } from "@/lib/utils";
+import { artworkHeroVtName } from "@/lib/view-transitions";
 import { useLightbox } from "./lightbox-provider";
 
 type ArtworkLike = {
@@ -29,6 +31,7 @@ type Props = {
 
 export function ArtworkViewer({ art, prevId, nextId, scope = null }: Props) {
   const router = useRouter();
+  const transitionPush = useTransitionPush();
   const { open, isOpen } = useLightbox();
 
   const prevHref = prevId ? artworkHref(prevId, scope) : null;
@@ -63,15 +66,15 @@ export function ArtworkViewer({ art, prevId, nextId, scope = null }: Props) {
       }
       if (e.key === "ArrowLeft" && prevHref) {
         e.preventDefault();
-        router.push(prevHref);
+        transitionPush(prevHref, { replace: true });
       } else if (e.key === "ArrowRight" && nextHref) {
         e.preventDefault();
-        router.push(nextHref);
+        transitionPush(nextHref, { replace: true });
       }
     };
     window.addEventListener("keydown", onKey);
     return () => window.removeEventListener("keydown", onKey);
-  }, [isOpen, prevHref, nextHref, router]);
+  }, [isOpen, prevHref, nextHref, transitionPush]);
 
   const alt = artworkAlt(art);
 
@@ -141,6 +144,8 @@ function ArtworkImage({ art, alt }: { art: ArtworkLike; alt: string }) {
 
   const showPlaceholder = mounted && placeholderSrc != null && !highReady;
 
+  const vtName = artworkHeroVtName(art.id);
+
   if (!hasVariants) {
     // No shrunk variants — single original load, no ladder to bridge.
     return (
@@ -155,6 +160,7 @@ function ArtworkImage({ art, alt }: { art: ArtworkLike; alt: string }) {
         fetchPriority="high"
         onLoad={handleHighLoad}
         className={IMG_BOX}
+        style={{ viewTransitionName: vtName }}
       />
     );
   }
@@ -178,6 +184,7 @@ function ArtworkImage({ art, alt }: { art: ArtworkLike; alt: string }) {
             "block transition-opacity duration-300",
             showPlaceholder ? "opacity-0" : "opacity-100",
           )}
+          style={{ viewTransitionName: vtName }}
         />
       </picture>
       {showPlaceholder && placeholderSrc && (
