@@ -1989,6 +1989,19 @@
       "nationality": "Japanese",
       "movement": "Shin-hanga",
       "pd_status": "public_domain_in_most_jurisdictions"
+    },
+    {
+      "name": "Matteo Ripa",
+      "aliases": [
+        "Matteo Ripa",
+        "Ripa",
+        "馬國賢"
+      ],
+      "born": 1682,
+      "died": 1746,
+      "nationality": "Italian",
+      "movement": "Classical East Asian",
+      "pd_status": "public_domain_worldwide"
     }
   ]
 }
