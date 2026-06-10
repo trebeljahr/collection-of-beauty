@@ -266,7 +266,7 @@ export function ZoomModal({
               href={`/artist/${artwork.artistSlug}`}
               target="_blank"
               rel="noopener noreferrer"
-              className="pointer-events-auto underline-offset-2 hover:text-neutral-200 hover:underline focus:outline-none focus-visible:underline"
+              className="pointer-events-auto underline underline-offset-2 hover:text-neutral-200 focus:outline-none"
               title={`Open ${artwork.artist}'s page in a new tab`}
             >
               {artwork.artist}

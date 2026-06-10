@@ -380,7 +380,7 @@ export default function PressPage() {
               <a
                 key={href}
                 href={href}
-                className="shrink-0 rounded-sm underline-offset-4 hover:text-[var(--foreground)] hover:underline focus:outline-none focus-visible:ring-2 focus-visible:ring-[var(--ring)]"
+                className="shrink-0 rounded-sm underline underline-offset-4 hover:text-[var(--foreground)] focus:outline-none focus-visible:ring-2 focus-visible:ring-[var(--ring)]"
               >
                 {label}
               </a>

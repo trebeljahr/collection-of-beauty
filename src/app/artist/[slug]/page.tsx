@@ -105,7 +105,7 @@ export default async function ArtistPage({ params }: { params: Promise<Params> }
       <script {...jsonLdScriptProps(artistJsonLd(artist))} />
       <Link
         href="/artists"
-        className="rounded-sm text-sm text-[var(--muted-foreground)] hover:underline focus:outline-none focus-visible:ring-2 focus-visible:ring-[var(--ring)]"
+        className="rounded-sm text-sm text-[var(--muted-foreground)] underline focus:outline-none focus-visible:ring-2 focus-visible:ring-[var(--ring)]"
       >
         ← All artists
       </Link>
@@ -133,7 +133,7 @@ export default async function ArtistPage({ params }: { params: Promise<Params> }
                 {i > 0 ? " · " : null}
                 <Link
                   href={`/era/${id}`}
-                  className="rounded-sm underline-offset-2 hover:underline focus:outline-none focus-visible:ring-2 focus-visible:ring-[var(--ring)]"
+                  className="rounded-sm underline-offset-2 underline focus:outline-none focus-visible:ring-2 focus-visible:ring-[var(--ring)]"
                 >
                   {getEra(id).title}
                 </Link>

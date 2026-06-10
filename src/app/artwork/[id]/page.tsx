@@ -145,14 +145,14 @@ export default async function ArtworkPage({
         {navScope ? (
           <Link
             href={scopeHref(navScope)}
-            className="rounded-sm hover:underline focus:outline-none focus-visible:ring-2 focus-visible:ring-[var(--ring)]"
+            className="rounded-sm underline focus:outline-none focus-visible:ring-2 focus-visible:ring-[var(--ring)]"
           >
             ← Back to {scopeLabel(navScope)}
           </Link>
         ) : (
           <Link
             href="/"
-            className="rounded-sm hover:underline focus:outline-none focus-visible:ring-2 focus-visible:ring-[var(--ring)]"
+            className="rounded-sm underline focus:outline-none focus-visible:ring-2 focus-visible:ring-[var(--ring)]"
           >
             ← Back to gallery
           </Link>
@@ -162,7 +162,7 @@ export default async function ArtworkPage({
             <Link
               href={artworkHref(prevId, navScope)}
               replace
-              className="rounded-sm hover:underline focus:outline-none focus-visible:ring-2 focus-visible:ring-[var(--ring)]"
+              className="rounded-sm underline focus:outline-none focus-visible:ring-2 focus-visible:ring-[var(--ring)]"
             >
               ← Previous
             </Link>
@@ -171,7 +171,7 @@ export default async function ArtworkPage({
             <Link
               href={artworkHref(nextId, navScope)}
               replace
-              className="rounded-sm hover:underline focus:outline-none focus-visible:ring-2 focus-visible:ring-[var(--ring)]"
+              className="rounded-sm underline focus:outline-none focus-visible:ring-2 focus-visible:ring-[var(--ring)]"
             >
               Next →
             </Link>
@@ -211,7 +211,7 @@ export default async function ArtworkPage({
               <p className="text-lg">
                 <Link
                   href={`/artist/${art.artistSlug}`}
-                  className="rounded-sm underline-offset-4 hover:underline focus:outline-none focus-visible:ring-2 focus-visible:ring-[var(--ring)]"
+                  className="rounded-sm underline-offset-4 underline focus:outline-none focus-visible:ring-2 focus-visible:ring-[var(--ring)]"
                 >
                   {art.artist}
                 </Link>

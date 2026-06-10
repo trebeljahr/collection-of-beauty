@@ -203,7 +203,7 @@ function TimelineTile({ artwork: a, decade }: { artwork: ArtworkListing; decade:
               {" · "}
               <Link
                 href={`/artist/${a.artistSlug}`}
-                className="relative z-20 rounded-sm underline-offset-2 hover:underline focus:outline-none focus-visible:ring-2 focus-visible:ring-[var(--ring)]"
+                className="relative z-20 rounded-sm underline underline-offset-2 focus:outline-none focus-visible:ring-2 focus-visible:ring-[var(--ring)]"
               >
                 {a.artist}
               </Link>
