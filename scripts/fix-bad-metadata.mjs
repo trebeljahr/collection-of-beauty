@@ -60,6 +60,55 @@ const artistRewrites = {
   "Monet_w1032.jpg": "Claude Monet",
   "Monet_w1048.jpg": "Claude Monet",
   "Monet_w1061.jpg": "Claude Monet",
+
+  // Records where the sidecar grabbed the Wikimedia Commons uploader handle
+  // instead of the real artist. Real artist always clear from the title,
+  // description, or filename. Sweep done 2026-06.
+  "Giovanni_bellini,_crocifissione_in_un_cimitero_ebraico_(crocifisso_niccolini_da_camugliano),_1480-85_ca._04.jpg":
+    "Giovanni Bellini",
+  "John_singleton_copley,_testa_di_negro,_1777-78_ca_(cropped).jpg": "John Singleton Copley",
+  "Albinus_skeleton_w_less_muscles.jpg": "Jan Wandelaar",
+  "Albinus_skeleton_w_muscles.jpg": "Jan Wandelaar",
+  "Gherardo_delle_Notti-Supper_with_a_Lute_Player.jpg": "Gerrit van Honthorst",
+  "Painting_of_Susanna_and_the_Elders_by_Rubens.jpg": "Peter Paul Rubens",
+  "Charles_Le_Brun_La_Colère.jpg": "Charles Le Brun",
+  "Portrait_de_madame_de_Verninac_by_David_Louvre_RF1942-16_n2.jpg": "Jacques-Louis David",
+  "The_Barber_Institute_of_Fine_Arts_-_Joseph_Mallord_William_Turner_-_The_Sun_Rising_through_Vapour.jpg":
+    "J. M. W. Turner",
+  "Claude_Monet_-_Sailing_Boat,_Evening_Effect.jpg": "Claude Monet",
+  "La_Fornarina_by_Raffaello.jpg": "Raphael",
+  "Schinkel2.jpg": "Karl Friedrich Schinkel",
+  "Élisabeth-Louise_Vigée-Le_Brun_-_Hubert_Robert_(1788).jpg": "Élisabeth Vigée Le Brun",
+  "Crucifixion_-_Andrea_Mantegna_-_Louvre_INV_368.jpg": "Andrea Mantegna",
+  "Musée_de_Capodimonte_-_Le_Gréco,_portrait_de_Giulio_Clovio,_en_1571-572_-01.jpg": "El Greco",
+  "Francisco_de_Zurbarán_006.jpg": "Francisco de Zurbarán",
+  "Francesco_Hayez_-_Self_Portrait_in_a_Group_of_Friend_-_Google_Art_Project.jpg": "Francesco Hayez",
+  "Elisabeth_Vigée-Lebrun_-_Self-Portrait_with_Her_Daughter,_Julie_-_WGA25082.jpg":
+    "Élisabeth Vigée Le Brun",
+  "Paul_Gauguin_-_Te_aa_no_areois_-_Google_Art_Project.jpg": "Paul Gauguin",
+  "Bellini_—_Madonna_and_Child_1510.jpg": "Giovanni Bellini",
+  "Bellini_—_Pietà_Martinengo.jpg": "Giovanni Bellini",
+  "Gentile_and_Giovanni_Bellini_—_Saint_Mark_Preaching_in_Alexandria.jpg": "Gentile Bellini",
+  "Giovanni_Bellini_—_Holy_Allegory.jpg": "Giovanni Bellini",
+  "Isenheim_Altarpiece_-_Concert_of_Angels.jpg": "Matthias Grünewald",
+  "Isenheim_Altarpiece_-_Saints_-_Left.jpg": "Matthias Grünewald",
+  "Isenheim_Altarpiece_-_Saints_-_Right.jpg": "Matthias Grünewald",
+  "Jacopo_Tintoretto_—_Creation_of_the_Animals.jpg": "Jacopo Tintoretto",
+  "Matthias_Grünewald_-_Resurrection.jpg": "Matthias Grünewald",
+  "Tintoretto_-_Prayer_in_the_Garden.jpg": "Jacopo Tintoretto",
+  "Tintoretto_-_St_Mary_Magdalen.jpg": "Jacopo Tintoretto",
+  "Tintoretto_-_The_Baptism_of_Christ.jpg": "Jacopo Tintoretto",
+  "Jupiter_and_Juno_Annibale_Carracci_fragment.jpg": "Annibale Carracci",
+  "Young_man_in_armor,_by_Peter_Paul_Rubens,_Timken_Museum_of_Art_-_2016_-_430_(cropped).jpg":
+    "Peter Paul Rubens",
+  "Édouard_Manet_by_Henri_Fantin-Latour_(Chicago_Art_Institute_1905.207).jpg":
+    "Henri Fantin-Latour",
+  "Pieter_Bruegel_the_Elder_-_Landscape_with_the_Fall_of_Icarus_-_Brussels,_Royal_Museums_of_Fine_Arts_of_Belgium_-_Google_Arts_&_Culture.jpg":
+    "Pieter Bruegel the Elder",
+  "Portrait_of_Ivan_Morozov2.jpg": "Valentin Serov",
+  "FRANCESCO_HAYEZ_-_Incontro_di_Giobbe_ed_Esaù_(1844).jpg": "Francesco Hayez",
+  "Bellini,_Madonna_mit_Kind,_Johannes_dem_Täufer_und_der_heiligen_Elisabeth.jpg":
+    "Giovanni Bellini",
 };
 
 // ---- year + description rewrites in the sidecar ---------------------------
@@ -94,6 +143,29 @@ const sidecarRewrites = {
     description:
       "Grant Wood, Midnight Ride of Paul Revere, 1931. Oil on Masonite, Metropolitan Museum of Art, New York.",
   },
+
+  // Records where the canonical year is well established and the filename
+  // or title encodes it. date_created left undefined here will be wiped by
+  // the timestamp sweep below.
+  "Bellini_—_Madonna_and_Child_1510.jpg": { year: 1510, date_created: "1510" },
+  "Élisabeth-Louise_Vigée-Le_Brun_-_Hubert_Robert_(1788).jpg": { year: 1788, date_created: "1788" },
+  "FRANCESCO_HAYEZ_-_Incontro_di_Giobbe_ed_Esaù_(1844).jpg": { year: 1844, date_created: "1844" },
+  "Musée_de_Capodimonte_-_Le_Gréco,_portrait_de_Giulio_Clovio,_en_1571-572_-01.jpg": {
+    year: 1572,
+    date_created: "1571–1572",
+  },
+  "Elisabeth_Vigée-Lebrun_-_Self-Portrait_with_Her_Daughter,_Julie_-_WGA25082.jpg": {
+    year: 1789,
+    date_created: "1789",
+  },
+  "Paul_Gauguin_-_Te_aa_no_areois_-_Google_Art_Project.jpg": { year: 1892, date_created: "1892" },
+  "Édouard_Manet_by_Henri_Fantin-Latour_(Chicago_Art_Institute_1905.207).jpg": {
+    year: 1867,
+    date_created: "1867",
+  },
+  "Portrait_of_Ivan_Morozov2.jpg": { year: 1910, date_created: "1910" },
+  "Pieter_Bruegel_the_Elder_-_Landscape_with_the_Fall_of_Icarus_-_Brussels,_Royal_Museums_of_Fine_Arts_of_Belgium_-_Google_Arts_&_Culture.jpg":
+    { year: 1560, date_created: "c. 1560" },
   // The Monet Étretat-period works carry no usable date on Commons; the
   // sidecar previously held a 2013 Flickr upload timestamp that the year
   // extractor rightly rejected. Leave year null and replace the
@@ -160,6 +232,52 @@ const titleOverrides = {
   "collection-of-beauty/Monet_w1032.jpg": "Sailboats off the Aiguille Rock at Étretat",
   "collection-of-beauty/Monet_w1048.jpg": "The Cliff and the Porte d'Amont, Rough Sea",
   "collection-of-beauty/Monet_w1061.jpg": "Panorama of Vernon",
+
+  // Records whose live title is the artist's name, a filename slug, or a
+  // catalogue stub — replace with the canonical work title.
+  "collection-of-beauty/Giovanni_bellini,_crocifissione_in_un_cimitero_ebraico_(crocifisso_niccolini_da_camugliano),_1480-85_ca._04.jpg":
+    "Crucifixion in a Jewish Cemetery (Crocifisso Niccolini da Camugliano)",
+  "collection-of-beauty/John_singleton_copley,_testa_di_negro,_1777-78_ca_(cropped).jpg":
+    "Head of a Black Man",
+  "collection-of-beauty/Albinus_skeleton_w_less_muscles.jpg":
+    "Skeletal Figure with Superficial Muscles (Tabula II, after Albinus)",
+  "collection-of-beauty/Albinus_skeleton_w_muscles.jpg":
+    "Skeletal Figure with Muscles (Tabula IV, after Albinus)",
+  "collection-of-beauty/Charles_Le_Brun_La_Colère.jpg":
+    "Anger, from the Méthode pour apprendre à dessiner les passions",
+  "collection-of-beauty/La_Fornarina_by_Raffaello.jpg": "La Fornarina",
+  "collection-of-beauty/Schinkel2.jpg": "Project for Orianda Palace, Crimea — Garden Terrace",
+  "collection-of-beauty/Bellini_—_Madonna_and_Child_1510.jpg": "Madonna and Child",
+  "collection-of-beauty/Bellini_—_Pietà_Martinengo.jpg": "Pietà Martinengo",
+  "collection-of-beauty/Gentile_and_Giovanni_Bellini_—_Saint_Mark_Preaching_in_Alexandria.jpg":
+    "Saint Mark Preaching in Alexandria",
+  "collection-of-beauty/Giovanni_Bellini_—_Holy_Allegory.jpg": "Sacred Allegory",
+  "collection-of-beauty/Jacopo_Tintoretto_—_Creation_of_the_Animals.jpg": "The Creation of the Animals",
+  "collection-of-beauty/Matthias_Grünewald_-_Resurrection.jpg":
+    "The Resurrection, from the Isenheim Altarpiece",
+  "collection-of-beauty/Tintoretto_-_Prayer_in_the_Garden.jpg": "The Agony in the Garden",
+  "collection-of-beauty/Tintoretto_-_St_Mary_Magdalen.jpg": "Saint Mary Magdalene",
+  "collection-of-beauty/Tintoretto_-_The_Baptism_of_Christ.jpg": "The Baptism of Christ",
+  "collection-of-beauty/Jupiter_and_Juno_Annibale_Carracci_fragment.jpg":
+    "Jupiter and Juno (fragment from the Farnese Ceiling)",
+  "collection-of-beauty/Musée_de_Capodimonte_-_Le_Gréco,_portrait_de_Giulio_Clovio,_en_1571-572_-01.jpg":
+    "Portrait of Giulio Clovio",
+  "collection-of-beauty/Francisco_de_Zurbarán_006.jpg": "Agnus Dei",
+  "collection-of-beauty/Francesco_Hayez_-_Self_Portrait_in_a_Group_of_Friend_-_Google_Art_Project.jpg":
+    "Self-Portrait in a Group of Friends",
+  "collection-of-beauty/Elisabeth_Vigée-Lebrun_-_Self-Portrait_with_Her_Daughter,_Julie_-_WGA25082.jpg":
+    "Self-Portrait with Her Daughter Julie",
+  "collection-of-beauty/Paul_Gauguin_-_Te_aa_no_areois_-_Google_Art_Project.jpg": "Te aa no areois (The Seed of the Areoi)",
+  "collection-of-beauty/Portrait_of_Ivan_Morozov2.jpg": "Portrait of Ivan Morozov",
+  "collection-of-beauty/FRANCESCO_HAYEZ_-_Incontro_di_Giobbe_ed_Esaù_(1844).jpg":
+    "The Meeting of Jacob and Esau",
+  "collection-of-beauty/Painting_of_Susanna_and_the_Elders_by_Rubens.jpg": "Susanna and the Elders",
+  "collection-of-beauty/Élisabeth-Louise_Vigée-Le_Brun_-_Hubert_Robert_(1788).jpg":
+    "Portrait of Hubert Robert",
+  "collection-of-beauty/Crucifixion_-_Andrea_Mantegna_-_Louvre_INV_368.jpg":
+    "The Crucifixion (predella of the San Zeno Altarpiece)",
+  "collection-of-beauty/Gherardo_delle_Notti-Supper_with_a_Lute_Player.jpg":
+    "Supper Party with a Lute Player",
 };
 
 // ---- curator-descriptions keyed by artwork id -----------------------------
@@ -288,6 +406,39 @@ for (const [fname, fields] of Object.entries(sidecarRewrites)) {
   }
 }
 
+// Wikimedia upload timestamps ("2013-11-05 09:38:02") sometimes survive as
+// the sidecar `date_created` even though normalize-metadata set `year: null`.
+// They render verbatim on the artwork detail page, producing user-visible
+// "1.1.2017" / "2013-11-05 09:38:02" strings under works whose actual
+// creation date is unknown. Strip them blanket so the field stays null when
+// no canonical date is available; the explicit sidecarRewrites above already
+// patched in the few entries where the date IS known.
+const TIMESTAMP_RE = /^\d{4}-\d{2}-\d{2}(?:[\sT]\d{2}:\d{2}(?::\d{2})?)?/;
+let timestampClears = 0;
+let yearOrphanClears = 0;
+for (const [fname, entry] of Object.entries(sidecar.entries)) {
+  if (entry.date_created && TIMESTAMP_RE.test(entry.date_created)) {
+    console.log(`date_created (upload-ts): ${fname} :: ${JSON.stringify(entry.date_created)} → null`);
+    entry.date_created = null;
+    timestampClears++;
+  }
+  // Year was extracted from a now-suspect date_created. If date_created is
+  // null and year_source is the plain-date extractor, the year itself was
+  // derived from invalid data — clear it too. Records with an explicit year
+  // override above (via sidecarRewrites) keep their year because date_created
+  // is no longer null for those.
+  if (
+    entry.year != null &&
+    entry.year_source === "date_created_plain" &&
+    entry.date_created == null
+  ) {
+    console.log(`year (orphan, from cleared date_created): ${fname} :: ${entry.year} → null`);
+    entry.year = null;
+    entry.year_source = null;
+    yearOrphanClears++;
+  }
+}
+
 let titleChanges = 0;
 for (const [k, v] of Object.entries(titleOverrides)) {
   if (titles[k] !== v) {
@@ -309,5 +460,5 @@ writeJson(TITLES, titles);
 writeJson(DESCS, descs);
 
 console.log(
-  `\nfix-bad-metadata: artists=${artistChanges} sidecarFields=${sidecarFieldChanges} titles=${titleChanges} descs=${descChanges}`,
+  `\nfix-bad-metadata: artists=${artistChanges} sidecarFields=${sidecarFieldChanges} timestampClears=${timestampClears} yearOrphanClears=${yearOrphanClears} titles=${titleChanges} descs=${descChanges}`,
 );
