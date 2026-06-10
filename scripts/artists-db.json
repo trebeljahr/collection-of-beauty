@@ -1939,6 +1939,56 @@
       "nationality": "Japanese",
       "movement": "Shin-hanga",
       "pd_status": "public_domain_in_most_jurisdictions"
+    },
+    {
+      "name": "Kim Hong-do",
+      "aliases": [
+        "Kim Hong-do",
+        "Kim Hongdo",
+        "Hong-do Kim",
+        "Dangwon Kim Hong-do",
+        "Danwon Kim Hong-do",
+        "단원 김홍도",
+        "김홍도",
+        "檀園 金弘道",
+        "金弘道"
+      ],
+      "born": 1745,
+      "died": 1806,
+      "nationality": "Korean",
+      "movement": "Classical East Asian",
+      "pd_status": "public_domain_worldwide"
+    },
+    {
+      "name": "Nishikawa Sukenobu",
+      "aliases": [
+        "Nishikawa Sukenobu",
+        "Sukenobu Nishikawa",
+        "Sukenobu",
+        "西川祐信"
+      ],
+      "born": 1671,
+      "died": 1750,
+      "nationality": "Japanese",
+      "movement": "Ukiyo-e",
+      "pd_status": "public_domain_worldwide"
+    },
+    {
+      "name": "Ohara Koson",
+      "aliases": [
+        "Ohara Koson",
+        "Koson Ohara",
+        "Ohara Shōson",
+        "Ohara Hōson",
+        "Ohara Hoson",
+        "Koson",
+        "小原古邨"
+      ],
+      "born": 1877,
+      "died": 1945,
+      "nationality": "Japanese",
+      "movement": "Shin-hanga",
+      "pd_status": "public_domain_in_most_jurisdictions"
     }
   ]
 }
