@@ -185,25 +185,29 @@ describe("resolveScope", () => {
     }
   });
 
-  it("buckets decade scope by Math.floor(year / 10) * 10, matching the timeline", () => {
-    const start = 1880;
-    const resolved = resolveScope({ kind: "decade", start });
+  it("returns every dated work in timeline order for decade scope, so prev/next walks past the entry decade's boundary", () => {
+    const resolved = resolveScope({ kind: "decade", start: 1880 });
     expect(resolved.length).toBeGreaterThan(0);
-    expect(resolved.every((a) => a.year != null && Math.floor(a.year / 10) * 10 === start)).toBe(
+    // Spans more than the entry decade: works outside 1880s are present.
+    expect(resolved.some((a) => a.year != null && Math.floor(a.year / 10) * 10 !== 1880)).toBe(
       true,
     );
+    expect(resolved.every((a) => a.year != null)).toBe(true);
 
     const expectedIds = artworkListings
-      .filter((a) => a.year != null && Math.floor(a.year / 10) * 10 === start)
+      .filter((a) => a.year != null)
       .sort((a, b) => (a.year ?? 0) - (b.year ?? 0) || a.title.localeCompare(b.title))
       .map((a) => a.id);
     expect(resolved.map((a) => a.id)).toEqual(expectedIds);
+
+    // Anchor decade doesn't change the list — only used by scopeHref/scopeLabel.
+    const other = resolveScope({ kind: "decade", start: 1700 });
+    expect(other.map((a) => a.id)).toEqual(expectedIds);
   });
 
   it("returns an empty array for an unknown scope value", () => {
     expect(resolveScope({ kind: "artist", slug: "no-such-artist" })).toEqual([]);
     expect(resolveScope({ kind: "movement", name: "No Such Movement" })).toEqual([]);
-    expect(resolveScope({ kind: "decade", start: 990 })).toEqual([]);
   });
 
   it("filters era scope to works whose assignEra matches and sorts year asc", () => {

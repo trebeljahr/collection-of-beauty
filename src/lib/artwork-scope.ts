@@ -63,7 +63,10 @@ export function encodeScope(scope: Scope): string {
  *    gallery → home page default order (shuffle + pinned head)
  *    artist  → artist page (year asc, undated last)
  *    movement → year asc, title tiebreaker (matches sortArtworkListings "year")
- *    decade  → year asc within the bucket (matches timeline-view buckets)
+ *    decade  → every dated work in year asc, title tiebreaker — spans the
+ *              whole timeline so prev/next walks past the entry decade's
+ *              boundary into the neighbouring decades. `scope.start` is
+ *              the entry anchor used by scopeHref/scopeLabel, not a filter.
  *    era     → year asc, title tiebreaker (mirrors movement; undated last)
  */
 export function resolveScope(scope: Scope): ArtworkListing[] {
@@ -84,7 +87,7 @@ export function resolveScope(scope: Scope): ArtworkListing[] {
   }
   if (scope.kind === "decade") {
     return artworkListings
-      .filter((a) => a.year != null && Math.floor(a.year / 10) * 10 === scope.start)
+      .filter((a) => a.year != null)
       .sort((a, b) => (a.year ?? 0) - (b.year ?? 0) || a.title.localeCompare(b.title));
   }
   return artworkListings
