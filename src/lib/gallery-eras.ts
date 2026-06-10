@@ -56,7 +56,9 @@ export type EraId =
   | "natural-history"
   | "realism"
   | "ukiyo-e"
-  | "fin-de-siecle";
+  | "fin-de-siecle"
+  | "post-impressionism"
+  | "modernism";
 
 export const ERAS: Era[] = [
   {
@@ -288,24 +290,79 @@ export const ERAS: Era[] = [
     },
   },
   {
+    // Era id retained as "fin-de-siecle" for URL backward compat —
+    // /era/fin-de-siecle has been the Impressionism landing since the
+    // first multi-floor cut. Title narrowed to Impressionism since
+    // Post-Impressionism and Modernism now have their own floors.
     id: "fin-de-siecle",
     index: 8,
-    // Combined Impressionism-through-Modernism floor. We had a
-    // separate Modernism floor once; with only ~20 modern works in a
-    // public-domain collection (most early-20th-c masters are still
-    // copyrighted), it read as cavernous. Merging keeps Modernism
-    // present without giving it its own underpopulated storey.
-    title: "Impressionism & Modernism",
+    title: "Impressionism",
+    // Year fallback for 1870–1899 lands here. Late-19th-c works whose
+    // movement is missing — Inness, Eakins, Cassatt, Serov, Levitan —
+    // are Impressionism-adjacent and read at home on this floor. The
+    // 1900-onwards untagged cohort falls through to the Modernism floor
+    // below.
     yearMin: 1870,
+    yearMax: 1899,
+    movements: ["Impressionism", "Neo-Impressionism", "Pointillism"],
+    palette: {
+      wallColor: "#f0e7d2",
+      floorColor: "#2a1d14",
+      ceilingColor: "#f9f1db",
+      accent: "#c88a47",
+      // Garden dapple: sage, dusty rose, lavender, butter.
+      roomAccents: ["#2a1d14", "#283325", "#3a2a2e", "#2e2838", "#3a3220"],
+    },
+    blurb: "Plein-air light, broken colour, and modern Paris.",
+    anchor: {
+      movement: "Impressionism",
+      minCells: { x: 9, z: 9 },
+      preferredLocation: "center",
+    },
+  },
+  {
+    id: "post-impressionism",
+    index: 9,
+    title: "Post-Impressionism & Symbolism",
+    // Movement-only — year range would overlap both adjacent floors
+    // (Imp 1870–1899, Modernism 1900+) and split unpredictably under
+    // first-match-wins iteration. Symbolism + Art Nouveau merge here
+    // because the cohort (Munch, Mucha) shares the colour-and-emotion-
+    // past-impressionism identity with van Gogh and Gauguin more than
+    // either the plein-air or fragmentation neighbours.
+    yearMin: 9999,
+    yearMax: 0,
+    movements: ["Post-Impressionism", "Les Nabis", "Symbolism", "Art Nouveau"],
+    palette: {
+      // Warm wheat walls, deep aubergine floor, violet accent —
+      // van Gogh starry-night complementaries crossed with Munch
+      // bruised palette and Mucha's jewel-tone posters.
+      wallColor: "#e6d6b0",
+      floorColor: "#1a1419",
+      ceilingColor: "#f0e2bd",
+      accent: "#6e3a8a",
+      // Sunflower ochre, starry-night blue, deep wine, Mucha jade, Gauguin red-clay.
+      roomAccents: ["#1a1419", "#1a1c30", "#2a1418", "#1a2a22", "#2e1a14"],
+    },
+    blurb: "Saturated colour, decorative line, and the dream made visible.",
+    anchor: {
+      movement: "Post-Impressionism",
+      minCells: { x: 7, z: 7 },
+      preferredLocation: "center",
+    },
+  },
+  {
+    id: "modernism",
+    index: 10,
+    title: "Modernism",
+    // Takes the 1900+ year-fallback. Untagged early-20th-c works in
+    // the corpus (Delaunay, Kirchner, Malevich, Gris, Bakst,
+    // Kustodiev) are mostly avant-garde-adjacent and bucket cleanly
+    // here. The 1930s American cohort (Wood, Hopper) lacks a better
+    // home — Regionalism + American Realism live here for now.
+    yearMin: 1900,
     yearMax: 9999,
     movements: [
-      "Impressionism",
-      "Post-Impressionism",
-      "Neo-Impressionism",
-      "Pointillism",
-      "Les Nabis",
-      "Symbolism",
-      "Art Nouveau",
       "Fauvism",
       "Expressionism",
       "Cubism",
@@ -321,17 +378,19 @@ export const ERAS: Era[] = [
       "Precisionism",
     ],
     palette: {
-      wallColor: "#f0e7d2",
-      floorColor: "#2a1d14",
-      ceilingColor: "#f9f1db",
-      accent: "#c88a47",
-      // Garden dapple: sage, dusty rose, lavender, butter.
-      roomAccents: ["#2a1d14", "#283325", "#3a2a2e", "#2e2838", "#3a3220"],
+      // Warm gallery-white walls, near-black polished floor, primary-
+      // red accent — Bauhaus-adjacent without going full white cube.
+      wallColor: "#efe8db",
+      floorColor: "#101010",
+      ceilingColor: "#f6f1e6",
+      accent: "#c5402c",
+      // Mondrian-leaning primaries muted to room tints: blue, red, ochre, charcoal, off-black.
+      roomAccents: ["#101010", "#10182a", "#2a1010", "#2a2210", "#181818"],
     },
-    blurb: "Plein-air light, interior weather, and the early 20th century's break.",
+    blurb: "Fragmentation, abstraction, and the 20th century's break.",
     anchor: {
-      movement: "Impressionism",
-      minCells: { x: 9, z: 9 },
+      movement: "Cubism",
+      minCells: { x: 7, z: 7 },
       preferredLocation: "center",
     },
   },
