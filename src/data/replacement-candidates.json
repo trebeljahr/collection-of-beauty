@@ -1,0 +1,597 @@
+[
+  {
+    "target": {
+      "id": "collection-of-beauty-jacob-jordaens-naked-old-man-standing",
+      "title": "Naked old man",
+      "englishTitle": null,
+      "artist": "Jacob Jordaens",
+      "w": 425,
+      "h": 650,
+      "fileUrl": "https://upload.wikimedia.org/wikipedia/commons/6/6e/Jacob_Jordaens_-_Naked_old_man%2C_standing.jpg",
+      "commonsUrl": "https://commons.wikimedia.org/wiki/File%3AJacob_Jordaens_-_Naked_old_man%2C_standing.jpg",
+      "wikidataId": "Q137778676",
+      "objectKey": "collection-of-beauty/Jacob_Jordaens_-_Naked_old_man,_standing.jpg",
+      "variantWidths": [
+        256,
+        480,
+        640,
+        960,
+        1280,
+        1920,
+        2560,
+        4096
+      ]
+    },
+    "candidates": [],
+    "summary": "No higher-res replacement found. The Commons file (425x650, 44 KB) is the only digitization available there for this specific Jordaens drawing (Louvre RF 674 / HDLS 257, \"Vieillard nu, debout\", 30.2 x 19.7 cm chalk drawing dated 1639). The Commons file metadata cites RMN-GP as source (art.rmngp.fr) but that gallery is firewalled (TLS cert mismatch on direct fetch; the Louvre's own page at collections.louvre.fr/ark:/53355/cl020112255 requires a click-through download UI rather than exposing a direct hi-res URL). A Commons title search returns only one other \"naked old man\" Jordaens drawing — a horizontal British Museum study (object 709312, 425x540 mm, ca. 1617-1620, made of multiple sheets) — which is a different work, not a higher-res scan of ours. The \"Drawings by Jacob Jordaens in the Louvre\" category contains no alternate file of this drawing. Nothing on Commons to swap in; a real upgrade would have to come from a fresh upload off the Louvre's gated download tool."
+  },
+  {
+    "target": {
+      "id": "collection-of-beauty-dr-deijman-s-anatomy-lesson-fragment-by-rembrandt",
+      "title": "The anatomy lesson of Dr. Joan Deijman",
+      "englishTitle": null,
+      "artist": "Rembrandt van Rijn",
+      "w": 600,
+      "h": 453,
+      "fileUrl": "https://upload.wikimedia.org/wikipedia/commons/c/c7/Dr_Deijman%E2%80%99s_Anatomy_Lesson_%28fragment%29%2C_by_Rembrandt.jpg",
+      "commonsUrl": "https://commons.wikimedia.org/wiki/File%3ADr_Deijman%E2%80%99s_Anatomy_Lesson_(fragment)%2C_by_Rembrandt.jpg",
+      "wikidataId": null,
+      "objectKey": "collection-of-beauty/Dr_Deijman’s_Anatomy_Lesson_(fragment),_by_Rembrandt.jpg",
+      "variantWidths": [
+        256,
+        480,
+        640,
+        960,
+        1280,
+        1920,
+        2560,
+        4096
+      ]
+    },
+    "candidates": [
+      {
+        "fileUrl": "https://upload.wikimedia.org/wikipedia/commons/0/08/Rembrandt_-_Anatomische_les_van_Dr._Jan_Deijman.jpg",
+        "commonsPageUrl": "https://commons.wikimedia.org/wiki/File:Rembrandt_-_Anatomische_les_van_Dr._Jan_Deijman.jpg",
+        "width": 3508,
+        "height": 2642,
+        "confidence": 0.97,
+        "reason": "Confirmed same fragment: Rembrandt 1656 'Anatomical lesson of Dr. Jan Deijman' fragment, Amsterdam Museum SA 7394, 100x134 cm. JPG at 3508x2642 — ~5.8x linear / ~34x area higher resolution than current 600x453. Aspect ratio (1.328) matches current (1.325)."
+      },
+      {
+        "fileUrl": "https://upload.wikimedia.org/wikipedia/commons/4/44/Anatomische_les_van_Dr._Jan_Deijman_%28fragment%29%2C_objectnr_SA_7394.tif",
+        "commonsPageUrl": "https://commons.wikimedia.org/wiki/File:Anatomische_les_van_Dr._Jan_Deijman_(fragment),_objectnr_SA_7394.tif",
+        "width": 3508,
+        "height": 2642,
+        "confidence": 0.95,
+        "reason": "Same fragment (Amsterdam Museum SA 7394), TIFF rendered at 3508x2642 (master is ~6441x5156 per file description). Likely the original master scan; same dims as the JPG sibling. TIFF format may be less convenient for web use."
+      },
+      {
+        "fileUrl": "https://upload.wikimedia.org/wikipedia/commons/9/96/Rembrandt_Harmensz._van_Rijn_008.jpg",
+        "commonsPageUrl": "https://commons.wikimedia.org/wiki/File:Rembrandt_Harmensz._van_Rijn_008.jpg",
+        "width": 2024,
+        "height": 1493,
+        "confidence": 0.93,
+        "reason": "Same fragment confirmed (Amsterdam Museum SA 7394 / Rijks SK-C-85, fire-damaged 1656 work, 100x134 cm). 2024x1493 — still ~3.4x linear higher than current. Aspect 1.356 slightly different (small crop variance) but same artwork."
+      }
+    ],
+    "summary": "Found 3 high-confidence higher-resolution candidates. Best is a 3508x2642 JPG (~34x area increase) of the exact same Amsterdam Museum SA 7394 fragment. A TIFF master at the same dims and a 2024x1493 alternate are also viable."
+  },
+  {
+    "target": {
+      "id": "collection-of-beauty-goya-the-garroted-man",
+      "title": "The Garroted Man",
+      "englishTitle": null,
+      "artist": "Francisco Goya",
+      "w": 330,
+      "h": 507,
+      "fileUrl": "https://upload.wikimedia.org/wikipedia/commons/e/e9/Goya_-_The_Garroted_Man.jpg",
+      "commonsUrl": "https://commons.wikimedia.org/wiki/File%3AGoya_-_The_Garroted_Man.jpg",
+      "wikidataId": null,
+      "objectKey": "collection-of-beauty/Goya_-_The_Garroted_Man.jpg",
+      "variantWidths": [
+        256,
+        480,
+        640,
+        960,
+        1280,
+        1920,
+        2560,
+        4096
+      ]
+    },
+    "candidates": [
+      {
+        "fileUrl": "https://upload.wikimedia.org/wikipedia/commons/e/e7/Francisco_de_Goya%2C_The_Garroted_Man%2C_in_or_before_1780%2C_NGA_7448.jpg",
+        "commonsPageUrl": "https://commons.wikimedia.org/wiki/File:Francisco_de_Goya,_The_Garroted_Man,_in_or_before_1780,_NGA_7448.jpg",
+        "width": 2604,
+        "height": 4000,
+        "confidence": 0.98,
+        "reason": "Same exact impression as current file: National Gallery of Art accession 1943.3.4709, second edition impression printed about 1830, etching and burin on smooth wove paper. Identical aspect ratio (0.651) to current 330x507. Just a much higher-resolution upload of the same NGA scan. Current category 'Images from the National Gallery of Art' matches."
+      },
+      {
+        "fileUrl": "https://upload.wikimedia.org/wikipedia/commons/1/1e/The_Garroted_Man_%28El_agarrotado%29_MET_MM4142.jpg",
+        "commonsPageUrl": "https://commons.wikimedia.org/wiki/File:The_Garroted_Man_(El_agarrotado)_MET_MM4142.jpg",
+        "width": 2657,
+        "height": 4000,
+        "confidence": 0.75,
+        "reason": "Same Goya etching 'El agarrotado' (Delteil 021) but a different impression held at the Metropolitan Museum of Art. Aspect ratio 0.664 vs current 0.651 - very close, just a slightly differently-trimmed paper. Same image content; would be a valid hi-res replacement if visual match is acceptable, but is a different physical print."
+      },
+      {
+        "fileUrl": "https://upload.wikimedia.org/wikipedia/commons/2/20/Francisco_de_Goya_-_The_Garroted_Man_-_1963.470_-_Cleveland_Museum_of_Art.tif",
+        "commonsPageUrl": "https://commons.wikimedia.org/wiki/File:Francisco_de_Goya_-_The_Garroted_Man_-_1963.470_-_Cleveland_Museum_of_Art.tif",
+        "width": 3936,
+        "height": 5430,
+        "confidence": 0.6,
+        "reason": "Highest resolution available (3936x5430) but it's a TIF file from Cleveland Museum of Art (accession 1963.470) - a different impression with different paper trim (aspect 0.725 vs current 0.651), so likely shows more sheet margins around the etched image. Same artwork (Delteil 021) but different physical print. TIF format may not be ideal for the web pipeline."
+      }
+    ],
+    "summary": "Found 3 strong candidates. Best by far: NGA 7448 file (2604x4000) is verifiably the SAME impression as our current low-res file (National Gallery of Art, accession 1943.3.4709, identical aspect ratio 0.651) — just a higher-res upload of the same scan. Drop-in replacement."
+  },
+  {
+    "target": {
+      "id": "collection-of-beauty-svetlana-at-fortune-telling-by-k-brullov-1836-nizhniy-novgorod-museum",
+      "title": "Fortune-teller Svetlana",
+      "englishTitle": null,
+      "artist": "Karl Bryullov",
+      "w": 491,
+      "h": 600,
+      "fileUrl": "https://upload.wikimedia.org/wikipedia/commons/0/0d/Svetlana_at_fortune-telling_by_K.Brullov_%281836%2C_Nizhniy_Novgorod_museum%29.jpg",
+      "commonsUrl": "https://commons.wikimedia.org/wiki/File%3ASvetlana_at_fortune-telling_by_K.Brullov_(1836%2C_Nizhniy_Novgorod_museum).jpg",
+      "wikidataId": null,
+      "objectKey": "collection-of-beauty/Svetlana_at_fortune-telling_by_K.Brullov_(1836,_Nizhniy_Novgorod_museum).jpg",
+      "variantWidths": [
+        256,
+        480,
+        640,
+        960,
+        1280,
+        1920,
+        2560,
+        4096
+      ]
+    },
+    "candidates": [],
+    "summary": "No higher-resolution candidate found on Wikimedia Commons. Searched the file's categories (\"Genre paintings by Karl Briullov\", \"Svetlana (ballad)\", \"Paintings in Art Museum of Nizhny Novgorod\"), the linked Wikidata item (Q28360775), and ran multiple title/keyword searches (English + Russian transliterations of \"Гадающая Светлана\"). The 491x600 file is the only Commons version of this specific work; Wikidata's P18 points to the same file; no other crops or scans of the Nizhny Novgorod painting exist on Commons. The file page history shows a prior 600x732 upload but that is not meaningfully larger and is the same source. The catalogue is already on the best Commons-hosted copy. Higher resolution would require sourcing from museum.ru (the Wikidata-referenced source) or directly from the Nizhny Novgorod State Art Museum, which is out of scope here."
+  },
+  {
+    "target": {
+      "id": "collection-of-beauty-monet-w868",
+      "title": "Monet w868",
+      "englishTitle": null,
+      "artist": "Claude Monet",
+      "w": 404,
+      "h": 500,
+      "fileUrl": "https://upload.wikimedia.org/wikipedia/commons/c/c3/Monet_w868.jpg",
+      "commonsUrl": "https://commons.wikimedia.org/wiki/File%3AMonet_w868.jpg",
+      "wikidataId": null,
+      "objectKey": "collection-of-beauty/Monet_w868.jpg",
+      "variantWidths": [
+        256,
+        480,
+        640,
+        960,
+        1280,
+        1920,
+        2560,
+        4096
+      ]
+    },
+    "candidates": [
+      {
+        "fileUrl": "https://upload.wikimedia.org/wikipedia/commons/c/cf/Olive_trees_study%2C_1884_-_Claude_Monet%2C_Private_Collection.jpg",
+        "commonsPageUrl": "https://commons.wikimedia.org/wiki/File:Olive_trees_study,_1884_-_Claude_Monet,_Private_Collection.jpg",
+        "width": 814,
+        "height": 1008,
+        "confidence": 0.97,
+        "reason": "Visual comparison confirms identical composition to the current Monet w868.jpg: same leaning olive tree with a curving trunk that sweeps left-to-right across the lower frame, same canopy of branches above, same understory of additional olive trunks behind, same grassy foreground. Aspect ratio matches (~0.808 vs current 0.808). Both files are tagged 1884, Bordighera olive-trees subject, private collection — matching the categories of Monet w868.jpg (\"Bordighera by Claude Monet\", \"Paintings of olive trees\", \"Paintings by Claude Monet in private collections\"). The Wildenstein 1996, 868 catalogue scan also shows the same composition. This file is exactly 2.0x the current resolution in both dimensions — a clean upgrade."
+      },
+      {
+        "fileUrl": "https://upload.wikimedia.org/wikipedia/commons/d/d9/Monet-olivi.jpg",
+        "commonsPageUrl": "https://commons.wikimedia.org/wiki/File:Monet-olivi.jpg",
+        "width": 517,
+        "height": 640,
+        "confidence": 0.95,
+        "reason": "Visual comparison confirms identical composition to Monet w868 — same leaning olive tree, same canopy, same understory. Aspect ratio matches (517/640 = 0.808, identical to current 404/500 = 0.808). Slightly different color cast (warmer/more reddish in the trunk) suggests a different photograph of the same physical painting. ~1.28x larger than current in both dimensions but markedly inferior to candidate #1 (the 814x1008 \"Olive trees study\" file) — keep as a backup only if candidate #1 is somehow unsuitable."
+      }
+    ],
+    "summary": "Found 2 higher-resolution Wikimedia Commons files of the same painting (Monet's Wildenstein 868, \"Olive Trees\" study at Bordighera, 1884, private collection). Visual comparison against the current file and the W868 catalogue scan confirms identical composition: the distinctive leaning olive tree with a sweeping curved trunk. Best candidate is \"Olive trees study, 1884 - Claude Monet, Private Collection.jpg\" at 814x1008 — exactly 2x current resolution, same aspect, confident match (0.97)."
+  },
+  {
+    "target": {
+      "id": "collection-of-beauty-at-the-stock-exchange",
+      "title": "Portraits at the Stock Exchange",
+      "englishTitle": null,
+      "artist": "Edgar Degas",
+      "w": 463,
+      "h": 577,
+      "fileUrl": "https://upload.wikimedia.org/wikipedia/commons/d/da/At_The_Stock_Exchange.jpg",
+      "commonsUrl": "https://commons.wikimedia.org/wiki/File%3AAt_The_Stock_Exchange.jpg",
+      "wikidataId": null,
+      "objectKey": "collection-of-beauty/At_The_Stock_Exchange.jpg",
+      "variantWidths": [
+        256,
+        480,
+        640,
+        960,
+        1280,
+        1920,
+        2560,
+        4096
+      ]
+    },
+    "candidates": [
+      {
+        "fileUrl": "https://upload.wikimedia.org/wikipedia/commons/f/ff/Edgar_Degas_-_Portraits_at_the_Stock_Exchange_-_Google_Art_Project.jpg",
+        "commonsPageUrl": "https://commons.wikimedia.org/wiki/File:Edgar_Degas_-_Portraits_at_the_Stock_Exchange_-_Google_Art_Project.jpg",
+        "width": 5719,
+        "height": 7027,
+        "confidence": 0.98,
+        "reason": "Same Commons category 'Portraits at the Stock Exchange by Edgar Degas' as the current file. Title is an exact match. Aspect ratio 0.814 closely matches current 0.802. Google Art Project source = museum-grade scan. Dramatically higher resolution (5719x7027 vs 463x577)."
+      },
+      {
+        "fileUrl": "https://upload.wikimedia.org/wikipedia/commons/e/ea/Portraits_at_the_Stock_Exchange_MET_DT1044.jpg",
+        "commonsPageUrl": "https://commons.wikimedia.org/wiki/File:Portraits_at_the_Stock_Exchange_MET_DT1044.jpg",
+        "width": 2978,
+        "height": 3722,
+        "confidence": 0.92,
+        "reason": "Same Commons category. Title is an exact match with MET museum identifier. Aspect ratio 0.800 matches current 0.802 almost exactly. Resolution 2978x3722 is well above current. NOTE: the painting is at Musee d'Orsay, not the Met — MET DT1044 is likely a loan-show scan or alt source; still the same work per the shared category."
+      },
+      {
+        "fileUrl": "https://upload.wikimedia.org/wikipedia/commons/2/25/Edgar_Degas%2C_Portraits_at_the_Stock_Exchange%2C_ca._1878%E2%80%9379.jpg",
+        "commonsPageUrl": "https://commons.wikimedia.org/wiki/File:Edgar_Degas,_Portraits_at_the_Stock_Exchange,_ca._1878%E2%80%9379.jpg",
+        "width": 2835,
+        "height": 3486,
+        "confidence": 0.92,
+        "reason": "Same Commons category and exact title match with the 1878-79 dating standard for this work. Aspect ratio 0.813 matches current 0.802. Resolution 2835x3486 well above current."
+      }
+    ],
+    "summary": "Found 3 strong candidates, all in the dedicated Commons category 'Portraits at the Stock Exchange by Edgar Degas' (same category as current low-res file). Best candidate is the Google Art Project version at 5719x7027 — a ~12x linear upgrade. All have aspect ratios within ~1.5% of the current file, confirming same artwork (not a fragment/study)."
+  },
+  {
+    "target": {
+      "id": "collection-of-beauty-van-gogh-f1040-jh100",
+      "title": "Van gogh f1040 jh100",
+      "englishTitle": null,
+      "artist": "Vincent van Gogh",
+      "w": 642,
+      "h": 463,
+      "fileUrl": "https://upload.wikimedia.org/wikipedia/commons/3/34/Van_gogh_f1040_jh100.jpg",
+      "commonsUrl": "https://commons.wikimedia.org/wiki/File%3AVan_gogh_f1040_jh100.jpg",
+      "wikidataId": null,
+      "objectKey": "collection-of-beauty/Van_gogh_f1040_jh100.jpg",
+      "variantWidths": [
+        256,
+        480,
+        640,
+        960,
+        1280,
+        1920,
+        2560,
+        4096
+      ]
+    },
+    "candidates": [
+      {
+        "fileUrl": "https://upload.wikimedia.org/wikipedia/commons/f/f4/Van_Gogh_%281879%29_-_Coke_Factory_in_the_Borinage.jpg",
+        "commonsPageUrl": "https://commons.wikimedia.org/wiki/File:Van_Gogh_(1879)_-_Coke_Factory_in_the_Borinage.jpg",
+        "width": 2403,
+        "height": 1602,
+        "confidence": 0.95,
+        "reason": "Visually confirmed same artwork as current F1040/JH100 file — identical composition: red-brick industrial buildings on the left, tall central smokestack, multiple smaller smokestacks with smoke, slag heap on the right, lone figure in middle ground, wooden fences and dirt path in foreground. Same watercolor on tan paper. Both are catalogued as 'Watercolor paintings by Vincent van Gogh' from 1879 in the Borinage (Flénu/Cuesmes-Wasmes coal mining region) and held at the Van Gogh Museum. This file is a much higher-resolution photograph of the same work (2403x1602 vs 642x463, ~3.7x linear, ~14x pixel count). Slightly tighter crop removes the visible white paper margin shown in the original — aspect ratio 1.500 vs 1.387 — but it is unambiguously the same painting."
+      },
+      {
+        "fileUrl": "https://upload.wikimedia.org/wikipedia/commons/4/45/Vincent_van_Gogh_-_Aout_1879_-_Cuesmes-_Wasmes.jpg",
+        "commonsPageUrl": "https://commons.wikimedia.org/wiki/File:Vincent_van_Gogh_-_Aout_1879_-_Cuesmes-_Wasmes.jpg",
+        "width": 1930,
+        "height": 1342,
+        "confidence": 0.95,
+        "reason": "Visually confirmed same artwork as current F1040/JH100 file — identical composition, same lone figure, same buildings, smokestacks, slag heap, fences, dirt path. File description identifies it as 'Mine de Charbon dans le Borinage - Cuesmes-Wasmes' from August 1879, which is the title commonly given to F1040/JH100 (Van Gogh wrote about and sketched this scene during his Borinage period). Aspect ratio 1.438 is very close to original's 1.387 — this candidate preserves the full paper sheet with the inscription/signature visible at bottom-left and catalog number '21' at top-left, matching standard museum documentation. Resolution 1930x1342 is ~3x linear, ~9.7x pixel count. Slight warmer color cast (more amber) but the same physical artwork."
+      }
+    ],
+    "summary": "Found 2 high-confidence higher-res replacements for Van Gogh F1040/JH100 (\"Au Charbonnage\" / Coal Mine in the Borinage, watercolor, 1879, Van Gogh Museum). Both visually verified as the same artwork through side-by-side comparison: identical composition with red-brick industrial buildings, central smokestack, slag heap, lone figure, and wooden fences. Best candidate is 'Coke Factory in the Borinage.jpg' at 2403x1602 (~14x more pixels than current); secondary candidate 'Aout 1879 - Cuesmes-Wasmes.jpg' at 1930x1342 has aspect ratio closer to the original and preserves the full paper sheet including signature. No Wikidata Q-id linked to this work."
+  },
+  {
+    "target": {
+      "id": "collection-of-beauty-georges-seurat-seated-nude-study-for-une-baignade-1883-scottish-national-gallery",
+      "title": "Georges Seurat",
+      "englishTitle": "Seated Nude (study for Bathers at Asnières, 1883)",
+      "artist": "Georges Seurat",
+      "w": 450,
+      "h": 571,
+      "fileUrl": "https://upload.wikimedia.org/wikipedia/commons/6/66/Georges_Seurat%2C_Seated_Nude%2C_Study_for_Une_Baignade%2C_1883%2C_Scottish_National_Gallery.jpg",
+      "commonsUrl": "https://commons.wikimedia.org/wiki/File%3AGeorges_Seurat%2C_Seated_Nude%2C_Study_for_Une_Baignade%2C_1883%2C_Scottish_National_Gallery.jpg",
+      "wikidataId": null,
+      "objectKey": "collection-of-beauty/Georges_Seurat,_Seated_Nude,_Study_for_Une_Baignade,_1883,_Scottish_National_Gallery.jpg",
+      "variantWidths": [
+        256,
+        480,
+        640,
+        960,
+        1280,
+        1920,
+        2560,
+        4096
+      ]
+    },
+    "candidates": [
+      {
+        "fileUrl": "https://upload.wikimedia.org/wikipedia/commons/8/8b/Georges_Seurat_-_Seated_Nude-_Study_for_%27Une_Baignade%27_-_Google_Art_Project.jpg",
+        "commonsPageUrl": "https://commons.wikimedia.org/wiki/File:Georges_Seurat_-_Seated_Nude-_Study_for_%27Une_Baignade%27_-_Google_Art_Project.jpg",
+        "width": 3033,
+        "height": 4001,
+        "confidence": 0.97,
+        "reason": "Same artwork — Seurat's 1883 Conte crayon drawing 'Seated Nude: Study for Une Baignade'. Confirmed by sharing the Commons category 'Drawings by Georges Seurat in the Scottish National Gallery' with the current file (only two files in that category — current low-res version and this Google Art Project hi-res scan). Aspect ratio 4001/3033 = 1.319 vs current 571/450 = 1.269 — consistent (hi-res GAP scan likely captures more sheet margin). 6.7x higher pixel resolution in each dimension."
+      }
+    ],
+    "summary": "Found 1 strong candidate. The Google Art Project upload (3033x4001) is the same Conte drawing currently held at 450x571 — both files share the dedicated Commons category 'Drawings by Georges Seurat in the Scottish National Gallery' and match the same Scottish National Gallery study sheet. Two other 'Study for Une Baignade' files exist on Commons (NG 2222) but they depict a different work — a landscape compositional oil sketch — and are excluded."
+  },
+  {
+    "target": {
+      "id": "collection-of-beauty-portrait-d-edmond-aman-jean-par-georges-seurat",
+      "title": "Portrait d'Edmond Aman-Jean par Georges Seurat",
+      "englishTitle": null,
+      "artist": "Georges Seurat",
+      "w": 450,
+      "h": 583,
+      "fileUrl": "https://upload.wikimedia.org/wikipedia/commons/c/c1/Portrait_d%27Edmond_Aman-Jean_par_Georges_Seurat.jpg",
+      "commonsUrl": "https://commons.wikimedia.org/wiki/File%3APortrait_d'Edmond_Aman-Jean_par_Georges_Seurat.jpg",
+      "wikidataId": null,
+      "objectKey": "collection-of-beauty/Portrait_d'Edmond_Aman-Jean_par_Georges_Seurat.jpg",
+      "variantWidths": [
+        256,
+        480,
+        640,
+        960,
+        1280,
+        1920,
+        2560,
+        4096
+      ]
+    },
+    "candidates": [
+      {
+        "fileUrl": "https://upload.wikimedia.org/wikipedia/commons/a/a1/Aman-Jean_%28Portrait_of_Edmond_Fran%C3%A7ois_Aman-Jean%29_MET_DP158522.jpg",
+        "commonsPageUrl": "https://commons.wikimedia.org/wiki/File:Aman-Jean_(Portrait_of_Edmond_Fran%C3%A7ois_Aman-Jean)_MET_DP158522.jpg",
+        "width": 2975,
+        "height": 3885,
+        "confidence": 0.97,
+        "reason": "Same MET drawing (61.101.16, 1883) by Seurat — official MET high-res scan (DP-prefixed digital photography file). Aspect 0.766 matches the current 0.772 (drawing is 62.2x47.5cm). Both files share Category 'Drawings by Georges Seurat in the Metropolitan Museum of Art'. ~44x more pixels than current 450x583."
+      },
+      {
+        "fileUrl": "https://upload.wikimedia.org/wikipedia/commons/7/78/Aman-Jean_%28Portrait_of_Edmond_Fran%C3%A7ois_Aman-Jean%29_MET_172701.jpg",
+        "commonsPageUrl": "https://commons.wikimedia.org/wiki/File:Aman-Jean_(Portrait_of_Edmond_Fran%C3%A7ois_Aman-Jean)_MET_172701.jpg",
+        "width": 1424,
+        "height": 1824,
+        "confidence": 0.95,
+        "reason": "Same MET drawing (61.101.16), alternate MET-supplied scan. Aspect 0.781 matches. ~10x more pixels than current. Useful as a fallback if the DP158522 colour balance differs from the existing reference."
+      }
+    ],
+    "summary": "Found 2 confirmed higher-resolution MET scans of the same Seurat drawing of Edmond Aman-Jean (MET 61.101.16, 1883). The DP158522 file at 2975x3885 is a roughly 44x pixel upgrade over the current 450x583. Both share the 'Drawings by Georges Seurat in the Metropolitan Museum of Art' category and aspect ratios match the existing file."
+  },
+  {
+    "target": {
+      "id": "collection-of-beauty-mikhail-nesterov-009",
+      "title": "The Hermit",
+      "englishTitle": null,
+      "artist": "Mikhail Nesterov",
+      "w": 470,
+      "h": 600,
+      "fileUrl": "https://upload.wikimedia.org/wikipedia/commons/3/3b/Mikhail_Nesterov_009.jpeg",
+      "commonsUrl": "https://commons.wikimedia.org/wiki/File%3AMikhail_Nesterov_009.jpeg",
+      "wikidataId": "Q11831903",
+      "objectKey": "collection-of-beauty/Mikhail_Nesterov_009.jpeg",
+      "variantWidths": [
+        256,
+        480,
+        640,
+        960,
+        1280,
+        1920,
+        2560,
+        4096
+      ]
+    },
+    "candidates": [
+      {
+        "fileUrl": "https://upload.wikimedia.org/wikipedia/commons/f/f0/Mikhail_Nesterov_009_-_variation_%28GRM%29.jpg",
+        "commonsPageUrl": "https://commons.wikimedia.org/wiki/File:Mikhail_Nesterov_009_-_variation_(GRM).jpg",
+        "width": 4422,
+        "height": 4858,
+        "confidence": 0.55,
+        "reason": "Same composition (Nesterov's 'Pustynnik' / The Hermit), but this is the VARIATION held at the State Russian Museum (ГРМ), not the 1888-89 Tretyakov original (Q11831903, Инв.1547) that the catalogue entry tracks. Commons categorises this file under 'Paintings of monks by Mikhail Nesterov in the Russian Museum'. The visual composition appears to be the same canonical scene Nesterov returned to. Aspect ratio 1.099 vs the Tretyakov's 1.143 (h/w from 144.5 x 126.4 cm). The current low-res file (470x600, aspect 1.277) was scraped from fotki.yandex.ru and itself doesn't match the Tretyakov's documented aspect ratio either, so visual identity should be confirmed before swapping. Worth using only if the catalogue accepts the GRM variation as a representation of 'The Hermit'; otherwise no genuine hi-res of the Tretyakov original was found on Commons."
+      }
+    ],
+    "summary": "Found 1 candidate at 4422x4858. It is the State Russian Museum (GRM) variation of Nesterov's 'Pustynnik', not the 1888-89 Tretyakov original tied to Q11831903. Same composition / same artist / same title, different physical canvas at a different museum. No higher-resolution scan of the Tretyakov canvas itself was located on Commons (only the existing 470x600 sourced from fotki.yandex.ru). Visual confirmation recommended before swapping."
+  },
+  {
+    "target": {
+      "id": "collection-of-beauty-the-arts-painting",
+      "title": "Painting",
+      "englishTitle": null,
+      "artist": "Alphonse Mucha",
+      "w": 408,
+      "h": 640,
+      "fileUrl": "https://upload.wikimedia.org/wikipedia/commons/7/7c/The_Arts_Painting.jpg",
+      "commonsUrl": "https://commons.wikimedia.org/wiki/File%3AThe_Arts_Painting.jpg",
+      "wikidataId": null,
+      "objectKey": "collection-of-beauty/The_Arts_Painting.jpg",
+      "variantWidths": [
+        256,
+        480,
+        640,
+        960,
+        1280,
+        1920,
+        2560,
+        4096
+      ]
+    },
+    "candidates": [
+      {
+        "fileUrl": "https://upload.wikimedia.org/wikipedia/commons/3/36/Alfons_Mucha_-_The_Arts_Painting%2C_1898.jpg",
+        "commonsPageUrl": "https://commons.wikimedia.org/wiki/File:Alfons_Mucha_-_The_Arts_Painting,_1898.jpg",
+        "width": 2967,
+        "height": 4616,
+        "confidence": 0.98,
+        "reason": "Same artwork: Mucha's 'Painting' from The Arts series (1898). In the same Commons category ('The Arts - Alfons Mucha (1898)') as current file. Aspect ratio 0.6428 nearly matches current 0.6375 — almost certainly the same image at much higher resolution (~7.3x linear / ~52x pixels). Title explicitly matches 'The Arts Painting, 1898'."
+      },
+      {
+        "fileUrl": "https://upload.wikimedia.org/wikipedia/commons/6/69/Alfons_Mucha_-_La_Peinture.jpg",
+        "commonsPageUrl": "https://commons.wikimedia.org/wiki/File:Alfons_Mucha_-_La_Peinture.jpg",
+        "width": 3495,
+        "height": 5158,
+        "confidence": 0.92,
+        "reason": "Same artwork (La Peinture = The Painting), from same Commons category 'The Arts - Alfons Mucha (1898)'. Aspect 0.6776 — slightly different crop/margins than current but unmistakably the same lithograph. Highest resolution among candidates of full plate."
+      },
+      {
+        "fileUrl": "https://upload.wikimedia.org/wikipedia/commons/d/d4/%22La_Peinture%22_d%27Alphonse_Mucha_%28Mus%C3%A9e_du_Luxembourg%2C_Paris%29_%2830040240377%29.jpg",
+        "commonsPageUrl": "https://commons.wikimedia.org/wiki/File:%22La_Peinture%22_d%27Alphonse_Mucha_(Mus%C3%A9e_du_Luxembourg,_Paris)_(30040240377).jpg",
+        "width": 2753,
+        "height": 4353,
+        "confidence": 0.85,
+        "reason": "Same artwork photographed at Musée du Luxembourg (Paris exhibition). Same Commons category. Aspect 0.6325 closely matches current 0.6375. May be a photo of a framed display rather than a clean scan — slightly lower confidence as a drop-in replacement, but still resolves at ~6.7x linear resolution."
+      }
+    ],
+    "summary": "Found 3 strong higher-resolution candidates for Mucha's 'Painting' (The Arts series, 1898), all from the same Commons category 'The Arts - Alfons Mucha (1898)'. Top pick is 'Alfons Mucha - The Arts Painting, 1898.jpg' at 2967x4616 — nearly identical aspect ratio to the current 408x640 file, suggesting it's the same scan at much higher resolution."
+  },
+  {
+    "target": {
+      "id": "collection-of-beauty-water-lilies-by-monet-yamagata-museum-of-art",
+      "title": "Water Lilies by Monet",
+      "englishTitle": null,
+      "artist": "Claude Monet",
+      "w": 544,
+      "h": 480,
+      "fileUrl": "https://upload.wikimedia.org/wikipedia/commons/c/c6/Water_Lilies_by_Monet_%28Yamagata_Museum_of_Art%29.jpg",
+      "commonsUrl": "https://commons.wikimedia.org/wiki/File%3AWater_Lilies_by_Monet_(Yamagata_Museum_of_Art).jpg",
+      "wikidataId": "Q95911180",
+      "objectKey": "collection-of-beauty/Water_Lilies_by_Monet_(Yamagata_Museum_of_Art).jpg",
+      "variantWidths": [
+        256,
+        480,
+        640,
+        960,
+        1280,
+        1920,
+        2560,
+        4096
+      ]
+    },
+    "candidates": [
+      {
+        "fileUrl": "https://upload.wikimedia.org/wikipedia/commons/8/89/Monet_-_Wildenstein_1996%2C_1691.png",
+        "commonsPageUrl": "https://commons.wikimedia.org/wiki/File:Monet_-_Wildenstein_1996,_1691.png",
+        "width": 598,
+        "height": 514,
+        "confidence": 0.92,
+        "reason": "Same artwork - both files are categorized under 'Nymphéas (Wildenstein 1691)' on Commons, which is the catalogue raisonné identifier for the Yamagata Museum 1906 Water Lilies (81x92 cm). Aspect ratio 598/514=1.163 closely matches true 92/81=1.136. Sourced from wpi.art's reproduction of the Wildenstein 1996 catalogue. Only marginally larger than current (598x514 vs 544x480, ~10% increase) but a genuine resolution improvement of the same painting."
+      }
+    ],
+    "summary": "Found 1 candidate. The Wildenstein 1691 catalog category links both files to the same artwork. The PNG file (598x514) is a modest but genuine resolution improvement over the current 544x480 JPG. The third file in the same category (Yoshino Gypsum Collection variant) is only 543x480, basically the same as current. No truly high-resolution version of this specific Monet appears available on Commons."
+  },
+  {
+    "target": {
+      "id": "collection-of-beauty-monet-dahlias",
+      "title": "dahlias",
+      "englishTitle": null,
+      "artist": "Claude Monet",
+      "w": 280,
+      "h": 929,
+      "fileUrl": "https://upload.wikimedia.org/wikipedia/commons/7/7b/Monet_-_dahlias.jpg",
+      "commonsUrl": "https://commons.wikimedia.org/wiki/File%3AMonet_-_dahlias.jpg",
+      "wikidataId": null,
+      "objectKey": "collection-of-beauty/Monet_-_dahlias.jpg",
+      "variantWidths": [
+        256,
+        480,
+        640,
+        960,
+        1280,
+        1920,
+        2560,
+        4096
+      ]
+    },
+    "candidates": [
+      {
+        "fileUrl": "https://upload.wikimedia.org/wikipedia/commons/d/d9/Claude_Monet_-_Dahlias_%2816035439250%29.jpg",
+        "commonsPageUrl": "https://commons.wikimedia.org/wiki/File:Claude_Monet_-_Dahlias_(16035439250).jpg",
+        "width": 335,
+        "height": 1124,
+        "confidence": 0.92,
+        "reason": "Same artwork — Commons file titled 'Dahlias' by Claude Monet, aspect ratio 1124/335=3.35 vs current 929/280=3.32 (negligible crop diff), both still-life floral compositions sharing the same tall-narrow format. Both are in 'Paintings of Dahlias' + 'Still-life paintings of flowers by Claude Monet' categories. Resolution upgrade is modest (~20% on each axis) but it is the only genuinely higher-res version of THIS specific Monet 'Dahlias' (W 625, 1880) on Commons. The current 280-wide file is one of a family of WikiArt thumbnails (e.g. Monet_-_dahlias-2.jpg is 280x939 of the same work)."
+      }
+    ],
+    "summary": "Found 1 genuinely higher-res replacement. Same artwork (Monet, Dahlias, ~1880, still-life), Flickr-sourced upload at 335x1124 vs current 280x929 — matching aspect ratio confirms same work, not a study/fragment/different version. Other Commons hits for \"Monet dahlias\" are either same-size WikiArt thumbs (Monet_-_dahlias-2.jpg, 280x939) or different works (Monet_w625_dahlias.jpg has a 1.22 aspect — different crop/work; Monet_-_vase-of-dahlias.jpg is a distinct still-life). Resolution gain is modest but real."
+  },
+  {
+    "target": {
+      "id": "collection-of-beauty-monet-wildenstein-1996-1497",
+      "title": "Wildenstein 1996",
+      "englishTitle": null,
+      "artist": "Claude Monet",
+      "w": 394,
+      "h": 567,
+      "fileUrl": "https://upload.wikimedia.org/wikipedia/commons/1/11/Monet_-_Wildenstein_1996%2C_1497.png",
+      "commonsUrl": "https://commons.wikimedia.org/wiki/File%3AMonet_-_Wildenstein_1996%2C_1497.png",
+      "wikidataId": null,
+      "objectKey": "collection-of-beauty/Monet_-_Wildenstein_1996,_1497.png",
+      "variantWidths": [
+        256,
+        480,
+        640,
+        960,
+        1280,
+        1920,
+        2560,
+        4096
+      ]
+    },
+    "candidates": [
+      {
+        "fileUrl": "https://upload.wikimedia.org/wikipedia/commons/b/b3/Massif_de_chrysanth%C3%A8mes_%281897%29_Claude_Monet_%28W1497%29.jpg",
+        "commonsPageUrl": "https://commons.wikimedia.org/wiki/File:Massif_de_chrysanth%C3%A8mes_(1897)_Claude_Monet_(W1497).jpg",
+        "width": 499,
+        "height": 725,
+        "confidence": 0.97,
+        "reason": "Same Wildenstein catalogue number W1497 explicit in filename and file description ('Wildenstein 1996 Vol. III, N° 1497'). Title 'Massif de chrysanthèmes' (1897, 130.7 × 88.8 cm). Aspect ratio 0.688 closely matches current file's 0.695 and the canvas's actual 0.679 — confirms identical artwork crop. Both dimensions exceed the current 394×567 (width 499>394, height 725>567)."
+      }
+    ],
+    "summary": "Found 1 higher-resolution candidate. The file 'Massif de chrysanthèmes (1897) Claude Monet (W1497).jpg' at 499×725 is the same artwork (Wildenstein 1996 #1497, 'Massif de chrysanthèmes', 1897) confirmed by matching catalogue number, matching aspect ratio (~0.69), and bigger pixel dimensions in both axes. A separate file 'Monet - Massif de chrysanthèmes, 1897.jpg' was rejected because it is W1496 (Kunstmuseum Basel, landscape orientation 81×100 cm) — different painting."
+  },
+  {
+    "target": {
+      "id": "collection-of-beauty-yoshitoshi-the-ghost",
+      "title": "Yoshitoshi The Ghost",
+      "englishTitle": null,
+      "artist": "Tsukioka Yoshitoshi",
+      "w": 445,
+      "h": 655,
+      "fileUrl": "https://upload.wikimedia.org/wikipedia/commons/c/c2/Yoshitoshi_The_Ghost.jpg",
+      "commonsUrl": "https://commons.wikimedia.org/wiki/File%3AYoshitoshi_The_Ghost.jpg",
+      "wikidataId": null,
+      "objectKey": "collection-of-beauty/Yoshitoshi_The_Ghost.jpg",
+      "variantWidths": [
+        256,
+        480,
+        640,
+        960,
+        1280,
+        1920,
+        2560,
+        4096
+      ]
+    },
+    "candidates": [
+      {
+        "fileUrl": "https://upload.wikimedia.org/wikipedia/commons/6/66/Genji_yugao_maki.jpg",
+        "commonsPageUrl": "https://commons.wikimedia.org/wiki/File:Genji_yugao_maki.jpg",
+        "width": 1122,
+        "height": 1640,
+        "confidence": 0.97,
+        "reason": "Same 1886 Yoshitoshi woodblock print from 'One Hundred Aspects of the Moon' series depicting the Ghost of Yugao. Same artist, same year (March 1886), same series, same subject, and aspect ratio 1122:1640 = 1:1.462 exactly matches the current file's 445:655 = 1:1.472 (i.e. same composition, not a crop or different state). Both files share the same Commons categories ('One Hundred Aspects of the Moon', 'Ghosts of Japan', 'The Tale of Genji - derivative works'). 2.5x the linear resolution of the current 445x655 file."
+      }
+    ],
+    "summary": "Found 1 strong higher-resolution candidate. The Genji_yugao_maki.jpg file (1122x1640, 2.5x linear resolution) is the same 1886 Yoshitoshi woodblock print from 'One Hundred Aspects of the Moon' showing the Ghost of Yugao, with matching aspect ratio. Note: rejected two Met Museum files (1517x4000) — those are a different work, an 1892 hand-painted nikuhitsu-ga hanging scroll (1:2.6 aspect, 41x16 inches) that was BASED ON this 1886 print, not the print itself. Also rejected 'Yugao dana noryo zu' files — those are a different print from the same series (No. 84, 'couple under calabash trellis'), not the ghost."
+  }
+]

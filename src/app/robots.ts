@@ -12,7 +12,7 @@ export default function robots(): MetadataRoute.Robots {
       {
         userAgent: "*",
         allow: "/",
-        disallow: ["/api/", "/dedup-review"],
+        disallow: ["/api/", "/dedup-review", "/replace-low-res"],
       },
     ],
     sitemap: `${SITE_URL}/sitemap.xml`,
