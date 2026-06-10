@@ -134,11 +134,28 @@ export function ArtworkGallery({
       // edge of fetched-but-not-yet-justified photos; if that row
       // becomes visible before the next batch lands, the row solver
       // hasn't seen enough photos to fill it, and the row renders
-      // un-justified — leaving the gap that prompted this comment.
-      // Matching offscreenRootMargin keeps prefetch and recycle
-      // windows symmetric.
+      // un-justified.
       fetchRootMargin="2400px"
-      offscreenRootMargin="2400px"
+      // Effectively disable react-photo-album's offscreen tile recycler.
+      //
+      // In `singleton` mode the library wraps every tile in an
+      // <Offscreen> that swaps the tile's element for a bare
+      //   <div style={{ width: "100%", aspectRatio, margin }} />
+      // once it scrolls past `offscreenRootMargin`. The replacement div
+      // does NOT carry the `react-photo-album--photo` class — so the
+      // CSS `calc(... * --photo-width)` rule that gives each tile its
+      // share of the row width is lost. Inside the flex row that becomes
+      // `width: 100%`, which flex resolves as a full-row item:
+      // sibling tiles in the row get pushed around, the next row's
+      // `--container-width` math no longer matches the rendered widths,
+      // and you see the column-like gap reported on the era and
+      // gallery-browser surfaces.
+      //
+      // Going huge here keeps every loaded tile fully rendered (each is
+      // just a lazy <img>, so even ~1000 tiles is manageable) and the
+      // layout stays a clean rows-layout. The fetchRootMargin still
+      // gates how aggressively new batches load.
+      offscreenRootMargin="100000px"
       loading={
         <div className="py-6 text-center text-sm text-[var(--muted-foreground)]">Loading more…</div>
       }
