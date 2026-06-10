@@ -5,8 +5,8 @@ import type { ReactNode } from "react";
 import { ArtworkCard } from "@/components/artwork-card";
 import { ArtworkViewer } from "@/components/artwork-viewer";
 import { LicenseBadge } from "@/components/license-badge";
-import { Badge } from "@/components/ui/badge";
 import { buttonVariants } from "@/components/ui/button";
+import { pillClasses } from "@/components/ui/pill";
 import { artworkHref, parseScope, resolveScope, scopeHref, scopeLabel } from "@/lib/artwork-scope";
 import {
   type Artwork,
@@ -235,11 +235,9 @@ export default async function ArtworkPage({
             {era && (
               <Link
                 href={`/era/${era.id}`}
-                className="rounded-sm focus:outline-none focus-visible:ring-2 focus-visible:ring-[var(--ring)]"
+                className={`${pillClasses} focus:outline-none focus-visible:ring-2 focus-visible:ring-[var(--ring)]`}
               >
-                <Badge variant="outline" className="rounded-full px-2.5 py-1">
-                  {era.title}
-                </Badge>
+                {era.title}
               </Link>
             )}
             <LicenseBadge license={art.license} />
@@ -433,7 +431,7 @@ function CommonsBadge({ href }: { href: string }) {
       target="_blank"
       rel="noreferrer"
       title="View source on Wikimedia Commons"
-      className="inline-flex items-center gap-1.5 rounded-full border border-[var(--border)] bg-[var(--card)] px-2.5 py-1 text-xs font-medium transition-colors hover:bg-[var(--muted)] hover:text-[var(--foreground)]"
+      className={pillClasses}
     >
       Wikimedia Commons
       <svg
