@@ -17195,21 +17195,29 @@
     },
     "Caspar_David_Friedrich_-_Der_Mönch_am_Meer_-_Google_Art_Project.jpg": {
       "filename": "Caspar_David_Friedrich_-_Der_Mönch_am_Meer_-_Google_Art_Project.jpg",
-      "resolved": false,
-      "needs_review": true,
-      "title": "Caspar David Friedrich - Der Mönch am Meer - Google Art Project",
-      "artist": null,
-      "date_created": null,
+      "resolved": true,
+      "needs_review": false,
+      "title": "The Monk by the Sea",
+      "artist": "Caspar David Friedrich",
+      "date_created": "between 1808 and 1810",
+      "year": 1808,
+      "description": "A black-robed figure stands at the edge of a pale dune watching the dark Baltic and a vast, almost-empty sky. Painted 1808–1810 for the Berlin Academy salon and acquired afterwards by King Friedrich Wilhelm III; now in the Alte Nationalgalerie, Berlin.",
       "source": {
-        "type": "unknown",
-        "url": null
+        "type": "Wikimedia Commons",
+        "canonical_title": "File:Caspar David Friedrich - Der Mönch am Meer - Google Art Project.jpg",
+        "url": "https://commons.wikimedia.org/wiki/File%3ACaspar_David_Friedrich_-_Der_M%C3%B6nch_am_Meer_-_Google_Art_Project.jpg",
+        "file_url": "https://upload.wikimedia.org/wikipedia/commons/2/21/Caspar_David_Friedrich_-_Der_M%C3%B6nch_am_Meer_-_Google_Art_Project.jpg",
+        "credit": "Google Arts & Culture — KwEv_TMiJhn5kA",
+        "permission": null,
+        "attribution": null
       },
       "copyright": {
-        "copyrighted": null,
-        "license": null,
-        "notes": "Not found on Wikimedia Commons; needs manual review."
+        "copyrighted": false,
+        "license_short": "Public domain",
+        "license_url": "https://en.wikipedia.org/wiki/Public_domain",
+        "usage_terms": "Public domain — author died 1840 (pre-1929)"
       },
-      "year": null
+      "year_source": "manual_review"
     },
     "Caspar_David_Friedrich_-_Der_einsame_Baum_-_Google_Art_Project.jpg": {
       "filename": "Caspar_David_Friedrich_-_Der_einsame_Baum_-_Google_Art_Project.jpg",
