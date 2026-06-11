@@ -29,7 +29,8 @@ function rfc822(iso: string): string {
 async function renderItem(edition: Edition): Promise<string> {
   const url = `${SITE_URL}/newsletter/${edition.fileSlug}`;
   const cover = resolveEditionCover(edition);
-  const bodyHtml = edition.body.length > 0 ? await markdownToHtml(edition.body) : "";
+  const bodyHtml =
+    edition.body.length > 0 ? await markdownToHtml(edition.body, { siteUrl: SITE_URL }) : "";
   const enclosure = cover
     ? `<enclosure url="${escapeXml(cover.url)}" type="image/webp" length="0" />`
     : "";

@@ -22,7 +22,7 @@ export async function toDigestArtwork(
   note: string | undefined,
   siteUrl: string,
 ): Promise<DigestArtwork> {
-  const noteHtml = note ? inlineEmailLinkStyles(await markdownToHtml(note)) : null;
+  const noteHtml = note ? inlineEmailLinkStyles(await markdownToHtml(note, { siteUrl })) : null;
   return {
     id: artwork.id,
     title: displayTitle(artwork),
@@ -85,7 +85,9 @@ export async function renderEdition(input: RenderEditionInput): Promise<Rendered
     resolved.map((r) => toDigestArtwork(r.artwork, r.note, siteUrl)),
   );
   const introHtml =
-    edition.body.length > 0 ? inlineEmailLinkStyles(await markdownToHtml(edition.body)) : "";
+    edition.body.length > 0
+      ? inlineEmailLinkStyles(await markdownToHtml(edition.body, { siteUrl }))
+      : "";
 
   const issueDate = formatIssueDate(edition.publishedAt);
   const archiveUrl = editionArchiveUrl(siteUrl, edition.fileSlug);
