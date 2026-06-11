@@ -6020,15 +6020,15 @@
       "filename": "960px-SesshuToyo.jpg",
       "resolved": true,
       "needs_review": false,
-      "title": "960px-SesshuToyo",
-      "artist": "Unknown (portrays Sesshū Tōyō)",
-      "date_created": "16th century (Muromachi period)",
+      "title": "Autumn Landscape (Shūkei sansui)",
+      "artist": "Sesshū Tōyō",
+      "date_created": "1496 date QS:P571,+1496-00-00T00:00:00Z/9",
       "source": {
         "type": "Wikimedia Commons",
-        "canonical_title": "Portrait of Sesshu.jpg",
-        "url": "https://commons.wikimedia.org/wiki/File:Portrait_of_Sesshu.jpg",
-        "file_url": "https://upload.wikimedia.org/wikipedia/commons/7/75/Portrait_of_Sesshu.jpg",
-        "credit": null,
+        "canonical_title": "File:SesshuToyo.jpg",
+        "url": "https://commons.wikimedia.org/wiki/File%3ASesshuToyo.jpg",
+        "file_url": "https://upload.wikimedia.org/wikipedia/commons/c/cf/SesshuToyo.jpg",
+        "credit": "Emuseum Original uploader was ToraryuKawabata at en.wikipedia",
         "permission": null,
         "attribution": null
       },
@@ -6038,8 +6038,8 @@
         "license_url": null,
         "usage_terms": null
       },
-      "year": 1500,
-      "description": "A portrait of Sesshū Tōyō (1420–1506), a master painter of the Japanese Muromachi period. This is a copy of an important cultural property, rendered as a hanging scroll. The work documents the appearance of one of Japan's most influential ink painters, celebrated for his landscapes and distinctive brushwork technique."
+      "year": 1496,
+      "description": "Shukei-sansui (Autumn Landscape), by Sesshu Toyo"
     },
     "960px-Tokyo_junidai,_haru_no_atagoyama_by_Kawase_Hasui.jpg": {
       "filename": "960px-Tokyo_junidai,_haru_no_atagoyama_by_Kawase_Hasui.jpg",
@@ -49932,7 +49932,7 @@
       "title": "Isenheim Altarpiece - Concert of Angels",
       "artist": "Matthias Grünewald",
       "date_created": null,
-      "year": null,
+      "year": 1515,
       "description": "Isenheim Altarpiece - Concert of Angels",
       "source": {
         "type": "Wikimedia Commons",
@@ -75659,7 +75659,7 @@
       "title": "Monet w1524",
       "artist": "Claude Monet",
       "date_created": null,
-      "year": null,
+      "year": 1901,
       "description": "Claude Monet, Charing Cross Bridge, W.1524",
       "source": {
         "type": "Wikimedia Commons",
@@ -105567,7 +105567,7 @@
       "title": "The Barber Institute of Fine Arts - Joseph Mallord William Turner - The Sun Rising through Vapour",
       "artist": "J. M. W. Turner",
       "date_created": null,
-      "year": null,
+      "year": 1809,
       "description": null,
       "source": {
         "type": "Wikimedia Commons",
