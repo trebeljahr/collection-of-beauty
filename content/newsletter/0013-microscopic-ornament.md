@@ -2,7 +2,7 @@
 title: "Microscopic ornament"
 subject: "Issue 13: Microscopic ornament"
 publishedAt: "2026-08-09"
-excerpt: "Five Haeckel plates where scientific illustration turns tiny organisms into patterned architecture."
+excerpt: "Five Haeckel plates from Kunstformen der Natur: mineral stars, glass boxes, a jellyfish memorial, engineered sponges and plankton in full ornament."
 draft: true
 cover:
   artworkId: "kunstformen-images-haeckel-discomedusae-8"
@@ -13,19 +13,19 @@ tags:
   - "ornament"
 artworks:
   - id: "kunstformen-images-haeckel-acanthometra"
-    note: "Acantharian protozoa fan their twenty strontium-sulphate spicules from a single point, like mineral stars pinned to the page. [Ernst Haeckel](https://en.wikipedia.org/wiki/Ernst_Haeckel) had named and described the radiolarian group in his 1862 monograph on the species dredged up in the Mediterranean. He spent the next four decades turning the same drawings into popular plates, and this one belongs to *[Kunstformen der Natur](https://en.wikipedia.org/wiki/Kunstformen_der_Natur)*, published in ten instalments between 1899 and 1904. The lithographer Adolf Giltsch translated Haeckel's pencil drawings to stone for almost every plate in the book."
+    note: "These are single-celled organisms. Single. Celled. Each one builds itself a skeleton of twenty mineral spines out of strontium sulphate — a compound most of us only meet in fireworks — and [Haeckel](https://en.wikipedia.org/wiki/Ernst_Haeckel) draws them like a cabinet of pinned stars. He had spent years dredging these out of the Mediterranean and describing them for science before he turned them into plates for *[Kunstformen der Natur](https://en.wikipedia.org/wiki/Kunstformen_der_Natur)*, his big bet that nature's forms deserved an art book. Looking at this page, the bet pays."
   - id: "kunstformen-images-haeckel-diatomea"
-    note: "Diatoms appear as silica boxes, wheels and shields in top and side view, with names from the genera Auliscus, Cymbella and Campyloneis. Their glassy [frustules](https://en.wikipedia.org/wiki/Frustule) carry the ornament: under the microscope, the cell walls are perforated in geometric patterns precise enough to be used as Victorian test slides for lens resolution. Haeckel arranges them by shape, so taxonomy becomes pattern. The plate is from *Kunstformen* Tafel 4."
+    note: "Diatoms are algae that live inside glass boxes they grow themselves, and this plate is Haeckel arranging those boxes — wheels, shields, drums, all silica — by shape until taxonomy becomes pattern. The patterning on the real shells is so fine and so regular that Victorian microscope makers used diatoms as test objects: if your lens could resolve the pores, your lens was good. Nature accidentally manufacturing the calibration target for the instrument used to admire it. I think about that a lot."
   - id: "kunstformen-images-haeckel-discomedusae-8"
-    note: "A jellyfish trails long oral arms and tentacles in cascading filaments across the sheet. Haeckel named the species *Desmonema annasethe* after his first wife, Anna Sethe, who died in 1864 on the day of her birthday. He wrote later that the trailing arms reminded him of her hair, and the plate has been read for over a century as a private memorial worked into the public atlas. The published plate is *Kunstformen* Tafel 8."
+    note: "The most beautiful plate in the book carries the saddest story. The jellyfish with the long trailing arms is *Desmonema annasethe* — named for Anna Sethe, Haeckel's first wife, who died young; he wrote that the tentacles reminded him of her hair. So inside this grand scientific atlas there is one plate that is privately a memorial, drifting along between the taxonomy. Once you know, you cannot look at it any other way."
   - id: "kunstformen-images-haeckel-hexactinellae"
-    note: "Glass sponges stand as latticed baskets and tubes. The Venus's flower basket, *[Euplectella aspergillum](https://en.wikipedia.org/wiki/Euplectella_aspergillum)*, sits near the centre, its skeleton built from six-rayed siliceous spicules fused into a rigid lattice that has been studied by structural engineers for its strength-to-weight ratio. Detail views of single spicules are paired with whole-body drawings on the same sheet. The plate is *Kunstformen* Tafel 42."
-  - id: "kunstformen-images-haeckel-trochilidae"
-    note: "Twelve hummingbird species, including the [Sword-billed](https://en.wikipedia.org/wiki/Sword-billed_hummingbird) and the [Booted Racket-tail](https://en.wikipedia.org/wiki/Booted_racket-tail), are arrayed against black to display gorgets, crests and tail streamers. The drawings were made from millinery skins, not from observation in the field, which is why the postures look decorative rather than aerodynamic. The plate moves Haeckel's method from microscope to branch and from glass to feather. It is *Kunstformen* Tafel 99."
+    note: "Glass sponges: animals that build latticed skyscrapers out of fused silica needles on the deep sea floor. The famous one near the centre, the Venus's flower basket, has a skeleton so well-engineered that materials scientists still study its strength-to-weight tricks today. Haeckel lays out whole bodies next to detail views of individual spicules, like an exploded engineering diagram drawn by someone in love. Which, as far as I can tell, is exactly what it is."
+  - id: "kunstformen-images-haeckel-copepoda"
+    note: "Copepods are the little crustaceans that make up much of the ocean's plankton — usually a rounding error in a water sample, here given the full portrait treatment. Haeckel fans out every antenna and bristle until the page reads like a jewellery catalogue; the show-off in the middle, *Calocalanus pavo*, trails a tail fan it drags through seawater like a peacock that took a wrong turn at the surface. Most of these animals are smaller than a grain of rice. Nobody told them."
 ---
 
-The Acanthometra plate looks like a cabinet of stars. Each form is microscopic, but the page treats every spine as if it were architecture.
+Ernst Haeckel spent decades hauling invisible creatures up into the visible world — dredging them from the sea, drawing them at the microscope, and finally publishing *Kunstformen der Natur*, a hundred plates arguing that a protozoan can hold its own against a cathedral window.
 
-Diatoms turn into glass ornament. A jellyfish carries the name of a dead wife. Glass sponges become engineered baskets. Hummingbirds bring the same arranging hand back up to scale.
+The argument works because he cheats slightly in everyone's favour: every organism is arranged for maximum symmetry, every page composed like wallpaper that happens to be true. Single cells get mineral skeletons, algae get glass boxes, sponges get engineering, plankton get peacock tails — and one jellyfish, quietly, gets to carry the name of Haeckel's dead wife through every edition of the book.
 
-The flower studies in [Flowers and branches](/newsletter/0007-flowers-and-branches) trusted brushwork. Haeckel trusts the lithographic stone and the symmetry of a single page.
+The painters in [Flowers and branches](/newsletter/0007-flowers-and-branches) found their ornament in a garden. Haeckel found his in a bucket of seawater, which I find both funnier and more hopeful: apparently there is no scale at which the world stops being decorative.
