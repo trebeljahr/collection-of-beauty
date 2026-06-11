@@ -85,6 +85,12 @@ technical parallel, using archive paths such as
 `[Japanese rain](/newsletter/0002-japanese-rain)`. Do not turn common
 theme words into links.
 
+Before flipping `draft: false`, run `pnpm newsletter:check-links` — it
+validates internal links offline and every external URL against the
+live target (Wikipedia pages via the API, so renamed/deleted articles
+fail loudly). A link that doesn't resolve should be dropped, not
+guessed: better no link than a broken one.
+
 ## "Already sent" tracking
 
 The `sentArtworkIds()` function in `src/lib/newsletter/editions.ts`

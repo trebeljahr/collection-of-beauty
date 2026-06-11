@@ -29,6 +29,7 @@
     "sendNewsletter": "bash scripts/newsletter-send.sh",
     "newsletter:send": "bash scripts/newsletter-send.sh",
     "newsletter:draft": "tsx scripts/newsletter-draft.ts",
+    "newsletter:check-links": "node scripts/check-newsletter-links.mjs --external",
     "listmonk:bootstrap": "dotenvx run -f .env.production -f .env.local --ignore=MISSING_ENV_FILE -- tsx scripts/listmonk-bootstrap.ts",
     "scrape:fetch": "node scripts/fetch-wikimedia-metadata.mjs",
     "scrape:resolve": "node scripts/resolve-unresolved.mjs",
