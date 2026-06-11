@@ -4,8 +4,8 @@
   "generated_at": "2026-06-04T08:04:00.955Z",
   "source_api": "Wikimedia Commons action=query&prop=imageinfo",
   "file_count": 3535,
-  "resolved_count": 2869,
-  "unresolved_count": 666,
+  "resolved_count": 3221,
+  "unresolved_count": 314,
   "entries": {
     "_Horror__from_Le_Brun,_Wellcome_L0012156.jpg": {
       "filename": "_Horror__from_Le_Brun,_Wellcome_L0012156.jpg",
@@ -54539,21 +54539,28 @@
     },
     "Johann_Heinrich_Füssli_059.jpg": {
       "filename": "Johann_Heinrich_Füssli_059.jpg",
-      "resolved": false,
-      "needs_review": true,
-      "title": "Johann Heinrich Füssli 059",
-      "artist": null,
-      "date_created": null,
+      "resolved": true,
+      "needs_review": false,
+      "title": "Reiter von Riesenschlange überfallen",
+      "artist": "Henry Fuseli",
+      "date_created": "circa 1800 date QS:P571,+1800-00-00T00:00:00Z/9,P1480,Q5727902",
+      "year": 1800,
+      "description": null,
       "source": {
-        "type": "unknown",
-        "url": null
+        "type": "Wikimedia Commons",
+        "canonical_title": "File:Johann Heinrich Füssli 059.jpg",
+        "url": "https://commons.wikimedia.org/wiki/File%3AJohann_Heinrich_F%C3%BCssli_059.jpg",
+        "file_url": "https://upload.wikimedia.org/wikipedia/commons/7/7a/Johann_Heinrich_F%C3%BCssli_059.jpg",
+        "credit": "The Yorck Project (2002) 10.000 Meisterwerke der Malerei (DVD-ROM), distributed by DIRECTMEDIA Publishing GmbH. ISBN : 3936122202 .",
+        "permission": "[1]",
+        "attribution": null
       },
       "copyright": {
-        "copyrighted": null,
-        "license": null,
-        "notes": "Not found on Wikimedia Commons; needs manual review."
-      },
-      "year": null
+        "copyrighted": false,
+        "license_short": "Public domain",
+        "license_url": null,
+        "usage_terms": "Public domain"
+      }
     },
     "Johann_Heinrich_Füssli_064.jpg": {
       "filename": "Johann_Heinrich_Füssli_064.jpg",
@@ -111270,21 +111277,28 @@
     },
     "Tōkyō_jūnidai,_Samidare_furu_Sannō_by_Kawase_Hasui.jpg": {
       "filename": "Tōkyō_jūnidai,_Samidare_furu_Sannō_by_Kawase_Hasui.jpg",
-      "resolved": false,
-      "needs_review": true,
-      "title": "Tōkyō jūnidai, Samidare furu Sannō by Kawase Hasui",
-      "artist": null,
-      "date_created": null,
+      "resolved": true,
+      "needs_review": false,
+      "title": "Tōkyō jūnidai, Samidare furu Sannō by Kawase Hasui",
+      "artist": "Hasui Kawase",
+      "date_created": "大正8年出版",
+      "year": 1919,
+      "description": "Early Summer Rain at the Sannō Shrine (Samidare furu Sannō), from the series Twelve Scenes of Tōkyō (Tōkyō jūnidai), woodblock print",
       "source": {
-        "type": "unknown",
-        "url": null
+        "type": "Wikimedia Commons",
+        "canonical_title": "File:Tōkyō jūnidai, Samidare furu Sannō by Kawase Hasui.jpg",
+        "url": "https://commons.wikimedia.org/wiki/File%3AT%C5%8Dky%C5%8D_j%C5%ABnidai%2C_Samidare_furu_Sann%C5%8D_by_Kawase_Hasui.jpg",
+        "file_url": "https://upload.wikimedia.org/wikipedia/commons/c/cc/T%C5%8Dky%C5%8D_j%C5%ABnidai%2C_Samidare_furu_Sann%C5%8D_by_Kawase_Hasui.jpg",
+        "credit": "https://jp.japanese-finearts.com/item/item_images/36/A1-89-197-03/1-89-197-03.jpg",
+        "permission": null,
+        "attribution": null
       },
       "copyright": {
-        "copyrighted": null,
-        "license": null,
-        "notes": "Not found on Wikimedia Commons; needs manual review."
-      },
-      "year": null
+        "copyrighted": false,
+        "license_short": "Public domain",
+        "license_url": null,
+        "usage_terms": "Public domain"
+      }
     },
     "Tōkyō_jūnidai,_Shinagawa_oki_by_Kawase_Hasui.jpg": {
       "filename": "Tōkyō_jūnidai,_Shinagawa_oki_by_Kawase_Hasui.jpg",
@@ -123530,21 +123544,28 @@
     },
     "北宋_徽宗_竹禽圖_卷-Finches_and_bamboo_MET_DP151504.jpg": {
       "filename": "北宋_徽宗_竹禽圖_卷-Finches_and_bamboo_MET_DP151504.jpg",
-      "resolved": false,
-      "needs_review": true,
-      "title": "北宋 徽宗 竹禽圖 卷-Finches and bamboo MET DP151504",
-      "artist": null,
-      "date_created": null,
+      "resolved": true,
+      "needs_review": false,
+      "title": "Finches and Bamboo (竹禽圖)",
+      "artist": "Emperor Huizong of Song",
+      "date_created": "between 1100 and 1127 date QS:P,+1150-00-00T00:00:00Z/7,P1319,+1100-00-00T00:00:00Z/9,P1326,+1127-00-00T00:00:00Z/9",
+      "year": 1110,
+      "description": "China; Handscroll; Paintings",
       "source": {
-        "type": "unknown",
-        "url": null
+        "type": "Wikimedia Commons",
+        "canonical_title": "File:北宋 徽宗 竹禽圖 卷-Finches and bamboo MET DP151504.jpg",
+        "url": "https://commons.wikimedia.org/wiki/File%3A%E5%8C%97%E5%AE%8B_%E5%BE%BD%E5%AE%97_%E7%AB%B9%E7%A6%BD%E5%9C%96_%E5%8D%B7-Finches_and_bamboo_MET_DP151504.jpg",
+        "file_url": "https://upload.wikimedia.org/wikipedia/commons/5/5b/%E5%8C%97%E5%AE%8B_%E5%BE%BD%E5%AE%97_%E7%AB%B9%E7%A6%BD%E5%9C%96_%E5%8D%B7-Finches_and_bamboo_MET_DP151504.jpg",
+        "credit": "This file was donated to Wikimedia Commons as part of a project by the Metropolitan Museum of Art . See the Image and Data Resources Open Access Policy",
+        "permission": "This file is made available under the Creative Commons CC0 1.0 Universal Public Domain Dedication . The person who associated a work with this deed has dedicated the work to the public domain by waiving all of their rights to the work worldwide under copyright law, including all related and neighboring rights, to the extent allowed by law. You can copy, modify, distribute and perform the work, even for commercial purposes, all without asking permission. http://creativecommons.org/publicdomain/zero/1.0/deed.en CC0 Creative Commons Zero, Public Domain Dedication false false This is a faithful photographic reproduction of a two-dimensional, public domain work of art. The work of art itself is in the public domain for the following reason: Public domain Public domain false false This work is in the public domain in its country of origin and other countries and areas where the copyright term is the author's life plus 100 years or fewer . This work is in the public domain in the United States because it was published (or registered with the U.S. Copyright Office ) before January 1, 1931. This file has been identified as being free of known restrictions under copyright law, including all related and neighboring rights. https://creativecommons.org/publicdomain/mark/1.0/ PDM Creative Commons Public Domain Mark 1.0 false false The official position taken by the Wikimedia Foundation is that \" faithful reproductions of two-dimensional public domain works of art are public domain \". This photographic reproduction is therefore also considered to be in the public domain in the United States. In other jurisdictions, re-use of this content may be restricted; see Reuse of PD-Art photographs for details.",
+        "attribution": null
       },
       "copyright": {
-        "copyrighted": null,
-        "license": null,
-        "notes": "Not found on Wikimedia Commons; needs manual review."
-      },
-      "year": null
+        "copyrighted": false,
+        "license_short": "Public domain",
+        "license_url": null,
+        "usage_terms": "Public domain"
+      }
     },
     "名绘集珍册_9_宋_李迪_春潮带雨.jpg": {
       "filename": "名绘集珍册_9_宋_李迪_春潮带雨.jpg",

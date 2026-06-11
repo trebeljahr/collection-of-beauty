@@ -277,7 +277,6 @@ Jean_Metzinger,_1910-11,_Deux_Nus_(Two_Nudes,_Two_Women),_oil_on_canvas,_92_x_66
 Jeune_Orpheline_au_cimetière_-_Eugène_Delacroix_-_Muse_du_Louvre_Peintures_RF_1652_-_photo_2.jpg
 Johann_Heinrich_Füssli_011.jpg
 Johann_Heinrich_Füssli_054.jpg
-Johann_Heinrich_Füssli_059.jpg
 Johann_Heinrich_Füssli_064.jpg
 John_Everett_Millais_-_Chill_October.jpeg
 John_Everett_Millais_-_Glen_Birnam.jpeg
@@ -530,7 +529,6 @@ Tonan_hakkei_no_uchi,_Shinagawa_by_Takahashi_Shōtei (1).jpg
 Tōkyō_jūnidai,_Daikon-gashi_by_Kawase_Hasui.jpg
 Tōkyō_jūnidai,_Fukagawa_Kaminohashi_by_Kawase_Hasui.jpg
 Tōkyō_jūnidai,_Kiba_no_yūgure_by_Kawase_Hasui.jpg
-Tōkyō_jūnidai,_Samidare_furu_Sannō_by_Kawase_Hasui.jpg
 Tōkyō_jūnidai,_Shinagawa_oki_by_Kawase_Hasui.jpg
 Tōkyō_jūnidai,_Toyama-no-hara_by_Kawase_Hasui.jpg
 Tōkyō_nijū_kei,_Kanda_Myōjin_keidai_by_Kawase_Hasui.jpg
@@ -656,7 +654,6 @@ zhang_shanzi_tiger.jpg
 冨嶽三十六景_隅田川関屋の里-Sekiya_Village_on_the_Sumida_River_(Sumidagawa_Sekiya_no_sato),_from_the_series_Thirty-six_Views_of_Mount_Fuji_(Fugaku_sanjūrokkei)_MET_DP141023.jpg
 冨嶽三十六景_隠田の水車-The_Waterwheel_at_Onden_(Onden_no_suisha),_from_the_series_Thirty-six_Views_of_Mount_Fuji_(Fugaku_sanjūrokkei)_MET_DP141021.jpg
 冨嶽三十六景_駿州江尻-Ejiri_in_Suruga_Province_(Sunshū_Ejiri),_from_the_series_Thirty-six_Views_of_Mount_Fuji_(Fugaku_sanjūrokkei)_MET_DP140977.jpg
-北宋_徽宗_竹禽圖_卷-Finches_and_bamboo_MET_DP151504.jpg
 名绘集珍册_9_宋_李迪_春潮带雨.jpg
 清_王槩_設計，李漁出版_芥子園畫傳_版本-Mt._Heng,_after_Juran_(active_ca._960–965),_from_the_Mustard_Seed_Garden_Manual_of_Painting_MET_DP-14004-001.jpg
 清_石濤(朱若極)_山水圖_冊-Searching_for_Immortals_MET_DP162813.jpg
