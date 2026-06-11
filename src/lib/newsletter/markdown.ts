@@ -43,21 +43,55 @@ export function rehypeExternalLinks() {
 }
 
 /**
+ * Rehype plugin: prefix site-rooted hrefs (`/artist/...`, `/newsletter/...`)
+ * with the canonical site origin. Emails and RSS readers have no base URL
+ * to resolve relative links against, so they must leave here absolute.
+ */
+export function rehypeAbsoluteLinks(siteUrl: string) {
+  const origin = siteUrl.replace(/\/$/, "");
+  const visitAnchor = (node: HastNode) => {
+    if (node.type === "element" && node.tagName === "a") {
+      const props = node.properties ?? {};
+      const href = typeof props.href === "string" ? props.href : "";
+      if (href.startsWith("/")) {
+        props.href = `${origin}${href}`;
+        node.properties = props;
+      }
+    }
+    if (node.children) {
+      for (const child of node.children) visitAnchor(child);
+    }
+  };
+  return (tree: HastNode) => {
+    visitAnchor(tree);
+  };
+}
+
+/**
  * Render a markdown string to plain HTML. Used by the email render path
- * (the website uses react-markdown directly via the React component).
+ * and the RSS feed (the website uses react-markdown directly via the
+ * React component, where relative links are fine and stay same-tab).
+ *
+ * Pass `siteUrl` to absolutize site-rooted links — required for any
+ * output that leaves the site (email, RSS).
  *
  * The pipeline intentionally skips raw HTML — newsletter bodies are
  * trusted (they come from the repo) but we still keep the output
  * conservative so it renders the same in Gmail, Apple Mail, and Outlook.
  */
-export async function markdownToHtml(markdown: string): Promise<string> {
-  const file = await unified()
+export async function markdownToHtml(
+  markdown: string,
+  options?: { siteUrl?: string },
+): Promise<string> {
+  let pipeline = unified()
     .use(remarkParse)
     .use(remarkGfm)
     .use(remarkRehype)
-    .use(rehypeExternalLinks)
-    .use(rehypeStringify)
-    .process(markdown);
+    .use(rehypeExternalLinks);
+  if (options?.siteUrl) {
+    pipeline = pipeline.use(rehypeAbsoluteLinks, options.siteUrl);
+  }
+  const file = await pipeline.use(rehypeStringify).process(markdown);
   return String(file);
 }
 

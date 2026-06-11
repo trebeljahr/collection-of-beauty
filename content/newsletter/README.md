@@ -73,6 +73,13 @@ the term defined, and prefer the precise Wikipedia article for the
 technical sense. Example: `[bokashi](https://en.wikipedia.org/wiki/Bokashi_(printing))`
 for Japanese print gradation.
 
+When a sentence names an **artist who is in the catalogue**, link the
+site's own artist page instead of Wikipedia: `[Poussin](/artist/nicolas-poussin)`.
+Check `src/data/artists.json` for the slug. Wikipedia stays the right
+target for people *not* in the collection (patrons, critics, publishers,
+scientists) and for artists the catalogue doesn't hold. Site-rooted links
+are absolutized automatically in the email and RSS render paths.
+
 Cross-link editions only when the sentence names a real visual or
 technical parallel, using archive paths such as
 `[Japanese rain](/newsletter/0002-japanese-rain)`. Do not turn common
