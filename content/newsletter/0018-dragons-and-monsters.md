@@ -5,15 +5,15 @@ publishedAt: "2026-09-13"
 excerpt: "Five monsters: dragons made of ink and weather, one on a leash, a desert full of hybrids, a giant skeleton and a serpent with terrible timing."
 draft: true
 cover:
-  artworkId: "collection-of-beauty-chen-rong-nine-dragons"
+  artworkId: "collection-of-beauty-sotatsu-dragons-and-clouds"
 tags:
   - "dragons"
   - "monsters"
   - "myth"
   - "ink"
 artworks:
-  - id: "collection-of-beauty-chen-rong-nine-dragons"
-    note: "Nine dragons surge along nine metres of handscroll, and the genius move is that you can never quite separate dragon from weather: a head condenses out of splashed ink, a claw resolves, then the body breaks back into cloud before the next one forms. Chen Rong painted it in 1244 and signed it with a poem claiming he worked with ink rinsed from his own hair, which I choose to believe. East Asian dragons are rain spirits, not villains — these aren't monsters to slay but forces to live alongside. The scroll is too long to ever display in full. Even in a museum, you only get part of the storm."
+  - id: "collection-of-beauty-sotatsu-dragons-and-clouds"
+    note: "Two dragons surface out of an ink storm, and the genius move is that you can never quite say where dragon ends and weather begins: a horned head here, a claw there, the rest dissolving back into cloud the moment you try to pin it down. Sōtatsu got those clouds by pooling wet ink into wet ink and letting the puddles bloom — a technique he made famous, with chance doing half the brushwork. East Asian dragons are rain spirits, not villains; these two aren't monsters to slay but weather systems with faces. Nobody has ever painted 'approaching storm' better, and most of it is deliberately out of focus."
   - id: "collection-of-beauty-paolo-uccello-heiliger-georg-und-der-drachen-1-470"
     note: "My favourite detail in all of dragon-slaying art: look at the princess. She isn't cowering — she has the dragon on a *leash*. The legend does say she leads the tamed beast to town, but most painters skip that part; Uccello paints the exact moment where the story is both a rescue and a dog walk. Saint George's storm cloud spirals behind him like it was drawn with a compass, the cave mouth is geometric, the dragon's wings carry neat target-mark roundels. Late Uccello is half fairy tale, half diagram, and entirely wonderful."
   - id: "collection-of-beauty-hieronymus-bosch-triptych-of-temptation-of-st-anthony-wga2585"
@@ -26,6 +26,6 @@ artworks:
 
 Every culture invents monsters, and what it invents tells on it wonderfully. That's the real fun of this issue: five monsters, five completely different ideas of what a monster is *for*.
 
-Chen Rong's dragons are weather — powers you coexist with, painted half-dissolved in their own ink. Uccello's dragon is a problem civilization solves, with lance and leash and geometry. Bosch's monsters are temptations, numberless and busy. Kuniyoshi's skeleton is a special effect with perfect anatomy, and Fuseli's serpent is the Romantic nightmare: the monster as something that happens to you too fast.
+Sōtatsu's dragons are weather — powers you coexist with, painted half-dissolved in their own ink clouds. Uccello's dragon is a problem civilization solves, with lance and leash and geometry. Bosch's monsters are temptations, numberless and busy. Kuniyoshi's skeleton is a special effect with perfect anatomy, and Fuseli's serpent is the Romantic nightmare: the monster as something that happens to you too fast.
 
 The demons in [Printed line](/newsletter/0014-printed-line) mobbed Saint Anthony in engraved black and white. Here the monsters get ink, oil, colour woodblock and a spotlight. They've done well for themselves.
