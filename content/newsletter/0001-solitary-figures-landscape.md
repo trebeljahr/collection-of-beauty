@@ -2,28 +2,30 @@
 title: "Solitary figures in landscape"
 subject: "Issue 1: Solitary figures in landscape"
 publishedAt: "2026-05-17"
-excerpt: "Five works built around a single figure standing in weather and space, from Friedrich's monk to Hasui's snowbound walker."
+excerpt: "Five works about being small in a big world, from Friedrich's monk at the sea to a mule train hidden under a Song-dynasty cliff."
 draft: false
 cover:
   artworkId: "collection-of-beauty-caspar-david-friedrich-der-monch-am-meer-google-art-project"
 tags:
   - "landscape"
   - "romanticism"
-  - "ukiyo-e"
+  - "ink"
   - "shin-hanga"
 artworks:
   - id: "collection-of-beauty-caspar-david-friedrich-der-monch-am-meer-google-art-project"
-    note: "One vertical figure stands off-centre on a pale strip of dune. Sea and sky take the rest of the picture in two near-equal bands. Friedrich first painted two boats on the water and then painted them out, leaving the monk alone with the horizon; the ghosts of the boats are still detectable under infrared. When the painting was shown at the Berlin Academy in 1810, [Heinrich von Kleist](https://en.wikipedia.org/wiki/Heinrich_von_Kleist) wrote that standing in front of it felt as if one's eyelids had been cut away. King [Friedrich Wilhelm III](https://en.wikipedia.org/wiki/Frederick_William_III_of_Prussia) bought it for his son the same year."
-  - id: "collection-of-beauty-960px-sesshutoyo"
-    note: "A traveller picks his way through mist and rocks in a wash of broken brushwork that leaves most of the paper bare. [Sesshū Tōyō](/artist/sesshu-toyo) was a Zen monk who sailed to Ming China in 1467 at the age of forty-seven. He was disappointed by the court painters he met there and went to study the actual mountains instead, copying Song masters in temple collections along the way. He returned to Japan with the haboku, a broken-ink technique, and used it for the rest of his life. He was still painting in this idiom in his mid-seventies, when this sheet was made."
+    note: "One monk, one strip of dune, and a sky that takes nearly the whole canvas. Friedrich originally painted two ships on the sea — then painted them out, deciding the monk should have the horizon to himself; the ghosts of the boats still show up under infrared. When the picture was first exhibited in 1810, the poet [Heinrich von Kleist](https://en.wikipedia.org/wiki/Heinrich_von_Kleist) wrote that standing in front of it felt like having your eyelids cut away. Two hundred years later that is still the most accurate review of it I know."
+  - id: "collection-of-beauty-xsxlt-fankuan"
+    note: "A thousand-year-old cliff, and somewhere in front of it, people. Take your time — lower right, on the road: a mule train, smaller than the collector seals stamped in the corners. Fan Kuan made invisibility the entire point: this is one of the most revered paintings in Chinese history precisely because the humans barely register against the mountain. He hid himself the same way — his signature, tucked into the brushwork of the leaves, wasn't found until 1958, nine and a half centuries after he painted it. The man dissolved into his own landscape and waited."
   - id: "collection-of-beauty-sower-at-sunset-vincent-van-gogh"
-    note: "The sun sits on the horizon directly behind the sower's head, the size of a halo placed there by accident. Yellow wheat in long strokes above violet earth in short ones. Van Gogh had been drawing sowers after Millet's earlier version for almost a decade before he painted this one in Arles in June 1888. He wrote to his brother Theo that month that he finally wanted the sun itself in the picture, not implied off-frame. The canvas now hangs at the [Kröller-Müller Museum](https://en.wikipedia.org/wiki/Kr%C3%B6ller-M%C3%BCller_Museum) in Otterlo."
-  - id: "collection-of-beauty-winslow-homer-the-adirondack-guide"
-    note: "Watercolour, with the white of the paper doing the work for the highlight on his shirt and the wake behind the canoe. The boat and the man read as a single horizontal line on still water. The guide is Rufus Wallace, who took Homer fishing at the North Woods Club on Mink Pond in the Adirondacks. Homer was a member of the club from 1888 until his death in 1910 and made dozens of watercolours there, almost all of them painted outdoors. The sheet is dated 1894 and is now in the Museum of Fine Arts in Boston."
+    note: "The sun sits directly behind the sower's head, a halo nobody will admit to painting on purpose. Van Gogh had been drawing sowers after Millet for almost a decade — student copies, exercises, variations — before this one finally walked out into colour at Arles in 1888. He wrote to Theo that he wanted the sun itself in the picture at last, not implied politely off-frame. One figure, one field, one star. Sometimes a decade of practice is what 'simple' costs."
+  - id: "collection-of-beauty-caspar-david-friedrich-der-einsame-baum-google-art-project"
+    note: "Friedrich again — this issue opens and closes its landscapes with him, because nobody else makes alone feel this dignified. One battered oak in the middle of a wide green plain, lightning-dead at the crown, still leafing out below. And then the detail that rearranges the whole picture: a shepherd has tucked himself against the trunk, barely bigger than the sheep scattered around the marsh. The tree gets the title, the mountains get the distance, and the only human in sight is using the loneliest thing in the landscape as shelter. That feels about right."
   - id: "collection-of-beauty-evening-snow-at-terashima-village"
-    note: "Fresh snow on the roofs of a Tokyo suburb. The walker has left the only tracks in the print, a single line of dark holes across the foreground. The print is from Hasui's first major shin-hanga series, the Twelve Subjects of Tokyo, published by [Watanabe Shōzaburō](https://en.wikipedia.org/wiki/Watanabe_Sh%C5%8Dzabur%C5%8D) in 1920. Three years later the [Great Kantō earthquake](https://en.wikipedia.org/wiki/1923_Great_Kant%C5%8D_earthquake) burned Watanabe's print shop to the ground, taking the original woodblocks for the series with it. The impressions that survive, including this one, were pulled in the three years between publication and the fire."
+    note: "Fresh snow on a Tokyo suburb at dusk, lamplight in the windows, and one walker under an umbrella leaving the only tracks in the street. Hasui printed this in 1920 for his first big series, Twelve Scenes of Tokyo. Three years later the Great Kantō earthquake burned his publisher's workshop down, original woodblocks and all — so every surviving impression of this quiet street was pulled in a three-year window before the city it shows was rearranged forever. The snow in the print stays fresh. That is the whole sorcery of it."
 ---
 
-Friedrich painted *The Monk by the Sea* in 1808 and showed it without a frame. Two bands of dune and sea sit under a sky that takes most of the canvas, and against them stands a single figure smaller than a thumbnail.
+This first issue is about the oldest trick in landscape painting: put one small figure in a big world and the picture starts asking questions — where are they going, why alone, and how small are we, exactly?
 
-Sesshū's traveller picks through mist on a sheet of paper that is mostly bare. Van Gogh's sower walks into yellow wheat with the sun lined up behind his head. Homer reduces a canoeist on a still Adirondack lake to one horizontal line. Hasui's walker leaves the first tracks of the evening across fresh snow in a Tokyo suburb.
+Five answers, eight centuries apart. Friedrich's monk stands at the edge of an enormous nothing. Fan Kuan shrinks his travelers until you have to hunt for them under the cliff. Van Gogh's sower walks straight at the sun, Friedrich's shepherd borrows shade from the loneliest tree on the plain, and Hasui's walker crosses the snow of a Tokyo evening, leaving the first tracks.
+
+None of these figures looks unhappy, mind you. That's the part I keep coming back to: the landscapes are vast, and every single person in them just keeps walking.
