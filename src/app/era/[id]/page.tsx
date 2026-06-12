@@ -73,12 +73,14 @@ export default async function EraPage({ params }: { params: Promise<Params> }) {
 
   // Server-render only the first page of works; the client paginates
   // the rest via /api/artworks/page, matching the home gallery's
-  // infinite-scroll pattern. Sort=year mirrors resolveScope's era
-  // ordering so the initial render + subsequent batches stitch into a
-  // single chronological sequence.
+  // infinite-scroll pattern. Sort=shuffle (seeded artist-spread, default
+  // seed) mirrors resolveScope's era ordering so the initial render +
+  // subsequent batches stitch into one deterministic sequence. Year
+  // order clumped single-artist cohorts — natural-history opened with
+  // 435 consecutive Audubon plates before the first Haeckel.
   const initialPage = getArtworkListingPage({
     era: era.id,
-    sort: "year",
+    sort: "shuffle",
     limit: DEFAULT_ARTWORK_PAGE_SIZE,
   });
   const idx = ERAS.findIndex((e) => e.id === era.id);
@@ -156,7 +158,7 @@ export default async function EraPage({ params }: { params: Promise<Params> }) {
             hasMore: initialPage.hasMore,
           }}
           scope={{ kind: "era", id: era.id as EraId }}
-          pageQuery={{ era: era.id, sort: "year" }}
+          pageQuery={{ era: era.id, sort: "shuffle" }}
         />
       </section>
     </div>

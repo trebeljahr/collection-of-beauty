@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { getAllListingsInDefaultOrder } from "@/lib/artwork-pagination";
+import { getAllListingsInDefaultOrder, getArtworkListingPage } from "@/lib/artwork-pagination";
 import {
   artworkHref,
   encodeScope,
@@ -210,15 +210,26 @@ describe("resolveScope", () => {
     expect(resolveScope({ kind: "movement", name: "No Such Movement" })).toEqual([]);
   });
 
-  it("filters era scope to works whose assignEra matches and sorts year asc", () => {
+  it("filters era scope to works whose assignEra matches and walks the era page's paginated order", () => {
     const resolved = resolveScope({ kind: "era", id: "fin-de-siecle" });
     expect(resolved.length).toBeGreaterThan(0);
     expect(resolved.every((a) => assignEra(a) === "fin-de-siecle")).toBe(true);
-    for (let i = 1; i < resolved.length; i++) {
-      const prev = resolved[i - 1].year ?? Number.MAX_SAFE_INTEGER;
-      const curr = resolved[i].year ?? Number.MAX_SAFE_INTEGER;
-      expect(prev).toBeLessThanOrEqual(curr);
+
+    // Lightbox prev/next must traverse exactly the sequence the era page
+    // renders: era filter + seeded shuffle, stitched across pages.
+    const paged: string[] = [];
+    let offset: number | null = 0;
+    while (offset != null) {
+      const page = getArtworkListingPage({
+        era: "fin-de-siecle",
+        sort: "shuffle",
+        offset,
+        limit: 120,
+      });
+      paged.push(...page.items.map((a) => a.id));
+      offset = page.nextOffset;
     }
+    expect(resolved.map((a) => a.id)).toEqual(paged);
   });
 
   it("era scope excludes works whose assignEra returns null", () => {
@@ -237,14 +248,18 @@ describe("resolveScope", () => {
     expect(resolved.every((a) => assignEra(a) === "ukiyo-e")).toBe(true);
   });
 
-  it("era scope sorting uses title localeCompare as the tiebreaker for equal years", () => {
-    const resolved = resolveScope({ kind: "era", id: "fin-de-siecle" });
+  it("era scope interleaves single-artist cohorts instead of clumping them", () => {
+    // natural-history is the stress case: 435 Audubon plates vs ~100
+    // Haeckel plates. Year order put every Audubon before the first
+    // Haeckel; the artist-spread shuffle should keep runs short.
+    const resolved = resolveScope({ kind: "era", id: "natural-history" });
+    expect(resolved.length).toBeGreaterThan(400);
+    let run = 1;
+    let maxRun = 1;
     for (let i = 1; i < resolved.length; i++) {
-      const prev = resolved[i - 1];
-      const curr = resolved[i];
-      if ((prev.year ?? -1) === (curr.year ?? -1)) {
-        expect(prev.title.localeCompare(curr.title)).toBeLessThanOrEqual(0);
-      }
+      run = resolved[i].artist === resolved[i - 1].artist ? run + 1 : 1;
+      maxRun = Math.max(maxRun, run);
     }
+    expect(maxRun).toBeLessThanOrEqual(8);
   });
 });

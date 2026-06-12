@@ -116,7 +116,18 @@ function sortArtworkListings(
   return shuffleWithArtistSpread(list, seed);
 }
 
-function shuffleWithArtistSpread(artworks: ArtworkListing[], seed: string): ArtworkListing[] {
+/** Deterministic shuffle that spreads each artist's works evenly across
+ *  the whole sequence. Work i of an n-work bucket lands near fractional
+ *  position (i + phase)/n, so every artist is dealt at a stride
+ *  proportional to their share of the pool. Round-robin dealing (the
+ *  previous approach) alternated artists only until the smaller buckets
+ *  ran dry, leaving a long single-artist tail — on the natural-history
+ *  era that read as 300+ consecutive Audubon plates. Exported so
+ *  resolveScope can mirror the era page's order exactly. */
+export function shuffleWithArtistSpread(
+  artworks: ArtworkListing[],
+  seed: string,
+): ArtworkListing[] {
   const buckets = new Map<string, ArtworkListing[]>();
   for (const artwork of artworks) {
     const key = artwork.artist ?? `__unknown__:${artwork.id}`;
@@ -131,32 +142,16 @@ function shuffleWithArtistSpread(artworks: ArtworkListing[], seed: string): Artw
     );
   }
 
-  const artistOrder = [...buckets.keys()].sort(
-    (a, b) =>
-      seededScore(a, `${seed}\0artist`) - seededScore(b, `${seed}\0artist`) || a.localeCompare(b),
-  );
-
-  const queues = artistOrder.map((key) => buckets.get(key)!);
-  const result: ArtworkListing[] = [];
-  let round = 0;
-  let remaining = artworks.length;
-  while (remaining > 0) {
-    let added = 0;
-    for (const queue of queues) {
-      if (queue.length === 0) continue;
-      result.push(queue.shift()!);
-      added += 1;
+  const keyed: Array<{ artwork: ArtworkListing; at: number }> = [];
+  for (const [artist, bucket] of buckets) {
+    // Seeded phase in [0,1) so buckets don't all start at position 0.
+    const phase = seededScore(artist, `${seed}\0artist`) / 0x1_0000_0000;
+    for (let i = 0; i < bucket.length; i++) {
+      keyed.push({ artwork: bucket[i], at: (i + phase) / bucket.length });
     }
-    if (added === 0) break;
-    remaining -= added;
-    round += 1;
-    // Rotate the artist order between rounds so the same artists don't
-    // appear in a fixed cadence; the rotation amount is seed-derived so
-    // every round still picks a deterministic permutation.
-    const rotation = seededScore(`${seed}\0round\0${round}`, seed) % queues.length;
-    if (rotation > 0) queues.push(...queues.splice(0, rotation));
   }
-  return result;
+  keyed.sort((a, b) => a.at - b.at || a.artwork.id.localeCompare(b.artwork.id));
+  return keyed.map((k) => k.artwork);
 }
 
 function applyPinnedHead(sorted: ArtworkListing[], pinnedIds: readonly string[]): ArtworkListing[] {
