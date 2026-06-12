@@ -175,7 +175,6 @@ export const ERAS: Era[] = [
       "Pre-Raphaelite",
       "Pre-Raphaelite Brotherhood",
       "Hudson River School",
-      "Tonalism",
     ],
     palette: {
       wallColor: "#c8c1ad",
@@ -304,7 +303,9 @@ export const ERAS: Era[] = [
     // below.
     yearMin: 1870,
     yearMax: 1899,
-    movements: ["Impressionism", "Neo-Impressionism", "Pointillism"],
+    // Tonalism (Whistler, late Inness) is an 1870s–1900s idiom — it
+    // belongs with the Impressionism-era floor, not Romanticism.
+    movements: ["Impressionism", "Neo-Impressionism", "Pointillism", "Tonalism"],
     palette: {
       wallColor: "#f0e7d2",
       floorColor: "#2a1d14",

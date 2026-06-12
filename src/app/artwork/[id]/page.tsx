@@ -7,6 +7,7 @@ import { ArtworkViewer } from "@/components/artwork-viewer";
 import { LicenseBadge } from "@/components/license-badge";
 import { buttonVariants } from "@/components/ui/button";
 import { pillClasses } from "@/components/ui/pill";
+import { originalTitleSubtitle } from "@/lib/artwork-format";
 import { artworkHref, parseScope, resolveScope, scopeHref, scopeLabel } from "@/lib/artwork-scope";
 import {
   type Artwork,
@@ -202,9 +203,9 @@ export default async function ArtworkPage({
         <aside className="space-y-5">
           <div className="space-y-1">
             <h1 className="font-serif text-2xl md:text-3xl">{displayed}</h1>
-            {art.englishTitle && art.englishTitle !== art.title && (
-              <p className="font-serif text-base italic text-[var(--muted-foreground)]" lang="ja">
-                {art.title}
+            {originalTitleSubtitle(art) && (
+              <p className="font-serif text-base italic text-[var(--muted-foreground)]">
+                {originalTitleSubtitle(art)}
               </p>
             )}
             {art.artist && (
