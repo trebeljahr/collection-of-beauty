@@ -12,8 +12,8 @@ tags:
   - "landscape"
   - "villages"
 artworks:
-  - id: "collection-of-beauty-guo-zhongshu-traveling-on-the-river-in-snow"
-    note: "The oldest winter in this issue, and the most precisely drawn. Cargo boats push through a cold-slowed river, and the rigging and hulls are rendered in [jiehua](https://en.wikipedia.org/wiki/Jiehua), the 'ruled-line' technique Song painters used when they wanted architecture and boats to be *correct*, not just evocative. Drawing with a ruler sounds like the death of art, and instead the boats feel sturdier and the cold feels colder for it. Engineering as atmosphere. I did not expect that to work, and it does."
+  - id: "collection-of-beauty-hiroshige-53-stations-hoeido-16-kanbara-mfa-02"
+    note: "Three muffled figures trudge past snow-buried roofs in the dark, each bent into their own errand, and the snow keeps falling. This is one of the most loved snow scenes ever printed — and here is the wonderful part: Kanbara sits on Japan's mild Pacific coast, where heavy snow like this almost never falls. Hiroshige passed through, looked at the place, and gave it a deep silent winter night anyway, because the picture needed one. The most convincing snow in art history is very possibly invented. I refuse to hold it against him."
   - id: "collection-of-beauty-circle-of-pieter-bruegel-the-elder-winter-landscape-with-a-bird-trap"
     note: "Look at the right edge: that tilted board propped on a stick, grain scattered underneath, is a bird trap, waiting. Everyone skates and plays on the same white floor where the trap sits, nobody pays it any attention, and Bruegel quietly lets you decide whether the skaters on thin ice are any different from the birds. People in the Low Countries could not get enough of this picture — over a hundred old copies of this one composition survive. Half of Flanders apparently wanted this exact winter on the wall, slightly ominous trap included."
   - id: "collection-of-beauty-hendrik-avercamp-winter-scene-on-a-canal-google-art-project"
@@ -26,6 +26,6 @@ artworks:
 
 Winter is the great equalizer of village life: when the canal freezes, everybody — gentry, peasants, dogs, birds — ends up on the same white floor. Painters figured out centuries ago that ice is a stage.
 
-So this issue is mostly stages. Guo Zhongshu draws river boats with a ruler and makes precision feel cold. Bruegel runs games and a bird trap on the same sheet of ice and lets you draw your own conclusions. Avercamp fills a canal with an entire town's worth of gossip, Rembrandt empties it back out to one stopped sledge, and Friedrich closes the issue with winter's last village — a procession, a coffin and a ruin.
+So this issue is mostly stages. Hiroshige buries a village in snow it never actually gets, because the picture needed it. Bruegel runs games and a bird trap on the same sheet of ice and lets you draw your own conclusions. Avercamp fills a canal with an entire town's worth of gossip, Rembrandt empties it back out to one stopped sledge, and Friedrich closes the issue with winter's last village — a procession, a coffin and a ruin.
 
-From a thousand busy skaters down to six monks in the snow: same season, opposite silences.
+From a thousand busy skaters down to three figures in the falling dark: same season, opposite silences.
