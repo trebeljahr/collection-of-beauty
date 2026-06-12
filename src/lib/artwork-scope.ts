@@ -1,4 +1,5 @@
-import { getAllListingsInDefaultOrder } from "@/lib/artwork-pagination";
+import { DEFAULT_SHUFFLE_SEED } from "@/lib/artwork-page-schema";
+import { getAllListingsInDefaultOrder, shuffleWithArtistSpread } from "@/lib/artwork-pagination";
 import { type ArtworkListing, artworkListings, getArtist } from "@/lib/data";
 import { assignEra, ERAS, type EraId, getEra } from "@/lib/gallery-eras";
 
@@ -67,7 +68,10 @@ export function encodeScope(scope: Scope): string {
  *              whole timeline so prev/next walks past the entry decade's
  *              boundary into the neighbouring decades. `scope.start` is
  *              the entry anchor used by scopeHref/scopeLabel, not a filter.
- *    era     → year asc, title tiebreaker (mirrors movement; undated last)
+ *    era     → seeded artist-spread shuffle (default seed) — matches the
+ *              /era/<id> page, which paginates with sort=shuffle. Year
+ *              order clumped single-artist cohorts (435 Audubon plates
+ *              before any Haeckel on natural-history).
  */
 export function resolveScope(scope: Scope): ArtworkListing[] {
   if (scope.kind === "gallery") return getAllListingsInDefaultOrder();
@@ -90,13 +94,10 @@ export function resolveScope(scope: Scope): ArtworkListing[] {
       .filter((a) => a.year != null)
       .sort((a, b) => (a.year ?? 0) - (b.year ?? 0) || a.title.localeCompare(b.title));
   }
-  return artworkListings
-    .filter((a) => assignEra(a) === scope.id)
-    .sort(
-      (a, b) =>
-        (a.year ?? UNDATED_SORT_KEY) - (b.year ?? UNDATED_SORT_KEY) ||
-        a.title.localeCompare(b.title),
-    );
+  return shuffleWithArtistSpread(
+    artworkListings.filter((a) => assignEra(a) === scope.id),
+    DEFAULT_SHUFFLE_SEED,
+  );
 }
 
 /** Human label for the scope, suitable for breadcrumbs / "Back to X"
