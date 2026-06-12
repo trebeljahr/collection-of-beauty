@@ -28,4 +28,4 @@ At some point painters discovered the cheapest model available — the mirror �
 
 The range of what they confess is the joy here. Dürer, twenty-six, performs the artist as gentleman so convincingly that Europe eventually believed him. Goltzius skips his face and draws his burnt working hand instead. Rembrandt brackets a whole life — making faces at the mirror in his twenties, taking honest inventory at fifty-three — and Courbet inflates the self-portrait until it swallows his model, his patrons, Baudelaire and the whole age.
 
-The scientists in [Science tables](/newsletter/0019-science-tables) measured the world. The artists, given the same attention to spend, mostly pointed it back at themselves. I find that very funny and completely understandable.
+The scientists in [Pictures of science](/newsletter/0019-science-tables) measured the world. The artists, given the same attention to spend, mostly pointed it back at themselves. I find that very funny and completely understandable.
