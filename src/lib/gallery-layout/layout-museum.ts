@@ -551,7 +551,16 @@ function buildFloor(era: Era, eraArtworks: ArtworkListing[]): FloorLayout {
 
   // Each room hangs its own movement bucket; overflow spills to free
   // walls on the same floor (see place-paintings.ts).
-  distributePaintings(floor);
+  const stats = distributePaintings(floor);
+  if (stats.dropped > 0 && process.env.NODE_ENV !== "production") {
+    // A floor out of wall space drops works silently otherwise — this
+    // fires when an ingest outgrows a floor (≈660 works max with every
+    // cell double-stacked). Fix is a new era floor, like the botanical
+    // split, not a bigger PER_ROOM_TARGET.
+    console.warn(
+      `[gallery-layout] ${era.id}: ${stats.dropped} works did not fit on the floor's walls`,
+    );
+  }
 
   // Placements are the ground truth for what actually hangs in a room —
   // spill can move works between rooms, so resync the room's artwork
