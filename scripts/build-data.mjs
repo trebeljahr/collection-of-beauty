@@ -950,10 +950,23 @@ async function loadCuratorDescriptions() {
   if (!existsSync(p)) return new Map();
   const raw = JSON.parse(await readFile(p, "utf8"));
   const m = new Map();
+  let tailsCut = 0;
   for (const [id, desc] of Object.entries(raw)) {
-    if (typeof desc === "string" && desc.trim()) m.set(id, desc.trim());
+    if (typeof desc !== "string" || !desc.trim()) continue;
+    let clean = desc.trim();
+    // Agent tool-call tails ("…</curatorDescription>\n<parameter…") have
+    // leaked into this file before. Prose never contains a closing tag,
+    // so cut at the first one as a safety net.
+    const tag = clean.search(/<\/\w+>/);
+    if (tag !== -1) {
+      clean = clean.slice(0, tag).trim();
+      tailsCut++;
+    }
+    if (clean) m.set(id, clean);
   }
-  console.log(`[build-data] curator descriptions: ${m.size}`);
+  console.log(
+    `[build-data] curator descriptions: ${m.size}${tailsCut ? ` (${tailsCut} tool-call tails cut)` : ""}`,
+  );
   return m;
 }
 
