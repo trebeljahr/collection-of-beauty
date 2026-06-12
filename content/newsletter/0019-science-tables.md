@@ -1,6 +1,6 @@
 ---
-title: "Science tables"
-subject: "Issue 19: Science tables"
+title: "Pictures of science"
+subject: "Issue 19: Pictures of science"
 publishedAt: "2026-09-20"
 excerpt: "Five pictures of knowledge being made: a posing muscle man, an encyclopedia hand, Blake's underwater Newton, a geographer mid-thought and phosphorus catching fire."
 draft: true
