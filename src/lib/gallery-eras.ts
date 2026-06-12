@@ -54,6 +54,7 @@ export type EraId =
   | "enlightenment"
   | "romantic"
   | "natural-history"
+  | "botanical"
   | "realism"
   | "ukiyo-e"
   | "fin-de-siecle"
@@ -221,8 +222,39 @@ export const ERAS: Era[] = [
     },
   },
   {
-    id: "realism",
+    id: "botanical",
     index: 6,
+    title: "Botanical Illustration",
+    // Movement-only — see ukiyo-e for the rationale on yearMin>yearMax.
+    // Split from the natural-history floor when the 475-plate Redouté
+    // Les Liliacées ingest would have pushed that single floor past
+    // 1,000 works — well beyond what one storey's walls can hang. The
+    // botany wing stands on its own the way real natural-history
+    // museums separate botany from zoology.
+    yearMin: 9999,
+    yearMax: 0,
+    movements: ["Botanical illustration"],
+    palette: {
+      // Pressed-flower plate mood: warm paper-cream walls, deep
+      // leaf-green floor, rose-madder accent — Redouté's hand-coloured
+      // stipple engravings against herbarium tones.
+      wallColor: "#e6dcbc",
+      floorColor: "#16201a",
+      ceilingColor: "#f0e8cc",
+      accent: "#a84a5c",
+      // Garden beds underfoot: leaf-green, moss, fern, walnut, petal-wine.
+      roomAccents: ["#16201a", "#1b2616", "#1a2a22", "#241c12", "#2a1820"],
+    },
+    blurb: "Redouté's lilies — botany drawn petal by petal.",
+    anchor: {
+      movement: "Botanical illustration",
+      minCells: { x: 9, z: 9 },
+      preferredLocation: "center",
+    },
+  },
+  {
+    id: "realism",
+    index: 7,
     title: "Realism & Academy",
     // Movement-only — see ukiyo-e. Year-fallback for 1800–1869
     // already lands on the Romanticism floor (above); claiming the
@@ -251,7 +283,7 @@ export const ERAS: Era[] = [
   },
   {
     id: "ukiyo-e",
-    index: 7,
+    index: 8,
     title: "East Asian Painting",
     // Movement-tag only: yearMin > yearMax keeps the year-fallback in
     // assignEra from accidentally placing untagged 18th/19th-c
@@ -294,7 +326,7 @@ export const ERAS: Era[] = [
     // first multi-floor cut. Title narrowed to Impressionism since
     // Post-Impressionism and Modernism now have their own floors.
     id: "fin-de-siecle",
-    index: 8,
+    index: 9,
     title: "Impressionism",
     // Year fallback for 1870–1899 lands here. Late-19th-c works whose
     // movement is missing — Inness, Eakins, Cassatt, Serov, Levitan —
@@ -323,7 +355,7 @@ export const ERAS: Era[] = [
   },
   {
     id: "post-impressionism",
-    index: 9,
+    index: 10,
     title: "Post-Impressionism & Symbolism",
     // Movement-only — year range would overlap both adjacent floors
     // (Imp 1870–1899, Modernism 1900+) and split unpredictably under
@@ -360,7 +392,7 @@ export const ERAS: Era[] = [
   },
   {
     id: "modernism",
-    index: 10,
+    index: 11,
     title: "Modernism",
     // Takes the 1900+ year-fallback. Untagged early-20th-c works in
     // the corpus (Delaunay, Kirchner, Malevich, Gris, Bakst,

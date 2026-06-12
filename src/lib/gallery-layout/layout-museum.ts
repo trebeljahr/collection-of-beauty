@@ -442,8 +442,16 @@ function buildFloor(era: Era, eraArtworks: ArtworkListing[]): FloorLayout {
       slotEntries.push(...tailAsian);
       if (tailRest.length > 0) {
         const mergedArtworks = tailRest.flatMap((e) => e.artworks);
+        // When every merged entry is a chunk of the same movement, keep
+        // that movement's name — "Dutch Golden Age", not "Also from the
+        // baroque…". The catch-all label is only honest for a true mix.
+        const baseNames = new Set(tailRest.map((e) => e.name.replace(/ · Part \d+$/, "")));
         const mergedName =
-          tailRest.length === 1 ? tailRest[0].name : `Also from the ${era.title.toLowerCase()}`;
+          tailRest.length === 1
+            ? tailRest[0].name
+            : baseNames.size === 1
+              ? [...baseNames][0]
+              : `Also from the ${era.title.toLowerCase()}`;
         slotEntries.push({ name: mergedName, artworks: mergedArtworks });
       }
     }
@@ -551,6 +559,22 @@ function buildFloor(era: Era, eraArtworks: ArtworkListing[]): FloorLayout {
   for (const room of rooms) {
     if (room.isStairwell) continue;
     room.artworks = room.placements.map((p) => p.artwork);
+    // The merged catch-all room can end up effectively single-movement
+    // once overflow spill trims it — relabel from its actual contents
+    // rather than keeping a vague "Also from the …" sign on a room
+    // that's 90%+ one school.
+    if (room.movement.startsWith("Also from the") && room.artworks.length > 0) {
+      const counts = new Map<string, number>();
+      for (const a of room.artworks) {
+        const mv = a.movement?.trim() ? a.movement : era.title;
+        counts.set(mv, (counts.get(mv) ?? 0) + 1);
+      }
+      const [topName, topCount] = [...counts.entries()].sort((a, b) => b[1] - a[1])[0];
+      if (topCount / room.artworks.length >= 0.9) {
+        room.movement = topName;
+        room.title = topName;
+      }
+    }
     room.description = describeRoom(room.movement, room.artworks);
   }
 
