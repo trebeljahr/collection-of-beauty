@@ -404,8 +404,38 @@ export function cleanCredit(raw) {
     c = kept.join("; ");
   }
 
+  if (isTransferTrail(c)) return null;
   if (looksLikeBoilerplate(c)) return null;
   return c;
+}
+
+// Wiki-transfer / uploader trails ("Originally from en.wikipedia…",
+// "Transferred from de.wikipedia to Commons by…", "Own work Gleb
+// Simonov", "posted to Flickr as … by freeparking"). Pure upload
+// provenance — says nothing about the artwork. A museum / auction
+// keyword anywhere in the string vetoes the drop so credits like
+// "Flickr The San Diego Museum of Art collection" or
+// "flickr.com; Sotheby's London, 19 June 2007, lot 7" survive.
+const TRANSFER_TRAIL_PATTERNS = [
+  /^originally (?:from|uploaded|posted)\b/i,
+  /^original uploader\b/i,
+  /^transferr?ed from\b/i,
+  /^uploaded (?:to|from)\b/i,
+  /^taken from\b/i,
+  /^own (?:work|photo(?:graph)?)\b/i,
+  /^digital photo by\b/i,
+  /^scan(?:ned)? by\b/i,
+  /^posted to flickr\b/i,
+  /^flickr\s*(?:\[\d+\]\s*)?$/i,
+  /found automatically by user:picasa review bot/i,
+  /^uploaded from the wikipedia loves art photo pool/i,
+];
+const TRANSFER_TRAIL_VETO = /museum|institut|sotheby|christie|auktion|auction|academy of art/i;
+
+function isTransferTrail(text) {
+  const t = String(text).trim();
+  if (TRANSFER_TRAIL_VETO.test(t)) return false;
+  return TRANSFER_TRAIL_PATTERNS.some((rx) => rx.test(t));
 }
 
 /** Specific titles that aren't fixed by any pattern rule — typos,
@@ -723,23 +753,21 @@ function overlapYears(a, b) {
 }
 
 const KNOWN_CONNECTIONS = [
-  ["Claude Monet", "Édouard Manet", "contemporaries in Impressionist circle"],
+  ["Claude Monet", "Édouard Manet", "close friends; painted together at Argenteuil, 1874"],
   ["Claude Monet", "Pierre-Auguste Renoir", "painted side-by-side at La Grenouillère"],
   ["Claude Monet", "Camille Pissarro", "exhibited together, Impressionist co-founders"],
   ["Claude Monet", "Edgar Degas", "Impressionist exhibitions"],
   ["Pierre-Auguste Renoir", "Edgar Degas", "Impressionist exhibitions"],
   ["Pierre-Auguste Renoir", "Camille Pissarro", "Impressionist exhibitions"],
   ["Vincent van Gogh", "Paul Gauguin", "lived together in Arles, 1888"],
-  ["Vincent van Gogh", "Paul Cézanne", "contemporaries, Post-Impressionists"],
   ["Vincent van Gogh", "Camille Pissarro", "Pissarro mentored van Gogh in Paris"],
   ["Paul Cézanne", "Camille Pissarro", "Pissarro was Cézanne's mentor"],
-  ["Paul Cézanne", "Pierre-Auguste Renoir", "contemporaries"],
-  ["Édouard Manet", "Edgar Degas", "close friends, frequent correspondents"],
+  ["Paul Cézanne", "Pierre-Auguste Renoir", "friends; Renoir painted with Cézanne at L'Estaque and Aix"],
+  ["Édouard Manet", "Edgar Degas", "close friends and rivals; met at the Louvre, 1862"],
   ["Édouard Manet", "Berthe Morisot", "brother-in-law and painting peers"],
   ["Berthe Morisot", "Claude Monet", "Impressionist group"],
   ["Berthe Morisot", "Edgar Degas", "Impressionist group"],
-  ["Henri de Toulouse-Lautrec", "Vincent van Gogh", "Paris, late 1880s"],
-  ["Henri de Toulouse-Lautrec", "Paul Gauguin", "Paris contemporaries"],
+  ["Henri de Toulouse-Lautrec", "Vincent van Gogh", "friends from Cormon's atelier; Lautrec portrayed van Gogh, 1887"],
   ["Georges Seurat", "Paul Signac", "co-developed Pointillism"],
   ["Georges Seurat", "Camille Pissarro", "Pissarro adopted Pointillism briefly"],
   ["Pablo Picasso", "Georges Braque", "co-founders of Cubism"],
@@ -751,30 +779,25 @@ const KNOWN_CONNECTIONS = [
   ["Paul Klee", "August Macke", "Tunisia trip, 1914"],
   ["Gustav Klimt", "Egon Schiele", "Klimt mentored Schiele in Vienna"],
   ["Gustav Klimt", "Koloman Moser", "Vienna Secession co-founders"],
-  ["Egon Schiele", "Oskar Kokoschka", "Vienna Secession"],
   ["Peter Paul Rubens", "Anthony van Dyck", "van Dyck was Rubens's assistant"],
   ["Leonardo da Vinci", "Michelangelo Buonarroti", "rivals in Florence"],
   ["Leonardo da Vinci", "Raphael", "Raphael studied Leonardo's technique"],
   ["Michelangelo Buonarroti", "Raphael", "rivals in Rome"],
-  ["Rembrandt van Rijn", "Johannes Vermeer", "Dutch Golden Age peers"],
   ["J. M. W. Turner", "John Constable", "Romantic rivals at the Royal Academy"],
-  ["Eugène Delacroix", "Théodore Géricault", "Romantic peers"],
+  ["Eugène Delacroix", "Théodore Géricault", "friends from Guérin's studio; Delacroix posed for the Raft of the Medusa"],
   ["Jean-Auguste-Dominique Ingres", "Eugène Delacroix", "Neoclassical vs Romantic rivals"],
-  ["Katsushika Hokusai", "Utagawa Hiroshige", "ukiyo-e masters"],
   ["Utagawa Hiroshige", "Utagawa Kuniyoshi", "Utagawa school"],
   ["Claude Monet", "James McNeill Whistler", "friends and correspondents"],
-  ["James McNeill Whistler", "John Singer Sargent", "American expatriates, London"],
+  ["James McNeill Whistler", "John Singer Sargent", "London acquaintances; Sargent championed Whistler's work"],
   ["John Singer Sargent", "Claude Monet", "Sargent visited Monet at Giverny"],
   ["Mary Cassatt", "Edgar Degas", "Degas invited Cassatt into Impressionists"],
   ["Mary Cassatt", "Camille Pissarro", "Impressionist group"],
-  ["Salvador Dalí", "Pablo Picasso", "Spanish contemporaries"],
+  ["Salvador Dalí", "Pablo Picasso", "Dalí visited Picasso in Paris, 1926"],
   ["Salvador Dalí", "Joan Miró", "Spanish Surrealists"],
   ["René Magritte", "Salvador Dalí", "Surrealist peers"],
-  ["Marc Chagall", "Pablo Picasso", "Paris contemporaries"],
+  ["Marc Chagall", "Pablo Picasso", "friends turned rivals on the postwar Côte d'Azur"],
   ["Vincent van Gogh", "Émile Bernard", "close correspondents"],
   ["Paul Gauguin", "Émile Bernard", "developed Synthetism together"],
-  ["Hasui Kawase", "Yoshida Hiroshi", "shin-hanga movement peers"],
-  ["John James Audubon", "John Gould", "ornithological illustrators, contemporaries"],
 ];
 
 // Sidecar values that are actually placeholders, not real measurements. Each
@@ -1043,7 +1066,14 @@ async function main() {
       }
 
       const normalizedArtistName = normalizeArtistName(entry.artist) ?? null;
-      const title = cleanTitle(entry.title, fname, normalizedArtistName);
+      let title = cleanTitle(entry.title, fname, normalizedArtistName);
+      // Audubon plate filenames lead with the plate number ("100 Marsh
+      // Wren"). Move it into a suffix so the display title reads as the
+      // bird name the plate is actually titled after.
+      if (folderKey === "audubon-birds") {
+        const plate = /^(\d{1,3})\s+(.+)$/.exec(title);
+        if (plate) title = `${plate[2]} (Plate ${plate[1]})`;
+      }
       const year = extractYear(entry);
       // artists-db.json is the curated source of truth — prefer it over
       // any snapshot embedded in the metadata sidecar. Earlier the order

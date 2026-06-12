@@ -181,6 +181,50 @@ const REMOVALS = [
     keep: "Utagawa_Kunisada_I_(c._1832)_Dawn_at_Futami-ga-ura.jpg",
     reason: "same Kunisada c.1832 Wedded Rocks at Futami-ga-ura; keeper is the MFA Boston scan with the title cartouche, full margins and shore figures; remove file is a tighter crop with no provenance",
   },
+  // Third pass — identical-fileUrl sweep (same Commons original ingested
+  // twice; the 1280px-* files are thumbnail-sized grabs of the same scan).
+  {
+    folder: "collection-of-beauty",
+    remove: "1280px-Retrato_de_la_esposa_del_artista_con_sus_dos_hijos,_por_Hans_Holbein_el_Joven.jpg",
+    keep: "Retrato_de_la_esposa_del_artista_con_sus_dos_hijos,_por_Hans_Holbein_el_Joven.jpg",
+    reason: "identical fileUrl; keeper is the 4625px original, remove is its 1280px thumbnail",
+  },
+  {
+    folder: "collection-of-beauty",
+    remove: "1280px-Giuseppe_Arcimboldo_-_La_Primavera_-_Google_Art_Project.jpg",
+    keep: "Giuseppe_Arcimboldo_-_La_Primavera_-_Google_Art_Project.jpg",
+    reason: "identical fileUrl; keeper is the 3409px original, remove is its 1280px thumbnail (newsletter 0007 repointed to the keeper)",
+  },
+  {
+    folder: "collection-of-beauty",
+    remove: "1280px-Thomas_Gainsborough_-_Clayton_Jones_-_Google_Art_Project.jpg",
+    keep: "Thomas_Gainsborough_-_Clayton_Jones_-_Google_Art_Project.jpg",
+    reason: "identical fileUrl; keeper is the 4802px original, remove is its 1280px thumbnail",
+  },
+  {
+    folder: "collection-of-beauty",
+    remove: "1280px-Thomas_Gainsborough_-_The_Marsham_Children_-_Google_Art_Project.jpg",
+    keep: "Thomas_Gainsborough_-_The_Marsham_Children_-_Google_Art_Project.jpg",
+    reason: "identical fileUrl; keeper is the 4085px original, remove is its 1280px thumbnail",
+  },
+  {
+    folder: "collection-of-beauty",
+    remove: "Constable_osmington_bay.tif.jpg",
+    keep: "Constable_osmington_bay.tif",
+    reason: "identical fileUrl; keeper is the 6473px TIFF original, remove is a 2560px JPEG re-export of it",
+  },
+  {
+    folder: "collection-of-beauty",
+    remove: "Hokusai Views of Mount Fuji.jpg",
+    keep: "2560px-The_Big_wave_from_100_views_of_the_Fuji,_2nd_volume.jpg",
+    reason: "identical fileUrl; same Big Wave plate from One Hundred Views of Mount Fuji, keeper has the taller uncropped scan and the descriptive filename",
+  },
+  {
+    folder: "collection-of-beauty",
+    remove: "NDL-DC_2586549-03_Kawase_Hasui_S02_crd.jpg",
+    keep: "Tōkyō_jūnidai,_Daikon-gashi_by_Kawase_Hasui.jpg",
+    reason: "identical fileUrl; same Hasui Daikon-gashi print, keeper has the taller scan and the descriptive filename",
+  },
 ];
 
 // Mirror scripts/build-data.mjs slugify() exactly so the ids we generate
