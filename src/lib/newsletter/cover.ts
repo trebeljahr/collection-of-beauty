@@ -1,3 +1,4 @@
+import { displayTitle } from "@/lib/artwork-format";
 import { artworks as ALL_ARTWORKS, type Artwork } from "@/lib/data";
 import { variantUrl } from "@/lib/utils";
 import type { Edition } from "./types";
@@ -57,7 +58,7 @@ export function resolveEditionCover(edition: Edition): ResolvedCover | null {
 }
 
 function artworkAltLabel(artwork: Artwork): string {
-  const parts = [artwork.title];
+  const parts = [displayTitle(artwork)];
   if (artwork.artist) parts.push(`by ${artwork.artist}`);
   if (artwork.year) parts.push(`(${artwork.year})`);
   return parts.join(" ");

@@ -6,6 +6,7 @@ import Markdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 import { NewsletterEditionSubscribe } from "@/components/newsletter-edition-subscribe";
 import { ResponsiveImage } from "@/components/responsive-image";
+import { artworkAlt, displayTitle } from "@/lib/artwork-format";
 import { artworks as ALL_ARTWORKS } from "@/lib/data";
 import { resolveEditionCover } from "@/lib/newsletter/cover";
 import { findEdition, loadUiVisibleEditions, showDraftsInUi } from "@/lib/newsletter/editions";
@@ -125,7 +126,7 @@ export default async function EditionPage({ params }: { params: Promise<Params> 
             >
               <ResponsiveImage
                 objectKey={artwork.objectKey}
-                alt={artwork.title}
+                alt={artworkAlt(artwork)}
                 sizes="(max-width: 768px) 100vw, 768px"
                 variantWidths={artwork.variantWidths}
                 srcWidth={artwork.width ?? undefined}
@@ -139,7 +140,7 @@ export default async function EditionPage({ params }: { params: Promise<Params> 
                   href={`/artwork/${artwork.id}`}
                   className="underline underline-offset-4 hover:opacity-70 transition-opacity"
                 >
-                  {artwork.title}
+                  {displayTitle(artwork)}
                 </Link>
               </h2>
               <p className="mt-1.5 text-sm text-[var(--muted-foreground)]">

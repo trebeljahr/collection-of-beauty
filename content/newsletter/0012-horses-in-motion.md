@@ -28,4 +28,4 @@ Horses were how painters did speed before film existed. For a few thousand years
 
 What delights me in this five is the gearbox. Uccello runs the charge through a perspective grid until it half-freezes into geometry. Titian drops to a deliberate imperial walk. Rubens throws the throttle open on a hunt starring a hippo he had never seen, Géricault rears his chasseur up into history's worst-timed glory, and Kuniyoshi sends two samurai through a river at full gallop across three sheets of paper.
 
-The bridges in [Bridges and crossings](/newsletter/0005-bridges-and-crossings) were how pictures got across water politely. This issue's answer is simpler: point the horse at the river and go.
+The ferries in [Crossing the water](/newsletter/0005-crossing-the-water) got people across politely, for a fare. This issue's answer is simpler: point the horse at the river and go.
