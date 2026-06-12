@@ -28,4 +28,4 @@ Ruins are architecture's afterlife, and painters can't leave them alone — part
 
 The five here each stand somewhere different on that line between standing and fallen. Mantegna leans his saint on collapsed antiquity. Rubens lets evening traffic wander the palace of the Caesars and finds it peaceful rather than tragic. Turner demotes an abbey to the skyline behind a working barge, Schinkel — a real architect — paints the one cathedral he could never build, and Friedrich distills the entire genre into a single moment: two mourners hesitating at a cemetery gate, mist beyond.
 
-The bridges in [Bridges and crossings](/newsletter/0005-bridges-and-crossings) got you across to the other side. Friedrich's gateway makes no such promise. It just stands there, open, and lets his two figures — and you — decide. Which is, I think, what ruins have been asking of us all along.
+The boats in [Crossing the water](/newsletter/0005-crossing-the-water) got you across to the other side. Friedrich's gateway makes no such promise. It just stands there, open, and lets his two figures — and you — decide. Which is, I think, what ruins have been asking of us all along.
