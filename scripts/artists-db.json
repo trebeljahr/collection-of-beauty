@@ -2,6 +2,21 @@
   "description": "Curated artist lookup table used to enrich Wikimedia metadata with birth/death/nationality/movement for the most common artists in this collection. Matched by substring on the Artist field returned by the Commons API.",
   "artists": [
     {
+      "name": "Pierre-Joseph Redouté",
+      "aliases": [
+        "Pierre-Joseph Redouté",
+        "Pierre Joseph Redoute",
+        "P.J. Redouté",
+        "Redouté",
+        "Redoute"
+      ],
+      "born": 1759,
+      "died": 1840,
+      "nationality": "Belgian / French",
+      "movement": "Natural history illustration",
+      "pd_status": "public_domain_worldwide"
+    },
+    {
       "name": "Claude Monet",
       "aliases": [
         "Claude Monet",

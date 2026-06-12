@@ -161,7 +161,16 @@ async function dominantColorFor(folderKey, filename) {
   return result;
 }
 
-const WIKIMEDIA_FOLDERS = ["collection-of-beauty", "audubon-birds", "kunstformen-images"];
+// Source folders, each with a metadata/<folder>.json sidecar in the shared
+// envelope shape. Despite the name, not every folder is Wikimedia-sourced
+// (redoute-lilies is scraped from c82.net); the metadata schema is identical
+// so they all flow through the same pushFromFolder path.
+const WIKIMEDIA_FOLDERS = [
+  "collection-of-beauty",
+  "audubon-birds",
+  "kunstformen-images",
+  "redoute-lilies",
+];
 
 function assertRequiredAssetsAvailable() {
   if (!existsSync(ASSETS)) {
@@ -1000,7 +1009,7 @@ async function loadProvenance() {
 async function main() {
   assertRequiredAssetsAvailable();
 
-  const [cob, birds, haeckel] = await Promise.all(
+  const folderData = await Promise.all(
     WIKIMEDIA_FOLDERS.map((f) => readFile(path.join(META, `${f}.json`), "utf8").then(JSON.parse)),
   );
   const { artists: artistsDb, byAlias } = await loadArtistsDb();
@@ -1176,9 +1185,9 @@ async function main() {
     }
   }
 
-  await pushFromFolder("collection-of-beauty", cob);
-  await pushFromFolder("audubon-birds", birds);
-  await pushFromFolder("kunstformen-images", haeckel);
+  for (let i = 0; i < WIKIMEDIA_FOLDERS.length; i++) {
+    await pushFromFolder(WIKIMEDIA_FOLDERS[i], folderData[i]);
+  }
 
   if (artworks.length === 0) {
     throw new Error(
