@@ -1,14 +1,318 @@
 {
-  "generatedAt": "2026-06-04T11:12:02.996Z",
+  "generatedAt": "2026-06-12T11:38:52.990Z",
   "threshold": 4,
   "stats": {
-    "total": 3404,
-    "hashed": 3404,
+    "total": 4207,
+    "hashed": 4207,
     "skipped": 0
   },
-  "exact": [],
-  "near": [],
+  "exact": [
+    {
+      "hash": "61e6a66eaaa76260",
+      "members": [
+        {
+          "id": "collection-of-beauty-2560px-edgar-germain-hilaire-degas-031",
+          "title": "2560px-Edgar Germain Hilaire Degas 031",
+          "artist": "Edgar Degas",
+          "objectKey": "collection-of-beauty/2560px-Edgar_Germain_Hilaire_Degas_031.jpg"
+        },
+        {
+          "id": "collection-of-beauty-edgar-germain-hilaire-degas-031",
+          "title": "le tub",
+          "artist": "Edgar Degas",
+          "objectKey": "collection-of-beauty/Edgar_Germain_Hilaire_Degas_031.jpg"
+        }
+      ]
+    }
+  ],
+  "near": [
+    {
+      "seedHash": "0b8b151f87472123",
+      "members": [
+        {
+          "id": "collection-of-beauty-1280px-arcimboldo-winter-1563",
+          "title": "1280px-Arcimboldo Winter 1563",
+          "artist": "Giuseppe Arcimboldo",
+          "objectKey": "collection-of-beauty/1280px-Arcimboldo_Winter_1563.jpg",
+          "hash": "0b8b151f87472123",
+          "distance": 0
+        },
+        {
+          "id": "collection-of-beauty-arcimboldo-winter-1563",
+          "title": "Allegory of Winter",
+          "artist": "Giuseppe Arcimboldo",
+          "objectKey": "collection-of-beauty/Arcimboldo_Winter_1563.jpg",
+          "hash": "0b8f151f87472123",
+          "distance": 1
+        }
+      ]
+    },
+    {
+      "seedHash": "4b0987a32376333b",
+      "members": [
+        {
+          "id": "collection-of-beauty-1280px-giuseppe-arcimboldo-four-seasons-in-one-head-google-art-project",
+          "title": "1280px-Giuseppe Arcimboldo - Four Seasons in One Head",
+          "artist": "Giuseppe Arcimboldo",
+          "objectKey": "collection-of-beauty/1280px-Giuseppe_Arcimboldo_-_Four_Seasons_in_One_Head_-_Google_Art_Project.jpg",
+          "hash": "4b0987a32376333b",
+          "distance": 0
+        },
+        {
+          "id": "collection-of-beauty-giuseppe-arcimboldo-four-seasons-in-one-head-google-art-project",
+          "title": "Four Seasons in One Head",
+          "artist": "Giuseppe Arcimboldo",
+          "objectKey": "collection-of-beauty/Giuseppe_Arcimboldo_-_Four_Seasons_in_One_Head_-_Google_Art_Project.jpg",
+          "hash": "4b0987c32376331b",
+          "distance": 3
+        }
+      ]
+    },
+    {
+      "seedHash": "0b1635f4ba0d4664",
+      "members": [
+        {
+          "id": "collection-of-beauty-el-greco-domenikos-theotokopoulos-laocoon-google-art-project",
+          "title": "El Greco",
+          "artist": "El Greco",
+          "objectKey": "collection-of-beauty/El_Greco_(Domenikos_Theotokopoulos)_-_Laocoön_-_Google_Art_Project.jpg",
+          "hash": "0b1635f4ba0d4664",
+          "distance": 0
+        },
+        {
+          "id": "collection-of-beauty-el-greco-042",
+          "title": "Laocoön",
+          "artist": "El Greco",
+          "objectKey": "collection-of-beauty/El_Greco_042.jpg",
+          "hash": "0b1675f4b80d4664",
+          "distance": 2
+        }
+      ]
+    },
+    {
+      "seedHash": "6332b387c9b36727",
+      "members": [
+        {
+          "id": "collection-of-beauty-scene-des-massacres-de-scio-eugene-delacroix-musee-du-louvre-peintures-inv-3823-c3",
+          "title": "Scène des massacres de Scio",
+          "artist": "Eugène Delacroix",
+          "objectKey": "collection-of-beauty/Scène_des_massacres_de_Scio,_Eugène_Delacroix_-_Musée_du_Louvre_Peintures_INV_3823_;_C3.jpg",
+          "hash": "6332b387c9b36727",
+          "distance": 0
+        },
+        {
+          "id": "collection-of-beauty-scene-des-massacres-de-scio",
+          "title": "The Massacre at Chios",
+          "artist": "Eugène Delacroix",
+          "objectKey": "collection-of-beauty/Scène_des_massacres_de_Scio.jpg",
+          "hash": "6333b387c9b36727",
+          "distance": 1
+        }
+      ]
+    },
+    {
+      "seedHash": "22e0713928183839",
+      "members": [
+        {
+          "id": "collection-of-beauty-femmes-d-alger-dans-leur-appartement-eugene-delacroix-musee-du-louvre-peintures-inv-3824",
+          "title": "Femmes d'Alger dans leur appartement",
+          "artist": "Eugène Delacroix",
+          "objectKey": "collection-of-beauty/Femmes_d'Alger_dans_leur_appartement,_Eugène_Delacroix_-_Musée_du_Louvre_Peintures_INV_3824.jpg",
+          "hash": "22e0713928183839",
+          "distance": 0
+        },
+        {
+          "id": "collection-of-beauty-eugene-delacroix-les-femmes-d-alger-dans-leur-appartement-1834",
+          "title": "Frauen von Algier",
+          "artist": "Eugène Delacroix",
+          "objectKey": "collection-of-beauty/Eugène_Delacroix_-_Les_Femmes_d'Alger_dans_leur_appartement,_1834.jpg",
+          "hash": "22e071392918383d",
+          "distance": 2
+        }
+      ]
+    }
+  ],
   "titleClusters": [
+    {
+      "key": "giuseppe-arcimboldo::allegory of winter",
+      "minDistance": 1,
+      "members": [
+        {
+          "id": "collection-of-beauty-1280px-arcimboldo-winter-1563",
+          "title": "1280px-Arcimboldo Winter 1563",
+          "englishTitle": "Allegory of Winter",
+          "artist": "Giuseppe Arcimboldo",
+          "objectKey": "collection-of-beauty/1280px-Arcimboldo_Winter_1563.jpg"
+        },
+        {
+          "id": "collection-of-beauty-arcimboldo-winter-1563",
+          "title": "Allegory of Winter",
+          "englishTitle": null,
+          "artist": "Giuseppe Arcimboldo",
+          "objectKey": "collection-of-beauty/Arcimboldo_Winter_1563.jpg"
+        }
+      ]
+    },
+    {
+      "key": "eugene-delacroix::the massacre at chios",
+      "minDistance": 1,
+      "members": [
+        {
+          "id": "collection-of-beauty-scene-des-massacres-de-scio-eugene-delacroix-musee-du-louvre-peintures-inv-3823-c3",
+          "title": "Scène des massacres de Scio",
+          "englishTitle": "The Massacre at Chios",
+          "artist": "Eugène Delacroix",
+          "objectKey": "collection-of-beauty/Scène_des_massacres_de_Scio,_Eugène_Delacroix_-_Musée_du_Louvre_Peintures_INV_3823_;_C3.jpg"
+        },
+        {
+          "id": "collection-of-beauty-scene-des-massacres-de-scio",
+          "title": "The Massacre at Chios",
+          "englishTitle": null,
+          "artist": "Eugène Delacroix",
+          "objectKey": "collection-of-beauty/Scène_des_massacres_de_Scio.jpg"
+        }
+      ]
+    },
+    {
+      "key": "el-greco::laoco n",
+      "minDistance": 2,
+      "members": [
+        {
+          "id": "collection-of-beauty-el-greco-domenikos-theotokopoulos-laocoon-google-art-project",
+          "title": "El Greco",
+          "englishTitle": "Laocoön",
+          "artist": "El Greco",
+          "objectKey": "collection-of-beauty/El_Greco_(Domenikos_Theotokopoulos)_-_Laocoön_-_Google_Art_Project.jpg"
+        },
+        {
+          "id": "collection-of-beauty-el-greco-042",
+          "title": "Laocoön",
+          "englishTitle": null,
+          "artist": "El Greco",
+          "objectKey": "collection-of-beauty/El_Greco_042.jpg"
+        }
+      ]
+    },
+    {
+      "key": "giuseppe-arcimboldo::four seasons in one head",
+      "minDistance": 3,
+      "members": [
+        {
+          "id": "collection-of-beauty-1280px-giuseppe-arcimboldo-four-seasons-in-one-head-google-art-project",
+          "title": "1280px-Giuseppe Arcimboldo - Four Seasons in One Head",
+          "englishTitle": "Four Seasons in One Head",
+          "artist": "Giuseppe Arcimboldo",
+          "objectKey": "collection-of-beauty/1280px-Giuseppe_Arcimboldo_-_Four_Seasons_in_One_Head_-_Google_Art_Project.jpg"
+        },
+        {
+          "id": "collection-of-beauty-giuseppe-arcimboldo-four-seasons-in-one-head-google-art-project",
+          "title": "Four Seasons in One Head",
+          "englishTitle": null,
+          "artist": "Giuseppe Arcimboldo",
+          "objectKey": "collection-of-beauty/Giuseppe_Arcimboldo_-_Four_Seasons_in_One_Head_-_Google_Art_Project.jpg"
+        }
+      ]
+    },
+    {
+      "key": "titian::pastoral concert",
+      "minDistance": 9,
+      "members": [
+        {
+          "id": "collection-of-beauty-le-concert-champetre-by-titian-from-c2rmf-retouchedfxd",
+          "title": "Le Concert champêtre",
+          "englishTitle": "Pastoral Concert",
+          "artist": "Titian",
+          "objectKey": "collection-of-beauty/Le_Concert_champêtre,_by_Titian,_from_C2RMF_retouchedFXD.jpg"
+        },
+        {
+          "id": "collection-of-beauty-fiesta-campestre",
+          "title": "Pastoral Concert",
+          "englishTitle": null,
+          "artist": "Titian",
+          "objectKey": "collection-of-beauty/Fiesta_campestre.jpg"
+        }
+      ]
+    },
+    {
+      "key": "pierre-joseph-redoute::pancratium declinatum",
+      "minDistance": 17,
+      "members": [
+        {
+          "id": "redoute-lilies-pancratium-declinatum-358",
+          "title": "Pancratium Declinatum",
+          "englishTitle": null,
+          "artist": "Pierre-Joseph Redouté",
+          "objectKey": "redoute-lilies/pancratium-declinatum-358.jpg"
+        },
+        {
+          "id": "redoute-lilies-pancratium-declinatum-414",
+          "title": "Pancratium Declinatum",
+          "englishTitle": null,
+          "artist": "Pierre-Joseph Redouté",
+          "objectKey": "redoute-lilies/pancratium-declinatum-414.jpg"
+        }
+      ]
+    },
+    {
+      "key": "pierre-joseph-redoute::tulipa gesneriana",
+      "minDistance": 18,
+      "members": [
+        {
+          "id": "redoute-lilies-tulipa-gesneriana-dracontia",
+          "title": "Tulipa Gesneriana",
+          "englishTitle": null,
+          "artist": "Pierre-Joseph Redouté",
+          "objectKey": "redoute-lilies/tulipa-gesneriana-dracontia.jpg"
+        },
+        {
+          "id": "redoute-lilies-tulipa-gesneriana-luteo-rubra",
+          "title": "Tulipa Gesneriana",
+          "englishTitle": null,
+          "artist": "Pierre-Joseph Redouté",
+          "objectKey": "redoute-lilies/tulipa-gesneriana-luteo-rubra.jpg"
+        }
+      ]
+    },
+    {
+      "key": "pierre-joseph-redoute::amaryllis atamasco",
+      "minDistance": 21,
+      "members": [
+        {
+          "id": "redoute-lilies-amaryllis-atamasco",
+          "title": "Amaryllis Atamasco",
+          "englishTitle": null,
+          "artist": "Pierre-Joseph Redouté",
+          "objectKey": "redoute-lilies/amaryllis-atamasco.jpg"
+        },
+        {
+          "id": "redoute-lilies-amaryllis-atamasco-b",
+          "title": "Amaryllis Atamasco",
+          "englishTitle": null,
+          "artist": "Pierre-Joseph Redouté",
+          "objectKey": "redoute-lilies/amaryllis-atamasco-b.jpg"
+        }
+      ]
+    },
+    {
+      "key": "pierre-joseph-redoute::gladiolus lineatus",
+      "minDistance": 22,
+      "members": [
+        {
+          "id": "redoute-lilies-gladiolus-lineatus-055",
+          "title": "Gladiolus Lineatus",
+          "englishTitle": null,
+          "artist": "Pierre-Joseph Redouté",
+          "objectKey": "redoute-lilies/gladiolus-lineatus-055.jpg"
+        },
+        {
+          "id": "redoute-lilies-gladiolus-lineatus-400",
+          "title": "Gladiolus Lineatus",
+          "englishTitle": null,
+          "artist": "Pierre-Joseph Redouté",
+          "objectKey": "redoute-lilies/gladiolus-lineatus-400.jpg"
+        }
+      ]
+    },
     {
       "key": "andrea-del-sarto::portrait of a man",
       "minDistance": 23,
@@ -26,6 +330,406 @@
           "englishTitle": null,
           "artist": "Andrea del Sarto",
           "objectKey": "collection-of-beauty/Andrea_del_Sarto_-_Portrait_of_a_Man.jpg"
+        }
+      ]
+    },
+    {
+      "key": "pierre-joseph-redoute::gladiolus carneus",
+      "minDistance": 23,
+      "members": [
+        {
+          "id": "redoute-lilies-gladiolus-carneus-65",
+          "title": "Gladiolus Carneus",
+          "englishTitle": null,
+          "artist": "Pierre-Joseph Redouté",
+          "objectKey": "redoute-lilies/gladiolus-carneus-65.jpg"
+        },
+        {
+          "id": "redoute-lilies-gladiolus-carneus-377",
+          "title": "Gladiolus Carneus",
+          "englishTitle": null,
+          "artist": "Pierre-Joseph Redouté",
+          "objectKey": "redoute-lilies/gladiolus-carneus-377.jpg"
+        }
+      ]
+    },
+    {
+      "key": "pierre-joseph-redoute::ixia grandiflora",
+      "minDistance": 24,
+      "members": [
+        {
+          "id": "redoute-lilies-ixia-grandiflora-139",
+          "title": "Ixia Grandiflora",
+          "englishTitle": null,
+          "artist": "Pierre-Joseph Redouté",
+          "objectKey": "redoute-lilies/ixia-grandiflora-139.jpg"
+        },
+        {
+          "id": "redoute-lilies-ixia-grandiflora-362",
+          "title": "Ixia Grandiflora",
+          "englishTitle": null,
+          "artist": "Pierre-Joseph Redouté",
+          "objectKey": "redoute-lilies/ixia-grandiflora-362.jpg"
+        }
+      ]
+    },
+    {
+      "key": "claude-monet::charing cross bridge",
+      "minDistance": 24,
+      "members": [
+        {
+          "id": "collection-of-beauty-charing-cross-bridge-monet",
+          "title": "Charing Cross Bridge",
+          "englishTitle": null,
+          "artist": "Claude Monet",
+          "objectKey": "collection-of-beauty/Charing_Cross_Bridge,_Monet.jpg"
+        },
+        {
+          "id": "collection-of-beauty-monet-w1524",
+          "title": "Monet w1524",
+          "englishTitle": "Charing Cross Bridge",
+          "artist": "Claude Monet",
+          "objectKey": "collection-of-beauty/Monet_w1524.jpg"
+        }
+      ]
+    },
+    {
+      "key": "pierre-joseph-redoute::agapanthus umbellatus",
+      "minDistance": 25,
+      "members": [
+        {
+          "id": "redoute-lilies-agapanthus-umbellatus-004",
+          "title": "Agapanthus Umbellatus",
+          "englishTitle": null,
+          "artist": "Pierre-Joseph Redouté",
+          "objectKey": "redoute-lilies/agapanthus-umbellatus-004.jpg"
+        },
+        {
+          "id": "redoute-lilies-agapanthus-umbellatus-403",
+          "title": "Agapanthus Umbellatus",
+          "englishTitle": null,
+          "artist": "Pierre-Joseph Redouté",
+          "objectKey": "redoute-lilies/agapanthus-umbellatus-403.jpg"
+        }
+      ]
+    },
+    {
+      "key": "pierre-joseph-redoute::witsenia maura",
+      "minDistance": 25,
+      "members": [
+        {
+          "id": "redoute-lilies-witsenia-maura",
+          "title": "Witsenia Maura",
+          "englishTitle": null,
+          "artist": "Pierre-Joseph Redouté",
+          "objectKey": "redoute-lilies/witsenia-maura.jpg"
+        },
+        {
+          "id": "redoute-lilies-witsenia-maura-latifolia",
+          "title": "Witsenia Maura",
+          "englishTitle": null,
+          "artist": "Pierre-Joseph Redouté",
+          "objectKey": "redoute-lilies/witsenia-maura-latifolia.jpg"
+        }
+      ]
+    },
+    {
+      "key": "pierre-joseph-redoute::scilla am na",
+      "minDistance": 26,
+      "members": [
+        {
+          "id": "redoute-lilies-scilla-amoena-130",
+          "title": "Scilla Amœna",
+          "englishTitle": null,
+          "artist": "Pierre-Joseph Redouté",
+          "objectKey": "redoute-lilies/scilla-amoena-130.jpg"
+        },
+        {
+          "id": "redoute-lilies-scilla-amoena-298",
+          "title": "Scilla Amœna",
+          "englishTitle": null,
+          "artist": "Pierre-Joseph Redouté",
+          "objectKey": "redoute-lilies/scilla-amoena-298.jpg"
+        }
+      ]
+    },
+    {
+      "key": "pierre-joseph-redoute::lilium tigrinum",
+      "minDistance": 27,
+      "members": [
+        {
+          "id": "redoute-lilies-lilium-tigrinum",
+          "title": "Lilium Tigrinum",
+          "englishTitle": null,
+          "artist": "Pierre-Joseph Redouté",
+          "objectKey": "redoute-lilies/lilium-tigrinum.jpg"
+        },
+        {
+          "id": "redoute-lilies-lilium-tigrinum-475",
+          "title": "Lilium Tigrinum",
+          "englishTitle": null,
+          "artist": "Pierre-Joseph Redouté",
+          "objectKey": "redoute-lilies/lilium-tigrinum-475.jpg"
+        }
+      ]
+    },
+    {
+      "key": "pierre-joseph-redoute::iris sisyrinchium",
+      "minDistance": 28,
+      "members": [
+        {
+          "id": "redoute-lilies-iris-sisyrinchium-29",
+          "title": "Iris Sisyrinchium",
+          "englishTitle": null,
+          "artist": "Pierre-Joseph Redouté",
+          "objectKey": "redoute-lilies/iris-sisyrinchium-29.jpg"
+        },
+        {
+          "id": "redoute-lilies-iris-sisyrinchium-458",
+          "title": "Iris Sisyrinchium",
+          "englishTitle": null,
+          "artist": "Pierre-Joseph Redouté",
+          "objectKey": "redoute-lilies/iris-sisyrinchium-458.jpg"
+        }
+      ]
+    },
+    {
+      "key": "claude-monet::reflections of clouds on the water lily pond",
+      "minDistance": 29,
+      "members": [
+        {
+          "id": "collection-of-beauty-claude-monet-reflections-of-clouds-on-the-water-lily-pond",
+          "title": "Reflections of Clouds on the Water-Lily Pond",
+          "englishTitle": null,
+          "artist": "Claude Monet",
+          "objectKey": "collection-of-beauty/Claude_Monet_-_Reflections_of_Clouds_on_the_Water-Lily_Pond.jpg"
+        },
+        {
+          "id": "collection-of-beauty-wla-moma-monet-reflections-of-clouds-on-the-water-lily-pond",
+          "title": "WLA moma Monet Reflections of Clouds on the Water-Lily Pond",
+          "englishTitle": "Reflections of Clouds on the Water-Lily Pond",
+          "artist": "Claude Monet",
+          "objectKey": "collection-of-beauty/WLA_moma_Monet_Reflections_of_Clouds_on_the_Water-Lily_Pond.jpg"
+        }
+      ]
+    },
+    {
+      "key": "pierre-joseph-redoute::gladiolus cuspidatus",
+      "minDistance": 31,
+      "members": [
+        {
+          "id": "redoute-lilies-gladiolus-cuspidatus-36",
+          "title": "Gladiolus Cuspidatus",
+          "englishTitle": null,
+          "artist": "Pierre-Joseph Redouté",
+          "objectKey": "redoute-lilies/gladiolus-cuspidatus-36.jpg"
+        },
+        {
+          "id": "redoute-lilies-gladiolus-cuspidatus-136",
+          "title": "Gladiolus Cuspidatus",
+          "englishTitle": null,
+          "artist": "Pierre-Joseph Redouté",
+          "objectKey": "redoute-lilies/gladiolus-cuspidatus-136.jpg"
+        }
+      ]
+    },
+    {
+      "key": "pierre-joseph-redoute::iris sibirica",
+      "minDistance": 31,
+      "members": [
+        {
+          "id": "redoute-lilies-iris-sibirica-c",
+          "title": "Iris Sibirica",
+          "englishTitle": null,
+          "artist": "Pierre-Joseph Redouté",
+          "objectKey": "redoute-lilies/iris-sibirica-c.jpg"
+        },
+        {
+          "id": "redoute-lilies-iris-sibirica-b",
+          "title": "Iris Sibirica",
+          "englishTitle": null,
+          "artist": "Pierre-Joseph Redouté",
+          "objectKey": "redoute-lilies/iris-sibirica-b.jpg"
+        }
+      ]
+    },
+    {
+      "key": "claude-monet::the seine at lavacourt",
+      "minDistance": 31,
+      "members": [
+        {
+          "id": "collection-of-beauty-la-seine-a-lavacourt",
+          "title": "La Seine à Lavacourt",
+          "englishTitle": "The Seine at Lavacourt",
+          "artist": "Claude Monet",
+          "objectKey": "collection-of-beauty/La_Seine_à_Lavacourt.jpeg"
+        },
+        {
+          "id": "collection-of-beauty-monet-lavacourt",
+          "title": "The Seine at Lavacourt",
+          "englishTitle": null,
+          "artist": "Claude Monet",
+          "objectKey": "collection-of-beauty/Monet_Lavacourt.jpg"
+        }
+      ]
+    },
+    {
+      "key": "michelangelo-buonarroti::the creation of adam",
+      "minDistance": 32,
+      "members": [
+        {
+          "id": "collection-of-beauty-creacion-de-adan",
+          "title": "Creación de Adán",
+          "englishTitle": "The Creation of Adam",
+          "artist": "Michelangelo Buonarroti",
+          "objectKey": "collection-of-beauty/Creación_de_Adán.jpg"
+        },
+        {
+          "id": "collection-of-beauty-the-creation-of-adam",
+          "title": "The Creation of Adam",
+          "englishTitle": null,
+          "artist": "Michelangelo Buonarroti",
+          "objectKey": "collection-of-beauty/The_Creation_of_Adam.jpg"
+        }
+      ]
+    },
+    {
+      "key": "peter-paul-rubens::the raising of the cross",
+      "minDistance": 32,
+      "members": [
+        {
+          "id": "collection-of-beauty-peter-paul-rubens-the-elevation-of-the-cross",
+          "title": "The Elevation of the Cross",
+          "englishTitle": "The Raising of the Cross",
+          "artist": "Peter Paul Rubens",
+          "objectKey": "collection-of-beauty/Peter_Paul_Rubens_-_The_Elevation_of_the_Cross.jpeg"
+        },
+        {
+          "id": "collection-of-beauty-peter-paul-rubens-the-raising-of-the-cross-1638",
+          "title": "The Raising of the Cross",
+          "englishTitle": "The Raising of the Cross (modello after the Antwerp triptych, 1638)",
+          "artist": "Peter Paul Rubens",
+          "objectKey": "collection-of-beauty/Peter_Paul_Rubens_-_The_Raising_of_the_Cross_(1638).jpeg"
+        }
+      ]
+    },
+    {
+      "key": "katsushika-hokusai::the great wave off kanagawa",
+      "minDistance": 33,
+      "members": [
+        {
+          "id": "collection-of-beauty-2560px-the-big-wave-from-100-views-of-the-fuji-2nd-volume",
+          "title": "2560px-The Big wave from 100 views of the Fuji",
+          "englishTitle": "The Great Wave off Kanagawa",
+          "artist": "Katsushika Hokusai",
+          "objectKey": "collection-of-beauty/2560px-The_Big_wave_from_100_views_of_the_Fuji,_2nd_volume.jpg"
+        },
+        {
+          "id": "collection-of-beauty-tsunami-by-hokusai-19th-century",
+          "title": "The Great Wave off Kanagawa",
+          "englishTitle": null,
+          "artist": "Katsushika Hokusai",
+          "objectKey": "collection-of-beauty/Tsunami_by_hokusai_19th_century.jpg"
+        }
+      ]
+    },
+    {
+      "key": "pierre-joseph-redoute::narcissus calathinus",
+      "minDistance": 36,
+      "members": [
+        {
+          "id": "redoute-lilies-narcissus-calathinus-a",
+          "title": "Narcissus Calathinus",
+          "englishTitle": null,
+          "artist": "Pierre-Joseph Redouté",
+          "objectKey": "redoute-lilies/narcissus-calathinus-a.jpg"
+        },
+        {
+          "id": "redoute-lilies-narcissus-calathinus-b",
+          "title": "Narcissus Calathinus",
+          "englishTitle": null,
+          "artist": "Pierre-Joseph Redouté",
+          "objectKey": "redoute-lilies/narcissus-calathinus-b.jpg"
+        }
+      ]
+    },
+    {
+      "key": "pierre-joseph-redoute::colchicum autumnale",
+      "minDistance": 37,
+      "members": [
+        {
+          "id": "redoute-lilies-colchicum-autumnale",
+          "title": "Colchicum Autumnale",
+          "englishTitle": null,
+          "artist": "Pierre-Joseph Redouté",
+          "objectKey": "redoute-lilies/colchicum-autumnale.jpg"
+        },
+        {
+          "id": "redoute-lilies-colchicum-autumnale-latifolium",
+          "title": "Colchicum Autumnale",
+          "englishTitle": null,
+          "artist": "Pierre-Joseph Redouté",
+          "objectKey": "redoute-lilies/colchicum-autumnale-latifolium.jpg"
+        }
+      ]
+    },
+    {
+      "key": "peter-paul-rubens::the massacre of the innocents",
+      "minDistance": 38,
+      "members": [
+        {
+          "id": "collection-of-beauty-rubens-peter-paul-massacre-of-the-innocents-art-gallery-of-ontario",
+          "title": "The Massacre of the Innocents",
+          "englishTitle": "The Massacre of the Innocents (Art Gallery of Ontario, c. 1611)",
+          "artist": "Peter Paul Rubens",
+          "objectKey": "collection-of-beauty/Rubens,_Peter_Paul_-_Massacre_of_the_Innocents_-_Art_Gallery_of_Ontario.jpg"
+        },
+        {
+          "id": "collection-of-beauty-the-massacre-of-the-innocents-peter-paul-rubens-unframed",
+          "title": "The Massacre of the Innocents - Peter Paul Rubens",
+          "englishTitle": "The Massacre of the Innocents (Alte Pinakothek, c. 1638)",
+          "artist": "Peter Paul Rubens",
+          "objectKey": "collection-of-beauty/The_Massacre_of_the_Innocents_-_Peter_Paul_Rubens_(Unframed).jpg"
+        }
+      ]
+    },
+    {
+      "key": "vincent-van-gogh::green wheat field",
+      "minDistance": 38,
+      "members": [
+        {
+          "id": "collection-of-beauty-van-gogh-grunes-weizenfeld",
+          "title": "Van Gogh - Grünes Weizenfeld",
+          "englishTitle": "Green Wheat Field",
+          "artist": "Vincent van Gogh",
+          "objectKey": "collection-of-beauty/Van_Gogh_-_Grünes_Weizenfeld.jpeg"
+        },
+        {
+          "id": "collection-of-beauty-van-gogh-grunes-weizenfeld1",
+          "title": "Van Gogh - Grünes Weizenfeld1",
+          "englishTitle": "Green Wheat Field",
+          "artist": "Vincent van Gogh",
+          "objectKey": "collection-of-beauty/Van_Gogh_-_Grünes_Weizenfeld1.jpeg"
+        }
+      ]
+    },
+    {
+      "key": "claude-monet::grainstacks",
+      "minDistance": 39,
+      "members": [
+        {
+          "id": "collection-of-beauty-monet-grainstacks-white-frost-effect-1889-google-art-project",
+          "title": "Grainstacks",
+          "englishTitle": null,
+          "artist": "Claude Monet",
+          "objectKey": "collection-of-beauty/Monet_-_Grainstacks,_White_Frost_Effect_(1889)_Google_Art_Project.jpg"
+        },
+        {
+          "id": "collection-of-beauty-claude-monet-graystaks-i",
+          "title": "Graystaks I",
+          "englishTitle": "Grainstacks",
+          "artist": "Claude Monet",
+          "objectKey": "collection-of-beauty/Claude_Monet_-_Graystaks_I.jpeg"
         }
       ]
     }
