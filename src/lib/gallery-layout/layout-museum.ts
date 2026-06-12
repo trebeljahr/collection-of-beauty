@@ -105,7 +105,9 @@ type SlotId =
   | "n_west_outer"
   | "n_east_outer"
   | "s_west_outer"
-  | "s_east_outer";
+  | "s_east_outer"
+  | "w_outer"
+  | "e_outer";
 
 type Slot = {
   id: SlotId;
@@ -160,6 +162,14 @@ const OUTER_Z_S: { zMin: number; zMax: number } = {
 const OUTER_Z_N: { zMin: number; zMax: number } = {
   zMin: STAIR_MAX + RING_DEPTH + 1,
   zMax: STAIR_MAX + 2 * RING_DEPTH,
+};
+const OUTER_X_WEST: { xMin: number; xMax: number } = {
+  xMin: STAIR_MIN - 2 * RING_DEPTH,
+  xMax: STAIR_MIN - RING_DEPTH - 1,
+};
+const OUTER_X_EAST: { xMin: number; xMax: number } = {
+  xMin: STAIR_MAX + RING_DEPTH + 1,
+  xMax: STAIR_MAX + 2 * RING_DEPTH,
 };
 
 const SLOTS: Slot[] = [
@@ -238,6 +248,20 @@ const SLOTS: Slot[] = [
     rect: { ...RING_X_EAST, ...OUTER_Z_S },
     suppress: ["south"],
   },
+  // Outermost west / east galleries behind the inner west/east rooms.
+  // Only used by the most crowded eras (Impressionism, natural history)
+  // — they keep the floor's capacity above the era's work count so no
+  // artwork has to be dropped.
+  {
+    id: "w_outer",
+    rect: { ...OUTER_X_WEST, zMin: STAIR_MIN, zMax: STAIR_MAX },
+    suppress: ["east"], // west room's west wall owns
+  },
+  {
+    id: "e_outer",
+    rect: { ...OUTER_X_EAST, zMin: STAIR_MIN, zMax: STAIR_MAX },
+    suppress: ["west"], // east room's east wall owns
+  },
 ];
 
 // --- Public entry ---------------------------------------------------------
@@ -296,23 +320,49 @@ function bucketByEra(all: ArtworkListing[]): Map<EraId, ArtworkListing[]> {
   const m = new Map<EraId, ArtworkListing[]>();
   for (const era of ERAS) m.set(era.id, []);
 
+  // No folder or dimension filter — every renderable work hangs
+  // somewhere. Extreme real-world sizes are handled at placement time
+  // (tiny engravings get a minimum display size, oversized frescoes are
+  // scaled to fit their wall slot), so excluding them here would only
+  // shrink the museum. Era assignment routes by movement first, then
+  // year; works with neither get a second chance below.
+  const unresolved: ArtworkListing[] = [];
+  const erasByArtist = new Map<string, Map<EraId, number>>();
   for (const a of all) {
-    // No folder filter — Audubon plates, Kunstformen images, and any
-    // future source land in the appropriate era too. Era assignment
-    // below routes them by movement (Natural-history illustration →
-    // Romantic, Art-Nouveau-adjacent → Fin-de-siècle) or by year.
     if (!a.objectKey) continue;
-    // Skip absurd dimensions when known. Missing dimensions are fine —
-    // slotToPlacement falls back to a pixel-aspect estimate (or 80×100
-    // cm) and assignEra needs only a movement OR a year, not both.
-    if (a.realDimensions) {
-      const { widthCm, heightCm } = a.realDimensions;
-      if (widthCm < 15 || widthCm > 450) continue;
-      if (heightCm < 15 || heightCm > 450) continue;
-    }
     const era = assignEra(a);
-    if (!era) continue;
+    if (!era) {
+      unresolved.push(a);
+      continue;
+    }
     m.get(era)!.push(a);
+    if (a.artistSlug && a.artistSlug !== "unknown") {
+      let tally = erasByArtist.get(a.artistSlug);
+      if (!tally) {
+        tally = new Map();
+        erasByArtist.set(a.artistSlug, tally);
+      }
+      tally.set(era, (tally.get(era) ?? 0) + 1);
+    }
+  }
+
+  // Works with no movement and no year inherit the modal era of their
+  // artist's other works — an undated Levitan hangs with the rest of
+  // Levitan. Works that still don't resolve (anonymous AND undated AND
+  // untagged) have nothing to bucket by and stay out; the metadata
+  // movement-overrides file is the durable fix for those.
+  for (const a of unresolved) {
+    const tally = erasByArtist.get(a.artistSlug);
+    if (!tally) continue;
+    let bestEra: EraId | null = null;
+    let bestCount = 0;
+    for (const [era, count] of tally) {
+      if (count > bestCount) {
+        bestEra = era;
+        bestCount = count;
+      }
+    }
+    if (bestEra) m.get(bestEra)!.push(a);
   }
 
   return m;
@@ -330,9 +380,14 @@ function buildFloor(era: Era, eraArtworks: ArtworkListing[]): FloorLayout {
   const byMovement = groupMovements(era, eraArtworks);
   const anchorMovement = resolveAnchorMovement(era, byMovement);
 
-  // ~45 works per room is roomy enough that paintings have breathing
-  // space on the walls but not so sparse that the space reads as empty.
-  const PER_ROOM_TARGET = 45;
+  // ~34 works per room leaves headroom below what a room physically
+  // holds when its cells convert to two-row salon stacks (a 6×6 room
+  // has 17–22 wall cells after doors, 2 works per cell). Quiet
+  // movements stay a calm single row; crowded eras climb the walls
+  // instead of dropping works. Sized under the 2×cells ceiling because
+  // door-heavy rooms lose wall cells — at 40 the Ukiyo-e floor came up
+  // ~44 slots short.
+  const PER_ROOM_TARGET = 34;
   const targetRooms = Math.max(1, Math.ceil(eraArtworks.length / PER_ROOM_TARGET));
   const totalSlots = Math.min(Math.max(0, targetRooms - 1), SLOTS.length);
 
@@ -486,11 +541,18 @@ function buildFloor(era: Era, eraArtworks: ArtworkListing[]): FloorLayout {
     stairsOut: [],
   };
 
-  // Ukiyo-e prints are small (~25–40 cm tall) and there are now ~280
-  // of them on this one floor — a single eye-level row leaves the upper
-  // half of every wall awkwardly bare. Stack them in two rows centred
-  // just above and just below the camera's eye-line instead.
-  distributePaintings(floor, eraArtworks, { doubleRow: era.id === "ukiyo-e" });
+  // Each room hangs its own movement bucket; overflow spills to free
+  // walls on the same floor (see place-paintings.ts).
+  distributePaintings(floor);
+
+  // Placements are the ground truth for what actually hangs in a room —
+  // spill can move works between rooms, so resync the room's artwork
+  // list and description to match the walls.
+  for (const room of rooms) {
+    if (room.isStairwell) continue;
+    room.artworks = room.placements.map((p) => p.artwork);
+    room.description = describeRoom(room.movement, room.artworks);
+  }
 
   return floor;
 }

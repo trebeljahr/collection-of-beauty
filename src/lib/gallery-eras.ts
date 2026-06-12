@@ -383,6 +383,10 @@ export const ERAS: Era[] = [
       "Bauhaus",
       "De Stijl",
       "Precisionism",
+      // Russian turn-of-the-century group (Kustodiev, Bakst, Benois) —
+      // its painters sit with the early-20th-c cohort already on this
+      // floor, and the corpus' dated Kustodievs land here by year.
+      "Mir Iskusstva",
     ],
     palette: {
       // Warm gallery-white walls, near-black polished floor, primary-

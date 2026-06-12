@@ -1,18 +1,21 @@
 // Painting placement for rooms + hallways.
 //
-// Per floor we partition the era's artworks by size band:
-//   - large paintings (> 150 cm) get scattered round-robin through the
-//     biggest rooms first, one per wall slot.
-//   - medium paintings fill any remaining room slots.
-//   - small paintings (< 60 cm) hang one-per-side in hallway cells that
-//     face open space (i.e. on the hallway's outside-facing walls).
+// Every room hangs its own movement bucket (`room.artworks`) on its own
+// walls, so the room label and the works inside it actually agree. Each
+// wall cell starts as a single eye-level slot; when a room's supply
+// exceeds its cell count, cells convert to a two-row salon stack (one
+// work just below eye level, a second above it) until everything fits.
+// The tallest works keep the single full-height cells; only works short
+// enough to share a wall gracefully get stacked. Whatever still doesn't
+// fit in its home room spills to free wall space elsewhere on the same
+// floor — same era, neighbouring room — so no artwork is dropped.
 //
 // "Slots" are cell-aligned wall positions. A slot is one cell wide along
 // the wall and sits in the middle of that cell. Any slot whose centre
 // falls inside a door opening is skipped.
 
 import type { ArtworkListing } from "@/lib/data";
-import { artworkBand, partitionByBand } from "./painting-bands";
+import { artworkBand } from "./painting-bands";
 import type { Door, FloorLayout, HallwayLayout, Placement, RoomLayout } from "./types";
 import { CELL_SIZE } from "./world-coords";
 
@@ -23,16 +26,25 @@ import { CELL_SIZE } from "./world-coords";
  *  1.9 m to read closer to a real-museum hang (where centres land
  *  around 1.45-1.55 m, slightly below the player's 1.75 m eye line). */
 const CANONICAL_Y_CENTER_OFFSET = 1.65;
-/** Two-row stacking, used on the Ukiyo-e floor where the prints are
- *  small (~25–40 cm tall) and numerous — a single eye-level row would
- *  leave the upper half of every wall awkwardly empty. Rows bracket the
- *  canonical hang by ±0.35 m: upper ≈ 2.0 m (slight head-tilt up from
- *  the player's 1.75 m eye line), lower ≈ 1.3 m (slight head-tilt down).
- *  The 0.6 m per-row height cap keeps the rows from meeting in the
- *  middle even if a larger Japanese print sneaks in. */
-const DOUBLE_ROW_UPPER_OFFSET = 2.0;
-const DOUBLE_ROW_LOWER_OFFSET = 1.3;
-const DOUBLE_ROW_MAX_HEIGHT = 0.6;
+/** Two-row salon stack, used per cell when a room's supply exceeds its
+ *  single-row capacity. The lower work hangs slightly below the
+ *  canonical eye line; the upper work sits directly above it with a
+ *  fixed air gap, its centre derived from the lower work's top edge so
+ *  small print pairs bracket the eye line (≈1.45 m / ≈2.05 m) while
+ *  taller medium pairs climb toward — but never past — STACK_MAX_TOP.
+ *  Per-row height caps keep stacked cells from competing with the
+ *  full-height single cells reserved for the era's largest canvases. */
+const STACK_LOWER_CENTER_OFFSET = 1.45;
+const STACK_GAP = 0.25;
+const STACK_MAX_TOP_OFFSET = 3.7;
+const STACK_LOWER_MAX_H = 1.5;
+const STACK_UPPER_MAX_H = 1.3;
+/** Smallest long edge (metres) any work renders at. The corpus includes
+ *  pocket-sized engravings (8–15 cm) whose true scale would be
+ *  invisible on a 15 m wall; museums hang those in vitrines we don't
+ *  have, so we cheat them up to a readable small-print size instead of
+ *  excluding them. */
+const MIN_DISPLAY_LONG_EDGE = 0.45;
 /** Lower-row hallway height. Single salon row — kept that way for
  *  visual calm even though the 3.12 m corridor ceiling could now host
  *  a second stacked row. Mirrors the room offset's drop so corridor
@@ -153,19 +165,13 @@ function widthForRoomCell(args: { cornerStatus: CornerStatus }): number {
  * cells at wall corners get tighter caps so neither the painting nor
  * its right-side plaque crashes through a perpendicular wall.
  *
- * `doubleRow` switches to a two-row stack per cell — used on the
- * Ukiyo-e floor where most prints are small enough that one eye-level
- * row leaves three quarters of the wall empty. The two rows sit just
- * above and below eye-level with a tighter per-row height cap.
+ * Every cell is emitted as a single full-height slot; the distributor
+ * converts individual cells to a two-row salon stack on demand when a
+ * room's supply outgrows its single-row capacity.
  */
-export function computeRoomSlots(room: RoomLayout, opts: { doubleRow?: boolean } = {}): Slot[] {
+export function computeRoomSlots(room: RoomLayout): Slot[] {
   const { cellBounds, worldRect } = room;
-  const rows = opts.doubleRow
-    ? [
-        { y: worldRect.y + DOUBLE_ROW_UPPER_OFFSET, maxHeight: DOUBLE_ROW_MAX_HEIGHT },
-        { y: worldRect.y + DOUBLE_ROW_LOWER_OFFSET, maxHeight: DOUBLE_ROW_MAX_HEIGHT },
-      ]
-    : [{ y: worldRect.y + CANONICAL_Y_CENTER_OFFSET, maxHeight: MAX_PAINTING_H_ROOM }];
+  const rows = [{ y: worldRect.y + CANONICAL_Y_CENTER_OFFSET, maxHeight: MAX_PAINTING_H_ROOM }];
   const slots: Slot[] = [];
 
   const doorsBySide = {
@@ -493,146 +499,212 @@ export type DistributionStats = {
   dropped: number;
 };
 
+/** A sized work waiting for a wall: the natural display dimensions are
+ *  computed once up front so the distributor can sort by height and
+ *  decide which works need full-height single cells vs a salon stack. */
+type SizedWork = { artwork: ArtworkListing; wM: number; hM: number };
+
 /**
- * Distribute an era's artworks into the floor's rooms and hallways.
- * Mutates `floor.rooms[*].placements` and `floor.hallways[*].placements`.
+ * Distribute the floor's artworks into its rooms. Mutates
+ * `floor.rooms[*].placements`.
  *
- *  - Large artworks fill the biggest rooms first (round-robin), one per
- *    slot. Medium fills the remaining room slots.
- *  - Small artworks distribute across hallway slots round-robin.
- *  - If we run out of artworks before slots are full, slots stay empty
- *    (wall shows through). If we have more artworks than slots, the
- *    overflow is dropped.
+ *  - Every room hangs its own `room.artworks` (the movement bucket the
+ *    floor builder assigned to it) on its own walls.
+ *  - Each wall cell holds one work at eye level; when a room's supply
+ *    exceeds its cell count, cells convert to a two-row salon stack
+ *    (shortest works first) until the supply fits. A room's max
+ *    capacity is therefore 2× its cell count.
+ *  - Supply beyond a room's max capacity spills to free wall space in
+ *    other rooms on the same floor, so nothing is dropped as long as
+ *    the floor as a whole has room.
  */
-export function distributePaintings(
-  floor: FloorLayout,
-  eraArtworks: ArtworkListing[],
-  opts: { doubleRow?: boolean } = {},
-): DistributionStats {
-  const bands = partitionByBand(eraArtworks);
-
-  // --- Rooms: large first (biggest rooms), then medium. Stairwell
-  // rooms are excluded — their walls hold the spiral steps and signs,
-  // not paintings.
-  const roomsByArea = [...floor.rooms]
+export function distributePaintings(floor: FloorLayout): DistributionStats {
+  // Stairwell rooms are excluded — their walls hold the spiral steps
+  // and signs, not paintings.
+  const containers = floor.rooms
     .filter((r) => !r.isStairwell)
-    .map((r) => {
-      const w = r.cellBounds.xMax - r.cellBounds.xMin + 1;
-      const d = r.cellBounds.zMax - r.cellBounds.zMin + 1;
-      return { room: r, area: w * d, slots: computeRoomSlots(r, opts), filled: 0 };
-    })
-    .sort((a, b) => b.area - a.area);
+    .map((room) => ({
+      room,
+      cells: computeRoomSlots(room),
+      supply: room.artworks.map(sizeWork),
+    }));
 
-  // Round-robin round-robin: each container tracks its `filled` cursor
-  // across successive pour() calls, and `pour` returns how many items
-  // from the supply actually landed (so we can re-pour leftovers into
-  // other containers).
-  type SlotContainer = {
-    slots: Slot[];
-    filled: number;
-    push: (p: Placement) => void;
-  };
-
-  const roomContainers: SlotContainer[] = roomsByArea.map((r) => ({
-    slots: r.slots,
-    filled: 0,
-    push: (p) => r.room.placements.push(p),
-  }));
-  const hallContainers: SlotContainer[] = floor.hallways.map((hw) => ({
-    slots: computeHallwaySlots(hw, floor),
-    filled: 0,
-    push: (p) => hw.placements.push(p),
-  }));
-
-  const pour = (supply: ArtworkListing[], containers: SlotContainer[]): number => {
-    let placed = 0;
-    let progressed = true;
-    while (placed < supply.length && progressed) {
-      progressed = false;
-      for (const c of containers) {
-        if (placed >= supply.length) break;
-        if (c.filled >= c.slots.length) continue;
-        const slot = c.slots[c.filled];
-        c.filled++;
-        c.push(slotToPlacement(slot, supply[placed]));
-        placed++;
-        progressed = true;
-      }
-    }
-    return placed;
-  };
-
-  // Preferences, in order:
-  //   large  → rooms    (need visual breathing room)
-  //   small  → hallways (low ceilings, tight spaces — salon hang)
-  //   medium → rooms
-  // Then any leftover from any bucket spills into whichever container
-  // still has free slots so nothing gets dropped.
-  const largePlaced = pour(bands.large, roomContainers);
-  const smallPlacedHalls = pour(bands.small, hallContainers);
-  const mediumPlaced = pour(bands.medium, roomContainers);
-
-  const largeLeft = bands.large.slice(largePlaced);
-  const smallLeft = bands.small.slice(smallPlacedHalls);
-  const mediumLeft = bands.medium.slice(mediumPlaced);
-
-  // Overflow pass — try whichever container still has room.
-  pour(smallLeft, roomContainers);
-  pour(mediumLeft, hallContainers);
-  pour(largeLeft, hallContainers);
-
-  // Expose read-only views so the stats block at the bottom can count.
-  const hallwaySlots = hallContainers.map((c, i) => ({
-    hallway: floor.hallways[i],
-    slots: c.slots,
-    filled: c.filled,
-  }));
-  // Keep the `filled` cursor synced to roomsByArea too so stats below
-  // match what was actually placed.
-  for (let i = 0; i < roomsByArea.length; i++) {
-    roomsByArea[i].filled = roomContainers[i].filled;
+  // Trim each room's supply to its hard capacity (2 works per cell);
+  // the excess goes into a floor-wide pool.
+  const pool: SizedWork[] = [];
+  for (const c of containers) {
+    const cap = 2 * c.cells.length;
+    if (c.supply.length > cap) pool.push(...c.supply.splice(cap));
   }
 
-  const roomSlotsTotal = roomsByArea.reduce((n, r) => n + r.slots.length, 0);
-  const roomSlotsFilled = roomsByArea.reduce((n, r) => n + r.filled, 0);
-  const hallwaySlotsTotal = hallwaySlots.reduce((n, h) => n + h.slots.length, 0);
-  const hallwaySlotsFilled = hallwaySlots.reduce((n, h) => n + h.filled, 0);
-  const dropped =
-    bands.large.length +
-    bands.medium.length +
-    bands.small.length -
-    (roomSlotsFilled + hallwaySlotsFilled);
+  // Hand the pool to whichever rooms still have spare wall space —
+  // most-spare first, so spill clusters in under-filled rooms instead
+  // of dusting one extra work into every room on the floor.
+  pool.sort((a, b) => b.hM - a.hM);
+  let dropped = 0;
+  for (const work of pool) {
+    let best: (typeof containers)[number] | null = null;
+    let bestSpare = 0;
+    for (const c of containers) {
+      const spare = 2 * c.cells.length - c.supply.length;
+      if (spare > bestSpare) {
+        best = c;
+        bestSpare = spare;
+      }
+    }
+    if (!best) {
+      dropped++;
+      continue;
+    }
+    best.supply.push(work);
+  }
+
+  let roomSlotsTotal = 0;
+  let roomSlotsFilled = 0;
+  for (const c of containers) {
+    placeRoomSupply(c.room, c.cells, c.supply);
+    roomSlotsTotal += c.cells.length;
+    roomSlotsFilled += Math.min(c.supply.length, c.cells.length);
+  }
 
   return {
     roomSlotsTotal,
     roomSlotsFilled,
-    hallwaySlotsTotal,
-    hallwaySlotsFilled,
+    hallwaySlotsTotal: 0,
+    hallwaySlotsFilled: 0,
     dropped,
   };
 }
 
-/** Project a painting's real-world dimensions into a slot. Maintains
- *  aspect ratio; scales down if either dimension exceeds the slot's cap.
- *  Also handles the subtle off-wall translation so the plane never
- *  z-fights the wall plane behind it. */
-function slotToPlacement(slot: Slot, artwork: ArtworkListing): Placement {
+/**
+ * Hang `supply` on `room`'s walls. Tallest works keep full-height
+ * single cells; the shortest pair up into two-row salon stacks on just
+ * enough cells that everything fits. Both singles and stacks spread
+ * evenly along the wall sequence so a half-full room reads as evenly
+ * hung rather than crowding the first wall.
+ */
+function placeRoomSupply(room: RoomLayout, cells: Slot[], supply: SizedWork[]): void {
+  if (supply.length === 0 || cells.length === 0) return;
+
+  const sorted = [...supply].sort((a, b) => b.hM - a.hM);
+  const nCells = cells.length;
+  const n = Math.min(sorted.length, 2 * nCells);
+  const nStack = Math.max(0, n - nCells);
+  const nSingles = Math.min(n, nCells) - nStack;
+
+  const singles = sorted.slice(0, nSingles);
+  // Stacked works, still tallest-first: the first half become the lower
+  // row (taller of each pair), the back half the upper row. Pair the
+  // tallest lower with the shortest upper so combined heights stay
+  // balanced and the upper row needs the least shrinking.
+  const lowers = sorted.slice(nSingles, nSingles + nStack);
+  const uppers = sorted.slice(nSingles + nStack, nSingles + 2 * nStack);
+
+  // Choose which occupied positions stack: spread them evenly through
+  // the wall walk order, with singles taking the positions in between.
+  const occupied = nSingles + nStack;
+  const isStackCell = new Array<boolean>(occupied).fill(false);
+  for (let i = 0; i < nStack; i++) {
+    isStackCell[Math.floor(((i + 0.5) * occupied) / nStack)] = true;
+  }
+
+  // Walk the first `occupied` cells (spread across all cells when the
+  // room is under-full) and pull from singles / pairs in order.
+  let singleIdx = 0;
+  let stackIdx = 0;
+  for (let i = 0; i < occupied; i++) {
+    // Spread occupied cells across the whole room when under-filled.
+    const cell = cells[Math.floor((i * nCells) / occupied)];
+    if (isStackCell[i]) {
+      const lower = lowers[stackIdx];
+      const upper = uppers[nStack - 1 - stackIdx];
+      stackIdx++;
+      placeStackedPair(room, cell, lower, upper);
+    } else {
+      room.placements.push(placeSingle(cell, singles[singleIdx]));
+      singleIdx++;
+    }
+  }
+}
+
+/** Place one work at the canonical eye-level hang in a full-height cell. */
+function placeSingle(slot: Slot, work: SizedWork): Placement {
+  const { wM, hM } = fitTo(work, slot.maxWidth, slot.maxHeight);
+  // Lift the centre for paintings tall enough that the canonical hang
+  // would put their bottom edge into the floor. Most paintings keep the
+  // canonical eye-line; only the tallest (≥ 3.0 m, which after fitting
+  // is essentially the floor-to-near-ceiling altarpieces) get raised so
+  // the bottom clears the floor by PAINTING_FLOOR_GAP. Top is bounded by
+  // the slot's maxHeight cap, so even after lifting the painting can't
+  // reach the ceiling.
+  const minCenterY = slot.floorY + PAINTING_FLOOR_GAP + hM / 2;
+  const centerY = Math.max(slot.wallY, minCenterY);
+  return makePlacement(slot, work.artwork, wM, hM, centerY);
+}
+
+/** Place two works as a salon stack in one cell: `lower` slightly below
+ *  the eye line, `upper` directly above it with a fixed air gap. The
+ *  upper work's height budget is whatever remains between the lower
+ *  work's top edge and STACK_MAX_TOP, so small pairs bracket the eye
+ *  line while taller pairs climb the wall without hitting the ceiling. */
+function placeStackedPair(room: RoomLayout, slot: Slot, lowerWork: SizedWork, upperWork: SizedWork) {
+  const lower = fitTo(lowerWork, slot.maxWidth, STACK_LOWER_MAX_H);
+  const lowerCenterY = slot.floorY + STACK_LOWER_CENTER_OFFSET;
+  room.placements.push(makePlacement(slot, lowerWork.artwork, lower.wM, lower.hM, lowerCenterY));
+
+  const lowerTopOffset = STACK_LOWER_CENTER_OFFSET + lower.hM / 2;
+  const upperBudget = Math.min(STACK_UPPER_MAX_H, STACK_MAX_TOP_OFFSET - lowerTopOffset - STACK_GAP);
+  const upper = fitTo(upperWork, slot.maxWidth, upperBudget);
+  const upperCenterY = slot.floorY + lowerTopOffset + STACK_GAP + upper.hM / 2;
+  room.placements.push(makePlacement(slot, upperWork.artwork, upper.wM, upper.hM, upperCenterY));
+}
+
+function makePlacement(
+  slot: Slot,
+  artwork: ArtworkListing,
+  wM: number,
+  hM: number,
+  centerY: number,
+): Placement {
+  return {
+    artwork,
+    position: [
+      slot.wallX + slot.normalX * PAINTING_WALL_OFFSET,
+      centerY,
+      slot.wallZ + slot.normalZ * PAINTING_WALL_OFFSET,
+    ],
+    rotation: [0, slot.rotationY, 0],
+    band: artworkBand(artwork),
+    widthM: wM,
+    heightM: hM,
+  };
+}
+
+/** Scale a sized work down (never up) to fit a width/height cap,
+ *  preserving aspect. */
+function fitTo(work: SizedWork, maxWidth: number, maxHeight: number): { wM: number; hM: number } {
+  const scale = Math.min(maxWidth / work.wM, maxHeight / work.hM, 1);
+  return { wM: work.wM * scale, hM: work.hM * scale };
+}
+
+/** Natural display dimensions in metres, before any slot fitting.
+ *  Pixel aspect drives SHAPE; realDimensions drives SIZE (long edge in
+ *  metres). The metadata's widthCm/heightCm is unreliable as a shape
+ *  signal — the file we actually render can disagree with it for several
+ *  reasons:
+ *    - Predella case: Wikimedia records a strip's height for an
+ *      altarpiece file (e.g. Botticelli's Coronation: 269 × 21 cm
+ *      metadata vs ~3:1 scan).
+ *    - Orientation flip: ~44 of 109 Turner sketchbook pages have
+ *      widthCm/heightCm swapped relative to the scan.
+ *    - Cropped scan: handscroll metadata records the full physical
+ *      painting; the scan covers a shorter section (Eight Flowers:
+ *      333.9 × 29.4 cm vs 6920 × 835 px = 8.29:1).
+ *  The pixel aspect is what the user actually sees, so use it for shape
+ *  and only fall back when missing. realDimensions still controls the
+ *  long-edge scale so a small miniature stays smaller than an altarpiece. */
+function sizeWork(artwork: ArtworkListing): SizedWork {
   const dims = artwork.realDimensions;
-  // Pixel aspect drives SHAPE; realDimensions drives SIZE (long edge in
-  // metres). The metadata's widthCm/heightCm is unreliable as a shape
-  // signal — the file we actually render can disagree with it for several
-  // reasons:
-  //   - Predella case: Wikimedia records a strip's height for an
-  //     altarpiece file (e.g. Botticelli's Coronation: 269 × 21 cm
-  //     metadata vs ~3:1 scan).
-  //   - Orientation flip: ~44 of 109 Turner sketchbook pages have
-  //     widthCm/heightCm swapped relative to the scan.
-  //   - Cropped scan: handscroll metadata records the full physical
-  //     painting; the scan covers a shorter section (Eight Flowers:
-  //     333.9 × 29.4 cm vs 6920 × 835 px = 8.29:1).
-  // The pixel aspect is what the user actually sees, so use it for shape
-  // and only fall back when missing. realDimensions still controls the
-  // long-edge scale so a small miniature stays smaller than an altarpiece.
   let wM: number;
   let hM: number;
   const pxAspect = artwork.width && artwork.height ? artwork.width / artwork.height : null;
@@ -666,37 +738,16 @@ function slotToPlacement(slot: Slot, artwork: ArtworkListing): Placement {
     hM = 1.0;
   }
 
-  // Scale to fit the slot while preserving aspect.
-  const scale = Math.min(slot.maxWidth / wM, slot.maxHeight / hM, 1);
-  if (scale < 1) {
-    wM *= scale;
-    hM *= scale;
+  // Pocket-sized engravings would be invisible at true scale — bring
+  // them up to a readable small-print size.
+  const longEdge = Math.max(wM, hM);
+  if (longEdge < MIN_DISPLAY_LONG_EDGE) {
+    const s = MIN_DISPLAY_LONG_EDGE / longEdge;
+    wM *= s;
+    hM *= s;
   }
 
-  // Lift the centre for paintings tall enough that the canonical hang
-  // would put their bottom edge into the floor. Most paintings keep the
-  // canonical eye-line; only the tallest (≥ 3.0 m, which after fitting
-  // is essentially the floor-to-near-ceiling altarpieces) get raised so
-  // the bottom clears the floor by PAINTING_FLOOR_GAP. Top is bounded by
-  // the slot's maxHeight cap above, so even after lifting the painting
-  // can't reach the ceiling.
-  const minCenterY = slot.floorY + PAINTING_FLOOR_GAP + hM / 2;
-  const centerY = Math.max(slot.wallY, minCenterY);
-  const pos: [number, number, number] = [
-    slot.wallX + slot.normalX * PAINTING_WALL_OFFSET,
-    centerY,
-    slot.wallZ + slot.normalZ * PAINTING_WALL_OFFSET,
-  ];
-  const rot: [number, number, number] = [0, slot.rotationY, 0];
-
-  return {
-    artwork,
-    position: pos,
-    rotation: rot,
-    band: artworkBand(artwork),
-    widthM: wM,
-    heightM: hM,
-  };
+  return { artwork, wM, hM };
 }
 
 /** Cheap internal check: does `coord` (metres on the wall axis) fall
