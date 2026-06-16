@@ -20,7 +20,7 @@ artworks:
     note: "The Palatine hill in Rome, where emperors lived (the word 'palace' comes from there), painted with country people fording a stream below it. A woman carrying a basket, a small herd. Rubens spent eight years in Italy sketching ruins. He painted this canvas later and kept it for himself. He worked for half the crowned heads of Europe and looks entirely at peace watching the gardens of the Caesars turn into someone's evening pasture."
   - id: "collection-of-beauty-john-constable-hadleigh-castle-the-mouth-of-the-thames-morning-after-a-stormy-night-google-art-proj"
     note: "Constable painted almost nothing but the green Suffolk countryside of his childhood. Then his wife Maria died, and he painted this: a gutted castle on a bluff over the Thames estuary, sky still churning after a storm, a cowherd and a dog small among the rubble. He exhibited it with the subtitle 'morning after a stormy night.' He never said outright that the castle was a self-portrait."
-  - id: "collection-of-beauty-01254f"
+  - id: "collection-of-beauty-razvaliny-chuguchaka"
     note: "The hardest one in the issue to look at. Vereshchagin travelled with the Russian army through Central Asia and painted what fresh war actually leaves behind: the walls and tower of Chuguchak in tall yellow grass, and the grass full of skulls. No moss, no ivy, no centuries softening anything. This was painted around 1870, when the destruction was new."
 ---
 

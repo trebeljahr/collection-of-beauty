@@ -193,9 +193,32 @@ function assertRequiredAssetsAvailable() {
   }
 }
 
+// Cyrillic \u2192 Latin transliteration, applied before the slug strip. The
+// corpus is Russian-heavy; without this, a filename composed entirely of
+// Cyrillic ("\u0410\u0439\u0432\u0430\u0437\u043e\u0432\u0441\u043a\u0438\u0439\u2026\u0411\u043e\u0441\u0444\u043e\u0440\u0435.jpg") slugifies to the empty string and
+// collapses onto the bare folder name ("collection-of-beauty"). That
+// produces unstable, meaningless ids that mis-key id-keyed metadata
+// (curator descriptions, dimensions). Lowercase keys only \u2014 slugify()
+// lowercases first. Covers Russian plus the common Ukrainian/Serbian
+// letters; anything unmapped falls through to the title fallback in the
+// id builder below.
+const CYRILLIC_TRANSLIT = {
+  \u0430: "a", \u0431: "b", \u0432: "v", \u0433: "g", \u0434: "d", \u0435: "e", \u0451: "yo", \u0436: "zh", \u0437: "z",
+  \u0438: "i", \u0439: "y", \u043a: "k", \u043b: "l", \u043c: "m", \u043d: "n", \u043e: "o", \u043f: "p", \u0440: "r",
+  \u0441: "s", \u0442: "t", \u0443: "u", \u0444: "f", \u0445: "kh", \u0446: "ts", \u0447: "ch", \u0448: "sh",
+  \u0449: "shch", \u044a: "", \u044b: "y", \u044c: "", \u044d: "e", \u044e: "yu", \u044f: "ya",
+  \u0456: "i", \u0457: "yi", \u0454: "ye", \u0491: "g", \u045e: "u", \u0458: "j", \u0452: "dj", \u045b: "c",
+  \u045f: "dz", \u045a: "nj", \u0459: "lj", \u0455: "dz", \u0453: "g", \u045c: "k",
+};
+
+function transliterate(s) {
+  let out = "";
+  for (const ch of s) out += CYRILLIC_TRANSLIT[ch] ?? ch;
+  return out;
+}
+
 function slugify(input) {
-  return input
-    .toLowerCase()
+  return transliterate(input.toLowerCase())
     .normalize("NFKD")
     // biome-ignore lint/suspicious/noMisleadingCharacterClass: stripping NFKD combining marks is the intent
     .replace(/[\u0300-\u036f]/g, "")
@@ -1126,15 +1149,24 @@ async function main() {
       // → "Kanae Yamamoto") collapse onto a single artist page.
       const artistName = artistInfo?.name ?? normalizedArtistName;
       const artistSlug = artistName ? slugify(artistName) : "unknown";
-      const baseId = slugify(`${folderKey}-${fname.replace(/\.[^.]+$/, "")}`).slice(0, 120);
+      const objectKey = `${folderKey}/${fname}`;
+      const englishTitle = titleOverrides.get(objectKey.normalize("NFC")) ?? null;
+      // The filename is the primary slug source. When it's a non-Latin
+      // script transliterate() doesn't cover (CJK, Arabic) and slugifies
+      // to nothing, fall back to the English/romanized title, then to a
+      // stable hash of the source path — so the id never collapses onto
+      // the bare folder name (the unstable slot that mis-keyed metadata).
+      const baseStem =
+        slugify(fname.replace(/\.[^.]+$/, "")) ||
+        slugify(englishTitle ?? title) ||
+        createHash("sha1").update(`${folderKey}/${fname}`).digest("hex").slice(0, 8);
+      const baseId = slugify(`${folderKey}-${baseStem}`).slice(0, 120);
       const id = uniqueId(baseId, `${folderKey}/${fname}`);
 
       const dims = await dimensionsFor(folderKey, fname);
       const real = realDimensions.get(id) || null;
       const variantWidths = variantWidthsFor(folderKey, fname);
       const dominantColor = await dominantColorFor(folderKey, fname);
-      const objectKey = `${folderKey}/${fname}`;
-      const englishTitle = titleOverrides.get(objectKey.normalize("NFC")) ?? null;
       const originalDateString = dateOriginals.get(fname.normalize("NFC")) ?? null;
       artworks.push({
         id,
