@@ -3,8 +3,8 @@
   "kind": "wikimedia_image_collection",
   "generated_at": "2026-06-04T08:04:00.955Z",
   "source_api": "Wikimedia Commons action=query&prop=imageinfo",
-  "file_count": 3710,
-  "resolved_count": 3418,
+  "file_count": 3701,
+  "resolved_count": 3409,
   "unresolved_count": 292,
   "entries": {
     "_Horror__from_Le_Brun,_Wellcome_L0012156.jpg": {
@@ -1451,7 +1451,7 @@
       "filename": "1280px-Arcimboldo_Winter_1563.jpg",
       "resolved": true,
       "needs_review": false,
-      "title": "1280px-Arcimboldo Winter 1563",
+      "title": "Allegory of Winter",
       "artist": "Giuseppe Arcimboldo",
       "date_created": "1563",
       "source": {
@@ -1587,32 +1587,6 @@
       "year": 1869,
       "year_source": "date_created_plain",
       "description": "Portrait of an Ottoman irregular soldier in full traditional costume, painted by the French academic artist Jean-Léon Gérôme. Oil on canvas, 80.6 x 66 cm. Part of the Metropolitan Museum of Art collection in New York."
-    },
-    "1280px-Giuseppe_Arcimboldo_-_Four_Seasons_in_One_Head_-_Google_Art_Project.jpg": {
-      "filename": "1280px-Giuseppe_Arcimboldo_-_Four_Seasons_in_One_Head_-_Google_Art_Project.jpg",
-      "resolved": true,
-      "needs_review": false,
-      "title": "1280px-Giuseppe Arcimboldo - Four Seasons in One Head - Google Art Project",
-      "artist": "Giuseppe Arcimboldo",
-      "date_created": "circa 1590",
-      "source": {
-        "type": "Wikimedia Commons",
-        "canonical_title": "Giuseppe_Arcimboldo,_Four_Seasons_in_One_Head,_c._1590,_NGA_142008.jpg",
-        "url": "https://commons.wikimedia.org/wiki/File:Giuseppe_Arcimboldo,_Four_Seasons_in_One_Head,_c._1590,_NGA_142008.jpg",
-        "file_url": "https://upload.wikimedia.org/wikipedia/commons/b/b0/Giuseppe_Arcimboldo%2C_Four_Seasons_in_One_Head%2C_c._1590%2C_NGA_142008.jpg",
-        "credit": null,
-        "permission": null,
-        "attribution": null
-      },
-      "copyright": {
-        "copyrighted": false,
-        "license_short": "CC0",
-        "license_url": null,
-        "usage_terms": null
-      },
-      "year": 1590,
-      "description": "A masterwork of Mannerist portraiture where Arcimboldo constructs a human profile entirely from seasonal produce, flowers, and natural elements. The painting exemplifies the artist's witty visual puns and technical virtuosity, transforming recognizable fruits and vegetables into the features of a single anthropomorphic face. Created at the height of his career, this work demonstrates his enduring fascination with the intersection of nature, artifice, and portraiture.",
-      "year_source": "date_created_plain"
     },
     "1280px-Giuseppe_Arcimboldo_-_Summer_-_Google_Art_Project.jpg": {
       "filename": "1280px-Giuseppe_Arcimboldo_-_Summer_-_Google_Art_Project.jpg",
@@ -4489,32 +4463,6 @@
         "notes": "Not found on Wikimedia Commons; needs manual review."
       },
       "year": null
-    },
-    "2560px-Edgar_Germain_Hilaire_Degas_031.jpg": {
-      "filename": "2560px-Edgar_Germain_Hilaire_Degas_031.jpg",
-      "resolved": true,
-      "needs_review": false,
-      "title": "2560px-Edgar Germain Hilaire Degas 031",
-      "artist": "Edgar Degas",
-      "date_created": "1886",
-      "source": {
-        "type": "Wikimedia Commons",
-        "canonical_title": "Edgar Germain Hilaire Degas 031.jpg",
-        "url": "https://commons.wikimedia.org/wiki/File:Edgar_Germain_Hilaire_Degas_031.jpg",
-        "file_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/a/a5/Edgar_Germain_Hilaire_Degas_031.jpg/2560px-Edgar_Germain_Hilaire_Degas_031.jpg",
-        "credit": null,
-        "permission": null,
-        "attribution": null
-      },
-      "copyright": {
-        "copyrighted": false,
-        "license_short": "Public Domain",
-        "license_url": null,
-        "usage_terms": null
-      },
-      "year": 1886,
-      "description": "A pastel painting depicting a woman bathing, captured from above in an intimate domestic scene. One of Degas's most celebrated works, it exemplifies his innovative approach to composition and his fascination with everyday life, particularly scenes of personal grooming. The work is housed in the Musée d'Orsay in Paris.",
-      "year_source": "date_created_plain"
     },
     "2560px-Gustave_Courbet,_1857,_Le_Pont_d'Ambrussum,_huile_sur_papier_marouflé_sur_bois,_48_x_63_cm,_Musée_Fabre.jpg": {
       "filename": "2560px-Gustave_Courbet,_1857,_Le_Pont_d'Ambrussum,_huile_sur_papier_marouflé_sur_bois,_48_x_63_cm,_Musée_Fabre.jpg",
@@ -11536,52 +11484,6 @@
         }
       },
       "year_source": "date_created_plain"
-    },
-    "Arcimboldo_Winter_1563.jpg": {
-      "filename": "Arcimboldo_Winter_1563.jpg",
-      "resolved": true,
-      "needs_review": false,
-      "title": "Allegory of Winter",
-      "artist": "Giuseppe Arcimboldo",
-      "date_created": "1563 date QS:P571,+1563-00-00T00:00:00Z/9",
-      "year": 1563,
-      "description": "The Winter",
-      "source": {
-        "type": "Wikimedia Commons",
-        "canonical_title": "File:Arcimboldo Winter 1563.jpg",
-        "url": "https://commons.wikimedia.org/wiki/File%3AArcimboldo_Winter_1563.jpg",
-        "file_url": "https://upload.wikimedia.org/wikipedia/commons/f/f8/Arcimboldo_Winter_1563.jpg",
-        "credit": "Unknown source Unknown source , scanned by uploader",
-        "permission": null,
-        "attribution": null
-      },
-      "copyright": {
-        "copyrighted": false,
-        "license_short": "Public domain",
-        "license_url": null,
-        "usage_terms": "Public domain"
-      },
-      "artist_info": {
-        "name": "Giuseppe Arcimboldo",
-        "aliases": [
-          "Giuseppe Arcimboldo",
-          "Arcimboldo"
-        ],
-        "born": 1526,
-        "died": 1593,
-        "nationality": "Italian",
-        "movement": "Mannerism",
-        "pd_status": "public_domain_worldwide"
-      },
-      "translations": {
-        "title": {
-          "de": "Winter"
-        },
-        "description": {
-          "de": "Der Winter"
-        }
-      },
-      "year_source": "wikidata_qs"
     },
     "Arcimboldowater.jpg": {
       "filename": "Arcimboldowater.jpg",
@@ -31271,7 +31173,7 @@
       "filename": "El_Greco_(Domenikos_Theotokopoulos)_-_Laocoön_-_Google_Art_Project.jpg",
       "resolved": true,
       "needs_review": false,
-      "title": "El Greco (Domenikos Theotokopoulos) - Laocoön - Google Art Project",
+      "title": "Laocoön",
       "artist": "El Greco",
       "date_created": "between 1610 and 1614",
       "source": {
@@ -31538,49 +31440,6 @@
           "pt": "O Enterro do Conde de Orgaz",
           "ru": "Погребение графа Оргаса",
           "pl": "Pogrzeb hrabiego Orgaza"
-        }
-      },
-      "year_source": "wikidata_qs"
-    },
-    "El_Greco_042.jpg": {
-      "filename": "El_Greco_042.jpg",
-      "resolved": true,
-      "needs_review": false,
-      "title": "Laocoön",
-      "artist": "El Greco",
-      "date_created": "between 1610 and 1614 date QS:P571,+1610-00-00T00:00:00Z/8,P1319,+1610-00-00T00:00:00Z/9,P1326,+1614-00-00T00:00:00Z/9",
-      "year": 1610,
-      "description": null,
-      "source": {
-        "type": "Wikimedia Commons",
-        "canonical_title": "File:El Greco 042.jpg",
-        "url": "https://commons.wikimedia.org/wiki/File%3AEl_Greco_042.jpg",
-        "file_url": "https://upload.wikimedia.org/wikipedia/commons/1/1b/El_Greco_042.jpg",
-        "credit": "The Yorck Project (2002) 10.000 Meisterwerke der Malerei (DVD-ROM), distributed by DIRECTMEDIA Publishing GmbH. ISBN : 3936122202 .",
-        "permission": "[1]",
-        "attribution": null
-      },
-      "copyright": {
-        "copyrighted": false,
-        "license_short": "Public domain",
-        "license_url": null,
-        "usage_terms": "Public domain"
-      },
-      "artist_info": {
-        "name": "El Greco",
-        "aliases": [
-          "Doménikos Theotokópoulos",
-          "El Greco"
-        ],
-        "born": 1541,
-        "died": 1614,
-        "nationality": "Greek / Spanish",
-        "movement": "Mannerism",
-        "pd_status": "public_domain_worldwide"
-      },
-      "translations": {
-        "title": {
-          "de": "Laokoon"
         }
       },
       "year_source": "wikidata_qs"
@@ -33456,44 +33315,6 @@
         "file_url": "https://upload.wikimedia.org/wikipedia/commons/9/9a/Eug%C3%A8ne_Delacroix_-_Fr%C3%A9d%C3%A9ric_Chopin_-_WGA06194.jpg",
         "credit": "Web Gallery of Art : Image Info about artwork wga QS:P11807,\"d/delacroi/3/313delac\"",
         "permission": null,
-        "attribution": null
-      },
-      "copyright": {
-        "copyrighted": false,
-        "license_short": "Public domain",
-        "license_url": null,
-        "usage_terms": "Public domain"
-      },
-      "artist_info": {
-        "name": "Eugène Delacroix",
-        "aliases": [
-          "Eugène Delacroix",
-          "Delacroix"
-        ],
-        "born": 1798,
-        "died": 1863,
-        "nationality": "French",
-        "movement": "Romanticism",
-        "pd_status": "public_domain_worldwide"
-      },
-      "year_source": "wikidata_qs"
-    },
-    "Eugène_Delacroix_-_Les_Femmes_d'Alger_dans_leur_appartement,_1834.jpg": {
-      "filename": "Eugène_Delacroix_-_Les_Femmes_d'Alger_dans_leur_appartement,_1834.jpg",
-      "resolved": true,
-      "needs_review": false,
-      "title": "Frauen von Algier",
-      "artist": "Eugène Delacroix",
-      "date_created": "1834 date QS:P571,+1834-00-00T00:00:00Z/9",
-      "year": 1834,
-      "description": null,
-      "source": {
-        "type": "Wikimedia Commons",
-        "canonical_title": "File:Eugène Delacroix - Les Femmes d'Alger dans leur appartement, 1834.jpg",
-        "url": "https://commons.wikimedia.org/wiki/File%3AEug%C3%A8ne_Delacroix_-_Les_Femmes_d'Alger_dans_leur_appartement%2C_1834.jpg",
-        "file_url": "https://upload.wikimedia.org/wikipedia/commons/b/b9/Eug%C3%A8ne_Delacroix_-_Les_Femmes_d%27Alger_dans_leur_appartement%2C_1834.jpg",
-        "credit": "The Yorck Project (2002) 10.000 Meisterwerke der Malerei (DVD-ROM), distributed by DIRECTMEDIA Publishing GmbH. ISBN : 3936122202 .",
-        "permission": "[1]",
         "attribution": null
       },
       "copyright": {
@@ -100123,31 +99944,6 @@
       },
       "year_source": "date_created_plain"
     },
-    "Scène_des_massacres_de_Scio,_Eugène_Delacroix_-_Musée_du_Louvre_Peintures_INV_3823_;_C3.jpg": {
-      "filename": "Scène_des_massacres_de_Scio,_Eugène_Delacroix_-_Musée_du_Louvre_Peintures_INV_3823_;_C3.jpg",
-      "resolved": true,
-      "needs_review": false,
-      "title": "Scène des massacres de Scio, Eugène Delacroix - Musée du Louvre Peintures INV 3823 ; C3",
-      "artist": "Eugène Delacroix",
-      "date_created": null,
-      "source": {
-        "type": "Wikimedia Commons",
-        "canonical_title": "Scène des massacres de Scio, Eugène Delacroix - Musée du Louvre Peintures INV 3823 ; C3.jpg",
-        "url": "https://commons.wikimedia.org/wiki/File:Scène_des_massacres_de_Scio,_Eugène_Delacroix_-_Musée_du_Louvre_Peintures_INV_3823_;_C3.jpg",
-        "file_url": "https://upload.wikimedia.org/wikipedia/commons/8/8f/Sc%C3%A8ne_des_massacres_de_Scio%2C_Eug%C3%A8ne_Delacroix_-_Mus%C3%A9e_du_Louvre_Peintures_INV_3823_%3B_C3.jpg",
-        "credit": null,
-        "permission": null,
-        "attribution": null
-      },
-      "copyright": {
-        "copyrighted": false,
-        "license_url": null,
-        "usage_terms": null
-      },
-      "year": 1824,
-      "description": "Eugène Delacroix's monumental Romantic painting from 1824 depicting the massacre of Chios during the Greek War of Independence. Housed in the Louvre Museum (INV 3823), the work demonstrates dramatic use of color and composition to convey the tragedy of the Ottoman reprisal against the Greek island. A landmark of early 19th-century historical painting engagement with contemporary political events.",
-      "year_source": "description"
-    },
     "Scheherazade_(Rimsky-Korsakov)_02_by_L._Bakst_2.jpg": {
       "filename": "Scheherazade_(Rimsky-Korsakov)_02_by_L._Bakst_2.jpg",
       "resolved": true,
@@ -122636,55 +122432,6 @@
       "description": "A panoramic Ukrainian steppe landscape depicting salt farmers in transit from Crimea to interior Russia. Aivazovsky captures the Izumskaya steppe with his characteristic atmospheric rendering, illustrating the vast and harsh terrain through which the caravan moves. Oil on canvas, 1856.",
       "year_source": "date_created_plain"
     },
-    "Илья_Репин_-_Какой_простор.jpg": {
-      "filename": "Илья_Репин_-_Какой_простор.jpg",
-      "resolved": true,
-      "needs_review": false,
-      "title": "What freedom!",
-      "artist": "Ilya Repin",
-      "date_created": "1903 date QS:P571,+1903-00-00T00:00:00Z/9",
-      "year": 1903,
-      "description": null,
-      "source": {
-        "type": "Wikimedia Commons",
-        "canonical_title": "File:Илья Репин - Какой простор.jpg",
-        "url": "https://commons.wikimedia.org/wiki/File%3A%D0%98%D0%BB%D1%8C%D1%8F_%D0%A0%D0%B5%D0%BF%D0%B8%D0%BD_-_%D0%9A%D0%B0%D0%BA%D0%BE%D0%B9_%D0%BF%D1%80%D0%BE%D1%81%D1%82%D0%BE%D1%80.jpg",
-        "file_url": "https://upload.wikimedia.org/wikipedia/commons/6/63/%D0%98%D0%BB%D1%8C%D1%8F_%D0%A0%D0%B5%D0%BF%D0%B8%D0%BD_-_%D0%9A%D0%B0%D0%BA%D0%BE%D0%B9_%D0%BF%D1%80%D0%BE%D1%81%D1%82%D0%BE%D1%80.jpg",
-        "credit": "1. liveinternet.ru 2. tanais.info",
-        "permission": null,
-        "attribution": null
-      },
-      "copyright": {
-        "copyrighted": false,
-        "license_short": "Public domain",
-        "license_url": null,
-        "usage_terms": "Public domain"
-      },
-      "artist_info": {
-        "name": "Ilya Repin",
-        "aliases": [
-          "Ilya Repin",
-          "Ilya Yefimovich Repin",
-          "Ilia Repin"
-        ],
-        "born": 1844,
-        "died": 1930,
-        "nationality": "Russian",
-        "movement": "Realism",
-        "pd_status": "public_domain_worldwide"
-      },
-      "translations": {
-        "title": {
-          "ru": "Какой простор!",
-          "es": "¡Qué libertad!",
-          "fr": "Quelle liberté !",
-          "ca": "Quina llibertat!",
-          "de": "Welch’ Freiheit!",
-          "fi": "'Mikä vapaus!"
-        }
-      },
-      "year_source": "wikidata_qs"
-    },
     "Киргизские_кибитки_на_реке_Чу.jpg": {
       "filename": "Киргизские_кибитки_на_реке_Чу.jpg",
       "resolved": true,
@@ -125489,44 +125236,6 @@
       },
       "year_source": "wikidata_qs"
     },
-    "Jean-François_Millet_-_The_Sheepfold,_Moonlight_-_Walters_3730.jpg": {
-      "filename": "Jean-François_Millet_-_The_Sheepfold,_Moonlight_-_Walters_3730.jpg",
-      "resolved": true,
-      "needs_review": false,
-      "title": "The Sheepfold, Moonlight",
-      "artist": "Jean-François Millet",
-      "date_created": "between 1856 and 1860 date QS:P571,+1850-00-00T00:00:00Z/7,P1319,+1856-00-00T00:00:00Z/9,P1326,+1860-00-00T00:00:00Z/9",
-      "year": 1856,
-      "description": "In this nocturnal scene, the waning moon throws a mysterious light across the plain extending between the villages of Barbizon and Chailly. Millet was recorded as saying of the solitary shepherd: Oh, how I wish I could make those who see my work feel the splendors and terrors of the night! One ought to be able to make people hear the songs, the silences, and murmurings of the air. They should feel the infinite.... Although educated and trained in Paris, Millet was born into a peasant family from the Normandy region of northern France. Millet drew on this background, specializing in scenes of peasant life. An outbreak of cholera in 1849 forced Millet to leave Paris with his family and settle in the village of Barbizon, where he became acquainted with the Barbizon artists Théodore Rousseau, Virgile Narcisse Diaz de la Peña, Constant Troyon, and Antoine-Louis Barye.",
-      "source": {
-        "type": "Wikimedia Commons",
-        "canonical_title": "File:Jean-François Millet - The Sheepfold, Moonlight - Walters 3730.jpg",
-        "url": "https://commons.wikimedia.org/wiki/File%3AJean-Fran%C3%A7ois_Millet_-_The_Sheepfold%2C_Moonlight_-_Walters_3730.jpg",
-        "file_url": "https://upload.wikimedia.org/wikipedia/commons/e/e5/Jean-Fran%C3%A7ois_Millet_-_The_Sheepfold%2C_Moonlight_-_Walters_3730.jpg",
-        "credit": "Walters Art Museum : Home page Info about artwork",
-        "permission": ".mw-parser-output .messagebox{margin:4px 0;width:auto;border-collapse:collapse;border:2px solid var(--border-color-progressive,#6485d1);background-color:var(--background-color-neutral-subtle,#fbfcff);color:var(--color-base,#202122);box-sizing:border-box;border-inline-start-width:8px}.mw-parser-output .messagebox.mbox-small{font-size:88%;line-height:1.25em}.mw-parser-output .mbox-warning,.mw-parser-output .mbox-speedy{border:2px solid var(--border-color-error,#b22222);background:var(--background-color-error-subtle,#ffdbdb);border-inline-start-width:8px}.mw-parser-output .mbox-serious,.mw-parser-output .mbox-delete,.mw-parser-output .mbox-stop{border:2px solid var(--border-color-error,#b22222);border-inline-start-width:8px}.mw-parser-output .mbox-issue,.mw-parser-output .mbox-content{border:2px solid #f28500;background:var(--background-color-warning-subtle,#ffe);border-inline-start-width:8px}.mw-parser-output .mbox-query,.mw-parser-output .mbox-style{border:2px solid #f4c430;background:var(--background-color-warning-subtle,#ffe);border-inline-start-width:8px}.mw-parser-output .mbox-shit{border:2px solid #960;border-inline-start-width:8px}.mw-parser-output .mbox-license{border:2px solid #88a;border-inline-start-width:initial}.mw-parser-output .mbox-legal{border:2px solid var(--border-color-notice,#666);background:var(--background-color-base,#fff);border-inline-start-width:8px}.mw-parser-output .mbox-honor{border:2px solid #ca3;background:var(--background-color-warning-subtle,#fcf4db);border-inline-start-width:8px}.mw-parser-output .mbox-growth{border:2px solid #8d4;background:var(--background-color-success-subtle,#d5fdf4);border-inline-start-width:8px}.mw-parser-output .mbox-move{border:2px solid #93c;border-inline-start-width:8px}.mw-parser-output .mbox-protection,.mw-parser-output .mbox-message{border:2px solid var(--border-color-base,#aaa);border-inline-start-width:8px}.mw-parser-output .messagebox .mbox-text{border:none;padding:0.25em 0.9em;width:100%}.mw-parser-output .messagebox .mbox-image{border:none;padding:2px 0 2px 0.9em;text-align:center}.mw-parser-output .messagebox .mbox-imageright{border:none;padding:2px 0.9em 2px 0;text-align:center}.mw-parser-output .messagebox .mbox-empty-cell{border:none;padding:0;width:1px}.mw-parser-output .messagebox .mbox-invalid-type{text-align:center}@media(min-width:720px){.mw-parser-output .messagebox{margin:4px 10%}.mw-parser-output .messagebox.mbox-small{clear:right;float:right;margin:4px 0 4px 1em;width:238px}}body.skin--responsive .mw-parser-output table.messagebox img{max-width:none!important} This work is free and may be used by anyone for any purpose. If you wish to use this content , you do not need to request permission as long as you follow any licensing requirements mentioned on this page. The Wikimedia Foundation has received an e-mail confirming that the copyright holder has approved publication under the terms mentioned on this page. This correspondence has been reviewed by a Volunteer Response Team (VRT) member and stored in our permission archive . The correspondence is available to trusted volunteers as ticket #2012021710000834 . If you have questions about the archived correspondence, please use the VRT noticeboard . Ticket link: https://ticket.wikimedia.org/otrs/index.pl?Action=AgentTicketZoom&TicketNumber=2012021710000834 Find other files from the same ticket:",
-        "attribution": null
-      },
-      "copyright": {
-        "copyrighted": false,
-        "license_short": "Public domain",
-        "license_url": null,
-        "usage_terms": "Public domain"
-      },
-      "artist_info": {
-        "name": "Jean-François Millet",
-        "aliases": [
-          "Jean-François Millet",
-          "Millet"
-        ],
-        "born": 1814,
-        "died": 1875,
-        "nationality": "French",
-        "movement": "Realism",
-        "pd_status": "public_domain_worldwide"
-      },
-      "year_source": "wikidata_qs"
-    },
     "JEAN-FRANÇOIS_MILLET_-_El_Ángelus_(Museo_de_Orsay,_1857-1859._Óleo_sobre_lienzo,_55.5_x_66_cm).jpg": {
       "filename": "JEAN-FRANÇOIS_MILLET_-_El_Ángelus_(Museo_de_Orsay,_1857-1859._Óleo_sobre_lienzo,_55.5_x_66_cm).jpg",
       "resolved": true,
@@ -125844,45 +125553,6 @@
         "pd_status": "public_domain_worldwide"
       },
       "year_source": "date_created_plain"
-    },
-    "Edouard_Manet_Music_in_the_Tuileries_1862.jpg": {
-      "filename": "Edouard_Manet_Music_in_the_Tuileries_1862.jpg",
-      "resolved": true,
-      "needs_review": false,
-      "title": "Music in the Tuileries Gardens",
-      "artist": "Édouard Manet",
-      "date_created": "1862 date QS:P571,+1862-00-00T00:00:00Z/9",
-      "year": 1862,
-      "description": null,
-      "source": {
-        "type": "Wikimedia Commons",
-        "canonical_title": "File:Edouard Manet Music in the Tuileries 1862.jpg",
-        "url": "https://commons.wikimedia.org/wiki/File%3AEdouard_Manet_Music_in_the_Tuileries_1862.jpg",
-        "file_url": "https://upload.wikimedia.org/wikipedia/commons/7/7f/Edouard_Manet_Music_in_the_Tuileries_1862.jpg",
-        "credit": "http://www.nationalgallery.org.uk/paintings/edouard-manet-music-in-the-tuileries-gardens",
-        "permission": null,
-        "attribution": null
-      },
-      "copyright": {
-        "copyrighted": false,
-        "license_short": "Public domain",
-        "license_url": null,
-        "usage_terms": "Public domain"
-      },
-      "artist_info": {
-        "name": "Édouard Manet",
-        "aliases": [
-          "Édouard Manet",
-          "Edouard Manet",
-          "Manet"
-        ],
-        "born": 1832,
-        "died": 1883,
-        "nationality": "French",
-        "movement": "Impressionism",
-        "pd_status": "public_domain_worldwide"
-      },
-      "year_source": "wikidata_qs"
     },
     "Jean-François_Millet_-_The_Goose_Girl_-_Walters_37153.jpg": {
       "filename": "Jean-François_Millet_-_The_Goose_Girl_-_Walters_37153.jpg",
