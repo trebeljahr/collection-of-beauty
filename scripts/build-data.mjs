@@ -170,6 +170,7 @@ const WIKIMEDIA_FOLDERS = [
   "audubon-birds",
   "kunstformen-images",
   "redoute-lilies",
+  "redoute-roses",
 ];
 
 function assertRequiredAssetsAvailable() {

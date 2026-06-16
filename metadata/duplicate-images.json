@@ -1,115 +1,13 @@
 {
-  "generatedAt": "2026-06-16T21:44:29.374Z",
+  "generatedAt": "2026-06-16T22:01:58.251Z",
   "threshold": 4,
   "stats": {
-    "total": 4411,
-    "hashed": 4411,
-    "skipped": 0
+    "total": 4572,
+    "hashed": 4571,
+    "skipped": 1
   },
-  "exact": [
-    {
-      "hash": "61e6a66eaaa76260",
-      "members": [
-        {
-          "id": "collection-of-beauty-2560px-edgar-germain-hilaire-degas-031",
-          "title": "2560px-Edgar Germain Hilaire Degas 031",
-          "artist": "Edgar Degas",
-          "objectKey": "collection-of-beauty/2560px-Edgar_Germain_Hilaire_Degas_031.jpg"
-        },
-        {
-          "id": "collection-of-beauty-edgar-germain-hilaire-degas-031",
-          "title": "le tub",
-          "artist": "Edgar Degas",
-          "objectKey": "collection-of-beauty/Edgar_Germain_Hilaire_Degas_031.jpg"
-        }
-      ]
-    }
-  ],
+  "exact": [],
   "near": [
-    {
-      "seedHash": "0b8b151f87472123",
-      "members": [
-        {
-          "id": "collection-of-beauty-1280px-arcimboldo-winter-1563",
-          "title": "1280px-Arcimboldo Winter 1563",
-          "artist": "Giuseppe Arcimboldo",
-          "objectKey": "collection-of-beauty/1280px-Arcimboldo_Winter_1563.jpg",
-          "hash": "0b8b151f87472123",
-          "distance": 0
-        },
-        {
-          "id": "collection-of-beauty-arcimboldo-winter-1563",
-          "title": "Allegory of Winter",
-          "artist": "Giuseppe Arcimboldo",
-          "objectKey": "collection-of-beauty/Arcimboldo_Winter_1563.jpg",
-          "hash": "0b8f151f87472123",
-          "distance": 1
-        }
-      ]
-    },
-    {
-      "seedHash": "4b0987a32376333b",
-      "members": [
-        {
-          "id": "collection-of-beauty-1280px-giuseppe-arcimboldo-four-seasons-in-one-head-google-art-project",
-          "title": "1280px-Giuseppe Arcimboldo - Four Seasons in One Head",
-          "artist": "Giuseppe Arcimboldo",
-          "objectKey": "collection-of-beauty/1280px-Giuseppe_Arcimboldo_-_Four_Seasons_in_One_Head_-_Google_Art_Project.jpg",
-          "hash": "4b0987a32376333b",
-          "distance": 0
-        },
-        {
-          "id": "collection-of-beauty-giuseppe-arcimboldo-four-seasons-in-one-head-google-art-project",
-          "title": "Four Seasons in One Head",
-          "artist": "Giuseppe Arcimboldo",
-          "objectKey": "collection-of-beauty/Giuseppe_Arcimboldo_-_Four_Seasons_in_One_Head_-_Google_Art_Project.jpg",
-          "hash": "4b0987c32376331b",
-          "distance": 3
-        }
-      ]
-    },
-    {
-      "seedHash": "0b1635f4ba0d4664",
-      "members": [
-        {
-          "id": "collection-of-beauty-el-greco-domenikos-theotokopoulos-laocoon-google-art-project",
-          "title": "El Greco",
-          "artist": "El Greco",
-          "objectKey": "collection-of-beauty/El_Greco_(Domenikos_Theotokopoulos)_-_Laocoön_-_Google_Art_Project.jpg",
-          "hash": "0b1635f4ba0d4664",
-          "distance": 0
-        },
-        {
-          "id": "collection-of-beauty-el-greco-042",
-          "title": "Laocoön",
-          "artist": "El Greco",
-          "objectKey": "collection-of-beauty/El_Greco_042.jpg",
-          "hash": "0b1675f4b80d4664",
-          "distance": 2
-        }
-      ]
-    },
-    {
-      "seedHash": "6332b387c9b36727",
-      "members": [
-        {
-          "id": "collection-of-beauty-scene-des-massacres-de-scio-eugene-delacroix-musee-du-louvre-peintures-inv-3823-c3",
-          "title": "Scène des massacres de Scio",
-          "artist": "Eugène Delacroix",
-          "objectKey": "collection-of-beauty/Scène_des_massacres_de_Scio,_Eugène_Delacroix_-_Musée_du_Louvre_Peintures_INV_3823_;_C3.jpg",
-          "hash": "6332b387c9b36727",
-          "distance": 0
-        },
-        {
-          "id": "collection-of-beauty-scene-des-massacres-de-scio",
-          "title": "The Massacre at Chios",
-          "artist": "Eugène Delacroix",
-          "objectKey": "collection-of-beauty/Scène_des_massacres_de_Scio.jpg",
-          "hash": "6333b387c9b36727",
-          "distance": 1
-        }
-      ]
-    },
     {
       "seedHash": "a0c4f2f0f0f0c4a0",
       "members": [
@@ -151,213 +49,9 @@
           "distance": 4
         }
       ]
-    },
-    {
-      "seedHash": "22e0713928183839",
-      "members": [
-        {
-          "id": "collection-of-beauty-femmes-d-alger-dans-leur-appartement-eugene-delacroix-musee-du-louvre-peintures-inv-3824",
-          "title": "Femmes d'Alger dans leur appartement",
-          "artist": "Eugène Delacroix",
-          "objectKey": "collection-of-beauty/Femmes_d'Alger_dans_leur_appartement,_Eugène_Delacroix_-_Musée_du_Louvre_Peintures_INV_3824.jpg",
-          "hash": "22e0713928183839",
-          "distance": 0
-        },
-        {
-          "id": "collection-of-beauty-eugene-delacroix-les-femmes-d-alger-dans-leur-appartement-1834",
-          "title": "Frauen von Algier",
-          "artist": "Eugène Delacroix",
-          "objectKey": "collection-of-beauty/Eugène_Delacroix_-_Les_Femmes_d'Alger_dans_leur_appartement,_1834.jpg",
-          "hash": "22e071392918383d",
-          "distance": 2
-        }
-      ]
-    },
-    {
-      "seedHash": "870707078603d484",
-      "members": [
-        {
-          "id": "collection-of-beauty-jean-francois-millet-the-sheepfold-moonlight-google-art-project",
-          "title": "The Sheepfold",
-          "artist": "Jean-François Millet",
-          "objectKey": "collection-of-beauty/Jean-François_Millet_-_The_Sheepfold,_Moonlight_-_Google_Art_Project.jpg",
-          "hash": "870707078603d484",
-          "distance": 0
-        },
-        {
-          "id": "collection-of-beauty-jean-francois-millet-the-sheepfold-moonlight-walters-3730",
-          "title": "The Sheepfold",
-          "artist": "Jean-François Millet",
-          "objectKey": "collection-of-beauty/Jean-François_Millet_-_The_Sheepfold,_Moonlight_-_Walters_3730.jpg",
-          "hash": "870707078607d484",
-          "distance": 1
-        }
-      ]
-    },
-    {
-      "seedHash": "8d898ceecf13930b",
-      "members": [
-        {
-          "id": "collection-of-beauty-manet-musica-en-las-tullerias-national-gallery-londres-1862",
-          "title": "Music in the Tuileries",
-          "artist": "Édouard Manet",
-          "objectKey": "collection-of-beauty/MANET_-_Música_en_las_Tullerías_(National_Gallery,_Londres,_1862).jpg",
-          "hash": "8d898ceecf13930b",
-          "distance": 0
-        },
-        {
-          "id": "collection-of-beauty-edouard-manet-music-in-the-tuileries-1862",
-          "title": "Music in the Tuileries Gardens",
-          "artist": "Édouard Manet",
-          "objectKey": "collection-of-beauty/Edouard_Manet_Music_in_the_Tuileries_1862.jpg",
-          "hash": "8d898ceecb13930b",
-          "distance": 1
-        }
-      ]
-    },
-    {
-      "seedHash": "a7c6ad85c3c7c3c5",
-      "members": [
-        {
-          "id": "collection-of-beauty-ilya-repin-what-freedom",
-          "title": "What freedom!",
-          "artist": "Ilya Repin",
-          "objectKey": "collection-of-beauty/Ilya_Repin-What_freedom!.jpg",
-          "hash": "a7c6ad85c3c7c3c5",
-          "distance": 0
-        },
-        {
-          "id": "collection-of-beauty-69149f",
-          "title": "What freedom!",
-          "artist": "Ilya Repin",
-          "objectKey": "collection-of-beauty/Илья_Репин_-_Какой_простор.jpg",
-          "hash": "a7c6ed81c3c7c3d5",
-          "distance": 3
-        }
-      ]
     }
   ],
   "titleClusters": [
-    {
-      "key": "giuseppe-arcimboldo::allegory of winter",
-      "minDistance": 1,
-      "members": [
-        {
-          "id": "collection-of-beauty-1280px-arcimboldo-winter-1563",
-          "title": "1280px-Arcimboldo Winter 1563",
-          "englishTitle": "Allegory of Winter",
-          "artist": "Giuseppe Arcimboldo",
-          "objectKey": "collection-of-beauty/1280px-Arcimboldo_Winter_1563.jpg"
-        },
-        {
-          "id": "collection-of-beauty-arcimboldo-winter-1563",
-          "title": "Allegory of Winter",
-          "englishTitle": null,
-          "artist": "Giuseppe Arcimboldo",
-          "objectKey": "collection-of-beauty/Arcimboldo_Winter_1563.jpg"
-        }
-      ]
-    },
-    {
-      "key": "eugene-delacroix::the massacre at chios",
-      "minDistance": 1,
-      "members": [
-        {
-          "id": "collection-of-beauty-scene-des-massacres-de-scio-eugene-delacroix-musee-du-louvre-peintures-inv-3823-c3",
-          "title": "Scène des massacres de Scio",
-          "englishTitle": "The Massacre at Chios",
-          "artist": "Eugène Delacroix",
-          "objectKey": "collection-of-beauty/Scène_des_massacres_de_Scio,_Eugène_Delacroix_-_Musée_du_Louvre_Peintures_INV_3823_;_C3.jpg"
-        },
-        {
-          "id": "collection-of-beauty-scene-des-massacres-de-scio",
-          "title": "The Massacre at Chios",
-          "englishTitle": null,
-          "artist": "Eugène Delacroix",
-          "objectKey": "collection-of-beauty/Scène_des_massacres_de_Scio.jpg"
-        }
-      ]
-    },
-    {
-      "key": "jean-francois-millet::the sheepfold",
-      "minDistance": 1,
-      "members": [
-        {
-          "id": "collection-of-beauty-jean-francois-millet-the-sheepfold-moonlight-google-art-project",
-          "title": "The Sheepfold",
-          "englishTitle": null,
-          "artist": "Jean-François Millet",
-          "objectKey": "collection-of-beauty/Jean-François_Millet_-_The_Sheepfold,_Moonlight_-_Google_Art_Project.jpg"
-        },
-        {
-          "id": "collection-of-beauty-jean-francois-millet-the-sheepfold-moonlight-walters-3730",
-          "title": "The Sheepfold",
-          "englishTitle": null,
-          "artist": "Jean-François Millet",
-          "objectKey": "collection-of-beauty/Jean-François_Millet_-_The_Sheepfold,_Moonlight_-_Walters_3730.jpg"
-        }
-      ]
-    },
-    {
-      "key": "el-greco::laoco n",
-      "minDistance": 2,
-      "members": [
-        {
-          "id": "collection-of-beauty-el-greco-domenikos-theotokopoulos-laocoon-google-art-project",
-          "title": "El Greco",
-          "englishTitle": "Laocoön",
-          "artist": "El Greco",
-          "objectKey": "collection-of-beauty/El_Greco_(Domenikos_Theotokopoulos)_-_Laocoön_-_Google_Art_Project.jpg"
-        },
-        {
-          "id": "collection-of-beauty-el-greco-042",
-          "title": "Laocoön",
-          "englishTitle": null,
-          "artist": "El Greco",
-          "objectKey": "collection-of-beauty/El_Greco_042.jpg"
-        }
-      ]
-    },
-    {
-      "key": "giuseppe-arcimboldo::four seasons in one head",
-      "minDistance": 3,
-      "members": [
-        {
-          "id": "collection-of-beauty-1280px-giuseppe-arcimboldo-four-seasons-in-one-head-google-art-project",
-          "title": "1280px-Giuseppe Arcimboldo - Four Seasons in One Head",
-          "englishTitle": "Four Seasons in One Head",
-          "artist": "Giuseppe Arcimboldo",
-          "objectKey": "collection-of-beauty/1280px-Giuseppe_Arcimboldo_-_Four_Seasons_in_One_Head_-_Google_Art_Project.jpg"
-        },
-        {
-          "id": "collection-of-beauty-giuseppe-arcimboldo-four-seasons-in-one-head-google-art-project",
-          "title": "Four Seasons in One Head",
-          "englishTitle": null,
-          "artist": "Giuseppe Arcimboldo",
-          "objectKey": "collection-of-beauty/Giuseppe_Arcimboldo_-_Four_Seasons_in_One_Head_-_Google_Art_Project.jpg"
-        }
-      ]
-    },
-    {
-      "key": "ilya-repin::what freedom",
-      "minDistance": 3,
-      "members": [
-        {
-          "id": "collection-of-beauty-ilya-repin-what-freedom",
-          "title": "What freedom!",
-          "englishTitle": null,
-          "artist": "Ilya Repin",
-          "objectKey": "collection-of-beauty/Ilya_Repin-What_freedom!.jpg"
-        },
-        {
-          "id": "collection-of-beauty-69149f",
-          "title": "What freedom!",
-          "englishTitle": null,
-          "artist": "Ilya Repin",
-          "objectKey": "collection-of-beauty/Илья_Репин_-_Какой_простор.jpg"
-        }
-      ]
-    },
     {
       "key": "titian::pastoral concert",
       "minDistance": 9,
@@ -395,6 +89,193 @@
           "englishTitle": null,
           "artist": "Pierre-Joseph Redouté",
           "objectKey": "collection-of-beauty/Lilium_superbum_(Lithographie,_Pierre-Joseph_Redoute).jpg"
+        }
+      ]
+    },
+    {
+      "key": "pierre-joseph-redoute::rosa gallica",
+      "minDistance": 15,
+      "members": [
+        {
+          "id": "redoute-roses-rosa-gallica-versicolor",
+          "title": "Rosa Gallica",
+          "englishTitle": null,
+          "artist": "Pierre-Joseph Redouté",
+          "objectKey": "redoute-roses/rosa-gallica-versicolor.jpg"
+        },
+        {
+          "id": "redoute-roses-rosa-gallica",
+          "title": "Rosa Gallica",
+          "englishTitle": null,
+          "artist": "Pierre-Joseph Redouté",
+          "objectKey": "redoute-roses/rosa-gallica.jpg"
+        },
+        {
+          "id": "redoute-roses-rosa-gallica-coerulea",
+          "title": "Rosa Gallica",
+          "englishTitle": null,
+          "artist": "Pierre-Joseph Redouté",
+          "objectKey": "redoute-roses/rosa-gallica-coerulea.jpg"
+        },
+        {
+          "id": "redoute-roses-rosa-gallica-granati",
+          "title": "Rosa Gallica",
+          "englishTitle": null,
+          "artist": "Pierre-Joseph Redouté",
+          "objectKey": "redoute-roses/rosa-gallica-granati.jpg"
+        },
+        {
+          "id": "redoute-roses-rosa-gallica-pontiana",
+          "title": "Rosa Gallica",
+          "englishTitle": null,
+          "artist": "Pierre-Joseph Redouté",
+          "objectKey": "redoute-roses/rosa-gallica-pontiana.jpg"
+        },
+        {
+          "id": "redoute-roses-rosa-gallica-purpurea-velutina-parva",
+          "title": "Rosa Gallica",
+          "englishTitle": null,
+          "artist": "Pierre-Joseph Redouté",
+          "objectKey": "redoute-roses/rosa-gallica-purpurea-velutina-parva.jpg"
+        },
+        {
+          "id": "redoute-roses-rosa-gallica-purpuro-violacea-magna",
+          "title": "Rosa Gallica",
+          "englishTitle": null,
+          "artist": "Pierre-Joseph Redouté",
+          "objectKey": "redoute-roses/rosa-gallica-purpuro-violacea-magna.jpg"
+        },
+        {
+          "id": "redoute-roses-rosa-gallica-regalis",
+          "title": "Rosa Gallica",
+          "englishTitle": null,
+          "artist": "Pierre-Joseph Redouté",
+          "objectKey": "redoute-roses/rosa-gallica-regalis.jpg"
+        },
+        {
+          "id": "redoute-roses-rosa-gallica-flore-marmoreo",
+          "title": "Rosa Gallica",
+          "englishTitle": null,
+          "artist": "Pierre-Joseph Redouté",
+          "objectKey": "redoute-roses/rosa-gallica-flore-marmoreo.jpg"
+        },
+        {
+          "id": "redoute-roses-rosa-gallica-giganteo",
+          "title": "Rosa Gallica",
+          "englishTitle": null,
+          "artist": "Pierre-Joseph Redouté",
+          "objectKey": "redoute-roses/rosa-gallica-giganteo.jpg"
+        },
+        {
+          "id": "redoute-roses-rosa-gallica-latifolia",
+          "title": "Rosa Gallica",
+          "englishTitle": null,
+          "artist": "Pierre-Joseph Redouté",
+          "objectKey": "redoute-roses/rosa-gallica-latifolia.jpg"
+        },
+        {
+          "id": "redoute-roses-rosa-gallica-stapeliae-flora",
+          "title": "Rosa Gallica",
+          "englishTitle": null,
+          "artist": "Pierre-Joseph Redouté",
+          "objectKey": "redoute-roses/rosa-gallica-stapeliae-flora.jpg"
+        }
+      ]
+    },
+    {
+      "key": "pierre-joseph-redoute::rosa centifolia",
+      "minDistance": 16,
+      "members": [
+        {
+          "id": "redoute-roses-rosa-centifolia-bullata",
+          "title": "Rosa Centifolia",
+          "englishTitle": null,
+          "artist": "Pierre-Joseph Redouté",
+          "objectKey": "redoute-roses/rosa-centifolia-bullata.jpg"
+        },
+        {
+          "id": "redoute-roses-rosa-centifolia-carnea",
+          "title": "Rosa Centifolia",
+          "englishTitle": null,
+          "artist": "Pierre-Joseph Redouté",
+          "objectKey": "redoute-roses/rosa-centifolia-carnea.jpg"
+        },
+        {
+          "id": "redoute-roses-rosa-centifolia-caryophyllea",
+          "title": "Rosa Centifolia",
+          "englishTitle": null,
+          "artist": "Pierre-Joseph Redouté",
+          "objectKey": "redoute-roses/rosa-centifolia-caryophyllea.jpg"
+        },
+        {
+          "id": "redoute-roses-rosa-centifolia-flore-simplici",
+          "title": "Rosa Centifolia",
+          "englishTitle": null,
+          "artist": "Pierre-Joseph Redouté",
+          "objectKey": "redoute-roses/rosa-centifolia-flore-simplici.jpg"
+        },
+        {
+          "id": "redoute-roses-rosa-centifolia-mutabilis",
+          "title": "Rosa Centifolia",
+          "englishTitle": null,
+          "artist": "Pierre-Joseph Redouté",
+          "objectKey": "redoute-roses/rosa-centifolia-mutabilis.jpg"
+        },
+        {
+          "id": "redoute-roses-rosa-centifolia",
+          "title": "Rosa Centifolia",
+          "englishTitle": null,
+          "artist": "Pierre-Joseph Redouté",
+          "objectKey": "redoute-roses/rosa-centifolia.jpg"
+        },
+        {
+          "id": "redoute-roses-rosa-centifolia-anemonoides",
+          "title": "Rosa Centifolia",
+          "englishTitle": null,
+          "artist": "Pierre-Joseph Redouté",
+          "objectKey": "redoute-roses/rosa-centifolia-anemonoides.jpg"
+        },
+        {
+          "id": "redoute-roses-rosa-centifolia-anglica-rubra",
+          "title": "Rosa Centifolia",
+          "englishTitle": null,
+          "artist": "Pierre-Joseph Redouté",
+          "objectKey": "redoute-roses/rosa-centifolia-anglica-rubra.jpg"
+        },
+        {
+          "id": "redoute-roses-rosa-centifolia-bipinnata-60",
+          "title": "Rosa Centifolia",
+          "englishTitle": null,
+          "artist": "Pierre-Joseph Redouté",
+          "objectKey": "redoute-roses/rosa-centifolia-bipinnata-60.jpg"
+        },
+        {
+          "id": "redoute-roses-rosa-centifolia-crenata",
+          "title": "Rosa Centifolia",
+          "englishTitle": null,
+          "artist": "Pierre-Joseph Redouté",
+          "objectKey": "redoute-roses/rosa-centifolia-crenata.jpg"
+        },
+        {
+          "id": "redoute-roses-rosa-centifolia-foliacea",
+          "title": "Rosa Centifolia",
+          "englishTitle": null,
+          "artist": "Pierre-Joseph Redouté",
+          "objectKey": "redoute-roses/rosa-centifolia-foliacea.jpg"
+        },
+        {
+          "id": "redoute-roses-rosa-centifolia-bipinnata-119",
+          "title": "Rosa Centifolia",
+          "englishTitle": null,
+          "artist": "Pierre-Joseph Redouté",
+          "objectKey": "redoute-roses/rosa-centifolia-bipinnata-119.jpg"
+        },
+        {
+          "id": "redoute-roses-rosa-centifolia-prolifera-foliacea",
+          "title": "Rosa Centifolia",
+          "englishTitle": null,
+          "artist": "Pierre-Joseph Redouté",
+          "objectKey": "redoute-roses/rosa-centifolia-prolifera-foliacea.jpg"
         }
       ]
     },
@@ -459,6 +340,232 @@
       ]
     },
     {
+      "key": "pierre-joseph-redoute::rosa indica",
+      "minDistance": 18,
+      "members": [
+        {
+          "id": "redoute-roses-rosa-indica",
+          "title": "rosa indica",
+          "englishTitle": null,
+          "artist": "Pierre-Joseph Redouté",
+          "objectKey": "redoute-roses/rosa-indica.jpg"
+        },
+        {
+          "id": "redoute-roses-rosa-indica-cruenta",
+          "title": "Rosa Indica",
+          "englishTitle": null,
+          "artist": "Pierre-Joseph Redouté",
+          "objectKey": "redoute-roses/rosa-indica-cruenta.jpg"
+        },
+        {
+          "id": "redoute-roses-rosa-indica-fragrans",
+          "title": "Rosa Indica",
+          "englishTitle": null,
+          "artist": "Pierre-Joseph Redouté",
+          "objectKey": "redoute-roses/rosa-indica-fragrans.jpg"
+        },
+        {
+          "id": "redoute-roses-rosa-indica-pumila",
+          "title": "Rosa Indica",
+          "englishTitle": null,
+          "artist": "Pierre-Joseph Redouté",
+          "objectKey": "redoute-roses/rosa-indica-pumila.jpg"
+        },
+        {
+          "id": "redoute-roses-rosa-indica-multipetala",
+          "title": "Rosa Indica",
+          "englishTitle": null,
+          "artist": "Pierre-Joseph Redouté",
+          "objectKey": "redoute-roses/rosa-indica-multipetala.jpg"
+        },
+        {
+          "id": "redoute-roses-rosa-indica-pannosa",
+          "title": "Rosa Indica",
+          "englishTitle": null,
+          "artist": "Pierre-Joseph Redouté",
+          "objectKey": "redoute-roses/rosa-indica-pannosa.jpg"
+        },
+        {
+          "id": "redoute-roses-rosa-indica-subalba",
+          "title": "Rosa Indica",
+          "englishTitle": null,
+          "artist": "Pierre-Joseph Redouté",
+          "objectKey": "redoute-roses/rosa-indica-subalba.jpg"
+        },
+        {
+          "id": "redoute-roses-rosa-indica-subviolacea",
+          "title": "Rosa Indica",
+          "englishTitle": null,
+          "artist": "Pierre-Joseph Redouté",
+          "objectKey": "redoute-roses/rosa-indica-subviolacea.jpg"
+        }
+      ]
+    },
+    {
+      "key": "pierre-joseph-redoute::rosa damascena",
+      "minDistance": 19,
+      "members": [
+        {
+          "id": "redoute-roses-rosa-damascena-coccinea",
+          "title": "Rosa Damascena",
+          "englishTitle": null,
+          "artist": "Pierre-Joseph Redouté",
+          "objectKey": "redoute-roses/rosa-damascena-coccinea.jpg"
+        },
+        {
+          "id": "redoute-roses-rosa-damascena-variegata",
+          "title": "Rosa Damascena",
+          "englishTitle": null,
+          "artist": "Pierre-Joseph Redouté",
+          "objectKey": "redoute-roses/rosa-damascena-variegata.jpg"
+        },
+        {
+          "id": "redoute-roses-rosa-damascena",
+          "title": "Rosa Damascena",
+          "englishTitle": null,
+          "artist": "Pierre-Joseph Redouté",
+          "objectKey": "redoute-roses/rosa-damascena.jpg"
+        },
+        {
+          "id": "redoute-roses-rosa-damascena-celsiana",
+          "title": "Rosa Damascena",
+          "englishTitle": null,
+          "artist": "Pierre-Joseph Redouté",
+          "objectKey": "redoute-roses/rosa-damascena-celsiana.jpg"
+        }
+      ]
+    },
+    {
+      "key": "pierre-joseph-redoute::rosa rubiginosa",
+      "minDistance": 19,
+      "members": [
+        {
+          "id": "redoute-roses-rosa-rubiginosa-cretica",
+          "title": "Rosa Rubiginosa",
+          "englishTitle": null,
+          "artist": "Pierre-Joseph Redouté",
+          "objectKey": "redoute-roses/rosa-rubiginosa-cretica.jpg"
+        },
+        {
+          "id": "redoute-roses-rosa-rubiginosa",
+          "title": "Rosa Rubiginosa",
+          "englishTitle": null,
+          "artist": "Pierre-Joseph Redouté",
+          "objectKey": "redoute-roses/rosa-rubiginosa.jpg"
+        },
+        {
+          "id": "redoute-roses-rosa-rubiginosa-aculeatissima",
+          "title": "Rosa Rubiginosa",
+          "englishTitle": null,
+          "artist": "Pierre-Joseph Redouté",
+          "objectKey": "redoute-roses/rosa-rubiginosa-aculeatissima.jpg"
+        },
+        {
+          "id": "redoute-roses-rosa-rubiginosa-nemoralis",
+          "title": "Rosa Rubiginosa",
+          "englishTitle": null,
+          "artist": "Pierre-Joseph Redouté",
+          "objectKey": "redoute-roses/rosa-rubiginosa-nemoralis.jpg"
+        },
+        {
+          "id": "redoute-roses-rosa-rubiginosa-zabeth",
+          "title": "Rosa Rubiginosa",
+          "englishTitle": null,
+          "artist": "Pierre-Joseph Redouté",
+          "objectKey": "redoute-roses/rosa-rubiginosa-zabeth.jpg"
+        },
+        {
+          "id": "redoute-roses-rosa-rubininosa-flore-semi-pleno",
+          "title": "Rosa Rubiginosa",
+          "englishTitle": null,
+          "artist": "Pierre-Joseph Redouté",
+          "objectKey": "redoute-roses/rosa-rubininosa-flore-semi-pleno.jpg"
+        },
+        {
+          "id": "redoute-roses-rosa-rubiginosa-anemone-flora",
+          "title": "Rosa Rubiginosa",
+          "englishTitle": null,
+          "artist": "Pierre-Joseph Redouté",
+          "objectKey": "redoute-roses/rosa-rubiginosa-anemone-flora.jpg"
+        }
+      ]
+    },
+    {
+      "key": "pierre-joseph-redoute::rosa gallica agatha",
+      "minDistance": 19,
+      "members": [
+        {
+          "id": "redoute-roses-rosa-gallica-agatha-delphiniana",
+          "title": "Rosa Gallica Agatha",
+          "englishTitle": null,
+          "artist": "Pierre-Joseph Redouté",
+          "objectKey": "redoute-roses/rosa-gallica-agatha-delphiniana.jpg"
+        },
+        {
+          "id": "redoute-roses-rosa-gallica-agatha-parvula-violacea",
+          "title": "Rosa Gallica Agatha",
+          "englishTitle": null,
+          "artist": "Pierre-Joseph Redouté",
+          "objectKey": "redoute-roses/rosa-gallica-agatha-parvula-violacea.jpg"
+        },
+        {
+          "id": "redoute-roses-rosa-gallica-agatha-prolifera",
+          "title": "Rosa Gallica Agatha",
+          "englishTitle": null,
+          "artist": "Pierre-Joseph Redouté",
+          "objectKey": "redoute-roses/rosa-gallica-agatha-prolifera.jpg"
+        },
+        {
+          "id": "redoute-roses-rosa-gallica-agatha-regalis",
+          "title": "Rosa Gallica Agatha",
+          "englishTitle": null,
+          "artist": "Pierre-Joseph Redouté",
+          "objectKey": "redoute-roses/rosa-gallica-agatha-regalis.jpg"
+        },
+        {
+          "id": "redoute-roses-rosa-gallica-agatha-uncarnata",
+          "title": "Rosa Gallica Agatha",
+          "englishTitle": null,
+          "artist": "Pierre-Joseph Redouté",
+          "objectKey": "redoute-roses/rosa-gallica-agatha-uncarnata.jpg"
+        }
+      ]
+    },
+    {
+      "key": "pierre-joseph-redoute::rosa pimpinellifolia",
+      "minDistance": 20,
+      "members": [
+        {
+          "id": "redoute-roses-rosa-pimpinellifolia-flore-rubro-multiplici",
+          "title": "Rosa Pimpinellifolia",
+          "englishTitle": null,
+          "artist": "Pierre-Joseph Redouté",
+          "objectKey": "redoute-roses/rosa-pimpinellifolia-flore-rubro-multiplici.jpg"
+        },
+        {
+          "id": "redoute-roses-rosa-pimpinellifolia-mariaburgensis",
+          "title": "Rosa Pimpinellifolia",
+          "englishTitle": null,
+          "artist": "Pierre-Joseph Redouté",
+          "objectKey": "redoute-roses/rosa-pimpinellifolia-mariaburgensis.jpg"
+        },
+        {
+          "id": "redoute-roses-rosa-pimpinellifolia-pumila",
+          "title": "Rosa Pimpinellifolia",
+          "englishTitle": null,
+          "artist": "Pierre-Joseph Redouté",
+          "objectKey": "redoute-roses/rosa-pimpinellifolia-pumila.jpg"
+        },
+        {
+          "id": "redoute-roses-rosa-pimpinellifolia-flore-albo-aubmultiplici",
+          "title": "Rosa Pimpinellifolia",
+          "englishTitle": null,
+          "artist": "Pierre-Joseph Redouté",
+          "objectKey": "redoute-roses/rosa-pimpinellifolia-flore-albo-aubmultiplici.jpg"
+        }
+      ]
+    },
+    {
       "key": "john-james-audubon::hooping crane",
       "minDistance": 20,
       "members": [
@@ -499,6 +606,87 @@
       ]
     },
     {
+      "key": "pierre-joseph-redoute::rosa alba",
+      "minDistance": 21,
+      "members": [
+        {
+          "id": "redoute-roses-rosa-alba-flore-pleno",
+          "title": "Rosa Alba",
+          "englishTitle": null,
+          "artist": "Pierre-Joseph Redouté",
+          "objectKey": "redoute-roses/rosa-alba-flore-pleno.jpg"
+        },
+        {
+          "id": "redoute-roses-rosa-alba-regalis",
+          "title": "Rosa Alba",
+          "englishTitle": null,
+          "artist": "Pierre-Joseph Redouté",
+          "objectKey": "redoute-roses/rosa-alba-regalis.jpg"
+        },
+        {
+          "id": "redoute-roses-rosa-alba-cymaefolia",
+          "title": "Rosa Alba",
+          "englishTitle": null,
+          "artist": "Pierre-Joseph Redouté",
+          "objectKey": "redoute-roses/rosa-alba-cymaefolia.jpg"
+        }
+      ]
+    },
+    {
+      "key": "pierre-joseph-redoute::rosa alpina",
+      "minDistance": 21,
+      "members": [
+        {
+          "id": "redoute-roses-rosa-alpina-laevis",
+          "title": "Rosa Alpina",
+          "englishTitle": null,
+          "artist": "Pierre-Joseph Redouté",
+          "objectKey": "redoute-roses/rosa-alpina-laevis.jpg"
+        },
+        {
+          "id": "redoute-roses-rosa-alpina-pendulina",
+          "title": "Rosa Alpina",
+          "englishTitle": null,
+          "artist": "Pierre-Joseph Redouté",
+          "objectKey": "redoute-roses/rosa-alpina-pendulina.jpg"
+        },
+        {
+          "id": "redoute-roses-rosa-alpina-flore-variegato",
+          "title": "Rosa Alpina",
+          "englishTitle": null,
+          "artist": "Pierre-Joseph Redouté",
+          "objectKey": "redoute-roses/rosa-alpina-flore-variegato.jpg"
+        }
+      ]
+    },
+    {
+      "key": "pierre-joseph-redoute::rosa sempervirens",
+      "minDistance": 21,
+      "members": [
+        {
+          "id": "redoute-roses-rosa-sempervirens-latifolia",
+          "title": "Rosa Sempervirens",
+          "englishTitle": null,
+          "artist": "Pierre-Joseph Redouté",
+          "objectKey": "redoute-roses/rosa-sempervirens-latifolia.jpg"
+        },
+        {
+          "id": "redoute-roses-rosa-sempervirens",
+          "title": "Rosa Sempervirens",
+          "englishTitle": null,
+          "artist": "Pierre-Joseph Redouté",
+          "objectKey": "redoute-roses/rosa-sempervirens.jpg"
+        },
+        {
+          "id": "redoute-roses-rosa-sempervirens-globosa",
+          "title": "Rosa Sempervirens",
+          "englishTitle": null,
+          "artist": "Pierre-Joseph Redouté",
+          "objectKey": "redoute-roses/rosa-sempervirens-globosa.jpg"
+        }
+      ]
+    },
+    {
       "key": "pierre-joseph-redoute::gladiolus lineatus",
       "minDistance": 22,
       "members": [
@@ -515,6 +703,93 @@
           "englishTitle": null,
           "artist": "Pierre-Joseph Redouté",
           "objectKey": "redoute-lilies/gladiolus-lineatus-400.jpg"
+        }
+      ]
+    },
+    {
+      "key": "pierre-joseph-redoute::rosa moschata",
+      "minDistance": 22,
+      "members": [
+        {
+          "id": "redoute-roses-rosa-moschata-flore-semi-pleno",
+          "title": "Rosa Moschata",
+          "englishTitle": null,
+          "artist": "Pierre-Joseph Redouté",
+          "objectKey": "redoute-roses/rosa-moschata-flore-semi-pleno.jpg"
+        },
+        {
+          "id": "redoute-roses-rosa-moschata",
+          "title": "Rosa Moschata",
+          "englishTitle": null,
+          "artist": "Pierre-Joseph Redouté",
+          "objectKey": "redoute-roses/rosa-moschata.jpg"
+        }
+      ]
+    },
+    {
+      "key": "pierre-joseph-redoute::rosa villosa",
+      "minDistance": 22,
+      "members": [
+        {
+          "id": "redoute-roses-rosa-villosa",
+          "title": "Rosa Villosa",
+          "englishTitle": null,
+          "artist": "Pierre-Joseph Redouté",
+          "objectKey": "redoute-roses/rosa-villosa.jpg"
+        },
+        {
+          "id": "redoute-roses-rosa-villosa-terebenthina",
+          "title": "Rosa Villosa",
+          "englishTitle": null,
+          "artist": "Pierre-Joseph Redouté",
+          "objectKey": "redoute-roses/rosa-villosa-terebenthina.jpg"
+        }
+      ]
+    },
+    {
+      "key": "pierre-joseph-redoute::rosa collina",
+      "minDistance": 22,
+      "members": [
+        {
+          "id": "redoute-roses-rosa-collina-fastigiata-61",
+          "title": "Rosa Collina",
+          "englishTitle": null,
+          "artist": "Pierre-Joseph Redouté",
+          "objectKey": "redoute-roses/rosa-collina-fastigiata-61.jpg"
+        },
+        {
+          "id": "redoute-roses-rosa-collina-fastigiata-120",
+          "title": "Rosa Collina",
+          "englishTitle": null,
+          "artist": "Pierre-Joseph Redouté",
+          "objectKey": "redoute-roses/rosa-collina-fastigiata-120.jpg"
+        }
+      ]
+    },
+    {
+      "key": "pierre-joseph-redoute::rosa sepium",
+      "minDistance": 22,
+      "members": [
+        {
+          "id": "redoute-roses-rosa-sepium-flore-submultiplici",
+          "title": "Rosa Sepium",
+          "englishTitle": null,
+          "artist": "Pierre-Joseph Redouté",
+          "objectKey": "redoute-roses/rosa-sepium-flore-submultiplici.jpg"
+        },
+        {
+          "id": "redoute-roses-rosa-sepium-rosea",
+          "title": "Rosa Sepium",
+          "englishTitle": null,
+          "artist": "Pierre-Joseph Redouté",
+          "objectKey": "redoute-roses/rosa-sepium-rosea.jpg"
+        },
+        {
+          "id": "redoute-roses-rosa-sepium-myrtifolia",
+          "title": "Rosa Sepium",
+          "englishTitle": null,
+          "artist": "Pierre-Joseph Redouté",
+          "objectKey": "redoute-roses/rosa-sepium-myrtifolia.jpg"
         }
       ]
     },
@@ -559,6 +834,26 @@
       ]
     },
     {
+      "key": "pierre-joseph-redoute::rosa reclinata",
+      "minDistance": 23,
+      "members": [
+        {
+          "id": "redoute-roses-rosa-reclinata-fleures-simples",
+          "title": "Rosa Reclinata",
+          "englishTitle": null,
+          "artist": "Pierre-Joseph Redouté",
+          "objectKey": "redoute-roses/rosa-reclinata-fleures-simples.jpg"
+        },
+        {
+          "id": "redoute-roses-rosa-reclinata-fleurs-presque-doubles",
+          "title": "Rosa Reclinata",
+          "englishTitle": null,
+          "artist": "Pierre-Joseph Redouté",
+          "objectKey": "redoute-roses/rosa-reclinata-fleurs-presque-doubles.jpg"
+        }
+      ]
+    },
+    {
       "key": "john-james-audubon::wild turkey",
       "minDistance": 23,
       "members": [
@@ -595,6 +890,26 @@
           "englishTitle": null,
           "artist": "Pierre-Joseph Redouté",
           "objectKey": "redoute-lilies/ixia-grandiflora-362.jpg"
+        }
+      ]
+    },
+    {
+      "key": "pierre-joseph-redoute::rosa multiflora",
+      "minDistance": 24,
+      "members": [
+        {
+          "id": "redoute-roses-rosa-multiflora-carnea",
+          "title": "Rosa Multiflora",
+          "englishTitle": null,
+          "artist": "Pierre-Joseph Redouté",
+          "objectKey": "redoute-roses/rosa-multiflora-carnea.jpg"
+        },
+        {
+          "id": "redoute-roses-rosa-multiflora-platyphylla",
+          "title": "Rosa Multiflora",
+          "englishTitle": null,
+          "artist": "Pierre-Joseph Redouté",
+          "objectKey": "redoute-roses/rosa-multiflora-platyphylla.jpg"
         }
       ]
     },
@@ -659,6 +974,26 @@
       ]
     },
     {
+      "key": "pierre-joseph-redoute::rosa eglanteria",
+      "minDistance": 25,
+      "members": [
+        {
+          "id": "redoute-roses-rosa-eglanteria-punicea",
+          "title": "Rosa Eglanteria",
+          "englishTitle": null,
+          "artist": "Pierre-Joseph Redouté",
+          "objectKey": "redoute-roses/rosa-eglanteria-punicea.jpg"
+        },
+        {
+          "id": "redoute-roses-rosa-eglanteria",
+          "title": "Rosa Eglanteria",
+          "englishTitle": null,
+          "artist": "Pierre-Joseph Redouté",
+          "objectKey": "redoute-roses/rosa-eglanteria.jpg"
+        }
+      ]
+    },
+    {
       "key": "john-james-audubon::golden eye duck",
       "minDistance": 25,
       "members": [
@@ -719,6 +1054,26 @@
       ]
     },
     {
+      "key": "pierre-joseph-redoute::rosa tomentosa",
+      "minDistance": 26,
+      "members": [
+        {
+          "id": "redoute-roses-rosa-tomentosa-flore-multiplici",
+          "title": "Rosa Tomentosa",
+          "englishTitle": null,
+          "artist": "Pierre-Joseph Redouté",
+          "objectKey": "redoute-roses/rosa-tomentosa-flore-multiplici.jpg"
+        },
+        {
+          "id": "redoute-roses-rosa-tomentosa",
+          "title": "Rosa Tomentosa",
+          "englishTitle": null,
+          "artist": "Pierre-Joseph Redouté",
+          "objectKey": "redoute-roses/rosa-tomentosa.jpg"
+        }
+      ]
+    },
+    {
       "key": "john-james-audubon::white headed eagle",
       "minDistance": 26,
       "members": [
@@ -755,6 +1110,53 @@
           "englishTitle": null,
           "artist": "Pierre-Joseph Redouté",
           "objectKey": "redoute-lilies/lilium-tigrinum-475.jpg"
+        }
+      ]
+    },
+    {
+      "key": "pierre-joseph-redoute::rosa hudsoniana",
+      "minDistance": 27,
+      "members": [
+        {
+          "id": "redoute-roses-rosa-hudsoniana-salicifolia",
+          "title": "Rosa Hudsoniana",
+          "englishTitle": null,
+          "artist": "Pierre-Joseph Redouté",
+          "objectKey": "redoute-roses/rosa-hudsoniana-salicifolia.jpg"
+        },
+        {
+          "id": "redoute-roses-rosa-hudsoniana-scandens",
+          "title": "Rosa Hudsoniana",
+          "englishTitle": null,
+          "artist": "Pierre-Joseph Redouté",
+          "objectKey": "redoute-roses/rosa-hudsoniana-scandens.jpg"
+        },
+        {
+          "id": "redoute-roses-rosa-hudsoniana-subcorymbosa",
+          "title": "Rosa Hudsoniana",
+          "englishTitle": null,
+          "artist": "Pierre-Joseph Redouté",
+          "objectKey": "redoute-roses/rosa-hudsoniana-subcorymbosa.jpg"
+        }
+      ]
+    },
+    {
+      "key": "pierre-joseph-redoute::rosa pomponia",
+      "minDistance": 27,
+      "members": [
+        {
+          "id": "redoute-roses-rosa-pomponia",
+          "title": "Rosa Pomponia",
+          "englishTitle": null,
+          "artist": "Pierre-Joseph Redouté",
+          "objectKey": "redoute-roses/rosa-pomponia.jpg"
+        },
+        {
+          "id": "redoute-roses-rosa-pomonia-flore-subsimplici",
+          "title": "Rosa Pomponia",
+          "englishTitle": null,
+          "artist": "Pierre-Joseph Redouté",
+          "objectKey": "redoute-roses/rosa-pomonia-flore-subsimplici.jpg"
         }
       ]
     },
@@ -826,6 +1228,26 @@
       ]
     },
     {
+      "key": "pierre-joseph-redoute::rosa bifera",
+      "minDistance": 28,
+      "members": [
+        {
+          "id": "redoute-roses-rosa-bifera-alba",
+          "title": "Rosa Bifera",
+          "englishTitle": null,
+          "artist": "Pierre-Joseph Redouté",
+          "objectKey": "redoute-roses/rosa-bifera-alba.jpg"
+        },
+        {
+          "id": "redoute-roses-rosa-bifera-officinalis",
+          "title": "Rosa Bifera",
+          "englishTitle": null,
+          "artist": "Pierre-Joseph Redouté",
+          "objectKey": "redoute-roses/rosa-bifera-officinalis.jpg"
+        }
+      ]
+    },
+    {
       "key": "claude-monet::daffodils",
       "minDistance": 29,
       "members": [
@@ -862,6 +1284,33 @@
           "englishTitle": "Reflections of Clouds on the Water-Lily Pond",
           "artist": "Claude Monet",
           "objectKey": "collection-of-beauty/WLA_moma_Monet_Reflections_of_Clouds_on_the_Water-Lily_Pond.jpg"
+        }
+      ]
+    },
+    {
+      "key": "pierre-joseph-redoute::rosa muscosa",
+      "minDistance": 30,
+      "members": [
+        {
+          "id": "redoute-roses-rosa-mucosa-alba",
+          "title": "Rosa Muscosa",
+          "englishTitle": null,
+          "artist": "Pierre-Joseph Redouté",
+          "objectKey": "redoute-roses/rosa-mucosa-alba.jpg"
+        },
+        {
+          "id": "redoute-roses-rosa-muscosa-multiplex",
+          "title": "Rosa Muscosa",
+          "englishTitle": null,
+          "artist": "Pierre-Joseph Redouté",
+          "objectKey": "redoute-roses/rosa-muscosa-multiplex.jpg"
+        },
+        {
+          "id": "redoute-roses-rosa-muscosa",
+          "title": "Rosa Muscosa",
+          "englishTitle": null,
+          "artist": "Pierre-Joseph Redouté",
+          "objectKey": "redoute-roses/rosa-muscosa.jpg"
         }
       ]
     },
@@ -942,6 +1391,26 @@
           "englishTitle": null,
           "artist": "Pierre-Joseph Redouté",
           "objectKey": "redoute-lilies/iris-sibirica-b.jpg"
+        }
+      ]
+    },
+    {
+      "key": "pierre-joseph-redoute::rosa cinnamomea",
+      "minDistance": 31,
+      "members": [
+        {
+          "id": "redoute-roses-rosa-cinnamomea-majalis",
+          "title": "Rosa Cinnamomea",
+          "englishTitle": null,
+          "artist": "Pierre-Joseph Redouté",
+          "objectKey": "redoute-roses/rosa-cinnamomea-majalis.jpg"
+        },
+        {
+          "id": "redoute-roses-rosa-cinnamomea",
+          "title": "Rosa Cinnamomea",
+          "englishTitle": null,
+          "artist": "Pierre-Joseph Redouté",
+          "objectKey": "redoute-roses/rosa-cinnamomea.jpg"
         }
       ]
     },
@@ -1184,7 +1653,33 @@
           "objectKey": "collection-of-beauty/Claude_Monet_-_Graystaks_I.jpeg"
         }
       ]
+    },
+    {
+      "key": "pierre-joseph-redoute::rosa andegavensis",
+      "minDistance": 43,
+      "members": [
+        {
+          "id": "redoute-roses-rosa-andegavensis-59",
+          "title": "Rosa Andegavensis",
+          "englishTitle": null,
+          "artist": "Pierre-Joseph Redouté",
+          "objectKey": "redoute-roses/rosa-andegavensis-59.jpg"
+        },
+        {
+          "id": "redoute-roses-rosa-andegavensis-118",
+          "title": "Rosa Andegavensis",
+          "englishTitle": null,
+          "artist": "Pierre-Joseph Redouté",
+          "objectKey": "redoute-roses/rosa-andegavensis-118.jpg"
+        }
+      ]
     }
   ],
-  "skipped": []
+  "skipped": [
+    {
+      "id": "collection-of-beauty-2560px-edgar-germain-hilaire-degas-031",
+      "objectKey": "collection-of-beauty/2560px-Edgar_Germain_Hilaire_Degas_031.jpg",
+      "reason": "no-variant"
+    }
+  ]
 }

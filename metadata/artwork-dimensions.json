@@ -16097,5 +16097,850 @@
     "widthCm": 35,
     "heightCm": 52.2,
     "source": "static"
+  },
+  "redoute-roses-rosa-aciphylla": {
+    "widthCm": 25.2,
+    "heightCm": 34.9,
+    "source": "static"
+  },
+  "redoute-roses-rosa-alba-cymaefolia": {
+    "widthCm": 25.2,
+    "heightCm": 34.9,
+    "source": "static"
+  },
+  "redoute-roses-rosa-alba-flore-pleno": {
+    "widthCm": 25.2,
+    "heightCm": 34.9,
+    "source": "static"
+  },
+  "redoute-roses-rosa-alba-foliacea": {
+    "widthCm": 25.2,
+    "heightCm": 34.9,
+    "source": "static"
+  },
+  "redoute-roses-rosa-alba-regalis": {
+    "widthCm": 25.2,
+    "heightCm": 34.9,
+    "source": "static"
+  },
+  "redoute-roses-rosa-alpina-flore-variegato": {
+    "widthCm": 25.2,
+    "heightCm": 34.9,
+    "source": "static"
+  },
+  "redoute-roses-rosa-alpina-laevis": {
+    "widthCm": 25.2,
+    "heightCm": 34.9,
+    "source": "static"
+  },
+  "redoute-roses-rosa-alpina-pendulina": {
+    "widthCm": 25.2,
+    "heightCm": 34.9,
+    "source": "static"
+  },
+  "redoute-roses-rosa-alpina-vulgaris": {
+    "widthCm": 25.2,
+    "heightCm": 34.9,
+    "source": "static"
+  },
+  "redoute-roses-rosa-andegavensis-118": {
+    "widthCm": 25.2,
+    "heightCm": 34.9,
+    "source": "static"
+  },
+  "redoute-roses-rosa-andegavensis-59": {
+    "widthCm": 25.2,
+    "heightCm": 34.9,
+    "source": "static"
+  },
+  "redoute-roses-rosa-arvensis": {
+    "widthCm": 25.2,
+    "heightCm": 34.9,
+    "source": "static"
+  },
+  "redoute-roses-rosa-banksiae": {
+    "widthCm": 25.2,
+    "heightCm": 34.9,
+    "source": "static"
+  },
+  "redoute-roses-rosa-berberifolia": {
+    "widthCm": 25.2,
+    "heightCm": 34.9,
+    "source": "static"
+  },
+  "redoute-roses-rosa-bifera-alba": {
+    "widthCm": 25.2,
+    "heightCm": 34.9,
+    "source": "static"
+  },
+  "redoute-roses-rosa-bifera-officinalis": {
+    "widthCm": 25.2,
+    "heightCm": 34.9,
+    "source": "static"
+  },
+  "redoute-roses-rosa-bifera-pumila": {
+    "widthCm": 25.2,
+    "heightCm": 34.9,
+    "source": "static"
+  },
+  "redoute-roses-rosa-bifera-variegata": {
+    "widthCm": 25.2,
+    "heightCm": 34.9,
+    "source": "static"
+  },
+  "redoute-roses-rosa-biserrata": {
+    "widthCm": 25.2,
+    "heightCm": 34.9,
+    "source": "static"
+  },
+  "redoute-roses-rosa-bracteata": {
+    "widthCm": 25.2,
+    "heightCm": 34.9,
+    "source": "static"
+  },
+  "redoute-roses-rosa-brevistyla-leucochroa": {
+    "widthCm": 25.2,
+    "heightCm": 34.9,
+    "source": "static"
+  },
+  "redoute-roses-rosa-campanulata-flore-albo": {
+    "widthCm": 25.2,
+    "heightCm": 34.9,
+    "source": "static"
+  },
+  "redoute-roses-rosa-candolleana-elegans": {
+    "widthCm": 25.2,
+    "heightCm": 34.9,
+    "source": "static"
+  },
+  "redoute-roses-rosa-canina-burboniana": {
+    "widthCm": 25.2,
+    "heightCm": 34.9,
+    "source": "static"
+  },
+  "redoute-roses-rosa-canina-grandiflora": {
+    "widthCm": 25.2,
+    "heightCm": 34.9,
+    "source": "static"
+  },
+  "redoute-roses-rosa-canina-nitens": {
+    "widthCm": 25.2,
+    "heightCm": 34.9,
+    "source": "static"
+  },
+  "redoute-roses-rosa-carolina-corymbosa": {
+    "widthCm": 25.2,
+    "heightCm": 34.9,
+    "source": "static"
+  },
+  "redoute-roses-rosa-centifolia": {
+    "widthCm": 25.2,
+    "heightCm": 34.9,
+    "source": "static"
+  },
+  "redoute-roses-rosa-centifolia-anemonoides": {
+    "widthCm": 25.2,
+    "heightCm": 34.9,
+    "source": "static"
+  },
+  "redoute-roses-rosa-centifolia-anglica-rubra": {
+    "widthCm": 25.2,
+    "heightCm": 34.9,
+    "source": "static"
+  },
+  "redoute-roses-rosa-centifolia-bipinnata-119": {
+    "widthCm": 25.2,
+    "heightCm": 34.9,
+    "source": "static"
+  },
+  "redoute-roses-rosa-centifolia-bipinnata-60": {
+    "widthCm": 25.2,
+    "heightCm": 34.9,
+    "source": "static"
+  },
+  "redoute-roses-rosa-centifolia-bullata": {
+    "widthCm": 25.2,
+    "heightCm": 34.9,
+    "source": "static"
+  },
+  "redoute-roses-rosa-centifolia-carnea": {
+    "widthCm": 25.2,
+    "heightCm": 34.9,
+    "source": "static"
+  },
+  "redoute-roses-rosa-centifolia-caryophyllea": {
+    "widthCm": 25.2,
+    "heightCm": 34.9,
+    "source": "static"
+  },
+  "redoute-roses-rosa-centifolia-crenata": {
+    "widthCm": 25.2,
+    "heightCm": 34.9,
+    "source": "static"
+  },
+  "redoute-roses-rosa-centifolia-flore-simplici": {
+    "widthCm": 25.2,
+    "heightCm": 34.9,
+    "source": "static"
+  },
+  "redoute-roses-rosa-centifolia-foliacea": {
+    "widthCm": 25.2,
+    "heightCm": 34.9,
+    "source": "static"
+  },
+  "redoute-roses-rosa-centifolia-minor": {
+    "widthCm": 25.2,
+    "heightCm": 34.9,
+    "source": "static"
+  },
+  "redoute-roses-rosa-centifolia-mutabilis": {
+    "widthCm": 25.2,
+    "heightCm": 34.9,
+    "source": "static"
+  },
+  "redoute-roses-rosa-centifolia-prolifera-foliacea": {
+    "widthCm": 25.2,
+    "heightCm": 34.9,
+    "source": "static"
+  },
+  "redoute-roses-rosa-cinnamomea": {
+    "widthCm": 25.2,
+    "heightCm": 34.9,
+    "source": "static"
+  },
+  "redoute-roses-rosa-cinnamomea-majalis": {
+    "widthCm": 25.2,
+    "heightCm": 34.9,
+    "source": "static"
+  },
+  "redoute-roses-rosa-clynophylla": {
+    "widthCm": 25.2,
+    "heightCm": 34.9,
+    "source": "static"
+  },
+  "redoute-roses-rosa-collina-fastigiata-120": {
+    "widthCm": 25.2,
+    "heightCm": 34.9,
+    "source": "static"
+  },
+  "redoute-roses-rosa-collina-fastigiata-61": {
+    "widthCm": 25.2,
+    "heightCm": 34.9,
+    "source": "static"
+  },
+  "redoute-roses-rosa-collina-monsoniana": {
+    "widthCm": 25.2,
+    "heightCm": 34.9,
+    "source": "static"
+  },
+  "redoute-roses-rosa-damascena": {
+    "widthCm": 25.2,
+    "heightCm": 34.9,
+    "source": "static"
+  },
+  "redoute-roses-rosa-damascena-aurora": {
+    "widthCm": 25.2,
+    "heightCm": 34.9,
+    "source": "static"
+  },
+  "redoute-roses-rosa-damascena-celsiana": {
+    "widthCm": 25.2,
+    "heightCm": 34.9,
+    "source": "static"
+  },
+  "redoute-roses-rosa-damascena-coccinea": {
+    "widthCm": 25.2,
+    "heightCm": 34.9,
+    "source": "static"
+  },
+  "redoute-roses-rosa-damascena-italica": {
+    "widthCm": 25.2,
+    "heightCm": 34.9,
+    "source": "static"
+  },
+  "redoute-roses-rosa-damascena-variegata": {
+    "widthCm": 25.2,
+    "heightCm": 34.9,
+    "source": "static"
+  },
+  "redoute-roses-rosa-dumetorum": {
+    "widthCm": 25.2,
+    "heightCm": 34.9,
+    "source": "static"
+  },
+  "redoute-roses-rosa-eglanteria": {
+    "widthCm": 25.2,
+    "heightCm": 34.9,
+    "source": "static"
+  },
+  "redoute-roses-rosa-eglanteria-luteola": {
+    "widthCm": 25.2,
+    "heightCm": 34.9,
+    "source": "static"
+  },
+  "redoute-roses-rosa-eglanteria-punicea": {
+    "widthCm": 25.2,
+    "heightCm": 34.9,
+    "source": "static"
+  },
+  "redoute-roses-rosa-eglanteria-subrubra": {
+    "widthCm": 25.2,
+    "heightCm": 34.9,
+    "source": "static"
+  },
+  "redoute-roses-rosa-farinosa": {
+    "widthCm": 25.2,
+    "heightCm": 34.9,
+    "source": "static"
+  },
+  "redoute-roses-rosa-foetida": {
+    "widthCm": 25.2,
+    "heightCm": 34.9,
+    "source": "static"
+  },
+  "redoute-roses-rosa-gallica": {
+    "widthCm": 25.2,
+    "heightCm": 34.9,
+    "source": "static"
+  },
+  "redoute-roses-rosa-gallica-agatha-delphiniana": {
+    "widthCm": 25.2,
+    "heightCm": 34.9,
+    "source": "static"
+  },
+  "redoute-roses-rosa-gallica-agatha-parvula-violacea": {
+    "widthCm": 25.2,
+    "heightCm": 34.9,
+    "source": "static"
+  },
+  "redoute-roses-rosa-gallica-agatha-prolifera": {
+    "widthCm": 25.2,
+    "heightCm": 34.9,
+    "source": "static"
+  },
+  "redoute-roses-rosa-gallica-agatha-regalis": {
+    "widthCm": 25.2,
+    "heightCm": 34.9,
+    "source": "static"
+  },
+  "redoute-roses-rosa-gallica-agatha-uncarnata": {
+    "widthCm": 25.2,
+    "heightCm": 34.9,
+    "source": "static"
+  },
+  "redoute-roses-rosa-gallica-aurelianensis": {
+    "widthCm": 25.2,
+    "heightCm": 34.9,
+    "source": "static"
+  },
+  "redoute-roses-rosa-gallica-coerulea": {
+    "widthCm": 25.2,
+    "heightCm": 34.9,
+    "source": "static"
+  },
+  "redoute-roses-rosa-gallica-flore-marmoreo": {
+    "widthCm": 25.2,
+    "heightCm": 34.9,
+    "source": "static"
+  },
+  "redoute-roses-rosa-gallica-giganteo": {
+    "widthCm": 25.2,
+    "heightCm": 34.9,
+    "source": "static"
+  },
+  "redoute-roses-rosa-gallica-granati": {
+    "widthCm": 25.2,
+    "heightCm": 34.9,
+    "source": "static"
+  },
+  "redoute-roses-rosa-gallica-gueriniana": {
+    "widthCm": 25.2,
+    "heightCm": 34.9,
+    "source": "static"
+  },
+  "redoute-roses-rosa-gallica-latifolia": {
+    "widthCm": 25.2,
+    "heightCm": 34.9,
+    "source": "static"
+  },
+  "redoute-roses-rosa-gallica-maheka-flore-subsimplici": {
+    "widthCm": 25.2,
+    "heightCm": 34.9,
+    "source": "static"
+  },
+  "redoute-roses-rosa-gallica-pontiana": {
+    "widthCm": 25.2,
+    "heightCm": 34.9,
+    "source": "static"
+  },
+  "redoute-roses-rosa-gallica-purpurea-velutina-parva": {
+    "widthCm": 25.2,
+    "heightCm": 34.9,
+    "source": "static"
+  },
+  "redoute-roses-rosa-gallica-purpuro-violacea-magna": {
+    "widthCm": 25.2,
+    "heightCm": 34.9,
+    "source": "static"
+  },
+  "redoute-roses-rosa-gallica-regalis": {
+    "widthCm": 25.2,
+    "heightCm": 34.9,
+    "source": "static"
+  },
+  "redoute-roses-rosa-gallica-rosea-flore-simplici": {
+    "widthCm": 25.2,
+    "heightCm": 34.9,
+    "source": "static"
+  },
+  "redoute-roses-rosa-gallica-stapeliae-flora": {
+    "widthCm": 25.2,
+    "heightCm": 34.9,
+    "source": "static"
+  },
+  "redoute-roses-rosa-gallica-versicolor": {
+    "widthCm": 25.2,
+    "heightCm": 34.9,
+    "source": "static"
+  },
+  "redoute-roses-rosa-geminata": {
+    "widthCm": 25.2,
+    "heightCm": 34.9,
+    "source": "static"
+  },
+  "redoute-roses-rosa-hispida-argentea": {
+    "widthCm": 25.2,
+    "heightCm": 34.9,
+    "source": "static"
+  },
+  "redoute-roses-rosa-hudsoniana-salicifolia": {
+    "widthCm": 25.2,
+    "heightCm": 34.9,
+    "source": "static"
+  },
+  "redoute-roses-rosa-hudsoniana-scandens": {
+    "widthCm": 25.2,
+    "heightCm": 34.9,
+    "source": "static"
+  },
+  "redoute-roses-rosa-hudsoniana-subcorymbosa": {
+    "widthCm": 25.2,
+    "heightCm": 34.9,
+    "source": "static"
+  },
+  "redoute-roses-rosa-indica": {
+    "widthCm": 25.2,
+    "heightCm": 34.9,
+    "source": "static"
+  },
+  "redoute-roses-rosa-indica-acuminata": {
+    "widthCm": 25.2,
+    "heightCm": 34.9,
+    "source": "static"
+  },
+  "redoute-roses-rosa-indica-autumnalis": {
+    "widthCm": 25.2,
+    "heightCm": 34.9,
+    "source": "static"
+  },
+  "redoute-roses-rosa-indica-caryophillea": {
+    "widthCm": 25.2,
+    "heightCm": 34.9,
+    "source": "static"
+  },
+  "redoute-roses-rosa-indica-cruenta": {
+    "widthCm": 25.2,
+    "heightCm": 34.9,
+    "source": "static"
+  },
+  "redoute-roses-rosa-indica-dichotoma": {
+    "widthCm": 25.2,
+    "heightCm": 34.9,
+    "source": "static"
+  },
+  "redoute-roses-rosa-indica-fragrans": {
+    "widthCm": 25.2,
+    "heightCm": 34.9,
+    "source": "static"
+  },
+  "redoute-roses-rosa-indica-fragrans-flore-simplici": {
+    "widthCm": 25.2,
+    "heightCm": 34.9,
+    "source": "static"
+  },
+  "redoute-roses-rosa-indica-multipetala": {
+    "widthCm": 25.2,
+    "heightCm": 34.9,
+    "source": "static"
+  },
+  "redoute-roses-rosa-indica-pannosa": {
+    "widthCm": 25.2,
+    "heightCm": 34.9,
+    "source": "static"
+  },
+  "redoute-roses-rosa-indica-pumila": {
+    "widthCm": 25.2,
+    "heightCm": 34.9,
+    "source": "static"
+  },
+  "redoute-roses-rosa-indica-pumila-flor-simplici": {
+    "widthCm": 25.2,
+    "heightCm": 34.9,
+    "source": "static"
+  },
+  "redoute-roses-rosa-indica-sertulata": {
+    "widthCm": 25.2,
+    "heightCm": 34.9,
+    "source": "static"
+  },
+  "redoute-roses-rosa-indica-stelligera": {
+    "widthCm": 25.2,
+    "heightCm": 34.9,
+    "source": "static"
+  },
+  "redoute-roses-rosa-indica-subalba": {
+    "widthCm": 25.2,
+    "heightCm": 34.9,
+    "source": "static"
+  },
+  "redoute-roses-rosa-indica-subviolacea": {
+    "widthCm": 25.2,
+    "heightCm": 34.9,
+    "source": "static"
+  },
+  "redoute-roses-rosa-indica-vulgaris": {
+    "widthCm": 25.2,
+    "heightCm": 34.9,
+    "source": "static"
+  },
+  "redoute-roses-rosa-inermis": {
+    "widthCm": 25.2,
+    "heightCm": 34.9,
+    "source": "static"
+  },
+  "redoute-roses-rosa-kamtchatica": {
+    "widthCm": 25.2,
+    "heightCm": 34.9,
+    "source": "static"
+  },
+  "redoute-roses-rosa-leucantha": {
+    "widthCm": 25.2,
+    "heightCm": 34.9,
+    "source": "static"
+  },
+  "redoute-roses-rosa-lheritieranea": {
+    "widthCm": 25.2,
+    "heightCm": 34.9,
+    "source": "static"
+  },
+  "redoute-roses-rosa-longifolia": {
+    "widthCm": 25.2,
+    "heightCm": 34.9,
+    "source": "static"
+  },
+  "redoute-roses-rosa-lucida": {
+    "widthCm": 25.2,
+    "heightCm": 34.9,
+    "source": "static"
+  },
+  "redoute-roses-rosa-malmundariensis": {
+    "widthCm": 25.2,
+    "heightCm": 34.9,
+    "source": "static"
+  },
+  "redoute-roses-rosa-mollissima-flore-submultiplici": {
+    "widthCm": 25.2,
+    "heightCm": 34.9,
+    "source": "static"
+  },
+  "redoute-roses-rosa-montezumae": {
+    "widthCm": 25.2,
+    "heightCm": 34.9,
+    "source": "static"
+  },
+  "redoute-roses-rosa-moschata": {
+    "widthCm": 25.2,
+    "heightCm": 34.9,
+    "source": "static"
+  },
+  "redoute-roses-rosa-moschata-flore-semi-pleno": {
+    "widthCm": 25.2,
+    "heightCm": 34.9,
+    "source": "static"
+  },
+  "redoute-roses-rosa-mucosa-alba": {
+    "widthCm": 25.2,
+    "heightCm": 34.9,
+    "source": "static"
+  },
+  "redoute-roses-rosa-mucosa-anemone-flora": {
+    "widthCm": 25.2,
+    "heightCm": 34.9,
+    "source": "static"
+  },
+  "redoute-roses-rosa-multiflora-carnea": {
+    "widthCm": 25.2,
+    "heightCm": 34.9,
+    "source": "static"
+  },
+  "redoute-roses-rosa-multiflora-platyphylla": {
+    "widthCm": 25.2,
+    "heightCm": 34.9,
+    "source": "static"
+  },
+  "redoute-roses-rosa-muscosa": {
+    "widthCm": 25.2,
+    "heightCm": 34.9,
+    "source": "static"
+  },
+  "redoute-roses-rosa-muscosa-multiplex": {
+    "widthCm": 25.2,
+    "heightCm": 34.9,
+    "source": "static"
+  },
+  "redoute-roses-rosa-nivea": {
+    "widthCm": 25.2,
+    "heightCm": 34.9,
+    "source": "static"
+  },
+  "redoute-roses-rosa-noisettiana": {
+    "widthCm": 25.2,
+    "heightCm": 34.9,
+    "source": "static"
+  },
+  "redoute-roses-rosa-noisettiana-purpurea": {
+    "widthCm": 25.2,
+    "heightCm": 34.9,
+    "source": "static"
+  },
+  "redoute-roses-rosa-orbessanea": {
+    "widthCm": 25.2,
+    "heightCm": 34.9,
+    "source": "static"
+  },
+  "redoute-roses-rosa-parviflora-flore-multiplici": {
+    "widthCm": 25.2,
+    "heightCm": 34.9,
+    "source": "static"
+  },
+  "redoute-roses-rosa-pimpinellifolia-flore-albo-aubmultiplici": {
+    "widthCm": 25.2,
+    "heightCm": 34.9,
+    "source": "static"
+  },
+  "redoute-roses-rosa-pimpinellifolia-flore-rubro-multiplici": {
+    "widthCm": 25.2,
+    "heightCm": 34.9,
+    "source": "static"
+  },
+  "redoute-roses-rosa-pimpinellifolia-inermis": {
+    "widthCm": 25.2,
+    "heightCm": 34.9,
+    "source": "static"
+  },
+  "redoute-roses-rosa-pimpinellifolia-major-flore-variegato": {
+    "widthCm": 25.2,
+    "heightCm": 34.9,
+    "source": "static"
+  },
+  "redoute-roses-rosa-pimpinellifolia-mariaburgensis": {
+    "widthCm": 25.2,
+    "heightCm": 34.9,
+    "source": "static"
+  },
+  "redoute-roses-rosa-pimpinellifolia-pumila": {
+    "widthCm": 25.2,
+    "heightCm": 34.9,
+    "source": "static"
+  },
+  "redoute-roses-rosa-pomonia-flore-subsimplici": {
+    "widthCm": 25.2,
+    "heightCm": 34.9,
+    "source": "static"
+  },
+  "redoute-roses-rosa-pomponia": {
+    "widthCm": 25.2,
+    "heightCm": 34.9,
+    "source": "static"
+  },
+  "redoute-roses-rosa-pomponiana": {
+    "widthCm": 25.2,
+    "heightCm": 34.9,
+    "source": "static"
+  },
+  "redoute-roses-rosa-pomponiana-muscosa": {
+    "widthCm": 25.2,
+    "heightCm": 34.9,
+    "source": "static"
+  },
+  "redoute-roses-rosa-pumila": {
+    "widthCm": 25.2,
+    "heightCm": 34.9,
+    "source": "static"
+  },
+  "redoute-roses-rosa-rapa-flore-semipleno": {
+    "widthCm": 25.2,
+    "heightCm": 34.9,
+    "source": "static"
+  },
+  "redoute-roses-rosa-reclinata-fleures-simples": {
+    "widthCm": 25.2,
+    "heightCm": 34.9,
+    "source": "static"
+  },
+  "redoute-roses-rosa-reclinata-fleurs-presque-doubles": {
+    "widthCm": 25.2,
+    "heightCm": 34.9,
+    "source": "static"
+  },
+  "redoute-roses-rosa-redutea-glauca": {
+    "widthCm": 25.2,
+    "heightCm": 34.9,
+    "source": "static"
+  },
+  "redoute-roses-rosa-redutea-rubescens": {
+    "widthCm": 25.2,
+    "heightCm": 34.9,
+    "source": "static"
+  },
+  "redoute-roses-rosa-rosenbergiana": {
+    "widthCm": 25.2,
+    "heightCm": 34.9,
+    "source": "static"
+  },
+  "redoute-roses-rosa-rubifolia": {
+    "widthCm": 25.2,
+    "heightCm": 34.9,
+    "source": "static"
+  },
+  "redoute-roses-rosa-rubiginosa": {
+    "widthCm": 25.2,
+    "heightCm": 34.9,
+    "source": "static"
+  },
+  "redoute-roses-rosa-rubiginosa-aculeatissima": {
+    "widthCm": 25.2,
+    "heightCm": 34.9,
+    "source": "static"
+  },
+  "redoute-roses-rosa-rubiginosa-anemone-flora": {
+    "widthCm": 25.2,
+    "heightCm": 34.9,
+    "source": "static"
+  },
+  "redoute-roses-rosa-rubiginosa-cretica": {
+    "widthCm": 25.2,
+    "heightCm": 34.9,
+    "source": "static"
+  },
+  "redoute-roses-rosa-rubiginosa-nemoralis": {
+    "widthCm": 25.2,
+    "heightCm": 34.9,
+    "source": "static"
+  },
+  "redoute-roses-rosa-rubiginosa-vaillantiana": {
+    "widthCm": 25.2,
+    "heightCm": 34.9,
+    "source": "static"
+  },
+  "redoute-roses-rosa-rubiginosa-zabeth": {
+    "widthCm": 25.2,
+    "heightCm": 34.9,
+    "source": "static"
+  },
+  "redoute-roses-rosa-rubininosa-flore-semi-pleno": {
+    "widthCm": 25.2,
+    "heightCm": 34.9,
+    "source": "static"
+  },
+  "redoute-roses-rosa-rubrifolia": {
+    "widthCm": 25.2,
+    "heightCm": 34.9,
+    "source": "static"
+  },
+  "redoute-roses-rosa-sempervirens": {
+    "widthCm": 25.2,
+    "heightCm": 34.9,
+    "source": "static"
+  },
+  "redoute-roses-rosa-sempervirens-globosa": {
+    "widthCm": 25.2,
+    "heightCm": 34.9,
+    "source": "static"
+  },
+  "redoute-roses-rosa-sempervirens-latifolia": {
+    "widthCm": 25.2,
+    "heightCm": 34.9,
+    "source": "static"
+  },
+  "redoute-roses-rosa-sepium-flore-submultiplici": {
+    "widthCm": 25.2,
+    "heightCm": 34.9,
+    "source": "static"
+  },
+  "redoute-roses-rosa-sepium-myrtifolia": {
+    "widthCm": 25.2,
+    "heightCm": 34.9,
+    "source": "static"
+  },
+  "redoute-roses-rosa-sepium-rosea": {
+    "widthCm": 25.2,
+    "heightCm": 34.9,
+    "source": "static"
+  },
+  "redoute-roses-rosa-smpervirens-leschenaultiana": {
+    "widthCm": 25.2,
+    "heightCm": 34.9,
+    "source": "static"
+  },
+  "redoute-roses-rosa-spinulifolia-dematratiana": {
+    "widthCm": 25.2,
+    "heightCm": 34.9,
+    "source": "static"
+  },
+  "redoute-roses-rosa-stylosa": {
+    "widthCm": 25.2,
+    "heightCm": 34.9,
+    "source": "static"
+  },
+  "redoute-roses-rosa-sulfurea": {
+    "widthCm": 25.2,
+    "heightCm": 34.9,
+    "source": "static"
+  },
+  "redoute-roses-rosa-tomentosa": {
+    "widthCm": 25.2,
+    "heightCm": 34.9,
+    "source": "static"
+  },
+  "redoute-roses-rosa-tomentosa-flore-multiplici": {
+    "widthCm": 25.2,
+    "heightCm": 34.9,
+    "source": "static"
+  },
+  "redoute-roses-rosa-turbinata": {
+    "widthCm": 25.2,
+    "heightCm": 34.9,
+    "source": "static"
+  },
+  "redoute-roses-rosa-ventenatiana": {
+    "widthCm": 25.2,
+    "heightCm": 34.9,
+    "source": "static"
+  },
+  "redoute-roses-rosa-villosa": {
+    "widthCm": 25.2,
+    "heightCm": 34.9,
+    "source": "static"
+  },
+  "redoute-roses-rosa-villosa-evrathiana": {
+    "widthCm": 25.2,
+    "heightCm": 34.9,
+    "source": "static"
+  },
+  "redoute-roses-rosa-villosa-terebenthina": {
+    "widthCm": 25.2,
+    "heightCm": 34.9,
+    "source": "static"
   }
 }
