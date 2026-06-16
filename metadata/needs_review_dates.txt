@@ -1,23 +1,14 @@
 # Copyright review — looks recent
-# Generated: 2026-06-10T07:53:05.344Z
+# Generated: 2026-06-16T21:43:34.102Z
 # Cutoff: year < 1926 (artwork must be at least 100 years old).
 # Entries here have year >= 1926 after heuristic re-extraction,
 # so they may be copyrighted. Review and remove if they cannot be
 # confirmed as public domain.
 
-## collection-of-beauty.json  (129)
+## collection-of-beauty.json  (142)
 
-2024 [filename]             ? — La Liberté guidant le peuple - Eugène Delacroix - Musée du Louvre Peintures RF 129 - après restauration 2024
-       file: La_Liberté_guidant_le_peuple_-_Eugène_Delacroix_-_Musée_du_Louvre_Peintures_RF_129_-_après_restauration_2024.jpg
-       date_created: 2024
-
-2020 [filename]             ? — Jean-Léon Gérôme--La Danse pyrrhique--sothebys--2020
-       file: Jean-Léon_Gérôme--La_Danse_pyrrhique--sothebys--2020.jpg
-       date_created: 2020
-
-2016 [filename]             ? — Snow on Ayase river, Rijksmuseum RP-P-2016-66-8 (1)
-       file: Snow_on_Ayase_river,_Rijksmuseum_RP-P-2016-66-8 (1).jpg
-       date_created: 2016
+2019 [filename]             Louis-Léopold Boilly — Woman Showing Her Portrait
+       file: Louis_Léopold_Boilly_-_Woman_Showing_Her_Portrait_-_32.2019.10_-_Dallas_Museum_of_Art.jpg
 
 2015 [filename]             ? — 1280px-Leda col Signo (Copy Of Leonardo da Vinci) September 2015-1
        file: 1280px-Leda_col_Signo_(Copy_Of_Leonardo_da_Vinci)_September_2015-1.jpg
@@ -133,7 +124,7 @@
 
 2004 [filename]             Charles Le Brun — The Descent from the Cross
        file: The_Descent_from_the_Cross_LACMA_M.2004.239.jpg
-       date_created: Late 1640s
+       date_created: late 1640s
 
 1983 [date_created_plain]   ? — 2560px-Jean Léon Gérôme - Chariot Race - 1983.380 - Art Institute of Chicago
        file: 2560px-Jean_Léon_Gérôme_-_Chariot_Race_-_1983.380_-_Art_Institute_of_Chicago.jpg
@@ -146,6 +137,14 @@
 1957 [jp_era]               Hasui Kawase — Kawase Hasui-No Series-Konjikido in Snow Hiraizumi
        file: Kawase_Hasui-No_Series-Konjikido_in_Snow_Hiraizumi.jpg
        date_created: 昭和32年出版
+
+1955 [date_created_plain]   M.C. Escher — MC Escher Convex and Concave
+       file: MC Escher Convex and Concave.webp
+       date_created: 1955
+
+1953 [date_created_plain]   Kawase Hasui — Nihon fūkei senshū, Kyōto Daigoku-den by Kawase Hasui
+       file: Nihon_fūkei_senshū,_Kyōto_Daigoku-den_by_Kawase_Hasui.jpg
+       date_created: 1953
 
 1953 [date_created_plain]   Hasui Kawase — Snow over Zojoji Temple (Shiba, Tokyo)-IMG 9360
        file: Snow_over_Zojoji_Temple_(Shiba,_Tokyo)-IMG_9360.JPG
@@ -163,13 +162,19 @@
        file: Léon_Bakst_-_Carnival_in_Paris_in_Honour_of_the_Russian_Navy.jpg
        date_created: 20th-century
 
-1949 [date_created_plain]   ? — 2560px-Vincent van Gogh - Grapes, Lemons, Pears, and Apples - 1949.215 - Art Institute of Chicago
-       file: 2560px-Vincent_van_Gogh_-_Grapes,_Lemons,_Pears,_and_Apples_-_1949.215_-_Art_Institute_of_Chicago.jpg
-       date_created: 1949
+1950 [era_phrase]           Kawase Hasui — Tabi miyage dai nishū, Sado Ogi no minato by Kawase Hasui 01
+       file: Tabi_miyage_dai_nishū,_Sado_Ogi_no_minato_by_Kawase_Hasui_01.jpg
+
+1950 [description]          Giorgio de Chirico — The Disquieting Muses
+       file: The_Disquieting_Muses.jpg
 
 1946 [wikidata_qs]          Kanae Yamamoto — Kanae Yamamoto - Dutch girl in landscape
        file: Kanae_Yamamoto_-_Dutch_girl_in_landscape.jpg
        date_created: before 1946 date QS:P,+1946-00-00T00:00:00Z/7,P1326,+1946-00-00T00:00:00Z/9
+
+1945 [date_created_plain]   M.C. Escher — MC Escher Three Spheres I
+       file: MC Escher Three Spheres I.jpg
+       date_created: 1945
 
 1943 [filename]             Bartolomeo Nazari — Portrait of a Man
        file: Bartolommeo_Nazari_-_Portrait_of_a_Man_-_1943.116_-_Fogg_Museum.jpg
@@ -182,9 +187,9 @@
        file: Yves_Tanguy_-_Divisibilité_indéfinie_(1942).jpg
        date_created: 1942
 
-1940 [date_created_plain]   ? — 'January' by Grant Wood, 1940-41, Cleveland Museum of Art
+1940 [date_created_plain]   Grant Wood — 'January' by Grant Wood, 1940-41, Cleveland Museum of Art
        file: 'January'_by_Grant_Wood,_1940-41,_Cleveland_Museum_of_Art.jpeg
-       date_created: 1940
+       date_created: 1940-1941
 
 1940 [wikidata_qs]          Grant Wood — Sentimental Ballad
        file: 'Sentimental_Ballad'_by_Grant_Wood,_1940.jpg
@@ -198,7 +203,7 @@
        file: Bamboo_Grove_(5759026915).jpg
        date_created: 1939 , digital img: 25 May 2011 12:49:50
 
-1939 [date_created_plain]   ? — Kanae Yamamoto (1939) Kōgen - Iizuna
+1939 [date_created_plain]   Kanae Yamamoto — Kanae Yamamoto (1939) Kōgen - Iizuna
        file: Kanae_Yamamoto_(1939)_Kōgen_-_Iizuna.jpg
        date_created: 1939
 
@@ -209,6 +214,10 @@
 1938 [wikidata_qs]          Kanae Yamamoto — Kanae Yamamoto (1938) Kami-Ide no Fuji
        file: Kanae_Yamamoto_(1938)_Kami-Ide_no_Fuji.jpg
        date_created: 1938 date QS:P571,+1938-00-00T00:00:00Z/9
+
+1938 [date_created_plain]   Elizabeth Keith — Old Korea-Keith-BRIDE
+       file: Old_Korea-Keith-BRIDE.jpeg
+       date_created: 1938
 
 1938 [wikidata_qs]          Robert Delaunay — Rythme n°1, décoration pour le Salon des Tuileries
        file: Robert_Delaunay,_1938,_Rythme_n°1,_Decoration_for_the_Salon_des_Tuileries,_oil_on_canvas,_Musée_d'Art_Moderne_de_la_ville_de_Paris.jpg
@@ -226,7 +235,11 @@
        file: Hiroshi_Yoshida_-_Yomei_Gate.jpg
        date_created: 1937 date QS:P571,+1937-00-00T00:00:00Z/9
 
-1937 [date_created_plain]   ? — Kanae Yamamoto (1937) Haruna-ko shoshū
+1937 [wikidata_qs]          Huang Binhong — huang-binhong-landscape
+       file: huang-binhong-landscape.jpg
+       date_created: 1937 date QS:P571,+1937-00-00T00:00:00Z/9
+
+1937 [date_created_plain]   Kanae Yamamoto — Kanae Yamamoto (1937) Haruna-ko shoshū
        file: Kanae_Yamamoto_(1937)_Haruna-ko_shoshū.jpg
        date_created: 1937
 
@@ -241,6 +254,10 @@
 1936 [jp_era]               Yamakawa Shūhō（1898-1944） — 'Three Sisters' by Yamakawa Shūhō (1898-1944), painted screen, 1936, Honolulu Museum of Art 02
        file: 'Three_Sisters'_by_Yamakawa_Shūhō_(1898-1944),_painted_screen,_1936,_Honolulu_Museum_of_Art_02.jpg
        date_created: 昭和11年
+
+1936 [date_created_plain]   Pu Xuan — 溥僩丙子夏日寫生
+       file: 溥僩丙子夏日寫生.jpg
+       date_created: 1936
 
 1935 [wikidata_qs]          Ernst Ludwig Kirchner — Archers
        file: Ernst_Ludwig_Kirchner_-_Bogenschützen_-1935-37.jpg
@@ -357,6 +374,10 @@
        file: Torii_Kotondo_-_Woman_Before_a_Mirror_-_Walters_95890.jpg
        date_created: 1930 date QS:P571,+1930-00-00T00:00:00Z/9
 
+1929 [date_created_plain]   Hiroshi Yoshida — Kagurazaka Street at Night after Rain, from the Series  Twelve Scenes of Tokyo . Hiroshi Yoshida
+       file: Kagurazaka_Street_at_Night_after_Rain,_from_the_Series__Twelve_Scenes_of_Tokyo_._Hiroshi_Yoshida.jpg
+       date_created: 1929
+
 1929 [jp_era]               Hasui Kawase — Shinobazu Pond in Rain
        file: NDL-DC_2586549-10_Kawase_Hasui_S04_crd.jpg
        date_created: 昭和4年出版
@@ -380,6 +401,10 @@
 1929 [wikidata_qs]          Torii Kotondo (Japanese, active 1st half 20th century) — Kamisuki (Combing Her Hair)
        file: Torii_Kotondo_-_Kamisuki_(Combing_Her_Hair)_-_Walters_95889.jpg
        date_created: 1929 date QS:P571,+1929-00-00T00:00:00Z/9
+
+1928 [jp_era]               Hasui Kawase — 2560px-NDL-DC 2586549-07 Kawase Hasui S03 crd
+       file: 2560px-NDL-DC_2586549-07_Kawase_Hasui_S03_crd.jpg
+       date_created: 昭和3年出版
 
 1928 [wikidata_qs]          Francis Picabia — Espagnole et agneau de l'Apocalypse
        file: Espagnole_et_agneau_de_l'Apocalypse.png
@@ -425,10 +450,6 @@
        file: Kawase_Tenno-ji-27.jpg
        date_created: 昭和2年出版
 
-1927 [jp_era]               Hasui Kawase — Morning on the Daikon Wharf
-       file: NDL-DC_2586549-03_Kawase_Hasui_S02_crd.jpg
-       date_created: 昭和2年出版
-
 1927 [jp_era]               Hasui Kawase — Karasu Marsh, Akita
        file: NDL-DC_2586549-14_Kawase_Hasui_S02_crd.jpg
        date_created: 昭和2年出版
@@ -437,11 +458,19 @@
        file: NDL-DC_2586549-15_Kawase_Hasui_S02_crd.jpg
        date_created: 昭和2年出版
 
+1927 [date_created_plain]   Kawase Hasui — Tōkyō jūnidai, Daikon-gashi by Kawase Hasui
+       file: Tōkyō_jūnidai,_Daikon-gashi_by_Kawase_Hasui.jpg
+       date_created: 1927 (Showa 2)
+
 1927 [jp_era]               Hiroshi Yoshida — Kameidô
        file: Yoshida_Kameidô.jpg
        date_created: 昭和2年出版
 
-1926 [date_created_plain]   ? — 960px-Robert Delaunay, 1926, Tour Eiffel, oil on canvas, 169 × 86 cm, Musée d'Art Moderne de la ville de Paris
+1926 [date_created_plain]   Hasui Kawase — 2560px-NDL-DC 2586549-12 Kawase Hasui T15 crd
+       file: 2560px-NDL-DC_2586549-12_Kawase_Hasui_T15_crd.jpg
+       date_created: 1926
+
+1926 [date_created_plain]   Robert Delaunay — 960px-Robert Delaunay, 1926, Tour Eiffel, oil on canvas, 169 × 86 cm, Musée d'Art Moderne de la ville de Paris
        file: 960px-Robert_Delaunay,_1926,_Tour_Eiffel,_oil_on_canvas,_169_×_86_cm,_Musée_d'Art_Moderne_de_la_ville_de_Paris.jpg
        date_created: 1926
 
@@ -473,7 +502,11 @@
        file: Hodakayama,_from_the_series_Twelve_Scenes_in_the_Japan_Alps,_Hiroshi_Yoshida.jpg
        date_created: 1926 date QS:P571,+1926-00-00T00:00:00Z/9
 
-1926 [date_created_plain]   ? — Kanae Yamamoto (1926) Tokko Sanroku Shūi
+1926 [date_created_plain]   Takahashi Shōtei — Junks in Inatori Bay, Izu by Takahashi Shōtei (1)
+       file: Junks_in_Inatori_Bay,_Izu_by_Takahashi_Shōtei (1).jpg
+       date_created: 1926
+
+1926 [date_created_plain]   Kanae Yamamoto — Kanae Yamamoto (1926) Tokko Sanroku Shūi
        file: Kanae_Yamamoto_(1926)_Tokko_Sanroku_Shūi.jpg
        date_created: 1926
 
@@ -496,6 +529,10 @@
 1926 [jp_era]               Hasui Kawase — Kōjaku cavern at Oga Peninsula
        file: NDL-DC_2586549-13_Kawase_Hasui_T15_crd.jpg
        date_created: 大正15年出版
+
+1926 [date_created_plain]   Kawase Hasui — Nihon fūkei senshū, Izumo Yasugi Kiyomizu by Kawase Hasui
+       file: Nihon_fūkei_senshū,_Izumo_Yasugi_Kiyomizu_by_Kawase_Hasui.jpg
+       date_created: 1926
 
 1926 [jp_era]               Hasui Kawase — Ochanomizu (5758871675)
        file: Ochanomizu_(5758871675).jpg
@@ -520,4 +557,16 @@
 1926 [wikidata_qs]          Hiroshi Yoshida — Sailing Boats, Night
        file: Sailing_Boats,_Night,_Hiroshi_Yoshida.jpg
        date_created: 1926 date QS:P571,+1926-00-00T00:00:00Z/9
+
+1926 [date_created_plain]   Hasui Kawase — Tabi miyage dai sanshū, Tazawako Gozanoishi by Kawase Hasui
+       file: Tabi_miyage_dai_sanshū,_Tazawako_Gozanoishi_by_Kawase_Hasui.jpg
+       date_created: 1926
+
+1926 [date_created_plain]   Hasui Kawase — Tōkyō nijū kei, Kanda Myōjin keidai by Kawase Hasui
+       file: Tōkyō_nijū_kei,_Kanda_Myōjin_keidai_by_Kawase_Hasui.jpg
+       date_created: 1926
+
+1926 [date_created_plain]   Hasui Kawase — Tōkyō nijū kei, Shin Ōhashi by Kawase Hasui
+       file: Tōkyō_nijū_kei,_Shin_Ōhashi_by_Kawase_Hasui.jpg
+       date_created: 1926
 

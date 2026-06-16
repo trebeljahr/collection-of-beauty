@@ -1,57 +1,18 @@
 'Garden_at_Bordighera,_Impression_of_Morning'_by_Claude_Monet,_1884,_Hermitage.jpeg
-'January'_by_Grant_Wood,_1940-41,_Cleveland_Museum_of_Art.jpeg
-'Jupiter_and_Antiope',_oil_on_canvas_painting_by_Hendrick_Goltzius.jpeg
-'Taj_Mahal'_by_Charles_W._Bartlett,_1916,_woodblock_print.jpeg
-'The_Grand_Quay_at_Havre'_by_Claude_Monet,_1874,_Hermitage.jpeg
 'Winter_Night,_Ekely'_by_Edvard_Munch,_1930-31.jpeg
-0_Entrevue_du_roi_et_de_Marie_de_Médicis_à_Lyon_-_P.P._Rubens_-_Louvre_2.jpeg
-0_Le_Sultan_Mulay_Ahmad_de_Tunis_-_Rubens_-_Museum_of_Fine_Arts,_Boston_-_40.2_-(2).jpeg
-1280px-Arcimboldo_Winter_1563.jpg
-1280px-Cypresses_MET_DP130999.jpg
-1280px-De_schovenbindster_(naar_Millet)_-_s0172V1962_-_Van_Gogh_Museum.jpg
 1280px-Eugène_Ferdinand_Victor_Delacroix_025.jpg
 1280px-Gericault_Theodore_1819-20_Portrait_eines_Jungen_mit_langem_blonden_Haar.jpg
-1280px-Gérôme-Black_Bashi-Bazouk-c._1869.jpg
-1280px-Giuseppe_Arcimboldo_-_Four_Seasons_in_One_Head_-_Google_Art_Project.jpg
-1280px-Giuseppe_Arcimboldo_-_La_Primavera_-_Google_Art_Project.jpg
 1280px-Giuseppe_Arcimboldo_-_Summer_-_Google_Art_Project.jpg
-1280px-Gustave_Caillebotte_-_The_Orange_Trees_-_Google_Art_Project.jpg
-1280px-Jean-Léon_Gérôme_-_Slave_Market_in_Rome_-_WGA8652.jpg
-1280px-Jean_Léon_Gerome_1896_La_Vérité_sortant_du_puits.jpeg
 1280px-John_Constable_-_The_Vale_of_Dedham_-_Google_Art_Project.jpg
 1280px-Leda_col_Signo_(Copy_Of_Leonardo_da_Vinci)_September_2015-1.jpg
 1280px-Nihon_fūkei_senshū,_Okayama_Uchisange_by_Kawase_Hasui.jpg
-1280px-Pierre_Puvis_de_Chavannes_-_Young_Girls_by_the_Seaside_-_Google_Art_Project.jpg
-1280px-Retrato_de_la_esposa_del_artista_con_sus_dos_hijos,_por_Hans_Holbein_el_Joven.jpg
-1280px-Rocky_Landscape_in_the_Elbe_Sandstone_Mountains_-_Caspar_David_Friedrich_-_Google_Cultural_Institute.jpg
-1280px-Suzuki_Harunobu_-_Evening_Snow_on_the_Heater.jpg
 1280px-The_Chess_Game.jpg
-1280px-Théodore_Géricault_-_Evening,_Landscape_with_an_Aqueduct.jpg
-1280px-Thomas_Gainsborough_-_Clayton_Jones_-_Google_Art_Project.jpg
-1280px-Thomas_Gainsborough_-_The_Marsham_Children_-_Google_Art_Project.jpg
-1280px-Van_Gogh_-_Das_Restaurant_Rispal_in_Asniéres.jpeg
 1280px-Van_Gogh_-_Garten_des_Hospitals_Saint-Paul_mit_Figur.jpeg
 1280px-Van_Gogh_-_Weizenfeld_mit_Blick_auf_Arles.jpeg
 1280px-Vincent_van_Gogh_-_Head_of_a_skeleton_with_a_burning_cigarette_-_Google_Art_Project.jpg
-1280px-Vincent_van_Gogh_-_The_Postman_(Joseph-Étienne_Roulin)_-_BF37_-_Barnes_Foundation.jpg
-1280px-Vittore_Carpaccio_-_Hunting_on_the_Lagoon_(recto),_Letter_Rack_(verso)_-_79.PB.72_-_J._Paul_Getty_Museum.jpg
-1280px-Wilhelm_von_Kobell_-_Reiter_am_Tegernsee_-_Google_Art_Project.jpg
 1280px-Zelfportret_als_schilder_-_s0022V1962_-_Van_Gogh_Museum.jpg
-1280px-Zelfportret_met_grijze_vilthoed_-_s0016V1962_-_Van_Gogh_Museum.jpg
-1529_Cranach_Allegorie_auf_Gesetz_und_Gnade_anagoria.jpeg
-15_Qian_Xuan_Eight_Flowers_National_Palace_Museum_Beijing.jpeg
-1627_Rubens_Maria_mit_dem_Kind_anagoria.jpeg
 1813_Schinkel_Blick_auf_den_Mont_Blanc_anagoria.jpeg
-1815_Schinkel_Mittelalterliche_Stadt_an_einem_Fluss_anagoria.jpeg
-1836_Heimkehr_des_Palikaren_anagoria.jpeg
-1859_Menzel_Studentenfackelzug_anagoria.jpeg
-1871_Vereshchagin_Apotheose_des_Krieges_anagoria.jpeg
-1872_Vereshchagin_Praesentation_der_Trophaeen_anagoria.jpeg
-1872_Vereshchagin_Triumphierend_anagoria.jpeg
-1873_Monet_Houses_at_Argenteuil_anagoria.jpeg
-1878_Vereshchagin_Schlachtfeld_am_Schipkapass_anagoria.jpeg
 1889,_Vincent_Van_Gogh_-_Women_Picking_Olives.webp.png
-1902_Monet_Die_Waterloo-Brücke_anagoria.jpeg
 2013_HGK_03211_1009_000(wu_changshuo_landscape120225).jpg
 2013_HGK_03211_1015_000(wu_hufan_landscape_in_yuan_dynasty_style120413).jpg
 2013_HGK_03211_1016_000(chen_da_landscape_in_the_style_of_li_xianxi120441).jpg
@@ -95,45 +56,22 @@
 2013_HGK_03211_1366_000(zhao_shaoang_sailing_along_the_three_gorges044016).jpg
 2013_HGK_03211_1370_000(zhao_shaoang_spring044231).jpg
 2013_HGK_03211_1410_000(tang_binggeng_mount_huang050824).jpg
-2560px-Bonaparte_ante_la_Esfinge,_por_Jean-Léon_Gérôme.jpg
-2560px-Courbet_LAtelier_du_peintre.jpg
 2560px-De_heuvel_van_Montmartre_met_steengroeve_-_s0012V1962_-_Van_Gogh_Museum.jpg
-2560px-Edgar_Germain_Hilaire_Degas_031.jpg
-2560px-Gustave_Courbet,_1857,_Le_Pont_d'Ambrussum,_huile_sur_papier_marouflé_sur_bois,_48_x_63_cm,_Musée_Fabre.jpg
 2560px-Hiroshige24_shimada.jpg
-2560px-Hiroshige_Fishing_boats_on_a_lake.jpg
-2560px-Jean-Leon_Gerome_-_Souvenir_of_Acheres_(1903).jpg
 2560px-Jean_Léon_Gérôme_-_Chariot_Race_-_1983.380_-_Art_Institute_of_Chicago.jpg
-2560px-Jean_Louis_Théodore_Géricault_001.jpg
 2560px-NDL-DC_2586549-06_Kawase_Hasui_S03_crd.jpg
-2560px-NDL-DC_2586549-07_Kawase_Hasui_S03_crd.jpg
-2560px-NDL-DC_2586549-12_Kawase_Hasui_T15_crd.jpg
 2560px-Nihon_fūkei_senshū,_Hizen_Kazusa_by_Kawase_Hasui.jpg
 2560px-Ondergesneeuwd_veld_met_een_eg_(naar_Millet)_-_s0175V1962_-_Van_Gogh_Museum.jpg
-2560px-Pieter_Bruegel_the_Elder_-_Hunters_in_the_Snow_(Winter)_-_Google_Art_Project.jpg
-2560px-The_Big_wave_from_100_views_of_the_Fuji,_2nd_volume.jpg
 2560px-The_Calm_Sea_MET_DT1973.jpg
-2560px-The_Langlois_Bridge_at_Arles_-_My_Dream.jpg
 2560px-Van_Gogh_-_Acker_mit_pflügenden_Bauern.jpeg
-2560px-Van_Gogh_The_Olive_Trees..jpg
-2560px-Vincent_van_Gogh_-_Grapes,_Lemons,_Pears,_and_Apples_-_1949.215_-_Art_Institute_of_Chicago.jpg
-2560px-Vincent_van_Gogh_-_House_at_Auvers_-_Google_Art_Project.jpg
-2560px-Vincent_van_Gogh_-_The_siesta_(after_Millet)_-_Google_Art_Project.jpg
-2560px-Vincent_van_Gogh_-_Vineyards_at_Auvers_(1890).jpg
-2560px-Vincent_van_Gogh_-_Vissersboten_op_het_strand_van_Les_Saintes-Maries-de-la-Mer_-_Google_Art_Project.jpg
 2560px-Vincent_van_Gogh_-_Wheat_Fields_with_Reaper,_Auvers_-_Google_Art_Project.jpg
 2560px-William_Holman_Hunt_-_The_Scapegoat.jpg
-2560px-冨嶽三十六景_上総の海路-At_Sea_off_Kazusa_(Kazusa_no_kairo),_from_the_series_Thirty-six_Views_of_Mount_Fuji_(Fugaku_sanjūrokkei)_MET_DP141056.jpg
 2560px-冨嶽三十六景_東都駿台-Surugadai_in_Edo_(Tōto_Sundai),_from_the_series_Thirty-six_Views_of_Mount_Fuji_(Fugaku_sanjūrokkei)_MET_DP140999.jpg
 2560px-冨嶽三十六景_登戸浦-Noboto_Bay_(Noboto_no_ura),_from_the_series_Thirty-six_Views_of_Mount_Fuji_(Fugaku_sanjūrokkei)_MET_DP141022.jpg
 40606050395_3a1dceb6f4_o.webp
 40606051085_82e3d4db7e_o.webp
-500px-Gipsen_vrouwentorso_-_s0199V1962_-_Van_Gogh_Museum.jpg
-500px-Kuniyoshi_Utagawa,_Hawk.jpg
-500px-Kuniyoshi_Utagawa,_Tiger.jpg
 960px-03_-_Sukiyagahsi.jpg
 960px-13_-_The_Tama_River.jpg
-960px-Fox_Hunt_1893_Winslow_Homer.jpg
 960px-Hanagami_Danjo_no_jo_Arakage_fighting_a_giant_salamander.jpg
 960px-Hiroshige,_Futamigaura_in_Ise_Province,_1858.jpg
 960px-Hiroshige,_Sunset_Hill,_Meguro_in_the_eastern_capital,_1858.jpg
@@ -141,146 +79,61 @@
 960px-Hiroshige_Mt_fuji_4.jpg
 960px-Jean-Léon_Gérôme_002.jpg
 960px-Lofty_Mt.Lu_by_Shen_Zhou.jpg
-960px-Museo_del_Prado_-_Goya_-_Caprichos_-_No._43_-_El_sueño_de_la_razon_produce_monstruos.jpg
-960px-Robert_Delaunay,_1926,_Tour_Eiffel,_oil_on_canvas,_169_×_86_cm,_Musée_d'Art_Moderne_de_la_ville_de_Paris.jpg
-960px-SesshuToyo.jpg
-960px-Tokyo_junidai,_haru_no_atagoyama_by_Kawase_Hasui.jpg
-960px-Van_Gogh_-_Le_Moulin_de_la_Galette4.jpeg
-A_Friendly_Call.jpeg
 A_Gate_to_the_Stupa_of_Sanchi,_from_the_Series__India_and_Southeast_Asia_._Hiroshi_Yoshida.jpg
-Albrecht_Altdorfer_-_Schlacht_bei_Issus_(Alte_Pinakothek,_München)_-_Google_Art_Project.jpg
-Alfons Much Slavnost_svatovitova_na_rujane.jpg
 Alfons_Mucha_Le_Pater__Lead_us_not_into_temptation__(1899).jpg
-Alte_Nationalgalerie-Krüger-Parade_auf_dem_Opernplatz_im_Jahre_1822_DSC8028.jpg
 Amsterdam_musee_van_gogh_monet_tulipes_moulins.jpeg
 An_Afternoon_Stroll_by_William_Merritt_Chase,_San_Diego_Museum_of_Art.jpeg
-An_écorché_figure,_rear_view._Wellcome_V0008306.jpg
-Anbetung_der_Könige_im_Schnee.jpg
 Andrew-Wyeth-Christinas-World.webp
 Anna_Hillmayer_1829,_by_Joseph_Stieler.jpeg
 Annibale_Carracci,_Pietà,_Kunsthistorichen,_Vienna.jpg
 Anniversary-Ernie Barnes.webp
 Apparatus_and_Hand.jpg
-Ariko weeps on her boat.jpg
-Ave_Caesar_Morituri_te_Salutant_(Gérôme)_01.jpg
-Beardsley-peacockskirt.png
 Bridge_over_waterfall (1).jpg
-Carl_Spitzweg_-__The_Bookworm_.jpg
-Carracci_-_Der_Bohnenesser.jpeg.jpeg
 Caspar_David_Friedrich's_Chalk_Cliffs_on_Rügen.jpg
-Caspar_David_Friedrich_-_Der_Mönch_am_Meer_-_Google_Art_Project.jpg
-Claude_Monet_-_Camille_Monet_sur_son_lit_de_mort.jpeg
-Claude_Monet_-_Graystaks_I.jpeg
 Claude_Monet_-_L'été_-_Champ_de_coquelicots.jpeg
 Claude_Monet_-_Water_Lilies,_1917-1919.jpeg
 Claude_Monet_012.jpg
-Constable_osmington_bay.tif.jpg
-Corner_in_Voyer-d'Argenson_Park_at_Asnières_by_Vincent_van_Gogh.jpeg
-Creación_de_Adán.jpg
 DaliGreatMasturbator.jpg
-Death and the Maiden Baldung.jpg
-Degas,_A_Woman_Seated_beside_a_Vase_of_Flowers_(Madame_Paul_Valpinçon).jpg
 Delacroix-Marc_Aurèle-MBA-Lyon.jpg
 Don_Juan_by_Eugène_Delacroix.jpg
-East_Cowes_Castle,_the_Regatta_Beating_to_Windward.png
 Edgar_Degas_-_Ballet_(L'Étoile).jpg
 Edinburgh_NGS_Singer_Sargent_Lady_Agnew.jpeg
 Edward Gorey Ballet.jpg
 Edward Gorey Christmas Card with Man and Cat.jpg
 Edward Gorey Christmas Card with Robot.jpg
 Edward Gorey Had Elizabeth Only Known.jpg
-El_Greco_(Domenikos_Theotokopoulos)_-_Laocoön_-_Google_Art_Project.jpg
-El_jardín_de_las_Delicias,_de_El_Bosco.jpg
-Entrée_de_cimetière_(1825)_-_Caspar_David_Friedrich_(Galerie_Neue_Meister,_Dresden).jpg
 Escher Metamorphosis.webp
 Eugène_Delacroix_-_A_Mortally_Wounded_Brigand_Quenches_his_Thirst_-_WGA06165.jpg
-Eugène_Delacroix_-_Collision_of_Moorish_Horsemen_-_Walters_376.jpg
 Eugène_Delacroix_-_Les_Natchez,_1835_(Metropolitan_Museum_of_Art).jpg
 Eugène_Delacroix_-_Shipwreck_on_the_Coast_-_Google_Art_Project.jpg
-Eugène_Delacroix_-_The_Fanatics_of_Tangier_-_WGA06195.jpg
-Femmes_d'Alger_dans_leur_appartement,_Eugène_Delacroix_-_Musée_du_Louvre_Peintures_INV_3824.jpg
-Félicien_Rops_-_Pornokratès_-_1878_(2).jpg
 Fischer_und_Frau Alexander Zwick.jpg
 Fish in Baarn.jpg
-François_boucher,_diana_che_esce_dal_bagno,_1742,_01.jpg
-Futsuka_Zuki_by_Kawai_Gyokudō.jpg
-G._Caillebotte_-_Intérieur.jpg
-G._Caillebotte_-_Villas_à_Trouville.jpg
-Gerhard_von_Kügelgen_portrait_of_Friedrich.jpg
 Gérôme,_Achat_d'une_esclave,_1857_(5613508015).jpg
-Gérôme,_The_Two_Majesties_1883.jpg
 Gérôme--Execution_of_Marshall_Ney--1868--Sheffield.jpg
-Gérôme--Femme_circassienne_voilée--Veiled_Circassian_Beauty--1876.jpg
-Gérôme_-_Cave_Canem.jpg
-Gérôme_-_L'entrée_du_Christ_à_Jérusalem_-_cadre.jpg
-Gérôme_-_Painting_Breathes_Life_into_Sculpture_v1.jpg
-Gérôme_-_Summer_Afternoon_on_a_Lake.jpg
-Gérôme_Eminence_grise_1873.jpg
-Giovanna_Baccelli_(Gainsborough).jpg
-Goethe_Kügelgen.jpg
-Gustave_Courbet_-_Le_Désespéré_(1843).jpg
-Gustave_Doré-Mont_Sainte-Odile_avec_mur_païen.jpg
-Gustave_Doré_-_La_Vallée_de_larmes.jpg
-Gustave_Doré_-_Landscape_in_Scotland_-_Walters_372625.jpg
 Gustave_Doré_-_Roland,_Count_of_Mans.jpg
 Gustave_Doré_-_St._John's_vision_of_death.jpg
-Gustave_Doré_-_The_Holy_Bible_-_Plate_I,_The_Deluge.jpg
 H22611-L388076506_original.jpg
 Harunobu_Bijin_sur_une_véranda.jpeg
 Harunobu_Jouvenceau_aux_chrysanthèmes.jpeg
-Hasegawa_Tohaku_-_Pine_Trees_(Shōrin-zu_byōbu)_-_right_hand_screen.jpg
-Hieronymous Bosch The Last Judgement.jpg
-Hieronymous Bosch Tondals Visions.jpg
 High+Aspirations-Ernie Barnes.webp
-Hiroshige Fudo Falls.jpg
-Hiroshige Kozuke.jpg
 Hiroshige Moon Bridge in Meguro.jpg
-Hiroshige View from massaki.jpg
 His+Effort-Ernie Barnes.webp
-Hokusai Views of Mount Fuji.jpg
 Hugo_van_der_Goes_(Gand,_1440_circa_–_Auderghem,_1482)_Altare_Monforte_-_Adorazione_dei_Magi_(1470_circa)_-_Tecnica_olio_su_tavola_Dimensioni_147×242_cm_-_Gemäldegalerie,_Berlin.jpg
 JEAN_LOUIS_THÉODORE_GÉRICAULT_-_La_Balsa_de_la_Medusa_(Museo_del_Louvre,_1818-19).jpg
 Jacob_Jordaens_01.jpeg
 Jean-Auguste-Dominique_INGRES_-_Tu_Marcellus_Eris_-_Musée_des_Augustins_-_RO_124.jpg
-Jean-Léon_Gerôme,_The_Grief_of_the_Pasha,_1882,_Joslyn_Art_Museum,_Omaha.jpg
 Jean-Léon_Gérome_-_Le_bain_(1880-85).jpg
-Jean-Léon_Gérôme,_Phryne_revealed_before_the_Areopagus_(1861)_-_01_(cropped).jpg
-Jean-Léon_Gérôme,_Pygmalion_and_Galatea,_ca._1890.jpg
-Jean-Léon_Gérôme,_The_Story_of_Anacreon_1--Cupid_at_the_Door_in_a_Rainstorm,_c_1899.jpg
-Jean-Léon_Gérôme,_The_Story_of_Anacreon_2--Young_Love's_Shivering_Limbs_the_Embers_Warm,_c_1899.jpg
-Jean-Léon_Gérôme,_The_Story_of_Anacreon_3--Cupid_Runs_out_the_Door,_c1899.jpg
-Jean-Léon_Gérôme,_The_Story_of_Anacreon_4--The_Poet_Dreams_of_Cupid_by_the_Fire,_c_1899.jpg
-Jean-Léon_Gérôme--La_Danse_pyrrhique--sothebys--2020.jpg
 Jean-Léon_Gérôme_-_At_Prayer_(1858)_(Sotheby's)_l21104-bwnbv-01a.jpg
 Jean-Léon_Gérôme_-_Bashi-Bazouk_-_2014.435.1_-_Metropolitan_Museum_of_Art.jpg
-Jean-Léon_Gérôme_-_Diogenes_-_Walters_37131.jpg
-Jean-Léon_Gérôme_-_El_rey_Candaules.jpg
-Jean-Léon_Gérôme_-_Evening_Prayer,_Cairo_(1865).jpg
 Jean-Léon_Gérôme_-_Le_charmeur_de_serpents.jpg
 Jean-Léon_Gérôme_-_Moorish_bath.jpg
-Jean-Léon_Gérôme_-_On_the_Desert_-_Walters_3734.jpg
-Jean-Léon_Gérôme_-_Pool_in_a_Harem.jpg
-Jean-Léon_Gérôme_-_Prayer_in_the_Desert_(1864).jpg
-Jean-Léon_Gérôme_-_Rider_and_his_Steed_in_the_Desert_(1872).jpg
-Jean-Léon_Gérôme_-_Riders_Crossing_The_Desert_(1870)_HQ.jpg
-Jean-Léon_Gérôme_-_The_Death_of_Caesar_-_Walters_37884.jpg
-Jean-Léon_Gérôme_-_The_Duel_After_the_Masquerade_-_Walters_3751.jpg
 Jean-Léon_Gérôme_-_The_Harem_in_the_Kiosk_(1870)_(Sotheby's)_099l1905-b9ddk.jpg
-Jean-Léon_Gérôme_-_The_Slave_Market_-_Google_Art_Project.jpg
 Jean-Léon_Gérôme_-_The_Tulip_Folly_-_Walters_372612.jpg
-Jean-Léon_Gérôme_-_Tiger_on_the_Watch_-_Google_Art_Project.jpg
-Jean-Léon_Gérôme_-_Young_Greeks_in_the_Mosque_-_62.85_-_Minneapolis_Institute_of_Arts.jpg
 Jean-Léon_Gérôme_011.jpg
-Jean-Léon_Gérôme_015_Carpets.jpg
 Jean-Léon_Gérôme_Consummatum_est.jpg
 Jean_Metzinger,_1910-11,_Deux_Nus_(Two_Nudes,_Two_Women),_oil_on_canvas,_92_x_66_cm,_Gothenburg_Museum_of_Art,_Sweden.jpg
 Jeune_Orpheline_au_cimetière_-_Eugène_Delacroix_-_Muse_du_Louvre_Peintures_RF_1652_-_photo_2.jpg
-Johann_Heinrich_Füssli_011.jpg
 Johann_Heinrich_Füssli_054.jpg
-Johann_Heinrich_Füssli_064.jpg
-John_Everett_Millais_-_Chill_October.jpeg
-John_Everett_Millais_-_Glen_Birnam.jpeg
-Julie de Graag December 1917.jpg
 Julie de Graag Farm in the Snow.jpg
 Julie de Graag Grasshopper.jpg
 Julie de Graag Lysemut.jpg
@@ -289,35 +142,11 @@ Julie de Graag Shell.jpg
 Julie de Graag Spider in a Web.jpg
 Julie de Graag Sunflower.jpg
 Julie de Graag Winter Evening.jpg
-Junks_in_Inatori_Bay,_Izu_by_Takahashi_Shōtei (1).jpg
-Jüdische_Hochzeit_in_Marokko-1024.jpg
-Kagurazaka_Street_at_Night_after_Rain,_from_the_Series__Twelve_Scenes_of_Tokyo_._Hiroshi_Yoshida.jpg
-Kanae_Yamamoto_(1926)_Tokko_Sanroku_Shūi.jpg
-Kanae_Yamamoto_(1937)_Haruna-ko_shoshū.jpg
-Kanae_Yamamoto_(1939)_Kōgen_-_Iizuna.jpg
-Kanō_Eitoku_-_Rakuchū_rakugai_zu_(Uesugi)_-_left_screen.jpg
-Kanō_Sansetsu_-_Frolicking_Birds_in_Plum_and_Willow_Trees.jpg
-Katsushika_Hokusai,_Goten-yama_hill,_Shinagawa_on_the_Tōkaidō,_ca._1832.jpg
 Katsushika_Hokusai,_published_by_Nishimuraya_Yohachi_(Eijudō)_-_Peonies_and_Canary_(Shakuyaku,_kanaari),_from_an_untitled_series_known_as_Small_Flowers_-_Google_Art_Project.jpg
-Keisai Eisen Winter Landscape.jpg
-Kenkō_Shōkei_-_Shōshō_Hakkei_-_Enji_Banshō.png
 L'Enlèvement,_par_Paul_Cézanne,_FWN_590.jpg
-LE_PORT_DE_ZAANDAM.png
 La gare (sous baguettes) Quickenborne.webp
-La_Liberté_guidant_le_peuple_-_Eugène_Delacroix_-_Musée_du_Louvre_Peintures_RF_129_-_après_restauration_2024.jpg
-La_Seine_à_Lavacourt.jpeg
 La_Vie_by_Pablo_Picasso.jpg
-Lac_d'Annecy,_par_Paul_Cézanne.jpg
-Le_Concert_champêtre,_by_Titian,_from_C2RMF_retouchedFXD.jpg
-Le_Garçon_au_gilet_rouge,_par_Paul_Cézanne,_National_Gallery_of_Art.jpg
-Le_havre_muma_monet_fecamp.jpeg
 Levé_de_lune_sur_le_Mont_Nanping.jpg
-Life-Boat_and_Manby_Apparatus_Going_Off_to_a_Stranded_Vessel_Making_Signal_(Blue_Lights)_of_Distress.png
-Lille_PdBA_monet_la_debacle.jpeg
-Lille_Pdba_rubens_marie_madeleine.jpeg
-Lucas_Cranach_-_Der_Jungbrunnen_(Gemäldegalerie_Berlin).jpg
-Lucas_Cranach_d.Ä._-_Herkules_und_Atlas_(National_Gallery_of_Art).jpg
-Lucas_Cranach_d.Ä._-_Simson_bezwingt_den_Löwen.jpg
 MC Escher  Phosphorescent Sea.jpg
 MC Escher Ant.webp
 MC Escher Ascending and Descending.jpg
@@ -332,7 +161,6 @@ MC Escher Circle Limit III.jpg
 MC Escher Circle Limit IV.jpg
 MC Escher Citadel.webp
 MC Escher Contrast.webp
-MC Escher Convex and Concave.webp
 MC Escher Crystal.jpg
 MC Escher Cube with Magic Ribbons.jpg
 MC Escher Cycle.jpg
@@ -374,7 +202,6 @@ MC Escher Still Life with Mirror.jpg
 MC Escher Still Life with Mirrored Sphere.jpg
 MC Escher Tetrahedal Platforms.jpg
 MC Escher The Illusion of a Dragon.jpg
-MC Escher Three Spheres I.jpg
 MC Escher Three Spheres.jpg
 MC Escher Three Worlds.webp
 MC Escher Tower of Babel.jpg
@@ -384,281 +211,82 @@ MC Escher Water Waves.jpg
 MC Escher Waterfall.webp
 MC Escher part of metamorphosis.jpg
 Man with a Bat on his Head Edward Gorey.jpg
-Menzel_Adolph_Frederick_the_Great_at_Lissa_Bonsoir,_Messieurs@Kunsthalle_Hamburg.jpeg
 Natoire-Sibylle.jpeg
-Nihon_fūkei_senshū,_Abuto_no_Kannon_by_Kawase_Hasui.jpg
-Nihon_fūkei_senshū,_Amakusa_Goryō_by_Kawase_Hasui.jpg
-Nihon_fūkei_senshū,_Amakusa_yori_mitaru_Onsengadake_by_Kawase_Hasui.jpg
-Nihon_fūkei_senshū,_Beppu_no_asa_by_Kawase_Hasui.jpg
-Nihon_fūkei_senshū,_Bingo_no_Iwafune_by_Kawase_Hasui.jpg
-Nihon_fūkei_senshū,_Bungo_Kakize_by_Kawase_Hasui.jpg
-Nihon_fūkei_senshū,_Chikuzen_Hakozaki_by_Kawase_Hasui.jpg
-Nihon_fūkei_senshū,_Chōmonkyō_Kayagafuchi_by_Kawase_Hasui.jpg
-Nihon_fūkei_senshū,_Higo_Tochinoki_onsen_by_Kawase_Hasui.jpg
-Nihon_fūkei_senshū,_Hizen_Kabeshima_by_Kawase_Hasui.jpg
-Nihon_fūkei_senshū,_Hizen_Kanahama_by_Kawase_Hasui.jpg
-Nihon_fūkei_senshū,_Hizen_Kyōdomari_by_Kawase_Hasui.jpg
-Nihon_fūkei_senshū,_Izumo_Mihogaseki_no_asa_by_Kawase_Hasui.jpg
-Nihon_fūkei_senshū,_Izumo_Yasugi_Kiyomizu_by_Kawase_Hasui.jpg
-Nihon_fūkei_senshū,_Kagoshima_Kōtsuki-gawa_by_Kawase_Hasui.jpg
-Nihon_fūkei_senshū,_Kagoshima_Sakurashima_by_Kawase_Hasui_(cropped).jpg
-Nihon_fūkei_senshū,_Kasuga-machi,_Kumamoto_by_Kawase_Hasui.jpg
-Nihon_fūkei_senshū,_Kiso_no_Nezame_by_Kawase_Hasui.jpg
 Nihon_fūkei_senshū,_Kiso_no_Suhara_by_Kawase_Hasui.jpg
-Nihon_fūkei_senshū,_Kumamoto-jō_Miyukibashi_by_Kawase_Hasui.jpg
-Nihon_fūkei_senshū,_Kumamoto_Ezu-ko_by_Kawase_Hasui.jpg
-Nihon_fūkei_senshū,_Kyōto_Daigoku-den_by_Kawase_Hasui.jpg
-Nihon_fūkei_senshū,_Kyōto_Kamogawa_no_yūgure_by_Kawase_Hasui.jpg
-Nihon_fūkei_senshū,_Kyōto_Nonomiya_by_Kawase_Hasui.jpg
-Nihon_fūkei_senshū,_Nagasaki_Kanaya-machi_by_Kawase_Hasui.jpg
-Nihon_fūkei_senshū,_Nagasaki_Sōfuku-ji_by_Kawase_Hasui.jpg
-Nihon_fūkei_senshū,_Okayama-jō_by_Kawase_Hasui.jpg
-Nihon_fūkei_senshū,_Onomichi_Senkō-ji_no_saka_by_Kawase_Hasui.jpg
 Nihon_fūkei_senshū,_Ōsumi_Anraku_onsen_by_Kawase_Hasui.jpg
-Nihon_fūkei_senshū,_Shimabara-kō_Mayuyama_by_Kawase_Hasui.jpg
-Nihon_fūkei_senshū,_Shimabara_Tsukumojima_by_Kawase_Hasui.jpg
-Nihon_fūkei_senshū,_Yuki_no_Kinkaku-ji_by_Kawase_Hasui.jpg
 Nishikawa Sukenobu.jpg
-Nude against the light pierre bonnard.jpg
-Old_Korea-Keith-BRIDE.jpeg
-Old_guitarist_chicago.jpg
 Olympic+-+The+Rhythmic+Gymnast+(mt)-Ernie Barnes.webp
 Origin-of-the-World Courbet.jpg
 Pablo_Picasso,_1909-10,_Figure_dans_un_Fauteuil_(Seated_Nude,_Femme_nue_assise),_oil_on_canvas,_92.1_x_73_cm,_Tate_Modern,_London.jpg
-Paul_Cézanne,_1892-95,_Les_joueurs_de_carte_(The_Card_Players),_60_x_73_cm,_oil_on_canvas,_Courtauld_Institute_of_Art,_London.jpg
 Paul_Cézanne_-_Montagne_Saint-victoire_-_Google_Art_Project.jpg
-Paul_Gauguin,_Nafea_Faa_Ipoipo__1892,_oil_on_canvas,_101_x_77_cm.jpg
-Peter_Paul_Rubens_-_Junger_Mann_mit_schwarzem_Barett.jpeg
-Peter_Paul_Rubens_-_Landscape_with_the_Ruins_of_Mount_Palatine_in_Rome.jpeg
-Peter_Paul_Rubens_-_The_Elevation_of_the_Cross.jpeg
-Pierre-Cécile_Puvis_de_Chavannes_003.jpg
-Pierre-Cécile_Puvis_de_Chavannes_007.jpg
-Pierre_Paul_RUBENS,__Le_Miracle_de_saint_Just.jpeg
-Pieter_Bruegel_d._Ä._066.jpg
-Pieter_Bruegel_der_Ältere_-_Landschaft_mit_der_Flucht_nach_Ägypten.jpg
 Plompton_Rocks_(Turner,_2).png
 Pope's_Villa_at_Twickenham.jpeg
-Portrait_of_the_Artist's_Daughters,_probably_early_1760s,_by_Thomas_Gainsborough_(1727-1788)_-_IMG_7281.jpeg
-Prado_-_Los_Desastres_de_la_Guerra_-_No._47_-_Así_sucedió.jpg
-Promenade_sur_la_falaise_de_Sainte-Adresse,_by_Claude_Monet,_1867,_oil_on_canvas_-_Matsuoka_Museum_of_Art_-_Tokyo,_Japan_-_DSC07396.jpeg
-Queensland_Art_Gallery_-_Joy_of_Museums_-__Figure_with_Snow_Falling__by_Takahashi_Hiroaki (1).jpg
 Quickenborne Sans Baguettes.webp
-Rembrandt_Harmensz._van_Rijn_-_Christ_Crucified_Between_the_Two_Thieves_(_The_Three_Crosses_)_-_Google_Art_Project.jpg
-Rembrandt_Harmenszoon_van_Rijn_-_An_Old_Man_in_Red.jpeg
 Rene Magritte Chateau de Pyrenes.jpg
-Reply_of_the_Zaporozhian_Cossacks_(sketch,_1880-90,_GTG).jpeg
-Resting_Girl_by_François_Boucher_(1753)_-_Alte_Pinakothek_-_Munich_-_Germany_2017_(crop).jpg
-Réception_du_Grand_Condé_à_Versailles_(Jean-Léon_Gérôme,_1878).png
 Robert_Delaunay,_1912,_La_Ville_de_Paris,_oil_on_canvas,_267_×_406_cm,_Musée_National_d'Art_Moderne.jpg
-Robert_Delaunay,_c.1906,_Paysage_au_disque_solaire,_oil_on_canvas,_54_x_46_cm,_Musée_National_d'Art_Moderne.jpg
-Robert_Delaunay_L'homme_à_la_tulipe_(Portrait_de_Jean_Metzinger)_1906.jpg
 Salvador-Dali-Museum-St.-Petersburg-Florida.jpg
-Sandro_Botticelli_-_Retour_de_Judith_1.jpeg
-Scène_des_massacres_de_Scio,_Eugène_Delacroix_-_Musée_du_Louvre_Peintures_INV_3823_;_C3.jpg
-Sir_David_Wilkie's_residence_in_Kensington_London,_by_William_Collins_1841_(painted_just_after_Wilkie's_death).jpeg
-Snow_on_Ayase_river,_Rijksmuseum_RP-P-2016-66-8 (1).jpg
 Springboard-Ernie Barnes.webp
-Stieler_-_Marianna_Marchesa_Florenzi,_1831.jpeg
 Stückelberg_Sappho_1897.jpg
 Suzuki_Harunobu_(c._1760)_Ōmi_Hakkei_no_Uchi_-_Yabase_Kihan.jpg
-Tabi_miyage_dai_isshū,_Aki_no_Koshiji_by_Kawase_Hasui.jpg
 Tabi_miyage_dai_isshū,_Bōshū_Iwai_no_hama_by_Kawase_Hasui.jpg
-Tabi_miyage_dai_isshū,_Ishi_tsumu_fune_(Bōshū)_by_Kawase_Hasui.jpg
-Tabi_miyage_dai_isshū,_Kanazawa_Asanogawa_by_Kawase_Hasui.jpg
-Tabi_miyage_dai_isshū,_Kanazawa_nagare_no_kuruwa_by_Kawase_Hasui.jpg
-Tabi_miyage_dai_isshū,_Mutsu_Mishimagawa_by_Kawase_Hasui.jpg
-Tabi_miyage_dai_isshū,_Mutsu_Tsutanuma_by_Kawase_Hasui.jpg
-Tabi_miyage_dai_isshū,_Sendai_yama_no_tera_by_Kawase_Hasui.jpg
-Tabi_miyage_dai_isshū,_Shiobara_Arayu_no_aki_by_Kawase_Hasui.jpg
 Tabi_miyage_dai_isshū,_Shiobara_Yūhi_no_taki_by_Kawase_Hasui.jpg
 Tabi_miyage_dai_isshū,_Towada-ko_Senjōmaku_by_Kawase_Hasui.jpg
-Tabi_miyage_dai_isshū,_Wakasa_Kude_no_hama_by_Kawase_Hasui.jpg
 Tabi_miyage_dai_isshū,_Wakasa_Kugushi-ko_by_Kawase_Hasui.jpg
-Tabi_miyage_dai_nishū,_Ame_no_Kiyomizu-dera_by_Kawase_Hasui.jpg
-Tabi_miyage_dai_nishū,_Echigo_no_Urahama_by_Kawase_Hasui.jpg
-Tabi_miyage_dai_nishū,_Etchū_Himi_Kōshō-ji_by_Kawase_Hasui.jpg
-Tabi_miyage_dai_nishū,_Fuyu_no_Rankyō_by_Kawase_Hasui.jpg
-Tabi_miyage_dai_nishū,_Getsumei_no_Kamo-ko_by_Kawase_Hasui.jpg
-Tabi_miyage_dai_nishū,_Hamagoya_(Etchū_Himi)_by_Kawase_Hasui.jpg
 Tabi_miyage_dai_nishū,_Kanazawa_Shimohonda-machi_by_Kawase_Hasui.jpg
-Tabi_miyage_dai_nishū,_Kōshū_Yanagawa_by_Kawase_Hasui.jpg
-Tabi_miyage_dai_nishū,_Mizuagetoi_(Sado_shoken)_by_Kawase_Hasui.jpg
-Tabi_miyage_dai_nishū,_Nara_Kasuga-jinja_by_Kawase_Hasui.jpg
-Tabi_miyage_dai_nishū,_Nara_Nigatsu-dō_by_Kawase_Hasui.jpg
-Tabi_miyage_dai_nishū,_Ōsaka_Dōtonbori_no_asa_by_Kawase_Hasui.jpg
-Tabi_miyage_dai_nishū,_Sado_Aikawa-machi_by_Kawase_Hasui.jpg
-Tabi_miyage_dai_nishū,_Sado_Kamo-mura_by_Kawase_Hasui.jpg
-Tabi_miyage_dai_nishū,_Sado_Mano_wan_by_Kawase_Hasui.jpg
-Tabi_miyage_dai_nishū,_Sado_Nishimikawazaka_by_Kawase_Hasui.jpg
-Tabi_miyage_dai_nishū,_Sado_Ogi_no_minato_by_Kawase_Hasui_01.jpg
 Tabi_miyage_dai_nishū,_Sanuki_Takamatsu-jō_by_Kawase_Hasui.jpg
 Tabi_miyage_dai_nishū,_Tango_no_Miyazu_by_Kawase_Hasui.jpg
-Tabi_miyage_dai_nishū,_Teradomari_no_yosame_by_Kawase_Hasui.jpg
-Tabi_miyage_dai_nishū,_Yuki_no_akebono_(Sado_Ogi_minato)_by_Kawase_Hasui.jpg
-Tabi_miyage_dai_nishū,_Yuki_no_hashidate_by_Kawase_Hasui.jpg
-Tabi_miyage_dai_nishū,_seiten_no_yuki_(Miyajima)_by_Kawase_Hasui.jpg
-Tabi_miyage_dai_sanshū,_Bōshū_Futomi_by_Kawase_Hasui.jpg
-Tabi_miyage_dai_sanshū,_Hakubasan_yori_mitaru_Asahigadake_by_Kawase_Hasui.jpg
 Tabi_miyage_dai_sanshū,_Hida_Nakayama-shichiri_by_Kawase_Hasui.jpg
-Tabi_miyage_dai_sanshū,_Iwami_Arifuku_onsen_by_Kawase_Hasui.jpg
-Tabi_miyage_dai_sanshū,_Izumo_Hinomisaki_by_Kawase_Hasui.jpg
 Tabi_miyage_dai_sanshū,_Izumo_Matsue_(oborozuki)_by_Kawase_Hasui.jpg
 Tabi_miyage_dai_sanshū,_Izumo_Mihogaseki_by_Kawase_Hasui.jpg
 Tabi_miyage_dai_sanshū,_Kaga_Hatta_(aki_no_niji)_by_Kawase_Hasui.jpg
 Tabi_miyage_dai_sanshū,_Suō_Kintai-kyō_by_Kawase_Hasui.jpg
-Tabi_miyage_dai_sanshū,_Tazawako_Gozanoishi_by_Kawase_Hasui.jpg
 Takahashi_nude-cat (1).jpg
 The+Sugar+Shack-Ernie Barnes.webp
 The+Tunesmith-Ernie Barnes.webp
 The_Accommodations_of_Desire.jpg
-The_Disquieting_Muses.jpg
 The_Enigma_of_Hitler.png
-The_Equatorial_Jungle.jpeg
 The_First_Days_of_Spring_by_Salvador_Dalí.jpg
-The_Gold_Scab_-_Eruption_in_Frilthy_Lucre_(The_Creditor)_by_James_McNeill_Whistler,_1879,_oil_on_canvas_-_De_Young_Museum_-_DSC00889.jpeg
-The_Gorge_at_Varengeville_by_Claude_Monet,_1882.jpeg
 The_Muezzin,_1865,_Jean-Léon_Gérôme_(French,_1824–1904).jpg
-The_Triumph_Of_Christianity_Over_Paganism.Gustave_Doré.jpg
-The_Virgin_with_Chancellor_Rolin_by_Jan_van_Eyck_(Louvre).webp.png
-The_Wetterhorn,_from__The_Europe_Series_._Hiroshi_Yoshida.jpg
 The_end_of_the_pose,_by_Jean-Léon_Gérôme.jpg
 Théodore_Géricault_-_Heroic_Landscape_with_Fishermen_-_WGA08629.jpg
 Théodore_Géricault_-_Portrait_of_a_Kleptomaniac_-_WGA08636.jpg
 Théodore_Géricault_-_The_Kiss_-_WGA08647.jpg
 Tonan_hakkei_no_uchi,_Shinagawa_by_Takahashi_Shōtei (1).jpg
-Tōkyō_jūnidai,_Daikon-gashi_by_Kawase_Hasui.jpg
 Tōkyō_jūnidai,_Fukagawa_Kaminohashi_by_Kawase_Hasui.jpg
 Tōkyō_jūnidai,_Kiba_no_yūgure_by_Kawase_Hasui.jpg
-Tōkyō_jūnidai,_Shinagawa_oki_by_Kawase_Hasui.jpg
-Tōkyō_jūnidai,_Toyama-no-hara_by_Kawase_Hasui.jpg
-Tōkyō_nijū_kei,_Kanda_Myōjin_keidai_by_Kawase_Hasui.jpg
-Tōkyō_nijū_kei,_Shin_Ōhashi_by_Kawase_Hasui.jpg
-Transfiguration-Rubens.jpeg
-Utagawa_Hiroshige_I,_published_by_Uoya_Eikichi_-_Horikiri_Iris_Garden_(Horikiri_no_hanashōbu),_from_the_series_One_Hundred_Famous_Views_of_Edo_(Meish..._-_Google_Art_Project.jpg
-Utagawa_Kunisada_(1857)_Imayō_mitate_shinō_kōshō_yori_shokunin.jpg
 Vale_of_Health,_Hampstead_(Constable).png
 Valley_of_Aosta,_Snowstorm,_Avalanche,_and_Thunderstorm,_1836-1837,_by_Joseph_Mallord_William_Turner_-_Art_Institute_of_Chicago_-_DSC09550.jpeg
-Van_Gogh,_Vincent_-_Olive_Grove,_Saint-Rémy_-_Gothenburg_Museum_of_Art_-_GKM_0590.tif.jpg
-Van_Gogh_-Die_Brücke_von_Langlois_in_Arles_mit_Wäscherinnen.jpeg
-Van_Gogh_-_Die_Schäferin_(nach_Millet).jpeg
-Van_Gogh_-_Grünes_Weizenfeld.jpeg
-Van_Gogh_-_Grünes_Weizenfeld1.jpeg
 Van_Gogh_-_Weißes_Bauernhaus_zwischen_Olivenbäumen.jpeg
-Venice_-_The_Dogana_and_San_Giorgio_Maggiore_by_Joseph_Mallord_William_Turner,_1834,_oil_on_canvas,_view_2_-_National_Gallery_of_Art,_Washington_-_DSC00005.jpeg
-Vertumnus_årstidernas_gud_målad_av_Giuseppe_Arcimboldo_1591_-_Skoklosters_slott_-_91503.jpg
-Vincent_van_Gogh_(1853-1890)_Caféterras_bij_nacht_(place_du_Forum)_Kröller-Müller_Museum_Otterlo_23-8-2016_13-35-40.JPG
-Vincent_van_Gogh_-_Landscape_from_Saint-Rémy_-_Google_Art_Project.jpg
-Vincent_van_Gogh_-_Les_Vessenots_à_Auvers_(1890).jpg
 Vincent_van_Gogh_-_National_Gallery_of_Art.jpeg
-Vincent_van_Gogh_-_Pietà_(after_Delacroix).jpg
-WATTEAU_Antoine_-_Huit_études_de_têtes_de_femme,_et_une_tête_d'homme.jpg
 Windmill_and_Boats_near_Zaandam,_Holland,_by_Claude_Monet,_1871_-_Ny_Carlsberg_Glyptotek_-_Copenhagen_-_DSC09437.jpeg
-Zentralbibliothek_Zürich_-_Portät_von_Anna_Magdalena_Schweizer_geb_Hess_im_Alter_von_27_Jahren_-_000003019.jpg
 _L'homme_est_en_mer_,_Vincent_van_Gogh,_d'après_Virginie_Demont-Breton.jpg
-_Un_Bar_aux_Folies-Bergère__by_Édouard_Manet_(1882).jpg
 a9d3e89a-7152-4bc2-b450-0b49adda1acf.png
 disintegration_20of_20the_20persistence_20of_20memory_7c48a1dd-5afd-4881-bcbd-18518e348bd1.webp
 dürer .jpg
 dürer cain killing abel.jpg
-dürer dragon fight.jpg
 dürer lion.jpg
 dürer rhino.jpg
-dürer selbstportrait.jpg
-dürer seven headed dragon.jpg
-dürer vier reiter.jpg
 head+over+heels+pencil+signed+print-Ernie Barnes.webp
 huang-binhong-landscape-for-professor-liu-ruli.jpeg
-huang-binhong-landscape.jpg
 metamorphoseIII_deel1-1.jpg
 metamorphoseIII_deel2-1.jpg
 metamorphoseIII_deel3-1.jpg
 zhang_shanzi_tiger.jpg
-Афганец.jpg
 Афганец_(2).jpg
-Богатый_киргизский_охотник_с_соколом.jpg
-Бой_скифов_со_славянами.jpg
-Бруни_Ф.А._-_Богоматерь_с_младенцем_-_1858.jpg
-Бруни_Ф.А._-_Богоматерь_с_младенцем_в_розах_-_1843.jpg
-Бруни_Ф.А._-_Голова_Мадонны_-_1830-40.jpg
-Брюллов_Нарцисс.jpg
-Буддийский_храм_в_Дарджилинге._Сикким.jpg
-Буря_над_Евпаторией_Айвазовский.jpg
-В_горах_Алатау.jpg
-В_горах_Алатау_2.jpg
-Валентин_А._Серов_-_Купание_лошади.jpg
-Валентин_Александрович_Серов_-_Одиссей_и_Навсикая.jpg
-Внутренность_юрты_богатого_киргиза.jpg
-Галатская_башня_в_лунном_свете.jpg
-Главная_улица_в_Самарканде_с_высоты_цитадели_ранним_утром.jpg
-Двери_Тимура_(Тамерлана).jpg
-Дети_племени_солонов.jpg
-Иван_К._Айвазовский_-_Бриг_Меркурий_после_победы_над_двумя_турецкими_кораблями_(1848).jpg
-Иван_К._Айвазовский_-_Великая_Пирамида_в_Гизе_(1871).jpg
-Иван_К._Айвазовский_-_От_Млеты_до_Гудаури_(1868).jpg
-Иван_Константинович_Айвазовский_-_Ночь_в_Гурзуфе.jpg
-Иван_Константинович_Айвазовский_-_Широкий_пейзаж_с_поселенцами.jpg
-Илья_Репин_-_Какой_простор.jpg
-Киргизские_кибитки_на_реке_Чу.jpg
-Китайская_палатка.jpg
-Кочевая_дорога_в_горах_Алатау.jpg
-Крещение_Руси.jpg
-Кронштадтский_рейд_Айвазовского.jpg
 Кустодиев_Б._М._Портрет_Н._К._фон_Мекк.jpg
 Лазоревый_грот._Неаполь.jpg
-Левитан_После_дождя.jpg
-Левитан_У_омута.jpg
 Мавзолей_Гур-Эмир._Самарканд.jpg
-Мавзолей_Шах-и-Зинда_в_Самарканде.jpg
 Медресе_Шир-Дор_на_площади_Регистан_в_Самарканде.jpg
-Мулла_Рахим_и_мулла_Керим_по_дороге_на_базар_ссорятся.jpg
 Парламентёры.jpg
 Перед_Москвой_в_ожидании_депутации_бояр.jpg
-Перед_атакой._Под_Плевной.jpg
-Перекочевка_киргизов_2.jpg
-Петр_I_при_Красной_горке_Айвазовский.jpg
 Пикет_на_Дунае.jpg
-Политики_в_опиумной_лавочке._Ташкент.jpg
-Портрет_С._П._Кувшинниковой._1888.jpg
-Портрет_художника_Федора_Антоновича_Бруни.jpg
-После_неудачи.jpg
 После_удачи.jpg
-Преферанс.jpg
-Продажа_ребенка-невольника.jpg
-Проход_Барскаун.jpg
-Развалины_Чугучака.jpg
-Развалины_китайской_кумирни._Ак-Кент.jpg
-Репин._Украинка_у_плетня.jpg
-Садовая_калитка_в_Чугучаке.jpg
 Смотр_Черноморского_флота_в_1849_году.jpg
-Спящая_царевна.jpg
 У_крепостной_стены.jpg
 Факир.jpg
 ФёдорБруни-МедныйЗмий.jpg
 Японка.jpg
-冨嶽三十六景_下目黒-Lower_Meguro_(Shimo_Meguro),_from_the_series_Thirty-six_Views_of_Mount_Fuji_(Fugaku_sanjūrokkei)_MET_DP140998.jpg
-冨嶽三十六景_五百らかん寺さざゐどう-Sazai_Hall_at_the_Temple_of_the_Five_Hundred_Arhats_(Gohyaku_Rakanji_Sazaidō),_from_the_series_Thirty-six_Views_of_Mount_Fuji_(Fugaku_sanjūrokkei)_MET_DP141020.jpg
-冨嶽三十六景_尾州不二見原-Fujimigahara_in_Owari_Province_(Bishū_Fujimigahara),_from_the_series_Thirty-six_Views_of_Mount_Fuji_(Fugaku_sanjūrokkei)_MET_DP141033.jpg
-冨嶽三十六景_常州牛掘-Ushibori_in_Hitachi_Province_(Jōshū_Ushibori),_from_the_series_Thirty-six_Views_of_Mount_Fuji_(Fugaku_sanjūrokkei)_MET_DP141044.jpg
-冨嶽三十六景_東海道保土ケ谷-Hodogaya_on_the_Tōkaidō_(Tōkaidō_Hodogaya),_from_the_series_Thirty-six_Views_of_Mount_Fuji_(Fugaku_sanjūrokkei)_MET_DP141025.jpg
-冨嶽三十六景_東海道吉田-Yoshida_on_the_Tōkaidō_(Tōkaidō_Yoshida),_from_the_series_Thirty-six_Views_of_Mount_Fuji_(Fugaku_sanjūrokkei)_MET_DP141007.jpg
-冨嶽三十六景_東海道江尻田子の浦略図-Tago_Bay_near_Ejiri_on_the_Tōkaidō_(Tōkaidō_Ejiri_Tago_no_ura_ryaku_zu),_from_the_series_Thirty-six_Views_of_Mount_Fuji_(Fugaku_sanjūrokkei)_MET_DP141037.jpg
 冨嶽三十六景_武州千住-Senju_in_Musashi_Province_(Bushū_Senju),_from_the_series_Thirty-six_Views_of_Mount_Fuji_(Fugaku_sanjūrokkei)_MET_DP141087.jpg
-冨嶽三十六景_武州玉川-Fuji—The_Tama_River,_Musashi_Province,_from_the_series_Thirty-six_Views_of_Mount_Fuji_(Fugaku_sanjūrokkei)_MET_DP140975.jpg
 冨嶽三十六景_江戸日本橋-Nihonbashi_in_Edo_(Edo_Nihonbashi),_from_the_series_Thirty-six_Views_of_Mount_Fuji_(Fugaku_sanjūrokkei)_MET_DP141003.jpg
 冨嶽三十六景_深川万年橋下-Under_the_Mannen_Bridge_at_Fukagawa_(Fukagawa_Mannenbashi_shita),_from_the_series_Thirty-six_Views_of_Mount_Fuji_(Fugaku_sanjūrokkei)_MET_DP141017.jpg
-冨嶽三十六景_甲州三坂水面-Reflection_in_Lake_at_Misaka_in_Kai_Province_(Kōshū_Misaka_suimen),_from_the_series_Thirty-six_Views_of_Mount_Fuji_(Fugaku_sanjūrokkei_MET_DP141064.jpg
-冨嶽三十六景_甲州三島越-Mishima_Pass_in_Kai_Province_(Kōshū_Mishima_goe),_from_the_series_Thirty-six_Views_of_Mount_Fuji_(Fugaku_sanjūrokkei)_MET_DP141043.jpg
-冨嶽三十六景_甲州犬目峠-The_Inume_Pass_in_Kai_Province_(Kōshū_Inume_tōge),_from_the_series_Thirty-six_Views_of_Mount_Fuji_(Fugaku_sanjūrokkei)_MET_DP141045.jpg
-冨嶽三十六景_相州七里浜-Shichirigahama_in_Sagami_Province_(Sōshū_Shichirigahama),_from_the_series_Thirty-six_Views_of_Mount_Fuji_(Fugaku_sanjūrokkei)_MET_DP140979.jpg
-冨嶽三十六景_遠江山中-In_the_Mountains_of_Tōtomi_Province_(Tōtomi_sanchū),_from_the_series_Thirty-six_Views_of_Mount_Fuji_(Fugaku_sanjūrokkei)_MET_DP140988.jpg
-冨嶽三十六景_隅田川関屋の里-Sekiya_Village_on_the_Sumida_River_(Sumidagawa_Sekiya_no_sato),_from_the_series_Thirty-six_Views_of_Mount_Fuji_(Fugaku_sanjūrokkei)_MET_DP141023.jpg
-冨嶽三十六景_隠田の水車-The_Waterwheel_at_Onden_(Onden_no_suisha),_from_the_series_Thirty-six_Views_of_Mount_Fuji_(Fugaku_sanjūrokkei)_MET_DP141021.jpg
 冨嶽三十六景_駿州江尻-Ejiri_in_Suruga_Province_(Sunshū_Ejiri),_from_the_series_Thirty-six_Views_of_Mount_Fuji_(Fugaku_sanjūrokkei)_MET_DP140977.jpg
-名绘集珍册_9_宋_李迪_春潮带雨.jpg
-清_王槩_設計，李漁出版_芥子園畫傳_版本-Mt._Heng,_after_Juran_(active_ca._960–965),_from_the_Mustard_Seed_Garden_Manual_of_Painting_MET_DP-14004-001.jpg
-清_石濤(朱若極)_山水圖_冊-Searching_for_Immortals_MET_DP162813.jpg
-溥僩丙子夏日寫生.jpg
-諸國名橋奇覧_摂洲天満橋-Tenman_Bridge_at_Settsu_Province_(Sesshū_Tenmanbashi),_from_the_series_Remarkable_Views_of_Bridges_in_Various_Provinces_(Shokoku_meikyō_kiran)_MET_DP141277.jpg
-諸國瀧廻リ_美濃ノ国養老の滝-Yōrō_Waterfall_in_Mino_Province_(Mino_no_Yōrō_no_taki),_from_the_series_A_Tour_of_Waterfalls_in_Various_Provinces_(Shokoku_taki_meguri)_MET_DP141263.jpg
-雪景图轴.传宋.马远.画.纸本设色.台北故宫博物院藏.jpg
-김홍도_금강사군첩_-_총석정.jpg
