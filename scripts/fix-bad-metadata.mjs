@@ -361,13 +361,13 @@ const descriptions = {
     "Death triumphs over the world: a vast army of skeletons drives the living of every estate into a great coffin, the landscape behind reduced to ruin. Pieter Bruegel the Elder's panel of c. 1562 fuses the medieval danse macabre with the panoramic worldview that would carry into seventeenth-century Flemish painting.",
 
   // Aivazovsky Volna / Fog on the Sea — description currently empty in source.
-  "collection-of-beauty-ca737b":
+  "collection-of-beauty-ayvazovskiy-i-k-volna":
     "A single dark wave rolls toward the viewer in Aivazovsky's most reductive late seascape, the painter's lifelong subject distilled to a meeting of water and sky. The Russian marine painter made the canvas in 1889 in his Crimean studio at Feodosia.",
   "collection-of-beauty-ivan-aivazovsky-fog-on-the-sea":
     "Fog lifts off the surface of the sea in one of Aivazovsky's quieter marine subjects, the picture built almost entirely from gradations of grey and luminous white. The painter worked from a Black Sea coastal studio at Feodosia for most of his long career.",
 
   // Levitan Golden Autumn — Russian-only description.
-  "collection-of-beauty-golden-autumn":
+  "collection-of-beauty-golden-autumn-zolotaya-osen":
     "A bend in a slow river runs between banks of yellow-leaved birches under a high autumn sky. Isaac Levitan's 1895 canvas, oil on a 58 × 68 cm support and signed at the lower right, was exhibited at the Munich Secession in 1896 and became the public face of the Russian mood landscape.",
 
   // Bruni Head of Christ.

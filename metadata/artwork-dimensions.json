@@ -2174,11 +2174,6 @@
     "heightCm": 100.33,
     "source": "static"
   },
-  "collection-of-beauty": {
-    "widthCm": 41,
-    "heightCm": 76,
-    "source": "wikimedia-template"
-  },
   "collection-of-beauty-0-entrevue-du-roi-et-de-marie-de-medicis-a-lyon-p-p-rubens-louvre-2": {
     "widthCm": 295,
     "heightCm": 394,
@@ -2479,11 +2474,6 @@
     "widthCm": 92.1,
     "heightCm": 73,
     "source": "museum"
-  },
-  "collection-of-beauty-2": {
-    "widthCm": 36.2,
-    "heightCm": 27,
-    "source": "wikimedia-template"
   },
   "collection-of-beauty-20-the-entrance-gate-at-enoshima": {
     "widthCm": 24,
@@ -9217,7 +9207,7 @@
     "heightCm": 39,
     "source": "series-default"
   },
-  "collection-of-beauty-neapolitan-woman-1894-by-ilya-repin": {
+  "collection-of-beauty-neapolitan-woman-1894-by-ilya-repin-neapolitanka": {
     "widthCm": 51,
     "heightCm": 78,
     "source": "wikidata"
