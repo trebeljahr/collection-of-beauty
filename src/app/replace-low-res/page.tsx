@@ -2,6 +2,7 @@ import { promises as fs } from "node:fs";
 import path from "node:path";
 import type { Metadata } from "next";
 import { variantUrl } from "@/lib/utils";
+import { ApproveButton, ExportDecisions } from "./approve-controls";
 
 // Internal review panel for the low-res replacement workflow.
 // Reads src/data/replacement-candidates.json (produced by the
@@ -23,6 +24,8 @@ type Candidate = {
   height: number;
   confidence: number;
   reason: string;
+  hamming?: number | null;
+  source?: string;
 };
 
 type Entry = {
@@ -85,6 +88,8 @@ export default async function ReplaceLowResPage() {
           artwork before swapping.
         </p>
       </header>
+
+      <ExportDecisions />
 
       <section className="space-y-10">
         {withCands.map((entry) => (
@@ -160,7 +165,7 @@ function ReviewCard({ entry }: { entry: Entry }) {
         {candidates.map((c, i) => (
           <Panel
             key={c.fileUrl}
-            label={`CANDIDATE ${i + 1} · conf ${(c.confidence * 100).toFixed(0)}%`}
+            label={`CANDIDATE ${i + 1} · conf ${(c.confidence * 100).toFixed(0)}%${c.hamming != null ? ` · Δ${c.hamming}` : ""}${c.source ? ` · ${c.source}` : ""}`}
             tone={confidenceTone(c.confidence)}
             src={c.fileUrl}
             alt={`Candidate ${i + 1}`}
@@ -170,6 +175,9 @@ function ReviewCard({ entry }: { entry: Entry }) {
             pageUrl={c.commonsPageUrl}
             reason={c.reason}
             sizeGain={`${(c.width / target.w).toFixed(1)}× linear · ${((c.width * c.height) / (target.w * target.h)).toFixed(1)}× pixels`}
+            approve={
+              <ApproveButton targetId={target.id} fileUrl={c.fileUrl} source={c.source ?? ""} />
+            }
           />
         ))}
       </div>
@@ -188,6 +196,7 @@ function Panel({
   pageUrl,
   reason,
   sizeGain,
+  approve,
 }: {
   label: string;
   tone: string;
@@ -199,6 +208,7 @@ function Panel({
   pageUrl: string;
   reason?: string;
   sizeGain?: string;
+  approve?: React.ReactNode;
 }) {
   return (
     <div className={`flex flex-col rounded border-2 p-3 ${tone}`}>
@@ -225,6 +235,7 @@ function Panel({
       </div>
       {sizeGain && <p className="mt-2 text-xs text-emerald-700">{sizeGain}</p>}
       {reason && <p className="mt-2 text-xs text-zinc-700">{reason}</p>}
+      {approve}
       <div className="mt-2 flex gap-3 text-xs">
         <a
           href={pageUrl}
