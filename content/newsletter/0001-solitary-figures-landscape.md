@@ -3,7 +3,7 @@ title: "Solitary figures in landscape"
 subject: "Issue 1: Solitary figures in landscape"
 publishedAt: "2026-05-17"
 excerpt: "Five works about being small in a big world, from Friedrich's monk at the sea to a mule train hidden under a Song-dynasty cliff."
-draft: false
+draft: true
 cover:
   artworkId: "collection-of-beauty-caspar-david-friedrich-der-monch-am-meer-google-art-project"
 tags:
