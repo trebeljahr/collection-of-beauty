@@ -809,22 +809,19 @@ const KNOWN_CONNECTIONS = [
   ["Paul Gauguin", "Émile Bernard", "developed Synthetism together"],
 ];
 
-// Sidecar values that are actually placeholders, not real measurements. Each
-// pair here is shared by a huge chunk of the catalog (>30 artworks) because
-// the source hands the same value to every page in a book or collection:
-//   - 67.31 × 100.33  Audubon's "double elephant folio" page size (435 plates)
-//   - 26 × 36         Haeckel Kunstformen der Natur book page   (100 plates)
-//   - 41 × 76         Wikimedia template default seen on ~34 Russian works
-// Null these out so the 3D gallery skips them rather than rendering every
-// Audubon bird at an identical uniform page rectangle.
-const PLACEHOLDER_DIMS = new Set([
-  "6731:10033",
-  "10033:6731",
-  "2600:3600",
-  "3600:2600",
-  "4100:7600",
-  "7600:4100",
-]);
+// Sidecar values that are actually junk placeholders, not real measurements:
+//   - 41 × 76  Wikimedia template default seen on ~34 unrelated Russian works
+// Null these out so the 3D gallery skips them.
+//
+// Uniform per-book page sizes (Audubon's double-elephant folio 67.31 × 100.33,
+// Haeckel's Kunstformen page 26 × 36, Redouté's Liliacées sheet 35 × 52.2) are
+// NOT placeholders — they are the real, citable size of every plate in those
+// series. They used to be nulled here to avoid rendering each plate as an
+// identical rectangle, but the 3D gallery now derives a painting's aspect from
+// its texture pixels (see painting.tsx), so a uniform real size only drives the
+// physical scale, size-band and the displayed "w × h cm" label — all of which
+// we want correct. So they stay.
+const PLACEHOLDER_DIMS = new Set(["4100:7600", "7600:4100"]);
 
 function sanitizeRealDimensions(dims) {
   if (!dims) return null;
