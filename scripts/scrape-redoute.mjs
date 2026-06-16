@@ -1,14 +1,16 @@
 #!/usr/bin/env node
-// One-off scraper for Nicholas Rougeux's restoration of Pierre-Joseph
-// Redouté's *Les Liliacées* (c82.net/redoute/lilies). Not a Wikimedia
-// source, so it bypasses scrape:fetch and writes metadata/redoute-lilies.json
+// One-off scraper for Nicholas Rougeux's restorations of Pierre-Joseph
+// Redouté's *Les Liliacées* and *Les Roses* (c82.net/redoute). Not a Wikimedia
+// source, so it bypasses scrape:fetch and writes metadata/redoute-<coll>.json
 // directly in the same shape build-data.mjs consumes (entries map).
+//
+// Usage: node scripts/scrape-redoute.mjs [lilies|roses]   (default: lilies)
 //
 // For each plate it pulls the Latin title, French subtitle, plate number,
 // the original French description, the Linnaean/Jussieu classification, and
 // downloads the high-res restored plate (the "-light" variant — the plate on
 // cream paper, faithful to the original stipple engraving) into
-// assets/redoute-lilies/<slug>.jpg.
+// assets/redoute-<coll>/<slug>.jpg.
 //
 // Polite: single-threaded, ~300ms between requests, retries once on failure.
 
@@ -16,11 +18,19 @@ import { mkdir, writeFile, readFile, access } from "node:fs/promises";
 import { existsSync } from "node:fs";
 import path from "node:path";
 
+const COLLECTION = (process.argv[2] || "lilies").toLowerCase();
+if (!["lilies", "roses"].includes(COLLECTION)) {
+  console.error(`Unknown collection "${COLLECTION}" — expected "lilies" or "roses".`);
+  process.exit(1);
+}
+const FOLDER = `redoute-${COLLECTION}`;
+const WORK_TITLE = COLLECTION === "roses" ? "Les Roses" : "Les Liliacées";
+
 const ROOT = path.resolve(import.meta.dirname, "..");
-const ASSETS_DIR = path.join(ROOT, "assets", "redoute-lilies");
-const META_PATH = path.join(ROOT, "metadata", "redoute-lilies.json");
+const ASSETS_DIR = path.join(ROOT, "assets", FOLDER);
+const META_PATH = path.join(ROOT, "metadata", `${FOLDER}.json`);
 const BASE = "https://www.c82.net";
-const TIMELINE = `${BASE}/redoute/lilies/timeline`;
+const TIMELINE = `${BASE}/redoute/${COLLECTION}/timeline`;
 const UA = "CollectionOfBeautyIngest/1.0 (personal; ricotrebeljahr@gmail.com)";
 const DELAY_MS = 300;
 
@@ -216,10 +226,10 @@ async function main() {
       artist: "Pierre-Joseph Redouté",
       date_created: `between ${year} and ${year + 2}`,
       year,
-      description: parsed.descFr || `Botanical plate of ${title} from Pierre-Joseph Redouté's Les Liliacées.`,
+      description: parsed.descFr || `Botanical plate of ${title} from Pierre-Joseph Redouté's ${WORK_TITLE}.`,
       source: {
         type: "c82.net",
-        canonical_title: `${title}${parsed.plateNum ? ` — Les Liliacées plate ${parsed.plateNum}` : ""}`,
+        canonical_title: `${title}${parsed.plateNum ? ` — ${WORK_TITLE} plate ${parsed.plateNum}` : ""}`,
         url: pageUrl,
         file_url: parsed.imgUrl,
         credit: "Restoration by Nicholas Rougeux (c82.net), after Pierre-Joseph Redouté",
@@ -267,10 +277,10 @@ function serialize(entries) {
   const sortedEntries = {};
   for (const k of sortedKeys) sortedEntries[k] = entries[k];
   const file = {
-    folder: "redoute-lilies",
+    folder: FOLDER,
     kind: "c82_image_collection",
     generated_at: new Date().toISOString(),
-    source_api: "https://www.c82.net/redoute (Nicholas Rougeux restoration)",
+    source_api: `https://www.c82.net/redoute/${COLLECTION} (Nicholas Rougeux restoration of ${WORK_TITLE})`,
     file_count: sortedKeys.length,
     resolved_count: Object.values(entries).filter((e) => e.resolved).length,
     unresolved_count: Object.values(entries).filter((e) => !e.resolved).length,

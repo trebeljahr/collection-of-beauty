@@ -1,38 +1,14 @@
 # Duplicate image sweep
 
-_Generated 2026-06-16T21:44:29.375Z from 4411/4411 artworks (0 skipped: no resolvable image)._
+_Generated 2026-06-16T22:01:58.253Z from 4571/4572 artworks (1 skipped: no resolvable image)._
 
-- Exact dHash collisions: **1** clusters covering **2** artworks
-- Near duplicates (hamming ≤ 4): **10** clusters covering **20** artworks
-- Same artist + same normalized title: **47** clusters covering **95** artworks
+- Exact dHash collisions: **0** clusters covering **0** artworks
+- Near duplicates (hamming ≤ 4): **2** clusters covering **4** artworks
+- Same artist + same normalized title: **65** clusters covering **176** artworks
 
 ## Same artist + same title
 
 _Sorted by min pairwise hamming distance: low Δ likely = same work scanned twice; high Δ likely = a legitimate series sharing one title._
-
-### `giuseppe-arcimboldo::allegory of winter` — min Δ1
-- `collection-of-beauty-1280px-arcimboldo-winter-1563` — 1280px-Arcimboldo Winter 1563 / Allegory of Winter — `collection-of-beauty/1280px-Arcimboldo_Winter_1563.jpg`
-- `collection-of-beauty-arcimboldo-winter-1563` — Allegory of Winter — `collection-of-beauty/Arcimboldo_Winter_1563.jpg`
-
-### `eugene-delacroix::the massacre at chios` — min Δ1
-- `collection-of-beauty-scene-des-massacres-de-scio-eugene-delacroix-musee-du-louvre-peintures-inv-3823-c3` — Scène des massacres de Scio / The Massacre at Chios — `collection-of-beauty/Scène_des_massacres_de_Scio,_Eugène_Delacroix_-_Musée_du_Louvre_Peintures_INV_3823_;_C3.jpg`
-- `collection-of-beauty-scene-des-massacres-de-scio` — The Massacre at Chios — `collection-of-beauty/Scène_des_massacres_de_Scio.jpg`
-
-### `jean-francois-millet::the sheepfold` — min Δ1
-- `collection-of-beauty-jean-francois-millet-the-sheepfold-moonlight-google-art-project` — The Sheepfold — `collection-of-beauty/Jean-François_Millet_-_The_Sheepfold,_Moonlight_-_Google_Art_Project.jpg`
-- `collection-of-beauty-jean-francois-millet-the-sheepfold-moonlight-walters-3730` — The Sheepfold — `collection-of-beauty/Jean-François_Millet_-_The_Sheepfold,_Moonlight_-_Walters_3730.jpg`
-
-### `el-greco::laoco n` — min Δ2
-- `collection-of-beauty-el-greco-domenikos-theotokopoulos-laocoon-google-art-project` — El Greco / Laocoön — `collection-of-beauty/El_Greco_(Domenikos_Theotokopoulos)_-_Laocoön_-_Google_Art_Project.jpg`
-- `collection-of-beauty-el-greco-042` — Laocoön — `collection-of-beauty/El_Greco_042.jpg`
-
-### `giuseppe-arcimboldo::four seasons in one head` — min Δ3
-- `collection-of-beauty-1280px-giuseppe-arcimboldo-four-seasons-in-one-head-google-art-project` — 1280px-Giuseppe Arcimboldo - Four Seasons in One Head / Four Seasons in One Head — `collection-of-beauty/1280px-Giuseppe_Arcimboldo_-_Four_Seasons_in_One_Head_-_Google_Art_Project.jpg`
-- `collection-of-beauty-giuseppe-arcimboldo-four-seasons-in-one-head-google-art-project` — Four Seasons in One Head — `collection-of-beauty/Giuseppe_Arcimboldo_-_Four_Seasons_in_One_Head_-_Google_Art_Project.jpg`
-
-### `ilya-repin::what freedom` — min Δ3
-- `collection-of-beauty-ilya-repin-what-freedom` — What freedom! — `collection-of-beauty/Ilya_Repin-What_freedom!.jpg`
-- `collection-of-beauty-69149f` — What freedom! — `collection-of-beauty/Илья_Репин_-_Какой_простор.jpg`
 
 ### `titian::pastoral concert` — min Δ9
 - `collection-of-beauty-le-concert-champetre-by-titian-from-c2rmf-retouchedfxd` — Le Concert champêtre / Pastoral Concert — `collection-of-beauty/Le_Concert_champêtre,_by_Titian,_from_C2RMF_retouchedFXD.jpg`
@@ -41,6 +17,35 @@ _Sorted by min pairwise hamming distance: low Δ likely = same work scanned twic
 ### `pierre-joseph-redoute::lilium superbum` — min Δ13
 - `redoute-lilies-lilium-superbum` — Lilium Superbum — `redoute-lilies/lilium-superbum.jpg`
 - `collection-of-beauty-lilium-superbum-lithographie-pierre-joseph-redoute` — Lilium superbum — `collection-of-beauty/Lilium_superbum_(Lithographie,_Pierre-Joseph_Redoute).jpg`
+
+### `pierre-joseph-redoute::rosa gallica` — min Δ15
+- `redoute-roses-rosa-gallica-versicolor` — Rosa Gallica — `redoute-roses/rosa-gallica-versicolor.jpg`
+- `redoute-roses-rosa-gallica` — Rosa Gallica — `redoute-roses/rosa-gallica.jpg`
+- `redoute-roses-rosa-gallica-coerulea` — Rosa Gallica — `redoute-roses/rosa-gallica-coerulea.jpg`
+- `redoute-roses-rosa-gallica-granati` — Rosa Gallica — `redoute-roses/rosa-gallica-granati.jpg`
+- `redoute-roses-rosa-gallica-pontiana` — Rosa Gallica — `redoute-roses/rosa-gallica-pontiana.jpg`
+- `redoute-roses-rosa-gallica-purpurea-velutina-parva` — Rosa Gallica — `redoute-roses/rosa-gallica-purpurea-velutina-parva.jpg`
+- `redoute-roses-rosa-gallica-purpuro-violacea-magna` — Rosa Gallica — `redoute-roses/rosa-gallica-purpuro-violacea-magna.jpg`
+- `redoute-roses-rosa-gallica-regalis` — Rosa Gallica — `redoute-roses/rosa-gallica-regalis.jpg`
+- `redoute-roses-rosa-gallica-flore-marmoreo` — Rosa Gallica — `redoute-roses/rosa-gallica-flore-marmoreo.jpg`
+- `redoute-roses-rosa-gallica-giganteo` — Rosa Gallica — `redoute-roses/rosa-gallica-giganteo.jpg`
+- `redoute-roses-rosa-gallica-latifolia` — Rosa Gallica — `redoute-roses/rosa-gallica-latifolia.jpg`
+- `redoute-roses-rosa-gallica-stapeliae-flora` — Rosa Gallica — `redoute-roses/rosa-gallica-stapeliae-flora.jpg`
+
+### `pierre-joseph-redoute::rosa centifolia` — min Δ16
+- `redoute-roses-rosa-centifolia-bullata` — Rosa Centifolia — `redoute-roses/rosa-centifolia-bullata.jpg`
+- `redoute-roses-rosa-centifolia-carnea` — Rosa Centifolia — `redoute-roses/rosa-centifolia-carnea.jpg`
+- `redoute-roses-rosa-centifolia-caryophyllea` — Rosa Centifolia — `redoute-roses/rosa-centifolia-caryophyllea.jpg`
+- `redoute-roses-rosa-centifolia-flore-simplici` — Rosa Centifolia — `redoute-roses/rosa-centifolia-flore-simplici.jpg`
+- `redoute-roses-rosa-centifolia-mutabilis` — Rosa Centifolia — `redoute-roses/rosa-centifolia-mutabilis.jpg`
+- `redoute-roses-rosa-centifolia` — Rosa Centifolia — `redoute-roses/rosa-centifolia.jpg`
+- `redoute-roses-rosa-centifolia-anemonoides` — Rosa Centifolia — `redoute-roses/rosa-centifolia-anemonoides.jpg`
+- `redoute-roses-rosa-centifolia-anglica-rubra` — Rosa Centifolia — `redoute-roses/rosa-centifolia-anglica-rubra.jpg`
+- `redoute-roses-rosa-centifolia-bipinnata-60` — Rosa Centifolia — `redoute-roses/rosa-centifolia-bipinnata-60.jpg`
+- `redoute-roses-rosa-centifolia-crenata` — Rosa Centifolia — `redoute-roses/rosa-centifolia-crenata.jpg`
+- `redoute-roses-rosa-centifolia-foliacea` — Rosa Centifolia — `redoute-roses/rosa-centifolia-foliacea.jpg`
+- `redoute-roses-rosa-centifolia-bipinnata-119` — Rosa Centifolia — `redoute-roses/rosa-centifolia-bipinnata-119.jpg`
+- `redoute-roses-rosa-centifolia-prolifera-foliacea` — Rosa Centifolia — `redoute-roses/rosa-centifolia-prolifera-foliacea.jpg`
 
 ### `pierre-joseph-redoute::pancratium declinatum` — min Δ17
 - `redoute-lilies-pancratium-declinatum-358` — Pancratium Declinatum — `redoute-lilies/pancratium-declinatum-358.jpg`
@@ -54,6 +59,44 @@ _Sorted by min pairwise hamming distance: low Δ likely = same work scanned twic
 - `redoute-lilies-tulipa-gesneriana-dracontia` — Tulipa Gesneriana — `redoute-lilies/tulipa-gesneriana-dracontia.jpg`
 - `redoute-lilies-tulipa-gesneriana-luteo-rubra` — Tulipa Gesneriana — `redoute-lilies/tulipa-gesneriana-luteo-rubra.jpg`
 
+### `pierre-joseph-redoute::rosa indica` — min Δ18
+- `redoute-roses-rosa-indica` — rosa indica — `redoute-roses/rosa-indica.jpg`
+- `redoute-roses-rosa-indica-cruenta` — Rosa Indica — `redoute-roses/rosa-indica-cruenta.jpg`
+- `redoute-roses-rosa-indica-fragrans` — Rosa Indica — `redoute-roses/rosa-indica-fragrans.jpg`
+- `redoute-roses-rosa-indica-pumila` — Rosa Indica — `redoute-roses/rosa-indica-pumila.jpg`
+- `redoute-roses-rosa-indica-multipetala` — Rosa Indica — `redoute-roses/rosa-indica-multipetala.jpg`
+- `redoute-roses-rosa-indica-pannosa` — Rosa Indica — `redoute-roses/rosa-indica-pannosa.jpg`
+- `redoute-roses-rosa-indica-subalba` — Rosa Indica — `redoute-roses/rosa-indica-subalba.jpg`
+- `redoute-roses-rosa-indica-subviolacea` — Rosa Indica — `redoute-roses/rosa-indica-subviolacea.jpg`
+
+### `pierre-joseph-redoute::rosa damascena` — min Δ19
+- `redoute-roses-rosa-damascena-coccinea` — Rosa Damascena — `redoute-roses/rosa-damascena-coccinea.jpg`
+- `redoute-roses-rosa-damascena-variegata` — Rosa Damascena — `redoute-roses/rosa-damascena-variegata.jpg`
+- `redoute-roses-rosa-damascena` — Rosa Damascena — `redoute-roses/rosa-damascena.jpg`
+- `redoute-roses-rosa-damascena-celsiana` — Rosa Damascena — `redoute-roses/rosa-damascena-celsiana.jpg`
+
+### `pierre-joseph-redoute::rosa rubiginosa` — min Δ19
+- `redoute-roses-rosa-rubiginosa-cretica` — Rosa Rubiginosa — `redoute-roses/rosa-rubiginosa-cretica.jpg`
+- `redoute-roses-rosa-rubiginosa` — Rosa Rubiginosa — `redoute-roses/rosa-rubiginosa.jpg`
+- `redoute-roses-rosa-rubiginosa-aculeatissima` — Rosa Rubiginosa — `redoute-roses/rosa-rubiginosa-aculeatissima.jpg`
+- `redoute-roses-rosa-rubiginosa-nemoralis` — Rosa Rubiginosa — `redoute-roses/rosa-rubiginosa-nemoralis.jpg`
+- `redoute-roses-rosa-rubiginosa-zabeth` — Rosa Rubiginosa — `redoute-roses/rosa-rubiginosa-zabeth.jpg`
+- `redoute-roses-rosa-rubininosa-flore-semi-pleno` — Rosa Rubiginosa — `redoute-roses/rosa-rubininosa-flore-semi-pleno.jpg`
+- `redoute-roses-rosa-rubiginosa-anemone-flora` — Rosa Rubiginosa — `redoute-roses/rosa-rubiginosa-anemone-flora.jpg`
+
+### `pierre-joseph-redoute::rosa gallica agatha` — min Δ19
+- `redoute-roses-rosa-gallica-agatha-delphiniana` — Rosa Gallica Agatha — `redoute-roses/rosa-gallica-agatha-delphiniana.jpg`
+- `redoute-roses-rosa-gallica-agatha-parvula-violacea` — Rosa Gallica Agatha — `redoute-roses/rosa-gallica-agatha-parvula-violacea.jpg`
+- `redoute-roses-rosa-gallica-agatha-prolifera` — Rosa Gallica Agatha — `redoute-roses/rosa-gallica-agatha-prolifera.jpg`
+- `redoute-roses-rosa-gallica-agatha-regalis` — Rosa Gallica Agatha — `redoute-roses/rosa-gallica-agatha-regalis.jpg`
+- `redoute-roses-rosa-gallica-agatha-uncarnata` — Rosa Gallica Agatha — `redoute-roses/rosa-gallica-agatha-uncarnata.jpg`
+
+### `pierre-joseph-redoute::rosa pimpinellifolia` — min Δ20
+- `redoute-roses-rosa-pimpinellifolia-flore-rubro-multiplici` — Rosa Pimpinellifolia — `redoute-roses/rosa-pimpinellifolia-flore-rubro-multiplici.jpg`
+- `redoute-roses-rosa-pimpinellifolia-mariaburgensis` — Rosa Pimpinellifolia — `redoute-roses/rosa-pimpinellifolia-mariaburgensis.jpg`
+- `redoute-roses-rosa-pimpinellifolia-pumila` — Rosa Pimpinellifolia — `redoute-roses/rosa-pimpinellifolia-pumila.jpg`
+- `redoute-roses-rosa-pimpinellifolia-flore-albo-aubmultiplici` — Rosa Pimpinellifolia — `redoute-roses/rosa-pimpinellifolia-flore-albo-aubmultiplici.jpg`
+
 ### `john-james-audubon::hooping crane` — min Δ20
 - `audubon-birds-226-hooping-crane` — Hooping Crane (Plate 226) — `audubon-birds/226_Hooping_Crane.jpg`
 - `audubon-birds-261-hooping-crane` — Hooping Crane (Plate 261) — `audubon-birds/261_Hooping_Crane.jpg`
@@ -62,9 +105,41 @@ _Sorted by min pairwise hamming distance: low Δ likely = same work scanned twic
 - `redoute-lilies-amaryllis-atamasco` — Amaryllis Atamasco — `redoute-lilies/amaryllis-atamasco.jpg`
 - `redoute-lilies-amaryllis-atamasco-b` — Amaryllis Atamasco — `redoute-lilies/amaryllis-atamasco-b.jpg`
 
+### `pierre-joseph-redoute::rosa alba` — min Δ21
+- `redoute-roses-rosa-alba-flore-pleno` — Rosa Alba — `redoute-roses/rosa-alba-flore-pleno.jpg`
+- `redoute-roses-rosa-alba-regalis` — Rosa Alba — `redoute-roses/rosa-alba-regalis.jpg`
+- `redoute-roses-rosa-alba-cymaefolia` — Rosa Alba — `redoute-roses/rosa-alba-cymaefolia.jpg`
+
+### `pierre-joseph-redoute::rosa alpina` — min Δ21
+- `redoute-roses-rosa-alpina-laevis` — Rosa Alpina — `redoute-roses/rosa-alpina-laevis.jpg`
+- `redoute-roses-rosa-alpina-pendulina` — Rosa Alpina — `redoute-roses/rosa-alpina-pendulina.jpg`
+- `redoute-roses-rosa-alpina-flore-variegato` — Rosa Alpina — `redoute-roses/rosa-alpina-flore-variegato.jpg`
+
+### `pierre-joseph-redoute::rosa sempervirens` — min Δ21
+- `redoute-roses-rosa-sempervirens-latifolia` — Rosa Sempervirens — `redoute-roses/rosa-sempervirens-latifolia.jpg`
+- `redoute-roses-rosa-sempervirens` — Rosa Sempervirens — `redoute-roses/rosa-sempervirens.jpg`
+- `redoute-roses-rosa-sempervirens-globosa` — Rosa Sempervirens — `redoute-roses/rosa-sempervirens-globosa.jpg`
+
 ### `pierre-joseph-redoute::gladiolus lineatus` — min Δ22
 - `redoute-lilies-gladiolus-lineatus-055` — Gladiolus Lineatus — `redoute-lilies/gladiolus-lineatus-055.jpg`
 - `redoute-lilies-gladiolus-lineatus-400` — Gladiolus Lineatus — `redoute-lilies/gladiolus-lineatus-400.jpg`
+
+### `pierre-joseph-redoute::rosa moschata` — min Δ22
+- `redoute-roses-rosa-moschata-flore-semi-pleno` — Rosa Moschata — `redoute-roses/rosa-moschata-flore-semi-pleno.jpg`
+- `redoute-roses-rosa-moschata` — Rosa Moschata — `redoute-roses/rosa-moschata.jpg`
+
+### `pierre-joseph-redoute::rosa villosa` — min Δ22
+- `redoute-roses-rosa-villosa` — Rosa Villosa — `redoute-roses/rosa-villosa.jpg`
+- `redoute-roses-rosa-villosa-terebenthina` — Rosa Villosa — `redoute-roses/rosa-villosa-terebenthina.jpg`
+
+### `pierre-joseph-redoute::rosa collina` — min Δ22
+- `redoute-roses-rosa-collina-fastigiata-61` — Rosa Collina — `redoute-roses/rosa-collina-fastigiata-61.jpg`
+- `redoute-roses-rosa-collina-fastigiata-120` — Rosa Collina — `redoute-roses/rosa-collina-fastigiata-120.jpg`
+
+### `pierre-joseph-redoute::rosa sepium` — min Δ22
+- `redoute-roses-rosa-sepium-flore-submultiplici` — Rosa Sepium — `redoute-roses/rosa-sepium-flore-submultiplici.jpg`
+- `redoute-roses-rosa-sepium-rosea` — Rosa Sepium — `redoute-roses/rosa-sepium-rosea.jpg`
+- `redoute-roses-rosa-sepium-myrtifolia` — Rosa Sepium — `redoute-roses/rosa-sepium-myrtifolia.jpg`
 
 ### `andrea-del-sarto::portrait of a man` — min Δ23
 - `collection-of-beauty-portrait-of-a-man-andrea-del-sarto` — Portrait of a Man — `collection-of-beauty/_Portrait_of_a_Man__(Andrea_del_Sarto).jpg`
@@ -74,6 +149,10 @@ _Sorted by min pairwise hamming distance: low Δ likely = same work scanned twic
 - `redoute-lilies-gladiolus-carneus-65` — Gladiolus Carneus — `redoute-lilies/gladiolus-carneus-65.jpg`
 - `redoute-lilies-gladiolus-carneus-377` — Gladiolus Carneus — `redoute-lilies/gladiolus-carneus-377.jpg`
 
+### `pierre-joseph-redoute::rosa reclinata` — min Δ23
+- `redoute-roses-rosa-reclinata-fleures-simples` — Rosa Reclinata — `redoute-roses/rosa-reclinata-fleures-simples.jpg`
+- `redoute-roses-rosa-reclinata-fleurs-presque-doubles` — Rosa Reclinata — `redoute-roses/rosa-reclinata-fleurs-presque-doubles.jpg`
+
 ### `john-james-audubon::wild turkey` — min Δ23
 - `audubon-birds-1-wild-turkey` — Wild Turkey (Plate 1) — `audubon-birds/1_Wild_Turkey.jpg`
 - `audubon-birds-6-wild-turkey` — Wild Turkey (Plate 6) — `audubon-birds/6_Wild_Turkey.jpg`
@@ -81,6 +160,10 @@ _Sorted by min pairwise hamming distance: low Δ likely = same work scanned twic
 ### `pierre-joseph-redoute::ixia grandiflora` — min Δ24
 - `redoute-lilies-ixia-grandiflora-139` — Ixia Grandiflora — `redoute-lilies/ixia-grandiflora-139.jpg`
 - `redoute-lilies-ixia-grandiflora-362` — Ixia Grandiflora — `redoute-lilies/ixia-grandiflora-362.jpg`
+
+### `pierre-joseph-redoute::rosa multiflora` — min Δ24
+- `redoute-roses-rosa-multiflora-carnea` — Rosa Multiflora — `redoute-roses/rosa-multiflora-carnea.jpg`
+- `redoute-roses-rosa-multiflora-platyphylla` — Rosa Multiflora — `redoute-roses/rosa-multiflora-platyphylla.jpg`
 
 ### `claude-monet::charing cross bridge` — min Δ24
 - `collection-of-beauty-charing-cross-bridge-monet` — Charing Cross Bridge — `collection-of-beauty/Charing_Cross_Bridge,_Monet.jpg`
@@ -94,6 +177,10 @@ _Sorted by min pairwise hamming distance: low Δ likely = same work scanned twic
 - `redoute-lilies-witsenia-maura` — Witsenia Maura — `redoute-lilies/witsenia-maura.jpg`
 - `redoute-lilies-witsenia-maura-latifolia` — Witsenia Maura — `redoute-lilies/witsenia-maura-latifolia.jpg`
 
+### `pierre-joseph-redoute::rosa eglanteria` — min Δ25
+- `redoute-roses-rosa-eglanteria-punicea` — Rosa Eglanteria — `redoute-roses/rosa-eglanteria-punicea.jpg`
+- `redoute-roses-rosa-eglanteria` — Rosa Eglanteria — `redoute-roses/rosa-eglanteria.jpg`
+
 ### `john-james-audubon::golden eye duck` — min Δ25
 - `audubon-birds-342-golden-eye-duck` — Golden-Eye Duck (Plate 342) — `audubon-birds/342_Golden-Eye_Duck.jpg`
 - `audubon-birds-403-golden-eye-duck` — Golden-eye Duck (Plate 403) — `audubon-birds/403_Golden-eye_Duck.jpg`
@@ -106,6 +193,10 @@ _Sorted by min pairwise hamming distance: low Δ likely = same work scanned twic
 - `redoute-lilies-scilla-amoena-130` — Scilla Amœna — `redoute-lilies/scilla-amoena-130.jpg`
 - `redoute-lilies-scilla-amoena-298` — Scilla Amœna — `redoute-lilies/scilla-amoena-298.jpg`
 
+### `pierre-joseph-redoute::rosa tomentosa` — min Δ26
+- `redoute-roses-rosa-tomentosa-flore-multiplici` — Rosa Tomentosa — `redoute-roses/rosa-tomentosa-flore-multiplici.jpg`
+- `redoute-roses-rosa-tomentosa` — Rosa Tomentosa — `redoute-roses/rosa-tomentosa.jpg`
+
 ### `john-james-audubon::white headed eagle` — min Δ26
 - `audubon-birds-126-white-headed-eagle` — White-headed Eagle (Plate 126) — `audubon-birds/126_White-headed_Eagle.jpg`
 - `audubon-birds-31-white-headed-eagle` — White-headed Eagle (Plate 31) — `audubon-birds/31_White-headed_Eagle.jpg`
@@ -113,6 +204,15 @@ _Sorted by min pairwise hamming distance: low Δ likely = same work scanned twic
 ### `pierre-joseph-redoute::lilium tigrinum` — min Δ27
 - `redoute-lilies-lilium-tigrinum` — Lilium Tigrinum — `redoute-lilies/lilium-tigrinum.jpg`
 - `redoute-lilies-lilium-tigrinum-475` — Lilium Tigrinum — `redoute-lilies/lilium-tigrinum-475.jpg`
+
+### `pierre-joseph-redoute::rosa hudsoniana` — min Δ27
+- `redoute-roses-rosa-hudsoniana-salicifolia` — Rosa Hudsoniana — `redoute-roses/rosa-hudsoniana-salicifolia.jpg`
+- `redoute-roses-rosa-hudsoniana-scandens` — Rosa Hudsoniana — `redoute-roses/rosa-hudsoniana-scandens.jpg`
+- `redoute-roses-rosa-hudsoniana-subcorymbosa` — Rosa Hudsoniana — `redoute-roses/rosa-hudsoniana-subcorymbosa.jpg`
+
+### `pierre-joseph-redoute::rosa pomponia` — min Δ27
+- `redoute-roses-rosa-pomponia` — Rosa Pomponia — `redoute-roses/rosa-pomponia.jpg`
+- `redoute-roses-rosa-pomonia-flore-subsimplici` — Rosa Pomponia — `redoute-roses/rosa-pomonia-flore-subsimplici.jpg`
 
 ### `claude-monet::low tide at pourville` — min Δ27
 - `collection-of-beauty-low-tide-at-pourville-by-claude-monet-cleveland-museum-of-art-1947-196` — Low Tide at Pourville — `collection-of-beauty/Low_Tide_at_Pourville,_by_Claude_Monet,_Cleveland_Museum_of_Art,_1947.196.jpg`
@@ -127,6 +227,10 @@ _Sorted by min pairwise hamming distance: low Δ likely = same work scanned twic
 - `redoute-lilies-iris-sisyrinchium-29` — Iris Sisyrinchium — `redoute-lilies/iris-sisyrinchium-29.jpg`
 - `redoute-lilies-iris-sisyrinchium-458` — Iris Sisyrinchium — `redoute-lilies/iris-sisyrinchium-458.jpg`
 
+### `pierre-joseph-redoute::rosa bifera` — min Δ28
+- `redoute-roses-rosa-bifera-alba` — Rosa Bifera — `redoute-roses/rosa-bifera-alba.jpg`
+- `redoute-roses-rosa-bifera-officinalis` — Rosa Bifera — `redoute-roses/rosa-bifera-officinalis.jpg`
+
 ### `claude-monet::daffodils` — min Δ29
 - `collection-of-beauty-monet-w922` — Monet w922 / Daffodils — `collection-of-beauty/Monet_w922.jpg`
 - `collection-of-beauty-monet-w928` — Monet w928 / Daffodils — `collection-of-beauty/Monet_w928.jpg`
@@ -134,6 +238,11 @@ _Sorted by min pairwise hamming distance: low Δ likely = same work scanned twic
 ### `claude-monet::reflections of clouds on the water lily pond` — min Δ29
 - `collection-of-beauty-claude-monet-reflections-of-clouds-on-the-water-lily-pond` — Reflections of Clouds on the Water-Lily Pond — `collection-of-beauty/Claude_Monet_-_Reflections_of_Clouds_on_the_Water-Lily_Pond.jpg`
 - `collection-of-beauty-wla-moma-monet-reflections-of-clouds-on-the-water-lily-pond` — WLA moma Monet Reflections of Clouds on the Water-Lily Pond / Reflections of Clouds on the Water-Lily Pond — `collection-of-beauty/WLA_moma_Monet_Reflections_of_Clouds_on_the_Water-Lily_Pond.jpg`
+
+### `pierre-joseph-redoute::rosa muscosa` — min Δ30
+- `redoute-roses-rosa-mucosa-alba` — Rosa Muscosa — `redoute-roses/rosa-mucosa-alba.jpg`
+- `redoute-roses-rosa-muscosa-multiplex` — Rosa Muscosa — `redoute-roses/rosa-muscosa-multiplex.jpg`
+- `redoute-roses-rosa-muscosa` — Rosa Muscosa — `redoute-roses/rosa-muscosa.jpg`
 
 ### `john-james-audubon::brown pelican` — min Δ30
 - `audubon-birds-251-brown-pelican` — Brown Pelican (Plate 251) — `audubon-birds/251_Brown_Pelican.jpg`
@@ -150,6 +259,10 @@ _Sorted by min pairwise hamming distance: low Δ likely = same work scanned twic
 ### `pierre-joseph-redoute::iris sibirica` — min Δ31
 - `redoute-lilies-iris-sibirica-c` — Iris Sibirica — `redoute-lilies/iris-sibirica-c.jpg`
 - `redoute-lilies-iris-sibirica-b` — Iris Sibirica — `redoute-lilies/iris-sibirica-b.jpg`
+
+### `pierre-joseph-redoute::rosa cinnamomea` — min Δ31
+- `redoute-roses-rosa-cinnamomea-majalis` — Rosa Cinnamomea — `redoute-roses/rosa-cinnamomea-majalis.jpg`
+- `redoute-roses-rosa-cinnamomea` — Rosa Cinnamomea — `redoute-roses/rosa-cinnamomea.jpg`
 
 ### `claude-monet::the seine at lavacourt` — min Δ31
 - `collection-of-beauty-la-seine-a-lavacourt` — La Seine à Lavacourt / The Seine at Lavacourt — `collection-of-beauty/La_Seine_à_Lavacourt.jpeg`
@@ -199,29 +312,14 @@ _Sorted by min pairwise hamming distance: low Δ likely = same work scanned twic
 - `collection-of-beauty-monet-grainstacks-white-frost-effect-1889-google-art-project` — Grainstacks — `collection-of-beauty/Monet_-_Grainstacks,_White_Frost_Effect_(1889)_Google_Art_Project.jpg`
 - `collection-of-beauty-claude-monet-graystaks-i` — Graystaks I / Grainstacks — `collection-of-beauty/Claude_Monet_-_Graystaks_I.jpeg`
 
+### `pierre-joseph-redoute::rosa andegavensis` — min Δ43
+- `redoute-roses-rosa-andegavensis-59` — Rosa Andegavensis — `redoute-roses/rosa-andegavensis-59.jpg`
+- `redoute-roses-rosa-andegavensis-118` — Rosa Andegavensis — `redoute-roses/rosa-andegavensis-118.jpg`
+
 ## Exact dHash matches
 
-### `61e6a66eaaa76260`
-- `collection-of-beauty-2560px-edgar-germain-hilaire-degas-031` — 2560px-Edgar Germain Hilaire Degas 031 — Edgar Degas — `collection-of-beauty/2560px-Edgar_Germain_Hilaire_Degas_031.jpg`
-- `collection-of-beauty-edgar-germain-hilaire-degas-031` — le tub — Edgar Degas — `collection-of-beauty/Edgar_Germain_Hilaire_Degas_031.jpg`
-
+_None._
 ## Near duplicates
-
-### Seed `0b8b151f87472123`
-- (seed) `collection-of-beauty-1280px-arcimboldo-winter-1563` — 1280px-Arcimboldo Winter 1563 — Giuseppe Arcimboldo — `collection-of-beauty/1280px-Arcimboldo_Winter_1563.jpg`
-- (Δ1) `collection-of-beauty-arcimboldo-winter-1563` — Allegory of Winter — Giuseppe Arcimboldo — `collection-of-beauty/Arcimboldo_Winter_1563.jpg`
-
-### Seed `4b0987a32376333b`
-- (seed) `collection-of-beauty-1280px-giuseppe-arcimboldo-four-seasons-in-one-head-google-art-project` — 1280px-Giuseppe Arcimboldo - Four Seasons in One Head — Giuseppe Arcimboldo — `collection-of-beauty/1280px-Giuseppe_Arcimboldo_-_Four_Seasons_in_One_Head_-_Google_Art_Project.jpg`
-- (Δ3) `collection-of-beauty-giuseppe-arcimboldo-four-seasons-in-one-head-google-art-project` — Four Seasons in One Head — Giuseppe Arcimboldo — `collection-of-beauty/Giuseppe_Arcimboldo_-_Four_Seasons_in_One_Head_-_Google_Art_Project.jpg`
-
-### Seed `0b1635f4ba0d4664`
-- (seed) `collection-of-beauty-el-greco-domenikos-theotokopoulos-laocoon-google-art-project` — El Greco — El Greco — `collection-of-beauty/El_Greco_(Domenikos_Theotokopoulos)_-_Laocoön_-_Google_Art_Project.jpg`
-- (Δ2) `collection-of-beauty-el-greco-042` — Laocoön — El Greco — `collection-of-beauty/El_Greco_042.jpg`
-
-### Seed `6332b387c9b36727`
-- (seed) `collection-of-beauty-scene-des-massacres-de-scio-eugene-delacroix-musee-du-louvre-peintures-inv-3823-c3` — Scène des massacres de Scio — Eugène Delacroix — `collection-of-beauty/Scène_des_massacres_de_Scio,_Eugène_Delacroix_-_Musée_du_Louvre_Peintures_INV_3823_;_C3.jpg`
-- (Δ1) `collection-of-beauty-scene-des-massacres-de-scio` — The Massacre at Chios — Eugène Delacroix — `collection-of-beauty/Scène_des_massacres_de_Scio.jpg`
 
 ### Seed `a0c4f2f0f0f0c4a0`
 - (seed) `audubon-birds-395-i-audubon-s-warbler-2-hermit-warbler-3-black-throated-gray-warbler` — I. Audubon's Warbler - 2. Hermit Warbler - 3. Black-throated gray Warbler (Plate 395) — John James Audubon — `audubon-birds/395_I._Audubon's_Warbler_-_2._Hermit_Warbler_-_3._Black-throated_gray_Warbler.jpg`
@@ -230,20 +328,4 @@ _Sorted by min pairwise hamming distance: low Δ likely = same work scanned twic
 ### Seed `a0e6f0f0f0f08ca0`
 - (seed) `audubon-birds-45-traill-s-flycatcher` — Traill's Flycatcher (Plate 45) — John James Audubon — `audubon-birds/45_Traill's_Flycatcher.jpg`
 - (Δ4) `audubon-birds-190-yellow-bellied-woodpecker` — Yellow bellied Woodpecker (Plate 190) — John James Audubon — `audubon-birds/190_Yellow_bellied_Woodpecker.jpg`
-
-### Seed `22e0713928183839`
-- (seed) `collection-of-beauty-femmes-d-alger-dans-leur-appartement-eugene-delacroix-musee-du-louvre-peintures-inv-3824` — Femmes d'Alger dans leur appartement — Eugène Delacroix — `collection-of-beauty/Femmes_d'Alger_dans_leur_appartement,_Eugène_Delacroix_-_Musée_du_Louvre_Peintures_INV_3824.jpg`
-- (Δ2) `collection-of-beauty-eugene-delacroix-les-femmes-d-alger-dans-leur-appartement-1834` — Frauen von Algier — Eugène Delacroix — `collection-of-beauty/Eugène_Delacroix_-_Les_Femmes_d'Alger_dans_leur_appartement,_1834.jpg`
-
-### Seed `870707078603d484`
-- (seed) `collection-of-beauty-jean-francois-millet-the-sheepfold-moonlight-google-art-project` — The Sheepfold — Jean-François Millet — `collection-of-beauty/Jean-François_Millet_-_The_Sheepfold,_Moonlight_-_Google_Art_Project.jpg`
-- (Δ1) `collection-of-beauty-jean-francois-millet-the-sheepfold-moonlight-walters-3730` — The Sheepfold — Jean-François Millet — `collection-of-beauty/Jean-François_Millet_-_The_Sheepfold,_Moonlight_-_Walters_3730.jpg`
-
-### Seed `8d898ceecf13930b`
-- (seed) `collection-of-beauty-manet-musica-en-las-tullerias-national-gallery-londres-1862` — Music in the Tuileries — Édouard Manet — `collection-of-beauty/MANET_-_Música_en_las_Tullerías_(National_Gallery,_Londres,_1862).jpg`
-- (Δ1) `collection-of-beauty-edouard-manet-music-in-the-tuileries-1862` — Music in the Tuileries Gardens — Édouard Manet — `collection-of-beauty/Edouard_Manet_Music_in_the_Tuileries_1862.jpg`
-
-### Seed `a7c6ad85c3c7c3c5`
-- (seed) `collection-of-beauty-ilya-repin-what-freedom` — What freedom! — Ilya Repin — `collection-of-beauty/Ilya_Repin-What_freedom!.jpg`
-- (Δ3) `collection-of-beauty-69149f` — What freedom! — Ilya Repin — `collection-of-beauty/Илья_Репин_-_Какой_простор.jpg`
 
