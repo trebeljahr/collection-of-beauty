@@ -162,6 +162,12 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
               >
                 Privacy
               </Link>
+              <Link
+                href="/drops/rss.xml"
+                className="rounded-sm underline hover:text-[var(--foreground)] focus:outline-none focus-visible:ring-2 focus-visible:ring-[var(--ring)]"
+              >
+                RSS
+              </Link>
             </nav>
             <p>
               All works shown are in the public domain or openly licensed. Metadata sourced from
