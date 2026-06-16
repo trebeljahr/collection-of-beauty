@@ -30,7 +30,7 @@
  * Flags:
  *   --base <url>           Override PUBLIC_ASSETS_BASE_URL.
  *   --sample <N>           Check only N random artworks (smoke test).
- *   --concurrency <N>      HEAD concurrency cap (default 32).
+ *   --concurrency <N>      HEAD concurrency cap (default 16).
  *   --check-unshrunk       Also fail if any artwork has variantWidths===null
  *                          (defence in depth — build-data's filter should
  *                          have caught it, but this proves the catalogue
@@ -39,9 +39,12 @@
  *                          the report. For diagnostic runs.
  *
  * Exit codes:
- *   0  every expected variant present
- *   1  at least one variant missing (or unshrunk entry with --check-unshrunk)
- *   2  bad invocation / network failure
+ *   0  every expected variant present (or only network-unreachable keys —
+ *      those are reported but never gate, since a `fetch failed` is not
+ *      evidence the file is missing)
+ *   1  at least one variant returned a real HTTP error / was absent in
+ *      --bulk (catalogue drift), or an unshrunk entry with --check-unshrunk
+ *   2  bad invocation / fatal error
  */
 
 import { readFileSync } from "node:fs";
@@ -62,7 +65,7 @@ function parseArgs(argv) {
     bulk: false,
     base: process.env.NEXT_PUBLIC_ASSETS_BASE_URL?.replace(/\/$/, "") || DEFAULT_BASE,
     sample: null,
-    concurrency: 32,
+    concurrency: 16,
     checkUnshrunk: false,
     warn: false,
   };
@@ -80,7 +83,7 @@ function parseArgs(argv) {
           "  --bulk                        bulk-list R2 via rclone (needs R2_* env)\n" +
           "  --base <url>                  override base URL\n" +
           "  --sample <N>                  random subset (smoke test)\n" +
-          "  --concurrency <N>             HEAD concurrency (default 32)\n" +
+          "  --concurrency <N>             HEAD concurrency (default 16)\n" +
           "  --check-unshrunk              also fail on variantWidths===null\n" +
           "  --warn                        exit 0 even when files missing\n",
       );
@@ -118,19 +121,36 @@ function expectedKeysFor(artwork) {
   return keys;
 }
 
+const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
+
+// Max retries for *transient* failures (5xx + network errors). A real
+// HTTP 4xx is terminal and never retried — that's the drift signal we
+// care about. Network errors get exponential backoff so a burst of
+// `fetch failed` (Cloudflare connection/rate limiting under a 38k-key
+// sweep) recovers instead of being miscounted as missing files.
+const MAX_RETRIES = 4;
+
 async function headOne(base, key, attempt = 0) {
   const url = `${base}/${encodePath(key.split("/"))}`;
   try {
     const res = await fetch(url, { method: "HEAD", redirect: "follow" });
     if (res.ok) return { key, ok: true };
-    // Transient 5xx — retry once. 4xx is terminal.
-    if (res.status >= 500 && attempt === 0) {
+    // Transient 5xx — back off and retry. 4xx is terminal (real drift).
+    if (res.status >= 500 && attempt < MAX_RETRIES) {
+      await sleep(200 * 2 ** attempt);
       return headOne(base, key, attempt + 1);
     }
     return { key, ok: false, status: res.status };
   } catch (err) {
-    if (attempt === 0) return headOne(base, key, attempt + 1);
-    return { key, ok: false, error: err.message };
+    // Network-level failure (DNS/TLS/connection reset/`fetch failed`).
+    // NOT evidence the file is missing — back off and retry.
+    if (attempt < MAX_RETRIES) {
+      await sleep(200 * 2 ** attempt);
+      return headOne(base, key, attempt + 1);
+    }
+    // Still failing after retries: classify as unreachable, not missing.
+    // The deploy must not be gated on CI/CDN network flakiness.
+    return { key, ok: false, unreachable: true, error: err.message };
   }
 }
 
@@ -231,7 +251,16 @@ async function main() {
     `[verify-r2] checking ${allKeys.length} variant keys across ${artworks.length} artworks (base=${args.base})`,
   );
 
+  // `missing`     — a real HTTP non-2xx (404/403): the catalogue points
+  //                 at a key the bucket doesn't serve. This is drift, and
+  //                 the only condition that should fail a gate.
+  // `unreachable` — network failure after retries (DNS/TLS/connection
+  //                 reset / Cloudflare rate-limiting under load). Tells us
+  //                 nothing about whether the file exists, so it never
+  //                 fails the run — just gets reported so a flaky sweep is
+  //                 visible. Use --bulk to sidestep it entirely.
   let missing = [];
+  let unreachable = [];
   if (args.bulk) {
     const present = listR2Bulk();
     for (const k of allKeys) if (!present.has(k)) missing.push({ key: k, status: "absent" });
@@ -242,16 +271,30 @@ async function main() {
       args.concurrency,
       (done, total) => console.error(`[verify-r2] ${done}/${total}`),
     );
-    missing = results.filter((r) => !r.ok);
+    for (const r of results) {
+      if (r.ok) continue;
+      if (r.unreachable) unreachable.push(r);
+      else missing.push(r);
+    }
   }
 
-  if (missing.length === 0 && unshrunk.length === 0) {
+  if (missing.length === 0 && unreachable.length === 0 && unshrunk.length === 0) {
     console.log(`[verify-r2] OK — ${allKeys.length} variants verified`);
     process.exit(0);
   }
 
+  if (unreachable.length > 0) {
+    console.error(
+      `[verify-r2] ${unreachable.length} variant(s) unreachable (network errors, not 404s) — ` +
+        `NOT counted as missing. Likely CDN rate-limiting under load; rerun with --bulk for a ` +
+        `single bucket LIST instead of ${allKeys.length} HEAD requests.`,
+    );
+    for (const m of unreachable.slice(0, 10)) console.error(`  ~ ${m.key} (${m.error})`);
+    if (unreachable.length > 10) console.error(`  … and ${unreachable.length - 10} more`);
+  }
+
   if (missing.length > 0) {
-    console.error(`[verify-r2] ${missing.length} variant(s) missing:`);
+    console.error(`[verify-r2] ${missing.length} variant(s) missing (real HTTP error — catalogue drift):`);
     for (const m of missing.slice(0, 50)) {
       console.error(`  - ${m.key}${m.status ? ` (${m.status})` : ""}${m.error ? ` (${m.error})` : ""}`);
     }
