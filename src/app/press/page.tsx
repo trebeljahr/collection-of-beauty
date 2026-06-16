@@ -1,9 +1,13 @@
 import type { Metadata } from "next";
 import Image from "next/image";
 import Link from "next/link";
+import summary from "@/data/summary.json";
 import { absoluteUrl, jsonLdScriptProps, SITE_NAME, SITE_URL } from "@/lib/seo";
 
 const pressEmail = "hello@trebeljahr.com";
+
+const WORKS_APPROX = (Math.floor(summary.totalArtworks / 10) * 10).toLocaleString("en-US");
+const ARTISTS_APPROX = (Math.floor(summary.totalArtists / 10) * 10).toString();
 
 export const metadata: Metadata = {
   title: "Press",
@@ -46,7 +50,7 @@ const factSheet = [
   ["Price", "Free. No login, no ads, no paywall, no tracking beyond self-hosted Plausible."],
   [
     "Collection size",
-    "~2,855 works, ~225 artists at launch (numbers move; live count visible on the home page)",
+    `~${WORKS_APPROX} works, ~${ARTISTS_APPROX} artists at launch (numbers move; live count visible on the home page)`,
   ],
   [
     "Coverage",
@@ -87,19 +91,19 @@ const descriptionTiers = [
   {
     title: "Short (about 40 words)",
     body: [
-      "Collection of Beauty is a one-person public-domain art gallery on the web. It holds roughly 2,855 works from about 225 artists and includes a multi-floor 3D museum, built with WebGL, that you can walk through in a browser tab.",
+      `Collection of Beauty is a one-person public-domain art gallery on the web. It holds roughly ${WORKS_APPROX} works from about ${ARTISTS_APPROX} artists and includes a multi-floor 3D museum, built with WebGL, that you can walk through in a browser tab.`,
     ],
   },
   {
     title: "Medium (about 80 words)",
     body: [
-      "Collection of Beauty is a hand-curated public-domain art gallery, built and maintained by one person. The collection currently holds around 2,855 works across ~225 artists, sourced from open archives such as Wikimedia Commons and the Library of Congress. Alongside a standard 2D gallery and artist pages, the site includes a multi-floor 3D museum, built with React Three Fiber, where each floor is a different historical era and a spiral staircase connects them. The 3D museum runs in any modern browser, on desktop with mouse + keyboard and on mobile with a touch joystick.",
+      `Collection of Beauty is a hand-curated public-domain art gallery, built and maintained by one person. The collection currently holds around ${WORKS_APPROX} works across ~${ARTISTS_APPROX} artists, sourced from open archives such as Wikimedia Commons and the Library of Congress. Alongside a standard 2D gallery and artist pages, the site includes a multi-floor 3D museum, built with React Three Fiber, where each floor is a different historical era and a spiral staircase connects them. The 3D museum runs in any modern browser, on desktop with mouse + keyboard and on mobile with a touch joystick.`,
     ],
   },
   {
     title: "Long (about 150 words)",
     body: [
-      'Collection of Beauty is a personal gallery of public-domain art, made and maintained by a single developer. The collection grew out of a private bookmark folder and now holds around 2,855 works across ~225 artists, drawn from public archives such as Wikimedia Commons and the Library of Congress. Each work shows its source, provenance, and a permalink, with a "suggest a fix" button that opens a GitHub issue. Metadata is treated as a living, correctable document rather than a closed catalog.',
+      `Collection of Beauty is a personal gallery of public-domain art, made and maintained by a single developer. The collection grew out of a private bookmark folder and now holds around ${WORKS_APPROX} works across ~${ARTISTS_APPROX} artists, drawn from public archives such as Wikimedia Commons and the Library of Congress. Each work shows its source, provenance, and a permalink, with a "suggest a fix" button that opens a GitHub issue. Metadata is treated as a living, correctable document rather than a closed catalog.`,
       "The site is free and runs without ads, sign-ups, or third-party tracking. The headline feature is a multi-floor 3D museum built in WebGL: each floor is a historical era, paintings are sized to their real-world dimensions where known, and a spiral staircase connects the floors. It runs in any browser tab - pointer-lock + WASD on desktop, an on-screen touch joystick on mobile - and needs no install.",
     ],
   },
@@ -243,8 +247,7 @@ const social = [
   "Personal blog: ricos.site (long-form pieces and a launch retrospective will live there).",
 ] as const;
 
-const boilerplate =
-  "Collection of Beauty is a personal public-domain art gallery, built and maintained by Rico Trebeljahr in 2026. The site holds about 2,855 works from ~225 artists, sourced from Wikimedia Commons, the Library of Congress, and adjacent open archives. Alongside a standard 2D gallery, it includes a multi-floor 3D museum, built with WebGL, that you can walk through in a browser tab on desktop or mobile. It runs at beauty.trebeljahr.com, free, without ads or sign-ups.";
+const boilerplate = `Collection of Beauty is a personal public-domain art gallery, built and maintained by Rico Trebeljahr in 2026. The site holds about ${WORKS_APPROX} works from ~${ARTISTS_APPROX} artists, sourced from Wikimedia Commons, the Library of Congress, and adjacent open archives. Alongside a standard 2D gallery, it includes a multi-floor 3D museum, built with WebGL, that you can walk through in a browser tab on desktop or mobile. It runs at beauty.trebeljahr.com, free, without ads or sign-ups.`;
 
 function contactPointJsonLd(): Record<string, unknown> {
   return {
