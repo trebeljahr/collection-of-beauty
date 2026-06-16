@@ -10,7 +10,7 @@ export const metadata: Metadata = {
   description: `Drops of Beauty from ${SITE_NAME}: themed selections from the public-domain catalogue, with email signup and past editions.`,
   alternates: {
     canonical: "/drops",
-    types: { "application/rss+xml": "/drops/rss.xml" },
+    types: { "application/rss+xml": "/rss.xml" },
   },
   openGraph: {
     title: `Drops of Beauty - ${SITE_NAME}`,

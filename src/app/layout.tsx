@@ -44,6 +44,7 @@ export const metadata: Metadata = {
   ],
   alternates: {
     canonical: "/",
+    types: { "application/rss+xml": "/rss.xml" },
   },
   openGraph: {
     type: "website",
@@ -163,7 +164,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
                 Privacy
               </Link>
               <Link
-                href="/drops/rss.xml"
+                href="/rss.xml"
                 className="rounded-sm underline hover:text-[var(--foreground)] focus:outline-none focus-visible:ring-2 focus-visible:ring-[var(--ring)]"
               >
                 RSS
