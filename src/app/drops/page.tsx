@@ -35,15 +35,6 @@ export default function DropsPage() {
         <div className="mt-8 rounded-lg border border-[var(--border)] bg-[var(--background)] p-5 md:p-6">
           <SubscribeForm />
         </div>
-
-        <p className="mt-5 flex flex-wrap items-center gap-x-4 gap-y-1 text-sm">
-          <Link href="/drops/rss.xml" className="underline underline-offset-2 hover:opacity-70">
-            RSS
-          </Link>
-          <Link href="/sub" className="underline underline-offset-2 hover:opacity-70">
-            Dedicated signup page
-          </Link>
-        </p>
       </header>
 
       {editions.length === 0 ? (
