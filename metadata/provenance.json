@@ -229,16 +229,6 @@
     "describedAt": null,
     "sourceLinks": []
   },
-  "1280px-Giuseppe_Arcimboldo_-_Four_Seasons_in_One_Head_-_Google_Art_Project.jpg": {
-    "wikidataId": "Q20176820",
-    "wikidataUrl": "https://www.wikidata.org/wiki/Q20176820",
-    "collection": "National Gallery of Art",
-    "collectionWikidataId": "Q214867",
-    "location": "National Gallery of Art",
-    "inventory": "2010.77.1",
-    "describedAt": null,
-    "sourceLinks": []
-  },
   "1280px-Giuseppe_Arcimboldo_-_Summer_-_Google_Art_Project.jpg": {
     "wikidataId": "Q27978844",
     "wikidataUrl": "https://www.wikidata.org/wiki/Q27978844",
@@ -557,16 +547,6 @@
     "location": "Van Gogh Museum",
     "inventory": "s0012V1962",
     "describedAt": "http://www.vangoghmuseum.nl/nl/collectie/s0012V1962",
-    "sourceLinks": []
-  },
-  "2560px-Edgar_Germain_Hilaire_Degas_031.jpg": {
-    "wikidataId": "Q2912117",
-    "wikidataUrl": "https://www.wikidata.org/wiki/Q2912117",
-    "collection": "Musée d'Orsay",
-    "collectionWikidataId": "Q23402",
-    "location": "Musée d'Orsay",
-    "inventory": "RF 4046",
-    "describedAt": null,
     "sourceLinks": []
   },
   "2560px-Gustave_Courbet,_1857,_Le_Pont_d'Ambrussum,_huile_sur_papier_marouflé_sur_bois,_48_x_63_cm,_Musée_Fabre.jpg": {
@@ -10560,16 +10540,6 @@
     "describedAt": "http://www.tate.org.uk/art/artworks/sargent-claude-monet-painting-by-the-edge-of-a-wood-n04103",
     "sourceLinks": []
   },
-  "Scène_des_massacres_de_Scio,_Eugène_Delacroix_-_Musée_du_Louvre_Peintures_INV_3823_;_C3.jpg": {
-    "wikidataId": "Q2290433",
-    "wikidataUrl": "https://www.wikidata.org/wiki/Q2290433",
-    "collection": "Department of Paintings of the Louvre",
-    "collectionWikidataId": "Q3044768",
-    "location": "Room 700",
-    "inventory": "INV 3823",
-    "describedAt": null,
-    "sourceLinks": []
-  },
   "Schongauer_Anthony.jpg": {
     "wikidataId": "Q177413",
     "wikidataUrl": "https://www.wikidata.org/wiki/Q177413",
@@ -12960,16 +12930,6 @@
     "describedAt": null,
     "sourceLinks": []
   },
-  "Илья_Репин_-_Какой_простор.jpg": {
-    "wikidataId": "Q12135183",
-    "wikidataUrl": "https://www.wikidata.org/wiki/Q12135183",
-    "collection": "Russian Museum",
-    "collectionWikidataId": "Q211043",
-    "location": "Russian Museum",
-    "inventory": "Ж-2774",
-    "describedAt": "https://rusmuseumvrm.ru/data/collections/painting/19_20/zh-2774/",
-    "sourceLinks": []
-  },
   "Кочевая_дорога_в_горах_Алатау.jpg": {
     "wikidataId": "Q24089637",
     "wikidataUrl": "https://www.wikidata.org/wiki/Q24089637",
@@ -14864,5 +14824,45 @@
         "url": "http://rusmuseumvrm.ru/data/collections/painting/19_20/vasnecov_vm_akrobati_na_prazdnike_v_okrestnostyah_parizha_1877_zh4213/index.php"
       }
     ]
+  },
+  "Giuseppe_Arcimboldo_-_Four_Seasons_in_One_Head_-_Google_Art_Project.jpg": {
+    "wikidataId": "Q20176820",
+    "wikidataUrl": "https://www.wikidata.org/wiki/Q20176820",
+    "collection": "National Gallery of Art",
+    "collectionWikidataId": "Q214867",
+    "location": "National Gallery of Art",
+    "inventory": "2010.77.1",
+    "describedAt": null,
+    "sourceLinks": []
+  },
+  "Scène_des_massacres_de_Scio.jpg": {
+    "wikidataId": "Q2290433",
+    "wikidataUrl": "https://www.wikidata.org/wiki/Q2290433",
+    "collection": "Department of Paintings of the Louvre",
+    "collectionWikidataId": "Q3044768",
+    "location": "Room 700",
+    "inventory": "INV 3823",
+    "describedAt": null,
+    "sourceLinks": []
+  },
+  "Ilya_Repin-What_freedom!.jpg": {
+    "wikidataId": "Q12135183",
+    "wikidataUrl": "https://www.wikidata.org/wiki/Q12135183",
+    "collection": "Russian Museum",
+    "collectionWikidataId": "Q211043",
+    "location": "Russian Museum",
+    "inventory": "Ж-2774",
+    "describedAt": "https://rusmuseumvrm.ru/data/collections/painting/19_20/zh-2774/",
+    "sourceLinks": []
+  },
+  "Edgar_Germain_Hilaire_Degas_031.jpg": {
+    "wikidataId": "Q2912117",
+    "wikidataUrl": "https://www.wikidata.org/wiki/Q2912117",
+    "collection": "Musée d'Orsay",
+    "collectionWikidataId": "Q23402",
+    "location": "Musée d'Orsay",
+    "inventory": "RF 4046",
+    "describedAt": null,
+    "sourceLinks": []
   }
 }

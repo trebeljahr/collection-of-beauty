@@ -1,5 +1,5 @@
 # Copyright review — looks recent
-# Generated: 2026-06-16T21:43:34.102Z
+# Generated: 2026-06-16T22:19:20.789Z
 # Cutoff: year < 1926 (artwork must be at least 100 years old).
 # Entries here have year >= 1926 after heuristic re-extraction,
 # so they may be copyrighted. Review and remove if they cannot be

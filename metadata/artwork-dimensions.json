@@ -2254,11 +2254,6 @@
     "heightCm": 80.6,
     "source": "commons"
   },
-  "collection-of-beauty-1280px-giuseppe-arcimboldo-four-seasons-in-one-head-google-art-project": {
-    "widthCm": 44.7,
-    "heightCm": 60.4,
-    "source": "museum"
-  },
   "collection-of-beauty-1280px-giuseppe-arcimboldo-summer-google-art-project": {
     "widthCm": 50.8,
     "heightCm": 67,
@@ -2540,11 +2535,6 @@
   "collection-of-beauty-2560px-de-heuvel-van-montmartre-met-steengroeve-s0012v1962-van-gogh-museum": {
     "widthCm": 62.5,
     "heightCm": 56,
-    "source": "wikidata"
-  },
-  "collection-of-beauty-2560px-edgar-germain-hilaire-degas-031": {
-    "widthCm": 83,
-    "heightCm": 60,
     "source": "wikidata"
   },
   "collection-of-beauty-2560px-finches-and-bamboo-met-dp151504": {
@@ -11001,11 +10991,6 @@
     "heightCm": 25,
     "source": "series-default"
   },
-  "collection-of-beauty-scene-des-massacres-de-scio-eugene-delacroix-musee-du-louvre-peintures-inv-3823-c3": {
-    "widthCm": 354,
-    "heightCm": 419,
-    "source": "wikidata"
-  },
   "collection-of-beauty-schongauer-anthony": {
     "widthCm": 23,
     "heightCm": 31.4,
@@ -16942,5 +16927,20 @@
     "widthCm": 25.2,
     "heightCm": 34.9,
     "source": "static"
+  },
+  "collection-of-beauty-giuseppe-arcimboldo-four-seasons-in-one-head-google-art-project": {
+    "widthCm": 44.7,
+    "heightCm": 60.4,
+    "source": "museum"
+  },
+  "collection-of-beauty-scene-des-massacres-de-scio": {
+    "widthCm": 354,
+    "heightCm": 419,
+    "source": "wikidata"
+  },
+  "collection-of-beauty-edgar-germain-hilaire-degas-031": {
+    "widthCm": 83,
+    "heightCm": 60,
+    "source": "wikidata"
   }
 }
