@@ -1,10 +1,10 @@
 {
-  "totalArtworks": 4207,
-  "totalArtists": 318,
+  "totalArtworks": 4411,
+  "totalArtists": 331,
   "totalMovements": 32,
-  "totalConnections": 360,
+  "totalConnections": 373,
   "yearRange": {
     "min": 950,
-    "max": 2018
+    "max": 2019
   }
 }

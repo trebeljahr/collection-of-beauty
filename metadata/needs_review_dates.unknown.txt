@@ -1,10 +1,10 @@
 # Copyright review — year unknown
-# Generated: 2026-06-10T07:53:05.349Z
+# Generated: 2026-06-16T21:43:34.107Z
 # We could not recover any artwork-creation year from the metadata, the
 # filename, the title, the description, or the artist's death year. These
 # require human review to decide whether to keep or drop.
 
-## collection-of-beauty.json  (685)
+## collection-of-beauty.json  (400)
 
 ???? [none]                 ? —  L'homme est en mer , Vincent van Gogh, d'après Virginie Demont-Breton
        file: _L'homme_est_en_mer_,_Vincent_van_Gogh,_d'après_Virginie_Demont-Breton.jpg
@@ -12,38 +12,11 @@
 ???? [none]                 ? — "Weeping" from Le Brun,
        file: _Weeping__from_Le_Brun,_Wellcome_L0012153.jpg
 
-???? [none]                 ? — 'Jupiter and Antiope', oil on canvas painting by Hendrick Goltzius
-       file: 'Jupiter_and_Antiope',_oil_on_canvas_painting_by_Hendrick_Goltzius.jpeg
-
-???? [none]                 ? — 0 Entrevue du roi et de Marie de Médicis à Lyon - P.P. Rubens - Louvre 2
-       file: 0_Entrevue_du_roi_et_de_Marie_de_Médicis_à_Lyon_-_P.P._Rubens_-_Louvre_2.jpeg
-
-???? [none]                 ? — 0 Le Sultan Mulay Ahmad de Tunis - Rubens - Museum of Fine Arts, Boston - 40.2 -(2)
-       file: 0_Le_Sultan_Mulay_Ahmad_de_Tunis_-_Rubens_-_Museum_of_Fine_Arts,_Boston_-_40.2_-(2).jpeg
-
-???? [none]                 ? — 1280px-Cypresses MET DP130999
-       file: 1280px-Cypresses_MET_DP130999.jpg
-
-???? [none]                 ? — 1280px-De schovenbindster (naar Millet) - s0172V1962 - Van Gogh Museum
-       file: 1280px-De_schovenbindster_(naar_Millet)_-_s0172V1962_-_Van_Gogh_Museum.jpg
-
 ???? [none]                 ? — 1280px-Eugène Ferdinand Victor Delacroix 025
        file: 1280px-Eugène_Ferdinand_Victor_Delacroix_025.jpg
 
-???? [none]                 ? — 1280px-Giuseppe Arcimboldo - Four Seasons in One Head - Google Art Project
-       file: 1280px-Giuseppe_Arcimboldo_-_Four_Seasons_in_One_Head_-_Google_Art_Project.jpg
-
-???? [none]                 ? — 1280px-Giuseppe Arcimboldo - La Primavera - Google Art Project
-       file: 1280px-Giuseppe_Arcimboldo_-_La_Primavera_-_Google_Art_Project.jpg
-
 ???? [none]                 ? — 1280px-Giuseppe Arcimboldo - Summer - Google Art Project
        file: 1280px-Giuseppe_Arcimboldo_-_Summer_-_Google_Art_Project.jpg
-
-???? [none]                 ? — 1280px-Gustave Caillebotte - The Orange Trees - Google Art Project
-       file: 1280px-Gustave_Caillebotte_-_The_Orange_Trees_-_Google_Art_Project.jpg
-
-???? [none]                 ? — 1280px-Jean-Léon Gérôme - Slave Market in Rome - WGA8652
-       file: 1280px-Jean-Léon_Gérôme_-_Slave_Market_in_Rome_-_WGA8652.jpg
 
 ???? [none]                 ? — 1280px-John Constable - The Vale of Dedham - Google Art Project
        file: 1280px-John_Constable_-_The_Vale_of_Dedham_-_Google_Art_Project.jpg
@@ -51,32 +24,8 @@
 ???? [none]                 ? — 1280px-Nihon fūkei senshū, Okayama Uchisange by Kawase Hasui
        file: 1280px-Nihon_fūkei_senshū,_Okayama_Uchisange_by_Kawase_Hasui.jpg
 
-???? [none]                 ? — 1280px-Pierre Puvis de Chavannes - Young Girls by the Seaside - Google Art Project
-       file: 1280px-Pierre_Puvis_de_Chavannes_-_Young_Girls_by_the_Seaside_-_Google_Art_Project.jpg
-
-???? [none]                 ? — 1280px-Retrato de la esposa del artista con sus dos hijos, por Hans Holbein el Joven
-       file: 1280px-Retrato_de_la_esposa_del_artista_con_sus_dos_hijos,_por_Hans_Holbein_el_Joven.jpg
-
-???? [none]                 ? — 1280px-Rocky Landscape in the Elbe Sandstone Mountains - Caspar David Friedrich - Google Cultural Institute
-       file: 1280px-Rocky_Landscape_in_the_Elbe_Sandstone_Mountains_-_Caspar_David_Friedrich_-_Google_Cultural_Institute.jpg
-
-???? [none]                 ? — 1280px-Suzuki Harunobu - Evening Snow on the Heater
-       file: 1280px-Suzuki_Harunobu_-_Evening_Snow_on_the_Heater.jpg
-
 ???? [none]                 ? — 1280px-The Chess Game
        file: 1280px-The_Chess_Game.jpg
-
-???? [none]                 ? — 1280px-Théodore Géricault - Evening, Landscape with an Aqueduct
-       file: 1280px-Théodore_Géricault_-_Evening,_Landscape_with_an_Aqueduct.jpg
-
-???? [none]                 ? — 1280px-Thomas Gainsborough - Clayton Jones - Google Art Project
-       file: 1280px-Thomas_Gainsborough_-_Clayton_Jones_-_Google_Art_Project.jpg
-
-???? [none]                 ? — 1280px-Thomas Gainsborough - The Marsham Children - Google Art Project
-       file: 1280px-Thomas_Gainsborough_-_The_Marsham_Children_-_Google_Art_Project.jpg
-
-???? [none]                 ? — 1280px-Van Gogh - Das Restaurant Rispal in Asniéres
-       file: 1280px-Van_Gogh_-_Das_Restaurant_Rispal_in_Asniéres.jpeg
 
 ???? [none]                 ? — 1280px-Van Gogh - Garten des Hospitals Saint-Paul mit Figur
        file: 1280px-Van_Gogh_-_Garten_des_Hospitals_Saint-Paul_mit_Figur.jpeg
@@ -87,23 +36,8 @@
 ???? [none]                 ? — 1280px-Vincent van Gogh - Head of a skeleton with a burning cigarette - Google Art Project
        file: 1280px-Vincent_van_Gogh_-_Head_of_a_skeleton_with_a_burning_cigarette_-_Google_Art_Project.jpg
 
-???? [none]                 ? — 1280px-Vincent van Gogh - The Postman (Joseph-Étienne Roulin) - BF37 - Barnes Foundation
-       file: 1280px-Vincent_van_Gogh_-_The_Postman_(Joseph-Étienne_Roulin)_-_BF37_-_Barnes_Foundation.jpg
-
-???? [none]                 ? — 1280px-Vittore Carpaccio - Hunting on the Lagoon (recto), Letter Rack (verso) - 79.PB.72 - J. Paul Getty Museum
-       file: 1280px-Vittore_Carpaccio_-_Hunting_on_the_Lagoon_(recto),_Letter_Rack_(verso)_-_79.PB.72_-_J._Paul_Getty_Museum.jpg
-
-???? [none]                 ? — 1280px-Wilhelm von Kobell - Reiter am Tegernsee - Google Art Project
-       file: 1280px-Wilhelm_von_Kobell_-_Reiter_am_Tegernsee_-_Google_Art_Project.jpg
-
 ???? [none]                 ? — 1280px-Zelfportret als schilder - s0022V1962 - Van Gogh Museum
        file: 1280px-Zelfportret_als_schilder_-_s0022V1962_-_Van_Gogh_Museum.jpg
-
-???? [none]                 ? — 1280px-Zelfportret met grijze vilthoed - s0016V1962 - Van Gogh Museum
-       file: 1280px-Zelfportret_met_grijze_vilthoed_-_s0016V1962_-_Van_Gogh_Museum.jpg
-
-???? [none]                 ? — 15 Qian Xuan Eight Flowers National Palace Museum Beijing
-       file: 15_Qian_Xuan_Eight_Flowers_National_Palace_Museum_Beijing.jpeg
 
 ???? [none]                 Claude Monet — 1993-151-1-pma2018
        file: 1993-151-1-pma2018.jpg
@@ -111,35 +45,14 @@
 ???? [none]                 Claude Monet — 2022-06-24 at 13-35-16 Pêches (C Monet - W 952)
        file: 2022-06-24_at_13-35-16_Pêches_(C_Monet_-_W_952).png
 
-???? [none]                 ? — 2560px-Bonaparte ante la Esfinge, por Jean-Léon Gérôme
-       file: 2560px-Bonaparte_ante_la_Esfinge,_por_Jean-Léon_Gérôme.jpg
-
-???? [none]                 ? — 2560px-Courbet LAtelier du peintre
-       file: 2560px-Courbet_LAtelier_du_peintre.jpg
-
 ???? [none]                 ? — 2560px-De heuvel van Montmartre met steengroeve - s0012V1962 - Van Gogh Museum
        file: 2560px-De_heuvel_van_Montmartre_met_steengroeve_-_s0012V1962_-_Van_Gogh_Museum.jpg
-
-???? [none]                 ? — 2560px-Edgar Germain Hilaire Degas 031
-       file: 2560px-Edgar_Germain_Hilaire_Degas_031.jpg
-
-???? [none]                 ? — 2560px-Hiroshige Fishing boats on a lake
-       file: 2560px-Hiroshige_Fishing_boats_on_a_lake.jpg
 
 ???? [none]                 ? — 2560px-Hiroshige24 shimada
        file: 2560px-Hiroshige24_shimada.jpg
 
-???? [none]                 ? — 2560px-Jean Louis Théodore Géricault 001
-       file: 2560px-Jean_Louis_Théodore_Géricault_001.jpg
-
 ???? [none]                 ? — 2560px-NDL-DC 2586549-06 Kawase Hasui S03 crd
        file: 2560px-NDL-DC_2586549-06_Kawase_Hasui_S03_crd.jpg
-
-???? [none]                 ? — 2560px-NDL-DC 2586549-07 Kawase Hasui S03 crd
-       file: 2560px-NDL-DC_2586549-07_Kawase_Hasui_S03_crd.jpg
-
-???? [none]                 ? — 2560px-NDL-DC 2586549-12 Kawase Hasui T15 crd
-       file: 2560px-NDL-DC_2586549-12_Kawase_Hasui_T15_crd.jpg
 
 ???? [none]                 ? — 2560px-Nihon fūkei senshū, Hizen Kazusa by Kawase Hasui
        file: 2560px-Nihon_fūkei_senshū,_Hizen_Kazusa_by_Kawase_Hasui.jpg
@@ -147,41 +60,17 @@
 ???? [none]                 ? — 2560px-Ondergesneeuwd veld met een eg (naar Millet) - s0175V1962 - Van Gogh Museum
        file: 2560px-Ondergesneeuwd_veld_met_een_eg_(naar_Millet)_-_s0175V1962_-_Van_Gogh_Museum.jpg
 
-???? [none]                 ? — 2560px-Pieter Bruegel the Elder - Hunters in the Snow (Winter) - Google Art Project
-       file: 2560px-Pieter_Bruegel_the_Elder_-_Hunters_in_the_Snow_(Winter)_-_Google_Art_Project.jpg
-
-???? [none]                 ? — 2560px-The Big wave from 100 views of the Fuji, 2nd volume
-       file: 2560px-The_Big_wave_from_100_views_of_the_Fuji,_2nd_volume.jpg
-
 ???? [none]                 ? — 2560px-The Calm Sea MET DT1973
        file: 2560px-The_Calm_Sea_MET_DT1973.jpg
 
-???? [none]                 ? — 2560px-The Langlois Bridge at Arles - My Dream
-       file: 2560px-The_Langlois_Bridge_at_Arles_-_My_Dream.jpg
-
 ???? [none]                 ? — 2560px-Van Gogh - Acker mit pflügenden Bauern
        file: 2560px-Van_Gogh_-_Acker_mit_pflügenden_Bauern.jpeg
-
-???? [none]                 ? — 2560px-Van Gogh The Olive Trees.
-       file: 2560px-Van_Gogh_The_Olive_Trees..jpg
-
-???? [none]                 ? — 2560px-Vincent van Gogh - House at Auvers - Google Art Project
-       file: 2560px-Vincent_van_Gogh_-_House_at_Auvers_-_Google_Art_Project.jpg
-
-???? [none]                 ? — 2560px-Vincent van Gogh - The siesta (after Millet) - Google Art Project
-       file: 2560px-Vincent_van_Gogh_-_The_siesta_(after_Millet)_-_Google_Art_Project.jpg
-
-???? [none]                 ? — 2560px-Vincent van Gogh - Vissersboten op het strand van Les Saintes-Maries-de-la-Mer - Google Art Project
-       file: 2560px-Vincent_van_Gogh_-_Vissersboten_op_het_strand_van_Les_Saintes-Maries-de-la-Mer_-_Google_Art_Project.jpg
 
 ???? [none]                 ? — 2560px-Vincent van Gogh - Wheat Fields with Reaper, Auvers - Google Art Project
        file: 2560px-Vincent_van_Gogh_-_Wheat_Fields_with_Reaper,_Auvers_-_Google_Art_Project.jpg
 
 ???? [none]                 ? — 2560px-William Holman Hunt - The Scapegoat
        file: 2560px-William_Holman_Hunt_-_The_Scapegoat.jpg
-
-???? [none]                 ? — 2560px-冨嶽三十六景 上総の海路-At Sea off Kazusa (Kazusa no kairo), from the series Thirty-six Views of Mount Fuji (Fugaku sanjūrokkei) MET DP141056
-       file: 2560px-冨嶽三十六景_上総の海路-At_Sea_off_Kazusa_(Kazusa_no_kairo),_from_the_series_Thirty-six_Views_of_Mount_Fuji_(Fugaku_sanjūrokkei)_MET_DP141056.jpg
 
 ???? [none]                 ? — 2560px-冨嶽三十六景 東都駿台-Surugadai in Edo (Tōto Sundai), from the series Thirty-six Views of Mount Fuji (Fugaku sanjūrokkei) MET DP140999
        file: 2560px-冨嶽三十六景_東都駿台-Surugadai_in_Edo_(Tōto_Sundai),_from_the_series_Thirty-six_Views_of_Mount_Fuji_(Fugaku_sanjūrokkei)_MET_DP140999.jpg
@@ -194,15 +83,6 @@
 
 ???? [none]                 ? — 40606051085 82e3d4db7e o
        file: 40606051085_82e3d4db7e_o.webp
-
-???? [none]                 ? — 500px-Gipsen vrouwentorso - s0199V1962 - Van Gogh Museum
-       file: 500px-Gipsen_vrouwentorso_-_s0199V1962_-_Van_Gogh_Museum.jpg
-
-???? [none]                 ? — 500px-Kuniyoshi Utagawa, Hawk
-       file: 500px-Kuniyoshi_Utagawa,_Hawk.jpg
-
-???? [none]                 ? — 500px-Kuniyoshi Utagawa, Tiger
-       file: 500px-Kuniyoshi_Utagawa,_Tiger.jpg
 
 ???? [none]                 ? — 960px-03 - Sukiyagahsi
        file: 960px-03_-_Sukiyagahsi.jpg
@@ -225,21 +105,6 @@
 ???? [none]                 ? — 960px-Lofty Mt.Lu by Shen Zhou
        file: 960px-Lofty_Mt.Lu_by_Shen_Zhou.jpg
 
-???? [none]                 ? — 960px-Museo del Prado - Goya - Caprichos - No. 43 - El sueño de la razon produce monstruos
-       file: 960px-Museo_del_Prado_-_Goya_-_Caprichos_-_No._43_-_El_sueño_de_la_razon_produce_monstruos.jpg
-
-???? [none]                 ? — 960px-SesshuToyo
-       file: 960px-SesshuToyo.jpg
-
-???? [none]                 ? — 960px-Tokyo junidai, haru no atagoyama by Kawase Hasui
-       file: 960px-Tokyo_junidai,_haru_no_atagoyama_by_Kawase_Hasui.jpg
-
-???? [none]                 ? — 960px-Van Gogh - Le Moulin de la Galette4
-       file: 960px-Van_Gogh_-_Le_Moulin_de_la_Galette4.jpeg
-
-???? [none]                 ? — A Friendly Call
-       file: A_Friendly_Call.jpeg
-
 ???? [none]                 ? — A Gate to the Stupa of Sanchi, from the Series  India and Southeast Asia . Hiroshi Yoshida
        file: A_Gate_to_the_Stupa_of_Sanchi,_from_the_Series__India_and_Southeast_Asia_._Hiroshi_Yoshida.jpg
 
@@ -249,11 +114,8 @@
 ???? [none]                 ? — Albinus, Tabulae sceleti..., tabula II
        file: Albinus,_Tabulae_sceleti...,_tabula_II_Wellcome_L0023549.jpg
 
-???? [none]                 ? — Albrecht Altdorfer - Schlacht bei Issus (Alte Pinakothek, München) - Google Art Project
-       file: Albrecht_Altdorfer_-_Schlacht_bei_Issus_(Alte_Pinakothek,_München)_-_Google_Art_Project.jpg
-
-???? [none]                 ? — Alfons Much Slavnost svatovitova na rujane
-       file: Alfons Much Slavnost_svatovitova_na_rujane.jpg
+???? [none]                 ? — Allee de chataigniers - Alfred Sisley
+       file: Allee_de_chataigniers_-_Alfred_Sisley.jpg
 
 ???? [none]                 ? — Amsterdam musee van gogh monet tulipes moulins
        file: Amsterdam_musee_van_gogh_monet_tulipes_moulins.jpeg
@@ -266,9 +128,6 @@
 
 ???? [none]                 ? — Anatomy
        file: Anatomy_Wellcome_L0021856.jpg
-
-???? [none]                 ? — Anbetung der Könige im Schnee
-       file: Anbetung_der_Könige_im_Schnee.jpg
 
 ???? [none]                 Andrea del Sarto — Portrait of a Man
        file: Andrea_del_Sarto_-_Portrait_of_a_Man.jpg
@@ -289,15 +148,6 @@
 ???? [none]                 ? — Apparatus and Hand
        file: Apparatus_and_Hand.jpg
 
-???? [none]                 ? — Ariko weeps on her boat
-       file: Ariko weeps on her boat.jpg
-
-???? [none]                 ? — Ave Caesar Morituri te Salutant (Gérôme) 01
-       file: Ave_Caesar_Morituri_te_Salutant_(Gérôme)_01.jpg
-
-???? [none]                 ? — Beardsley-peacockskirt
-       file: Beardsley-peacockskirt.png
-
 ???? [none]                 Giovanni Bellini — Bellini — Pietà Martinengo
        file: Bellini_—_Pietà_Martinengo.jpg
 
@@ -314,17 +164,8 @@
 ???? [none]                 Fyodor Bruni — Голова Христа в терновом венце
        file: Bruni_-_Christ.jpg
 
-???? [none]                 ? — Carl Spitzweg -  The Bookworm 
-       file: Carl_Spitzweg_-__The_Bookworm_.jpg
-
 ???? [none]                 ? — Carp leaping up a cascade
        file: Carp_leaping_up_a_cascade.jpg
-
-???? [none]                 ? — Carracci - Der Bohnenesser.jpeg
-       file: Carracci_-_Der_Bohnenesser.jpeg.jpeg
-
-???? [none]                 ? — Caspar David Friedrich - Der Mönch am Meer - Google Art Project
-       file: Caspar_David_Friedrich_-_Der_Mönch_am_Meer_-_Google_Art_Project.jpg
 
 ???? [none]                 ? — Caspar David Friedrich's Chalk Cliffs on Rügen
        file: Caspar_David_Friedrich's_Chalk_Cliffs_on_Rügen.jpg
@@ -338,12 +179,6 @@
 
 ???? [none]                 Unknown author Unknown author — Chaumiére Italienne
        file: Chaumiére_Italienne.jpg
-
-???? [none]                 ? — Claude Monet - Camille Monet sur son lit de mort
-       file: Claude_Monet_-_Camille_Monet_sur_son_lit_de_mort.jpeg
-
-???? [none]                 ? — Claude Monet - Graystaks I
-       file: Claude_Monet_-_Graystaks_I.jpeg
 
 ???? [none]                 ? — Claude Monet - L'été - Champ de coquelicots
        file: Claude_Monet_-_L'été_-_Champ_de_coquelicots.jpeg
@@ -360,26 +195,11 @@
 ???? [none]                 Ji-Elle — Claude Monet-Soleil couchant à Etretat
        file: Claude_Monet-Soleil_couchant_à_Etretat.jpg
 
-???? [none]                 ? — Constable osmington bay.tif
-       file: Constable_osmington_bay.tif.jpg
-
-???? [none]                 ? — Corner in Voyer-d'Argenson Park at Asnières by Vincent van Gogh
-       file: Corner_in_Voyer-d'Argenson_Park_at_Asnières_by_Vincent_van_Gogh.jpeg
-
-???? [none]                 ? — Creación de Adán
-       file: Creación_de_Adán.jpg
-
 ???? [none]                 Andrea Mantegna — Crucifixion - Andrea Mantegna - Louvre INV 368
        file: Crucifixion_-_Andrea_Mantegna_-_Louvre_INV_368.jpg
 
 ???? [none]                 ? — DaliGreatMasturbator
        file: DaliGreatMasturbator.jpg
-
-???? [none]                 ? — Death and the Maiden Baldung
-       file: Death and the Maiden Baldung.jpg
-
-???? [none]                 ? — Degas, A Woman Seated beside a Vase of Flowers (Madame Paul Valpinçon)
-       file: Degas,_A_Woman_Seated_beside_a_Vase_of_Flowers_(Madame_Paul_Valpinçon).jpg
 
 ???? [none]                 ? — Delacroix-Marc Aurèle-MBA-Lyon
        file: Delacroix-Marc_Aurèle-MBA-Lyon.jpg
@@ -399,29 +219,14 @@
 ???? [none]                 ? — dürer cain killing abel
        file: dürer cain killing abel.jpg
 
-???? [none]                 ? — dürer dragon fight
-       file: dürer dragon fight.jpg
-
 ???? [none]                 ? — dürer lion
        file: dürer lion.jpg
 
 ???? [none]                 ? — dürer rhino
        file: dürer rhino.jpg
 
-???? [none]                 ? — dürer selbstportrait
-       file: dürer selbstportrait.jpg
-
-???? [none]                 ? — dürer seven headed dragon
-       file: dürer seven headed dragon.jpg
-
-???? [none]                 ? — dürer vier reiter
-       file: dürer vier reiter.jpg
-
 ???? [none]                 Claude Monet — E1924-3-16-pma2018
        file: E1924-3-16-pma2018.jpg
-
-???? [none]                 ? — East Cowes Castle, the Regatta Beating to Windward
-       file: East_Cowes_Castle,_the_Regatta_Beating_to_Windward.png
 
 ???? [none]                 ? — Edgar Degas - Ballet (L'Étoile)
        file: Edgar_Degas_-_Ballet_(L'Étoile).jpg
@@ -441,12 +246,6 @@
 ???? [none]                 ? — Edward Gorey Had Elizabeth Only Known
        file: Edward Gorey Had Elizabeth Only Known.jpg
 
-???? [none]                 ? — El Greco (Domenikos Theotokopoulos) - Laocoön - Google Art Project
-       file: El_Greco_(Domenikos_Theotokopoulos)_-_Laocoön_-_Google_Art_Project.jpg
-
-???? [none]                 ? — El jardín de las Delicias, de El Bosco
-       file: El_jardín_de_las_Delicias,_de_El_Bosco.jpg
-
 ???? [none]                 Ernst Ludwig Kirchner — Ernst-ludwig-kirchner-sertig-valley-in-autumn
        file: Ernst-ludwig-kirchner-sertig-valley-in-autumn.jpg
 
@@ -456,17 +255,8 @@
 ???? [none]                 ? — Eugène Delacroix - A Mortally Wounded Brigand Quenches his Thirst - WGA06165
        file: Eugène_Delacroix_-_A_Mortally_Wounded_Brigand_Quenches_his_Thirst_-_WGA06165.jpg
 
-???? [none]                 ? — Eugène Delacroix - Collision of Moorish Horsemen - Walters 376
-       file: Eugène_Delacroix_-_Collision_of_Moorish_Horsemen_-_Walters_376.jpg
-
 ???? [none]                 ? — Eugène Delacroix - Shipwreck on the Coast - Google Art Project
        file: Eugène_Delacroix_-_Shipwreck_on_the_Coast_-_Google_Art_Project.jpg
-
-???? [none]                 ? — Eugène Delacroix - The Fanatics of Tangier - WGA06195
-       file: Eugène_Delacroix_-_The_Fanatics_of_Tangier_-_WGA06195.jpg
-
-???? [none]                 ? — Femmes d'Alger dans leur appartement, Eugène Delacroix - Musée du Louvre Peintures INV 3824
-       file: Femmes_d'Alger_dans_leur_appartement,_Eugène_Delacroix_-_Musée_du_Louvre_Peintures_INV_3824.jpg
 
 ???? [none]                 ? — Fischer und Frau Alexander Zwick
        file: Fischer_und_Frau Alexander Zwick.jpg
@@ -485,65 +275,23 @@
        file: Francis_Picabia_-_Transparence.jpg
        date_created: not given
 
-???? [none]                 ? — Futsuka Zuki by Kawai Gyokudō
-       file: Futsuka_Zuki_by_Kawai_Gyokudō.jpg
-
-???? [none]                 ? — G. Caillebotte - Intérieur
-       file: G._Caillebotte_-_Intérieur.jpg
-
-???? [none]                 ? — G. Caillebotte - Villas à Trouville
-       file: G._Caillebotte_-_Villas_à_Trouville.jpg
-
 ???? [none]                 ? — Gaertner6
        file: Gaertner6.jpg
 
 ???? [none]                 Gentile Bellini — Gentile and Giovanni Bellini — Saint Mark Preaching in Alexandria
        file: Gentile_and_Giovanni_Bellini_—_Saint_Mark_Preaching_in_Alexandria.jpg
 
-???? [none]                 ? — Gerhard von Kügelgen portrait of Friedrich
-       file: Gerhard_von_Kügelgen_portrait_of_Friedrich.jpg
-
-???? [none]                 ? — Gérôme - Cave Canem
-       file: Gérôme_-_Cave_Canem.jpg
-
-???? [none]                 ? — Gérôme - L'entrée du Christ à Jérusalem - cadre
-       file: Gérôme_-_L'entrée_du_Christ_à_Jérusalem_-_cadre.jpg
-
-???? [none]                 ? — Gérôme - Painting Breathes Life into Sculpture v1
-       file: Gérôme_-_Painting_Breathes_Life_into_Sculpture_v1.jpg
-
-???? [none]                 ? — Gérôme - Summer Afternoon on a Lake
-       file: Gérôme_-_Summer_Afternoon_on_a_Lake.jpg
-
 ???? [none]                 Gerrit van Honthorst — Gherardo delle Notti-Supper with a Lute Player
        file: Gherardo_delle_Notti-Supper_with_a_Lute_Player.jpg
 
-???? [none]                 ? — Giovanna Baccelli (Gainsborough)
-       file: Giovanna_Baccelli_(Gainsborough).jpg
-
 ???? [none]                 Giovanni Bellini — Giovanni Bellini — Holy Allegory
        file: Giovanni_Bellini_—_Holy_Allegory.jpg
-
-???? [none]                 ? — Goethe Kügelgen
-       file: Goethe_Kügelgen.jpg
-
-???? [none]                 ? — Gustave Doré - La Vallée de larmes
-       file: Gustave_Doré_-_La_Vallée_de_larmes.jpg
-
-???? [none]                 ? — Gustave Doré - Landscape in Scotland - Walters 372625
-       file: Gustave_Doré_-_Landscape_in_Scotland_-_Walters_372625.jpg
 
 ???? [none]                 ? — Gustave Doré - Roland, Count of Mans
        file: Gustave_Doré_-_Roland,_Count_of_Mans.jpg
 
 ???? [none]                 ? — Gustave Doré - St. John's vision of death
        file: Gustave_Doré_-_St._John's_vision_of_death.jpg
-
-???? [none]                 ? — Gustave Doré - The Holy Bible - Plate I, The Deluge
-       file: Gustave_Doré_-_The_Holy_Bible_-_Plate_I,_The_Deluge.jpg
-
-???? [none]                 ? — Gustave Doré-Mont Sainte-Odile avec mur païen
-       file: Gustave_Doré-Mont_Sainte-Odile_avec_mur_païen.jpg
 
 ???? [none]                 ? — H22611-L388076506 original
        file: H22611-L388076506_original.jpg
@@ -554,9 +302,6 @@
 ???? [none]                 ? — Harunobu Jouvenceau aux chrysanthèmes
        file: Harunobu_Jouvenceau_aux_chrysanthèmes.jpeg
 
-???? [none]                 ? — Hasegawa Tohaku - Pine Trees (Shōrin-zu byōbu) - right hand screen
-       file: Hasegawa_Tohaku_-_Pine_Trees_(Shōrin-zu_byōbu)_-_right_hand_screen.jpg
-
 ???? [none]                 ? — head+over+heels+pencil+signed+print-Ernie Barnes
        file: head+over+heels+pencil+signed+print-Ernie Barnes.webp
 
@@ -566,32 +311,14 @@
 ???? [none]                 Henry Hoppner Meyer — Lady Hamilton as Nature
        file: Henry_Hoppner_Meyer_-_Lady_Hamilton_as_Nature_-_B1970.3.335_-_Yale_Center_for_British_Art.jpg
 
-???? [none]                 ? — Hieronymous Bosch The Last Judgement
-       file: Hieronymous Bosch The Last Judgement.jpg
-
-???? [none]                 ? — Hieronymous Bosch Tondals Visions
-       file: Hieronymous Bosch Tondals Visions.jpg
-
 ???? [none]                 ? — High+Aspirations-Ernie Barnes
        file: High+Aspirations-Ernie Barnes.webp
-
-???? [none]                 ? — Hiroshige Fudo Falls
-       file: Hiroshige Fudo Falls.jpg
-
-???? [none]                 ? — Hiroshige Kozuke
-       file: Hiroshige Kozuke.jpg
 
 ???? [none]                 ? — Hiroshige Moon Bridge in Meguro
        file: Hiroshige Moon Bridge in Meguro.jpg
 
-???? [none]                 ? — Hiroshige View from massaki
-       file: Hiroshige View from massaki.jpg
-
 ???? [none]                 ? — His+Effort-Ernie Barnes
        file: His+Effort-Ernie Barnes.webp
-
-???? [none]                 ? — Hokusai Views of Mount Fuji
-       file: Hokusai Views of Mount Fuji.jpg
 
 ???? [none]                 Gsimonov — Holbein — Dead Christ
        file: Holbein_—_Dead_Christ.jpg
@@ -725,9 +452,6 @@
 ???? [none]                 ? — huang-binhong-landscape-for-professor-liu-ruli
        file: huang-binhong-landscape-for-professor-liu-ruli.jpeg
 
-???? [none]                 ? — huang-binhong-landscape
-       file: huang-binhong-landscape.jpg
-
 ???? [none]                 Ilya Repin — The Zaporozhye Cossacks Replying to the Sultan
        file: Ilja_Jefimowitsch_Repin_-_Reply_of_the_Zaporozhian_Cossacks_-_Yorck.jpg
        date_created: {
@@ -757,82 +481,30 @@
        file: Jean-Honoré_Fragonard_-_The_Stolen_Kiss.jpg
        date_created: late 1780s date QS:P571,+1780-00-00T00:00:00Z/8
 
-???? [none]                 ? — Jean-Léon Gérôme - Diogenes - Walters 37131
-       file: Jean-Léon_Gérôme_-_Diogenes_-_Walters_37131.jpg
-
-???? [none]                 ? — Jean-Léon Gérôme - El rey Candaules
-       file: Jean-Léon_Gérôme_-_El_rey_Candaules.jpg
-
 ???? [none]                 ? — Jean-Léon Gérôme - Le charmeur de serpents
        file: Jean-Léon_Gérôme_-_Le_charmeur_de_serpents.jpg
 
 ???? [none]                 ? — Jean-Léon Gérôme - Moorish bath
        file: Jean-Léon_Gérôme_-_Moorish_bath.jpg
 
-???? [none]                 ? — Jean-Léon Gérôme - On the Desert - Walters 3734
-       file: Jean-Léon_Gérôme_-_On_the_Desert_-_Walters_3734.jpg
-
-???? [none]                 ? — Jean-Léon Gérôme - Pool in a Harem
-       file: Jean-Léon_Gérôme_-_Pool_in_a_Harem.jpg
-
-???? [none]                 ? — Jean-Léon Gérôme - The Death of Caesar - Walters 37884
-       file: Jean-Léon_Gérôme_-_The_Death_of_Caesar_-_Walters_37884.jpg
-
-???? [none]                 ? — Jean-Léon Gérôme - The Duel After the Masquerade - Walters 3751
-       file: Jean-Léon_Gérôme_-_The_Duel_After_the_Masquerade_-_Walters_3751.jpg
-
-???? [none]                 ? — Jean-Léon Gérôme - The Slave Market - Google Art Project
-       file: Jean-Léon_Gérôme_-_The_Slave_Market_-_Google_Art_Project.jpg
-
 ???? [none]                 ? — Jean-Léon Gérôme - The Tulip Folly - Walters 372612
        file: Jean-Léon_Gérôme_-_The_Tulip_Folly_-_Walters_372612.jpg
-
-???? [none]                 ? — Jean-Léon Gérôme - Tiger on the Watch - Google Art Project
-       file: Jean-Léon_Gérôme_-_Tiger_on_the_Watch_-_Google_Art_Project.jpg
-
-???? [none]                 ? — Jean-Léon Gérôme - Young Greeks in the Mosque - 62.85 - Minneapolis Institute of Arts
-       file: Jean-Léon_Gérôme_-_Young_Greeks_in_the_Mosque_-_62.85_-_Minneapolis_Institute_of_Arts.jpg
 
 ???? [none]                 ? — Jean-Léon Gérôme 011
        file: Jean-Léon_Gérôme_011.jpg
 
-???? [none]                 ? — Jean-Léon Gérôme 015 Carpets
-       file: Jean-Léon_Gérôme_015_Carpets.jpg
-
 ???? [none]                 ? — Jean-Léon Gérôme Consummatum est
        file: Jean-Léon_Gérôme_Consummatum_est.jpg
-
-???? [none]                 ? — Jean-Léon Gérôme, The Story of Anacreon 3--Cupid Runs out the Door, c1899
-       file: Jean-Léon_Gérôme,_The_Story_of_Anacreon_3--Cupid_Runs_out_the_Door,_c1899.jpg
-
-???? [none]                 ? — Johann Heinrich Füssli 011
-       file: Johann_Heinrich_Füssli_011.jpg
 
 ???? [none]                 ? — Johann Heinrich Füssli 054
        file: Johann_Heinrich_Füssli_054.jpg
 
-???? [none]                 ? — Johann Heinrich Füssli 059
-       file: Johann_Heinrich_Füssli_059.jpg
-
-???? [none]                 ? — Johann Heinrich Füssli 064
-       file: Johann_Heinrich_Füssli_064.jpg
-
 ???? [none]                 Ramsay Richard Reinagle — John Constable by Ramsay Richard Reinagle
        file: John_Constable_by_Ramsay_Richard_Reinagle.jpg
-
-???? [none]                 ? — John Everett Millais - Chill October
-       file: John_Everett_Millais_-_Chill_October.jpeg
-
-???? [none]                 ? — John Everett Millais - Glen Birnam
-       file: John_Everett_Millais_-_Glen_Birnam.jpeg
 
 ???? [none]                 John Byam Liston Shaw — John Liston Byam Shaw Boer War
        file: John_Liston_Byam_Shaw_Boer_War.jpg
        date_created: 2008 (upload date)
-
-???? [none]                 ? — Jüdische Hochzeit in Marokko-1024
-       file: Jüdische_Hochzeit_in_Marokko-1024.jpg
-       date_created: 1024
 
 ???? [none]                 ? — Julie de Graag Farm in the Snow
        file: Julie de Graag Farm in the Snow.jpg
@@ -858,30 +530,11 @@
 ???? [none]                 ? — Julie de Graag Winter Evening
        file: Julie de Graag Winter Evening.jpg
 
-???? [none]                 ? — Junks in Inatori Bay, Izu by Takahashi Shōtei (1)
-       file: Junks_in_Inatori_Bay,_Izu_by_Takahashi_Shōtei (1).jpg
-
-???? [none]                 ? — Kagurazaka Street at Night after Rain, from the Series  Twelve Scenes of Tokyo . Hiroshi Yoshida
-       file: Kagurazaka_Street_at_Night_after_Rain,_from_the_Series__Twelve_Scenes_of_Tokyo_._Hiroshi_Yoshida.jpg
-
-???? [none]                 ? — Kanō Eitoku - Rakuchū rakugai zu (Uesugi) - left screen
-       file: Kanō_Eitoku_-_Rakuchū_rakugai_zu_(Uesugi)_-_left_screen.jpg
-
-???? [none]                 ? — Kanō Sansetsu - Frolicking Birds in Plum and Willow Trees
-       file: Kanō_Sansetsu_-_Frolicking_Birds_in_Plum_and_Willow_Trees.jpg
-
 ???? [none]                 ? — Katsushika Hokusai, published by Nishimuraya Yohachi (Eijudō) - Peonies and Canary (Shakuyaku, kanaari), from an untitled series known as Small Flowers - Google Art Project
        file: Katsushika_Hokusai,_published_by_Nishimuraya_Yohachi_(Eijudō)_-_Peonies_and_Canary_(Shakuyaku,_kanaari),_from_an_untitled_series_known_as_Small_Flowers_-_Google_Art_Project.jpg
 
-???? [none]                 ? — Keisai Eisen Winter Landscape
-       file: Keisai Eisen Winter Landscape.jpg
-
-???? [none]                 ? — Kenkō Shōkei - Shōshō Hakkei - Enji Banshō
-       file: Kenkō_Shōkei_-_Shōshō_Hakkei_-_Enji_Banshō.png
-
 ???? [none]                 Ernst Ludwig Kirchner — Colourfull dance
        file: Kirchner_-_Farbentanz.jpg
-       date_created: Unknown date
 
 ???? [none]                 ? — Kustodiev GoluboyDomik
        file: Kustodiev_GoluboyDomik.jpg
@@ -901,30 +554,15 @@
 ???? [none]                 Claude Monet — La debacle - Monet w562
        file: La_debacle_-_Monet_w562.jpg
 
-???? [none]                 ? — La Seine à Lavacourt
-       file: La_Seine_à_Lavacourt.jpeg
-
 ???? [none]                 ? — La Vie by Pablo Picasso
        file: La_Vie_by_Pablo_Picasso.jpg
-
-???? [none]                 ? — Lac d'Annecy, par Paul Cézanne
-       file: Lac_d'Annecy,_par_Paul_Cézanne.jpg
-
-???? [none]                 ? — Le Concert champêtre, by Titian, from C2RMF retouchedFXD
-       file: Le_Concert_champêtre,_by_Titian,_from_C2RMF_retouchedFXD.jpg
-
-???? [none]                 ? — Le Garçon au gilet rouge, par Paul Cézanne, National Gallery of Art
-       file: Le_Garçon_au_gilet_rouge,_par_Paul_Cézanne,_National_Gallery_of_Art.jpg
-
-???? [none]                 ? — Le havre muma monet fecamp
-       file: Le_havre_muma_monet_fecamp.jpeg
-
-???? [none]                 ? — LE PORT DE ZAANDAM
-       file: LE_PORT_DE_ZAANDAM.png
 
 ???? [none]                 ? — Leonardo da Vinci - Virgin and Child with St Anne C2RMF retouched
        file: Leonardo_da_Vinci_-_Virgin_and_Child_with_St_Anne_C2RMF_retouched.jpg
        date_created: 2011
+
+???? [none]                 Louis-Léopold Boilly — Les Papillons
+       file: Les_Papillons).jpg
 
 ???? [none]                 ? — Levé de lune sur le Mont Nanping
        file: Levé_de_lune_sur_le_Mont_Nanping.jpg
@@ -932,26 +570,8 @@
 ???? [none]                 Isaac Levitan — Levitan VesnaVItalii
        file: Levitan_VesnaVItalii.jpg
 
-???? [none]                 ? — Life-Boat and Manby Apparatus Going Off to a Stranded Vessel Making Signal (Blue Lights) of Distress
-       file: Life-Boat_and_Manby_Apparatus_Going_Off_to_a_Stranded_Vessel_Making_Signal_(Blue_Lights)_of_Distress.png
-
-???? [none]                 ? — Lille PdBA monet la debacle
-       file: Lille_PdBA_monet_la_debacle.jpeg
-
-???? [none]                 ? — Lille Pdba rubens marie madeleine
-       file: Lille_Pdba_rubens_marie_madeleine.jpeg
-
 ???? [none]                 Claude Monet — Los nenúfares (Monet)
        file: Los_nenúfares_(Monet).jpg
-
-???? [none]                 ? — Lucas Cranach - Der Jungbrunnen (Gemäldegalerie Berlin)
-       file: Lucas_Cranach_-_Der_Jungbrunnen_(Gemäldegalerie_Berlin).jpg
-
-???? [none]                 ? — Lucas Cranach d.Ä. - Herkules und Atlas (National Gallery of Art)
-       file: Lucas_Cranach_d.Ä._-_Herkules_und_Atlas_(National_Gallery_of_Art).jpg
-
-???? [none]                 ? — Lucas Cranach d.Ä. - Simson bezwingt den Löwen
-       file: Lucas_Cranach_d.Ä._-_Simson_bezwingt_den_Löwen.jpg
 
 ???? [none]                 Ludwig Deutsch — The Nubian Palace Guard
        file: Ludwig_Deutsch_-_The_Nubian_Palace_Guard.jpg
@@ -1006,9 +626,6 @@
 
 ???? [none]                 ? — MC Escher Contrast
        file: MC Escher Contrast.webp
-
-???? [none]                 ? — MC Escher Convex and Concave
-       file: MC Escher Convex and Concave.webp
 
 ???? [none]                 ? — MC Escher Crystal
        file: MC Escher Crystal.jpg
@@ -1136,9 +753,6 @@
 ???? [none]                 ? — MC Escher The Illusion of a Dragon
        file: MC Escher The Illusion of a Dragon.jpg
 
-???? [none]                 ? — MC Escher Three Spheres I
-       file: MC Escher Three Spheres I.jpg
-
 ???? [none]                 ? — MC Escher Three Spheres
        file: MC Escher Three Spheres.jpg
 
@@ -1159,9 +773,6 @@
 
 ???? [none]                 ? — MC Escher Waterfall
        file: MC Escher Waterfall.webp
-
-???? [none]                 ? — Menzel Adolph Frederick the Great at Lissa Bonsoir, Messieurs@Kunsthalle Hamburg
-       file: Menzel_Adolph_Frederick_the_Great_at_Lissa_Bonsoir,_Messieurs@Kunsthalle_Hamburg.jpeg
 
 ???? [none]                 ? — metamorphoseIII deel1-1
        file: metamorphoseIII_deel1-1.jpg
@@ -1340,113 +951,32 @@
 ???? [none]                 ? — Natoire-Sibylle
        file: Natoire-Sibylle.jpeg
 
-???? [none]                 ? — Nihon fūkei senshū, Abuto no Kannon by Kawase Hasui
-       file: Nihon_fūkei_senshū,_Abuto_no_Kannon_by_Kawase_Hasui.jpg
-
-???? [none]                 ? — Nihon fūkei senshū, Amakusa Goryō by Kawase Hasui
-       file: Nihon_fūkei_senshū,_Amakusa_Goryō_by_Kawase_Hasui.jpg
-
-???? [none]                 ? — Nihon fūkei senshū, Amakusa yori mitaru Onsengadake by Kawase Hasui
-       file: Nihon_fūkei_senshū,_Amakusa_yori_mitaru_Onsengadake_by_Kawase_Hasui.jpg
-
-???? [none]                 ? — Nihon fūkei senshū, Beppu no asa by Kawase Hasui
+???? [none]                 Kawase Hasui — Nihon fūkei senshū, Beppu no asa by Kawase Hasui
        file: Nihon_fūkei_senshū,_Beppu_no_asa_by_Kawase_Hasui.jpg
 
-???? [none]                 ? — Nihon fūkei senshū, Bingo no Iwafune by Kawase Hasui
-       file: Nihon_fūkei_senshū,_Bingo_no_Iwafune_by_Kawase_Hasui.jpg
-
-???? [none]                 ? — Nihon fūkei senshū, Bungo Kakize by Kawase Hasui
-       file: Nihon_fūkei_senshū,_Bungo_Kakize_by_Kawase_Hasui.jpg
-
-???? [none]                 ? — Nihon fūkei senshū, Chikuzen Hakozaki by Kawase Hasui
-       file: Nihon_fūkei_senshū,_Chikuzen_Hakozaki_by_Kawase_Hasui.jpg
-
-???? [none]                 ? — Nihon fūkei senshū, Chōmonkyō Kayagafuchi by Kawase Hasui
-       file: Nihon_fūkei_senshū,_Chōmonkyō_Kayagafuchi_by_Kawase_Hasui.jpg
-
-???? [none]                 ? — Nihon fūkei senshū, Higo Tochinoki onsen by Kawase Hasui
-       file: Nihon_fūkei_senshū,_Higo_Tochinoki_onsen_by_Kawase_Hasui.jpg
-
-???? [none]                 ? — Nihon fūkei senshū, Hizen Kabeshima by Kawase Hasui
-       file: Nihon_fūkei_senshū,_Hizen_Kabeshima_by_Kawase_Hasui.jpg
-
-???? [none]                 ? — Nihon fūkei senshū, Hizen Kanahama by Kawase Hasui
-       file: Nihon_fūkei_senshū,_Hizen_Kanahama_by_Kawase_Hasui.jpg
-
-???? [none]                 ? — Nihon fūkei senshū, Hizen Kyōdomari by Kawase Hasui
-       file: Nihon_fūkei_senshū,_Hizen_Kyōdomari_by_Kawase_Hasui.jpg
-
-???? [none]                 ? — Nihon fūkei senshū, Izumo Mihogaseki no asa by Kawase Hasui
-       file: Nihon_fūkei_senshū,_Izumo_Mihogaseki_no_asa_by_Kawase_Hasui.jpg
-
-???? [none]                 ? — Nihon fūkei senshū, Izumo Yasugi Kiyomizu by Kawase Hasui
-       file: Nihon_fūkei_senshū,_Izumo_Yasugi_Kiyomizu_by_Kawase_Hasui.jpg
-
-???? [none]                 ? — Nihon fūkei senshū, Kagoshima Kōtsuki-gawa by Kawase Hasui
-       file: Nihon_fūkei_senshū,_Kagoshima_Kōtsuki-gawa_by_Kawase_Hasui.jpg
-
-???? [none]                 ? — Nihon fūkei senshū, Kagoshima Sakurashima by Kawase Hasui (cropped)
-       file: Nihon_fūkei_senshū,_Kagoshima_Sakurashima_by_Kawase_Hasui_(cropped).jpg
-
-???? [none]                 ? — Nihon fūkei senshū, Kasuga-machi, Kumamoto by Kawase Hasui
-       file: Nihon_fūkei_senshū,_Kasuga-machi,_Kumamoto_by_Kawase_Hasui.jpg
-
-???? [none]                 ? — Nihon fūkei senshū, Kiso no Nezame by Kawase Hasui
+???? [none]                 Kawase Hasui — Nihon fūkei senshū, Kiso no Nezame by Kawase Hasui
        file: Nihon_fūkei_senshū,_Kiso_no_Nezame_by_Kawase_Hasui.jpg
 
 ???? [none]                 ? — Nihon fūkei senshū, Kiso no Suhara by Kawase Hasui
        file: Nihon_fūkei_senshū,_Kiso_no_Suhara_by_Kawase_Hasui.jpg
 
-???? [none]                 ? — Nihon fūkei senshū, Kumamoto Ezu-ko by Kawase Hasui
-       file: Nihon_fūkei_senshū,_Kumamoto_Ezu-ko_by_Kawase_Hasui.jpg
-
-???? [none]                 ? — Nihon fūkei senshū, Kumamoto-jō Miyukibashi by Kawase Hasui
-       file: Nihon_fūkei_senshū,_Kumamoto-jō_Miyukibashi_by_Kawase_Hasui.jpg
-
-???? [none]                 ? — Nihon fūkei senshū, Kyōto Daigoku-den by Kawase Hasui
-       file: Nihon_fūkei_senshū,_Kyōto_Daigoku-den_by_Kawase_Hasui.jpg
-
-???? [none]                 ? — Nihon fūkei senshū, Kyōto Kamogawa no yūgure by Kawase Hasui
+???? [none]                 Kawase Hasui — Nihon fūkei senshū, Kyōto Kamogawa no yūgure by Kawase Hasui
        file: Nihon_fūkei_senshū,_Kyōto_Kamogawa_no_yūgure_by_Kawase_Hasui.jpg
 
-???? [none]                 ? — Nihon fūkei senshū, Kyōto Nonomiya by Kawase Hasui
-       file: Nihon_fūkei_senshū,_Kyōto_Nonomiya_by_Kawase_Hasui.jpg
-
-???? [none]                 ? — Nihon fūkei senshū, Nagasaki Kanaya-machi by Kawase Hasui
+???? [none]                 Kawase Hasui — Nihon fūkei senshū, Nagasaki Kanaya-machi by Kawase Hasui
        file: Nihon_fūkei_senshū,_Nagasaki_Kanaya-machi_by_Kawase_Hasui.jpg
 
-???? [none]                 ? — Nihon fūkei senshū, Nagasaki Sōfuku-ji by Kawase Hasui
-       file: Nihon_fūkei_senshū,_Nagasaki_Sōfuku-ji_by_Kawase_Hasui.jpg
-
-???? [none]                 ? — Nihon fūkei senshū, Okayama-jō by Kawase Hasui
+???? [none]                 Kawase Hasui — Nihon fūkei senshū, Okayama-jō by Kawase Hasui
        file: Nihon_fūkei_senshū,_Okayama-jō_by_Kawase_Hasui.jpg
-
-???? [none]                 ? — Nihon fūkei senshū, Onomichi Senkō-ji no saka by Kawase Hasui
-       file: Nihon_fūkei_senshū,_Onomichi_Senkō-ji_no_saka_by_Kawase_Hasui.jpg
 
 ???? [none]                 ? — Nihon fūkei senshū, Ōsumi Anraku onsen by Kawase Hasui
        file: Nihon_fūkei_senshū,_Ōsumi_Anraku_onsen_by_Kawase_Hasui.jpg
 
-???? [none]                 ? — Nihon fūkei senshū, Shimabara Tsukumojima by Kawase Hasui
-       file: Nihon_fūkei_senshū,_Shimabara_Tsukumojima_by_Kawase_Hasui.jpg
-
-???? [none]                 ? — Nihon fūkei senshū, Shimabara-kō Mayuyama by Kawase Hasui
+???? [none]                 Kawase Hasui — Nihon fūkei senshū, Shimabara-kō Mayuyama by Kawase Hasui
        file: Nihon_fūkei_senshū,_Shimabara-kō_Mayuyama_by_Kawase_Hasui.jpg
-
-???? [none]                 ? — Nihon fūkei senshū, Yuki no Kinkaku-ji by Kawase Hasui
-       file: Nihon_fūkei_senshū,_Yuki_no_Kinkaku-ji_by_Kawase_Hasui.jpg
 
 ???? [none]                 ? — Nishikawa Sukenobu
        file: Nishikawa Sukenobu.jpg
-
-???? [none]                 ? — Nude against the light pierre bonnard
-       file: Nude against the light pierre bonnard.jpg
-
-???? [none]                 ? — Old guitarist chicago
-       file: Old_guitarist_chicago.jpg
-
-???? [none]                 ? — Old Korea-Keith-BRIDE
-       file: Old_Korea-Keith-BRIDE.jpeg
 
 ???? [none]                 ? — Olympic+-+The+Rhythmic+Gymnast+(mt)-Ernie Barnes
        file: Olympic+-+The+Rhythmic+Gymnast+(mt)-Ernie Barnes.webp
@@ -1470,30 +1000,6 @@
 ???? [none]                 ? — Paul Gustave Dore Andromeda
        file: Paul_Gustave_Dore_Andromeda.jpg
 
-???? [none]                 ? — Peter Paul Rubens - Junger Mann mit schwarzem Barett
-       file: Peter_Paul_Rubens_-_Junger_Mann_mit_schwarzem_Barett.jpeg
-
-???? [none]                 ? — Peter Paul Rubens - Landscape with the Ruins of Mount Palatine in Rome
-       file: Peter_Paul_Rubens_-_Landscape_with_the_Ruins_of_Mount_Palatine_in_Rome.jpeg
-
-???? [none]                 ? — Peter Paul Rubens - The Elevation of the Cross
-       file: Peter_Paul_Rubens_-_The_Elevation_of_the_Cross.jpeg
-
-???? [none]                 ? — Pierre Paul RUBENS,  Le Miracle de saint Just
-       file: Pierre_Paul_RUBENS,__Le_Miracle_de_saint_Just.jpeg
-
-???? [none]                 ? — Pierre-Cécile Puvis de Chavannes 003
-       file: Pierre-Cécile_Puvis_de_Chavannes_003.jpg
-
-???? [none]                 ? — Pierre-Cécile Puvis de Chavannes 007
-       file: Pierre-Cécile_Puvis_de_Chavannes_007.jpg
-
-???? [none]                 ? — Pieter Bruegel d. Ä. 066
-       file: Pieter_Bruegel_d._Ä._066.jpg
-
-???? [none]                 ? — Pieter Bruegel der Ältere - Landschaft mit der Flucht nach Ägypten
-       file: Pieter_Bruegel_der_Ältere_-_Landschaft_mit_der_Flucht_nach_Ägypten.jpg
-
 ???? [none]                 Bartolomeo Nazari — Pinacoteca Querini Stampalia - Angelo Maria Querini - Bartolomeo Nazari (Medium resolution)
        file: Pinacoteca_Querini_Stampalia_-_Angelo_Maria_Querini_-_Bartolomeo_Nazari_(Medium_resolution).jpg
        date_created: Taken on 4 May 2019
@@ -1504,20 +1010,11 @@
 ???? [none]                 ? — Pope's Villa at Twickenham
        file: Pope's_Villa_at_Twickenham.jpeg
 
-???? [none]                 ? — Prado - Los Desastres de la Guerra - No. 47 - Así sucedió
-       file: Prado_-_Los_Desastres_de_la_Guerra_-_No._47_-_Así_sucedió.jpg
-
-???? [none]                 ? — Queensland Art Gallery - Joy of Museums -  Figure with Snow Falling  by Takahashi Hiroaki (1)
+???? [none]                 Takahashi Shōtei — Queensland Art Gallery - Joy of Museums -  Figure with Snow Falling  by Takahashi Hiroaki (1)
        file: Queensland_Art_Gallery_-_Joy_of_Museums_-__Figure_with_Snow_Falling__by_Takahashi_Hiroaki (1).jpg
 
 ???? [none]                 ? — Quickenborne Sans Baguettes
        file: Quickenborne Sans Baguettes.webp
-
-???? [none]                 ? — Rembrandt Harmensz. van Rijn - Christ Crucified Between the Two Thieves ( The Three Crosses ) - Google Art Project
-       file: Rembrandt_Harmensz._van_Rijn_-_Christ_Crucified_Between_the_Two_Thieves_(_The_Three_Crosses_)_-_Google_Art_Project.jpg
-
-???? [none]                 ? — Rembrandt Harmenszoon van Rijn - An Old Man in Red
-       file: Rembrandt_Harmenszoon_van_Rijn_-_An_Old_Man_in_Red.jpeg
 
 ???? [none]                 ? — Rene Magritte Chateau de Pyrenes
        file: Rene Magritte Chateau de Pyrenes.jpg
@@ -1528,11 +1025,8 @@
 ???? [none]                 ? — Salvador-Dali-Museum-St.-Petersburg-Florida
        file: Salvador-Dali-Museum-St.-Petersburg-Florida.jpg
 
-???? [none]                 ? — Sandro Botticelli - Retour de Judith 1
-       file: Sandro_Botticelli_-_Retour_de_Judith_1.jpeg
-
-???? [none]                 ? — Scène des massacres de Scio, Eugène Delacroix - Musée du Louvre Peintures INV 3823 ; C3
-       file: Scène_des_massacres_de_Scio,_Eugène_Delacroix_-_Musée_du_Louvre_Peintures_INV_3823_;_C3.jpg
+???? [none]                 Louis-Léopold Boilly — Sans-culotte
+       file: Sans-culotte.jpg
 
 ???? [none]                 Ohara Koson — Scops Owl, Cherry Blossoms, and Moon by Shōson
        file: Scops_Owl,_Cherry_Blossoms,_and_Moon_by_Shōson.jpg
@@ -1558,32 +1052,8 @@
 ???? [none]                 ? — Tab V, fetus with umbilical cord and placenta
        file: Tab_V,_fetus_with_umbilical_cord_and_placenta_Wellcome_L0034071.jpg
 
-???? [none]                 ? — Tabi miyage dai isshū, Aki no Koshiji by Kawase Hasui
-       file: Tabi_miyage_dai_isshū,_Aki_no_Koshiji_by_Kawase_Hasui.jpg
-
 ???? [none]                 ? — Tabi miyage dai isshū, Bōshū Iwai no hama by Kawase Hasui
        file: Tabi_miyage_dai_isshū,_Bōshū_Iwai_no_hama_by_Kawase_Hasui.jpg
-
-???? [none]                 ? — Tabi miyage dai isshū, Ishi tsumu fune (Bōshū) by Kawase Hasui
-       file: Tabi_miyage_dai_isshū,_Ishi_tsumu_fune_(Bōshū)_by_Kawase_Hasui.jpg
-
-???? [none]                 ? — Tabi miyage dai isshū, Kanazawa Asanogawa by Kawase Hasui
-       file: Tabi_miyage_dai_isshū,_Kanazawa_Asanogawa_by_Kawase_Hasui.jpg
-
-???? [none]                 ? — Tabi miyage dai isshū, Kanazawa nagare no kuruwa by Kawase Hasui
-       file: Tabi_miyage_dai_isshū,_Kanazawa_nagare_no_kuruwa_by_Kawase_Hasui.jpg
-
-???? [none]                 ? — Tabi miyage dai isshū, Mutsu Mishimagawa by Kawase Hasui
-       file: Tabi_miyage_dai_isshū,_Mutsu_Mishimagawa_by_Kawase_Hasui.jpg
-
-???? [none]                 ? — Tabi miyage dai isshū, Mutsu Tsutanuma by Kawase Hasui
-       file: Tabi_miyage_dai_isshū,_Mutsu_Tsutanuma_by_Kawase_Hasui.jpg
-
-???? [none]                 ? — Tabi miyage dai isshū, Sendai yama no tera by Kawase Hasui
-       file: Tabi_miyage_dai_isshū,_Sendai_yama_no_tera_by_Kawase_Hasui.jpg
-
-???? [none]                 ? — Tabi miyage dai isshū, Shiobara Arayu no aki by Kawase Hasui
-       file: Tabi_miyage_dai_isshū,_Shiobara_Arayu_no_aki_by_Kawase_Hasui.jpg
 
 ???? [none]                 ? — Tabi miyage dai isshū, Shiobara Yūhi no taki by Kawase Hasui
        file: Tabi_miyage_dai_isshū,_Shiobara_Yūhi_no_taki_by_Kawase_Hasui.jpg
@@ -1591,95 +1061,29 @@
 ???? [none]                 ? — Tabi miyage dai isshū, Towada-ko Senjōmaku by Kawase Hasui
        file: Tabi_miyage_dai_isshū,_Towada-ko_Senjōmaku_by_Kawase_Hasui.jpg
 
-???? [none]                 ? — Tabi miyage dai isshū, Wakasa Kude no hama by Kawase Hasui
-       file: Tabi_miyage_dai_isshū,_Wakasa_Kude_no_hama_by_Kawase_Hasui.jpg
-
 ???? [none]                 ? — Tabi miyage dai isshū, Wakasa Kugushi-ko by Kawase Hasui
        file: Tabi_miyage_dai_isshū,_Wakasa_Kugushi-ko_by_Kawase_Hasui.jpg
 
-???? [none]                 ? — Tabi miyage dai nishū, Ame no Kiyomizu-dera by Kawase Hasui
-       file: Tabi_miyage_dai_nishū,_Ame_no_Kiyomizu-dera_by_Kawase_Hasui.jpg
-
-???? [none]                 ? — Tabi miyage dai nishū, Echigo no Urahama by Kawase Hasui
-       file: Tabi_miyage_dai_nishū,_Echigo_no_Urahama_by_Kawase_Hasui.jpg
-
-???? [none]                 ? — Tabi miyage dai nishū, Etchū Himi Kōshō-ji by Kawase Hasui
-       file: Tabi_miyage_dai_nishū,_Etchū_Himi_Kōshō-ji_by_Kawase_Hasui.jpg
-
-???? [none]                 ? — Tabi miyage dai nishū, Fuyu no Rankyō by Kawase Hasui
-       file: Tabi_miyage_dai_nishū,_Fuyu_no_Rankyō_by_Kawase_Hasui.jpg
-
-???? [none]                 ? — Tabi miyage dai nishū, Getsumei no Kamo-ko by Kawase Hasui
+???? [none]                 Kawase Hasui — Tabi miyage dai nishū, Getsumei no Kamo-ko by Kawase Hasui
        file: Tabi_miyage_dai_nishū,_Getsumei_no_Kamo-ko_by_Kawase_Hasui.jpg
-
-???? [none]                 ? — Tabi miyage dai nishū, Hamagoya (Etchū Himi) by Kawase Hasui
-       file: Tabi_miyage_dai_nishū,_Hamagoya_(Etchū_Himi)_by_Kawase_Hasui.jpg
 
 ???? [none]                 ? — Tabi miyage dai nishū, Kanazawa Shimohonda-machi by Kawase Hasui
        file: Tabi_miyage_dai_nishū,_Kanazawa_Shimohonda-machi_by_Kawase_Hasui.jpg
 
-???? [none]                 ? — Tabi miyage dai nishū, Kōshū Yanagawa by Kawase Hasui
+???? [none]                 Kawase Hasui — Tabi miyage dai nishū, Kōshū Yanagawa by Kawase Hasui
        file: Tabi_miyage_dai_nishū,_Kōshū_Yanagawa_by_Kawase_Hasui.jpg
 
-???? [none]                 ? — Tabi miyage dai nishū, Mizuagetoi (Sado shoken) by Kawase Hasui
+???? [none]                 Kawase Hasui — Tabi miyage dai nishū, Mizuagetoi (Sado shoken) by Kawase Hasui
        file: Tabi_miyage_dai_nishū,_Mizuagetoi_(Sado_shoken)_by_Kawase_Hasui.jpg
-
-???? [none]                 ? — Tabi miyage dai nishū, Nara Kasuga-jinja by Kawase Hasui
-       file: Tabi_miyage_dai_nishū,_Nara_Kasuga-jinja_by_Kawase_Hasui.jpg
-
-???? [none]                 ? — Tabi miyage dai nishū, Nara Nigatsu-dō by Kawase Hasui
-       file: Tabi_miyage_dai_nishū,_Nara_Nigatsu-dō_by_Kawase_Hasui.jpg
-
-???? [none]                 ? — Tabi miyage dai nishū, Ōsaka Dōtonbori no asa by Kawase Hasui
-       file: Tabi_miyage_dai_nishū,_Ōsaka_Dōtonbori_no_asa_by_Kawase_Hasui.jpg
-
-???? [none]                 ? — Tabi miyage dai nishū, Sado Aikawa-machi by Kawase Hasui
-       file: Tabi_miyage_dai_nishū,_Sado_Aikawa-machi_by_Kawase_Hasui.jpg
-
-???? [none]                 ? — Tabi miyage dai nishū, Sado Kamo-mura by Kawase Hasui
-       file: Tabi_miyage_dai_nishū,_Sado_Kamo-mura_by_Kawase_Hasui.jpg
-
-???? [none]                 ? — Tabi miyage dai nishū, Sado Mano wan by Kawase Hasui
-       file: Tabi_miyage_dai_nishū,_Sado_Mano_wan_by_Kawase_Hasui.jpg
-
-???? [none]                 ? — Tabi miyage dai nishū, Sado Nishimikawazaka by Kawase Hasui
-       file: Tabi_miyage_dai_nishū,_Sado_Nishimikawazaka_by_Kawase_Hasui.jpg
-
-???? [none]                 ? — Tabi miyage dai nishū, Sado Ogi no minato by Kawase Hasui 01
-       file: Tabi_miyage_dai_nishū,_Sado_Ogi_no_minato_by_Kawase_Hasui_01.jpg
 
 ???? [none]                 ? — Tabi miyage dai nishū, Sanuki Takamatsu-jō by Kawase Hasui
        file: Tabi_miyage_dai_nishū,_Sanuki_Takamatsu-jō_by_Kawase_Hasui.jpg
 
-???? [none]                 ? — Tabi miyage dai nishū, seiten no yuki (Miyajima) by Kawase Hasui
-       file: Tabi_miyage_dai_nishū,_seiten_no_yuki_(Miyajima)_by_Kawase_Hasui.jpg
-
 ???? [none]                 ? — Tabi miyage dai nishū, Tango no Miyazu by Kawase Hasui
        file: Tabi_miyage_dai_nishū,_Tango_no_Miyazu_by_Kawase_Hasui.jpg
 
-???? [none]                 ? — Tabi miyage dai nishū, Teradomari no yosame by Kawase Hasui
-       file: Tabi_miyage_dai_nishū,_Teradomari_no_yosame_by_Kawase_Hasui.jpg
-
-???? [none]                 ? — Tabi miyage dai nishū, Yuki no akebono (Sado Ogi minato) by Kawase Hasui
-       file: Tabi_miyage_dai_nishū,_Yuki_no_akebono_(Sado_Ogi_minato)_by_Kawase_Hasui.jpg
-
-???? [none]                 ? — Tabi miyage dai nishū, Yuki no hashidate by Kawase Hasui
-       file: Tabi_miyage_dai_nishū,_Yuki_no_hashidate_by_Kawase_Hasui.jpg
-
-???? [none]                 ? — Tabi miyage dai sanshū, Bōshū Futomi by Kawase Hasui
-       file: Tabi_miyage_dai_sanshū,_Bōshū_Futomi_by_Kawase_Hasui.jpg
-
-???? [none]                 ? — Tabi miyage dai sanshū, Hakubasan yori mitaru Asahigadake by Kawase Hasui
-       file: Tabi_miyage_dai_sanshū,_Hakubasan_yori_mitaru_Asahigadake_by_Kawase_Hasui.jpg
-
 ???? [none]                 ? — Tabi miyage dai sanshū, Hida Nakayama-shichiri by Kawase Hasui
        file: Tabi_miyage_dai_sanshū,_Hida_Nakayama-shichiri_by_Kawase_Hasui.jpg
-
-???? [none]                 ? — Tabi miyage dai sanshū, Iwami Arifuku onsen by Kawase Hasui
-       file: Tabi_miyage_dai_sanshū,_Iwami_Arifuku_onsen_by_Kawase_Hasui.jpg
-
-???? [none]                 ? — Tabi miyage dai sanshū, Izumo Hinomisaki by Kawase Hasui
-       file: Tabi_miyage_dai_sanshū,_Izumo_Hinomisaki_by_Kawase_Hasui.jpg
 
 ???? [none]                 ? — Tabi miyage dai sanshū, Izumo Matsue (oborozuki) by Kawase Hasui
        file: Tabi_miyage_dai_sanshū,_Izumo_Matsue_(oborozuki)_by_Kawase_Hasui.jpg
@@ -1693,9 +1097,6 @@
 ???? [none]                 ? — Tabi miyage dai sanshū, Suō Kintai-kyō by Kawase Hasui
        file: Tabi_miyage_dai_sanshū,_Suō_Kintai-kyō_by_Kawase_Hasui.jpg
 
-???? [none]                 ? — Tabi miyage dai sanshū, Tazawako Gozanoishi by Kawase Hasui
-       file: Tabi_miyage_dai_sanshū,_Tazawako_Gozanoishi_by_Kawase_Hasui.jpg
-
 ???? [none]                 ? — Takahashi nude-cat (1)
        file: Takahashi_nude-cat (1).jpg
 
@@ -1704,13 +1105,9 @@
 
 ???? [none]                 Jean-Honoré Fragonard — The Beautiful Servant
        file: The_Beautiful_Servant_(Jean-Honoré_Fragonard)_-_Nationalmuseum_-_22465.tif
-       date_created: Unknown date
 
 ???? [none]                 Andrewrabbott — The Devil's Bridge, St Gotthard Pass
        file: The_Devil's_Bridge,_St_Gotthard_Pass.jpg
-
-???? [none]                 ? — The Disquieting Muses
-       file: The_Disquieting_Muses.jpg
 
 ???? [none]                 ? — The end of the pose, by Jean-Léon Gérôme
        file: The_end_of_the_pose,_by_Jean-Léon_Gérôme.jpg
@@ -1718,20 +1115,8 @@
 ???? [none]                 ? — The Enigma of Hitler
        file: The_Enigma_of_Hitler.png
 
-???? [none]                 ? — The Equatorial Jungle
-       file: The_Equatorial_Jungle.jpeg
-
 ???? [none]                 ? — The First Days of Spring by Salvador Dalí
        file: The_First_Days_of_Spring_by_Salvador_Dalí.jpg
-
-???? [none]                 ? — The Triumph Of Christianity Over Paganism.Gustave Doré
-       file: The_Triumph_Of_Christianity_Over_Paganism.Gustave_Doré.jpg
-
-???? [none]                 ? — The Virgin with Chancellor Rolin by Jan van Eyck (Louvre).webp
-       file: The_Virgin_with_Chancellor_Rolin_by_Jan_van_Eyck_(Louvre).webp.png
-
-???? [none]                 ? — The Wetterhorn, from  The Europe Series . Hiroshi Yoshida
-       file: The_Wetterhorn,_from__The_Europe_Series_._Hiroshi_Yoshida.jpg
 
 ???? [none]                 Claude Monet — The-moreno-garden-at-bordighera
        file: The-moreno-garden-at-bordighera.jpg
@@ -1751,62 +1136,23 @@
 ???? [none]                 ? — Théodore Géricault - The Kiss - WGA08647
        file: Théodore_Géricault_-_The_Kiss_-_WGA08647.jpg
 
-???? [none]                 ? — Tōkyō jūnidai, Daikon-gashi by Kawase Hasui
-       file: Tōkyō_jūnidai,_Daikon-gashi_by_Kawase_Hasui.jpg
-
 ???? [none]                 ? — Tōkyō jūnidai, Fukagawa Kaminohashi by Kawase Hasui
        file: Tōkyō_jūnidai,_Fukagawa_Kaminohashi_by_Kawase_Hasui.jpg
 
 ???? [none]                 ? — Tōkyō jūnidai, Kiba no yūgure by Kawase Hasui
        file: Tōkyō_jūnidai,_Kiba_no_yūgure_by_Kawase_Hasui.jpg
 
-???? [none]                 ? — Tōkyō jūnidai, Samidare furu Sannō by Kawase Hasui
-       file: Tōkyō_jūnidai,_Samidare_furu_Sannō_by_Kawase_Hasui.jpg
-
-???? [none]                 ? — Tōkyō jūnidai, Shinagawa oki by Kawase Hasui
-       file: Tōkyō_jūnidai,_Shinagawa_oki_by_Kawase_Hasui.jpg
-
-???? [none]                 ? — Tōkyō jūnidai, Toyama-no-hara by Kawase Hasui
-       file: Tōkyō_jūnidai,_Toyama-no-hara_by_Kawase_Hasui.jpg
-
-???? [none]                 ? — Tōkyō nijū kei, Kanda Myōjin keidai by Kawase Hasui
-       file: Tōkyō_nijū_kei,_Kanda_Myōjin_keidai_by_Kawase_Hasui.jpg
-
-???? [none]                 ? — Tōkyō nijū kei, Shin Ōhashi by Kawase Hasui
-       file: Tōkyō_nijū_kei,_Shin_Ōhashi_by_Kawase_Hasui.jpg
-
 ???? [none]                 ? — Tonan hakkei no uchi, Shinagawa by Takahashi Shōtei (1)
        file: Tonan_hakkei_no_uchi,_Shinagawa_by_Takahashi_Shōtei (1).jpg
-
-???? [none]                 ? — Transfiguration-Rubens
-       file: Transfiguration-Rubens.jpeg
 
 ???? [none]                 ? — Tsar nikolai
        file: Tsar_nikolai.jpg
 
-???? [none]                 ? — Utagawa Hiroshige I, published by Uoya Eikichi - Horikiri Iris Garden (Horikiri no hanashōbu), from the series One Hundred Famous Views of Edo (Meish... - Google Art Project
-       file: Utagawa_Hiroshige_I,_published_by_Uoya_Eikichi_-_Horikiri_Iris_Garden_(Horikiri_no_hanashōbu),_from_the_series_One_Hundred_Famous_Views_of_Edo_(Meish..._-_Google_Art_Project.jpg
-
 ???? [none]                 ? — Vale of Health, Hampstead (Constable)
        file: Vale_of_Health,_Hampstead_(Constable).png
 
-???? [none]                 ? — Van Gogh - Die Schäferin (nach Millet)
-       file: Van_Gogh_-_Die_Schäferin_(nach_Millet).jpeg
-
-???? [none]                 ? — Van Gogh - Grünes Weizenfeld
-       file: Van_Gogh_-_Grünes_Weizenfeld.jpeg
-
-???? [none]                 ? — Van Gogh - Grünes Weizenfeld1
-       file: Van_Gogh_-_Grünes_Weizenfeld1.jpeg
-
 ???? [none]                 ? — Van Gogh - Weißes Bauernhaus zwischen Olivenbäumen
        file: Van_Gogh_-_Weißes_Bauernhaus_zwischen_Olivenbäumen.jpeg
-
-???? [none]                 ? — Van Gogh -Die Brücke von Langlois in Arles mit Wäscherinnen
-       file: Van_Gogh_-Die_Brücke_von_Langlois_in_Arles_mit_Wäscherinnen.jpeg
-
-???? [none]                 ? — Van Gogh, Vincent - Olive Grove, Saint-Rémy - Gothenburg Museum of Art - GKM 0590.tif
-       file: Van_Gogh,_Vincent_-_Olive_Grove,_Saint-Rémy_-_Gothenburg_Museum_of_Art_-_GKM_0590.tif.jpg
 
 ???? [none]                 ? — Vesalius Fabrica p163
        file: Vesalius_Fabrica_p163.jpg
@@ -1814,20 +1160,8 @@
 ???? [none]                 ? — Vesalius Fabrica p184
        file: Vesalius_Fabrica_p184.jpg
 
-???? [none]                 ? — Vincent van Gogh - Landscape from Saint-Rémy - Google Art Project
-       file: Vincent_van_Gogh_-_Landscape_from_Saint-Rémy_-_Google_Art_Project.jpg
-
 ???? [none]                 ? — Vincent van Gogh - National Gallery of Art
        file: Vincent_van_Gogh_-_National_Gallery_of_Art.jpeg
-
-???? [none]                 ? — Vincent van Gogh - Pietà (after Delacroix)
-       file: Vincent_van_Gogh_-_Pietà_(after_Delacroix).jpg
-
-???? [none]                 ? — WATTEAU Antoine - Huit études de têtes de femme, et une tête d'homme
-       file: WATTEAU_Antoine_-_Huit_études_de_têtes_de_femme,_et_une_tête_d'homme.jpg
-
-???? [none]                 ? — Zentralbibliothek Zürich - Portät von Anna Magdalena Schweizer geb Hess im Alter von 27 Jahren - 000003019
-       file: Zentralbibliothek_Zürich_-_Portät_von_Anna_Magdalena_Schweizer_geb_Hess_im_Alter_von_27_Jahren_-_000003019.jpg
 
 ???? [none]                 ? — zhang shanzi tiger
        file: zhang_shanzi_tiger.jpg
@@ -1835,152 +1169,33 @@
 ???? [none]                 ? — Афганец (2)
        file: Афганец_(2).jpg
 
-???? [none]                 ? — Афганец
-       file: Афганец.jpg
-
-???? [none]                 ? — Богатый киргизский охотник с соколом
-       file: Богатый_киргизский_охотник_с_соколом.jpg
-
-???? [none]                 ? — Бой скифов со славянами
-       file: Бой_скифов_со_славянами.jpg
-
-???? [none]                 ? — Брюллов Нарцисс
-       file: Брюллов_Нарцисс.jpg
-
-???? [none]                 ? — Буддийский храм в Дарджилинге. Сикким
-       file: Буддийский_храм_в_Дарджилинге._Сикким.jpg
-
-???? [none]                 ? — Буря над Евпаторией Айвазовский
-       file: Буря_над_Евпаторией_Айвазовский.jpg
-
-???? [none]                 ? — В горах Алатау 2
-       file: В_горах_Алатау_2.jpg
-
-???? [none]                 ? — В горах Алатау
-       file: В_горах_Алатау.jpg
-
-???? [none]                 ? — Валентин А. Серов - Купание лошади
-       file: Валентин_А._Серов_-_Купание_лошади.jpg
-
-???? [none]                 ? — Валентин Александрович Серов - Одиссей и Навсикая
-       file: Валентин_Александрович_Серов_-_Одиссей_и_Навсикая.jpg
-
-???? [none]                 ? — Внутренность юрты богатого киргиза
-       file: Внутренность_юрты_богатого_киргиза.jpg
-
-???? [none]                 ? — Галатская башня в лунном свете
-       file: Галатская_башня_в_лунном_свете.jpg
-
-???? [none]                 ? — Главная улица в Самарканде с высоты цитадели ранним утром
-       file: Главная_улица_в_Самарканде_с_высоты_цитадели_ранним_утром.jpg
-
-???? [none]                 ? — Двери Тимура (Тамерлана)
-       file: Двери_Тимура_(Тамерлана).jpg
-
-???? [none]                 ? — Дети племени солонов
-       file: Дети_племени_солонов.jpg
-
-???? [none]                 ? — Иван Константинович Айвазовский - Ночь в Гурзуфе
-       file: Иван_Константинович_Айвазовский_-_Ночь_в_Гурзуфе.jpg
-
-???? [none]                 ? — Иван Константинович Айвазовский - Широкий пейзаж с поселенцами
-       file: Иван_Константинович_Айвазовский_-_Широкий_пейзаж_с_поселенцами.jpg
-
-???? [none]                 ? — Илья Репин - Какой простор
-       file: Илья_Репин_-_Какой_простор.jpg
-
-???? [none]                 ? — Киргизские кибитки на реке Чу
-       file: Киргизские_кибитки_на_реке_Чу.jpg
-
-???? [none]                 ? — Китайская палатка
-       file: Китайская_палатка.jpg
-
-???? [none]                 ? — Кочевая дорога в горах Алатау
-       file: Кочевая_дорога_в_горах_Алатау.jpg
-
-???? [none]                 ? — Крещение Руси
-       file: Крещение_Руси.jpg
-
-???? [none]                 ? — Кронштадтский рейд Айвазовского
-       file: Кронштадтский_рейд_Айвазовского.jpg
-
 ???? [none]                 ? — Кустодиев Б. М. Портрет Н. К. фон Мекк
        file: Кустодиев_Б._М._Портрет_Н._К._фон_Мекк.jpg
 
 ???? [none]                 ? — Лазоревый грот. Неаполь
        file: Лазоревый_грот._Неаполь.jpg
 
-???? [none]                 ? — Левитан После дождя
-       file: Левитан_После_дождя.jpg
-
-???? [none]                 ? — Левитан У омута
-       file: Левитан_У_омута.jpg
-
 ???? [none]                 ? — Мавзолей Гур-Эмир. Самарканд
        file: Мавзолей_Гур-Эмир._Самарканд.jpg
 
-???? [none]                 ? — Мавзолей Шах-и-Зинда в Самарканде
+???? [none]                 Akhemen — Мавзолей Шах-и-Зинда в Самарканде
        file: Мавзолей_Шах-и-Зинда_в_Самарканде.jpg
+       date_created: 2018
 
 ???? [none]                 ? — Медресе Шир-Дор на площади Регистан в Самарканде
        file: Медресе_Шир-Дор_на_площади_Регистан_в_Самарканде.jpg
 
-???? [none]                 ? — Мулла Рахим и мулла Керим по дороге на базар ссорятся
-       file: Мулла_Рахим_и_мулла_Керим_по_дороге_на_базар_ссорятся.jpg
-
 ???? [none]                 ? — Парламентёры
        file: Парламентёры.jpg
-
-???? [none]                 ? — Перед атакой. Под Плевной
-       file: Перед_атакой._Под_Плевной.jpg
 
 ???? [none]                 ? — Перед Москвой в ожидании депутации бояр
        file: Перед_Москвой_в_ожидании_депутации_бояр.jpg
 
-???? [none]                 ? — Перекочевка киргизов 2
-       file: Перекочевка_киргизов_2.jpg
-
-???? [none]                 ? — Петр I при Красной горке Айвазовский
-       file: Петр_I_при_Красной_горке_Айвазовский.jpg
-
 ???? [none]                 ? — Пикет на Дунае
        file: Пикет_на_Дунае.jpg
 
-???? [none]                 ? — Политики в опиумной лавочке. Ташкент
-       file: Политики_в_опиумной_лавочке._Ташкент.jpg
-
-???? [none]                 ? — Портрет художника Федора Антоновича Бруни
-       file: Портрет_художника_Федора_Антоновича_Бруни.jpg
-
-???? [none]                 ? — После неудачи
-       file: После_неудачи.jpg
-
 ???? [none]                 ? — После удачи
        file: После_удачи.jpg
-
-???? [none]                 ? — Преферанс
-       file: Преферанс.jpg
-
-???? [none]                 ? — Продажа ребенка-невольника
-       file: Продажа_ребенка-невольника.jpg
-
-???? [none]                 ? — Проход Барскаун
-       file: Проход_Барскаун.jpg
-
-???? [none]                 ? — Развалины китайской кумирни. Ак-Кент
-       file: Развалины_китайской_кумирни._Ак-Кент.jpg
-
-???? [none]                 ? — Развалины Чугучака
-       file: Развалины_Чугучака.jpg
-
-???? [none]                 ? — Репин. Украинка у плетня
-       file: Репин._Украинка_у_плетня.jpg
-
-???? [none]                 ? — Садовая калитка в Чугучаке
-       file: Садовая_калитка_в_Чугучаке.jpg
-
-???? [none]                 ? — Спящая царевна
-       file: Спящая_царевна.jpg
 
 ???? [none]                 ? — У крепостной стены
        file: У_крепостной_стены.jpg
@@ -1994,35 +1209,8 @@
 ???? [none]                 ? — Японка
        file: Японка.jpg
 
-???? [none]                 ? — 김홍도 금강사군첩 - 총석정
-       file: 김홍도_금강사군첩_-_총석정.jpg
-
-???? [none]                 ? — 冨嶽三十六景 下目黒-Lower Meguro (Shimo Meguro), from the series Thirty-six Views of Mount Fuji (Fugaku sanjūrokkei) MET DP140998
-       file: 冨嶽三十六景_下目黒-Lower_Meguro_(Shimo_Meguro),_from_the_series_Thirty-six_Views_of_Mount_Fuji_(Fugaku_sanjūrokkei)_MET_DP140998.jpg
-
-???? [none]                 ? — 冨嶽三十六景 五百らかん寺さざゐどう-Sazai Hall at the Temple of the Five Hundred Arhats (Gohyaku Rakanji Sazaidō), from the series Thirty-six Views of Mount Fuji (Fugaku sanjūrokkei) MET DP141020
-       file: 冨嶽三十六景_五百らかん寺さざゐどう-Sazai_Hall_at_the_Temple_of_the_Five_Hundred_Arhats_(Gohyaku_Rakanji_Sazaidō),_from_the_series_Thirty-six_Views_of_Mount_Fuji_(Fugaku_sanjūrokkei)_MET_DP141020.jpg
-
-???? [none]                 ? — 冨嶽三十六景 尾州不二見原-Fujimigahara in Owari Province (Bishū Fujimigahara), from the series Thirty-six Views of Mount Fuji (Fugaku sanjūrokkei) MET DP141033
-       file: 冨嶽三十六景_尾州不二見原-Fujimigahara_in_Owari_Province_(Bishū_Fujimigahara),_from_the_series_Thirty-six_Views_of_Mount_Fuji_(Fugaku_sanjūrokkei)_MET_DP141033.jpg
-
-???? [none]                 ? — 冨嶽三十六景 常州牛掘-Ushibori in Hitachi Province (Jōshū Ushibori), from the series Thirty-six Views of Mount Fuji (Fugaku sanjūrokkei) MET DP141044
-       file: 冨嶽三十六景_常州牛掘-Ushibori_in_Hitachi_Province_(Jōshū_Ushibori),_from_the_series_Thirty-six_Views_of_Mount_Fuji_(Fugaku_sanjūrokkei)_MET_DP141044.jpg
-
-???? [none]                 ? — 冨嶽三十六景 東海道保土ケ谷-Hodogaya on the Tōkaidō (Tōkaidō Hodogaya), from the series Thirty-six Views of Mount Fuji (Fugaku sanjūrokkei) MET DP141025
-       file: 冨嶽三十六景_東海道保土ケ谷-Hodogaya_on_the_Tōkaidō_(Tōkaidō_Hodogaya),_from_the_series_Thirty-six_Views_of_Mount_Fuji_(Fugaku_sanjūrokkei)_MET_DP141025.jpg
-
-???? [none]                 ? — 冨嶽三十六景 東海道吉田-Yoshida on the Tōkaidō (Tōkaidō Yoshida), from the series Thirty-six Views of Mount Fuji (Fugaku sanjūrokkei) MET DP141007
-       file: 冨嶽三十六景_東海道吉田-Yoshida_on_the_Tōkaidō_(Tōkaidō_Yoshida),_from_the_series_Thirty-six_Views_of_Mount_Fuji_(Fugaku_sanjūrokkei)_MET_DP141007.jpg
-
-???? [none]                 ? — 冨嶽三十六景 東海道江尻田子の浦略図-Tago Bay near Ejiri on the Tōkaidō (Tōkaidō Ejiri Tago no ura ryaku zu), from the series Thirty-six Views of Mount Fuji (Fugaku sanjūrokkei) MET DP141037
-       file: 冨嶽三十六景_東海道江尻田子の浦略図-Tago_Bay_near_Ejiri_on_the_Tōkaidō_(Tōkaidō_Ejiri_Tago_no_ura_ryaku_zu),_from_the_series_Thirty-six_Views_of_Mount_Fuji_(Fugaku_sanjūrokkei)_MET_DP141037.jpg
-
 ???? [none]                 ? — 冨嶽三十六景 武州千住-Senju in Musashi Province (Bushū Senju), from the series Thirty-six Views of Mount Fuji (Fugaku sanjūrokkei) MET DP141087
        file: 冨嶽三十六景_武州千住-Senju_in_Musashi_Province_(Bushū_Senju),_from_the_series_Thirty-six_Views_of_Mount_Fuji_(Fugaku_sanjūrokkei)_MET_DP141087.jpg
-
-???? [none]                 ? — 冨嶽三十六景 武州玉川-Fuji—The Tama River, Musashi Province, from the series Thirty-six Views of Mount Fuji (Fugaku sanjūrokkei) MET DP140975
-       file: 冨嶽三十六景_武州玉川-Fuji—The_Tama_River,_Musashi_Province,_from_the_series_Thirty-six_Views_of_Mount_Fuji_(Fugaku_sanjūrokkei)_MET_DP140975.jpg
 
 ???? [none]                 ? — 冨嶽三十六景 江戸日本橋-Nihonbashi in Edo (Edo Nihonbashi), from the series Thirty-six Views of Mount Fuji (Fugaku sanjūrokkei) MET DP141003
        file: 冨嶽三十六景_江戸日本橋-Nihonbashi_in_Edo_(Edo_Nihonbashi),_from_the_series_Thirty-six_Views_of_Mount_Fuji_(Fugaku_sanjūrokkei)_MET_DP141003.jpg
@@ -2030,51 +1218,6 @@
 ???? [none]                 ? — 冨嶽三十六景 深川万年橋下-Under the Mannen Bridge at Fukagawa (Fukagawa Mannenbashi shita), from the series Thirty-six Views of Mount Fuji (Fugaku sanjūrokkei) MET DP141017
        file: 冨嶽三十六景_深川万年橋下-Under_the_Mannen_Bridge_at_Fukagawa_(Fukagawa_Mannenbashi_shita),_from_the_series_Thirty-six_Views_of_Mount_Fuji_(Fugaku_sanjūrokkei)_MET_DP141017.jpg
 
-???? [none]                 ? — 冨嶽三十六景 甲州三坂水面-Reflection in Lake at Misaka in Kai Province (Kōshū Misaka suimen), from the series Thirty-six Views of Mount Fuji (Fugaku sanjūrokkei MET DP141064
-       file: 冨嶽三十六景_甲州三坂水面-Reflection_in_Lake_at_Misaka_in_Kai_Province_(Kōshū_Misaka_suimen),_from_the_series_Thirty-six_Views_of_Mount_Fuji_(Fugaku_sanjūrokkei_MET_DP141064.jpg
-
-???? [none]                 ? — 冨嶽三十六景 甲州三島越-Mishima Pass in Kai Province (Kōshū Mishima goe), from the series Thirty-six Views of Mount Fuji (Fugaku sanjūrokkei) MET DP141043
-       file: 冨嶽三十六景_甲州三島越-Mishima_Pass_in_Kai_Province_(Kōshū_Mishima_goe),_from_the_series_Thirty-six_Views_of_Mount_Fuji_(Fugaku_sanjūrokkei)_MET_DP141043.jpg
-
-???? [none]                 ? — 冨嶽三十六景 甲州犬目峠-The Inume Pass in Kai Province (Kōshū Inume tōge), from the series Thirty-six Views of Mount Fuji (Fugaku sanjūrokkei) MET DP141045
-       file: 冨嶽三十六景_甲州犬目峠-The_Inume_Pass_in_Kai_Province_(Kōshū_Inume_tōge),_from_the_series_Thirty-six_Views_of_Mount_Fuji_(Fugaku_sanjūrokkei)_MET_DP141045.jpg
-
-???? [none]                 ? — 冨嶽三十六景 相州七里浜-Shichirigahama in Sagami Province (Sōshū Shichirigahama), from the series Thirty-six Views of Mount Fuji (Fugaku sanjūrokkei) MET DP140979
-       file: 冨嶽三十六景_相州七里浜-Shichirigahama_in_Sagami_Province_(Sōshū_Shichirigahama),_from_the_series_Thirty-six_Views_of_Mount_Fuji_(Fugaku_sanjūrokkei)_MET_DP140979.jpg
-
-???? [none]                 ? — 冨嶽三十六景 遠江山中-In the Mountains of Tōtomi Province (Tōtomi sanchū), from the series Thirty-six Views of Mount Fuji (Fugaku sanjūrokkei) MET DP140988
-       file: 冨嶽三十六景_遠江山中-In_the_Mountains_of_Tōtomi_Province_(Tōtomi_sanchū),_from_the_series_Thirty-six_Views_of_Mount_Fuji_(Fugaku_sanjūrokkei)_MET_DP140988.jpg
-
-???? [none]                 ? — 冨嶽三十六景 隅田川関屋の里-Sekiya Village on the Sumida River (Sumidagawa Sekiya no sato), from the series Thirty-six Views of Mount Fuji (Fugaku sanjūrokkei) MET DP141023
-       file: 冨嶽三十六景_隅田川関屋の里-Sekiya_Village_on_the_Sumida_River_(Sumidagawa_Sekiya_no_sato),_from_the_series_Thirty-six_Views_of_Mount_Fuji_(Fugaku_sanjūrokkei)_MET_DP141023.jpg
-
-???? [none]                 ? — 冨嶽三十六景 隠田の水車-The Waterwheel at Onden (Onden no suisha), from the series Thirty-six Views of Mount Fuji (Fugaku sanjūrokkei) MET DP141021
-       file: 冨嶽三十六景_隠田の水車-The_Waterwheel_at_Onden_(Onden_no_suisha),_from_the_series_Thirty-six_Views_of_Mount_Fuji_(Fugaku_sanjūrokkei)_MET_DP141021.jpg
-
 ???? [none]                 ? — 冨嶽三十六景 駿州江尻-Ejiri in Suruga Province (Sunshū Ejiri), from the series Thirty-six Views of Mount Fuji (Fugaku sanjūrokkei) MET DP140977
        file: 冨嶽三十六景_駿州江尻-Ejiri_in_Suruga_Province_(Sunshū_Ejiri),_from_the_series_Thirty-six_Views_of_Mount_Fuji_(Fugaku_sanjūrokkei)_MET_DP140977.jpg
-
-???? [none]                 ? — 北宋 徽宗 竹禽圖 卷-Finches and bamboo MET DP151504
-       file: 北宋_徽宗_竹禽圖_卷-Finches_and_bamboo_MET_DP151504.jpg
-
-???? [none]                 ? — 名绘集珍册 9 宋 李迪 春潮带雨
-       file: 名绘集珍册_9_宋_李迪_春潮带雨.jpg
-
-???? [none]                 ? — 清 王槩 設計，李漁出版 芥子園畫傳 版本-Mt. Heng, after Juran (active ca. 960–965), from the Mustard Seed Garden Manual of Painting MET DP-14004-001
-       file: 清_王槩_設計，李漁出版_芥子園畫傳_版本-Mt._Heng,_after_Juran_(active_ca._960–965),_from_the_Mustard_Seed_Garden_Manual_of_Painting_MET_DP-14004-001.jpg
-
-???? [none]                 ? — 清 石濤(朱若極) 山水圖 冊-Searching for Immortals MET DP162813
-       file: 清_石濤(朱若極)_山水圖_冊-Searching_for_Immortals_MET_DP162813.jpg
-
-???? [none]                 ? — 溥僩丙子夏日寫生
-       file: 溥僩丙子夏日寫生.jpg
-
-???? [none]                 ? — 諸國名橋奇覧 摂洲天満橋-Tenman Bridge at Settsu Province (Sesshū Tenmanbashi), from the series Remarkable Views of Bridges in Various Provinces (Shokoku meikyō kiran) MET DP141277
-       file: 諸國名橋奇覧_摂洲天満橋-Tenman_Bridge_at_Settsu_Province_(Sesshū_Tenmanbashi),_from_the_series_Remarkable_Views_of_Bridges_in_Various_Provinces_(Shokoku_meikyō_kiran)_MET_DP141277.jpg
-
-???? [none]                 ? — 諸國瀧廻リ 美濃ノ国養老の滝-Yōrō Waterfall in Mino Province (Mino no Yōrō no taki), from the series A Tour of Waterfalls in Various Provinces (Shokoku taki meguri) MET DP141263
-       file: 諸國瀧廻リ_美濃ノ国養老の滝-Yōrō_Waterfall_in_Mino_Province_(Mino_no_Yōrō_no_taki),_from_the_series_A_Tour_of_Waterfalls_in_Various_Provinces_(Shokoku_taki_meguri)_MET_DP141263.jpg
-
-???? [none]                 ? — 雪景图轴.传宋.马远.画.纸本设色.台北故宫博物院藏
-       file: 雪景图轴.传宋.马远.画.纸本设色.台北故宫博物院藏.jpg
 
