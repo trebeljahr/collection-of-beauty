@@ -50,28 +50,15 @@ env:
   FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: "true"
 
 jobs:
-  # Gate the deploy on the catalogue matching what's on R2. Catches
-  # the class of drift where build-data emits an objectKey whose
-  # variant directory doesn't exist on the bucket — e.g. the eight
-  # `"`-laden filenames whose variants were uploaded under sanitized
-  # basenames. HEAD-checks every variant URL against the public R2
-  # base, so no R2 credentials are needed in CI; fails the deploy on
-  # any missing variant or any artwork with variantWidths===null.
-  # ~3 min wall-clock against ~27k variant keys at concurrency 32.
-  verify-assets:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v5
-
-      - uses: actions/setup-node@v4
-        with:
-          node-version: 24
-
-      - name: Verify every variant exists on R2
-        run: node scripts/verify-r2.mjs --check-unshrunk
-
+  # Asset/R2 drift verification used to gate the deploy here, but a full
+  # HEAD sweep of every variant (now ~39k keys) tripped Cloudflare's rate
+  # limits and false-failed on network errors (`fetch failed`), blocking
+  # deploys even though the assets were present. It now runs locally via
+  # the .husky/pre-push hook — a single bulk rclone LIST, in-memory
+  # membership check, no rate-limit exposure — and only when
+  # src/data/artworks.json changes. Drift is caught before the push ever
+  # reaches CI. See scripts/verify-r2.mjs and .husky/pre-push.
   build:
-    needs: verify-assets
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v5
