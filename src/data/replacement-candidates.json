@@ -1,16 +1,16 @@
 [
   {
     "target": {
-      "id": "collection-of-beauty-jacob-jordaens-naked-old-man-standing",
-      "title": "Naked old man",
-      "englishTitle": null,
-      "artist": "Jacob Jordaens",
-      "w": 425,
-      "h": 650,
-      "fileUrl": "https://upload.wikimedia.org/wikipedia/commons/6/6e/Jacob_Jordaens_-_Naked_old_man%2C_standing.jpg",
-      "commonsUrl": "https://commons.wikimedia.org/wiki/File%3AJacob_Jordaens_-_Naked_old_man%2C_standing.jpg",
-      "wikidataId": "Q137778676",
-      "objectKey": "collection-of-beauty/Jacob_Jordaens_-_Naked_old_man,_standing.jpg",
+      "id": "collection-of-beauty-along-the-river-during-the-qingming-festival-by-shen-yuan",
+      "title": "Along the River During the Qingming Festival 清明上河圖",
+      "englishTitle": "Along the River During the Qingming Festival",
+      "artist": "Shen Yuan",
+      "w": 2560,
+      "h": 73,
+      "fileUrl": "https://upload.wikimedia.org/wikipedia/commons/2/2b/Along_the_River_During_the_Qingming_Festival_%28by_Shen_Yuan%29.jpg",
+      "commonsUrl": "https://commons.wikimedia.org/wiki/File%3AAlong_the_River_During_the_Qingming_Festival_(by_Shen_Yuan).jpg",
+      "wikidataId": "Q121366458",
+      "objectKey": "collection-of-beauty/Along_the_River_During_the_Qingming_Festival_(by_Shen_Yuan).jpg",
       "variantWidths": [
         256,
         480,
@@ -22,8 +22,719 @@
         4096
       ]
     },
-    "candidates": [],
-    "summary": "No higher-res replacement found. The Commons file (425x650, 44 KB) is the only digitization available there for this specific Jordaens drawing (Louvre RF 674 / HDLS 257, \"Vieillard nu, debout\", 30.2 x 19.7 cm chalk drawing dated 1639). The Commons file metadata cites RMN-GP as source (art.rmngp.fr) but that gallery is firewalled (TLS cert mismatch on direct fetch; the Louvre's own page at collections.louvre.fr/ark:/53355/cl020112255 requires a click-through download UI rather than exposing a direct hi-res URL). A Commons title search returns only one other \"naked old man\" Jordaens drawing — a horizontal British Museum study (object 709312, 425x540 mm, ca. 1617-1620, made of multiple sheets) — which is a different work, not a higher-res scan of ours. The \"Drawings by Jacob Jordaens in the Louvre\" category contains no alternate file of this drawing. Nothing on Commons to swap in; a real upgrade would have to come from a fresh upload off the Louvre's gated download tool."
+    "candidates": [
+      {
+        "fileUrl": "https://upload.wikimedia.org/wikipedia/commons/2/2b/Along_the_River_During_the_Qingming_Festival_%28by_Shen_Yuan%29.jpg",
+        "commonsPageUrl": "https://commons.wikimedia.org/wiki/File:Along_the_River_During_the_Qingming_Festival_(by_Shen_Yuan).jpg",
+        "width": 57956,
+        "height": 1650,
+        "confidence": 1,
+        "hamming": 0,
+        "source": "own-file",
+        "reason": "Commons copy of the same file is 57956x1650 vs local 2560x73 — local copy is a downscale; re-download."
+      }
+    ],
+    "summary": "1 verified candidate(s); best is 57956x1650 via own-file (511.7x pixels)."
+  },
+  {
+    "target": {
+      "id": "collection-of-beauty-annibale-carracci-river-landscape-google-art-project",
+      "title": "River Landscape",
+      "englishTitle": null,
+      "artist": "Annibale Carracci",
+      "w": 960,
+      "h": 564,
+      "fileUrl": "https://upload.wikimedia.org/wikipedia/commons/d/d9/Annibale_Carracci_-_River_Landscape_-_Google_Art_Project.jpg",
+      "commonsUrl": "https://commons.wikimedia.org/wiki/File%3AAnnibale_Carracci_-_River_Landscape_-_Google_Art_Project.jpg",
+      "wikidataId": "Q20176833",
+      "objectKey": "collection-of-beauty/Annibale_Carracci_-_River_Landscape_-_Google_Art_Project.jpg",
+      "variantWidths": [
+        256,
+        480,
+        640,
+        960,
+        1280,
+        1920,
+        2560,
+        4096
+      ]
+    },
+    "candidates": [
+      {
+        "fileUrl": "https://upload.wikimedia.org/wikipedia/commons/d/d9/Annibale_Carracci_-_River_Landscape_-_Google_Art_Project.jpg",
+        "commonsPageUrl": "https://commons.wikimedia.org/wiki/File:Annibale_Carracci_-_River_Landscape_-_Google_Art_Project.jpg",
+        "width": 5947,
+        "height": 3493,
+        "confidence": 1,
+        "hamming": 0,
+        "source": "own-file",
+        "reason": "Commons copy of the same file is 5947x3493 vs local 960x564 — local copy is a downscale; re-download."
+      }
+    ],
+    "summary": "1 verified candidate(s); best is 5947x3493 via own-file (38.4x pixels)."
+  },
+  {
+    "target": {
+      "id": "collection-of-beauty-carp-leaping-up-a-cascade",
+      "title": "Carp leaping up a cascade",
+      "englishTitle": null,
+      "artist": null,
+      "w": 500,
+      "h": 1413,
+      "fileUrl": "https://upload.wikimedia.org/wikipedia/commons/5/56/Carp_leaping_up_a_cascade.jpg",
+      "commonsUrl": "https://commons.wikimedia.org/wiki/File%3ACarp_leaping_up_a_cascade.jpg",
+      "wikidataId": null,
+      "objectKey": "collection-of-beauty/Carp_leaping_up_a_cascade.jpg",
+      "variantWidths": [
+        256,
+        480,
+        640,
+        960,
+        1280,
+        1920,
+        2560,
+        4096
+      ]
+    },
+    "candidates": [
+      {
+        "fileUrl": "https://upload.wikimedia.org/wikipedia/commons/5/56/Carp_leaping_up_a_cascade.jpg",
+        "commonsPageUrl": "https://commons.wikimedia.org/wiki/File:Carp_leaping_up_a_cascade.jpg",
+        "width": 1040,
+        "height": 2940,
+        "confidence": 1,
+        "hamming": 0,
+        "source": "own-file",
+        "reason": "Commons copy of the same file is 1040x2940 vs local 500x1413 — local copy is a downscale; re-download."
+      }
+    ],
+    "summary": "1 verified candidate(s); best is 1040x2940 via own-file (4.3x pixels)."
+  },
+  {
+    "target": {
+      "id": "collection-of-beauty-frederick-law-olmsted",
+      "title": "Frederick Law Olmsted",
+      "englishTitle": null,
+      "artist": "John Singer Sargent",
+      "w": 546,
+      "h": 903,
+      "fileUrl": "https://upload.wikimedia.org/wikipedia/commons/6/65/Frederick_Law_Olmsted.jpg",
+      "commonsUrl": "https://commons.wikimedia.org/wiki/File%3AFrederick_Law_Olmsted.jpg",
+      "wikidataId": null,
+      "objectKey": "collection-of-beauty/Frederick_Law_Olmsted.jpg",
+      "variantWidths": [
+        256,
+        480,
+        640,
+        960,
+        1280,
+        1920,
+        2560,
+        4096
+      ]
+    },
+    "candidates": [
+      {
+        "fileUrl": "https://upload.wikimedia.org/wikipedia/commons/6/65/Frederick_Law_Olmsted.jpg",
+        "commonsPageUrl": "https://commons.wikimedia.org/wiki/File:Frederick_Law_Olmsted.jpg",
+        "width": 755,
+        "height": 1130,
+        "confidence": 1,
+        "hamming": 0,
+        "source": "own-file",
+        "reason": "Commons copy of the same file is 755x1130 vs local 546x903 — local copy is a downscale; re-download."
+      }
+    ],
+    "summary": "1 verified candidate(s); best is 755x1130 via own-file (1.7x pixels)."
+  },
+  {
+    "target": {
+      "id": "collection-of-beauty-goya-the-garroted-man",
+      "title": "The Garroted Man",
+      "englishTitle": null,
+      "artist": "Francisco Goya",
+      "w": 330,
+      "h": 507,
+      "fileUrl": "https://upload.wikimedia.org/wikipedia/commons/e/e9/Goya_-_The_Garroted_Man.jpg",
+      "commonsUrl": "https://commons.wikimedia.org/wiki/File%3AGoya_-_The_Garroted_Man.jpg",
+      "wikidataId": null,
+      "objectKey": "collection-of-beauty/Goya_-_The_Garroted_Man.jpg",
+      "variantWidths": [
+        256,
+        480,
+        640,
+        960,
+        1280,
+        1920,
+        2560,
+        4096
+      ]
+    },
+    "candidates": [
+      {
+        "fileUrl": "https://upload.wikimedia.org/wikipedia/commons/e/e9/Goya_-_The_Garroted_Man.jpg",
+        "commonsPageUrl": "https://commons.wikimedia.org/wiki/File:Goya_-_The_Garroted_Man.jpg",
+        "width": 1953,
+        "height": 3000,
+        "confidence": 1,
+        "hamming": 0,
+        "source": "own-file",
+        "reason": "Commons copy of the same file is 1953x3000 vs local 330x507 — local copy is a downscale; re-download."
+      },
+      {
+        "fileUrl": "https://upload.wikimedia.org/wikipedia/commons/e/e7/Francisco_de_Goya%2C_The_Garroted_Man%2C_in_or_before_1780%2C_NGA_7448.jpg",
+        "commonsPageUrl": "https://commons.wikimedia.org/wiki/File:Francisco_de_Goya,_The_Garroted_Man,_in_or_before_1780,_NGA_7448.jpg",
+        "width": 2604,
+        "height": 4000,
+        "confidence": 0.95,
+        "hamming": 3,
+        "source": "commons-search",
+        "reason": "Commons search hit, 2604x4000. dHash distance 3."
+      },
+      {
+        "fileUrl": "https://upload.wikimedia.org/wikipedia/commons/d/d6/The_Garroted_Man_%28El_agarrotado%29_MET_DT11748.jpg",
+        "commonsPageUrl": "https://commons.wikimedia.org/wiki/File:The_Garroted_Man_(El_agarrotado)_MET_DT11748.jpg",
+        "width": 2422,
+        "height": 3722,
+        "confidence": 0.85,
+        "hamming": 8,
+        "source": "commons-search",
+        "reason": "Commons search hit, 2422x3722. dHash distance 8."
+      }
+    ],
+    "summary": "3 verified candidate(s); best is 1953x3000 via own-file (35.0x pixels)."
+  },
+  {
+    "target": {
+      "id": "collection-of-beauty-holbein-dead-christ",
+      "title": "Holbein — Dead Christ",
+      "englishTitle": null,
+      "artist": "Gsimonov",
+      "w": 2560,
+      "h": 383,
+      "fileUrl": "https://upload.wikimedia.org/wikipedia/commons/2/25/Holbein_%E2%80%94_Dead_Christ.jpg",
+      "commonsUrl": "https://commons.wikimedia.org/wiki/File%3AHolbein_%E2%80%94_Dead_Christ.jpg",
+      "wikidataId": "Q4310527",
+      "objectKey": "collection-of-beauty/Holbein_—_Dead_Christ.jpg",
+      "variantWidths": [
+        256,
+        480,
+        640,
+        960,
+        1280,
+        1920,
+        2560,
+        4096
+      ]
+    },
+    "candidates": [
+      {
+        "fileUrl": "https://upload.wikimedia.org/wikipedia/commons/2/25/Holbein_%E2%80%94_Dead_Christ.jpg",
+        "commonsPageUrl": "https://commons.wikimedia.org/wiki/File:Holbein_%E2%80%94_Dead_Christ.jpg",
+        "width": 4944,
+        "height": 739,
+        "confidence": 1,
+        "hamming": 0,
+        "source": "own-file",
+        "reason": "Commons copy of the same file is 4944x739 vs local 2560x383 — local copy is a downscale; re-download."
+      }
+    ],
+    "summary": "1 verified candidate(s); best is 4944x739 via own-file (3.7x pixels)."
+  },
+  {
+    "target": {
+      "id": "collection-of-beauty-ike-taiga-orchids-1975-268-94-metropolitan-museum-of-art",
+      "title": "Orchids",
+      "englishTitle": null,
+      "artist": "Ike no Taiga",
+      "w": 500,
+      "h": 1681,
+      "fileUrl": "https://upload.wikimedia.org/wikipedia/commons/1/19/Ike_Taiga_-_Orchids_-_1975.268.94_-_Metropolitan_Museum_of_Art.jpg",
+      "commonsUrl": "https://commons.wikimedia.org/wiki/File%3AIke_Taiga_-_Orchids_-_1975.268.94_-_Metropolitan_Museum_of_Art.jpg",
+      "wikidataId": "Q78832224",
+      "objectKey": "collection-of-beauty/Ike_Taiga_-_Orchids_-_1975.268.94_-_Metropolitan_Museum_of_Art.jpg",
+      "variantWidths": [
+        256,
+        480,
+        640,
+        960,
+        1280,
+        1920,
+        2560,
+        4096
+      ]
+    },
+    "candidates": [
+      {
+        "fileUrl": "https://upload.wikimedia.org/wikipedia/commons/1/19/Ike_Taiga_-_Orchids_-_1975.268.94_-_Metropolitan_Museum_of_Art.jpg",
+        "commonsPageUrl": "https://commons.wikimedia.org/wiki/File:Ike_Taiga_-_Orchids_-_1975.268.94_-_Metropolitan_Museum_of_Art.jpg",
+        "width": 595,
+        "height": 2000,
+        "confidence": 1,
+        "hamming": 0,
+        "source": "own-file",
+        "reason": "Commons copy of the same file is 595x2000 vs local 500x1681 — local copy is a downscale; re-download."
+      }
+    ],
+    "summary": "1 verified candidate(s); best is 595x2000 via own-file (1.4x pixels)."
+  },
+  {
+    "target": {
+      "id": "collection-of-beauty-jheronimus-bosch-050",
+      "title": "Death and the Miser",
+      "englishTitle": null,
+      "artist": "Hieronymus Bosch",
+      "w": 500,
+      "h": 1505,
+      "fileUrl": "https://upload.wikimedia.org/wikipedia/commons/4/48/Jheronimus_Bosch_050.jpg",
+      "commonsUrl": "https://commons.wikimedia.org/wiki/File%3AJheronimus_Bosch_050.jpg",
+      "wikidataId": "Q2203011",
+      "objectKey": "collection-of-beauty/Jheronimus_Bosch_050.jpg",
+      "variantWidths": [
+        256,
+        480,
+        640,
+        960,
+        1280,
+        1920,
+        2560,
+        4096
+      ]
+    },
+    "candidates": [
+      {
+        "fileUrl": "https://upload.wikimedia.org/wikipedia/commons/4/48/Jheronimus_Bosch_050.jpg",
+        "commonsPageUrl": "https://commons.wikimedia.org/wiki/File:Jheronimus_Bosch_050.jpg",
+        "width": 5901,
+        "height": 17766,
+        "confidence": 1,
+        "hamming": 0,
+        "source": "own-file",
+        "reason": "Commons copy of the same file is 5901x17766 vs local 500x1505 — local copy is a downscale; re-download."
+      },
+      {
+        "fileUrl": "https://upload.wikimedia.org/wikipedia/commons/2/2a/Hieronymus_Bosch_-_Death_and_the_Miser_-_Google_Art_Project.jpg",
+        "commonsPageUrl": "https://commons.wikimedia.org/wiki/File:Hieronymus_Bosch_-_Death_and_the_Miser_-_Google_Art_Project.jpg",
+        "width": 5876,
+        "height": 17701,
+        "confidence": 0.95,
+        "hamming": 1,
+        "source": "commons-search",
+        "reason": "Commons search hit, 5876x17701. dHash distance 1."
+      },
+      {
+        "fileUrl": "https://upload.wikimedia.org/wikipedia/commons/6/69/Jheronimus_Bosch_050FXD.jpg",
+        "commonsPageUrl": "https://commons.wikimedia.org/wiki/File:Jheronimus_Bosch_050FXD.jpg",
+        "width": 3322,
+        "height": 10000,
+        "confidence": 0.95,
+        "hamming": 2,
+        "source": "commons-search",
+        "reason": "Commons search hit, 3322x10000. dHash distance 2."
+      },
+      {
+        "fileUrl": "https://upload.wikimedia.org/wikipedia/commons/f/fe/Hieronymus_Bosch%2C_Death_and_the_Miser%2C_c._1485-1490%2C_NGA_41645.jpg",
+        "commonsPageUrl": "https://commons.wikimedia.org/wiki/File:Hieronymus_Bosch,_Death_and_the_Miser,_c._1485-1490,_NGA_41645.jpg",
+        "width": 1339,
+        "height": 4000,
+        "confidence": 0.95,
+        "hamming": 1,
+        "source": "commons-search",
+        "reason": "Commons search hit, 1339x4000. dHash distance 1."
+      }
+    ],
+    "summary": "4 verified candidate(s); best is 5901x17766 via own-file (139.3x pixels)."
+  },
+  {
+    "target": {
+      "id": "collection-of-beauty-leopold-boilly-les-conscrits-de-1807-defilant-devant-la-porte-saint-denis",
+      "title": "Léopold Boilly Les conscrits de 1807 défilant devant la porte Saint-Denis",
+      "englishTitle": null,
+      "artist": "Léopold Boilly",
+      "w": null,
+      "h": null,
+      "fileUrl": "https://upload.wikimedia.org/wikipedia/commons/3/34/L%C3%A9opold_Boilly_Les_conscrits_de_1807_d%C3%A9filant_devant_la_porte_Saint-Denis.jpg",
+      "commonsUrl": "https://commons.wikimedia.org/wiki/File%3AL%C3%A9opold_Boilly_Les_conscrits_de_1807_d%C3%A9filant_devant_la_porte_Saint-Denis.jpg",
+      "wikidataId": null,
+      "objectKey": "collection-of-beauty/Léopold_Boilly_Les_conscrits_de_1807_défilant_devant_la_porte_Saint-Denis.jpg",
+      "variantWidths": [
+        256,
+        480,
+        640,
+        960,
+        1280,
+        1920,
+        2560,
+        4096,
+        16384
+      ]
+    },
+    "candidates": [
+      {
+        "fileUrl": "https://upload.wikimedia.org/wikipedia/commons/3/34/L%C3%A9opold_Boilly_Les_conscrits_de_1807_d%C3%A9filant_devant_la_porte_Saint-Denis.jpg",
+        "commonsPageUrl": "https://commons.wikimedia.org/wiki/File:L%C3%A9opold_Boilly_Les_conscrits_de_1807_d%C3%A9filant_devant_la_porte_Saint-Denis.jpg",
+        "width": 26960,
+        "height": 16320,
+        "confidence": 1,
+        "hamming": 0,
+        "source": "own-file",
+        "reason": "Commons copy of the same file is 26960x16320 vs local nullxnull — local copy is a downscale; re-download."
+      }
+    ],
+    "summary": "1 verified candidate(s); best is 26960x16320 via own-file (Infinityx pixels)."
+  },
+  {
+    "target": {
+      "id": "collection-of-beauty-nighthawks-by-edward-hopper-1942",
+      "title": "Nighthawks",
+      "englishTitle": null,
+      "artist": "Edward Hopper",
+      "w": 960,
+      "h": 524,
+      "fileUrl": "https://upload.wikimedia.org/wikipedia/commons/a/a8/Nighthawks_by_Edward_Hopper_1942.jpg",
+      "commonsUrl": "https://commons.wikimedia.org/wiki/File%3ANighthawks_by_Edward_Hopper_1942.jpg",
+      "wikidataId": "Q83872",
+      "objectKey": "collection-of-beauty/Nighthawks_by_Edward_Hopper_1942.jpg",
+      "variantWidths": [
+        256,
+        480,
+        640,
+        960,
+        1280,
+        1920,
+        2560,
+        4096
+      ]
+    },
+    "candidates": [
+      {
+        "fileUrl": "https://upload.wikimedia.org/wikipedia/commons/a/a8/Nighthawks_by_Edward_Hopper_1942.jpg",
+        "commonsPageUrl": "https://commons.wikimedia.org/wiki/File:Nighthawks_by_Edward_Hopper_1942.jpg",
+        "width": 6000,
+        "height": 3274,
+        "confidence": 1,
+        "hamming": 0,
+        "source": "own-file",
+        "reason": "Commons copy of the same file is 6000x3274 vs local 960x524 — local copy is a downscale; re-download."
+      },
+      {
+        "fileUrl": "https://upload.wikimedia.org/wikipedia/commons/7/7b/Hopper_Nighthawks.jpg",
+        "commonsPageUrl": "https://commons.wikimedia.org/wiki/File:Hopper_Nighthawks.jpg",
+        "width": 3000,
+        "height": 1635,
+        "confidence": 0.85,
+        "hamming": 6,
+        "source": "commons-search",
+        "reason": "Commons search hit, 3000x1635. dHash distance 6."
+      }
+    ],
+    "summary": "2 verified candidate(s); best is 6000x3274 via own-file (39.1x pixels)."
+  },
+  {
+    "target": {
+      "id": "collection-of-beauty-500px-gipsen-vrouwentorso-s0199v1962-van-gogh-museum",
+      "title": "500px-Gipsen vrouwentorso - s0199V1962 - Van Gogh Museum",
+      "englishTitle": "Plaster Cast of a Woman's Torso",
+      "artist": "Vincent van Gogh",
+      "w": 500,
+      "h": 770,
+      "fileUrl": "https://upload.wikimedia.org/wikipedia/commons/f/f0/Gipsen_vrouwentorso_-_s0199V1962_-_Van_Gogh_Museum.jpg",
+      "commonsUrl": "https://commons.wikimedia.org/wiki/File:Gipsen_vrouwentorso_-_s0199V1962_-_Van_Gogh_Museum.jpg",
+      "wikidataId": "Q19835959",
+      "objectKey": "collection-of-beauty/500px-Gipsen_vrouwentorso_-_s0199V1962_-_Van_Gogh_Museum.jpg",
+      "variantWidths": [
+        256,
+        480,
+        640,
+        960,
+        1280,
+        1920,
+        2560,
+        4096
+      ]
+    },
+    "candidates": [
+      {
+        "fileUrl": "https://upload.wikimedia.org/wikipedia/commons/f/f0/Gipsen_vrouwentorso_-_s0199V1962_-_Van_Gogh_Museum.jpg",
+        "commonsPageUrl": "https://commons.wikimedia.org/wiki/File:Gipsen_vrouwentorso_-_s0199V1962_-_Van_Gogh_Museum.jpg",
+        "width": 4719,
+        "height": 7269,
+        "confidence": 0.95,
+        "hamming": 1,
+        "source": "wikidata-p18",
+        "reason": "Wikidata Q19835959 P18 image, 4719x7269. dHash distance 1."
+      }
+    ],
+    "summary": "1 verified candidate(s); best is 4719x7269 via wikidata-p18 (89.1x pixels)."
+  },
+  {
+    "target": {
+      "id": "collection-of-beauty-artgate-fondazione-cariplo-hayez-francesco-l-ultimo-abboccamento-di-giacomo-foscari-figlio-del-doge",
+      "title": "The Last Meeting between Jacopo Foscari and his Family Before Being Sent into Exile",
+      "englishTitle": null,
+      "artist": "Francesco Hayez",
+      "w": 800,
+      "h": 576,
+      "fileUrl": "https://upload.wikimedia.org/wikipedia/commons/5/51/Artgate_Fondazione_Cariplo_-_Hayez_Francesco%2C_L%27ultimo_abboccamento_di_Giacomo_Foscari_figlio_del_doge_Giuseppe.jpg",
+      "commonsUrl": "https://commons.wikimedia.org/wiki/File%3AArtgate_Fondazione_Cariplo_-_Hayez_Francesco%2C_L'ultimo_abboccamento_di_Giacomo_Foscari_figlio_del_doge_Giuseppe.jpg",
+      "wikidataId": "Q105001950",
+      "objectKey": "collection-of-beauty/Artgate_Fondazione_Cariplo_-_Hayez_Francesco,_L'ultimo_abboccamento_di_Giacomo_Foscari_figlio_del_doge_Giuseppe.jpg",
+      "variantWidths": [
+        256,
+        480,
+        640,
+        960,
+        1280,
+        1920,
+        2560,
+        4096
+      ]
+    },
+    "candidates": [
+      {
+        "fileUrl": "https://upload.wikimedia.org/wikipedia/commons/1/19/Francesco_Hayez_I_due_Foscari%2C_1838-1840..jpg",
+        "commonsPageUrl": "https://commons.wikimedia.org/wiki/File:Francesco_Hayez_I_due_Foscari,_1838-1840..jpg",
+        "width": 1200,
+        "height": 865,
+        "confidence": 0.95,
+        "hamming": 2,
+        "source": "commons-search",
+        "reason": "Commons search hit, 1200x865. dHash distance 2."
+      }
+    ],
+    "summary": "1 verified candidate(s); best is 1200x865 via commons-search (2.3x pixels)."
+  },
+  {
+    "target": {
+      "id": "collection-of-beauty-caravaggio-la-deposizione-di-cristo",
+      "title": "The Entombment of Christ",
+      "englishTitle": null,
+      "artist": "Caravaggio",
+      "w": 574,
+      "h": 864,
+      "fileUrl": "https://upload.wikimedia.org/wikipedia/commons/a/ab/Caravaggio_-_La_Deposizione_di_Cristo.jpg",
+      "commonsUrl": "https://commons.wikimedia.org/wiki/File%3ACaravaggio_-_La_Deposizione_di_Cristo.jpg",
+      "wikidataId": "Q51637",
+      "objectKey": "collection-of-beauty/Caravaggio_-_La_Deposizione_di_Cristo.jpg",
+      "variantWidths": [
+        256,
+        480,
+        640,
+        960,
+        1280,
+        1920,
+        2560,
+        4096
+      ]
+    },
+    "candidates": [
+      {
+        "fileUrl": "https://upload.wikimedia.org/wikipedia/commons/3/34/The_Entombment_of_Christ-Caravaggio_%28c.1602-3%29.jpg",
+        "commonsPageUrl": "https://commons.wikimedia.org/wiki/File:The_Entombment_of_Christ-Caravaggio_(c.1602-3).jpg",
+        "width": 8810,
+        "height": 13086,
+        "confidence": 0.95,
+        "hamming": 2,
+        "source": "wikidata-p18",
+        "reason": "Wikidata Q51637 P18 image, 8810x13086. dHash distance 2."
+      }
+    ],
+    "summary": "1 verified candidate(s); best is 8810x13086 via wikidata-p18 (232.5x pixels)."
+  },
+  {
+    "target": {
+      "id": "collection-of-beauty-cult-of-beauty-001",
+      "title": "Symphony in White",
+      "englishTitle": null,
+      "artist": "James McNeill Whistler",
+      "w": 460,
+      "h": 724,
+      "fileUrl": "https://upload.wikimedia.org/wikipedia/commons/b/b7/Cult-of-beauty-001.jpg",
+      "commonsUrl": "https://commons.wikimedia.org/wiki/File%3ACult-of-beauty-001.jpg",
+      "wikidataId": null,
+      "objectKey": "collection-of-beauty/Cult-of-beauty-001.jpg",
+      "variantWidths": [
+        256,
+        480,
+        640,
+        960,
+        1280,
+        1920,
+        2560,
+        4096
+      ]
+    },
+    "candidates": [
+      {
+        "fileUrl": "https://upload.wikimedia.org/wikipedia/commons/4/49/Whistler_James_Symphony_in_White_no_2_%28The_Little_White_Girl%29_1864.jpg",
+        "commonsPageUrl": "https://commons.wikimedia.org/wiki/File:Whistler_James_Symphony_in_White_no_2_(The_Little_White_Girl)_1864.jpg",
+        "width": 710,
+        "height": 1112,
+        "confidence": 0.95,
+        "hamming": 3,
+        "source": "commons-search",
+        "reason": "Commons search hit, 710x1112. dHash distance 3."
+      }
+    ],
+    "summary": "1 verified candidate(s); best is 710x1112 via commons-search (2.4x pixels)."
+  },
+  {
+    "target": {
+      "id": "collection-of-beauty-monet-w429",
+      "title": "Evening at Argenteuil",
+      "englishTitle": null,
+      "artist": "Claude Monet",
+      "w": 640,
+      "h": 478,
+      "fileUrl": "https://upload.wikimedia.org/wikipedia/commons/2/21/Monet_w429.jpg",
+      "commonsUrl": "https://commons.wikimedia.org/wiki/File%3AMonet_w429.jpg",
+      "wikidataId": null,
+      "objectKey": "collection-of-beauty/Monet_w429.jpg",
+      "variantWidths": [
+        256,
+        480,
+        640,
+        960,
+        1280,
+        1920,
+        2560,
+        4096
+      ]
+    },
+    "candidates": [
+      {
+        "fileUrl": "https://upload.wikimedia.org/wikipedia/commons/f/ff/Evening_at_Argenteuil_%281876%29_Claude_Monet_%28W_429%29.jpg",
+        "commonsPageUrl": "https://commons.wikimedia.org/wiki/File:Evening_at_Argenteuil_(1876)_Claude_Monet_(W_429).jpg",
+        "width": 1280,
+        "height": 955,
+        "confidence": 0.95,
+        "hamming": 1,
+        "source": "commons-search",
+        "reason": "Commons search hit, 1280x955. dHash distance 1."
+      }
+    ],
+    "summary": "1 verified candidate(s); best is 1280x955 via commons-search (4.0x pixels)."
+  },
+  {
+    "target": {
+      "id": "collection-of-beauty-portrait-d-homme-anciennement-portrait-de-denis-diderot-par-fragonard",
+      "title": "Figure de fantaisie autrefois désignée à tort comme Denis Diderot",
+      "englishTitle": null,
+      "artist": "Jean-Honoré Fragonard",
+      "w": 574,
+      "h": 700,
+      "fileUrl": "https://upload.wikimedia.org/wikipedia/commons/0/08/Portrait_d%27homme%2C_anciennement_portrait_de_Denis_Diderot_par_Fragonard.jpg",
+      "commonsUrl": "https://commons.wikimedia.org/wiki/File%3APortrait_d'homme%2C_anciennement_portrait_de_Denis_Diderot_par_Fragonard.jpg",
+      "wikidataId": null,
+      "objectKey": "collection-of-beauty/Portrait_d'homme,_anciennement_portrait_de_Denis_Diderot_par_Fragonard.jpg",
+      "variantWidths": [
+        256,
+        480,
+        640,
+        960,
+        1280,
+        1920,
+        2560,
+        4096
+      ]
+    },
+    "candidates": [
+      {
+        "fileUrl": "https://upload.wikimedia.org/wikipedia/commons/b/b4/0_Figure_de_fantaisie_-_J-H_Fragonard_-_RF_1972-14_-_Louvre.JPG",
+        "commonsPageUrl": "https://commons.wikimedia.org/wiki/File:0_Figure_de_fantaisie_-_J-H_Fragonard_-_RF_1972-14_-_Louvre.JPG",
+        "width": 1602,
+        "height": 2034,
+        "confidence": 0.95,
+        "hamming": 3,
+        "source": "commons-search",
+        "reason": "Commons search hit, 1602x2034. dHash distance 3."
+      }
+    ],
+    "summary": "1 verified candidate(s); best is 1602x2034 via commons-search (8.1x pixels)."
+  },
+  {
+    "target": {
+      "id": "collection-of-beauty-alfons-mucha-1896-autumn",
+      "title": "Autumn",
+      "englishTitle": null,
+      "artist": "Alphonse Mucha",
+      "w": 507,
+      "h": 1000,
+      "fileUrl": "https://upload.wikimedia.org/wikipedia/commons/e/ed/Alfons_Mucha_-_1896_-_Autumn.jpg",
+      "commonsUrl": "https://commons.wikimedia.org/wiki/File%3AAlfons_Mucha_-_1896_-_Autumn.jpg",
+      "wikidataId": "Q124987784",
+      "objectKey": "collection-of-beauty/Alfons_Mucha_-_1896_-_Autumn.jpg",
+      "variantWidths": [
+        256,
+        480,
+        640,
+        960,
+        1280,
+        1920,
+        2560,
+        4096
+      ]
+    },
+    "candidates": [
+      {
+        "fileUrl": "https://upload.wikimedia.org/wikipedia/commons/1/19/Alfons_Mucha_-_The_Four_Seasons_-_Autumn%2C_1896.jpg",
+        "commonsPageUrl": "https://commons.wikimedia.org/wiki/File:Alfons_Mucha_-_The_Four_Seasons_-_Autumn,_1896.jpg",
+        "width": 879,
+        "height": 1730,
+        "confidence": 0.85,
+        "hamming": 6,
+        "source": "commons-search",
+        "reason": "Commons search hit, 879x1730. dHash distance 6."
+      },
+      {
+        "fileUrl": "https://upload.wikimedia.org/wikipedia/commons/2/24/Alfons_Mucha_-_The_Seasons_-_Autumn_%281896%29.jpg",
+        "commonsPageUrl": "https://commons.wikimedia.org/wiki/File:Alfons_Mucha_-_The_Seasons_-_Autumn_(1896).jpg",
+        "width": 1058,
+        "height": 2000,
+        "confidence": 0.55,
+        "hamming": 9,
+        "source": "commons-search",
+        "reason": "Commons search hit, 1058x2000. dHash distance 9."
+      }
+    ],
+    "summary": "2 verified candidate(s); best is 879x1730 via commons-search (3.0x pixels)."
+  },
+  {
+    "target": {
+      "id": "collection-of-beauty-danwon-nongali",
+      "title": "Danwon-Nongali",
+      "englishTitle": null,
+      "artist": "Kim Hong-do",
+      "w": 606,
+      "h": 705,
+      "fileUrl": "https://upload.wikimedia.org/wikipedia/commons/6/6b/Danwon-Nongali.jpg",
+      "commonsUrl": "https://commons.wikimedia.org/wiki/File%3ADanwon-Nongali.jpg",
+      "wikidataId": null,
+      "objectKey": "collection-of-beauty/Danwon-Nongali.jpg",
+      "variantWidths": [
+        256,
+        480,
+        640,
+        960,
+        1280,
+        1920,
+        2560,
+        4096
+      ]
+    },
+    "candidates": [
+      {
+        "fileUrl": "https://upload.wikimedia.org/wikipedia/commons/7/7e/Danwon_Nongali.jpg",
+        "commonsPageUrl": "https://commons.wikimedia.org/wiki/File:Danwon_Nongali.jpg",
+        "width": 1857,
+        "height": 2203,
+        "confidence": 0.85,
+        "hamming": 8,
+        "source": "commons-search",
+        "reason": "Commons search hit, 1857x2203. dHash distance 8."
+      }
+    ],
+    "summary": "1 verified candidate(s); best is 1857x2203 via commons-search (9.6x pixels)."
   },
   {
     "target": {
@@ -54,40 +765,46 @@
         "commonsPageUrl": "https://commons.wikimedia.org/wiki/File:Rembrandt_-_Anatomische_les_van_Dr._Jan_Deijman.jpg",
         "width": 3508,
         "height": 2642,
-        "confidence": 0.97,
-        "reason": "Confirmed same fragment: Rembrandt 1656 'Anatomical lesson of Dr. Jan Deijman' fragment, Amsterdam Museum SA 7394, 100x134 cm. JPG at 3508x2642 — ~5.8x linear / ~34x area higher resolution than current 600x453. Aspect ratio (1.328) matches current (1.325)."
+        "confidence": 0.85,
+        "hamming": 8,
+        "source": "prior-workflow",
+        "reason": "Confirmed same fragment: Rembrandt 1656 'Anatomical lesson of Dr. Jan Deijman' fragment, Amsterdam Museum SA 7394, 100x134 cm. JPG at 3508x2642 — ~5.8x linear / ~34x area higher resolution than current 600x453. Aspect ratio (1.328) matches current (1.325). dHash distance 8."
       },
       {
         "fileUrl": "https://upload.wikimedia.org/wikipedia/commons/4/44/Anatomische_les_van_Dr._Jan_Deijman_%28fragment%29%2C_objectnr_SA_7394.tif",
         "commonsPageUrl": "https://commons.wikimedia.org/wiki/File:Anatomische_les_van_Dr._Jan_Deijman_(fragment),_objectnr_SA_7394.tif",
         "width": 3508,
         "height": 2642,
-        "confidence": 0.95,
-        "reason": "Same fragment (Amsterdam Museum SA 7394), TIFF rendered at 3508x2642 (master is ~6441x5156 per file description). Likely the original master scan; same dims as the JPG sibling. TIFF format may be less convenient for web use."
+        "confidence": 0.85,
+        "hamming": 8,
+        "source": "prior-workflow",
+        "reason": "Same fragment (Amsterdam Museum SA 7394), TIFF rendered at 3508x2642 (master is ~6441x5156 per file description). Likely the original master scan; same dims as the JPG sibling. TIFF format may be less convenient for web use. dHash distance 8."
       },
       {
         "fileUrl": "https://upload.wikimedia.org/wikipedia/commons/9/96/Rembrandt_Harmensz._van_Rijn_008.jpg",
         "commonsPageUrl": "https://commons.wikimedia.org/wiki/File:Rembrandt_Harmensz._van_Rijn_008.jpg",
         "width": 2024,
         "height": 1493,
-        "confidence": 0.93,
-        "reason": "Same fragment confirmed (Amsterdam Museum SA 7394 / Rijks SK-C-85, fire-damaged 1656 work, 100x134 cm). 2024x1493 — still ~3.4x linear higher than current. Aspect 1.356 slightly different (small crop variance) but same artwork."
+        "confidence": 0.55,
+        "hamming": 9,
+        "source": "prior-workflow",
+        "reason": "Same fragment confirmed (Amsterdam Museum SA 7394 / Rijks SK-C-85, fire-damaged 1656 work, 100x134 cm). 2024x1493 — still ~3.4x linear higher than current. Aspect 1.356 slightly different (small crop variance) but same artwork. dHash distance 9."
       }
     ],
-    "summary": "Found 3 high-confidence higher-resolution candidates. Best is a 3508x2642 JPG (~34x area increase) of the exact same Amsterdam Museum SA 7394 fragment. A TIFF master at the same dims and a 2024x1493 alternate are also viable."
+    "summary": "3 verified candidate(s); best is 3508x2642 via prior-workflow (34.1x pixels)."
   },
   {
     "target": {
-      "id": "collection-of-beauty-goya-the-garroted-man",
-      "title": "The Garroted Man",
+      "id": "collection-of-beauty-j-s-copley-samuel-adams",
+      "title": "Portrait of Samuel Adams",
       "englishTitle": null,
-      "artist": "Francisco Goya",
-      "w": 330,
-      "h": 507,
-      "fileUrl": "https://upload.wikimedia.org/wikipedia/commons/e/e9/Goya_-_The_Garroted_Man.jpg",
-      "commonsUrl": "https://commons.wikimedia.org/wiki/File%3AGoya_-_The_Garroted_Man.jpg",
+      "artist": "John Singleton Copley",
+      "w": 599,
+      "h": 775,
+      "fileUrl": "https://upload.wikimedia.org/wikipedia/commons/8/89/J_S_Copley_-_Samuel_Adams.jpg",
+      "commonsUrl": "https://commons.wikimedia.org/wiki/File%3AJ_S_Copley_-_Samuel_Adams.jpg",
       "wikidataId": null,
-      "objectKey": "collection-of-beauty/Goya_-_The_Garroted_Man.jpg",
+      "objectKey": "collection-of-beauty/J_S_Copley_-_Samuel_Adams.jpg",
       "variantWidths": [
         256,
         480,
@@ -101,44 +818,30 @@
     },
     "candidates": [
       {
-        "fileUrl": "https://upload.wikimedia.org/wikipedia/commons/e/e7/Francisco_de_Goya%2C_The_Garroted_Man%2C_in_or_before_1780%2C_NGA_7448.jpg",
-        "commonsPageUrl": "https://commons.wikimedia.org/wiki/File:Francisco_de_Goya,_The_Garroted_Man,_in_or_before_1780,_NGA_7448.jpg",
-        "width": 2604,
-        "height": 4000,
-        "confidence": 0.98,
-        "reason": "Same exact impression as current file: National Gallery of Art accession 1943.3.4709, second edition impression printed about 1830, etching and burin on smooth wove paper. Identical aspect ratio (0.651) to current 330x507. Just a much higher-resolution upload of the same NGA scan. Current category 'Images from the National Gallery of Art' matches."
-      },
-      {
-        "fileUrl": "https://upload.wikimedia.org/wikipedia/commons/1/1e/The_Garroted_Man_%28El_agarrotado%29_MET_MM4142.jpg",
-        "commonsPageUrl": "https://commons.wikimedia.org/wiki/File:The_Garroted_Man_(El_agarrotado)_MET_MM4142.jpg",
-        "width": 2657,
-        "height": 4000,
-        "confidence": 0.75,
-        "reason": "Same Goya etching 'El agarrotado' (Delteil 021) but a different impression held at the Metropolitan Museum of Art. Aspect ratio 0.664 vs current 0.651 - very close, just a slightly differently-trimmed paper. Same image content; would be a valid hi-res replacement if visual match is acceptable, but is a different physical print."
-      },
-      {
-        "fileUrl": "https://upload.wikimedia.org/wikipedia/commons/2/20/Francisco_de_Goya_-_The_Garroted_Man_-_1963.470_-_Cleveland_Museum_of_Art.tif",
-        "commonsPageUrl": "https://commons.wikimedia.org/wiki/File:Francisco_de_Goya_-_The_Garroted_Man_-_1963.470_-_Cleveland_Museum_of_Art.tif",
-        "width": 3936,
-        "height": 5430,
-        "confidence": 0.6,
-        "reason": "Highest resolution available (3936x5430) but it's a TIF file from Cleveland Museum of Art (accession 1963.470) - a different impression with different paper trim (aspect 0.725 vs current 0.651), so likely shows more sheet margins around the etched image. Same artwork (Delteil 021) but different physical print. TIF format may not be ideal for the web pipeline."
+        "fileUrl": "https://upload.wikimedia.org/wikipedia/commons/0/00/Samuel_Adams_by_John_Singleton_Copley.jpg",
+        "commonsPageUrl": "https://commons.wikimedia.org/wiki/File:Samuel_Adams_by_John_Singleton_Copley.jpg",
+        "width": 1440,
+        "height": 1806,
+        "confidence": 0.85,
+        "hamming": 6,
+        "source": "commons-search",
+        "reason": "Commons search hit, 1440x1806. dHash distance 6."
       }
     ],
-    "summary": "Found 3 strong candidates. Best by far: NGA 7448 file (2604x4000) is verifiably the SAME impression as our current low-res file (National Gallery of Art, accession 1943.3.4709, identical aspect ratio 0.651) — just a higher-res upload of the same scan. Drop-in replacement."
+    "summary": "1 verified candidate(s); best is 1440x1806 via commons-search (5.6x pixels)."
   },
   {
     "target": {
-      "id": "collection-of-beauty-svetlana-at-fortune-telling-by-k-brullov-1836-nizhniy-novgorod-museum",
-      "title": "Fortune-teller Svetlana",
+      "id": "collection-of-beauty-japanese-anemones-henri-fantin-latour-abdag002274",
+      "title": "Japanese Anemones",
       "englishTitle": null,
-      "artist": "Karl Bryullov",
-      "w": 491,
-      "h": 600,
-      "fileUrl": "https://upload.wikimedia.org/wikipedia/commons/0/0d/Svetlana_at_fortune-telling_by_K.Brullov_%281836%2C_Nizhniy_Novgorod_museum%29.jpg",
-      "commonsUrl": "https://commons.wikimedia.org/wiki/File%3ASvetlana_at_fortune-telling_by_K.Brullov_(1836%2C_Nizhniy_Novgorod_museum).jpg",
-      "wikidataId": null,
-      "objectKey": "collection-of-beauty/Svetlana_at_fortune-telling_by_K.Brullov_(1836,_Nizhniy_Novgorod_museum).jpg",
+      "artist": "Henri Fantin-Latour",
+      "w": 500,
+      "h": 780,
+      "fileUrl": "https://upload.wikimedia.org/wikipedia/commons/b/be/Japanese_Anemones_-_Henri_Fantin-Latour_-_ABDAG002274.jpg",
+      "commonsUrl": "https://commons.wikimedia.org/wiki/File%3AJapanese_Anemones_-_Henri_Fantin-Latour_-_ABDAG002274.jpg",
+      "wikidataId": "Q90728706",
+      "objectKey": "collection-of-beauty/Japanese_Anemones_-_Henri_Fantin-Latour_-_ABDAG002274.jpg",
       "variantWidths": [
         256,
         480,
@@ -150,8 +853,56 @@
         4096
       ]
     },
-    "candidates": [],
-    "summary": "No higher-resolution candidate found on Wikimedia Commons. Searched the file's categories (\"Genre paintings by Karl Briullov\", \"Svetlana (ballad)\", \"Paintings in Art Museum of Nizhny Novgorod\"), the linked Wikidata item (Q28360775), and ran multiple title/keyword searches (English + Russian transliterations of \"Гадающая Светлана\"). The 491x600 file is the only Commons version of this specific work; Wikidata's P18 points to the same file; no other crops or scans of the Nizhny Novgorod painting exist on Commons. The file page history shows a prior 600x732 upload but that is not meaningfully larger and is the same source. The catalogue is already on the best Commons-hosted copy. Higher resolution would require sourcing from museum.ru (the Wikidata-referenced source) or directly from the Nizhny Novgorod State Art Museum, which is out of scope here."
+    "candidates": [
+      {
+        "fileUrl": "https://upload.wikimedia.org/wikipedia/commons/3/30/Henri_Fantin-Latour_%281836-1904%29_-_Japanese_Anemones_-_ABDAG002274_-_Aberdeen_Art_Gallery.jpg",
+        "commonsPageUrl": "https://commons.wikimedia.org/wiki/File:Henri_Fantin-Latour_(1836-1904)_-_Japanese_Anemones_-_ABDAG002274_-_Aberdeen_Art_Gallery.jpg",
+        "width": 783,
+        "height": 1200,
+        "confidence": 0.85,
+        "hamming": 8,
+        "source": "wikidata-p18",
+        "reason": "Wikidata Q90728706 P18 image, 783x1200. dHash distance 8."
+      }
+    ],
+    "summary": "1 verified candidate(s); best is 783x1200 via wikidata-p18 (2.4x pixels)."
+  },
+  {
+    "target": {
+      "id": "collection-of-beauty-monet-w787",
+      "title": "Monet w787",
+      "englishTitle": null,
+      "artist": "Claude Monet",
+      "w": 736,
+      "h": 622,
+      "fileUrl": "https://upload.wikimedia.org/wikipedia/commons/a/ae/Monet_w787.jpg",
+      "commonsUrl": "https://commons.wikimedia.org/wiki/File%3AMonet_w787.jpg",
+      "wikidataId": null,
+      "objectKey": "collection-of-beauty/Monet_w787.jpg",
+      "variantWidths": [
+        256,
+        480,
+        640,
+        960,
+        1280,
+        1920,
+        2560,
+        4096
+      ]
+    },
+    "candidates": [
+      {
+        "fileUrl": "https://upload.wikimedia.org/wikipedia/commons/c/c9/Claude_Monet_-_Bord_de_mer_et_falaises_de_Pourville_le_matin_%281882%29.jpg",
+        "commonsPageUrl": "https://commons.wikimedia.org/wiki/File:Claude_Monet_-_Bord_de_mer_et_falaises_de_Pourville_le_matin_(1882).jpg",
+        "width": 8902,
+        "height": 7538,
+        "confidence": 0.85,
+        "hamming": 5,
+        "source": "commons-search",
+        "reason": "Commons search hit, 8902x7538. dHash distance 5."
+      }
+    ],
+    "summary": "1 verified candidate(s); best is 8902x7538 via commons-search (146.6x pixels)."
   },
   {
     "target": {
@@ -182,32 +933,26 @@
         "commonsPageUrl": "https://commons.wikimedia.org/wiki/File:Olive_trees_study,_1884_-_Claude_Monet,_Private_Collection.jpg",
         "width": 814,
         "height": 1008,
-        "confidence": 0.97,
-        "reason": "Visual comparison confirms identical composition to the current Monet w868.jpg: same leaning olive tree with a curving trunk that sweeps left-to-right across the lower frame, same canopy of branches above, same understory of additional olive trunks behind, same grassy foreground. Aspect ratio matches (~0.808 vs current 0.808). Both files are tagged 1884, Bordighera olive-trees subject, private collection — matching the categories of Monet w868.jpg (\"Bordighera by Claude Monet\", \"Paintings of olive trees\", \"Paintings by Claude Monet in private collections\"). The Wildenstein 1996, 868 catalogue scan also shows the same composition. This file is exactly 2.0x the current resolution in both dimensions — a clean upgrade."
-      },
-      {
-        "fileUrl": "https://upload.wikimedia.org/wikipedia/commons/d/d9/Monet-olivi.jpg",
-        "commonsPageUrl": "https://commons.wikimedia.org/wiki/File:Monet-olivi.jpg",
-        "width": 517,
-        "height": 640,
-        "confidence": 0.95,
-        "reason": "Visual comparison confirms identical composition to Monet w868 — same leaning olive tree, same canopy, same understory. Aspect ratio matches (517/640 = 0.808, identical to current 404/500 = 0.808). Slightly different color cast (warmer/more reddish in the trunk) suggests a different photograph of the same physical painting. ~1.28x larger than current in both dimensions but markedly inferior to candidate #1 (the 814x1008 \"Olive trees study\" file) — keep as a backup only if candidate #1 is somehow unsuitable."
+        "confidence": 0.85,
+        "hamming": 6,
+        "source": "prior-workflow",
+        "reason": "Visual comparison confirms identical composition to the current Monet w868.jpg: same leaning olive tree with a curving trunk that sweeps left-to-right across the lower frame, same canopy of branches above, same understory of additional olive trunks behind, same grassy foreground. Aspect ratio matches (~0.808 vs current 0.808). Both files are tagged 1884, Bordighera olive-trees subject, private collection — matching the categories of Monet w868.jpg (\"Bordighera by Claude Monet\", \"Paintings of olive trees\", \"Paintings by Claude Monet in private collections\"). The Wildenstein 1996, 868 catalogue scan also shows the same composition. This file is exactly 2.0x the current resolution in both dimensions — a clean upgrade. dHash distance 6."
       }
     ],
-    "summary": "Found 2 higher-resolution Wikimedia Commons files of the same painting (Monet's Wildenstein 868, \"Olive Trees\" study at Bordighera, 1884, private collection). Visual comparison against the current file and the W868 catalogue scan confirms identical composition: the distinctive leaning olive tree with a sweeping curved trunk. Best candidate is \"Olive trees study, 1884 - Claude Monet, Private Collection.jpg\" at 814x1008 — exactly 2x current resolution, same aspect, confident match (0.97)."
+    "summary": "1 verified candidate(s); best is 814x1008 via prior-workflow (4.1x pixels)."
   },
   {
     "target": {
-      "id": "collection-of-beauty-at-the-stock-exchange",
-      "title": "Portraits at the Stock Exchange",
+      "id": "collection-of-beauty-self-portrait-by-paul-gauguin-1885",
+      "title": "Self-Portrait",
       "englishTitle": null,
-      "artist": "Edgar Degas",
-      "w": 463,
-      "h": 577,
-      "fileUrl": "https://upload.wikimedia.org/wikipedia/commons/d/da/At_The_Stock_Exchange.jpg",
-      "commonsUrl": "https://commons.wikimedia.org/wiki/File%3AAt_The_Stock_Exchange.jpg",
+      "artist": "Paul Gauguin",
+      "w": 600,
+      "h": 721,
+      "fileUrl": "https://upload.wikimedia.org/wikipedia/commons/6/60/Self-Portrait_by_Paul_Gauguin%2C_1885.jpg",
+      "commonsUrl": "https://commons.wikimedia.org/wiki/File%3ASelf-Portrait_by_Paul_Gauguin%2C_1885.jpg",
       "wikidataId": null,
-      "objectKey": "collection-of-beauty/At_The_Stock_Exchange.jpg",
+      "objectKey": "collection-of-beauty/Self-Portrait_by_Paul_Gauguin,_1885.jpg",
       "variantWidths": [
         256,
         480,
@@ -221,187 +966,17 @@
     },
     "candidates": [
       {
-        "fileUrl": "https://upload.wikimedia.org/wikipedia/commons/f/ff/Edgar_Degas_-_Portraits_at_the_Stock_Exchange_-_Google_Art_Project.jpg",
-        "commonsPageUrl": "https://commons.wikimedia.org/wiki/File:Edgar_Degas_-_Portraits_at_the_Stock_Exchange_-_Google_Art_Project.jpg",
-        "width": 5719,
-        "height": 7027,
-        "confidence": 0.98,
-        "reason": "Same Commons category 'Portraits at the Stock Exchange by Edgar Degas' as the current file. Title is an exact match. Aspect ratio 0.814 closely matches current 0.802. Google Art Project source = museum-grade scan. Dramatically higher resolution (5719x7027 vs 463x577)."
-      },
-      {
-        "fileUrl": "https://upload.wikimedia.org/wikipedia/commons/e/ea/Portraits_at_the_Stock_Exchange_MET_DT1044.jpg",
-        "commonsPageUrl": "https://commons.wikimedia.org/wiki/File:Portraits_at_the_Stock_Exchange_MET_DT1044.jpg",
-        "width": 2978,
-        "height": 3722,
-        "confidence": 0.92,
-        "reason": "Same Commons category. Title is an exact match with MET museum identifier. Aspect ratio 0.800 matches current 0.802 almost exactly. Resolution 2978x3722 is well above current. NOTE: the painting is at Musee d'Orsay, not the Met — MET DT1044 is likely a loan-show scan or alt source; still the same work per the shared category."
-      },
-      {
-        "fileUrl": "https://upload.wikimedia.org/wikipedia/commons/2/25/Edgar_Degas%2C_Portraits_at_the_Stock_Exchange%2C_ca._1878%E2%80%9379.jpg",
-        "commonsPageUrl": "https://commons.wikimedia.org/wiki/File:Edgar_Degas,_Portraits_at_the_Stock_Exchange,_ca._1878%E2%80%9379.jpg",
-        "width": 2835,
-        "height": 3486,
-        "confidence": 0.92,
-        "reason": "Same Commons category and exact title match with the 1878-79 dating standard for this work. Aspect ratio 0.813 matches current 0.802. Resolution 2835x3486 well above current."
+        "fileUrl": "https://upload.wikimedia.org/wikipedia/commons/c/c2/Paul_Gauguin_-_Self-Portrait_-_Google_Art_Project.jpg",
+        "commonsPageUrl": "https://commons.wikimedia.org/wiki/File:Paul_Gauguin_-_Self-Portrait_-_Google_Art_Project.jpg",
+        "width": 3001,
+        "height": 3630,
+        "confidence": 0.85,
+        "hamming": 6,
+        "source": "commons-search",
+        "reason": "Commons search hit, 3001x3630. dHash distance 6."
       }
     ],
-    "summary": "Found 3 strong candidates, all in the dedicated Commons category 'Portraits at the Stock Exchange by Edgar Degas' (same category as current low-res file). Best candidate is the Google Art Project version at 5719x7027 — a ~12x linear upgrade. All have aspect ratios within ~1.5% of the current file, confirming same artwork (not a fragment/study)."
-  },
-  {
-    "target": {
-      "id": "collection-of-beauty-van-gogh-f1040-jh100",
-      "title": "Van gogh f1040 jh100",
-      "englishTitle": null,
-      "artist": "Vincent van Gogh",
-      "w": 642,
-      "h": 463,
-      "fileUrl": "https://upload.wikimedia.org/wikipedia/commons/3/34/Van_gogh_f1040_jh100.jpg",
-      "commonsUrl": "https://commons.wikimedia.org/wiki/File%3AVan_gogh_f1040_jh100.jpg",
-      "wikidataId": null,
-      "objectKey": "collection-of-beauty/Van_gogh_f1040_jh100.jpg",
-      "variantWidths": [
-        256,
-        480,
-        640,
-        960,
-        1280,
-        1920,
-        2560,
-        4096
-      ]
-    },
-    "candidates": [
-      {
-        "fileUrl": "https://upload.wikimedia.org/wikipedia/commons/f/f4/Van_Gogh_%281879%29_-_Coke_Factory_in_the_Borinage.jpg",
-        "commonsPageUrl": "https://commons.wikimedia.org/wiki/File:Van_Gogh_(1879)_-_Coke_Factory_in_the_Borinage.jpg",
-        "width": 2403,
-        "height": 1602,
-        "confidence": 0.95,
-        "reason": "Visually confirmed same artwork as current F1040/JH100 file — identical composition: red-brick industrial buildings on the left, tall central smokestack, multiple smaller smokestacks with smoke, slag heap on the right, lone figure in middle ground, wooden fences and dirt path in foreground. Same watercolor on tan paper. Both are catalogued as 'Watercolor paintings by Vincent van Gogh' from 1879 in the Borinage (Flénu/Cuesmes-Wasmes coal mining region) and held at the Van Gogh Museum. This file is a much higher-resolution photograph of the same work (2403x1602 vs 642x463, ~3.7x linear, ~14x pixel count). Slightly tighter crop removes the visible white paper margin shown in the original — aspect ratio 1.500 vs 1.387 — but it is unambiguously the same painting."
-      },
-      {
-        "fileUrl": "https://upload.wikimedia.org/wikipedia/commons/4/45/Vincent_van_Gogh_-_Aout_1879_-_Cuesmes-_Wasmes.jpg",
-        "commonsPageUrl": "https://commons.wikimedia.org/wiki/File:Vincent_van_Gogh_-_Aout_1879_-_Cuesmes-_Wasmes.jpg",
-        "width": 1930,
-        "height": 1342,
-        "confidence": 0.95,
-        "reason": "Visually confirmed same artwork as current F1040/JH100 file — identical composition, same lone figure, same buildings, smokestacks, slag heap, fences, dirt path. File description identifies it as 'Mine de Charbon dans le Borinage - Cuesmes-Wasmes' from August 1879, which is the title commonly given to F1040/JH100 (Van Gogh wrote about and sketched this scene during his Borinage period). Aspect ratio 1.438 is very close to original's 1.387 — this candidate preserves the full paper sheet with the inscription/signature visible at bottom-left and catalog number '21' at top-left, matching standard museum documentation. Resolution 1930x1342 is ~3x linear, ~9.7x pixel count. Slight warmer color cast (more amber) but the same physical artwork."
-      }
-    ],
-    "summary": "Found 2 high-confidence higher-res replacements for Van Gogh F1040/JH100 (\"Au Charbonnage\" / Coal Mine in the Borinage, watercolor, 1879, Van Gogh Museum). Both visually verified as the same artwork through side-by-side comparison: identical composition with red-brick industrial buildings, central smokestack, slag heap, lone figure, and wooden fences. Best candidate is 'Coke Factory in the Borinage.jpg' at 2403x1602 (~14x more pixels than current); secondary candidate 'Aout 1879 - Cuesmes-Wasmes.jpg' at 1930x1342 has aspect ratio closer to the original and preserves the full paper sheet including signature. No Wikidata Q-id linked to this work."
-  },
-  {
-    "target": {
-      "id": "collection-of-beauty-georges-seurat-seated-nude-study-for-une-baignade-1883-scottish-national-gallery",
-      "title": "Georges Seurat",
-      "englishTitle": "Seated Nude (study for Bathers at Asnières, 1883)",
-      "artist": "Georges Seurat",
-      "w": 450,
-      "h": 571,
-      "fileUrl": "https://upload.wikimedia.org/wikipedia/commons/6/66/Georges_Seurat%2C_Seated_Nude%2C_Study_for_Une_Baignade%2C_1883%2C_Scottish_National_Gallery.jpg",
-      "commonsUrl": "https://commons.wikimedia.org/wiki/File%3AGeorges_Seurat%2C_Seated_Nude%2C_Study_for_Une_Baignade%2C_1883%2C_Scottish_National_Gallery.jpg",
-      "wikidataId": null,
-      "objectKey": "collection-of-beauty/Georges_Seurat,_Seated_Nude,_Study_for_Une_Baignade,_1883,_Scottish_National_Gallery.jpg",
-      "variantWidths": [
-        256,
-        480,
-        640,
-        960,
-        1280,
-        1920,
-        2560,
-        4096
-      ]
-    },
-    "candidates": [
-      {
-        "fileUrl": "https://upload.wikimedia.org/wikipedia/commons/8/8b/Georges_Seurat_-_Seated_Nude-_Study_for_%27Une_Baignade%27_-_Google_Art_Project.jpg",
-        "commonsPageUrl": "https://commons.wikimedia.org/wiki/File:Georges_Seurat_-_Seated_Nude-_Study_for_%27Une_Baignade%27_-_Google_Art_Project.jpg",
-        "width": 3033,
-        "height": 4001,
-        "confidence": 0.97,
-        "reason": "Same artwork — Seurat's 1883 Conte crayon drawing 'Seated Nude: Study for Une Baignade'. Confirmed by sharing the Commons category 'Drawings by Georges Seurat in the Scottish National Gallery' with the current file (only two files in that category — current low-res version and this Google Art Project hi-res scan). Aspect ratio 4001/3033 = 1.319 vs current 571/450 = 1.269 — consistent (hi-res GAP scan likely captures more sheet margin). 6.7x higher pixel resolution in each dimension."
-      }
-    ],
-    "summary": "Found 1 strong candidate. The Google Art Project upload (3033x4001) is the same Conte drawing currently held at 450x571 — both files share the dedicated Commons category 'Drawings by Georges Seurat in the Scottish National Gallery' and match the same Scottish National Gallery study sheet. Two other 'Study for Une Baignade' files exist on Commons (NG 2222) but they depict a different work — a landscape compositional oil sketch — and are excluded."
-  },
-  {
-    "target": {
-      "id": "collection-of-beauty-portrait-d-edmond-aman-jean-par-georges-seurat",
-      "title": "Portrait d'Edmond Aman-Jean par Georges Seurat",
-      "englishTitle": null,
-      "artist": "Georges Seurat",
-      "w": 450,
-      "h": 583,
-      "fileUrl": "https://upload.wikimedia.org/wikipedia/commons/c/c1/Portrait_d%27Edmond_Aman-Jean_par_Georges_Seurat.jpg",
-      "commonsUrl": "https://commons.wikimedia.org/wiki/File%3APortrait_d'Edmond_Aman-Jean_par_Georges_Seurat.jpg",
-      "wikidataId": null,
-      "objectKey": "collection-of-beauty/Portrait_d'Edmond_Aman-Jean_par_Georges_Seurat.jpg",
-      "variantWidths": [
-        256,
-        480,
-        640,
-        960,
-        1280,
-        1920,
-        2560,
-        4096
-      ]
-    },
-    "candidates": [
-      {
-        "fileUrl": "https://upload.wikimedia.org/wikipedia/commons/a/a1/Aman-Jean_%28Portrait_of_Edmond_Fran%C3%A7ois_Aman-Jean%29_MET_DP158522.jpg",
-        "commonsPageUrl": "https://commons.wikimedia.org/wiki/File:Aman-Jean_(Portrait_of_Edmond_Fran%C3%A7ois_Aman-Jean)_MET_DP158522.jpg",
-        "width": 2975,
-        "height": 3885,
-        "confidence": 0.97,
-        "reason": "Same MET drawing (61.101.16, 1883) by Seurat — official MET high-res scan (DP-prefixed digital photography file). Aspect 0.766 matches the current 0.772 (drawing is 62.2x47.5cm). Both files share Category 'Drawings by Georges Seurat in the Metropolitan Museum of Art'. ~44x more pixels than current 450x583."
-      },
-      {
-        "fileUrl": "https://upload.wikimedia.org/wikipedia/commons/7/78/Aman-Jean_%28Portrait_of_Edmond_Fran%C3%A7ois_Aman-Jean%29_MET_172701.jpg",
-        "commonsPageUrl": "https://commons.wikimedia.org/wiki/File:Aman-Jean_(Portrait_of_Edmond_Fran%C3%A7ois_Aman-Jean)_MET_172701.jpg",
-        "width": 1424,
-        "height": 1824,
-        "confidence": 0.95,
-        "reason": "Same MET drawing (61.101.16), alternate MET-supplied scan. Aspect 0.781 matches. ~10x more pixels than current. Useful as a fallback if the DP158522 colour balance differs from the existing reference."
-      }
-    ],
-    "summary": "Found 2 confirmed higher-resolution MET scans of the same Seurat drawing of Edmond Aman-Jean (MET 61.101.16, 1883). The DP158522 file at 2975x3885 is a roughly 44x pixel upgrade over the current 450x583. Both share the 'Drawings by Georges Seurat in the Metropolitan Museum of Art' category and aspect ratios match the existing file."
-  },
-  {
-    "target": {
-      "id": "collection-of-beauty-mikhail-nesterov-009",
-      "title": "The Hermit",
-      "englishTitle": null,
-      "artist": "Mikhail Nesterov",
-      "w": 470,
-      "h": 600,
-      "fileUrl": "https://upload.wikimedia.org/wikipedia/commons/3/3b/Mikhail_Nesterov_009.jpeg",
-      "commonsUrl": "https://commons.wikimedia.org/wiki/File%3AMikhail_Nesterov_009.jpeg",
-      "wikidataId": "Q11831903",
-      "objectKey": "collection-of-beauty/Mikhail_Nesterov_009.jpeg",
-      "variantWidths": [
-        256,
-        480,
-        640,
-        960,
-        1280,
-        1920,
-        2560,
-        4096
-      ]
-    },
-    "candidates": [
-      {
-        "fileUrl": "https://upload.wikimedia.org/wikipedia/commons/f/f0/Mikhail_Nesterov_009_-_variation_%28GRM%29.jpg",
-        "commonsPageUrl": "https://commons.wikimedia.org/wiki/File:Mikhail_Nesterov_009_-_variation_(GRM).jpg",
-        "width": 4422,
-        "height": 4858,
-        "confidence": 0.55,
-        "reason": "Same composition (Nesterov's 'Pustynnik' / The Hermit), but this is the VARIATION held at the State Russian Museum (ГРМ), not the 1888-89 Tretyakov original (Q11831903, Инв.1547) that the catalogue entry tracks. Commons categorises this file under 'Paintings of monks by Mikhail Nesterov in the Russian Museum'. The visual composition appears to be the same canonical scene Nesterov returned to. Aspect ratio 1.099 vs the Tretyakov's 1.143 (h/w from 144.5 x 126.4 cm). The current low-res file (470x600, aspect 1.277) was scraped from fotki.yandex.ru and itself doesn't match the Tretyakov's documented aspect ratio either, so visual identity should be confirmed before swapping. Worth using only if the catalogue accepts the GRM variation as a representation of 'The Hermit'; otherwise no genuine hi-res of the Tretyakov original was found on Commons."
-      }
-    ],
-    "summary": "Found 1 candidate at 4422x4858. It is the State Russian Museum (GRM) variation of Nesterov's 'Pustynnik', not the 1888-89 Tretyakov original tied to Q11831903. Same composition / same artist / same title, different physical canvas at a different museum. No higher-resolution scan of the Tretyakov canvas itself was located on Commons (only the existing 470x600 sourced from fotki.yandex.ru). Visual confirmation recommended before swapping."
+    "summary": "1 verified candidate(s); best is 3001x3630 via commons-search (25.2x pixels)."
   },
   {
     "target": {
@@ -432,27 +1007,164 @@
         "commonsPageUrl": "https://commons.wikimedia.org/wiki/File:Alfons_Mucha_-_The_Arts_Painting,_1898.jpg",
         "width": 2967,
         "height": 4616,
-        "confidence": 0.98,
-        "reason": "Same artwork: Mucha's 'Painting' from The Arts series (1898). In the same Commons category ('The Arts - Alfons Mucha (1898)') as current file. Aspect ratio 0.6428 nearly matches current 0.6375 — almost certainly the same image at much higher resolution (~7.3x linear / ~52x pixels). Title explicitly matches 'The Arts Painting, 1898'."
+        "confidence": 0.85,
+        "hamming": 6,
+        "source": "prior-workflow",
+        "reason": "Same artwork: Mucha's 'Painting' from The Arts series (1898). In the same Commons category ('The Arts - Alfons Mucha (1898)') as current file. Aspect ratio 0.6428 nearly matches current 0.6375 — almost certainly the same image at much higher resolution (~7.3x linear / ~52x pixels). Title explicitly matches 'The Arts Painting, 1898'. dHash distance 6."
       },
       {
         "fileUrl": "https://upload.wikimedia.org/wikipedia/commons/6/69/Alfons_Mucha_-_La_Peinture.jpg",
         "commonsPageUrl": "https://commons.wikimedia.org/wiki/File:Alfons_Mucha_-_La_Peinture.jpg",
         "width": 3495,
         "height": 5158,
-        "confidence": 0.92,
-        "reason": "Same artwork (La Peinture = The Painting), from same Commons category 'The Arts - Alfons Mucha (1898)'. Aspect 0.6776 — slightly different crop/margins than current but unmistakably the same lithograph. Highest resolution among candidates of full plate."
-      },
-      {
-        "fileUrl": "https://upload.wikimedia.org/wikipedia/commons/d/d4/%22La_Peinture%22_d%27Alphonse_Mucha_%28Mus%C3%A9e_du_Luxembourg%2C_Paris%29_%2830040240377%29.jpg",
-        "commonsPageUrl": "https://commons.wikimedia.org/wiki/File:%22La_Peinture%22_d%27Alphonse_Mucha_(Mus%C3%A9e_du_Luxembourg,_Paris)_(30040240377).jpg",
-        "width": 2753,
-        "height": 4353,
-        "confidence": 0.85,
-        "reason": "Same artwork photographed at Musée du Luxembourg (Paris exhibition). Same Commons category. Aspect 0.6325 closely matches current 0.6375. May be a photo of a framed display rather than a clean scan — slightly lower confidence as a drop-in replacement, but still resolves at ~6.7x linear resolution."
+        "confidence": 0.55,
+        "hamming": 9,
+        "source": "prior-workflow",
+        "reason": "Same artwork (La Peinture = The Painting), from same Commons category 'The Arts - Alfons Mucha (1898)'. Aspect 0.6776 — slightly different crop/margins than current but unmistakably the same lithograph. Highest resolution among candidates of full plate. dHash distance 9."
       }
     ],
-    "summary": "Found 3 strong higher-resolution candidates for Mucha's 'Painting' (The Arts series, 1898), all from the same Commons category 'The Arts - Alfons Mucha (1898)'. Top pick is 'Alfons Mucha - The Arts Painting, 1898.jpg' at 2967x4616 — nearly identical aspect ratio to the current 408x640 file, suggesting it's the same scan at much higher resolution."
+    "summary": "2 verified candidate(s); best is 2967x4616 via prior-workflow (52.4x pixels)."
+  },
+  {
+    "target": {
+      "id": "collection-of-beauty-vincent-van-gogh-pieta-after-delacroix",
+      "title": "Pietà",
+      "englishTitle": "Pietà (after Delacroix)",
+      "artist": "Vincent van Gogh",
+      "w": 460,
+      "h": 569,
+      "fileUrl": "https://upload.wikimedia.org/wikipedia/commons/thumb/Pietà_(naar_Delacroix)_-_s0168V1962_-_Van_Gogh_Museum.jpg/1024px-Pietà_(naar_Delacroix)_-_s0168V1962_-_Van_Gogh_Museum.jpg",
+      "commonsUrl": "https://commons.wikimedia.org/wiki/File:Piet%C3%A0_(naar_Delacroix)_-_s0168V1962_-_Van_Gogh_Museum.jpg",
+      "wikidataId": null,
+      "objectKey": "collection-of-beauty/Vincent_van_Gogh_-_Pietà_(after_Delacroix).jpg",
+      "variantWidths": [
+        256,
+        480,
+        640,
+        960,
+        1280,
+        1920,
+        2560,
+        4096
+      ]
+    },
+    "candidates": [
+      {
+        "fileUrl": "https://upload.wikimedia.org/wikipedia/commons/8/88/Piet%C3%A0_%28naar_Delacroix%29_-_s0168V1962_-_Van_Gogh_Museum.jpg",
+        "commonsPageUrl": "https://commons.wikimedia.org/wiki/File:Piet%C3%A0_(naar_Delacroix)_-_s0168V1962_-_Van_Gogh_Museum.jpg",
+        "width": 5536,
+        "height": 6741,
+        "confidence": 0.85,
+        "hamming": 5,
+        "source": "commons-search",
+        "reason": "Commons search hit, 5536x6741. dHash distance 5."
+      },
+      {
+        "fileUrl": "https://upload.wikimedia.org/wikipedia/commons/5/5b/The_Piet%C3%A0_%28after_Delacroix%29.jpg",
+        "commonsPageUrl": "https://commons.wikimedia.org/wiki/File:The_Piet%C3%A0_(after_Delacroix).jpg",
+        "width": 3058,
+        "height": 3784,
+        "confidence": 0.85,
+        "hamming": 8,
+        "source": "commons-search",
+        "reason": "Commons search hit, 3058x3784. dHash distance 8."
+      },
+      {
+        "fileUrl": "https://upload.wikimedia.org/wikipedia/commons/2/2c/Van_Gogh_-_Piet%C3%A0_%28nach_Delacroix%29.jpeg",
+        "commonsPageUrl": "https://commons.wikimedia.org/wiki/File:Van_Gogh_-_Piet%C3%A0_(nach_Delacroix).jpeg",
+        "width": 2526,
+        "height": 3066,
+        "confidence": 0.85,
+        "hamming": 6,
+        "source": "commons-search",
+        "reason": "Commons search hit, 2526x3066. dHash distance 6."
+      },
+      {
+        "fileUrl": "https://upload.wikimedia.org/wikipedia/commons/8/82/Vincent_Willem_van_Gogh_083.jpg",
+        "commonsPageUrl": "https://commons.wikimedia.org/wiki/File:Vincent_Willem_van_Gogh_083.jpg",
+        "width": 2024,
+        "height": 2537,
+        "confidence": 0.55,
+        "hamming": 10,
+        "source": "commons-search",
+        "reason": "Commons search hit, 2024x2537. dHash distance 10."
+      }
+    ],
+    "summary": "4 verified candidate(s); best is 5536x6741 via commons-search (142.6x pixels)."
+  },
+  {
+    "target": {
+      "id": "collection-of-beauty-duchess-of-polignac-by-e-vigee-lebrun-1787-atheneum",
+      "title": "Yolande-Martine-Gabrielle de Polastron",
+      "englishTitle": null,
+      "artist": "Élisabeth Louise Vigée Le Brun",
+      "w": 553,
+      "h": 792,
+      "fileUrl": "https://upload.wikimedia.org/wikipedia/commons/4/49/Duchess_of_Polignac_by_E.Vigee-Lebrun_%281787%2C_Atheneum%29.jpg",
+      "commonsUrl": "https://commons.wikimedia.org/wiki/File%3ADuchess_of_Polignac_by_E.Vigee-Lebrun_(1787%2C_Atheneum).jpg",
+      "wikidataId": "Q234507",
+      "objectKey": "collection-of-beauty/Duchess_of_Polignac_by_E.Vigee-Lebrun_(1787,_Atheneum).jpg",
+      "variantWidths": [
+        256,
+        480,
+        640,
+        960,
+        1280,
+        1920,
+        2560,
+        4096
+      ]
+    },
+    "candidates": [
+      {
+        "fileUrl": "https://upload.wikimedia.org/wikipedia/commons/8/86/Gabrielle_de_Polastron.jpg",
+        "commonsPageUrl": "https://commons.wikimedia.org/wiki/File:Gabrielle_de_Polastron.jpg",
+        "width": 2350,
+        "height": 3308,
+        "confidence": 0.7,
+        "hamming": null,
+        "source": "wikidata-p18",
+        "reason": "Wikidata Q234507 P18 image, 2350x3308."
+      }
+    ],
+    "summary": "1 verified candidate(s); best is 2350x3308 via wikidata-p18 (17.7x pixels)."
+  },
+  {
+    "target": {
+      "id": "collection-of-beauty-durer-academie-de-femme-debout-de-dos-la-main-sur-une-hampe-d-ou-part-un-voile-inv-19058-recto",
+      "title": "Académie de femme debout",
+      "englishTitle": null,
+      "artist": "Albrecht Dürer",
+      "w": 525,
+      "h": 768,
+      "fileUrl": "https://upload.wikimedia.org/wikipedia/commons/9/92/D%C3%BCrer_-_Acad%C3%A9mie_de_femme_debout%2C_de_dos%2C_la_main_sur_une_hampe_d%27o%C3%B9_part_un_voile%2C_INV_19058%2C_Recto.jpg",
+      "commonsUrl": "https://commons.wikimedia.org/wiki/File%3AD%C3%BCrer_-_Acad%C3%A9mie_de_femme_debout%2C_de_dos%2C_la_main_sur_une_hampe_d'o%C3%B9_part_un_voile%2C_INV_19058%2C_Recto.jpg",
+      "wikidataId": null,
+      "objectKey": "collection-of-beauty/Dürer_-_Académie_de_femme_debout,_de_dos,_la_main_sur_une_hampe_d'où_part_un_voile,_INV_19058,_Recto.jpg",
+      "variantWidths": [
+        256,
+        480,
+        640,
+        960,
+        1280,
+        1920,
+        2560,
+        4096
+      ]
+    },
+    "candidates": [
+      {
+        "fileUrl": "https://upload.wikimedia.org/wikipedia/commons/5/59/Albrecht_D%C3%BCrer_-_Female_Nude_from_Behind_-_WGA07038.jpg",
+        "commonsPageUrl": "https://commons.wikimedia.org/wiki/File:Albrecht_D%C3%BCrer_-_Female_Nude_from_Behind_-_WGA07038.jpg",
+        "width": 707,
+        "height": 1059,
+        "confidence": 0.55,
+        "hamming": 12,
+        "source": "commons-search",
+        "reason": "Commons search hit, 707x1059. dHash distance 12."
+      }
+    ],
+    "summary": "1 verified candidate(s); best is 707x1059 via commons-search (1.9x pixels)."
   },
   {
     "target": {
@@ -483,11 +1195,1417 @@
         "commonsPageUrl": "https://commons.wikimedia.org/wiki/File:Monet_-_Wildenstein_1996,_1691.png",
         "width": 598,
         "height": 514,
-        "confidence": 0.92,
-        "reason": "Same artwork - both files are categorized under 'Nymphéas (Wildenstein 1691)' on Commons, which is the catalogue raisonné identifier for the Yamagata Museum 1906 Water Lilies (81x92 cm). Aspect ratio 598/514=1.163 closely matches true 92/81=1.136. Sourced from wpi.art's reproduction of the Wildenstein 1996 catalogue. Only marginally larger than current (598x514 vs 544x480, ~10% increase) but a genuine resolution improvement of the same painting."
+        "confidence": 0.55,
+        "hamming": 11,
+        "source": "prior-workflow",
+        "reason": "Same artwork - both files are categorized under 'Nymphéas (Wildenstein 1691)' on Commons, which is the catalogue raisonné identifier for the Yamagata Museum 1906 Water Lilies (81x92 cm). Aspect ratio 598/514=1.163 closely matches true 92/81=1.136. Sourced from wpi.art's reproduction of the Wildenstein 1996 catalogue. Only marginally larger than current (598x514 vs 544x480, ~10% increase) but a genuine resolution improvement of the same painting. dHash distance 11."
       }
     ],
-    "summary": "Found 1 candidate. The Wildenstein 1691 catalog category links both files to the same artwork. The PNG file (598x514) is a modest but genuine resolution improvement over the current 544x480 JPG. The third file in the same category (Yoshino Gypsum Collection variant) is only 543x480, basically the same as current. No truly high-resolution version of this specific Monet appears available on Commons."
+    "summary": "1 verified candidate(s); best is 598x514 via prior-workflow (1.2x pixels)."
+  },
+  {
+    "target": {
+      "id": "collection-of-beauty-500px-kuniyoshi-utagawa-hawk",
+      "title": "500px-Kuniyoshi Utagawa",
+      "englishTitle": "Hawk",
+      "artist": "Utagawa Kuniyoshi",
+      "w": 500,
+      "h": 1513,
+      "fileUrl": "https://upload.wikimedia.org/wikipedia/commons/f/f3/Kuniyoshi_Utagawa%2C_Hawk.jpg",
+      "commonsUrl": "https://commons.wikimedia.org/wiki/File%3AKuniyoshi_Utagawa%2C_Hawk.jpg",
+      "wikidataId": null,
+      "objectKey": "collection-of-beauty/500px-Kuniyoshi_Utagawa,_Hawk.jpg",
+      "variantWidths": [
+        256,
+        480,
+        640,
+        960,
+        1280,
+        1920,
+        2560,
+        4096
+      ]
+    },
+    "candidates": [],
+    "summary": "No verified higher-res replacement found (0 raw candidates, 0 below confidence threshold)."
+  },
+  {
+    "target": {
+      "id": "collection-of-beauty-79316d",
+      "title": "Брюллов Нарцисс",
+      "englishTitle": "Narcissus",
+      "artist": "Karl Bryullov",
+      "w": 800,
+      "h": 598,
+      "fileUrl": "https://upload.wikimedia.org/wikipedia/commons/4/4f/%D0%91%D1%80%D1%8E%D0%BB%D0%BB%D0%BE%D0%B2_%D0%9D%D0%B0%D1%80%D1%86%D0%B8%D1%81%D1%81.jpg",
+      "commonsUrl": "https://commons.wikimedia.org/wiki/File%3A%D0%91%D1%80%D1%8E%D0%BB%D0%BB%D0%BE%D0%B2_%D0%9D%D0%B0%D1%80%D1%86%D0%B8%D1%81%D1%81.jpg",
+      "wikidataId": null,
+      "objectKey": "collection-of-beauty/Брюллов_Нарцисс.jpg",
+      "variantWidths": [
+        256,
+        480,
+        640,
+        960,
+        1280,
+        1920,
+        2560,
+        4096
+      ]
+    },
+    "candidates": [],
+    "summary": "No verified higher-res replacement found (0 raw candidates, 0 below confidence threshold)."
+  },
+  {
+    "target": {
+      "id": "collection-of-beauty-aivazovsky-catholicos-khrimyan-airik-near-echmiadzin",
+      "title": "Catholicos Khrimyan Airik near Echmiadzin",
+      "englishTitle": null,
+      "artist": "Ivan Aivazovsky",
+      "w": 454,
+      "h": 700,
+      "fileUrl": "https://upload.wikimedia.org/wikipedia/commons/0/0e/Aivazovsky_-_Catholicos_Khrimyan_Airik_near_Echmiadzin.jpg",
+      "commonsUrl": "https://commons.wikimedia.org/wiki/File%3AAivazovsky_-_Catholicos_Khrimyan_Airik_near_Echmiadzin.jpg",
+      "wikidataId": null,
+      "objectKey": "collection-of-beauty/Aivazovsky_-_Catholicos_Khrimyan_Airik_near_Echmiadzin.jpg",
+      "variantWidths": [
+        256,
+        480,
+        640,
+        960,
+        1280,
+        1920,
+        2560,
+        4096
+      ]
+    },
+    "candidates": [],
+    "summary": "No verified higher-res replacement found (0 raw candidates, 0 below confidence threshold)."
+  },
+  {
+    "target": {
+      "id": "collection-of-beauty-aivazovsky-passage-of-the-jews-through-the-red-sea",
+      "title": "Passage of the Jews through the Red Sea",
+      "englishTitle": null,
+      "artist": "Ivan Aivazovsky",
+      "w": 1000,
+      "h": 556,
+      "fileUrl": "https://upload.wikimedia.org/wikipedia/commons/9/96/Aivazovsky_Passage_of_the_Jews_through_the_Red_Sea.jpg",
+      "commonsUrl": "https://commons.wikimedia.org/wiki/File%3AAivazovsky_Passage_of_the_Jews_through_the_Red_Sea.jpg",
+      "wikidataId": null,
+      "objectKey": "collection-of-beauty/Aivazovsky_Passage_of_the_Jews_through_the_Red_Sea.jpg",
+      "variantWidths": [
+        256,
+        480,
+        640,
+        960,
+        1280,
+        1920,
+        2560,
+        4096
+      ]
+    },
+    "candidates": [],
+    "summary": "No verified higher-res replacement found (0 raw candidates, 0 below confidence threshold)."
+  },
+  {
+    "target": {
+      "id": "collection-of-beauty-aivazovsky-portret-of-wife-anna-burnazyan-sarkisova",
+      "title": "Sarkizova Ann",
+      "englishTitle": null,
+      "artist": "Ivan Aivazovsky",
+      "w": 601,
+      "h": 700,
+      "fileUrl": "https://upload.wikimedia.org/wikipedia/commons/b/b0/Aivazovsky_-_Portret_of_wife%2C_Anna_Burnazyan-Sarkisova.jpg",
+      "commonsUrl": "https://commons.wikimedia.org/wiki/File%3AAivazovsky_-_Portret_of_wife%2C_Anna_Burnazyan-Sarkisova.jpg",
+      "wikidataId": null,
+      "objectKey": "collection-of-beauty/Aivazovsky_-_Portret_of_wife,_Anna_Burnazyan-Sarkisova.jpg",
+      "variantWidths": [
+        256,
+        480,
+        640,
+        960,
+        1280,
+        1920,
+        2560,
+        4096
+      ]
+    },
+    "candidates": [],
+    "summary": "No verified higher-res replacement found (0 raw candidates, 0 below confidence threshold)."
+  },
+  {
+    "target": {
+      "id": "collection-of-beauty-alfons-mucha-1896-spring",
+      "title": "Spring",
+      "englishTitle": null,
+      "artist": "Alphonse Mucha",
+      "w": 508,
+      "h": 1000,
+      "fileUrl": "https://upload.wikimedia.org/wikipedia/commons/6/6f/Alfons_Mucha_-_1896_-_Spring.jpg",
+      "commonsUrl": "https://commons.wikimedia.org/wiki/File%3AAlfons_Mucha_-_1896_-_Spring.jpg",
+      "wikidataId": "Q124987762",
+      "objectKey": "collection-of-beauty/Alfons_Mucha_-_1896_-_Spring.jpg",
+      "variantWidths": [
+        256,
+        480,
+        640,
+        960,
+        1280,
+        1920,
+        2560,
+        4096
+      ]
+    },
+    "candidates": [],
+    "summary": "No verified higher-res replacement found (0 raw candidates, 0 below confidence threshold)."
+  },
+  {
+    "target": {
+      "id": "collection-of-beauty-alfons-mucha-1896-summer",
+      "title": "Summer",
+      "englishTitle": null,
+      "artist": "Alphonse Mucha",
+      "w": 504,
+      "h": 1000,
+      "fileUrl": "https://upload.wikimedia.org/wikipedia/commons/8/87/Alfons_Mucha_-_1896_-_Summer.jpg",
+      "commonsUrl": "https://commons.wikimedia.org/wiki/File%3AAlfons_Mucha_-_1896_-_Summer.jpg",
+      "wikidataId": "Q124987771",
+      "objectKey": "collection-of-beauty/Alfons_Mucha_-_1896_-_Summer.jpg",
+      "variantWidths": [
+        256,
+        480,
+        640,
+        960,
+        1280,
+        1920,
+        2560,
+        4096
+      ]
+    },
+    "candidates": [],
+    "summary": "No verified higher-res replacement found (0 raw candidates, 0 below confidence threshold)."
+  },
+  {
+    "target": {
+      "id": "collection-of-beauty-alfons-mucha-1896-winter",
+      "title": "Winter",
+      "englishTitle": null,
+      "artist": "Alphonse Mucha",
+      "w": 508,
+      "h": 1000,
+      "fileUrl": "https://upload.wikimedia.org/wikipedia/commons/2/2b/Alfons_Mucha_-_1896_-_Winter.jpg",
+      "commonsUrl": "https://commons.wikimedia.org/wiki/File%3AAlfons_Mucha_-_1896_-_Winter.jpg",
+      "wikidataId": "Q124987777",
+      "objectKey": "collection-of-beauty/Alfons_Mucha_-_1896_-_Winter.jpg",
+      "variantWidths": [
+        256,
+        480,
+        640,
+        960,
+        1280,
+        1920,
+        2560,
+        4096
+      ]
+    },
+    "candidates": [],
+    "summary": "No verified higher-res replacement found (2 raw candidates, 2 below confidence threshold)."
+  },
+  {
+    "target": {
+      "id": "collection-of-beauty-alfons-mucha-the-moon-1902",
+      "title": "The Moon",
+      "englishTitle": null,
+      "artist": "Alphonse Mucha",
+      "w": 400,
+      "h": 1056,
+      "fileUrl": "https://upload.wikimedia.org/wikipedia/commons/4/45/Alfons_Mucha_-_The_Moon%2C_1902.jpg",
+      "commonsUrl": "https://commons.wikimedia.org/wiki/File%3AAlfons_Mucha_-_The_Moon%2C_1902.jpg",
+      "wikidataId": null,
+      "objectKey": "collection-of-beauty/Alfons_Mucha_-_The_Moon,_1902.jpg",
+      "variantWidths": [
+        256,
+        480,
+        640,
+        960,
+        1280,
+        1920,
+        2560,
+        4096
+      ]
+    },
+    "candidates": [],
+    "summary": "No verified higher-res replacement found (0 raw candidates, 0 below confidence threshold)."
+  },
+  {
+    "target": {
+      "id": "collection-of-beauty-aphonse-mucha-rose-1898",
+      "title": "Aphonse Mucha - Rose 1898",
+      "englishTitle": null,
+      "artist": "Alphonse Mucha",
+      "w": 589,
+      "h": 1444,
+      "fileUrl": "https://upload.wikimedia.org/wikipedia/commons/6/61/Aphonse_Mucha_-_Rose_1898.jpg",
+      "commonsUrl": "https://commons.wikimedia.org/wiki/File%3AAphonse_Mucha_-_Rose_1898.jpg",
+      "wikidataId": null,
+      "objectKey": "collection-of-beauty/Aphonse_Mucha_-_Rose_1898.jpg",
+      "variantWidths": [
+        256,
+        480,
+        640,
+        960,
+        1280,
+        1920,
+        2560,
+        4096
+      ]
+    },
+    "candidates": [],
+    "summary": "No verified higher-res replacement found (0 raw candidates, 0 below confidence threshold)."
+  },
+  {
+    "target": {
+      "id": "collection-of-beauty-at-the-stock-exchange",
+      "title": "Portraits at the Stock Exchange",
+      "englishTitle": null,
+      "artist": "Edgar Degas",
+      "w": 463,
+      "h": 577,
+      "fileUrl": "https://upload.wikimedia.org/wikipedia/commons/d/da/At_The_Stock_Exchange.jpg",
+      "commonsUrl": "https://commons.wikimedia.org/wiki/File%3AAt_The_Stock_Exchange.jpg",
+      "wikidataId": null,
+      "objectKey": "collection-of-beauty/At_The_Stock_Exchange.jpg",
+      "variantWidths": [
+        256,
+        480,
+        640,
+        960,
+        1280,
+        1920,
+        2560,
+        4096
+      ]
+    },
+    "candidates": [],
+    "summary": "No verified higher-res replacement found (4 raw candidates, 4 below confidence threshold)."
+  },
+  {
+    "target": {
+      "id": "collection-of-beauty-botticelli-incoronazione-della-vergine-predella-01-san-giovanni-evangelista-a-patmos",
+      "title": "Coronation of the Virgin",
+      "englishTitle": null,
+      "artist": "Sandro Botticelli",
+      "w": 1353,
+      "h": 500,
+      "fileUrl": "https://upload.wikimedia.org/wikipedia/commons/4/4e/Botticelli%2C_incoronazione_della_vergine%2C_predella_01_san_giovanni_evangelista_a_patmos.jpg",
+      "commonsUrl": "https://commons.wikimedia.org/wiki/File%3ABotticelli%2C_incoronazione_della_vergine%2C_predella_01_san_giovanni_evangelista_a_patmos.jpg",
+      "wikidataId": null,
+      "objectKey": "collection-of-beauty/Botticelli,_incoronazione_della_vergine,_predella_01_san_giovanni_evangelista_a_patmos.jpg",
+      "variantWidths": [
+        256,
+        480,
+        640,
+        960,
+        1280,
+        1920,
+        2560,
+        4096
+      ]
+    },
+    "candidates": [],
+    "summary": "No verified higher-res replacement found (0 raw candidates, 0 below confidence threshold)."
+  },
+  {
+    "target": {
+      "id": "collection-of-beauty-brooklyn-museum-tabi-miyage-dai-1-shu-mutsu-tsuta-onsen-kawase-hasui",
+      "title": "Tabi Miyage Dai 1 - Shu",
+      "englishTitle": "Souvenirs of Travel I: Mutsu Tsuta Onsen",
+      "artist": "Kawase Hasui",
+      "w": 520,
+      "h": 768,
+      "fileUrl": "https://upload.wikimedia.org/wikipedia/commons/e/e3/Brooklyn_Museum_-_Tabi_Miyage_Dai_1_-_Shu_Mutsu-Tsuta_Onsen_-_Kawase_Hasui.jpg",
+      "commonsUrl": "https://commons.wikimedia.org/wiki/File%3ABrooklyn_Museum_-_Tabi_Miyage_Dai_1_-_Shu_Mutsu-Tsuta_Onsen_-_Kawase_Hasui.jpg",
+      "wikidataId": null,
+      "objectKey": "collection-of-beauty/Brooklyn_Museum_-_Tabi_Miyage_Dai_1_-_Shu_Mutsu-Tsuta_Onsen_-_Kawase_Hasui.jpg",
+      "variantWidths": [
+        256,
+        480,
+        640,
+        960,
+        1280,
+        1920,
+        2560,
+        4096
+      ]
+    },
+    "candidates": [],
+    "summary": "No verified higher-res replacement found (5 raw candidates, 5 below confidence threshold)."
+  },
+  {
+    "target": {
+      "id": "collection-of-beauty-brooklyn-museum-william-rush-carving-his-allegorical-figure-of-the-schuylkill-river-thomas-eakins-o",
+      "title": "William Rush Carving His Allegorical Figure of the Schuylkill River",
+      "englishTitle": null,
+      "artist": "Thomas Eakins",
+      "w": 768,
+      "h": 578,
+      "fileUrl": "https://upload.wikimedia.org/wikipedia/commons/d/d7/Brooklyn_Museum_-_William_Rush_Carving_His_Allegorical_Figure_of_the_Schuylkill_River_-_Thomas_Eakins_-_overall.jpg",
+      "commonsUrl": "https://commons.wikimedia.org/wiki/File%3ABrooklyn_Museum_-_William_Rush_Carving_His_Allegorical_Figure_of_the_Schuylkill_River_-_Thomas_Eakins_-_overall.jpg",
+      "wikidataId": null,
+      "objectKey": "collection-of-beauty/Brooklyn_Museum_-_William_Rush_Carving_His_Allegorical_Figure_of_the_Schuylkill_River_-_Thomas_Eakins_-_overall.jpg",
+      "variantWidths": [
+        256,
+        480,
+        640,
+        960,
+        1280,
+        1920,
+        2560,
+        4096
+      ]
+    },
+    "candidates": [],
+    "summary": "No verified higher-res replacement found (0 raw candidates, 0 below confidence threshold)."
+  },
+  {
+    "target": {
+      "id": "collection-of-beauty-claude-monet-dahlias-16035439250",
+      "title": "Dahlias",
+      "englishTitle": null,
+      "artist": "Claude Monet",
+      "w": 335,
+      "h": 1124,
+      "fileUrl": "https://upload.wikimedia.org/wikipedia/commons/d/d9/Claude_Monet_-_Dahlias_%2816035439250%29.jpg",
+      "commonsUrl": "https://commons.wikimedia.org/wiki/File%3AClaude_Monet_-_Dahlias_(16035439250).jpg",
+      "wikidataId": null,
+      "objectKey": "collection-of-beauty/Claude_Monet_-_Dahlias_(16035439250).jpg",
+      "variantWidths": [
+        256,
+        480,
+        640,
+        960,
+        1280,
+        1920,
+        2560,
+        4096
+      ]
+    },
+    "candidates": [],
+    "summary": "No verified higher-res replacement found (0 raw candidates, 0 below confidence threshold)."
+  },
+  {
+    "target": {
+      "id": "collection-of-beauty-claude-monet-red-and-pink-poppies-11538159396",
+      "title": "Red and Pink Poppies",
+      "englishTitle": null,
+      "artist": "Claude Monet",
+      "w": 300,
+      "h": 1027,
+      "fileUrl": "https://upload.wikimedia.org/wikipedia/commons/7/78/Claude_Monet_-_Red_and_Pink_Poppies_%2811538159396%29.jpg",
+      "commonsUrl": "https://commons.wikimedia.org/wiki/File%3AClaude_Monet_-_Red_and_Pink_Poppies_(11538159396).jpg",
+      "wikidataId": null,
+      "objectKey": "collection-of-beauty/Claude_Monet_-_Red_and_Pink_Poppies_(11538159396).jpg",
+      "variantWidths": [
+        256,
+        480,
+        640,
+        960,
+        1280,
+        1920,
+        2560,
+        4096
+      ]
+    },
+    "candidates": [],
+    "summary": "No verified higher-res replacement found (0 raw candidates, 0 below confidence threshold)."
+  },
+  {
+    "target": {
+      "id": "collection-of-beauty-danwon-bbalrae-teo",
+      "title": "Danwon-Bbalrae.teo",
+      "englishTitle": null,
+      "artist": "Kim Hong-do",
+      "w": 600,
+      "h": 706,
+      "fileUrl": "https://upload.wikimedia.org/wikipedia/commons/e/e2/Danwon-Bbalrae.teo.jpg",
+      "commonsUrl": "https://commons.wikimedia.org/wiki/File%3ADanwon-Bbalrae.teo.jpg",
+      "wikidataId": null,
+      "objectKey": "collection-of-beauty/Danwon-Bbalrae.teo.jpg",
+      "variantWidths": [
+        256,
+        480,
+        640,
+        960,
+        1280,
+        1920,
+        2560,
+        4096
+      ]
+    },
+    "candidates": [],
+    "summary": "No verified higher-res replacement found (0 raw candidates, 0 below confidence threshold)."
+  },
+  {
+    "target": {
+      "id": "collection-of-beauty-danwon-mudong",
+      "title": "Danwon-Mudong",
+      "englishTitle": null,
+      "artist": "Kim Hong-do",
+      "w": 601,
+      "h": 707,
+      "fileUrl": "https://upload.wikimedia.org/wikipedia/commons/f/fb/Danwon-Mudong.jpg",
+      "commonsUrl": "https://commons.wikimedia.org/wiki/File%3ADanwon-Mudong.jpg",
+      "wikidataId": null,
+      "objectKey": "collection-of-beauty/Danwon-Mudong.jpg",
+      "variantWidths": [
+        256,
+        480,
+        640,
+        960,
+        1280,
+        1920,
+        2560,
+        4096
+      ]
+    },
+    "candidates": [],
+    "summary": "No verified higher-res replacement found (0 raw candidates, 0 below confidence threshold)."
+  },
+  {
+    "target": {
+      "id": "collection-of-beauty-de-humani-corporis-fabrica-25",
+      "title": "De humani corporis fabrica",
+      "englishTitle": "On the Fabric of the Human Body, Plate 25",
+      "artist": "Andreas Vesalius",
+      "w": 597,
+      "h": 1024,
+      "fileUrl": "https://upload.wikimedia.org/wikipedia/commons/b/b8/De_humani_corporis_fabrica_%2825%29.jpg",
+      "commonsUrl": "https://commons.wikimedia.org/wiki/File%3ADe_humani_corporis_fabrica_(25).jpg",
+      "wikidataId": null,
+      "objectKey": "collection-of-beauty/De_humani_corporis_fabrica_(25).jpg",
+      "variantWidths": [
+        256,
+        480,
+        640,
+        960,
+        1280,
+        1920,
+        2560,
+        4096
+      ]
+    },
+    "candidates": [],
+    "summary": "No verified higher-res replacement found (0 raw candidates, 0 below confidence threshold)."
+  },
+  {
+    "target": {
+      "id": "collection-of-beauty-de-humani-corporis-fabrica-26",
+      "title": "De humani corporis fabrica",
+      "englishTitle": "On the Fabric of the Human Body, Plate 26",
+      "artist": "Andreas Vesalius",
+      "w": 598,
+      "h": 1024,
+      "fileUrl": "https://upload.wikimedia.org/wikipedia/commons/3/3d/De_humani_corporis_fabrica_%2826%29.jpg",
+      "commonsUrl": "https://commons.wikimedia.org/wiki/File%3ADe_humani_corporis_fabrica_(26).jpg",
+      "wikidataId": null,
+      "objectKey": "collection-of-beauty/De_humani_corporis_fabrica_(26).jpg",
+      "variantWidths": [
+        256,
+        480,
+        640,
+        960,
+        1280,
+        1920,
+        2560,
+        4096
+      ]
+    },
+    "candidates": [],
+    "summary": "No verified higher-res replacement found (0 raw candidates, 0 below confidence threshold)."
+  },
+  {
+    "target": {
+      "id": "collection-of-beauty-de-humani-corporis-fabrica-27",
+      "title": "Anatomy",
+      "englishTitle": null,
+      "artist": "Andreas Vesalius",
+      "w": 595,
+      "h": 1024,
+      "fileUrl": "https://upload.wikimedia.org/wikipedia/commons/6/69/De_humani_corporis_fabrica_%2827%29.jpg",
+      "commonsUrl": "https://commons.wikimedia.org/wiki/File%3ADe_humani_corporis_fabrica_(27).jpg",
+      "wikidataId": null,
+      "objectKey": "collection-of-beauty/De_humani_corporis_fabrica_(27).jpg",
+      "variantWidths": [
+        256,
+        480,
+        640,
+        960,
+        1280,
+        1920,
+        2560,
+        4096
+      ]
+    },
+    "candidates": [],
+    "summary": "No verified higher-res replacement found (5 raw candidates, 5 below confidence threshold)."
+  },
+  {
+    "target": {
+      "id": "collection-of-beauty-delaunay-portuguese-woman",
+      "title": "Portuguese Woman",
+      "englishTitle": null,
+      "artist": "Robert Delaunay",
+      "w": 622,
+      "h": 543,
+      "fileUrl": "https://upload.wikimedia.org/wikipedia/commons/0/02/Delaunay_Portuguese_Woman.jpg",
+      "commonsUrl": "https://commons.wikimedia.org/wiki/File%3ADelaunay_Portuguese_Woman.jpg",
+      "wikidataId": null,
+      "objectKey": "collection-of-beauty/Delaunay_Portuguese_Woman.jpg",
+      "variantWidths": [
+        256,
+        480,
+        640,
+        960,
+        1280,
+        1920,
+        2560,
+        4096
+      ]
+    },
+    "candidates": [],
+    "summary": "No verified higher-res replacement found (3 raw candidates, 3 below confidence threshold)."
+  },
+  {
+    "target": {
+      "id": "collection-of-beauty-don-quijote-illustrated-by-gustav-dore-v",
+      "title": "Don Quijote illustrated by Gustav Dore V",
+      "englishTitle": null,
+      "artist": "Gustave Doré",
+      "w": 479,
+      "h": 713,
+      "fileUrl": "https://upload.wikimedia.org/wikipedia/commons/0/01/Don_Quijote_illustrated_by_Gustav_Dore_V.jpg",
+      "commonsUrl": "https://commons.wikimedia.org/wiki/File%3ADon_Quijote_illustrated_by_Gustav_Dore_V.jpg",
+      "wikidataId": null,
+      "objectKey": "collection-of-beauty/Don_Quijote_illustrated_by_Gustav_Dore_V.jpg",
+      "variantWidths": [
+        256,
+        480,
+        640,
+        960,
+        1280,
+        1920,
+        2560,
+        4096
+      ]
+    },
+    "candidates": [],
+    "summary": "No verified higher-res replacement found (0 raw candidates, 0 below confidence threshold)."
+  },
+  {
+    "target": {
+      "id": "collection-of-beauty-dore-i-had-done-a-hellish-thing",
+      "title": "Dore-I had done a hellish thing",
+      "englishTitle": null,
+      "artist": "Gustave Doré",
+      "w": 600,
+      "h": 781,
+      "fileUrl": "https://upload.wikimedia.org/wikipedia/commons/b/bb/Dore-I_had_done_a_hellish_thing.jpg",
+      "commonsUrl": "https://commons.wikimedia.org/wiki/File%3ADore-I_had_done_a_hellish_thing.jpg",
+      "wikidataId": null,
+      "objectKey": "collection-of-beauty/Dore-I_had_done_a_hellish_thing.jpg",
+      "variantWidths": [
+        256,
+        480,
+        640,
+        960,
+        1280,
+        1920,
+        2560,
+        4096
+      ]
+    },
+    "candidates": [],
+    "summary": "No verified higher-res replacement found (0 raw candidates, 0 below confidence threshold)."
+  },
+  {
+    "target": {
+      "id": "collection-of-beauty-drawing-of-mules-by-claude-lorrain",
+      "title": "Drawing of mules by Claude Lorrain",
+      "englishTitle": null,
+      "artist": "Claude Lorrain",
+      "w": 750,
+      "h": 431,
+      "fileUrl": "https://upload.wikimedia.org/wikipedia/commons/c/c4/Drawing_of_mules_by_Claude_Lorrain.jpg",
+      "commonsUrl": "https://commons.wikimedia.org/wiki/File%3ADrawing_of_mules_by_Claude_Lorrain.jpg",
+      "wikidataId": null,
+      "objectKey": "collection-of-beauty/Drawing_of_mules_by_Claude_Lorrain.jpg",
+      "variantWidths": [
+        256,
+        480,
+        640,
+        960,
+        1280,
+        1920,
+        2560,
+        4096
+      ]
+    },
+    "candidates": [],
+    "summary": "No verified higher-res replacement found (0 raw candidates, 0 below confidence threshold)."
+  },
+  {
+    "target": {
+      "id": "collection-of-beauty-edward-hopper-night-shadows-oct-1922-shadowland",
+      "title": "Night Shadows - Oct 1922 Shadowland",
+      "englishTitle": null,
+      "artist": "Edward Hopper",
+      "w": 678,
+      "h": 561,
+      "fileUrl": "https://upload.wikimedia.org/wikipedia/commons/b/b2/Edward_Hopper_-_Night_Shadows_-_Oct_1922_Shadowland.jpg",
+      "commonsUrl": "https://commons.wikimedia.org/wiki/File%3AEdward_Hopper_-_Night_Shadows_-_Oct_1922_Shadowland.jpg",
+      "wikidataId": null,
+      "objectKey": "collection-of-beauty/Edward_Hopper_-_Night_Shadows_-_Oct_1922_Shadowland.jpg",
+      "variantWidths": [
+        256,
+        480,
+        640,
+        960,
+        1280,
+        1920,
+        2560,
+        4096
+      ]
+    },
+    "candidates": [],
+    "summary": "No verified higher-res replacement found (0 raw candidates, 0 below confidence threshold)."
+  },
+  {
+    "target": {
+      "id": "collection-of-beauty-eugene-de-blaas-daydreaming-by-the-shore-1895",
+      "title": "Daydreaming by the shore",
+      "englishTitle": null,
+      "artist": "Eugene de Blaas",
+      "w": 420,
+      "h": 800,
+      "fileUrl": "https://upload.wikimedia.org/wikipedia/commons/f/f9/Eugene_de_Blaas_-_Daydreaming_by_the_shore_%281895%29.jpg",
+      "commonsUrl": "https://commons.wikimedia.org/wiki/File%3AEugene_de_Blaas_-_Daydreaming_by_the_shore_(1895).jpg",
+      "wikidataId": null,
+      "objectKey": "collection-of-beauty/Eugene_de_Blaas_-_Daydreaming_by_the_shore_(1895).jpg",
+      "variantWidths": [
+        256,
+        480,
+        640,
+        960,
+        1280,
+        1920,
+        2560,
+        4096
+      ]
+    },
+    "candidates": [],
+    "summary": "No verified higher-res replacement found (0 raw candidates, 0 below confidence threshold)."
+  },
+  {
+    "target": {
+      "id": "collection-of-beauty-eugene-delacroix",
+      "title": "Eugene delacroix",
+      "englishTitle": null,
+      "artist": null,
+      "w": 602,
+      "h": 800,
+      "fileUrl": "https://upload.wikimedia.org/wikipedia/commons/9/9d/Eugene_delacroix.jpg",
+      "commonsUrl": "https://commons.wikimedia.org/wiki/File%3AEugene_delacroix.jpg",
+      "wikidataId": null,
+      "objectKey": "collection-of-beauty/Eugene_delacroix.jpg",
+      "variantWidths": [
+        256,
+        480,
+        640,
+        960,
+        1280,
+        1920,
+        2560,
+        4096
+      ]
+    },
+    "candidates": [],
+    "summary": "No verified higher-res replacement found (0 raw candidates, 0 below confidence threshold)."
+  },
+  {
+    "target": {
+      "id": "collection-of-beauty-frederic-bazille-004",
+      "title": "Self-portrait",
+      "englishTitle": null,
+      "artist": "Frédéric Bazille",
+      "w": 513,
+      "h": 768,
+      "fileUrl": "https://upload.wikimedia.org/wikipedia/commons/4/45/Fr%C3%A9d%C3%A9ric_Bazille_004.jpg",
+      "commonsUrl": "https://commons.wikimedia.org/wiki/File%3AFr%C3%A9d%C3%A9ric_Bazille_004.jpg",
+      "wikidataId": null,
+      "objectKey": "collection-of-beauty/Frédéric_Bazille_004.jpg",
+      "variantWidths": [
+        256,
+        480,
+        640,
+        960,
+        1280,
+        1920,
+        2560,
+        4096
+      ]
+    },
+    "candidates": [],
+    "summary": "No verified higher-res replacement found (2 raw candidates, 2 below confidence threshold)."
+  },
+  {
+    "target": {
+      "id": "collection-of-beauty-frederic-leighton-kittens",
+      "title": "Kittens",
+      "englishTitle": null,
+      "artist": "Frederic Leighton",
+      "w": 512,
+      "h": 782,
+      "fileUrl": "https://upload.wikimedia.org/wikipedia/commons/1/12/Frederic_Leighton_Kittens.jpg",
+      "commonsUrl": "https://commons.wikimedia.org/wiki/File%3AFrederic_Leighton_Kittens.jpg",
+      "wikidataId": null,
+      "objectKey": "collection-of-beauty/Frederic_Leighton_Kittens.jpg",
+      "variantWidths": [
+        256,
+        480,
+        640,
+        960,
+        1280,
+        1920,
+        2560,
+        4096
+      ]
+    },
+    "candidates": [],
+    "summary": "No verified higher-res replacement found (0 raw candidates, 0 below confidence threshold)."
+  },
+  {
+    "target": {
+      "id": "collection-of-beauty-futsuka-zuki-by-kawai-gyokudo",
+      "title": "Futsuka Zuki by Kawai Gyokudō",
+      "englishTitle": "New Moon",
+      "artist": "Kawai Gyokudō",
+      "w": 800,
+      "h": 494,
+      "fileUrl": "https://upload.wikimedia.org/wikipedia/commons/9/9a/Futsuka_Zuki_by_Kawai_Gyokud%C5%8D.jpg",
+      "commonsUrl": "https://commons.wikimedia.org/wiki/File:Futsuka_Zuki_by_Kawai_Gyokudō.jpg",
+      "wikidataId": null,
+      "objectKey": "collection-of-beauty/Futsuka_Zuki_by_Kawai_Gyokudō.jpg",
+      "variantWidths": [
+        256,
+        480,
+        640,
+        960,
+        1280,
+        1920,
+        2560,
+        4096
+      ]
+    },
+    "candidates": [],
+    "summary": "No verified higher-res replacement found (0 raw candidates, 0 below confidence threshold)."
+  },
+  {
+    "target": {
+      "id": "collection-of-beauty-gauguin-bretonne",
+      "title": "Breton Girl",
+      "englishTitle": null,
+      "artist": "Paul Gauguin",
+      "w": 502,
+      "h": 751,
+      "fileUrl": "https://upload.wikimedia.org/wikipedia/commons/5/52/Gauguin_-_Bretonne.jpg",
+      "commonsUrl": "https://commons.wikimedia.org/wiki/File%3AGauguin_-_Bretonne.jpg",
+      "wikidataId": null,
+      "objectKey": "collection-of-beauty/Gauguin_-_Bretonne.jpg",
+      "variantWidths": [
+        256,
+        480,
+        640,
+        960,
+        1280,
+        1920,
+        2560,
+        4096
+      ]
+    },
+    "candidates": [],
+    "summary": "No verified higher-res replacement found (2 raw candidates, 2 below confidence threshold)."
+  },
+  {
+    "target": {
+      "id": "collection-of-beauty-georges-seurat-seated-nude-study-for-une-baignade-1883-scottish-national-gallery",
+      "title": "Georges Seurat",
+      "englishTitle": "Seated Nude (study for Bathers at Asnières, 1883)",
+      "artist": "Georges Seurat",
+      "w": 450,
+      "h": 571,
+      "fileUrl": "https://upload.wikimedia.org/wikipedia/commons/6/66/Georges_Seurat%2C_Seated_Nude%2C_Study_for_Une_Baignade%2C_1883%2C_Scottish_National_Gallery.jpg",
+      "commonsUrl": "https://commons.wikimedia.org/wiki/File%3AGeorges_Seurat%2C_Seated_Nude%2C_Study_for_Une_Baignade%2C_1883%2C_Scottish_National_Gallery.jpg",
+      "wikidataId": null,
+      "objectKey": "collection-of-beauty/Georges_Seurat,_Seated_Nude,_Study_for_Une_Baignade,_1883,_Scottish_National_Gallery.jpg",
+      "variantWidths": [
+        256,
+        480,
+        640,
+        960,
+        1280,
+        1920,
+        2560,
+        4096
+      ]
+    },
+    "candidates": [],
+    "summary": "No verified higher-res replacement found (3 raw candidates, 3 below confidence threshold)."
+  },
+  {
+    "target": {
+      "id": "collection-of-beauty-gerechtigkeit-1537",
+      "title": "Justice",
+      "englishTitle": null,
+      "artist": "Lucas Cranach the Elder",
+      "w": 544,
+      "h": 800,
+      "fileUrl": "https://upload.wikimedia.org/wikipedia/commons/e/ef/Gerechtigkeit-1537.jpg",
+      "commonsUrl": "https://commons.wikimedia.org/wiki/File%3AGerechtigkeit-1537.jpg",
+      "wikidataId": "Q24360212",
+      "objectKey": "collection-of-beauty/Gerechtigkeit-1537.jpg",
+      "variantWidths": [
+        256,
+        480,
+        640,
+        960,
+        1280,
+        1920,
+        2560,
+        4096
+      ]
+    },
+    "candidates": [],
+    "summary": "No verified higher-res replacement found (4 raw candidates, 4 below confidence threshold)."
+  },
+  {
+    "target": {
+      "id": "collection-of-beauty-hampstead-heath-by-john-constable-watercolour",
+      "title": "Hampstead Heath by John Constable watercolour",
+      "englishTitle": null,
+      "artist": "John Constable",
+      "w": 750,
+      "h": 481,
+      "fileUrl": "https://upload.wikimedia.org/wikipedia/commons/7/7f/Hampstead_Heath_by_John_Constable_watercolour.jpg",
+      "commonsUrl": "https://commons.wikimedia.org/wiki/File%3AHampstead_Heath_by_John_Constable_watercolour.jpg",
+      "wikidataId": null,
+      "objectKey": "collection-of-beauty/Hampstead_Heath_by_John_Constable_watercolour.jpg",
+      "variantWidths": [
+        256,
+        480,
+        640,
+        960,
+        1280,
+        1920,
+        2560,
+        4096
+      ]
+    },
+    "candidates": [],
+    "summary": "No verified higher-res replacement found (0 raw candidates, 0 below confidence threshold)."
+  },
+  {
+    "target": {
+      "id": "collection-of-beauty-henri-meunier04",
+      "title": "Henri Meunier04",
+      "englishTitle": null,
+      "artist": "Henri Meunier",
+      "w": 524,
+      "h": 770,
+      "fileUrl": "https://upload.wikimedia.org/wikipedia/commons/d/d1/Henri_Meunier04.jpg",
+      "commonsUrl": "https://commons.wikimedia.org/wiki/File%3AHenri_Meunier04.jpg",
+      "wikidataId": null,
+      "objectKey": "collection-of-beauty/Henri_Meunier04.jpg",
+      "variantWidths": [
+        256,
+        480,
+        640,
+        960,
+        1280,
+        1920,
+        2560,
+        4096
+      ]
+    },
+    "candidates": [],
+    "summary": "No verified higher-res replacement found (0 raw candidates, 0 below confidence threshold)."
+  },
+  {
+    "target": {
+      "id": "collection-of-beauty-imaginary-tour-through-xiao-xiang",
+      "title": "Imaginary tour through Xiao-xiang",
+      "englishTitle": null,
+      "artist": "Li Shi",
+      "w": 1095,
+      "h": 533,
+      "fileUrl": "https://upload.wikimedia.org/wikipedia/commons/e/e0/Imaginary_tour_through_Xiao-xiang.jpg",
+      "commonsUrl": "https://commons.wikimedia.org/wiki/File%3AImaginary_tour_through_Xiao-xiang.jpg",
+      "wikidataId": "Q841721",
+      "objectKey": "collection-of-beauty/Imaginary_tour_through_Xiao-xiang.jpg",
+      "variantWidths": [
+        256,
+        480,
+        640,
+        960,
+        1280,
+        1920,
+        2560,
+        4096
+      ]
+    },
+    "candidates": [],
+    "summary": "No verified higher-res replacement found (0 raw candidates, 0 below confidence threshold)."
+  },
+  {
+    "target": {
+      "id": "collection-of-beauty-jacob-jordaens-naked-old-man-standing",
+      "title": "Naked old man",
+      "englishTitle": null,
+      "artist": "Jacob Jordaens",
+      "w": 425,
+      "h": 650,
+      "fileUrl": "https://upload.wikimedia.org/wikipedia/commons/6/6e/Jacob_Jordaens_-_Naked_old_man%2C_standing.jpg",
+      "commonsUrl": "https://commons.wikimedia.org/wiki/File%3AJacob_Jordaens_-_Naked_old_man%2C_standing.jpg",
+      "wikidataId": "Q137778676",
+      "objectKey": "collection-of-beauty/Jacob_Jordaens_-_Naked_old_man,_standing.jpg",
+      "variantWidths": [
+        256,
+        480,
+        640,
+        960,
+        1280,
+        1920,
+        2560,
+        4096
+      ]
+    },
+    "candidates": [],
+    "summary": "No verified higher-res replacement found (0 raw candidates, 0 below confidence threshold)."
+  },
+  {
+    "target": {
+      "id": "collection-of-beauty-jean-frederic-bazille-reclining-nude-1864",
+      "title": "Jean Frédéric Bazille - Reclining Nude - 1864",
+      "englishTitle": null,
+      "artist": null,
+      "w": 1116,
+      "h": 417,
+      "fileUrl": "https://upload.wikimedia.org/wikipedia/commons/e/e8/Jean_Fr%C3%A9d%C3%A9ric_Bazille_-_Reclining_Nude_-_1864.jpg",
+      "commonsUrl": "https://commons.wikimedia.org/wiki/File%3AJean_Fr%C3%A9d%C3%A9ric_Bazille_-_Reclining_Nude_-_1864.jpg",
+      "wikidataId": null,
+      "objectKey": "collection-of-beauty/Jean_Frédéric_Bazille_-_Reclining_Nude_-_1864.jpg",
+      "variantWidths": [
+        256,
+        480,
+        640,
+        960,
+        1280,
+        1920,
+        2560,
+        4096
+      ]
+    },
+    "candidates": [],
+    "summary": "No verified higher-res replacement found (0 raw candidates, 0 below confidence threshold)."
+  },
+  {
+    "target": {
+      "id": "collection-of-beauty-joseon-kang-huian-gosagwansudo",
+      "title": "Joseon-Kang Huian-Gosagwansudo",
+      "englishTitle": null,
+      "artist": "Huian Kang",
+      "w": 450,
+      "h": 672,
+      "fileUrl": "https://upload.wikimedia.org/wikipedia/commons/0/0a/Joseon-Kang_Huian-Gosagwansudo.jpg",
+      "commonsUrl": "https://commons.wikimedia.org/wiki/File%3AJoseon-Kang_Huian-Gosagwansudo.jpg",
+      "wikidataId": null,
+      "objectKey": "collection-of-beauty/Joseon-Kang_Huian-Gosagwansudo.jpg",
+      "variantWidths": [
+        256,
+        480,
+        640,
+        960,
+        1280,
+        1920,
+        2560,
+        4096
+      ]
+    },
+    "candidates": [],
+    "summary": "No verified higher-res replacement found (0 raw candidates, 0 below confidence threshold)."
+  },
+  {
+    "target": {
+      "id": "collection-of-beauty-joseph-mallord-william-turner-1775-1851-a-ship-aground-yarmouth-sample-study-n02065-national-galler",
+      "title": "A Ship Aground",
+      "englishTitle": null,
+      "artist": "J. M. W. Turner",
+      "w": 1112,
+      "h": 560,
+      "fileUrl": "https://upload.wikimedia.org/wikipedia/commons/d/d8/Joseph_Mallord_William_Turner_%281775-1851%29_-_A_Ship_Aground%2C_Yarmouth%2C_Sample_Study_-_N02065_-_National_Gallery.jpg",
+      "commonsUrl": "https://commons.wikimedia.org/wiki/File%3AJoseph_Mallord_William_Turner_(1775-1851)_-_A_Ship_Aground%2C_Yarmouth%2C_Sample_Study_-_N02065_-_National_Gallery.jpg",
+      "wikidataId": "Q28542080",
+      "objectKey": "collection-of-beauty/Joseph_Mallord_William_Turner_(1775-1851)_-_A_Ship_Aground,_Yarmouth,_Sample_Study_-_N02065_-_National_Gallery.jpg",
+      "variantWidths": [
+        256,
+        480,
+        640,
+        960,
+        1280,
+        1920,
+        2560,
+        4096
+      ]
+    },
+    "candidates": [],
+    "summary": "No verified higher-res replacement found (0 raw candidates, 0 below confidence threshold)."
+  },
+  {
+    "target": {
+      "id": "collection-of-beauty-joseph-mallord-william-turner-1775-1851-petworth-park-tillington-church-in-the-distance-n00559-nati",
+      "title": "Petworth Park: Tillington Church in the Distance",
+      "englishTitle": null,
+      "artist": "J. M. W. Turner",
+      "w": 1198,
+      "h": 514,
+      "fileUrl": "https://upload.wikimedia.org/wikipedia/commons/a/ac/Joseph_Mallord_William_Turner_%281775-1851%29_-_Petworth_Park%2C_Tillington_Church_in_the_Distance_-_N00559_-_National_Gallery.jpg",
+      "commonsUrl": "https://commons.wikimedia.org/wiki/File%3AJoseph_Mallord_William_Turner_(1775-1851)_-_Petworth_Park%2C_Tillington_Church_in_the_Distance_-_N00559_-_National_Gallery.jpg",
+      "wikidataId": "Q28538672",
+      "objectKey": "collection-of-beauty/Joseph_Mallord_William_Turner_(1775-1851)_-_Petworth_Park,_Tillington_Church_in_the_Distance_-_N00559_-_National_Gallery.jpg",
+      "variantWidths": [
+        256,
+        480,
+        640,
+        960,
+        1280,
+        1920,
+        2560,
+        4096
+      ]
+    },
+    "candidates": [],
+    "summary": "No verified higher-res replacement found (0 raw candidates, 0 below confidence threshold)."
+  },
+  {
+    "target": {
+      "id": "collection-of-beauty-joseph-mallord-william-turner-1775-1851-tree-tops-and-sky-guildford-castle-evening-n02309-national-",
+      "title": "Tree Tops and Sky",
+      "englishTitle": null,
+      "artist": "J. M. W. Turner",
+      "w": 1180,
+      "h": 436,
+      "fileUrl": "https://upload.wikimedia.org/wikipedia/commons/f/f9/Joseph_Mallord_William_Turner_%281775-1851%29_-_Tree_Tops_and_Sky%2C_Guildford_Castle%28%5E%29%2C_Evening_-_N02309_-_National_Gallery.jpg",
+      "commonsUrl": "https://commons.wikimedia.org/wiki/File%3AJoseph_Mallord_William_Turner_(1775-1851)_-_Tree_Tops_and_Sky%2C_Guildford_Castle(%5E)%2C_Evening_-_N02309_-_National_Gallery.jpg",
+      "wikidataId": "Q28532612",
+      "objectKey": "collection-of-beauty/Joseph_Mallord_William_Turner_(1775-1851)_-_Tree_Tops_and_Sky,_Guildford_Castle(^),_Evening_-_N02309_-_National_Gallery.jpg",
+      "variantWidths": [
+        256,
+        480,
+        640,
+        960,
+        1280,
+        1920,
+        2560,
+        4096
+      ]
+    },
+    "candidates": [],
+    "summary": "No verified higher-res replacement found (0 raw candidates, 0 below confidence threshold)."
+  },
+  {
+    "target": {
+      "id": "collection-of-beauty-kaigetsudo-ando-standing-portrait-of-a-courtesan-c-1705-1710-hanging-scroll-ink-color-and-gold-on-p",
+      "title": "Kaigetsudo Ando - Standing Portrait of a Courtesan",
+      "englishTitle": null,
+      "artist": "Kaigetsudō Ando",
+      "w": 579,
+      "h": 1245,
+      "fileUrl": "https://upload.wikimedia.org/wikipedia/commons/0/00/Kaigetsudo_Ando_-_Standing_Portrait_of_a_Courtesan%2C_c._1705-1710%2C_Hanging_scroll%3B_ink%2C_color_and_gold_on_paper.jpg",
+      "commonsUrl": "https://commons.wikimedia.org/wiki/File%3AKaigetsudo_Ando_-_Standing_Portrait_of_a_Courtesan%2C_c._1705-1710%2C_Hanging_scroll%3B_ink%2C_color_and_gold_on_paper.jpg",
+      "wikidataId": null,
+      "objectKey": "collection-of-beauty/Kaigetsudo_Ando_-_Standing_Portrait_of_a_Courtesan,_c._1705-1710,_Hanging_scroll;_ink,_color_and_gold_on_paper.jpg",
+      "variantWidths": [
+        256,
+        480,
+        640,
+        960,
+        1280,
+        1920,
+        2560,
+        4096
+      ]
+    },
+    "candidates": [],
+    "summary": "No verified higher-res replacement found (0 raw candidates, 0 below confidence threshold)."
+  },
+  {
+    "target": {
+      "id": "collection-of-beauty-kanae-yamamoto-1926-tokko-sanroku-shui",
+      "title": "Kanae Yamamoto",
+      "englishTitle": "Tokko Sanroku Shūi",
+      "artist": "Kanae Yamamoto",
+      "w": 750,
+      "h": 625,
+      "fileUrl": "https://upload.wikimedia.org/wikipedia/commons/2/21/Kanae_Yamamoto_%281926%29_Tokko_Sanroku_Sh%C5%ABi.jpg",
+      "commonsUrl": "https://commons.wikimedia.org/wiki/File:Kanae_Yamamoto_(1926)_Tokko_Sanroku_Sh%C5%ABi.jpg",
+      "wikidataId": null,
+      "objectKey": "collection-of-beauty/Kanae_Yamamoto_(1926)_Tokko_Sanroku_Shūi.jpg",
+      "variantWidths": [
+        256,
+        480,
+        640,
+        960,
+        1280,
+        1920,
+        2560,
+        4096
+      ]
+    },
+    "candidates": [],
+    "summary": "No verified higher-res replacement found (0 raw candidates, 0 below confidence threshold)."
+  },
+  {
+    "target": {
+      "id": "collection-of-beauty-kanae-yamamoto-1937-haruna-ko-shoshu",
+      "title": "Kanae Yamamoto",
+      "englishTitle": "Haruna-ko shoshū",
+      "artist": "Kanae Yamamoto",
+      "w": 750,
+      "h": 599,
+      "fileUrl": "https://upload.wikimedia.org/wikipedia/commons/d/d3/Kanae_Yamamoto_%281937%29_Haruna-ko_shosh%C5%AB.jpg",
+      "commonsUrl": "https://commons.wikimedia.org/wiki/File:Kanae_Yamamoto_(1937)_Haruna-ko_shosh%C5%AB.jpg",
+      "wikidataId": null,
+      "objectKey": "collection-of-beauty/Kanae_Yamamoto_(1937)_Haruna-ko_shoshū.jpg",
+      "variantWidths": [
+        256,
+        480,
+        640,
+        960,
+        1280,
+        1920,
+        2560,
+        4096
+      ]
+    },
+    "candidates": [],
+    "summary": "No verified higher-res replacement found (0 raw candidates, 0 below confidence threshold)."
+  },
+  {
+    "target": {
+      "id": "collection-of-beauty-kanae-yamamoto-1938-kami-ide-no-fuji",
+      "title": "Kanae Yamamoto",
+      "englishTitle": null,
+      "artist": "Kanae Yamamoto",
+      "w": 750,
+      "h": 619,
+      "fileUrl": "https://upload.wikimedia.org/wikipedia/commons/c/ce/Kanae_Yamamoto_%281938%29_Kami-Ide_no_Fuji.jpg",
+      "commonsUrl": "https://commons.wikimedia.org/wiki/File%3AKanae_Yamamoto_(1938)_Kami-Ide_no_Fuji.jpg",
+      "wikidataId": null,
+      "objectKey": "collection-of-beauty/Kanae_Yamamoto_(1938)_Kami-Ide_no_Fuji.jpg",
+      "variantWidths": [
+        256,
+        480,
+        640,
+        960,
+        1280,
+        1920,
+        2560,
+        4096
+      ]
+    },
+    "candidates": [],
+    "summary": "No verified higher-res replacement found (0 raw candidates, 0 below confidence threshold)."
+  },
+  {
+    "target": {
+      "id": "collection-of-beauty-kanae-yamamoto-1939-kogen-iizuna",
+      "title": "Kanae Yamamoto",
+      "englishTitle": "Kōgen - Iizuna",
+      "artist": "Kanae Yamamoto",
+      "w": 750,
+      "h": 542,
+      "fileUrl": "https://upload.wikimedia.org/wikipedia/commons/1/19/Kanae_Yamamoto_%281939%29_K%C5%8Dgen_-_Iizuna.jpg",
+      "commonsUrl": "https://commons.wikimedia.org/wiki/File:Kanae_Yamamoto_(1939)_Kōgen_-_Iizuna.jpg",
+      "wikidataId": null,
+      "objectKey": "collection-of-beauty/Kanae_Yamamoto_(1939)_Kōgen_-_Iizuna.jpg",
+      "variantWidths": [
+        256,
+        480,
+        640,
+        960,
+        1280,
+        1920,
+        2560,
+        4096
+      ]
+    },
+    "candidates": [],
+    "summary": "No verified higher-res replacement found (1 raw candidates, 1 below confidence threshold)."
+  },
+  {
+    "target": {
+      "id": "collection-of-beauty-kenko-shokei-shosho-hakkei-enji-bansho",
+      "title": "Kenkō Shōkei - Shōshō Hakkei - Enji Banshō",
+      "englishTitle": "Enji Banshō (from Eight Views of Xiaoxiang)",
+      "artist": "Kenkō Shōkei",
+      "w": 459,
+      "h": 705,
+      "fileUrl": "https://upload.wikimedia.org/wikipedia/commons/7/77/Kenk%C5%8D_Sh%C5%8Dkei_-_Sh%C5%8Dsh%C5%8D_Hakkei_-_Enji_Bansh%C5%8D.png",
+      "commonsUrl": "https://commons.wikimedia.org/wiki/File:Kenkō_Shōkei_-_Shōshō_Hakkei_-_Enji_Banshō.png",
+      "wikidataId": null,
+      "objectKey": "collection-of-beauty/Kenkō_Shōkei_-_Shōshō_Hakkei_-_Enji_Banshō.png",
+      "variantWidths": [
+        256,
+        480,
+        640,
+        960,
+        1280,
+        1920,
+        2560,
+        4096
+      ]
+    },
+    "candidates": [],
+    "summary": "No verified higher-res replacement found (0 raw candidates, 0 below confidence threshold)."
+  },
+  {
+    "target": {
+      "id": "collection-of-beauty-kisokaido14-itahana",
+      "title": "Kisokaido14 Itahana",
+      "englishTitle": null,
+      "artist": "Keisai Eisen",
+      "w": 860,
+      "h": 577,
+      "fileUrl": "https://upload.wikimedia.org/wikipedia/commons/b/bd/Kisokaido14_Itahana.jpg",
+      "commonsUrl": "https://commons.wikimedia.org/wiki/File%3AKisokaido14_Itahana.jpg",
+      "wikidataId": null,
+      "objectKey": "collection-of-beauty/Kisokaido14_Itahana.jpg",
+      "variantWidths": [
+        256,
+        480,
+        640,
+        960,
+        1280,
+        1920,
+        2560,
+        4096
+      ]
+    },
+    "candidates": [],
+    "summary": "No verified higher-res replacement found (0 raw candidates, 0 below confidence threshold)."
+  },
+  {
+    "target": {
+      "id": "collection-of-beauty-l-ermitage-par-paul-berthon-2",
+      "title": "L'Ermitage par Paul Berthon 2",
+      "englishTitle": null,
+      "artist": "Paul Berthon",
+      "w": 489,
+      "h": 700,
+      "fileUrl": "https://upload.wikimedia.org/wikipedia/commons/6/68/L%27Ermitage_par_Paul_Berthon_2.jpg",
+      "commonsUrl": "https://commons.wikimedia.org/wiki/File%3AL'Ermitage_par_Paul_Berthon_2.jpg",
+      "wikidataId": null,
+      "objectKey": "collection-of-beauty/L'Ermitage_par_Paul_Berthon_2.jpg",
+      "variantWidths": [
+        256,
+        480,
+        640,
+        960,
+        1280,
+        1920,
+        2560,
+        4096
+      ]
+    },
+    "candidates": [],
+    "summary": "No verified higher-res replacement found (1 raw candidates, 1 below confidence threshold)."
+  },
+  {
+    "target": {
+      "id": "collection-of-beauty-l-l-boilly-une-loge",
+      "title": "L-L Boilly Une loge",
+      "englishTitle": null,
+      "artist": "Louis-Léopold Boilly",
+      "w": 758,
+      "h": 601,
+      "fileUrl": "https://upload.wikimedia.org/wikipedia/commons/2/29/L-L_Boilly_Une_loge.jpg",
+      "commonsUrl": "https://commons.wikimedia.org/wiki/File%3AL-L_Boilly_Une_loge.jpg",
+      "wikidataId": null,
+      "objectKey": "collection-of-beauty/L-L_Boilly_Une_loge.jpg",
+      "variantWidths": [
+        256,
+        480,
+        640,
+        960,
+        1280,
+        1920,
+        2560,
+        4096
+      ]
+    },
+    "candidates": [],
+    "summary": "No verified higher-res replacement found (0 raw candidates, 0 below confidence threshold)."
+  },
+  {
+    "target": {
+      "id": "collection-of-beauty-leo-tolstoy02",
+      "title": "Leo Tolstoy02",
+      "englishTitle": null,
+      "artist": "Ilya Repin",
+      "w": 800,
+      "h": 571,
+      "fileUrl": "https://upload.wikimedia.org/wikipedia/commons/5/5c/Leo_Tolstoy02.jpg",
+      "commonsUrl": "https://commons.wikimedia.org/wiki/File%3ALeo_Tolstoy02.jpg",
+      "wikidataId": null,
+      "objectKey": "collection-of-beauty/Leo_Tolstoy02.jpg",
+      "variantWidths": [
+        256,
+        480,
+        640,
+        960,
+        1280,
+        1920,
+        2560,
+        4096
+      ]
+    },
+    "candidates": [],
+    "summary": "No verified higher-res replacement found (0 raw candidates, 0 below confidence threshold)."
+  },
+  {
+    "target": {
+      "id": "collection-of-beauty-mikhail-nesterov-009",
+      "title": "The Hermit",
+      "englishTitle": null,
+      "artist": "Mikhail Nesterov",
+      "w": 470,
+      "h": 600,
+      "fileUrl": "https://upload.wikimedia.org/wikipedia/commons/3/3b/Mikhail_Nesterov_009.jpeg",
+      "commonsUrl": "https://commons.wikimedia.org/wiki/File%3AMikhail_Nesterov_009.jpeg",
+      "wikidataId": "Q11831903",
+      "objectKey": "collection-of-beauty/Mikhail_Nesterov_009.jpeg",
+      "variantWidths": [
+        256,
+        480,
+        640,
+        960,
+        1280,
+        1920,
+        2560,
+        4096
+      ]
+    },
+    "candidates": [],
+    "summary": "No verified higher-res replacement found (2 raw candidates, 2 below confidence threshold)."
   },
   {
     "target": {
@@ -512,17 +2630,398 @@
         4096
       ]
     },
-    "candidates": [
-      {
-        "fileUrl": "https://upload.wikimedia.org/wikipedia/commons/d/d9/Claude_Monet_-_Dahlias_%2816035439250%29.jpg",
-        "commonsPageUrl": "https://commons.wikimedia.org/wiki/File:Claude_Monet_-_Dahlias_(16035439250).jpg",
-        "width": 335,
-        "height": 1124,
-        "confidence": 0.92,
-        "reason": "Same artwork — Commons file titled 'Dahlias' by Claude Monet, aspect ratio 1124/335=3.35 vs current 929/280=3.32 (negligible crop diff), both still-life floral compositions sharing the same tall-narrow format. Both are in 'Paintings of Dahlias' + 'Still-life paintings of flowers by Claude Monet' categories. Resolution upgrade is modest (~20% on each axis) but it is the only genuinely higher-res version of THIS specific Monet 'Dahlias' (W 625, 1880) on Commons. The current 280-wide file is one of a family of WikiArt thumbnails (e.g. Monet_-_dahlias-2.jpg is 280x939 of the same work)."
-      }
-    ],
-    "summary": "Found 1 genuinely higher-res replacement. Same artwork (Monet, Dahlias, ~1880, still-life), Flickr-sourced upload at 335x1124 vs current 280x929 — matching aspect ratio confirms same work, not a study/fragment/different version. Other Commons hits for \"Monet dahlias\" are either same-size WikiArt thumbs (Monet_-_dahlias-2.jpg, 280x939) or different works (Monet_w625_dahlias.jpg has a 1.22 aspect — different crop/work; Monet_-_vase-of-dahlias.jpg is a distinct still-life). Resolution gain is modest but real."
+    "candidates": [],
+    "summary": "No verified higher-res replacement found (1 raw candidates, 1 below confidence threshold)."
+  },
+  {
+    "target": {
+      "id": "collection-of-beauty-monet-pond-at-montgeron",
+      "title": "Pond at Montgeron",
+      "englishTitle": null,
+      "artist": "Claude Monet",
+      "w": 745,
+      "h": 662,
+      "fileUrl": "https://upload.wikimedia.org/wikipedia/commons/1/15/Monet%2C_Pond-at-Montgeron.jpg",
+      "commonsUrl": "https://commons.wikimedia.org/wiki/File%3AMonet%2C_Pond-at-Montgeron.jpg",
+      "wikidataId": "Q3968022",
+      "objectKey": "collection-of-beauty/Monet,_Pond-at-Montgeron.jpg",
+      "variantWidths": [
+        256,
+        480,
+        640,
+        960,
+        1280,
+        1920,
+        2560,
+        4096
+      ]
+    },
+    "candidates": [],
+    "summary": "No verified higher-res replacement found (1 raw candidates, 1 below confidence threshold)."
+  },
+  {
+    "target": {
+      "id": "collection-of-beauty-monet-w-235",
+      "title": "Monet w 235",
+      "englishTitle": null,
+      "artist": "Claude Monet",
+      "w": 1023,
+      "h": 510,
+      "fileUrl": "https://upload.wikimedia.org/wikipedia/commons/4/4d/Monet_w_235.jpg",
+      "commonsUrl": "https://commons.wikimedia.org/wiki/File%3AMonet_w_235.jpg",
+      "wikidataId": null,
+      "objectKey": "collection-of-beauty/Monet_w_235.jpg",
+      "variantWidths": [
+        256,
+        480,
+        640,
+        960,
+        1280,
+        1920,
+        2560,
+        4096
+      ]
+    },
+    "candidates": [],
+    "summary": "No verified higher-res replacement found (1 raw candidates, 1 below confidence threshold)."
+  },
+  {
+    "target": {
+      "id": "collection-of-beauty-monet-w1056",
+      "title": "Monet w1056",
+      "englishTitle": null,
+      "artist": "Claude Monet",
+      "w": 736,
+      "h": 590,
+      "fileUrl": "https://upload.wikimedia.org/wikipedia/commons/f/f1/Monet_w1056.jpg",
+      "commonsUrl": "https://commons.wikimedia.org/wiki/File%3AMonet_w1056.jpg",
+      "wikidataId": null,
+      "objectKey": "collection-of-beauty/Monet_w1056.jpg",
+      "variantWidths": [
+        256,
+        480,
+        640,
+        960,
+        1280,
+        1920,
+        2560,
+        4096
+      ]
+    },
+    "candidates": [],
+    "summary": "No verified higher-res replacement found (0 raw candidates, 0 below confidence threshold)."
+  },
+  {
+    "target": {
+      "id": "collection-of-beauty-monet-w601",
+      "title": "Monet w601",
+      "englishTitle": null,
+      "artist": "Claude Monet",
+      "w": 736,
+      "h": 587,
+      "fileUrl": "https://upload.wikimedia.org/wikipedia/commons/5/5e/Monet_w601.jpg",
+      "commonsUrl": "https://commons.wikimedia.org/wiki/File%3AMonet_w601.jpg",
+      "wikidataId": null,
+      "objectKey": "collection-of-beauty/Monet_w601.jpg",
+      "variantWidths": [
+        256,
+        480,
+        640,
+        960,
+        1280,
+        1920,
+        2560,
+        4096
+      ]
+    },
+    "candidates": [],
+    "summary": "No verified higher-res replacement found (0 raw candidates, 0 below confidence threshold)."
+  },
+  {
+    "target": {
+      "id": "collection-of-beauty-monet-w648",
+      "title": "Monet w648",
+      "englishTitle": null,
+      "artist": "Claude Monet",
+      "w": 736,
+      "h": 599,
+      "fileUrl": "https://upload.wikimedia.org/wikipedia/commons/b/bf/Monet_w648.jpg",
+      "commonsUrl": "https://commons.wikimedia.org/wiki/File%3AMonet_w648.jpg",
+      "wikidataId": null,
+      "objectKey": "collection-of-beauty/Monet_w648.jpg",
+      "variantWidths": [
+        256,
+        480,
+        640,
+        960,
+        1280,
+        1920,
+        2560,
+        4096
+      ]
+    },
+    "candidates": [],
+    "summary": "No verified higher-res replacement found (0 raw candidates, 0 below confidence threshold)."
+  },
+  {
+    "target": {
+      "id": "collection-of-beauty-monet-w649",
+      "title": "Monet w649",
+      "englishTitle": null,
+      "artist": "Claude Monet",
+      "w": 736,
+      "h": 538,
+      "fileUrl": "https://upload.wikimedia.org/wikipedia/commons/0/02/Monet_w649.jpg",
+      "commonsUrl": "https://commons.wikimedia.org/wiki/File%3AMonet_w649.jpg",
+      "wikidataId": null,
+      "objectKey": "collection-of-beauty/Monet_w649.jpg",
+      "variantWidths": [
+        256,
+        480,
+        640,
+        960,
+        1280,
+        1920,
+        2560,
+        4096
+      ]
+    },
+    "candidates": [],
+    "summary": "No verified higher-res replacement found (0 raw candidates, 0 below confidence threshold)."
+  },
+  {
+    "target": {
+      "id": "collection-of-beauty-monet-w658",
+      "title": "Monet w658",
+      "englishTitle": null,
+      "artist": "Claude Monet",
+      "w": 1024,
+      "h": 570,
+      "fileUrl": "https://upload.wikimedia.org/wikipedia/commons/8/87/Monet_w658.jpg",
+      "commonsUrl": "https://commons.wikimedia.org/wiki/File%3AMonet_w658.jpg",
+      "wikidataId": null,
+      "objectKey": "collection-of-beauty/Monet_w658.jpg",
+      "variantWidths": [
+        256,
+        480,
+        640,
+        960,
+        1280,
+        1920,
+        2560,
+        4096
+      ]
+    },
+    "candidates": [],
+    "summary": "No verified higher-res replacement found (0 raw candidates, 0 below confidence threshold)."
+  },
+  {
+    "target": {
+      "id": "collection-of-beauty-monet-w664",
+      "title": "Monet w664",
+      "englishTitle": null,
+      "artist": "Claude Monet",
+      "w": 736,
+      "h": 611,
+      "fileUrl": "https://upload.wikimedia.org/wikipedia/commons/6/6a/Monet_w664.jpg",
+      "commonsUrl": "https://commons.wikimedia.org/wiki/File%3AMonet_w664.jpg",
+      "wikidataId": null,
+      "objectKey": "collection-of-beauty/Monet_w664.jpg",
+      "variantWidths": [
+        256,
+        480,
+        640,
+        960,
+        1280,
+        1920,
+        2560,
+        4096
+      ]
+    },
+    "candidates": [],
+    "summary": "No verified higher-res replacement found (0 raw candidates, 0 below confidence threshold)."
+  },
+  {
+    "target": {
+      "id": "collection-of-beauty-monet-w678-lane-in-ile-st-martin",
+      "title": "Monet w678 lane in ile st martin",
+      "englishTitle": null,
+      "artist": "Claude Monet",
+      "w": 529,
+      "h": 640,
+      "fileUrl": "https://upload.wikimedia.org/wikipedia/commons/0/0a/Monet_w678_lane_in_ile_st_martin.jpg",
+      "commonsUrl": "https://commons.wikimedia.org/wiki/File%3AMonet_w678_lane_in_ile_st_martin.jpg",
+      "wikidataId": null,
+      "objectKey": "collection-of-beauty/Monet_w678_lane_in_ile_st_martin.jpg",
+      "variantWidths": [
+        256,
+        480,
+        640,
+        960,
+        1280,
+        1920,
+        2560,
+        4096
+      ]
+    },
+    "candidates": [],
+    "summary": "No verified higher-res replacement found (0 raw candidates, 0 below confidence threshold)."
+  },
+  {
+    "target": {
+      "id": "collection-of-beauty-monet-w694",
+      "title": "Monet w694",
+      "englishTitle": null,
+      "artist": "Claude Monet",
+      "w": 416,
+      "h": 1023,
+      "fileUrl": "https://upload.wikimedia.org/wikipedia/commons/4/49/Monet_w694.jpg",
+      "commonsUrl": "https://commons.wikimedia.org/wiki/File%3AMonet_w694.jpg",
+      "wikidataId": "Q79790767",
+      "objectKey": "collection-of-beauty/Monet_w694.jpg",
+      "variantWidths": [
+        256,
+        480,
+        640,
+        960,
+        1280,
+        1920,
+        2560,
+        4096
+      ]
+    },
+    "candidates": [],
+    "summary": "No verified higher-res replacement found (0 raw candidates, 0 below confidence threshold)."
+  },
+  {
+    "target": {
+      "id": "collection-of-beauty-monet-w767",
+      "title": "Monet w767",
+      "englishTitle": null,
+      "artist": "Claude Monet",
+      "w": 736,
+      "h": 592,
+      "fileUrl": "https://upload.wikimedia.org/wikipedia/commons/e/e4/Monet_w767.jpg",
+      "commonsUrl": "https://commons.wikimedia.org/wiki/File%3AMonet_w767.jpg",
+      "wikidataId": null,
+      "objectKey": "collection-of-beauty/Monet_w767.jpg",
+      "variantWidths": [
+        256,
+        480,
+        640,
+        960,
+        1280,
+        1920,
+        2560,
+        4096
+      ]
+    },
+    "candidates": [],
+    "summary": "No verified higher-res replacement found (0 raw candidates, 0 below confidence threshold)."
+  },
+  {
+    "target": {
+      "id": "collection-of-beauty-monet-w812-vase-of-chrysantemums",
+      "title": "Monet w812 vase of chrysantemums",
+      "englishTitle": null,
+      "artist": "Claude Monet",
+      "w": 500,
+      "h": 704,
+      "fileUrl": "https://upload.wikimedia.org/wikipedia/commons/4/46/Monet_w812_vase_of_chrysantemums.png",
+      "commonsUrl": "https://commons.wikimedia.org/wiki/File%3AMonet_w812_vase_of_chrysantemums.png",
+      "wikidataId": null,
+      "objectKey": "collection-of-beauty/Monet_w812_vase_of_chrysantemums.png",
+      "variantWidths": [
+        256,
+        480,
+        640,
+        960,
+        1280,
+        1920,
+        2560,
+        4096
+      ]
+    },
+    "candidates": [],
+    "summary": "No verified higher-res replacement found (0 raw candidates, 0 below confidence threshold)."
+  },
+  {
+    "target": {
+      "id": "collection-of-beauty-monet-w922",
+      "title": "Monet w922",
+      "englishTitle": null,
+      "artist": "Claude Monet",
+      "w": 1500,
+      "h": 599,
+      "fileUrl": "https://upload.wikimedia.org/wikipedia/commons/0/09/Monet_w922.jpg",
+      "commonsUrl": "https://commons.wikimedia.org/wiki/File%3AMonet_w922.jpg",
+      "wikidataId": null,
+      "objectKey": "collection-of-beauty/Monet_w922.jpg",
+      "variantWidths": [
+        256,
+        480,
+        640,
+        960,
+        1280,
+        1920,
+        2560,
+        4096
+      ]
+    },
+    "candidates": [],
+    "summary": "No verified higher-res replacement found (0 raw candidates, 0 below confidence threshold)."
+  },
+  {
+    "target": {
+      "id": "collection-of-beauty-monet-w928",
+      "title": "Monet w928",
+      "englishTitle": null,
+      "artist": "Claude Monet",
+      "w": 1482,
+      "h": 594,
+      "fileUrl": "https://upload.wikimedia.org/wikipedia/commons/8/8d/Monet_w928.jpg",
+      "commonsUrl": "https://commons.wikimedia.org/wiki/File%3AMonet_w928.jpg",
+      "wikidataId": null,
+      "objectKey": "collection-of-beauty/Monet_w928.jpg",
+      "variantWidths": [
+        256,
+        480,
+        640,
+        960,
+        1280,
+        1920,
+        2560,
+        4096
+      ]
+    },
+    "candidates": [],
+    "summary": "No verified higher-res replacement found (0 raw candidates, 0 below confidence threshold)."
+  },
+  {
+    "target": {
+      "id": "collection-of-beauty-monet-water-lilies-1914-26",
+      "title": "Water Lilies",
+      "englishTitle": "Water Lilies (Saint Louis Art Museum, 1914-26)",
+      "artist": "Claude Monet",
+      "w": 2000,
+      "h": 310,
+      "fileUrl": "https://upload.wikimedia.org/wikipedia/commons/5/50/Monet_-_Water_Lilies%2C_1914-26.jpg",
+      "commonsUrl": "https://commons.wikimedia.org/wiki/File%3AMonet_-_Water_Lilies%2C_1914-26.jpg",
+      "wikidataId": null,
+      "objectKey": "collection-of-beauty/Monet_-_Water_Lilies,_1914-26.jpg",
+      "variantWidths": [
+        256,
+        480,
+        640,
+        960,
+        1280,
+        1920,
+        2560,
+        4096
+      ]
+    },
+    "candidates": [],
+    "summary": "No verified higher-res replacement found (0 raw candidates, 0 below confidence threshold)."
   },
   {
     "target": {
@@ -547,24 +3046,821 @@
         4096
       ]
     },
-    "candidates": [
-      {
-        "fileUrl": "https://upload.wikimedia.org/wikipedia/commons/b/b3/Massif_de_chrysanth%C3%A8mes_%281897%29_Claude_Monet_%28W1497%29.jpg",
-        "commonsPageUrl": "https://commons.wikimedia.org/wiki/File:Massif_de_chrysanth%C3%A8mes_(1897)_Claude_Monet_(W1497).jpg",
-        "width": 499,
-        "height": 725,
-        "confidence": 0.97,
-        "reason": "Same Wildenstein catalogue number W1497 explicit in filename and file description ('Wildenstein 1996 Vol. III, N° 1497'). Title 'Massif de chrysanthèmes' (1897, 130.7 × 88.8 cm). Aspect ratio 0.688 closely matches current file's 0.695 and the canvas's actual 0.679 — confirms identical artwork crop. Both dimensions exceed the current 394×567 (width 499>394, height 725>567)."
-      }
-    ],
-    "summary": "Found 1 higher-resolution candidate. The file 'Massif de chrysanthèmes (1897) Claude Monet (W1497).jpg' at 499×725 is the same artwork (Wildenstein 1996 #1497, 'Massif de chrysanthèmes', 1897) confirmed by matching catalogue number, matching aspect ratio (~0.69), and bigger pixel dimensions in both axes. A separate file 'Monet - Massif de chrysanthèmes, 1897.jpg' was rejected because it is W1496 (Kunstmuseum Basel, landscape orientation 81×100 cm) — different painting."
+    "candidates": [],
+    "summary": "No verified higher-res replacement found (1 raw candidates, 1 below confidence threshold)."
+  },
+  {
+    "target": {
+      "id": "collection-of-beauty-nikolaj-alexandrowitsch-jaroschenko-004",
+      "title": "Im warmen Land",
+      "englishTitle": null,
+      "artist": "Nikolai Yaroshenko",
+      "w": 618,
+      "h": 800,
+      "fileUrl": "https://upload.wikimedia.org/wikipedia/commons/f/f5/Nikolaj_Alexandrowitsch_Jaroschenko_004.jpg",
+      "commonsUrl": "https://commons.wikimedia.org/wiki/File%3ANikolaj_Alexandrowitsch_Jaroschenko_004.jpg",
+      "wikidataId": null,
+      "objectKey": "collection-of-beauty/Nikolaj_Alexandrowitsch_Jaroschenko_004.jpg",
+      "variantWidths": [
+        256,
+        480,
+        640,
+        960,
+        1280,
+        1920,
+        2560,
+        4096
+      ]
+    },
+    "candidates": [],
+    "summary": "No verified higher-res replacement found (2 raw candidates, 2 below confidence threshold)."
+  },
+  {
+    "target": {
+      "id": "collection-of-beauty-notes-nocturne-lithograph-by-james-mcneill-whistler-1878",
+      "title": "Notes Nocturne lithograph by James McNeill Whistler 1878",
+      "englishTitle": null,
+      "artist": "James McNeill Whistler",
+      "w": 750,
+      "h": 505,
+      "fileUrl": "https://upload.wikimedia.org/wikipedia/commons/c/c5/Notes_Nocturne_lithograph_by_James_McNeill_Whistler_1878.jpg",
+      "commonsUrl": "https://commons.wikimedia.org/wiki/File%3ANotes_Nocturne_lithograph_by_James_McNeill_Whistler_1878.jpg",
+      "wikidataId": null,
+      "objectKey": "collection-of-beauty/Notes_Nocturne_lithograph_by_James_McNeill_Whistler_1878.jpg",
+      "variantWidths": [
+        256,
+        480,
+        640,
+        960,
+        1280,
+        1920,
+        2560,
+        4096
+      ]
+    },
+    "candidates": [],
+    "summary": "No verified higher-res replacement found (0 raw candidates, 0 below confidence threshold)."
+  },
+  {
+    "target": {
+      "id": "collection-of-beauty-paul-gauguin-self-portrait-1903-kunstmuseum-basel-1943",
+      "title": "Self-portrait",
+      "englishTitle": null,
+      "artist": "Paul Gauguin",
+      "w": 591,
+      "h": 1028,
+      "fileUrl": "https://upload.wikimedia.org/wikipedia/commons/f/fa/Paul_Gauguin_-_Self_Portrait_1903_-_Kunstmuseum_Basel_1943.jpg",
+      "commonsUrl": "https://commons.wikimedia.org/wiki/File%3APaul_Gauguin_-_Self_Portrait_1903_-_Kunstmuseum_Basel_1943.jpg",
+      "wikidataId": null,
+      "objectKey": "collection-of-beauty/Paul_Gauguin_-_Self_Portrait_1903_-_Kunstmuseum_Basel_1943.jpg",
+      "variantWidths": [
+        256,
+        480,
+        640,
+        960,
+        1280,
+        1920,
+        2560,
+        4096
+      ]
+    },
+    "candidates": [],
+    "summary": "No verified higher-res replacement found (0 raw candidates, 0 below confidence threshold)."
+  },
+  {
+    "target": {
+      "id": "collection-of-beauty-peter-paul-rubens-1577-1640-head-study-of-a-bearded-man-pd-13-1980-fitzwilliam-museum",
+      "title": "Head Study of a Bearded Man",
+      "englishTitle": null,
+      "artist": "Peter Paul Rubens",
+      "w": 527,
+      "h": 685,
+      "fileUrl": "https://upload.wikimedia.org/wikipedia/commons/3/30/Peter_Paul_Rubens_%281577-1640%29_-_Head_Study_of_a_Bearded_Man_-_PD.13-1980_-_Fitzwilliam_Museum.jpg",
+      "commonsUrl": "https://commons.wikimedia.org/wiki/File%3APeter_Paul_Rubens_(1577-1640)_-_Head_Study_of_a_Bearded_Man_-_PD.13-1980_-_Fitzwilliam_Museum.jpg",
+      "wikidataId": "Q50820712",
+      "objectKey": "collection-of-beauty/Peter_Paul_Rubens_(1577-1640)_-_Head_Study_of_a_Bearded_Man_-_PD.13-1980_-_Fitzwilliam_Museum.jpg",
+      "variantWidths": [
+        256,
+        480,
+        640,
+        960,
+        1280,
+        1920,
+        2560,
+        4096
+      ]
+    },
+    "candidates": [],
+    "summary": "No verified higher-res replacement found (6 raw candidates, 6 below confidence threshold)."
+  },
+  {
+    "target": {
+      "id": "collection-of-beauty-peter-paul-rubens-1577-1640-school-of-the-lamentation-1-op-0049-durham-university",
+      "title": "The Lamentation",
+      "englishTitle": null,
+      "artist": "Peter Paul Rubens",
+      "w": 800,
+      "h": 597,
+      "fileUrl": "https://upload.wikimedia.org/wikipedia/commons/b/b7/Peter_Paul_Rubens_%281577-1640%29_%28school_of%29_-_The_Lamentation_-_1.OP.0049_-_Durham_University.jpg",
+      "commonsUrl": "https://commons.wikimedia.org/wiki/File%3APeter_Paul_Rubens_(1577-1640)_(school_of)_-_The_Lamentation_-_1.OP.0049_-_Durham_University.jpg",
+      "wikidataId": "Q119940779",
+      "objectKey": "collection-of-beauty/Peter_Paul_Rubens_(1577-1640)_(school_of)_-_The_Lamentation_-_1.OP.0049_-_Durham_University.jpg",
+      "variantWidths": [
+        256,
+        480,
+        640,
+        960,
+        1280,
+        1920,
+        2560,
+        4096
+      ]
+    },
+    "candidates": [],
+    "summary": "No verified higher-res replacement found (3 raw candidates, 3 below confidence threshold)."
+  },
+  {
+    "target": {
+      "id": "collection-of-beauty-peter-paul-rubens-1577-1640-teresa-of-avila-s-vision-of-the-dove-pd-43-1999-fitzwilliam-museum",
+      "title": "Saint Teresa of Avila's vision of the dove",
+      "englishTitle": null,
+      "artist": "Peter Paul Rubens",
+      "w": 442,
+      "h": 685,
+      "fileUrl": "https://upload.wikimedia.org/wikipedia/commons/2/26/Peter_Paul_Rubens_%281577-1640%29_-_Teresa_of_Avila%27s_Vision_of_the_Dove_-_PD.43-1999_-_Fitzwilliam_Museum.jpg",
+      "commonsUrl": "https://commons.wikimedia.org/wiki/File%3APeter_Paul_Rubens_(1577-1640)_-_Teresa_of_Avila's_Vision_of_the_Dove_-_PD.43-1999_-_Fitzwilliam_Museum.jpg",
+      "wikidataId": "Q50814741",
+      "objectKey": "collection-of-beauty/Peter_Paul_Rubens_(1577-1640)_-_Teresa_of_Avila's_Vision_of_the_Dove_-_PD.43-1999_-_Fitzwilliam_Museum.jpg",
+      "variantWidths": [
+        256,
+        480,
+        640,
+        960,
+        1280,
+        1920,
+        2560,
+        4096
+      ]
+    },
+    "candidates": [],
+    "summary": "No verified higher-res replacement found (2 raw candidates, 2 below confidence threshold)."
+  },
+  {
+    "target": {
+      "id": "collection-of-beauty-peter-paul-rubens-kopie-nach-ecce-homo-1922-bavarian-state-painting-collections",
+      "title": "Ecce homo",
+      "englishTitle": null,
+      "artist": "Peter Paul Rubens",
+      "w": 629,
+      "h": 768,
+      "fileUrl": "https://upload.wikimedia.org/wikipedia/commons/0/01/Peter_Paul_Rubens_%28Kopie_nach%29_-_Ecce_homo_-_1922_-_Bavarian_State_Painting_Collections.jpg",
+      "commonsUrl": "https://commons.wikimedia.org/wiki/File%3APeter_Paul_Rubens_(Kopie_nach)_-_Ecce_homo_-_1922_-_Bavarian_State_Painting_Collections.jpg",
+      "wikidataId": "Q30095738",
+      "objectKey": "collection-of-beauty/Peter_Paul_Rubens_(Kopie_nach)_-_Ecce_homo_-_1922_-_Bavarian_State_Painting_Collections.jpg",
+      "variantWidths": [
+        256,
+        480,
+        640,
+        960,
+        1280,
+        1920,
+        2560,
+        4096
+      ]
+    },
+    "candidates": [],
+    "summary": "No verified higher-res replacement found (3 raw candidates, 3 below confidence threshold)."
+  },
+  {
+    "target": {
+      "id": "collection-of-beauty-peter-paul-rubens-mariae-himmelfahrt-1303-bavarian-state-painting-collections",
+      "title": "Mariae Himmelfahrt",
+      "englishTitle": null,
+      "artist": "Peter Paul Rubens",
+      "w": 538,
+      "h": 768,
+      "fileUrl": "https://upload.wikimedia.org/wikipedia/commons/f/f1/Peter_Paul_Rubens_-_Mariae_Himmelfahrt_-_1303_-_Bavarian_State_Painting_Collections.jpg",
+      "commonsUrl": "https://commons.wikimedia.org/wiki/File%3APeter_Paul_Rubens_-_Mariae_Himmelfahrt_-_1303_-_Bavarian_State_Painting_Collections.jpg",
+      "wikidataId": "Q30058368",
+      "objectKey": "collection-of-beauty/Peter_Paul_Rubens_-_Mariae_Himmelfahrt_-_1303_-_Bavarian_State_Painting_Collections.jpg",
+      "variantWidths": [
+        256,
+        480,
+        640,
+        960,
+        1280,
+        1920,
+        2560,
+        4096
+      ]
+    },
+    "candidates": [],
+    "summary": "No verified higher-res replacement found (0 raw candidates, 0 below confidence threshold)."
+  },
+  {
+    "target": {
+      "id": "collection-of-beauty-peter-paul-rubens-schule-der-lachende-philosoph-demokrit-7043-bavarian-state-painting-collections",
+      "title": "Der lachende Philosoph",
+      "englishTitle": null,
+      "artist": "Peter Paul Rubens",
+      "w": 591,
+      "h": 768,
+      "fileUrl": "https://upload.wikimedia.org/wikipedia/commons/6/67/Peter_Paul_Rubens_%28Schule%29_-_Der_lachende_Philosoph_%28Demokrit%29_-_7043_-_Bavarian_State_Painting_Collections.jpg",
+      "commonsUrl": "https://commons.wikimedia.org/wiki/File%3APeter_Paul_Rubens_(Schule)_-_Der_lachende_Philosoph_(Demokrit)_-_7043_-_Bavarian_State_Painting_Collections.jpg",
+      "wikidataId": "Q30095518",
+      "objectKey": "collection-of-beauty/Peter_Paul_Rubens_(Schule)_-_Der_lachende_Philosoph_(Demokrit)_-_7043_-_Bavarian_State_Painting_Collections.jpg",
+      "variantWidths": [
+        256,
+        480,
+        640,
+        960,
+        1280,
+        1920,
+        2560,
+        4096
+      ]
+    },
+    "candidates": [],
+    "summary": "No verified higher-res replacement found (0 raw candidates, 0 below confidence threshold)."
+  },
+  {
+    "target": {
+      "id": "collection-of-beauty-peter-paul-rubens-the-apostle-peter-kmssp194-statens-museum-for-kunst",
+      "title": "The Apostle Peter",
+      "englishTitle": null,
+      "artist": "Peter Paul Rubens",
+      "w": 511,
+      "h": 600,
+      "fileUrl": "https://upload.wikimedia.org/wikipedia/commons/0/07/Peter_Paul_Rubens_-_The_Apostle_Peter_-_KMSsp194_-_Statens_Museum_for_Kunst.jpg",
+      "commonsUrl": "https://commons.wikimedia.org/wiki/File%3APeter_Paul_Rubens_-_The_Apostle_Peter_-_KMSsp194_-_Statens_Museum_for_Kunst.jpg",
+      "wikidataId": "Q20385494",
+      "objectKey": "collection-of-beauty/Peter_Paul_Rubens_-_The_Apostle_Peter_-_KMSsp194_-_Statens_Museum_for_Kunst.jpg",
+      "variantWidths": [
+        256,
+        480,
+        640,
+        960,
+        1280,
+        1920,
+        2560,
+        4096
+      ]
+    },
+    "candidates": [],
+    "summary": "No verified higher-res replacement found (1 raw candidates, 1 below confidence threshold)."
+  },
+  {
+    "target": {
+      "id": "collection-of-beauty-picabia-hera-2",
+      "title": "Hera",
+      "englishTitle": null,
+      "artist": "Francis Picabia",
+      "w": 566,
+      "h": 783,
+      "fileUrl": "https://upload.wikimedia.org/wikipedia/commons/0/03/Picabia_Hera_2.JPG",
+      "commonsUrl": "https://commons.wikimedia.org/wiki/File%3APicabia_Hera_2.JPG",
+      "wikidataId": null,
+      "objectKey": "collection-of-beauty/Picabia_Hera_2.JPG",
+      "variantWidths": [
+        256,
+        480,
+        640,
+        960,
+        1280,
+        1920,
+        2560,
+        4096
+      ]
+    },
+    "candidates": [],
+    "summary": "No verified higher-res replacement found (1 raw candidates, 1 below confidence threshold)."
+  },
+  {
+    "target": {
+      "id": "collection-of-beauty-picabia-stardancer",
+      "title": "Picabia starDancer",
+      "englishTitle": "Star Dancer on a Transatlantic Steamer",
+      "artist": "Francis Picabia",
+      "w": 580,
+      "h": 800,
+      "fileUrl": "https://upload.wikimedia.org/wikipedia/commons/6/65/Picabia_starDancer.jpg",
+      "commonsUrl": "https://commons.wikimedia.org/wiki/File%3APicabia_starDancer.jpg",
+      "wikidataId": null,
+      "objectKey": "collection-of-beauty/Picabia_starDancer.jpg",
+      "variantWidths": [
+        256,
+        480,
+        640,
+        960,
+        1280,
+        1920,
+        2560,
+        4096
+      ]
+    },
+    "candidates": [],
+    "summary": "No verified higher-res replacement found (0 raw candidates, 0 below confidence threshold)."
+  },
+  {
+    "target": {
+      "id": "collection-of-beauty-portrait-d-edmond-aman-jean-par-georges-seurat",
+      "title": "Portrait d'Edmond Aman-Jean par Georges Seurat",
+      "englishTitle": null,
+      "artist": "Georges Seurat",
+      "w": 450,
+      "h": 583,
+      "fileUrl": "https://upload.wikimedia.org/wikipedia/commons/c/c1/Portrait_d%27Edmond_Aman-Jean_par_Georges_Seurat.jpg",
+      "commonsUrl": "https://commons.wikimedia.org/wiki/File%3APortrait_d'Edmond_Aman-Jean_par_Georges_Seurat.jpg",
+      "wikidataId": null,
+      "objectKey": "collection-of-beauty/Portrait_d'Edmond_Aman-Jean_par_Georges_Seurat.jpg",
+      "variantWidths": [
+        256,
+        480,
+        640,
+        960,
+        1280,
+        1920,
+        2560,
+        4096
+      ]
+    },
+    "candidates": [],
+    "summary": "No verified higher-res replacement found (2 raw candidates, 2 below confidence threshold)."
+  },
+  {
+    "target": {
+      "id": "collection-of-beauty-portrait-of-a-man-1877",
+      "title": "Portrait of a Man",
+      "englishTitle": null,
+      "artist": "Edgar Degas",
+      "w": 526,
+      "h": 700,
+      "fileUrl": "https://upload.wikimedia.org/wikipedia/commons/a/a7/Portrait_of_a_Man_%281877%29.jpg",
+      "commonsUrl": "https://commons.wikimedia.org/wiki/File%3APortrait_of_a_Man_(1877).jpg",
+      "wikidataId": null,
+      "objectKey": "collection-of-beauty/Portrait_of_a_Man_(1877).jpg",
+      "variantWidths": [
+        256,
+        480,
+        640,
+        960,
+        1280,
+        1920,
+        2560,
+        4096
+      ]
+    },
+    "candidates": [],
+    "summary": "No verified higher-res replacement found (8 raw candidates, 8 below confidence threshold)."
+  },
+  {
+    "target": {
+      "id": "collection-of-beauty-portrait-of-a-man-andrea-del-sarto",
+      "title": "Portrait of a Man",
+      "englishTitle": null,
+      "artist": "Andrea del Sarto",
+      "w": 500,
+      "h": 659,
+      "fileUrl": "https://upload.wikimedia.org/wikipedia/commons/4/4d/%22Portrait_of_a_Man%22_%28Andrea_del_Sarto%29.jpg",
+      "commonsUrl": "https://commons.wikimedia.org/wiki/File%3A%22Portrait_of_a_Man%22_(Andrea_del_Sarto).jpg",
+      "wikidataId": null,
+      "objectKey": "collection-of-beauty/_Portrait_of_a_Man__(Andrea_del_Sarto).jpg",
+      "variantWidths": [
+        256,
+        480,
+        640,
+        960,
+        1280,
+        1920,
+        2560,
+        4096
+      ]
+    },
+    "candidates": [],
+    "summary": "No verified higher-res replacement found (8 raw candidates, 8 below confidence threshold)."
+  },
+  {
+    "target": {
+      "id": "collection-of-beauty-robert-delaunay-l-homme-a-la-tulipe-portrait-de-jean-metzinger-1906",
+      "title": "Robert Delaunay L'homme à la tulipe",
+      "englishTitle": "Man with a Tulip (Portrait of Jean Metzinger)",
+      "artist": "Robert Delaunay",
+      "w": 512,
+      "h": 790,
+      "fileUrl": "https://upload.wikimedia.org/wikipedia/commons/2/26/Robert_Delaunay_L%27homme_%C3%A0_la_tulipe_%28Portrait_de_Jean_Metzinger%29_1906.jpg",
+      "commonsUrl": "https://commons.wikimedia.org/wiki/File:Robert_Delaunay_L%27homme_%C3%A0_la_tulipe_(Portrait_de_Jean_Metzinger)_1906.jpg",
+      "wikidataId": "Q2487023",
+      "objectKey": "collection-of-beauty/Robert_Delaunay_L'homme_à_la_tulipe_(Portrait_de_Jean_Metzinger)_1906.jpg",
+      "variantWidths": [
+        256,
+        480,
+        640,
+        960,
+        1280,
+        1920,
+        2560,
+        4096
+      ]
+    },
+    "candidates": [],
+    "summary": "No verified higher-res replacement found (0 raw candidates, 0 below confidence threshold)."
+  },
+  {
+    "target": {
+      "id": "collection-of-beauty-rubens-rkdimages-276003",
+      "title": "Christ between the two malefactors",
+      "englishTitle": null,
+      "artist": "Peter Paul Rubens",
+      "w": 630,
+      "h": 650,
+      "fileUrl": "https://upload.wikimedia.org/wikipedia/commons/5/51/Rubens_-_RKDimages%2C_276003.jpg",
+      "commonsUrl": "https://commons.wikimedia.org/wiki/File%3ARubens_-_RKDimages%2C_276003.jpg",
+      "wikidataId": "Q42883382",
+      "objectKey": "collection-of-beauty/Rubens_-_RKDimages,_276003.jpg",
+      "variantWidths": [
+        256,
+        480,
+        640,
+        960,
+        1280,
+        1920,
+        2560,
+        4096
+      ]
+    },
+    "candidates": [],
+    "summary": "No verified higher-res replacement found (0 raw candidates, 0 below confidence threshold)."
+  },
+  {
+    "target": {
+      "id": "collection-of-beauty-rubens-rkdimages-276589",
+      "title": "Study of the head of a young man turned to the left",
+      "englishTitle": null,
+      "artist": "Peter Paul Rubens",
+      "w": 508,
+      "h": 650,
+      "fileUrl": "https://upload.wikimedia.org/wikipedia/commons/3/3e/Rubens_-_RKDimages%2C_276589.jpg",
+      "commonsUrl": "https://commons.wikimedia.org/wiki/File%3ARubens_-_RKDimages%2C_276589.jpg",
+      "wikidataId": "Q111317845",
+      "objectKey": "collection-of-beauty/Rubens_-_RKDimages,_276589.jpg",
+      "variantWidths": [
+        256,
+        480,
+        640,
+        960,
+        1280,
+        1920,
+        2560,
+        4096
+      ]
+    },
+    "candidates": [],
+    "summary": "No verified higher-res replacement found (0 raw candidates, 0 below confidence threshold)."
+  },
+  {
+    "target": {
+      "id": "collection-of-beauty-svetlana-at-fortune-telling-by-k-brullov-1836-nizhniy-novgorod-museum",
+      "title": "Fortune-teller Svetlana",
+      "englishTitle": null,
+      "artist": "Karl Bryullov",
+      "w": 491,
+      "h": 600,
+      "fileUrl": "https://upload.wikimedia.org/wikipedia/commons/0/0d/Svetlana_at_fortune-telling_by_K.Brullov_%281836%2C_Nizhniy_Novgorod_museum%29.jpg",
+      "commonsUrl": "https://commons.wikimedia.org/wiki/File%3ASvetlana_at_fortune-telling_by_K.Brullov_(1836%2C_Nizhniy_Novgorod_museum).jpg",
+      "wikidataId": null,
+      "objectKey": "collection-of-beauty/Svetlana_at_fortune-telling_by_K.Brullov_(1836,_Nizhniy_Novgorod_museum).jpg",
+      "variantWidths": [
+        256,
+        480,
+        640,
+        960,
+        1280,
+        1920,
+        2560,
+        4096
+      ]
+    },
+    "candidates": [],
+    "summary": "No verified higher-res replacement found (0 raw candidates, 0 below confidence threshold)."
+  },
+  {
+    "target": {
+      "id": "collection-of-beauty-the-artist-s-wife",
+      "title": "The Artist's wife",
+      "englishTitle": null,
+      "artist": "Louis Léopold Boilly",
+      "w": 558,
+      "h": 700,
+      "fileUrl": "https://upload.wikimedia.org/wikipedia/commons/4/41/The_Artist%27s_wife.jpg",
+      "commonsUrl": "https://commons.wikimedia.org/wiki/File%3AThe_Artist's_wife.jpg",
+      "wikidataId": null,
+      "objectKey": "collection-of-beauty/The_Artist's_wife.jpg",
+      "variantWidths": [
+        256,
+        480,
+        640,
+        960,
+        1280,
+        1920,
+        2560,
+        4096
+      ]
+    },
+    "candidates": [],
+    "summary": "No verified higher-res replacement found (7 raw candidates, 7 below confidence threshold)."
+  },
+  {
+    "target": {
+      "id": "collection-of-beauty-the-disquieting-muses",
+      "title": "The Disquieting Muses",
+      "englishTitle": null,
+      "artist": "Giorgio de Chirico",
+      "w": 500,
+      "h": 736,
+      "fileUrl": "https://upload.wikimedia.org/wikipedia/commons/1/1c/Giorgio_de_Chirico_-_Les_muses_inqui%C3%A9tantes.jpg",
+      "commonsUrl": "https://commons.wikimedia.org/wiki/File:Giorgio_de_Chirico_-_Les_muses_inqui%C3%A9tantes.jpg",
+      "wikidataId": null,
+      "objectKey": "collection-of-beauty/The_Disquieting_Muses.jpg",
+      "variantWidths": [
+        256,
+        480,
+        640,
+        960,
+        1280,
+        1920,
+        2560,
+        4096
+      ]
+    },
+    "candidates": [],
+    "summary": "No verified higher-res replacement found (0 raw candidates, 0 below confidence threshold)."
+  },
+  {
+    "target": {
+      "id": "collection-of-beauty-the-fountaine-family-by-john-singleton-copley-1776-tate-britain",
+      "title": "'The Fountaine Family' by John Singleton Copley",
+      "englishTitle": null,
+      "artist": "John Singleton Copley",
+      "w": 779,
+      "h": 640,
+      "fileUrl": "https://upload.wikimedia.org/wikipedia/commons/9/94/%27The_Fountaine_Family%27_by_John_Singleton_Copley%2C_1776%2C_Tate_Britain.jpg",
+      "commonsUrl": "https://commons.wikimedia.org/wiki/File%3A'The_Fountaine_Family'_by_John_Singleton_Copley%2C_1776%2C_Tate_Britain.jpg",
+      "wikidataId": null,
+      "objectKey": "collection-of-beauty/'The_Fountaine_Family'_by_John_Singleton_Copley,_1776,_Tate_Britain.jpg",
+      "variantWidths": [
+        256,
+        480,
+        640,
+        960,
+        1280,
+        1920,
+        2560,
+        4096
+      ]
+    },
+    "candidates": [],
+    "summary": "No verified higher-res replacement found (0 raw candidates, 0 below confidence threshold)."
+  },
+  {
+    "target": {
+      "id": "collection-of-beauty-the-steadfast-philosopher-by-gerard-van-hondhorst",
+      "title": "The steadfast philosopher",
+      "englishTitle": null,
+      "artist": "Gerard van Honthorst",
+      "w": 813,
+      "h": 593,
+      "fileUrl": "https://upload.wikimedia.org/wikipedia/commons/e/e1/The_Steadfast_Philosopher%2C_by_Gerard_van_Hondhorst.jpg",
+      "commonsUrl": "https://commons.wikimedia.org/wiki/File%3AThe_Steadfast_Philosopher%2C_by_Gerard_van_Hondhorst.jpg",
+      "wikidataId": null,
+      "objectKey": "collection-of-beauty/The_Steadfast_Philosopher,_by_Gerard_van_Hondhorst.jpg",
+      "variantWidths": [
+        256,
+        480,
+        640,
+        960,
+        1280,
+        1920,
+        2560,
+        4096
+      ]
+    },
+    "candidates": [],
+    "summary": "No verified higher-res replacement found (1 raw candidates, 1 below confidence threshold)."
+  },
+  {
+    "target": {
+      "id": "collection-of-beauty-the-wailing-wall-by-bauernfeind",
+      "title": "The Wailing Wall by Bauernfeind",
+      "englishTitle": null,
+      "artist": "Gustav Bauernfeind",
+      "w": 564,
+      "h": 1125,
+      "fileUrl": "https://upload.wikimedia.org/wikipedia/commons/e/ec/The_Wailing_Wall_by_Bauernfeind.jpeg",
+      "commonsUrl": "https://commons.wikimedia.org/wiki/File%3AThe_Wailing_Wall_by_Bauernfeind.jpeg",
+      "wikidataId": null,
+      "objectKey": "collection-of-beauty/The_Wailing_Wall_by_Bauernfeind.jpeg",
+      "variantWidths": [
+        256,
+        480,
+        640,
+        960,
+        1280,
+        1920,
+        2560,
+        4096
+      ]
+    },
+    "candidates": [],
+    "summary": "No verified higher-res replacement found (0 raw candidates, 0 below confidence threshold)."
+  },
+  {
+    "target": {
+      "id": "collection-of-beauty-turner-the-evening-star-about-1830-ng1991",
+      "title": "The Evening Star",
+      "englishTitle": null,
+      "artist": "J. M. W. Turner",
+      "w": 800,
+      "h": 604,
+      "fileUrl": "https://upload.wikimedia.org/wikipedia/commons/2/29/Turner_-_The_Evening_Star%2C_about_1830%2C_NG1991.jpg",
+      "commonsUrl": "https://commons.wikimedia.org/wiki/File%3ATurner_-_The_Evening_Star%2C_about_1830%2C_NG1991.jpg",
+      "wikidataId": null,
+      "objectKey": "collection-of-beauty/Turner_-_The_Evening_Star,_about_1830,_NG1991.jpg",
+      "variantWidths": [
+        256,
+        480,
+        640,
+        960,
+        1280,
+        1920,
+        2560,
+        4096
+      ]
+    },
+    "candidates": [],
+    "summary": "No verified higher-res replacement found (0 raw candidates, 0 below confidence threshold)."
+  },
+  {
+    "target": {
+      "id": "collection-of-beauty-udaipur-by-charles-w-bartlett-1916-woodblock-print",
+      "title": "'Udaipur' by Charles W. Bartlett",
+      "englishTitle": null,
+      "artist": "Charles W. Bartlett",
+      "w": 735,
+      "h": 560,
+      "fileUrl": "https://upload.wikimedia.org/wikipedia/commons/e/e1/%27Udaipur%27_by_Charles_W._Bartlett%2C_1916%2C_woodblock_print.JPG",
+      "commonsUrl": "https://commons.wikimedia.org/wiki/File%3A'Udaipur'_by_Charles_W._Bartlett%2C_1916%2C_woodblock_print.JPG",
+      "wikidataId": null,
+      "objectKey": "collection-of-beauty/'Udaipur'_by_Charles_W._Bartlett,_1916,_woodblock_print.JPG",
+      "variantWidths": [
+        256,
+        480,
+        640,
+        960,
+        1280,
+        1920,
+        2560,
+        4096
+      ]
+    },
+    "candidates": [],
+    "summary": "No verified higher-res replacement found (1 raw candidates, 1 below confidence threshold)."
+  },
+  {
+    "target": {
+      "id": "collection-of-beauty-uriel-da-costa",
+      "title": "Uriel da Costa’s imaginary portrait",
+      "englishTitle": null,
+      "artist": "Léon Bakst",
+      "w": 590,
+      "h": 813,
+      "fileUrl": "https://upload.wikimedia.org/wikipedia/commons/d/d7/Uriel_da_Costa.jpg",
+      "commonsUrl": "https://commons.wikimedia.org/wiki/File%3AUriel_da_Costa.jpg",
+      "wikidataId": null,
+      "objectKey": "collection-of-beauty/Uriel_da_Costa.jpg",
+      "variantWidths": [
+        256,
+        480,
+        640,
+        960,
+        1280,
+        1920,
+        2560,
+        4096
+      ]
+    },
+    "candidates": [],
+    "summary": "No verified higher-res replacement found (0 raw candidates, 0 below confidence threshold)."
+  },
+  {
+    "target": {
+      "id": "collection-of-beauty-van-gogh-f1040-jh100",
+      "title": "Van gogh f1040 jh100",
+      "englishTitle": null,
+      "artist": "Vincent van Gogh",
+      "w": 642,
+      "h": 463,
+      "fileUrl": "https://upload.wikimedia.org/wikipedia/commons/3/34/Van_gogh_f1040_jh100.jpg",
+      "commonsUrl": "https://commons.wikimedia.org/wiki/File%3AVan_gogh_f1040_jh100.jpg",
+      "wikidataId": null,
+      "objectKey": "collection-of-beauty/Van_gogh_f1040_jh100.jpg",
+      "variantWidths": [
+        256,
+        480,
+        640,
+        960,
+        1280,
+        1920,
+        2560,
+        4096
+      ]
+    },
+    "candidates": [],
+    "summary": "No verified higher-res replacement found (2 raw candidates, 2 below confidence threshold)."
+  },
+  {
+    "target": {
+      "id": "collection-of-beauty-various-objects",
+      "title": "Various objects",
+      "englishTitle": null,
+      "artist": "Louis Léopold Boilly",
+      "w": 583,
+      "h": 700,
+      "fileUrl": "https://upload.wikimedia.org/wikipedia/commons/5/5f/Various_objects.jpg",
+      "commonsUrl": "https://commons.wikimedia.org/wiki/File%3AVarious_objects.jpg",
+      "wikidataId": null,
+      "objectKey": "collection-of-beauty/Various_objects.jpg",
+      "variantWidths": [
+        256,
+        480,
+        640,
+        960,
+        1280,
+        1920,
+        2560,
+        4096
+      ]
+    },
+    "candidates": [],
+    "summary": "No verified higher-res replacement found (2 raw candidates, 2 below confidence threshold)."
+  },
+  {
+    "target": {
+      "id": "collection-of-beauty-watteau-antoine-huit-etudes-de-tetes-de-femme-et-une-tete-d-homme",
+      "title": "WATTEAU Antoine - Huit études de têtes de femme",
+      "englishTitle": "Eight Studies of Heads",
+      "artist": "Antoine Watteau",
+      "w": 768,
+      "h": 512,
+      "fileUrl": "https://upload.wikimedia.org/wikipedia/commons/8/83/Antoine_Watteau%2C_Huit_%C3%A9tudes_de_t%C3%AAtes.jpg",
+      "commonsUrl": "https://commons.wikimedia.org/wiki/File:Antoine_Watteau,_Huit_%C3%A9tudes_de_t%C3%AAtes.jpg",
+      "wikidataId": null,
+      "objectKey": "collection-of-beauty/WATTEAU_Antoine_-_Huit_études_de_têtes_de_femme,_et_une_tête_d'homme.jpg",
+      "variantWidths": [
+        256,
+        480,
+        640,
+        960,
+        1280,
+        1920,
+        2560,
+        4096
+      ]
+    },
+    "candidates": [],
+    "summary": "No verified higher-res replacement found (0 raw candidates, 0 below confidence threshold)."
+  },
+  {
+    "target": {
+      "id": "collection-of-beauty-yoshitoshi-100-aspects-of-the-moon-26",
+      "title": "Cassia-tree moon",
+      "englishTitle": null,
+      "artist": "Tsukioka Yoshitoshi",
+      "w": 519,
+      "h": 742,
+      "fileUrl": "https://upload.wikimedia.org/wikipedia/commons/2/23/Yoshitoshi_-_100_Aspects_of_the_Moon_-_26.jpg",
+      "commonsUrl": "https://commons.wikimedia.org/wiki/File%3AYoshitoshi_-_100_Aspects_of_the_Moon_-_26.jpg",
+      "wikidataId": "Q933436",
+      "objectKey": "collection-of-beauty/Yoshitoshi_-_100_Aspects_of_the_Moon_-_26.jpg",
+      "variantWidths": [
+        256,
+        480,
+        640,
+        960,
+        1280,
+        1920,
+        2560,
+        4096
+      ]
+    },
+    "candidates": [],
+    "summary": "No verified higher-res replacement found (0 raw candidates, 0 below confidence threshold)."
   },
   {
     "target": {
       "id": "collection-of-beauty-yoshitoshi-the-ghost",
       "title": "Yoshitoshi The Ghost",
       "englishTitle": null,
-      "artist": "Tsukioka Yoshitoshi",
+      "artist": null,
       "w": 445,
       "h": 655,
       "fileUrl": "https://upload.wikimedia.org/wikipedia/commons/c/c2/Yoshitoshi_The_Ghost.jpg",
@@ -582,16 +3878,33 @@
         4096
       ]
     },
-    "candidates": [
-      {
-        "fileUrl": "https://upload.wikimedia.org/wikipedia/commons/6/66/Genji_yugao_maki.jpg",
-        "commonsPageUrl": "https://commons.wikimedia.org/wiki/File:Genji_yugao_maki.jpg",
-        "width": 1122,
-        "height": 1640,
-        "confidence": 0.97,
-        "reason": "Same 1886 Yoshitoshi woodblock print from 'One Hundred Aspects of the Moon' series depicting the Ghost of Yugao. Same artist, same year (March 1886), same series, same subject, and aspect ratio 1122:1640 = 1:1.462 exactly matches the current file's 445:655 = 1:1.472 (i.e. same composition, not a crop or different state). Both files share the same Commons categories ('One Hundred Aspects of the Moon', 'Ghosts of Japan', 'The Tale of Genji - derivative works'). 2.5x the linear resolution of the current 445x655 file."
-      }
-    ],
-    "summary": "Found 1 strong higher-resolution candidate. The Genji_yugao_maki.jpg file (1122x1640, 2.5x linear resolution) is the same 1886 Yoshitoshi woodblock print from 'One Hundred Aspects of the Moon' showing the Ghost of Yugao, with matching aspect ratio. Note: rejected two Met Museum files (1517x4000) — those are a different work, an 1892 hand-painted nikuhitsu-ga hanging scroll (1:2.6 aspect, 41x16 inches) that was BASED ON this 1886 print, not the print itself. Also rejected 'Yugao dana noryo zu' files — those are a different print from the same series (No. 84, 'couple under calabash trellis'), not the ghost."
+    "candidates": [],
+    "summary": "No verified higher-res replacement found (3 raw candidates, 3 below confidence threshold)."
+  },
+  {
+    "target": {
+      "id": "collection-of-beauty-zwei-junge-seehunde-am-strand",
+      "title": "Two young seals on the shore",
+      "englishTitle": null,
+      "artist": "Paul de Vos",
+      "w": 800,
+      "h": 431,
+      "fileUrl": "https://upload.wikimedia.org/wikipedia/commons/7/74/Zwei_junge_Seehunde_am_Strand.jpg",
+      "commonsUrl": "https://commons.wikimedia.org/wiki/File%3AZwei_junge_Seehunde_am_Strand.jpg",
+      "wikidataId": "Q122700050",
+      "objectKey": "collection-of-beauty/Zwei_junge_Seehunde_am_Strand.jpg",
+      "variantWidths": [
+        256,
+        480,
+        640,
+        960,
+        1280,
+        1920,
+        2560,
+        4096
+      ]
+    },
+    "candidates": [],
+    "summary": "No verified higher-res replacement found (0 raw candidates, 0 below confidence threshold)."
   }
 ]
