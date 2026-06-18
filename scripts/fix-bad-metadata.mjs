@@ -188,6 +188,85 @@ const sidecarRewrites = {
     description:
       "Claude Monet, Panorama of Vernon (Wildenstein 1061). A view of the Seine-side town of Vernon, downstream from Monet's home at Giverny.",
   },
+
+  // Year mis-derived from a museum accession number baked into the filename
+  // (32.2019.10, M.2004.239, MET LC-1975) or from a bare "20th-century" era
+  // phrase whose midpoint (1950) fell after the artist's death. These were
+  // landing in the 2000s / past the painter's lifetime on the timeline. Pin
+  // the documented creation year.
+  "Louis_Léopold_Boilly_-_Woman_Showing_Her_Portrait_-_32.2019.10_-_Dallas_Museum_of_Art.jpg": {
+    year: 1790,
+    date_created: "c. 1790",
+  },
+  "The_Descent_from_the_Cross_LACMA_M.2004.239.jpg": {
+    year: 1648,
+    date_created: "late 1640s",
+  },
+  "View_of_the_Brenta,_near_Dolo_MET_LC-1975_1_091-001.jpg": {
+    year: 1750,
+    date_created: "c. 1750",
+  },
+  "Léon_Bakst_-_Carnival_in_Paris_in_Honour_of_the_Russian_Navy.jpg": {
+    year: 1900,
+    date_created: "1900",
+  },
+  // Bartolomeo Nazari (1693–1758): two undated portraits whose year was
+  // wrongly read from a Fogg accession (1943.116) and from "1907" in the
+  // description text. No documented creation date exists, so leave the year
+  // unknown rather than assert a fabricated one.
+  "Bartolommeo_Nazari_-_Portrait_of_a_Man_-_1943.116_-_Fogg_Museum.jpg": {
+    year: null,
+    date_created: null,
+  },
+  "Giambattista_Pittoni,_portrait_by_Bartolomeo_Nazari.jpg": {
+    year: null,
+    date_created: null,
+  },
+
+  // Creation year wrongly taken from a biographical date rather than the
+  // work's date: the artist's own birth year baked into the filename as
+  // "(1577-1640)" / "(1727-1788)", the sitter's birth year, the lifespan
+  // lower bound, or — for the Ingres — the date of the Titian original it
+  // copies. Pin the documented creation year.
+  "諸國名橋奇覧_摂洲天満橋-Tenman_Bridge_at_Settsu_Province_(Sesshū_Tenmanbashi),_from_the_series_Remarkable_Views_of_Bridges_in_Various_Provinces_(Shokoku_meikyō_kiran)_MET_DP141277.jpg": {
+    year: 1834,
+    date_created: "c. 1834",
+  },
+  "Hasegawa_Tohaku_-_Pine_Trees_(Shōrin-zu_byōbu)_-_right_hand_screen.jpg": {
+    year: 1595,
+    date_created: "c. 1595",
+  },
+  "Portrait_of_the_Artist's_Daughters,_probably_early_1760s,_by_Thomas_Gainsborough_(1727-1788)_-_IMG_7281.jpeg": {
+    year: 1760,
+    date_created: "early 1760s",
+  },
+  "Colonel_John_Bullock.jpg": {
+    year: 1770,
+    date_created: "early 1770s",
+  },
+  // Ingres's 1822 copy of Titian's "Venus of Urbino" (1538); 1538 was the
+  // original's date, not this canvas's.
+  "Jean-Auguste-Dominique_Ingres_-_Reclining_Venus_-_Walters_372392.jpg": {
+    year: 1822,
+    date_created: "1822",
+  },
+  // Later copies after Rubens — use the source's own estimate for the copy,
+  // not Rubens's birth year.
+  "Peter_Paul_Rubens_(1577-1640)_(after)_-_Man_in_a_Ruff_-_R.1990-58.23_-_Colchester_and_Ipswich_Museums_Service.jpg": {
+    year: 1700,
+    date_created: "possibly c. 1650–1750",
+  },
+  "Peter_Paul_Rubens_(1577-1640)_(copy_after)_-_Madonna_and_Child_-_PCF48_-_Lady_Margaret_Hall.jpg": {
+    year: 1650,
+    date_created: "17th century (?)",
+  },
+  // Shitao (1642–1707): the album year was read as his birth year. The Met
+  // dates "Searching for Immortals" to the 1690s, painted after he settled
+  // in Yangzhou (1696).
+  "清_石濤(朱若極)_山水圖_冊-Searching_for_Immortals_MET_DP162813.jpg": {
+    year: 1696,
+    date_created: "c. 1690s",
+  },
 };
 
 // ---- title-overrides keyed by objectKey -----------------------------------
@@ -405,6 +484,14 @@ const sidecar = readJson(SIDECAR);
 const titles = readJson(TITLES);
 const descs = readJson(DESCS);
 
+// Some sidecar keys are stored NFD (decomposed macrons, e.g. "byōbu");
+// the rewrite keys above are authored NFC. Match either normalization form.
+const sidecarByNFC = new Map(
+  Object.keys(sidecar.entries).map((k) => [k.normalize("NFC"), k]),
+);
+const sidecarEntry = (fname) =>
+  sidecar.entries[fname] ?? sidecar.entries[sidecarByNFC.get(fname.normalize("NFC"))];
+
 let artistChanges = 0;
 for (const [fname, artist] of Object.entries(artistRewrites)) {
   const e = sidecar.entries[fname];
@@ -421,7 +508,7 @@ for (const [fname, artist] of Object.entries(artistRewrites)) {
 
 let sidecarFieldChanges = 0;
 for (const [fname, fields] of Object.entries(sidecarRewrites)) {
-  const e = sidecar.entries[fname];
+  const e = sidecarEntry(fname);
   if (!e) {
     console.warn("missing sidecar entry for rewrites:", fname);
     continue;
