@@ -39,8 +39,6 @@ export function GalleryBrowser({ initialArtworks, eras, totalArtworks }: Props) 
   const [query, setQuery] = useState("");
   const deferredQuery = useDeferredValue(query);
   const [era, setEra] = useState<string>("");
-  const [minYear, setMinYear] = useState<string>("");
-  const [maxYear, setMaxYear] = useState<string>("");
   const [sortBy, setSortBy] = useState<ArtworkSort>("shuffle");
   const [pageStatus, setPageStatus] = useState<PageStatus>("idle");
   const [Fuse, setFuse] = useState<FuseCtor | null>(null);
@@ -50,21 +48,14 @@ export function GalleryBrowser({ initialArtworks, eras, totalArtworks }: Props) 
     () => ({
       q: deferredQuery.trim(),
       era,
-      minYear,
-      maxYear,
       sort: sortBy,
       seed: DEFAULT_SHUFFLE_SEED,
     }),
-    [deferredQuery, era, minYear, maxYear, sortBy],
+    [deferredQuery, era, sortBy],
   );
 
   const pageKey = useMemo(() => JSON.stringify(pageQuery), [pageQuery]);
-  const isDefaultPage =
-    pageQuery.q === "" &&
-    pageQuery.era === "" &&
-    pageQuery.minYear === "" &&
-    pageQuery.maxYear === "" &&
-    pageQuery.sort === "shuffle";
+  const isDefaultPage = pageQuery.q === "" && pageQuery.era === "" && pageQuery.sort === "shuffle";
 
   const initialPageInfo = useMemo<ArtworkPageInfo>(
     () => ({
@@ -148,12 +139,10 @@ export function GalleryBrowser({ initialArtworks, eras, totalArtworks }: Props) 
   }, [fuse, loadedArtworks, pageQuery.q]);
 
   const filterKey = pageKey;
-  const activeFilterCount = (era ? 1 : 0) + (minYear ? 1 : 0) + (maxYear ? 1 : 0);
+  const activeFilterCount = era ? 1 : 0;
 
   function clearFilters() {
     setEra("");
-    setMinYear("");
-    setMaxYear("");
     setQuery("");
   }
 
@@ -195,22 +184,6 @@ export function GalleryBrowser({ initialArtworks, eras, totalArtworks }: Props) 
               </option>
             ))}
           </select>
-          <Input
-            type="number"
-            aria-label="Earliest year"
-            placeholder="From"
-            value={minYear}
-            onChange={(e) => setMinYear(e.target.value)}
-            className="w-24"
-          />
-          <Input
-            type="number"
-            aria-label="Latest year"
-            placeholder="To"
-            value={maxYear}
-            onChange={(e) => setMaxYear(e.target.value)}
-            className="w-24"
-          />
           {(activeFilterCount > 0 || query) && (
             <Button variant="ghost" size="sm" onClick={clearFilters}>
               Clear

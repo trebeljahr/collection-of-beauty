@@ -46,15 +46,7 @@ export function ScopedGallery({ initialArtworks, initialPageInfo, scope, pageQue
       pageQuery
         ? (offset, signal) => fetchArtworkPage(pageQuery, offset, DEFAULT_ARTWORK_PAGE_SIZE, signal)
         : undefined,
-    [
-      pageQuery?.q,
-      pageQuery?.era,
-      pageQuery?.artistSlug,
-      pageQuery?.minYear,
-      pageQuery?.maxYear,
-      pageQuery?.sort,
-      pageQuery?.seed,
-    ],
+    [pageQuery?.q, pageQuery?.era, pageQuery?.artistSlug, pageQuery?.sort, pageQuery?.seed],
   );
 
   const { loadedArtworks, pageInfo, loadMoreArtworks } = useArtworkPagination({

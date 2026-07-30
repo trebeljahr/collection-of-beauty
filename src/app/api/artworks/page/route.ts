@@ -23,8 +23,6 @@ export function GET(request: Request) {
     query: params.get("q") ?? "",
     era: parseEra(params.get("era")),
     artistSlug: params.get("artistSlug") || null,
-    minYear: parseOptionalNumber(params.get("minYear")),
-    maxYear: parseOptionalNumber(params.get("maxYear")),
   });
 
   return Response.json(page, {
@@ -46,10 +44,4 @@ function parseNumber(value: string | null, fallback: number): number {
   if (!value) return fallback;
   const n = Number(value);
   return Number.isFinite(n) ? n : fallback;
-}
-
-function parseOptionalNumber(value: string | null): number | null {
-  if (!value) return null;
-  const n = Number(value);
-  return Number.isFinite(n) ? n : null;
 }

@@ -22,8 +22,6 @@ export type ArtworkPageInput = {
    *  RSC payload — matters most for high-output artists (Audubon ≈435
    *  works, Monet ≈368). */
   artistSlug?: string | null;
-  minYear?: number | null;
-  maxYear?: number | null;
 };
 
 let cachedDefaultGalleryOrder: ArtworkListing[] | null = null;
@@ -55,14 +53,6 @@ export function getArtworkListingPage(input: ArtworkPageInput = {}): ArtworkPage
   if (input.artistSlug) {
     list = list.filter((artwork) => artwork.artistSlug === input.artistSlug);
   }
-  const minYear = input.minYear;
-  const maxYear = input.maxYear;
-  if (minYear != null) {
-    list = list.filter((artwork) => artwork.year != null && artwork.year >= minYear);
-  }
-  if (maxYear != null) {
-    list = list.filter((artwork) => artwork.year != null && artwork.year <= maxYear);
-  }
 
   const sorted = sortArtworkListings(list, sort, seed);
   const ordered =
@@ -70,9 +60,7 @@ export function getArtworkListingPage(input: ArtworkPageInput = {}): ArtworkPage
     seed === DEFAULT_SHUFFLE_SEED &&
     query.length === 0 &&
     !input.era &&
-    !input.artistSlug &&
-    minYear == null &&
-    maxYear == null
+    !input.artistSlug
       ? applyPinnedHead(sorted, PINNED_FIRST_PAGE_IDS)
       : sorted;
   const items = ordered.slice(offset, offset + limit);
@@ -106,9 +94,7 @@ function sortArtworkListings(
   }
   if (sort === "artist") {
     return list.sort(
-      (a, b) =>
-        (a.artist ?? "\uffff").localeCompare(b.artist ?? "\uffff") ||
-        a.title.localeCompare(b.title),
+      (a, b) => (a.artist ?? "￿").localeCompare(b.artist ?? "￿") || a.title.localeCompare(b.title),
     );
   }
   if (sort === "title") return list.sort((a, b) => a.title.localeCompare(b.title));
@@ -183,10 +169,7 @@ function matchesQuery(artwork: ArtworkListing, terms: string[]): boolean {
 }
 
 function foldText(value: string): string {
-  return value
-    .toLocaleLowerCase()
-    .normalize("NFKD")
-    .replace(/[\u0300-\u036f]/g, "");
+  return value.toLocaleLowerCase().normalize("NFKD").replace(/[̀-ͯ]/g, "");
 }
 
 function seededScore(id: string, seed: string): number {
