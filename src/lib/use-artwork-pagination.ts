@@ -17,8 +17,6 @@ export type ArtworkPageQuery = {
   q?: string;
   era?: string;
   artistSlug?: string;
-  minYear?: string | number;
-  maxYear?: string | number;
   sort?: ArtworkSort;
   seed?: string;
 };
@@ -45,8 +43,6 @@ export function buildArtworkPageUrl(
   appendIfTruthy(url, "q", query.q);
   appendIfTruthy(url, "era", query.era);
   appendIfTruthy(url, "artistSlug", query.artistSlug);
-  appendIfTruthy(url, "minYear", query.minYear);
-  appendIfTruthy(url, "maxYear", query.maxYear);
   return url;
 }
 
@@ -169,9 +165,8 @@ export function useArtworkPagination({
   return { loadedArtworks, pageInfo, loadMoreArtworks, replacePage };
 }
 
-function appendIfTruthy(url: URL, key: string, value: string | number | undefined): void {
+function appendIfTruthy(url: URL, key: string, value: string | undefined): void {
   if (value === undefined || value === null) return;
-  const s = typeof value === "number" ? String(value) : value;
-  if (s.length === 0) return;
-  url.searchParams.set(key, s);
+  if (value.length === 0) return;
+  url.searchParams.set(key, value);
 }
