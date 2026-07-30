@@ -878,6 +878,10 @@ function FloorScene({
  * uploads that already landed stay in the preload cache and serve a
  * later approach for free.
  */
+/** Thumbs primed per stair approach. Comfortably inside the preload
+ *  pool's capacity so an approach can't evict its own earlier work. */
+const PRELOAD_LIMIT = 160;
+
 function FloorPreloader({
   layout,
   currentFloorIdx,
@@ -896,20 +900,29 @@ function FloorPreloader({
     if (otherIdx < 0 || otherIdx >= layout.floors.length) return;
     const other = layout.floors[otherIdx];
     const controller = new AbortController();
-    // Walk rooms + hallway placements — both can carry paintings.
-    // Dedup by objectKey so a multi-room placement (rare, but cheap to
-    // guard) doesn't enqueue the same thumb twice.
+    // Nearest-the-stair first, capped: the player arrives at the stair
+    // and only ever sees the rooms around it before the normal
+    // proximity loader takes over, so priming a whole floor just buries
+    // the thumbs that matter behind a few hundred that don't (and
+    // overruns the preload pool, evicting them again).
+    const all = [
+      ...other.rooms.flatMap((r) => r.placements),
+      ...other.hallways.flatMap((h) => h.placements),
+    ];
+    all.sort(
+      (a, b) =>
+        (a.position[0] - stair.centerX) ** 2 +
+        (a.position[2] - stair.centerZ) ** 2 -
+        ((b.position[0] - stair.centerX) ** 2 + (b.position[2] - stair.centerZ) ** 2),
+    );
+    // Dedup by objectKey so a repeated artwork doesn't enqueue twice.
     const seen = new Set<string>();
-    const enqueue = (objectKey: string | undefined) => {
-      if (!objectKey || seen.has(objectKey)) return;
+    for (const p of all) {
+      if (seen.size >= PRELOAD_LIMIT) break;
+      const objectKey = p.artwork.objectKey;
+      if (!objectKey || seen.has(objectKey)) continue;
       seen.add(objectKey);
       preloadCached(variantProxyUrl(objectKey, 256, "avif"), gl, controller.signal);
-    };
-    for (const room of other.rooms) {
-      for (const p of room.placements) enqueue(p.artwork.objectKey);
-    }
-    for (const hw of other.hallways) {
-      for (const p of hw.placements) enqueue(p.artwork.objectKey);
     }
     return () => {
       controller.abort();

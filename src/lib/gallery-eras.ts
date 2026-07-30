@@ -45,12 +45,6 @@ export type Era = {
   palette: Palette;
   blurb: string;
   anchor: AnchorSpec;
-  /** Opt into the dense "print-room" hang: small plates tile the walls
-   *  in size-graded grids (many per wall cell) instead of the one/two-
-   *  per-cell salon hang. Set only for floors whose corpus is dominated
-   *  by small illustration plates and would otherwise overflow a single
-   *  storey. See place-paintings.ts `distributeDense`. */
-  dense?: boolean;
 };
 
 export type EraId =
@@ -210,12 +204,10 @@ export const ERAS: Era[] = [
     yearMax: 0,
     // Zoology and botany share one floor the way a natural-history
     // museum keeps them under one roof. The combined corpus (~1,200
-    // works) far outgrows a normal salon hang, so this era opts into
-    // the dense print-room grid (see `dense` below).
+    // works) is far more than one storey can hang one-per-cell, so the
+    // floor builder samples it down (see `selectFloorWorks`) — every
+    // plate still has its own page, the 3D floor just shows a slice.
     movements: ["Natural history illustration", "Botanical illustration"],
-    // Small plates tile the walls many-per-cell here; a one/two-per-cell
-    // hang can't fit ~1,200 works on one storey.
-    dense: true,
     palette: {
       // Specimen-plate cream walls, deep moss floor, brass-olive accent
       // — Victorian natural-history museum, lit so the plates' fine

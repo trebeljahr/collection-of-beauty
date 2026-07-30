@@ -24,10 +24,11 @@ import { getHiRes, type LoadHiResOpts, loadCached, loadHiRes, peekCached } from 
  * global painting-registry so the Player's aim raycast can skip the
  * full scene traversal.
  *
- * Prefer a 960 px variant — big enough to look crisp at 2 m wide, small
- * enough that a few hundred paintings on a floor fit in GPU memory
- * comfortably. The texture-cache handles LRU eviction + rAF-paced GPU
- * uploads so a floor-wide burst of loads doesn't hitch the frame.
+ * The base texture is sized to the work's display size (see
+ * `pickBaseWidth`): 960 px for anything over ~1.1 m on its long edge,
+ * 480 px for the small plates and prints below it. The texture-cache
+ * handles LRU eviction + rAF-paced GPU uploads so a floor-wide burst of
+ * loads doesn't hitch the frame.
  */
 // Tiered proximity LOD. Each tier identifies a texture source and four
 // distance bands. Distances are CLOSEST-POINT to the painting's
@@ -95,6 +96,33 @@ const TOP_TIER_BANDS = {
   releaseSq: sq(2.5),
 };
 
+// Base-texture ladder. The base is what a painting shows from across
+// the room, so it only has to out-resolve the pixels the work actually
+// covers on screen — a 0.5 m botanical plate seen from 3 m never needs
+// the same texture as a 2.5 m Rubens. Sizing the base by display size
+// keeps a floor's resident textures a few hundred MB instead of a few
+// GB (a 960 px RGBA + mipmaps is ~3.9 MB; the 480 px step is ~1 MB),
+// which is what lets the LRU hold a whole room without thrashing.
+const BASE_WIDTH_SMALL = 480;
+const BASE_WIDTH_LARGE = 960;
+/** Display long edge (metres) above which a work gets the 960 px base. */
+const BASE_WIDTH_LARGE_EDGE_M = 1.1;
+
+/** Pick the base variant width for a work, then snap it to a width the
+ *  shrink pipeline actually produced for that artwork (`variantWidths`) —
+ *  requesting a width that was never built 404s and leaves the painting
+ *  on its brown swatch. */
+function pickBaseWidth(artwork: ArtworkListing, displayEdgeM: number): number {
+  const want = displayEdgeM > BASE_WIDTH_LARGE_EDGE_M ? BASE_WIDTH_LARGE : BASE_WIDTH_SMALL;
+  const widths = artwork.variantWidths;
+  if (!widths || widths.length === 0) return want;
+  let best = widths[0];
+  for (const w of widths) {
+    if (w <= want && w > best) best = w;
+  }
+  return best;
+}
+
 const LOD_TIERS: LodTier[] = [
   // Original (when the source is bigger than 4096 px). This is what
   // "press E" loads in the zoom modal — within 1 m the 3D gallery
@@ -116,6 +144,18 @@ const LOD_TIERS: LodTier[] = [
     downgradeSq: sq(2.8),
     releaseSq: sq(5.5),
   },
+  {
+    // 960 px — only ever in play for works whose base is the 480 px
+    // step (small plates and prints). It restores the old "crisp from
+    // anywhere in the room" look as the player approaches, without
+    // paying for a 960 px texture on every plate on the floor.
+    kind: "variant",
+    width: 960,
+    prefetchSq: sq(5.0),
+    upgradeSq: sq(4.0),
+    downgradeSq: sq(5.0),
+    releaseSq: sq(9.0),
+  },
 ];
 
 export function Painting({
@@ -129,8 +169,8 @@ export function Painting({
   onSettled?: (status: "loaded" | "failed") => void;
 }) {
   const { artwork, position, rotation, widthM, heightM } = placement;
-  const showPlaque = placement.plaque !== false;
-  const url = variantProxyUrl(artwork.objectKey, 960, "avif");
+  const baseWidth = pickBaseWidth(artwork, Math.max(widthM, heightM));
+  const url = variantProxyUrl(artwork.objectKey, baseWidth, "avif");
 
   // Aspect-corrected plane size. The slot's widthM/heightM are derived
   // from realDimensions (or pixel aspect, or a default) — but those can
@@ -195,6 +235,7 @@ export function Painting({
       )}
       <PaintingPlane
         url={url}
+        baseWidth={baseWidth}
         thumbUrl={variantProxyUrl(artwork.objectKey, 256, "avif")}
         widthM={dW}
         heightM={dH}
@@ -202,7 +243,7 @@ export function Painting({
         onSettled={onSettled}
         onTextureAspect={handleTextureAspect}
       />
-      {showPlaque && <Plaque artwork={artwork} widthM={dW} />}
+      <Plaque artwork={artwork} widthM={dW} />
     </group>
   );
 }
@@ -688,6 +729,7 @@ function formatByline(artwork: ArtworkListing): string {
 
 function PaintingPlane({
   url,
+  baseWidth,
   thumbUrl,
   widthM,
   heightM,
@@ -695,9 +737,12 @@ function PaintingPlane({
   onSettled,
   onTextureAspect,
 }: {
-  /** 960 px AVIF — the base "good enough" texture; once it lands the
-   *  painting reads as fully loaded. */
+  /** 480 or 960 px AVIF (see pickBaseWidth) — the base "good enough"
+   *  texture; once it lands the painting reads as fully loaded. */
   url: string;
+  /** Width of that base variant. LOD tiers at or below it are skipped —
+   *  upgrading to a texture the painting already shows is pure waste. */
+  baseWidth: number;
   /** 256 px AVIF — tiny placeholder, typically lands within ~100 ms.
    *  Stretched onto the painting plane it reads as a soft blur of the
    *  real artwork, replacing the old solid-brown swatch flash. */
@@ -885,7 +930,7 @@ function PaintingPlane({
         ? largestVariantWidth
         : null;
     const tiers = LOD_TIERS.filter((t) =>
-      t.kind === "variant" ? available.has(t.width) : hasBiggerOriginal,
+      t.kind === "variant" ? available.has(t.width) && t.width > baseWidth : hasBiggerOriginal,
     );
     const tierUrls = tiers.map((t) => {
       if (t.kind === "variant") return variantProxyUrl(artwork.objectKey, t.width, "avif");
@@ -995,7 +1040,7 @@ function PaintingPlane({
       const e = entryRef.current;
       if (e) e.lodUpdate = undefined;
     };
-  }, [baseLoaded, artwork, gl]);
+  }, [baseLoaded, artwork, baseWidth, gl]);
 
   // The parent re-fits widthM/heightM to the texture's true aspect once
   // the 960 px load reports it. Keep the registered entry's half-extents

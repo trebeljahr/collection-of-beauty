@@ -368,9 +368,78 @@ function bucketByEra(all: ArtworkListing[]): Map<EraId, ArtworkListing[]> {
   return m;
 }
 
+// --- Floor sampling -------------------------------------------------------
+
+/** Works one storey can hang, one per wall cell. A full floor is 16
+ *  rooms (Grand Hall + 15 slots) of 17–22 usable wall cells each; this
+ *  sits just under that so door-heavy floor plans still place every work
+ *  they're handed. Eras above it (Natural History ~1,190, fin-de-siècle
+ *  ~690) hang a sample — the rest of the corpus is still on the site,
+ *  it just isn't on a wall. */
+const MAX_WORKS_PER_FLOOR = 300;
+
+/**
+ * Trim an era down to a floor's worth of works, spreading the cut
+ * across artists instead of truncating the list.
+ *
+ * Water-fill by artist, smallest collection first: every artist gets an
+ * equal share of whatever capacity is left when their turn comes, so
+ * artists with a handful of works keep all of them and the giant
+ * collections (Redouté 647 plates, Audubon 435, Monet 380) come down to
+ * ~50–100 each rather than swallowing the storey. Within an artist the
+ * kept works are sampled at an even stride, so a 435-plate set gives a
+ * spread across the whole series rather than the first 100 plates of
+ * volume one.
+ */
+function selectFloorWorks(artworks: ArtworkListing[]): ArtworkListing[] {
+  if (artworks.length <= MAX_WORKS_PER_FLOOR) return artworks;
+
+  const byArtist = new Map<string, ArtworkListing[]>();
+  for (const a of artworks) {
+    // Anonymous works get a bucket each — they're not one artist's
+    // collection, so they shouldn't share one artist's share.
+    const key = a.artistSlug && a.artistSlug !== "unknown" ? a.artistSlug : `__anon__${a.id}`;
+    const bucket = byArtist.get(key);
+    if (bucket) bucket.push(a);
+    else byArtist.set(key, [a]);
+  }
+
+  const buckets = [...byArtist.values()]
+    .sort((a, b) => a.length - b.length || a[0].id.localeCompare(b[0].id))
+    .map((works) => ({ works, take: 0 }));
+
+  // Repeated equal-share passes over the artists that still have works
+  // left. One pass isn't enough on its own: the integer share rounds
+  // down, and artists who ran out early free up capacity the remaining
+  // artists should absorb.
+  let remaining = MAX_WORKS_PER_FLOOR;
+  let open = buckets;
+  while (remaining > 0 && open.length > 0) {
+    const share = Math.max(1, Math.floor(remaining / open.length));
+    for (const bucket of open) {
+      if (remaining === 0) break;
+      const add = Math.min(share, bucket.works.length - bucket.take, remaining);
+      bucket.take += add;
+      remaining -= add;
+    }
+    open = open.filter((b) => b.take < b.works.length);
+  }
+
+  const keep = new Set<string>();
+  for (const { works, take } of buckets) {
+    for (let i = 0; i < take; i++) keep.add(works[Math.floor((i * works.length) / take)].id);
+  }
+
+  return artworks.filter((a) => keep.has(a.id));
+}
+
 // --- Per-floor layout -----------------------------------------------------
 
 function buildFloor(era: Era, eraArtworks: ArtworkListing[]): FloorLayout {
+  // A storey hangs one work per wall cell, so an era with more works
+  // than the building has wall goes in as a sample rather than a
+  // stack — see selectFloorWorks.
+  eraArtworks = selectFloorWorks(eraArtworks);
   // Interleave artists across the floor. The source data is grouped by
   // folder (audubon-birds, kunstformen-images, collection-of-beauty),
   // so left untouched the natural-history floor reads Audubon-then-
@@ -380,14 +449,11 @@ function buildFloor(era: Era, eraArtworks: ArtworkListing[]): FloorLayout {
   const byMovement = groupMovements(era, eraArtworks);
   const anchorMovement = resolveAnchorMovement(era, byMovement);
 
-  // ~34 works per room leaves headroom below what a room physically
-  // holds when its cells convert to two-row salon stacks (a 6×6 room
-  // has 17–22 wall cells after doors, 2 works per cell). Quiet
-  // movements stay a calm single row; crowded eras climb the walls
-  // instead of dropping works. Sized under the 2×cells ceiling because
-  // door-heavy rooms lose wall cells — at 40 the Ukiyo-e floor came up
-  // ~44 slots short.
-  const PER_ROOM_TARGET = 34;
+  // Works per room, mono-row hang: a 6×6 room has 17–22 wall cells once
+  // doors are cut, and every cell holds exactly one work. Sized at the
+  // low end of that range so door-heavy rooms don't overflow into their
+  // neighbours (spill still catches the rest).
+  const PER_ROOM_TARGET = 17;
   const targetRooms = Math.max(1, Math.ceil(eraArtworks.length / PER_ROOM_TARGET));
   const totalSlots = Math.min(Math.max(0, targetRooms - 1), SLOTS.length);
 
@@ -455,6 +521,17 @@ function buildFloor(era: Era, eraArtworks: ArtworkListing[]): FloorLayout {
         slotEntries.push({ name: mergedName, artworks: mergedArtworks });
       }
     }
+  }
+
+  // The East Asian carve-out above can push `slotEntries` past the
+  // floor's room count (Ukiyo-e splits into more movement chunks than
+  // there are slots). Rooms are assigned by index, so anything past the
+  // last slot would silently never hang — fold those works into the
+  // final room instead and let the placer spill them across the floor's
+  // free wall space.
+  if (slotEntries.length > totalSlots && totalSlots > 0) {
+    const overflow = slotEntries.splice(totalSlots);
+    slotEntries[totalSlots - 1].artworks.push(...overflow.flatMap((e) => e.artworks));
   }
 
   // Build all rooms.
@@ -553,11 +630,11 @@ function buildFloor(era: Era, eraArtworks: ArtworkListing[]): FloorLayout {
   // walls on the same floor (see place-paintings.ts).
   const stats = distributePaintings(floor);
   if (stats.dropped > 0 && process.env.NODE_ENV !== "production") {
-    // A floor out of wall space drops works silently otherwise — this
-    // fires when an ingest outgrows a floor (≈660 works max with every
-    // cell double-stacked). Fix is a new era floor, or opting the era
-    // into the dense grid hang (see era.dense), not a bigger
-    // PER_ROOM_TARGET.
+    // A floor out of wall space drops works silently otherwise. With
+    // the era already sampled down to MAX_WORKS_PER_FLOOR this should
+    // never fire; if it does, the floor plan's usable cell count fell
+    // below that constant (door-heavy rooms, changed room sizes) — lower
+    // MAX_WORKS_PER_FLOOR rather than raising PER_ROOM_TARGET.
     console.warn(
       `[gallery-layout] ${era.id}: ${stats.dropped} works did not fit on the floor's walls`,
     );
@@ -569,20 +646,7 @@ function buildFloor(era: Era, eraArtworks: ArtworkListing[]): FloorLayout {
   for (const room of rooms) {
     if (room.isStairwell) continue;
     room.artworks = room.placements.map((p) => p.artwork);
-    if (era.dense && room.artworks.length > 0) {
-      // Dense floors ignore the builder's movement chunking (the size
-      // grading in distributeDense is the real organising principle), so
-      // the chunk label no longer describes the room. Relabel from the
-      // actual dominant movement of what ended up hanging here.
-      const counts = new Map<string, number>();
-      for (const a of room.artworks) {
-        const mv = a.movement?.trim() ? a.movement : era.title;
-        counts.set(mv, (counts.get(mv) ?? 0) + 1);
-      }
-      const [topName] = [...counts.entries()].sort((a, b) => b[1] - a[1])[0];
-      room.movement = topName;
-      room.title = topName;
-    } else if (room.movement.startsWith("Also from the") && room.artworks.length > 0) {
+    if (room.movement.startsWith("Also from the") && room.artworks.length > 0) {
       // The merged catch-all room can end up effectively single-movement
       // once overflow spill trims it — relabel from its actual contents
       // rather than keeping a vague "Also from the …" sign on a room

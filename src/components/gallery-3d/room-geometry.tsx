@@ -240,13 +240,25 @@ export function RoomGeometry({
 const PAINTING_LOAD_RADIUS = 14;
 const PAINTING_LOAD_RADIUS_SQ = PAINTING_LOAD_RADIUS * PAINTING_LOAD_RADIUS;
 const PAINTINGS_PER_FRAME = 2;
+// Rooms this far behind the player drop their paintings again. Paintings
+// used to mount once and stay for the session, so walking a floor ended
+// with every one of its ~300 paintings mounted — each pinning a texture
+// in the LRU on every LOD tick, which is what made a floor's textures
+// churn (evict → dispose → re-upload) until nothing rendered reliably.
+// Well outside the 14 m mount radius so a player pacing a doorway can't
+// flap between the two, and far enough that an unmounted room is never
+// in view: rooms are ≤ 17.5 m across, so at 34 m the nearest edge of a
+// dropped room is a room-and-a-half away through a doorway.
+const PAINTING_UNLOAD_RADIUS = 34;
+const PAINTING_UNLOAD_RADIUS_SQ = PAINTING_UNLOAD_RADIUS * PAINTING_UNLOAD_RADIUS;
 
 /** Which of a room's paintings to render right now. Returns none until
  *  the camera comes within PAINTING_LOAD_RADIUS of the room, then ramps
  *  PAINTINGS_PER_FRAME per frame up to all of them, ordered nearest the
- *  central stair first. Once revealed they stay (no churn on a return
- *  visit). Drives the per-image, proximity-gated load that keeps a floor
- *  swap from mounting hundreds of paintings in a single frame. */
+ *  central stair first. Past PAINTING_UNLOAD_RADIUS they unmount again,
+ *  which bounds how many paintings a floor holds at once (and therefore
+ *  how many textures compete for the LRU). A return visit re-ramps from
+ *  the texture cache, so it costs frames, not network. */
 function useRevealedPlacements(room: RoomLayout, stairCenter: [number, number]): Placement[] {
   const ordered = useMemo(() => {
     const [scx, scz] = stairCenter;
@@ -280,16 +292,27 @@ function useRevealedPlacements(room: RoomLayout, stairCenter: [number, number]):
   }, [room]);
 
   useFrame((state) => {
-    if (countRef.current >= total) return;
-    if (!nearRef.current) {
-      const { x, z } = state.camera.position;
-      const nx = Math.min(Math.max(x, bounds.xMin), bounds.xMax);
-      const nz = Math.min(Math.max(z, bounds.zMin), bounds.zMax);
-      const dx = x - nx;
-      const dz = z - nz;
-      if (dx * dx + dz * dz > PAINTING_LOAD_RADIUS_SQ) return;
+    const { x, z } = state.camera.position;
+    const nx = Math.min(Math.max(x, bounds.xMin), bounds.xMax);
+    const nz = Math.min(Math.max(z, bounds.zMin), bounds.zMax);
+    const dx = x - nx;
+    const dz = z - nz;
+    const distSq = dx * dx + dz * dz;
+
+    if (nearRef.current) {
+      if (distSq > PAINTING_UNLOAD_RADIUS_SQ) {
+        nearRef.current = false;
+        countRef.current = 0;
+        setCount(0);
+        return;
+      }
+    } else if (distSq <= PAINTING_LOAD_RADIUS_SQ) {
       nearRef.current = true;
+    } else {
+      return;
     }
+
+    if (countRef.current >= total) return;
     countRef.current = Math.min(total, countRef.current + PAINTINGS_PER_FRAME);
     setCount(countRef.current);
   });
