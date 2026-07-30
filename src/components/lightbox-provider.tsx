@@ -4,6 +4,7 @@ import { useRouter, useSearchParams } from "next/navigation";
 import {
   createContext,
   type ReactNode,
+  Suspense,
   useCallback,
   useContext,
   useEffect,
@@ -43,15 +44,49 @@ export function useLightbox(): LightboxApi {
   return ctx;
 }
 
+// `useSearchParams()` forces a CSR bailout, so a component that calls it
+// must sit under a Suspense boundary or `next build` fails the static
+// export. Isolating the read here keeps that boundary *below* the context
+// provider — wrapping the provider itself would let `children` render
+// without a context value during the fallback pass and blow up
+// `useLightbox()`.
+function FromParamSync({ onChange }: { onChange: (from: string | null) => void }) {
+  const searchParams = useSearchParams();
+  const from = searchParams?.get("from") ?? null;
+  useEffect(() => {
+    onChange(from);
+  }, [from, onChange]);
+  return null;
+}
+
 // Hosted at the /artwork layout level so prev/next navigation inside the
 // lightbox doesn't unmount the overlay. The lightbox holds its own index
 // into a lazily-fetched artworks list and key-caches it per `?from=`
 // scope so each scope's order survives switching between (e.g.) two
 // different artist-scoped works in one session.
 export function LightboxProvider({ children }: { children: ReactNode }) {
+  // Starts null and settles to the real `?from=` on the first client
+  // pass. The artworks list is fetched lazily on open(), which never
+  // happens before hydration, so the one-frame delay is unobservable.
+  const [fromParam, setFromParam] = useState<string | null>(null);
+  return (
+    <>
+      <Suspense fallback={null}>
+        <FromParamSync onChange={setFromParam} />
+      </Suspense>
+      <LightboxProviderInner fromParam={fromParam}>{children}</LightboxProviderInner>
+    </>
+  );
+}
+
+function LightboxProviderInner({
+  fromParam,
+  children,
+}: {
+  fromParam: string | null;
+  children: ReactNode;
+}) {
   const router = useRouter();
-  const searchParams = useSearchParams();
-  const fromParam = searchParams?.get("from") ?? null;
   const scope = useMemo<Scope | null>(() => parseScope(fromParam), [fromParam]);
   // Key the cache by the raw `?from=` value (or "__all__" for the
   // global pool). Same artwork can sit in both the artist and movement
@@ -62,6 +97,9 @@ export function LightboxProvider({ children }: { children: ReactNode }) {
   const [artworks, setArtworks] = useState<LightboxArtwork[] | null>(null);
   const artworksByScopeRef = useRef<Map<string, LightboxArtwork[]>>(new Map());
   const promisesByScopeRef = useRef<Map<string, Promise<LightboxArtwork[]>>>(new Map());
+  // Latest scope, readable from an in-flight fetch's continuation.
+  const scopeKeyRef = useRef(scopeKey);
+  scopeKeyRef.current = scopeKey;
 
   const loadArtworks = useCallback(() => {
     const cached = artworksByScopeRef.current.get(scopeKey);
@@ -83,7 +121,7 @@ export function LightboxProvider({ children }: { children: ReactNode }) {
         artworksByScopeRef.current.set(scopeKey, data);
         // Only swap the active list if we're still on the same scope by
         // the time the fetch resolves (user may have navigated away).
-        if (scopeKey === (searchParams?.get("from") ?? "__all__")) {
+        if (scopeKey === scopeKeyRef.current) {
           setArtworks(data);
         }
         return data;
@@ -94,7 +132,7 @@ export function LightboxProvider({ children }: { children: ReactNode }) {
       });
     promisesByScopeRef.current.set(scopeKey, p);
     return p;
-  }, [artworks, fromParam, scope, scopeKey, searchParams]);
+  }, [artworks, fromParam, scope, scopeKey]);
 
   // When ?from= changes (chevron click, deep link, manual URL edit) the
   // active list must swap to match. If we've already fetched this scope
