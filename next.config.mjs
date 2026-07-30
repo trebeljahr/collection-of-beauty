@@ -128,6 +128,14 @@ const nextConfig = {
         destination: "/imprint",
         permanent: true,
       },
+      {
+        // The botanical era floor was merged back into natural-history
+        // (one era, one floor with the dense print-room hang). Keep any
+        // old /era/botanical links resolving.
+        source: "/era/botanical",
+        destination: "/era/natural-history",
+        permanent: true,
+      },
     ];
   },
   async headers() {

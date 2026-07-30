@@ -16,6 +16,11 @@ export type Placement = {
   widthM: number;
   /** Painting height in world metres (already aspect-fit to the slot). */
   heightM: number;
+  /** Whether to render the museum wall plaque beside this work. Defaults
+   *  to true (undefined === true). Set false for dense mosaic tiles,
+   *  where a plaque per plate would crowd the wall — those works are
+   *  still clickable and identify themselves in the zoom modal. */
+  plaque?: boolean;
 };
 
 export type Door = {

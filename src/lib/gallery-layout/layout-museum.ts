@@ -555,8 +555,9 @@ function buildFloor(era: Era, eraArtworks: ArtworkListing[]): FloorLayout {
   if (stats.dropped > 0 && process.env.NODE_ENV !== "production") {
     // A floor out of wall space drops works silently otherwise — this
     // fires when an ingest outgrows a floor (≈660 works max with every
-    // cell double-stacked). Fix is a new era floor, like the botanical
-    // split, not a bigger PER_ROOM_TARGET.
+    // cell double-stacked). Fix is a new era floor, or opting the era
+    // into the dense grid hang (see era.dense), not a bigger
+    // PER_ROOM_TARGET.
     console.warn(
       `[gallery-layout] ${era.id}: ${stats.dropped} works did not fit on the floor's walls`,
     );
@@ -568,11 +569,24 @@ function buildFloor(era: Era, eraArtworks: ArtworkListing[]): FloorLayout {
   for (const room of rooms) {
     if (room.isStairwell) continue;
     room.artworks = room.placements.map((p) => p.artwork);
-    // The merged catch-all room can end up effectively single-movement
-    // once overflow spill trims it — relabel from its actual contents
-    // rather than keeping a vague "Also from the …" sign on a room
-    // that's 90%+ one school.
-    if (room.movement.startsWith("Also from the") && room.artworks.length > 0) {
+    if (era.dense && room.artworks.length > 0) {
+      // Dense floors ignore the builder's movement chunking (the size
+      // grading in distributeDense is the real organising principle), so
+      // the chunk label no longer describes the room. Relabel from the
+      // actual dominant movement of what ended up hanging here.
+      const counts = new Map<string, number>();
+      for (const a of room.artworks) {
+        const mv = a.movement?.trim() ? a.movement : era.title;
+        counts.set(mv, (counts.get(mv) ?? 0) + 1);
+      }
+      const [topName] = [...counts.entries()].sort((a, b) => b[1] - a[1])[0];
+      room.movement = topName;
+      room.title = topName;
+    } else if (room.movement.startsWith("Also from the") && room.artworks.length > 0) {
+      // The merged catch-all room can end up effectively single-movement
+      // once overflow spill trims it — relabel from its actual contents
+      // rather than keeping a vague "Also from the …" sign on a room
+      // that's 90%+ one school.
       const counts = new Map<string, number>();
       for (const a of room.artworks) {
         const mv = a.movement?.trim() ? a.movement : era.title;
