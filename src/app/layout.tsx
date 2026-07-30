@@ -172,7 +172,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
             </nav>
             <p>
               All works shown are in the public domain or openly licensed. Metadata sourced from
-              Wikimedia Commons.
+              public archives — mostly Wikimedia Commons. Every work links back to its own source.
             </p>
             <p className="mt-2 inline-flex items-center justify-center gap-1">
               Made with{" "}
