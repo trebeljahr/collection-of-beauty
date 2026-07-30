@@ -1,14 +1,13 @@
 // Painting placement for rooms + hallways.
 //
 // Every room hangs its own movement bucket (`room.artworks`) on its own
-// walls, so the room label and the works inside it actually agree. Each
-// wall cell starts as a single eye-level slot; when a room's supply
-// exceeds its cell count, cells convert to a two-row salon stack (one
-// work just below eye level, a second above it) until everything fits.
-// The tallest works keep the single full-height cells; only works short
-// enough to share a wall gracefully get stacked. Whatever still doesn't
+// walls, so the room label and the works inside it actually agree. One
+// work per wall cell, all at the same eye-level line — a single "mono
+// row" hang, no salon stacking and no mosaic grids. Whatever doesn't
 // fit in its home room spills to free wall space elsewhere on the same
-// floor — same era, neighbouring room — so no artwork is dropped.
+// floor; anything still left over is dropped, which is why the floor
+// builder trims each era to a floor's worth of works before we get
+// here (see `selectFloorWorks` in layout-museum.ts).
 //
 // "Slots" are cell-aligned wall positions. A slot is one cell wide along
 // the wall and sits in the middle of that cell. Any slot whose centre
@@ -26,19 +25,6 @@ import { CELL_SIZE } from "./world-coords";
  *  1.9 m to read closer to a real-museum hang (where centres land
  *  around 1.45-1.55 m, slightly below the player's 1.75 m eye line). */
 const CANONICAL_Y_CENTER_OFFSET = 1.65;
-/** Two-row salon stack, used per cell when a room's supply exceeds its
- *  single-row capacity. The lower work hangs slightly below the
- *  canonical eye line; the upper work sits directly above it with a
- *  fixed air gap, its centre derived from the lower work's top edge so
- *  small print pairs bracket the eye line (≈1.45 m / ≈2.05 m) while
- *  taller medium pairs climb toward — but never past — STACK_MAX_TOP.
- *  Per-row height caps keep stacked cells from competing with the
- *  full-height single cells reserved for the era's largest canvases. */
-const STACK_LOWER_CENTER_OFFSET = 1.45;
-const STACK_GAP = 0.25;
-const STACK_MAX_TOP_OFFSET = 3.7;
-const STACK_LOWER_MAX_H = 1.5;
-const STACK_UPPER_MAX_H = 1.3;
 /** Smallest long edge (metres) any work renders at. The corpus includes
  *  pocket-sized engravings (8–15 cm) whose true scale would be
  *  invisible on a 15 m wall; museums hang those in vitrines we don't
@@ -85,33 +71,6 @@ const ADJACENT_GAP = 0.1;
  *  whose bottom already exceeds this clearance keep their canonical centre
  *  (the "salon hang" eye-line is the priority for typical works). */
 const PAINTING_FLOOR_GAP = 0.2;
-
-// ── Dense "print-room" hang (era.dense) ───────────────────────────────
-// Floors whose corpus is dominated by small illustration plates (natural
-// history + botany, ~1,200 works) can't fit on a one/two-per-cell salon
-// hang. Instead each wall cell holds a size-graded grid of plates: the
-// walls are packed to a roughly uniform AREA coverage, so a cell of big
-// Audubon plates ends up with 1–2 feature works while a cell of tiny
-// botanical plates tiles 6–9 of them mosaic-style. Because the placer
-// consumes works tallest-first and fills cells in room order, the big
-// plates cluster in the central rooms (feature hang, with plaques) and
-// the small plates graduate outward into dense mosaic rooms.
-/** Vertical span (metres) the grid block may occupy on a wall. Centred
- *  at DENSE_GRID_CENTER_OFFSET so it clears both floor and the 4.2 m
- *  ceiling with margin. */
-const DENSE_GRID_H = 3.0;
-/** Height above the floor of the grid block's centre. */
-const DENSE_GRID_CENTER_OFFSET = 1.8;
-/** Gap between neighbouring tiles in a dense grid. */
-const DENSE_TILE_GAP = 0.14;
-/** Hard cap on tiles per cell — a backstop against a pathological cell,
- *  never reached in practice at the tuned coverage. */
-const DENSE_MAX_TILES = 12;
-/** Fraction of the mean per-cell work-area each cell aims to fill.
- *  Filling to just under the mean spreads the works across every cell on
- *  the floor (rather than exhausting the corpus a room or two early from
- *  per-cell overshoot), so no gallery reads as empty. */
-const DENSE_FILL = 0.82;
 
 type Slot = {
   /** Anchor point (wall surface) in world space. */
@@ -527,8 +486,8 @@ export type DistributionStats = {
 };
 
 /** A sized work waiting for a wall: the natural display dimensions are
- *  computed once up front so the distributor can sort by height and
- *  decide which works need full-height single cells vs a salon stack. */
+ *  computed once up front so the distributor can fit each work to the
+ *  cell it lands in. */
 type SizedWork = { artwork: ArtworkListing; wM: number; hM: number };
 
 /**
@@ -537,17 +496,14 @@ type SizedWork = { artwork: ArtworkListing; wM: number; hM: number };
  *
  *  - Every room hangs its own `room.artworks` (the movement bucket the
  *    floor builder assigned to it) on its own walls.
- *  - Each wall cell holds one work at eye level; when a room's supply
- *    exceeds its cell count, cells convert to a two-row salon stack
- *    (shortest works first) until the supply fits. A room's max
- *    capacity is therefore 2× its cell count.
- *  - Supply beyond a room's max capacity spills to free wall space in
- *    other rooms on the same floor, so nothing is dropped as long as
- *    the floor as a whole has room.
+ *  - One work per wall cell, at the canonical eye-level line. A room's
+ *    capacity is therefore exactly its cell count.
+ *  - Supply beyond a room's capacity spills to free wall space in other
+ *    rooms on the same floor; whatever the floor can't hold is dropped
+ *    (the floor builder trims the era to a floor's worth up front, so
+ *    this should only ever bite by a handful of works).
  */
 export function distributePaintings(floor: FloorLayout): DistributionStats {
-  if (floor.era.dense) return distributeDense(floor);
-
   // Stairwell rooms are excluded — their walls hold the spiral steps
   // and signs, not paintings.
   const containers = floor.rooms
@@ -558,11 +514,11 @@ export function distributePaintings(floor: FloorLayout): DistributionStats {
       supply: room.artworks.map(sizeWork),
     }));
 
-  // Trim each room's supply to its hard capacity (2 works per cell);
+  // Trim each room's supply to its hard capacity (one work per cell);
   // the excess goes into a floor-wide pool.
   const pool: SizedWork[] = [];
   for (const c of containers) {
-    const cap = 2 * c.cells.length;
+    const cap = c.cells.length;
     if (c.supply.length > cap) pool.push(...c.supply.splice(cap));
   }
 
@@ -575,7 +531,7 @@ export function distributePaintings(floor: FloorLayout): DistributionStats {
     let best: (typeof containers)[number] | null = null;
     let bestSpare = 0;
     for (const c of containers) {
-      const spare = 2 * c.cells.length - c.supply.length;
+      const spare = c.cells.length - c.supply.length;
       if (spare > bestSpare) {
         best = c;
         bestSpare = spare;
@@ -606,192 +562,19 @@ export function distributePaintings(floor: FloorLayout): DistributionStats {
 }
 
 /**
- * Dense print-room distribution (era.dense). Pools every work on the
- * floor, sizes them, and fills each wall cell to a roughly uniform area
- * coverage — so big plates hang 1–2 to a cell while tiny plates tile
- * many-to-a-cell. Works are consumed tallest-first and cells are walked
- * in room order, which grades the floor from feature rooms of large
- * plates to mosaic rooms of small ones. Nothing is dropped as long as
- * the floor's total wall area exceeds the works' combined area, which it
- * does by a wide margin at this corpus size.
- */
-function distributeDense(floor: FloorLayout): DistributionStats {
-  const containers = floor.rooms
-    .filter((r) => !r.isStairwell)
-    .map((room) => ({ room, cells: computeRoomSlots(room) }));
-
-  const cells: Array<{ room: RoomLayout; slot: Slot }> = [];
-  for (const c of containers) for (const slot of c.cells) cells.push({ room: c.room, slot });
-
-  // Pool every work on the floor (the per-room movement buckets are
-  // ignored here — the size grading below is the organising principle),
-  // tallest first so the largest plates land in the first cells walked.
-  const pool: SizedWork[] = containers
-    .flatMap((c) => c.room.artworks.map(sizeWork))
-    .sort((a, b) => b.hM - a.hM);
-
-  const totalCells = cells.length;
-  if (totalCells === 0) {
-    return {
-      roomSlotsTotal: 0,
-      roomSlotsFilled: 0,
-      hallwaySlotsTotal: 0,
-      hallwaySlotsFilled: 0,
-      dropped: pool.length,
-    };
-  }
-
-  // Aim every cell at the same work-AREA target (mean area per cell).
-  // Filling to an area target — not a fixed count — is what makes small
-  // plates pack densely and large plates hang sparsely on the same floor.
-  const totalArea = pool.reduce((sum, w) => sum + w.wM * w.hM, 0);
-  const areaTarget = (totalArea / totalCells) * DENSE_FILL;
-
-  let i = 0;
-  let roomSlotsFilled = 0;
-  for (const cell of cells) {
-    if (i >= pool.length) break;
-    let acc = 0;
-    const group: SizedWork[] = [];
-    while (i < pool.length && group.length < DENSE_MAX_TILES) {
-      const w = pool[i++];
-      group.push(w);
-      acc += w.wM * w.hM;
-      if (acc >= areaTarget) break;
-    }
-    placeCellGrid(cell.room, cell.slot, group);
-    roomSlotsFilled += 1;
-  }
-
-  return {
-    roomSlotsTotal: totalCells,
-    roomSlotsFilled,
-    hallwaySlotsTotal: 0,
-    hallwaySlotsFilled: 0,
-    dropped: pool.length - i,
-  };
-}
-
-/** Hang a group of works in one wall cell as a centred grid. A lone work
- *  gets the canonical single hang (with plaque, a feature plate); two or
- *  more tile into a grid sized to the group's largest plate, plaques
- *  suppressed so the mosaic reads cleanly. */
-function placeCellGrid(room: RoomLayout, slot: Slot, group: SizedWork[]): void {
-  if (group.length === 0) return;
-  if (group.length === 1) {
-    room.placements.push(placeSingle(slot, group[0]));
-    return;
-  }
-
-  const n = group.length;
-  const gridWidth = slot.maxWidth;
-  const gap = DENSE_TILE_GAP;
-
-  // Size the grid to the group's largest plate; smaller ones aspect-fit
-  // inside their tile with room to spare.
-  let maxW = 0;
-  let maxH = 0;
-  for (const w of group) {
-    if (w.wM > maxW) maxW = w.wM;
-    if (w.hM > maxH) maxH = w.hM;
-  }
-
-  let colPitch = maxW + gap;
-  let rowPitch = maxH + gap;
-  const cols = Math.max(1, Math.min(n, Math.floor((gridWidth + gap) / colPitch)));
-  const rows = Math.ceil(n / cols);
-
-  // Scale the whole block down if it would overrun the cell's width or
-  // the wall's vertical budget (rare — only very tall groups).
-  let scale = 1;
-  if (rows * rowPitch > DENSE_GRID_H) scale = Math.min(scale, DENSE_GRID_H / (rows * rowPitch));
-  if (cols * colPitch > gridWidth + gap) {
-    scale = Math.min(scale, (gridWidth + gap) / (cols * colPitch));
-  }
-  if (scale < 1) {
-    colPitch *= scale;
-    rowPitch *= scale;
-  }
-
-  // Wall axis: X for north/south walls (normal on Z), Z for east/west.
-  const axisX = slot.normalZ !== 0 ? 1 : 0;
-  const axisZ = slot.normalX !== 0 ? 1 : 0;
-  const centerY = slot.floorY + DENSE_GRID_CENTER_OFFSET;
-  const tileW = Math.max(0.1, colPitch - gap);
-  const tileH = Math.max(0.1, rowPitch - gap);
-
-  for (let idx = 0; idx < n; idx++) {
-    const r = Math.floor(idx / cols);
-    const c = idx % cols;
-    // Centre the (possibly partial) last row.
-    const itemsInRow = Math.min(cols, n - r * cols);
-    const du = (c - (itemsInRow - 1) / 2) * colPitch;
-    const dv = ((rows - 1) / 2 - r) * rowPitch; // top row highest
-    const { wM, hM } = fitTo(group[idx], tileW, tileH);
-    room.placements.push({
-      artwork: group[idx].artwork,
-      position: [
-        slot.wallX + du * axisX + slot.normalX * PAINTING_WALL_OFFSET,
-        centerY + dv,
-        slot.wallZ + du * axisZ + slot.normalZ * PAINTING_WALL_OFFSET,
-      ],
-      rotation: [0, slot.rotationY, 0],
-      band: artworkBand(group[idx].artwork),
-      widthM: wM,
-      heightM: hM,
-      plaque: false,
-    });
-  }
-}
-
-/**
- * Hang `supply` on `room`'s walls. Tallest works keep full-height
- * single cells; the shortest pair up into two-row salon stacks on just
- * enough cells that everything fits. Both singles and stacks spread
- * evenly along the wall sequence so a half-full room reads as evenly
- * hung rather than crowding the first wall.
+ * Hang `supply` on `room`'s walls — one work per cell, all on the same
+ * eye-level line. When the room is under-full the occupied cells spread
+ * evenly across the wall sequence, so a half-full room reads as evenly
+ * hung rather than crowding the first wall and leaving the rest bare.
  */
 function placeRoomSupply(room: RoomLayout, cells: Slot[], supply: SizedWork[]): void {
   if (supply.length === 0 || cells.length === 0) return;
 
-  const sorted = [...supply].sort((a, b) => b.hM - a.hM);
   const nCells = cells.length;
-  const n = Math.min(sorted.length, 2 * nCells);
-  const nStack = Math.max(0, n - nCells);
-  const nSingles = Math.min(n, nCells) - nStack;
-
-  const singles = sorted.slice(0, nSingles);
-  // Stacked works, still tallest-first: the first half become the lower
-  // row (taller of each pair), the back half the upper row. Pair the
-  // tallest lower with the shortest upper so combined heights stay
-  // balanced and the upper row needs the least shrinking.
-  const lowers = sorted.slice(nSingles, nSingles + nStack);
-  const uppers = sorted.slice(nSingles + nStack, nSingles + 2 * nStack);
-
-  // Choose which occupied positions stack: spread them evenly through
-  // the wall walk order, with singles taking the positions in between.
-  const occupied = nSingles + nStack;
-  const isStackCell = new Array<boolean>(occupied).fill(false);
-  for (let i = 0; i < nStack; i++) {
-    isStackCell[Math.floor(((i + 0.5) * occupied) / nStack)] = true;
-  }
-
-  // Walk the first `occupied` cells (spread across all cells when the
-  // room is under-full) and pull from singles / pairs in order.
-  let singleIdx = 0;
-  let stackIdx = 0;
-  for (let i = 0; i < occupied; i++) {
-    // Spread occupied cells across the whole room when under-filled.
-    const cell = cells[Math.floor((i * nCells) / occupied)];
-    if (isStackCell[i]) {
-      const lower = lowers[stackIdx];
-      const upper = uppers[nStack - 1 - stackIdx];
-      stackIdx++;
-      placeStackedPair(room, cell, lower, upper);
-    } else {
-      room.placements.push(placeSingle(cell, singles[singleIdx]));
-      singleIdx++;
-    }
+  const n = Math.min(supply.length, nCells);
+  for (let i = 0; i < n; i++) {
+    const cell = cells[Math.floor((i * nCells) / n)];
+    room.placements.push(placeSingle(cell, supply[i]));
   }
 }
 
@@ -808,31 +591,6 @@ function placeSingle(slot: Slot, work: SizedWork): Placement {
   const minCenterY = slot.floorY + PAINTING_FLOOR_GAP + hM / 2;
   const centerY = Math.max(slot.wallY, minCenterY);
   return makePlacement(slot, work.artwork, wM, hM, centerY);
-}
-
-/** Place two works as a salon stack in one cell: `lower` slightly below
- *  the eye line, `upper` directly above it with a fixed air gap. The
- *  upper work's height budget is whatever remains between the lower
- *  work's top edge and STACK_MAX_TOP, so small pairs bracket the eye
- *  line while taller pairs climb the wall without hitting the ceiling. */
-function placeStackedPair(
-  room: RoomLayout,
-  slot: Slot,
-  lowerWork: SizedWork,
-  upperWork: SizedWork,
-) {
-  const lower = fitTo(lowerWork, slot.maxWidth, STACK_LOWER_MAX_H);
-  const lowerCenterY = slot.floorY + STACK_LOWER_CENTER_OFFSET;
-  room.placements.push(makePlacement(slot, lowerWork.artwork, lower.wM, lower.hM, lowerCenterY));
-
-  const lowerTopOffset = STACK_LOWER_CENTER_OFFSET + lower.hM / 2;
-  const upperBudget = Math.min(
-    STACK_UPPER_MAX_H,
-    STACK_MAX_TOP_OFFSET - lowerTopOffset - STACK_GAP,
-  );
-  const upper = fitTo(upperWork, slot.maxWidth, upperBudget);
-  const upperCenterY = slot.floorY + lowerTopOffset + STACK_GAP + upper.hM / 2;
-  room.placements.push(makePlacement(slot, upperWork.artwork, upper.wM, upper.hM, upperCenterY));
 }
 
 function makePlacement(

@@ -32,10 +32,9 @@
 //   A. Per-painting LOD (painting.tsx + lod-controller.tsx)
 //      Drives the *current floor's* paintings. The LodController ticks
 //      at ~5 Hz, walks the painting registry, and per-painting:
-//        • MRU-touches the 960 px base in `cache` so it can't age out
-//          while mounted (a busy floor mounts > 96 paintings — without
-//          this the LRU would dispose textures the player is still
-//          looking at).
+//        • MRU-touches the base texture in `cache` so it can't age out
+//          while mounted — without this the LRU would dispose textures
+//          the player is still looking at.
 //        • Prefetches the next-higher LOD tier into `hiresCache` as the
 //          player crosses each tier's `prefetchSq` radius, and upgrades
 //          `material.map` once the tier is resident. Demotes back on
@@ -85,7 +84,22 @@ import { useMemo } from "react";
 import * as THREE from "three";
 import { assetProxyUrl, assetUrl, variantProxyUrl, variantUrl } from "@/lib/utils";
 
-const TEXTURE_CACHE_CAPACITY = 96;
+// Base-texture pool. Two limits, whichever bites first:
+//
+//   • entry count — a ceiling on bookkeeping, not memory. A floor mounts
+//     up to ~300 paintings and the LodController MRU-touches every
+//     mounted one on each tick, so a count below the mounted set makes
+//     the LRU thrash: each tick evicts + disposes textures the player is
+//     still looking at, and they re-upload on the next frame. Sized
+//     above what a floor can mount so eviction is driven by the byte
+//     budget instead.
+//   • byte budget — the real constraint. Paintings now take a base
+//     sized to their display size (480 px ≈ 1 MB decoded + mipmaps,
+//     960 px ≈ 3.9 MB), so a fixed entry count can't express "keep
+//     roughly this much GPU memory". ~320 MB holds a full floor of the
+//     small plates or ~80 of the largest canvases.
+const TEXTURE_CACHE_CAPACITY = 512;
+const TEXTURE_CACHE_BYTE_BUDGET = 320 * 1024 * 1024;
 const TEXTURE_LOAD_ATTEMPTS = 3;
 const TEXTURE_LOAD_TIMEOUT_MS = 15_000;
 const TEXTURE_RETRY_DELAY_MS = 500;
@@ -104,12 +118,33 @@ const HIRES_CACHE_CAPACITY = 20;
 // mipmaps ≈ 90 MB, dwarfed by the base 960 px cache budget.
 const PRELOAD_CACHE_CAPACITY = 256;
 
+/** Rough GPU cost of a decoded texture: RGBA8 plus a full mip chain
+ *  (the 1/3 geometric series, so ×4/3). Good enough to keep a pool
+ *  inside a memory budget; exact driver-side padding doesn't matter. */
+function textureBytes(tex: THREE.Texture): number {
+  const img = tex.image as { width?: number; height?: number } | undefined;
+  const w = img?.width ?? 0;
+  const h = img?.height ?? 0;
+  if (!w || !h) return 0;
+  return Math.round(w * h * 4 * 1.34);
+}
+
 class TextureLRU {
   private map = new Map<string, THREE.Texture>();
-  constructor(private capacity: number) {}
+  private bytes = 0;
+  /** Optional GPU-memory ceiling. When set, entries are evicted oldest-
+   *  first until the pool fits, independent of the entry count. */
+  constructor(
+    private capacity: number,
+    private byteBudget = Number.POSITIVE_INFINITY,
+  ) {}
 
   get size(): number {
     return this.map.size;
+  }
+
+  get byteSize(): number {
+    return this.bytes;
   }
 
   get(key: string): THREE.Texture | undefined {
@@ -123,14 +158,24 @@ class TextureLRU {
   }
 
   put(key: string, tex: THREE.Texture): void {
-    if (this.map.has(key)) this.map.delete(key);
+    const existing = this.map.get(key);
+    if (existing) {
+      this.bytes -= textureBytes(existing);
+      this.map.delete(key);
+    }
     this.map.set(key, tex);
-    while (this.map.size > this.capacity) {
+    this.bytes += textureBytes(tex);
+    // Never evict down to nothing: the entry just inserted is the one
+    // the caller is about to display.
+    while (this.map.size > 1 && (this.map.size > this.capacity || this.bytes > this.byteBudget)) {
       const oldest = this.map.keys().next().value;
       if (oldest === undefined) break;
       const old = this.map.get(oldest);
       this.map.delete(oldest);
-      old?.dispose();
+      if (old) {
+        this.bytes -= textureBytes(old);
+        old.dispose();
+      }
     }
   }
 
@@ -142,11 +187,14 @@ class TextureLRU {
    *  a preloaded thumb into the main cache — the texture itself stays
    *  alive in the destination LRU. */
   evictWithoutDispose(key: string): void {
+    const tex = this.map.get(key);
+    if (!tex) return;
+    this.bytes -= textureBytes(tex);
     this.map.delete(key);
   }
 }
 
-const cache = new TextureLRU(TEXTURE_CACHE_CAPACITY);
+const cache = new TextureLRU(TEXTURE_CACHE_CAPACITY, TEXTURE_CACHE_BYTE_BUDGET);
 const inFlight = new Map<string, Promise<THREE.Texture>>();
 const preloadCache = new TextureLRU(PRELOAD_CACHE_CAPACITY);
 const preloadInFlight = new Map<string, Promise<THREE.Texture | null>>();
@@ -642,6 +690,9 @@ export function markCachedTexturesForReupload(): void {
 export const _textureCacheDebug = {
   get size() {
     return cache.size;
+  },
+  get bytes() {
+    return cache.byteSize;
   },
   get inFlight() {
     return inFlight.size;
