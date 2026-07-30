@@ -3,6 +3,7 @@ import { artworkAlt, displayTitle } from "@/lib/artwork-format";
 import { type Artist, type Artwork, artworks, summary } from "@/lib/data";
 import { getLicenseInfo } from "@/lib/license";
 import { SITE_URL } from "@/lib/links";
+import { sourceLabel } from "@/lib/source-label";
 import { assetUrl, variantUrl } from "@/lib/utils";
 
 // ────────────────────────────────────────────────────────────────────────────
@@ -161,7 +162,7 @@ export function artworkJsonLd(artwork: Artwork): Record<string, unknown> {
       : {}),
     ...(artwork.movement ? { artMovement: artwork.movement } : {}),
     license: license.url,
-    creditText: artwork.credit ?? "Wikimedia Commons",
+    creditText: artwork.credit ?? sourceLabel(artwork.commonsUrl),
     isAccessibleForFree: true,
     isFamilyFriendly: true,
     copyrightNotice: artwork.license,

@@ -20,6 +20,7 @@ import {
 import { assignEra, getEra } from "@/lib/gallery-eras";
 import { suggestFixUrl } from "@/lib/links";
 import { artworkJsonLd, jsonLdScriptProps, ogImagesForArtwork } from "@/lib/seo";
+import { sourceLabel } from "@/lib/source-label";
 
 type Params = { id: string };
 
@@ -244,7 +245,7 @@ export default async function ArtworkPage({
               </Link>
             )}
             <LicenseBadge license={art.license} />
-            <CommonsBadge href={art.commonsUrl} />
+            <SourceBadge href={art.commonsUrl} />
           </div>
 
           <p className="text-sm leading-relaxed text-[var(--muted-foreground)]">
@@ -425,18 +426,21 @@ function ProvenanceBlock({ prov }: { prov: NonNullable<Artwork["provenance"]> })
   );
 }
 
-/** Pill linking to the Wikimedia Commons file page — the "Source" leg
- *  of TASL attribution, styled to sit next to LicenseBadge. */
-function CommonsBadge({ href }: { href: string }) {
+/** Pill linking to the upstream file page — the "Source" leg of TASL
+ *  attribution, styled to sit next to LicenseBadge. The label follows the
+ *  actual host (Commons for most works, c82.net for the Redouté
+ *  restorations, etc.) so the badge never misattributes the source. */
+function SourceBadge({ href }: { href: string }) {
+  const label = sourceLabel(href);
   return (
     <a
       href={href}
       target="_blank"
       rel="noreferrer"
-      title="View source on Wikimedia Commons"
+      title={`View source on ${label}`}
       className={pillClasses}
     >
-      Wikimedia Commons
+      {label}
       <svg
         viewBox="0 0 24 24"
         width="11"
