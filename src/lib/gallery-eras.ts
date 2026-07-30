@@ -45,6 +45,12 @@ export type Era = {
   palette: Palette;
   blurb: string;
   anchor: AnchorSpec;
+  /** Opt into the dense "print-room" hang: small plates tile the walls
+   *  in size-graded grids (many per wall cell) instead of the one/two-
+   *  per-cell salon hang. Set only for floors whose corpus is dominated
+   *  by small illustration plates and would otherwise overflow a single
+   *  storey. See place-paintings.ts `distributeDense`. */
+  dense?: boolean;
 };
 
 export type EraId =
@@ -54,7 +60,6 @@ export type EraId =
   | "enlightenment"
   | "romantic"
   | "natural-history"
-  | "botanical"
   | "realism"
   | "ukiyo-e"
   | "fin-de-siecle"
@@ -195,14 +200,22 @@ export const ERAS: Era[] = [
   {
     id: "natural-history",
     index: 5,
-    title: "Natural History Illustration",
+    title: "Natural History & Botanical Illustration",
     // Movement-only — see ukiyo-e for the rationale on yearMin>yearMax.
-    // The cohort (Audubon 1827–1838, Haeckel 1899–1904) spans nearly a
-    // century, so a year range would either undershoot Haeckel or
-    // overshoot into Romantic and fin-de-siècle European painting.
+    // The cohort (Audubon 1827–1838, Haeckel 1899–1904, Redouté
+    // 1802–1816) spans a century, so a year range would either
+    // undershoot the later plates or overshoot into Romantic and
+    // fin-de-siècle European painting.
     yearMin: 9999,
     yearMax: 0,
-    movements: ["Natural history illustration"],
+    // Zoology and botany share one floor the way a natural-history
+    // museum keeps them under one roof. The combined corpus (~1,200
+    // works) far outgrows a normal salon hang, so this era opts into
+    // the dense print-room grid (see `dense` below).
+    movements: ["Natural history illustration", "Botanical illustration"],
+    // Small plates tile the walls many-per-cell here; a one/two-per-cell
+    // hang can't fit ~1,200 works on one storey.
+    dense: true,
     palette: {
       // Specimen-plate cream walls, deep moss floor, brass-olive accent
       // — Victorian natural-history museum, lit so the plates' fine
@@ -214,7 +227,7 @@ export const ERAS: Era[] = [
       // Field colours under glass: moss, walnut, slate-sky, deep bog, ochre-soil.
       roomAccents: ["#1a1f17", "#241a12", "#1c2630", "#1a241c", "#2a2218"],
     },
-    blurb: "Audubon's birds and Haeckel's forms — the natural world catalogued.",
+    blurb: "Audubon's birds, Haeckel's forms, and Redouté's lilies — the natural world catalogued.",
     anchor: {
       movement: "Natural history illustration",
       minCells: { x: 9, z: 9 },
@@ -222,39 +235,8 @@ export const ERAS: Era[] = [
     },
   },
   {
-    id: "botanical",
-    index: 6,
-    title: "Botanical Illustration",
-    // Movement-only — see ukiyo-e for the rationale on yearMin>yearMax.
-    // Split from the natural-history floor when the 475-plate Redouté
-    // Les Liliacées ingest would have pushed that single floor past
-    // 1,000 works — well beyond what one storey's walls can hang. The
-    // botany wing stands on its own the way real natural-history
-    // museums separate botany from zoology.
-    yearMin: 9999,
-    yearMax: 0,
-    movements: ["Botanical illustration"],
-    palette: {
-      // Pressed-flower plate mood: warm paper-cream walls, deep
-      // leaf-green floor, rose-madder accent — Redouté's hand-coloured
-      // stipple engravings against herbarium tones.
-      wallColor: "#e6dcbc",
-      floorColor: "#16201a",
-      ceilingColor: "#f0e8cc",
-      accent: "#a84a5c",
-      // Garden beds underfoot: leaf-green, moss, fern, walnut, petal-wine.
-      roomAccents: ["#16201a", "#1b2616", "#1a2a22", "#241c12", "#2a1820"],
-    },
-    blurb: "Redouté's lilies — botany drawn petal by petal.",
-    anchor: {
-      movement: "Botanical illustration",
-      minCells: { x: 9, z: 9 },
-      preferredLocation: "center",
-    },
-  },
-  {
     id: "realism",
-    index: 7,
+    index: 6,
     title: "Realism & Academy",
     // Movement-only — see ukiyo-e. Year-fallback for 1800–1869
     // already lands on the Romanticism floor (above); claiming the
@@ -283,7 +265,7 @@ export const ERAS: Era[] = [
   },
   {
     id: "ukiyo-e",
-    index: 8,
+    index: 7,
     title: "East Asian Painting",
     // Movement-tag only: yearMin > yearMax keeps the year-fallback in
     // assignEra from accidentally placing untagged 18th/19th-c
@@ -326,7 +308,7 @@ export const ERAS: Era[] = [
     // first multi-floor cut. Title narrowed to Impressionism since
     // Post-Impressionism and Modernism now have their own floors.
     id: "fin-de-siecle",
-    index: 9,
+    index: 8,
     title: "Impressionism",
     // Year fallback for 1870–1899 lands here. Late-19th-c works whose
     // movement is missing — Inness, Eakins, Cassatt, Serov, Levitan —
@@ -355,7 +337,7 @@ export const ERAS: Era[] = [
   },
   {
     id: "post-impressionism",
-    index: 10,
+    index: 9,
     title: "Post-Impressionism & Symbolism",
     // Movement-only — year range would overlap both adjacent floors
     // (Imp 1870–1899, Modernism 1900+) and split unpredictably under
@@ -392,7 +374,7 @@ export const ERAS: Era[] = [
   },
   {
     id: "modernism",
-    index: 11,
+    index: 10,
     title: "Modernism",
     // Takes the 1900+ year-fallback. Untagged early-20th-c works in
     // the corpus (Delaunay, Kirchner, Malevich, Gris, Bakst,

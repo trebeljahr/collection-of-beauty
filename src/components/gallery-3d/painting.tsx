@@ -129,6 +129,7 @@ export function Painting({
   onSettled?: (status: "loaded" | "failed") => void;
 }) {
   const { artwork, position, rotation, widthM, heightM } = placement;
+  const showPlaque = placement.plaque !== false;
   const url = variantProxyUrl(artwork.objectKey, 960, "avif");
 
   // Aspect-corrected plane size. The slot's widthM/heightM are derived
@@ -201,7 +202,7 @@ export function Painting({
         onSettled={onSettled}
         onTextureAspect={handleTextureAspect}
       />
-      <Plaque artwork={artwork} widthM={dW} />
+      {showPlaque && <Plaque artwork={artwork} widthM={dW} />}
     </group>
   );
 }
