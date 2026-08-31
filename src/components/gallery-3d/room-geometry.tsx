@@ -25,13 +25,9 @@ import { WallWithDoors } from "./wall";
  */
 export function RoomGeometry({
   room,
-  stairCenter,
   onPaintingSettled,
 }: {
   room: RoomLayout;
-  /** Central-stair XZ for this floor. Used to order this room's painting
-   *  reveal nearest-the-stair first. */
-  stairCenter: [number, number];
   /** Fires once per painting after its 960 px texture loads. Optional —
    *  Gallery3D only passes it for the entry room so the start
    *  overlay can show first-room load progress / failures. */
@@ -119,7 +115,7 @@ export function RoomGeometry({
   // Paintings load lazily, image by image, only once the player is near
   // this room (see useRevealedPlacements). The shell above always
   // renders, so an unloaded room reads as bare walls, never a hole.
-  const revealedPlacements = useRevealedPlacements(room, stairCenter);
+  const revealedPlacements = useRevealedPlacements(room);
 
   return (
     <group>
@@ -252,23 +248,34 @@ const PAINTINGS_PER_FRAME = 2;
 const PAINTING_UNLOAD_RADIUS = 34;
 const PAINTING_UNLOAD_RADIUS_SQ = PAINTING_UNLOAD_RADIUS * PAINTING_UNLOAD_RADIUS;
 
+// Reveal is serialised across rooms, nearest first. Several rooms are
+// inside the mount radius at once (the room you're in plus whatever the
+// doorways open onto), and letting each ramp in parallel interleaved
+// their loads: the room you're standing in finished last because it was
+// sharing the network gate and the GPU upload queue with rooms behind
+// you. Rooms with paintings still to mount publish their distance here
+// each frame, and only the closest one spends the frame's budget — so a
+// floor fills outward from the player instead of all at once.
+const pendingRooms = new Map<string, number>();
+
+/** Is `roomId` the closest room still waiting to mount paintings? */
+function isNearestPending(roomId: string, distSq: number): boolean {
+  for (const [otherId, otherDist] of pendingRooms) {
+    if (otherId === roomId) continue;
+    if (otherDist < distSq) return false;
+  }
+  return true;
+}
+
 /** Which of a room's paintings to render right now. Returns none until
  *  the camera comes within PAINTING_LOAD_RADIUS of the room, then ramps
- *  PAINTINGS_PER_FRAME per frame up to all of them, ordered nearest the
- *  central stair first. Past PAINTING_UNLOAD_RADIUS they unmount again,
- *  which bounds how many paintings a floor holds at once (and therefore
- *  how many textures compete for the LRU). A return visit re-ramps from
- *  the texture cache, so it costs frames, not network. */
-function useRevealedPlacements(room: RoomLayout, stairCenter: [number, number]): Placement[] {
-  const ordered = useMemo(() => {
-    const [scx, scz] = stairCenter;
-    return [...room.placements].sort((a, b) => {
-      const da = (a.position[0] - scx) ** 2 + (a.position[2] - scz) ** 2;
-      const db = (b.position[0] - scx) ** 2 + (b.position[2] - scz) ** 2;
-      return da - db;
-    });
-  }, [room, stairCenter]);
-
+ *  PAINTINGS_PER_FRAME per frame — but only while this is the nearest
+ *  room still waiting — ordered nearest the player first. Past
+ *  PAINTING_UNLOAD_RADIUS they unmount again, which bounds how many
+ *  paintings a floor holds at once (and therefore how many textures
+ *  compete for the LRU). A return visit re-ramps from the texture cache,
+ *  so it costs frames, not network. */
+function useRevealedPlacements(room: RoomLayout): Placement[] {
   const bounds = useMemo(() => {
     const cb = room.cellBounds;
     return {
@@ -279,20 +286,29 @@ function useRevealedPlacements(room: RoomLayout, stairCenter: [number, number]):
     };
   }, [room]);
 
-  const total = ordered.length;
+  const total = room.placements.length;
   const [count, setCount] = useState(0);
   const countRef = useRef(0);
   const nearRef = useRef(false);
+  // Reveal order, fixed when the room comes into range: nearest the
+  // player's entry point first, so the wall you walk in facing fills
+  // before the one behind you. Recomputing it every frame would reorder
+  // works that are already mounted.
+  const orderRef = useRef<Placement[]>(room.placements);
 
   // Reset if this instance is ever reused for a different room.
   useEffect(() => {
     countRef.current = 0;
     nearRef.current = false;
+    orderRef.current = room.placements;
     setCount(0);
+    return () => {
+      pendingRooms.delete(room.id);
+    };
   }, [room]);
 
   useFrame((state) => {
-    const { x, z } = state.camera.position;
+    const { x, y, z } = state.camera.position;
     const nx = Math.min(Math.max(x, bounds.xMin), bounds.xMax);
     const nz = Math.min(Math.max(z, bounds.zMin), bounds.zMax);
     const dx = x - nx;
@@ -303,21 +319,39 @@ function useRevealedPlacements(room: RoomLayout, stairCenter: [number, number]):
       if (distSq > PAINTING_UNLOAD_RADIUS_SQ) {
         nearRef.current = false;
         countRef.current = 0;
+        pendingRooms.delete(room.id);
         setCount(0);
         return;
       }
     } else if (distSq <= PAINTING_LOAD_RADIUS_SQ) {
       nearRef.current = true;
+      orderRef.current = [...room.placements].sort(
+        (a, b) => placementDistSq(a, x, y, z) - placementDistSq(b, x, y, z),
+      );
     } else {
       return;
     }
 
-    if (countRef.current >= total) return;
+    if (countRef.current >= total) {
+      pendingRooms.delete(room.id);
+      return;
+    }
+    // Queue up behind any room closer to the player that still has
+    // paintings to mount.
+    pendingRooms.set(room.id, distSq);
+    if (!isNearestPending(room.id, distSq)) return;
     countRef.current = Math.min(total, countRef.current + PAINTINGS_PER_FRAME);
     setCount(countRef.current);
   });
 
-  return count >= total ? ordered : ordered.slice(0, count);
+  return count >= total ? orderRef.current : orderRef.current.slice(0, count);
+}
+
+function placementDistSq(p: Placement, x: number, y: number, z: number): number {
+  const dx = p.position[0] - x;
+  const dy = p.position[1] - y;
+  const dz = p.position[2] - z;
+  return dx * dx + dy * dy + dz * dz;
 }
 
 /** PlaneGeometry whose UV attribute is rescaled so 1 unit of UV maps
