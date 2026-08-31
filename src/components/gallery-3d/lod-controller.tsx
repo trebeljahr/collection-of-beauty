@@ -27,6 +27,7 @@ import { useFrame } from "@react-three/fiber";
 import { useRef } from "react";
 import * as THREE from "three";
 import { forEachPainting } from "./painting-registry";
+import { setLoadCamera } from "./texture-cache";
 
 const TICK_INTERVAL = 12;
 
@@ -41,6 +42,10 @@ export function LodController() {
     const cx = cameraPos.current.x;
     const cy = cameraPos.current.y;
     const cz = cameraPos.current.z;
+    // Feed the texture scheduler: its network + upload queues serve
+    // whichever waiting painting is nearest the camera, so the queues
+    // need to know where the player is.
+    setLoadCamera(cx, cy, cz);
     forEachPainting((entry) => {
       if (!entry.lodUpdate) return;
       // Camera offset from painting centre, in world space.

@@ -68,6 +68,11 @@
 //   • Upload queue is high-before-low. A floor-wide preload (potentially
 //     hundreds of `initTexture` calls) cannot delay a hi-res upgrade the
 //     player is actively walking toward.
+//   • Within a tier, both the network gate and the upload queue serve
+//     the item closest to the camera first (see "Distance-ordered
+//     scheduling" below). Callers pass the world position of the
+//     painting a load belongs to; anything unpositioned is treated as a
+//     direct user action and jumps the queue.
 //   • Promotion is destructive on the preload side only: the thumb's
 //     GPU texture survives via `evictWithoutDispose`, and from that
 //     point the LodController's per-tick MRU touch keeps it alive in
@@ -227,6 +232,69 @@ const hiresCache = new TextureLRU(HIRES_CACHE_CAPACITY);
 const hiresInFlight = new Map<string, Promise<THREE.Texture>>();
 
 // ─────────────────────────────────────────────────────────────────────
+// Distance-ordered scheduling.
+//
+// Both bottlenecks below (the network slot gate and the GPU upload
+// queue) used to be FIFO, so a floor loaded in whatever order React
+// happened to mount its paintings — the room the player is standing in
+// waited behind rooms three doorways away. Every queued item now
+// carries the world position of the painting it belongs to, and both
+// queues hand the next slot to whichever waiting item is closest to the
+// camera *right now*. The result is the room you're in filling first,
+// then the walls next door, expanding outward as you walk.
+//
+// Ordering is by live camera distance, not by the distance at enqueue
+// time: the player keeps moving while a hundred items sit in the queue,
+// so a snapshot taken at enqueue would be stale by the time the slot
+// frees up.
+// ─────────────────────────────────────────────────────────────────────
+
+/** World position a queued load belongs to. `null` means "unpositioned"
+ *  — the zoom modal and other explicit user actions, which jump the
+ *  queue entirely (they're a direct response to a click, not a
+ *  speculative floor load). */
+export type LoadOrigin = readonly [number, number, number] | null;
+
+let cameraX = 0;
+let cameraY = 0;
+let cameraZ = 0;
+
+/** Feed the scheduler the camera position. Called from the
+ *  LodController's ~5 Hz tick — the queues only need to know roughly
+ *  where the player is, and a walking player covers < 1 m between
+ *  ticks. */
+export function setLoadCamera(x: number, y: number, z: number): void {
+  cameraX = x;
+  cameraY = y;
+  cameraZ = z;
+}
+
+function originRank(origin: LoadOrigin): number {
+  if (!origin) return -1;
+  const dx = origin[0] - cameraX;
+  const dy = origin[1] - cameraY;
+  const dz = origin[2] - cameraZ;
+  return dx * dx + dy * dy + dz * dz;
+}
+
+/** Pop the queued item closest to the camera. Linear scan: queues run to
+ *  a few hundred entries at most and this runs once per freed slot /
+ *  rAF tick, so a heap would be bookkeeping for no measurable win. */
+function takeNearest<T extends { origin: LoadOrigin }>(queue: T[]): T | undefined {
+  if (queue.length === 0) return undefined;
+  let bestIdx = 0;
+  let bestRank = originRank(queue[0].origin);
+  for (let i = 1; i < queue.length; i++) {
+    const rank = originRank(queue[i].origin);
+    if (rank < bestRank) {
+      bestRank = rank;
+      bestIdx = i;
+    }
+  }
+  return queue.splice(bestIdx, 1)[0];
+}
+
+// ─────────────────────────────────────────────────────────────────────
 // GPU upload queue — one texImage2D per rAF tick.
 // ─────────────────────────────────────────────────────────────────────
 
@@ -234,9 +302,11 @@ type UploadTask = {
   tex: THREE.Texture;
   renderer: THREE.WebGLRenderer;
   resolve: () => void;
+  origin: LoadOrigin;
 };
 type UploadPriority = "high" | "low";
-// Two queues, drained high-before-low. "low" backs preload uploads so a
+// Two queues, drained high-before-low, and *within* each queue nearest
+// the player first (see LoadOrigin). "low" backs preload uploads so a
 // floor's worth of thumb uploads can't push past a hi-res upgrade the
 // player is actively walking toward.
 const uploadQueue: UploadTask[] = [];
@@ -251,7 +321,7 @@ function schedulePump() {
 
 function pumpUploads() {
   pumpScheduled = false;
-  const task = uploadQueue.shift() ?? lowUploadQueue.shift();
+  const task = takeNearest(uploadQueue) ?? takeNearest(lowUploadQueue);
   if (task) {
     try {
       task.renderer.initTexture(task.tex);
@@ -268,10 +338,11 @@ function enqueueUpload(
   tex: THREE.Texture,
   renderer: THREE.WebGLRenderer,
   priority: UploadPriority = "high",
+  origin: LoadOrigin = null,
 ): Promise<void> {
   return new Promise((resolve) => {
     const q = priority === "low" ? lowUploadQueue : uploadQueue;
-    q.push({ tex, renderer, resolve });
+    q.push({ tex, renderer, resolve, origin });
     schedulePump();
   });
 }
@@ -300,29 +371,35 @@ function delay(ms: number): Promise<void> {
 // of a low-priority preload burst.
 const NETWORK_CONCURRENCY = 6;
 let activeLoads = 0;
-const highLoadWaiters: (() => void)[] = [];
-const lowLoadWaiters: (() => void)[] = [];
+type LoadWaiter = { resolve: () => void; origin: LoadOrigin };
+const highLoadWaiters: LoadWaiter[] = [];
+const lowLoadWaiters: LoadWaiter[] = [];
 
-function acquireLoadSlot(priority: UploadPriority): Promise<void> {
+function acquireLoadSlot(priority: UploadPriority, origin: LoadOrigin): Promise<void> {
   if (activeLoads < NETWORK_CONCURRENCY) {
     activeLoads++;
     return Promise.resolve();
   }
   return new Promise((resolve) => {
-    (priority === "low" ? lowLoadWaiters : highLoadWaiters).push(resolve);
+    (priority === "low" ? lowLoadWaiters : highLoadWaiters).push({ resolve, origin });
   });
 }
 
 function releaseLoadSlot(): void {
-  // Hand the slot straight to the next waiter (high first) without
-  // touching the counter; only drop the count when nobody is waiting.
-  const next = highLoadWaiters.shift() ?? lowLoadWaiters.shift();
-  if (next) next();
+  // Hand the slot straight to the next waiter (high first, nearest the
+  // player within each tier) without touching the counter; only drop
+  // the count when nobody is waiting.
+  const next = takeNearest(highLoadWaiters) ?? takeNearest(lowLoadWaiters);
+  if (next) next.resolve();
   else activeLoads--;
 }
 
-async function withLoadSlot<T>(priority: UploadPriority, fn: () => Promise<T>): Promise<T> {
-  await acquireLoadSlot(priority);
+async function withLoadSlot<T>(
+  priority: UploadPriority,
+  origin: LoadOrigin,
+  fn: () => Promise<T>,
+): Promise<T> {
+  await acquireLoadSlot(priority, origin);
   try {
     return await fn();
   } finally {
@@ -367,6 +444,7 @@ async function withTextureTimeout<T>(
 async function loadTextureCached(
   url: string,
   renderer: THREE.WebGLRenderer | null,
+  origin: LoadOrigin = null,
 ): Promise<THREE.Texture> {
   const cached = cache.get(url);
   if (cached) return cached;
@@ -391,7 +469,7 @@ async function loadTextureCached(
 
     for (let attempt = 1; attempt <= TEXTURE_LOAD_ATTEMPTS; attempt++) {
       try {
-        const tex = await withLoadSlot("high", () =>
+        const tex = await withLoadSlot("high", origin, () =>
           withTextureTimeout(url, async (signal) => {
             // createImageBitmap decodes off-thread, which matters for a burst
             // of painting loads. `imageOrientation: flipY` avoids the expensive
@@ -418,7 +496,7 @@ async function loadTextureCached(
         // GPU upload runs outside the network gate + timeout: it has its
         // own rAF-paced queue, so a backed-up upload mustn't hold a
         // network slot or count toward the load timeout.
-        if (renderer) await enqueueUpload(tex, renderer);
+        if (renderer) await enqueueUpload(tex, renderer, "high", origin);
         cache.put(url, tex);
         return tex;
       } catch (err) {
@@ -470,6 +548,9 @@ export type LoadHiResOpts = {
   maxSize?: number;
   sourceWidth?: number;
   sourceHeight?: number;
+  /** World position of the painting this tier belongs to, so the load
+   *  queues can serve the nearest one first. */
+  origin?: LoadOrigin;
 };
 
 export function loadHiRes(
@@ -484,7 +565,7 @@ export function loadHiRes(
   if (existing) return existing;
 
   const promise = (async () => {
-    const tex = await withLoadSlot("high", async () => {
+    const tex = await withLoadSlot("high", opts?.origin ?? null, async () => {
       const res = await fetch(url, { credentials: "omit", signal });
       if (!res.ok) throw new Error(`fetch ${url}: ${res.status}`);
       const blob = await res.blob();
@@ -511,7 +592,7 @@ export function loadHiRes(
       texture.needsUpdate = true;
       return texture;
     });
-    if (renderer) await enqueueUpload(tex, renderer);
+    if (renderer) await enqueueUpload(tex, renderer, "high", opts?.origin ?? null);
     hiresCache.put(url, tex);
     return tex;
   })().finally(() => {
@@ -614,6 +695,7 @@ export function preloadCached(
   url: string,
   renderer: THREE.WebGLRenderer | null,
   signal?: AbortSignal,
+  origin: LoadOrigin = null,
 ): Promise<THREE.Texture | null> {
   if (!url) return Promise.resolve(null);
   const cached = cache.get(url);
@@ -625,7 +707,7 @@ export function preloadCached(
 
   const promise = (async () => {
     try {
-      const texture = await withLoadSlot("low", async () => {
+      const texture = await withLoadSlot("low", origin, async () => {
         const res = await fetch(url, { credentials: "omit", signal });
         if (!res.ok) return null;
         const blob = await res.blob();
@@ -643,7 +725,7 @@ export function preloadCached(
         return t;
       });
       if (!texture) return null;
-      if (renderer) await enqueueUpload(texture, renderer, "low");
+      if (renderer) await enqueueUpload(texture, renderer, "low", origin);
       preloadCache.put(url, texture);
       return texture;
     } catch {
@@ -664,8 +746,9 @@ export function preloadCached(
 export function loadCached(
   url: string,
   renderer: THREE.WebGLRenderer | null,
+  origin: LoadOrigin = null,
 ): Promise<THREE.Texture> {
-  return loadTextureCached(url, renderer);
+  return loadTextureCached(url, renderer, origin);
 }
 
 /** After a `webglcontextrestored` event, every cached THREE.Texture's

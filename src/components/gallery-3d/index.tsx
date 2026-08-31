@@ -821,13 +821,6 @@ function FloorScene({
         ? floor.rooms.filter((r) => r.isStairwell)
         : floor.rooms;
 
-  // Central-stair XZ, handed to each room so its paintings reveal
-  // nearest-the-stair first.
-  const stairCenter = useMemo<[number, number]>(() => {
-    const s = floor.stairsOut[0] ?? floor.stairsIn[0] ?? null;
-    return s ? [s.centerX, s.centerZ] : [0, 0];
-  }, [floor]);
-
   const hallways = showOnly ? [] : floor.hallways;
   // Stair geometry only mounts once per Staircase (from the lower
   // floor's stairsOut). Skipping stairsIn here avoids double-rendering
@@ -840,7 +833,6 @@ function FloorScene({
         <RoomGeometry
           key={room.id}
           room={room}
-          stairCenter={stairCenter}
           onPaintingSettled={room.id === entryRoomId ? onEntryPaintingSettled : undefined}
         />
       ))}
@@ -922,7 +914,7 @@ function FloorPreloader({
       const objectKey = p.artwork.objectKey;
       if (!objectKey || seen.has(objectKey)) continue;
       seen.add(objectKey);
-      preloadCached(variantProxyUrl(objectKey, 256, "avif"), gl, controller.signal);
+      preloadCached(variantProxyUrl(objectKey, 256, "avif"), gl, controller.signal, p.position);
     }
     return () => {
       controller.abort();

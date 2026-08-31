@@ -236,6 +236,7 @@ export function Painting({
       <PaintingPlane
         url={url}
         baseWidth={baseWidth}
+        origin={position}
         thumbUrl={variantProxyUrl(artwork.objectKey, 256, "avif")}
         widthM={dW}
         heightM={dH}
@@ -730,6 +731,7 @@ function formatByline(artwork: ArtworkListing): string {
 function PaintingPlane({
   url,
   baseWidth,
+  origin,
   thumbUrl,
   widthM,
   heightM,
@@ -743,6 +745,11 @@ function PaintingPlane({
   /** Width of that base variant. LOD tiers at or below it are skipped —
    *  upgrading to a texture the painting already shows is pure waste. */
   baseWidth: number;
+  /** World position of this painting. Handed to every load it starts so
+   *  the shared network / GPU-upload queues can serve the paintings
+   *  nearest the player first — otherwise a floor loads in mount order
+   *  and the room you're standing in waits behind rooms you can't see. */
+  origin: readonly [number, number, number];
   /** 256 px AVIF — tiny placeholder, typically lands within ~100 ms.
    *  Stretched onto the painting plane it reads as a soft blur of the
    *  real artwork, replacing the old solid-brown swatch flash. */
@@ -818,7 +825,7 @@ function PaintingPlane({
     let baseInstalled = baseTextureRef.current !== null;
 
     if (!baseInstalled) {
-      loadCached(thumbUrl, gl)
+      loadCached(thumbUrl, gl, origin)
         .then((tex) => {
           if (cancelled || baseInstalled) return;
           // Install the placeholder. The 960 will overwrite this when
@@ -834,7 +841,7 @@ function PaintingPlane({
         });
     }
 
-    loadCached(url, gl)
+    loadCached(url, gl, origin)
       .then((tex) => {
         if (cancelled) return;
         baseInstalled = true;
@@ -857,7 +864,7 @@ function PaintingPlane({
     return () => {
       cancelled = true;
     };
-  }, [url, thumbUrl, gl]);
+  }, [url, thumbUrl, origin, gl]);
 
   // Early registration so the painting raycasts as a target the
   // moment its mesh exists, even before any texture has loaded. The
@@ -942,14 +949,15 @@ function PaintingPlane({
     // the decoded bitmap at the GPU's MAX_TEXTURE_SIZE so a 16k+ px
     // Google Arts scan doesn't fail upload on a device with a smaller
     // texture limit.
-    const tierLoadOpts: (LoadHiResOpts | undefined)[] = tiers.map((t) =>
+    const tierLoadOpts: LoadHiResOpts[] = tiers.map((t) =>
       t.kind === "original" && sourceW != null && sourceH != null
         ? {
             maxSize: gl.capabilities.maxTextureSize,
             sourceWidth: sourceW,
             sourceHeight: sourceH,
+            origin,
           }
-        : undefined,
+        : { origin },
     );
     const pending: (AbortController | null)[] = tiers.map(() => null);
     // -1 = base 960 px; otherwise an index into `tiers`.
@@ -1040,7 +1048,7 @@ function PaintingPlane({
       const e = entryRef.current;
       if (e) e.lodUpdate = undefined;
     };
-  }, [baseLoaded, artwork, baseWidth, gl]);
+  }, [baseLoaded, artwork, baseWidth, origin, gl]);
 
   // The parent re-fits widthM/heightM to the texture's true aspect once
   // the 960 px load reports it. Keep the registered entry's half-extents
