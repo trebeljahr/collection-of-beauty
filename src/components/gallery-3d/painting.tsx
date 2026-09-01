@@ -123,6 +123,15 @@ function pickBaseWidth(artwork: ArtworkListing, displayEdgeM: number): number {
   return best;
 }
 
+/** Long-edge cap (pixels) for the close-up "original" tier. The corpus
+ *  has 536 sources above this and a few past 40k px; decoded to RGBA
+ *  with mipmaps those run 600 MB–1.3 GB *each*, which is how you cook a
+ *  GPU with one painting. 8192 px is already far past what the screen
+ *  can resolve at the tier's 1 m upgrade distance (a 2 m canvas at 1 m
+ *  fills ~1900 screen px), so the cap costs no visible detail in the
+ *  scene — the zoom modal is what serves true pixel-peeping. */
+const ORIGINAL_TIER_MAX_PX = 8192;
+
 const LOD_TIERS: LodTier[] = [
   // Original (when the source is bigger than 4096 px). This is what
   // "press E" loads in the zoom modal — within 1 m the 3D gallery
@@ -946,13 +955,13 @@ function PaintingPlane({
         : assetProxyUrl(artwork.objectKey);
     });
     // Per-tier load options. Only the original tier needs them — we cap
-    // the decoded bitmap at the GPU's MAX_TEXTURE_SIZE so a 16k+ px
-    // Google Arts scan doesn't fail upload on a device with a smaller
-    // texture limit.
+    // the decoded bitmap so a 16k+ px Google Arts scan neither fails
+    // upload on a device with a smaller texture limit nor eats the whole
+    // hi-res budget on its own (see ORIGINAL_TIER_MAX_PX).
     const tierLoadOpts: LoadHiResOpts[] = tiers.map((t) =>
       t.kind === "original" && sourceW != null && sourceH != null
         ? {
-            maxSize: gl.capabilities.maxTextureSize,
+            maxSize: Math.min(gl.capabilities.maxTextureSize, ORIGINAL_TIER_MAX_PX),
             sourceWidth: sourceW,
             sourceHeight: sourceH,
             origin,

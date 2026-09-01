@@ -39,10 +39,11 @@
 //          player crosses each tier's `prefetchSq` radius, and upgrades
 //          `material.map` once the tier is resident. Demotes back on
 //          retreat past `releaseSq` (hysteresis).
-//      Capacity-wise this pipeline owns `cache` (96, base/thumb) and
-//      `hiresCache` (20, hi-res tiers). Both use the *high* upload
-//      queue. Eviction is per-pool LRU with disposal; the per-tick MRU
-//      touch is what keeps in-view textures from being evicted.
+//      Capacity-wise this pipeline owns `cache` (~256 MB, base/thumb)
+//      and `hiresCache` (~192 MB, hi-res tiers). Both are byte-budgeted
+//      and both use the *high* upload queue. Eviction is per-pool LRU
+//      with disposal; the per-tick MRU touch is what keeps in-view
+//      textures from being evicted.
 //
 //   B. Staircase-approach preload (FloorPreloader in index.tsx)
 //      Drives the *adjacent floor's* thumbs before the player crosses
@@ -101,20 +102,25 @@ import { assetProxyUrl, assetUrl, variantProxyUrl, variantUrl } from "@/lib/util
 //   • byte budget — the real constraint. Paintings now take a base
 //     sized to their display size (480 px ≈ 1 MB decoded + mipmaps,
 //     960 px ≈ 3.9 MB), so a fixed entry count can't express "keep
-//     roughly this much GPU memory". ~320 MB holds a full floor of the
-//     small plates or ~80 of the largest canvases.
+//     roughly this much GPU memory". ~256 MB holds a floor's worth of
+//     the small plates or ~65 of the largest canvases — comfortably
+//     more than the mounted set the room unload radius allows.
 const TEXTURE_CACHE_CAPACITY = 512;
-const TEXTURE_CACHE_BYTE_BUDGET = 320 * 1024 * 1024;
+const TEXTURE_CACHE_BYTE_BUDGET = 256 * 1024 * 1024;
 const TEXTURE_LOAD_ATTEMPTS = 3;
 const TEXTURE_LOAD_TIMEOUT_MS = 15_000;
 const TEXTURE_RETRY_DELAY_MS = 500;
-// Hi-res cache is small on purpose — at most a handful of paintings are
-// inside the upgrade radius at any moment, and these textures are 4–32×
-// the GPU memory of a 960 px base. Eviction frees GPU memory quickly
-// when the player walks past. Sized for two concurrent tiers (1920 +
-// 2560 px) across the paintings visible from the current room with
-// some headroom for the next room's prefetch.
-const HIRES_CACHE_CAPACITY = 20;
+// Hi-res pool. Bounded by BYTES, not by entry count, because the tiers
+// that live here differ by two orders of magnitude: a 960 px upgrade is
+// ~4 MB while a 4096 px tier is ~64 MB and a capped original ~340 MB.
+// A flat 20-entry cap meant either "20 × 64 MB = 1.3 GB resident" on a
+// wall of big canvases, or thrash on a wall of small plates where 20
+// entries is fewer than the works inside the 960 px prefetch radius.
+// 192 MB holds ~3 tiers at 4096 px, or a full room's worth of 960 px
+// upgrades, and evicts fast when the player walks away. The entry cap
+// is now just a bookkeeping ceiling.
+const HIRES_CACHE_CAPACITY = 64;
+const HIRES_CACHE_BYTE_BUDGET = 192 * 1024 * 1024;
 // Preload pool — holds tiny 256 px thumbs primed for the next floor
 // while the player approaches a staircase. Kept separate from the main
 // `cache` so a busy preload (potentially every painting on the
@@ -228,7 +234,7 @@ function aniso(renderer: THREE.WebGLRenderer | null): number {
   }
 }
 
-const hiresCache = new TextureLRU(HIRES_CACHE_CAPACITY);
+const hiresCache = new TextureLRU(HIRES_CACHE_CAPACITY, HIRES_CACHE_BYTE_BUDGET);
 const hiresInFlight = new Map<string, Promise<THREE.Texture>>();
 
 // ─────────────────────────────────────────────────────────────────────
@@ -785,6 +791,9 @@ export const _textureCacheDebug = {
   },
   get hiresSize() {
     return hiresCache.size;
+  },
+  get hiresBytes() {
+    return hiresCache.byteSize;
   },
   get hiresInFlight() {
     return hiresInFlight.size;
