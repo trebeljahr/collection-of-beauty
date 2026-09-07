@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import { SubscribeForm } from "@/components/subscribe-form";
-import { SITE_NAME } from "@/lib/seo";
+import { buildOpenGraph, SITE_NAME } from "@/lib/seo";
 
 export const metadata: Metadata = {
   title: "Subscribe to Drops of Beauty",
@@ -9,10 +9,11 @@ export const metadata: Metadata = {
   // /drops is the indexable archive surface; /sub is the
   // signup conversion page reached from that archive (and direct links).
   robots: { index: false, follow: false },
-  openGraph: {
+  openGraph: buildOpenGraph({
+    url: "/sub",
     title: `Drops of Beauty · ${SITE_NAME}`,
     description: "Five works on one theme, every Sunday.",
-  },
+  }),
 };
 
 export default function SubscribePage() {

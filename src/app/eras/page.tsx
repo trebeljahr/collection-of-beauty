@@ -4,6 +4,11 @@ import { ResponsiveImage } from "@/components/responsive-image";
 import { resolveScope } from "@/lib/artwork-scope";
 import type { ArtworkListing } from "@/lib/data";
 import { ERAS, type Era } from "@/lib/gallery-eras";
+import { buildOpenGraph } from "@/lib/seo";
+
+// Rendered entirely from the bundled artwork JSON — nothing here reads a
+// request, so match the sitemap's daily window instead of re-rendering.
+export const revalidate = 86400;
 
 export const metadata: Metadata = {
   title: "Eras",
@@ -12,12 +17,15 @@ export const metadata: Metadata = {
     `Gothic to Modernism, with Ukiyo-e set apart. Each era is a room in the ` +
     `3D museum and a curated index of its works.`,
   alternates: { canonical: "/eras" },
-  openGraph: {
+  // Same path as alternates.canonical above — buildOpenGraph resolves it to
+  // an absolute og:url so the two can't drift apart.
+  openGraph: buildOpenGraph({
+    url: "/eras",
     title: "Eras · Collection of Beauty",
     description:
       `Eight centuries of art grouped into ${ERAS.length} eras — ` +
       `Gothic to Modernism, with Ukiyo-e set apart.`,
-  },
+  }),
 };
 
 function yearRangeLabel(era: Era): string {

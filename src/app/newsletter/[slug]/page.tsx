@@ -12,7 +12,7 @@ import { resolveEditionCover } from "@/lib/newsletter/cover";
 import { findEdition, loadUiVisibleEditions, showDraftsInUi } from "@/lib/newsletter/editions";
 import { rehypeExternalLinks } from "@/lib/newsletter/markdown";
 import type { Edition } from "@/lib/newsletter/types";
-import { SITE_NAME, SITE_URL } from "@/lib/seo";
+import { buildOpenGraph, SITE_NAME } from "@/lib/seo";
 
 type Params = { slug: string };
 
@@ -29,20 +29,24 @@ export async function generateMetadata({ params }: { params: Promise<Params> }):
   const ogImages = cover
     ? [{ url: cover.url, alt: cover.alt, width: 1280, height: 960 }]
     : undefined;
+  const canonical = `/newsletter/${edition.fileSlug}`;
   return {
     title: edition.title,
     description: edition.excerpt,
     keywords: edition.tags.length > 0 ? edition.tags : undefined,
-    alternates: { canonical: `/newsletter/${edition.fileSlug}` },
-    openGraph: {
+    alternates: { canonical },
+    openGraph: buildOpenGraph({
       type: "article",
+      // Same string as alternates.canonical, so og:url can't drift from it.
+      url: canonical,
       title: `${edition.title} · ${SITE_NAME}`,
       description: edition.excerpt,
-      url: `${SITE_URL}/newsletter/${edition.fileSlug}`,
       publishedTime: edition.publishedAt,
       tags: edition.tags,
-      images: ogImages,
-    },
+      // Spread conditionally: a literal `images: undefined` would override the
+      // helper's site-wide default with nothing and drop og:image entirely.
+      ...(ogImages ? { images: ogImages } : {}),
+    }),
     twitter: {
       card: "summary_large_image",
       title: `${edition.title} · ${SITE_NAME}`,

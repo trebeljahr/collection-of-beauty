@@ -82,6 +82,48 @@ export function variantUrl(objectKey: string, width: number, format: VariantForm
   return `${ASSETS_BASE_URL}/${variantPath(objectKey, width, format)}`;
 }
 
+// Width used for the `<img>` fallback inside every <picture>. Deliberate
+// on both axes:
+//   - format: 1280 is the only width scripts/shrink-sources.mjs still
+//     encodes as WebP (FORMATS there caps the webp entry at [1280]),
+//     and WebP shipped years before AVIF in every engine — so the
+//     clients that skip the AVIF <source> (pre-Safari-16.4 browsers,
+//     most crawlers) can actually decode what they get.
+//   - size: mid-ladder. The fallback is fetched by exactly the clients
+//     we know least about, so it must not be the 2560/4096 rung — those
+//     are multi-megabyte downloads for what is often a grid thumbnail.
+export const FALLBACK_VARIANT_WIDTH = 1280;
+
+// A variant URL that is known to exist, for use as the `<img src>`
+// fallback. The variant ladder is complete for every artwork, but the
+// originals are not: roughly 1,770 of them were never synced to the
+// bucket (a ~39% sample miss rate as of Sep 2026), so `assetUrl()` is a
+// coin flip. That is what produced ~1.8k broken images in the crawl.
+//
+// `variantWidths` is the artwork's manifest (Artwork.variantWidths).
+// When it's missing we assume the standard ladder rather than reaching
+// for the original: the ladder is what any shrunk artwork has, whereas
+// the original may or may not be in the bucket, so guessing the ladder
+// is the better bet for an artwork whose manifest hasn't been
+// regenerated yet.
+export function fallbackVariantUrl(
+  objectKey: string,
+  variantWidths?: readonly number[] | null,
+): string {
+  if (!objectKey) return "";
+  const widths = variantWidths && variantWidths.length > 0 ? variantWidths : VARIANT_WIDTHS;
+  if (widths.includes(FALLBACK_VARIANT_WIDTH)) {
+    return variantUrl(objectKey, FALLBACK_VARIANT_WIDTH, "webp");
+  }
+  // No 1280 rung means no WebP at all for this artwork (the encoder
+  // emits WebP at that width only), so serve the nearest AVIF rather
+  // than a URL we already know is missing.
+  const nearest = widths.reduce((best, w) =>
+    Math.abs(w - FALLBACK_VARIANT_WIDTH) < Math.abs(best - FALLBACK_VARIANT_WIDTH) ? w : best,
+  );
+  return variantUrl(objectKey, nearest, "avif");
+}
+
 function publicAssetsBaseUrl(): string {
   const explicit = process.env.NEWSLETTER_ASSETS_BASE_URL;
   if (explicit) return explicit.replace(/\/$/, "");

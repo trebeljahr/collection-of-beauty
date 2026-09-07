@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import Image from "next/image";
 import Link from "next/link";
 import summary from "@/data/summary.json";
-import { absoluteUrl, jsonLdScriptProps, SITE_NAME, SITE_URL } from "@/lib/seo";
+import { absoluteUrl, buildOpenGraph, jsonLdScriptProps, SITE_NAME } from "@/lib/seo";
 
 const pressEmail = "hello@trebeljahr.com";
 
@@ -14,11 +14,12 @@ export const metadata: Metadata = {
   description:
     "Press kit for Collection of Beauty: fact sheet, descriptions, story hooks, feature list, engineering notes, FAQ, quotes, images, and contact details.",
   alternates: { canonical: "/press" },
-  openGraph: {
+  openGraph: buildOpenGraph({
+    // Same string as alternates.canonical above, so og:url can't drift from it.
+    url: "/press",
     title: `Press · ${SITE_NAME}`,
     description:
       "Fact sheet, descriptions, story hooks, features, engineering notes, FAQ, quotes, image assets, and press contact for Collection of Beauty.",
-    url: `${SITE_URL}/press`,
     images: [
       {
         url: "/marketing/hero.png",
@@ -27,7 +28,7 @@ export const metadata: Metadata = {
         alt: "Collection of Beauty marketing mosaic.",
       },
     ],
-  },
+  }),
   twitter: {
     card: "summary_large_image",
     title: `Press · ${SITE_NAME}`,

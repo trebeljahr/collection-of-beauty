@@ -1,9 +1,10 @@
 import type { MetadataRoute } from "next";
 import { artists, artworks } from "@/lib/data";
+import { ERAS } from "@/lib/gallery-eras";
 import { loadPublishedEditions } from "@/lib/newsletter/editions";
 import { absoluteUrl } from "@/lib/seo";
 
-// Cache the rendered sitemap for a day. Iterating ~3,300 entries on
+// Cache the rendered sitemap for a day. Iterating ~4,900 entries on
 // every crawler hit is wasteful — the underlying data only changes
 // when `pnpm assets:build-data` runs and the site redeploys, so the
 // next build invalidates this naturally.
@@ -11,9 +12,10 @@ export const revalidate = 86400;
 
 /**
  * Served at /sitemap.xml. Emits every indexable URL:
- *   - Static pages (home, timeline, artists index, 3D gallery)
- *   - One entry per artist (~329)
- *   - One entry per artwork (~2,947)
+ *   - Static pages (home, timeline, artists index, eras index, press, 3D gallery)
+ *   - One entry per era (11)
+ *   - One entry per artist (~331)
+ *   - One entry per artwork (~4,571)
  *
  * Total is well under Google's 50k per-sitemap cap, so we can ship one file.
  * If the collection ever grows past that, split via a sitemap index.
@@ -25,12 +27,19 @@ export default function sitemap(): MetadataRoute.Sitemap {
     { url: absoluteUrl("/"), lastModified: now, changeFrequency: "weekly", priority: 1.0 },
     { url: absoluteUrl("/timeline"), lastModified: now, changeFrequency: "monthly", priority: 0.7 },
     { url: absoluteUrl("/artists"), lastModified: now, changeFrequency: "monthly", priority: 0.7 },
+    { url: absoluteUrl("/eras"), lastModified: now, changeFrequency: "monthly", priority: 0.7 },
     { url: absoluteUrl("/about"), lastModified: now, changeFrequency: "monthly", priority: 0.7 },
     {
       url: absoluteUrl("/gallery-3d"),
       lastModified: now,
       changeFrequency: "monthly",
       priority: 0.6,
+    },
+    {
+      url: absoluteUrl("/press"),
+      lastModified: now,
+      changeFrequency: "yearly",
+      priority: 0.4,
     },
     {
       url: absoluteUrl("/imprint"),
@@ -46,6 +55,16 @@ export default function sitemap(): MetadataRoute.Sitemap {
     },
     { url: absoluteUrl("/drops"), lastModified: now, changeFrequency: "weekly", priority: 0.7 },
   ];
+
+  // Derived from ERAS — the same list /era/[id] builds its static params
+  // from — so a twelfth era lands in the sitemap the moment it exists
+  // instead of silently going missing until a crawler flags it.
+  const eraEntries: MetadataRoute.Sitemap = ERAS.map((era) => ({
+    url: absoluteUrl(`/era/${era.id}`),
+    lastModified: now,
+    changeFrequency: "monthly",
+    priority: 0.6,
+  }));
 
   const editionEntries: MetadataRoute.Sitemap = loadPublishedEditions().map((ed) => ({
     url: absoluteUrl(`/newsletter/${ed.fileSlug}`),
@@ -69,5 +88,5 @@ export default function sitemap(): MetadataRoute.Sitemap {
     priority: 0.5,
   }));
 
-  return [...staticEntries, ...editionEntries, ...artistEntries, ...artworkEntries];
+  return [...staticEntries, ...eraEntries, ...editionEntries, ...artistEntries, ...artworkEntries];
 }

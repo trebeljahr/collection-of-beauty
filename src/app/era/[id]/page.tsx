@@ -8,9 +8,13 @@ import { getArtworkListingPage } from "@/lib/artwork-pagination";
 import { resolveScope } from "@/lib/artwork-scope";
 import { getArtwork } from "@/lib/data";
 import { ERAS, type EraId, type getEra } from "@/lib/gallery-eras";
-import { ogImagesForArtwork } from "@/lib/seo";
+import { buildOpenGraph, ogImagesForArtwork } from "@/lib/seo";
 
 type Params = { id: string };
+
+// Rendered entirely from the bundled artwork JSON — nothing here reads a
+// request, so match the sitemap's daily window instead of re-rendering.
+export const revalidate = 86400;
 
 // All 11 eras are static — prebuild every one. Each runs a single
 // resolveScope pass (~2,950 listings filtered + sorted) at build time
@@ -44,12 +48,15 @@ export async function generateMetadata({ params }: { params: Promise<Params> }):
     title: era.title,
     description,
     alternates: { canonical: `/era/${era.id}` },
-    openGraph: {
+    // Same path as alternates.canonical above — buildOpenGraph resolves it to
+    // an absolute og:url so the two can't drift apart.
+    openGraph: buildOpenGraph({
       type: "article",
+      url: `/era/${era.id}`,
       title: `${era.title} · Collection of Beauty`,
       description,
       ...(images ? { images } : {}),
-    },
+    }),
     twitter: {
       card: "summary_large_image",
       title: `${era.title} · Collection of Beauty`,

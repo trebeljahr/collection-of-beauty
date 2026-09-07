@@ -4,7 +4,7 @@ import { type Artist, type Artwork, artworks, summary } from "@/lib/data";
 import { getLicenseInfo } from "@/lib/license";
 import { SITE_URL } from "@/lib/links";
 import { sourceLabel } from "@/lib/source-label";
-import { assetUrl, variantUrl } from "@/lib/utils";
+import { variantUrl } from "@/lib/utils";
 
 // ────────────────────────────────────────────────────────────────────────────
 // Identity
@@ -75,26 +75,36 @@ function fitInto(
 
 /**
  * Build the Open Graph `images` array for an artwork. We point at the
- * pre-built 1280-wide WebP variant (fast for social scrapers) and include
- * the original JPEG as a secondary fallback for picky crawlers.
+ * pre-built 1280-wide WebP variant (fast for social scrapers) and add the
+ * 640-wide one as a smaller secondary for crawlers that cap payload size.
+ *
+ * Both entries must be *variants*. The `assets-web/<folder>/<basename>/
+ * <width>.{avif,webp}` ladder is complete; the originals are not — ~1,770
+ * of them are missing from the bucket — so an "original JPEG fallback"
+ * entry here 404s for a large share of the corpus, on top of emitting a
+ * duplicate og:image tag.
  */
 export function ogImagesForArtwork(
   artwork: Artwork | null | undefined,
 ): NonNullable<Metadata["openGraph"]>["images"] {
   if (!artwork) return [];
-  const { width, height } = fitInto(artwork.width, artwork.height, 1280);
+  const large = fitInto(artwork.width, artwork.height, 1280);
+  const small = fitInto(artwork.width, artwork.height, 640);
   const alt = artworkAlt(artwork);
   return [
     {
       url: variantUrl(artwork.objectKey, 1280, "webp"),
-      width,
-      height,
+      width: large.width,
+      height: large.height,
       alt,
       type: "image/webp",
     },
     {
-      url: assetUrl(artwork.objectKey),
+      url: variantUrl(artwork.objectKey, 640, "webp"),
+      width: small.width,
+      height: small.height,
       alt,
+      type: "image/webp",
     },
   ];
 }
@@ -113,6 +123,53 @@ export function ogImagesForArtist(artist: Artist): NonNullable<Metadata["openGra
 export function absoluteUrl(path: string): string {
   const clean = path.startsWith("/") ? path : `/${path}`;
   return `${SITE_URL}${clean}`;
+}
+
+// ────────────────────────────────────────────────────────────────────────────
+// Open Graph defaults
+// ────────────────────────────────────────────────────────────────────────────
+
+/**
+ * The site-wide OG image, served by the `src/app/opengraph-image.png` file
+ * convention at `/opengraph-image.png` (1200×630 mosaic composited by
+ * scripts/build-marketing-images.mjs).
+ */
+const SITE_OG_IMAGE = {
+  url: absoluteUrl("/opengraph-image.png"),
+  width: 1200,
+  height: 630,
+  alt: `${SITE_NAME} — ${SITE_TAGLINE}`,
+};
+
+/**
+ * Merge page-specific Open Graph fields onto the site-wide defaults.
+ *
+ * Next's metadata merge is shallow *per key*: a child page that exports
+ * `openGraph: { title, description }` replaces the root layout's entire
+ * openGraph object, silently dropping og:url, og:type, og:site_name and
+ * og:image. Every page that wants its own OG title must therefore route
+ * through this helper rather than writing a bare literal.
+ *
+ * `url` takes a site-relative path and is resolved through absoluteUrl(),
+ * so callers can pass the exact same string they give to
+ * `alternates.canonical` and the two can't drift apart.
+ */
+export function buildOpenGraph(
+  overrides: NonNullable<Metadata["openGraph"]> & { url?: string },
+): NonNullable<Metadata["openGraph"]> {
+  const { url, ...rest } = overrides;
+  return {
+    type: "website",
+    locale: "en_US",
+    siteName: SITE_NAME,
+    title: `${SITE_NAME} — ${SITE_TAGLINE}`,
+    description: SITE_DESCRIPTION,
+    images: [SITE_OG_IMAGE],
+    // Tolerate an already-absolute URL so a caller that passes one doesn't
+    // silently emit `${SITE_URL}/https://…`.
+    url: url === undefined ? SITE_URL : /^https?:\/\//.test(url) ? url : absoluteUrl(url),
+    ...rest,
+  } as NonNullable<Metadata["openGraph"]>;
 }
 
 // ────────────────────────────────────────────────────────────────────────────
@@ -144,7 +201,10 @@ export function artworkJsonLd(artwork: Artwork): Record<string, unknown> {
       : {}),
     ...(artwork.dateCreated ? { dateCreated: artwork.dateCreated } : {}),
     ...(artwork.description ? { description: artwork.description } : {}),
-    image: [imageUrl, assetUrl(artwork.objectKey)],
+    // Both entries are variants. The variant ladder is complete for every
+    // artwork; the originals are not — ~1,770 are missing from the bucket,
+    // so the assetUrl() entry that used to sit here 404s for many works.
+    image: [imageUrl, variantUrl(artwork.objectKey, 640, "webp")],
     url: absoluteUrl(`/artwork/${artwork.id}`),
     ...(artwork.realDimensions
       ? {
@@ -169,15 +229,44 @@ export function artworkJsonLd(artwork: Artwork): Record<string, unknown> {
   };
 }
 
+/**
+ * schema.org/Person.nationality expects a Country node, not a demonym string
+ * — Google's validator rejects `"nationality": "Italian"` with "Value of
+ * unexpected type for nationality. Expected types: Country."
+ *
+ * Keys are the exact strings that appear in src/data/artists.json. Anything
+ * unmapped — a region rather than a country ("Flemish", "Early
+ * Netherlandish") or a compound ("Belgian / French") — deliberately has no
+ * entry: an absent optional property is valid structured data, an invented
+ * country is not. New data that introduces an unknown value falls through to
+ * the same omission instead of reintroducing the error.
+ */
+const NATIONALITY_TO_COUNTRY: Record<string, string> = {
+  American: "United States",
+  Chinese: "China",
+  Czech: "Czech Republic",
+  Dutch: "Netherlands",
+  English: "United Kingdom",
+  French: "France",
+  German: "Germany",
+  Italian: "Italy",
+  Japanese: "Japan",
+  Korean: "South Korea",
+  Norwegian: "Norway",
+  Russian: "Russia",
+  Spanish: "Spain",
+};
+
 /** schema.org/Person for an artist page. */
 export function artistJsonLd(artist: Artist): Record<string, unknown> {
+  const country = artist.nationality ? NATIONALITY_TO_COUNTRY[artist.nationality] : undefined;
   return {
     "@context": "https://schema.org",
     "@type": "Person",
     name: artist.name,
     ...(artist.born ? { birthDate: String(artist.born) } : {}),
     ...(artist.died ? { deathDate: String(artist.died) } : {}),
-    ...(artist.nationality ? { nationality: artist.nationality } : {}),
+    ...(country ? { nationality: { "@type": "Country", name: country } } : {}),
     ...(artist.movement ? { knowsAbout: artist.movement } : {}),
     ...(artist.coverObjectKey ? { image: variantUrl(artist.coverObjectKey, 1280, "webp") } : {}),
     url: absoluteUrl(`/artist/${artist.slug}`),

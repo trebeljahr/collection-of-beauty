@@ -7,7 +7,7 @@ import { artworkHref, type Scope } from "@/lib/artwork-scope";
 import { getLoadedVariant, recordLoadedVariant } from "@/lib/image-cache";
 import { saveBackFlipSnapshot } from "@/lib/use-artwork-back-flip";
 import { useTransitionPush } from "@/lib/use-transition-nav";
-import { assetUrl, cn, variantSrcSet, variantUrl } from "@/lib/utils";
+import { cn, fallbackVariantUrl, variantSrcSet, variantUrl } from "@/lib/utils";
 import { artworkHeroVtName } from "@/lib/view-transitions";
 import { useLightbox } from "./lightbox-provider";
 
@@ -133,7 +133,10 @@ function ArtworkImage({ art, alt }: { art: ArtworkLike; alt: string }) {
   const hasVariants = widths.length > 0;
   const sizes = "(max-width: 768px) 100vw, 65vw";
   const avifSrcSet = hasVariants ? variantSrcSet(art.objectKey, "avif", widths) : "";
-  const fallbackSrc = assetUrl(art.objectKey);
+  // Not the original: originals were never synced to the asset host, so
+  // this has to resolve to a variant that exists (1280w WebP) or the
+  // hero is broken for every non-AVIF client and every crawler.
+  const fallbackSrc = fallbackVariantUrl(art.objectKey, widths);
   const smallestSrc = hasVariants ? variantUrl(art.objectKey, widths[0], "avif") : fallbackSrc;
 
   const highRef = useRef<HTMLImageElement | null>(null);
@@ -187,7 +190,7 @@ function ArtworkImage({ art, alt }: { art: ArtworkLike; alt: string }) {
   const vtName = artworkHeroVtName(art.id);
 
   if (!hasVariants) {
-    // No shrunk variants — single original load, no ladder to bridge.
+    // No manifest — single fallback-variant load, no ladder to bridge.
     return (
       <div className="relative min-h-0" style={boxStyle(art.width, art.height)}>
         {/* biome-ignore lint/performance/noImgElement: rclone-backed variant ladder; next/image's request-time optimizer is not in this path. */}

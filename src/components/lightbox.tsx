@@ -8,7 +8,7 @@ import {
   TransformWrapper,
 } from "react-zoom-pan-pinch";
 import { getLoadedVariant, recordLoadedVariant } from "@/lib/image-cache";
-import { assetUrl, cn, variantUrl } from "@/lib/utils";
+import { cn, fallbackVariantUrl, variantUrl } from "@/lib/utils";
 
 type Props = {
   open: boolean;
@@ -45,8 +45,11 @@ export function Lightbox({
   const widths = variantWidths ?? [];
   const hasVariants = widths.length > 0;
   const highWidth = hasVariants ? widths[widths.length - 1] : null;
-  const highSrc = highWidth ? variantUrl(objectKey, highWidth, "avif") : assetUrl(objectKey);
-  const fallbackSrc = assetUrl(objectKey);
+  // Originals aren't on the asset host (only the pre-built variants),
+  // so every "no manifest" path lands on a fallback variant instead of
+  // the raw file — an assetUrl() here 404s and leaves the modal empty.
+  const fallbackSrc = fallbackVariantUrl(objectKey, widths);
+  const highSrc = highWidth ? variantUrl(objectKey, highWidth, "avif") : fallbackSrc;
   // Placeholder: the exact variant the page below already loaded (so it's
   // in the HTTP cache and paints instantly), else the smallest variant as
   // a fast cold load. Reused across grid → detail page → fullscreen so

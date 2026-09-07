@@ -1,5 +1,12 @@
 import { afterEach, describe, expect, it, vi } from "vitest";
-import { assetUrl, publicVariantUrl, slugify, variantSrcSet, variantUrl } from "./utils";
+import {
+  assetUrl,
+  fallbackVariantUrl,
+  publicVariantUrl,
+  slugify,
+  variantSrcSet,
+  variantUrl,
+} from "./utils";
 
 afterEach(() => {
   vi.unstubAllEnvs();
@@ -57,6 +64,47 @@ describe("variantUrl", () => {
     expect(assetUrl("")).toBe("");
     expect(assetUrl(null as unknown as string)).toBe("");
     expect(variantSrcSet("", "avif", [256, 480])).toBe("");
+  });
+});
+
+describe("fallbackVariantUrl", () => {
+  it("serves the 1280w WebP, the only width the encoder keeps in WebP", () => {
+    // The <img> inside <picture> is what non-AVIF browsers and crawlers
+    // fetch. Pointing it at the original 404s — originals were never
+    // synced to the asset host — which is what broke ~1.8k images in
+    // the crawl.
+    expect(fallbackVariantUrl("redoute-lilies/allium-ciliare.jpg")).toMatch(
+      /\/redoute-lilies\/allium-ciliare\/1280\.webp$/,
+    );
+  });
+
+  it("assumes the standard ladder when the width manifest is missing", () => {
+    // variantWidths null/empty means build-data hasn't rescanned yet,
+    // not that the files are absent — and the original is a certain
+    // 404, so guessing the ladder is the better bet.
+    expect(fallbackVariantUrl("x/a.jpg", null)).toMatch(/\/x\/a\/1280\.webp$/);
+    expect(fallbackVariantUrl("x/a.jpg", [])).toMatch(/\/x\/a\/1280\.webp$/);
+  });
+
+  it("falls back to the nearest AVIF when 1280 was never emitted", () => {
+    // No 1280 rung means no WebP at all for that artwork, so AVIF is
+    // the only format left that exists on disk.
+    expect(fallbackVariantUrl("x/a.jpg", [256, 480, 960])).toMatch(/\/x\/a\/960\.avif$/);
+    expect(fallbackVariantUrl("x/a.jpg", [1920, 2560])).toMatch(/\/x\/a\/1920\.avif$/);
+  });
+
+  it("never returns the raw original path", () => {
+    // Regression guard: the whole point is that <folder>/<file>.jpg is
+    // not on the asset host.
+    expect(fallbackVariantUrl("collection-of-beauty/Alfred_Sisley_018.jpg")).not.toMatch(
+      /Alfred_Sisley_018\.jpg$/,
+    );
+  });
+
+  it("keeps assetUrl's empty-objectKey guard", () => {
+    expect(fallbackVariantUrl("")).toBe("");
+    expect(fallbackVariantUrl(null as unknown as string)).toBe("");
+    expect(fallbackVariantUrl(undefined as unknown as string, [960])).toBe("");
   });
 });
 
