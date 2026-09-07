@@ -1,7 +1,7 @@
 "use client";
 
 import { useRouter } from "next/navigation";
-import { type SyntheticEvent, useEffect, useRef, useState } from "react";
+import { type CSSProperties, type SyntheticEvent, useEffect, useRef, useState } from "react";
 import { artworkAlt, displayTitle } from "@/lib/artwork-format";
 import { artworkHref, type Scope } from "@/lib/artwork-scope";
 import { getLoadedVariant, recordLoadedVariant } from "@/lib/image-cache";
@@ -96,9 +96,28 @@ export function ArtworkViewer({ art, prevId, nextId, scope = null }: Props) {
   );
 }
 
-// Cap the image a touch under the bordered box's max-h-[85vh] so the
+// The image fills its wrapper exactly (the wrapper carries the artwork's
+// aspect ratio), so no intrinsic sizing is needed to lay it out.
+const IMG_BOX = "block h-full w-full rounded-md object-contain";
+
+// Geometry for the wrapper box, derived purely from the artwork's known
+// source dimensions. Reserving it in CSS means the frame has its final
+// size on the very first paint — before a single byte of the image has
+// arrived. Without this, an undecoded <img> with width/height:auto has no
+// intrinsic size, so the browser lays it out at the 300 px replaced-element
+// default and the grey frame visibly snaps open once the image decodes —
+// a flicker on every prev/next navigation.
+//
+// Cap the height a touch under the bordered box's max-h-[85vh] so the
 // 10 px padding on either side never makes it overflow the frame.
-const IMG_BOX = "h-auto max-h-[calc(85vh-24px)] w-auto max-w-full rounded-md object-contain";
+function boxStyle(width: number | null, height: number | null): CSSProperties {
+  const w = width && width > 0 ? width : 1600;
+  const h = height && height > 0 ? height : 2000;
+  return {
+    aspectRatio: `${w} / ${h}`,
+    width: `min(100%, calc((85vh - 24px) * ${w / h}))`,
+  };
+}
 
 /**
  * Detail-page hero image with a progressive cross-fade. The high-res
@@ -170,25 +189,29 @@ function ArtworkImage({ art, alt }: { art: ArtworkLike; alt: string }) {
   if (!hasVariants) {
     // No shrunk variants — single original load, no ladder to bridge.
     return (
-      // biome-ignore lint/performance/noImgElement: rclone-backed variant ladder; next/image's request-time optimizer is not in this path.
-      <img
-        ref={highRef}
-        src={fallbackSrc}
-        alt={alt}
-        data-object-key={art.objectKey}
-        width={art.width ?? 1600}
-        height={art.height ?? 2000}
-        fetchPriority="high"
-        onLoad={handleHighLoad}
-        className={IMG_BOX}
-        style={{ viewTransitionName: vtName }}
-      />
+      <div className="relative min-h-0" style={boxStyle(art.width, art.height)}>
+        {/* biome-ignore lint/performance/noImgElement: rclone-backed variant ladder; next/image's request-time optimizer is not in this path. */}
+        <img
+          ref={highRef}
+          src={fallbackSrc}
+          alt={alt}
+          data-object-key={art.objectKey}
+          width={art.width ?? 1600}
+          height={art.height ?? 2000}
+          fetchPriority="high"
+          onLoad={handleHighLoad}
+          className={IMG_BOX}
+          style={{ viewTransitionName: vtName }}
+        />
+      </div>
     );
   }
 
   return (
-    <div className="relative flex min-h-0 items-start justify-center">
-      <picture>
+    <div className="relative min-h-0" style={boxStyle(art.width, art.height)}>
+      {/* block + full size so the <img>'s h-full resolves against the
+          aspect-ratio wrapper rather than an auto-height inline box. */}
+      <picture className="block h-full w-full">
         <source type="image/avif" srcSet={avifSrcSet} sizes={sizes} />
         <img
           ref={highRef}
@@ -216,7 +239,7 @@ function ArtworkImage({ art, alt }: { art: ArtworkLike; alt: string }) {
           aria-hidden="true"
           width={art.width ?? 1600}
           height={art.height ?? 2000}
-          className={cn(IMG_BOX, "pointer-events-none absolute inset-0 m-auto")}
+          className={cn(IMG_BOX, "pointer-events-none absolute inset-0")}
         />
       )}
     </div>
