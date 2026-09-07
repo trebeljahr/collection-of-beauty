@@ -3,13 +3,28 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { ScopedGallery } from "@/components/scoped-gallery";
 import { pillClasses } from "@/components/ui/pill";
+import { displayTitle } from "@/lib/artwork-format";
 import { DEFAULT_ARTWORK_PAGE_SIZE } from "@/lib/artwork-page-schema";
 import { getArtworkListingPage } from "@/lib/artwork-pagination";
-import { artists, getArtist, getArtworksByArtist, getConnectionsFor } from "@/lib/data";
+import {
+  type Artist,
+  artists,
+  getArtist,
+  getArtworksByArtist,
+  getConnectionsFor,
+} from "@/lib/data";
 import { assignEra, type EraId, getEra } from "@/lib/gallery-eras";
-import { artistJsonLd, jsonLdScriptProps, ogImagesForArtist } from "@/lib/seo";
+import { artistJsonLd, buildOpenGraph, jsonLdScriptProps, ogImagesForArtist } from "@/lib/seo";
+import { sourceLabel } from "@/lib/source-label";
 
 type Params = { slug: string };
+
+// Artist pages are pure functions of the generated data — no request-time
+// input beyond the slug — so the rendered HTML can be cached for a day
+// (matching the sitemap's revalidate) instead of being rebuilt per request.
+// Matters most for the ~200 slugs below the generateStaticParams cutoff,
+// which were rendering on demand at 1–2 s TTFB.
+export const revalidate = 86400;
 
 // Prebuild artist pages that have at least a small body of work — the
 // artists most likely to be linked from the home grid, OG previews, or
@@ -20,13 +35,28 @@ export function generateStaticParams(): Params[] {
   return artists.filter((a) => a.count >= 3).map((a) => ({ slug: a.slug }));
 }
 
-export async function generateMetadata({ params }: { params: Promise<Params> }): Promise<Metadata> {
-  const { slug } = await params;
-  const artist = getArtist(slug);
-  if (!artist) {
-    return { title: "Artist not found" };
-  }
+const DESCRIPTION_SUFFIX = "Browse their works in the Collection of Beauty.";
+/** Below this an audit tool calls the description too short; above it Google
+ *  truncates. Both are soft thresholds, hence the ~110/~155 band. */
+const DESCRIPTION_MIN = 110;
+const DESCRIPTION_MAX = 155;
 
+/**
+ * Meta description for an artist page.
+ *
+ * The identity line (`N works by X` · lifespan · nationality · movement)
+ * clears 110 characters only for artists whose record is fully populated —
+ * 182 of 331 pages fell short of it, nearly all of them missing born/died,
+ * nationality *and* movement, which collapses the line to ~70 characters.
+ *
+ * Rather than pad with boilerplate, widen the sparse case with facts the
+ * corpus already holds about that artist's works: the movement the works
+ * themselves are tagged with, the gallery era they land in, the date span,
+ * the single work's title, the upstream source. Each fact is appended only
+ * if it still fits under the truncation cap, so the prolific artists (whose
+ * identity line is already long) are left exactly as they were.
+ */
+function artistDescription(artist: Artist): string {
   const lifespan =
     artist.born && artist.died
       ? `${artist.born}–${artist.died}`
@@ -34,24 +64,95 @@ export async function generateMetadata({ params }: { params: Promise<Params> }):
         ? `b. ${artist.born}`
         : null;
 
-  const descriptionBits = [
+  const bits = [
     `${artist.count} work${artist.count === 1 ? "" : "s"} by ${artist.name}`,
     lifespan,
     artist.nationality,
     artist.movement,
-  ].filter(Boolean);
-  const description = `${descriptionBits.join(" · ")}. Browse their works in the Collection of Beauty.`;
+  ].filter((bit): bit is string => !!bit);
+
+  const compose = (parts: string[]) => `${parts.join(" · ")}. ${DESCRIPTION_SUFFIX}`;
+  if (compose(bits).length >= DESCRIPTION_MIN) return compose(bits);
+
+  const works = getArtworksByArtist(artist.slug);
+
+  // Movement only when the artist record has none and the works agree on
+  // one — a split set ("Ukiyo-e" + "Shin-hanga") isn't an artist-level fact.
+  const workMovements = [...new Set(works.map((w) => w.movement).filter((m): m is string => !!m))];
+  const inferredMovement = artist.movement || workMovements.length !== 1 ? null : workMovements[0];
+
+  // Dominant era rather than the header's 5%-threshold list: one bit has to
+  // carry the whole claim, so the era holding the most works is the honest
+  // one to name.
+  const eraCounts = new Map<EraId, number>();
+  for (const w of works) {
+    const id = assignEra(w);
+    if (id) eraCounts.set(id, (eraCounts.get(id) ?? 0) + 1);
+  }
+  let dominantEra: EraId | null = null;
+  for (const [id, n] of eraCounts) {
+    if (dominantEra === null || n > (eraCounts.get(dominantEra) ?? 0)) dominantEra = id;
+  }
+  const eraTitle = dominantEra ? getEra(dominantEra).title : null;
+  // "Renaissance · Renaissance & Mannerism era" says the same thing twice.
+  const movement = artist.movement ?? inferredMovement;
+  const eraBit =
+    eraTitle && !(movement && eraTitle.toLowerCase().includes(movement.toLowerCase()))
+      ? `${eraTitle} era`
+      : null;
+
+  const span =
+    artist.minYear && artist.maxYear
+      ? artist.minYear === artist.maxYear
+        ? `dated ${artist.minYear}`
+        : `dated ${artist.minYear}–${artist.maxYear}`
+      : null;
+  const single = artist.count === 1 ? (works[0] ?? null) : null;
+  const sources = [...new Set(works.map((w) => sourceLabel(w.commonsUrl)))];
+
+  const push = (bit: string | null): boolean => {
+    if (!bit || compose([...bits, bit]).length > DESCRIPTION_MAX) return false;
+    bits.push(bit);
+    return true;
+  };
+
+  push(inferredMovement);
+  push(eraBit);
+  // A one-work artist is better described by that work's title than by its
+  // year — fall back to the bare date only when the title doesn't fit.
+  const titleBit = single
+    ? `“${displayTitle(single)}”${single.year ? ` (${single.year})` : ""}`
+    : null;
+  if (!push(titleBit)) push(span);
+  if (sources.length === 1) push(`from ${sources[0]}`);
+
+  return compose(bits);
+}
+
+export async function generateMetadata({ params }: { params: Promise<Params> }): Promise<Metadata> {
+  const { slug } = await params;
+  const artist = getArtist(slug);
+  if (!artist) {
+    return { title: "Artist not found" };
+  }
+
+  const description = artistDescription(artist);
+  // Same path as og:url below — Ahrefs flags any drift between the two.
+  const canonical = `/artist/${artist.slug}`;
 
   return {
     title: artist.name,
     description,
-    alternates: { canonical: `/artist/${artist.slug}` },
-    openGraph: {
+    alternates: { canonical },
+    // Via buildOpenGraph: a bare literal here replaces the root layout's
+    // openGraph wholesale, dropping og:url, og:site_name and og:image.
+    openGraph: buildOpenGraph({
       type: "profile",
+      url: canonical,
       title: `${artist.name} · Collection of Beauty`,
       description,
       images: ogImagesForArtist(artist),
-    },
+    }),
     twitter: {
       card: "summary_large_image",
       title: `${artist.name} · Collection of Beauty`,

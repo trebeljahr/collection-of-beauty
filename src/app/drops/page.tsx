@@ -3,7 +3,7 @@ import Link from "next/link";
 import { SubscribeForm } from "@/components/subscribe-form";
 import { resolveEditionCover } from "@/lib/newsletter/cover";
 import { loadUiVisibleEditions } from "@/lib/newsletter/editions";
-import { SITE_NAME } from "@/lib/seo";
+import { buildOpenGraph, SITE_NAME } from "@/lib/seo";
 
 export const metadata: Metadata = {
   title: "Drops of Beauty - newsletter archive",
@@ -12,10 +12,11 @@ export const metadata: Metadata = {
     canonical: "/drops",
     types: { "application/rss+xml": "/rss.xml" },
   },
-  openGraph: {
+  openGraph: buildOpenGraph({
+    url: "/drops",
     title: `Drops of Beauty - ${SITE_NAME}`,
     description: "Themed editions from the public-domain catalogue.",
-  },
+  }),
 };
 
 export default function DropsPage() {

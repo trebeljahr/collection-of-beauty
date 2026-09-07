@@ -1,5 +1,5 @@
 import type { CSSProperties } from "react";
-import { assetUrl, cn, variantSrcSet } from "@/lib/utils";
+import { cn, fallbackVariantUrl, variantSrcSet } from "@/lib/utils";
 
 type Props = {
   /** The artwork's objectKey, e.g. "collection-of-beauty/Monet_Foo.jpg". */
@@ -10,7 +10,8 @@ type Props = {
   sizes: string;
   /** Widths (px) for which pre-built AVIF/WebP variants exist on disk.
    *  Mirrors Artwork.variantWidths; null/undefined/empty means no variants
-   *  have been shrunk yet, so we fall through to the raw original. */
+   *  have been shrunk yet, so we skip the srcSet and serve a single
+   *  fallback variant. */
   variantWidths?: readonly number[] | null;
   /** Intrinsic source dimensions. Optional in `fill` mode (aspect is
    *  CSS-controlled there). Required in fixed layout to prevent CLS. */
@@ -40,10 +41,10 @@ type Props = {
  * browser since Safari 16.4 / March 2023), and WebP isn't generated at
  * srcSet widths anymore — shrink-sources.mjs only emits a single 1280w
  * WebP for OG meta tags and email templates. Browsers pre-Safari-16.4
- * fall through to the original via the <img src> fallback below.
+ * fall through to exactly that 1280w WebP via the <img src> below.
  *
  * When `variantWidths` is empty/null (nothing shrunk yet), we skip the
- * <picture> entirely and point <img> at the original.
+ * <picture> entirely and serve that one fallback variant.
  */
 export function ResponsiveImage({
   objectKey,
@@ -71,14 +72,18 @@ export function ResponsiveImage({
     : style;
 
   if (!hasVariants) {
-    // No shrunk variants — serve the original directly. <picture> tags
-    // with 404'ing <source> srcSets would leave the <img> broken in
-    // browsers that pick a missing candidate.
+    // No manifest — serve a single fallback variant, no <picture>: a
+    // srcSet of widths we can't vouch for would leave the <img> broken
+    // in browsers that pick a missing candidate. The original is not an
+    // option here either; originals were never synced to the asset
+    // bucket, so `assetUrl()` (what this branch used to serve) is a
+    // guaranteed 404. Assuming the standard ladder at least resolves
+    // for anything that has actually been shrunk.
     return (
       // eslint-disable-next-line @next/next/no-img-element
       // biome-ignore lint/performance/noImgElement: fallback when no variants exist; next/image does not fit the rclone-backed pipeline (variants are pre-built, not optimized at request time).
       <img
-        src={assetUrl(objectKey)}
+        src={fallbackVariantUrl(objectKey)}
         alt={alt}
         data-object-key={objectKey}
         width={fill ? undefined : srcWidth}
@@ -92,11 +97,13 @@ export function ResponsiveImage({
   }
 
   const avif = variantSrcSet(objectKey, "avif", variantWidths);
-  // Fallback src for browsers that didn't match any <source>. We point at
-  // the original rather than a WebP variant: WebP is only shrunk at 1280
-  // now (for OG/email), so using it as the fallback would disagree with
-  // the chosen viewport width for anything but ~1280-sized renders.
-  const fallback = assetUrl(objectKey);
+  // Fallback src for clients that didn't match any <source> — non-AVIF
+  // browsers and most crawlers. It has to be the 1280w WebP: the
+  // original doesn't exist on the asset host (variants only), so the
+  // assetUrl() this used to serve 404'd for every artwork. One fixed
+  // width can't track the viewport, but a slightly-wrong-sized image
+  // that renders beats a correctly-sized one that doesn't.
+  const fallback = fallbackVariantUrl(objectKey, variantWidths);
 
   if (fill) {
     return (

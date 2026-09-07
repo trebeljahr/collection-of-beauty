@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { summary } from "@/lib/data";
 import { GITHUB_URL } from "@/lib/links";
-import { SITE_NAME } from "@/lib/seo";
+import { buildOpenGraph, SITE_NAME } from "@/lib/seo";
 
 export const metadata: Metadata = {
   title: "About",
@@ -10,12 +10,13 @@ export const metadata: Metadata = {
     `About ${SITE_NAME} — what this gallery is, where its ${summary.totalArtworks.toLocaleString()} works ` +
     `come from, and how to contribute corrections to the metadata.`,
   alternates: { canonical: "/about" },
-  openGraph: {
+  openGraph: buildOpenGraph({
+    url: "/about",
     title: `About · ${SITE_NAME}`,
     description:
       `What this gallery is, where its ${summary.totalArtworks.toLocaleString()} works come from, ` +
       `and how to contribute corrections.`,
-  },
+  }),
 };
 
 export default function AboutPage() {

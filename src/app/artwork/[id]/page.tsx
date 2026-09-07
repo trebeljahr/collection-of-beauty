@@ -19,7 +19,7 @@ import {
 } from "@/lib/data";
 import { assignEra, getEra } from "@/lib/gallery-eras";
 import { suggestFixUrl } from "@/lib/links";
-import { artworkJsonLd, jsonLdScriptProps, ogImagesForArtwork } from "@/lib/seo";
+import { artworkJsonLd, buildOpenGraph, jsonLdScriptProps, ogImagesForArtwork } from "@/lib/seo";
 import { sourceLabel } from "@/lib/source-label";
 
 type Params = { id: string };
@@ -31,7 +31,7 @@ type Params = { id: string };
 // for "page worth prerendering" — it correlates with works that
 // actually show on the home grid, get linked from artist pages, or
 // land in OG previews. Caps the prebuilt set so the build doesn't
-// fan out to all 2,947 pages.
+// fan out to all 4,571 pages.
 const STATIC_PARAMS_CAP = 250;
 export function generateStaticParams(): Params[] {
   return artworks
@@ -63,18 +63,24 @@ export async function generateMetadata({ params }: { params: Promise<Params> }):
 
   const images = ogImagesForArtwork(art);
 
+  // og:url must be the same path as the canonical, and the helper is what
+  // keeps og:site_name / og:locale from being dropped: a bare `openGraph`
+  // literal replaces the root layout's object wholesale.
+  const canonical = `/artwork/${art.id}`;
+
   return {
     title,
     description,
-    alternates: { canonical: `/artwork/${art.id}` },
-    openGraph: {
+    alternates: { canonical },
+    openGraph: buildOpenGraph({
       type: "article",
+      url: canonical,
       title,
       description,
       images,
       ...(art.artist ? { authors: [art.artist] } : {}),
       ...(art.dateCreated ? { publishedTime: art.dateCreated } : {}),
-    },
+    }),
     twitter: {
       card: "summary_large_image",
       title,

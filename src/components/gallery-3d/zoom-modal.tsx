@@ -9,7 +9,7 @@ import {
 import { artworkAlt, displayTitle } from "@/lib/artwork-format";
 import type { ArtworkListing } from "@/lib/data";
 import { suggestFixUrl } from "@/lib/links";
-import { assetUrl, cn, variantUrl } from "@/lib/utils";
+import { cn, fallbackVariantUrl, variantUrl } from "@/lib/utils";
 import { peekBestCachedTexture } from "./texture-cache";
 
 /**
@@ -49,20 +49,19 @@ export function ZoomModal({
   // Pull the highest-resolution copy available. The shrink pipeline
   // emits a per-source full-size AVIF for sources > 4096 px on top of
   // the standard ladder, so the largest variant width covers the source
-  // for any artwork that's been re-shrunk. We fall back to the raw
-  // asset only when the largest available variant is smaller than the
-  // source — which today only happens for paintings that haven't been
-  // re-shrunk yet (Google Arts scans pre-update) or weren't shrunk at
-  // all.
+  // for any artwork that's been re-shrunk. Paintings that haven't been
+  // re-shrunk yet (Google Arts scans pre-update) top out below their
+  // source — we used to reach for the raw asset there, but originals
+  // were never synced to the asset host, so that URL 404s. The largest
+  // variant is the sharpest copy that actually exists.
   const widths = artwork.variantWidths ?? [];
   const hasVariants = widths.length > 0;
   const largestVariant = hasVariants ? widths[widths.length - 1] : null;
   const sourceWidth = artwork.width;
-  const useFullVariant =
-    largestVariant != null && (sourceWidth == null || largestVariant >= sourceWidth);
-  const highSrc = useFullVariant
-    ? variantUrl(artwork.objectKey, largestVariant, "avif")
-    : assetUrl(artwork.objectKey);
+  const highSrc =
+    largestVariant != null
+      ? variantUrl(artwork.objectKey, largestVariant, "avif")
+      : fallbackVariantUrl(artwork.objectKey);
 
   // The sharpest already-decoded texture the player loaded while walking
   // the 3D scene. When present we draw it straight to a canvas (below) —
@@ -79,7 +78,7 @@ export function ZoomModal({
   // is the fastest cold load.
   const fallbackPlaceholderSrc = hasVariants
     ? variantUrl(artwork.objectKey, widths[0], "avif")
-    : assetUrl(artwork.objectKey);
+    : fallbackVariantUrl(artwork.objectKey);
 
   const [highReady, setHighReady] = useState(false);
 
