@@ -13,6 +13,19 @@ import { buildOpenGraph, ogImagesForArtwork } from "@/lib/seo";
 
 type Params = { family: string };
 
+/* Bare text links. `min-h-11` is the 44px WCAG 2.5.5 touch-target
+   minimum, gated to below `sm:` because 2.5.5 is a *touch* criterion —
+   a mouse pointer is governed by 2.5.8's 24px, which these already
+   clear, so nothing asks the desktop layout to grow. `-my-3` hands the
+   extra 24px back to layout so the header below keeps its exact position
+   (the enlarged box merely overlaps neighbouring lines, none of which
+   are clickable), and `sm:inline` returns the anchor to an ordinary
+   inline box above the breakpoint. Same idiom on /artwork/[id],
+   /artist/[slug], /era/[id], /collection/[slug] and /downloads/[slug]:
+   enlarge the box and overlap, never shrink a neighbour's margin. */
+const TEXT_LINK =
+  "-my-3 inline-flex min-h-11 items-center rounded-sm underline focus:outline-none focus-visible:ring-2 focus-visible:ring-[var(--ring)] sm:my-0 sm:inline sm:min-h-0";
+
 export const revalidate = 86400;
 
 // All twelve families are static — prebuild every one, same reasoning as
@@ -86,10 +99,7 @@ export default async function ColourFamilyPage({ params }: { params: Promise<Par
 
   return (
     <div className="mx-auto max-w-7xl px-4 py-8">
-      <Link
-        href="/colours"
-        className="rounded-sm text-sm text-[var(--muted-foreground)] underline focus:outline-none focus-visible:ring-2 focus-visible:ring-[var(--ring)]"
-      >
+      <Link href="/colours" className={`${TEXT_LINK} text-sm text-[var(--muted-foreground)]`}>
         ← All colours
       </Link>
 

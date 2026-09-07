@@ -25,6 +25,33 @@ import { sourceLabel } from "@/lib/source-label";
 
 type Params = { id: string };
 
+/* Inline text links (back / prev / next / artist / plate set). `min-h-11`
+   is the 44px WCAG 2.5.5 touch-target minimum — at the bare 20px line
+   height these were easy to mis-tap, and prev/next is how a phone
+   visitor walks the collection. It is gated to below `sm:` because 2.5.5
+   is a *touch* criterion; a mouse pointer is governed by 2.5.8's 24px,
+   which these already clear, so nothing asks the desktop layout to grow.
+   Below `sm:`, `-my-3` hands the extra 24px back to layout so the box
+   overlaps the neighbouring lines rather than spreading them apart —
+   nothing above or below these links is clickable, so the overlap costs
+   nothing. `sm:inline` puts the anchor back to an ordinary inline box
+   above the breakpoint, so a long artist name still wraps mid-sentence
+   the way it always did. This is the idiom on every page that grew a
+   touch target: enlarge the box and overlap, never shrink a neighbour's
+   margin. */
+const TEXT_LINK =
+  "-my-3 inline-flex min-h-11 items-center rounded-sm underline focus:outline-none focus-visible:ring-2 focus-visible:ring-[var(--ring)] sm:my-0 sm:inline sm:min-h-0";
+
+/* Chips (era / collection / licence / source). Same 44px minimum below
+   `sm:` and nothing above it. Here the pill itself grows rather than
+   gaining an invisible overflowing hit area — a pill is its own visible
+   box, so such a target would collide with the chip beside it in a
+   wrapped row. Type and horizontal padding stay as they are, so the row
+   still reads as the same row of pills. The identical string lives on
+   /artist/[slug], /era/[id] and /collection/[slug] — keep the four in
+   step. */
+const CHIP = `${pillClasses} min-h-11 sm:min-h-0`;
+
 // Prebuild the most-likely-to-be-hit artwork pages so first paint on
 // shared/featured works is instant; the rest render on demand and get
 // cached at the edge from then on. Picking "has a known artist with
@@ -158,36 +185,26 @@ export default async function ArtworkPage({
       <script {...jsonLdScriptProps(artworkJsonLd(art))} />
       <div className="mb-6 flex items-center justify-between text-sm text-[var(--muted-foreground)]">
         {navScope ? (
-          <Link
-            href={scopeHref(navScope)}
-            className="rounded-sm underline focus:outline-none focus-visible:ring-2 focus-visible:ring-[var(--ring)]"
-          >
+          <Link href={scopeHref(navScope)} className={TEXT_LINK}>
             ← Back to {scopeLabel(navScope)}
           </Link>
         ) : (
-          <Link
-            href="/"
-            className="rounded-sm underline focus:outline-none focus-visible:ring-2 focus-visible:ring-[var(--ring)]"
-          >
+          <Link href="/" className={TEXT_LINK}>
             ← Back to gallery
           </Link>
         )}
-        <div className="flex items-center gap-3">
+        {/* gap-4 rather than gap-3 on phones: "Next →" is only just past
+            44px wide, so a little more dead space between the two
+            44px-tall targets keeps a thumb from catching the wrong one.
+            The targets shrink back at `sm:`, so the gap does too. */}
+        <div className="flex items-center gap-4 sm:gap-3">
           {prevId && (
-            <Link
-              href={artworkHref(prevId, navScope)}
-              replace
-              className="rounded-sm underline focus:outline-none focus-visible:ring-2 focus-visible:ring-[var(--ring)]"
-            >
+            <Link href={artworkHref(prevId, navScope)} replace className={TEXT_LINK}>
               ← Previous
             </Link>
           )}
           {nextId && (
-            <Link
-              href={artworkHref(nextId, navScope)}
-              replace
-              className="rounded-sm underline focus:outline-none focus-visible:ring-2 focus-visible:ring-[var(--ring)]"
-            >
+            <Link href={artworkHref(nextId, navScope)} replace className={TEXT_LINK}>
               Next →
             </Link>
           )}
@@ -226,7 +243,7 @@ export default async function ArtworkPage({
               <p className="text-lg">
                 <Link
                   href={`/artist/${art.artistSlug}`}
-                  className="rounded-sm underline-offset-4 underline focus:outline-none focus-visible:ring-2 focus-visible:ring-[var(--ring)]"
+                  className={`${TEXT_LINK} underline-offset-4`}
                 >
                   {art.artist}
                 </Link>
@@ -252,7 +269,7 @@ export default async function ArtworkPage({
             {era && (
               <Link
                 href={`/era/${era.id}`}
-                className={`${pillClasses} focus:outline-none focus-visible:ring-2 focus-visible:ring-[var(--ring)]`}
+                className={`${CHIP} focus:outline-none focus-visible:ring-2 focus-visible:ring-[var(--ring)]`}
               >
                 {era.title}
               </Link>
@@ -260,7 +277,7 @@ export default async function ArtworkPage({
             {plateSet && (
               <Link
                 href={`/collection/${plateSet.id}`}
-                className={`${pillClasses} focus:outline-none focus-visible:ring-2 focus-visible:ring-[var(--ring)]`}
+                className={`${CHIP} focus:outline-none focus-visible:ring-2 focus-visible:ring-[var(--ring)]`}
               >
                 {plateSet.title}
                 {plateNumber != null && (
@@ -270,7 +287,10 @@ export default async function ArtworkPage({
                 )}
               </Link>
             )}
-            <LicenseBadge license={art.license} />
+            {/* The badge takes the same touch height as the chips beside
+                it — and drops it at the same breakpoint — so the row stays
+                one even height at every width. */}
+            <LicenseBadge license={art.license} className="min-h-11 sm:min-h-0" />
             <SourceBadge href={art.commonsUrl} />
           </div>
 
@@ -283,7 +303,7 @@ export default async function ArtworkPage({
               {plateNumber != null ? `Plate ${plateNumber} of ` : "From "}
               <Link
                 href={`/collection/${plateSet.id}`}
-                className="rounded-sm underline underline-offset-2 focus:outline-none focus-visible:ring-2 focus-visible:ring-[var(--ring)]"
+                className={`${TEXT_LINK} underline-offset-2`}
               >
                 {plateSet.title}
               </Link>
@@ -401,7 +421,7 @@ function SourceBadge({ href }: { href: string }) {
       target="_blank"
       rel="noreferrer"
       title={`View source on ${label}`}
-      className={pillClasses}
+      className={CHIP}
     >
       {label}
       <svg

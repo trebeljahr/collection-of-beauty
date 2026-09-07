@@ -19,6 +19,30 @@ import { sourceLabel } from "@/lib/source-label";
 
 type Params = { slug: string };
 
+/* Related-artist / movement / era chips. `min-h-11` is the 44px WCAG
+   2.5.5 touch-target minimum — the pill's own type only makes 26px — and
+   it is gated to below `sm:` on purpose: 2.5.5 is a *touch* criterion,
+   mouse pointers are governed by 2.5.8's 24px, which the bare pill
+   already clears. Ungated, the contemporaries grid (up to 24 pills) would
+   be two dozen rounded-full slabs on a desktop. Below `sm:` the pill
+   itself grows rather than gaining an invisible overflowing hit area,
+   because these wrap into multi-row grids where such a target would sit
+   on top of the chip in the row above; their rows open to gap-2 at the
+   same breakpoint so the taller pills read as separate targets rather
+   than one slab. The identical string lives on /artwork/[id], /era/[id]
+   and /collection/[slug] — keep the four in step. */
+const CHIP = `${pillClasses} min-h-11 focus:outline-none focus-visible:ring-2 focus-visible:ring-[var(--ring)] sm:min-h-0`;
+
+/* Bare text links. Same story: 44px below `sm:`, the plain inline anchor
+   above it. `-my-3` hands the extra 24px back to layout so the blocks
+   around it keep their positions — the enlarged box merely overlaps
+   neighbouring lines, none of which are clickable — and `sm:inline`
+   returns it to an ordinary inline box. This is the idiom on every page
+   that grew a touch target: enlarge the box and overlap, never shrink a
+   neighbour's margin. */
+const TEXT_LINK =
+  "-my-3 inline-flex min-h-11 items-center rounded-sm underline focus:outline-none focus-visible:ring-2 focus-visible:ring-[var(--ring)] sm:my-0 sm:inline sm:min-h-0";
+
 // Artist pages are pure functions of the generated data — no request-time
 // input beyond the slug — so the rendered HTML can be cached for a day
 // (matching the sitemap's revalidate) instead of being rebuilt per request.
@@ -216,10 +240,7 @@ export default async function ArtistPage({ params }: { params: Promise<Params> }
   return (
     <div className="mx-auto max-w-6xl px-4 py-8">
       <script {...jsonLdScriptProps(artistJsonLd(artist))} />
-      <Link
-        href="/artists"
-        className="rounded-sm text-sm text-[var(--muted-foreground)] underline focus:outline-none focus-visible:ring-2 focus-visible:ring-[var(--ring)]"
-      >
+      <Link href="/artists" className={`${TEXT_LINK} text-sm text-[var(--muted-foreground)]`}>
         ← All artists
       </Link>
 
@@ -238,21 +259,17 @@ export default async function ArtistPage({ params }: { params: Promise<Params> }
           </span>
         </div>
         {(artist.movement || eraIds.length > 0) && (
-          <div className="mt-1 flex flex-wrap items-center gap-1.5">
+          <div className="mt-1 flex flex-wrap items-center gap-2 sm:gap-1.5">
             {artist.movement && (
               <Link
                 href={`/timeline?movement=${encodeURIComponent(artist.movement)}`}
-                className={`${pillClasses} focus:outline-none focus-visible:ring-2 focus-visible:ring-[var(--ring)]`}
+                className={CHIP}
               >
                 {artist.movement}
               </Link>
             )}
             {eraIds.map((id) => (
-              <Link
-                key={id}
-                href={`/era/${id}`}
-                className={`${pillClasses} focus:outline-none focus-visible:ring-2 focus-visible:ring-[var(--ring)]`}
-              >
+              <Link key={id} href={`/era/${id}`} className={CHIP}>
                 {getEra(id).title}
               </Link>
             ))}
@@ -270,7 +287,7 @@ export default async function ArtistPage({ params }: { params: Promise<Params> }
               <Link
                 key={c.artist.slug}
                 href={`/artist/${c.artist.slug}`}
-                className={`${pillClasses} focus:outline-none focus-visible:ring-2 focus-visible:ring-[var(--ring)]`}
+                className={CHIP}
                 title={c.label}
               >
                 {c.artist.name}
@@ -287,11 +304,7 @@ export default async function ArtistPage({ params }: { params: Promise<Params> }
           </h2>
           <div className="flex flex-wrap gap-2">
             {contemporaries.slice(0, 24).map((c) => (
-              <Link
-                key={c.artist.slug}
-                href={`/artist/${c.artist.slug}`}
-                className={`${pillClasses} focus:outline-none focus-visible:ring-2 focus-visible:ring-[var(--ring)]`}
-              >
+              <Link key={c.artist.slug} href={`/artist/${c.artist.slug}`} className={CHIP}>
                 {c.artist.name}
               </Link>
             ))}

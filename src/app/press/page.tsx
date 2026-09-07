@@ -386,15 +386,19 @@ export default function PressPage() {
                 {GROUND_ERA} at ground level rising to {TOP_ERA}.
               </p>
               <div className="mt-8 flex flex-wrap gap-3">
+                {/* min-h-11 = the 44px minimum touch target. Both CTAs
+                    were 38px (text-sm's 20px line box + py-2 + border), so
+                    they needed 6px of slack; giving it as a min-height with
+                    centred content keeps the label metrics identical. */}
                 <Link
                   href="/press-kit.zip"
-                  className="rounded-md bg-[var(--foreground)] px-4 py-2 text-sm font-medium text-[var(--background)] transition hover:opacity-85 focus:outline-none focus-visible:ring-2 focus-visible:ring-[var(--ring)]"
+                  className="inline-flex min-h-11 items-center rounded-md bg-[var(--foreground)] px-4 py-2 text-sm font-medium text-[var(--background)] transition hover:opacity-85 focus:outline-none focus-visible:ring-2 focus-visible:ring-[var(--ring)]"
                 >
                   Download press kit
                 </Link>
                 <a
                   href={`mailto:${pressEmail}`}
-                  className="rounded-md border border-[var(--border)] bg-[var(--background)]/70 px-4 py-2 text-sm font-medium transition hover:bg-[var(--accent)] focus:outline-none focus-visible:ring-2 focus-visible:ring-[var(--ring)]"
+                  className="inline-flex min-h-11 items-center rounded-md border border-[var(--border)] bg-[var(--background)]/70 px-4 py-2 text-sm font-medium transition hover:bg-[var(--accent)] focus:outline-none focus-visible:ring-2 focus-visible:ring-[var(--ring)]"
                 >
                   Contact press
                 </a>
@@ -422,7 +426,43 @@ export default function PressPage() {
           aria-label="Press page sections"
           className="border-b border-[var(--border)] bg-[var(--background)]/85 backdrop-blur"
         >
-          <div className="mx-auto flex max-w-7xl gap-4 overflow-x-auto px-4 py-3 text-sm text-[var(--muted-foreground)]">
+          {/* Horizontal scroll rail. At 375px only four of the ten links
+              fit, and nothing about a flat row of cut-off text says
+              "scrollable" — so the edges carry a shadow that appears
+              exactly when content is hidden on that side.
+
+              The trick is two background layers per edge: an opaque
+              `--background` cover attached to the *content* box
+              (`local`, so it scrolls with the links) painted over a
+              shadow attached to the *element* box (`scroll`, so it stays
+              pinned to the visible edge). A cover only slides out of the
+              way once there is scrolled-off content behind it, which
+              means the shadow shows up per-edge, on demand, and never at
+              all at the widths where all ten links fit — so desktop is
+              visually untouched by it. Backgrounds paint behind text, so
+              this shades the edge without dimming a label.
+
+              The nav is not sticky, so what sits behind the rail is the
+              plain page background; the opaque covers are therefore
+              invisible against it despite the parent's /85 tint.
+
+              overscroll-x-contain keeps a fling at either end from
+              handing the gesture to the browser's back-navigation swipe. */}
+          <div
+            className="mx-auto flex max-w-7xl snap-x snap-proximity scroll-pl-4 items-center gap-2 overflow-x-auto overscroll-x-contain px-4 py-1 text-sm text-[var(--muted-foreground)] sm:py-3"
+            style={{
+              backgroundImage: [
+                "linear-gradient(to right, var(--background) 45%, transparent)",
+                "linear-gradient(to left, var(--background) 45%, transparent)",
+                "linear-gradient(to right, color-mix(in oklab, var(--muted-foreground) 40%, transparent), transparent)",
+                "linear-gradient(to left, color-mix(in oklab, var(--muted-foreground) 40%, transparent), transparent)",
+              ].join(", "),
+              backgroundPosition: "left center, right center, left center, right center",
+              backgroundSize: "2.5rem 100%, 2.5rem 100%, 1.5rem 100%, 1.5rem 100%",
+              backgroundRepeat: "no-repeat",
+              backgroundAttachment: "local, local, scroll, scroll",
+            }}
+          >
             {[
               ["The museum", "#museum"],
               ["Fact sheet", "#fact-sheet"],
@@ -435,10 +475,23 @@ export default function PressPage() {
               ["Images", "#images"],
               ["Contact", "#contact"],
             ].map(([label, href]) => (
+              // min-h-11 lifts each link from a 20px text box to the 44px
+              // touch minimum, and px-1 widens the short ones ("FAQ" was
+              // 27px). The row's gap drops 4 -> 2 to pay for that padding
+              // exactly: two neighbours contribute 4px each side, so
+              // 4 + 8 + 4 is the 16px that gap-4 alone used to give, and
+              // ten links still need the same rail width — the horizontal
+              // scroll therefore engages at the same viewport as before.
+              // The height ends at `sm:` (with the container's py-1 ->
+              // py-3): WCAG 2.5.5's 44px is a touch criterion, a mouse gets
+              // 2.5.8's 24px, and the desktop rail stays the 44px strip it
+              // was rather than growing to 52px. snap-start (proximity, not
+              // mandatory) gives the rail a second scrollability cue
+              // without fighting a flick.
               <a
                 key={href}
                 href={href}
-                className="shrink-0 rounded-sm underline underline-offset-4 hover:text-[var(--foreground)] focus:outline-none focus-visible:ring-2 focus-visible:ring-[var(--ring)]"
+                className="flex min-h-11 shrink-0 snap-start items-center rounded-sm px-1 underline underline-offset-4 hover:text-[var(--foreground)] focus:outline-none focus-visible:ring-2 focus-visible:ring-[var(--ring)] sm:min-h-0"
               >
                 {label}
               </a>

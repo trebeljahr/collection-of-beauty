@@ -156,13 +156,20 @@ export function GalleryBrowser({ initialArtworks, eras, totalArtworks }: Props) 
             placeholder="Search by title, artist, movement..."
             value={query}
             onChange={(e) => setQuery(e.target.value)}
-            className="w-full sm:flex-1"
+            /*
+             * text-base (16px) below `sm` is load-bearing, not cosmetic: iOS
+             * Safari zooms the whole page in whenever a focused form control
+             * has a font smaller than 16px, and the user then has to pinch
+             * back out. h-11 is the 44px touch-target floor. Desktop keeps the
+             * denser h-9 / text-sm the Input component ships by default.
+             */
+            className="h-11 w-full text-base sm:h-9 sm:flex-1 sm:text-sm"
           />
           <select
             aria-label="Sort artworks by"
             value={sortBy}
             onChange={(e) => setSortBy(e.target.value as ArtworkSort)}
-            className="h-9 rounded-md border border-[var(--input)] bg-transparent px-2 text-sm focus:outline-none focus-visible:ring-2 focus-visible:ring-[var(--ring)] sm:w-auto sm:min-w-[12rem]"
+            className="h-11 rounded-md border border-[var(--input)] bg-transparent px-2 text-base focus:outline-none focus-visible:ring-2 focus-visible:ring-[var(--ring)] sm:h-9 sm:w-auto sm:min-w-[12rem] sm:text-sm"
           >
             <option value="shuffle">Sort: shuffled</option>
             <option value="year">Sort: chronological</option>
@@ -175,7 +182,12 @@ export function GalleryBrowser({ initialArtworks, eras, totalArtworks }: Props) 
             aria-label="Filter by era"
             value={era}
             onChange={(e) => setEra(e.target.value)}
-            className="h-9 rounded-md border border-[var(--input)] bg-transparent px-2 focus:outline-none focus-visible:ring-2 focus-visible:ring-[var(--ring)]"
+            /*
+             * Same 16px / 44px rule as the controls above. The font size has
+             * to be spelled out here because the row's `text-sm` would
+             * otherwise cascade into the select and re-trigger the iOS zoom.
+             */
+            className="h-11 rounded-md border border-[var(--input)] bg-transparent px-2 text-base focus:outline-none focus-visible:ring-2 focus-visible:ring-[var(--ring)] sm:h-9 sm:text-sm"
           >
             <option value="">All eras</option>
             {eras.map((e) => (
@@ -185,7 +197,13 @@ export function GalleryBrowser({ initialArtworks, eras, totalArtworks }: Props) 
             ))}
           </select>
           {(activeFilterCount > 0 || query) && (
-            <Button variant="ghost" size="sm" onClick={clearFilters}>
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={clearFilters}
+              /* size="sm" is a 32px box — below the 44px touch floor on phones. */
+              className="h-11 px-4 sm:h-8 sm:px-3"
+            >
               Clear
             </Button>
           )}
