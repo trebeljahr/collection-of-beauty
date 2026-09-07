@@ -162,6 +162,7 @@ function RoomLabel({ room }: { room: RoomLayout }) {
         fill="#1a1410"
         fontWeight={room.isAnchor ? 700 : 500}
       >
+        {room.roomNumber ? `${room.roomNumber} · ` : ""}
         {room.movement}
       </text>
       {!isTiny && (

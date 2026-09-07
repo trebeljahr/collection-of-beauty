@@ -172,9 +172,12 @@ export function Minimap({
       ctx.fillText("↑", ax, ay);
     }
 
-    // Per-room glyph — title truncated to fit the room footprint, with
-    // anchor / stairwell rooms overridden to a clearer icon. Dropped
-    // entirely when even one character won't fit.
+    // Per-room glyph — the room's number, or the stair arrow. Rooms are
+    // numbered rather than named because an era's rooms nearly all
+    // carry the same movement, so every cell used to truncate to the
+    // same unreadable stub ("Natural history il…" eight times over).
+    // The number keys the legend beside the big map and the footer
+    // below, both of which have the space to spell the title out.
     ctx.textAlign = "center";
     ctx.textBaseline = "middle";
     for (const [i, room] of floor.rooms.entries()) {
@@ -185,13 +188,14 @@ export function Minimap({
       const isActive = i === activeRoomIdx;
       const cx = rx + rw / 2;
       const cy = ry + rh / 2;
-      const icon = room.isStairwell ? "↑" : room.isAnchor ? "⌂" : null;
-      ctx.font = icon
-        ? "bold 15px ui-sans-serif, system-ui, sans-serif"
-        : "13px ui-sans-serif, system-ui, sans-serif";
-      ctx.fillStyle = isActive ? "#1a120b" : "rgba(255, 240, 210, 0.78)";
-      const text = icon ?? truncateToFit(ctx, room.title, rw - 4);
-      if (text) ctx.fillText(text, cx, cy);
+      const glyph = room.isStairwell ? "↑" : room.roomNumber ? String(room.roomNumber) : "";
+      if (!glyph) continue;
+      // Scale the numeral with the map so it stays readable on the
+      // 220 px minimap and doesn't look lost on the 600 px big map.
+      const px = Math.max(10, Math.min(20, Math.round(scale * 1.5)));
+      ctx.font = `${room.isStairwell ? "bold " : "600 "}${px}px ui-sans-serif, system-ui, sans-serif`;
+      ctx.fillStyle = isActive ? "#1a120b" : "rgba(255, 240, 210, 0.8)";
+      ctx.fillText(glyph, cx, cy);
     }
 
     // Header strip — floor + era so the player always knows what
@@ -310,7 +314,8 @@ function drawFooter(
   }
   ctx.fillStyle = "#fff1c8";
   ctx.font = "bold 14px ui-sans-serif, system-ui, sans-serif";
-  ctx.fillText(truncateToFit(ctx, room.title, innerW), innerX, yTop + 6);
+  const heading = room.roomNumber ? `${room.roomNumber} · ${room.title}` : room.title;
+  ctx.fillText(truncateToFit(ctx, heading, innerW), innerX, yTop + 6);
 
   ctx.fillStyle = "rgba(255, 240, 210, 0.65)";
   ctx.font = "12px ui-sans-serif, system-ui, sans-serif";
@@ -354,7 +359,7 @@ function wrapLines(
  *  a brighter minimap-fill colour. Same hue, saturation lifted, lightness
  *  pinned around 0.42 so all rooms stay legible against the dark panel
  *  while keeping the era's identity. Returns a CSS hsl() string. */
-function boostForMap(hex: string): string {
+export function boostForMap(hex: string): string {
   const c = hex.startsWith("#") ? hex.slice(1) : hex;
   if (c.length !== 6) return hex;
   const r = Number.parseInt(c.slice(0, 2), 16) / 255;

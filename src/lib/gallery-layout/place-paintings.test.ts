@@ -27,6 +27,7 @@ function makeRoom(args: {
     title: "test",
     description: "",
     isAnchor: false,
+    roomNumber: 1,
     isStairwell: false,
     cellBounds: { xMin, xMax, zMin, zMax },
     worldRect: {

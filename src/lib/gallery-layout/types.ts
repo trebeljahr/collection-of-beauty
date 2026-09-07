@@ -34,6 +34,13 @@ export type RoomLayout = {
   title: string;
   description: string;
   isAnchor: boolean;
+  /** 1-based room number within the floor, in plan order — the number
+   *  printed in the room's cell on the map. `null` for the stairwell,
+   *  which is drawn as a stair glyph instead. Rooms are numbered rather
+   *  than labelled on the map because an era's rooms nearly all carry
+   *  the same movement name, so the labels truncated to the same
+   *  unreadable stub in every cell. */
+  roomNumber: number | null;
   /** True for the stairwell room. Rendered without a ceiling so the
    *  ascending stair flight is visible, and without a full floor — the
    *  stair geometry provides the walking surface between landings. */

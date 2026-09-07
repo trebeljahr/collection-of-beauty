@@ -17,7 +17,7 @@ import { variantProxyUrl } from "@/lib/utils";
 import { HallwayRenderer } from "./hallway";
 import { LandscapePrompt } from "./landscape-prompt";
 import { LodController } from "./lod-controller";
-import { Minimap, type PlayerSample } from "./minimap";
+import { boostForMap, Minimap, type PlayerSample } from "./minimap";
 import { Player } from "./player";
 import { RoomEnvironment } from "./room-env-map";
 import { RoomGeometry } from "./room-geometry";
@@ -288,7 +288,11 @@ export function Gallery3D({ artworks }: Props) {
   // drops pointer-lock so the overlay UI is interactive.
   const openBigMap = useCallback(() => {
     setViewedMapFloorIdx(currentFloorIdx);
-    const s = Math.max(300, Math.min(window.innerHeight - 180, window.innerWidth - 160, 760));
+    // Leave room for the floor picker on one side and the room legend
+    // on the other; the legend hides itself below `lg`, where the map
+    // gets the width back.
+    const gutters = window.innerWidth >= 1024 ? 500 : 160;
+    const s = Math.max(300, Math.min(window.innerHeight - 180, window.innerWidth - gutters, 760));
     setBigMapSize(s);
     setMapOpen(true);
     if (!isTouch && document.pointerLockElement) document.exitPointerLock();
@@ -645,7 +649,10 @@ export function Gallery3D({ artworks }: Props) {
           </div>
           {activeRoom && (
             <>
-              <div className="font-semibold">{activeRoom.title}</div>
+              <div className="font-semibold">
+                {activeRoom.roomNumber ? `${activeRoom.roomNumber} · ` : ""}
+                {activeRoom.title}
+              </div>
               <div className="text-xs text-neutral-400">{activeRoom.description}</div>
             </>
           )}
@@ -762,7 +769,6 @@ export function Gallery3D({ artworks }: Props) {
             }
             setMapOpen(false);
           }}
-          isTouch={isTouch}
         />
       )}
       {zoomed && (
@@ -990,11 +996,13 @@ function Crosshair({ inspecting }: { inspecting: boolean }) {
 /**
  * Full-screen big-map overlay. Renders the floor plan of whichever
  * floor is currently being previewed (the *viewed* floor — not
- * necessarily the one the player is standing on), with a vertical
- * floor-stack picker on the side and a hint footer. The keyboard
- * shortcuts driving navigation live up in Gallery3D so they keep
- * working even if focus isn't on this overlay; this component fires
- * `onSelect` / `onJump` / `onClose` for click-driven equivalents.
+ * necessarily the one the player is standing on), between a vertical
+ * floor-stack picker and a legend naming the numbered rooms on the
+ * plan. The keyboard shortcuts driving navigation (arrows, digits,
+ * Enter, Esc) live up in Gallery3D so they keep working even if focus
+ * isn't on this overlay; this component fires `onSelect` / `onJump` /
+ * `onClose` for the click-driven equivalents, and prints no key hints
+ * — every one of them has a visible control here.
  */
 function BigMapOverlay({
   floor,
@@ -1009,7 +1017,6 @@ function BigMapOverlay({
   onSelect,
   onJump,
   onClose,
-  isTouch,
 }: {
   floor: FloorLayout;
   activeRoomIdx: number;
@@ -1023,7 +1030,6 @@ function BigMapOverlay({
   onSelect: (idx: number) => void;
   onJump: (idx: number) => void;
   onClose: () => void;
-  isTouch: boolean;
 }) {
   return (
     // biome-ignore lint/a11y/useKeyWithClickEvents: backdrop dismiss is a courtesy mouse shortcut; keyboard already maps Esc / M to close at the parent.
@@ -1058,23 +1064,9 @@ function BigMapOverlay({
                   : "text-white/70 hover:bg-white/10 hover:text-white"
               }`}
             >
-              <span
-                className={`inline-block min-w-[3.5rem] text-right text-xs ${
-                  isCurrent ? "text-amber-300" : "text-white/55"
-                }`}
-              >
-                Floor {i + 1}
+              <span className={`flex-1 truncate text-sm ${isCurrent ? "text-amber-300" : ""}`}>
+                {floorTitles[i]}
               </span>
-              <span className="flex-1 truncate text-sm">{floorTitles[i]}</span>
-              {/* Digit teleport hint. Lives next to each floor (was
-                  previously a separate "Quick teleport" row in the
-                  footer) so the key-to-floor binding is immediately
-                  obvious. Hidden on touch — the row is tappable. */}
-              {!isTouch && i < 9 && (
-                <kbd className="rounded border border-white/25 px-1.5 font-mono text-[10px] text-white/65">
-                  {i + 1}
-                </kbd>
-              )}
               {isCurrent && (
                 <span className="text-[10px] uppercase tracking-wider text-amber-300">
                   <span className="sr-only">You are </span>here
@@ -1085,10 +1077,10 @@ function BigMapOverlay({
         })}
       </div>
 
-      {/* Map + footer hint. */}
+      {/* Map + room legend. */}
       {/* biome-ignore lint/a11y/useKeyWithClickEvents: stopPropagation only — keyboard nav is handled at the parent. */}
       {/* biome-ignore lint/a11y/noStaticElementInteractions: stopPropagation only — purely visual container */}
-      <div onClick={(e) => e.stopPropagation()} className="flex flex-col items-center gap-3">
+      <div onClick={(e) => e.stopPropagation()} className="flex items-start gap-5">
         <Minimap
           floor={floor}
           activeRoomIdx={activeRoomIdx}
@@ -1096,31 +1088,40 @@ function BigMapOverlay({
           showPlayer={showPlayer}
           size={size}
         />
-        <div className="flex flex-col items-center gap-2 text-xs text-white/75">
-          {isTouch ? (
-            <span>Tap a floor on the left · double-tap to jump · tap outside to close</span>
-          ) : (
-            <div className="flex flex-wrap items-center justify-center gap-3">
-              <kbd className="rounded border border-white/30 px-1.5 font-mono">↑</kbd>
-              <kbd className="rounded border border-white/30 px-1.5 font-mono">↓</kbd>
-              <span>cycle floors</span>
-              <span className="text-white/35">·</span>
-              <kbd className="rounded border border-white/30 px-1.5 font-mono">Enter</kbd>
-              <span>jump</span>
-              <span className="text-white/35">·</span>
-              <kbd className="rounded border border-white/30 px-1.5 font-mono">1</kbd>
-              <span className="text-white/35">…</span>
-              <kbd className="rounded border border-white/30 px-1.5 font-mono">
-                {Math.min(9, floorCount)}
-              </kbd>
-              <span>teleport</span>
-              <span className="text-white/35">·</span>
-              <kbd className="rounded border border-white/30 px-1.5 font-mono">M</kbd>
-              <span>/</span>
-              <kbd className="rounded border border-white/30 px-1.5 font-mono">Esc</kbd>
-              <span>close</span>
-            </div>
-          )}
+        {/* Legend — the map prints room numbers, not names, because an
+            era's rooms nearly all carry the same movement and the label
+            truncated to the same stub in every cell. Here is where those
+            numbers get spelled out. */}
+        <div className="hidden max-h-[80vh] overflow-y-auto rounded-lg border border-white/15 bg-black/60 p-3 shadow-xl lg:block">
+          <div className="mb-2 px-1 text-[10px] uppercase tracking-wider text-white/45">Rooms</div>
+          <ul className="flex flex-col gap-1">
+            {floor.rooms
+              .filter((room) => room.roomNumber != null)
+              .map((room) => {
+                const isActive = floor.rooms[activeRoomIdx]?.id === room.id;
+                return (
+                  <li
+                    key={room.id}
+                    className={`flex items-center gap-2 rounded px-1.5 py-0.5 text-sm ${
+                      isActive ? "bg-white/15 text-white" : "text-white/70"
+                    }`}
+                  >
+                    <span
+                      aria-hidden
+                      className="inline-block h-2.5 w-2.5 shrink-0 rounded-[2px]"
+                      style={{ background: boostForMap(room.floorColor) }}
+                    />
+                    <span className="min-w-[1.25rem] text-right font-mono text-xs text-white/55">
+                      {room.roomNumber}
+                    </span>
+                    <span className="max-w-[15rem] truncate">{room.title}</span>
+                    <span className="ml-auto pl-2 text-xs text-white/40">
+                      {room.placements.length}
+                    </span>
+                  </li>
+                );
+              })}
+          </ul>
         </div>
       </div>
     </div>
