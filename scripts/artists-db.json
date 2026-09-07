@@ -2030,6 +2030,45 @@
       "nationality": "Italian",
       "movement": "Classical East Asian",
       "pd_status": "public_domain_worldwide"
+    },
+    {
+      "name": "Giorgione",
+      "aliases": [
+        "Giorgione",
+        "Giorgio da Castelfranco",
+        "Giorgio Barbarelli da Castelfranco"
+      ],
+      "born": 1477,
+      "died": 1510,
+      "nationality": "Italian",
+      "movement": "Renaissance",
+      "pd_status": "public_domain_worldwide"
+    },
+    {
+      "name": "Guercino",
+      "aliases": [
+        "Guercino",
+        "Giovanni Francesco Barbieri"
+      ],
+      "born": 1591,
+      "died": 1666,
+      "nationality": "Italian",
+      "movement": "Baroque",
+      "pd_status": "public_domain_worldwide"
+    },
+    {
+      "name": "Léon Bakst",
+      "aliases": [
+        "Léon Bakst",
+        "Leon Bakst",
+        "Lev Bakst",
+        "Bakst"
+      ],
+      "born": 1866,
+      "died": 1924,
+      "nationality": "Russian",
+      "movement": "Art Nouveau",
+      "pd_status": "public_domain_worldwide"
     }
   ]
 }
