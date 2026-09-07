@@ -25,7 +25,8 @@ function log(prefix, msg) {
 
 // Rebuild data synchronously first so the JSON is current before Next
 // starts watching it.
-log("dev", "building data…");
+log("dev", "building data… (cached probes; first run after new assets takes ~1 min)");
+const buildStarted = Date.now();
 const build = spawnSync(process.execPath, ["scripts/build-data.mjs"], {
   cwd: ROOT,
   stdio: "inherit",
@@ -34,6 +35,7 @@ if (build.status !== 0) {
   log("dev", `build-data failed with exit ${build.status}`);
   process.exit(build.status ?? 1);
 }
+log("dev", `data ready in ${((Date.now() - buildStarted) / 1000).toFixed(1)}s`);
 
 const children = [];
 
