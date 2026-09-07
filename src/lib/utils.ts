@@ -111,9 +111,25 @@ export function fallbackVariantUrl(
   variantWidths?: readonly number[] | null,
 ): string {
   if (!objectKey) return "";
+  const { width, format } = fallbackVariant(variantWidths);
+  return variantUrl(objectKey, width, format);
+}
+
+/**
+ * The (width, format) pair `fallbackVariantUrl` resolves to, without
+ * building the URL. Split out so structured data and the image sitemap
+ * can advertise *the same* variant the page's `<img src>` actually
+ * loads — if the JSON-LD `contentUrl` and the rendered `<img>` disagree,
+ * Google has no way to attach the licence metadata to the image it
+ * crawled, which is the whole point of the markup.
+ */
+export function fallbackVariant(variantWidths?: readonly number[] | null): {
+  width: number;
+  format: VariantFormat;
+} {
   const widths = variantWidths && variantWidths.length > 0 ? variantWidths : VARIANT_WIDTHS;
   if (widths.includes(FALLBACK_VARIANT_WIDTH)) {
-    return variantUrl(objectKey, FALLBACK_VARIANT_WIDTH, "webp");
+    return { width: FALLBACK_VARIANT_WIDTH, format: "webp" };
   }
   // No 1280 rung means no WebP at all for this artwork (the encoder
   // emits WebP at that width only), so serve the nearest AVIF rather
@@ -121,7 +137,7 @@ export function fallbackVariantUrl(
   const nearest = widths.reduce((best, w) =>
     Math.abs(w - FALLBACK_VARIANT_WIDTH) < Math.abs(best - FALLBACK_VARIANT_WIDTH) ? w : best,
   );
-  return variantUrl(objectKey, nearest, "avif");
+  return { width: nearest, format: "avif" };
 }
 
 function publicAssetsBaseUrl(): string {

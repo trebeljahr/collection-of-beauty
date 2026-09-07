@@ -1,6 +1,7 @@
 import type { MetadataRoute } from "next";
 import { artists, artworks } from "@/lib/data";
 import { ERAS } from "@/lib/gallery-eras";
+import { sitemapImagesForArtwork } from "@/lib/licensable-images";
 import { loadPublishedEditions } from "@/lib/newsletter/editions";
 import { absoluteUrl } from "@/lib/seo";
 
@@ -17,8 +18,14 @@ export const revalidate = 86400;
  *   - One entry per artist (~331)
  *   - One entry per artwork (~4,571)
  *
- * Total is well under Google's 50k per-sitemap cap, so we can ship one file.
- * If the collection ever grows past that, split via a sitemap index.
+ * Every artwork entry also carries an <image:image> pointing at the one
+ * variant we know is servable for that work, which is what gets the
+ * corpus into Google Images at all — the detail pages are otherwise
+ * discovered by crawl alone.
+ *
+ * Total is ~4.9k URLs / ~2 MB, well under Google's 50k-URL and 50 MB
+ * per-sitemap caps, so we can ship one file. If the collection ever
+ * grows past that, split via a sitemap index.
  */
 export default function sitemap(): MetadataRoute.Sitemap {
   const now = new Date();
@@ -86,6 +93,7 @@ export default function sitemap(): MetadataRoute.Sitemap {
     lastModified: now,
     changeFrequency: "yearly",
     priority: 0.5,
+    images: sitemapImagesForArtwork(art),
   }));
 
   return [...staticEntries, ...eraEntries, ...editionEntries, ...artistEntries, ...artworkEntries];
