@@ -7,11 +7,22 @@ import { cn } from "@/lib/utils";
 type Props = {
   tileSource: DeepZoomTileSource;
   /** Low-res variant painted underneath until the first tiles are drawn,
-   *  so the modal never shows an empty frame while the pyramid opens. */
-  placeholderSrc: string;
+   *  so the modal never shows an empty frame while the pyramid opens.
+   *  Ignored when `placeholder` is given. */
+  placeholderSrc?: string;
+  /** Pre-rendered stand-in, used instead of `placeholderSrc` when the
+   *  caller already holds a decoded copy of the work and can paint it
+   *  with no network at all — the 3D gallery hands over the scene
+   *  texture it loaded while the player was walking. Rendered inside the
+   *  same cross-fading, aria-hidden wrapper the default <img> gets. */
+  placeholder?: React.ReactNode;
   alt: string;
+  /** Placement override for the zoom control cluster. The default sits
+   *  just above the bottom edge, which collides with a host that puts
+   *  its own chrome down there (the 3D gallery's metadata bar). */
+  controlsClassName?: string;
   /** Called when OpenSeadragon can't be loaded or the pyramid doesn't
-   *  answer, so the lightbox can fall back to the plain <img> path. */
+   *  answer, so the host can fall back to the plain <img> path. */
   onUnavailable: () => void;
 };
 
@@ -44,7 +55,14 @@ const ZOOM_STEP = 1.6;
  * things depending on the image. Panning stays on drag, touch, and the
  * trackpad; Escape closes, handled by the lightbox above us.
  */
-export function DeepZoomViewer({ tileSource, placeholderSrc, alt, onUnavailable }: Props) {
+export function DeepZoomViewer({
+  tileSource,
+  placeholderSrc,
+  placeholder,
+  alt,
+  controlsClassName,
+  onUnavailable,
+}: Props) {
   const containerRef = useRef<HTMLDivElement | null>(null);
   // Typed as the structural surface we actually use rather than importing
   // OpenSeadragon's types at module scope — keeps this file's static
@@ -220,20 +238,35 @@ export function DeepZoomViewer({ tileSource, placeholderSrc, alt, onUnavailable 
 
   return (
     <div className="absolute inset-0">
-      {/* Cached low-res variant, cross-faded out once the first tiles are
-          on screen. Without it the frame is empty for as long as the
-          library chunk plus the top pyramid levels take to arrive. */}
-      {/* biome-ignore lint/performance/noImgElement: pre-selected variant from the shared image cache; next/image's optimizer is not in this path. */}
-      <img
-        src={placeholderSrc}
-        alt={ready ? "" : alt}
-        aria-hidden={ready}
-        draggable={false}
-        className={cn(
-          "pointer-events-none absolute inset-0 h-full w-full object-contain transition-opacity duration-500",
-          ready ? "opacity-0" : "opacity-100",
-        )}
-      />
+      {/* Stand-in, cross-faded out once the first tiles are on screen.
+          Without it the frame is empty for as long as the library chunk
+          plus the top pyramid levels take to arrive. A caller-supplied
+          `placeholder` wins: the 3D gallery already has the work decoded
+          on the GPU and can paint it with no request at all, where the
+          default path still has to fetch a variant. */}
+      {placeholder ? (
+        <div
+          aria-hidden={ready}
+          className={cn(
+            "pointer-events-none absolute inset-0 transition-opacity duration-500",
+            ready ? "opacity-0" : "opacity-100",
+          )}
+        >
+          {placeholder}
+        </div>
+      ) : (
+        /* biome-ignore lint/performance/noImgElement: pre-selected variant from the shared image cache; next/image's optimizer is not in this path. */
+        <img
+          src={placeholderSrc}
+          alt={ready ? "" : alt}
+          aria-hidden={ready}
+          draggable={false}
+          className={cn(
+            "pointer-events-none absolute inset-0 h-full w-full object-contain transition-opacity duration-500",
+            ready ? "opacity-0" : "opacity-100",
+          )}
+        />
+      )}
       <div
         ref={containerRef}
         className={cn(
@@ -245,7 +278,12 @@ export function DeepZoomViewer({ tileSource, placeholderSrc, alt, onUnavailable 
       {/* Zoom controls. Deliberately not OpenSeadragon's own: these match
           the lightbox's existing button chrome and stay reachable by
           keyboard, which the sprite-based default controls are not. */}
-      <div className="pointer-events-none absolute bottom-4 left-1/2 z-10 flex -translate-x-1/2 gap-2">
+      <div
+        className={cn(
+          "pointer-events-none absolute bottom-4 left-1/2 z-10 flex -translate-x-1/2 gap-2",
+          controlsClassName,
+        )}
+      >
         <ZoomButton label="Zoom in" disabled={!ready} onClick={() => zoomBy(ZOOM_STEP)}>
           <path d="M11 8v6M8 11h6" />
           <circle cx="11" cy="11" r="7" />
