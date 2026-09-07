@@ -1,63 +1,15 @@
 import { DEFAULT_SHUFFLE_SEED } from "@/lib/artwork-page-schema";
 import { getAllListingsInDefaultOrder, shuffleWithArtistSpread } from "@/lib/artwork-pagination";
 import { type ArtworkListing, artworkListings, getArtist } from "@/lib/data";
-import { assignEra, ERAS, type EraId, getEra } from "@/lib/gallery-eras";
+import { assignEra, getEra } from "@/lib/gallery-eras";
+import type { Scope } from "@/lib/scope-href";
 
-export type Scope =
-  | { kind: "gallery" }
-  | { kind: "artist"; slug: string }
-  | { kind: "movement"; name: string }
-  | { kind: "decade"; start: number }
-  | { kind: "era"; id: EraId };
+// The pure `?from=` helpers live in scope-href.ts so client components can
+// reach them without pulling artworks.json into a browser chunk. Re-exported
+// here because server code reads the whole scope API from one module.
+export { artworkHref, encodeScope, parseScope, type Scope, scopeHref } from "@/lib/scope-href";
 
 const UNDATED_SORT_KEY = Number.MAX_SAFE_INTEGER;
-
-// Set-based lookup so parseScope can validate without throwing via getEra.
-const ERA_IDS: Set<string> = new Set(ERAS.map((e) => e.id));
-
-/** Parse a `?from=<kind>:<value>` query value. Returns null for any
- *  malformed input so callers can fall back to the global pool. */
-export function parseScope(param: string | null | undefined): Scope | null {
-  if (!param) return null;
-  // Bare `gallery` — the only kind without a value half.
-  if (param === "gallery") return { kind: "gallery" };
-  const colon = param.indexOf(":");
-  if (colon <= 0 || colon === param.length - 1) return null;
-
-  const kind = param.slice(0, colon);
-  let value: string;
-  try {
-    value = decodeURIComponent(param.slice(colon + 1));
-  } catch {
-    return null;
-  }
-  if (!value) return null;
-
-  if (kind === "artist") return { kind, slug: value };
-  if (kind === "movement") return { kind, name: value };
-  if (kind === "decade") {
-    if (!/^-?\d+$/.test(value)) return null;
-    const start = Number.parseInt(value, 10);
-    if (!Number.isFinite(start) || start % 10 !== 0) return null;
-    return { kind, start };
-  }
-  if (kind === "era") {
-    if (!ERA_IDS.has(value)) return null;
-    return { kind, id: value as EraId };
-  }
-  return null;
-}
-
-/** Inverse of `parseScope`. Returns the raw `?from=` value with the
- *  value half percent-encoded. */
-export function encodeScope(scope: Scope): string {
-  if (scope.kind === "gallery") return "gallery";
-  if (scope.kind === "artist") return `artist:${encodeURIComponent(scope.slug)}`;
-  if (scope.kind === "movement") return `movement:${encodeURIComponent(scope.name)}`;
-  if (scope.kind === "decade") return `decade:${scope.start}`;
-  // Era ids are pre-validated lowercase kebab — no percent-encoding needed.
-  return `era:${scope.id}`;
-}
 
 /** Resolve a scope to the ordered slim listing the lightbox / prev-next
  *  should cycle through. Order matches the source page exactly:
@@ -109,21 +61,4 @@ export function scopeLabel(scope: Scope): string {
   if (scope.kind === "movement") return scope.name;
   if (scope.kind === "decade") return `${scope.start}s`;
   return getEra(scope.id).title;
-}
-
-/** URL of the page that originated this scope, for "back to source"
- *  affordances. */
-export function scopeHref(scope: Scope): string {
-  if (scope.kind === "gallery") return "/";
-  if (scope.kind === "artist") return `/artist/${scope.slug}`;
-  if (scope.kind === "movement") return `/timeline?movement=${encodeURIComponent(scope.name)}`;
-  if (scope.kind === "decade") return `/timeline#decade-${scope.start}`;
-  return `/era/${scope.id}`;
-}
-
-/** Build an `/artwork/<id>` href, threading the scope as `?from=` when
- *  present. */
-export function artworkHref(id: string, scope: Scope | null): string {
-  if (!scope) return `/artwork/${id}`;
-  return `/artwork/${id}?from=${encodeScope(scope)}`;
 }

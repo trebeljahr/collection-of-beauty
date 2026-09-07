@@ -336,3 +336,14 @@
     scroll-behavior: auto !important;
   }
 }
+
+/* Timeline decade sections that haven't been fetched yet fill their grid
+   with these cells. They reserve the exact height the real tiles will
+   occupy, so a `#decade-1870` anchor lands in the right place before the
+   works arrive and nothing shifts once they do. One class rather than a
+   Tailwind stack because the markup repeats ~4,300 times. */
+.timeline-cell-placeholder {
+  aspect-ratio: 1 / 1;
+  border-radius: var(--radius-md);
+  background-color: var(--muted);
+}

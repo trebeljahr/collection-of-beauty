@@ -3,8 +3,8 @@
 import { useMemo } from "react";
 import { ArtworkGallery } from "@/components/artwork-gallery";
 import { DEFAULT_ARTWORK_PAGE_SIZE } from "@/lib/artwork-page-schema";
-import type { Scope } from "@/lib/artwork-scope";
 import type { ArtworkListing } from "@/lib/data";
+import type { Scope } from "@/lib/scope-href";
 import {
   type ArtworkPageInfo,
   type ArtworkPageQuery,

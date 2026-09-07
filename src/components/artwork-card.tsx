@@ -1,8 +1,8 @@
 import Link from "next/link";
 import { ResponsiveImage } from "@/components/responsive-image";
 import { artworkAlt, displayTitle } from "@/lib/artwork-format";
-import { artworkHref, type Scope } from "@/lib/artwork-scope";
 import type { ArtworkListing } from "@/lib/data";
+import { artworkHref, type Scope } from "@/lib/scope-href";
 
 type Props = {
   artwork: ArtworkListing;

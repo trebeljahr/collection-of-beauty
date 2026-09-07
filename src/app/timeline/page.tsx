@@ -1,7 +1,8 @@
 import type { Metadata } from "next";
 import { TimelineView } from "@/components/timeline-view";
-import { artworkListings, movements, summary } from "@/lib/data";
+import { movements, summary } from "@/lib/data";
 import { buildOpenGraph } from "@/lib/seo";
+import { getTimelineSummary } from "@/lib/timeline";
 
 export const metadata: Metadata = {
   title: "Timeline",
@@ -20,6 +21,11 @@ export const metadata: Metadata = {
 };
 
 export default function TimelinePage() {
+  // Only the histogram is needed up front — ~62 {decade, count} pairs
+  // rather than every dated record. The works for a decade are fetched
+  // from /api/timeline/works as that section scrolls into view.
+  const timeline = getTimelineSummary();
+
   return (
     <div className="mx-auto max-w-7xl px-4 py-8 md:py-12">
       <header className="mb-6">
@@ -28,7 +34,11 @@ export default function TimelinePage() {
           Works grouped by decade. Hover a column to see the count; click to jump there.
         </p>
       </header>
-      <TimelineView artworks={artworkListings} movements={movements} />
+      <TimelineView
+        initialDecades={timeline.decades}
+        initialTotal={timeline.total}
+        movements={movements}
+      />
     </div>
   );
 }
