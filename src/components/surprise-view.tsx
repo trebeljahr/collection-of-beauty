@@ -18,13 +18,33 @@ type Props = {
  *  with the taps that are still served locally. */
 const REFILL_AT = 2;
 
-/** Height the frame is allowed to take. Reserves room for the sticky
- *  header, the caption (two lines when a long title wraps) and the
- *  actions underneath, so the whole thing lands above the fold without
- *  measuring anything at runtime. The site footer sits below it — this
- *  is "as big as fits", not a viewport takeover. */
-const FRAME_MAX_HEIGHT_PX = "calc(100vh - 17rem)";
-const FRAME_MAX_HEIGHT = "calc(100svh - 17rem)";
+/** Height the frame is allowed to take.
+ *
+ *  `100svh - 17rem` is the above-the-fold term: 17rem reserves the sticky
+ *  header, the caption (two lines when a long title wraps) and the actions
+ *  underneath, so on a normal viewport the whole thing lands in view
+ *  without measuring anything at runtime. The site footer sits below it —
+ *  this is "as big as fits", not a viewport takeover.
+ *
+ *  The `max()` is the floor, and it exists because that subtraction has no
+ *  bottom: on a 360 px-tall landscape phone it left 88 px, which a portrait
+ *  work turned into a 47 px-wide stamp — the page's whole promise, gone.
+ *  Below ~37rem (592 px) of viewport height the floor takes over, because
+ *  fitting a usable image *and* the chrome above the fold stops being
+ *  achievable there: we trade the fold for size, giving the image a real
+ *  20rem and letting the visitor scroll a little for the caption. The two
+ *  terms meet exactly at 592 px, so nothing jumps as a window is resized.
+ *
+ *  The floor is itself capped at 80svh so the image never eats the entire
+ *  short viewport — the remaining fifth keeps the caption visibly peeking,
+ *  which is what tells anyone there is something below to scroll to. */
+const FRAME_MAX_HEIGHT = "max(100svh - 17rem, min(20rem, 80svh))";
+/** Same expression in `vh`, for the `sizes` attribute only: `svh`/`dvh` are
+ *  not accepted in `sizes` by every engine, and an unparseable descriptor
+ *  drops the browser back to 100vw and the over-fetch this hint exists to
+ *  avoid. `vh` differs from `svh` only while a mobile URL bar is expanded,
+ *  which is a rung of error the variant ladder absorbs. */
+const FRAME_MAX_HEIGHT_VH = "max(100vh - 17rem, min(20rem, 80vh))";
 
 /**
  * `/surprise` — one random work, image dominant, chrome down to a
@@ -216,7 +236,7 @@ function sourceRatio(width: number | null, height: number | null): number {
  */
 function surpriseSizes(art: ArtworkListing): string {
   const ratio = sourceRatio(art.width, art.height).toFixed(3);
-  return `(max-width: 768px) 100vw, min(100vw, calc((${FRAME_MAX_HEIGHT_PX}) * ${ratio}))`;
+  return `(max-width: 768px) 100vw, min(100vw, calc((${FRAME_MAX_HEIGHT_VH}) * ${ratio}))`;
 }
 
 function SurpriseImage({ art, priority }: { art: ArtworkListing; priority?: boolean }) {

@@ -12,6 +12,7 @@ import type { Artwork } from "@/lib/data";
 import { displayTitle } from "@/lib/data";
 import { attributionText, type DownloadOption, downloadOptions } from "@/lib/downloads";
 import { getLicenseInfo } from "@/lib/license";
+import { cn } from "@/lib/utils";
 
 function href(id: string, option: DownloadOption): string {
   return `/api/download/${id}?w=${option.width}&f=${option.format}`;
@@ -56,15 +57,38 @@ export function ArtworkDownloads({ artwork }: { artwork: Artwork }) {
         Files are AVIF.
       </p>
 
+      {/*
+        Two atomic labels rather than one string, because the shared button
+        base is `whitespace-nowrap`: as a single string this CTA measured
+        311 px at min-content and could not shrink, so any viewport under
+        343 px (311 + the 2×16 px page padding) widened the whole sidebar
+        and scrolled the document sideways — iPhone SE, Fold outer screen.
+        `flex-wrap` sizes off content instead of a breakpoint: the verb and
+        the dimensions each stay unbroken and the dimensions drop to a
+        second row only when the column can't seat both, which also covers
+        the ~306 px the aside gets from `1.3fr_1fr` at exactly 768 px — a
+        `sm:` re-join would have broken again one step later. Min-content
+        is then ~165 px. `h-auto min-h-9` so the second row isn't clipped;
+        py-2 reproduces the 36 px height while it's on one line. No em dash
+        between the two — it would lead a wrapped line with a dangling "—";
+        the opacity separates them in both layouts and stays far past
+        4.5:1 on `--primary` in either theme.
+      */}
       <a
         href={href(artwork.id, largest)}
-        className={buttonVariants({ variant: "default", size: "default" })}
+        className={cn(
+          buttonVariants({ variant: "default", size: "default" }),
+          "h-auto min-h-9 flex-wrap gap-x-2 gap-y-0.5 py-2",
+        )}
         // Same-origin, so the browser honours this and the proxy's
         // Content-Disposition supplies the real filename.
         download
       >
-        <DownloadIcon />
-        Download largest — {largest.label}
+        <span className="inline-flex items-center gap-2">
+          <DownloadIcon />
+          Download largest
+        </span>
+        <span className="tabular-nums opacity-80">{largest.label}</span>
       </a>
 
       {rest.length > 0 && (
