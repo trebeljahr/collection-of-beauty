@@ -3,7 +3,8 @@
 // Server-rendered plain anchors, deliberately. "public domain <artist>
 // high resolution download" is the query this answers, and a crawler that
 // runs no JavaScript has to be able to read the sizes, the licence and the
-// attribution as text. No client component, no dropdown, no fetch-on-click.
+// attribution as text. No client component, no fetch-on-click. The smaller
+// rungs collapse into a <details>, which is still plain markup in the HTML.
 
 import { buttonVariants } from "@/components/ui/button";
 import { collectionForFolder } from "@/lib/collections";
@@ -30,7 +31,10 @@ function href(id: string, option: DownloadOption): string {
 // then the pixel dimensions — which are exact — are what we show.
 
 export function ArtworkDownloads({ artwork }: { artwork: Artwork }) {
-  const options = downloadOptions(artwork);
+  // AVIF only. The 1280 WebP rung exists as a compatibility fallback for
+  // editors that can't open AVIF, but listing it beside the AVIF ladder
+  // reads as a second, confusing sequence. `/api/download` still serves it.
+  const options = downloadOptions(artwork).filter((o) => o.format === "avif");
   if (options.length === 0) return null;
 
   const largest = options[0];
@@ -64,11 +68,11 @@ export function ArtworkDownloads({ artwork }: { artwork: Artwork }) {
       </a>
 
       {rest.length > 0 && (
-        <div className="space-y-1">
-          <p className="text-xs uppercase tracking-wide text-[var(--muted-foreground)]">
-            Other sizes
-          </p>
-          <ul className="flex flex-wrap gap-x-4 gap-y-1 text-sm">
+        <details>
+          <summary className="cursor-pointer list-none text-sm underline underline-offset-4 focus:outline-none focus-visible:ring-2 focus-visible:ring-[var(--ring)]">
+            Other sizes ({rest.length})
+          </summary>
+          <ul className="mt-2 flex flex-wrap gap-x-4 gap-y-1 text-sm">
             {rest.map((option) => (
               <li key={`${option.width}-${option.format}`}>
                 <a
@@ -77,23 +81,12 @@ export function ArtworkDownloads({ artwork }: { artwork: Artwork }) {
                   className="rounded-sm underline underline-offset-4 focus:outline-none focus-visible:ring-2 focus-visible:ring-[var(--ring)]"
                 >
                   {option.width.toLocaleString("en-US")} px
-                  {option.format === "webp" ? " (WebP)" : ""}
                 </a>
               </li>
             ))}
           </ul>
-        </div>
+        </details>
       )}
-
-      <p className="text-xs leading-relaxed text-[var(--muted-foreground)]">
-        {largest.isFullSize
-          ? `${largest.width.toLocaleString("en-US")} px is the full resolution of the source scan.`
-          : `${largest.width.toLocaleString("en-US")} px is the largest size built for this work.`}{" "}
-        <a href="/downloads#what-you-get" className="underline underline-offset-2">
-          What you get
-        </a>
-        .
-      </p>
 
       <div className="rounded-md border border-[var(--border)] bg-[var(--muted)] p-3">
         <p className="mb-1 text-xs uppercase tracking-wide text-[var(--muted-foreground)]">
