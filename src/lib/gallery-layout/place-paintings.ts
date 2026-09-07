@@ -1,21 +1,28 @@
-// Painting placement for rooms + hallways.
+// Painting placement for rooms.
 //
 // Every room hangs its own movement bucket (`room.artworks`) on its own
 // walls, so the room label and the works inside it actually agree. One
-// work per wall cell, all at the same eye-level line — a single "mono
-// row" hang, no salon stacking and no mosaic grids. Whatever doesn't
-// fit in its home room spills to free wall space elsewhere on the same
-// floor; anything still left over is dropped, which is why the floor
-// builder trims each era to a floor's worth of works before we get
-// here (see `selectFloorWorks` in layout-museum.ts).
+// work per wall position, all at the same eye-level line — a single
+// "mono row" hang, no salon stacking and no mosaic grids. Whatever
+// doesn't fit in its home room spills to free wall space elsewhere on
+// the same floor; anything still left over is dropped, which is why the
+// floor builder trims each era to a floor's worth of works before we
+// get here (see `selectFloorWorks` in layout-museum.ts).
 //
-// "Slots" are cell-aligned wall positions. A slot is one cell wide along
-// the wall and sits in the middle of that cell. Any slot whose centre
-// falls inside a door opening is skipped.
+// Placement is continuous, not cell-quantised. Each wall is cut into
+// "runs" — maximal stretches of paintable plaster between the room's
+// corners and its door openings — and the works assigned to a run are
+// laid out edge to edge with one shared gap. The gap is whatever is
+// left over after the paintings, so neighbours are separated by the
+// same distance whether they are 0.3 m engravings or 3 m canvases.
+// (The old code hung one work per 2.5 m grid cell, which pinned the
+// *centres* to a uniform pitch and therefore made the *gaps* vary with
+// painting width — 0.5 m between two big canvases, 2.1 m between two
+// small ones, and a full empty cell wherever supply ran short.)
 
 import type { ArtworkListing } from "@/lib/data";
 import { artworkBand } from "./painting-bands";
-import type { Door, FloorLayout, HallwayLayout, Placement, RoomLayout } from "./types";
+import type { Door, FloorLayout, Placement, RoomLayout } from "./types";
 import { CELL_SIZE } from "./world-coords";
 
 /** Eye-height-ish centre for every wall-mounted painting. Sized so the
@@ -31,20 +38,16 @@ const CANONICAL_Y_CENTER_OFFSET = 1.65;
  *  have, so we cheat them up to a readable small-print size instead of
  *  excluding them. */
 const MIN_DISPLAY_LONG_EDGE = 0.45;
-/** Lower-row hallway height. Single salon row — kept that way for
- *  visual calm even though the 3.12 m corridor ceiling could now host
- *  a second stacked row. Mirrors the room offset's drop so corridor
- *  paintings sit at the same eye-line as room paintings. */
-const HALLWAY_ROW_LOWER_Y = 1.2;
 /** Max painting dimensions in metres, independent of real-world size.
- *  Acts as an upper bound; per-slot sizing further constrains this so
- *  paintings don't crash into perpendicular walls or each other's
- *  plaques. Sized to feel monumental against the 2.4 m door (≈ 1.3×
- *  taller) while still leaving 0.7 m of head clearance to the 4.2 m
- *  ceiling so the wall doesn't read as floor-to-ceiling collage. */
-const MAX_PAINTING_W = 2.4;
+ *  Acts as an upper bound; a short run further constrains this so a
+ *  painting never overruns the plaster it was assigned. Sized to feel
+ *  monumental against the 2.4 m door while still leaving a metre of
+ *  head clearance to the 4.2 m ceiling. Width used to be capped at
+ *  2.4 m because a painting had to fit inside one 2.5 m grid cell;
+ *  with continuous runs the only real constraint is the height cap and
+ *  the run itself, so the two caps now match. */
+const MAX_PAINTING_W = 3.2;
 const MAX_PAINTING_H_ROOM = 3.2;
-const MAX_PAINTING_H_HALLWAY = 1.9;
 /** Inset from the wall surface so paintings don't z-fight. Sized to
  *  put the back of the painting frame box flush against the wall —
  *  frame box depth in painting.tsx is 0.025 m, half-depth + a 1 mm
@@ -55,15 +58,28 @@ const MAX_PAINTING_H_HALLWAY = 1.9;
 export const PAINTING_WALL_OFFSET = 0.02;
 /** Combined width of the museum plaque to the side of every painting.
  *  Sum of `PLAQUE_GAP` (0.06) and `PLAQUE_MOUNT_W` (0.308) in
- *  painting.tsx — keep in sync if those move. */
+ *  painting.tsx — keep in sync if those move. Plaques always hang on
+ *  the painting's right (museum convention), so a work's footprint on
+ *  the wall is its width plus this. */
 const PLAQUE_FOOTPRINT = 0.06 + 0.308;
-/** Minimum gap from a painting (or its plaque) to a perpendicular room
- *  wall at wall corners. Enforced for both the painting's far edge and
- *  the plaque's far edge, so neither pushes into the side wall. */
+/** Minimum gap from a run's end to the perpendicular room wall. */
 const WALL_MARGIN = 0.3;
-/** Minimum gap between a painting/plaque and the next painting/plaque
- *  on the same wall. Prevents paintings from grazing each other. */
+/** Minimum gap between a painting's plaque and the next painting.
+ *  Only binds when a run is packed to capacity; normally the leftover
+ *  plaster opens the gap well past this. */
 const ADJACENT_GAP = 0.1;
+/** Safety valve: widest gap the even spread will open before a run
+ *  stops stretching and centres its works instead. It rarely binds —
+ *  the density-balanced assignment keeps in-run gaps around 1.6 m
+ *  across the building — but it stops a run that ends up with one or
+ *  two works from strewing them down 17 m of plaster. */
+const MAX_HANG_GAP = 3.5;
+/** Plaster either side of a door opening that stays empty, so a
+ *  painting never crowds the doorframe. */
+const DOOR_CLEARANCE = 0.35;
+/** A run shorter than this can't hold even the smallest work plus its
+ *  plaque, so it's discarded rather than carried around empty. */
+const MIN_RUN_LENGTH = 0.6;
 /** Minimum air gap between a painting's bottom edge and the floor. The
  *  canonical wallY centre puts a max-height (3.2 m) painting's bottom at
  *  ~0.05 m, which reads as touching the floor. For tall paintings we lift
@@ -72,423 +88,221 @@ const ADJACENT_GAP = 0.1;
  *  (the "salon hang" eye-line is the priority for typical works). */
 const PAINTING_FLOOR_GAP = 0.2;
 
-type Slot = {
-  /** Anchor point (wall surface) in world space. */
-  wallX: number;
-  wallY: number;
-  wallZ: number;
-  /** World-space Y of the floor for this slot's room/hallway. Used at
-   *  placement time to lift tall paintings off the floor — slot.wallY is
-   *  the canonical CENTRE, but for paintings tall enough that
-   *  centre - hM/2 < floorY + PAINTING_FLOOR_GAP we override the centre
-   *  to keep a 20 cm air gap. */
-  floorY: number;
-  /** Rotation of the painting plane so its normal points into the room
-   *  or hallway (away from the wall it hangs on). */
+/**
+ * A maximal stretch of hangable plaster on one room wall.
+ *
+ * Positions along the run are tracked in `u` — a viewer-left-to-right
+ * coordinate. Plaques always sit on the painting's right, so working in
+ * `u` means the plaque is always at higher `u` regardless of which
+ * compass wall we're on; `sign` maps `u` back onto the world axis.
+ */
+export type WallRun = {
+  /** World axis the wall runs along. */
+  axis: "x" | "z";
+  /** World coordinate of the wall surface on the perpendicular axis. */
+  surface: number;
+  /** worldCoord = sign * u. +1 when the viewer's right hand points at
+   *  higher world coordinates on this wall. */
+  sign: 1 | -1;
+  /** Paintable span in `u`, already inset from corners and doors. */
+  uMin: number;
+  uMax: number;
   rotationY: number;
   /** Direction the painting faces, used to nudge it off the wall. */
   normalX: -1 | 0 | 1;
   normalZ: -1 | 0 | 1;
-  /** Max painting width this slot can hold, metres. */
-  maxWidth: number;
-  /** Max painting height this slot can hold, metres. */
+  /** World Y of this room's floor, for the tall-painting floor lift. */
+  floorY: number;
+  /** Canonical eye-line centre for works on this run. */
+  centerY: number;
   maxHeight: number;
 };
 
-/** Position of a wall cell relative to the wall's two perpendicular
- *  ends, from the viewer's perspective looking at the painting.
- *  - `left`  → cell touches a perpendicular wall on the viewer's left
- *  - `right` → cell touches a perpendicular wall on the viewer's right
- *  - `both`  → 1-cell wall (perpendicular walls on both sides)
- *  - `none`  → interior cell, no perpendicular wall on either side */
-type CornerStatus = "left" | "right" | "both" | "none";
-
-/** Decide max painting width for a room-wall cell, based on its position
- *  relative to the wall's perpendicular ends.
- *
- *  Plaques always hang on the painting's right (museum convention), so
- *  a right-corner cell has to fit BOTH the painting and its plaque
- *  inside the WALL_MARGIN budget — giving a narrower painting there.
- *  Width caps:
- *  - corner cells leave WALL_MARGIN between the painting (or its
- *    plaque) and the perpendicular wall
- *  - pure interior cells just need to leave room for one plaque + the
- *    next painting (ADJACENT_GAP between cells) */
-function widthForRoomCell(args: { cornerStatus: CornerStatus }): number {
-  const { cornerStatus } = args;
-  const half = CELL_SIZE / 2;
-
-  let maxWidth: number;
-
-  if (cornerStatus === "both") {
-    // 1-cell wall: perpendicular walls on both sides. Painting's left
-    // edge must clear the left wall, and painting+plaque's right edge
-    // must clear the right wall. Doesn't occur in rooms today
-    // (ROOM_MIN_CELLS = 3), but the formula keeps things sane.
-    maxWidth = 2 * (half - WALL_MARGIN) - PLAQUE_FOOTPRINT;
-  } else if (cornerStatus === "right") {
-    // Right perpendicular wall: painting + plaque must both clear it.
-    maxWidth = 2 * (half - WALL_MARGIN - PLAQUE_FOOTPRINT);
-  } else if (cornerStatus === "left") {
-    // Left perpendicular wall: only the painting needs WALL_MARGIN
-    // (plaque is on the right, far from the perpendicular wall).
-    maxWidth = 2 * (half - WALL_MARGIN);
-  } else {
-    // Pure interior: ours is the only plaque sitting in the gap to the
-    // right neighbour's painting.
-    maxWidth = CELL_SIZE - PLAQUE_FOOTPRINT - ADJACENT_GAP;
-  }
-
-  return Math.max(0, Math.min(MAX_PAINTING_W, maxWidth));
+export function runLength(run: WallRun): number {
+  return run.uMax - run.uMin;
 }
 
 /**
- * Compute every wall slot for a room. Walks each of the four walls cell
- * by cell; a cell becomes a slot unless a door on that side covers its
- * centre.
- *
- * Each slot is sized with awareness of where it sits along the wall:
- * cells at wall corners get tighter caps so neither the painting nor
- * its right-side plaque crashes through a perpendicular wall.
- *
- * Every cell is emitted as a single full-height slot; the distributor
- * converts individual cells to a two-row salon stack on demand when a
- * room's supply outgrows its single-row capacity.
+ * Cut a room's four walls into paintable runs: inset from the corners
+ * by WALL_MARGIN, split at every door opening.
  */
-export function computeRoomSlots(room: RoomLayout): Slot[] {
+export function computeRoomRuns(room: RoomLayout): WallRun[] {
   const { cellBounds, worldRect } = room;
-  const rows = [{ y: worldRect.y + CANONICAL_Y_CENTER_OFFSET, maxHeight: MAX_PAINTING_H_ROOM }];
-  const slots: Slot[] = [];
+  const centerY = worldRect.y + CANONICAL_Y_CENTER_OFFSET;
 
-  const doorsBySide = {
-    north: room.doors.filter((d) => d.side === "north"),
-    south: room.doors.filter((d) => d.side === "south"),
-    east: room.doors.filter((d) => d.side === "east"),
-    west: room.doors.filter((d) => d.side === "west"),
-  };
-
-  // Per-wall slot construction. `viewerRightIsHigher` says whether the
-  // viewer's right (the plaque side) corresponds to the higher or lower
-  // coordinate along the wall axis — i.e., which end of the wall is
-  // the "right corner" that must fit both painting and plaque.
-  //
   // Mapping (verified from rotationY + normal):
-  //   north → viewer faces -Z, right = +X (higher x) → right corner = xMax
-  //   south → viewer faces +Z, right = -X (lower x)  → right corner = xMin
-  //   west  → viewer faces +X, right = -Z (lower z)  → right corner = zMin
-  //   east  → viewer faces -X, right = +Z (higher z) → right corner = zMax
-  const buildWallSlots = (args: {
+  //   north → viewer faces +Z, right = +X (higher x) → sign +1
+  //   south → viewer faces -Z, right = -X (lower x)  → sign -1
+  //   west  → viewer faces +X, right = -Z (lower z)  → sign -1
+  //   east  → viewer faces -X, right = +Z (higher z) → sign +1
+  const walls: Array<{
+    side: Door["side"];
+    axis: "x" | "z";
+    surface: number;
     cellMin: number;
     cellMax: number;
-    viewerRightIsHigher: boolean;
-    doorsOnSide: Door[];
-    doorAxis: "x" | "z";
-    /** Returns a slot prototype (without Y / sizing / plaque side) for
-     *  cell index `cellIdx` along the wall axis. The Y is filled in per
-     *  row so a single buildBase covers both single- and double-row
-     *  rooms. */
-    buildBase: (cellIdx: number) => Omit<Slot, "wallY" | "maxWidth" | "maxHeight">;
-    /** World coordinate along the wall axis for cell `cellIdx`'s
-     *  centre — used to test against door openings. */
-    cellCenterCoord: (cellIdx: number) => number;
-  }) => {
-    const cellHasSlot = (cellIdx: number) =>
-      !isInsideDoor(args.cellCenterCoord(cellIdx), args.doorsOnSide, args.doorAxis);
-
-    const rightCornerIdx = args.viewerRightIsHigher ? args.cellMax : args.cellMin;
-    const leftCornerIdx = args.viewerRightIsHigher ? args.cellMin : args.cellMax;
-
-    for (let cellIdx = args.cellMin; cellIdx <= args.cellMax; cellIdx++) {
-      if (!cellHasSlot(cellIdx)) continue;
-
-      const isLeftCorner = cellIdx === leftCornerIdx && args.cellMax > args.cellMin;
-      const isRightCorner = cellIdx === rightCornerIdx && args.cellMax > args.cellMin;
-      const isBothCorners = args.cellMin === args.cellMax;
-
-      const cornerStatus: CornerStatus = isBothCorners
-        ? "both"
-        : isLeftCorner
-          ? "left"
-          : isRightCorner
-            ? "right"
-            : "none";
-
-      const maxWidth = widthForRoomCell({ cornerStatus });
-      if (maxWidth <= 0) continue;
-
-      const base = args.buildBase(cellIdx);
-      for (const row of rows) {
-        slots.push({
-          ...base,
-          wallY: row.y,
-          maxWidth,
-          maxHeight: row.maxHeight,
-        });
-      }
-    }
-  };
-
-  // North wall: z = cellBounds.zMin; cells at x = xMin..xMax.
-  const zNorth = cellBounds.zMin * CELL_SIZE;
-  buildWallSlots({
-    cellMin: cellBounds.xMin,
-    cellMax: cellBounds.xMax,
-    viewerRightIsHigher: true,
-    doorsOnSide: doorsBySide.north,
-    doorAxis: "x",
-    cellCenterCoord: (x) => (x + 0.5) * CELL_SIZE,
-    buildBase: (x) => ({
-      wallX: (x + 0.5) * CELL_SIZE,
-      wallZ: zNorth,
-      floorY: worldRect.y,
-      rotationY: 0,
-      normalX: 0,
-      normalZ: 1, // north wall faces +Z
-    }),
-  });
-
-  // South wall: z = (cellBounds.zMax + 1) * CELL_SIZE.
-  const zSouth = (cellBounds.zMax + 1) * CELL_SIZE;
-  buildWallSlots({
-    cellMin: cellBounds.xMin,
-    cellMax: cellBounds.xMax,
-    viewerRightIsHigher: false,
-    doorsOnSide: doorsBySide.south,
-    doorAxis: "x",
-    cellCenterCoord: (x) => (x + 0.5) * CELL_SIZE,
-    buildBase: (x) => ({
-      wallX: (x + 0.5) * CELL_SIZE,
-      wallZ: zSouth,
-      floorY: worldRect.y,
-      rotationY: Math.PI,
-      normalX: 0,
-      normalZ: -1, // faces -Z
-    }),
-  });
-
-  // West wall: x = cellBounds.xMin * CELL_SIZE; cells at z = zMin..zMax.
-  const xWest = cellBounds.xMin * CELL_SIZE;
-  buildWallSlots({
-    cellMin: cellBounds.zMin,
-    cellMax: cellBounds.zMax,
-    viewerRightIsHigher: false,
-    doorsOnSide: doorsBySide.west,
-    doorAxis: "z",
-    cellCenterCoord: (z) => (z + 0.5) * CELL_SIZE,
-    buildBase: (z) => ({
-      wallX: xWest,
-      wallZ: (z + 0.5) * CELL_SIZE,
-      floorY: worldRect.y,
-      rotationY: Math.PI / 2,
-      normalX: 1, // west wall faces +X
-      normalZ: 0,
-    }),
-  });
-
-  // East wall: x = (cellBounds.xMax + 1) * CELL_SIZE.
-  const xEast = (cellBounds.xMax + 1) * CELL_SIZE;
-  buildWallSlots({
-    cellMin: cellBounds.zMin,
-    cellMax: cellBounds.zMax,
-    viewerRightIsHigher: true,
-    doorsOnSide: doorsBySide.east,
-    doorAxis: "z",
-    cellCenterCoord: (z) => (z + 0.5) * CELL_SIZE,
-    buildBase: (z) => ({
-      wallX: xEast,
-      wallZ: (z + 0.5) * CELL_SIZE,
-      floorY: worldRect.y,
-      rotationY: -Math.PI / 2,
-      normalX: -1, // east wall faces -X
-      normalZ: 0,
-    }),
-  });
-
-  return slots;
-}
-
-/** For each hallway cell, emit slots on each side that faces a None
- *  (non-walkable) cell. Two rows per side (salon hang): a lower row
- *  and a higher, smaller row above.
- *
- *  Per-slot sizing mirrors the room logic: the wall might run across
- *  several adjacent corridor cells (a long corridor with paintings down
- *  one side), or it might be just this cell wide (a one-cell stub).
- *  We classify the slot as left/right/both/none corner based on whether
- *  the wall continues into the cells on either side, and use the same
- *  corner-aware width rules as room walls. */
-export function computeHallwaySlots(hallway: HallwayLayout, floor: FloorLayout): Slot[] {
-  const yLow = floor.y + HALLWAY_ROW_LOWER_Y;
-  const slots: Slot[] = [];
-
-  const neighbourIsNone = (nx: number, nz: number): boolean => {
-    if (nx < 0 || nx >= floor.gridSize.x) return true;
-    if (nz < 0 || nz >= floor.gridSize.z) return true;
-    const idx = nz * floor.gridSize.x + nx;
-    return floor.walkable[idx] !== 1;
-  };
-
-  /** Does the wall on `side` of cell `(cx, cz)` continue into the
-   *  neighbour at `(cx + dx, cz + dz)`? Yes only if the neighbour is a
-   *  corridor cell AND the cell on its `side` is non-walkable (so a
-   *  wall is actually drawn there too). */
-  const wallExtendsTo = (
-    cx: number,
-    cz: number,
-    side: "north" | "south" | "west" | "east",
-    dx: number,
-    dz: number,
-  ): boolean => {
-    const nx = cx + dx;
-    const nz = cz + dz;
-    if (nx < 0 || nx >= floor.gridSize.x) return false;
-    if (nz < 0 || nz >= floor.gridSize.z) return false;
-    if (floor.walkable[nz * floor.gridSize.x + nx] !== 1) return false;
-    const sideDx = side === "west" ? -1 : side === "east" ? 1 : 0;
-    const sideDz = side === "north" ? -1 : side === "south" ? 1 : 0;
-    return neighbourIsNone(nx + sideDx, nz + sideDz);
-  };
-
-  // Single salon row — kept simple even though the 3.12 m corridor
-  // ceiling could fit a second stacked row.
-  const rows = [{ wallY: yLow, maxHeight: MAX_PAINTING_H_HALLWAY }];
-
-  type SideSpec = {
-    side: "north" | "south" | "west" | "east";
-    /** Does this side need a wall (= neighbour on this side is None)? */
-    wallNeighbourDelta: { dx: number; dz: number };
-    /** Direction along the wall axis that corresponds to viewer's right. */
-    rightDelta: { dx: number; dz: number };
-    /** Direction along the wall axis that corresponds to viewer's left. */
-    leftDelta: { dx: number; dz: number };
-  };
-
-  // Viewer's right per wall side (verified the same way as room walls).
-  const sideSpecs: SideSpec[] = [
+    sign: 1 | -1;
+    rotationY: number;
+    normalX: -1 | 0 | 1;
+    normalZ: -1 | 0 | 1;
+  }> = [
     {
       side: "north",
-      wallNeighbourDelta: { dx: 0, dz: -1 },
-      rightDelta: { dx: 1, dz: 0 }, // viewer's right = +X
-      leftDelta: { dx: -1, dz: 0 },
+      axis: "x",
+      surface: cellBounds.zMin * CELL_SIZE,
+      cellMin: cellBounds.xMin,
+      cellMax: cellBounds.xMax,
+      sign: 1,
+      rotationY: 0,
+      normalX: 0,
+      normalZ: 1,
     },
     {
       side: "south",
-      wallNeighbourDelta: { dx: 0, dz: 1 },
-      rightDelta: { dx: -1, dz: 0 }, // viewer's right = -X
-      leftDelta: { dx: 1, dz: 0 },
+      axis: "x",
+      surface: (cellBounds.zMax + 1) * CELL_SIZE,
+      cellMin: cellBounds.xMin,
+      cellMax: cellBounds.xMax,
+      sign: -1,
+      rotationY: Math.PI,
+      normalX: 0,
+      normalZ: -1,
     },
     {
       side: "west",
-      wallNeighbourDelta: { dx: -1, dz: 0 },
-      rightDelta: { dx: 0, dz: -1 }, // viewer's right = -Z
-      leftDelta: { dx: 0, dz: 1 },
+      axis: "z",
+      surface: cellBounds.xMin * CELL_SIZE,
+      cellMin: cellBounds.zMin,
+      cellMax: cellBounds.zMax,
+      sign: -1,
+      rotationY: Math.PI / 2,
+      normalX: 1,
+      normalZ: 0,
     },
     {
       side: "east",
-      wallNeighbourDelta: { dx: 1, dz: 0 },
-      rightDelta: { dx: 0, dz: 1 }, // viewer's right = +Z
-      leftDelta: { dx: 0, dz: -1 },
+      axis: "z",
+      surface: (cellBounds.xMax + 1) * CELL_SIZE,
+      cellMin: cellBounds.zMin,
+      cellMax: cellBounds.zMax,
+      sign: 1,
+      rotationY: -Math.PI / 2,
+      normalX: -1,
+      normalZ: 0,
     },
   ];
 
-  for (const row of rows) {
-    for (const c of hallway.cells) {
-      const x0 = c.x * CELL_SIZE;
-      const z0 = c.z * CELL_SIZE;
-      const cx = x0 + CELL_SIZE / 2;
-      const cz = z0 + CELL_SIZE / 2;
+  const runs: WallRun[] = [];
+  for (const wall of walls) {
+    const worldStart = wall.cellMin * CELL_SIZE + WALL_MARGIN;
+    const worldEnd = (wall.cellMax + 1) * CELL_SIZE - WALL_MARGIN;
+    if (worldEnd - worldStart < MIN_RUN_LENGTH) continue;
 
-      for (const spec of sideSpecs) {
-        if (!neighbourIsNone(c.x + spec.wallNeighbourDelta.dx, c.z + spec.wallNeighbourDelta.dz))
-          continue;
-
-        const wallContinuesRight = wallExtendsTo(
-          c.x,
-          c.z,
-          spec.side,
-          spec.rightDelta.dx,
-          spec.rightDelta.dz,
-        );
-        const wallContinuesLeft = wallExtendsTo(
-          c.x,
-          c.z,
-          spec.side,
-          spec.leftDelta.dx,
-          spec.leftDelta.dz,
-        );
-
-        const isRightCorner = !wallContinuesRight;
-        const isLeftCorner = !wallContinuesLeft;
-        const cornerStatus: CornerStatus =
-          isRightCorner && isLeftCorner
-            ? "both"
-            : isRightCorner
-              ? "right"
-              : isLeftCorner
-                ? "left"
-                : "none";
-
-        const maxWidth = widthForRoomCell({ cornerStatus });
-        if (maxWidth <= 0) continue;
-
-        // Position + rotation per side.
-        let wallXOut = cx;
-        let wallZOut = cz;
-        let rotationY = 0;
-        let normalX: -1 | 0 | 1 = 0;
-        let normalZ: -1 | 0 | 1 = 0;
-        if (spec.side === "north") {
-          wallXOut = cx;
-          wallZOut = z0;
-          rotationY = 0;
-          normalZ = 1;
-        } else if (spec.side === "south") {
-          wallXOut = cx;
-          wallZOut = z0 + CELL_SIZE;
-          rotationY = Math.PI;
-          normalZ = -1;
-        } else if (spec.side === "west") {
-          wallXOut = x0;
-          wallZOut = cz;
-          rotationY = Math.PI / 2;
-          normalX = 1;
-        } else {
-          wallXOut = x0 + CELL_SIZE;
-          wallZOut = cz;
-          rotationY = -Math.PI / 2;
-          normalX = -1;
-        }
-
-        slots.push({
-          wallX: wallXOut,
-          wallY: row.wallY,
-          wallZ: wallZOut,
-          floorY: floor.y,
-          rotationY,
-          normalX,
-          normalZ,
-          maxWidth,
-          maxHeight: row.maxHeight,
-        });
-      }
+    // Door openings become forbidden intervals in `u`.
+    const cuts: Array<[number, number]> = [];
+    for (const door of room.doors) {
+      if (door.side !== wall.side) continue;
+      const coord = wall.axis === "x" ? door.worldX : door.worldZ;
+      const lo = wall.sign * (coord - door.width / 2 - DOOR_CLEARANCE);
+      const hi = wall.sign * (coord + door.width / 2 + DOOR_CLEARANCE);
+      cuts.push(lo < hi ? [lo, hi] : [hi, lo]);
     }
+    cuts.sort((a, b) => a[0] - b[0]);
+
+    const spanLo = Math.min(wall.sign * worldStart, wall.sign * worldEnd);
+    const spanHi = Math.max(wall.sign * worldStart, wall.sign * worldEnd);
+
+    let cursor = spanLo;
+    const push = (uMin: number, uMax: number) => {
+      if (uMax - uMin < MIN_RUN_LENGTH) return;
+      runs.push({
+        axis: wall.axis,
+        surface: wall.surface,
+        sign: wall.sign,
+        uMin,
+        uMax,
+        rotationY: wall.rotationY,
+        normalX: wall.normalX,
+        normalZ: wall.normalZ,
+        floorY: worldRect.y,
+        centerY,
+        maxHeight: MAX_PAINTING_H_ROOM,
+      });
+    };
+    for (const [lo, hi] of cuts) {
+      if (hi <= cursor) continue;
+      push(cursor, Math.min(lo, spanHi));
+      cursor = Math.max(cursor, hi);
+      if (cursor >= spanHi) break;
+    }
+    push(cursor, spanHi);
   }
 
-  return slots;
+  return runs;
 }
 
 export type DistributionStats = {
-  roomSlotsTotal: number;
-  roomSlotsFilled: number;
-  hallwaySlotsTotal: number;
-  hallwaySlotsFilled: number;
+  /** Total paintable plaster on the floor, metres. */
+  wallMetres: number;
+  /** Metres of that plaster actually covered by paintings + plaques. */
+  hungMetres: number;
+  placed: number;
   dropped: number;
 };
 
 /** A sized work waiting for a wall: the natural display dimensions are
  *  computed once up front so the distributor can fit each work to the
- *  cell it lands in. */
+ *  run it lands in. */
 type SizedWork = { artwork: ArtworkListing; wM: number; hM: number };
+
+/** Footprint a work claims on a wall: its own width plus the plaque
+ *  that hangs to its right. */
+function footprintOf(work: SizedWork): number {
+  return work.wM + PLAQUE_FOOTPRINT;
+}
+
+/** One room's runs plus the works assigned to each, tracked with a
+ *  running footprint total so "does this still fit?" is O(1). */
+type Container = {
+  room: RoomLayout;
+  runs: WallRun[];
+  assigned: SizedWork[][];
+  /** Sum of assigned footprints per run. */
+  used: number[];
+};
+
+/** Plaster left on a run after its current works and their minimum
+ *  separations — how much more it could absorb. */
+function slack(container: Container, runIdx: number): number {
+  const count = container.assigned[runIdx].length;
+  const minGaps = Math.max(0, count) * ADJACENT_GAP; // one more work ⇒ one more gap
+  return runLength(container.runs[runIdx]) - container.used[runIdx] - minGaps;
+}
+
+/** Hang `work` on the *proportionally* emptiest run of `container` —
+ *  the one with the most slack per metre of plaster — if any run can
+ *  still take it. Absolute slack would pour everything into the room's
+ *  longest wall and leave the short stretches beside doors bare;
+ *  relative slack fills every run at the same rate, so the hang reads
+ *  evenly all the way round the room. */
+function tryAssign(container: Container, work: SizedWork): boolean {
+  const need = footprintOf(work);
+  let bestIdx = -1;
+  let bestDensity = 0;
+  for (let i = 0; i < container.runs.length; i++) {
+    const s = slack(container, i);
+    if (s < need) continue;
+    const density = s / runLength(container.runs[i]);
+    if (density > bestDensity) {
+      bestIdx = i;
+      bestDensity = density;
+    }
+  }
+  if (bestIdx < 0) return false;
+  container.assigned[bestIdx].push(work);
+  container.used[bestIdx] += need;
+  return true;
+}
 
 /**
  * Distribute the floor's artworks into its rooms. Mutates
@@ -496,8 +310,8 @@ type SizedWork = { artwork: ArtworkListing; wM: number; hM: number };
  *
  *  - Every room hangs its own `room.artworks` (the movement bucket the
  *    floor builder assigned to it) on its own walls.
- *  - One work per wall cell, at the canonical eye-level line. A room's
- *    capacity is therefore exactly its cell count.
+ *  - A room's capacity is its paintable wall length, not a cell count,
+ *    so a room of miniatures holds more works than a room of altarpieces.
  *  - Supply beyond a room's capacity spills to free wall space in other
  *    rooms on the same floor; whatever the floor can't hold is dropped
  *    (the floor builder trims the era to a floor's worth up front, so
@@ -506,112 +320,142 @@ type SizedWork = { artwork: ArtworkListing; wM: number; hM: number };
 export function distributePaintings(floor: FloorLayout): DistributionStats {
   // Stairwell rooms are excluded — their walls hold the spiral steps
   // and signs, not paintings.
-  const containers = floor.rooms
+  const containers: Container[] = floor.rooms
     .filter((r) => !r.isStairwell)
-    .map((room) => ({
-      room,
-      cells: computeRoomSlots(room),
-      supply: room.artworks.map(sizeWork),
-    }));
+    .map((room) => {
+      const runs = computeRoomRuns(room);
+      return {
+        room,
+        runs,
+        assigned: runs.map(() => []),
+        used: runs.map(() => 0),
+      };
+    });
 
-  // Trim each room's supply to its hard capacity (one work per cell);
-  // the excess goes into a floor-wide pool.
   const pool: SizedWork[] = [];
-  for (const c of containers) {
-    const cap = c.cells.length;
-    if (c.supply.length > cap) pool.push(...c.supply.splice(cap));
+  for (const container of containers) {
+    for (const artwork of container.room.artworks) {
+      const work = sizeWork(artwork);
+      if (!tryAssign(container, work)) pool.push(work);
+    }
   }
 
-  // Hand the pool to whichever rooms still have spare wall space —
-  // most-spare first, so spill clusters in under-filled rooms instead
-  // of dusting one extra work into every room on the floor.
-  pool.sort((a, b) => b.hM - a.hM);
+  // Hand the overflow to whichever room still has the most spare wall,
+  // biggest work first — a large canvas has the fewest runs that can
+  // take it, so it gets first pick of the remaining plaster.
+  pool.sort((a, b) => footprintOf(b) - footprintOf(a));
   let dropped = 0;
   for (const work of pool) {
-    let best: (typeof containers)[number] | null = null;
-    let bestSpare = 0;
-    for (const c of containers) {
-      const spare = c.cells.length - c.supply.length;
-      if (spare > bestSpare) {
-        best = c;
-        bestSpare = spare;
+    const need = footprintOf(work);
+    let best: Container | null = null;
+    let bestDensity = 0;
+    for (const container of containers) {
+      for (let i = 0; i < container.runs.length; i++) {
+        const s = slack(container, i);
+        if (s < need) continue;
+        const density = s / runLength(container.runs[i]);
+        if (density > bestDensity) {
+          best = container;
+          bestDensity = density;
+        }
       }
     }
-    if (!best) {
-      dropped++;
-      continue;
+    if (!best || !tryAssign(best, work)) dropped++;
+  }
+
+  let wallMetres = 0;
+  let hungMetres = 0;
+  let placed = 0;
+  for (const container of containers) {
+    for (let i = 0; i < container.runs.length; i++) {
+      wallMetres += runLength(container.runs[i]);
+      hungMetres += container.used[i];
+      placed += container.assigned[i].length;
+      container.room.placements.push(...packRun(container.runs[i], container.assigned[i]));
     }
-    best.supply.push(work);
   }
 
-  let roomSlotsTotal = 0;
-  let roomSlotsFilled = 0;
-  for (const c of containers) {
-    placeRoomSupply(c.room, c.cells, c.supply);
-    roomSlotsTotal += c.cells.length;
-    roomSlotsFilled += Math.min(c.supply.length, c.cells.length);
-  }
-
-  return {
-    roomSlotsTotal,
-    roomSlotsFilled,
-    hallwaySlotsTotal: 0,
-    hallwaySlotsFilled: 0,
-    dropped,
-  };
+  return { wallMetres, hungMetres, placed, dropped };
 }
 
 /**
- * Hang `supply` on `room`'s walls — one work per cell, all on the same
- * eye-level line. When the room is under-full the occupied cells spread
- * evenly across the wall sequence, so a half-full room reads as evenly
- * hung rather than crowding the first wall and leaving the rest bare.
+ * Lay `works` along `run` with one shared gap between neighbours.
+ *
+ * The leftover plaster — run length minus every footprint — is split
+ * evenly into the gaps between works and the two end margins, so the
+ * rhythm is identical regardless of how the widths vary. When that
+ * would open a gap wider than MAX_HANG_GAP the run stops stretching and
+ * the group is centred instead, which is what keeps an under-hung wall
+ * from reading as scattered.
+ *
+ * Within the run works are arranged largest-in-the-middle, tapering
+ * outwards, so a wall reads as a composed group rather than a random
+ * sequence of sizes.
  */
-function placeRoomSupply(room: RoomLayout, cells: Slot[], supply: SizedWork[]): void {
-  if (supply.length === 0 || cells.length === 0) return;
+export function packRun(run: WallRun, works: SizedWork[]): Placement[] {
+  if (works.length === 0) return [];
 
-  const nCells = cells.length;
-  const n = Math.min(supply.length, nCells);
-  for (let i = 0; i < n; i++) {
-    const cell = cells[Math.floor((i * nCells) / n)];
-    room.placements.push(placeSingle(cell, supply[i]));
+  const span = runLength(run);
+  const fitted = works.map((work) => {
+    const { wM, hM } = fitTo(work, Math.min(MAX_PAINTING_W, span), run.maxHeight);
+    return { artwork: work.artwork, wM, hM };
+  });
+
+  const ordered = centreOut(fitted);
+  const total = ordered.reduce((sum, w) => sum + w.wM + PLAQUE_FOOTPRINT, 0);
+  const leftover = Math.max(0, span - total);
+
+  // gaps: one before the first work, one between each pair, one after
+  // the last — hence works.length + 1.
+  let gap = leftover / (ordered.length + 1);
+  let cursor = run.uMin + gap;
+  if (gap > MAX_HANG_GAP) {
+    gap = MAX_HANG_GAP;
+    const grouped = total + gap * (ordered.length - 1);
+    cursor = run.uMin + (span - grouped) / 2;
   }
+
+  const placements: Placement[] = [];
+  for (const work of ordered) {
+    const centreU = cursor + work.wM / 2;
+    // Lift the centre for paintings tall enough that the canonical hang
+    // would put their bottom edge into the floor. Most paintings keep
+    // the canonical eye-line; only the tallest get raised so the bottom
+    // clears the floor by PAINTING_FLOOR_GAP.
+    const minCenterY = run.floorY + PAINTING_FLOOR_GAP + work.hM / 2;
+    const centerY = Math.max(run.centerY, minCenterY);
+    const along = run.sign * centreU;
+    placements.push({
+      artwork: work.artwork,
+      position: [
+        (run.axis === "x" ? along : run.surface) + run.normalX * PAINTING_WALL_OFFSET,
+        centerY,
+        (run.axis === "z" ? along : run.surface) + run.normalZ * PAINTING_WALL_OFFSET,
+      ],
+      rotation: [0, run.rotationY, 0],
+      band: artworkBand(work.artwork),
+      widthM: work.wM,
+      heightM: work.hM,
+    });
+    cursor += work.wM + PLAQUE_FOOTPRINT + gap;
+  }
+
+  return placements;
 }
 
-/** Place one work at the canonical eye-level hang in a full-height cell. */
-function placeSingle(slot: Slot, work: SizedWork): Placement {
-  const { wM, hM } = fitTo(work, slot.maxWidth, slot.maxHeight);
-  // Lift the centre for paintings tall enough that the canonical hang
-  // would put their bottom edge into the floor. Most paintings keep the
-  // canonical eye-line; only the tallest (≥ 3.0 m, which after fitting
-  // is essentially the floor-to-near-ceiling altarpieces) get raised so
-  // the bottom clears the floor by PAINTING_FLOOR_GAP. Top is bounded by
-  // the slot's maxHeight cap, so even after lifting the painting can't
-  // reach the ceiling.
-  const minCenterY = slot.floorY + PAINTING_FLOOR_GAP + hM / 2;
-  const centerY = Math.max(slot.wallY, minCenterY);
-  return makePlacement(slot, work.artwork, wM, hM, centerY);
-}
-
-function makePlacement(
-  slot: Slot,
-  artwork: ArtworkListing,
-  wM: number,
-  hM: number,
-  centerY: number,
-): Placement {
-  return {
-    artwork,
-    position: [
-      slot.wallX + slot.normalX * PAINTING_WALL_OFFSET,
-      centerY,
-      slot.wallZ + slot.normalZ * PAINTING_WALL_OFFSET,
-    ],
-    rotation: [0, slot.rotationY, 0],
-    band: artworkBand(artwork),
-    widthM: wM,
-    heightM: hM,
-  };
+/** Reorder so the widest work sits in the middle of the run and the
+ *  rest taper out to both ends. Deterministic: the input order breaks
+ *  ties, and the input is already a stable hash shuffle. */
+function centreOut<T extends { wM: number }>(works: T[]): T[] {
+  const descending = [...works].sort((a, b) => b.wM - a.wM);
+  const out: T[] = [];
+  for (let i = 0; i < descending.length; i++) {
+    // Widest first: alternate appending to the right and left ends, so
+    // the sequence grows outwards from the centre.
+    if (i % 2 === 0) out.push(descending[i]);
+    else out.unshift(descending[i]);
+  }
+  return out;
 }
 
 /** Scale a sized work down (never up) to fit a width/height cap,
@@ -621,7 +465,7 @@ function fitTo(work: SizedWork, maxWidth: number, maxHeight: number): { wM: numb
   return { wM: work.wM * scale, hM: work.hM * scale };
 }
 
-/** Natural display dimensions in metres, before any slot fitting.
+/** Natural display dimensions in metres, before any run fitting.
  *  Pixel aspect drives SHAPE; realDimensions drives SIZE (long edge in
  *  metres). The metadata's widthCm/heightCm is unreliable as a shape
  *  signal — the file we actually render can disagree with it for several
@@ -681,17 +525,8 @@ function sizeWork(artwork: ArtworkListing): SizedWork {
     hM *= s;
   }
 
-  return { artwork, wM, hM };
-}
-
-/** Cheap internal check: does `coord` (metres on the wall axis) fall
- *  inside any of the doors on this side? `coord` is the painting's
- *  centre; doors are 2 m wide, so we treat anything within ±1.1 m as a
- *  collision (adds 10 cm of buffer so paintings don't crowd the frame). */
-function isInsideDoor(coord: number, doors: Door[], axis: "x" | "z"): boolean {
-  for (const d of doors) {
-    const dCoord = axis === "x" ? d.worldX : d.worldZ;
-    if (Math.abs(coord - dCoord) < d.width / 2 + 0.1) return true;
-  }
-  return false;
+  // Cap once here so the distributor's footprint arithmetic matches
+  // what packRun will actually hang.
+  const capped = fitTo({ artwork, wM, hM }, MAX_PAINTING_W, MAX_PAINTING_H_ROOM);
+  return { artwork, wM: capped.wM, hM: capped.hM };
 }

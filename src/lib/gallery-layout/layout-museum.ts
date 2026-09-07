@@ -370,12 +370,18 @@ function bucketByEra(all: ArtworkListing[]): Map<EraId, ArtworkListing[]> {
 
 // --- Floor sampling -------------------------------------------------------
 
-/** Works one storey can hang, one per wall cell. A full floor is 16
- *  rooms (Grand Hall + 15 slots) of 17–22 usable wall cells each; this
- *  sits just under that so door-heavy floor plans still place every work
- *  they're handed. Eras above it (Natural History ~1,190, fin-de-siècle
- *  ~690) hang a sample — the rest of the corpus is still on the site,
- *  it just isn't on a wall. */
+/** Works one storey can hang. A full floor is 16 rooms (Grand Hall +
+ *  15 slots) carrying ~840 m of paintable wall between them, which at
+ *  the corpus's median footprint is well over this — the binding
+ *  constraint is the renderer, not the plaster (the texture pool is
+ *  sized for a mounted set of ~300, see texture-cache.ts). Eras above
+ *  it (Natural History ~1,190, fin-de-siècle ~690) hang a sample — the
+ *  rest of the corpus is still on the site, it just isn't on a wall.
+ *
+ *  Consequence worth knowing: 300 works spread over that much wall is
+ *  ~36% coverage, so the even hang lands on ~1.6 m gaps. Raising this
+ *  (or shrinking the floor plan's rooms) is the only way to tighten
+ *  them further — the placer can't manufacture paintings. */
 const MAX_WORKS_PER_FLOOR = 300;
 
 /**
@@ -436,9 +442,9 @@ function selectFloorWorks(artworks: ArtworkListing[]): ArtworkListing[] {
 // --- Per-floor layout -----------------------------------------------------
 
 function buildFloor(era: Era, eraArtworks: ArtworkListing[]): FloorLayout {
-  // A storey hangs one work per wall cell, so an era with more works
-  // than the building has wall goes in as a sample rather than a
-  // stack — see selectFloorWorks.
+  // A storey hangs a bounded number of works, so an era with more of
+  // them goes in as a sample rather than a stack — see
+  // selectFloorWorks.
   eraArtworks = selectFloorWorks(eraArtworks);
   // Interleave artists across the floor. The source data is grouped by
   // folder (audubon-birds, kunstformen-images, collection-of-beauty),
@@ -449,10 +455,11 @@ function buildFloor(era: Era, eraArtworks: ArtworkListing[]): FloorLayout {
   const byMovement = groupMovements(era, eraArtworks);
   const anchorMovement = resolveAnchorMovement(era, byMovement);
 
-  // Works per room, mono-row hang: a 6×6 room has 17–22 wall cells once
-  // doors are cut, and every cell holds exactly one work. Sized at the
-  // low end of that range so door-heavy rooms don't overflow into their
-  // neighbours (spill still catches the rest).
+  // Works per room, mono-row hang. A 6×6 room offers ~50 m of paintable
+  // wall once corners and doors are cut, so this is conservative on
+  // capacity — it's set for how a room reads rather than how much it
+  // can physically hold. Rooms that do overflow spill to their
+  // neighbours.
   const PER_ROOM_TARGET = 17;
   const targetRooms = Math.max(1, Math.ceil(eraArtworks.length / PER_ROOM_TARGET));
   const totalSlots = Math.min(Math.max(0, targetRooms - 1), SLOTS.length);
@@ -632,8 +639,9 @@ function buildFloor(era: Era, eraArtworks: ArtworkListing[]): FloorLayout {
   if (stats.dropped > 0 && process.env.NODE_ENV !== "production") {
     // A floor out of wall space drops works silently otherwise. With
     // the era already sampled down to MAX_WORKS_PER_FLOOR this should
-    // never fire; if it does, the floor plan's usable cell count fell
-    // below that constant (door-heavy rooms, changed room sizes) — lower
+    // never fire; if it does, the floor plan's paintable wall length
+    // fell below what that many works need (door-heavy rooms, smaller
+    // rooms, or a run of unusually large canvases) — lower
     // MAX_WORKS_PER_FLOOR rather than raising PER_ROOM_TARGET.
     console.warn(
       `[gallery-layout] ${era.id}: ${stats.dropped} works did not fit on the floor's walls`,
