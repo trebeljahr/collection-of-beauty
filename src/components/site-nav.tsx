@@ -16,6 +16,12 @@ const LINKS: ReadonlyArray<{
   { href: "/timeline", label: "Timeline", sub: "Eight centuries of art, in order" },
   { href: "/artists", label: "Artists", sub: "Painters, illustrators, makers" },
   { href: "/eras", label: "Eras", sub: "Group history into rooms" },
+  {
+    href: "/collections",
+    label: "Collections",
+    sub: "Complete illustrated plate sets",
+    isActive: (pathname) => pathname === "/collections" || pathname.startsWith("/collection/"),
+  },
   { href: "/gallery-3d", label: "The Museum", sub: "Walk the floors, one era each" },
   {
     href: "/downloads",

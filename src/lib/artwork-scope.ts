@@ -2,6 +2,7 @@ import { DEFAULT_SHUFFLE_SEED } from "@/lib/artwork-page-schema";
 import { getAllListingsInDefaultOrder, shuffleWithArtistSpread } from "@/lib/artwork-pagination";
 import { type ArtworkListing, artworkListings, getArtist } from "@/lib/data";
 import { assignEra, getEra } from "@/lib/gallery-eras";
+import { getPlateSet, plateSetListings } from "@/lib/plate-sets";
 import type { Scope } from "@/lib/scope-href";
 
 // The pure `?from=` helpers live in scope-href.ts so client components can
@@ -20,6 +21,8 @@ const UNDATED_SORT_KEY = Number.MAX_SAFE_INTEGER;
  *              whole timeline so prev/next walks past the entry decade's
  *              boundary into the neighbouring decades. `scope.start` is
  *              the entry anchor used by scopeHref/scopeLabel, not a filter.
+ *    collection → plate order (the order the book prints them in), so
+ *              prev/next walks plate 1 → 435 rather than a shuffle
  *    era     → seeded artist-spread shuffle (default seed) — matches the
  *              /era/<id> page, which paginates with sort=shuffle. Year
  *              order clumped single-artist cohorts (435 Audubon plates
@@ -46,6 +49,7 @@ export function resolveScope(scope: Scope): ArtworkListing[] {
       .filter((a) => a.year != null)
       .sort((a, b) => (a.year ?? 0) - (b.year ?? 0) || a.title.localeCompare(b.title));
   }
+  if (scope.kind === "collection") return plateSetListings(scope.id);
   return shuffleWithArtistSpread(
     artworkListings.filter((a) => assignEra(a) === scope.id),
     DEFAULT_SHUFFLE_SEED,
@@ -60,5 +64,6 @@ export function scopeLabel(scope: Scope): string {
   if (scope.kind === "artist") return getArtist(scope.slug)?.name ?? scope.slug;
   if (scope.kind === "movement") return scope.name;
   if (scope.kind === "decade") return `${scope.start}s`;
+  if (scope.kind === "collection") return getPlateSet(scope.id)?.title ?? scope.id;
   return getEra(scope.id).title;
 }

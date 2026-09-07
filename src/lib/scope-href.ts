@@ -1,4 +1,5 @@
 import { ERAS, type EraId } from "@/lib/gallery-eras";
+import { isPlateSetId, type PlateSetId } from "@/lib/plate-set-definitions";
 
 /** The pure half of the scope helpers: the `Scope` shape and the
  *  string<->object conversions around `?from=`. Split out of
@@ -14,7 +15,8 @@ export type Scope =
   | { kind: "artist"; slug: string }
   | { kind: "movement"; name: string }
   | { kind: "decade"; start: number }
-  | { kind: "era"; id: EraId };
+  | { kind: "era"; id: EraId }
+  | { kind: "collection"; id: PlateSetId };
 
 // Set-based lookup so parseScope can validate without throwing via getEra.
 const ERA_IDS: Set<string> = new Set(ERAS.map((e) => e.id));
@@ -49,6 +51,12 @@ export function parseScope(param: string | null | undefined): Scope | null {
     if (!ERA_IDS.has(value)) return null;
     return { kind, id: value as EraId };
   }
+  if (kind === "collection") {
+    // isPlateSetId comes from plate-set-definitions, which is data-free
+    // — validating here costs the client nothing.
+    if (!isPlateSetId(value)) return null;
+    return { kind, id: value };
+  }
   return null;
 }
 
@@ -59,7 +67,9 @@ export function encodeScope(scope: Scope): string {
   if (scope.kind === "artist") return `artist:${encodeURIComponent(scope.slug)}`;
   if (scope.kind === "movement") return `movement:${encodeURIComponent(scope.name)}`;
   if (scope.kind === "decade") return `decade:${scope.start}`;
-  // Era ids are pre-validated lowercase kebab — no percent-encoding needed.
+  // Era and plate-set ids are pre-validated lowercase kebab — no
+  // percent-encoding needed.
+  if (scope.kind === "collection") return `collection:${scope.id}`;
   return `era:${scope.id}`;
 }
 
@@ -70,6 +80,7 @@ export function scopeHref(scope: Scope): string {
   if (scope.kind === "artist") return `/artist/${scope.slug}`;
   if (scope.kind === "movement") return `/timeline?movement=${encodeURIComponent(scope.name)}`;
   if (scope.kind === "decade") return `/timeline#decade-${scope.start}`;
+  if (scope.kind === "collection") return `/collection/${scope.id}`;
   return `/era/${scope.id}`;
 }
 

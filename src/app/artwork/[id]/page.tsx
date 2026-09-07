@@ -20,6 +20,7 @@ import {
 } from "@/lib/data";
 import { assignEra, getEra } from "@/lib/gallery-eras";
 import { suggestFixUrl } from "@/lib/links";
+import { holdingSentence, plateNumberFor, plateSetForArtwork } from "@/lib/plate-sets";
 import { artworkJsonLd, buildOpenGraph, jsonLdScriptProps, ogImagesForArtwork } from "@/lib/seo";
 import { sourceLabel } from "@/lib/source-label";
 
@@ -147,6 +148,12 @@ export default async function ArtworkPage({
   // the same neighbours — predictable, cacheable, no hydration churn.
   const moreFromEra = sampleStable(eraPool, MORE_FROM_ERA_COUNT, art.id);
 
+  // Plates belong to a published book as well as to an era. Surfacing
+  // that link on all 1,179 plate pages is where the collection pages get
+  // their internal link equity from.
+  const plateSet = plateSetForArtwork(art);
+  const plateNumber = plateSet ? plateNumberFor(art.id, plateSet.id) : null;
+
   return (
     <div className="mx-auto max-w-6xl px-4 py-8">
       <script {...jsonLdScriptProps(artworkJsonLd(art))} />
@@ -251,6 +258,19 @@ export default async function ArtworkPage({
                 {era.title}
               </Link>
             )}
+            {plateSet && (
+              <Link
+                href={`/collection/${plateSet.id}`}
+                className={`${pillClasses} focus:outline-none focus-visible:ring-2 focus-visible:ring-[var(--ring)]`}
+              >
+                {plateSet.title}
+                {plateNumber != null && (
+                  <span className="tabular-nums text-[var(--muted-foreground)]">
+                    pl. {plateNumber}
+                  </span>
+                )}
+              </Link>
+            )}
             <LicenseBadge license={art.license} />
             <SourceBadge href={art.commonsUrl} />
           </div>
@@ -258,6 +278,23 @@ export default async function ArtworkPage({
           <p className="text-sm leading-relaxed text-[var(--muted-foreground)]">
             {art.description ?? generatedByline(art)}
           </p>
+
+          {plateSet && (
+            <p className="text-sm leading-relaxed text-[var(--muted-foreground)]">
+              {plateNumber != null ? `Plate ${plateNumber} of ` : "From "}
+              <Link
+                href={`/collection/${plateSet.id}`}
+                className="rounded-sm underline underline-offset-2 focus:outline-none focus-visible:ring-2 focus-visible:ring-[var(--ring)]"
+              >
+                {plateSet.title}
+              </Link>
+              {`, ${plateSet.author}, ${plateSet.publishedLabel}. `}
+              {/* holdingSentence rather than a hand-written "all N plates"
+                  — Les Liliacées is short of the full set and this line
+                  renders on 475 of its pages. */}
+              {holdingSentence(plateSet)}
+            </p>
+          )}
 
           <ProvenanceSection artwork={art} />
 

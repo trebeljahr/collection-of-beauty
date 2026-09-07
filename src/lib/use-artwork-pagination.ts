@@ -17,6 +17,9 @@ export type ArtworkPageQuery = {
   q?: string;
   era?: string;
   artistSlug?: string;
+  /** Plate-set id. Pair with sort="plate" to page through a collection
+   *  in the order the book prints. */
+  collection?: string;
   sort?: ArtworkSort;
   seed?: string;
 };
@@ -43,6 +46,7 @@ export function buildArtworkPageUrl(
   appendIfTruthy(url, "q", query.q);
   appendIfTruthy(url, "era", query.era);
   appendIfTruthy(url, "artistSlug", query.artistSlug);
+  appendIfTruthy(url, "collection", query.collection);
   return url;
 }
 

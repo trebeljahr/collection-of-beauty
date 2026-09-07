@@ -9,6 +9,7 @@ import {
 import { type ArtworkListing, artworkListings } from "@/lib/data";
 import { assignEra, type EraId } from "@/lib/gallery-eras";
 import { PINNED_FIRST_PAGE_IDS } from "@/lib/pinned-first-page";
+import { plateSetListings } from "@/lib/plate-sets";
 
 export type ArtworkPageInput = {
   offset?: number;
@@ -22,6 +23,13 @@ export type ArtworkPageInput = {
    *  RSC payload — matters most for high-output artists (Audubon ≈435
    *  works, Monet ≈368). */
   artistSlug?: string | null;
+  /** Plate-set id. Unlike the other filters this also fixes the
+   *  ordering: a plate set is a book, and the only ordering that means
+   *  anything is the order the book prints. Combined with sort="plate"
+   *  it reproduces exactly what /collection/<id> server-rendered, so
+   *  load-more batches stitch onto the first page instead of repeating
+   *  or skipping plates. */
+  collection?: string | null;
 };
 
 let cachedDefaultGalleryOrder: ArtworkListing[] | null = null;
@@ -46,7 +54,11 @@ export function getArtworkListingPage(input: ArtworkPageInput = {}): ArtworkPage
   const seed = input.seed || DEFAULT_SHUFFLE_SEED;
   const query = normalizeQuery(input.query);
 
-  let list = artworkListings;
+  // A collection is an ordered sequence, not a filter over the global
+  // pool — take the plate order as the base list so `sort` never gets a
+  // chance to scramble it.
+  let list = input.collection ? plateSetListings(input.collection) : artworkListings;
+  const plateOrdered = Boolean(input.collection) && sort === "plate";
 
   if (query) list = list.filter((artwork) => matchesQuery(artwork, query));
   if (input.era) list = list.filter((artwork) => assignEra(artwork) === input.era);
@@ -54,13 +66,14 @@ export function getArtworkListingPage(input: ArtworkPageInput = {}): ArtworkPage
     list = list.filter((artwork) => artwork.artistSlug === input.artistSlug);
   }
 
-  const sorted = sortArtworkListings(list, sort, seed);
+  const sorted = plateOrdered ? [...list] : sortArtworkListings(list, sort, seed);
   const ordered =
     sort === "shuffle" &&
     seed === DEFAULT_SHUFFLE_SEED &&
     query.length === 0 &&
     !input.era &&
-    !input.artistSlug
+    !input.artistSlug &&
+    !input.collection
       ? applyPinnedHead(sorted, PINNED_FIRST_PAGE_IDS)
       : sorted;
   const items = ordered.slice(offset, offset + limit);
@@ -98,7 +111,9 @@ function sortArtworkListings(
     );
   }
   if (sort === "title") return list.sort((a, b) => a.title.localeCompare(b.title));
-
+  // "plate" without a collection has no meaning — the caller asked for an
+  // ordering that only exists inside a book. Fall through to the shuffle
+  // rather than silently returning input order.
   return shuffleWithArtistSpread(list, seed);
 }
 

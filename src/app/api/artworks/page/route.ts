@@ -6,10 +6,11 @@ import {
 } from "@/lib/artwork-page-schema";
 import { getArtworkListingPage } from "@/lib/artwork-pagination";
 import { ERAS, type EraId } from "@/lib/gallery-eras";
+import { isPlateSetId } from "@/lib/plate-sets";
 
 export const dynamic = "force-dynamic";
 
-const SORTS = new Set<ArtworkSort>(["shuffle", "year", "artist", "title"]);
+const SORTS = new Set<ArtworkSort>(["shuffle", "year", "artist", "title", "plate"]);
 const ERA_IDS = new Set<string>(ERAS.map((e) => e.id));
 
 export function GET(request: Request) {
@@ -23,6 +24,7 @@ export function GET(request: Request) {
     query: params.get("q") ?? "",
     era: parseEra(params.get("era")),
     artistSlug: params.get("artistSlug") || null,
+    collection: parseCollection(params.get("collection")),
   });
 
   return Response.json(page, {
@@ -38,6 +40,10 @@ function parseSort(value: string | null): ArtworkSort {
 
 function parseEra(value: string | null): EraId | "" {
   return value && ERA_IDS.has(value) ? (value as EraId) : "";
+}
+
+function parseCollection(value: string | null): string | null {
+  return value && isPlateSetId(value) ? value : null;
 }
 
 function parseNumber(value: string | null, fallback: number): number {
