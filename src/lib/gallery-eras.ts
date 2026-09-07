@@ -379,6 +379,10 @@ export const ERAS: Era[] = [
       "Fauvism",
       "Expressionism",
       "Cubism",
+      // Malevich's corpus here is 1910–1928 — the Suprematist decade.
+      // Year fallback already lands him on this floor; the tag keeps him
+      // off it by accident and out of the artist-page movement gap.
+      "Suprematism",
       "Surrealism",
       "Abstract Expressionism",
       "Regionalism",
