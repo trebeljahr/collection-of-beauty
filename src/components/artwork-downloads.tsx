@@ -45,17 +45,11 @@ export function ArtworkDownloads({ artwork }: { artwork: Artwork }) {
 
       <p className="text-sm leading-relaxed text-[var(--muted-foreground)]">
         {license.isPublicDomain ? (
-          <>
-            This work is in the public domain. Download it, print it, sell it, put it on a mug — no
-            permission needed and no attribution required.
-          </>
+          <>Public domain: no permission needed, no attribution required.</>
         ) : (
-          <>
-            This work is available under {license.short}. Check the licence terms before reusing it.
-          </>
+          <>Licensed {license.short} — check the terms before reusing.</>
         )}{" "}
-        Files are AVIF, the format the whole catalogue is encoded in. The largest sizes are big —
-        tens of megabytes for the oversized scans.
+        Files are AVIF.
       </p>
 
       <a
@@ -92,26 +86,13 @@ export function ArtworkDownloads({ artwork }: { artwork: Artwork }) {
       )}
 
       <p className="text-xs leading-relaxed text-[var(--muted-foreground)]">
-        {largest.isFullSize ? (
-          <>
-            {largest.width.toLocaleString("en-US")} px is the full resolution of the source scan
-            (capped at 16,384 px on the long side by the encoder). The original camera file
-            isn&rsquo;t served — see{" "}
-            <a href="/downloads#what-you-get" className="underline underline-offset-2">
-              what you get
-            </a>
-            .
-          </>
-        ) : (
-          <>
-            {largest.width.toLocaleString("en-US")} px is the largest size built for this work; the
-            source scan wasn&rsquo;t bigger. See{" "}
-            <a href="/downloads#what-you-get" className="underline underline-offset-2">
-              what you get
-            </a>
-            .
-          </>
-        )}
+        {largest.isFullSize
+          ? `${largest.width.toLocaleString("en-US")} px is the full resolution of the source scan.`
+          : `${largest.width.toLocaleString("en-US")} px is the largest size built for this work.`}{" "}
+        <a href="/downloads#what-you-get" className="underline underline-offset-2">
+          What you get
+        </a>
+        .
       </p>
 
       <div className="rounded-md border border-[var(--border)] bg-[var(--muted)] p-3">
