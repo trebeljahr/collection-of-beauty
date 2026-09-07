@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { artworkAlt, displayTitle } from "@/lib/artwork-format";
 import { type Artist, type Artwork, artworks, summary } from "@/lib/data";
+import { encodingFormat, licensableVariants } from "@/lib/licensable-images";
 import { getLicenseInfo } from "@/lib/license";
 import { SITE_URL } from "@/lib/links";
 import { sourceLabel } from "@/lib/source-label";
@@ -180,8 +181,8 @@ export function buildOpenGraph(
  * for rich image results and art panels.
  */
 export function artworkJsonLd(artwork: Artwork): Record<string, unknown> {
-  const imageUrl = variantUrl(artwork.objectKey, 1280, "webp");
   const license = getLicenseInfo(artwork.license);
+  const detailUrl = absoluteUrl(`/artwork/${artwork.id}`);
   return {
     "@context": "https://schema.org",
     "@type": "VisualArtwork",
@@ -200,10 +201,11 @@ export function artworkJsonLd(artwork: Artwork): Record<string, unknown> {
       : {}),
     ...(artwork.dateCreated ? { dateCreated: artwork.dateCreated } : {}),
     ...(artwork.description ? { description: artwork.description } : {}),
-    // Both entries are variants: originals aren't synced to R2 at all, so
-    // the assetUrl() entry that used to sit here was never servable.
-    image: [imageUrl, variantUrl(artwork.objectKey, 640, "webp")],
-    url: absoluteUrl(`/artwork/${artwork.id}`),
+    // Full ImageObject entries rather than bare URLs: Google's licensable
+    // ("Free to use") badge in Google Images keys off contentUrl +
+    // license + acquireLicensePage, and a plain string can't carry those.
+    image: artworkImageObjects(artwork),
+    url: detailUrl,
     ...(artwork.realDimensions
       ? {
           width: {
@@ -220,11 +222,85 @@ export function artworkJsonLd(artwork: Artwork): Record<string, unknown> {
       : {}),
     ...(artwork.movement ? { artMovement: artwork.movement } : {}),
     license: license.url,
-    creditText: artwork.credit ?? sourceLabel(artwork.commonsUrl),
+    creditText: creditTextFor(artwork),
+    acquireLicensePage: detailUrl,
     isAccessibleForFree: true,
     isFamilyFriendly: true,
     copyrightNotice: artwork.license,
   };
+}
+
+/** `creditText` for an artwork — the supplied credit line, else the
+ *  upstream source's display name. Shared by the VisualArtwork node and
+ *  each nested ImageObject so the two can't disagree. */
+function creditTextFor(artwork: Artwork): string {
+  return artwork.credit ?? sourceLabel(artwork.commonsUrl);
+}
+
+/**
+ * schema.org/ImageObject entries for an artwork's servable variants.
+ *
+ * These are what earn the "Free to use" badge in Google Images. Google's
+ * licensable-image feature requires, per image:
+ *   - `contentUrl` — the image file itself (required)
+ *   - `license` — the licence deed the work is available under
+ *   - `acquireLicensePage` — where a user goes to obtain/download it
+ * `license` alone is enough to qualify, but a page carrying both is what
+ * renders the full licence-details link, so we emit both.
+ *
+ * `creator` / `creditText` / `copyrightNotice` are recommended and cost
+ * nothing here — the artwork record already has them.
+ *
+ * Every `contentUrl` comes from `licensableVariants()`, which derives the
+ * set from the work's own `variantWidths` manifest. Nothing is emitted
+ * for a file that wasn't encoded: an unfetchable contentUrl disqualifies
+ * the image rather than merely being ignored.
+ */
+export function artworkImageObjects(artwork: Artwork): Record<string, unknown>[] {
+  const license = getLicenseInfo(artwork.license);
+  const detailUrl = absoluteUrl(`/artwork/${artwork.id}`);
+  const credit = creditTextFor(artwork);
+  const caption = artworkAlt(artwork);
+  const creator = artwork.artist
+    ? {
+        "@type": "Person",
+        name: artwork.artist,
+        ...(artwork.artistSlug ? { url: absoluteUrl(`/artist/${artwork.artistSlug}`) } : {}),
+      }
+    : undefined;
+
+  return licensableVariants(artwork).map((variant, index) => ({
+    "@type": "ImageObject",
+    contentUrl: variantUrl(artwork.objectKey, variant.width, variant.format),
+    // The licence deed and the page a visitor licenses/downloads from.
+    // Both are what Google reads for the licensable badge.
+    license: license.url,
+    acquireLicensePage: detailUrl,
+    creditText: credit,
+    ...(creator ? { creator } : {}),
+    copyrightNotice: artwork.license,
+    isAccessibleForFree: true,
+    caption,
+    encodingFormat: encodingFormat(variant.format),
+    // Pixel dimensions of the encoded file, omitted when the source
+    // dimensions are unknown rather than guessed.
+    //
+    // QuantitativeValue rather than a bare number: schema.org types
+    // MediaObject.width/height as Distance or QuantitativeValue, and a
+    // plain integer is the same out-of-range shape that got
+    // `"nationality": "Italian"` rejected below. E37 is UN/CEFACT for
+    // "pixel", the counterpart of the CMT the VisualArtwork uses for the
+    // physical canvas.
+    ...(variant.pixelWidth && variant.pixelHeight
+      ? {
+          width: { "@type": "QuantitativeValue", unitCode: "E37", value: variant.pixelWidth },
+          height: { "@type": "QuantitativeValue", unitCode: "E37", value: variant.pixelHeight },
+        }
+      : {}),
+    // The first entry is the page's own <img src>; the rest are larger
+    // srcSet rungs of the same picture.
+    ...(index === 0 ? { representativeOfPage: true } : {}),
+  }));
 }
 
 /**
