@@ -57,7 +57,6 @@ export function ZoomModal({
   const widths = artwork.variantWidths ?? [];
   const hasVariants = widths.length > 0;
   const largestVariant = hasVariants ? widths[widths.length - 1] : null;
-  const sourceWidth = artwork.width;
   const highSrc =
     largestVariant != null
       ? variantUrl(artwork.objectKey, largestVariant, "avif")
@@ -69,8 +68,8 @@ export function ZoomModal({
   // painting the player just clicked always has at least its 960 px base
   // resident, so this is the common path.
   const cachedTexture = useMemo(
-    () => peekBestCachedTexture(artwork.objectKey, widths, sourceWidth),
-    [artwork.objectKey, widths, sourceWidth],
+    () => peekBestCachedTexture(artwork.objectKey, widths),
+    [artwork.objectKey, widths],
   );
 
   // Fallback placeholder when no texture is cached (rare — e.g. the base
