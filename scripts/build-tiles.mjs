@@ -10,8 +10,11 @@
  * Why this exists
  * ---------------
  * `pnpm assets:shrink` already emits a per-source full-resolution AVIF
- * for every source above the standard ladder (see FULL_SIZE_MAX). That
- * file is genuinely full detail, but it is a SINGLE image: across the 968
+ * for every source whose full-size encode clears FULL_SIZE_MIN_WIDTH in
+ * variant-config.mjs — the same threshold deep-zoom-config.mjs imports as
+ * TILE_MIN_WIDTH, which is why the job list below and the runtime always
+ * agree on who has a pyramid. That file is genuinely full detail, but it
+ * is a SINGLE image: across the 968
  * works that have one, the median is ~124 megapixels and the largest is
  * ~265. Decoding one costs ~4 bytes per pixel of RAM (124 MP ≈ 500 MB),
  * and 890 of them exceed the ~16.7 MP decode ceiling that mobile Safari

@@ -7,6 +7,7 @@ import {
   LADDER_MAX_WIDTH,
   largestDownload,
 } from "./downloads";
+import { GALLERY_LOD_WIDTH } from "./variant-config.mjs";
 
 const base = {
   title: "Mountain Hall",
@@ -44,6 +45,34 @@ describe("downloadOptions", () => {
     expect(big[0].isFullSize).toBe(true);
     const small = downloadOptions({ variantWidths: [2560, 4096], width: 4096, height: 3000 });
     expect(small[0].isFullSize).toBe(false);
+  });
+
+  it("does not mistake the 3D gallery's LOD rung for a full-size encode", () => {
+    // 6144 is above the ladder max but is not a per-source full-size
+    // encode — shrink emits it only beneath a strictly larger full-size
+    // rung. Flagging it would put a second "full resolution" row on the
+    // download page for the 648 works that carry one.
+    const options = downloadOptions({
+      variantWidths: [2560, 4096, GALLERY_LOD_WIDTH, 10871],
+      width: 10871,
+      height: 2897,
+    });
+    expect(options.find((o) => o.width === GALLERY_LOD_WIDTH)?.isFullSize).toBe(false);
+    expect(options.find((o) => o.width === 10871)?.isFullSize).toBe(true);
+    expect(options.filter((o) => o.isFullSize)).toHaveLength(1);
+  });
+
+  it("still marks a full-size encode that lands exactly on the LOD width", () => {
+    // The disambiguation is positional, not by value: a work whose
+    // full-size rung is itself 6144 px gets no LOD rung (the gate is
+    // strict), so a leading 6144 is the real thing.
+    const options = downloadOptions({
+      variantWidths: [2560, 4096, GALLERY_LOD_WIDTH],
+      width: 6144,
+      height: 4000,
+    });
+    expect(options[0].width).toBe(GALLERY_LOD_WIDTH);
+    expect(options[0].isFullSize).toBe(true);
   });
 
   it("adds a WebP option only when the 1280 rung exists", () => {

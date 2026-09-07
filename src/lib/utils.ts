@@ -48,9 +48,21 @@ const DEFAULT_PUBLIC_ASSETS_BASE_URL = "https://assets.beauty.trebeljahr.com";
 // the same array — they used to be duplicated with hand-kept "keep in
 // sync" comments. Chosen to cover typical responsive breakpoints
 // (mobile, tablet, desktop, 4K) plus a small thumb size. The 4096 px
-// variant is for the 3D gallery's close-up LOD only; sources smaller
-// than 4096 px just don't generate that file.
-export { VARIANT_WIDTHS } from "./variant-config.mjs";
+// variant is for the 3D gallery's close-up LOD only; the responsive
+// <picture> tops out at 2560.
+//
+// Every rung is emitted for every source, whatever its size — shrink
+// clamps the pixels but keeps the rung's filename, so a 1,807 px scan
+// still has a `4096.avif` holding 1,807 px. (An earlier version of this
+// comment claimed small sources "just don't generate that file"; they
+// do.) Anything sizing a decode from a width must clamp it against the
+// artwork's own `width`.
+//
+// GALLERY_LOD_WIDTH (6,144) is re-exported alongside but is NOT a ladder
+// member: it is emitted per source and only where a larger full-size
+// rung already exists, so it never widens the responsive srcSet for a
+// work that has no business carrying it.
+export { GALLERY_LOD_WIDTH, VARIANT_WIDTHS } from "./variant-config.mjs";
 
 export type VariantFormat = "avif" | "webp";
 

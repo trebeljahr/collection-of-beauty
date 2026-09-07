@@ -8,30 +8,43 @@
  *   assets/<bucket>/foo.jpg   (original, untouched)
  *         └──► assets-web/<bucket>/foo/<w>.avif
  *                where <w> ∈ [256, 480, 640, 960, 1280, 1920, 2560, 4096]
+ *                (the standard ladder — every rung, every source)
  *              assets-web/<bucket>/foo/1280.webp
  *                (single width — OG meta + email clients that don't grok AVIF)
- *              assets-web/<bucket>/foo/<sourceW>.avif
- *                (only when source > 4096 px — full-resolution AVIF
- *                 used by the 3D gallery's close-up LOD and the modal's
- *                 deep zoom, so we never have to ship the raw JPEG)
+ *              assets-web/<bucket>/foo/<fullW>.avif
+ *                (only when the full-size encode lands above
+ *                 FULL_SIZE_MIN_WIDTH — full-resolution AVIF used by the
+ *                 modal's deep zoom, so we never ship the raw JPEG; it is
+ *                 also what marks the work as having a tile pyramid)
+ *              assets-web/<bucket>/foo/6144.avif
+ *                (only when <fullW> is STRICTLY LARGER than 6144 — the
+ *                 3D gallery's close-up LOD rung, see GALLERY_LOD_WIDTH)
  *
- * So each source produces 9 variant files (8 AVIF + 1 WebP), plus one
- * extra AVIF for sources beyond the standard ladder. For the full
- * catalog (~3000 artworks) that's ~28k files totalling ~3-4 GB. Each
- * file is tiny (10–600 KB) so serving is fast and CDN-friendly.
+ * So each source produces 9 variant files (8 AVIF + 1 WebP), plus a
+ * full-size AVIF for sources beyond FULL_SIZE_MIN_WIDTH, plus a 6144
+ * AVIF for the subset of those whose full-size rung clears 6144 (648 of
+ * the ~4,570 catalogued works). For the full catalog that's ~46k files
+ * totalling ~5-6 GB. Most files are tiny (10–600 KB) so serving is fast
+ * and CDN-friendly.
  *
- * WIDTHS / FULL_SIZE_MAX are imported from src/lib/variant-config.mjs,
- * shared with the runtime URL builder in src/lib/utils.ts so the
- * encoder and the runtime can never drift apart on which widths exist.
+ * The ladder, FULL_SIZE_MAX, FULL_SIZE_MIN_WIDTH and GALLERY_LOD_WIDTH
+ * are imported from src/lib/variant-config.mjs, shared with the runtime
+ * URL builder in src/lib/utils.ts (and, for the threshold, with
+ * deep-zoom-config.mjs) so the encoder and the runtime can never drift
+ * apart on which widths exist or on which works have a pyramid.
  *
- * Idempotent: a source is skipped when every one of its 14 variant files
- * exists and has an mtime ≥ the source's. Drop a new original into
- * assets/ and re-run; only that file is processed.
+ * Idempotent: a source is skipped when every one of its PLANNED variant
+ * files exists and has an mtime ≥ the source's. Note the all-or-nothing
+ * granularity — adding one planned rung re-encodes that source's entire
+ * set, full-size AVIF included. Drop a new original into assets/ and
+ * re-run; only that file is processed.
  *
  * Performance: for each source we decode once into a bounded intermediate
- * pixel buffer (≤ 2560 px on the long side), then re-resize/re-encode
- * from that buffer for each of the 14 variants. This avoids 14 separate
- * decodes of the same (possibly huge) JPEG.
+ * pixel buffer (≤ LADDER_MAX_WIDTH on the width), then re-resize/re-encode
+ * from that buffer for each ladder variant. This avoids one decode per
+ * variant of the same (possibly huge) JPEG. The full-size and 6144 rungs
+ * are the exceptions: both re-decode from the source, because the shared
+ * intermediate has already thrown away the pixels they need.
  *
  * Parallelism: sharp.concurrency(1) pins each libvips op to one thread,
  * and we run --concurrency ops at once at the JS level. Default is
@@ -50,7 +63,12 @@ import os from "node:os";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 import sharp from "sharp";
-import { FULL_SIZE_MAX, VARIANT_WIDTHS } from "../src/lib/variant-config.mjs";
+import {
+  FULL_SIZE_MAX,
+  FULL_SIZE_MIN_WIDTH,
+  GALLERY_LOD_WIDTH,
+  VARIANT_WIDTHS,
+} from "../src/lib/variant-config.mjs";
 
 // One libvips thread per op; parallelize at the JS level instead.
 sharp.concurrency(1);
@@ -81,18 +99,33 @@ const FOLDERS = args.folder
   : ["collection-of-beauty", "audubon-birds", "kunstformen-images"];
 
 // ─── Variant schema ────────────────────────────────────────────────────────
-// VARIANT_WIDTHS and FULL_SIZE_MAX are imported from
-// src/lib/variant-config.mjs so this script and the runtime URL builder
-// (src/lib/utils.ts) reference the same arrays. WIDTHS / MAX_WIDTH are
-// kept as local aliases for readability — half the math below talks
-// about "the standard ladder's max", and the renamed reference is
-// shorter. The 4096 px width is for the 3D gallery's close-up LOD; the
-// responsive <picture> stops at 2560 px.
+// Every constant here comes from src/lib/variant-config.mjs so this
+// script, the runtime URL builder (src/lib/utils.ts) and the deep-zoom
+// geometry (src/lib/deep-zoom-config.mjs) reference the same numbers.
+// WIDTHS / LADDER_MAX_WIDTH are local aliases for readability.
 //
-// Per-source full-resolution variant: sources bigger than MAX_WIDTH
-// (Google Arts scans regularly hit 8–12k px, Prado gigapixel scans
-// push 25–30k) get an extra AVIF on top of the standard ladder. Lets
-// the close-up LOD and the modal's deep zoom show the full source
+// LADDER_MAX_WIDTH and FULL_SIZE_MIN_WIDTH are both 4096 today and used
+// to be the same expression, `Math.max(...WIDTHS)`. They are now separate
+// on purpose, because they answer different questions and only one of
+// them is allowed to move when the ladder changes:
+//
+//   LADDER_MAX_WIDTH   — the widest rung emitted for EVERY source, and
+//                        therefore the width of the shared intermediate
+//                        decode buffer. A memory bound.
+//   FULL_SIZE_MIN_WIDTH — the point past which a source earns a
+//                        per-source full-resolution AVIF, which is also
+//                        exactly the set of works that get a DZI tile
+//                        pyramid (deep-zoom-config.mjs imports it as
+//                        TILE_MIN_WIDTH). A policy threshold, and one
+//                        that must stay pinned: raising it silently
+//                        strips both the full-size download and the
+//                        pyramid from every work in between, and the
+//                        deep-zoom viewers degrade without erroring.
+//
+// Per-source full-resolution variant: sources whose full-size encode
+// clears FULL_SIZE_MIN_WIDTH (Google Arts scans regularly hit 8–12k px,
+// Prado gigapixel scans push 25–30k) get an extra AVIF on top of the
+// standard ladder. Lets the modal's deep zoom show the full source
 // resolution without falling back to shipping the original JPEG.
 // Capped at FULL_SIZE_MAX on the LONG side to stay inside libheif's
 // encoder limit (it rejects either dim > 16384 with "Processed image
@@ -100,8 +133,13 @@ const FOLDERS = args.folder
 // MAX_TEXTURE_SIZE; oversize sources scale down proportionally and the
 // runtime falls back to the raw asset for the (very few) cases that
 // need more.
+//
+// GALLERY_LOD_WIDTH (6144): a close-up rung for the 3D gallery, sitting
+// between the ladder's 4096 and the unusable ~85 MP full-size AVIF. NOT
+// a ladder member — see the long comment in variant-config.mjs for the
+// three ways that would break the catalogue.
 const WIDTHS = VARIANT_WIDTHS;
-const MAX_WIDTH = Math.max(...WIDTHS);
+const LADDER_MAX_WIDTH = Math.max(...WIDTHS);
 // AVIF q=60 looks indistinguishable from q=85 JPEG but is ~3× smaller.
 // WebP q=75 is the usual balance for photographs.
 //
@@ -171,19 +209,46 @@ function variantPaths(folder, name, sourceWidth, sourceHeight) {
   // portrait gigapixel scans (Prado, Whistler) this means the encoded
   // width can be smaller than sourceWidth — store the actual encoded
   // width in the filename so the runtime can address it directly. Skip
-  // emission when the scaled width drops at or below MAX_WIDTH (extreme
-  // 1:4+ aspect ratios) — the standard ladder already covers it.
+  // emission when the scaled width drops at or below FULL_SIZE_MIN_WIDTH
+  // (extreme 1:4+ aspect ratios) — the standard ladder already covers it.
   const longSide = Math.max(sourceWidth || 0, sourceHeight || 0);
-  if (longSide > MAX_WIDTH) {
+  if (longSide > FULL_SIZE_MIN_WIDTH) {
     const scale = Math.min(1, FULL_SIZE_MAX / longSide);
     const fullW = Math.round(sourceWidth * scale);
-    if (fullW > MAX_WIDTH) {
+    if (fullW > FULL_SIZE_MIN_WIDTH) {
       files.push({
         width: fullW,
         format: FORMATS[0], // AVIF
         path: path.join(destDir, `${fullW}.avif`),
         isFullSize: true,
       });
+      // The 3D gallery's close-up rung, emitted only when the full-size
+      // rung is STRICTLY larger. Three things ride on that strictness:
+      //
+      //  - It keeps 6144 from ever becoming max(variantWidths), which is
+      //    what `deepZoomSize()` reads to size the tile pyramid. Emit it
+      //    any wider and the 319 works whose full-size rung sits in
+      //    (4096, 6144] get a grid libvips never wrote — blank tiles, no
+      //    error. See deep-zoom-config.mjs's TILE_MIN_WIDTH.
+      //  - It guarantees the file genuinely holds 6144 px rather than an
+      //    upscale, so the LOD rung is worth fetching.
+      //  - fullW > 6144 is equivalent to 6144 * h / w < FULL_SIZE_MAX, so
+      //    the encode can never breach libheif's dimension limit — a gate
+      //    on raw source width would let a 6800x22000 scroll plan a
+      //    6144x19800 AVIF and fail the whole job.
+      //
+      // `fromSource` (not `isFullSize`) because it needs its own decode:
+      // the shared intermediate below is capped at LADDER_MAX_WIDTH, so
+      // taking this rung from it would ship a 1.5x upscale of the 4096
+      // image — plausible-looking in review and worthless as an LOD.
+      if (fullW > GALLERY_LOD_WIDTH) {
+        files.push({
+          width: GALLERY_LOD_WIDTH,
+          format: FORMATS[0], // AVIF
+          path: path.join(destDir, `${GALLERY_LOD_WIDTH}.avif`),
+          fromSource: true,
+        });
+      }
     }
   }
   return { destDir, files };
@@ -258,7 +323,7 @@ async function processFile(job) {
     .rotate() // apply EXIF rotation then discard the tag
     .flatten({ background: "#ffffff" }) // PNG/webp alpha → flat white
     .resize({
-      width: MAX_WIDTH,
+      width: LADDER_MAX_WIDTH,
       height: FULL_SIZE_MAX,
       fit: "inside",
       withoutEnlargement: true,
@@ -268,12 +333,13 @@ async function processFile(job) {
 
   // 2. From that intermediate, emit each variant. Each is cheap because
   //    the expensive JPEG decode + EXIF rotate + alpha flatten is done.
-  //    Full-size variants (sources beyond MAX_WIDTH) re-decode the
-  //    source at full resolution — the bounded intermediate above would
-  //    have lost detail by the time we get here.
+  //    The two above-ladder rungs are the exception: both re-decode the
+  //    source, because the bounded intermediate above is capped at
+  //    LADDER_MAX_WIDTH and has already thrown away the pixels they
+  //    need. Encoding either one from `base` would silently upscale.
   let bytesAfter = 0;
   for (const v of job.variants) {
-    if (v.isFullSize) {
+    if (v.isFullSize || v.fromSource) {
       await sharp(job.srcPath, {
         failOn: "none",
         unlimited: true,
@@ -282,7 +348,7 @@ async function processFile(job) {
         .rotate()
         .flatten({ background: "#ffffff" })
         .resize({
-          width: FULL_SIZE_MAX,
+          width: v.isFullSize ? FULL_SIZE_MAX : v.width,
           height: FULL_SIZE_MAX,
           fit: "inside",
           withoutEnlargement: true,
@@ -370,9 +436,10 @@ async function main() {
   const totalBytes = jobs.reduce((a, j) => a + j.srcStat.size, 0);
   const totalVariants = jobs.reduce((a, j) => a + j.variants.length, 0);
   const fullSizeJobs = jobs.filter((j) => j.variants.some((v) => v.isFullSize)).length;
+  const lodRungJobs = jobs.filter((j) => j.variants.some((v) => v.fromSource)).length;
   console.log(`\r[shrink] scanning sources… ${jobs.length} files, ${fmt(totalBytes)} total`);
   console.log(
-    `[shrink] will produce ${totalVariants} variant files (${fullSizeJobs} full-size AVIFs for >${MAX_WIDTH}px sources) if nothing is fresh`,
+    `[shrink] will produce ${totalVariants} variant files (${fullSizeJobs} full-size AVIFs for >${FULL_SIZE_MIN_WIDTH}px sources, ${lodRungJobs} ${GALLERY_LOD_WIDTH}px gallery LOD rungs) if nothing is fresh`,
   );
 
   const totals = await runPool(jobs, (t, job, result) => {

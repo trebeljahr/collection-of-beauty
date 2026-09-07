@@ -266,7 +266,7 @@ After Step 6.5, your `unresolved-new.txt` should be ≤ a handful of genuinely-u
 pnpm assets:shrink --folder=<bucket>
 ```
 
-Skips sources whose variants are already current. For new files this builds 8 AVIF + 1 WebP per source, plus an extra full-resolution AVIF if the source is over 4096 px wide. Expect ~10s–60s per source on a typical Wikimedia scan.
+Skips sources whose variants are already current. For new files this builds 8 AVIF + 1 WebP per source, plus a full-resolution AVIF when the full-size encode clears `FULL_SIZE_MIN_WIDTH` (4096 px), plus a 6144 px AVIF (the 3D gallery's close-up LOD rung) when that full-size width is strictly larger than 6144. Expect ~10s–60s per source on a typical Wikimedia scan.
 
 ## Step 8 — Fetch provenance (optional, slow)
 

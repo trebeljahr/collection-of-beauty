@@ -191,7 +191,7 @@ const features = [
 const engineering = [
   "Stack: Next.js 16 App Router, Tailwind 4, React Three Fiber, Three.js.",
   "Image pipeline: pre-built AVIF and WebP variants at a fixed width ladder, served from Cloudflare R2.",
-  "3D texture loading: per-painting LOD with a 256 px thumbnail and a 960 px base loaded on mount, then progressively upgraded to 1920 / 2560 / 4096 / original tiers as the player approaches. Three LRU pools and a frame-paced GPU upload queue keep the frame budget bounded.",
+  "3D texture loading: per-painting LOD with a 256 px thumbnail and a 960 px base loaded on mount, then progressively upgraded through the pre-built variant ladder as the player approaches. Three LRU pools and a frame-paced GPU upload queue keep the frame budget bounded.",
   "Deployment: Docker image to GHCR, pulled by self-hosted Coolify.",
   "Analytics: self-hosted Plausible. Cookieless, EU-hosted, no third-party processors.",
   "Newsletter: self-hosted ListMonk + Amazon SES for delivery, double opt-in. Provisioned via Hatchkit.",
