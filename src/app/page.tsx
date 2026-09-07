@@ -2,7 +2,6 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { GalleryBrowser } from "@/components/gallery-browser";
 import { ShuffleIcon } from "@/components/ui/shuffle-icon";
-import { allColorBucketCounts } from "@/lib/artwork-colors";
 import { DEFAULT_ARTWORK_PAGE_SIZE } from "@/lib/artwork-page-schema";
 import { getArtworkListingPage } from "@/lib/artwork-pagination";
 import { summary } from "@/lib/data";
@@ -63,7 +62,6 @@ export default function HomePage() {
         initialArtworks={initialPage.items}
         eras={ERAS.map((e) => ({ id: e.id, title: e.title }))}
         totalArtworks={initialPage.total}
-        colorCounts={allColorBucketCounts()}
       />
     </div>
   );
