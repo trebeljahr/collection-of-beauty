@@ -1,5 +1,6 @@
 import type { MetadataRoute } from "next";
 import { COLLECTIONS } from "@/lib/collections";
+import { COLOR_BUCKETS } from "@/lib/color-buckets.mjs";
 import { artists, artworks } from "@/lib/data";
 import { ERAS } from "@/lib/gallery-eras";
 import { sitemapImagesForArtwork } from "@/lib/licensable-images";
@@ -19,6 +20,7 @@ export const revalidate = 86400;
  *     collections index, newsletter index, subscribe, press, 3D gallery)
  *   - One entry per era (11)
  *   - One entry per plate set (4)
+ *   - One entry per colour family (12)
  *   - One entry per published newsletter edition
  *   - One entry per artist (~331)
  *   - One entry per artwork (~4,571)
@@ -50,6 +52,7 @@ export default function sitemap(): MetadataRoute.Sitemap {
       changeFrequency: "monthly",
       priority: 0.8,
     },
+    { url: absoluteUrl("/colours"), lastModified: now, changeFrequency: "monthly", priority: 0.7 },
     // The per-edition pages were already listed while their own index
     // wasn't — a crawler could reach an edition but never the archive.
     {
@@ -122,6 +125,15 @@ export default function sitemap(): MetadataRoute.Sitemap {
     priority: 0.8,
   }));
 
+  // Same source the /colours/[family] page builds its static params from,
+  // so a new family can't silently go missing from the sitemap.
+  const colourEntries: MetadataRoute.Sitemap = COLOR_BUCKETS.map((bucket) => ({
+    url: absoluteUrl(`/colours/${bucket.id}`),
+    lastModified: now,
+    changeFrequency: "monthly",
+    priority: 0.6,
+  }));
+
   const editionEntries: MetadataRoute.Sitemap = loadPublishedEditions().map((ed) => ({
     url: absoluteUrl(`/newsletter/${ed.fileSlug}`),
     lastModified: new Date(`${ed.publishedAt}T12:00:00Z`),
@@ -150,6 +162,7 @@ export default function sitemap(): MetadataRoute.Sitemap {
     ...eraEntries,
     ...downloadEntries,
     ...plateSetEntries,
+    ...colourEntries,
     ...editionEntries,
     ...artistEntries,
     ...artworkEntries,

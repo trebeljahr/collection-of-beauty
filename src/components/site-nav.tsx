@@ -22,6 +22,12 @@ const LINKS: ReadonlyArray<{
     sub: "Complete illustrated plate sets",
     isActive: (pathname) => pathname === "/collections" || pathname.startsWith("/collection/"),
   },
+  {
+    href: "/colours",
+    label: "Colours",
+    sub: "Browse by the colours in the work",
+    isActive: (pathname) => pathname.startsWith("/colours"),
+  },
   { href: "/gallery-3d", label: "The Museum", sub: "Walk the floors, one era each" },
   {
     href: "/downloads",

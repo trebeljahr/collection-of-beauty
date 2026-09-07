@@ -20,6 +20,7 @@ function makeArtwork(id: string): Artwork {
     realDimensions: null,
     variantWidths: null,
     dominantColor: null,
+    colorBuckets: null,
     fileUrl: "",
     commonsUrl: "",
     credit: null,

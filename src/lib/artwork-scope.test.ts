@@ -263,3 +263,36 @@ describe("resolveScope", () => {
     expect(maxRun).toBeLessThanOrEqual(8);
   });
 });
+
+describe("color scope", () => {
+  it("round-trips through encode / parse", () => {
+    const scope: Scope = { kind: "color", id: "blue" };
+    expect(parseScope(encodeScope(scope))).toEqual(scope);
+  });
+
+  it("rejects a family that isn't a known bucket", () => {
+    expect(parseScope("color:chartreuse")).toBeNull();
+    expect(parseScope("color:")).toBeNull();
+  });
+
+  it("points back at the family landing page", () => {
+    expect(scopeHref({ kind: "color", id: "blue" })).toBe("/colours/blue");
+    expect(scopeLabel({ kind: "color", id: "blue" })).toBe("blue");
+  });
+
+  it("resolves to exactly the works in that family", () => {
+    const works = resolveScope({ kind: "color", id: "teal" });
+    expect(works.length).toBeGreaterThan(0);
+    for (const work of works) expect(work.colorBuckets).toContain("teal");
+  });
+
+  it("resolves in the same order the family page paginates in", () => {
+    // The lightbox walks resolveScope's sequence while the page grows via
+    // /api/artworks/page; if the two orders drift, prev/next skips works.
+    const resolved = resolveScope({ kind: "color", id: "purple" });
+    const page = getArtworkListingPage({ color: "purple", sort: "shuffle", limit: 40 });
+    expect(resolved.slice(0, page.items.length).map((a) => a.id)).toEqual(
+      page.items.map((a) => a.id),
+    );
+  });
+});

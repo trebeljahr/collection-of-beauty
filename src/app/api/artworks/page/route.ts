@@ -5,6 +5,7 @@ import {
   DEFAULT_SHUFFLE_SEED,
 } from "@/lib/artwork-page-schema";
 import { getArtworkListingPage } from "@/lib/artwork-pagination";
+import { type ColorBucketId, isColorBucketId } from "@/lib/color-buckets.mjs";
 import { ERAS, type EraId } from "@/lib/gallery-eras";
 import { isPlateSetId } from "@/lib/plate-sets";
 
@@ -25,6 +26,7 @@ export function GET(request: Request) {
     era: parseEra(params.get("era")),
     artistSlug: params.get("artistSlug") || null,
     collection: parseCollection(params.get("collection")),
+    color: parseColor(params.get("color")),
   });
 
   return Response.json(page, {
@@ -44,6 +46,10 @@ function parseEra(value: string | null): EraId | "" {
 
 function parseCollection(value: string | null): string | null {
   return value && isPlateSetId(value) ? value : null;
+}
+
+function parseColor(value: string | null): ColorBucketId | "" {
+  return isColorBucketId(value) ? value : "";
 }
 
 function parseNumber(value: string | null, fallback: number): number {

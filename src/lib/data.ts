@@ -3,6 +3,7 @@ import artworksJson from "@/data/artworks.json";
 import connectionsJson from "@/data/connections.json";
 import movementsJson from "@/data/movements.json";
 import summaryJson from "@/data/summary.json";
+import type { ColorBucketId } from "@/lib/color-buckets.mjs";
 
 export { artworkAlt, displayTitle } from "@/lib/artwork-format";
 
@@ -68,6 +69,16 @@ export type Artwork = {
    *  variant (or the original) via `sharp().stats()` in build-data.
    *  Null when nothing on disk was readable at build time. */
   dominantColor: string | null;
+  /** Colour families this work reads as, best-first (e.g.
+   *  `["blue", "gold"]`), drawn from the ids in
+   *  `src/lib/color-buckets.mjs`. Powers the browse-by-colour filter.
+   *
+   *  Deliberately NOT derived from `dominantColor` — that average
+   *  collapses almost the whole corpus into one warm wedge. These come
+   *  from a pixel histogram of the smallest pre-built variant, computed
+   *  by `pnpm assets:build-data`. Null when nothing on disk was readable
+   *  at build time, same contract as `variantWidths`. */
+  colorBuckets: ColorBucketId[] | null;
   fileUrl: string;
   commonsUrl: string;
   credit: string | null;
@@ -135,6 +146,7 @@ export type ArtworkListing = Pick<
   | "height"
   | "realDimensions"
   | "dominantColor"
+  | "colorBuckets"
 >;
 
 const _artworkListings: ArtworkListing[] = (artworksJson as Artwork[]).map((a) => ({
@@ -152,6 +164,7 @@ const _artworkListings: ArtworkListing[] = (artworksJson as Artwork[]).map((a) =
   height: a.height,
   realDimensions: a.realDimensions,
   dominantColor: a.dominantColor,
+  colorBuckets: a.colorBuckets,
 }));
 export const artworkListings: ArtworkListing[] = _artworkListings;
 export const summary = summaryJson as {

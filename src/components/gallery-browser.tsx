@@ -2,14 +2,17 @@
 
 import { useCallback, useDeferredValue, useEffect, useMemo, useRef, useState } from "react";
 import { ArtworkGallery } from "@/components/artwork-gallery";
+import { ColorSwatches } from "@/components/color-swatches";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import type { ColorBucketCounts } from "@/lib/artwork-colors";
 import {
   type ArtworkSort,
   DEFAULT_ARTWORK_PAGE_SIZE,
   DEFAULT_SHUFFLE_SEED,
 } from "@/lib/artwork-page-schema";
+import type { ColorBucketId } from "@/lib/color-buckets.mjs";
 import type { ArtworkListing } from "@/lib/data";
 import {
   type ArtworkPageInfo,
@@ -24,6 +27,9 @@ type Props = {
   initialArtworks: ArtworkListing[];
   eras: EraOption[];
   totalArtworks: number;
+  /** Per-family totals for the swatch labels. Computed on the server so
+   *  the client never walks the collection to count. */
+  colorCounts?: ColorBucketCounts;
 };
 
 type FuseSearch = {
@@ -35,10 +41,11 @@ type PageStatus = "idle" | "loading" | "failed";
 
 const PAGE_SIZE = DEFAULT_ARTWORK_PAGE_SIZE;
 
-export function GalleryBrowser({ initialArtworks, eras, totalArtworks }: Props) {
+export function GalleryBrowser({ initialArtworks, eras, totalArtworks, colorCounts }: Props) {
   const [query, setQuery] = useState("");
   const deferredQuery = useDeferredValue(query);
   const [era, setEra] = useState<string>("");
+  const [color, setColor] = useState<ColorBucketId | "">("");
   const [sortBy, setSortBy] = useState<ArtworkSort>("shuffle");
   const [pageStatus, setPageStatus] = useState<PageStatus>("idle");
   const [Fuse, setFuse] = useState<FuseCtor | null>(null);
@@ -48,14 +55,19 @@ export function GalleryBrowser({ initialArtworks, eras, totalArtworks }: Props) 
     () => ({
       q: deferredQuery.trim(),
       era,
+      color,
       sort: sortBy,
       seed: DEFAULT_SHUFFLE_SEED,
     }),
-    [deferredQuery, era, sortBy],
+    [deferredQuery, era, color, sortBy],
   );
 
   const pageKey = useMemo(() => JSON.stringify(pageQuery), [pageQuery]);
-  const isDefaultPage = pageQuery.q === "" && pageQuery.era === "" && pageQuery.sort === "shuffle";
+  const isDefaultPage =
+    pageQuery.q === "" &&
+    pageQuery.era === "" &&
+    pageQuery.color === "" &&
+    pageQuery.sort === "shuffle";
 
   const initialPageInfo = useMemo<ArtworkPageInfo>(
     () => ({
@@ -139,10 +151,11 @@ export function GalleryBrowser({ initialArtworks, eras, totalArtworks }: Props) 
   }, [fuse, loadedArtworks, pageQuery.q]);
 
   const filterKey = pageKey;
-  const activeFilterCount = era ? 1 : 0;
+  const activeFilterCount = (era ? 1 : 0) + (color ? 1 : 0);
 
   function clearFilters() {
     setEra("");
+    setColor("");
     setQuery("");
   }
 
@@ -189,6 +202,10 @@ export function GalleryBrowser({ initialArtworks, eras, totalArtworks }: Props) 
               Clear
             </Button>
           )}
+        </div>
+        <div className="flex flex-col gap-1.5 border-t border-[var(--border)] pt-3">
+          <span className="text-xs text-[var(--muted-foreground)]">Browse by colour</span>
+          <ColorSwatches value={color} onChange={setColor} counts={colorCounts} />
         </div>
       </div>
 

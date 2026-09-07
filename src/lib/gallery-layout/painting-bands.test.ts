@@ -25,6 +25,7 @@ function makeArtwork(
     realDimensions:
       widthCm != null && heightCm != null ? { widthCm, heightCm, source: "static" } : null,
     dominantColor: null,
+    colorBuckets: null,
     ...rest,
   };
 }

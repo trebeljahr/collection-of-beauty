@@ -35,6 +35,17 @@ required by the Dockerfile — don't remove it.
   to a client component is a regression (3.4 MB into the RSC payload).
 - `src/data/*.json` is generated. Don't hand-edit. Re-run
   `pnpm assets:build-data` after touching metadata or the build script.
+- `Artwork.dominantColor` (whole-image average) is for placeholder tints
+  only. Browse-by-colour uses `Artwork.colorBuckets` — up to three
+  colour families read from a *pixel histogram* of the smallest variant.
+  The average is useless for hue filtering: it collapses ~all 4,571
+  works into one warm wedge (~9 works land anywhere near blue). Scoring
+  lives in [`src/lib/color-buckets.mjs`](src/lib/color-buckets.mjs)
+  (`.mjs` so build-data imports it untranspiled, like `variant-config.mjs`)
+  and is normalised against a corpus prior — a family is listed only when
+  a work carries more of it than the collection's own average, otherwise
+  "gold" just means "is a painting". Re-measure `FAMILY_PRIOR` if the
+  corpus composition shifts materially.
 
 ## Asset URL conventions
 

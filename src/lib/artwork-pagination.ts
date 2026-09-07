@@ -6,6 +6,7 @@ import {
   DEFAULT_SHUFFLE_SEED,
   MAX_ARTWORK_PAGE_SIZE,
 } from "@/lib/artwork-page-schema";
+import type { ColorBucketId } from "@/lib/color-buckets.mjs";
 import { type ArtworkListing, artworkListings } from "@/lib/data";
 import { assignEra, type EraId } from "@/lib/gallery-eras";
 import { PINNED_FIRST_PAGE_IDS } from "@/lib/pinned-first-page";
@@ -30,6 +31,10 @@ export type ArtworkPageInput = {
    *  load-more batches stitch onto the first page instead of repeating
    *  or skipping plates. */
   collection?: string | null;
+  /** Colour-family filter. Matches a work when the family appears
+   *  anywhere in its `colorBuckets`, not just at the head — a seascape
+   *  that reads blue-then-gold should surface under both swatches. */
+  color?: ColorBucketId | "" | null;
 };
 
 let cachedDefaultGalleryOrder: ArtworkListing[] | null = null;
@@ -65,6 +70,10 @@ export function getArtworkListingPage(input: ArtworkPageInput = {}): ArtworkPage
   if (input.artistSlug) {
     list = list.filter((artwork) => artwork.artistSlug === input.artistSlug);
   }
+  if (input.color) {
+    const color = input.color;
+    list = list.filter((artwork) => artwork.colorBuckets?.includes(color) ?? false);
+  }
 
   const sorted = plateOrdered ? [...list] : sortArtworkListings(list, sort, seed);
   const ordered =
@@ -73,7 +82,8 @@ export function getArtworkListingPage(input: ArtworkPageInput = {}): ArtworkPage
     query.length === 0 &&
     !input.era &&
     !input.artistSlug &&
-    !input.collection
+    !input.collection &&
+    !input.color
       ? applyPinnedHead(sorted, PINNED_FIRST_PAGE_IDS)
       : sorted;
   const items = ordered.slice(offset, offset + limit);
