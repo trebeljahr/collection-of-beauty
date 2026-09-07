@@ -17,7 +17,7 @@ import { variantProxyUrl } from "@/lib/utils";
 import { HallwayRenderer } from "./hallway";
 import { LandscapePrompt } from "./landscape-prompt";
 import { LodController } from "./lod-controller";
-import { boostForMap, Minimap, type PlayerSample } from "./minimap";
+import { boostForMap, Minimap, type PlayerSample, roomRect } from "./minimap";
 import { Player } from "./player";
 import { RoomEnvironment } from "./room-env-map";
 import { RoomGeometry } from "./room-geometry";
@@ -254,6 +254,11 @@ export function Gallery3D({ artworks }: Props) {
   // floor changes set it to the *current* XZ so the player continues
   // walking where they were, with Y matched to the new floor.
   const spawnForFloor = useRef<[number, number, number]>(layout.entry.worldPosition);
+  // Bumped on every teleport so the new spawn array reaches Player even
+  // when nothing else about the render changed — clicking the room you
+  // already stand in changes neither floor nor active room, so without
+  // this the spawn effect (keyed on the array identity) never re-fires.
+  const [, setSpawnNonce] = useState(0);
   // Player preserves its last camera XZ (and yaw) so we can read it
   // when stairs trigger a floor swap and so the minimap can follow the
   // camera per-frame without round-tripping through React state.
@@ -278,6 +283,27 @@ export function Gallery3D({ artworks }: Props) {
       ];
       setCurrentFloorIdx(idx);
       setActiveRoomIdx(-1);
+      setSpawnNonce((n) => n + 1);
+    },
+    [layout],
+  );
+
+  // Teleport straight into one room of one floor — driven by clicking a
+  // room on the big map. Lands on the room's interior centre, which is
+  // always walkable (the hang is on the walls) and is where the plan
+  // shows the number.
+  const teleportToRoom = useCallback(
+    (floorIdx: number, roomIdx: number) => {
+      const room = layout.floors[floorIdx]?.rooms[roomIdx];
+      if (!room) return;
+      spawnForFloor.current = [
+        (room.worldRect.xMin + room.worldRect.xMax) / 2,
+        room.worldRect.y,
+        (room.worldRect.zMin + room.worldRect.zMax) / 2,
+      ];
+      setCurrentFloorIdx(floorIdx);
+      setActiveRoomIdx(roomIdx);
+      setSpawnNonce((n) => n + 1);
     },
     [layout],
   );
@@ -291,7 +317,7 @@ export function Gallery3D({ artworks }: Props) {
     // Leave room for the floor picker on one side and the room legend
     // on the other; the legend hides itself below `lg`, where the map
     // gets the width back.
-    const gutters = window.innerWidth >= 1024 ? 500 : 160;
+    const gutters = window.innerWidth >= 1024 ? 560 : 220;
     const s = Math.max(300, Math.min(window.innerHeight - 180, window.innerWidth - gutters, 760));
     setBigMapSize(s);
     setMapOpen(true);
@@ -761,7 +787,12 @@ export function Gallery3D({ artworks }: Props) {
           viewedFloorIdx={viewedMapFloorIdx}
           currentFloorIdx={currentFloorIdx}
           size={bigMapSize}
+          isTouch={isTouch}
           onSelect={(idx) => setViewedMapFloorIdx(idx)}
+          onRoomJump={(roomIdx) => {
+            teleportToRoom(viewedMapFloorIdx, roomIdx);
+            setMapOpen(false);
+          }}
           onClose={() => setMapOpen(false)}
           onJump={(idx) => {
             if (idx !== currentFloorIdx) {
@@ -1001,8 +1032,10 @@ function Crosshair({ inspecting }: { inspecting: boolean }) {
  * plan. The keyboard shortcuts driving navigation (arrows, digits,
  * Enter, Esc) live up in Gallery3D so they keep working even if focus
  * isn't on this overlay; this component fires `onSelect` / `onJump` /
- * `onClose` for the click-driven equivalents, and prints no key hints
- * — every one of them has a visible control here.
+ * `onRoomJump` / `onClose` for the click-driven equivalents. The only
+ * key hint printed is Enter-to-jump — the digit-per-floor hints are
+ * gone because every floor row is already a click target, and Enter is
+ * the one binding no visible control can stand in for.
  */
 function BigMapOverlay({
   floor,
@@ -1016,7 +1049,9 @@ function BigMapOverlay({
   size,
   onSelect,
   onJump,
+  onRoomJump,
   onClose,
+  isTouch,
 }: {
   floor: FloorLayout;
   activeRoomIdx: number;
@@ -1029,7 +1064,9 @@ function BigMapOverlay({
   size: number;
   onSelect: (idx: number) => void;
   onJump: (idx: number) => void;
+  onRoomJump: (roomIdx: number) => void;
   onClose: () => void;
+  isTouch: boolean;
 }) {
   return (
     // biome-ignore lint/a11y/useKeyWithClickEvents: backdrop dismiss is a courtesy mouse shortcut; keyboard already maps Esc / M to close at the parent.
@@ -1064,6 +1101,13 @@ function BigMapOverlay({
                   : "text-white/70 hover:bg-white/10 hover:text-white"
               }`}
             >
+              <span
+                className={`inline-block min-w-[3.5rem] text-right text-xs ${
+                  isCurrent ? "text-amber-300" : "text-white/55"
+                }`}
+              >
+                Floor {i + 1}
+              </span>
               <span className={`flex-1 truncate text-sm ${isCurrent ? "text-amber-300" : ""}`}>
                 {floorTitles[i]}
               </span>
@@ -1081,13 +1125,55 @@ function BigMapOverlay({
       {/* biome-ignore lint/a11y/useKeyWithClickEvents: stopPropagation only — keyboard nav is handled at the parent. */}
       {/* biome-ignore lint/a11y/noStaticElementInteractions: stopPropagation only — purely visual container */}
       <div onClick={(e) => e.stopPropagation()} className="flex items-start gap-5">
-        <Minimap
-          floor={floor}
-          activeRoomIdx={activeRoomIdx}
-          playerRef={playerRef}
-          showPlayer={showPlayer}
-          size={size}
-        />
+        <div className="flex flex-col items-center gap-2">
+          <div className="relative">
+            <Minimap
+              floor={floor}
+              activeRoomIdx={activeRoomIdx}
+              playerRef={playerRef}
+              showPlayer={showPlayer}
+              size={size}
+            />
+            {/* Room hit targets, laid over the baked plan with the same
+                cell geometry the canvas drew it with. Real buttons
+                rather than canvas hit-testing: hover cursor, focus ring
+                and Tab/Enter come for free, and screen readers get a
+                named control per room. The stairwell is skipped — its
+                centre is the open well, not somewhere to stand. */}
+            {floor.rooms.map((room, i) => {
+              if (room.isStairwell) return null;
+              const r = roomRect(floor, room, size);
+              return (
+                <button
+                  key={room.id}
+                  type="button"
+                  onClick={() => onRoomJump(i)}
+                  title={`Teleport to ${room.title}`}
+                  className="absolute rounded-[2px] border border-transparent transition hover:border-amber-200/80 hover:bg-amber-200/25 focus-visible:border-amber-200 focus-visible:bg-amber-200/25 focus:outline-none"
+                  style={{ left: r.left, top: r.top, width: r.width, height: r.height }}
+                >
+                  <span className="sr-only">
+                    Teleport to room {room.roomNumber ?? i + 1}, {room.title}
+                  </span>
+                </button>
+              );
+            })}
+          </div>
+          {/* The only key hint left: every other action here has a
+              visible control, but Enter-to-jump is the one binding the
+              floor rows can't show on their own. */}
+          <p className="text-xs text-white/45">
+            {isTouch ? (
+              "Tap a room to teleport there · tap a floor to preview it, double-tap to jump"
+            ) : (
+              <>
+                Click a room to teleport there ·{" "}
+                <kbd className="rounded border border-white/30 px-1.5 font-mono">Enter</kbd> jumps
+                to the selected floor
+              </>
+            )}
+          </p>
+        </div>
         {/* Legend — the map prints room numbers, not names, because an
             era's rooms nearly all carry the same movement and the label
             truncated to the same stub in every cell. Here is where those
