@@ -24,6 +24,16 @@ type Props = {
   /** Called when OpenSeadragon can't be loaded or the pyramid doesn't
    *  answer, so the host can fall back to the plain <img> path. */
   onUnavailable: () => void;
+  /** Reports whether the view is zoomed in past its resting ("home")
+   *  level, on every change. The lightbox needs it to tell a
+   *  swipe-to-next-artwork from a pan across a zoomed-in detail: the
+   *  gesture is the same horizontal drag, and only the viewer knows
+   *  which one it is. Fires `false` once more when the viewer tears
+   *  down, so a listener can't be left holding a stale `true`. Only
+   *  called when the answer actually flips, not on every zoom event.
+   *  Optional; nothing else about the viewer depends on anybody
+   *  listening. */
+  onZoomedChange?: (zoomed: boolean) => void;
 };
 
 /** The two key handlers OpenSeadragon delegates onto `Viewer.innerTracker`.
@@ -36,6 +46,16 @@ type KeyHandlers = {
 // Zoom step per button press. Matches the wheel's feel closely enough that
 // switching between the two doesn't feel like two different controls.
 const ZOOM_STEP = 1.6;
+
+// How far past home zoom still counts as "resting". OpenSeadragon lands a
+// hair off the exact home value on its own — the springs settle
+// asymptotically, and applyConstraints nudges the zoom after a flick or
+// after the elastic overshoot at `minZoomImageRatio` — so an equality test
+// would report a zoomed view that nobody zoomed. 5% is well under the
+// smallest deliberate zoom (a double-tap or one button press is 1.6x) and
+// well over that drift. Mirrors SWIPE_MAX_RESTING_SCALE in lightbox.tsx,
+// which does the same job for the plain <img> path.
+const HOME_ZOOM_EPSILON = 1.05;
 
 /**
  * Tiled deep-zoom viewer over the DZI pyramids that
@@ -62,6 +82,7 @@ export function DeepZoomViewer({
   alt,
   controlsClassName,
   onUnavailable,
+  onZoomedChange,
 }: Props) {
   const containerRef = useRef<HTMLDivElement | null>(null);
   // Typed as the structural surface we actually use rather than importing
@@ -78,6 +99,11 @@ export function DeepZoomViewer({
   // re-renders with a new callback identity.
   const onUnavailableRef = useRef(onUnavailable);
   onUnavailableRef.current = onUnavailable;
+  // Same trick for the zoom reporter: the lightbox passes an inline
+  // arrow, so a stale closure here would report into a dead callback for
+  // the life of the viewer.
+  const onZoomedChangeRef = useRef(onZoomedChange);
+  onZoomedChangeRef.current = onZoomedChange;
 
   useEffect(() => {
     let cancelled = false;
@@ -202,6 +228,37 @@ export function DeepZoomViewer({
         if (failedCold >= 2) onUnavailableRef.current();
       });
 
+      // Publish zoom state upwards so the lightbox can gate its
+      // swipe-to-navigate on it (see the swipe handlers there). Without
+      // this signal the lightbox has no way to know whether a horizontal
+      // drag over the viewer means "next artwork" or "pan this detail",
+      // and swipe has to be switched off for the ~967 tiled works.
+      //
+      // "zoom" carries the zoom spring's *target*, not its current value,
+      // which is exactly right: a pinch should disqualify the gesture the
+      // moment it starts, not 600 ms later when the animation settles.
+      // Every path that changes zoom routes through Viewport.zoomTo and so
+      // raises it — the buttons below, pinch, wheel, double-tap, goHome,
+      // and the fitBounds that a container resize runs — so one handler
+      // covers the lot, including orientation changes.
+      //
+      // Compared against getHomeZoom() read at event time rather than a
+      // value captured once: home zoom is a function of the container
+      // aspect, and rotating the phone changes it under an open viewer.
+      let reportedZoomed = false;
+      v.addHandler("zoom", (event) => {
+        if (cancelled) return;
+        const home = v.viewport.getHomeZoom();
+        // Before the first tiled image is in the world, content bounds are
+        // still degenerate and home zoom comes back 0 / NaN. Nothing is on
+        // screen to pan yet either, so "not zoomed" already holds.
+        if (!Number.isFinite(home) || home <= 0 || !Number.isFinite(event.zoom)) return;
+        const zoomed = event.zoom > home * HOME_ZOOM_EPSILON;
+        if (zoomed === reportedZoomed) return;
+        reportedZoomed = zoomed;
+        onZoomedChangeRef.current?.(zoomed);
+      });
+
       return v;
     }
 
@@ -222,6 +279,11 @@ export function DeepZoomViewer({
       cancelled = true;
       viewer?.destroy();
       viewerRef.current = null;
+      // Any zoom the viewer held dies with it, so say so on the way out.
+      // Otherwise a listener that last heard "zoomed" keeps gating on a
+      // viewer that no longer exists — which is exactly what unmounting
+      // mid-zoom to fall back to the plain <img> path looks like.
+      onZoomedChangeRef.current?.(false);
     };
   }, [tileSource]);
 
