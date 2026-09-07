@@ -51,6 +51,7 @@ export function ScopedGallery({ initialArtworks, initialPageInfo, scope, pageQue
       pageQuery?.era,
       pageQuery?.artistSlug,
       pageQuery?.collection,
+      pageQuery?.color,
       pageQuery?.sort,
       pageQuery?.seed,
     ],

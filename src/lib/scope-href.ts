@@ -1,3 +1,4 @@
+import { type ColorBucketId, isColorBucketId } from "@/lib/color-buckets.mjs";
 import { ERAS, type EraId } from "@/lib/gallery-eras";
 import { isPlateSetId, type PlateSetId } from "@/lib/plate-set-definitions";
 
@@ -16,7 +17,8 @@ export type Scope =
   | { kind: "movement"; name: string }
   | { kind: "decade"; start: number }
   | { kind: "era"; id: EraId }
-  | { kind: "collection"; id: PlateSetId };
+  | { kind: "collection"; id: PlateSetId }
+  | { kind: "color"; id: ColorBucketId };
 
 // Set-based lookup so parseScope can validate without throwing via getEra.
 const ERA_IDS: Set<string> = new Set(ERAS.map((e) => e.id));
@@ -57,6 +59,11 @@ export function parseScope(param: string | null | undefined): Scope | null {
     if (!isPlateSetId(value)) return null;
     return { kind, id: value };
   }
+  if (kind === "color") {
+    // Same story: the bucket registry in color-buckets.mjs is pure.
+    if (!isColorBucketId(value)) return null;
+    return { kind, id: value };
+  }
   return null;
 }
 
@@ -67,9 +74,10 @@ export function encodeScope(scope: Scope): string {
   if (scope.kind === "artist") return `artist:${encodeURIComponent(scope.slug)}`;
   if (scope.kind === "movement") return `movement:${encodeURIComponent(scope.name)}`;
   if (scope.kind === "decade") return `decade:${scope.start}`;
-  // Era and plate-set ids are pre-validated lowercase kebab — no
+  // Era, plate-set and colour ids are pre-validated lowercase kebab — no
   // percent-encoding needed.
   if (scope.kind === "collection") return `collection:${scope.id}`;
+  if (scope.kind === "color") return `color:${scope.id}`;
   return `era:${scope.id}`;
 }
 
@@ -81,6 +89,7 @@ export function scopeHref(scope: Scope): string {
   if (scope.kind === "movement") return `/timeline?movement=${encodeURIComponent(scope.name)}`;
   if (scope.kind === "decade") return `/timeline#decade-${scope.start}`;
   if (scope.kind === "collection") return `/collection/${scope.id}`;
+  if (scope.kind === "color") return `/colours/${scope.id}`;
   return `/era/${scope.id}`;
 }
 

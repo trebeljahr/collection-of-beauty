@@ -6,6 +6,7 @@ import {
   type ArtworkSort,
   DEFAULT_ARTWORK_PAGE_SIZE,
 } from "@/lib/artwork-page-schema";
+import type { ColorBucketId } from "@/lib/color-buckets.mjs";
 import type { ArtworkListing } from "@/lib/data";
 
 export type ArtworkPageInfo = Pick<ArtworkPage, "total" | "nextOffset" | "hasMore">;
@@ -20,6 +21,7 @@ export type ArtworkPageQuery = {
   /** Plate-set id. Pair with sort="plate" to page through a collection
    *  in the order the book prints. */
   collection?: string;
+  color?: ColorBucketId | "";
   sort?: ArtworkSort;
   seed?: string;
 };
@@ -47,6 +49,7 @@ export function buildArtworkPageUrl(
   appendIfTruthy(url, "era", query.era);
   appendIfTruthy(url, "artistSlug", query.artistSlug);
   appendIfTruthy(url, "collection", query.collection);
+  appendIfTruthy(url, "color", query.color);
   return url;
 }
 

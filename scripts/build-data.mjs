@@ -6,6 +6,7 @@ import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { imageSize } from "image-size";
 import sharp from "sharp";
+import { bucketsFromHistogram } from "../src/lib/color-buckets.mjs";
 
 // sharp's async work runs on the libuv threadpool, which defaults to 4
 // threads — the ceiling on how many images we can probe at once. Node reads
@@ -124,20 +125,22 @@ async function dimensionsFor(folderKey, filename) {
 // over the original plate (often 10-30 MB); decoding the variant is
 // orders of magnitude faster and sharp().stats() is already an average
 // over all pixels, so the dominant color is materially the same.
-const colorCache = new Map();
-async function dominantColorFor(folderKey, filename) {
+// Smallest readable pixel source for an artwork: the narrowest pre-built
+// variant (typically 256.avif, ~10 KB), else the original plate. Shared by
+// the average-colour and colour-bucket passes so they always agree on
+// which bytes they are describing.
+const sourceCache = new Map();
+function smallestSourceFor(folderKey, filename) {
   const key = `${folderKey}/${filename}`;
-  if (colorCache.has(key)) return colorCache.get(key);
-  let result = null;
+  if (sourceCache.has(key)) return sourceCache.get(key);
+  let source = null;
   const basename = filename.replace(/\.[^.]+$/, "");
   const variantDir = path.join(ASSETS_WEB, folderKey, basename);
-  let source = null;
   if (existsSync(variantDir)) {
     try {
-      const files = readdirSync(variantDir);
       let smallestWidth = Infinity;
       let smallestFile = null;
-      for (const f of files) {
+      for (const f of readdirSync(variantDir)) {
         const m = f.match(/^(\d+)\.(avif|webp)$/i);
         if (!m) continue;
         const w = Number.parseInt(m[1], 10);
@@ -155,6 +158,16 @@ async function dominantColorFor(folderKey, filename) {
     const file = path.join(ASSETS, folderKey, filename);
     if (existsSync(file)) source = file;
   }
+  sourceCache.set(key, source);
+  return source;
+}
+
+const colorCache = new Map();
+async function dominantColorFor(folderKey, filename) {
+  const key = `${folderKey}/${filename}`;
+  if (colorCache.has(key)) return colorCache.get(key);
+  let result = null;
+  const source = smallestSourceFor(folderKey, filename);
   if (source) {
     try {
       const stats = await sharp(source).stats();
@@ -176,14 +189,15 @@ async function dominantColorFor(folderKey, filename) {
 // Probing ~4,500 images with sharp is the single slowest thing this script
 // does — a cold run spends over two minutes decoding pixels, and `pnpm dev`
 // blocks on all of it before Next even starts. Almost none of that work
-// changes between runs: the assets are static, so a file's dimensions and
-// dominant color are a pure function of its bytes. Persist the results keyed
+// changes between runs: the assets are static, so a file's dimensions,
+// dominant color and colour families are a pure function of its bytes.
+// Persist the results keyed
 // by (mtime, size) of the original plus the mtime of its variant directory,
 // and a warm run reuses everything and finishes in seconds.
 //
 // The cache lives under metadata/.cache/ (already gitignored, alongside the
 // Wikimedia response cache) rather than src/data/, which is committed.
-const PROBE_CACHE_VERSION = 1;
+const PROBE_CACHE_VERSION = 2;
 const PROBE_CACHE_FILE = path.join(META, ".cache", "image-probe.json");
 
 // Signature of everything the probe results depend on. Returns null when the
@@ -270,7 +284,7 @@ function makeProgressReporter(label, total) {
   };
 }
 
-// Populate dimensionCache / colorCache / variantsCache for every artwork we
+// Populate dimensionCache / colorCache / bucketsCache / variantsCache for every artwork we
 // are about to emit, reusing cached probe results where the files haven't
 // moved and probing the rest in parallel. After this returns, the per-entry
 // `await dimensionsFor(...)` calls in the main loop are pure cache hits.
@@ -293,6 +307,7 @@ async function prefillImageProbes(work) {
       hit.width && hit.height ? { width: hit.width, height: hit.height } : null,
     );
     colorCache.set(key, hit.dominantColor ?? null);
+    bucketsCache.set(key, hit.colorBuckets ?? null);
     variantsCache.set(key, hit.variantWidths ?? []);
   }
 
@@ -307,6 +322,7 @@ async function prefillImageProbes(work) {
     await mapWithConcurrency(stale, PROBE_CONCURRENCY, async (item) => {
       const dims = await dimensionsFor(item.folderKey, item.fname);
       const dominantColor = await dominantColorFor(item.folderKey, item.fname);
+      const colorBuckets = await colorBucketsFor(item.folderKey, item.fname);
       const variantWidths = variantWidthsFor(item.folderKey, item.fname);
       if (item.sig) {
         fresh[item.key] = {
@@ -314,6 +330,7 @@ async function prefillImageProbes(work) {
           width: dims?.width ?? null,
           height: dims?.height ?? null,
           dominantColor,
+          colorBuckets,
           variantWidths,
         };
       }
@@ -324,6 +341,62 @@ async function prefillImageProbes(work) {
   }
 
   await saveProbeCache(fresh);
+}
+
+// Colour families for the browse-by-colour filter. Unlike dominantColor
+// (a single whole-image average, kept as-is for the tile placeholder
+// tint), this reads the actual distribution of pixels: averaging a blue
+// sky against a sandy shore lands on a muddy warm grey, which is useless
+// for "show me the blues". See src/lib/color-buckets.mjs for the scoring.
+//
+// The image is decoded at 64px on the long edge and quantized to 5 bits
+// per channel. That's ~4,000 pixels collapsing into at most a few hundred
+// histogram bins — far more than enough to characterise a palette, and
+// cheap enough to run across the whole corpus.
+const COLOR_SAMPLE_PX = 64;
+const bucketsCache = new Map();
+async function colorBucketsFor(folderKey, filename) {
+  const key = `${folderKey}/${filename}`;
+  if (bucketsCache.has(key)) return bucketsCache.get(key);
+  let result = null;
+  const source = smallestSourceFor(folderKey, filename);
+  if (source) {
+    try {
+      const { data, info } = await sharp(source)
+        .resize(COLOR_SAMPLE_PX, COLOR_SAMPLE_PX, { fit: "inside" })
+        .removeAlpha()
+        .raw()
+        .toBuffer({ resolveWithObject: true });
+      if (info.channels >= 3) {
+        const stride = info.channels;
+        const pixels = info.width * info.height;
+        const bins = new Map();
+        for (let i = 0; i < pixels; i++) {
+          const at = i * stride;
+          const bin = ((data[at] >> 3) << 10) | ((data[at + 1] >> 3) << 5) | (data[at + 2] >> 3);
+          bins.set(bin, (bins.get(bin) ?? 0) + 1);
+        }
+        // Re-expand each bin to the centre of the 8-value range it covers
+        // so quantization doesn't bias every channel downwards.
+        const entries = [];
+        for (const [bin, count] of bins) {
+          entries.push({
+            r: (((bin >> 10) & 31) << 3) | 4,
+            g: (((bin >> 5) & 31) << 3) | 4,
+            b: ((bin & 31) << 3) | 4,
+            count,
+          });
+        }
+        const buckets = bucketsFromHistogram(entries);
+        if (buckets.length > 0) result = buckets;
+      }
+    } catch {
+      // leave null — the runtime treats null as "not classified yet",
+      // the same contract variantWidths uses.
+    }
+  }
+  bucketsCache.set(key, result);
+  return result;
 }
 
 // Source folders, each with a metadata/<folder>.json sidecar in the shared
@@ -1412,6 +1485,7 @@ async function main() {
       const real = realDimensions.get(id) || null;
       const variantWidths = variantWidthsFor(folderKey, fname);
       const dominantColor = await dominantColorFor(folderKey, fname);
+      const colorBuckets = await colorBucketsFor(folderKey, fname);
       const originalDateString = dateOriginals.get(fname.normalize("NFC")) ?? null;
       artworks.push({
         id,
@@ -1430,6 +1504,7 @@ async function main() {
         realDimensions: real,
         variantWidths: variantWidths.length > 0 ? variantWidths : null,
         dominantColor,
+        colorBuckets,
         fileUrl: entry.source.file_url,
         commonsUrl: entry.source.url,
         credit: cleanCredit(entry.source.credit),
