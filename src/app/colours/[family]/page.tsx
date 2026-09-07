@@ -37,17 +37,17 @@ function findFamily(family: string): ColorBucket | null {
  *  the neutral bands explain why an engraving files under "white". */
 const BLURBS: Record<ColorBucketId, string> = {
   red: "Vermilion, crimson, madder lake.",
-  orange: "Sienna and terracotta — the warm middle of the wheel.",
+  orange: "Sienna, terracotta, burnt orange.",
   gold: "Ochre, amber, marigold.",
   brown: "The earth pigments: umber, bistre, bitumen.",
-  green: "Foliage, verdigris, and the greens of landscape painting.",
-  teal: "Where green turns to water: shallows, glaze, patina.",
+  green: "Foliage, verdigris, sap green.",
+  teal: "Blue-greens: shallow water, glaze, patina.",
   blue: "Ultramarine, indigo, Prussian blue.",
-  purple: "Violet and mauve — the rarest family in the collection.",
+  purple: "Violet and mauve. The smallest family in the collection.",
   pink: "Rose and madder lake at low saturation.",
   white: "Paper, plaster and bare ground. Mostly prints and drawings.",
   grey: "Grisaille and engraving.",
-  black: "Ink, night scenes, and the deep grounds of the Baroque.",
+  black: "Ink, night scenes, dark grounds.",
 };
 
 export async function generateMetadata({ params }: { params: Promise<Params> }): Promise<Metadata> {

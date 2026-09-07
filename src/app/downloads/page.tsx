@@ -161,8 +161,7 @@ export default function DownloadsPage() {
         </p>
         <p className="leading-relaxed">
           Each artwork page carries a ready-made credit line, and every archive ships a{" "}
-          <code>README.txt</code> with one per plate. Using them is a courtesy to the scanning
-          institutions, not an obligation.
+          <code>README.txt</code> with one per plate.
         </p>
       </section>
 

@@ -28,9 +28,8 @@ export default function HomePage() {
             A walkable museum of public-domain art
           </h1>
           <p className="mt-3 max-w-2xl text-[var(--muted-foreground)]">
-            {ERAS.length} floors, one per era — {ERAS[0].title} at ground level rising to{" "}
-            {ERAS[ERAS.length - 1].title}, joined by a central spiral staircase. Below, the whole
-            collection laid out flat: {summary.totalArtworks.toLocaleString()} works by{" "}
+            {ERAS.length} floors, one per era. The same collection is below as a grid:{" "}
+            {summary.totalArtworks.toLocaleString()} works by{" "}
             {summary.totalArtists.toLocaleString()} artists across {summary.totalMovements}{" "}
             movements, spanning {summary.yearRange.min}–{summary.yearRange.max}.
           </p>

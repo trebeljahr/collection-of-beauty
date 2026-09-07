@@ -112,7 +112,7 @@ export const PLATE_SETS: PlateSetDefinition[] = [
     canonicalPlateCount: 435,
     tagline: "Audubon's double elephant folio, every plate at life size.",
     intro: [
-      "The Birds of America is the largest ornithological book ever published and, by a wide margin, the most ambitious. Between 1827 and 1838 John James Audubon issued it in London and Edinburgh as a subscription work, delivered five plates at a time to a few hundred subscribers who paid for it over eleven years. The plates were engraved, etched and aquatinted after Audubon's watercolours — the great majority by Robert Havell Jr., whose London workshop carried the project from plate 11 to the end — then coloured by hand, sheet by sheet, by a team of colourists.",
+      "The Birds of America is the largest ornithological book ever published. Between 1827 and 1838 John James Audubon issued it in London and Edinburgh as a subscription work, delivered five plates at a time to a few hundred subscribers who paid for it over eleven years. The plates were engraved, etched and aquatinted after Audubon's watercolours — the great majority by Robert Havell Jr., whose London workshop carried the project from plate 11 to the end — then coloured by hand, sheet by sheet, by a team of colourists.",
       "The book's defining constraint is its size. Audubon insisted every bird appear life size, which forced the use of a \"double elephant\" folio sheet close to a metre tall, and forced the compositions into the shapes they are famous for: the flamingo folded double to fit the page, the whooping crane's neck bent back on itself, the wild turkey striding across the full width of the sheet.",
       "Audubon painted from freshly shot specimens wired into lifelike attitudes, and set them in habitat — fruiting branches, marsh grass, prey in the beak — at a time when the convention was a stiff profile against blank paper.",
     ],
@@ -140,7 +140,7 @@ export const PLATE_SETS: PlateSetDefinition[] = [
     authorSlug: "pierre-joseph-redoute",
     eraId: "natural-history",
     canonicalPlateCount: 169,
-    tagline: "Redouté's roses — the most reproduced botanical plates ever made.",
+    tagline: "Redouté's roses, in colour-printed stipple engraving.",
     intro: [
       "Les Roses is the book that made Pierre-Joseph Redouté the most copied botanical artist in history. Issued in parts from 1817, it pairs his plates with descriptive text by the botanist Claude-Antoine Thory. Redouté had been drawing master to Marie Antoinette and then flower painter to the Empress Joséphine, and much of what he drew here he drew from Joséphine's garden at Malmaison, which held the most complete rose collection in Europe.",
       "The plates are colour-printed stipple engravings. Instead of building tone from cut lines, the stipple technique builds it from a dense field of dots, which holds gradation the way a wash does: a petal can shade from a saturated centre to a translucent edge with no visible hatching. Each sheet was inked in several colours in a single pull and then finished by hand, so no two impressions of the same plate are quite identical.",
@@ -158,7 +158,7 @@ export const PLATE_SETS: PlateSetDefinition[] = [
     tagline: "Redouté's eight-volume study of lilies, irises and their relatives.",
     intro: [
       "Les Liliacées is Redouté's largest work. Eight folio volumes appeared between 1802 and 1816, funded largely by the Empress Joséphine, and the subject is far broader than the title suggests: alongside true lilies the plates cover irises, amaryllis, agapanthus, orchids, aloes, gingers and a good deal else that early-nineteenth-century botany filed under Liliaceae before the family was broken apart.",
-      "The text was not Redouté's. The first four volumes were written by Augustin Pyramus de Candolle, one of the most important botanists of the century, with François Delaroche and then Alire Raffeneau-Delile taking over for the later volumes. It is a taxonomic publication, not an album with captions.",
+      "The text was not Redouté's. The first four volumes were written by Augustin Pyramus de Candolle, one of the most important botanists of the century, with François Delaroche and then Alire Raffeneau-Delile taking over for the later volumes. The plates carry taxonomic text, not captions.",
       "Technically it is the same colour-printed stipple engraving as Les Roses, and it is where Redouté worked the method out at scale. The plates give a strap-leaved plant the full height of the sheet, and many carry small dissections beside the portrait — a stamen, an ovary in section, a seed — for identification.",
     ],
     resolvePlateNumber: plateFromRedouteSourceUrl,
