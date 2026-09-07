@@ -4,6 +4,7 @@ import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { useIs3DActive } from "@/components/gallery-3d-state";
+import { ShuffleIcon } from "@/components/ui/shuffle-icon";
 
 const LINKS: ReadonlyArray<{
   href: string;
@@ -24,6 +25,15 @@ const LINKS: ReadonlyArray<{
       pathname === "/drops" || pathname === "/sub" || pathname.startsWith("/newsletter"),
   },
 ];
+
+// Kept out of LINKS so the desktop row can render it as an icon button.
+// Seven full-width text links overflow the nav at exactly md, where the
+// hamburger has already been hidden — the label only comes back at lg.
+const SURPRISE_LINK = {
+  href: "/surprise",
+  label: "Surprise me",
+  sub: "One random work, as big as it fits",
+} as const;
 
 const ROUTE_3D = "/gallery-3d";
 // Must stay in sync with `--animate-nav-slide-out-down` in globals.css.
@@ -231,6 +241,16 @@ export function SiteNav() {
               );
             })}
           </div>
+          <Link
+            href={SURPRISE_LINK.href}
+            aria-current={pathname === SURPRISE_LINK.href ? "page" : undefined}
+            title={SURPRISE_LINK.label}
+            className="inline-flex shrink-0 items-center gap-1.5 rounded-full border border-[var(--border)] px-3 py-1.5 text-sm whitespace-nowrap transition hover:bg-[var(--accent)] focus:outline-none focus-visible:ring-2 focus-visible:ring-[var(--ring)] aria-[current=page]:bg-[var(--accent)]"
+          >
+            <ShuffleIcon />
+            <span className="hidden lg:inline">{SURPRISE_LINK.label}</span>
+            <span className="sr-only lg:hidden">{SURPRISE_LINK.label}</span>
+          </Link>
         </div>
 
         <button
@@ -315,8 +335,9 @@ export function SiteNav() {
 
           <div className="mx-auto flex w-full max-w-md flex-1 flex-col gap-8 px-5 py-8 sm:justify-center">
             <ul className="flex flex-col gap-2">
-              {LINKS.map((l) => {
-                const active = l.isActive ? l.isActive(pathname) : pathname === l.href;
+              {[...LINKS, SURPRISE_LINK].map((l) => {
+                const active =
+                  "isActive" in l && l.isActive ? l.isActive(pathname) : pathname === l.href;
                 const is3D = l.href === ROUTE_3D;
                 return (
                   <li key={l.href}>

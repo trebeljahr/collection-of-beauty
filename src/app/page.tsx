@@ -1,5 +1,7 @@
 import type { Metadata } from "next";
+import Link from "next/link";
 import { GalleryBrowser } from "@/components/gallery-browser";
+import { ShuffleIcon } from "@/components/ui/shuffle-icon";
 import { DEFAULT_ARTWORK_PAGE_SIZE } from "@/lib/artwork-page-schema";
 import { getArtworkListingPage } from "@/lib/artwork-pagination";
 import { summary } from "@/lib/data";
@@ -30,6 +32,15 @@ export default function HomePage() {
             movements, spanning {summary.yearRange.min}–{summary.yearRange.max}.
           </p>
         </div>
+        {/* The only path into the collection that asks nothing of the
+            visitor — no grid, no era, no artist to choose first. */}
+        <Link
+          href="/surprise"
+          className="inline-flex shrink-0 items-center gap-2 self-start rounded-full bg-[var(--primary)] px-5 py-2.5 text-sm font-medium text-[var(--primary-foreground)] transition hover:opacity-90 focus:outline-none focus-visible:ring-2 focus-visible:ring-[var(--ring)] focus-visible:ring-offset-2 focus-visible:ring-offset-[var(--background)] md:self-auto"
+        >
+          <ShuffleIcon />
+          Surprise me
+        </Link>
       </section>
       <h2 className="sr-only">Browse all works</h2>
       <GalleryBrowser
