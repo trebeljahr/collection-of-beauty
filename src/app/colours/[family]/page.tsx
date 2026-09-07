@@ -33,21 +33,20 @@ function findFamily(family: string): ColorBucket | null {
   return COLOR_BUCKETS.find((b) => b.id === family) ?? null;
 }
 
-/** One line on what the family means, so each page says something the
- *  others don't — and so the neutral bands explain why an engraving is
- *  filed under "white" rather than under a hue. */
+/** One line per family, so each page says something the others don't and
+ *  the neutral bands explain why an engraving files under "white". */
 const BLURBS: Record<ColorBucketId, string> = {
-  red: "Vermilion, crimson, madder — the reds that carry a picture rather than tint it.",
-  orange: "Sienna, terracotta, the warm middle of the wheel at full strength.",
-  gold: "Ochre, amber, marigold — sunlight, gilding, and ripened fields.",
-  brown: "The earths: umber, bistre, bitumen. Old varnish and old canvas.",
+  red: "Vermilion, crimson, madder lake.",
+  orange: "Sienna and terracotta — the warm middle of the wheel.",
+  gold: "Ochre, amber, marigold.",
+  brown: "The earth pigments: umber, bistre, bitumen.",
   green: "Foliage, verdigris, and the greens of landscape painting.",
-  teal: "Where green turns to water — shallows, glaze, and patina.",
-  blue: "Ultramarine, indigo, Prussian blue: skies, seas, and distance.",
-  purple: "Violet and mauve, rare pigments and rarer still in a collection this warm.",
-  pink: "Rose and madder lake, pale and unhurried.",
-  white: "Paper, plaster, and untouched ground — mostly prints and drawings.",
-  grey: "Grisaille, engraving, and the works that hold their colour back.",
+  teal: "Where green turns to water: shallows, glaze, patina.",
+  blue: "Ultramarine, indigo, Prussian blue.",
+  purple: "Violet and mauve — the rarest family in the collection.",
+  pink: "Rose and madder lake at low saturation.",
+  white: "Paper, plaster and bare ground. Mostly prints and drawings.",
+  grey: "Grisaille and engraving.",
   black: "Ink, night scenes, and the deep grounds of the Baroque.",
 };
 

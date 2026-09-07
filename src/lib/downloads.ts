@@ -1,18 +1,15 @@
 // Download surface for the catalogue.
 //
-// The hard constraint this module encodes: **originals are not servable.**
-// `scripts/shrink-sources.mjs` never copies an original into `assets-web/`,
-// and only `assets-web/` is mirrored to R2 (see the header of
-// `scripts/verify-r2.mjs`). A ~37% sample of `assetUrl()` originals 404s on
-// the CDN today — the ones that answer are strays from an older pipeline,
-// not a contract, and the Redouté folders resolve at 0%. So every download
-// offered here addresses a *variant* from the `variantWidths` manifest, and
-// the UI says "largest available" rather than "original".
+// Originals are not servable. `scripts/shrink-sources.mjs` never copies one
+// into `assets-web/`, and only `assets-web/` is mirrored to R2 (see the
+// header of `scripts/verify-r2.mjs`). A ~37% sample of `assetUrl()`
+// originals 404s on the CDN; the Redouté folders resolve at 0%. So every
+// download here addresses a *variant* from the `variantWidths` manifest,
+// and the UI says "largest available" rather than "original".
 //
-// The good news is that the largest available is genuinely large: sources
-// wider than 4,096 px get a per-source full-size AVIF on top of the standard
-// ladder (`FULL_SIZE_MAX` in variant-config.mjs, long side clamped to
-// 16,384 px). 968 works carry one, topping out at 16,384 px / ~34 MB.
+// Sources wider than 4,096 px get a per-source full-size AVIF on top of the
+// standard ladder (`FULL_SIZE_MAX` in variant-config.mjs, long side clamped
+// to 16,384 px). 968 works carry one, topping out at ~34 MB.
 
 import type { Artwork, ArtworkListing } from "@/lib/data";
 import { getLicenseInfo } from "@/lib/license";
@@ -20,8 +17,7 @@ import { sourceLabel } from "@/lib/source-label";
 import { slugify, VARIANT_WIDTHS, type VariantFormat } from "@/lib/utils";
 
 /** Widest rung of the standard responsive ladder. Anything above it is a
- *  per-source full-size AVIF, which is what makes the "high resolution
- *  download" queries answerable at all. */
+ *  per-source full-size AVIF. */
 export const LADDER_MAX_WIDTH = Math.max(...VARIANT_WIDTHS);
 
 /** The only width `shrink-sources.mjs` encodes as WebP (FORMATS caps the
@@ -126,8 +122,7 @@ export function downloadFilename(
 /**
  * The attribution line shown next to the download and embedded in every
  * collection ZIP. Public-domain works carry no legal requirement to
- * attribute, which is exactly why it's worth making the courtesy version
- * copy-pasteable rather than leaving people to invent one.
+ * attribute; this is the courtesy version, ready to copy.
  */
 export function attributionText(
   art: Pick<
@@ -156,9 +151,8 @@ export function attributionText(
  * Trim scrape artifacts off a credit line.
  *
  * Commons captions carry inline footnote links that flatten to a dangling
- * "(see here , here and here )" once the markup is gone. It's noise in a
- * credit line and it's the first thing a reader sees in an archive README,
- * so it goes. Anything that trims to nothing falls back to the source host.
+ * "(see here , here and here )" once the markup is gone. Anything that
+ * trims to nothing falls back to the source host.
  */
 function cleanCredit(credit: string | null | undefined): string | null {
   if (!credit) return null;

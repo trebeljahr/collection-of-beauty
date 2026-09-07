@@ -23,9 +23,7 @@ export default function HomePage() {
     <div className="mx-auto max-w-7xl px-4 py-8 md:py-12">
       <section className="mb-10 flex flex-col gap-5 md:flex-row md:items-end md:justify-between">
         <div>
-          {/* The museum leads. "A personal gallery of public-domain art"
-              describes several hundred sites; a building you can walk
-              through describes this one, and it's the thing people link. */}
+          {/* The museum leads: it's the thing people link. */}
           <h1 className="font-serif text-3xl tracking-tight md:text-4xl">
             A walkable museum of public-domain art
           </h1>
@@ -38,16 +36,13 @@ export default function HomePage() {
           </p>
         </div>
         <div className="flex shrink-0 flex-wrap items-center gap-3 self-start md:self-auto">
-          {/* The museum is the primary call — it's the thing this site has
-              that a hundred other public-domain galleries don't. */}
           <Link
             href="/gallery-3d"
             className="inline-flex shrink-0 items-center rounded-full bg-[var(--primary)] px-5 py-2.5 text-sm font-medium text-[var(--primary-foreground)] transition hover:opacity-90 focus:outline-none focus-visible:ring-2 focus-visible:ring-[var(--ring)] focus-visible:ring-offset-2 focus-visible:ring-offset-[var(--background)]"
           >
             Enter the museum
           </Link>
-          {/* The only path into the collection that asks nothing of the
-              visitor — no grid, no era, no artist to choose first. */}
+          {/* No grid, no era, no artist to pick first. */}
           <Link
             href="/surprise"
             className="inline-flex shrink-0 items-center gap-2 rounded-full border border-[var(--border)] px-5 py-2.5 text-sm font-medium transition hover:bg-[var(--accent)] focus:outline-none focus-visible:ring-2 focus-visible:ring-[var(--ring)] focus-visible:ring-offset-2 focus-visible:ring-offset-[var(--background)]"

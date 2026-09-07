@@ -44,13 +44,10 @@ export default function CollectionsPage() {
       <header className="mb-8 max-w-prose">
         <h1 className="font-serif text-3xl md:text-4xl">Complete plate sets</h1>
         <p className="mt-3 text-[var(--muted-foreground)]">
-          Most of this collection is assembled work by work. These four are different: each is a
-          single illustrated book, held as a whole run and presented in the order its plates were
-          published — {totalPlates.toLocaleString()} plates between them.
-        </p>
-        <p className="mt-3 text-[var(--muted-foreground)]">
-          Where a run is short of the full set, the page says so and lists the plate numbers that
-          are missing.
+          Most of this collection is assembled work by work. These four are whole illustrated books,
+          held as complete runs and shown in published plate order — {totalPlates.toLocaleString()}{" "}
+          plates between them. Where a run falls short, the page says so and lists the missing plate
+          numbers.
         </p>
       </header>
 
