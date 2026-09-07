@@ -210,19 +210,29 @@ set up; if you need one, scaffold a Testing Library setup separately.
 - ~937 paintings lack `realDimensions` — gallery layout falls back to a
   pixel-aspect estimate. Fix is data-side (Wikidata fetch), not
   filter-tightening. See `~/.claude/projects/.../memory/project_dimension_gap.md`.
-- ~656 paintings lack a `movement` tag (~23% of the corpus) — they
-  fall through to year-based era assignment in
+- 100 paintings lack a `movement` tag (~2% of the corpus) — they fall
+  through to year-based era assignment in
   [`gallery-eras.ts`](src/lib/gallery-eras.ts). All come from the
   `collection-of-beauty` folder; `audubon-birds` and
-  `kunstformen-images` are 100% tagged. Top untagged artists who
-  belong in the DB: Vasily Vereshchagin (48), Ilya Repin (23), Lucas
-  Cranach the Elder (18), Artemisia Gentileschi (18), William Merritt
-  Chase (18), Martin Schongauer (16), Gustave Doré (16), Gustave
-  Caillebotte (14), Carl Spitzweg (13), Eugene de Blaas (13), Joseph
-  Karl Stieler (12), Yoshitoshi (11), Thomas Gainsborough (10), Jacob
-  Jordaens (9), Georges de La Tour (9), Utagawa Kuniyoshi (9), Henri
-  Fantin-Latour (9), Hans Holbein the Younger (8), Paolo Veronese
-  (8). Fix is to add these to `scripts/artists-db.json` with a
-  curated movement value. The remaining ~76 paintings are anonymous
-  (no `artist`) and can't be matched by alias — they need per-artwork
-  movement metadata or to stay on year fallback.
+  `kunstformen-images` are 100% tagged. The bulk of the old gap (775)
+  was closed by adding ~110 artists to `scripts/artists-db.json`; what
+  remains is deliberate or unfixable-by-alias:
+    - 25 anonymous works (no `artist`). Nothing to match an alias
+      against — they need per-artwork
+      `metadata/movement-overrides.json` entries or year fallback.
+    - 28 Boilly works. He has a db entry (so the five spelling
+      variants collapse onto one artist page) but `movement: null` —
+      his works here split evenly across 1781–1799 and 1803–1830, so
+      per-work year fallback beats any single tag.
+    - 17 pre-1500 works (van der Weyden, Uccello, Mantegna, Witz,
+      Wolgemut, van der Goes, Carpaccio, Signorelli). Tagging them
+      Renaissance / Northern Renaissance would *promote* them off the
+      "Gothic & Early Renaissance" floor onto the 1500–1599 one, which
+      is worse than where the year already puts them. A first pass
+      added a Rogier van der Weyden entry and did exactly that to his
+      eight 1435–1490 works; it was removed.
+    - 11 works by artists who died after 1955 (Escher, Metzinger,
+      Bonnard, de Chirico, Tanguy, Keith…). Every db entry asserts
+      `pd_status: public_domain_worldwide`; don't add one for an
+      artist where that isn't true.
+    - ~19 one-off minor or unidentified names.
