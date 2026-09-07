@@ -220,13 +220,14 @@ export function ZoomModal({
         // viewer streams ~512 px WebP tiles for the region actually on
         // screen, so pixel-peeping a 264 MP Rubens costs a few hundred KB
         // per pan rather than one enormous download and decode. Controls
-        // are lifted clear of the metadata bar below.
+        // are lifted clear of the metadata bar below, which stands about
+        // 168 px tall (pt-12 + four text rows + pb-5).
         <DeepZoomViewer
           key={artwork.objectKey}
           tileSource={tileSource}
           placeholder={placeholder}
           alt={artworkAlt(artwork)}
-          controlsClassName="bottom-32"
+          controlsClassName="bottom-44"
           onUnavailable={() => setDeepZoomFailed(true)}
         />
       ) : (
