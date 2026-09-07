@@ -87,13 +87,17 @@
   }
   html {
     scroll-behavior: smooth;
-    /* Sticky <SiteNav> in src/components/site-nav.tsx is ~53px tall
-       (py-3 + text-lg line + 1px border). Without this offset any
-       hash-anchor jump — the "Skip to main content" link, the press
-       page's section anchors, the timeline-view decade anchors — lands
-       with the target hidden under the header. 4rem leaves a small
-       breathing strip above the title. */
-    scroll-padding-top: 4rem;
+    /* Sticky <SiteNav> in src/components/site-nav.tsx measures 69px
+       below md: py-3 (24px) + the size-11 (44px) hamburger button, its
+       tallest child, + the 1px bottom border. From md up the hamburger
+       is hidden and the bar shrinks to ~59px, so 69px is the bound to
+       clear. Without this offset any hash-anchor jump — the "Skip to
+       main content" link, the press page's section anchors, the
+       timeline-view decade anchors — lands with the target hidden under
+       the header. The previous 4rem (64px) was below the real height, so
+       targets landed 5px *under* the bar on phones; 5rem clears it with
+       an 11px breathing strip above the title. */
+    scroll-padding-top: 5rem;
   }
 
   /* Default keyboard focus indicator for any interactive element that
@@ -146,6 +150,12 @@
   top: 0.5rem;
   left: 0.5rem;
   z-index: 100;
+  /* inline-flex + min-height rather than more vertical padding: the box
+     is border-box, so 2.75rem is the full 44px WCAG 2.5.5 target even
+     with the 1px border counted in. Padding alone reached only 39px. */
+  display: inline-flex;
+  align-items: center;
+  min-height: 2.75rem;
   padding: 0.5rem 0.75rem;
   border-radius: 0.375rem;
   background: var(--background);

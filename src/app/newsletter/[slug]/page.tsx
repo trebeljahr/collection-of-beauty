@@ -16,6 +16,19 @@ import { buildOpenGraph, SITE_NAME } from "@/lib/seo";
 
 type Params = { slug: string };
 
+/* Bare text links. `min-h-11` is the 44px WCAG 2.5.5 touch-target
+   minimum, gated to below `sm:` because 2.5.5 is a *touch* criterion —
+   a mouse pointer is governed by 2.5.8's 24px, which these already clear,
+   so nothing asks the desktop layout to grow. `-my-3` hands the extra
+   24px back to layout so the blocks around it keep their exact positions
+   (the enlarged box merely overlaps neighbouring lines, none of which are
+   clickable), and `sm:inline` returns the anchor to an ordinary inline box
+   above the breakpoint. Same idiom on /artwork/[id], /artist/[slug],
+   /era/[id], /collection/[slug], /colours/[family] and /downloads/[slug]:
+   enlarge the box and overlap, never shrink a neighbour's margin. */
+const TEXT_LINK =
+  "-my-3 inline-flex min-h-11 items-center rounded-sm underline focus:outline-none focus-visible:ring-2 focus-visible:ring-[var(--ring)] sm:my-0 sm:inline sm:min-h-0";
+
 export function generateStaticParams(): Params[] {
   return loadUiVisibleEditions().map((e) => ({ slug: e.fileSlug }));
 }
@@ -73,9 +86,17 @@ export default async function EditionPage({ params }: { params: Promise<Params> 
         aria-label="Edition navigation"
         className="mb-8 flex flex-col gap-4 text-sm sm:flex-row sm:items-center sm:justify-between"
       >
+        {/* The one place that can't use TEXT_LINK verbatim. `w-fit` keeps
+            the hit box hugging the words instead of spanning the nav row, so
+            it can't swallow taps meant for the arrows beside it — and the
+            `-my-3` half of the idiom is omitted because on a phone this is a
+            `flex-col gap-4` item, where a negative block margin is subtracted
+            from the margin box the gap measures against and would collapse
+            the 16px between the two rows. The height still ends at `sm:`
+            like everywhere else, so the desktop row is untouched. */}
         <Link
           href="/drops"
-          className="w-fit rounded-sm underline underline-offset-2 hover:opacity-70 focus:outline-none focus-visible:ring-2 focus-visible:ring-[var(--ring)]"
+          className="inline-flex min-h-11 w-fit items-center rounded-sm underline underline-offset-2 hover:opacity-70 focus:outline-none focus-visible:ring-2 focus-visible:ring-[var(--ring)] sm:min-h-0"
         >
           ← All editions
         </Link>
@@ -140,9 +161,18 @@ export default async function EditionPage({ params }: { params: Promise<Params> 
             </Link>
             <figcaption className="mt-3 md:mt-4">
               <h2 className="font-serif text-2xl md:text-3xl leading-tight">
+                {/* Inline in an <h2>, the anchor box is only as tall as the
+                    glyphs (~24–28px), so a one-word title was a small target
+                    even though the heading line is taller. inline-flex gives
+                    the anchor a box that min-h-11 can raise to 44px; it is
+                    shrink-to-fit, so the text still wraps, and long titles
+                    were already past the floor. No `-my-3` — the heading only
+                    grows by ~14px here, not 24 — and both the box and the
+                    floor end at `sm:`, where the 30px heading line plus a
+                    mouse pointer (WCAG 2.5.8's 24px) need neither. */}
                 <Link
                   href={`/artwork/${artwork.id}`}
-                  className="underline underline-offset-4 hover:opacity-70 transition-opacity"
+                  className="inline-flex min-h-11 items-center underline underline-offset-4 hover:opacity-70 transition-opacity sm:inline sm:min-h-0"
                 >
                   {displayTitle(artwork)}
                 </Link>
@@ -162,12 +192,18 @@ export default async function EditionPage({ params }: { params: Promise<Params> 
                     rehypePlugins={[rehypeExternalLinks]}
                     components={{
                       p: ({ children }) => <p className="first:mt-0 mt-3">{children}</p>,
+                      // py-1 on an *inline* anchor grows the hit box without
+                      // touching the line box, so the note's rhythm is
+                      // unchanged. These links sit inside running prose, which
+                      // WCAG 2.5.8 exempts from the 44px floor precisely
+                      // because the line height constrains them — a block
+                      // target here would shove the sentence apart.
                       a: ({ href, children, target, rel }) => (
                         <a
                           href={href}
                           target={target}
                           rel={rel}
-                          className="underline underline-offset-2 hover:opacity-70"
+                          className="py-1 underline underline-offset-2 hover:opacity-70"
                         >
                           {children}
                         </a>
@@ -193,7 +229,7 @@ export default async function EditionPage({ params }: { params: Promise<Params> 
           <EditionFooterLink edition={nextEdition} direction="next" />
         </nav>
         <div className="mt-8 text-sm">
-          <Link href="/drops" className="underline underline-offset-2 hover:opacity-70">
+          <Link href="/drops" className={`${TEXT_LINK} underline-offset-2 hover:opacity-70`}>
             ← All editions
           </Link>
         </div>
@@ -220,6 +256,9 @@ function EditionArrowControls({
   );
 }
 
+/** min-h-11 rather than min-h-9 on both the live link and its disabled
+ *  twin: 36px is under the 44px touch floor, and the two must keep the
+ *  same box or the pair jumps when one edge of the archive is reached. */
 function EditionArrowLink({
   edition,
   direction,
@@ -239,7 +278,7 @@ function EditionArrowLink({
     return (
       <span
         aria-disabled="true"
-        className="inline-flex min-h-9 items-center gap-2 rounded-md border border-[var(--border)] px-3 text-[var(--muted-foreground)] opacity-45"
+        className="inline-flex min-h-11 items-center gap-2 rounded-md border border-[var(--border)] px-3 text-[var(--muted-foreground)] opacity-45"
       >
         {direction === "previous" ? icon : null}
         {label}
@@ -252,7 +291,7 @@ function EditionArrowLink({
     <Link
       href={`/newsletter/${edition.fileSlug}`}
       title={`Issue ${edition.number}: ${edition.title}`}
-      className="inline-flex min-h-9 items-center gap-2 rounded-md border border-[var(--border)] px-3 transition-colors hover:bg-[var(--muted)] focus:outline-none focus-visible:ring-2 focus-visible:ring-[var(--ring)]"
+      className="inline-flex min-h-11 items-center gap-2 rounded-md border border-[var(--border)] px-3 transition-colors hover:bg-[var(--muted)] focus:outline-none focus-visible:ring-2 focus-visible:ring-[var(--ring)]"
     >
       {direction === "previous" ? icon : null}
       {label}

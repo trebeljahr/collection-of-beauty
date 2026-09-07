@@ -27,6 +27,20 @@ import { buildOpenGraph, jsonLdScriptProps, ogImagesForArtwork, plateSetJsonLd }
 
 type Params = { slug: string };
 
+/* Bare text links. `min-h-11` is the 44px WCAG 2.5.5 touch-target
+   minimum, gated to below `sm:` because 2.5.5 is a *touch* criterion —
+   a mouse pointer is governed by 2.5.8's 24px, which these already
+   clear, so nothing asks the desktop layout to grow. `-my-3` hands the
+   extra 24px back to layout so the surrounding blocks keep their exact
+   positions (the enlarged box merely overlaps neighbouring lines, none
+   of which are clickable), and `sm:inline` returns the anchor to an
+   ordinary inline box above the breakpoint. This is the idiom on every
+   page that grew a touch target — /artwork/[id], /artist/[slug],
+   /era/[id], /colours/[family], /downloads/[slug] — enlarge the box and
+   overlap, never shrink a neighbour's margin. */
+const TEXT_LINK =
+  "-my-3 inline-flex min-h-11 items-center rounded-sm underline focus:outline-none focus-visible:ring-2 focus-visible:ring-[var(--ring)] sm:my-0 sm:inline sm:min-h-0";
+
 // Rendered entirely from the bundled artwork JSON — nothing here reads a
 // request, so match the sitemap's daily window instead of re-rendering.
 export const revalidate = 86400;
@@ -140,10 +154,7 @@ export default async function CollectionPage({ params }: { params: Promise<Param
         )}
       />
 
-      <Link
-        href="/collections"
-        className="rounded-sm text-sm text-[var(--muted-foreground)] underline focus:outline-none focus-visible:ring-2 focus-visible:ring-[var(--ring)]"
-      >
+      <Link href="/collections" className={`${TEXT_LINK} text-sm text-[var(--muted-foreground)]`}>
         ← All plate sets
       </Link>
 
@@ -153,10 +164,11 @@ export default async function CollectionPage({ params }: { params: Promise<Param
           <p className="font-serif text-lg italic text-[var(--muted-foreground)]">{set.subtitle}</p>
         )}
         <div className="flex flex-wrap items-center gap-3 text-[var(--muted-foreground)]">
-          <Link
-            href={`/artist/${set.authorSlug}`}
-            className="rounded-sm underline underline-offset-4 focus:outline-none focus-visible:ring-2 focus-visible:ring-[var(--ring)]"
-          >
+          {/* The only tappable thing in this meta row, sitting shoulder to
+              shoulder with plain text — so on a phone it needs the 44px box
+              even though the row around it is a 24px line. `-my-3` keeps
+              the flex line 24px tall regardless, so the row does not grow. */}
+          <Link href={`/artist/${set.authorSlug}`} className={`${TEXT_LINK} underline-offset-4`}>
             {set.author}
           </Link>
           <span>· {set.publishedLabel}</span>
@@ -165,9 +177,18 @@ export default async function CollectionPage({ params }: { params: Promise<Param
           </span>
         </div>
         <div className="flex flex-wrap gap-1.5">
+          {/* pillClasses is tuned for dense rows of chips (26px tall); this
+              one is a real navigation target, so below `sm:` it takes the
+              44px floor and above it stays a pill — WCAG 2.5.5's 44px is a
+              touch criterion, and a mouse gets 2.5.8's 24px, which the bare
+              pill already clears. Only min-h is added, never a competing
+              px-*: pillClasses already sets padding, and two conflicting
+              spacing utilities in one class string resolve by stylesheet
+              order, not by who was written last. Same string as the chips on
+              /artwork/[id], /artist/[slug] and /era/[id]. */}
           <Link
             href={`/era/${era.id}`}
-            className={`${pillClasses} focus:outline-none focus-visible:ring-2 focus-visible:ring-[var(--ring)]`}
+            className={`${pillClasses} min-h-11 focus:outline-none focus-visible:ring-2 focus-visible:ring-[var(--ring)] sm:min-h-0`}
           >
             {era.title}
           </Link>
@@ -190,7 +211,7 @@ export default async function CollectionPage({ params }: { params: Promise<Param
             <p className="mt-4">
               <a
                 href={`/api/collections/${set.id}`}
-                className="inline-flex items-center gap-2 rounded-md bg-[var(--primary)] px-4 py-2 text-sm font-medium text-[var(--primary-foreground)] hover:opacity-90 focus:outline-none focus-visible:ring-2 focus-visible:ring-[var(--ring)]"
+                className="inline-flex min-h-11 items-center gap-2 rounded-md bg-[var(--primary)] px-4 py-2 text-sm font-medium text-[var(--primary-foreground)] hover:opacity-90 focus:outline-none focus-visible:ring-2 focus-visible:ring-[var(--ring)] sm:min-h-0"
               >
                 Download all {zipEntryCount} plates (.zip)
               </a>
@@ -231,16 +252,22 @@ export default async function CollectionPage({ params }: { params: Promise<Param
         <p className="mt-1 mb-4 text-sm text-[var(--muted-foreground)]">
           All {set.presentCount} plates, listed in published order.
         </p>
-        <ol className="grid grid-cols-1 gap-x-6 gap-y-0.5 sm:grid-cols-2 lg:grid-cols-3">
+        {/* Same 24px-row problem as /downloads/<slug>, and the same fix: the
+            row geometry is stated once on the <ol> as child selectors rather
+            than repeated in a class attribute on all 435 <li>s, where it
+            would cost tens of KB of HTML for one identical rule. Each link
+            fills its cell (flex + min-h-11 = the 44px touch floor) and a hair
+            line under every row keeps two adjacent targets distinguishable. */}
+        <ol className="grid grid-cols-1 gap-x-6 text-sm sm:grid-cols-2 lg:grid-cols-3 [&>li]:border-b [&>li]:border-[var(--border)] [&_a]:flex [&_a]:min-h-11 [&_a]:items-center [&_a]:gap-x-1.5 [&_a]:py-2">
           {set.plates.map((plate) => (
-            <li key={plate.listing.id} className="text-sm leading-6">
+            <li key={plate.listing.id}>
               <Link
                 href={artworkHref(plate.listing.id, scope)}
                 className="rounded-sm underline-offset-2 hover:underline focus:outline-none focus-visible:ring-2 focus-visible:ring-[var(--ring)]"
               >
-                <span className="tabular-nums text-[var(--muted-foreground)]">
+                <span className="shrink-0 tabular-nums text-[var(--muted-foreground)]">
                   {plate.plateNumber ?? "—"}
-                </span>{" "}
+                </span>
                 {plateLabel(set, plate)}
               </Link>
             </li>

@@ -45,11 +45,18 @@ export default function AboutPage() {
             occasional misattributed artist are likely on a meaningful slice of the corpus.
             Corrections are very welcome: every artwork has a <em>Suggest a fix</em> link that opens
             a pre-filled{" "}
+            {/* Every link on this page that sits inside a sentence gets py-1
+                and nothing more. Vertical padding on an *inline* box grows
+                the hit area but does not enter the line box, so the
+                paragraph's rhythm is untouched — and WCAG 2.5.8 exempts
+                inline links from the 44px floor for exactly this reason: the
+                surrounding line height, not the author, sets their height.
+                Turning one into a 44px block would tear the sentence apart. */}
             <a
               href={`${GITHUB_URL}/issues/new`}
               target="_blank"
               rel="noreferrer"
-              className="underline underline-offset-2 hover:text-[var(--muted-foreground)]"
+              className="py-1 underline underline-offset-2 hover:text-[var(--muted-foreground)]"
             >
               GitHub issue
             </a>
@@ -58,7 +65,7 @@ export default function AboutPage() {
               href={GITHUB_URL}
               target="_blank"
               rel="noreferrer"
-              className="underline underline-offset-2 hover:text-[var(--muted-foreground)]"
+              className="py-1 underline underline-offset-2 hover:text-[var(--muted-foreground)]"
             >
               the repo
             </a>
@@ -169,7 +176,7 @@ export default function AboutPage() {
               href={GITHUB_URL}
               target="_blank"
               rel="noreferrer"
-              className="rounded-sm underline underline-offset-2 hover:text-[var(--muted-foreground)] focus:outline-none focus-visible:ring-2 focus-visible:ring-[var(--ring)]"
+              className="rounded-sm py-1 underline underline-offset-2 hover:text-[var(--muted-foreground)] focus:outline-none focus-visible:ring-2 focus-visible:ring-[var(--ring)]"
             >
               {GITHUB_URL.replace(/^https?:\/\//, "")}
             </a>
@@ -178,7 +185,7 @@ export default function AboutPage() {
               href={`${GITHUB_URL}/issues/new`}
               target="_blank"
               rel="noreferrer"
-              className="rounded-sm underline underline-offset-2 hover:text-[var(--muted-foreground)] focus:outline-none focus-visible:ring-2 focus-visible:ring-[var(--ring)]"
+              className="rounded-sm py-1 underline underline-offset-2 hover:text-[var(--muted-foreground)] focus:outline-none focus-visible:ring-2 focus-visible:ring-[var(--ring)]"
             >
               open an issue
             </a>{" "}
@@ -220,9 +227,18 @@ export default function AboutPage() {
         </section>
 
         <section className="pt-4">
+          {/* Standalone nav link, not prose — so unlike the in-sentence links
+              above it can take a real box. Same idiom as the "← Back to …"
+              links on /artwork/[id], /artist/[slug], /era/[id],
+              /collection/[slug], /colours/[family], /downloads/[slug] and
+              /newsletter/[slug]: min-h-11 is WCAG 2.5.5's 44px touch floor
+              on the hit area rather than the type size, `-my-3` hands the
+              extra 24px straight back so the section's own spacing is
+              untouched, and all of it stops at `sm:` — 2.5.5 is a touch
+              criterion, and a mouse pointer only asks for 2.5.8's 24px. */}
           <Link
             href="/"
-            className="rounded-sm text-sm underline underline-offset-2 hover:opacity-70 focus:outline-none focus-visible:ring-2 focus-visible:ring-[var(--ring)]"
+            className="-my-3 inline-flex min-h-11 items-center rounded-sm text-sm underline underline-offset-2 hover:opacity-70 focus:outline-none focus-visible:ring-2 focus-visible:ring-[var(--ring)] sm:my-0 sm:inline sm:min-h-0"
           >
             ← Back to the gallery
           </Link>
