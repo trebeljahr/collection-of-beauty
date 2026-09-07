@@ -29,16 +29,36 @@ export type PaintingEntry = {
    *  painting's rectangular surface (rather than its centre — the
    *  difference matters for large paintings: a player face-pressed
    *  against the right edge of a 3 m work is centre-distance ~1.5 m
-   *  away but should still be in the 4096 px band). */
+   *  away but should still be inside that work's sharpest band, which
+   *  for a canvas that size sits around 1.5 m — see `deriveTiers` in
+   *  painting.tsx, where the bands are derived per painting). */
   halfW: number;
   halfH: number;
   artwork: ArtworkListing;
-  /** Optional LOD tick. Called by the LodController with the squared
-   *  closest-point distance from the camera to this painting's surface;
-   *  the painting decides whether to prefetch, swap, or release its
-   *  hi-res texture. Only PaintingPlane sets this — fallback swatches
-   *  don't have a texture to upgrade. */
-  lodUpdate?: (distSq: number) => void;
+  /** Optional LOD tick. Called by the LodController; the painting decides
+   *  whether to prefetch, swap, or release its hi-res texture. Only
+   *  PaintingPlane sets this — fallback swatches don't have a texture to
+   *  upgrade.
+   *
+   *  TWO distances, and they are not interchangeable:
+   *
+   *    `distSq`    — squared closest-point distance from the camera to
+   *                  this painting's rectangular surface, in real metres.
+   *                  Answers "how far would the player have to walk", so
+   *                  it drives PREFETCH and RELEASE.
+   *    `displaySq` — the same distance scaled by `fovZoomScaleSq` (see
+   *                  camera-config.ts), i.e. the distance that would
+   *                  produce the current on-screen size at the default
+   *                  FOV. Answers "how big is it on screen right now", so
+   *                  it drives which rung is DISPLAYED.
+   *
+   *  They differ only while the F-key zoom is engaged, where the two
+   *  questions genuinely have different answers: the work is 2.4x bigger
+   *  on screen, but the player has not moved and walking cancels the zoom
+   *  outright (player.tsx), so sizing the prefetch radius off the zoom
+   *  would pull the whole room's top rungs into the pool for a player who
+   *  is standing still. */
+  lodUpdate?: (distSq: number, displaySq: number) => void;
 };
 
 const entries = new Set<PaintingEntry>();

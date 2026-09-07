@@ -14,6 +14,7 @@ import { layoutMuseum } from "@/lib/gallery-layout/layout-museum";
 import type { FloorLayout, MuseumLayout, Staircase } from "@/lib/gallery-layout/types";
 import { variantProxyUrl } from "@/lib/utils";
 
+import { FOV_DEFAULT_DEG } from "./camera-config";
 import { HallwayRenderer } from "./hallway";
 import { LandscapePrompt } from "./landscape-prompt";
 import { LodController } from "./lod-controller";
@@ -459,7 +460,7 @@ export function Gallery3D({ artworks }: Props) {
         // onCreated handler below for why in-place restore doesn't work.
         key={canvasKey}
         className="gallery-canvas-host"
-        camera={{ fov: 75, near: 0.1, far: 500 }}
+        camera={{ fov: FOV_DEFAULT_DEG, near: 0.1, far: 500 }}
         dpr={[1, 2]}
         gl={{ antialias: true, powerPreference: "high-performance" }}
         onCreated={({ gl, scene }) => {
