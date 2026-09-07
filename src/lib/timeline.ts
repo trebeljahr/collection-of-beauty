@@ -1,5 +1,5 @@
 import { listingMatchesQuery } from "@/lib/artwork-pagination";
-import { type ArtworkListing, artworkListings } from "@/lib/data";
+import { type ArtworkListing, artworkListings, movements } from "@/lib/data";
 
 export const TIMELINE_DECADE_SPAN = 10;
 
@@ -87,9 +87,22 @@ function histogram(list: readonly ArtworkListing[]): TimelineDecade[] {
 }
 
 // Memoise the two filter shapes with a bounded key space: no filter at
-// all (what every first visit renders) and one movement (32 of them).
+// all (what every first visit renders) and one movement (36 of them).
 // Free-text queries are deliberately not cached — the key space is
 // whatever visitors type, and a linear scan of ~4.3k rows is cheap.
+//
+// These caches sit behind /api/timeline/decades and /api/timeline/works,
+// which hand their query params straight through, so the key has to be
+// validated against the corpus before it can reach a Map — otherwise the
+// public route retains one entry per distinct string a visitor invents.
+// An unrecognised movement still answers, it just answers uncached (and
+// matches nothing, so the scan is trivial). The size caps below are
+// belt-and-braces: with the validation in place neither map can exceed
+// the corpus's own key count.
+const KNOWN_MOVEMENTS: ReadonlySet<string> = new Set(movements);
+const MAX_CACHED_MOVEMENTS = 128;
+const MAX_CACHED_DECADES = 128;
+
 let cachedUnfiltered: TimelineSummary | null = null;
 const cachedByMovement = new Map<string, TimelineSummary>();
 
@@ -106,11 +119,16 @@ export function getTimelineSummary(filter: TimelineFilter = {}): TimelineSummary
   }
 
   if (!query) {
-    const hit = cachedByMovement.get(movement);
-    if (hit) return hit;
+    const cacheable = KNOWN_MOVEMENTS.has(movement);
+    if (cacheable) {
+      const hit = cachedByMovement.get(movement);
+      if (hit) return hit;
+    }
     const list = filterDated({ movement });
     const summary = { decades: histogram(list), total: list.length };
-    cachedByMovement.set(movement, summary);
+    if (cacheable && cachedByMovement.size < MAX_CACHED_MOVEMENTS) {
+      cachedByMovement.set(movement, summary);
+    }
     return summary;
   }
 
@@ -134,8 +152,29 @@ function toTimelineListing(artwork: ArtworkListing): TimelineListing {
 
 // Unfiltered decades are the common case (a visitor scrolling the
 // default view pulls one per section), so keep the projected arrays —
-// 62 entries, bounded by the corpus's decade span.
+// 62 entries, bounded by the corpus's decade span. `?decade=` is caller
+// input, so only decades the corpus actually spans become keys; anything
+// else answers uncached with the empty list it already produced.
 const cachedDecadeWorks = new Map<number, TimelineListing[]>();
+
+/** Lazily derived from `datedListings()`, which is sorted year-ascending
+ *  — so its ends are the corpus's min and max year. */
+let corpusDecades: { first: number; last: number } | null = null;
+function corpusDecadeRange(): { first: number; last: number } | null {
+  if (corpusDecades) return corpusDecades;
+  const dated = datedListings();
+  const first = dated[0]?.year;
+  const last = dated[dated.length - 1]?.year;
+  if (first == null || last == null) return null;
+  corpusDecades = { first: decadeOf(first), last: decadeOf(last) };
+  return corpusDecades;
+}
+
+function isCorpusDecade(decade: number): boolean {
+  if (!Number.isInteger(decade) || decade % TIMELINE_DECADE_SPAN !== 0) return false;
+  const range = corpusDecadeRange();
+  return range != null && decade >= range.first && decade <= range.last;
+}
 
 /** The works of one decade, in render order. This is what the client
  *  fetches when a decade section scrolls into view. */
@@ -147,12 +186,17 @@ export function getTimelineDecadeWorks(
   const movement = filter.movement ?? "";
 
   if (!query && !movement) {
-    const hit = cachedDecadeWorks.get(decade);
-    if (hit) return hit;
+    const cacheable = isCorpusDecade(decade);
+    if (cacheable) {
+      const hit = cachedDecadeWorks.get(decade);
+      if (hit) return hit;
+    }
     const works = datedListings()
       .filter((artwork) => artwork.year != null && decadeOf(artwork.year) === decade)
       .map(toTimelineListing);
-    cachedDecadeWorks.set(decade, works);
+    if (cacheable && cachedDecadeWorks.size < MAX_CACHED_DECADES) {
+      cachedDecadeWorks.set(decade, works);
+    }
     return works;
   }
 

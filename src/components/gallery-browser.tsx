@@ -227,11 +227,17 @@ export function GalleryBrowser({ initialArtworks, eras, totalArtworks }: Props) 
         <div className="py-16 text-center text-[var(--muted-foreground)]">Loading works...</div>
       ) : (
         <ArtworkGallery
+          // The key belongs on the component, not on anything it renders:
+          // the gallery's own displayed / serverExhausted / measured-width
+          // state has to be thrown away when the underlying set changes.
+          // The default-page branch above (Clear after a search) re-seeds
+          // without ever hitting the loading state, so this is the only
+          // thing that unmounts the stale grid.
+          key={filterKey}
           artworks={visibleArtworks}
           loadMoreArtworks={loadMoreArtworks}
           hasMoreArtworks={pageInfo.hasMore}
           initialSeed={Math.min(PAGE_SIZE, visibleArtworks.length)}
-          resetKey={filterKey}
           scope={{ kind: "gallery" }}
         />
       )}

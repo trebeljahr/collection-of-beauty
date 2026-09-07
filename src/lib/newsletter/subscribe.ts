@@ -160,9 +160,23 @@ const RATE_WINDOW_MS = 60_000;
 const RATE_MAX_PER_WINDOW = 5;
 const ipBuckets = new Map<string, { count: number; resetAt: number }>();
 
+// The limiter runs before the body is parsed, so every request — junk
+// included — allocates a bucket, and nothing here ever expires one on its
+// own. Sweep the dead entries whenever the map crosses this size; a whole
+// window's worth of distinct IPs is far below it, so the scan is rare and
+// never on the hot path.
+const RATE_SWEEP_AT = 10_000;
+
+function sweepExpired(now: number): void {
+  for (const [ip, bucket] of ipBuckets) {
+    if (bucket.resetAt < now) ipBuckets.delete(ip);
+  }
+}
+
 export function checkRateLimit(ip: string, now: number = Date.now()): boolean {
   const bucket = ipBuckets.get(ip);
   if (!bucket || bucket.resetAt < now) {
+    if (ipBuckets.size >= RATE_SWEEP_AT) sweepExpired(now);
     ipBuckets.set(ip, { count: 1, resetAt: now + RATE_WINDOW_MS });
     return true;
   }

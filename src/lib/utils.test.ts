@@ -1,9 +1,11 @@
 import { afterEach, describe, expect, it, vi } from "vitest";
 import {
   assetUrl,
+  deepZoomTileUrl,
   fallbackVariantUrl,
   publicVariantUrl,
   slugify,
+  variantProxyUrl,
   variantSrcSet,
   variantUrl,
 } from "./utils";
@@ -123,6 +125,37 @@ describe("publicVariantUrl", () => {
     expect(publicVariantUrl("collection/Foo.jpg", 1280, "webp")).toBe(
       "https://cdn.example.test/assets/collection/Foo/1280.webp",
     );
+  });
+});
+
+describe("variantProxyUrl / deepZoomTileUrl", () => {
+  it("resolves variantProxyUrl to the same path shape as variantUrl", () => {
+    // variantProxyUrl is the only URL builder the 3D gallery uses. It
+    // used to carry its own copy of the basename split, so a change to
+    // the on-disk variant layout would have left every WebGL texture
+    // fetch pointing at the old one while the 2D site moved on.
+    const key = "collection/D\u00fcsseldorf Ansicht.jpg";
+    expect(variantProxyUrl(key, 4096, "avif")).toBe(
+      "/assets-raw/collection/D%C3%BCsseldorf%20Ansicht/4096.avif",
+    );
+    // Same tail as the CDN builder (ASSETS_BASE_URL is captured at
+    // module load, so in tests both bases are the dev "/assets-raw").
+    expect(variantUrl(key, 4096, "avif")).toBe(
+      "/assets-raw/collection/D%C3%BCsseldorf%20Ansicht/4096.avif",
+    );
+  });
+
+  it("hangs the tile pyramid off the same variant directory", () => {
+    // The pyramid lives one level under the variant dir. If the two
+    // disagree about the directory, OpenSeadragon 404s every tile.
+    expect(deepZoomTileUrl("collection/Foo.jpg", 7, 3, 2)).toMatch(
+      /\/collection\/Foo\/tiles\/7\/3_2\.webp$/,
+    );
+  });
+
+  it("keeps the empty-objectKey guard", () => {
+    expect(variantProxyUrl("", 256, "avif")).toBe("");
+    expect(deepZoomTileUrl("", 0, 0, 0)).toBe("");
   });
 });
 

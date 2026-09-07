@@ -16,7 +16,7 @@ export const revalidate = 86400;
 /**
  * Served at /sitemap.xml. Emits every indexable URL:
  *   - Static pages (home, timeline, artists index, eras index,
- *     collections index, newsletter index, subscribe, press, 3D gallery)
+ *     collections index, drops index, subscribe, press, 3D gallery)
  *   - One entry per era (11)
  *   - One entry per plate set (4)
  *   - One entry per colour family (12)
@@ -30,8 +30,10 @@ export const revalidate = 86400;
  * discovered by crawl alone.
  *
  * Deliberately absent: /dedup-review and /replace-low-res (internal
- * tools, also disallowed in robots.ts) and /drops/<slug>, which is a
- * permanent redirect to /newsletter/<slug> and would only split signal.
+ * tools, also disallowed in robots.ts) and the two redirect surfaces —
+ * /drops/<slug>, a permanent redirect to /newsletter/<slug>, and
+ * /newsletter, a permanent redirect to /drops. Listing either alongside
+ * its destination would only split signal.
  *
  * Total is ~4.9k URLs / ~2 MB, well under Google's 50k-URL and 50 MB
  * per-sitemap caps, so we can ship one file. If the collection ever
@@ -52,14 +54,6 @@ export default function sitemap(): MetadataRoute.Sitemap {
       priority: 0.8,
     },
     { url: absoluteUrl("/colours"), lastModified: now, changeFrequency: "monthly", priority: 0.7 },
-    // The per-edition pages were already listed while their own index
-    // wasn't — a crawler could reach an edition but never the archive.
-    {
-      url: absoluteUrl("/newsletter"),
-      lastModified: now,
-      changeFrequency: "weekly",
-      priority: 0.7,
-    },
     { url: absoluteUrl("/sub"), lastModified: now, changeFrequency: "monthly", priority: 0.5 },
     { url: absoluteUrl("/about"), lastModified: now, changeFrequency: "monthly", priority: 0.7 },
     {

@@ -19,9 +19,10 @@ export default function RouteError({
   reset: () => void;
 }) {
   useEffect(() => {
-    // Surface the error to the browser console + (in prod) Vercel logs
-    // via the framework's stderr capture. `digest` is the hashed ID
-    // Next prints in server logs — useful for cross-referencing.
+    // This runs on the client, so it lands in the visitor's browser
+    // console only — nothing here reaches the container's stderr. The
+    // one durable handle is `digest`, the hashed ID Next assigns the
+    // error; it is also rendered below so a user can quote it.
     console.error("[route error]", error.digest ?? "(no digest)", error);
   }, [error]);
 

@@ -69,6 +69,7 @@ import {
   GALLERY_LOD_WIDTH,
   VARIANT_WIDTHS,
 } from "../src/lib/variant-config.mjs";
+import { SOURCE_FOLDERS } from "./lib/source-folders.mjs";
 
 // One libvips thread per op; parallelize at the JS level instead.
 sharp.concurrency(1);
@@ -94,9 +95,10 @@ const CONCURRENCY = Number.parseInt(
   args.concurrency ?? String(Math.min(6, Math.max(2, os.cpus().length - 2))),
   10,
 );
-const FOLDERS = args.folder
-  ? [args.folder]
-  : ["collection-of-beauty", "audubon-birds", "kunstformen-images"];
+// Default to every catalogued source folder. The list is shared with
+// build-data.mjs: it used to be inlined here and had fallen two folders
+// behind, so `pnpm assets:prepare` silently never shrank the Redouté plates.
+const FOLDERS = args.folder ? [args.folder] : SOURCE_FOLDERS;
 
 // ─── Variant schema ────────────────────────────────────────────────────────
 // Every constant here comes from src/lib/variant-config.mjs so this

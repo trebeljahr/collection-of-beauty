@@ -10,6 +10,7 @@ import { artworkAlt, displayTitle } from "@/lib/artwork-format";
 import type { ArtworkListing } from "@/lib/data";
 import { artworkHref, type Scope } from "@/lib/scope-href";
 import { useArtworkBackFlip } from "@/lib/use-artwork-back-flip";
+import type { LoadMoreResult } from "@/lib/use-artwork-pagination";
 import { useTransitionNav } from "@/lib/use-transition-nav";
 import { artworkHeroVtName } from "@/lib/view-transitions";
 
@@ -48,7 +49,7 @@ export function toGalleryPhoto(a: ArtworkListing, scope: Scope | null = null): G
 
 type Props = {
   artworks: ArtworkListing[];
-  loadMoreArtworks?: () => Promise<ArtworkListing[]>;
+  loadMoreArtworks?: () => Promise<LoadMoreResult | null>;
   hasMoreArtworks?: boolean;
   /** How many photos to seed the album with on first render. Defaults to
    *  CHUNK_SIZE — enough to fill above-the-fold; the IntersectionObserver
@@ -56,9 +57,6 @@ type Props = {
    *  (e.g. the home page that ships 80 items in the initial RSC payload)
    *  can override to render the full payload immediately. */
   initialSeed?: number;
-  /** Key that changes when the parent filters/sort change — the wrapper
-   *  div remounts on key change so internal state resets cleanly. */
-  resetKey?: string;
   targetRowHeight?: number | ((width: number) => number);
   scope?: Scope | null;
 };
@@ -102,7 +100,6 @@ export function ArtworkGallery({
   loadMoreArtworks,
   hasMoreArtworks = false,
   initialSeed = CHUNK_SIZE,
-  resetKey,
   targetRowHeight,
   scope,
 }: Props) {
@@ -121,14 +118,19 @@ export function ArtworkGallery({
   // independent of how the parent stitches paginated results together.
   const [displayed, setDisplayed] = useState<GalleryPhoto[]>(() => photos.slice(0, initialSeed));
   // Track when the server has signalled "no more items". hasMoreArtworks
-  // is the parent's last-known truth; this captures the moment we
-  // actually saw a zero-length response so we don't re-fire the fetch.
+  // is the parent's last-known truth; this captures the moment the
+  // server itself reported `hasMore: false`, so we stop re-firing the
+  // fetch before the parent's own state has caught up. A failed or
+  // aborted request must never set it — that would latch infinite
+  // scroll off for the lifetime of the component over one blip.
   const [serverExhausted, setServerExhausted] = useState(false);
 
-  // If the parent swaps the underlying set entirely (different scope /
-  // filter / sort), the wrapper div's `key={resetKey}` already forces a
-  // full remount and we re-seed from the new photos. No effect needed:
-  // remount runs the useState initializer afresh.
+  // Re-seeding on a wholesale set swap (different scope / filter / sort)
+  // is the CALL SITE's job: render `<ArtworkGallery key={filterKey} …>`
+  // so this component remounts and the useState initializers run afresh.
+  // A key on a div rendered in here would not do it — `displayed`,
+  // `serverExhausted` and `containerWidth` all live above that div and
+  // would survive the subtree remount with stale contents.
 
   const hasMoreLocal = displayed.length < photos.length;
   const hasMoreServer = hasMoreArtworks && !!loadMoreArtworks && !serverExhausted;
@@ -161,12 +163,16 @@ export function ArtworkGallery({
 
       // Local exhausted — fall through to the server.
       if (!hasMoreArtworks || !loadMoreArtworks) return;
-      const next = await loadMoreArtworks();
-      if (next.length === 0) {
-        setServerExhausted(true);
-        return;
-      }
-      setDisplayed((prev) => [...prev, ...next.map((a) => toGalleryPhoto(a, activeScope))]);
+      const result = await loadMoreArtworks();
+      // null = coalesced, aborted, or the fetch threw. Nothing was
+      // learned about the end of the list, so leave the sentinel mounted
+      // and let the next intersection retry.
+      if (!result) return;
+      // Only the server's own answer retires the sentinel. An empty
+      // `added` on its own just means the page was all duplicates.
+      if (!result.hasMore) setServerExhausted(true);
+      if (result.added.length === 0) return;
+      setDisplayed((prev) => [...prev, ...result.added.map((a) => toGalleryPhoto(a, activeScope))]);
     } finally {
       // Short debounce so a rapid burst of IO callbacks (the sentinel
       // briefly oscillating across the rootMargin boundary) coalesces to
@@ -239,17 +245,17 @@ export function ArtworkGallery({
   // so every chunk renders with the correct width from frame one.
   //
   // This is a *callback* ref rather than a useRef + useLayoutEffect pair,
-  // and that is load-bearing: the measured node carries
-  // `key={resetKey ?? "all"}`, so a filter change unmounts it and mounts
-  // a fresh div while ArtworkGallery itself stays mounted. An effect with
-  // `[]` deps would never re-run, leaving the ResizeObserver attached to
-  // a detached node and `containerWidth` frozen at whatever the old div
-  // last measured — a later rotate would then keep declaring the stale
-  // (smaller) width in `sizes` below while the album re-solves at the new
-  // one, i.e. blurry tiles. React invokes a callback ref once per node
-  // identity, so re-attachment is automatic and stays correct if the key
-  // ever moves or changes again. React 19 runs the returned cleanup when
-  // the node goes away, which is where the observer is disconnected.
+  // and that is load-bearing: the measured div sits behind the
+  // `artworks.length === 0` early return below, so it is not in the tree
+  // on every render of this component. An effect with `[]` deps can fire
+  // while there is nothing to measure and then never run again, pinning
+  // every chunk to the 1200 fallback — and if the node is later replaced,
+  // the ResizeObserver stays attached to a detached one, so a rotate
+  // keeps declaring the stale width in `sizes` below while the album
+  // re-solves at the new one, i.e. blurry tiles. React invokes a callback
+  // ref once per node identity, so attachment and re-attachment are both
+  // automatic. React 19 runs the returned cleanup when the node goes
+  // away, which is where the observer is disconnected.
   //
   // Timing is unchanged: refs attach during commit, before layout
   // effects, so the measurement still lands before the first paint.
@@ -326,7 +332,7 @@ export function ArtworkGallery({
   }
 
   return (
-    <div ref={galleryRef} key={resetKey ?? "all"}>
+    <div ref={galleryRef}>
       {chunks.map((group, i) => (
         <div
           // biome-ignore lint/suspicious/noArrayIndexKey: chunks are append-only; index is stable

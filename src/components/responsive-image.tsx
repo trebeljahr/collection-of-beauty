@@ -105,25 +105,8 @@ export function ResponsiveImage({
   // that renders beats a correctly-sized one that doesn't.
   const fallback = fallbackVariantUrl(objectKey, variantWidths);
 
-  if (fill) {
-    return (
-      <picture>
-        <source type="image/avif" srcSet={avif} sizes={sizes} />
-        {/* eslint-disable-next-line @next/next/no-img-element */}
-        <img
-          src={fallback}
-          alt={alt}
-          data-object-key={objectKey}
-          sizes={sizes}
-          loading={resolvedLoading}
-          fetchPriority={fetchPriority}
-          className={cn(fillClasses, className)}
-          style={mergedStyle}
-        />
-      </picture>
-    );
-  }
-
+  // In `fill` mode the parent's box supplies the geometry, so intrinsic
+  // width/height are omitted and the <img> is stretched to cover it.
   return (
     <picture>
       <source type="image/avif" srcSet={avif} sizes={sizes} />
@@ -132,12 +115,12 @@ export function ResponsiveImage({
         src={fallback}
         alt={alt}
         data-object-key={objectKey}
-        width={srcWidth}
-        height={srcHeight}
+        width={fill ? undefined : srcWidth}
+        height={fill ? undefined : srcHeight}
         sizes={sizes}
         loading={resolvedLoading}
         fetchPriority={fetchPriority}
-        className={className}
+        className={fill ? cn(fillClasses, className) : className}
         style={mergedStyle}
       />
     </picture>

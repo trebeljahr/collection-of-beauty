@@ -20,9 +20,13 @@
 //      crowded floor. The queue serialises uploads across rAF ticks
 //      so at most one hitch per frame.
 //
-// Paintings call `loadTextureCached(url, renderer)` instead of
-// `useLoader(TextureLoader, url)`. The result is Suspense-friendly via
-// the bundled `useCachedTexture` hook.
+// Nothing here is a hook and nothing suspends. Paintings drive the
+// module imperatively from effects (`peekCached` on mount, then
+// `loadCached` / `loadHiRes` / `getHiRes`) and install the resulting
+// texture on `material.map` themselves — see painting.tsx. An earlier
+// Suspense hook lived here; the progressive loader replaced it so a
+// painting can paint a 256 px thumb, then the base, then each LOD tier
+// without re-suspending (and without re-rendering) in between.
 //
 // ─────────────────────────────────────────────────────────────────────
 // Two prefetch pipelines share this module. They are non-overlapping
@@ -85,8 +89,6 @@
 // and whether it should ride the high or low upload queue — the
 // invariants above only hold for these two callers.
 
-import { useThree } from "@react-three/fiber";
-import { useMemo } from "react";
 import * as THREE from "three";
 import { variantProxyUrl, variantUrl } from "@/lib/utils";
 
@@ -663,12 +665,6 @@ async function loadTextureCached(
 }
 
 // ─────────────────────────────────────────────────────────────────────
-// Suspense-friendly hook. Reads from cache synchronously (hit), or
-// throws the load promise (miss) so React's Suspense boundary catches
-// it — same contract `useLoader` uses.
-// ─────────────────────────────────────────────────────────────────────
-
-// ─────────────────────────────────────────────────────────────────────
 // Hi-res cache — separate LRU for the proximity upgrade. Kept apart
 // from the main cache so a busy floor of 960 px paintings can't push
 // out hi-res textures the player is currently looking at, and the
@@ -737,18 +733,6 @@ export function loadHiRes(
   return promise;
 }
 
-export function useCachedTexture(url: string): THREE.Texture {
-  const { gl } = useThree();
-  // We only care about `gl` identity to avoid the React hook warning.
-  // loadTextureCached handles null renderer (e.g. SSR) gracefully.
-  // biome-ignore lint/correctness/useExhaustiveDependencies: gl identity is stable per renderer; re-memoising on it would thrash Suspense
-  return useMemo(() => {
-    const hit = cache.get(url);
-    if (hit) return hit;
-    throw loadTextureCached(url, gl);
-  }, [url]);
-}
-
 /** Synchronous cache lookup. Returns the cached texture if present
  *  (with an MRU touch — querying a texture you're about to display
  *  is exactly the right time to pin it), else undefined.
@@ -761,8 +745,8 @@ export function useCachedTexture(url: string): THREE.Texture {
  *  moment the player walks deeper into the new floor.
  *
  *  Used by `PaintingPlane` so a return visit installs the cached
- *  texture into the material on the first render — no Suspense
- *  fallback flash. Public counterpart of `getHiRes`. */
+ *  texture into the material on the first render — no brown-swatch
+ *  flash. Public counterpart of `getHiRes`. */
 export function peekCached(url: string): THREE.Texture | undefined {
   const cached = cache.get(url);
   if (cached) return cached;
@@ -865,35 +849,15 @@ export function preloadCached(
   return promise;
 }
 
-/** Eager async load that goes through the same LRU + upload queue as
- *  the Suspense path. Used by the painting's progressive loader to
- *  fire-and-forget both the 256 px placeholder and the 960 px base
- *  in parallel. */
+/** Eager async load into the base pool, through the shared LRU + upload
+ *  queue. Used by the painting's progressive loader to fire-and-forget
+ *  both the 256 px placeholder and the 960 px base in parallel. */
 export function loadCached(
   url: string,
   renderer: THREE.WebGLRenderer | null,
   origin: LoadOrigin = null,
 ): Promise<THREE.Texture> {
   return loadTextureCached(url, renderer, origin);
-}
-
-/** After a `webglcontextrestored` event, every cached THREE.Texture's
- *  GPU-side upload is gone but its CPU-side `image` (an ImageBitmap or
- *  HTMLImageElement) is still alive. Setting `needsUpdate = true` makes
- *  the renderer re-upload from `image` on the next frame, so paintings
- *  and hi-res LOD tiers come back without us having to refetch them
- *  from the network. Called from the gallery's context-restored
- *  handler — never on a cold load. */
-export function markCachedTexturesForReupload(): void {
-  cache.forEach((t) => {
-    t.needsUpdate = true;
-  });
-  hiresCache.forEach((t) => {
-    t.needsUpdate = true;
-  });
-  preloadCache.forEach((t) => {
-    t.needsUpdate = true;
-  });
 }
 
 export const _textureCacheDebug = {

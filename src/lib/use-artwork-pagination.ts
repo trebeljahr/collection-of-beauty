@@ -75,13 +75,31 @@ type UseArtworkPaginationOpts = {
   fetchPage?: FetchArtworkPageFn;
 };
 
+/** Outcome of one load-more attempt.
+ *
+ *  `added` is what actually landed in `loadedArtworks` after id-dedup —
+ *  it can be empty for a page the server answered with while `hasMore`
+ *  is still true (every item was already loaded). `hasMore` is the
+ *  server's own answer about further pages, and is the *only* signal a
+ *  caller may read as "exhausted".
+ *
+ *  `null` means the attempt taught us nothing: a coalesced concurrent
+ *  call, an aborted request, or a failed fetch. Callers must treat it as
+ *  "try again later", never as an end-of-list. */
+export type LoadMoreResult = {
+  added: ArtworkListing[];
+  hasMore: boolean;
+};
+
 export type ArtworkPaginationApi = {
   loadedArtworks: ArtworkListing[];
   pageInfo: ArtworkPageInfo;
   /** Append the next batch from the server. Safe to call repeatedly —
    *  in-flight calls are coalesced via an internal loading flag and
-   *  duplicate ids are filtered out before they hit React state. */
-  loadMoreArtworks: () => Promise<ArtworkListing[]>;
+   *  duplicate ids are filtered out before they hit React state.
+   *  Resolves to `null` when the call was coalesced, aborted or failed;
+   *  see LoadMoreResult. */
+  loadMoreArtworks: () => Promise<LoadMoreResult | null>;
   /** Replace the visible set + page info atomically. Used by surfaces
    *  that re-seed on filter/sort/query change (gallery-browser): they
    *  fetch their own first page and hand the result here so the
@@ -122,17 +140,19 @@ export function useArtworkPagination({
 
   useEffect(() => () => controllerRef.current?.abort(), []);
 
-  const loadMoreArtworks = useCallback(async (): Promise<ArtworkListing[]> => {
-    if (!fetchPage) return [];
-    if (loadingRef.current) return [];
+  const loadMoreArtworks = useCallback(async (): Promise<LoadMoreResult | null> => {
+    // No fetcher, or the cursor already says the list is complete —
+    // both are genuine end-of-list, not a failure to look.
+    if (!fetchPage) return { added: [], hasMore: false };
+    if (loadingRef.current) return null;
     const info = pageInfoRef.current;
-    if (!info.hasMore || info.nextOffset == null) return [];
+    if (!info.hasMore || info.nextOffset == null) return { added: [], hasMore: false };
     loadingRef.current = true;
     const controller = new AbortController();
     controllerRef.current = controller;
     try {
       const page = await fetchPage(info.nextOffset, controller.signal);
-      if (controller.signal.aborted) return [];
+      if (controller.signal.aborted) return null;
 
       const incoming = page.items.filter((a) => !loadedIdsRef.current.has(a.id));
       for (const a of incoming) loadedIdsRef.current.add(a.id);
@@ -146,9 +166,9 @@ export function useArtworkPagination({
         });
       });
 
-      return incoming;
+      return { added: incoming, hasMore: page.hasMore };
     } catch {
-      return [];
+      return null;
     } finally {
       loadingRef.current = false;
       if (controllerRef.current === controller) controllerRef.current = null;

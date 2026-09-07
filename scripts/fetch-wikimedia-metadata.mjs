@@ -24,6 +24,7 @@ import fs from "fs";
 import https from "https";
 import path from "path";
 import { fileURLToPath } from "url";
+import { ARTISTS_DB_PATH, loadArtistsDb, matchArtist } from "./lib/artist-alias.mjs";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -163,6 +164,7 @@ async function processFolder(folderName) {
 
   // 3. for each batch: cache or fetch
   const rawByFilename = new Map(); // filename -> raw api page (or null)
+  const failedBatches = []; // batch numbers whose fetch never returned
   for (let bi = 0; bi < batches.length; bi++) {
     const batch = batches[bi];
     const cacheFile = path.join(cacheDir, `batch-${String(bi).padStart(4, "0")}.json`);
@@ -192,8 +194,14 @@ async function processFolder(folderName) {
         process.stdout.write("ok\n");
       } catch (e) {
         process.stdout.write(`FAILED: ${e.message}\n`);
-        // don't throw — skip this batch, mark all as unresolved
-        payload = { query: { pages: [] } };
+        // Keep going so the remaining batches still populate the cache (a
+        // re-run then only re-queries what failed), but remember the failure:
+        // substituting an empty page set here would write up to 50 real works
+        // out as needs_review, and build-data drops those from the catalogue.
+        // The folder JSON is not rewritten at all when this list is non-empty.
+        failedBatches.push(bi + 1);
+        await sleep(DELAY_MS);
+        continue;
       }
       await sleep(DELAY_MS);
     }
@@ -214,6 +222,19 @@ async function processFolder(folderName) {
       const page = pagesByTitle.get(canonical) || null;
       rawByFilename.set(filename, page);
     }
+  }
+
+  // 3b. bail before touching the sidecar if any batch never came back. Every
+  // file in a failed batch would be written as needs_review — indistinguishable
+  // from "Commons has never heard of this file" — and the whole-file rewrite
+  // would also drop the curation fix-bad-metadata.mjs applied to the entries
+  // that *did* resolve. A re-run costs only the failed batches; the successful
+  // ones are already cached.
+  if (failedBatches.length) {
+    console.error(
+      `[${folderName}] ${failedBatches.length} batch(es) failed (${failedBatches.join(", ")}) — NOT writing metadata/${folderName}.json. Re-run to retry just those batches.`,
+    );
+    return false;
   }
 
   // 4. transform raw pages into our schema
@@ -298,13 +319,15 @@ async function processFolder(folderName) {
     };
   }
 
-  // 5. enrich with curated artist DB (if present)
-  const artistsDbPath = path.join(ROOT, "scripts", "artists-db.json");
-  if (fs.existsSync(artistsDbPath)) {
-    const db = JSON.parse(fs.readFileSync(artistsDbPath, "utf8"));
+  // 5. enrich with curated artist DB (if present). The match rules live in
+  //    scripts/lib/artist-alias.mjs, shared with build-data and
+  //    normalize-metadata; the bare substring match this used to do filed
+  //    "Pieter Brueghel the Younger" under the Elder's single-token alias.
+  if (fs.existsSync(ARTISTS_DB_PATH)) {
+    const { byAlias } = loadArtistsDb();
     for (const entry of Object.values(entries)) {
       if (!entry.artist) continue;
-      const match = findArtistInDb(entry.artist, db);
+      const match = matchArtist(entry.artist, byAlias);
       if (match) {
         entry.artist_info = match;
       }
@@ -333,18 +356,7 @@ async function processFolder(folderName) {
     fs.writeFileSync(reportPath, unresolved.join("\n") + "\n");
     console.log(`[${folderName}] unresolved list -> ${reportPath}`);
   }
-}
-
-function findArtistInDb(rawArtistField, db) {
-  // artist field is often HTML-stripped to something like "Vincent van Gogh" or
-  // "Claude Monet (1840-1926)" or "user:Foo". Try to match by substring.
-  const lc = rawArtistField.toLowerCase();
-  for (const entry of db.artists || []) {
-    for (const alias of entry.aliases || [entry.name]) {
-      if (lc.includes(alias.toLowerCase())) return entry;
-    }
-  }
-  return null;
+  return true;
 }
 
 // ---------------------------------------------------------------------------
@@ -355,21 +367,33 @@ if (!folders.length) {
   process.exit(1);
 }
 
+const writtenFolders = [];
+const failedFolders = [];
 for (const f of folders) {
-  await processFolder(f);
+  if (await processFolder(f)) writtenFolders.push(f);
+  else failedFolders.push(f);
 }
 
 // Post-process: normalize the freshly-written JSON so consumers always see
 // clean English titles + translations map and a recovered year. Without this
 // step, the raw Commons ObjectName string still contains `label QS:Lxx,"..."`
-// multilingual markup.
+// multilingual markup. Only folders whose JSON was actually rewritten.
 const normalizerPath = path.join(__dirname, "normalize-metadata.mjs");
-if (fs.existsSync(normalizerPath)) {
-  const normalizerArgs = folders.map((f) => `${f}.json`);
+if (fs.existsSync(normalizerPath) && writtenFolders.length) {
+  const normalizerArgs = writtenFolders.map((f) => `${f}.json`);
   console.log(`\nRunning normalize-metadata.mjs for: ${normalizerArgs.join(", ")}`);
   const r = spawnSync(process.execPath, [normalizerPath, ...normalizerArgs], { stdio: "inherit" });
   if (r.status !== 0) {
     console.error(`normalize-metadata.mjs exited with status ${r.status}`);
     process.exit(r.status ?? 1);
   }
+}
+
+// Exit non-zero when a folder was skipped, so a `scrape:fetch && …` chain
+// stops here rather than shrinking and building from stale metadata.
+if (failedFolders.length) {
+  console.error(
+    `\nfetch-wikimedia-metadata: ${failedFolders.length} folder(s) not written: ${failedFolders.join(", ")}`,
+  );
+  process.exit(1);
 }

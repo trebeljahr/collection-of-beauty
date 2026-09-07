@@ -95,21 +95,20 @@ function buildPlateSet(definition: PlateSetDefinition, book: Collection): PlateS
   const span = publicationSpan(members);
   const plates = plateOrderForFolder(definition.folder);
 
-  const claimed = new Set<number>();
+  // How many plates claim each number. Both the missing numbers (keys
+  // absent from this map) and the shared ones (keys with a count above
+  // one) come off the same tally.
+  const claimedCounts = new Map<number, number>();
   for (const plate of plates) {
-    if (plate.plateNumber != null) claimed.add(plate.plateNumber);
+    if (plate.plateNumber != null) {
+      claimedCounts.set(plate.plateNumber, (claimedCounts.get(plate.plateNumber) ?? 0) + 1);
+    }
   }
   const missingPlateNumbers: number[] = [];
   for (let n = 1; n <= definition.canonicalPlateCount; n++) {
-    if (!claimed.has(n)) missingPlateNumbers.push(n);
+    if (!claimedCounts.has(n)) missingPlateNumbers.push(n);
   }
-  const seen = new Map<number, number>();
-  for (const plate of plates) {
-    if (plate.plateNumber != null) {
-      seen.set(plate.plateNumber, (seen.get(plate.plateNumber) ?? 0) + 1);
-    }
-  }
-  const sharedPlateNumbers = [...seen.entries()]
+  const sharedPlateNumbers = [...claimedCounts.entries()]
     .filter(([, count]) => count > 1)
     .map(([n]) => n)
     .sort((a, b) => a - b);
@@ -123,7 +122,7 @@ function buildPlateSet(definition: PlateSetDefinition, book: Collection): PlateS
     presentCount: plates.length,
     numberedCount: plates.filter((p) => p.plateNumber != null).length,
     missingPlateNumbers,
-    distinctPlateNumbers: claimed.size,
+    distinctPlateNumbers: claimedCounts.size,
     sharedPlateNumbers,
     isComplete: plates.length >= definition.canonicalPlateCount,
     publishedLabel: span.label,

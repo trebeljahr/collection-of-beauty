@@ -1,6 +1,7 @@
 import { promises as fs } from "node:fs";
 import path from "node:path";
 import type { Metadata } from "next";
+import { notFound } from "next/navigation";
 import { variantUrl } from "@/lib/utils";
 import { ApproveButton, ExportDecisions } from "./approve-controls";
 
@@ -10,7 +11,9 @@ import { ApproveButton, ExportDecisions } from "./approve-controls";
 // image side-by-side with each candidate higher-res replacement so the
 // curator can eyeball whether the candidate depicts the same artwork.
 //
-// Not indexed (see src/app/robots.ts). Not linked from site nav.
+// Dev-only, like its sibling /dedup-review: not indexed (see
+// src/app/robots.ts), not linked from site nav, and 404s outside
+// `next dev` before it reads any data.
 
 export const metadata: Metadata = {
   title: "Low-res replacement review",
@@ -46,10 +49,14 @@ type Entry = {
   summary: string;
 };
 
-async function loadEntries(): Promise<Entry[]> {
-  const p = path.join(process.cwd(), "src/data/replacement-candidates.json");
-  const raw = await fs.readFile(p, "utf8");
-  return JSON.parse(raw) as Entry[];
+async function loadEntries(): Promise<Entry[] | null> {
+  try {
+    const p = path.join(process.cwd(), "src/data/replacement-candidates.json");
+    const raw = await fs.readFile(p, "utf8");
+    return JSON.parse(raw) as Entry[];
+  } catch {
+    return null;
+  }
 }
 
 function bestVariant(objectKey: string, widths: number[] | null): string {
@@ -74,7 +81,14 @@ function ratio(w: number, h: number): string {
 }
 
 export default async function ReplaceLowResPage() {
+  // Dev-only surface. In production builds NODE_ENV is "production" and
+  // this short-circuits to 404 before reading any data — the candidates
+  // file isn't even shipped in the standalone Docker image.
+  if (process.env.NODE_ENV !== "development") notFound();
+
   const entries = await loadEntries();
+  if (!entries) notFound();
+
   const withCands = entries.filter((e) => e.candidates.length > 0);
   const noCands = entries.filter((e) => e.candidates.length === 0);
 

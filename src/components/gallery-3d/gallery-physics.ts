@@ -41,10 +41,18 @@ let rapierPromise: Promise<RapierModule> | null = null;
 
 async function loadRapier(): Promise<RapierModule> {
   if (!rapierPromise) {
-    rapierPromise = import("@dimforge/rapier3d-compat").then(async (mod) => {
-      await mod.init();
-      return mod;
-    });
+    rapierPromise = import("@dimforge/rapier3d-compat")
+      .then(async (mod) => {
+        await mod.init();
+        return mod;
+      })
+      // Drop the memo on failure. A stale chunk hash after a redeploy
+      // otherwise sticks for the page's lifetime and every later floor
+      // swap silently falls back to coarse collision.
+      .catch((err) => {
+        rapierPromise = null;
+        throw err;
+      });
   }
   return rapierPromise;
 }

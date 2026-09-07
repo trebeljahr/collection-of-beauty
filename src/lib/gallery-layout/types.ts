@@ -24,7 +24,12 @@ export type Door = {
   worldZ: number;
   worldY: number;
   width: number;
-  connectsTo: { kind: "hallway"; hallwayId: string } | { kind: "staircase"; staircaseId: string };
+  /** The room on the other side of this shared wall. Every connection in
+   *  the museum is a door cut through a wall two rooms share — there are
+   *  no corridors (`FloorLayout.hallways` is permanently empty) and the
+   *  stairwell is itself a room, so a `hallway` / `staircase` variant
+   *  had nothing to describe and was never constructed. */
+  connectsTo: { kind: "room"; roomId: string };
 };
 
 export type RoomLayout = {
@@ -132,6 +137,15 @@ export type FloorLayout = {
    *  `z * gridSize.x + x`. */
   blockedEdgesNS: Uint8Array;
   rooms: RoomLayout[];
+  /** Always empty — `layoutMuseum` builds every connection as a shared
+   *  wall with a door cut, never a corridor. `HallwayRenderer` still
+   *  exists and would render these, but it is the one `Painting` call
+   *  site with no reveal gate: it mounts every placement immediately,
+   *  where rooms mount/unmount them by distance. Reviving hallways
+   *  without porting `useRevealedPlacements` across would reintroduce
+   *  the texture-LRU churn documented at `room-geometry.tsx`'s
+   *  PAINTING_UNLOAD_RADIUS — every hallway painting pinning a texture
+   *  on every LOD tick until the floor stops rendering reliably. */
   hallways: HallwayLayout[];
   stairsIn: Staircase[];
   stairsOut: Staircase[];

@@ -354,9 +354,16 @@ export function Gallery3D({ artworks }: Props) {
     [currentFloorIdx],
   );
 
-  // Debug 1..N teleport keys (one per floor).
+  // Debug 1..N teleport keys (one per floor). Gated like every other
+  // gallery binding — ungated it fired on the start curtain (unmounting
+  // the entry room so the load tally never completes and Enter is
+  // stranded) and under the zoom overlay. `mapOpen` is deliberately NOT
+  // in the guard: the big map advertises the digits as its floor jumps.
+  // Modifier chords belong to the browser (Cmd/Ctrl+1..9 switch tabs).
   useEffect(() => {
+    if (!hasStarted || zoomed || settingsOpen) return;
     const down = (e: KeyboardEvent) => {
+      if (e.metaKey || e.ctrlKey || e.altKey) return;
       if (e.code.startsWith("Digit")) {
         const digit = Number.parseInt(e.code.slice(5), 10);
         const idx = digit - 1;
@@ -367,7 +374,7 @@ export function Gallery3D({ artworks }: Props) {
     };
     window.addEventListener("keydown", down);
     return () => window.removeEventListener("keydown", down);
-  }, [layout, teleportToFloor]);
+  }, [hasStarted, zoomed, settingsOpen, layout, teleportToFloor]);
 
   // M opens / closes the big map. Inside the big map, ↑/↓ + PgUp/PgDn
   // cycle through floor plans without teleporting; Enter commits the
@@ -491,12 +498,9 @@ export function Gallery3D({ artworks }: Props) {
               if (remountTimerRef.current != null) clearTimeout(remountTimerRef.current);
               remountTimerRef.current = window.setTimeout(() => {
                 remountTimerRef.current = null;
-                if (lastCameraRef.current) {
-                  spawnForFloor.current = [
-                    lastCameraRef.current.x,
-                    spawnForFloor.current[1],
-                    lastCameraRef.current.z,
-                  ];
+                const last = lastCameraRef.current;
+                if (last) {
+                  spawnForFloor.current = [last.x, spawnForFloor.current[1], last.z];
                 }
                 setContextLost(false);
                 setCanvasKey((k) => k + 1);

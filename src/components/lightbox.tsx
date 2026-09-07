@@ -8,6 +8,7 @@ import {
   TransformComponent,
   TransformWrapper,
 } from "react-zoom-pan-pinch";
+import { useFocusTrap } from "@/hooks/use-focus-trap";
 import { deepZoomTileSource, largestSingleImageWidth } from "@/lib/deep-zoom";
 import { getLoadedVariant, recordLoadedVariant } from "@/lib/image-cache";
 import { cn, fallbackVariantUrl, variantUrl } from "@/lib/utils";
@@ -103,6 +104,7 @@ export function Lightbox({
   // read from the touch handlers, and re-rendering the lightbox on every
   // frame of a pinch to store it would be pure waste.
   const zoomedRef = useRef(false);
+  const dialogRef = useRef<HTMLDivElement | null>(null);
 
   useEffect(() => setMounted(true), []);
 
@@ -184,15 +186,15 @@ export function Lightbox({
     };
   }, [open, highSrc, useDeepZoom]);
 
-  // Esc to close, arrows to navigate. Bound while open so pages don't
-  // double-handle the same key.
+  // Arrows to navigate. Bound while open so pages don't double-handle
+  // the same key. Escape, the focus trap and the body-scroll lock come
+  // from useFocusTrap below — this overlay claims `aria-modal`, and the
+  // controls are portalled to the end of <body>, so without a trap Tab
+  // walks the whole obscured page before reaching them.
   useEffect(() => {
     if (!open) return;
     const onKey = (e: KeyboardEvent) => {
-      if (e.key === "Escape") {
-        e.preventDefault();
-        onClose();
-      } else if (e.key === "ArrowLeft" && onPrev) {
+      if (e.key === "ArrowLeft" && onPrev) {
         e.preventDefault();
         onPrev();
       } else if (e.key === "ArrowRight" && onNext) {
@@ -201,13 +203,21 @@ export function Lightbox({
       }
     };
     window.addEventListener("keydown", onKey);
-    const prevOverflow = document.body.style.overflow;
-    document.body.style.overflow = "hidden";
     return () => {
       window.removeEventListener("keydown", onKey);
-      document.body.style.overflow = prevOverflow;
     };
-  }, [open, onClose, onPrev, onNext]);
+  }, [open, onPrev, onNext]);
+
+  // Focus moves to the close button on open and back to whatever opened
+  // the lightbox (a gallery card, the detail page's zoom trigger) on
+  // close. The trigger lives in another component, so there's no ref to
+  // pass — the hook falls back to the element that was focused when the
+  // overlay went up, which is that trigger.
+  useFocusTrap({
+    active: open && mounted,
+    containerRef: dialogRef,
+    onEscape: onClose,
+  });
 
   // Swipe left/right to step between artworks. On a phone that is the
   // expected lightbox gesture, and the chevrons are pinned to the extreme
@@ -279,6 +289,7 @@ export function Lightbox({
 
   return createPortal(
     <div
+      ref={dialogRef}
       role="dialog"
       aria-modal="true"
       aria-label={alt}

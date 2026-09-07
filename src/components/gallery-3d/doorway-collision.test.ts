@@ -44,7 +44,7 @@ function makeFloor(): Pick<FloorLayout, "rooms"> {
           worldZ: DOOR_Z,
           worldY: 0,
           width: DOOR_WIDTH,
-          connectsTo: { kind: "hallway", hallwayId: "room:b" },
+          connectsTo: { kind: "room", roomId: "b" },
         },
       ]),
     ],

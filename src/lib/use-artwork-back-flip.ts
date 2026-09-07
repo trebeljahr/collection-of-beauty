@@ -99,7 +99,7 @@ export function useArtworkBackFlip(options: BackFlipOptions = {}) {
     // Bail early if there's no fresh snapshot — keeps the hide path
     // off the critical render for plain navigations (clicking a
     // top-nav link, first cold load of the page).
-    if (!hasFreshSnapshot()) return;
+    if (!readFreshSnapshot()) return;
     inFlightRef.current = true;
     void runBackFlipPass(optionsRef.current).finally(() => {
       inFlightRef.current = false;
@@ -130,20 +130,28 @@ export function useArtworkBackFlip(options: BackFlipOptions = {}) {
   }, [trigger]);
 }
 
-function hasFreshSnapshot(): boolean {
+/** The stored snapshot, or null when there is none, it doesn't parse,
+ *  it's missing the fields the FLIP needs, or it has aged past the TTL.
+ *  Anything unusable is dropped on the way out so it can't be
+ *  reconsidered on the next pass.
+ *
+ *  Read twice per pass — once up front to keep the hide path off the
+ *  critical render, once again after the rAFs — so both reads apply the
+ *  same rules. They used to be two copies, and the later one accepted a
+ *  snapshot with no `ts`. */
+function readFreshSnapshot(): Snapshot | null {
   const raw = sessionStorage.getItem(SNAPSHOT_KEY);
-  if (!raw) return false;
+  if (!raw) return null;
   try {
     const parsed = JSON.parse(raw) as Partial<Snapshot>;
-    if (!parsed.id || typeof parsed.ts !== "number") return false;
-    if (Date.now() - parsed.ts > SNAPSHOT_TTL_MS) {
+    if (!parsed.id || typeof parsed.ts !== "number" || Date.now() - parsed.ts > SNAPSHOT_TTL_MS) {
       sessionStorage.removeItem(SNAPSHOT_KEY);
-      return false;
+      return null;
     }
-    return true;
+    return parsed as Snapshot;
   } catch {
     sessionStorage.removeItem(SNAPSHOT_KEY);
-    return false;
+    return null;
   }
 }
 
@@ -185,19 +193,8 @@ async function attemptFlip(options: BackFlipOptions, reveal: () => void): Promis
   // row height and the FLIP lands slightly off.
   await rafTwice();
 
-  const raw = sessionStorage.getItem(SNAPSHOT_KEY);
-  if (!raw) return;
-  let snapshot: Snapshot;
-  try {
-    snapshot = JSON.parse(raw) as Snapshot;
-  } catch {
-    sessionStorage.removeItem(SNAPSHOT_KEY);
-    return;
-  }
-  if (!snapshot.id || Date.now() - snapshot.ts > SNAPSHOT_TTL_MS) {
-    sessionStorage.removeItem(SNAPSHOT_KEY);
-    return;
-  }
+  const snapshot = readFreshSnapshot();
+  if (!snapshot) return;
 
   const selector = `[data-artwork-id="${cssEscape(snapshot.id)}"] img`;
   let tile = document.querySelector<HTMLImageElement>(selector);

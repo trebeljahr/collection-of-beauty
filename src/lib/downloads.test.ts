@@ -1,4 +1,5 @@
 import { describe, expect, it } from "vitest";
+import { VARIANT_WIDTHS } from "@/lib/utils";
 import {
   attributionText,
   downloadFilename,
@@ -6,6 +7,7 @@ import {
   hasFullSizeDownload,
   LADDER_MAX_WIDTH,
   largestDownload,
+  WEBP_WIDTH,
 } from "./downloads";
 import { GALLERY_LOD_WIDTH } from "./variant-config.mjs";
 
@@ -103,8 +105,21 @@ describe("downloadOptions", () => {
     expect(options[0].width).toBe(LADDER_MAX_WIDTH);
   });
 
-  it("returns nothing for an empty manifest that isn't null", () => {
+  it("treats an empty manifest the same as a missing one", () => {
     expect(downloadOptions({ variantWidths: [], width: 100, height: 100 })).not.toHaveLength(0);
+  });
+
+  it("offers the whole standard ladder when it falls back", () => {
+    // Pins what the fallback actually is: every rung of VARIANT_WIDTHS
+    // descending, plus the 1280 WebP compatibility entry — not just the
+    // widest rung. Both the null and the empty manifest take this path.
+    const ladder = [...VARIANT_WIDTHS].sort((a, b) => b - a);
+    const manifests: (number[] | null)[] = [null, []];
+    for (const variantWidths of manifests) {
+      const options = downloadOptions({ variantWidths, width: 2000, height: 1000 });
+      expect(options.filter((o) => o.format === "avif").map((o) => o.width)).toEqual(ladder);
+      expect(options.filter((o) => o.format === "webp").map((o) => o.width)).toEqual([WEBP_WIDTH]);
+    }
   });
 
   it("dedupes and sorts a manifest that arrives out of order", () => {

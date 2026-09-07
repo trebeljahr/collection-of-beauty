@@ -356,6 +356,23 @@ function BulletList({ items }: { items: readonly string[] }) {
   );
 }
 
+/** Label/value table used by both the museum section and the fact sheet —
+ *  the two read as one document, so they share one row rhythm. */
+function FactList({ facts }: { facts: readonly (readonly [string, string])[] }) {
+  return (
+    <dl className="divide-y divide-[var(--border)] border-y border-[var(--border)]">
+      {facts.map(([label, value]) => (
+        <div key={label} className="grid gap-2 py-4 sm:grid-cols-[11rem_1fr]">
+          <dt className="text-xs font-semibold uppercase tracking-[0.12em] text-[var(--muted-foreground)]">
+            {label}
+          </dt>
+          <dd className="leading-7">{value}</dd>
+        </div>
+      ))}
+    </dl>
+  );
+}
+
 export default function PressPage() {
   return (
     <>
@@ -506,16 +523,7 @@ export default function PressPage() {
             title={`${FLOOR_COUNT} floors you can walk through`}
           >
             <div className="space-y-6">
-              <dl className="divide-y divide-[var(--border)] border-y border-[var(--border)]">
-                {museumFacts.map(([label, value]) => (
-                  <div key={label} className="grid gap-2 py-4 sm:grid-cols-[11rem_1fr]">
-                    <dt className="text-xs font-semibold uppercase tracking-[0.12em] text-[var(--muted-foreground)]">
-                      {label}
-                    </dt>
-                    <dd className="leading-7">{value}</dd>
-                  </div>
-                ))}
-              </dl>
+              <FactList facts={museumFacts} />
               <p className="leading-8 text-[var(--muted-foreground)]">
                 The floors, in order: {ERAS.map((era) => era.title).join(", ")}.
               </p>
@@ -523,16 +531,7 @@ export default function PressPage() {
           </Section>
 
           <Section id="fact-sheet" eyebrow="Fact sheet" title="At a glance">
-            <dl className="divide-y divide-[var(--border)] border-y border-[var(--border)]">
-              {factSheet.map(([label, value]) => (
-                <div key={label} className="grid gap-2 py-4 sm:grid-cols-[11rem_1fr]">
-                  <dt className="text-xs font-semibold uppercase tracking-[0.12em] text-[var(--muted-foreground)]">
-                    {label}
-                  </dt>
-                  <dd className="leading-7">{value}</dd>
-                </div>
-              ))}
-            </dl>
+            <FactList facts={factSheet} />
           </Section>
 
           <Section id="descriptions" eyebrow="Descriptions" title="Copy blocks">

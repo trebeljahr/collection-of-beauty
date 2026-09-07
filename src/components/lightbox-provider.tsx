@@ -127,8 +127,14 @@ function LightboxProviderInner({
         return data;
       })
       .catch((err) => {
+        // Drop the memo so the next open() retries, then resolve empty
+        // rather than rethrowing: both call sites discard the promise
+        // with `void`, so a rejection here would surface as an unhandled
+        // rejection for a failure whose intended degradation — no
+        // prev/next chevrons, the artwork itself still shown — is benign.
         promisesByScopeRef.current.delete(scopeKey);
-        throw err;
+        console.warn("lightbox: neighbour list unavailable, chevrons disabled", err);
+        return [];
       });
     promisesByScopeRef.current.set(scopeKey, p);
     return p;

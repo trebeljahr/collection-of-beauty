@@ -7,6 +7,9 @@ import { fileURLToPath } from "node:url";
 import { imageSize } from "image-size";
 import sharp from "sharp";
 import { colorProfileFromHistogram } from "../src/lib/color-buckets.mjs";
+import { loadArtistsDb, matchArtist } from "./lib/artist-alias.mjs";
+import { ID_MAX_LENGTH, artworkId, slugify } from "./lib/artwork-id.mjs";
+import { SOURCE_FOLDERS } from "./lib/source-folders.mjs";
 
 // sharp's async work runs on the libuv threadpool, which defaults to 4
 // threads — the ceiling on how many images we can probe at once. Node reads
@@ -101,13 +104,20 @@ async function dimensionsFor(folderKey, filename) {
       // Sharp streams the file header rather than buffering the whole
       // image, so it's safe on the 16 MB plates that motivated the 64 KB
       // probe in the first place.
+      //
+      // limitInputPixels: false because a handful of plates are past sharp's
+      // default 268 MP ceiling, and it rejects those at metadata() time even
+      // though reading a header decodes nothing. That rejection is what left
+      // the 154 MB Boilly plate with null width/height in the catalogue.
       try {
-        const meta = await sharp(file).metadata();
+        const meta = await sharp(file, { limitInputPixels: false }).metadata();
         if (meta.width && meta.height) {
           result = applyExifOrientation(meta.width, meta.height, meta.orientation);
+        } else {
+          console.log(`[build-data] warning: no dimensions in header for ${key}`);
         }
-      } catch {
-        // leave null
+      } catch (err) {
+        console.log(`[build-data] warning: dimension probe failed for ${key} (${err.message})`);
       }
     }
   }
@@ -199,6 +209,10 @@ async function dominantColorFor(folderKey, filename) {
 // Wikimedia response cache) rather than src/data/, which is committed.
 // v3 added colorStrength, which no v2 entry carries — the amounts only
 // exist by re-reading pixels, so the bump forces one full re-probe.
+//
+// Only probes that produced dimensions are cached. A failure is an event to
+// retry and report, not a fact about the bytes, and caching one made the
+// resulting null width/height in artworks.json permanent and invisible.
 const PROBE_CACHE_VERSION = 3;
 const PROBE_CACHE_FILE = path.join(META, ".cache", "image-probe.json");
 
@@ -231,7 +245,16 @@ async function loadProbeCache() {
   try {
     const raw = JSON.parse(await readFile(PROBE_CACHE_FILE, "utf8"));
     if (raw.version !== PROBE_CACHE_VERSION) return {};
-    return raw.entries ?? {};
+    const entries = raw.entries ?? {};
+    // Only successful probes are written (see prefillImageProbes), but v3
+    // caches predating that rule can hold an entry whose dimension probe
+    // threw. Dropping them here re-probes exactly those files instead of
+    // forcing a full 4,500-image re-probe with a version bump.
+    const usable = {};
+    for (const [key, entry] of Object.entries(entries)) {
+      if (entry?.width && entry?.height) usable[key] = entry;
+    }
+    return usable;
   } catch {
     return {};
   }
@@ -304,10 +327,7 @@ async function prefillImageProbes(work) {
       continue;
     }
     fresh[key] = hit;
-    dimensionCache.set(
-      key,
-      hit.width && hit.height ? { width: hit.width, height: hit.height } : null,
-    );
+    dimensionCache.set(key, { width: hit.width, height: hit.height });
     colorCache.set(key, hit.dominantColor ?? null);
     profileCache.set(
       key,
@@ -324,26 +344,41 @@ async function prefillImageProbes(work) {
   if (stale.length > 0) {
     const progress = makeProgressReporter("probing images", stale.length);
     let done = 0;
+    const failed = [];
     await mapWithConcurrency(stale, PROBE_CONCURRENCY, async (item) => {
       const dims = await dimensionsFor(item.folderKey, item.fname);
       const dominantColor = await dominantColorFor(item.folderKey, item.fname);
       const profile = await colorProfileFor(item.folderKey, item.fname);
       const variantWidths = variantWidthsFor(item.folderKey, item.fname);
-      if (item.sig) {
+      // Cache successes only. A null dimension probe here means the file was
+      // there (probeSignature already returns null for a missing original) and
+      // sharp could not read it — caching that would pin the failure forever,
+      // silently, because the signature still matches on the next run.
+      if (item.sig && dims) {
         fresh[item.key] = {
           sig: item.sig,
-          width: dims?.width ?? null,
-          height: dims?.height ?? null,
+          width: dims.width,
+          height: dims.height,
           dominantColor,
           colorBuckets: profile?.buckets ?? null,
           colorStrength: profile?.strength ?? null,
           variantWidths,
         };
+      } else if (item.sig) {
+        // sig is non-null, so the original is on disk — this is a real probe
+        // failure, not the missing-file case the main loop already drops.
+        failed.push(path.join(ASSETS, item.folderKey, item.fname));
       }
       done++;
       progress.tick(done);
     });
     progress.done(done);
+    if (failed.length > 0) {
+      console.log(
+        `[build-data] warning: ${failed.length} image probe(s) failed and were NOT cached (they will be retried on the next run):`,
+      );
+      for (const file of failed) console.log(`[build-data]   ${path.relative(ROOT, file)}`);
+    }
   }
 
   await saveProbeCache(fresh);
@@ -418,18 +453,6 @@ async function colorProfileFor(folderKey, filename) {
   return result;
 }
 
-// Source folders, each with a metadata/<folder>.json sidecar in the shared
-// envelope shape. Despite the name, not every folder is Wikimedia-sourced
-// (redoute-lilies is scraped from c82.net); the metadata schema is identical
-// so they all flow through the same pushFromFolder path.
-const WIKIMEDIA_FOLDERS = [
-  "collection-of-beauty",
-  "audubon-birds",
-  "kunstformen-images",
-  "redoute-lilies",
-  "redoute-roses",
-];
-
 function assertRequiredAssetsAvailable() {
   if (!existsSync(ASSETS)) {
     throw new Error(
@@ -438,7 +461,7 @@ function assertRequiredAssetsAvailable() {
     );
   }
 
-  const missingFolders = WIKIMEDIA_FOLDERS.filter(
+  const missingFolders = SOURCE_FOLDERS.filter(
     (folder) => !existsSync(path.join(ASSETS, folder)),
   );
   if (missingFolders.length > 0) {
@@ -448,39 +471,6 @@ function assertRequiredAssetsAvailable() {
         .join(", ")}. Run the download scripts or restore the asset archive before building.`,
     );
   }
-}
-
-// Cyrillic \u2192 Latin transliteration, applied before the slug strip. The
-// corpus is Russian-heavy; without this, a filename composed entirely of
-// Cyrillic ("\u0410\u0439\u0432\u0430\u0437\u043e\u0432\u0441\u043a\u0438\u0439\u2026\u0411\u043e\u0441\u0444\u043e\u0440\u0435.jpg") slugifies to the empty string and
-// collapses onto the bare folder name ("collection-of-beauty"). That
-// produces unstable, meaningless ids that mis-key id-keyed metadata
-// (curator descriptions, dimensions). Lowercase keys only \u2014 slugify()
-// lowercases first. Covers Russian plus the common Ukrainian/Serbian
-// letters; anything unmapped falls through to the title fallback in the
-// id builder below.
-const CYRILLIC_TRANSLIT = {
-  \u0430: "a", \u0431: "b", \u0432: "v", \u0433: "g", \u0434: "d", \u0435: "e", \u0451: "yo", \u0436: "zh", \u0437: "z",
-  \u0438: "i", \u0439: "y", \u043a: "k", \u043b: "l", \u043c: "m", \u043d: "n", \u043e: "o", \u043f: "p", \u0440: "r",
-  \u0441: "s", \u0442: "t", \u0443: "u", \u0444: "f", \u0445: "kh", \u0446: "ts", \u0447: "ch", \u0448: "sh",
-  \u0449: "shch", \u044a: "", \u044b: "y", \u044c: "", \u044d: "e", \u044e: "yu", \u044f: "ya",
-  \u0456: "i", \u0457: "yi", \u0454: "ye", \u0491: "g", \u045e: "u", \u0458: "j", \u0452: "dj", \u045b: "c",
-  \u045f: "dz", \u045a: "nj", \u0459: "lj", \u0455: "dz", \u0453: "g", \u045c: "k",
-};
-
-function transliterate(s) {
-  let out = "";
-  for (const ch of s) out += CYRILLIC_TRANSLIT[ch] ?? ch;
-  return out;
-}
-
-function slugify(input) {
-  return transliterate(input.toLowerCase())
-    .normalize("NFKD")
-    // biome-ignore lint/suspicious/noMisleadingCharacterClass: stripping NFKD combining marks is the intent
-    .replace(/[\u0300-\u036f]/g, "")
-    .replace(/[^a-z0-9]+/g, "-")
-    .replace(/(^-|-$)+/g, "");
 }
 
 // Wikidata language-tagged label fragments that leak through the Commons
@@ -1019,46 +1009,6 @@ function normalizeArtistName(raw) {
   return s || null;
 }
 
-function fold(s) {
-  // NFKD + strip combining marks so "Vigée" and "Vigee" collide.
-  return s.normalize("NFKD").replace(/[̀-ͯ]/g, "").toLowerCase();
-}
-
-async function loadArtistsDb() {
-  const raw = await readFile(path.join(ROOT, "scripts", "artists-db.json"), "utf8");
-  const { artists } = JSON.parse(raw);
-  const byAlias = new Map();
-  for (const a of artists) {
-    for (const alias of a.aliases || [a.name]) {
-      byAlias.set(fold(alias), a);
-    }
-    byAlias.set(fold(a.name), a);
-  }
-  return { artists, byAlias };
-}
-
-function matchArtist(name, byAlias) {
-  if (!name) return null;
-  const low = fold(name);
-  if (byAlias.has(low)) return byAlias.get(low);
-  // Substring fallback for short-form / punctuation variants ("Vincent van Gogh."
-  // → "Vincent van Gogh"). A single-token surname alias may only match when it
-  // is the input's last token — otherwise "Friedrich" swallows
-  // "Karl Friedrich Schinkel" via the middle name.
-  const lowTokens = low.split(/\s+/).filter(Boolean);
-  const lowLast = lowTokens[lowTokens.length - 1];
-  for (const [alias, a] of byAlias) {
-    if (!alias) continue;
-    const aliasTokens = alias.split(/\s+/).filter(Boolean);
-    if (aliasTokens.length === 1) {
-      if (alias === lowLast) return a;
-      continue;
-    }
-    if (low.includes(alias) || alias.includes(low)) return a;
-  }
-  return null;
-}
-
 function buildMovementGroups(artists) {
   const groups = new Map();
   for (const a of artists) {
@@ -1178,6 +1128,9 @@ async function loadRealDimensions() {
   let droppedUnreliable = 0;
   for (const [id, v] of Object.entries(raw)) {
     if (v == null) continue;
+    // `{ error: true }` marks a lookup that failed rather than an answer —
+    // fetch-artwork-dimensions.mjs retries those. Treat it as absent here.
+    if (v.error === true) continue;
     if (
       typeof v.widthCm !== "number" ||
       typeof v.heightCm !== "number" ||
@@ -1370,9 +1323,12 @@ async function main() {
   assertRequiredAssetsAvailable();
 
   const folderData = await Promise.all(
-    WIKIMEDIA_FOLDERS.map((f) => readFile(path.join(META, `${f}.json`), "utf8").then(JSON.parse)),
+    SOURCE_FOLDERS.map((f) => readFile(path.join(META, `${f}.json`), "utf8").then(JSON.parse)),
   );
-  const { artists: artistsDb, byAlias } = await loadArtistsDb();
+  // artists-db.json is indexed and matched by scripts/lib/artist-alias.mjs,
+  // shared with the ingest scripts — the three hand-rolled matchers had
+  // drifted apart and the loosest one shipped a wrong attribution.
+  const { artists: artistsDb, byAlias } = loadArtistsDb();
   const realDimensions = await loadRealDimensions();
   const curatorDescriptions = await loadCuratorDescriptions();
   const provenanceMap = await loadProvenance();
@@ -1394,7 +1350,6 @@ async function main() {
   // across rebuilds without depending on iteration order. The prefix is
   // shortened to make room for the suffix — otherwise the cap would strip the
   // disambiguator right back off and we'd loop forever.
-  const ID_MAX = 120;
   const usedIds = new Set();
   function uniqueId(baseId, sourcePath) {
     if (!usedIds.has(baseId)) {
@@ -1405,7 +1360,7 @@ async function main() {
     let n = 1;
     while (true) {
       const tag = n === 1 ? suffix : `${suffix}-${n}`;
-      const room = ID_MAX - tag.length - 1; // -1 for the joining dash
+      const room = ID_MAX_LENGTH - tag.length - 1; // -1 for the joining dash
       const prefix = baseId.slice(0, Math.max(1, room)).replace(/-+$/, "");
       const id = `${prefix}-${tag}`;
       if (!usedIds.has(id)) {
@@ -1488,16 +1443,11 @@ async function main() {
       const artistName = artistCleared ? null : (artistInfo?.name ?? normalizedArtistName);
       const artistSlug = artistName ? slugify(artistName) : "unknown";
       const englishTitle = titleOverrides.get(objectKeyNFC) ?? null;
-      // The filename is the primary slug source. When it's a non-Latin
-      // script transliterate() doesn't cover (CJK, Arabic) and slugifies
-      // to nothing, fall back to the English/romanized title, then to a
-      // stable hash of the source path — so the id never collapses onto
-      // the bare folder name (the unstable slot that mis-keyed metadata).
-      const baseStem =
-        slugify(fname.replace(/\.[^.]+$/, "")) ||
-        slugify(englishTitle ?? title) ||
-        createHash("sha1").update(`${folderKey}/${fname}`).digest("hex").slice(0, 8);
-      const baseId = slugify(`${folderKey}-${baseStem}`).slice(0, 120);
+      // The filename is the primary slug source; artworkId() falls back to
+      // the English/romanized title and then to a hash of the source path
+      // for stems that slugify to nothing. Shared with the maintenance
+      // scripts so they derive the same id for the same file.
+      const baseId = artworkId(folderKey, fname, { fallbackTitle: englishTitle ?? title });
       const id = uniqueId(baseId, `${folderKey}/${fname}`);
 
       const dims = await dimensionsFor(folderKey, fname);
@@ -1571,8 +1521,8 @@ async function main() {
   // Probe every image we're going to keep up front, in parallel and against
   // the on-disk cache, so pushFromFolder below never blocks on sharp.
   const probeWork = [];
-  for (let i = 0; i < WIKIMEDIA_FOLDERS.length; i++) {
-    const folderKey = WIKIMEDIA_FOLDERS[i];
+  for (let i = 0; i < SOURCE_FOLDERS.length; i++) {
+    const folderKey = SOURCE_FOLDERS[i];
     for (const [fname, entry] of Object.entries(folderData[i].entries)) {
       if (!keepEntry(entry)) continue;
       if (!existsSync(path.join(ASSETS, folderKey, fname))) continue;
@@ -1581,8 +1531,8 @@ async function main() {
   }
   await prefillImageProbes(probeWork);
 
-  for (let i = 0; i < WIKIMEDIA_FOLDERS.length; i++) {
-    await pushFromFolder(WIKIMEDIA_FOLDERS[i], folderData[i]);
+  for (let i = 0; i < SOURCE_FOLDERS.length; i++) {
+    await pushFromFolder(SOURCE_FOLDERS[i], folderData[i]);
   }
 
   if (artworks.length === 0) {

@@ -1,7 +1,7 @@
 "use client";
 
 import { useFrame } from "@react-three/fiber";
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import * as THREE from "three";
 import { ERAS } from "@/lib/gallery-eras";
 import type { Placement, RoomLayout } from "@/lib/gallery-layout/types";
@@ -116,6 +116,7 @@ export function RoomGeometry({
   // this room (see useRevealedPlacements). The shell above always
   // renders, so an unloaded room reads as bare walls, never a hole.
   const revealedPlacements = useRevealedPlacements(room);
+  const settledHandler = usePaintingSettledHandlers(onPaintingSettled);
 
   return (
     <group>
@@ -211,15 +212,7 @@ export function RoomGeometry({
           then a few per frame, nearest the stair first. */}
       {revealedPlacements.map((p) => {
         const paintingKey = `${room.id}-${p.artwork.id}-${p.position.join(",")}`;
-        return (
-          <Painting
-            key={paintingKey}
-            placement={p}
-            onSettled={
-              onPaintingSettled ? (status) => onPaintingSettled(paintingKey, status) : undefined
-            }
-          />
-        );
+        return <Painting key={paintingKey} placement={p} onSettled={settledHandler(paintingKey)} />;
       })}
     </group>
   );
@@ -345,6 +338,38 @@ function useRevealedPlacements(room: RoomLayout): Placement[] {
   });
 
   return count >= total ? orderRef.current : orderRef.current.slice(0, count);
+}
+
+/** Per-painting `onSettled` callbacks that keep their identity across
+ *  renders. `Painting` is memoised, and the reveal ramp above re-renders
+ *  this component on every frame it runs — a fresh
+ *  `(status) => onPaintingSettled(key, status)` arrow per painting per
+ *  render would defeat the memo for exactly the room where it matters
+ *  most (only the entry room passes `onPaintingSettled` at all; every
+ *  other room passes undefined, which is already stable). The handler
+ *  reads the latest callback through a ref, so the cached arrows never
+ *  go stale. Bounded by the number of paintings the room can reveal. */
+function usePaintingSettledHandlers(
+  onPaintingSettled: ((key: string, status: "loaded" | "failed") => void) | undefined,
+): (key: string) => ((status: "loaded" | "failed") => void) | undefined {
+  const latest = useRef(onPaintingSettled);
+  useEffect(() => {
+    latest.current = onPaintingSettled;
+  }, [onPaintingSettled]);
+  const cache = useRef(new Map<string, (status: "loaded" | "failed") => void>());
+
+  return useCallback(
+    (key: string) => {
+      if (!onPaintingSettled) return undefined;
+      let handler = cache.current.get(key);
+      if (!handler) {
+        handler = (status) => latest.current?.(key, status);
+        cache.current.set(key, handler);
+      }
+      return handler;
+    },
+    [onPaintingSettled],
+  );
 }
 
 function placementDistSq(p: Placement, x: number, y: number, z: number): number {

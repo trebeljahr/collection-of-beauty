@@ -2,7 +2,7 @@
 
 import { Text } from "@react-three/drei";
 import { useThree } from "@react-three/fiber";
-import { useCallback, useEffect, useLayoutEffect, useRef, useState } from "react";
+import { memo, useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from "react";
 import * as THREE from "three";
 import type { ArtworkListing } from "@/lib/data";
 import { PAINTING_WALL_OFFSET } from "@/lib/gallery-layout/place-paintings";
@@ -428,7 +428,14 @@ function deriveTiers(
 // At the current 320 MB pool that cap admits 6144 only on wide canvases
 // (aspect ≥ 1.81); see HIRES_ENTRY_BYTE_CAP in texture-cache.ts.
 
-export function Painting({
+/** Memoised on its props: `RoomGeometry` re-renders every frame of its
+ *  paintings reveal ramp (`setCount` from `useFrame`), and without this
+ *  every already-mounted painting on the floor would re-run its plaque
+ *  formatting on each of those frames. Both props are referentially
+ *  stable per painting — `placement` comes from a room's fixed reveal
+ *  order, and `onSettled` from the caller's per-key handler cache — so
+ *  the default shallow comparison is enough. */
+export const Painting = memo(function Painting({
   placement,
   onSettled,
 }: {
@@ -517,7 +524,7 @@ export function Painting({
       <Plaque artwork={artwork} widthM={dW} />
     </group>
   );
-}
+});
 
 /** Refit a plane size to match a texture aspect while staying inside
  *  the slot's max bounds. Width-first: if width-fit overshoots height,
@@ -657,24 +664,37 @@ function readTroikaBlockHeight(mesh: unknown): number | null {
 }
 
 function Plaque({ artwork, widthM }: { artwork: ArtworkListing; widthM: number }) {
-  const title = formatTitle(
-    artwork.englishTitle?.trim() || artwork.title,
-    artwork.artist ?? undefined,
-  );
-  const byline = formatByline(artwork);
-  const dims = artwork.realDimensions
-    ? `${artwork.realDimensions.widthCm.toFixed(0)} × ${artwork.realDimensions.heightCm.toFixed(0)} cm`
-    : "";
-
-  // Pre-render estimates — used for the first paint before troika
+  // All three strings and the pre-render estimates derive from the
+  // artwork alone, so they are memoised on it: `formatTitle` /
+  // `formatByline` are regex-heavy, and a Plaque re-renders on every
+  // troika sync and — via the room's reveal ramp, which calls setCount
+  // from useFrame — on every frame of that ramp.
+  //
+  // Pre-render estimates are used for the first paint before troika
   // syncs and reports actual block bounds. The estimates use a word-
   // aware wrap so a single oversized word doesn't get overcounted, and
   // a conservative chars/line so the plaque starts a touch tall (and
   // shrinks to fit), never short (which would overlap text).
-  const estTitleLines = estimateWrappedLines(title, PLAQUE_TITLE_CHARS_PER_LINE);
-  const estBylineLines = estimateWrappedLines(byline, PLAQUE_BYLINE_CHARS_PER_LINE);
-  const estTitleH = estTitleLines * PLAQUE_TITLE_FONT * PLAQUE_TITLE_LH;
-  const estBylineH = estBylineLines * PLAQUE_BYLINE_FONT * PLAQUE_BYLINE_LH;
+  const { title, byline, dims, estTitleH, estBylineH } = useMemo(() => {
+    const t = formatTitle(
+      artwork.englishTitle?.trim() || artwork.title,
+      artwork.artist ?? undefined,
+    );
+    const b = formatByline(artwork);
+    return {
+      title: t,
+      byline: b,
+      dims: artwork.realDimensions
+        ? `${artwork.realDimensions.widthCm.toFixed(0)} × ${artwork.realDimensions.heightCm.toFixed(0)} cm`
+        : "",
+      estTitleH:
+        estimateWrappedLines(t, PLAQUE_TITLE_CHARS_PER_LINE) * PLAQUE_TITLE_FONT * PLAQUE_TITLE_LH,
+      estBylineH:
+        estimateWrappedLines(b, PLAQUE_BYLINE_CHARS_PER_LINE) *
+        PLAQUE_BYLINE_FONT *
+        PLAQUE_BYLINE_LH,
+    };
+  }, [artwork]);
 
   // Measured block heights from troika onSync. Initialised to null so
   // the first render uses the estimates above; on the next frame the
@@ -1136,9 +1156,15 @@ function PaintingPlane({
       loadCached(thumbUrl, gl, origin)
         .then((tex) => {
           if (cancelled || baseInstalled) return;
-          // Install the placeholder. The 960 will overwrite this when
-          // it lands; the texture itself stays in the LRU (cheap, ~tens
-          // of KB) so a return visit is instant.
+          // Install the placeholder. The base will overwrite this when
+          // it lands. The thumb stays in the LRU afterwards, but it is
+          // first in line to go: the LOD tick MRU-touches the base URL
+          // (`peekCached(url)` below) and never the thumb, so once
+          // installed it only ages. It is not cheap in the pool's terms
+          // either — `textureBytes` charges 256 × 256 × 4 × 1.34, i.e.
+          // ~340 KB decoded + mipmaps, an order above the AVIF's wire
+          // size. So the return visit is instant only while the base
+          // pool hasn't turned over since.
           material.map = tex;
           material.color.setHex(0xffffff);
           material.needsUpdate = true;

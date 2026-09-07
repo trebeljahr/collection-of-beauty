@@ -15,7 +15,12 @@
 // Output: metadata/artwork-dimensions.json keyed by artwork id:
 //   { "<id>": { widthCm, heightCm, source: "wikidata"|"wikimedia-template"|"static" } }
 //
-// The script is safe to re-run: existing entries are preserved unless --force
+// Two kinds of non-answer, deliberately distinguishable:
+//   null                -> asked, and there are no dimensions to be had. Final.
+//   { error: true, … }  -> a batch exhausted its retries, so we never got an
+//                          answer. Re-fetched by the next plain run.
+//
+// The script is safe to re-run: existing answers are preserved unless --force
 // is passed. Progress and final source-breakdown is logged.
 //
 // Usage:
@@ -484,9 +489,13 @@ async function main() {
   if (ONLY) candidates = candidates.filter((a) => ONLY.has(a.id));
   if (LIMIT) candidates = candidates.slice(0, LIMIT);
 
-  const todo = FORCE
-    ? candidates
-    : candidates.filter((a) => !Object.prototype.hasOwnProperty.call(existing, a.id));
+  // A present key counts as answered — including an explicit null, which means
+  // "we asked and there are no dimensions to be had". An `{ error: true }`
+  // marker is the opposite: the fetch never got an answer, so it is retried.
+  const isAnswered = (id) =>
+    Object.prototype.hasOwnProperty.call(existing, id) && existing[id]?.error !== true;
+
+  const todo = FORCE ? candidates : candidates.filter((a) => !isAnswered(a.id));
 
   console.log(
     `[dims] ${artworks.length} artworks total; ${candidates.length} in scope; ${todo.length} to fetch (force=${FORCE})`,
@@ -497,8 +506,14 @@ async function main() {
     "wikimedia-template": 0,
     static: 0,
     null: 0,
+    failed: 0,
     skipped_existing: candidates.length - todo.length,
   };
+
+  // Ids whose lookup never completed because a batch exhausted its retries.
+  // These are recorded as `{ error: true }` rather than null so the next run
+  // picks them up again; a null here would be a permanent, silent answer.
+  const failedIds = new Set();
 
   // Bucket by folder — only Wikimedia folders go through the API.
   const byFolder = new Map();
@@ -544,15 +559,20 @@ async function main() {
   for (let i = 0; i < allTitles.length; i += BATCH_SIZE) {
     const batch = allTitles.slice(i, i + BATCH_SIZE);
     process.stdout.write(`[dims] wikitext ${i + batch.length}/${allTitles.length}... `);
-    let wikitextByTitle;
+    let wikitextByTitle = null;
     try {
       wikitextByTitle = await fetchWikitextBatch(batch);
       process.stdout.write("ok\n");
     } catch (e) {
       process.stdout.write(`FAILED: ${e.message}\n`);
-      wikitextByTitle = new Map(batch.map((t) => [t, null]));
+      // Don't substitute an empty page set: downstream that is
+      // indistinguishable from "Commons has no such page", which would be
+      // written out as a resolved null.
+      for (const t of batch) {
+        for (const a of titleToArtwork.get(t) || []) failedIds.add(a.id);
+      }
     }
-    for (const [t, info] of wikitextByTitle) {
+    for (const [t, info] of wikitextByTitle ?? []) {
       const arts = titleToArtwork.get(t) || [];
       if (!info) continue; // truly missing page: nothing we can do
       const { wikitext, pageid } = info;
@@ -584,7 +604,11 @@ async function main() {
         process.stdout.write("ok\n");
       } catch (e) {
         process.stdout.write(`FAILED: ${e.message}\n`);
-        sdcByMid = new Map(mids.map((m) => [m, null]));
+        for (const [t] of slice) {
+          for (const a of titleToArtwork.get(t) || []) failedIds.add(a.id);
+        }
+        await sleep(DELAY_MS);
+        continue;
       }
       for (let k = 0; k < slice.length; k++) {
         const [t] = slice[k];
@@ -614,7 +638,14 @@ async function main() {
       process.stdout.write("ok\n");
     } catch (e) {
       process.stdout.write(`FAILED: ${e.message}\n`);
-      m = new Map(batch.map((q) => [q, null]));
+      // Leave these Q-ids unresolved rather than mapping them to null, which
+      // reads downstream as "Wikidata carries no dimensions for this item".
+      const unresolved = new Set(batch);
+      for (const [id, qid] of wikidataQidByArtworkId) {
+        if (unresolved.has(qid)) failedIds.add(id);
+      }
+      await sleep(DELAY_MS);
+      continue;
     }
     for (const [q, v] of m) dimsByQid.set(q, v);
     await sleep(DELAY_MS);
@@ -668,6 +699,18 @@ async function main() {
       stats.wikidata++;
       continue;
     }
+    if (failedIds.has(a.id)) {
+      // Nothing resolved *and* one of this id's lookups failed outright. Record
+      // that as an error marker, not as null: null is a real answer ("Wikidata
+      // and the Commons template both have nothing") that we never re-fetch.
+      // Never downgrade an answer an earlier run already recorded.
+      const prior = results[a.id];
+      if (prior === undefined || prior?.error === true) {
+        results[a.id] = { error: true, fetchedAt: new Date().toISOString() };
+      }
+      stats.failed++;
+      continue;
+    }
     results[a.id] = null;
     stats.null++;
   }
@@ -681,11 +724,17 @@ async function main() {
   console.log("  wikimedia-template:", stats["wikimedia-template"]);
   console.log("  static            :", stats.static);
   console.log("  unresolved (null) :", stats.null);
+  console.log("  fetch failed      :", stats.failed);
   console.log("  skipped (existing):", stats.skipped_existing);
-  const totalResolved = Object.values(results).filter((v) => v != null).length;
+  const totalResolved = Object.values(results).filter((v) => v != null && v.error !== true).length;
   console.log(
     `[dims] total entries with dimensions in sidecar: ${totalResolved}/${artworks.length}`,
   );
+  if (stats.failed > 0) {
+    console.log(
+      `[dims] ${stats.failed} id(s) recorded as { error: true } — re-run the script to retry just those.`,
+    );
+  }
 }
 
 main().catch((err) => {

@@ -180,6 +180,19 @@ describe("ogImagesForArtwork", () => {
     expect(list[0].url.endsWith(`/${WEBP_WIDTH}.webp`)).toBe(true);
   });
 
+  it("clamps the advertised size to the source rather than to the rung", () => {
+    // shrink-sources resizes with `withoutEnlargement`, so a 400px-wide
+    // source is written at 400px under the 1280 filename. Advertising
+    // the rung would tell a scraper to expect an image three times the
+    // width of the one it gets.
+    const [primary] = ogImagesForArtwork(makeArtwork({ width: 400, height: 300 })) as {
+      width: number;
+      height: number;
+    }[];
+    expect(primary.width).toBe(400);
+    expect(primary.height).toBe(300);
+  });
+
   it("returns nothing for a missing artwork rather than a broken card", () => {
     expect(ogImagesForArtwork(null)).toEqual([]);
   });
