@@ -4,6 +4,7 @@ import { artists, artworks } from "@/lib/data";
 import { ERAS } from "@/lib/gallery-eras";
 import { sitemapImagesForArtwork } from "@/lib/licensable-images";
 import { loadPublishedEditions } from "@/lib/newsletter/editions";
+import { getPlateSets } from "@/lib/plate-sets";
 import { absoluteUrl } from "@/lib/seo";
 
 // Cache the rendered sitemap for a day. Iterating ~4,900 entries on
@@ -14,8 +15,11 @@ export const revalidate = 86400;
 
 /**
  * Served at /sitemap.xml. Emits every indexable URL:
- *   - Static pages (home, timeline, artists index, eras index, press, 3D gallery)
+ *   - Static pages (home, timeline, artists index, eras index,
+ *     collections index, newsletter index, subscribe, press, 3D gallery)
  *   - One entry per era (11)
+ *   - One entry per plate set (4)
+ *   - One entry per published newsletter edition
  *   - One entry per artist (~331)
  *   - One entry per artwork (~4,571)
  *
@@ -23,6 +27,10 @@ export const revalidate = 86400;
  * variant we know is servable for that work, which is what gets the
  * corpus into Google Images at all — the detail pages are otherwise
  * discovered by crawl alone.
+ *
+ * Deliberately absent: /dedup-review and /replace-low-res (internal
+ * tools, also disallowed in robots.ts) and /drops/<slug>, which is a
+ * permanent redirect to /newsletter/<slug> and would only split signal.
  *
  * Total is ~4.9k URLs / ~2 MB, well under Google's 50k-URL and 50 MB
  * per-sitemap caps, so we can ship one file. If the collection ever
@@ -36,6 +44,21 @@ export default function sitemap(): MetadataRoute.Sitemap {
     { url: absoluteUrl("/timeline"), lastModified: now, changeFrequency: "monthly", priority: 0.7 },
     { url: absoluteUrl("/artists"), lastModified: now, changeFrequency: "monthly", priority: 0.7 },
     { url: absoluteUrl("/eras"), lastModified: now, changeFrequency: "monthly", priority: 0.7 },
+    {
+      url: absoluteUrl("/collections"),
+      lastModified: now,
+      changeFrequency: "monthly",
+      priority: 0.8,
+    },
+    // The per-edition pages were already listed while their own index
+    // wasn't — a crawler could reach an edition but never the archive.
+    {
+      url: absoluteUrl("/newsletter"),
+      lastModified: now,
+      changeFrequency: "weekly",
+      priority: 0.7,
+    },
+    { url: absoluteUrl("/sub"), lastModified: now, changeFrequency: "monthly", priority: 0.5 },
     { url: absoluteUrl("/about"), lastModified: now, changeFrequency: "monthly", priority: 0.7 },
     {
       url: absoluteUrl("/gallery-3d"),
@@ -82,11 +105,22 @@ export default function sitemap(): MetadataRoute.Sitemap {
 
   // Derived from COLLECTIONS the same way the era entries are derived from
   // ERAS — a fifth plate set lands in the sitemap the moment it exists.
-  const collectionEntries: MetadataRoute.Sitemap = COLLECTIONS.map((c) => ({
+  const downloadEntries: MetadataRoute.Sitemap = COLLECTIONS.map((c) => ({
     url: absoluteUrl(`/downloads/${c.slug}`),
     lastModified: now,
     changeFrequency: "monthly",
     priority: 0.7,
+  }));
+
+  // The editorial landing page for each plate set, distinct from the
+  // /downloads entry above: that one offers the files, this one is the
+  // page about the book.
+  const plateSetEntries: MetadataRoute.Sitemap = getPlateSets().map((set) => ({
+    url: absoluteUrl(`/collection/${set.id}`),
+    lastModified: now,
+    changeFrequency: "monthly",
+    priority: 0.8,
+
   }));
 
   const editionEntries: MetadataRoute.Sitemap = loadPublishedEditions().map((ed) => ({
@@ -115,7 +149,8 @@ export default function sitemap(): MetadataRoute.Sitemap {
   return [
     ...staticEntries,
     ...eraEntries,
-    ...collectionEntries,
+    ...downloadEntries,
+    ...plateSetEntries,
     ...editionEntries,
     ...artistEntries,
     ...artworkEntries,

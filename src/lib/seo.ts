@@ -372,6 +372,81 @@ export function artistJsonLd(artist: Artist): Record<string, unknown> {
   };
 }
 
+/**
+ * schema.org/CreativeWorkSeries for a plate set.
+ *
+ * A plate set is a published book, so the series type carries the facts
+ * that matter — author, publication span, and the number of plates it
+ * contains — in a way a bare CollectionPage cannot. `hasPart` lists the
+ * plates as VisualArtwork nodes, capped: the full 435 Audubon entries
+ * would bloat the document well past what a crawler will usefully read,
+ * and every plate has its own indexable page carrying its own full
+ * VisualArtwork anyway. `numberOfItems` states the true total so the cap
+ * can't be mistaken for the extent.
+ */
+export function plateSetJsonLd(input: {
+  id: string;
+  title: string;
+  author: string;
+  authorSlug: string;
+  publishedLabel: string;
+  publishedFrom: number;
+  publishedTo: number;
+  description: string;
+  presentCount: number;
+  parts: { id: string; name: string; objectKey: string; position: number }[];
+}): Record<string, unknown> {
+  return {
+    "@context": "https://schema.org",
+    "@type": "CreativeWorkSeries",
+    name: input.title,
+    description: input.description,
+    url: absoluteUrl(`/collection/${input.id}`),
+    creator: {
+      "@type": "Person",
+      name: input.author,
+      url: absoluteUrl(`/artist/${input.authorSlug}`),
+    },
+    // schema.org wants an ISO 8601 date here — the display label is a
+    // range with an en dash and would be rejected. The span goes in
+    // temporalCoverage, which does take an ISO interval.
+    datePublished: String(input.publishedFrom),
+    ...(input.publishedTo !== input.publishedFrom
+      ? { temporalCoverage: `${input.publishedFrom}/${input.publishedTo}` }
+      : {}),
+    inLanguage: "en",
+    isAccessibleForFree: true,
+    numberOfItems: input.presentCount,
+    hasPart: input.parts.map((part) => ({
+      "@type": "VisualArtwork",
+      position: part.position,
+      name: part.name,
+      url: absoluteUrl(`/artwork/${part.id}`),
+      image: variantUrl(part.objectKey, 1280, "webp"),
+      creator: { "@type": "Person", name: input.author },
+    })),
+  };
+}
+
+/** schema.org/CollectionPage for the /collections index. */
+export function collectionsIndexJsonLd(
+  sets: { id: string; title: string; tagline: string }[],
+): Record<string, unknown> {
+  return {
+    "@context": "https://schema.org",
+    "@type": "CollectionPage",
+    name: `Complete plate sets · ${SITE_NAME}`,
+    url: absoluteUrl("/collections"),
+    isAccessibleForFree: true,
+    hasPart: sets.map((set) => ({
+      "@type": "CreativeWorkSeries",
+      name: set.title,
+      description: set.tagline,
+      url: absoluteUrl(`/collection/${set.id}`),
+    })),
+  };
+}
+
 /** schema.org/WebSite for the root layout — helps Google understand the site. */
 export function websiteJsonLd(): Record<string, unknown> {
   return {
