@@ -32,41 +32,9 @@ export default function ColoursPage() {
     <div className="mx-auto max-w-4xl px-4 py-8 md:py-12">
       <header className="mb-10 text-center">
         <h1 className="font-serif text-3xl md:text-4xl">Colours</h1>
-        <p className="mx-auto mt-3 max-w-prose text-[var(--muted-foreground)]">
-          Every work is read pixel by pixel and sorted into the colour families it contains. Pick
-          one.
-        </p>
       </header>
 
       <ColorWheel counts={counts} />
-
-      <section className="mx-auto mt-12 max-w-prose text-sm text-[var(--muted-foreground)]">
-        <h2 className="mb-2 font-medium text-[var(--foreground)]">How this works</h2>
-        <p>
-          Colours are measured in{" "}
-          <a
-            href="https://bottosson.github.io/posts/oklab/"
-            className="underline hover:text-[var(--foreground)]"
-            target="_blank"
-            rel="noreferrer noopener"
-          >
-            OKLab
-          </a>
-          , where the distance between two colours matches how different they look. Each work votes
-          its pixels into hue families, weighted so a small vivid passage counts for more than a
-          broad, barely-tinted one.
-        </p>
-        <p className="mt-3">
-          The scores are then measured against the collection itself. Public-domain painting is
-          overwhelmingly warm, so a family is listed only when a work carries noticeably more of it
-          than the collection&rsquo;s own average. Otherwise nearly everything would land in the
-          same few families.
-        </p>
-        <p className="mt-3">
-          A work can belong to up to three families, so the totals above add up to more than the
-          size of the collection.
-        </p>
-      </section>
     </div>
   );
 }

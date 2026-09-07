@@ -126,26 +126,26 @@ const descriptionTiers = [
   {
     title: "One sentence",
     body: [
-      `A museum of ${FLOOR_COUNT} floors you walk through in a browser tab, hung with a hand-curated collection of public-domain art.`,
+      `A walkable ${FLOOR_COUNT}-floor museum of public-domain art that runs in a browser tab.`,
     ],
   },
   {
     title: "Short (about 40 words)",
     body: [
-      `Collection of Beauty is a museum you walk through in a browser tab: ${FLOOR_COUNT} floors, one per art era, joined by a central spiral staircase. It hangs roughly ${WORKS_APPROX} public-domain works from about ${ARTISTS_APPROX} artists. Free, no install, no login.`,
+      `Collection of Beauty is a walkable museum of public-domain art. ${FLOOR_COUNT} floors, one per art era, joined by a central spiral staircase. It hangs roughly ${WORKS_APPROX} works from about ${ARTISTS_APPROX} artists. Free, no install, no login.`,
     ],
   },
   {
     title: "Medium (about 80 words)",
     body: [
-      `Collection of Beauty is a museum you walk through in a browser tab. ${FLOOR_COUNT} floors, one per art era, ${GROUND_ERA} at ground level rising to ${TOP_ERA} at the top, joined by a central spiral staircase. Paintings hang at their real-world size where the dimensions are known. It is built with React Three Fiber and runs in any modern browser — mouse and keyboard on a laptop, an on-screen joystick on a phone in landscape. Behind it sits the collection itself: roughly ${WORKS_APPROX} public-domain works from ~${ARTISTS_APPROX} artists, also browsable as a flat gallery, a timeline, and per-artist pages.`,
+      `Collection of Beauty is a walkable museum of public-domain art with ${FLOOR_COUNT} floors, one per art era, ${GROUND_ERA} at ground level rising to ${TOP_ERA}. Paintings hang at their real-world size where the dimensions are known. Built with React Three Fiber; mouse and keyboard on a laptop, an on-screen joystick on a phone in landscape. The same collection is also browsable as a flat gallery, a timeline, and per-artist pages: roughly ${WORKS_APPROX} works from ~${ARTISTS_APPROX} artists.`,
     ],
   },
   {
     title: "Long (about 150 words)",
     body: [
-      `Collection of Beauty is a museum you walk through in a browser tab, made and maintained by a single developer. It has ${FLOOR_COUNT} floors, one per art era, ${GROUND_ERA} at ground level rising to ${TOP_ERA}, joined by a central spiral staircase. Paintings are sized to their real-world dimensions where the data exists. It is built in WebGL, needs no install, and works on a laptop with pointer-lock and WASD or on a phone in landscape with a touch joystick.`,
-      `The collection it hangs grew out of a private bookmark folder and now holds around ${WORKS_APPROX} public-domain works across ~${ARTISTS_APPROX} artists, drawn from Wikimedia Commons and adjacent open archives. Each work shows its source, provenance, and a permalink, with a "suggest a fix" button that opens a GitHub issue. The site is free and runs without ads, sign-ups, or third-party tracking.`,
+      `Collection of Beauty is a walkable museum of public-domain art, made and maintained by a single developer. ${FLOOR_COUNT} floors, one per art era, ${GROUND_ERA} at ground level rising to ${TOP_ERA}, joined by a central spiral staircase. Paintings are sized to their real-world dimensions where the data exists. It is built in WebGL, needs no install, and works on a laptop with pointer-lock and WASD or on a phone in landscape with a touch joystick.`,
+      `The collection holds around ${WORKS_APPROX} public-domain works across ~${ARTISTS_APPROX} artists, drawn from Wikimedia Commons and adjacent open archives. Each work shows its source, provenance, and a permalink, with a "suggest a fix" button that opens a GitHub issue. The site is free and runs without ads, sign-ups, or third-party tracking.`,
     ],
   },
 ] as const;
@@ -301,7 +301,7 @@ const social = [
   "Personal blog: ricos.site (long-form pieces and a launch retrospective will live there).",
 ] as const;
 
-const boilerplate = `Collection of Beauty is a museum you walk through in a browser tab: ${FLOOR_COUNT} floors, one per art era, ${GROUND_ERA} at ground level rising to ${TOP_ERA}, joined by a central spiral staircase, with paintings hung at their real-world size where the dimensions are known. It is built in WebGL by Rico Trebeljahr and hangs about ${WORKS_APPROX} public-domain works from ~${ARTISTS_APPROX} artists, sourced from Wikimedia Commons and adjacent open archives. The same collection is also browsable as a flat gallery, a timeline, and per-artist pages. It runs at beauty.trebeljahr.com, free, without ads or sign-ups.`;
+const boilerplate = `Collection of Beauty is a walkable museum of public-domain art: ${FLOOR_COUNT} floors, one per art era, ${GROUND_ERA} at ground level rising to ${TOP_ERA}, joined by a central spiral staircase, with paintings hung at their real-world size where the dimensions are known. Built in WebGL by Rico Trebeljahr, it holds about ${WORKS_APPROX} works from ~${ARTISTS_APPROX} artists, sourced from Wikimedia Commons and adjacent open archives, also browsable as a flat gallery, a timeline, and per-artist pages. It runs at beauty.trebeljahr.com, free, without ads or sign-ups.`;
 
 function contactPointJsonLd(): Record<string, unknown> {
   return {
@@ -382,9 +382,8 @@ export default function PressPage() {
                 Collection of Beauty
               </h1>
               <p className="mt-5 max-w-2xl text-lg leading-8 text-[var(--foreground)] md:text-xl">
-                A museum of {FLOOR_COUNT} floors you walk through in a browser tab — one storey per
-                art era, {GROUND_ERA} at ground level rising to {TOP_ERA}, joined by a central
-                spiral staircase. Hung with a hand-curated collection of public-domain art.
+                A walkable museum of public-domain art. {FLOOR_COUNT} floors, one per art era,
+                {GROUND_ERA} at ground level rising to {TOP_ERA}.
               </p>
               <div className="mt-8 flex flex-wrap gap-3">
                 <Link
@@ -454,10 +453,6 @@ export default function PressPage() {
             title={`${FLOOR_COUNT} floors you can walk through`}
           >
             <div className="space-y-6">
-              <p className="leading-8 text-[var(--muted-foreground)]">
-                A museum you enter in a browser tab and walk through on foot. Paintings hang at
-                their real-world size where the dimensions are known.
-              </p>
               <dl className="divide-y divide-[var(--border)] border-y border-[var(--border)]">
                 {museumFacts.map(([label, value]) => (
                   <div key={label} className="grid gap-2 py-4 sm:grid-cols-[11rem_1fr]">

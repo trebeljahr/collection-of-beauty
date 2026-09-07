@@ -45,8 +45,8 @@ export type Collection = {
   creator: string;
   /** Publication span, for prose. */
   published: string;
-  /** One-paragraph description used on the collection page and in the
-   *  ZIP's README. Plain facts — this text is indexable. */
+  /** One factual line used in the ZIP's README and in the JSON-LD
+   *  description. Contents and plate count, nothing else. */
   blurb: string;
   /** Who digitised or restored the plates. */
   sourceNote: string;
@@ -60,7 +60,7 @@ export const COLLECTIONS: Collection[] = [
     creator: "John James Audubon",
     published: "1827–1838",
     blurb:
-      "Audubon's double-elephant folio, engraved and hand-coloured, with every bird drawn at life size. The complete run of 435 plates, scanned by the University of Pittsburgh.",
+      "435 hand-coloured plates of North American birds, engraved after Audubon's watercolours at life size.",
     sourceNote: "Scans by the University of Pittsburgh, via Wikimedia Commons.",
   },
   {
@@ -70,7 +70,7 @@ export const COLLECTIONS: Collection[] = [
     creator: "Pierre-Joseph Redouté",
     published: "1817–1824",
     blurb:
-      "Redouté's roses, printed as stipple engravings and finished by hand, so a petal shades from centre to edge with no visible hatching. 169 plates, restored from the originals by Nicholas Rougeux.",
+      "169 colour-printed stipple engravings of roses, restored from the originals by Nicholas Rougeux.",
     sourceNote: "Restorations by Nicholas Rougeux (c82.net), after Pierre-Joseph Redouté.",
   },
   {
@@ -80,7 +80,7 @@ export const COLLECTIONS: Collection[] = [
     creator: "Pierre-Joseph Redouté",
     published: "1802–1816",
     blurb:
-      "The larger and earlier of Redouté's two great flower books, commissioned by Joséphine Bonaparte for the gardens at Malmaison. 475 plates covering lilies, irises, orchids and their relatives, restored by Nicholas Rougeux.",
+      "475 plates of lilies, irises, orchids and their relatives, restored by Nicholas Rougeux.",
     sourceNote: "Restorations by Nicholas Rougeux (c82.net), after Pierre-Joseph Redouté.",
   },
   {
@@ -90,7 +90,7 @@ export const COLLECTIONS: Collection[] = [
     creator: "Ernst Haeckel",
     published: "1899–1904",
     blurb:
-      "Haeckel's lithographs of radiolarians, jellyfish, diatoms and orchids, each plate composed around a symmetry. 100 plates from the 1904 collected edition.",
+      "100 lithographic plates of radiolarians, jellyfish, diatoms and orchids, from the 1904 collected edition.",
     sourceNote: "Scans via Wikimedia Commons.",
   },
 ];
