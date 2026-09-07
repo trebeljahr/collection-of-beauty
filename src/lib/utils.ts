@@ -1,5 +1,6 @@
 import { type ClassValue, clsx } from "clsx";
 import { twMerge } from "tailwind-merge";
+import { TILE_DIR, TILE_FORMAT } from "./deep-zoom-config.mjs";
 import { VARIANT_WIDTHS } from "./variant-config.mjs";
 
 export function cn(...inputs: ClassValue[]) {
@@ -197,4 +198,33 @@ export function variantSrcSet(
 ): string {
   if (!objectKey) return "";
   return widths.map((w) => `${variantUrl(objectKey, w, format)} ${w}w`).join(", ");
+}
+
+// Deep-zoom tile URL: <base>/<bucket>/<basename>/tiles/<level>/<col>_<row>.webp
+//
+// Same addressing scheme as variantUrl(), one directory deeper. Emitted by
+// scripts/build-tiles.mjs; the level/col/row triple comes from
+// OpenSeadragon, which derives it from the pyramid dimensions that
+// deepZoomSize() computes — so the build script and the viewer agree on
+// the tile grid without the pyramid shipping a .dzi manifest to describe
+// itself.
+//
+// Deliberately the CDN URL, not the same-origin /assets-raw rewrite the 3D
+// gallery uses: a deep-zoom session pulls hundreds of tiles, and routing
+// those through the Next server would put the whole pyramid on the app
+// container's egress path. OpenSeadragon only ever draws tiles (never
+// reads pixels back), so a cross-origin canvas taint costs us nothing.
+export function deepZoomTileUrl(
+  objectKey: string,
+  level: number,
+  col: number,
+  row: number,
+): string {
+  if (!objectKey) return "";
+  const lastSlash = objectKey.lastIndexOf("/");
+  const dir = objectKey.slice(0, lastSlash);
+  const filename = objectKey.slice(lastSlash + 1);
+  const basename = filename.replace(/\.[^.]+$/, "");
+  const segments = [...dir.split("/"), basename, TILE_DIR, String(level)];
+  return `${ASSETS_BASE_URL}/${encodePath(segments)}/${col}_${row}.${TILE_FORMAT}`;
 }

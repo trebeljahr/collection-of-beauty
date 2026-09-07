@@ -36,6 +36,9 @@ assets/                 # originals, untouched
 assets-web/             # pre-built variants emitted by shrink
   └── audubon-birds/foo/{256,480,640,960,1280,1920,2560,4096}.avif
                           1280.webp
+                          <sourceW>.avif      # only when source > 4096 px
+                          tiles/<level>/<col>_<row>.webp
+                                              # deep-zoom pyramid, same condition
 src/data/               # baked JSON the runtime reads
   artworks.json, artists.json, ...
 ```
@@ -45,11 +48,12 @@ Commands:
 | Command | What it does |
 | --- | --- |
 | `pnpm assets:shrink` | Build AVIF + WebP variants from `assets/` into `assets-web/`. Idempotent. |
+| `pnpm assets:tiles` | Build Deep Zoom (DZI) tile pyramids for the ~967 sources bigger than the standard ladder, so the lightbox can zoom to brushstroke level. Idempotent. Reads `src/data/artworks.json`, so run it **after** `assets:build-data`. |
 | `pnpm assets:build-data` | Walk metadata + `assets-web/` and bake `src/data/*.json` consumed by every page. |
 | `pnpm assets:sync` | Mirror `assets-web/` to the R2 bucket via rclone. |
 | `pnpm assets:verify` | HEAD-check every catalogued variant against the public R2 URL. Used as the deploy gate; runs without R2 creds. Pass `--sample 200` for a smoke test, `--check-unshrunk` to also fail on `variantWidths===null` entries. |
 | `pnpm assets:verify:bulk` | Same check but lists R2 in one `rclone lsf` pass and verifies set membership. ~10× faster than HEAD-spray; needs R2 creds from `.env.production`. |
-| `pnpm assets:prepare` | The full chain: shrink → build-data → sync. |
+| `pnpm assets:prepare` | The full chain: shrink → build-data → tiles → sync. |
 
 You should run `pnpm assets:build-data` whenever you change metadata,
 add an artwork, run the shrink pipeline against new originals, or

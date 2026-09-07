@@ -50,6 +50,44 @@ required by the Dockerfile — don't remove it.
   scan. New artworks have `variantWidths: null` until shrink + build-data
   run.
 
+## Deep zoom (tiled lightbox)
+
+- ~967 works have a source bigger than the standard variant ladder. For
+  those, `pnpm assets:shrink` emits a per-source full-resolution AVIF
+  (capped at 16384 px on the long side) **and** `pnpm assets:tiles`
+  emits a DZI pyramid at
+  `assets-web/<folder>/<basename>/tiles/<level>/<col>_<row>.webp`.
+- The pyramid exists because that full-size AVIF is unusable as a single
+  image: median ~124 megapixels (up to 265), which is a ~500 MB decode
+  and past the decode ceiling mobile Safari enforces. The lightbox used
+  to fetch it eagerly on open — p50 4.3 MB, max 89 MB. It no longer does
+  for tiled works; see the skip in `lightbox.tsx`'s preload effect.
+- **Availability is derived, not stored.** A work has tiles exactly when
+  `max(variantWidths) > 4096`, which every client already receives via
+  `ArtworkListing`. Don't add a `hasTiles` field — it would be redundant
+  bytes in the RSC payload on every gallery page.
+- Tile geometry lives in `src/lib/deep-zoom-config.mjs`, shared between
+  the build script and the runtime the same way `variant-config.mjs` is.
+  `deepZoomSize()` must return the same pair on both sides or the viewer
+  requests tile coordinates that were never written — the tiler resizes
+  to exactly that pair rather than letting `fit: "inside"` round.
+- Tiles are WebP because libvips `dzsave` accepts only jpeg/png/webp
+  (AVIF is not a valid suffix). WebP also decodes faster, which matters
+  when one pan decodes dozens of tiles.
+- `openseadragon` is dynamically imported inside the viewer's effect, so
+  it stays in its own ~338 KB async chunk and never reaches the main
+  bundle. It touches `window` at module scope, so it must never be
+  statically imported from anything a server component pulls in.
+- The viewer probes `tiles/0/0_0.webp` before mounting and falls back to
+  the plain `<img>` path when it 404s. That probe is deliberate:
+  OpenSeadragon's `open-failed` never fires for an inline tile source,
+  and OSD 6's default WebGL drawer doesn't raise `tile-drawn` at all.
+- **Ordering:** tiles are not covered by `pnpm assets:verify`, which
+  checks catalogued variants only. A catalogue rebuilt ahead of
+  `assets:tiles` + `assets:sync` will claim tiles that 404; the viewer
+  degrades cleanly, but the deep zoom is silently missing until the
+  bucket catches up.
+
 ## 3D gallery internals
 
 - `src/components/gallery-3d/index.tsx` is the entrypoint. Lazy-loaded

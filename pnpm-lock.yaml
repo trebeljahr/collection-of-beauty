@@ -62,6 +62,9 @@ importers:
       next:
         specifier: ^16.2.4
         version: 16.2.4(react-dom@19.2.5(react@19.2.5))(react@19.2.5)
+      openseadragon:
+        specifier: ^6.1.0
+        version: 6.1.0
       react:
         specifier: ^19.2.5
         version: 19.2.5
@@ -2812,6 +2815,9 @@ packages:
   opener@1.5.2:
     resolution: {integrity: sha512-ur5UIdyw5Y7yEj9wLzhqXiy6GZ3Mwx0yGI+5sMn2r0N0v3cKJvUmFH5yPP+WXh9e0xfyzyJX95D8l088DNFj7A==}
     hasBin: true
+
+  openseadragon@6.1.0:
+    resolution: {integrity: sha512-S2kEBO6zd2pbUByMVZ6PkEldvXHbB2kemL3tAhSltnHyjpArJPgXeM/AH/g8qsoXHy9pMHzx63XyJftE556MbA==}
 
   ora@8.2.0:
     resolution: {integrity: sha512-weP+BZ8MVNnlCm8c0Qdc1WSWq4Qn7I+9CJGm7Qali6g44e/PUzbjNqJX5NJ9ljlNMosfJvg1fKEGILklK9cwnw==}
@@ -6314,6 +6320,8 @@ snapshots:
       mimic-function: 5.0.1
 
   opener@1.5.2: {}
+
+  openseadragon@6.1.0: {}
 
   ora@8.2.0:
     dependencies:

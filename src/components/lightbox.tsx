@@ -1,14 +1,23 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import dynamic from "next/dynamic";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { createPortal } from "react-dom";
 import {
   type ReactZoomPanPinchRef,
   TransformComponent,
   TransformWrapper,
 } from "react-zoom-pan-pinch";
+import { deepZoomTileSource } from "@/lib/deep-zoom";
 import { getLoadedVariant, recordLoadedVariant } from "@/lib/image-cache";
 import { cn, fallbackVariantUrl, variantUrl } from "@/lib/utils";
+
+// Split out of the main bundle: the viewer pulls in OpenSeadragon, which
+// is only ever needed for the works that have a tile pyramid. `ssr: false`
+// because OpenSeadragon touches `window` at module scope.
+const DeepZoomViewer = dynamic(() => import("./deep-zoom-viewer").then((m) => m.DeepZoomViewer), {
+  ssr: false,
+});
 
 type Props = {
   open: boolean;
@@ -38,6 +47,10 @@ export function Lightbox({
   const [mounted, setMounted] = useState(false);
   const [placeholderLoaded, setPlaceholderLoaded] = useState(false);
   const [highReady, setHighReady] = useState(false);
+  // Set when the pyramid turns out not to be there after all (bucket not
+  // yet synced, library chunk blocked). Flips this artwork back to the
+  // plain <img> path for the rest of the session.
+  const [deepZoomFailed, setDeepZoomFailed] = useState(false);
   const transformRef = useRef<ReactZoomPanPinchRef | null>(null);
 
   useEffect(() => setMounted(true), []);
@@ -58,6 +71,17 @@ export function Lightbox({
   const smallestSrc = hasVariants ? variantUrl(objectKey, widths[0], "avif") : fallbackSrc;
   const placeholderSrc = getLoadedVariant(objectKey) ?? smallestSrc;
 
+  // Works whose source outgrew the variant ladder have a DZI pyramid on
+  // the asset host (scripts/build-tiles.mjs). Memoised because the object
+  // identity is the DeepZoomViewer effect's only dependency — rebuilding
+  // it every render would tear down and re-create the viewer on each
+  // parent update.
+  const tileSource = useMemo(
+    () => deepZoomTileSource(objectKey, variantWidths, srcWidth, srcHeight),
+    [objectKey, variantWidths, srcWidth, srcHeight],
+  );
+  const useDeepZoom = tileSource !== null && !deepZoomFailed;
+
   // Reset everything when the displayed artwork changes (objectKey is the
   // unique identifier here). Without this, prev/next inside the lightbox
   // would leave stale zoom and a stale opacity state.
@@ -66,6 +90,7 @@ export function Lightbox({
     if (!open) return;
     setPlaceholderLoaded(false);
     setHighReady(false);
+    setDeepZoomFailed(false);
     transformRef.current?.resetTransform(0);
   }, [open, objectKey]);
 
@@ -77,6 +102,12 @@ export function Lightbox({
   // load broke.
   useEffect(() => {
     if (!open) return;
+    // Skipped entirely for tiled works. `highSrc` there is the per-source
+    // full-resolution AVIF — a median of ~124 megapixels and up to 89 MB —
+    // and fetching it is exactly what the pyramid exists to avoid. Pulling
+    // it in alongside the tiles would pay the full download and the ~500 MB
+    // decode we were trying to get rid of.
+    if (useDeepZoom) return;
     let cancelled = false;
     const img = new Image();
     const finish = () => {
@@ -90,7 +121,7 @@ export function Lightbox({
       img.onload = null;
       img.onerror = null;
     };
-  }, [open, highSrc]);
+  }, [open, highSrc, useDeepZoom]);
 
   // Esc to close, arrows to navigate. Bound while open so pages don't
   // double-handle the same key.
@@ -119,7 +150,9 @@ export function Lightbox({
 
   if (!open || !mounted) return null;
 
-  const showSpinner = !placeholderLoaded && !highReady;
+  // The deep-zoom viewer paints its own placeholder and reports its own
+  // readiness, so the shared spinner only governs the plain <img> path.
+  const showSpinner = !useDeepZoom && !placeholderLoaded && !highReady;
 
   return createPortal(
     <div
@@ -128,59 +161,74 @@ export function Lightbox({
       aria-label={alt}
       className="fixed inset-0 z-[100] bg-black/95 backdrop-blur-sm"
     >
-      <TransformWrapper
-        ref={transformRef}
-        initialScale={1}
-        minScale={1}
-        maxScale={8}
-        centerOnInit
-        doubleClick={{ mode: "toggle", step: 0.7 }}
-        wheel={{ step: 0.13 }}
-        pinch={{ step: 3.3 }}
-        limitToBounds
-      >
-        <TransformComponent
-          wrapperStyle={{ width: "100vw", height: "100vh" }}
-          contentStyle={{ width: "100vw", height: "100vh" }}
+      {useDeepZoom && tileSource ? (
+        <DeepZoomViewer
+          // Remount on artwork change so prev/next never shows the
+          // previous work's pan position while the new pyramid opens.
+          key={objectKey}
+          tileSource={tileSource}
+          placeholderSrc={placeholderSrc}
+          alt={alt}
+          onUnavailable={() => setDeepZoomFailed(true)}
+        />
+      ) : (
+        <TransformWrapper
+          ref={transformRef}
+          initialScale={1}
+          minScale={1}
+          maxScale={8}
+          centerOnInit
+          doubleClick={{ mode: "toggle", step: 0.7 }}
+          wheel={{ step: 0.13 }}
+          pinch={{ step: 3.3 }}
+          limitToBounds
         >
-          <div className="relative h-screen w-screen">
-            {/* Placeholder: the variant already cached from the grid /
-                detail page, shown until the high-res copy is decoded. */}
-            {/* eslint-disable-next-line @next/next/no-img-element */}
-            {/* biome-ignore lint/performance/noImgElement: manual variant selection + highReady swap; next/image's pipeline does not fit our rclone-backed variant ladder. */}
-            <img
-              src={placeholderSrc}
-              alt=""
-              width={srcWidth ?? undefined}
-              height={srcHeight ?? undefined}
-              draggable={false}
-              onLoad={() => setPlaceholderLoaded(true)}
-              className={cn(
-                "absolute inset-0 h-full w-full object-contain transition-opacity duration-300",
-                highReady ? "opacity-0" : "opacity-100",
-              )}
-            />
-            {/* eslint-disable-next-line @next/next/no-img-element */}
-            {/* biome-ignore lint/performance/noImgElement: variant selection + highReady swap is done manually by this component; next/image's pipeline does not fit our rclone-backed variant ladder. */}
-            <img
-              src={highReady ? highSrc : placeholderSrc}
-              alt={alt}
-              width={srcWidth ?? undefined}
-              height={srcHeight ?? undefined}
-              draggable={false}
-              onLoad={(e) => {
-                if (highReady) {
-                  recordLoadedVariant(objectKey, e.currentTarget.currentSrc || e.currentTarget.src);
-                }
-              }}
-              className={cn(
-                "absolute inset-0 h-full w-full select-none object-contain transition-opacity duration-300",
-                highReady ? "opacity-100" : "opacity-0",
-              )}
-            />
-          </div>
-        </TransformComponent>
-      </TransformWrapper>
+          <TransformComponent
+            wrapperStyle={{ width: "100vw", height: "100vh" }}
+            contentStyle={{ width: "100vw", height: "100vh" }}
+          >
+            <div className="relative h-screen w-screen">
+              {/* Placeholder: the variant already cached from the grid /
+                  detail page, shown until the high-res copy is decoded. */}
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              {/* biome-ignore lint/performance/noImgElement: manual variant selection + highReady swap; next/image's pipeline does not fit our rclone-backed variant ladder. */}
+              <img
+                src={placeholderSrc}
+                alt=""
+                width={srcWidth ?? undefined}
+                height={srcHeight ?? undefined}
+                draggable={false}
+                onLoad={() => setPlaceholderLoaded(true)}
+                className={cn(
+                  "absolute inset-0 h-full w-full object-contain transition-opacity duration-300",
+                  highReady ? "opacity-0" : "opacity-100",
+                )}
+              />
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              {/* biome-ignore lint/performance/noImgElement: variant selection + highReady swap is done manually by this component; next/image's pipeline does not fit our rclone-backed variant ladder. */}
+              <img
+                src={highReady ? highSrc : placeholderSrc}
+                alt={alt}
+                width={srcWidth ?? undefined}
+                height={srcHeight ?? undefined}
+                draggable={false}
+                onLoad={(e) => {
+                  if (highReady) {
+                    recordLoadedVariant(
+                      objectKey,
+                      e.currentTarget.currentSrc || e.currentTarget.src,
+                    );
+                  }
+                }}
+                className={cn(
+                  "absolute inset-0 h-full w-full select-none object-contain transition-opacity duration-300",
+                  highReady ? "opacity-100" : "opacity-0",
+                )}
+              />
+            </div>
+          </TransformComponent>
+        </TransformWrapper>
+      )}
 
       {/* Loading spinner while the first paintable image (placeholder or
           high-res) is still in flight. Sits above the empty <picture>
