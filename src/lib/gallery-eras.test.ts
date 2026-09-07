@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { assignEra, ERAS, roomFloorColor } from "./gallery-eras";
+import { assignEra, ERAS, eraAccentColor } from "./gallery-eras";
 
 describe("assignEra", () => {
   it("prefers explicit movement over year fallback", () => {
@@ -32,15 +32,7 @@ describe("assignEra", () => {
   });
 });
 
-describe("roomFloorColor", () => {
-  it("is deterministic for a given (era, roomId) pair", () => {
-    // Important for SSR/client parity — the floor tint is picked at
-    // layout time and rendered server-side; if a re-render produced
-    // a different colour, the user would see a flash on hydration.
-    const era = ERAS[0];
-    expect(roomFloorColor(era, "room-7")).toBe(roomFloorColor(era, "room-7"));
-  });
-
+describe("eraAccentColor", () => {
   it("returns one of the era's authored room accents", () => {
     // Sanity check that the picker isn't returning arbitrary hex
     // strings — the room accent palette is explicitly authored per
@@ -48,7 +40,16 @@ describe("roomFloorColor", () => {
     const era = ERAS[0];
     const accents = era.palette.roomAccents;
     if (!accents || accents.length === 0) return; // some eras may not have accents
-    const colour = roomFloorColor(era, "room-7");
-    expect(accents).toContain(colour);
+    expect(accents).toContain(eraAccentColor(era, 2));
+  });
+
+  it("wraps past the end of the palette", () => {
+    // A floor can carry more distinct movements than an era has
+    // accents; wrapping is what keeps that from throwing or handing
+    // back `undefined` as a colour.
+    const era = ERAS[0];
+    const accents = era.palette.roomAccents;
+    if (!accents || accents.length === 0) return;
+    expect(eraAccentColor(era, accents.length)).toBe(eraAccentColor(era, 0));
   });
 });

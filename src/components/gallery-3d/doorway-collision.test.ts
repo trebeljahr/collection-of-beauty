@@ -16,6 +16,7 @@ function makeRoom(doors: Door[]): RoomLayout {
     title: "test",
     description: "",
     isAnchor: false,
+    roomNumber: 1,
     isStairwell: false,
     cellBounds: { xMin: 0, xMax: 0, zMin: 0, zMax: 0 },
     worldRect: {

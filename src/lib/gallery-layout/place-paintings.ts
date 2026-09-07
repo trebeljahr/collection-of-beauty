@@ -23,7 +23,7 @@
 import type { ArtworkListing } from "@/lib/data";
 import { artworkBand } from "./painting-bands";
 import type { Door, FloorLayout, Placement, RoomLayout } from "./types";
-import { CELL_SIZE } from "./world-coords";
+import { CELL_SIZE, DOOR_WIDTH } from "./world-coords";
 
 /** Eye-height-ish centre for every wall-mounted painting. Sized so the
  *  largest 3.2 m painting tops out at 3.25 m and bottoms at 0.05 m —
@@ -533,4 +533,28 @@ function sizeWork(artwork: ArtworkListing): SizedWork {
   // what packRun will actually hang.
   const capped = fitTo({ artwork, wM, hM }, MAX_PAINTING_W, MAX_PAINTING_H_ROOM);
   return { artwork, wM: capped.wM, hM: capped.hM };
+}
+
+/**
+ * Wall metres one work will claim once hung — its display width plus
+ * the plaque beside it. The floor builder sizes rooms against this so
+ * a storey's wall supply is matched to what it actually has to hang,
+ * rather than to a flat works-per-room guess (a floor of Audubon
+ * plates needs roughly half the plaster of a floor of Romantic
+ * canvases for the same work count).
+ */
+export function wallFootprint(artwork: ArtworkListing): number {
+  return footprintOf(sizeWork(artwork));
+}
+
+/**
+ * Hangable wall a room of this size offers, before it exists. Exact
+ * for the room shapes this museum uses: `computeRoomRuns` trims
+ * WALL_MARGIN off both ends of all four walls and DOOR_CLEARANCE off
+ * both sides of every door opening, so the only estimate here is the
+ * door count.
+ */
+export function estimateWallMetres(widthM: number, depthM: number, doorCount: number): number {
+  const perimeter = 2 * (widthM + depthM);
+  return perimeter - 8 * WALL_MARGIN - doorCount * (DOOR_WIDTH + 2 * DOOR_CLEARANCE);
 }

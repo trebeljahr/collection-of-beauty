@@ -454,20 +454,16 @@ export function getEra(id: EraId): Era {
   return era;
 }
 
-/** Deterministic per-room floor tint. Same room id always picks the
- *  same accent — keeps the visual identity stable across reloads and
- *  layout regenerations as long as the room id is stable. Falls back
- *  to the era's base floorColor if the palette has no accents
- *  authored. */
-export function roomFloorColor(era: Era, roomId: string): string {
+/**
+ * Nth accent of an era's palette, wrapping. Floor tints are handed out
+ * by movement rank rather than by hashing a room id, so every distinct
+ * movement on a storey gets its own accent and rooms showing the same
+ * movement read as one wing — underfoot in 3D and as a colour zone on
+ * the map, which is what lets the map drop room labels entirely. Falls
+ * back to the era's base floorColor if no accents are authored.
+ */
+export function eraAccentColor(era: Era, index: number): string {
   const accents = era.palette.roomAccents;
   if (!accents || accents.length === 0) return era.palette.floorColor;
-  // FNV-1a 32-bit — small, deterministic, no allocations.
-  let h = 0x811c9dc5;
-  for (let i = 0; i < roomId.length; i++) {
-    h ^= roomId.charCodeAt(i);
-    h = Math.imul(h, 0x01000193);
-  }
-  const idx = (h >>> 0) % accents.length;
-  return accents[idx];
+  return accents[index % accents.length];
 }

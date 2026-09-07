@@ -5,33 +5,33 @@
 // (see lib/gallery-layout/types.ts) but author every rectangle by
 // hand here so each era's enfilade reads the same way every reload.
 //
-//   N ↑                                       (z increases north)
-//   ┌─────────────────────────────────────────────┐
-//   │  [n_west_corner] [GRAND HALL] [n_east_corner]│   z=28..44
-//   ├──────────┐                       ┌──────────┤
-//   │          │       SPIRAL          │          │
-//   │ [west]   │      (21..27)         │ [east]   │   z=21..27
-//   │          │                       │          │
-//   ├──────────┘                       └──────────┤
-//   │  [s_west_corner] [s_main]   [s_east_corner] │   z=3..20
-//   └─────────────────────────────────────────────┘
-//   x=0                                         x=48
+// The plan is an irregular 5 × 5 band grid: five column widths and
+// five row depths, none of them equal, with the stair footprint in
+// the middle cell. Every room is one column band crossed with one row
+// band, so the tiling is gap-free and neighbours always share a full
+// wall — but a floor is a mix of 22.5 × 17.5 m halls, 17.5 × 22.5 m
+// galleries and 12.5 × 10 m cabinets rather than a grid of identical
+// squares. See the diagram beside the band constants below.
 //
-// Every floor reserves the same 7×7-cell stair footprint at the grid
+// Every floor reserves the same 9×9-cell stair footprint at the grid
 // centre, so the spiral towers stack vertically across all floors.
-// All other rooms are axis-aligned rectangles. Neighbouring rooms
-// share walls; one room owns the shared wall (drawing it with a door
-// cut), the other suppresses its copy of that wall to avoid
-// z-fighting. This gives the classic "enfilade" feel — three or four
-// rooms visible through a single line of doorways.
+// Neighbouring rooms share walls; one room owns the shared wall
+// (drawing it with a door cut), the other suppresses its copy. This
+// gives the classic "enfilade" feel — three or four rooms visible
+// through a single line of doorways.
 //
-// Per-floor room count adapts to the era's size — quiet eras get a
-// compact 3-room plan, sprawling ones fill all 8 slot rooms.
+// How many rooms a floor opens is driven by how much *plaster* its
+// works need, not by how many works there are: the builder sums the
+// wall metres every work will claim once hung and takes slots until
+// the floor can hang them at TARGET_WALL_COVERAGE. A storey of
+// Audubon plates therefore opens fewer, denser rooms than a storey of
+// Romantic canvases with the same work count, and no floor ends up
+// with 16 rooms hung at a third of their capacity.
 
 import type { ArtworkListing } from "@/lib/data";
-import { assignEra, ERAS, type Era, type EraId, roomFloorColor } from "@/lib/gallery-eras";
+import { assignEra, ERAS, type Era, type EraId, eraAccentColor } from "@/lib/gallery-eras";
 import { slugify } from "@/lib/utils";
-import { distributePaintings } from "./place-paintings";
+import { distributePaintings, estimateWallMetres, wallFootprint } from "./place-paintings";
 import type {
   Door,
   FloorLayout,
@@ -56,213 +56,142 @@ import {
 const GRID_SIZE = 48;
 const STAIR_LABEL = "Stairwell";
 
-type CellRect = { xMin: number; xMax: number; zMin: number; zMax: number };
+export type CellRect = { xMin: number; xMax: number; zMin: number; zMax: number };
 
 // Stairwell sits dead centre. Its size scales with SPIRAL_ROOM_CELLS
-// (currently 9), so all slot rectangles below derive their bounds from
-// STAIR_MIN/STAIR_MAX rather than hardcoding cell numbers.
+// (currently 9), so every band below is derived from STAIR_MIN /
+// STAIR_MAX rather than hardcoding cell numbers.
 const STAIR_MIN = Math.floor(GRID_SIZE / 2 - (SPIRAL_ROOM_CELLS - 1) / 2);
 const STAIR_MAX = STAIR_MIN + SPIRAL_ROOM_CELLS - 1;
-const STAIR: CellRect = {
+export const STAIR: CellRect = {
   xMin: STAIR_MIN,
   xMax: STAIR_MAX,
   zMin: STAIR_MIN,
   zMax: STAIR_MAX,
 };
 
-/** Depth of the rooms in the inner ring (Grand Hall, s_main, etc.). */
-const RING_DEPTH = 6;
-
-// Grand Hall (anchor) sits directly south of the stairwell (high z, in
-// cardinal terms south = high z). Its x range matches the stair so the
-// shared wall is a single contiguous span and the door at its centre
-// lines up on the player's natural walking line.
-const GRAND_HALL: CellRect = {
-  xMin: STAIR_MIN,
-  xMax: STAIR_MAX,
-  zMin: STAIR_MAX + 1,
-  zMax: STAIR_MAX + RING_DEPTH,
-};
-
-// Slot room rectangles, ordered by priority (most-central first). A
-// floor is populated by filling slots in order, so eras with fewer
-// movements use a subset and the layout compacts gracefully.
+// The plan is an irregular 5×5 band grid around that stair: five column
+// widths and five row depths, none of them equal. Every room is the
+// intersection of one column band with one row band, so the tiling is
+// gap-free and adjacency is automatic — but no two rooms in a quadrant
+// are the same shape. Sizes run from a 12.5 × 10 m print cabinet to the
+// 22.5 × 20 m Grand Hall, which is what stops the plan reading as
+// graph paper (every room used to be an identical 15 × 15 m square).
 //
-// Each slot declares which of its own walls is drawn by a neighbour
-// (via `suppress`); the corresponding owner-side door is wired up in
-// `wireDoors` below.
+//        x:  5w      7w    STAIR 9w    6w      8w
+//        ┌───────┬────────┬─────────┬───────┬────────┐
+//   4d   │  o_nw │  n_w   │ n_strip │  n_e  │ o_ne   │  z low  (north)
+//        ├───────┼────────┼─────────┼───────┼────────┤
+//   5d   │ w2_n  │  nw    │ n_hall  │  ne   │ e2_n   │
+//        ├───────┼────────┼─────────┼───────┼────────┤
+//   9d   │ w_far │  west  │ ▓STAIR▓ │  east │ e_far  │
+//        ├───────┼────────┼─────────┼───────┼────────┤
+//   7d   │ w2_s  │  sw    │  GRAND  │  se   │ e2_s   │
+//        ├───────┼────────┼─────────┼───────┼────────┤
+//   6d   │  o_sw │  s_w   │ s_strip │  s_e  │ o_se   │  z high (south)
+//        └───────┴────────┴─────────┴───────┴────────┘
 
-type SlotId =
-  | "s_main"
-  | "n_west"
-  | "n_east"
-  | "s_west"
-  | "s_east"
-  | "west"
-  | "east"
-  | "n_outer"
-  | "s_outer"
-  | "n_west_outer"
-  | "n_east_outer"
-  | "s_west_outer"
-  | "s_east_outer"
-  | "w_outer"
-  | "e_outer";
+/** Column bands, west → east. The stair column sits between them.
+ *  Widths are 12.5 / 17.5 / 22.5 / 15 / 20 m; the 22.5 m centre column
+ *  is set by the stair footprint, the rest are chosen so no quadrant
+ *  repeats a room shape. */
+const COL_W_FAR = { xMin: STAIR_MIN - 12, xMax: STAIR_MIN - 8 }; // 5 cells
+const COL_W = { xMin: STAIR_MIN - 7, xMax: STAIR_MIN - 1 }; // 7 cells
+const COL_C = { xMin: STAIR_MIN, xMax: STAIR_MAX }; // 9 cells (stair)
+const COL_E = { xMin: STAIR_MAX + 1, xMax: STAIR_MAX + 6 }; // 6 cells
+const COL_E_FAR = { xMin: STAIR_MAX + 7, xMax: STAIR_MAX + 14 }; // 8 cells
 
-type Slot = {
-  id: SlotId;
+/** Row bands, north (low z) → south (high z). Depths run 10 / 12.5 /
+ *  22.5 / 17.5 / 15 m. Nothing is deeper than 22.5 m: the ceiling is
+ *  4.2 m, and a room much wider than five times its height stops
+ *  reading as a gallery and starts reading as a warehouse. */
+const ROW_N_FAR = { zMin: STAIR_MIN - 9, zMax: STAIR_MIN - 6 }; // 4 cells
+const ROW_N = { zMin: STAIR_MIN - 5, zMax: STAIR_MIN - 1 }; // 5 cells
+const ROW_C = { zMin: STAIR_MIN, zMax: STAIR_MAX }; // 9 cells (stair)
+const ROW_S = { zMin: STAIR_MAX + 1, zMax: STAIR_MAX + 7 }; // 7 cells
+const ROW_S_FAR = { zMin: STAIR_MAX + 8, zMax: STAIR_MAX + 13 }; // 6 cells
+
+// The Grand Hall (anchor) is the largest room on the plan and sits
+// directly south of the stairwell, sharing its full 9-cell width so the
+// door between them lands on the player's natural walking line.
+export const GRAND_HALL: CellRect = { ...COL_C, ...ROW_S };
+
+export type Slot = {
+  id: string;
   rect: CellRect;
   /** Walls suppressed because a neighbour owns/draws them. */
   suppress: Array<"north" | "south" | "east" | "west">;
 };
 
-// Layout: tight ring of 6×6-cell rooms around the spiral, plus a
-// second outer ring for sprawling eras. Rooms cap around 263 m² (a
-// 7×6 cell room — 17.5 m × 15 m); typical rooms are 6×6 (15 × 15 m,
-// 225 m²). The Grand Hall sits north of the spiral; its mirror
-// `s_main` is south. Other slots fan outward in priority order.
-//
-// The spiral connects only via N (Grand Hall) and S (s_main) walls —
-// no doors on the E/W of the stair, so reaching the W/E galleries
-// requires walking around through the corner rooms (enfilade). This
-// makes the central column less visually dominant from any one
-// vantage.
-
-// Cardinal-direction convention used everywhere in this file matches
-// the rest of the codebase:
-//   north = low z   south = high z   west = low x   east = high x
-// The spatial labels in the slot ids ("s_main" = the room geometrically
-// south of the spiral) describe the room's position in the diagram at
-// the top of this file (where +z visually points "down" in the layout
-// sketch); they may not match the cardinal-side semantics — pay
-// attention to `suppress` for the wall-side bookkeeping.
-
-// All slot rectangles are derived from the stair's cell bounds + the
-// ring depth so they shift in lockstep when SPIRAL_ROOM_CELLS changes.
-const RING_X_WEST: { xMin: number; xMax: number } = {
-  xMin: STAIR_MIN - RING_DEPTH,
-  xMax: STAIR_MIN - 1,
-};
-const RING_X_EAST: { xMin: number; xMax: number } = {
-  xMin: STAIR_MAX + 1,
-  xMax: STAIR_MAX + RING_DEPTH,
-};
-const RING_Z_S: { zMin: number; zMax: number } = {
-  zMin: STAIR_MIN - RING_DEPTH,
-  zMax: STAIR_MIN - 1,
-};
-const RING_Z_N: { zMin: number; zMax: number } = {
-  zMin: STAIR_MAX + 1,
-  zMax: STAIR_MAX + RING_DEPTH,
-};
-const OUTER_Z_S: { zMin: number; zMax: number } = {
-  zMin: STAIR_MIN - 2 * RING_DEPTH,
-  zMax: STAIR_MIN - RING_DEPTH - 1,
-};
-const OUTER_Z_N: { zMin: number; zMax: number } = {
-  zMin: STAIR_MAX + RING_DEPTH + 1,
-  zMax: STAIR_MAX + 2 * RING_DEPTH,
-};
-const OUTER_X_WEST: { xMin: number; xMax: number } = {
-  xMin: STAIR_MIN - 2 * RING_DEPTH,
-  xMax: STAIR_MIN - RING_DEPTH - 1,
-};
-const OUTER_X_EAST: { xMin: number; xMax: number } = {
-  xMin: STAIR_MAX + RING_DEPTH + 1,
-  xMax: STAIR_MAX + 2 * RING_DEPTH,
-};
-
-const SLOTS: Slot[] = [
-  // Mirror of Grand Hall, north of the spiral (low z = north). Stair
-  // owns the shared wall.
-  {
-    id: "s_main",
-    rect: { xMin: STAIR_MIN, xMax: STAIR_MAX, ...RING_Z_S },
-    suppress: ["south"], // stair's north wall owns
-  },
-  // Inner-ring corner pair flanking the Grand Hall (high z side).
-  {
-    id: "n_west",
-    rect: { ...RING_X_WEST, ...RING_Z_N },
-    suppress: ["east"], // Grand Hall's west wall owns
-  },
-  {
-    id: "n_east",
-    rect: { ...RING_X_EAST, ...RING_Z_N },
-    suppress: ["west"], // Grand Hall's east wall owns
-  },
-  // Inner-ring corner pair flanking s_main (low z side).
-  {
-    id: "s_west",
-    rect: { ...RING_X_WEST, ...RING_Z_S },
-    suppress: ["east"], // s_main's west wall owns
-  },
-  {
-    id: "s_east",
-    rect: { ...RING_X_EAST, ...RING_Z_S },
-    suppress: ["west"], // s_main's east wall owns
-  },
-  // West / east galleries flanking the spiral. Reached only through
-  // the corner rooms — the stair's E/W walls have no doors so the
-  // central well doesn't show through every doorway.
-  {
-    id: "west",
-    rect: { ...RING_X_WEST, zMin: STAIR_MIN, zMax: STAIR_MAX },
-    suppress: [],
-  },
-  {
-    id: "east",
-    rect: { ...RING_X_EAST, zMin: STAIR_MIN, zMax: STAIR_MAX },
-    suppress: [],
-  },
-  // Outer rooms behind Grand Hall (south cardinal — even higher z).
-  {
-    id: "n_outer",
-    rect: { xMin: STAIR_MIN, xMax: STAIR_MAX, ...OUTER_Z_N },
-    suppress: ["north"], // Grand Hall's south wall owns
-  },
-  // Outer rooms behind s_main (north cardinal — even lower z).
-  {
-    id: "s_outer",
-    rect: { xMin: STAIR_MIN, xMax: STAIR_MAX, ...OUTER_Z_S },
-    suppress: ["south"], // s_main's north wall owns
-  },
-  // Outer corners — behind the inner corner rooms.
-  {
-    id: "n_west_outer",
-    rect: { ...RING_X_WEST, ...OUTER_Z_N },
-    suppress: ["north"], // n_west's south wall owns
-  },
-  {
-    id: "n_east_outer",
-    rect: { ...RING_X_EAST, ...OUTER_Z_N },
-    suppress: ["north"],
-  },
-  {
-    id: "s_west_outer",
-    rect: { ...RING_X_WEST, ...OUTER_Z_S },
-    suppress: ["south"], // s_west's north wall owns
-  },
-  {
-    id: "s_east_outer",
-    rect: { ...RING_X_EAST, ...OUTER_Z_S },
-    suppress: ["south"],
-  },
-  // Outermost west / east galleries behind the inner west/east rooms.
-  // Only used by the most crowded eras (Impressionism, natural history)
-  // — they keep the floor's capacity above the era's work count so no
-  // artwork has to be dropped.
-  {
-    id: "w_outer",
-    rect: { ...OUTER_X_WEST, zMin: STAIR_MIN, zMax: STAIR_MAX },
-    suppress: ["east"], // west room's west wall owns
-  },
-  {
-    id: "e_outer",
-    rect: { ...OUTER_X_EAST, zMin: STAIR_MIN, zMax: STAIR_MAX },
-    suppress: ["west"], // east room's east wall owns
-  },
+// Slots are opened in stages, not one at a time: a floor takes whole
+// stages, so the plan is left/right symmetric at every size instead of
+// growing a lopsided corner. The order is also a reachability order —
+// every prefix has to stay walkable from the Grand Hall. The stairwell
+// has no doors on its E/W faces (that keeps the spiral out of sight
+// from every doorway), so `west` / `east` cannot open before the corner
+// rooms that link them to the hall.
+export const SLOT_STAGES: Slot[][] = [
+  // Ring 1 — the rooms and corners touching the stair.
+  [{ id: "n_hall", rect: { ...COL_C, ...ROW_N }, suppress: ["south"] }],
+  [
+    { id: "sw", rect: { ...COL_W, ...ROW_S }, suppress: ["east"] },
+    { id: "se", rect: { ...COL_E, ...ROW_S }, suppress: ["west"] },
+  ],
+  [
+    { id: "nw", rect: { ...COL_W, ...ROW_N }, suppress: ["east"] },
+    { id: "ne", rect: { ...COL_E, ...ROW_N }, suppress: ["west"] },
+  ],
+  [
+    { id: "west", rect: { ...COL_W, ...ROW_C }, suppress: [] },
+    { id: "east", rect: { ...COL_E, ...ROW_C }, suppress: [] },
+  ],
+  // Ring 2 — strips behind the hall and its mirror, then the flanks.
+  [
+    { id: "s_strip", rect: { ...COL_C, ...ROW_S_FAR }, suppress: ["north"] },
+    { id: "n_strip", rect: { ...COL_C, ...ROW_N_FAR }, suppress: ["south"] },
+  ],
+  [
+    { id: "w2_s", rect: { ...COL_W_FAR, ...ROW_S }, suppress: ["east"] },
+    { id: "e2_s", rect: { ...COL_E_FAR, ...ROW_S }, suppress: ["west"] },
+  ],
+  [
+    { id: "w2_n", rect: { ...COL_W_FAR, ...ROW_N }, suppress: ["east"] },
+    { id: "e2_n", rect: { ...COL_E_FAR, ...ROW_N }, suppress: ["west"] },
+  ],
+  [
+    { id: "w_far", rect: { ...COL_W_FAR, ...ROW_C }, suppress: ["east"] },
+    { id: "e_far", rect: { ...COL_E_FAR, ...ROW_C }, suppress: ["west"] },
+  ],
+  // Ring 3 — the cabinets that close the outer corners.
+  [
+    { id: "s_w", rect: { ...COL_W, ...ROW_S_FAR }, suppress: ["north"] },
+    { id: "s_e", rect: { ...COL_E, ...ROW_S_FAR }, suppress: ["north"] },
+  ],
+  [
+    { id: "n_w", rect: { ...COL_W, ...ROW_N_FAR }, suppress: ["south"] },
+    { id: "n_e", rect: { ...COL_E, ...ROW_N_FAR }, suppress: ["south"] },
+  ],
+  [
+    { id: "o_sw", rect: { ...COL_W_FAR, ...ROW_S_FAR }, suppress: ["north"] },
+    { id: "o_se", rect: { ...COL_E_FAR, ...ROW_S_FAR }, suppress: ["north"] },
+  ],
+  [
+    { id: "o_nw", rect: { ...COL_W_FAR, ...ROW_N_FAR }, suppress: ["south"] },
+    { id: "o_ne", rect: { ...COL_E_FAR, ...ROW_N_FAR }, suppress: ["south"] },
+  ],
 ];
+
+const SLOTS: Slot[] = SLOT_STAGES.flat();
+
+/** Hangable wall a slot offers, in metres. Doors aren't wired yet when
+ *  the floor picks its rooms, so assume the typical three. */
+function slotWallMetres(rect: CellRect): number {
+  return estimateWallMetres(
+    (rect.xMax - rect.xMin + 1) * CELL_SIZE,
+    (rect.zMax - rect.zMin + 1) * CELL_SIZE,
+    3,
+  );
+}
 
 // --- Public entry ---------------------------------------------------------
 
@@ -370,18 +299,13 @@ function bucketByEra(all: ArtworkListing[]): Map<EraId, ArtworkListing[]> {
 
 // --- Floor sampling -------------------------------------------------------
 
-/** Works one storey can hang. A full floor is 16 rooms (Grand Hall +
- *  15 slots) carrying ~840 m of paintable wall between them, which at
- *  the corpus's median footprint is well over this — the binding
- *  constraint is the renderer, not the plaster (the texture pool is
- *  sized for a mounted set of ~300, see texture-cache.ts). Eras above
- *  it (Natural History ~1,190, fin-de-siècle ~690) hang a sample — the
- *  rest of the corpus is still on the site, it just isn't on a wall.
- *
- *  Consequence worth knowing: 300 works spread over that much wall is
- *  ~36% coverage, so the even hang lands on ~1.6 m gaps. Raising this
- *  (or shrinking the floor plan's rooms) is the only way to tighten
- *  them further — the placer can't manufacture paintings. */
+/** Works one storey can hang. The binding constraint is the renderer,
+ *  not the plaster: the texture pool is sized for a mounted set of
+ *  ~300 (see texture-cache.ts), and the floor plan now opens only as
+ *  many rooms as the works need, so wall supply follows the cap rather
+ *  than the other way round. Eras above it (Natural History ~1,190,
+ *  fin-de-siècle ~690) hang a sample — the rest of the corpus is still
+ *  on the site, it just isn't on a wall. */
 const MAX_WORKS_PER_FLOOR = 300;
 
 /**
@@ -455,91 +379,48 @@ function buildFloor(era: Era, eraArtworks: ArtworkListing[]): FloorLayout {
   const byMovement = groupMovements(era, eraArtworks);
   const anchorMovement = resolveAnchorMovement(era, byMovement);
 
-  // Works per room, mono-row hang. A 6×6 room offers ~50 m of paintable
-  // wall once corners and doors are cut, so this is conservative on
-  // capacity — it's set for how a room reads rather than how much it
-  // can physically hold. Rooms that do overflow spill to their
-  // neighbours.
-  const PER_ROOM_TARGET = 17;
-  const targetRooms = Math.max(1, Math.ceil(eraArtworks.length / PER_ROOM_TARGET));
-  const totalSlots = Math.min(Math.max(0, targetRooms - 1), SLOTS.length);
+  // How much plaster this floor actually needs. Each work claims its
+  // display width plus its plaque; dividing by the target coverage
+  // turns that into wall metres including the air between works.
+  const neededWall =
+    eraArtworks.reduce((sum, a) => sum + wallFootprint(a), 0) / TARGET_WALL_COVERAGE;
 
-  // Expand movements into room-sized chunks (anchor first, then East
-  // Asian movements right after — they belong to a different art-
-  // history tradition than European Renaissance/Baroque/etc, so they
-  // earn a dedicated room rather than being lumped in with whatever
-  // European overflow exists. Then by popularity for the rest.
-  const expanded: Array<{ name: string; artworks: ArtworkListing[] }> = [];
-  const orderedMovements = Array.from(byMovement.entries()).sort((a, b) => {
-    if (a[0] === anchorMovement) return -1;
-    if (b[0] === anchorMovement) return 1;
-    const aAsian = isEastAsianMovement(a[0]);
-    const bAsian = isEastAsianMovement(b[0]);
-    if (aAsian && !bAsian) return -1;
-    if (!aAsian && bAsian) return 1;
-    return b[1].length - a[1].length;
-  });
-  for (const [name, arr] of orderedMovements) {
-    const numParts = Math.max(1, Math.ceil(arr.length / PER_ROOM_TARGET));
-    const chunkSize = Math.ceil(arr.length / numParts);
-    for (let p = 0; p < numParts; p++) {
-      const chunk = arr.slice(p * chunkSize, (p + 1) * chunkSize);
-      const label = numParts > 1 ? `${name} · Part ${p + 1}` : name;
-      expanded.push({ name: label, artworks: chunk });
-    }
+  // Open whole stages until the floor can hang its works at that
+  // density. The Grand Hall is always open, so it seeds the running
+  // total; the first stage always opens too, so no floor is a single
+  // room with a staircase in it.
+  let openWall = slotWallMetres(GRAND_HALL);
+  let totalSlots = 0;
+  for (const stage of SLOT_STAGES) {
+    if (totalSlots > 0 && openWall >= neededWall) break;
+    for (const slot of stage) openWall += slotWallMetres(slot.rect);
+    totalSlots += stage.length;
   }
 
-  const grandHallEntryIdx = expanded.findIndex(
-    (e) => e.name === anchorMovement || e.name.startsWith(`${anchorMovement} · Part `),
-  );
-  const grandHallEntry =
-    grandHallEntryIdx >= 0
-      ? expanded.splice(grandHallEntryIdx, 1)[0]
-      : { name: anchorMovement, artworks: [] };
-  const grandHallArtworks = grandHallEntry.artworks;
+  // Deal the works into those rooms, biggest movement first. A room
+  // takes from one movement until that movement runs dry, then keeps
+  // taking from the next — clumping two schools into one room is a
+  // smaller compromise than leaving half a room of bare plaster, and
+  // the room's sign names whatever ended up dominant. The `· Part 2 /
+  // Part 3` suffixes went with it: a movement that spans four rooms
+  // now simply reads as four rooms of that movement, which is what a
+  // museum wing looks like.
+  const queue: Array<{ name: string; artworks: ArtworkListing[] }> = Array.from(
+    byMovement.entries(),
+  )
+    .sort((a, b) => {
+      if (a[0] === anchorMovement) return -1;
+      if (b[0] === anchorMovement) return 1;
+      const aAsian = isEastAsianMovement(a[0]);
+      const bAsian = isEastAsianMovement(b[0]);
+      if (aAsian && !bAsian) return -1;
+      if (!aAsian && bAsian) return 1;
+      return b[1].length - a[1].length;
+    })
+    .map(([name, artworks]) => ({ name, artworks: [...artworks] }));
 
-  const slotEntries: Array<{ name: string; artworks: ArtworkListing[] }> = [];
-  if (totalSlots === 0) {
-    grandHallArtworks.push(...expanded.flatMap((e) => e.artworks));
-  } else {
-    const kept = expanded.slice(0, totalSlots - 1);
-    const tail = expanded.slice(totalSlots - 1);
-    slotEntries.push(...kept);
-    if (tail.length > 0) {
-      // East Asian entries that fell into the tail keep their own
-      // rooms — never let them get rolled into a generic "Also from
-      // the renaissance" catch-all. They displace lower-priority
-      // European entries from `kept` if the slot count is tight.
-      const tailAsian = tail.filter((e) => isEastAsianMovement(e.name));
-      const tailRest = tail.filter((e) => !isEastAsianMovement(e.name));
-      slotEntries.push(...tailAsian);
-      if (tailRest.length > 0) {
-        const mergedArtworks = tailRest.flatMap((e) => e.artworks);
-        // When every merged entry is a chunk of the same movement, keep
-        // that movement's name — "Dutch Golden Age", not "Also from the
-        // baroque…". The catch-all label is only honest for a true mix.
-        const baseNames = new Set(tailRest.map((e) => e.name.replace(/ · Part \d+$/, "")));
-        const mergedName =
-          tailRest.length === 1
-            ? tailRest[0].name
-            : baseNames.size === 1
-              ? [...baseNames][0]
-              : `Also from the ${era.title.toLowerCase()}`;
-        slotEntries.push({ name: mergedName, artworks: mergedArtworks });
-      }
-    }
-  }
-
-  // The East Asian carve-out above can push `slotEntries` past the
-  // floor's room count (Ukiyo-e splits into more movement chunks than
-  // there are slots). Rooms are assigned by index, so anything past the
-  // last slot would silently never hang — fold those works into the
-  // final room instead and let the placer spill them across the floor's
-  // free wall space.
-  if (slotEntries.length > totalSlots && totalSlots > 0) {
-    const overflow = slotEntries.splice(totalSlots);
-    slotEntries[totalSlots - 1].artworks.push(...overflow.flatMap((e) => e.artworks));
-  }
+  const roomRects: CellRect[] = [GRAND_HALL, ...SLOTS.slice(0, totalSlots).map((s) => s.rect)];
+  const fills = fillRooms(roomRects, queue, era);
 
   // Build all rooms.
   const rooms: RoomLayout[] = [];
@@ -550,34 +431,31 @@ function buildFloor(era: Era, eraArtworks: ArtworkListing[]): FloorLayout {
       era,
       id: `${era.id}-grand-hall`,
       rect: GRAND_HALL,
-      movement: grandHallEntry.name,
-      artworks: grandHallArtworks,
+      movement: fills[0].name,
+      artworks: fills[0].artworks,
       isAnchor: true,
       isStairwell: false,
     }),
   );
 
   // 2. Slot rooms.
-  const slotRooms: Array<{ slot: Slot; room: RoomLayout }> = [];
   for (let i = 0; i < totalSlots; i++) {
     const slot = SLOTS[i];
-    const entry = slotEntries[i];
-    const movement = entry ? entry.name : era.title;
-    const artworks = entry ? entry.artworks : [];
+    const fill = fills[i + 1];
     const suppressWalls: NonNullable<RoomLayout["suppressWalls"]> = {};
     for (const side of slot.suppress) suppressWalls[side] = true;
-    const room = buildRoom({
-      era,
-      id: `${era.id}-${slot.id}`,
-      rect: slot.rect,
-      movement,
-      artworks,
-      isAnchor: false,
-      isStairwell: false,
-      suppressWalls,
-    });
-    rooms.push(room);
-    slotRooms.push({ slot, room });
+    rooms.push(
+      buildRoom({
+        era,
+        id: `${era.id}-${slot.id}`,
+        rect: slot.rect,
+        movement: fill.name,
+        artworks: fill.artworks,
+        isAnchor: false,
+        isStairwell: false,
+        suppressWalls,
+      }),
+    );
   }
 
   // 3. Stairwell — owns its 4 walls and connects via cardinal doors to
@@ -599,7 +477,6 @@ function buildFloor(era: Era, eraArtworks: ArtworkListing[]): FloorLayout {
 
   // Wire doors between rooms.
   wireDoors(rooms);
-  void slotRooms;
 
   // Walkable + cellOwner masks.
   const walkable = new Uint8Array(GRID_SIZE * GRID_SIZE);
@@ -637,12 +514,11 @@ function buildFloor(era: Era, eraArtworks: ArtworkListing[]): FloorLayout {
   // walls on the same floor (see place-paintings.ts).
   const stats = distributePaintings(floor);
   if (stats.dropped > 0 && process.env.NODE_ENV !== "production") {
-    // A floor out of wall space drops works silently otherwise. With
-    // the era already sampled down to MAX_WORKS_PER_FLOOR this should
-    // never fire; if it does, the floor plan's paintable wall length
-    // fell below what that many works need (door-heavy rooms, smaller
-    // rooms, or a run of unusually large canvases) — lower
-    // MAX_WORKS_PER_FLOOR rather than raising PER_ROOM_TARGET.
+    // A floor out of wall space drops works silently otherwise. The
+    // slot count is sized from the same footprint arithmetic the
+    // placer uses, so this should only fire when the floor has run out
+    // of *slots* — i.e. an era whose works need more plaster than all
+    // 24 rooms carry. Lower MAX_WORKS_PER_FLOOR if it does.
     console.warn(
       `[gallery-layout] ${era.id}: ${stats.dropped} works did not fit on the floor's walls`,
     );
@@ -650,30 +526,114 @@ function buildFloor(era: Era, eraArtworks: ArtworkListing[]): FloorLayout {
 
   // Placements are the ground truth for what actually hangs in a room —
   // spill can move works between rooms, so resync the room's artwork
-  // list and description to match the walls.
+  // list, sign and description to match the walls.
+  let roomNumber = 0;
+  const accentByMovement = new Map<string, number>();
   for (const room of rooms) {
     if (room.isStairwell) continue;
     room.artworks = room.placements.map((p) => p.artwork);
-    if (room.movement.startsWith("Also from the") && room.artworks.length > 0) {
-      // The merged catch-all room can end up effectively single-movement
-      // once overflow spill trims it — relabel from its actual contents
-      // rather than keeping a vague "Also from the …" sign on a room
-      // that's 90%+ one school.
-      const counts = new Map<string, number>();
-      for (const a of room.artworks) {
-        const mv = a.movement?.trim() ? a.movement : era.title;
-        counts.set(mv, (counts.get(mv) ?? 0) + 1);
-      }
-      const [topName, topCount] = [...counts.entries()].sort((a, b) => b[1] - a[1])[0];
-      if (topCount / room.artworks.length >= 0.9) {
-        room.movement = topName;
-        room.title = topName;
-      }
-    }
+    room.roomNumber = ++roomNumber;
+    room.movement = dominantMovement(room.artworks, era) ?? room.movement;
+    room.title = room.movement;
     room.description = describeRoom(room.movement, room.artworks);
+    // Floor tint by movement, not by room, so the enfilade of rooms
+    // showing one school reads as a single wing underfoot and as one
+    // colour zone on the map.
+    let accent = accentByMovement.get(room.movement);
+    if (accent === undefined) {
+      accent = accentByMovement.size;
+      accentByMovement.set(room.movement, accent);
+    }
+    room.floorColor = eraAccentColor(era, accent);
   }
 
   return floor;
+}
+
+/** Wall coverage a well-hung room aims for: the share of a wall run
+ *  taken up by paintings and their plaques, with the rest as air. At
+ *  the corpus's median footprint (~1.3 m) this lands neighbours ~0.8 m
+ *  apart. Slot selection lands a little under it — the wall estimate
+ *  assumes three doors per room and most rooms have fewer — so the
+ *  measured building comes out around 0.60. The plan used to open a
+ *  fixed 16 rooms per floor regardless of what was going on them,
+ *  which came out at 37%: gaps of 1.6 m, and floors that read as
+ *  under-hung storage rather than galleries. */
+const TARGET_WALL_COVERAGE = 0.66;
+
+/**
+ * Deal the floor's movements into its rooms, in room order.
+ *
+ * Every room takes a share of the floor's works proportional to its own
+ * wall, so a 22.5 × 20 m hall hangs roughly twice what a 12.5 × 10 m
+ * cabinet does and all of them end up at the same density. Filling each
+ * room to a fixed target instead would leave the last rooms of a floor
+ * bare, because stages are opened in symmetric pairs and so a floor
+ * usually opens a little more wall than it strictly needs.
+ *
+ * A room draws from one movement at a time and only starts on the next
+ * when the current one is empty, so movements stay contiguous along the
+ * enfilade. The last room takes whatever is left over.
+ */
+function fillRooms(
+  rects: CellRect[],
+  queue: Array<{ name: string; artworks: ArtworkListing[] }>,
+  era: Era,
+): Array<{ name: string; artworks: ArtworkListing[] }> {
+  const walls = rects.map(slotWallMetres);
+  const totalWall = walls.reduce((a, b) => a + b, 0);
+  const totalFootprint = queue.reduce(
+    (sum, entry) => sum + entry.artworks.reduce((s, a) => s + wallFootprint(a), 0),
+    0,
+  );
+  const density = totalWall > 0 ? totalFootprint / totalWall : 0;
+
+  const out: Array<{ name: string; artworks: ArtworkListing[] }> = [];
+  let qi = 0;
+
+  for (let i = 0; i < rects.length; i++) {
+    const isLast = i === rects.length - 1;
+    const share = walls[i] * density;
+    const taken: ArtworkListing[] = [];
+    const contributed = new Map<string, number>();
+    let used = 0;
+
+    while (qi < queue.length) {
+      const entry = queue[qi];
+      if (entry.artworks.length === 0) {
+        qi++;
+        continue;
+      }
+      const work = entry.artworks[0];
+      const need = wallFootprint(work);
+      // Stop once this room has its share — unless it is the last room,
+      // which absorbs the remainder, or is still empty (a single work
+      // never gets stranded for want of a few centimetres).
+      if (!isLast && used > 0 && used + need > share) break;
+      entry.artworks.shift();
+      taken.push(work);
+      contributed.set(entry.name, (contributed.get(entry.name) ?? 0) + 1);
+      used += need;
+    }
+
+    const name = [...contributed.entries()].sort((a, b) => b[1] - a[1])[0]?.[0] ?? era.title;
+    out.push({ name, artworks: taken });
+  }
+
+  return out;
+}
+
+/** The movement most of a room's works belong to, once the placer has
+ *  finished moving spill around. Used for the room's sign, so it always
+ *  agrees with what is actually on the walls. */
+function dominantMovement(artworks: ArtworkListing[], era: Era): string | null {
+  if (artworks.length === 0) return null;
+  const counts = new Map<string, number>();
+  for (const a of artworks) {
+    const mv = a.movement?.trim() ? a.movement : era.title;
+    counts.set(mv, (counts.get(mv) ?? 0) + 1);
+  }
+  return [...counts.entries()].sort((a, b) => b[1] - a[1])[0][0];
 }
 
 // --- Helpers --------------------------------------------------------------
@@ -744,6 +704,7 @@ function buildRoom(opts: {
     title: opts.movement,
     description: describeRoom(opts.movement, opts.artworks),
     isAnchor: opts.isAnchor,
+    roomNumber: null,
     isStairwell: opts.isStairwell,
     cellBounds: { ...rect },
     worldRect: {
@@ -757,7 +718,10 @@ function buildRoom(opts: {
     hasBench: opts.isAnchor,
     placements: [],
     artworks: opts.artworks,
-    floorColor: roomFloorColor(era, id),
+    // Placeholder — buildFloor reassigns this by movement rank once
+    // the placer has settled what actually hangs where. The stairwell
+    // keeps it, and renders with the era's base floor anyway.
+    floorColor: era.palette.floorColor,
     suppressWalls: opts.suppressWalls,
   };
 }
