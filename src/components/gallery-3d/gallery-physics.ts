@@ -25,7 +25,7 @@ import {
   RAIL_BAR_HALF_WIDTH,
   RAIL_HEIGHT,
 } from "./rail-constants";
-import { findStairAbove, spiralGateHalfArc } from "./staircase";
+import { findStairAbove, spiralGateHalfArc } from "./spiral-physics";
 
 type RapierModule = typeof RAPIER;
 
@@ -440,6 +440,7 @@ function addCutoutRailColliders(
 ) {
   const stairOut = floor.stairsOut[0];
   const stairIn = floor.stairsIn[0];
+  const hasCutout = floor.index > 0;
   const upSideOpen = !!stairOut;
   const downSideOpen = !!stairIn;
   const gateHalfArc = spiralGateHalfArc(reference.numSteps);
@@ -450,23 +451,23 @@ function addCutoutRailColliders(
   const cx = reference.centerX;
   const cz = reference.centerZ;
 
-  // Perimeter rail, every floor with a spiral — mirrors the geometry in
-  // `stairwell-rail.tsx`. The ground floor needs this as much as the
-  // ones with a real cutout: the spiral's own rails follow the treads
-  // upward, so beyond ~100° of arc from the gate they sit above head
-  // height and the annulus is unfenced. Without this arc the player
-  // walks in under the helix from behind and clips through the low
-  // treads as they come back round to the entry.
-  addArc(
-    cx,
-    cz,
-    CUTOUT_RAIL_RADIUS,
-    reference.entryAngle + upGap,
-    Math.PI * 2 - upGap - downGap,
-    () => floor.y + RAIL_HEIGHT / 2,
-    () => RAIL_HEIGHT,
-    Math.max(BALUSTER_SIZE, RAIL_BAR_HALF_WIDTH * 2),
-  );
+  // Fall-prevention rail around the well, mirroring the geometry in
+  // `stairwell-rail.tsx`. Floors above ground only: the ground floor's
+  // spiral rises out of solid slab, so there is no hole to fence. What
+  // keeps a ground-floor player out of the annulus is the entry rule in
+  // `canAcceptPhysicsMove`, not a collider ring.
+  if (hasCutout) {
+    addArc(
+      cx,
+      cz,
+      CUTOUT_RAIL_RADIUS,
+      reference.entryAngle + upGap,
+      Math.PI * 2 - upGap - downGap,
+      () => floor.y + RAIL_HEIGHT / 2,
+      () => RAIL_HEIGHT,
+      Math.max(BALUSTER_SIZE, RAIL_BAR_HALF_WIDTH * 2),
+    );
+  }
 
   const addGatePost = (angle: number) => {
     const x = cx + CUTOUT_RAIL_RADIUS * Math.cos(angle);
@@ -485,7 +486,7 @@ function addCutoutRailColliders(
   if (upSideOpen) addGatePost(reference.entryAngle + gateHalfArc);
   if (downSideOpen) addGatePost(reference.entryAngle - gateHalfArc);
 
-  if (hasSpiralEnd && stairIn) {
+  if (hasCutout && hasSpiralEnd && stairIn) {
     addTopBridgeColliders(floor, stairIn, bridgeArcSweep, addCuboid);
   }
 }
