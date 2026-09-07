@@ -9,7 +9,7 @@ import {
 } from "react-zoom-pan-pinch";
 import { artworkAlt, displayTitle } from "@/lib/artwork-format";
 import type { ArtworkListing } from "@/lib/data";
-import { deepZoomTileSource } from "@/lib/deep-zoom";
+import { deepZoomTileSource, largestSingleImageWidth } from "@/lib/deep-zoom";
 import { cn, fallbackVariantUrl, variantUrl } from "@/lib/utils";
 import { peekBestCachedTexture } from "./texture-cache";
 
@@ -68,10 +68,13 @@ export function ZoomModal({
   //
   // For the ~968 works that HAVE a full-size variant this URL is a trap,
   // which is what the deep-zoom path below exists to avoid — see the
-  // preload effect.
+  // preload effect. `largestSingleImageWidth` closes the one hole in that
+  // arrangement: a work with a full-size encode but no pyramid (source
+  // dimensions missing, so the tiler skipped it) has no deep-zoom path to
+  // be skipped by, and would fetch the full-size copy for real.
   const widths = artwork.variantWidths ?? [];
   const hasVariants = widths.length > 0;
-  const largestVariant = hasVariants ? widths[widths.length - 1] : null;
+  const largestVariant = largestSingleImageWidth(widths, artwork.width, artwork.height);
   const highSrc =
     largestVariant != null
       ? variantUrl(artwork.objectKey, largestVariant, "avif")
