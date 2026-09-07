@@ -24,8 +24,9 @@
  *                  creds needed — runs anywhere with outbound HTTPS.
  *   --bulk         List R2 once via rclone, check membership in memory.
  *                  Needs R2_ENDPOINT / R2_ACCESS_KEY_ID /
- *                  R2_SECRET_ACCESS_KEY / R2_ASSETS_BUCKET. ~10× faster
- *                  on a 27k-key check.
+ *                  R2_SECRET_ACCESS_KEY / R2_ASSETS_BUCKET, plus rclone
+ *                  on PATH (or docker, as a fallback). ~10× faster on a
+ *                  27k-key check.
  *
  * Flags:
  *   --base <url>           Override PUBLIC_ASSETS_BASE_URL.
@@ -180,35 +181,60 @@ function listR2Bulk() {
       process.exit(2);
     }
   }
-  // rclone in docker mirrors the sync-assets.sh setup so the verify
-  // and sync paths can't drift on rclone version or backend config.
-  const dockerCheck = spawnSync("docker", ["--version"], { stdio: "ignore" });
-  if (dockerCheck.status !== 0) {
-    console.error("verify-r2: --bulk needs docker on PATH.");
+  // Same rclone invocation scripts/sync-assets.sh uses — native binary
+  // when it's on PATH, the rclone/rclone image otherwise — so the verify
+  // and sync paths can't drift on backend config.
+  const lsfArgs = [
+    "lsf",
+    "--recursive",
+    "--files-only",
+    `:s3:${process.env.R2_ASSETS_BUCKET}`,
+  ];
+  // Secrets go through the child's env, never argv: an -e KEY=VALUE
+  // argument is visible in `ps` to every user on the machine.
+  const rcloneEnv = {
+    ...process.env,
+    RCLONE_S3_PROVIDER: "Cloudflare",
+    RCLONE_S3_ENDPOINT: process.env.R2_ENDPOINT,
+    RCLONE_S3_ACCESS_KEY_ID: process.env.R2_ACCESS_KEY_ID,
+    RCLONE_S3_SECRET_ACCESS_KEY: process.env.R2_SECRET_ACCESS_KEY,
+  };
+  const has = (bin) => spawnSync(bin, ["--version"], { stdio: "ignore" }).status === 0;
+
+  let res;
+  if (has("rclone")) {
+    console.error("[verify-r2] listing R2 bucket via native rclone…");
+    res = spawnSync("rclone", lsfArgs, {
+      encoding: "utf8",
+      maxBuffer: 512 * 1024 * 1024,
+      env: rcloneEnv,
+    });
+  } else if (has("docker")) {
+    console.error("[verify-r2] listing R2 bucket via rclone container…");
+    res = spawnSync(
+      "docker",
+      [
+        "run",
+        "--rm",
+        "-e",
+        "RCLONE_S3_PROVIDER",
+        "-e",
+        "RCLONE_S3_ENDPOINT",
+        "-e",
+        "RCLONE_S3_ACCESS_KEY_ID",
+        "-e",
+        "RCLONE_S3_SECRET_ACCESS_KEY",
+        "rclone/rclone:latest",
+        ...lsfArgs,
+      ],
+      { encoding: "utf8", maxBuffer: 512 * 1024 * 1024, env: rcloneEnv },
+    );
+  } else {
+    console.error(
+      "verify-r2: --bulk needs rclone or docker on PATH. `brew install rclone` is the smaller install.",
+    );
     process.exit(2);
   }
-  console.error("[verify-r2] listing R2 bucket via rclone…");
-  const res = spawnSync(
-    "docker",
-    [
-      "run",
-      "--rm",
-      "-e",
-      "RCLONE_S3_PROVIDER=Cloudflare",
-      "-e",
-      `RCLONE_S3_ENDPOINT=${process.env.R2_ENDPOINT}`,
-      "-e",
-      `RCLONE_S3_ACCESS_KEY_ID=${process.env.R2_ACCESS_KEY_ID}`,
-      "-e",
-      `RCLONE_S3_SECRET_ACCESS_KEY=${process.env.R2_SECRET_ACCESS_KEY}`,
-      "rclone/rclone:latest",
-      "lsf",
-      "--recursive",
-      "--files-only",
-      `:s3:${process.env.R2_ASSETS_BUCKET}`,
-    ],
-    { encoding: "utf8", maxBuffer: 512 * 1024 * 1024 },
-  );
   if (res.status !== 0) {
     console.error("verify-r2: rclone lsf failed:");
     console.error(res.stderr);
