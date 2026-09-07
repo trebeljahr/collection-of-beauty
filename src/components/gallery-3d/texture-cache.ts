@@ -124,15 +124,78 @@ const TEXTURE_RETRY_DELAY_MS = 500;
 // at the LOD tick rate, turning every step near a wall into a stream of
 // multi-megabyte decodes and GPU uploads. (That is exactly what the old
 // 8192 px "original" tier did: a 237 MB median entry against a 192 MB
-// pool. See the LOD_TIERS note in painting.tsx.)
+// pool. See the ladder note in painting.tsx.)
 //
-// 320 MB holds ~4 tiers at 4096 px — the realistic worst case is 3
-// large canvases whose surfaces are within the 1.5 m prefetch radius,
-// plus a 2560 px stepping stone still in flight — or a full room's
-// worth of 960 px upgrades, and evicts fast when the player walks away.
-// The entry cap is now just a bookkeeping ceiling.
+// 320 MB holds ~4 tiers at 4096 px — the realistic worst case is a few
+// large canvases whose surfaces are inside their (now per-painting)
+// prefetch radius, plus a stepping stone still in flight — or a full
+// room's worth of 960 px upgrades, and evicts fast when the player
+// walks away. The entry cap is now just a bookkeeping ceiling.
+//
+// THE BUDGET SCALES WITH THE CANVAS, and it is the first pool here that
+// has to. Under the old fixed LOD table every painting reached for a
+// 4096 px tier regardless of viewport, so the working set was large
+// (worst floor ~804 MiB) but viewport-INDEPENDENT. Now each painting's
+// target is `renderWidthM x backingHeightPx / (2 x D_MIN x tan(fov/2))`
+// (painting.tsx), so rung pixels go as H and decoded bytes as H^2 — a
+// pool calibrated on a laptop overflows on a 4K panel and turns into the
+// eviction treadmill this budget exists to prevent.
+//
+// Measured against the real `layoutMuseum(artworks.json)` output (11
+// floors, 2,801 placements) by standing the player 0.45 m off each
+// painting in turn and summing every rung whose prefetch radius contains
+// them, worst floor:
+//
+//   backing px    1440   1800   2160   2560   2880
+//   resident      297    303    413    517    548    MiB
+//   budget        320    320    461    640    640    MiB
+//
+// Hence: 320 MB at 1800 px and below, growing as (H/1800)^2, capped at
+// 2x. The cap is a GPU-reality ceiling, not a curve fit — 640 MB of
+// scene textures alongside the 256 MB base cache is already an assertive
+// ask, and past 2880 px the additional headroom would buy sharpness on
+// works the player still has to walk to one at a time.
 const HIRES_CACHE_CAPACITY = 64;
-const HIRES_CACHE_BYTE_BUDGET = 320 * 1024 * 1024;
+const HIRES_BASE_BYTE_BUDGET = 320 * 1024 * 1024;
+const HIRES_BUDGET_REFERENCE_HEIGHT = 1800;
+const HIRES_BUDGET_MAX_SCALE = 2;
+
+/** Ceiling for a SINGLE hi-res entry, used by painting.tsx to clamp a
+ *  painting's top LOD rung before it is ever requested.
+ *
+ *  One third of the BASE pool — deliberately not one third of the scaled
+ *  pool. The scaling above exists to fit a working set that grew because
+ *  more paintings hold more rungs; letting the per-entry cap ride up with
+ *  it would instead admit bigger individual rungs (a 6144 px entry at 4:3
+ *  is 144.7 MiB and only clears a cap derived from a >434 MB pool), which
+ *  spends the extra budget on the one thing the cap was written to stop
+ *  and re-couples "how big may one texture be" to the viewport. A fixed
+ *  106.7 MiB ceiling keeps at least three in-radius canvases resident
+ *  even at the pool's floor.
+ *
+ *  The failure mode this prevents is not "slightly over budget" — it is
+ *  the 8192 px "original" tier that used to sit on top of the ladder: a
+ *  median 237 MB entry against a 192 MB pool evicted the whole pool on
+ *  insert and was evicted straight back out by the next load, and because
+ *  `lodUpdate` re-requests any tier that isn't resident, that became a
+ *  permanent 5 Hz treadmill of quarter-gigabyte decodes and uploads.
+ *  That is the walking stutter.
+ *  See the ladder note in painting.tsx for the full post-mortem.
+ *
+ *  Ordered strictly below OVERSIZED_ENTRY_RATIO (1/3 = 0.333 < 0.4) at
+ *  the pool's floor, so anything the clamp admits can never trip the dev
+ *  warning below — and a scaled-up pool only widens that margin.
+ *
+ *  Arithmetic worth having written down: the cap is 106.7 MiB. A 4:3
+ *  work at 4096 px decodes to 64.3 MiB and passes comfortably; a 2:3
+ *  portrait at 4096 is 4096 × 6144 = 128.6 MiB and is clamped down a
+ *  rung (462 of 4,571 catalogued works are in that position today, 22 of
+ *  them already past the 0.4 warning line). The 6144 px rung is
+ *  144.7 MiB at 4:3, so at this budget it is admissible only on wide
+ *  canvases (aspect >= 1.81) — deliberate: raising the cap to admit it
+ *  everywhere is a separate decision, to be taken with the re-shrink
+ *  that first puts a 6144 file on disk. */
+export const HIRES_ENTRY_BYTE_CAP = HIRES_BASE_BYTE_BUDGET / 3;
 // A single entry bigger than this share of its pool guarantees eviction
 // thrash: inserting it drops everything else, and the next insert drops
 // it straight back out. Dev-only warning so a future tier that decodes
@@ -149,13 +212,21 @@ const PRELOAD_CACHE_CAPACITY = 256;
 
 /** Rough GPU cost of a decoded texture: RGBA8 plus a full mip chain
  *  (the 1/3 geometric series, so ×4/3). Good enough to keep a pool
- *  inside a memory budget; exact driver-side padding doesn't matter. */
-function textureBytes(tex: THREE.Texture): number {
-  const img = tex.image as { width?: number; height?: number } | undefined;
-  const w = img?.width ?? 0;
-  const h = img?.height ?? 0;
+ *  inside a memory budget; exact driver-side padding doesn't matter.
+ *
+ *  Exported so painting.tsx can PREDICT an entry's cost from pixel dims
+ *  before requesting it (HIRES_ENTRY_BYTE_CAP) using the same formula
+ *  the pool later ACCOUNTS with — a prediction that drifted from the
+ *  accounting would admit exactly the entries the cap exists to keep
+ *  out. */
+export function estimateTextureBytes(w: number, h: number): number {
   if (!w || !h) return 0;
   return Math.round(w * h * 4 * 1.34);
+}
+
+function textureBytes(tex: THREE.Texture): number {
+  const img = tex.image as { width?: number; height?: number } | undefined;
+  return estimateTextureBytes(img?.width ?? 0, img?.height ?? 0);
 }
 
 class TextureLRU {
@@ -206,8 +277,15 @@ class TextureLRU {
           "pool on insert and get evicted straight back out, which shows up as walking stutter.",
       );
     }
-    // Never evict down to nothing: the entry just inserted is the one
-    // the caller is about to display.
+    this.evictToBudget();
+  }
+
+  /** Never evicts down to nothing: after a `put` the sole survivor is the
+   *  entry the caller is about to display, and after a re-budget it is
+   *  whatever was touched most recently — which for the hi-res pool is
+   *  the texture currently on a painting's material. Dropping it would
+   *  dispose a GPU texture that is still bound. */
+  private evictToBudget(): void {
     while (this.map.size > 1 && (this.map.size > this.capacity || this.bytes > this.byteBudget)) {
       const oldest = this.map.keys().next().value;
       if (oldest === undefined) break;
@@ -218,6 +296,14 @@ class TextureLRU {
         old.dispose();
       }
     }
+  }
+
+  /** Re-budget an existing pool, evicting down to the new ceiling right
+   *  away. `capacity` is untouched — it is a bookkeeping ceiling, the
+   *  bytes are the real constraint. */
+  setByteBudget(budget: number): void {
+    this.byteBudget = budget;
+    this.evictToBudget();
   }
 
   forEach(fn: (tex: THREE.Texture) => void): void {
@@ -264,8 +350,33 @@ function aniso(renderer: THREE.WebGLRenderer | null): number {
   }
 }
 
-const hiresCache = new TextureLRU(HIRES_CACHE_CAPACITY, HIRES_CACHE_BYTE_BUDGET);
+const hiresCache = new TextureLRU(HIRES_CACHE_CAPACITY, HIRES_BASE_BYTE_BUDGET);
 const hiresInFlight = new Map<string, Promise<THREE.Texture>>();
+
+/**
+ * Re-size the hi-res pool for the current canvas. Called by the
+ * LodController whenever the backing-buffer height changes (see the
+ * budget table above).
+ *
+ * Shrinking evicts immediately rather than waiting for the next insert,
+ * because a window drag from 4K down to a small pane would otherwise
+ * leave half a gigabyte of textures resident until the player happened to
+ * load one more.
+ *
+ * Pass 0 to return the pool to its base budget. This module is
+ * deliberately module-scope — it has to survive the Canvas remount that
+ * recovers from WebGL context loss — so nothing disposes it when the
+ * player leaves /gallery-3d, and a pool left scaled up for a 4K panel
+ * would keep 640 MB resident on a route that no longer draws anything.
+ */
+export function setHiResByteBudget(backingHeightPx: number): void {
+  const h = backingHeightPx > 0 ? backingHeightPx : HIRES_BUDGET_REFERENCE_HEIGHT;
+  const scale = Math.min(
+    HIRES_BUDGET_MAX_SCALE,
+    Math.max(1, (h / HIRES_BUDGET_REFERENCE_HEIGHT) ** 2),
+  );
+  hiresCache.setByteBudget(Math.round(HIRES_BASE_BYTE_BUDGET * scale));
+}
 
 // ─────────────────────────────────────────────────────────────────────
 // Distance-ordered scheduling.
@@ -575,8 +686,11 @@ export function getHiRes(url: string): THREE.Texture | undefined {
 
 /** Optional knobs for `loadHiRes`. There used to be a `maxSize` here
  *  that capped the decoded bitmap for the "original" LOD tier; that tier
- *  is gone (see LOD_TIERS in painting.tsx) and every remaining tier is a
- *  pre-built variant of known, modest size. */
+ *  is gone (see the ladder note in painting.tsx). Every remaining tier is
+ *  a pre-built variant, and the caller now clamps its own top rung
+ *  against HIRES_ENTRY_BYTE_CAP before requesting it — so the size
+ *  guarantee lives at the point where the rung is chosen rather than
+ *  here, where it could only truncate a decode already paid for. */
 export type LoadHiResOpts = {
   /** World position of the painting this tier belongs to, so the load
    *  queues can serve the nearest one first. */

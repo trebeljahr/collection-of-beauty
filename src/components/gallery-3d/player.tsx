@@ -7,6 +7,7 @@ import * as THREE from "three";
 import type { ArtworkListing } from "@/lib/data";
 import type { FloorLayout, Staircase } from "@/lib/gallery-layout/types";
 import { CELL_SIZE } from "@/lib/gallery-layout/world-coords";
+import { FOV_DEFAULT_DEG, FOV_ZOOMED_DEG } from "./camera-config";
 import { fitsDoorwayApertures, nudgeTowardDoorwayCenter } from "./doorway-collision";
 import {
   createGalleryCollisionController,
@@ -25,8 +26,6 @@ import {
 const EYE_HEIGHT = 1.75;
 const DUCK_EYE_HEIGHT = 1.05;
 const TIPTOE_EYE_HEIGHT = 2.15;
-const FOV_DEFAULT = 75;
-const FOV_ZOOMED = 35;
 const WALK_SPEED = 5;
 const RUN_SPEED = 10;
 const JUMP_IMPULSE = 6;
@@ -381,7 +380,7 @@ export function Player({
     // exposes both .fov and .updateProjectionMatrix.
     if ((camera as THREE.PerspectiveCamera).isPerspectiveCamera) {
       const cam = camera as THREE.PerspectiveCamera;
-      const targetFov = zoomFov.current ? FOV_ZOOMED : FOV_DEFAULT;
+      const targetFov = zoomFov.current ? FOV_ZOOMED_DEG : FOV_DEFAULT_DEG;
       const nextFov = THREE.MathUtils.damp(cam.fov, targetFov, 12, dt);
       if (Math.abs(nextFov - cam.fov) > 0.01) {
         cam.fov = nextFov;
@@ -461,7 +460,7 @@ export function Player({
       // Walking cancels FOV zoom. The zoomed FOV is meant for standing
       // and reading a painting from across the room — once the player
       // starts moving, the narrow field is more disorienting than
-      // useful, so drop back to FOV_DEFAULT and let the FOV-damp loop
+      // useful, so drop back to FOV_DEFAULT_DEG and let the FOV-damp loop
       // above ease the camera back out over the next ~150 ms.
       zoomFov.current = false;
       // Movement also releases any latched crouch/tiptoe height — the
