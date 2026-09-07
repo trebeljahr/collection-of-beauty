@@ -46,6 +46,22 @@ required by the Dockerfile — don't remove it.
   a work carries more of it than the collection's own average, otherwise
   "gold" just means "is a painting". Re-measure `FAMILY_PRIOR` if the
   corpus composition shifts materially.
+- Membership and amount are **two different numbers**.
+  `Artwork.colorBuckets` is the thresholded "is it red at all";
+  `Artwork.colorStrength` is the chroma-weighted fraction of the whole
+  image, per listed family, and is what `sort=color` ranks by so the
+  reddest works head `/colours/red`. Membership is deliberately generous
+  (median red strength across the 810 red works is 0.049), so without the
+  ranking the family pages open on works with a red accent.
+  `colorStrength` is **server-only on purpose** — it is not in
+  `ArtworkListing`; read it via `colorStrength()` / `sortByColorStrength()`
+  in [`src/lib/artwork-colors.ts`](src/lib/artwork-colors.ts). Do not
+  compare strengths across families: `blue: 0.3` is not "more" than
+  `gold: 0.5`, since the corpus is full of gold. That comparison is what
+  the prior-normalised score exists for.
+- `PROBE_CACHE_VERSION` in `build-data.mjs` gates the image-probe cache.
+  Bump it whenever the probe emits a new field, or every cached entry
+  silently keeps the old shape (this is why v3 exists).
 
 ## Asset URL conventions
 

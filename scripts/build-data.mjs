@@ -6,7 +6,7 @@ import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { imageSize } from "image-size";
 import sharp from "sharp";
-import { bucketsFromHistogram } from "../src/lib/color-buckets.mjs";
+import { colorProfileFromHistogram } from "../src/lib/color-buckets.mjs";
 
 // sharp's async work runs on the libuv threadpool, which defaults to 4
 // threads — the ceiling on how many images we can probe at once. Node reads
@@ -197,7 +197,9 @@ async function dominantColorFor(folderKey, filename) {
 //
 // The cache lives under metadata/.cache/ (already gitignored, alongside the
 // Wikimedia response cache) rather than src/data/, which is committed.
-const PROBE_CACHE_VERSION = 2;
+// v3 added colorStrength, which no v2 entry carries — the amounts only
+// exist by re-reading pixels, so the bump forces one full re-probe.
+const PROBE_CACHE_VERSION = 3;
 const PROBE_CACHE_FILE = path.join(META, ".cache", "image-probe.json");
 
 // Signature of everything the probe results depend on. Returns null when the
@@ -284,7 +286,7 @@ function makeProgressReporter(label, total) {
   };
 }
 
-// Populate dimensionCache / colorCache / bucketsCache / variantsCache for every artwork we
+// Populate dimensionCache / colorCache / profileCache / variantsCache for every artwork we
 // are about to emit, reusing cached probe results where the files haven't
 // moved and probing the rest in parallel. After this returns, the per-entry
 // `await dimensionsFor(...)` calls in the main loop are pure cache hits.
@@ -307,7 +309,10 @@ async function prefillImageProbes(work) {
       hit.width && hit.height ? { width: hit.width, height: hit.height } : null,
     );
     colorCache.set(key, hit.dominantColor ?? null);
-    bucketsCache.set(key, hit.colorBuckets ?? null);
+    profileCache.set(
+      key,
+      hit.colorBuckets ? { buckets: hit.colorBuckets, strength: hit.colorStrength ?? {} } : null,
+    );
     variantsCache.set(key, hit.variantWidths ?? []);
   }
 
@@ -322,7 +327,7 @@ async function prefillImageProbes(work) {
     await mapWithConcurrency(stale, PROBE_CONCURRENCY, async (item) => {
       const dims = await dimensionsFor(item.folderKey, item.fname);
       const dominantColor = await dominantColorFor(item.folderKey, item.fname);
-      const colorBuckets = await colorBucketsFor(item.folderKey, item.fname);
+      const profile = await colorProfileFor(item.folderKey, item.fname);
       const variantWidths = variantWidthsFor(item.folderKey, item.fname);
       if (item.sig) {
         fresh[item.key] = {
@@ -330,7 +335,8 @@ async function prefillImageProbes(work) {
           width: dims?.width ?? null,
           height: dims?.height ?? null,
           dominantColor,
-          colorBuckets,
+          colorBuckets: profile?.buckets ?? null,
+          colorStrength: profile?.strength ?? null,
           variantWidths,
         };
       }
@@ -354,10 +360,17 @@ async function prefillImageProbes(work) {
 // histogram bins — far more than enough to characterise a palette, and
 // cheap enough to run across the whole corpus.
 const COLOR_SAMPLE_PX = 64;
-const bucketsCache = new Map();
-async function colorBucketsFor(folderKey, filename) {
+
+// Strengths are baked at 3 decimals. The value is a fraction of the whole
+// image, so 0.001 is one pixel in a thousand — finer than the 64px decode
+// can resolve anyway, and full float64 would add ~15 bytes per family to
+// every row of artworks.json for digits nothing reads.
+const STRENGTH_PRECISION = 1000;
+
+const profileCache = new Map();
+async function colorProfileFor(folderKey, filename) {
   const key = `${folderKey}/${filename}`;
-  if (bucketsCache.has(key)) return bucketsCache.get(key);
+  if (profileCache.has(key)) return profileCache.get(key);
   let result = null;
   const source = smallestSourceFor(folderKey, filename);
   if (source) {
@@ -387,15 +400,21 @@ async function colorBucketsFor(folderKey, filename) {
             count,
           });
         }
-        const buckets = bucketsFromHistogram(entries);
-        if (buckets.length > 0) result = buckets;
+        const profile = colorProfileFromHistogram(entries);
+        if (profile.buckets.length > 0) {
+          const strength = {};
+          for (const [id, value] of Object.entries(profile.strength)) {
+            strength[id] = Math.round(value * STRENGTH_PRECISION) / STRENGTH_PRECISION;
+          }
+          result = { buckets: profile.buckets, strength };
+        }
       }
     } catch {
       // leave null — the runtime treats null as "not classified yet",
       // the same contract variantWidths uses.
     }
   }
-  bucketsCache.set(key, result);
+  profileCache.set(key, result);
   return result;
 }
 
@@ -1485,7 +1504,7 @@ async function main() {
       const real = realDimensions.get(id) || null;
       const variantWidths = variantWidthsFor(folderKey, fname);
       const dominantColor = await dominantColorFor(folderKey, fname);
-      const colorBuckets = await colorBucketsFor(folderKey, fname);
+      const colorProfile = await colorProfileFor(folderKey, fname);
       const originalDateString = dateOriginals.get(fname.normalize("NFC")) ?? null;
       artworks.push({
         id,
@@ -1504,7 +1523,8 @@ async function main() {
         realDimensions: real,
         variantWidths: variantWidths.length > 0 ? variantWidths : null,
         dominantColor,
-        colorBuckets,
+        colorBuckets: colorProfile?.buckets ?? null,
+        colorStrength: colorProfile?.strength ?? null,
         fileUrl: entry.source.file_url,
         commonsUrl: entry.source.url,
         credit: cleanCredit(entry.source.credit),

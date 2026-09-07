@@ -1,3 +1,4 @@
+import { sortByColorStrength } from "@/lib/artwork-colors";
 import {
   type ArtworkPage,
   type ArtworkSort,
@@ -33,7 +34,13 @@ export type ArtworkPageInput = {
   collection?: string | null;
   /** Colour-family filter. Matches a work when the family appears
    *  anywhere in its `colorBuckets`, not just at the head — a seascape
-   *  that reads blue-then-gold should surface under both swatches. */
+   *  that reads blue-then-gold should surface under both swatches.
+   *
+   *  Membership is deliberately generous, which is why sort="color"
+   *  exists: a work needs only a visible margin above the corpus average
+   *  to be tagged red, so the red page's tail is works with a red accent
+   *  rather than red works. Ranking by amount puts that tail where it
+   *  belongs instead of scattering it through the first screen. */
   color?: ColorBucketId | "" | null;
 };
 
@@ -55,7 +62,13 @@ export function getAllListingsInDefaultOrder(): ArtworkListing[] {
 export function getArtworkListingPage(input: ArtworkPageInput = {}): ArtworkPage {
   const offset = Math.max(0, Math.trunc(input.offset ?? 0));
   const limit = clampLimit(input.limit);
-  const sort = input.sort ?? DEFAULT_ARTWORK_SORT;
+  const requestedSort = input.sort ?? DEFAULT_ARTWORK_SORT;
+  // "color" ranks by how much of a family a work carries, so without a
+  // family it isn't a weaker version of itself — it *is* the default
+  // shuffle, pinned head and all. Normalising here rather than only
+  // inside the sort keeps `?sort=color` with no `color=` from returning
+  // a subtly different home page than `?sort=shuffle`.
+  const sort = requestedSort === "color" && !input.color ? DEFAULT_ARTWORK_SORT : requestedSort;
   const seed = input.seed || DEFAULT_SHUFFLE_SEED;
   const query = normalizeQuery(input.query);
 
@@ -75,7 +88,7 @@ export function getArtworkListingPage(input: ArtworkPageInput = {}): ArtworkPage
     list = list.filter((artwork) => artwork.colorBuckets?.includes(color) ?? false);
   }
 
-  const sorted = plateOrdered ? [...list] : sortArtworkListings(list, sort, seed);
+  const sorted = plateOrdered ? [...list] : sortArtworkListings(list, sort, seed, input.color);
   const ordered =
     sort === "shuffle" &&
     seed === DEFAULT_SHUFFLE_SEED &&
@@ -106,7 +119,12 @@ function sortArtworkListings(
   artworks: readonly ArtworkListing[],
   sort: ArtworkSort,
   seed: string,
+  color?: ColorBucketId | "" | null,
 ): ArtworkListing[] {
+  // Ranking by amount of a family only means something once a family has
+  // been named; unfiltered, every work would be sorted against a colour
+  // nobody asked for. Fall through to the shuffle instead.
+  if (sort === "color" && color) return sortByColorStrength(artworks, color);
   const list = [...artworks];
   if (sort === "year") {
     return list.sort(
@@ -122,8 +140,9 @@ function sortArtworkListings(
   }
   if (sort === "title") return list.sort((a, b) => a.title.localeCompare(b.title));
   // "plate" without a collection has no meaning — the caller asked for an
-  // ordering that only exists inside a book. Fall through to the shuffle
-  // rather than silently returning input order.
+  // ordering that only exists inside a book. Same for "color" without a
+  // family, handled above. Fall through to the shuffle rather than
+  // silently returning input order.
   return shuffleWithArtistSpread(list, seed);
 }
 

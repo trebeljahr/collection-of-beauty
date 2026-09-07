@@ -21,6 +21,7 @@ function makeArtwork(id: string): Artwork {
     variantWidths: null,
     dominantColor: null,
     colorBuckets: null,
+    colorStrength: null,
     fileUrl: "",
     commonsUrl: "",
     credit: null,

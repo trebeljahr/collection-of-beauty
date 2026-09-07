@@ -1,5 +1,11 @@
 import { describe, expect, it } from "vitest";
-import { allColorBucketCounts, countColorBuckets, listingsForColor } from "@/lib/artwork-colors";
+import {
+  allColorBucketCounts,
+  colorStrength,
+  countColorBuckets,
+  listingsForColor,
+  sortByColorStrength,
+} from "@/lib/artwork-colors";
 import { getArtworkListingPage } from "@/lib/artwork-pagination";
 import { COLOR_BUCKETS, type ColorBucketId } from "@/lib/color-buckets.mjs";
 import { artworkListings } from "@/lib/data";
@@ -137,5 +143,125 @@ describe("colour filtering in getArtworkListingPage", () => {
     const ids = new Set([...first.items, ...second.items].map((a) => a.id));
     expect(ids.size).toBe(first.items.length + second.items.length);
     for (const item of second.items) expect(item.colorBuckets).toContain("blue");
+  });
+});
+
+describe("colorStrength over the baked corpus", () => {
+  it("gives every work a strength for each family it lists", () => {
+    // The sort is only as good as its coverage: a family baked without a
+    // strength sorts as 0 and sinks to the bottom regardless of how much
+    // of that colour the work actually carries.
+    const missing = artworkListings.filter((a) =>
+      (a.colorBuckets ?? []).some((id) => colorStrength(a.id, id) <= 0),
+    );
+    expect(missing.map((a) => a.id)).toEqual([]);
+  });
+
+  it("reports zero for a family the work does not list", () => {
+    const work = artworkListings.find((a) => !a.colorBuckets?.includes("teal"));
+    expect(work).toBeDefined();
+    expect(colorStrength(work?.id ?? "", "teal")).toBe(0);
+  });
+
+  it("reports zero for an id that isn't in the collection", () => {
+    expect(colorStrength("no-such-artwork", "red")).toBe(0);
+  });
+
+  it("keeps every baked strength inside 0-1", () => {
+    for (const artwork of artworkListings) {
+      for (const id of artwork.colorBuckets ?? []) {
+        const value = colorStrength(artwork.id, id);
+        expect(value, `${artwork.id}/${id}`).toBeGreaterThan(0);
+        expect(value, `${artwork.id}/${id}`).toBeLessThanOrEqual(1);
+      }
+    }
+  });
+
+  it("spreads a family across a real range rather than one flat value", () => {
+    // If every red work scored the same, ranking by amount would be a
+    // no-op and the page would be back to arbitrary order.
+    const values = listingsForColor("red").map((a) => colorStrength(a.id, "red"));
+    expect(values.length).toBeGreaterThan(10);
+    expect(Math.max(...values) - Math.min(...values)).toBeGreaterThan(0.1);
+  });
+});
+
+describe("sortByColorStrength", () => {
+  it("puts the works carrying most of the family first", () => {
+    const sorted = sortByColorStrength(listingsForColor("red"), "red");
+    for (let i = 1; i < sorted.length; i++) {
+      expect(colorStrength(sorted[i - 1].id, "red")).toBeGreaterThanOrEqual(
+        colorStrength(sorted[i].id, "red"),
+      );
+    }
+  });
+
+  it("is stable across calls, so the grid and the lightbox agree", () => {
+    const a = sortByColorStrength(listingsForColor("blue"), "blue").map((x) => x.id);
+    const b = sortByColorStrength([...listingsForColor("blue")].reverse(), "blue").map((x) => x.id);
+    expect(a).toEqual(b);
+  });
+
+  it("does not drop or duplicate anything", () => {
+    const input = listingsForColor("green");
+    const sorted = sortByColorStrength(input, "green");
+    expect(sorted).toHaveLength(input.length);
+    expect(new Set(sorted.map((a) => a.id)).size).toBe(input.length);
+  });
+
+  it("leaves the input array untouched", () => {
+    const input = listingsForColor("teal");
+    const before = input.map((a) => a.id);
+    sortByColorStrength(input, "teal");
+    expect(input.map((a) => a.id)).toEqual(before);
+  });
+});
+
+describe("sort=color in getArtworkListingPage", () => {
+  it("opens a family with its strongest works", () => {
+    const page = getArtworkListingPage({ color: "red", sort: "color", limit: 20 });
+    const head = page.items.map((a) => colorStrength(a.id, "red"));
+    const all = listingsForColor("red")
+      .map((a) => colorStrength(a.id, "red"))
+      .sort((x, y) => y - x);
+    expect(head).toEqual(all.slice(0, head.length));
+  });
+
+  it("beats the shuffle on how red the first screen actually is", () => {
+    // The complaint this whole sort answers: a shuffled red page opens
+    // with works that merely have a red accent.
+    const mean = (sort: "color" | "shuffle") => {
+      const items = getArtworkListingPage({ color: "red", sort, limit: 40 }).items;
+      return items.reduce((sum, a) => sum + colorStrength(a.id, "red"), 0) / items.length;
+    };
+    expect(mean("color")).toBeGreaterThan(mean("shuffle"));
+  });
+
+  it("pages a ranked family without gaps or repeats", () => {
+    const first = getArtworkListingPage({ color: "blue", sort: "color", limit: 40 });
+    const second = getArtworkListingPage({
+      color: "blue",
+      sort: "color",
+      offset: first.nextOffset ?? 0,
+      limit: 40,
+    });
+    const ids = [...first.items, ...second.items].map((a) => a.id);
+    expect(new Set(ids).size).toBe(ids.length);
+    const weakestOfFirst = colorStrength(first.items[first.items.length - 1].id, "blue");
+    expect(colorStrength(second.items[0].id, "blue")).toBeLessThanOrEqual(weakestOfFirst);
+  });
+
+  it("falls back to the shuffle when no family was named", () => {
+    // Nothing to rank against — ordering by a colour nobody asked for
+    // would be arbitrary, so this must match the default page exactly.
+    const ranked = getArtworkListingPage({ sort: "color", limit: 20 });
+    const shuffled = getArtworkListingPage({ sort: "shuffle", limit: 20 });
+    expect(ranked.items.map((a) => a.id)).toEqual(shuffled.items.map((a) => a.id));
+  });
+
+  it("still filters to the family it ranks", () => {
+    const page = getArtworkListingPage({ color: "purple", sort: "color", limit: 50 });
+    expect(page.items.length).toBeGreaterThan(0);
+    for (const item of page.items) expect(item.colorBuckets).toContain("purple");
   });
 });
