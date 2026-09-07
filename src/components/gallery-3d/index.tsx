@@ -665,10 +665,20 @@ export function Gallery3D({ artworks }: Props) {
           </div>
         </div>
       )}
+      {/* Floor / room banner. Offsets are `1rem + env(safe-area-inset-*)`
+          rather than a flat `top-4` / `bottom-4`: the museum is the one
+          surface that enters real browser fullscreen (settings modal) and
+          insists on landscape, which is exactly the combination that puts
+          a notch or home indicator over the screen edge. The `0px`
+          fallback makes every one of these a no-op on hardware (and in
+          non-fullscreen contexts) that reports no insets, so nothing
+          shifts on desktop. */}
       {hasStarted && !mapOpen && (
         <div
           className={`absolute bg-black/60 text-neutral-100 px-4 py-2 rounded text-sm pointer-events-none ${
-            isTouch ? "top-4 left-1/2 -translate-x-1/2" : "bottom-4 left-4"
+            isTouch
+              ? "top-[calc(1rem_+_env(safe-area-inset-top,0px))] left-1/2 -translate-x-1/2"
+              : "bottom-[calc(1rem_+_env(safe-area-inset-bottom,0px))] left-[calc(1rem_+_env(safe-area-inset-left,0px))]"
           }`}
         >
           <div className="text-xs text-neutral-500">
@@ -689,7 +699,7 @@ export function Gallery3D({ artworks }: Props) {
         !zoomed &&
         !mapOpen &&
         (aiming ? (
-          <div className="absolute bottom-6 left-1/2 -translate-x-1/2 flex items-center gap-2 rounded-full border border-white/25 bg-black/70 px-4 py-1.5 text-sm text-white shadow-lg pointer-events-none backdrop-blur-sm">
+          <div className="absolute bottom-[calc(1.5rem_+_env(safe-area-inset-bottom,0px))] left-1/2 -translate-x-1/2 flex items-center gap-2 rounded-full border border-white/25 bg-black/70 px-4 py-1.5 text-sm text-white shadow-lg pointer-events-none backdrop-blur-sm">
             {isTouch ? (
               <>Tap to inspect painting</>
             ) : (
@@ -701,7 +711,7 @@ export function Gallery3D({ artworks }: Props) {
             )}
           </div>
         ) : (
-          <div className="absolute bottom-4 left-1/2 -translate-x-1/2 bg-black/55 text-neutral-200 px-3 py-1 rounded text-xs pointer-events-none backdrop-blur-sm">
+          <div className="absolute bottom-[calc(1rem_+_env(safe-area-inset-bottom,0px))] left-1/2 -translate-x-1/2 bg-black/55 text-neutral-200 px-3 py-1 rounded text-xs pointer-events-none backdrop-blur-sm">
             {isTouch ? (
               <>Left stick walks · right stick looks</>
             ) : (
@@ -727,13 +737,39 @@ export function Gallery3D({ artworks }: Props) {
           fullscreen settings modal (sound + fullscreen toggle + exit
           link). Mount-gated on `hasStarted` so the cog only appears
           after the user clicks Enter; hidden under zoom/map overlays
-          so it doesn't fight for the corner. */}
+          so it doesn't fight for the corner.
+
+          The cog anchors itself at `top-4 right-4` of its containing
+          block, so the only way to keep it off a landscape notch from
+          out here is to make *this* wrapper the containing block and
+          inset it. Absolute offsets resolve against the padding box, so
+          padding would not move the cog — the inset has to be on
+          top/right themselves. Left and bottom stay pinned at 0 on
+          purpose: Gallery3DSettings also renders its open modal as an
+          `inset-0` backdrop inside this box, and shrinking all four
+          sides would leave undimmed strips of live canvas along the
+          screen edges. Insetting only the two sides the cog actually
+          uses keeps that backdrop full-bleed everywhere except the top
+          and right, and in landscape `safe-area-inset-top` is 0 anyway. */}
       {hasStarted && !zoomed && !mapOpen && (
-        <Gallery3DSettings
-          fullscreenTarget={galleryHostRef}
-          isOpen={settingsOpen}
-          onOpenChange={setSettingsOpen}
-        />
+        <div
+          // Full-bleed while closed would swallow every canvas click, and
+          // `pointer-events-none` while open would kill the modal's own
+          // buttons and backdrop dismiss (it doesn't re-enable them the
+          // way the cog pill does). Flipping with `settingsOpen` gives
+          // both: transparent to aim/inspect clicks when closed,
+          // interactive when the modal is up — and the modal covers the
+          // canvas anyway, so nothing underneath needs the events then.
+          className={`absolute bottom-0 left-0 top-[env(safe-area-inset-top,0px)] right-[env(safe-area-inset-right,0px)] ${
+            settingsOpen ? "pointer-events-auto" : "pointer-events-none"
+          }`}
+        >
+          <Gallery3DSettings
+            fullscreenTarget={galleryHostRef}
+            isOpen={settingsOpen}
+            onOpenChange={setSettingsOpen}
+          />
+        </div>
       )}
       {/* Minimap. Bottom-right on desktop; top-left on mobile so the
           look joystick (bottom-right) and audio controls (top-right)
@@ -749,7 +785,7 @@ export function Gallery3D({ artworks }: Props) {
             type="button"
             onClick={openBigMap}
             aria-label="Open full map"
-            className="absolute top-4 left-4 cursor-pointer appearance-none border-0 bg-transparent p-0 pointer-events-auto active:opacity-80"
+            className="absolute top-[calc(1rem_+_env(safe-area-inset-top,0px))] left-[calc(1rem_+_env(safe-area-inset-left,0px))] cursor-pointer appearance-none border-0 bg-transparent p-0 pointer-events-auto active:opacity-80"
           >
             <Minimap
               floor={currentFloor}
@@ -762,7 +798,7 @@ export function Gallery3D({ artworks }: Props) {
             </span>
           </button>
         ) : (
-          <div className="absolute bottom-4 right-4 pointer-events-none">
+          <div className="absolute bottom-[calc(1rem_+_env(safe-area-inset-bottom,0px))] right-[calc(1rem_+_env(safe-area-inset-right,0px))] pointer-events-none">
             <Minimap
               floor={currentFloor}
               activeRoomIdx={activeRoomIdx}
@@ -1070,11 +1106,14 @@ function BigMapOverlay({
   isTouch: boolean;
 }) {
   return (
+    // Backdrop stays full-bleed (inset-0) so the dim covers the notch strip
+    // too; only the padding grows by the safe-area insets, which keeps the
+    // floor picker and the map itself clear of a landscape notch.
     // biome-ignore lint/a11y/useKeyWithClickEvents: backdrop dismiss is a courtesy mouse shortcut; keyboard already maps Esc / M to close at the parent.
     // biome-ignore lint/a11y/noStaticElementInteractions: full-screen click target gating the overlay
     <div
       onClick={onClose}
-      className="absolute inset-0 z-30 flex items-center justify-center gap-6 bg-black/85 backdrop-blur-md p-6"
+      className="absolute inset-0 z-30 flex items-center justify-center gap-6 bg-black/85 backdrop-blur-md pt-[calc(1.5rem_+_env(safe-area-inset-top,0px))] pr-[calc(1.5rem_+_env(safe-area-inset-right,0px))] pb-[calc(1.5rem_+_env(safe-area-inset-bottom,0px))] pl-[calc(1.5rem_+_env(safe-area-inset-left,0px))]"
     >
       {/* Floor-stack picker — newest on top so it visually mirrors
           the building's vertical stack. Click any row to preview that

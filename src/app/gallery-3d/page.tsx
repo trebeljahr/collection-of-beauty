@@ -1,4 +1,4 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import { ERAS } from "@/lib/gallery-eras";
 import { buildOpenGraph, SITE_NAME } from "@/lib/seo";
 import { Gallery3DClient } from "./gallery-3d-client";
@@ -45,6 +45,33 @@ export const metadata: Metadata = {
     description: MUSEUM_DESCRIPTION,
     url: "/gallery-3d",
   }),
+};
+
+// Route-scoped on purpose — do NOT hoist this to the root layout.
+//
+// `env(safe-area-inset-*)` resolves to 0px on iOS Safari and on Android
+// Chrome unless the document opts in with `viewport-fit=cover`, so
+// without this export every safe-area offset in the HUD
+// (src/components/gallery-3d/index.tsx) silently computes to the flat
+// fallback it was meant to replace.
+//
+// This route is the one surface that actually needs the opt-in: a
+// full-bleed WebGL canvas, landscape-only, with HUD controls pinned hard
+// against all four screen edges — exactly the geometry a notch or a
+// home indicator overlaps. Setting `viewportFit: "cover"` globally would
+// push *every* page's content under the notch and force a re-audit of
+// each full-bleed surface on the site, which is a far bigger change than
+// the one this route needs.
+//
+// Safe to state only the single field: Next merges `viewport` exports
+// field-by-field down the segment chain rather than replacing the parent
+// wholesale (see `mergeViewport` in next/dist/lib/metadata/
+// resolve-metadata.js — it clones the resolved parent and overwrites only
+// the keys present in the child object). The root layout's `themeColor`,
+// `width` and `initialScale` therefore survive on this route; restating
+// them here would just be a second copy to keep in sync.
+export const viewport: Viewport = {
+  viewportFit: "cover",
 };
 
 export default function Gallery3DPage() {
