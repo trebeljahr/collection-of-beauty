@@ -21,26 +21,41 @@ export default function HomePage() {
 
   return (
     <div className="mx-auto max-w-7xl px-4 py-8 md:py-12">
-      <section className="mb-10 flex flex-col gap-3 md:flex-row md:items-end md:justify-between">
+      <section className="mb-10 flex flex-col gap-5 md:flex-row md:items-end md:justify-between">
         <div>
+          {/* The museum leads. "A personal gallery of public-domain art"
+              describes several hundred sites; a building you can walk
+              through describes this one, and it's the thing people link. */}
           <h1 className="font-serif text-3xl tracking-tight md:text-4xl">
-            A personal gallery of beauty
+            A walkable museum of public-domain art
           </h1>
-          <p className="mt-2 max-w-2xl text-[var(--muted-foreground)]">
-            {summary.totalArtworks.toLocaleString()} works by{" "}
+          <p className="mt-3 max-w-2xl text-[var(--muted-foreground)]">
+            {ERAS.length} floors, one per era — {ERAS[0].title} at ground level rising to{" "}
+            {ERAS[ERAS.length - 1].title}, joined by a central spiral staircase. Below, the whole
+            collection laid out flat: {summary.totalArtworks.toLocaleString()} works by{" "}
             {summary.totalArtists.toLocaleString()} artists across {summary.totalMovements}{" "}
             movements, spanning {summary.yearRange.min}–{summary.yearRange.max}.
           </p>
         </div>
-        {/* The only path into the collection that asks nothing of the
-            visitor — no grid, no era, no artist to choose first. */}
-        <Link
-          href="/surprise"
-          className="inline-flex shrink-0 items-center gap-2 self-start rounded-full bg-[var(--primary)] px-5 py-2.5 text-sm font-medium text-[var(--primary-foreground)] transition hover:opacity-90 focus:outline-none focus-visible:ring-2 focus-visible:ring-[var(--ring)] focus-visible:ring-offset-2 focus-visible:ring-offset-[var(--background)] md:self-auto"
-        >
-          <ShuffleIcon />
-          Surprise me
-        </Link>
+        <div className="flex shrink-0 flex-wrap items-center gap-3 self-start md:self-auto">
+          {/* The museum is the primary call — it's the thing this site has
+              that a hundred other public-domain galleries don't. */}
+          <Link
+            href="/gallery-3d"
+            className="inline-flex shrink-0 items-center rounded-full bg-[var(--primary)] px-5 py-2.5 text-sm font-medium text-[var(--primary-foreground)] transition hover:opacity-90 focus:outline-none focus-visible:ring-2 focus-visible:ring-[var(--ring)] focus-visible:ring-offset-2 focus-visible:ring-offset-[var(--background)]"
+          >
+            Enter the museum
+          </Link>
+          {/* The only path into the collection that asks nothing of the
+              visitor — no grid, no era, no artist to choose first. */}
+          <Link
+            href="/surprise"
+            className="inline-flex shrink-0 items-center gap-2 rounded-full border border-[var(--border)] px-5 py-2.5 text-sm font-medium transition hover:bg-[var(--accent)] focus:outline-none focus-visible:ring-2 focus-visible:ring-[var(--ring)] focus-visible:ring-offset-2 focus-visible:ring-offset-[var(--background)]"
+          >
+            <ShuffleIcon />
+            Surprise me
+          </Link>
+        </div>
       </section>
       <h2 className="sr-only">Browse all works</h2>
       <GalleryBrowser

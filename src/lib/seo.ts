@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { artworkAlt, displayTitle } from "@/lib/artwork-format";
 import { type Artist, type Artwork, artworks, summary } from "@/lib/data";
+import { ERAS } from "@/lib/gallery-eras";
 import { encodingFormat, licensableVariants } from "@/lib/licensable-images";
 import { getLicenseInfo } from "@/lib/license";
 import { SITE_URL } from "@/lib/links";
@@ -18,14 +19,30 @@ export { SITE_URL };
 
 export const SITE_NAME = "Collection of Beauty";
 
-export const SITE_TAGLINE =
-  "A personal gallery of paintings, prints, and natural-history illustrations from the public domain.";
+// Floor count and the era names at either end of the building are read
+// from ERAS rather than written out, so adding a storey can't leave the
+// site describing a museum it no longer is. ERAS is a plain data module
+// (its only import of ./data is type-only, no three.js), so pulling it
+// in here doesn't drag WebGL into anything that imports seo.ts.
+const FLOOR_COUNT = ERAS.length;
+const GROUND_ERA = ERAS[0]?.title ?? "the earliest era";
+const TOP_ERA = ERAS[ERAS.length - 1]?.title ?? "the most recent era";
+
+/**
+ * Short enough to sit in a <title> after the site name, and it leads with
+ * the museum on purpose: "public-domain art gallery" describes several
+ * hundred other sites, the walkable building describes this one.
+ */
+export const SITE_TAGLINE = `a walkable ${FLOOR_COUNT}-floor museum of public-domain art`;
 
 export const SITE_DESCRIPTION =
-  `${summary.totalArtworks.toLocaleString()} works by ${summary.totalArtists.toLocaleString()} artists ` +
-  `across ${summary.totalMovements} movements, spanning ${summary.yearRange.min}–${summary.yearRange.max}. ` +
-  `Every piece in the public domain or openly licensed, sourced from Wikimedia Commons and presented in a ` +
-  `gallery, timeline, and virtual 3D room.`;
+  `Walk through a museum of ${FLOOR_COUNT} floors in your browser: one floor per era, ` +
+  `${GROUND_ERA} at ground level rising to ${TOP_ERA}, joined by a central spiral ` +
+  `staircase, with paintings hung at their real-world size where the dimensions are known. ` +
+  `${summary.totalArtworks.toLocaleString()} public-domain works by ` +
+  `${summary.totalArtists.toLocaleString()} artists, ${summary.yearRange.min}–${summary.yearRange.max}, ` +
+  `sourced from Wikimedia Commons and adjacent open archives. Also browsable as a flat ` +
+  `gallery and a timeline.`;
 
 export const TWITTER_HANDLE = process.env.NEXT_PUBLIC_TWITTER_HANDLE ?? undefined;
 
@@ -133,12 +150,20 @@ export function absoluteUrl(path: string): string {
  * The site-wide OG image, served by the `src/app/opengraph-image.png` file
  * convention at `/opengraph-image.png` (1200×630 mosaic composited by
  * scripts/build-marketing-images.mjs).
+ *
+ * A frame from the museum itself would be the stronger share card — it is
+ * the one thing about this site a thumbnail can show that no other
+ * public-domain gallery can — but the card has to be captured off a real
+ * GPU, and `hero-3d-museum.png` is still listed as in production on
+ * /press. Until it exists this stays the mosaic, so the alt text
+ * describes the mosaic rather than repeating the site tagline: alt text
+ * is a description of the image, and this image is not a museum.
  */
 const SITE_OG_IMAGE = {
   url: absoluteUrl("/opengraph-image.png"),
   width: 1200,
   height: 630,
-  alt: `${SITE_NAME} — ${SITE_TAGLINE}`,
+  alt: `${SITE_NAME} — a mosaic of six public-domain paintings beside the wordmark`,
 };
 
 /**
@@ -353,7 +378,7 @@ export function websiteJsonLd(): Record<string, unknown> {
     "@context": "https://schema.org",
     "@type": "WebSite",
     name: SITE_NAME,
-    description: SITE_TAGLINE,
+    description: SITE_DESCRIPTION,
     url: SITE_URL,
     inLanguage: "en",
   };

@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import Image from "next/image";
 import Link from "next/link";
 import summary from "@/data/summary.json";
+import { ERAS } from "@/lib/gallery-eras";
 import { absoluteUrl, buildOpenGraph, jsonLdScriptProps, SITE_NAME } from "@/lib/seo";
 
 const pressEmail = "hello@trebeljahr.com";
@@ -9,17 +10,23 @@ const pressEmail = "hello@trebeljahr.com";
 const WORKS_APPROX = (Math.floor(summary.totalArtworks / 10) * 10).toLocaleString("en-US");
 const ARTISTS_APPROX = (Math.floor(summary.totalArtists / 10) * 10).toString();
 
+// The museum is the story, so its numbers come off the era table rather
+// than being retyped into every copy block below.
+const FLOOR_COUNT = ERAS.length;
+const GROUND_ERA = ERAS[0].title;
+const TOP_ERA = ERAS[ERAS.length - 1].title;
+
 export const metadata: Metadata = {
   title: "Press",
   description:
-    "Press kit for Collection of Beauty: fact sheet, descriptions, story hooks, feature list, engineering notes, FAQ, quotes, images, and contact details.",
+    `Press kit for Collection of Beauty, a walkable ${FLOOR_COUNT}-floor museum of public-domain art: ` +
+    "fact sheet, descriptions, story hooks, feature list, engineering notes, FAQ, quotes, images, and contact details.",
   alternates: { canonical: "/press" },
   openGraph: buildOpenGraph({
     // Same string as alternates.canonical above, so og:url can't drift from it.
     url: "/press",
     title: `Press · ${SITE_NAME}`,
-    description:
-      "Fact sheet, descriptions, story hooks, features, engineering notes, FAQ, quotes, image assets, and press contact for Collection of Beauty.",
+    description: `Fact sheet, descriptions, story hooks, features, engineering notes, FAQ, quotes, image assets, and press contact for Collection of Beauty — a walkable ${FLOOR_COUNT}-floor museum of public-domain art.`,
     images: [
       {
         url: "/marketing/hero.png",
@@ -32,8 +39,7 @@ export const metadata: Metadata = {
   twitter: {
     card: "summary_large_image",
     title: `Press · ${SITE_NAME}`,
-    description:
-      "Fact sheet, descriptions, story hooks, features, engineering notes, FAQ, quotes, image assets, and press contact.",
+    description: `Fact sheet, descriptions, hooks, features, engineering notes, FAQ, quotes, images, and press contact for a walkable ${FLOOR_COUNT}-floor museum of public-domain art.`,
     images: ["/marketing/hero.png"],
   },
   robots: {
@@ -42,6 +48,37 @@ export const metadata: Metadata = {
   },
 };
 
+// The museum is the lede of this press kit, so it gets its own section
+// ahead of the fact sheet rather than a line in the feature list. Every
+// number here is derived, not typed — see FLOOR_COUNT above.
+const museumFacts = [
+  [
+    "Shape",
+    `${FLOOR_COUNT} floors, one per art era, joined by a central spiral staircase. ${GROUND_ERA} is the ground floor; ${TOP_ERA} is the top.`,
+  ],
+  [
+    "Scale",
+    "Paintings hang at their real-world dimensions where the data exists. Where it doesn't, the layout falls back to a pixel-aspect estimate — visible if you know the painting.",
+  ],
+  [
+    "Hanging",
+    "One work per wall cell, capped per floor and sampled across artists, so a 600-plate botanical series doesn't swallow a storey.",
+  ],
+  [
+    "Controls",
+    "Pointer-lock and WASD on a laptop; an on-screen joystick and a landscape prompt on a phone. Click a painting to zoom, M for the floor map with teleport shortcuts.",
+  ],
+  [
+    "Requirements",
+    "A browser with WebGL. No install, no login, no plugin. Tested on Chrome, Firefox, and Safari across macOS, Windows, Linux, iOS, and Android.",
+  ],
+  [
+    "Built with",
+    "React Three Fiber and Three.js, inside a Next.js App Router site. Per-painting texture LOD with a frame-paced GPU upload queue keeps it usable on integrated graphics.",
+  ],
+  ["Where", "https://beauty.trebeljahr.com/gallery-3d"],
+] as const;
+
 const factSheet = [
   ["Project", "Collection of Beauty"],
   ["URL", "https://beauty.trebeljahr.com"],
@@ -49,6 +86,10 @@ const factSheet = [
   ["Location", "Berlin, Germany"],
   ["Release", "2026 (public launch)"],
   ["Price", "Free. No login, no ads, no paywall, no tracking beyond self-hosted Plausible."],
+  [
+    "The museum",
+    `${FLOOR_COUNT} floors, one per art era, ${GROUND_ERA} at ground level rising to ${TOP_ERA}, joined by a central spiral staircase. Runs in a browser tab; no install, no login.`,
+  ],
   [
     "Collection size",
     `~${WORKS_APPROX} works, ~${ARTISTS_APPROX} artists at launch (numbers move; live count visible on the home page)`,
@@ -86,26 +127,26 @@ const descriptionTiers = [
   {
     title: "One sentence",
     body: [
-      "A small, hand-curated public-domain art gallery on the web, with a multi-floor 3D museum you can walk through in a browser tab.",
+      `A museum of ${FLOOR_COUNT} floors you walk through in a browser tab, hung with a hand-curated collection of public-domain art.`,
     ],
   },
   {
     title: "Short (about 40 words)",
     body: [
-      `Collection of Beauty is a one-person public-domain art gallery on the web. It holds roughly ${WORKS_APPROX} works from about ${ARTISTS_APPROX} artists and includes a multi-floor 3D museum, built with WebGL, that you can walk through in a browser tab.`,
+      `Collection of Beauty is a museum you walk through in a browser tab: ${FLOOR_COUNT} floors, one per art era, joined by a central spiral staircase. It hangs roughly ${WORKS_APPROX} public-domain works from about ${ARTISTS_APPROX} artists. Free, no install, no login.`,
     ],
   },
   {
     title: "Medium (about 80 words)",
     body: [
-      `Collection of Beauty is a hand-curated public-domain art gallery, built and maintained by one person. The collection currently holds around ${WORKS_APPROX} works across ~${ARTISTS_APPROX} artists, sourced from open archives such as Wikimedia Commons and the Library of Congress. Alongside a standard 2D gallery and artist pages, the site includes a multi-floor 3D museum, built with React Three Fiber, where each floor is a different historical era and a spiral staircase connects them. The 3D museum runs in any modern browser, on desktop with mouse + keyboard and on mobile with a touch joystick.`,
+      `Collection of Beauty is a museum you walk through in a browser tab. ${FLOOR_COUNT} floors, one per art era, ${GROUND_ERA} at ground level rising to ${TOP_ERA} at the top, joined by a central spiral staircase. Paintings hang at their real-world size where the dimensions are known. It is built with React Three Fiber and runs in any modern browser — mouse and keyboard on a laptop, an on-screen joystick on a phone in landscape. Behind it sits the collection itself: roughly ${WORKS_APPROX} public-domain works from ~${ARTISTS_APPROX} artists, also browsable as a flat gallery, a timeline, and per-artist pages.`,
     ],
   },
   {
     title: "Long (about 150 words)",
     body: [
-      `Collection of Beauty is a personal gallery of public-domain art, made and maintained by a single developer. The collection grew out of a private bookmark folder and now holds around ${WORKS_APPROX} works across ~${ARTISTS_APPROX} artists, drawn from public archives such as Wikimedia Commons and the Library of Congress. Each work shows its source, provenance, and a permalink, with a "suggest a fix" button that opens a GitHub issue. Metadata is treated as a living, correctable document rather than a closed catalog.`,
-      "The site is free and runs without ads, sign-ups, or third-party tracking. The headline feature is a multi-floor 3D museum built in WebGL: each floor is a historical era, paintings are sized to their real-world dimensions where known, and a spiral staircase connects the floors. It runs in any browser tab - pointer-lock + WASD on desktop, an on-screen touch joystick on mobile - and needs no install.",
+      `Collection of Beauty is a museum you walk through in a browser tab, made and maintained by a single developer. It has ${FLOOR_COUNT} floors, one per art era, ${GROUND_ERA} at ground level rising to ${TOP_ERA}, joined by a central spiral staircase. Paintings are sized to their real-world dimensions where the data exists, so standing in front of a canvas is a different experience from scrolling past a thumbnail. It is built in WebGL, needs no install, and works on a laptop with pointer-lock and WASD or on a phone in landscape with a touch joystick.`,
+      `The collection it hangs grew out of a private bookmark folder and now holds around ${WORKS_APPROX} public-domain works across ~${ARTISTS_APPROX} artists, drawn from Wikimedia Commons and adjacent open archives. Each work shows its source, provenance, and a permalink, with a "suggest a fix" button that opens a GitHub issue. Metadata is treated as a living, correctable document rather than a closed catalog. The site is free and runs without ads, sign-ups, or third-party tracking.`,
     ],
   },
 ] as const;
@@ -261,7 +302,7 @@ const social = [
   "Personal blog: ricos.site (long-form pieces and a launch retrospective will live there).",
 ] as const;
 
-const boilerplate = `Collection of Beauty is a personal public-domain art gallery, built and maintained by Rico Trebeljahr in 2026. The site holds about ${WORKS_APPROX} works from ~${ARTISTS_APPROX} artists, sourced from Wikimedia Commons, the Library of Congress, and adjacent open archives. Alongside a standard 2D gallery, it includes a multi-floor 3D museum, built with WebGL, that you can walk through in a browser tab on desktop or mobile. It runs at beauty.trebeljahr.com, free, without ads or sign-ups.`;
+const boilerplate = `Collection of Beauty is a museum you walk through in a browser tab: ${FLOOR_COUNT} floors, one per art era, ${GROUND_ERA} at ground level rising to ${TOP_ERA}, joined by a central spiral staircase, with paintings hung at their real-world size where the dimensions are known. It is built in WebGL by Rico Trebeljahr and hangs about ${WORKS_APPROX} public-domain works from ~${ARTISTS_APPROX} artists, sourced from Wikimedia Commons and adjacent open archives. The same collection is also browsable as a flat gallery, a timeline, and per-artist pages. It runs at beauty.trebeljahr.com, free, without ads or sign-ups.`;
 
 function contactPointJsonLd(): Record<string, unknown> {
   return {
@@ -342,8 +383,9 @@ export default function PressPage() {
                 Collection of Beauty
               </h1>
               <p className="mt-5 max-w-2xl text-lg leading-8 text-[var(--foreground)] md:text-xl">
-                A small, hand-curated public-domain art gallery on the web, with a multi-floor 3D
-                museum you can walk through in a browser tab.
+                A museum of {FLOOR_COUNT} floors you walk through in a browser tab — one storey per
+                art era, {GROUND_ERA} at ground level rising to {TOP_ERA}, joined by a central
+                spiral staircase. Hung with a hand-curated collection of public-domain art.
               </p>
               <div className="mt-8 flex flex-wrap gap-3">
                 <Link
@@ -384,6 +426,7 @@ export default function PressPage() {
         >
           <div className="mx-auto flex max-w-7xl gap-4 overflow-x-auto px-4 py-3 text-sm text-[var(--muted-foreground)]">
             {[
+              ["The museum", "#museum"],
               ["Fact sheet", "#fact-sheet"],
               ["Descriptions", "#descriptions"],
               ["Hooks", "#hooks"],
@@ -406,6 +449,34 @@ export default function PressPage() {
         </nav>
 
         <div className="mx-auto max-w-7xl px-4">
+          <Section
+            id="museum"
+            eyebrow="The museum"
+            title={`${FLOOR_COUNT} floors you can walk through`}
+          >
+            <div className="space-y-6">
+              <p className="leading-8 text-[var(--muted-foreground)]">
+                This is the part of the project worth writing about. The collection is hand-curated
+                and the metadata is public, but the thing that does not exist elsewhere is the
+                building: a museum you enter in a browser tab and walk through on foot, where a
+                painting is the size it actually is.
+              </p>
+              <dl className="divide-y divide-[var(--border)] border-y border-[var(--border)]">
+                {museumFacts.map(([label, value]) => (
+                  <div key={label} className="grid gap-2 py-4 sm:grid-cols-[11rem_1fr]">
+                    <dt className="text-xs font-semibold uppercase tracking-[0.12em] text-[var(--muted-foreground)]">
+                      {label}
+                    </dt>
+                    <dd className="leading-7">{value}</dd>
+                  </div>
+                ))}
+              </dl>
+              <p className="leading-8 text-[var(--muted-foreground)]">
+                The floors, in order: {ERAS.map((era) => era.title).join(", ")}.
+              </p>
+            </div>
+          </Section>
+
           <Section id="fact-sheet" eyebrow="Fact sheet" title="At a glance">
             <dl className="divide-y divide-[var(--border)] border-y border-[var(--border)]">
               {factSheet.map(([label, value]) => (
