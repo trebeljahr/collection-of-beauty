@@ -179,12 +179,16 @@ function buildCutoutBalusters(
 export function StairwellAccents({ floor }: { floor: FloorLayout }) {
   const stairwell = useMemo(() => floor.rooms.find((r) => r.isStairwell) ?? null, [floor.rooms]);
 
-  // The ground floor has no cutout — the spiral rises out of solid
-  // ground — so there's nothing to fence off. Render only the gate
-  // posts + signs (still useful wayfinding) and skip the cutout-edge
-  // rail, balusters, and dead-end L-bridge, which would otherwise float
-  // around an imaginary hole in a solid floor.
-  const hasCutout = floor.index > 0;
+  // Every floor with a spiral gets the perimeter rail, ground floor
+  // included. Above ground it's fall prevention around a real hole.
+  // On the ground floor the spiral rises out of solid ground, so it
+  // fences the base of the stair instead: the helix's own treads climb
+  // away from the floor within ~100° of the entry, and the spiral rail
+  // climbs with them, so without a rail at floor height the annulus is
+  // wide open from every angle but the gate — the player walks in under
+  // the helix from behind and straight through the low treads on the
+  // way round. The dead-end L-bridge is still top-floor-only; that's
+  // `hasSpiralEnd` below, not a cutout question.
 
   const data = useMemo(() => {
     if (!stairwell) return null;
@@ -221,15 +225,8 @@ export function StairwellAccents({ floor }: { floor: FloorLayout }) {
     // descending stair opening.
     const upGap = upSideOpen ? gateHalfArc : bridgeArcSweep;
     const downGap = downSideOpen ? gateHalfArc : 0;
-    // Skipped on the ground floor — see hasCutout above. The bottom
-    // floor's spiral rises out of solid ground, so there's no fall
-    // hazard and any rail there would fence off nothing.
-    const railGeom = hasCutout
-      ? buildCutoutRailGeometry(railR, floor.y, reference.entryAngle, upGap, downGap)
-      : null;
-    const balusters = hasCutout
-      ? buildCutoutBalusters(railR, floor.y, reference.entryAngle, upGap, downGap)
-      : [];
+    const railGeom = buildCutoutRailGeometry(railR, floor.y, reference.entryAngle, upGap, downGap);
+    const balusters = buildCutoutBalusters(railR, floor.y, reference.entryAngle, upGap, downGap);
 
     // L-shaped connector from the topmost spiral inner rail's free end
     // (knob A) out to the cutout rail's CCW terminus (knob B). Both knobs
@@ -258,7 +255,7 @@ export function StairwellAccents({ floor }: { floor: FloorLayout }) {
       endPos: [number, number, number];
       supportPosts: Array<[number, number, number]>;
     } | null = null;
-    if (hasCutout && hasSpiralEnd && stairIn) {
+    if (hasSpiralEnd && stairIn) {
       // Knob A — spiral inner rail's TOP finial. The inner rail is a
       // gate-less continuous helix, so its top end is exactly at
       // entryAngle (one full revolution from the start), radius
@@ -330,14 +327,13 @@ export function StairwellAccents({ floor }: { floor: FloorLayout }) {
       upSideOpen,
       downSideOpen,
     };
-  }, [floor, stairwell, hasCutout]);
+  }, [floor, stairwell]);
 
   // Free the cutout rail's BufferGeometry on unmount / floor swap. R3F
   // doesn't auto-dispose externally-created geometries, so without this
-  // every floor change strands rail tubes in VRAM. Null on the ground
-  // floor (no rail), in which case there's nothing to dispose. The
-  // L-bridge uses declarative <boxGeometry> + the shared finialGeometry,
-  // both R3F-managed, so neither needs disposing here.
+  // every floor change strands rail tubes in VRAM. The L-bridge uses
+  // declarative <boxGeometry> + the shared finialGeometry, both
+  // R3F-managed, so neither needs disposing here.
   useEffect(
     () => () => {
       data?.railGeom?.dispose();
@@ -406,10 +402,10 @@ export function StairwellAccents({ floor }: { floor: FloorLayout }) {
 
   return (
     <group>
-      {/* Cutout-edge railing — fall-prevention rail circling the spiral
-          well at rail height. Only rendered on floors that actually have
-          a cutout (floor.index > 0); the ground floor has solid ground
-          under the spiral, so a rail there would fence off nothing. */}
+      {/* Perimeter railing circling the spiral at rail height — fall
+          prevention above ground, and on the ground floor the fence
+          that keeps the player out of the annulus except through the
+          gate. */}
       {railGeom && (
         <mesh geometry={railGeom} position={[cx, 0, cz]} castShadow>
           <primitive object={railTopMaterial} attach="material" />
