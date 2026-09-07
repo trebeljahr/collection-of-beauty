@@ -4,11 +4,13 @@
 # rclone/rclone image.
 #
 # It used to be docker-only, on the reasoning that the image was already
-# pulled for the local dev HTTP server. That stopped being true when
-# scripts/dev.mjs replaced docker-compose with a native Node asset server
-# — leaving Docker Desktop as a multi-GB dependency whose only remaining
-# job was copying files. `brew install rclone` is the smaller ask, so a
-# native binary wins when present.
+# pulled for the local dev HTTP server — which stopped being true when
+# scripts/dev.mjs replaced docker-compose with a native Node asset
+# server. Nothing else in this repo needs a container now, and on a
+# colima/lima setup the daemon may not even be up, so `sync` would fail
+# on a stopped VM rather than on anything to do with the transfer.
+# A native rclone skips that entirely; the container path stays for
+# machines that don't have one.
 #
 # Why rclone:
 #   - retry + resume on flaky uplinks
