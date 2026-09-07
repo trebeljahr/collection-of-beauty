@@ -1,4 +1,4 @@
-import { listingsForColor } from "@/lib/artwork-colors";
+import { listingsForColor, sortByColorStrength } from "@/lib/artwork-colors";
 import { DEFAULT_SHUFFLE_SEED } from "@/lib/artwork-page-schema";
 import { getAllListingsInDefaultOrder, shuffleWithArtistSpread } from "@/lib/artwork-pagination";
 import { getColorBucket } from "@/lib/color-buckets.mjs";
@@ -25,9 +25,9 @@ const UNDATED_SORT_KEY = Number.MAX_SAFE_INTEGER;
  *              the entry anchor used by scopeHref/scopeLabel, not a filter.
  *    collection → plate order (the order the book prints them in), so
  *              prev/next walks plate 1 → 435 rather than a shuffle
- *    color   → seeded artist-spread shuffle (default seed) — matches the
- *              /colours/<family> page, for the same anti-clumping reason
- *              as era
+ *    color   → strongest-first by how much of the family the work
+ *              carries — matches the /colours/<family> page, which
+ *              paginates with sort=color
  *    era     → seeded artist-spread shuffle (default seed) — matches the
  *              /era/<id> page, which paginates with sort=shuffle. Year
  *              order clumped single-artist cohorts (435 Audubon plates
@@ -56,7 +56,7 @@ export function resolveScope(scope: Scope): ArtworkListing[] {
   }
   if (scope.kind === "collection") return plateSetListings(scope.id);
   if (scope.kind === "color") {
-    return shuffleWithArtistSpread(listingsForColor(scope.id), DEFAULT_SHUFFLE_SEED);
+    return sortByColorStrength(listingsForColor(scope.id), scope.id);
   }
   return shuffleWithArtistSpread(
     artworkListings.filter((a) => assignEra(a) === scope.id),

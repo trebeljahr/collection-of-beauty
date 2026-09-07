@@ -79,6 +79,16 @@ export type Artwork = {
    *  by `pnpm assets:build-data`. Null when nothing on disk was readable
    *  at build time, same contract as `variantWidths`. */
   colorBuckets: ColorBucketId[] | null;
+  /** How much of each listed family the work actually carries: the
+   *  chroma-weighted fraction of the whole image, 0-1, keyed by the ids
+   *  in `colorBuckets`. This is the "how red is it" number, as opposed to
+   *  `colorBuckets`, which is the thresholded "is it red at all".
+   *
+   *  Deliberately absent from `ArtworkListing`: only server code orders
+   *  by it, and a per-family map on every row would be pure weight in the
+   *  RSC payload. Read it through `artwork-colors.ts` instead. Null when
+   *  nothing on disk was readable at build time. */
+  colorStrength: Partial<Record<ColorBucketId, number>> | null;
   fileUrl: string;
   commonsUrl: string;
   credit: string | null;

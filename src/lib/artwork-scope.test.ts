@@ -290,7 +290,7 @@ describe("color scope", () => {
     // The lightbox walks resolveScope's sequence while the page grows via
     // /api/artworks/page; if the two orders drift, prev/next skips works.
     const resolved = resolveScope({ kind: "color", id: "purple" });
-    const page = getArtworkListingPage({ color: "purple", sort: "shuffle", limit: 40 });
+    const page = getArtworkListingPage({ color: "purple", sort: "color", limit: 40 });
     expect(resolved.slice(0, page.items.length).map((a) => a.id)).toEqual(
       page.items.map((a) => a.id),
     );

@@ -6,6 +6,7 @@ import {
   CHROMA_FLOOR,
   COLOR_BUCKETS,
   type ColorBucketId,
+  colorProfileFromHistogram,
   FAMILY_PRIOR,
   familyForOklch,
   getColorBucket,
@@ -371,5 +372,83 @@ describe("bucket registry", () => {
 
   it("throws on an unknown id rather than returning a partial bucket", () => {
     expect(() => getColorBucket("chartreuse" as ColorBucketId)).toThrow(/unknown colour bucket/);
+  });
+});
+
+describe("colorProfileFromHistogram strengths", () => {
+  it("reports no strengths for an empty histogram", () => {
+    expect(colorProfileFromHistogram([])).toEqual({ buckets: [], strength: {} });
+  });
+
+  it("scores every bucket it lists, and nothing it doesn't", () => {
+    const profile = colorProfileFromHistogram(
+      histogram([
+        ["#1f4fa8", 600],
+        ["#a8322b", 400],
+      ]),
+    );
+    expect(Object.keys(profile.strength).sort()).toEqual([...profile.buckets].sort());
+  });
+
+  it("measures the share of the whole image, not of the chromatic part", () => {
+    // The failure this guards: an engraving whose only colour is a red
+    // seal is 100% red *among its chromatic pixels* while being a grey
+    // picture. Ranking by that measure would put it above a red painting.
+    const seal = colorProfileFromHistogram(
+      histogram([
+        ["#8c8c88", 970],
+        ["#a8322b", 30],
+      ]),
+    );
+    const painting = colorProfileFromHistogram(
+      histogram([
+        ["#a8322b", 700],
+        ["#8c8c88", 300],
+      ]),
+    );
+    expect(seal.strength.red ?? 0).toBeLessThan(painting.strength.red ?? 0);
+  });
+
+  it("ranks two works of the same family by how much of it they carry", () => {
+    const strengthOf = (blue: number) =>
+      colorProfileFromHistogram(
+        histogram([
+          ["#1f4fa8", blue],
+          ["#8c8c88", 1000 - blue],
+        ]),
+      ).strength.blue ?? 0;
+    expect(strengthOf(900)).toBeGreaterThan(strengthOf(500));
+    expect(strengthOf(500)).toBeGreaterThan(strengthOf(200));
+  });
+
+  it("keeps strengths inside 0-1", () => {
+    const profile = colorProfileFromHistogram(histogram([["#1f4fa8", 1000]]));
+    for (const value of Object.values(profile.strength)) {
+      expect(value).toBeGreaterThan(0);
+      expect(value).toBeLessThanOrEqual(1);
+    }
+  });
+
+  it("gives a neutral band the amount of that band actually present", () => {
+    // Ink on paper: mean lightness names white, and the paper really is
+    // ~90% of the picture, so white should read near 0.9 rather than
+    // inheriting the whole achromatic remainder of 1.0.
+    const profile = colorProfileFromHistogram(
+      histogram([
+        ["#f2efe6", 900],
+        ["#1a1a18", 100],
+      ]),
+    );
+    expect(profile.buckets).toEqual(["white"]);
+    expect(profile.strength.white).toBeCloseTo(0.9, 2);
+  });
+
+  it("agrees with the membership-only wrapper", () => {
+    const entries = histogram([
+      ["#1f4fa8", 500],
+      ["#a8322b", 300],
+      ["#8c8c88", 200],
+    ]);
+    expect(bucketsFromHistogram(entries)).toEqual(colorProfileFromHistogram(entries).buckets);
   });
 });

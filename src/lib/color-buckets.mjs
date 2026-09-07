@@ -23,6 +23,20 @@
 // A pixel histogram recovers the actual palette instead: the blue in a
 // seascape is a quarter of its pixels even when the mean is beige.
 //
+// WHY MEMBERSHIP AND STRENGTH ARE TWO DIFFERENT NUMBERS
+// -----------------------------------------------------
+// Membership answers "does this work belong under the red swatch"; it is
+// a prior-normalised, thresholded yes/no (see below). Strength answers
+// "how much red is in it" and is the raw chroma-weighted fraction of the
+// whole image — no prior, no threshold. They have to be separate because
+// the prior is what makes membership meaningful across families, and is
+// exactly what makes it useless for ordering *within* one: dividing every
+// red work by the same 0.082 is a monotone transform, so it cannot
+// reorder them, and mixing in the share-of-chromatic-vote denominator
+// actively lies — an engraving whose only colour is a red seal reads as
+// 90% red by that measure while being a grey picture. Strength divides by
+// total pixels, so the reddest work is the one with the most red in it.
+//
 // WHY SCORES ARE NORMALISED AGAINST A CORPUS PRIOR
 // ------------------------------------------------
 // Raw share doesn't work either. Public-domain painting is overwhelmingly
@@ -323,6 +337,14 @@ export function bucketForHex(hex) {
  */
 
 /**
+ * @typedef {object} ColorProfile
+ * @property {ColorBucketId[]} buckets   Families the work reads as, best-first.
+ * @property {Record<string, number>} strength  Per-listed-family share of the whole
+ *   image (0-1), chroma-weighted. Comparable across works within one family;
+ *   NOT comparable across families, which is what the prior-normalised score is for.
+ */
+
+/**
  * Reduce a pixel histogram to the colour families a viewer would say the
  * work "is". The whole point of the filter lives here.
  *
@@ -336,15 +358,24 @@ export function bucketForHex(hex) {
  *  4. Append a white/grey/black band for works that are wholly or mostly
  *     achromatic, chosen by the mean lightness.
  *
- * `result[0]` is the work's primary colour, so callers wanting a single
- * value can take the head.
+ * `buckets[0]` is the work's primary colour, so callers wanting a single
+ * value can take the head. `strength[id]` is the chroma-weighted share of
+ * the *whole image* that family occupies (0-1) — the number to sort by
+ * when someone has asked for "the reddest works", as opposed to the
+ * prior-normalised score, which decides membership and cannot order
+ * within a family at all.
  *
  * @param {Iterable<HistogramEntry>} entries
- * @returns {ColorBucketId[]} Empty only when the histogram has no pixels.
+ * @returns {ColorProfile} `buckets` empty only when the histogram has no pixels.
  */
-export function bucketsFromHistogram(entries) {
+export function colorProfileFromHistogram(entries) {
   /** @type {Map<ColorBucketId, number>} */
   const familyVote = new Map();
+  /** Achromatic pixels split by their own lightness band, so a neutral
+   *  band can report a real amount rather than inheriting the whole
+   *  achromatic remainder.
+   *  @type {Map<ColorBucketId, number>} */
+  const neutralPixels = new Map();
   let totalPixels = 0;
   let chromaticPixels = 0;
   let lightnessSum = 0;
@@ -357,18 +388,46 @@ export function bucketsFromHistogram(entries) {
     lightnessSum += sample.l * count;
 
     const family = familyForOklch(sample);
-    if (!family) continue;
+    if (!family) {
+      const band = neutralForLightness(sample.l);
+      neutralPixels.set(band, (neutralPixels.get(band) ?? 0) + count);
+      continue;
+    }
     chromaticPixels += count;
     const vote = count * Math.min(1, sample.c / CHROMA_FULL_WEIGHT);
     familyVote.set(family, (familyVote.get(family) ?? 0) + vote);
   }
 
-  if (totalPixels === 0) return [];
+  if (totalPixels === 0) return { buckets: [], strength: {} };
+
+  const pixels = totalPixels;
+  const achromaticFraction = (totalPixels - chromaticPixels) / totalPixels;
+  /** Amount of one band actually present. Falls back to the achromatic
+   *  remainder for the rare work whose mean lightness names a band no
+   *  individual pixel landed in (a picture split between white and black
+   *  averages to grey), and to 1 for one with no achromatic pixels at
+   *  all, where the band is a description of the whole image.
+   *  @param {ColorBucketId} band @returns {number} */
+  const neutralStrength = (band) => {
+    const own = (neutralPixels.get(band) ?? 0) / pixels;
+    if (own > 0) return own;
+    return achromaticFraction > 0 ? achromaticFraction : 1;
+  };
+  /** @param {ColorBucketId[]} picked @returns {Record<string, number>} */
+  const strengthFor = (picked) => {
+    /** @type {Record<string, number>} */
+    const out = {};
+    for (const id of picked) {
+      const vote = familyVote.get(id);
+      out[id] = vote === undefined ? neutralStrength(id) : vote / pixels;
+    }
+    return out;
+  };
 
   const neutral = neutralForLightness(lightnessSum / totalPixels);
   const chromaticFraction = chromaticPixels / totalPixels;
   if (chromaticFraction < NEUTRAL_MAX_CHROMATIC_FRACTION || familyVote.size === 0) {
-    return [neutral];
+    return { buckets: [neutral], strength: strengthFor([neutral]) };
   }
 
   const totalVote = [...familyVote.values()].reduce((sum, vote) => sum + vote, 0);
@@ -407,5 +466,16 @@ export function bucketsFromHistogram(entries) {
   }
 
   if (chromaticFraction < MUTED_MAX_CHROMATIC_FRACTION) picked.push(neutral);
-  return picked.length > 0 ? picked : [neutral];
+  const buckets = picked.length > 0 ? picked : [neutral];
+  return { buckets, strength: strengthFor(buckets) };
+}
+
+/**
+ * Membership only, for callers that don't need the amounts.
+ *
+ * @param {Iterable<HistogramEntry>} entries
+ * @returns {ColorBucketId[]} Empty only when the histogram has no pixels.
+ */
+export function bucketsFromHistogram(entries) {
+  return colorProfileFromHistogram(entries).buckets;
 }

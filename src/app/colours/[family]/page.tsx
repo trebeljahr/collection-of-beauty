@@ -91,12 +91,18 @@ export default async function ColourFamilyPage({ params }: { params: Promise<Par
   if (!bucket) notFound();
 
   // Server-render only the first page; the client paginates the rest via
-  // /api/artworks/page. sort=shuffle with the default seed mirrors
-  // resolveScope's `color` ordering, so the initial render and every
-  // subsequent batch stitch into one deterministic sequence.
+  // /api/artworks/page. sort=color mirrors resolveScope's `color`
+  // ordering, so the initial render and every subsequent batch stitch
+  // into one deterministic sequence.
+  //
+  // Ranked by amount rather than shuffled: membership in a family is a
+  // low bar by design, so a shuffle opened the red page with works
+  // carrying a red accent as often as with red ones. Strongest first
+  // means the first screen answers "show me red" and the accent works
+  // sink to where someone scrolling for them will still find them.
   const initialPage = getArtworkListingPage({
     color: bucket.id,
-    sort: "shuffle",
+    sort: "color",
     limit: DEFAULT_ARTWORK_PAGE_SIZE,
   });
 
@@ -143,7 +149,7 @@ export default async function ColourFamilyPage({ params }: { params: Promise<Par
             hasMore: initialPage.hasMore,
           }}
           scope={{ kind: "color", id: bucket.id }}
-          pageQuery={{ color: bucket.id, sort: "shuffle", seed: DEFAULT_SHUFFLE_SEED }}
+          pageQuery={{ color: bucket.id, sort: "color", seed: DEFAULT_SHUFFLE_SEED }}
         />
       )}
     </div>
