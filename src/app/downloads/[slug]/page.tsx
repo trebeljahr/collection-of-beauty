@@ -36,7 +36,7 @@ export async function generateMetadata({ params }: { params: Promise<Params> }):
 
   const count = collectionArtworks(collection).length;
   const title = `${collection.title} — download all ${count} plates`;
-  const description = `Free high-resolution downloads of all ${count} plates from ${collection.creator}'s ${collection.title} (${collection.published}). Public domain, no account, no attribution required. Individual plates up to full scan resolution, or the complete set as one ZIP.`;
+  const description = `Free high-resolution downloads of all ${count} plates from ${collection.creator}'s ${collection.title} (${collection.published}). Public domain. Individual plates up to full scan resolution, or the whole set as one ZIP.`;
 
   return {
     title,
@@ -95,8 +95,6 @@ export default async function CollectionDownloadPage({ params }: { params: Promi
         )}
 
         <div className="space-y-4">
-          <p className="leading-relaxed">{collection.blurb}</p>
-
           <p className="leading-relaxed text-[var(--muted-foreground)]">
             <Link href={`/collection/${collection.slug}`} className="underline underline-offset-4">
               Read about {collection.title} and browse every plate in order
@@ -112,8 +110,8 @@ export default async function CollectionDownloadPage({ params }: { params: Promi
 
           <p className="text-sm leading-relaxed text-[var(--muted-foreground)]">
             {included} AVIF files at {ZIP_VARIANT_WIDTH.toLocaleString("en-US")} px wide, plus a{" "}
-            <code>README.txt</code> with a credit line and a link for every plate. The archive is
-            streamed as it&rsquo;s built, so there&rsquo;s no progress bar.
+            <code>README.txt</code> with a credit line and link per plate. Streamed as it is built,
+            so there is no progress bar.
           </p>
 
           {capped && (
@@ -124,8 +122,8 @@ export default async function CollectionDownloadPage({ params }: { params: Promi
           )}
 
           <p className="text-sm leading-relaxed text-[var(--muted-foreground)]">
-            {collection.sourceNote} Public domain — no permission needed, no attribution required.
-            For a single plate at full scan resolution, use its own download panel below.
+            {collection.sourceNote} Public domain — no attribution required. For one plate at full
+            scan resolution, use its own download panel below.
           </p>
         </div>
       </div>

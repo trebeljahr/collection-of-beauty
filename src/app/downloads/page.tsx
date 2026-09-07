@@ -58,34 +58,24 @@ export default function DownloadsPage() {
 
       <h1 className="font-serif text-3xl md:text-4xl">{TITLE}</h1>
 
-      <p className="mt-4 text-lg leading-relaxed text-[var(--muted-foreground)]">
-        All {summary.totalArtworks.toLocaleString("en-US")} works download free, no account, no
-        attribution. {fullSizeCount.toLocaleString("en-US")} of them come from scans wider than{" "}
-        {LADDER_MAX_WIDTH.toLocaleString("en-US")} px and download at full source resolution — up to
-        16,384 px on the long side.
-      </p>
-
-      <section id="what-you-get" className="mt-10 space-y-3">
-        <h2 className="font-serif text-2xl">What you get</h2>
-        <p className="leading-relaxed">
-          Files are <strong>AVIF</strong>, encoded at quality 60 from the source scan. AVIF opens in
-          every current browser, in macOS Preview, GIMP and Affinity; Photoshop needs a plugin.
-          Where a 1,280 px WebP exists it is offered alongside.
-        </p>
-        <p className="leading-relaxed">
-          Sizes come from the standard ladder — 256, 480, 640, 960, 1280, 1920, 2560 and 4096 px —
-          plus a full-size encode for scans above {LADDER_MAX_WIDTH.toLocaleString("en-US")} px.
-          Only widths a work was actually encoded at are linked; the untouched original file the
-          scan arrived as isn&rsquo;t published.
-        </p>
-      </section>
+      <dl className="mt-6 grid gap-x-6 gap-y-2 text-sm sm:grid-cols-[10rem_1fr]">
+        <dt className="text-[var(--muted-foreground)]">Works</dt>
+        <dd>{summary.totalArtworks.toLocaleString("en-US")}, free, no account, no attribution</dd>
+        <dt className="text-[var(--muted-foreground)]">Format</dt>
+        <dd>AVIF, quality 60. 1,280 px WebP alongside where it exists.</dd>
+        <dt className="text-[var(--muted-foreground)]">Widths</dt>
+        <dd>256, 480, 640, 960, 1280, 1920, 2560, 4096 px</dd>
+        <dt className="text-[var(--muted-foreground)]">Full size</dt>
+        <dd>
+          {fullSizeCount.toLocaleString("en-US")} works scanned above{" "}
+          {LADDER_MAX_WIDTH.toLocaleString("en-US")} px, up to 16,384 px on the long side
+        </dd>
+      </dl>
 
       <section id="collections" className="mt-12 space-y-4">
         <h2 className="font-serif text-2xl">Complete collections</h2>
-        <p className="leading-relaxed text-[var(--muted-foreground)]">
-          Four sets were published as numbered plate series, so each is offered as one archive.
-          Plates inside are {ZIP_VARIANT_WIDTH.toLocaleString("en-US")} px AVIF — an A3 sheet at 200
-          dpi. For a bigger file of a single plate, use that plate&rsquo;s own page.
+        <p className="text-sm text-[var(--muted-foreground)]">
+          Plates inside each archive are {ZIP_VARIANT_WIDTH.toLocaleString("en-US")} px AVIF.
         </p>
 
         <ul className="space-y-4">
@@ -133,10 +123,7 @@ export default function DownloadsPage() {
       </section>
 
       <section id="largest" className="mt-12 space-y-3">
-        <h2 className="font-serif text-2xl">The highest-resolution works</h2>
-        <p className="leading-relaxed text-[var(--muted-foreground)]">
-          The twelve biggest scans in the collection, by pixel width.
-        </p>
+        <h2 className="font-serif text-2xl">Largest scans</h2>
         <ul className="space-y-2">
           {widest.map(({ art, option }) => (
             <li key={art.id} className="text-sm">
@@ -153,34 +140,28 @@ export default function DownloadsPage() {
       </section>
 
       <section id="licence" className="mt-12 space-y-3">
-        <h2 className="font-serif text-2xl">Licence and attribution</h2>
-        <p className="leading-relaxed">
-          Nearly everything here is public domain: no copyright, no attribution required. A small
-          number of works carry a Creative Commons licence instead — each artwork page states which,
-          and links the licence text.
-        </p>
-        <p className="leading-relaxed">
-          Each artwork page carries a ready-made credit line, and every archive ships a{" "}
-          <code>README.txt</code> with one per plate.
+        <h2 className="font-serif text-2xl">Licence</h2>
+        <p className="text-sm leading-relaxed">
+          Public domain: no attribution required. A small number of works carry a Creative Commons
+          licence instead — each artwork page states which and links the licence text. Credit lines
+          are on every artwork page, and in a <code>README.txt</code> inside every archive.
         </p>
       </section>
 
       <section className="mt-12">
-        <h2 className="font-serif text-2xl">Looking for something specific?</h2>
-        <p className="mt-2 leading-relaxed text-[var(--muted-foreground)]">
-          Browse{" "}
+        <h2 className="font-serif text-2xl">Browse</h2>
+        <p className="mt-2 text-sm">
           <Link href="/artists" className="underline underline-offset-4">
-            by artist
+            By artist
           </Link>
-          ,{" "}
+          {" · "}
           <Link href="/eras" className="underline underline-offset-4">
-            by era
-          </Link>{" "}
-          or{" "}
-          <Link href="/timeline" className="underline underline-offset-4">
-            along the timeline
+            By era
           </Link>
-          . Every artwork page has its own download panel.
+          {" · "}
+          <Link href="/timeline" className="underline underline-offset-4">
+            Timeline
+          </Link>
         </p>
       </section>
     </div>

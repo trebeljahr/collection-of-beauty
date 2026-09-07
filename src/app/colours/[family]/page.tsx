@@ -7,12 +7,7 @@ import { allColorBucketCounts } from "@/lib/artwork-colors";
 import { DEFAULT_ARTWORK_PAGE_SIZE, DEFAULT_SHUFFLE_SEED } from "@/lib/artwork-page-schema";
 import { getArtworkListingPage } from "@/lib/artwork-pagination";
 import { resolveScope } from "@/lib/artwork-scope";
-import {
-  COLOR_BUCKETS,
-  type ColorBucket,
-  type ColorBucketId,
-  isColorBucketId,
-} from "@/lib/color-buckets.mjs";
+import { COLOR_BUCKETS, type ColorBucket, isColorBucketId } from "@/lib/color-buckets.mjs";
 import { getArtwork } from "@/lib/data";
 import { buildOpenGraph, ogImagesForArtwork } from "@/lib/seo";
 
@@ -33,23 +28,6 @@ function findFamily(family: string): ColorBucket | null {
   return COLOR_BUCKETS.find((b) => b.id === family) ?? null;
 }
 
-/** One line per family, so each page says something the others don't and
- *  the neutral bands explain why an engraving files under "white". */
-const BLURBS: Record<ColorBucketId, string> = {
-  red: "Vermilion, crimson, madder lake.",
-  orange: "Sienna, terracotta, burnt orange.",
-  gold: "Ochre, amber, marigold.",
-  brown: "The earth pigments: umber, bistre, bitumen.",
-  green: "Foliage, verdigris, sap green.",
-  teal: "Blue-greens: shallow water, glaze, patina.",
-  blue: "Ultramarine, indigo, Prussian blue.",
-  purple: "Violet and mauve. The smallest family in the collection.",
-  pink: "Rose and madder lake at low saturation.",
-  white: "Paper, plaster and bare ground. Mostly prints and drawings.",
-  grey: "Grisaille and engraving.",
-  black: "Ink, night scenes, dark grounds.",
-};
-
 export async function generateMetadata({ params }: { params: Promise<Params> }): Promise<Metadata> {
   const { family } = await params;
   const bucket = findFamily(family);
@@ -57,7 +35,7 @@ export async function generateMetadata({ params }: { params: Promise<Params> }):
 
   const works = resolveScope({ kind: "color", id: bucket.id });
   const countLabel = `${works.length} work${works.length === 1 ? "" : "s"}`;
-  const description = `${countLabel} in ${bucket.label.toLowerCase()} — ${BLURBS[bucket.id]} Collection of Beauty.`;
+  const description = `${countLabel} in ${bucket.label.toLowerCase()}. Collection of Beauty.`;
 
   // Pick the first artwork that has pre-built variants so OG scrapers hit
   // the fast 1280 WebP rather than the raw original.
@@ -128,7 +106,6 @@ export default async function ColourFamilyPage({ params }: { params: Promise<Par
           <p className="text-[var(--muted-foreground)]">
             {initialPage.total.toLocaleString()} work{initialPage.total === 1 ? "" : "s"}
           </p>
-          <p className="max-w-prose italic text-[var(--muted-foreground)]">{BLURBS[bucket.id]}</p>
         </header>
 
         <div className="md:w-[280px]">

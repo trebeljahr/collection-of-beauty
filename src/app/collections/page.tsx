@@ -12,10 +12,9 @@ const sets = getPlateSets();
 const totalPlates = sets.reduce((n, set) => n + set.presentCount, 0);
 
 const DESCRIPTION =
-  `Four illustrated books held as complete or near-complete plate runs — ` +
-  `${totalPlates.toLocaleString()} plates in all. Audubon's Birds of America, ` +
-  `Haeckel's Kunstformen der Natur, and Redouté's Les Roses and Les Liliacées, ` +
-  `each in published plate order.`;
+  `Four illustrated books, ${totalPlates.toLocaleString()} plates, in published order: ` +
+  `Audubon's Birds of America, Haeckel's Kunstformen der Natur, and Redouté's ` +
+  `Les Roses and Les Liliacées.`;
 
 export const metadata: Metadata = {
   title: "Complete plate sets",
@@ -44,9 +43,7 @@ export default function CollectionsPage() {
       <header className="mb-8 max-w-prose">
         <h1 className="font-serif text-3xl md:text-4xl">Complete plate sets</h1>
         <p className="mt-3 text-[var(--muted-foreground)]">
-          Four illustrated books held as complete runs and shown in published plate order,{" "}
-          {totalPlates.toLocaleString()} plates between them. Where a run falls short, the page says
-          so and lists the missing plate numbers.
+          Four illustrated books, {totalPlates.toLocaleString()} plates, in published order.
         </p>
       </header>
 

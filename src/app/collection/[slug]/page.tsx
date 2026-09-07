@@ -161,15 +161,6 @@ export default async function CollectionPage({ params }: { params: Promise<Param
         </div>
       </header>
 
-      {/* The editorial section is the part of this page that can rank —
-          the grid below it is client-paginated and a crawler only ever
-          sees its first chunk. */}
-      <section className="mb-10 max-w-prose space-y-4 text-[15px] leading-relaxed">
-        {set.intro.map((paragraph) => (
-          <p key={paragraph.slice(0, 40)}>{paragraph}</p>
-        ))}
-      </section>
-
       <section className="mb-12 max-w-prose rounded-lg border border-[var(--border)] bg-[var(--card)] p-5">
         <h2 className="font-serif text-lg">What's here</h2>
         <p className="mt-2 text-sm">{holdingSentence(set)}</p>
