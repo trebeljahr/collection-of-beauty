@@ -257,8 +257,10 @@ export default async function CollectionPage({ params }: { params: Promise<Param
             than repeated in a class attribute on all 435 <li>s, where it
             would cost tens of KB of HTML for one identical rule. Each link
             fills its cell (flex + min-h-11 = the 44px touch floor) and a hair
-            line under every row keeps two adjacent targets distinguishable. */}
-        <ol className="grid grid-cols-1 gap-x-6 text-sm sm:grid-cols-2 lg:grid-cols-3 [&>li]:border-b [&>li]:border-[var(--border)] [&_a]:flex [&_a]:min-h-11 [&_a]:items-center [&_a]:gap-x-1.5 [&_a]:py-2">
+            line under every row keeps two adjacent targets distinguishable.
+            The height is gated at sm: 435 rows at 44px would add ~9,000px to
+            the desktop page for a target a mouse never needed. */}
+        <ol className="grid grid-cols-1 gap-x-6 text-sm sm:grid-cols-2 lg:grid-cols-3 [&>li]:border-b [&>li]:border-[var(--border)] [&_a]:flex [&_a]:min-h-11 [&_a]:items-center [&_a]:gap-x-1.5 [&_a]:py-2 sm:[&_a]:min-h-0 sm:[&_a]:py-1">
           {set.plates.map((plate) => (
             <li key={plate.listing.id}>
               <Link
