@@ -1,11 +1,8 @@
 // The crawlable download hub.
 //
-// This page exists because "public domain <artist> high resolution
-// download" is a real query with real volume and the site used to answer
-// it with nothing — /press even admitted a bulk release was "on the
-// post-launch list". Everything here is server-rendered prose and plain
-// anchors: no JS-only buttons, so the sizes, the licence terms and the
-// per-set links are all in the HTML a crawler receives.
+// Server-rendered prose and plain anchors, no JS-only buttons, so the
+// sizes, the licence terms and the per-set links are all in the HTML a
+// crawler receives.
 
 import type { Metadata } from "next";
 import Link from "next/link";
@@ -44,9 +41,8 @@ const fullSizeCount = artworkListings.filter((a) =>
   a.variantWidths?.some((w) => w > LADDER_MAX_WIDTH),
 ).length;
 
-/** The widest works in the catalogue, as a concrete entry point — a list
- *  of real titles with real pixel counts ranks for the long tail in a way
- *  that a bare "browse the collection" link never does. */
+/** The widest works in the catalogue. Real titles with real pixel counts
+ *  rank for the long tail; a "browse the collection" link doesn't. */
 const widest = artworks
   .map((a) => ({ art: a, option: largestDownload(a) }))
   .filter((x): x is { art: (typeof artworks)[number]; option: NonNullable<typeof x.option> } =>

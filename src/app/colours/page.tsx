@@ -1,7 +1,6 @@
 import type { Metadata } from "next";
 import { ColorWheel } from "@/components/color-wheel";
 import { allColorBucketCounts } from "@/lib/artwork-colors";
-import { COLOR_BUCKETS } from "@/lib/color-buckets.mjs";
 import { summary } from "@/lib/data";
 import { buildOpenGraph } from "@/lib/seo";
 
@@ -35,9 +34,8 @@ export default function ColoursPage() {
       <header className="mb-10 text-center">
         <h1 className="font-serif text-3xl md:text-4xl">Colours</h1>
         <p className="mx-auto mt-3 max-w-prose text-[var(--muted-foreground)]">
-          Every work in the collection is read pixel by pixel and sorted into the colour families it
-          actually contains — not the one flat average that sits behind its thumbnail. Pick a family
-          to see it.
+          Every work is read pixel by pixel and sorted into the colour families it contains. Pick
+          one.
         </p>
       </header>
 
@@ -55,17 +53,15 @@ export default function ColoursPage() {
           >
             OKLab
           </a>
-          , where the distance between two colours matches how different they look, rather than in
-          RGB or HSL, where it does not. Each work votes its pixels into hue families, weighted so
-          that a small vivid passage counts for more than a broad, barely-tinted one.
+          , where the distance between two colours matches how different they look. Each work votes
+          its pixels into hue families, weighted so a small vivid passage counts for more than a
+          broad, barely-tinted one.
         </p>
         <p className="mt-3">
           The scores are then measured against the collection itself. Public-domain painting is
-          overwhelmingly warm — skin, wood, varnish, aged canvas — so the plain answer to
-          &ldquo;what colour is this painting&rdquo; is &ldquo;warm&rdquo; for nearly every work,
-          which tells you nothing. A family is listed only when a work carries noticeably more of it
-          than the collection&rsquo;s own average, which is why {COLOR_BUCKETS.length} families stay
-          useful instead of one swallowing the rest.
+          overwhelmingly warm — skin, wood, varnish, aged canvas — so a family is listed only when a
+          work carries noticeably more of it than the collection&rsquo;s own average. Otherwise
+          nearly everything would land in the same few families.
         </p>
         <p className="mt-3">
           A work can belong to up to three families, so the totals above add up to more than the

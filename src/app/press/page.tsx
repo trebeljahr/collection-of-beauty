@@ -48,9 +48,8 @@ export const metadata: Metadata = {
   },
 };
 
-// The museum is the lede of this press kit, so it gets its own section
-// ahead of the fact sheet rather than a line in the feature list. Every
-// number here is derived, not typed — see FLOOR_COUNT above.
+// Own section ahead of the fact sheet rather than a line in the feature
+// list. Every number here is derived — see FLOOR_COUNT above.
 const museumFacts = [
   [
     "Shape",
@@ -145,7 +144,7 @@ const descriptionTiers = [
   {
     title: "Long (about 150 words)",
     body: [
-      `Collection of Beauty is a museum you walk through in a browser tab, made and maintained by a single developer. It has ${FLOOR_COUNT} floors, one per art era, ${GROUND_ERA} at ground level rising to ${TOP_ERA}, joined by a central spiral staircase. Paintings are sized to their real-world dimensions where the data exists, so standing in front of a canvas is a different experience from scrolling past a thumbnail. It is built in WebGL, needs no install, and works on a laptop with pointer-lock and WASD or on a phone in landscape with a touch joystick.`,
+      `Collection of Beauty is a museum you walk through in a browser tab, made and maintained by a single developer. It has ${FLOOR_COUNT} floors, one per art era, ${GROUND_ERA} at ground level rising to ${TOP_ERA}, joined by a central spiral staircase. Paintings are sized to their real-world dimensions where the data exists. It is built in WebGL, needs no install, and works on a laptop with pointer-lock and WASD or on a phone in landscape with a touch joystick.`,
       `The collection it hangs grew out of a private bookmark folder and now holds around ${WORKS_APPROX} public-domain works across ~${ARTISTS_APPROX} artists, drawn from Wikimedia Commons and adjacent open archives. Each work shows its source, provenance, and a permalink, with a "suggest a fix" button that opens a GitHub issue. Metadata is treated as a living, correctable document rather than a closed catalog. The site is free and runs without ads, sign-ups, or third-party tracking.`,
     ],
   },
@@ -226,11 +225,11 @@ const faq = [
   ],
   [
     "Can I download a whole collection at once?",
-    "The four sets that were published as numbered plate series - Audubon's Birds of America, Redoute's Les Roses and Les Liliacees, and Haeckel's Kunstformen der Natur - are each downloadable as a single ZIP from /downloads. Archives are generated on request and streamed, so they always match the live catalogue; plates inside are 2,560px AVIF, with a README carrying a credit line and link per plate. The rest of the collection is a curated grab-bag rather than a series, so it is offered per work rather than in bulk.",
+    "The four sets that were published as numbered plate series - Audubon's Birds of America, Redoute's Les Roses and Les Liliacees, and Haeckel's Kunstformen der Natur - are each downloadable as a single ZIP from /downloads. Plates inside are 2,560px AVIF, with a README carrying a credit line and link per plate. The rest of the collection was assembled work by work rather than published as a series, so it is offered per work.",
   ],
   [
     "Why can I not download the original scan file?",
-    "Because it is not published. The build pipeline derives a variant ladder from each source and only that ladder is mirrored to storage, so an 'original' link would 404 for roughly a third of the catalogue and for every Redoute plate. The largest offered size is therefore the largest file that exists - which for the big scans is the full source resolution, re-encoded rather than resampled.",
+    "It is not published. Only the derived variant ladder is mirrored to storage, so the largest offered size is the largest file that exists - for the big scans, the full source resolution, re-encoded rather than resampled.",
   ],
   [
     "Can I download the metadata as a dataset?",
@@ -456,10 +455,9 @@ export default function PressPage() {
           >
             <div className="space-y-6">
               <p className="leading-8 text-[var(--muted-foreground)]">
-                This is the part of the project worth writing about. The collection is hand-curated
-                and the metadata is public, but the thing that does not exist elsewhere is the
-                building: a museum you enter in a browser tab and walk through on foot, where a
-                painting is the size it actually is.
+                A museum you enter in a browser tab and walk through on foot. Paintings hang at
+                their real-world size where the dimensions are known, so a small panel stays small
+                next to a three-metre canvas.
               </p>
               <dl className="divide-y divide-[var(--border)] border-y border-[var(--border)]">
                 {museumFacts.map(([label, value]) => (

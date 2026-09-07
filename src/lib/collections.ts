@@ -60,7 +60,7 @@ export const COLLECTIONS: Collection[] = [
     creator: "John James Audubon",
     published: "1827–1838",
     blurb:
-      "Audubon's double-elephant folio, engraved and hand-coloured at life size — every bird drawn to the full scale of the plate, which is why the compositions bend and fold to fit. This set is the complete run of 435 plates, scanned by the University of Pittsburgh.",
+      "Audubon's double-elephant folio, engraved and hand-coloured, with every bird drawn at life size — which is what bends the flamingo double and folds the crane's neck back to fit the sheet. The complete run of 435 plates, scanned by the University of Pittsburgh.",
     sourceNote: "Scans by the University of Pittsburgh, via Wikimedia Commons.",
   },
   {
@@ -70,7 +70,7 @@ export const COLLECTIONS: Collection[] = [
     creator: "Pierre-Joseph Redouté",
     published: "1817–1824",
     blurb:
-      "Redouté's roses, made as stipple engravings finished by hand — the technique that let him hold a petal's tonal gradient without visible hatching. 169 plates, restored from the originals by Nicholas Rougeux.",
+      "Redouté's roses, printed as stipple engravings and finished by hand, so a petal shades from centre to edge with no visible hatching. 169 plates, restored from the originals by Nicholas Rougeux.",
     sourceNote: "Restorations by Nicholas Rougeux (c82.net), after Pierre-Joseph Redouté.",
   },
   {
