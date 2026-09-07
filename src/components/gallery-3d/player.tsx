@@ -19,7 +19,8 @@ import {
   isInsideStair,
   spiralRawAngle,
   stairHeightAt,
-} from "./staircase";
+  stairSurfaceAt,
+} from "./spiral-physics";
 
 const EYE_HEIGHT = 1.75;
 const DUCK_EYE_HEIGHT = 1.05;
@@ -498,7 +499,19 @@ export function Player({
         );
         const nx = curX + allowed.x;
         const nz = curZ + allowed.z;
-        if (canAcceptPhysicsMove(floor, curX, curZ, nx, nz, currentStairId, currentCum)) {
+        if (
+          canAcceptPhysicsMove(
+            floor,
+            allStaircases,
+            curX,
+            curZ,
+            nx,
+            nz,
+            currentStairId,
+            currentCum,
+            feetY,
+          )
+        ) {
           camera.position.x = nx;
           camera.position.z = nz;
         } else if (doorwayNudge) {
@@ -513,7 +526,19 @@ export function Player({
             );
             const sx = curX + sideAllowed.x;
             const sz = curZ + sideAllowed.z;
-            if (canAcceptPhysicsMove(floor, curX, curZ, sx, sz, currentStairId, currentCum)) {
+            if (
+              canAcceptPhysicsMove(
+                floor,
+                allStaircases,
+                curX,
+                curZ,
+                sx,
+                sz,
+                currentStairId,
+                currentCum,
+                feetY,
+              )
+            ) {
               camera.position.x = sx;
               camera.position.z = sz;
             }
@@ -525,12 +550,14 @@ export function Player({
           doorwayNudge &&
           canAcceptPhysicsMove(
             floor,
+            allStaircases,
             curX,
             curZ,
             doorwayNudge.x,
             doorwayNudge.z,
             currentStairId,
             currentCum,
+            feetY,
           )
         ) {
           camera.position.x = doorwayNudge.x;
@@ -543,12 +570,14 @@ export function Player({
             (Math.abs(sideOnlyX - curX) > 1e-6 || Math.abs(sideOnlyZ - curZ) > 1e-6) &&
             canAcceptPhysicsMove(
               floor,
+              allStaircases,
               curX,
               curZ,
               sideOnlyX,
               sideOnlyZ,
               currentStairId,
               currentCum,
+              feetY,
             )
           ) {
             camera.position.x = sideOnlyX;
@@ -558,15 +587,47 @@ export function Player({
         }
 
         if (!moved) {
-          if (canAcceptPhysicsMove(floor, curX, curZ, rawNx, rawNz, currentStairId, currentCum)) {
+          if (
+            canAcceptPhysicsMove(
+              floor,
+              allStaircases,
+              curX,
+              curZ,
+              rawNx,
+              rawNz,
+              currentStairId,
+              currentCum,
+              feetY,
+            )
+          ) {
             camera.position.x = rawNx;
             camera.position.z = rawNz;
           } else if (
-            canAcceptPhysicsMove(floor, curX, curZ, rawNx, curZ, currentStairId, currentCum)
+            canAcceptPhysicsMove(
+              floor,
+              allStaircases,
+              curX,
+              curZ,
+              rawNx,
+              curZ,
+              currentStairId,
+              currentCum,
+              feetY,
+            )
           ) {
             camera.position.x = rawNx;
           } else if (
-            canAcceptPhysicsMove(floor, curX, curZ, curX, rawNz, currentStairId, currentCum)
+            canAcceptPhysicsMove(
+              floor,
+              allStaircases,
+              curX,
+              curZ,
+              curX,
+              rawNz,
+              currentStairId,
+              currentCum,
+              feetY,
+            )
           ) {
             camera.position.z = rawNz;
           }
@@ -580,20 +641,28 @@ export function Player({
     // Off the spiral, normal gravity + floor-plane clamp.
     try {
       let activeStair = findStairAt(floor, camera.position.x, camera.position.z);
-      // Fresh activation is height-based now. The physical rail/gate
-      // colliders decide whether the player can enter the annulus; the
-      // stair state only starts when the visible tread at this angle is
-      // actually at the player's feet. That prevents side-entry snaps
-      // without another hand-sized angular entrance constant.
+      // Fresh activation is height-based. The stair state only starts
+      // when the flight's walking surface at this angle is actually at
+      // the player's feet — the same rule `canAcceptPhysicsMove` used
+      // to let them into the footprint in the first place, so a player
+      // standing in the annulus is always riding a flight. Asking
+      // `stairSurfaceAt` rather than re-testing `findStairAt`'s pick
+      // also gets the descending flight right when the player walks in
+      // through the down-side half of the gate mouth: there the tread
+      // underfoot belongs to the flight coming from below, not to the
+      // ascending one that shares the annulus.
       if (
         activeStair &&
         (!spiralState.current || spiralState.current.staircaseId !== activeStair.id)
       ) {
         const feetY = camera.position.y - eyeHeight.current;
-        const raw = spiralRawAngle(activeStair, camera.position.x, camera.position.z);
-        if (!isAtStairSurface(floor.index, activeStair, raw, feetY)) {
-          activeStair = null;
-        }
+        activeStair = stairSurfaceAt(
+          floor,
+          allStaircases,
+          camera.position.x,
+          camera.position.z,
+          feetY,
+        );
       }
       // Prefer the stair the player is already tracked on, even when
       // both stairsIn and stairsOut overlap the same annulus on this
@@ -840,22 +909,6 @@ function findStairAt(floor: FloorLayout, worldX: number, worldZ: number): Stairc
   return null;
 }
 
-function isAtStairSurface(
-  floorIndex: number,
-  stair: Staircase,
-  rawAngle: number,
-  feetY: number,
-): boolean {
-  const stepRise = (stair.upperY - stair.lowerY) / stair.numSteps;
-  const stepAngle = (Math.PI * 2) / stair.numSteps;
-  const tolerance = stepRise * 1.75;
-  const surfaceY =
-    floorIndex === stair.upperFloor && rawAngle < stepAngle * 1.5
-      ? stair.upperY
-      : stairHeightAt(stair, rawAngle);
-  return Math.abs(surfaceY - feetY) <= tolerance;
-}
-
 /** True if the grid cell at (worldX, worldZ) is walkable for a player of
  *  PLAYER_RADIUS — i.e. none of the four corners of the player's bbox
  *  lie in a non-walkable cell. Keeps the player's silhouette out of
@@ -883,19 +936,34 @@ function isWalkable(floor: FloorLayout, worldX: number, worldZ: number): boolean
  *  Real colliders own walls, rails, posts, signs, columns, and top
  *  landing edges. This predicate only preserves layout invariants that
  *  are not yet represented as full walkable-surface physics: grid
- *  membership for normal floors and the "don't step off a spiral
- *  mid-flight through a rail gap" rule. */
+ *  membership for normal floors, the "you can only enter a spiral where
+ *  there's a tread at your feet" rule, and the "don't step off a spiral
+ *  mid-flight through a rail gap" one. */
 function canAcceptPhysicsMove(
   floor: FloorLayout,
+  allStaircases: readonly Staircase[],
   fromX: number,
   fromZ: number,
   toX: number,
   toZ: number,
   currentStairId: string | null,
   currentCum: number,
+  feetY: number,
 ): boolean {
   const stair = findStairAt(floor, toX, toZ);
-  if (stair) return true;
+  if (stair) {
+    // Already on the spiral — the ride owns movement inside its own
+    // footprint, including the stair-to-stair rollover where two
+    // flights share one annulus.
+    if (currentStairId !== null) return true;
+    // Walking in off the floor. The treads climb away from the gate, so
+    // most of the annulus has nothing at foot height — a quarter turn
+    // round they're already overhead. Entering there is what let the
+    // player walk in "from behind" and then clip through the low treads
+    // on the way back to the entry. Membership of the footprint isn't
+    // enough; there has to be something to step onto.
+    return stairSurfaceAt(floor, allStaircases, toX, toZ, feetY) !== null;
+  }
   if (currentStairId !== null) {
     // Trying to leave the spiral. Allow only when the player's
     // cumulative is in a "landing" arc near 0 or 2π — the heights

@@ -8,7 +8,7 @@ import {
   SPIRAL_STEPS_PER_FLOOR,
 } from "@/lib/gallery-layout/world-coords";
 import { createGalleryCollisionController } from "./gallery-physics";
-import { spiralGateHalfArc } from "./staircase";
+import { spiralGateHalfArc } from "./spiral-physics";
 
 const GRID = 12;
 const PLAYER_RADIUS = 0.3;
@@ -63,18 +63,18 @@ async function walkInwardAt(theta: number): Promise<number> {
 }
 
 describe("ground-floor spiral perimeter", () => {
-  // The ground floor has no cutout, so for a long time it had no
-  // perimeter rail either — "there's no hole, nothing to fence". But
-  // the spiral's own rails climb with the treads, so past ~100° of arc
-  // from the gate they sit above head height and the annulus was open
-  // from every direction. The player walked in under the helix from
-  // behind and clipped straight through the low treads coming round.
-  it("blocks an approach from behind the spiral", async () => {
+  // The ground floor's spiral rises out of solid slab, so unlike every
+  // floor above it there is no hole to fence and no perimeter rail —
+  // visual or collider. What keeps the player out of the footprint is
+  // `stairSurfaceAt`: you can only walk in where a tread is at your
+  // feet. Asserting the absence here so a future "just add a collider
+  // ring" doesn't quietly put a rail back around solid ground.
+  it("puts no collider ring around the spiral", async () => {
     const reached = await walkInwardAt(stair.entryAngle + Math.PI);
-    expect(reached).toBeGreaterThan(SPIRAL_OUTER_RADIUS);
+    expect(reached).toBeLessThan(SPIRAL_OUTER_RADIUS);
   });
 
-  it("still lets the player in through the entry gate", async () => {
+  it("leaves the entry gate clear", async () => {
     const gate = stair.entryAngle + spiralGateHalfArc(stair.numSteps) * 0.35;
     const reached = await walkInwardAt(gate);
     expect(reached).toBeLessThan(SPIRAL_OUTER_RADIUS);
