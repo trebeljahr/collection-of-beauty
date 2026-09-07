@@ -40,7 +40,7 @@
 //          `material.map` once the tier is resident. Demotes back on
 //          retreat past `releaseSq` (hysteresis).
 //      Capacity-wise this pipeline owns `cache` (~256 MB, base/thumb)
-//      and `hiresCache` (~192 MB, hi-res tiers). Both are byte-budgeted
+//      and `hiresCache` (~320 MB, hi-res tiers). Both are byte-budgeted
 //      and both use the *high* upload queue. Eviction is per-pool LRU
 //      with disposal; the per-tick MRU touch is what keeps in-view
 //      textures from being evicted.
@@ -88,7 +88,7 @@
 import { useThree } from "@react-three/fiber";
 import { useMemo } from "react";
 import * as THREE from "three";
-import { assetProxyUrl, assetUrl, variantProxyUrl, variantUrl } from "@/lib/utils";
+import { variantProxyUrl, variantUrl } from "@/lib/utils";
 
 // Base-texture pool. Two limits, whichever bites first:
 //
@@ -111,16 +111,34 @@ const TEXTURE_LOAD_ATTEMPTS = 3;
 const TEXTURE_LOAD_TIMEOUT_MS = 15_000;
 const TEXTURE_RETRY_DELAY_MS = 500;
 // Hi-res pool. Bounded by BYTES, not by entry count, because the tiers
-// that live here differ by two orders of magnitude: a 960 px upgrade is
-// ~4 MB while a 4096 px tier is ~64 MB and a capped original ~340 MB.
-// A flat 20-entry cap meant either "20 × 64 MB = 1.3 GB resident" on a
-// wall of big canvases, or thrash on a wall of small plates where 20
-// entries is fewer than the works inside the 960 px prefetch radius.
-// 192 MB holds ~3 tiers at 4096 px, or a full room's worth of 960 px
-// upgrades, and evicts fast when the player walks away. The entry cap
-// is now just a bookkeeping ceiling.
+// that live here differ by an order of magnitude: a 960 px upgrade is
+// ~4 MB while a 4096 px tier runs 60–86 MB. A flat 20-entry cap meant
+// either "20 × 86 MB = 1.7 GB resident" on a wall of big canvases, or
+// thrash on a wall of small plates where 20 entries is fewer than the
+// works inside the 960 px prefetch radius.
+//
+// The budget has to comfortably exceed the *in-radius working set*, not
+// just a single entry. `lodUpdate` re-requests any tier that isn't
+// resident, so a budget smaller than what the player can legitimately
+// stand in front of doesn't degrade gracefully — it evicts and refetches
+// at the LOD tick rate, turning every step near a wall into a stream of
+// multi-megabyte decodes and GPU uploads. (That is exactly what the old
+// 8192 px "original" tier did: a 237 MB median entry against a 192 MB
+// pool. See the LOD_TIERS note in painting.tsx.)
+//
+// 320 MB holds ~4 tiers at 4096 px — the realistic worst case is 3
+// large canvases whose surfaces are within the 1.5 m prefetch radius,
+// plus a 2560 px stepping stone still in flight — or a full room's
+// worth of 960 px upgrades, and evicts fast when the player walks away.
+// The entry cap is now just a bookkeeping ceiling.
 const HIRES_CACHE_CAPACITY = 64;
-const HIRES_CACHE_BYTE_BUDGET = 192 * 1024 * 1024;
+const HIRES_CACHE_BYTE_BUDGET = 320 * 1024 * 1024;
+// A single entry bigger than this share of its pool guarantees eviction
+// thrash: inserting it drops everything else, and the next insert drops
+// it straight back out. Dev-only warning so a future tier that decodes
+// bigger than the pool can hold is loud instead of silently shipping as
+// "the museum feels laggy again".
+const OVERSIZED_ENTRY_RATIO = 0.4;
 // Preload pool — holds tiny 256 px thumbs primed for the next floor
 // while the player approaches a staircase. Kept separate from the main
 // `cache` so a busy preload (potentially every painting on the
@@ -175,7 +193,19 @@ class TextureLRU {
       this.map.delete(key);
     }
     this.map.set(key, tex);
-    this.bytes += textureBytes(tex);
+    const added = textureBytes(tex);
+    this.bytes += added;
+    if (
+      process.env.NODE_ENV !== "production" &&
+      Number.isFinite(this.byteBudget) &&
+      added > this.byteBudget * OVERSIZED_ENTRY_RATIO
+    ) {
+      console.warn(
+        `[texture-cache] ${key} decodes to ${Math.round(added / 1048576)} MB against a ` +
+          `${Math.round(this.byteBudget / 1048576)} MB pool — entries this large evict the ` +
+          "pool on insert and get evicted straight back out, which shows up as walking stutter.",
+      );
+    }
     // Never evict down to nothing: the entry just inserted is the one
     // the caller is about to display.
     while (this.map.size > 1 && (this.map.size > this.capacity || this.bytes > this.byteBudget)) {
@@ -543,17 +573,11 @@ export function getHiRes(url: string): THREE.Texture | undefined {
   return hiresCache.get(url);
 }
 
-/** Optional knobs for `loadHiRes`. `maxSize` + the source dimensions
- *  let us cap the decoded bitmap at the GPU's MAX_TEXTURE_SIZE so an
- *  oversized original (16k+ px Google Arts scans) doesn't fail upload
- *  on devices with smaller texture limits. createImageBitmap honours
- *  resizeWidth/Height — and the browser will downscale during decode
- *  on JPEG/PNG, saving GPU memory (it doesn't shrink the network
- *  fetch or CPU decode cost). */
+/** Optional knobs for `loadHiRes`. There used to be a `maxSize` here
+ *  that capped the decoded bitmap for the "original" LOD tier; that tier
+ *  is gone (see LOD_TIERS in painting.tsx) and every remaining tier is a
+ *  pre-built variant of known, modest size. */
 export type LoadHiResOpts = {
-  maxSize?: number;
-  sourceWidth?: number;
-  sourceHeight?: number;
   /** World position of the painting this tier belongs to, so the load
    *  queues can serve the nearest one first. */
   origin?: LoadOrigin;
@@ -576,17 +600,7 @@ export function loadHiRes(
       if (!res.ok) throw new Error(`fetch ${url}: ${res.status}`);
       const blob = await res.blob();
       if (signal?.aborted) throw new DOMException("aborted", "AbortError");
-      const bitmapOpts: ImageBitmapOptions = { imageOrientation: "flipY" };
-      if (opts?.maxSize && opts.sourceWidth && opts.sourceHeight) {
-        const longest = Math.max(opts.sourceWidth, opts.sourceHeight);
-        if (longest > opts.maxSize) {
-          const scale = opts.maxSize / longest;
-          bitmapOpts.resizeWidth = Math.round(opts.sourceWidth * scale);
-          bitmapOpts.resizeHeight = Math.round(opts.sourceHeight * scale);
-          bitmapOpts.resizeQuality = "high";
-        }
-      }
-      const bitmap = await createImageBitmap(blob, bitmapOpts);
+      const bitmap = await createImageBitmap(blob, { imageOrientation: "flipY" });
       if (signal?.aborted) throw new DOMException("aborted", "AbortError");
       const texture = new THREE.Texture(bitmap);
       texture.colorSpace = THREE.SRGBColorSpace;
@@ -661,7 +675,6 @@ export function peekCached(url: string): THREE.Texture | undefined {
 export function peekBestCachedTexture(
   objectKey: string,
   variantWidths: readonly number[] | null | undefined,
-  sourceWidth: number | null | undefined,
 ): THREE.Texture | undefined {
   const peekAny = (url: string): THREE.Texture | undefined => peekCached(url) ?? getHiRes(url);
   const widths = variantWidths ?? [];
@@ -669,13 +682,6 @@ export function peekBestCachedTexture(
     const w = widths[i];
     const hit =
       peekAny(variantProxyUrl(objectKey, w, "avif")) ?? peekAny(variantUrl(objectKey, w, "avif"));
-    if (hit) return hit;
-  }
-  // Original-source tier — only ever resident when the player walked
-  // right up to the painting in 3D and triggered the close-up LOD's
-  // `original` fetch.
-  if (sourceWidth != null && sourceWidth > 4096) {
-    const hit = peekAny(assetProxyUrl(objectKey)) ?? peekAny(assetUrl(objectKey));
     if (hit) return hit;
   }
   return undefined;
