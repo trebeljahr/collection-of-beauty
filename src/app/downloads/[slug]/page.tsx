@@ -100,8 +100,7 @@ export default async function CollectionDownloadPage({ params }: { params: Promi
           <p className="leading-relaxed text-[var(--muted-foreground)]">
             <Link href={`/collection/${collection.slug}`} className="underline underline-offset-4">
               Read about {collection.title} and browse every plate in order
-            </Link>{" "}
-            — the plate index there links each one individually.
+            </Link>
           </p>
 
           <a
@@ -114,8 +113,7 @@ export default async function CollectionDownloadPage({ params }: { params: Promi
           <p className="text-sm leading-relaxed text-[var(--muted-foreground)]">
             {included} AVIF files at {ZIP_VARIANT_WIDTH.toLocaleString("en-US")} px wide, plus a{" "}
             <code>README.txt</code> with a credit line and a link for every plate. The archive is
-            built when you ask for it and streamed as it&rsquo;s built, so there&rsquo;s no progress
-            bar — the download starts immediately and finishes when the last plate lands.
+            streamed as it&rsquo;s built, so there&rsquo;s no progress bar.
           </p>
 
           {capped && (
@@ -127,8 +125,7 @@ export default async function CollectionDownloadPage({ params }: { params: Promi
 
           <p className="text-sm leading-relaxed text-[var(--muted-foreground)]">
             {collection.sourceNote} Public domain — no permission needed, no attribution required.
-            For a single plate at its full scan resolution, open it below and use its own download
-            panel.
+            For a single plate at full scan resolution, use its own download panel below.
           </p>
         </div>
       </div>

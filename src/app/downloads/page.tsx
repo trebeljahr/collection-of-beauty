@@ -63,47 +63,33 @@ export default function DownloadsPage() {
       <h1 className="font-serif text-3xl md:text-4xl">{TITLE}</h1>
 
       <p className="mt-4 text-lg leading-relaxed text-[var(--muted-foreground)]">
-        Every one of the {summary.totalArtworks.toLocaleString("en-US")} works in this collection
-        can be downloaded at the largest size we hold, free, without an account and without
+        All {summary.totalArtworks.toLocaleString("en-US")} works download free, no account, no
         attribution. {fullSizeCount.toLocaleString("en-US")} of them come from scans wider than{" "}
-        {LADDER_MAX_WIDTH.toLocaleString("en-US")} px and download at their full source resolution —
-        up to 16,384 px on the long side.
+        {LADDER_MAX_WIDTH.toLocaleString("en-US")} px and download at full source resolution — up to
+        16,384 px on the long side.
       </p>
 
       <section id="what-you-get" className="mt-10 space-y-3">
-        <h2 className="font-serif text-2xl">What you get, and what you don&rsquo;t</h2>
+        <h2 className="font-serif text-2xl">What you get</h2>
         <p className="leading-relaxed">
-          Files are <strong>AVIF</strong>, encoded at quality 60 from the source scan. That is the
-          format the entire catalogue is built in — the site serves no JPEGs. AVIF opens natively in
-          every current browser, in macOS Preview, in GIMP and in Affinity; Photoshop needs a
-          plugin. Where a 1,280 px WebP exists it is offered alongside, for tools that still
-          can&rsquo;t read AVIF.
+          Files are <strong>AVIF</strong>, encoded at quality 60 from the source scan. AVIF opens in
+          every current browser, in macOS Preview, GIMP and Affinity; Photoshop needs a plugin.
+          Where a 1,280 px WebP exists it is offered alongside.
         </p>
         <p className="leading-relaxed">
-          What you cannot download here is the untouched original file the scan arrived as. Those
-          are not published: the build pipeline derives the variant ladder from them and only the
-          ladder is mirrored to storage, so an &ldquo;original&rdquo; link would 404 for roughly a
-          third of the catalogue and for every Redouté plate. Rather than ship a button that fails,
-          the largest offered size is the largest file that actually exists — which for the{" "}
-          {fullSizeCount.toLocaleString("en-US")} big scans is the full source resolution anyway,
-          re-encoded rather than resampled.
-        </p>
-        <p className="leading-relaxed">
-          Sizes below {LADDER_MAX_WIDTH.toLocaleString("en-US")} px come from the standard ladder:
-          256, 480, 640, 960, 1280, 1920, 2560 and 4096 px. Only the widths a given work was
-          actually encoded at are ever linked.
+          Sizes come from the standard ladder — 256, 480, 640, 960, 1280, 1920, 2560 and 4096 px —
+          plus a full-size encode for scans above {LADDER_MAX_WIDTH.toLocaleString("en-US")} px.
+          Only widths a work was actually encoded at are linked; the untouched original file the
+          scan arrived as isn&rsquo;t published.
         </p>
       </section>
 
       <section id="collections" className="mt-12 space-y-4">
         <h2 className="font-serif text-2xl">Complete collections</h2>
         <p className="leading-relaxed text-[var(--muted-foreground)]">
-          Four sets in the catalogue were published as numbered plate series rather than assembled
-          by a curator, so each is offered as a single archive. Archives are generated on request
-          and streamed — nothing is stored prebuilt, so what you download always matches what the
-          site is showing. Plates inside are {ZIP_VARIANT_WIDTH.toLocaleString("en-US")} px AVIF,
-          which prints an A3 sheet at 200 dpi. For a bigger file of one particular plate, use that
-          plate&rsquo;s own page.
+          Four sets were published as numbered plate series, so each is offered as one archive.
+          Plates inside are {ZIP_VARIANT_WIDTH.toLocaleString("en-US")} px AVIF — an A3 sheet at 200
+          dpi. For a bigger file of a single plate, use that plate&rsquo;s own page.
         </p>
 
         <ul className="space-y-4">
@@ -173,15 +159,14 @@ export default function DownloadsPage() {
       <section id="licence" className="mt-12 space-y-3">
         <h2 className="font-serif text-2xl">Licence and attribution</h2>
         <p className="leading-relaxed">
-          Nearly everything here is in the public domain: no copyright, no licence to comply with,
-          no attribution required. You can print it, sell it, crop it, feed it to a model, put it on
-          a product. A small number of works carry a Creative Commons licence instead — each artwork
-          page states which, and links the licence text.
+          Nearly everything here is public domain: no copyright, no attribution required. A small
+          number of works carry a Creative Commons licence instead — each artwork page states which,
+          and links the licence text.
         </p>
         <p className="leading-relaxed">
-          Each artwork page also carries a ready-made credit line, and every archive ships a{" "}
-          <code>README.txt</code> with one per plate. Using them is a courtesy to the institutions
-          that paid for the scanning, not an obligation.
+          Each artwork page carries a ready-made credit line, and every archive ships a{" "}
+          <code>README.txt</code> with one per plate. Using them is a courtesy to the scanning
+          institutions, not an obligation.
         </p>
       </section>
 
