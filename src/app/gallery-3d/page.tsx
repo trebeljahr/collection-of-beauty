@@ -29,11 +29,9 @@ const MUSEUM_TITLE = `The Museum — ${FLOOR_COUNT} walkable floors`;
 // selectFloorWorks in gallery-layout/layout-museum.ts), so the copy now
 // says what the building actually hangs.
 const MUSEUM_DESCRIPTION =
-  `Walk through a museum of ${FLOOR_COUNT} floors in your browser: each art era is its own ` +
-  `floor, ${GROUND_ERA} at ground level rising to ${TOP_ERA} at the top, all joined by a ` +
-  "central spiral staircase. Paintings hang at their real-world size where the dimensions " +
-  "are known — big canvases in the galleries, small works in the corridors. Built with " +
-  "WebGL; no install, no login.";
+  `Walk through a museum of ${FLOOR_COUNT} floors in your browser: one floor per era, ` +
+  `${GROUND_ERA} at ground level rising to ${TOP_ERA}, joined by a central spiral ` +
+  "staircase. Paintings hang at their real-world size where the dimensions are known.";
 
 export const metadata: Metadata = {
   title: MUSEUM_TITLE,

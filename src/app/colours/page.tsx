@@ -9,9 +9,8 @@ import { buildOpenGraph } from "@/lib/seo";
 export const revalidate = 86400;
 
 const DESCRIPTION =
-  `Browse ${summary.totalArtworks.toLocaleString()} public-domain works by colour. ` +
-  `Twelve families — from vermilion and gold through the earths to the blues, ` +
-  `and the greys of print and engraving — read from the pixels of each work.`;
+  `Browse ${summary.totalArtworks.toLocaleString()} public-domain works by colour, ` +
+  `sorted into twelve families read from the pixels of each work.`;
 
 export const metadata: Metadata = {
   title: "Colours",
@@ -59,9 +58,9 @@ export default function ColoursPage() {
         </p>
         <p className="mt-3">
           The scores are then measured against the collection itself. Public-domain painting is
-          overwhelmingly warm — skin, wood, varnish, aged canvas — so a family is listed only when a
-          work carries noticeably more of it than the collection&rsquo;s own average. Otherwise
-          nearly everything would land in the same few families.
+          overwhelmingly warm, so a family is listed only when a work carries noticeably more of it
+          than the collection&rsquo;s own average. Otherwise nearly everything would land in the
+          same few families.
         </p>
         <p className="mt-3">
           A work can belong to up to three families, so the totals above add up to more than the

@@ -60,7 +60,7 @@ export const COLLECTIONS: Collection[] = [
     creator: "John James Audubon",
     published: "1827–1838",
     blurb:
-      "Audubon's double-elephant folio, engraved and hand-coloured, with every bird drawn at life size — which is what bends the flamingo double and folds the crane's neck back to fit the sheet. The complete run of 435 plates, scanned by the University of Pittsburgh.",
+      "Audubon's double-elephant folio, engraved and hand-coloured, with every bird drawn at life size. The complete run of 435 plates, scanned by the University of Pittsburgh.",
     sourceNote: "Scans by the University of Pittsburgh, via Wikimedia Commons.",
   },
   {
@@ -90,7 +90,7 @@ export const COLLECTIONS: Collection[] = [
     creator: "Ernst Haeckel",
     published: "1899–1904",
     blurb:
-      "Haeckel's lithographs of radiolarians, jellyfish, diatoms and orchids, arranged for symmetry rather than for the page — the plates that fed directly into Art Nouveau. 100 plates from the 1904 collected edition.",
+      "Haeckel's lithographs of radiolarians, jellyfish, diatoms and orchids, each plate composed around a symmetry. 100 plates from the 1904 collected edition.",
     sourceNote: "Scans via Wikimedia Commons.",
   },
 ];

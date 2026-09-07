@@ -25,8 +25,6 @@ export const SITE_NAME = "Collection of Beauty";
 // (its only import of ./data is type-only, no three.js), so pulling it
 // in here doesn't drag WebGL into anything that imports seo.ts.
 const FLOOR_COUNT = ERAS.length;
-const GROUND_ERA = ERAS[0]?.title ?? "the earliest era";
-const TOP_ERA = ERAS[ERAS.length - 1]?.title ?? "the most recent era";
 
 /**
  * Short enough to sit in a <title> after the site name, and it leads with
@@ -35,14 +33,14 @@ const TOP_ERA = ERAS[ERAS.length - 1]?.title ?? "the most recent era";
  */
 export const SITE_TAGLINE = `a walkable ${FLOOR_COUNT}-floor museum of public-domain art`;
 
+// Kept under the ~155 characters Google shows before truncating; the
+// longer version repeated the floor-by-floor description that already
+// sits on /gallery-3d and /press.
 export const SITE_DESCRIPTION =
-  `Walk through a museum of ${FLOOR_COUNT} floors in your browser: one floor per era, ` +
-  `${GROUND_ERA} at ground level rising to ${TOP_ERA}, joined by a central spiral ` +
-  `staircase, with paintings hung at their real-world size where the dimensions are known. ` +
+  `A museum of ${FLOOR_COUNT} walkable floors, one per era. ` +
   `${summary.totalArtworks.toLocaleString()} public-domain works by ` +
-  `${summary.totalArtists.toLocaleString()} artists, ${summary.yearRange.min}–${summary.yearRange.max}, ` +
-  `sourced from Wikimedia Commons and adjacent open archives. Also browsable as a flat ` +
-  `gallery and a timeline.`;
+  `${summary.totalArtists.toLocaleString()} artists, ${summary.yearRange.min}–${summary.yearRange.max}. ` +
+  `Also a flat gallery and a timeline.`;
 
 export const TWITTER_HANDLE = process.env.NEXT_PUBLIC_TWITTER_HANDLE ?? undefined;
 

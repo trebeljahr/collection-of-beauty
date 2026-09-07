@@ -57,11 +57,11 @@ const museumFacts = [
   ],
   [
     "Scale",
-    "Paintings hang at their real-world dimensions where the data exists. Where it doesn't, the layout falls back to a pixel-aspect estimate — visible if you know the painting.",
+    "Paintings hang at their real-world dimensions where the data exists. Where it doesn't, the layout falls back to a pixel-aspect estimate.",
   ],
   [
     "Hanging",
-    "One work per wall cell, capped per floor and sampled across artists, so a 600-plate botanical series doesn't swallow a storey.",
+    "One work per wall cell, capped per floor and sampled across artists so one prolific series can't fill a storey.",
   ],
   [
     "Controls",
@@ -145,7 +145,7 @@ const descriptionTiers = [
     title: "Long (about 150 words)",
     body: [
       `Collection of Beauty is a museum you walk through in a browser tab, made and maintained by a single developer. It has ${FLOOR_COUNT} floors, one per art era, ${GROUND_ERA} at ground level rising to ${TOP_ERA}, joined by a central spiral staircase. Paintings are sized to their real-world dimensions where the data exists. It is built in WebGL, needs no install, and works on a laptop with pointer-lock and WASD or on a phone in landscape with a touch joystick.`,
-      `The collection it hangs grew out of a private bookmark folder and now holds around ${WORKS_APPROX} public-domain works across ~${ARTISTS_APPROX} artists, drawn from Wikimedia Commons and adjacent open archives. Each work shows its source, provenance, and a permalink, with a "suggest a fix" button that opens a GitHub issue. Metadata is treated as a living, correctable document rather than a closed catalog. The site is free and runs without ads, sign-ups, or third-party tracking.`,
+      `The collection it hangs grew out of a private bookmark folder and now holds around ${WORKS_APPROX} public-domain works across ~${ARTISTS_APPROX} artists, drawn from Wikimedia Commons and adjacent open archives. Each work shows its source, provenance, and a permalink, with a "suggest a fix" button that opens a GitHub issue. The site is free and runs without ads, sign-ups, or third-party tracking.`,
     ],
   },
 ] as const;
@@ -456,8 +456,7 @@ export default function PressPage() {
             <div className="space-y-6">
               <p className="leading-8 text-[var(--muted-foreground)]">
                 A museum you enter in a browser tab and walk through on foot. Paintings hang at
-                their real-world size where the dimensions are known, so a small panel stays small
-                next to a three-metre canvas.
+                their real-world size where the dimensions are known.
               </p>
               <dl className="divide-y divide-[var(--border)] border-y border-[var(--border)]">
                 {museumFacts.map(([label, value]) => (
