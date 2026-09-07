@@ -24,7 +24,7 @@ type Params = { slug: string };
    (the enlarged box merely overlaps neighbouring lines, none of which are
    clickable), and `sm:inline` returns the anchor to an ordinary inline box
    above the breakpoint. Same idiom on /artwork/[id], /artist/[slug],
-   /era/[id], /collection/[slug], /colours/[family] and /downloads/[slug]:
+   /era/[id], /collection/[slug] and /colours/[family]:
    enlarge the box and overlap, never shrink a neighbour's margin. */
 const TEXT_LINK =
   "-my-3 inline-flex min-h-11 items-center rounded-sm underline focus:outline-none focus-visible:ring-2 focus-visible:ring-[var(--ring)] sm:my-0 sm:inline sm:min-h-0";
