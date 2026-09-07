@@ -1,15 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import {
-  type ReactNode,
-  useCallback,
-  useEffect,
-  useLayoutEffect,
-  useMemo,
-  useRef,
-  useState,
-} from "react";
+import { type ReactNode, useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { RowsPhotoAlbum } from "react-photo-album";
 import "react-photo-album/rows.css";
 import { useArtworkTooltip } from "@/components/artwork-tooltip";
@@ -92,8 +84,8 @@ type Props = {
 //
 // CHUNK_SIZE also gates how many photos are appended per IntersectionObserver
 // trigger. That keeps the math behind the sentinel push predictable:
-// 10 photos at our 160-260 px target row heights and 2-5 columns work
-// out to ~440-660 px of added height, which is comfortably larger than
+// 10 photos at our 220-260 px target row heights and 2-5 columns work
+// out to ~600-1300 px of added height, which is comfortably larger than
 // the 300 px prefetch rootMargin — every load pushes the sentinel out
 // of intersection, so the observer reliably re-fires on the next scroll.
 const CHUNK_SIZE = 10;
@@ -220,7 +212,22 @@ export function ArtworkGallery({
   // chunks never recompute their row layout.
   const chunks = useMemo(() => chunk(displayed, CHUNK_SIZE), [displayed]);
 
-  const rowHeight = targetRowHeight ?? ((w: number) => (w < 640 ? 160 : w < 1024 ? 220 : 260));
+  // Target row height, in absolute px. On a wide container it only sets
+  // how tall a row looks; on a phone it is what decides how many works
+  // land in a row, because the row solver minimises (rowHeight - target)²
+  // per row and a k-work row on a W-wide container is W / Σaspect tall.
+  // At the old 160 the cheapest partition of a 343 px container (a
+  // 375 px phone) was three or four across — a 126 px median tile, with
+  // tall works like Chinese hanging scrolls squeezed down to 32 px. At
+  // 240 a pair of portraits (h ≈ 210, so 168 px each) or a single
+  // landscape beats any three-across row, so tiles come out at roughly
+  // 1.8x the area and the worst scroll renders ~51 px. Fewer works per
+  // screen, but legible ones, which is the right trade for a gallery.
+  //
+  // Deliberately *above* the 640-1024 band: the target only does this
+  // job while the container is narrow enough for it to change the row
+  // count at all, and a tablet is already 3-4 across at 220.
+  const rowHeight = targetRowHeight ?? ((w: number) => (w < 640 ? 240 : w < 1024 ? 220 : 260));
 
   // Measure the gallery container width and pass it as each chunk's
   // `defaultContainerWidth`. Without this, every NEW chunk added during
@@ -228,12 +235,29 @@ export function ArtworkGallery({
   // then re-paints once its internal ResizeObserver measures the actual
   // width — a one-frame layout shift per chunk. When the user scrolls
   // fast the cumulative shift across several batches is the "jump" you
-  // see. useLayoutEffect measures before the first browser paint, so
-  // every chunk renders with the correct width from frame one.
-  const galleryRef = useRef<HTMLDivElement | null>(null);
+  // see. The ref runs during commit — before the first browser paint —
+  // so every chunk renders with the correct width from frame one.
+  //
+  // This is a *callback* ref rather than a useRef + useLayoutEffect pair,
+  // and that is load-bearing: the measured node carries
+  // `key={resetKey ?? "all"}`, so a filter change unmounts it and mounts
+  // a fresh div while ArtworkGallery itself stays mounted. An effect with
+  // `[]` deps would never re-run, leaving the ResizeObserver attached to
+  // a detached node and `containerWidth` frozen at whatever the old div
+  // last measured — a later rotate would then keep declaring the stale
+  // (smaller) width in `sizes` below while the album re-solves at the new
+  // one, i.e. blurry tiles. React invokes a callback ref once per node
+  // identity, so re-attachment is automatic and stays correct if the key
+  // ever moves or changes again. React 19 runs the returned cleanup when
+  // the node goes away, which is where the observer is disconnected.
+  //
+  // Timing is unchanged: refs attach during commit, before layout
+  // effects, so the measurement still lands before the first paint.
   const [containerWidth, setContainerWidth] = useState<number | null>(null);
-  useLayoutEffect(() => {
-    const node = galleryRef.current;
+  const galleryRef = useCallback((node: HTMLDivElement | null) => {
+    // React only skips the legacy detach call (`ref(null)`) when the
+    // callback returned a cleanup function — the no-ResizeObserver
+    // branch below returns nothing, so null still arrives here.
     if (!node) return;
     const measure = () => {
       const w = Math.round(node.getBoundingClientRect().width);
@@ -246,6 +270,56 @@ export function ArtworkGallery({
     return () => ro.disconnect();
   }, []);
   const initialContainerWidth = containerWidth ?? 1200;
+
+  // The container width, restated for the browser's variant picker.
+  // react-photo-album turns `sizes` into a per-tile
+  // `calc((<size> - gaps) / <ratio>)`, where <ratio> is the very same
+  // containerWidth/photoWidth ratio its CSS uses to lay the tile out —
+  // so the declared width equals the rendered width exactly, as long as
+  // <size> really is the container's width.
+  //
+  // The "640px" this used to pass was a hardcoded guess that held on no
+  // viewport. On a 375 px phone the container is 343 px, so every tile
+  // declared 1.87x its true width and at DPR 2 the browser climbed a
+  // rung of the ladder: 1.9 MB served where 735 KB of pixels were used,
+  // measured over 30 tiles. On desktop the same constant *under*-states
+  // the container (640 vs 1248) and picks needlessly soft variants.
+  //
+  // Before the ref has measured — SSR, and the first client render pass
+  // — there is no pixel number to use, so describe the container in CSS
+  // and let the browser evaluate it. Every caller wraps the gallery in
+  // `mx-auto max-w-{6,7}xl px-4`, i.e. min(100vw - 32px, 1248px). That
+  // base is exact below the max-width (every phone and tablet) and
+  // over-states a wide desktop max-w-6xl page by 11% — well under one
+  // rung.
+  //
+  // The base being right does NOT make the server-rendered hint right,
+  // and the win measured above is a post-hydration one. The <ratio> in
+  // that calc() comes from the layout react-photo-album actually solved,
+  // and on the server it solves at `defaultContainerWidth` 1200 with
+  // rowHeight 260 — a multi-photo *desktop* row. So the markup a 375 px
+  // phone receives divides the correct min(100vw - 32px, 1248px) base by
+  // a desktop ratio of ~4, and the preload scanner sees ~86 px where the
+  // hydrated tile renders at ~343 px. That error is in the *under*-fetch
+  // direction: the scanner may pick a rung too soft, and the browser
+  // re-runs candidate selection when hydration swaps in the measured
+  // `sizes` (candidate selection only ever climbs, never downgrades), so
+  // the cost is a possible second, larger fetch for above-the-fold
+  // tiles rather than a permanently blurry one. Fixing it properly means
+  // getting the *solved row* right on the server too, which needs the
+  // container width at render time (a client hint or a caller-supplied
+  // width), not a better `sizes` string.
+  //
+  // Dropping the prop is not the cheap way out: react-photo-album then
+  // defaults to `${photoWidth / containerWidth * 100}vw`, which measures
+  // the tile against the viewport rather than the container and so
+  // over-states it by the page's gutters. (It also always supplies a
+  // `sizes`, which is why the render callback's `props.sizes ?? …`
+  // fallback below never actually fires.)
+  const albumSizes = useMemo(
+    () => ({ size: containerWidth ? `${containerWidth}px` : "min(100vw - 32px, 1248px)" }),
+    [containerWidth],
+  );
 
   if (artworks.length === 0) {
     return <div className="py-16 text-center text-[var(--muted-foreground)]">No works.</div>;
@@ -264,10 +338,10 @@ export function ArtworkGallery({
             targetRowHeight={rowHeight}
             spacing={6}
             // Pre-measured from the gallery container (see the
-            // useLayoutEffect above). Falls back to 1200 only on the
-            // very first SSR render, before the layout effect has run.
+            // callback ref above). Falls back to 1200 only on the very
+            // first SSR render, before the ref has attached.
             defaultContainerWidth={initialContainerWidth}
-            sizes={{ size: "640px" }}
+            sizes={albumSizes}
             // Cap maxPhotos so the DP solver never tries to combine all
             // 10 chunk photos into a single row when their aspects let
             // it — keeps tile sizes within a sane band.
