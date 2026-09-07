@@ -23,6 +23,28 @@ type Props = {
 const PAD = 6;
 const FOOTER_H = 60;
 
+/** Cell-grid → canvas-pixel mapping for a map of side `size`. Exported
+ *  so callers can lay DOM hit targets over the baked canvas (the big
+ *  map's clickable rooms) using exactly the geometry the plan was drawn
+ *  with — the alternative, hit-testing inside the canvas, would need a
+ *  parallel copy of this maths and give up focus/keyboard for free. */
+export function mapGeometry(floor: FloorLayout, size: number) {
+  const { x: gx, z: gz } = floor.gridSize;
+  const scale = Math.min((size - PAD * 2) / gx, (size - PAD * 2) / gz);
+  return { gx, gz, scale, ox: (size - gx * scale) / 2, oy: (size - gz * scale) / 2 };
+}
+
+/** Pixel rect of a room's cell bounds within a map of side `size`. */
+export function roomRect(floor: FloorLayout, room: RoomLayout, size: number) {
+  const { scale, ox, oy } = mapGeometry(floor, size);
+  return {
+    left: ox + room.cellBounds.xMin * scale,
+    top: oy + room.cellBounds.zMin * scale,
+    width: (room.cellBounds.xMax - room.cellBounds.xMin + 1) * scale,
+    height: (room.cellBounds.zMax - room.cellBounds.zMin + 1) * scale,
+  };
+}
+
 /**
  * Overlay minimap driven entirely by the current FloorLayout — walkable
  * cells, room outlines, door positions and staircase footprints are
@@ -53,12 +75,7 @@ export function Minimap({
     if (!ctx) return;
     ctx.scale(dpr, dpr);
 
-    const { x: gx, z: gz } = floor.gridSize;
-    const scale = Math.min((size - PAD * 2) / gx, (size - PAD * 2) / gz);
-    const drawW = gx * scale;
-    const drawH = gz * scale;
-    const ox = (size - drawW) / 2;
-    const oy = (size - drawH) / 2;
+    const { gx, gz, scale, ox, oy } = mapGeometry(floor, size);
 
     // Panel background + outer frame.
     ctx.fillStyle = "rgba(10, 8, 5, 0.82)";
@@ -235,10 +252,7 @@ export function Minimap({
 
       const p = showPlayer ? playerRef.current : null;
       if (p) {
-        const { x: gx, z: gz } = floor.gridSize;
-        const scale = Math.min((size - PAD * 2) / gx, (size - PAD * 2) / gz);
-        const ox = (size - gx * scale) / 2;
-        const oy = (size - gz * scale) / 2;
+        const { scale, ox, oy } = mapGeometry(floor, size);
         const px = ox + (p.x / CELL_SIZE) * scale;
         const py = oy + (p.z / CELL_SIZE) * scale;
 
