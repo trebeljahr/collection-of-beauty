@@ -145,7 +145,7 @@ const descriptionTiers = [
     title: "Long (about 150 words)",
     body: [
       `Collection of Beauty is a walkable museum of public-domain art, made and maintained by a single developer. ${FLOOR_COUNT} floors, one per art era, ${GROUND_ERA} at ground level rising to ${TOP_ERA}, joined by a central spiral staircase. Paintings are sized to their real-world dimensions where the data exists. It is built in WebGL, needs no install, and works on a laptop with pointer-lock and WASD or on a phone in landscape with a touch joystick.`,
-      `The collection holds around ${WORKS_APPROX} public-domain works across ~${ARTISTS_APPROX} artists, drawn from Wikimedia Commons and adjacent open archives. Each work shows its source, provenance, and a permalink, with a "suggest a fix" button that opens a GitHub issue. The site is free and runs without ads, sign-ups, or third-party tracking.`,
+      `The collection holds around ${WORKS_APPROX} public-domain works across ~${ARTISTS_APPROX} artists, drawn from Wikimedia Commons and adjacent open archives. Each work shows its source and a permalink, with a "suggest a fix" button that opens a GitHub issue. The site is free and runs without ads, sign-ups, or third-party tracking.`,
     ],
   },
 ] as const;
@@ -180,7 +180,7 @@ const features = [
   "High-resolution downloads at /downloads. Every work downloads at the largest size built for it - up to 16,384px for the ~970 works with oversized source scans - and the four published plate sets stream as on-demand ZIP archives.",
   "Multi-floor 3D museum at /gallery-3d. One floor per historical era, a spiral staircase connecting them. Painting frames are sized to real-world dimensions where known; otherwise the layout falls back to an aspect estimate.",
   "2D gallery with shuffle, sort, search, movement and year filters, and an artists page with per-artist sub-galleries.",
-  'Per-work detail pages with provenance, source URL, dimensions, movement, credit line, and a permalink. A "suggest a fix" button on every work opens a pre-filled GitHub issue against the metadata.',
+  'Per-work detail pages with source URL, dimensions, movement, licence, and a permalink. A "suggest a fix" button on every work opens a pre-filled GitHub issue against the metadata.',
   "Timeline view that scrolls through the collection chronologically.",
   "Newsletter featuring five works per themed edition. Opt-in, runs on self-hosted ListMonk + Amazon SES. No marketing scoring.",
   "Open source. Code, asset pipeline, and metadata corrections all live on GitHub. The same images and metadata that drive the site are reusable by anyone.",
@@ -256,7 +256,7 @@ const quotes = [
 const acknowledgements = [
   "Wikimedia Commons",
   "Library of Congress, Prints & Photographs Division",
-  "Adjacent open-access archives credited per-work in the provenance field",
+  "Adjacent open-access archives, credited per-work by source link",
 ] as const;
 
 const availableImages = [
@@ -281,7 +281,7 @@ const imageKitPending = [
   "hero-3d-museum.png - 1920 x 1080. Spiral staircase plus a room of paintings. In production.",
   "hero-2d-gallery.png - 1920 x 1080. Home page in its best state. In production.",
   "artist-page.png - 1920 x 1080. An artist page with multiple works. In production.",
-  "detail-page.png - 1920 x 1080. A single artwork with provenance and suggest-a-fix visible. In production.",
+  "detail-page.png - 1920 x 1080. A single artwork with its metadata and suggest-a-fix visible. In production.",
   "logo-wordmark.svg - Vector wordmark on transparent background. In production.",
   "walkthrough.mp4 - 30-second screen recording of a walk through the museum. Muted, looping-friendly. In production.",
 ] as const;

@@ -1,7 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import type { ReactNode } from "react";
 import { ArtworkCard } from "@/components/artwork-card";
 import { ArtworkDownloads } from "@/components/artwork-downloads";
 import { ArtworkViewer } from "@/components/artwork-viewer";
@@ -296,8 +295,6 @@ export default async function ArtworkPage({
             </p>
           )}
 
-          <ProvenanceSection artwork={art} />
-
           <ArtworkDownloads artwork={art} />
 
           <div>
@@ -392,86 +389,6 @@ function sampleStable<T>(pool: T[], count: number, seed: string): T[] {
   return out;
 }
 
-/**
- * Provenance — Wikidata-sourced collection / inventory / museum page
- * when available, otherwise falls back to source links from the
- * Commons file page, and finally to the legacy raw `credit` string
- * with footnote refs cleaned up. Renders nothing when there is
- * nothing meaningful to show.
- *
- * Wikimedia Commons reuse attribution (TASL — Title, Author, Source,
- * License) is satisfied by the page header (title + artist), the
- * License badge, and the Commons source badge — no need to restate
- * any of those here.
- */
-function ProvenanceSection({ artwork }: { artwork: Artwork }) {
-  const prov = artwork.provenance;
-  const fallbackCredit = !prov ? meaningfulCredit(artwork.credit) : null;
-
-  if (prov) return <ProvenanceBlock prov={prov} />;
-  if (fallbackCredit) {
-    return (
-      <p className="text-xs leading-relaxed text-[var(--muted-foreground)]">
-        <span className="font-medium text-[var(--foreground)]">Provenance:</span>{" "}
-        {/^https?:\/\//.test(fallbackCredit) ? (
-          <ExternalLink href={fallbackCredit}>{hostnameOf(fallbackCredit)}</ExternalLink>
-        ) : (
-          fallbackCredit
-        )}
-      </p>
-    );
-  }
-  return null;
-}
-
-function ProvenanceBlock({ prov }: { prov: NonNullable<Artwork["provenance"]> }) {
-  // The collection name is often the same string as the location (e.g.
-  // both are "Cleveland Museum of Art"). Avoid showing it twice.
-  const showLocation = prov.location && prov.location !== prov.collection;
-  const hasStructured = prov.collection || prov.inventory || prov.describedAt || showLocation;
-  const hasLinks = prov.sourceLinks.length > 0;
-  if (!hasStructured && !hasLinks && !prov.wikidataUrl) return null;
-
-  return (
-    <div className="text-xs leading-relaxed text-[var(--muted-foreground)]">
-      <p className="mb-1.5 font-medium text-[var(--foreground)]">Provenance</p>
-      {prov.collection && (
-        <p>
-          <span className="text-[var(--foreground)]">Collection:</span> {prov.collection}
-          {prov.inventory ? <> · acc. {prov.inventory}</> : null}
-        </p>
-      )}
-      {showLocation && (
-        <p>
-          <span className="text-[var(--foreground)]">Location:</span> {prov.location}
-        </p>
-      )}
-      {prov.describedAt && (
-        <p>
-          <span className="text-[var(--foreground)]">Museum page:</span>{" "}
-          <ExternalLink href={prov.describedAt}>{hostnameOf(prov.describedAt)}</ExternalLink>
-        </p>
-      )}
-      {hasLinks && (
-        <p>
-          <span className="text-[var(--foreground)]">See also:</span>{" "}
-          {prov.sourceLinks.map((link, i) => (
-            <span key={link.url}>
-              {i > 0 ? ", " : null}
-              <ExternalLink href={link.url}>{link.label}</ExternalLink>
-            </span>
-          ))}
-        </p>
-      )}
-      {prov.wikidataUrl && (
-        <p className="mt-1.5">
-          <ExternalLink href={prov.wikidataUrl}>View on Wikidata ({prov.wikidataId})</ExternalLink>
-        </p>
-      )}
-    </div>
-  );
-}
-
 /** Pill linking to the upstream file page — the "Source" leg of TASL
  *  attribution, styled to sit next to LicenseBadge. The label follows the
  *  actual host (Commons for most works, c82.net for the Redouté
@@ -517,64 +434,6 @@ function GitHubIcon() {
       <path d="M12 .5C5.73.5.5 5.73.5 12c0 5.08 3.29 9.39 7.86 10.91.58.11.79-.25.79-.56 0-.28-.01-1.02-.02-2-3.2.7-3.87-1.54-3.87-1.54-.52-1.32-1.27-1.67-1.27-1.67-1.04-.71.08-.7.08-.7 1.15.08 1.76 1.18 1.76 1.18 1.02 1.76 2.68 1.25 3.34.96.1-.74.4-1.25.73-1.54-2.55-.29-5.24-1.28-5.24-5.69 0-1.26.45-2.28 1.18-3.09-.12-.29-.51-1.46.11-3.04 0 0 .96-.31 3.15 1.18a10.91 10.91 0 0 1 5.74 0c2.19-1.49 3.15-1.18 3.15-1.18.62 1.58.23 2.75.11 3.04.74.81 1.18 1.83 1.18 3.09 0 4.42-2.69 5.4-5.25 5.69.41.36.78 1.06.78 2.14 0 1.55-.01 2.8-.01 3.18 0 .31.21.68.8.56C20.22 21.39 23.5 17.08 23.5 12 23.5 5.73 18.27.5 12 .5z" />
     </svg>
   );
-}
-
-function ExternalLink({ href, children }: { href: string; children: ReactNode }) {
-  return (
-    <a
-      href={href}
-      target="_blank"
-      rel="noreferrer"
-      className="rounded-sm underline underline-offset-2 hover:text-[var(--foreground)] focus:outline-none focus-visible:ring-2 focus-visible:ring-[var(--ring)]"
-    >
-      {children}
-    </a>
-  );
-}
-
-function hostnameOf(url: string): string {
-  try {
-    return new URL(url).hostname.replace(/^www\./, "");
-  } catch {
-    return url;
-  }
-}
-
-/** Clean up the Wikimedia source.credit before display. The raw field
- *  often contains orphaned footnote refs (`[1]`, `[2]`) — copied out of
- *  Wikipedia's References section without the numbered targets — and
- *  stranded Wikidata QS templates (`wga QS:P11807,"..."`). Returns null
- *  when nothing readable survives, so the caller can hide the row
- *  entirely instead of rendering "Provenance: [2]". */
-function meaningfulCredit(credit: string | null): string | null {
-  if (!credit) return null;
-  let c = credit.trim();
-  if (!c) return null;
-
-  // Footnote refs, anywhere in the string.
-  c = c.replace(/\[\d+\]/g, "");
-
-  // Wikidata QS-claim templates, e.g.
-  //   wga QS:P11807,"w/weyden/rogier/05sevens/0sevens"
-  //   label QS:Len,"Foo"
-  // These are machine-readable assertions, not human credit.
-  c = c.replace(/\b(?:wga\s+|label\s+)?QS:[A-Z]\w*,\s*"[^"]*"/gi, "");
-
-  // Tidy stranded punctuation/whitespace the strips leave behind:
-  // "  ,  ", " . ;", trailing junk.
-  c = c.replace(/\s+/g, " ");
-  c = c.replace(/\s+([,;.:])/g, "$1");
-  c = c.replace(/([,;:.])\s*([,;:.])/g, "$2");
-  c = c.replace(/^[\s,;:.]+|[\s,;:.]+$/g, "").trim();
-
-  // Connectives that only meant something paired with the stripped
-  // ref ("Cropped from [1]" → "Cropped from").
-  if (/^(?:cropped from|source|see|via|from|and)$/i.test(c)) return null;
-
-  if (!c) return null;
-  if (/^own\s*work$/i.test(c)) return null;
-  if (c.length > 320) return `${c.slice(0, 317)}…`;
-  return c;
 }
 
 /** Used as a description fallback when the source had no description.
