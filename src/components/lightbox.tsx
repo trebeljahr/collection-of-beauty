@@ -8,7 +8,7 @@ import {
   TransformComponent,
   TransformWrapper,
 } from "react-zoom-pan-pinch";
-import { deepZoomTileSource } from "@/lib/deep-zoom";
+import { deepZoomTileSource, largestSingleImageWidth } from "@/lib/deep-zoom";
 import { getLoadedVariant, recordLoadedVariant } from "@/lib/image-cache";
 import { cn, fallbackVariantUrl, variantUrl } from "@/lib/utils";
 
@@ -57,7 +57,12 @@ export function Lightbox({
 
   const widths = variantWidths ?? [];
   const hasVariants = widths.length > 0;
-  const highWidth = hasVariants ? widths[widths.length - 1] : null;
+  // Widest copy safe to fetch as one image. Normally the manifest max;
+  // for a work carrying an above-ladder encode with no pyramid to stream
+  // it, the widest ladder rung instead — the `useDeepZoom` guard on the
+  // preload effect below cannot protect that case, since there is no
+  // deep zoom to switch to.
+  const highWidth = largestSingleImageWidth(variantWidths, srcWidth, srcHeight);
   // Originals aren't on the asset host (only the pre-built variants),
   // so every "no manifest" path lands on a fallback variant instead of
   // the raw file — an assetUrl() here 404s and leaves the modal empty.
