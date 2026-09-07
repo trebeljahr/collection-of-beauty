@@ -137,6 +137,7 @@ const hooks = [
 ] as const;
 
 const features = [
+  "High-resolution downloads at /downloads. Every work downloads at the largest size built for it - up to 16,384px for the ~970 works with oversized source scans - and the four published plate sets stream as on-demand ZIP archives.",
   "Multi-floor 3D museum at /gallery-3d. One floor per historical era, a spiral staircase connecting them. Painting frames are sized to real-world dimensions where known; otherwise the layout falls back to an aspect estimate.",
   "2D gallery with shuffle, sort, search, movement and year filters, and an artists page with per-artist sub-galleries.",
   'Per-work detail pages with provenance, source URL, dimensions, movement, credit line, and a permalink. A "suggest a fix" button on every work opens a pre-filled GitHub issue against the metadata.',
@@ -179,8 +180,20 @@ const faq = [
     "Yes. The metadata is published in the open repo. Corrections welcome.",
   ],
   [
-    "Can I download the whole collection?",
-    "A bulk dataset release is on the post-launch list. In the interim, the metadata is in the GitHub repo and the source URLs let any scraper reproduce the corpus from the original archives.",
+    "Can I download the images?",
+    "Yes. Every work has a download panel on its own page offering each size that was actually built for it, defaulting to the largest. Around 970 works come from scans wider than 4,096px and download at their full source resolution, up to 16,384px on the long side. Files are AVIF; a 1,280px WebP is offered alongside for tools that cannot read AVIF. See /downloads.",
+  ],
+  [
+    "Can I download a whole collection at once?",
+    "The four sets that were published as numbered plate series - Audubon's Birds of America, Redoute's Les Roses and Les Liliacees, and Haeckel's Kunstformen der Natur - are each downloadable as a single ZIP from /downloads. Archives are generated on request and streamed, so they always match the live catalogue; plates inside are 2,560px AVIF, with a README carrying a credit line and link per plate. The rest of the collection is a curated grab-bag rather than a series, so it is offered per work rather than in bulk.",
+  ],
+  [
+    "Why can I not download the original scan file?",
+    "Because it is not published. The build pipeline derives a variant ladder from each source and only that ladder is mirrored to storage, so an 'original' link would 404 for roughly a third of the catalogue and for every Redoute plate. The largest offered size is therefore the largest file that exists - which for the big scans is the full source resolution, re-encoded rather than resampled.",
+  ],
+  [
+    "Can I download the metadata as a dataset?",
+    "The metadata is in the GitHub repo, and /api/artworks serves the same records as JSON. The source URLs let any scraper reproduce the corpus from the original archives.",
   ],
   [
     "Does the 3D museum work on mobile?",

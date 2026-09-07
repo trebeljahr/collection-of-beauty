@@ -18,6 +18,12 @@ const LINKS: ReadonlyArray<{
   { href: "/eras", label: "Eras", sub: "Group history into rooms" },
   { href: "/gallery-3d", label: "3D Room", sub: "Walk through a virtual museum" },
   {
+    href: "/downloads",
+    label: "Downloads",
+    sub: "High-resolution files and full sets",
+    isActive: (pathname) => pathname.startsWith("/downloads"),
+  },
+  {
     href: "/drops",
     label: "Newsletter",
     sub: "Weekly email and archive",

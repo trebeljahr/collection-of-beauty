@@ -1,4 +1,5 @@
 import type { MetadataRoute } from "next";
+import { COLLECTIONS } from "@/lib/collections";
 import { artists, artworks } from "@/lib/data";
 import { ERAS } from "@/lib/gallery-eras";
 import { sitemapImagesForArtwork } from "@/lib/licensable-images";
@@ -61,6 +62,12 @@ export default function sitemap(): MetadataRoute.Sitemap {
       priority: 0.3,
     },
     { url: absoluteUrl("/drops"), lastModified: now, changeFrequency: "weekly", priority: 0.7 },
+    {
+      url: absoluteUrl("/downloads"),
+      lastModified: now,
+      changeFrequency: "monthly",
+      priority: 0.8,
+    },
   ];
 
   // Derived from ERAS — the same list /era/[id] builds its static params
@@ -71,6 +78,15 @@ export default function sitemap(): MetadataRoute.Sitemap {
     lastModified: now,
     changeFrequency: "monthly",
     priority: 0.6,
+  }));
+
+  // Derived from COLLECTIONS the same way the era entries are derived from
+  // ERAS — a fifth plate set lands in the sitemap the moment it exists.
+  const collectionEntries: MetadataRoute.Sitemap = COLLECTIONS.map((c) => ({
+    url: absoluteUrl(`/downloads/${c.slug}`),
+    lastModified: now,
+    changeFrequency: "monthly",
+    priority: 0.7,
   }));
 
   const editionEntries: MetadataRoute.Sitemap = loadPublishedEditions().map((ed) => ({
@@ -96,5 +112,12 @@ export default function sitemap(): MetadataRoute.Sitemap {
     images: sitemapImagesForArtwork(art),
   }));
 
-  return [...staticEntries, ...eraEntries, ...editionEntries, ...artistEntries, ...artworkEntries];
+  return [
+    ...staticEntries,
+    ...eraEntries,
+    ...collectionEntries,
+    ...editionEntries,
+    ...artistEntries,
+    ...artworkEntries,
+  ];
 }

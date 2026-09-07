@@ -3,6 +3,7 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import type { ReactNode } from "react";
 import { ArtworkCard } from "@/components/artwork-card";
+import { ArtworkDownloads } from "@/components/artwork-downloads";
 import { ArtworkViewer } from "@/components/artwork-viewer";
 import { LicenseBadge } from "@/components/license-badge";
 import { buttonVariants } from "@/components/ui/button";
@@ -259,6 +260,8 @@ export default async function ArtworkPage({
           </p>
 
           <ProvenanceSection artwork={art} />
+
+          <ArtworkDownloads artwork={art} />
 
           <div>
             <p className="mb-2 text-xs text-[var(--muted-foreground)]">
