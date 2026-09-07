@@ -129,6 +129,19 @@ const nextConfig = {
         permanent: true,
       },
       {
+        // /downloads was removed — the per-set page carries the ZIP and
+        // every work carries its own download panel. Both routes were
+        // indexed, so keep them resolving.
+        source: "/downloads",
+        destination: "/collections",
+        permanent: true,
+      },
+      {
+        source: "/downloads/:slug",
+        destination: "/collection/:slug",
+        permanent: true,
+      },
+      {
         // The botanical era floor was merged back into natural-history
         // (one era, one floor with the dense print-room hang). Keep any
         // old /era/botanical links resolving.

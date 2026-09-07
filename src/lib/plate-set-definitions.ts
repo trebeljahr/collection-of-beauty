@@ -28,8 +28,8 @@ import type { EraId } from "@/lib/gallery-eras";
  */
 
 /** Ids are the `Collection.slug` values from `@/lib/collections` — the
- *  same four books, one id space, so /downloads/<slug> and
- *  /collection/<slug> can't drift apart or compete for the same query. */
+ *  same four books, one id space, so /collection/<slug> and
+ *  /api/collections/<slug> can't drift apart. */
 export type PlateSetId =
   | "audubon-birds-of-america"
   | "haeckel-kunstformen-der-natur"

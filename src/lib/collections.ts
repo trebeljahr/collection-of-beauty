@@ -36,7 +36,7 @@ export const ZIP_VARIANT_WIDTH = 2560;
 export const ZIP_MAX_ENTRIES = 600;
 
 export type Collection = {
-  /** URL slug: /downloads/<slug> and /api/collections/<slug>. */
+  /** URL slug: /collection/<slug> and /api/collections/<slug>. */
   slug: string;
   /** `Artwork.folder` this set maps to. */
   folder: string;

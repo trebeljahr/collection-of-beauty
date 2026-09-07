@@ -30,12 +30,6 @@ const LINKS: ReadonlyArray<{
   },
   { href: "/gallery-3d", label: "The Museum", sub: "Walk the floors, one era each" },
   {
-    href: "/downloads",
-    label: "Downloads",
-    sub: "High-resolution files and full sets",
-    isActive: (pathname) => pathname.startsWith("/downloads"),
-  },
-  {
     href: "/drops",
     label: "Newsletter",
     sub: "Weekly email and archive",
