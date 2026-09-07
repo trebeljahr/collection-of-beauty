@@ -13,6 +13,7 @@ import {
   FLOOR_THICKNESS,
   INTER_FLOOR_HEIGHT,
   SPIRAL_COLUMN_RADIUS,
+  SPIRAL_FLOOR_CUTOUT_RADIUS,
 } from "@/lib/gallery-layout/world-coords";
 import {
   BALUSTER_HEIGHT,
@@ -197,22 +198,60 @@ function addFloorColliders(
   ) => void,
 ) {
   const y = floor.y - FLOOR_THICKNESS / 2 - 0.001;
+  // Above the ground floor the stairwell slab is RENDERED with a
+  // circular hole around the spiral (StairwellFloor's `cutHole`), so
+  // the descending flight stays visible. The collider set has to punch
+  // the same hole. Without it the slab is solid right across the well,
+  // and a player riding the spiral past this storey's level — the last
+  // ~8% of a climb, the first ~30% of a descent, i.e. exactly the
+  // landings — has their capsule impaled on it. Rapier then reports the
+  // slab's merged row strips as a pair of opposing vertical walls and
+  // computedMovement() collapses to zero. Because the spiral's Y is
+  // derived from how far the player has walked *around* it, zero
+  // horizontal movement also means zero vertical movement: the player
+  // sticks to the stairs and can't walk out of it. Nothing stands on
+  // this collider anyway — vertical position on the spiral and on a
+  // plain floor is both driven analytically in `player.tsx`, and the
+  // cutout rail keeps a player at floor level well outside the hole.
+  const cutoutStair = floor.index > 0 ? (floor.stairsIn[0] ?? floor.stairsOut[0]) : null;
+  const emitRun = (startX: number, endX: number, z: number) => {
+    const x0 = startX * CELL_SIZE;
+    const x1 = (endX + 1) * CELL_SIZE;
+    const cz = z * CELL_SIZE + CELL_SIZE / 2;
+    const spans: Array<[number, number]> = [[x0, x1]];
+    if (cutoutStair) {
+      // Widest chord the hole cuts anywhere in this row's z-band —
+      // measured at whichever row edge is nearest the centre, or 0 when
+      // the row straddles it — so a row the circle merely clips still
+      // loses its whole overlap rather than a cell-quantised slice.
+      const zNear = z * CELL_SIZE - cutoutStair.centerZ;
+      const zFar = (z + 1) * CELL_SIZE - cutoutStair.centerZ;
+      const near = zNear * zFar <= 0 ? 0 : Math.min(Math.abs(zNear), Math.abs(zFar));
+      if (near < SPIRAL_FLOOR_CUTOUT_RADIUS) {
+        const half = Math.sqrt(
+          SPIRAL_FLOOR_CUTOUT_RADIUS * SPIRAL_FLOOR_CUTOUT_RADIUS - near * near,
+        );
+        const holeMin = cutoutStair.centerX - half;
+        const holeMax = cutoutStair.centerX + half;
+        spans.length = 0;
+        if (x0 < holeMin) spans.push([x0, Math.min(x1, holeMin)]);
+        if (x1 > holeMax) spans.push([Math.max(x0, holeMax), x1]);
+      }
+    }
+    for (const [a, b] of spans) {
+      const width = b - a;
+      if (width <= 0) continue;
+      addCuboid(a + width / 2, y, cz, width / 2, FLOOR_THICKNESS / 2, CELL_SIZE / 2);
+    }
+  };
+
   for (let z = 0; z < floor.gridSize.z; z++) {
     let startX: number | null = null;
     for (let x = 0; x <= floor.gridSize.x; x++) {
       const walkable = x < floor.gridSize.x && floor.walkable[z * floor.gridSize.x + x] === 1;
       if (walkable && startX == null) startX = x;
       if ((!walkable || x === floor.gridSize.x) && startX != null) {
-        const endX = x - 1;
-        const width = (endX - startX + 1) * CELL_SIZE;
-        addCuboid(
-          startX * CELL_SIZE + width / 2,
-          y,
-          z * CELL_SIZE + CELL_SIZE / 2,
-          width / 2,
-          FLOOR_THICKNESS / 2,
-          CELL_SIZE / 2,
-        );
+        emitRun(startX, x - 1, z);
         startX = null;
       }
     }
