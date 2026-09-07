@@ -27,11 +27,14 @@ import type { EraId } from "@/lib/gallery-eras";
  * between them.
  */
 
+/** Ids are the `Collection.slug` values from `@/lib/collections` — the
+ *  same four books, one id space, so /downloads/<slug> and
+ *  /collection/<slug> can't drift apart or compete for the same query. */
 export type PlateSetId =
-  | "birds-of-america"
-  | "kunstformen-der-natur"
-  | "les-roses"
-  | "les-liliacees";
+  | "audubon-birds-of-america"
+  | "haeckel-kunstformen-der-natur"
+  | "redoute-les-roses"
+  | "redoute-les-liliacees";
 
 /** Recover the printed plate number for one artwork, or null when the
  *  source records don't carry it. Each set stores it somewhere different
@@ -42,10 +45,12 @@ export type PlateSetDefinition = {
   id: PlateSetId;
   /** `Artwork.folder` this set is drawn from. One folder per set. */
   folder: string;
-  title: string;
-  /** Original-language or full title, shown as a subtitle. */
+  /** Original-language or full title, shown as a subtitle. Title,
+   *  creator and publication span are NOT repeated here — they live in
+   *  `@/lib/collections` and are read from there, so the two surfaces
+   *  for these books state the same facts. */
   subtitle: string | null;
-  author: string;
+  /** Artist slug, for the /artist/<slug> link. */
   authorSlug: string;
   /** Era floor these plates hang on, for the cross-link. */
   eraId: EraId;
@@ -58,9 +63,6 @@ export type PlateSetDefinition = {
   /** Editorial body, one string per paragraph. This is the text that
    *  ranks; the grid below it is not indexable past the first chunk. */
   intro: string[];
-  /** Where the scans came from — rendered verbatim in the provenance
-   *  block at the foot of the page. */
-  scanNote: string;
   resolvePlateNumber: PlateNumberResolver;
 };
 
@@ -102,11 +104,9 @@ function plateFromCreditLine(artwork: Artwork): number | null {
 
 export const PLATE_SETS: PlateSetDefinition[] = [
   {
-    id: "birds-of-america",
+    id: "audubon-birds-of-america",
     folder: "audubon-birds",
-    title: "The Birds of America",
     subtitle: null,
-    author: "John James Audubon",
     authorSlug: "john-james-audubon",
     eraId: "natural-history",
     canonicalPlateCount: 435,
@@ -116,16 +116,12 @@ export const PLATE_SETS: PlateSetDefinition[] = [
       "The book's defining constraint is its size. Audubon insisted every bird appear life size, which forced the use of a \"double elephant\" folio sheet close to a metre tall, and forced the compositions into the shapes they are famous for: the flamingo folded double to fit the page, the whooping crane's neck bent back on itself, the wild turkey striding across the full width of the sheet. What reads today as design bravado started as a measurement problem.",
       "Audubon painted from freshly shot specimens wired into lifelike attitudes, and set them in habitat — fruiting branches, marsh grass, prey in the beak — at a time when the convention was a stiff profile against blank paper. That decision is why the plates still work as pictures rather than as diagrams, and why the set is read as art as often as it is read as ornithology.",
     ],
-    scanNote:
-      "Scanned from a complete original folio and released into the public domain via Wikimedia Commons, with individual sheets credited to the University of Pittsburgh and the Biodiversity Heritage Library.",
     resolvePlateNumber: plateFromFilenamePrefix,
   },
   {
-    id: "kunstformen-der-natur",
+    id: "haeckel-kunstformen-der-natur",
     folder: "kunstformen-images",
-    title: "Kunstformen der Natur",
     subtitle: "Art Forms in Nature",
-    author: "Ernst Haeckel",
     authorSlug: "ernst-haeckel",
     eraId: "natural-history",
     canonicalPlateCount: 100,
@@ -135,16 +131,12 @@ export const PLATE_SETS: PlateSetDefinition[] = [
       "Each plate takes a single group — jellyfish, diatoms, bats, orchids, barnacles — and arranges its members into a composition rather than a chart, radiating them around a centre or ranking them into borders. The lithographs were drawn onto stone by Adolf Giltsch, working from Haeckel's watercolours and sketches, and Giltsch's handling of the transparent tissues of the medusae is a large part of why the plates look the way they do.",
       "The book landed at the exact moment Art Nouveau was looking for a vocabulary, and it supplied one. Its most literal debt is René Binet's monumental entrance gate for the 1900 Exposition Universelle in Paris, modelled on a radiolarian, but the influence runs through Jugendstil ironwork, ceramics and glass generally. Modern biology has moved past some of Haeckel's claims — his recapitulation theory in particular — but the plates themselves have never stopped being reprinted.",
     ],
-    scanNote:
-      "Scanned from the 1904 collected edition and released into the public domain via Wikimedia Commons.",
     resolvePlateNumber: plateFromCreditLine,
   },
   {
-    id: "les-roses",
+    id: "redoute-les-roses",
     folder: "redoute-roses",
-    title: "Les Roses",
     subtitle: null,
-    author: "Pierre-Joseph Redouté",
     authorSlug: "pierre-joseph-redoute",
     eraId: "natural-history",
     canonicalPlateCount: 169,
@@ -154,16 +146,12 @@ export const PLATE_SETS: PlateSetDefinition[] = [
       "The plates are colour-printed stipple engravings. Instead of building tone from cut lines, the stipple technique builds it from a dense field of dots, which holds gradation the way a wash does — the reason a Redouté petal can shade from a saturated centre to a translucent edge without a visible hatch anywhere. Each sheet was inked in several colours in a single pull and then finished by hand, so no two impressions of the same plate are quite identical.",
       "The set is also a botanical record of a specific moment: the decades when repeat-flowering roses arriving from China were being crossed with the European gallicas and damasks, and the modern garden rose was being assembled. A number of the varieties Redouté drew no longer exist outside these pages.",
     ],
-    scanNote:
-      "Digitised and restored by Nicholas Rougeux at c82.net from an original copy, after Pierre-Joseph Redouté. Public domain.",
     resolvePlateNumber: plateFromRedouteSourceUrl,
   },
   {
-    id: "les-liliacees",
+    id: "redoute-les-liliacees",
     folder: "redoute-lilies",
-    title: "Les Liliacées",
     subtitle: null,
-    author: "Pierre-Joseph Redouté",
     authorSlug: "pierre-joseph-redoute",
     eraId: "natural-history",
     canonicalPlateCount: 486,
@@ -173,8 +161,6 @@ export const PLATE_SETS: PlateSetDefinition[] = [
       "The text was not Redouté's. The first four volumes were written by Augustin Pyramus de Candolle, one of the most important botanists of the century, with François Delaroche and then Alire Raffeneau-Delile taking over for the later volumes — so the book is a serious taxonomic publication that happens to be beautiful, not an album with captions.",
       "Technically it is the same colour-printed stipple engraving as Les Roses, and it is where Redouté worked the method out at scale. The plates give a strap-leaved plant the full height of the sheet and let the flower do the work at the top, and many of them carry small dissections — a stamen, an ovary in section, a seed — set beside the portrait, which is the tell that these were meant to be used as well as admired.",
     ],
-    scanNote:
-      "Digitised and restored by Nicholas Rougeux at c82.net from an original copy, after Pierre-Joseph Redouté. Public domain.",
     resolvePlateNumber: plateFromRedouteSourceUrl,
   },
 ];

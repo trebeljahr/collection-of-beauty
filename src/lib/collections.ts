@@ -7,7 +7,8 @@
 // pipeline groups a source. A fifth set means a fifth entry, not a
 // schema change.
 
-import { type ArtworkListing, artworkListings } from "@/lib/data";
+import type { ArtworkListing } from "@/lib/data";
+import { plateOrderForFolder } from "@/lib/plate-order";
 import { slugify } from "@/lib/utils";
 
 /**
@@ -99,35 +100,17 @@ export function getCollection(slug: string): Collection | null {
 }
 
 /**
- * Which ingest folder an artwork came from.
- *
- * `ArtworkListing` deliberately doesn't carry `folder` — it's a slim
- * projection and every field in it is paid for in the RSC payload of
- * every page that ships listings. The folder is the first segment of
- * `objectKey` by construction (`assets/<folder>/<filename>`), so we read
- * it back rather than widening the projection for four pages.
- */
-function folderOf(art: ArtworkListing): string {
-  const i = art.objectKey.indexOf("/");
-  return i === -1 ? "" : art.objectKey.slice(0, i);
-}
-
-/**
  * The works in a set, in plate order.
  *
- * Sorted by title with a numeric collator so "Plate 2" precedes
- * "Plate 10" — a plain lexicographic sort scatters the Audubon plates,
- * and plate order is the one ordering a bound folio actually has.
+ * Delegates to `plate-order`, which recovers the printed plate number
+ * per set. This used to sort by title with a numeric collator, which
+ * reads as plate order only for a set whose titles are literally
+ * "Plate N" — none of these four are. It opened The Birds of America on
+ * the American Avocet (plate 318) instead of the Wild Turkey (plate 1),
+ * and numbered the ZIP entries in that same alphabetical order.
  */
 export function collectionArtworks(collection: Collection): ArtworkListing[] {
-  return artworkListings
-    .filter((a) => folderOf(a) === collection.folder)
-    .sort((a, b) =>
-      (a.englishTitle ?? a.title).localeCompare(b.englishTitle ?? b.title, "en", {
-        numeric: true,
-        sensitivity: "base",
-      }),
-    );
+  return plateOrderForFolder(collection.folder).map((p) => p.listing);
 }
 
 /**

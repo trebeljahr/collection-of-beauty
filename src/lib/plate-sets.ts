@@ -1,5 +1,7 @@
 import { displayTitle } from "@/lib/artwork-format";
-import { type Artwork, type ArtworkListing, artworkListings, artworks } from "@/lib/data";
+import { type Collection, collectionForFolder } from "@/lib/collections";
+import { type Artwork, type ArtworkListing, artworks } from "@/lib/data";
+import { type OrderedPlate, plateOrderForFolder } from "@/lib/plate-order";
 import {
   isPlateSetId,
   PLATE_SETS,
@@ -8,22 +10,28 @@ import {
 } from "@/lib/plate-set-definitions";
 
 /** The catalogue-reading half of the plate sets: takes the pure
- *  definitions and resolves them against artworks.json. Anything that
- *  imports this pulls the whole catalogue, so client components must go
- *  through `plate-set-definitions` (or `scope-href`) instead. */
+ *  definitions, joins them to the `Collection` record for the same book,
+ *  and resolves both against artworks.json. Anything that imports this
+ *  pulls the whole catalogue, so client components must go through
+ *  `plate-set-definitions` (or `scope-href`) instead.
+ *
+ *  Title, creator, publication span and source note are NOT redefined
+ *  here — they come from `@/lib/collections`, which the /downloads
+ *  surface already uses, so the two pages about the same book cannot
+ *  state different facts. */
 
 export { isPlateSetId, PLATE_SETS, type PlateSetDefinition, type PlateSetId };
 
 // ── derived from the catalogue, memoised ───────────────────────────────────────────────────
 
-export type Plate = {
-  listing: ArtworkListing;
-  /** Printed plate number, or null when the source records don't carry
-   *  one. Plates without a number sort to the end. */
-  plateNumber: number | null;
-};
+export type Plate = OrderedPlate;
 
 export type PlateSet = PlateSetDefinition & {
+  /** Bibliographic facts, read from the shared Collection record. */
+  title: string;
+  author: string;
+  /** Where the scans came from. */
+  scanNote: string;
   /** Plates ordered as the book orders them: by plate number, unnumbered
    *  last, title as the tiebreaker. */
   plates: Plate[];
@@ -82,25 +90,10 @@ function publicationSpan(members: Artwork[]): {
   return { label: from === to ? String(from) : `${from}–${to}`, from, to };
 }
 
-function buildPlateSet(definition: PlateSetDefinition): PlateSet {
+function buildPlateSet(definition: PlateSetDefinition, book: Collection): PlateSet {
   const members = artworks.filter((a) => a.folder === definition.folder);
   const span = publicationSpan(members);
-  const listingById = new Map(artworkListings.map((l) => [l.id, l]));
-
-  const plates: Plate[] = members.flatMap((artwork) => {
-    const listing = listingById.get(artwork.id);
-    // artworkListings is a 1:1 projection of artworks, so this can't miss
-    // — but skipping beats rendering a hole if that ever stops being true.
-    if (!listing) return [];
-    return [{ listing, plateNumber: definition.resolvePlateNumber(artwork) }];
-  });
-
-  plates.sort(
-    (a, b) =>
-      (a.plateNumber ?? Number.MAX_SAFE_INTEGER) - (b.plateNumber ?? Number.MAX_SAFE_INTEGER) ||
-      a.listing.title.localeCompare(b.listing.title) ||
-      a.listing.id.localeCompare(b.listing.id),
-  );
+  const plates = plateOrderForFolder(definition.folder);
 
   const claimed = new Set<number>();
   for (const plate of plates) {
@@ -112,8 +105,9 @@ function buildPlateSet(definition: PlateSetDefinition): PlateSet {
   }
   const seen = new Map<number, number>();
   for (const plate of plates) {
-    if (plate.plateNumber != null)
+    if (plate.plateNumber != null) {
       seen.set(plate.plateNumber, (seen.get(plate.plateNumber) ?? 0) + 1);
+    }
   }
   const sharedPlateNumbers = [...seen.entries()]
     .filter(([, count]) => count > 1)
@@ -122,6 +116,9 @@ function buildPlateSet(definition: PlateSetDefinition): PlateSet {
 
   return {
     ...definition,
+    title: book.title,
+    author: book.creator,
+    scanNote: book.sourceNote,
     plates,
     presentCount: plates.length,
     numberedCount: plates.filter((p) => p.plateNumber != null).length,
@@ -139,7 +136,15 @@ let cache: Map<PlateSetId, PlateSet> | null = null;
 
 function allSets(): Map<PlateSetId, PlateSet> {
   if (cache) return cache;
-  cache = new Map(PLATE_SETS.map((d) => [d.id, buildPlateSet(d)]));
+  cache = new Map(
+    PLATE_SETS.flatMap((d) => {
+      const book = collectionForFolder(d.folder);
+      // A definition with no matching Collection record would render a
+      // page with no title — drop it rather than half-build it. The
+      // plate-sets test asserts the two lists stay in step.
+      return book ? ([[d.id, buildPlateSet(d, book)]] as [PlateSetId, PlateSet][]) : [];
+    }),
+  );
   return cache;
 }
 
@@ -256,10 +261,10 @@ function numberWord(n: number): string {
  *  print "Plate 98 · Haeckel Discomedusae 98". */
 export function plateLabel(set: PlateSet, plate: Plate): string {
   const title = displayTitle(plate.listing);
-  if (set.id === "kunstformen-der-natur") {
+  if (set.id === "haeckel-kunstformen-der-natur") {
     return title.replace(/^Haeckel\s+/i, "").replace(/\s+\d+$/, "");
   }
-  if (set.id === "birds-of-america") {
+  if (set.id === "audubon-birds-of-america") {
     const trimmed = title.replace(/\s*\(Plate\s+\d+\)\s*$/i, "");
     // A few titles lead with the plate number instead ("433 Orioles,
     // Mexican Goldfinch…"), which would render as "433 433 Orioles…"

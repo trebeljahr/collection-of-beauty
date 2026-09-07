@@ -120,7 +120,6 @@ export default function sitemap(): MetadataRoute.Sitemap {
     lastModified: now,
     changeFrequency: "monthly",
     priority: 0.8,
-
   }));
 
   const editionEntries: MetadataRoute.Sitemap = loadPublishedEditions().map((ed) => ({

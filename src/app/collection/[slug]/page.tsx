@@ -178,7 +178,17 @@ export default async function CollectionPage({ params }: { params: Promise<Param
             {note}
           </p>
         ))}
-        <p className="mt-3 text-sm text-[var(--muted-foreground)]">{set.scanNote}</p>
+        <p className="mt-3 text-sm text-[var(--muted-foreground)]">
+          {set.scanNote} Public domain — no permission needed, no attribution required.
+        </p>
+        <p className="mt-3 text-sm">
+          <Link
+            href={`/downloads/${set.id}`}
+            className="underline underline-offset-4 focus:outline-none focus-visible:ring-2 focus-visible:ring-[var(--ring)]"
+          >
+            Download the whole set as a ZIP →
+          </Link>
+        </p>
       </section>
 
       <section>
