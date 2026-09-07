@@ -79,8 +79,10 @@ required by the Dockerfile — don't remove it.
 
 ## Deep zoom (tiled lightbox)
 
-- ~967 works have a source bigger than the standard variant ladder. For
-  those, `pnpm assets:shrink` emits a per-source full-resolution AVIF
+- ~967 works have a source big enough that its full-size encode clears
+  `FULL_SIZE_MIN_WIDTH` (4096 px, in
+  [`variant-config.mjs`](src/lib/variant-config.mjs)). For those,
+  `pnpm assets:shrink` emits a per-source full-resolution AVIF
   (capped at 16384 px on the long side) **and** `pnpm assets:tiles`
   emits a DZI pyramid at
   `assets-web/<folder>/<basename>/tiles/<level>/<col>_<row>.webp`.
@@ -90,9 +92,28 @@ required by the Dockerfile — don't remove it.
   to fetch it eagerly on open — p50 4.3 MB, max 89 MB. It no longer does
   for tiled works; see the skip in `lightbox.tsx`'s preload effect.
 - **Availability is derived, not stored.** A work has tiles exactly when
-  `max(variantWidths) > 4096`, which every client already receives via
-  `ArtworkListing`. Don't add a `hasTiles` field — it would be redundant
-  bytes in the RSC payload on every gallery page.
+  `max(variantWidths) > FULL_SIZE_MIN_WIDTH`, which every client already
+  receives via `ArtworkListing`. Don't add a `hasTiles` field — it would
+  be redundant bytes in the RSC payload on every gallery page.
+- **The threshold is not the ladder max, and must never become it
+  again.** `FULL_SIZE_MIN_WIDTH` lives in `variant-config.mjs` and
+  `TILE_MIN_WIDTH` in `deep-zoom-config.mjs` imports it. It used to be
+  spelled `Math.max(...VARIANT_WIDTHS)` in `shrink-sources.mjs` and
+  hand-copied as a literal `4096` in the tile config, which coupled two
+  unrelated policies: raising the ladder would have stripped the
+  full-size AVIF *and* the pyramid from every work in between, and the
+  viewers degrade silently rather than erroring, so nothing would fail.
+- **Above-ladder widths are not all full-size encodes.** There is a
+  second one: `GALLERY_LOD_WIDTH` (6144), the 3D gallery's close-up
+  texture rung. It is deliberately **not** a member of `VARIANT_WIDTHS`,
+  because every ladder rung is emitted for every source (shrink clamps
+  the pixels but keeps the rung's filename), so a 6144 ladder rung would
+  land on all ~4,570 works, make `max(variantWidths) > 4096` true
+  catalogue-wide, and hand a pyramid to ~3,600 works that have none.
+  Instead it is emitted per source and only when the full-size rung is
+  *strictly larger* than 6144 — which keeps `max(variantWidths)` equal to
+  the full-size width, exactly as before. Anything reading "the largest
+  variant" depends on that gate; `src/lib/deep-zoom.test.ts` pins it.
 - Tile geometry lives in `src/lib/deep-zoom-config.mjs`, shared between
   the build script and the runtime the same way `variant-config.mjs` is.
   `deepZoomSize()` must return the same pair on both sides or the viewer

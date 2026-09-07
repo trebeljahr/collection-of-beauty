@@ -7,17 +7,24 @@
 // download here addresses a *variant* from the `variantWidths` manifest,
 // and the UI says "largest available" rather than "original".
 //
-// Sources wider than 4,096 px get a per-source full-size AVIF on top of the
-// standard ladder (`FULL_SIZE_MAX` in variant-config.mjs, long side clamped
-// to 16,384 px). 968 works carry one, topping out at ~34 MB.
+// Sources whose full-size encode clears `FULL_SIZE_MIN_WIDTH` (4,096 px) get
+// a per-source full-size AVIF on top of the standard ladder (`FULL_SIZE_MAX`
+// in variant-config.mjs, long side clamped to 16,384 px). 968 works carry
+// one, topping out at ~34 MB.
+//
+// Those manifests can carry a SECOND above-ladder width: `GALLERY_LOD_WIDTH`
+// (6,144 px), the 3D gallery's close-up texture rung. It is emitted only
+// below a strictly larger full-size rung, so it is never the largest entry —
+// which is how `isFullSize` below can tell the two apart by position alone.
 
 import type { Artwork, ArtworkListing } from "@/lib/data";
 import { getLicenseInfo } from "@/lib/license";
 import { sourceLabel } from "@/lib/source-label";
-import { slugify, VARIANT_WIDTHS, type VariantFormat } from "@/lib/utils";
+import { GALLERY_LOD_WIDTH, slugify, VARIANT_WIDTHS, type VariantFormat } from "@/lib/utils";
 
-/** Widest rung of the standard responsive ladder. Anything above it is a
- *  per-source full-size AVIF. */
+/** Widest rung of the standard responsive ladder — the widest width every
+ *  shrunk work carries. Anything above it came from a per-source encode:
+ *  either the full-size AVIF or the 3D gallery's 6,144 px LOD rung. */
 export const LADDER_MAX_WIDTH = Math.max(...VARIANT_WIDTHS);
 
 /** The only width `shrink-sources.mjs` encodes as WebP (FORMATS caps the
@@ -33,7 +40,7 @@ export type DownloadOption = {
   /** True for the single largest option — the default the UI leads with. */
   isLargest: boolean;
   /** True when this width came from the per-source full-size encode rather
-   *  than the standard ladder. */
+   *  than the standard ladder or the gallery's close-up LOD rung. */
   isFullSize: boolean;
   /** Pixel height at this width, when the source aspect ratio is known. */
   height: number | null;
@@ -62,12 +69,19 @@ export function downloadOptions(art: Sizeable): DownloadOption[] {
 
   const aspect = art.width && art.height && art.width > 0 ? art.height / art.width : null;
 
+  // `isFullSize` is "above the ladder AND not the gallery LOD rung". The
+  // position test is what disambiguates: shrink-sources.mjs emits
+  // GALLERY_LOD_WIDTH only when a strictly larger full-size rung exists, so
+  // a 6,144 entry at index > 0 is that rung, while a 6,144 entry leading the
+  // list is a genuine full-size encode that happened to land on the number.
+  // Comparing against LADDER_MAX_WIDTH alone would flag the LOD rung as a
+  // full-size download and put a second "full resolution" row on the page.
   const options: DownloadOption[] = sorted.map((width, i) => ({
     width,
     format: "avif" as const,
     label: labelFor(width, aspect),
     isLargest: i === 0,
-    isFullSize: width > LADDER_MAX_WIDTH,
+    isFullSize: width > LADDER_MAX_WIDTH && !(width === GALLERY_LOD_WIDTH && i > 0),
     height: aspect ? Math.round(width * aspect) : null,
   }));
 
@@ -98,7 +112,15 @@ export function largestDownload(art: Sizeable): DownloadOption | null {
 }
 
 /** True when this work has a per-source full-size encode beyond the
- *  standard ladder — i.e. the source was wider than 4,096 px. */
+ *  standard ladder — i.e. its full-size width cleared FULL_SIZE_MIN_WIDTH.
+ *
+ *  Very nearly, but NOT exactly, "the work has a DZI tile pyramid". Both
+ *  ride the same width threshold, but the tiler additionally needs source
+ *  dimensions to compute the pyramid geometry (`deepZoomSize` returns null
+ *  without them), and one catalogued work — the Boilly conscrits, whose
+ *  manifest tops out at 16384 — has `width`/`height` null. It has the
+ *  full-size download and no pyramid. Don't invert this into an
+ *  availability check for deep zoom; use `deepZoomSize` for that. */
 export function hasFullSizeDownload(art: Sizeable): boolean {
   return largestDownload(art)?.isFullSize === true;
 }

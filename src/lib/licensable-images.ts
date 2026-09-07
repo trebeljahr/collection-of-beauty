@@ -22,11 +22,16 @@ import { fallbackVariant, publicVariantUrl, VARIANT_WIDTHS, type VariantFormat }
  * 4096 is deliberately excluded: shrink-sources emits it for the 3D
  * gallery's close-up LOD, and the 2D `<picture>` tops out at 2560. Naming
  * a multi-megabyte file Googlebot would otherwise never fetch buys
- * nothing and costs bandwidth on every crawl.
+ * nothing and costs bandwidth on every crawl. The gallery's other
+ * close-up rung, GALLERY_LOD_WIDTH (6144), is excluded on the same
+ * grounds — it exists only for GPU texture upload.
  *
- * The per-source full-size rung (the 11k–16k px entries in
- * `variantWidths`) is excluded for the same reason, and more strongly —
- * it exists only for GPU texture upload.
+ * The per-source full-size rung is excluded for the same reason, and more
+ * strongly. Note it is no longer characterised by "the 11k–16k px entries
+ * in `variantWidths`": a full-size rung can be as small as ~4.1k px and
+ * therefore sit BELOW a 6144 gallery rung in the same manifest. This
+ * allowlist sidesteps that entirely by naming the widths it wants rather
+ * than reasoning about the manifest's shape.
  */
 const EXTRA_LICENSABLE_WIDTHS = [2560, 1920] as const;
 
