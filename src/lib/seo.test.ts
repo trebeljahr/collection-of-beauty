@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
 import type { Artwork } from "./data";
-import { artworkImageObjects, artworkJsonLd, SITE_URL } from "./seo";
+import { WEBP_WIDTH } from "./downloads";
+import { artworkImageObjects, artworkJsonLd, ogImagesForArtwork, SITE_URL } from "./seo";
 import { fallbackVariantUrl } from "./utils";
 
 function makeArtwork(overrides: Partial<Artwork> = {}): Artwork {
@@ -161,5 +162,25 @@ describe("artworkJsonLd", () => {
     );
     expect(json).not.toContain("undefined");
     expect(JSON.parse(json).image[0].contentUrl).toBeTruthy();
+  });
+});
+
+describe("ogImagesForArtwork", () => {
+  // Every og:image has to be a width the pipeline actually encodes as
+  // WebP, and FORMATS in shrink-sources.mjs overrides that to a single
+  // entry. A second card at 640.webp shipped on every artwork page for
+  // months pointing at a file that has never existed, and nothing caught
+  // it: verify-r2 checks the AVIF manifest plus one 1280.webp, so the
+  // deploy gate never HEADs the extra key.
+  it("emits exactly one card, at the only width encoded as WebP", () => {
+    const images = ogImagesForArtwork(makeArtwork());
+    expect(Array.isArray(images)).toBe(true);
+    const list = images as { url: string }[];
+    expect(list).toHaveLength(1);
+    expect(list[0].url.endsWith(`/${WEBP_WIDTH}.webp`)).toBe(true);
+  });
+
+  it("returns nothing for a missing artwork rather than a broken card", () => {
+    expect(ogImagesForArtwork(null)).toEqual([]);
   });
 });

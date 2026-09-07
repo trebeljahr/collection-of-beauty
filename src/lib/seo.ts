@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { artworkAlt, displayTitle } from "@/lib/artwork-format";
 import { type Artist, type Artwork, artworks, summary } from "@/lib/data";
+import { WEBP_WIDTH } from "@/lib/downloads";
 import { ERAS } from "@/lib/gallery-eras";
 import { encodingFormat, licensableVariants } from "@/lib/licensable-images";
 import { getLicenseInfo } from "@/lib/license";
@@ -90,11 +91,22 @@ function fitInto(
 }
 
 /**
- * Build the Open Graph `images` array for an artwork. We point at the
- * pre-built 1280-wide WebP variant (fast for social scrapers) and add the
- * 640-wide one as a smaller secondary for crawlers that cap payload size.
+ * Build the Open Graph `images` array for an artwork: the pre-built
+ * 1280-wide WebP variant, and only that one.
  *
- * Both entries must be *variants*. Only `assets-web/` is synced to R2 and
+ * WebP rather than AVIF because social scrapers and email clients still
+ * have poor AVIF support, and WEBP_WIDTH because it is the ONLY WebP
+ * width the pipeline builds — `FORMATS` in shrink-sources.mjs overrides the ladder
+ * to `widths: [1280]` for WebP, one file per source instead of eight.
+ * There used to be a second entry here at 640.webp, offered as "a smaller
+ * secondary for crawlers that cap payload size"; that file has never
+ * existed for any of the 4,571 works, so every artwork page shipped an
+ * og:image that 404s. It stayed invisible because verify-r2's
+ * `expectedKeysFor` checks the AVIF widths in `variantWidths` plus a
+ * single 1280.webp, so the deploy gate never HEADs it. Adding a width
+ * back here means adding it to FORMATS first.
+ *
+ * The entry must be a *variant*. Only `assets-web/` is synced to R2 and
  * shrink-sources.mjs never copies an original into it, so the original an
  * `assetUrl()` entry would point at isn't a servable URL — see the header
  * of scripts/verify-r2.mjs. It also emitted a duplicate og:image tag.
@@ -103,22 +115,13 @@ export function ogImagesForArtwork(
   artwork: Artwork | null | undefined,
 ): NonNullable<Metadata["openGraph"]>["images"] {
   if (!artwork) return [];
-  const large = fitInto(artwork.width, artwork.height, 1280);
-  const small = fitInto(artwork.width, artwork.height, 640);
-  const alt = artworkAlt(artwork);
+  const large = fitInto(artwork.width, artwork.height, WEBP_WIDTH);
   return [
     {
-      url: variantUrl(artwork.objectKey, 1280, "webp"),
+      url: variantUrl(artwork.objectKey, WEBP_WIDTH, "webp"),
       width: large.width,
       height: large.height,
-      alt,
-      type: "image/webp",
-    },
-    {
-      url: variantUrl(artwork.objectKey, 640, "webp"),
-      width: small.width,
-      height: small.height,
-      alt,
+      alt: artworkAlt(artwork),
       type: "image/webp",
     },
   ];
