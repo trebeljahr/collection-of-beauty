@@ -42,7 +42,7 @@ export function Gallery3DClient() {
     // remounting the DOM node and restarting the loading bar, so the
     // curtain looked like it reappeared. Kicking the import here overlaps
     // the two; by the time the fetch resolves the chunk is usually
-    // already cached and <Gallery3D> mounts straight to its StartOverlay.
+    // already cached and <Gallery3D> takes the curtain over mid-fill.
     void import("@/components/gallery-3d");
 
     const controller = new AbortController();
@@ -60,7 +60,7 @@ export function Gallery3DClient() {
   }, []);
 
   if (!artworks) {
-    return <GalleryCurtain failed={failed} />;
+    return <GalleryCurtain fetchFailed={failed} />;
   }
 
   return <Gallery3D artworks={artworks} />;

@@ -74,9 +74,9 @@ const SLIDE_IN_MS = 320;
  *
  * Clicking the "3D Room" entry triggers `nav-slide-out-down` so the
  * menu drops off the bottom of the viewport while the gallery's
- * StartOverlay loads in place behind it — the WebGL bundle takes a
- * second or two to stream in, then the user sees the museum's own
- * "Enter the museum" panel rather than a duplicate route loading card.
+ * curtain loads in place behind it — the WebGL bundle takes a
+ * second or two to stream in, and the curtain is the same "Enter the
+ * museum" panel throughout rather than a duplicate route loading card.
  */
 export function SiteNav() {
   const [open, setOpen] = useState(false);
@@ -178,7 +178,7 @@ export function SiteNav() {
   }, [open]);
 
   // 3D-Room click: animate the modal sliding down while the route push
-  // mounts the gallery behind it. The StartOverlay handles its own
+  // mounts the gallery behind it. The GalleryCurtain handles its own
   // loading state in place — no separate route-level loading screen
   // — so once the WebGL bundle streams in the user lands directly on
   // "Enter the museum". Under `prefers-reduced-motion` the animation

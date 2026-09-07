@@ -4,6 +4,7 @@ import { PointerLockControls } from "@react-three/drei";
 import { Canvas, useThree } from "@react-three/fiber";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import * as THREE from "three";
+import { GalleryCurtain } from "@/app/gallery-3d/gallery-curtain";
 import { useSetIs3DActive } from "@/components/gallery-3d-state";
 import { useJoystick } from "@/hooks/use-joystick";
 import { useNeedsRotate, useTouchDevice } from "@/hooks/use-touch-device";
@@ -102,6 +103,12 @@ export function Gallery3D({ artworks }: Props) {
   const entryRoomLoaded = entryRoomStatuses.filter((status) => status === "loaded").length;
   const entryRoomFailed = entryRoomStatuses.filter((status) => status === "failed").length;
   const entryRoomSettled = entryRoomLoaded + entryRoomFailed;
+  const entryRoomReady = entryRoomTotal === 0 || entryRoomSettled >= entryRoomTotal;
+  // Fed to the curtain as the tail of one continuous bar — the pre-mount
+  // phases own the head of the same track, so this must stay a plain 0..1
+  // share of the entry room, not a full-width bar of its own.
+  const entryRoomProgress =
+    entryRoomTotal > 0 ? Math.min(entryRoomSettled, entryRoomTotal) / entryRoomTotal : 1;
   const handleEntryPaintingSettled = useCallback((key: string, status: "loaded" | "failed") => {
     setEntryRoomResults((prev) => {
       if (prev[key]) return prev;
@@ -568,12 +575,22 @@ export function Gallery3D({ artworks }: Props) {
         )}
       </Canvas>
       {!hasStarted && (
-        <StartOverlay
+        // Same component the route fallback and the artworks-fetch wait
+        // render, so the entry sequence is one card whose bar keeps
+        // filling — the era title and the texture progress just drop into
+        // slots that were already holding their space.
+        <GalleryCurtain
+          overlay
           title={currentFloor.era.title}
           blurb={currentFloor.era.blurb}
-          settled={Math.min(entryRoomSettled, entryRoomTotal)}
-          failed={entryRoomFailed}
-          total={entryRoomTotal}
+          progress={entryRoomProgress}
+          ready={entryRoomReady}
+          failedCount={entryRoomFailed}
+          status={
+            entryRoomReady
+              ? undefined
+              : `Loading first room… ${Math.min(entryRoomSettled, entryRoomTotal)}/${entryRoomTotal}`
+          }
           onRetry={retryEntryRoomLoads}
           onStart={() => {
             // Engage pointer lock inside the Enter click's user gesture so
@@ -590,7 +607,6 @@ export function Gallery3D({ artworks }: Props) {
             // without yanking the user out of fullscreen.
             setHasStarted(true);
           }}
-          isTouch={isTouch}
         />
       )}
       {/* Rotate-to-landscape guard — full-screen overlay shown to
@@ -967,124 +983,6 @@ function Crosshair({ inspecting }: { inspecting: boolean }) {
       ) : (
         <div className="h-1.5 w-1.5 rounded-full bg-white/70 shadow-[0_0_2px_rgba(0,0,0,0.8)]" />
       )}
-    </div>
-  );
-}
-
-/**
- * Start-of-gallery overlay. Card-style modal with the era title, the
- * controls hint, and a progress bar reporting how many of the entry
- * room's paintings have decoded their textures. The Enter button is
- * disabled until the entry room is fully loaded so the player doesn't
- * walk into a wall of brown swatches. Ported from the old corridor
- * gallery's StartOverlay — same UX, scoped to the new entry room.
- */
-function StartOverlay({
-  onStart,
-  settled,
-  failed,
-  total,
-  title,
-  blurb,
-  onRetry,
-  isTouch = false,
-}: {
-  onStart: () => void;
-  settled: number;
-  failed: number;
-  total: number;
-  title: string;
-  blurb: string;
-  onRetry: () => void;
-  /** When true, the controls hint reads as joystick / tap instructions
-   *  instead of WASD + mouse. Driven by `useTouchDevice()` upstream. */
-  isTouch?: boolean;
-}) {
-  const ready = total === 0 || settled >= total;
-  const pct = total > 0 ? Math.round((settled / total) * 100) : 100;
-
-  return (
-    // biome-ignore lint/a11y/useKeyWithClickEvents: pointer-lock entry requires a real mouse click; keyboard activation can't grant pointer-lock
-    // biome-ignore lint/a11y/noStaticElementInteractions: same reason — full-screen click target gates pointer-lock entry
-    <div
-      onClick={ready ? onStart : undefined}
-      className={`absolute inset-0 z-10 flex items-center justify-center bg-black/70 backdrop-blur-sm ${
-        ready ? "cursor-pointer" : "cursor-default"
-      }`}
-    >
-      {/* biome-ignore lint/a11y/useKeyWithClickEvents: stopPropagation only. */}
-      {/* biome-ignore lint/a11y/noStaticElementInteractions: stopPropagation only — purely visual container */}
-      <div
-        onClick={(e) => e.stopPropagation()}
-        className="w-[min(480px,92vw)] rounded-xl border border-white/15 bg-black/60 p-6 text-center text-white shadow-2xl"
-      >
-        <h2 className="font-serif text-2xl tracking-wide">Enter the museum</h2>
-        <p className="mt-3 text-sm leading-relaxed text-white/80">
-          You'll start on <span className="font-medium text-white">{title}</span>.
-          <span className="mt-1 block text-white/60">{blurb}</span>
-        </p>
-        <p className="mt-4 text-xs leading-relaxed text-white/65">
-          {isTouch ? (
-            <>
-              Left stick walks · right stick looks · tap a painting to inspect · stairs change
-              floors
-            </>
-          ) : (
-            <>
-              <kbd className="rounded border border-white/30 px-1.5">W</kbd>{" "}
-              <kbd className="rounded border border-white/30 px-1.5">A</kbd>{" "}
-              <kbd className="rounded border border-white/30 px-1.5">S</kbd>{" "}
-              <kbd className="rounded border border-white/30 px-1.5">D</kbd> to walk · mouse to look
-              · <kbd className="rounded border border-white/30 px-1.5">Shift</kbd> to run ·{" "}
-              <kbd className="rounded border border-white/30 px-1.5">Space</kbd> to jump · click a
-              painting to zoom · <kbd className="rounded border border-white/30 px-1.5">M</kbd> for
-              the full map (with teleport shortcuts)
-            </>
-          )}
-        </p>
-
-        <div className="mt-5 space-y-2">
-          <div className="h-1.5 w-full overflow-hidden rounded-full bg-white/10">
-            <div
-              className="h-full bg-white/70 transition-[width] duration-300 ease-out"
-              style={{ width: `${pct}%` }}
-            />
-          </div>
-          <div className="text-xs text-white/55">
-            {ready
-              ? failed > 0
-                ? `${failed} painting${failed === 1 ? "" : "s"} could not load`
-                : "First room ready"
-              : `Loading first room… ${settled}/${total}`}
-          </div>
-          {failed > 0 && (
-            <p className="text-xs leading-relaxed text-amber-200/80">
-              Network or image decoding failed after retries. You can enter with placeholders or
-              retry the room.
-            </p>
-          )}
-        </div>
-
-        <div className="mt-5 flex flex-wrap items-center justify-center gap-2">
-          {failed > 0 && (
-            <button
-              type="button"
-              onClick={onRetry}
-              className="rounded-md border border-white/25 px-5 py-2 text-sm font-medium text-white transition hover:bg-white/10"
-            >
-              Retry
-            </button>
-          )}
-          <button
-            type="button"
-            onClick={onStart}
-            disabled={!ready}
-            className="rounded-md bg-white px-5 py-2 text-sm font-medium text-black transition hover:bg-white/85 disabled:cursor-not-allowed disabled:bg-white/30 disabled:text-white/60"
-          >
-            {ready ? (failed > 0 ? "Enter anyway" : "Enter") : "Preparing…"}
-          </button>
-        </div>
-      </div>
     </div>
   );
 }

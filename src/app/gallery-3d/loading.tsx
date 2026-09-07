@@ -3,10 +3,10 @@
 // and parses. Without this the route is a blank canvas until the bundle
 // is ready.
 //
-// Renders the shared GalleryCurtain so this window, the artworks-fetch
-// window, and the StartOverlay all read as one continuous loader that
-// ends on the "Enter the museum" card — no swapping between differently
-// styled screens.
+// Renders the shared GalleryCurtain, which is also the artworks-fetch
+// window and the in-canvas Enter card — one card, one progress bar,
+// filled continuously across all three phases. See gallery-curtain.tsx
+// for the two rules that keep the sequence from jumping.
 
 import { GalleryCurtain } from "./gallery-curtain";
 
