@@ -3,8 +3,8 @@
 import { useRouter } from "next/navigation";
 import { type CSSProperties, type SyntheticEvent, useEffect, useRef, useState } from "react";
 import { artworkAlt, displayTitle } from "@/lib/artwork-format";
-import { artworkHref, type Scope } from "@/lib/artwork-scope";
 import { getLoadedVariant, recordLoadedVariant } from "@/lib/image-cache";
+import { artworkHref, type Scope } from "@/lib/scope-href";
 import { saveBackFlipSnapshot } from "@/lib/use-artwork-back-flip";
 import { useTransitionPush } from "@/lib/use-transition-nav";
 import { cn, fallbackVariantUrl, variantSrcSet, variantUrl } from "@/lib/utils";

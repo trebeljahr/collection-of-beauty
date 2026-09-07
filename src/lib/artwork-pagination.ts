@@ -152,6 +152,16 @@ function applyPinnedHead(sorted: ArtworkListing[], pinnedIds: readonly string[])
   return [...head, ...tail];
 }
 
+/** Free-text match against one listing, using the same accent-folded,
+ *  all-terms-must-hit rules as the paginated gallery endpoint. Exported
+ *  so the timeline's server-side filter behaves identically to the
+ *  grid's — an empty query matches everything. */
+export function listingMatchesQuery(artwork: ArtworkListing, query: string): boolean {
+  const terms = normalizeQuery(query);
+  if (terms.length === 0) return true;
+  return matchesQuery(artwork, terms);
+}
+
 function normalizeQuery(query: string | undefined): string[] {
   return foldText(query ?? "")
     .trim()

@@ -13,7 +13,7 @@ import {
   useState,
 } from "react";
 import { artworkAlt } from "@/lib/artwork-format";
-import { artworkHref, parseScope, type Scope } from "@/lib/artwork-scope";
+import { artworkHref, parseScope, type Scope } from "@/lib/scope-href";
 import { Lightbox } from "./lightbox";
 
 type LightboxArtwork = {
