@@ -36,7 +36,7 @@ type Params = { slug: string };
    of which are clickable), and `sm:inline` returns the anchor to an
    ordinary inline box above the breakpoint. This is the idiom on every
    page that grew a touch target — /artwork/[id], /artist/[slug],
-   /era/[id], /colours/[family], /downloads/[slug] — enlarge the box and
+   /era/[id] and /colours/[family] — enlarge the box and
    overlap, never shrink a neighbour's margin. */
 const TEXT_LINK =
   "-my-3 inline-flex min-h-11 items-center rounded-sm underline focus:outline-none focus-visible:ring-2 focus-visible:ring-[var(--ring)] sm:my-0 sm:inline sm:min-h-0";
@@ -252,7 +252,7 @@ export default async function CollectionPage({ params }: { params: Promise<Param
         <p className="mt-1 mb-4 text-sm text-[var(--muted-foreground)]">
           All {set.presentCount} plates, listed in published order.
         </p>
-        {/* Same 24px-row problem as /downloads/<slug>, and the same fix: the
+        {/* A 24px-row problem on phones, fixed once on the <ol>: the
             row geometry is stated once on the <ol> as child selectors rather
             than repeated in a class attribute on all 435 <li>s, where it
             would cost tens of KB of HTML for one identical rule. Each link

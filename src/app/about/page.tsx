@@ -230,7 +230,7 @@ export default function AboutPage() {
           {/* Standalone nav link, not prose — so unlike the in-sentence links
               above it can take a real box. Same idiom as the "← Back to …"
               links on /artwork/[id], /artist/[slug], /era/[id],
-              /collection/[slug], /colours/[family], /downloads/[slug] and
+              /collection/[slug], /colours/[family] and
               /newsletter/[slug]: min-h-11 is WCAG 2.5.5's 44px touch floor
               on the hit area rather than the type size, `-my-3` hands the
               extra 24px straight back so the section's own spacing is
