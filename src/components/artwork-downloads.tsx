@@ -98,7 +98,7 @@ export function ArtworkDownloads({ artwork }: { artwork: Artwork }) {
       {collection && (
         <p className="text-sm text-[var(--muted-foreground)]">
           {displayTitle(artwork)} is one plate from {collection.title}.{" "}
-          <a href={`/downloads/${collection.slug}`} className="underline underline-offset-4">
+          <a href={`/collection/${collection.slug}`} className="underline underline-offset-4">
             Download the complete set
           </a>
           .

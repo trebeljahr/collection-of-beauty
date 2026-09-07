@@ -1,5 +1,4 @@
 import type { MetadataRoute } from "next";
-import { COLLECTIONS } from "@/lib/collections";
 import { COLOR_BUCKETS } from "@/lib/color-buckets.mjs";
 import { artists, artworks } from "@/lib/data";
 import { ERAS } from "@/lib/gallery-eras";
@@ -88,12 +87,6 @@ export default function sitemap(): MetadataRoute.Sitemap {
       priority: 0.3,
     },
     { url: absoluteUrl("/drops"), lastModified: now, changeFrequency: "weekly", priority: 0.7 },
-    {
-      url: absoluteUrl("/downloads"),
-      lastModified: now,
-      changeFrequency: "monthly",
-      priority: 0.8,
-    },
   ];
 
   // Derived from ERAS — the same list /era/[id] builds its static params
@@ -106,18 +99,10 @@ export default function sitemap(): MetadataRoute.Sitemap {
     priority: 0.6,
   }));
 
-  // Derived from COLLECTIONS the same way the era entries are derived from
-  // ERAS — a fifth plate set lands in the sitemap the moment it exists.
-  const downloadEntries: MetadataRoute.Sitemap = COLLECTIONS.map((c) => ({
-    url: absoluteUrl(`/downloads/${c.slug}`),
-    lastModified: now,
-    changeFrequency: "monthly",
-    priority: 0.7,
-  }));
-
-  // The editorial landing page for each plate set, distinct from the
-  // /downloads entry above: that one offers the files, this one is the
-  // page about the book.
+  // Derived from getPlateSets() the same way the era entries are derived
+  // from ERAS — a fifth plate set lands in the sitemap the moment it
+  // exists. This is the page about the book, and the page that offers the
+  // set's ZIP.
   const plateSetEntries: MetadataRoute.Sitemap = getPlateSets().map((set) => ({
     url: absoluteUrl(`/collection/${set.id}`),
     lastModified: now,
@@ -160,7 +145,6 @@ export default function sitemap(): MetadataRoute.Sitemap {
   return [
     ...staticEntries,
     ...eraEntries,
-    ...downloadEntries,
     ...plateSetEntries,
     ...colourEntries,
     ...editionEntries,

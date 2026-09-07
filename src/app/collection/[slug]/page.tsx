@@ -6,6 +6,13 @@ import { pillClasses } from "@/components/ui/pill";
 import { DEFAULT_ARTWORK_PAGE_SIZE } from "@/lib/artwork-page-schema";
 import { getArtworkListingPage } from "@/lib/artwork-pagination";
 import { artworkHref, type Scope } from "@/lib/artwork-scope";
+import {
+  collectionZipEntries,
+  getCollection,
+  isCollectionCapped,
+  ZIP_MAX_ENTRIES,
+  ZIP_VARIANT_WIDTH,
+} from "@/lib/collections";
 import { getArtwork } from "@/lib/data";
 import { getEra } from "@/lib/gallery-eras";
 import {
@@ -93,6 +100,12 @@ export default async function CollectionPage({ params }: { params: Promise<Param
   const others = getPlateSets().filter((s) => s.id !== set.id);
   const caveats = holdingCaveats(set);
 
+  // This is the only page about the set, so it carries the archive too.
+  // `getCollection` keys off the same id space as `getPlateSet`.
+  const collection = getCollection(set.id);
+  const zipEntryCount = collection ? collectionZipEntries(collection).length : 0;
+  const zipCapped = collection ? isCollectionCapped(collection) : false;
+
   // Server-render only the first page into the visual grid; the client
   // paginates the rest via /api/artworks/page. sort=plate + the same
   // collection id reproduces this exact ordering, so the initial render
@@ -172,14 +185,27 @@ export default async function CollectionPage({ params }: { params: Promise<Param
         <p className="mt-3 text-sm text-[var(--muted-foreground)]">
           {set.scanNote} Public domain — no permission needed, no attribution required.
         </p>
-        <p className="mt-3 text-sm">
-          <Link
-            href={`/downloads/${set.id}`}
-            className="underline underline-offset-4 focus:outline-none focus-visible:ring-2 focus-visible:ring-[var(--ring)]"
-          >
-            Download the whole set as a ZIP →
-          </Link>
-        </p>
+        {zipEntryCount > 0 && (
+          <>
+            <p className="mt-4">
+              <a
+                href={`/api/collections/${set.id}`}
+                className="inline-flex items-center gap-2 rounded-md bg-[var(--primary)] px-4 py-2 text-sm font-medium text-[var(--primary-foreground)] hover:opacity-90 focus:outline-none focus-visible:ring-2 focus-visible:ring-[var(--ring)]"
+              >
+                Download all {zipEntryCount} plates (.zip)
+              </a>
+            </p>
+            <p className="mt-2 text-sm text-[var(--muted-foreground)]">
+              {zipEntryCount} AVIF files at {ZIP_VARIANT_WIDTH.toLocaleString("en-US")} px wide,
+              plus a <code>README.txt</code> with a credit line and link per plate. Streamed as it
+              is built, so there is no progress bar.
+              {zipCapped
+                ? ` The archive is capped at ${ZIP_MAX_ENTRIES} plates; the rest download individually from their own pages.`
+                : ""}{" "}
+              For one plate at full scan resolution, use the download panel on its own page.
+            </p>
+          </>
+        )}
       </section>
 
       <section>

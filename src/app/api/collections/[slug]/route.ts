@@ -126,7 +126,7 @@ function buildReadme(slug: string, ids: string[]): string {
         "as a condition.",
     ),
     "",
-    `Browse the full catalogue: https://beauty.trebeljahr.com/downloads/${collection.slug}`,
+    `Browse the full catalogue: https://beauty.trebeljahr.com/collection/${collection.slug}`,
     "",
     "PLATES",
     "",

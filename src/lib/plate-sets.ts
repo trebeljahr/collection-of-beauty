@@ -16,9 +16,9 @@ import {
  *  `plate-set-definitions` (or `scope-href`) instead.
  *
  *  Title, creator, publication span and source note are NOT redefined
- *  here — they come from `@/lib/collections`, which the /downloads
- *  surface already uses, so the two pages about the same book cannot
- *  state different facts. */
+ *  here — they come from `@/lib/collections`, which the ZIP route already
+ *  uses, so the page about a book and its archive cannot state different
+ *  facts. */
 
 export { isPlateSetId, PLATE_SETS, type PlateSetDefinition, type PlateSetId };
 

@@ -177,7 +177,7 @@ const hooks = [
 ] as const;
 
 const features = [
-  "High-resolution downloads at /downloads. Every work downloads at the largest size built for it - up to 16,384px for the ~970 works with oversized source scans - and the four published plate sets stream as on-demand ZIP archives.",
+  "High-resolution downloads on every work's own page. Every work downloads at the largest size built for it - up to 16,384px for the ~970 works with oversized source scans - and the four published plate sets stream as on-demand ZIP archives.",
   "Multi-floor 3D museum at /gallery-3d. One floor per historical era, a spiral staircase connecting them. Painting frames are sized to real-world dimensions where known; otherwise the layout falls back to an aspect estimate.",
   "2D gallery with shuffle, sort, search, movement and year filters, and an artists page with per-artist sub-galleries.",
   'Per-work detail pages with source URL, dimensions, movement, licence, and a permalink. A "suggest a fix" button on every work opens a pre-filled GitHub issue against the metadata.',
@@ -221,11 +221,11 @@ const faq = [
   ],
   [
     "Can I download the images?",
-    "Yes. Every work has a download panel on its own page offering each size that was actually built for it, defaulting to the largest. Around 970 works come from scans wider than 4,096px and download at their full source resolution, up to 16,384px on the long side. Files are AVIF; a 1,280px WebP is offered alongside for tools that cannot read AVIF. See /downloads.",
+    "Yes. Every work has a download panel on its own page offering each size that was actually built for it, defaulting to the largest. Around 970 works come from scans wider than 4,096px and download at their full source resolution, up to 16,384px on the long side. Files are AVIF; a 1,280px WebP is offered alongside for tools that cannot read AVIF.",
   ],
   [
     "Can I download a whole collection at once?",
-    "The four sets that were published as numbered plate series - Audubon's Birds of America, Redoute's Les Roses and Les Liliacees, and Haeckel's Kunstformen der Natur - are each downloadable as a single ZIP from /downloads. Plates inside are 2,560px AVIF, with a README carrying a credit line and link per plate. The rest of the collection was assembled work by work rather than published as a series, so it is offered per work.",
+    "The four sets that were published as numbered plate series - Audubon's Birds of America, Redoute's Les Roses and Les Liliacees, and Haeckel's Kunstformen der Natur - are each downloadable as a single ZIP from the set's page at /collection/<slug>. Plates inside are 2,560px AVIF, with a README carrying a credit line and link per plate. The rest of the collection was assembled work by work rather than published as a series, so it is offered per work.",
   ],
   [
     "Why can I not download the original scan file?",
