@@ -27,7 +27,7 @@ import {
   highestIssueNumber,
   sentArtworkIds,
 } from "../src/lib/newsletter/editions";
-import { pickArtworks } from "../src/lib/newsletter/select";
+import { pickArtworks, resolveManualPicks } from "../src/lib/newsletter/select";
 
 const __dirname = fileURLToPath(new URL(".", import.meta.url));
 const ROOT = path.resolve(__dirname, "..");
@@ -81,15 +81,17 @@ if (existsSync(filePath)) {
   process.exit(1);
 }
 
-let chosenIds: string[];
+let chosenIds: string[] = [];
 if (explicitIds.length === 5) {
-  const byId = new Map(ALL_ARTWORKS.map((a) => [a.id, a]));
-  const missing = explicitIds.filter((id) => !byId.has(id));
-  if (missing.length > 0) {
-    console.error(`Unknown artwork id(s): ${missing.join(", ")}`);
+  // resolveManualPicks also rejects duplicates — scaffolding the same work
+  // twice would ship an edition with four distinct artworks and quietly
+  // under-count sentArtworkIds().
+  try {
+    chosenIds = resolveManualPicks(ALL_ARTWORKS, explicitIds, 5).map((a) => a.id);
+  } catch (err) {
+    console.error(err instanceof Error ? err.message : String(err));
     process.exit(1);
   }
-  chosenIds = explicitIds;
 } else {
   const seed = `${fileSlug}-${Date.now()}`;
   chosenIds = pickArtworks(ALL_ARTWORKS, sentArtworkIds(), seed, 5).map((a) => a.id);
@@ -107,8 +109,8 @@ const yamlArtworks = chosenIds
   .join("\n");
 
 const frontmatter = `---
-title: "${title}"
-subject: "${title}"
+title: ${yamlString(title)}
+subject: ${yamlString(title)}
 publishedAt: "${today}"
 excerpt: "TODO — one-sentence summary used in OG tags and the archive index."
 draft: true
@@ -141,6 +143,15 @@ console.info(`  2. Flip "draft: true" → "draft: false" when ready.`);
 console.info(`  3. pnpm sendNewsletter ${fileSlug} --dry-run                         # render preview`);
 console.info(`  4. pnpm sendNewsletter ${fileSlug}                                   # send to the test list`);
 console.info(`  5. NODE_ENV=production pnpm sendNewsletter ${fileSlug}                # send to the live list`);
+
+/**
+ * Emit a YAML double-quoted scalar. A `--title` containing a quote would
+ * otherwise produce frontmatter loadEditions() can't parse, which breaks
+ * /drops, /rss.xml and /sitemap.xml instead of failing here.
+ */
+function yamlString(value: string): string {
+  return `"${value.replace(/\\/g, "\\\\").replace(/"/g, '\\"')}"`;
+}
 
 function titleFromSlug(slug: string): string {
   return slug

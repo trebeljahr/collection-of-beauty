@@ -50,6 +50,38 @@ env:
   FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: "true"
 
 jobs:
+  # Typecheck + unit tests gate the deploy. Several suites exist purely as
+  # tripwires over the *generated* catalogue (see tests/artist-names-corpus.test.ts)
+  # and used to run only when a human remembered — .husky/pre-commit is
+  # lint-staged only, and .husky/pre-push runs the R2 verify alone, and only
+  # when src/data/artworks.json changed. The whole suite is a few seconds;
+  # cheap insurance against shipping a catalogue regression.
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+
+      - uses: actions/setup-node@v6
+        with:
+          node-version: "24"
+
+      # Same pnpm provisioning as the Dockerfile's build stage: corepack
+      # honours the `packageManager` field, so CI and the image agree on
+      # the version without pinning it in a second place.
+      - name: Enable pnpm
+        run: corepack enable
+
+      - name: Install dependencies
+        env:
+          HUSKY: "0"
+        run: pnpm install --frozen-lockfile
+
+      - name: Typecheck
+        run: pnpm typecheck
+
+      - name: Test
+        run: pnpm test
+
   # Asset/R2 drift verification used to gate the deploy here, but a full
   # HEAD sweep of every variant (now ~39k keys) tripped Cloudflare's rate
   # limits and false-failed on network errors (`fetch failed`), blocking
@@ -59,6 +91,7 @@ jobs:
   # src/data/artworks.json changes. Drift is caught before the push ever
   # reaches CI. See scripts/verify-r2.mjs and .husky/pre-push.
   build:
+    needs: test
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v5

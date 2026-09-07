@@ -54,12 +54,23 @@ export async function GET(request: NextRequest, { params }: { params: Promise<{ 
     );
   }
 
-  const upstream = await fetch(publicVariantUrl(artwork.objectKey, option.width, option.format), {
-    // The variant ladder is immutable once built — a given width/format
-    // for a given object key never changes content — so a long-lived
-    // cached copy upstream is always correct.
-    cache: "force-cache",
-  });
+  let upstream: Response;
+  try {
+    upstream = await fetch(publicVariantUrl(artwork.objectKey, option.width, option.format), {
+      // The variant ladder is immutable once built — a given width/format
+      // for a given object key never changes content — so a long-lived
+      // cached copy upstream is always correct.
+      cache: "force-cache",
+    });
+  } catch {
+    // A transport-level failure (DNS, connection reset, TLS) is the same
+    // story for the caller as a non-2xx from storage, so it gets the same
+    // structured 502 rather than escaping as a generic 500 plus a stack.
+    return NextResponse.json(
+      { error: "The file could not be retrieved from storage." },
+      { status: 502 },
+    );
+  }
 
   if (!upstream.ok || !upstream.body) {
     return NextResponse.json(

@@ -89,7 +89,13 @@ export function ColorWheel({ counts, active = null, showLegend = true }: Props) 
                 transform={isActive ? `translate(${nudge.x} ${nudge.y})` : undefined}
                 stroke={isActive ? "var(--foreground)" : "rgba(0,0,0,0.15)"}
                 strokeWidth={isActive ? 2 : 1}
-                className="origin-center transition-opacity group-hover:opacity-80 group-focus-visible:opacity-80"
+                // The keyboard indicator is the outline the active
+                // segment already wears, not the hover dim: an opacity
+                // change identical to hover is not a focus ring, and the
+                // anchor has suppressed the UA one. Tailwind's classes
+                // beat the presentation attributes above, so the rule
+                // holds for the inactive segments too.
+                className="origin-center transition-opacity group-hover:opacity-80 group-focus-visible:stroke-[color:var(--foreground)] group-focus-visible:stroke-2 group-focus-visible:opacity-80"
               />
             </a>
           );

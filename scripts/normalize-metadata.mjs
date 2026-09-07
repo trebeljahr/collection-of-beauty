@@ -19,6 +19,7 @@
 import fs from "fs";
 import path from "path";
 import { fileURLToPath } from "url";
+import { loadArtistsDb, matchArtist } from "./lib/artist-alias.mjs";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -34,43 +35,26 @@ const COPYRIGHT_CUTOFF_YEAR = 1926; // today - 100y (2026-04 -> anything >= 1926
 
 // Curated artist DB — used to look up an artist's birth/death years when the
 // per-entry artist_info wasn't populated by the upstream fetch script. Lazy-
-// loaded on first use so this module stays usable as a library.
-let artistsByAlias = null;
-function loadArtistsDb() {
-  if (artistsByAlias) return artistsByAlias;
-  const dbPath = path.join(ROOT, "scripts", "artists-db.json");
-  artistsByAlias = new Map();
-  if (!fs.existsSync(dbPath)) return artistsByAlias;
+// loaded on first use so this module stays usable as a library. The index and
+// the match rules come from scripts/lib/artist-alias.mjs, shared with
+// build-data and fetch-wikimedia-metadata: this copy matched without folding,
+// so accented aliases ("Vigée") never matched their unaccented spelling.
+let artistAliasIndex = null;
+function artistAliases() {
+  if (artistAliasIndex) return artistAliasIndex;
+  artistAliasIndex = new Map();
   try {
-    const { artists } = JSON.parse(fs.readFileSync(dbPath, "utf8"));
-    for (const a of artists || []) {
-      for (const alias of a.aliases || [a.name]) {
-        artistsByAlias.set(alias.toLowerCase(), a);
-      }
-      artistsByAlias.set(a.name.toLowerCase(), a);
-    }
+    artistAliasIndex = loadArtistsDb().byAlias;
   } catch {
     // ignore — guard just won't fire for unmatched entries
   }
-  return artistsByAlias;
+  return artistAliasIndex;
 }
 
 function artistDates(entry) {
   if (entry.artist_info) return entry.artist_info;
   if (!entry.artist) return null;
-  const db = loadArtistsDb();
-  const lc = String(entry.artist).toLowerCase();
-  if (db.has(lc)) return db.get(lc);
-  const lcLast = lc.split(/\s+/).filter(Boolean).pop();
-  for (const [alias, a] of db) {
-    const aliasTokens = alias.split(/\s+/).filter(Boolean);
-    if (aliasTokens.length === 1) {
-      if (alias === lcLast) return a;
-      continue;
-    }
-    if (lc.includes(alias) || alias.includes(lc)) return a;
-  }
-  return null;
+  return matchArtist(String(entry.artist), artistAliases());
 }
 
 // --- localization parsing -------------------------------------------------

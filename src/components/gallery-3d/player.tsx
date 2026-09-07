@@ -6,7 +6,7 @@ import { useEffect, useRef } from "react";
 import * as THREE from "three";
 import type { ArtworkListing } from "@/lib/data";
 import type { FloorLayout, Staircase } from "@/lib/gallery-layout/types";
-import { CELL_SIZE } from "@/lib/gallery-layout/world-coords";
+import { CELL_SIZE, worldToCell } from "@/lib/gallery-layout/world-coords";
 import { FOV_DEFAULT_DEG, FOV_ZOOMED_DEG } from "./camera-config";
 import { fitsDoorwayApertures, nudgeTowardDoorwayCenter } from "./doorway-collision";
 import {
@@ -345,12 +345,26 @@ export function Player({
       if (e.pointerType === "mouse" && !document.pointerLockElement) return;
       tryZoom();
     };
+    // Held keys otherwise survive a focus loss: the browser delivers no
+    // keyup once the tab (or just the URL bar) takes focus, rAF keeps
+    // running, and the player walks on — or stays crouched — until the
+    // same key is tapped again. Wipe the whole map on blur, tab hide and
+    // pointer-lock change, which covers every way focus leaves the canvas.
+    const clearKeys = () => {
+      keys.current = {};
+    };
     window.addEventListener("keydown", down);
     window.addEventListener("keyup", up);
+    window.addEventListener("blur", clearKeys);
+    document.addEventListener("visibilitychange", clearKeys);
+    document.addEventListener("pointerlockchange", clearKeys);
     canvas.addEventListener("pointerdown", pointer);
     return () => {
       window.removeEventListener("keydown", down);
       window.removeEventListener("keyup", up);
+      window.removeEventListener("blur", clearKeys);
+      document.removeEventListener("visibilitychange", clearKeys);
+      document.removeEventListener("pointerlockchange", clearKeys);
       canvas.removeEventListener("pointerdown", pointer);
     };
   }, [camera, gl, onZoomRequest]);
@@ -877,8 +891,7 @@ export function Player({
 
     // Active-room detection — emit a callback when the owner cell changes.
     if (onRoomChange) {
-      const cx = Math.floor(camera.position.x / CELL_SIZE);
-      const cz = Math.floor(camera.position.z / CELL_SIZE);
+      const { x: cx, z: cz } = worldToCell(camera.position.x, camera.position.z);
       if (cx >= 0 && cx < floor.gridSize.x && cz >= 0 && cz < floor.gridSize.z) {
         const owner = floor.cellOwner[cz * floor.gridSize.x + cx];
         if (owner !== lastRoomIdx.current) {
@@ -921,8 +934,7 @@ function isWalkable(floor: FloorLayout, worldX: number, worldZ: number): boolean
     [worldX + r, worldZ + r],
   ];
   for (const [x, z] of corners) {
-    const cx = Math.floor(x / CELL_SIZE);
-    const cz = Math.floor(z / CELL_SIZE);
+    const { x: cx, z: cz } = worldToCell(x, z);
     if (cx < 0 || cx >= floor.gridSize.x) return false;
     if (cz < 0 || cz >= floor.gridSize.z) return false;
     if (floor.walkable[cz * floor.gridSize.x + cx] !== 1) return false;

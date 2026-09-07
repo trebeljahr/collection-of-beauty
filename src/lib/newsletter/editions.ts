@@ -26,6 +26,8 @@ const CONTENT_DIR = path.join(process.cwd(), "content", "newsletter");
 
 const FILENAME_RE = /^(\d{4})-([a-z0-9-]+)\.md$/;
 
+const ISO_DATE_RE = /^\d{4}-\d{2}-\d{2}$/;
+
 let cache: Edition[] | null = null;
 
 /** Test-only — drop the in-memory cache so unit tests stay isolated. */
@@ -62,6 +64,17 @@ export function parseEdition(filename: string, raw: string): Edition {
   const title = need("title", data.title as string | undefined, "string");
   const subject = (data.subject as string | undefined) ?? title;
   const publishedAt = need("publishedAt", data.publishedAt as string | undefined, "string");
+  // An unquoted YAML date parses to a Date object, which sails past need()
+  // while everything downstream treats it as "YYYY-MM-DD" — `new Date(
+  // `${publishedAt}T12:00:00Z`)` then throws RangeError and takes the feed
+  // and the sitemap with it. Demand the quoted string shape here instead.
+  if (typeof publishedAt !== "string" || !ISO_DATE_RE.test(publishedAt)) {
+    throw new Error(
+      `${filename}: frontmatter "publishedAt" must be a quoted YYYY-MM-DD string ` +
+        `(got ${JSON.stringify(publishedAt)}). Wrap the date in quotes — unquoted YAML ` +
+        `dates parse as a Date object, not a string.`,
+    );
+  }
   const excerpt = need("excerpt", data.excerpt as string | undefined, "string");
   const draft = Boolean(data.draft);
 

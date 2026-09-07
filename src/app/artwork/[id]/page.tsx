@@ -8,7 +8,7 @@ import { LicenseBadge } from "@/components/license-badge";
 import { buttonVariants } from "@/components/ui/button";
 import { pillClasses } from "@/components/ui/pill";
 import { originalTitleSubtitle } from "@/lib/artwork-format";
-import { artworkHref, parseScope, resolveScope, scopeHref, scopeLabel } from "@/lib/artwork-scope";
+import { artworkHref, resolveScope } from "@/lib/artwork-scope";
 import {
   type Artwork,
   artworks,
@@ -51,6 +51,14 @@ const TEXT_LINK =
    /artist/[slug], /era/[id] and /collection/[slug] — keep the four in
    step. */
 const CHIP = `${pillClasses} min-h-11 sm:min-h-0`;
+
+// Matches every sibling detail route (/artist, /era, /collection,
+// /colours). The page must stay statically renderable for this to mean
+// anything: reading `searchParams` here would opt the whole route into
+// dynamic rendering, which is what silently threw away the prerendered
+// set below — the route table printed `ƒ /artwork/[id]` and the
+// prerender manifest held zero /artwork entries.
+export const revalidate = 86400;
 
 // Prebuild the most-likely-to-be-hit artwork pages so first paint on
 // shared/featured works is instant; the rest render on demand and get
@@ -118,15 +126,8 @@ export async function generateMetadata({ params }: { params: Promise<Params> }):
   };
 }
 
-export default async function ArtworkPage({
-  params,
-  searchParams,
-}: {
-  params: Promise<Params>;
-  searchParams: Promise<{ from?: string }>;
-}) {
+export default async function ArtworkPage({ params }: { params: Promise<Params> }) {
   const { id } = await params;
-  const { from } = await searchParams;
   const art = getArtwork(id);
   if (!art) notFound();
 
@@ -137,27 +138,16 @@ export default async function ArtworkPage({
         .slice(0, MORE_FROM_ERA_COUNT)
     : [];
 
-  // Pick prev/next from the scoped list when a valid scope was supplied
-  // AND the current artwork is in it. Anything else (no scope, scope
-  // malformed, current id not present in scope) falls back to the
-  // global pool — same behaviour as before the scope feature.
-  const scope = parseScope(from ?? null);
-  const scopedList = scope ? resolveScope(scope) : null;
-  const scopedIdx = scopedList != null ? scopedList.findIndex((a) => a.id === art.id) : -1;
-  const useScoped = scopedList != null && scopedIdx >= 0;
+  // Prev/next over the global pool. Reading `?from=` here would have to
+  // happen through `searchParams`, and one await of that turns the route
+  // fully dynamic — so the scoped walk is a client concern: the lightbox
+  // (LightboxProvider, mounted by the /artwork layout) reads `?from=` via
+  // `useSearchParams`, fetches the scoped order from
+  // /api/artworks/scope, and steps through that instead.
+  const idx = artworks.findIndex((a) => a.id === art.id);
+  const prevId = idx > 0 ? artworks[idx - 1].id : null;
+  const nextId = idx < artworks.length - 1 ? artworks[idx + 1].id : null;
 
-  let prevId: string | null;
-  let nextId: string | null;
-  if (useScoped && scopedList) {
-    prevId = scopedIdx > 0 ? scopedList[scopedIdx - 1].id : null;
-    nextId = scopedIdx < scopedList.length - 1 ? scopedList[scopedIdx + 1].id : null;
-  } else {
-    const idx = artworks.findIndex((a) => a.id === art.id);
-    prevId = idx > 0 ? artworks[idx - 1].id : null;
-    nextId = idx < artworks.length - 1 ? artworks[idx + 1].id : null;
-  }
-
-  const navScope = useScoped ? scope : null;
   const displayed = displayTitle(art);
 
   // Era surfacing: same priority order the 3D gallery uses (movement
@@ -184,27 +174,21 @@ export default async function ArtworkPage({
     <div className="mx-auto max-w-6xl px-4 py-8">
       <script {...jsonLdScriptProps(artworkJsonLd(art))} />
       <div className="mb-6 flex items-center justify-between text-sm text-[var(--muted-foreground)]">
-        {navScope ? (
-          <Link href={scopeHref(navScope)} className={TEXT_LINK}>
-            ← Back to {scopeLabel(navScope)}
-          </Link>
-        ) : (
-          <Link href="/" className={TEXT_LINK}>
-            ← Back to gallery
-          </Link>
-        )}
+        <Link href="/" className={TEXT_LINK}>
+          ← Back to gallery
+        </Link>
         {/* gap-4 rather than gap-3 on phones: "Next →" is only just past
             44px wide, so a little more dead space between the two
             44px-tall targets keeps a thumb from catching the wrong one.
             The targets shrink back at `sm:`, so the gap does too. */}
         <div className="flex items-center gap-4 sm:gap-3">
           {prevId && (
-            <Link href={artworkHref(prevId, navScope)} replace className={TEXT_LINK}>
+            <Link href={artworkHref(prevId, null)} replace className={TEXT_LINK}>
               ← Previous
             </Link>
           )}
           {nextId && (
-            <Link href={artworkHref(nextId, navScope)} replace className={TEXT_LINK}>
+            <Link href={artworkHref(nextId, null)} replace className={TEXT_LINK}>
               Next →
             </Link>
           )}
@@ -227,7 +211,6 @@ export default async function ArtworkPage({
             }}
             prevId={prevId}
             nextId={nextId}
-            scope={navScope}
           />
         </div>
 

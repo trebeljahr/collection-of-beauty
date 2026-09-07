@@ -80,11 +80,6 @@ export function assetUrl(objectKey: string): string {
   return `${ASSETS_BASE_URL}/${encodePath(objectKey.split("/"))}`;
 }
 
-export function assetProxyUrl(objectKey: string): string {
-  if (!objectKey) return "";
-  return `${ASSETS_PROXY_BASE_URL}/${encodePath(objectKey.split("/"))}`;
-}
-
 // Variants live at <bucket>/<basename>/<width>.<format>, where <basename>
 // is the original filename minus its extension. Example:
 //   objectKey = "collection-of-beauty/Dong_Yuan_Mountain_Hall.jpg"
@@ -174,13 +169,23 @@ function isPublicHttpsUrl(value: string): boolean {
   }
 }
 
-function variantPath(objectKey: string, width: number, format: VariantFormat): string {
+// Path segments addressing an artwork's variant *directory*:
+// [...dir, basename]. Every derived asset — the responsive ladder and
+// the deep-zoom pyramid — hangs off this one directory, so the split
+// lives here rather than being re-derived per builder. It used to be
+// copied verbatim into three of them, which meant a change to the
+// on-disk layout would have silently missed whichever copies weren't
+// edited.
+function variantDirSegments(objectKey: string): string[] {
   const lastSlash = objectKey.lastIndexOf("/");
   const dir = objectKey.slice(0, lastSlash);
   const filename = objectKey.slice(lastSlash + 1);
   const basename = filename.replace(/\.[^.]+$/, "");
-  const segments = [...dir.split("/"), basename, `${width}.${format}`];
-  return encodePath(segments);
+  return [...dir.split("/"), basename];
+}
+
+function variantPath(objectKey: string, width: number, format: VariantFormat): string {
+  return encodePath([...variantDirSegments(objectKey), `${width}.${format}`]);
 }
 
 export function publicVariantUrl(objectKey: string, width: number, format: VariantFormat): string {
@@ -188,14 +193,13 @@ export function publicVariantUrl(objectKey: string, width: number, format: Varia
   return `${publicAssetsBaseUrl()}/${variantPath(objectKey, width, format)}`;
 }
 
+// Same-origin variant URL, routed through the /assets-raw rewrite. The
+// only URL builder the 3D gallery uses (painting.tsx, texture-cache.ts,
+// index.tsx), so it must resolve to the same path shape as variantUrl()
+// — hence the shared variantPath(), not a second copy of the split.
 export function variantProxyUrl(objectKey: string, width: number, format: VariantFormat): string {
   if (!objectKey) return "";
-  const lastSlash = objectKey.lastIndexOf("/");
-  const dir = objectKey.slice(0, lastSlash);
-  const filename = objectKey.slice(lastSlash + 1);
-  const basename = filename.replace(/\.[^.]+$/, "");
-  const segments = [...dir.split("/"), basename, `${width}.${format}`];
-  return `${ASSETS_PROXY_BASE_URL}/${encodePath(segments)}`;
+  return `${ASSETS_PROXY_BASE_URL}/${variantPath(objectKey, width, format)}`;
 }
 
 // Full srcSet string for a <source> element. Emits only the widths the
@@ -233,10 +237,6 @@ export function deepZoomTileUrl(
   row: number,
 ): string {
   if (!objectKey) return "";
-  const lastSlash = objectKey.lastIndexOf("/");
-  const dir = objectKey.slice(0, lastSlash);
-  const filename = objectKey.slice(lastSlash + 1);
-  const basename = filename.replace(/\.[^.]+$/, "");
-  const segments = [...dir.split("/"), basename, TILE_DIR, String(level)];
+  const segments = [...variantDirSegments(objectKey), TILE_DIR, String(level)];
   return `${ASSETS_BASE_URL}/${encodePath(segments)}/${col}_${row}.${TILE_FORMAT}`;
 }

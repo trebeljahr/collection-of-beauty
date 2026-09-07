@@ -1,6 +1,12 @@
 // Classify an artwork as small / medium / large from its real-world
-// dimensions. Small works populate corridors; large works get the big
-// rooms; medium fills the remaining wall slots.
+// dimensions.
+//
+// The band no longer steers placement: the corridor/big-room split it
+// was written for is gone (hallways are permanently empty and rooms
+// hang a single continuous wall run). `place-paintings.ts` still stamps
+// it onto every Placement, but no consumer reads `Placement.band` —
+// keep that in mind before extending this: it is currently a label, not
+// an input to the hang.
 
 import type { ArtworkListing } from "@/lib/data";
 import type { Band } from "./types";

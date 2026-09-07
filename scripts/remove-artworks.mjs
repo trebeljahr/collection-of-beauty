@@ -23,6 +23,7 @@
 import fs from "node:fs/promises";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
+import { artworkId } from "./lib/artwork-id.mjs";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const ROOT = path.resolve(__dirname, "..");
@@ -227,22 +228,6 @@ const REMOVALS = [
   },
 ];
 
-// Mirror scripts/build-data.mjs slugify() exactly so the ids we generate
-// here line up with the ones build-data emits into src/data/artworks.json.
-function slugify(input) {
-  return input
-    .toLowerCase()
-    .normalize("NFKD")
-    .replace(/[̀-ͯ]/g, "")
-    .replace(/[^a-z0-9]+/g, "-")
-    .replace(/(^-|-$)+/g, "");
-}
-
-function probableId(folder, filename) {
-  const base = filename.replace(/\.[^.]+$/, "");
-  return slugify(`${folder}-${base}`).slice(0, 120);
-}
-
 async function rmIfExists(p, label) {
   try {
     const stat = await fs.stat(p);
@@ -297,7 +282,7 @@ async function main() {
   }
 
   for (const r of REMOVALS) {
-    const id = probableId(r.folder, r.remove);
+    const id = artworkId(r.folder, r.remove);
     const filename = r.remove;
     const filenameKey = `${r.folder}/${filename}`;
     const basename = filename.replace(/\.[^.]+$/, "");

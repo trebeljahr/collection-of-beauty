@@ -15,6 +15,19 @@ type Options = {
   vtName?: string;
 };
 
+/** `document.startViewTransition` bound to the document, or null on
+ *  browsers without the View Transitions API (Firefox today). Typed
+ *  locally because TypeScript's DOM lib doesn't carry it yet — both
+ *  hooks below used to repeat the same cast. */
+function viewTransitionStarter(): ((cb: () => void | Promise<void>) => unknown) | null {
+  const start = (
+    document as Document & {
+      startViewTransition?: (cb: () => void | Promise<void>) => unknown;
+    }
+  ).startViewTransition;
+  return start ? start.bind(document) : null;
+}
+
 /** Wrap a Next.js soft navigation in `document.startViewTransition` when
  *  the browser supports it. Falls back to a plain `router.push`/`replace`
  *  on browsers without the View Transitions API (Firefox today).
@@ -36,11 +49,7 @@ export function useTransitionNav() {
         else router.push(href);
       };
 
-      const startVT = (
-        document as Document & {
-          startViewTransition?: (cb: () => void | Promise<void>) => unknown;
-        }
-      ).startViewTransition;
+      const startVT = viewTransitionStarter();
 
       if (!startVT) {
         e.preventDefault();
@@ -52,7 +61,7 @@ export function useTransitionNav() {
       if (options.vtElement && options.vtName) {
         options.vtElement.style.viewTransitionName = options.vtName;
       }
-      startVT.call(document, navigate);
+      startVT(navigate);
     },
     [router],
   );
@@ -70,17 +79,13 @@ export function useTransitionPush() {
         else router.push(href);
       };
 
-      const startVT = (
-        document as Document & {
-          startViewTransition?: (cb: () => void | Promise<void>) => unknown;
-        }
-      ).startViewTransition;
+      const startVT = viewTransitionStarter();
 
       if (!startVT) {
         navigate();
         return;
       }
-      startVT.call(document, navigate);
+      startVT(navigate);
     },
     [router],
   );

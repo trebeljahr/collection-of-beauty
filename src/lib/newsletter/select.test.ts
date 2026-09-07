@@ -34,9 +34,8 @@ function makeArtwork(id: string): Artwork {
 
 describe("isoWeekKey", () => {
   it("returns ISO-8601 'YYYY-Www' shape", () => {
-    // The week key is the durable identity of an issue — it persists to
-    // R2 state, gets compared on every re-send to decide idempotency.
-    // Shape regressions would break that comparison silently.
+    // The week key is the seed for the random pick and the label a curator
+    // reads off an edition, so the shape is part of the file's identity.
     expect(isoWeekKey(new Date(Date.UTC(2026, 0, 5)))).toMatch(/^\d{4}-W\d{2}$/);
   });
 
@@ -50,11 +49,14 @@ describe("isoWeekKey", () => {
   });
 
   it("is timezone-independent (UTC-based)", () => {
-    // A run that fires at 23:00 in CET vs 01:00 the next day in CET
-    // would get different "local" days but should land in the same
-    // ISO week to keep the cron idempotent across DST shifts.
-    const sameInstant = new Date("2026-04-15T23:30:00Z");
-    expect(isoWeekKey(sameInstant)).toBe(isoWeekKey(sameInstant));
+    // Both instants sit within half an hour of a UTC week boundary, in
+    // opposite directions, so an implementation that read local getters
+    // instead of the UTC ones would put at least one of them in the wrong
+    // week on any machine that isn't itself on UTC.
+    // Sunday 23:30 UTC — already Monday (next ISO week) east of UTC.
+    expect(isoWeekKey(new Date("2026-04-19T23:30:00Z"))).toBe("2026-W16");
+    // Monday 00:30 UTC — still Sunday (previous ISO week) west of UTC.
+    expect(isoWeekKey(new Date("2026-04-20T00:30:00Z"))).toBe("2026-W17");
   });
 });
 
@@ -62,10 +64,9 @@ describe("pickArtworks", () => {
   const pool = Array.from({ length: 20 }, (_, i) => makeArtwork(`a${i}`));
 
   it("is deterministic per weekKey", () => {
-    // Same week ⇒ same picks. The cron may fire twice on retry, and
-    // the manual /preview endpoint may be invoked before the send.
-    // Both have to land on the same five works or the dry-run preview
-    // would lie about what's about to be sent.
+    // Same seed ⇒ same picks. The scaffolder may be re-run against the
+    // same seed, and `sendNewsletter --dry-run` has to preview exactly
+    // the works the real send would carry.
     const first = pickArtworks(pool, new Set(), "2026-W17");
     const second = pickArtworks(pool, new Set(), "2026-W17");
     expect(first.map((a) => a.id)).toEqual(second.map((a) => a.id));
@@ -87,9 +88,9 @@ describe("pickArtworks", () => {
   });
 
   it("throws when exclusion shrinks the pool below count", () => {
-    // The send route surfaces this as a 400 — useful signal that the
-    // corpus has been exhausted and the curator needs to refill or
-    // reset state.
+    // `pnpm newsletter:draft` surfaces this as a failed scaffold —
+    // the signal that every catalogued work has already been featured
+    // in some edition under content/newsletter/.
     const excludeAll = new Set(pool.map((p) => p.id));
     expect(() => pickArtworks(pool, excludeAll, "2026-W17")).toThrow(/remain.*need/);
   });

@@ -32,7 +32,7 @@ required by the Dockerfile — don't remove it.
   Anywhere a client component takes an artworks
   array, it should be `ArtworkListing[]`. Server pages pass
   `artworkListings` (the precomputed slim array) — passing `artworks`
-  to a client component is a regression (3.4 MB into the RSC payload).
+  to a client component is a regression (~6 MB into the RSC payload).
 - `src/data/*.json` is generated. Don't hand-edit. Re-run
   `pnpm assets:build-data` after touching metadata or the build script.
 - `Artwork.dominantColor` (whole-image average) is for placeholder tints
@@ -165,13 +165,19 @@ required by the Dockerfile — don't remove it.
 - **Drafting**: `/newsletter-draft` slash command guides the curation
   flow, then calls `pnpm newsletter:draft <theme-slug>` to scaffold
   the file. The file lands with `draft: true` — flip it after editing.
-- **Sending**: CLI only. `pnpm newsletter:send <slug>` is a dry-run
-  against `.env.development` (test list). `pnpm newsletter:send <slug>
-  --confirm` sends via ListMonk's campaign API to that test list;
-  `NODE_ENV=production pnpm newsletter:send <slug> --confirm` switches
-  to `.env.production` (live list). `scripts/newsletter-send.sh` picks
-  the env file based on `NODE_ENV`. No API route, no cron job. Sending
-  requires the relevant `.env.*` file decrypted on the user's machine.
+- **Sending**: CLI only, and **there is no confirm gate** —
+  `--dry-run` is the only flag that stops a real send.
+  `pnpm sendNewsletter <slug> --dry-run` renders the edition and sends
+  nothing; `pnpm sendNewsletter <slug>` creates *and starts* a real
+  ListMonk campaign against `.env.development` (test list);
+  `NODE_ENV=production pnpm sendNewsletter <slug>` switches to
+  `.env.production` (live list). The slug is optional — omitted, the
+  latest published edition is used. A production send of a
+  `draft: true` edition is refused unless `--allow-draft` is passed.
+  `pnpm newsletter:send` is an alias; `scripts/newsletter-send.sh`
+  picks the env file based on `NODE_ENV`. No API route, no cron job.
+  Sending requires the relevant `.env.*` file decrypted on the user's
+  machine.
 - **ListMonk + SES setup (Hatchkit-provisioned)**: lists, API user,
   SES SMTP wiring, and most env vars are produced by `hatchkit
   provision`. Both `.env.production` and `.env.development` carry the

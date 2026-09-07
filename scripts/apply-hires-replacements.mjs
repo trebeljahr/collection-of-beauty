@@ -34,6 +34,7 @@ import { execFileSync } from "node:child_process";
 import fs from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
+import { artworkId } from "./lib/artwork-id.mjs";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const ROOT = path.resolve(__dirname, "..");
@@ -47,15 +48,6 @@ const decisionsPath = process.argv[2] ?? "/tmp/replacement-decisions.json";
 const decisions = JSON.parse(fs.readFileSync(decisionsPath, "utf8"));
 const artworks = JSON.parse(fs.readFileSync(path.join(ROOT, "src/data/artworks.json"), "utf8"));
 const byId = new Map(artworks.map((w) => [w.id, w]));
-
-function slugify(input) {
-  return input
-    .toLowerCase()
-    .normalize("NFKD")
-    .replace(/[̀-ͯ]/g, "")
-    .replace(/[^a-z0-9]+/g, "-")
-    .replace(/(^-|-$)+/g, "");
-}
 
 function filenameFromUploadUrl(fileUrl) {
   const parts = new URL(fileUrl).pathname.split("/");
@@ -99,82 +91,28 @@ fs.mkdirSync(REJECTED, { recursive: true });
 const idRenames = []; // { oldId, newId }
 let redownloads = 0;
 let replacements = 0;
+let newsletterEdits = 0;
 
-for (const d of decisions) {
-  const art = byId.get(d.id);
-  if (!art) {
-    console.error(`SKIP unknown id: ${d.id}`);
-    continue;
-  }
-  const [folder, ...rest] = art.objectKey.split("/");
-  const oldFname = rest.join("/");
-  const oldPath = path.join(ASSETS, folder, oldFname);
-
-  if (d.action === "redownload") {
-    console.log(`redownload ${d.id}`);
-    download(d.fileUrl, oldPath);
-    redownloads++;
-    continue;
-  }
-
-  // action === "replace"
-  const newFname = filenameFromUploadUrl(d.fileUrl).replace(/ /g, "_");
-  const newPath = path.join(ASSETS, folder, newFname);
-  if (fs.existsSync(newPath)) {
-    console.error(`SKIP ${d.id}: target file already exists in bucket: ${newFname}`);
-    continue;
-  }
-  console.log(`replace ${d.id}\n  ${oldFname}\n  -> ${newFname}`);
-  download(d.fileUrl, newPath);
-
-  // retire old original + variants
-  fs.renameSync(oldPath, path.join(REJECTED, oldFname));
-  const oldBase = path.basename(oldFname, path.extname(oldFname));
-  fs.rmSync(path.join(ASSETS_WEB, folder, oldBase), { recursive: true, force: true });
-
-  // id migration
-  const newBase = newFname.replace(/\.[^.]+$/, "");
-  const newId = slugify(`${folder}-${newBase}`).slice(0, 120);
-  idRenames.push({ oldId: d.id, newId });
-
-  if (curator[d.id] && !curator[newId]) {
-    curator[newId] = curator[d.id];
-    delete curator[d.id];
-  }
-  if (dims[d.id] && !dims[newId]) {
-    dims[newId] = dims[d.id];
-    delete dims[d.id];
-  }
-  if (prov[oldFname] && !prov[newFname]) {
-    prov[newFname] = prov[oldFname];
-    // keep the old key too — harmless, and the old file lives on in .rejected
-  }
-  if (dateOrig[oldFname] && !dateOrig[newFname]) {
-    dateOrig[newFname] = dateOrig[oldFname];
-  }
-  if (titleOvr) {
-    const oldKey = `${folder}/${oldFname}`;
-    const newKey = `${folder}/${newFname}`;
-    if (titleOvr[oldKey] && !titleOvr[newKey]) {
-      titleOvr[newKey] = titleOvr[oldKey];
-    }
-  }
-  replacements++;
+// The file moves below are not undoable and the resume skip at the top of the
+// loop treats an already-downloaded target as done, so the id migrations that
+// go with them have to hit disk as they happen. Persisting only after the loop
+// meant one thrown download left the bucket rewritten and every side table
+// still keyed on the retired ids, with no way to redo them.
+function persistSidecars() {
+  // sort curator keys lexically (file convention)
+  const sortedCurator = Object.fromEntries(
+    Object.entries(curator).sort(([a], [b]) => a.localeCompare(b)),
+  );
+  saveJson(curatorPath, sortedCurator);
+  saveJson(dimsPath, dims);
+  saveJson(provPath, prov);
+  saveJson(dateOrigPath, dateOrig);
+  if (titleOvr) saveJson(titleOvrPath, titleOvr);
 }
 
-// sort curator keys lexically (file convention)
-const sortedCurator = Object.fromEntries(
-  Object.entries(curator).sort(([a], [b]) => a.localeCompare(b)),
-);
-saveJson(curatorPath, sortedCurator);
-saveJson(dimsPath, dims);
-saveJson(provPath, prov);
-saveJson(dateOrigPath, dateOrig);
-if (titleOvr) saveJson(titleOvrPath, titleOvr);
-
 // newsletter id references
-let newsletterEdits = 0;
-if (fs.existsSync(NEWSLETTER_DIR) && idRenames.length) {
+function applyNewsletterRenames() {
+  if (!fs.existsSync(NEWSLETTER_DIR) || !idRenames.length) return;
   for (const f of fs.readdirSync(NEWSLETTER_DIR).filter((f) => f.endsWith(".md"))) {
     const p = path.join(NEWSLETTER_DIR, f);
     let text = fs.readFileSync(p, "utf8");
@@ -191,6 +129,80 @@ if (fs.existsSync(NEWSLETTER_DIR) && idRenames.length) {
       newsletterEdits++;
     }
   }
+}
+
+try {
+  for (const d of decisions) {
+    const art = byId.get(d.id);
+    if (!art) {
+      console.error(`SKIP unknown id: ${d.id}`);
+      continue;
+    }
+    const [folder, ...rest] = art.objectKey.split("/");
+    const oldFname = rest.join("/");
+    const oldPath = path.join(ASSETS, folder, oldFname);
+
+    if (d.action === "redownload") {
+      console.log(`redownload ${d.id}`);
+      download(d.fileUrl, oldPath);
+      redownloads++;
+      continue;
+    }
+
+    // action === "replace"
+    const newFname = filenameFromUploadUrl(d.fileUrl).replace(/ /g, "_");
+    const newPath = path.join(ASSETS, folder, newFname);
+    if (fs.existsSync(newPath)) {
+      console.error(`SKIP ${d.id}: target file already exists in bucket: ${newFname}`);
+      continue;
+    }
+    console.log(`replace ${d.id}\n  ${oldFname}\n  -> ${newFname}`);
+    download(d.fileUrl, newPath);
+
+    // retire old original + variants
+    fs.renameSync(oldPath, path.join(REJECTED, oldFname));
+    const oldBase = path.basename(oldFname, path.extname(oldFname));
+    fs.rmSync(path.join(ASSETS_WEB, folder, oldBase), { recursive: true, force: true });
+
+    // id migration. artworkId() is build-data's own id builder, so a
+    // non-Latin filename transliterates (or falls back to a hash of the
+    // source path) instead of collapsing to the bare folder name and
+    // re-keying the side tables onto garbage.
+    const newId = artworkId(folder, newFname);
+    idRenames.push({ oldId: d.id, newId });
+
+    if (curator[d.id] && !curator[newId]) {
+      curator[newId] = curator[d.id];
+      delete curator[d.id];
+    }
+    if (dims[d.id] && !dims[newId]) {
+      dims[newId] = dims[d.id];
+      delete dims[d.id];
+    }
+    if (prov[oldFname] && !prov[newFname]) {
+      prov[newFname] = prov[oldFname];
+      // keep the old key too — harmless, and the old file lives on in .rejected
+    }
+    if (dateOrig[oldFname] && !dateOrig[newFname]) {
+      dateOrig[newFname] = dateOrig[oldFname];
+    }
+    if (titleOvr) {
+      const oldKey = `${folder}/${oldFname}`;
+      const newKey = `${folder}/${newFname}`;
+      if (titleOvr[oldKey] && !titleOvr[newKey]) {
+        titleOvr[newKey] = titleOvr[oldKey];
+      }
+    }
+    replacements++;
+    // Persist as we go: the moves above already happened, and the resume skip
+    // at the top of the loop will not redo this entry.
+    persistSidecars();
+  }
+} finally {
+  // Even on a thrown download, whatever was already migrated has to be written
+  // out — the corresponding files are gone from the bucket either way.
+  persistSidecars();
+  applyNewsletterRenames();
 }
 
 console.log(

@@ -5,6 +5,7 @@ import { usePathname, useRouter } from "next/navigation";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { useIs3DActive } from "@/components/gallery-3d-state";
 import { ShuffleIcon } from "@/components/ui/shuffle-icon";
+import { useFocusTrap } from "@/hooks/use-focus-trap";
 
 const LINKS: ReadonlyArray<{
   href: string;
@@ -56,9 +57,10 @@ const SLIDE_OUT_MS = 320;
 const SLIDE_IN_MS = 320;
 
 /**
- * Site header. The site-wide nav is presented as a full-screen modal
- * triggered by a hamburger button — same UX on desktop and mobile,
- * intended to feel like a destination rather than a strip of buttons.
+ * Site header. From `md` up the destinations render as an inline link
+ * row; below that the row would overflow, so the same list is presented
+ * as a full-screen modal behind a hamburger button — a destination
+ * rather than a cramped strip of buttons.
  *
  * The modal traps focus, locks body scroll, dismisses on ESC, on
  * backdrop click, on link tap, and on route change. While the user is
@@ -113,63 +115,29 @@ export function SiteNav() {
     setOpen(false);
   }, [pathname]);
 
-  // ESC + Tab focus trap + body-scroll lock while open. Restoring the
-  // previous overflow value (rather than blanking it) plays nicely with
-  // other components that may already be locking scroll (lightbox,
-  // 3D experience).
-  useEffect(() => {
-    if (!open) return;
-    const root = modalRef.current;
+  // ESC + Tab focus trap + body-scroll lock while open. Shared with the
+  // lightbox, the site's other aria-modal overlay, so the two can't
+  // drift apart on the one behaviour a modal has to get right.
+  useFocusTrap({
+    active: open,
+    containerRef: modalRef,
+    onEscape: () => setOpen(false),
+    restoreFocusRef: triggerRef,
+  });
 
-    const focusables = (): HTMLElement[] => {
-      if (!root) return [];
-      return Array.from(
-        root.querySelectorAll<HTMLElement>(
-          'a, button, input, select, textarea, [tabindex]:not([tabindex="-1"])',
-        ),
-      ).filter(
-        (el) =>
-          !el.hasAttribute("disabled") && el.tabIndex >= 0 && !el.closest('[aria-hidden="true"]'),
-      );
-    };
-
-    const onKey = (e: KeyboardEvent) => {
-      if (e.key === "Escape") {
-        e.preventDefault();
-        setOpen(false);
-        return;
-      }
-      if (e.key !== "Tab") return;
-      const list = focusables();
-      if (list.length === 0) return;
-      const first = list[0];
-      const last = list[list.length - 1];
-      const active = document.activeElement as HTMLElement | null;
-      if (e.shiftKey && active === first) {
-        e.preventDefault();
-        last.focus();
-      } else if (!e.shiftKey && active === last) {
-        e.preventDefault();
-        first.focus();
-      }
-    };
-
-    window.addEventListener("keydown", onKey);
-    const prev = document.body.style.overflow;
-    document.body.style.overflow = "hidden";
-
-    // Initial focus on first link inside the modal.
-    const id = window.requestAnimationFrame(() => {
-      focusables()[0]?.focus();
-    });
-
-    return () => {
-      window.removeEventListener("keydown", onKey);
-      document.body.style.overflow = prev;
-      window.cancelAnimationFrame(id);
-      triggerRef.current?.focus();
-    };
-  }, [open]);
+  // A link pointing at the route we're already on pushes no pathname
+  // change, so the close-on-route-change effect never fires and the tap
+  // is dead — the modal just sits there. Close it here instead. Links to
+  // *other* routes are deliberately left to that effect, so the modal
+  // stays up until the new page has actually rendered.
+  const handleSameRouteTap = useCallback(
+    (e: React.MouseEvent<HTMLAnchorElement>, href: string) => {
+      // Modifier-clicks open a new tab and leave the user here.
+      if (e.metaKey || e.ctrlKey || e.shiftKey || e.altKey) return;
+      if (href === pathname) setOpen(false);
+    },
+    [pathname],
+  );
 
   // 3D-Room click: animate the modal sliding down while the route push
   // mounts the gallery behind it. The GalleryCurtain handles its own
@@ -183,8 +151,15 @@ export function SiteNav() {
     (e: React.MouseEvent<HTMLAnchorElement>) => {
       // If the user is already on /gallery-3d we just close — no
       // animation is meaningful, and triggering one would freeze the
-      // modal on top until it finishes.
-      if (pathname === ROUTE_3D) return;
+      // modal on top until it finishes. Closing here rather than
+      // falling through to the router: a push to the current route
+      // changes no pathname, so the close-on-route-change effect never
+      // fires and the tap would do nothing at all.
+      if (pathname === ROUTE_3D) {
+        e.preventDefault();
+        setOpen(false);
+        return;
+      }
       // Modifier-clicks (open in new tab, etc.) bypass the choreography.
       if (e.metaKey || e.ctrlKey || e.shiftKey || e.altKey) return;
       e.preventDefault();
@@ -301,6 +276,7 @@ export function SiteNav() {
         // every browser, so animationend never fires and the modal
         // would freeze in its open state. Remounting starts the
         // slide-out from a fresh element.
+        // biome-ignore lint/a11y/useKeyWithClickEvents: the keyboard equivalent is ESC, handled by the focus trap
         <div
           key={closingTo3D ? "closing" : "open"}
           ref={modalRef}
@@ -308,6 +284,13 @@ export function SiteNav() {
           role="dialog"
           aria-modal="true"
           aria-label="Site navigation"
+          // Backdrop dismissal: only a click that lands on the container
+          // itself, i.e. the empty margin around the max-w-md column —
+          // a click that bubbled up from a link or the close button has
+          // already been handled.
+          onClick={(e) => {
+            if (e.target === e.currentTarget) setOpen(false);
+          }}
           className={`fixed inset-0 z-50 flex flex-col overflow-y-auto bg-[var(--background)]/95 backdrop-blur-md ${
             closingTo3D ? "animate-nav-slide-out-down" : "animate-nav-fade-in"
           }`}
@@ -318,6 +301,7 @@ export function SiteNav() {
           <div className="mx-auto flex w-full max-w-md items-center justify-between px-5 py-4">
             <Link
               href="/"
+              onClick={(e) => handleSameRouteTap(e, "/")}
               className="rounded-sm font-serif text-base tracking-wide hover:opacity-70 focus:outline-none focus-visible:ring-2 focus-visible:ring-[var(--ring)]"
             >
               Collection of Beauty
@@ -355,7 +339,7 @@ export function SiteNav() {
                   <li key={l.href}>
                     <Link
                       href={l.href}
-                      onClick={is3D ? handleClick3D : undefined}
+                      onClick={is3D ? handleClick3D : (e) => handleSameRouteTap(e, l.href)}
                       aria-current={active ? "page" : undefined}
                       className={`group flex items-baseline justify-between gap-4 rounded-lg border border-transparent px-4 py-3.5 transition hover:border-[var(--border)] hover:bg-[var(--accent)] focus:outline-none focus-visible:ring-2 focus-visible:ring-[var(--ring)] ${
                         active ? "border-[var(--border)] bg-[var(--accent)]" : ""

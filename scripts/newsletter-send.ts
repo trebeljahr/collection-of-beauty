@@ -10,8 +10,9 @@
  * The destination list is decided by NODE_ENV, not by a flag: production
  * loads `.env.production` and goes to the real subscriber list; every
  * other environment loads `.env.development` and goes to the test list.
- * Use `--dry-run` for a render-only preflight. `--confirm` is accepted as
- * a legacy no-op so old muscle memory does not fail.
+ * Use `--dry-run` for a render-only preflight. There is deliberately no
+ * `--confirm`: a stale invocation carrying it hits the unknown-flag branch
+ * and exits 1 rather than quietly sending for real.
  *
  * Slug is optional. When omitted, the latest published issue is sent.
  * When provided, use the filename without `.md`, e.g. `0001-spring-light`.
@@ -49,7 +50,7 @@ async function main(): Promise<void> {
     process.exit(1);
   }
 
-  const allowedFlags = new Set(["--dry-run", "--confirm", "--allow-draft"]);
+  const allowedFlags = new Set(["--dry-run", "--allow-draft"]);
   const unknownFlags = [...flags].filter((flag) => !allowedFlags.has(flag));
   if (unknownFlags.length > 0) {
     console.error(`Unknown flag${unknownFlags.length === 1 ? "" : "s"}: ${unknownFlags.join(", ")}`);
@@ -82,10 +83,6 @@ async function main(): Promise<void> {
         "Set draft: false or pass --allow-draft explicitly.",
     );
     process.exit(1);
-  }
-
-  if (flags.has("--confirm")) {
-    console.info(`[newsletter] note:      --confirm is legacy; sends are real unless --dry-run is present`);
   }
 
   console.info(`[newsletter] ${edition.fileSlug} — "${edition.title}"`);

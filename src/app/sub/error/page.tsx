@@ -21,8 +21,11 @@ export default async function ErrorPage({
   searchParams: Promise<{ reason?: string }>;
 }) {
   const { reason } = await searchParams;
+  // Index with a coalesced key rather than guarding on `reason` first: an
+  // empty `?reason=` short-circuits `reason && …` to `""`, which `??`
+  // happily keeps, and the page renders its heading over a blank line.
   const message =
-    (reason && MESSAGES[reason]) ?? "We couldn't confirm your subscription. Please try again.";
+    MESSAGES[reason ?? ""] ?? "We couldn't confirm your subscription. Please try again.";
 
   return (
     <div className="mx-auto max-w-xl px-4 py-16 text-center">

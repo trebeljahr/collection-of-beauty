@@ -298,10 +298,23 @@ export async function sendCampaign(params: SendCampaignParams): Promise<Campaign
   });
 
   const id = created.data.id;
-  await listmonkFetch(`/api/campaigns/${id}/status`, {
-    method: "PUT",
-    body: JSON.stringify({ status: "running" }),
-  });
+  const url = `${baseUrl()}/admin/campaigns/${id}`;
+  // The draft campaign already exists at this point. If the flip to
+  // `running` fails, say so explicitly — a naive re-run of the send would
+  // create a second campaign rather than starting this one.
+  try {
+    await listmonkFetch(`/api/campaigns/${id}/status`, {
+      method: "PUT",
+      body: JSON.stringify({ status: "running" }),
+    });
+  } catch (err) {
+    throw new Error(
+      `Campaign ${id} was created but could not be started: ${
+        err instanceof Error ? err.message : String(err)
+      }. Do not re-run the send — that creates a second campaign. Start or delete campaign ${id} at ${url}.`,
+      { cause: err },
+    );
+  }
 
-  return { id, url: `${baseUrl()}/admin/campaigns/${id}` };
+  return { id, url };
 }

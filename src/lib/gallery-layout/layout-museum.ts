@@ -29,7 +29,7 @@
 // with 16 rooms hung at a third of their capacity.
 
 import type { ArtworkListing } from "@/lib/data";
-import { assignEra, ERAS, type Era, type EraId, eraAccentColor } from "@/lib/gallery-eras";
+import { assignEra, ERAS, type Era, type EraId, eraAccentColor, getEra } from "@/lib/gallery-eras";
 import { slugify } from "@/lib/utils";
 import { distributePaintings, estimateWallMetres, wallFootprint } from "./place-paintings";
 import type {
@@ -222,17 +222,15 @@ export function layoutMuseum(allArtworks: ArtworkListing[]): MuseumLayout {
     }
   }
 
-  // Entry point: ground floor, centre of the Grand Hall (or grid centre
-  // if the hall somehow didn't materialise).
+  // Entry point: ground floor, centre of the Grand Hall. Every floor
+  // builds the hall first, so the anchor always exists.
   const ground = floors[0];
   const anchor = ground.rooms.find((r) => r.isAnchor) ?? ground.rooms[0];
-  const entryWorld: [number, number, number] = anchor
-    ? [
-        (anchor.worldRect.xMin + anchor.worldRect.xMax) / 2,
-        anchor.worldRect.y,
-        (anchor.worldRect.zMin + anchor.worldRect.zMax) / 2,
-      ]
-    : [(GRID_SIZE * CELL_SIZE) / 2, floorY(0), (GRID_SIZE * CELL_SIZE) / 2];
+  const entryWorld: [number, number, number] = [
+    (anchor.worldRect.xMin + anchor.worldRect.xMax) / 2,
+    anchor.worldRect.y,
+    (anchor.worldRect.zMin + anchor.worldRect.zMax) / 2,
+  ];
 
   return {
     floors,
@@ -664,18 +662,32 @@ function groupMovements(era: Era, eraArtworks: ArtworkListing[]): Map<string, Ar
   return byMovement;
 }
 
+/** Movement names the East Asian floor claims, read from that era's own
+ *  `movements` list rather than a hand-kept pattern here — a tradition
+ *  added in gallery-eras.ts can't silently desync from the room
+ *  ordering below (a regex that had no clause for "Classical East
+ *  Asian" is exactly how the floor ended up with a room of Song-dynasty
+ *  ink signed "Nihonga"). */
+const EAST_ASIAN_MOVEMENTS: ReadonlySet<string> = new Set(
+  getEra("ukiyo-e").movements.map((m) => m.toLowerCase()),
+);
+
 /**
- * Heuristic — true if the movement name describes an East Asian
- * tradition (Japanese woodblock prints, Nihonga, etc.) rather than a
+ * True if the movement describes an East Asian tradition (Japanese
+ * woodblock prints, Nihonga, Song-dynasty ink, etc.) rather than a
  * European school. These works earn their own dedicated room because
  * they belong to an entirely different art-history lineage than the
- * European Renaissance / Baroque / Romantic eras they happen to be
- * year-binned with.
+ * European Renaissance / Baroque / Romantic schools the rest of the
+ * museum is organised around.
  */
 function isEastAsianMovement(name: string): boolean {
-  return /Ukiyo-e|Shin-hanga|S(ō|o)saku-hanga|Nihonga|Bijinga|Yamato-e|Sumi-e|Edo|Heian|Song|Ming|Qing|Tang/i.test(
-    name,
-  );
+  return EAST_ASIAN_MOVEMENTS.has(baseMovementName(name).toLowerCase());
+}
+
+/** Movement name without the ` · Part N` suffix `buildFloor` appends
+ *  when one movement is split across several rooms. */
+function baseMovementName(name: string): string {
+  return name.replace(/ · Part \d+$/, "");
 }
 
 function resolveAnchorMovement(era: Era, byMovement: Map<string, ArtworkListing[]>): string {
@@ -758,14 +770,8 @@ function wireDoors(rooms: RoomLayout[]) {
       }
 
       const { worldX, worldZ, aSide, bSide } = adj;
-      addDoor(a, aSide, worldX, worldZ, {
-        kind: "hallway",
-        hallwayId: `room:${b.id}`,
-      });
-      addDoor(b, bSide, worldX, worldZ, {
-        kind: "hallway",
-        hallwayId: `room:${a.id}`,
-      });
+      addDoor(a, aSide, worldX, worldZ, { kind: "room", roomId: b.id });
+      addDoor(b, bSide, worldX, worldZ, { kind: "room", roomId: a.id });
     }
   }
 }

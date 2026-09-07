@@ -74,7 +74,7 @@ describe("computeRoomRuns", () => {
             worldZ: 0,
             worldY: 0,
             width: 1.4,
-            connectsTo: { kind: "hallway", hallwayId: "h" },
+            connectsTo: { kind: "room", roomId: "h" },
           },
         ],
       }),

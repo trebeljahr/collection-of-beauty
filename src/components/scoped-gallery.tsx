@@ -36,7 +36,15 @@ type Props = {
  *  single source for loaded + pageInfo + load-more dedup. Any fix or
  *  feature that lands in the hook propagates to every surface that
  *  uses ScopedGallery (era, artist) and to GalleryBrowser, which also
- *  routes through the same hook. */
+ *  routes through the same hook.
+ *
+ *  No reset key here, deliberately: every caller is a dynamic route
+ *  segment, so moving from one scope to the next (/era/a → /era/b)
+ *  changes the segment key and remounts this component along with the
+ *  hook's `useState(initialArtworks)`. `initialArtworks` never changes
+ *  under a mounted instance. If a caller ever renders ScopedGallery
+ *  with a swappable scope inside one route, it must key it — the hook
+ *  and the gallery below both seed from props at mount only. */
 export function ScopedGallery({ initialArtworks, initialPageInfo, scope, pageQuery }: Props) {
   // Scalar-only dep list so a new-but-equal pageQuery object reference
   // (e.g. caller re-renders inline) doesn't churn fetchPage's identity.

@@ -20,12 +20,15 @@ asset pipeline (no Next image optimizer in the hot path).
 
 ```sh
 pnpm install
-docker-compose up -d assets   # rclone-backed asset server at :9100
-pnpm dev                       # Next on :3000
+pnpm dev   # Next on :3000 + a local asset server on :9837
 ```
 
-The dev server expects `NEXT_PUBLIC_ASSETS_BASE_URL` (or the docker
-asset server above) to be reachable, otherwise the gallery pages will
+`pnpm dev` spawns `scripts/serve-assets.mjs` alongside Next; it serves
+`assets-web/` straight from disk on :9837 and replaced the old
+rclone-in-docker container (`docker-compose.yml` now only describes the
+deployed app). If you don't have `assets-web/` locally, point the site at
+the production bucket instead — `pnpm dev:r2`, or set
+`NEXT_PUBLIC_ASSETS_BASE_URL` yourself — otherwise the gallery pages
 render with broken images.
 
 ## Asset pipeline
@@ -54,8 +57,8 @@ Commands:
 | `pnpm assets:tiles` | Build Deep Zoom (DZI) tile pyramids for the ~967 sources that earned a full-size AVIF, so the lightbox can zoom to brushstroke level. Idempotent. Reads `src/data/artworks.json`, so run it **after** `assets:build-data`. |
 | `pnpm assets:build-data` | Walk metadata + `assets-web/` and bake `src/data/*.json` consumed by every page. |
 | `pnpm assets:sync` | Mirror `assets-web/` to the R2 bucket via rclone. |
-| `pnpm assets:verify` | HEAD-check every catalogued variant against the public R2 URL. Used as the deploy gate; runs without R2 creds. Pass `--sample 200` for a smoke test, `--check-unshrunk` to also fail on `variantWidths===null` entries. |
-| `pnpm assets:verify:bulk` | Same check but lists R2 in one `rclone lsf` pass and verifies set membership. ~10× faster than HEAD-spray; needs R2 creds from `.env.production`. |
+| `pnpm assets:verify` | HEAD-check every catalogued variant against the public R2 URL. Run by hand; needs no R2 creds. Pass `--sample 200` for a smoke test, `--check-unshrunk` to also fail on `variantWidths===null` entries. |
+| `pnpm assets:verify:bulk` | Same check but lists R2 in one `rclone lsf` pass and verifies set membership. ~10× faster than HEAD-spray; needs R2 creds from `.env.production`. This is the drift gate: `.husky/pre-push` runs it whenever `src/data/artworks.json` is part of the push (it replaced a CI job that false-failed on rate limits). |
 | `pnpm assets:prepare` | The full chain: shrink → build-data → tiles → sync. |
 
 You should run `pnpm assets:build-data` whenever you change metadata,
@@ -68,25 +71,28 @@ new variants.
 | Command | What it does |
 | --- | --- |
 | `pnpm dev` | Next dev server (Turbopack) + local asset server on :9837 fronting `assets-web/`. |
-| `pnpm dev:r2` | Same dev server, but with `NEXT_PUBLIC_ASSETS_BASE_URL` set so `<picture>` URLs point at the production R2 bucket. Useful for spotting catalogue ↔ bucket drift without waiting for CI. Skips the local :9837 server. |
+| `pnpm dev:r2` | Same dev server, but with `NEXT_PUBLIC_ASSETS_BASE_URL` set so `<picture>` URLs point at the production R2 bucket. Useful for spotting catalogue ↔ bucket drift before the pre-push check does. Skips the local :9837 server. |
 | `pnpm build` | Production build (`output: "standalone"`). |
 | `pnpm build:analyze` | Build with `@next/bundle-analyzer` enabled. HTML reports in `.next/analyze/`. |
 | `pnpm start` | Run a built site locally. |
-| `pnpm typecheck` | `tsc --noEmit`. |
+| `pnpm typecheck` | `next typegen`, then `tsc --noEmit` over `src/` + `tests/`, then again over `scripts/` via `tsconfig.scripts.json`. |
 | `pnpm test` | Run the vitest suite (pure logic). |
 | `pnpm test:watch` | Vitest in watch mode. |
 | `pnpm test:coverage` | Coverage report (v8). |
 | `pnpm format` / `pnpm lint` / `pnpm check` | Biome. |
 
 The pre-commit hook (husky + lint-staged) runs `biome check --write`
-on staged files only.
+on staged files only; the pre-push hook runs the R2 drift check, and
+only when the catalogue changed. Typecheck and tests are gated in CI
+(see [Deployment](#deployment)).
 
 ## Architecture quick map
 
-- `src/app/` — App Router pages. The `/artwork/[id]` detail page imports
-  the full `Artwork` type; every other route uses the slim
-  `ArtworkListing` projection from `src/lib/data.ts` to keep the RSC
-  payload small (artworks.json is ~3.4 MB).
+- `src/app/` — App Router pages. The `/artwork/[id]` detail page and the
+  newsletter edition pages read the full `Artwork` type server-side;
+  anything handed to a client component is the slim `ArtworkListing`
+  projection from `src/lib/data.ts`, which keeps the RSC payload small
+  (artworks.json is ~6 MB).
 - `src/components/gallery-3d/` — the WebGL museum. Lazy-loaded from
   `src/app/gallery-3d/gallery-3d-client.tsx`. Has its own readme in
   the directory headers — start with `index.tsx`.
@@ -103,7 +109,10 @@ on staged files only.
   markdown file per issue. Frontmatter + body. The git history is the
   archive; there is no state file. See
   [`content/newsletter/README.md`](content/newsletter/README.md).
-- `src/app/newsletter/` — public archive index + per-edition pages.
+- `src/app/drops/` + `src/app/newsletter/` — the public archive. `/drops`
+  is the index and `/newsletter/<slug>` the canonical edition page; the
+  other half of each pair (`/newsletter`, `/drops/<slug>`) is a permanent
+  redirect kept so older links resolve.
 - `src/lib/newsletter/` — edition loader, email render, subscribe-flow
   HMAC + rate limit, ListMonk HTTP client.
 - `src/app/api/newsletter/{subscribe,confirm}/` — only the
@@ -145,7 +154,8 @@ script prints the resulting `LISTMONK_TX_TEMPLATE_ID` and
 
 ## Deployment
 
-CI builds the Docker image on push to `main` and pushes
+On push to `main`, CI first runs `pnpm typecheck` + `pnpm test`, then
+builds the Docker image and pushes
 `ghcr.io/trebeljahr/collection-of-beauty:latest`. Coolify pulls and
 restarts on a webhook. No staging environment — the asset bucket and
 the ListMonk instance are shared between dev and prod (separated by

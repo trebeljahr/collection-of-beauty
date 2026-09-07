@@ -68,6 +68,21 @@ body`;
     expect(() => parseEdition("0001-test.md", bad)).toThrow(/exactly 5/);
   });
 
+  it("rejects an unquoted publishedAt date", () => {
+    // YAML parses a bare 2026-05-17 into a Date object; it used to pass the
+    // required-field check while typed as a string, and only blew up later
+    // in `new Date(`${publishedAt}T12:00:00Z`)` on the feed and sitemap.
+    const md = `---
+title: "Test"
+publishedAt: 2026-05-17
+excerpt: "x"
+artworks:
+${FIVE_IDS.map((id) => `  - id: "${id}"`).join("\n")}
+---
+body`;
+    expect(() => parseEdition("0001-test.md", md)).toThrow(/quoted YYYY-MM-DD/);
+  });
+
   it("parses tags array", () => {
     const md = minimalFrontmatter({ tags: '["one", "two"]' });
     const ed = parseEdition("0001-test.md", md);

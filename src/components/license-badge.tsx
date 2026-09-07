@@ -23,26 +23,24 @@ export function LicenseBadge({ license, className }: Props) {
       title={`License: ${info.short} — opens creativecommons.org`}
       className={[pillClasses, className ?? ""].join(" ")}
     >
-      {info.isPublicDomain ? <PublicDomainIcon /> : <CcIcon />}
+      {info.isPublicDomain ? (
+        <MarkIcon initials="PD" label="Public domain" />
+      ) : (
+        <MarkIcon initials="CC" label="Creative Commons" />
+      )}
       <span>{info.short}</span>
     </a>
   );
 }
 
 /**
- * Public Domain Mark — a circle with "PD" inside. Drawn from scratch
- * so we don't depend on a remote SVG.
+ * The Public Domain Mark ("PD") and the generic Creative Commons mark
+ * ("CC") are the same glyph — initials inside a circle — so they are one
+ * component. Drawn from scratch so we don't depend on a remote SVG.
  */
-function PublicDomainIcon({ className }: { className?: string }) {
+function MarkIcon({ initials, label }: { initials: string; label: string }) {
   return (
-    <svg
-      viewBox="0 0 24 24"
-      width="14"
-      height="14"
-      role="img"
-      aria-label="Public domain"
-      className={className}
-    >
+    <svg viewBox="0 0 24 24" width="14" height="14" role="img" aria-label={label}>
       <circle cx="12" cy="12" r="10" fill="none" stroke="currentColor" strokeWidth="1.6" />
       <text
         x="12"
@@ -54,35 +52,7 @@ function PublicDomainIcon({ className }: { className?: string }) {
         fontWeight="700"
         fill="currentColor"
       >
-        PD
-      </text>
-    </svg>
-  );
-}
-
-/** Generic Creative Commons "CC" mark for CC BY / BY-SA variants. */
-function CcIcon({ className }: { className?: string }) {
-  return (
-    <svg
-      viewBox="0 0 24 24"
-      width="14"
-      height="14"
-      role="img"
-      aria-label="Creative Commons"
-      className={className}
-    >
-      <circle cx="12" cy="12" r="10" fill="none" stroke="currentColor" strokeWidth="1.6" />
-      <text
-        x="12"
-        y="13"
-        textAnchor="middle"
-        dominantBaseline="middle"
-        fontFamily="ui-sans-serif, system-ui, sans-serif"
-        fontSize="9"
-        fontWeight="700"
-        fill="currentColor"
-      >
-        CC
+        {initials}
       </text>
     </svg>
   );

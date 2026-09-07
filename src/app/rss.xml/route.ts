@@ -31,6 +31,16 @@ function escapeXml(s: string): string {
     .replace(/'/g, "&apos;");
 }
 
+/**
+ * CDATA has exactly one terminator, `]]>`. The bodies are in-repo markdown
+ * so nothing hostile reaches this, but a stray sequence would close the
+ * section early and make the whole feed unparseable rather than just that
+ * one item — so split it across two sections.
+ */
+function cdata(s: string): string {
+  return `<![CDATA[${s.replace(/]]>/g, "]]]]><![CDATA[>")}]]>`;
+}
+
 function rfc822(iso: string): string {
   // Pin to noon UTC so the date is unambiguous in feed readers.
   return new Date(`${iso}T12:00:00Z`).toUTCString();
@@ -53,7 +63,7 @@ async function renderItem(edition: Edition): Promise<string> {
     `<guid isPermaLink="true">${escapeXml(url)}</guid>`,
     `<pubDate>${rfc822(edition.publishedAt)}</pubDate>`,
     `<description>${escapeXml(edition.excerpt)}</description>`,
-    `<content:encoded><![CDATA[${bodyHtml}]]></content:encoded>`,
+    `<content:encoded>${cdata(bodyHtml)}</content:encoded>`,
     enclosure,
     categories,
     "</item>",

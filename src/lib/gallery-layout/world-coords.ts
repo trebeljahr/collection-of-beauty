@@ -21,7 +21,6 @@ export const WALL_THICKNESS = 0.1;
 // rather than the ceiling dominating.
 export const DOOR_WIDTH = 1.4;
 export const DOOR_HEIGHT = 2.4;
-export const CORRIDOR_DOOR_HEIGHT = 2.2; // slightly lower on hallway side
 
 // ── Central open-well spiral staircase ───────────────────────────────
 // One full revolution per storey. The inner radius is generous so the
@@ -65,36 +64,13 @@ export function floorY(floorIndex: number): number {
   return floorIndex * FLOOR_SEPARATION;
 }
 
-export function cellCenterToWorld(
-  cell: { x: number; z: number },
-  floorIndex: number,
-): { x: number; y: number; z: number } {
-  return {
-    x: (cell.x + 0.5) * CELL_SIZE,
-    y: floorY(floorIndex),
-    z: (cell.z + 0.5) * CELL_SIZE,
-  };
-}
-
-export function cellOriginToWorld(
-  cell: { x: number; z: number },
-  floorIndex: number,
-): { x: number; y: number; z: number } {
-  return {
-    x: cell.x * CELL_SIZE,
-    y: floorY(floorIndex),
-    z: cell.z * CELL_SIZE,
-  };
-}
-
+/** Inverse of the cell→world mapping: which grid cell contains this
+ *  world point. `player.tsx` inlines this pair twice (active-room
+ *  detection and the walkable-corner check) — both should call here so
+ *  a change to the grid origin lands in one place. */
 export function worldToCell(x: number, z: number): { x: number; z: number } {
   return {
     x: Math.floor(x / CELL_SIZE),
     z: Math.floor(z / CELL_SIZE),
   };
-}
-
-/** Width of a cell-aligned rectangle from xMin..xMax (inclusive ends). */
-export function rectWidth(xMin: number, xMax: number): number {
-  return (xMax - xMin + 1) * CELL_SIZE;
 }
