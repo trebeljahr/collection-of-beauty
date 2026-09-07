@@ -68,12 +68,16 @@ const WALL_MARGIN = 0.3;
  *  Only binds when a run is packed to capacity; normally the leftover
  *  plaster opens the gap well past this. */
 const ADJACENT_GAP = 0.1;
-/** Safety valve: widest gap the even spread will open before a run
- *  stops stretching and centres its works instead. It rarely binds —
- *  the density-balanced assignment keeps in-run gaps around 1.6 m
- *  across the building — but it stops a run that ends up with one or
- *  two works from strewing them down 17 m of plaster. */
-const MAX_HANG_GAP = 3.5;
+/** Widest gap the even spread will open before a run stops stretching
+ *  and centres its works instead, letting the leftover plaster sit at
+ *  the run's ends. The building's median in-run gap is ~1.6 m, so this
+ *  binds only on the thinly-hung runs — it trades a few metres of blank
+ *  wall at a run's ends (which read as margins) for an upper bound on
+ *  the holes *between* works (which read as something missing).
+ *  Measured over the whole corpus, dropping it from 3.5 to 2.0 moves
+ *  the gap p90 from 2.65 m to 2.00 m and costs 0.4 m on the margin
+ *  p90. */
+const MAX_HANG_GAP = 2.0;
 /** Plaster either side of a door opening that stays empty, so a
  *  painting never crowds the doorframe. */
 const DOOR_CLEARANCE = 0.35;
