@@ -78,11 +78,10 @@ function fitInto(
  * pre-built 1280-wide WebP variant (fast for social scrapers) and add the
  * 640-wide one as a smaller secondary for crawlers that cap payload size.
  *
- * Both entries must be *variants*. The `assets-web/<folder>/<basename>/
- * <width>.{avif,webp}` ladder is complete; the originals are not — ~1,770
- * of them are missing from the bucket — so an "original JPEG fallback"
- * entry here 404s for a large share of the corpus, on top of emitting a
- * duplicate og:image tag.
+ * Both entries must be *variants*. Only `assets-web/` is synced to R2 and
+ * shrink-sources.mjs never copies an original into it, so the original an
+ * `assetUrl()` entry would point at isn't a servable URL — see the header
+ * of scripts/verify-r2.mjs. It also emitted a duplicate og:image tag.
  */
 export function ogImagesForArtwork(
   artwork: Artwork | null | undefined,
@@ -201,9 +200,8 @@ export function artworkJsonLd(artwork: Artwork): Record<string, unknown> {
       : {}),
     ...(artwork.dateCreated ? { dateCreated: artwork.dateCreated } : {}),
     ...(artwork.description ? { description: artwork.description } : {}),
-    // Both entries are variants. The variant ladder is complete for every
-    // artwork; the originals are not — ~1,770 are missing from the bucket,
-    // so the assetUrl() entry that used to sit here 404s for many works.
+    // Both entries are variants: originals aren't synced to R2 at all, so
+    // the assetUrl() entry that used to sit here was never servable.
     image: [imageUrl, variantUrl(artwork.objectKey, 640, "webp")],
     url: absoluteUrl(`/artwork/${artwork.id}`),
     ...(artwork.realDimensions

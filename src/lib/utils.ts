@@ -95,17 +95,17 @@ export function variantUrl(objectKey: string, width: number, format: VariantForm
 export const FALLBACK_VARIANT_WIDTH = 1280;
 
 // A variant URL that is known to exist, for use as the `<img src>`
-// fallback. The variant ladder is complete for every artwork, but the
-// originals are not: roughly 1,770 of them were never synced to the
-// bucket (a ~39% sample miss rate as of Sep 2026), so `assetUrl()` is a
-// coin flip. That is what produced ~1.8k broken images in the crawl.
+// fallback. Only `assets-web/` is mirrored to the bucket and
+// shrink-sources.mjs never puts an original in there, so `assetUrl()`
+// does not resolve — the originals that *do* answer are strays from an
+// older pipeline, not a contract. Pointing the fallback at one produced
+// ~1.8k broken images in the crawl.
 //
 // `variantWidths` is the artwork's manifest (Artwork.variantWidths).
 // When it's missing we assume the standard ladder rather than reaching
-// for the original: the ladder is what any shrunk artwork has, whereas
-// the original may or may not be in the bucket, so guessing the ladder
-// is the better bet for an artwork whose manifest hasn't been
-// regenerated yet.
+// for the original: the ladder is what any shrunk artwork has, while the
+// original isn't served at all, so guessing the ladder is the only
+// useful bet for an artwork whose manifest hasn't been regenerated yet.
 export function fallbackVariantUrl(
   objectKey: string,
   variantWidths?: readonly number[] | null,
