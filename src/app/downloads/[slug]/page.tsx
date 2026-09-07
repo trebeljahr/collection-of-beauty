@@ -97,6 +97,13 @@ export default async function CollectionDownloadPage({ params }: { params: Promi
         <div className="space-y-4">
           <p className="leading-relaxed">{collection.blurb}</p>
 
+          <p className="leading-relaxed text-[var(--muted-foreground)]">
+            <Link href={`/collection/${collection.slug}`} className="underline underline-offset-4">
+              Read about {collection.title} and browse every plate in order
+            </Link>{" "}
+            — the plate index there links each one individually.
+          </p>
+
           <a
             href={`/api/collections/${collection.slug}`}
             className="inline-flex items-center gap-2 rounded-md bg-[var(--primary)] px-4 py-2 text-sm font-medium text-[var(--primary-foreground)] hover:opacity-90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--ring)]"
