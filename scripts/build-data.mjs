@@ -1,10 +1,22 @@
 import { createHash } from "node:crypto";
-import { closeSync, existsSync, openSync, readSync, readdirSync } from "node:fs";
+import { closeSync, existsSync, openSync, readSync, readdirSync, statSync } from "node:fs";
 import { mkdir, readFile, writeFile } from "node:fs/promises";
+import os from "node:os";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { imageSize } from "image-size";
 import sharp from "sharp";
+
+// sharp's async work runs on the libuv threadpool, which defaults to 4
+// threads — the ceiling on how many images we can probe at once. Node reads
+// this the first time the pool is used, so it has to be set before any async
+// fs call. Paired with sharp.concurrency(1): libvips otherwise spawns a
+// thread per core *per image*, and on the tiny 256px variants we probe that
+// oversubscription costs more than it buys (measured ~2x slower than one
+// libvips thread per image with our own pool on top).
+const PROBE_CONCURRENCY = Math.max(2, os.cpus().length);
+process.env.UV_THREADPOOL_SIZE ||= String(PROBE_CONCURRENCY);
+sharp.concurrency(1);
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const ROOT = path.resolve(__dirname, "..");
@@ -159,6 +171,159 @@ async function dominantColorFor(folderKey, filename) {
   }
   colorCache.set(key, result);
   return result;
+}
+
+// Probing ~4,500 images with sharp is the single slowest thing this script
+// does — a cold run spends over two minutes decoding pixels, and `pnpm dev`
+// blocks on all of it before Next even starts. Almost none of that work
+// changes between runs: the assets are static, so a file's dimensions and
+// dominant color are a pure function of its bytes. Persist the results keyed
+// by (mtime, size) of the original plus the mtime of its variant directory,
+// and a warm run reuses everything and finishes in seconds.
+//
+// The cache lives under metadata/.cache/ (already gitignored, alongside the
+// Wikimedia response cache) rather than src/data/, which is committed.
+const PROBE_CACHE_VERSION = 1;
+const PROBE_CACHE_FILE = path.join(META, ".cache", "image-probe.json");
+
+// Signature of everything the probe results depend on. Returns null when the
+// original is missing or unreadable, which forces a live probe (and lets the
+// normal missing-file handling downstream drop the entry).
+function probeSignature(folderKey, filename) {
+  const basename = filename.replace(/\.[^.]+$/, "");
+  let sig;
+  try {
+    const st = statSync(path.join(ASSETS, folderKey, filename));
+    sig = `${Math.round(st.mtimeMs)}:${st.size}`;
+  } catch {
+    return null;
+  }
+  try {
+    // The directory mtime moves whenever a variant is added or removed, which
+    // is exactly when variantWidths and the dominant-color source can change.
+    // `pnpm assets:shrink` writes whole directories, so re-encoding in place
+    // isn't a case we hit.
+    const vst = statSync(path.join(ASSETS_WEB, folderKey, basename));
+    sig += `:${Math.round(vst.mtimeMs)}`;
+  } catch {
+    sig += ":none";
+  }
+  return sig;
+}
+
+async function loadProbeCache() {
+  try {
+    const raw = JSON.parse(await readFile(PROBE_CACHE_FILE, "utf8"));
+    if (raw.version !== PROBE_CACHE_VERSION) return {};
+    return raw.entries ?? {};
+  } catch {
+    return {};
+  }
+}
+
+async function saveProbeCache(entries) {
+  try {
+    await mkdir(path.dirname(PROBE_CACHE_FILE), { recursive: true });
+    await writeFile(PROBE_CACHE_FILE, JSON.stringify({ version: PROBE_CACHE_VERSION, entries }));
+  } catch (err) {
+    // A cache we can't write is a slow build, not a broken one.
+    console.log(`[build-data] warning: could not write probe cache (${err.message})`);
+  }
+}
+
+// Run `worker` over `items` with bounded concurrency. sharp releases the
+// event loop while libvips decodes, so overlapping calls actually use the
+// other cores instead of idling one at a time.
+async function mapWithConcurrency(items, limit, worker) {
+  let next = 0;
+  const runners = Array.from({ length: Math.min(limit, items.length) }, async () => {
+    while (true) {
+      const i = next++;
+      if (i >= items.length) return;
+      await worker(items[i]);
+    }
+  });
+  await Promise.all(runners);
+}
+
+// Emit progress at most once a second so a long cold probe never looks hung.
+// On a TTY the line rewrites itself in place; piped to a file it appends.
+function makeProgressReporter(label, total) {
+  const tty = process.stdout.isTTY;
+  const started = Date.now();
+  let last = 0;
+  const render = (done, final) => {
+    const secs = ((Date.now() - started) / 1000).toFixed(1);
+    const line = `[build-data] ${label} ${done}/${total} (${secs}s)`;
+    process.stdout.write(tty ? `\r${line}${final ? "\n" : ""}` : `${line}\n`);
+  };
+  return {
+    tick(done) {
+      const now = Date.now();
+      if (now - last < 1000) return;
+      last = now;
+      render(done, false);
+    },
+    done(count) {
+      render(count, true);
+    },
+  };
+}
+
+// Populate dimensionCache / colorCache / variantsCache for every artwork we
+// are about to emit, reusing cached probe results where the files haven't
+// moved and probing the rest in parallel. After this returns, the per-entry
+// `await dimensionsFor(...)` calls in the main loop are pure cache hits.
+async function prefillImageProbes(work) {
+  const cached = await loadProbeCache();
+  const fresh = {};
+  const stale = [];
+
+  for (const item of work) {
+    const key = `${item.folderKey}/${item.fname}`;
+    const sig = probeSignature(item.folderKey, item.fname);
+    const hit = sig && cached[key]?.sig === sig ? cached[key] : null;
+    if (!hit) {
+      stale.push({ ...item, key, sig });
+      continue;
+    }
+    fresh[key] = hit;
+    dimensionCache.set(
+      key,
+      hit.width && hit.height ? { width: hit.width, height: hit.height } : null,
+    );
+    colorCache.set(key, hit.dominantColor ?? null);
+    variantsCache.set(key, hit.variantWidths ?? []);
+  }
+
+  const reused = work.length - stale.length;
+  console.log(
+    `[build-data] image probes: ${reused}/${work.length} cached, ${stale.length} to compute`,
+  );
+
+  if (stale.length > 0) {
+    const progress = makeProgressReporter("probing images", stale.length);
+    let done = 0;
+    await mapWithConcurrency(stale, PROBE_CONCURRENCY, async (item) => {
+      const dims = await dimensionsFor(item.folderKey, item.fname);
+      const dominantColor = await dominantColorFor(item.folderKey, item.fname);
+      const variantWidths = variantWidthsFor(item.folderKey, item.fname);
+      if (item.sig) {
+        fresh[item.key] = {
+          sig: item.sig,
+          width: dims?.width ?? null,
+          height: dims?.height ?? null,
+          dominantColor,
+          variantWidths,
+        };
+      }
+      done++;
+      progress.tick(done);
+    });
+    progress.done(done);
+  }
+
+  await saveProbeCache(fresh);
 }
 
 // Source folders, each with a metadata/<folder>.json sidecar in the shared
@@ -1307,6 +1472,19 @@ async function main() {
       }
     }
   }
+
+  // Probe every image we're going to keep up front, in parallel and against
+  // the on-disk cache, so pushFromFolder below never blocks on sharp.
+  const probeWork = [];
+  for (let i = 0; i < WIKIMEDIA_FOLDERS.length; i++) {
+    const folderKey = WIKIMEDIA_FOLDERS[i];
+    for (const [fname, entry] of Object.entries(folderData[i].entries)) {
+      if (!keepEntry(entry)) continue;
+      if (!existsSync(path.join(ASSETS, folderKey, fname))) continue;
+      probeWork.push({ folderKey, fname });
+    }
+  }
+  await prefillImageProbes(probeWork);
 
   for (let i = 0; i < WIKIMEDIA_FOLDERS.length; i++) {
     await pushFromFolder(WIKIMEDIA_FOLDERS[i], folderData[i]);
