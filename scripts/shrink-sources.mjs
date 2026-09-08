@@ -91,6 +91,14 @@ const args = Object.fromEntries(
 
 const DRY_RUN = args["dry-run"] === true;
 const FORCE = args.force === true;
+/** `--limit=N` stops after N sources that actually need work. Freshness is
+ *  per-variant and per-source, so a run cut short is not a partial state —
+ *  the next run picks up exactly what this one didn't reach. Useful for
+ *  timing a new rung against a handful of works before committing hours
+ *  to the whole corpus. */
+const LIMIT = args.limit ? Number.parseInt(args.limit, 10) : Infinity;
+/** `--only=<substring>` restricts to source filenames containing it. */
+const ONLY = typeof args.only === "string" ? args.only.toLowerCase() : null;
 const CONCURRENCY = Number.parseInt(
   args.concurrency ?? String(Math.min(6, Math.max(2, os.cpus().length - 2))),
   10,
@@ -256,16 +264,37 @@ function variantPaths(folder, name, sourceWidth, sourceHeight) {
   return { destDir, files };
 }
 
-async function areAllVariantsFresh(srcStat, files) {
+/** The planned variants that are missing or older than the source.
+ *
+ *  Per-variant, not per-source. This used to be an all-or-nothing
+ *  `areAllVariantsFresh`, so adding one rung to the ladder re-encoded
+ *  every other rung of every affected work — and, far worse, re-encoded
+ *  their per-source full-size AVIFs, which are the slowest jobs in the
+ *  corpus (median ~85 megapixels). Adding GALLERY_LOD_WIDTH would have
+ *  paid that for 648 works to obtain 648 files that did not exist.
+ *
+ *  It also cost a re-upload: `scripts/sync-assets.sh` runs rclone with
+ *  `--size-only`, so a byte-identical re-encode is skipped, but only as
+ *  long as the encoder produces identical bytes. Across a libvips or
+ *  libheif upgrade it may not, and then a rung nobody asked for turns
+ *  into gigabytes of transfer.
+ *
+ *  Note this trusts an existing file with a fresh mtime to be complete.
+ *  So did the all-or-nothing check, for every source whose variants were
+ *  all present — the change doesn't widen that. `--force` rebuilds
+ *  unconditionally and is the escape hatch when encoder settings change,
+ *  since settings are not part of the freshness signal. */
+async function staleVariants(srcStat, files) {
+  const stale = [];
   for (const v of files) {
     try {
       const s = await stat(v.path);
-      if (s.mtimeMs < srcStat.mtimeMs) return false;
+      if (s.mtimeMs < srcStat.mtimeMs) stale.push(v);
     } catch {
-      return false;
+      stale.push(v);
     }
   }
-  return true;
+  return stale;
 }
 
 async function collectJobs() {
@@ -275,6 +304,7 @@ async function collectJobs() {
     const names = await readdir(srcDir).catch(() => []);
     for (const name of names) {
       if (!IMAGE_EXTS.has(path.extname(name).toLowerCase())) continue;
+      if (ONLY && !name.toLowerCase().includes(ONLY)) continue;
       const srcPath = path.join(srcDir, name);
       const srcStat = await stat(srcPath);
       // Probe source dimensions so variantPaths can plan the per-source
@@ -312,35 +342,45 @@ async function collectJobs() {
   return jobs;
 }
 
-async function processFile(job) {
+async function processFile(job, build) {
+  // Ladder rungs read the shared intermediate; the two above-ladder
+  // rungs re-decode the source. Only pay for the intermediate when
+  // something actually needs it — a job whose only stale variant is the
+  // 6144 rung (the common case right after adding it) would otherwise
+  // decode and downsample the whole source for nothing.
+  const needsIntermediate = build.some((v) => !v.isFullSize && !v.fromSource);
+
   // 1. Decode once into a bounded intermediate raw-pixel buffer.
   //    limitInputPixels:false lifts the 268M-pixel cap for the biggest
   //    Google Arts scans (10000+ px). unlimited:true skips a couple of
   //    safety checks that reject oversized metadata.
-  const { data: base, info } = await sharp(job.srcPath, {
-    failOn: "none",
-    unlimited: true,
-    limitInputPixels: false,
-  })
-    .rotate() // apply EXIF rotation then discard the tag
-    .flatten({ background: "#ffffff" }) // PNG/webp alpha → flat white
-    .resize({
-      width: LADDER_MAX_WIDTH,
-      height: FULL_SIZE_MAX,
-      fit: "inside",
-      withoutEnlargement: true,
+  let base = null;
+  let info = null;
+  if (needsIntermediate) {
+    ({ data: base, info } = await sharp(job.srcPath, {
+      failOn: "none",
+      unlimited: true,
+      limitInputPixels: false,
     })
-    .raw()
-    .toBuffer({ resolveWithObject: true });
+      .rotate() // apply EXIF rotation then discard the tag
+      .flatten({ background: "#ffffff" }) // PNG/webp alpha → flat white
+      .resize({
+        width: LADDER_MAX_WIDTH,
+        height: FULL_SIZE_MAX,
+        fit: "inside",
+        withoutEnlargement: true,
+      })
+      .raw()
+      .toBuffer({ resolveWithObject: true }));
+  }
 
-  // 2. From that intermediate, emit each variant. Each is cheap because
-  //    the expensive JPEG decode + EXIF rotate + alpha flatten is done.
-  //    The two above-ladder rungs are the exception: both re-decode the
-  //    source, because the bounded intermediate above is capped at
+  // 2. From that intermediate, emit each stale variant. Each is cheap
+  //    because the expensive JPEG decode + EXIF rotate + alpha flatten is
+  //    done. The two above-ladder rungs are the exception: both re-decode
+  //    the source, because the bounded intermediate above is capped at
   //    LADDER_MAX_WIDTH and has already thrown away the pixels they
   //    need. Encoding either one from `base` would silently upscale.
-  let bytesAfter = 0;
-  for (const v of job.variants) {
+  for (const v of build) {
     if (v.isFullSize || v.fromSource) {
       await sharp(job.srcPath, {
         failOn: "none",
@@ -368,10 +408,17 @@ async function processFile(job) {
       }).resize({ width: targetW, withoutEnlargement: true });
       await v.format.encode(pipeline).toFile(v.path);
     }
-    bytesAfter += (await stat(v.path)).size;
   }
 
-  return { before: job.srcStat.size, after: bytesAfter, variants: job.variants.length };
+  // Size totals cover every planned variant, not just the rebuilt ones —
+  // otherwise a partial rebuild would report a shrink ratio against a
+  // fraction of the output and read as a catastrophic regression.
+  let bytesAfter = 0;
+  for (const v of job.variants) {
+    bytesAfter += (await stat(v.path).catch(() => ({ size: 0 }))).size;
+  }
+
+  return { before: job.srcStat.size, after: bytesAfter, variants: build.length };
 }
 
 async function runPool(jobs, onProgress) {
@@ -391,22 +438,30 @@ async function runPool(jobs, onProgress) {
       const job = queue.shift();
       totals.done++;
 
-      if (!FORCE && (await areAllVariantsFresh(job.srcStat, job.variants))) {
+      const build = FORCE ? job.variants : await staleVariants(job.srcStat, job.variants);
+      if (build.length === 0) {
         totals.fresh++;
         onProgress(totals, job, null);
         continue;
+      }
+      // Counted against sources that need work, not sources seen, so
+      // `--limit` means the same thing on a cold corpus and a warm one.
+      if (totals.built >= LIMIT) {
+        queue.length = 0;
+        break;
       }
 
       if (DRY_RUN) {
         totals.built++;
         totals.bytesBefore += job.srcStat.size;
-        onProgress(totals, job, { dryRun: true });
+        totals.variantsWritten += build.length;
+        onProgress(totals, job, { dryRun: true, variants: build.length });
         continue;
       }
 
       try {
         await mkdir(job.destDir, { recursive: true });
-        const r = await processFile(job);
+        const r = await processFile(job, build);
         totals.built++;
         totals.bytesBefore += r.before;
         totals.bytesAfter += r.after;
@@ -426,7 +481,7 @@ async function runPool(jobs, onProgress) {
 async function main() {
   const start = Date.now();
   console.log(
-    `[shrink] mode=${DRY_RUN ? "DRY RUN" : "build"} widths=${WIDTHS.join(",")} formats=${FORMATS.map((f) => f.ext).join(",")} concurrency=${CONCURRENCY}${FORCE ? " force=true" : ""}`,
+    `[shrink] mode=${DRY_RUN ? "DRY RUN" : "build"} widths=${WIDTHS.join(",")} formats=${FORMATS.map((f) => f.ext).join(",")} concurrency=${CONCURRENCY}${FORCE ? " force=true" : ""}${ONLY ? ` only=${ONLY}` : ""}${LIMIT === Infinity ? "" : ` limit=${LIMIT}`}`,
   );
   console.log(
     `[shrink] src=${path.relative(ROOT, SRC_ROOT)}/  dest=${path.relative(ROOT, DEST_ROOT)}/`,
