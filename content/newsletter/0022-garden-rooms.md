@@ -2,7 +2,7 @@
 title: "Garden rooms"
 subject: "Issue 22: Garden rooms"
 publishedAt: "2026-10-11"
-excerpt: "Five gardens with walls, real or imagined: Bosch's impossible paradise, three children and a sunflower, a courtship terrace, iris stalks and a seaside box of flowers."
+excerpt: "Bosch builds a paradise no gardener could grow. Runge shrinks the viewer to child height until a sunflower reads as a tree."
 draft: true
 cover:
   artworkId: "collection-of-beauty-utagawa-hiroshige-i-published-by-uoya-eikichi-horikiri-iris-garden-horikiri-no-hanashobu-from-the-s"

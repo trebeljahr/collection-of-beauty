@@ -2,7 +2,7 @@
 title: "Dragons and monsters"
 subject: "Issue 18: Dragons and monsters"
 publishedAt: "2026-09-13"
-excerpt: "Five monsters: dragons made of ink and weather, one on a leash, a desert full of hybrids, a giant skeleton and a serpent with terrible timing."
+excerpt: "Sōtatsu's dragons are weather you coexist with. Uccello's is a problem civilization solves, with lance and leash and a great deal of geometry."
 draft: true
 cover:
   artworkId: "collection-of-beauty-sotatsu-dragons-and-clouds"

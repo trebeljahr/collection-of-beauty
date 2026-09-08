@@ -2,7 +2,7 @@
 title: "Pictures of science"
 subject: "Issue 19: Pictures of science"
 publishedAt: "2026-09-20"
-excerpt: "Five pictures of knowledge being made: a posing muscle man, an encyclopedia hand, Blake's underwater Newton, a geographer mid-thought and phosphorus catching fire."
+excerpt: "Vesalius walks a flayed man through the Veneto hills. Wright's alchemist goes hunting magic, finds phosphorus, and cannot tell the difference in the glow."
 draft: true
 cover:
   artworkId: "collection-of-beauty-de-humani-corporis-fabrica-27"

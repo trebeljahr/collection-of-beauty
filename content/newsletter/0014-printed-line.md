@@ -2,7 +2,7 @@
 title: "Printed line"
 subject: "Issue 14: Printed line"
 publishedAt: "2026-08-16"
-excerpt: "Five prints, five centuries of ink: dancing skeletons, the most copied engraving of its age, Dürer's brooding angel, Death at thumbnail size and one quiet windmill."
+excerpt: "Schongauer's demons were colour-checked against market fish by a young Michelangelo. Rembrandt closes on the printmaker's rarest skill: leaving things out."
 draft: true
 cover:
   artworkId: "collection-of-beauty-albrecht-durer-melencolia-i-google-art-project-427760"

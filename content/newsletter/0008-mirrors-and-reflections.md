@@ -2,7 +2,7 @@
 title: "Mirrors and reflections"
 subject: "Issue 8: Mirrors and reflections"
 publishedAt: "2026-07-05"
-excerpt: "Five works where a mirror runs the show: Narcissus and his pool, a hidden king and queen, two mirrors at work and one impossible arm."
+excerpt: "Velázquez hid the two most powerful people in Spain inside the smallest, blurriest mirror he could paint. Utamaro and Ingres just check their hair."
 draft: true
 cover:
   artworkId: "collection-of-beauty-las-meninas-by-diego-velazquez-from-prado-in-google-earth"

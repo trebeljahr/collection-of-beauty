@@ -2,7 +2,7 @@
 title: "Horses in motion"
 subject: "Issue 12: Horses in motion"
 publishedAt: "2026-08-02"
-excerpt: "Five horse pictures at five speeds: a geometric battle, an emperor at a walk, a hunt gone sideways, a rearing chasseur and a river charge."
+excerpt: "Uccello runs a cavalry charge through a perspective grid until the whole thing half-freezes into geometry."
 draft: true
 cover:
   artworkId: "collection-of-beauty-kagesue-takatsuna-and-shigetada-crossing-the-uji-river"

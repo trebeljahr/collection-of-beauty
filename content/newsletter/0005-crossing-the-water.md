@@ -2,7 +2,7 @@
 title: "Crossing the water"
 subject: "Issue 5: Crossing the water"
 publishedAt: "2026-06-14"
-excerpt: "Five crossings: Charon's skiff, Dante's barque, an overloaded ferry, porters wading the Ōi River and one man paddling home at dusk."
+excerpt: "Patinir's Styx is no wider than a stream. Hiroshige's porters wade the river the shogun forbade boats on. Homer ends with one canoe and no hurry."
 draft: true
 cover:
   artworkId: "collection-of-beauty-tempelskatten-peter-finder-m-nten-i-fiskens-gab"

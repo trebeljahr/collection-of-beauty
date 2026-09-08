@@ -2,7 +2,7 @@
 title: "Fog and mist"
 subject: "Issue 3: Fog and mist"
 publishedAt: "2026-05-31"
-excerpt: "Five paintings where the air does most of the work: Song-dynasty mist, Turner's damp sunrise, Friedrich's famous fog, Monet's London and Yoshida's pale sea."
+excerpt: "Dong Yuan worked this out a thousand years ago and Chinese landscape never let it go. Monet stayed five years on the Thames because the fog kept paying."
 draft: true
 cover:
   artworkId: "collection-of-beauty-caspar-david-friedrich-wanderer-above-the-sea-of-fog"
