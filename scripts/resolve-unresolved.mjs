@@ -9,10 +9,11 @@
 //
 // Usage:   node scripts/resolve-unresolved.mjs "collection-of-beauty"
 
-import fs from "fs";
-import https from "https";
-import path from "path";
-import { fileURLToPath } from "url";
+import fs from "node:fs";
+import https from "node:https";
+import path from "node:path";
+import { fileURLToPath } from "node:url";
+import { emValue } from "./lib/commons-extmetadata.mjs";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -58,25 +59,6 @@ function httpsGetJson(url, retry = 0) {
       })
       .on("error", reject);
   });
-}
-
-function stripHtml(s) {
-  if (s == null) return null;
-  return String(s)
-    .replace(/<[^>]+>/g, " ")
-    .replace(/&nbsp;/g, " ")
-    .replace(/&amp;/g, "&")
-    .replace(/&quot;/g, '"')
-    .replace(/&#39;/g, "'")
-    .replace(/&lt;/g, "<")
-    .replace(/&gt;/g, ">")
-    .replace(/\s+/g, " ")
-    .trim();
-}
-
-function emValue(em, key) {
-  if (!em || !em[key]) return null;
-  return stripHtml(em[key].value);
 }
 
 function extractYear(s) {

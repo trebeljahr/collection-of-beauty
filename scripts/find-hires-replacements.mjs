@@ -85,7 +85,11 @@ const HASH_W = 9;
 const HASH_H = 8;
 
 async function dHashBuffer(input) {
-  const raw = await sharp(input).resize(HASH_W, HASH_H, { fit: "fill" }).greyscale().raw().toBuffer();
+  const raw = await sharp(input)
+    .resize(HASH_W, HASH_H, { fit: "fill" })
+    .greyscale()
+    .raw()
+    .toBuffer();
   const bits = new Uint8Array(8);
   let bitIdx = 0;
   for (let y = 0; y < HASH_H; y++) {
@@ -198,9 +202,7 @@ async function wikidataP18(qid) {
     `${WDAPI}?action=wbgetclaims&entity=${encodeURIComponent(qid)}&property=P18&format=json`,
   );
   const claims = data?.claims?.P18 ?? [];
-  return claims
-    .map((c) => c.mainsnak?.datavalue?.value)
-    .filter((v) => typeof v === "string");
+  return claims.map((c) => c.mainsnak?.datavalue?.value).filter((v) => typeof v === "string");
 }
 
 async function commonsSearch(query) {
@@ -256,7 +258,9 @@ async function main() {
   process.stderr.write(`Targets: ${targets.length}\n`);
 
   // ---- Stage 0: own-file imageinfo for every target (batched) ----
-  const ownTitles = targets.map((t) => commonsFilenameFromObjectKey(t.objectKey).replace(/_/g, " "));
+  const ownTitles = targets.map((t) =>
+    commonsFilenameFromObjectKey(t.objectKey).replace(/_/g, " "),
+  );
   const ownInfo = await imageInfoBatch(ownTitles);
 
   const results = [];
@@ -308,7 +312,7 @@ async function main() {
     if (etitle && etitle.toLowerCase() !== title.toLowerCase()) {
       searchQueries.push(`${etitle} ${artist}`.trim());
     }
-    let searchHits = [];
+    const searchHits = [];
     for (const q of searchQueries) {
       const hits = await commonsSearch(q);
       searchHits.push(...hits);

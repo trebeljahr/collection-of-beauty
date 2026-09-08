@@ -53,7 +53,9 @@ async function main(): Promise<void> {
   const allowedFlags = new Set(["--dry-run", "--allow-draft"]);
   const unknownFlags = [...flags].filter((flag) => !allowedFlags.has(flag));
   if (unknownFlags.length > 0) {
-    console.error(`Unknown flag${unknownFlags.length === 1 ? "" : "s"}: ${unknownFlags.join(", ")}`);
+    console.error(
+      `Unknown flag${unknownFlags.length === 1 ? "" : "s"}: ${unknownFlags.join(", ")}`,
+    );
     console.error("usage: pnpm sendNewsletter [slug] [--dry-run] [--allow-draft]");
     process.exit(1);
   }
@@ -114,9 +116,7 @@ async function main(): Promise<void> {
   const subject = production ? rendered.subject : `[TEST] ${rendered.subject}`;
 
   console.info(
-    production
-      ? `[newsletter] sending to live list…`
-      : `[newsletter] sending to test list…`,
+    production ? `[newsletter] sending to live list…` : `[newsletter] sending to test list…`,
   );
   console.info(`[newsletter] creating campaign…`);
   const result = await sendCampaign({

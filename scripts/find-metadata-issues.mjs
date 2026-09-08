@@ -17,24 +17,28 @@ const SIDECARS = {
   "collection-of-beauty": JSON.parse(
     readFileSync(path.join(ROOT, "metadata/collection-of-beauty.json"), "utf8"),
   ),
-  "audubon-birds": JSON.parse(
-    readFileSync(path.join(ROOT, "metadata/audubon-birds.json"), "utf8"),
-  ),
+  "audubon-birds": JSON.parse(readFileSync(path.join(ROOT, "metadata/audubon-birds.json"), "utf8")),
   "kunstformen-images": JSON.parse(
     readFileSync(path.join(ROOT, "metadata/kunstformen-images.json"), "utf8"),
   ),
 };
 
-const DUTCH = /\b(Identificatie|Objecttype|Opschriften|Omschrijving|Vervaardiger|Catalogusreferentie|titel op object|Datering|Fysieke kenmerken|Materiaal|Techniek|Afmetingen|Verwerving|Plaats vervaardiging)\b/;
-const GERMAN = /\b(Beschreibung|Künstler|Beschriftung|Sammlung|Inventarnummer|Maße|Standort|Datierung)\b/;
-const FRENCH = /\b(Œuvre|Représentation|Conservée|Provenance|Lithographie|estampe|Description française|Représentant)\b/i;
-const SPANISH = /\b(Obra moral|esqueletos|Muerte sobre|primer plano|escenas de|todas las|estamentos)\b/i;
+const DUTCH =
+  /\b(Identificatie|Objecttype|Opschriften|Omschrijving|Vervaardiger|Catalogusreferentie|titel op object|Datering|Fysieke kenmerken|Materiaal|Techniek|Afmetingen|Verwerving|Plaats vervaardiging)\b/;
+const GERMAN =
+  /\b(Beschreibung|Künstler|Beschriftung|Sammlung|Inventarnummer|Maße|Standort|Datierung)\b/;
+const FRENCH =
+  /\b(Œuvre|Représentation|Conservée|Provenance|Lithographie|estampe|Description française|Représentant)\b/i;
+const SPANISH =
+  /\b(Obra moral|esqueletos|Muerte sobre|primer plano|escenas de|todas las|estamentos)\b/i;
 const ITALIAN = /\b(quadro|opera|raffigura|conservato|Olio su tela)\b/i;
-const CYRILLIC_HEAVY = /[Ѐ-ӿ]/;
 const CJK = /[぀-ヿ一-鿿]/;
-const RAW_CATALOG = /(?:Title\s+[A-Z][\w'\s]+\s+Object\s+Type|Creator\s+[A-Z]\w+,\s*[A-Z]\w+|Identificatie|Beschreibung|^Description\s+An?\s+oil|^Description\s+Title)/;
-const BIOGRAPHICAL_ARTIST = /(?:Born in|Died in|Details on Google Art Project|Wikipedia Loves Art|Original uploader|You are free to use|GoldenArtists|Stephen_Sandoval|painter\s*\(Russian\)|painter\s*\(American\))/i;
-const PLACEHOLDER_TITLE = /(?:^Albert Gleizes$|^Francis Picabia$|^Ivan Aivazovsky$|^Recoveredgleizes$|^WLA\s|^File:|^picabia[\s_]|^kunisada futamigaura$)/i;
+const RAW_CATALOG =
+  /(?:Title\s+[A-Z][\w'\s]+\s+Object\s+Type|Creator\s+[A-Z]\w+,\s*[A-Z]\w+|Identificatie|Beschreibung|^Description\s+An?\s+oil|^Description\s+Title)/;
+const BIOGRAPHICAL_ARTIST =
+  /(?:Born in|Died in|Details on Google Art Project|Wikipedia Loves Art|Original uploader|You are free to use|GoldenArtists|Stephen_Sandoval|painter\s*\(Russian\)|painter\s*\(American\))/i;
+const PLACEHOLDER_TITLE =
+  /(?:^Albert Gleizes$|^Francis Picabia$|^Ivan Aivazovsky$|^Recoveredgleizes$|^WLA\s|^File:|^picabia[\s_]|^kunisada futamigaura$)/i;
 
 function detectLanguageInDescription(desc) {
   if (!desc) return null;
@@ -70,7 +74,8 @@ function classifyArtist(artist) {
   if (artist === "Rijksmuseum") return "museum-as-artist";
   if (artist.startsWith("w:")) return "wiki-prefix";
   if (BIOGRAPHICAL_ARTIST.test(artist)) return "biographical-tail";
-  if (artist === "GoldenArtists" || artist === "Didier Descouens" || artist === "F.Bruni") return "uploader-or-shortform";
+  if (artist === "GoldenArtists" || artist === "Didier Descouens" || artist === "F.Bruni")
+    return "uploader-or-shortform";
   if (artist.length > 60) return "overlong";
   return null;
 }

@@ -18,10 +18,7 @@
     },
     {
       "name": "Claude Monet",
-      "aliases": [
-        "Claude Monet",
-        "Monet"
-      ],
+      "aliases": ["Claude Monet", "Monet"],
       "born": 1840,
       "died": 1926,
       "nationality": "French",
@@ -30,10 +27,7 @@
     },
     {
       "name": "Vincent van Gogh",
-      "aliases": [
-        "Vincent van Gogh",
-        "van Gogh"
-      ],
+      "aliases": ["Vincent van Gogh", "van Gogh"],
       "born": 1853,
       "died": 1890,
       "nationality": "Dutch",
@@ -42,11 +36,7 @@
     },
     {
       "name": "J. M. W. Turner",
-      "aliases": [
-        "J. M. W. Turner",
-        "William Turner",
-        "Turner"
-      ],
+      "aliases": ["J. M. W. Turner", "William Turner", "Turner"],
       "born": 1775,
       "died": 1851,
       "nationality": "English",
@@ -55,11 +45,7 @@
     },
     {
       "name": "Peter Paul Rubens",
-      "aliases": [
-        "Peter Paul Rubens",
-        "P.P. Rubens",
-        "Rubens"
-      ],
+      "aliases": ["Peter Paul Rubens", "P.P. Rubens", "Rubens"],
       "born": 1577,
       "died": 1640,
       "nationality": "Flemish",
@@ -68,10 +54,7 @@
     },
     {
       "name": "Rembrandt van Rijn",
-      "aliases": [
-        "Rembrandt van Rijn",
-        "Rembrandt"
-      ],
+      "aliases": ["Rembrandt van Rijn", "Rembrandt"],
       "born": 1606,
       "died": 1669,
       "nationality": "Dutch",
@@ -80,10 +63,7 @@
     },
     {
       "name": "Johannes Vermeer",
-      "aliases": [
-        "Johannes Vermeer",
-        "Vermeer"
-      ],
+      "aliases": ["Johannes Vermeer", "Vermeer"],
       "born": 1632,
       "died": 1675,
       "nationality": "Dutch",
@@ -92,10 +72,7 @@
     },
     {
       "name": "Leonardo da Vinci",
-      "aliases": [
-        "Leonardo da Vinci",
-        "Leonardo"
-      ],
+      "aliases": ["Leonardo da Vinci", "Leonardo"],
       "born": 1452,
       "died": 1519,
       "nationality": "Italian",
@@ -104,10 +81,7 @@
     },
     {
       "name": "Michelangelo Buonarroti",
-      "aliases": [
-        "Michelangelo Buonarroti",
-        "Michelangelo"
-      ],
+      "aliases": ["Michelangelo Buonarroti", "Michelangelo"],
       "born": 1475,
       "died": 1564,
       "nationality": "Italian",
@@ -116,13 +90,7 @@
     },
     {
       "name": "Raphael",
-      "aliases": [
-        "Raffaello Sanzio",
-        "Raphael Sanzio",
-        "Raffaello",
-        "Rafael",
-        "Raphael"
-      ],
+      "aliases": ["Raffaello Sanzio", "Raphael Sanzio", "Raffaello", "Rafael", "Raphael"],
       "born": 1483,
       "died": 1520,
       "nationality": "Italian",
@@ -131,10 +99,7 @@
     },
     {
       "name": "Caravaggio",
-      "aliases": [
-        "Michelangelo Merisi",
-        "Caravaggio"
-      ],
+      "aliases": ["Michelangelo Merisi", "Caravaggio"],
       "born": 1571,
       "died": 1610,
       "nationality": "Italian",
@@ -143,11 +108,7 @@
     },
     {
       "name": "Tintoretto",
-      "aliases": [
-        "Tintoretto",
-        "Jacopo Tintoretto",
-        "Jacopo Robusti"
-      ],
+      "aliases": ["Tintoretto", "Jacopo Tintoretto", "Jacopo Robusti"],
       "born": 1518,
       "died": 1594,
       "nationality": "Italian",
@@ -171,12 +132,7 @@
     },
     {
       "name": "Anthony van Dyck",
-      "aliases": [
-        "Anthony van Dyck",
-        "Anthony Van Dyck",
-        "Antoon van Dyck",
-        "van Dyck"
-      ],
+      "aliases": ["Anthony van Dyck", "Anthony Van Dyck", "Antoon van Dyck", "van Dyck"],
       "born": 1599,
       "died": 1641,
       "nationality": "Flemish",
@@ -185,10 +141,7 @@
     },
     {
       "name": "Titian",
-      "aliases": [
-        "Tiziano Vecellio",
-        "Titian"
-      ],
+      "aliases": ["Tiziano Vecellio", "Titian"],
       "born": 1488,
       "died": 1576,
       "nationality": "Italian",
@@ -197,10 +150,7 @@
     },
     {
       "name": "Sandro Botticelli",
-      "aliases": [
-        "Sandro Botticelli",
-        "Botticelli"
-      ],
+      "aliases": ["Sandro Botticelli", "Botticelli"],
       "born": 1445,
       "died": 1510,
       "nationality": "Italian",
@@ -209,11 +159,7 @@
     },
     {
       "name": "Albrecht Dürer",
-      "aliases": [
-        "Albrecht Dürer",
-        "Albrecht Durer",
-        "Dürer"
-      ],
+      "aliases": ["Albrecht Dürer", "Albrecht Durer", "Dürer"],
       "born": 1471,
       "died": 1528,
       "nationality": "German",
@@ -222,10 +168,7 @@
     },
     {
       "name": "Hieronymus Bosch",
-      "aliases": [
-        "Hieronymus Bosch",
-        "Bosch"
-      ],
+      "aliases": ["Hieronymus Bosch", "Bosch"],
       "born": 1450,
       "died": 1516,
       "nationality": "Early Netherlandish",
@@ -234,12 +177,7 @@
     },
     {
       "name": "Pieter Bruegel the Elder",
-      "aliases": [
-        "Pieter Bruegel the Elder",
-        "Pieter Brueghel the Elder",
-        "Bruegel",
-        "Brueghel"
-      ],
+      "aliases": ["Pieter Bruegel the Elder", "Pieter Brueghel the Elder", "Bruegel", "Brueghel"],
       "born": 1525,
       "died": 1569,
       "nationality": "Flemish",
@@ -247,10 +185,17 @@
       "pd_status": "public_domain_worldwide"
     },
     {
+      "name": "Pieter Brueghel the Younger",
+      "aliases": ["Pieter Brueghel the Younger", "Pieter Bruegel the Younger"],
+      "born": 1564,
+      "died": 1638,
+      "nationality": "Flemish",
+      "movement": "Northern Renaissance",
+      "pd_status": "public_domain_worldwide"
+    },
+    {
       "name": "Jan van Eyck",
-      "aliases": [
-        "Jan van Eyck"
-      ],
+      "aliases": ["Jan van Eyck"],
       "born": 1390,
       "died": 1441,
       "nationality": "Early Netherlandish",
@@ -259,11 +204,7 @@
     },
     {
       "name": "Édouard Manet",
-      "aliases": [
-        "Édouard Manet",
-        "Edouard Manet",
-        "Manet"
-      ],
+      "aliases": ["Édouard Manet", "Edouard Manet", "Manet"],
       "born": 1832,
       "died": 1883,
       "nationality": "French",
@@ -272,10 +213,7 @@
     },
     {
       "name": "Edgar Degas",
-      "aliases": [
-        "Edgar Degas",
-        "Degas"
-      ],
+      "aliases": ["Edgar Degas", "Degas"],
       "born": 1834,
       "died": 1917,
       "nationality": "French",
@@ -284,10 +222,7 @@
     },
     {
       "name": "Pierre-Auguste Renoir",
-      "aliases": [
-        "Pierre-Auguste Renoir",
-        "Renoir"
-      ],
+      "aliases": ["Pierre-Auguste Renoir", "Renoir"],
       "born": 1841,
       "died": 1919,
       "nationality": "French",
@@ -296,11 +231,7 @@
     },
     {
       "name": "Paul Cézanne",
-      "aliases": [
-        "Paul Cézanne",
-        "Cezanne",
-        "Cézanne"
-      ],
+      "aliases": ["Paul Cézanne", "Cezanne", "Cézanne"],
       "born": 1839,
       "died": 1906,
       "nationality": "French",
@@ -309,10 +240,7 @@
     },
     {
       "name": "Paul Gauguin",
-      "aliases": [
-        "Paul Gauguin",
-        "Gauguin"
-      ],
+      "aliases": ["Paul Gauguin", "Gauguin"],
       "born": 1848,
       "died": 1903,
       "nationality": "French",
@@ -321,10 +249,7 @@
     },
     {
       "name": "Georges Seurat",
-      "aliases": [
-        "Georges Seurat",
-        "Seurat"
-      ],
+      "aliases": ["Georges Seurat", "Seurat"],
       "born": 1859,
       "died": 1891,
       "nationality": "French",
@@ -333,9 +258,7 @@
     },
     {
       "name": "Henri de Toulouse-Lautrec",
-      "aliases": [
-        "Toulouse-Lautrec"
-      ],
+      "aliases": ["Toulouse-Lautrec"],
       "born": 1864,
       "died": 1901,
       "nationality": "French",
@@ -344,10 +267,7 @@
     },
     {
       "name": "Henri Matisse",
-      "aliases": [
-        "Henri Matisse",
-        "Matisse"
-      ],
+      "aliases": ["Henri Matisse", "Matisse"],
       "born": 1869,
       "died": 1954,
       "nationality": "French",
@@ -356,10 +276,7 @@
     },
     {
       "name": "Pablo Picasso",
-      "aliases": [
-        "Pablo Picasso",
-        "Picasso"
-      ],
+      "aliases": ["Pablo Picasso", "Picasso"],
       "born": 1881,
       "died": 1973,
       "nationality": "Spanish",
@@ -368,11 +285,7 @@
     },
     {
       "name": "Salvador Dalí",
-      "aliases": [
-        "Salvador Dalí",
-        "Salvador Dali",
-        "Dalí"
-      ],
+      "aliases": ["Salvador Dalí", "Salvador Dali", "Dalí"],
       "born": 1904,
       "died": 1989,
       "nationality": "Spanish",
@@ -381,10 +294,7 @@
     },
     {
       "name": "Wassily Kandinsky",
-      "aliases": [
-        "Wassily Kandinsky",
-        "Kandinsky"
-      ],
+      "aliases": ["Wassily Kandinsky", "Kandinsky"],
       "born": 1866,
       "died": 1944,
       "nationality": "Russian / French",
@@ -393,10 +303,7 @@
     },
     {
       "name": "Paul Klee",
-      "aliases": [
-        "Paul Klee",
-        "Klee"
-      ],
+      "aliases": ["Paul Klee", "Klee"],
       "born": 1879,
       "died": 1940,
       "nationality": "Swiss / German",
@@ -405,10 +312,7 @@
     },
     {
       "name": "Edvard Munch",
-      "aliases": [
-        "Edvard Munch",
-        "Munch"
-      ],
+      "aliases": ["Edvard Munch", "Munch"],
       "born": 1863,
       "died": 1944,
       "nationality": "Norwegian",
@@ -417,10 +321,7 @@
     },
     {
       "name": "Gustav Klimt",
-      "aliases": [
-        "Gustav Klimt",
-        "Klimt"
-      ],
+      "aliases": ["Gustav Klimt", "Klimt"],
       "born": 1862,
       "died": 1918,
       "nationality": "Austrian",
@@ -429,10 +330,7 @@
     },
     {
       "name": "Egon Schiele",
-      "aliases": [
-        "Egon Schiele",
-        "Schiele"
-      ],
+      "aliases": ["Egon Schiele", "Schiele"],
       "born": 1890,
       "died": 1918,
       "nationality": "Austrian",
@@ -441,9 +339,7 @@
     },
     {
       "name": "Grant Wood",
-      "aliases": [
-        "Grant Wood"
-      ],
+      "aliases": ["Grant Wood"],
       "born": 1891,
       "died": 1942,
       "nationality": "American",
@@ -452,10 +348,7 @@
     },
     {
       "name": "Edward Hopper",
-      "aliases": [
-        "Edward Hopper",
-        "Hopper"
-      ],
+      "aliases": ["Edward Hopper", "Hopper"],
       "born": 1882,
       "died": 1967,
       "nationality": "American",
@@ -464,10 +357,7 @@
     },
     {
       "name": "Georgia O'Keeffe",
-      "aliases": [
-        "Georgia O'Keeffe",
-        "O'Keeffe"
-      ],
+      "aliases": ["Georgia O'Keeffe", "O'Keeffe"],
       "born": 1887,
       "died": 1986,
       "nationality": "American",
@@ -476,10 +366,7 @@
     },
     {
       "name": "Winslow Homer",
-      "aliases": [
-        "Winslow Homer",
-        "Homer"
-      ],
+      "aliases": ["Winslow Homer", "Homer"],
       "born": 1836,
       "died": 1910,
       "nationality": "American",
@@ -488,10 +375,7 @@
     },
     {
       "name": "John Singer Sargent",
-      "aliases": [
-        "John Singer Sargent",
-        "Sargent"
-      ],
+      "aliases": ["John Singer Sargent", "Sargent"],
       "born": 1856,
       "died": 1925,
       "nationality": "American",
@@ -500,10 +384,7 @@
     },
     {
       "name": "James McNeill Whistler",
-      "aliases": [
-        "James McNeill Whistler",
-        "Whistler"
-      ],
+      "aliases": ["James McNeill Whistler", "Whistler"],
       "born": 1834,
       "died": 1903,
       "nationality": "American",
@@ -512,9 +393,7 @@
     },
     {
       "name": "Thomas Cole",
-      "aliases": [
-        "Thomas Cole"
-      ],
+      "aliases": ["Thomas Cole"],
       "born": 1801,
       "died": 1848,
       "nationality": "American / English",
@@ -523,10 +402,7 @@
     },
     {
       "name": "Frederic Edwin Church",
-      "aliases": [
-        "Frederic Edwin Church",
-        "Frederic Church"
-      ],
+      "aliases": ["Frederic Edwin Church", "Frederic Church"],
       "born": 1826,
       "died": 1900,
       "nationality": "American",
@@ -535,10 +411,7 @@
     },
     {
       "name": "Albert Bierstadt",
-      "aliases": [
-        "Albert Bierstadt",
-        "Bierstadt"
-      ],
+      "aliases": ["Albert Bierstadt", "Bierstadt"],
       "born": 1830,
       "died": 1902,
       "nationality": "American / German",
@@ -547,10 +420,7 @@
     },
     {
       "name": "Francisco Goya",
-      "aliases": [
-        "Francisco Goya",
-        "Goya"
-      ],
+      "aliases": ["Francisco Goya", "Goya"],
       "born": 1746,
       "died": 1828,
       "nationality": "Spanish",
@@ -559,11 +429,7 @@
     },
     {
       "name": "Diego Velázquez",
-      "aliases": [
-        "Diego Velázquez",
-        "Velázquez",
-        "Velazquez"
-      ],
+      "aliases": ["Diego Velázquez", "Velázquez", "Velazquez"],
       "born": 1599,
       "died": 1660,
       "nationality": "Spanish",
@@ -572,10 +438,7 @@
     },
     {
       "name": "El Greco",
-      "aliases": [
-        "Doménikos Theotokópoulos",
-        "El Greco"
-      ],
+      "aliases": ["Doménikos Theotokópoulos", "El Greco"],
       "born": 1541,
       "died": 1614,
       "nationality": "Greek / Spanish",
@@ -584,10 +447,7 @@
     },
     {
       "name": "Giuseppe Arcimboldo",
-      "aliases": [
-        "Giuseppe Arcimboldo",
-        "Arcimboldo"
-      ],
+      "aliases": ["Giuseppe Arcimboldo", "Arcimboldo"],
       "born": 1526,
       "died": 1593,
       "nationality": "Italian",
@@ -596,10 +456,7 @@
     },
     {
       "name": "Eugène Delacroix",
-      "aliases": [
-        "Eugène Delacroix",
-        "Delacroix"
-      ],
+      "aliases": ["Eugène Delacroix", "Delacroix"],
       "born": 1798,
       "died": 1863,
       "nationality": "French",
@@ -608,11 +465,7 @@
     },
     {
       "name": "Théodore Géricault",
-      "aliases": [
-        "Théodore Géricault",
-        "Gericault",
-        "Géricault"
-      ],
+      "aliases": ["Théodore Géricault", "Gericault", "Géricault"],
       "born": 1791,
       "died": 1824,
       "nationality": "French",
@@ -621,11 +474,7 @@
     },
     {
       "name": "Jean-Léon Gérôme",
-      "aliases": [
-        "Jean-Léon Gérôme",
-        "Gérôme",
-        "Gerome"
-      ],
+      "aliases": ["Jean-Léon Gérôme", "Gérôme", "Gerome"],
       "born": 1824,
       "died": 1904,
       "nationality": "French",
@@ -634,9 +483,7 @@
     },
     {
       "name": "Jacques-Louis David",
-      "aliases": [
-        "Jacques-Louis David"
-      ],
+      "aliases": ["Jacques-Louis David"],
       "born": 1748,
       "died": 1825,
       "nationality": "French",
@@ -645,10 +492,7 @@
     },
     {
       "name": "Jean-Auguste-Dominique Ingres",
-      "aliases": [
-        "Jean-Auguste-Dominique Ingres",
-        "Ingres"
-      ],
+      "aliases": ["Jean-Auguste-Dominique Ingres", "Ingres"],
       "born": 1780,
       "died": 1867,
       "nationality": "French",
@@ -657,10 +501,7 @@
     },
     {
       "name": "Jean-François Millet",
-      "aliases": [
-        "Jean-François Millet",
-        "Millet"
-      ],
+      "aliases": ["Jean-François Millet", "Millet"],
       "born": 1814,
       "died": 1875,
       "nationality": "French",
@@ -669,10 +510,7 @@
     },
     {
       "name": "Camille Corot",
-      "aliases": [
-        "Camille Corot",
-        "Corot"
-      ],
+      "aliases": ["Camille Corot", "Corot"],
       "born": 1796,
       "died": 1875,
       "nationality": "French",
@@ -681,10 +519,7 @@
     },
     {
       "name": "Gustave Courbet",
-      "aliases": [
-        "Gustave Courbet",
-        "Courbet"
-      ],
+      "aliases": ["Gustave Courbet", "Courbet"],
       "born": 1819,
       "died": 1877,
       "nationality": "French",
@@ -693,11 +528,7 @@
     },
     {
       "name": "Caspar David Friedrich",
-      "aliases": [
-        "Caspar David Friedrich",
-        "Caspar Friedrich",
-        "C. D. Friedrich"
-      ],
+      "aliases": ["Caspar David Friedrich", "Caspar Friedrich", "C. D. Friedrich"],
       "born": 1774,
       "died": 1840,
       "nationality": "German",
@@ -706,11 +537,7 @@
     },
     {
       "name": "Karl Friedrich Schinkel",
-      "aliases": [
-        "Karl Friedrich Schinkel",
-        "Karl Schinkel",
-        "Schinkel"
-      ],
+      "aliases": ["Karl Friedrich Schinkel", "Karl Schinkel", "Schinkel"],
       "born": 1781,
       "died": 1841,
       "nationality": "German",
@@ -719,11 +546,7 @@
     },
     {
       "name": "Carl Friedrich Seiffert",
-      "aliases": [
-        "Carl Friedrich Seiffert",
-        "Carl Seiffert",
-        "Seiffert"
-      ],
+      "aliases": ["Carl Friedrich Seiffert", "Carl Seiffert", "Seiffert"],
       "born": 1809,
       "died": 1891,
       "nationality": "German",
@@ -732,10 +555,7 @@
     },
     {
       "name": "John Constable",
-      "aliases": [
-        "John Constable",
-        "Constable"
-      ],
+      "aliases": ["John Constable", "Constable"],
       "born": 1776,
       "died": 1837,
       "nationality": "English",
@@ -744,10 +564,7 @@
     },
     {
       "name": "Hendrick Goltzius",
-      "aliases": [
-        "Hendrick Goltzius",
-        "Goltzius"
-      ],
+      "aliases": ["Hendrick Goltzius", "Goltzius"],
       "born": 1558,
       "died": 1617,
       "nationality": "Dutch",
@@ -756,10 +573,7 @@
     },
     {
       "name": "Frans Snyders",
-      "aliases": [
-        "Frans Snyders",
-        "Snyders"
-      ],
+      "aliases": ["Frans Snyders", "Snyders"],
       "born": 1579,
       "died": 1657,
       "nationality": "Flemish",
@@ -768,10 +582,7 @@
     },
     {
       "name": "Francesco Hayez",
-      "aliases": [
-        "Francesco Hayez",
-        "Hayez"
-      ],
+      "aliases": ["Francesco Hayez", "Hayez"],
       "born": 1791,
       "died": 1882,
       "nationality": "Italian",
@@ -780,10 +591,7 @@
     },
     {
       "name": "Katsushika Hokusai",
-      "aliases": [
-        "Katsushika Hokusai",
-        "Hokusai"
-      ],
+      "aliases": ["Katsushika Hokusai", "Hokusai"],
       "born": 1760,
       "died": 1849,
       "nationality": "Japanese",
@@ -792,11 +600,7 @@
     },
     {
       "name": "Utagawa Hiroshige",
-      "aliases": [
-        "Utagawa Hiroshige",
-        "Hiroshige",
-        "Andō Hiroshige"
-      ],
+      "aliases": ["Utagawa Hiroshige", "Hiroshige", "Andō Hiroshige"],
       "born": 1797,
       "died": 1858,
       "nationality": "Japanese",
@@ -805,10 +609,7 @@
     },
     {
       "name": "Kitagawa Utamaro",
-      "aliases": [
-        "Kitagawa Utamaro",
-        "Utamaro"
-      ],
+      "aliases": ["Kitagawa Utamaro", "Utamaro"],
       "born": 1753,
       "died": 1806,
       "nationality": "Japanese",
@@ -817,11 +618,7 @@
     },
     {
       "name": "Charles W. Bartlett",
-      "aliases": [
-        "Charles W. Bartlett",
-        "Charles William Bartlett",
-        "Charles Bartlett"
-      ],
+      "aliases": ["Charles W. Bartlett", "Charles William Bartlett", "Charles Bartlett"],
       "born": 1860,
       "died": 1940,
       "nationality": "English / American",
@@ -830,11 +627,7 @@
     },
     {
       "name": "Kawase Hasui",
-      "aliases": [
-        "Kawase Hasui",
-        "Hasui Kawase",
-        "Hasui"
-      ],
+      "aliases": ["Kawase Hasui", "Hasui Kawase", "Hasui"],
       "born": 1883,
       "died": 1957,
       "nationality": "Japanese",
@@ -843,10 +636,7 @@
     },
     {
       "name": "Hiroshi Yoshida",
-      "aliases": [
-        "Hiroshi Yoshida",
-        "Yoshida Hiroshi"
-      ],
+      "aliases": ["Hiroshi Yoshida", "Yoshida Hiroshi"],
       "born": 1876,
       "died": 1950,
       "nationality": "Japanese",
@@ -855,12 +645,7 @@
     },
     {
       "name": "Ohara Koson",
-      "aliases": [
-        "Ohara Koson",
-        "Ohara Shōson",
-        "Ohara Shoson",
-        "Koson"
-      ],
+      "aliases": ["Ohara Koson", "Ohara Shōson", "Ohara Shoson", "Koson"],
       "born": 1877,
       "died": 1945,
       "nationality": "Japanese",
@@ -869,12 +654,7 @@
     },
     {
       "name": "Hashiguchi Goyō",
-      "aliases": [
-        "Hashiguchi Goyō",
-        "Hashiguchi Goyo",
-        "Goyō Hashiguchi",
-        "Goyo Hashiguchi"
-      ],
+      "aliases": ["Hashiguchi Goyō", "Hashiguchi Goyo", "Goyō Hashiguchi", "Goyo Hashiguchi"],
       "born": 1880,
       "died": 1921,
       "nationality": "Japanese",
@@ -883,10 +663,7 @@
     },
     {
       "name": "Torii Kotondo",
-      "aliases": [
-        "Torii Kotondo",
-        "Kotondo"
-      ],
+      "aliases": ["Torii Kotondo", "Kotondo"],
       "born": 1900,
       "died": 1976,
       "nationality": "Japanese",
@@ -911,10 +688,7 @@
     },
     {
       "name": "Kanae Yamamoto",
-      "aliases": [
-        "Kanae Yamamoto",
-        "Yamamoto Kanae"
-      ],
+      "aliases": ["Kanae Yamamoto", "Yamamoto Kanae"],
       "born": 1882,
       "died": 1946,
       "nationality": "Japanese",
@@ -923,12 +697,7 @@
     },
     {
       "name": "Kawai Gyokudō",
-      "aliases": [
-        "Kawai Gyokudō",
-        "Kawai Gyokudo",
-        "Gyokudō",
-        "Gyokudo"
-      ],
+      "aliases": ["Kawai Gyokudō", "Kawai Gyokudo", "Gyokudō", "Gyokudo"],
       "born": 1873,
       "died": 1957,
       "nationality": "Japanese",
@@ -937,12 +706,7 @@
     },
     {
       "name": "Hayami Gyoshū",
-      "aliases": [
-        "Hayami Gyoshū",
-        "Hayami Gyoshu",
-        "Gyoshū",
-        "Gyoshu"
-      ],
+      "aliases": ["Hayami Gyoshū", "Hayami Gyoshu", "Gyoshū", "Gyoshu"],
       "born": 1894,
       "died": 1935,
       "nationality": "Japanese",
@@ -951,10 +715,7 @@
     },
     {
       "name": "Yamakawa Shūhō",
-      "aliases": [
-        "Yamakawa Shūhō",
-        "Yamakawa Shuho"
-      ],
+      "aliases": ["Yamakawa Shūhō", "Yamakawa Shuho"],
       "born": 1898,
       "died": 1944,
       "nationality": "Japanese",
@@ -963,10 +724,7 @@
     },
     {
       "name": "John James Audubon",
-      "aliases": [
-        "John James Audubon",
-        "Audubon"
-      ],
+      "aliases": ["John James Audubon", "Audubon"],
       "born": 1785,
       "died": 1851,
       "nationality": "American / French",
@@ -975,10 +733,7 @@
     },
     {
       "name": "Ernst Haeckel",
-      "aliases": [
-        "Ernst Haeckel",
-        "Haeckel"
-      ],
+      "aliases": ["Ernst Haeckel", "Haeckel"],
       "born": 1834,
       "died": 1919,
       "nationality": "German",
@@ -987,9 +742,7 @@
     },
     {
       "name": "Henri Rousseau",
-      "aliases": [
-        "Henri Rousseau"
-      ],
+      "aliases": ["Henri Rousseau"],
       "born": 1844,
       "died": 1910,
       "nationality": "French",
@@ -998,10 +751,7 @@
     },
     {
       "name": "Gustave Moreau",
-      "aliases": [
-        "Gustave Moreau",
-        "Moreau"
-      ],
+      "aliases": ["Gustave Moreau", "Moreau"],
       "born": 1826,
       "died": 1898,
       "nationality": "French",
@@ -1010,11 +760,7 @@
     },
     {
       "name": "Alphonse Mucha",
-      "aliases": [
-        "Alphonse Mucha",
-        "Alfons Mucha",
-        "Mucha"
-      ],
+      "aliases": ["Alphonse Mucha", "Alfons Mucha", "Mucha"],
       "born": 1860,
       "died": 1939,
       "nationality": "Czech",
@@ -1023,9 +769,7 @@
     },
     {
       "name": "William Blake",
-      "aliases": [
-        "William Blake"
-      ],
+      "aliases": ["William Blake"],
       "born": 1757,
       "died": 1827,
       "nationality": "English",
@@ -1034,10 +778,7 @@
     },
     {
       "name": "William-Adolphe Bouguereau",
-      "aliases": [
-        "William-Adolphe Bouguereau",
-        "Bouguereau"
-      ],
+      "aliases": ["William-Adolphe Bouguereau", "Bouguereau"],
       "born": 1825,
       "died": 1905,
       "nationality": "French",
@@ -1046,10 +787,7 @@
     },
     {
       "name": "Dante Gabriel Rossetti",
-      "aliases": [
-        "Dante Gabriel Rossetti",
-        "Rossetti"
-      ],
+      "aliases": ["Dante Gabriel Rossetti", "Rossetti"],
       "born": 1828,
       "died": 1882,
       "nationality": "English",
@@ -1058,10 +796,7 @@
     },
     {
       "name": "John Everett Millais",
-      "aliases": [
-        "John Everett Millais",
-        "Millais"
-      ],
+      "aliases": ["John Everett Millais", "Millais"],
       "born": 1829,
       "died": 1896,
       "nationality": "English",
@@ -1070,10 +805,7 @@
     },
     {
       "name": "John William Waterhouse",
-      "aliases": [
-        "John William Waterhouse",
-        "Waterhouse"
-      ],
+      "aliases": ["John William Waterhouse", "Waterhouse"],
       "born": 1849,
       "died": 1917,
       "nationality": "English",
@@ -1082,10 +814,7 @@
     },
     {
       "name": "Lawrence Alma-Tadema",
-      "aliases": [
-        "Lawrence Alma-Tadema",
-        "Alma-Tadema"
-      ],
+      "aliases": ["Lawrence Alma-Tadema", "Alma-Tadema"],
       "born": 1836,
       "died": 1912,
       "nationality": "Dutch / English",
@@ -1094,11 +823,7 @@
     },
     {
       "name": "Frederic Leighton",
-      "aliases": [
-        "Frederic Leighton",
-        "Frederic, Lord Leighton",
-        "Lord Leighton"
-      ],
+      "aliases": ["Frederic Leighton", "Frederic, Lord Leighton", "Lord Leighton"],
       "born": 1830,
       "died": 1896,
       "nationality": "English",
@@ -1107,10 +832,7 @@
     },
     {
       "name": "Edmund Blair Leighton",
-      "aliases": [
-        "Edmund Blair Leighton",
-        "E. Blair Leighton"
-      ],
+      "aliases": ["Edmund Blair Leighton", "E. Blair Leighton"],
       "born": 1853,
       "died": 1922,
       "nationality": "English",
@@ -1119,10 +841,7 @@
     },
     {
       "name": "Marc Chagall",
-      "aliases": [
-        "Marc Chagall",
-        "Chagall"
-      ],
+      "aliases": ["Marc Chagall", "Chagall"],
       "born": 1887,
       "died": 1985,
       "nationality": "Russian / French",
@@ -1131,10 +850,7 @@
     },
     {
       "name": "Joan Miró",
-      "aliases": [
-        "Joan Miró",
-        "Miro"
-      ],
+      "aliases": ["Joan Miró", "Miro"],
       "born": 1893,
       "died": 1983,
       "nationality": "Spanish / Catalan",
@@ -1143,10 +859,7 @@
     },
     {
       "name": "Piet Mondrian",
-      "aliases": [
-        "Piet Mondrian",
-        "Mondrian"
-      ],
+      "aliases": ["Piet Mondrian", "Mondrian"],
       "born": 1872,
       "died": 1944,
       "nationality": "Dutch",
@@ -1155,12 +868,7 @@
     },
     {
       "name": "Vasily Vereshchagin",
-      "aliases": [
-        "Vasily Vereshchagin",
-        "Vereshchagin",
-        "Verestchagin",
-        "Vereschagin"
-      ],
+      "aliases": ["Vasily Vereshchagin", "Vereshchagin", "Verestchagin", "Vereschagin"],
       "born": 1842,
       "died": 1904,
       "nationality": "Russian",
@@ -1169,11 +877,7 @@
     },
     {
       "name": "Ilya Repin",
-      "aliases": [
-        "Ilya Repin",
-        "Ilya Yefimovich Repin",
-        "Ilia Repin"
-      ],
+      "aliases": ["Ilya Repin", "Ilya Yefimovich Repin", "Ilia Repin"],
       "born": 1844,
       "died": 1930,
       "nationality": "Russian",
@@ -1182,11 +886,7 @@
     },
     {
       "name": "Lucas Cranach the Elder",
-      "aliases": [
-        "Lucas Cranach the Elder",
-        "Lucas Cranach d. Ä.",
-        "Cranach the Elder"
-      ],
+      "aliases": ["Lucas Cranach the Elder", "Lucas Cranach d. Ä.", "Cranach the Elder"],
       "born": 1472,
       "died": 1553,
       "nationality": "German",
@@ -1195,10 +895,7 @@
     },
     {
       "name": "Artemisia Gentileschi",
-      "aliases": [
-        "Artemisia Gentileschi",
-        "Artemisia Lomi"
-      ],
+      "aliases": ["Artemisia Gentileschi", "Artemisia Lomi"],
       "born": 1593,
       "died": 1654,
       "nationality": "Italian",
@@ -1207,11 +904,7 @@
     },
     {
       "name": "William Merritt Chase",
-      "aliases": [
-        "William Merritt Chase",
-        "W. M. Chase",
-        "William M. Chase"
-      ],
+      "aliases": ["William Merritt Chase", "W. M. Chase", "William M. Chase"],
       "born": 1849,
       "died": 1916,
       "nationality": "American",
@@ -1220,10 +913,7 @@
     },
     {
       "name": "Martin Schongauer",
-      "aliases": [
-        "Martin Schongauer",
-        "Schongauer"
-      ],
+      "aliases": ["Martin Schongauer", "Schongauer"],
       "born": 1450,
       "died": 1491,
       "nationality": "German",
@@ -1232,11 +922,7 @@
     },
     {
       "name": "Gustave Doré",
-      "aliases": [
-        "Gustave Doré",
-        "Gustave Dore",
-        "Paul Gustave Doré"
-      ],
+      "aliases": ["Gustave Doré", "Gustave Dore", "Paul Gustave Doré"],
       "born": 1832,
       "died": 1883,
       "nationality": "French",
@@ -1245,10 +931,7 @@
     },
     {
       "name": "Gustave Caillebotte",
-      "aliases": [
-        "Gustave Caillebotte",
-        "Caillebotte"
-      ],
+      "aliases": ["Gustave Caillebotte", "Caillebotte"],
       "born": 1848,
       "died": 1894,
       "nationality": "French",
@@ -1257,11 +940,7 @@
     },
     {
       "name": "Carl Spitzweg",
-      "aliases": [
-        "Carl Spitzweg",
-        "Karl Spitzweg",
-        "Spitzweg"
-      ],
+      "aliases": ["Carl Spitzweg", "Karl Spitzweg", "Spitzweg"],
       "born": 1808,
       "died": 1885,
       "nationality": "German",
@@ -1270,11 +949,7 @@
     },
     {
       "name": "Eugene de Blaas",
-      "aliases": [
-        "Eugene de Blaas",
-        "Eugene von Blaas",
-        "Eugenio Blaas"
-      ],
+      "aliases": ["Eugene de Blaas", "Eugene von Blaas", "Eugenio Blaas"],
       "born": 1843,
       "died": 1931,
       "nationality": "Italian",
@@ -1283,11 +958,7 @@
     },
     {
       "name": "Joseph Karl Stieler",
-      "aliases": [
-        "Joseph Karl Stieler",
-        "Joseph Stieler",
-        "Karl Stieler"
-      ],
+      "aliases": ["Joseph Karl Stieler", "Joseph Stieler", "Karl Stieler"],
       "born": 1781,
       "died": 1858,
       "nationality": "German",
@@ -1311,10 +982,7 @@
     },
     {
       "name": "Thomas Gainsborough",
-      "aliases": [
-        "Thomas Gainsborough",
-        "Gainsborough"
-      ],
+      "aliases": ["Thomas Gainsborough", "Gainsborough"],
       "born": 1727,
       "died": 1788,
       "nationality": "English",
@@ -1323,11 +991,7 @@
     },
     {
       "name": "Jacob Jordaens",
-      "aliases": [
-        "Jacob Jordaens",
-        "Jordaens",
-        "Jacques Jordaens"
-      ],
+      "aliases": ["Jacob Jordaens", "Jordaens", "Jacques Jordaens"],
       "born": 1593,
       "died": 1678,
       "nationality": "Flemish",
@@ -1336,10 +1000,7 @@
     },
     {
       "name": "Georges de La Tour",
-      "aliases": [
-        "Georges de La Tour",
-        "de La Tour"
-      ],
+      "aliases": ["Georges de La Tour", "de La Tour"],
       "born": 1593,
       "died": 1652,
       "nationality": "French",
@@ -1348,12 +1009,7 @@
     },
     {
       "name": "Utagawa Kuniyoshi",
-      "aliases": [
-        "Utagawa Kuniyoshi",
-        "Kuniyoshi Utagawa",
-        "Kuniyoshi",
-        "歌川国芳"
-      ],
+      "aliases": ["Utagawa Kuniyoshi", "Kuniyoshi Utagawa", "Kuniyoshi", "歌川国芳"],
       "born": 1798,
       "died": 1861,
       "nationality": "Japanese",
@@ -1362,10 +1018,7 @@
     },
     {
       "name": "Henri Fantin-Latour",
-      "aliases": [
-        "Henri Fantin-Latour",
-        "Fantin-Latour"
-      ],
+      "aliases": ["Henri Fantin-Latour", "Fantin-Latour"],
       "born": 1836,
       "died": 1904,
       "nationality": "French",
@@ -1374,11 +1027,7 @@
     },
     {
       "name": "Hans Holbein the Younger",
-      "aliases": [
-        "Hans Holbein the Younger",
-        "Holbein the Younger",
-        "Hans Holbein d. J."
-      ],
+      "aliases": ["Hans Holbein the Younger", "Holbein the Younger", "Hans Holbein d. J."],
       "born": 1497,
       "died": 1543,
       "nationality": "German",
@@ -1387,10 +1036,7 @@
     },
     {
       "name": "Paolo Veronese",
-      "aliases": [
-        "Paolo Veronese",
-        "Paolo Caliari"
-      ],
+      "aliases": ["Paolo Veronese", "Paolo Caliari"],
       "born": 1528,
       "died": 1588,
       "nationality": "Italian",
@@ -1399,11 +1045,7 @@
     },
     {
       "name": "Suzuki Harunobu",
-      "aliases": [
-        "Suzuki Harunobu",
-        "Harunobu Suzuki",
-        "Harunobu"
-      ],
+      "aliases": ["Suzuki Harunobu", "Harunobu Suzuki", "Harunobu"],
       "born": 1725,
       "died": 1770,
       "nationality": "Japanese",
@@ -1412,10 +1054,7 @@
     },
     {
       "name": "John Frederick Lewis",
-      "aliases": [
-        "John Frederick Lewis",
-        "J. F. Lewis"
-      ],
+      "aliases": ["John Frederick Lewis", "J. F. Lewis"],
       "born": 1804,
       "died": 1876,
       "nationality": "English",
@@ -1424,10 +1063,7 @@
     },
     {
       "name": "Philipp Otto Runge",
-      "aliases": [
-        "Philipp Otto Runge",
-        "Otto Runge"
-      ],
+      "aliases": ["Philipp Otto Runge", "Otto Runge"],
       "born": 1777,
       "died": 1810,
       "nationality": "German",
@@ -1436,10 +1072,7 @@
     },
     {
       "name": "Adolph von Menzel",
-      "aliases": [
-        "Adolph von Menzel",
-        "Adolph Menzel"
-      ],
+      "aliases": ["Adolph von Menzel", "Adolph Menzel"],
       "born": 1815,
       "died": 1905,
       "nationality": "German",
@@ -1448,10 +1081,7 @@
     },
     {
       "name": "Gustav Bauernfeind",
-      "aliases": [
-        "Gustav Bauernfeind",
-        "Bauernfeind"
-      ],
+      "aliases": ["Gustav Bauernfeind", "Bauernfeind"],
       "born": 1848,
       "died": 1904,
       "nationality": "German",
@@ -1460,10 +1090,7 @@
     },
     {
       "name": "Utagawa Kunisada",
-      "aliases": [
-        "Utagawa Kunisada",
-        "Kunisada"
-      ],
+      "aliases": ["Utagawa Kunisada", "Kunisada"],
       "born": 1786,
       "died": 1865,
       "nationality": "Japanese",
@@ -1472,11 +1099,7 @@
     },
     {
       "name": "Tōshūsai Sharaku",
-      "aliases": [
-        "Sharaku",
-        "Tōshūsai Sharaku",
-        "Toshusai Sharaku"
-      ],
+      "aliases": ["Sharaku", "Tōshūsai Sharaku", "Toshusai Sharaku"],
       "born": 1770,
       "died": 1825,
       "nationality": "Japanese",
@@ -1485,10 +1108,7 @@
     },
     {
       "name": "Keisai Eisen",
-      "aliases": [
-        "Keisai Eisen",
-        "Eisen"
-      ],
+      "aliases": ["Keisai Eisen", "Eisen"],
       "born": 1790,
       "died": 1848,
       "nationality": "Japanese",
@@ -1497,10 +1117,7 @@
     },
     {
       "name": "Torii Kiyonaga",
-      "aliases": [
-        "Torii Kiyonaga",
-        "Kiyonaga"
-      ],
+      "aliases": ["Torii Kiyonaga", "Kiyonaga"],
       "born": 1752,
       "died": 1815,
       "nationality": "Japanese",
@@ -1509,10 +1126,7 @@
     },
     {
       "name": "Torii Kiyonobu",
-      "aliases": [
-        "Torii Kiyonobu",
-        "Kiyonobu"
-      ],
+      "aliases": ["Torii Kiyonobu", "Kiyonobu"],
       "born": 1664,
       "died": 1729,
       "nationality": "Japanese",
@@ -1521,10 +1135,7 @@
     },
     {
       "name": "Kaigetsudō Ando",
-      "aliases": [
-        "Kaigetsudō Ando",
-        "Kaigetsudo Ando"
-      ],
+      "aliases": ["Kaigetsudō Ando", "Kaigetsudo Ando"],
       "born": 1671,
       "died": 1743,
       "nationality": "Japanese",
@@ -1533,11 +1144,7 @@
     },
     {
       "name": "Tsuchiya Kōitsu",
-      "aliases": [
-        "Tsuchiya Kōitsu",
-        "Tsuchiya Koitsu",
-        "Kōitsu"
-      ],
+      "aliases": ["Tsuchiya Kōitsu", "Tsuchiya Koitsu", "Kōitsu"],
       "born": 1870,
       "died": 1949,
       "nationality": "Japanese",
@@ -1546,11 +1153,7 @@
     },
     {
       "name": "Sesshū Tōyō",
-      "aliases": [
-        "Sesshū Tōyō",
-        "Sesshu Toyo",
-        "Sesshū"
-      ],
+      "aliases": ["Sesshū Tōyō", "Sesshu Toyo", "Sesshū"],
       "born": 1420,
       "died": 1506,
       "nationality": "Japanese",
@@ -1559,11 +1162,7 @@
     },
     {
       "name": "Hasegawa Tōhaku",
-      "aliases": [
-        "Hasegawa Tōhaku",
-        "Hasegawa Tohaku",
-        "Tōhaku"
-      ],
+      "aliases": ["Hasegawa Tōhaku", "Hasegawa Tohaku", "Tōhaku"],
       "born": 1539,
       "died": 1610,
       "nationality": "Japanese",
@@ -1572,11 +1171,7 @@
     },
     {
       "name": "Kenkō Shōkei",
-      "aliases": [
-        "Kenkō Shōkei",
-        "Kenko Shokei",
-        "Shōkei"
-      ],
+      "aliases": ["Kenkō Shōkei", "Kenko Shokei", "Shōkei"],
       "born": 1478,
       "died": 1523,
       "nationality": "Japanese",
@@ -1585,11 +1180,7 @@
     },
     {
       "name": "Kanō Eitoku",
-      "aliases": [
-        "Kanō Eitoku",
-        "Kano Eitoku",
-        "Eitoku"
-      ],
+      "aliases": ["Kanō Eitoku", "Kano Eitoku", "Eitoku"],
       "born": 1543,
       "died": 1590,
       "nationality": "Japanese",
@@ -1598,11 +1189,7 @@
     },
     {
       "name": "Kanō Sansetsu",
-      "aliases": [
-        "Kanō Sansetsu",
-        "Kano Sansetsu",
-        "Sansetsu"
-      ],
+      "aliases": ["Kanō Sansetsu", "Kano Sansetsu", "Sansetsu"],
       "born": 1589,
       "died": 1651,
       "nationality": "Japanese",
@@ -1611,11 +1198,7 @@
     },
     {
       "name": "Kano Hideyori",
-      "aliases": [
-        "Kano Hideyori",
-        "Kanō Hideyori",
-        "Hideyori"
-      ],
+      "aliases": ["Kano Hideyori", "Kanō Hideyori", "Hideyori"],
       "born": 1540,
       "died": 1590,
       "nationality": "Japanese",
@@ -1624,11 +1207,7 @@
     },
     {
       "name": "Ogata Kōrin",
-      "aliases": [
-        "Ogata Kōrin",
-        "Ogata Korin",
-        "Kōrin"
-      ],
+      "aliases": ["Ogata Kōrin", "Ogata Korin", "Kōrin"],
       "born": 1658,
       "died": 1716,
       "nationality": "Japanese",
@@ -1637,12 +1216,7 @@
     },
     {
       "name": "Tawaraya Sōtatsu",
-      "aliases": [
-        "Tawaraya Sotatsu",
-        "Tawaraya Sōtatsu",
-        "Sōtatsu",
-        "俵屋宗達"
-      ],
+      "aliases": ["Tawaraya Sotatsu", "Tawaraya Sōtatsu", "Sōtatsu", "俵屋宗達"],
       "born": 1570,
       "died": 1640,
       "nationality": "Japanese",
@@ -1651,10 +1225,7 @@
     },
     {
       "name": "Ike no Taiga",
-      "aliases": [
-        "Ike no Taiga",
-        "Ike Taiga"
-      ],
+      "aliases": ["Ike no Taiga", "Ike Taiga"],
       "born": 1723,
       "died": 1776,
       "nationality": "Japanese",
@@ -1663,10 +1234,7 @@
     },
     {
       "name": "Kuroda Seiki",
-      "aliases": [
-        "Kuroda Seiki",
-        "Seiki Kuroda"
-      ],
+      "aliases": ["Kuroda Seiki", "Seiki Kuroda"],
       "born": 1866,
       "died": 1924,
       "nationality": "Japanese",
@@ -1675,11 +1243,7 @@
     },
     {
       "name": "Harada Naojirō",
-      "aliases": [
-        "Harada Naojirō",
-        "Harada Naojiro",
-        "Naojirō"
-      ],
+      "aliases": ["Harada Naojirō", "Harada Naojiro", "Naojirō"],
       "born": 1863,
       "died": 1899,
       "nationality": "Japanese",
@@ -1688,9 +1252,7 @@
     },
     {
       "name": "Fan Kuan",
-      "aliases": [
-        "Fan Kuan"
-      ],
+      "aliases": ["Fan Kuan"],
       "born": 960,
       "died": 1030,
       "nationality": "Chinese",
@@ -1699,9 +1261,7 @@
     },
     {
       "name": "Dong Yuan",
-      "aliases": [
-        "Dong Yuan"
-      ],
+      "aliases": ["Dong Yuan"],
       "born": 934,
       "died": 962,
       "nationality": "Chinese",
@@ -1710,9 +1270,7 @@
     },
     {
       "name": "Guo Zhongshu",
-      "aliases": [
-        "Guo Zhongshu"
-      ],
+      "aliases": ["Guo Zhongshu"],
       "born": 929,
       "died": 977,
       "nationality": "Chinese",
@@ -1721,11 +1279,7 @@
     },
     {
       "name": "Emperor Huizong of Song",
-      "aliases": [
-        "Emperor Huizong of Song",
-        "Huizong",
-        "Emperor Huizong"
-      ],
+      "aliases": ["Emperor Huizong of Song", "Huizong", "Emperor Huizong"],
       "born": 1082,
       "died": 1135,
       "nationality": "Chinese",
@@ -1734,9 +1288,7 @@
     },
     {
       "name": "Li Di",
-      "aliases": [
-        "Li Di"
-      ],
+      "aliases": ["Li Di"],
       "born": 1100,
       "died": 1197,
       "nationality": "Chinese",
@@ -1745,9 +1297,7 @@
     },
     {
       "name": "Ma Yuan",
-      "aliases": [
-        "Ma Yuan"
-      ],
+      "aliases": ["Ma Yuan"],
       "born": 1160,
       "died": 1225,
       "nationality": "Chinese",
@@ -1756,9 +1306,7 @@
     },
     {
       "name": "Xia Gui",
-      "aliases": [
-        "Xia Gui"
-      ],
+      "aliases": ["Xia Gui"],
       "born": 1180,
       "died": 1224,
       "nationality": "Chinese",
@@ -1767,11 +1315,7 @@
     },
     {
       "name": "Muqi Fachang",
-      "aliases": [
-        "Muqi",
-        "Muqi Fachang",
-        "Mu Qi"
-      ],
+      "aliases": ["Muqi", "Muqi Fachang", "Mu Qi"],
       "born": 1210,
       "died": 1269,
       "nationality": "Chinese",
@@ -1780,9 +1324,7 @@
     },
     {
       "name": "Chen Rong",
-      "aliases": [
-        "Chen Rong"
-      ],
+      "aliases": ["Chen Rong"],
       "born": 1200,
       "died": 1266,
       "nationality": "Chinese",
@@ -1791,9 +1333,7 @@
     },
     {
       "name": "Zhao Mengjian",
-      "aliases": [
-        "Zhao Mengjian"
-      ],
+      "aliases": ["Zhao Mengjian"],
       "born": 1199,
       "died": 1264,
       "nationality": "Chinese",
@@ -1802,9 +1342,7 @@
     },
     {
       "name": "Qian Xuan",
-      "aliases": [
-        "Qian Xuan"
-      ],
+      "aliases": ["Qian Xuan"],
       "born": 1235,
       "died": 1305,
       "nationality": "Chinese",
@@ -1813,9 +1351,7 @@
     },
     {
       "name": "Wang Meng",
-      "aliases": [
-        "Wang Meng"
-      ],
+      "aliases": ["Wang Meng"],
       "born": 1308,
       "died": 1385,
       "nationality": "Chinese",
@@ -1824,9 +1360,7 @@
     },
     {
       "name": "Shen Zhou",
-      "aliases": [
-        "Shen Zhou"
-      ],
+      "aliases": ["Shen Zhou"],
       "born": 1427,
       "died": 1509,
       "nationality": "Chinese",
@@ -1835,10 +1369,7 @@
     },
     {
       "name": "Shitao",
-      "aliases": [
-        "Shitao",
-        "Shi Tao"
-      ],
+      "aliases": ["Shitao", "Shi Tao"],
       "born": 1642,
       "died": 1707,
       "nationality": "Chinese",
@@ -1847,9 +1378,7 @@
     },
     {
       "name": "Wang Gai",
-      "aliases": [
-        "Wang Gai"
-      ],
+      "aliases": ["Wang Gai"],
       "born": 1645,
       "died": 1707,
       "nationality": "Chinese",
@@ -1858,9 +1387,7 @@
     },
     {
       "name": "Shen Yuan",
-      "aliases": [
-        "Shen Yuan"
-      ],
+      "aliases": ["Shen Yuan"],
       "born": 1700,
       "died": 1770,
       "nationality": "Chinese",
@@ -1869,9 +1396,7 @@
     },
     {
       "name": "Li Shi",
-      "aliases": [
-        "Li Shi"
-      ],
+      "aliases": ["Li Shi"],
       "born": 1100,
       "died": 1200,
       "nationality": "Chinese",
@@ -1880,10 +1405,7 @@
     },
     {
       "name": "Huian Kang",
-      "aliases": [
-        "Huian Kang",
-        "Kang Huian"
-      ],
+      "aliases": ["Huian Kang", "Kang Huian"],
       "born": 1419,
       "died": 1464,
       "nationality": "Korean",
@@ -1892,11 +1414,7 @@
     },
     {
       "name": "Viktor Vasnetsov",
-      "aliases": [
-        "Viktor Vasnetsov",
-        "Victor Vasnetsov",
-        "Vasnetsov"
-      ],
+      "aliases": ["Viktor Vasnetsov", "Victor Vasnetsov", "Vasnetsov"],
       "born": 1848,
       "died": 1926,
       "nationality": "Russian",
@@ -1921,10 +1439,7 @@
     },
     {
       "name": "Albert Gleizes",
-      "aliases": [
-        "Albert Gleizes",
-        "Gleizes"
-      ],
+      "aliases": ["Albert Gleizes", "Gleizes"],
       "born": 1881,
       "died": 1953,
       "nationality": "French",
@@ -1933,10 +1448,7 @@
     },
     {
       "name": "Francis Picabia",
-      "aliases": [
-        "Francis Picabia",
-        "Picabia"
-      ],
+      "aliases": ["Francis Picabia", "Picabia"],
       "born": 1879,
       "died": 1953,
       "nationality": "French",
@@ -1945,11 +1457,7 @@
     },
     {
       "name": "Parmigianino",
-      "aliases": [
-        "Parmigianino",
-        "Francesco Mazzola",
-        "Girolamo Francesco Maria Mazzola"
-      ],
+      "aliases": ["Parmigianino", "Francesco Mazzola", "Girolamo Francesco Maria Mazzola"],
       "born": 1503,
       "died": 1540,
       "nationality": "Italian",
@@ -1958,12 +1466,7 @@
     },
     {
       "name": "Kasamatsu Shirō",
-      "aliases": [
-        "Kasamatsu Shirō",
-        "Kasamatsu Shiro",
-        "Shirō Kasamatsu",
-        "Shiro Kasamatsu"
-      ],
+      "aliases": ["Kasamatsu Shirō", "Kasamatsu Shiro", "Shirō Kasamatsu", "Shiro Kasamatsu"],
       "born": 1898,
       "died": 1991,
       "nationality": "Japanese",
@@ -1991,12 +1494,7 @@
     },
     {
       "name": "Nishikawa Sukenobu",
-      "aliases": [
-        "Nishikawa Sukenobu",
-        "Sukenobu Nishikawa",
-        "Sukenobu",
-        "西川祐信"
-      ],
+      "aliases": ["Nishikawa Sukenobu", "Sukenobu Nishikawa", "Sukenobu", "西川祐信"],
       "born": 1671,
       "died": 1750,
       "nationality": "Japanese",
@@ -2022,11 +1520,7 @@
     },
     {
       "name": "Matteo Ripa",
-      "aliases": [
-        "Matteo Ripa",
-        "Ripa",
-        "馬國賢"
-      ],
+      "aliases": ["Matteo Ripa", "Ripa", "馬國賢"],
       "born": 1682,
       "died": 1746,
       "nationality": "Italian",
@@ -2035,11 +1529,7 @@
     },
     {
       "name": "Giorgione",
-      "aliases": [
-        "Giorgione",
-        "Giorgio da Castelfranco",
-        "Giorgio Barbarelli da Castelfranco"
-      ],
+      "aliases": ["Giorgione", "Giorgio da Castelfranco", "Giorgio Barbarelli da Castelfranco"],
       "born": 1477,
       "died": 1510,
       "nationality": "Italian",
@@ -2048,10 +1538,7 @@
     },
     {
       "name": "Guercino",
-      "aliases": [
-        "Guercino",
-        "Giovanni Francesco Barbieri"
-      ],
+      "aliases": ["Guercino", "Giovanni Francesco Barbieri"],
       "born": 1591,
       "died": 1666,
       "nationality": "Italian",
@@ -2060,12 +1547,7 @@
     },
     {
       "name": "Léon Bakst",
-      "aliases": [
-        "Léon Bakst",
-        "Leon Bakst",
-        "Lev Bakst",
-        "Bakst"
-      ],
+      "aliases": ["Léon Bakst", "Leon Bakst", "Lev Bakst", "Bakst"],
       "born": 1866,
       "died": 1924,
       "nationality": "Russian",
@@ -2074,9 +1556,7 @@
     },
     {
       "name": "Benjamin West",
-      "aliases": [
-        "Benjamin West"
-      ],
+      "aliases": ["Benjamin West"],
       "born": 1738,
       "died": 1820,
       "nationality": "American / British",
@@ -2085,10 +1565,7 @@
     },
     {
       "name": "John Singleton Copley",
-      "aliases": [
-        "John Singleton Copley",
-        "Copley"
-      ],
+      "aliases": ["John Singleton Copley", "Copley"],
       "born": 1738,
       "died": 1815,
       "nationality": "American / British",
@@ -2097,9 +1574,7 @@
     },
     {
       "name": "Gilbert Stuart",
-      "aliases": [
-        "Gilbert Stuart"
-      ],
+      "aliases": ["Gilbert Stuart"],
       "born": 1755,
       "died": 1828,
       "nationality": "American",
@@ -2108,9 +1583,7 @@
     },
     {
       "name": "Edward Savage",
-      "aliases": [
-        "Edward Savage"
-      ],
+      "aliases": ["Edward Savage"],
       "born": 1761,
       "died": 1817,
       "nationality": "American",
@@ -2119,11 +1592,7 @@
     },
     {
       "name": "Gerard van Honthorst",
-      "aliases": [
-        "Gerard van Honthorst",
-        "Gerrit van Honthorst",
-        "Honthorst"
-      ],
+      "aliases": ["Gerard van Honthorst", "Gerrit van Honthorst", "Honthorst"],
       "born": 1592,
       "died": 1656,
       "nationality": "Dutch",
@@ -2132,10 +1601,7 @@
     },
     {
       "name": "Hendrick Avercamp",
-      "aliases": [
-        "Hendrick Avercamp",
-        "Avercamp"
-      ],
+      "aliases": ["Hendrick Avercamp", "Avercamp"],
       "born": 1585,
       "died": 1634,
       "nationality": "Dutch",
@@ -2144,9 +1610,7 @@
     },
     {
       "name": "Egbert van der Poel",
-      "aliases": [
-        "Egbert van der Poel"
-      ],
+      "aliases": ["Egbert van der Poel"],
       "born": 1621,
       "died": 1664,
       "nationality": "Dutch",
@@ -2155,11 +1619,7 @@
     },
     {
       "name": "Hendrik Martenszoon Sorgh",
-      "aliases": [
-        "Hendrik Martenszoon Sorgh",
-        "Hendrick Martensz Sorgh",
-        "Sorgh"
-      ],
+      "aliases": ["Hendrik Martenszoon Sorgh", "Hendrick Martensz Sorgh", "Sorgh"],
       "born": 1610,
       "died": 1670,
       "nationality": "Dutch",
@@ -2168,9 +1628,7 @@
     },
     {
       "name": "Paul de Vos",
-      "aliases": [
-        "Paul de Vos"
-      ],
+      "aliases": ["Paul de Vos"],
       "born": 1591,
       "died": 1678,
       "nationality": "Flemish",
@@ -2179,9 +1637,7 @@
     },
     {
       "name": "Cornelis de Vos",
-      "aliases": [
-        "Cornelis de Vos"
-      ],
+      "aliases": ["Cornelis de Vos"],
       "born": 1584,
       "died": 1651,
       "nationality": "Flemish",
@@ -2190,10 +1646,7 @@
     },
     {
       "name": "Erasmus Quellinus II",
-      "aliases": [
-        "Erasmus Quellinus II",
-        "Erasmus Quellinus"
-      ],
+      "aliases": ["Erasmus Quellinus II", "Erasmus Quellinus"],
       "born": 1607,
       "died": 1678,
       "nationality": "Flemish",
@@ -2202,10 +1655,7 @@
     },
     {
       "name": "Jan Cossiers",
-      "aliases": [
-        "Jan Cossiers",
-        "Cossiers"
-      ],
+      "aliases": ["Jan Cossiers", "Cossiers"],
       "born": 1600,
       "died": 1671,
       "nationality": "Flemish",
@@ -2214,10 +1664,7 @@
     },
     {
       "name": "Thomas Willeboirts Bosschaert",
-      "aliases": [
-        "Thomas Willeboirts Bosschaert",
-        "Willeboirts Bosschaert"
-      ],
+      "aliases": ["Thomas Willeboirts Bosschaert", "Willeboirts Bosschaert"],
       "born": 1613,
       "died": 1654,
       "nationality": "Flemish",
@@ -2226,10 +1673,7 @@
     },
     {
       "name": "Pieter de Jode II",
-      "aliases": [
-        "Pieter de Jode II",
-        "Pieter de Jode the Younger"
-      ],
+      "aliases": ["Pieter de Jode II", "Pieter de Jode the Younger"],
       "born": 1606,
       "died": 1674,
       "nationality": "Flemish",
@@ -2238,10 +1682,7 @@
     },
     {
       "name": "Charles Le Brun",
-      "aliases": [
-        "Charles Le Brun",
-        "Charles Lebrun"
-      ],
+      "aliases": ["Charles Le Brun", "Charles Lebrun"],
       "born": 1619,
       "died": 1690,
       "nationality": "French",
@@ -2250,10 +1691,7 @@
     },
     {
       "name": "Nicolas Poussin",
-      "aliases": [
-        "Nicolas Poussin",
-        "Poussin"
-      ],
+      "aliases": ["Nicolas Poussin", "Poussin"],
       "born": 1594,
       "died": 1665,
       "nationality": "French",
@@ -2262,11 +1700,7 @@
     },
     {
       "name": "Claude Lorrain",
-      "aliases": [
-        "Claude Lorrain",
-        "Claude Gellée",
-        "Claude Gellee"
-      ],
+      "aliases": ["Claude Lorrain", "Claude Gellée", "Claude Gellee"],
       "born": 1600,
       "died": 1682,
       "nationality": "French",
@@ -2275,10 +1709,7 @@
     },
     {
       "name": "Hyacinthe Rigaud",
-      "aliases": [
-        "Hyacinthe Rigaud",
-        "Rigaud"
-      ],
+      "aliases": ["Hyacinthe Rigaud", "Rigaud"],
       "born": 1659,
       "died": 1743,
       "nationality": "French",
@@ -2287,11 +1718,7 @@
     },
     {
       "name": "Nicolas de Largillière",
-      "aliases": [
-        "Nicolas de Largillière",
-        "Nicolas de Largilliere",
-        "Largillière"
-      ],
+      "aliases": ["Nicolas de Largillière", "Nicolas de Largilliere", "Largillière"],
       "born": 1656,
       "died": 1746,
       "nationality": "French",
@@ -2300,9 +1727,7 @@
     },
     {
       "name": "Antoine Coypel",
-      "aliases": [
-        "Antoine Coypel"
-      ],
+      "aliases": ["Antoine Coypel"],
       "born": 1661,
       "died": 1722,
       "nationality": "French",
@@ -2311,10 +1736,7 @@
     },
     {
       "name": "Louis Le Nain",
-      "aliases": [
-        "Louis Le Nain",
-        "Antoine Le Nain"
-      ],
+      "aliases": ["Louis Le Nain", "Antoine Le Nain"],
       "born": 1593,
       "died": 1648,
       "nationality": "French",
@@ -2323,10 +1745,7 @@
     },
     {
       "name": "Annibale Carracci",
-      "aliases": [
-        "Annibale Carracci",
-        "Carracci"
-      ],
+      "aliases": ["Annibale Carracci", "Carracci"],
       "born": 1560,
       "died": 1609,
       "nationality": "Italian",
@@ -2335,10 +1754,7 @@
     },
     {
       "name": "Giovanni Baglione",
-      "aliases": [
-        "Giovanni Baglione",
-        "Baglione"
-      ],
+      "aliases": ["Giovanni Baglione", "Baglione"],
       "born": 1566,
       "died": 1643,
       "nationality": "Italian",
@@ -2347,10 +1763,7 @@
     },
     {
       "name": "Giuseppe Bartolomeo Chiari",
-      "aliases": [
-        "Giuseppe Bartolomeo Chiari",
-        "Giuseppe Chiari"
-      ],
+      "aliases": ["Giuseppe Bartolomeo Chiari", "Giuseppe Chiari"],
       "born": 1654,
       "died": 1727,
       "nationality": "Italian",
@@ -2359,12 +1772,7 @@
     },
     {
       "name": "Francisco de Zurbarán",
-      "aliases": [
-        "Francisco de Zurbarán",
-        "Francisco de Zurbaran",
-        "Zurbarán",
-        "Zurbaran"
-      ],
+      "aliases": ["Francisco de Zurbarán", "Francisco de Zurbaran", "Zurbarán", "Zurbaran"],
       "born": 1598,
       "died": 1664,
       "nationality": "Spanish",
@@ -2373,11 +1781,7 @@
     },
     {
       "name": "Bartolomé Esteban Murillo",
-      "aliases": [
-        "Bartolomé Esteban Murillo",
-        "Bartolome Esteban Murillo",
-        "Murillo"
-      ],
+      "aliases": ["Bartolomé Esteban Murillo", "Bartolome Esteban Murillo", "Murillo"],
       "born": 1617,
       "died": 1682,
       "nationality": "Spanish",
@@ -2386,10 +1790,7 @@
     },
     {
       "name": "Giovanni Bellini",
-      "aliases": [
-        "Giovanni Bellini",
-        "Bellini"
-      ],
+      "aliases": ["Giovanni Bellini", "Bellini"],
       "born": 1430,
       "died": 1516,
       "nationality": "Italian",
@@ -2398,10 +1799,7 @@
     },
     {
       "name": "Andrea del Sarto",
-      "aliases": [
-        "Andrea del Sarto",
-        "del Sarto"
-      ],
+      "aliases": ["Andrea del Sarto", "del Sarto"],
       "born": 1486,
       "died": 1530,
       "nationality": "Italian",
@@ -2410,11 +1808,7 @@
     },
     {
       "name": "Antonio da Correggio",
-      "aliases": [
-        "Antonio da Correggio",
-        "Antonio Allegri da Correggio",
-        "Correggio"
-      ],
+      "aliases": ["Antonio da Correggio", "Antonio Allegri da Correggio", "Correggio"],
       "born": 1489,
       "died": 1534,
       "nationality": "Italian",
@@ -2423,10 +1817,7 @@
     },
     {
       "name": "Marcantonio Raimondi",
-      "aliases": [
-        "Marcantonio Raimondi",
-        "Raimondi"
-      ],
+      "aliases": ["Marcantonio Raimondi", "Raimondi"],
       "born": 1480,
       "died": 1534,
       "nationality": "Italian",
@@ -2462,10 +1853,7 @@
     },
     {
       "name": "Biagio Pupini",
-      "aliases": [
-        "Biagio Pupini",
-        "Pupini"
-      ],
+      "aliases": ["Biagio Pupini", "Pupini"],
       "born": 1490,
       "died": 1575,
       "nationality": "Italian",
@@ -2474,10 +1862,7 @@
     },
     {
       "name": "Lambert Sustris",
-      "aliases": [
-        "Lambert Sustris",
-        "Sustris"
-      ],
+      "aliases": ["Lambert Sustris", "Sustris"],
       "born": 1515,
       "died": 1584,
       "nationality": "Dutch / Italian",
@@ -2486,12 +1871,7 @@
     },
     {
       "name": "Matthias Grünewald",
-      "aliases": [
-        "Matthias Grünewald",
-        "Matthias Grunewald",
-        "Grünewald",
-        "Grunewald"
-      ],
+      "aliases": ["Matthias Grünewald", "Matthias Grunewald", "Grünewald", "Grunewald"],
       "born": 1470,
       "died": 1528,
       "nationality": "German",
@@ -2500,11 +1880,7 @@
     },
     {
       "name": "Joachim Patinir",
-      "aliases": [
-        "Joachim Patinir",
-        "Joachim Patinier",
-        "Patinir"
-      ],
+      "aliases": ["Joachim Patinir", "Joachim Patinier", "Patinir"],
       "born": 1480,
       "died": 1524,
       "nationality": "Netherlandish",
@@ -2513,11 +1889,7 @@
     },
     {
       "name": "Hans Holbein the Elder",
-      "aliases": [
-        "Hans Holbein the Elder",
-        "Hans Holbein d. Ä.",
-        "Holbein the Elder"
-      ],
+      "aliases": ["Hans Holbein the Elder", "Hans Holbein d. Ä.", "Holbein the Elder"],
       "born": 1460,
       "died": 1524,
       "nationality": "German",
@@ -2541,10 +1913,7 @@
     },
     {
       "name": "Jan Matsys",
-      "aliases": [
-        "Jan Matsys",
-        "Jan Massys"
-      ],
+      "aliases": ["Jan Matsys", "Jan Massys"],
       "born": 1509,
       "died": 1575,
       "nationality": "Flemish",
@@ -2553,11 +1922,7 @@
     },
     {
       "name": "Hans Baldung",
-      "aliases": [
-        "Hans Baldung Grien",
-        "Hans Baldung",
-        "Baldung"
-      ],
+      "aliases": ["Hans Baldung Grien", "Hans Baldung", "Baldung"],
       "born": 1484,
       "died": 1545,
       "nationality": "German",
@@ -2566,10 +1931,7 @@
     },
     {
       "name": "Albrecht Altdorfer",
-      "aliases": [
-        "Albrecht Altdorfer",
-        "Altdorfer"
-      ],
+      "aliases": ["Albrecht Altdorfer", "Altdorfer"],
       "born": 1480,
       "died": 1538,
       "nationality": "German",
@@ -2578,10 +1940,7 @@
     },
     {
       "name": "John Bettes the Elder",
-      "aliases": [
-        "John Bettes the Elder",
-        "John Bettes"
-      ],
+      "aliases": ["John Bettes the Elder", "John Bettes"],
       "born": 1530,
       "died": 1570,
       "nationality": "English",
@@ -2590,11 +1949,7 @@
     },
     {
       "name": "Johannes Wierix",
-      "aliases": [
-        "Johannes Wierix",
-        "Jan Wierix",
-        "Wierix"
-      ],
+      "aliases": ["Johannes Wierix", "Jan Wierix", "Wierix"],
       "born": 1549,
       "died": 1620,
       "nationality": "Flemish",
@@ -2603,11 +1958,7 @@
     },
     {
       "name": "François Boucher",
-      "aliases": [
-        "François Boucher",
-        "Francois Boucher",
-        "Boucher"
-      ],
+      "aliases": ["François Boucher", "Francois Boucher", "Boucher"],
       "born": 1703,
       "died": 1770,
       "nationality": "French",
@@ -2616,11 +1967,7 @@
     },
     {
       "name": "Jean-Honoré Fragonard",
-      "aliases": [
-        "Jean-Honoré Fragonard",
-        "Jean-Honore Fragonard",
-        "Fragonard"
-      ],
+      "aliases": ["Jean-Honoré Fragonard", "Jean-Honore Fragonard", "Fragonard"],
       "born": 1732,
       "died": 1806,
       "nationality": "French",
@@ -2629,11 +1976,7 @@
     },
     {
       "name": "Jean-Antoine Watteau",
-      "aliases": [
-        "Jean-Antoine Watteau",
-        "Antoine Watteau",
-        "Watteau"
-      ],
+      "aliases": ["Jean-Antoine Watteau", "Antoine Watteau", "Watteau"],
       "born": 1684,
       "died": 1721,
       "nationality": "French",
@@ -2642,11 +1985,7 @@
     },
     {
       "name": "Charles-Joseph Natoire",
-      "aliases": [
-        "Charles-Joseph Natoire",
-        "Charles Joseph Natoire",
-        "Natoire"
-      ],
+      "aliases": ["Charles-Joseph Natoire", "Charles Joseph Natoire", "Natoire"],
       "born": 1700,
       "died": 1777,
       "nationality": "French",
@@ -2655,11 +1994,7 @@
     },
     {
       "name": "Gustaf Lundberg",
-      "aliases": [
-        "Gustaf Lundberg",
-        "Gustav Lundberg",
-        "Lundberg"
-      ],
+      "aliases": ["Gustaf Lundberg", "Gustav Lundberg", "Lundberg"],
       "born": 1695,
       "died": 1786,
       "nationality": "Swedish",
@@ -2668,9 +2003,7 @@
     },
     {
       "name": "Sebastiano Ricci",
-      "aliases": [
-        "Sebastiano Ricci"
-      ],
+      "aliases": ["Sebastiano Ricci"],
       "born": 1659,
       "died": 1734,
       "nationality": "Italian",
@@ -2679,11 +2012,7 @@
     },
     {
       "name": "Giambattista Pittoni",
-      "aliases": [
-        "Giambattista Pittoni",
-        "Giovanni Battista Pittoni",
-        "Pittoni"
-      ],
+      "aliases": ["Giambattista Pittoni", "Giovanni Battista Pittoni", "Pittoni"],
       "born": 1687,
       "died": 1767,
       "nationality": "Italian",
@@ -2692,10 +2021,7 @@
     },
     {
       "name": "Bartolomeo Nazari",
-      "aliases": [
-        "Bartolomeo Nazari",
-        "Nazari"
-      ],
+      "aliases": ["Bartolomeo Nazari", "Nazari"],
       "born": 1699,
       "died": 1758,
       "nationality": "Italian",
@@ -2704,10 +2030,7 @@
     },
     {
       "name": "Giovanni Battista Cimaroli",
-      "aliases": [
-        "Giovanni Battista Cimaroli",
-        "Cimaroli"
-      ],
+      "aliases": ["Giovanni Battista Cimaroli", "Cimaroli"],
       "born": 1687,
       "died": 1771,
       "nationality": "Italian",
@@ -2716,11 +2039,7 @@
     },
     {
       "name": "François-Joseph Navez",
-      "aliases": [
-        "François-Joseph Navez",
-        "Francois-Joseph Navez",
-        "Navez"
-      ],
+      "aliases": ["François-Joseph Navez", "Francois-Joseph Navez", "Navez"],
       "born": 1787,
       "died": 1869,
       "nationality": "Belgian",
@@ -2729,10 +2048,7 @@
     },
     {
       "name": "Pieter van Hanselaere",
-      "aliases": [
-        "Pieter van Hanselaere",
-        "Hanselaere"
-      ],
+      "aliases": ["Pieter van Hanselaere", "Hanselaere"],
       "born": 1786,
       "died": 1862,
       "nationality": "Belgian",
@@ -2741,11 +2057,7 @@
     },
     {
       "name": "Henry Fuseli",
-      "aliases": [
-        "Henry Fuseli",
-        "Johann Heinrich Füssli",
-        "Fuseli"
-      ],
+      "aliases": ["Henry Fuseli", "Johann Heinrich Füssli", "Fuseli"],
       "born": 1741,
       "died": 1825,
       "nationality": "Swiss / British",
@@ -2754,11 +2066,7 @@
     },
     {
       "name": "Joseph Wright of Derby",
-      "aliases": [
-        "Joseph Wright of Derby",
-        "Wright of Derby",
-        "Joseph Wright"
-      ],
+      "aliases": ["Joseph Wright of Derby", "Wright of Derby", "Joseph Wright"],
       "born": 1734,
       "died": 1797,
       "nationality": "English",
@@ -2767,11 +2075,7 @@
     },
     {
       "name": "Henry Raeburn",
-      "aliases": [
-        "Henry Raeburn",
-        "Sir Henry Raeburn",
-        "Raeburn"
-      ],
+      "aliases": ["Henry Raeburn", "Sir Henry Raeburn", "Raeburn"],
       "born": 1756,
       "died": 1823,
       "nationality": "Scottish",
@@ -2780,11 +2084,7 @@
     },
     {
       "name": "David Wilkie",
-      "aliases": [
-        "David Wilkie",
-        "Sir David Wilkie",
-        "Wilkie"
-      ],
+      "aliases": ["David Wilkie", "Sir David Wilkie", "Wilkie"],
       "born": 1785,
       "died": 1841,
       "nationality": "Scottish",
@@ -2793,10 +2093,7 @@
     },
     {
       "name": "Daniel Maclise",
-      "aliases": [
-        "Daniel Maclise",
-        "Maclise"
-      ],
+      "aliases": ["Daniel Maclise", "Maclise"],
       "born": 1806,
       "died": 1870,
       "nationality": "Irish",
@@ -2805,9 +2102,7 @@
     },
     {
       "name": "William Collins",
-      "aliases": [
-        "William Collins"
-      ],
+      "aliases": ["William Collins"],
       "born": 1788,
       "died": 1847,
       "nationality": "English",
@@ -2816,11 +2111,7 @@
     },
     {
       "name": "Karl Bryullov",
-      "aliases": [
-        "Karl Bryullov",
-        "Karl Briullov",
-        "Bryullov"
-      ],
+      "aliases": ["Karl Bryullov", "Karl Briullov", "Bryullov"],
       "born": 1799,
       "died": 1852,
       "nationality": "Russian",
@@ -2829,11 +2120,7 @@
     },
     {
       "name": "Eduard Gaertner",
-      "aliases": [
-        "Eduard Gaertner",
-        "Eduard Gärtner",
-        "Gaertner"
-      ],
+      "aliases": ["Eduard Gaertner", "Eduard Gärtner", "Gaertner"],
       "born": 1801,
       "died": 1877,
       "nationality": "German",
@@ -2842,11 +2129,7 @@
     },
     {
       "name": "Wilhelm von Kobell",
-      "aliases": [
-        "Wilhelm von Kobell",
-        "Wilhelm Kobell",
-        "Kobell"
-      ],
+      "aliases": ["Wilhelm von Kobell", "Wilhelm Kobell", "Kobell"],
       "born": 1766,
       "died": 1853,
       "nationality": "German",
@@ -2855,11 +2138,7 @@
     },
     {
       "name": "Carl Joseph Begas",
-      "aliases": [
-        "Carl Joseph Begas",
-        "Karl Joseph Begas",
-        "Begas"
-      ],
+      "aliases": ["Carl Joseph Begas", "Karl Joseph Begas", "Begas"],
       "born": 1794,
       "died": 1854,
       "nationality": "German",
@@ -2868,11 +2147,7 @@
     },
     {
       "name": "Gerhard von Kügelgen",
-      "aliases": [
-        "Gerhard von Kügelgen",
-        "Gerhard von Kugelgen",
-        "Kügelgen"
-      ],
+      "aliases": ["Gerhard von Kügelgen", "Gerhard von Kugelgen", "Kügelgen"],
       "born": 1772,
       "died": 1820,
       "nationality": "German",
@@ -2881,10 +2156,7 @@
     },
     {
       "name": "Franz Krüger",
-      "aliases": [
-        "Franz Krüger",
-        "Franz Kruger"
-      ],
+      "aliases": ["Franz Krüger", "Franz Kruger"],
       "born": 1797,
       "died": 1857,
       "nationality": "German",
@@ -2893,9 +2165,7 @@
     },
     {
       "name": "Eduard Magnus",
-      "aliases": [
-        "Eduard Magnus"
-      ],
+      "aliases": ["Eduard Magnus"],
       "born": 1799,
       "died": 1872,
       "nationality": "German",
@@ -2904,10 +2174,7 @@
     },
     {
       "name": "Wilhelm von Kaulbach",
-      "aliases": [
-        "Wilhelm von Kaulbach",
-        "Kaulbach"
-      ],
+      "aliases": ["Wilhelm von Kaulbach", "Kaulbach"],
       "born": 1805,
       "died": 1874,
       "nationality": "German",
@@ -2916,10 +2183,7 @@
     },
     {
       "name": "Cornelis Springer",
-      "aliases": [
-        "Cornelis Springer",
-        "Springer"
-      ],
+      "aliases": ["Cornelis Springer", "Springer"],
       "born": 1817,
       "died": 1891,
       "nationality": "Dutch",
@@ -2928,10 +2192,7 @@
     },
     {
       "name": "Thomas Eakins",
-      "aliases": [
-        "Thomas Eakins",
-        "Eakins"
-      ],
+      "aliases": ["Thomas Eakins", "Eakins"],
       "born": 1844,
       "died": 1916,
       "nationality": "American",
@@ -2940,12 +2201,7 @@
     },
     {
       "name": "Isaac Levitan",
-      "aliases": [
-        "Isaac Levitan",
-        "Isaac Ilyich Levitan",
-        "Isaak Levitan",
-        "Levitan"
-      ],
+      "aliases": ["Isaac Levitan", "Isaac Ilyich Levitan", "Isaak Levitan", "Levitan"],
       "born": 1860,
       "died": 1900,
       "nationality": "Russian",
@@ -2954,12 +2210,7 @@
     },
     {
       "name": "Vasily Surikov",
-      "aliases": [
-        "Vasily Surikov",
-        "Vasiliy Surikov",
-        "Vasily Ivanovich Surikov",
-        "Surikov"
-      ],
+      "aliases": ["Vasily Surikov", "Vasiliy Surikov", "Vasily Ivanovich Surikov", "Surikov"],
       "born": 1848,
       "died": 1916,
       "nationality": "Russian",
@@ -2968,10 +2219,7 @@
     },
     {
       "name": "Nikolai Yaroshenko",
-      "aliases": [
-        "Nikolai Yaroshenko",
-        "Yaroshenko"
-      ],
+      "aliases": ["Nikolai Yaroshenko", "Yaroshenko"],
       "born": 1846,
       "died": 1898,
       "nationality": "Russian",
@@ -2980,12 +2228,7 @@
     },
     {
       "name": "Fyodor Bruni",
-      "aliases": [
-        "Fyodor Bruni",
-        "Fedor Bruni",
-        "Fidelio Bruni",
-        "Bruni"
-      ],
+      "aliases": ["Fyodor Bruni", "Fedor Bruni", "Fidelio Bruni", "Bruni"],
       "born": 1799,
       "died": 1875,
       "nationality": "Russian",
@@ -2994,10 +2237,7 @@
     },
     {
       "name": "Laurits Tuxen",
-      "aliases": [
-        "Laurits Tuxen",
-        "Tuxen"
-      ],
+      "aliases": ["Laurits Tuxen", "Tuxen"],
       "born": 1853,
       "died": 1927,
       "nationality": "Danish",
@@ -3006,10 +2246,7 @@
     },
     {
       "name": "Fernand Le Quesne",
-      "aliases": [
-        "Fernand Le Quesne",
-        "Le Quesne"
-      ],
+      "aliases": ["Fernand Le Quesne", "Le Quesne"],
       "born": 1856,
       "died": 1932,
       "nationality": "French",
@@ -3018,9 +2255,7 @@
     },
     {
       "name": "Ludwig Deutsch",
-      "aliases": [
-        "Ludwig Deutsch"
-      ],
+      "aliases": ["Ludwig Deutsch"],
       "born": 1855,
       "died": 1935,
       "nationality": "Austrian / French",
@@ -3029,9 +2264,7 @@
     },
     {
       "name": "Rudolf Ernst",
-      "aliases": [
-        "Rudolf Ernst"
-      ],
+      "aliases": ["Rudolf Ernst"],
       "born": 1854,
       "died": 1932,
       "nationality": "Austrian / French",
@@ -3040,10 +2273,7 @@
     },
     {
       "name": "Rudolf Weisse",
-      "aliases": [
-        "Rudolf Weisse",
-        "Rudolf Weiße"
-      ],
+      "aliases": ["Rudolf Weisse", "Rudolf Weiße"],
       "born": 1859,
       "died": 1939,
       "nationality": "Austrian",
@@ -3052,10 +2282,7 @@
     },
     {
       "name": "Wilhelm Gentz",
-      "aliases": [
-        "Wilhelm Gentz",
-        "Gentz"
-      ],
+      "aliases": ["Wilhelm Gentz", "Gentz"],
       "born": 1822,
       "died": 1890,
       "nationality": "German",
@@ -3064,11 +2291,7 @@
     },
     {
       "name": "Frédéric Bazille",
-      "aliases": [
-        "Frédéric Bazille",
-        "Frederic Bazille",
-        "Bazille"
-      ],
+      "aliases": ["Frédéric Bazille", "Frederic Bazille", "Bazille"],
       "born": 1841,
       "died": 1870,
       "nationality": "French",
@@ -3077,10 +2300,7 @@
     },
     {
       "name": "Alfred Sisley",
-      "aliases": [
-        "Alfred Sisley",
-        "Sisley"
-      ],
+      "aliases": ["Alfred Sisley", "Sisley"],
       "born": 1839,
       "died": 1899,
       "nationality": "French / British",
@@ -3089,11 +2309,7 @@
     },
     {
       "name": "Mary Cassatt",
-      "aliases": [
-        "Mary Cassatt",
-        "Mary Stevenson Cassatt",
-        "Cassatt"
-      ],
+      "aliases": ["Mary Cassatt", "Mary Stevenson Cassatt", "Cassatt"],
       "born": 1844,
       "died": 1926,
       "nationality": "American",
@@ -3102,11 +2318,7 @@
     },
     {
       "name": "Valentin Serov",
-      "aliases": [
-        "Valentin Serov",
-        "Valentin Alexandrovich Serov",
-        "Serov"
-      ],
+      "aliases": ["Valentin Serov", "Valentin Alexandrovich Serov", "Serov"],
       "born": 1865,
       "died": 1911,
       "nationality": "Russian",
@@ -3115,10 +2327,7 @@
     },
     {
       "name": "George Inness",
-      "aliases": [
-        "George Inness",
-        "Inness"
-      ],
+      "aliases": ["George Inness", "Inness"],
       "born": 1825,
       "died": 1894,
       "nationality": "American",
@@ -3127,11 +2336,7 @@
     },
     {
       "name": "George Frederic Watts",
-      "aliases": [
-        "George Frederic Watts",
-        "G. F. Watts",
-        "Watts"
-      ],
+      "aliases": ["George Frederic Watts", "G. F. Watts", "Watts"],
       "born": 1817,
       "died": 1904,
       "nationality": "English",
@@ -3140,11 +2345,7 @@
     },
     {
       "name": "Franz von Stuck",
-      "aliases": [
-        "Franz von Stuck",
-        "Franz Stuck",
-        "Stuck"
-      ],
+      "aliases": ["Franz von Stuck", "Franz Stuck", "Stuck"],
       "born": 1863,
       "died": 1928,
       "nationality": "German",
@@ -3153,10 +2354,7 @@
     },
     {
       "name": "Mikhail Nesterov",
-      "aliases": [
-        "Mikhail Nesterov",
-        "Nesterov"
-      ],
+      "aliases": ["Mikhail Nesterov", "Nesterov"],
       "born": 1862,
       "died": 1942,
       "nationality": "Russian",
@@ -3165,10 +2363,7 @@
     },
     {
       "name": "Pierre Puvis de Chavannes",
-      "aliases": [
-        "Pierre Puvis de Chavannes",
-        "Puvis de Chavannes"
-      ],
+      "aliases": ["Pierre Puvis de Chavannes", "Puvis de Chavannes"],
       "born": 1824,
       "died": 1898,
       "nationality": "French",
@@ -3177,10 +2372,7 @@
     },
     {
       "name": "Fernand Khnopff",
-      "aliases": [
-        "Fernand Khnopff",
-        "Khnopff"
-      ],
+      "aliases": ["Fernand Khnopff", "Khnopff"],
       "born": 1858,
       "died": 1921,
       "nationality": "Belgian",
@@ -3189,11 +2381,7 @@
     },
     {
       "name": "Félicien Rops",
-      "aliases": [
-        "Félicien Rops",
-        "Felicien Rops",
-        "Rops"
-      ],
+      "aliases": ["Félicien Rops", "Felicien Rops", "Rops"],
       "born": 1833,
       "died": 1898,
       "nationality": "Belgian",
@@ -3202,10 +2390,7 @@
     },
     {
       "name": "Aubrey Beardsley",
-      "aliases": [
-        "Aubrey Beardsley",
-        "Beardsley"
-      ],
+      "aliases": ["Aubrey Beardsley", "Beardsley"],
       "born": 1872,
       "died": 1898,
       "nationality": "English",
@@ -3214,10 +2399,7 @@
     },
     {
       "name": "Paul Berthon",
-      "aliases": [
-        "Paul Berthon",
-        "Berthon"
-      ],
+      "aliases": ["Paul Berthon", "Berthon"],
       "born": 1872,
       "died": 1909,
       "nationality": "French",
@@ -3226,9 +2408,7 @@
     },
     {
       "name": "Henri Meunier",
-      "aliases": [
-        "Henri Meunier"
-      ],
+      "aliases": ["Henri Meunier"],
       "born": 1873,
       "died": 1922,
       "nationality": "Belgian",
@@ -3237,10 +2417,7 @@
     },
     {
       "name": "William Holman Hunt",
-      "aliases": [
-        "William Holman Hunt",
-        "Holman Hunt"
-      ],
+      "aliases": ["William Holman Hunt", "Holman Hunt"],
       "born": 1827,
       "died": 1910,
       "nationality": "English",
@@ -3249,10 +2426,7 @@
     },
     {
       "name": "John Byam Liston Shaw",
-      "aliases": [
-        "John Byam Liston Shaw",
-        "Byam Shaw"
-      ],
+      "aliases": ["John Byam Liston Shaw", "Byam Shaw"],
       "born": 1872,
       "died": 1919,
       "nationality": "British",
@@ -3261,10 +2435,7 @@
     },
     {
       "name": "Robert Delaunay",
-      "aliases": [
-        "Robert Delaunay",
-        "Delaunay"
-      ],
+      "aliases": ["Robert Delaunay", "Delaunay"],
       "born": 1885,
       "died": 1941,
       "nationality": "French",
@@ -3273,9 +2444,7 @@
     },
     {
       "name": "Juan Gris",
-      "aliases": [
-        "Juan Gris"
-      ],
+      "aliases": ["Juan Gris"],
       "born": 1887,
       "died": 1927,
       "nationality": "Spanish",
@@ -3284,11 +2453,7 @@
     },
     {
       "name": "Kazimir Malevich",
-      "aliases": [
-        "Kazimir Malevich",
-        "Kasimir Malevich",
-        "Malevich"
-      ],
+      "aliases": ["Kazimir Malevich", "Kasimir Malevich", "Malevich"],
       "born": 1878,
       "died": 1935,
       "nationality": "Russian",
@@ -3297,10 +2462,7 @@
     },
     {
       "name": "Ernst Ludwig Kirchner",
-      "aliases": [
-        "Ernst Ludwig Kirchner",
-        "Kirchner"
-      ],
+      "aliases": ["Ernst Ludwig Kirchner", "Kirchner"],
       "born": 1880,
       "died": 1938,
       "nationality": "German",
@@ -3309,10 +2471,7 @@
     },
     {
       "name": "August Macke",
-      "aliases": [
-        "August Macke",
-        "Macke"
-      ],
+      "aliases": ["August Macke", "Macke"],
       "born": 1887,
       "died": 1914,
       "nationality": "German",
@@ -3321,9 +2480,7 @@
     },
     {
       "name": "Franz Marc",
-      "aliases": [
-        "Franz Marc"
-      ],
+      "aliases": ["Franz Marc"],
       "born": 1880,
       "died": 1916,
       "nationality": "German",
@@ -3332,10 +2489,7 @@
     },
     {
       "name": "Amedeo Modigliani",
-      "aliases": [
-        "Amedeo Modigliani",
-        "Modigliani"
-      ],
+      "aliases": ["Amedeo Modigliani", "Modigliani"],
       "born": 1884,
       "died": 1920,
       "nationality": "Italian",
@@ -3344,11 +2498,7 @@
     },
     {
       "name": "George Bellows",
-      "aliases": [
-        "George Bellows",
-        "George Wesley Bellows",
-        "Bellows"
-      ],
+      "aliases": ["George Bellows", "George Wesley Bellows", "Bellows"],
       "born": 1882,
       "died": 1925,
       "nationality": "American",
@@ -3357,11 +2507,7 @@
     },
     {
       "name": "Boris Kustodiev",
-      "aliases": [
-        "Boris Kustodiev",
-        "Boris Mikhailovich Kustodiev",
-        "Kustodiev"
-      ],
+      "aliases": ["Boris Kustodiev", "Boris Mikhailovich Kustodiev", "Kustodiev"],
       "born": 1878,
       "died": 1927,
       "nationality": "Russian",
@@ -3370,9 +2516,7 @@
     },
     {
       "name": "Edward Hicks",
-      "aliases": [
-        "Edward Hicks"
-      ],
+      "aliases": ["Edward Hicks"],
       "born": 1780,
       "died": 1849,
       "nationality": "American",
@@ -3381,10 +2525,7 @@
     },
     {
       "name": "Andreas Vesalius",
-      "aliases": [
-        "Andreas Vesalius",
-        "Vesalius"
-      ],
+      "aliases": ["Andreas Vesalius", "Vesalius"],
       "born": 1514,
       "died": 1564,
       "nationality": "Flemish",
@@ -3393,10 +2534,7 @@
     },
     {
       "name": "Jan Wandelaar",
-      "aliases": [
-        "Jan Wandelaar",
-        "Wandelaar"
-      ],
+      "aliases": ["Jan Wandelaar", "Wandelaar"],
       "born": 1690,
       "died": 1759,
       "nationality": "Dutch",

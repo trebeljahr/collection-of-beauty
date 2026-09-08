@@ -70,7 +70,18 @@ COPY --from=build /app/.next/static ./.next/static
 # Keep dotenvx available in the runner so encrypted runtime env values can be
 # decrypted from .env.production without persisting plaintext secrets in a
 # layer. The standalone trace does not include CLI-only dev dependencies.
-COPY --from=build /app/node_modules ./node_modules
+#
+# Installed here rather than copied from the build stage: that copy pulled the
+# whole 757 MB dev+prod tree across to obtain one CLI binary, shipping vitest,
+# biome, tsx and react-email into the production image. Copying just the
+# package is not an option either — pnpm's node_modules is a symlink farm into
+# .pnpm/, and COPY does not follow those out of the layer.
+#
+# npm, not pnpm: it is already on the node image, and it writes a flat tree, so
+# `node_modules/.bin/dotenvx` (the CMD below) resolves without a store. The
+# version is pinned to what pnpm-lock.yaml resolves for the repo — bump both
+# together.
+RUN npm install --no-save --no-audit --no-fund @dotenvx/dotenvx@1.64.0
 COPY --from=build /app/.env.production ./.env.production
 
 EXPOSE 80

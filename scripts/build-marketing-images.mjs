@@ -1,4 +1,5 @@
 #!/usr/bin/env node
+
 // Compose the OG image (1200×630) and a wide hero shot (1920×1080) from a
 // curated set of public-domain artworks already shipped in the gallery.
 // Each output is a tiled mosaic of paintings on the left and a typographic
@@ -13,8 +14,8 @@
 // Run:
 //   node scripts/build-marketing-images.mjs
 
-import { writeFile, mkdir } from "node:fs/promises";
 import { existsSync } from "node:fs";
+import { mkdir, writeFile } from "node:fs/promises";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 import sharp from "sharp";
@@ -30,7 +31,6 @@ const ROOT = path.dirname(__dirname);
 const LOCAL_ASSETS = path.join(ROOT, "assets-web");
 const FALLBACK_ASSETS = "/Users/rico/projects/collection-of-beauty/assets-web";
 const ASSETS_WEB = existsSync(LOCAL_ASSETS) ? LOCAL_ASSETS : FALLBACK_ASSETS;
-const FONTS_DIR = path.join(ROOT, "scripts", "fonts");
 const OUT_APP = path.join(ROOT, "src", "app", "opengraph-image.png");
 const OUT_HERO_PNG = path.join(ROOT, "public", "marketing", "hero.png");
 const OUT_HERO_JPG = path.join(ROOT, "public", "marketing", "hero.jpg");
@@ -54,7 +54,10 @@ const PICKS_OG = [
 
 const PICKS_HERO = [
   ...PICKS_OG,
-  { folder: "collection-of-beauty", base: "The_Rising_Squall,_Hot_Wells,_from_St_Vincent's_Rock,_Bristol)" },
+  {
+    folder: "collection-of-beauty",
+    base: "The_Rising_Squall,_Hot_Wells,_from_St_Vincent's_Rock,_Bristol)",
+  },
   { folder: "collection-of-beauty", base: "El_Greco_View_of_Toledo" },
   { folder: "audubon-birds", base: "1_Wild_Turkey" },
   { folder: "collection-of-beauty", base: "Caspar_David_Friedrich_-_Das_Kreuz_im_Gebirge" },
@@ -243,7 +246,8 @@ async function composeOg() {
     height: H,
     eyebrow: "A public-domain gallery",
     title: "Collection\nof Beauty",
-    tagline: "A small, slow, hand-curated wing of the commons — with a 3D museum you can walk through.",
+    tagline:
+      "A small, slow, hand-curated wing of the commons — with a 3D museum you can walk through.",
     stats: "~2,900 works · ~225 artists",
     url: "beauty.trebeljahr.com",
     titleSize: 72,

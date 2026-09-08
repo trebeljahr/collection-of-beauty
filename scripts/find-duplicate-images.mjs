@@ -228,15 +228,25 @@ function renderMarkdown(exact, near, titleClusters, stats) {
   const lines = [];
   lines.push("# Duplicate image sweep");
   lines.push("");
-  lines.push(`_Generated ${new Date().toISOString()} from ${stats.hashed}/${stats.total} artworks (${stats.skipped} skipped: no resolvable image)._`);
+  lines.push(
+    `_Generated ${new Date().toISOString()} from ${stats.hashed}/${stats.total} artworks (${stats.skipped} skipped: no resolvable image)._`,
+  );
   lines.push("");
-  lines.push(`- Exact dHash collisions: **${exact.length}** clusters covering **${exact.reduce((n, c) => n + c.length, 0)}** artworks`);
-  lines.push(`- Near duplicates (hamming ≤ ${NEAR_THRESHOLD}): **${near.length}** clusters covering **${near.reduce((n, c) => n + c.length, 0)}** artworks`);
-  lines.push(`- Same artist + same normalized title: **${titleClusters.length}** clusters covering **${titleClusters.reduce((n, c) => n + c.members.length, 0)}** artworks`);
+  lines.push(
+    `- Exact dHash collisions: **${exact.length}** clusters covering **${exact.reduce((n, c) => n + c.length, 0)}** artworks`,
+  );
+  lines.push(
+    `- Near duplicates (hamming ≤ ${NEAR_THRESHOLD}): **${near.length}** clusters covering **${near.reduce((n, c) => n + c.length, 0)}** artworks`,
+  );
+  lines.push(
+    `- Same artist + same normalized title: **${titleClusters.length}** clusters covering **${titleClusters.reduce((n, c) => n + c.members.length, 0)}** artworks`,
+  );
   lines.push("");
   lines.push("## Same artist + same title");
   lines.push("");
-  lines.push("_Sorted by min pairwise hamming distance: low Δ likely = same work scanned twice; high Δ likely = a legitimate series sharing one title._");
+  lines.push(
+    "_Sorted by min pairwise hamming distance: low Δ likely = same work scanned twice; high Δ likely = a legitimate series sharing one title._",
+  );
   lines.push("");
   if (!titleClusters.length) {
     lines.push("_None._");
@@ -245,7 +255,9 @@ function renderMarkdown(exact, near, titleClusters, stats) {
       const dLabel = cluster.minDistance == null ? "Δ?" : `min Δ${cluster.minDistance}`;
       lines.push(`### \`${cluster.key}\` — ${dLabel}`);
       for (const a of cluster.members) {
-        lines.push(`- \`${a.id}\` — ${a.title}${a.englishTitle && a.englishTitle !== a.title ? ` / ${a.englishTitle}` : ""} — \`${a.objectKey}\``);
+        lines.push(
+          `- \`${a.id}\` — ${a.title}${a.englishTitle && a.englishTitle !== a.title ? ` / ${a.englishTitle}` : ""} — \`${a.objectKey}\``,
+        );
       }
       lines.push("");
     }
@@ -301,7 +313,14 @@ async function main() {
   const records = await mapLimit(artworks, CONCURRENCY, async (a) => {
     const filePath = await resolveImagePath(a.objectKey, a.variantWidths);
     if (!filePath) {
-      return { id: a.id, title: a.title, artist: a.artist, objectKey: a.objectKey, hash: null, reason: "no-variant" };
+      return {
+        id: a.id,
+        title: a.title,
+        artist: a.artist,
+        objectKey: a.objectKey,
+        hash: null,
+        reason: "no-variant",
+      };
     }
     const hash = await dHash(filePath);
     return { id: a.id, title: a.title, artist: a.artist, objectKey: a.objectKey, hash };
@@ -332,19 +351,40 @@ async function main() {
     generatedAt: new Date().toISOString(),
     threshold: NEAR_THRESHOLD,
     stats,
-    exact: exact.map((c) => ({ hash: c[0].hash, members: c.map(({ id, title, artist, objectKey }) => ({ id, title, artist, objectKey })) })),
-    near: near.map((c) => ({ seedHash: c[0].hash, members: c.map(({ id, title, artist, objectKey, distance, hash }) => ({ id, title, artist, objectKey, hash, distance })) })),
+    exact: exact.map((c) => ({
+      hash: c[0].hash,
+      members: c.map(({ id, title, artist, objectKey }) => ({ id, title, artist, objectKey })),
+    })),
+    near: near.map((c) => ({
+      seedHash: c[0].hash,
+      members: c.map(({ id, title, artist, objectKey, distance, hash }) => ({
+        id,
+        title,
+        artist,
+        objectKey,
+        hash,
+        distance,
+      })),
+    })),
     titleClusters: titleClusters.map(({ key, members, minDistance }) => ({
       key,
       minDistance,
-      members: members.map(({ id, title, englishTitle, artist, objectKey }) => ({ id, title, englishTitle, artist, objectKey })),
+      members: members.map(({ id, title, englishTitle, artist, objectKey }) => ({
+        id,
+        title,
+        englishTitle,
+        artist,
+        objectKey,
+      })),
     })),
     skipped: skipped.map(({ id, objectKey, reason }) => ({ id, objectKey, reason })),
   };
 
   await fs.writeFile(OUT_JSON, `${JSON.stringify(payload, null, 2)}\n`);
   await fs.writeFile(OUT_MD, `${renderMarkdown(exact, near, titleClusters, stats)}\n`);
-  process.stderr.write(`Wrote ${path.relative(ROOT, OUT_JSON)} and ${path.relative(ROOT, OUT_MD)}.\n`);
+  process.stderr.write(
+    `Wrote ${path.relative(ROOT, OUT_JSON)} and ${path.relative(ROOT, OUT_MD)}.\n`,
+  );
 }
 
 main().catch((err) => {

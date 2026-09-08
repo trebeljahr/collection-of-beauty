@@ -1,4 +1,5 @@
 #!/usr/bin/env node
+
 // One-off scraper for Nicholas Rougeux's restorations of Pierre-Joseph
 // Redouté's *Les Liliacées* and *Les Roses* (c82.net/redoute). Not a Wikimedia
 // source, so it bypasses scrape:fetch and writes metadata/redoute-<coll>.json
@@ -14,8 +15,8 @@
 //
 // Polite: single-threaded, ~300ms between requests, retries once on failure.
 
-import { mkdir, writeFile, readFile, access } from "node:fs/promises";
 import { existsSync } from "node:fs";
+import { mkdir, readFile, writeFile } from "node:fs/promises";
 import path from "node:path";
 
 const COLLECTION = (process.argv[2] || "lilies").toLowerCase();
@@ -38,19 +39,68 @@ const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
 
 // --- HTML entity decode (French Latin-1 + typographic punctuation) ----------
 const ENTITIES = {
-  amp: "&", lt: "<", gt: ">", quot: '"', apos: "'", nbsp: " ",
-  eacute: "é", egrave: "è", ecirc: "ê", euml: "ë",
-  agrave: "à", aacute: "á", acirc: "â", auml: "ä", aring: "å", atilde: "ã",
-  igrave: "ì", iacute: "í", icirc: "î", iuml: "ï",
-  ograve: "ò", oacute: "ó", ocirc: "ô", ouml: "ö", otilde: "õ", oslash: "ø",
-  ugrave: "ù", uacute: "ú", ucirc: "û", uuml: "ü",
-  ccedil: "ç", ntilde: "ñ", yacute: "ý", yuml: "ÿ",
-  Eacute: "É", Egrave: "È", Ecirc: "Ê", Agrave: "À", Acirc: "Â",
-  Ccedil: "Ç", Ouml: "Ö", Uuml: "Ü", Auml: "Ä",
-  oelig: "œ", OElig: "Œ", aelig: "æ", AElig: "Æ", szlig: "ß",
-  rsquo: "’", lsquo: "‘", rdquo: "”", ldquo: "“",
-  hellip: "…", ndash: "–", mdash: "—", deg: "°", times: "×",
-  laquo: "«", raquo: "»", middot: "·", sect: "§", para: "¶",
+  amp: "&",
+  lt: "<",
+  gt: ">",
+  quot: '"',
+  apos: "'",
+  nbsp: " ",
+  eacute: "é",
+  egrave: "è",
+  ecirc: "ê",
+  euml: "ë",
+  agrave: "à",
+  aacute: "á",
+  acirc: "â",
+  auml: "ä",
+  aring: "å",
+  atilde: "ã",
+  igrave: "ì",
+  iacute: "í",
+  icirc: "î",
+  iuml: "ï",
+  ograve: "ò",
+  oacute: "ó",
+  ocirc: "ô",
+  ouml: "ö",
+  otilde: "õ",
+  oslash: "ø",
+  ugrave: "ù",
+  uacute: "ú",
+  ucirc: "û",
+  uuml: "ü",
+  ccedil: "ç",
+  ntilde: "ñ",
+  yacute: "ý",
+  yuml: "ÿ",
+  Eacute: "É",
+  Egrave: "È",
+  Ecirc: "Ê",
+  Agrave: "À",
+  Acirc: "Â",
+  Ccedil: "Ç",
+  Ouml: "Ö",
+  Uuml: "Ü",
+  Auml: "Ä",
+  oelig: "œ",
+  OElig: "Œ",
+  aelig: "æ",
+  AElig: "Æ",
+  szlig: "ß",
+  rsquo: "’",
+  lsquo: "‘",
+  rdquo: "”",
+  ldquo: "“",
+  hellip: "…",
+  ndash: "–",
+  mdash: "—",
+  deg: "°",
+  times: "×",
+  laquo: "«",
+  raquo: "»",
+  middot: "·",
+  sect: "§",
+  para: "¶",
 };
 
 function decodeEntities(s) {
@@ -127,7 +177,9 @@ function parseFlower(html) {
 
   // Download link → the large plate. href is the "-dark" treatment; swap to
   // "-light" (plate on cream paper, faithful to the original engraving).
-  const dlHref = (html.match(/download='[^']*'\s+href='([^']+)'/) || html.match(/href='([^']*\/large\/[^']+)'/) || [])[1];
+  const dlHref = (html.match(/download='[^']*'\s+href='([^']+)'/) ||
+    html.match(/href='([^']*\/large\/[^']+)'/) ||
+    [])[1];
   const imgUrl = dlHref ? `${BASE}${dlHref.replace(/-dark\.jpg$/i, "-light.jpg")}` : null;
 
   // French description: everything inside <div class='flower-description'>
@@ -138,7 +190,9 @@ function parseFlower(html) {
     const seg = descBlock[1];
     const descSec = seg.match(/<h2>Description<\/h2>([\s\S]*?)(?:<h2>|$)/);
     if (descSec) {
-      const paras = [...descSec[1].matchAll(/<p[^>]*>([\s\S]*?)<\/p>/g)].map((m) => stripTags(m[1]));
+      const paras = [...descSec[1].matchAll(/<p[^>]*>([\s\S]*?)<\/p>/g)].map((m) =>
+        stripTags(m[1]),
+      );
       descFr = paras.filter(Boolean).join("\n\n") || null;
     }
   }
@@ -226,7 +280,8 @@ async function main() {
       artist: "Pierre-Joseph Redouté",
       date_created: `between ${year} and ${year + 2}`,
       year,
-      description: parsed.descFr || `Botanical plate of ${title} from Pierre-Joseph Redouté's ${WORK_TITLE}.`,
+      description:
+        parsed.descFr || `Botanical plate of ${title} from Pierre-Joseph Redouté's ${WORK_TITLE}.`,
       source: {
         type: "c82.net",
         canonical_title: `${title}${parsed.plateNum ? ` — ${WORK_TITLE} plate ${parsed.plateNum}` : ""}`,
@@ -266,7 +321,9 @@ async function main() {
 
   await writeFile(META_PATH, serialize(entries));
   const resolved = Object.values(entries).filter((e) => e.resolved).length;
-  console.log(`\nDone. ${Object.keys(entries).length} entries (${fetched} newly fetched), ${resolved} resolved.`);
+  console.log(
+    `\nDone. ${Object.keys(entries).length} entries (${fetched} newly fetched), ${resolved} resolved.`,
+  );
   console.log(`Wrote ${path.relative(ROOT, META_PATH)}`);
 }
 

@@ -111,13 +111,19 @@ for (const folder of FOLDERS) {
 
   if (folderDate > 0) {
     await writeFile(file, `${JSON.stringify(meta, null, 2)}\n`);
-    console.log(`[clean-japanese-dates] ${folder}: ${folderDate} date_created rewrites, ${folderYear} year fills`);
+    console.log(
+      `[clean-japanese-dates] ${folder}: ${folderDate} date_created rewrites, ${folderYear} year fills`,
+    );
   } else {
     console.log(`[clean-japanese-dates] ${folder}: nothing to rewrite`);
   }
 }
 
-console.log(`\n[clean-japanese-dates] total: ${totalDateRewrites} date_created rewrites, ${totalYearFills} year fills`);
+console.log(
+  `\n[clean-japanese-dates] total: ${totalDateRewrites} date_created rewrites, ${totalYearFills} year fills`,
+);
 for (const s of samples) {
-  console.log(`  ${s.folder}/${s.fname}\n    ${JSON.stringify(s.before)} → ${JSON.stringify(s.after)}`);
+  console.log(
+    `  ${s.folder}/${s.fname}\n    ${JSON.stringify(s.before)} → ${JSON.stringify(s.after)}`,
+  );
 }

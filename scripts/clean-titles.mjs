@@ -32,7 +32,7 @@ function isMostlyNonLatin(s) {
   let letters = 0;
   for (const ch of s) {
     const code = ch.codePointAt(0) ?? 0;
-    if (/[^\s\d.,;:!?'"()&\-]/u.test(ch)) letters++;
+    if (/[^\s\d.,;:!?'"()&-]/u.test(ch)) letters++;
     if (code > 0x024f) nonLatin++;
   }
   return letters > 0 && nonLatin / letters > 0.5;
@@ -134,11 +134,15 @@ for (const folder of FOLDERS) {
 
 console.log(`\n[clean-titles] total title rewrites: ${totalFixed}`);
 for (const s of fixSamples) {
-  console.log(`  ${s.folder}/${s.fname}\n    ${JSON.stringify(s.before)} → ${JSON.stringify(s.after)}`);
+  console.log(
+    `  ${s.folder}/${s.fname}\n    ${JSON.stringify(s.before)} → ${JSON.stringify(s.after)}`,
+  );
 }
 
 if (totalReview > 0) {
-  reviewEntries.sort((a, b) => a.folder.localeCompare(b.folder) || a.filename.localeCompare(b.filename));
+  reviewEntries.sort(
+    (a, b) => a.folder.localeCompare(b.folder) || a.filename.localeCompare(b.filename),
+  );
   const lines = [
     "# Titles that remain non-Latin after the build-data pipeline runs",
     "# (no English form in filename, no auto-romanization applied).",
@@ -149,20 +153,15 @@ if (totalReview > 0) {
   ];
   for (const r of reviewEntries) {
     lines.push(
-      [
-        r.folder,
-        r.filename,
-        r.title,
-        r.artist ?? "",
-        r.year ?? "",
-        r.commonsUrl ?? "",
-      ]
+      [r.folder, r.filename, r.title, r.artist ?? "", r.year ?? "", r.commonsUrl ?? ""]
         .map((s) => String(s).replace(/\s*\|\s*/g, "/"))
         .join(" | "),
     );
   }
   await writeFile(REVIEW_FILE, `${lines.join("\n")}\n`);
-  console.log(`\n[clean-titles] flagged ${totalReview} non-Latin titles for review → ${path.relative(ROOT, REVIEW_FILE)}`);
+  console.log(
+    `\n[clean-titles] flagged ${totalReview} non-Latin titles for review → ${path.relative(ROOT, REVIEW_FILE)}`,
+  );
 } else {
   console.log("\n[clean-titles] no remaining non-Latin titles");
 }

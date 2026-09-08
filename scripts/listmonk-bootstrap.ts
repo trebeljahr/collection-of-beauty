@@ -52,10 +52,7 @@ function authHeader(): string {
   return `token ${required("LISTMONK_API_USER")}:${required("LISTMONK_API_TOKEN")}`;
 }
 
-async function listmonkFetch<T = unknown>(
-  path: string,
-  init: RequestInit = {},
-): Promise<T> {
+async function listmonkFetch<T = unknown>(path: string, init: RequestInit = {}): Promise<T> {
   const res = await fetch(`${baseUrl()}${path}`, {
     ...init,
     headers: {
@@ -136,9 +133,7 @@ async function main(): Promise<void> {
     subject: TX_TEMPLATE_SUBJECT,
     body: TX_TEMPLATE_BODY,
   });
-  console.info(
-    `[bootstrap] tx template       ${tx.created ? "created" : "found"}: id=${tx.id}`,
-  );
+  console.info(`[bootstrap] tx template       ${tx.created ? "created" : "found"}: id=${tx.id}`);
 
   const campaign = await upsertTemplate({
     name: CAMPAIGN_TEMPLATE_NAME,

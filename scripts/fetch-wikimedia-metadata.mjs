@@ -19,12 +19,13 @@
 //
 // Read-only w.r.t. the source collection. Does not rename or move any file.
 
-import { spawnSync } from "child_process";
-import fs from "fs";
-import https from "https";
-import path from "path";
-import { fileURLToPath } from "url";
+import { spawnSync } from "node:child_process";
+import fs from "node:fs";
+import https from "node:https";
+import path from "node:path";
+import { fileURLToPath } from "node:url";
 import { ARTISTS_DB_PATH, loadArtistsDb, matchArtist } from "./lib/artist-alias.mjs";
+import { emValue } from "./lib/commons-extmetadata.mjs";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -97,25 +98,7 @@ function httpsGetJson(url, retry = 0) {
   });
 }
 
-function stripHtml(s) {
-  if (s == null) return null;
-  return String(s)
-    .replace(/<[^>]+>/g, " ")
-    .replace(/&nbsp;/g, " ")
-    .replace(/&amp;/g, "&")
-    .replace(/&quot;/g, '"')
-    .replace(/&#39;/g, "'")
-    .replace(/&lt;/g, "<")
-    .replace(/&gt;/g, ">")
-    .replace(/\s+/g, " ")
-    .trim();
-}
-
 // Collapse a Wikimedia extmetadata field to its plain-text value
-function emValue(em, key) {
-  if (!em || !em[key]) return null;
-  return stripHtml(em[key].value);
-}
 
 // Look for the first 4-digit year in a string
 function extractYear(s) {

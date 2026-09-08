@@ -28,7 +28,8 @@ const artistRewrites = {
     "Kasamatsu Shirō",
   "De_rand_van_de_Shinobazu_vijver_tijdens_een_mistige_avond._Kasumu_yube_Shinobazu_chihan_(titel_op_object),_RP-P-1998-389.jpg":
     "Kasamatsu Shirō",
-  "De_warme_bronnen_van_Shuzenji_Shuzenji_onsen_(titel_op_object),_RP-P-1968-277.jpg": "Kasamatsu Shirō",
+  "De_warme_bronnen_van_Shuzenji_Shuzenji_onsen_(titel_op_object),_RP-P-1968-277.jpg":
+    "Kasamatsu Shirō",
   "Het_Suwa_meer_in_de_provincie_Shinano_Shinshu_Suwako_(titel_op_object)_36_gezichten_op_de_berg_Fuji_(serietitel)_Fugaku_sanjurokkei_(serietitel_op_object),_RP-P-1956-730.jpg":
     "Katsushika Hokusai",
   "Het_drijvende_paviljoen_te_Katada_in_de_sneeuw_Yuki_no_Katada_Ukimido_(titel_op_object),_AK-MAK-1636.jpg":
@@ -36,7 +37,8 @@ const artistRewrites = {
   "Horatius_Cocles_De_Romeinse_helden_(serietitel),_RP-P-OB-10.336.jpg": "Hendrick Goltzius",
   "Irissen,_RP-P-1999-553_(cropped).jpg": "Ohara Koson",
   "Liefdespaar,_RP-P-OB-12.233.jpg": "Parmigianino",
-  "Siberische_Blauwe_Nachtegaal_bij_een_pioenroos_onder_een_besneeuwde_schoof,_RP-P-2001-731.jpg": "Ohara Koson",
+  "Siberische_Blauwe_Nachtegaal_bij_een_pioenroos_onder_een_besneeuwde_schoof,_RP-P-2001-731.jpg":
+    "Ohara Koson",
   "Twee_kaketoes_op_tak_met_pruimenbloesem,_RP-P-2005-472.jpg": "Ohara Koson",
 
   // Other records with junk in the artist field
@@ -82,7 +84,8 @@ const artistRewrites = {
   "Crucifixion_-_Andrea_Mantegna_-_Louvre_INV_368.jpg": "Andrea Mantegna",
   "Musée_de_Capodimonte_-_Le_Gréco,_portrait_de_Giulio_Clovio,_en_1571-572_-01.jpg": "El Greco",
   "Francisco_de_Zurbarán_006.jpg": "Francisco de Zurbarán",
-  "Francesco_Hayez_-_Self_Portrait_in_a_Group_of_Friend_-_Google_Art_Project.jpg": "Francesco Hayez",
+  "Francesco_Hayez_-_Self_Portrait_in_a_Group_of_Friend_-_Google_Art_Project.jpg":
+    "Francesco Hayez",
   "Elisabeth_Vigée-Lebrun_-_Self-Portrait_with_Her_Daughter,_Julie_-_WGA25082.jpg":
     "Élisabeth Vigée Le Brun",
   "Paul_Gauguin_-_Te_aa_no_areois_-_Google_Art_Project.jpg": "Paul Gauguin",
@@ -126,7 +129,8 @@ const sidecarRewrites = {
   "Kunisada_futamigaura.jpg": {
     year: 1832,
     date_created: "circa 1832",
-    description: "Utagawa Kunisada's design of the Wedded Rocks at Futami-ga-ura, the Shinto sunrise pilgrimage site on Ise Bay.",
+    description:
+      "Utagawa Kunisada's design of the Wedded Rocks at Futami-ga-ura, the Shinto sunrise pilgrimage site on Ise Bay.",
   },
   "London_National_Gallery_Turner_Hero_and_Leander.jpg": {
     year: 1837,
@@ -137,7 +141,8 @@ const sidecarRewrites = {
   "Hovhannes_Aivazovsky_-_The_Ninth_Wave_-_Google_Art_Project.jpg": {
     year: 1850,
     date_created: "1850",
-    description: "Ivan Aivazovsky, The Ninth Wave, 1850. Oil on canvas, Russian Museum, Saint Petersburg.",
+    description:
+      "Ivan Aivazovsky, The Ninth Wave, 1850. Oil on canvas, Russian Museum, Saint Petersburg.",
   },
   "Midnight_Ride_of_Paul_Revere.jpg": {
     description:
@@ -228,18 +233,20 @@ const sidecarRewrites = {
   // "(1577-1640)" / "(1727-1788)", the sitter's birth year, the lifespan
   // lower bound, or — for the Ingres — the date of the Titian original it
   // copies. Pin the documented creation year.
-  "諸國名橋奇覧_摂洲天満橋-Tenman_Bridge_at_Settsu_Province_(Sesshū_Tenmanbashi),_from_the_series_Remarkable_Views_of_Bridges_in_Various_Provinces_(Shokoku_meikyō_kiran)_MET_DP141277.jpg": {
-    year: 1834,
-    date_created: "c. 1834",
-  },
+  "諸國名橋奇覧_摂洲天満橋-Tenman_Bridge_at_Settsu_Province_(Sesshū_Tenmanbashi),_from_the_series_Remarkable_Views_of_Bridges_in_Various_Provinces_(Shokoku_meikyō_kiran)_MET_DP141277.jpg":
+    {
+      year: 1834,
+      date_created: "c. 1834",
+    },
   "Hasegawa_Tohaku_-_Pine_Trees_(Shōrin-zu_byōbu)_-_right_hand_screen.jpg": {
     year: 1595,
     date_created: "c. 1595",
   },
-  "Portrait_of_the_Artist's_Daughters,_probably_early_1760s,_by_Thomas_Gainsborough_(1727-1788)_-_IMG_7281.jpeg": {
-    year: 1760,
-    date_created: "early 1760s",
-  },
+  "Portrait_of_the_Artist's_Daughters,_probably_early_1760s,_by_Thomas_Gainsborough_(1727-1788)_-_IMG_7281.jpeg":
+    {
+      year: 1760,
+      date_created: "early 1760s",
+    },
   "Colonel_John_Bullock.jpg": {
     year: 1770,
     date_created: "early 1770s",
@@ -252,14 +259,16 @@ const sidecarRewrites = {
   },
   // Later copies after Rubens — use the source's own estimate for the copy,
   // not Rubens's birth year.
-  "Peter_Paul_Rubens_(1577-1640)_(after)_-_Man_in_a_Ruff_-_R.1990-58.23_-_Colchester_and_Ipswich_Museums_Service.jpg": {
-    year: 1700,
-    date_created: "possibly c. 1650–1750",
-  },
-  "Peter_Paul_Rubens_(1577-1640)_(copy_after)_-_Madonna_and_Child_-_PCF48_-_Lady_Margaret_Hall.jpg": {
-    year: 1650,
-    date_created: "17th century (?)",
-  },
+  "Peter_Paul_Rubens_(1577-1640)_(after)_-_Man_in_a_Ruff_-_R.1990-58.23_-_Colchester_and_Ipswich_Museums_Service.jpg":
+    {
+      year: 1700,
+      date_created: "possibly c. 1650–1750",
+    },
+  "Peter_Paul_Rubens_(1577-1640)_(copy_after)_-_Madonna_and_Child_-_PCF48_-_Lady_Margaret_Hall.jpg":
+    {
+      year: 1650,
+      date_created: "17th century (?)",
+    },
   // Shitao (1642–1707): the album year was read as his birth year. The Met
   // dates "Searching for Immortals" to the 1690s, painted after he settled
   // in Yangzhou (1696).
@@ -303,7 +312,8 @@ const titleOverrides = {
   // Jordaens martyrdom already has English title; description is the issue.
 
   // Bilingual / non-English titles
-  "collection-of-beauty/The_Triumph_of_Death_by_Pieter_Bruegel_the_Elder.jpg": "The Triumph of Death",
+  "collection-of-beauty/The_Triumph_of_Death_by_Pieter_Bruegel_the_Elder.jpg":
+    "The Triumph of Death",
   "collection-of-beauty/Айвазовский_И.К._Волна.jpg": "The Wave",
   "collection-of-beauty/Ivan_Aivazovsky_-_Fog_on_the_sea.jpg": "Fog at Sea",
   "collection-of-beauty/Golden_Autumn._Золотая_осень.jpg": "Golden Autumn",
@@ -337,7 +347,8 @@ const titleOverrides = {
   "collection-of-beauty/Gentile_and_Giovanni_Bellini_—_Saint_Mark_Preaching_in_Alexandria.jpg":
     "Saint Mark Preaching in Alexandria",
   "collection-of-beauty/Giovanni_Bellini_—_Holy_Allegory.jpg": "Sacred Allegory",
-  "collection-of-beauty/Jacopo_Tintoretto_—_Creation_of_the_Animals.jpg": "The Creation of the Animals",
+  "collection-of-beauty/Jacopo_Tintoretto_—_Creation_of_the_Animals.jpg":
+    "The Creation of the Animals",
   "collection-of-beauty/Matthias_Grünewald_-_Resurrection.jpg":
     "The Resurrection, from the Isenheim Altarpiece",
   "collection-of-beauty/Tintoretto_-_Prayer_in_the_Garden.jpg": "The Agony in the Garden",
@@ -352,7 +363,8 @@ const titleOverrides = {
     "Self-Portrait in a Group of Friends",
   "collection-of-beauty/Elisabeth_Vigée-Lebrun_-_Self-Portrait_with_Her_Daughter,_Julie_-_WGA25082.jpg":
     "Self-Portrait with Her Daughter Julie",
-  "collection-of-beauty/Paul_Gauguin_-_Te_aa_no_areois_-_Google_Art_Project.jpg": "Te aa no areois (The Seed of the Areoi)",
+  "collection-of-beauty/Paul_Gauguin_-_Te_aa_no_areois_-_Google_Art_Project.jpg":
+    "Te aa no areois (The Seed of the Areoi)",
   "collection-of-beauty/Portrait_of_Ivan_Morozov2.jpg": "Portrait of Ivan Morozov",
   "collection-of-beauty/FRANCESCO_HAYEZ_-_Incontro_di_Giobbe_ed_Esaù_(1844).jpg":
     "The Meeting of Jacob and Esau",
@@ -486,9 +498,7 @@ const descs = readJson(DESCS);
 
 // Some sidecar keys are stored NFD (decomposed macrons, e.g. "byōbu");
 // the rewrite keys above are authored NFC. Match either normalization form.
-const sidecarByNFC = new Map(
-  Object.keys(sidecar.entries).map((k) => [k.normalize("NFC"), k]),
-);
+const sidecarByNFC = new Map(Object.keys(sidecar.entries).map((k) => [k.normalize("NFC"), k]));
 const sidecarEntry = (fname) =>
   sidecar.entries[fname] ?? sidecar.entries[sidecarByNFC.get(fname.normalize("NFC"))];
 
@@ -515,7 +525,9 @@ for (const [fname, fields] of Object.entries(sidecarRewrites)) {
   }
   for (const [key, value] of Object.entries(fields)) {
     if (e[key] !== value) {
-      console.log(`sidecar.${key}: ${fname} :: ${JSON.stringify(e[key])} → ${JSON.stringify(value)}`);
+      console.log(
+        `sidecar.${key}: ${fname} :: ${JSON.stringify(e[key])} → ${JSON.stringify(value)}`,
+      );
       e[key] = value;
       sidecarFieldChanges++;
     }
@@ -534,7 +546,9 @@ let timestampClears = 0;
 let yearOrphanClears = 0;
 for (const [fname, entry] of Object.entries(sidecar.entries)) {
   if (entry.date_created && TIMESTAMP_RE.test(entry.date_created)) {
-    console.log(`date_created (upload-ts): ${fname} :: ${JSON.stringify(entry.date_created)} → null`);
+    console.log(
+      `date_created (upload-ts): ${fname} :: ${JSON.stringify(entry.date_created)} → null`,
+    );
     entry.date_created = null;
     timestampClears++;
   }

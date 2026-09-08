@@ -15,7 +15,8 @@
     "collection-of-beauty/Giorgione-BildnisGiovanniBorgherini.ud.TrifoneGabriele.1509-10.BSTGS7452.jpg": "Commons category \"Portraits by Giorgione\"; the file page credits the Bayerische Staatsgemaldesammlungen as the holding institution, not the painter.",
     "collection-of-beauty/Chaumiére_Italienne.jpg": "Commons categories \"Prints by Jean-Honore Fragonard\", \"1775 etchings\"; file description: \"Ets gemaakt door Jean-Honore Fragonard\".",
     "collection-of-beauty/Paolo_Veronese_008.jpg": "Commons category \"Marriage at Cana (Paulo Veronese)\" + PD-Art (Yorck Project); only the reproducing photographer was unknown.",
-    "collection-of-beauty/Michelangelo_libyan.jpg": "File description: \"MICHELANGELO Buonarroti Study for the Libyan Sibyl\"; Commons category \"Drawings by Michelangelo Buonarroti in the Metropolitan Museum of Art\"."
+    "collection-of-beauty/Michelangelo_libyan.jpg": "File description: \"MICHELANGELO Buonarroti Study for the Libyan Sibyl\"; Commons category \"Drawings by Michelangelo Buonarroti in the Metropolitan Museum of Art\".",
+    "collection-of-beauty/El_Tres_de_Mayo,_by_Francisco_de_Goya,_from_Prado_thin_black_margin.jpg": "Commons `artist` field is the derivative-work credit block verbatim: \"El_Tres_de_Mayo,_by_Francisco_de_Goya,_from_Prado_in_Google_Earth.jpg : Francisco de Goya derivative work: Papa Lima Whiskey 2\". \"Papa Lima Whiskey 2\" is the Commons user who cropped the black margin; the credit line confirms it (\"This file was derived from: El Tres de Mayo, by Francisco de Goya, from Prado in Google Earth.jpg\"). The loose alias matcher used to rescue this by hitting \"Goya\" as a bare substring, and the record still resolves today only through the stale `artist_info` snapshot baked into the sidecar - a re-fetch under the strict matcher drops both, leaving the whole credit block as the artist name."
   },
   "collection-of-beauty/\"Le_jardin_Hoschedé_à_Montgeron\"_d'A._Sisley_(Fondation_Vuitton,_Paris).jpg": "Alfred Sisley",
   "collection-of-beauty/Henri_Rousseau_—_The_Hungry_Lion_Throws_Itself_on_the_Antelope.jpg": "Henri Rousseau",
@@ -31,5 +32,6 @@
   "collection-of-beauty/Giorgione-BildnisGiovanniBorgherini.ud.TrifoneGabriele.1509-10.BSTGS7452.jpg": "Giorgione",
   "collection-of-beauty/Chaumiére_Italienne.jpg": "Jean-Honoré Fragonard",
   "collection-of-beauty/Paolo_Veronese_008.jpg": "Paolo Veronese",
-  "collection-of-beauty/Michelangelo_libyan.jpg": "Michelangelo Buonarroti"
+  "collection-of-beauty/Michelangelo_libyan.jpg": "Michelangelo Buonarroti",
+  "collection-of-beauty/El_Tres_de_Mayo,_by_Francisco_de_Goya,_from_Prado_thin_black_margin.jpg": "Francisco Goya"
 }

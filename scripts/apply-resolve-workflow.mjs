@@ -16,6 +16,7 @@ import fs from "node:fs";
 import https from "node:https";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
+import { emValue as emVal } from "./lib/commons-extmetadata.mjs";
 
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
 const SIDECAR = path.join(ROOT, "metadata", "collection-of-beauty.json");
@@ -53,25 +54,6 @@ function httpsGetJson(url, retry = 0) {
       })
       .on("error", reject);
   });
-}
-
-function stripHtml(s) {
-  if (s == null) return null;
-  return String(s)
-    .replace(/<[^>]+>/g, " ")
-    .replace(/&nbsp;/g, " ")
-    .replace(/&amp;/g, "&")
-    .replace(/&quot;/g, '"')
-    .replace(/&#39;/g, "'")
-    .replace(/&lt;/g, "<")
-    .replace(/&gt;/g, ">")
-    .replace(/\s+/g, " ")
-    .trim();
-}
-
-function emVal(em, key) {
-  if (!em || !em[key]) return null;
-  return stripHtml(em[key].value);
 }
 
 async function fetchImageInfo(canonicalTitle) {
@@ -222,7 +204,8 @@ for (const f of result.resolved) {
   entry.source = {
     type: "Wikimedia Commons",
     canonical_title: canonical,
-    url: pageUrl ||
+    url:
+      pageUrl ||
       `https://commons.wikimedia.org/wiki/${encodeURIComponent(canonical.replace(/ /g, "_"))}`,
     file_url: fileUrl,
     credit,

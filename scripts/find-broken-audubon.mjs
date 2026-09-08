@@ -18,7 +18,7 @@
  *   node scripts/find-broken-audubon.mjs --quiet
  */
 
-import { readFile, readdir, writeFile } from "node:fs/promises";
+import { readdir, readFile, writeFile } from "node:fs/promises";
 import os from "node:os";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
@@ -65,7 +65,7 @@ const THRESHOLDS = {
 
 // ────────────────────────────────────────────────────────────────────────────
 
-function summarise(data, w, h, region) {
+function summarise(data, w, _h, region) {
   // region: { x0, y0, x1, y1 } half-open. data is RGB raw, 3 bytes/pixel.
   let n = 0;
   let sumR = 0;

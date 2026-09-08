@@ -12,7 +12,7 @@
 // derived from the project press-kit note. ZIP entries are sorted and their
 // timestamp fields are zeroed so repeated runs are deterministic.
 
-import { constants as fsConstants, existsSync } from "node:fs";
+import { existsSync, constants as fsConstants } from "node:fs";
 import { access, mkdir, readdir, readFile, stat, unlink, writeFile } from "node:fs/promises";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
@@ -35,7 +35,10 @@ const OG_CANDIDATES = [
 const WORDMARK_CANDIDATES = [
   { source: path.join(ROOT, "public", "logo-wordmark.svg"), zipPath: "logo-wordmark.svg" },
   { source: path.join(ROOT, "public", "wordmark.svg"), zipPath: "wordmark.svg" },
-  { source: path.join(ROOT, "public", "marketing", "logo-wordmark.svg"), zipPath: "logo-wordmark.svg" },
+  {
+    source: path.join(ROOT, "public", "marketing", "logo-wordmark.svg"),
+    zipPath: "logo-wordmark.svg",
+  },
   { source: path.join(ROOT, "public", "marketing", "wordmark.svg"), zipPath: "wordmark.svg" },
   { source: path.join(ROOT, "src", "app", "logo-wordmark.svg"), zipPath: "logo-wordmark.svg" },
   { source: path.join(ROOT, "src", "app", "wordmark.svg"), zipPath: "wordmark.svg" },
@@ -79,7 +82,9 @@ async function main() {
     );
   }
 
-  console.log(`wrote ${path.relative(ROOT, OUT_ZIP)} (${formatBytes(size)}, ${entries.length} files)`);
+  console.log(
+    `wrote ${path.relative(ROOT, OUT_ZIP)} (${formatBytes(size)}, ${entries.length} files)`,
+  );
 }
 
 async function addFirstExisting(entries, candidates, label) {
@@ -261,7 +266,11 @@ function dedupeAndSortEntries(entries) {
   const byPath = new Map();
 
   for (const entry of entries) {
-    if (path.isAbsolute(entry.zipPath) || entry.zipPath.includes("..") || entry.zipPath.includes("\\")) {
+    if (
+      path.isAbsolute(entry.zipPath) ||
+      entry.zipPath.includes("..") ||
+      entry.zipPath.includes("\\")
+    ) {
       throw new Error(`unsafe zip path: ${entry.zipPath}`);
     }
     if (byPath.has(entry.zipPath)) {

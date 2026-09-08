@@ -1,7 +1,7 @@
-import * as crypto from "crypto";
-import * as fs from "fs";
-import * as https from "https";
-import * as path from "path";
+import * as crypto from "node:crypto";
+import * as fs from "node:fs";
+import * as https from "node:https";
+import * as path from "node:path";
 
 const ROOT = path.resolve(__dirname, "..");
 const OUTPUT_DIR = path.join(ROOT, "assets", "kunstformen-images");
@@ -280,7 +280,7 @@ async function downloadAllImages() {
 
   if (failedFiles.length > 0) {
     console.log("\nFailed files:");
-    failedFiles.forEach((f) => console.log(`  - ${f}`));
+    for (const f of failedFiles) console.log(`  - ${f}`);
   }
 }
 

@@ -1,5 +1,5 @@
 import { createHash } from "node:crypto";
-import { closeSync, existsSync, openSync, readSync, readdirSync, statSync } from "node:fs";
+import { closeSync, existsSync, openSync, readdirSync, readSync, statSync } from "node:fs";
 import { mkdir, readFile, writeFile } from "node:fs/promises";
 import os from "node:os";
 import path from "node:path";
@@ -8,7 +8,7 @@ import { imageSize } from "image-size";
 import sharp from "sharp";
 import { colorProfileFromHistogram } from "../src/lib/color-buckets.mjs";
 import { loadArtistsDb, matchArtist } from "./lib/artist-alias.mjs";
-import { ID_MAX_LENGTH, artworkId, slugify } from "./lib/artwork-id.mjs";
+import { artworkId, ID_MAX_LENGTH, slugify } from "./lib/artwork-id.mjs";
 import { SOURCE_FOLDERS } from "./lib/source-folders.mjs";
 
 // sharp's async work runs on the libuv threadpool, which defaults to 4
@@ -184,7 +184,11 @@ async function dominantColorFor(folderKey, filename) {
       const channels = stats.channels.slice(0, 3);
       if (channels.length === 3) {
         const hex = channels
-          .map((c) => Math.max(0, Math.min(255, Math.round(c.mean))).toString(16).padStart(2, "0"))
+          .map((c) =>
+            Math.max(0, Math.min(255, Math.round(c.mean)))
+              .toString(16)
+              .padStart(2, "0"),
+          )
           .join("");
         result = `#${hex}`;
       }
@@ -461,9 +465,7 @@ function assertRequiredAssetsAvailable() {
     );
   }
 
-  const missingFolders = SOURCE_FOLDERS.filter(
-    (folder) => !existsSync(path.join(ASSETS, folder)),
-  );
+  const missingFolders = SOURCE_FOLDERS.filter((folder) => !existsSync(path.join(ASSETS, folder)));
   if (missingFolders.length > 0) {
     throw new Error(
       `[build-data] Missing asset folder(s): ${missingFolders
@@ -477,10 +479,32 @@ function assertRequiredAssetsAvailable() {
 // alt-title extractor: "Alternative title: …", "Hungarian: A késélező …",
 // etc. Strip from the first occurrence to end-of-string.
 const QS_LANG_LABELS = [
-  "Hungarian", "Russian", "German", "French", "Italian", "Dutch", "Spanish",
-  "Japanese", "English", "Polish", "Czech", "Portuguese", "Romanian", "Greek",
-  "Latin", "Norwegian", "Danish", "Swedish", "Korean", "Chinese", "Arabic",
-  "Hebrew", "Turkish", "Finnish", "Ukrainian", "Catalan",
+  "Hungarian",
+  "Russian",
+  "German",
+  "French",
+  "Italian",
+  "Dutch",
+  "Spanish",
+  "Japanese",
+  "English",
+  "Polish",
+  "Czech",
+  "Portuguese",
+  "Romanian",
+  "Greek",
+  "Latin",
+  "Norwegian",
+  "Danish",
+  "Swedish",
+  "Korean",
+  "Chinese",
+  "Arabic",
+  "Hebrew",
+  "Turkish",
+  "Finnish",
+  "Ukrainian",
+  "Catalan",
 ];
 const QS_LABEL_RX = new RegExp(
   `\\s+(?:Alternative\\s+title|${QS_LANG_LABELS.join("|")}):\\s.*$`,
@@ -522,7 +546,7 @@ function isMostlyNonLatin(s) {
   let letters = 0;
   for (const ch of s) {
     const code = ch.codePointAt(0) ?? 0;
-    if (/[^\s\d.,;:!?'"()&\-]/u.test(ch)) letters++;
+    if (/[^\s\d.,;:!?'"()&-]/u.test(ch)) letters++;
     // Latin Basic + Latin-1 Supplement + Latin Extended-A + Latin Extended-B
     // run from U+0000 through U+024F. Anything past that we treat as
     // non-Latin script.
@@ -603,7 +627,7 @@ const BOILERPLATE_FRAGMENTS = [
 function isBoilerplateFragment(s) {
   const t = String(s)
     .trim()
-    .replace(/[.,;:\s\]\[]+$/g, "")
+    .replace(/[.,;:\s\][]+$/g, "")
     .replace(/^\[\d+\]\s*/, "")
     .trim();
   if (!t) return true;
@@ -665,9 +689,7 @@ export function cleanCredit(raw) {
   // Strip trailing Yorck Project DVD-ROM clauses ("…; Former version:
   // The Yorck Project (2002)…"). The DVD scan is always boilerplate;
   // leaving it tacked onto a legitimate museum citation just adds noise.
-  c = c
-    .replace(/[\s.;,]+(?:former version\s*:?\s*)?the yorck project\b[\s\S]*$/i, "")
-    .trim();
+  c = c.replace(/[\s.;,]+(?:former version\s*:?\s*)?the yorck project\b[\s\S]*$/i, "").trim();
   if (!c) return null;
 
   // Library of Congress license boilerplate — promote the digital ID
@@ -852,11 +874,7 @@ function cleanTitle(raw, fname, artist) {
 
   // 6. Trailing period — descriptive titles often end in `.` from the
   // source; museum convention drops it. Skip abbreviations.
-  if (
-    cleaned.endsWith(".") &&
-    !cleaned.endsWith("..") &&
-    !TRAILING_ABBREV_RX.test(cleaned)
-  ) {
+  if (cleaned.endsWith(".") && !cleaned.endsWith("..") && !TRAILING_ABBREV_RX.test(cleaned)) {
     cleaned = cleaned.slice(0, -1).trim();
   }
 
@@ -924,12 +942,31 @@ function keepEntry(entry) {
 // actively asserts "we don't know". Mirrors `isPlaceholderArtistName` in
 // src/lib/artist-name.ts, which is what the corpus test asserts against.
 const PLACEHOLDER_ARTIST_TOKENS = new Set([
-  "unknown", "anonymous", "unidentified", "author", "artist", "painter",
-  "photographer", "maker", "creator", "engraver", "printmaker", "draughtsman",
-  "n/a", "na", "none", "null", "undefined",
+  "unknown",
+  "anonymous",
+  "unidentified",
+  "author",
+  "artist",
+  "painter",
+  "photographer",
+  "maker",
+  "creator",
+  "engraver",
+  "printmaker",
+  "draughtsman",
+  "n/a",
+  "na",
+  "none",
+  "null",
+  "undefined",
 ]);
 const PLACEHOLDER_ARTIST_NEGATIONS = new Set([
-  "unknown", "anonymous", "unidentified", "none", "n/a", "na",
+  "unknown",
+  "anonymous",
+  "unidentified",
+  "none",
+  "n/a",
+  "na",
 ]);
 // Commons editors sometimes leave an instruction in the Artist field
 // ("see filename or category") instead of a name.
@@ -985,7 +1022,7 @@ function normalizeArtistName(raw) {
   // "Lastname, Firstname" → "Firstname Lastname" when the right-hand side is
   // just one or two given-name tokens (no nationality, no role).
   const flip = s.match(
-    /^([A-ZÀ-ÖØ-Þ][\p{L}'’\-]+)\s*,\s*([A-ZÀ-ÖØ-Þ][\p{L}'’\-]+(?:\s+[a-zà-öø-þ][\p{L}'’\-]+)?(?:\s+[A-ZÀ-ÖØ-Þ][\p{L}'’\-]+)?)\s*$/u,
+    /^([A-ZÀ-ÖØ-Þ][\p{L}'’-]+)\s*,\s*([A-ZÀ-ÖØ-Þ][\p{L}'’-]+(?:\s+[a-zà-öø-þ][\p{L}'’-]+)?(?:\s+[A-ZÀ-ÖØ-Þ][\p{L}'’-]+)?)\s*$/u,
   );
   if (flip) s = `${flip[2]} ${flip[1]}`;
   // Otherwise drop nationality/role tail after the first comma (e.g.
@@ -1037,12 +1074,20 @@ const KNOWN_CONNECTIONS = [
   ["Vincent van Gogh", "Paul Gauguin", "lived together in Arles, 1888"],
   ["Vincent van Gogh", "Camille Pissarro", "Pissarro mentored van Gogh in Paris"],
   ["Paul Cézanne", "Camille Pissarro", "Pissarro was Cézanne's mentor"],
-  ["Paul Cézanne", "Pierre-Auguste Renoir", "friends; Renoir painted with Cézanne at L'Estaque and Aix"],
+  [
+    "Paul Cézanne",
+    "Pierre-Auguste Renoir",
+    "friends; Renoir painted with Cézanne at L'Estaque and Aix",
+  ],
   ["Édouard Manet", "Edgar Degas", "close friends and rivals; met at the Louvre, 1862"],
   ["Édouard Manet", "Berthe Morisot", "brother-in-law and painting peers"],
   ["Berthe Morisot", "Claude Monet", "Impressionist group"],
   ["Berthe Morisot", "Edgar Degas", "Impressionist group"],
-  ["Henri de Toulouse-Lautrec", "Vincent van Gogh", "friends from Cormon's atelier; Lautrec portrayed van Gogh, 1887"],
+  [
+    "Henri de Toulouse-Lautrec",
+    "Vincent van Gogh",
+    "friends from Cormon's atelier; Lautrec portrayed van Gogh, 1887",
+  ],
   ["Georges Seurat", "Paul Signac", "co-developed Pointillism"],
   ["Georges Seurat", "Camille Pissarro", "Pissarro adopted Pointillism briefly"],
   ["Pablo Picasso", "Georges Braque", "co-founders of Cubism"],
@@ -1059,11 +1104,19 @@ const KNOWN_CONNECTIONS = [
   ["Leonardo da Vinci", "Raphael", "Raphael studied Leonardo's technique"],
   ["Michelangelo Buonarroti", "Raphael", "rivals in Rome"],
   ["J. M. W. Turner", "John Constable", "Romantic rivals at the Royal Academy"],
-  ["Eugène Delacroix", "Théodore Géricault", "friends from Guérin's studio; Delacroix posed for the Raft of the Medusa"],
+  [
+    "Eugène Delacroix",
+    "Théodore Géricault",
+    "friends from Guérin's studio; Delacroix posed for the Raft of the Medusa",
+  ],
   ["Jean-Auguste-Dominique Ingres", "Eugène Delacroix", "Neoclassical vs Romantic rivals"],
   ["Utagawa Hiroshige", "Utagawa Kuniyoshi", "Utagawa school"],
   ["Claude Monet", "James McNeill Whistler", "friends and correspondents"],
-  ["James McNeill Whistler", "John Singer Sargent", "London acquaintances; Sargent championed Whistler's work"],
+  [
+    "James McNeill Whistler",
+    "John Singer Sargent",
+    "London acquaintances; Sargent championed Whistler's work",
+  ],
   ["John Singer Sargent", "Claude Monet", "Sargent visited Monet at Giverny"],
   ["Mary Cassatt", "Edgar Degas", "Degas invited Cassatt into Impressionists"],
   ["Mary Cassatt", "Camille Pissarro", "Impressionist group"],
@@ -1328,7 +1381,7 @@ async function main() {
   // artists-db.json is indexed and matched by scripts/lib/artist-alias.mjs,
   // shared with the ingest scripts — the three hand-rolled matchers had
   // drifted apart and the loosest one shipped a wrong attribution.
-  const { artists: artistsDb, byAlias } = loadArtistsDb();
+  const { byAlias } = loadArtistsDb();
   const realDimensions = await loadRealDimensions();
   const curatorDescriptions = await loadCuratorDescriptions();
   const provenanceMap = await loadProvenance();
@@ -1563,7 +1616,6 @@ async function main() {
   const movements = Array.from(new Set(artists.map((a) => a.movement).filter(Boolean))).sort();
 
   const knownArtistByName = new Map(artists.map((a) => [a.name, a]));
-  const artistSlugByName = new Map(artists.map((a) => [a.name, a.slug]));
 
   const edges = [];
   for (const [a, b, label] of KNOWN_CONNECTIONS) {

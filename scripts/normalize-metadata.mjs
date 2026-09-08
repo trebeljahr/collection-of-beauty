@@ -16,9 +16,9 @@
 //
 // Read-only w.r.t. the image files; only rewrites files under metadata/.
 
-import fs from "fs";
-import path from "path";
-import { fileURLToPath } from "url";
+import fs from "node:fs";
+import path from "node:path";
+import { fileURLToPath } from "node:url";
 import { loadArtistsDb, matchArtist } from "./lib/artist-alias.mjs";
 
 const __filename = fileURLToPath(import.meta.url);
@@ -187,9 +187,7 @@ function parseLocalized(raw) {
 
   // Last resort: if the prefix looks like clean English (no leading language
   // tag, and no QS markup inside), use it.
-  let cleanPrefix = null;
   if (!english && prefix && !/QS:/.test(prefix) && !/^[A-Z][a-z]+:\s/.test(prefix)) {
-    cleanPrefix = prefix;
     english = prefix;
   }
 
@@ -211,7 +209,10 @@ function tidyQuotedValue(s) {
 // Filename-derived fallback title: strip extension and decode underscores.
 function fallbackFromFilename(fn) {
   if (!fn) return null;
-  return fn.replace(/\.[^.]+$/, "").replace(/_/g, " ").trim();
+  return fn
+    .replace(/\.[^.]+$/, "")
+    .replace(/_/g, " ")
+    .trim();
 }
 
 // Normalize a field in the entry. Writes back e[field] as the English value,
@@ -270,7 +271,7 @@ function isUploadDate(s) {
   // "5/12/2011" / "5-12-2011" — slashed/dashed numeric date, year >= 2000.
   // Artists working pre-2000 wouldn't produce a creation-date in this format;
   // it's an uploader's local-format timestamp.
-  const slashed = t.match(/^\d{1,2}[\/\-]\d{1,2}[\/\-](\d{4})$/);
+  const slashed = t.match(/^\d{1,2}[/-]\d{1,2}[/-](\d{4})$/);
   if (slashed && parseInt(slashed[1], 10) >= 2000) return true;
   // Bare ISO date like "2020-11-29" with nothing else — treat as upload date
   // (an artwork date range would be "1886-01-01/1886-12-31"). Wikimedia
@@ -296,7 +297,6 @@ function isUploadDate(s) {
 // returns null so the caller can fall back to other sources.
 function yearFromDateCreated(dc) {
   if (!dc) return { year: null, source: null };
-  const source = null;
 
   // Wikidata QS markers: `QS:P571,+1884-00-00T00:00:00Z/9` where the trailing
   // `/N` is the precision (11=day, 10=month, 9=year, 8=decade, 7=century,
@@ -307,7 +307,8 @@ function yearFromDateCreated(dc) {
   // The string can chain multiple properties without repeating `QS:` —
   // e.g. `QS:P,+1150-...,P1319,+1100-...,P1326,+1127-...` — so we allow the
   // `QS:` prefix to be optional.
-  const qsRe = /(?:QS:)?P(571|1319|1326|580|582|1480),\+?(-?\d{3,4})-\d{2}-\d{2}T[^,/]*(?:\/(\d+))?/g;
+  const qsRe =
+    /(?:QS:)?P(571|1319|1326|580|582|1480),\+?(-?\d{3,4})-\d{2}-\d{2}T[^,/]*(?:\/(\d+))?/g;
   let best = null;
   let bestProp = null;
   let m;
@@ -317,7 +318,18 @@ function yearFromDateCreated(dc) {
     const precision = m[3] != null ? parseInt(m[3], 10) : 9;
     if (precision < 9) continue; // decade/century/millennium — meaningless as a specific year
     // Prefer P571 (date-of-creation) > P1319 (earliest) > P1326 (latest)
-    const rank = prop === "571" ? 0 : prop === "1319" ? 1 : prop === "580" ? 2 : prop === "1326" ? 3 : prop === "582" ? 4 : 5;
+    const rank =
+      prop === "571"
+        ? 0
+        : prop === "1319"
+          ? 1
+          : prop === "580"
+            ? 2
+            : prop === "1326"
+              ? 3
+              : prop === "582"
+                ? 4
+                : 5;
     if (best == null || rank < bestProp) {
       best = y;
       bestProp = rank;
@@ -368,7 +380,9 @@ function yearFromFilename(fn) {
 // Returns the decade-ish midpoint of the era as a year (roughly).
 function yearFromEraPhrase(s) {
   if (!s) return null;
-  const m = String(s).match(/\b(early|mid|late|second half of the|first half of the)?\s*(\d{1,2})\s*(?:st|nd|rd|th)[-\s]?century\b/i);
+  const m = String(s).match(
+    /\b(early|mid|late|second half of the|first half of the)?\s*(\d{1,2})\s*(?:st|nd|rd|th)[-\s]?century\b/i,
+  );
   if (!m) return null;
   const century = parseInt(m[2], 10);
   if (century < 2 || century > 21) return null;
@@ -421,8 +435,7 @@ function resolveYear(entry) {
   if (jp != null && isPlausible(jp)) return { year: jp, source: "jp_era" };
 
   const fnYear = yearFromFilename(entry.filename);
-  if (fnYear != null && isPlausible(fnYear))
-    return { year: fnYear, source: "filename" };
+  if (fnYear != null && isPlausible(fnYear)) return { year: fnYear, source: "filename" };
 
   // Title (strip the QS markup first so we do not pick years out of Wikidata IDs)
   const titleClean = String(entry.title || "").replace(/QS:[^ ]+/g, " ");
@@ -435,11 +448,9 @@ function resolveYear(entry) {
 
   // Era phrases like "late 18th century"
   const eraDc = yearFromEraPhrase(entry.date_created);
-  if (eraDc != null && isPlausible(eraDc))
-    return { year: eraDc, source: "era_phrase" };
+  if (eraDc != null && isPlausible(eraDc)) return { year: eraDc, source: "era_phrase" };
   const eraDesc = yearFromEraPhrase(entry.description);
-  if (eraDesc != null && isPlausible(eraDesc))
-    return { year: eraDesc, source: "era_phrase" };
+  if (eraDesc != null && isPlausible(eraDesc)) return { year: eraDesc, source: "era_phrase" };
 
   return { year: null, source: null };
 }
@@ -557,7 +568,10 @@ function writeReport(items, outName, header) {
   lines.push(...header);
   lines.push("");
   for (const [file, group] of grouped) {
-    group.sort((a, b) => (b.year ?? -Infinity) - (a.year ?? -Infinity) || a.filename.localeCompare(b.filename));
+    group.sort(
+      (a, b) =>
+        (b.year ?? -Infinity) - (a.year ?? -Infinity) || a.filename.localeCompare(b.filename),
+    );
     lines.push(`## ${file}  (${group.length})`);
     lines.push("");
     for (const s of group) lines.push(renderSuspect(s));
