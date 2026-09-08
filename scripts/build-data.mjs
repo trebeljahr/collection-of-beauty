@@ -1322,6 +1322,45 @@ async function loadMovementOverrides() {
 // photographed the object and the underlying creator is genuinely
 // unrecorded. Kept here rather than in the fetched metadata sidecar so a
 // re-run of `pnpm scrape:fetch` can't silently undo the curation.
+// Per-artwork creation-date corrections. Applied AFTER extractYear, which is
+// a passthrough over the sidecar's own `year`.
+//
+// This file exists because a derived year is not durable. normalize-metadata.mjs
+// recomputes `entry.year` on every run and writes it back into the sidecar, and
+// fetch-wikimedia-metadata.mjs spawns the normalizer after every scrape — so a
+// correction written into a sidecar survives only until the next ingest of any
+// work in that folder. Overrides live here so a researched date is not silently
+// re-derived from a filename or a sentence of prose.
+//
+// A null value clears the year (the work is genuinely undated) rather than
+// letting the extractors guess one.
+async function loadDateOverrides() {
+  const p = path.join(META, "date-overrides.json");
+  if (!existsSync(p)) {
+    console.log(`[build-data] date overrides: skipped (no metadata/date-overrides.json)`);
+    return new Map();
+  }
+  const raw = JSON.parse(await readFile(p, "utf8"));
+  const m = new Map();
+  for (const [key, value] of Object.entries(raw)) {
+    if (key.startsWith("_")) continue;
+    if (value === null) {
+      m.set(key.normalize("NFC"), { year: null, dateString: null });
+      continue;
+    }
+    if (typeof value !== "object") continue;
+    const year = Number.isInteger(value.year) ? value.year : null;
+    const dateString = typeof value.dateString === "string" && value.dateString.trim()
+      ? value.dateString.trim()
+      : null;
+    if (year === null && dateString === null) continue;
+    m.set(key.normalize("NFC"), { year, dateString });
+  }
+  const dated = [...m.values()].filter((v) => v.year !== null).length;
+  console.log(`[build-data] date overrides: ${m.size} (${m.size - dated} cleared to undated)`);
+  return m;
+}
+
 async function loadArtistOverrides() {
   const p = path.join(META, "artist-overrides.json");
   if (!existsSync(p)) {
@@ -1389,6 +1428,7 @@ async function main() {
   const dateOriginals = await loadDateOriginals();
   const movementOverrides = await loadMovementOverrides();
   const artistOverrides = await loadArtistOverrides();
+  const dateOverrides = await loadDateOverrides();
 
   const artworks = [];
   const artistAggregates = new Map();
@@ -1459,7 +1499,8 @@ async function main() {
         const plate = /^(\d{1,3})\s+(.+)$/.exec(title);
         if (plate) title = `${plate[2]} (Plate ${plate[1]})`;
       }
-      const year = extractYear(entry);
+      const dateOverride = dateOverrides.get(objectKeyNFC) ?? null;
+      const year = dateOverride ? dateOverride.year : extractYear(entry);
       // artists-db.json is the curated source of truth — prefer it over
       // any snapshot embedded in the metadata sidecar. Earlier the order
       // was inverted, which meant edits to db (movement renames, etc.)
@@ -1516,7 +1557,8 @@ async function main() {
         artist: artistName,
         artistSlug,
         year,
-        dateCreated: stripQuickStatements(entry.date_created) || null,
+        dateCreated:
+          dateOverride?.dateString ?? (stripQuickStatements(entry.date_created) || null),
         originalDateString,
         description: curatorDescriptions.get(id) ?? firstLineDescription(entry.description),
         folder: folderKey,
