@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
+import { touchTextLinkClasses } from "@/components/ui/pill";
 import { summary } from "@/lib/data";
 import { GITHUB_URL } from "@/lib/links";
 import { buildOpenGraph, SITE_NAME } from "@/lib/seo";
@@ -227,18 +228,15 @@ export default function AboutPage() {
         </section>
 
         <section className="pt-4">
-          {/* Standalone nav link, not prose — so unlike the in-sentence links
-              above it can take a real box. Same idiom as the "← Back to …"
-              links on /artwork/[id], /artist/[slug], /era/[id],
-              /collection/[slug], /colours/[family] and
-              /newsletter/[slug]: min-h-11 is WCAG 2.5.5's 44px touch floor
-              on the hit area rather than the type size, `-my-3` hands the
-              extra 24px straight back so the section's own spacing is
-              untouched, and all of it stops at `sm:` — 2.5.5 is a touch
-              criterion, and a mouse pointer only asks for 2.5.8's 24px. */}
+          {/* Standalone nav link, not prose — so unlike the in-sentence
+              links above it can take a real box, which is what the shared
+              "← Back to …" idiom is. Only the three page-local utilities
+              are composed on top; none of them touches a property the
+              shared string already sets, which matters because a later
+              class does not win in Tailwind v4. */}
           <Link
             href="/"
-            className="-my-3 inline-flex min-h-11 items-center rounded-sm text-sm underline underline-offset-2 hover:opacity-70 focus:outline-none focus-visible:ring-2 focus-visible:ring-[var(--ring)] sm:my-0 sm:inline sm:min-h-0"
+            className={`${touchTextLinkClasses} text-sm underline-offset-2 hover:opacity-70`}
           >
             ← Back to the gallery
           </Link>

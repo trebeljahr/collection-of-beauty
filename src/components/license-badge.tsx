@@ -1,4 +1,4 @@
-import { pillClasses } from "@/components/ui/pill";
+import { chipClasses } from "@/components/ui/pill";
 import { getLicenseInfo } from "@/lib/license";
 
 type Props = {
@@ -11,6 +11,11 @@ type Props = {
  * license URL in a new tab. Used on the artwork detail page so visitors
  * can see at a glance that a work is public-domain (or which CC variant
  * applies) and follow through to the license itself.
+ *
+ * `chipClasses`, not the bare `pillClasses`: this renders as a link and
+ * sits in a row with the era / collection / source chips, so it needs the
+ * same touch height AND the same focus ring they get. It was the one
+ * focusable pill in that row without a visible focus indicator.
  */
 export function LicenseBadge({ license, className }: Props) {
   const info = getLicenseInfo(license);
@@ -21,7 +26,7 @@ export function LicenseBadge({ license, className }: Props) {
       target="_blank"
       rel="license noreferrer"
       title={`License: ${info.short} — opens creativecommons.org`}
-      className={[pillClasses, className ?? ""].join(" ")}
+      className={[chipClasses, className ?? ""].join(" ")}
     >
       {info.isPublicDomain ? (
         <MarkIcon initials="PD" label="Public domain" />

@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { ScopedGallery } from "@/components/scoped-gallery";
-import { pillClasses } from "@/components/ui/pill";
+import { chipClasses, touchTextLinkClasses } from "@/components/ui/pill";
 import { DEFAULT_ARTWORK_PAGE_SIZE } from "@/lib/artwork-page-schema";
 import { getArtworkListingPage } from "@/lib/artwork-pagination";
 import { artworkHref, type Scope } from "@/lib/artwork-scope";
@@ -26,20 +26,6 @@ import {
 import { buildOpenGraph, jsonLdScriptProps, ogImagesForArtwork, plateSetJsonLd } from "@/lib/seo";
 
 type Params = { slug: string };
-
-/* Bare text links. `min-h-11` is the 44px WCAG 2.5.5 touch-target
-   minimum, gated to below `sm:` because 2.5.5 is a *touch* criterion —
-   a mouse pointer is governed by 2.5.8's 24px, which these already
-   clear, so nothing asks the desktop layout to grow. `-my-3` hands the
-   extra 24px back to layout so the surrounding blocks keep their exact
-   positions (the enlarged box merely overlaps neighbouring lines, none
-   of which are clickable), and `sm:inline` returns the anchor to an
-   ordinary inline box above the breakpoint. This is the idiom on every
-   page that grew a touch target — /artwork/[id], /artist/[slug],
-   /era/[id] and /colours/[family] — enlarge the box and
-   overlap, never shrink a neighbour's margin. */
-const TEXT_LINK =
-  "-my-3 inline-flex min-h-11 items-center rounded-sm underline focus:outline-none focus-visible:ring-2 focus-visible:ring-[var(--ring)] sm:my-0 sm:inline sm:min-h-0";
 
 // Rendered entirely from the bundled artwork JSON — nothing here reads a
 // request, so match the sitemap's daily window instead of re-rendering.
@@ -154,7 +140,10 @@ export default async function CollectionPage({ params }: { params: Promise<Param
         )}
       />
 
-      <Link href="/collections" className={`${TEXT_LINK} text-sm text-[var(--muted-foreground)]`}>
+      <Link
+        href="/collections"
+        className={`${touchTextLinkClasses} text-sm text-[var(--muted-foreground)]`}
+      >
         ← All plate sets
       </Link>
 
@@ -168,7 +157,10 @@ export default async function CollectionPage({ params }: { params: Promise<Param
               shoulder with plain text — so on a phone it needs the 44px box
               even though the row around it is a 24px line. `-my-3` keeps
               the flex line 24px tall regardless, so the row does not grow. */}
-          <Link href={`/artist/${set.authorSlug}`} className={`${TEXT_LINK} underline-offset-4`}>
+          <Link
+            href={`/artist/${set.authorSlug}`}
+            className={`${touchTextLinkClasses} underline-offset-4`}
+          >
             {set.author}
           </Link>
           <span>· {set.publishedLabel}</span>
@@ -177,19 +169,9 @@ export default async function CollectionPage({ params }: { params: Promise<Param
           </span>
         </div>
         <div className="flex flex-wrap gap-1.5">
-          {/* pillClasses is tuned for dense rows of chips (26px tall); this
-              one is a real navigation target, so below `sm:` it takes the
-              44px floor and above it stays a pill — WCAG 2.5.5's 44px is a
-              touch criterion, and a mouse gets 2.5.8's 24px, which the bare
-              pill already clears. Only min-h is added, never a competing
-              px-*: pillClasses already sets padding, and two conflicting
-              spacing utilities in one class string resolve by stylesheet
-              order, not by who was written last. Same string as the chips on
-              /artwork/[id], /artist/[slug] and /era/[id]. */}
-          <Link
-            href={`/era/${era.id}`}
-            className={`${pillClasses} min-h-11 focus:outline-none focus-visible:ring-2 focus-visible:ring-[var(--ring)] sm:min-h-0`}
-          >
+          {/* A lone chip, so no gutter to open at `sm:` the way the wrapped
+              chip rows on /era/[id] and /artist/[slug] need. */}
+          <Link href={`/era/${era.id}`} className={chipClasses}>
             {era.title}
           </Link>
         </div>
