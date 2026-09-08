@@ -9,6 +9,7 @@ import {
   CELL_SIZE,
   DOOR_HEIGHT,
   FLOOR_THICKNESS,
+  hasStairwellCutout,
   INTER_FLOOR_HEIGHT,
   ROOM_HEIGHT,
   SPIRAL_FLOOR_CUTOUT_RADIUS,
@@ -161,7 +162,7 @@ export function RoomGeometry({
           depth={depth}
           floorY={floorY}
           floorMat={floorMat}
-          cutHole={room.floorIndex > 0}
+          cutHole={hasStairwellCutout(room.floorIndex)}
         />
       )}
 

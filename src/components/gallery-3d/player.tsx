@@ -18,6 +18,7 @@ import {
   findStairAbove,
   findStairBelow,
   isInsideStair,
+  isWalkableUnderStair,
   spiralRawAngle,
   stairHeightAt,
   stairSurfaceAt,
@@ -973,7 +974,16 @@ function canAcceptPhysicsMove(
     // player walk in "from behind" and then clip through the low treads
     // on the way back to the entry. Membership of the footprint isn't
     // enough; there has to be something to step onto.
-    return stairSurfaceAt(floor, allStaircases, toX, toZ, feetY) !== null;
+    if (stairSurfaceAt(floor, allStaircases, toX, toZ, feetY) !== null) return true;
+    // …unless there is nothing to step onto because the whole flight is
+    // a storey overhead. On the ground floor the helix rises out of
+    // solid slab, so past ~150° of arc the footprint is a room with a
+    // ceiling of treads — walkable ground that merely happens to sit
+    // inside the spiral's outline. Fall through to the ordinary floor
+    // rules rather than returning early so the grid, edge and doorway
+    // checks still apply down there. `currentStairId` is null on this
+    // path, so the leave-the-spiral gate below is a no-op.
+    if (!isWalkableUnderStair(floor, toX, toZ)) return false;
   }
   if (currentStairId !== null) {
     // Trying to leave the spiral. Allow only when the player's
