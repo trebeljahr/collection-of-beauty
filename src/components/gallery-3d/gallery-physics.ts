@@ -11,6 +11,7 @@ import type { FloorLayout, Staircase } from "@/lib/gallery-layout/types";
 import {
   CELL_SIZE,
   FLOOR_THICKNESS,
+  hasStairwellCutout,
   INTER_FLOOR_HEIGHT,
   SPIRAL_COLUMN_RADIUS,
   SPIRAL_FLOOR_CUTOUT_RADIUS,
@@ -221,7 +222,9 @@ function addFloorColliders(
   // this collider anyway — vertical position on the spiral and on a
   // plain floor is both driven analytically in `player.tsx`, and the
   // cutout rail keeps a player at floor level well outside the hole.
-  const cutoutStair = floor.index > 0 ? (floor.stairsIn[0] ?? floor.stairsOut[0]) : null;
+  const cutoutStair = hasStairwellCutout(floor.index)
+    ? (floor.stairsIn[0] ?? floor.stairsOut[0])
+    : null;
   const emitRun = (startX: number, endX: number, z: number) => {
     const x0 = startX * CELL_SIZE;
     const x1 = (endX + 1) * CELL_SIZE;
@@ -371,7 +374,7 @@ function addStairwellColliders(
       floor.y + INTER_FLOOR_HEIGHT / 2,
       stair.centerZ,
       INTER_FLOOR_HEIGHT / 2,
-      floor.index > 0 ? stair.innerRadius : SPIRAL_COLUMN_RADIUS,
+      hasStairwellCutout(floor.index) ? stair.innerRadius : SPIRAL_COLUMN_RADIUS,
     );
     addSpiralRailColliders(stair, "inner", addArc);
     addSpiralRailColliders(stair, "outer", addArc);
@@ -448,7 +451,7 @@ function addCutoutRailColliders(
 ) {
   const stairOut = floor.stairsOut[0];
   const stairIn = floor.stairsIn[0];
-  const hasCutout = floor.index > 0;
+  const hasCutout = hasStairwellCutout(floor.index);
   const upSideOpen = !!stairOut;
   const downSideOpen = !!stairIn;
   const gateHalfArc = spiralGateHalfArc(reference.numSteps);
@@ -462,8 +465,10 @@ function addCutoutRailColliders(
   // Fall-prevention rail around the well, mirroring the geometry in
   // `stairwell-rail.tsx`. Floors above ground only: the ground floor's
   // spiral rises out of solid slab, so there is no hole to fence. What
-  // keeps a ground-floor player out of the annulus is the entry rule in
-  // `canAcceptPhysicsMove`, not a collider ring.
+  // keeps a ground-floor player off the low treads is the entry rule in
+  // `canAcceptPhysicsMove`, not a collider ring — and that rule lets
+  // them walk the part of the footprint where the flight is a storey
+  // overhead, so a ring here would wall off a room as well as a stair.
   if (hasCutout) {
     addArc(
       cx,

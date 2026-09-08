@@ -6,7 +6,13 @@ import {
   SPIRAL_OUTER_RADIUS,
   SPIRAL_STEPS_PER_FLOOR,
 } from "@/lib/gallery-layout/world-coords";
-import { spiralGateHalfArc, stairSurfaceAt } from "./spiral-physics";
+import {
+  isWalkableUnderStair,
+  spiralGateHalfArc,
+  stairSurfaceAt,
+  stairUndersideY,
+  UNDER_STAIR_HEADROOM,
+} from "./spiral-physics";
 
 const CENTER = 30;
 const ENTRY_ANGLE = Math.PI / 2;
@@ -73,9 +79,10 @@ describe("stairSurfaceAt", () => {
   // The bug this rule exists for. The ground floor's spiral rises out
   // of solid slab, so its footprint is walkable ground — but the treads
   // climb away from the gate, and past ~100° of arc they are overhead.
-  // Nothing but this rule stopped a player strolling in underneath the
-  // helix from any angle and then clipping through the low treads as
-  // they came back round to the entry.
+  // Without this rule a player strolled onto the STAIR from any angle
+  // and then clipped through the low treads as they came back round to
+  // the entry. Standing under the high part of the helix is a separate
+  // question, answered by `isWalkableUnderStair` below.
   it("refuses entry from behind the spiral, where the treads are overhead", () => {
     for (const theta of [Math.PI / 2, Math.PI, (3 * Math.PI) / 2]) {
       const [x, z] = at(theta);
@@ -129,5 +136,71 @@ describe("stairSurfaceAt", () => {
       const [x, z] = at(-Math.PI / 2);
       expect(stairSurfaceAt(top, [down2], x, z, feetY)).toBeNull();
     });
+  });
+});
+
+describe("isWalkableUnderStair", () => {
+  const up0 = flight(0);
+  const ground = floorAt(0, [], [up0]);
+  const STEP_RISE = FLOOR_SEPARATION / SPIRAL_STEPS_PER_FLOOR;
+  /** First arc whose soffit clears UNDER_STAIR_HEADROOM. Step `i`'s
+   *  underside is `(i-1)*STEP_RISE` above the slab. */
+  const CLEAR_STEP = Math.ceil(UNDER_STAIR_HEADROOM / STEP_RISE) + 1;
+  const STEP_ANGLE = (Math.PI * 2) / SPIRAL_STEPS_PER_FLOOR;
+
+  it("opens the far side of the footprint, where the flight is a storey up", () => {
+    for (const theta of [Math.PI, (3 * Math.PI) / 2, Math.PI * 1.9]) {
+      const [x, z] = at(theta);
+      expect(isWalkableUnderStair(ground, x, z), `theta=${theta}`).toBe(true);
+    }
+  });
+
+  it("stops where the soffit drops below head height", () => {
+    for (const theta of [0, GATE, Math.PI / 4, (CLEAR_STEP - 1) * STEP_ANGLE]) {
+      const [x, z] = at(theta);
+      expect(isWalkableUnderStair(ground, x, z), `theta=${theta}`).toBe(false);
+    }
+  });
+
+  it("hands back the exact tread the headroom arithmetic promises", () => {
+    const [x, z] = at(CLEAR_STEP * STEP_ANGLE + STEP_ANGLE / 2);
+    expect(isWalkableUnderStair(ground, x, z)).toBe(true);
+    const [bx, bz] = at((CLEAR_STEP - 1) * STEP_ANGLE + STEP_ANGLE / 2);
+    expect(isWalkableUnderStair(ground, bx, bz)).toBe(false);
+  });
+
+  it("says nothing about ground outside the footprint", () => {
+    const a = ENTRY_ANGLE + Math.PI;
+    const outside = SPIRAL_OUTER_RADIUS + 1;
+    expect(
+      isWalkableUnderStair(ground, CENTER + outside * Math.cos(a), CENTER + outside * Math.sin(a)),
+    ).toBe(false);
+  });
+
+  // Every floor above ground has the annulus punched out of the slab,
+  // so "under the stairs" is a six-metre drop, not a room.
+  it("refuses on a floor whose stairwell is a hole", () => {
+    const first = floorAt(1, [flight(0)], [flight(1)]);
+    const [x, z] = at(Math.PI);
+    expect(isWalkableUnderStair(first, x, z)).toBe(false);
+  });
+});
+
+describe("stairUndersideY", () => {
+  const up0 = flight(0);
+  const stepRise = FLOOR_SEPARATION / SPIRAL_STEPS_PER_FLOOR;
+
+  // Treads are full-rise blocks, so the soffit hangs one rise below the
+  // tread the player would be standing on at the same angle.
+  it("sits one rise under the tread top", () => {
+    const stepAngle = (Math.PI * 2) / SPIRAL_STEPS_PER_FLOOR;
+    for (const i of [1, 5, 13, 25]) {
+      const raw = i * stepAngle + stepAngle / 2;
+      expect(stairUndersideY(up0, raw)).toBeCloseTo((i - 1) * stepRise, 6);
+    }
+  });
+
+  it("reports no room at all under the bottom tread", () => {
+    expect(stairUndersideY(up0, 0)).toBeLessThan(0);
   });
 });

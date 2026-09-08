@@ -65,10 +65,11 @@ async function walkInwardAt(theta: number): Promise<number> {
 describe("ground-floor spiral perimeter", () => {
   // The ground floor's spiral rises out of solid slab, so unlike every
   // floor above it there is no hole to fence and no perimeter rail —
-  // visual or collider. What keeps the player out of the footprint is
-  // `stairSurfaceAt`: you can only walk in where a tread is at your
-  // feet. Asserting the absence here so a future "just add a collider
-  // ring" doesn't quietly put a rail back around solid ground.
+  // visual or collider. What keeps the player off the treads is
+  // `stairSurfaceAt`: you can only step ON where a tread is at your
+  // feet. The footprint itself stays open, because the far arc of it is
+  // the room under the stairs. Asserting the absence here so a future
+  // "just add a collider ring" doesn't quietly wall that room off.
   it("puts no collider ring around the spiral", async () => {
     const reached = await walkInwardAt(stair.entryAngle + Math.PI);
     expect(reached).toBeLessThan(SPIRAL_OUTER_RADIUS);

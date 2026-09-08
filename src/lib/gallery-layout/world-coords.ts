@@ -74,3 +74,14 @@ export function worldToCell(x: number, z: number): { x: number; z: number } {
     z: Math.floor(z / CELL_SIZE),
   };
 }
+
+/** True when this floor's stairwell slab is punched open around the
+ *  spiral so the flights below stay visible. The ground floor is the
+ *  exception — its helix rises out of solid slab, which is why it is
+ *  the only floor with real walkable space underneath the treads.
+ *  Rendering (`StairwellFloor`), the collider set and the player's
+ *  entry rule all key off this one predicate; they used to spell it
+ *  `index > 0` in three places. */
+export function hasStairwellCutout(floorIndex: number): boolean {
+  return floorIndex > 0;
+}

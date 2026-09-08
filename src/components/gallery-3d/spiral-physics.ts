@@ -1,4 +1,5 @@
 import type { FloorLayout, Staircase } from "@/lib/gallery-layout/types";
+import { hasStairwellCutout } from "@/lib/gallery-layout/world-coords";
 
 // Pure spiral-staircase physics. Split out of `staircase.tsx` so the
 // rules can be imported (and tested) without dragging Three.js and
@@ -73,6 +74,55 @@ export function stairHeightAt(stair: Staircase, cumulativeAngle: number): number
     return stair.lowerY + (stair.numSteps - 1) * stepRise + t * stepRise;
   }
   return stair.lowerY + idx * stepRise;
+}
+
+/** Vertical clearance the soffit of the helix has to give before the
+ *  ground under it counts as a room you can walk through. The player's
+ *  eye sits at 1.75 m and reaches 2.15 m on tiptoe; the treads carry no
+ *  collider, so anything under that would simply be walked through and
+ *  the camera would end up inside the stone. */
+export const UNDER_STAIR_HEADROOM = 2.3;
+
+/** Y of the helix's underside at this raw angle.
+ *
+ *  Each tread is a FULL-RISE block (see `buildSpiralStepsGeometry`):
+ *  step `i`'s top is `lowerY + i*stepRise` and its bottom sits one rise
+ *  below, so the soffit over step `i`'s arc is at
+ *  `lowerY + (i-1)*stepRise`. Step 0's block sinks a rise below the
+ *  lower floor — hidden inside the slab — so the first arc reports
+ *  negative clearance, which is exactly right: there is no room under
+ *  the bottom of the flight. */
+export function stairUndersideY(stair: Staircase, rawAngle: number): number {
+  const stepAngle = (Math.PI * 2) / stair.numSteps;
+  const stepRise = (stair.upperY - stair.lowerY) / stair.numSteps;
+  const idx = Math.min(stair.numSteps - 1, Math.max(0, Math.floor(rawAngle / stepAngle)));
+  return stair.lowerY + (idx - 1) * stepRise;
+}
+
+/** True when (worldX, worldZ) is inside a spiral's footprint but the
+ *  treads there are a storey overhead — i.e. the player is standing in
+ *  the open space *under* the stairs rather than on them.
+ *
+ *  Only ever true on a floor whose stairwell slab is solid (the ground
+ *  one): everywhere above, the annulus is a hole, and "under the
+ *  stairs" is a drop rather than a room. The flight also has to be one
+ *  rising FROM this floor — a flight arriving from below has its treads
+ *  under the slab, not over it.
+ *
+ *  Where both hold, the footprint is ordinary floor: `stairSurfaceAt`
+ *  refuses entry because there is no tread at foot height, and this
+ *  rule says that refusal is about the stair, not about the ground. */
+export function isWalkableUnderStair(floor: FloorLayout, worldX: number, worldZ: number): boolean {
+  if (hasStairwellCutout(floor.index)) return false;
+  let insideAny = false;
+  for (const stair of [...floor.stairsOut, ...floor.stairsIn]) {
+    if (!isInsideStair(stair, worldX, worldZ)) continue;
+    insideAny = true;
+    if (floor.index !== stair.lowerFloor) return false;
+    const raw = spiralRawAngle(stair, worldX, worldZ);
+    if (stairUndersideY(stair, raw) - floor.y < UNDER_STAIR_HEADROOM) return false;
+  }
+  return insideAny;
 }
 
 /** Find the stair connected above this one (its upperFloor matches
