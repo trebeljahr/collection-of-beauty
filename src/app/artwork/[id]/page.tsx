@@ -6,7 +6,7 @@ import { ArtworkDownloads } from "@/components/artwork-downloads";
 import { ArtworkViewer } from "@/components/artwork-viewer";
 import { LicenseBadge } from "@/components/license-badge";
 import { buttonVariants } from "@/components/ui/button";
-import { pillClasses } from "@/components/ui/pill";
+import { chipClasses, touchTextLinkClasses } from "@/components/ui/pill";
 import { originalTitleSubtitle } from "@/lib/artwork-format";
 import { artworkHref, resolveScope } from "@/lib/artwork-scope";
 import {
@@ -24,33 +24,6 @@ import { artworkJsonLd, buildOpenGraph, jsonLdScriptProps, ogImagesForArtwork } 
 import { sourceLabel } from "@/lib/source-label";
 
 type Params = { id: string };
-
-/* Inline text links (back / prev / next / artist / plate set). `min-h-11`
-   is the 44px WCAG 2.5.5 touch-target minimum — at the bare 20px line
-   height these were easy to mis-tap, and prev/next is how a phone
-   visitor walks the collection. It is gated to below `sm:` because 2.5.5
-   is a *touch* criterion; a mouse pointer is governed by 2.5.8's 24px,
-   which these already clear, so nothing asks the desktop layout to grow.
-   Below `sm:`, `-my-3` hands the extra 24px back to layout so the box
-   overlaps the neighbouring lines rather than spreading them apart —
-   nothing above or below these links is clickable, so the overlap costs
-   nothing. `sm:inline` puts the anchor back to an ordinary inline box
-   above the breakpoint, so a long artist name still wraps mid-sentence
-   the way it always did. This is the idiom on every page that grew a
-   touch target: enlarge the box and overlap, never shrink a neighbour's
-   margin. */
-const TEXT_LINK =
-  "-my-3 inline-flex min-h-11 items-center rounded-sm underline focus:outline-none focus-visible:ring-2 focus-visible:ring-[var(--ring)] sm:my-0 sm:inline sm:min-h-0";
-
-/* Chips (era / collection / licence / source). Same 44px minimum below
-   `sm:` and nothing above it. Here the pill itself grows rather than
-   gaining an invisible overflowing hit area — a pill is its own visible
-   box, so such a target would collide with the chip beside it in a
-   wrapped row. Type and horizontal padding stay as they are, so the row
-   still reads as the same row of pills. The identical string lives on
-   /artist/[slug], /era/[id] and /collection/[slug] — keep the four in
-   step. */
-const CHIP = `${pillClasses} min-h-11 sm:min-h-0`;
 
 // Matches every sibling detail route (/artist, /era, /collection,
 // /colours). The page must stay statically renderable for this to mean
@@ -174,7 +147,7 @@ export default async function ArtworkPage({ params }: { params: Promise<Params> 
     <div className="mx-auto max-w-6xl px-4 py-8">
       <script {...jsonLdScriptProps(artworkJsonLd(art))} />
       <div className="mb-6 flex items-center justify-between text-sm text-[var(--muted-foreground)]">
-        <Link href="/" className={TEXT_LINK}>
+        <Link href="/" className={touchTextLinkClasses}>
           ← Back to gallery
         </Link>
         {/* gap-4 rather than gap-3 on phones: "Next →" is only just past
@@ -183,12 +156,12 @@ export default async function ArtworkPage({ params }: { params: Promise<Params> 
             The targets shrink back at `sm:`, so the gap does too. */}
         <div className="flex items-center gap-4 sm:gap-3">
           {prevId && (
-            <Link href={artworkHref(prevId, null)} replace className={TEXT_LINK}>
+            <Link href={artworkHref(prevId, null)} replace className={touchTextLinkClasses}>
               ← Previous
             </Link>
           )}
           {nextId && (
-            <Link href={artworkHref(nextId, null)} replace className={TEXT_LINK}>
+            <Link href={artworkHref(nextId, null)} replace className={touchTextLinkClasses}>
               Next →
             </Link>
           )}
@@ -226,7 +199,7 @@ export default async function ArtworkPage({ params }: { params: Promise<Params> 
               <p className="text-lg">
                 <Link
                   href={`/artist/${art.artistSlug}`}
-                  className={`${TEXT_LINK} underline-offset-4`}
+                  className={`${touchTextLinkClasses} underline-offset-4`}
                 >
                   {art.artist}
                 </Link>
@@ -250,18 +223,12 @@ export default async function ArtworkPage({ params }: { params: Promise<Params> 
 
           <div className="flex flex-wrap items-center gap-2">
             {era && (
-              <Link
-                href={`/era/${era.id}`}
-                className={`${CHIP} focus:outline-none focus-visible:ring-2 focus-visible:ring-[var(--ring)]`}
-              >
+              <Link href={`/era/${era.id}`} className={chipClasses}>
                 {era.title}
               </Link>
             )}
             {plateSet && (
-              <Link
-                href={`/collection/${plateSet.id}`}
-                className={`${CHIP} focus:outline-none focus-visible:ring-2 focus-visible:ring-[var(--ring)]`}
-              >
+              <Link href={`/collection/${plateSet.id}`} className={chipClasses}>
                 {plateSet.title}
                 {plateNumber != null && (
                   <span className="tabular-nums text-[var(--muted-foreground)]">
@@ -273,7 +240,7 @@ export default async function ArtworkPage({ params }: { params: Promise<Params> 
             {/* The badge takes the same touch height as the chips beside
                 it — and drops it at the same breakpoint — so the row stays
                 one even height at every width. */}
-            <LicenseBadge license={art.license} className="min-h-11 sm:min-h-0" />
+            <LicenseBadge license={art.license} />
             <SourceBadge href={art.commonsUrl} />
           </div>
 
@@ -286,7 +253,7 @@ export default async function ArtworkPage({ params }: { params: Promise<Params> 
               {plateNumber != null ? `Plate ${plateNumber} of ` : "From "}
               <Link
                 href={`/collection/${plateSet.id}`}
-                className={`${TEXT_LINK} underline-offset-2`}
+                className={`${touchTextLinkClasses} underline-offset-2`}
               >
                 {plateSet.title}
               </Link>
@@ -404,7 +371,7 @@ function SourceBadge({ href }: { href: string }) {
       target="_blank"
       rel="noreferrer"
       title={`View source on ${label}`}
-      className={CHIP}
+      className={chipClasses}
     >
       {label}
       <svg

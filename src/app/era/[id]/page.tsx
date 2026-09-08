@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { ScopedGallery } from "@/components/scoped-gallery";
-import { pillClasses } from "@/components/ui/pill";
+import { chipClasses, touchTextLinkClasses } from "@/components/ui/pill";
 import { DEFAULT_ARTWORK_PAGE_SIZE } from "@/lib/artwork-page-schema";
 import { getArtworkListingPage } from "@/lib/artwork-pagination";
 import { resolveScope } from "@/lib/artwork-scope";
@@ -11,31 +11,6 @@ import { ERAS, type EraId, type getEra } from "@/lib/gallery-eras";
 import { buildOpenGraph, ogImagesForArtwork } from "@/lib/seo";
 
 type Params = { id: string };
-
-/* Movement chips. `min-h-11` is the 44px WCAG 2.5.5 touch-target
-   minimum — the pill's own type only makes 26px — and it is gated to
-   below `sm:` on purpose: 2.5.5 is a *touch* criterion, mouse pointers
-   are governed by 2.5.8's 24px, which the bare pill already clears.
-   Ungated, every chip row on a desktop (an era carries up to a dozen
-   movements) would become a stack of rounded-full slabs. Below `sm:` the
-   pill itself grows rather than gaining an invisible overflowing hit
-   area, because these rows wrap and such a target would sit on top of
-   the chip in the row above; the row's gutter opens to gap-2 at the same
-   breakpoint so the taller pills don't read as one slab. The identical
-   string lives on /artwork/[id], /artist/[slug] and /collection/[slug] —
-   keep the four in step. */
-const CHIP = `${pillClasses} min-h-11 focus:outline-none focus-visible:ring-2 focus-visible:ring-[var(--ring)] sm:min-h-0`;
-
-/* Bare text links (back / adjacent eras). Same story: 44px below `sm:`,
-   the plain inline anchor above it. `-my-3` hands the extra 24px back to
-   layout so the surrounding blocks keep their positions — the enlarged
-   box merely overlaps neighbouring lines, none of which are clickable —
-   and `sm:inline` returns it to an ordinary inline box so long labels
-   wrap on desktop exactly as they did before. This is the idiom on every
-   page that grew a touch target: enlarge the box and overlap, never
-   shrink a neighbour's margin. */
-const TEXT_LINK =
-  "-my-3 inline-flex min-h-11 items-center rounded-sm underline focus:outline-none focus-visible:ring-2 focus-visible:ring-[var(--ring)] sm:my-0 sm:inline sm:min-h-0";
 
 // Rendered entirely from the bundled artwork JSON — nothing here reads a
 // request, so match the sitemap's daily window instead of re-rendering.
@@ -121,7 +96,10 @@ export default async function EraPage({ params }: { params: Promise<Params> }) {
 
   return (
     <div className="mx-auto max-w-6xl px-4 py-8">
-      <Link href="/eras" className={`${TEXT_LINK} text-sm text-[var(--muted-foreground)]`}>
+      <Link
+        href="/eras"
+        className={`${touchTextLinkClasses} text-sm text-[var(--muted-foreground)]`}
+      >
         ← All eras
       </Link>
 
@@ -133,10 +111,18 @@ export default async function EraPage({ params }: { params: Promise<Params> }) {
             · {initialPage.total} work{initialPage.total === 1 ? "" : "s"}
           </span>
         </div>
+        {/* The gutter opens to gap-2 at exactly the breakpoint where
+            chipClasses drops its 44px floor, so the taller touch pills read
+            as separate targets rather than one slab; above `sm:` the row
+            returns to its original dense 1.5 gutter. */}
         {era.movements.length > 0 && (
           <div className="flex flex-wrap gap-2 sm:gap-1.5">
             {era.movements.map((m) => (
-              <Link key={m} href={`/timeline?movement=${encodeURIComponent(m)}`} className={CHIP}>
+              <Link
+                key={m}
+                href={`/timeline?movement=${encodeURIComponent(m)}`}
+                className={chipClasses}
+              >
                 {m}
               </Link>
             ))}
@@ -151,14 +137,14 @@ export default async function EraPage({ params }: { params: Promise<Params> }) {
           className="mb-8 flex items-center justify-between text-sm text-[var(--muted-foreground)]"
         >
           {prev ? (
-            <Link href={`/era/${prev.id}`} className={TEXT_LINK}>
+            <Link href={`/era/${prev.id}`} className={touchTextLinkClasses}>
               ← {prev.title}
             </Link>
           ) : (
             <span />
           )}
           {next ? (
-            <Link href={`/era/${next.id}`} className={TEXT_LINK}>
+            <Link href={`/era/${next.id}`} className={touchTextLinkClasses}>
               {next.title} →
             </Link>
           ) : (

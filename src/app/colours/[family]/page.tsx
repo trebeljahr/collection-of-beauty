@@ -3,6 +3,7 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { ColorWheel } from "@/components/color-wheel";
 import { ScopedGallery } from "@/components/scoped-gallery";
+import { touchTextLinkClasses } from "@/components/ui/pill";
 import { allColorBucketCounts } from "@/lib/artwork-colors";
 import { DEFAULT_ARTWORK_PAGE_SIZE, DEFAULT_SHUFFLE_SEED } from "@/lib/artwork-page-schema";
 import { getArtworkListingPage } from "@/lib/artwork-pagination";
@@ -12,19 +13,6 @@ import { getArtwork } from "@/lib/data";
 import { buildOpenGraph, ogImagesForArtwork } from "@/lib/seo";
 
 type Params = { family: string };
-
-/* Bare text links. `min-h-11` is the 44px WCAG 2.5.5 touch-target
-   minimum, gated to below `sm:` because 2.5.5 is a *touch* criterion —
-   a mouse pointer is governed by 2.5.8's 24px, which these already
-   clear, so nothing asks the desktop layout to grow. `-my-3` hands the
-   extra 24px back to layout so the header below keeps its exact position
-   (the enlarged box merely overlaps neighbouring lines, none of which
-   are clickable), and `sm:inline` returns the anchor to an ordinary
-   inline box above the breakpoint. Same idiom on /artwork/[id],
-   /artist/[slug], /era/[id] and /collection/[slug]:
-   enlarge the box and overlap, never shrink a neighbour's margin. */
-const TEXT_LINK =
-  "-my-3 inline-flex min-h-11 items-center rounded-sm underline focus:outline-none focus-visible:ring-2 focus-visible:ring-[var(--ring)] sm:my-0 sm:inline sm:min-h-0";
 
 export const revalidate = 86400;
 
@@ -99,7 +87,10 @@ export default async function ColourFamilyPage({ params }: { params: Promise<Par
 
   return (
     <div className="mx-auto max-w-7xl px-4 py-8">
-      <Link href="/colours" className={`${TEXT_LINK} text-sm text-[var(--muted-foreground)]`}>
+      <Link
+        href="/colours"
+        className={`${touchTextLinkClasses} text-sm text-[var(--muted-foreground)]`}
+      >
         ← All colours
       </Link>
 
