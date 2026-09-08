@@ -48,6 +48,30 @@ const SURPRISE_LINK = {
   sub: "One random work, as big as it fits",
 } as const;
 
+// Horizontal safe-area gutter for the header and the menu overlay.
+// /artwork opts into `viewport-fit: cover` (see src/app/artwork/layout.tsx)
+// so its lightbox can use the insets; that widens the layout viewport for
+// the whole document, and this header is rendered by the root layout
+// *outside* that route's own gutter wrapper. In landscape on a notched
+// phone the sensor housing then sits over the wordmark on one side and
+// the hamburger on the other.
+//
+// `max()` against the row's existing gutter, not a bare `env()`: these are
+// inline styles, so they beat the `px-*` class outright rather than adding
+// to it, and a bare `env()` would silently *delete* the padding the row
+// already has (0px on every device that reports no inset). Each row passes
+// its own class gutter as `base` so the no-inset case renders exactly as
+// before. Values must stay in step with the `px-*` on the element.
+const safeX = (base: string) =>
+  ({
+    paddingLeft: `max(${base}, env(safe-area-inset-left, 0px))`,
+    paddingRight: `max(${base}, env(safe-area-inset-right, 0px))`,
+  }) as const;
+
+// px-4 on the header row, px-5 on both rows of the fullscreen menu.
+const SAFE_X_NAV = safeX("1rem");
+const SAFE_X_MENU = safeX("1.25rem");
+
 const ROUTE_3D = "/gallery-3d";
 // Must stay in sync with `--animate-nav-slide-out-down` in globals.css.
 const SLIDE_OUT_MS = 320;
@@ -200,7 +224,7 @@ export function SiteNav() {
         slideInFromTop ? "animate-nav-slide-down-in" : ""
       }`}
     >
-      <nav className="mx-auto flex max-w-7xl items-center gap-4 px-4 py-3">
+      <nav style={SAFE_X_NAV} className="mx-auto flex max-w-7xl items-center gap-4 px-4 py-3">
         <Link
           href="/"
           className="shrink-0 rounded-sm font-serif text-lg tracking-wide hover:opacity-70 focus:outline-none focus-visible:ring-2 focus-visible:ring-[var(--ring)] focus-visible:ring-offset-2 focus-visible:ring-offset-[var(--background)]"
@@ -298,7 +322,10 @@ export function SiteNav() {
           // address bar shrinks the layout viewport on scroll.
           style={{ minHeight: "100dvh" }}
         >
-          <div className="mx-auto flex w-full max-w-md items-center justify-between px-5 py-4">
+          <div
+            style={SAFE_X_MENU}
+            className="mx-auto flex w-full max-w-md items-center justify-between px-5 py-4"
+          >
             <Link
               href="/"
               onClick={(e) => handleSameRouteTap(e, "/")}
@@ -329,7 +356,10 @@ export function SiteNav() {
             </button>
           </div>
 
-          <div className="mx-auto flex w-full max-w-md flex-1 flex-col gap-8 px-5 py-8 sm:justify-center">
+          <div
+            style={SAFE_X_MENU}
+            className="mx-auto flex w-full max-w-md flex-1 flex-col gap-8 px-5 py-8 sm:justify-center"
+          >
             <ul className="flex flex-col gap-2">
               {[...LINKS, SURPRISE_LINK].map((l) => {
                 const active =
