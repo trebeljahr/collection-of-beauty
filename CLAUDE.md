@@ -210,6 +210,18 @@ Standard flow for an agent:
 The user explicitly does **not** want PRs opened. Don't run `gh pr create`
 unless asked.
 
+## Prose
+
+Every word a visitor reads — page copy, meta descriptions, era blurbs,
+press kit, newsletter — follows [docs/writing-style.md](docs/writing-style.md).
+Read it before writing or editing any user-facing string. The short
+version: name a concrete fact, prefer numbers to adjectives, and avoid
+the machine cadences (`noun, noun, noun — summarising phrase`,
+`X, not Y` punchlines, `no A, no B, no C`, peacock terms). Copy here has
+drifted back into those shapes twice already, so a set of strings should
+be read *together* — a repeated skeleton across eleven blurbs is the
+tell, not any one of them.
+
 ## Commits
 
 Concise subject, no Co-Authored-By footer, no AI attribution. Focus on

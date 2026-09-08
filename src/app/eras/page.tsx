@@ -14,8 +14,8 @@ export const metadata: Metadata = {
   title: "Eras",
   description:
     `Eight centuries of art grouped into ${ERAS.length} eras — ` +
-    `Gothic to Modernism, with Ukiyo-e set apart. Each era is a room in the ` +
-    `3D museum and a curated index of its works.`,
+    `Gothic to Modernism, with East Asian painting set apart. Each era is one ` +
+    `floor of the 3D museum and an index of its works here.`,
   alternates: { canonical: "/eras" },
   // Same path as alternates.canonical above — buildOpenGraph resolves it to
   // an absolute og:url so the two can't drift apart.
@@ -58,8 +58,8 @@ export default function ErasPage() {
       <header className="mb-8">
         <h1 className="font-serif text-3xl md:text-4xl">Eras</h1>
         <p className="mt-2 text-[var(--muted-foreground)]">
-          Eight centuries of art grouped into the moments that shaped them. Each era is a floor in
-          the 3D museum and a curated index here.
+          Eight centuries grouped into {ERAS.length} periods, one per floor of the 3D museum. Each
+          has an index of its works here.
         </p>
       </header>
 

@@ -31,7 +31,7 @@ export function LandscapePrompt() {
         </svg>
         <h2 className="text-xl font-semibold mb-2">Rotate to landscape</h2>
         <p className="text-sm text-amber-100/70 leading-relaxed">
-          The gallery wants room to breathe. Please turn your device sideways to walk through it.
+          The museum needs a wider screen than this. Turn your device sideways to walk through it.
         </p>
       </div>
 

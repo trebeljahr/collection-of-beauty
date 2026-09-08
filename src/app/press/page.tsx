@@ -164,15 +164,15 @@ const hooks = [
   },
   {
     title: "An honest, imperfect dataset.",
-    body: "Metadata is occasionally wrong; the site shows the source and asks readers to file corrections via GitHub issue. The correction loop is the point, not an afterthought.",
+    body: "Metadata is occasionally wrong. Every work shows where it came from and carries a button that opens a pre-filled GitHub issue, and corrections are processed in batches.",
   },
   {
     title: "Public-domain art, presented with care.",
-    body: "The same works are scattered across institutional sites with mid-2000s UX. This one is a quiet, fast, ad-free reading room.",
+    body: "The same works are scattered across institutional sites with mid-2000s UX. Here they load fast, at full resolution, with the credit line attached.",
   },
   {
-    title: "Slow web, one person, no business model.",
-    body: "No upsell, no SaaS pivot, no NFT angle. The whole project is in service of the public domain.",
+    title: "One person, no business model.",
+    body: "Nothing is for sale and nothing is being upsold. The images were already free; the work was in making them findable.",
   },
 ] as const;
 

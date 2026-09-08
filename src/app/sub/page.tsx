@@ -22,8 +22,7 @@ export default function SubscribePage() {
       <header className="mb-8">
         <h1 className="font-serif text-3xl md:text-4xl">Drops of Beauty</h1>
         <p className="mt-3 text-[var(--muted-foreground)]">
-          Five works from the public-domain canon, arranged around a single theme. One email, every
-          Sunday morning.
+          Five public-domain works, arranged around a single theme. One email, every Sunday morning.
         </p>
       </header>
 
@@ -34,7 +33,7 @@ export default function SubscribePage() {
             Hokusai's waves or Dutch interiors. Sometimes it's narrower than that, like the hour
             just after sunset, or the way Hammershøi paints an empty room.
           </p>
-          <p>Curated by hand. No feed, no algorithm picking the next painting.</p>
+          <p>Picked by hand. Nothing is chosen for you by an algorithm.</p>
         </div>
 
         <div className="rounded-lg border border-[var(--border)] bg-[var(--background)] p-5 md:p-6">
