@@ -2,7 +2,7 @@
 title: "Books and reading"
 subject: "Issue 4: Books and reading"
 publishedAt: "2026-06-07"
-excerpt: "Five works about the strange magnetism of someone reading: a scholar-saint, a letter at a window, news shouted across a courtyard."
+excerpt: "Botticelli and Caravaggio make reading heavy, with architecture and skulls. By de Blaas the news is shouted over the laundry and privacy is not the point."
 draft: true
 cover:
   artworkId: "collection-of-beauty-jan-vermeer-van-delft-brieflezend-meisje-bij-het-venster-ca-1657-59"

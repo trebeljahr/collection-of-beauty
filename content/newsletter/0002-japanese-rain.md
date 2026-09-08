@@ -2,7 +2,7 @@
 title: "Japanese rain"
 subject: "Issue 2: Japanese rain"
 publishedAt: "2026-05-24"
-excerpt: "Five Japanese prints where rain is not background but structure, from Hiroshige's Tokaido roads to Hasui's modern Tokyo bridges."
+excerpt: "A hundred years apart, Hiroshige on the Tokaido roads and Hasui on the bridges of Tokyo both let the weather do the drawing."
 draft: true
 cover:
   artworkId: "collection-of-beauty-hiroshige-atake-sous-une-averse-soudaine"

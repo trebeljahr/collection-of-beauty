@@ -2,7 +2,7 @@
 title: "Flowers and branches"
 subject: "Issue 7: Flowers and branches"
 publishedAt: "2026-06-28"
-excerpt: "Five works built from petals and stems: an emperor's finches, an orchard in bloom, a face made of spring, a garland and a gold screen."
+excerpt: "Huizong's bamboo is discipline. Van Gogh's orchards are a sprint against the wind, and Arcimboldo turns the same botany into a human face."
 draft: true
 cover:
   artworkId: "collection-of-beauty-kano-sansetsu-frolicking-birds-in-plum-and-willow-trees"

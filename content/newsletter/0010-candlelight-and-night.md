@@ -2,7 +2,7 @@
 title: "Candlelight and night"
 subject: "Issue 10: Candlelight and night"
 publishedAt: "2026-07-19"
-excerpt: "Five kinds of light after dark: a paper lantern, one candle, a science experiment, wet gaslight and a river dimmed to almost nothing."
+excerpt: "Wright of Derby stages a science demonstration around a hidden flame and lets the audience's faces do the arguing."
 draft: true
 cover:
   artworkId: "collection-of-beauty-an-experiment-on-a-bird-in-an-air-pump-by-joseph-wright-of-derby-1768"

@@ -2,7 +2,7 @@
 title: "Water gardens"
 subject: "Issue 21: Water gardens"
 publishedAt: "2026-10-04"
-excerpt: "One painter, one obsession, five decades: Monet and reflecting water, from the Seine at Argenteuil to the lily pond that ate the horizon."
+excerpt: "By Giverny, Monet has stopped finding water and started manufacturing it: pond, bridge and lilies all planted as future paintings."
 draft: true
 cover:
   artworkId: "collection-of-beauty-claude-monet-1840-1926-nympheas-avec-reflets-de-hautes-herbes"

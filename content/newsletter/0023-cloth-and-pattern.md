@@ -2,7 +2,7 @@
 title: "Cloth and pattern"
 subject: "Issue 23: Cloth and pattern"
 publishedAt: "2026-10-18"
-excerpt: "Five works where fabric does the talking: a kimono in an S-curve, black silk under a red parasol, an Algiers interior, diplomatic gold and a sheer summer robe."
+excerpt: "Van Dyck's black silk is wealth made wearable. Delacroix's Algiers interior is pattern as atmosphere, which Picasso was still answering 120 years later."
 draft: true
 cover:
   artworkId: "collection-of-beauty-kaigetsudo-ando-standing-portrait-of-a-courtesan-c-1705-1710-hanging-scroll-ink-color-and-gold-on-p"

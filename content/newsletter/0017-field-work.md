@@ -2,7 +2,7 @@
 title: "Field work"
 subject: "Issue 17: Field work"
 publishedAt: "2026-09-06"
-excerpt: "Five pictures of rural labour: a family walking to market, reapers the size of brushstrokes, a timber wagon at dusk, a borrowed shepherdess and tea fields under Fuji."
+excerpt: "Turner shrinks his reapers into brushstrokes under a sky that dwarfs everything they are doing."
 draft: true
 cover:
   artworkId: "collection-of-beauty-the-tea-plantation-of-katakura-in-the-suruga-province"

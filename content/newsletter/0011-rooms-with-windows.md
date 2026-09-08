@@ -2,7 +2,7 @@
 title: "Rooms with windows"
 subject: "Issue 11: Rooms with windows"
 publishedAt: "2026-07-26"
-excerpt: "Five interiors where the window is the secret main character: leaded glass, a waiting maid, lifting curtains, a closed shutter in Arles and a blazing doorway."
+excerpt: "Vermeer's leaded glass slices daylight into squares and hides a sermon in a roundel. Van Gogh shutters his window in Arles and supplies the light himself."
 draft: true
 cover:
   artworkId: "collection-of-beauty-adolph-menzel-das-balkonzimmer-google-art-project"

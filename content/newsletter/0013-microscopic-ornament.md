@@ -2,7 +2,7 @@
 title: "Microscopic ornament"
 subject: "Issue 13: Microscopic ornament"
 publishedAt: "2026-08-09"
-excerpt: "Five Haeckel plates from Kunstformen der Natur: mineral stars, glass boxes, a jellyfish memorial, engineered sponges and plankton in full ornament."
+excerpt: "Every organism arranged for maximum symmetry, every page composed like wallpaper that happens to be true. One jellyfish carries his dead wife's name."
 draft: true
 cover:
   artworkId: "kunstformen-images-haeckel-discomedusae-8"

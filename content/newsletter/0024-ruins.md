@@ -2,7 +2,7 @@
 title: "Ruins"
 subject: "Issue 24: Ruins"
 publishedAt: "2026-10-25"
-excerpt: "Five pictures of what's left standing: a saint tied to antiquity, an artist weeping at a giant foot, cows among the Caesars, a castle after the storm and a fortress full of silence."
+excerpt: "Antiquity propping up a saint, humbling a weeping artist, grazed over by cattle, and finally a fortress with nothing left in it but silence."
 draft: true
 cover:
   artworkId: "collection-of-beauty-john-constable-hadleigh-castle-the-mouth-of-the-thames-morning-after-a-stormy-night-google-art-proj"

@@ -2,7 +2,7 @@
 title: "Birds of America"
 subject: "Issue 16: Birds of America"
 publishedAt: "2026-08-30"
-excerpt: "Five Audubon plates and one stubborn rule: every bird at life size, even when the bird is taller than the page."
+excerpt: "Big birds bend and bow to fit the page like dancers in a low doorway. A branch of parakeets keeps a vanished species in print two centuries on."
 draft: true
 cover:
   artworkId: "audubon-birds-431-american-flamingo"

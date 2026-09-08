@@ -2,7 +2,7 @@
 title: "Winter villages"
 subject: "Issue 6: Winter villages"
 publishedAt: "2026-06-21"
-excerpt: "Five winters: skaters and a bird trap on the same ice, a frozen canal full of gossip, a stopped sledge and a funeral in the snow."
+excerpt: "Bruegel runs games and a bird trap on the same sheet of ice, and lets you draw your own conclusions."
 draft: true
 cover:
   artworkId: "collection-of-beauty-circle-of-pieter-bruegel-the-elder-winter-landscape-with-a-bird-trap"

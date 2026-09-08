@@ -79,10 +79,29 @@ contradicts the page next door.
 - **Let the images do the work.** `fractal.garden` carries an entire
   exhibition on a title and a subtitle. A gallery page does not need
   an essay above the grid.
-- **A list is fine when it is a list.** "Vermilion, crimson, madder
-  lake" is a pigment enumeration, not a tricolon; it is exhaustive of
-  a category rather than decorative. The tell is a summarising clause
-  bolted on after it.
+- **A list is fine when it is a list.** An enumeration that is
+  exhaustive of a real category — the four plate sets, the twelve
+  colour families — is not a tricolon. The tell is a summarising
+  clause bolted on after it, or a list whose length was chosen for
+  rhythm rather than by the facts.
+
+## Series copy
+
+A serial format is not a defence. The newsletter excerpts all read
+`Five X: a, b, c, d and e` for twenty-four issues, on the argument
+that the shape was the series' house style. Read one at a time each
+was specific and fine; read down the archive index, which is exactly
+how a reader meets them, they were obviously machine-made. Repetition
+across a set is the loudest tell there is, and a house format has to
+earn itself against that — a fixed *subject* (five works, one theme)
+does not license a fixed *sentence*.
+
+Two rules for anything published in a series:
+
+- Vary the shape against the previous few entries, not against some
+  abstract ideal. Single claim, paired observations, a run of four.
+- Don't reuse the body's opening line in its own summary. The excerpt
+  sits directly above the paragraph it was lifted from.
 
 ## The em dash
 

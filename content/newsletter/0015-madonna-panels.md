@@ -2,7 +2,7 @@
 title: "Madonna panels"
 subject: "Issue 15: Madonna panels"
 publishedAt: "2026-08-23"
-excerpt: "Five Madonnas, five centuries of one motif: a page-turning baby, a tomb's-eye altarpiece, a Saxon fir tree, an impossible neck and a goldfinch on a workshop floor."
+excerpt: "Parmigianino bends the theme past what anatomy allows. Murillo brings it down to a workshop floor, a spindle and a pet goldfinch."
 draft: true
 cover:
   artworkId: "collection-of-beauty-parmigianino-madonna-and-child-with-angels-known-as-the-madonna-with-the-long-neck"

@@ -2,7 +2,7 @@
 title: "Music in the room"
 subject: "Issue 9: Music in the room"
 publishedAt: "2026-07-12"
-excerpt: "Five paintings you can almost hear: a pastoral that behaves like a poem, an angel orchestra, a tuning lute, a brawl and a king's flute."
+excerpt: "Grünewald's angels play for patients who needed the colours as much as the music. La Tour paints what musicians do when the music stops paying."
 draft: true
 cover:
   artworkId: "collection-of-beauty-adolph-menzel-flotenkonzert-friedrichs-des-gro-en-in-sanssouci-google-art-project"

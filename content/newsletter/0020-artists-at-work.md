@@ -2,7 +2,7 @@
 title: "Artists at work"
 subject: "Issue 20: Artists at work"
 publishedAt: "2026-09-27"
-excerpt: "Five artists looking at themselves: Dürer dressed to impress, a burnt hand, Rembrandt young and old, and Courbet putting his whole life in one studio."
+excerpt: "Goltzius skips his face and draws his burnt working hand. Courbet inflates the self-portrait until it swallows his patrons, Baudelaire and the whole age."
 draft: true
 cover:
   artworkId: "collection-of-beauty-2560px-courbet-latelier-du-peintre"
