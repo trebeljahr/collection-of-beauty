@@ -77,7 +77,7 @@ export const ERAS: Era[] = [
       // worn a different colour from centuries of foot traffic.
       roomAccents: ["#3a2a1f", "#2e3540", "#3a2e3f", "#293a36", "#3d2e22"],
     },
-    blurb: "Gold ground and tempera — the long medieval morning.",
+    blurb: "Tempera on wooden panel over gold leaf, painted mostly for altars.",
     anchor: {
       // Most pre-1500 works in the corpus lack an explicit movement tag
       // and bucket under the era title. The configured anchor is mainly
@@ -103,7 +103,7 @@ export const ERAS: Era[] = [
       // Warm earth: terracotta, sienna, olive, chocolate.
       roomAccents: ["#3a2a1f", "#3f2820", "#3a2e1c", "#322318", "#42301f"],
     },
-    blurb: "Leonardo, Michelangelo, Raphael — perspective made a language.",
+    blurb: "Sixteenth-century painting in Italy and the north, and its Mannerist tail end.",
     anchor: {
       movement: "Renaissance",
       minCells: { x: 9, z: 9 },
@@ -131,7 +131,8 @@ export const ERAS: Era[] = [
       // Tenebrist velvets: charcoal, wine, midnight, forest.
       roomAccents: ["#221711", "#2a1418", "#1a1822", "#1f261b", "#1a1612"],
     },
-    blurb: "Drama, tenebrism, motion — Caravaggio's shadow across Europe.",
+    blurb:
+      "Hard light out of deep shadow after Caravaggio, and a picture trade in the Dutch Republic.",
     anchor: {
       movement: "Baroque",
       minCells: { x: 9, z: 9 },
@@ -153,7 +154,8 @@ export const ERAS: Era[] = [
       // Refined drawing-room tones: muted plum, sage, rose-brown, dusty blue.
       roomAccents: ["#2e2015", "#3a2a35", "#28332a", "#3a2c22", "#28303a"],
     },
-    blurb: "Ornament gives way to antique clarity.",
+    blurb:
+      "Rococo pastel and gilt for the first half of the century, Roman severity for the second.",
     anchor: {
       movement: "Neoclassicism",
       minCells: { x: 7, z: 7 },
@@ -184,7 +186,7 @@ export const ERAS: Era[] = [
       // Stormy weather underfoot: storm-blue, slate, rust, moss.
       roomAccents: ["#1e1711", "#1a2230", "#2a221c", "#2e1f17", "#1f261c"],
     },
-    blurb: "The sublime, the storm, and the literary dream.",
+    blurb: "Storms, mountains, shipwrecks and ruins, with the figures painted small.",
     anchor: {
       movement: "Romanticism",
       minCells: { x: 9, z: 9 },
@@ -219,7 +221,7 @@ export const ERAS: Era[] = [
       // Field colours under glass: moss, walnut, slate-sky, deep bog, ochre-soil.
       roomAccents: ["#1a1f17", "#241a12", "#1c2630", "#1a241c", "#2a2218"],
     },
-    blurb: "Audubon's birds, Haeckel's forms, and Redouté's lilies — the natural world catalogued.",
+    blurb: "Book plates: Audubon's birds at life size, Redouté's flowers, Haeckel's radiolarians.",
     anchor: {
       movement: "Natural history illustration",
       minCells: { x: 9, z: 9 },
@@ -248,7 +250,8 @@ export const ERAS: Era[] = [
       // Salon velvets: wine, deep teal, olive, charcoal, plum.
       roomAccents: ["#221814", "#1c2628", "#262218", "#1d1614", "#28181f"],
     },
-    blurb: "Studio realism, salon polish, and the gaze East.",
+    blurb:
+      "Painting as the academies taught it and the Paris Salon judged it, Orientalism included.",
     anchor: {
       movement: "Realism",
       minCells: { x: 7, z: 7 },
@@ -287,7 +290,8 @@ export const ERAS: Era[] = [
       accent: "#a23b2c",
       roomAccents: ["#1a120c", "#2c1a18", "#1a1c25", "#1f2418", "#2a1a16"],
     },
-    blurb: "Edo woodblock prints, Song-dynasty ink, and the Floating World.",
+    blurb:
+      "Japanese woodblock prints sold cheaply in editions, alongside older East Asian painting.",
     anchor: {
       movement: "Ukiyo-e",
       minCells: { x: 9, z: 9 },
@@ -320,7 +324,7 @@ export const ERAS: Era[] = [
       // Garden dapple: sage, dusty rose, lavender, butter.
       roomAccents: ["#2a1d14", "#283325", "#3a2a2e", "#2e2838", "#3a3220"],
     },
-    blurb: "Plein-air light, broken colour, and modern Paris.",
+    blurb: "Painted outdoors and fast, in separate strokes of unmixed colour.",
     anchor: {
       movement: "Impressionism",
       minCells: { x: 9, z: 9 },
@@ -357,7 +361,7 @@ export const ERAS: Era[] = [
       // Sunflower ochre, starry-night blue, deep wine, Mucha jade, Gauguin red-clay.
       roomAccents: ["#1a1419", "#1a1c30", "#2a1418", "#1a2a22", "#2e1a14"],
     },
-    blurb: "Saturated colour, decorative line, and the dream made visible.",
+    blurb: "Colour and outline used for their own sake, and subjects taken from dream and myth.",
     anchor: {
       movement: "Post-Impressionism",
       minCells: { x: 7, z: 7 },
@@ -408,7 +412,7 @@ export const ERAS: Era[] = [
       // Mondrian-leaning primaries muted to room tints: blue, red, ochre, charcoal, off-black.
       roomAccents: ["#101010", "#10182a", "#2a1010", "#2a2210", "#181818"],
     },
-    blurb: "Fragmentation, abstraction, and the 20th century's break.",
+    blurb: "Fauvism, Cubism, Surrealism and abstraction, from 1900 onwards.",
     anchor: {
       movement: "Cubism",
       minCells: { x: 7, z: 7 },

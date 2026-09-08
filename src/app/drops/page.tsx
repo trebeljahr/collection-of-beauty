@@ -29,10 +29,9 @@ export default function DropsPage() {
           Drops of Beauty
         </h1>
         <p className="mt-5 text-lg leading-relaxed text-[var(--muted-foreground)]">
-          Each Sunday edition picks five public-domain works around a single idea - a movement, a
-          motif, a palette, a moment in time. Every piece comes with a short note: what to look at
-          first, and one thing worth knowing about it. Then a few lines on what ties the five
-          together. Closer to a personal shelf than a survey, sent out one small batch at a time.
+          Each Sunday edition picks five public-domain works around one idea: a motif, a movement,
+          an hour of the day. Every work gets a short note on what to look at and one thing worth
+          knowing about it, and the edition closes with a few lines on what the five have in common.
         </p>
 
         <div className="mt-8 rounded-lg border border-[var(--border)] bg-[var(--background)] p-5 md:p-6">
