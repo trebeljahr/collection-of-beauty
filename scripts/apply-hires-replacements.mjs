@@ -208,4 +208,6 @@ try {
 console.log(
   `\nDone: ${redownloads} redownloads, ${replacements} replacements, ${newsletterEdits} newsletter files updated.`,
 );
-console.log("Now run: pnpm scrape:fetch collection-of-beauty && node scripts/normalize-metadata.mjs collection-of-beauty.json && pnpm assets:shrink --folder=collection-of-beauty && pnpm assets:build-data");
+console.log(
+  "Now run: pnpm scrape:fetch collection-of-beauty && node scripts/normalize-metadata.mjs collection-of-beauty.json && pnpm assets:shrink --folder=collection-of-beauty && pnpm assets:build-data",
+);

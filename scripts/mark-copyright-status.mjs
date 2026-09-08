@@ -21,9 +21,9 @@
 //   node scripts/mark-copyright-status.mjs
 //   node scripts/mark-copyright-status.mjs collection-of-beauty.json
 
-import fs from "fs";
-import path from "path";
-import { fileURLToPath } from "url";
+import fs from "node:fs";
+import path from "node:path";
+import { fileURLToPath } from "node:url";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -70,7 +70,9 @@ const URAA_ARTISTS = [
     match: ({ artist, filename }) => {
       const a = (artist || "").toLowerCase();
       const fn = (filename || "").toLowerCase();
-      return a.includes("hasui") || a.includes("kawase") || fn.includes("hasui") || fn.includes("kawase");
+      return (
+        a.includes("hasui") || a.includes("kawase") || fn.includes("hasui") || fn.includes("kawase")
+      );
     },
     year_overrides: {},
   },
@@ -87,9 +89,14 @@ function decideStatus(filename, entry) {
   const uraa = matchUraaArtist(filename, entry);
   if (uraa) {
     const year = uraa.year_overrides[filename] ?? entry.year;
-    if (year == null) return { status: "needs_review", reason: "URAA artist, no creation year known" };
-    if (year < US_PD_CUTOFF_YEAR) return { status: "public_domain", reason: `pre-${US_PD_CUTOFF_YEAR} (URAA-exempt)` };
-    return { status: "uraa_restricted", reason: `${year} is >= ${US_PD_CUTOFF_YEAR}; US copyright restored by URAA` };
+    if (year == null)
+      return { status: "needs_review", reason: "URAA artist, no creation year known" };
+    if (year < US_PD_CUTOFF_YEAR)
+      return { status: "public_domain", reason: `pre-${US_PD_CUTOFF_YEAR} (URAA-exempt)` };
+    return {
+      status: "uraa_restricted",
+      reason: `${year} is >= ${US_PD_CUTOFF_YEAR}; US copyright restored by URAA`,
+    };
   }
 
   // General post-1930 rule: 95-year US copyright term on any work first
@@ -105,8 +112,10 @@ function decideStatus(filename, entry) {
   }
 
   // Default: trust the existing copyright.copyrighted flag, if set.
-  if (entry.copyright && entry.copyright.copyrighted === false) return { status: "public_domain", reason: "Commons PD license" };
-  if (entry.copyright && entry.copyright.copyrighted === true) return { status: "copyrighted", reason: "Commons copyrighted license" };
+  if (entry.copyright && entry.copyright.copyrighted === false)
+    return { status: "public_domain", reason: "Commons PD license" };
+  if (entry.copyright && entry.copyright.copyrighted === true)
+    return { status: "copyrighted", reason: "Commons copyrighted license" };
   return { status: "needs_review", reason: "no explicit copyright signal" };
 }
 
@@ -138,7 +147,7 @@ function processFile(relPath) {
   );
   if (uraaNames.length) {
     console.log(`  URAA-restricted (${uraaNames.length}):`);
-    uraaNames.sort().forEach((n) => console.log(`    - ${n}`));
+    for (const n of uraaNames.sort()) console.log(`    - ${n}`);
   }
 }
 

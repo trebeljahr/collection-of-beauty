@@ -1,8 +1,8 @@
 #!/usr/bin/env node
 
-import { mkdir, readFile, writeFile } from "fs/promises";
-import path from "path";
-import { fileURLToPath } from "url";
+import { mkdir, readFile, writeFile } from "node:fs/promises";
+import path from "node:path";
+import { fileURLToPath } from "node:url";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -371,7 +371,11 @@ async function main() {
     const existing = artistBuckets.get(key);
     const nationality = matched?.nationality ?? artwork.nationality ?? null;
     const movement = matched?.movement ?? artwork.movement ?? null;
-    const matchSource = matched ? "artists-db" : artwork.nationality || artwork.movement ? "artwork" : "unmapped";
+    const matchSource = matched
+      ? "artists-db"
+      : artwork.nationality || artwork.movement
+        ? "artwork"
+        : "unmapped";
 
     if (!existing) {
       artistBuckets.set(key, {
@@ -393,7 +397,8 @@ async function main() {
     if (Number.isFinite(artwork.year)) artist.years.push(artwork.year);
     if (!artist.nationality && nationality) artist.nationality = nationality;
     if (!artist.movement && movement) artist.movement = movement;
-    if (artist.matchSource === "unmapped" && matchSource !== "unmapped") artist.matchSource = matchSource;
+    if (artist.matchSource === "unmapped" && matchSource !== "unmapped")
+      artist.matchSource = matchSource;
     if (!artist.matchedArtist && matched?.name) artist.matchedArtist = matched.name;
   }
 
@@ -421,7 +426,9 @@ async function main() {
   const unmappedArtworks = artworks.length - mappedArtworks;
 
   const datedFrom = (year) => {
-    const hits = artworks.filter((artwork) => Number.isFinite(artwork.year) && artwork.year >= year);
+    const hits = artworks.filter(
+      (artwork) => Number.isFinite(artwork.year) && artwork.year >= year,
+    );
     return {
       artworkCount: hits.length,
       artworkShare: pct(hits.length, artworks.length),

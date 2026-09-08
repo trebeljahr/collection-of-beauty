@@ -186,7 +186,10 @@ async function buildPyramid(job) {
   // Build into a temp sibling and rename once complete, so an interrupted
   // run can never leave a partial pyramid that the freshness check would
   // later mistake for a finished one.
-  const tmpBase = path.join(parent, `.tiles-tmp-${process.pid}-${Math.random().toString(36).slice(2, 8)}`);
+  const tmpBase = path.join(
+    parent,
+    `.tiles-tmp-${process.pid}-${Math.random().toString(36).slice(2, 8)}`,
+  );
   try {
     await sharp(job.srcPath, { failOn: "none", unlimited: true, limitInputPixels: false })
       .rotate() // bake EXIF orientation, matching the variant ladder
@@ -296,7 +299,9 @@ async function main() {
     `\n[tiles] built: ${totals.built}, fresh(skipped): ${totals.fresh}, errors: ${totals.errors}`,
   );
   if (!DRY_RUN) {
-    console.log(`[tiles] wrote ${fmt(totals.bytes)} of tiles in ${fmtDuration(Date.now() - start)}`);
+    console.log(
+      `[tiles] wrote ${fmt(totals.bytes)} of tiles in ${fmtDuration(Date.now() - start)}`,
+    );
   }
   if (totals.errors > 0) process.exitCode = 1;
 }

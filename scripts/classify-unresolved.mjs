@@ -8,9 +8,9 @@
 //
 // Usage: node scripts/classify-unresolved.mjs "collection-of-beauty"
 
-import fs from "fs";
-import path from "path";
-import { fileURLToPath } from "url";
+import fs from "node:fs";
+import path from "node:path";
+import { fileURLToPath } from "node:url";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -388,7 +388,7 @@ const rules = [
 ];
 
 // Default fallthrough: everything else becomes "unknown, needs manual review"
-function classifyFallback(filename) {
+function classifyFallback() {
   return {
     guessed_source:
       "Unknown — not found on Wikimedia Commons by filename. Possibly renamed, from another site, or has a typo.",

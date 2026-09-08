@@ -1,4 +1,5 @@
 #!/usr/bin/env node
+
 /**
  * Verify that every artwork's variant files exist on the public assets
  * URL (Cloudflare R2 in prod). Catches the class of bug where the
@@ -48,8 +49,8 @@
  *   2  bad invocation / fatal error
  */
 
-import { readFileSync } from "node:fs";
 import { spawnSync } from "node:child_process";
+import { readFileSync } from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 
@@ -184,12 +185,7 @@ function listR2Bulk() {
   // Same rclone invocation scripts/sync-assets.sh uses — native binary
   // when it's on PATH, the rclone/rclone image otherwise — so the verify
   // and sync paths can't drift on backend config.
-  const lsfArgs = [
-    "lsf",
-    "--recursive",
-    "--files-only",
-    `:s3:${process.env.R2_ASSETS_BUCKET}`,
-  ];
+  const lsfArgs = ["lsf", "--recursive", "--files-only", `:s3:${process.env.R2_ASSETS_BUCKET}`];
   // Secrets go through the child's env, never argv: an -e KEY=VALUE
   // argument is visible in `ps` to every user on the machine.
   const rcloneEnv = {
@@ -285,8 +281,8 @@ async function main() {
   //                 nothing about whether the file exists, so it never
   //                 fails the run — just gets reported so a flaky sweep is
   //                 visible. Use --bulk to sidestep it entirely.
-  let missing = [];
-  let unreachable = [];
+  const missing = [];
+  const unreachable = [];
   if (args.bulk) {
     const present = listR2Bulk();
     for (const k of allKeys) if (!present.has(k)) missing.push({ key: k, status: "absent" });
@@ -320,9 +316,13 @@ async function main() {
   }
 
   if (missing.length > 0) {
-    console.error(`[verify-r2] ${missing.length} variant(s) missing (real HTTP error — catalogue drift):`);
+    console.error(
+      `[verify-r2] ${missing.length} variant(s) missing (real HTTP error — catalogue drift):`,
+    );
     for (const m of missing.slice(0, 50)) {
-      console.error(`  - ${m.key}${m.status ? ` (${m.status})` : ""}${m.error ? ` (${m.error})` : ""}`);
+      console.error(
+        `  - ${m.key}${m.status ? ` (${m.status})` : ""}${m.error ? ` (${m.error})` : ""}`,
+      );
     }
     if (missing.length > 50) console.error(`  … and ${missing.length - 50} more`);
   }

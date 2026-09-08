@@ -20,14 +20,10 @@ const CHECK_EXTERNAL = process.argv.includes("--external");
 const editionFiles = fs.readdirSync(NEWSLETTER_DIR).filter((f) => /^\d{4}-.*\.md$/.test(f));
 const editionSlugs = new Set(editionFiles.map((f) => f.replace(/\.md$/, "")));
 const artistSlugs = new Set(
-  JSON.parse(fs.readFileSync(path.join(ROOT, "src/data/artists.json"), "utf8")).map(
-    (a) => a.slug,
-  ),
+  JSON.parse(fs.readFileSync(path.join(ROOT, "src/data/artists.json"), "utf8")).map((a) => a.slug),
 );
 const artworkIds = new Set(
-  JSON.parse(fs.readFileSync(path.join(ROOT, "src/data/artworks.json"), "utf8")).map(
-    (a) => a.id,
-  ),
+  JSON.parse(fs.readFileSync(path.join(ROOT, "src/data/artworks.json"), "utf8")).map((a) => a.id),
 );
 
 // Markdown link destinations, tolerating one level of balanced parens
@@ -84,8 +80,7 @@ async function checkWikipedia(urls) {
     // map normalized/redirected titles back to what we asked for
     const renames = new Map();
     for (const n of json.query?.normalized ?? []) renames.set(n.to, n.from);
-    for (const r of json.query?.redirects ?? [])
-      renames.set(r.to, renames.get(r.from) ?? r.from);
+    for (const r of json.query?.redirects ?? []) renames.set(r.to, renames.get(r.from) ?? r.from);
     for (const p of json.query?.pages ?? []) {
       if (p.missing) missing.add(renames.get(p.title) ?? p.title);
     }
@@ -100,10 +95,7 @@ if (CHECK_EXTERNAL) {
 
   const missingTitles = await checkWikipedia(wikiUrls);
   for (const u of wikiUrls) {
-    const title = decodeURIComponent(new URL(u).pathname.slice("/wiki/".length)).replace(
-      /_/g,
-      " ",
-    );
+    const title = decodeURIComponent(new URL(u).pathname.slice("/wiki/".length)).replace(/_/g, " ");
     if (missingTitles.has(title)) {
       for (const where of externalByUrl.get(u))
         failures.push(`${where} missing Wikipedia page: ${u}`);
@@ -117,7 +109,7 @@ if (CHECK_EXTERNAL) {
         for (const where of externalByUrl.get(u))
           failures.push(`${where} HTTP ${res.status}: ${u}`);
       }
-    } catch (e) {
+    } catch {
       for (const where of externalByUrl.get(u)) failures.push(`${where} fetch failed: ${u}`);
     }
   }

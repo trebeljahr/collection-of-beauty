@@ -16,7 +16,6 @@
       "!**/coverage",
       "!**/metadata/**/*.json",
       "!**/src/data/**/*.json",
-      "!**/scripts/**/*",
       "!**/*.css"
     ]
   },

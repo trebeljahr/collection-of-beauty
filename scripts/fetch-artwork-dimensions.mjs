@@ -492,8 +492,7 @@ async function main() {
   // A present key counts as answered — including an explicit null, which means
   // "we asked and there are no dimensions to be had". An `{ error: true }`
   // marker is the opposite: the fetch never got an answer, so it is retried.
-  const isAnswered = (id) =>
-    Object.prototype.hasOwnProperty.call(existing, id) && existing[id]?.error !== true;
+  const isAnswered = (id) => Object.hasOwn(existing, id) && existing[id]?.error !== true;
 
   const todo = FORCE ? candidates : candidates.filter((a) => !isAnswered(a.id));
 

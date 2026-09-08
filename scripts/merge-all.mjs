@@ -15,9 +15,9 @@
 //   node scripts/merge-all.mjs <file> [<file>...]
 //     (reads specific files)
 
-import fs from "fs";
-import path from "path";
-import { fileURLToPath } from "url";
+import fs from "node:fs";
+import path from "node:path";
+import { fileURLToPath } from "node:url";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -77,10 +77,7 @@ for (const mf of METADATA_FILES) {
 
 function findEntry(fn) {
   return (
-    lookup.get(fn) ||
-    lookup.get(fn.normalize("NFC")) ||
-    lookup.get(fn.normalize("NFD")) ||
-    null
+    lookup.get(fn) || lookup.get(fn.normalize("NFC")) || lookup.get(fn.normalize("NFD")) || null
   );
 }
 
@@ -157,14 +154,8 @@ for (const { path: p, json } of loaded.values()) {
   fs.writeFileSync(p, JSON.stringify(json, null, 2));
 }
 
-console.log(
-  `Artist briefings: merged ${briefingsMerged}, skipped ${briefingsNull} null.`,
-);
-console.log(
-  `Stories: merged ${storiesMerged}, applied ${correctionsApplied} year corrections.`,
-);
+console.log(`Artist briefings: merged ${briefingsMerged}, skipped ${briefingsNull} null.`);
+console.log(`Stories: merged ${storiesMerged}, applied ${correctionsApplied} year corrections.`);
 if (missing.length) {
-  console.log(
-    `Missing ${missing.length} filenames (sample: ${missing.slice(0, 3).join(", ")})`,
-  );
+  console.log(`Missing ${missing.length} filenames (sample: ${missing.slice(0, 3).join(", ")})`);
 }

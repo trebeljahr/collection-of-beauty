@@ -28,8 +28,12 @@ import { artworkId } from "./lib/artwork-id.mjs";
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const ROOT = path.resolve(__dirname, "..");
 const META = path.join(ROOT, "metadata");
-const ASSETS = process.env.ASSETS_DIR ? path.resolve(process.env.ASSETS_DIR) : path.join(ROOT, "assets");
-const ASSETS_WEB = process.env.ASSETS_WEB_DIR ? path.resolve(process.env.ASSETS_WEB_DIR) : path.join(ROOT, "assets-web");
+const ASSETS = process.env.ASSETS_DIR
+  ? path.resolve(process.env.ASSETS_DIR)
+  : path.join(ROOT, "assets");
+const ASSETS_WEB = process.env.ASSETS_WEB_DIR
+  ? path.resolve(process.env.ASSETS_WEB_DIR)
+  : path.join(ROOT, "assets-web");
 
 // Curated removal list. Each entry: keep filename → remove filename.
 // All entries are duplicate scans of the same painting; the kept file is
@@ -78,7 +82,8 @@ const REMOVALS = [
   },
   {
     folder: "collection-of-beauty",
-    remove: "0_Prométhée_supplicié_-_Rubens_-_Snyders_-_Philadelphia_Museum_of_Art_(W1950-3-1)_-_(1).jpeg",
+    remove:
+      "0_Prométhée_supplicié_-_Rubens_-_Snyders_-_Philadelphia_Museum_of_Art_(W1950-3-1)_-_(1).jpeg",
     keep: "Peter_Paul_Rubens,_Flemish_(active_Italy,_Antwerp,_and_England)_-_Prometheus_Bound_-_Google_Art_Project.jpg",
     reason: "same Philadelphia Museum Prometheus Bound; Google Art Project scan is higher-res",
   },
@@ -128,9 +133,11 @@ const REMOVALS = [
   },
   {
     folder: "collection-of-beauty",
-    remove: "Peter_Paul_Rubens_(1577-1640)_(after)_-_The_Brazen_Serpent_-_TWCMS_,_C161_-_Shipley_Art_Gallery.jpg",
+    remove:
+      "Peter_Paul_Rubens_(1577-1640)_(after)_-_The_Brazen_Serpent_-_TWCMS_,_C161_-_Shipley_Art_Gallery.jpg",
     keep: "Peter_Paul_Rubens_-_The_Brazen_Serpent.jpg",
-    reason: "Shipley copy 'after' Rubens of same composition; only 800×630 (77 KB) vs NG London 6000×4237 autograph",
+    reason:
+      "Shipley copy 'after' Rubens of same composition; only 800×630 (77 KB) vs NG London 6000×4237 autograph",
   },
   {
     folder: "collection-of-beauty",
@@ -144,7 +151,8 @@ const REMOVALS = [
     folder: "collection-of-beauty",
     remove: "Vincent_van_Gogh_-_Starry_Night_-_Google_Art_Project.jpg",
     keep: "Starry_Night_Over_the_Rhone.jpg",
-    reason: "same Musée d'Orsay 'Starry Night Over the Rhône'; keeping the file already correctly named for the painting",
+    reason:
+      "same Musée d'Orsay 'Starry Night Over the Rhône'; keeping the file already correctly named for the painting",
   },
   {
     folder: "collection-of-beauty",
@@ -168,25 +176,29 @@ const REMOVALS = [
     folder: "collection-of-beauty",
     remove: "Rubens_-_Der_gefesselte_Prometheus,_um_1613,_Landesmuseum_Oldenburg_923340078c.jpg",
     keep: "Peter_Paul_Rubens,_Flemish_(active_Italy,_Antwerp,_and_England)_-_Prometheus_Bound_-_Google_Art_Project.jpg",
-    reason: "two autograph versions exist (Philadelphia + Oldenburg); curator keeps Philadelphia; second version is noted in the curator description",
+    reason:
+      "two autograph versions exist (Philadelphia + Oldenburg); curator keeps Philadelphia; second version is noted in the curator description",
   },
   {
     folder: "collection-of-beauty",
     remove: "Michelangelo_Caravaggio_020.jpg",
     keep: "1596_Caravaggio,_The_Lute_Player_New_York.jpg",
-    reason: "two autograph versions exist (Met + Hermitage); curator keeps Met; second version is noted in the curator description",
+    reason:
+      "two autograph versions exist (Met + Hermitage); curator keeps Met; second version is noted in the curator description",
   },
   {
     folder: "collection-of-beauty",
     remove: "Kunisada_futamigaura.jpg",
     keep: "Utagawa_Kunisada_I_(c._1832)_Dawn_at_Futami-ga-ura.jpg",
-    reason: "same Kunisada c.1832 Wedded Rocks at Futami-ga-ura; keeper is the MFA Boston scan with the title cartouche, full margins and shore figures; remove file is a tighter crop with no provenance",
+    reason:
+      "same Kunisada c.1832 Wedded Rocks at Futami-ga-ura; keeper is the MFA Boston scan with the title cartouche, full margins and shore figures; remove file is a tighter crop with no provenance",
   },
   // Third pass — identical-fileUrl sweep (same Commons original ingested
   // twice; the 1280px-* files are thumbnail-sized grabs of the same scan).
   {
     folder: "collection-of-beauty",
-    remove: "1280px-Retrato_de_la_esposa_del_artista_con_sus_dos_hijos,_por_Hans_Holbein_el_Joven.jpg",
+    remove:
+      "1280px-Retrato_de_la_esposa_del_artista_con_sus_dos_hijos,_por_Hans_Holbein_el_Joven.jpg",
     keep: "Retrato_de_la_esposa_del_artista_con_sus_dos_hijos,_por_Hans_Holbein_el_Joven.jpg",
     reason: "identical fileUrl; keeper is the 4625px original, remove is its 1280px thumbnail",
   },
@@ -194,7 +206,8 @@ const REMOVALS = [
     folder: "collection-of-beauty",
     remove: "1280px-Giuseppe_Arcimboldo_-_La_Primavera_-_Google_Art_Project.jpg",
     keep: "Giuseppe_Arcimboldo_-_La_Primavera_-_Google_Art_Project.jpg",
-    reason: "identical fileUrl; keeper is the 3409px original, remove is its 1280px thumbnail (newsletter 0007 repointed to the keeper)",
+    reason:
+      "identical fileUrl; keeper is the 3409px original, remove is its 1280px thumbnail (newsletter 0007 repointed to the keeper)",
   },
   {
     folder: "collection-of-beauty",
@@ -212,23 +225,26 @@ const REMOVALS = [
     folder: "collection-of-beauty",
     remove: "Constable_osmington_bay.tif.jpg",
     keep: "Constable_osmington_bay.tif",
-    reason: "identical fileUrl; keeper is the 6473px TIFF original, remove is a 2560px JPEG re-export of it",
+    reason:
+      "identical fileUrl; keeper is the 6473px TIFF original, remove is a 2560px JPEG re-export of it",
   },
   {
     folder: "collection-of-beauty",
     remove: "Hokusai Views of Mount Fuji.jpg",
     keep: "2560px-The_Big_wave_from_100_views_of_the_Fuji,_2nd_volume.jpg",
-    reason: "identical fileUrl; same Big Wave plate from One Hundred Views of Mount Fuji, keeper has the taller uncropped scan and the descriptive filename",
+    reason:
+      "identical fileUrl; same Big Wave plate from One Hundred Views of Mount Fuji, keeper has the taller uncropped scan and the descriptive filename",
   },
   {
     folder: "collection-of-beauty",
     remove: "NDL-DC_2586549-03_Kawase_Hasui_S02_crd.jpg",
     keep: "Tōkyō_jūnidai,_Daikon-gashi_by_Kawase_Hasui.jpg",
-    reason: "identical fileUrl; same Hasui Daikon-gashi print, keeper has the taller scan and the descriptive filename",
+    reason:
+      "identical fileUrl; same Hasui Daikon-gashi print, keeper has the taller scan and the descriptive filename",
   },
 ];
 
-async function rmIfExists(p, label) {
+async function rmIfExists(p) {
   try {
     const stat = await fs.stat(p);
     if (stat.isDirectory()) await fs.rm(p, { recursive: true, force: true });

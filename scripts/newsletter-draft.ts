@@ -55,7 +55,7 @@ for (let i = 0; i < args.length; i++) {
 const themeSlug = positional[0];
 if (!themeSlug) {
   console.error(
-    "usage: pnpm newsletter:draft <theme-slug> [--title \"Full Title\"] [id1 id2 id3 id4 id5]",
+    'usage: pnpm newsletter:draft <theme-slug> [--title "Full Title"] [id1 id2 id3 id4 id5]',
   );
   process.exit(1);
 }
@@ -140,9 +140,15 @@ console.info(`Artworks: ${chosenIds.join(", ")}`);
 console.info(`\nNext steps:`);
 console.info(`  1. Edit the file — replace TODO bits, refine artwork picks, write blurbs/intro.`);
 console.info(`  2. Flip "draft: true" → "draft: false" when ready.`);
-console.info(`  3. pnpm sendNewsletter ${fileSlug} --dry-run                         # render preview`);
-console.info(`  4. pnpm sendNewsletter ${fileSlug}                                   # send to the test list`);
-console.info(`  5. NODE_ENV=production pnpm sendNewsletter ${fileSlug}                # send to the live list`);
+console.info(
+  `  3. pnpm sendNewsletter ${fileSlug} --dry-run                         # render preview`,
+);
+console.info(
+  `  4. pnpm sendNewsletter ${fileSlug}                                   # send to the test list`,
+);
+console.info(
+  `  5. NODE_ENV=production pnpm sendNewsletter ${fileSlug}                # send to the live list`,
+);
 
 /**
  * Emit a YAML double-quoted scalar. A `--title` containing a quote would

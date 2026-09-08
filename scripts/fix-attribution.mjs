@@ -7,9 +7,9 @@
 // flip `year_source`. The original Wikimedia source link is left intact so
 // the Commons URL still works.
 
-import fs from "fs";
-import path from "path";
-import { fileURLToPath } from "url";
+import fs from "node:fs";
+import path from "node:path";
+import { fileURLToPath } from "node:url";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -334,14 +334,13 @@ const fixes = {
     date_created: "circa 1527–1530",
     year_source: "wiki",
   },
-  "Siberische_Blauwe_Nachtegaal_bij_een_pioenroos_onder_een_besneeuwde_schoof,_RP-P-2001-731.jpg":
-    {
-      title: "Siberian Blue Nightingale by a Peony beneath a Snow-laden Sheaf",
-      artist: "Ohara Koson",
-      year: 1930,
-      date_created: "circa 1925–1936",
-      year_source: "wiki",
-    },
+  "Siberische_Blauwe_Nachtegaal_bij_een_pioenroos_onder_een_besneeuwde_schoof,_RP-P-2001-731.jpg": {
+    title: "Siberian Blue Nightingale by a Peony beneath a Snow-laden Sheaf",
+    artist: "Ohara Koson",
+    year: 1930,
+    date_created: "circa 1925–1936",
+    year_source: "wiki",
+  },
   "Twee_kaketoes_op_tak_met_pruimenbloesem,_RP-P-2005-472.jpg": {
     title: "Two Cockatoos on a Branch with Plum Blossom",
     artist: "Ohara Koson",
@@ -536,8 +535,9 @@ const fixes = {
   "Karl_Friedrich_Schinkel_-_Der_Morgen_-_Google_Art_Project.jpg": {
     artist_info: CLEAR,
   },
-  "Karl_Friedrich_Schinkel_-_Gotische_Kirche_auf_einem_Felsen_am_Meer_-_Google_Art_Project.jpg":
-    { artist_info: CLEAR },
+  "Karl_Friedrich_Schinkel_-_Gotische_Kirche_auf_einem_Felsen_am_Meer_-_Google_Art_Project.jpg": {
+    artist_info: CLEAR,
+  },
   "Karl_Friedrich_Schinkel_-_Schloß_am_Strom_-_Google_Art_Project.jpg": {
     artist_info: CLEAR,
   },
