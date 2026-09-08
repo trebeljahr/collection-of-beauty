@@ -146,7 +146,19 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
               own padding. 8px + 14px reproduces the ~24px inset the py-6
               strip had. Above the breakpoint the targets shrink back, so
               the strip needs its own padding again. */}
-          <footer className="mt-16 border-t border-[var(--border)] py-2 text-center text-xs text-[var(--muted-foreground)] sm:py-6">
+          {/* Same horizontal safe-area gutter as SiteNav, and for the same
+                reason: the footer is rendered here, outside the per-route
+                wrapper in src/app/artwork/layout.tsx, so on /artwork —
+                which opts into `viewport-fit: cover` — a notch in landscape
+                would otherwise sit over the outermost footer links. Bare
+                `env()` with a 0px fallback adds nothing anywhere else. */}
+          <footer
+            style={{
+              paddingLeft: "env(safe-area-inset-left, 0px)",
+              paddingRight: "env(safe-area-inset-right, 0px)",
+            }}
+            className="mt-16 border-t border-[var(--border)] py-2 text-center text-xs text-[var(--muted-foreground)] sm:py-6"
+          >
             {/* No gap and no bottom margin below `sm:` — see FOOTER_LINK:
                 there the links' own padding supplies the horizontal
                 spacing, and a gap-y on top of 44px rows would balloon the

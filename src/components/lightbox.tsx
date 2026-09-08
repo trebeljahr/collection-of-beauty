@@ -33,12 +33,30 @@ const DeepZoomViewer = dynamic(() => import("./deep-zoom-viewer").then((m) => m.
    `minHeight: "100dvh"`. */
 const VIEWPORT_BOX = { width: "100vw", height: "100dvh" } as const;
 
-/* Notch / sensor-housing clearance for the control layers. `max()` keeps
-   the old flat 1rem on every device that reports zero insets, and the
-   `0px` fallback covers browsers with no env() support at all, so nothing
-   regresses off-iPhone. Landscape is the case that actually bites: the
-   housing eats a whole screen edge, and a flat `p-4` puts the close
-   button underneath it. */
+/* Notch / sensor-housing clearance for the top control layer. `max()`
+   keeps the old flat 1rem on every device that reports zero insets, and
+   the `0px` fallback covers browsers with no env() support at all, so
+   nothing regresses off-iPhone. Landscape is the case that actually
+   bites: the housing eats a whole screen edge, and a flat `p-4` puts the
+   close button underneath it.
+
+   These only resolve to anything because src/app/artwork/layout.tsx
+   exports `viewportFit: "cover"` — `env(safe-area-inset-*)` is 0px on
+   every page that hasn't opted in. The lightbox is portalled to
+   document.body and so escapes that layout's own safe-area gutter; it
+   has to inset itself. If this overlay is ever mounted from a route
+   outside /artwork, that route needs the same viewport export or these
+   three quietly collapse back to the flat 1rem.
+
+   Applied inline, which beats the element's `p-4` class for these three
+   sides and leaves padding-bottom as the 1rem that class set — they
+   replace the flat padding rather than stacking on top of it, so there
+   is no double inset. Bottom is deliberately untouched: this layer is
+   pinned to the top, and the overlay has no bottom chrome at all (see
+   the chevrons below, which are vertically centred). Nothing sits over
+   the home indicator except the artwork itself, and letting a painting
+   use the full display is the point of a fullscreen viewer — the
+   indicator is a translucent pill over what is usually letterbox black. */
 const SAFE_AREA_INSETS = {
   paddingTop: "max(1rem, env(safe-area-inset-top, 0px))",
   paddingLeft: "max(1rem, env(safe-area-inset-left, 0px))",
@@ -441,7 +459,16 @@ export function Lightbox({
           and doesn't exist on a mouse. p-3 around a 24 px icon is already a
           48 px target, so only the notch needs handling: a margin (rather
           than an inline `left`) composes with the left-2 / md:left-4 classes
-          instead of overriding them. */}
+          instead of overriding them, so the chevron keeps its 8/16 px gap
+          measured from the safe edge rather than from the display edge.
+          Bare `env()` and not `max()` here, unlike SAFE_AREA_INSETS above:
+          this margin is additive gutter, so zero inset must mean zero
+          shift — a `max(…, 1rem)` would move both chevrons inward on every
+          device on earth. These went live with the `viewportFit: "cover"`
+          export in src/app/artwork/layout.tsx; before it they computed to
+          the 0px fallback. Only the horizontal insets matter: the buttons
+          are vertically centred, and in landscape — the orientation where
+          a housing overlaps a long edge — that puts them nowhere near it. */}
       {onPrev && (
         <button
           type="button"
