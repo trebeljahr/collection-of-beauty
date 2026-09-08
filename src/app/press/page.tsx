@@ -403,19 +403,29 @@ export default function PressPage() {
                 {GROUND_ERA} at ground level rising to {TOP_ERA}.
               </p>
               <div className="mt-8 flex flex-wrap gap-3">
-                {/* min-h-11 = the 44px minimum touch target. Both CTAs
-                    were 38px (text-sm's 20px line box + py-2 + border), so
-                    they needed 6px of slack; giving it as a min-height with
-                    centred content keeps the label metrics identical. */}
+                {/* min-h-11 lifts both CTAs from their natural 38px
+                    (text-sm's 20px line box + py-2 + border) to the 44px
+                    touch minimum; giving it as a min-height with centred
+                    content keeps the label metrics identical. It ends at
+                    `sm:` for the same reason the section rail's does —
+                    WCAG 2.5.5's 44px is a touch criterion, a mouse only
+                    gets 2.5.8's 24px — so above `sm:` the pair returns to
+                    the 38px it was before the touch pass.
+
+                    The row is `flex flex-wrap` with no `items-*`, so
+                    align-items is stretch and the pair is the same height
+                    whatever their box models differ by — no border padding
+                    needed on the filled one to match its outlined
+                    sibling. */}
                 <Link
                   href="/press-kit.zip"
-                  className="inline-flex min-h-11 items-center rounded-md bg-[var(--foreground)] px-4 py-2 text-sm font-medium text-[var(--background)] transition hover:opacity-85 focus:outline-none focus-visible:ring-2 focus-visible:ring-[var(--ring)]"
+                  className="inline-flex min-h-11 items-center rounded-md bg-[var(--foreground)] px-4 py-2 text-sm font-medium text-[var(--background)] transition hover:opacity-85 focus:outline-none focus-visible:ring-2 focus-visible:ring-[var(--ring)] sm:min-h-0"
                 >
                   Download press kit
                 </Link>
                 <a
                   href={`mailto:${pressEmail}`}
-                  className="inline-flex min-h-11 items-center rounded-md border border-[var(--border)] bg-[var(--background)]/70 px-4 py-2 text-sm font-medium transition hover:bg-[var(--accent)] focus:outline-none focus-visible:ring-2 focus-visible:ring-[var(--ring)]"
+                  className="inline-flex min-h-11 items-center rounded-md border border-[var(--border)] bg-[var(--background)]/70 px-4 py-2 text-sm font-medium transition hover:bg-[var(--accent)] focus:outline-none focus-visible:ring-2 focus-visible:ring-[var(--ring)] sm:min-h-0"
                 >
                   Contact press
                 </a>
@@ -715,16 +725,17 @@ export default function PressPage() {
                   <p>{boilerplate}</p>
                 </blockquote>
               </div>
+              {/* Same 44px-on-touch treatment as the hero pair above. */}
               <div className="flex flex-wrap gap-3">
                 <Link
                   href="/press-kit.zip"
-                  className="rounded-md bg-[var(--foreground)] px-4 py-2 text-sm font-medium text-[var(--background)] transition hover:opacity-85 focus:outline-none focus-visible:ring-2 focus-visible:ring-[var(--ring)]"
+                  className="inline-flex min-h-11 items-center rounded-md bg-[var(--foreground)] px-4 py-2 text-sm font-medium text-[var(--background)] transition hover:opacity-85 focus:outline-none focus-visible:ring-2 focus-visible:ring-[var(--ring)] sm:min-h-0"
                 >
                   Download press kit
                 </Link>
                 <Link
                   href="/"
-                  className="rounded-md border border-[var(--border)] px-4 py-2 text-sm font-medium transition hover:bg-[var(--accent)] focus:outline-none focus-visible:ring-2 focus-visible:ring-[var(--ring)]"
+                  className="inline-flex min-h-11 items-center rounded-md border border-[var(--border)] px-4 py-2 text-sm font-medium transition hover:bg-[var(--accent)] focus:outline-none focus-visible:ring-2 focus-visible:ring-[var(--ring)] sm:min-h-0"
                 >
                   Visit the gallery
                 </Link>

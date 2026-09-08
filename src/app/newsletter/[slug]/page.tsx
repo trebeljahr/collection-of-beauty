@@ -6,6 +6,7 @@ import Markdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 import { NewsletterEditionSubscribe } from "@/components/newsletter-edition-subscribe";
 import { ResponsiveImage } from "@/components/responsive-image";
+import { touchTextLinkClasses } from "@/components/ui/pill";
 import { artworkAlt, displayTitle } from "@/lib/artwork-format";
 import { artworks as ALL_ARTWORKS } from "@/lib/data";
 import { resolveEditionCover } from "@/lib/newsletter/cover";
@@ -15,19 +16,6 @@ import type { Edition } from "@/lib/newsletter/types";
 import { buildOpenGraph, SITE_NAME } from "@/lib/seo";
 
 type Params = { slug: string };
-
-/* Bare text links. `min-h-11` is the 44px WCAG 2.5.5 touch-target
-   minimum, gated to below `sm:` because 2.5.5 is a *touch* criterion —
-   a mouse pointer is governed by 2.5.8's 24px, which these already clear,
-   so nothing asks the desktop layout to grow. `-my-3` hands the extra
-   24px back to layout so the blocks around it keep their exact positions
-   (the enlarged box merely overlaps neighbouring lines, none of which are
-   clickable), and `sm:inline` returns the anchor to an ordinary inline box
-   above the breakpoint. Same idiom on /artwork/[id], /artist/[slug],
-   /era/[id], /collection/[slug] and /colours/[family]:
-   enlarge the box and overlap, never shrink a neighbour's margin. */
-const TEXT_LINK =
-  "-my-3 inline-flex min-h-11 items-center rounded-sm underline focus:outline-none focus-visible:ring-2 focus-visible:ring-[var(--ring)] sm:my-0 sm:inline sm:min-h-0";
 
 export function generateStaticParams(): Params[] {
   return loadUiVisibleEditions().map((e) => ({ slug: e.fileSlug }));
@@ -86,7 +74,7 @@ export default async function EditionPage({ params }: { params: Promise<Params> 
         aria-label="Edition navigation"
         className="mb-8 flex flex-col gap-4 text-sm sm:flex-row sm:items-center sm:justify-between"
       >
-        {/* The one place that can't use TEXT_LINK verbatim. `w-fit` keeps
+        {/* The one place that can't use touchTextLinkClasses verbatim. `w-fit` keeps
             the hit box hugging the words instead of spanning the nav row, so
             it can't swallow taps meant for the arrows beside it — and the
             `-my-3` half of the idiom is omitted because on a phone this is a
@@ -229,7 +217,10 @@ export default async function EditionPage({ params }: { params: Promise<Params> 
           <EditionFooterLink edition={nextEdition} direction="next" />
         </nav>
         <div className="mt-8 text-sm">
-          <Link href="/drops" className={`${TEXT_LINK} underline-offset-2 hover:opacity-70`}>
+          <Link
+            href="/drops"
+            className={`${touchTextLinkClasses} underline-offset-2 hover:opacity-70`}
+          >
             ← All editions
           </Link>
         </div>
@@ -256,9 +247,14 @@ function EditionArrowControls({
   );
 }
 
-/** min-h-11 rather than min-h-9 on both the live link and its disabled
- *  twin: 36px is under the 44px touch floor, and the two must keep the
- *  same box or the pair jumps when one edge of the archive is reached. */
+/** `min-h-11 sm:min-h-9` on both the live link and its disabled twin.
+ *  36px is the intended desktop size and it keeps it above `sm:` — WCAG
+ *  2.5.5's 44px floor is a *touch* criterion, and a mouse pointer only
+ *  asks for 2.5.8's 24px — but 36px is under that floor on a phone, where
+ *  these two sit shoulder to shoulder in a `w-fit` row. Both boxes carry
+ *  the identical pair of heights: gate only one and the arrows misalign
+ *  at whichever width they disagree on, which is exactly the state at one
+ *  edge of the archive, where one of them is the disabled twin. */
 function EditionArrowLink({
   edition,
   direction,
@@ -278,7 +274,7 @@ function EditionArrowLink({
     return (
       <span
         aria-disabled="true"
-        className="inline-flex min-h-11 items-center gap-2 rounded-md border border-[var(--border)] px-3 text-[var(--muted-foreground)] opacity-45"
+        className="inline-flex min-h-11 items-center gap-2 rounded-md border border-[var(--border)] px-3 text-[var(--muted-foreground)] opacity-45 sm:min-h-9"
       >
         {direction === "previous" ? icon : null}
         {label}
@@ -291,7 +287,7 @@ function EditionArrowLink({
     <Link
       href={`/newsletter/${edition.fileSlug}`}
       title={`Issue ${edition.number}: ${edition.title}`}
-      className="inline-flex min-h-11 items-center gap-2 rounded-md border border-[var(--border)] px-3 transition-colors hover:bg-[var(--muted)] focus:outline-none focus-visible:ring-2 focus-visible:ring-[var(--ring)]"
+      className="inline-flex min-h-11 items-center gap-2 rounded-md border border-[var(--border)] px-3 transition-colors hover:bg-[var(--muted)] focus:outline-none focus-visible:ring-2 focus-visible:ring-[var(--ring)] sm:min-h-9"
     >
       {direction === "previous" ? icon : null}
       {label}
