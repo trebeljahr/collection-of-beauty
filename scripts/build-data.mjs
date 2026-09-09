@@ -1361,6 +1361,46 @@ async function loadDateOverrides() {
   return m;
 }
 
+// Issue years for serially-published plate sets. Applied AFTER the per-work
+// date overrides, so a researched correction still beats a band.
+//
+// The Birds of America is the case this exists for: all 435 Havell plates
+// carried 1827 because their date_created reads "between 1827 and 1838" and
+// resolveYear collapses a stated range to its opening year. A set issued in
+// parts over eleven years belongs on eleven points of the timeline, not one.
+async function loadPlateSetDates() {
+  const p = path.join(META, "plate-set-dates.json");
+  if (!existsSync(p)) {
+    console.log(`[build-data] plate-set dates: skipped (no metadata/plate-set-dates.json)`);
+    return new Map();
+  }
+  const raw = JSON.parse(await readFile(p, "utf8"));
+  const m = new Map();
+  for (const [folder, def] of Object.entries(raw)) {
+    if (folder.startsWith("_")) continue;
+    const ranges = (def?.ranges ?? [])
+      .filter(
+        (r) =>
+          Number.isInteger(r.fromPlate) && Number.isInteger(r.toPlate) && Number.isInteger(r.year),
+      )
+      .sort((a, b) => a.fromPlate - b.fromPlate);
+    if (ranges.length) m.set(folder, ranges);
+  }
+  const total = [...m.values()].reduce((n, rs) => n + rs.length, 0);
+  console.log(`[build-data] plate-set dates: ${m.size} set(s), ${total} ranges`);
+  return m;
+}
+
+// Printed plate number, read from the leading digits of the filename
+// ("318_American_Avocet.jpg" -> 318). Null when the name carries none, in
+// which case the work keeps whatever the normal extractors produced.
+function plateNumberFromFilename(fname) {
+  const m = /^(\d{1,4})[_\-. ]/.exec(fname);
+  if (!m) return null;
+  const n = Number.parseInt(m[1], 10);
+  return Number.isInteger(n) ? n : null;
+}
+
 async function loadArtistOverrides() {
   const p = path.join(META, "artist-overrides.json");
   if (!existsSync(p)) {
@@ -1429,6 +1469,7 @@ async function main() {
   const movementOverrides = await loadMovementOverrides();
   const artistOverrides = await loadArtistOverrides();
   const dateOverrides = await loadDateOverrides();
+  const plateSetDates = await loadPlateSetDates();
 
   const artworks = [];
   const artistAggregates = new Map();
@@ -1500,7 +1541,19 @@ async function main() {
         if (plate) title = `${plate[2]} (Plate ${plate[1]})`;
       }
       const dateOverride = dateOverrides.get(objectKeyNFC) ?? null;
-      const year = dateOverride ? dateOverride.year : extractYear(entry);
+      // Precedence: a researched per-work override, then the plate-set issue
+      // schedule, then whatever normalize-metadata derived.
+      let plateDate = null;
+      if (!dateOverride) {
+        const plate = plateNumberFromFilename(fname);
+        if (plate != null) {
+          plateDate =
+            (plateSetDates.get(folderKey) ?? []).find(
+              (r) => plate >= r.fromPlate && plate <= r.toPlate,
+            ) ?? null;
+        }
+      }
+      const year = dateOverride ? dateOverride.year : (plateDate?.year ?? extractYear(entry));
       // artists-db.json is the curated source of truth — prefer it over
       // any snapshot embedded in the metadata sidecar. Earlier the order
       // was inverted, which meant edits to db (movement renames, etc.)
@@ -1558,7 +1611,9 @@ async function main() {
         artistSlug,
         year,
         dateCreated:
-          dateOverride?.dateString ?? (stripQuickStatements(entry.date_created) || null),
+          dateOverride?.dateString ??
+          plateDate?.dateString ??
+          (stripQuickStatements(entry.date_created) || null),
         originalDateString,
         description: curatorDescriptions.get(id) ?? firstLineDescription(entry.description),
         folder: folderKey,
