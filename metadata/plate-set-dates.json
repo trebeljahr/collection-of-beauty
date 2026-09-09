@@ -1,0 +1,104 @@
+{
+  "_comment": "Issue years for works published serially in numbered plates, where the catalogue would otherwise carry one blanket year for the whole set. Applied by build-data.mjs AFTER metadata/date-overrides.json, so a researched per-work correction still wins over a band. The plate number is read from the leading digits of the filename (e.g. '318_American_Avocet.jpg'). A work whose plate number falls outside every range keeps whatever the normal extractors gave it. Regenerate data with 'pnpm assets:build-data' after editing.",
+  "audubon-birds": {
+    "_why": "All 435 Havell plates shipped dated 1827 because their date_created reads 'between 1827 and 1838' and resolveYear collapses a stated range to its opening year. Only plates 1-30 were defensibly 1827; the rest were wrong by a median of 6 years and up to 11, which put a seventh of the corpus on one false point in the timeline. The bands below are Boston Public Library's per-plate engraved-imprint dateIssued values (547 records re-harvested; 379 carry a single-year imprint, 374 of which match their band), cross-checked against the Metropolitan Museum collection API on 8 plates spread across the range and the Smithsonian on 4 more, with zero unexplained conflicts. Every band boundary falls on a Havell Number boundary and the implied sets per year sum to exactly 87.",
+    "_caveats": "These are engraved-imprint years catalogued as dateIssued, not certified issue dates: a very good approximation of a serial publication event, not a signed inscription. Two bands are marked confidence 'inferred' rather than 'imprint': no plate anywhere in the set carries an 1827 imprint, so plates 1-30 rest on publication demonstrably beginning in 1827, plate 31 being imprinted 1828, and the Met independently dating plate VIII and the plate XI copperplate to 1827; and only 9 of the 30 plates in the 1831 band carry an 1831 imprint, though its edges are pinned by 1830 ending at 100 and 1832 beginning at 131. Plates 2 and 7 are imprinted 1829 because Lizars began the first ten and Havell re-engraved them, and 287/289/290 are imprinted 1835 while their setmates 286 and 288 are imprinted 1836; both groups are dated by ISSUE rather than by impression state, which is the correct choice for a subscription serial. Plate 55 is the one known soft spot (NMAH dates an impression 1835 against BPL's 1829 imprint). Commons is useless here: its file pages carry the same 'between 1827 and 1838' that caused the problem. If certified issue dates ever surface they should override this.",
+    "_sources": [
+      "https://www.digitalcommonwealth.org/search.json?f%5Bcollection_name_ssim%5D%5B%5D=The+Birds+of+America%3A+From+Original+Drawings+by+John+James+Audubon&per_page=100",
+      "https://www.digitalcommonwealth.org/search/commonwealth:9s16d744d",
+      "https://collectionapi.metmuseum.org/public/collection/v1/objects/393548",
+      "https://collectionapi.metmuseum.org/public/collection/v1/objects/918304",
+      "https://collectionapi.metmuseum.org/public/collection/v1/objects/918306",
+      "https://collectionapi.metmuseum.org/public/collection/v1/objects/383855",
+      "https://collectionapi.metmuseum.org/public/collection/v1/objects/383856",
+      "https://collectionapi.metmuseum.org/public/collection/v1/objects/383857"
+    ],
+    "plateNumberFrom": "filename-leading-digits",
+    "ranges": [
+      {
+        "fromPlate": 1,
+        "toPlate": 30,
+        "year": 1827,
+        "dateString": "1827 (Havell Numbers 1–6)",
+        "confidence": "inferred"
+      },
+      {
+        "fromPlate": 31,
+        "toPlate": 50,
+        "year": 1828,
+        "dateString": "1828 (Havell Numbers 7–10)",
+        "confidence": "imprint"
+      },
+      {
+        "fromPlate": 51,
+        "toPlate": 75,
+        "year": 1829,
+        "dateString": "1829 (Havell Numbers 11–15)",
+        "confidence": "imprint"
+      },
+      {
+        "fromPlate": 76,
+        "toPlate": 100,
+        "year": 1830,
+        "dateString": "1830 (Havell Numbers 16–20)",
+        "confidence": "imprint"
+      },
+      {
+        "fromPlate": 101,
+        "toPlate": 130,
+        "year": 1831,
+        "dateString": "1831 (Havell Numbers 21–26)",
+        "confidence": "inferred"
+      },
+      {
+        "fromPlate": 131,
+        "toPlate": 155,
+        "year": 1832,
+        "dateString": "1832 (Havell Numbers 27–31)",
+        "confidence": "imprint"
+      },
+      {
+        "fromPlate": 156,
+        "toPlate": 185,
+        "year": 1833,
+        "dateString": "1833 (Havell Numbers 32–37)",
+        "confidence": "imprint"
+      },
+      {
+        "fromPlate": 186,
+        "toPlate": 235,
+        "year": 1834,
+        "dateString": "1834 (Havell Numbers 38–47)",
+        "confidence": "imprint"
+      },
+      {
+        "fromPlate": 236,
+        "toPlate": 285,
+        "year": 1835,
+        "dateString": "1835 (Havell Numbers 48–57)",
+        "confidence": "imprint"
+      },
+      {
+        "fromPlate": 286,
+        "toPlate": 350,
+        "year": 1836,
+        "dateString": "1836 (Havell Numbers 58–70)",
+        "confidence": "imprint"
+      },
+      {
+        "fromPlate": 351,
+        "toPlate": 400,
+        "year": 1837,
+        "dateString": "1837 (Havell Numbers 71–80)",
+        "confidence": "imprint"
+      },
+      {
+        "fromPlate": 401,
+        "toPlate": 435,
+        "year": 1838,
+        "dateString": "1838 (Havell Numbers 81–87)",
+        "confidence": "imprint"
+      }
+    ]
+  }
+}
