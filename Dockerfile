@@ -78,10 +78,15 @@ COPY --from=build /app/.next/static ./.next/static
 # .pnpm/, and COPY does not follow those out of the layer.
 #
 # npm, not pnpm: it is already on the node image, and it writes a flat tree, so
-# `node_modules/.bin/dotenvx` (the CMD below) resolves without a store. The
+# `/opt/dotenvx/node_modules/.bin/dotenvx` (the CMD below) resolves without a store. The
 # version is pinned to what pnpm-lock.yaml resolves for the repo — bump both
 # together.
-RUN npm install --no-save --no-audit --no-fund @dotenvx/dotenvx@1.64.0
+#
+# Own prefix, not /app: the standalone output copies the app's package.json
+# into /app, so an install there resolves the whole dependency tree and fails
+# on any peer conflict (react 19.3 vs @react-three/fiber's `<19.3` peer range
+# broke the deploy). dotenvx needs none of those packages.
+RUN npm install --prefix /opt/dotenvx --no-audit --no-fund @dotenvx/dotenvx@1.64.0
 COPY --from=build /app/.env.production ./.env.production
 
 EXPOSE 80
@@ -94,4 +99,4 @@ EXPOSE 80
 HEALTHCHECK --interval=30s --timeout=10s --start-period=30s --retries=5 \
   CMD node -e "fetch('http://127.0.0.1:' + (process.env.PORT || '80') + '/').then(r => { if (!r.ok) process.exit(1); }).catch(() => process.exit(1))"
 
-CMD ["node_modules/.bin/dotenvx", "run", "-f", ".env.production", "--", "node", "server.js"]
+CMD ["/opt/dotenvx/node_modules/.bin/dotenvx", "run", "-f", ".env.production", "--", "node", "server.js"]
