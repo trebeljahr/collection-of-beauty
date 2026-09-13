@@ -2,6 +2,8 @@
 
 Machine-readable proposals: [`metadata/description-review-proposals.json`](../metadata/description-review-proposals.json). This page is the human-readable view of the same data.
 
+> **Applied 2026-09-13.** The 70 adversarially verified text fixes (6 fabricated, 61 major, 3 downgraded to minor) are applied. Their ledger status is `fabricated-fixed`, `major-fixed` or `minor-fixed`, with `audit: "2026-09"`. All 438 `accurate` verdicts are in the ledger too. Still pending: the 3 held Redouté plates (118, 119, 121), the 208 single-reviewer `minor` proposals, 1 `unverifiable`, and every `metadataIssues` entry (`metadataStatus: "pending"`). Per-entry detail is in `status` / `decision` in the JSON. The sections below show the state at review time.
+
 ## What was checked
 
 - **720 descriptions.** 520 had never been audited: 351 `collection-of-beauty` works added after the 2026-06-17 pass and all 169 Redouté *Les Roses* plates. A further 200 are a seeded random sample of works the 2026-06-17 pass had already marked `accurate`, `minor-fixed` or `fabricated-fixed`, to test whether that pass holds.
