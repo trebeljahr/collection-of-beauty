@@ -15,6 +15,7 @@
  },
  "audubon-birds-102-blue-jay": {
   "problem": "No nest or eggs appear in the image; three jays are shown on a flowering branch, not raiding a nest",
+  "rechecked": "2026-09 accurate",
   "status": "fabricated-fixed"
  },
  "audubon-birds-103-canada-warbler": {
@@ -99,6 +100,7 @@
   "status": "minor-fixed"
  },
  "audubon-birds-123-black-yellow-warblers": {
+  "rechecked": "2026-09 accurate",
   "status": "accurate"
  },
  "audubon-birds-124-green-black-capt-flycatcher": {
@@ -202,6 +204,7 @@
  },
  "audubon-birds-149-sharp-tailed-finch": {
   "problem": "Description omits nest prominent in composition and treats composition as a single bird; 'Atlantic salt-meadows' observation is unverified anecdote.",
+  "rechecked": "2026-09 accurate",
   "status": "minor-fixed"
  },
  "audubon-birds-15-blue-yellow-backed-warbler": {
@@ -476,6 +479,7 @@
   "status": "minor-fixed"
  },
  "audubon-birds-217-louisiana-heron": {
+  "rechecked": "2026-09 accurate",
   "status": "accurate"
  },
  "audubon-birds-218-foolish-guillemot": {
@@ -532,6 +536,7 @@
  },
  "audubon-birds-231-long-billed-curlew": {
   "problem": "Two long-billed curlews shown, not one as described.",
+  "rechecked": "2026-09 accurate",
   "status": "minor-fixed"
  },
  "audubon-birds-232-hooded-merganser": {
@@ -583,6 +588,7 @@
  },
  "audubon-birds-243-american-snipe": {
   "problem": "Description implies a single bird; the plate depicts three snipe in different postures.",
+  "rechecked": "2026-09 accurate",
   "status": "minor-fixed"
  },
  "audubon-birds-244-common-gallinule": {
@@ -792,6 +798,7 @@
  },
  "audubon-birds-295-manks-shearwater": {
   "problem": "Bird sits on water surface, not skimming a wave trough; New England specimens claim unverifiable.",
+  "rechecked": "2026-09 accurate",
   "status": "minor-fixed"
  },
  "audubon-birds-296-barnacle-goose": {
@@ -948,6 +955,7 @@
   "status": "minor-fixed"
  },
  "audubon-birds-332-pied-duck": {
+  "rechecked": "2026-09 accurate",
   "status": "accurate"
  },
  "audubon-birds-333-green-heron": {
@@ -966,8 +974,10 @@
   "status": "fabricated-fixed"
  },
  "audubon-birds-337-american-bittern": {
-  "problem": "Description implies a single bird in freeze pose; the plate shows three individuals, including two in walking postures.",
-  "status": "minor-fixed"
+  "audit": "2026-09",
+  "previousStatus": "minor-fixed",
+  "problem": "The plate shows two birds, not three. There is one upright bird behind and one crouched bird in front; no third bird exists anywhere in the reeds.",
+  "status": "major-fixed"
  },
  "audubon-birds-338-bemaculated-duck": {
   "problem": "Description says two birds swimming/preening; image shows a single duck standing on shore. Wrong group (goldeneye) for image shown.",
@@ -1154,6 +1164,7 @@
  },
  "audubon-birds-381-snow-goose": {
   "problem": "Darker bird is the blue (dark) morph of the Snow Goose, not a first-year bird.",
+  "rechecked": "2026-09 accurate",
   "status": "minor-fixed"
  },
  "audubon-birds-382-sharp-tailed-grous": {
@@ -1205,8 +1216,10 @@
   "status": "minor-fixed"
  },
  "audubon-birds-394-i-chestnut-coloured-finch-2-black-headed-siskin-3-black-crown-bunting-4-arctic-ground-finch": {
-  "problem": "Description says birds on twigs and low stone; image shows twigs, grass, and ground but no stone.",
-  "status": "minor-fixed"
+  "audit": "2026-09",
+  "previousStatus": "minor-fixed",
+  "problem": "The bright yellow bird with the black head is the Black-headed Siskin (Fringilla magellanica), number 2 in the plate's key. The Chestnut-coloured Finch (Plectrophanes ornata) is the streaked bird reaching for the spider - which the description then lists separately and anonymously as 'a streaked finch catching an insect'. The two are swapped.",
+  "status": "major-fixed"
  },
  "audubon-birds-395-i-audubon-s-warbler-2-hermit-warbler-3-black-throated-gray-warbler": {
   "problem": "Description says conifer spray; image clearly shows a deciduous leafy branch with round berries, not conifers.",
@@ -1276,6 +1289,7 @@
  },
  "audubon-birds-41-ruffed-grouse": {
   "problem": "No chick visible; image shows two males displaying and one female, not \"females\" (plural) with a chick.",
+  "rechecked": "2026-09 accurate",
   "status": "minor-fixed"
  },
  "audubon-birds-410-marsh-tern": {
@@ -1460,6 +1474,7 @@
  },
  "audubon-birds-63-white-eyed-flycatcher-or-vireo": {
   "problem": "No prominent fruit visible; setting shows flowering stems and a spider, not a fruit-laden sprig.",
+  "rechecked": "2026-09 accurate",
   "status": "minor-fixed"
  },
  "audubon-birds-64-swamp-sparrow": {
@@ -1467,6 +1482,7 @@
   "status": "minor-fixed"
  },
  "audubon-birds-65-rathbone-warbler": {
+  "rechecked": "2026-09 accurate",
   "status": "accurate"
  },
  "audubon-birds-66-ivory-billed-woodpecker": {
@@ -1618,6 +1634,7 @@
   "status": "accurate"
  },
  "collection-of-beauty-07leucip": {
+  "rechecked": "2026-09 accurate",
   "status": "accurate"
  },
  "collection-of-beauty-09-the-teahouse-with-the-view-of-mt-fuji": {
@@ -1639,6 +1656,10 @@
   "status": "fabricated-fixed"
  },
  "collection-of-beauty-1280px-arcimboldo-winter-1563": {
+  "status": "accurate"
+ },
+ "collection-of-beauty-1280px-cypresses-met-dp130999": {
+  "audit": "2026-09",
   "status": "accurate"
  },
  "collection-of-beauty-1280px-de-schovenbindster-naar-millet-s0172v1962-van-gogh-museum": {
@@ -1747,6 +1768,11 @@
   "problem": "'Trained under Karl Begas' unsupported by sources; Magnus is generally described as self-taught as a painter.",
   "status": "minor-fixed"
  },
+ "collection-of-beauty-1841-millet-jean-francois-portrait-of-louis-alexandre-marolles": {
+  "audit": "2026-09",
+  "problem": "The portrait is not bust-length and is not a plain likeness: Marolles is shown to about three-quarter length at work, brush in hand, with a palette, brushes, an easel and a canvas. The single sentence that is supposed to say what is in the frame omits everything that makes the picture what it is.",
+  "status": "major-fixed"
+ },
  "collection-of-beauty-1859-menzel-studentenfackelzug-anagoria": {
   "status": "accurate"
  },
@@ -1774,6 +1800,10 @@
   "status": "minor-fixed"
  },
  "collection-of-beauty-1887-renoir-nu-dans-un-paysage": {
+  "status": "accurate"
+ },
+ "collection-of-beauty-1890s-frederick-leighton-bath-of-psyche": {
+  "audit": "2026-09",
   "status": "accurate"
  },
  "collection-of-beauty-1893-levitan-portrat-von-serow": {
@@ -1806,6 +1836,7 @@
   "status": "fabricated-fixed"
  },
  "collection-of-beauty-20-the-entrance-gate-at-enoshima": {
+  "rechecked": "2026-09 accurate",
   "status": "accurate"
  },
  "collection-of-beauty-2021-nyr-19739-0043-000-domenikos-theotokopoulos-called-el-greco-portrait-of-a-bearded-man-thr11550": {
@@ -1830,6 +1861,7 @@
   "status": "accurate"
  },
  "collection-of-beauty-25-fuji-on-the-left-of-tokaido-road": {
+  "rechecked": "2026-09 accurate",
   "status": "accurate"
  },
  "collection-of-beauty-2560px-bonaparte-ante-la-esfinge-por-jean-leon-gerome": {
@@ -1921,6 +1953,7 @@
   "status": "accurate"
  },
  "collection-of-beauty-4344-vis-print-14762kopie": {
+  "rechecked": "2026-09 accurate",
   "status": "accurate"
  },
  "collection-of-beauty-500px-gipsen-vrouwentorso-s0199v1962-van-gogh-museum": {
@@ -1968,7 +2001,10 @@
   "status": "minor-fixed"
  },
  "collection-of-beauty-a-hippopotamus-and-crocodile-hunt-p5296": {
-  "status": "accurate"
+  "audit": "2026-09",
+  "previousStatus": "accurate",
+  "problem": "That describes the large Munich canvas (Alte Pinakothek), not this object. The catalogued work is a small copy after Rubens — 24 x 32.8 cm, oil on oak, National Gallery of Ireland NGI.1198, purchased 1951. The description silently promotes a copy to the autograph commission.",
+  "status": "major-fixed"
  },
  "collection-of-beauty-a-kitchenmaid-by-joachim-anthonisz-wtewael": {
   "problem": "Cabbages and copper are in floor basket and on shelves, not heaped on the table; 'last large genre painting' unsupported.",
@@ -2017,7 +2053,10 @@
   "status": "fabricated-fixed"
  },
  "collection-of-beauty-adameveparadisecranach": {
-  "status": "accurate"
+  "audit": "2026-09",
+  "previousStatus": "accurate",
+  "problem": "The print is dated 1509 on the block. Luther's Ninety-five Theses are 1517 and Cranach's association with Luther dates from about 1520 — a 1509 woodcut cannot reflect proximity to a circle that did not yet exist.",
+  "status": "major-fixed"
  },
  "collection-of-beauty-admiral-of-the-white-by-thomas-gainsborough": {
   "status": "accurate"
@@ -2044,6 +2083,10 @@
  "collection-of-beauty-aeltje-uylenburgh-by-rembrandt": {
   "problem": "Collar is a flat white gorget, not a starched ruff; 'embroidered cap' unsupported — cap appears plain white linen.",
   "status": "minor-fixed"
+ },
+ "collection-of-beauty-afganets": {
+  "audit": "2026-09",
+  "status": "accurate"
  },
  "collection-of-beauty-after-benjamin-west-benjamin-west-c-1776-nga-1133": {
   "problem": "Specific canvas dimensions (75.8 × 63 cm) not supported by any provided source.",
@@ -2104,6 +2147,7 @@
  },
  "collection-of-beauty-aivazovsky-view-of-constantinople-and-the-bosphorus": {
   "problem": "Suleymaniye/Hagia Sophia identification unsupported; no steamers visible, only sailing craft and rowing boats.",
+  "rechecked": "2026-09 accurate",
   "status": "minor-fixed"
  },
  "collection-of-beauty-akashi-strand-akashi-no-hama-titel-op-object-ak-mak-1637": {
@@ -2131,8 +2175,10 @@
   "status": "accurate"
  },
  "collection-of-beauty-albert-gleizes-1914-15-portrait-de-florent-schmitt-le-pianiste-pastel-36-x-27-cm": {
-  "problem": "'Seated figure at the keyboard' unsupported; image shows a standing or dynamic figure with no discernible keyboard.",
-  "status": "minor-fixed"
+  "audit": "2026-09",
+  "previousStatus": "minor-fixed",
+  "problem": "Neither the Commons file page nor the catalogue row mentions Junoy or Trocos. The Junoy dedication and Trocos publication attach to a different Gleizes sheet - the 'Esquisse pour le portrait de Jean Cocteau', published in Trocos (no. 2, second series, 1 October 1917) and inscribed 'Pour J. M. Junoy, amicalement, Albert Gleizes, 1915'. A provenance detail appears to have been imported from another work.",
+  "status": "major-fixed"
  },
  "collection-of-beauty-albert-gleizes-1914-woman-with-animals-oil-on-canvas-196-4-x-114-1-cm-peggy-guggenheim-collection": {
   "problem": "'Wedding band and beads picked out', 'large armchair', Marcel Duchamp provenance, and '1940' date all unsupported by any source.",
@@ -2176,6 +2222,10 @@
  "collection-of-beauty-albinus-skeleton-w-muscles": {
   "status": "accurate"
  },
+ "collection-of-beauty-albinus-tabulae-sceleti-tabula-ii-wellcome-l0023549": {
+  "audit": "2026-09",
+  "status": "accurate"
+ },
  "collection-of-beauty-albrecht-altdorfer-schlacht-bei-issus-alte-pinakothek-munchen-google-art-project": {
   "status": "accurate"
  },
@@ -2206,6 +2256,7 @@
   "status": "accurate"
  },
  "collection-of-beauty-albrecht-durer-praying-hands-1508-google-art-project": {
+  "rechecked": "2026-09 accurate",
   "status": "accurate"
  },
  "collection-of-beauty-albrecht-durer-selbstbildnis-mit-26-jahren-prado-madrid": {
@@ -2233,8 +2284,13 @@
  "collection-of-beauty-alexandra-and-elena-pavlovna-of-russia-by-e-vigee-lebrun-1796-hermitage": {
   "status": "accurate"
  },
+ "collection-of-beauty-alfons-much-slavnost-svatovitova-na-rujane": {
+  "audit": "2026-09",
+  "status": "accurate"
+ },
  "collection-of-beauty-alfons-mucha-1896-autumn": {
   "problem": "No circular halo motif present in this composition; claim is unsupported by the image.",
+  "rechecked": "2026-09 accurate",
   "status": "minor-fixed"
  },
  "collection-of-beauty-alfons-mucha-1896-spring": {
@@ -2247,6 +2303,7 @@
  },
  "collection-of-beauty-alfons-mucha-1896-winter": {
   "problem": "Palette is predominantly warm amber/ochre with a teal-green cloak, not 'cool blue-grey' as described.",
+  "rechecked": "2026-09 accurate",
   "status": "minor-fixed"
  },
  "collection-of-beauty-alfons-mucha-1898-dance": {
@@ -2260,6 +2317,46 @@
   "problem": "Figure stands before a crescent moon, not leaning against a disc; palette is earthy/olive-green, not 'silvers and indigos'.",
   "status": "minor-fixed"
  },
+ "collection-of-beauty-alfred-sisley-023": {
+  "audit": "2026-09",
+  "problem": "The picture contains no bridge at all. The description belongs to a different Sisley, 'The Bridge at Villeneuve-la-Garenne', which is the one in the Metropolitan Museum. This work is the village view.",
+  "status": "fabricated-fixed"
+ },
+ "collection-of-beauty-alfred-sisley-038": {
+  "audit": "2026-09",
+  "status": "accurate"
+ },
+ "collection-of-beauty-alfred-sisley-050": {
+  "audit": "2026-09",
+  "problem": "There are no sailing boats in the picture. The craft massed along the bank are narrow rowing skiffs, which is what a Molesey regatta was — a rowing event. The verticals that might be mistaken for masts are the flagpoles.",
+  "status": "major-fixed"
+ },
+ "collection-of-beauty-alfred-sisley-062": {
+  "audit": "2026-09",
+  "status": "accurate"
+ },
+ "collection-of-beauty-alfred-sisley-064": {
+  "audit": "2026-09",
+  "problem": "False: the upper half of the canvas is dominated by the crowns of tall poplars. Sky is visible only at the upper left and in gaps between trunks.",
+  "status": "major-fixed"
+ },
+ "collection-of-beauty-alfred-sisley-the-loing-s-canal-google-art-project": {
+  "audit": "2026-09",
+  "status": "accurate"
+ },
+ "collection-of-beauty-alfred-sisley-women-going-to-the-woods-google-art-project": {
+  "audit": "2026-09",
+  "status": "accurate"
+ },
+ "collection-of-beauty-allee-de-chataigniers-alfred-sisley": {
+  "audit": "2026-09",
+  "problem": "There is no avenue and no path in the picture. The canvas shows the edge of a wood seen from outside, across a broad rocky clearing - the composition is a horizontal band of trees with an open rock-strewn foreground. The described scene belongs to a different painting.",
+  "status": "major-fixed"
+ },
+ "collection-of-beauty-allegorische-voorstelling-van-het-werk-en-de-vlijt": {
+  "audit": "2026-09",
+  "status": "accurate"
+ },
  "collection-of-beauty-allegory-of-painting": {
   "problem": "Description attributes work to Boucher 1765 at Smithsonian; record confirms Gerard van Honthorst, 1648.",
   "status": "fabricated-fixed"
@@ -2269,9 +2366,14 @@
   "status": "minor-fixed"
  },
  "collection-of-beauty-along-the-river-during-the-qingming-festival-by-shen-yuan": {
+  "rechecked": "2026-09 accurate",
   "status": "accurate"
  },
  "collection-of-beauty-altaarstuk-van-het-schrijnwerkerambacht-quinten-massijs-1511-koninklijk-museum-voor-schone-kunsten-": {
+  "status": "accurate"
+ },
+ "collection-of-beauty-alte-nationalgalerie-gentz-einzug-des-kronprinzen-friedrich-wilhelm-von-preu-en-in-jerusalem-1869-d": {
+  "audit": "2026-09",
   "status": "accurate"
  },
  "collection-of-beauty-alte-nationalgalerie-kruger-parade-auf-dem-opernplatz-im-jahre-1822-dsc8028": {
@@ -2286,6 +2388,7 @@
   "status": "minor-fixed"
  },
  "collection-of-beauty-amor-vincet-omnia": {
+  "rechecked": "2026-09 accurate",
   "status": "accurate"
  },
  "collection-of-beauty-an-experiment-on-a-bird-in-an-air-pump-by-joseph-wright-of-derby-1768": {
@@ -2329,6 +2432,7 @@
  },
  "collection-of-beauty-anisimov-alexander-ivanovich-boris-kustodiev": {
   "problem": "Description says 'muted greys against a sober wall' and 'hand resting near a book'; image shows vivid outdoor landscape background and no book.",
+  "rechecked": "2026-09 accurate",
   "status": "minor-fixed"
  },
  "collection-of-beauty-ann-fairchild-bowler-by-john-singleton-copley": {
@@ -2386,6 +2490,7 @@
  },
  "collection-of-beauty-antoine-coypel-self-portrait-cropped": {
   "problem": "States '1715, the year before his death' but Coypel died in 1722; 'dark coat' understates the rich velvet robe shown.",
+  "rechecked": "2026-09 accurate",
   "status": "minor-fixed"
  },
  "collection-of-beauty-anton-van-dyck-anton-giulio-brignole-sale-on-horseback-google-art-project": {
@@ -2454,6 +2559,10 @@
  "collection-of-beauty-artemisia-gentileschi-mary-magdalene-pitti": {
   "status": "accurate"
  },
+ "collection-of-beauty-artgate-fondazione-cariplo-hayez-francesco-l-ultimo-abboccamento-di-giacomo-foscari-figlio-del-doge": {
+  "audit": "2026-09",
+  "status": "accurate"
+ },
  "collection-of-beauty-artlib-gallery-13875-o": {
   "problem": "Plain is dry/autumnal steppe, not frozen. Censer appears stationary, not being swung.",
   "status": "minor-fixed"
@@ -2485,6 +2594,10 @@
   "problem": "Image shows two figures (seated woman and reclining man) by birch trees on a riverbank; description claims one woman standing in a sarafan with steamboats and churches.",
   "status": "fabricated-fixed"
  },
+ "collection-of-beauty-auguste-renoir-a-girl-with-a-watering-can-google-art-project": {
+  "audit": "2026-09",
+  "status": "accurate"
+ },
  "collection-of-beauty-auguste-renoir-en-ete-la-bohemienne-google-art-project": {
   "problem": "Hair is tied back with a red ribbon, not \"undone\" as described.",
   "status": "minor-fixed"
@@ -2492,10 +2605,22 @@
  "collection-of-beauty-auguste-renoir-la-grenouillere-google-art-project": {
   "status": "accurate"
  },
+ "collection-of-beauty-auguste-renoir-young-girls-at-the-piano-google-art-project": {
+  "audit": "2026-09",
+  "status": "accurate"
+ },
  "collection-of-beauty-augustins-le-christ-entre-les-deux-larrons-rubens": {
   "status": "accurate"
  },
+ "collection-of-beauty-autoportrait-au-beret-par-paul-cezanne": {
+  "audit": "2026-09",
+  "status": "accurate"
+ },
  "collection-of-beauty-autoportrait-au-turban-perpignan": {
+  "status": "accurate"
+ },
+ "collection-of-beauty-autoportrait-avec-un-papier-peint-vert-olive-par-paul-cezanne": {
+  "audit": "2026-09",
   "status": "accurate"
  },
  "collection-of-beauty-ave-caesar-morituri-te-salutant-gerome-01": {
@@ -2507,6 +2632,10 @@
  "collection-of-beauty-ayvazovskiy-gayvazovskiy-ivan-oganes-konstantinovich-lunnaya-noch-na-bosfore": {
   "from": "collection-of-beauty",
   "status": "fabricated-fixed-added"
+ },
+ "collection-of-beauty-ayvazovskiy-gayvazovskiy-ivan-oganes-konstantinovich-raduga": {
+  "audit": "2026-09",
+  "status": "accurate"
  },
  "collection-of-beauty-ayvazovskiy-i-k-volna": {
   "from": "collection-of-beauty-ca737b",
@@ -2520,6 +2649,7 @@
   "status": "minor-fixed"
  },
  "collection-of-beauty-back-view-of-fuji-from-dream-mtn-in-kai-province-hiroshige-1852": {
+  "rechecked": "2026-09 accurate",
   "status": "accurate"
  },
  "collection-of-beauty-bad-war": {
@@ -2539,6 +2669,7 @@
  },
  "collection-of-beauty-bakst-uhzin1902": {
   "problem": "Described as 'theatrical interior scene'; image shows a woman dining at a restaurant table, matching title 'Dinner'",
+  "rechecked": "2026-09 accurate",
   "status": "minor-fixed"
  },
  "collection-of-beauty-baldassare-castiglione-by-raffaello-sanzio-from-c2rmf-retouched": {
@@ -2630,6 +2761,23 @@
   "problem": "Camille Doncieux described as Bazille's 'future wife' — she was Monet's companion and later wife, not Bazille's. The large Déjeuner is not 'lost' but survives in two fragments.",
   "status": "minor-fixed"
  },
+ "collection-of-beauty-bazille-frederic-aigues-mortes": {
+  "audit": "2026-09",
+  "status": "accurate"
+ },
+ "collection-of-beauty-bazille-frederic-flowers-1868": {
+  "audit": "2026-09",
+  "status": "accurate"
+ },
+ "collection-of-beauty-bazille-frederic-portrait-of-alphonse-tissie": {
+  "audit": "2026-09",
+  "problem": "The picture is a head-and-shoulders study; the sitter's body below the shoulders is not shown at all, so nothing supports 'standing'.",
+  "status": "major-fixed"
+ },
+ "collection-of-beauty-bazille-frederic-summer-scene-1869-oil-on-canvas-fogg-art-museum-cambridge-massachusetts": {
+  "audit": "2026-09",
+  "status": "accurate"
+ },
  "collection-of-beauty-beardsley-peacockskirt": {
   "problem": "Second figure identified as Herodias, but in this illustration she is more likely Salome's page or attendant, not Herodias.",
   "status": "minor-fixed"
@@ -2650,6 +2798,7 @@
   "status": "accurate"
  },
  "collection-of-beauty-bemberg-fondation-toulouse-bateaux-sur-la-plage-a-etretat-claude-monet-1883-65x81-inv-2077": {
+  "rechecked": "2026-09 accurate",
   "status": "accurate"
  },
  "collection-of-beauty-bemberg-fondation-toulouse-self-portrait-paintings-by-henri-fantin-latour": {
@@ -2703,8 +2852,10 @@
   "status": "minor-fixed"
  },
  "collection-of-beauty-benjamin-west-by-gilbert-stuart-1783-84": {
-  "problem": "No brush or palette visible; sitter has books and paper, not painting tools.",
-  "status": "minor-fixed"
+  "audit": "2026-09",
+  "previousStatus": "minor-fixed",
+  "problem": "There is no such collection. 'The Athenaeum' in the record's credit field is the-athenaeum.org, a public-domain art image website, which is where the Commons file came from - the Commons category is literally 'Images from the-athenaeum.org'. The painting itself is in the National Portrait Gallery, London, commissioned by John Boydell and acquired in 1872. Stating an image host as the holding collection is the kind of error that gets copied onward.",
+  "status": "major-fixed"
  },
  "collection-of-beauty-benjamin-west-cleombrotus-ordered-into-banishment-by-leonidas-ii-king-of-sparta-google-art-project": {
   "status": "accurate"
@@ -2749,8 +2900,10 @@
   "status": "accurate"
  },
  "collection-of-beauty-benjamin-west-omnia-vincit-amor-1809": {
-  "problem": "Lion is not being wrestled; it lies at the figures' feet. Setting is sky/clouds, not a wooded clearing.",
-  "status": "minor-fixed"
+  "audit": "2026-09",
+  "previousStatus": "minor-fixed",
+  "problem": "There is only one flaming implement in the picture and the description has already given it to Eros. The woman at left holds nothing — both her hands are open and empty.",
+  "status": "major-fixed"
  },
  "collection-of-beauty-benjamin-west-self-portrait-google-art-project": {
   "problem": "West holds a pen or pencil over papers, not a palette; 'palette in hand' is wrong.",
@@ -2774,6 +2927,10 @@
   "problem": "'Rice and sake' is invented; 'thin red sun' is not visible — sky is plain blue in the print.",
   "status": "minor-fixed"
  },
+ "collection-of-beauty-bewening-van-christus-anthony-van-dyck-1635-koninklijk-museum-voor-schone-kunsten-antwerpen-404": {
+  "audit": "2026-09",
+  "status": "accurate"
+ },
  "collection-of-beauty-bibliotekarien-konserverad-skoklosters-slott-97136": {
   "problem": "'Feather duster for hair' is wrong; the top of the head is formed by an open book with fanned pages.",
   "status": "minor-fixed"
@@ -2791,6 +2948,21 @@
  "collection-of-beauty-bodhidharmayoshitoshi1887": {
   "problem": "'Ruined lattice' is not visible in the image; Bodhidharma sits among rocks outdoors beneath a full moon.",
   "status": "minor-fixed"
+ },
+ "collection-of-beauty-bogatyy-kirgizskiy-okhotnik-s-sokolom": {
+  "audit": "2026-09",
+  "problem": "The hunter is standing on the ground inside a yurt; there is no horse in the picture.",
+  "status": "major-fixed"
+ },
+ "collection-of-beauty-boilly-incroyable-parade": {
+  "audit": "2026-09",
+  "problem": "Describes the picture as a single-figure study. The painting is a multi-figure crowd scene (the 'parade' of the title): the incroyable is one small figure at centre, arm in arm with a woman, surrounded by a jeering crowd, dogs and a soldier, with a large grisaille-like carriage occupying the top half of the canvas.",
+  "status": "major-fixed"
+ },
+ "collection-of-beauty-boilly-louis-leopold-le-doux-reveil-j-7-musee-cognacq-jayfxd": {
+  "audit": "2026-09",
+  "problem": "Contradicted by the image: the single figure is standing, fully dressed in a chemise and cap, moving toward an open door. There is no sleeping figure and no visible bedclothes in disarray. The description's opening sentence describes a scene that is not in the frame.",
+  "status": "major-fixed"
  },
  "collection-of-beauty-bonneville-savoy-by-joseph-mallord-william-turner": {
   "status": "accurate"
@@ -2819,6 +2991,7 @@
   "status": "minor-fixed"
  },
  "collection-of-beauty-botticelli-incoronazione-della-vergine-predella-01-san-giovanni-evangelista-a-patmos": {
+  "rechecked": "2026-09 accurate",
   "status": "accurate"
  },
  "collection-of-beauty-botticelli-prado-49": {
@@ -2891,6 +3064,23 @@
   "problem": "Described as \"painted\" but the credit source (\"Русская графика\") and the monochrome circular format indicate a graphic work, not a painting.",
   "status": "minor-fixed"
  },
+ "collection-of-beauty-bruni-f-a-bogomater-s-mladentsem-1858": {
+  "audit": "2026-09",
+  "status": "accurate"
+ },
+ "collection-of-beauty-bruni-f-a-bogomater-s-mladentsem-v-rozakh-1843": {
+  "audit": "2026-09",
+  "problem": "A specific dimension with no backing anywhere: realDimensions is null in the record, Commons gives no size, and I could not find a published measurement for this painting. Confident specificity with no source.",
+  "status": "minor-fixed"
+ },
+ "collection-of-beauty-buddiyskiy-khram-v-dardzhilinge-sikkim": {
+  "audit": "2026-09",
+  "status": "accurate"
+ },
+ "collection-of-beauty-burya-nad-evpatoriey-ayvazovskiy": {
+  "audit": "2026-09",
+  "status": "accurate"
+ },
  "collection-of-beauty-bust-of-pseudo-seneca-met-dp359039": {
   "status": "prior-audit"
  },
@@ -2910,6 +3100,10 @@
   "problem": "Caillebotte was trained in law, not engineering; \"engineer by training\" is inaccurate.",
   "status": "minor-fixed"
  },
+ "collection-of-beauty-campo-de-trigo": {
+  "audit": "2026-09",
+  "status": "accurate"
+ },
  "collection-of-beauty-canestra-di-frutta-caravaggio": {
   "status": "accurate"
  },
@@ -2920,6 +3114,7 @@
   "status": "accurate"
  },
  "collection-of-beauty-caravaggio-la-deposizione-di-cristo": {
+  "rechecked": "2026-09 accurate",
   "status": "accurate"
  },
  "collection-of-beauty-caravaggio-medusa-google-art-project": {
@@ -2995,6 +3190,10 @@
  "collection-of-beauty-carp-leaping-up-a-cascade": {
   "status": "accurate"
  },
+ "collection-of-beauty-carracci-der-bohnenesser-jpeg": {
+  "audit": "2026-09",
+  "status": "accurate"
+ },
  "collection-of-beauty-casincaillebotte": {
   "problem": "Description overstates the perspective as 'steep' overhead; the viewpoint is only mildly elevated, not dramatically aerial",
   "status": "minor-fixed"
@@ -3006,6 +3205,7 @@
   "status": "accurate"
  },
  "collection-of-beauty-caspar-david-friedrich-der-einsame-baum-google-art-project": {
+  "rechecked": "2026-09 accurate",
   "status": "accurate"
  },
  "collection-of-beauty-caspar-david-friedrich-der-monch-am-meer-google-art-project": {
@@ -3035,6 +3235,15 @@
   "problem": "Branch is snow-laden, not bare; prominent snow-covered hanging branches fill the composition, not empty ground.",
   "status": "minor-fixed"
  },
+ "collection-of-beauty-cezanne-fwn-1974": {
+  "audit": "2026-09",
+  "problem": "The sheet is a still life of fruit, a glass and drapery on a table. There are no trees, no rock and no landscape anywhere in it.",
+  "status": "fabricated-fixed"
+ },
+ "collection-of-beauty-cezanne-le-printemps": {
+  "audit": "2026-09",
+  "status": "accurate"
+ },
  "collection-of-beauty-charing-cross-bridge-monet": {
   "problem": "Canvas palette is icy blue-white with pale yellow, not mauve and pale orange as described.",
   "status": "minor-fixed"
@@ -3060,6 +3269,7 @@
   "status": "accurate"
  },
  "collection-of-beauty-charles-le-brun-the-sacrifice-of-polyxena": {
+  "rechecked": "2026-09 accurate",
   "status": "accurate"
  },
  "collection-of-beauty-charles-w-bartlett-color-woodblock-print-charles-w-bartlett-amritsar-woodcut-1916": {
@@ -3198,6 +3408,7 @@
   "status": "accurate"
  },
  "collection-of-beauty-claude-monet-camille-monet-sur-son-lit-de-mort": {
+  "rechecked": "2026-09 accurate",
   "status": "accurate"
  },
  "collection-of-beauty-claude-monet-champ-de-ble": {
@@ -3223,6 +3434,7 @@
   "status": "minor-fixed"
  },
  "collection-of-beauty-claude-monet-entree-du-port-de-trouville": {
+  "rechecked": "2026-09 accurate",
   "status": "accurate"
  },
  "collection-of-beauty-claude-monet-etretat-the-beach-and-the-falaise-d-amont-1964-204-art-institute-of-chicago": {
@@ -3327,6 +3539,7 @@
  },
  "collection-of-beauty-claude-monet-on-the-boat-google-art-project": {
   "problem": "Describes one woman trailing her hand in water; image shows two women seated, neither trailing a hand.",
+  "rechecked": "2026-09 accurate",
   "status": "fabricated-fixed"
  },
  "collection-of-beauty-claude-monet-pond-with-water-lilies-google-art-project": {
@@ -3352,6 +3565,7 @@
   "status": "accurate"
  },
  "collection-of-beauty-claude-monet-regnv-r-etretat-google-art-project": {
+  "rechecked": "2026-09 accurate",
   "status": "accurate"
  },
  "collection-of-beauty-claude-monet-road-at-la-cavee-pourville-google-art-project": {
@@ -3447,6 +3661,7 @@
  },
  "collection-of-beauty-claude-monet-tulip-fields-in-holland-musee-d-orsay": {
   "problem": "The tulip bands are red and purple/violet, not red and yellow as the description states.",
+  "rechecked": "2026-09 accurate",
   "status": "minor-fixed"
  },
  "collection-of-beauty-claude-monet-vase-of-tulips-14300279725": {
@@ -3454,6 +3669,7 @@
  },
  "collection-of-beauty-claude-monet-vetheuil-01": {
   "problem": "Image shows a meadow-and-poppy foreground view of Vétheuil; description wrongly describes a river-reflection composition with church seen through shimmering water.",
+  "rechecked": "2026-09 accurate",
   "status": "fabricated-fixed"
  },
  "collection-of-beauty-claude-monet-vetheuil-en-hiver": {
@@ -3615,6 +3831,7 @@
  },
  "collection-of-beauty-correggio-ritratto-di-dama-c-1517-1518": {
   "problem": "Describes the woman as \"standing\" but she appears seated; \"dark mourning dress\" is unsupported characterisation.",
+  "rechecked": "2026-09 accurate",
   "status": "minor-fixed"
  },
  "collection-of-beauty-countess-siemontkowsky-bystry-by-vigee-le-brun": {
@@ -3640,6 +3857,10 @@
  "collection-of-beauty-cranach-madonna-under-the-fir-tree": {
   "problem": "\"Painted for Breslau Cathedral\" is unverifiable provenance not stated in any provided source.",
   "status": "minor-fixed"
+ },
+ "collection-of-beauty-creacion-de-adan": {
+  "audit": "2026-09",
+  "status": "accurate"
  },
  "collection-of-beauty-cristo-en-casa-de-marta-y-maria-by-diego-velazquez": {
   "status": "accurate"
@@ -3731,6 +3952,7 @@
  },
  "collection-of-beauty-david-vilain": {
   "problem": "The Comtesse wears a dark navy velvet dress, not a white empire dress; the setting is an interior, not a Brussels garden.",
+  "rechecked": "2026-09 accurate",
   "status": "minor-fixed"
  },
  "collection-of-beauty-david-wilkie-chelsea-pensioners-reading-the-waterloo-dispatch": {
@@ -3772,6 +3994,10 @@
  "collection-of-beauty-de-warme-bronnen-van-shuzenji-shuzenji-onsen-titel-op-object-rp-p-1968-277": {
   "status": "accurate"
  },
+ "collection-of-beauty-death-and-the-maiden-baldung": {
+  "audit": "2026-09",
+  "status": "accurate"
+ },
  "collection-of-beauty-death-of-camilla-by-f-bruni-1824-grm": {
   "status": "accurate"
  },
@@ -3808,6 +4034,7 @@
  },
  "collection-of-beauty-delaunay-portuguese-woman": {
   "problem": "'Pours from a pitcher' not clearly supported by image; 'Tall Portuguese' alias and Thyssen-Bornemisza location unsupported — Columbus Museum link suggests different collection.",
+  "rechecked": "2026-09 accurate",
   "status": "minor-fixed"
  },
  "collection-of-beauty-delftsedonderslag": {
@@ -3820,7 +4047,19 @@
  "collection-of-beauty-descente-de-croix-rubens": {
   "status": "accurate"
  },
+ "collection-of-beauty-despair-edvard-munch-1894": {
+  "audit": "2026-09",
+  "status": "accurate"
+ },
  "collection-of-beauty-destruction-of-leviathan": {
+  "status": "accurate"
+ },
+ "collection-of-beauty-deti-plemeni-solonov": {
+  "audit": "2026-09",
+  "status": "accurate"
+ },
+ "collection-of-beauty-deux-jeunes-amies-qui-s-embrassent-de-l-l-boilly-musee-cognacq-jay-paris-51992741281": {
+  "audit": "2026-09",
   "status": "accurate"
  },
  "collection-of-beauty-die-kreuzabnahme-rubens": {
@@ -3849,6 +4088,7 @@
   "status": "prior-audit"
  },
  "collection-of-beauty-dong-yuan-rivers-detail": {
+  "rechecked": "2026-09 accurate",
   "status": "accurate"
  },
  "collection-of-beauty-dore-gustave-la-sainte-trinite": {
@@ -3889,6 +4129,20 @@
   "problem": "The Four Apostles was also painted in 1526, not the year after this portrait.",
   "status": "minor-fixed"
  },
+ "collection-of-beauty-durer-selbstportrait": {
+  "audit": "2026-09",
+  "problem": "The image is the 1500 self-portrait: it carries the painted date 1500, the AD monogram, and the Latin inscription recording the artist's twenty-eighth year (anno XXVIII). The 1498 Prado picture is a three-quarter view with a window, a striped cap and gloves — none of which is in this image.",
+  "status": "fabricated-fixed"
+ },
+ "collection-of-beauty-durer-seven-headed-dragon": {
+  "audit": "2026-09",
+  "status": "accurate"
+ },
+ "collection-of-beauty-durer-vier-reiter": {
+  "audit": "2026-09",
+  "problem": "The Apocalypse series of 1498 was printed from woodblocks, not engraved copper plates. The image shows the heavy, uniformly weighted relief line of a woodcut, not the fine tapering burin work of an engraving.",
+  "status": "major-fixed"
+ },
  "collection-of-beauty-duse-by-repin": {
   "status": "accurate"
  },
@@ -3908,6 +4162,10 @@
  "collection-of-beauty-eakins-thomas-wrestlers-1899": {
   "problem": "'Frieze-like composition' is inaccurate; wrestlers are prostrate on the floor in a diagonal, spatially deep scene.",
   "status": "minor-fixed"
+ },
+ "collection-of-beauty-east-cowes-castle-the-regatta-beating-to-windward": {
+  "audit": "2026-09",
+  "status": "accurate"
  },
  "collection-of-beauty-edgar-degas-1834-1917-the-bath-woman-supporting-her-back-pastel-on-paper-c-1887": {
   "problem": "Description says woman 'steps from a shallow tub'; image shows her hunched over the tub scrubbing her back, not stepping out.",
@@ -3992,6 +4250,7 @@
   "status": "minor-fixed"
  },
  "collection-of-beauty-edgar-germain-hilaire-degas-031": {
+  "rechecked": "2026-09 accurate",
   "status": "accurate"
  },
  "collection-of-beauty-edgar-germain-hilaire-degas-037": {
@@ -4070,6 +4329,7 @@
   "status": "minor-fixed"
  },
  "collection-of-beauty-edouard-manet-le-christ-mort-et-les-anges": {
+  "rechecked": "2026-09 accurate",
   "status": "accurate"
  },
  "collection-of-beauty-edouard-manet-olympia-google-art-project-3": {
@@ -4084,6 +4344,7 @@
   "status": "minor-fixed"
  },
  "collection-of-beauty-eduard-gaertner-berlin-bruederstrasse": {
+  "rechecked": "2026-09 accurate",
   "status": "accurate"
  },
  "collection-of-beauty-eduard-gaertner-berlin-klosterstrasse-1830": {
@@ -4167,6 +4428,7 @@
   "status": "minor-fixed"
  },
  "collection-of-beauty-el-coloso": {
+  "rechecked": "2026-09 accurate",
   "status": "accurate"
  },
  "collection-of-beauty-el-dos-de-mayo-de-1808-en-madrid": {
@@ -4416,12 +4678,21 @@
  "collection-of-beauty-eugene-delacroix-the-death-of-ophelia-wga6197": {
   "status": "accurate"
  },
+ "collection-of-beauty-eugene-delacroix-the-death-of-sardanapalus-wga6173": {
+  "audit": "2026-09",
+  "problem": "This describes a different painting entirely. The canvas shows the Assyrian king on his bed amid the slaughter of his harem and horses — there are no standing troops and no severed heads.",
+  "status": "fabricated-fixed"
+ },
  "collection-of-beauty-eugene-delacroix-the-fanatics-of-tangier-wga06195": {
   "status": "accurate"
  },
  "collection-of-beauty-eugene-ferdinand-victor-delacroix-025": {
   "problem": "Horse is chestnut/brown, not white; man adjusts the bridle/head, not the girth; 'tightens the girth' is wrong action.",
   "status": "fabricated-fixed"
+ },
+ "collection-of-beauty-eugene-murer-hyacinthe-eugene-meunier-1841-1906-met-dt1882": {
+  "audit": "2026-09",
+  "status": "accurate"
  },
  "collection-of-beauty-evening-landscape-at-moonrise-van-gogh": {
   "status": "prior-audit"
@@ -4460,6 +4731,7 @@
   "status": "minor-fixed"
  },
  "collection-of-beauty-fernand-khnopff013": {
+  "rechecked": "2026-09 accurate",
   "status": "accurate"
  },
  "collection-of-beauty-fernand-le-quesne-les-deux-perles-the-two-pearls-1889": {
@@ -4486,6 +4758,10 @@
  "collection-of-beauty-five-egrets-descending-in-snow-by-shoson": {
   "status": "accurate"
  },
+ "collection-of-beauty-flaming-june-by-frederic-lord-leighton-1830-1896": {
+  "audit": "2026-09",
+  "status": "accurate"
+ },
  "collection-of-beauty-floorpolishers-malevich-1911": {
   "problem": "Description says 'three peasants' but the image shows only two figures.",
   "status": "minor-fixed"
@@ -4505,6 +4781,10 @@
   "status": "accurate"
  },
  "collection-of-beauty-follower-of-rogier-van-der-weyden-netherlandish-the-deposition-google-art-project": {
+  "status": "accurate"
+ },
+ "collection-of-beauty-fourth-muscle-man-by-vesalius-wellcome-l0001647": {
+  "audit": "2026-09",
   "status": "accurate"
  },
  "collection-of-beauty-fox-in-the-snow-courbet-1860": {
@@ -4553,6 +4833,7 @@
   "status": "minor-fixed"
  },
  "collection-of-beauty-francesco-hayez-susanna-at-her-bath-national-gallery-london": {
+  "rechecked": "2026-09 accurate",
   "status": "accurate"
  },
  "collection-of-beauty-francesco-hayez-the-refugees-of-parga-wga11213": {
@@ -4681,7 +4962,64 @@
   "problem": "Description depicts a lone figure staggering in a dark palette; image shows a helmeted Amazon in swirling red drapery with a severed head, entirely different composition.",
   "status": "fabricated-fixed"
  },
+ "collection-of-beauty-frederic-bazille-004": {
+  "audit": "2026-09",
+  "status": "accurate"
+ },
+ "collection-of-beauty-frederic-bazille-bazille-s-studio-google-art-project": {
+  "audit": "2026-09",
+  "status": "accurate"
+ },
+ "collection-of-beauty-frederic-bazille-nature-morte-avec-du-poisson": {
+  "audit": "2026-09",
+  "status": "accurate"
+ },
+ "collection-of-beauty-frederic-bazille-the-pink-dress-google-art-project": {
+  "audit": "2026-09",
+  "status": "accurate"
+ },
+ "collection-of-beauty-frederic-bazille-young-woman-with-peonies-1870-nga-61356": {
+  "audit": "2026-09",
+  "status": "accurate"
+ },
+ "collection-of-beauty-frederic-leighton-baron-leighton-by-george-frederic-watts": {
+  "audit": "2026-09",
+  "status": "accurate"
+ },
+ "collection-of-beauty-frederic-leighton-cimabue-s-madonna-carried-in-procession-google-art-project-2": {
+  "audit": "2026-09",
+  "status": "accurate"
+ },
+ "collection-of-beauty-frederic-leighton-kittens": {
+  "audit": "2026-09",
+  "problem": "Four claims in one sentence, all contradicted: she sits upright rather than reclining; the drapery is deep plum-purple, not pale; there is one kitten, not a litter; and she is not playing with it — her head is bowed and her hands hold roses.",
+  "status": "major-fixed"
+ },
+ "collection-of-beauty-frederic-leighton-portrait-of-may-sartoris-google-art-project": {
+  "audit": "2026-09",
+  "status": "accurate"
+ },
+ "collection-of-beauty-frederic-leighton-the-garden-of-the-hesperides": {
+  "audit": "2026-09",
+  "status": "accurate"
+ },
+ "collection-of-beauty-frederic-leighton-the-return-of-persephone-1891": {
+  "audit": "2026-09",
+  "status": "accurate"
+ },
+ "collection-of-beauty-frederic-lord-leighton-perseus-and-andromeda-google-art-project": {
+  "audit": "2026-09",
+  "status": "accurate"
+ },
  "collection-of-beauty-frederick-law-olmsted": {
+  "status": "accurate"
+ },
+ "collection-of-beauty-frederick-leighton-memories": {
+  "audit": "2026-09",
+  "status": "accurate"
+ },
+ "collection-of-beauty-frederick-leighton-solitude": {
+  "audit": "2026-09",
   "status": "accurate"
  },
  "collection-of-beauty-frederik-hendrik-1584-1647-prins-van-oranje-atelier-of-gerard-van-honthorst-1650": {
@@ -4692,7 +5030,17 @@
   "problem": "Image shows green grass and grazing sheep with no frost or snow; description invents a frozen field blanched with frost.",
   "status": "fabricated-fixed"
  },
+ "collection-of-beauty-fuji-the-tama-river-musashi-province-from-the-series-thirty-six-views-of-mount-fuji-fugaku-sanjurok": {
+  "audit": "2026-09",
+  "status": "accurate"
+ },
+ "collection-of-beauty-fujimigahara-in-owari-province-bishu-fujimigahara-from-the-series-thirty-six-views-of-mount-fuji-fu": {
+  "audit": "2026-09",
+  "problem": "There are no rice fields, and the subject of the print is the tub-maker working inside a giant barrel through which Fuji is framed; the description omits the figure entirely and invents the field.",
+  "status": "minor-fixed"
+ },
  "collection-of-beauty-fujiwara-no-yasumasa-playing-the-flute-by-moonlight-lacma-m-84-31-137a-c": {
+  "rechecked": "2026-09 accurate",
   "status": "accurate"
  },
  "collection-of-beauty-fuseliartistmovedtodespair": {
@@ -4736,6 +5084,15 @@
  "collection-of-beauty-gamaun": {
   "status": "accurate"
  },
+ "collection-of-beauty-garcon-au-gilet-rouge-par-paul-cezanne-aquarelle-yorck": {
+  "audit": "2026-09",
+  "problem": "The Barnes Foundation's Boy in a Red Vest is an oil on canvas, one of the four oil versions (the others in the Buhrle Collection, MoMA and the National Gallery of Art). No source places this watercolour at the Barnes; one watercolour of the subject is recorded in a private collection.",
+  "status": "major-fixed"
+ },
+ "collection-of-beauty-gathering-bamboo-shoots-by-suzuki-harunobu-1765": {
+  "audit": "2026-09",
+  "status": "accurate"
+ },
  "collection-of-beauty-gauguin-bretonne": {
   "status": "accurate"
  },
@@ -4747,14 +5104,17 @@
   "status": "minor-fixed"
  },
  "collection-of-beauty-gauguin-paul-sacred-spring-sweet-dreams-nave-nave-moe": {
-  "problem": "Foreground figures are seated, not standing; background figures are not 'dancing women'; one figure rests her head on her own hand, not on a companion's shoulder.",
-  "status": "fabricated-fixed"
+  "audit": "2026-09",
+  "previousStatus": "fabricated-fixed",
+  "problem": "The painting came to the Hermitage from Ivan Morozov's collection, by way of the State Museum of New Western Art in 1931 - not from Shchukin.",
+  "status": "major-fixed"
  },
  "collection-of-beauty-gauguin-paul-still-life-with-profile-of-laval-google-art-project": {
   "status": "accurate"
  },
  "collection-of-beauty-gauguin-selbstbildnis-dem-freund-daniel-gewidmet-1896": {
   "problem": "The pose is a strict profile, not three-quarter view; the ground is dark reddish-brown, not olive.",
+  "rechecked": "2026-09 accurate",
   "status": "minor-fixed"
  },
  "collection-of-beauty-general-sir-david-baird-discovering-the-body-of-sultan-tippoo-sahib": {
@@ -4778,6 +5138,19 @@
   "problem": "Description implies a standing figure on ramparts with batteries smoking; the work is a bust-length portrait study.",
   "status": "minor-fixed"
  },
+ "collection-of-beauty-george-frederic-watts-1817-1904-orlando-pursuing-the-fata-morgana-l-f5-1889-0-0-leicester-museum-ar": {
+  "audit": "2026-09",
+  "status": "accurate"
+ },
+ "collection-of-beauty-george-frederic-watts-by-george-andrews": {
+  "audit": "2026-09",
+  "problem": "The entire description is Wikimedia Commons upload boilerplate about a batch import and its copyright screening. It describes nothing in the picture and would read to a visitor as nonsense.",
+  "status": "major-fixed"
+ },
+ "collection-of-beauty-george-frederic-watts-the-minotaur-google-art-project": {
+  "audit": "2026-09",
+  "status": "accurate"
+ },
  "collection-of-beauty-george-inness-in-the-berkshires": {
   "problem": "Description says herdsman drives cattle and a steeple is visible; image shows a traveller with a horse, no steeple.",
   "status": "minor-fixed"
@@ -4789,6 +5162,10 @@
  "collection-of-beauty-george-inness-the-lackawanna-valley-c-1856-nga-30776": {
   "problem": "Figure is seated, not reclining; otherwise description is well supported.",
   "status": "minor-fixed"
+ },
+ "collection-of-beauty-george-meredith-by-george-frederic-watts": {
+  "audit": "2026-09",
+  "status": "accurate"
  },
  "collection-of-beauty-george-spencer-2nd-earl-spencer": {
   "status": "prior-audit"
@@ -4811,7 +5188,10 @@
   "status": "accurate"
  },
  "collection-of-beauty-georges-de-la-tour-rixe-de-musiciens-google-art-project": {
-  "status": "accurate"
+  "audit": "2026-09",
+  "previousStatus": "accurate",
+  "problem": "The lemon is being squeezed into the old hurdy-gurdy player's eyes, to test whether his blindness is genuine; it is not used to fake a wound.",
+  "status": "major-fixed"
  },
  "collection-of-beauty-georges-de-la-tour-smoker": {
   "problem": "Describes a pipe-smoker leaning into a taper; figure is actually a youth blowing on a burning coal or ember.",
@@ -4882,6 +5262,7 @@
  },
  "collection-of-beauty-gerard-van-honthorst-lute-player-wga11666": {
   "problem": "Describes a young man; image clearly shows a young woman. Instrument appears to be a cittern, not a lute. No striped doublet.",
+  "rechecked": "2026-09 accurate",
   "status": "fabricated-fixed"
  },
  "collection-of-beauty-gerard-van-honthorst-lviv-gallery2": {
@@ -4968,6 +5349,7 @@
  },
  "collection-of-beauty-gerrit-van-honthorst-joyeux-violoniste": {
   "problem": "'Bow hangs in his other hand' is wrong; his other hand holds the violin body, no bow is visible.",
+  "rechecked": "2026-09 accurate",
   "status": "minor-fixed"
  },
  "collection-of-beauty-gherardo-delle-notti-adoration-of-the-child": {
@@ -5014,6 +5396,7 @@
   "status": "accurate"
  },
  "collection-of-beauty-gilbert-stuart-major-general-henry-dearborn-1913-793-art-institute-of-chicago": {
+  "rechecked": "2026-09 accurate",
   "status": "accurate"
  },
  "collection-of-beauty-gilbert-stuart-martha-washington-martha-dandridge-custis-1980-2-museum-of-fine-arts": {
@@ -5059,6 +5442,10 @@
  "collection-of-beauty-giorgione-young-woman-laura-google-art-project": {
   "status": "accurate"
  },
+ "collection-of-beauty-giovanna-baccelli-gainsborough": {
+  "audit": "2026-09",
+  "status": "accurate"
+ },
  "collection-of-beauty-giovanni-bellini-and-titian-the-feast-of-the-gods-google-art-project": {
   "status": "accurate"
  },
@@ -5092,11 +5479,16 @@
  },
  "collection-of-beauty-girl-in-the-sunlight-portrait-of-maria-simonovich-1888-oil-on-canvas-the-tretyakov-gallery-moscow-r": {
   "problem": "Blouse described as blue; image shows white/cream. Background trees are not birches.",
+  "rechecked": "2026-09 accurate",
   "status": "minor-fixed"
  },
  "collection-of-beauty-girl-in-white-by-vincent-van-gogh-nga": {
   "problem": "Poppies are in the field background, not held in her hand as described.",
   "status": "minor-fixed"
+ },
+ "collection-of-beauty-girl-with-a-hoop": {
+  "audit": "2026-09",
+  "status": "accurate"
  },
  "collection-of-beauty-giuseppe-arcimboldi-003": {
   "status": "accurate"
@@ -5133,9 +5525,11 @@
  },
  "collection-of-beauty-golden-autumn-zolotaya-osen": {
   "from": "collection-of-beauty-golden-autumn",
+  "rechecked": "2026-09 accurate",
   "status": "fabricated-fixed-migrated"
  },
  "collection-of-beauty-goltzius-s-right-hand": {
+  "rechecked": "2026-09 accurate",
   "status": "accurate"
  },
  "collection-of-beauty-gowy-atalanta-prado": {
@@ -5153,6 +5547,7 @@
   "status": "fabricated-fixed"
  },
  "collection-of-beauty-grant-wood-american-gothic-google-art-project": {
+  "rechecked": "2026-09 accurate",
   "status": "accurate"
  },
  "collection-of-beauty-grecian-interior-le-gynecee-large": {
@@ -5186,6 +5581,11 @@
  "collection-of-beauty-gugg-hilterfingen": {
   "problem": "\"drawn from the steamer\" is an invented anecdote absent from any source; image shows a village with church tower, not a wooded lakeside slope",
   "status": "minor-fixed"
+ },
+ "collection-of-beauty-gugg-madame-cezanne": {
+  "audit": "2026-09",
+  "problem": "The entire description is a scraped Wikimedia Commons file-donation notice, truncated mid-sentence. It says nothing whatever about the artwork - not the sitter, not the subject, not the fact that the canvas is conspicuously unfinished.",
+  "status": "major-fixed"
  },
  "collection-of-beauty-gugg-nudes": {
   "problem": "Work is a charcoal drawing on paper, not a canvas painting; image shows two busts in close-up with no stove or studio setting visible",
@@ -5331,6 +5731,10 @@
  "collection-of-beauty-hans-holbein-the-younger-the-ambassadors-google-art-project": {
   "status": "accurate"
  },
+ "collection-of-beauty-harlech-castle-from-tygwyn-ferry-summer-s-evening-twilig": {
+  "audit": "2026-09",
+  "status": "accurate"
+ },
  "collection-of-beauty-harmensz-van-rijn-rembrandt-flora-google-art-project": {
   "from": "collection-of-beauty-harmensz-van-rijn-rembrandt-google-art-project",
   "status": "minor-fixed-migrated"
@@ -5355,6 +5759,10 @@
  "collection-of-beauty-hashiguchi-goyo-woman-in-blue-combing-her-hair-walters-95880": {
   "problem": "\"mica grounds and subtle keyblock embossing\" and \"oversaw every stage\" are unverifiable claims absent from sources",
   "status": "minor-fixed"
+ },
+ "collection-of-beauty-hasui-kawase-evening-at-tagonoura": {
+  "audit": "2026-09",
+  "status": "accurate"
  },
  "collection-of-beauty-hasui-kawase-shinagawa": {
   "status": "prior-audit"
@@ -5392,6 +5800,10 @@
  "collection-of-beauty-head-of-cyrus-brought-to-queen-tomyris-peter-paul-rubens": {
   "status": "accurate"
  },
+ "collection-of-beauty-heirin-ji-nobidome-hasui-kawase": {
+  "audit": "2026-09",
+  "status": "accurate"
+ },
  "collection-of-beauty-hendrick-goltzius-dutch-active-haarlem-sine-cerere-et-libero-friget-venus-without-ceres-and-bacchus": {
   "status": "accurate"
  },
@@ -5412,6 +5824,7 @@
  },
  "collection-of-beauty-henri-fantin-latour-retrato-de-m-e-mme-edwards-1875": {
   "problem": "Edwin Edwards described as 'etcher and printer' — he was primarily a solicitor and patron; occupation mischaracterised.",
+  "rechecked": "2026-09 accurate",
   "status": "minor-fixed"
  },
  "collection-of-beauty-henri-fantin-latour-still-life-with-a-carafe-flowers-and-fruit-google-art-project": {
@@ -5433,6 +5846,7 @@
   "status": "minor-fixed"
  },
  "collection-of-beauty-henri-meunier04": {
+  "rechecked": "2026-09 accurate",
   "status": "accurate"
  },
  "collection-of-beauty-henri-rousseau-la-encantadora-de-serpientes-museo-de-orsay-paris-1907-oleo-sobre-lienzo-169-x-189-5": {
@@ -5457,6 +5871,7 @@
   "status": "minor-fixed"
  },
  "collection-of-beauty-hercules-lucha-con-la-hidra-de-lerna-por-zurbaran": {
+  "rechecked": "2026-09 accurate",
   "status": "accurate"
  },
  "collection-of-beauty-het-drijvende-paviljoen-te-katada-in-de-sneeuw-yuki-no-katada-ukimido-titel-op-object-ak-mak-1636": {
@@ -5467,6 +5882,14 @@
   "status": "accurate"
  },
  "collection-of-beauty-het-zojo-heiligdom-in-shiba-shiba-zojoji-titel-op-object-twintig-gezichten-op-tokyo-serietitel-toky": {
+  "status": "accurate"
+ },
+ "collection-of-beauty-hieronymous-bosch-the-last-judgement": {
+  "audit": "2026-09",
+  "status": "accurate"
+ },
+ "collection-of-beauty-hieronymous-bosch-tondals-visions": {
+  "audit": "2026-09",
   "status": "accurate"
  },
  "collection-of-beauty-hieronymus-bosch-the-garden-of-earthly-delights-the-exterior-shutters": {
@@ -5484,7 +5907,12 @@
  },
  "collection-of-beauty-hiroshi-yoshida-kumoi-zakura-kumoi-cherry-trees-google-art-project": {
   "problem": "Description claims daytime 'pale clouds of blossom over a garden'; image shows a night scene with moon and two figures beneath a weeping cherry.",
+  "rechecked": "2026-09 accurate",
   "status": "fabricated-fixed"
+ },
+ "collection-of-beauty-hiroshi-yoshida-yomei-gate": {
+  "audit": "2026-09",
+  "status": "accurate"
  },
  "collection-of-beauty-hiroshige-1838-two-mandarin-ducks": {
   "problem": "One duck is landing, not floating; plants appear to be flowering rather than reeds.",
@@ -5511,6 +5939,7 @@
  },
  "collection-of-beauty-hiroshige-53-stations-hoeido-37-akasaka-mfa-01": {
   "problem": "'Bird's-eye plan' is inaccurate; the view is an elevated cross-section angle, not a true bird's-eye plan.",
+  "rechecked": "2026-09 accurate",
   "status": "minor-fixed"
  },
  "collection-of-beauty-hiroshige-53-stations-hoeido-40-chiryu-met-new-york-01": {
@@ -5534,6 +5963,10 @@
  "collection-of-beauty-hiroshige-atake-sous-une-averse-soudaine": {
   "status": "accurate"
  },
+ "collection-of-beauty-hiroshige-fudo-falls": {
+  "audit": "2026-09",
+  "status": "accurate"
+ },
  "collection-of-beauty-hiroshige-full-moon-over-a-mountain-landscape": {
   "status": "accurate"
  },
@@ -5544,6 +5977,10 @@
  "collection-of-beauty-hiroshige-travellers-surprised-by-sudden-rain": {
   "problem": "Description says figures cross a wooden bridge; image shows travelers on a hillside road with no bridge present.",
   "status": "fabricated-fixed"
+ },
+ "collection-of-beauty-hiroshige-view-from-massaki": {
+  "audit": "2026-09",
+  "status": "accurate"
  },
  "collection-of-beauty-hiroshige-view-of-a-long-bridge-across-a-lake": {
   "status": "accurate"
@@ -5594,6 +6031,7 @@
  },
  "collection-of-beauty-hokusai-1760-1849-ocean-waves": {
   "problem": "Figures in boats are not clearly working nets; net-fishing activity is unsupported by image.",
+  "rechecked": "2026-09 accurate",
   "status": "minor-fixed"
  },
  "collection-of-beauty-hokusai-1828-cuckoo-and-azaleas": {
@@ -5689,6 +6127,7 @@
   "status": "accurate"
  },
  "collection-of-beauty-holbein-danse-macabre-34": {
+  "rechecked": "2026-09 accurate",
   "status": "accurate"
  },
  "collection-of-beauty-holbein-danse-macabre-35": {
@@ -5765,6 +6204,7 @@
   "status": "minor-fixed"
  },
  "collection-of-beauty-homere-deifie-dit-aussi-l-apotheose-d-homere-jean-auguste-dominique-ingres-musee-du-louvre-peinture": {
+  "rechecked": "2026-09 accurate",
   "status": "accurate"
  },
  "collection-of-beauty-honjo-tatekawa-the-timberyard-at-honjo": {
@@ -5777,6 +6217,7 @@
  },
  "collection-of-beauty-horatiogatesbystuart": {
   "problem": "\"Laurel-coloured drape\" is invented; the sitter wears a gold medal on a blue sash, not a drape",
+  "rechecked": "2026-09 accurate",
   "status": "minor-fixed"
  },
  "collection-of-beauty-horatius-cocles-de-romeinse-helden-serietitel-rp-p-ob-10-336": {
@@ -5790,6 +6231,11 @@
  "collection-of-beauty-hovhannes-aivazovsky-the-ninth-wave-google-art-project": {
   "problem": "Survivors cling to a timber raft/wreckage, not \"a splintered mast\"",
   "status": "minor-fixed"
+ },
+ "collection-of-beauty-huang-binhong-landscape": {
+  "audit": "2026-09",
+  "problem": "Huang Binhong was Chinese; he worked in Shanghai, Beijing and Hangzhou and died in Hangzhou in 1955. Nothing connects him to Taiwan.",
+  "status": "major-fixed"
  },
  "collection-of-beauty-hugo-van-der-goes-vienna-diptych": {
   "status": "accurate"
@@ -5861,8 +6307,10 @@
   "status": "accurate"
  },
  "collection-of-beauty-indischer-maler-um-1615-i-001": {
-  "problem": "Describes sitter holding tanpura strings and wearing a green jama; image shows golden robes and flowers, no tanpura.",
-  "status": "minor-fixed"
+  "audit": "2026-09",
+  "previousStatus": "minor-fixed",
+  "problem": "Contradicted by the image and by the record's own title. At 4x zoom the raised hand holds two elongated paddle-shaped objects, one gold and one teal - castanets or clappers, the attribute that identifies Ibrahim 'Adil Shah II as a musician. The record's title and the Commons objectName are both 'Ibrahim 'Adil Shah II holding instruments'. The description also silently drops the dark green kerchief in the lowered hand.",
+  "status": "major-fixed"
  },
  "collection-of-beauty-ingres-academic-study-of-a-male-torso": {
   "status": "accurate"
@@ -5890,6 +6338,7 @@
  },
  "collection-of-beauty-inness-george-the-rainbow-google-art-project": {
   "problem": "Prominent cattle in the foreground are unmentioned; 'late storm series' is an invented series name.",
+  "rechecked": "2026-09 accurate",
   "status": "minor-fixed"
  },
  "collection-of-beauty-inness-sunset-on-the-passaic-oil-on-canvas-1891": {
@@ -5946,6 +6395,22 @@
   "status": "accurate"
  },
  "collection-of-beauty-ivan-el-terrible-y-su-hijo-por-ilia-repin": {
+  "status": "accurate"
+ },
+ "collection-of-beauty-ivan-k-ayvazovskiy-ot-mlety-do-gudauri-1868": {
+  "audit": "2026-09",
+  "status": "accurate"
+ },
+ "collection-of-beauty-ivan-k-ayvazovskiy-velikaya-piramida-v-gize-1871": {
+  "audit": "2026-09",
+  "status": "accurate"
+ },
+ "collection-of-beauty-ivan-konstantinovich-ayvazovskiy-noch-v-gurzufe": {
+  "audit": "2026-09",
+  "status": "accurate"
+ },
+ "collection-of-beauty-ivan-konstantinovich-ayvazovskiy-shirokiy-peyzazh-s-poselentsami": {
+  "audit": "2026-09",
   "status": "accurate"
  },
  "collection-of-beauty-ivan-krylov": {
@@ -6017,6 +6482,7 @@
  },
  "collection-of-beauty-jacques-louis-david-portrait-of-the-comte-de-turenne-google-art-project": {
   "problem": "Sitter wears a black coat, not a green uniform; he looks directly at the viewer, not aside.",
+  "rechecked": "2026-09 accurate",
   "status": "minor-fixed"
  },
  "collection-of-beauty-jacques-louis-david-the-anger-of-achilles-google-art-project": {
@@ -6092,6 +6558,7 @@
  },
  "collection-of-beauty-jan-van-der-hoecke-antwerp-1611-antwerp-or-brussels-1651-the-battle-of-nordlingen-1634-rcin-400100-": {
   "problem": "Foreground shows commanding figures on horseback surveying battle, not a cavalry mêlée.",
+  "rechecked": "2026-09 accurate",
   "status": "minor-fixed"
  },
  "collection-of-beauty-jan-vermeer-the-art-of-painting-google-art-project": {
@@ -6134,6 +6601,65 @@
   "status": "minor-fixed"
  },
  "collection-of-beauty-jean-auguste-dominique-ingres-the-spring-google-art-project-2": {
+  "status": "accurate"
+ },
+ "collection-of-beauty-jean-francois-millet-apport-a-la-maison-le-veau-ne-dans-les-champs-1860": {
+  "audit": "2026-09",
+  "status": "accurate"
+ },
+ "collection-of-beauty-jean-francois-millet-el-angelus-museo-de-orsay-1857-1859-oleo-sobre-lienzo-55-5-x-66-cm": {
+  "audit": "2026-09",
+  "status": "accurate"
+ },
+ "collection-of-beauty-jean-francois-millet-femme-filature-1855-60": {
+  "audit": "2026-09",
+  "problem": "She is seated on a chair, not standing.",
+  "status": "major-fixed"
+ },
+ "collection-of-beauty-jean-francois-millet-gleaners-google-art-project-2": {
+  "audit": "2026-09",
+  "status": "accurate"
+ },
+ "collection-of-beauty-jean-francois-millet-ii-005": {
+  "audit": "2026-09",
+  "status": "accurate"
+ },
+ "collection-of-beauty-jean-francois-millet-jeune-fille-gardant-ses-moutons-1860-62": {
+  "audit": "2026-09",
+  "status": "accurate"
+ },
+ "collection-of-beauty-jean-francois-millet-potato-planters-google-art-project": {
+  "audit": "2026-09",
+  "status": "accurate"
+ },
+ "collection-of-beauty-jean-francois-millet-shepherd-tending-his-flock-google-art-project": {
+  "audit": "2026-09",
+  "status": "accurate"
+ },
+ "collection-of-beauty-jean-francois-millet-the-goose-girl-walters-37153": {
+  "audit": "2026-09",
+  "status": "accurate"
+ },
+ "collection-of-beauty-jean-francois-millet-the-potato-harvest-walters-37115": {
+  "audit": "2026-09",
+  "status": "accurate"
+ },
+ "collection-of-beauty-jean-francois-millet-the-sheepfold-moonlight-google-art-project": {
+  "audit": "2026-09",
+  "status": "accurate"
+ },
+ "collection-of-beauty-jean-frederic-bazille-etude-pour-une-vendange-left-1868": {
+  "audit": "2026-09",
+  "problem": "There are no figures at all in this study. It is a pure landscape of the vineyard and the hills behind it — the harvesters belong to the finished composition, not to this panel.",
+  "status": "major-fixed"
+ },
+ "collection-of-beauty-jean-frederic-bazille-little-italian-street-singer-1866": {
+  "audit": "2026-09",
+  "problem": "The figure is shown full length, feet included. Commons even files the work under '19th-century oil paintings of standing girls at full length'.",
+  "status": "major-fixed"
+ },
+ "collection-of-beauty-jean-frederic-bazille-reclining-nude-1864": {
+  "audit": "2026-09",
   "status": "accurate"
  },
  "collection-of-beauty-jean-honore-fragonard-aurora-triumphing-over-night-2013-62-museum-of-fine-arts": {
@@ -6216,6 +6742,7 @@
  },
  "collection-of-beauty-jean-leon-gerome-riders-crossing-the-desert-1870-hq": {
   "problem": "'Small file of riders' understates the scene; coloured desert hills are prominent, not merely 'barren hills receding behind them'.",
+  "rechecked": "2026-09 accurate",
   "status": "minor-fixed"
  },
  "collection-of-beauty-jean-leon-gerome-selling-slaves-in-rome": {
@@ -6269,6 +6796,10 @@
   "problem": "'Tall stems in a thicket of green' misrepresents a vase bouquet; 'painted at Vétheuil' is unverified by any provided source.",
   "status": "minor-fixed"
  },
+ "collection-of-beauty-jeune-fille-au-piano-par-paul-cezanne": {
+  "audit": "2026-09",
+  "status": "accurate"
+ },
  "collection-of-beauty-jheronimus-bosch-011": {
   "status": "accurate"
  },
@@ -6316,6 +6847,7 @@
  },
  "collection-of-beauty-joachim-wtewael-self-portrait-google-art-project": {
   "problem": "No tall black hat; no sword. Sitter holds painter's palette, brushes, and maulstick, not a sword.",
+  "rechecked": "2026-09 accurate",
   "status": "fabricated-fixed"
  },
  "collection-of-beauty-joachim-wtewael-the-adoration-of-the-shepherds-google-art-project": {
@@ -6334,7 +6866,10 @@
   "status": "minor-fixed"
  },
  "collection-of-beauty-johann-heinrich-fussli-064": {
-  "status": "accurate"
+  "audit": "2026-09",
+  "previousStatus": "accurate",
+  "problem": "Thetis is nowhere near the body. She is seated high on the rocks at the upper right, separated from the corpse by the whole width of the sheet, with one arm raised. The distance between mourner and dead son is the composition's point; 'bends over' collapses it.",
+  "status": "major-fixed"
  },
  "collection-of-beauty-johannes-jan-vermeer-christ-in-the-house-of-martha-and-mary-google-art-project": {
   "status": "accurate"
@@ -6349,6 +6884,7 @@
   "status": "accurate"
  },
  "collection-of-beauty-johannes-vermeer-the-astronomer-1668": {
+  "rechecked": "2026-09 accurate",
   "status": "accurate"
  },
  "collection-of-beauty-johannes-vermeer-the-geographer-google-art-project": {
@@ -6372,7 +6908,10 @@
   "status": "accurate"
  },
  "collection-of-beauty-john-constable-a-boat-passing-a-lock": {
-  "status": "accurate"
+  "audit": "2026-09",
+  "previousStatus": "accurate",
+  "problem": "False. At least three other six-footers sold in Constable's lifetime: The White Horse went to John Fisher for 100 guineas in 1819, Stratford Mill to Fisher in 1820, and The Hay Wain (with View on the Stour and a Yarmouth piece) to the dealer Arrowsmith in 1824. The true and widely reported fact about The Lock is that it sold on the opening day of the 1824 Royal Academy exhibition, to James Morrison.",
+  "status": "major-fixed"
  },
  "collection-of-beauty-john-constable-branch-hill-pond-hampstead-heath-1820s": {
   "problem": "Description says 'riders on the sandy track'; image shows workers with a horse-drawn cart at a gravel excavation, not riders.",
@@ -6466,9 +7005,11 @@
  },
  "collection-of-beauty-john-frederick-lewis-roman-pilgrims-google-art-project": {
   "problem": "\"Rests on the road\" is wrong; figures are inside a church interior, not on a road.",
+  "rechecked": "2026-09 accurate",
   "status": "minor-fixed"
  },
  "collection-of-beauty-john-hancock-painting-cropped3-cropped": {
+  "rechecked": "2026-09 accurate",
   "status": "accurate"
  },
  "collection-of-beauty-john-henry-newman-by-sir-john-everett-millais-1st-bt": {
@@ -6477,6 +7018,7 @@
  },
  "collection-of-beauty-john-jay-gilbert-stuart-portrait": {
   "problem": "Robes are orange-amber and black, not \"black\" as described.",
+  "rechecked": "2026-09 accurate",
   "status": "minor-fixed"
  },
  "collection-of-beauty-john-liston-byam-shaw-boer-war": {
@@ -6522,7 +7064,10 @@
   "status": "minor-fixed"
  },
  "collection-of-beauty-john-singleton-copley-1738-1815-the-surrender-of-the-dutch-admiral-de-winter-to-admiral-duncan-at-t": {
-  "status": "accurate"
+  "audit": "2026-09",
+  "previousStatus": "accurate",
+  "problem": "The picture was not commissioned by the City of London. It was a commercial speculation painted without a commission; Copley hoped afterwards to interest the London alderman John Boydell in it, and that came to nothing.",
+  "status": "major-fixed"
  },
  "collection-of-beauty-john-singleton-copley-a-boy-with-a-flying-squirrel-henry-pelham-google-art-project": {
   "status": "accurate"
@@ -6532,10 +7077,12 @@
  },
  "collection-of-beauty-john-singleton-copley-ezekiel-goldthwait-41-85-museum-of-fine-arts": {
   "problem": "Goldthwait holds a quill and a document rather than resting his hand on an open ledger; chair does not appear to be a wing chair.",
+  "rechecked": "2026-09 accurate",
   "status": "minor-fixed"
  },
  "collection-of-beauty-john-singleton-copley-hugh-montgomerie-12th-earl-of-eglinton-1739-1819-soldier-lord-lieutenant-of-a": {
   "problem": "Background shows a smoky battle scene, not a wooded landscape; LACMA provenance unverified in any provided source.",
+  "rechecked": "2026-09 accurate",
   "status": "minor-fixed"
  },
  "collection-of-beauty-john-singleton-copley-isaac-royall-39-247-museum-of-fine-arts": {
@@ -6582,6 +7129,7 @@
   "status": "minor-fixed"
  },
  "collection-of-beauty-johnmontresorbycopley": {
+  "rechecked": "2026-09 accurate",
   "status": "accurate"
  },
  "collection-of-beauty-joseon-kang-huian-gosagwansudo": {
@@ -6618,6 +7166,7 @@
   "status": "accurate"
  },
  "collection-of-beauty-joseph-mallord-william-turner-1775-1851-head-of-a-person-asleep-n05494-national-gallery": {
+  "rechecked": "2026-09 accurate",
   "status": "accurate"
  },
  "collection-of-beauty-joseph-mallord-william-turner-1775-1851-hill-town-on-the-edge-of-the-campagna-n05526-national-galle": {
@@ -6685,6 +7234,7 @@
   "status": "accurate"
  },
  "collection-of-beauty-joseph-mallord-william-turner-1775-1851-waves-breaking-against-the-wind-n02881-national-gallery": {
+  "rechecked": "2026-09 accurate",
   "status": "accurate"
  },
  "collection-of-beauty-joseph-mallord-william-turner-1775-1851-weir-and-cattle-n02705-national-gallery": {
@@ -6742,6 +7292,7 @@
  },
  "collection-of-beauty-joseph-mallord-william-turner-linlithgow-palace-google-art-project": {
   "problem": "Describes 'soft watercolour washes' but the image is an oil painting with the staffage and impasto handling typical of Turner's oils.",
+  "rechecked": "2026-09 accurate",
   "status": "minor-fixed"
  },
  "collection-of-beauty-joseph-mallord-william-turner-london-from-greenwich-park-google-art-project": {
@@ -6843,12 +7394,24 @@
   "problem": "Judith does not have a sword raised; she gestures with her hand near a candle, no sword visible.",
   "status": "minor-fixed"
  },
+ "collection-of-beauty-junks-in-inatori-bay-izu-by-takahashi-shotei-1": {
+  "audit": "2026-09",
+  "status": "accurate"
+ },
  "collection-of-beauty-jupiter-and-antiope-oil-on-canvas-painting-by-hendrick-goltzius": {
+  "status": "accurate"
+ },
+ "collection-of-beauty-jupiter-and-juno-annibale-carracci-fragment": {
+  "audit": "2026-09",
   "status": "accurate"
  },
  "collection-of-beauty-kagesue-takatsuna-and-shigetada-crossing-the-uji-river": {
   "problem": "Three warriors are depicted across the triptych, not two; description says 'two mounted samurai'.",
   "status": "minor-fixed"
+ },
+ "collection-of-beauty-kagurazaka-street-at-night-after-rain-from-the-series-twelve-scenes-of-tokyo-hiroshi-yoshida": {
+  "audit": "2026-09",
+  "status": "accurate"
  },
  "collection-of-beauty-kaigetsudo-ando-standing-portrait-of-a-courtesan-c-1705-1710-hanging-scroll-ink-color-and-gold-on-p": {
   "status": "accurate"
@@ -6865,6 +7428,14 @@
   "status": "minor-fixed"
  },
  "collection-of-beauty-kanae-yamamoto-1926-tokko-sanroku-shui": {
+  "status": "accurate"
+ },
+ "collection-of-beauty-kanae-yamamoto-1938-kami-ide-no-fuji": {
+  "audit": "2026-09",
+  "status": "accurate"
+ },
+ "collection-of-beauty-kanae-yamamoto-dutch-girl-in-landscape": {
+  "audit": "2026-09",
   "status": "accurate"
  },
  "collection-of-beauty-kannon-riding-a-dragon-by-harada-naojiro-national-museum-of-modern-art-tokyo": {
@@ -6944,12 +7515,21 @@
  "collection-of-beauty-katsushika-hokusai-goten-yama-hill-shinagawa-on-the-tokaido-ca-1832": {
   "status": "accurate"
  },
+ "collection-of-beauty-katsushika-hokusai-tempesta-sotto-la-vetta-dalla-serie-delle-36-vedute-del-monte-fuji-1831-ca": {
+  "audit": "2026-09",
+  "status": "accurate"
+ },
  "collection-of-beauty-kawase-ebisu-11": {
   "problem": "Describes \"overcast sky\" and \"wet stone\"; image shows a night snow scene; no wooden boat visible",
   "status": "minor-fixed"
  },
  "collection-of-beauty-kawase-hasui-1931-snow-in-mukojima": {
+  "rechecked": "2026-09 accurate",
   "status": "prior-audit"
+ },
+ "collection-of-beauty-kawase-hasui-no-series-konjikido-in-snow-hiraizumi": {
+  "audit": "2026-09",
+  "status": "accurate"
  },
  "collection-of-beauty-kawase-tenno-ji-27": {
   "problem": "\"lantern-lit dusk\" unsupported; image shows daytime/evening snowfall with no visible lanterns",
@@ -7014,6 +7594,10 @@
   "problem": "Städel Museum attribution and Schilling sisters identification appear in neither sourceDescription nor record.",
   "status": "minor-fixed"
  },
+ "collection-of-beauty-kirgizskie-kibitki-na-reke-chu": {
+  "audit": "2026-09",
+  "status": "accurate"
+ },
  "collection-of-beauty-kisokaido14-itahana": {
   "problem": "Sky is a warm pink gradient, not 'heavy grey'; travellers are not clearly leaning into wind.",
   "status": "minor-fixed"
@@ -7023,6 +7607,10 @@
   "status": "minor-fixed"
  },
  "collection-of-beauty-kitagawa-utamaro-takashima-ohisa-using-two-mirrors-to-observe-her-coiffure-night-of-the-asakusa-mar": {
+  "status": "accurate"
+ },
+ "collection-of-beauty-kitayskaya-palatka": {
+  "audit": "2026-09",
   "status": "accurate"
  },
  "collection-of-beauty-kiyonaga-bathhouse-women-2": {
@@ -7038,6 +7626,14 @@
   "problem": "Describes \"a pair of folding screens\" but the work is a single six-panel screen.",
   "status": "minor-fixed"
  },
+ "collection-of-beauty-kreshchenie-rusi": {
+  "audit": "2026-09",
+  "status": "accurate"
+ },
+ "collection-of-beauty-kronshtadtskiy-reyd-ayvazovskogo": {
+  "audit": "2026-09",
+  "status": "accurate"
+ },
  "collection-of-beauty-kuniyoshi-utagawa-at-the-shore-of-the-sumida-river": {
   "status": "accurate"
  },
@@ -7051,6 +7647,7 @@
  },
  "collection-of-beauty-kuroda-seiki-kohan00-6-1b": {
   "problem": "\"Painted at Hakone\" and sitter identity as \"artist's wife\" are unverifiable; movement record says Nihonga but Kuroda worked in yōga.",
+  "rechecked": "2026-09 accurate",
   "status": "minor-fixed"
  },
  "collection-of-beauty-kustodiev-goluboydomik": {
@@ -7067,6 +7664,7 @@
  },
  "collection-of-beauty-kustodiev-renee-notgaft": {
   "problem": "Sitter's shoulders are not bare; she wears a black dress with white décolletage. Background is green with pink hydrangeas, not a darker backdrop.",
+  "rechecked": "2026-09 accurate",
   "status": "minor-fixed"
  },
  "collection-of-beauty-kustodiev-russian-venus": {
@@ -7162,6 +7760,7 @@
   "status": "accurate"
  },
  "collection-of-beauty-la-ronda-de-noche-por-rembrandt-van-rijn": {
+  "rechecked": "2026-09 accurate",
   "status": "accurate"
  },
  "collection-of-beauty-la-route-de-vetheuil-effet-de-neige-by-claude-monet": {
@@ -7172,6 +7771,10 @@
   "status": "minor-fixed"
  },
  "collection-of-beauty-la-seine-a-vetheuil-monet": {
+  "status": "accurate"
+ },
+ "collection-of-beauty-la-table-de-cuisine-par-paul-cezanne-musee-d-orsay-yorck": {
+  "audit": "2026-09",
   "status": "accurate"
  },
  "collection-of-beauty-la-vision-apres-le-sermon-paul-gauguin": {
@@ -7215,6 +7818,7 @@
   "status": "accurate"
  },
  "collection-of-beauty-last-judgement-by-michelangelo": {
+  "rechecked": "2026-09 accurate",
   "status": "accurate"
  },
  "collection-of-beauty-laurits-tuxen-the-north-sea-in-stormy-weather-after-sunset-h-jen-google-art-project": {
@@ -7224,6 +7828,10 @@
   "status": "accurate"
  },
  "collection-of-beauty-le-bassin-aux-nympheas-claude-monet": {
+  "status": "accurate"
+ },
+ "collection-of-beauty-le-bassin-du-jas-de-bouffan-par-paul-cezanne": {
+  "audit": "2026-09",
   "status": "accurate"
  },
  "collection-of-beauty-le-brun-alexander-and-porus": {
@@ -7251,12 +7859,27 @@
   "problem": "Costume design shows green, not blue, skin; figure is seated cross-legged, not standing with arms wide",
   "status": "minor-fixed"
  },
+ "collection-of-beauty-le-fils-de-l-artiste-paul-par-paul-cezanne": {
+  "audit": "2026-09",
+  "problem": "Cézanne's most frequently portrayed sitter, apart from himself, was his wife Hortense Fiquet, with about 29 known portraits — far more than the portraits of his son. The superlative is false as stated and is the entire closing sentence.",
+  "status": "major-fixed"
+ },
  "collection-of-beauty-le-havre-muma-monet-fecamp": {
   "status": "accurate"
  },
+ "collection-of-beauty-le-pain-et-les-ufs-par-paul-cezanne": {
+  "audit": "2026-09",
+  "status": "accurate"
+ },
+ "collection-of-beauty-le-pere-du-peintre-lisant-l-evenement-par-paul-cezanne": {
+  "audit": "2026-09",
+  "status": "accurate"
+ },
  "collection-of-beauty-le-pont-d-argenteuil-claude-monet": {
-  "problem": "No pleasure boats visible; foreground dominated by tall grasses, not a tree-lined bank with boats",
-  "status": "minor-fixed"
+  "audit": "2026-09",
+  "previousStatus": "minor-fixed",
+  "problem": "The bridge in the picture is a railway bridge with a train crossing it, not the road bridge, and it is not a multi-arched masonry span. The description also drops the train, which is the point of the picture.",
+  "status": "major-fixed"
  },
  "collection-of-beauty-le-port-de-zaandam": {
   "problem": "No windmills visible; palette is warm golden-orange, not 'shifting greys'; description mischaracterises tonality",
@@ -7292,9 +7915,17 @@
   "problem": "'classicising drapery' mischaracterises Edmund Blair Leighton's medieval-genre style; not his mode",
   "status": "minor-fixed"
  },
+ "collection-of-beauty-leighton-captive-andromache": {
+  "audit": "2026-09",
+  "status": "accurate"
+ },
  "collection-of-beauty-leighton-god-speed": {
   "problem": "Claim about 'Mediterranean light borrowed from Italian quattrocento fresco' is unverifiable and unsupported for Edmund Blair Leighton",
   "status": "minor-fixed"
+ },
+ "collection-of-beauty-leighton-moses-views-the-promised-land": {
+  "audit": "2026-09",
+  "status": "accurate"
  },
  "collection-of-beauty-leighton-stitching-the-standard": {
   "problem": "Edmund Blair Leighton was never President of the Royal Academy; that honour belongs to Frederic, Lord Leighton",
@@ -7303,6 +7934,11 @@
  "collection-of-beauty-leighton-the-king-and-the-beggar-maid": {
   "problem": "\"Olympian late style\" is Frederic Leighton's epithet; artist is Edmund Blair Leighton, a distinct painter",
   "status": "minor-fixed"
+ },
+ "collection-of-beauty-leighton-the-painter-s-honeymoon-1864": {
+  "audit": "2026-09",
+  "problem": "The MFA acquired the painting in 1981, not 1912: its accession number is 1981.258, credited to the Charles H. Bayley Picture and Painting Fund.",
+  "status": "major-fixed"
  },
  "collection-of-beauty-leo-tolstoy02": {
   "problem": "Described as \"studio portrait\" with \"inward gaze\"; image shows Tolstoy writing at a desk, looking down",
@@ -7350,6 +7986,10 @@
  "collection-of-beauty-leonardo-da-vinci-virgin-and-child-with-st-anne-c2rmf-retouched": {
   "status": "accurate"
  },
+ "collection-of-beauty-leopold-boilly-les-conscrits-de-1807-defilant-devant-la-porte-saint-denis": {
+  "audit": "2026-09",
+  "status": "accurate"
+ },
  "collection-of-beauty-les-amours-de-paris-et-d-helene-painting-by-jacques-louis-david": {
   "problem": "\"Marble caryatid framing the alcove\" not visible in image; Helen is standing, not leaning against Paris",
   "status": "minor-fixed"
@@ -7357,6 +7997,11 @@
  "collection-of-beauty-les-oceanides-les-naiades-de-la-mer": {
   "problem": "Described as a \"wood-engraved\" print; image is clearly a large oil painting with colour; Doré characterised as \"print designer\" for this work",
   "status": "fabricated-fixed"
+ },
+ "collection-of-beauty-les-papillons": {
+  "audit": "2026-09",
+  "problem": "There are two figures, not one: a young man leans in immediately behind the young woman, his hands raised in the same gesture, and he is half the subject of the picture.",
+  "status": "major-fixed"
  },
  "collection-of-beauty-les-soleils-jardin-du-petit-gennevilliers-g-caillebotte-vers-1885": {
   "status": "accurate"
@@ -7367,6 +8012,11 @@
  "collection-of-beauty-levitan-ozero28": {
   "problem": "Claim that the brother acquired it for the Russian Museum is unverifiable from provided sources.",
   "status": "minor-fixed"
+ },
+ "collection-of-beauty-levitan-posle-dozhdya": {
+  "audit": "2026-09",
+  "problem": "This is the finished picture, not a study for one. 'After the Rain. Plyos' is a signed, dated 1889 oil on canvas of 80 x 125 cm in the State Tretyakov Gallery; the reproduction shows a fully worked, signed canvas.",
+  "status": "major-fixed"
  },
  "collection-of-beauty-levitan-sokolniki-autumn-1879": {
   "status": "accurate"
@@ -7395,6 +8045,17 @@
   "status": "minor-fixed"
  },
  "collection-of-beauty-liefdespaar-rp-p-ob-12-233": {
+  "audit": "2026-09",
+  "previousStatus": "accurate",
+  "problem": "The Rijksmuseum record carried in this record's own source evidence says the opposite: 'prentmaker: Parmigianino, naar eigen ontwerp van: Parmigianino' - Parmigianino was the printmaker, working from his own design. Describing it as a reproductive plate made by someone else after his drawings inverts the single most notable fact about Parmigianino's prints, that he etched his own compositions. The technique is also given as etching, drypoint and engraving, not engraving alone.",
+  "status": "major-fixed"
+ },
+ "collection-of-beauty-life-boat-and-manby-apparatus-going-off-to-a-stranded-vessel-making-signal-blue-lights-of-distress": {
+  "audit": "2026-09",
+  "status": "accurate"
+ },
+ "collection-of-beauty-lilium-superbum-lithographie-pierre-joseph-redoute": {
+  "audit": "2026-09",
   "status": "accurate"
  },
  "collection-of-beauty-lille-pdba-delacroix-medee": {
@@ -7424,6 +8085,14 @@
  "collection-of-beauty-londres-tate-modern-kirchner-baigneurs": {
   "status": "accurate"
  },
+ "collection-of-beauty-lord-frederic-leighton-cymon-and-iphigenia-google-art-project": {
+  "audit": "2026-09",
+  "status": "accurate"
+ },
+ "collection-of-beauty-lord-frederick-leighton-fll006": {
+  "audit": "2026-09",
+  "status": "accurate"
+ },
  "collection-of-beauty-los-horrores-de-la-guerra": {
   "status": "accurate"
  },
@@ -7434,9 +8103,39 @@
   "status": "accurate"
  },
  "collection-of-beauty-lot-en-zijn-dochters-rijksmuseum-sk-a-4866": {
+  "rechecked": "2026-09 accurate",
   "status": "accurate"
  },
  "collection-of-beauty-louis-francois-bertin": {
+  "status": "accurate"
+ },
+ "collection-of-beauty-louis-leopold-boilly-game-of-billiards-wga02350fxd": {
+  "audit": "2026-09",
+  "status": "accurate"
+ },
+ "collection-of-beauty-louis-leopold-boilly-portrait-of-jan-anthony-d-averhoult-1756-1792-google-art-project": {
+  "audit": "2026-09",
+  "problem": "The picture is a full-length seated portrait in an elaborate setting — a desk with bell, constitution volume, papers and inkstand, a tiered assembly chamber behind, a curtain, and a red despatch box with a tricolour cockade at the lower left. There is no plain ground and it is not bust-length.",
+  "status": "major-fixed"
+ },
+ "collection-of-beauty-louis-leopold-boilly-the-barrel-game": {
+  "audit": "2026-09",
+  "status": "accurate"
+ },
+ "collection-of-beauty-louis-leopold-boilly-the-geography-lesson-portrait-of-monsieur-gaudry-and-his-daughter-google-art-p": {
+  "audit": "2026-09",
+  "status": "accurate"
+ },
+ "collection-of-beauty-louis-leopold-boilly-the-reading-of-the-bulletin-of-the-grand-74-1989-saint-louis-art-museum": {
+  "audit": "2026-09",
+  "status": "accurate"
+ },
+ "collection-of-beauty-louis-leopold-boilly-the-young-harpist-1977-152-yale-university-art-gallery": {
+  "audit": "2026-09",
+  "status": "accurate"
+ },
+ "collection-of-beauty-louis-leopold-boilly-woman-showing-her-portrait-32-2019-10-dallas-museum-of-art": {
+  "audit": "2026-09",
   "status": "accurate"
  },
  "collection-of-beauty-louis-xiv-equestrian-portrait": {
@@ -7449,10 +8148,18 @@
   "problem": "Dress described as 'slim black gown' but is visibly an elaborately embroidered dark dress with floral decoration and red trim.",
   "status": "minor-fixed"
  },
+ "collection-of-beauty-love-and-life": {
+  "audit": "2026-09",
+  "status": "accurate"
+ },
  "collection-of-beauty-low-tide-at-pourville-by-claude-monet-cleveland-museum-of-art-1947-196": {
   "status": "accurate"
  },
  "collection-of-beauty-lowenjagd-peter-paul-rubens": {
+  "status": "accurate"
+ },
+ "collection-of-beauty-lower-meguro-shimo-meguro-from-the-series-thirty-six-views-of-mount-fuji-fugaku-sanjurokkei-met-dp1": {
+  "audit": "2026-09",
   "status": "accurate"
  },
  "collection-of-beauty-luca-signorelli-portrait-of-an-old-man-gemaldegalerie-berlin": {
@@ -7554,9 +8261,18 @@
   "problem": "Described as 'nursing the Christ Child'; the image shows Mary holding but not nursing the infant, whose robe is closed.",
   "status": "minor-fixed"
  },
+ "collection-of-beauty-male-nude-edgar-degas": {
+  "audit": "2026-09",
+  "status": "accurate"
+ },
  "collection-of-beauty-man-in-a-black-cap-by-john-bettes-the-elder": {
   "problem": "Background described as 'blue'; smalt pigment has degraded to brown, as confirmed by the source and visible in the image.",
   "status": "minor-fixed"
+ },
+ "collection-of-beauty-manet-edouard-portrait-d-ernest-hoschede-et-sa-fille-marthe-google-art-project": {
+  "audit": "2026-09",
+  "problem": "There is no flower anywhere in the picture. The girl's hands are at the table edge; the only red objects near her are a carafe and glass on the table and her own neck bow.",
+  "status": "major-fixed"
  },
  "collection-of-beauty-manet-musica-en-las-tullerias-national-gallery-londres-1862": {
   "status": "accurate"
@@ -7595,6 +8311,7 @@
   "status": "accurate"
  },
  "collection-of-beauty-marktjaffagustavbauernfeind1887": {
+  "rechecked": "2026-09 accurate",
   "status": "accurate"
  },
  "collection-of-beauty-mars-venus-and-vulcan-by-john-singleton-copley": {
@@ -7610,7 +8327,10 @@
   "status": "accurate"
  },
  "collection-of-beauty-martin-schongauer-nativity-wga21041": {
-  "status": "accurate"
+  "audit": "2026-09",
+  "previousStatus": "accurate",
+  "problem": "This is a painted panel in full colour, not a print. 'Crisp, hatched line' describes Schongauer's engravings and cannot be what the viewer sees here; the description imports the technique of a different body of work onto a painting.",
+  "status": "major-fixed"
  },
  "collection-of-beauty-martin-schongauer-the-holy-family-google-art-project": {
   "problem": "Description is for Schongauer's engraving (garden, pear tree); the image is a painting showing a stable setting with Joseph holding straw, not a print.",
@@ -7628,8 +8348,10 @@
   "status": "minor-fixed"
  },
  "collection-of-beauty-mary-stevenson-cassatt-mary-cassatt-self-portrait-google-art-project": {
-  "problem": "Figure looks downward, not meeting the viewer's gaze; no sketchbook visible — she appears before a canvas.",
-  "status": "minor-fixed"
+  "audit": "2026-09",
+  "previousStatus": "minor-fixed",
+  "problem": "No canvas, easel, brush or palette is visible anywhere in the sheet; the right side is bare paper with a few loose washes, which I checked at magnification. Her eyes are turned toward the viewer rather than markedly downward. The invented canvas then carries the next sentence's reading of the work as 'a record of the artist at work'.",
+  "status": "major-fixed"
  },
  "collection-of-beauty-masked-ball-at-the-opera-1873-edouard-manet-national-gallery-of-art-washington-d-c": {
   "status": "accurate"
@@ -7664,6 +8386,11 @@
  },
  "collection-of-beauty-matthias-grunewald-resurrection": {
   "status": "accurate"
+ },
+ "collection-of-beauty-mavzoley-shakh-i-zinda-v-samarkande": {
+  "audit": "2026-09",
+  "problem": "The image is a painting on canvas (canvas weave and brushwork are visible throughout), almost certainly Vereshchagin's Turkestan-series oil of the same title, not a photograph.",
+  "status": "major-fixed"
  },
  "collection-of-beauty-max-schmitt-in-a-single-scull": {
   "problem": "Scene is clearly daytime with blue sky, not twilight; description says 'at twilight' without support.",
@@ -7731,6 +8458,10 @@
   "problem": "The Union Jack hangs on the wall behind the figures, not draped across the captain's knees.",
   "status": "minor-fixed"
  },
+ "collection-of-beauty-millet-jean-francois-ii-hunting-birds-at-night": {
+  "audit": "2026-09",
+  "status": "accurate"
+ },
  "collection-of-beauty-miniature-painting-sarah-goodridge-self-portrait": {
   "problem": "Dress is red wrap over dark bodice, not black silk; subject looks young, not middle-aged; MFA Boston unverified",
   "status": "fabricated-fixed"
@@ -7738,6 +8469,10 @@
  "collection-of-beauty-miss-frances-sherborne-ridley-watts": {
   "problem": "\"Row of buttons\" wrong — image shows a jewelled chain and red bow; \"Roman years\" friendship detail absent from source",
   "status": "minor-fixed"
+ },
+ "collection-of-beauty-miss-may-prinsep-by-george-frederic-watts": {
+  "audit": "2026-09",
+  "status": "accurate"
  },
  "collection-of-beauty-moitessier-ingres-1851-nga": {
   "problem": "Madame Moitessier's hands and arms are bare; description states \"gloved wrist\" but no gloves are present",
@@ -7828,6 +8563,10 @@
  "collection-of-beauty-monet-in-der-barke": {
   "status": "accurate"
  },
+ "collection-of-beauty-monet-la-porte-d-amont-etretat-c-1868-1869": {
+  "audit": "2026-09",
+  "status": "accurate"
+ },
  "collection-of-beauty-monet-lavacourt": {
   "status": "accurate"
  },
@@ -7842,6 +8581,10 @@
  "collection-of-beauty-monet-mer-agitee-a-etretat-mba-lyon": {
   "problem": "'Famous arches' (plural) — image shows one arch (Porte d'Aval) with the needle, not multiple arches",
   "status": "minor-fixed"
+ },
+ "collection-of-beauty-monet-morning-on-the-seine-near-giverny-1897": {
+  "audit": "2026-09",
+  "status": "accurate"
  },
  "collection-of-beauty-monet-nenufares": {
   "status": "accurate"
@@ -7881,6 +8624,10 @@
   "status": "accurate"
  },
  "collection-of-beauty-monet-trouville": {
+  "status": "accurate"
+ },
+ "collection-of-beauty-monet-truthahne": {
+  "audit": "2026-09",
   "status": "accurate"
  },
  "collection-of-beauty-monet-tulpenfelder-in-sassenheim-1886": {
@@ -7977,6 +8724,7 @@
   "status": "prior-audit"
  },
  "collection-of-beauty-monet-w109": {
+  "rechecked": "2026-09 accurate",
   "status": "prior-audit"
  },
  "collection-of-beauty-monet-w1120": {
@@ -8111,6 +8859,7 @@
   "status": "prior-audit"
  },
  "collection-of-beauty-monet-w392": {
+  "rechecked": "2026-09 accurate",
   "status": "accurate"
  },
  "collection-of-beauty-monet-w397": {
@@ -8127,6 +8876,7 @@
   "status": "minor-fixed"
  },
  "collection-of-beauty-monet-w433": {
+  "rechecked": "2026-09 accurate",
   "status": "accurate"
  },
  "collection-of-beauty-monet-w472": {
@@ -8170,6 +8920,7 @@
   "status": "prior-audit"
  },
  "collection-of-beauty-monet-w653": {
+  "rechecked": "2026-09 accurate",
   "status": "prior-audit"
  },
  "collection-of-beauty-monet-w658": {
@@ -8254,6 +9005,7 @@
   "status": "prior-audit"
  },
  "collection-of-beauty-monet-w787": {
+  "rechecked": "2026-09 accurate",
   "status": "prior-audit"
  },
  "collection-of-beauty-monet-w807": {
@@ -8279,6 +9031,7 @@
   "status": "prior-audit"
  },
  "collection-of-beauty-monet-w849": {
+  "rechecked": "2026-09 accurate",
   "status": "prior-audit"
  },
  "collection-of-beauty-monet-w867": {
@@ -8339,6 +9092,10 @@
  "collection-of-beauty-monet-w996": {
   "status": "prior-audit"
  },
+ "collection-of-beauty-monet-water-lilies-1907-19-170": {
+  "audit": "2026-09",
+  "status": "accurate"
+ },
  "collection-of-beauty-monet-water-lilies-1914-26": {
   "status": "prior-audit"
  },
@@ -8348,8 +9105,13 @@
  "collection-of-beauty-monet-water-lily-pond-chichu-museum": {
   "status": "accurate"
  },
+ "collection-of-beauty-monet-waterlilies-pond-green-reflection-1920-26-wildenstein-1979": {
+  "audit": "2026-09",
+  "status": "accurate"
+ },
  "collection-of-beauty-monet-wildenstein-1996-1497": {
   "problem": "Description claims Normandy cliff scenes; image is a dense chrysanthemum floral painting.",
+  "rechecked": "2026-09 accurate",
   "status": "fabricated-fixed"
  },
  "collection-of-beauty-monet-wildenstein-1996-1661": {
@@ -8365,6 +9127,10 @@
  "collection-of-beauty-monomakh-s-hunting": {
   "status": "accurate"
  },
+ "collection-of-beauty-montagne-sainte-victoire-par-paul-cezanne-108": {
+  "audit": "2026-09",
+  "status": "accurate"
+ },
  "collection-of-beauty-moonrise-by-george-inness-1887": {
   "problem": "Moon described as 'pale', sky as 'lavender and ochre'; image shows warm golden moon, dark brownish-orange sky.",
   "status": "minor-fixed"
@@ -8372,6 +9138,10 @@
  "collection-of-beauty-moreno-garden-bordighera-1884-the-norton-museum-miami-florida": {
   "problem": "Specific letter quote about 'diamond and gemstone' tones unverifiable from provided sources.",
   "status": "minor-fixed"
+ },
+ "collection-of-beauty-morning-mist-in-taj-mahal-no-5-hiroshi-yoshida": {
+  "audit": "2026-09",
+  "status": "accurate"
  },
  "collection-of-beauty-mortlake-terrace-a11264": {
   "status": "accurate"
@@ -8392,6 +9162,10 @@
   "problem": "Suffragist biography, East Hampton, Honolulu Museum all unverified; hands not gloved or in lap.",
   "status": "minor-fixed"
  },
+ "collection-of-beauty-mt-heng-after-juran-active-ca-960-965-from-the-mustard-seed-garden-manual-of-painting-met-dp-14004-": {
+  "audit": "2026-09",
+  "status": "accurate"
+ },
  "collection-of-beauty-mu-ch-i-001": {
   "status": "accurate"
  },
@@ -8401,6 +9175,10 @@
  "collection-of-beauty-mucha-seasons-1897-spring": {
   "problem": "No lyre in the image; the woman is not tuning any instrument.",
   "status": "fabricated-fixed"
+ },
+ "collection-of-beauty-mulla-rakhim-i-mulla-kerim-po-doroge-na-bazar-ssoryatsya": {
+  "audit": "2026-09",
+  "status": "accurate"
  },
  "collection-of-beauty-munch-self-portrait-with-palette-1926-lot-114": {
   "problem": "No easel visible; Munch is shown outdoors, not 'before the easel'.",
@@ -8461,6 +9239,7 @@
   "status": "fabricated-fixed"
  },
  "collection-of-beauty-ndl-dc-2586549-18-kawase-hasui-s03-crd": {
+  "rechecked": "2026-09 accurate",
   "status": "accurate"
  },
  "collection-of-beauty-ndl-dc-2586549-19-kawase-hasui-s03-crd": {
@@ -8486,6 +9265,10 @@
   "status": "minor-fixed"
  },
  "collection-of-beauty-ndl-dc-2586549-31-kawase-hasui-s05-crd": {
+  "status": "accurate"
+ },
+ "collection-of-beauty-ndl-dc-2586549-40-kawase-hasui-s06-crd": {
+  "audit": "2026-09",
   "status": "accurate"
  },
  "collection-of-beauty-ndl-dc-2586550-07-kawase-hasui-s05-crd": {
@@ -8524,6 +9307,7 @@
   "status": "accurate"
  },
  "collection-of-beauty-nichiren-bezweert-de-golven-bij-kakuda-tijdens-zijn-verbanning-naar-sado-rijksmuseum-rp-p-1956-717": {
+  "rechecked": "2026-09 accurate",
   "status": "accurate"
  },
  "collection-of-beauty-nicholas-ii-of-russia-by-v-serov-1902-royal-scots-dragoon-guards-museum": {
@@ -8544,8 +9328,10 @@
   "status": "accurate"
  },
  "collection-of-beauty-nicolas-poussin-le-massacre-des-innocents-google-art-project": {
-  "problem": "Soldier is raising a sword to strike, not pinning; no wider slaughter visible in background",
-  "status": "minor-fixed"
+  "audit": "2026-09",
+  "previousStatus": "minor-fixed",
+  "problem": "The sword is raised over the CHILD, not the mother: the soldier pins the infant to the pavement under his foot, and the mother is not clutching the infant at all — she has hold of the soldier's arm and hair, trying to stop the blow. The sentence inverts victim and assailant's target.",
+  "status": "major-fixed"
  },
  "collection-of-beauty-nicolas-poussin-stormy-landscape-with-pyramus-and-thisbe-wga18334": {
   "status": "accurate"
@@ -8561,6 +9347,10 @@
  "collection-of-beauty-night-bivouac-of-great-army": {
   "status": "accurate"
  },
+ "collection-of-beauty-nighthawks-by-edward-hopper-1942": {
+  "audit": "2026-09",
+  "status": "accurate"
+ },
  "collection-of-beauty-nihon-fukei-senshu-abuto-no-kannon-by-kawase-hasui": {
   "problem": "Print is a snow scene; no 'high horizon' or 'wide expanse of tide'; snow not mentioned",
   "status": "minor-fixed"
@@ -8574,6 +9364,7 @@
  },
  "collection-of-beauty-nihon-fukei-senshu-bingo-no-iwafune-by-kawase-hasui": {
   "problem": "Image shows a large sailing cargo vessel with crew, not 'fishing vessels'; scene is not 'unpeopled'",
+  "rechecked": "2026-09 accurate",
   "status": "minor-fixed"
  },
  "collection-of-beauty-nihon-fukei-senshu-bungo-kakize-by-kawase-hasui": {
@@ -8684,6 +9475,10 @@
   "problem": "'Second lithotint' and 'Wellington Street printing offices' production detail are unverifiable from provided sources.",
   "status": "minor-fixed"
  },
+ "collection-of-beauty-nude-against-the-light-pierre-bonnard": {
+  "audit": "2026-09",
+  "status": "accurate"
+ },
  "collection-of-beauty-nuremberg-chronicles-dance-of-death-cclxiiiiv": {
   "status": "accurate"
  },
@@ -8699,12 +9494,24 @@
  "collection-of-beauty-oeillets-et-clematite-dans-un-vase-de-cristal-ca-1882-edouard-manet-musee-d-orsay-paris": {
   "status": "accurate"
  },
+ "collection-of-beauty-old-guitarist-chicago": {
+  "audit": "2026-09",
+  "status": "accurate"
+ },
+ "collection-of-beauty-old-korea-keith-bride": {
+  "audit": "2026-09",
+  "status": "accurate"
+ },
  "collection-of-beauty-on-the-beach-two-are-company-three-are-none": {
   "status": "accurate"
  },
  "collection-of-beauty-ono-shindon-in-the-suraga-province": {
   "problem": "Describes 'paddy fields tending' and 'green rice terraces'; image shows farmers and pack horses transporting straw bundles across flat land.",
   "status": "minor-fixed"
+ },
+ "collection-of-beauty-ornament-with-owl-mocked-by-day-birds-met-dp820025": {
+  "audit": "2026-09",
+  "status": "accurate"
  },
  "collection-of-beauty-p-1948-sc-276-scaled-aspect-ratio-16-9-3-scaled": {
   "status": "accurate"
@@ -8759,6 +9566,10 @@
  "collection-of-beauty-parmigianino-madonna-and-child-with-angels-known-as-the-madonna-with-the-long-neck": {
   "status": "accurate"
  },
+ "collection-of-beauty-parson-weems-fable": {
+  "audit": "2026-09",
+  "status": "accurate"
+ },
  "collection-of-beauty-parting-spring-by-kawai-gyokudo-national-museum-of-modern-art-tokyo-l": {
   "status": "accurate"
  },
@@ -8770,6 +9581,38 @@
   "status": "accurate"
  },
  "collection-of-beauty-paul-cezanne-1892-95-les-joueurs-de-carte-the-card-players-60-x-73-cm-oil-on-canvas-courtauld-insti": {
+  "status": "accurate"
+ },
+ "collection-of-beauty-paul-cezanne-bathers-les-grandes-baigneuses-google-art-project": {
+  "audit": "2026-09",
+  "status": "accurate"
+ },
+ "collection-of-beauty-paul-cezanne-bouteille-carafe-broc-et-citrons": {
+  "audit": "2026-09",
+  "status": "accurate"
+ },
+ "collection-of-beauty-paul-cezanne-french-the-large-bathers-google-art-project": {
+  "audit": "2026-09",
+  "status": "accurate"
+ },
+ "collection-of-beauty-paul-cezanne-houses-in-provence-the-riaux-valley-near-l-estaque-google-art-project": {
+  "audit": "2026-09",
+  "status": "accurate"
+ },
+ "collection-of-beauty-paul-cezanne-le-grand-baigneur-google-art-project": {
+  "audit": "2026-09",
+  "status": "accurate"
+ },
+ "collection-of-beauty-paul-cezanne-madame-cezanne-with-green-hat-madame-cezanne-au-chapeau-vert-bf141-barnes-foundation": {
+  "audit": "2026-09",
+  "status": "accurate"
+ },
+ "collection-of-beauty-paul-cezanne-pyramid-of-skulls-c-1901": {
+  "audit": "2026-09",
+  "status": "accurate"
+ },
+ "collection-of-beauty-paul-cezanne-the-murder-google-art-project": {
+  "audit": "2026-09",
   "status": "accurate"
  },
  "collection-of-beauty-paul-de-vos-bull-subdued-by-dogs": {
@@ -8887,6 +9730,11 @@
   "problem": "The tupapau spirit sits at the background/upper area, not at the foot of the frame.",
   "status": "minor-fixed"
  },
+ "collection-of-beauty-paul-gauguin-nafea-faa-ipoipo-1892-oil-on-canvas-101-x-77-cm": {
+  "audit": "2026-09",
+  "problem": "The picture's subject is a question about marriage - the inscribed title 'Nafea Faa Ipoipo' means 'When will you marry?' - and it shows two seated women. 'Philosophical themes of human existence' is the standard description of a different Gauguin, 'Where Do We Come From? What Are We? Where Are We Going?', and it is doing all the descriptive work in this sentence.",
+  "status": "major-fixed"
+ },
  "collection-of-beauty-paul-gauguin-self-portrait-1903-kunstmuseum-basel-1943": {
   "problem": "The 2025 technical analysis / reaffirmation claim is unverifiable from any provided source.",
   "status": "minor-fixed"
@@ -8929,6 +9777,10 @@
  "collection-of-beauty-pellegrinibydegas": {
   "problem": "Figure is full-length, not three-quarter; no hat visible; inscription reads 'à lui' not 'à vous'; National Gallery provenance and medium detail unverified.",
   "status": "minor-fixed"
+ },
+ "collection-of-beauty-pered-atakoy-pod-plevnoy": {
+  "audit": "2026-09",
+  "status": "accurate"
  },
  "collection-of-beauty-perekochevka-kirgizov-2": {
   "from": "collection-of-beauty-2",
@@ -9280,6 +10132,10 @@
  "collection-of-beauty-petergansevoortbystuart": {
   "status": "accurate"
  },
+ "collection-of-beauty-petr-i-pri-krasnoy-gorke-ayvazovskiy": {
+  "audit": "2026-09",
+  "status": "accurate"
+ },
  "collection-of-beauty-philipp-otto-runge-der-maler-und-schriftsteller-friedrich-august-von-klinkowstrom-2840-osterreichis": {
   "status": "accurate"
  },
@@ -9319,9 +10175,21 @@
   "problem": "Sitter's dress is teal/blue-green, not pink as described.",
   "status": "minor-fixed"
  },
+ "collection-of-beauty-pierre-auguste-renoir-108": {
+  "audit": "2026-09",
+  "status": "accurate"
+ },
+ "collection-of-beauty-pierre-auguste-renoir-113": {
+  "audit": "2026-09",
+  "status": "accurate"
+ },
  "collection-of-beauty-pierre-auguste-renoir-1880-portrait-of-mademoiselle-irene-cahen-d-anvers-sammlung-e-g-buhrle": {
   "problem": "Background is dark foliage, not a 'soft blue-green ground'; no upholstered setting visible.",
   "status": "minor-fixed"
+ },
+ "collection-of-beauty-pierre-auguste-renoir-autoportrait-1875": {
+  "audit": "2026-09",
+  "status": "accurate"
  },
  "collection-of-beauty-pierre-auguste-renoir-by-the-water": {
   "problem": "Image shows two figures, not a single young woman; straw hat is worn by the male figure at left.",
@@ -9330,20 +10198,45 @@
  "collection-of-beauty-pierre-auguste-renoir-children-on-the-seashore-guernsey-enfants-au-bord-de-la-mer-a-guernesey-bf10-": {
   "status": "accurate"
  },
+ "collection-of-beauty-pierre-auguste-renoir-country-dance-google-art-project": {
+  "audit": "2026-09",
+  "status": "accurate"
+ },
  "collection-of-beauty-pierre-auguste-renoir-frederic-bazille": {
   "status": "accurate"
  },
  "collection-of-beauty-pierre-auguste-renoir-french-the-large-bathers-google-art-project": {
   "status": "accurate"
  },
+ "collection-of-beauty-pierre-auguste-renoir-jean-en-tant-que-chasseur-1910": {
+  "audit": "2026-09",
+  "status": "accurate"
+ },
  "collection-of-beauty-pierre-auguste-renoir-luncheon-of-the-boating-party-google-art-project": {
+  "status": "accurate"
+ },
+ "collection-of-beauty-pierre-auguste-renoir-paysage-a-la-roche-guyon": {
+  "audit": "2026-09",
+  "status": "accurate"
+ },
+ "collection-of-beauty-pierre-auguste-renoir-sailor-boy-portrait-of-robert-nunes-bf325-barnes-foundation": {
+  "audit": "2026-09",
   "status": "accurate"
  },
  "collection-of-beauty-pierre-auguste-renoir-spring-bouquet-1943-277-fogg-museum": {
   "problem": "Vase is blue-and-white decorated porcelain, not plain white; Courbet/Monet influence unverifiable from sources.",
+  "rechecked": "2026-09 accurate",
   "status": "minor-fixed"
  },
+ "collection-of-beauty-pierre-auguste-renoir-the-artist-s-family-la-famille-de-l-artiste-bf819-barnes-foundation": {
+  "audit": "2026-09",
+  "status": "accurate"
+ },
  "collection-of-beauty-pierre-auguste-renoir-the-piazza-san-marco-venice-google-art-project": {
+  "status": "accurate"
+ },
+ "collection-of-beauty-pierre-auguste-renoir-the-umbrellas-ca-1881-86": {
+  "audit": "2026-09",
   "status": "accurate"
  },
  "collection-of-beauty-pierre-cecile-puvis-de-chavannes-003": {
@@ -9387,6 +10280,7 @@
  },
  "collection-of-beauty-plate-from-le-brun-bowles-s-passions-of-the-soul-circa-1785-wellcome-l0012148": {
   "problem": "Description says 'drawn in red and brown ink' but the image is a monochrome engraving, not an ink drawing.",
+  "rechecked": "2026-09 accurate",
   "status": "minor-fixed"
  },
  "collection-of-beauty-po-vodam-1888": {
@@ -9420,8 +10314,13 @@
  "collection-of-beauty-portrait-de-l-artiste-avec-un-ami-by-raffaello-sanzio-from-c2rmf-retouched": {
   "status": "accurate"
  },
+ "collection-of-beauty-portrait-de-l-artiste-par-paul-cezanne-fwn-434": {
+  "audit": "2026-09",
+  "status": "accurate"
+ },
  "collection-of-beauty-portrait-de-madame-de-verninac-by-david-louvre-rf1942-16-n2": {
   "problem": "'Half-length' is wrong; the portrait is full-length, showing the sitter from head to foot.",
+  "rechecked": "2026-09 accurate",
   "status": "minor-fixed"
  },
  "collection-of-beauty-portrait-of-a-man-1877": {
@@ -9434,6 +10333,10 @@
  "collection-of-beauty-portrait-of-a-monk-by-peter-paul-rubens": {
   "problem": "'Lined face' overstates age; the monk appears relatively young. Light is frontal, not raking.",
   "status": "minor-fixed"
+ },
+ "collection-of-beauty-portrait-of-a-woman-met-dp-1419-01": {
+  "audit": "2026-09",
+  "status": "accurate"
  },
  "collection-of-beauty-portrait-of-alexandrine-le-normant-d-etiolles-daughter-of-madame-de-pompadour-playing-with-a-goldfi": {
   "problem": "Description says she holds a goldfinch on a tethered thread; image shows the bird inside a cage beside her, not on a thread.",
@@ -9460,6 +10363,11 @@
   "problem": "Description states Serov died 'two years' after 1910; Serov died in 1911, one year later, not two.",
   "status": "minor-fixed"
  },
+ "collection-of-beauty-portrait-of-la-fayette-by-louis-leopold-boilly-1788": {
+  "audit": "2026-09",
+  "problem": "The picture is a full-length standing portrait, not a bust; the sitter's whole figure, boots and a horse are shown.",
+  "status": "fabricated-fixed"
+ },
  "collection-of-beauty-portrait-of-margaret-gainsborough-thomas-gainsborough": {
   "problem": "Description calls the shawl 'black'; it is clearly deep blue in the image.",
   "status": "minor-fixed"
@@ -9485,11 +10393,24 @@
  "collection-of-beauty-portrait-of-the-writer-maxim-gorky": {
   "status": "accurate"
  },
+ "collection-of-beauty-portret-khudozhnika-fedora-antonovicha-bruni": {
+  "audit": "2026-09",
+  "problem": "The image is a painted portrait — visible brushwork, a painted cartoon on the wall behind, a painted signature on the chair arm. It is not a photograph.",
+  "status": "fabricated-fixed"
+ },
+ "collection-of-beauty-portret-s-p-kuvshinnikovoy-1888": {
+  "audit": "2026-09",
+  "status": "accurate"
+ },
  "collection-of-beauty-portret-van-etienne-lucien-martin-s0125v1962-van-gogh-museum": {
   "problem": "Description says 'warm browns and greens'; the palette is predominantly cool blue-grey throughout.",
   "status": "minor-fixed"
  },
  "collection-of-beauty-portret-van-willem-ii-1626-50-prins-van-oranje-en-zijn-echtgenote-maria-stuart-1631-60-rijksmuseum-": {
+  "status": "accurate"
+ },
+ "collection-of-beauty-posle-neudachi": {
+  "audit": "2026-09",
   "status": "accurate"
  },
  "collection-of-beauty-pozzi-samuel-par-sargent": {
@@ -9519,6 +10440,10 @@
  "collection-of-beauty-procesion-de-pascua-en-la-region-de-kursk-por-ilia-repin": {
   "status": "accurate"
  },
+ "collection-of-beauty-prokhod-barskaun": {
+  "audit": "2026-09",
+  "status": "accurate"
+ },
  "collection-of-beauty-promenade-sur-la-falaise-de-sainte-adresse-by-claude-monet-1867-oil-on-canvas-matsuoka-museum-of-ar": {
   "problem": "Describes 'sailing vessels scattered across a breezy sea' but the sea in the image is largely empty of ships.",
   "status": "minor-fixed"
@@ -9534,6 +10459,10 @@
   "status": "accurate"
  },
  "collection-of-beauty-quai-du-louvre-1867-by-claude-monet": {
+  "status": "accurate"
+ },
+ "collection-of-beauty-queensland-art-gallery-joy-of-museums-figure-with-snow-falling-by-takahashi-hiroaki-1": {
+  "audit": "2026-09",
   "status": "accurate"
  },
  "collection-of-beauty-quentin-matsys-a-grotesque-old-woman": {
@@ -9557,6 +10486,7 @@
   "status": "minor-fixed"
  },
  "collection-of-beauty-raffaello-sanzio-ritratto-di-bindo-altoviti": {
+  "rechecked": "2026-09 accurate",
   "status": "accurate"
  },
  "collection-of-beauty-raimondi-lucretia-s-suicide": {
@@ -9578,6 +10508,16 @@
  },
  "collection-of-beauty-raphael-young-man-carrying-an-old-man-on-his-back-c-1514-google-art-project": {
   "status": "accurate"
+ },
+ "collection-of-beauty-razvaliny-chuguchaka": {
+  "audit": "2026-09",
+  "problem": "Neither figures nor lions are present. The foreground is scattered with human skulls — the picture's whole point, and precisely what the description leaves out.",
+  "status": "major-fixed"
+ },
+ "collection-of-beauty-razvaliny-kitayskoy-kumirni-ak-kent": {
+  "audit": "2026-09",
+  "problem": "Nothing supports 'ancient' or 'Silk Road'. What is depicted is a recently wrecked Qing-era Chinese temple compound - intact whitewash, fresh rubble, standing pavilion - painted on Vereshchagin's 1869-70 Central Asian travels, not an archaeological site.",
+  "status": "major-fixed"
  },
  "collection-of-beauty-reception-du-grand-conde-a-versailles-jean-leon-gerome-1878": {
   "status": "accurate"
@@ -9652,10 +10592,16 @@
  },
  "collection-of-beauty-rembrandt-harmenszoon-van-rijn-an-elephant-1637-google-art-project": {
   "problem": "Albertina attribution unsupported by record; trunk extended forward, not clearly curled; Fall of Man etching claim unverified.",
+  "rechecked": "2026-09 accurate",
   "status": "minor-fixed"
+ },
+ "collection-of-beauty-rembrandt-harmenszoon-van-rijn-an-old-man-in-red": {
+  "audit": "2026-09",
+  "status": "accurate"
  },
  "collection-of-beauty-rembrandt-harmenszoon-van-rijn-large-self-portrait-google-art-project": {
   "problem": "Hat is a broad flat beret, not a skullcap; hands are not clearly folded in front.",
+  "rechecked": "2026-09 accurate",
   "status": "minor-fixed"
  },
  "collection-of-beauty-rembrandt-lapidation-saint-etienne-mba-lyon": {
@@ -9723,6 +10669,7 @@
  },
  "collection-of-beauty-rembrandt-van-rijn-zelfportret": {
   "problem": "Image is clearly a pen/ink drawing or wash sketch, not a painting; description invents oil-paint technique ('scratches into the wet paint with the butt of the brush').",
+  "rechecked": "2026-09 accurate",
   "status": "fabricated-fixed"
  },
  "collection-of-beauty-rembrandt-winterlandschap-1646": {
@@ -9739,7 +10686,19 @@
   "problem": "Description says 'Jane Seymour and Elizabeth of York behind'; in the image Jane Seymour stands prominently in the foreground right, not behind.",
   "status": "minor-fixed"
  },
+ "collection-of-beauty-renoir-a-box-at-the-theater-at-the-concert": {
+  "audit": "2026-09",
+  "status": "accurate"
+ },
+ "collection-of-beauty-renoir-by-bazille": {
+  "audit": "2026-09",
+  "status": "accurate"
+ },
  "collection-of-beauty-renoir-jeune-fille-se-peignant-la-toilette-1894": {
+  "status": "accurate"
+ },
+ "collection-of-beauty-renoir-madame-georges-charpentier-et-ses-enfants": {
+  "audit": "2026-09",
   "status": "accurate"
  },
  "collection-of-beauty-renoir-pierre-auguste-dance-at-le-moulin-de-la-galette-1876": {
@@ -9760,6 +10719,11 @@
   "status": "accurate"
  },
  "collection-of-beauty-reservist-of-the-first-division-malevich-1914": {
+  "rechecked": "2026-09 accurate",
+  "status": "accurate"
+ },
+ "collection-of-beauty-resting-girl-by-francois-boucher-1753-alte-pinakothek-munich-germany-2017-crop": {
+  "audit": "2026-09",
   "status": "accurate"
  },
  "collection-of-beauty-retrato-de-juan-pareja-by-diego-velazquez": {
@@ -9780,9 +10744,11 @@
   "status": "fabricated-fixed"
  },
  "collection-of-beauty-robert-delaunay-1911-12-window-on-the-city-no-3-solomon-r-guggenheim-museum": {
+  "rechecked": "2026-09 accurate",
   "status": "accurate"
  },
  "collection-of-beauty-robert-delaunay-1913-l-equipe-de-cardiff-oil-on-canvas-326-208-cm-musee-d-art-moderne-de-la-ville-d": {
+  "rechecked": "2026-09 accurate",
   "status": "accurate"
  },
  "collection-of-beauty-robert-delaunay-1915-nu-a-la-toilette-nu-a-la-coiffeuse-oil-on-canvas-140-142-cm-musee-d-art-modern": {
@@ -9795,6 +10761,10 @@
  "collection-of-beauty-robert-delaunay-autoportrait": {
   "problem": "'Divisionist palette' and 'high-collared coat' inaccurate; image shows Fauvist-style broad colour planes, not Divisionist dots.",
   "status": "minor-fixed"
+ },
+ "collection-of-beauty-robert-delaunay-c-1906-paysage-au-disque-solaire-oil-on-canvas-54-x-46-cm-musee-national-d-art-mode": {
+  "audit": "2026-09",
+  "status": "accurate"
  },
  "collection-of-beauty-robert-delaunay-der-eiffelturm-1910": {
   "status": "accurate"
@@ -9826,6 +10796,7 @@
   "status": "minor-fixed"
  },
  "collection-of-beauty-rocks-at-mouthier-by-gustave-courbet": {
+  "rechecked": "2026-09 accurate",
   "status": "accurate"
  },
  "collection-of-beauty-rogier-van-der-weyden-1399-1464-portrait-of-a-young-woman-with-a-white-headdress-545d-gemaldegaleri": {
@@ -9868,6 +10839,7 @@
  },
  "collection-of-beauty-rubens-apostel-paulus-grt": {
   "problem": "Paul is described as 'balding' but the figure has full, curly auburn hair.",
+  "rechecked": "2026-09 accurate",
   "status": "minor-fixed"
  },
  "collection-of-beauty-rubens-apostel-simon": {
@@ -9888,6 +10860,7 @@
   "status": "accurate"
  },
  "collection-of-beauty-rubens-medusa": {
+  "rechecked": "2026-09 accurate",
   "status": "accurate"
  },
  "collection-of-beauty-rubens-painting-adam-eve": {
@@ -9956,6 +10929,10 @@
   "problem": "Sails described as 'silhouettes' but image shows luminous pale blue-white sails fully visible, not silhouetted.",
   "status": "minor-fixed"
  },
+ "collection-of-beauty-saint-christopher-facing-left-met-dp815920": {
+  "audit": "2026-09",
+  "status": "accurate"
+ },
  "collection-of-beauty-saint-francis-of-assisi-in-ecstasy-caravaggio-c-1595": {
   "status": "accurate"
  },
@@ -10007,6 +10984,11 @@
   "problem": "Severed head is carried in cloth at arm's height, not balanced in a basket on the maidservant's head.",
   "status": "minor-fixed"
  },
+ "collection-of-beauty-sans-culotte": {
+  "audit": "2026-09",
+  "problem": "He carries no pike. He holds a flagstaff raised in his right hand, from which hangs a flag inscribed LIBERTE OU LA MORT - the single most conspicuous element of the picture, and the description misses it entirely and replaces it with a weapon.",
+  "status": "major-fixed"
+ },
  "collection-of-beauty-sanson-matando-al-leon-pedro-pablo-rubens": {
   "status": "accurate"
  },
@@ -10038,6 +11020,10 @@
   "status": "minor-fixed"
  },
  "collection-of-beauty-sarto-andrea-del-self-portrait-uffizi": {
+  "status": "accurate"
+ },
+ "collection-of-beauty-sazai-hall-at-the-temple-of-the-five-hundred-arhats-gohyaku-rakanji-sazaido-from-the-series-thirty-": {
+  "audit": "2026-09",
   "status": "accurate"
  },
  "collection-of-beauty-scene-des-massacres-de-scio": {
@@ -10079,6 +11065,10 @@
   "problem": "Only one putto is present, not multiple putti as stated.",
   "status": "minor-fixed"
  },
+ "collection-of-beauty-sekiya-village-on-the-sumida-river-sumidagawa-sekiya-no-sato-from-the-series-thirty-six-views-of-mo": {
+  "audit": "2026-09",
+  "status": "accurate"
+ },
  "collection-of-beauty-self-portrait-1628-1629-by-rembrandt": {
   "problem": "No easel visible; 'turns from his easel' unsupported. Dimensions and Rijksmuseum provenance unverified in record.",
   "status": "minor-fixed"
@@ -10089,6 +11079,7 @@
  },
  "collection-of-beauty-self-portrait-1908-or-1910-1911-kazimir-malevich": {
   "problem": "Malevich wears a dark green coat, not a 'crimson coat'. Dimensions and Tretyakov attribution unverified.",
+  "rechecked": "2026-09 accurate",
   "status": "minor-fixed"
  },
  "collection-of-beauty-self-portrait-as-the-allegory-of-painting-la-pittura-artemisia-gentileschi": {
@@ -10149,6 +11140,10 @@
   "problem": "Image shows the deity Ebisu with fish and basket, not an actor portrait with mica ground; no mica ground visible; not a kabuki actor close-up",
   "status": "minor-fixed"
  },
+ "collection-of-beauty-shaw-john-byam-liston-now-is-pilgrim-fair-autumn-s-charge": {
+  "audit": "2026-09",
+  "status": "accurate"
+ },
  "collection-of-beauty-shipwreck-turner": {
   "status": "accurate"
  },
@@ -10162,6 +11157,7 @@
  },
  "collection-of-beauty-shurygin-levitan-1889": {
   "problem": "Sitter wears a blue painter's blouse, not a dark coat; 'high collar' is a white ruffled collar, not a high coat collar",
+  "rechecked": "2026-09 accurate",
   "status": "minor-fixed"
  },
  "collection-of-beauty-siberische-blauwe-nachtegaal-bij-een-pioenroos-onder-een-besneeuwde-schoof-rp-p-2001-731": {
@@ -10203,6 +11199,10 @@
   "problem": "'Late-career rural scenes… around his estate at Het Steen' is wrong; the work dates to circa 1618–19, nearly two decades before Rubens acquired Het Steen.",
   "status": "minor-fixed"
  },
+ "collection-of-beauty-sisley-bridge-at-villeneuve-la-garenne": {
+  "audit": "2026-09",
+  "status": "accurate"
+ },
  "collection-of-beauty-slave-ship": {
   "status": "accurate"
  },
@@ -10218,6 +11218,14 @@
   "status": "accurate"
  },
  "collection-of-beauty-smiling-girl-holding-an-obscene-image-by-gerard-van-honthorst": {
+  "status": "accurate"
+ },
+ "collection-of-beauty-snow-on-ayase-river-rijksmuseum-rp-p-2016-66-8-1": {
+  "audit": "2026-09",
+  "status": "accurate"
+ },
+ "collection-of-beauty-snow-over-zojoji-temple-shiba-tokyo-img-9360": {
+  "audit": "2026-09",
   "status": "accurate"
  },
  "collection-of-beauty-sokokura-by-hiroshige1": {
@@ -10377,6 +11385,10 @@
   "problem": "'Dove Lake' location and 'since 1990' acquisition year are not in any provided source.",
   "status": "minor-fixed"
  },
+ "collection-of-beauty-tab-v-fetus-with-umbilical-cord-and-placenta-wellcome-l0034071": {
+  "audit": "2026-09",
+  "status": "accurate"
+ },
  "collection-of-beauty-tabi-miyage-dai-isshu-aki-no-koshiji-by-kawase-hasui": {
   "problem": "Description says 'autumn road through the Koshiji region'; image shows a coastal scene with thatched structures, drying racks, and a worker.",
   "status": "fabricated-fixed"
@@ -10420,6 +11432,7 @@
  },
  "collection-of-beauty-tabi-miyage-dai-nishu-etchu-himi-kosho-ji-by-kawase-hasui": {
   "problem": "Description says 'temple among trees on the Etchu coast with sea and sky'; image shows a nighttime alley with stone walls and a lone figure walking, no temple, trees, or sea visible.",
+  "rechecked": "2026-09 accurate",
   "status": "fabricated-fixed"
  },
  "collection-of-beauty-tabi-miyage-dai-nishu-fuyu-no-rankyo-by-kawase-hasui": {
@@ -10495,6 +11508,7 @@
  },
  "collection-of-beauty-tabi-miyage-dai-sanshu-tazawako-gozanoishi-by-kawase-hasui": {
   "problem": "Torii described as 'small' and 'red'; image shows a large, brown/dark-wood torii dominating the composition.",
+  "rechecked": "2026-09 accurate",
   "status": "minor-fixed"
  },
  "collection-of-beauty-taj-mahal-by-charles-w-bartlett-1916-woodblock-print": {
@@ -10514,6 +11528,10 @@
  "collection-of-beauty-tempelskatten-peter-finder-m-nten-i-fiskens-gab": {
   "status": "accurate"
  },
+ "collection-of-beauty-tenman-bridge-at-settsu-province-sesshu-tenmanbashi-from-the-series-remarkable-views-of-bridges-in-": {
+  "audit": "2026-09",
+  "status": "accurate"
+ },
  "collection-of-beauty-tentaciones-de-cristo-botticelli": {
   "status": "accurate"
  },
@@ -10521,6 +11539,10 @@
   "status": "accurate"
  },
  "collection-of-beauty-terrour-or-fright-from-heads-representing-the-various-passions-of-the-soul-as-they-are-expressed-in": {
+  "status": "accurate"
+ },
+ "collection-of-beauty-the-abduction-of-the-sabine-women-by-jean-francois-millet": {
+  "audit": "2026-09",
   "status": "accurate"
  },
  "collection-of-beauty-the-antiques-seller-by-rudolf-weisse-1887": {
@@ -10574,6 +11596,10 @@
   "problem": "Ship name 'Mansur al-liwa,' '84-gun,' and canvas dimensions appear nowhere in the sources and are likely invented.",
   "status": "minor-fixed"
  },
+ "collection-of-beauty-the-card-sharp-on-the-boulevard-a16552": {
+  "audit": "2026-09",
+  "status": "accurate"
+ },
  "collection-of-beauty-the-christian-martyrs-last-prayer-ga-c": {
   "status": "accurate"
  },
@@ -10617,6 +11643,10 @@
  "collection-of-beauty-the-famous-scenes-of-the-sixty-states-55-awa": {
   "status": "accurate"
  },
+ "collection-of-beauty-the-farm-at-les-collettes-cagnes-met-dt215205": {
+  "audit": "2026-09",
+  "status": "accurate"
+ },
  "collection-of-beauty-the-feast-in-the-house-of-levi-by-paolo-veronese-edited-2": {
   "problem": "A parrot is mentioned but the source identifies a hawk with falconer, not a parrot; unverifiable from image.",
   "status": "minor-fixed"
@@ -10631,9 +11661,17 @@
  "collection-of-beauty-the-fuji-from-kanaya-on-the-tokaido": {
   "status": "accurate"
  },
+ "collection-of-beauty-the-gold-scab-eruption-in-frilthy-lucre-the-creditor-by-james-mcneill-whistler-1879-oil-on-canvas-d": {
+  "audit": "2026-09",
+  "status": "accurate"
+ },
  "collection-of-beauty-the-golden-age-oil-on-copper-painting-by-joachim-wtewael-1605-metropolitan-museum-of-art": {
   "problem": "Scene is not figures merely reclining; the image shows a busy, dynamic composition of dancing, feasting, and acrobatic figures.",
   "status": "minor-fixed"
+ },
+ "collection-of-beauty-the-golden-pavilion-5759027207": {
+  "audit": "2026-09",
+  "status": "accurate"
  },
  "collection-of-beauty-the-gorge-at-varengeville-by-claude-monet-1882": {
   "problem": "Description says 'wooded ravine' but the image shows an open coastal clifftop with a small cottage and the open sea; no gorge or ravine is depicted.",
@@ -10663,6 +11701,10 @@
   "status": "accurate"
  },
  "collection-of-beauty-the-intervention-of-the-sabine-women-david-louvre-inv-3691": {
+  "status": "accurate"
+ },
+ "collection-of-beauty-the-inume-pass-in-kai-province-koshu-inume-toge-from-the-series-thirty-six-views-of-mount-fuji-fuga": {
+  "audit": "2026-09",
   "status": "accurate"
  },
  "collection-of-beauty-the-judgement-of-paris-1615-joachim-wtewael": {
@@ -10772,6 +11814,14 @@
   "problem": "Image shows couple sharing a lit torch/taper, not a soldier offering a coin to a girl extending her palm.",
   "status": "fabricated-fixed"
  },
+ "collection-of-beauty-the-sorrows-of-love-painting": {
+  "audit": "2026-09",
+  "status": "accurate"
+ },
+ "collection-of-beauty-the-sower-jean-francois-millet": {
+  "audit": "2026-09",
+  "status": "accurate"
+ },
  "collection-of-beauty-the-steadfast-philosopher-by-gerard-van-hondhorst": {
   "problem": "Description invents a second 'laughing companion'; image shows only one young woman. 'Fur-trimmed gown' unsupported.",
   "status": "minor-fixed"
@@ -10793,6 +11843,10 @@
   "problem": "Boiseries/Pompadour provenance and Laujon ballet reference and Vanderbilt bequest are specific claims absent from all sources.",
   "status": "minor-fixed"
  },
+ "collection-of-beauty-the-tribute-money-john-singleton-copley": {
+  "audit": "2026-09",
+  "status": "accurate"
+ },
  "collection-of-beauty-the-triumph-of-bacchus-oil-on-canvas-1736-charles-joseph-natoire": {
   "problem": "Description says 'procession' but the image shows a static pastoral gathering, not a triumphal procession.",
   "status": "minor-fixed"
@@ -10806,6 +11860,10 @@
  "collection-of-beauty-the-triumph-of-frederik-hendrik-by-jacob-jordaens-i": {
   "status": "accurate"
  },
+ "collection-of-beauty-the-venous-and-arterial-system-of-the-human-body-engraving-wellcome-v0007816el": {
+  "audit": "2026-09",
+  "status": "accurate"
+ },
  "collection-of-beauty-the-vision-of-the-valley-of-the-dry-bones": {
   "status": "accurate"
  },
@@ -10816,13 +11874,32 @@
  "collection-of-beauty-the-water-lily-pond-google-arts-culture": {
   "status": "accurate"
  },
+ "collection-of-beauty-the-waterwheel-at-onden-onden-no-suisha-from-the-series-thirty-six-views-of-mount-fuji-fugaku-sanju": {
+  "audit": "2026-09",
+  "problem": "Onden was a farming village on the Shibuya river in Musashi Province, just outside Edo - the area of today's Harajuku/Aoyama in Tokyo. It was not in Sagami Province.",
+  "status": "major-fixed"
+ },
+ "collection-of-beauty-the-wetterhorn-from-the-europe-series-hiroshi-yoshida": {
+  "audit": "2026-09",
+  "status": "accurate"
+ },
  "collection-of-beauty-the-white-horse-by-john-constable-google-art-project": {
+  "status": "accurate"
+ },
+ "collection-of-beauty-the-wounded-heron": {
+  "audit": "2026-09",
   "status": "accurate"
  },
  "collection-of-beauty-the-zuiderkerk-amsterdam-by-claude-monet-1874": {
   "status": "accurate"
  },
+ "collection-of-beauty-thomas-carlyle-oil-painting-1868-painted": {
+  "audit": "2026-09",
+  "problem": "This file is the Victoria and Albert Museum version (museum no. F.39), commissioned by John Forster and left to the museum in his 1876 bequest. NPG 1002 is a different Watts portrait of Carlyle, so the provenance sentence is attached to the wrong picture.",
+  "status": "major-fixed"
+ },
  "collection-of-beauty-thomas-cole-a-view-of-the-two-lakes-and-mountain-house-catskill-mountains-morning-1844-google-art-p": {
+  "rechecked": "2026-09 accurate",
   "status": "accurate"
  },
  "collection-of-beauty-thomas-cole-architect-s-dream-google-art-project": {
@@ -10959,6 +12036,10 @@
   "problem": "Described as a \"handscroll\" but the work is an album leaf, as confirmed by the credit citing \"Famous Album Leaves of the Sung Dynasty.\"",
   "status": "minor-fixed"
  },
+ "collection-of-beauty-three-sisters-by-yamakawa-shuho-1898-1944-painted-screen-1936-honolulu-museum-of-art-02": {
+  "audit": "2026-09",
+  "status": "accurate"
+ },
  "collection-of-beauty-tintoretto-and-lukrecja": {
   "status": "accurate"
  },
@@ -11040,6 +12121,10 @@
   "problem": "Description omits that the figure's upper body is bare; 'in a patterned kimono' implies clothed.",
   "status": "minor-fixed"
  },
+ "collection-of-beauty-toshogu-shrine-5759027311": {
+  "audit": "2026-09",
+  "status": "accurate"
+ },
  "collection-of-beauty-transfiguration-raphael": {
   "status": "accurate"
  },
@@ -11084,6 +12169,7 @@
   "status": "accurate"
  },
  "collection-of-beauty-turner-joseph-mallord-william-ra-line-fishing-off-hastings-google-art-project": {
+  "rechecked": "2026-09 accurate",
   "status": "accurate"
  },
  "collection-of-beauty-turner-newark-abbey-on-the-river-wey-5765910": {
@@ -11152,6 +12238,10 @@
  "collection-of-beauty-umegawa-in-sagami-province": {
   "status": "accurate"
  },
+ "collection-of-beauty-un-bar-aux-folies-bergere-by-edouard-manet-1882": {
+  "audit": "2026-09",
+  "status": "accurate"
+ },
  "collection-of-beauty-unmatinapresledeluge": {
   "status": "accurate"
  },
@@ -11160,6 +12250,10 @@
   "status": "fabricated-fixed"
  },
  "collection-of-beauty-urteil-des-paris": {
+  "status": "accurate"
+ },
+ "collection-of-beauty-ushibori-in-hitachi-province-joshu-ushibori-from-the-series-thirty-six-views-of-mount-fuji-fugaku-s": {
+  "audit": "2026-09",
   "status": "accurate"
  },
  "collection-of-beauty-utagawa-hiroshige-1857-awa-naruto-no-fuukei": {
@@ -11174,6 +12268,11 @@
  },
  "collection-of-beauty-utagawa-kunisada-i-c-1832-dawn-at-futami-ga-ura": {
   "status": "accurate"
+ },
+ "collection-of-beauty-valentin-a-serov-kupanie-loshadi": {
+  "audit": "2026-09",
+  "problem": "There is one boy, not two, and he is bent over washing the horse rather than leading it.",
+  "status": "major-fixed"
  },
  "collection-of-beauty-valentin-serov-pokhishchenie-evropy-google-art-project": {
   "from": "collection-of-beauty-valentin-serov-google-art-project-b196e1",
@@ -11202,6 +12301,7 @@
   "status": "minor-fixed"
  },
  "collection-of-beauty-van-gogh-die-brucke-von-langlois-in-arles-mit-wascherinnen": {
+  "rechecked": "2026-09 accurate",
   "status": "accurate"
  },
  "collection-of-beauty-van-gogh-die-schaferin-nach-millet": {
@@ -11233,6 +12333,10 @@
   "problem": "Palette described as 'pale pinks and blues' but image shows greens and yellows; no visible smokestacks.",
   "status": "minor-fixed"
  },
+ "collection-of-beauty-van-gogh-vincent-olive-grove-saint-remy-gothenburg-museum-of-art-gkm-0590-tif": {
+  "audit": "2026-09",
+  "status": "accurate"
+ },
  "collection-of-beauty-van-gogh-zwei-bauern-beim-umgraben": {
   "status": "accurate"
  },
@@ -11250,6 +12354,10 @@
   "status": "accurate"
  },
  "collection-of-beauty-vasily-vasilevich-vereshchagin-the-spy": {
+  "status": "accurate"
+ },
+ "collection-of-beauty-vasily-vereshchagin-russian-1842-1904-the-road-of-the-war-prisoners-1878-1879": {
+  "audit": "2026-09",
   "status": "accurate"
  },
  "collection-of-beauty-vasnetsov-acrobats": {
@@ -11314,6 +12422,10 @@
  },
  "collection-of-beauty-veronese-persee-rennes": {
   "status": "prior-audit"
+ },
+ "collection-of-beauty-versailles-boilly-autoportrait": {
+  "audit": "2026-09",
+  "status": "accurate"
  },
  "collection-of-beauty-vertumnus-arstidernas-gud-malad-av-giuseppe-arcimboldo-1591-skoklosters-slott-91503": {
   "status": "accurate"
@@ -11390,6 +12502,7 @@
   "status": "minor-fixed"
  },
  "collection-of-beauty-vincent-van-gogh-langs-de-seine-google-art-project": {
+  "rechecked": "2026-09 accurate",
   "status": "accurate"
  },
  "collection-of-beauty-vincent-van-gogh-le-moissonneur-1889": {
@@ -11412,6 +12525,11 @@
  "collection-of-beauty-vincent-van-gogh-perzikbomen-in-bloei": {
   "problem": "Sky is dappled and overcast, not 'clear blue'; the Mauve tribute attribution is not supported by sources for this 1889 version.",
   "status": "minor-fixed"
+ },
+ "collection-of-beauty-vincent-van-gogh-pieta-after-delacroix": {
+  "audit": "2026-09",
+  "problem": "The painting is a copy after Delacroix, a nineteenth-century Romantic — as the record's own English title says. The Saint-Rémy copies were made after prints of Delacroix, Millet, Rembrandt and Doré, not after Renaissance art, so the sentence points at the wrong tradition and at nothing in the picture.",
+  "status": "major-fixed"
  },
  "collection-of-beauty-vincent-van-gogh-road-with-cypress-and-star-c-12-15-may-1890": {
   "status": "accurate"
@@ -11511,6 +12629,11 @@
   "problem": "Palette is predominantly pale grey-silver with yellow-gold accents, not orange and violet as described.",
   "status": "minor-fixed"
  },
+ "collection-of-beauty-watteau-antoine-huit-etudes-de-tetes-de-femme-et-une-tete-d-homme": {
+  "audit": "2026-09",
+  "problem": "INV 33383 is a different Watteau sheet in the Louvre — 'Huit études de têtes', eight heads including a young Black sitter and an oboe player, neither of which appears in this image. The sheet actually shown (eight women plus one man's head) is Louvre INV 33384.",
+  "status": "major-fixed"
+ },
  "collection-of-beauty-watteau-antoine-quellnymphe-1708": {
   "problem": "Called a drawing, but image shows an oil painting; the figure is seated and upright, not clearly reclining.",
   "status": "minor-fixed"
@@ -11550,6 +12673,7 @@
  },
  "collection-of-beauty-whistler-selbstportrat": {
   "problem": "Painter is not a mere silhouette; figure is clearly modelled with black hat, grey coat, and visible hands holding brushes",
+  "rechecked": "2026-09 accurate",
   "status": "minor-fixed"
  },
  "collection-of-beauty-whistlers-mother-high-res": {
@@ -11618,11 +12742,14 @@
   "status": "accurate"
  },
  "collection-of-beauty-william-merritt-chase-still-life-with-hummingbird-google-art-project": {
-  "problem": "Description says 'flowers and fruit'; image shows only cut flowers in a vase, no fruit visible.",
-  "status": "minor-fixed"
+  "audit": "2026-09",
+  "previousStatus": "minor-fixed",
+  "problem": "Chase did not go to Munich until 1872, two years after this picture. An 1870 canvas cannot reflect Munich training. His training to that point was with Barton S. Hays in Indianapolis and at the National Academy of Design in New York.",
+  "status": "major-fixed"
  },
  "collection-of-beauty-william-merritt-chase-the-song-1907": {
   "problem": "Described as a woman 'absorbed in performance'; image shows a seated listener in white, a pianist visible in the background.",
+  "rechecked": "2026-09 accurate",
   "status": "fabricated-fixed"
  },
  "collection-of-beauty-william-merritt-chase-the-young-orphan-1884": {
@@ -11774,6 +12901,10 @@
   "problem": "Behind the figure is a large framed painting of an architectural interior, not a floor mirror. Unverifiable anecdotal details (32 sittings, Tverskoy Boulevard).",
   "status": "minor-fixed"
  },
+ "collection-of-beauty-yoro-waterfall-in-mino-province-mino-no-yoro-no-taki-from-the-series-a-tour-of-waterfalls-in-variou": {
+  "audit": "2026-09",
+  "status": "accurate"
+ },
  "collection-of-beauty-yoshiclimber": {
   "problem": "Image shows a single figure climbing alone; no roped band of warriors visible.",
   "status": "minor-fixed"
@@ -11784,6 +12915,10 @@
  "collection-of-beauty-yoshida-hiroshi-rapids-at-the-upper-reaches-of-tone-river-1928": {
   "problem": "No pines visible; image shows close-up of a dramatic waterfall/rapid, not a narrow gorge with overhanging pines.",
   "status": "minor-fixed"
+ },
+ "collection-of-beauty-yoshida-hiroshi-suzukawa-1935": {
+  "audit": "2026-09",
+  "status": "accurate"
  },
  "collection-of-beauty-yoshida-kameido": {
   "status": "accurate"
@@ -11843,6 +12978,7 @@
  },
  "collection-of-beauty-zentralbibliothek-zurich-portat-von-anna-magdalena-schweizer-geb-hess-im-alter-von-27-jahren-000003": {
   "problem": "Portrait is a strict profile view, not 'gaze direct'; medium is pencil/graphite drawing, not chalk and wash; head-and-shoulders, not half-length",
+  "rechecked": "2026-09 accurate",
   "status": "minor-fixed"
  },
  "collection-of-beauty-zinaida-yusupova-by-v-serov-1900-1902-grm": {
@@ -12022,6 +13158,7 @@
   "status": "accurate"
  },
  "kunstformen-images-haeckel-gorgonida": {
+  "rechecked": "2026-09 accurate",
   "status": "accurate"
  },
  "kunstformen-images-haeckel-hexacoralla": {
@@ -12035,6 +13172,7 @@
   "status": "minor-fixed"
  },
  "kunstformen-images-haeckel-lacertilia": {
+  "rechecked": "2026-09 accurate",
   "status": "accurate"
  },
  "kunstformen-images-haeckel-leptomedusae": {
@@ -12080,6 +13218,7 @@
   "status": "accurate"
  },
  "kunstformen-images-haeckel-peridinea": {
+  "rechecked": "2026-09 accurate",
   "status": "accurate"
  },
  "kunstformen-images-haeckel-peromedusae": {
@@ -12093,9 +13232,11 @@
  },
  "kunstformen-images-haeckel-platodes": {
   "problem": "Plate characterised as cercariae/larvae only; prominent adults (tapeworms, monogeneans) omitted from description.",
+  "rechecked": "2026-09 accurate",
   "status": "minor-fixed"
  },
  "kunstformen-images-haeckel-polycyttaria": {
+  "rechecked": "2026-09 accurate",
   "status": "accurate"
  },
  "kunstformen-images-haeckel-prosobranchia": {
@@ -12198,6 +13339,7 @@
   "status": "accurate"
  },
  "redoute-lilies-albuca-cornuta": {
+  "rechecked": "2026-09 accurate",
   "status": "accurate"
  },
  "redoute-lilies-albuca-fastigiata": {
@@ -12527,6 +13669,7 @@
   "status": "minor-fixed"
  },
  "redoute-lilies-commelina-communis": {
+  "rechecked": "2026-09 accurate",
   "status": "accurate"
  },
  "redoute-lilies-commelina-dianthifolia": {
@@ -12751,6 +13894,7 @@
   "status": "accurate"
  },
  "redoute-lilies-gladiolus-lineatus-400": {
+  "rechecked": "2026-09 accurate",
   "status": "accurate"
  },
  "redoute-lilies-gladiolus-merianus": {
@@ -12852,6 +13996,7 @@
   "status": "accurate"
  },
  "redoute-lilies-hyacinthus-romanus": {
+  "rechecked": "2026-09 accurate",
   "status": "accurate"
  },
  "redoute-lilies-hyacinthus-serotinus": {
@@ -13030,6 +14175,7 @@
   "status": "accurate"
  },
  "redoute-lilies-ixia-fusco-citrina": {
+  "rechecked": "2026-09 accurate",
   "status": "accurate"
  },
  "redoute-lilies-ixia-grandiflora-139": {
@@ -13046,6 +14192,7 @@
   "status": "accurate"
  },
  "redoute-lilies-ixia-longiflora": {
+  "rechecked": "2026-09 accurate",
   "status": "accurate"
  },
  "redoute-lilies-ixia-maculata": {
@@ -13123,6 +14270,7 @@
   "status": "accurate"
  },
  "redoute-lilies-leucoium-autumnale": {
+  "rechecked": "2026-09 accurate",
   "status": "accurate"
  },
  "redoute-lilies-leucoium-grandiflorum": {
@@ -13195,6 +14343,7 @@
   "status": "minor-fixed"
  },
  "redoute-lilies-mayanthemum-canadense": {
+  "rechecked": "2026-09 accurate",
   "status": "accurate"
  },
  "redoute-lilies-medeola-angustifolia": {
@@ -13328,6 +14477,7 @@
   "status": "accurate"
  },
  "redoute-lilies-ornithogalum-luteum": {
+  "rechecked": "2026-09 accurate",
   "status": "accurate"
  },
  "redoute-lilies-ornithogalum-minimum": {
@@ -13472,6 +14622,7 @@
   "status": "accurate"
  },
  "redoute-lilies-pontederia-cordata": {
+  "rechecked": "2026-09 accurate",
   "status": "accurate"
  },
  "redoute-lilies-sagittaria-ovata": {
@@ -13622,6 +14773,7 @@
   "status": "accurate"
  },
  "redoute-lilies-tulipa-cornuta": {
+  "rechecked": "2026-09 accurate",
   "status": "accurate"
  },
  "redoute-lilies-tulipa-gesneriana-dracontia": {
@@ -13630,6 +14782,7 @@
  },
  "redoute-lilies-tulipa-gesneriana-luteo-rubra": {
   "problem": "Description calls petals 'bright yellow' but the luteo-rubra variety shows yellow petals broadly banded with red.",
+  "rechecked": "2026-09 accurate",
   "status": "minor-fixed"
  },
  "redoute-lilies-tulipa-oculus-solis": {
@@ -13688,6 +14841,492 @@
   "status": "accurate"
  },
  "redoute-lilies-zigadenus-glaberrimus": {
+  "status": "accurate"
+ },
+ "redoute-roses-rosa-aciphylla": {
+  "audit": "2026-09",
+  "status": "accurate"
+ },
+ "redoute-roses-rosa-alba-cymaefolia": {
+  "audit": "2026-09",
+  "status": "accurate"
+ },
+ "redoute-roses-rosa-alba-flore-pleno": {
+  "audit": "2026-09",
+  "status": "accurate"
+ },
+ "redoute-roses-rosa-alba-foliacea": {
+  "audit": "2026-09",
+  "status": "accurate"
+ },
+ "redoute-roses-rosa-alba-regalis": {
+  "audit": "2026-09",
+  "status": "accurate"
+ },
+ "redoute-roses-rosa-alpina-flore-variegato": {
+  "audit": "2026-09",
+  "status": "accurate"
+ },
+ "redoute-roses-rosa-alpina-pendulina": {
+  "audit": "2026-09",
+  "status": "accurate"
+ },
+ "redoute-roses-rosa-alpina-vulgaris": {
+  "audit": "2026-09",
+  "status": "accurate"
+ },
+ "redoute-roses-rosa-andegavensis-59": {
+  "audit": "2026-09",
+  "status": "accurate"
+ },
+ "redoute-roses-rosa-banksiae": {
+  "audit": "2026-09",
+  "status": "accurate"
+ },
+ "redoute-roses-rosa-berberifolia": {
+  "audit": "2026-09",
+  "status": "accurate"
+ },
+ "redoute-roses-rosa-bifera-alba": {
+  "audit": "2026-09",
+  "status": "accurate"
+ },
+ "redoute-roses-rosa-bifera-officinalis": {
+  "audit": "2026-09",
+  "status": "accurate"
+ },
+ "redoute-roses-rosa-bifera-pumila": {
+  "audit": "2026-09",
+  "problem": "No hips appear anywhere on the plate. The foot of the sheet is a prickled green stem with leaves; the only fruit-like bodies are the green, unripe calyx tubes of the buds at the top left.",
+  "status": "major-fixed"
+ },
+ "redoute-roses-rosa-bifera-variegata": {
+  "audit": "2026-09",
+  "status": "accurate"
+ },
+ "redoute-roses-rosa-biserrata": {
+  "audit": "2026-09",
+  "status": "accurate"
+ },
+ "redoute-roses-rosa-bracteata": {
+  "audit": "2026-09",
+  "status": "accurate"
+ },
+ "redoute-roses-rosa-brevistyla-leucochroa": {
+  "audit": "2026-09",
+  "status": "accurate"
+ },
+ "redoute-roses-rosa-campanulata-flore-albo": {
+  "audit": "2026-09",
+  "status": "accurate"
+ },
+ "redoute-roses-rosa-canina-burboniana": {
+  "audit": "2026-09",
+  "problem": "Directly contradicted by the image. The sentence names a location within the sheet ('at the foot of the plate'), so it is an unambiguous claim about what is depicted, and nothing of the kind is there: the foot of the plate carries a bare prickly cane and a small leafy shoot.",
+  "status": "major-fixed"
+ },
+ "redoute-roses-rosa-canina-grandiflora": {
+  "audit": "2026-09",
+  "status": "accurate"
+ },
+ "redoute-roses-rosa-carolina-corymbosa": {
+  "audit": "2026-09",
+  "status": "accurate"
+ },
+ "redoute-roses-rosa-centifolia": {
+  "audit": "2026-09",
+  "status": "accurate"
+ },
+ "redoute-roses-rosa-centifolia-anemonoides": {
+  "audit": "2026-09",
+  "status": "accurate"
+ },
+ "redoute-roses-rosa-centifolia-anglica-rubra": {
+  "audit": "2026-09",
+  "status": "accurate"
+ },
+ "redoute-roses-rosa-centifolia-bipinnata-60": {
+  "audit": "2026-09",
+  "status": "accurate"
+ },
+ "redoute-roses-rosa-centifolia-carnea": {
+  "audit": "2026-09",
+  "status": "accurate"
+ },
+ "redoute-roses-rosa-centifolia-caryophyllea": {
+  "audit": "2026-09",
+  "status": "accurate"
+ },
+ "redoute-roses-rosa-centifolia-crenata": {
+  "audit": "2026-09",
+  "status": "accurate"
+ },
+ "redoute-roses-rosa-centifolia-foliacea": {
+  "audit": "2026-09",
+  "status": "accurate"
+ },
+ "redoute-roses-rosa-centifolia-minor": {
+  "audit": "2026-09",
+  "status": "accurate"
+ },
+ "redoute-roses-rosa-centifolia-mutabilis": {
+  "audit": "2026-09",
+  "status": "accurate"
+ },
+ "redoute-roses-rosa-centifolia-prolifera-foliacea": {
+  "audit": "2026-09",
+  "status": "accurate"
+ },
+ "redoute-roses-rosa-cinnamomea-majalis": {
+  "audit": "2026-09",
+  "problem": "The plate shows a DOUBLE flower packed with many petals, not a five-petalled single flower. The description appears to have imported the characteristics of Redouté's other cinnamon-rose plate, 'Rosa cinnamomea flore simplici' (Rosier de Mai à fleurs simples).",
+  "status": "major-fixed"
+ },
+ "redoute-roses-rosa-collina-fastigiata-120": {
+  "audit": "2026-09",
+  "problem": "Neither flower on the plate is five-petalled; both are full doubles with many overlapping petals. The colours are also blush-white and pale lilac rather than uniformly soft pink.",
+  "status": "major-fixed"
+ },
+ "redoute-roses-rosa-collina-fastigiata-61": {
+  "audit": "2026-09",
+  "problem": "There are no dissection figures on this plate. The foot of the sheet shows the end of the flowering shoot with leaves and a cut stem; nothing is enlarged or dissected.",
+  "status": "major-fixed"
+ },
+ "redoute-roses-rosa-damascena-aurora": {
+  "audit": "2026-09",
+  "status": "accurate"
+ },
+ "redoute-roses-rosa-damascena-italica": {
+  "audit": "2026-09",
+  "status": "accurate"
+ },
+ "redoute-roses-rosa-damascena-variegata": {
+  "audit": "2026-09",
+  "status": "accurate"
+ },
+ "redoute-roses-rosa-eglanteria-luteola": {
+  "audit": "2026-09",
+  "status": "accurate"
+ },
+ "redoute-roses-rosa-eglanteria-punicea": {
+  "audit": "2026-09",
+  "status": "accurate"
+ },
+ "redoute-roses-rosa-farinosa": {
+  "audit": "2026-09",
+  "status": "accurate"
+ },
+ "redoute-roses-rosa-foetida": {
+  "audit": "2026-09",
+  "status": "accurate"
+ },
+ "redoute-roses-rosa-gallica": {
+  "audit": "2026-09",
+  "status": "accurate"
+ },
+ "redoute-roses-rosa-gallica-agatha-prolifera": {
+  "audit": "2026-09",
+  "status": "accurate"
+ },
+ "redoute-roses-rosa-gallica-agatha-regalis": {
+  "audit": "2026-09",
+  "status": "accurate"
+ },
+ "redoute-roses-rosa-gallica-agatha-uncarnata": {
+  "audit": "2026-09",
+  "status": "accurate"
+ },
+ "redoute-roses-rosa-gallica-aurelianensis": {
+  "audit": "2026-09",
+  "status": "accurate"
+ },
+ "redoute-roses-rosa-gallica-coerulea": {
+  "audit": "2026-09",
+  "status": "accurate"
+ },
+ "redoute-roses-rosa-gallica-gueriniana": {
+  "audit": "2026-09",
+  "status": "accurate"
+ },
+ "redoute-roses-rosa-gallica-latifolia": {
+  "audit": "2026-09",
+  "status": "accurate"
+ },
+ "redoute-roses-rosa-gallica-pontiana": {
+  "audit": "2026-09",
+  "status": "accurate"
+ },
+ "redoute-roses-rosa-gallica-regalis": {
+  "audit": "2026-09",
+  "status": "accurate"
+ },
+ "redoute-roses-rosa-gallica-rosea-flore-simplici": {
+  "audit": "2026-09",
+  "status": "accurate"
+ },
+ "redoute-roses-rosa-geminata": {
+  "audit": "2026-09",
+  "status": "accurate"
+ },
+ "redoute-roses-rosa-hudsoniana-scandens": {
+  "audit": "2026-09",
+  "status": "accurate"
+ },
+ "redoute-roses-rosa-indica": {
+  "audit": "2026-09",
+  "status": "accurate"
+ },
+ "redoute-roses-rosa-indica-acuminata": {
+  "audit": "2026-09",
+  "status": "accurate"
+ },
+ "redoute-roses-rosa-indica-autumnalis": {
+  "audit": "2026-09",
+  "problem": "There are no dissection figures on this plate. The area at the foot of the composition is blank paper; only the flowering stem and one bud are drawn.",
+  "status": "major-fixed"
+ },
+ "redoute-roses-rosa-indica-caryophillea": {
+  "audit": "2026-09",
+  "status": "accurate"
+ },
+ "redoute-roses-rosa-indica-cruenta": {
+  "audit": "2026-09",
+  "problem": "There are no dissection figures on this plate. The lower part of the sheet holds only the stem and leaves; nothing is enlarged or dissected.",
+  "status": "major-fixed"
+ },
+ "redoute-roses-rosa-indica-dichotoma": {
+  "audit": "2026-09",
+  "status": "accurate"
+ },
+ "redoute-roses-rosa-indica-fragrans": {
+  "audit": "2026-09",
+  "status": "accurate"
+ },
+ "redoute-roses-rosa-indica-fragrans-flore-simplici": {
+  "audit": "2026-09",
+  "status": "accurate"
+ },
+ "redoute-roses-rosa-indica-multipetala": {
+  "audit": "2026-09",
+  "status": "accurate"
+ },
+ "redoute-roses-rosa-indica-pumila": {
+  "audit": "2026-09",
+  "status": "accurate"
+ },
+ "redoute-roses-rosa-indica-pumila-flor-simplici": {
+  "audit": "2026-09",
+  "problem": "Inverts the colour. The petals are rose-pink with pale, near-white bases, not white washed with pink - and this is the plate's main subject.",
+  "status": "major-fixed"
+ },
+ "redoute-roses-rosa-indica-subalba": {
+  "audit": "2026-09",
+  "status": "accurate"
+ },
+ "redoute-roses-rosa-indica-subviolacea": {
+  "audit": "2026-09",
+  "status": "accurate"
+ },
+ "redoute-roses-rosa-inermis": {
+  "audit": "2026-09",
+  "status": "accurate"
+ },
+ "redoute-roses-rosa-leucantha": {
+  "audit": "2026-09",
+  "status": "accurate"
+ },
+ "redoute-roses-rosa-lheritieranea": {
+  "audit": "2026-09",
+  "status": "accurate"
+ },
+ "redoute-roses-rosa-mollissima-flore-submultiplici": {
+  "audit": "2026-09",
+  "status": "accurate"
+ },
+ "redoute-roses-rosa-montezumae": {
+  "audit": "2026-09",
+  "status": "accurate"
+ },
+ "redoute-roses-rosa-moschata": {
+  "audit": "2026-09",
+  "status": "accurate"
+ },
+ "redoute-roses-rosa-moschata-flore-semi-pleno": {
+  "audit": "2026-09",
+  "status": "accurate"
+ },
+ "redoute-roses-rosa-mucosa-alba": {
+  "audit": "2026-09",
+  "status": "accurate"
+ },
+ "redoute-roses-rosa-mucosa-anemone-flora": {
+  "audit": "2026-09",
+  "status": "accurate"
+ },
+ "redoute-roses-rosa-multiflora-carnea": {
+  "audit": "2026-09",
+  "status": "accurate"
+ },
+ "redoute-roses-rosa-multiflora-platyphylla": {
+  "audit": "2026-09",
+  "status": "accurate"
+ },
+ "redoute-roses-rosa-muscosa-multiplex": {
+  "audit": "2026-09",
+  "status": "accurate"
+ },
+ "redoute-roses-rosa-nivea": {
+  "audit": "2026-09",
+  "problem": "The plant in the plate is conspicuously armed: red-brown prickles run along the main stem and the side branches.",
+  "status": "minor-fixed"
+ },
+ "redoute-roses-rosa-noisettiana": {
+  "audit": "2026-09",
+  "status": "accurate"
+ },
+ "redoute-roses-rosa-noisettiana-purpurea": {
+  "audit": "2026-09",
+  "status": "accurate"
+ },
+ "redoute-roses-rosa-orbessanea": {
+  "audit": "2026-09",
+  "status": "accurate"
+ },
+ "redoute-roses-rosa-parviflora-flore-multiplici": {
+  "audit": "2026-09",
+  "status": "accurate"
+ },
+ "redoute-roses-rosa-pimpinellifolia-flore-albo-aubmultiplici": {
+  "audit": "2026-09",
+  "status": "accurate"
+ },
+ "redoute-roses-rosa-pimpinellifolia-major-flore-variegato": {
+  "audit": "2026-09",
+  "status": "accurate"
+ },
+ "redoute-roses-rosa-pimpinellifolia-mariaburgensis": {
+  "audit": "2026-09",
+  "status": "accurate"
+ },
+ "redoute-roses-rosa-pimpinellifolia-pumila": {
+  "audit": "2026-09",
+  "status": "accurate"
+ },
+ "redoute-roses-rosa-pomonia-flore-subsimplici": {
+  "audit": "2026-09",
+  "status": "accurate"
+ },
+ "redoute-roses-rosa-pomponia": {
+  "audit": "2026-09",
+  "status": "accurate"
+ },
+ "redoute-roses-rosa-pomponiana": {
+  "audit": "2026-09",
+  "status": "accurate"
+ },
+ "redoute-roses-rosa-pomponiana-muscosa": {
+  "audit": "2026-09",
+  "status": "accurate"
+ },
+ "redoute-roses-rosa-rapa-flore-semipleno": {
+  "audit": "2026-09",
+  "status": "accurate"
+ },
+ "redoute-roses-rosa-reclinata-fleures-simples": {
+  "audit": "2026-09",
+  "status": "accurate"
+ },
+ "redoute-roses-rosa-reclinata-fleurs-presque-doubles": {
+  "audit": "2026-09",
+  "status": "accurate"
+ },
+ "redoute-roses-rosa-redutea-glauca": {
+  "audit": "2026-09",
+  "status": "accurate"
+ },
+ "redoute-roses-rosa-redutea-rubescens": {
+  "audit": "2026-09",
+  "status": "accurate"
+ },
+ "redoute-roses-rosa-rubifolia": {
+  "audit": "2026-09",
+  "status": "accurate"
+ },
+ "redoute-roses-rosa-rubiginosa": {
+  "audit": "2026-09",
+  "status": "accurate"
+ },
+ "redoute-roses-rosa-rubiginosa-anemone-flora": {
+  "audit": "2026-09",
+  "problem": "The single open flower is pale pink, not purple or violet, and there is only one open bloom rather than several.",
+  "status": "major-fixed"
+ },
+ "redoute-roses-rosa-rubiginosa-cretica": {
+  "audit": "2026-09",
+  "status": "accurate"
+ },
+ "redoute-roses-rosa-rubiginosa-nemoralis": {
+  "audit": "2026-09",
+  "status": "accurate"
+ },
+ "redoute-roses-rosa-rubiginosa-zabeth": {
+  "audit": "2026-09",
+  "status": "accurate"
+ },
+ "redoute-roses-rosa-rubininosa-flore-semi-pleno": {
+  "audit": "2026-09",
+  "status": "accurate"
+ },
+ "redoute-roses-rosa-sempervirens": {
+  "audit": "2026-09",
+  "status": "accurate"
+ },
+ "redoute-roses-rosa-sempervirens-latifolia": {
+  "audit": "2026-09",
+  "status": "accurate"
+ },
+ "redoute-roses-rosa-sepium-flore-submultiplici": {
+  "audit": "2026-09",
+  "status": "accurate"
+ },
+ "redoute-roses-rosa-sepium-myrtifolia": {
+  "audit": "2026-09",
+  "status": "accurate"
+ },
+ "redoute-roses-rosa-smpervirens-leschenaultiana": {
+  "audit": "2026-09",
+  "status": "accurate"
+ },
+ "redoute-roses-rosa-spinulifolia-dematratiana": {
+  "audit": "2026-09",
+  "status": "accurate"
+ },
+ "redoute-roses-rosa-stylosa": {
+  "audit": "2026-09",
+  "status": "accurate"
+ },
+ "redoute-roses-rosa-sulfurea": {
+  "audit": "2026-09",
+  "status": "accurate"
+ },
+ "redoute-roses-rosa-tomentosa-flore-multiplici": {
+  "audit": "2026-09",
+  "status": "accurate"
+ },
+ "redoute-roses-rosa-turbinata": {
+  "audit": "2026-09",
+  "status": "accurate"
+ },
+ "redoute-roses-rosa-ventenatiana": {
+  "audit": "2026-09",
+  "status": "accurate"
+ },
+ "redoute-roses-rosa-villosa": {
+  "audit": "2026-09",
+  "status": "accurate"
+ },
+ "redoute-roses-rosa-villosa-evrathiana": {
+  "audit": "2026-09",
   "status": "accurate"
  }
 }
