@@ -21,6 +21,7 @@ import {
 } from "@/lib/collections";
 import { getArtwork } from "@/lib/data";
 import { attributionText } from "@/lib/downloads";
+import { SITE_URL } from "@/lib/links";
 import { publicVariantUrl } from "@/lib/utils";
 import { type ZipEntry, zipReadableStream } from "@/lib/zip-stream";
 
@@ -126,7 +127,7 @@ function buildReadme(slug: string, ids: string[]): string {
         "as a condition.",
     ),
     "",
-    `Browse the full catalogue: https://beauty.trebeljahr.com/collection/${collection.slug}`,
+    `Browse the full catalogue: ${SITE_URL}/collection/${collection.slug}`,
     "",
     "PLATES",
     "",
@@ -137,7 +138,7 @@ function buildReadme(slug: string, ids: string[]): string {
     if (!art) return;
     lines.push(`${zipEntryName(art, i)}`);
     lines.push(`    ${attributionText(art)}`);
-    lines.push(`    https://beauty.trebeljahr.com/artwork/${art.id}`);
+    lines.push(`    ${SITE_URL}/artwork/${art.id}`);
     lines.push("");
   });
 

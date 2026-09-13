@@ -75,12 +75,12 @@ const museumFacts = [
     "Built with",
     "React Three Fiber and Three.js, inside a Next.js App Router site. Per-painting texture LOD with a frame-paced GPU upload queue keeps it usable on integrated graphics.",
   ],
-  ["Where", "https://beauty.trebeljahr.com/gallery-3d"],
+  ["Where", "https://collectionofbeauty.com/gallery-3d"],
 ] as const;
 
 const factSheet = [
   ["Project", "Collection of Beauty"],
-  ["URL", "https://beauty.trebeljahr.com"],
+  ["URL", "https://collectionofbeauty.com"],
   ["Maker", "Rico Trebeljahr - solo, no company"],
   ["Location", "Berlin, Germany"],
   ["Release", "2026 (public launch)"],
@@ -119,7 +119,7 @@ const factSheet = [
   ],
   ["Press contact", pressEmail],
   ["Social", 'See "Social" section below. Some accounts are still being warmed up at launch.'],
-  ["Press page", "https://beauty.trebeljahr.com/press"],
+  ["Press page", "https://collectionofbeauty.com/press"],
 ] as const;
 
 const descriptionTiers = [
@@ -296,12 +296,12 @@ const redistribution = [
 const social = [
   "Bluesky: warming up at launch - handle to be confirmed.",
   "Mastodon: warming up at launch - handle to be confirmed.",
-  "Newsletter: signup at beauty.trebeljahr.com/sub (also linked from every issue page and the site nav).",
+  "Newsletter: signup at collectionofbeauty.com/sub (also linked from every issue page and the site nav).",
   "GitHub: repository link visible from the site footer.",
   "Personal blog: ricos.site (long-form pieces and a launch retrospective will live there).",
 ] as const;
 
-const boilerplate = `Collection of Beauty is a walkable museum of public-domain art: ${FLOOR_COUNT} floors, one per art era, ${GROUND_ERA} at ground level rising to ${TOP_ERA}, joined by a central spiral staircase, with paintings hung at their real-world size where the dimensions are known. Built in WebGL by Rico Trebeljahr, it holds about ${WORKS_APPROX} works from ~${ARTISTS_APPROX} artists, sourced from Wikimedia Commons and adjacent open archives, also browsable as a flat gallery, a timeline, and per-artist pages. It runs at beauty.trebeljahr.com, free, without ads or sign-ups.`;
+const boilerplate = `Collection of Beauty is a walkable museum of public-domain art: ${FLOOR_COUNT} floors, one per art era, ${GROUND_ERA} at ground level rising to ${TOP_ERA}, joined by a central spiral staircase, with paintings hung at their real-world size where the dimensions are known. Built in WebGL by Rico Trebeljahr, it holds about ${WORKS_APPROX} works from ~${ARTISTS_APPROX} artists, sourced from Wikimedia Commons and adjacent open archives, also browsable as a flat gallery, a timeline, and per-artist pages. It runs at collectionofbeauty.com, free, without ads or sign-ups.`;
 
 function contactPointJsonLd(): Record<string, unknown> {
   return {
@@ -711,7 +711,7 @@ export default function PressPage() {
                     href="/imprint"
                     className="rounded-sm underline underline-offset-2 hover:text-[var(--foreground)] focus:outline-none focus-visible:ring-2 focus-visible:ring-[var(--ring)]"
                   >
-                    beauty.trebeljahr.com/imprint
+                    collectionofbeauty.com/imprint
                   </Link>
                 </p>
               </div>

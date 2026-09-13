@@ -41,7 +41,7 @@ function assetsBaseUrl(): string {
 
 const ASSETS_BASE_URL = assetsBaseUrl();
 const ASSETS_PROXY_BASE_URL = "/assets-raw";
-const DEFAULT_PUBLIC_ASSETS_BASE_URL = "https://assets.beauty.trebeljahr.com";
+const DEFAULT_PUBLIC_ASSETS_BASE_URL = "https://assets.collectionofbeauty.com";
 
 // Variant set is shared from `variant-config.mjs` so the encoder
 // (scripts/shrink-sources.mjs) and this runtime URL builder reference

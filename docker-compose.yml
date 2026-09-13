@@ -34,10 +34,15 @@ services:
       # Traefik dedupes by name and the bodies are identical.
       - "traefik.http.middlewares.gzip.compress=true"
       - "traefik.http.middlewares.redirect-to-https.redirectscheme.scheme=https"
+      # Hostnames: collectionofbeauty.com is canonical. www and the old
+      # beauty.trebeljahr.com are routed here too so Traefik holds a cert
+      # for them; next.config.mjs answers both with a permanent redirect
+      # to the apex. Coolify's Domain field lists only the apex, so these
+      # routers are the only thing keeping the old URLs alive.
       # HTTP entrypoint (port 80): catch the request, redirect to HTTPS.
       # Without this Traefik would 404 plain http:// requests.
       - "traefik.http.routers.beauty-app-http.entryPoints=http"
-      - "traefik.http.routers.beauty-app-http.rule=Host(`beauty.trebeljahr.com`)"
+      - "traefik.http.routers.beauty-app-http.rule=Host(`collectionofbeauty.com`) || Host(`www.collectionofbeauty.com`) || Host(`beauty.trebeljahr.com`)"
       - "traefik.http.routers.beauty-app-http.middlewares=redirect-to-https"
       # HTTPS entrypoint (port 443): TLS via Let's Encrypt, gzip on the way out.
       # `letsencrypt` is the resolver name Coolify configures by default in
@@ -45,7 +50,7 @@ services:
       # gets auto-generated). If you ever rename the resolver in Coolify's
       # proxy settings, update this string too.
       - "traefik.http.routers.beauty-app-https.entryPoints=https"
-      - "traefik.http.routers.beauty-app-https.rule=Host(`beauty.trebeljahr.com`)"
+      - "traefik.http.routers.beauty-app-https.rule=Host(`collectionofbeauty.com`) || Host(`www.collectionofbeauty.com`) || Host(`beauty.trebeljahr.com`)"
       - "traefik.http.routers.beauty-app-https.middlewares=gzip"
       - "traefik.http.routers.beauty-app-https.tls=true"
       - "traefik.http.routers.beauty-app-https.tls.certresolver=letsencrypt"

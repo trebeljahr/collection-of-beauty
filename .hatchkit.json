@@ -1,9 +1,9 @@
 {
-  "version": 3,
+  "version": 4,
   "cliVersion": "0.1.33",
   "scaffoldedAt": "2026-05-01T14:58:07.056Z",
   "name": "collection-of-beauty",
-  "domain": "beauty.trebeljahr.com",
+  "domain": "collectionofbeauty.com",
   "features": ["s3"],
   "mlServices": [],
   "s3Provider": "existing",
@@ -16,7 +16,18 @@
   "s3Buckets": {
     "assets": {
       "name": "collection-of-beauty-assets",
-      "publicUrl": "https://assets.beauty.trebeljahr.com"
+      "publicUrl": "https://assets.collectionofbeauty.com",
+      "cors": {
+        "origins": [
+          "http://localhost:3000",
+          "http://localhost:3001",
+          "https://beauty.trebeljahr.com",
+          "https://collectionofbeauty.com"
+        ],
+        "methods": ["GET", "HEAD"],
+        "maxAgeSeconds": 86400,
+        "extraOrigins": ["https://beauty.trebeljahr.com"]
+      }
     },
     "tokenId": "af0e667c07cb2664f58fb8f297186f5b",
     "accountId": "236db6b7957ea3079844334856fc162e"
@@ -29,22 +40,24 @@
     "mailingList": "none"
   },
   "ses": {
-    "identity": "mail.beauty.trebeljahr.com",
-    "mailFromDomain": "bounce.mail.beauty.trebeljahr.com",
+    "identity": "mail.collectionofbeauty.com",
+    "mailFromDomain": "bounce.mail.collectionofbeauty.com",
     "mailFromLabel": "bounce",
     "mailFromBehaviorOnMxFailure": "UseDefaultValue",
     "mailFromManagedDnsRecords": [
       {
         "type": "MX",
-        "name": "bounce.mail.beauty.trebeljahr.com",
+        "name": "bounce.mail.collectionofbeauty.com",
         "value": "feedback-smtp.eu-west-1.amazonses.com",
         "priority": 10
       },
       {
         "type": "TXT",
-        "name": "bounce.mail.beauty.trebeljahr.com",
+        "name": "bounce.mail.collectionofbeauty.com",
         "value": "v=spf1 include:amazonses.com ~all"
       }
     ]
-  }
+  },
+  "publicService": "client",
+  "topology": "single-origin"
 }
