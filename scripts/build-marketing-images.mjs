@@ -249,7 +249,7 @@ async function composeOg() {
     tagline:
       "A small, slow, hand-curated wing of the commons — with a 3D museum you can walk through.",
     stats: "~2,900 works · ~225 artists",
-    url: "beauty.trebeljahr.com",
+    url: "collectionofbeauty.com",
     titleSize: 72,
     taglineSize: 22,
     eyebrowSize: 16,
@@ -300,7 +300,7 @@ async function composeHero() {
     tagline:
       "A small, slow, hand-curated wing of the commons — with a multi-floor 3D museum you can walk through.",
     stats: "~2,900 works · ~225 artists",
-    url: "beauty.trebeljahr.com",
+    url: "collectionofbeauty.com",
     titleSize: 96,
     taglineSize: 26,
     eyebrowSize: 20,

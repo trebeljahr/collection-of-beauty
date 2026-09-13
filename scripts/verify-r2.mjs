@@ -56,7 +56,7 @@ import { fileURLToPath } from "node:url";
 
 const __dirname = fileURLToPath(new URL(".", import.meta.url));
 const ROOT = path.resolve(__dirname, "..");
-const DEFAULT_BASE = "https://assets.beauty.trebeljahr.com";
+const DEFAULT_BASE = "https://assets.collectionofbeauty.com";
 // shrink-sources.mjs emits exactly one WebP per source, at 1280w, for
 // OG meta tags + email clients. Mirror that here so the verifier
 // matches reality.

@@ -115,7 +115,7 @@ describe("publicVariantUrl", () => {
     vi.stubEnv("NEXT_PUBLIC_ASSETS_BASE_URL", "http://localhost:9837");
 
     expect(publicVariantUrl("collection/Foo.jpg", 1280, "webp")).toBe(
-      "https://assets.beauty.trebeljahr.com/collection/Foo/1280.webp",
+      "https://assets.collectionofbeauty.com/collection/Foo/1280.webp",
     );
   });
 

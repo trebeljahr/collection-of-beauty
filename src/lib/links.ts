@@ -25,7 +25,7 @@ export const SITE_URL: string = (() => {
   const explicit = process.env.NEXT_PUBLIC_SITE_URL;
   if (explicit) return stripTrailingSlash(explicit);
   return process.env.NODE_ENV === "production"
-    ? "https://beauty.trebeljahr.com"
+    ? "https://collectionofbeauty.com"
     : "http://localhost:3547";
 })();
 

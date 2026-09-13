@@ -75,7 +75,7 @@ async function main(): Promise<void> {
     process.exit(1);
   }
 
-  const siteUrl = process.env.NEXT_PUBLIC_SITE_URL ?? "https://beauty.trebeljahr.com";
+  const siteUrl = process.env.NEXT_PUBLIC_SITE_URL ?? "https://collectionofbeauty.com";
   const production = isProductionSend();
   const dryRun = flags.has("--dry-run");
 

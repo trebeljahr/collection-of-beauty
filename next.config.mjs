@@ -52,6 +52,9 @@ function assetsRewriteTarget() {
 
 const ASSETS_REWRITE_TARGET = assetsRewriteTarget();
 
+const CANONICAL_ORIGIN = "https://collectionofbeauty.com";
+const LEGACY_HOSTS = ["beauty.trebeljahr.com", "www.collectionofbeauty.com"];
+
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   output: "standalone",
@@ -83,6 +86,16 @@ const nextConfig = {
   // search-engine entries still resolve.
   async redirects() {
     return [
+      // The site moved from beauty.trebeljahr.com to collectionofbeauty.com.
+      // Traefik routes the old host and www to this container (see
+      // docker-compose.yml), so every indexed or shared URL lands on the
+      // same path at the apex. Query strings carry over.
+      ...LEGACY_HOSTS.map((host) => ({
+        source: "/:path*",
+        has: [{ type: "host", value: host }],
+        destination: `${CANONICAL_ORIGIN}/:path*`,
+        permanent: true,
+      })),
       {
         source: "/drop",
         destination: "/drops",
