@@ -6,6 +6,7 @@ import { useArtworkTooltip } from "@/components/artwork-tooltip";
 import { ResponsiveImage } from "@/components/responsive-image";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
+import { Select } from "@/components/ui/select";
 import { artworkAlt, displayTitle } from "@/lib/artwork-format";
 import { artworkHref } from "@/lib/scope-href";
 import type { TimelineDecade, TimelineListing, TimelineSummary } from "@/lib/timeline";
@@ -202,19 +203,16 @@ export function TimelineView({ initialDecades, initialTotal, movements }: Props)
           onChange={(e) => setQueryInput(e.target.value)}
           className="h-11 text-base sm:h-9 sm:text-sm md:max-w-md"
         />
-        <select
+        <Select
           aria-label="Filter by movement"
           value={movement}
-          onChange={(e) => setMovement(e.target.value)}
-          className="h-11 rounded-md border border-[var(--input)] bg-transparent px-2 text-base focus:outline-none focus-visible:ring-2 focus-visible:ring-[var(--ring)] sm:h-9 sm:text-sm"
-        >
-          <option value="">All movements</option>
-          {movements.map((m) => (
-            <option key={m} value={m}>
-              {m}
-            </option>
-          ))}
-        </select>
+          onChange={setMovement}
+          options={[
+            { value: "", label: "All movements" },
+            ...movements.map((m) => ({ value: m, label: m })),
+          ]}
+          className="md:w-64 md:shrink-0"
+        />
         <div className="text-sm text-[var(--muted-foreground)]" aria-live="polite">
           {summaryStatus === "failed"
             ? "Could not update the counts — check your connection."
@@ -232,26 +230,24 @@ export function TimelineView({ initialDecades, initialTotal, movements }: Props)
               control, 44px tall, 16px text — is what actually gets a
               visitor to a decade on touch; the bars stay a chart. */}
           {decades.length > 0 && (
-            <select
+            <Select
               aria-label="Jump to a decade"
-              defaultValue=""
-              onChange={(e) => {
-                const decade = e.currentTarget.value;
-                // Reset to the label so re-picking the same decade fires
-                // onChange again, and so the control never reads as a
-                // filter (it navigates, it doesn't narrow anything).
-                e.currentTarget.value = "";
+              // Always shows the label, so re-picking the same decade still
+              // fires, and the control never reads as a filter (it
+              // navigates, it doesn't narrow anything).
+              value=""
+              onChange={(decade) => {
                 if (decade) window.location.hash = `#decade-${decade}`;
               }}
-              className="h-11 rounded-md border border-[var(--input)] bg-transparent px-2 text-base focus:outline-none focus-visible:ring-2 focus-visible:ring-[var(--ring)] sm:hidden"
-            >
-              <option value="">Jump to decade...</option>
-              {decades.map((d) => (
-                <option key={d.decade} value={d.decade}>
-                  {d.decade}s ({d.count})
-                </option>
-              ))}
-            </select>
+              options={[
+                { value: "", label: "Jump to decade..." },
+                ...decades.map((d) => ({
+                  value: String(d.decade),
+                  label: `${d.decade}s (${d.count})`,
+                })),
+              ]}
+              className="sm:hidden"
+            />
           )}
         </div>
         {/* The strip scrolls in its own box below `sm`. Sized to fit
