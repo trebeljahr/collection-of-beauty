@@ -28,8 +28,13 @@ const EXPLORE_LINKS: ReadonlyArray<NavLink> = [
   {
     href: "/timeline",
     label: "Timeline",
-    sub: "Decades and eras, oldest first",
-    isActive: (pathname) => pathname === "/timeline" || pathname.startsWith("/era/"),
+    sub: "Every dated work by decade",
+  },
+  {
+    href: "/eras",
+    label: "Eras",
+    sub: "Group history into rooms",
+    isActive: (pathname) => pathname === "/eras" || pathname.startsWith("/era/"),
   },
   {
     href: "/collections",
