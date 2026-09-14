@@ -103,4 +103,7 @@ These authors are out of copyright in their non-EU home country but not under th
 
 ## Bucket deletion
 
-_Pending: filled in once the deletion is verified._
+- 2026-09-14: the 132 uncatalogued folders were deleted first, because no page linked to them: 1,188 objects. The catalogued works' 129 objects were deleted after the deploy that removed their pages. Total: 1,317 objects, 146 folders. The bucket went from 46,159 to 44,842 keys, with nothing left under any of the 146 prefixes.
+- After the deploy, all 14 artwork pages, 9 artist pages and 14 `/api/download/<id>` routes return 404. The sitemap and `/api/artworks` contain none of the removed ids. `pnpm assets:verify:bulk` still verifies all 42,192 catalogued variants.
+- **Cloudflare cache purge still needed.** Images are served with `Cache-Control: public, max-age=31536000, immutable`. After deletion, 8 of the 258 URL checks on the catalogued works still returned 200 with `cf-cache-status: HIT`, on both `assets.collectionofbeauty.com` and `collectionofbeauty.com/assets-raw/`. They belonged to works that visitors had viewed. Cloudflare caches per data centre, so a 404 from one location does not prove a URL is gone everywhere. Neither Hatchkit Cloudflare token (`dns:cloudflare:token`, `s3:r2:admin-token`) has Cache Purge permission. Purge the `collectionofbeauty.com` zone in the dashboard: Caching → Configuration → Purge Everything.
+- Visitors' browsers may keep their own copies for up to a year, because of the `immutable` header. Nothing on the server side can change that.
