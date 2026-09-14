@@ -385,53 +385,6 @@
   },
   {
     "target": {
-      "id": "collection-of-beauty-nighthawks-by-edward-hopper-1942",
-      "title": "Nighthawks",
-      "englishTitle": null,
-      "artist": "Edward Hopper",
-      "w": 960,
-      "h": 524,
-      "fileUrl": "https://upload.wikimedia.org/wikipedia/commons/a/a8/Nighthawks_by_Edward_Hopper_1942.jpg",
-      "commonsUrl": "https://commons.wikimedia.org/wiki/File%3ANighthawks_by_Edward_Hopper_1942.jpg",
-      "wikidataId": "Q83872",
-      "objectKey": "collection-of-beauty/Nighthawks_by_Edward_Hopper_1942.jpg",
-      "variantWidths": [
-        256,
-        480,
-        640,
-        960,
-        1280,
-        1920,
-        2560,
-        4096
-      ]
-    },
-    "candidates": [
-      {
-        "fileUrl": "https://upload.wikimedia.org/wikipedia/commons/a/a8/Nighthawks_by_Edward_Hopper_1942.jpg",
-        "commonsPageUrl": "https://commons.wikimedia.org/wiki/File:Nighthawks_by_Edward_Hopper_1942.jpg",
-        "width": 6000,
-        "height": 3274,
-        "confidence": 1,
-        "hamming": 0,
-        "source": "own-file",
-        "reason": "Commons copy of the same file is 6000x3274 vs local 960x524 — local copy is a downscale; re-download."
-      },
-      {
-        "fileUrl": "https://upload.wikimedia.org/wikipedia/commons/7/7b/Hopper_Nighthawks.jpg",
-        "commonsPageUrl": "https://commons.wikimedia.org/wiki/File:Hopper_Nighthawks.jpg",
-        "width": 3000,
-        "height": 1635,
-        "confidence": 0.85,
-        "hamming": 6,
-        "source": "commons-search",
-        "reason": "Commons search hit, 3000x1635. dHash distance 6."
-      }
-    ],
-    "summary": "2 verified candidate(s); best is 6000x3274 via own-file (39.1x pixels)."
-  },
-  {
-    "target": {
       "id": "collection-of-beauty-500px-gipsen-vrouwentorso-s0199v1962-van-gogh-museum",
       "title": "500px-Gipsen vrouwentorso - s0199V1962 - Van Gogh Museum",
       "englishTitle": "Plaster Cast of a Woman's Torso",
@@ -1839,32 +1792,6 @@
       "commonsUrl": "https://commons.wikimedia.org/wiki/File%3ADrawing_of_mules_by_Claude_Lorrain.jpg",
       "wikidataId": null,
       "objectKey": "collection-of-beauty/Drawing_of_mules_by_Claude_Lorrain.jpg",
-      "variantWidths": [
-        256,
-        480,
-        640,
-        960,
-        1280,
-        1920,
-        2560,
-        4096
-      ]
-    },
-    "candidates": [],
-    "summary": "No verified higher-res replacement found (0 raw candidates, 0 below confidence threshold)."
-  },
-  {
-    "target": {
-      "id": "collection-of-beauty-edward-hopper-night-shadows-oct-1922-shadowland",
-      "title": "Night Shadows - Oct 1922 Shadowland",
-      "englishTitle": null,
-      "artist": "Edward Hopper",
-      "w": 678,
-      "h": 561,
-      "fileUrl": "https://upload.wikimedia.org/wikipedia/commons/b/b2/Edward_Hopper_-_Night_Shadows_-_Oct_1922_Shadowland.jpg",
-      "commonsUrl": "https://commons.wikimedia.org/wiki/File%3AEdward_Hopper_-_Night_Shadows_-_Oct_1922_Shadowland.jpg",
-      "wikidataId": null,
-      "objectKey": "collection-of-beauty/Edward_Hopper_-_Night_Shadows_-_Oct_1922_Shadowland.jpg",
       "variantWidths": [
         256,
         480,
@@ -3568,32 +3495,6 @@
     },
     "candidates": [],
     "summary": "No verified higher-res replacement found (7 raw candidates, 7 below confidence threshold)."
-  },
-  {
-    "target": {
-      "id": "collection-of-beauty-the-disquieting-muses",
-      "title": "The Disquieting Muses",
-      "englishTitle": null,
-      "artist": "Giorgio de Chirico",
-      "w": 500,
-      "h": 736,
-      "fileUrl": "https://upload.wikimedia.org/wikipedia/commons/1/1c/Giorgio_de_Chirico_-_Les_muses_inqui%C3%A9tantes.jpg",
-      "commonsUrl": "https://commons.wikimedia.org/wiki/File:Giorgio_de_Chirico_-_Les_muses_inqui%C3%A9tantes.jpg",
-      "wikidataId": null,
-      "objectKey": "collection-of-beauty/The_Disquieting_Muses.jpg",
-      "variantWidths": [
-        256,
-        480,
-        640,
-        960,
-        1280,
-        1920,
-        2560,
-        4096
-      ]
-    },
-    "candidates": [],
-    "summary": "No verified higher-res replacement found (0 raw candidates, 0 below confidence threshold)."
   },
   {
     "target": {

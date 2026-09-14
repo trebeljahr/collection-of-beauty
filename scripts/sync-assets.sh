@@ -62,6 +62,24 @@ if [ ! -d "$ASSETS_DIR" ]; then
   exit 1
 fi
 
+# Refuse to publish a taken-down work. metadata/takedowns.json lists works
+# still in copyright where the site is operated; shrink never encodes them,
+# but a variant dir left over from before a takedown, or copied in by hand,
+# would otherwise be uploaded again by the sync below.
+TAKEDOWN_DIRS="$(node --input-type=module -e '
+  import { existsSync } from "node:fs";
+  import { loadTakedowns } from "'"$SCRIPT_DIR"'/lib/takedowns.mjs";
+  for (const p of loadTakedowns().prefixes()) {
+    if (existsSync(process.argv[1] + "/" + p)) console.log(p);
+  }
+' "$ASSETS_DIR")"
+if [ -n "$TAKEDOWN_DIRS" ]; then
+  echo "Refusing to sync: these variant dirs belong to works in metadata/takedowns.json:" >&2
+  echo "$TAKEDOWN_DIRS" | sed 's/^/  assets-web\//' >&2
+  echo "Delete them from assets-web/ first; they must not reach the bucket." >&2
+  exit 1
+fi
+
 HAVE_RCLONE=0; command -v rclone >/dev/null 2>&1 && HAVE_RCLONE=1
 HAVE_DOCKER=0; command -v docker >/dev/null 2>&1 && HAVE_DOCKER=1
 if [ "$HAVE_RCLONE" -eq 0 ] && [ "$HAVE_DOCKER" -eq 0 ]; then

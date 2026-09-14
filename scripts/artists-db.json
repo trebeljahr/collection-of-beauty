@@ -668,7 +668,7 @@
       "died": 1976,
       "nationality": "Japanese",
       "movement": "Shin-hanga",
-      "pd_status": "public_domain_in_most_jurisdictions"
+      "pd_status": "copyrighted"
     },
     {
       "name": "Takahashi Shōtei",
@@ -1471,7 +1471,7 @@
       "died": 1991,
       "nationality": "Japanese",
       "movement": "Shin-hanga",
-      "pd_status": "public_domain_in_most_jurisdictions"
+      "pd_status": "copyrighted"
     },
     {
       "name": "Kim Hong-do",
@@ -2557,6 +2557,69 @@
       "nationality": "French",
       "movement": null,
       "pd_status": "public_domain_worldwide"
+    },
+    {
+      "name": "M. C. Escher",
+      "aliases": ["M. C. Escher", "M.C. Escher", "Maurits Cornelis Escher"],
+      "born": 1898,
+      "died": 1972,
+      "nationality": "Dutch",
+      "movement": null,
+      "pd_status": "copyrighted"
+    },
+    {
+      "name": "Giorgio de Chirico",
+      "aliases": ["Giorgio de Chirico"],
+      "born": 1888,
+      "died": 1978,
+      "nationality": "Italian",
+      "movement": null,
+      "pd_status": "copyrighted"
+    },
+    {
+      "name": "René Magritte",
+      "aliases": ["René Magritte", "Rene Magritte"],
+      "born": 1898,
+      "died": 1967,
+      "nationality": "Belgian",
+      "movement": null,
+      "pd_status": "copyrighted"
+    },
+    {
+      "name": "Andrew Wyeth",
+      "aliases": ["Andrew Wyeth"],
+      "born": 1917,
+      "died": 2009,
+      "nationality": "American",
+      "movement": null,
+      "pd_status": "copyrighted"
+    },
+    {
+      "name": "Edward Gorey",
+      "aliases": ["Edward Gorey"],
+      "born": 1925,
+      "died": 2000,
+      "nationality": "American",
+      "movement": null,
+      "pd_status": "copyrighted"
+    },
+    {
+      "name": "Ernie Barnes",
+      "aliases": ["Ernie Barnes"],
+      "born": 1938,
+      "died": 2009,
+      "nationality": "American",
+      "movement": null,
+      "pd_status": "copyrighted"
+    },
+    {
+      "name": "Zhang Daqian",
+      "aliases": ["Zhang Daqian", "Chang Dai-chien"],
+      "born": 1899,
+      "died": 1983,
+      "nationality": "Chinese",
+      "movement": null,
+      "pd_status": "copyrighted"
     }
   ]
 }

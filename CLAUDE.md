@@ -38,7 +38,7 @@ required by the Dockerfile — don't remove it.
 - `Artwork.dominantColor` (whole-image average) is for placeholder tints
   only. Browse-by-colour uses `Artwork.colorBuckets` — up to three
   colour families read from a *pixel histogram* of the smallest variant.
-  The average is useless for hue filtering: it collapses ~all 4,571
+  The average is useless for hue filtering: it collapses ~all 4,557
   works into one warm wedge (~9 works land anywhere near blue). Scoring
   lives in [`src/lib/color-buckets.mjs`](src/lib/color-buckets.mjs)
   (`.mjs` so build-data imports it untranspiled, like `variant-config.mjs`)
@@ -51,7 +51,7 @@ required by the Dockerfile — don't remove it.
   `Artwork.colorStrength` is the chroma-weighted fraction of the whole
   image, per listed family, and is what `sort=color` ranks by so the
   reddest works head `/colours/red`. Membership is deliberately generous
-  (median red strength across the 810 red works is 0.049), so without the
+  (median red strength across the 806 red works is 0.049), so without the
   ranking the family pages open on works with a red accent.
   `colorStrength` is **server-only on purpose** — it is not in
   `ArtworkListing`; read it via `colorStrength()` / `sortByColorStrength()`
@@ -79,7 +79,7 @@ required by the Dockerfile — don't remove it.
 
 ## Deep zoom (tiled lightbox)
 
-- ~967 works have a source big enough that its full-size encode clears
+- ~965 works have a source big enough that its full-size encode clears
   `FULL_SIZE_MIN_WIDTH` (4096 px, in
   [`variant-config.mjs`](src/lib/variant-config.mjs)). For those,
   `pnpm assets:shrink` emits a per-source full-resolution AVIF
@@ -193,6 +193,36 @@ required by the Dockerfile — don't remove it.
   `/newsletter/<slug>` (per-edition magazine-style page). Both are
   in the sitemap. Drafts never reach the public surface.
 
+## Copyright
+
+The site is operated from Germany, so a work is publishable only once the
+German term has ended: 70 years after the end of the author's death year
+(§64 UrhG). Commons licence tags do not settle this. They describe US and
+source-country status, and several catalogued works carried a wrong CC0 or
+`PD-Japan` tag.
+
+- `metadata/takedowns.json` lists works that are still in copyright.
+  `scripts/lib/takedowns.mjs` enforces it in build-data, shrink, the Commons
+  fetch and `assets:sync`, which refuses to run while a listed variant dir
+  exists. All four checks are needed: shrink encodes every file under
+  `assets/<folder>` whether or not it is catalogued, and sync publishes
+  whatever shrink wrote. That is how 132 uncatalogued in-copyright images
+  ended up publicly served from the bucket.
+- build-data also withholds every work by an artist whose `artists-db.json`
+  `pd_status` is exactly `"copyrighted"`, which catches a re-ingest under a
+  new filename. Use it only for artists whose term runs well into the
+  future: the field has no expiry, so it would keep blocking a work after it
+  enters the public domain.
+- Taken-down originals are in `assets/.rejected/copyright/` and their
+  variants in `assets/.rejected/copyright-variants/`. Neither is read or
+  synced. Never put anything under `assets-web/.rejected/`: sync publishes it.
+- Open question for a lawyer: whether the EU rule of the shorter term applies
+  to non-EU authors who are out of copyright at home but not under the plain
+  German term. Kawase Hasui and Kawai Gyokudō (both died 1957), Pu Xian and
+  Pu Ru stay online pending that answer. They become public domain in Germany
+  on 1 January 2028 at the latest (Pu Ru: 2034, Pu Xian: 2037).
+- Details and sources: `metadata/copyright-takedown-2026-09.md`.
+
 ## Worktree workflow
 
 The user works in `.claude/worktrees/<slug>` and merges into `main` via
@@ -270,8 +300,7 @@ set up; if you need one, scaffold a Testing Library setup separately.
       is worse than where the year already puts them. A first pass
       added a Rogier van der Weyden entry and did exactly that to his
       eight 1435–1490 works; it was removed.
-    - 11 works by artists who died after 1955 (Escher, Metzinger,
-      Bonnard, de Chirico, Tanguy, Keith…). Every db entry asserts
-      `pd_status: public_domain_worldwide`; don't add one for an
-      artist where that isn't true.
+    - A few works by artists who died in or shortly before 1955
+      (Bonnard, Tanguy). Their German term has ended. Works still in
+      copyright are no longer catalogued; see "Copyright" below.
     - ~19 one-off minor or unidentified names.

@@ -10,6 +10,7 @@ import { colorProfileFromHistogram } from "../src/lib/color-buckets.mjs";
 import { loadArtistsDb, matchArtist } from "./lib/artist-alias.mjs";
 import { artworkId, ID_MAX_LENGTH, slugify } from "./lib/artwork-id.mjs";
 import { SOURCE_FOLDERS } from "./lib/source-folders.mjs";
+import { loadTakedowns } from "./lib/takedowns.mjs";
 
 // sharp's async work runs on the libuv threadpool, which defaults to 4
 // threads — the ceiling on how many images we can probe at once. Node reads
@@ -1350,9 +1351,10 @@ async function loadDateOverrides() {
     }
     if (typeof value !== "object") continue;
     const year = Number.isInteger(value.year) ? value.year : null;
-    const dateString = typeof value.dateString === "string" && value.dateString.trim()
-      ? value.dateString.trim()
-      : null;
+    const dateString =
+      typeof value.dateString === "string" && value.dateString.trim()
+        ? value.dateString.trim()
+        : null;
     if (year === null && dateString === null) continue;
     m.set(key.normalize("NFC"), { year, dateString });
   }
@@ -1474,6 +1476,13 @@ async function main() {
   const artworks = [];
   const artistAggregates = new Map();
   const droppedMissing = { count: 0, samples: [] };
+  // Copyright takedowns (metadata/takedowns.json). Checked by folder and
+  // filename, before anything else, so a sidecar entry that survives a
+  // re-fetch, or an original re-downloaded into assets/, still never
+  // reaches the catalogue.
+  const takedowns = loadTakedowns();
+  const droppedTakedown = { count: 0, byArtist: new Map() };
+  console.log(`[build-data] takedowns: ${takedowns.size}`);
 
   // Slugified IDs collide for two reasons: (1) the 120-char cap collapses two
   // filenames that differ only past the prefix (e.g. Turner's
@@ -1507,6 +1516,10 @@ async function main() {
 
   async function pushFromFolder(folderKey, data) {
     for (const [fname, entry] of Object.entries(data.entries)) {
+      if (takedowns.has(folderKey, fname)) {
+        droppedTakedown.count++;
+        continue;
+      }
       if (!keepEntry(entry)) continue;
 
       // Drop entries whose source file isn't present on disk. These come
@@ -1583,6 +1596,20 @@ async function main() {
           : entry.artist_info;
       }
       artistInfo = artistInfo ?? null;
+      // An artist the curated db marks "copyrighted" is still in copyright
+      // where the site is operated, and that term runs from the artist's
+      // death, not from the date of any one work — so every work by them is
+      // withheld. This catches a re-ingest under a filename takedowns.json
+      // has never seen. Narrower statuses ("copyrighted_in_us_until_…")
+      // are deliberately not matched.
+      if (artistInfo?.pd_status === "copyrighted") {
+        droppedTakedown.count++;
+        droppedTakedown.byArtist.set(
+          artistInfo.name,
+          (droppedTakedown.byArtist.get(artistInfo.name) ?? 0) + 1,
+        );
+        continue;
+      }
       // Prefer the canonical name from the artists DB so casing variants
       // ("Claude monet"), spelling variants ("Rafael" → "Raphael", "Alfons
       // Mucha" → "Alphonse Mucha"), and ordering variants ("Yamamoto Kanae"
@@ -1674,6 +1701,7 @@ async function main() {
   for (let i = 0; i < SOURCE_FOLDERS.length; i++) {
     const folderKey = SOURCE_FOLDERS[i];
     for (const [fname, entry] of Object.entries(folderData[i].entries)) {
+      if (takedowns.has(folderKey, fname)) continue;
       if (!keepEntry(entry)) continue;
       if (!existsSync(path.join(ASSETS, folderKey, fname))) continue;
       probeWork.push({ folderKey, fname });
@@ -1696,6 +1724,13 @@ async function main() {
     const sampleStr = droppedMissing.samples.join(", ");
     console.log(
       `[build-data] dropped ${droppedMissing.count} entries with no source file on disk (e.g. ${sampleStr}${droppedMissing.count > droppedMissing.samples.length ? ", …" : ""})`,
+    );
+  }
+
+  if (droppedTakedown.count > 0) {
+    const byArtist = [...droppedTakedown.byArtist].map(([n, c]) => `${n} ${c}`).join(", ");
+    console.log(
+      `[build-data] withheld ${droppedTakedown.count} entries for copyright (takedowns.json, or an artist marked "copyrighted"${byArtist ? `: ${byArtist}` : ""})`,
     );
   }
 

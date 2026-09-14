@@ -70,6 +70,7 @@ import {
   VARIANT_WIDTHS,
 } from "../src/lib/variant-config.mjs";
 import { SOURCE_FOLDERS } from "./lib/source-folders.mjs";
+import { loadTakedowns } from "./lib/takedowns.mjs";
 
 // One libvips thread per op; parallelize at the JS level instead.
 sharp.concurrency(1);
@@ -299,12 +300,21 @@ async function staleVariants(srcStat, files) {
 
 async function collectJobs() {
   const jobs = [];
+  // Never encode a taken-down work, catalogued or not: sync publishes every
+  // variant dir shrink writes, so skipping here is what keeps a
+  // re-downloaded original off the bucket.
+  const takedowns = loadTakedowns();
+  let withheld = 0;
   for (const folder of FOLDERS) {
     const srcDir = path.join(SRC_ROOT, folder);
     const names = await readdir(srcDir).catch(() => []);
     for (const name of names) {
       if (!IMAGE_EXTS.has(path.extname(name).toLowerCase())) continue;
       if (ONLY && !name.toLowerCase().includes(ONLY)) continue;
+      if (takedowns.has(folder, name)) {
+        withheld++;
+        continue;
+      }
       const srcPath = path.join(srcDir, name);
       const srcStat = await stat(srcPath);
       // Probe source dimensions so variantPaths can plan the per-source
@@ -336,6 +346,8 @@ async function collectJobs() {
       });
     }
   }
+  if (withheld > 0)
+    console.log(`[shrink] withheld ${withheld} source(s) listed in metadata/takedowns.json`);
   // Smallest first: fast early progress + big files spread across workers
   // rather than clustering at the end and spiking memory.
   jobs.sort((a, b) => a.srcStat.size - b.srcStat.size);
