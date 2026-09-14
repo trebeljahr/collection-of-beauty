@@ -7,16 +7,30 @@ import { useIs3DActive } from "@/components/gallery-3d-state";
 import { ShuffleIcon } from "@/components/ui/shuffle-icon";
 import { useFocusTrap } from "@/hooks/use-focus-trap";
 
-const LINKS: ReadonlyArray<{
+type NavLink = {
   href: string;
   label: string;
   sub?: string;
   isActive?: (pathname: string) => boolean;
-}> = [
-  { href: "/", label: "Gallery", sub: "Browse the full collection" },
-  { href: "/timeline", label: "Timeline", sub: "Eight centuries of art, in order" },
-  { href: "/artists", label: "Artists", sub: "Painters, illustrators, makers" },
-  { href: "/eras", label: "Eras", sub: "Group history into rooms" },
+};
+
+// The ways into the same collection, grouped behind one "Explore"
+// control on desktop and one heading in the mobile menu. Listed flat as
+// top-level links they made nine items, and "Gallery" duplicated the
+// wordmark's own link home.
+const EXPLORE_LINKS: ReadonlyArray<NavLink> = [
+  {
+    href: "/artists",
+    label: "Artists",
+    sub: "Painters, illustrators, makers",
+    isActive: (pathname) => pathname === "/artists" || pathname.startsWith("/artist/"),
+  },
+  {
+    href: "/timeline",
+    label: "Timeline",
+    sub: "Decades and eras, oldest first",
+    isActive: (pathname) => pathname === "/timeline" || pathname.startsWith("/era/"),
+  },
   {
     href: "/collections",
     label: "Collections",
@@ -29,24 +43,35 @@ const LINKS: ReadonlyArray<{
     sub: "Browse by the colours in the work",
     isActive: (pathname) => pathname.startsWith("/colours"),
   },
-  { href: "/gallery-3d", label: "The Museum", sub: "Walk the floors, one era each" },
-  {
-    href: "/drops",
-    label: "Newsletter",
-    sub: "Email editions and archive",
-    isActive: (pathname) =>
-      pathname === "/drops" || pathname === "/sub" || pathname.startsWith("/newsletter"),
-  },
 ];
 
-// Kept out of LINKS so the desktop row can render it as an icon button.
-// Seven full-width text links overflow the nav at exactly md, where the
-// hamburger has already been hidden — the label only comes back at lg.
-const SURPRISE_LINK = {
+const MUSEUM_LINK: NavLink = {
+  href: "/gallery-3d",
+  label: "The Museum",
+  sub: "Walk the floors, one era each",
+};
+
+const NEWSLETTER_LINK: NavLink = {
+  href: "/drops",
+  label: "Newsletter",
+  sub: "Email editions and archive",
+  isActive: (pathname) =>
+    pathname === "/drops" || pathname === "/sub" || pathname.startsWith("/newsletter"),
+};
+
+// Rendered as an icon button on the desktop row; the label only comes
+// back at lg.
+const SURPRISE_LINK: NavLink = {
   href: "/surprise",
   label: "Surprise me",
   sub: "One random work, as big as it fits",
-} as const;
+};
+
+const MENU_LINKS: ReadonlyArray<NavLink> = [MUSEUM_LINK, SURPRISE_LINK, NEWSLETTER_LINK];
+
+function isLinkActive(link: NavLink, pathname: string): boolean {
+  return link.isActive ? link.isActive(pathname) : pathname === link.href;
+}
 
 // Horizontal safe-area gutter for the header and the menu overlay.
 // /artwork opts into `viewport-fit: cover` (see src/app/artwork/layout.tsx)
@@ -81,10 +106,12 @@ const SLIDE_OUT_MS = 320;
 const SLIDE_IN_MS = 320;
 
 /**
- * Site header. From `md` up the destinations render as an inline link
- * row; below that the row would overflow, so the same list is presented
- * as a full-screen modal behind a hamburger button — a destination
- * rather than a cramped strip of buttons.
+ * Site header. From `md` up the destinations render as an inline row:
+ * an "Explore" disclosure holding the browse pages, Newsletter, the
+ * Surprise icon and a filled museum button. Below that the row would
+ * overflow, so the same destinations are presented as a full-screen
+ * modal behind a hamburger button, with the browse pages under their
+ * own heading.
  *
  * The modal traps focus, locks body scroll, dismisses on ESC, on
  * backdrop click, on link tap, and on route change. While the user is
@@ -129,12 +156,44 @@ export function SiteNav() {
   // their place. Captured at the moment the modal opens.
   const triggerRef = useRef<HTMLButtonElement | null>(null);
 
+  // Desktop "Explore" disclosure.
+  const [exploreOpen, setExploreOpen] = useState(false);
+  const exploreRef = useRef<HTMLDivElement | null>(null);
+  const exploreTriggerRef = useRef<HTMLButtonElement | null>(null);
+  const exploreActive = EXPLORE_LINKS.some((l) => isLinkActive(l, pathname));
+
+  // A pointer-down or focus move (Tab) anywhere outside, or Escape,
+  // closes the panel. Escape hands focus back to the trigger only when
+  // focus was inside the widget, so pressing it elsewhere on the page
+  // doesn't steal focus.
+  useEffect(() => {
+    if (!exploreOpen) return;
+    const onOutside = (e: Event) => {
+      if (!exploreRef.current?.contains(e.target as Node)) setExploreOpen(false);
+    };
+    const onKeyDown = (e: KeyboardEvent) => {
+      if (e.key !== "Escape") return;
+      const hadFocus = exploreRef.current?.contains(document.activeElement) ?? false;
+      setExploreOpen(false);
+      if (hadFocus) exploreTriggerRef.current?.focus();
+    };
+    document.addEventListener("pointerdown", onOutside);
+    document.addEventListener("focusin", onOutside);
+    document.addEventListener("keydown", onKeyDown);
+    return () => {
+      document.removeEventListener("pointerdown", onOutside);
+      document.removeEventListener("focusin", onOutside);
+      document.removeEventListener("keydown", onKeyDown);
+    };
+  }, [exploreOpen]);
+
   // Close the modal whenever the route changes — happens on link tap
   // and any other router.push. Skipped while a 3D-room transition is
   // running so the slide-down animation can play uninterrupted; once
   // the slide-out timeout fires it sets open=false itself.
   // biome-ignore lint/correctness/useExhaustiveDependencies: pathname is the only trigger; closingTo3D is read as a guard, the value captured at render time is what we want
   useEffect(() => {
+    setExploreOpen(false);
     if (closingTo3D) return;
     setOpen(false);
   }, [pathname]);
@@ -159,6 +218,16 @@ export function SiteNav() {
       // Modifier-clicks open a new tab and leave the user here.
       if (e.metaKey || e.ctrlKey || e.shiftKey || e.altKey) return;
       if (href === pathname) setOpen(false);
+    },
+    [pathname],
+  );
+
+  // Explore panel links: same-route taps change no pathname, so close
+  // here. Other routes close via the pathname effect once they render.
+  const handleExploreTap = useCallback(
+    (e: React.MouseEvent<HTMLAnchorElement>, href: string) => {
+      if (e.metaKey || e.ctrlKey || e.shiftKey || e.altKey) return;
+      if (href === pathname) setExploreOpen(false);
     },
     [pathname],
   );
@@ -232,25 +301,73 @@ export function SiteNav() {
           Collection of Beauty
         </Link>
 
-        {/* Desktop link row: visible from md+. The mobile hamburger
-            below (md:hidden) opens a full-screen modal with the same
-            destinations — the link list would otherwise overflow on
-            narrow viewports. */}
+        {/* Desktop row: visible from md+. The mobile hamburger below
+            (md:hidden) opens a full-screen modal with the same
+            destinations, grouped the same way. */}
         <div className="hidden min-w-0 flex-1 items-center justify-end gap-3 md:flex">
           <div className="flex items-center gap-1 text-sm">
-            {LINKS.map((l) => {
-              const active = l.isActive ? l.isActive(pathname) : pathname === l.href;
-              return (
-                <Link
-                  key={l.href}
-                  href={l.href}
-                  aria-current={active ? "page" : undefined}
-                  className="rounded-md px-3 py-1.5 hover:bg-[var(--accent)] focus:outline-none focus-visible:ring-2 focus-visible:ring-[var(--ring)] aria-[current=page]:bg-[var(--accent)]"
+            {/* Disclosure, not an ARIA menu: the panel holds ordinary
+                links, so Tab moves through them and no arrow-key roving
+                is promised to assistive tech. */}
+            <div ref={exploreRef} className="relative">
+              <button
+                ref={exploreTriggerRef}
+                type="button"
+                aria-expanded={exploreOpen}
+                aria-controls="site-nav-explore"
+                data-active={exploreActive || undefined}
+                onClick={() => setExploreOpen((v) => !v)}
+                className="inline-flex items-center gap-1 rounded-md px-3 py-1.5 hover:bg-[var(--accent)] focus:outline-none focus-visible:ring-2 focus-visible:ring-[var(--ring)] aria-expanded:bg-[var(--accent)] data-[active]:bg-[var(--accent)]"
+              >
+                Explore
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  width="14"
+                  height="14"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="2"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  aria-hidden="true"
+                  className={`transition-transform ${exploreOpen ? "rotate-180" : ""}`}
                 >
-                  {l.label}
-                </Link>
-              );
-            })}
+                  <path d="m6 9 6 6 6-6" />
+                </svg>
+              </button>
+              {exploreOpen && (
+                <div
+                  id="site-nav-explore"
+                  className="animate-nav-fade-in absolute top-full left-0 mt-2 w-72 rounded-xl border border-[var(--border)] bg-[var(--background)] p-1.5 shadow-lg"
+                >
+                  <ul className="flex flex-col">
+                    {EXPLORE_LINKS.map((l) => (
+                      <li key={l.href}>
+                        <Link
+                          href={l.href}
+                          onClick={(e) => handleExploreTap(e, l.href)}
+                          aria-current={isLinkActive(l, pathname) ? "page" : undefined}
+                          className="flex flex-col gap-0.5 rounded-lg px-3 py-2 hover:bg-[var(--accent)] focus:outline-none focus-visible:ring-2 focus-visible:ring-[var(--ring)] aria-[current=page]:bg-[var(--accent)]"
+                        >
+                          <span className="font-medium">{l.label}</span>
+                          {l.sub && (
+                            <span className="text-xs text-[var(--muted-foreground)]">{l.sub}</span>
+                          )}
+                        </Link>
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              )}
+            </div>
+            <Link
+              href={NEWSLETTER_LINK.href}
+              aria-current={isLinkActive(NEWSLETTER_LINK, pathname) ? "page" : undefined}
+              className="rounded-md px-3 py-1.5 hover:bg-[var(--accent)] focus:outline-none focus-visible:ring-2 focus-visible:ring-[var(--ring)] aria-[current=page]:bg-[var(--accent)]"
+            >
+              {NEWSLETTER_LINK.label}
+            </Link>
           </div>
           <Link
             href={SURPRISE_LINK.href}
@@ -261,6 +378,14 @@ export function SiteNav() {
             <ShuffleIcon />
             <span className="hidden lg:inline">{SURPRISE_LINK.label}</span>
             <span className="sr-only lg:hidden">{SURPRISE_LINK.label}</span>
+          </Link>
+          {/* The headline feature gets the one filled button in the row,
+              matching the home hero's "Enter the museum". */}
+          <Link
+            href={MUSEUM_LINK.href}
+            className="inline-flex shrink-0 items-center rounded-full bg-[var(--primary)] px-4 py-1.5 text-sm font-medium whitespace-nowrap text-[var(--primary-foreground)] transition hover:opacity-90 focus:outline-none focus-visible:ring-2 focus-visible:ring-[var(--ring)] focus-visible:ring-offset-2 focus-visible:ring-offset-[var(--background)]"
+          >
+            Enter the museum
           </Link>
         </div>
 
@@ -360,41 +485,73 @@ export function SiteNav() {
             style={SAFE_X_MENU}
             className="mx-auto flex w-full max-w-md flex-1 flex-col gap-8 px-5 py-8 sm:justify-center"
           >
-            <ul className="flex flex-col gap-2">
-              {[...LINKS, SURPRISE_LINK].map((l) => {
-                const active =
-                  "isActive" in l && l.isActive ? l.isActive(pathname) : pathname === l.href;
-                const is3D = l.href === ROUTE_3D;
-                return (
+            <section aria-labelledby="site-nav-explore-heading" className="flex flex-col gap-2">
+              <h2
+                id="site-nav-explore-heading"
+                className="px-4 text-xs font-medium tracking-wider text-[var(--muted-foreground)] uppercase"
+              >
+                Explore
+              </h2>
+              <ul className="flex flex-col gap-1">
+                {EXPLORE_LINKS.map((l) => (
                   <li key={l.href}>
-                    <Link
-                      href={l.href}
-                      onClick={is3D ? handleClick3D : (e) => handleSameRouteTap(e, l.href)}
-                      aria-current={active ? "page" : undefined}
-                      className={`group flex items-baseline justify-between gap-4 rounded-lg border border-transparent px-4 py-3.5 transition hover:border-[var(--border)] hover:bg-[var(--accent)] focus:outline-none focus-visible:ring-2 focus-visible:ring-[var(--ring)] ${
-                        active ? "border-[var(--border)] bg-[var(--accent)]" : ""
-                      }`}
-                    >
-                      <div className="flex flex-col gap-0.5">
-                        <span className="font-serif text-xl tracking-tight">{l.label}</span>
-                        {l.sub && (
-                          <span className="text-xs text-[var(--muted-foreground)]">{l.sub}</span>
-                        )}
-                      </div>
-                      <span
-                        aria-hidden="true"
-                        className="font-serif text-lg text-[var(--muted-foreground)] transition group-hover:translate-x-1 group-hover:text-[var(--foreground)]"
-                      >
-                        →
-                      </span>
-                    </Link>
+                    <MenuLink
+                      link={l}
+                      active={isLinkActive(l, pathname)}
+                      onClick={(e) => handleSameRouteTap(e, l.href)}
+                    />
                   </li>
-                );
-              })}
+                ))}
+              </ul>
+            </section>
+            <ul className="flex flex-col gap-1 border-t border-[var(--border)] pt-6">
+              {MENU_LINKS.map((l) => (
+                <li key={l.href}>
+                  <MenuLink
+                    link={l}
+                    active={isLinkActive(l, pathname)}
+                    onClick={
+                      l.href === ROUTE_3D ? handleClick3D : (e) => handleSameRouteTap(e, l.href)
+                    }
+                  />
+                </li>
+              ))}
             </ul>
           </div>
         </div>
       )}
     </header>
+  );
+}
+
+function MenuLink({
+  link,
+  active,
+  onClick,
+}: {
+  link: NavLink;
+  active: boolean;
+  onClick: (e: React.MouseEvent<HTMLAnchorElement>) => void;
+}) {
+  return (
+    <Link
+      href={link.href}
+      onClick={onClick}
+      aria-current={active ? "page" : undefined}
+      className={`group flex items-baseline justify-between gap-4 rounded-lg border border-transparent px-4 py-3 transition hover:border-[var(--border)] hover:bg-[var(--accent)] focus:outline-none focus-visible:ring-2 focus-visible:ring-[var(--ring)] ${
+        active ? "border-[var(--border)] bg-[var(--accent)]" : ""
+      }`}
+    >
+      <div className="flex flex-col gap-0.5">
+        <span className="font-serif text-xl tracking-tight">{link.label}</span>
+        {link.sub && <span className="text-xs text-[var(--muted-foreground)]">{link.sub}</span>}
+      </div>
+      <span
+        aria-hidden="true"
+        className="font-serif text-lg text-[var(--muted-foreground)] transition group-hover:translate-x-1 group-hover:text-[var(--foreground)]"
+      >
+        →
+      </span>
+    </Link>
   );
 }

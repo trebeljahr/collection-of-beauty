@@ -46,7 +46,6 @@ export default function sitemap(): MetadataRoute.Sitemap {
     { url: absoluteUrl("/"), lastModified: now, changeFrequency: "weekly", priority: 1.0 },
     { url: absoluteUrl("/timeline"), lastModified: now, changeFrequency: "monthly", priority: 0.7 },
     { url: absoluteUrl("/artists"), lastModified: now, changeFrequency: "monthly", priority: 0.7 },
-    { url: absoluteUrl("/eras"), lastModified: now, changeFrequency: "monthly", priority: 0.7 },
     {
       url: absoluteUrl("/collections"),
       lastModified: now,

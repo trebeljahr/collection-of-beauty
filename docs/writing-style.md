@@ -113,8 +113,8 @@ it, cut the dash and the restatement.
 ## Length
 
 Meta descriptions stay under ~155 characters (Google truncates).
-Era blurbs are one sentence, clamped to two lines on the `/eras`
-cards, so ≤ ~110 characters. Page intros are one short paragraph;
+Era blurbs are one sentence, shown under the title on `/era/<id>` and
+on the 3D museum's floor curtain, so ≤ ~110 characters. Page intros are one short paragraph;
 anything longer belongs on `/about` or `/press`.
 
 ## Checking a sweep

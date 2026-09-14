@@ -96,6 +96,12 @@ const nextConfig = {
         destination: `${CANONICAL_ORIGIN}/:path*`,
         permanent: true,
       })),
+      // The era index moved onto the timeline page.
+      {
+        source: "/eras",
+        destination: "/timeline#eras",
+        permanent: true,
+      },
       {
         source: "/drop",
         destination: "/drops",
