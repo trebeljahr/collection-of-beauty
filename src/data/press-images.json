@@ -1,0 +1,325 @@
+{
+  "images": [
+    {
+      "slug": "16x9",
+      "label": "Landscape 16:9",
+      "use": "Article header, slides, video thumbnail",
+      "href": "/marketing/collection-of-beauty-16x9.jpg",
+      "width": 2560,
+      "height": 1440,
+      "bytes": 849846,
+      "theme": "light",
+      "hasTitle": true,
+      "alt": "Collection of Beauty: 10 public-domain works shown whole on a light wall, including works by Johannes Vermeer, John James Audubon, J. M. W. Turner and Vincent van Gogh.",
+      "works": [
+        "collection-of-beauty-1665-girl-with-a-pearl-earring",
+        "audubon-birds-431-american-flamingo",
+        "collection-of-beauty-the-rising-squall-hot-wells-from-st-vincent-s-rock-bristol",
+        "collection-of-beauty-vincent-van-gogh-1853-1890-cafeterras-bij-nacht-place-du-forum-kroller-muller-museum-otterlo-23-8-2",
+        "collection-of-beauty-sandro-botticelli-la-nascita-di-venere-google-art-project-edited",
+        "collection-of-beauty-tsunami-by-hokusai-19th-century",
+        "kunstformen-images-haeckel-actiniae",
+        "redoute-roses-rosa-centifolia",
+        "collection-of-beauty-john-singer-sargent-cancale",
+        "collection-of-beauty-vangogh-starry-night-ballance1"
+      ]
+    },
+    {
+      "slug": "16x9-dark",
+      "label": "Landscape 16:9, dark",
+      "use": "Article header, slides, video thumbnail",
+      "href": "/marketing/collection-of-beauty-16x9-dark.jpg",
+      "width": 2560,
+      "height": 1440,
+      "bytes": 938855,
+      "theme": "dark",
+      "hasTitle": true,
+      "alt": "Collection of Beauty: 11 public-domain works shown whole on a dark wall, including works by Sandro Botticelli, Johannes Vermeer, Vincent van Gogh and Caravaggio.",
+      "works": [
+        "collection-of-beauty-sandro-botticelli-la-nascita-di-venere-google-art-project-edited",
+        "collection-of-beauty-1665-girl-with-a-pearl-earring",
+        "collection-of-beauty-vangogh-starry-night-ballance1",
+        "collection-of-beauty-boy-with-a-basket-of-fruit-caravaggio-1593",
+        "kunstformen-images-haeckel-actiniae",
+        "collection-of-beauty-vincent-van-gogh-1853-1890-cafeterras-bij-nacht-place-du-forum-kroller-muller-museum-otterlo-23-8-2",
+        "collection-of-beauty-alfons-mucha-1896-spring",
+        "collection-of-beauty-xsxlt-fankuan",
+        "audubon-birds-431-american-flamingo",
+        "collection-of-beauty-2560px-pieter-bruegel-the-elder-hunters-in-the-snow-winter-google-art-project",
+        "collection-of-beauty-tsunami-by-hokusai-19th-century"
+      ]
+    },
+    {
+      "slug": "16x9-works",
+      "label": "Landscape 16:9, works only",
+      "use": "Background or your own layout, at 4K",
+      "href": "/marketing/collection-of-beauty-16x9-works.jpg",
+      "width": 3840,
+      "height": 2160,
+      "bytes": 2362399,
+      "theme": "light",
+      "hasTitle": false,
+      "alt": "15 public-domain works shown whole on a light wall, including works by Johannes Vermeer, Caravaggio, Caspar David Friedrich and Utagawa Hiroshige.",
+      "works": [
+        "collection-of-beauty-1665-girl-with-a-pearl-earring",
+        "collection-of-beauty-boy-with-a-basket-of-fruit-caravaggio-1593",
+        "collection-of-beauty-caspar-david-friedrich-wanderer-above-the-sea-of-fog",
+        "collection-of-beauty-hiroshige-53-stations-hoeido-37-akasaka-mfa-01",
+        "collection-of-beauty-2560px-pieter-bruegel-the-elder-hunters-in-the-snow-winter-google-art-project",
+        "collection-of-beauty-john-singer-sargent-cancale",
+        "collection-of-beauty-sandro-botticelli-la-nascita-di-venere-google-art-project-edited",
+        "collection-of-beauty-tsunami-by-hokusai-19th-century",
+        "collection-of-beauty-vangogh-starry-night-ballance1",
+        "kunstformen-images-haeckel-actiniae",
+        "collection-of-beauty-katsushika-hokusai-1760-1849-ono-waterval-aan-de-kisokaido-1835",
+        "audubon-birds-1-wild-turkey",
+        "collection-of-beauty-el-greco-view-of-toledo",
+        "collection-of-beauty-vincent-van-gogh-1853-1890-cafeterras-bij-nacht-place-du-forum-kroller-muller-museum-otterlo-23-8-2",
+        "collection-of-beauty-claude-monet-052"
+      ]
+    },
+    {
+      "slug": "1x1",
+      "label": "Square 1:1",
+      "use": "Instagram, Mastodon or Bluesky post",
+      "href": "/marketing/collection-of-beauty-1x1.jpg",
+      "width": 1080,
+      "height": 1080,
+      "bytes": 370459,
+      "theme": "light",
+      "hasTitle": true,
+      "alt": "Collection of Beauty: 6 public-domain works shown whole on a light wall, including works by Katsushika Hokusai, Alphonse Mucha, Ernst Haeckel and Johannes Vermeer.",
+      "works": [
+        "collection-of-beauty-tsunami-by-hokusai-19th-century",
+        "collection-of-beauty-alfons-mucha-1896-spring",
+        "kunstformen-images-haeckel-actiniae",
+        "collection-of-beauty-katsushika-hokusai-1760-1849-ono-waterval-aan-de-kisokaido-1835",
+        "collection-of-beauty-1665-girl-with-a-pearl-earring",
+        "collection-of-beauty-vangogh-starry-night-ballance1"
+      ]
+    },
+    {
+      "slug": "4x5",
+      "label": "Portrait 4:5",
+      "use": "Instagram feed post",
+      "href": "/marketing/collection-of-beauty-4x5.jpg",
+      "width": 1080,
+      "height": 1350,
+      "bytes": 420571,
+      "theme": "light",
+      "hasTitle": true,
+      "alt": "Collection of Beauty: 10 public-domain works shown whole on a light wall, including works by Sandro Botticelli, John James Audubon, Johannes Vermeer and Katsushika Hokusai.",
+      "works": [
+        "collection-of-beauty-sandro-botticelli-la-nascita-di-venere-google-art-project-edited",
+        "audubon-birds-1-wild-turkey",
+        "collection-of-beauty-1665-girl-with-a-pearl-earring",
+        "collection-of-beauty-tsunami-by-hokusai-19th-century",
+        "collection-of-beauty-caspar-david-friedrich-wanderer-above-the-sea-of-fog",
+        "collection-of-beauty-vincent-van-gogh-1853-1890-cafeterras-bij-nacht-place-du-forum-kroller-muller-museum-otterlo-23-8-2",
+        "collection-of-beauty-mary-cassatt-the-child-s-bath-google-art-project",
+        "kunstformen-images-haeckel-actiniae",
+        "collection-of-beauty-claude-monet-052",
+        "collection-of-beauty-el-greco-view-of-toledo"
+      ]
+    },
+    {
+      "slug": "9x16-dark",
+      "label": "Story 9:16, dark",
+      "use": "Instagram or WhatsApp story",
+      "href": "/marketing/collection-of-beauty-9x16-dark.jpg",
+      "width": 1080,
+      "height": 1920,
+      "bytes": 466885,
+      "theme": "dark",
+      "hasTitle": true,
+      "alt": "Collection of Beauty: 14 public-domain works shown whole on a dark wall, including works by Vincent van Gogh, John James Audubon, Sandro Botticelli and Ernst Haeckel.",
+      "works": [
+        "collection-of-beauty-vincent-van-gogh-1853-1890-cafeterras-bij-nacht-place-du-forum-kroller-muller-museum-otterlo-23-8-2",
+        "audubon-birds-431-american-flamingo",
+        "collection-of-beauty-sandro-botticelli-idealized-portrait-of-a-lady-portrait-of-simonetta-vespucci-as-nymph-google-art-p",
+        "kunstformen-images-haeckel-actiniae",
+        "collection-of-beauty-caspar-david-friedrich-wanderer-above-the-sea-of-fog",
+        "collection-of-beauty-boy-with-a-basket-of-fruit-caravaggio-1593",
+        "collection-of-beauty-vangogh-starry-night-ballance1",
+        "collection-of-beauty-sandro-botticelli-la-nascita-di-venere-google-art-project-edited",
+        "collection-of-beauty-katsushika-hokusai-1760-1849-ono-waterval-aan-de-kisokaido-1835",
+        "collection-of-beauty-john-singer-sargent-cancale",
+        "collection-of-beauty-hiroshige-53-stations-hoeido-37-akasaka-mfa-01",
+        "collection-of-beauty-1665-girl-with-a-pearl-earring",
+        "collection-of-beauty-2560px-pieter-bruegel-the-elder-hunters-in-the-snow-winter-google-art-project",
+        "collection-of-beauty-tsunami-by-hokusai-19th-century"
+      ]
+    },
+    {
+      "slug": "3x1",
+      "label": "Banner 3:1",
+      "use": "X or LinkedIn header, newsletter banner",
+      "href": "/marketing/collection-of-beauty-3x1.jpg",
+      "width": 1500,
+      "height": 500,
+      "bytes": 193276,
+      "theme": "light",
+      "hasTitle": true,
+      "alt": "Collection of Beauty: 4 public-domain works shown whole on a light wall, including works by Fan Kuan, Alphonse Mucha, Mary Cassatt and John James Audubon.",
+      "works": [
+        "collection-of-beauty-xsxlt-fankuan",
+        "collection-of-beauty-alfons-mucha-1896-spring",
+        "collection-of-beauty-mary-cassatt-the-child-s-bath-google-art-project",
+        "audubon-birds-1-wild-turkey"
+      ]
+    },
+    {
+      "slug": "og",
+      "label": "Link preview 1.91:1",
+      "use": "The image the site shows when a link is shared",
+      "href": "/marketing/collection-of-beauty-og.jpg",
+      "width": 1200,
+      "height": 630,
+      "bytes": 177893,
+      "theme": "light",
+      "hasTitle": true,
+      "alt": "Collection of Beauty: 5 public-domain works shown whole on a light wall, including works by Caspar David Friedrich, Sandro Botticelli, Johannes Vermeer and Caravaggio.",
+      "works": [
+        "collection-of-beauty-caspar-david-friedrich-wanderer-above-the-sea-of-fog",
+        "collection-of-beauty-sandro-botticelli-la-nascita-di-venere-google-art-project-edited",
+        "collection-of-beauty-1665-girl-with-a-pearl-earring",
+        "collection-of-beauty-boy-with-a-basket-of-fruit-caravaggio-1593",
+        "collection-of-beauty-katsushika-hokusai-1760-1849-ono-waterval-aan-de-kisokaido-1835"
+      ]
+    }
+  ],
+  "works": [
+    {
+      "id": "collection-of-beauty-1665-girl-with-a-pearl-earring",
+      "title": "Girl with a Pearl Earring",
+      "artist": "Johannes Vermeer",
+      "year": 1665
+    },
+    {
+      "id": "audubon-birds-431-american-flamingo",
+      "title": "American Flamingo (Plate 431)",
+      "artist": "John James Audubon",
+      "year": 1838
+    },
+    {
+      "id": "collection-of-beauty-the-rising-squall-hot-wells-from-st-vincent-s-rock-bristol",
+      "title": "The Rising Squall",
+      "artist": "J. M. W. Turner",
+      "year": 1792
+    },
+    {
+      "id": "collection-of-beauty-vincent-van-gogh-1853-1890-cafeterras-bij-nacht-place-du-forum-kroller-muller-museum-otterlo-23-8-2",
+      "title": "Cafe Terrace at Night (Place du Forum), Arles",
+      "artist": "Vincent van Gogh",
+      "year": 1888
+    },
+    {
+      "id": "collection-of-beauty-sandro-botticelli-la-nascita-di-venere-google-art-project-edited",
+      "title": "The Birth of Venus",
+      "artist": "Sandro Botticelli",
+      "year": 1485
+    },
+    {
+      "id": "collection-of-beauty-tsunami-by-hokusai-19th-century",
+      "title": "The Great Wave off Kanagawa",
+      "artist": "Katsushika Hokusai",
+      "year": 1830
+    },
+    {
+      "id": "kunstformen-images-haeckel-actiniae",
+      "title": "Haeckel Actiniae",
+      "artist": "Ernst Haeckel",
+      "year": 1904
+    },
+    {
+      "id": "redoute-roses-rosa-centifolia",
+      "title": "Rosa Centifolia",
+      "artist": "Pierre-Joseph Redouté",
+      "year": 1817
+    },
+    {
+      "id": "collection-of-beauty-john-singer-sargent-cancale",
+      "title": "En route pour la pêche",
+      "artist": "John Singer Sargent",
+      "year": 1878
+    },
+    {
+      "id": "collection-of-beauty-vangogh-starry-night-ballance1",
+      "title": "The Starry Night",
+      "artist": "Vincent van Gogh",
+      "year": 1889
+    },
+    {
+      "id": "collection-of-beauty-boy-with-a-basket-of-fruit-caravaggio-1593",
+      "title": "Boy with a Basket of Fruit",
+      "artist": "Caravaggio",
+      "year": 1593
+    },
+    {
+      "id": "collection-of-beauty-alfons-mucha-1896-spring",
+      "title": "Spring",
+      "artist": "Alphonse Mucha",
+      "year": 1896
+    },
+    {
+      "id": "collection-of-beauty-xsxlt-fankuan",
+      "title": "Travelers Among Mountains and Streams",
+      "artist": "Fan Kuan",
+      "year": 1000
+    },
+    {
+      "id": "collection-of-beauty-2560px-pieter-bruegel-the-elder-hunters-in-the-snow-winter-google-art-project",
+      "title": "Hunters in the Snow",
+      "artist": "Pieter Bruegel the Elder",
+      "year": 1565
+    },
+    {
+      "id": "collection-of-beauty-caspar-david-friedrich-wanderer-above-the-sea-of-fog",
+      "title": "Wanderer above the Sea of Fog",
+      "artist": "Caspar David Friedrich",
+      "year": 1817
+    },
+    {
+      "id": "collection-of-beauty-hiroshige-53-stations-hoeido-37-akasaka-mfa-01",
+      "title": "Akasaka Station: Inn with Serving Maids",
+      "artist": "Utagawa Hiroshige",
+      "year": 1833
+    },
+    {
+      "id": "collection-of-beauty-katsushika-hokusai-1760-1849-ono-waterval-aan-de-kisokaido-1835",
+      "title": "Ono Waterfall on the Kisokaidō",
+      "artist": "Katsushika Hokusai",
+      "year": 1835
+    },
+    {
+      "id": "audubon-birds-1-wild-turkey",
+      "title": "Wild Turkey (Plate 1)",
+      "artist": "John James Audubon",
+      "year": 1827
+    },
+    {
+      "id": "collection-of-beauty-el-greco-view-of-toledo",
+      "title": "View of Toledo",
+      "artist": "El Greco",
+      "year": 1596
+    },
+    {
+      "id": "collection-of-beauty-claude-monet-052",
+      "title": "Bouquet of Sunflowers",
+      "artist": "Claude Monet",
+      "year": 1881
+    },
+    {
+      "id": "collection-of-beauty-mary-cassatt-the-child-s-bath-google-art-project",
+      "title": "The Child’s Bath",
+      "artist": "Mary Cassatt",
+      "year": 1893
+    },
+    {
+      "id": "collection-of-beauty-sandro-botticelli-idealized-portrait-of-a-lady-portrait-of-simonetta-vespucci-as-nymph-google-art-p",
+      "title": "Idealised Portrait of a Lady",
+      "artist": "Sandro Botticelli",
+      "year": 1480
+    }
+  ]
+}

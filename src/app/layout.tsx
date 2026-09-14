@@ -68,7 +68,7 @@ export const metadata: Metadata = {
     description: SITE_DESCRIPTION,
     // Image comes from src/app/opengraph-image.png (file convention),
     // a 1200x630 PNG composited by scripts/build-marketing-images.mjs
-    // (mosaic of six works + wordmark). Alt text in opengraph-image.alt.txt.
+    // (works hung whole beside the title). Alt text in opengraph-image.alt.txt.
   },
   twitter: {
     card: "summary_large_image",
