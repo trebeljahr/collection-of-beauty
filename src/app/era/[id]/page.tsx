@@ -7,7 +7,7 @@ import { DEFAULT_ARTWORK_PAGE_SIZE } from "@/lib/artwork-page-schema";
 import { getArtworkListingPage } from "@/lib/artwork-pagination";
 import { resolveScope } from "@/lib/artwork-scope";
 import { getArtwork } from "@/lib/data";
-import { ERAS, type EraId, type getEra } from "@/lib/gallery-eras";
+import { ERAS, type EraId, eraYearLabel, type getEra } from "@/lib/gallery-eras";
 import { buildOpenGraph, ogImagesForArtwork } from "@/lib/seo";
 
 type Params = { id: string };
@@ -66,13 +66,6 @@ export async function generateMetadata({ params }: { params: Promise<Params> }):
   };
 }
 
-function yearRangeLabel(era: ReturnType<typeof getEra>): string {
-  // Ukiyo-e is movement-tagged only (yearMin > yearMax) — surface that
-  // honestly rather than printing nonsense like "9999–0".
-  if (era.yearMin > era.yearMax) return "Movement-tagged only";
-  return `${era.yearMin}–${era.yearMax}`;
-}
-
 export default async function EraPage({ params }: { params: Promise<Params> }) {
   const { id } = await params;
   const era = findEra(id);
@@ -97,7 +90,7 @@ export default async function EraPage({ params }: { params: Promise<Params> }) {
   return (
     <div className="mx-auto max-w-6xl px-4 py-8">
       <Link
-        href="/eras"
+        href="/timeline#eras"
         className={`${touchTextLinkClasses} text-sm text-[var(--muted-foreground)]`}
       >
         ← All eras
@@ -106,7 +99,7 @@ export default async function EraPage({ params }: { params: Promise<Params> }) {
       <header className="mt-4 mb-6 flex flex-col gap-3">
         <h1 className="font-serif text-3xl md:text-4xl">{era.title}</h1>
         <div className="flex flex-wrap items-center gap-3 text-[var(--muted-foreground)]">
-          <span>{yearRangeLabel(era)}</span>
+          <span>{eraYearLabel(era)}</span>
           <span>
             · {initialPage.total} work{initialPage.total === 1 ? "" : "s"}
           </span>

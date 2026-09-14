@@ -461,6 +461,19 @@ export function assignEra(artwork: Pick<Artwork, "movement" | "year">): EraId | 
   return null;
 }
 
+/**
+ * Display label for an era's year range. The sentinels in ERAS are not
+ * dates: movement-only eras use yearMin > yearMax, and the open ends of
+ * the dated run use 0 and 9999, which used to print as "0–1499" and
+ * "1900–9999".
+ */
+export function eraYearLabel(era: Era): string {
+  if (era.yearMin > era.yearMax) return "Movement-tagged only";
+  if (era.yearMin <= 0) return `Before ${era.yearMax + 1}`;
+  if (era.yearMax >= 9999) return `${era.yearMin} onward`;
+  return `${era.yearMin}–${era.yearMax}`;
+}
+
 export function getEra(id: EraId): Era {
   const era = ERAS.find((e) => e.id === id);
   if (!era) throw new Error(`Unknown era id: ${id}`);
