@@ -53,10 +53,12 @@ export const metadata: Metadata = {
 // Third person on purpose: this page is copy for other people to reuse,
 // and anything in Rico's own voice should be written by Rico.
 const story = [
-  `Collection of Beauty is a personal collection. Rico Trebeljahr picked every work in it because he finds it beautiful, and most of them came from Wikimedia Commons. It holds ${WORKS} paintings, prints and book plates by ${ARTISTS} artists, dated ${YEARS}.`,
+  `Collection of Beauty is a personal collection. Rico picked every work in it because he finds it beautiful. It holds ${WORKS} paintings, prints and book plates by ${ARTISTS} artists, dated ${YEARS}.`,
+  "Picking them took three to four weeks. Rico sometimes sat for hours with music on and a cup of tea, browsing public-domain art on Wikimedia Commons. Whenever one artist's page mentioned another, he added that name to an index of artists. He then opened each artist's list of works on Commons and clicked through them one by one. By the end he had looked at about 30,000 to 40,000 images.",
+  "Most of the work came after the looking: removing duplicates and cleaning up the metadata. AI coding agents, Claude Code and Codex, helped heavily with that part and with building the site.",
   "It works like a scrapbook. The collection does not try to cover a movement or an artist completely. Famous names are missing and a few obscure ones appear often, because one person's taste decides what goes in.",
   `The scrapbook is also a place to look for ideas. At one work a minute, seeing all of it takes about ${HOURS_AT_A_MINUTE} hours. The random page shows one work at a time, as large as the screen allows.`,
-  "Rico started the site in April 2026 and built it with the help of AI coding agents. The code, the data scripts and the metadata are public on GitHub.",
+  "Rico started the site in April 2026. The code, the data scripts and the metadata are public on GitHub.",
 ] as const;
 
 // The data-art half of the story: one catalogue, sorted by one field at a
@@ -102,9 +104,10 @@ const views = [
 const factSheet = [
   ["Project", "Collection of Beauty"],
   ["URL", "https://collectionofbeauty.com"],
-  ["Maker", "Rico Trebeljahr, working alone"],
+  ["Maker", "Rico, working alone"],
   ["Location", "Berlin, Germany"],
   ["Started", "April 2026"],
+  ["Selection", "Three to four weeks of browsing, about 30,000 to 40,000 images looked at."],
   [
     "Collection",
     `${WORKS} works by ${ARTISTS} artists across ${MOVEMENTS} movements, dated ${YEARS}. ${PICKED} were chosen one at a time. The other ${PLATES} are plates from four illustrated books.`,
@@ -113,7 +116,10 @@ const factSheet = [
     "Sources",
     "Mostly Wikimedia Commons and Wikidata, plus a few works from the Library of Congress. Every work links to its source.",
   ],
-  ["Built with", "AI coding agents, Next.js and Three.js. Code and metadata are public on GitHub."],
+  [
+    "Built with",
+    "AI coding agents (Claude Code and Codex), Next.js and Three.js. Code and metadata are public on GitHub.",
+  ],
   ["Price", "Free. No account and no ads. Analytics run on self-hosted Plausible without cookies."],
   ["Newsletter", "Drops of Beauty: five works on one theme per edition, opt-in, at /drops."],
   ["Press contact", pressEmail],
@@ -130,20 +136,21 @@ const descriptionTiers = [
   {
     title: "Short (about 40 words)",
     body: [
-      `Collection of Beauty holds ${WORKS} public-domain paintings, prints and book plates that Rico Trebeljahr finds beautiful, most of them from Wikimedia Commons. Visitors can browse them by decade or by colour, or open one at random.`,
+      `Collection of Beauty holds ${WORKS} public-domain paintings, prints and book plates. Rico picked them after looking at about 30,000 to 40,000 images, most of them on Wikimedia Commons. Visitors can browse them by decade or by colour, or open one at random.`,
     ],
   },
   {
     title: "Medium (about 80 words)",
     body: [
-      `Collection of Beauty is a personal art collection on the web. Rico Trebeljahr gathered ${WORKS} public-domain works by ${ARTISTS} artists, mostly from Wikimedia Commons, and built the site with the help of AI coding agents. He uses it as a scrapbook and a place to look for ideas. The site sorts the works by their metadata: decade, colour measured from the pixels, era and artist. Every work links to its source, and anyone can report a wrong date on GitHub.`,
+      `Collection of Beauty is a personal art collection on the web. Over three to four weeks, Rico went from artist to artist on Wikimedia Commons and looked at about 30,000 to 40,000 images. The collection now holds ${WORKS} public-domain works by ${ARTISTS} artists. AI coding agents helped him remove duplicates, clean up the metadata and build the site. The site sorts the works by decade, colour measured from the pixels, era and artist. Every work links to its source.`,
     ],
   },
   {
     title: "Long (about 150 words)",
     body: [
-      `Collection of Beauty is a scrapbook of public-domain art kept by Rico Trebeljahr. Every work in it is there because he finds it beautiful. It holds ${WORKS} paintings, prints and book plates by ${ARTISTS} artists, dated ${YEARS}, most of them collected from Wikimedia Commons. Famous names are missing and some obscure ones appear often. He started the site in April 2026 and built it with the help of AI coding agents.`,
-      `The collection has two uses. It is a place to look for ideas: at one work a minute, seeing everything takes about ${HOURS_AT_A_MINUTE} hours. It is also a way to see how the works connect. The site sorts the same metadata by decade, by colours read from the pixels, by era and by artist, and hangs the eras as rooms in a 3D museum. It is free, and every work links back to its source.`,
+      `Collection of Beauty is a scrapbook of public-domain art kept by Rico. Every work in it is there because he finds it beautiful. It holds ${WORKS} paintings, prints and book plates by ${ARTISTS} artists, dated ${YEARS}, most of them from Wikimedia Commons.`,
+      `Rico spent three to four weeks picking them. He followed one artist to the next whenever a page mentioned another name, then clicked through each artist's works on Commons, about 30,000 to 40,000 images in all. Removing duplicates and cleaning up the metadata took even longer. AI coding agents, Claude Code and Codex, helped heavily with that and with building the site.`,
+      `The site sorts the works by decade, by colours read from the pixels, by era and by artist, and hangs the eras as rooms in a 3D museum. It is free, and every work links back to its source.`,
     ],
   },
 ] as const;
@@ -220,7 +227,7 @@ const availableImages = [
   },
 ] as const;
 
-const boilerplate = `Collection of Beauty (collectionofbeauty.com) is Rico Trebeljahr's scrapbook of ${WORKS} public-domain artworks by ${ARTISTS} artists, gathered mostly from Wikimedia Commons and built into a website with the help of AI coding agents. Visitors can sort the works by decade, colour, era and artist, walk through them in a 3D museum, or open one at random. The site is free and has no ads.`;
+const boilerplate = `Collection of Beauty (collectionofbeauty.com) holds ${WORKS} public-domain artworks by ${ARTISTS} artists. Rico picked them from about 30,000 to 40,000 images, mostly on Wikimedia Commons, and built the site with the help of AI coding agents. Visitors can sort the works by decade, colour, era and artist, walk through them in a 3D museum, or open one at random. The site is free and has no ads.`;
 
 function contactPointJsonLd(): Record<string, unknown> {
   return {
