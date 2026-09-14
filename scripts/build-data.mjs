@@ -1580,12 +1580,15 @@ async function main() {
       //     which is usually a single canonical name. This still routes
       //     through db so the live curated movement wins.
       //  3. Only as a last resort use the inline snapshot verbatim.
-      // An override that explicitly clears the artist must stick: don't let
-      // the `artist_info` fallback below re-introduce a name for a work we
-      // decided has no recorded creator.
+      // An override must stick. One that clears the artist must not have a
+      // name re-introduced, and one that names an artist missing from the db
+      // ("After Peter Paul Rubens", a copy) must not be routed back through
+      // the sidecar's `artist_info`, which still carries the attribution the
+      // override exists to correct.
       const artistCleared = artistOverrides.get(objectKeyNFC) === null;
+      const artistOverridden = artistOverrides.has(objectKeyNFC);
       let artistInfo = matchArtist(normalizedArtistName, byAlias);
-      if (!artistInfo && !artistCleared && entry.artist_info) {
+      if (!artistInfo && !artistOverridden && entry.artist_info) {
         // entry.artist_info acts as a per-record fallback: use its name to
         // re-query the curated db when present, otherwise inject the
         // movement/nationality directly. The name-less form is how

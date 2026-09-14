@@ -12424,9 +12424,9 @@
     "source": "wikidata"
   },
   "collection-of-beauty-vasily-vereshchagin-russian-1842-1904-the-road-of-the-war-prisoners-1878-1879": {
-    "widthCm": 320.5,
-    "heightCm": 202.6,
-    "source": "wikidata"
+    "widthCm": 298.9,
+    "heightCm": 181,
+    "source": "commons"
   },
   "collection-of-beauty-velazquez-de-breda-o-las-lanzas-museo-del-prado-1634-35": {
     "widthCm": 367,
@@ -16931,6 +16931,46 @@
   "collection-of-beauty-edgar-germain-hilaire-degas-031": {
     "widthCm": 83,
     "heightCm": 60,
+    "source": "wikidata"
+  },
+  "collection-of-beauty-allee-de-chataigniers-alfred-sisley": {
+    "widthCm": 208,
+    "heightCm": 129,
+    "source": "museum"
+  },
+  "collection-of-beauty-watteau-antoine-huit-etudes-de-tetes-de-femme-et-une-tete-d-homme": {
+    "widthCm": 38.1,
+    "heightCm": 25,
+    "source": "museum"
+  },
+  "collection-of-beauty-galatskaya-bashnya-v-lunnom-svete": {
+    "widthCm": 80,
+    "heightCm": 52,
+    "source": "commons"
+  },
+  "collection-of-beauty-george-frederick-watts-001": {
+    "widthCm": 38.1,
+    "heightCm": 53.3,
+    "source": "commons"
+  },
+  "collection-of-beauty-ivan-k-ayvazovskiy-brig-merkuriy-posle-pobedy-nad-dvumya-turetskimi-korablyami-1848": {
+    "widthCm": 190,
+    "heightCm": 123.5,
+    "source": "museum"
+  },
+  "collection-of-beauty-kreshchenie-rusi": {
+    "widthCm": 187,
+    "heightCm": 214,
+    "source": "curated"
+  },
+  "collection-of-beauty-reservist-of-the-first-division-malevich-1914": {
+    "widthCm": 44.8,
+    "heightCm": 53.7,
+    "source": "museum"
+  },
+  "collection-of-beauty-robert-delaunay-1913-l-equipe-de-cardiff-oil-on-canvas-326-208-cm-musee-d-art-moderne-de-la-ville-d": {
+    "widthCm": 208,
+    "heightCm": 326,
     "source": "wikidata"
   }
 }

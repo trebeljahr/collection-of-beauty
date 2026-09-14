@@ -1930,3 +1930,36 @@ Problems in the record itself (year, artist, title, dimensions) rather than the 
 | `collection-of-beauty-shaw-john-byam-liston-now-is-pilgrim-fair-autumn-s-charge` | year | null | leave null | Commons only records '2008 (upload date)', which is the file date, not the painting date - nothing here supports filling the year in |
 | `collection-of-beauty-the-venous-and-arterial-system-of-the-human-body-engraving-wellcome-v0007816el` | year | 1543 | 1726 (impression) / after a 1543 woodcut | commons imageDescription: 'Engraving by J. Wandelaar, 1726, after a woodcut, 1543.' The catalogued year is the date of the source woodcut, not of this engraving. Flagging only; eit |
 | `collection-of-beauty-vasily-vereshchagin-russian-1842-1904-the-road-of-the-war-prisoners-1878-1879` | realDimensions | widthCm 320.5, heightCm 202.6 (source: wikidata) | widthCm 298.9, heightCm 181 (the Brooklyn Museum's own figures; 320.5 x 202.6 looks like a framed measurement) | commons imageDescription — '71 1/4 x 117 11/16 x 2 1/4 in. (181 x 298.9 x 5.7 cm)', which is also what the description text in the record itself states in inches |
+
+## Open items, resolved 2026-09-14
+
+Every change below was researched by one agent and then re-checked against its source by a second agent, which read the cited page and looked at the image. Citations are stored with the change: in `_why` for artist and date overrides, and in `metadataResolution` / `textDecision` in the proposals JSON.
+
+**Redouté plate names.** c82.net names plates 118–121 after plates 59–62. The engraved captions in the 1824 volume 3 scan (archive.org `LesRosesIII1824RedoutKpl`) give:
+
+| Plate | Catalogued as | Is |
+|---:|---|---|
+| 118 | Rosa Andegavensis | Rosa Bifera Macrocarpa |
+| 119 | Rosa Centifolia | Rosa Myriacantha |
+| 120 | Rosa Collina | Rosa Damascena Celsiana Prolifera |
+| 121 | Rosa Sempervirens | Rosa Alpina Debilis |
+
+Titles go through `title-overrides.json`, and the descriptions are rewritten. The ids keep their old slugs, because changing an id breaks its URL.
+
+**Catalogue fields.** 58 verified corrections: 23 years or date strings, 14 artists, 8 titles, 9 dimensions and 2 movements. Two more titles were settled during review: Dürer's panel is *Self-Portrait at 28* (dated 1500), and `После_неудачи.jpg` shows Vereshchagin's *After Success* (Russian Museum Ж-4177), not *After Failure*.
+
+`build-data.mjs` changed to make this possible. An artist override naming someone missing from `artists-db.json` used to fall back to the sidecar's `artist_info`, which put the old attribution back (Jan van der Hoecke's *Battle of Nördlingen* stayed "Rubens"). Overrides now stick. No earlier override named an artist outside the db, so no other work changes. "After …" and "Follower of …" names still resolve to the master's artist page by db design; the descriptions of those two works say copy and follower.
+
+**New text.** 173 descriptions: 98 had never said what the picture shows and got one image-grounded sentence in front of the kept text, and 76 were empty. 24 flagged items were false positives and were left alone.
+
+**Needs a person** (not applied):
+
+- Kanae Yamamoto, *Haruna-ko* (1937) and *Kogen-Iizuna* (1939) are oil paintings tagged Shin-hanga through the artist default. `loadMovementOverrides()` ignores a null value, so the tag cannot be cleared per work.
+- Grant Wood, *January*: 82.5 × 67 cm is the framed size. The panel is 45.7 × 60.1 cm (Cleveland Museum of Art).
+- *George Frederic Watts* by Louis Reid Deuchars: catalogued 1897, signed "Louis R Deuchars 99", NPG 5223 dates it 1899.
+- *A Hippopotamus and Crocodile Hunt* (NGI.1198), a copy after Rubens: the year 1615 belongs to the original. Wikidata gives only 1615–1799.
+- Renoir, *Les Grands Boulevards*: the credit reads National Gallery, London, but the painting is in the Philadelphia Museum of Art (1986-26-29).
+- Collection corrections with no override file: Sisley 023 (Hermitage), Cranach *Adam and Eve* (FAMSF), Gilbert Stuart's *Benjamin West* (NPG London), Chase *Still Life with Hummingbird* (Indianapolis), Turner *Waves Breaking against the Wind* (Tate). Also the Fuseli wash drawing's medium.
+- M. C. Escher, *Convex and Concave*: the linked Commons file is a 2010 photo of the Château de Chambord roof. The work is withdrawn for copyright (549050d), so this matters only if it returns.
+
+**Withdrawn works.** Commit 549050d withdrew 14 catalogued works still in copyright in Germany, among them the Escher above. Four of the new descriptions belong to withdrawn works. They stay in `curator-descriptions.json` and will appear if a work returns when its term ends.

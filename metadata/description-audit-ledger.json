@@ -1505,8 +1505,11 @@
   "status": "minor-fixed"
  },
  "audubon-birds-65-rathbone-warbler": {
-  "rechecked": "2026-09 accurate",
-  "status": "accurate"
+  "audit": "2026-09",
+  "method": "new-text-verified",
+  "previousStatus": "accurate",
+  "problem": "Description flagged: no-visual-content",
+  "status": "repaired"
  },
  "audubon-birds-66-ivory-billed-woodpecker": {
   "problem": "Description says 'three' woodpeckers; the plate clearly depicts four birds (male, female, two immatures).",
@@ -1738,8 +1741,10 @@
  },
  "collection-of-beauty-13-50-sl1-general-use": {
   "audit": "2026-09",
-  "method": "span-edits",
-  "status": "accurate"
+  "method": "new-text-verified",
+  "previousStatus": "accurate",
+  "problem": "Description flagged: no-visual-content, rawMuseumLabel",
+  "status": "repaired"
  },
  "collection-of-beauty-15-qian-xuan-eight-flowers-national-palace-museum-beijing": {
   "problem": "\"Boneless\" (outline-free) manner is wrong; flowers are drawn in fine outline with pale washes.",
@@ -1856,9 +1861,10 @@
  },
  "collection-of-beauty-1900-cezanne-pine-tree-in-front-of-the-caves-above-chateau-noir": {
   "audit": "2026-09",
-  "method": "span-edits",
-  "problem": "The description is a raw museum label pasted in, not prose, and it says nothing about what the sheet shows.",
-  "status": "minor-fixed"
+  "method": "new-text-verified",
+  "previousStatus": "minor-fixed",
+  "problem": "Description flagged: no-visual-content, truncated, rawMuseumLabel",
+  "status": "repaired"
  },
  "collection-of-beauty-1901-portrait-of-ivan-bilibin-by-b-kustodiev": {
   "problem": "Bilibin has long hair, not close-cropped; brushwork is loose, not crisp; fairy-tale series began 1899.",
@@ -1866,9 +1872,10 @@
  },
  "collection-of-beauty-1902-cezanne-study-of-a-skull": {
   "audit": "2026-09",
-  "method": "span-edits",
-  "problem": "The description is a raw museum tombstone label scraped from Commons, broken mid-measurement ('22. 9') and cut off before the closing bracket. It is not a sentence and describes nothing.",
-  "status": "minor-fixed"
+  "method": "new-text-verified",
+  "previousStatus": "minor-fixed",
+  "problem": "Description flagged: no-visual-content, truncated, rawMuseumLabel",
+  "status": "repaired"
  },
  "collection-of-beauty-1902-monet-die-waterloo-brucke-anagoria": {
   "problem": "Old Waterloo Bridge was granite, not iron-arched.",
@@ -1876,9 +1883,10 @@
  },
  "collection-of-beauty-1906-cezanne-still-life-with-carafe-bottle-and-fruit": {
   "audit": "2026-09",
-  "method": "span-edits",
-  "problem": "This is not a description - it is the museum's tombstone label pasted in raw, cut off mid-sentence with an unclosed parenthesis and a broken number ('62. 5 cm'). It says nothing about what the sheet shows.",
-  "status": "minor-fixed"
+  "method": "new-text-verified",
+  "previousStatus": "minor-fixed",
+  "problem": "Description flagged: no-visual-content, truncated, rawMuseumLabel",
+  "status": "repaired"
  },
  "collection-of-beauty-1913-malevich-portrait-von-mikhail-matjuschin-anagoria": {
   "status": "prior-audit"
@@ -2038,9 +2046,10 @@
  },
  "collection-of-beauty-9": {
   "audit": "2026-09",
-  "method": "span-edits",
-  "problem": "The leaf is a study of breaking waves with no landscape and no recession into distance — no ground, hills, trees or receding planes. 'Atmospheric distance' and 'landscape tradition' describe a different kind of picture.",
-  "status": "minor-fixed"
+  "method": "new-text-verified",
+  "previousStatus": "minor-fixed",
+  "problem": "Description flagged: no-visual-content",
+  "status": "repaired"
  },
  "collection-of-beauty-960px-museo-del-prado-goya-caprichos-no-43-el-sueno-de-la-razon-produce-monstruos": {
   "status": "accurate"
@@ -2330,8 +2339,20 @@
   "problem": "Calls the Saint Jerome never-executed; the 1521 painting exists (Lisbon).",
   "status": "minor-fixed"
  },
+ "collection-of-beauty-albrecht-durer-knight-death-and-devil-1513-nga-6637": {
+  "audit": "2026-09",
+  "method": "new-text-verified",
+  "problem": "Description flagged: empty",
+  "status": "written"
+ },
  "collection-of-beauty-albrecht-durer-melencolia-i-google-art-project-427760": {
   "status": "accurate"
+ },
+ "collection-of-beauty-albrecht-durer-nemesis-the-great-fortune-c-1501-1502-nga-6603": {
+  "audit": "2026-09",
+  "method": "new-text-verified",
+  "problem": "Description flagged: empty",
+  "status": "written"
  },
  "collection-of-beauty-albrecht-durer-praying-hands-1508-google-art-project": {
   "rechecked": "2026-09 accurate",
@@ -2356,6 +2377,12 @@
  "collection-of-beauty-albrecht-durer-the-men-s-bath-google-art-project": {
   "status": "accurate"
  },
+ "collection-of-beauty-albrecht-durer-tuft-of-cowslips-1526-nga-74162": {
+  "audit": "2026-09",
+  "method": "new-text-verified",
+  "problem": "Description flagged: empty",
+  "status": "written"
+ },
  "collection-of-beauty-alexander-iii-reception-by-repin": {
   "status": "accurate"
  },
@@ -2364,7 +2391,10 @@
  },
  "collection-of-beauty-alfons-much-slavnost-svatovitova-na-rujane": {
   "audit": "2026-09",
-  "status": "accurate"
+  "method": "new-text-verified",
+  "previousStatus": "accurate",
+  "problem": "Description flagged: no-visual-content",
+  "status": "repaired"
  },
  "collection-of-beauty-alfons-mucha-1896-autumn": {
   "problem": "No circular halo motif present in this composition; claim is unsupported by the image.",
@@ -2448,9 +2478,10 @@
  },
  "collection-of-beauty-alfred-sisley-the-road-to-hampton-court-1874-neue-pinakothek-munich-munchen": {
   "audit": "2026-09",
-  "method": "span-edits",
-  "problem": "There are no garden walls; the road is edged by a low wooden post-and-rail fence on one side and by the open river on the other.",
-  "status": "minor-fixed"
+  "method": "new-text-verified",
+  "previousStatus": "minor-fixed",
+  "problem": "Description flagged: no-visual-content",
+  "status": "repaired"
  },
  "collection-of-beauty-alfred-sisley-women-going-to-the-woods-google-art-project": {
   "audit": "2026-09",
@@ -2463,11 +2494,20 @@
  },
  "collection-of-beauty-allegorische-voorstelling-van-het-werk-en-de-vlijt": {
   "audit": "2026-09",
-  "status": "accurate"
+  "method": "new-text-verified",
+  "previousStatus": "accurate",
+  "problem": "Description flagged: no-visual-content",
+  "status": "repaired"
  },
  "collection-of-beauty-allegory-of-painting": {
   "problem": "Description attributes work to Boucher 1765 at Smithsonian; record confirms Gerard van Honthorst, 1648.",
   "status": "fabricated-fixed"
+ },
+ "collection-of-beauty-allegory-of-painting-sc493fxd": {
+  "audit": "2026-09",
+  "method": "new-text-verified",
+  "problem": "Description flagged: empty",
+  "status": "written"
  },
  "collection-of-beauty-almina-daughter-of-asher-wertheimer-by-j-s-sargent": {
   "problem": "'Cross-legged' is inaccurate; sitter is seated with legs to the side, not cross-legged.",
@@ -2534,6 +2574,12 @@
  "collection-of-beauty-andrea-del-sarto-head-of-saint-john-the-baptist-c-1523-nga-73856": {
   "problem": "Image is a chalk drawing of a living young man's face; description invents a severed head on a metal charger.",
   "status": "fabricated-fixed"
+ },
+ "collection-of-beauty-andrea-del-sarto-pieta-with-saints-wga0395": {
+  "audit": "2026-09",
+  "method": "new-text-verified",
+  "problem": "Description flagged: empty",
+  "status": "written"
  },
  "collection-of-beauty-andrea-del-sarto-portrait-of-a-man": {
   "status": "accurate"
@@ -2649,9 +2695,10 @@
  },
  "collection-of-beauty-ariko-weeps-on-her-boat": {
   "audit": "2026-09",
-  "method": "span-edits",
-  "problem": "Wrong romanisation of the series title. 月百姿 is Tsuki hyakushi (also given as Tsuki no hyakushi); Commons files the print under 'Tsuki hyakushi 38'. 'Tsuki Hyakusen' is not a reading of the title.",
-  "status": "minor-fixed"
+  "method": "new-text-verified",
+  "previousStatus": "minor-fixed",
+  "problem": "Description flagged: no-visual-content",
+  "status": "repaired"
  },
  "collection-of-beauty-arnaut-and-his-dog-by-jean-leon-gerome": {
   "problem": "Scene is a tiled interior, not a sunlit Cairo street as stated.",
@@ -2681,7 +2728,10 @@
  },
  "collection-of-beauty-artgate-fondazione-cariplo-hayez-francesco-l-ultimo-abboccamento-di-giacomo-foscari-figlio-del-doge": {
   "audit": "2026-09",
-  "status": "accurate"
+  "method": "new-text-verified",
+  "previousStatus": "accurate",
+  "problem": "Description flagged: no-visual-content",
+  "status": "repaired"
  },
  "collection-of-beauty-artlib-gallery-13875-o": {
   "problem": "Plain is dry/autumnal steppe, not frozen. Censer appears stationary, not being swung.",
@@ -2699,9 +2749,10 @@
  },
  "collection-of-beauty-assistants-and-george-frederic-watts-hope-google-art-project": {
   "audit": "2026-09",
-  "method": "span-edits",
-  "problem": "Given as by Watts alone; the source records this version as by Watts with studio assistants.",
-  "status": "minor-fixed"
+  "method": "new-text-verified",
+  "previousStatus": "minor-fixed",
+  "problem": "Description flagged: no-visual-content, nonLatin",
+  "status": "repaired"
  },
  "collection-of-beauty-at-eternity-s-gate-vincent-van-gogh": {
   "status": "prior-audit"
@@ -2712,6 +2763,12 @@
  "collection-of-beauty-at-the-beer-garden-1883-adolf-friedrich-erdmann-von-menzel-museum-georg-schafer": {
   "problem": "\"Munich\" is not supported by any provided source; \"waitresses\" not prominent in the image.",
   "status": "minor-fixed"
+ },
+ "collection-of-beauty-at-the-seaside-met-dt95": {
+  "audit": "2026-09",
+  "method": "new-text-verified",
+  "problem": "Description flagged: empty",
+  "status": "written"
  },
  "collection-of-beauty-at-the-stock-exchange": {
   "status": "accurate"
@@ -2809,6 +2866,12 @@
  },
  "collection-of-beauty-baldassare-castiglione-by-raffaello-sanzio-from-c2rmf-retouched": {
   "status": "accurate"
+ },
+ "collection-of-beauty-bamboo-grove-5759026915": {
+  "audit": "2026-09",
+  "method": "new-text-verified",
+  "problem": "Description flagged: empty",
+  "status": "written"
  },
  "collection-of-beauty-barcelona-apullia-in-search-of-appullus-1814-william-turner-tate-britain": {
   "status": "accurate"
@@ -3076,6 +3139,12 @@
   "problem": "There is only one flaming implement in the picture and the description has already given it to Eros. The woman at left holds nothing — both her hands are open and empty.",
   "status": "major-fixed"
  },
+ "collection-of-beauty-benjamin-west-pylades-and-orestes-brought-as-victims-before-iphigenia-google-art-project": {
+  "audit": "2026-09",
+  "method": "new-text-verified",
+  "problem": "Description flagged: empty",
+  "status": "written"
+ },
  "collection-of-beauty-benjamin-west-self-portrait-google-art-project": {
   "problem": "West holds a pen or pencil over papers, not a palette; 'palette in hand' is wrong.",
   "status": "minor-fixed"
@@ -3140,6 +3209,12 @@
  },
  "collection-of-beauty-bonneville-savoy-by-joseph-mallord-william-turner": {
   "status": "accurate"
+ },
+ "collection-of-beauty-boris-kustodiev-portrait-of-fyodor-chaliapin-google-art-project": {
+  "audit": "2026-09",
+  "method": "new-text-verified",
+  "problem": "Description flagged: empty",
+  "status": "written"
  },
  "collection-of-beauty-boris-kustodiev-self-portrait": {
   "problem": "'Rifle and gear' are not depicted; the artist holds painting materials, not hunting equipment.",
@@ -3261,9 +3336,10 @@
  },
  "collection-of-beauty-bryullov-nartsiss": {
   "audit": "2026-09",
-  "method": "span-edits",
-  "problem": "'Academical Hall' is a Wikimedia Commons room category (Russian Museum - Academical Hall No.14), i.e. a hanging location that changes, not a catalogue fact about the work. Stating a specific gallery room as where the picture is 'housed' asserts more than the sources support.",
-  "status": "minor-fixed"
+  "method": "new-text-verified",
+  "previousStatus": "minor-fixed",
+  "problem": "Description flagged: no-visual-content",
+  "status": "repaired"
  },
  "collection-of-beauty-buddiyskiy-khram-v-dardzhilinge-sikkim": {
   "audit": "2026-09",
@@ -3271,7 +3347,10 @@
  },
  "collection-of-beauty-burya-nad-evpatoriey-ayvazovskiy": {
   "audit": "2026-09",
-  "status": "accurate"
+  "method": "new-text-verified",
+  "previousStatus": "accurate",
+  "problem": "Description flagged: no-visual-content, rawMuseumLabel",
+  "status": "repaired"
  },
  "collection-of-beauty-bust-of-pseudo-seneca-met-dp359039": {
   "status": "prior-audit"
@@ -3283,6 +3362,12 @@
  "collection-of-beauty-ca-rezzonico-matrimonio-mistico-di-santa-caterina-inv-236-biagio-pupini-detto-dalle-lame": {
   "problem": "\"Attended by angels\" not supported by image; the right figure is an elderly bearded male (likely Joseph), not an angel.",
   "status": "minor-fixed"
+ },
+ "collection-of-beauty-cabin-of-the-customs-watch-met-dt1905": {
+  "audit": "2026-09",
+  "method": "new-text-verified",
+  "problem": "Description flagged: empty",
+  "status": "written"
  },
  "collection-of-beauty-caillebotte-gustave-femme-nue-etendue-sur-un-divan": {
   "problem": "\"Clothing tossed over the chair beside her\" — no chair or discarded clothing visible in the image.",
@@ -3626,6 +3711,12 @@
  "collection-of-beauty-claude-monet-automne-sur-la-seine-argenteuil-1873": {
   "status": "accurate"
  },
+ "collection-of-beauty-claude-monet-banks-of-the-seine-vetheuil-1880-nga-46652": {
+  "audit": "2026-09",
+  "method": "new-text-verified",
+  "problem": "Description flagged: empty",
+  "status": "written"
+ },
  "collection-of-beauty-claude-monet-camille-au-metier": {
   "status": "accurate"
  },
@@ -3643,6 +3734,12 @@
  "collection-of-beauty-claude-monet-cliff-walk-at-pourville-google-art-project": {
   "problem": "The women are not 'in white'; one wears a clearly coloured dress and carries a red/orange parasol.",
   "status": "minor-fixed"
+ },
+ "collection-of-beauty-claude-monet-dahlias-16035439250": {
+  "audit": "2026-09",
+  "method": "new-text-verified",
+  "problem": "Description flagged: empty",
+  "status": "written"
  },
  "collection-of-beauty-claude-monet-der-koch-le-pere-paul-540-osterreichische-galerie-belvedere": {
   "problem": "'Twin chins' not visible in image; 'Hôtel Blanche' is unverifiable from any provided source.",
@@ -3796,6 +3893,18 @@
  "collection-of-beauty-claude-monet-rocks-at-belle-lle-port-domois-google-art-project": {
   "problem": "Sea described as 'turquoise' but is blue-purple; prominent sunset sky entirely omitted.",
   "status": "minor-fixed"
+ },
+ "collection-of-beauty-claude-monet-sailing-boat-evening-effect": {
+  "audit": "2026-09",
+  "method": "new-text-verified",
+  "problem": "Description flagged: empty",
+  "status": "written"
+ },
+ "collection-of-beauty-claude-monet-soleil-couchant-a-etretat": {
+  "audit": "2026-09",
+  "method": "new-text-verified",
+  "problem": "Description flagged: empty",
+  "status": "written"
  },
  "collection-of-beauty-claude-monet-springtime-google-art-project": {
   "status": "accurate"
@@ -3961,6 +4070,12 @@
   "problem": "Climbers are not roped together; dominant palette is red-brown and pink, not Prussian blue.",
   "status": "minor-fixed"
  },
+ "collection-of-beauty-coat-of-arms-of-albrecht-durer-met-dp816462": {
+  "audit": "2026-09",
+  "method": "new-text-verified",
+  "problem": "Description flagged: empty",
+  "status": "written"
+ },
  "collection-of-beauty-col-tempo-by-giorgione": {
   "status": "accurate"
  },
@@ -3993,6 +4108,12 @@
  "collection-of-beauty-columbus-and-his-son-at-la-rabida": {
   "problem": "Claim of 'pair of Columbus subjects' with a second canvas showing Spanish court reception is unverified in any provided source.",
   "status": "minor-fixed"
+ },
+ "collection-of-beauty-comtesse-de-la-chatre-marie-charlotte-louise-perrette-aglae-bontemps-1762-1848-met-dp320086": {
+  "audit": "2026-09",
+  "method": "new-text-verified",
+  "problem": "Description flagged: empty",
+  "status": "written"
  },
  "collection-of-beauty-confusion-of-tongues-89393754": {
   "status": "accurate"
@@ -4085,7 +4206,10 @@
  },
  "collection-of-beauty-creacion-de-adan": {
   "audit": "2026-09",
-  "status": "accurate"
+  "method": "new-text-verified",
+  "previousStatus": "accurate",
+  "problem": "Description flagged: no-visual-content",
+  "status": "repaired"
  },
  "collection-of-beauty-cristo-en-casa-de-marta-y-maria-by-diego-velazquez": {
   "status": "accurate"
@@ -4105,9 +4229,10 @@
  },
  "collection-of-beauty-dame-alice-ellen-terry-choosing-by-george-frederic-watts": {
   "audit": "2026-09",
-  "method": "span-edits",
-  "problem": "The whole description is the National Portrait Gallery's boilerplate caption pasted in, including a dangling instruction to consult a 'source website' that the reader of this catalogue has no access to. It never says what the picture shows — and the picture's entire point, the choice between scentless camellias and fragrant violets, is absent.",
-  "status": "minor-fixed"
+  "method": "new-text-verified",
+  "previousStatus": "minor-fixed",
+  "problem": "Description flagged: no-visual-content",
+  "status": "repaired"
  },
  "collection-of-beauty-dance-at-bougival": {
   "problem": "Woman's hat is red-orange, not pink; 'pink bonnet' is a colour error.",
@@ -4227,7 +4352,10 @@
  },
  "collection-of-beauty-death-and-the-maiden-baldung": {
   "audit": "2026-09",
-  "status": "accurate"
+  "method": "new-text-verified",
+  "previousStatus": "accurate",
+  "problem": "Description flagged: no-visual-content",
+  "status": "repaired"
  },
  "collection-of-beauty-death-of-camilla-by-f-bruni-1824-grm": {
   "status": "accurate"
@@ -4287,11 +4415,17 @@
  },
  "collection-of-beauty-deti-plemeni-solonov": {
   "audit": "2026-09",
-  "status": "accurate"
+  "method": "new-text-verified",
+  "previousStatus": "accurate",
+  "problem": "Description flagged: no-visual-content",
+  "status": "repaired"
  },
  "collection-of-beauty-deux-jeunes-amies-qui-s-embrassent-de-l-l-boilly-musee-cognacq-jay-paris-51992741281": {
   "audit": "2026-09",
-  "status": "accurate"
+  "method": "new-text-verified",
+  "previousStatus": "accurate",
+  "problem": "Description flagged: no-visual-content, truncated",
+  "status": "repaired"
  },
  "collection-of-beauty-die-kreuzabnahme-rubens": {
   "status": "accurate"
@@ -4389,9 +4523,10 @@
  },
  "collection-of-beauty-dveri-timura-tamerlana": {
   "audit": "2026-09",
-  "method": "span-edits",
-  "problem": "The Turkestan series comes out of Vereshchagin's Central Asian journeys of 1867-1870; nothing in the record or the Commons metadata connects this canvas to the Caucasus, and folding it in blurs where the work came from.",
-  "status": "minor-fixed"
+  "method": "new-text-verified",
+  "previousStatus": "minor-fixed",
+  "problem": "Description flagged: no-visual-content",
+  "status": "repaired"
  },
  "collection-of-beauty-e-v-pavlov-by-repin": {
   "status": "accurate"
@@ -4529,6 +4664,12 @@
   "problem": "Setting is an outdoor colonnade, not a richly furnished Parisian interior; self-correction about 'Frederic Leighton' is erroneous (record correctly credits Edmund Blair Leighton).",
   "status": "minor-fixed"
  },
+ "collection-of-beauty-edmund-blair-leighton-in-time-of-peril-google-art-project": {
+  "audit": "2026-09",
+  "method": "new-text-verified",
+  "problem": "Description flagged: empty",
+  "status": "written"
+ },
  "collection-of-beauty-edmund-blair-leighton-my-next-door-neighbour": {
   "problem": "Image shows figures on steps of a Georgian building, not a woman leaning over a garden wall.",
   "status": "fabricated-fixed"
@@ -4547,9 +4688,10 @@
  },
  "collection-of-beauty-edmund-blair-leighton-the-end-of-the-song-1902": {
   "audit": "2026-09",
-  "method": "span-edits",
-  "problem": "The description is not a description. It is a mangled scrape of the Commons image caption, opening with a stray bracket and carrying the ellipsis brackets and closing guillemet of the original quotation; it never says what the picture shows.",
-  "status": "minor-fixed"
+  "method": "new-text-verified",
+  "previousStatus": "minor-fixed",
+  "problem": "Description flagged: no-visual-content, truncated, bracketJunk",
+  "status": "repaired"
  },
  "collection-of-beauty-edmund-blair-leighton-the-hostage": {
   "problem": "Image shows women on open seaside battlements, not a baron's hall; no encircling knights; figure gazes out to sea.",
@@ -4662,6 +4804,12 @@
   "problem": "Agricultural-fair prize commission story and 1964 NGA acquisition date are unverified particulars absent from provided sources.",
   "status": "minor-fixed"
  },
+ "collection-of-beauty-edward-hopper-morning-sun-c-1952-columbus-museum-of-art": {
+  "audit": "2026-09",
+  "method": "new-text-verified",
+  "problem": "Description flagged: empty",
+  "status": "written"
+ },
  "collection-of-beauty-edward-hopper-night-shadows-oct-1922-shadowland": {
   "status": "accurate"
  },
@@ -4703,9 +4851,10 @@
  },
  "collection-of-beauty-el-greco-domenikos-theotokopoulos-laocoon-google-art-project": {
   "audit": "2026-09",
-  "method": "span-edits",
-  "problem": "The description is cut off mid-abbreviation; the last sentence ends on 'Washington, D.' with no closing.",
-  "status": "minor-fixed"
+  "method": "new-text-verified",
+  "previousStatus": "minor-fixed",
+  "problem": "Description flagged: truncated",
+  "status": "repaired"
  },
  "collection-of-beauty-el-greco-domenikos-theotokopoulos-portrait-of-dr-francisco-de-pisa-google-art-project": {
   "problem": "Book rests on a table, not on sitter's lap; Kimbell Art Museum attribution is unsupported by any provided source.",
@@ -4714,6 +4863,12 @@
  "collection-of-beauty-el-greco-domenikos-theotokopoulos-saint-jerome-a73-hispanic-society-of-america": {
   "problem": "Description depicts the scholar-in-cardinal-robes variant; image shows a bare-chested penitent holding a crucifix with a skull — a completely different iconographic type.",
   "status": "fabricated-fixed"
+ },
+ "collection-of-beauty-el-greco-domenikos-theotokopoulos-saint-jerome-c-1610-1614-nga-12204": {
+  "audit": "2026-09",
+  "method": "new-text-verified",
+  "problem": "Description flagged: empty",
+  "status": "written"
  },
  "collection-of-beauty-el-greco-portrait-of-a-man-wga10554": {
   "problem": "Metropolitan Museum attribution unsupported; source states only \"presumed self-portrait or anonymous man\", not a secure self-identification.",
@@ -4990,8 +5145,11 @@
   "status": "minor-fixed"
  },
  "collection-of-beauty-fernand-khnopff013": {
-  "rechecked": "2026-09 accurate",
-  "status": "accurate"
+  "audit": "2026-09",
+  "method": "new-text-verified",
+  "previousStatus": "accurate",
+  "problem": "Description flagged: no-visual-content",
+  "status": "repaired"
  },
  "collection-of-beauty-fernand-le-quesne-les-deux-perles-the-two-pearls-1889": {
   "problem": "Description says 'lamp-lit setting' and implies an intimate interior; the image is a daylit outdoor beach scene with two figures beside the sea and coastal rocks.",
@@ -5013,6 +5171,12 @@
  "collection-of-beauty-finches-and-bamboo-met-dp151504": {
   "problem": "Description says 'monochrome bamboo'; the image clearly shows the bamboo rendered in teal/green colour, not monochrome.",
   "status": "minor-fixed"
+ },
+ "collection-of-beauty-fishing-boats-with-hucksters-bargaining-for-fish-1837-1838-jmw-turner": {
+  "audit": "2026-09",
+  "method": "new-text-verified",
+  "problem": "Description flagged: empty",
+  "status": "written"
  },
  "collection-of-beauty-five-egrets-descending-in-snow-by-shoson": {
   "status": "accurate"
@@ -5082,9 +5246,10 @@
  },
  "collection-of-beauty-francesco-hayez-incontro-di-giobbe-ed-esau-1844": {
   "audit": "2026-09",
-  "method": "span-edits",
-  "problem": "A sweeping art-historical generalisation stated as fact, carried over verbatim (and awkwardly translated - 'had a lot of luck' renders 'ebbero molta fortuna', i.e. were popular) from the uploader's own Commons caption; nothing in the record or the source supports it as a claim about this painting.",
-  "status": "minor-fixed"
+  "method": "new-text-verified",
+  "previousStatus": "minor-fixed",
+  "problem": "Description flagged: no-visual-content",
+  "status": "repaired"
  },
  "collection-of-beauty-francesco-hayez-odalisca-che-legge-1867": {
   "problem": "'Reclining' mischaracterises the pose; the figure is seated upright. No embroidered cushions are visible — the background is plain crimson velvet.",
@@ -5176,6 +5341,12 @@
   "problem": "There is one attendant nymph, not several. The 1742 Salon entry likewise describes Diana with 'one of her companions'.",
   "status": "minor-fixed"
  },
+ "collection-of-beauty-francois-boucher-dreaming-shepherdess-wga02914": {
+  "audit": "2026-09",
+  "method": "new-text-verified",
+  "problem": "Description flagged: empty",
+  "status": "written"
+ },
  "collection-of-beauty-francois-boucher-la-nymphe-callisto-seduite-par-jupiter-sous-les-traits-de-diane-1759": {
   "status": "accurate"
  },
@@ -5185,6 +5356,12 @@
  },
  "collection-of-beauty-francois-boucher-the-triumph-of-venus-google-art-project": {
   "status": "prior-audit"
+ },
+ "collection-of-beauty-francois-boucher-young-country-girl-dancing-google-art-project": {
+  "audit": "2026-09",
+  "method": "new-text-verified",
+  "problem": "Description flagged: empty",
+  "status": "written"
  },
  "collection-of-beauty-francois-joseph-navez-louis-david-mg-3031": {
   "problem": "Specific 'Rue Léopold studio' detail is unverifiable; sitter appears relatively youthful, not elderly.",
@@ -5346,11 +5523,24 @@
   "problem": "Describes a 'quiet hillside'; image shows a misty riverbank scene with figures and animals crossing through fog.",
   "status": "minor-fixed"
  },
+ "collection-of-beauty-g-caillebotte-homme-portant-une-blouse": {
+  "audit": "2026-09",
+  "method": "new-text-verified",
+  "problem": "Description flagged: empty",
+  "status": "written"
+ },
  "collection-of-beauty-g-caillebotte-interieur": {
   "audit": "2026-09",
-  "method": "span-edits",
-  "problem": "The picture has two figures. The seated man reading a newspaper occupies the entire right-hand third of the canvas and is the reason the composition is usually discussed at all; the description does not mention him.",
-  "status": "minor-fixed"
+  "method": "new-text-verified",
+  "previousStatus": "minor-fixed",
+  "problem": "Description flagged: no-visual-content",
+  "status": "repaired"
+ },
+ "collection-of-beauty-g-caillebotte-l-yerres-pluie": {
+  "audit": "2026-09",
+  "method": "new-text-verified",
+  "problem": "Description flagged: empty",
+  "status": "written"
  },
  "collection-of-beauty-g-caillebotte-le-jardin-du-petit-gennevilliers-en-hiver": {
   "status": "accurate"
@@ -5388,9 +5578,10 @@
  },
  "collection-of-beauty-galatskaya-bashnya-v-lunnom-svete": {
   "audit": "2026-09",
-  "method": "span-edits",
-  "problem": "The moonlight in this canvas is warm gold-amber, not silver; the masts and rooftops read as dark silhouettes against a gold sky and a gold reflection on the water.",
-  "status": "minor-fixed"
+  "method": "new-text-verified",
+  "previousStatus": "minor-fixed",
+  "problem": "Description flagged: no-visual-content",
+  "status": "repaired"
  },
  "collection-of-beauty-gamaun": {
   "status": "accurate"
@@ -5468,6 +5659,12 @@
   "problem": "Overstated. The collar, neckcloth and jacket are all painted, if thinly and loosely; nothing in the clothing is actually unprimed or unpainted canvas.",
   "status": "minor-fixed"
  },
+ "collection-of-beauty-george-inness-home-at-montclair-1892": {
+  "audit": "2026-09",
+  "method": "new-text-verified",
+  "problem": "Description flagged: empty",
+  "status": "written"
+ },
  "collection-of-beauty-george-inness-in-the-berkshires": {
   "problem": "Description says herdsman drives cattle and a steeple is visible; image shows a traveller with a horse, no steeple.",
   "status": "minor-fixed"
@@ -5476,13 +5673,22 @@
   "problem": "Description says grazing cattle and broad river; image shows a figure on a log by a quiet stream, no cattle visible.",
   "status": "minor-fixed"
  },
+ "collection-of-beauty-george-inness-the-home-of-the-heron-google-art-project": {
+  "audit": "2026-09",
+  "method": "new-text-verified",
+  "problem": "Description flagged: empty",
+  "status": "written"
+ },
  "collection-of-beauty-george-inness-the-lackawanna-valley-c-1856-nga-30776": {
   "problem": "Figure is seated, not reclining; otherwise description is well supported.",
   "status": "minor-fixed"
  },
  "collection-of-beauty-george-meredith-by-george-frederic-watts": {
   "audit": "2026-09",
-  "status": "accurate"
+  "method": "new-text-verified",
+  "previousStatus": "accurate",
+  "problem": "Description flagged: no-visual-content",
+  "status": "repaired"
  },
  "collection-of-beauty-george-spencer-2nd-earl-spencer": {
   "status": "prior-audit"
@@ -5844,12 +6050,19 @@
  },
  "collection-of-beauty-glavnaya-ulitsa-v-samarkande-s-vysoty-tsitadeli-rannim-utrom": {
   "audit": "2026-09",
-  "method": "span-edits",
-  "problem": "The picture is painted in cool, flat, whitish-grey and pale ochre; there is no golden light in it.",
-  "status": "minor-fixed"
+  "method": "new-text-verified",
+  "previousStatus": "minor-fixed",
+  "problem": "Description flagged: no-visual-content",
+  "status": "repaired"
  },
  "collection-of-beauty-glazunov-by-repin": {
   "status": "prior-audit"
+ },
+ "collection-of-beauty-god-s-creatures-eugene-von-blaas": {
+  "audit": "2026-09",
+  "method": "new-text-verified",
+  "problem": "Description flagged: empty",
+  "status": "written"
  },
  "collection-of-beauty-goethe-kugelgen": {
   "problem": "Goethe wears a sash and order/medal, not plain civil dress; background is atmospheric grey-blue, not plain dark.",
@@ -5877,6 +6090,12 @@
  "collection-of-beauty-goyo-hashiguchi-1915-yokugo-no-onna-cropped-and-compressed-01": {
   "problem": "Description says woman gathers her hair and wears an indigo robe; image shows her nude, seated, attending to her ankle/foot with a basin below",
   "status": "fabricated-fixed"
+ },
+ "collection-of-beauty-grant-wood": {
+  "audit": "2026-09",
+  "method": "new-text-verified",
+  "problem": "Description flagged: empty",
+  "status": "written"
  },
  "collection-of-beauty-grant-wood-american-gothic-google-art-project": {
   "rechecked": "2026-09 accurate",
@@ -6156,6 +6375,30 @@
   "problem": "Man is playing the lute, not tuning it; no music sheet is visible before him; a woman is also present but unmentioned.",
   "status": "minor-fixed"
  },
+ "collection-of-beauty-hendrik-avercamp-winter-scene-on-a-canal-google-art-project": {
+  "audit": "2026-09",
+  "method": "new-text-verified",
+  "problem": "Description flagged: empty",
+  "status": "written"
+ },
+ "collection-of-beauty-hendrik-goltzius-a-foxglove-in-bloom-1592-nga-94900": {
+  "audit": "2026-09",
+  "method": "new-text-verified",
+  "problem": "Description flagged: empty",
+  "status": "written"
+ },
+ "collection-of-beauty-hendrik-goltzius-the-great-hercules-1589-nga-70311": {
+  "audit": "2026-09",
+  "method": "new-text-verified",
+  "problem": "Description flagged: empty",
+  "status": "written"
+ },
+ "collection-of-beauty-henri-fantin-latour-a-studio-at-les-batignolles-google-art-project": {
+  "audit": "2026-09",
+  "method": "new-text-verified",
+  "problem": "Description flagged: empty",
+  "status": "written"
+ },
  "collection-of-beauty-henri-fantin-latour-flowers-and-fruit-google-art-project-807372": {
   "problem": "Fruit described as 'peaches and grapes' but image shows strawberries, orange, and tangerine segments — no peaches or grapes visible.",
   "status": "fabricated-fixed"
@@ -6184,8 +6427,11 @@
   "status": "minor-fixed"
  },
  "collection-of-beauty-henri-meunier04": {
-  "rechecked": "2026-09 accurate",
-  "status": "accurate"
+  "audit": "2026-09",
+  "method": "new-text-verified",
+  "previousStatus": "accurate",
+  "problem": "Description flagged: no-visual-content",
+  "status": "repaired"
  },
  "collection-of-beauty-henri-rousseau-la-encantadora-de-serpientes-museo-de-orsay-paris-1907-oleo-sobre-lienzo-169-x-189-5": {
   "status": "accurate"
@@ -6193,8 +6439,20 @@
  "collection-of-beauty-henri-rousseau-the-hungry-lion-throws-itself-on-the-antelope": {
   "status": "prior-audit"
  },
+ "collection-of-beauty-henri-rousseau-tropical-forest-with-monkeys-1910-nga-61253": {
+  "audit": "2026-09",
+  "method": "new-text-verified",
+  "problem": "Description flagged: empty",
+  "status": "written"
+ },
  "collection-of-beauty-henry-fuseli-titania-and-bottom-google-art-project": {
   "status": "accurate"
+ },
+ "collection-of-beauty-henry-hoppner-meyer-lady-hamilton-as-nature-b1970-3-335-yale-center-for-british-art": {
+  "audit": "2026-09",
+  "method": "new-text-verified",
+  "problem": "Description flagged: empty",
+  "status": "written"
  },
  "collection-of-beauty-henry-laurens-1782-john-singleton-copley": {
   "problem": "Sitter described wearing a \"dark coat\" but wears a prominent red/burgundy velvet suit throughout.",
@@ -6314,9 +6572,10 @@
  },
  "collection-of-beauty-hiroshige-kozuke": {
   "audit": "2026-09",
-  "method": "span-edits",
-  "problem": "'Landmark' is an evaluative claim with nothing behind it; the source only records that the print is No. 26 in the Tosando group of the series.",
-  "status": "minor-fixed"
+  "method": "new-text-verified",
+  "previousStatus": "minor-fixed",
+  "problem": "Description flagged: no-visual-content",
+  "status": "repaired"
  },
  "collection-of-beauty-hiroshige-travellers-surprised-by-sudden-rain": {
   "problem": "Description says figures cross a wooden bridge; image shows travelers on a hillside road with no bridge present.",
@@ -6375,9 +6634,10 @@
  },
  "collection-of-beauty-hodogaya-on-the-tokaido-tokaido-hodogaya-from-the-series-thirty-six-views-of-mount-fuji-fugaku-sanj": {
   "audit": "2026-09",
-  "method": "span-edits",
-  "problem": "The viewpoint here is at road level, level with the travellers, not raised or bird's-eye. This is the description's only concrete claim about the composition.",
-  "status": "minor-fixed"
+  "method": "new-text-verified",
+  "previousStatus": "minor-fixed",
+  "problem": "Description flagged: no-visual-content",
+  "status": "repaired"
  },
  "collection-of-beauty-hokusai-1760-1849-ocean-waves": {
   "problem": "Figures in boats are not clearly working nets; net-fishing activity is unsupported by image.",
@@ -6499,10 +6759,10 @@
  },
  "collection-of-beauty-holbein-danse-macabre-4": {
   "audit": "2026-09",
-  "method": "span-edits",
-  "previousStatus": "accurate",
-  "problem": "True of the cycle, but placed as the only description of this sheet it misleads: this block is the labour of Adam after the Fall, with a single skeleton working alongside Adam while Eve nurses a child. Nobody is being dragged, and no social rank is at issue.",
-  "status": "minor-fixed"
+  "method": "new-text-verified",
+  "previousStatus": "minor-fixed",
+  "problem": "Description flagged: no-visual-content",
+  "status": "repaired"
  },
  "collection-of-beauty-holbein-danse-macabre-40": {
   "problem": "Image shows a cosmological Last Judgement scene, not 'Death claiming estates'; Lützelburger was a Basel not Lyon block-cutter.",
@@ -6537,10 +6797,10 @@
  },
  "collection-of-beauty-holbein-danse-macabre-5": {
   "audit": "2026-09",
-  "method": "span-edits",
-  "previousStatus": "accurate",
-  "problem": "Describes the theme of the series, not this plate. This sheet has no victim and no living person in it at all - it is the skeletons' concert that opens the cycle - so a reader is led to expect a scene the image does not contain.",
-  "status": "minor-fixed"
+  "method": "new-text-verified",
+  "previousStatus": "minor-fixed",
+  "problem": "Description flagged: no-visual-content",
+  "status": "repaired"
  },
  "collection-of-beauty-holbein-danse-macabre-6": {
   "status": "accurate"
@@ -6604,8 +6864,20 @@
  "collection-of-beauty-hunt-awakeningconscience1853": {
   "status": "accurate"
  },
+ "collection-of-beauty-hyacinthe-rigaud-gio-francesco-ii-brignole-sale-google-art-project": {
+  "audit": "2026-09",
+  "method": "new-text-verified",
+  "problem": "Description flagged: empty",
+  "status": "written"
+ },
  "collection-of-beauty-hyacinthe-rigaud-portrait-of-cardinal-guillaume-dubois-1967-17-cleveland-museum-of-art": {
   "status": "accurate"
+ },
+ "collection-of-beauty-ice-floes-met-dt2158": {
+  "audit": "2026-09",
+  "method": "new-text-verified",
+  "problem": "Description flagged: empty",
+  "status": "written"
  },
  "collection-of-beauty-idylls-of-the-king-3": {
   "problem": "\"Looming forest\" is wrong; the image shows riders approaching a castle on a rocky hill, no forest",
@@ -6852,6 +7124,12 @@
   "rechecked": "2026-09 accurate",
   "status": "minor-fixed"
  },
+ "collection-of-beauty-jacques-louis-david-suzanne-le-peletier-de-saint-fargeau-google-art-project": {
+  "audit": "2026-09",
+  "method": "new-text-verified",
+  "problem": "Description flagged: empty",
+  "status": "written"
+ },
  "collection-of-beauty-jacques-louis-david-the-anger-of-achilles-google-art-project": {
   "status": "accurate"
  },
@@ -6944,9 +7222,10 @@
  },
  "collection-of-beauty-january-by-grant-wood-1940-41-cleveland-museum-of-art": {
   "audit": "2026-09",
-  "method": "span-edits",
-  "problem": "The description is an encyclopaedia stub. It never says what the picture shows — snow-covered corn shocks and rabbit tracks — which is the whole point of the work.",
-  "status": "minor-fixed"
+  "method": "new-text-verified",
+  "previousStatus": "minor-fixed",
+  "problem": "Description flagged: no-visual-content",
+  "status": "repaired"
  },
  "collection-of-beauty-japanese-anemones-henri-fantin-latour-abdag002274": {
   "status": "accurate"
@@ -7021,7 +7300,10 @@
  },
  "collection-of-beauty-jean-francois-millet-the-potato-harvest-walters-37115": {
   "audit": "2026-09",
-  "status": "accurate"
+  "method": "new-text-verified",
+  "previousStatus": "accurate",
+  "problem": "Description flagged: no-visual-content",
+  "status": "repaired"
  },
  "collection-of-beauty-jean-francois-millet-the-sheepfold-moonlight-google-art-project": {
   "audit": "2026-09",
@@ -7169,6 +7451,12 @@
   "problem": "Described as 'boys at prayer' but sourceDescription identifies them as Greek youths undergoing conversion to Islam; 'painted vaults' unsupported by the image.",
   "status": "minor-fixed"
  },
+ "collection-of-beauty-jean-metzinger-c-1905-baigneuses-deux-nus-dans-un-jardin-exotique-oil-on-canvas-116-x-88-8-cm-colec": {
+  "audit": "2026-09",
+  "method": "new-text-verified",
+  "problem": "Description flagged: empty",
+  "status": "written"
+ },
  "collection-of-beauty-jean-paul-flandrin-odalisque-with-slave-walters-37887": {
   "status": "accurate"
  },
@@ -7236,6 +7524,12 @@
  "collection-of-beauty-joachim-wtewael-the-adoration-of-the-shepherds-google-art-project": {
   "problem": "No angels descending through a crack of blue sky are visible; scene is set amid dark ruins with firelight, not torchlight.",
   "status": "minor-fixed"
+ },
+ "collection-of-beauty-joachim-wtewael-the-fruit-and-vegetable-seller-google-art-project": {
+  "audit": "2026-09",
+  "method": "new-text-verified",
+  "problem": "Description flagged: empty",
+  "status": "written"
  },
  "collection-of-beauty-johann-christian-bach-by-thomas-gainsborough": {
   "problem": "The coat is brown/buff, not green velvet; the waistcoat is blue satin.",
@@ -7503,6 +7797,12 @@
   "problem": "Copley left Boston in 1774, not 1775 as stated",
   "status": "minor-fixed"
  },
+ "collection-of-beauty-john-singleton-copley-watson-and-the-shark-google-art-project": {
+  "audit": "2026-09",
+  "method": "new-text-verified",
+  "problem": "Description flagged: empty",
+  "status": "written"
+ },
  "collection-of-beauty-john-singleton-copley-young-lady-with-a-bird-and-dog": {
   "problem": "Dress is pink not blue; bird is a parrot not a small generic bird; dog stands beside her, does not rest",
   "status": "fabricated-fixed"
@@ -7572,6 +7872,12 @@
  "collection-of-beauty-joseph-mallord-william-turner-1775-1851-shipping-off-east-cowes-headland-n01999-national-gallery": {
   "status": "accurate"
  },
+ "collection-of-beauty-joseph-mallord-william-turner-1775-1851-sketch-for-east-cowes-castle-the-regatta-beating-to-aa9d91": {
+  "audit": "2026-09",
+  "method": "new-text-verified",
+  "problem": "Description flagged: empty",
+  "status": "written"
+ },
  "collection-of-beauty-joseph-mallord-william-turner-1775-1851-sketch-for-east-cowes-castle-the-regatta-beating-to-windwar": {
   "status": "accurate"
  },
@@ -7636,8 +7942,32 @@
  "collection-of-beauty-joseph-mallord-william-turner-a-coast-scene-with-fishermen-hauling-a-boat-ashore-the-iveagh-sea-pie": {
   "status": "accurate"
  },
+ "collection-of-beauty-joseph-mallord-william-turner-ancient-rome-agrippina-landing-with-the-ashes-of-germanicus-google-ar": {
+  "audit": "2026-09",
+  "method": "new-text-verified",
+  "problem": "Description flagged: empty",
+  "status": "written"
+ },
+ "collection-of-beauty-joseph-mallord-william-turner-boats-carrying-out-anchors-to-the-dutch-men-of-war-c-1804-nga-166478": {
+  "audit": "2026-09",
+  "method": "new-text-verified",
+  "problem": "Description flagged: empty",
+  "status": "written"
+ },
+ "collection-of-beauty-joseph-mallord-william-turner-british-modern-rome-campo-vaccino-google-art-project": {
+  "audit": "2026-09",
+  "method": "new-text-verified",
+  "problem": "Description flagged: empty",
+  "status": "written"
+ },
  "collection-of-beauty-joseph-mallord-william-turner-british-van-tromp-going-about-to-please-his-masters-google-art-projec": {
   "status": "accurate"
+ },
+ "collection-of-beauty-joseph-mallord-william-turner-caligula-s-palace-and-bridge-google-art-project": {
+  "audit": "2026-09",
+  "method": "new-text-verified",
+  "problem": "Description flagged: empty",
+  "status": "written"
  },
  "collection-of-beauty-joseph-mallord-william-turner-campo-santo-wga23179": {
   "status": "accurate"
@@ -7713,6 +8043,12 @@
  "collection-of-beauty-joseph-mallord-william-turner-the-burning-of-the-houses-of-lords-and-commons-16-october-1834-1942-6": {
   "status": "accurate"
  },
+ "collection-of-beauty-joseph-mallord-william-turner-the-evening-of-the-deluge-c-1843-nga-46064": {
+  "audit": "2026-09",
+  "method": "new-text-verified",
+  "problem": "Description flagged: empty",
+  "status": "written"
+ },
  "collection-of-beauty-joseph-mallord-william-turner-the-fish-market-at-hastings-beach-google-art-project": {
   "problem": "No chalk cliffs visible in the image; the horizon is flat with ships, not receding cliffs.",
   "status": "minor-fixed"
@@ -7722,6 +8058,12 @@
  },
  "collection-of-beauty-joseph-mallord-william-turner-the-shipwreck-google-art-project": {
   "status": "accurate"
+ },
+ "collection-of-beauty-joseph-mallord-william-turner-the-sun-of-venice-going-to-sea-google-art-project": {
+  "audit": "2026-09",
+  "method": "new-text-verified",
+  "problem": "Description flagged: empty",
+  "status": "written"
  },
  "collection-of-beauty-joseph-mallord-william-turner-the-temple-of-jupiter-panellenius-restored-1816": {
   "status": "accurate"
@@ -7735,6 +8077,12 @@
  },
  "collection-of-beauty-joseph-mallord-william-turner-undine-giving-the-ring-to-massaniello-fisherman-of-naples-wga23184": {
   "status": "accurate"
+ },
+ "collection-of-beauty-joseph-wright-an-iron-forge-google-art-project": {
+  "audit": "2026-09",
+  "method": "new-text-verified",
+  "problem": "Description flagged: empty",
+  "status": "written"
  },
  "collection-of-beauty-joseph-wright-of-derby-1734-1797-a-moonlight-with-a-lighthouse-coast-of-tuscany-n05882-national-gal": {
   "problem": "Description claims 'moonlight alone' sets the palette, but the painting clearly shows two competing light sources: the lighthouse beacon and the moon — Wright's signature device.",
@@ -7783,9 +8131,10 @@
  },
  "collection-of-beauty-julie-de-graag-december-1917": {
   "audit": "2026-09",
-  "method": "span-edits",
-  "problem": "Nothing supports a series of works about December. The Rijksmuseum subject index reads 'cat. December; Decembre (Ripa)', which points to a months-of-the-year set - one print per month - not several December prints.",
-  "status": "minor-fixed"
+  "method": "new-text-verified",
+  "previousStatus": "minor-fixed",
+  "problem": "Description flagged: no-visual-content",
+  "status": "repaired"
  },
  "collection-of-beauty-junks-in-inatori-bay-izu-by-takahashi-shotei-1": {
   "audit": "2026-09",
@@ -7804,7 +8153,10 @@
  },
  "collection-of-beauty-kagurazaka-street-at-night-after-rain-from-the-series-twelve-scenes-of-tokyo-hiroshi-yoshida": {
   "audit": "2026-09",
-  "status": "accurate"
+  "method": "new-text-verified",
+  "previousStatus": "accurate",
+  "problem": "Description flagged: no-visual-content",
+  "status": "repaired"
  },
  "collection-of-beauty-kaigetsudo-ando-standing-portrait-of-a-courtesan-c-1705-1710-hanging-scroll-ink-color-and-gold-on-p": {
   "status": "accurate"
@@ -7825,9 +8177,10 @@
  },
  "collection-of-beauty-kanae-yamamoto-1937-haruna-ko-shoshu": {
   "audit": "2026-09",
-  "method": "span-edits",
-  "problem": "The description never says what the picture shows — a lake, a mountain and a boat — and reduces to a one-line biography lifted from the Commons caption plus a collection line.",
-  "status": "minor-fixed"
+  "method": "new-text-verified",
+  "previousStatus": "minor-fixed",
+  "problem": "Description flagged: no-visual-content",
+  "status": "repaired"
  },
  "collection-of-beauty-kanae-yamamoto-1938-kami-ide-no-fuji": {
   "audit": "2026-09",
@@ -7835,9 +8188,10 @@
  },
  "collection-of-beauty-kanae-yamamoto-1939-kogen-iizuna": {
   "audit": "2026-09",
-  "method": "span-edits",
-  "problem": "There is no 'Kogen region'. Kogen is the Japanese word for highlands/plateau: the title 'Kogen - Iizuna' means 'Highlands: Iizuna', as the record's own englishTitle spells out. The sentence turns a common noun into a place name.",
-  "status": "minor-fixed"
+  "method": "new-text-verified",
+  "previousStatus": "minor-fixed",
+  "problem": "Description flagged: no-visual-content, rawMuseumLabel",
+  "status": "repaired"
  },
  "collection-of-beauty-kanae-yamamoto-dutch-girl-in-landscape": {
   "audit": "2026-09",
@@ -8030,9 +8384,10 @@
  },
  "collection-of-beauty-kochevaya-doroga-v-gorakh-alatau": {
   "audit": "2026-09",
-  "method": "span-edits",
-  "problem": "There is no caravan — three individual horsemen strung along a mountain track, with no pack animals or baggage train in view.",
-  "status": "minor-fixed"
+  "method": "new-text-verified",
+  "previousStatus": "minor-fixed",
+  "problem": "Description flagged: no-visual-content, rawMuseumLabel",
+  "status": "repaired"
  },
  "collection-of-beauty-konrad-witz-004": {
   "status": "accurate"
@@ -8043,7 +8398,10 @@
  },
  "collection-of-beauty-kreshchenie-rusi": {
   "audit": "2026-09",
-  "status": "accurate"
+  "method": "new-text-verified",
+  "previousStatus": "accurate",
+  "problem": "Description flagged: no-visual-content",
+  "status": "repaired"
  },
  "collection-of-beauty-kronshtadtskiy-reyd-ayvazovskogo": {
   "audit": "2026-09",
@@ -8152,6 +8510,12 @@
   "problem": "Background is a desert plain, not a river; 'lute' is a stretch for the mandolin-like instrument shown.",
   "status": "minor-fixed"
  },
+ "collection-of-beauty-la-caida-de-faeton-jan-carel-van-eyck": {
+  "audit": "2026-09",
+  "method": "new-text-verified",
+  "problem": "Description flagged: empty",
+  "status": "written"
+ },
  "collection-of-beauty-la-continence-de-scipion-giovanni-battista-pittoni-q18573892": {
   "status": "accurate"
  },
@@ -8171,6 +8535,12 @@
  "collection-of-beauty-la-grande-piscine-de-brousse": {
   "problem": "Description mentions \"tilework\" but the bath interior shows plain stone vaulted masonry, not decorative tiles.",
   "status": "minor-fixed"
+ },
+ "collection-of-beauty-la-grenouillere-met-dt833": {
+  "audit": "2026-09",
+  "method": "new-text-verified",
+  "problem": "Description flagged: empty",
+  "status": "written"
  },
  "collection-of-beauty-la-inmaculada-concepcion-de-el-greco-y-su-hijo-museo-thyssen-bornemisza": {
   "audit": "2026-09",
@@ -8296,17 +8666,20 @@
  },
  "collection-of-beauty-le-garcon-au-gilet-rouge-par-paul-cezanne-national-gallery-of-art": {
   "audit": "2026-09",
-  "method": "span-edits",
-  "problem": "Pure boilerplate, and 'careful anatomical structure' runs against the picture, where the boy's right arm is famously elongated well beyond anatomical proportion.",
-  "status": "minor-fixed"
+  "method": "new-text-verified",
+  "previousStatus": "minor-fixed",
+  "problem": "Description flagged: no-visual-content",
+  "status": "repaired"
  },
  "collection-of-beauty-le-havre-muma-monet-fecamp": {
   "status": "accurate"
  },
  "collection-of-beauty-le-jardin-hoschede-a-montgeron-d-a-sisley-fondation-vuitton-paris": {
   "audit": "2026-09",
-  "method": "span-edits",
-  "status": "accurate"
+  "method": "new-text-verified",
+  "previousStatus": "accurate",
+  "problem": "Description flagged: no-visual-content, rawMuseumLabel",
+  "status": "repaired"
  },
  "collection-of-beauty-le-jardinier-vallier-par-paul-cezanne-coll-privee-1906": {
   "audit": "2026-09",
@@ -8372,7 +8745,10 @@
  },
  "collection-of-beauty-leighton-moses-views-the-promised-land": {
   "audit": "2026-09",
-  "status": "accurate"
+  "method": "new-text-verified",
+  "previousStatus": "accurate",
+  "problem": "Description flagged: no-visual-content",
+  "status": "repaired"
  },
  "collection-of-beauty-leighton-stitching-the-standard": {
   "problem": "Edmund Blair Leighton was never President of the Royal Academy; that honour belongs to Frederic, Lord Leighton",
@@ -8511,7 +8887,10 @@
  },
  "collection-of-beauty-life-boat-and-manby-apparatus-going-off-to-a-stranded-vessel-making-signal-blue-lights-of-distress": {
   "audit": "2026-09",
-  "status": "accurate"
+  "method": "new-text-verified",
+  "previousStatus": "accurate",
+  "problem": "Description flagged: no-visual-content",
+  "status": "repaired"
  },
  "collection-of-beauty-lilium-superbum-lithographie-pierre-joseph-redoute": {
   "audit": "2026-09",
@@ -8572,9 +8951,10 @@
  },
  "collection-of-beauty-lord-leighton-frederic-after-vespers-1871": {
   "audit": "2026-09",
-  "method": "span-edits",
-  "problem": "The whole description is a museum catalogue biography pasted in verbatim, prefixed 'Catalogue Entry:'. It never says what the painting shows — not the green gown, the rosary, or the gilded arch.",
-  "status": "minor-fixed"
+  "method": "new-text-verified",
+  "previousStatus": "minor-fixed",
+  "problem": "Description flagged: no-visual-content",
+  "status": "repaired"
  },
  "collection-of-beauty-los-horrores-de-la-guerra": {
   "status": "accurate"
@@ -8735,6 +9115,12 @@
  "collection-of-beauty-macke-seiltanzerin-1913": {
   "status": "accurate"
  },
+ "collection-of-beauty-madame-grand-noel-catherine-vorlee-1761-1835-met-dp320094": {
+  "audit": "2026-09",
+  "method": "new-text-verified",
+  "problem": "Description flagged: empty",
+  "status": "written"
+ },
  "collection-of-beauty-madame-monet-au-canape-monet-1871": {
   "status": "accurate"
  },
@@ -8744,8 +9130,10 @@
  },
  "collection-of-beauty-madame-saint-ange-chevrier-louis-leopold-boilly-nationalmuseum-177754": {
   "audit": "2026-09",
-  "method": "span-edits",
-  "status": "accurate"
+  "method": "new-text-verified",
+  "previousStatus": "accurate",
+  "problem": "Description flagged: no-visual-content",
+  "status": "repaired"
  },
  "collection-of-beauty-madame-x-madame-pierre-gautreau-john-singer-sargent-1884-unfree-frame-crop": {
   "status": "accurate"
@@ -8907,8 +9295,10 @@
  },
  "collection-of-beauty-mc-escher-convex-and-concave": {
   "audit": "2026-09",
-  "method": "span-edits",
-  "status": "accurate"
+  "method": "new-text-verified",
+  "previousStatus": "accurate",
+  "problem": "Description flagged: no-visual-content",
+  "status": "repaired"
  },
  "collection-of-beauty-mc-escher-three-spheres-i": {
   "audit": "2026-09",
@@ -8982,9 +9372,10 @@
  },
  "collection-of-beauty-mishima-pass-in-kai-province-koshu-mishima-goe-from-the-series-thirty-six-views-of-mount-fuji-fugak": {
   "audit": "2026-09",
-  "method": "span-edits",
-  "problem": "The subject of the print — travellers ringing a colossal tree trunk with their outstretched arms — is never mentioned; \"the dramatic perspective view through\" the pass describes nothing that is in the frame.",
-  "status": "minor-fixed"
+  "method": "new-text-verified",
+  "previousStatus": "minor-fixed",
+  "problem": "Description flagged: no-visual-content",
+  "status": "repaired"
  },
  "collection-of-beauty-miss-frances-sherborne-ridley-watts": {
   "problem": "\"Row of buttons\" wrong — image shows a jewelled chain and red bow; \"Roman years\" friendship detail absent from source",
@@ -8992,7 +9383,10 @@
  },
  "collection-of-beauty-miss-may-prinsep-by-george-frederic-watts": {
   "audit": "2026-09",
-  "status": "accurate"
+  "method": "new-text-verified",
+  "previousStatus": "accurate",
+  "problem": "Description flagged: no-visual-content",
+  "status": "repaired"
  },
  "collection-of-beauty-moitessier-ingres-1851-nga": {
   "problem": "Madame Moitessier's hands and arms are bare; description states \"gloved wrist\" but no gloves are present",
@@ -9354,7 +9748,11 @@
   "status": "prior-audit"
  },
  "collection-of-beauty-monet-w1976": {
-  "status": "prior-audit"
+  "audit": "2026-09",
+  "method": "new-text-verified",
+  "previousStatus": "prior-audit",
+  "problem": "Description flagged: rawMuseumLabel",
+  "status": "repaired"
  },
  "collection-of-beauty-monet-w199": {
   "status": "prior-audit"
@@ -9404,8 +9802,11 @@
   "status": "minor-fixed"
  },
  "collection-of-beauty-monet-w433": {
-  "rechecked": "2026-09 accurate",
-  "status": "accurate"
+  "audit": "2026-09",
+  "method": "new-text-verified",
+  "previousStatus": "accurate",
+  "problem": "Description flagged: no-visual-content",
+  "status": "repaired"
  },
  "collection-of-beauty-monet-w472": {
   "status": "accurate"
@@ -9652,6 +10053,12 @@
  "collection-of-beauty-monet-yellow-irises-1917": {
   "status": "accurate"
  },
+ "collection-of-beauty-monet-zaandam-1871-musee-d-orsay": {
+  "audit": "2026-09",
+  "method": "new-text-verified",
+  "problem": "Description flagged: empty",
+  "status": "written"
+ },
  "collection-of-beauty-monomakh-s-hunting": {
   "status": "accurate"
  },
@@ -9692,7 +10099,10 @@
  },
  "collection-of-beauty-mt-heng-after-juran-active-ca-960-965-from-the-mustard-seed-garden-manual-of-painting-met-dp-14004-": {
   "audit": "2026-09",
-  "status": "accurate"
+  "method": "new-text-verified",
+  "previousStatus": "accurate",
+  "problem": "Description flagged: no-visual-content",
+  "status": "repaired"
  },
  "collection-of-beauty-mu-ch-i-001": {
   "status": "accurate"
@@ -9706,7 +10116,10 @@
  },
  "collection-of-beauty-mulla-rakhim-i-mulla-kerim-po-doroge-na-bazar-ssoryatsya": {
   "audit": "2026-09",
-  "status": "accurate"
+  "method": "new-text-verified",
+  "previousStatus": "accurate",
+  "problem": "Description flagged: no-visual-content",
+  "status": "repaired"
  },
  "collection-of-beauty-munch-self-portrait-with-palette-1926-lot-114": {
   "problem": "No easel visible; Munch is shown outdoors, not 'before the easel'.",
@@ -9720,6 +10133,12 @@
  },
  "collection-of-beauty-musidora-and-her-two-companions-sacharissa-and-amoret-at-their-bath-espied-by-damon-by-benjamin-wes": {
   "status": "accurate"
+ },
+ "collection-of-beauty-musizierender-einsiedler-vor-seiner-felsenklause-carl-spitzweg": {
+  "audit": "2026-09",
+  "method": "new-text-verified",
+  "problem": "Description flagged: empty",
+  "status": "written"
  },
  "collection-of-beauty-nacimiento-de-san-juan-bautista-artemisia-gentileschi": {
   "status": "accurate"
@@ -10011,7 +10430,10 @@
  },
  "collection-of-beauty-nude-against-the-light-pierre-bonnard": {
   "audit": "2026-09",
-  "status": "accurate"
+  "method": "new-text-verified",
+  "previousStatus": "accurate",
+  "problem": "Description flagged: no-visual-content",
+  "status": "repaired"
  },
  "collection-of-beauty-nuremberg-chronicles-dance-of-death-cclxiiiiv": {
   "status": "accurate"
@@ -10040,7 +10462,10 @@
  },
  "collection-of-beauty-old-korea-keith-bride": {
   "audit": "2026-09",
-  "status": "accurate"
+  "method": "new-text-verified",
+  "previousStatus": "accurate",
+  "problem": "Description flagged: no-visual-content",
+  "status": "repaired"
  },
  "collection-of-beauty-on-the-beach-two-are-company-three-are-none": {
   "status": "accurate"
@@ -10101,9 +10526,10 @@
  },
  "collection-of-beauty-paris-art-deco-boilly-houdon": {
   "audit": "2026-09",
-  "method": "span-edits",
-  "problem": "Houdon is standing at the modelling stand, not seated. The seated figure in the picture is the sitter at the right.",
-  "status": "minor-fixed"
+  "method": "new-text-verified",
+  "previousStatus": "minor-fixed",
+  "problem": "Description flagged: no-visual-content",
+  "status": "repaired"
  },
  "collection-of-beauty-parmigianino-004": {
   "problem": "Image shows only a female bust-length detail, not the full altarpiece; no Christ Child present.",
@@ -10114,7 +10540,10 @@
  },
  "collection-of-beauty-parson-weems-fable": {
   "audit": "2026-09",
-  "status": "accurate"
+  "method": "new-text-verified",
+  "previousStatus": "accurate",
+  "problem": "Description flagged: no-visual-content",
+  "status": "repaired"
  },
  "collection-of-beauty-parting-spring-by-kawai-gyokudo-national-museum-of-modern-art-tokyo-l": {
   "status": "accurate"
@@ -10705,7 +11134,10 @@
  },
  "collection-of-beauty-petr-i-pri-krasnoy-gorke-ayvazovskiy": {
   "audit": "2026-09",
-  "status": "accurate"
+  "method": "new-text-verified",
+  "previousStatus": "accurate",
+  "problem": "Description flagged: no-visual-content",
+  "status": "repaired"
  },
  "collection-of-beauty-philipp-otto-runge-der-maler-und-schriftsteller-friedrich-august-von-klinkowstrom-2840-osterreichis": {
   "status": "accurate"
@@ -10884,6 +11316,12 @@
   "rechecked": "2026-09 accurate",
   "status": "minor-fixed"
  },
+ "collection-of-beauty-pm-147978-b-tournai": {
+  "audit": "2026-09",
+  "method": "new-text-verified",
+  "problem": "Description flagged: empty",
+  "status": "written"
+ },
  "collection-of-beauty-po-vodam-1888": {
   "problem": "Description invents a boat and Peter stepping over a gunwale; no boat is present — Christ appears above stormy waves with rocky figures below.",
   "status": "fabricated-fixed"
@@ -10903,6 +11341,12 @@
  },
  "collection-of-beauty-pope-peter-pprubens": {
   "status": "accurate"
+ },
+ "collection-of-beauty-poppy-fields-near-argenteuil-met-dt1034": {
+  "audit": "2026-09",
+  "method": "new-text-verified",
+  "problem": "Description flagged: empty",
+  "status": "written"
  },
  "collection-of-beauty-portrait-d-edmond-aman-jean-par-georges-seurat": {
   "problem": "Cigarette in hand is not visible in the image; Aman-Jean holds no cigarette.",
@@ -10944,6 +11388,12 @@
  "collection-of-beauty-portrait-of-a-woman-met-dp-1419-01": {
   "audit": "2026-09",
   "status": "accurate"
+ },
+ "collection-of-beauty-portrait-of-a-woman-probably-susanna-lunden-susanna-fourment-1599-1628-met-ep1976-218-r": {
+  "audit": "2026-09",
+  "method": "new-text-verified",
+  "problem": "Description flagged: empty",
+  "status": "written"
  },
  "collection-of-beauty-portrait-of-alexandrine-le-normant-d-etiolles-daughter-of-madame-de-pompadour-playing-with-a-goldfi": {
   "problem": "Description says she holds a goldfinch on a tethered thread; image shows the bird inside a cage beside her, not on a thread.",
@@ -11013,7 +11463,10 @@
  },
  "collection-of-beauty-portret-s-p-kuvshinnikovoy-1888": {
   "audit": "2026-09",
-  "status": "accurate"
+  "method": "new-text-verified",
+  "previousStatus": "accurate",
+  "problem": "Description flagged: no-visual-content",
+  "status": "repaired"
  },
  "collection-of-beauty-portret-van-etienne-lucien-martin-s0125v1962-van-gogh-museum": {
   "problem": "Description says 'warm browns and greens'; the palette is predominantly cool blue-grey throughout.",
@@ -11024,7 +11477,11 @@
  },
  "collection-of-beauty-posle-neudachi": {
   "audit": "2026-09",
-  "status": "accurate"
+  "method": "new-text-verified",
+  "previousStatus": "accurate",
+  "problem": "Description flagged: no-visual-content, rawMuseumLabel",
+  "status": "repaired",
+  "titleFix": "2026-09: catalogued as После неудачи / After a Failure, but the image is После удачи (After Success), Russian Museum Ж-4177: a Russian soldier lighting a pipe among dead Bukharan soldiers. https://rusmuseumvrm.ru/data/collections/painting/19_20/zh-4177/index.php"
  },
  "collection-of-beauty-pozzi-samuel-par-sargent": {
   "status": "accurate"
@@ -11049,9 +11506,10 @@
  },
  "collection-of-beauty-preferans": {
   "audit": "2026-09",
-  "method": "span-edits",
-  "problem": "Only three of the figures are men at the cards; the yawning figure at right and the standing figure at the back read as women, and neither is playing. 'A gathering of men' flattens the scene.",
-  "status": "minor-fixed"
+  "method": "new-text-verified",
+  "previousStatus": "minor-fixed",
+  "problem": "Description flagged: no-visual-content",
+  "status": "repaired"
  },
  "collection-of-beauty-print-the-flight-into-egypt-1470-75-ch-18428015": {
   "status": "accurate"
@@ -11061,13 +11519,17 @@
  },
  "collection-of-beauty-prodazha-rebenka-nevolnika": {
   "audit": "2026-09",
-  "method": "span-edits",
-  "problem": "The picture belongs to Vereshchagin's Turkestan cycle and Russian catalogue sources place the scene in a Central Asian shop, with the seated merchant and a slave dealer beside him — not the Ottoman Empire. The description's own next sentence names the Turkestan series, so the sentence contradicts itself.",
-  "status": "minor-fixed"
+  "method": "new-text-verified",
+  "previousStatus": "minor-fixed",
+  "problem": "Description flagged: no-visual-content",
+  "status": "repaired"
  },
  "collection-of-beauty-prokhod-barskaun": {
   "audit": "2026-09",
-  "status": "accurate"
+  "method": "new-text-verified",
+  "previousStatus": "accurate",
+  "problem": "Description flagged: no-visual-content",
+  "status": "repaired"
  },
  "collection-of-beauty-promenade-sur-la-falaise-de-sainte-adresse-by-claude-monet-1867-oil-on-canvas-matsuoka-museum-of-ar": {
   "problem": "Describes 'sailing vessels scattered across a breezy sea' but the sea in the image is largely empty of ships.",
@@ -11117,6 +11579,12 @@
  "collection-of-beauty-raimondi-lucretia-s-suicide": {
   "status": "accurate"
  },
+ "collection-of-beauty-rain-at-kofukuji-temple-5759571352": {
+  "audit": "2026-09",
+  "method": "new-text-verified",
+  "problem": "Description flagged: empty",
+  "status": "written"
+ },
  "collection-of-beauty-raphael-fire-in-the-borgo": {
   "status": "accurate"
  },
@@ -11159,9 +11627,10 @@
  },
  "collection-of-beauty-redoute-flowers01": {
   "audit": "2026-09",
-  "method": "span-edits",
-  "problem": "A specific physical claim with nothing behind it: the record carries no dimensions for this sheet and the source metadata says nothing about scale.",
-  "status": "minor-fixed"
+  "method": "new-text-verified",
+  "previousStatus": "minor-fixed",
+  "problem": "Description flagged: no-visual-content",
+  "status": "repaired"
  },
  "collection-of-beauty-reflection-in-lake-at-misaka-in-kai-province-koshu-misaka-suimen-from-the-series-thirty-six-views-o": {
   "audit": "2026-09",
@@ -11348,7 +11817,10 @@
  },
  "collection-of-beauty-renoir-madame-georges-charpentier-et-ses-enfants": {
   "audit": "2026-09",
-  "status": "accurate"
+  "method": "new-text-verified",
+  "previousStatus": "accurate",
+  "problem": "Description flagged: no-visual-content, truncated",
+  "status": "repaired"
  },
  "collection-of-beauty-renoir-pierre-auguste-dance-at-le-moulin-de-la-galette-1876": {
   "status": "accurate"
@@ -11393,9 +11865,10 @@
  },
  "collection-of-beauty-reunion-d-artistes-dans-l-atelier-d-isabey-louis-leopold-boilly-musee-du-louvre-peintures-rf-1290bi": {
   "audit": "2026-09",
-  "method": "span-edits",
-  "problem": "The description is the raw Commons caption and its URL has been truncated mid-address, so the sentence points the reader at a source that does not resolve.",
-  "status": "minor-fixed"
+  "method": "new-text-verified",
+  "previousStatus": "minor-fixed",
+  "problem": "Description flagged: no-visual-content",
+  "status": "repaired"
  },
  "collection-of-beauty-reunion-de-famille-frederic-bazille-musee-d-orsay-rf-2749": {
   "audit": "2026-09",
@@ -11431,7 +11904,10 @@
  },
  "collection-of-beauty-robert-delaunay-c-1906-paysage-au-disque-solaire-oil-on-canvas-54-x-46-cm-musee-national-d-art-mode": {
   "audit": "2026-09",
-  "status": "accurate"
+  "method": "new-text-verified",
+  "previousStatus": "accurate",
+  "problem": "Description flagged: no-visual-content",
+  "status": "repaired"
  },
  "collection-of-beauty-robert-delaunay-der-eiffelturm-1910": {
   "status": "accurate"
@@ -11581,9 +12057,10 @@
  },
  "collection-of-beauty-sadovaya-kalitka-v-chuguchake": {
   "audit": "2026-09",
-  "method": "span-edits",
-  "problem": "This painting contains no figures and no customs; the sentence describes the artist's oeuvre in general and says nothing about the picture.",
-  "status": "minor-fixed"
+  "method": "new-text-verified",
+  "previousStatus": "minor-fixed",
+  "problem": "Description flagged: no-visual-content",
+  "status": "repaired"
  },
  "collection-of-beauty-sailing-boats-afternoon-hiroshi-yoshida": {
   "status": "accurate"
@@ -11617,6 +12094,12 @@
  },
  "collection-of-beauty-saint-sebastian-tended-by-two-angels": {
   "status": "accurate"
+ },
+ "collection-of-beauty-saltash-with-the-water-ferry-cornwall-met-dp169566": {
+  "audit": "2026-09",
+  "method": "new-text-verified",
+  "problem": "Description flagged: empty",
+  "status": "written"
  },
  "collection-of-beauty-samovar-malevich-1913": {
   "status": "accurate"
@@ -11732,9 +12215,10 @@
  },
  "collection-of-beauty-searching-for-immortals-met-dp162813": {
   "audit": "2026-09",
-  "method": "span-edits",
-  "problem": "The description never says what is in the frame - no trees, no bank, no figure, no seals or inscription. Both sentences are provenance plus generic praise.",
-  "status": "minor-fixed"
+  "method": "new-text-verified",
+  "previousStatus": "minor-fixed",
+  "problem": "Description flagged: no-visual-content, rawMuseumLabel",
+  "status": "repaired"
  },
  "collection-of-beauty-sebastiano-ricci-italian-diana-and-her-dog-google-art-project": {
   "problem": "Diana is largely nude rather than half-draped; the palette is dark and Baroque rather than airy.",
@@ -11746,7 +12230,10 @@
  },
  "collection-of-beauty-sekiya-village-on-the-sumida-river-sumidagawa-sekiya-no-sato-from-the-series-thirty-six-views-of-mo": {
   "audit": "2026-09",
-  "status": "accurate"
+  "method": "new-text-verified",
+  "previousStatus": "accurate",
+  "problem": "Description flagged: no-visual-content",
+  "status": "repaired"
  },
  "collection-of-beauty-self-portrait-1628-1629-by-rembrandt": {
   "problem": "No easel visible; 'turns from his easel' unsupported. Dimensions and Rijksmuseum provenance unverified in record.",
@@ -11799,6 +12286,12 @@
  "collection-of-beauty-selfportrait-rembrandt-harmensz-van-rijn-nationalmuseum-22374": {
   "status": "accurate"
  },
+ "collection-of-beauty-sentimental-ballad-by-grant-wood-1940": {
+  "audit": "2026-09",
+  "method": "new-text-verified",
+  "problem": "Description flagged: empty",
+  "status": "written"
+ },
  "collection-of-beauty-seriziat": {
   "problem": "Hat is a tall black top hat, not a yellow straw hat; sitter holds a riding crop, not a hat in one hand",
   "status": "minor-fixed"
@@ -11827,7 +12320,10 @@
  },
  "collection-of-beauty-shaw-john-byam-liston-now-is-pilgrim-fair-autumn-s-charge": {
   "audit": "2026-09",
-  "status": "accurate"
+  "method": "new-text-verified",
+  "previousStatus": "accurate",
+  "problem": "Description flagged: no-visual-content, truncated",
+  "status": "repaired"
  },
  "collection-of-beauty-shichirigahama-in-sagami-province-soshu-shichirigahama-from-the-series-thirty-six-views-of-mount-fu": {
   "audit": "2026-09",
@@ -11881,13 +12377,20 @@
  },
  "collection-of-beauty-sir-david-wilkie-s-residence-in-kensington-london-by-william-collins-1841-painted-just-after-wilkie": {
   "audit": "2026-09",
-  "method": "span-edits",
-  "problem": "What is painted is a detached villa standing in its own garden with lawn and trees, not a townhouse; 'important' is unsupported puffery.",
-  "status": "minor-fixed"
+  "method": "new-text-verified",
+  "previousStatus": "minor-fixed",
+  "problem": "Description flagged: no-visual-content",
+  "status": "repaired"
  },
  "collection-of-beauty-sir-henry-raeburn-colonel-alastair-ranaldson-macdonell-of-glengarry-1771-1828-google-art-project": {
   "problem": "Description says 'heroic landscape' background; image shows a neutral interior/architectural setting, not a landscape.",
   "status": "minor-fixed"
+ },
+ "collection-of-beauty-sir-peter-paul-rubens-and-possibly-jacob-jordaens-deborah-kip-wife-of-sir-balthasar-gerbier-and-her": {
+  "audit": "2026-09",
+  "method": "new-text-verified",
+  "problem": "Description flagged: empty",
+  "status": "written"
  },
  "collection-of-beauty-sir-peter-paul-rubens-milkmaids-with-cattle-in-a-landscape-the-farm-at-laken-google-art-project": {
   "status": "accurate"
@@ -11919,7 +12422,10 @@
  },
  "collection-of-beauty-snow-on-ayase-river-rijksmuseum-rp-p-2016-66-8-1": {
   "audit": "2026-09",
-  "status": "accurate"
+  "method": "new-text-verified",
+  "previousStatus": "accurate",
+  "problem": "Description flagged: no-visual-content",
+  "status": "repaired"
  },
  "collection-of-beauty-snow-over-zojoji-temple-shiba-tokyo-img-9360": {
   "audit": "2026-09",
@@ -11927,9 +12433,10 @@
  },
  "collection-of-beauty-snowscape": {
   "audit": "2026-09",
-  "method": "span-edits",
-  "problem": "The source describes the support as paper, not silk.",
-  "status": "minor-fixed"
+  "method": "new-text-verified",
+  "previousStatus": "minor-fixed",
+  "problem": "Description flagged: no-visual-content",
+  "status": "repaired"
  },
  "collection-of-beauty-sokokura-by-hiroshige1": {
   "problem": "\"Bathers\" not visible in image; only travelers on the path are depicted.",
@@ -11952,6 +12459,12 @@
   "problem": "The reproduction in the catalogue is one six-panel screen carrying one dragon (Freer F1905.229, the left screen). The object as a whole is a pair, but the image a viewer sees shows a single dragon on a single screen, and the record's realDimensions (374.3 x 171.5 cm) are the measurements of one screen, not the pair.",
   "status": "minor-fixed"
  },
+ "collection-of-beauty-sower-at-sunset-vincent-van-gogh": {
+  "audit": "2026-09",
+  "method": "new-text-verified",
+  "problem": "Description flagged: empty",
+  "status": "written"
+ },
  "collection-of-beauty-spring-blossoms-montclair-new-jersey-met-dt98": {
   "problem": "Sky is clear pale blue with a visible sun or moon, not overcast; multiple blossoming trees, not a single foreground tree.",
   "status": "minor-fixed"
@@ -11959,15 +12472,22 @@
  "collection-of-beauty-spring-flowers-by-claude-monet-cleveland-museum-of-art-1953-155": {
   "status": "accurate"
  },
+ "collection-of-beauty-spring-fruit-trees-in-bloom-met-dt1902": {
+  "audit": "2026-09",
+  "method": "new-text-verified",
+  "problem": "Description flagged: empty",
+  "status": "written"
+ },
  "collection-of-beauty-spring-kustodiev": {
   "problem": "Year 1921, wheelchair circumstance, and \"working entirely from memory since 1916\" are unverifiable from any provided source.",
   "status": "minor-fixed"
  },
  "collection-of-beauty-spyashchaya-tsarevna": {
   "audit": "2026-09",
-  "method": "span-edits",
-  "problem": "The description never says what is in the picture. The sleeping court, the jester, the gusli player, the bear and the girl asleep over the open book are the whole point of the composition and none is mentioned.",
-  "status": "minor-fixed"
+  "method": "new-text-verified",
+  "previousStatus": "minor-fixed",
+  "problem": "Description flagged: no-visual-content, nonLatin",
+  "status": "repaired"
  },
  "collection-of-beauty-st-martin-met-dp820015": {
   "status": "prior-audit"
@@ -12028,14 +12548,21 @@
   "problem": "No servant visible; Baptist's head sits on a glowing platter, not hoisted into shadow. Salome wears no veils; she is nearly nude with a fringed skirt.",
   "status": "minor-fixed"
  },
+ "collection-of-beauty-study-of-two-heads-met-dp104990": {
+  "audit": "2026-09",
+  "method": "new-text-verified",
+  "problem": "Description flagged: empty",
+  "status": "written"
+ },
  "collection-of-beauty-sumida-river-the-wood-of-the-water-god-at-masaki-lacma-m-66-35-5": {
   "status": "accurate"
  },
  "collection-of-beauty-summer-study-from-the-bingzi-year": {
   "audit": "2026-09",
-  "method": "span-edits",
-  "problem": "Pure filler: it says nothing about the picture and asserts a 'productive period of artistic exploration' that nothing in the record supports. The description never mentions the pigeons, the flowering branch, the bamboo, the rock or the inscription.",
-  "status": "minor-fixed"
+  "method": "new-text-verified",
+  "previousStatus": "minor-fixed",
+  "problem": "Description flagged: no-visual-content",
+  "status": "repaired"
  },
  "collection-of-beauty-sumo-wrestling-toads-by-hoson": {
   "audit": "2026-09",
@@ -12240,9 +12767,10 @@
  },
  "collection-of-beauty-tago-bay-near-ejiri-on-the-tokaido-tokaido-ejiri-tago-no-ura-ryaku-zu-from-the-series-thirty-six-vi": {
   "audit": "2026-09",
-  "method": "span-edits",
-  "problem": "1830 is late Edo, not mid-Edo; the period runs 1603-1868 and the Thirty-six Views belong to its last decades.",
-  "status": "minor-fixed"
+  "method": "new-text-verified",
+  "previousStatus": "minor-fixed",
+  "problem": "Description flagged: no-visual-content",
+  "status": "repaired"
  },
  "collection-of-beauty-taj-mahal-by-charles-w-bartlett-1916-woodblock-print": {
   "problem": "Describes 'reflecting pool' but image shows the Taj Mahal viewed across the Yamuna River with a boat; sky is daytime, not dusk.",
@@ -12263,7 +12791,10 @@
  },
  "collection-of-beauty-tenman-bridge-at-settsu-province-sesshu-tenmanbashi-from-the-series-remarkable-views-of-bridges-in-": {
   "audit": "2026-09",
-  "status": "accurate"
+  "method": "new-text-verified",
+  "previousStatus": "accurate",
+  "problem": "Description flagged: no-visual-content",
+  "status": "repaired"
  },
  "collection-of-beauty-tentaciones-de-cristo-botticelli": {
   "status": "accurate"
@@ -12369,6 +12900,12 @@
   "problem": "Dimensions (75 by 62 cm) appear nowhere in the record or source; unverifiable specific.",
   "status": "minor-fixed"
  },
+ "collection-of-beauty-the-devil-s-bridge-st-gotthard-pass": {
+  "audit": "2026-09",
+  "method": "new-text-verified",
+  "problem": "Description flagged: empty",
+  "status": "written"
+ },
  "collection-of-beauty-the-disquieting-muses": {
   "audit": "2026-09",
   "method": "span-edits",
@@ -12383,9 +12920,10 @@
  },
  "collection-of-beauty-the-equatorial-jungle": {
   "audit": "2026-09",
-  "method": "span-edits",
-  "problem": "The collection statement is cut off mid-word: it should read Washington, D.C. The description string simply ends there.",
-  "status": "minor-fixed"
+  "method": "new-text-verified",
+  "previousStatus": "minor-fixed",
+  "problem": "Description flagged: no-visual-content, truncated",
+  "status": "repaired"
  },
  "collection-of-beauty-the-fall-of-man-1616-hendrik-goltzius": {
   "problem": "Adam and Eve are reclining, not standing in contrapposto; bodies are naturalistic, not elongated.",
@@ -12434,6 +12972,12 @@
  "collection-of-beauty-the-grand-quay-at-havre-by-claude-monet-1874-hermitage": {
   "status": "accurate"
  },
+ "collection-of-beauty-the-highland-family-met-dp169629": {
+  "audit": "2026-09",
+  "method": "new-text-verified",
+  "problem": "Description flagged: empty",
+  "status": "written"
+ },
  "collection-of-beauty-the-holy-family-with-st-elizabeth-st-john-and-a-dove-lacma-53-27": {
   "status": "accurate"
  },
@@ -12456,7 +13000,10 @@
  },
  "collection-of-beauty-the-inume-pass-in-kai-province-koshu-inume-toge-from-the-series-thirty-six-views-of-mount-fuji-fuga": {
   "audit": "2026-09",
-  "status": "accurate"
+  "method": "new-text-verified",
+  "previousStatus": "accurate",
+  "problem": "Description flagged: no-visual-content",
+  "status": "repaired"
  },
  "collection-of-beauty-the-judgement-of-paris-1615-joachim-wtewael": {
   "problem": "Support material ('copper plate') not confirmed by any source; record lists no medium",
@@ -12527,9 +13074,10 @@
  },
  "collection-of-beauty-the-muscles-of-the-human-body-fourth-layer-seen-from-the-f-wellcome-v0007799": {
   "audit": "2026-09",
-  "method": "span-edits",
-  "problem": "The sentence is a truncated copy of the Commons caption and breaks off mid-name, leaving the printmaker identified only as 'A. E.'. The full attribution is Arnauld-Éloi Gautier d'Agoty, after himself, 1773.",
-  "status": "minor-fixed"
+  "method": "new-text-verified",
+  "previousStatus": "minor-fixed",
+  "problem": "Description flagged: no-visual-content, truncated",
+  "status": "repaired"
  },
  "collection-of-beauty-the-old-adam-and-eve": {
   "problem": "Description says 'clothed elders'; image shows Adam and Eve as unclothed nude figures with a serpent.",
@@ -12629,7 +13177,10 @@
  },
  "collection-of-beauty-the-venous-and-arterial-system-of-the-human-body-engraving-wellcome-v0007816el": {
   "audit": "2026-09",
-  "status": "accurate"
+  "method": "new-text-verified",
+  "previousStatus": "accurate",
+  "problem": "Description flagged: no-visual-content",
+  "status": "repaired"
  },
  "collection-of-beauty-the-virgin-with-chancellor-rolin-by-jan-van-eyck-louvre-webp": {
   "audit": "2026-09",
@@ -12654,7 +13205,10 @@
  },
  "collection-of-beauty-the-wetterhorn-from-the-europe-series-hiroshi-yoshida": {
   "audit": "2026-09",
-  "status": "accurate"
+  "method": "new-text-verified",
+  "previousStatus": "accurate",
+  "problem": "Description flagged: no-visual-content",
+  "status": "repaired"
  },
  "collection-of-beauty-the-white-horse-by-john-constable-google-art-project": {
   "status": "accurate"
@@ -12920,6 +13474,12 @@
   "problem": "Image clearly depicts Nicholas II (recognisable face, Kremlin backdrop); hedging to Nicholas I is unsupported.",
   "status": "minor-fixed"
  },
+ "collection-of-beauty-tsuchiya-koitsu-sketches-of-famous-places-in-japan-asakusa-kinryuzan-temple-2016-76-cleveland-museu": {
+  "audit": "2026-09",
+  "method": "new-text-verified",
+  "problem": "Description flagged: empty",
+  "status": "written"
+ },
  "collection-of-beauty-tsukioka-yoshitoshi-the-moon-on-musashi-plain-musashino-no-tsuki-from-the-series-one-hundred-aspect": {
   "status": "accurate"
  },
@@ -13027,7 +13587,10 @@
  },
  "collection-of-beauty-ushibori-in-hitachi-province-joshu-ushibori-from-the-series-thirty-six-views-of-mount-fuji-fugaku-s": {
   "audit": "2026-09",
-  "status": "accurate"
+  "method": "new-text-verified",
+  "previousStatus": "accurate",
+  "problem": "Description flagged: no-visual-content",
+  "status": "repaired"
  },
  "collection-of-beauty-utagawa-hiroshige-1857-awa-naruto-no-fuukei": {
   "status": "accurate"
@@ -13044,9 +13607,16 @@
  },
  "collection-of-beauty-v-gorakh-alatau": {
   "audit": "2026-09",
-  "method": "span-edits",
-  "problem": "The picture is not a mountain view: its subject is a stag standing in a flowering meadow, with the mountains reduced to a hazy backdrop. The record's own englishTitle says so - 'In the Alatau Mountains (deer in meadow)' - yet the description never mentions the animal at all.",
-  "status": "minor-fixed"
+  "method": "new-text-verified",
+  "previousStatus": "minor-fixed",
+  "problem": "Description flagged: no-visual-content",
+  "status": "repaired"
+ },
+ "collection-of-beauty-v-gorakh-alatau-2": {
+  "audit": "2026-09",
+  "method": "new-text-verified",
+  "problem": "Description flagged: empty",
+  "status": "written"
  },
  "collection-of-beauty-valentin-a-serov-kupanie-loshadi": {
   "audit": "2026-09",
@@ -13055,9 +13625,10 @@
  },
  "collection-of-beauty-valentin-aleksandrovich-serov-odissey-i-navsikaya": {
   "audit": "2026-09",
-  "method": "span-edits",
-  "problem": "The description never says what is actually in the frame — the shore, the mule cart, Nausicaa driving, the attendants, the solitary figure of Odysseus. It names the subject and then stops, against house style.",
-  "status": "minor-fixed"
+  "method": "new-text-verified",
+  "previousStatus": "minor-fixed",
+  "problem": "Description flagged: no-visual-content",
+  "status": "repaired"
  },
  "collection-of-beauty-valentin-serov-pokhishchenie-evropy-google-art-project": {
   "from": "collection-of-beauty-valentin-serov-google-art-project-b196e1",
@@ -13120,7 +13691,10 @@
  },
  "collection-of-beauty-van-gogh-vincent-olive-grove-saint-remy-gothenburg-museum-of-art-gkm-0590-tif": {
   "audit": "2026-09",
-  "status": "accurate"
+  "method": "new-text-verified",
+  "previousStatus": "accurate",
+  "problem": "Description flagged: no-visual-content",
+  "status": "repaired"
  },
  "collection-of-beauty-van-gogh-zwei-bauern-beim-umgraben": {
   "status": "accurate"
@@ -13149,7 +13723,10 @@
  },
  "collection-of-beauty-vasily-vereshchagin-russian-1842-1904-the-road-of-the-war-prisoners-1878-1879": {
   "audit": "2026-09",
-  "status": "accurate"
+  "method": "new-text-verified",
+  "previousStatus": "accurate",
+  "problem": "Description flagged: no-visual-content, rawMuseumLabel",
+  "status": "repaired"
  },
  "collection-of-beauty-vasnetsov-acrobats": {
   "problem": "Description says 'Tretyakov Gallery' but source link points to Russian Museum; 'tightrope walkers and tumblers' not depicted — image shows a fairground Pierrot and barker scene.",
@@ -13191,8 +13768,10 @@
  },
  "collection-of-beauty-venice-the-dogana-and-san-giorgio-maggiore-by-joseph-mallord-william-turner-1834-oil-on-canvas-view": {
   "audit": "2026-09",
-  "method": "span-edits",
-  "status": "accurate"
+  "method": "new-text-verified",
+  "previousStatus": "accurate",
+  "problem": "Description flagged: truncated",
+  "status": "repaired"
  },
  "collection-of-beauty-venus-and-adonis-by-titian": {
   "status": "accurate"
@@ -13232,6 +13811,12 @@
  },
  "collection-of-beauty-vesalius-fabrica-p184": {
   "status": "accurate"
+ },
+ "collection-of-beauty-vetheuil-in-summer-met-dt1898": {
+  "audit": "2026-09",
+  "method": "new-text-verified",
+  "problem": "Description flagged: empty",
+  "status": "written"
  },
  "collection-of-beauty-victor-vasnetsov-knight-at-the-crossroads-google-art-project": {
   "problem": "Stone is not moss-covered; Savva Mamontov/byliny detail is unverified biographical claim",
@@ -13275,6 +13860,12 @@
  },
  "collection-of-beauty-vincent-van-gogh-1853-1890-cafeterras-bij-nacht-place-du-forum-kroller-muller-museum-otterlo-23-8-2": {
   "status": "accurate"
+ },
+ "collection-of-beauty-vincent-van-gogh-bank-of-the-oise-at-auvers-70-159-detroit-institute-of-arts": {
+  "audit": "2026-09",
+  "method": "new-text-verified",
+  "problem": "Description flagged: empty",
+  "status": "written"
  },
  "collection-of-beauty-vincent-van-gogh-coin-de-jardin-avec-papillons": {
   "problem": "Image shows prominent flowering shrubs (not primarily grass and weeds); blooms dominate the foreground.",
@@ -13371,6 +13962,12 @@
  "collection-of-beauty-vincent-van-gogh-wheatfield-with-a-reaper-google-art-project": {
   "status": "accurate"
  },
+ "collection-of-beauty-vincent-van-gogh-wheatfield-with-cornflowers-google-art-project": {
+  "audit": "2026-09",
+  "method": "new-text-verified",
+  "problem": "Description flagged: empty",
+  "status": "written"
+ },
  "collection-of-beauty-vincent-van-gogh-wheatfield-with-crows-google-art-project": {
   "status": "accurate"
  },
@@ -13387,6 +13984,12 @@
   "problem": "Description says 'yellow earthenware vase set against a yellow ground'; image shows a light blue-grey background, not yellow.",
   "status": "fabricated-fixed"
  },
+ "collection-of-beauty-vincent-willem-van-gogh-dutch-rain-google-art-project": {
+  "audit": "2026-09",
+  "method": "new-text-verified",
+  "problem": "Description flagged: empty",
+  "status": "written"
+ },
  "collection-of-beauty-virgin-and-child-with-the-young-saint-john-the-baptist-and-angels-met-dp123935": {
   "status": "prior-audit"
  },
@@ -13395,9 +13998,10 @@
  },
  "collection-of-beauty-vnutrennost-yurty-bogatogo-kirgiza": {
   "audit": "2026-09",
-  "method": "span-edits",
-  "problem": "The walls shown are the yurt's wooden lattice frame and painted ribs, not felt hung with textiles. The pattern in the picture is painted decoration on the dome and carving on the chests.",
-  "status": "minor-fixed"
+  "method": "new-text-verified",
+  "previousStatus": "minor-fixed",
+  "problem": "Description flagged: no-visual-content",
+  "status": "repaired"
  },
  "collection-of-beauty-vue-du-val-d-arco-dans-le-tyrol-meridional-musee-du-louvre-arts-graphiques-inv-18579-recto": {
   "status": "accurate"
@@ -13448,9 +14052,10 @@
  },
  "collection-of-beauty-watts-marie-fox": {
   "audit": "2026-09",
-  "method": "span-edits",
-  "problem": "The description is the Commons metadata pasted verbatim and it breaks off mid-citation at 'London, 1874, p.' — the sentence never completes and the quotation it was leading to is missing.",
-  "status": "minor-fixed"
+  "method": "new-text-verified",
+  "previousStatus": "minor-fixed",
+  "problem": "Description flagged: no-visual-content, rawMuseumLabel",
+  "status": "repaired"
  },
  "collection-of-beauty-wedding-of-nicholas-ii-and-alexandra-feodorovna-by-laurits-tuxen-1895-hermitage": {
   "status": "accurate"
@@ -13532,6 +14137,12 @@
  "collection-of-beauty-william-holman-hunt-the-birthday": {
   "problem": "Sitter is in three-quarter view, not strictly profile",
   "status": "minor-fixed"
+ },
+ "collection-of-beauty-william-holman-hunt-the-finding-of-the-saviour-in-the-temple-google-art-project": {
+  "audit": "2026-09",
+  "method": "new-text-verified",
+  "problem": "Description flagged: empty",
+  "status": "written"
  },
  "collection-of-beauty-william-holman-hunt-the-shadow-of-death": {
   "status": "accurate"
@@ -13680,6 +14291,12 @@
  "collection-of-beauty-winslow-homer-the-gulf-stream-metropolitan-museum-of-art": {
   "status": "accurate"
  },
+ "collection-of-beauty-winslow-homer-the-herring-net-google-art-project": {
+  "audit": "2026-09",
+  "method": "new-text-verified",
+  "problem": "Description flagged: empty",
+  "status": "written"
+ },
  "collection-of-beauty-winslow-homer-the-reaper": {
   "problem": "Cullercoats stay was 1881–82; this work is 1878, so Cullercoats influence is anachronistic.",
   "status": "minor-fixed"
@@ -13698,8 +14315,10 @@
  },
  "collection-of-beauty-wla-metmuseum-water-lilies-by-claude-monet": {
   "audit": "2026-09",
-  "method": "span-edits",
-  "status": "accurate"
+  "method": "new-text-verified",
+  "previousStatus": "accurate",
+  "problem": "Description flagged: no-visual-content, truncated, rawMuseumLabel",
+  "status": "repaired"
  },
  "collection-of-beauty-wla-moma-monet-reflections-of-clouds-on-the-water-lily-pond": {
   "problem": "Palette is predominantly blue-green and golden-amber; 'lilac' is not a significant colour in the image.",
@@ -13729,7 +14348,10 @@
  },
  "collection-of-beauty-yoro-waterfall-in-mino-province-mino-no-yoro-no-taki-from-the-series-a-tour-of-waterfalls-in-variou": {
   "audit": "2026-09",
-  "status": "accurate"
+  "method": "new-text-verified",
+  "previousStatus": "accurate",
+  "problem": "Description flagged: no-visual-content",
+  "status": "repaired"
  },
  "collection-of-beauty-yoshiclimber": {
   "problem": "Image shows a single figure climbing alone; no roped band of warriors visible.",
@@ -13737,6 +14359,12 @@
  },
  "collection-of-beauty-yoshida-hiroshi-grand-canyon": {
   "status": "accurate"
+ },
+ "collection-of-beauty-yoshida-hiroshi-hirosaki-castle-hirosaki-jo-from-the-series-eight-scenes-of-cherry-blossoms-sakura-": {
+  "audit": "2026-09",
+  "method": "new-text-verified",
+  "problem": "Description flagged: empty",
+  "status": "written"
  },
  "collection-of-beauty-yoshida-hiroshi-rapids-at-the-upper-reaches-of-tone-river-1928": {
   "problem": "No pines visible; image shows close-up of a dramatic waterfall/rapid, not a narrow gorge with overhanging pines.",
@@ -13755,9 +14383,10 @@
  },
  "collection-of-beauty-yoshida-on-the-tokaido-tokaido-yoshida-from-the-series-thirty-six-views-of-mount-fuji-fugaku-sanjur": {
   "audit": "2026-09",
-  "method": "span-edits",
-  "problem": "The sheet is a figure-filled interior genre scene — a teahouse with seven or eight travellers — in which Fuji appears as a small distant motif. Describing it as an exercise in landscape composition mischaracterises what is in the frame.",
-  "status": "minor-fixed"
+  "method": "new-text-verified",
+  "previousStatus": "minor-fixed",
+  "problem": "Description flagged: no-visual-content",
+  "status": "repaired"
  },
  "collection-of-beauty-yoshida-sailboat-morning": {
   "problem": "Image shows a single sailboat under sail, not multiple sailboats at anchor.",
@@ -13786,6 +14415,12 @@
  "collection-of-beauty-yoshitoshi-tsuki": {
   "status": "accurate"
  },
+ "collection-of-beauty-young-man-in-armor-by-peter-paul-rubens-timken-museum-of-art-2016-430-cropped": {
+  "audit": "2026-09",
+  "method": "new-text-verified",
+  "problem": "Description flagged: empty",
+  "status": "written"
+ },
  "collection-of-beauty-young-spartans-exercising-national-gallery-ng3860": {
   "problem": "Watching group is centre-background, not 'at right'; source says girls urge boys to fight, not specifically wrestling",
   "status": "minor-fixed"
@@ -13797,6 +14432,12 @@
  "collection-of-beauty-yuliya-samoylova": {
   "problem": "Samoylova wears a white and colourful trimmed gown, not a 'crimson velvet wrap'; the red in the image is the background curtain",
   "status": "minor-fixed"
+ },
+ "collection-of-beauty-yves-tanguy-divisibilite-indefinie-1942": {
+  "audit": "2026-09",
+  "method": "new-text-verified",
+  "problem": "Description flagged: empty",
+  "status": "written"
  },
  "collection-of-beauty-zaandam2": {
   "status": "accurate"
@@ -15741,6 +16382,12 @@
   "audit": "2026-09",
   "status": "accurate"
  },
+ "redoute-roses-rosa-andegavensis-118": {
+  "audit": "2026-09",
+  "method": "plate-name-research",
+  "problem": "Plate 118 was catalogued as Rosa Andegavensis but shows Rosa Bifera Macrocarpa; c82.net duplicates plate names in this range",
+  "status": "fabricated-fixed"
+ },
  "redoute-roses-rosa-andegavensis-59": {
   "audit": "2026-09",
   "status": "accurate"
@@ -15829,6 +16476,12 @@
   "audit": "2026-09",
   "status": "accurate"
  },
+ "redoute-roses-rosa-centifolia-bipinnata-119": {
+  "audit": "2026-09",
+  "method": "plate-name-research",
+  "problem": "Plate 119 was catalogued as Rosa Centifolia but shows Rosa Myriacantha; c82.net duplicates plate names in this range",
+  "status": "fabricated-fixed"
+ },
  "redoute-roses-rosa-centifolia-bipinnata-60": {
   "audit": "2026-09",
   "status": "accurate"
@@ -15892,8 +16545,10 @@
  },
  "redoute-roses-rosa-collina-fastigiata-120": {
   "audit": "2026-09",
-  "problem": "Neither flower on the plate is five-petalled; both are full doubles with many overlapping petals. The colours are also blush-white and pale lilac rather than uniformly soft pink.",
-  "status": "major-fixed"
+  "method": "plate-name-research",
+  "previousStatus": "major-fixed",
+  "problem": "Plate 120 was catalogued as Rosa Collina but shows Rosa Damascena Celsiana Prolifera; c82.net duplicates plate names in this range",
+  "status": "fabricated-fixed"
  },
  "redoute-roses-rosa-collina-fastigiata-61": {
   "audit": "2026-09",
@@ -16026,7 +16681,10 @@
  },
  "redoute-roses-rosa-gallica-gueriniana": {
   "audit": "2026-09",
-  "status": "accurate"
+  "method": "new-text-verified",
+  "previousStatus": "accurate",
+  "problem": "Description flagged: no-visual-content",
+  "status": "repaired"
  },
  "redoute-roses-rosa-gallica-latifolia": {
   "audit": "2026-09",
@@ -16324,7 +16982,10 @@
  },
  "redoute-roses-rosa-rapa-flore-semipleno": {
   "audit": "2026-09",
-  "status": "accurate"
+  "method": "new-text-verified",
+  "previousStatus": "accurate",
+  "problem": "Description flagged: no-visual-content",
+  "status": "repaired"
  },
  "redoute-roses-rosa-reclinata-fleures-simples": {
   "audit": "2026-09",
@@ -16398,6 +17059,12 @@
  "redoute-roses-rosa-sempervirens": {
   "audit": "2026-09",
   "status": "accurate"
+ },
+ "redoute-roses-rosa-sempervirens-globosa": {
+  "audit": "2026-09",
+  "method": "plate-name-research",
+  "problem": "Plate 121 was catalogued as Rosa Sempervirens but shows Rosa Alpina Debilis; c82.net duplicates plate names in this range",
+  "status": "fabricated-fixed"
  },
  "redoute-roses-rosa-sempervirens-latifolia": {
   "audit": "2026-09",
