@@ -102,19 +102,31 @@ export function SurpriseView({ deck }: Props) {
     return true;
   }, [upcoming]);
 
-  // Right-arrow as a second "again" affordance for keyboard visitors.
-  // Ignored while a form control or a button has focus so it can't
+  // Seen works stay in the queue (refills append), so stepping back is
+  // just the index moving the other way — the earlier image is already
+  // in the browser cache.
+  const back = useCallback(() => {
+    if (index === 0) return false;
+    setIndex((i) => Math.max(i - 1, 0));
+    window.scrollTo({ top: 0 });
+    return true;
+  }, [index]);
+
+  // Arrow keys mirror the two buttons for keyboard visitors. Ignored
+  // while a form control or a button has focus so they can't
   // double-fire alongside the button's own activation.
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
-      if (e.key !== "ArrowRight" || e.metaKey || e.ctrlKey || e.altKey) return;
+      if (e.metaKey || e.ctrlKey || e.altKey) return;
+      const step = e.key === "ArrowRight" ? again : e.key === "ArrowLeft" ? back : null;
+      if (!step) return;
       const target = e.target as HTMLElement | null;
       if (target?.closest("input, textarea, a, button") || target?.isContentEditable) return;
-      if (again()) e.preventDefault();
+      if (step()) e.preventDefault();
     };
     window.addEventListener("keydown", onKey);
     return () => window.removeEventListener("keydown", onKey);
-  }, [again]);
+  }, [again, back]);
 
   if (!current) {
     // Only reachable if the catalogue itself is empty.
@@ -163,6 +175,16 @@ export function SurpriseView({ deck }: Props) {
       </figure>
 
       <div className="flex flex-wrap items-center justify-center gap-3">
+        {/* Rendered disabled on the first work rather than omitted, so
+            the row doesn't shift sideways after the first tap. */}
+        <button
+          type="button"
+          onClick={back}
+          disabled={index === 0}
+          className="inline-flex items-center gap-1 rounded-full border border-[var(--border)] px-5 py-2.5 text-sm transition hover:bg-[var(--accent)] focus:outline-none focus-visible:ring-2 focus-visible:ring-[var(--ring)] disabled:pointer-events-none disabled:opacity-40"
+        >
+          <span aria-hidden="true">←</span> Back
+        </button>
         {/* A real link, not a bare button: without JS (and if a refill
             ever fails) this navigates to /surprise, which is dynamic and
             renders a different work every time. */}
