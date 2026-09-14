@@ -74,13 +74,16 @@ export default function DropsPage() {
                 >
                   <div className="flex flex-col gap-6 sm:flex-row sm:gap-8">
                     {cover && (
-                      <div className="shrink-0 overflow-hidden rounded-md border border-[var(--border)] sm:w-48">
+                      // `sm:self-start`: in the row layout a flex item stretches to the
+                      // text column's height, which left the frame taller than the
+                      // cover and blank below it.
+                      <div className="shrink-0 overflow-hidden rounded-md border border-[var(--border)] sm:w-48 sm:self-start">
                         {/* biome-ignore lint/performance/noImgElement: Covers use prebuilt local variants, not Next image optimization. */}
                         <img
                           src={cover.url}
                           alt={cover.alt}
                           loading="lazy"
-                          className="aspect-(--cover-aspect) w-full object-cover transition-opacity group-hover:opacity-90 sm:aspect-(--cover-aspect-sm)"
+                          className="block aspect-(--cover-aspect) w-full object-cover transition-opacity group-hover:opacity-90 sm:aspect-(--cover-aspect-sm)"
                           style={
                             {
                               "--cover-aspect": clampAspect(cover.aspectRatio, COVER_LIMITS.phone),
