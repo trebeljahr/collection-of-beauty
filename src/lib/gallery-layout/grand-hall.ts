@@ -66,10 +66,6 @@ const HALL_WIDTH_COVERAGE = 0.62;
 /** Smallest air gap between neighbours, and between a work and the door
  *  clearance or corner. */
 const HALL_MIN_GAP = 0.8;
-/** Shortest a pair may be next to the tallest work on its wall, as a
- *  share of that height. Keeps a run of 0.7 m panels from trailing off a
- *  3 m altarpiece: that wall hangs the altarpiece alone instead. */
-const MIN_HEIGHT_SHARE = 0.45;
 /** Most works one half-wall holds. */
 const MAX_PER_HALF = 3;
 /** How far down the queue a work looks for its partner. */
@@ -220,10 +216,8 @@ function halfGap(plan: WallPlan, spans: number[]): number {
   return (plan.halfLength - claimed) / (spans.length + 1);
 }
 
-function halfAccepts(plan: WallPlan, span: number, height: number): boolean {
+function halfAccepts(plan: WallPlan, span: number): boolean {
   if (plan.slots.length >= MAX_PER_HALF) return false;
-  const tallest = Math.max(plan.centrepiece?.hM ?? 0, ...plan.slots.map((s) => s.low.hM));
-  if (height < tallest * MIN_HEIGHT_SHARE) return false;
   const spans = [...plan.slots.map((s) => s.span), span];
   const painted = spans.reduce((a, b) => a + b, 0);
   return painted <= HALL_WIDTH_COVERAGE * plan.halfLength && halfGap(plan, spans) >= HALL_MIN_GAP;
@@ -306,7 +300,7 @@ export function hangGrandHall(
       let best: { j: number; pair: [SizedWork, SizedWork]; cost: number } | null = null;
       for (let j = i + 1; j < Math.min(queue.length, i + 1 + PAIR_WINDOW); j++) {
         const pair = matchHeights(queue[i], queue[j]);
-        if (!pair || !halfAccepts(plan, Math.max(pair[0].wM, pair[1].wM), pair[0].hM)) continue;
+        if (!pair || !halfAccepts(plan, Math.max(pair[0].wM, pair[1].wM))) continue;
         const cost = pairCost(queue[i], queue[j]);
         if (!best || cost < best.cost) best = { j, pair, cost };
       }
