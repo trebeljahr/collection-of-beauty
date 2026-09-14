@@ -26,7 +26,7 @@ export default function HomePage() {
         <p className="mt-3 max-w-2xl text-[var(--muted-foreground)]">
           {summary.totalArtworks.toLocaleString()} works by {summary.totalArtists.toLocaleString()}{" "}
           artists across {summary.totalMovements} movements, spanning {summary.yearRange.min}–
-          {summary.yearRange.max}.
+          {summary.yearRange.max}. All in the public domain.
         </p>
       </section>
       <h2 className="sr-only">Browse all works</h2>
