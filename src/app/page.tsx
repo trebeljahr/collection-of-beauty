@@ -23,12 +23,11 @@ export default function HomePage() {
     <div className="mx-auto max-w-7xl px-4 py-8 md:py-12">
       <section className="mb-10 flex flex-col gap-5 md:flex-row md:items-end md:justify-between">
         <div>
-          {/* The museum leads: it's the thing people link. */}
           <h1 className="font-serif text-3xl tracking-tight md:text-4xl">
-            A walkable museum of public-domain art
+            A personal gallery of beauty
           </h1>
           <p className="mt-3 max-w-2xl text-[var(--muted-foreground)]">
-            {ERAS.length} floors, one per era. {summary.totalArtworks.toLocaleString()} works by{" "}
+            {summary.totalArtworks.toLocaleString()} works by{" "}
             {summary.totalArtists.toLocaleString()} artists across {summary.totalMovements}{" "}
             movements, spanning {summary.yearRange.min}–{summary.yearRange.max}.
           </p>

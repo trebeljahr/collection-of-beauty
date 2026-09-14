@@ -10,6 +10,13 @@ describe("assignEra", () => {
     expect(era).toBe("baroque");
   });
 
+  it("keeps pre-1500 Renaissance works on the Early Renaissance floor", () => {
+    expect(assignEra({ movement: "Renaissance", year: 1485 })).toBe("gothic");
+    expect(assignEra({ movement: "Northern Renaissance", year: 1434 })).toBe("gothic");
+    expect(assignEra({ movement: "Northern Renaissance", year: 1500 })).toBe("renaissance");
+    expect(assignEra({ movement: "Renaissance", year: null })).toBe("renaissance");
+  });
+
   it("falls back to year when movement is null", () => {
     // The majority of the Wikimedia metadata lacks an explicit
     // movement tag; year is the only signal we have.
