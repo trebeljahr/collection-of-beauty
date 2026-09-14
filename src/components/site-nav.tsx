@@ -4,6 +4,7 @@ import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { useIs3DActive } from "@/components/gallery-3d-state";
+import { LogoMark } from "@/components/ui/logo-mark";
 import { ShuffleIcon } from "@/components/ui/shuffle-icon";
 import { useFocusTrap } from "@/hooks/use-focus-trap";
 
@@ -14,7 +15,7 @@ type NavLink = {
   isActive?: (pathname: string) => boolean;
 };
 
-// The ways into the same collection, grouped behind one "Explore the Collection"
+// The ways into the same collection, grouped behind one "Explore"
 // control on desktop and one heading in the mobile menu. Listed flat as
 // top-level links they made nine items, and "Gallery" duplicated the
 // wordmark's own link home.
@@ -112,7 +113,7 @@ const SLIDE_IN_MS = 320;
 
 /**
  * Site header. From `md` up the destinations render as an inline row:
- * an "Explore the Collection" disclosure holding the browse pages, Newsletter, the
+ * an "Explore" disclosure holding the browse pages, Newsletter, the
  * Surprise icon and a filled museum button. Below that the row would
  * overflow, so the same destinations are presented as a full-screen
  * modal behind a hamburger button, with the browse pages under their
@@ -301,8 +302,9 @@ export function SiteNav() {
       <nav style={SAFE_X_NAV} className="mx-auto flex max-w-7xl items-center gap-4 px-4 py-3">
         <Link
           href="/"
-          className="shrink-0 rounded-sm font-serif text-lg tracking-wide hover:opacity-70 focus:outline-none focus-visible:ring-2 focus-visible:ring-[var(--ring)] focus-visible:ring-offset-2 focus-visible:ring-offset-[var(--background)]"
+          className="inline-flex shrink-0 items-center gap-2 rounded-sm font-serif text-lg tracking-wide hover:opacity-70 focus:outline-none focus-visible:ring-2 focus-visible:ring-[var(--ring)] focus-visible:ring-offset-2 focus-visible:ring-offset-[var(--background)]"
         >
+          <LogoMark className="size-7 shrink-0" />
           Collection of Beauty
         </Link>
 
@@ -324,7 +326,7 @@ export function SiteNav() {
                 onClick={() => setExploreOpen((v) => !v)}
                 className="inline-flex items-center gap-1 rounded-md px-3 py-1.5 hover:bg-[var(--accent)] focus:outline-none focus-visible:ring-2 focus-visible:ring-[var(--ring)] aria-expanded:bg-[var(--accent)] data-[active]:bg-[var(--accent)]"
               >
-                <span className="whitespace-nowrap">Explore the Collection</span>
+                Explore
                 <svg
                   xmlns="http://www.w3.org/2000/svg"
                   width="14"
@@ -458,8 +460,9 @@ export function SiteNav() {
             <Link
               href="/"
               onClick={(e) => handleSameRouteTap(e, "/")}
-              className="rounded-sm font-serif text-base tracking-wide hover:opacity-70 focus:outline-none focus-visible:ring-2 focus-visible:ring-[var(--ring)]"
+              className="inline-flex items-center gap-2 rounded-sm font-serif text-base tracking-wide hover:opacity-70 focus:outline-none focus-visible:ring-2 focus-visible:ring-[var(--ring)]"
             >
+              <LogoMark className="size-6 shrink-0" />
               Collection of Beauty
             </Link>
             <button
@@ -494,7 +497,7 @@ export function SiteNav() {
                 id="site-nav-explore-heading"
                 className="px-4 text-xs font-medium tracking-wider text-[var(--muted-foreground)] uppercase"
               >
-                Explore the Collection
+                Explore
               </h2>
               <ul className="flex flex-col gap-1">
                 {EXPLORE_LINKS.map((l) => (
