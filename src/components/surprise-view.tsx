@@ -26,7 +26,7 @@ type Props = {
  *  with the taps that are still served locally. */
 const REFILL_AT = 2;
 
-/** Compact pill for the Previous / Next row in the top-left corner. */
+/** Compact pill for the Previous / Next row centred above the image. */
 const SMALL_NAV_CLASS =
   "inline-flex items-center gap-1 rounded-full border border-[var(--border)] px-2.5 py-1 text-xs text-[var(--muted-foreground)] transition hover:bg-[var(--accent)] hover:text-[var(--foreground)] focus:outline-none focus-visible:ring-2 focus-visible:ring-[var(--ring)] disabled:pointer-events-none disabled:opacity-40";
 
@@ -165,7 +165,10 @@ export function SurpriseView({ deck }: Props) {
     <div className="mx-auto flex w-full max-w-[110rem] flex-col items-center gap-6 px-3 pt-3 pb-6 md:px-6 md:pt-4 md:pb-8">
       {/* Rendered disabled on the first work rather than omitted, so
           "Next" doesn't shift sideways after the first tap. */}
-      <nav aria-label="Browse surprises" className="-mb-3 flex w-full items-center gap-1.5">
+      <nav
+        aria-label="Browse surprises"
+        className="-mb-3 flex w-full items-center justify-center gap-1.5"
+      >
         <button type="button" onClick={back} disabled={index === 0} className={SMALL_NAV_CLASS}>
           <span aria-hidden="true">←</span> Previous
         </button>
