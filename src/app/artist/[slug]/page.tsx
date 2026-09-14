@@ -233,6 +233,7 @@ export default async function ArtistPage({ params }: { params: Promise<Params> }
             </span>
           )}
           {artist.nationality && <span>· {artist.nationality}</span>}
+          {artist.movement && <span>· {artist.movement}</span>}
           <span>
             · {artist.count} work{artist.count === 1 ? "" : "s"}
           </span>
@@ -242,16 +243,8 @@ export default async function ArtistPage({ params }: { params: Promise<Params> }
             as separate targets rather than one slab; above `sm:` the row
             returns to its original dense 1.5 gutter. The contemporaries
             grids further down already sit at gap-2 at every width. */}
-        {(artist.movement || eraIds.length > 0) && (
+        {eraIds.length > 0 && (
           <div className="mt-1 flex flex-wrap items-center gap-2 sm:gap-1.5">
-            {artist.movement && (
-              <Link
-                href={`/timeline?movement=${encodeURIComponent(artist.movement)}`}
-                className={chipClasses}
-              >
-                {artist.movement}
-              </Link>
-            )}
             {eraIds.map((id) => (
               <Link key={id} href={`/era/${id}`} className={chipClasses}>
                 {getEra(id).title}
