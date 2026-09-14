@@ -384,8 +384,7 @@ export function SiteNav() {
             <span className="hidden lg:inline">{SURPRISE_LINK.label}</span>
             <span className="sr-only lg:hidden">{SURPRISE_LINK.label}</span>
           </Link>
-          {/* The headline feature gets the one filled button in the row,
-              matching the home hero's "Enter the museum". */}
+          {/* The headline feature gets the one filled button in the row. */}
           <Link
             href={MUSEUM_LINK.href}
             className="inline-flex shrink-0 items-center rounded-full bg-[var(--primary)] px-4 py-1.5 text-sm font-medium whitespace-nowrap text-[var(--primary-foreground)] transition hover:opacity-90 focus:outline-none focus-visible:ring-2 focus-visible:ring-[var(--ring)] focus-visible:ring-offset-2 focus-visible:ring-offset-[var(--background)]"
