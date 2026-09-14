@@ -22,7 +22,7 @@ export const metadata: Metadata = {
 };
 
 export default function TimelinePage() {
-  // Only the histogram is needed up front — ~62 {decade, count} pairs
+  // Only the histogram is needed up front — ~62 {decade, count, aspects}
   // rather than every dated record. The works for a decade are fetched
   // from /api/timeline/works as that section scrolls into view.
   const timeline = getTimelineSummary();

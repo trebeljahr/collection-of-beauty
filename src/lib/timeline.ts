@@ -4,28 +4,33 @@ import { assignEra, type EraId, isEraId } from "@/lib/gallery-eras";
 
 export const TIMELINE_DECADE_SPAN = 10;
 
-/** One histogram column: the decade's start year and how many dated
- *  works fall in it under the active filters. This — not the works
+/** One histogram column: the decade's start year, how many dated works
+ *  fall in it under the active filters, and those works' aspect ratios
+ *  (width / height, in render order, 3 decimals). This — not the works
  *  themselves — is all the /timeline page needs to render the density
- *  chart and the per-decade section headers. */
-export type TimelineDecade = { decade: number; count: number };
+ *  chart, the per-decade section headers, and a placeholder exactly as
+ *  tall as the justified rows the works will fill (~20 KB for the whole
+ *  corpus, against the ~4,300 records it stands in for). */
+export type TimelineDecade = { decade: number; count: number; aspects: number[] };
 
-/** Everything the timeline grid actually reads off an artwork: a square
- *  thumbnail, the hover tooltip (title / artist / year), the mobile
- *  caption, and the two hrefs. Deliberately narrower than
- *  `ArtworkListing` — movement, nationality, width, height and
- *  realDimensions are filter/layout inputs the timeline resolves on the
- *  server, so shipping them per row would be dead weight on the wire. */
+/** Everything a timeline tile actually reads off an artwork: the
+ *  thumbnail and its pixel size (the justified row solver in
+ *  <ArtworkRows> needs the aspect ratio), the hover tooltip
+ *  (title / artist / year), and the href. Deliberately narrower than
+ *  `ArtworkListing` — movement, nationality and realDimensions are
+ *  filter inputs the timeline resolves on the server, so shipping them
+ *  per row would be dead weight on the wire. */
 export type TimelineListing = Pick<
   ArtworkListing,
   | "id"
   | "title"
   | "englishTitle"
   | "artist"
-  | "artistSlug"
   | "year"
   | "objectKey"
   | "variantWidths"
+  | "width"
+  | "height"
   | "dominantColor"
 >;
 
@@ -77,16 +82,24 @@ function filterDated(filter: TimelineFilter): ArtworkListing[] {
   return list;
 }
 
+/** Same fallback as toGalleryPhoto's 800 x 1000 for a work without
+ *  pixel dimensions, so the placeholder solves what the tiles will. */
+function aspectOf(artwork: ArtworkListing): number {
+  return Math.round(((artwork.width ?? 800) / (artwork.height ?? 1000)) * 1000) / 1000;
+}
+
 function histogram(list: readonly ArtworkListing[]): TimelineDecade[] {
-  const counts = new Map<number, number>();
+  const byDecade = new Map<number, number[]>();
   for (const artwork of list) {
     if (artwork.year == null) continue;
     const decade = decadeOf(artwork.year);
-    counts.set(decade, (counts.get(decade) ?? 0) + 1);
+    const aspects = byDecade.get(decade);
+    if (aspects) aspects.push(aspectOf(artwork));
+    else byDecade.set(decade, [aspectOf(artwork)]);
   }
-  return Array.from(counts.entries())
+  return Array.from(byDecade.entries())
     .sort((a, b) => a[0] - b[0])
-    .map(([decade, count]) => ({ decade, count }));
+    .map(([decade, aspects]) => ({ decade, count: aspects.length, aspects }));
 }
 
 // Memoise the two filter shapes with a bounded key space: no filter at
@@ -144,10 +157,11 @@ function toTimelineListing(artwork: ArtworkListing): TimelineListing {
     title: artwork.title,
     englishTitle: artwork.englishTitle,
     artist: artwork.artist,
-    artistSlug: artwork.artistSlug,
     year: artwork.year,
     objectKey: artwork.objectKey,
     variantWidths: artwork.variantWidths,
+    width: artwork.width,
+    height: artwork.height,
     dominantColor: artwork.dominantColor,
   };
 }

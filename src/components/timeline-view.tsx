@@ -1,31 +1,33 @@
 "use client";
 
-import Link from "next/link";
 import { useCallback, useDeferredValue, useEffect, useMemo, useRef, useState } from "react";
-import { useArtworkTooltip } from "@/components/artwork-tooltip";
-import { ResponsiveImage } from "@/components/responsive-image";
+import {
+  ArtworkRows,
+  artworkRowsLayout,
+  toGalleryPhoto,
+  useContainerWidth,
+} from "@/components/artwork-gallery";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
 import { Select } from "@/components/ui/select";
-import { artworkAlt, displayTitle } from "@/lib/artwork-format";
 import { type EraId, eraForMovement, isEraId } from "@/lib/gallery-eras";
-import { artworkHref } from "@/lib/scope-href";
 import type { TimelineDecade, TimelineListing, TimelineSummary } from "@/lib/timeline";
 import { useArtworkBackFlip } from "@/lib/use-artwork-back-flip";
-import { useTransitionNav } from "@/lib/use-transition-nav";
-import { artworkHeroVtName } from "@/lib/view-transitions";
 
 type Props = {
   /** Unfiltered histogram, precomputed on the server. The page ships
-   *  these ~62 counts instead of the ~4,300 dated records it used to —
-   *  the works for a decade arrive from /api/timeline/works when that
-   *  section comes into view. */
+   *  these ~62 counts (plus each decade's aspect ratios, so the
+   *  placeholders reserve the right height) instead of the ~4,300 dated
+   *  records it used to — the works for a decade arrive from
+   *  /api/timeline/works when that section comes into view. */
   initialDecades: TimelineDecade[];
   initialTotal: number;
   eras: { id: EraId; title: string }[];
 };
 
-const GRID_CLASSES = "grid grid-cols-3 gap-2 sm:grid-cols-4 md:grid-cols-6 lg:grid-cols-8";
+/** Stand-in container width for the placeholder layout before it has
+ *  measured (SSR), matching <ArtworkRows>' own pre-measure fallback. */
+const FALLBACK_WIDTH_PX = 1200;
 
 /** How far outside the viewport a decade section starts loading. One
  *  screen of lead time on a phone is enough to have tiles decoded by
@@ -313,6 +315,7 @@ export function TimelineView({ initialDecades, initialTotal, eras }: Props) {
             key={d.decade}
             decade={d.decade}
             count={d.count}
+            aspects={d.aspects}
             works={works[d.decade] ?? null}
             onVisible={loadDecade}
           />
@@ -331,16 +334,22 @@ export function TimelineView({ initialDecades, initialTotal, eras }: Props) {
 function DecadeSection({
   decade,
   count,
+  aspects,
   works,
   onVisible,
 }: {
   decade: number;
   count: number;
+  aspects: number[];
   works: TimelineListing[] | null;
   onVisible: (decade: number) => Promise<void>;
 }) {
   const sectionRef = useRef<HTMLElement | null>(null);
   const loaded = works != null;
+  const photos = useMemo(
+    () => works?.map((a) => toGalleryPhoto(a, { kind: "decade", start: decade })) ?? null,
+    [works, decade],
+  );
 
   useEffect(() => {
     const el = sectionRef.current;
@@ -381,75 +390,35 @@ function DecadeSection({
           <Badge variant="outline">{count}</Badge>
         </div>
       </div>
-      <div className={GRID_CLASSES}>
-        {works
-          ? works.map((a) => <TimelineTile key={a.id} artwork={a} decade={decade} />)
-          : Array.from({ length: count }, (_, i) => (
-              // biome-ignore lint/suspicious/noArrayIndexKey: placeholders are interchangeable and all unmount together once the works land.
-              <div key={i} className="timeline-cell-placeholder" />
-            ))}
-      </div>
+      {photos ? <ArtworkRows photos={photos} /> : <DecadePlaceholder aspects={aspects} />}
     </section>
   );
 }
 
-function TimelineTile({ artwork: a, decade }: { artwork: TimelineListing; decade: number }) {
-  const { handlers, portal } = useArtworkTooltip({
-    title: displayTitle(a),
-    artist: a.artist,
-    year: a.year,
-  });
-  const transitionNav = useTransitionNav();
-  const href = artworkHref(a.id, { kind: "decade", start: decade });
-  const tileRef = useRef<HTMLDivElement | null>(null);
-  const onClick = (e: React.MouseEvent<HTMLAnchorElement>) => {
-    const img = tileRef.current?.querySelector("img") ?? null;
-    transitionNav(e, href, { vtElement: img, vtName: artworkHeroVtName(a.id) });
-  };
+/** Muted bars in the rows the decade's works will fill, solved by the
+ *  same layout <ArtworkRows> runs, so a `#decade-1870` anchor lands in
+ *  the right place before the works arrive and nothing shifts once they
+ *  do. */
+function DecadePlaceholder({ aspects }: { aspects: number[] }) {
+  const [ref, width] = useContainerWidth();
+  const chunks = useMemo(
+    () => artworkRowsLayout(aspects, width ?? FALLBACK_WIDTH_PX),
+    [aspects, width],
+  );
   return (
-    <div
-      ref={tileRef}
-      className="group relative aspect-square overflow-hidden rounded-md bg-[var(--muted)]"
-      data-artwork-id={a.id}
-      {...handlers}
-    >
-      <Link
-        href={href}
-        onClick={onClick}
-        className="absolute inset-0 z-10 focus:outline-none focus-visible:ring-2 focus-visible:ring-[var(--ring)]"
-        aria-label={artworkAlt(a)}
-      />
-      <ResponsiveImage
-        objectKey={a.objectKey}
-        variantWidths={a.variantWidths}
-        alt={artworkAlt(a)}
-        fill
-        sizes="(max-width: 640px) 33vw, (max-width: 1024px) 20vw, 12vw"
-        loading="lazy"
-        dominantColor={a.dominantColor}
-        className="transition-transform duration-500 group-hover:scale-110"
-      />
-      {/* Mobile-only caption: touch has no hover, so stamp-sized tiles
-          still get a label. Desktop hover is served by the floating
-          tooltip portal mounted via useArtworkTooltip. */}
-      <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/80 to-transparent p-1.5 text-[10px] text-white md:hidden">
-        <div className="line-clamp-1 font-medium">{displayTitle(a)}</div>
-        <div className="line-clamp-1 opacity-80">
-          {a.year}
-          {a.artist ? (
-            <>
-              {" · "}
-              <Link
-                href={`/artist/${a.artistSlug}`}
-                className="relative z-20 rounded-sm underline underline-offset-2 focus:outline-none focus-visible:ring-2 focus-visible:ring-[var(--ring)]"
-              >
-                {a.artist}
-              </Link>
-            </>
-          ) : null}
+    // No explicit height: the rows below add up to it, and the last
+    // chunk's `mb-1.5` then collapses out of the section exactly as the
+    // real album's does.
+    <div ref={ref}>
+      {chunks.map((c, i) => (
+        // biome-ignore lint/suspicious/noArrayIndexKey: placeholder chunks are interchangeable and all unmount together once the works land.
+        <div key={i} className="mb-1.5 flex flex-col gap-1.5" style={{ maxWidth: c.width }}>
+          {c.rowHeights.map((h, j) => (
+            // biome-ignore lint/suspicious/noArrayIndexKey: as above.
+            <div key={j} className="timeline-row-placeholder" style={{ height: h }} />
+          ))}
         </div>
-      </div>
-      {portal}
+      ))}
     </div>
   );
 }
@@ -464,7 +433,14 @@ async function fetchDecades(filter: FilterState, signal: AbortSignal): Promise<T
   const url = withFilter(new URL("/api/timeline/decades", window.location.origin), filter);
   const res = await fetch(url, { signal });
   if (!res.ok) throw new Error(`fetch ${url.pathname}: ${res.status}`);
-  return res.json() as Promise<TimelineSummary>;
+  const body = (await res.json()) as TimelineSummary;
+  // A response cached before `aspects` existed (the route allows a day of
+  // stale-while-revalidate) would otherwise crash the placeholders. Square
+  // stand-ins only cost a resize when the works land.
+  return {
+    ...body,
+    decades: body.decades.map((d) => ({ ...d, aspects: d.aspects ?? Array(d.count).fill(1) })),
+  };
 }
 
 async function fetchDecadeWorks(decade: number, filter: FilterState): Promise<TimelineListing[]> {

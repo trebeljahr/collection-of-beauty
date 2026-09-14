@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { type ReactNode, useCallback, useEffect, useMemo, useRef, useState } from "react";
-import { RowsPhotoAlbum } from "react-photo-album";
+import { computeRowsLayout, RowsPhotoAlbum } from "react-photo-album";
 import "react-photo-album/rows.css";
 import { useArtworkTooltip } from "@/components/artwork-tooltip";
 import { ResponsiveImage } from "@/components/responsive-image";
@@ -31,7 +31,23 @@ export type GalleryPhoto = {
   dominantColor: string | null;
 };
 
-export function toGalleryPhoto(a: ArtworkListing, scope: Scope | null = null): GalleryPhoto {
+/** The fields a gallery tile reads. Narrower than `ArtworkListing` so the
+ *  timeline's slimmer per-decade payload can feed the same tiles. */
+export type GalleryPhotoSource = Pick<
+  ArtworkListing,
+  | "id"
+  | "title"
+  | "englishTitle"
+  | "artist"
+  | "year"
+  | "objectKey"
+  | "variantWidths"
+  | "width"
+  | "height"
+  | "dominantColor"
+>;
+
+export function toGalleryPhoto(a: GalleryPhotoSource, scope: Scope | null = null): GalleryPhoto {
   return {
     src: a.objectKey,
     variantWidths: a.variantWidths,
@@ -57,7 +73,7 @@ type Props = {
    *  (e.g. the home page that ships 80 items in the initial RSC payload)
    *  can override to render the full payload immediately. */
   initialSeed?: number;
-  targetRowHeight?: number | ((width: number) => number);
+  targetRowHeight?: RowHeight;
   scope?: Scope | null;
 };
 
@@ -215,54 +231,69 @@ export function ArtworkGallery({
     return () => observer.disconnect();
   }, [hasMore, loadMore]);
 
-  // Chunk into independent albums. Index-based split → chunk identity
-  // stable across re-renders. New batches grow the tail; existing
-  // chunks never recompute their row layout.
-  const chunks = useMemo(() => chunk(displayed, CHUNK_SIZE), [displayed]);
+  if (artworks.length === 0) {
+    return <div className="py-16 text-center text-[var(--muted-foreground)]">No works.</div>;
+  }
 
-  // Target row height, in absolute px. On a wide container it only sets
-  // how tall a row looks; on a phone it is what decides how many works
-  // land in a row, because the row solver minimises (rowHeight - target)²
-  // per row and a k-work row on a W-wide container is W / Σaspect tall.
-  // At the old 160 the cheapest partition of a 343 px container (a
-  // 375 px phone) was three or four across — a 126 px median tile, with
-  // tall works like Chinese hanging scrolls squeezed down to 32 px. At
-  // 240 a pair of portraits (h ≈ 210, so 168 px each) or a single
-  // landscape beats any three-across row, so tiles come out at roughly
-  // 1.8x the area and the worst scroll renders ~51 px. Fewer works per
-  // screen, but legible ones, which is the right trade for a gallery.
-  //
-  // Deliberately *above* the 640-1024 band: the target only does this
-  // job while the container is narrow enough for it to change the row
-  // count at all, and a tablet is already 3-4 across at 220.
-  const rowHeight = targetRowHeight ?? ((w: number) => (w < 640 ? 240 : w < 1024 ? 220 : 260));
+  return (
+    <div>
+      <ArtworkRows photos={displayed} targetRowHeight={targetRowHeight} />
+      {hasMore && <div ref={sentinelRef} aria-hidden style={{ width: 1, height: 1 }} />}
+      {!hasMore && (
+        <div className="py-6 text-center text-sm text-[var(--muted-foreground)]">— end —</div>
+      )}
+    </div>
+  );
+}
 
-  // Measure the gallery container width and pass it as each chunk's
-  // `defaultContainerWidth`. Without this, every NEW chunk added during
-  // scroll first paints at the static `defaultContainerWidth={1200}`,
-  // then re-paints once its internal ResizeObserver measures the actual
-  // width — a one-frame layout shift per chunk. When the user scrolls
-  // fast the cumulative shift across several batches is the "jump" you
-  // see. The ref runs during commit — before the first browser paint —
-  // so every chunk renders with the correct width from frame one.
-  //
-  // This is a *callback* ref rather than a useRef + useLayoutEffect pair,
-  // and that is load-bearing: the measured div sits behind the
-  // `artworks.length === 0` early return below, so it is not in the tree
-  // on every render of this component. An effect with `[]` deps can fire
-  // while there is nothing to measure and then never run again, pinning
-  // every chunk to the 1200 fallback — and if the node is later replaced,
-  // the ResizeObserver stays attached to a detached one, so a rotate
-  // keeps declaring the stale width in `sizes` below while the album
-  // re-solves at the new one, i.e. blurry tiles. React invokes a callback
-  // ref once per node identity, so attachment and re-attachment are both
-  // automatic. React 19 runs the returned cleanup when the node goes
-  // away, which is where the observer is disconnected.
-  //
-  // Timing is unchanged: refs attach during commit, before layout
-  // effects, so the measurement still lands before the first paint.
+// Target row height, in absolute px, as a function of container width. On a wide container it only sets
+// how tall a row looks; on a phone it is what decides how many works
+// land in a row, because the row solver minimises (rowHeight - target)²
+// per row and a k-work row on a W-wide container is W / Σaspect tall.
+// At the old 160 the cheapest partition of a 343 px container (a
+// 375 px phone) was three or four across — a 126 px median tile, with
+// tall works like Chinese hanging scrolls squeezed down to 32 px. At
+// 240 a pair of portraits (h ≈ 210, so 168 px each) or a single
+// landscape beats any three-across row, so tiles come out at roughly
+// 1.8x the area and the worst scroll renders ~51 px. Fewer works per
+// screen, but legible ones, which is the right trade for a gallery.
+//
+// Deliberately *above* the 640-1024 band: the target only does this
+// job while the container is narrow enough for it to change the row
+// count at all, and a tablet is already 3-4 across at 220.
+export const DEFAULT_TARGET_ROW_HEIGHT = (w: number) => (w < 640 ? 240 : w < 1024 ? 220 : 260);
+
+// Callback ref + the measured width of the node it is attached to, null
+// until the ref has attached (SSR and the first client pass).
+//
+// <ArtworkRows> passes the width as each chunk's
+// `defaultContainerWidth`. Without this, every NEW chunk added during
+// scroll first paints at the static `defaultContainerWidth={1200}`,
+// then re-paints once its internal ResizeObserver measures the actual
+// width — a one-frame layout shift per chunk. When the user scrolls
+// fast the cumulative shift across several batches is the "jump" you
+// see. The ref runs during commit — before the first browser paint —
+// so every chunk renders with the correct width from frame one.
+//
+// This is a *callback* ref rather than a useRef + useLayoutEffect pair,
+// and that is load-bearing: the measured div is not in the tree on
+// every render of the caller (<ArtworkGallery> returns early on an
+// empty list, the timeline swaps a placeholder for the rows once a
+// decade's works land). An effect with `[]` deps can fire
+// while there is nothing to measure and then never run again, pinning
+// every chunk to the 1200 fallback — and if the node is later replaced,
+// the ResizeObserver stays attached to a detached one, so a rotate
+// keeps declaring the stale width in `sizes` while the album
+// re-solves at the new one, i.e. blurry tiles. React invokes a callback
+// ref once per node identity, so attachment and re-attachment are both
+// automatic. React 19 runs the returned cleanup when the node goes
+// away, which is where the observer is disconnected.
+//
+// Timing is unchanged: refs attach during commit, before layout
+// effects, so the measurement still lands before the first paint.
+export function useContainerWidth() {
   const [containerWidth, setContainerWidth] = useState<number | null>(null);
-  const galleryRef = useCallback((node: HTMLDivElement | null) => {
+  const ref = useCallback((node: HTMLDivElement | null) => {
     // React only skips the legacy detach call (`ref(null)`) when the
     // callback returned a cleanup function — the no-ResizeObserver
     // branch below returns nothing, so null still arrives here.
@@ -277,7 +308,93 @@ export function ArtworkGallery({
     ro.observe(node);
     return () => ro.disconnect();
   }, []);
+  return [ref, containerWidth] as const;
+}
+
+const ROW_SPACING_PX = 6;
+// Cap maxPhotos so the DP solver never tries to combine all 10 chunk
+// photos into a single row when their aspects let it — keeps tile sizes
+// within a sane band.
+const MAX_PHOTOS_PER_ROW = 8;
+// A chunk too small to fill even one row (a decade with one work, the
+// tail of a short list) is otherwise stretched to the full container
+// width: a lone portrait on a 1248 px desktop came out ~2,400 px tall.
+// react-photo-album caps such a chunk's container width so its single
+// row is at most this multiple of the target height.
+const SINGLE_ROW_MAX_SCALE = 1.5;
+
+type RowHeight = number | ((width: number) => number);
+
+function resolveRowHeight(targetRowHeight: RowHeight, width: number): number {
+  return typeof targetRowHeight === "function" ? targetRowHeight(width) : targetRowHeight;
+}
+
+// Both the target and the constraints are resolved from the *gallery's*
+// width and handed to react-photo-album as plain values. Given functions,
+// it calls them with the album's own measured width, which for a capped
+// chunk is the capped width: a lone desktop portrait then reads as a
+// phone-width album, picks up the phone target, and widens its own cap.
+function rowConstraints(target: number) {
+  return { maxPhotos: MAX_PHOTOS_PER_ROW, singleRowMaxHeight: target * SINGLE_ROW_MAX_SCALE };
+}
+
+/** One chunk of <ArtworkRows> as geometry only: the chunk's width (less
+ *  than the container when the single-row cap kicks in) and each row's
+ *  height. */
+export type ArtworkRowsChunk = { width: number; rowHeights: number[] };
+
+/** The layout <ArtworkRows> will render for works with these aspect
+ *  ratios (width / height, in order) — same chunking, same solver, same
+ *  constraints — for a placeholder that has to reserve the exact height
+ *  before the works themselves arrive. */
+export function artworkRowsLayout(
+  aspects: readonly number[],
+  containerWidth: number,
+  targetRowHeight: RowHeight = DEFAULT_TARGET_ROW_HEIGHT,
+): ArtworkRowsChunk[] {
+  const target = resolveRowHeight(targetRowHeight, containerWidth);
+  const { maxPhotos, singleRowMaxHeight } = rowConstraints(target);
+  return chunk([...aspects], CHUNK_SIZE).map((group) => {
+    // Mirrors react-photo-album's resolveRowsProps: the cap is a
+    // max-width on the album container, so the solver runs at that width.
+    const singleRowWidth = Math.floor(
+      group.reduce((sum, aspect) => sum + aspect * singleRowMaxHeight, 0) +
+        ROW_SPACING_PX * (group.length - 1),
+    );
+    const width = singleRowWidth > 0 ? Math.min(containerWidth, singleRowWidth) : containerWidth;
+    const layout = computeRowsLayout(
+      group.map((aspect) => ({ src: "", width: aspect, height: 1 })),
+      ROW_SPACING_PX,
+      0,
+      width,
+      target,
+      undefined,
+      maxPhotos,
+    );
+    const rowHeights = layout?.tracks.map((track) => track.photos[0]?.height ?? 0) ?? [];
+    return { width, rowHeights };
+  });
+}
+
+/** Chunked justified rows — the one layout every artwork list uses.
+ *  Callers own which photos are shown (pagination, lazy decades); this
+ *  owns how they are packed. */
+export function ArtworkRows({
+  photos,
+  targetRowHeight = DEFAULT_TARGET_ROW_HEIGHT,
+}: {
+  photos: GalleryPhoto[];
+  targetRowHeight?: RowHeight;
+}) {
+  // Chunk into independent albums. Index-based split → chunk identity
+  // stable across re-renders. New batches grow the tail; existing
+  // chunks never recompute their row layout.
+  const chunks = useMemo(() => chunk(photos, CHUNK_SIZE), [photos]);
+
+  const [galleryRef, containerWidth] = useContainerWidth();
   const initialContainerWidth = containerWidth ?? 1200;
+  const target = resolveRowHeight(targetRowHeight, initialContainerWidth);
+  const constraints = useMemo(() => rowConstraints(target), [target]);
 
   // The container width, restated for the browser's variant picker.
   // react-photo-album turns `sizes` into a per-tile
@@ -329,10 +446,6 @@ export function ArtworkGallery({
     [containerWidth],
   );
 
-  if (artworks.length === 0) {
-    return <div className="py-16 text-center text-[var(--muted-foreground)]">No works.</div>;
-  }
-
   return (
     <div ref={galleryRef}>
       {chunks.map((group, i) => (
@@ -343,17 +456,14 @@ export function ArtworkGallery({
         >
           <RowsPhotoAlbum
             photos={group}
-            targetRowHeight={rowHeight}
-            spacing={6}
+            targetRowHeight={target}
+            spacing={ROW_SPACING_PX}
             // Pre-measured from the gallery container (see the
             // callback ref above). Falls back to 1200 only on the very
             // first SSR render, before the ref has attached.
             defaultContainerWidth={initialContainerWidth}
             sizes={albumSizes}
-            // Cap maxPhotos so the DP solver never tries to combine all
-            // 10 chunk photos into a single row when their aspects let
-            // it — keeps tile sizes within a sane band.
-            rowConstraints={{ maxPhotos: 8 }}
+            rowConstraints={constraints}
             render={{
               link: ({ href: _href, children, className, ...rest }, { photo }) => {
                 const p = photo as GalleryPhoto;
@@ -396,10 +506,6 @@ export function ArtworkGallery({
           />
         </div>
       ))}
-      {hasMore && <div ref={sentinelRef} aria-hidden style={{ width: 1, height: 1 }} />}
-      {!hasMore && (
-        <div className="py-6 text-center text-sm text-[var(--muted-foreground)]">— end —</div>
-      )}
     </div>
   );
 }
