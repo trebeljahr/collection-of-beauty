@@ -49,30 +49,34 @@ export default function CollectionsPage() {
 
       <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-4">
         {sets.map((set) => {
-          const cover = set.plates.find((p) => p.listing.variantWidths != null)?.listing;
+          const cover = set.coverImage;
           return (
             <Link
               key={set.id}
               href={`/collection/${set.id}`}
               className="group block overflow-hidden rounded-lg border border-[var(--border)] bg-[var(--card)] transition-shadow hover:shadow-lg focus:outline-none focus-visible:ring-2 focus-visible:ring-[var(--ring)] focus-visible:ring-offset-2 focus-visible:ring-offset-[var(--background)]"
             >
-              {/* Portrait box, whole plate. Every cover is a portrait
-                  plate (0.67–0.74 wide:tall); the old 4:3 centre crop
-                  kept about half its height, which cut the head off
-                  Audubon's turkey and left Redouté's lily as leaves.
-                  `object-contain` leaves at most a thin band of the
-                  muted ground at the sides rather than cropping the
-                  plate caption at the foot. */}
-              <div className="relative aspect-[3/4] overflow-hidden bg-[var(--muted)]">
+              {/* Every cover is a portrait plate (0.67–0.74 wide:tall).
+                  `object-contain` left grey bands at the sides, and the
+                  old 4:3 centre crop cut the turkey's head off. The plate
+                  now covers a portrait box, and each set's measured focus
+                  point is the object-position, so the subject stays in
+                  frame whichever way the box crops. Phones get 4:5 so a
+                  full-width card doesn't run past one screen. */}
+              <div className="relative aspect-[4/5] overflow-hidden bg-[var(--muted)] sm:aspect-[3/4]">
                 {cover && (
                   <ResponsiveImage
-                    objectKey={cover.objectKey}
-                    variantWidths={cover.variantWidths}
+                    objectKey={cover.listing.objectKey}
+                    variantWidths={cover.listing.variantWidths}
                     alt={`${set.title} — ${set.author}`}
                     fill
                     sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 320px"
                     loading="lazy"
-                    className="object-contain transition-transform duration-500 group-hover:scale-105"
+                    className="transition-transform duration-500 group-hover:scale-105"
+                    style={{
+                      objectPosition: cover.objectPosition,
+                      transformOrigin: cover.objectPosition,
+                    }}
                   />
                 )}
               </div>

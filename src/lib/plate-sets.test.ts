@@ -91,6 +91,14 @@ describe("plate sets", () => {
 
   // The completeness claim is the whole point of these pages, so it is
   // asserted against the corpus rather than trusted.
+  it("finds each set's named cover plate, so its measured focus applies", () => {
+    // A renamed or dropped cover id would silently fall back to a
+    // centred crop of a different plate.
+    for (const set of sets) {
+      expect(set.coverImage?.listing.id).toBe(set.cover.artworkId);
+    }
+  });
+
   it("reports the three complete sets as complete", () => {
     for (const id of [
       "audubon-birds-of-america",

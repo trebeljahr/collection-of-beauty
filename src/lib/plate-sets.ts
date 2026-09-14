@@ -27,6 +27,11 @@ export { isPlateSetId, PLATE_SETS, type PlateSetDefinition, type PlateSetId };
 export type Plate = OrderedPlate;
 
 export type PlateSet = PlateSetDefinition & {
+  /** The card image: the plate `cover.artworkId` names when it has
+   *  variants, otherwise the first plate that does. `objectPosition` is
+   *  the CSS value for its crop — centred for the fallback, because the
+   *  measured focus belongs to the named plate only. */
+  coverImage: { listing: ArtworkListing; objectPosition: string } | null;
   /** Bibliographic facts, read from the shared Collection record. */
   title: string;
   author: string;
@@ -113,8 +118,22 @@ function buildPlateSet(definition: PlateSetDefinition, book: Collection): PlateS
     .map(([n]) => n)
     .sort((a, b) => a - b);
 
+  const named = plates.find(
+    (p) => p.listing.id === definition.cover.artworkId && p.listing.variantWidths != null,
+  );
+  const fallback = plates.find((p) => p.listing.variantWidths != null);
+  const coverImage = named
+    ? {
+        listing: named.listing,
+        objectPosition: `${definition.cover.focus.x}% ${definition.cover.focus.y}%`,
+      }
+    : fallback
+      ? { listing: fallback.listing, objectPosition: "50% 50%" }
+      : null;
+
   return {
     ...definition,
+    coverImage,
     title: book.title,
     author: book.creator,
     scanNote: book.sourceNote,

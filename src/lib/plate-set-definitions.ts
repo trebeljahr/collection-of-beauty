@@ -60,6 +60,15 @@ export type PlateSetDefinition = {
   canonicalPlateCount: number;
   /** One-line summary used in card subtitles and meta descriptions. */
   tagline: string;
+  /** The plate on the /collections card, and the point in it that must
+   *  survive the crop. The card box changes shape with the grid (4:5 on
+   *  a phone, 3:4 from two columns up) and never matches the plate
+   *  exactly, so the image covers the box and `focus` becomes its
+   *  `object-position`. A percentage there pins the image point at
+   *  (x%, y%) to the box point at (x%, y%), so that point is inside the
+   *  crop at any box shape. Measured by eye on the named plate; a
+   *  different plate needs its own. */
+  cover: { artworkId: string; focus: { x: number; y: number } };
   resolvePlateNumber: PlateNumberResolver;
 };
 
@@ -108,6 +117,8 @@ export const PLATE_SETS: PlateSetDefinition[] = [
     eraId: "natural-history",
     canonicalPlateCount: 435,
     tagline: "Audubon's double elephant folio, every plate at life size.",
+    // Head and wattle sit high on the right; the caption at the foot can go.
+    cover: { artworkId: "audubon-birds-1-wild-turkey", focus: { x: 60, y: 15 } },
     resolvePlateNumber: plateFromFilenamePrefix,
   },
   {
@@ -118,6 +129,8 @@ export const PLATE_SETS: PlateSetDefinition[] = [
     eraId: "natural-history",
     canonicalPlateCount: 100,
     tagline: "Haeckel's hundred lithographs of radiolarians, medusae and orchids.",
+    // The large spined sphere in the middle of the plate.
+    cover: { artworkId: "kunstformen-images-haeckel-phaeodaria-1", focus: { x: 50, y: 45 } },
     resolvePlateNumber: plateFromCreditLine,
   },
   {
@@ -128,6 +141,8 @@ export const PLATE_SETS: PlateSetDefinition[] = [
     eraId: "natural-history",
     canonicalPlateCount: 169,
     tagline: "Redouté's roses, in colour-printed stipple engraving.",
+    // The open bloom and buds in the upper half.
+    cover: { artworkId: "redoute-roses-rosa-centifolia", focus: { x: 55, y: 30 } },
     resolvePlateNumber: plateFromRedouteSourceUrl,
   },
   {
@@ -138,6 +153,8 @@ export const PLATE_SETS: PlateSetDefinition[] = [
     eraId: "natural-history",
     canonicalPlateCount: 486,
     tagline: "Redouté's eight-volume study of lilies, irises and their relatives.",
+    // The berries and flowers at the top of the stem.
+    cover: { artworkId: "redoute-lilies-dianella-ensifolia", focus: { x: 50, y: 15 } },
     resolvePlateNumber: plateFromRedouteSourceUrl,
   },
 ];
