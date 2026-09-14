@@ -1,6 +1,14 @@
 "use client";
 
-import { useCallback, useDeferredValue, useEffect, useMemo, useRef, useState } from "react";
+import {
+  startTransition,
+  useCallback,
+  useDeferredValue,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+} from "react";
 import { ArtworkGallery } from "@/components/artwork-gallery";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -71,11 +79,12 @@ export function GalleryBrowser({ initialArtworks, eras, totalArtworks }: Props) 
     [pageQuery],
   );
 
-  const { loadedArtworks, pageInfo, loadMoreArtworks, replacePage } = useArtworkPagination({
-    initialArtworks,
-    initialPageInfo,
-    fetchPage,
-  });
+  const { loadedArtworks, pageInfo, loadMoreArtworks, replacePage, generation } =
+    useArtworkPagination({
+      initialArtworks,
+      initialPageInfo,
+      fetchPage,
+    });
 
   // Re-seed on filter / sort / query change. Default page snaps back
   // to the SSR-pinned initialArtworks; any other params re-fetch page
@@ -95,11 +104,15 @@ export function GalleryBrowser({ initialArtworks, eras, totalArtworks }: Props) 
     fetchArtworkPage(pageQuery, 0, PAGE_SIZE, controller.signal)
       .then((page) => {
         if (requestSeqRef.current !== requestId) return;
-        replacePage({
-          items: page.items,
-          pageInfo: { total: page.total, nextOffset: page.nextOffset, hasMore: page.hasMore },
+        // One commit for items, generation and status. Leaving "loading"
+        // ahead of the items would mount the grid on the previous set.
+        startTransition(() => {
+          replacePage({
+            items: page.items,
+            pageInfo: { total: page.total, nextOffset: page.nextOffset, hasMore: page.hasMore },
+          });
+          setPageStatus("idle");
         });
-        setPageStatus("idle");
       })
       .catch(() => {
         if (controller.signal.aborted || requestSeqRef.current !== requestId) return;
@@ -138,7 +151,6 @@ export function GalleryBrowser({ initialArtworks, eras, totalArtworks }: Props) 
     return rankLoadedArtworks(loadedArtworks, fuse, pageQuery.q ?? "");
   }, [fuse, loadedArtworks, pageQuery.q]);
 
-  const filterKey = pageKey;
   const activeFilterCount = era ? 1 : 0;
 
   function clearFilters() {
@@ -230,10 +242,12 @@ export function GalleryBrowser({ initialArtworks, eras, totalArtworks }: Props) 
           // The key belongs on the component, not on anything it renders:
           // the gallery's own displayed / serverExhausted / measured-width
           // state has to be thrown away when the underlying set changes.
-          // The default-page branch above (Clear after a search) re-seeds
-          // without ever hitting the loading state, so this is the only
-          // thing that unmounts the stale grid.
-          key={filterKey}
+          // It is the generation, not pageKey: pageKey flips as soon as the
+          // sort select changes, while the items arrive in a later
+          // transition. Keyed on pageKey, the grid remounted on the old
+          // items and kept them, so "chronological" showed the shuffle and
+          // switching back to "shuffled" showed the chronological order.
+          key={generation}
           artworks={visibleArtworks}
           loadMoreArtworks={loadMoreArtworks}
           hasMoreArtworks={pageInfo.hasMore}

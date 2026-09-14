@@ -106,6 +106,12 @@ export type ArtworkPaginationApi = {
    *  loadedIds dedup set, in-flight abort controller, and loading flag
    *  all reset together. */
   replacePage: (next: { items: ArtworkListing[]; pageInfo: ArtworkPageInfo }) => void;
+  /** Bumped by every replacePage, in the same commit as the new items.
+   *  Key <ArtworkGallery> on this, not on the requested query: the query
+   *  changes a render (or a whole fetch) before the items do, and a
+   *  gallery remounted in that gap seeds its `displayed` state from the
+   *  previous set and keeps it. */
+  generation: number;
 };
 
 /** Shared state machine for any surface that grows an
@@ -129,6 +135,7 @@ export function useArtworkPagination({
 }: UseArtworkPaginationOpts): ArtworkPaginationApi {
   const [loadedArtworks, setLoadedArtworks] = useState(initialArtworks);
   const [pageInfo, setPageInfo] = useState(initialPageInfo);
+  const [generation, setGeneration] = useState(0);
   const pageInfoRef = useRef(pageInfo);
   const loadedIdsRef = useRef(new Set(initialArtworks.map((a) => a.id)));
   const loadingRef = useRef(false);
@@ -184,12 +191,13 @@ export function useArtworkPagination({
       startTransition(() => {
         setLoadedArtworks(items);
         setPageInfo(nextInfo);
+        setGeneration((g) => g + 1);
       });
     },
     [],
   );
 
-  return { loadedArtworks, pageInfo, loadMoreArtworks, replacePage };
+  return { loadedArtworks, pageInfo, loadMoreArtworks, replacePage, generation };
 }
 
 function appendIfTruthy(url: URL, key: string, value: string | undefined): void {
