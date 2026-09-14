@@ -5,11 +5,23 @@
 //   node scripts/fetch-wikimedia-metadata.mjs "collection-of-beauty"
 //   node scripts/fetch-wikimedia-metadata.mjs audubon-birds
 //   node scripts/fetch-wikimedia-metadata.mjs kunstformen-images
+//   node scripts/fetch-wikimedia-metadata.mjs --dry-run collection-of-beauty
 //
 // Reads files from the given folder (read-only — never touches source files),
 // queries Wikimedia Commons in batches of 50 titles, caches raw API responses
 // per batch under metadata/.cache/<folder>/batch-<N>.json, and writes the
 // merged per-folder JSON to metadata/<folder>.json.
+//
+// Before writing, the result is compared with the existing sidecar. A work
+// that resolved before and would not now blocks the write (build-data drops
+// unresolved entries, so it would leave the site); --allow-regressions
+// overrides that. --dry-run fetches and caches as usual, prints the
+// comparison and writes no sidecar.
+//
+// The comparison covers resolution only. A real run rewrites every entry
+// from raw Commons values, which replaces the titles, years, artists and
+// descriptions later audits fixed by hand in the sidecar. Diff the sidecar
+// before rebuilding data.
 //
 // Polite usage:
 //   - maxlag=5 on every request
@@ -25,6 +37,17 @@ import https from "node:https";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { ARTISTS_DB_PATH, loadArtistsDb, matchArtist } from "./lib/artist-alias.mjs";
+import {
+  diffResolution,
+  hasImageInfo,
+  isNonLatinName,
+  mergePayloads,
+  readBatchCache,
+  requestTitle,
+  resolveBatchPages,
+  titleKey,
+  writeBatchCache,
+} from "./lib/commons-batch.mjs";
 import { emValue } from "./lib/commons-extmetadata.mjs";
 
 const __filename = fileURLToPath(import.meta.url);
@@ -38,6 +61,7 @@ const API_URL = "https://commons.wikimedia.org/w/api.php";
 const BATCH_SIZE = 50; // API max for non-bot users
 const DELAY_MS = 250; // polite delay between batches
 const MAX_RETRIES = 5;
+const MAX_URL_LENGTH = 7000;
 
 const IMAGE_EXTS = new Set([".jpg", ".jpeg", ".png", ".tif", ".tiff", ".webp", ".gif", ".svg"]);
 
@@ -60,9 +84,13 @@ function httpsGetJson(url, retry = 0) {
       (res) => {
         // Handle maxlag backoff (HTTP 200 with error, or 503 retry-after)
         const retryAfter = Number.parseInt(res.headers["retry-after"] || "0", 10);
-        let data = "";
-        res.on("data", (c) => (data += c));
+        // Collect bytes and decode once: appending each Buffer chunk to a
+        // string decodes it alone, and a multi-byte character split across
+        // two chunks becomes U+FFFD, which corrupted Cyrillic and CJK titles.
+        const chunks = [];
+        res.on("data", (c) => chunks.push(c));
         res.on("end", async () => {
+          const data = Buffer.concat(chunks).toString("utf8");
           if (res.statusCode === 200) {
             try {
               const parsed = JSON.parse(data);
@@ -98,6 +126,82 @@ function httpsGetJson(url, retry = 0) {
   });
 }
 
+const batchUrl = (filenames) =>
+  `${API_URL}?${new URLSearchParams({
+    action: "query",
+    format: "json",
+    formatversion: "2",
+    prop: "imageinfo",
+    iiprop: "extmetadata|url|canonicaltitle|mediatype",
+    iiextmetadatafilter:
+      "ObjectName|Artist|DateTimeOriginal|LicenseShortName|Copyrighted|UsageTerms|Credit|ImageDescription|LicenseUrl|Permission|AuthorCount|Attribution",
+    iiextmetadatalanguage: "en",
+    maxlag: "5",
+    titles: filenames.map(requestTitle).join("|"),
+  })}`;
+
+// Commons answers 414 above roughly 8 KB of URL. Non-ASCII names sort to the
+// end of the listing and percent-encode to three characters per byte, so the last
+// batches (accented, Cyrillic, CJK names) crossed that every time and never
+// resolved. Split such a batch into halves and merge the answers, so it is
+// still cached as one batch.
+async function fetchBatch(filenames) {
+  const url = batchUrl(filenames);
+  if (url.length <= MAX_URL_LENGTH || filenames.length === 1) return httpsGetJson(url);
+  const mid = Math.ceil(filenames.length / 2);
+  const a = await fetchBatch(filenames.slice(0, mid));
+  await sleep(DELAY_MS);
+  const b = await fetchBatch(filenames.slice(mid));
+  return mergePayloads(a, b);
+}
+
+// Fetch Commons pages for a list of names (filenames, or titles without the
+// "File:" prefix), BATCH_SIZE at a time. Each batch is cached at
+// <cacheDir>/<prefix>-NNNN.json and reused only when it was written for
+// exactly the same names (see readBatchCache): batches are numbered by
+// position, so one added file shifts every later batch.
+async function fetchPages(names, { cacheDir, prefix, label }) {
+  const batches = [];
+  for (let i = 0; i < names.length; i += BATCH_SIZE) batches.push(names.slice(i, i + BATCH_SIZE));
+  const cacheFileFor = (bi) => path.join(cacheDir, `${prefix}-${String(bi).padStart(4, "0")}.json`);
+  const cached = batches.map((batch, bi) => readBatchCache(cacheFileFor(bi), batch));
+  const toFetch = cached.filter((c) => c.status !== "hit").length;
+  const byStatus = (s) => cached.filter((c) => c.status === s).length;
+  console.log(
+    `[${label}] ${batches.length} batches: ${batches.length - toFetch} cached, ${toFetch} to fetch (${byStatus("missing")} missing, ${byStatus("legacy")} legacy, ${byStatus("stale")} written for other files)`,
+  );
+
+  const pages = new Map(); // name -> raw api page (or null)
+  const failed = []; // batch numbers whose fetch never returned
+  for (let bi = 0; bi < batches.length; bi++) {
+    const batch = batches[bi];
+    let payload;
+    if (cached[bi].status === "hit") {
+      payload = cached[bi].payload;
+    } else {
+      process.stdout.write(`[${label}] batch ${bi + 1}/${batches.length} fetching... `);
+      try {
+        payload = await fetchBatch(batch);
+        writeBatchCache(cacheFileFor(bi), batch, payload);
+        process.stdout.write("ok\n");
+      } catch (e) {
+        process.stdout.write(`FAILED: ${e.message}\n`);
+        // Keep going so the remaining batches still populate the cache (a
+        // re-run then only re-queries what failed), but remember the failure:
+        // substituting an empty page set here would write up to 50 real works
+        // out as needs_review, and build-data drops those from the catalogue.
+        // The folder JSON is not rewritten at all when this list is non-empty.
+        failed.push(bi + 1);
+        await sleep(DELAY_MS);
+        continue;
+      }
+      await sleep(DELAY_MS);
+    }
+    for (const [name, page] of resolveBatchPages(payload, batch)) pages.set(name, page);
+  }
+  return { pages, failed };
+}
+
 // Collapse a Wikimedia extmetadata field to its plain-text value
 
 // Look for the first 4-digit year in a string
@@ -121,7 +225,7 @@ function parseFilenameHeuristic(filename) {
 // ---------------------------------------------------------------------------
 // main per-folder pipeline
 
-async function processFolder(folderName) {
+async function processFolder(folderName, options) {
   const folderPath = path.join(ROOT, "assets", folderName);
   if (!fs.existsSync(folderPath)) {
     console.error(`folder not found: ${folderPath}`);
@@ -139,71 +243,53 @@ async function processFolder(folderName) {
 
   console.log(`[${folderName}] found ${allFiles.length} image files`);
 
-  // 2. batch
-  const batches = [];
-  for (let i = 0; i < allFiles.length; i += BATCH_SIZE) {
-    batches.push(allFiles.slice(i, i + BATCH_SIZE));
+  // 2 + 3. batch the files and fetch each batch, or reuse its cache.
+  const outPath = path.join(ROOT, "metadata", `${folderName}.json`);
+  const currentEntries = fs.existsSync(outPath)
+    ? JSON.parse(fs.readFileSync(outPath, "utf8")).entries
+    : {};
+  const fetched = await fetchPages(allFiles, { cacheDir, prefix: "batch", label: folderName });
+  const rawByFilename = fetched.pages; // filename -> raw api page (or null)
+  const failedBatches = fetched.failed;
+
+  // 3a. A file with no Commons page under its own name may still be resolved
+  //     in the sidecar: resolve-unresolved.mjs matches those by search and
+  //     records the page it found as source.canonical_title. Looking up only
+  //     the filename wrote all of them back out as needs_review, so fetch
+  //     those pages by the recorded title instead.
+  const currentByNfc = new Map(
+    Object.entries(currentEntries).map(([k, v]) => [k.normalize("NFC"), v]),
+  );
+  const aliasOf = new Map(); // filename -> recorded title, without "File:"
+  for (const filename of allFiles) {
+    if (hasImageInfo(rawByFilename.get(filename))) continue;
+    const old = currentByNfc.get(filename.normalize("NFC"));
+    const recorded = old?.resolved ? old.source?.canonical_title : null;
+    if (!recorded || titleKey(recorded) === titleKey(requestTitle(filename))) continue;
+    // A few titles were recorded percent-encoded ("%22" for a quote), which
+    // Commons rejects as invalid characters.
+    let title = recorded;
+    try {
+      title = decodeURIComponent(recorded);
+    } catch {}
+    aliasOf.set(filename, title.replace(/^file:/i, ""));
   }
-
-  // 3. for each batch: cache or fetch
-  const rawByFilename = new Map(); // filename -> raw api page (or null)
-  const failedBatches = []; // batch numbers whose fetch never returned
-  for (let bi = 0; bi < batches.length; bi++) {
-    const batch = batches[bi];
-    const cacheFile = path.join(cacheDir, `batch-${String(bi).padStart(4, "0")}.json`);
-    let payload;
-    if (fs.existsSync(cacheFile)) {
-      payload = JSON.parse(fs.readFileSync(cacheFile, "utf8"));
-      process.stdout.write(`[${folderName}] batch ${bi + 1}/${batches.length} (cached)\n`);
-    } else {
-      const titles = batch.map((f) => "File:" + f.replace(/ /g, "_")).join("|");
-      const params = new URLSearchParams({
-        action: "query",
-        format: "json",
-        formatversion: "2",
-        prop: "imageinfo",
-        iiprop: "extmetadata|url|canonicaltitle|mediatype",
-        iiextmetadatafilter:
-          "ObjectName|Artist|DateTimeOriginal|LicenseShortName|Copyrighted|UsageTerms|Credit|ImageDescription|LicenseUrl|Permission|AuthorCount|Attribution",
-        iiextmetadatalanguage: "en",
-        maxlag: "5",
-        titles,
-      });
-      const url = `${API_URL}?${params.toString()}`;
-      process.stdout.write(`[${folderName}] batch ${bi + 1}/${batches.length} fetching... `);
-      try {
-        payload = await httpsGetJson(url);
-        fs.writeFileSync(cacheFile, JSON.stringify(payload, null, 2));
-        process.stdout.write("ok\n");
-      } catch (e) {
-        process.stdout.write(`FAILED: ${e.message}\n`);
-        // Keep going so the remaining batches still populate the cache (a
-        // re-run then only re-queries what failed), but remember the failure:
-        // substituting an empty page set here would write up to 50 real works
-        // out as needs_review, and build-data drops those from the catalogue.
-        // The folder JSON is not rewritten at all when this list is non-empty.
-        failedBatches.push(bi + 1);
-        await sleep(DELAY_MS);
-        continue;
-      }
-      await sleep(DELAY_MS);
-    }
-
-    // MediaWiki returns pages keyed by normalized title, plus a "normalized"
-    // map telling us which original title maps to which canonical title.
-    const normalized = new Map();
-    if (payload?.query?.normalized) {
-      for (const n of payload.query.normalized) normalized.set(n.from, n.to);
-    }
-    const pagesByTitle = new Map();
-    const pages = payload?.query?.pages || [];
-    for (const p of pages) pagesByTitle.set(p.title, p);
-
-    for (const filename of batch) {
-      const requested = "File:" + filename.replace(/ /g, "_");
-      const canonical = normalized.get(requested) || requested;
-      const page = pagesByTitle.get(canonical) || null;
-      rawByFilename.set(filename, page);
+  const kept = []; // resolved before, and neither page exists on Commons now
+  if (aliasOf.size) {
+    console.log(
+      `[${folderName}] ${aliasOf.size} file(s) have no page under their own name; fetching the page recorded in the sidecar`,
+    );
+    const aliases = [...new Set(aliasOf.values())].sort();
+    const byAlias = await fetchPages(aliases, {
+      cacheDir,
+      prefix: "recorded",
+      label: `${folderName} recorded`,
+    });
+    failedBatches.push(...byAlias.failed.map((n) => `recorded ${n}`));
+    for (const [filename, alias] of aliasOf) {
+      const page = byAlias.pages.get(alias);
+      if (hasImageInfo(page)) rawByFilename.set(filename, page);
+      else kept.push(filename);
     }
   }
 
@@ -223,9 +309,17 @@ async function processFolder(folderName) {
   // 4. transform raw pages into our schema
   const entries = {};
   const unresolved = [];
+  const keptSet = new Set(kept);
   for (const filename of allFiles) {
     const page = rawByFilename.get(filename);
-    if (!page || page.missing || !page.imageinfo || !page.imageinfo[0]) {
+    // The page this work was resolved to has gone from Commons (renamed,
+    // or deleted). Unpublishing it is a decision for a person, so the
+    // existing entry stays and the run lists it.
+    if (keptSet.has(filename)) {
+      entries[filename] = currentByNfc.get(filename.normalize("NFC"));
+      continue;
+    }
+    if (!hasImageInfo(page)) {
       const h = parseFilenameHeuristic(filename);
       entries[filename] = {
         filename,
@@ -317,9 +411,43 @@ async function processFolder(folderName) {
     }
   }
 
-  // 6. write the per-folder json
-  const outPath = path.join(ROOT, "metadata", `${folderName}.json`);
+  // 6. compare with the sidecar on disk. build-data drops needs_review
+  //    entries, so every resolved:true -> resolved:false here unpublishes a
+  //    work. Refuse to write those unless asked; --dry-run only reports.
   const resolvedCount = Object.values(entries).filter((e) => e.resolved).length;
+  const diff = diffResolution(currentEntries, entries);
+  const currentResolved = Object.values(currentEntries).filter((e) => e.resolved).length;
+  const nonLatinFiles = allFiles.filter(isNonLatinName);
+  reportDiff(folderName, diff, {
+    currentResolved,
+    resolvedCount,
+    total: allFiles.length,
+    nonLatin: {
+      total: nonLatinFiles.length,
+      before: nonLatinFiles.filter((f) => currentByNfc.get(f.normalize("NFC"))?.resolved).length,
+      after: nonLatinFiles.filter((f) => entries[f].resolved).length,
+    },
+  });
+  console.log(
+    `[${folderName}] kept from the sidecar, page gone from Commons (check by hand): ${kept.length}`,
+  );
+  for (const f of kept) {
+    const url = currentByNfc.get(f.normalize("NFC"))?.source?.url;
+    console.log(`[${folderName}]     ${f} (${url})`);
+  }
+
+  if (options.dryRun) {
+    console.log(`[${folderName}] --dry-run: metadata/${folderName}.json not written`);
+    return { written: false, regressed: diff.regressed.length };
+  }
+  if (diff.regressed.length && !options.allowRegressions) {
+    console.error(
+      `[${folderName}] ${diff.regressed.length} resolved work(s) would become unresolved — NOT writing metadata/${folderName}.json. Pass --allow-regressions to write anyway.`,
+    );
+    return { written: false, regressed: diff.regressed.length };
+  }
+
+  // 7. write the per-folder json
   const output = {
     folder: folderName,
     kind: "wikimedia_image_collection",
@@ -339,22 +467,67 @@ async function processFolder(folderName) {
     fs.writeFileSync(reportPath, unresolved.join("\n") + "\n");
     console.log(`[${folderName}] unresolved list -> ${reportPath}`);
   }
-  return true;
+  return { written: true, regressed: diff.regressed.length };
+}
+
+function reportDiff(folderName, diff, { currentResolved, resolvedCount, total, nonLatin }) {
+  const p = `[${folderName}]`;
+  const list = (label, items, fmt = (x) => x) => {
+    console.log(`${p} ${label}: ${items.length}`);
+    for (const x of items.slice(0, 25)) console.log(`${p}     ${fmt(x)}`);
+    if (items.length > 25) console.log(`${p}     … ${items.length - 25} more`);
+  };
+  console.log(
+    `${p} resolved: ${currentResolved} in sidecar -> ${resolvedCount}/${total} after this run`,
+  );
+  list("resolved -> unresolved (regressions)", diff.regressed);
+  list("unresolved -> resolved", diff.recovered);
+  list(
+    "resolved to a different page",
+    diff.retargeted,
+    (r) => `${r.filename}: ${r.from} -> ${r.to}`,
+  );
+  list("new files, not in sidecar", diff.added);
+  list("in sidecar, not in file list (a write drops them)", diff.dropped);
+  // A past refetch lost Cyrillic/CJK entries, so call those out on their own.
+  const lost = diff.regressed.filter(isNonLatinName);
+  console.log(
+    `${p} Cyrillic/CJK files: ${nonLatin.total}, resolved ${nonLatin.before} in sidecar -> ${nonLatin.after}; regressions: ${lost.length}`,
+  );
+  for (const f of lost) console.log(`${p}     ${f}`);
 }
 
 // ---------------------------------------------------------------------------
 
-const folders = process.argv.slice(2);
+const args = process.argv.slice(2);
+const options = {
+  dryRun: args.includes("--dry-run"),
+  allowRegressions: args.includes("--allow-regressions"),
+};
+const folders = args.filter((a) => !a.startsWith("--"));
 if (!folders.length) {
-  console.error("usage: node fetch-wikimedia-metadata.mjs <folder> [folder...]");
+  console.error(
+    "usage: node fetch-wikimedia-metadata.mjs [--dry-run] [--allow-regressions] <folder> [folder...]",
+  );
   process.exit(1);
 }
 
 const writtenFolders = [];
 const failedFolders = [];
+let regressions = 0;
 for (const f of folders) {
-  if (await processFolder(f)) writtenFolders.push(f);
-  else failedFolders.push(f);
+  const result = await processFolder(f, options);
+  if (result) regressions += result.regressed;
+  if (result?.written) writtenFolders.push(f);
+  else if (!options.dryRun || !result) failedFolders.push(f);
+}
+
+if (options.dryRun) {
+  console.log(`\n--dry-run: ${regressions} regression(s) across ${folders.length} folder(s)`);
+  if (failedFolders.length) {
+    console.error(`fetch failed for: ${failedFolders.join(", ")} (report above is incomplete)`);
+  }
+  process.exit(regressions || failedFolders.length ? 1 : 0);
 }
 
 // Post-process: normalize the freshly-written JSON so consumers always see
