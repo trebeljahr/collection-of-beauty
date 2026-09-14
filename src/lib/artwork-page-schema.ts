@@ -8,7 +8,7 @@ import type { ArtworkListing } from "@/lib/data";
  *  by how much of *that* family a work carries, so the reddest works
  *  head the red page. Without a colour filter there is no family to rank
  *  against and it falls through to the shuffle. */
-export type ArtworkSort = "shuffle" | "year" | "artist" | "title" | "plate" | "color";
+export type ArtworkSort = "shuffle" | "year" | "artist" | "plate" | "color";
 
 export type ArtworkPage = {
   items: ArtworkListing[];
