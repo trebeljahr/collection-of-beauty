@@ -1,0 +1,1317 @@
+{
+  "_comment": "Works withheld because they are still in copyright in Germany, where the site is operated. Keyed '<folder>/<filename>'. Read by scripts/lib/takedowns.mjs: build-data never catalogues these, shrink never encodes them, the Commons fetch never writes sidecar entries for them, and assets:sync refuses to run while a variant dir for one exists. The originals are kept in assets/.rejected/copyright/ and their variants in assets/.rejected/copyright-variants/, neither of which is read or synced, so a work can be restored once its term ends: remove its entry here, move both back, then run assets:shrink, assets:build-data and assets:sync. 'publicDomainInGermanyFrom' is informational and nothing acts on it automatically. Works whose status depends on the EU rule of the shorter term (Kawase Hasui, Kawai Gyokudō, Pu Xian, Pu Ru and others) are deliberately NOT listed; that is an open legal question. See metadata/copyright-takedown-2026-09.md.",
+  "collection-of-beauty/Andrew-Wyeth-Christinas-World.webp": {
+    "artist": "Andrew Wyeth",
+    "died": 2009,
+    "catalogued": false,
+    "verdict": "in_copyright",
+    "publicDomainInGermanyFrom": "2080-01-01",
+    "source": "https://www.wikidata.org/wiki/Q326519",
+    "note": "Christina's World (1948) is by Andrew Wyeth, who died in 2009. As a US author he gets the full German term."
+  },
+  "collection-of-beauty/2013_HGK_03211_1358_000(bai_xueshi_li_river_in_spring043304).jpg": {
+    "artist": "Bai Xueshi",
+    "died": 2011,
+    "catalogued": false,
+    "verdict": "in_copyright",
+    "publicDomainInGermanyFrom": "2082-01-01",
+    "source": "https://chineseposters.net/artists/baixueshi",
+    "note": "Sotheby's HK 2013 lot naming Bai Xueshi, Li River in Spring. Bai Xueshi (1915-2011) is protected in China and Germany."
+  },
+  "collection-of-beauty/2013_HGK_03211_1205_000(bai_xueshi_mountain_landscape021617).jpg": {
+    "artist": "Bai Xueshi (白雪石)",
+    "died": 2011,
+    "catalogued": false,
+    "verdict": "in_copyright",
+    "publicDomainInGermanyFrom": "2082-01-01",
+    "source": "https://chineseposters.net/artists/baixueshi",
+    "note": "Sotheby's HK 2013 lot names Bai Xueshi (1915-2011). He is protected in both Germany and China."
+  },
+  "collection-of-beauty/2013_HGK_03211_1016_000(chen_da_landscape_in_the_style_of_li_xianxi120441).jpg": {
+    "artist": "Chen Da (陳達, style name Xiaozhou 小舟)",
+    "died": null,
+    "catalogued": false,
+    "verdict": "unidentified",
+    "publicDomainInGermanyFrom": null,
+    "source": "https://en.wikipedia.org/wiki/Li_Cheng_(painter)",
+    "note": "I agree it is unidentified, and it must not be treated as public domain. The inscription reads 丁亥夏六月仿李咸熙筆 小舟陳達寫, and a second colophon is dedicated to 廣遲先生. Its blue-green Republican-era style points to 1947, not 1887. The filename follows Christie's image naming (sale 3211, lot 1016), not Sotheby's. I found no authority record or death year, so the painter could well have died after 1956."
+  },
+  "collection-of-beauty/2013_HGK_03211_1202_000(dong_shouping_landscape020805).jpg": {
+    "artist": "Dong Shouping (董寿平)",
+    "died": 1997,
+    "catalogued": false,
+    "verdict": "in_copyright",
+    "publicDomainInGermanyFrom": "2068-01-01",
+    "source": "https://zh.wikipedia.org/wiki/董寿平",
+    "note": "This is a Sotheby's HK lot by Dong Shouping (1904–1997). His 1997 death keeps it protected in Germany and in China."
+  },
+  "collection-of-beauty/Edward Gorey Ballet.jpg": {
+    "artist": "Edward Gorey",
+    "died": 2000,
+    "catalogued": false,
+    "verdict": "in_copyright",
+    "publicDomainInGermanyFrom": "2071-01-01",
+    "source": "https://www.wikidata.org/wiki/Q1291679",
+    "note": "The filename names Gorey. The image is a small painted ballet figure on a 1940s Chicago newspaper, which fits his Chicago youth. He was a US author who died in 2000, so the full German term applies."
+  },
+  "collection-of-beauty/Edward Gorey Christmas Card with Man and Cat.jpg": {
+    "artist": "Edward Gorey",
+    "died": 2000,
+    "catalogued": false,
+    "verdict": "in_copyright",
+    "publicDomainInGermanyFrom": "2071-01-01",
+    "source": "https://www.wikidata.org/wiki/Q933806",
+    "note": "The filename names Edward Gorey, a US author who died in 2000. He gets the full German term."
+  },
+  "collection-of-beauty/Edward Gorey Christmas Card with Robot.jpg": {
+    "artist": "Edward Gorey",
+    "died": 2000,
+    "catalogued": false,
+    "verdict": "in_copyright",
+    "publicDomainInGermanyFrom": "2071-01-01",
+    "source": "https://en.wikipedia.org/wiki/Edward_Gorey",
+    "note": "This is an Edward Gorey Christmas card. Gorey was an American illustrator who died in 2000, and US authors get the full German term."
+  },
+  "collection-of-beauty/Edward Gorey Had Elizabeth Only Known.jpg": {
+    "artist": "Edward Gorey",
+    "died": 2000,
+    "catalogued": false,
+    "verdict": "in_copyright",
+    "publicDomainInGermanyFrom": "2071-01-01",
+    "source": "https://en.wikipedia.org/wiki/Edward_Gorey",
+    "note": "Filename names Edward Gorey, a US illustrator who died in 2000. US authors get the full German term."
+  },
+  "collection-of-beauty/Man with a Bat on his Head Edward Gorey.jpg": {
+    "artist": "Edward Gorey",
+    "died": 2000,
+    "catalogued": false,
+    "verdict": "in_copyright",
+    "publicDomainInGermanyFrom": "2071-01-01",
+    "source": "https://en.wikipedia.org/wiki/Edward_Gorey",
+    "note": "The title names Edward Gorey, an American who died in 2000. US authors get the full German term."
+  },
+  "collection-of-beauty/Edward_Hopper_-_Morning_Sun_-_c_1952_-_Columbus_Museum_of_Art.jpg": {
+    "artist": "Edward Hopper",
+    "died": 1967,
+    "catalogued": true,
+    "verdict": "in_copyright",
+    "publicDomainInGermanyFrom": "2038-01-01",
+    "source": "https://www.wikidata.org/wiki/Q203401",
+    "note": "Hopper died 15 May 1967 (Wikidata Q203401). As a US author, he gets the full German term, to the end of 2037. Already decided."
+  },
+  "collection-of-beauty/Edward_Hopper_-_Night_Shadows_-_Oct_1922_Shadowland.jpg": {
+    "artist": "Edward Hopper",
+    "died": 1967,
+    "catalogued": true,
+    "verdict": "in_copyright",
+    "publicDomainInGermanyFrom": "2038-01-01",
+    "source": "https://www.wikidata.org/wiki/Q203401",
+    "note": "Hopper died 15 May 1967 (Wikidata Q203401). As a US author, he gets the full German term, to the end of 2037. Already decided."
+  },
+  "collection-of-beauty/Nighthawks_by_Edward_Hopper_1942.jpg": {
+    "artist": "Edward Hopper",
+    "died": 1967,
+    "catalogued": true,
+    "verdict": "in_copyright",
+    "publicDomainInGermanyFrom": "2038-01-01",
+    "source": "https://www.wikidata.org/wiki/Q203401",
+    "note": "Hopper died 15 May 1967 (Wikidata Q203401). As a US author, he gets the full German term, to the end of 2037. Already decided."
+  },
+  "collection-of-beauty/Old_Korea-Keith-BRIDE.jpeg": {
+    "artist": "Elizabeth Keith",
+    "died": 1956,
+    "catalogued": true,
+    "verdict": "in_copyright",
+    "publicDomainInGermanyFrom": "2027-01-01",
+    "source": "https://www.wikidata.org/wiki/Q11290920",
+    "note": "Commons credits 'Korean Bride' in Old Korea (London, 1946) to Elizabeth Keith (1887-1956, Wikidata Q11290920). She was a UK author who died in 1956, so the work is protected in Germany until the end of 2026. Already decided."
+  },
+  "collection-of-beauty/Anniversary-Ernie Barnes.webp": {
+    "artist": "Ernie Barnes",
+    "died": 2009,
+    "catalogued": false,
+    "verdict": "in_copyright",
+    "publicDomainInGermanyFrom": "2080-01-01",
+    "source": "https://www.wikidata.org/wiki/Q5393286",
+    "note": "The filename names Ernie Barnes, a US painter who died in 2009. US authors get the full German term."
+  },
+  "collection-of-beauty/High+Aspirations-Ernie Barnes.webp": {
+    "artist": "Ernie Barnes",
+    "died": 2009,
+    "catalogued": false,
+    "verdict": "in_copyright",
+    "publicDomainInGermanyFrom": "2080-01-01",
+    "source": "https://en.wikipedia.org/wiki/Ernie_Barnes",
+    "note": "The filename names Ernie Barnes's High Aspirations. Barnes was a US painter who died in 2009."
+  },
+  "collection-of-beauty/His+Effort-Ernie Barnes.webp": {
+    "artist": "Ernie Barnes",
+    "died": 2009,
+    "catalogued": false,
+    "verdict": "in_copyright",
+    "publicDomainInGermanyFrom": "2080-01-01",
+    "source": "https://en.wikipedia.org/wiki/Ernie_Barnes",
+    "note": "Filename names Ernie Barnes, a US painter who died in 2009. He gets the full German term."
+  },
+  "collection-of-beauty/Olympic+-+The+Rhythmic+Gymnast+(mt)-Ernie Barnes.webp": {
+    "artist": "Ernie Barnes",
+    "died": 2009,
+    "catalogued": false,
+    "verdict": "in_copyright",
+    "publicDomainInGermanyFrom": "2080-01-01",
+    "source": "https://en.wikipedia.org/wiki/Ernie_Barnes",
+    "note": "Filename names Ernie Barnes, a US painter who died in 2009. US authors get the full German term, so the work is protected until 2079."
+  },
+  "collection-of-beauty/Springboard-Ernie Barnes.webp": {
+    "artist": "Ernie Barnes",
+    "died": 2009,
+    "catalogued": false,
+    "verdict": "in_copyright",
+    "publicDomainInGermanyFrom": "2080-01-01",
+    "source": "https://en.wikipedia.org/wiki/Ernie_Barnes",
+    "note": "Filename names Ernie Barnes, Springboard. The US painter died 2009, so the full German term applies."
+  },
+  "collection-of-beauty/The+Sugar+Shack-Ernie Barnes.webp": {
+    "artist": "Ernie Barnes",
+    "died": 2009,
+    "catalogued": false,
+    "verdict": "in_copyright",
+    "publicDomainInGermanyFrom": "2080-01-01",
+    "source": "https://en.wikipedia.org/wiki/Ernie_Barnes",
+    "note": "This is Ernie Barnes's The Sugar Shack (1976). Barnes was American and died in 2009."
+  },
+  "collection-of-beauty/The+Tunesmith-Ernie Barnes.webp": {
+    "artist": "Ernie Barnes",
+    "died": 2009,
+    "catalogued": false,
+    "verdict": "in_copyright",
+    "publicDomainInGermanyFrom": "2080-01-01",
+    "source": "https://en.wikipedia.org/wiki/Ernie_Barnes",
+    "note": "Filename names Ernie Barnes, a US painter who died in 2009. He gets the full German term."
+  },
+  "collection-of-beauty/head+over+heels+pencil+signed+print-Ernie Barnes.webp": {
+    "artist": "Ernie Barnes",
+    "died": 2009,
+    "catalogued": false,
+    "verdict": "in_copyright",
+    "publicDomainInGermanyFrom": "2080-01-01",
+    "source": "https://en.wikipedia.org/wiki/Ernie_Barnes",
+    "note": "Signed print by Ernie Barnes, a US painter who died in 2009. He gets the full German term."
+  },
+  "collection-of-beauty/The_Disquieting_Muses.jpg": {
+    "artist": "Giorgio de Chirico",
+    "died": 1978,
+    "catalogued": true,
+    "verdict": "in_copyright",
+    "publicDomainInGermanyFrom": "2049-01-01",
+    "source": "https://www.wikidata.org/wiki/Q156622",
+    "note": "De Chirico died 20 November 1978 (Wikidata Q156622). As an Italian (EU) author, he is protected in Germany until the end of 2048."
+  },
+  "collection-of-beauty/2013_HGK_03211_1234_000(guan_shanyue_heros_path025612).jpg": {
+    "artist": "Guan Shanyue (关山月)",
+    "died": 2000,
+    "catalogued": false,
+    "verdict": "in_copyright",
+    "publicDomainInGermanyFrom": "2071-01-01",
+    "source": "https://www.wikidata.org/wiki/Q10893907",
+    "note": "Sotheby's HK 2013 lot names Guan Shanyue (1912-2000). He is protected in both Germany and China."
+  },
+  "collection-of-beauty/2013_HGK_03211_1121_000(he_baili_peonies010620).jpg": {
+    "artist": "He Baili",
+    "died": null,
+    "catalogued": false,
+    "verdict": "in_copyright",
+    "publicDomainInGermanyFrom": null,
+    "source": "https://www.ravenelart.com/artist.php?id=767&lan=en",
+    "note": "This is a Sotheby's Hong Kong lot credited to He Baili, born 1945, a Hong Kong ink painter. No death is recorded, so the work is protected everywhere."
+  },
+  "collection-of-beauty/2013_HGK_03211_1122_000(he_baili_landscape010758).jpg": {
+    "artist": "He Baili (Paklee Ho)",
+    "died": null,
+    "catalogued": false,
+    "verdict": "in_copyright",
+    "publicDomainInGermanyFrom": null,
+    "source": "https://www.bonhams.com/auction/20959/lot/745/he-baili-paklee-ho-b1945-hill-top-dwellers/",
+    "note": "Sotheby's HK 2013 lot, artist in parentheses: He Baili, born 1945 and not recorded as dead. A living or recently living artist is in copyright everywhere."
+  },
+  "collection-of-beauty/2013_HGK_03211_1161_000(huang_junbi_mighty_mountains013504).jpg": {
+    "artist": "Huang Junbi",
+    "died": 1991,
+    "catalogued": false,
+    "verdict": "in_copyright",
+    "publicDomainInGermanyFrom": "2062-01-01",
+    "source": "https://www.wikidata.org/wiki/Q11176041",
+    "note": "This is a Sotheby's Hong Kong lot credited to Huang Junbi (1898-1991). He died in 1991, so the plain German term applies. The ROC life+50 term also still protects it, until 2041."
+  },
+  "collection-of-beauty/2013_HGK_03211_1163_000(huang_junbi_boating_in_the_mist013615).jpg": {
+    "artist": "Huang Junbi",
+    "died": 1991,
+    "catalogued": false,
+    "verdict": "in_copyright",
+    "publicDomainInGermanyFrom": "2062-01-01",
+    "source": "https://en.wikipedia.org/wiki/Huang_Junbi",
+    "note": "The lot filename names Huang Junbi (1898-1991). The ROC term of life+50 runs to 2041, so the work is protected at home too."
+  },
+  "collection-of-beauty/2013_HGK_03211_1162_000(huang_junbi_landscape013542).jpg": {
+    "artist": "Huang Junbi (Huang Chun-pi)",
+    "died": 1991,
+    "catalogued": false,
+    "verdict": "in_copyright",
+    "publicDomainInGermanyFrom": "2062-01-01",
+    "source": "https://en.wikipedia.org/wiki/Huang_Chun-pi",
+    "note": "Sotheby's HK 2013 lot naming Huang Junbi, died 29 Oct 1991. ROC life+50 runs to end of 2041, so still protected at home too."
+  },
+  "collection-of-beauty/2013_HGK_03211_1357_000(huang_zhou_various_subjects042652).jpg": {
+    "artist": "Huang Zhou",
+    "died": 1997,
+    "catalogued": false,
+    "verdict": "in_copyright",
+    "publicDomainInGermanyFrom": "2068-01-01",
+    "source": "https://www.wikidata.org/wiki/Q4502004",
+    "note": "This is a Sotheby's Hong Kong lot credited to Huang Zhou (1925-1997). He died in 1997, so the plain German term applies. The PRC life+50 term also still protects it, until 2047."
+  },
+  "collection-of-beauty/Jean_Metzinger,_1910-11,_Deux_Nus_(Two_Nudes,_Two_Women),_oil_on_canvas,_92_x_66_cm,_Gothenburg_Museum_of_Art,_Sweden.jpg": {
+    "artist": "Jean Metzinger",
+    "died": 1956,
+    "catalogued": false,
+    "verdict": "in_copyright",
+    "publicDomainInGermanyFrom": "2027-01-01",
+    "source": "https://www.wikidata.org/wiki/Q334250",
+    "note": "This is Metzinger's Deux Nus (1910–11). Metzinger was French and died on 3 November 1956, so German protection runs to 31 December 2026. As an EU author, the shorter-term rule does not apply."
+  },
+  "collection-of-beauty/Jean_Metzinger,_c.1905,_Baigneuses,_Deux_nus_dans_un_jardin_exotique,_oil_on_canvas,_116_x_88.8_cm,_Colección_Carmen_Thyssen-Bornemisza.jpg": {
+    "artist": "Jean Metzinger",
+    "died": 1956,
+    "catalogued": true,
+    "verdict": "in_copyright",
+    "publicDomainInGermanyFrom": "2027-01-01",
+    "source": "https://www.wikidata.org/wiki/Q313096",
+    "note": "Metzinger died in Paris in November 1956 (Wikidata Q313096). As a French (EU) author, the plain German term runs to the end of 2026 and the shorter-term rule cannot shorten it."
+  },
+  "collection-of-beauty/2013_HGK_03211_1129_000(jiang_zhaohe_gril_knitting011336).jpg": {
+    "artist": "Jiang Zhaohe (蒋兆和)",
+    "died": 1986,
+    "catalogued": false,
+    "verdict": "in_copyright",
+    "publicDomainInGermanyFrom": "2057-01-01",
+    "source": "https://en.wikipedia.org/wiki/Jiang_Zhaohe",
+    "note": "This is a Sotheby's HK lot by Jiang Zhaohe (1904–1986). He died in 1986, so the work is protected in Germany and still in China under life+50, to 2036."
+  },
+  "collection-of-beauty/De_grote_lantaarn_van_de_Kannon_tempel_in_Asakusa_Asakusa_Kannondo_ochochin_(serietitel_op_object),_RP-P-1968-275.jpg": {
+    "artist": "Kasamatsu Shirō",
+    "died": 1991,
+    "catalogued": true,
+    "verdict": "in_copyright",
+    "publicDomainInGermanyFrom": "2062-01-01",
+    "source": "https://www.wikidata.org/wiki/Q3482366",
+    "note": "Kasamatsu Shirō died 14 June 1991 (Wikidata Q3482366). The work is protected in Germany and in Japan (life+70). Already decided."
+  },
+  "collection-of-beauty/De_rand_van_de_Shinobazu_vijver_tijdens_een_mistige_avond._Kasumu_yube_Shinobazu_chihan_(titel_op_object),_RP-P-1998-389.jpg": {
+    "artist": "Kasamatsu Shirō",
+    "died": 1991,
+    "catalogued": true,
+    "verdict": "in_copyright",
+    "publicDomainInGermanyFrom": "2062-01-01",
+    "source": "https://www.wikidata.org/wiki/Q3482366",
+    "note": "Kasamatsu Shirō died 14 June 1991 (Wikidata Q3482366). The work is protected in Germany and in Japan (life+70). Already decided."
+  },
+  "collection-of-beauty/De_warme_bronnen_van_Shuzenji_Shuzenji_onsen_(titel_op_object),_RP-P-1968-277.jpg": {
+    "artist": "Kasamatsu Shirō",
+    "died": 1991,
+    "catalogued": true,
+    "verdict": "in_copyright",
+    "publicDomainInGermanyFrom": "2062-01-01",
+    "source": "https://www.wikidata.org/wiki/Q3482366",
+    "note": "Kasamatsu Shirō died 14 June 1991 (Wikidata Q3482366). The work is protected in Germany and in Japan (life+70). Already decided."
+  },
+  "collection-of-beauty/2013_HGK_03211_1114_000(li_xiongcai_autumn_landscape_after_rain010135).jpg": {
+    "artist": "Li Xiongcai",
+    "died": 2001,
+    "catalogued": false,
+    "verdict": "in_copyright",
+    "publicDomainInGermanyFrom": "2072-01-01",
+    "source": "https://www.wikidata.org/wiki/Q11178858",
+    "note": "Sotheby's Hong Kong 2013 lot by Li Xiongcai (1910 - 19 Dec 2001). He is still protected in China (life+50 runs to 2051), so the shorter-term rule does not help."
+  },
+  "collection-of-beauty/2013_HGK_03211_1105_000(li_xiongcai_rafting125605).jpg": {
+    "artist": "Li Xiongcai (黎雄才)",
+    "died": 2001,
+    "catalogued": false,
+    "verdict": "in_copyright",
+    "publicDomainInGermanyFrom": "2072-01-01",
+    "source": "https://en.wikipedia.org/wiki/Li_Xiongcai",
+    "note": "This is a Sotheby's HK lot by the Lingnan School painter Li Xiongcai (1910–2001). A 2001 death keeps the work protected in Germany and also in China, where the term is life+50, to 2051."
+  },
+  "collection-of-beauty/2013_HGK_03211_1037_000(liu_haisu_mount_huang121520).jpg": {
+    "artist": "Liu Haisu",
+    "died": 1994,
+    "catalogued": false,
+    "verdict": "in_copyright",
+    "publicDomainInGermanyFrom": "2065-01-01",
+    "source": "https://www.wikidata.org/wiki/Q3256848",
+    "note": "Sotheby's HK 2013 lot, artist in parentheses: Liu Haisu, Mount Huang. Died 7 Aug 1994; still protected in China (life+50 to 2044), so the shorter-term rule cannot rescue it."
+  },
+  "collection-of-beauty/2013_HGK_03211_1351_000(lu_qinyuan_challenging_storm042328).jpg": {
+    "artist": "Lu Qingyuan (Lo Ching Yuan)",
+    "died": null,
+    "catalogued": false,
+    "verdict": "in_copyright",
+    "publicDomainInGermanyFrom": null,
+    "source": "https://www.christies.com.cn/en/lot/lu-qingyuan-lo-ching-yuan-b-1946-6346470/?intObjectID=6346470&lid=4",
+    "note": "The image is an eagle over waves, and a Christie's lot record lists 'Challenging Storm' (dated 1998) by Lo Ching Yuan, born 1946, with no death recorded. He is a living or recently dead Hong Kong painter, protected under every term."
+  },
+  "collection-of-beauty/2013_HGK_03211_1226_000(lu_yanshao_landscape024035).jpg": {
+    "artist": "Lu Yanshao (陆俨少)",
+    "died": 1993,
+    "catalogued": false,
+    "verdict": "in_copyright",
+    "publicDomainInGermanyFrom": "2064-01-01",
+    "source": "https://en.wikipedia.org/wiki/Lu_Yanshao",
+    "note": "This is a Sotheby's HK lot by Lu Yanshao (1909–1993). His 1993 death keeps it protected in Germany and in China."
+  },
+  "collection-of-beauty/2013_HGK_03211_1176_000(luo_ming_mount_hua014457).jpg": {
+    "artist": "Luo Ming",
+    "died": 1998,
+    "catalogued": false,
+    "verdict": "in_copyright",
+    "publicDomainInGermanyFrom": "2069-01-01",
+    "source": "https://baike.baidu.com/item/%E7%BD%97%E9%93%AD/16509107",
+    "note": "The Sotheby's HK lot filename names Luo Ming (1912-1998), a Xi'an Academy painter nicknamed 'Luo Huashan' for his Mount Hua landscapes. The image is a Huashan landscape. He died in 1998, so life+50 in China also still applies. The death year comes from Baidu Baike and a Sohu exhibition text, not an authority file."
+  },
+  "collection-of-beauty/Escher Metamorphosis.webp": {
+    "artist": "M. C. Escher",
+    "died": 1972,
+    "catalogued": false,
+    "verdict": "in_copyright",
+    "publicDomainInGermanyFrom": "2043-01-01",
+    "source": "https://www.wikidata.org/wiki/Q42478",
+    "note": "Escher's 'Metamorphosis'. Escher was Dutch and died in 1972, so the work is protected in Germany until the end of 2042."
+  },
+  "collection-of-beauty/Fish in Baarn.jpg": {
+    "artist": "M. C. Escher",
+    "died": 1972,
+    "catalogued": false,
+    "verdict": "in_copyright",
+    "publicDomainInGermanyFrom": "2043-01-01",
+    "source": "https://www.wikidata.org/wiki/Q134307",
+    "note": "The preview shows an interlocking fish tessellation print with Escher's signature layout in the margins. Escher lived in Baarn from 1941. He was Dutch (EU) and died in 1972."
+  },
+  "collection-of-beauty/MC Escher  Phosphorescent Sea.jpg": {
+    "artist": "M. C. Escher",
+    "died": 1972,
+    "catalogued": false,
+    "verdict": "in_copyright",
+    "publicDomainInGermanyFrom": "2043-01-01",
+    "source": "https://www.wikidata.org/wiki/Q42478",
+    "note": "Escher's 'Phosphorescent Sea' (1933). Escher was Dutch and died in 1972, so the work is in copyright until the end of 2042."
+  },
+  "collection-of-beauty/MC Escher Ant.webp": {
+    "artist": "M. C. Escher",
+    "died": 1972,
+    "catalogued": false,
+    "verdict": "in_copyright",
+    "publicDomainInGermanyFrom": "2043-01-01",
+    "source": "https://www.wikidata.org/wiki/Q134741",
+    "note": "Filename names M. C. Escher. He was a Dutch (EU) national who died in 1972, so his work is protected until 2042."
+  },
+  "collection-of-beauty/MC Escher Ascending and Descending.jpg": {
+    "artist": "M. C. Escher",
+    "died": 1972,
+    "catalogued": false,
+    "verdict": "in_copyright",
+    "publicDomainInGermanyFrom": "2043-01-01",
+    "source": "https://www.wikidata.org/w/index.php?search=M.+C.+Escher",
+    "note": "The filename names Escher's Ascending and Descending (1960). Escher was a Dutch (EU) national who died in 1972, so he is protected in Germany until the end of 2042."
+  },
+  "collection-of-beauty/MC Escher Balcony.webp": {
+    "artist": "M. C. Escher",
+    "died": 1972,
+    "catalogued": false,
+    "verdict": "in_copyright",
+    "publicDomainInGermanyFrom": "2043-01-01",
+    "source": "https://en.wikipedia.org/wiki/M._C._Escher",
+    "note": "Escher's Balcony (1945). Escher, a Dutch (EU) national, died 27 March 1972, so protected in Germany until end of 2042."
+  },
+  "collection-of-beauty/MC Escher Belvedere.webp": {
+    "artist": "M. C. Escher",
+    "died": 1972,
+    "catalogued": false,
+    "verdict": "in_copyright",
+    "publicDomainInGermanyFrom": "2043-01-01",
+    "source": "https://www.wikidata.org/wiki/Q134741",
+    "note": "Escher was a Dutch (EU) author who died in 1972, so his work is protected in Germany until the end of 2042."
+  },
+  "collection-of-beauty/MC Escher Bonifacio.webp": {
+    "artist": "M. C. Escher",
+    "died": 1972,
+    "catalogued": false,
+    "verdict": "in_copyright",
+    "publicDomainInGermanyFrom": "2043-01-01",
+    "source": "https://www.wikidata.org/wiki/Q134307",
+    "note": "The filename names M.C. Escher's Bonifacio print. Escher was Dutch (EU) and died in 1972."
+  },
+  "collection-of-beauty/MC Escher Butterfly Tunnel.jpg": {
+    "artist": "M. C. Escher",
+    "died": 1972,
+    "catalogued": false,
+    "verdict": "in_copyright",
+    "publicDomainInGermanyFrom": "2043-01-01",
+    "source": "https://www.wikidata.org/wiki/Q40115",
+    "note": "The title names M. C. Escher. Escher was Dutch (EU) and died in 1972, so the work is protected in Germany to the end of 2042."
+  },
+  "collection-of-beauty/MC Escher Castle in the Air.webp": {
+    "artist": "M. C. Escher",
+    "died": 1972,
+    "catalogued": false,
+    "verdict": "in_copyright",
+    "publicDomainInGermanyFrom": "2043-01-01",
+    "source": "https://en.wikipedia.org/wiki/M._C._Escher",
+    "note": "Filename names M. C. Escher, who was Dutch (EU) and died in 1972. Protected in Germany until 2042."
+  },
+  "collection-of-beauty/MC Escher Castrovalva.jpg": {
+    "artist": "M. C. Escher",
+    "died": 1972,
+    "catalogued": false,
+    "verdict": "in_copyright",
+    "publicDomainInGermanyFrom": "2043-01-01",
+    "source": "https://www.wikidata.org/wiki/Q42478",
+    "note": "Escher's 'Castrovalva' (1930). Escher was Dutch and died in 1972."
+  },
+  "collection-of-beauty/MC Escher Circle Limit II.jpg": {
+    "artist": "M. C. Escher",
+    "died": 1972,
+    "catalogued": false,
+    "verdict": "in_copyright",
+    "publicDomainInGermanyFrom": "2043-01-01",
+    "source": "https://www.wikidata.org/wiki/Q134741",
+    "note": "Escher's Circle Limit II (1959). Escher was Dutch and died in 1972, so the work is protected until 2042."
+  },
+  "collection-of-beauty/MC Escher Circle Limit III.jpg": {
+    "artist": "M. C. Escher",
+    "died": 1972,
+    "catalogued": false,
+    "verdict": "in_copyright",
+    "publicDomainInGermanyFrom": "2043-01-01",
+    "source": "https://www.wikidata.org/w/index.php?search=M.+C.+Escher",
+    "note": "The filename names Escher's Circle Limit III (1959). Escher was Dutch and died in 1972, so the work is in copyright until 2042."
+  },
+  "collection-of-beauty/MC Escher Circle Limit IV.jpg": {
+    "artist": "M. C. Escher",
+    "died": 1972,
+    "catalogued": false,
+    "verdict": "in_copyright",
+    "publicDomainInGermanyFrom": "2043-01-01",
+    "source": "https://en.wikipedia.org/wiki/M._C._Escher",
+    "note": "Escher's Circle Limit IV (1960). Dutch author who died 1972, in copyright until end of 2042."
+  },
+  "collection-of-beauty/MC Escher Citadel.webp": {
+    "artist": "M. C. Escher",
+    "died": 1972,
+    "catalogued": false,
+    "verdict": "in_copyright",
+    "publicDomainInGermanyFrom": "2043-01-01",
+    "source": "https://www.wikidata.org/wiki/Q134741",
+    "note": "Escher was a Dutch (EU) author who died in 1972."
+  },
+  "collection-of-beauty/MC Escher Contrast.webp": {
+    "artist": "M. C. Escher",
+    "died": 1972,
+    "catalogued": false,
+    "verdict": "in_copyright",
+    "publicDomainInGermanyFrom": "2043-01-01",
+    "source": "https://www.wikidata.org/wiki/Q134307",
+    "note": "The filename names M.C. Escher's Contrast (Order and Chaos). Escher was Dutch (EU) and died in 1972."
+  },
+  "collection-of-beauty/MC Escher Convex and Concave.webp": {
+    "artist": "M. C. Escher",
+    "died": 1972,
+    "catalogued": true,
+    "verdict": "in_copyright",
+    "publicDomainInGermanyFrom": "2043-01-01",
+    "source": "https://www.wikidata.org/wiki/Q1470",
+    "note": "Escher died 27 March 1972 (Wikidata Q1470). As a Dutch (EU) author, he is protected in Germany until the end of 2042."
+  },
+  "collection-of-beauty/MC Escher Crystal.jpg": {
+    "artist": "M. C. Escher",
+    "died": 1972,
+    "catalogued": false,
+    "verdict": "in_copyright",
+    "publicDomainInGermanyFrom": "2043-01-01",
+    "source": "https://www.wikidata.org/wiki/Q40115",
+    "note": "The title names Escher's Crystal. Escher was Dutch and died in 1972."
+  },
+  "collection-of-beauty/MC Escher Cube with Magic Ribbons.jpg": {
+    "artist": "M. C. Escher",
+    "died": 1972,
+    "catalogued": false,
+    "verdict": "in_copyright",
+    "publicDomainInGermanyFrom": "2043-01-01",
+    "source": "https://en.wikipedia.org/wiki/M._C._Escher",
+    "note": "Escher's Cube with Magic Ribbons (1957). Escher was Dutch and died in 1972, so it is protected until 2042."
+  },
+  "collection-of-beauty/MC Escher Cycle.jpg": {
+    "artist": "M. C. Escher",
+    "died": 1972,
+    "catalogued": false,
+    "verdict": "in_copyright",
+    "publicDomainInGermanyFrom": "2043-01-01",
+    "source": "https://www.wikidata.org/wiki/Q42478",
+    "note": "Escher's 'Cycle' (1938). Escher was Dutch and died in 1972."
+  },
+  "collection-of-beauty/MC Escher Development I.jpg": {
+    "artist": "M. C. Escher",
+    "died": 1972,
+    "catalogued": false,
+    "verdict": "in_copyright",
+    "publicDomainInGermanyFrom": "2043-01-01",
+    "source": "https://www.wikidata.org/wiki/Q134741",
+    "note": "Escher's Development I (1937). Escher was Dutch and died in 1972, so the work is protected until 2042."
+  },
+  "collection-of-beauty/MC Escher Dewdrop.jpg": {
+    "artist": "M. C. Escher",
+    "died": 1972,
+    "catalogued": false,
+    "verdict": "in_copyright",
+    "publicDomainInGermanyFrom": "2043-01-01",
+    "source": "https://www.wikidata.org/w/index.php?search=M.+C.+Escher",
+    "note": "The filename names Escher's Dewdrop (1948). Escher was Dutch and died in 1972, so the work is in copyright until 2042."
+  },
+  "collection-of-beauty/MC Escher Double Planets.jpg": {
+    "artist": "M. C. Escher",
+    "died": 1972,
+    "catalogued": false,
+    "verdict": "in_copyright",
+    "publicDomainInGermanyFrom": "2043-01-01",
+    "source": "https://en.wikipedia.org/wiki/M._C._Escher",
+    "note": "Escher's Double Planetoid (1949). Dutch author who died 1972, in copyright."
+  },
+  "collection-of-beauty/MC Escher Drawing Hands.webp": {
+    "artist": "M. C. Escher",
+    "died": 1972,
+    "catalogued": false,
+    "verdict": "in_copyright",
+    "publicDomainInGermanyFrom": "2043-01-01",
+    "source": "https://www.wikidata.org/wiki/Q134741",
+    "note": "'Drawing Hands' is from 1948. Escher was a Dutch (EU) author who died in 1972."
+  },
+  "collection-of-beauty/MC Escher Gravity.jpg": {
+    "artist": "M. C. Escher",
+    "died": 1972,
+    "catalogued": false,
+    "verdict": "in_copyright",
+    "publicDomainInGermanyFrom": "2043-01-01",
+    "source": "https://www.wikidata.org/wiki/Q134307",
+    "note": "The filename names Escher's Gravitation (1952). Escher was Dutch (EU) and died in 1972."
+  },
+  "collection-of-beauty/MC Escher Hand with Reflecting Shere.jpg": {
+    "artist": "M. C. Escher",
+    "died": 1972,
+    "catalogued": false,
+    "verdict": "in_copyright",
+    "publicDomainInGermanyFrom": "2043-01-01",
+    "source": "https://www.wikidata.org/wiki/Q40115",
+    "note": "This is Escher's Hand with Reflecting Sphere (1935). Escher was Dutch and died in 1972."
+  },
+  "collection-of-beauty/MC Escher House of Stairs.webp": {
+    "artist": "M. C. Escher",
+    "died": 1972,
+    "catalogued": false,
+    "verdict": "in_copyright",
+    "publicDomainInGermanyFrom": "2043-01-01",
+    "source": "https://en.wikipedia.org/wiki/M._C._Escher",
+    "note": "Escher's House of Stairs (1951). Escher was Dutch and died in 1972, so it is protected until 2042."
+  },
+  "collection-of-beauty/MC Escher Knopen.jpg": {
+    "artist": "M. C. Escher",
+    "died": 1972,
+    "catalogued": false,
+    "verdict": "in_copyright",
+    "publicDomainInGermanyFrom": "2043-01-01",
+    "source": "https://www.wikidata.org/wiki/Q42478",
+    "note": "Escher's 'Knots' ('Knopen', 1965). Escher was Dutch and died in 1972."
+  },
+  "collection-of-beauty/MC Escher Knots.jpg": {
+    "artist": "M. C. Escher",
+    "died": 1972,
+    "catalogued": false,
+    "verdict": "in_copyright",
+    "publicDomainInGermanyFrom": "2043-01-01",
+    "source": "https://www.wikidata.org/wiki/Q134741",
+    "note": "Escher's Knots (1965). Escher was Dutch and died in 1972, so the work is protected until 2042."
+  },
+  "collection-of-beauty/MC Escher La Cathédrale Engloutie.jpg": {
+    "artist": "M. C. Escher",
+    "died": 1972,
+    "catalogued": false,
+    "verdict": "in_copyright",
+    "publicDomainInGermanyFrom": "2043-01-01",
+    "source": "https://www.wikidata.org/w/index.php?search=M.+C.+Escher",
+    "note": "The filename names Escher's La Cathédrale Engloutie (1929). Escher was Dutch and died in 1972, so the work is in copyright until 2042."
+  },
+  "collection-of-beauty/MC Escher Magic Mirror.jpg": {
+    "artist": "M. C. Escher",
+    "died": 1972,
+    "catalogued": false,
+    "verdict": "in_copyright",
+    "publicDomainInGermanyFrom": "2043-01-01",
+    "source": "https://en.wikipedia.org/wiki/M._C._Escher",
+    "note": "Escher's Magic Mirror (1946). Dutch author who died 1972, in copyright."
+  },
+  "collection-of-beauty/MC Escher Metamorphosis I.jpg": {
+    "artist": "M. C. Escher",
+    "died": 1972,
+    "catalogued": false,
+    "verdict": "in_copyright",
+    "publicDomainInGermanyFrom": "2043-01-01",
+    "source": "https://www.wikidata.org/wiki/Q134741",
+    "note": "Escher was a Dutch (EU) author who died in 1972."
+  },
+  "collection-of-beauty/MC Escher Metamorphosis II.png": {
+    "artist": "M. C. Escher",
+    "died": 1972,
+    "catalogued": false,
+    "verdict": "in_copyright",
+    "publicDomainInGermanyFrom": "2043-01-01",
+    "source": "https://www.wikidata.org/wiki/Q134307",
+    "note": "The filename names Escher's Metamorphosis II (1939-40). Escher was Dutch (EU) and died in 1972."
+  },
+  "collection-of-beauty/MC Escher Metamorphosis III.png": {
+    "artist": "M. C. Escher",
+    "died": 1972,
+    "catalogued": false,
+    "verdict": "in_copyright",
+    "publicDomainInGermanyFrom": "2043-01-01",
+    "source": "https://www.wikidata.org/wiki/Q40115",
+    "note": "This is Escher's Metamorphosis III. Escher was Dutch and died in 1972."
+  },
+  "collection-of-beauty/MC Escher Möbius Strip.jpg": {
+    "artist": "M. C. Escher",
+    "died": 1972,
+    "catalogued": false,
+    "verdict": "in_copyright",
+    "publicDomainInGermanyFrom": "2043-01-01",
+    "source": "https://en.wikipedia.org/wiki/M._C._Escher",
+    "note": "Escher's Möbius Strip print. Escher was Dutch and died in 1972, so it is protected until 2042."
+  },
+  "collection-of-beauty/MC Escher Other World.webp": {
+    "artist": "M. C. Escher",
+    "died": 1972,
+    "catalogued": false,
+    "verdict": "in_copyright",
+    "publicDomainInGermanyFrom": "2043-01-01",
+    "source": "https://www.wikidata.org/wiki/Q42478",
+    "note": "Escher's 'Other World' (1947). Escher was Dutch and died in 1972."
+  },
+  "collection-of-beauty/MC Escher Path of Life.webp": {
+    "artist": "M. C. Escher",
+    "died": 1972,
+    "catalogued": false,
+    "verdict": "in_copyright",
+    "publicDomainInGermanyFrom": "2043-01-01",
+    "source": "https://www.wikidata.org/wiki/Q134741",
+    "note": "Escher's Path of Life. Escher was Dutch and died in 1972, so the work is protected until 2042."
+  },
+  "collection-of-beauty/MC Escher Pentedatillo.jpg": {
+    "artist": "M. C. Escher",
+    "died": 1972,
+    "catalogued": false,
+    "verdict": "in_copyright",
+    "publicDomainInGermanyFrom": "2043-01-01",
+    "source": "https://www.wikidata.org/w/index.php?search=M.+C.+Escher",
+    "note": "The filename names Escher's Pentedattilo (1930, Calabria series). Escher was Dutch and died in 1972, so the work is in copyright until 2042."
+  },
+  "collection-of-beauty/MC Escher Print Gallery.jpg": {
+    "artist": "M. C. Escher",
+    "died": 1972,
+    "catalogued": false,
+    "verdict": "in_copyright",
+    "publicDomainInGermanyFrom": "2043-01-01",
+    "source": "https://en.wikipedia.org/wiki/M._C._Escher",
+    "note": "Escher's Print Gallery (1956). Dutch author who died 1972, in copyright."
+  },
+  "collection-of-beauty/MC Escher Puddle.jpg": {
+    "artist": "M. C. Escher",
+    "died": 1972,
+    "catalogued": false,
+    "verdict": "in_copyright",
+    "publicDomainInGermanyFrom": "2043-01-01",
+    "source": "https://www.wikidata.org/wiki/Q134741",
+    "note": "Escher was a Dutch (EU) author who died in 1972."
+  },
+  "collection-of-beauty/MC Escher Regular Division of the Plane.jpg": {
+    "artist": "M. C. Escher",
+    "died": 1972,
+    "catalogued": false,
+    "verdict": "in_copyright",
+    "publicDomainInGermanyFrom": "2043-01-01",
+    "source": "https://www.wikidata.org/wiki/Q134307",
+    "note": "The filename names Escher's Regular Division of the Plane. Escher was Dutch (EU) and died in 1972."
+  },
+  "collection-of-beauty/MC Escher Regular Division of the Plane II.jpg": {
+    "artist": "M. C. Escher",
+    "died": 1972,
+    "catalogued": false,
+    "verdict": "in_copyright",
+    "publicDomainInGermanyFrom": "2043-01-01",
+    "source": "https://www.wikidata.org/wiki/Q40115",
+    "note": "This is Escher's Regular Division of the Plane. Escher was Dutch and died in 1972."
+  },
+  "collection-of-beauty/MC Escher Regular Division of the Plane III.jpg": {
+    "artist": "M. C. Escher",
+    "died": 1972,
+    "catalogued": false,
+    "verdict": "in_copyright",
+    "publicDomainInGermanyFrom": "2043-01-01",
+    "source": "https://en.wikipedia.org/wiki/M._C._Escher",
+    "note": "Escher's Regular Division of the Plane III (1957). Escher was Dutch and died in 1972, so it is protected until 2042."
+  },
+  "collection-of-beauty/MC Escher Regular Division of the Plane IV.jpg": {
+    "artist": "M. C. Escher",
+    "died": 1972,
+    "catalogued": false,
+    "verdict": "in_copyright",
+    "publicDomainInGermanyFrom": "2043-01-01",
+    "source": "https://www.wikidata.org/wiki/Q42478",
+    "note": "Escher's 'Regular Division of the Plane IV' (1957). Escher was Dutch and died in 1972."
+  },
+  "collection-of-beauty/MC Escher Relativity.webp": {
+    "artist": "M. C. Escher",
+    "died": 1972,
+    "catalogued": false,
+    "verdict": "in_copyright",
+    "publicDomainInGermanyFrom": "2043-01-01",
+    "source": "https://www.wikidata.org/wiki/Q134741",
+    "note": "Escher's Relativity (1953). Escher was Dutch and died in 1972, so the work is protected until 2042."
+  },
+  "collection-of-beauty/MC Escher Reptiles.jpg": {
+    "artist": "M. C. Escher",
+    "died": 1972,
+    "catalogued": false,
+    "verdict": "in_copyright",
+    "publicDomainInGermanyFrom": "2043-01-01",
+    "source": "https://www.wikidata.org/w/index.php?search=M.+C.+Escher",
+    "note": "The filename names Escher's Reptiles (1943). Escher was Dutch and died in 1972, so the work is in copyright until 2042."
+  },
+  "collection-of-beauty/MC Escher Schaffhausen.jpg": {
+    "artist": "M. C. Escher",
+    "died": 1972,
+    "catalogued": false,
+    "verdict": "in_copyright",
+    "publicDomainInGermanyFrom": "2043-01-01",
+    "source": "https://en.wikipedia.org/wiki/M._C._Escher",
+    "note": "Escher print of Schaffhausen. Dutch author who died 1972, in copyright."
+  },
+  "collection-of-beauty/MC Escher Shells.jpg": {
+    "artist": "M. C. Escher",
+    "died": 1972,
+    "catalogued": false,
+    "verdict": "in_copyright",
+    "publicDomainInGermanyFrom": "2043-01-01",
+    "source": "https://www.wikidata.org/wiki/Q134741",
+    "note": "Escher was a Dutch (EU) author who died in 1972."
+  },
+  "collection-of-beauty/MC Escher Sky and Water.webp": {
+    "artist": "M. C. Escher",
+    "died": 1972,
+    "catalogued": false,
+    "verdict": "in_copyright",
+    "publicDomainInGermanyFrom": "2043-01-01",
+    "source": "https://www.wikidata.org/wiki/Q134307",
+    "note": "The filename names Escher's Sky and Water (1938). Escher was Dutch (EU) and died in 1972."
+  },
+  "collection-of-beauty/MC Escher Smaller and Smaller.jpg": {
+    "artist": "M. C. Escher",
+    "died": 1972,
+    "catalogued": false,
+    "verdict": "in_copyright",
+    "publicDomainInGermanyFrom": "2043-01-01",
+    "source": "https://www.wikidata.org/wiki/Q40115",
+    "note": "This is Escher's Smaller and Smaller (1956). Escher was Dutch and died in 1972."
+  },
+  "collection-of-beauty/MC Escher Snakes.jpg": {
+    "artist": "M. C. Escher",
+    "died": 1972,
+    "catalogued": false,
+    "verdict": "in_copyright",
+    "publicDomainInGermanyFrom": "2043-01-01",
+    "source": "https://en.wikipedia.org/wiki/M._C._Escher",
+    "note": "Escher's Snakes (1969). Escher was Dutch and died in 1972, so it is protected until 2042."
+  },
+  "collection-of-beauty/MC Escher Stars.webp": {
+    "artist": "M. C. Escher",
+    "died": 1972,
+    "catalogued": false,
+    "verdict": "in_copyright",
+    "publicDomainInGermanyFrom": "2043-01-01",
+    "source": "https://www.wikidata.org/wiki/Q42478",
+    "note": "Escher's 'Stars' (1948). Escher was Dutch and died in 1972."
+  },
+  "collection-of-beauty/MC Escher Still Life and Street.jpg": {
+    "artist": "M. C. Escher",
+    "died": 1972,
+    "catalogued": false,
+    "verdict": "in_copyright",
+    "publicDomainInGermanyFrom": "2043-01-01",
+    "source": "https://www.wikidata.org/wiki/Q134741",
+    "note": "Escher's Still Life and Street (1937). Escher was Dutch and died in 1972, so the work is protected until 2042."
+  },
+  "collection-of-beauty/MC Escher Still Life with Mirror.jpg": {
+    "artist": "M. C. Escher",
+    "died": 1972,
+    "catalogued": false,
+    "verdict": "in_copyright",
+    "publicDomainInGermanyFrom": "2043-01-01",
+    "source": "https://www.wikidata.org/w/index.php?search=M.+C.+Escher",
+    "note": "The filename names Escher's Still Life with Mirror (1934). Escher was Dutch and died in 1972, so the work is in copyright until 2042."
+  },
+  "collection-of-beauty/MC Escher Still Life with Mirrored Sphere.jpg": {
+    "artist": "M. C. Escher",
+    "died": 1972,
+    "catalogued": false,
+    "verdict": "in_copyright",
+    "publicDomainInGermanyFrom": "2043-01-01",
+    "source": "https://en.wikipedia.org/wiki/M._C._Escher",
+    "note": "Escher's Still Life with Spherical Mirror (1934). Dutch author who died 1972, in copyright."
+  },
+  "collection-of-beauty/MC Escher Tetrahedal Platforms.jpg": {
+    "artist": "M. C. Escher",
+    "died": 1972,
+    "catalogued": false,
+    "verdict": "in_copyright",
+    "publicDomainInGermanyFrom": "2043-01-01",
+    "source": "https://www.wikidata.org/wiki/Q134741",
+    "note": "'Tetrahedral Planetoid' / platforms is an Escher print. Escher was a Dutch (EU) author who died in 1972."
+  },
+  "collection-of-beauty/MC Escher The Illusion of a Dragon.jpg": {
+    "artist": "M. C. Escher",
+    "died": 1972,
+    "catalogued": false,
+    "verdict": "in_copyright",
+    "publicDomainInGermanyFrom": "2043-01-01",
+    "source": "https://www.wikidata.org/wiki/Q134307",
+    "note": "The filename names Escher's Dragon (1952). Escher was Dutch (EU) and died in 1972."
+  },
+  "collection-of-beauty/MC Escher Three Spheres.jpg": {
+    "artist": "M. C. Escher",
+    "died": 1972,
+    "catalogued": false,
+    "verdict": "in_copyright",
+    "publicDomainInGermanyFrom": "2043-01-01",
+    "source": "https://www.wikidata.org/wiki/Q40115",
+    "note": "This is Escher's Three Spheres. Escher was Dutch and died in 1972."
+  },
+  "collection-of-beauty/MC Escher Three Spheres I.jpg": {
+    "artist": "M. C. Escher",
+    "died": 1972,
+    "catalogued": true,
+    "verdict": "in_copyright",
+    "publicDomainInGermanyFrom": "2043-01-01",
+    "source": "https://www.wikidata.org/wiki/Q1470",
+    "note": "Escher died 27 March 1972 (Wikidata Q1470). As a Dutch (EU) author, he is protected in Germany until the end of 2042."
+  },
+  "collection-of-beauty/MC Escher Three Worlds.webp": {
+    "artist": "M. C. Escher",
+    "died": 1972,
+    "catalogued": false,
+    "verdict": "in_copyright",
+    "publicDomainInGermanyFrom": "2043-01-01",
+    "source": "https://en.wikipedia.org/wiki/M._C._Escher",
+    "note": "Escher's Three Worlds (1955). Escher was Dutch and died in 1972, so it is protected until 2042."
+  },
+  "collection-of-beauty/MC Escher Tower of Babel.jpg": {
+    "artist": "M. C. Escher",
+    "died": 1972,
+    "catalogued": false,
+    "verdict": "in_copyright",
+    "publicDomainInGermanyFrom": "2043-01-01",
+    "source": "https://www.wikidata.org/wiki/Q42478",
+    "note": "Escher's 'Tower of Babel' (1928). Escher was Dutch and died in 1972."
+  },
+  "collection-of-beauty/MC Escher Universe.jpg": {
+    "artist": "M. C. Escher",
+    "died": 1972,
+    "catalogued": false,
+    "verdict": "in_copyright",
+    "publicDomainInGermanyFrom": "2043-01-01",
+    "source": "https://www.wikidata.org/wiki/Q134741",
+    "note": "Filename names M. C. Escher. He was Dutch and died in 1972, so his work is protected until 2042."
+  },
+  "collection-of-beauty/MC Escher Up and Down.jpg": {
+    "artist": "M. C. Escher",
+    "died": 1972,
+    "catalogued": false,
+    "verdict": "in_copyright",
+    "publicDomainInGermanyFrom": "2043-01-01",
+    "source": "https://www.wikidata.org/w/index.php?search=M.+C.+Escher",
+    "note": "The filename names Escher's Up and Down (1947). Escher was Dutch and died in 1972, so the work is in copyright until 2042."
+  },
+  "collection-of-beauty/MC Escher Water Waves.jpg": {
+    "artist": "M. C. Escher",
+    "died": 1972,
+    "catalogued": false,
+    "verdict": "in_copyright",
+    "publicDomainInGermanyFrom": "2043-01-01",
+    "source": "https://en.wikipedia.org/wiki/M._C._Escher",
+    "note": "Filename attributes to Escher (Rippled Surface / water waves print). Dutch author who died 1972, in copyright."
+  },
+  "collection-of-beauty/MC Escher Waterfall.webp": {
+    "artist": "M. C. Escher",
+    "died": 1972,
+    "catalogued": false,
+    "verdict": "in_copyright",
+    "publicDomainInGermanyFrom": "2043-01-01",
+    "source": "https://www.wikidata.org/wiki/Q134741",
+    "note": "'Waterfall' is from 1961. Escher was a Dutch (EU) author who died in 1972."
+  },
+  "collection-of-beauty/MC Escher part of metamorphosis.jpg": {
+    "artist": "M. C. Escher",
+    "died": 1972,
+    "catalogued": false,
+    "verdict": "in_copyright",
+    "publicDomainInGermanyFrom": "2043-01-01",
+    "source": "https://www.wikidata.org/wiki/Q134307",
+    "note": "The filename names part of Escher's Metamorphosis. Escher was Dutch (EU) and died in 1972."
+  },
+  "collection-of-beauty/metamorphoseIII_deel1-1.jpg": {
+    "artist": "M. C. Escher",
+    "died": 1972,
+    "catalogued": false,
+    "verdict": "in_copyright",
+    "publicDomainInGermanyFrom": "2043-01-01",
+    "source": "https://www.wikidata.org/wiki/Q134741",
+    "note": "Filename is a Dutch-language reference to Escher's Metamorphosis III (1967-68). Escher was Dutch and died in 1972, so the work is protected until 2042."
+  },
+  "collection-of-beauty/metamorphoseIII_deel2-1.jpg": {
+    "artist": "M. C. Escher",
+    "died": 1972,
+    "catalogued": false,
+    "verdict": "in_copyright",
+    "publicDomainInGermanyFrom": "2043-01-01",
+    "source": "https://www.wikidata.org/w/index.php?search=M.+C.+Escher",
+    "note": "The preview shows part of Escher's Metamorphosis III (1967-68) woodcut frieze: insects, a chessboard and lizards. Escher died in 1972, so the work is in copyright until 2042."
+  },
+  "collection-of-beauty/metamorphoseIII_deel3-1.jpg": {
+    "artist": "M. C. Escher",
+    "died": 1972,
+    "catalogued": false,
+    "verdict": "in_copyright",
+    "publicDomainInGermanyFrom": "2043-01-01",
+    "source": "https://en.wikipedia.org/wiki/M._C._Escher",
+    "note": "The preview is a section of Escher's Metamorphosis III (1967-68): a checkerboard turning into lizards. Escher died 1972, so it is in copyright."
+  },
+  "collection-of-beauty/La_Vie_by_Pablo_Picasso.jpg": {
+    "artist": "Pablo Picasso",
+    "died": 1973,
+    "catalogued": false,
+    "verdict": "in_copyright",
+    "publicDomainInGermanyFrom": "2044-01-01",
+    "source": "https://www.wikidata.org/wiki/Q5593",
+    "note": "La Vie (1903) is by Picasso, a Spanish (EU) painter who died in 1973."
+  },
+  "collection-of-beauty/Old_guitarist_chicago.jpg": {
+    "artist": "Pablo Picasso",
+    "died": 1973,
+    "catalogued": true,
+    "verdict": "in_copyright",
+    "publicDomainInGermanyFrom": "2044-01-01",
+    "source": "https://www.wikidata.org/wiki/Q5593",
+    "note": "Picasso died 8 April 1973 (Wikidata Q5593). As a Spanish (EU) author, he is protected in Germany until the end of 2043. Already decided."
+  },
+  "collection-of-beauty/Pablo_Picasso,_1909-10,_Figure_dans_un_Fauteuil_(Seated_Nude,_Femme_nue_assise),_oil_on_canvas,_92.1_x_73_cm,_Tate_Modern,_London.jpg": {
+    "artist": "Pablo Picasso",
+    "died": 1973,
+    "catalogued": false,
+    "verdict": "in_copyright",
+    "publicDomainInGermanyFrom": "2044-01-01",
+    "source": "https://en.wikipedia.org/wiki/Pablo_Picasso",
+    "note": "Filename names Picasso's Seated Nude (1909-10, Tate). Picasso, a Spanish (EU) national, died 1973; protected until end of 2043."
+  },
+  "collection-of-beauty/2013_HGK_03211_1155_000(pu_quan_bamboo013126).jpg": {
+    "artist": "Pu Quan (溥佺)",
+    "died": 1991,
+    "catalogued": false,
+    "verdict": "in_copyright",
+    "publicDomainInGermanyFrom": "2062-01-01",
+    "source": "https://www.britishmuseum.org/collection/term/BIOG13330",
+    "note": "Sotheby's HK 2013 lot names Pu Quan (1913-1991). Death in 1991 means protection in Germany and in China, where life+50 runs to 2041."
+  },
+  "collection-of-beauty/Rene Magritte Chateau de Pyrenes.jpg": {
+    "artist": "René Magritte",
+    "died": 1967,
+    "catalogued": false,
+    "verdict": "in_copyright",
+    "publicDomainInGermanyFrom": "2038-01-01",
+    "source": "https://www.wikidata.org/wiki/Q7836",
+    "note": "Magritte's 'Le Château des Pyrénées' (1959). Magritte was Belgian and died in 1967, so the work is protected until the end of 2037."
+  },
+  "collection-of-beauty/Apparatus_and_Hand.jpg": {
+    "artist": "Salvador Dalí",
+    "died": 1989,
+    "catalogued": false,
+    "verdict": "in_copyright",
+    "publicDomainInGermanyFrom": "2060-01-01",
+    "source": "https://www.wikidata.org/wiki/Q5577",
+    "note": "The image matches Dalí's Apparatus and Hand (1927, Dalí Museum, St. Petersburg FL). Dalí was a Spanish (EU) national who died in 1989, so the work is protected until 2059."
+  },
+  "collection-of-beauty/DaliGreatMasturbator.jpg": {
+    "artist": "Salvador Dalí",
+    "died": 1989,
+    "catalogued": false,
+    "verdict": "in_copyright",
+    "publicDomainInGermanyFrom": "2060-01-01",
+    "source": "https://en.wikipedia.org/wiki/Salvador_Dal%C3%AD",
+    "note": "Dalí's The Great Masturbator (1929). Dalí was Spanish (EU) and died in 1989, so the work is protected until 2059."
+  },
+  "collection-of-beauty/Salvador-Dali-Museum-St.-Petersburg-Florida.jpg": {
+    "artist": "Salvador Dalí",
+    "died": 1989,
+    "catalogued": false,
+    "verdict": "in_copyright",
+    "publicDomainInGermanyFrom": "2060-01-01",
+    "source": "https://www.wikidata.org/wiki/Q5577",
+    "note": "The filename suggests a museum photo, but the preview shows Dalí's The Elephants (1948), signed 'Dali'. Dalí was Spanish (EU) and died in 1989, so the work is in copyright until 2059."
+  },
+  "collection-of-beauty/The_Accommodations_of_Desire.jpg": {
+    "artist": "Salvador Dalí",
+    "died": 1989,
+    "catalogued": false,
+    "verdict": "in_copyright",
+    "publicDomainInGermanyFrom": "2060-01-01",
+    "source": "https://www.wikidata.org/wiki/Q5577",
+    "note": "The image is Dalí's 'The Accommodations of Desire' (1929), recognizable by its lion heads on pebble shapes. Dalí was Spanish and died in 1989."
+  },
+  "collection-of-beauty/The_Enigma_of_Hitler.png": {
+    "artist": "Salvador Dalí",
+    "died": 1989,
+    "catalogued": false,
+    "verdict": "in_copyright",
+    "publicDomainInGermanyFrom": "2060-01-01",
+    "source": "https://www.wikidata.org/wiki/Q5577",
+    "note": "The image matches Dalí's The Enigma of Hitler (1939, Museo Reina Sofía). Dalí was Spanish (EU) and died in 1989, so the work is protected until 2059."
+  },
+  "collection-of-beauty/The_First_Days_of_Spring_by_Salvador_Dalí.jpg": {
+    "artist": "Salvador Dalí",
+    "died": 1989,
+    "catalogued": false,
+    "verdict": "in_copyright",
+    "publicDomainInGermanyFrom": "2060-01-01",
+    "source": "https://www.wikidata.org/wiki/Q5577",
+    "note": "The filename names Dalí's The First Days of Spring (1929). Dalí was Spanish and died in 1989, so the work is in copyright until 2059."
+  },
+  "collection-of-beauty/disintegration_20of_20the_20persistence_20of_20memory_7c48a1dd-5afd-4881-bcbd-18518e348bd1.webp": {
+    "artist": "Salvador Dalí",
+    "died": 1989,
+    "catalogued": false,
+    "verdict": "in_copyright",
+    "publicDomainInGermanyFrom": "2060-01-01",
+    "source": "https://www.wikidata.org/wiki/Q5577",
+    "note": "The preview shows Dalí's The Disintegration of the Persistence of Memory (1952-54, Dalí Museum). Dalí died in 1989, so the work is in copyright until 2059."
+  },
+  "collection-of-beauty/2013_HGK_03211_1225_000(song_wenzhi_waterfall023956).jpg": {
+    "artist": "Song Wenzhi",
+    "died": 1999,
+    "catalogued": false,
+    "verdict": "in_copyright",
+    "publicDomainInGermanyFrom": "2070-01-01",
+    "source": "https://www.wikidata.org/wiki/Q22249840",
+    "note": "The Sotheby's HK lot filename names Song Wenzhi (1919-1999). He died in 1999, so China's life+50 term also still applies."
+  },
+  "collection-of-beauty/2013_HGK_03211_1355_000(song_yuming_spring_habitat042537).jpg": {
+    "artist": "Song Yuming (宋玉明)",
+    "died": null,
+    "catalogued": false,
+    "verdict": "in_copyright",
+    "publicDomainInGermanyFrom": null,
+    "source": "https://c.m.163.com/news/a/JHV7Q7TI0514PBG0.html",
+    "note": "The inscription reads 春居 (Spring Habitat), dated 壬辰 (2012), signed 玉明. Song Yuming is the son of Song Wenzhi (1919-1999) and exhibited work in 2015-16. A 2012 work stays protected under both German and Chinese terms."
+  },
+  "collection-of-beauty/2013_HGK_03211_1410_000(tang_binggeng_mount_huang050824).jpg": {
+    "artist": "Tang Binggeng (unverified; signature reads 秉耕)",
+    "died": null,
+    "catalogued": false,
+    "verdict": "unidentified",
+    "publicDomainInGermanyFrom": null,
+    "source": "https://www.wikidata.org/w/index.php?search=%E5%94%90%E7%A7%89%E8%80%95",
+    "note": "I agree it is unidentified, but it is almost certainly in copyright. The title 黃山烟雲 is dated 歲在癸巳 spring and was painted by the Shanghai river (申江畔). With a 2013 Christie's HK sale (sale 3211, lot 1410) and a contemporary cloud-sea style, 2013 is the likely year. That would put it in copyright whatever the death year. The 1953 reading cannot be excluded, and I found no death year for the painter, so the verdict stays unidentified. It must not be treated as public domain."
+  },
+  "collection-of-beauty/2013_HGK_03211_1017_000(tang_yun_fisherman_returning_to_shore120508).jpg": {
+    "artist": "Tang Yun (唐云)",
+    "died": 1993,
+    "catalogued": false,
+    "verdict": "in_copyright",
+    "publicDomainInGermanyFrom": "2064-01-01",
+    "source": "https://www.artnet.com/artists/tang-yun/biography",
+    "note": "Sotheby's HK 2013 lot filename names Tang Yun (1910-1993). Death in 1993 means protection in Germany and under China's life+50 term, which runs to 2043."
+  },
+  "collection-of-beauty/La gare (sous baguettes) Quickenborne.webp": {
+    "artist": "Thierry Van Quickenborne",
+    "died": null,
+    "catalogued": false,
+    "verdict": "in_copyright",
+    "publicDomainInGermanyFrom": null,
+    "source": "https://www.le-journal-catalan.com/p-o-les-50-annees-du-voyage-triomphal-de-salvador-dali/15538/",
+    "note": "The image is a contemporary surrealist painting of the Gare de Perpignan with zeppelins, signed 'Van Quickenborne'. It is attributed to the living Parisian painter Thierry Van Quickenborne, so it is plainly in copyright."
+  },
+  "collection-of-beauty/Quickenborne Sans Baguettes.webp": {
+    "artist": "Thierry Van Quickenborne",
+    "died": null,
+    "catalogued": false,
+    "verdict": "in_copyright",
+    "publicDomainInGermanyFrom": null,
+    "source": "https://www.artmajeur.com/thierry-van-quickenborne/en",
+    "note": "A contemporary surrealist painting. The filename matches the living painter Thierry Van Quickenborne, whose Singulart titles use the '(sous baguettes)' suffix. It is a modern work by a living EU artist."
+  },
+  "collection-of-beauty/Torii_Kotondo_-_Kamisuki_(Combing_Her_Hair)_-_Walters_95889.jpg": {
+    "artist": "Torii Kotondo",
+    "died": 1976,
+    "catalogued": true,
+    "verdict": "in_copyright",
+    "publicDomainInGermanyFrom": "2047-01-01",
+    "source": "https://www.wikidata.org/wiki/Q11674932",
+    "note": "Torii Kotondo died 13 July 1976 (Wikidata Q11674932). Japan applies life+70 to deaths in 1968 or later, so the work is protected at home too. Already decided."
+  },
+  "collection-of-beauty/Torii_Kotondo_-_Woman_Before_a_Mirror_-_Walters_95890.jpg": {
+    "artist": "Torii Kotondo",
+    "died": 1976,
+    "catalogued": true,
+    "verdict": "in_copyright",
+    "publicDomainInGermanyFrom": "2047-01-01",
+    "source": "https://www.wikidata.org/wiki/Q11674932",
+    "note": "Torii Kotondo died 13 July 1976 (Wikidata Q11674932). Japan applies life+70 to deaths in 1968 or later, so the work is protected at home too. Already decided."
+  },
+  "collection-of-beauty/a9d3e89a-7152-4bc2-b450-0b49adda1acf.png": {
+    "artist": "Unknown (signature possibly Huang Binhong)",
+    "died": null,
+    "catalogued": false,
+    "verdict": "unidentified",
+    "publicDomainInGermanyFrom": null,
+    "source": "https://www.wikidata.org/wiki/Q715837",
+    "note": "I agree to keep it off public domain. This is a small 310x800 ink landscape in Huang Binhong's manner, with a signature too blurred to read reliably and no provenance. If the work is genuine, Huang died in 1955 and it would be public domain. But his work is heavily forged, and a later imitator could still be in copyright."
+  },
+  "collection-of-beauty/_L'homme_est_en_mer_,_Vincent_van_Gogh,_d'après_Virginie_Demont-Breton.jpg": {
+    "artist": "Unknown modern copyist (reproduction after Vincent van Gogh, after Virginie Demont-Breton)",
+    "died": null,
+    "catalogued": false,
+    "verdict": "unidentified",
+    "publicDomainInGermanyFrom": null,
+    "source": "https://www.wikidata.org/wiki/Q5582",
+    "note": "Changed. This image is not Van Gogh's 1889 canvas. The preview carries a 'PaintingMania.com' watermark at top left and bottom right, and that site sells hand-painted oil reproductions. The brushwork is cruder than the original, so this is a photo of a recent commercial copy. The metadata also says the file was 'Not found on Wikimedia Commons'. The underlying composition is public domain (Van Gogh d.1890, Demont-Breton d.1935 per Wikidata Q3560732), and a slavish copy probably has no new copyright in Germany. But the object is a modern work by an unknown maker, taken from a commercial site that asserts rights with a watermark, so it should not be treated as clearly public domain. Replace it with a photograph of the real painting."
+  },
+  "collection-of-beauty/H22611-L388076506_original.jpg": {
+    "artist": "Unverified; signed 賓虹 (Huang Binhong)",
+    "died": null,
+    "catalogued": false,
+    "verdict": "unidentified",
+    "publicDomainInGermanyFrom": null,
+    "source": "https://www.wikidata.org/wiki/Q715837",
+    "note": "Changed from public_domain. The work has no sidecar, no traceable sale and no catalogue attribution. The only link to Huang Binhong (d. 1955) is the signature 賓虹 and seal on a loosely brushed scroll. Huang Binhong is among the most forged Chinese painters, and a later hand would still be in copyright. A signature alone does not meet the sourced-attribution bar for public_domain, so this should stay offline until the lot is traced."
+  },
+  "collection-of-beauty/2013_HGK_03211_1118_000(wang_ran_autumn_landscape010432).jpg": {
+    "artist": "Wang Ran (王然)",
+    "died": null,
+    "catalogued": false,
+    "verdict": "unidentified",
+    "publicDomainInGermanyFrom": null,
+    "source": "https://www.sothebys.com/en/departments/chinese-paintings-modern",
+    "note": "I agree it must not be called public domain. Zoomed in, the inscription reads 霜秋十渡柿紅圖 王然寫生: a sketch from life at Shidu near Beijing, with a seal naming him a disciple of '少梁先生'. That points to a 20th-century, probably living or recently deceased painter. I found no authoritative life dates, and he may well be in copyright."
+  },
+  "collection-of-beauty/2013_HGK_03211_1222_000(ya_ming_mountains023725).jpg": {
+    "artist": "Ya Ming (Ye Jiabing)",
+    "died": 2002,
+    "catalogued": false,
+    "verdict": "in_copyright",
+    "publicDomainInGermanyFrom": "2073-01-01",
+    "source": "https://www.wikidata.org/wiki/Q85853510",
+    "note": "Sotheby's HK 2013 lot naming Ya Ming (1924-2002). Protected in China until 2052 as well as in Germany."
+  },
+  "collection-of-beauty/2013_HGK_03211_1223_000(ya_ming_figure_in_the_boat023807).jpg": {
+    "artist": "Ya Ming (Ye Jiabing)",
+    "died": 2002,
+    "catalogued": false,
+    "verdict": "in_copyright",
+    "publicDomainInGermanyFrom": "2073-01-01",
+    "source": "https://www.artsbma.org/artist/ya-ming-chinese-1924-2002/",
+    "note": "The lot filename names Ya Ming (1924-2002). The PRC term of life+50 runs to 2052, so the work is protected in both countries."
+  },
+  "collection-of-beauty/2013_HGK_03211_1034_000(yang_shanshen_hundred_sparrows121330).jpg": {
+    "artist": "Yang Shanshen",
+    "died": 2004,
+    "catalogued": false,
+    "verdict": "in_copyright",
+    "publicDomainInGermanyFrom": "2075-01-01",
+    "source": "https://www.wikidata.org/wiki/Q6778384",
+    "note": "This is a Sotheby's Hong Kong lot credited to Yang Shanshen (1913-2004). He died in 2004, so the plain German term applies. The Chinese/Hong Kong life+50 term also still protects it, until 2054."
+  },
+  "collection-of-beauty/2013_HGK_03211_1027_000(zhang_daqian_houses_on_a_mountain121015).jpg": {
+    "artist": "Zhang Daqian",
+    "died": 1983,
+    "catalogued": false,
+    "verdict": "in_copyright",
+    "publicDomainInGermanyFrom": "2054-01-01",
+    "source": "https://www.wikidata.org/wiki/Q707426",
+    "note": "Sotheby's Hong Kong 2013 lot; the parentheses name Zhang Daqian, who died in Taipei in 1983. He is protected in Germany to 2053, and his home term of life+50 runs to 2033, so the shorter-term rule does not help."
+  },
+  "collection-of-beauty/2013_HGK_03211_1126_000(zhang_daqian_zhang_daqian011014).jpg": {
+    "artist": "Zhang Daqian",
+    "died": 1983,
+    "catalogued": false,
+    "verdict": "in_copyright",
+    "publicDomainInGermanyFrom": "2054-01-01",
+    "source": "https://www.wikidata.org/wiki/Q704064",
+    "note": "The lot filename names Zhang Daqian, and the orchid painting carries his signature '爰' and seals. He died in 1983, so the life+50 home term runs to 2033 and the work is protected in both countries."
+  },
+  "collection-of-beauty/2013_HGK_03211_1127_000(zhang_daqian_peony011041).jpg": {
+    "artist": "Zhang Daqian",
+    "died": 1983,
+    "catalogued": false,
+    "verdict": "in_copyright",
+    "publicDomainInGermanyFrom": "2054-01-01",
+    "source": "https://www.wikidata.org/wiki/Q707316",
+    "note": "The Sotheby's HK lot filename names Zhang Daqian, who died in Taipei in 1983. The ROC life+50 term runs until 2033, so the work is protected in both countries."
+  },
+  "collection-of-beauty/2013_HGK_03211_1038_000(zhao_shaoang_canna_lily121556).jpg": {
+    "artist": "Zhao Shao'ang",
+    "died": 1998,
+    "catalogued": false,
+    "verdict": "in_copyright",
+    "publicDomainInGermanyFrom": "2069-01-01",
+    "source": "https://en.wikipedia.org/wiki/Chao_Shao-an",
+    "note": "The Sotheby's HK lot filename names Zhao Shao'ang (1905-1998). His home term of life+50 runs to 2048, so the shorter-term rule cannot rescue the work."
+  },
+  "collection-of-beauty/2013_HGK_03211_1366_000(zhao_shaoang_sailing_along_the_three_gorges044016).jpg": {
+    "artist": "Zhao Shao'ang",
+    "died": 1998,
+    "catalogued": false,
+    "verdict": "in_copyright",
+    "publicDomainInGermanyFrom": "2069-01-01",
+    "source": "https://en.wikipedia.org/wiki/Chao_Shao-an",
+    "note": "The lot filename names Zhao Shao'ang (1905-1998). His home term of life+50 runs to 2048."
+  },
+  "collection-of-beauty/2013_HGK_03211_1101_000(zhao_shaoang_autumn_scenery125133).jpg": {
+    "artist": "Zhao Shao'ang (Chao Shao-an)",
+    "died": 1998,
+    "catalogued": false,
+    "verdict": "in_copyright",
+    "publicDomainInGermanyFrom": "2069-01-01",
+    "source": "https://en.wikipedia.org/wiki/Chao_Shao-an",
+    "note": "The Sotheby's HK lot filename names Zhao Shao'ang (1905-1998). A life+50 home term also runs until 2048, so the shorter-term rule cannot free it."
+  },
+  "collection-of-beauty/2013_HGK_03211_1370_000(zhao_shaoang_spring044231).jpg": {
+    "artist": "Zhao Shao'ang (Chao Shao-an)",
+    "died": 1998,
+    "catalogued": false,
+    "verdict": "in_copyright",
+    "publicDomainInGermanyFrom": "2069-01-01",
+    "source": "https://en.wikipedia.org/wiki/Chao_Shao-an",
+    "note": "The Sotheby's HK lot filename names Zhao Shao'ang (1905-1998). The work is protected in Germany and under a life+50 home term."
+  },
+  "collection-of-beauty/2013_HGK_03211_1208_000(zhao_wangyun_horse_in_the_forest021821).jpg": {
+    "artist": "Zhao Wangyun",
+    "died": 1977,
+    "catalogued": false,
+    "verdict": "in_copyright",
+    "publicDomainInGermanyFrom": "2048-01-01",
+    "source": "https://www.wikidata.org/wiki/Q43139789",
+    "note": "Sotheby's Hong Kong 2013 lot by Zhao Wangyun (1906 - 29 Mar 1977; Bonhams lot essays give the same dates). The Chinese life+50 term runs to the end of 2027, so he is still protected at home as well."
+  }
+}

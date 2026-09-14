@@ -49,6 +49,7 @@ import {
   writeBatchCache,
 } from "./lib/commons-batch.mjs";
 import { emValue } from "./lib/commons-extmetadata.mjs";
+import { loadTakedowns } from "./lib/takedowns.mjs";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -236,9 +237,13 @@ async function processFolder(folderName, options) {
   fs.mkdirSync(cacheDir, { recursive: true });
 
   // 1. list image files (read-only)
+  // Taken-down works (metadata/takedowns.json) get no sidecar entry, so
+  // build-data has nothing to catalogue even if the original is back on disk.
+  const takedowns = loadTakedowns();
   const allFiles = fs
     .readdirSync(folderPath)
     .filter((f) => IMAGE_EXTS.has(path.extname(f).toLowerCase()))
+    .filter((f) => !takedowns.has(folderName, f))
     .sort();
 
   console.log(`[${folderName}] found ${allFiles.length} image files`);

@@ -16,7 +16,8 @@
     "collection-of-beauty/Chaumiére_Italienne.jpg": "Commons categories \"Prints by Jean-Honore Fragonard\", \"1775 etchings\"; file description: \"Ets gemaakt door Jean-Honore Fragonard\".",
     "collection-of-beauty/Paolo_Veronese_008.jpg": "Commons category \"Marriage at Cana (Paulo Veronese)\" + PD-Art (Yorck Project); only the reproducing photographer was unknown.",
     "collection-of-beauty/Michelangelo_libyan.jpg": "File description: \"MICHELANGELO Buonarroti Study for the Libyan Sibyl\"; Commons category \"Drawings by Michelangelo Buonarroti in the Metropolitan Museum of Art\".",
-    "collection-of-beauty/El_Tres_de_Mayo,_by_Francisco_de_Goya,_from_Prado_thin_black_margin.jpg": "Commons `artist` field is the derivative-work credit block verbatim: \"El_Tres_de_Mayo,_by_Francisco_de_Goya,_from_Prado_in_Google_Earth.jpg : Francisco de Goya derivative work: Papa Lima Whiskey 2\". \"Papa Lima Whiskey 2\" is the Commons user who cropped the black margin; the credit line confirms it (\"This file was derived from: El Tres de Mayo, by Francisco de Goya, from Prado in Google Earth.jpg\"). The loose alias matcher used to rescue this by hitting \"Goya\" as a bare substring, and the record still resolves today only through the stale `artist_info` snapshot baked into the sidecar - a re-fetch under the strict matcher drops both, leaving the whole credit block as the artist name."
+    "collection-of-beauty/El_Tres_de_Mayo,_by_Francisco_de_Goya,_from_Prado_thin_black_margin.jpg": "Commons `artist` field is the derivative-work credit block verbatim: \"El_Tres_de_Mayo,_by_Francisco_de_Goya,_from_Prado_in_Google_Earth.jpg : Francisco de Goya derivative work: Papa Lima Whiskey 2\". \"Papa Lima Whiskey 2\" is the Commons user who cropped the black margin; the credit line confirms it (\"This file was derived from: El Tres de Mayo, by Francisco de Goya, from Prado in Google Earth.jpg\"). The loose alias matcher used to rescue this by hitting \"Goya\" as a bare substring, and the record still resolves today only through the stale `artist_info` snapshot baked into the sidecar - a re-fetch under the strict matcher drops both, leaving the whole credit block as the artist name.",
+    "collection-of-beauty/溥僩丙子夏日寫生.jpg": "The catalogue read the painter's name as 'Pu Xuan'; the character is 僩 (xiàn). The inscription reads 丙子夏日為 鬟雪女史 雅屬 毅齋溥僩 寫生, signed with his courtesy name Yizhai, matching the signature on Bonhams lot 'Pu Xian (1901-1966), Flowers and Rocks, 1939' (https://www.bonhams.com/auction/26180/lot/45/pu-xian-1901-1966-flowers-and-rocks-1939/). Commons also gives 'Pu Xian' (https://commons.wikimedia.org/wiki/File:%E6%BA%A5%E5%83%A9%E4%B8%99%E5%AD%90%E5%A4%8F%E6%97%A5%E5%AF%AB%E7%94%9F.jpg)."
   },
   "collection-of-beauty/\"Le_jardin_Hoschedé_à_Montgeron\"_d'A._Sisley_(Fondation_Vuitton,_Paris).jpg": "Alfred Sisley",
   "collection-of-beauty/Henri_Rousseau_—_The_Hungry_Lion_Throws_Itself_on_the_Antelope.jpg": "Henri Rousseau",
@@ -33,5 +34,6 @@
   "collection-of-beauty/Chaumiére_Italienne.jpg": "Jean-Honoré Fragonard",
   "collection-of-beauty/Paolo_Veronese_008.jpg": "Paolo Veronese",
   "collection-of-beauty/Michelangelo_libyan.jpg": "Michelangelo Buonarroti",
-  "collection-of-beauty/El_Tres_de_Mayo,_by_Francisco_de_Goya,_from_Prado_thin_black_margin.jpg": "Francisco Goya"
+  "collection-of-beauty/El_Tres_de_Mayo,_by_Francisco_de_Goya,_from_Prado_thin_black_margin.jpg": "Francisco Goya",
+  "collection-of-beauty/溥僩丙子夏日寫生.jpg": "Pu Xian"
 }
