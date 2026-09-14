@@ -22,13 +22,13 @@ const HOURS_AT_A_MINUTE = Math.round(summary.totalArtworks / 60);
 
 export const metadata: Metadata = {
   title: "Press",
-  description: `Press kit for Collection of Beauty, Rico Trebeljahr's scrapbook of ${WORKS} public-domain artworks: story, fact sheet, copy, FAQ and images.`,
+  description: `Press kit for Collection of Beauty, ${WORKS} public-domain artworks dated ${YEARS} and sorted by decade, colour and era. Story, fact sheet, copy, FAQ and images.`,
   alternates: { canonical: "/press" },
   openGraph: buildOpenGraph({
     // Same string as alternates.canonical above, so og:url can't drift from it.
     url: "/press",
     title: `Press · ${SITE_NAME}`,
-    description: `Story, fact sheet, copy blocks, FAQ, images and press contact for Rico Trebeljahr's scrapbook of ${WORKS} public-domain artworks.`,
+    description: `Story, fact sheet, copy blocks, FAQ, images and press contact for Collection of Beauty, ${WORKS} public-domain artworks dated ${YEARS}.`,
     images: [
       {
         url: "/marketing/hero.png",
@@ -41,7 +41,7 @@ export const metadata: Metadata = {
   twitter: {
     card: "summary_large_image",
     title: `Press · ${SITE_NAME}`,
-    description: `Story, fact sheet, copy, FAQ and images for Rico Trebeljahr's scrapbook of ${WORKS} public-domain artworks.`,
+    description: `Story, fact sheet, copy, FAQ and images for Collection of Beauty, ${WORKS} public-domain artworks dated ${YEARS}.`,
     images: ["/marketing/hero.png"],
   },
   robots: {
@@ -124,7 +124,7 @@ const descriptionTiers = [
   {
     title: "One sentence",
     body: [
-      `Collection of Beauty is Rico Trebeljahr's scrapbook of ${WORKS} public-domain artworks, which anyone can sort by date, colour, era or artist.`,
+      `Collection of Beauty is a free website with ${WORKS} public-domain artworks that anyone can sort by decade, colour, era or artist, or walk through as a 3D museum.`,
     ],
   },
   {
@@ -318,8 +318,8 @@ export default function PressPage() {
                 Collection of Beauty
               </h1>
               <p className="mt-5 max-w-2xl text-lg leading-8 text-[var(--foreground)] md:text-xl">
-                Rico Trebeljahr's scrapbook of public-domain art: {WORKS} works he finds beautiful,
-                most of them from Wikimedia Commons.
+                {WORKS} public-domain artworks from {YEARS}, sorted by decade, colour and era. The
+                eras also hang as rooms in a 3D museum that runs in the browser.
               </p>
               <div className="mt-8 flex flex-wrap gap-3">
                 {/* min-h-11 lifts both CTAs from their natural 38px
