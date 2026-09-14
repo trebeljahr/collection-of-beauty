@@ -13,6 +13,7 @@ import { ArtworkGallery } from "@/components/artwork-gallery";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { Select, type SelectOption } from "@/components/ui/select";
 import {
   type ArtworkSort,
   DEFAULT_ARTWORK_PAGE_SIZE,
@@ -42,6 +43,12 @@ type FuseCtor = new (list: ArtworkListing[], options: Record<string, unknown>) =
 type PageStatus = "idle" | "loading" | "failed";
 
 const PAGE_SIZE = DEFAULT_ARTWORK_PAGE_SIZE;
+
+const SORT_OPTIONS: SelectOption[] = [
+  { value: "shuffle", label: "Sort: shuffled" },
+  { value: "year", label: "Sort: chronological" },
+  { value: "artist", label: "Sort: artist" },
+];
 
 export function GalleryBrowser({ initialArtworks, eras, totalArtworks }: Props) {
   const [query, setQuery] = useState("");
@@ -151,6 +158,11 @@ export function GalleryBrowser({ initialArtworks, eras, totalArtworks }: Props) 
     return rankLoadedArtworks(loadedArtworks, fuse, pageQuery.q ?? "");
   }, [fuse, loadedArtworks, pageQuery.q]);
 
+  const eraOptions = useMemo(
+    () => [{ value: "", label: "All eras" }, ...eras.map((e) => ({ value: e.id, label: e.title }))],
+    [eras],
+  );
+
   const activeFilterCount = era ? 1 : 0;
 
   function clearFilters() {
@@ -161,59 +173,45 @@ export function GalleryBrowser({ initialArtworks, eras, totalArtworks }: Props) 
   return (
     <div className="space-y-6">
       <div className="flex flex-col gap-3 rounded-xl border border-[var(--border)] bg-[var(--card)] p-4">
-        <div className="flex flex-col gap-2 sm:flex-row sm:items-center">
-          <Input
-            type="search"
-            aria-label="Search artworks by title, artist, or movement"
-            placeholder="Search by title, artist, movement..."
-            value={query}
-            onChange={(e) => setQuery(e.target.value)}
-            /*
-             * text-base (16px) below `sm` is load-bearing, not cosmetic: iOS
-             * Safari zooms the whole page in whenever a focused form control
-             * has a font smaller than 16px, and the user then has to pinch
-             * back out. h-11 is the 44px touch-target floor. Desktop keeps the
-             * denser h-9 / text-sm the Input component ships by default.
-             */
-            className="h-11 w-full text-base sm:h-9 sm:flex-1 sm:text-sm"
-          />
-          <select
-            aria-label="Sort artworks by"
-            value={sortBy}
-            onChange={(e) => setSortBy(e.target.value as ArtworkSort)}
-            className="h-11 rounded-md border border-[var(--input)] bg-transparent px-2 text-base focus:outline-none focus-visible:ring-2 focus-visible:ring-[var(--ring)] sm:h-9 sm:w-auto sm:min-w-[12rem] sm:text-sm"
-          >
-            <option value="shuffle">Sort: shuffled</option>
-            <option value="year">Sort: chronological</option>
-            <option value="artist">Sort: artist</option>
-          </select>
-        </div>
-        <div className="flex flex-wrap items-center gap-2 text-sm">
-          <select
+        <Input
+          type="search"
+          aria-label="Search artworks by title, artist, or movement"
+          placeholder="Search by title, artist, movement..."
+          value={query}
+          onChange={(e) => setQuery(e.target.value)}
+          /*
+           * text-base (16px) below `sm` is load-bearing, not cosmetic: iOS
+           * Safari zooms the whole page in whenever a focused form control
+           * has a font smaller than 16px, and the user then has to pinch
+           * back out. h-11 is the 44px touch-target floor. Desktop keeps the
+           * denser h-9 / text-sm the Input component ships by default.
+           */
+          className="h-11 w-full text-base sm:h-9 sm:text-sm"
+        />
+        <div className="flex flex-wrap items-center gap-2">
+          <Select
             aria-label="Filter by era"
             value={era}
-            onChange={(e) => setEra(e.target.value)}
-            /*
-             * Same 16px / 44px rule as the controls above. The font size has
-             * to be spelled out here because the row's `text-sm` would
-             * otherwise cascade into the select and re-trigger the iOS zoom.
-             */
-            className="h-11 rounded-md border border-[var(--input)] bg-transparent px-2 text-base focus:outline-none focus-visible:ring-2 focus-visible:ring-[var(--ring)] sm:h-9 sm:text-sm"
-          >
-            <option value="">All eras</option>
-            {eras.map((e) => (
-              <option key={e.id} value={e.id}>
-                {e.title}
-              </option>
-            ))}
-          </select>
+            onChange={setEra}
+            options={eraOptions}
+            className="min-w-0 flex-1 sm:w-64 sm:flex-none"
+            listClassName="sm:min-w-72"
+          />
+          <Select
+            aria-label="Sort artworks by"
+            value={sortBy}
+            onChange={(value) => setSortBy(value as ArtworkSort)}
+            options={SORT_OPTIONS}
+            align="end"
+            className="min-w-0 flex-1 sm:w-52 sm:flex-none"
+          />
           {(activeFilterCount > 0 || query) && (
             <Button
               variant="ghost"
               size="sm"
               onClick={clearFilters}
               /* size="sm" is a 32px box — below the 44px touch floor on phones. */
-              className="h-11 px-4 sm:h-8 sm:px-3"
+              className="h-11 px-4 text-base sm:h-8 sm:px-3 sm:text-xs"
             >
               Clear
             </Button>
