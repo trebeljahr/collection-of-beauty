@@ -73,7 +73,21 @@ const SURPRISE_LINK: NavLink = {
   sub: "One random work, as big as it fits",
 };
 
-const MENU_LINKS: ReadonlyArray<NavLink> = [MUSEUM_LINK, SURPRISE_LINK, NEWSLETTER_LINK];
+// Not a way into the collection, so it sits under a divider at the foot
+// of the Explore panel on desktop and last in the mobile menu. The footer
+// link alone left the story behind the site one scroll past every grid.
+const ABOUT_LINK: NavLink = {
+  href: "/about",
+  label: "About",
+  sub: "Who made this, and why",
+};
+
+const MENU_LINKS: ReadonlyArray<NavLink> = [
+  MUSEUM_LINK,
+  SURPRISE_LINK,
+  NEWSLETTER_LINK,
+  ABOUT_LINK,
+];
 
 function isLinkActive(link: NavLink, pathname: string): boolean {
   return link.isActive ? link.isActive(pathname) : pathname === link.href;
@@ -166,7 +180,7 @@ export function SiteNav() {
   const [exploreOpen, setExploreOpen] = useState(false);
   const exploreRef = useRef<HTMLDivElement | null>(null);
   const exploreTriggerRef = useRef<HTMLButtonElement | null>(null);
-  const exploreActive = EXPLORE_LINKS.some((l) => isLinkActive(l, pathname));
+  const exploreActive = [...EXPLORE_LINKS, ABOUT_LINK].some((l) => isLinkActive(l, pathname));
 
   // A pointer-down or focus move (Tab) anywhere outside, or Escape,
   // closes the panel. Escape hands focus back to the trigger only when
@@ -365,6 +379,19 @@ export function SiteNav() {
                       </li>
                     ))}
                   </ul>
+                  <div className="mt-1.5 border-t border-[var(--border)] pt-1.5">
+                    <Link
+                      href={ABOUT_LINK.href}
+                      onClick={(e) => handleExploreTap(e, ABOUT_LINK.href)}
+                      aria-current={isLinkActive(ABOUT_LINK, pathname) ? "page" : undefined}
+                      className="flex flex-col gap-0.5 rounded-lg px-3 py-2 hover:bg-[var(--accent)] focus:outline-none focus-visible:ring-2 focus-visible:ring-[var(--ring)] aria-[current=page]:bg-[var(--accent)]"
+                    >
+                      <span className="font-medium">{ABOUT_LINK.label}</span>
+                      <span className="text-xs text-[var(--muted-foreground)]">
+                        {ABOUT_LINK.sub}
+                      </span>
+                    </Link>
+                  </div>
                 </div>
               )}
             </div>
