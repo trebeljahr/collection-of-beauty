@@ -28,20 +28,19 @@ export const SITE_NAME = "Collection of Beauty";
 const FLOOR_COUNT = ERAS.length;
 
 /**
- * Short enough to sit in a <title> after the site name, and it leads with
- * the museum on purpose: "public-domain art gallery" describes several
- * hundred other sites, the walkable building describes this one.
+ * Short enough to sit in a <title> after the site name. "Public-domain art
+ * gallery" alone describes several hundred other sites, so the walkable
+ * building stays in, but as one part of the site rather than all of it:
+ * most visits browse by era, artist, colour or decade.
  */
-export const SITE_TAGLINE = `a walkable ${FLOOR_COUNT}-floor museum of public-domain art`;
+export const SITE_TAGLINE = "handpicked public-domain art, with a walkable 3D museum";
 
 // Kept under the ~155 characters Google shows before truncating; the
-// longer version repeated the floor-by-floor description that already
-// sits on /gallery-3d and /press.
+// floor-by-floor description already sits on /gallery-3d and /press.
 export const SITE_DESCRIPTION =
-  `A museum of ${FLOOR_COUNT} walkable floors, one per era. ` +
-  `${summary.totalArtworks.toLocaleString()} public-domain works by ` +
+  `${summary.totalArtworks.toLocaleString()} handpicked public-domain works by ` +
   `${summary.totalArtists.toLocaleString()} artists, ${summary.yearRange.min}–${summary.yearRange.max}. ` +
-  `Also a flat gallery and a timeline.`;
+  `Browse by era, artist, colour or decade, or walk a museum of ${FLOOR_COUNT} floors.`;
 
 export const TWITTER_HANDLE = process.env.NEXT_PUBLIC_TWITTER_HANDLE ?? undefined;
 
