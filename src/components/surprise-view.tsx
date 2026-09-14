@@ -1,7 +1,15 @@
 "use client";
 
 import Link from "next/link";
-import { type CSSProperties, useCallback, useEffect, useRef, useState } from "react";
+import {
+  type CSSProperties,
+  type MouseEvent,
+  useCallback,
+  useEffect,
+  useRef,
+  useState,
+} from "react";
+import { Lightbox } from "@/components/lightbox";
 import { ResponsiveImage } from "@/components/responsive-image";
 import { ShuffleIcon } from "@/components/ui/shuffle-icon";
 import { artworkAlt, displayTitle } from "@/lib/artwork-format";
@@ -18,10 +26,14 @@ type Props = {
  *  with the taps that are still served locally. */
 const REFILL_AT = 2;
 
+/** Compact pill for the Previous / Next row in the top-left corner. */
+const SMALL_NAV_CLASS =
+  "inline-flex items-center gap-1 rounded-full border border-[var(--border)] px-2.5 py-1 text-xs text-[var(--muted-foreground)] transition hover:bg-[var(--accent)] hover:text-[var(--foreground)] focus:outline-none focus-visible:ring-2 focus-visible:ring-[var(--ring)] disabled:pointer-events-none disabled:opacity-40";
+
 /** Height the frame is allowed to take.
  *
- *  `100svh - 17rem` is the above-the-fold term: 17rem reserves the sticky
- *  header, the caption (two lines when a long title wraps) and the actions
+ *  `100svh - 18.5rem` is the above-the-fold term: 18.5rem reserves the sticky
+ *  header, the Previous / Next row, the caption (two lines when a long title wraps) and the actions
  *  underneath, so on a normal viewport the whole thing lands in view
  *  without measuring anything at runtime. The site footer sits below it —
  *  this is "as big as fits", not a viewport takeover.
@@ -29,26 +41,26 @@ const REFILL_AT = 2;
  *  The `max()` is the floor, and it exists because that subtraction has no
  *  bottom: on a 360 px-tall landscape phone it left 88 px, which a portrait
  *  work turned into a 47 px-wide stamp — the page's whole promise, gone.
- *  Below ~37rem (592 px) of viewport height the floor takes over, because
+ *  Below ~38.5rem (616 px) of viewport height the floor takes over, because
  *  fitting a usable image *and* the chrome above the fold stops being
  *  achievable there: we trade the fold for size, giving the image a real
  *  20rem and letting the visitor scroll a little for the caption. The two
- *  terms meet exactly at 592 px, so nothing jumps as a window is resized.
+ *  terms meet exactly at 616 px, so nothing jumps as a window is resized.
  *
  *  The floor is itself capped at 80svh so the image never eats the entire
  *  short viewport — the remaining fifth keeps the caption visibly peeking,
  *  which is what tells anyone there is something below to scroll to. */
-const FRAME_MAX_HEIGHT = "max(100svh - 17rem, min(20rem, 80svh))";
+const FRAME_MAX_HEIGHT = "max(100svh - 18.5rem, min(20rem, 80svh))";
 /** Same expression in `vh`, for the `sizes` attribute only: `svh`/`dvh` are
  *  not accepted in `sizes` by every engine, and an unparseable descriptor
  *  drops the browser back to 100vw and the over-fetch this hint exists to
  *  avoid. `vh` differs from `svh` only while a mobile URL bar is expanded,
  *  which is a rung of error the variant ladder absorbs. */
-const FRAME_MAX_HEIGHT_VH = "max(100vh - 17rem, min(20rem, 80vh))";
+const FRAME_MAX_HEIGHT_VH = "max(100vh - 18.5rem, min(20rem, 80vh))";
 
 /**
  * `/surprise` — one random work, image dominant, chrome down to a
- * caption and two actions.
+ * Previous / Next row, a caption and two actions.
  *
  * The server hands over a whole deck rather than a single work, so
  * "Show me another" is a state swap (instant, no navigation) and the
@@ -61,6 +73,7 @@ const FRAME_MAX_HEIGHT_VH = "max(100vh - 17rem, min(20rem, 80vh))";
 export function SurpriseView({ deck }: Props) {
   const [queue, setQueue] = useState<ArtworkListing[]>(deck);
   const [index, setIndex] = useState(0);
+  const [lightboxOpen, setLightboxOpen] = useState(false);
   // Guards against a second refill firing while the first is in flight.
   const refillingRef = useRef(false);
 
@@ -114,8 +127,10 @@ export function SurpriseView({ deck }: Props) {
 
   // Arrow keys mirror the two buttons for keyboard visitors. Ignored
   // while a form control or a button has focus so they can't
-  // double-fire alongside the button's own activation.
+  // double-fire alongside the button's own activation, and while the
+  // lightbox is open, which binds its own arrows to the same steps.
   useEffect(() => {
+    if (lightboxOpen) return;
     const onKey = (e: KeyboardEvent) => {
       if (e.metaKey || e.ctrlKey || e.altKey) return;
       const step = e.key === "ArrowRight" ? again : e.key === "ArrowLeft" ? back : null;
@@ -126,7 +141,7 @@ export function SurpriseView({ deck }: Props) {
     };
     window.addEventListener("keydown", onKey);
     return () => window.removeEventListener("keydown", onKey);
-  }, [again, back]);
+  }, [again, back, lightboxOpen]);
 
   if (!current) {
     // Only reachable if the catalogue itself is empty.
@@ -139,12 +154,37 @@ export function SurpriseView({ deck }: Props) {
 
   const title = displayTitle(current);
 
+  // Shared by "Next" and "Show me another": both are real links to
+  // /surprise that swap in the next card when one is in hand.
+  const onAnother = (e: MouseEvent<HTMLAnchorElement>) => {
+    if (e.metaKey || e.ctrlKey || e.shiftKey || e.altKey) return;
+    if (again()) e.preventDefault();
+  };
+
   return (
-    <div className="mx-auto flex w-full max-w-[110rem] flex-col items-center gap-6 px-3 py-6 md:px-6 md:py-8">
+    <div className="mx-auto flex w-full max-w-[110rem] flex-col items-center gap-6 px-3 pt-3 pb-6 md:px-6 md:pt-4 md:pb-8">
+      {/* Rendered disabled on the first work rather than omitted, so
+          "Next" doesn't shift sideways after the first tap. */}
+      <nav aria-label="Browse surprises" className="-mb-3 flex w-full items-center gap-1.5">
+        <button type="button" onClick={back} disabled={index === 0} className={SMALL_NAV_CLASS}>
+          <span aria-hidden="true">←</span> Previous
+        </button>
+        <a href="/surprise" onClick={onAnother} className={SMALL_NAV_CLASS}>
+          Next <span aria-hidden="true">→</span>
+        </a>
+      </nav>
+
       <figure className="flex w-full flex-col items-center gap-5">
+        {/* Opens the full-screen lightbox in place. The href is the
+            no-JS and modified-click fallback. */}
         <Link
           href={`/artwork/${current.id}`}
-          aria-label={`Open ${title} in full detail`}
+          aria-label={`View ${title} full screen`}
+          onClick={(e) => {
+            if (e.metaKey || e.ctrlKey || e.shiftKey || e.altKey) return;
+            e.preventDefault();
+            setLightboxOpen(true);
+          }}
           className="relative block w-full max-w-full rounded-md focus:outline-none focus-visible:ring-2 focus-visible:ring-[var(--ring)] focus-visible:ring-offset-2 focus-visible:ring-offset-[var(--background)]"
           style={frameStyle(current.width, current.height)}
         >
@@ -175,25 +215,12 @@ export function SurpriseView({ deck }: Props) {
       </figure>
 
       <div className="flex flex-wrap items-center justify-center gap-3">
-        {/* Rendered disabled on the first work rather than omitted, so
-            the row doesn't shift sideways after the first tap. */}
-        <button
-          type="button"
-          onClick={back}
-          disabled={index === 0}
-          className="inline-flex items-center gap-1 rounded-full border border-[var(--border)] px-5 py-2.5 text-sm transition hover:bg-[var(--accent)] focus:outline-none focus-visible:ring-2 focus-visible:ring-[var(--ring)] disabled:pointer-events-none disabled:opacity-40"
-        >
-          <span aria-hidden="true">←</span> Back
-        </button>
         {/* A real link, not a bare button: without JS (and if a refill
             ever fails) this navigates to /surprise, which is dynamic and
             renders a different work every time. */}
         <a
           href="/surprise"
-          onClick={(e) => {
-            if (e.metaKey || e.ctrlKey || e.shiftKey || e.altKey) return;
-            if (again()) e.preventDefault();
-          }}
+          onClick={onAnother}
           className="inline-flex items-center gap-2 rounded-full bg-[var(--primary)] px-5 py-2.5 text-sm font-medium text-[var(--primary-foreground)] transition hover:opacity-90 focus:outline-none focus-visible:ring-2 focus-visible:ring-[var(--ring)] focus-visible:ring-offset-2 focus-visible:ring-offset-[var(--background)]"
         >
           <ShuffleIcon />
@@ -219,6 +246,21 @@ export function SurpriseView({ deck }: Props) {
           <SurpriseImage key={upcoming.id} art={upcoming} />
         </div>
       )}
+
+      {/* Its chevrons walk the same deck as Previous / Next, so closing
+          lands on whatever work the visitor stepped to. */}
+      <Lightbox
+        open={lightboxOpen}
+        onClose={() => setLightboxOpen(false)}
+        objectKey={current.objectKey}
+        variantWidths={current.variantWidths}
+        alt={artworkAlt(current)}
+        srcWidth={current.width}
+        srcHeight={current.height}
+        caption={artworkAlt(current)}
+        onPrev={index > 0 ? back : null}
+        onNext={upcoming ? again : null}
+      />
     </div>
   );
 }
