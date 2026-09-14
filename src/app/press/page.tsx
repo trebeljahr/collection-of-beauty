@@ -211,7 +211,7 @@ const faq = [
   ],
   [
     "Will you add more artists / more works?",
-    'Yes. Rico keeps adding works. Suggestions for "you should look at X" are welcome via GitHub or email, and he decides what goes in.',
+    'Yes. Rico keeps adding works he finds beautiful. Suggestions for "you should look at X" are welcome via GitHub or email, and he decides what goes in.',
   ],
   ["Is there a Patreon / membership / paid tier?", "No."],
 ] as const;
