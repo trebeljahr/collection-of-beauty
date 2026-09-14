@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { IMPRINT_EMAIL } from "@/lib/links";
 
 export const metadata: Metadata = {
   title: "Imprint",
@@ -39,10 +40,10 @@ export default function ImprintPage() {
           <p className="mt-2">
             Email:{" "}
             <a
-              href="mailto:imprint@collectionofbeauty.com"
+              href={`mailto:${IMPRINT_EMAIL}`}
               className="rounded-sm underline hover:text-[var(--muted-foreground)] focus:outline-none focus-visible:ring-2 focus-visible:ring-[var(--ring)]"
             >
-              imprint@collectionofbeauty.com
+              {IMPRINT_EMAIL}
             </a>
           </p>
         </div>

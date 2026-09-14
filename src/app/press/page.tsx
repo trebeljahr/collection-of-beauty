@@ -3,10 +3,8 @@ import Image from "next/image";
 import Link from "next/link";
 import { summary } from "@/lib/data";
 import { ERAS } from "@/lib/gallery-eras";
-import { GITHUB_URL } from "@/lib/links";
+import { GITHUB_URL, PRESS_EMAIL } from "@/lib/links";
 import { absoluteUrl, buildOpenGraph, jsonLdScriptProps, SITE_NAME } from "@/lib/seo";
-
-const pressEmail = "imprint@collectionofbeauty.com";
 
 // Counts are rounded down ("4,000+") on purpose: the collection keeps
 // growing, and a reader needs the size of it, not the exact tally. Rounding
@@ -135,7 +133,7 @@ const factSheet = [
   ],
   ["Price", "Free. No account and no ads. Analytics run on self-hosted Plausible without cookies."],
   ["Newsletter", "Drops of Beauty: five works on one theme per edition, opt-in, at /drops."],
-  ["Press contact", pressEmail],
+  ["Press contact", PRESS_EMAIL],
   ["Press page", "https://collectionofbeauty.com/press"],
 ] as const;
 
@@ -247,7 +245,7 @@ function contactPointJsonLd(): Record<string, unknown> {
     "@context": "https://schema.org",
     "@type": "ContactPoint",
     contactType: "press",
-    email: pressEmail,
+    email: PRESS_EMAIL,
     url: absoluteUrl("/press"),
     areaServed: "Worldwide",
     availableLanguage: "English",
@@ -363,7 +361,7 @@ export default function PressPage() {
                   Download press kit
                 </Link>
                 <a
-                  href={`mailto:${pressEmail}`}
+                  href={`mailto:${PRESS_EMAIL}`}
                   className="inline-flex min-h-11 items-center rounded-md border border-[var(--border)] bg-[var(--background)]/70 px-4 py-2 text-sm font-medium transition hover:bg-[var(--accent)] focus:outline-none focus-visible:ring-2 focus-visible:ring-[var(--ring)] sm:min-h-0"
                 >
                   Contact press
@@ -378,10 +376,10 @@ export default function PressPage() {
               <p className="mt-4">
                 Press contact:{" "}
                 <a
-                  href={`mailto:${pressEmail}`}
+                  href={`mailto:${PRESS_EMAIL}`}
                   className="rounded-sm underline underline-offset-2 hover:text-[var(--foreground)] focus:outline-none focus-visible:ring-2 focus-visible:ring-[var(--ring)]"
                 >
-                  {pressEmail}
+                  {PRESS_EMAIL}
                 </a>
               </p>
             </div>
@@ -597,10 +595,10 @@ export default function PressPage() {
                 <p>
                   Email:{" "}
                   <a
-                    href={`mailto:${pressEmail}`}
+                    href={`mailto:${PRESS_EMAIL}`}
                     className="rounded-sm underline underline-offset-2 hover:text-[var(--muted-foreground)] focus:outline-none focus-visible:ring-2 focus-visible:ring-[var(--ring)]"
                   >
-                    {pressEmail}
+                    {PRESS_EMAIL}
                   </a>
                 </p>
                 <p className="text-[var(--muted-foreground)]">
