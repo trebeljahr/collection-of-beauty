@@ -135,8 +135,8 @@ export function SubscribeForm({
         <p className="font-medium">You&apos;re already on the list.</p>
         {!compact && (
           <p className="mt-1 text-[var(--muted-foreground)]">
-            That address is already a confirmed subscriber. Nothing to do. The next issue arrives at
-            the usual cadence.
+            That address is already a confirmed subscriber. Nothing to do. The next issue will reach
+            you when it goes out.
           </p>
         )}
       </div>
@@ -207,7 +207,7 @@ export function SubscribeForm({
 
       {!compact && (
         <p className="text-xs text-[var(--muted-foreground)]">
-          <em>Drops of Beauty</em> - one email every Sunday, five works and a few notes.
+          <em>Drops of Beauty</em> - five works and a few notes in each email.
         </p>
       )}
     </form>

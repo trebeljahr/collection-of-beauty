@@ -1,7 +1,7 @@
 # Collection of Beauty
 
 A public-domain art gallery built as a Next.js App Router site, with a
-WebGL multi-floor museum, a curated weekly newsletter, and a pre-built
+WebGL multi-floor museum, a curated newsletter, and a pre-built
 asset pipeline (no Next image optimizer in the hot path).
 
 ## Stack
@@ -135,7 +135,7 @@ configured (by Hatchkit) to deliver via Amazon SES SMTP in eu-west-1.
 The app never talks to SES directly — it talks to ListMonk's HTTP API,
 which in turn fans out via SES. The double-opt-in confirmation email
 is rendered from React Email (`emails/confirm-subscription.tsx`) and
-dispatched through ListMonk's transactional template; weekly digests
+dispatched through ListMonk's transactional template; digests
 go through ListMonk campaigns, which auto-substitute
 `{{ UnsubscribeURL }}` per recipient.
 Email image URLs always use the deployed assets bucket (or
