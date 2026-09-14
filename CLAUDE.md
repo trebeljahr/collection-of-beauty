@@ -294,12 +294,11 @@ set up; if you need one, scaffold a Testing Library setup separately.
       his works here split evenly across 1781–1799 and 1803–1830, so
       per-work year fallback beats any single tag.
     - 17 pre-1500 works (van der Weyden, Uccello, Mantegna, Witz,
-      Wolgemut, van der Goes, Carpaccio, Signorelli). Tagging them
-      Renaissance / Northern Renaissance would *promote* them off the
-      "Gothic & Early Renaissance" floor onto the 1500–1599 one, which
-      is worse than where the year already puts them. A first pass
-      added a Rogier van der Weyden entry and did exactly that to his
-      eight 1435–1490 works; it was removed.
+      Wolgemut, van der Goes, Carpaccio, Signorelli). The year already
+      puts them on the "Gothic & Early Renaissance" floor. `assignEra`
+      now keeps Renaissance-tagged works dated before 1500 there too;
+      before that rule, tag routing sent 56 of them to the 1500s floor
+      and left the ground floor with 17 works.
     - A few works by artists who died in or shortly before 1955
       (Bonnard, Tanguy). Their German term has ended. Works still in
       copyright are no longer catalogued; see "Copyright" below.

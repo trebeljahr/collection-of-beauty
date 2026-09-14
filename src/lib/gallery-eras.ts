@@ -433,6 +433,8 @@ const MOVEMENT_TO_ERA: Map<string, EraId> = (() => {
   return m;
 })();
 
+const RENAISSANCE_YEAR_MIN = ERAS.find((e) => e.id === "renaissance")!.yearMin;
+
 /**
  * Assign an artwork to an era. Priority: explicit movement → year fallback.
  * Returns null only if neither year nor movement produces a match.
@@ -440,6 +442,13 @@ const MOVEMENT_TO_ERA: Map<string, EraId> = (() => {
 export function assignEra(artwork: Pick<Artwork, "movement" | "year">): EraId | null {
   if (artwork.movement) {
     const hit = MOVEMENT_TO_ERA.get(artwork.movement.toLowerCase());
+    // A 15th-century "Renaissance" work (Botticelli, Schongauer, early
+    // Dürer, van Eyck) is Early Renaissance, which is the ground floor's
+    // half of its title. Routed by tag alone, all 56 of them went up to
+    // the 1500s floor and left the entry storey with 17 works in two rooms.
+    if (hit === "renaissance" && artwork.year != null && artwork.year < RENAISSANCE_YEAR_MIN) {
+      return "gothic";
+    }
     if (hit) return hit;
   }
   if (artwork.year != null) {
