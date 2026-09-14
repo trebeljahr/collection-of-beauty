@@ -66,12 +66,12 @@ export const metadata: Metadata = {
 // and anything in Rico's own voice should be written by Rico.
 const story = [
   `Collection of Beauty is a way to move through art on a screen. It holds ${WORKS} public-domain paintings, prints and book plates, and every one of them was handpicked. The site links them by era, artist, colour and decade, and hangs them in a 3D museum with one floor for each era.`,
-  "Open archives such as the Public Domain Image Archive (pdimagearchive.org) are close to endless and full of curiosities. Collection of Beauty is one person's slice through that material. It is smaller and handpicked, and each work carries metadata that leads to the next one: the movement it belongs to, the artists around it, the colours in it. Famous names are missing and some lesser-known artists appear often, because Rico's taste decides what goes in.",
-  `Picking the works took three to four weeks and more than 50,000 images. Rico sometimes sat for hours with music on and a cup of tea, browsing public-domain art on Wikimedia Commons. Whenever one artist's page mentioned another, he added that name to an index of artists. He then opened each artist's list of works on Commons and clicked through them one by one.`,
+  "Open archives such as the Public Domain Image Archive (pdimagearchive.org) are close to endless and full of curiosities. Collection of Beauty is one person's slice through that material. It is smaller and handpicked, and each work carries metadata that leads to the next one: the movement it belongs to, the artists around it, the colours in it. Famous names are missing and some lesser-known artists appear often, because one person's taste decides what goes in.",
+  `Picking the works meant looking at more than 50,000 images. Rico sometimes sat for hours with music on and a cup of tea, browsing public-domain art on Wikimedia Commons. Whenever one artist's page mentioned another, he added that name to an index of artists. He then opened each artist's list of works on Commons and clicked through them one by one.`,
   "Most of the work came after the looking: removing duplicates and cleaning up the metadata. AI coding agents, Claude Code and Codex, helped heavily with that part and with building the site.",
   "Walking the museum floor by floor shows what each period looked like, and how much art from past centuries anyone can look at for free.",
   "For Rico the collection is also a source of inspiration on days when he feels down. It gives him an excuse to look at art he likes, and to look for new art without calling it procrastination.",
-  "He started the site in April 2026 and keeps adding works. The code, the data scripts and the metadata are public on GitHub.",
+  "He began collecting in 2025 and started the site in April 2026. He keeps adding works. The code, the data scripts and the metadata are public on GitHub.",
 ] as const;
 
 // The data-art half of the story: one catalogue, sorted by one field at a
@@ -119,8 +119,8 @@ const factSheet = [
   ["URL", "https://collectionofbeauty.com"],
   ["Maker", "Rico, working alone"],
   ["Location", "Berlin, Germany"],
-  ["Started", "April 2026. Rico keeps adding works."],
-  ["Selection", `Handpicked from ${IMAGES_SEEN} images over three to four weeks.`],
+  ["Started", "Collecting in 2025. The site followed in April 2026, and Rico keeps adding works."],
+  ["Selection", `Handpicked from ${IMAGES_SEEN} images.`],
   [
     "Collection",
     `${WORKS} works by ${ARTISTS} artists, dated from ${PERIOD}. Most were picked one at a time. The rest are plates from four illustrated books.`,
@@ -162,7 +162,7 @@ const descriptionTiers = [
     title: "Long (about 150 words)",
     body: [
       `Collection of Beauty is a way to move through art on a screen. Visitors can sort the works by era, decade, colour and artist, or open one at random. They can also walk through a 3D museum in the browser, with one floor for each era from ${GROUND_ERA} to ${TOP_ERA}.`,
-      `Every work in it was handpicked. Rico spent three to four weeks going from artist to artist on Wikimedia Commons and looked at ${IMAGES_SEEN} images to pick ${WORKS}. AI coding agents, Claude Code and Codex, helped heavily with removing duplicates, cleaning up the metadata and building the site.`,
+      `Every work in it was handpicked. Rico went from artist to artist on Wikimedia Commons and looked at ${IMAGES_SEEN} images to pick ${WORKS}. AI coding agents, Claude Code and Codex, helped heavily with removing duplicates, cleaning up the metadata and building the site.`,
       "Open archives of public-domain images are close to endless. This one is small enough to walk through, and Rico keeps adding to it. The site is free, and every work links back to its source.",
     ],
   },
