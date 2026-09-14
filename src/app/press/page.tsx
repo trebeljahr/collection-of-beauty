@@ -149,7 +149,7 @@ const descriptionTiers = [
   {
     title: "Short (about 40 words)",
     body: [
-      `Collection of Beauty is a 3D museum you walk through in the browser, with one floor for each era of art. Rico picked its ${WORKS} public-domain works by hand from ${IMAGES_SEEN} images. Visitors can also browse them by colour, decade or artist.`,
+      `Collection of Beauty is a 3D museum you walk through in the browser, with one floor for each era of art. Rico picked the ${WORKS} public-domain works in the collection by hand from ${IMAGES_SEEN} images. Visitors can also browse them by colour, decade or artist.`,
     ],
   },
   {
@@ -339,8 +339,8 @@ export default function PressPage() {
               </h1>
               <p className="mt-5 max-w-2xl text-lg leading-8 text-[var(--foreground)] md:text-xl">
                 A 3D museum of public-domain art that you walk through in your browser, with a floor
-                of rooms for each era. Rico picked its {WORKS} works by hand because he finds them
-                beautiful.
+                of rooms for each era. Rico picked the {WORKS} works in the collection by hand
+                because he finds them beautiful.
               </p>
               <div className="mt-8 flex flex-wrap gap-3">
                 {/* min-h-11 lifts both CTAs from their natural 38px
