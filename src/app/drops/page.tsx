@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
+import type { CSSProperties } from "react";
 import { SubscribeForm } from "@/components/subscribe-form";
 import { resolveEditionCover } from "@/lib/newsletter/cover";
 import { loadUiVisibleEditions } from "@/lib/newsletter/editions";
@@ -18,6 +19,24 @@ export const metadata: Metadata = {
     description: "Themed editions from the public-domain catalogue.",
   }),
 };
+
+// Card shape limits, width over height. Inside a range the box takes the
+// cover's own proportions, so most covers show whole; outside it (a 0.47
+// hanging scroll, a 2.2 folding screen) the box stops at the limit and
+// the cover crops around its `cover.focus`. A fixed 4:3 box cut the
+// courtesan scroll to a third of its height. Full-width phone cards stop
+// at square so a tall cover doesn't fill the screen; the 12rem column
+// beside the text from `sm` up can go taller and stops wide covers from
+// shrinking to a strip.
+const COVER_LIMITS = {
+  phone: { min: 1, max: 16 / 9 },
+  column: { min: 4 / 5, max: 3 / 2 },
+};
+
+function clampAspect(aspectRatio: number | null, limits: { min: number; max: number }): number {
+  if (aspectRatio == null) return 4 / 3;
+  return Math.min(limits.max, Math.max(limits.min, aspectRatio));
+}
 
 export default function DropsPage() {
   const editions = loadUiVisibleEditions().slice().reverse();
@@ -61,7 +80,17 @@ export default function DropsPage() {
                           src={cover.url}
                           alt={cover.alt}
                           loading="lazy"
-                          className="aspect-[4/3] w-full object-cover transition-opacity group-hover:opacity-90"
+                          className="aspect-(--cover-aspect) w-full object-cover transition-opacity group-hover:opacity-90 sm:aspect-(--cover-aspect-sm)"
+                          style={
+                            {
+                              "--cover-aspect": clampAspect(cover.aspectRatio, COVER_LIMITS.phone),
+                              "--cover-aspect-sm": clampAspect(
+                                cover.aspectRatio,
+                                COVER_LIMITS.column,
+                              ),
+                              objectPosition: cover.objectPosition,
+                            } as CSSProperties
+                          }
                         />
                       </div>
                     )}

@@ -6,6 +6,7 @@ excerpt: "Bosch builds a paradise no gardener could grow. Runge shrinks the view
 draft: true
 cover:
   artworkId: "collection-of-beauty-utagawa-hiroshige-i-published-by-uoya-eikichi-horikiri-iris-garden-horikiri-no-hanashobu-from-the-s"
+  focus: { x: 50, y: 30 }
 tags:
   - "gardens"
   - "flowers"

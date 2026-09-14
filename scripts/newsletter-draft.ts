@@ -116,7 +116,8 @@ excerpt: "TODO — one-sentence summary used in OG tags and the archive index."
 draft: true
 # Optional: drop in the lead artwork's id (or remove this block to fall back
 # to the first entry under "artworks:"). Use { src, alt } instead for a
-# non-artwork cover.
+# non-artwork cover. Add focus: { x: 50, y: 30 } (percent) when the cover is
+# taller than 4:5 or wider than 3:2, so the /drops card crops around it.
 cover:
   artworkId: "${chosenIds[0]}"
 tags:

@@ -6,6 +6,7 @@ excerpt: "Parmigianino bends the theme past what anatomy allows. Murillo brings 
 draft: true
 cover:
   artworkId: "collection-of-beauty-parmigianino-madonna-and-child-with-angels-known-as-the-madonna-with-the-long-neck"
+  focus: { x: 50, y: 25 }
 tags:
   - "madonna"
   - "devotional"

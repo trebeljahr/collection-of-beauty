@@ -6,6 +6,7 @@ excerpt: "Vesalius walks a flayed man through the Veneto hills. Wright's alchemi
 draft: true
 cover:
   artworkId: "collection-of-beauty-de-humani-corporis-fabrica-27"
+  focus: { x: 50, y: 10 }
 tags:
   - "science"
   - "anatomy"

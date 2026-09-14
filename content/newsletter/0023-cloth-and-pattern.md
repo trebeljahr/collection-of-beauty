@@ -6,6 +6,7 @@ excerpt: "Van Dyck's black silk is wealth made wearable. Delacroix's Algiers int
 draft: true
 cover:
   artworkId: "collection-of-beauty-kaigetsudo-ando-standing-portrait-of-a-courtesan-c-1705-1710-hanging-scroll-ink-color-and-gold-on-p"
+  focus: { x: 50, y: 35 }
 tags:
   - "textiles"
   - "portraiture"

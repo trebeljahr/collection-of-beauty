@@ -126,6 +126,37 @@ body`;
     expect(ed.cover).toEqual({ src: "/uploads/custom.webp", alt: "A custom cover" });
   });
 
+  it("parses cover focus", () => {
+    const md = `---
+title: "Test"
+publishedAt: "2026-05-17"
+excerpt: "x"
+cover:
+  artworkId: "lead-artwork"
+  focus: { x: 40, y: 25 }
+artworks:
+${FIVE_IDS.map((id) => `  - id: "${id}"`).join("\n")}
+---
+body`;
+    const ed = parseEdition("0001-test.md", md);
+    expect(ed.cover).toEqual({ artworkId: "lead-artwork", focus: { x: 40, y: 25 } });
+  });
+
+  it("rejects a cover focus outside 0–100", () => {
+    const md = `---
+title: "Test"
+publishedAt: "2026-05-17"
+excerpt: "x"
+cover:
+  artworkId: "lead-artwork"
+  focus: { x: 40, y: 125 }
+artworks:
+${FIVE_IDS.map((id) => `  - id: "${id}"`).join("\n")}
+---
+body`;
+    expect(() => parseEdition("0001-test.md", md)).toThrow(/cover.focus/);
+  });
+
   it("requires alt when cover.src is set", () => {
     const md = `---
 title: "Test"

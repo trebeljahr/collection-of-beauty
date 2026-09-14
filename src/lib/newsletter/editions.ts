@@ -1,7 +1,7 @@
 import { readdirSync, readFileSync } from "node:fs";
 import path from "node:path";
 import matter from "gray-matter";
-import type { Edition, EditionArtworkEntry, EditionCover } from "./types";
+import type { CoverFocus, Edition, EditionArtworkEntry, EditionCover } from "./types";
 
 /**
  * Average adult reads ~225 words per minute on prose. We round up so a
@@ -141,17 +141,33 @@ function parseCover(filename: string, raw: unknown): EditionCover | null {
     );
   }
   const obj = raw as Record<string, unknown>;
+  const focus = parseCoverFocus(filename, obj.focus);
   if (typeof obj.artworkId === "string" && obj.artworkId.length > 0) {
     const alt = typeof obj.alt === "string" && obj.alt.length > 0 ? obj.alt : undefined;
-    return alt !== undefined ? { artworkId: obj.artworkId, alt } : { artworkId: obj.artworkId };
+    return {
+      artworkId: obj.artworkId,
+      ...(alt !== undefined && { alt }),
+      ...(focus && { focus }),
+    };
   }
   if (typeof obj.src === "string" && obj.src.length > 0) {
     if (typeof obj.alt !== "string" || obj.alt.length === 0) {
       throw new Error(`${filename}: cover.alt is required when cover.src is set.`);
     }
-    return { src: obj.src, alt: obj.alt };
+    return { src: obj.src, alt: obj.alt, ...(focus && { focus }) };
   }
   throw new Error(`${filename}: cover must set either "artworkId" or "src" + "alt".`);
+}
+
+function parseCoverFocus(filename: string, raw: unknown): CoverFocus | undefined {
+  if (raw === undefined || raw === null) return undefined;
+  const obj = typeof raw === "object" ? (raw as Record<string, unknown>) : {};
+  const inRange = (v: unknown): v is number =>
+    typeof v === "number" && Number.isFinite(v) && v >= 0 && v <= 100;
+  if (!inRange(obj.x) || !inRange(obj.y)) {
+    throw new Error(`${filename}: cover.focus must be { x, y } with both between 0 and 100.`);
+  }
+  return { x: obj.x, y: obj.y };
 }
 
 /**

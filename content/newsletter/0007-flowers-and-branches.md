@@ -6,6 +6,7 @@ excerpt: "Huizong's bamboo is discipline. Van Gogh's orchards are a sprint again
 draft: true
 cover:
   artworkId: "collection-of-beauty-kano-sansetsu-frolicking-birds-in-plum-and-willow-trees"
+  focus: { x: 60, y: 50 }
 tags:
   - "flowers"
   - "plants"
