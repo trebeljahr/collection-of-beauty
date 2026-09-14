@@ -34,13 +34,13 @@ const PERIOD =
 
 export const metadata: Metadata = {
   title: "Press",
-  description: `Press kit for Collection of Beauty, a 3D museum of ${WORKS} handpicked public-domain artworks that you walk through in the browser, one floor per era. Story, fact sheet, copy, FAQ and images.`,
+  description: `Press kit for Collection of Beauty, ${WORKS} handpicked public-domain artworks to browse or walk through in 3D. Story, fact sheet, copy, FAQ and images.`,
   alternates: { canonical: "/press" },
   openGraph: buildOpenGraph({
     // Same string as alternates.canonical above, so og:url can't drift from it.
     url: "/press",
     title: `Press · ${SITE_NAME}`,
-    description: `Story, fact sheet, copy blocks, FAQ, images and press contact for Collection of Beauty, a walkable 3D museum of ${WORKS} handpicked public-domain artworks.`,
+    description: `Story, fact sheet, copy blocks, FAQ, images and press contact for Collection of Beauty, ${WORKS} handpicked public-domain artworks to browse or walk through in 3D.`,
     images: [
       {
         url: "/marketing/hero.png",
@@ -53,7 +53,7 @@ export const metadata: Metadata = {
   twitter: {
     card: "summary_large_image",
     title: `Press · ${SITE_NAME}`,
-    description: `Story, fact sheet, copy, FAQ and images for Collection of Beauty, a walkable 3D museum of ${WORKS} handpicked public-domain artworks.`,
+    description: `Story, fact sheet, copy, FAQ and images for Collection of Beauty, ${WORKS} handpicked public-domain artworks to browse or walk through in 3D.`,
     images: ["/marketing/hero.png"],
   },
   robots: {
@@ -143,25 +143,25 @@ const descriptionTiers = [
   {
     title: "One sentence",
     body: [
-      `Collection of Beauty is a free 3D museum of ${WORKS} handpicked public-domain artworks that you walk through in the browser, one floor per era.`,
+      `Collection of Beauty has ${WORKS} handpicked public-domain artworks to browse by era, artist, colour or decade, or to walk through as a 3D museum.`,
     ],
   },
   {
     title: "Short (about 40 words)",
     body: [
-      `Collection of Beauty is a 3D museum you walk through in the browser, with one floor for each era of art. Rico handpicked the ${WORKS} public-domain works in the collection from ${IMAGES_SEEN} images. Visitors can also browse them by colour, decade or artist.`,
+      `Collection of Beauty is a free site with ${WORKS} public-domain artworks. Rico handpicked them from ${IMAGES_SEEN} images. Visitors can browse the works by era, artist, colour or decade, or walk through a 3D museum with one floor per era.`,
     ],
   },
   {
     title: "Medium (about 80 words)",
     body: [
-      `Collection of Beauty holds ${WORKS} handpicked public-domain artworks. Open archives of public-domain images are close to endless. This is one person's slice through them, with metadata that links each work to its era, its artist and its colours. The centre of the site is a 3D museum with one floor per era. Rico looked at ${IMAGES_SEEN} images to build it and keeps adding works.`,
+      `Collection of Beauty holds ${WORKS} handpicked public-domain artworks. Open archives of public-domain images are close to endless. This is one person's slice through them, with metadata that links each work to its era, its artist and its colours. One way to see them is a 3D museum with one floor per era. Rico looked at ${IMAGES_SEEN} images to build it and keeps adding works.`,
     ],
   },
   {
     title: "Long (about 150 words)",
     body: [
-      `Collection of Beauty is a way to move through art on a screen. Its centre is a 3D museum that runs in the browser, with one floor for each era, from ${GROUND_ERA} to ${TOP_ERA}. Visitors can also sort the works by decade, colour and artist, or open one at random.`,
+      `Collection of Beauty is a way to move through art on a screen. Visitors can sort the works by era, decade, colour and artist, or open one at random. They can also walk through a 3D museum in the browser, with one floor for each era from ${GROUND_ERA} to ${TOP_ERA}.`,
       `Every work in it was handpicked. Rico spent three to four weeks going from artist to artist on Wikimedia Commons and looked at ${IMAGES_SEEN} images to pick ${WORKS}. AI coding agents, Claude Code and Codex, helped heavily with removing duplicates, cleaning up the metadata and building the site.`,
       "Open archives of public-domain images are close to endless. This one is small enough to walk through, and Rico keeps adding to it. The site is free, and every work links back to its source.",
     ],
@@ -240,7 +240,7 @@ const availableImages = [
   },
 ] as const;
 
-const boilerplate = `Collection of Beauty (collectionofbeauty.com) holds ${WORKS} handpicked public-domain artworks, chosen by Rico from ${IMAGES_SEEN} images, mostly on Wikimedia Commons. Visitors can walk through it as a 3D museum with one floor per era, sort it by decade, colour and artist, or open one work at random. The site is free, has no ads, and grows as Rico adds works.`;
+const boilerplate = `Collection of Beauty (collectionofbeauty.com) holds ${WORKS} handpicked public-domain artworks, chosen by Rico from ${IMAGES_SEEN} images, mostly on Wikimedia Commons. Visitors can sort it by era, decade, colour and artist, open one work at random, or walk through it as a 3D museum with one floor per era. The site is free, has no ads, and grows as Rico adds works.`;
 
 function contactPointJsonLd(): Record<string, unknown> {
   return {
@@ -338,8 +338,8 @@ export default function PressPage() {
                 Collection of Beauty
               </h1>
               <p className="mt-5 max-w-2xl text-lg leading-8 text-[var(--foreground)] md:text-xl">
-                A 3D museum of public-domain art that you walk through in your browser, with a floor
-                of rooms for each era. Every one of the collection's {WORKS} works was handpicked.
+                {WORKS} handpicked public-domain paintings, prints and book plates. Browse them by
+                era, artist, colour or decade, or walk through them in a 3D museum in your browser.
               </p>
               <div className="mt-8 flex flex-wrap gap-3">
                 {/* min-h-11 lifts both CTAs from their natural 38px
