@@ -1,44 +1,46 @@
 import type { Metadata } from "next";
 import Image from "next/image";
 import Link from "next/link";
-import { artworks, summary } from "@/lib/data";
+import { summary } from "@/lib/data";
 import { ERAS } from "@/lib/gallery-eras";
-import { museumLayout } from "@/lib/gallery-layout/precomputed";
 import { GITHUB_URL } from "@/lib/links";
-import { getPlateSets } from "@/lib/plate-sets";
 import { absoluteUrl, buildOpenGraph, jsonLdScriptProps, SITE_NAME } from "@/lib/seo";
 
 const pressEmail = "imprint@collectionofbeauty.com";
 
-// Every number on this page is read from the catalogue, so the copy blocks
-// stay true after each rebuild instead of quoting launch-day figures.
-const WORKS = summary.totalArtworks.toLocaleString("en-US");
-const ARTISTS = summary.totalArtists.toLocaleString("en-US");
-const MOVEMENTS = summary.totalMovements.toLocaleString("en-US");
-const YEARS = `${summary.yearRange.min} to ${summary.yearRange.max}`;
-const PLATE_COUNT = getPlateSets().reduce((n, set) => n + set.presentCount, 0);
-const PLATES = PLATE_COUNT.toLocaleString("en-US");
-const PICKED = (summary.totalArtworks - PLATE_COUNT).toLocaleString("en-US");
-const MEASURED = artworks.filter((w) => w.realDimensions).length.toLocaleString("en-US");
-const HOURS_AT_A_MINUTE = Math.round(summary.totalArtworks / 60);
-// The museum caps each floor, so it hangs fewer works than the catalogue
-// holds. Read both from the same layout the /gallery-3d/plan page draws.
-const FLOORS = museumLayout.floors.length;
-const HUNG = museumLayout.allRooms
-  .reduce((n, room) => n + room.placements.length, 0)
-  .toLocaleString("en-US");
+// Counts are rounded down ("4,000+") on purpose: the collection keeps
+// growing, and a reader needs the size of it, not the exact tally. Rounding
+// down keeps each figure true after every rebuild.
+function atLeast(n: number, step: number): string {
+  return `${(Math.floor(n / step) * step).toLocaleString("en-US")}+`;
+}
+
+const WORKS = atLeast(summary.totalArtworks, 1000);
+const ARTISTS = atLeast(summary.totalArtists, 50);
+const IMAGES_SEEN = "50,000+";
 const GROUND_ERA = ERAS[0]?.title ?? "the earliest era";
 const TOP_ERA = ERAS[ERAS.length - 1]?.title ?? "the most recent era";
 
+function ordinal(n: number): string {
+  const tens = n % 100;
+  if (tens >= 11 && tens <= 13) return `${n}th`;
+  return `${n}${["th", "st", "nd", "rd"][n % 10] ?? "th"}`;
+}
+const { min: FIRST_YEAR, max: LAST_YEAR } = summary.yearRange;
+const PERIOD =
+  FIRST_YEAR !== null && LAST_YEAR !== null
+    ? `the ${ordinal(Math.floor(FIRST_YEAR / 100) + 1)} century to the ${Math.floor(LAST_YEAR / 10) * 10}s`
+    : "the Middle Ages to the 20th century";
+
 export const metadata: Metadata = {
   title: "Press",
-  description: `Press kit for Collection of Beauty, a 3D museum of public-domain art with ${FLOORS} floors, one per era, that you walk through in the browser. Story, fact sheet, copy, FAQ and images.`,
+  description: `Press kit for Collection of Beauty, a 3D museum of ${WORKS} hand-picked public-domain artworks that you walk through in the browser, one floor per era. Story, fact sheet, copy, FAQ and images.`,
   alternates: { canonical: "/press" },
   openGraph: buildOpenGraph({
     // Same string as alternates.canonical above, so og:url can't drift from it.
     url: "/press",
     title: `Press · ${SITE_NAME}`,
-    description: `Story, fact sheet, copy blocks, FAQ, images and press contact for Collection of Beauty, a walkable 3D museum of public-domain art with ${FLOORS} era floors.`,
+    description: `Story, fact sheet, copy blocks, FAQ, images and press contact for Collection of Beauty, a walkable 3D museum of ${WORKS} hand-picked public-domain artworks.`,
     images: [
       {
         url: "/marketing/hero.png",
@@ -51,7 +53,7 @@ export const metadata: Metadata = {
   twitter: {
     card: "summary_large_image",
     title: `Press · ${SITE_NAME}`,
-    description: `Story, fact sheet, copy, FAQ and images for Collection of Beauty, a walkable 3D museum of public-domain art with ${FLOORS} era floors.`,
+    description: `Story, fact sheet, copy, FAQ and images for Collection of Beauty, a walkable 3D museum of ${WORKS} hand-picked public-domain artworks.`,
     images: ["/marketing/hero.png"],
   },
   robots: {
@@ -63,12 +65,13 @@ export const metadata: Metadata = {
 // Third person on purpose: this page is copy for other people to reuse,
 // and anything in Rico's own voice should be written by Rico.
 const story = [
-  `Collection of Beauty is a personal collection. Rico picked every work in it because he finds it beautiful. It holds ${WORKS} paintings, prints and book plates by ${ARTISTS} artists, dated ${YEARS}.`,
-  "Picking them took three to four weeks. Rico sometimes sat for hours with music on and a cup of tea, browsing public-domain art on Wikimedia Commons. Whenever one artist's page mentioned another, he added that name to an index of artists. He then opened each artist's list of works on Commons and clicked through them one by one. By the end he had looked at about 30,000 to 40,000 images.",
+  `Collection of Beauty is a way to move through art on a screen. It holds ${WORKS} public-domain paintings, prints and book plates, and every one of them is there because Rico finds it beautiful. The site links them by era, artist, colour and decade, and hangs them in a 3D museum with one floor for each era.`,
+  "Open archives such as the Public Domain Image Archive (pdimagearchive.org) are close to endless and full of curiosities. Collection of Beauty is one person's slice through that material. It is smaller and picked by hand, and each work carries metadata that leads to the next one: the movement it belongs to, the artists around it, the colours in it. Famous names are missing and some lesser-known artists appear often, because Rico's taste decides what goes in.",
+  `Picking the works took three to four weeks and more than 50,000 images. Rico sometimes sat for hours with music on and a cup of tea, browsing public-domain art on Wikimedia Commons. Whenever one artist's page mentioned another, he added that name to an index of artists. He then opened each artist's list of works on Commons and clicked through them one by one.`,
   "Most of the work came after the looking: removing duplicates and cleaning up the metadata. AI coding agents, Claude Code and Codex, helped heavily with that part and with building the site.",
-  "It works like a scrapbook. The collection does not try to cover a movement or an artist completely. Famous names are missing and a few obscure ones appear often, because one person's taste decides what goes in.",
-  `The scrapbook is also a place to look for ideas. At one work a minute, seeing all of it takes about ${HOURS_AT_A_MINUTE} hours. The random page shows one work at a time, as large as the screen allows.`,
-  "Rico started the site in April 2026. The code, the data scripts and the metadata are public on GitHub.",
+  "Walking the museum floor by floor shows what each period looked like, and how much art from past centuries anyone can look at for free.",
+  "For Rico the collection is also a source of inspiration on days when he feels down. It gives him an excuse to look at art he likes, and to look for new art without calling it procrastination.",
+  "He started the site in April 2026 and keeps adding works. The code, the data scripts and the metadata are public on GitHub.",
 ] as const;
 
 // The data-art half of the story: one catalogue, sorted by one field at a
@@ -77,12 +80,12 @@ const views = [
   {
     label: "3D museum",
     href: "/gallery-3d",
-    body: `A building of ${FLOORS} floors, one per era, from ${GROUND_ERA} at ground level to ${TOP_ERA} at the top, joined by a spiral staircase. You walk it with the keyboard and mouse, or with an on-screen joystick on a phone. It hangs ${HUNG} works, at their real size where the dimensions are known, which is true for ${MEASURED} of the ${WORKS} works in the catalogue.`,
+    body: `A building with one floor per era, from ${GROUND_ERA} at ground level to ${TOP_ERA} at the top, joined by a spiral staircase. Each floor has many rooms. You walk it with the keyboard and mouse, or with an on-screen joystick on a phone. Paintings hang at their real size where the dimensions are known.`,
   },
   {
     label: "Timeline",
     href: "/timeline",
-    body: `The works stacked by decade, from ${YEARS}. The height of each column shows where the collection is thick and where it is thin.`,
+    body: `The works stacked by decade, from ${PERIOD}. The height of each column shows where the collection is thick and where it is thin.`,
   },
   {
     label: "Colours",
@@ -92,17 +95,17 @@ const views = [
   {
     label: "Eras",
     href: "/eras",
-    body: `The ${MOVEMENTS} movements grouped into eras, from Gothic altarpieces to Modernism, with East Asian painting as its own group.`,
+    body: "The art movements grouped into eras, from Gothic altarpieces to Modernism, with East Asian painting as its own group.",
   },
   {
     label: "Artists",
     href: "/artists",
-    body: `${ARTISTS} artists, sorted by how many of their works are here. Each artist page links to painters from the same movement and to documented friendships, such as Monet and Manet at Argenteuil in 1874.`,
+    body: "Every artist, sorted by how many of their works are here. Each artist page links to painters from the same movement and to documented friendships, such as Monet and Manet at Argenteuil in 1874.",
   },
   {
     label: "Collections",
     href: "/collections",
-    body: `Four illustrated books in their published plate order: Audubon's Birds of America, Haeckel's Kunstformen der Natur, and Redouté's Les Roses and Les Liliacées. ${PLATES} plates in total.`,
+    body: "Four illustrated books in their published plate order: Audubon's Birds of America, Haeckel's Kunstformen der Natur, and Redouté's Les Roses and Les Liliacées.",
   },
   {
     label: "Surprise me",
@@ -116,11 +119,11 @@ const factSheet = [
   ["URL", "https://collectionofbeauty.com"],
   ["Maker", "Rico, working alone"],
   ["Location", "Berlin, Germany"],
-  ["Started", "April 2026"],
-  ["Selection", "Three to four weeks of browsing, about 30,000 to 40,000 images looked at."],
+  ["Started", "April 2026. Rico keeps adding works."],
+  ["Selection", `Picked by hand from ${IMAGES_SEEN} images over three to four weeks.`],
   [
     "Collection",
-    `${WORKS} works by ${ARTISTS} artists across ${MOVEMENTS} movements, dated ${YEARS}. ${PICKED} were chosen one at a time. The other ${PLATES} are plates from four illustrated books.`,
+    `${WORKS} works by ${ARTISTS} artists, dated from ${PERIOD}. Most were picked one at a time. The rest are plates from four illustrated books.`,
   ],
   [
     "Sources",
@@ -140,27 +143,27 @@ const descriptionTiers = [
   {
     title: "One sentence",
     body: [
-      `Collection of Beauty is a free 3D museum of public-domain art that you walk through in the browser, with one floor for each of ${FLOORS} eras.`,
+      `Collection of Beauty is a free 3D museum of ${WORKS} hand-picked public-domain artworks that you walk through in the browser, one floor per era.`,
     ],
   },
   {
     title: "Short (about 40 words)",
     body: [
-      `Collection of Beauty holds ${WORKS} public-domain paintings, prints and book plates. Rico picked them after looking at about 30,000 to 40,000 images, most of them on Wikimedia Commons. Visitors can browse them by decade or by colour, or open one at random.`,
+      `Collection of Beauty is a 3D museum you walk through in the browser, with one floor for each era of art. Rico picked its ${WORKS} public-domain works by hand from ${IMAGES_SEEN} images. Visitors can also browse them by colour, decade or artist.`,
     ],
   },
   {
     title: "Medium (about 80 words)",
     body: [
-      `Collection of Beauty is a personal art collection on the web. Over three to four weeks, Rico went from artist to artist on Wikimedia Commons and looked at about 30,000 to 40,000 images. The collection now holds ${WORKS} public-domain works by ${ARTISTS} artists. AI coding agents helped him remove duplicates, clean up the metadata and build the site. The site sorts the works by decade, colour measured from the pixels, era and artist. Every work links to its source.`,
+      `Collection of Beauty is a hand-picked collection of ${WORKS} public-domain artworks, each one there because Rico finds it beautiful. Open archives of public-domain images are close to endless. This is one person's slice through them, with metadata that links each work to its era, its artist and its colours. The centre of the site is a 3D museum with one floor per era. Rico looked at ${IMAGES_SEEN} images to build it and keeps adding works.`,
     ],
   },
   {
     title: "Long (about 150 words)",
     body: [
-      `Collection of Beauty is a scrapbook of public-domain art kept by Rico. Every work in it is there because he finds it beautiful. It holds ${WORKS} paintings, prints and book plates by ${ARTISTS} artists, dated ${YEARS}, most of them from Wikimedia Commons.`,
-      `Rico spent three to four weeks picking them. He followed one artist to the next whenever a page mentioned another name, then clicked through each artist's works on Commons, about 30,000 to 40,000 images in all. Removing duplicates and cleaning up the metadata took even longer. AI coding agents, Claude Code and Codex, helped heavily with that and with building the site.`,
-      `The centre of the site is a 3D museum that runs in the browser. Its ${FLOORS} floors, one per era, are joined by a spiral staircase, and the paintings hang at their real size where it is known. The works can also be sorted by decade, by colour and by artist. The site is free.`,
+      `Collection of Beauty is a way to move through art on a screen. Its centre is a 3D museum that runs in the browser, with one floor for each era, from ${GROUND_ERA} to ${TOP_ERA}. Visitors can also sort the works by decade, colour and artist, or open one at random.`,
+      `Every work is there because Rico finds it beautiful. He spent three to four weeks going from artist to artist on Wikimedia Commons and looked at ${IMAGES_SEEN} images to pick ${WORKS}. AI coding agents, Claude Code and Codex, helped heavily with removing duplicates, cleaning up the metadata and building the site.`,
+      "Open archives of public-domain images are close to endless. This one is small enough to walk through, and Rico keeps adding to it. The site is free, and every work links back to its source.",
     ],
   },
 ] as const;
@@ -208,7 +211,7 @@ const faq = [
   ],
   [
     "Will you add more artists / more works?",
-    'Slowly. The collection is curated by hand. Submissions for "you should look at X" are welcome via GitHub or email; inclusion is at editorial discretion.',
+    'Yes. Rico keeps adding works he finds beautiful. Suggestions for "you should look at X" are welcome via GitHub or email, and he decides what goes in.',
   ],
   ["Is there a Patreon / membership / paid tier?", "No."],
 ] as const;
@@ -237,7 +240,7 @@ const availableImages = [
   },
 ] as const;
 
-const boilerplate = `Collection of Beauty (collectionofbeauty.com) holds ${WORKS} public-domain artworks by ${ARTISTS} artists. Rico picked them from about 30,000 to 40,000 images, mostly on Wikimedia Commons, and built the site with the help of AI coding agents. Visitors can sort the works by decade, colour, era and artist, walk through them in a 3D museum, or open one at random. The site is free and has no ads.`;
+const boilerplate = `Collection of Beauty (collectionofbeauty.com) is a hand-picked collection of ${WORKS} public-domain artworks, chosen by Rico from ${IMAGES_SEEN} images, mostly on Wikimedia Commons. Visitors can walk through it as a 3D museum with one floor per era, sort it by decade, colour and artist, or open one work at random. The site is free, has no ads, and grows as Rico adds works.`;
 
 function contactPointJsonLd(): Record<string, unknown> {
   return {
@@ -335,9 +338,9 @@ export default function PressPage() {
                 Collection of Beauty
               </h1>
               <p className="mt-5 max-w-2xl text-lg leading-8 text-[var(--foreground)] md:text-xl">
-                A 3D museum of public-domain art that you walk through in your browser. Each of its{" "}
-                {FLOORS} floors holds one era, from {GROUND_ERA} at ground level to {TOP_ERA} at the
-                top, and {HUNG} works hang on its walls.
+                A 3D museum of public-domain art that you walk through in your browser, with a floor
+                of rooms for each era. Rico picked its {WORKS} works by hand because he finds them
+                beautiful.
               </p>
               <div className="mt-8 flex flex-wrap gap-3">
                 {/* min-h-11 lifts both CTAs from their natural 38px
