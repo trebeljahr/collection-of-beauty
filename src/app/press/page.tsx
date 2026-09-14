@@ -6,7 +6,7 @@ import { GITHUB_URL } from "@/lib/links";
 import { getPlateSets } from "@/lib/plate-sets";
 import { absoluteUrl, buildOpenGraph, jsonLdScriptProps, SITE_NAME } from "@/lib/seo";
 
-const pressEmail = "hello@trebeljahr.com";
+const pressEmail = "imprint@collectionofbeauty.com";
 
 // Every number on this page is read from the catalogue, so the copy blocks
 // stay true after each rebuild instead of quoting launch-day figures.
