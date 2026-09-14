@@ -7,7 +7,7 @@ import { DEFAULT_ARTWORK_PAGE_SIZE } from "@/lib/artwork-page-schema";
 import { getArtworkListingPage } from "@/lib/artwork-pagination";
 import { resolveScope } from "@/lib/artwork-scope";
 import { getArtwork } from "@/lib/data";
-import { ERAS, type EraId, eraYearLabel, type getEra } from "@/lib/gallery-eras";
+import { ERAS, type EraId, eraYearLabel, type getEra, movementCounts } from "@/lib/gallery-eras";
 import { buildOpenGraph, ogImagesForArtwork } from "@/lib/seo";
 
 type Params = { id: string };
@@ -35,7 +35,10 @@ export async function generateMetadata({ params }: { params: Promise<Params> }):
 
   const works = resolveScope({ kind: "era", id: era.id });
   const countLabel = `${works.length} work${works.length === 1 ? "" : "s"}`;
-  const topMovements = era.movements.slice(0, 3).join(", ");
+  const topMovements = movementCounts(works)
+    .slice(0, 3)
+    .map((m) => m.movement)
+    .join(", ");
   const description = `${countLabel} · ${era.blurb}${topMovements ? ` · ${topMovements}` : ""} — Collection of Beauty.`;
 
   // Pick the first artwork that has pre-built variants so OG scrapers
@@ -83,6 +86,7 @@ export default async function EraPage({ params }: { params: Promise<Params> }) {
     sort: "shuffle",
     limit: DEFAULT_ARTWORK_PAGE_SIZE,
   });
+  const movements = movementCounts(resolveScope({ kind: "era", id: era.id }));
   const idx = ERAS.findIndex((e) => e.id === era.id);
   const prev = idx > 0 ? ERAS[idx - 1] : null;
   const next = idx < ERAS.length - 1 ? ERAS[idx + 1] : null;
@@ -108,15 +112,16 @@ export default async function EraPage({ params }: { params: Promise<Params> }) {
             chipClasses drops its 44px floor, so the taller touch pills read
             as separate targets rather than one slab; above `sm:` the row
             returns to its original dense 1.5 gutter. */}
-        {era.movements.length > 0 && (
+        {movements.length > 0 && (
           <div className="flex flex-wrap gap-2 sm:gap-1.5">
-            {era.movements.map((m) => (
+            {movements.map(({ movement, count }) => (
               <Link
-                key={m}
-                href={`/timeline?movement=${encodeURIComponent(m)}`}
+                key={movement}
+                href={`/timeline?movement=${encodeURIComponent(movement)}`}
                 className={chipClasses}
               >
-                {m}
+                {movement}
+                <span className="ml-1.5 text-[var(--muted-foreground)] tabular-nums">{count}</span>
               </Link>
             ))}
           </div>
