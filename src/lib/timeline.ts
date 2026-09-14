@@ -1,5 +1,6 @@
 import { listingMatchesQuery } from "@/lib/artwork-pagination";
-import { type ArtworkListing, artworkListings, movements } from "@/lib/data";
+import { type ArtworkListing, artworkListings } from "@/lib/data";
+import { assignEra, type EraId, isEraId } from "@/lib/gallery-eras";
 
 export const TIMELINE_DECADE_SPAN = 10;
 
@@ -30,7 +31,9 @@ export type TimelineListing = Pick<
 
 export type TimelineFilter = {
   query?: string | null;
-  movement?: string | null;
+  /** Era id. Anything that isn't one of the 11 ids filters nothing out
+   *  of the corpus and matches nothing, same as an unknown movement used to. */
+  era?: string | null;
 };
 
 export type TimelineSummary = {
@@ -67,9 +70,9 @@ function datedListings(): ArtworkListing[] {
 
 function filterDated(filter: TimelineFilter): ArtworkListing[] {
   const query = filter.query?.trim() ?? "";
-  const movement = filter.movement ?? "";
+  const era = filter.era ?? "";
   let list = datedListings();
-  if (movement) list = list.filter((artwork) => artwork.movement === movement);
+  if (era) list = list.filter((artwork) => assignEra(artwork) === era);
   if (query) list = list.filter((artwork) => listingMatchesQuery(artwork, query));
   return list;
 }
@@ -87,7 +90,7 @@ function histogram(list: readonly ArtworkListing[]): TimelineDecade[] {
 }
 
 // Memoise the two filter shapes with a bounded key space: no filter at
-// all (what every first visit renders) and one movement (36 of them).
+// all (what every first visit renders) and one era (11 of them).
 // Free-text queries are deliberately not cached — the key space is
 // whatever visitors type, and a linear scan of ~4.3k rows is cheap.
 //
@@ -95,22 +98,21 @@ function histogram(list: readonly ArtworkListing[]): TimelineDecade[] {
 // which hand their query params straight through, so the key has to be
 // validated against the corpus before it can reach a Map — otherwise the
 // public route retains one entry per distinct string a visitor invents.
-// An unrecognised movement still answers, it just answers uncached (and
+// An unrecognised era still answers, it just answers uncached (and
 // matches nothing, so the scan is trivial). The size caps below are
 // belt-and-braces: with the validation in place neither map can exceed
 // the corpus's own key count.
-const KNOWN_MOVEMENTS: ReadonlySet<string> = new Set(movements);
-const MAX_CACHED_MOVEMENTS = 128;
+const MAX_CACHED_ERAS = 128;
 const MAX_CACHED_DECADES = 128;
 
 let cachedUnfiltered: TimelineSummary | null = null;
-const cachedByMovement = new Map<string, TimelineSummary>();
+const cachedByEra = new Map<EraId, TimelineSummary>();
 
 export function getTimelineSummary(filter: TimelineFilter = {}): TimelineSummary {
   const query = filter.query?.trim() ?? "";
-  const movement = filter.movement ?? "";
+  const era = filter.era ?? "";
 
-  if (!query && !movement) {
+  if (!query && !era) {
     if (!cachedUnfiltered) {
       const list = datedListings();
       cachedUnfiltered = { decades: histogram(list), total: list.length };
@@ -119,15 +121,15 @@ export function getTimelineSummary(filter: TimelineFilter = {}): TimelineSummary
   }
 
   if (!query) {
-    const cacheable = KNOWN_MOVEMENTS.has(movement);
+    const cacheable = isEraId(era);
     if (cacheable) {
-      const hit = cachedByMovement.get(movement);
+      const hit = cachedByEra.get(era);
       if (hit) return hit;
     }
-    const list = filterDated({ movement });
+    const list = filterDated({ era });
     const summary = { decades: histogram(list), total: list.length };
-    if (cacheable && cachedByMovement.size < MAX_CACHED_MOVEMENTS) {
-      cachedByMovement.set(movement, summary);
+    if (cacheable && cachedByEra.size < MAX_CACHED_ERAS) {
+      cachedByEra.set(era, summary);
     }
     return summary;
   }
@@ -183,9 +185,9 @@ export function getTimelineDecadeWorks(
   filter: TimelineFilter = {},
 ): TimelineListing[] {
   const query = filter.query?.trim() ?? "";
-  const movement = filter.movement ?? "";
+  const era = filter.era ?? "";
 
-  if (!query && !movement) {
+  if (!query && !era) {
     const cacheable = isCorpusDecade(decade);
     if (cacheable) {
       const hit = cachedDecadeWorks.get(decade);

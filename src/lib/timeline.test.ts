@@ -1,5 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { artworkListings } from "@/lib/data";
+import { assignEra } from "@/lib/gallery-eras";
 import { decadeOf, getTimelineDecadeWorks, getTimelineSummary } from "@/lib/timeline";
 
 describe("decadeOf", () => {
@@ -32,15 +33,18 @@ describe("getTimelineSummary", () => {
     expect(summary.decades.every((d) => d.count > 0)).toBe(true);
   });
 
-  it("narrows to the movement filter", () => {
-    const movement = artworkListings.find((a) => a.movement && a.year != null)?.movement;
-    expect(movement).toBeTruthy();
-    const filtered = getTimelineSummary({ movement });
+  it("narrows to the era filter, untagged works included", () => {
+    const filtered = getTimelineSummary({ era: "gothic" });
     const expected = artworkListings.filter(
-      (a) => a.year != null && a.movement === movement,
+      (a) => a.year != null && assignEra(a) === "gothic",
     ).length;
     expect(filtered.total).toBe(expected);
+    expect(filtered.total).toBeGreaterThan(0);
     expect(filtered.total).toBeLessThan(summary.total);
+  });
+
+  it("matches nothing for an unknown era id", () => {
+    expect(getTimelineSummary({ era: "Impressionism" }).total).toBe(0);
   });
 
   it("narrows to the free-text filter and folds accents", () => {

@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { TimelineView } from "@/components/timeline-view";
-import { movements, summary } from "@/lib/data";
+import { summary } from "@/lib/data";
+import { ERAS } from "@/lib/gallery-eras";
 import { buildOpenGraph } from "@/lib/seo";
 import { getTimelineSummary } from "@/lib/timeline";
 
@@ -37,7 +38,7 @@ export default function TimelinePage() {
       <TimelineView
         initialDecades={timeline.decades}
         initialTotal={timeline.total}
-        movements={movements}
+        eras={ERAS.map(({ id, title }) => ({ id, title }))}
       />
     </div>
   );

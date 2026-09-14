@@ -1,5 +1,5 @@
 import { type ColorBucketId, isColorBucketId } from "@/lib/color-buckets.mjs";
-import { ERAS, type EraId } from "@/lib/gallery-eras";
+import { type EraId, eraForMovement, isEraId } from "@/lib/gallery-eras";
 import { isPlateSetId, type PlateSetId } from "@/lib/plate-set-definitions";
 
 /** The pure half of the scope helpers: the `Scope` shape and the
@@ -14,14 +14,10 @@ import { isPlateSetId, type PlateSetId } from "@/lib/plate-set-definitions";
 export type Scope =
   | { kind: "gallery" }
   | { kind: "artist"; slug: string }
-  | { kind: "movement"; name: string }
   | { kind: "decade"; start: number }
   | { kind: "era"; id: EraId }
   | { kind: "collection"; id: PlateSetId }
   | { kind: "color"; id: ColorBucketId };
-
-// Set-based lookup so parseScope can validate without throwing via getEra.
-const ERA_IDS: Set<string> = new Set(ERAS.map((e) => e.id));
 
 /** Parse a `?from=<kind>:<value>` query value. Returns null for any
  *  malformed input so callers can fall back to the global pool. */
@@ -42,7 +38,12 @@ export function parseScope(param: string | null | undefined): Scope | null {
   if (!value) return null;
 
   if (kind === "artist") return { kind, slug: value };
-  if (kind === "movement") return { kind, name: value };
+  // Movement scopes are gone; eras are the one category visitors see.
+  // Links shared before that still land on the movement's era.
+  if (kind === "movement") {
+    const id = eraForMovement(value);
+    return id ? { kind: "era", id } : null;
+  }
   if (kind === "decade") {
     if (!/^-?\d+$/.test(value)) return null;
     const start = Number.parseInt(value, 10);
@@ -50,8 +51,8 @@ export function parseScope(param: string | null | undefined): Scope | null {
     return { kind, start };
   }
   if (kind === "era") {
-    if (!ERA_IDS.has(value)) return null;
-    return { kind, id: value as EraId };
+    if (!isEraId(value)) return null;
+    return { kind, id: value };
   }
   if (kind === "collection") {
     // isPlateSetId comes from plate-set-definitions, which is data-free
@@ -72,7 +73,6 @@ export function parseScope(param: string | null | undefined): Scope | null {
 export function encodeScope(scope: Scope): string {
   if (scope.kind === "gallery") return "gallery";
   if (scope.kind === "artist") return `artist:${encodeURIComponent(scope.slug)}`;
-  if (scope.kind === "movement") return `movement:${encodeURIComponent(scope.name)}`;
   if (scope.kind === "decade") return `decade:${scope.start}`;
   // Era, plate-set and colour ids are pre-validated lowercase kebab — no
   // percent-encoding needed.
@@ -86,7 +86,6 @@ export function encodeScope(scope: Scope): string {
 export function scopeHref(scope: Scope): string {
   if (scope.kind === "gallery") return "/";
   if (scope.kind === "artist") return `/artist/${scope.slug}`;
-  if (scope.kind === "movement") return `/timeline?movement=${encodeURIComponent(scope.name)}`;
   if (scope.kind === "decade") return `/timeline#decade-${scope.start}`;
   if (scope.kind === "collection") return `/collection/${scope.id}`;
   if (scope.kind === "color") return `/colours/${scope.id}`;

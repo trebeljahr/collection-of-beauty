@@ -8,7 +8,7 @@ export const metadata: Metadata = {
   description:
     `${artists.length} artists represented in the Collection of Beauty, ` +
     `spanning painters, printmakers and natural-history illustrators. ` +
-    `Browse by number of works, search, or filter by movement.`,
+    `Sorted by number of works, and searchable by name, movement or nationality.`,
   alternates: { canonical: "/artists" },
   openGraph: buildOpenGraph({
     url: "/artists",

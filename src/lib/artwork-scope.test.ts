@@ -26,10 +26,6 @@ describe("parseScope", () => {
   it("parses each kind", () => {
     expect(parseScope("gallery")).toEqual({ kind: "gallery" });
     expect(parseScope("artist:claude-monet")).toEqual({ kind: "artist", slug: "claude-monet" });
-    expect(parseScope("movement:Impressionism")).toEqual({
-      kind: "movement",
-      name: "Impressionism",
-    });
     expect(parseScope("decade:1880")).toEqual({ kind: "decade", start: 1880 });
     expect(parseScope("era:fin-de-siecle")).toEqual({ kind: "era", id: "fin-de-siecle" });
     expect(parseScope("era:ukiyo-e")).toEqual({ kind: "era", id: "ukiyo-e" });
@@ -44,11 +40,20 @@ describe("parseScope", () => {
   });
 
   it("URL-decodes the value half", () => {
-    expect(parseScope("movement:Northern%20Song")).toEqual({
-      kind: "movement",
-      name: "Northern Song",
+    expect(parseScope("artist:pierre-joseph-redout%C3%A9")).toEqual({
+      kind: "artist",
+      slug: "pierre-joseph-redouté",
     });
-    expect(parseScope("movement:Ukiyo-e")).toEqual({ kind: "movement", name: "Ukiyo-e" });
+  });
+
+  it("maps legacy movement scopes onto the movement's era", () => {
+    expect(parseScope("movement:Impressionism")).toEqual({ kind: "era", id: "fin-de-siecle" });
+    expect(parseScope("movement:Northern%20Renaissance")).toEqual({
+      kind: "era",
+      id: "renaissance",
+    });
+    expect(parseScope("movement:Ukiyo-e")).toEqual({ kind: "era", id: "ukiyo-e" });
+    expect(parseScope("movement:No%20Such%20Movement")).toBeNull();
   });
 
   it("rejects decade values that aren't an integer multiple of 10", () => {
@@ -63,8 +68,6 @@ describe("encodeScope", () => {
     const cases: Scope[] = [
       { kind: "gallery" },
       { kind: "artist", slug: "claude-monet" },
-      { kind: "movement", name: "Northern Song" },
-      { kind: "movement", name: "Ukiyo-e" },
       { kind: "decade", start: 1880 },
       { kind: "era", id: "gothic" },
       { kind: "era", id: "fin-de-siecle" },
@@ -81,9 +84,7 @@ describe("encodeScope", () => {
   });
 
   it("percent-encodes spaces in the value half", () => {
-    expect(encodeScope({ kind: "movement", name: "Northern Song" })).toBe(
-      "movement:Northern%20Song",
-    );
+    expect(encodeScope({ kind: "artist", slug: "jan van eyck" })).toBe("artist:jan%20van%20eyck");
   });
 });
 
@@ -112,12 +113,6 @@ describe("scopeHref", () => {
     expect(scopeHref({ kind: "artist", slug: "claude-monet" })).toBe("/artist/claude-monet");
   });
 
-  it("points movement scope at the timeline filtered by movement", () => {
-    expect(scopeHref({ kind: "movement", name: "Northern Song" })).toBe(
-      "/timeline?movement=Northern%20Song",
-    );
-  });
-
   it("points decade scope at the corresponding timeline anchor", () => {
     expect(scopeHref({ kind: "decade", start: 1880 })).toBe("/timeline#decade-1880");
   });
@@ -141,10 +136,6 @@ describe("scopeLabel", () => {
     expect(scopeLabel({ kind: "artist", slug: "definitely-not-a-real-artist" })).toBe(
       "definitely-not-a-real-artist",
     );
-  });
-
-  it("returns the movement name verbatim", () => {
-    expect(scopeLabel({ kind: "movement", name: "Impressionism" })).toBe("Impressionism");
   });
 
   it("formats the decade as `<start>s`", () => {
@@ -174,17 +165,6 @@ describe("resolveScope", () => {
     expect(resolved.map((a) => a.id)).toEqual(expectedIds);
   });
 
-  it("filters movement listings to that movement and sorts year asc", () => {
-    const resolved = resolveScope({ kind: "movement", name: "Impressionism" });
-    expect(resolved.length).toBeGreaterThan(0);
-    expect(resolved.every((a) => a.movement === "Impressionism")).toBe(true);
-    for (let i = 1; i < resolved.length; i++) {
-      const prev = resolved[i - 1].year ?? Number.MAX_SAFE_INTEGER;
-      const curr = resolved[i].year ?? Number.MAX_SAFE_INTEGER;
-      expect(prev).toBeLessThanOrEqual(curr);
-    }
-  });
-
   it("returns every dated work in timeline order for decade scope, so prev/next walks past the entry decade's boundary", () => {
     const resolved = resolveScope({ kind: "decade", start: 1880 });
     expect(resolved.length).toBeGreaterThan(0);
@@ -207,7 +187,6 @@ describe("resolveScope", () => {
 
   it("returns an empty array for an unknown scope value", () => {
     expect(resolveScope({ kind: "artist", slug: "no-such-artist" })).toEqual([]);
-    expect(resolveScope({ kind: "movement", name: "No Such Movement" })).toEqual([]);
   });
 
   it("filters era scope to works whose assignEra matches and walks the era page's paginated order", () => {
