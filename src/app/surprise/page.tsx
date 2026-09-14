@@ -1,4 +1,4 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import { SurpriseView } from "@/components/surprise-view";
 import { buildOpenGraph, SITE_NAME } from "@/lib/seo";
 import { SURPRISE_DECK_SIZE, sampleDistinct } from "@/lib/surprise";
@@ -36,8 +36,28 @@ export const metadata: Metadata = {
   robots: { index: false, follow: true },
 };
 
+// Same opt-in as src/app/artwork/layout.tsx, for the same reason: tapping
+// the image opens the full-screen lightbox, whose close button and
+// chevrons inset themselves with `env(safe-area-inset-*)`, which is 0px
+// unless the document asks for `viewport-fit=cover`.
+export const viewport: Viewport = {
+  viewportFit: "cover",
+};
+
+/* Cover mode widens the layout viewport for the page behind the overlay
+   too, so the in-flow column needs the horizontal safe-area gutter the
+   /artwork layout adds. Resolves to 0px wherever no inset is reported. */
+const SAFE_AREA_GUTTER = {
+  paddingLeft: "env(safe-area-inset-left, 0px)",
+  paddingRight: "env(safe-area-inset-right, 0px)",
+} as const;
+
 export default function SurprisePage() {
   const deck = sampleDistinct(SURPRISE_POOL, SURPRISE_DECK_SIZE);
 
-  return <SurpriseView deck={[...deck]} />;
+  return (
+    <div style={SAFE_AREA_GUTTER}>
+      <SurpriseView deck={[...deck]} />
+    </div>
+  );
 }
