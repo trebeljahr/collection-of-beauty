@@ -9,7 +9,18 @@ export type EditionArtworkEntry = {
  * an explicit url + alt for one-off covers (e.g. a photograph or a
  * composite). Used for OG tags and the archive index card.
  */
-export type EditionCover = { artworkId: string; alt?: string } | { src: string; alt: string };
+export type EditionCover =
+  | { artworkId: string; alt?: string; focus?: CoverFocus }
+  | { src: string; alt: string; focus?: CoverFocus };
+
+/**
+ * The point of the cover, in percent of its width and height, that must
+ * stay in frame when the archive card crops it. Becomes the image's
+ * `object-position`: a percentage there pins the image point at (x%, y%)
+ * to the box point at (x%, y%), so it is inside the crop at any box
+ * shape. Unset means centred.
+ */
+export type CoverFocus = { x: number; y: number };
 
 export type Edition = {
   /** Zero-padded issue number, parsed from the filename prefix. */

@@ -6,6 +6,7 @@ excerpt: "Sōtatsu's dragons are weather you coexist with. Uccello's is a proble
 draft: true
 cover:
   artworkId: "collection-of-beauty-sotatsu-dragons-and-clouds"
+  focus: { x: 45, y: 50 }
 tags:
   - "dragons"
   - "monsters"

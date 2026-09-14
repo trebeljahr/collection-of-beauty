@@ -1,7 +1,7 @@
 import { displayTitle } from "@/lib/artwork-format";
 import { artworks as ALL_ARTWORKS, type Artwork } from "@/lib/data";
 import { variantUrl } from "@/lib/utils";
-import type { Edition } from "./types";
+import type { CoverFocus, Edition } from "./types";
 
 export type ResolvedCover = {
   /** Absolute URL to a 1280w webp image suitable for OG + email + thumbnails. */
@@ -9,6 +9,12 @@ export type ResolvedCover = {
   alt: string;
   /** Artwork backing the cover, when applicable — useful for the archive card to link to the source. */
   artwork: Artwork | null;
+  /** Width over height of the cover image, or null for a `src` cover,
+   *  whose dimensions aren't known here. */
+  aspectRatio: number | null;
+  /** CSS `object-position` for cropping the cover: the frontmatter
+   *  `cover.focus`, or centred. */
+  objectPosition: string;
 };
 
 /**
@@ -25,7 +31,13 @@ export function resolveEditionCover(edition: Edition): ResolvedCover | null {
   const byId = new Map(ALL_ARTWORKS.map((a) => [a.id, a]));
 
   if (edition.cover && "src" in edition.cover) {
-    return { url: edition.cover.src, alt: edition.cover.alt, artwork: null };
+    return {
+      url: edition.cover.src,
+      alt: edition.cover.alt,
+      artwork: null,
+      aspectRatio: null,
+      objectPosition: objectPosition(edition.cover.focus),
+    };
   }
 
   const candidateId =
@@ -54,7 +66,13 @@ export function resolveEditionCover(edition: Edition): ResolvedCover | null {
     url: variantUrl(artwork.objectKey, 1280, "webp"),
     alt,
     artwork,
+    aspectRatio: artwork.width && artwork.height ? artwork.width / artwork.height : null,
+    objectPosition: objectPosition(edition.cover?.focus),
   };
+}
+
+function objectPosition(focus: CoverFocus | undefined): string {
+  return focus ? `${focus.x}% ${focus.y}%` : "50% 50%";
 }
 
 function artworkAltLabel(artwork: Artwork): string {

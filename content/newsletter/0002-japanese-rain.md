@@ -6,6 +6,7 @@ excerpt: "A hundred years apart, Hiroshige on the Tokaido roads and Hasui on the
 draft: true
 cover:
   artworkId: "collection-of-beauty-hiroshige-atake-sous-une-averse-soudaine"
+  focus: { x: 50, y: 70 }
 tags:
   - "ukiyo-e"
   - "shin-hanga"

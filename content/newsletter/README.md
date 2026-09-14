@@ -45,6 +45,8 @@ draft: false                                    # optional, default false
 cover:                                          # optional; defaults to artworks[0]
   artworkId: "claude-monet-impression-sunrise"
   alt: "Sunrise over Le Havre, 1872"           # optional override
+# cover.focus: { x, y } — optional, percent of width/height that must stay
+# in frame when the /drops card crops a very tall or very wide cover.
 # Alternatively: cover: { src: "/path/foo.webp", alt: "..." } for non-artwork covers.
 tags:                                           # optional
   - "impressionism"
