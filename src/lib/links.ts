@@ -3,6 +3,18 @@
 // separate from seo.ts so client components can import without dragging
 // in the full metadata helpers + the artworks dataset.
 
+/**
+ * One mailbox per purpose, all forwarded to the same inbox. Keeping them
+ * apart means a reply can be sorted by the address it came in on, and the
+ * legal contact the imprint and privacy policy must name never gets mixed
+ * up with press or reader mail.
+ */
+export const PRESS_EMAIL = "press@collectionofbeauty.com";
+/** Imprint (§ 5 DDG) and GDPR contact. */
+export const IMPRINT_EMAIL = "imprint@collectionofbeauty.com";
+/** General reader mail: suggestions, corrections from people without GitHub. */
+export const HELLO_EMAIL = "hello@collectionofbeauty.com";
+
 const FALLBACK_GITHUB_URL = "https://github.com/trebeljahr/collection-of-beauty";
 
 /**

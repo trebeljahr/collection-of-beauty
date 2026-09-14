@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { touchTextLinkClasses } from "@/components/ui/pill";
 import { summary } from "@/lib/data";
-import { GITHUB_URL } from "@/lib/links";
+import { GITHUB_URL, HELLO_EMAIL } from "@/lib/links";
 import { buildOpenGraph, SITE_NAME } from "@/lib/seo";
 
 export const metadata: Metadata = {
@@ -191,7 +191,15 @@ export default function AboutPage() {
               open an issue
             </a>{" "}
             describing what's wrong — every artwork detail page also has a small{" "}
-            <em>Suggest a fix</em> link that opens a pre-filled issue with the work's ID.
+            <em>Suggest a fix</em> link that opens a pre-filled issue with the work's ID. No GitHub
+            account? Email{" "}
+            <a
+              href={`mailto:${HELLO_EMAIL}`}
+              className="rounded-sm py-1 underline underline-offset-2 hover:text-[var(--muted-foreground)] focus:outline-none focus-visible:ring-2 focus-visible:ring-[var(--ring)]"
+            >
+              {HELLO_EMAIL}
+            </a>{" "}
+            with the work's title and what's wrong.
           </p>
           <p>If you'd rather send a PR, here's where things live:</p>
           <ul className="ml-6 list-disc space-y-2">

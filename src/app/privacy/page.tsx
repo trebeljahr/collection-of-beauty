@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
+import { IMPRINT_EMAIL } from "@/lib/links";
 
 export const metadata: Metadata = {
   title: "Privacy Policy",
@@ -8,8 +9,6 @@ export const metadata: Metadata = {
   alternates: { canonical: "/privacy" },
   robots: { index: true, follow: true },
 };
-
-const CONTACT_EMAIL = "imprint@collectionofbeauty.com";
 
 export default function PrivacyPage() {
   return (
@@ -37,10 +36,10 @@ export default function PrivacyPage() {
             </Link>
             . Contact for privacy matters:{" "}
             <a
-              href={`mailto:${CONTACT_EMAIL}`}
+              href={`mailto:${IMPRINT_EMAIL}`}
               className="underline hover:text-[var(--muted-foreground)]"
             >
-              {CONTACT_EMAIL}
+              {IMPRINT_EMAIL}
             </a>
             .
           </p>
@@ -113,10 +112,10 @@ export default function PrivacyPage() {
             seconds) and then discarded. You may withdraw consent at any time, with effect for the
             future, by using the unsubscribe link in every issue or by emailing{" "}
             <a
-              href={`mailto:${CONTACT_EMAIL}`}
+              href={`mailto:${IMPRINT_EMAIL}`}
               className="underline hover:text-[var(--foreground)]"
             >
-              {CONTACT_EMAIL}
+              {IMPRINT_EMAIL}
             </a>
             . After you unsubscribe, your address is moved to the unsubscribed bucket inside
             ListMonk so that no further issues are sent to you.
@@ -185,10 +184,10 @@ export default function PrivacyPage() {
           <p className="mt-2 text-[var(--muted-foreground)]">
             To exercise any of these rights, email{" "}
             <a
-              href={`mailto:${CONTACT_EMAIL}`}
+              href={`mailto:${IMPRINT_EMAIL}`}
               className="underline hover:text-[var(--foreground)]"
             >
-              {CONTACT_EMAIL}
+              {IMPRINT_EMAIL}
             </a>
             . You also have the right to lodge a complaint with a supervisory authority (Art. 77
             GDPR). The competent authority for the controller is the Landesbeauftragte für den
