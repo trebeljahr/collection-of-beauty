@@ -96,6 +96,12 @@ const nextConfig = {
         destination: `${CANONICAL_ORIGIN}/:path*`,
         permanent: true,
       })),
+      // The old press image, linked from earlier copies of the press kit.
+      {
+        source: "/marketing/hero.:ext(png|jpg)",
+        destination: "/marketing/collection-of-beauty-16x9.jpg",
+        permanent: true,
+      },
       {
         source: "/drop",
         destination: "/drops",

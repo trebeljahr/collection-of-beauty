@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import Image from "next/image";
 import Link from "next/link";
+import pressImagesJson from "@/data/press-images.json";
 import { summary } from "@/lib/data";
 import { ERAS } from "@/lib/gallery-eras";
 import { GITHUB_URL, PRESS_EMAIL } from "@/lib/links";
@@ -16,6 +17,37 @@ function atLeast(n: number, step: number): string {
 const WORKS = atLeast(summary.totalArtworks, 1000);
 const ARTISTS = atLeast(summary.totalArtists, 50);
 const IMAGES_SEEN = "50,000+";
+
+// Written by scripts/build-marketing-images.mjs alongside the JPEGs, so the
+// list, sizes and credits below always describe the files that ship.
+const pressImages = pressImagesJson as {
+  images: {
+    slug: string;
+    label: string;
+    use: string;
+    href: string;
+    width: number;
+    height: number;
+    bytes: number;
+    theme: "light" | "dark";
+    hasTitle: boolean;
+    alt: string;
+    works: string[];
+  }[];
+  works: { id: string; title: string; artist: string | null; year: number | null }[];
+};
+const HEADLINE_IMAGE =
+  pressImages.images.find((img) => img.slug === "16x9") ?? pressImages.images[0];
+const BACKDROP_IMAGE =
+  pressImages.images.find((img) => img.slug === "16x9-works") ?? HEADLINE_IMAGE;
+
+const IMAGE_SHAPES = new Set(pressImages.images.map((img) => (img.width / img.height).toFixed(3)))
+  .size;
+
+function formatBytes(bytes: number): string {
+  if (bytes < 1024 * 1024) return `${Math.round(bytes / 1024)} KB`;
+  return `${(bytes / 1024 / 1024).toFixed(1)} MB`;
+}
 const GROUND_ERA = ERAS[0]?.title ?? "the earliest era";
 const TOP_ERA = ERAS[ERAS.length - 1]?.title ?? "the most recent era";
 
@@ -41,10 +73,10 @@ export const metadata: Metadata = {
     description: `Story, fact sheet, copy blocks, FAQ, images and press contact for Collection of Beauty, ${WORKS} handpicked public-domain artworks to browse or walk through in 3D.`,
     images: [
       {
-        url: "/marketing/hero.png",
-        width: 1920,
-        height: 1080,
-        alt: "Collection of Beauty marketing mosaic.",
+        url: HEADLINE_IMAGE.href,
+        width: HEADLINE_IMAGE.width,
+        height: HEADLINE_IMAGE.height,
+        alt: HEADLINE_IMAGE.alt,
       },
     ],
   }),
@@ -52,7 +84,7 @@ export const metadata: Metadata = {
     card: "summary_large_image",
     title: `Press · ${SITE_NAME}`,
     description: `Story, fact sheet, copy, FAQ and images for Collection of Beauty, ${WORKS} handpicked public-domain artworks to browse or walk through in 3D.`,
-    images: ["/marketing/hero.png"],
+    images: [HEADLINE_IMAGE.href],
   },
   robots: {
     index: true,
@@ -220,24 +252,6 @@ const acknowledgements = [
   "Other open-access archives, credited on each work's page",
 ] as const;
 
-const availableImages = [
-  {
-    title: "Marketing hero",
-    href: "/marketing/hero.png",
-    meta: "1920 x 1080 PNG. A 4 x 3 mosaic of works from the collection.",
-  },
-  {
-    title: "Marketing hero JPEG",
-    href: "/marketing/hero.jpg",
-    meta: "1920 x 1080 JPEG of the same image.",
-  },
-  {
-    title: "Social share card",
-    href: "/opengraph-image.png",
-    meta: "1200 x 630 PNG. The image the site uses when a link is shared.",
-  },
-] as const;
-
 const boilerplate = `Collection of Beauty (collectionofbeauty.com) holds ${WORKS} handpicked public-domain artworks, chosen by Rico from ${IMAGES_SEEN} images, mostly on Wikimedia Commons. Visitors can sort it by era, decade, colour and artist, open one work at random, or walk through it as a 3D museum with one floor per era. The site is free, has no ads, and grows as Rico adds works.`;
 
 function contactPointJsonLd(): Record<string, unknown> {
@@ -318,7 +332,7 @@ export default function PressPage() {
         <header className="relative isolate overflow-hidden border-b border-[var(--border)]">
           <div className="absolute inset-0 -z-10">
             <Image
-              src="/marketing/hero.png"
+              src={BACKDROP_IMAGE.href}
               alt=""
               fill
               priority
@@ -536,54 +550,99 @@ export default function PressPage() {
             </div>
           </Section>
 
-          <Section id="images" eyebrow="Assets" title="Image kit">
-            <div className="space-y-8">
-              <figure>
-                <div className="relative aspect-video overflow-hidden rounded-md border border-[var(--border)] bg-[var(--muted)]">
-                  <Image
-                    src="/marketing/hero.png"
-                    alt="Collection of Beauty marketing mosaic"
-                    fill
-                    sizes="(min-width: 768px) 58vw, 100vw"
-                    className="object-cover"
-                  />
-                </div>
-                <figcaption className="mt-3 text-sm text-[var(--muted-foreground)]">
-                  The marketing hero, a mosaic of works from the collection.
-                </figcaption>
-              </figure>
-              <div>
-                <h3 className="font-serif text-xl">Available now</h3>
-                <ul className="mt-3 divide-y divide-[var(--border)] border-y border-[var(--border)]">
-                  {availableImages.map((asset) => (
-                    <li
-                      key={asset.href}
-                      className="flex flex-col gap-2 py-4 sm:flex-row sm:items-baseline sm:justify-between"
-                    >
-                      <div>
-                        <p className="font-medium">{asset.title}</p>
-                        <p className="mt-1 text-sm text-[var(--muted-foreground)]">{asset.meta}</p>
-                      </div>
-                      <Link
-                        href={asset.href}
-                        className="text-sm underline underline-offset-2 hover:text-[var(--muted-foreground)]"
+          <Section id="images" eyebrow="Images" title="Image kit">
+            <div className="space-y-10">
+              <p className="leading-8 text-[var(--muted-foreground)]">
+                {pressImages.images.length} images in {IMAGE_SHAPES} shapes, built from{" "}
+                {pressImages.works.length} works in the collection. Every work appears whole, with
+                no crop. The counts in the titles are rounded down, so they stay true as the
+                collection grows. All files are in the{" "}
+                <Link
+                  href="/press-kit.zip"
+                  className="rounded-sm underline underline-offset-2 hover:text-[var(--foreground)] focus:outline-none focus-visible:ring-2 focus-visible:ring-[var(--ring)]"
+                >
+                  press kit ZIP
+                </Link>
+                , together with a list of the works in each image.
+              </p>
+
+              <ul className="grid gap-x-6 gap-y-10 sm:grid-cols-2">
+                {pressImages.images.map((img) => (
+                  <li key={img.slug}>
+                    <figure>
+                      {/* A fixed frame keeps the grid rows aligned; object-contain
+                          shows each image whole inside it, whatever its shape. */}
+                      <a
+                        href={img.href}
+                        className="relative block aspect-[4/3] overflow-hidden rounded-md border border-[var(--border)] bg-[var(--muted)] focus:outline-none focus-visible:ring-2 focus-visible:ring-[var(--ring)]"
                       >
-                        {asset.href}
+                        <Image
+                          src={img.href}
+                          alt={img.alt}
+                          fill
+                          sizes="(min-width: 768px) 28vw, (min-width: 640px) 50vw, 100vw"
+                          className="object-contain p-3"
+                        />
+                      </a>
+                      <figcaption className="mt-3">
+                        <p className="font-serif text-lg">{img.label}</p>
+                        <p className="mt-1 text-sm leading-6 text-[var(--muted-foreground)]">
+                          {img.use}
+                        </p>
+                        <p className="mt-1 text-sm tabular-nums text-[var(--muted-foreground)]">
+                          {img.width.toLocaleString("en-US")} x {img.height.toLocaleString("en-US")}{" "}
+                          JPEG, {formatBytes(img.bytes)}
+                          {img.hasTitle ? "" : ", no text"}
+                        </p>
+                        <a
+                          href={img.href}
+                          download
+                          className="mt-2 inline-flex min-h-11 items-center rounded-sm text-sm underline underline-offset-2 hover:text-[var(--muted-foreground)] focus:outline-none focus-visible:ring-2 focus-visible:ring-[var(--ring)] sm:min-h-0"
+                        >
+                          Download
+                        </a>
+                      </figcaption>
+                    </figure>
+                  </li>
+                ))}
+              </ul>
+
+              <details className="group border-y border-[var(--border)] py-4">
+                <summary className="flex min-h-11 cursor-pointer items-center font-serif text-xl sm:min-h-0">
+                  Works in these images ({pressImages.works.length})
+                </summary>
+                <ul className="mt-4 grid gap-x-8 gap-y-2 text-sm leading-6 text-[var(--muted-foreground)] sm:grid-cols-2">
+                  {pressImages.works.map((work) => (
+                    <li key={work.id}>
+                      <Link
+                        href={`/artwork/${work.id}`}
+                        className="rounded-sm underline underline-offset-2 hover:text-[var(--foreground)] focus:outline-none focus-visible:ring-2 focus-visible:ring-[var(--ring)]"
+                      >
+                        {work.title}
                       </Link>
+                      {work.artist ? `, ${work.artist}` : ""}
+                      {work.year ? `, ${work.year}` : ""}
                     </li>
                   ))}
                 </ul>
-              </div>
+              </details>
+
               <div className="space-y-3 leading-8 text-[var(--muted-foreground)]">
                 <h3 className="font-serif text-xl text-[var(--foreground)]">Rights</h3>
                 <p>
-                  Screenshots of the site are CC0, so use them without asking. The artworks are
-                  public domain. Where you can, take them from the source archive linked on each
-                  work.
+                  The images above and screenshots of the site are CC0, so use them without asking.
+                  The artworks are public domain. Where you can, take them from the source archive
+                  linked on each work.
                 </p>
                 <p>
-                  There are no screenshots of the 3D museum or a walkthrough video yet. Ask by email
-                  if you need one.
+                  For a screenshot of the 3D museum or a size not listed here, write to{" "}
+                  <a
+                    href={`mailto:${PRESS_EMAIL}`}
+                    className="rounded-sm underline underline-offset-2 hover:text-[var(--foreground)] focus:outline-none focus-visible:ring-2 focus-visible:ring-[var(--ring)]"
+                  >
+                    {PRESS_EMAIL}
+                  </a>
+                  .
                 </p>
               </div>
             </div>
