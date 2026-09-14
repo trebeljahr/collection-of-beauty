@@ -5,233 +5,129 @@ import { summary } from "@/lib/data";
 import { GITHUB_URL, HELLO_EMAIL } from "@/lib/links";
 import { buildOpenGraph, SITE_NAME } from "@/lib/seo";
 
+const WORKS = summary.totalArtworks.toLocaleString("en-US");
+const ARTISTS = summary.totalArtists.toLocaleString("en-US");
+
 export const metadata: Metadata = {
   title: "About",
-  description:
-    `About ${SITE_NAME} — what this gallery is, where its ${summary.totalArtworks.toLocaleString()} works ` +
-    `come from, and how to contribute corrections to the metadata.`,
+  description: `Who made ${SITE_NAME}, how its ${WORKS} public-domain works were picked, where they come from, and how to report a mistake.`,
   alternates: { canonical: "/about" },
   openGraph: buildOpenGraph({
     url: "/about",
     title: `About · ${SITE_NAME}`,
-    description:
-      `What this gallery is, where its ${summary.totalArtworks.toLocaleString()} works come from, ` +
-      `and how to contribute corrections.`,
+    description: `How ${WORKS} public-domain works were picked by hand, where they come from, and how to report a mistake.`,
   }),
 };
 
+// Every link on this page that sits inside a sentence gets py-1 and nothing
+// more. Vertical padding on an *inline* box grows the hit area but does not
+// enter the line box, so the paragraph's rhythm is untouched — and WCAG 2.5.8
+// exempts inline links from the 44px floor for exactly this reason: the
+// surrounding line height, not the author, sets their height. Turning one
+// into a 44px block would tear the sentence apart.
+const INLINE_LINK =
+  "rounded-sm py-1 underline underline-offset-2 hover:text-[var(--muted-foreground)] focus:outline-none focus-visible:ring-2 focus-visible:ring-[var(--ring)]";
+
+// First person on purpose: the press kit tells the same story in the third
+// person for other people to reuse. This page is Rico's own account, so keep
+// the facts in step with /press when either one changes.
 export default function AboutPage() {
   return (
     <div className="mx-auto max-w-3xl px-4 py-8 md:py-12">
       <header className="mb-8">
         <h1 className="font-serif text-3xl md:text-4xl">About</h1>
         <p className="mt-2 text-[var(--muted-foreground)]">
-          What this is, where the works come from, and how to help fix mistakes.
+          Who made this, how the works were picked, and how to report a mistake.
         </p>
       </header>
 
       <div className="space-y-10 text-[var(--foreground)] leading-relaxed">
-        <section
-          id="metadata"
-          className="space-y-3 rounded-md border border-[var(--border)] bg-[var(--muted)] p-4 md:p-5"
-        >
-          <h2 className="font-serif text-xl">About the metadata</h2>
+        <section className="space-y-3">
+          <h2 className="font-serif text-xl">What this is</h2>
           <p>
-            The catalogue is largely scraped from public archives — Wikimedia Commons, Wikidata, the
-            Library of Congress, and a handful of bespoke sources. Each work cites where its image
-            and metadata came from on its detail page.
+            {SITE_NAME} holds {WORKS} public-domain paintings, prints and book plates by {ARTISTS}{" "}
+            artists, dated {summary.yearRange.min}–{summary.yearRange.max}. I picked every one of
+            them by hand. You can browse them by era, artist, colour and decade, or walk through
+            them in a{" "}
+            <Link href="/gallery-3d" className={INLINE_LINK}>
+              3D museum
+            </Link>{" "}
+            with one floor for each era.
           </p>
           <p>
-            That metadata is imperfect. Wrong dates, missing dimensions, stub titles, and the
-            occasional misattributed artist are likely on a meaningful slice of the corpus.
-            Corrections are very welcome: every artwork has a <em>Suggest a fix</em> link that opens
-            a pre-filled{" "}
-            {/* Every link on this page that sits inside a sentence gets py-1
-                and nothing more. Vertical padding on an *inline* box grows
-                the hit area but does not enter the line box, so the
-                paragraph's rhythm is untouched — and WCAG 2.5.8 exempts
-                inline links from the 44px floor for exactly this reason: the
-                surrounding line height, not the author, sets their height.
-                Turning one into a 44px block would tear the sentence apart. */}
-            <a
-              href={`${GITHUB_URL}/issues/new`}
-              target="_blank"
-              rel="noreferrer"
-              className="py-1 underline underline-offset-2 hover:text-[var(--muted-foreground)]"
-            >
-              GitHub issue
-            </a>
-            , or you can send a PR straight against the metadata files in{" "}
-            <a
-              href={GITHUB_URL}
-              target="_blank"
-              rel="noreferrer"
-              className="py-1 underline underline-offset-2 hover:text-[var(--muted-foreground)]"
-            >
-              the repo
-            </a>
+            Open archives such as the Public Domain Image Archive are close to endless and full of
+            curiosities. This is my slice through that material. Famous names are missing and some
+            lesser-known artists appear often, because my taste decides what goes in.
+          </p>
+        </section>
+
+        <section className="space-y-3">
+          <h2 className="font-serif text-xl">How I picked the works</h2>
+          <p>
+            I started collecting in 2025 and looked at more than 50,000 images. Often I sat for
+            hours with music on and a cup of tea, browsing public-domain art on Wikimedia Commons.
+            Whenever one artist's page mentioned another, I added that name to an index of artists.
+            Then I opened each artist's list of works and clicked through them one by one.
+          </p>
+          <p>
+            Most of the work came after the looking: removing duplicates and cleaning up the
+            metadata. AI coding agents, Claude Code and Codex, helped heavily with that part and
+            with building the site, which I started in April 2026. I keep adding works.
+          </p>
+        </section>
+
+        <section className="space-y-3">
+          <h2 className="font-serif text-xl">Why</h2>
+          <p>
+            On days when I feel down, the collection is a source of inspiration. It gives me an
+            excuse to look at art I like, and to look for new art without calling it
+            procrastination.
+          </p>
+        </section>
+
+        <section className="space-y-3">
+          <h2 className="font-serif text-xl">Where the works come from</h2>
+          <p>
+            Most images and metadata come from Wikimedia Commons and Wikidata, plus a few works from
+            the Library of Congress. Each work's page links to its source, where you can check the
+            rights statement.
+          </p>
+          <p>
+            Four illustrated books appear in their published plate order: Audubon's{" "}
+            <em>Birds of America</em>, Haeckel's <em>Kunstformen der Natur</em>, and Redouté's{" "}
+            <em>Les Roses</em> and <em>Les Liliacées</em>. They are under{" "}
+            <Link href="/collections" className={INLINE_LINK}>
+              Collections
+            </Link>
             .
           </p>
         </section>
 
         <section className="space-y-3">
-          <h2 className="font-serif text-xl">What this is</h2>
+          <h2 className="font-serif text-xl">Mistakes</h2>
           <p>
-            {SITE_NAME} is a personal gallery — a one-person collection of paintings, prints, and
-            natural-history illustrations that I find beautiful. It is not a museum, not an academic
-            catalog, and not a comprehensive survey of any movement. It is a curated shelf, gathered
-            slowly, that I wanted to share without the overhead of a heavyweight CMS.
-          </p>
-          <p>
-            Every piece on display is in the public domain or under an open licence. The site
-            organises {summary.totalArtworks.toLocaleString()} works by{" "}
-            {summary.totalArtists.toLocaleString()} artists across {summary.totalMovements}{" "}
-            movements, spanning {summary.yearRange.min}–{summary.yearRange.max}, and presents them
-            as a flat gallery, a decade-by-decade timeline, an artist index, and a walkable 3D room.
-          </p>
-        </section>
-
-        <section className="space-y-3">
-          <h2 className="font-serif text-xl">Where the data comes from</h2>
-          <p>
-            The bulk of the catalogue is scraped from open sources. The build pipeline pulls
-            metadata, normalises it, fills in gaps from a small artists database, and writes a
-            single JSON file that Next.js consumes at build time:
-          </p>
-          <ul className="ml-6 list-disc space-y-2">
-            <li>
-              <strong>Wikidata + Wikimedia Commons.</strong> The primary source for titles, dates,
-              artists, descriptions, licences, and museum provenance. See{" "}
-              <code className="rounded bg-[var(--muted)] px-1 text-xs">
-                scripts/fetch-wikimedia-metadata.mjs
-              </code>{" "}
-              and{" "}
-              <code className="rounded bg-[var(--muted)] px-1 text-xs">
-                scripts/fetch-provenance.mjs
-              </code>
-              .
-            </li>
-            <li>
-              <strong>
-                John James Audubon — <em>Birds of America</em> (1827–1838).
-              </strong>{" "}
-              All 435 plates, downloaded directly from Wikimedia Commons. See{" "}
-              <code className="rounded bg-[var(--muted)] px-1 text-xs">
-                scripts/download-birds-of-america.sh
-              </code>{" "}
-              and{" "}
-              <code className="rounded bg-[var(--muted)] px-1 text-xs">
-                metadata/audubon-birds.json
-              </code>
-              .
-            </li>
-            <li>
-              <strong>
-                Ernst Haeckel — <em>Kunstformen der Natur</em> (1904).
-              </strong>{" "}
-              The full 100-plate edition. See{" "}
-              <code className="rounded bg-[var(--muted)] px-1 text-xs">
-                scripts/download-kunstformen.sh
-              </code>{" "}
-              and{" "}
-              <code className="rounded bg-[var(--muted)] px-1 text-xs">
-                metadata/kunstformen-images.json
-              </code>
-              .
-            </li>
-            <li>
-              <strong>Per-film extras.</strong> Smaller hand-curated batches with bespoke metadata
-              files, e.g.{" "}
-              <code className="rounded bg-[var(--muted)] px-1 text-xs">
-                metadata/spirited-away.json
-              </code>
-              ,{" "}
-              <code className="rounded bg-[var(--muted)] px-1 text-xs">
-                metadata/your-name.json
-              </code>
-              .
-            </li>
-          </ul>
-        </section>
-
-        <section className="space-y-3">
-          <h2 className="font-serif text-xl">Disclaimer</h2>
-          <p>
-            Most of this metadata was scraped automatically and stitched together from multiple
-            sources. Errors are inevitable. Expect to find: wrong creation dates, broken or
-            mistranslated titles, garbled non-Latin characters, the wrong artist attached to a work,
-            weird or partial provenance, and the occasional broken licence link. None of this is
-            intentional, and none of it is final.
-          </p>
-          <p>
-            If you spot something that's wrong, I'd genuinely like to know. The fix is usually a few
-            lines of JSON.
-          </p>
-        </section>
-
-        <section className="space-y-3">
-          <h2 className="font-serif text-xl">How to contribute fixes</h2>
-          <p>
-            The source lives on GitHub:{" "}
-            <a
-              href={GITHUB_URL}
-              target="_blank"
-              rel="noreferrer"
-              className="rounded-sm py-1 underline underline-offset-2 hover:text-[var(--muted-foreground)] focus:outline-none focus-visible:ring-2 focus-visible:ring-[var(--ring)]"
-            >
-              {GITHUB_URL.replace(/^https?:\/\//, "")}
-            </a>
-            . The lowest-friction option is to{" "}
+            The metadata is imperfect. Expect wrong dates, garbled titles and the occasional wrong
+            artist. Every work has a <em>Suggest a fix</em> link that opens a pre-filled{" "}
             <a
               href={`${GITHUB_URL}/issues/new`}
               target="_blank"
               rel="noreferrer"
-              className="rounded-sm py-1 underline underline-offset-2 hover:text-[var(--muted-foreground)] focus:outline-none focus-visible:ring-2 focus-visible:ring-[var(--ring)]"
+              className={INLINE_LINK}
             >
-              open an issue
-            </a>{" "}
-            describing what's wrong — every artwork detail page also has a small{" "}
-            <em>Suggest a fix</em> link that opens a pre-filled issue with the work's ID. No GitHub
-            account? Email{" "}
-            <a
-              href={`mailto:${HELLO_EMAIL}`}
-              className="rounded-sm py-1 underline underline-offset-2 hover:text-[var(--muted-foreground)] focus:outline-none focus-visible:ring-2 focus-visible:ring-[var(--ring)]"
-            >
+              GitHub issue
+            </a>
+            . If you don't use GitHub, email{" "}
+            <a href={`mailto:${HELLO_EMAIL}`} className={INLINE_LINK}>
               {HELLO_EMAIL}
             </a>{" "}
             with the work's title and what's wrong.
           </p>
-          <p>If you'd rather send a PR, here's where things live:</p>
-          <ul className="ml-6 list-disc space-y-2">
-            <li>
-              <code className="rounded bg-[var(--muted)] px-1 text-xs">metadata/</code> — the raw
-              scrape, one JSON file per source folder. This is the right place for almost every
-              correction. Fixing a title, a date, or an artist here means the change survives the
-              next rebuild.
-            </li>
-            <li>
-              <code className="rounded bg-[var(--muted)] px-1 text-xs">src/data/artworks.json</code>{" "}
-              and the other files in{" "}
-              <code className="rounded bg-[var(--muted)] px-1 text-xs">src/data/</code> — the built
-              artefact. Generated, committed for fast deploys, but never edited by hand.
-            </li>
-            <li>
-              <code className="rounded bg-[var(--muted)] px-1 text-xs">scripts/build-data.mjs</code>{" "}
-              — the build pipeline. It walks the metadata files, applies normalisation (multilingual
-              titles, date heuristics, copyright status), enriches artists from a small curated
-              database, probes image dimensions, and emits the JSON in{" "}
-              <code className="rounded bg-[var(--muted)] px-1 text-xs">src/data/</code>. After
-              changing a metadata file, run{" "}
-              <code className="rounded bg-[var(--muted)] px-1 text-xs">
-                pnpm run assets:build-data
-              </code>{" "}
-              and commit both the metadata change and the regenerated{" "}
-              <code className="rounded bg-[var(--muted)] px-1 text-xs">src/data/*.json</code>.
-            </li>
-          </ul>
           <p>
-            Contributions of any size are welcome — a one-character typo fix is just as useful as a
-            hundred-row provenance audit.
+            The code and the metadata are public on{" "}
+            <a href={GITHUB_URL} target="_blank" rel="noreferrer" className={INLINE_LINK}>
+              GitHub
+            </a>
+            .
           </p>
         </section>
 
