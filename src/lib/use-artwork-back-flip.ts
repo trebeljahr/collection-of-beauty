@@ -62,6 +62,12 @@ export function saveBackFlipSnapshot(currentId: string, img: HTMLImageElement) {
   }
 }
 
+/** The one merge-back pass allowed per page. Module scope, not a ref:
+ *  the gallery can unmount and remount mid-pass, and a per-instance
+ *  guard lets the new instance start a second, overlapping pass. */
+type ActivePass = { options: { current: BackFlipOptions } };
+let activePass: ActivePass | null = null;
+
 type BackFlipOptions = {
   /** Pull more tiles into the DOM. Used by the home grid's paginated
    *  loader so the merge-back animation can chase a target artwork the
@@ -91,18 +97,27 @@ type BackFlipOptions = {
 export function useArtworkBackFlip(options: BackFlipOptions = {}) {
   const optionsRef = useRef(options);
   optionsRef.current = options;
-  const inFlightRef = useRef(false);
 
   const trigger = useCallback(() => {
     if (typeof window === "undefined") return;
-    if (inFlightRef.current) return;
+    // A pass is already running, most likely started by a gallery
+    // instance that has since been remounted under a new key (the home
+    // grid re-keys on its first effect). Point that pass at this
+    // instance's loader instead of starting a second one: two passes
+    // hide <main> twice, and the second hide records "hidden" as the
+    // value to restore, leaving the page blank.
+    if (activePass) {
+      activePass.options = optionsRef;
+      return;
+    }
     // Bail early if there's no fresh snapshot — keeps the hide path
     // off the critical render for plain navigations (clicking a
     // top-nav link, first cold load of the page).
     if (!readFreshSnapshot()) return;
-    inFlightRef.current = true;
-    void runBackFlipPass(optionsRef.current).finally(() => {
-      inFlightRef.current = false;
+    const pass: ActivePass = { options: optionsRef };
+    activePass = pass;
+    void runBackFlipPass(pass).finally(() => {
+      if (activePass === pass) activePass = null;
     });
   }, []);
 
@@ -155,13 +170,13 @@ function readFreshSnapshot(): Snapshot | null {
   }
 }
 
-async function runBackFlipPass(options: BackFlipOptions): Promise<void> {
+async function runBackFlipPass(pass: ActivePass): Promise<void> {
   const reveal = hideMain();
   // Hard ceiling so a hung expand or missing tile doesn't trap the
   // user in a blank page.
   const safetyTimer = window.setTimeout(reveal, HIDE_TIMEOUT_MS);
   try {
-    await attemptFlip(options, reveal);
+    await attemptFlip(pass, reveal);
   } finally {
     window.clearTimeout(safetyTimer);
     reveal();
@@ -175,7 +190,9 @@ async function runBackFlipPass(options: BackFlipOptions): Promise<void> {
 function hideMain(): () => void {
   const main = document.querySelector<HTMLElement>("main");
   if (!main) return () => {};
-  const prev = main.style.visibility;
+  // Never restore to "hidden": nothing but this function hides <main>,
+  // so an inherited "hidden" is a pass that has not revealed yet.
+  const prev = main.style.visibility === "hidden" ? "" : main.style.visibility;
   main.style.visibility = "hidden";
   let restored = false;
   return () => {
@@ -186,7 +203,7 @@ function hideMain(): () => void {
   };
 }
 
-async function attemptFlip(options: BackFlipOptions, reveal: () => void): Promise<void> {
+async function attemptFlip(pass: ActivePass, reveal: () => void): Promise<void> {
   // Two rAFs: one for React to commit the route segment, one for
   // react-photo-album's row solver to finalize tile sizes. Without the
   // second frame `tileRect` is sometimes measured against a placeholder
@@ -205,6 +222,8 @@ async function attemptFlip(options: BackFlipOptions, reveal: () => void): Promis
   // prev/next can walk the user past the gallery's currently rendered
   // window.
   for (let i = 0; i < EXPAND_ATTEMPT_CAP && !tile; i++) {
+    // Read per iteration: a remount may have swapped in a new loader.
+    const options = pass.options.current;
     const canExpand = options.canExpand?.() ?? false;
     if (!canExpand || !options.expand) break;
     await options.expand();
