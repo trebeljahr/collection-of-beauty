@@ -8,6 +8,7 @@ import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
 import { Select } from "@/components/ui/select";
 import { artworkAlt, displayTitle } from "@/lib/artwork-format";
+import { type EraId, eraForMovement, isEraId } from "@/lib/gallery-eras";
 import { artworkHref } from "@/lib/scope-href";
 import type { TimelineDecade, TimelineListing, TimelineSummary } from "@/lib/timeline";
 import { useArtworkBackFlip } from "@/lib/use-artwork-back-flip";
@@ -21,7 +22,7 @@ type Props = {
    *  section comes into view. */
   initialDecades: TimelineDecade[];
   initialTotal: number;
-  movements: string[];
+  eras: { id: EraId; title: string }[];
 };
 
 const GRID_CLASSES = "grid grid-cols-3 gap-2 sm:grid-cols-4 md:grid-cols-6 lg:grid-cols-8";
@@ -50,20 +51,20 @@ function barHeightPercent(count: number, max: number): number {
   return Math.sqrt(count / max) * 100;
 }
 
-type FilterState = { query: string; movement: string };
+type FilterState = { query: string; era: string };
 
 function filterKeyOf(filter: FilterState): string {
-  return `${filter.query}\u0000${filter.movement}`;
+  return `${filter.query}\u0000${filter.era}`;
 }
 
-export function TimelineView({ initialDecades, initialTotal, movements }: Props) {
+export function TimelineView({ initialDecades, initialTotal, eras }: Props) {
   const [queryInput, setQueryInput] = useState("");
   const query = useDeferredValue(queryInput).trim();
-  const [movement, setMovement] = useState("");
+  const [era, setEra] = useState("");
 
-  const filter = useMemo<FilterState>(() => ({ query, movement }), [query, movement]);
+  const filter = useMemo<FilterState>(() => ({ query, era }), [query, era]);
   const filterKey = filterKeyOf(filter);
-  const isUnfiltered = query === "" && movement === "";
+  const isUnfiltered = query === "" && era === "";
 
   const [summary, setSummary] = useState<TimelineSummary>({
     decades: initialDecades,
@@ -73,13 +74,17 @@ export function TimelineView({ initialDecades, initialTotal, movements }: Props)
   // decade -> works, only for decades fetched under the *current* filter.
   const [works, setWorks] = useState<Record<number, TimelineListing[]>>({});
 
-  // `?movement=Impressionism` is what scopeHref() builds when the
-  // artwork detail page links back to a movement. Read once on mount
-  // rather than through the server's searchParams, which would opt the
-  // whole page out of static rendering.
+  // `?era=fin-de-siecle` preselects the filter. `?movement=` is the old
+  // shape from before eras replaced movements as the visible category;
+  // it still resolves, to the era that movement belongs to. Read once on
+  // mount rather than through the server's searchParams, which would opt
+  // the whole page out of static rendering.
   useEffect(() => {
-    const wanted = new URLSearchParams(window.location.search).get("movement");
-    if (wanted) setMovement(wanted);
+    const params = new URLSearchParams(window.location.search);
+    const wanted = params.get("era");
+    const legacy = params.get("movement");
+    if (wanted && isEraId(wanted)) setEra(wanted);
+    else if (legacy) setEra(eraForMovement(legacy) ?? "");
   }, []);
 
   // Histogram follows the filters. The unfiltered shape is already in
@@ -204,12 +209,12 @@ export function TimelineView({ initialDecades, initialTotal, movements }: Props)
           className="h-11 text-base sm:h-9 sm:text-sm md:max-w-md"
         />
         <Select
-          aria-label="Filter by movement"
-          value={movement}
-          onChange={setMovement}
+          aria-label="Filter by era"
+          value={era}
+          onChange={setEra}
           options={[
-            { value: "", label: "All movements" },
-            ...movements.map((m) => ({ value: m, label: m })),
+            { value: "", label: "All eras" },
+            ...eras.map((e) => ({ value: e.id, label: e.title })),
           ]}
           className="md:w-64 md:shrink-0"
         />
@@ -451,7 +456,7 @@ function TimelineTile({ artwork: a, decade }: { artwork: TimelineListing; decade
 
 function withFilter(url: URL, filter: FilterState): URL {
   if (filter.query) url.searchParams.set("q", filter.query);
-  if (filter.movement) url.searchParams.set("movement", filter.movement);
+  if (filter.era) url.searchParams.set("era", filter.era);
   return url;
 }
 

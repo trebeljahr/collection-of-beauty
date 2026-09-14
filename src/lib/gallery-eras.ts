@@ -433,6 +433,23 @@ const MOVEMENT_TO_ERA: Map<string, EraId> = (() => {
   return m;
 })();
 
+/**
+ * The era a movement name belongs to, case-insensitive. Visitors only see
+ * eras; this translates the old `?movement=` and `?from=movement:` URLs,
+ * which were shared before the timeline filter and the lightbox scope
+ * switched to eras. Ignores the pre-1500 Renaissance rule, which needs a
+ * year a URL doesn't carry.
+ */
+export function eraForMovement(movement: string): EraId | null {
+  return MOVEMENT_TO_ERA.get(movement.toLowerCase()) ?? null;
+}
+
+const ERA_ID_SET: ReadonlySet<string> = new Set(ERAS.map((e) => e.id));
+
+export function isEraId(value: string): value is EraId {
+  return ERA_ID_SET.has(value);
+}
+
 const RENAISSANCE_YEAR_MIN = ERAS.find((e) => e.id === "renaissance")!.yearMin;
 
 /**

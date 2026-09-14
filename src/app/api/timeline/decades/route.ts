@@ -11,7 +11,7 @@ export function GET(request: Request) {
   const params = new URL(request.url).searchParams;
   const summary = getTimelineSummary({
     query: params.get("q"),
-    movement: params.get("movement"),
+    era: params.get("era"),
   });
 
   return Response.json(summary, {

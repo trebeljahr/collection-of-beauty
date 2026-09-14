@@ -15,7 +15,7 @@ export function GET(request: Request) {
 
   const items = getTimelineDecadeWorks(decade, {
     query: params.get("q"),
-    movement: params.get("movement"),
+    era: params.get("era"),
   });
 
   return Response.json(

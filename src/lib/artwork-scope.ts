@@ -12,13 +12,10 @@ import type { Scope } from "@/lib/scope-href";
 // here because server code reads the whole scope API from one module.
 export { artworkHref, encodeScope, parseScope, type Scope, scopeHref } from "@/lib/scope-href";
 
-const UNDATED_SORT_KEY = Number.MAX_SAFE_INTEGER;
-
 /** Resolve a scope to the ordered slim listing the lightbox / prev-next
  *  should cycle through. Order matches the source page exactly:
  *    gallery → home page default order (shuffle + pinned head)
  *    artist  → artist page (year asc, undated last)
- *    movement → year asc, title tiebreaker (matches sortArtworkListings "year")
  *    decade  → every dated work in year asc, title tiebreaker — spans the
  *              whole timeline so prev/next walks past the entry decade's
  *              boundary into the neighbouring decades. `scope.start` is
@@ -39,15 +36,6 @@ export function resolveScope(scope: Scope): ArtworkListing[] {
     return artworkListings
       .filter((a) => a.artistSlug === scope.slug)
       .sort((a, b) => (a.year ?? 99999) - (b.year ?? 99999));
-  }
-  if (scope.kind === "movement") {
-    return artworkListings
-      .filter((a) => a.movement === scope.name)
-      .sort(
-        (a, b) =>
-          (a.year ?? UNDATED_SORT_KEY) - (b.year ?? UNDATED_SORT_KEY) ||
-          a.title.localeCompare(b.title),
-      );
   }
   if (scope.kind === "decade") {
     return artworkListings
@@ -70,7 +58,6 @@ export function resolveScope(scope: Scope): ArtworkListing[] {
 export function scopeLabel(scope: Scope): string {
   if (scope.kind === "gallery") return "gallery";
   if (scope.kind === "artist") return getArtist(scope.slug)?.name ?? scope.slug;
-  if (scope.kind === "movement") return scope.name;
   if (scope.kind === "decade") return `${scope.start}s`;
   if (scope.kind === "collection") return getPlateSet(scope.id)?.title ?? scope.id;
   if (scope.kind === "color") return getColorBucket(scope.id).label.toLowerCase();
