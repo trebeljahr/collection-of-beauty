@@ -47,7 +47,7 @@ export default function CollectionsPage() {
         </p>
       </header>
 
-      <div className="grid grid-cols-1 gap-5 sm:grid-cols-2">
+      <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-4">
         {sets.map((set) => {
           const cover = set.plates.find((p) => p.listing.variantWidths != null)?.listing;
           return (
@@ -56,16 +56,23 @@ export default function CollectionsPage() {
               href={`/collection/${set.id}`}
               className="group block overflow-hidden rounded-lg border border-[var(--border)] bg-[var(--card)] transition-shadow hover:shadow-lg focus:outline-none focus-visible:ring-2 focus-visible:ring-[var(--ring)] focus-visible:ring-offset-2 focus-visible:ring-offset-[var(--background)]"
             >
-              <div className="relative aspect-[4/3] overflow-hidden bg-[var(--muted)]">
+              {/* Portrait box, whole plate. Every cover is a portrait
+                  plate (0.67–0.74 wide:tall); the old 4:3 centre crop
+                  kept about half its height, which cut the head off
+                  Audubon's turkey and left Redouté's lily as leaves.
+                  `object-contain` leaves at most a thin band of the
+                  muted ground at the sides rather than cropping the
+                  plate caption at the foot. */}
+              <div className="relative aspect-[3/4] overflow-hidden bg-[var(--muted)]">
                 {cover && (
                   <ResponsiveImage
                     objectKey={cover.objectKey}
                     variantWidths={cover.variantWidths}
                     alt={`${set.title} — ${set.author}`}
                     fill
-                    sizes="(max-width: 640px) 100vw, 50vw"
+                    sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 320px"
                     loading="lazy"
-                    className="transition-transform duration-500 group-hover:scale-105"
+                    className="object-contain transition-transform duration-500 group-hover:scale-105"
                   />
                 )}
               </div>
