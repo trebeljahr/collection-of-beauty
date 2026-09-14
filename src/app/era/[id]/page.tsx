@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { ScopedGallery } from "@/components/scoped-gallery";
-import { chipClasses, touchTextLinkClasses } from "@/components/ui/pill";
+import { touchTextLinkClasses } from "@/components/ui/pill";
 import { DEFAULT_ARTWORK_PAGE_SIZE } from "@/lib/artwork-page-schema";
 import { getArtworkListingPage } from "@/lib/artwork-pagination";
 import { resolveScope } from "@/lib/artwork-scope";
@@ -108,23 +108,19 @@ export default async function EraPage({ params }: { params: Promise<Params> }) {
             · {initialPage.total} work{initialPage.total === 1 ? "" : "s"}
           </span>
         </div>
-        {/* The gutter opens to gap-2 at exactly the breakpoint where
-            chipClasses drops its 44px floor, so the taller touch pills read
-            as separate targets rather than one slab; above `sm:` the row
-            returns to its original dense 1.5 gutter. */}
+        {/* Plain text, not chips: every chip on the site links to one of the
+            eras on /eras. A movement chip here only restated the title
+            ("Botanical illustration" under "Natural History & Botanical
+            Illustration") and sent people to a timeline filter instead. */}
         {movements.length > 0 && (
-          <div className="flex flex-wrap gap-2 sm:gap-1.5">
-            {movements.map(({ movement, count }) => (
-              <Link
-                key={movement}
-                href={`/timeline?movement=${encodeURIComponent(movement)}`}
-                className={chipClasses}
-              >
-                {movement}
-                <span className="ml-1.5 text-[var(--muted-foreground)] tabular-nums">{count}</span>
-              </Link>
+          <p className="text-sm text-[var(--muted-foreground)]">
+            {movements.map(({ movement, count }, i) => (
+              <span key={movement}>
+                {i > 0 && " · "}
+                {movement} <span className="tabular-nums">{count}</span>
+              </span>
             ))}
-          </div>
+          </p>
         )}
         <p className="max-w-prose italic text-[var(--muted-foreground)]">{era.blurb}</p>
       </header>
