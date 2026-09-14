@@ -89,8 +89,8 @@ export default function PrivacyPage() {
         <div>
           <h2 className="font-serif text-xl md:text-2xl">Newsletter — Drops of Beauty</h2>
           <p className="mt-2 text-[var(--muted-foreground)]">
-            The site offers a weekly email digest, <em>Drops of Beauty</em>, of five artworks from
-            the collection. The mailing list is stored in a self-hosted{" "}
+            The site offers an email newsletter, <em>Drops of Beauty</em>, of five artworks from the
+            collection. The mailing list is stored in a self-hosted{" "}
             <a
               href="https://listmonk.app/"
               className="underline hover:text-[var(--foreground)]"

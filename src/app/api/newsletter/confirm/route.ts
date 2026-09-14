@@ -88,7 +88,7 @@ export async function GET(request: NextRequest) {
     } catch (err) {
       // Don't fail the confirmation over a welcome-send error — the
       // subscription itself is already live. They'll get the next
-      // regular issue at the usual cadence.
+      // issue when it goes out.
       log("error", "welcome_send_failed", { message: (err as Error).message });
     }
   }

@@ -65,7 +65,7 @@ const LISTMONK_UNSUBSCRIBE_TOKEN = "{{ UnsubscribeURL }}";
 export default function WeeklyDigest({
   issueNumber = 1,
   issueDate = "April 19, 2026",
-  title = "Five for the week",
+  title = "Five works",
   introHtml = "",
   artworks = PREVIEW_ARTWORKS,
   siteUrl = "https://example.com",

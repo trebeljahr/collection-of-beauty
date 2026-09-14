@@ -67,8 +67,7 @@ export default function ConfirmSubscription({
                 Confirm your subscription
               </Heading>
               <Text className="mt-4 text-base leading-relaxed text-stone-800">
-                You're one click away from <strong>Drops of Beauty</strong>, a weekly letter from
-                the{" "}
+                You're one click away from <strong>Drops of Beauty</strong>, a newsletter from the{" "}
                 <Link
                   href={siteUrl}
                   className="text-stone-900 underline decoration-stone-300 underline-offset-4"
@@ -78,10 +77,10 @@ export default function ConfirmSubscription({
                 .
               </Text>
               <Text className="mt-3 text-base leading-relaxed text-stone-800">
-                Each Sunday brings five public-domain works around a single theme — landscapes,
-                solitary figures, scientific illustration, shin-hanga prints, whatever the week's
-                thread runs through. Brief editorial notes, full-resolution images, and a link back
-                into the gallery for everything that catches your eye.
+                Each edition brings five public-domain works around a single theme: landscapes,
+                solitary figures, scientific illustration, shin-hanga prints. Brief editorial notes,
+                full-resolution images, and a link back into the gallery for everything that catches
+                your eye.
               </Text>
             </Section>
 

@@ -33,7 +33,7 @@ const LINKS: ReadonlyArray<{
   {
     href: "/drops",
     label: "Newsletter",
-    sub: "Weekly email and archive",
+    sub: "Email editions and archive",
     isActive: (pathname) =>
       pathname === "/drops" || pathname === "/sub" || pathname.startsWith("/newsletter"),
   },

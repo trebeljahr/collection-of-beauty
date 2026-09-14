@@ -4,7 +4,7 @@ import { buildOpenGraph, SITE_NAME } from "@/lib/seo";
 
 export const metadata: Metadata = {
   title: "Subscribe to Drops of Beauty",
-  description: `Drops of Beauty — five public-domain works, arranged around a single idea. One email from ${SITE_NAME}, every Sunday.`,
+  description: `Drops of Beauty — five public-domain works, arranged around a single idea, by email from ${SITE_NAME}.`,
   alternates: { canonical: "/sub" },
   // /drops is the indexable archive surface; /sub is the
   // signup conversion page reached from that archive (and direct links).
@@ -12,7 +12,7 @@ export const metadata: Metadata = {
   openGraph: buildOpenGraph({
     url: "/sub",
     title: `Drops of Beauty · ${SITE_NAME}`,
-    description: "Five works on one theme, every Sunday.",
+    description: "Five works on one theme, by email.",
   }),
 };
 
@@ -22,7 +22,7 @@ export default function SubscribePage() {
       <header className="mb-8">
         <h1 className="font-serif text-3xl md:text-4xl">Drops of Beauty</h1>
         <p className="mt-3 text-[var(--muted-foreground)]">
-          Five public-domain works, arranged around a single theme. One email, every Sunday morning.
+          Five public-domain works, arranged around a single theme, by email.
         </p>
       </header>
 
