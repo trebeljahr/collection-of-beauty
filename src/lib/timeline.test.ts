@@ -74,6 +74,16 @@ describe("getTimelineDecadeWorks", () => {
     }
   });
 
+  it("lists the aspect ratios the histogram shipped, in render order", () => {
+    const [first] = getTimelineSummary().decades.filter((d) => d.decade === 1880);
+    const aspects = getTimelineDecadeWorks(1880).map((w) => (w.width ?? 800) / (w.height ?? 1000));
+    expect(first.aspects).toHaveLength(aspects.length);
+    first.aspects.forEach((aspect, i) => {
+      // Rounded to 3 decimals on the wire.
+      expect(Math.abs(aspect - aspects[i])).toBeLessThanOrEqual(0.0005 + 1e-9);
+    });
+  });
+
   it("orders by year, then title", () => {
     const works = getTimelineDecadeWorks(1880);
     const years = works.map((w) => w.year ?? 0);
@@ -85,13 +95,14 @@ describe("getTimelineDecadeWorks", () => {
     expect(Object.keys(work).sort()).toEqual(
       [
         "artist",
-        "artistSlug",
         "dominantColor",
         "englishTitle",
+        "height",
         "id",
         "objectKey",
         "title",
         "variantWidths",
+        "width",
         "year",
       ].sort(),
     );

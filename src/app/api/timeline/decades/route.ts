@@ -2,8 +2,8 @@ import { getTimelineSummary } from "@/lib/timeline";
 
 export const dynamic = "force-dynamic";
 
-/** Decade histogram under the active filters — 62 `{decade, count}`
- *  pairs at most. The page renders its bars, section headers and the
+/** Decade histogram under the active filters — 62 `{decade, count,
+ *  aspects}` entries at most. The page renders its bars, section headers and the
  *  "N dated works across M decades" line from this alone; the works
  *  themselves come from /api/timeline/works once a section scrolls
  *  into view. */
