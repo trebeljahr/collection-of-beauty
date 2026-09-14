@@ -126,8 +126,10 @@ export function ArtworkGallery({
   const [serverExhausted, setServerExhausted] = useState(false);
 
   // Re-seeding on a wholesale set swap (different scope / filter / sort)
-  // is the CALL SITE's job: render `<ArtworkGallery key={filterKey} …>`
+  // is the CALL SITE's job: render `<ArtworkGallery key={generation} …>`
   // so this component remounts and the useState initializers run afresh.
+  // The key must change in the same commit as `artworks`, or the remount
+  // seeds from the previous set (see useArtworkPagination's generation).
   // A key on a div rendered in here would not do it — `displayed`,
   // `serverExhausted` and `containerWidth` all live above that div and
   // would survive the subtree remount with stale contents.
