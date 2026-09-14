@@ -1,5 +1,23 @@
 import { describe, expect, it } from "vitest";
-import { assignEra, ERAS, eraAccentColor } from "./gallery-eras";
+import { assignEra, ERAS, eraAccentColor, movementCounts } from "./gallery-eras";
+
+describe("movementCounts", () => {
+  it("counts present movements largest first and skips untagged works", () => {
+    expect(
+      movementCounts([
+        { movement: "Rococo" },
+        { movement: "Neoclassicism" },
+        { movement: null },
+        { movement: "Neoclassicism" },
+        { movement: "Baroque" },
+      ]),
+    ).toEqual([
+      { movement: "Neoclassicism", count: 2 },
+      { movement: "Baroque", count: 1 },
+      { movement: "Rococo", count: 1 },
+    ]);
+  });
+});
 
 describe("assignEra", () => {
   it("prefers explicit movement over year fallback", () => {

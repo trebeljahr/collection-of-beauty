@@ -3,7 +3,7 @@ import Link from "next/link";
 import { ResponsiveImage } from "@/components/responsive-image";
 import { resolveScope } from "@/lib/artwork-scope";
 import type { ArtworkListing } from "@/lib/data";
-import { ERAS, eraYearLabel } from "@/lib/gallery-eras";
+import { ERAS, eraYearLabel, movementCounts } from "@/lib/gallery-eras";
 import { buildOpenGraph } from "@/lib/seo";
 
 // Rendered entirely from the bundled artwork JSON — nothing here reads a
@@ -45,6 +45,7 @@ export default function ErasPage() {
       era,
       cover: pickCover(works),
       count: works.length,
+      movements: movementCounts(works).map((m) => m.movement),
     };
   });
 
@@ -59,7 +60,7 @@ export default function ErasPage() {
       </header>
 
       <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3">
-        {cards.map(({ era, cover, count }) => (
+        {cards.map(({ era, cover, count, movements }) => (
           <Link
             key={era.id}
             href={`/era/${era.id}`}
@@ -99,9 +100,9 @@ export default function ErasPage() {
                 {count} work{count === 1 ? "" : "s"}
               </p>
               <p className="line-clamp-2 text-sm text-[var(--muted-foreground)]">{era.blurb}</p>
-              {era.movements.length > 0 && (
+              {movements.length > 0 && (
                 <p className="line-clamp-1 text-xs text-[var(--muted-foreground)]">
-                  {era.movements.slice(0, 3).join(" · ")}
+                  {movements.slice(0, 3).join(" · ")}
                 </p>
               )}
             </div>

@@ -474,6 +474,27 @@ export function eraYearLabel(era: Era): string {
   return `${era.yearMin}–${era.yearMax}`;
 }
 
+/**
+ * Movements actually present among an era's works, largest first.
+ * `Era.movements` is routing config: it holds aliases ("Academic art"
+ * next to "Academicism") and tags no catalogued work carries, and it
+ * misses what year and the pre-1500 Renaissance rule bring in. Shown as
+ * chips it listed four empty movements on the Gothic floor and none of
+ * the 56 Renaissance works actually hanging there. Untagged works have
+ * no movement to link to, so they are left out.
+ */
+export function movementCounts(
+  works: Pick<Artwork, "movement">[],
+): { movement: string; count: number }[] {
+  const counts = new Map<string, number>();
+  for (const w of works) {
+    if (w.movement) counts.set(w.movement, (counts.get(w.movement) ?? 0) + 1);
+  }
+  return [...counts]
+    .map(([movement, count]) => ({ movement, count }))
+    .sort((a, b) => b.count - a.count || a.movement.localeCompare(b.movement));
+}
+
 export function getEra(id: EraId): Era {
   const era = ERAS.find((e) => e.id === id);
   if (!era) throw new Error(`Unknown era id: ${id}`);
