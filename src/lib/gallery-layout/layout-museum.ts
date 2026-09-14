@@ -31,6 +31,7 @@
 import type { ArtworkListing } from "@/lib/data";
 import { assignEra, ERAS, type Era, type EraId, eraAccentColor, getEra } from "@/lib/gallery-eras";
 import { slugify } from "@/lib/utils";
+import { hangGrandHall, pickHallCandidates } from "./grand-hall";
 import { distributePaintings, estimateWallMetres, wallFootprint } from "./place-paintings";
 import type {
   Door,
@@ -319,8 +320,8 @@ const MAX_WORKS_PER_FLOOR = 300;
  * spread across the whole series rather than the first 100 plates of
  * volume one.
  */
-function selectFloorWorks(artworks: ArtworkListing[]): ArtworkListing[] {
-  if (artworks.length <= MAX_WORKS_PER_FLOOR) return artworks;
+function selectFloorWorks(artworks: ArtworkListing[], cap: number): ArtworkListing[] {
+  if (artworks.length <= cap) return artworks;
 
   const byArtist = new Map<string, ArtworkListing[]>();
   for (const a of artworks) {
@@ -340,7 +341,7 @@ function selectFloorWorks(artworks: ArtworkListing[]): ArtworkListing[] {
   // left. One pass isn't enough on its own: the integer share rounds
   // down, and artists who ran out early free up capacity the remaining
   // artists should absorb.
-  let remaining = MAX_WORKS_PER_FLOOR;
+  let remaining = cap;
   let open = buckets;
   while (remaining > 0 && open.length > 0) {
     const share = Math.max(1, Math.floor(remaining / open.length));
@@ -363,11 +364,21 @@ function selectFloorWorks(artworks: ArtworkListing[]): ArtworkListing[] {
 
 // --- Per-floor layout -----------------------------------------------------
 
-function buildFloor(era: Era, eraArtworks: ArtworkListing[]): FloorLayout {
+function buildFloor(era: Era, allEraArtworks: ArtworkListing[]): FloorLayout {
+  // The Grand Hall's candidates come off the top of the whole era first,
+  // so sampling can't drop the works the entrance is composed from.
+  const hallPool = pickHallCandidates(allEraArtworks);
+  const hallPoolIds = new Set(hallPool.map((a) => a.id));
   // A storey hangs a bounded number of works, so an era with more of
   // them goes in as a sample rather than a stack — see
   // selectFloorWorks.
-  eraArtworks = selectFloorWorks(eraArtworks);
+  let eraArtworks = [
+    ...hallPool,
+    ...selectFloorWorks(
+      allEraArtworks.filter((a) => !hallPoolIds.has(a.id)),
+      MAX_WORKS_PER_FLOOR - hallPool.length,
+    ),
+  ];
   // Interleave artists across the floor. The source data is grouped by
   // folder (audubon-birds, kunstformen-images, collection-of-beauty),
   // so left untouched the natural-history floor reads Audubon-then-
@@ -395,8 +406,53 @@ function buildFloor(era: Era, eraArtworks: ArtworkListing[]): FloorLayout {
     totalSlots += stage.length;
   }
 
-  // Deal the works into those rooms, biggest movement first. A room
-  // takes from one movement until that movement runs dry, then keeps
+  const slots = SLOTS.slice(0, totalSlots);
+  const hall = buildRoom({
+    era,
+    id: `${era.id}-grand-hall`,
+    rect: GRAND_HALL,
+    movement: era.title,
+    artworks: [],
+    isAnchor: true,
+    isStairwell: false,
+  });
+  const slotRooms = slots.map((slot) => {
+    const suppressWalls: NonNullable<RoomLayout["suppressWalls"]> = {};
+    for (const side of slot.suppress) suppressWalls[side] = true;
+    return buildRoom({
+      era,
+      id: `${era.id}-${slot.id}`,
+      rect: slot.rect,
+      movement: era.title,
+      artworks: [],
+      isAnchor: false,
+      isStairwell: false,
+      suppressWalls,
+    });
+  });
+  // Stairwell — owns its 4 walls and connects via cardinal doors to the
+  // Grand Hall (south) and any active slot rooms (north).
+  const stairwell = buildRoom({
+    era,
+    id: `${era.id}-stairwell`,
+    rect: STAIR,
+    movement: STAIR_LABEL,
+    artworks: [],
+    isAnchor: false,
+    isStairwell: true,
+  });
+  const rooms: RoomLayout[] = [hall, ...slotRooms, stairwell];
+
+  // Doors first: the Grand Hall is composed around its door openings,
+  // and its composition decides which works are left for everyone else.
+  wireDoors(rooms);
+
+  const hallPlacements = hangGrandHall(hall, hallPool, stairwell.id);
+  const hungInHall = new Set(hallPlacements?.map((p) => p.artwork.id));
+  if (hallPlacements) hall.placements = hallPlacements;
+
+  // Deal the remaining works into the rooms, biggest movement first. A
+  // room takes from one movement until that movement runs dry, then keeps
   // taking from the next — clumping two schools into one room is a
   // smaller compromise than leaving half a room of bare plaster, and
   // the room's sign names whatever ended up dominant. The `· Part 2 /
@@ -415,66 +471,26 @@ function buildFloor(era: Era, eraArtworks: ArtworkListing[]): FloorLayout {
       if (!aAsian && bAsian) return 1;
       return b[1].length - a[1].length;
     })
-    .map(([name, artworks]) => ({ name, artworks: [...artworks] }));
+    .map(([name, artworks]) => ({
+      name,
+      artworks: artworks.filter((a) => !hungInHall.has(a.id)),
+    }));
 
-  const roomRects: CellRect[] = [GRAND_HALL, ...SLOTS.slice(0, totalSlots).map((s) => s.rect)];
-  const fills = fillRooms(roomRects, queue, era);
-
-  // Build all rooms.
-  const rooms: RoomLayout[] = [];
-
-  // 1. Grand Hall (anchor).
-  rooms.push(
-    buildRoom({
-      era,
-      id: `${era.id}-grand-hall`,
-      rect: GRAND_HALL,
-      movement: fills[0].name,
-      artworks: fills[0].artworks,
-      isAnchor: true,
-      isStairwell: false,
-    }),
+  // A composed hall is finished; only when the floor had too few large
+  // works to compose one does the hall join the ordinary deal.
+  const dealtRooms = hallPlacements ? slotRooms : [hall, ...slotRooms];
+  const fills = fillRooms(
+    dealtRooms.map((r) => r.cellBounds),
+    queue,
+    era,
   );
-
-  // 2. Slot rooms.
-  for (let i = 0; i < totalSlots; i++) {
-    const slot = SLOTS[i];
-    const fill = fills[i + 1];
-    const suppressWalls: NonNullable<RoomLayout["suppressWalls"]> = {};
-    for (const side of slot.suppress) suppressWalls[side] = true;
-    rooms.push(
-      buildRoom({
-        era,
-        id: `${era.id}-${slot.id}`,
-        rect: slot.rect,
-        movement: fill.name,
-        artworks: fill.artworks,
-        isAnchor: false,
-        isStairwell: false,
-        suppressWalls,
-      }),
-    );
-  }
-
-  // 3. Stairwell — owns its 4 walls and connects via cardinal doors to
-  //    Grand Hall (north) and any active slot rooms (south, west, east).
-  rooms.push(
-    buildRoom({
-      era,
-      id: `${era.id}-stairwell`,
-      rect: STAIR,
-      movement: STAIR_LABEL,
-      artworks: [],
-      isAnchor: false,
-      isStairwell: true,
-    }),
-  );
+  dealtRooms.forEach((room, i) => {
+    room.movement = fills[i].name;
+    room.artworks = fills[i].artworks;
+  });
 
   // No hallways — every connection is a shared wall with a door.
   const hallways: HallwayLayout[] = [];
-
-  // Wire doors between rooms.
-  wireDoors(rooms);
 
   // Walkable + cellOwner masks.
   const walkable = new Uint8Array(GRID_SIZE * GRID_SIZE);
@@ -510,7 +526,7 @@ function buildFloor(era: Era, eraArtworks: ArtworkListing[]): FloorLayout {
 
   // Each room hangs its own movement bucket; overflow spills to free
   // walls on the same floor (see place-paintings.ts).
-  const stats = distributePaintings(floor);
+  const stats = distributePaintings(floor, hallPlacements ? new Set([hall.id]) : undefined);
   if (stats.dropped > 0 && process.env.NODE_ENV !== "production") {
     // A floor out of wall space drops works silently otherwise. The
     // slot count is sized from the same footprint arithmetic the
@@ -531,7 +547,12 @@ function buildFloor(era: Era, eraArtworks: ArtworkListing[]): FloorLayout {
     if (room.isStairwell) continue;
     room.artworks = room.placements.map((p) => p.artwork);
     room.roomNumber = ++roomNumber;
-    room.movement = dominantMovement(room.artworks, era) ?? room.movement;
+    // The composed Grand Hall shows the whole floor's largest works, not
+    // one movement's, so it is signed with the era itself.
+    room.movement =
+      room === hall && hallPlacements
+        ? era.title
+        : (dominantMovement(room.artworks, era) ?? room.movement);
     room.title = room.movement;
     room.description = describeRoom(room.movement, room.artworks);
     // Floor tint by movement, not by room, so the enfilade of rooms
