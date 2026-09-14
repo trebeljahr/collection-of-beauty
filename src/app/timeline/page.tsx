@@ -1,24 +1,22 @@
 import type { Metadata } from "next";
-import { TimelineEras } from "@/components/timeline-eras";
 import { TimelineView } from "@/components/timeline-view";
 import { movements, summary } from "@/lib/data";
-import { ERAS } from "@/lib/gallery-eras";
 import { buildOpenGraph } from "@/lib/seo";
 import { getTimelineSummary } from "@/lib/timeline";
 
 export const metadata: Metadata = {
   title: "Timeline",
   description:
-    `${summary.totalArtworks.toLocaleString()} works grouped by decade from ` +
-    `${summary.yearRange.min} to ${summary.yearRange.max}, and the ${ERAS.length} eras ` +
-    `that make up the floors of the 3D museum.`,
+    `A chronological view of ${summary.totalArtworks.toLocaleString()} works, ` +
+    `grouped by decade from ${summary.yearRange.min} to ${summary.yearRange.max}. ` +
+    `Hover any column to see the count; click to jump to that period.`,
   alternates: { canonical: "/timeline" },
   openGraph: buildOpenGraph({
     url: "/timeline",
     title: "Timeline · Collection of Beauty",
     description:
       `${summary.totalArtworks.toLocaleString()} works grouped by decade, ` +
-      `from ${summary.yearRange.min} to ${summary.yearRange.max}, and by era.`,
+      `from ${summary.yearRange.min} to ${summary.yearRange.max}.`,
   }),
 };
 
@@ -33,10 +31,9 @@ export default function TimelinePage() {
       <header className="mb-6">
         <h1 className="font-serif text-3xl md:text-4xl">Timeline</h1>
         <p className="mt-2 text-[var(--muted-foreground)]">
-          Pick an era, or scroll the decades. Hover a column to see its count; click to jump there.
+          Works grouped by decade. Hover a column to see the count; click to jump there.
         </p>
       </header>
-      <TimelineEras />
       <TimelineView
         initialDecades={timeline.decades}
         initialTotal={timeline.total}

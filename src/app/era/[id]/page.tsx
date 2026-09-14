@@ -90,7 +90,7 @@ export default async function EraPage({ params }: { params: Promise<Params> }) {
   return (
     <div className="mx-auto max-w-6xl px-4 py-8">
       <Link
-        href="/timeline#eras"
+        href="/eras"
         className={`${touchTextLinkClasses} text-sm text-[var(--muted-foreground)]`}
       >
         ← All eras
