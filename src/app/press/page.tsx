@@ -2,6 +2,8 @@ import type { Metadata } from "next";
 import Image from "next/image";
 import Link from "next/link";
 import { artworks, summary } from "@/lib/data";
+import { ERAS } from "@/lib/gallery-eras";
+import { museumLayout } from "@/lib/gallery-layout/precomputed";
 import { GITHUB_URL } from "@/lib/links";
 import { getPlateSets } from "@/lib/plate-sets";
 import { absoluteUrl, buildOpenGraph, jsonLdScriptProps, SITE_NAME } from "@/lib/seo";
@@ -19,16 +21,24 @@ const PLATES = PLATE_COUNT.toLocaleString("en-US");
 const PICKED = (summary.totalArtworks - PLATE_COUNT).toLocaleString("en-US");
 const MEASURED = artworks.filter((w) => w.realDimensions).length.toLocaleString("en-US");
 const HOURS_AT_A_MINUTE = Math.round(summary.totalArtworks / 60);
+// The museum caps each floor, so it hangs fewer works than the catalogue
+// holds. Read both from the same layout the /gallery-3d/plan page draws.
+const FLOORS = museumLayout.floors.length;
+const HUNG = museumLayout.allRooms
+  .reduce((n, room) => n + room.placements.length, 0)
+  .toLocaleString("en-US");
+const GROUND_ERA = ERAS[0]?.title ?? "the earliest era";
+const TOP_ERA = ERAS[ERAS.length - 1]?.title ?? "the most recent era";
 
 export const metadata: Metadata = {
   title: "Press",
-  description: `Press kit for Collection of Beauty, ${WORKS} public-domain artworks dated ${YEARS} and sorted by decade, colour and era. Story, fact sheet, copy, FAQ and images.`,
+  description: `Press kit for Collection of Beauty, a 3D museum of public-domain art with ${FLOORS} floors, one per era, that you walk through in the browser. Story, fact sheet, copy, FAQ and images.`,
   alternates: { canonical: "/press" },
   openGraph: buildOpenGraph({
     // Same string as alternates.canonical above, so og:url can't drift from it.
     url: "/press",
     title: `Press · ${SITE_NAME}`,
-    description: `Story, fact sheet, copy blocks, FAQ, images and press contact for Collection of Beauty, ${WORKS} public-domain artworks dated ${YEARS}.`,
+    description: `Story, fact sheet, copy blocks, FAQ, images and press contact for Collection of Beauty, a walkable 3D museum of public-domain art with ${FLOORS} era floors.`,
     images: [
       {
         url: "/marketing/hero.png",
@@ -41,7 +51,7 @@ export const metadata: Metadata = {
   twitter: {
     card: "summary_large_image",
     title: `Press · ${SITE_NAME}`,
-    description: `Story, fact sheet, copy, FAQ and images for Collection of Beauty, ${WORKS} public-domain artworks dated ${YEARS}.`,
+    description: `Story, fact sheet, copy, FAQ and images for Collection of Beauty, a walkable 3D museum of public-domain art with ${FLOORS} era floors.`,
     images: ["/marketing/hero.png"],
   },
   robots: {
@@ -64,6 +74,11 @@ const story = [
 // The data-art half of the story: one catalogue, sorted by one field at a
 // time. Only views that ship belong here.
 const views = [
+  {
+    label: "3D museum",
+    href: "/gallery-3d",
+    body: `A building of ${FLOORS} floors, one per era, from ${GROUND_ERA} at ground level to ${TOP_ERA} at the top, joined by a spiral staircase. You walk it with the keyboard and mouse, or with an on-screen joystick on a phone. It hangs ${HUNG} works, at their real size where the dimensions are known, which is true for ${MEASURED} of the ${WORKS} works in the catalogue.`,
+  },
   {
     label: "Timeline",
     href: "/timeline",
@@ -93,11 +108,6 @@ const views = [
     label: "Surprise me",
     href: "/surprise",
     body: "One work picked at random.",
-  },
-  {
-    label: "3D museum",
-    href: "/gallery-3d",
-    body: `The eras as rooms you walk through in the browser. Paintings hang at their real size where the dimensions are known, which is true for ${MEASURED} of the ${WORKS} works.`,
   },
 ] as const;
 
@@ -130,7 +140,7 @@ const descriptionTiers = [
   {
     title: "One sentence",
     body: [
-      `Collection of Beauty is a free website with ${WORKS} public-domain artworks that anyone can sort by decade, colour, era or artist, or walk through as a 3D museum.`,
+      `Collection of Beauty is a free 3D museum of public-domain art that you walk through in the browser, with one floor for each of ${FLOORS} eras.`,
     ],
   },
   {
@@ -150,7 +160,7 @@ const descriptionTiers = [
     body: [
       `Collection of Beauty is a scrapbook of public-domain art kept by Rico. Every work in it is there because he finds it beautiful. It holds ${WORKS} paintings, prints and book plates by ${ARTISTS} artists, dated ${YEARS}, most of them from Wikimedia Commons.`,
       `Rico spent three to four weeks picking them. He followed one artist to the next whenever a page mentioned another name, then clicked through each artist's works on Commons, about 30,000 to 40,000 images in all. Removing duplicates and cleaning up the metadata took even longer. AI coding agents, Claude Code and Codex, helped heavily with that and with building the site.`,
-      `The site sorts the works by decade, by colours read from the pixels, by era and by artist, and hangs the eras as rooms in a 3D museum. It is free, and every work links back to its source.`,
+      `The centre of the site is a 3D museum that runs in the browser. Its ${FLOORS} floors, one per era, are joined by a spiral staircase, and the paintings hang at their real size where it is known. The works can also be sorted by decade, by colour and by artist. The site is free.`,
     ],
   },
 ] as const;
@@ -325,8 +335,9 @@ export default function PressPage() {
                 Collection of Beauty
               </h1>
               <p className="mt-5 max-w-2xl text-lg leading-8 text-[var(--foreground)] md:text-xl">
-                {WORKS} public-domain artworks from {YEARS}, sorted by decade, colour and era. The
-                eras also hang as rooms in a 3D museum that runs in the browser.
+                A 3D museum of public-domain art that you walk through in your browser. Each of its{" "}
+                {FLOORS} floors holds one era, from {GROUND_ERA} at ground level to {TOP_ERA} at the
+                top, and {HUNG} works hang on its walls.
               </p>
               <div className="mt-8 flex flex-wrap gap-3">
                 {/* min-h-11 lifts both CTAs from their natural 38px
