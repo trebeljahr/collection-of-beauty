@@ -186,7 +186,6 @@ export function GalleryBrowser({ initialArtworks, eras, totalArtworks }: Props) 
             <option value="shuffle">Sort: shuffled</option>
             <option value="year">Sort: chronological</option>
             <option value="artist">Sort: artist</option>
-            <option value="title">Sort: title</option>
           </select>
         </div>
         <div className="flex flex-wrap items-center gap-2 text-sm">

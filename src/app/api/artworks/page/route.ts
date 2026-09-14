@@ -11,7 +11,7 @@ import { isPlateSetId } from "@/lib/plate-sets";
 
 export const dynamic = "force-dynamic";
 
-const SORTS = new Set<ArtworkSort>(["shuffle", "year", "artist", "title", "plate", "color"]);
+const SORTS = new Set<ArtworkSort>(["shuffle", "year", "artist", "plate", "color"]);
 const ERA_IDS = new Set<string>(ERAS.map((e) => e.id));
 
 export function GET(request: Request) {

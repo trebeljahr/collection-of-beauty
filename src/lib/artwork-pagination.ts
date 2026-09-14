@@ -138,7 +138,6 @@ function sortArtworkListings(
       (a, b) => (a.artist ?? "￿").localeCompare(b.artist ?? "￿") || a.title.localeCompare(b.title),
     );
   }
-  if (sort === "title") return list.sort((a, b) => a.title.localeCompare(b.title));
   // "plate" without a collection has no meaning — the caller asked for an
   // ordering that only exists inside a book. Same for "color" without a
   // family, handled above. Fall through to the shuffle rather than
