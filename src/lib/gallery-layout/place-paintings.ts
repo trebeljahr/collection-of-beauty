@@ -46,7 +46,7 @@ const MIN_DISPLAY_LONG_EDGE = 0.45;
  *  2.4 m because a painting had to fit inside one 2.5 m grid cell;
  *  with continuous runs the only real constraint is the height cap and
  *  the run itself, so the two caps now match. */
-const MAX_PAINTING_W = 3.2;
+export const MAX_PAINTING_W = 3.2;
 const MAX_PAINTING_H_ROOM = 3.2;
 /** Inset from the wall surface so paintings don't z-fight. Sized to
  *  put the back of the painting frame box flush against the wall —
@@ -61,7 +61,7 @@ export const PAINTING_WALL_OFFSET = 0.02;
  *  painting.tsx — keep in sync if those move. Plaques always hang on
  *  the painting's right (museum convention), so a work's footprint on
  *  the wall is its width plus this. */
-const PLAQUE_FOOTPRINT = 0.06 + 0.308;
+export const PLAQUE_FOOTPRINT = 0.06 + 0.308;
 /** Minimum gap from a run's end to the perpendicular room wall. */
 const WALL_MARGIN = 0.3;
 /** Minimum gap between a painting's plaque and the next painting.
@@ -90,7 +90,7 @@ const MIN_RUN_LENGTH = 0.6;
  *  the centre so the bottom clears the floor by this much; shorter paintings
  *  whose bottom already exceeds this clearance keep their canonical centre
  *  (the "salon hang" eye-line is the priority for typical works). */
-const PAINTING_FLOOR_GAP = 0.2;
+export const PAINTING_FLOOR_GAP = 0.2;
 
 /**
  * A maximal stretch of hangable plaster on one room wall.
@@ -101,6 +101,8 @@ const PAINTING_FLOOR_GAP = 0.2;
  * compass wall we're on; `sign` maps `u` back onto the world axis.
  */
 export type WallRun = {
+  /** Compass wall of the room this run belongs to. */
+  side: Door["side"];
   /** World axis the wall runs along. */
   axis: "x" | "z";
   /** World coordinate of the wall surface on the perpendicular axis. */
@@ -220,6 +222,7 @@ export function computeRoomRuns(room: RoomLayout): WallRun[] {
     const push = (uMin: number, uMax: number) => {
       if (uMax - uMin < MIN_RUN_LENGTH) return;
       runs.push({
+        side: wall.side,
         axis: wall.axis,
         surface: wall.surface,
         sign: wall.sign,
@@ -257,7 +260,7 @@ export type DistributionStats = {
 /** A sized work waiting for a wall: the natural display dimensions are
  *  computed once up front so the distributor can fit each work to the
  *  run it lands in. */
-type SizedWork = { artwork: ArtworkListing; wM: number; hM: number };
+export type SizedWork = { artwork: ArtworkListing; wM: number; hM: number };
 
 /** Footprint a work claims on a wall: its own width plus the plaque
  *  that hangs to its right. */
@@ -320,12 +323,18 @@ function tryAssign(container: Container, work: SizedWork): boolean {
  *    rooms on the same floor; whatever the floor can't hold is dropped
  *    (the floor builder trims the era to a floor's worth up front, so
  *    this should only ever bite by a handful of works).
+ *  - Rooms named in `skipRoomIds` already carry a composed hang (the
+ *    Grand Hall, see grand-hall.ts) and are left alone — neither hung
+ *    nor used as spill space, which would break their symmetry.
  */
-export function distributePaintings(floor: FloorLayout): DistributionStats {
+export function distributePaintings(
+  floor: FloorLayout,
+  skipRoomIds: ReadonlySet<string> = new Set(),
+): DistributionStats {
   // Stairwell rooms are excluded — their walls hold the spiral steps
   // and signs, not paintings.
   const containers: Container[] = floor.rooms
-    .filter((r) => !r.isStairwell)
+    .filter((r) => !r.isStairwell && !skipRoomIds.has(r.id))
     .map((room) => {
       const runs = computeRoomRuns(room);
       return {
@@ -485,7 +494,7 @@ function fitTo(work: SizedWork, maxWidth: number, maxHeight: number): { wM: numb
  *  The pixel aspect is what the user actually sees, so use it for shape
  *  and only fall back when missing. realDimensions still controls the
  *  long-edge scale so a small miniature stays smaller than an altarpiece. */
-function sizeWork(artwork: ArtworkListing): SizedWork {
+export function sizeWork(artwork: ArtworkListing): SizedWork {
   const dims = artwork.realDimensions;
   let wM: number;
   let hM: number;

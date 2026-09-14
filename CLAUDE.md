@@ -148,6 +148,14 @@ required by the Dockerfile — don't remove it.
 - `texture-cache.ts` is module-scope so it survives the Canvas remount
   used to recover from WebGL context loss. **Don't** initialize it
   inside a component or hook.
+- The Grand Hall (spawn and floor-teleport room) is composed, not
+  filled: [`grand-hall.ts`](src/lib/gallery-layout/grand-hall.ts)
+  hangs the floor's largest high-resolution works in mirrored,
+  height-matched pairs, biggest pair beside the stairwell door. Its
+  candidates are picked before `selectFloorWorks` samples the era, and
+  `distributePaintings` skips the hall so spill can't break the
+  symmetry. A floor with fewer than 4 composable works falls back to
+  the ordinary hang.
 - The pendant lamp fixture lives in `lamp-fixture.tsx`. Geometry is
   module-scope so room swaps don't reallocate buffers.
 
