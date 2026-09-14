@@ -1,32 +1,34 @@
 import type { Metadata } from "next";
 import Image from "next/image";
 import Link from "next/link";
-import summary from "@/data/summary.json";
-import { ERAS } from "@/lib/gallery-eras";
+import { artworks, summary } from "@/lib/data";
+import { GITHUB_URL } from "@/lib/links";
+import { getPlateSets } from "@/lib/plate-sets";
 import { absoluteUrl, buildOpenGraph, jsonLdScriptProps, SITE_NAME } from "@/lib/seo";
 
 const pressEmail = "hello@trebeljahr.com";
 
-const WORKS_APPROX = (Math.floor(summary.totalArtworks / 10) * 10).toLocaleString("en-US");
-const ARTISTS_APPROX = (Math.floor(summary.totalArtists / 10) * 10).toString();
-
-// The museum is the story, so its numbers come off the era table rather
-// than being retyped into every copy block below.
-const FLOOR_COUNT = ERAS.length;
-const GROUND_ERA = ERAS[0].title;
-const TOP_ERA = ERAS[ERAS.length - 1].title;
+// Every number on this page is read from the catalogue, so the copy blocks
+// stay true after each rebuild instead of quoting launch-day figures.
+const WORKS = summary.totalArtworks.toLocaleString("en-US");
+const ARTISTS = summary.totalArtists.toLocaleString("en-US");
+const MOVEMENTS = summary.totalMovements.toLocaleString("en-US");
+const YEARS = `${summary.yearRange.min} to ${summary.yearRange.max}`;
+const PLATE_COUNT = getPlateSets().reduce((n, set) => n + set.presentCount, 0);
+const PLATES = PLATE_COUNT.toLocaleString("en-US");
+const PICKED = (summary.totalArtworks - PLATE_COUNT).toLocaleString("en-US");
+const MEASURED = artworks.filter((w) => w.realDimensions).length.toLocaleString("en-US");
+const HOURS_AT_A_MINUTE = Math.round(summary.totalArtworks / 60);
 
 export const metadata: Metadata = {
   title: "Press",
-  description:
-    `Press kit for Collection of Beauty, a walkable ${FLOOR_COUNT}-floor museum of public-domain art: ` +
-    "fact sheet, descriptions, story hooks, feature list, engineering notes, FAQ, quotes, images, and contact details.",
+  description: `Press kit for Collection of Beauty, Rico Trebeljahr's scrapbook of ${WORKS} public-domain artworks: story, fact sheet, copy, FAQ and images.`,
   alternates: { canonical: "/press" },
   openGraph: buildOpenGraph({
     // Same string as alternates.canonical above, so og:url can't drift from it.
     url: "/press",
     title: `Press · ${SITE_NAME}`,
-    description: `Fact sheet, descriptions, story hooks, features, engineering notes, FAQ, quotes, image assets, and press contact for Collection of Beauty — a walkable ${FLOOR_COUNT}-floor museum of public-domain art.`,
+    description: `Story, fact sheet, copy blocks, FAQ, images and press contact for Rico Trebeljahr's scrapbook of ${WORKS} public-domain artworks.`,
     images: [
       {
         url: "/marketing/hero.png",
@@ -39,7 +41,7 @@ export const metadata: Metadata = {
   twitter: {
     card: "summary_large_image",
     title: `Press · ${SITE_NAME}`,
-    description: `Fact sheet, descriptions, hooks, features, engineering notes, FAQ, quotes, images, and press contact for a walkable ${FLOOR_COUNT}-floor museum of public-domain art.`,
+    description: `Story, fact sheet, copy, FAQ and images for Rico Trebeljahr's scrapbook of ${WORKS} public-domain artworks.`,
     images: ["/marketing/hero.png"],
   },
   robots: {
@@ -48,77 +50,73 @@ export const metadata: Metadata = {
   },
 };
 
-// Own section ahead of the fact sheet rather than a line in the feature
-// list. Every number here is derived — see FLOOR_COUNT above.
-const museumFacts = [
-  [
-    "Shape",
-    `${FLOOR_COUNT} floors, one per art era, joined by a central spiral staircase. ${GROUND_ERA} is the ground floor; ${TOP_ERA} is the top.`,
-  ],
-  [
-    "Scale",
-    "Paintings hang at their real-world dimensions where the data exists. Where it doesn't, the layout falls back to a pixel-aspect estimate.",
-  ],
-  [
-    "Hanging",
-    "One work per wall cell, capped per floor and sampled across artists so one prolific series can't fill a storey.",
-  ],
-  [
-    "Controls",
-    "Pointer-lock and WASD on a laptop; an on-screen joystick and a landscape prompt on a phone. Click a painting to zoom, M for the floor map with teleport shortcuts.",
-  ],
-  [
-    "Requirements",
-    "A browser with WebGL. No install, no login, no plugin. Tested on Chrome, Firefox, and Safari across macOS, Windows, Linux, iOS, and Android.",
-  ],
-  [
-    "Built with",
-    "React Three Fiber and Three.js, inside a Next.js App Router site. Per-painting texture LOD with a frame-paced GPU upload queue keeps it usable on integrated graphics.",
-  ],
-  ["Where", "https://collectionofbeauty.com/gallery-3d"],
+// Third person on purpose: this page is copy for other people to reuse,
+// and anything in Rico's own voice should be written by Rico.
+const story = [
+  `Collection of Beauty is a personal collection. Rico Trebeljahr picked every work in it because he finds it beautiful, and most of them came from Wikimedia Commons. It holds ${WORKS} paintings, prints and book plates by ${ARTISTS} artists, dated ${YEARS}.`,
+  "It works like a scrapbook. The collection does not try to cover a movement or an artist completely. Famous names are missing and a few obscure ones appear often, because one person's taste decides what goes in.",
+  `The scrapbook is also a place to look for ideas. At one work a minute, seeing all of it takes about ${HOURS_AT_A_MINUTE} hours. The random page shows one work at a time, as large as the screen allows.`,
+  "Rico started the site in April 2026 and built it with the help of AI coding agents. The code, the data scripts and the metadata are public on GitHub.",
+] as const;
+
+// The data-art half of the story: one catalogue, sorted by one field at a
+// time. Only views that ship belong here.
+const views = [
+  {
+    label: "Timeline",
+    href: "/timeline",
+    body: `The works stacked by decade, from ${YEARS}. The height of each column shows where the collection is thick and where it is thin.`,
+  },
+  {
+    label: "Colours",
+    href: "/colours",
+    body: "Twelve colour families, measured from the pixels of each image. A work can belong to up to three, and each family page opens on the works with the most of that colour.",
+  },
+  {
+    label: "Eras",
+    href: "/eras",
+    body: `The ${MOVEMENTS} movements grouped into eras, from Gothic altarpieces to Modernism, with East Asian painting as its own group.`,
+  },
+  {
+    label: "Artists",
+    href: "/artists",
+    body: `${ARTISTS} artists, sorted by how many of their works are here. Each artist page links to painters from the same movement and to documented friendships, such as Monet and Manet at Argenteuil in 1874.`,
+  },
+  {
+    label: "Collections",
+    href: "/collections",
+    body: `Four illustrated books in their published plate order: Audubon's Birds of America, Haeckel's Kunstformen der Natur, and Redouté's Les Roses and Les Liliacées. ${PLATES} plates in total.`,
+  },
+  {
+    label: "Surprise me",
+    href: "/surprise",
+    body: "One work picked at random.",
+  },
+  {
+    label: "3D museum",
+    href: "/gallery-3d",
+    body: `The eras as rooms you walk through in the browser. Paintings hang at their real size where the dimensions are known, which is true for ${MEASURED} of the ${WORKS} works.`,
+  },
 ] as const;
 
 const factSheet = [
   ["Project", "Collection of Beauty"],
   ["URL", "https://collectionofbeauty.com"],
-  ["Maker", "Rico Trebeljahr - solo, no company"],
+  ["Maker", "Rico Trebeljahr, working alone"],
   ["Location", "Berlin, Germany"],
-  ["Release", "2026 (public launch)"],
-  ["Price", "Free. No login, no ads, no paywall, no tracking beyond self-hosted Plausible."],
+  ["Started", "April 2026"],
   [
-    "The museum",
-    `${FLOOR_COUNT} floors, one per art era, ${GROUND_ERA} at ground level rising to ${TOP_ERA}, joined by a central spiral staircase. Runs in a browser tab; no install, no login.`,
-  ],
-  [
-    "Collection size",
-    `~${WORKS_APPROX} works, ~${ARTISTS_APPROX} artists at launch (numbers move; live count visible on the home page)`,
-  ],
-  [
-    "Coverage",
-    "Roughly 14th-early-20th century. Centre of mass: Northern European, Italian, French, Russian, Japanese ukiyo-e, American naturalist illustration.",
+    "Collection",
+    `${WORKS} works by ${ARTISTS} artists across ${MOVEMENTS} movements, dated ${YEARS}. ${PICKED} were chosen one at a time. The other ${PLATES} are plates from four illustrated books.`,
   ],
   [
     "Sources",
-    "Wikimedia Commons, Library of Congress (Prints & Photographs Division), and adjacent public-domain archives. Each work links back to its source.",
+    "Mostly Wikimedia Commons and Wikidata, plus a few works from the Library of Congress. Every work links to its source.",
   ],
-  [
-    "Licensing",
-    "All artworks public domain. Metadata corrections handled via GitHub issues. Site code public on GitHub.",
-  ],
-  [
-    "Platforms",
-    "Web. 3D museum requires WebGL; tested on Chrome/Firefox/Safari on macOS, Windows, Linux, and on iOS / Android in landscape. Desktop uses pointer-lock + WASD; touch devices get an on-screen joystick and a landscape-rotate prompt.",
-  ],
-  [
-    "Languages",
-    "English UI. Original-language titles preserved alongside English where applicable (Japanese, Russian, German, French, etc.).",
-  ],
-  [
-    "Newsletter",
-    "Periodic edition, opt-in, run via self-hosted ListMonk + Amazon SES. Each edition features five works around a theme.",
-  ],
+  ["Built with", "AI coding agents, Next.js and Three.js. Code and metadata are public on GitHub."],
+  ["Price", "Free. No account and no ads. Analytics run on self-hosted Plausible without cookies."],
+  ["Newsletter", "Drops of Beauty: five works on one theme per edition, opt-in, at /drops."],
   ["Press contact", pressEmail],
-  ["Social", 'See "Social" section below. Some accounts are still being warmed up at launch.'],
   ["Press page", "https://collectionofbeauty.com/press"],
 ] as const;
 
@@ -126,76 +124,28 @@ const descriptionTiers = [
   {
     title: "One sentence",
     body: [
-      `A walkable ${FLOOR_COUNT}-floor museum of public-domain art that runs in a browser tab.`,
+      `Collection of Beauty is Rico Trebeljahr's scrapbook of ${WORKS} public-domain artworks, which anyone can sort by date, colour, era or artist.`,
     ],
   },
   {
     title: "Short (about 40 words)",
     body: [
-      `Collection of Beauty is a walkable museum of public-domain art. ${FLOOR_COUNT} floors, one per art era, joined by a central spiral staircase. It hangs roughly ${WORKS_APPROX} works from about ${ARTISTS_APPROX} artists. Free, no install, no login.`,
+      `Collection of Beauty holds ${WORKS} public-domain paintings, prints and book plates that Rico Trebeljahr finds beautiful, most of them from Wikimedia Commons. Visitors can browse them by decade or by colour, or open one at random.`,
     ],
   },
   {
     title: "Medium (about 80 words)",
     body: [
-      `Collection of Beauty is a walkable museum of public-domain art with ${FLOOR_COUNT} floors, one per art era, ${GROUND_ERA} at ground level rising to ${TOP_ERA}. Paintings hang at their real-world size where the dimensions are known. Built with React Three Fiber; mouse and keyboard on a laptop, an on-screen joystick on a phone in landscape. The same collection is also browsable as a flat gallery, a timeline, and per-artist pages: roughly ${WORKS_APPROX} works from ~${ARTISTS_APPROX} artists.`,
+      `Collection of Beauty is a personal art collection on the web. Rico Trebeljahr gathered ${WORKS} public-domain works by ${ARTISTS} artists, mostly from Wikimedia Commons, and built the site with the help of AI coding agents. He uses it as a scrapbook and a place to look for ideas. The site sorts the works by their metadata: decade, colour measured from the pixels, era and artist. Every work links to its source, and anyone can report a wrong date on GitHub.`,
     ],
   },
   {
     title: "Long (about 150 words)",
     body: [
-      `Collection of Beauty is a walkable museum of public-domain art, made and maintained by a single developer. ${FLOOR_COUNT} floors, one per art era, ${GROUND_ERA} at ground level rising to ${TOP_ERA}, joined by a central spiral staircase. Paintings are sized to their real-world dimensions where the data exists. It is built in WebGL, needs no install, and works on a laptop with pointer-lock and WASD or on a phone in landscape with a touch joystick.`,
-      `The collection holds around ${WORKS_APPROX} public-domain works across ~${ARTISTS_APPROX} artists, drawn from Wikimedia Commons and adjacent open archives. Each work shows its source and a permalink, with a "suggest a fix" button that opens a GitHub issue. The site is free and runs without ads, sign-ups, or third-party tracking.`,
+      `Collection of Beauty is a scrapbook of public-domain art kept by Rico Trebeljahr. Every work in it is there because he finds it beautiful. It holds ${WORKS} paintings, prints and book plates by ${ARTISTS} artists, dated ${YEARS}, most of them collected from Wikimedia Commons. Famous names are missing and some obscure ones appear often. He started the site in April 2026 and built it with the help of AI coding agents.`,
+      `The collection has two uses. It is a place to look for ideas: at one work a minute, seeing everything takes about ${HOURS_AT_A_MINUTE} hours. It is also a way to see how the works connect. The site sorts the same metadata by decade, by colours read from the pixels, by era and by artist, and hangs the eras as rooms in a 3D museum. It is free, and every work links back to its source.`,
     ],
   },
-] as const;
-
-const history = [
-  "Collection of Beauty started as a private bookmark folder. Over a few years I kept finding paintings I loved on Wikimedia Commons, in the Library of Congress, scattered across museum sites with brutal UX, and saving them into a folder with no real structure.",
-  "Eventually the folder was unbrowsable. The obvious move was to make a small grid view of my favourites. The grid worked but felt thin - a wall of thumbnails does not honour the work. The site grew into an artist page, then a timeline, then a 3D museum that takes the same data and arranges it as walkable rooms in WebGL.",
-  "The collection is not comprehensive and was never meant to be. It is the output of one person's taste - what I have found beautiful while reading through public-domain archives. Many famous artists are missing; some obscure ones are over-represented. That bias is the point. If you want the complete record, the museums and Wikimedia already have it.",
-  "What I wanted to build is a quiet room where the works can be looked at without being sold to or ranked by an algorithm.",
-] as const;
-
-const hooks = [
-  {
-    title: "A walkable 3D museum in a browser.",
-    body: "Multi-floor, real-world painting sizes, runs on a laptop or a phone. Built with React Three Fiber and Three.js.",
-  },
-  {
-    title: "An honest, imperfect dataset.",
-    body: "Metadata is occasionally wrong. Every work shows where it came from and carries a button that opens a pre-filled GitHub issue, and corrections are processed in batches.",
-  },
-  {
-    title: "Public-domain art, presented with care.",
-    body: "The same works are scattered across institutional sites with mid-2000s UX. Here they load fast, at full resolution, with the credit line attached.",
-  },
-  {
-    title: "One person, no business model.",
-    body: "Nothing is for sale and nothing is being upsold. The images were already free; the work was in making them findable.",
-  },
-] as const;
-
-const features = [
-  "High-resolution downloads on every work's own page. Every work downloads at the largest size built for it - up to 16,384px for the ~970 works with oversized source scans - and the four published plate sets stream as on-demand ZIP archives.",
-  "Multi-floor 3D museum at /gallery-3d. One floor per historical era, a spiral staircase connecting them. Painting frames are sized to real-world dimensions where known; otherwise the layout falls back to an aspect estimate.",
-  "2D gallery with shuffle, sort, search, movement and year filters, and an artists page with per-artist sub-galleries.",
-  'Per-work detail pages with source URL, dimensions, movement, licence, and a permalink. A "suggest a fix" button on every work opens a pre-filled GitHub issue against the metadata.',
-  "Timeline view that scrolls through the collection chronologically.",
-  "Newsletter featuring five works per themed edition. Opt-in, runs on self-hosted ListMonk + Amazon SES. No marketing scoring.",
-  "Open source. Code, asset pipeline, and metadata corrections all live on GitHub. The same images and metadata that drive the site are reusable by anyone.",
-  "Quiet site furniture. No ads, no third-party trackers, no cookie banners. Analytics are self-hosted Plausible (cookieless, EU-hosted).",
-  "Branded 404 and stable permalinks so links shared today still resolve later.",
-] as const;
-
-const engineering = [
-  "Stack: Next.js 16 App Router, Tailwind 4, React Three Fiber, Three.js.",
-  "Image pipeline: pre-built AVIF and WebP variants at a fixed width ladder, served from Cloudflare R2.",
-  "3D texture loading: per-painting LOD with a 256 px thumbnail and a 960 px base loaded on mount, then progressively upgraded through the pre-built variant ladder as the player approaches. Three LRU pools and a frame-paced GPU upload queue keep the frame budget bounded.",
-  "Deployment: Docker image to GHCR, pulled by self-hosted Coolify.",
-  "Analytics: self-hosted Plausible. Cookieless, EU-hosted, no third-party processors.",
-  "Newsletter: self-hosted ListMonk + Amazon SES for delivery, double opt-in. Provisioned via Hatchkit.",
-  "SEO: per-artist and per-work pages with VisualArtwork JSON-LD including license, dimensions, movement, credit, image refs.",
 ] as const;
 
 const faq = [
@@ -246,62 +196,31 @@ const faq = [
   ["Is there a Patreon / membership / paid tier?", "No."],
 ] as const;
 
-const quotes = [
-  "It started as a folder of bookmarks. I wanted somewhere I could browse the things I find beautiful without each one being trapped behind a different museum's interface.",
-  "Public-domain art is one of the most generous resources we have, and the web mostly treats it as a stock-photo afterthought. I wanted to give it a room of its own.",
-  "The metadata is a work in progress. Some titles are wrong, some dates drift by a decade. Everything is linked back to the source, and any reader can file a correction on GitHub. I would rather ship a corpus that admits its mistakes than pretend to be a clean catalog.",
-  "The 3D museum is the part of the project I am most curious to hear reactions on. Walking through a room is a different way of looking at a painting than scrolling past a thumbnail. Whether the difference is worth the engineering is for visitors to decide.",
-] as const;
-
 const acknowledgements = [
-  "Wikimedia Commons",
+  "Wikimedia Commons and Wikidata",
   "Library of Congress, Prints & Photographs Division",
-  "Adjacent open-access archives, credited per-work by source link",
+  "Other open-access archives, credited on each work's page",
 ] as const;
 
 const availableImages = [
   {
     title: "Marketing hero",
     href: "/marketing/hero.png",
-    meta: "1920 x 1080 PNG. Public marketing hero with 4 x 3 mosaic.",
+    meta: "1920 x 1080 PNG. A 4 x 3 mosaic of works from the collection.",
   },
   {
     title: "Marketing hero JPEG",
     href: "/marketing/hero.jpg",
-    meta: "1920 x 1080 JPEG variant of the marketing hero.",
+    meta: "1920 x 1080 JPEG of the same image.",
   },
   {
     title: "Social share card",
     href: "/opengraph-image.png",
-    meta: "1200 x 630 PNG. Social share image served by the live site.",
+    meta: "1200 x 630 PNG. The image the site uses when a link is shared.",
   },
 ] as const;
 
-const imageKitPending = [
-  "hero-3d-museum.png - 1920 x 1080. Spiral staircase plus a room of paintings. In production.",
-  "hero-2d-gallery.png - 1920 x 1080. Home page in its best state. In production.",
-  "artist-page.png - 1920 x 1080. An artist page with multiple works. In production.",
-  "detail-page.png - 1920 x 1080. A single artwork with its metadata and suggest-a-fix visible. In production.",
-  "logo-wordmark.svg - Vector wordmark on transparent background. In production.",
-  "walkthrough.mp4 - 30-second screen recording of a walk through the museum. Muted, looping-friendly. In production.",
-] as const;
-
-const redistribution = [
-  "All site screenshots are released under CC0 for editorial use. Credit appreciated but not required.",
-  "All artworks shown are themselves public domain. Use directly from the source archive when possible; the site is a presentation layer, not a rights holder.",
-  "The wordmark and the site's typographic OG card are released CC0 for press use. Do not modify the wordmark in ways that imply institutional affiliation.",
-  "Walkthrough video may be embedded, clipped, and re-uploaded for editorial coverage. CC0 for that purpose.",
-] as const;
-
-const social = [
-  "Bluesky: warming up at launch - handle to be confirmed.",
-  "Mastodon: warming up at launch - handle to be confirmed.",
-  "Newsletter: signup at collectionofbeauty.com/sub (also linked from every issue page and the site nav).",
-  "GitHub: repository link visible from the site footer.",
-  "Personal blog: ricos.site (long-form pieces and a launch retrospective will live there).",
-] as const;
-
-const boilerplate = `Collection of Beauty is a walkable museum of public-domain art: ${FLOOR_COUNT} floors, one per art era, ${GROUND_ERA} at ground level rising to ${TOP_ERA}, joined by a central spiral staircase, with paintings hung at their real-world size where the dimensions are known. Built in WebGL by Rico Trebeljahr, it holds about ${WORKS_APPROX} works from ~${ARTISTS_APPROX} artists, sourced from Wikimedia Commons and adjacent open archives, also browsable as a flat gallery, a timeline, and per-artist pages. It runs at collectionofbeauty.com, free, without ads or sign-ups.`;
+const boilerplate = `Collection of Beauty (collectionofbeauty.com) is Rico Trebeljahr's scrapbook of ${WORKS} public-domain artworks by ${ARTISTS} artists, gathered mostly from Wikimedia Commons and built into a website with the help of AI coding agents. Visitors can sort the works by decade, colour, era and artist, walk through them in a 3D museum, or open one at random. The site is free and has no ads.`;
 
 function contactPointJsonLd(): Record<string, unknown> {
   return {
@@ -399,8 +318,8 @@ export default function PressPage() {
                 Collection of Beauty
               </h1>
               <p className="mt-5 max-w-2xl text-lg leading-8 text-[var(--foreground)] md:text-xl">
-                A walkable museum of public-domain art. {FLOOR_COUNT} floors, one per art era,
-                {GROUND_ERA} at ground level rising to {TOP_ERA}.
+                Rico Trebeljahr's scrapbook of public-domain art: {WORKS} works he finds beautiful,
+                most of them from Wikimedia Commons.
               </p>
               <div className="mt-8 flex flex-wrap gap-3">
                 {/* min-h-11 lifts both CTAs from their natural 38px
@@ -433,8 +352,8 @@ export default function PressPage() {
             </div>
             <div className="border-t border-[var(--border)] pt-5 text-sm leading-7 text-[var(--muted-foreground)] md:border-l md:border-t-0 md:pl-8 md:pt-0">
               <p>
-                For journalists, newsletter editors, curators, and anyone covering Collection of
-                Beauty. Copy text verbatim where useful; re-check live numbers before publishing.
+                For anyone writing about Collection of Beauty. Copy any text on this page as it
+                stands. The numbers come from the catalogue and change when it does.
               </p>
               <p className="mt-4">
                 Press contact:{" "}
@@ -453,7 +372,7 @@ export default function PressPage() {
           aria-label="Press page sections"
           className="border-b border-[var(--border)] bg-[var(--background)]/85 backdrop-blur"
         >
-          {/* Horizontal scroll rail. At 375px only four of the ten links
+          {/* Horizontal scroll rail. At 375px only four of the seven links
               fit, and nothing about a flat row of cut-off text says
               "scrollable" — so the edges carry a shadow that appears
               exactly when content is hidden on that side.
@@ -465,7 +384,7 @@ export default function PressPage() {
               pinned to the visible edge). A cover only slides out of the
               way once there is scrolled-off content behind it, which
               means the shadow shows up per-edge, on demand, and never at
-              all at the widths where all ten links fit — so desktop is
+              all at the widths where every link fits — so desktop is
               visually untouched by it. Backgrounds paint behind text, so
               this shades the edge without dimming a label.
 
@@ -491,14 +410,11 @@ export default function PressPage() {
             }}
           >
             {[
-              ["The museum", "#museum"],
+              ["Story", "#story"],
+              ["Ways in", "#ways-in"],
               ["Fact sheet", "#fact-sheet"],
               ["Descriptions", "#descriptions"],
-              ["Hooks", "#hooks"],
-              ["Features", "#features"],
-              ["Engineering", "#engineering"],
               ["FAQ", "#faq"],
-              ["Quotes", "#quotes"],
               ["Images", "#images"],
               ["Contact", "#contact"],
             ].map(([label, href]) => (
@@ -507,7 +423,7 @@ export default function PressPage() {
               // 27px). The row's gap drops 4 -> 2 to pay for that padding
               // exactly: two neighbours contribute 4px each side, so
               // 4 + 8 + 4 is the 16px that gap-4 alone used to give, and
-              // ten links still need the same rail width — the horizontal
+              // the links still need the same rail width — the horizontal
               // scroll therefore engages at the same viewport as before.
               // The height ends at `sm:` (with the container's py-1 ->
               // py-3): WCAG 2.5.5's 44px is a touch criterion, a mouse gets
@@ -527,16 +443,37 @@ export default function PressPage() {
         </nav>
 
         <div className="mx-auto max-w-7xl px-4">
-          <Section
-            id="museum"
-            eyebrow="The museum"
-            title={`${FLOOR_COUNT} floors you can walk through`}
-          >
+          <Section id="story" eyebrow="The story" title="What this is">
+            <div className="space-y-4 leading-8 text-[var(--muted-foreground)]">
+              {story.map((paragraph) => (
+                <p key={paragraph}>{paragraph}</p>
+              ))}
+            </div>
+          </Section>
+
+          <Section id="ways-in" eyebrow="Ways in" title="One catalogue, sorted many ways">
             <div className="space-y-6">
-              <FactList facts={museumFacts} />
               <p className="leading-8 text-[var(--muted-foreground)]">
-                The floors, in order: {ERAS.map((era) => era.title).join(", ")}.
+                Each work comes with metadata: a date, an artist, a movement, and the colours in its
+                pixels. The site sorts the whole collection by one of those at a time, and each sort
+                shows a different set of connections between the works. Rico treats these views as
+                an experiment in data art.
               </p>
+              <dl className="divide-y divide-[var(--border)] border-y border-[var(--border)]">
+                {views.map((view) => (
+                  <div key={view.href} className="grid gap-2 py-4 sm:grid-cols-[11rem_1fr]">
+                    <dt>
+                      <Link
+                        href={view.href}
+                        className="rounded-sm py-1 font-serif text-lg underline underline-offset-4 hover:text-[var(--muted-foreground)] focus:outline-none focus-visible:ring-2 focus-visible:ring-[var(--ring)]"
+                      >
+                        {view.label}
+                      </Link>
+                    </dt>
+                    <dd className="leading-7 text-[var(--muted-foreground)]">{view.body}</dd>
+                  </div>
+                ))}
+              </dl>
             </div>
           </Section>
 
@@ -559,33 +496,6 @@ export default function PressPage() {
             </div>
           </Section>
 
-          <Section id="history" eyebrow="Background" title="How it got built">
-            <div className="space-y-4 leading-8 text-[var(--muted-foreground)]">
-              {history.map((paragraph) => (
-                <p key={paragraph}>{paragraph}</p>
-              ))}
-            </div>
-          </Section>
-
-          <Section id="hooks" eyebrow="Story angles" title="Hooks for editors">
-            <div className="grid gap-6 md:grid-cols-2">
-              {hooks.map((hook) => (
-                <article key={hook.title} className="border-t border-[var(--border)] pt-4">
-                  <h3 className="font-serif text-xl">{hook.title}</h3>
-                  <p className="mt-2 leading-7 text-[var(--muted-foreground)]">{hook.body}</p>
-                </article>
-              ))}
-            </div>
-          </Section>
-
-          <Section id="features" eyebrow="Features" title="What the site includes">
-            <BulletList items={features} />
-          </Section>
-
-          <Section id="engineering" eyebrow="Engineering" title="Technical facts">
-            <BulletList items={engineering} />
-          </Section>
-
           <Section id="faq" eyebrow="FAQ" title="Common questions">
             <div className="divide-y divide-[var(--border)] border-y border-[var(--border)]">
               {faq.map(([question, answer]) => (
@@ -597,30 +507,13 @@ export default function PressPage() {
             </div>
           </Section>
 
-          <Section id="quotes" eyebrow="Quotes" title="Attribute to Rico Trebeljahr">
-            <div className="space-y-6">
-              {quotes.map((quote) => (
-                <blockquote
-                  key={quote}
-                  className="border-l-2 border-[var(--foreground)] pl-5 font-serif text-xl leading-8"
-                >
-                  <p>"{quote}"</p>
-                </blockquote>
-              ))}
-            </div>
-          </Section>
-
           <Section id="acknowledgements" eyebrow="Acknowledgements" title="Source institutions">
             <div className="space-y-4 leading-8 text-[var(--muted-foreground)]">
-              <p>
-                The works in this collection were digitised by the institutions and volunteers
-                behind:
-              </p>
+              <p>The works were digitised and published by the people behind:</p>
               <BulletList items={acknowledgements} />
               <p>
-                The site exists because those institutions chose to publish their holdings into the
-                public domain or under permissive licences. Where a specific archive is the source
-                of a non-trivial portion of the corpus, they are credited on the About page.
+                They chose to publish these scans for anyone to reuse, and the collection depends on
+                that. The About page lists the sources in more detail.
               </p>
             </div>
           </Section>
@@ -638,7 +531,7 @@ export default function PressPage() {
                   />
                 </div>
                 <figcaption className="mt-3 text-sm text-[var(--muted-foreground)]">
-                  Shipped marketing hero from /public/marketing/hero.png.
+                  The marketing hero, a mosaic of works from the collection.
                 </figcaption>
               </figure>
               <div>
@@ -663,31 +556,19 @@ export default function PressPage() {
                   ))}
                 </ul>
               </div>
-              <div>
-                <h3 className="font-serif text-xl">In production</h3>
-                <div className="mt-3 text-[var(--muted-foreground)]">
-                  <BulletList items={imageKitPending} />
-                </div>
+              <div className="space-y-3 leading-8 text-[var(--muted-foreground)]">
+                <h3 className="font-serif text-xl text-[var(--foreground)]">Rights</h3>
+                <p>
+                  Screenshots of the site are CC0, so use them without asking. The artworks are
+                  public domain. Where you can, take them from the source archive linked on each
+                  work.
+                </p>
+                <p>
+                  There are no screenshots of the 3D museum or a walkthrough video yet. Ask by email
+                  if you need one.
+                </p>
               </div>
             </div>
-          </Section>
-
-          <Section id="video" eyebrow="Video" title="Video kit">
-            <div className="space-y-3 leading-8 text-[var(--muted-foreground)]">
-              <p>
-                30-second walkthrough: spawn, climb stairs, enter a room, approach a painting, open
-                detail. No voiceover. In production.
-              </p>
-              <p>A longer 2-3 minute developer commentary version may follow; pitch separately.</p>
-            </div>
-          </Section>
-
-          <Section id="redistribution" eyebrow="Rights" title="Redistribution">
-            <BulletList items={redistribution} />
-          </Section>
-
-          <Section id="social" eyebrow="Social" title="Launch channels">
-            <BulletList items={social} />
           </Section>
 
           <Section id="contact" eyebrow="Contact" title="Press contact">
@@ -703,9 +584,6 @@ export default function PressPage() {
                   </a>
                 </p>
                 <p className="text-[var(--muted-foreground)]">
-                  Response window: typically same-day during European business hours.
-                </p>
-                <p className="text-[var(--muted-foreground)]">
                   Imprint and GDPR contact:{" "}
                   <Link
                     href="/imprint"
@@ -716,8 +594,24 @@ export default function PressPage() {
                 </p>
               </div>
               <p className="leading-8 text-[var(--muted-foreground)]">
-                For interviews or longer features, indicate format and outlet in the subject line;
-                written-Q&amp;A is usually fastest to turn around.
+                For an interview, name the outlet and the format in the subject line. The newsletter
+                lives at{" "}
+                <Link
+                  href="/drops"
+                  className="rounded-sm py-1 underline underline-offset-2 hover:text-[var(--foreground)] focus:outline-none focus-visible:ring-2 focus-visible:ring-[var(--ring)]"
+                >
+                  /drops
+                </Link>
+                , and the code and metadata are on{" "}
+                <a
+                  href={GITHUB_URL}
+                  target="_blank"
+                  rel="noreferrer"
+                  className="rounded-sm py-1 underline underline-offset-2 hover:text-[var(--foreground)] focus:outline-none focus-visible:ring-2 focus-visible:ring-[var(--ring)]"
+                >
+                  GitHub
+                </a>
+                .
               </p>
               <div className="border-t border-[var(--border)] pt-6">
                 <h3 className="font-serif text-xl">Boilerplate About</h3>
