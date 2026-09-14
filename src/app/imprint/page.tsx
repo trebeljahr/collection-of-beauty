@@ -39,10 +39,10 @@ export default function ImprintPage() {
           <p className="mt-2">
             Email:{" "}
             <a
-              href="mailto:imprint+collection-of-beauty@trebeljahr.com"
+              href="mailto:imprint@collectionofbeauty.com"
               className="rounded-sm underline hover:text-[var(--muted-foreground)] focus:outline-none focus-visible:ring-2 focus-visible:ring-[var(--ring)]"
             >
-              imprint+collection-of-beauty@trebeljahr.com
+              imprint@collectionofbeauty.com
             </a>
           </p>
         </div>

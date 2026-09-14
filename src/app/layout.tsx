@@ -212,7 +212,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
                   horizontal gap-1) and the whole thing ends at `sm:`, so
                   the line box is the old one at every width. */}
               <a
-                href="https://portfolio.trebeljahr.com"
+                href="https://ricos.site"
                 target="_blank"
                 rel="noreferrer noopener"
                 className="-my-3 inline-flex min-h-11 items-center rounded-sm underline hover:text-[var(--foreground)] focus:outline-none focus-visible:ring-2 focus-visible:ring-[var(--ring)] sm:my-0 sm:min-h-0"

@@ -9,7 +9,7 @@ export const metadata: Metadata = {
   robots: { index: true, follow: true },
 };
 
-const CONTACT_EMAIL = "imprint+collection-of-beauty@trebeljahr.com";
+const CONTACT_EMAIL = "imprint@collectionofbeauty.com";
 
 export default function PrivacyPage() {
   return (
