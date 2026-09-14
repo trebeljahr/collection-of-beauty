@@ -126,9 +126,11 @@ export function SurpriseView({ deck }: Props) {
   }, [index]);
 
   // Arrow keys mirror the two buttons for keyboard visitors. Ignored
-  // while a form control or a button has focus so they can't
-  // double-fire alongside the button's own activation, and while the
-  // lightbox is open, which binds its own arrows to the same steps.
+  // while a text-entry control has focus, where arrows move the caret,
+  // and while the lightbox is open, which binds its own arrows to the
+  // same steps. Links and buttons are deliberately not excluded: arrows
+  // don't activate them, and clicking Previous / Next leaves focus on
+  // the button, so excluding them killed the keys after the first click.
   useEffect(() => {
     if (lightboxOpen) return;
     const onKey = (e: KeyboardEvent) => {
@@ -136,7 +138,7 @@ export function SurpriseView({ deck }: Props) {
       const step = e.key === "ArrowRight" ? again : e.key === "ArrowLeft" ? back : null;
       if (!step) return;
       const target = e.target as HTMLElement | null;
-      if (target?.closest("input, textarea, a, button") || target?.isContentEditable) return;
+      if (target?.closest("input, textarea, select") || target?.isContentEditable) return;
       if (step()) e.preventDefault();
     };
     window.addEventListener("keydown", onKey);
