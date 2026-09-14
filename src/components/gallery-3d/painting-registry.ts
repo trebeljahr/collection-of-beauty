@@ -95,6 +95,19 @@ export function raycastNearestPainting(
   cameraDir: THREE.Vector3,
   maxDistance = 12,
 ): ArtworkListing | null {
+  const hit = raycastNearestPaintingHit(raycaster, cameraPos, cameraDir, maxDistance);
+  return (hit?.object.userData?.artwork as ArtworkListing | undefined) ?? null;
+}
+
+/** Same prefiltered raycast, returning the intersection itself so a
+ *  caller can reach the mesh (and its material's texture) and the hit
+ *  distance. Used by the dev debug overlay. */
+export function raycastNearestPaintingHit(
+  raycaster: THREE.Raycaster,
+  cameraPos: THREE.Vector3,
+  cameraDir: THREE.Vector3,
+  maxDistance = 12,
+): THREE.Intersection | null {
   const candidates: THREE.Mesh[] = [];
   for (const e of entries) {
     _raycastScratch.subVectors(e.worldPos, cameraPos);
@@ -110,8 +123,7 @@ export function raycastNearestPainting(
 
   const hits = raycaster.intersectObjects(candidates, false);
   for (const hit of hits) {
-    const artwork = hit.object.userData?.artwork as ArtworkListing | undefined;
-    if (artwork) return artwork;
+    if (hit.object.userData?.artwork) return hit;
   }
   return null;
 }

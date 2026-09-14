@@ -15,6 +15,7 @@ import type { FloorLayout, MuseumLayout, Staircase } from "@/lib/gallery-layout/
 import { variantProxyUrl } from "@/lib/utils";
 
 import { FOV_DEFAULT_DEG } from "./camera-config";
+import { DebugOverlay, DebugProbe, useGalleryDebug } from "./debug-overlay";
 import { HallwayRenderer } from "./hallway";
 import { LandscapePrompt } from "./landscape-prompt";
 import { LodController } from "./lod-controller";
@@ -141,6 +142,9 @@ export function Gallery3D({ artworks }: Props) {
   // fullscreen only paints the fullscreen subtree, so any DOM outside
   // it disappears the moment the user enters the gallery.
   const isTouch = useTouchDevice() === true;
+  // Dev-only HUD: texture on the aimed painting + frame / renderer /
+  // texture-pool stats. Backquote toggles; `?debug` forces it on.
+  const debug = useGalleryDebug();
   const needsRotate = useNeedsRotate();
   const joysticksActive =
     isTouch && hasStarted && !zoomed && !mapOpen && !settingsOpen && !needsRotate;
@@ -564,6 +568,7 @@ export function Gallery3D({ artworks }: Props) {
           ))}
 
         <LodController />
+        {debug && <DebugProbe />}
         <FloorPreloader
           layout={layout}
           currentFloorIdx={currentFloorIdx}
@@ -649,6 +654,17 @@ export function Gallery3D({ artworks }: Props) {
           start screen, joysticks, and minimap are all hidden until
           they rotate. */}
       {needsRotate && <LandscapePrompt />}
+      {debug && (
+        // Top-left is free on desktop; on touch the minimap sits there,
+        // so drop below it.
+        <DebugOverlay
+          className={
+            isTouch
+              ? "top-[calc(14rem_+_env(safe-area-inset-top,0px))] left-[calc(1rem_+_env(safe-area-inset-left,0px))]"
+              : "top-[calc(1rem_+_env(safe-area-inset-top,0px))] left-[calc(1rem_+_env(safe-area-inset-left,0px))]"
+          }
+        />
+      )}
       {/* WebGL context-loss curtain. Shown between webglcontextlost and
           webglcontextrestored — usually a few hundred ms. Above every
           other overlay so the user isn't staring at a frozen canvas

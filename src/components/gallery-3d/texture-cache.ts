@@ -249,6 +249,10 @@ class TextureLRU {
     return this.bytes;
   }
 
+  get budget(): number {
+    return this.byteBudget;
+  }
+
   get(key: string): THREE.Texture | undefined {
     const tex = this.map.get(key);
     if (tex) {
@@ -632,6 +636,7 @@ async function loadTextureCached(
             });
             if (signal.aborted) throw new DOMException("aborted", "AbortError");
             const texture = new THREE.Texture(bitmap);
+            texture.name = url;
             texture.colorSpace = THREE.SRGBColorSpace;
             texture.anisotropy = aniso(renderer);
             texture.minFilter = THREE.LinearMipMapLinearFilter;
@@ -713,6 +718,7 @@ export function loadHiRes(
       const bitmap = await createImageBitmap(blob, { imageOrientation: "flipY" });
       if (signal?.aborted) throw new DOMException("aborted", "AbortError");
       const texture = new THREE.Texture(bitmap);
+      texture.name = url;
       texture.colorSpace = THREE.SRGBColorSpace;
       texture.anisotropy = aniso(renderer);
       texture.minFilter = THREE.LinearMipMapLinearFilter;
@@ -825,6 +831,7 @@ export function preloadCached(
         const bitmap = await createImageBitmap(blob, { imageOrientation: "flipY" });
         if (signal?.aborted) return null;
         const t = new THREE.Texture(bitmap);
+        t.name = url;
         t.colorSpace = THREE.SRGBColorSpace;
         t.anisotropy = aniso(renderer);
         t.minFilter = THREE.LinearMipMapLinearFilter;
@@ -867,6 +874,9 @@ export const _textureCacheDebug = {
   get bytes() {
     return cache.byteSize;
   },
+  get budget() {
+    return cache.budget;
+  },
   get inFlight() {
     return inFlight.size;
   },
@@ -884,6 +894,12 @@ export const _textureCacheDebug = {
   },
   get preloadSize() {
     return preloadCache.size;
+  },
+  get preloadBytes() {
+    return preloadCache.byteSize;
+  },
+  get hiresBudget() {
+    return hiresCache.budget;
   },
   get preloadInFlight() {
     return preloadInFlight.size;
