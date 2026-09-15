@@ -62,8 +62,20 @@ const SCREENSHOT_MONTH = new Date(`${pressScreenshots.capturedAt}-01T00:00:00Z`)
   { month: "long", year: "numeric", timeZone: "UTC" },
 );
 
-const IMAGE_SHAPES = new Set(pressImages.images.map((img) => (img.width / img.height).toFixed(3)))
-  .size;
+// Named in the image kit intro. Filtered against the manifest, so a work the
+// layout search stops using drops out of the sentence instead of being named
+// for an image it is no longer in.
+const FEATURED_IN_IMAGES = [
+  ["collection-of-beauty-1665-girl-with-a-pearl-earring", "Vermeer's Girl with a Pearl Earring"],
+  ["collection-of-beauty-tsunami-by-hokusai-19th-century", "Hokusai's Great Wave"],
+  ["audubon-birds-431-american-flamingo", "Audubon's flamingo"],
+  ["kunstformen-images-haeckel-actiniae", "Haeckel's sea anemones"],
+] as const;
+const FEATURED_NAMES = new Intl.ListFormat("en-US", { type: "conjunction" }).format(
+  FEATURED_IN_IMAGES.filter(([id]) => pressImages.works.some((w) => w.id === id)).map(
+    ([, name]) => name,
+  ),
+);
 
 function formatBytes(bytes: number): string {
   if (bytes < 1024 * 1024) return `${Math.round(bytes / 1024)} KB`;
@@ -574,17 +586,15 @@ export default function PressPage() {
           <Section id="images" eyebrow="Images" title="Image kit">
             <div className="space-y-10">
               <p className="leading-8 text-[var(--muted-foreground)]">
-                {pressImages.images.length} images in {IMAGE_SHAPES} shapes, built from{" "}
-                {pressImages.works.length} works in the collection. Every work appears whole, with
-                no crop. The counts in the titles are rounded down, so they stay true as the
-                collection grows. All files are in the{" "}
+                {FEATURED_NAMES ? `${FEATURED_NAMES} are among the` : "There are"}{" "}
+                {pressImages.works.length} works in these images. None of them is cropped. The{" "}
                 <Link
                   href="/press-kit.zip"
                   className="rounded-sm underline underline-offset-2 hover:text-[var(--foreground)] focus:outline-none focus-visible:ring-2 focus-visible:ring-[var(--ring)]"
                 >
                   press kit ZIP
-                </Link>
-                , together with a list of the works in each image.
+                </Link>{" "}
+                has every file, and a text file with the artist, title and date of each work.
               </p>
 
               <ul className="grid gap-x-6 gap-y-10 sm:grid-cols-2">
