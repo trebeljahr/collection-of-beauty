@@ -240,3 +240,18 @@ export function deepZoomTileUrl(
   const segments = [...variantDirSegments(objectKey), TILE_DIR, String(level)];
   return `${ASSETS_BASE_URL}/${encodePath(segments)}/${col}_${row}.${TILE_FORMAT}`;
 }
+
+/**
+ * Scale a `sizes` hint for an image cropped with `object-fit: cover`.
+ *
+ * `sizes` describes the box, but a work wider than its box is drawn wider
+ * than the box: a 3:1 scroll in a square card renders three card-widths
+ * across, and the browser, sized for one, picks a variant a third as wide
+ * and shows it blurred. Every `vw` length is multiplied by that overhang.
+ * Works taller than the box overflow vertically, which needs no extra width.
+ */
+export function coverSizes(sizes: string, imageAspect: number | null, boxAspect: number): string {
+  const scale = imageAspect ? imageAspect / boxAspect : 1;
+  if (scale <= 1) return sizes;
+  return sizes.replace(/(\d+(?:\.\d+)?)vw/g, (_, n: string) => `${Math.ceil(Number(n) * scale)}vw`);
+}
