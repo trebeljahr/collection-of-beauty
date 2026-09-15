@@ -577,8 +577,12 @@ async function main() {
 
   await mkdir(OUT_DIR, { recursive: true });
   // Clear the previous kit so a renamed or dropped format leaves no orphan
-  // that the press kit ZIP would then pick up.
-  for (const name of await readdir(OUT_DIR)) await rm(path.join(OUT_DIR, name));
+  // that the press kit ZIP would then pick up. The museum screenshots share
+  // the folder and belong to build-museum-screenshots.mjs, so they stay.
+  for (const name of await readdir(OUT_DIR)) {
+    if (name.startsWith(`${FILE_PREFIX}-museum-`)) continue;
+    await rm(path.join(OUT_DIR, name));
+  }
 
   const images = [];
   const credits = [];

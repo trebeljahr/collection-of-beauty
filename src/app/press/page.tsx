@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import Image from "next/image";
 import Link from "next/link";
 import pressImagesJson from "@/data/press-images.json";
+import pressScreenshotsJson from "@/data/press-screenshots.json";
 import { summary } from "@/lib/data";
 import { ERAS } from "@/lib/gallery-eras";
 import { GITHUB_URL, PRESS_EMAIL } from "@/lib/links";
@@ -40,6 +41,26 @@ const HEADLINE_IMAGE =
   pressImages.images.find((img) => img.slug === "16x9") ?? pressImages.images[0];
 const BACKDROP_IMAGE =
   pressImages.images.find((img) => img.slug === "16x9-works") ?? HEADLINE_IMAGE;
+
+// Written by scripts/build-museum-screenshots.mjs, which walks a headless
+// browser through the live museum.
+const pressScreenshots = pressScreenshotsJson as {
+  capturedAt: string;
+  screenshots: {
+    slug: string;
+    label: string;
+    floor: string | null;
+    href: string;
+    width: number;
+    height: number;
+    bytes: number;
+    alt: string;
+  }[];
+};
+const SCREENSHOT_MONTH = new Date(`${pressScreenshots.capturedAt}-01T00:00:00Z`).toLocaleString(
+  "en-US",
+  { month: "long", year: "numeric", timeZone: "UTC" },
+);
 
 const IMAGE_SHAPES = new Set(pressImages.images.map((img) => (img.width / img.height).toFixed(3)))
   .size;
@@ -627,6 +648,54 @@ export default function PressPage() {
                 </ul>
               </details>
 
+              <div>
+                <h3 className="font-serif text-xl">Screenshots of the 3D museum</h3>
+                <p className="mt-2 leading-8 text-[var(--muted-foreground)]">
+                  {pressScreenshots.screenshots.length} views taken in the museum on
+                  collectionofbeauty.com in {SCREENSHOT_MONTH}, with the on-screen controls hidden.
+                  The rooms change as works are added, so a visit today may not match them exactly.
+                </p>
+                <ul className="mt-6 grid gap-x-6 gap-y-10 sm:grid-cols-2">
+                  {pressScreenshots.screenshots.map((shot) => (
+                    <li key={shot.slug}>
+                      <figure>
+                        <a
+                          href={shot.href}
+                          className="relative block aspect-video overflow-hidden rounded-md border border-[var(--border)] bg-[var(--muted)] focus:outline-none focus-visible:ring-2 focus-visible:ring-[var(--ring)]"
+                        >
+                          <Image
+                            src={shot.href}
+                            alt={shot.alt}
+                            fill
+                            sizes="(min-width: 768px) 28vw, (min-width: 640px) 50vw, 100vw"
+                            className="object-contain"
+                          />
+                        </a>
+                        <figcaption className="mt-3">
+                          <p className="font-serif text-lg">{shot.label}</p>
+                          {shot.floor && (
+                            <p className="mt-1 text-sm leading-6 text-[var(--muted-foreground)]">
+                              Floor: {shot.floor}
+                            </p>
+                          )}
+                          <p className="mt-1 text-sm tabular-nums text-[var(--muted-foreground)]">
+                            {shot.width.toLocaleString("en-US")} x{" "}
+                            {shot.height.toLocaleString("en-US")} JPEG, {formatBytes(shot.bytes)}
+                          </p>
+                          <a
+                            href={shot.href}
+                            download
+                            className="mt-2 inline-flex min-h-11 items-center rounded-sm text-sm underline underline-offset-2 hover:text-[var(--muted-foreground)] focus:outline-none focus-visible:ring-2 focus-visible:ring-[var(--ring)] sm:min-h-0"
+                          >
+                            Download
+                          </a>
+                        </figcaption>
+                      </figure>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+
               <div className="space-y-3 leading-8 text-[var(--muted-foreground)]">
                 <h3 className="font-serif text-xl text-[var(--foreground)]">Rights</h3>
                 <p>
@@ -635,7 +704,7 @@ export default function PressPage() {
                   linked on each work.
                 </p>
                 <p>
-                  For a screenshot of the 3D museum or a size not listed here, write to{" "}
+                  For another view of the museum or a size not listed here, write to{" "}
                   <a
                     href={`mailto:${PRESS_EMAIL}`}
                     className="rounded-sm underline underline-offset-2 hover:text-[var(--foreground)] focus:outline-none focus-visible:ring-2 focus-visible:ring-[var(--ring)]"

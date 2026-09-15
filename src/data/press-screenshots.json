@@ -1,0 +1,56 @@
+{
+  "capturedAt": "2026-09",
+  "source": "https://collectionofbeauty.com",
+  "screenshots": [
+    {
+      "slug": "stairwell",
+      "label": "Spiral staircase",
+      "floor": "Gothic & Early Renaissance",
+      "href": "/marketing/collection-of-beauty-museum-stairwell.jpg",
+      "width": 2560,
+      "height": 1440,
+      "bytes": 255532,
+      "alt": "Collection of Beauty 3D museum, Gothic & Early Renaissance floor: the spiral staircase that joins the floors, seen from the ground floor."
+    },
+    {
+      "slug": "baroque",
+      "label": "Baroque floor",
+      "floor": "Baroque & the Dutch Golden Age",
+      "href": "/marketing/collection-of-beauty-museum-baroque.jpg",
+      "width": 2560,
+      "height": 1440,
+      "bytes": 215812,
+      "alt": "Collection of Beauty 3D museum, Baroque & the Dutch Golden Age floor: Baroque paintings hung at their real size along a gallery wall, each with a label."
+    },
+    {
+      "slug": "natural-history",
+      "label": "Natural history floor",
+      "floor": "Natural History & Botanical Illustration",
+      "href": "/marketing/collection-of-beauty-museum-natural-history.jpg",
+      "width": 2560,
+      "height": 1440,
+      "bytes": 155147,
+      "alt": "Collection of Beauty 3D museum, Natural History & Botanical Illustration floor: Audubon's bird plates in pale mounts along a gallery wall."
+    },
+    {
+      "slug": "east-asian",
+      "label": "East Asian painting floor",
+      "floor": "East Asian Painting",
+      "href": "/marketing/collection-of-beauty-museum-east-asian.jpg",
+      "width": 2560,
+      "height": 1440,
+      "bytes": 145909,
+      "alt": "Collection of Beauty 3D museum, East Asian Painting floor: Japanese woodblock prints along a gallery wall, with their labels."
+    },
+    {
+      "slug": "impressionism",
+      "label": "Impressionism floor",
+      "floor": "Impressionism",
+      "href": "/marketing/collection-of-beauty-museum-impressionism.jpg",
+      "width": 2560,
+      "height": 1440,
+      "bytes": 240188,
+      "alt": "Collection of Beauty 3D museum, Impressionism floor: Impressionist landscapes and portraits along a gallery wall."
+    }
+  ]
+}
