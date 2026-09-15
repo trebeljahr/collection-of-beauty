@@ -411,7 +411,7 @@ export default function PressPage() {
                   href={`mailto:${PRESS_EMAIL}`}
                   className="inline-flex min-h-11 items-center rounded-md border border-[var(--border)] bg-[var(--background)]/70 px-4 py-2 text-sm font-medium transition hover:bg-[var(--accent)] focus:outline-none focus-visible:ring-2 focus-visible:ring-[var(--ring)] sm:min-h-0"
                 >
-                  Contact press
+                  Email Rico
                 </a>
               </div>
             </div>
@@ -419,15 +419,6 @@ export default function PressPage() {
               <p>
                 For anyone writing about Collection of Beauty. Copy any text on this page as it
                 stands. The numbers come from the catalogue and change when it does.
-              </p>
-              <p className="mt-4">
-                Press contact:{" "}
-                <a
-                  href={`mailto:${PRESS_EMAIL}`}
-                  className="rounded-sm underline underline-offset-2 hover:text-[var(--foreground)] focus:outline-none focus-visible:ring-2 focus-visible:ring-[var(--ring)]"
-                >
-                  {PRESS_EMAIL}
-                </a>
               </p>
             </div>
           </div>
