@@ -1,6 +1,7 @@
 import { afterEach, describe, expect, it, vi } from "vitest";
 import {
   assetUrl,
+  coverSizes,
   deepZoomTileUrl,
   fallbackVariantUrl,
   publicVariantUrl,
@@ -174,5 +175,20 @@ describe("variantSrcSet", () => {
     const srcset = variantSrcSet("x/a.jpg", "avif", [960, 256, 480]);
     const widths = srcset.split(", ").map((s) => s.split(" ")[1]);
     expect(widths).toEqual(["960w", "256w", "480w"]);
+  });
+});
+
+describe("coverSizes", () => {
+  const sizes = "(max-width: 640px) 50vw, 20vw";
+
+  it("widens every vw length by how far a wide work overhangs its box", () => {
+    expect(coverSizes(sizes, 3, 1)).toBe("(max-width: 640px) 150vw, 60vw");
+    expect(coverSizes(sizes, 2, 4 / 3)).toBe("(max-width: 640px) 75vw, 30vw");
+  });
+
+  it("leaves works no wider than the box alone", () => {
+    expect(coverSizes(sizes, 0.7, 1)).toBe(sizes);
+    expect(coverSizes(sizes, 1, 1)).toBe(sizes);
+    expect(coverSizes(sizes, null, 1)).toBe(sizes);
   });
 });

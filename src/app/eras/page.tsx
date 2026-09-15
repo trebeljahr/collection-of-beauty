@@ -2,9 +2,11 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { ResponsiveImage } from "@/components/responsive-image";
 import { resolveScope } from "@/lib/artwork-scope";
+import { type CoverPick, ERA_COVERS } from "@/lib/cover-picks";
 import type { ArtworkListing } from "@/lib/data";
-import { ERAS, eraYearLabel, movementCounts } from "@/lib/gallery-eras";
+import { ERAS, type EraId, eraYearLabel, movementCounts } from "@/lib/gallery-eras";
 import { buildOpenGraph } from "@/lib/seo";
+import { coverSizes } from "@/lib/utils";
 
 // Rendered entirely from the bundled artwork JSON — nothing here reads a
 // request, so match the sitemap's daily window instead of re-rendering.
@@ -28,12 +30,19 @@ export const metadata: Metadata = {
   }),
 };
 
-/** Pick a cover artwork for the era card. Prefers the first work that
- *  has pre-built variant widths so the responsive `<picture>` actually
- *  serves an AVIF; falls back to the first work overall (which will
- *  render the raw original via ResponsiveImage's no-variants path). */
-function pickCover(works: ArtworkListing[]): ArtworkListing | null {
-  return works.find((a) => a.variantWidths != null) ?? works[0] ?? null;
+/** Pick a cover artwork for the era card: the hand-picked work from
+ *  ERA_COVERS, or, if that work has left the era, the first work that has
+ *  pre-built variant widths so the responsive `<picture>` actually serves
+ *  an AVIF. */
+function pickCover(
+  id: EraId,
+  works: ArtworkListing[],
+): { work: ArtworkListing; pick: CoverPick | null } | null {
+  const pick = ERA_COVERS[id];
+  const picked = pick ? works.find((a) => a.id === pick.id) : undefined;
+  if (picked) return { work: picked, pick };
+  const work = works.find((a) => a.variantWidths != null) ?? works[0];
+  return work ? { work, pick: null } : null;
 }
 
 export default function ErasPage() {
@@ -43,7 +52,7 @@ export default function ErasPage() {
     const works = resolveScope({ kind: "era", id: era.id });
     return {
       era,
-      cover: pickCover(works),
+      cover: pickCover(era.id, works),
       count: works.length,
       movements: movementCounts(works).map((m) => m.movement),
     };
@@ -72,13 +81,20 @@ export default function ErasPage() {
             >
               {cover ? (
                 <ResponsiveImage
-                  objectKey={cover.objectKey}
-                  variantWidths={cover.variantWidths}
-                  alt={cover.title ? `${cover.title} — ${era.title}` : era.title}
+                  objectKey={cover.work.objectKey}
+                  variantWidths={cover.work.variantWidths}
+                  alt={cover.work.title ? `${cover.work.title} — ${era.title}` : era.title}
                   fill
-                  sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
+                  sizes={coverSizes(
+                    "(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw",
+                    cover.work.width && cover.work.height
+                      ? cover.work.width / cover.work.height
+                      : null,
+                    4 / 3,
+                  )}
                   loading="lazy"
                   className="transition-transform duration-500 group-hover:scale-105"
+                  style={cover.pick?.position ? { objectPosition: cover.pick.position } : undefined}
                 />
               ) : (
                 <div

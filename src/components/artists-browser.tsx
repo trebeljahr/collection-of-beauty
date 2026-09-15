@@ -5,6 +5,7 @@ import { useDeferredValue, useEffect, useMemo, useRef, useState } from "react";
 import { ResponsiveImage } from "@/components/responsive-image";
 import { Input } from "@/components/ui/input";
 import type { Artist } from "@/lib/data";
+import { cn, coverSizes } from "@/lib/utils";
 
 const PAGE = 24;
 const INITIAL = 60;
@@ -109,9 +110,17 @@ export function ArtistsBrowser({ artists }: Props) {
                   variantWidths={a.coverVariantWidths}
                   alt={a.coverTitle ? `${a.coverTitle} by ${a.name}` : a.name}
                   fill
-                  sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 20vw"
+                  sizes={coverSizes(
+                    "(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 20vw",
+                    a.coverFit === "contain" ? null : a.coverAspect,
+                    1,
+                  )}
                   loading="lazy"
-                  className="transition-transform duration-500 group-hover:scale-105 group-active:scale-[1.02]"
+                  className={cn(
+                    "transition-transform duration-500 group-hover:scale-105 group-active:scale-[1.02]",
+                    a.coverFit === "contain" && "object-contain p-3",
+                  )}
+                  style={a.coverPosition ? { objectPosition: a.coverPosition } : undefined}
                 />
               )}
             </div>

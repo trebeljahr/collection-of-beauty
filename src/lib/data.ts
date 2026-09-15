@@ -4,6 +4,7 @@ import connectionsJson from "@/data/connections.json";
 import movementsJson from "@/data/movements.json";
 import summaryJson from "@/data/summary.json";
 import type { ColorBucketId } from "@/lib/color-buckets.mjs";
+import { ARTIST_COVERS } from "@/lib/cover-picks";
 
 export { artworkAlt, displayTitle } from "@/lib/artwork-format";
 
@@ -117,6 +118,14 @@ export type Artist = {
   /** variantWidths of the cover artwork — see Artwork.variantWidths. Null
    *  when the cover has no pre-built variants yet. */
   coverVariantWidths: number[] | null;
+  /** CSS object-position for the square card crop, from ARTIST_COVERS in
+   *  cover-picks.ts. Null means centred. */
+  coverPosition: string | null;
+  /** "contain" when the card shows the whole cover instead of cropping. */
+  coverFit: "contain" | null;
+  /** Width / height of the cover work, so the card can ask for a variant
+   *  wide enough to fill its crop. Null when the dimensions are unknown. */
+  coverAspect: number | null;
 };
 
 export type Connection = {
@@ -127,7 +136,39 @@ export type Connection = {
 };
 
 export const artworks = artworksJson as Artwork[];
-export const artists = artistsJson as Artist[];
+type ArtistRecord = Omit<Artist, "coverPosition" | "coverFit" | "coverAspect">;
+
+const artworksById = new Map(artworks.map((a) => [a.id, a]));
+const artworksByObjectKey = new Map(artworks.map((a) => [a.objectKey, a]));
+
+function aspectOf(work: Artwork | undefined): number | null {
+  return work?.width && work.height ? work.width / work.height : null;
+}
+
+/** Swap build-data's first-work cover for the hand-picked one, when the
+ *  picked work is still catalogued under this artist. */
+function withPickedCover(artist: ArtistRecord): Artist {
+  const pick = ARTIST_COVERS[artist.slug];
+  const work = pick ? artworksById.get(pick.id) : undefined;
+  if (!pick || !work || work.artistSlug !== artist.slug) {
+    const fallback = artist.coverObjectKey
+      ? artworksByObjectKey.get(artist.coverObjectKey)
+      : undefined;
+    return { ...artist, coverPosition: null, coverFit: null, coverAspect: aspectOf(fallback) };
+  }
+  return {
+    ...artist,
+    coverFileUrl: work.fileUrl,
+    coverObjectKey: work.objectKey,
+    coverTitle: work.englishTitle ?? work.title,
+    coverVariantWidths: work.variantWidths,
+    coverPosition: pick.position ?? null,
+    coverFit: pick.fit ?? null,
+    coverAspect: aspectOf(work),
+  };
+}
+
+export const artists: Artist[] = (artistsJson as ArtistRecord[]).map(withPickedCover);
 export const movements = movementsJson as string[];
 export const connections = connectionsJson as Connection[];
 
