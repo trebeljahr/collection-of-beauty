@@ -49,6 +49,12 @@ RUN --mount=type=secret,id=dotenvx_private_key,env=DOTENV_PRIVATE_KEY_PRODUCTION
       echo "ERROR: dotenvx_private_key build secret not supplied. The workflow at .github/workflows/deploy.yml should pass it via 'secrets:' from the GH Actions secret DOTENV_PRIVATE_KEY_PRODUCTION." >&2; \
       exit 1; \
     }
+# One id per build. Next appends it to asset URLs and compares it on
+# every client navigation; a tab still running the previous deploy then
+# does a full reload instead of mixing chunks from two builds, which
+# throws "module factory is not available" and shows the error card.
+ARG DEPLOYMENT_ID
+ENV NEXT_DEPLOYMENT_ID=${DEPLOYMENT_ID}
 RUN --mount=type=secret,id=dotenvx_private_key,env=DOTENV_PRIVATE_KEY_PRODUCTION \
     pnpm dlx @dotenvx/dotenvx run -- pnpm build
 

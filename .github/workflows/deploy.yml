@@ -121,6 +121,9 @@ jobs:
           cache-from: type=gha
           cache-to: type=gha,mode=max
           platforms: linux/amd64
+          # Next's skew protection id, see the Dockerfile.
+          build-args: |
+            DEPLOYMENT_ID=${{ github.sha }}
           # BuildKit secret for decrypting .env.production at build
           # time. Mounted as tmpfs inside the Dockerfile's RUN step,
           # never written to a layer or `docker history`. The Dockerfile

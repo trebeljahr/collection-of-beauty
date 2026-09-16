@@ -11,6 +11,7 @@
 // only, so a CSS pipeline failure can't take the recovery UI down too.
 
 import { useEffect } from "react";
+import { reloadIfStaleDeploy } from "@/lib/stale-deploy";
 
 export default function GlobalError({
   error,
@@ -20,6 +21,7 @@ export default function GlobalError({
   reset: () => void;
 }) {
   useEffect(() => {
+    if (reloadIfStaleDeploy(error)) return;
     console.error("[global error]", error.digest ?? "(no digest)", error);
   }, [error]);
 

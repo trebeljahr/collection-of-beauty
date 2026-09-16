@@ -10,6 +10,7 @@
 // retry instead of being forced to reload.
 
 import { useEffect } from "react";
+import { reloadIfStaleDeploy } from "@/lib/stale-deploy";
 
 export default function RouteError({
   error,
@@ -19,6 +20,7 @@ export default function RouteError({
   reset: () => void;
 }) {
   useEffect(() => {
+    if (reloadIfStaleDeploy(error)) return;
     // This runs on the client, so it lands in the visitor's browser
     // console only — nothing here reaches the container's stderr. The
     // one durable handle is `digest`, the hashed ID Next assigns the
