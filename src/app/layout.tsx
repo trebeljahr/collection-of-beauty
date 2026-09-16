@@ -4,6 +4,7 @@ import Script from "next/script";
 import "./globals.css";
 import { Gallery3DProvider } from "@/components/gallery-3d-state";
 import { ImageCacheTracker } from "@/components/image-cache-tracker";
+import { NavigationTracker } from "@/components/navigation-tracker";
 import { SiteNav } from "@/components/site-nav";
 import {
   jsonLdScriptProps,
@@ -139,6 +140,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         </a>
         <Gallery3DProvider>
           <ImageCacheTracker />
+          <NavigationTracker />
           <SiteNav />
           <main id="main-content">{children}</main>
           {/* py-2 below `sm:` rather than py-6: on a phone the first row is

@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
+import { ArtworkBackLink } from "@/components/artwork-back-link";
 import { ArtworkCard } from "@/components/artwork-card";
 import { ArtworkDownloads } from "@/components/artwork-downloads";
 import { ArtworkViewer } from "@/components/artwork-viewer";
@@ -8,7 +9,13 @@ import { LicenseBadge } from "@/components/license-badge";
 import { buttonVariants } from "@/components/ui/button";
 import { chipClasses, touchTextLinkClasses } from "@/components/ui/pill";
 import { originalTitleSubtitle } from "@/lib/artwork-format";
-import { artworkHref, resolveScope } from "@/lib/artwork-scope";
+import {
+  artworkHref,
+  encodeScope,
+  resolveScope,
+  type Scope,
+  scopeLabel,
+} from "@/lib/artwork-scope";
 import {
   type Artwork,
   artworks,
@@ -17,8 +24,9 @@ import {
   getArtwork,
   getArtworksByArtist,
 } from "@/lib/data";
-import { assignEra, getEra } from "@/lib/gallery-eras";
+import { assignEra, type EraId, getEra } from "@/lib/gallery-eras";
 import { suggestFixUrl } from "@/lib/links";
+import type { PlateSetId } from "@/lib/plate-set-definitions";
 import { holdingSentence, plateNumberFor, plateSetForArtwork } from "@/lib/plate-sets";
 import { artworkJsonLd, buildOpenGraph, jsonLdScriptProps, ogImagesForArtwork } from "@/lib/seo";
 import { sourceLabel } from "@/lib/source-label";
@@ -147,9 +155,7 @@ export default async function ArtworkPage({ params }: { params: Promise<Params> 
     <div className="mx-auto max-w-6xl px-4 py-8">
       <script {...jsonLdScriptProps(artworkJsonLd(art))} />
       <div className="mb-6 flex items-center justify-between text-sm text-[var(--muted-foreground)]">
-        <Link href="/" className={touchTextLinkClasses}>
-          ← Back to gallery
-        </Link>
+        <ArtworkBackLink labels={backLinkLabels(art, eraId, plateSet?.id ?? null)} />
         {/* gap-4 rather than gap-3 on phones: "Next →" is only just past
             44px wide, so a little more dead space between the two
             44px-tall targets keeps a thumb from catching the wrong one.
@@ -429,4 +435,19 @@ function generatedByline(a: Artwork): string {
   return parts.length > 0
     ? parts.join(" ")
     : "From the Collection of Beauty — a public-domain art gallery.";
+}
+
+/** "Back to …" labels for every scope a link to this work can carry. */
+function backLinkLabels(
+  art: Artwork,
+  eraId: EraId | null,
+  plateSetId: PlateSetId | null,
+): Record<string, string> {
+  const scopes: Scope[] = [{ kind: "gallery" }];
+  if (art.artistSlug) scopes.push({ kind: "artist", slug: art.artistSlug });
+  if (eraId) scopes.push({ kind: "era", id: eraId });
+  if (plateSetId) scopes.push({ kind: "collection", id: plateSetId });
+  if (art.year != null) scopes.push({ kind: "decade", start: Math.floor(art.year / 10) * 10 });
+  for (const id of art.colorBuckets ?? []) scopes.push({ kind: "color", id });
+  return Object.fromEntries(scopes.map((scope) => [encodeScope(scope), scopeLabel(scope)]));
 }
