@@ -1,7 +1,14 @@
 import { describe, expect, it } from "vitest";
 import type { Artwork } from "./data";
 import { WEBP_WIDTH } from "./downloads";
-import { artworkImageObjects, artworkJsonLd, ogImagesForArtwork, SITE_URL } from "./seo";
+import {
+  artworkImageObjects,
+  artworkJsonLd,
+  collectionsIndexJsonLd,
+  ogImagesForArtwork,
+  SITE_URL,
+  websiteJsonLd,
+} from "./seo";
 import { fallbackVariantUrl } from "./utils";
 
 function makeArtwork(overrides: Partial<Artwork> = {}): Artwork {
@@ -195,5 +202,34 @@ describe("ogImagesForArtwork", () => {
 
   it("returns nothing for a missing artwork rather than a broken card", () => {
     expect(ogImagesForArtwork(null)).toEqual([]);
+  });
+});
+
+describe("site author", () => {
+  const rico = {
+    "@type": "Person",
+    name: "Rico Trebeljahr",
+    url: "https://ricos.site",
+    sameAs: ["https://ricos.site", "https://github.com/trebeljahr"],
+  };
+
+  it("names Rico as author and publisher of the WebSite", () => {
+    const ld = websiteJsonLd();
+    expect(ld.author).toEqual(rico);
+    expect(ld.publisher).toEqual(rico);
+  });
+
+  it("names Rico on the collections index, not on the sets it lists", () => {
+    const ld = collectionsIndexJsonLd([{ id: "audubon", title: "Birds", tagline: "Plates" }]);
+    expect(ld.author).toEqual(rico);
+    expect(ld.publisher).toEqual(rico);
+    const parts = ld.hasPart as Record<string, unknown>[];
+    expect(parts[0].author).toBeUndefined();
+  });
+
+  it("keeps the painter as creator on artworks", () => {
+    const ld = artworkJsonLd(makeArtwork());
+    expect(ld.author).toBeUndefined();
+    expect(ld.publisher).toBeUndefined();
   });
 });

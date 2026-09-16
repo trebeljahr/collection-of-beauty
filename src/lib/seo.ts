@@ -428,6 +428,19 @@ export function plateSetJsonLd(input: {
   };
 }
 
+/**
+ * schema.org/Person for the site's maker. Used as `author` and `publisher`
+ * on nodes that describe the site itself — never on artworks, artists or
+ * plate sets, whose creators are the painters and authors of the works.
+ * `sameAs` lists only profiles Rico actually runs.
+ */
+export const SITE_AUTHOR = {
+  "@type": "Person",
+  name: "Rico Trebeljahr",
+  url: "https://ricos.site",
+  sameAs: ["https://ricos.site", "https://github.com/trebeljahr"],
+} as const;
+
 /** schema.org/CollectionPage for the /collections index. */
 export function collectionsIndexJsonLd(
   sets: { id: string; title: string; tagline: string }[],
@@ -437,6 +450,10 @@ export function collectionsIndexJsonLd(
     "@type": "CollectionPage",
     name: `Complete plate sets · ${SITE_NAME}`,
     url: absoluteUrl("/collections"),
+    // The index page is the site's own curation; the sets it lists keep
+    // their original authors on /collection/<id>.
+    author: SITE_AUTHOR,
+    publisher: SITE_AUTHOR,
     isAccessibleForFree: true,
     hasPart: sets.map((set) => ({
       "@type": "CreativeWorkSeries",
@@ -456,6 +473,8 @@ export function websiteJsonLd(): Record<string, unknown> {
     description: SITE_DESCRIPTION,
     url: SITE_URL,
     inLanguage: "en",
+    author: SITE_AUTHOR,
+    publisher: SITE_AUTHOR,
   };
 }
 
