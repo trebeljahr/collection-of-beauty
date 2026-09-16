@@ -1,5 +1,14 @@
 # Collection of Beauty
 
+[collectionofbeauty.com](https://collectionofbeauty.com) holds 4,000+ handpicked public-domain paintings, prints and book plates by 250+ artists.
+You can browse them by era, artist, colour or decade, or walk a 3D museum with 11 floors, one per era.
+
+[Rico Trebeljahr](https://ricos.site) made it.
+Journalists can find images and facts in the [press kit](https://collectionofbeauty.com/press).
+If you spot a wrong date, title or attribution, please [open an issue](https://github.com/trebeljahr/collection-of-beauty/issues).
+
+## About the code
+
 A public-domain art gallery built as a Next.js App Router site, with a
 WebGL multi-floor museum, a curated newsletter, and a pre-built
 asset pipeline (no Next image optimizer in the hot path).
