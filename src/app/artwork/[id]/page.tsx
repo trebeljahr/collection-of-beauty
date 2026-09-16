@@ -279,7 +279,7 @@ export default async function ArtworkPage({ params }: { params: Promise<Params> 
                 sourceUrl: art.commonsUrl,
               })}
               target="_blank"
-              rel="noreferrer"
+              rel="noopener"
               className={buttonVariants({ variant: "outline", size: "sm" })}
             >
               <GitHubIcon />

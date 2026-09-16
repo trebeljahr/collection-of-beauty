@@ -111,7 +111,7 @@ export default function AboutPage() {
             <a
               href={`${GITHUB_URL}/issues/new`}
               target="_blank"
-              rel="noreferrer"
+              rel="noopener"
               className={INLINE_LINK}
             >
               GitHub issue
@@ -124,7 +124,7 @@ export default function AboutPage() {
           </p>
           <p>
             The code and the metadata are public on{" "}
-            <a href={GITHUB_URL} target="_blank" rel="noreferrer" className={INLINE_LINK}>
+            <a href={GITHUB_URL} target="_blank" rel="noopener" className={INLINE_LINK}>
               GitHub
             </a>
             .

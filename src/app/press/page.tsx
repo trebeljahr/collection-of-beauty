@@ -767,7 +767,7 @@ export default function PressPage() {
                 <a
                   href={GITHUB_URL}
                   target="_blank"
-                  rel="noreferrer"
+                  rel="noopener"
                   className="rounded-sm py-1 underline underline-offset-2 hover:text-[var(--foreground)] focus:outline-none focus-visible:ring-2 focus-visible:ring-[var(--ring)]"
                 >
                   GitHub

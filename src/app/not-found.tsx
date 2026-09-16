@@ -52,7 +52,7 @@ export default function NotFound() {
           <a
             href={`${GITHUB_URL}/issues/new`}
             target="_blank"
-            rel="noreferrer"
+            rel="noopener"
             className="rounded-sm underline underline-offset-2 hover:text-[var(--foreground)] focus:outline-none focus-visible:ring-2 focus-visible:ring-[var(--ring)]"
           >
             GitHub issue

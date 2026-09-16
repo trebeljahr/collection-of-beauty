@@ -214,7 +214,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
               <a
                 href="https://ricos.site"
                 target="_blank"
-                rel="noreferrer noopener"
+                rel="noopener"
                 className="-my-3 inline-flex min-h-11 items-center rounded-sm underline hover:text-[var(--foreground)] focus:outline-none focus-visible:ring-2 focus-visible:ring-[var(--ring)] sm:my-0 sm:min-h-0"
               >
                 Rico Trebeljahr
