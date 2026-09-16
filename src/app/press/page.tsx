@@ -34,6 +34,7 @@ const pressImages = pressImagesJson as {
     hasTitle: boolean;
     alt: string;
     works: string[];
+    large: { href: string; width: number; height: number; bytes: number };
   }[];
   works: { id: string; title: string; artist: string | null; year: number | null }[];
 };
@@ -54,6 +55,7 @@ const pressScreenshots = pressScreenshotsJson as {
     width: number;
     height: number;
     bytes: number;
+    large: { href: string; width: number; height: number; bytes: number };
     alt: string;
   }[];
 };
@@ -78,7 +80,8 @@ const FEATURED_NAMES = new Intl.ListFormat("en-US", { type: "conjunction" }).for
 );
 
 function formatBytes(bytes: number): string {
-  if (bytes < 1024 * 1024) return `${Math.round(bytes / 1024)} KB`;
+  // Switch at 1,000 KB rather than 1,024, so nothing reads "1018 KB".
+  if (bytes < 1000 * 1024) return `${Math.round(bytes / 1024)} KB`;
   return `${(bytes / 1024 / 1024).toFixed(1)} MB`;
 }
 const GROUND_ERA = ERAS[0]?.title ?? "the earliest era";
@@ -357,6 +360,33 @@ function FactList({ facts }: { facts: readonly (readonly [string, string])[] }) 
   );
 }
 
+/** Both sizes of one image, each link naming what it gives you. */
+function DownloadPair({
+  standard,
+  large,
+}: {
+  standard: { href: string; width: number; height: number; bytes: number };
+  large: { href: string; width: number; height: number; bytes: number };
+}) {
+  return (
+    <p className="mt-2 flex flex-wrap items-center gap-x-4 gap-y-1 text-sm tabular-nums">
+      {[standard, large].map((file) => (
+        <a
+          key={file.href}
+          href={file.href}
+          download
+          className="inline-flex min-h-11 items-center rounded-sm underline underline-offset-2 hover:text-[var(--muted-foreground)] focus:outline-none focus-visible:ring-2 focus-visible:ring-[var(--ring)] sm:min-h-0"
+        >
+          {file.width.toLocaleString("en-US")} x {file.height.toLocaleString("en-US")}
+          <span className="ml-2 text-[var(--muted-foreground)]">
+            JPEG, {formatBytes(file.bytes)}
+          </span>
+        </a>
+      ))}
+    </p>
+  );
+}
+
 export default function PressPage() {
   return (
     <>
@@ -578,7 +608,8 @@ export default function PressPage() {
             <div className="space-y-10">
               <p className="leading-8 text-[var(--muted-foreground)]">
                 {FEATURED_NAMES ? `${FEATURED_NAMES} are among the` : "There are"}{" "}
-                {pressImages.works.length} works in these images. None of them is cropped. The{" "}
+                {pressImages.works.length} works in these images. None of them is cropped. Each
+                image comes in two sizes, the larger up to 5,120 px wide. The{" "}
                 <Link
                   href="/press-kit.zip"
                   className="rounded-sm underline underline-offset-2 hover:text-[var(--foreground)] focus:outline-none focus-visible:ring-2 focus-visible:ring-[var(--ring)]"
@@ -611,18 +642,10 @@ export default function PressPage() {
                         <p className="mt-1 text-sm leading-6 text-[var(--muted-foreground)]">
                           {img.use}
                         </p>
-                        <p className="mt-1 text-sm tabular-nums text-[var(--muted-foreground)]">
-                          {img.width.toLocaleString("en-US")} x {img.height.toLocaleString("en-US")}{" "}
-                          JPEG, {formatBytes(img.bytes)}
-                          {img.hasTitle ? "" : ", no text"}
-                        </p>
-                        <a
-                          href={img.href}
-                          download
-                          className="mt-2 inline-flex min-h-11 items-center rounded-sm text-sm underline underline-offset-2 hover:text-[var(--muted-foreground)] focus:outline-none focus-visible:ring-2 focus-visible:ring-[var(--ring)] sm:min-h-0"
-                        >
-                          Download
-                        </a>
+                        {!img.hasTitle && (
+                          <p className="mt-1 text-sm text-[var(--muted-foreground)]">No text</p>
+                        )}
+                        <DownloadPair standard={img} large={img.large} />
                       </figcaption>
                     </figure>
                   </li>
@@ -653,8 +676,9 @@ export default function PressPage() {
                 <h3 className="font-serif text-xl">Screenshots of the 3D museum</h3>
                 <p className="mt-2 leading-8 text-[var(--muted-foreground)]">
                   {pressScreenshots.screenshots.length} views taken in the museum on
-                  collectionofbeauty.com in {SCREENSHOT_MONTH}, with the on-screen controls hidden.
-                  The rooms change as works are added, so a visit today may not match them exactly.
+                  collectionofbeauty.com in {SCREENSHOT_MONTH}, with the on-screen controls hidden,
+                  at 2,560 and 5,120 px wide. The rooms change as works are added, so a visit today
+                  may not match them exactly.
                 </p>
                 <ul className="mt-6 grid gap-x-6 gap-y-10 sm:grid-cols-2">
                   {pressScreenshots.screenshots.map((shot) => (
@@ -679,17 +703,7 @@ export default function PressPage() {
                               Floor: {shot.floor}
                             </p>
                           )}
-                          <p className="mt-1 text-sm tabular-nums text-[var(--muted-foreground)]">
-                            {shot.width.toLocaleString("en-US")} x{" "}
-                            {shot.height.toLocaleString("en-US")} JPEG, {formatBytes(shot.bytes)}
-                          </p>
-                          <a
-                            href={shot.href}
-                            download
-                            className="mt-2 inline-flex min-h-11 items-center rounded-sm text-sm underline underline-offset-2 hover:text-[var(--muted-foreground)] focus:outline-none focus-visible:ring-2 focus-visible:ring-[var(--ring)] sm:min-h-0"
-                          >
-                            Download
-                          </a>
+                          <DownloadPair standard={shot} large={shot.large} />
                         </figcaption>
                       </figure>
                     </li>

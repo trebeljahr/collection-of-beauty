@@ -9,7 +9,13 @@
       "href": "/marketing/collection-of-beauty-museum-stairwell.jpg",
       "width": 2560,
       "height": 1440,
-      "bytes": 255532,
+      "bytes": 273113,
+      "large": {
+        "href": "/marketing/collection-of-beauty-museum-stairwell-large.jpg",
+        "width": 5120,
+        "height": 2880,
+        "bytes": 1134944
+      },
       "alt": "Collection of Beauty 3D museum, Gothic & Early Renaissance floor: the spiral staircase that joins the floors, seen from the ground floor."
     },
     {
@@ -19,7 +25,13 @@
       "href": "/marketing/collection-of-beauty-museum-baroque.jpg",
       "width": 2560,
       "height": 1440,
-      "bytes": 215812,
+      "bytes": 262372,
+      "large": {
+        "href": "/marketing/collection-of-beauty-museum-baroque-large.jpg",
+        "width": 5120,
+        "height": 2880,
+        "bytes": 974111
+      },
       "alt": "Collection of Beauty 3D museum, Baroque & the Dutch Golden Age floor: Baroque paintings hung at their real size along a gallery wall, each with a label."
     },
     {
@@ -29,7 +41,13 @@
       "href": "/marketing/collection-of-beauty-museum-natural-history.jpg",
       "width": 2560,
       "height": 1440,
-      "bytes": 155147,
+      "bytes": 126038,
+      "large": {
+        "href": "/marketing/collection-of-beauty-museum-natural-history-large.jpg",
+        "width": 5120,
+        "height": 2880,
+        "bytes": 452437
+      },
       "alt": "Collection of Beauty 3D museum, Natural History & Botanical Illustration floor: Audubon's bird plates in pale mounts along a gallery wall."
     },
     {
@@ -39,8 +57,14 @@
       "href": "/marketing/collection-of-beauty-museum-east-asian.jpg",
       "width": 2560,
       "height": 1440,
-      "bytes": 145909,
-      "alt": "Collection of Beauty 3D museum, East Asian Painting floor: Japanese woodblock prints along a gallery wall, with their labels."
+      "bytes": 264309,
+      "large": {
+        "href": "/marketing/collection-of-beauty-museum-east-asian-large.jpg",
+        "width": 5120,
+        "height": 2880,
+        "bytes": 850960
+      },
+      "alt": "Collection of Beauty 3D museum, East Asian Painting floor: a painted screen and a hanging scroll on the walls of the floor's Grand Hall."
     },
     {
       "slug": "impressionism",
@@ -49,7 +73,13 @@
       "href": "/marketing/collection-of-beauty-museum-impressionism.jpg",
       "width": 2560,
       "height": 1440,
-      "bytes": 240188,
+      "bytes": 210770,
+      "large": {
+        "href": "/marketing/collection-of-beauty-museum-impressionism-large.jpg",
+        "width": 5120,
+        "height": 2880,
+        "bytes": 706506
+      },
       "alt": "Collection of Beauty 3D museum, Impressionism floor: Impressionist landscapes and portraits along a gallery wall."
     }
   ]

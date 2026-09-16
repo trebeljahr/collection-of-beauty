@@ -13,7 +13,8 @@
 //   src/data/artworks.json, src/data/summary.json
 //   assets-web/<folder>/<basename>/<width>.avif (built variants)
 // Outputs:
-//   public/marketing/collection-of-beauty-*.jpg   press kit images
+//   public/marketing/collection-of-beauty-*.jpg   press kit images, each
+//                                                  with a *-large.jpg twin
 //   public/marketing/credits.txt                   works shown, per image
 //   src/app/opengraph-image.png (+ .alt.txt)       site-wide link preview
 //   src/data/press-images.json                     manifest read by /press
@@ -50,30 +51,40 @@ const MAX_SOURCE_WIDTH = 4096;
 // Candidate works, in order of preference. The layout search picks a subset
 // and an order per format, so this list only has to be varied: portraits and
 // landscapes, oil and woodblock and book plates, Europe and East Asia.
+//
+// Every entry needs a large scan. The large renders put a work on up to
+// ~2,000px, and a tile drawn bigger than its source goes soft; tile()
+// refuses to do that. Café Terrace, Wanderer above the Sea of Fog, Mucha's
+// Spring and Cassatt's Child's Bath were dropped for it: their scans are
+// 508-1,280px wide.
 const POOL = [
   "collection-of-beauty-1665-girl-with-a-pearl-earring",
   "collection-of-beauty-tsunami-by-hokusai-19th-century",
-  "collection-of-beauty-vincent-van-gogh-1853-1890-cafeterras-bij-nacht-place-du-forum-kroller-muller-museum-otterlo-23-8-2",
+  "collection-of-beauty-a-sunday-on-la-grande-jatte-georges-seurat-1884",
   "collection-of-beauty-sandro-botticelli-la-nascita-di-venere-google-art-project-edited",
   "audubon-birds-431-american-flamingo",
-  "collection-of-beauty-caspar-david-friedrich-wanderer-above-the-sea-of-fog",
+  "collection-of-beauty-la-bohemienne-endormie",
   "collection-of-beauty-2560px-pieter-bruegel-the-elder-hunters-in-the-snow-winter-google-art-project",
   "kunstformen-images-haeckel-actiniae",
   "collection-of-beauty-boy-with-a-basket-of-fruit-caravaggio-1593",
-  "collection-of-beauty-xsxlt-fankuan",
+  "collection-of-beauty-dong-yuan-mountain-hall",
   "collection-of-beauty-vangogh-starry-night-ballance1",
   "redoute-roses-rosa-centifolia",
   "collection-of-beauty-john-singer-sargent-cancale",
-  "collection-of-beauty-el-greco-view-of-toledo",
-  "collection-of-beauty-hiroshige-53-stations-hoeido-37-akasaka-mfa-01",
-  "collection-of-beauty-alfons-mucha-1896-spring",
+  "collection-of-beauty-hiroshige-1838-two-mandarin-ducks",
+  "collection-of-beauty-caspar-david-friedrich-mondaufgang-am-meer-google-art-project",
   "collection-of-beauty-the-rising-squall-hot-wells-from-st-vincent-s-rock-bristol",
-  "collection-of-beauty-mary-cassatt-the-child-s-bath-google-art-project",
+  "collection-of-beauty-claude-monet-jardin-a-sainte-adresse",
   "collection-of-beauty-sandro-botticelli-idealized-portrait-of-a-lady-portrait-of-simonetta-vespucci-as-nymph-google-art-p",
-  "collection-of-beauty-katsushika-hokusai-1760-1849-ono-waterval-aan-de-kisokaido-1835",
   "collection-of-beauty-claude-monet-052",
   "audubon-birds-1-wild-turkey",
 ];
+
+// The large version of each format doubles it, up to this long side. The
+// 16:9 works-only image is already 3840px wide, so it grows to 5120, not
+// 7680: an 8K JPEG of 20 paintings is ~10 MB for no screen anyone owns.
+const LARGE_SCALE = 2;
+const LARGE_MAX_SIDE = 5120;
 
 const THEMES = {
   light: {
@@ -376,9 +387,23 @@ function sourceFor(item, targetWidth) {
   throw new Error(`no ${pick}px variant for ${item.id} under ${dir}`);
 }
 
+/** Pixel width of the largest variant this script will read for a work. */
+function sourceWidth(item) {
+  const rungs = (item.variantWidths ?? []).filter((w) => w <= MAX_SOURCE_WIDTH);
+  // Shrink keeps a rung's filename when the source is narrower than the
+  // rung, so the pixels are capped by the original width.
+  return Math.min(Math.max(...rungs), item.width);
+}
+
 async function tile(rect) {
   const w = Math.round(rect.w);
   const h = Math.round(rect.h);
+  // 2% slack for the sub-pixel rounding of justified rows.
+  if (w > sourceWidth(rect.item) * 1.02) {
+    throw new Error(
+      `${rect.item.id} would be drawn ${w}px wide from a ${sourceWidth(rect.item)}px source; pick a larger scan for POOL`,
+    );
+  }
   const src = sourceFor(rect.item, w * 1.25);
   // fit: "fill" only absorbs the sub-pixel rounding between the justified
   // width and the whole-pixel tile; the aspect ratio is the source's own.
@@ -518,9 +543,8 @@ async function stackText(format, copy, theme, unit) {
   return composites;
 }
 
-async function renderFormat(format, pool, copy) {
+function wallAreaFor(format) {
   const { width: W, height: H } = format;
-  const theme = THEMES[format.theme];
   const margin = Math.round(Math.min(W, H) * 0.045);
   const gap = Math.round(Math.min(W, H) * 0.022);
   const wallArea = {
@@ -537,29 +561,51 @@ async function renderFormat(format, pool, copy) {
     wallArea.w = format.wall.w * W - margin * 1.5;
   }
   if (format.text && format.text.y > 0) wallArea.h = format.wall.h * H - margin * 1.5;
+  return { wallArea, gap };
+}
 
-  const layout = searchLayout(pool, format, wallArea, gap);
+/**
+ * Draw a planned layout at `scale`. The layout is searched once at 1x and
+ * scaled here, so the large file shows the same works in the same places
+ * as the regular one instead of whatever a second search would pick.
+ */
+async function composeFormat(format, layout, copy, scale) {
+  const W = Math.round(format.width * scale);
+  const H = Math.round(format.height * scale);
+  const theme = THEMES[format.theme];
+  const { gap } = wallAreaFor(format);
+  const rects = layout.rects.map((r) => ({
+    ...r,
+    x: r.x * scale,
+    y: r.y * scale,
+    w: r.w * scale,
+    h: r.h * scale,
+  }));
   const composites = [
     {
-      input: shadowSvg(layout.rects, W, H, theme.shadow, Math.max(2, Math.round(gap * 0.35))),
+      input: shadowSvg(rects, W, H, theme.shadow, Math.max(2, Math.round(gap * scale * 0.35))),
       left: 0,
       top: 0,
     },
   ];
-  for (const rect of layout.rects) {
+  for (const rect of rects) {
     composites.push({ input: await tile(rect), left: Math.round(rect.x), top: Math.round(rect.y) });
   }
-  if (format.text) composites.push(...(await renderText(format, copy, theme)));
-
+  if (format.text) {
+    composites.push(...(await renderText({ ...format, width: W, height: H }, copy, theme)));
+  }
   const canvas = sharp({ create: { width: W, height: H, channels: 3, background: theme.wall } });
-  const png = await canvas.composite(composites).png().toBuffer();
-  return { png, rects: layout.rects, coverage: layout.coverage };
+  return { png: await canvas.composite(composites).png().toBuffer(), width: W, height: H };
 }
 
 // Same rule as displayTitle() in src/lib/artwork-format.ts: many catalogue
 // titles are Commons filenames, and the English title is the readable one.
 function displayTitle(a) {
   return a.englishTitle?.trim() || a.title;
+}
+
+function writeJpeg(png, outPath) {
+  return sharp(png).jpeg({ quality: 90, mozjpeg: true, chromaSubsampling: "4:4:4" }).toFile(outPath);
 }
 
 // ─── Main ──────────────────────────────────────────────────────────────────
@@ -587,12 +633,22 @@ async function main() {
   const images = [];
   const credits = [];
   for (const format of FORMATS) {
-    const { png, rects, coverage } = await renderFormat(format, pool, copy);
+    const { wallArea, gap } = wallAreaFor(format);
+    const layout = searchLayout(pool, format, wallArea, gap);
+    const { rects, coverage } = layout;
+    const { png } = await composeFormat(format, layout, copy, 1);
     const file = `${FILE_PREFIX}-${format.slug}.jpg`;
     const outPath = path.join(OUT_DIR, file);
-    await sharp(png)
-      .jpeg({ quality: 90, mozjpeg: true, chromaSubsampling: "4:4:4" })
-      .toFile(outPath);
+    await writeJpeg(png, outPath);
+
+    const largeScale = Math.min(
+      LARGE_SCALE,
+      LARGE_MAX_SIDE / Math.max(format.width, format.height),
+    );
+    const large = await composeFormat(format, layout, copy, largeScale);
+    const largeFile = `${FILE_PREFIX}-${format.slug}-large.jpg`;
+    const largePath = path.join(OUT_DIR, largeFile);
+    await writeJpeg(large.png, largePath);
     if (format.alsoWrite) {
       await sharp(png).png({ compressionLevel: 9, palette: false }).toFile(format.alsoWrite);
     }
@@ -619,10 +675,16 @@ async function main() {
       theme: format.theme,
       hasTitle: Boolean(format.text),
       alt,
+      large: {
+        href: `/marketing/${largeFile}`,
+        width: large.width,
+        height: large.height,
+        bytes: (await stat(largePath)).size,
+      },
       works,
     });
     credits.push(
-      `${file} (${format.width} x ${format.height})`,
+      `${file} (${format.width} x ${format.height}) and ${largeFile} (${large.width} x ${large.height})`,
       ...works.map((id) => {
         const a = byId.get(id);
         return `  ${a.artist ?? "Unknown artist"}, ${displayTitle(a)}${a.year ? `, ${a.year}` : ""}. https://${SITE_URL}/artwork/${id}`;
@@ -630,7 +692,7 @@ async function main() {
       "",
     );
     console.log(
-      `[${format.slug}] ${file} ${format.width}x${format.height}, ${works.length} works, ${Math.round(coverage * 100)}% of the wall`,
+      `[${format.slug}] ${file} ${format.width}x${format.height} + ${large.width}x${large.height}, ${works.length} works, ${Math.round(coverage * 100)}% of the wall`,
     );
   }
 
