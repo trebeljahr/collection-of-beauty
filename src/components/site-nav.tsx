@@ -113,7 +113,8 @@ const safeX = (base: string) =>
     paddingRight: `max(${base}, env(safe-area-inset-right, 0px))`,
   }) as const;
 
-// px-4 on the header row, px-5 on both rows of the fullscreen menu.
+// px-4 on the header row and the menu's top row (so the close button
+// lands where the hamburger was), px-5 on the menu's link column.
 const SAFE_X_NAV = safeX("1rem");
 const SAFE_X_MENU = safeX("1.25rem");
 
@@ -425,7 +426,7 @@ export function SiteNav() {
         <button
           ref={triggerRef}
           type="button"
-          className="-mr-2 inline-flex size-11 items-center justify-center rounded-md hover:bg-[var(--accent)] focus:outline-none focus-visible:ring-2 focus-visible:ring-[var(--ring)] md:hidden"
+          className="-mr-2 ml-auto inline-flex size-11 shrink-0 items-center justify-center rounded-md hover:bg-[var(--accent)] focus:outline-none focus-visible:ring-2 focus-visible:ring-[var(--ring)] md:hidden"
           aria-label={open ? "Close navigation" : "Open navigation"}
           aria-expanded={open}
           aria-controls="site-nav-modal"
@@ -473,7 +474,7 @@ export function SiteNav() {
           onClick={(e) => {
             if (e.target === e.currentTarget) setOpen(false);
           }}
-          className={`fixed inset-0 z-50 flex flex-col overflow-y-auto bg-[var(--background)]/95 backdrop-blur-md ${
+          className={`fixed inset-0 z-50 flex flex-col overflow-y-auto bg-[var(--background)] ${
             closingTo3D ? "animate-nav-slide-out-down" : "animate-nav-fade-in"
           }`}
           // 100dvh keeps the modal full-height on mobile browsers whose
@@ -481,22 +482,22 @@ export function SiteNav() {
           style={{ minHeight: "100dvh" }}
         >
           <div
-            style={SAFE_X_MENU}
-            className="mx-auto flex w-full max-w-md items-center justify-between px-5 py-4"
+            style={SAFE_X_NAV}
+            className="mx-auto flex w-full max-w-7xl items-center justify-between gap-4 px-4 py-3"
           >
             <Link
               href="/"
               onClick={(e) => handleSameRouteTap(e, "/")}
-              className="inline-flex items-center gap-2 rounded-sm font-serif text-base tracking-wide hover:opacity-70 focus:outline-none focus-visible:ring-2 focus-visible:ring-[var(--ring)]"
+              className="inline-flex shrink-0 items-center gap-2 rounded-sm font-serif text-lg tracking-wide hover:opacity-70 focus:outline-none focus-visible:ring-2 focus-visible:ring-[var(--ring)]"
             >
-              <LogoMark className="size-6 shrink-0" />
+              <LogoMark className="size-7 shrink-0" />
               Collection of Beauty
             </Link>
             <button
               type="button"
               onClick={() => setOpen(false)}
               aria-label="Close navigation"
-              className="-mr-2 inline-flex size-11 items-center justify-center rounded-md hover:bg-[var(--accent)] focus:outline-none focus-visible:ring-2 focus-visible:ring-[var(--ring)]"
+              className="-mr-2 inline-flex size-11 shrink-0 items-center justify-center rounded-md hover:bg-[var(--accent)] focus:outline-none focus-visible:ring-2 focus-visible:ring-[var(--ring)]"
             >
               <svg
                 xmlns="http://www.w3.org/2000/svg"
