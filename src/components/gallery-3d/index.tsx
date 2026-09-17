@@ -145,7 +145,10 @@ export function Gallery3D({ artworks }: Props) {
   // Dev-only HUD: texture on the aimed painting + frame / renderer /
   // texture-pool stats. Backquote toggles; `?debug` forces it on.
   const debug = useGalleryDebug();
-  const needsRotate = useNeedsRotate();
+  // Held back until the entry room has loaded. Shown during the load, the
+  // prompt covered the progress bar, and every viewport resize while the
+  // phone rotated or the URL bar moved swapped it with the curtain.
+  const needsRotate = useNeedsRotate() && entryRoomReady;
   const joysticksActive =
     isTouch && hasStarted && !zoomed && !mapOpen && !settingsOpen && !needsRotate;
   const moveJoystick = useJoystick({
@@ -672,7 +675,10 @@ export function Gallery3D({ artworks }: Props) {
           shared loading-bar animation matches the route loading state
           so the visual language stays consistent across "scene not
           ready yet" moments. */}
-      {contextLost && (
+      {/* Not before Enter: the opaque curtain already hides the canvas, and
+          a context loss while the entry room decodes (common on phones)
+          would otherwise flash this card over the loading bar. */}
+      {contextLost && hasStarted && (
         <div className="absolute inset-0 z-[60] flex items-center justify-center bg-black/80 backdrop-blur-sm">
           <div className="w-[min(360px,88vw)] rounded-xl border border-white/15 bg-black/70 p-5 text-center text-white shadow-2xl">
             <h2 className="font-serif text-lg tracking-wide">Restoring 3D scene</h2>

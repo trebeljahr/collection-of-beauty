@@ -121,7 +121,10 @@ export function GalleryCurtain({
   onRetry,
   overlay = false,
 }: Props) {
-  const isTouch = useTouchDevice() === true;
+  // null only while hydrating the server-rendered route fallback. Then
+  // both hints render and CSS picks one by pointer type, so the first
+  // paint already shows the right copy at the right card height.
+  const touch = useTouchDevice();
   const value = useCurtainProgress(progress, ready);
   const pct = Math.round(value * 100);
   const canStart = ready && !fetchFailed && onStart !== undefined;
@@ -160,7 +163,11 @@ export function GalleryCurtain({
         className="m-auto w-[min(480px,92vw)] rounded-xl border border-white/15 bg-black/60 p-6 text-center text-white shadow-2xl"
       >
         <h2 className="font-serif text-2xl tracking-wide">
-          {fetchFailed ? "Could not load museum" : "Enter the museum"}
+          {fetchFailed
+            ? "Could not load the museum"
+            : ready
+              ? "The museum is ready"
+              : "Loading the museum"}
         </h2>
 
         {/* Fixed-height slot: holds a placeholder line until the era is
@@ -179,13 +186,14 @@ export function GalleryCurtain({
         </div>
 
         <p className="mt-2 text-xs leading-relaxed text-white/65">
-          {isTouch ? (
-            <>
+          {touch !== false && (
+            <span className={touch === null ? "hidden pointer-coarse:inline" : undefined}>
               Left stick walks · right stick looks · tap a painting to inspect · stairs change
               floors
-            </>
-          ) : (
-            <>
+            </span>
+          )}
+          {touch !== true && (
+            <span className={touch === null ? "pointer-coarse:hidden" : undefined}>
               <kbd className="rounded border border-white/30 px-1.5">W</kbd>{" "}
               <kbd className="rounded border border-white/30 px-1.5">A</kbd>{" "}
               <kbd className="rounded border border-white/30 px-1.5">S</kbd>{" "}
@@ -194,7 +202,7 @@ export function GalleryCurtain({
               <kbd className="rounded border border-white/30 px-1.5">Space</kbd> to jump · click a
               painting to zoom · <kbd className="rounded border border-white/30 px-1.5">M</kbd> for
               the full map (with teleport shortcuts)
-            </>
+            </span>
           )}
         </p>
 
