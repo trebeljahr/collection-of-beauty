@@ -1,4 +1,5 @@
 import type { CSSProperties } from "react";
+import { ProgressiveImage } from "@/components/progressive-image";
 import { cn, fallbackVariantUrl, variantSrcSet } from "@/lib/utils";
 
 type Props = {
@@ -31,6 +32,12 @@ type Props = {
    *  tint. Mirrors Artwork.dominantColor. Null/undefined = no tint. */
   dominantColor?: string | null;
   style?: CSSProperties;
+  /** Paint the tile progressively — a shimmering tint, then a blurred
+   *  256 px thumbnail, then the sharp variant fading in on top. For lazy
+   *  gallery tiles on slow connections; ignored for `priority` images
+   *  (an LCP image wants its full pixels first, not a thumbnail ahead of
+   *  them) and when no variants exist. See progressive-image.tsx. */
+  progressive?: boolean;
 };
 
 /**
@@ -59,6 +66,7 @@ export function ResponsiveImage({
   priority,
   dominantColor,
   style,
+  progressive,
 }: Props) {
   // React accepts `fetchPriority` (camelCase) as of 18.3 / 19. Older React
   // would warn but still emit it; we're on 19 so this is clean.
@@ -66,6 +74,26 @@ export function ResponsiveImage({
   const resolvedLoading = priority ? "eager" : loading;
 
   const hasVariants = variantWidths && variantWidths.length > 0;
+
+  // Progressive path: only for lazy tiles that have a variant ladder. An
+  // LCP/priority image skips it (it wants full pixels first, not a
+  // thumbnail competing for the connection), and a work with no manifest
+  // has no ladder to step through — both fall through to the plain markup.
+  if (progressive && !priority && hasVariants) {
+    return (
+      <ProgressiveImage
+        objectKey={objectKey}
+        alt={alt}
+        sizes={sizes}
+        variantWidths={variantWidths}
+        srcWidth={srcWidth}
+        srcHeight={srcHeight}
+        fill={fill}
+        dominantColor={dominantColor}
+        className={className}
+      />
+    );
+  }
   const fillClasses = "absolute inset-0 h-full w-full object-cover";
   const mergedStyle: CSSProperties | undefined = dominantColor
     ? { backgroundColor: dominantColor, ...style }

@@ -498,6 +498,7 @@ export function ArtworkRows({
                     sizes={props.sizes ?? `${Math.ceil(renderedWidth)}px`}
                     loading="lazy"
                     dominantColor={p.dominantColor}
+                    progressive
                     style={{ width: "100%", height: "auto" }}
                   />
                 );

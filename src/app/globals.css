@@ -355,3 +355,81 @@
   border-radius: var(--radius-sm);
   background-color: var(--muted);
 }
+
+/* ── Progressive gallery tile (see progressive-image.tsx) ──────────────
+   On a slow connection a tile paints in three passes as bytes arrive:
+   the dominantColor tint under a soft light sweep, then a blurred 256 px
+   thumbnail, then the sharp variant fading in on top. The frame reserves
+   the exact aspect box (no CLS) and clips both the thumb's blur overscan
+   and the sweep band. The sharp <img> is fetchpriority=low so the tiny
+   thumbs win bandwidth first and content appears roughly top-to-bottom. */
+.ri-frame {
+  display: block;
+  position: relative;
+  overflow: hidden;
+  background-color: var(--muted);
+}
+
+.ri-shimmer {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  transition: opacity 400ms ease;
+}
+.ri-shimmer::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  width: 55%;
+  background: linear-gradient(
+    100deg,
+    transparent 0%,
+    rgba(255, 255, 255, 0.22) 50%,
+    transparent 100%
+  );
+  transform: translateX(-160%);
+  animation: ri-shimmer 1.9s ease-in-out infinite;
+  will-change: transform;
+}
+@keyframes ri-shimmer {
+  0% {
+    transform: translateX(-160%);
+  }
+  /* Hold off-frame from 55% so each sweep is followed by a calm gap
+     rather than sweeping edge-to-edge without pause. */
+  55%,
+  100% {
+    transform: translateX(360%);
+  }
+}
+
+.ri-lqip,
+.ri-full {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+/* Scale past the frame so the blur doesn't feather in a transparent edge. */
+.ri-lqip {
+  filter: blur(14px);
+  transform: scale(1.08);
+}
+.ri-full {
+  opacity: 0;
+  transition: opacity 450ms ease;
+}
+.ri-frame[data-loaded="true"] .ri-full {
+  opacity: 1;
+}
+/* Once the thumb or the sharp image covers the tint, retire the sweep. */
+.ri-frame[data-loaded="true"] .ri-shimmer {
+  opacity: 0;
+}
+/* Cache hit that resolved before hydration: show it outright, no fade. */
+.ri-frame[data-instant="true"] .ri-full {
+  transition: none;
+}
