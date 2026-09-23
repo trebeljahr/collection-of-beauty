@@ -11,6 +11,7 @@ import type { ArtworkListing } from "@/lib/data";
 import { artworkHref, type Scope } from "@/lib/scope-href";
 import { useArtworkBackFlip } from "@/lib/use-artwork-back-flip";
 import type { LoadMoreResult } from "@/lib/use-artwork-pagination";
+import { useSlowConnection } from "@/lib/use-slow-connection";
 import { useTransitionNav } from "@/lib/use-transition-nav";
 import { artworkHeroVtName } from "@/lib/view-transitions";
 
@@ -391,6 +392,12 @@ export function ArtworkRows({
   // chunks never recompute their row layout.
   const chunks = useMemo(() => chunk(photos, CHUNK_SIZE), [photos]);
 
+  // Progressive tiles cost an extra ~10 KB thumbnail fetch each, which is
+  // only worth it when the connection is slow enough for the sharp
+  // variant to lag. Fast/unknown clients keep the plain single-fetch
+  // path. False until mounted, so SSR and hydration render identically.
+  const slowConnection = useSlowConnection();
+
   const [galleryRef, containerWidth] = useContainerWidth();
   const initialContainerWidth = containerWidth ?? 1200;
   const target = resolveRowHeight(targetRowHeight, initialContainerWidth);
@@ -498,7 +505,7 @@ export function ArtworkRows({
                     sizes={props.sizes ?? `${Math.ceil(renderedWidth)}px`}
                     loading="lazy"
                     dominantColor={p.dominantColor}
-                    progressive
+                    progressive={slowConnection}
                     style={{ width: "100%", height: "auto" }}
                   />
                 );
