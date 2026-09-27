@@ -21,6 +21,7 @@ vi.mock("@/lib/newsletter/subscribe", async () => {
 });
 
 const { POST } = await import("./route");
+const { SITE_URL } = await import("@/lib/links");
 const subscribeMod = await import("@/lib/newsletter/subscribe");
 const { _resetRateLimit } = subscribeMod;
 const isAlreadySubscribed = vi.mocked(subscribeMod.isAlreadySubscribed);
@@ -57,6 +58,21 @@ describe("POST /api/newsletter/subscribe", () => {
     expect(await res.json()).toEqual({ ok: true });
     expect(sendConfirmationEmail).toHaveBeenCalledTimes(1);
     expect(sendConfirmationEmail.mock.calls[0][0].to).toBe("new@example.com");
+  });
+
+  it("builds the confirm link from SITE_URL, not the request origin", async () => {
+    // What the standalone server sees behind Coolify's proxy.
+    const req = new NextRequest("http://0.0.0.0:80/api/newsletter/subscribe", {
+      method: "POST",
+      headers: { "content-type": "application/json", "x-forwarded-for": "203.0.113.8" },
+      body: JSON.stringify({ email: "proxy@example.com" }),
+    });
+    const res = await POST(req);
+    expect(res.status).toBe(200);
+    const params = sendConfirmationEmail.mock.calls[0][0];
+    expect(params.confirmUrl.startsWith(`${SITE_URL}/api/newsletter/confirm?token=`)).toBe(true);
+    expect(params.heroArtworkUrl.startsWith(`${SITE_URL}/artwork/`)).toBe(true);
+    expect(params.confirmUrl).not.toContain("0.0.0.0");
   });
 
   it("returns 400 + skips the send on malformed email", async () => {

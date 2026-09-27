@@ -1,4 +1,5 @@
 import { type NextRequest, NextResponse } from "next/server";
+import { SITE_URL } from "@/lib/links";
 import { resolveConfirmHero } from "@/lib/newsletter/confirmation-cover";
 import {
   checkRateLimit,
@@ -35,11 +36,6 @@ function log(level: "info" | "error", event: string, extra: object = {}): void {
   const line = JSON.stringify({ scope: "newsletter.subscribe", level, event, ...extra });
   if (level === "error") console.error(line);
   else console.info(line);
-}
-
-function getSiteUrl(request: NextRequest): string {
-  if (process.env.NEXT_PUBLIC_SITE_URL) return process.env.NEXT_PUBLIC_SITE_URL;
-  return request.nextUrl.origin;
 }
 
 export async function POST(request: NextRequest) {
@@ -87,9 +83,11 @@ export async function POST(request: NextRequest) {
   }
 
   const token = mintConfirmToken(email);
-  const siteUrl = getSiteUrl(request).replace(/\/$/, "");
-  const confirmUrl = `${siteUrl}/api/newsletter/confirm?token=${encodeURIComponent(token)}`;
-  const hero = resolveConfirmHero(siteUrl);
+  // Never derive this from the request: behind Coolify's proxy the
+  // standalone server sees its own bind address (HOSTNAME=0.0.0.0,
+  // PORT=80), and that is what ended up in the emailed link.
+  const confirmUrl = `${SITE_URL}/api/newsletter/confirm?token=${encodeURIComponent(token)}`;
+  const hero = resolveConfirmHero(SITE_URL);
 
   try {
     await sendConfirmationEmail({

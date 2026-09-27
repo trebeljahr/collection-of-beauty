@@ -1,4 +1,5 @@
 import { type NextRequest, NextResponse } from "next/server";
+import { SITE_URL } from "@/lib/links";
 import { loadPublishedEditions } from "@/lib/newsletter/editions";
 import { sendTransactional } from "@/lib/newsletter/listmonk";
 import { renderEdition } from "@/lib/newsletter/render";
@@ -15,11 +16,6 @@ function log(level: "info" | "error", event: string, extra: object = {}): void {
   const line = JSON.stringify({ scope: "newsletter.confirm", level, event, ...extra });
   if (level === "error") console.error(line);
   else console.info(line);
-}
-
-function getSiteUrl(request: NextRequest): string {
-  if (process.env.NEXT_PUBLIC_SITE_URL) return process.env.NEXT_PUBLIC_SITE_URL;
-  return request.nextUrl.origin;
 }
 
 /**
@@ -57,16 +53,17 @@ async function sendWelcomeIssue(email: string, siteUrl: string): Promise<boolean
 
 export async function GET(request: NextRequest) {
   const token = request.nextUrl.searchParams.get("token");
-  const siteUrl = getSiteUrl(request).replace(/\/$/, "");
+  // Links and redirects use SITE_URL, never request.nextUrl.origin: behind
+  // the proxy that is the container's bind address (0.0.0.0:80).
 
   if (!token) {
-    return NextResponse.redirect(`${siteUrl}/sub/error?reason=missing`, { status: 303 });
+    return NextResponse.redirect(`${SITE_URL}/sub/error?reason=missing`, { status: 303 });
   }
 
   const result = verifyConfirmToken(token);
   if (!result.ok) {
     log("info", "verify_failed", { reason: result.reason });
-    return NextResponse.redirect(`${siteUrl}/sub/error?reason=${result.reason}`, { status: 303 });
+    return NextResponse.redirect(`${SITE_URL}/sub/error?reason=${result.reason}`, { status: 303 });
   }
 
   // Re-confirmation case: the user clicked a stale token for an address
@@ -78,13 +75,13 @@ export async function GET(request: NextRequest) {
     await confirmSubscription(result.email);
   } catch (err) {
     log("error", "list_add_failed", { message: (err as Error).message });
-    return NextResponse.redirect(`${siteUrl}/sub/error?reason=list_add_failed`, { status: 303 });
+    return NextResponse.redirect(`${SITE_URL}/sub/error?reason=list_add_failed`, { status: 303 });
   }
 
   let welcomeSent = false;
   if (!alreadyConfirmed) {
     try {
-      welcomeSent = await sendWelcomeIssue(result.email, siteUrl);
+      welcomeSent = await sendWelcomeIssue(result.email, SITE_URL);
     } catch (err) {
       // Don't fail the confirmation over a welcome-send error — the
       // subscription itself is already live. They'll get the next
@@ -95,7 +92,7 @@ export async function GET(request: NextRequest) {
 
   log("info", "confirmed", { welcomeSent });
   const destination = welcomeSent
-    ? `${siteUrl}/sub/confirmed?welcome=1`
-    : `${siteUrl}/sub/confirmed`;
+    ? `${SITE_URL}/sub/confirmed?welcome=1`
+    : `${SITE_URL}/sub/confirmed`;
   return NextResponse.redirect(destination, { status: 303 });
 }
