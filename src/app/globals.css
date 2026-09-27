@@ -323,6 +323,45 @@
   animation: heartbeat 2s ease-in-out infinite;
 }
 
+/* ── Gallery tile reveal (GalleryTileLink in artwork-gallery.tsx) ──────
+   A tile fades in and lifts 12px as its top edge comes up over the bottom
+   of the viewport. The timeline is the tile's own position in the
+   scroller, so there is nothing to replay: a tile already on screen — at
+   first paint, after the back-flip scrolls the grid, after a remount — is
+   past the range and drawn in full.
+
+   The range ends 96px into `entry`, in pixels rather than a percentage of
+   the tile, so a 400px tile reveals over the same scroll distance as a
+   150px one. At load that leaves only the row peeking over the fold, with
+   less than 96px of it in view, part-faded; every tile above it, the LCP
+   candidate included, starts at opacity 1.
+
+   On the link rather than the <img>, so the dominantColor tint (on the
+   <img>, or on .ri-frame for progressive tiles) fades with the pixels.
+
+   Gated on no-preference rather than listed in the reduce block below:
+   that block's `animation-duration: 0.001ms` catch-all doesn't stop a
+   scroll-driven animation, whose duration is its scroll range. */
+@keyframes gallery-tile-reveal {
+  from {
+    opacity: 0;
+    transform: translateY(12px);
+  }
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  @supports (animation-timeline: view()) {
+    /* data-settled: a tile about to be measured for a FLIP, by the hero
+       view transition or the back-flip. Pins it at the end state. */
+    .gallery-tile:not([data-settled]) {
+      animation: gallery-tile-reveal ease-out both;
+      /* After the shorthand, which resets it to auto. */
+      animation-timeline: view();
+      animation-range: entry 0% entry 96px;
+    }
+  }
+}
+
 @media (prefers-reduced-motion: reduce) {
   .animate-nav-fade-in,
   .animate-nav-slide-out-down,

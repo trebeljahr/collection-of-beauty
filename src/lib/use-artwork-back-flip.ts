@@ -244,6 +244,13 @@ async function attemptFlip(pass: ActivePass, reveal: () => void): Promise<void> 
 }
 
 function runFlip(snapshot: Snapshot, targetTile: HTMLImageElement, reveal: () => void) {
+  // Settle the tile's scroll-driven reveal (globals.css) before measuring.
+  // Its timeline samples the scroll position once per frame, so straight
+  // after the scrollIntoView below, a tile that started off-screen still
+  // carries its unrevealed 12px offset and the clone would land 12px below
+  // it. Centered, it would be fully revealed anyway.
+  const tileLink = targetTile.closest<HTMLElement>("[data-artwork-id]");
+  if (tileLink) tileLink.dataset.settled = "";
   // Center the destination tile before measuring it. Main is still
   // hidden, so this scroll change is invisible — `reveal()` below
   // exposes the final scroll position straight into the FLIP's first

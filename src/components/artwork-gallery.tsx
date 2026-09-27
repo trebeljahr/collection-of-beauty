@@ -535,11 +535,16 @@ function GalleryTileLink({
   });
   const transitionNav = useTransitionNav();
   const onClick = (e: React.MouseEvent<HTMLAnchorElement>) => {
-    const img = e.currentTarget.querySelector("img");
+    const link = e.currentTarget;
+    const img = link.querySelector("img");
     transitionNav(e, photo.href, {
       vtElement: img,
       vtName: artworkHeroVtName(photo.key),
     });
+    // A tile peeking over the fold is mid-reveal: translated and faded.
+    // Settle it before the view transition captures it, or the hero FLIP
+    // starts from a box up to 12px below the tile's resting place.
+    if (e.defaultPrevented) link.dataset.settled = "";
   };
   return (
     <>
@@ -549,7 +554,8 @@ function GalleryTileLink({
         href={photo.href}
         onClick={onClick}
         aria-label={photo.alt}
-        className={className}
+        // gallery-tile: the scroll-driven reveal in globals.css.
+        className={`gallery-tile ${className}`}
         data-artwork-id={photo.key}
       >
         {children}
