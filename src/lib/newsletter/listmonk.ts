@@ -138,8 +138,13 @@ type SubscribersQueryResponse = {
 
 export async function findSubscriber(email: string): Promise<ListmonkSubscriber | null> {
   const normalized = email.toLowerCase();
+  // ListMonk matches `search` as an unescaped Postgres regex
+  // (`email ~* $search`). Unquoted, a plus-address never finds itself:
+  // the `+` in `a+b@x.com` means "one or more a". The confirm click
+  // would then try to create the subscriber again and fail with a 409.
+  const pattern = `^${normalized.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")}$`;
   const params = new URLSearchParams({
-    search: normalized,
+    search: pattern,
     per_page: "all",
   });
   const res = await listmonkFetch<SubscribersQueryResponse>(

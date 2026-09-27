@@ -59,9 +59,24 @@ describe("findSubscriber", () => {
 
     const url = new URL(fetchMock.mock.calls[0][0] as string);
     expect(url.pathname).toBe("/api/subscribers");
-    expect(url.searchParams.get("search")).toBe("reader@example.com");
+    expect(url.searchParams.get("search")).toBe("^reader@example\\.com$");
     expect(url.searchParams.get("query")).toBeNull();
     expect(url.searchParams.get("per_page")).toBe("all");
+  });
+
+  it("quotes regex characters so a plus-address matches itself", async () => {
+    const fetchMock = vi.fn(async (_input: RequestInfo | URL, _init?: RequestInit) =>
+      jsonResponse({ data: { results: [], total: 0 } }),
+    );
+    vi.stubGlobal("fetch", fetchMock);
+
+    await findSubscriber("reader+test@example.com");
+
+    const search = new URL(fetchMock.mock.calls[0][0] as string).searchParams.get("search");
+    expect(search).toBe("^reader\\+test@example\\.com$");
+    // Same semantics as Postgres `~*` for this pattern.
+    expect(new RegExp(search as string, "i").test("reader+test@example.com")).toBe(true);
+    expect(new RegExp(search as string, "i").test("readerrtest@example.com")).toBe(false);
   });
 
   it("exact-matches the email returned by broad search", async () => {
