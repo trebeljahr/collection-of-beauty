@@ -8,6 +8,7 @@ import { useEffect } from "react";
 type WakeLockSentinelLike = {
   released: boolean;
   release(): Promise<void>;
+  addEventListener(type: "release", listener: () => void): void;
 };
 type WakeLockLike = { request(type: "screen"): Promise<WakeLockSentinelLike> };
 
@@ -22,8 +23,12 @@ function wakeLock(): WakeLockLike | undefined {
  * minutes of no input.
  *
  * The browser releases the lock by itself whenever the page is hidden,
- * so it is requested again each time the page becomes visible. Every
- * failure is swallowed: an unsupported browser, a battery saver that
+ * and the system may drop it while the page stays up, so it is requested
+ * again on `release` and each time the page becomes visible. WebKit also
+ * refuses a request made without a recent user gesture while the
+ * permission is undecided, which is the case on a reload or a bookmark,
+ * so until a lock is held every tap, click and key press asks again.
+ * Every failure is swallowed: an unsupported browser, a battery saver that
  * refuses the request, or a request made while the tab was in the
  * background (NotAllowedError). The show runs the same either way; the
  * screen may just sleep.
@@ -51,17 +56,31 @@ export function useWakeLock(enabled: boolean): void {
             return;
           }
           sentinel = lock;
+          lock.addEventListener("release", () => {
+            if (sentinel === lock) sentinel = null;
+            // Hidden: the visibilitychange listener takes it from here.
+            acquire();
+          });
         })
         .catch(() => {
           pending = false;
         });
     };
 
+    const onGesture = () => {
+      if (!sentinel || sentinel.released) acquire();
+    };
+    const gestureOpts = { capture: true, passive: true } as const;
+
     acquire();
     document.addEventListener("visibilitychange", acquire);
+    window.addEventListener("pointerdown", onGesture, gestureOpts);
+    window.addEventListener("keydown", onGesture, gestureOpts);
     return () => {
       cancelled = true;
       document.removeEventListener("visibilitychange", acquire);
+      window.removeEventListener("pointerdown", onGesture, gestureOpts);
+      window.removeEventListener("keydown", onGesture, gestureOpts);
       sentinel?.release().catch(() => {});
       sentinel = null;
     };
