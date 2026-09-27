@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
+import { PlayLink } from "@/components/play-link";
 import { ScopedGallery } from "@/components/scoped-gallery";
 import { touchTextLinkClasses } from "@/components/ui/pill";
 import { DEFAULT_ARTWORK_PAGE_SIZE } from "@/lib/artwork-page-schema";
@@ -123,6 +124,9 @@ export default async function EraPage({ params }: { params: Promise<Params> }) {
           </p>
         )}
         <p className="max-w-prose italic text-[var(--muted-foreground)]">{era.blurb}</p>
+        <div>
+          <PlayLink scope={{ kind: "era", id: era.id }} />
+        </div>
       </header>
 
       {(prev || next) && (

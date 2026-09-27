@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { ColorWheel } from "@/components/color-wheel";
+import { PlayLink } from "@/components/play-link";
 import { ScopedGallery } from "@/components/scoped-gallery";
 import { touchTextLinkClasses } from "@/components/ui/pill";
 import { allColorBucketCounts } from "@/lib/artwork-colors";
@@ -107,6 +108,11 @@ export default async function ColourFamilyPage({ params }: { params: Promise<Par
           <p className="text-[var(--muted-foreground)]">
             {initialPage.total.toLocaleString()} work{initialPage.total === 1 ? "" : "s"}
           </p>
+          {initialPage.total > 0 && (
+            <div>
+              <PlayLink scope={{ kind: "color", id: bucket.id }} />
+            </div>
+          )}
         </header>
 
         <div className="md:w-[280px]">

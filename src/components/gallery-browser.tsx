@@ -11,6 +11,7 @@ import {
   useSyncExternalStore,
 } from "react";
 import { ArtworkGallery } from "@/components/artwork-gallery";
+import { PlayLink } from "@/components/play-link";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -307,7 +308,7 @@ export function GalleryBrowser({ initialArtworks, eras, totalArtworks }: Props) 
         </div>
       </div>
 
-      <div className="flex items-baseline justify-between px-1 text-sm text-[var(--muted-foreground)]">
+      <div className="flex items-center justify-between px-1 text-sm text-[var(--muted-foreground)]">
         <span>
           {pageInfo.total.toLocaleString()} work
           {pageInfo.total === 1 ? "" : "s"}
@@ -318,6 +319,8 @@ export function GalleryBrowser({ initialArtworks, eras, totalArtworks }: Props) 
             </Badge>
           )}
         </span>
+        {/* Plays exactly the selection the tiles below link into. */}
+        {pageInfo.total > 0 && <PlayLink scope={scope} />}
       </div>
 
       {pageStatus === "loading" ? (

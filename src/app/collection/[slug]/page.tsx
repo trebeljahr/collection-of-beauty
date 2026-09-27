@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
+import { PlayLink } from "@/components/play-link";
 import { ScopedGallery } from "@/components/scoped-gallery";
 import { chipClasses, touchTextLinkClasses } from "@/components/ui/pill";
 import { DEFAULT_ARTWORK_PAGE_SIZE } from "@/lib/artwork-page-schema";
@@ -174,6 +175,9 @@ export default async function CollectionPage({ params }: { params: Promise<Param
           <Link href={`/era/${era.id}`} className={chipClasses}>
             {era.title}
           </Link>
+        </div>
+        <div>
+          <PlayLink scope={scope} />
         </div>
       </header>
 

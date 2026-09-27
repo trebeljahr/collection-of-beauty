@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
+import { PlayLink } from "@/components/play-link";
 import { ScopedGallery } from "@/components/scoped-gallery";
 import { chipClasses, touchTextLinkClasses } from "@/components/ui/pill";
 import { displayTitle } from "@/lib/artwork-format";
@@ -252,6 +253,9 @@ export default async function ArtistPage({ params }: { params: Promise<Params> }
             ))}
           </div>
         )}
+        <div>
+          <PlayLink scope={{ kind: "artist", slug: artist.slug }} />
+        </div>
       </header>
 
       {known.length > 0 && (
