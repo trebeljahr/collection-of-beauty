@@ -118,7 +118,14 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
             JSON-LD blocks for their specific entities (VisualArtwork, Person). */}
         <script {...jsonLdScriptProps(websiteJsonLd())} />
       </head>
-      <body className="min-h-screen antialiased" suppressHydrationWarning>
+      {/* Column flex with `main` as the flex-1 item pins the footer to the
+          viewport bottom on short pages (e.g. /sub/confirmed) and leaves it
+          after the content on long ones. `dvh`, not `screen`: on mobile
+          `100vh` is the URL-bar-retracted height, which would push the
+          footer below the fold on a page that fits. Page roots carry
+          padding, not margins, so the flex item's formatting context
+          changes no spacing. */}
+      <body className="flex min-h-dvh flex-col antialiased" suppressHydrationWarning>
         <Script id="plausible-loader" strategy="afterInteractive">
           {`
               (function () {
@@ -142,12 +149,18 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
           <ImageCacheTracker />
           <NavigationTracker />
           <SiteNav />
-          <main id="main-content">{children}</main>
+          <main id="main-content" className="flex-1">
+            {children}
+          </main>
           {/* py-2 below `sm:` rather than py-6: on a phone the first row is
               a 44px box around 16px text, so it already carries 14px of its
               own padding. 8px + 14px reproduces the ~24px inset the py-6
               strip had. Above the breakpoint the targets shrink back, so
-              the strip needs its own padding again. */}
+              the strip needs its own padding again. pb-3, not pb-2: the
+              byline link's 44px box overhangs its line by 12px (`-my-3`),
+              and with only 8px under it the page scrolled 4px past the
+              footer, which the viewport-pinned footer turned into a
+              scrollbar on phone pages that otherwise fit. */}
           {/* Same horizontal safe-area gutter as SiteNav, and for the same
                 reason: the footer is rendered here, outside the per-route
                 wrapper in src/app/artwork/layout.tsx, so on /artwork —
@@ -159,7 +172,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
               paddingLeft: "env(safe-area-inset-left, 0px)",
               paddingRight: "env(safe-area-inset-right, 0px)",
             }}
-            className="mt-16 border-t border-[var(--border)] py-2 text-center text-xs text-[var(--muted-foreground)] sm:py-6"
+            className="mt-16 border-t border-[var(--border)] pt-2 pb-3 text-center text-xs text-[var(--muted-foreground)] sm:py-6"
           >
             {/* No gap and no bottom margin below `sm:` — see FOOTER_LINK:
                 there the links' own padding supplies the horizontal
