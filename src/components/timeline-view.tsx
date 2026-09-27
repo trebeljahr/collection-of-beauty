@@ -11,6 +11,7 @@ import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
 import { Select } from "@/components/ui/select";
 import { type EraId, eraForMovement, isEraId } from "@/lib/gallery-eras";
+import { cleanFilter, filterSearch, type Scope, type ScopeFilter } from "@/lib/scope-href";
 import type { TimelineDecade, TimelineListing, TimelineSummary } from "@/lib/timeline";
 import { useArtworkBackFlip } from "@/lib/use-artwork-back-flip";
 
@@ -76,18 +77,44 @@ export function TimelineView({ initialDecades, initialTotal, eras }: Props) {
   // decade -> works, only for decades fetched under the *current* filter.
   const [works, setWorks] = useState<Record<number, TimelineListing[]>>({});
 
-  // `?era=fin-de-siecle` preselects the filter. `?movement=` is the old
-  // shape from before eras replaced movements as the visible category;
-  // it still resolves, to the era that movement belongs to. Read once on
-  // mount rather than through the server's searchParams, which would opt
-  // the whole page out of static rendering.
+  // `?q=` and `?era=` preselect the filters, and every change is written
+  // back with replaceState, so Back from an artwork reopens the timeline
+  // filtered the way the visitor left it. `?movement=` is the old shape
+  // from before eras replaced movements as the visible category; it
+  // still resolves, to the era that movement belongs to. Read on mount
+  // rather than through the server's searchParams, which would opt the
+  // whole page out of static rendering.
+  const readUrlRef = useRef(false);
+  // biome-ignore lint/correctness/useExhaustiveDependencies: filterKey is the identity of the current filter; the rest is read fresh on purpose.
   useEffect(() => {
-    const params = new URLSearchParams(window.location.search);
-    const wanted = params.get("era");
-    const legacy = params.get("movement");
-    if (wanted && isEraId(wanted)) setEra(wanted);
-    else if (legacy) setEra(eraForMovement(legacy) ?? "");
-  }, []);
+    if (!readUrlRef.current) {
+      readUrlRef.current = true;
+      const params = new URLSearchParams(window.location.search);
+      const wantedQuery = params.get("q")?.trim() ?? "";
+      const wanted = params.get("era");
+      const legacy = params.get("movement");
+      const wantedEra =
+        wanted && isEraId(wanted) ? wanted : legacy ? (eraForMovement(legacy) ?? "") : "";
+      if (wantedQuery !== query || wantedEra !== era) {
+        setQueryInput(wantedQuery);
+        setEra(wantedEra);
+        return;
+      }
+    }
+    // The deferred query still lags the box; filterKey changes again
+    // once it catches up.
+    if (query !== queryInput.trim()) return;
+    const search = filterSearch(cleanFilter({ q: query, era }));
+    const { pathname, hash } = window.location;
+    const next = `${pathname}${search ? `?${search}` : ""}${hash}`;
+    if (next !== `${pathname}${window.location.search}${hash}`) {
+      window.history.replaceState(null, "", next);
+    }
+  }, [filterKey]);
+
+  // What every tile's link carries, so prev/next on the artwork page
+  // walks the filtered timeline rather than all of it.
+  const scopeFilter = useMemo(() => cleanFilter({ q: query, era }), [query, era]);
 
   // Histogram follows the filters. The unfiltered shape is already in
   // props, so the common case costs no request.
@@ -317,6 +344,7 @@ export function TimelineView({ initialDecades, initialTotal, eras }: Props) {
             count={d.count}
             aspects={d.aspects}
             works={works[d.decade] ?? null}
+            filter={scopeFilter}
             onVisible={loadDecade}
           />
         ))}
@@ -336,20 +364,24 @@ function DecadeSection({
   count,
   aspects,
   works,
+  filter,
   onVisible,
 }: {
   decade: number;
   count: number;
   aspects: number[];
   works: TimelineListing[] | null;
+  filter: ScopeFilter | undefined;
   onVisible: (decade: number) => Promise<void>;
 }) {
   const sectionRef = useRef<HTMLElement | null>(null);
   const loaded = works != null;
-  const photos = useMemo(
-    () => works?.map((a) => toGalleryPhoto(a, { kind: "decade", start: decade })) ?? null,
-    [works, decade],
-  );
+  const photos = useMemo(() => {
+    const scope: Scope = filter
+      ? { kind: "decade", start: decade, filter }
+      : { kind: "decade", start: decade };
+    return works?.map((a) => toGalleryPhoto(a, scope)) ?? null;
+  }, [works, decade, filter]);
 
   useEffect(() => {
     const el = sectionRef.current;

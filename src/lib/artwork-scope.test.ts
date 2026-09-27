@@ -1,16 +1,36 @@
 import { describe, expect, it } from "vitest";
-import { getAllListingsInDefaultOrder, getArtworkListingPage } from "@/lib/artwork-pagination";
+import {
+  type ArtworkPageInput,
+  getAllListingsInDefaultOrder,
+  getArtworkListingPage,
+} from "@/lib/artwork-pagination";
 import {
   artworkHref,
   encodeScope,
   parseScope,
+  parseScopeParams,
   resolveScope,
   type Scope,
   scopeHref,
   scopeLabel,
+  scopeSearch,
 } from "@/lib/artwork-scope";
-import { artworkListings, getArtworksByArtist } from "@/lib/data";
+import { artworkListings } from "@/lib/data";
 import { assignEra, getEra } from "@/lib/gallery-eras";
+import { timelineListings } from "@/lib/timeline";
+
+/** Every id a gallery surface shows for these params, stitched page by
+ *  page the way infinite scroll loads them. */
+function pagedIds(input: Omit<ArtworkPageInput, "offset" | "limit">): string[] {
+  const ids: string[] = [];
+  let offset: number | null = 0;
+  while (offset != null) {
+    const page = getArtworkListingPage({ ...input, offset, limit: 120 });
+    ids.push(...page.items.map((a) => a.id));
+    offset = page.nextOffset;
+  }
+  return ids;
+}
 
 describe("parseScope", () => {
   it("returns null for missing / malformed input", () => {
@@ -157,12 +177,12 @@ describe("resolveScope", () => {
   });
 
   it("returns the artist's works in the same order as the artist page", () => {
+    // The artist page paginates with sort=year, which breaks same-year
+    // ties by title. Monet has 42 years with more than one work.
     const slug = "claude-monet";
     const resolved = resolveScope({ kind: "artist", slug });
-    const expectedIds = getArtworksByArtist(slug)
-      .sort((a, b) => (a.year ?? 99999) - (b.year ?? 99999))
-      .map((a) => a.id);
-    expect(resolved.map((a) => a.id)).toEqual(expectedIds);
+    expect(resolved.length).toBeGreaterThan(0);
+    expect(resolved.map((a) => a.id)).toEqual(pagedIds({ artistSlug: slug, sort: "year" }));
   });
 
   it("returns every dated work in timeline order for decade scope, so prev/next walks past the entry decade's boundary", () => {
@@ -196,19 +216,7 @@ describe("resolveScope", () => {
 
     // Lightbox prev/next must traverse exactly the sequence the era page
     // renders: era filter + seeded shuffle, stitched across pages.
-    const paged: string[] = [];
-    let offset: number | null = 0;
-    while (offset != null) {
-      const page = getArtworkListingPage({
-        era: "fin-de-siecle",
-        sort: "shuffle",
-        offset,
-        limit: 120,
-      });
-      paged.push(...page.items.map((a) => a.id));
-      offset = page.nextOffset;
-    }
-    expect(resolved.map((a) => a.id)).toEqual(paged);
+    expect(resolved.map((a) => a.id)).toEqual(pagedIds({ era: "fin-de-siecle", sort: "shuffle" }));
   });
 
   it("era scope excludes works whose assignEra returns null", () => {
@@ -273,5 +281,109 @@ describe("color scope", () => {
     expect(resolved.slice(0, page.items.length).map((a) => a.id)).toEqual(
       page.items.map((a) => a.id),
     );
+  });
+});
+
+describe("filtered scopes", () => {
+  const params = (search: string) => new URLSearchParams(search);
+
+  it("reads the home gallery's search, era and sort off the URL", () => {
+    expect(parseScopeParams(params("from=gallery&q=d%C3%BCrer&era=baroque&sort=year"))).toEqual({
+      kind: "gallery",
+      filter: { q: "dürer", era: "baroque", sort: "year" },
+    });
+  });
+
+  it("stays a plain gallery scope when nothing is filtered", () => {
+    expect(parseScopeParams(params("from=gallery"))).toEqual({ kind: "gallery" });
+    expect(parseScopeParams(params("from=gallery&q=%20%20&sort=shuffle"))).toEqual({
+      kind: "gallery",
+    });
+  });
+
+  it("drops filter values that don't validate", () => {
+    expect(parseScopeParams(params("from=gallery&era=impressionism&sort=plate&q=rose"))).toEqual({
+      kind: "gallery",
+      filter: { q: "rose" },
+    });
+  });
+
+  it("ignores filter params on kinds without filter controls", () => {
+    expect(parseScopeParams(params("from=artist:claude-monet&q=rouen&sort=year"))).toEqual({
+      kind: "artist",
+      slug: "claude-monet",
+    });
+  });
+
+  it("gives the timeline its search and era but no sort", () => {
+    expect(
+      parseScopeParams(params("from=decade:1880&q=monet&era=fin-de-siecle&sort=artist")),
+    ).toEqual({
+      kind: "decade",
+      start: 1880,
+      filter: { q: "monet", era: "fin-de-siecle" },
+    });
+  });
+
+  it("round-trips through the artwork link", () => {
+    const scopes: Scope[] = [
+      { kind: "gallery", filter: { q: "dürer", era: "baroque", sort: "year" } },
+      { kind: "gallery", filter: { sort: "artist" } },
+      { kind: "decade", start: 1880, filter: { q: "water lilies" } },
+    ];
+    for (const scope of scopes) {
+      const href = artworkHref("abc-123", scope);
+      const search = href.slice(href.indexOf("?") + 1);
+      expect(search).toBe(scopeSearch(scope));
+      expect(parseScopeParams(params(search))).toEqual(scope);
+    }
+  });
+
+  it("sends Back to the gallery or timeline with the same filter", () => {
+    expect(
+      scopeHref({ kind: "gallery", filter: { q: "dürer", era: "baroque", sort: "year" } }),
+    ).toBe("/?q=d%C3%BCrer&era=baroque&sort=year");
+    expect(scopeHref({ kind: "decade", start: 1880, filter: { era: "realism" } })).toBe(
+      "/timeline?era=realism#decade-1880",
+    );
+  });
+
+  it("walks a filtered, re-sorted gallery in the order the grid pages it", () => {
+    const resolved = resolveScope({
+      kind: "gallery",
+      filter: { q: "dürer", sort: "year" },
+    });
+    expect(resolved.length).toBeGreaterThan(1);
+    expect(resolved.map((a) => a.id)).toEqual(pagedIds({ query: "dürer", sort: "year" }));
+    for (let i = 1; i < resolved.length; i++) {
+      expect(resolved[i].year ?? Infinity).toBeGreaterThanOrEqual(
+        resolved[i - 1].year ?? -Infinity,
+      );
+    }
+  });
+
+  it("walks a search on the default sort in relevance order, same as the grid", () => {
+    const resolved = resolveScope({ kind: "gallery", filter: { q: "monet" } });
+    const ids = resolved.map((a) => a.id);
+    expect(ids.length).toBeGreaterThan(120);
+    // Spans more than one page, so this also pins that the ranking is
+    // done over the whole selection rather than page by page.
+    expect(ids).toEqual(pagedIds({ query: "monet", sort: "shuffle" }));
+    expect(new Set(ids).size).toBe(ids.length);
+  });
+
+  it("narrows the gallery by era within a search", () => {
+    const resolved = resolveScope({ kind: "gallery", filter: { q: "portrait", era: "baroque" } });
+    expect(resolved.length).toBeGreaterThan(0);
+    expect(resolved.every((a) => assignEra(a) === "baroque")).toBe(true);
+  });
+
+  it("walks a filtered timeline in timeline order", () => {
+    const resolved = resolveScope({ kind: "decade", start: 1880, filter: { q: "monet" } });
+    expect(resolved.length).toBeGreaterThan(0);
+    expect(resolved.map((a) => a.id)).toEqual(
+      timelineListings({ query: "monet" }).map((a) => a.id),
+    );
+    expect(resolved.every((a) => a.artist === "Claude Monet" || /monet/i.test(a.title))).toBe(true);
   });
 });

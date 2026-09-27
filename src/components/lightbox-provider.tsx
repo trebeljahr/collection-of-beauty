@@ -13,7 +13,7 @@ import {
   useState,
 } from "react";
 import { artworkAlt } from "@/lib/artwork-format";
-import { artworkHref, parseScope, type Scope } from "@/lib/scope-href";
+import { artworkHref, parseScopeParams, type Scope, scopeSearch } from "@/lib/scope-href";
 import { Lightbox } from "./lightbox";
 
 type LightboxArtwork = {
@@ -50,48 +50,54 @@ export function useLightbox(): LightboxApi {
 // provider — wrapping the provider itself would let `children` render
 // without a context value during the fallback pass and blow up
 // `useLightbox()`.
-function FromParamSync({ onChange }: { onChange: (from: string | null) => void }) {
+function ScopeParamSync({ onChange }: { onChange: (scopeKey: string | null) => void }) {
   const searchParams = useSearchParams();
-  const from = searchParams?.get("from") ?? null;
+  const scope = parseScopeParams(searchParams);
+  const scopeKey = scope ? scopeSearch(scope) : null;
   useEffect(() => {
-    onChange(from);
-  }, [from, onChange]);
+    onChange(scopeKey);
+  }, [scopeKey, onChange]);
   return null;
 }
 
 // Hosted at the /artwork layout level so prev/next navigation inside the
 // lightbox doesn't unmount the overlay. The lightbox holds its own index
-// into a lazily-fetched artworks list and key-caches it per `?from=`
-// scope so each scope's order survives switching between (e.g.) two
-// different artist-scoped works in one session.
+// into a lazily-fetched artworks list and key-caches it per scope (the
+// `?from=` value plus a filtered gallery's `q` / `era` / `sort`) so each
+// scope's order survives switching between (e.g.) two different
+// artist-scoped works in one session.
 export function LightboxProvider({ children }: { children: ReactNode }) {
-  // Starts null and settles to the real `?from=` on the first client
+  // Starts null and settles to the real scope on the first client
   // pass. The artworks list is fetched lazily on open(), which never
   // happens before hydration, so the one-frame delay is unobservable.
-  const [fromParam, setFromParam] = useState<string | null>(null);
+  const [scopeParam, setScopeParam] = useState<string | null>(null);
   return (
     <>
       <Suspense fallback={null}>
-        <FromParamSync onChange={setFromParam} />
+        <ScopeParamSync onChange={setScopeParam} />
       </Suspense>
-      <LightboxProviderInner fromParam={fromParam}>{children}</LightboxProviderInner>
+      <LightboxProviderInner scopeParam={scopeParam}>{children}</LightboxProviderInner>
     </>
   );
 }
 
 function LightboxProviderInner({
-  fromParam,
+  scopeParam,
   children,
 }: {
-  fromParam: string | null;
+  /** `scopeSearch()` of the current scope — `from=…` plus any filter. */
+  scopeParam: string | null;
   children: ReactNode;
 }) {
   const router = useRouter();
-  const scope = useMemo<Scope | null>(() => parseScope(fromParam), [fromParam]);
-  // Key the cache by the raw `?from=` value (or "__all__" for the
-  // global pool). Same artwork can sit in both the artist and movement
+  const scope = useMemo<Scope | null>(
+    () => parseScopeParams(new URLSearchParams(scopeParam ?? "")),
+    [scopeParam],
+  );
+  // Key the cache by the scope's query string (or "__all__" for the
+  // global pool). Same artwork can sit in both the artist and era
   // lists at different indices, so identity hinges on the scope string.
-  const scopeKey = fromParam ?? "__all__";
+  const scopeKey = scopeParam ?? "__all__";
 
   const [current, setCurrent] = useState<LightboxArtwork | null>(null);
   const [artworks, setArtworks] = useState<LightboxArtwork[] | null>(null);
@@ -111,7 +117,7 @@ function LightboxProviderInner({
     const existing = promisesByScopeRef.current.get(scopeKey);
     if (existing) return existing;
 
-    const url = scope ? `/api/artworks/scope?from=${fromParam}` : "/api/artworks";
+    const url = scope ? `/api/artworks/scope?${scopeParam}` : "/api/artworks";
     const p = fetch(url)
       .then((res) => {
         if (!res.ok) throw new Error(`fetch ${url}: ${res.status}`);
@@ -138,9 +144,9 @@ function LightboxProviderInner({
       });
     promisesByScopeRef.current.set(scopeKey, p);
     return p;
-  }, [artworks, fromParam, scope, scopeKey]);
+  }, [artworks, scopeParam, scope, scopeKey]);
 
-  // When ?from= changes (chevron click, deep link, manual URL edit) the
+  // When the scope changes (chevron click, deep link, manual URL edit) the
   // active list must swap to match. If we've already fetched this scope
   // it's a synchronous Map lookup; otherwise the next open()/navigate()
   // triggers a fresh fetch. We don't fetch eagerly here — the lightbox

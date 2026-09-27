@@ -73,6 +73,15 @@ function datedListings(): ArtworkListing[] {
   return dated;
 }
 
+/** Every dated work matching the filter, in the order the timeline
+ *  renders them top to bottom. This is the `decade` scope's sequence:
+ *  prev/next from a timeline tile walks it straight across decade
+ *  boundaries. Shared with the module cache, so callers must not mutate
+ *  it. */
+export function timelineListings(filter: TimelineFilter = {}): ArtworkListing[] {
+  return filterDated(filter);
+}
+
 function filterDated(filter: TimelineFilter): ArtworkListing[] {
   const query = filter.query?.trim() ?? "";
   const era = filter.era ?? "";

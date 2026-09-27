@@ -1,12 +1,9 @@
 "use client";
 
-import { useRouter } from "next/navigation";
 import { type CSSProperties, type SyntheticEvent, useEffect, useRef, useState } from "react";
 import { artworkAlt, displayTitle } from "@/lib/artwork-format";
 import { getLoadedVariant, recordLoadedVariant } from "@/lib/image-cache";
-import { artworkHref, type Scope } from "@/lib/scope-href";
 import { saveBackFlipSnapshot } from "@/lib/use-artwork-back-flip";
-import { useTransitionPush } from "@/lib/use-transition-nav";
 import { cn, fallbackVariantUrl, variantSrcSet, variantUrl } from "@/lib/utils";
 import { artworkHeroVtName } from "@/lib/view-transitions";
 import { useLightbox } from "./lightbox-provider";
@@ -25,23 +22,12 @@ type ArtworkLike = {
 
 type Props = {
   art: ArtworkLike;
-  prevId: string | null;
-  nextId: string | null;
-  scope?: Scope | null;
 };
 
-export function ArtworkViewer({ art, prevId, nextId, scope = null }: Props) {
-  const router = useRouter();
-  const transitionPush = useTransitionPush();
-  const { open, isOpen } = useLightbox();
-
-  const prevHref = prevId ? artworkHref(prevId, scope) : null;
-  const nextHref = nextId ? artworkHref(nextId, scope) : null;
-
-  useEffect(() => {
-    if (prevHref) router.prefetch(prevHref);
-    if (nextHref) router.prefetch(nextHref);
-  }, [prevHref, nextHref, router]);
+// Prev/next, their arrow keys and their prefetch live in ArtworkScopeNav,
+// which knows the scope the visitor is walking.
+export function ArtworkViewer({ art }: Props) {
+  const { open } = useLightbox();
 
   // Force scroll to top on prev/next navigation. Next.js App Router's
   // default scroll handling for same-layout, same-segment transitions
@@ -50,32 +36,6 @@ export function ArtworkViewer({ art, prevId, nextId, scope = null }: Props) {
   useEffect(() => {
     window.scrollTo(0, 0);
   }, [art.id]);
-
-  // Page-level keyboard navigation. Skipped while the lightbox is open —
-  // the lightbox binds its own arrows that swap the modal image instead.
-  useEffect(() => {
-    if (isOpen) return;
-    const onKey = (e: KeyboardEvent) => {
-      if (e.metaKey || e.ctrlKey || e.altKey) return;
-      const target = e.target as HTMLElement | null;
-      if (
-        target?.tagName === "INPUT" ||
-        target?.tagName === "TEXTAREA" ||
-        target?.isContentEditable
-      ) {
-        return;
-      }
-      if (e.key === "ArrowLeft" && prevHref) {
-        e.preventDefault();
-        transitionPush(prevHref, { replace: true });
-      } else if (e.key === "ArrowRight" && nextHref) {
-        e.preventDefault();
-        transitionPush(nextHref, { replace: true });
-      }
-    };
-    window.addEventListener("keydown", onKey);
-    return () => window.removeEventListener("keydown", onKey);
-  }, [isOpen, prevHref, nextHref, transitionPush]);
 
   const alt = artworkAlt(art);
 

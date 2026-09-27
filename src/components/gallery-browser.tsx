@@ -8,6 +8,7 @@ import {
   useMemo,
   useRef,
   useState,
+  useSyncExternalStore,
 } from "react";
 import { ArtworkGallery } from "@/components/artwork-gallery";
 import { Badge } from "@/components/ui/badge";
@@ -20,6 +21,7 @@ import {
   DEFAULT_SHUFFLE_SEED,
 } from "@/lib/artwork-page-schema";
 import type { ArtworkListing } from "@/lib/data";
+import { cleanFilter, filterSearch, parseFilterParams, type Scope } from "@/lib/scope-href";
 import {
   type ArtworkPageInfo,
   type ArtworkPageQuery,
@@ -35,12 +37,11 @@ type Props = {
   totalArtworks: number;
 };
 
-type FuseSearch = {
-  search: (query: string) => Array<{ item: ArtworkListing }>;
-};
-type FuseCtor = new (list: ArtworkListing[], options: Record<string, unknown>) => FuseSearch;
-
 type PageStatus = "idle" | "loading" | "failed";
+
+type GallerySort = Extract<ArtworkSort, "shuffle" | "year" | "artist">;
+
+type Controls = { query: string; era: string; sort: GallerySort };
 
 const PAGE_SIZE = DEFAULT_ARTWORK_PAGE_SIZE;
 
@@ -50,27 +51,60 @@ const SORT_OPTIONS: SelectOption[] = [
   { value: "artist", label: "Sort: artist" },
 ];
 
+const DEFAULT_CONTROLS: Controls = { query: "", era: "", sort: "shuffle" };
+
+/** The search, era and sort the current URL asks for. The controls live
+ *  in the URL (`/?q=dürer&era=baroque&sort=year`) so that "Back" from an
+ *  artwork page, and a reload, reopen the same selection. */
+function controlsFromUrl(): Controls {
+  const filter = parseFilterParams(new URLSearchParams(window.location.search));
+  return { query: filter?.q ?? "", era: filter?.era ?? "", sort: filter?.sort ?? "shuffle" };
+}
+
+function pageQueryOf(controls: Controls): ArtworkPageQuery {
+  return {
+    q: controls.query.trim(),
+    era: controls.era,
+    sort: controls.sort,
+    seed: DEFAULT_SHUFFLE_SEED,
+  };
+}
+
+const DEFAULT_PAGE_KEY = JSON.stringify(pageQueryOf(DEFAULT_CONTROLS));
+
+/** The last filtered result set, with every page loaded so far. Module
+ *  scope so it outlives the page: going back from an artwork remounts
+ *  this component, and without the cache it would refetch, show
+ *  "Loading works…" and lose the tile the back animation is looking for. */
+let lastFiltered: { key: string; items: ArtworkListing[]; pageInfo: ArtworkPageInfo } | null = null;
+
+const subscribeNothing = () => () => {};
+
 export function GalleryBrowser({ initialArtworks, eras, totalArtworks }: Props) {
-  const [query, setQuery] = useState("");
+  // False while hydrating the server HTML, true when a client navigation
+  // mounts the page (Back from an artwork). Only then may the first
+  // render read the URL: the server rendered the unfiltered grid, and a
+  // hydrating render has to match it. The hydrating case catches up in
+  // the URL effect below.
+  const clientMount = useSyncExternalStore(
+    subscribeNothing,
+    () => true,
+    () => false,
+  );
+  const [initialControls] = useState(() => (clientMount ? controlsFromUrl() : DEFAULT_CONTROLS));
+  const [query, setQuery] = useState(initialControls.query);
   const deferredQuery = useDeferredValue(query);
-  const [era, setEra] = useState<string>("");
-  const [sortBy, setSortBy] = useState<ArtworkSort>("shuffle");
-  const [pageStatus, setPageStatus] = useState<PageStatus>("idle");
-  const [Fuse, setFuse] = useState<FuseCtor | null>(null);
+  const [era, setEra] = useState<string>(initialControls.era);
+  const [sortBy, setSortBy] = useState<GallerySort>(initialControls.sort);
   const requestSeqRef = useRef(0);
 
   const pageQuery = useMemo<ArtworkPageQuery>(
-    () => ({
-      q: deferredQuery.trim(),
-      era,
-      sort: sortBy,
-      seed: DEFAULT_SHUFFLE_SEED,
-    }),
+    () => pageQueryOf({ query: deferredQuery, era, sort: sortBy }),
     [deferredQuery, era, sortBy],
   );
 
   const pageKey = useMemo(() => JSON.stringify(pageQuery), [pageQuery]);
-  const isDefaultPage = pageQuery.q === "" && pageQuery.era === "" && pageQuery.sort === "shuffle";
+  const isDefaultPage = pageKey === DEFAULT_PAGE_KEY;
 
   const initialPageInfo = useMemo<ArtworkPageInfo>(
     () => ({
@@ -81,6 +115,26 @@ export function GalleryBrowser({ initialArtworks, eras, totalArtworks }: Props) 
     [initialArtworks, totalArtworks],
   );
 
+  // What the grid starts on: the cached selection when this mount asks
+  // for the one the visitor left, otherwise the server's first page.
+  const [seed] = useState(() =>
+    lastFiltered?.key === pageKey
+      ? { ...lastFiltered, query: pageQuery }
+      : {
+          key: DEFAULT_PAGE_KEY,
+          items: initialArtworks,
+          pageInfo: initialPageInfo,
+          query: pageQueryOf(DEFAULT_CONTROLS),
+        },
+  );
+  // The query the loaded items belong to. Trails `pageQuery` while a
+  // fetch is in flight, and is what the tiles' links carry, so a tile
+  // never promises a walk through a selection it isn't part of.
+  const [applied, setApplied] = useState(() => ({ key: seed.key, query: seed.query }));
+  const [pageStatus, setPageStatus] = useState<PageStatus>(() =>
+    seed.key === pageKey ? "idle" : "loading",
+  );
+
   const fetchPage = useCallback(
     (offset: number, signal: AbortSignal) => fetchArtworkPage(pageQuery, offset, PAGE_SIZE, signal),
     [pageQuery],
@@ -88,8 +142,8 @@ export function GalleryBrowser({ initialArtworks, eras, totalArtworks }: Props) 
 
   const { loadedArtworks, pageInfo, loadMoreArtworks, replacePage, generation } =
     useArtworkPagination({
-      initialArtworks,
-      initialPageInfo,
+      initialArtworks: seed.items,
+      initialPageInfo: seed.pageInfo,
       fetchPage,
     });
 
@@ -98,10 +152,17 @@ export function GalleryBrowser({ initialArtworks, eras, totalArtworks }: Props) 
   // 0 with the new shape and replace atomically (dedup set, in-flight
   // controller, and loading flag reset inside replacePage).
   useEffect(() => {
+    if (pageKey === applied.key) {
+      setPageStatus("idle");
+      return;
+    }
     if (isDefaultPage) {
       requestSeqRef.current += 1;
-      replacePage({ items: initialArtworks, pageInfo: initialPageInfo });
-      setPageStatus("idle");
+      startTransition(() => {
+        replacePage({ items: initialArtworks, pageInfo: initialPageInfo });
+        setApplied({ key: pageKey, query: pageQuery });
+        setPageStatus("idle");
+      });
       return;
     }
     const requestId = requestSeqRef.current + 1;
@@ -111,13 +172,15 @@ export function GalleryBrowser({ initialArtworks, eras, totalArtworks }: Props) 
     fetchArtworkPage(pageQuery, 0, PAGE_SIZE, controller.signal)
       .then((page) => {
         if (requestSeqRef.current !== requestId) return;
-        // One commit for items, generation and status. Leaving "loading"
-        // ahead of the items would mount the grid on the previous set.
+        // One commit for items, generation, applied query and status.
+        // Leaving "loading" ahead of the items would mount the grid on
+        // the previous set.
         startTransition(() => {
           replacePage({
             items: page.items,
             pageInfo: { total: page.total, nextOffset: page.nextOffset, hasMore: page.hasMore },
           });
+          setApplied({ key: pageKey, query: pageQuery });
           setPageStatus("idle");
         });
       })
@@ -126,37 +189,62 @@ export function GalleryBrowser({ initialArtworks, eras, totalArtworks }: Props) 
         setPageStatus("failed");
       });
     return () => controller.abort();
-  }, [isDefaultPage, pageKey, pageQuery, initialArtworks, initialPageInfo, replacePage]);
+  }, [
+    applied.key,
+    isDefaultPage,
+    pageKey,
+    pageQuery,
+    initialArtworks,
+    initialPageInfo,
+    replacePage,
+  ]);
 
+  // Keep the restore cache on the latest filtered selection, load-more
+  // pages included.
   useEffect(() => {
-    if (!pageQuery.q || pageQuery.sort !== "shuffle" || Fuse) return;
-    let cancelled = false;
-    import("fuse.js").then((mod) => {
-      if (!cancelled) setFuse(() => mod.default as FuseCtor);
-    });
-    return () => {
-      cancelled = true;
-    };
-  }, [Fuse, pageQuery.q, pageQuery.sort]);
+    if (applied.key === DEFAULT_PAGE_KEY) return;
+    lastFiltered = { key: applied.key, items: loadedArtworks, pageInfo };
+  }, [applied.key, loadedArtworks, pageInfo]);
 
-  const fuse = useMemo(() => {
-    if (!Fuse || !pageQuery.q || pageQuery.sort !== "shuffle") return null;
-    return new Fuse(loadedArtworks, {
-      keys: [
-        { name: "title", weight: 0.45 },
-        { name: "artist", weight: 0.35 },
-        { name: "movement", weight: 0.1 },
-        { name: "nationality", weight: 0.1 },
-      ],
-      threshold: 0.33,
-      ignoreLocation: true,
-    });
-  }, [Fuse, loadedArtworks, pageQuery.q, pageQuery.sort]);
+  // Mirror the controls into the URL with replaceState, so they neither
+  // stack up history entries nor refetch the page. The first run reads
+  // the URL instead when a hydrating render started on the defaults.
+  const readUrlRef = useRef(false);
+  // biome-ignore lint/correctness/useExhaustiveDependencies: pageKey is the identity of the controls; the rest is read fresh on purpose.
+  useEffect(() => {
+    if (!readUrlRef.current) {
+      readUrlRef.current = true;
+      const fromUrl = controlsFromUrl();
+      if (JSON.stringify(pageQueryOf(fromUrl)) !== pageKey) {
+        setQuery(fromUrl.query);
+        setEra(fromUrl.era);
+        setSortBy(fromUrl.sort);
+        return;
+      }
+    }
+    // The deferred query still lags the box: writing now would drop the
+    // search from the URL for a frame. pageKey changes once it catches up.
+    if (deferredQuery !== query) return;
+    const search = filterSearch(
+      cleanFilter({ q: pageQuery.q, era: pageQuery.era, sort: pageQuery.sort }),
+    );
+    const { pathname, hash } = window.location;
+    const next = `${pathname}${search ? `?${search}` : ""}${hash}`;
+    if (next !== `${pathname}${window.location.search}${hash}`) {
+      window.history.replaceState(null, "", next);
+    }
+  }, [pageKey]);
 
-  const visibleArtworks = useMemo(() => {
-    if (!fuse) return loadedArtworks;
-    return rankLoadedArtworks(loadedArtworks, fuse, pageQuery.q ?? "");
-  }, [fuse, loadedArtworks, pageQuery.q]);
+  // Every tile links into a walk over exactly this selection, in this
+  // order: the artwork page reads the filter back off its URL.
+  const scope = useMemo<Scope>(() => {
+    const filter = cleanFilter({
+      q: applied.query.q,
+      era: applied.query.era,
+      sort: applied.query.sort,
+    });
+    return filter ? { kind: "gallery", filter } : { kind: "gallery" };
+  }, [applied.query]);
 
   const eraOptions = useMemo(
     () => [{ value: "", label: "All eras" }, ...eras.map((e) => ({ value: e.id, label: e.title }))],
@@ -200,7 +288,7 @@ export function GalleryBrowser({ initialArtworks, eras, totalArtworks }: Props) 
           <Select
             aria-label="Sort artworks by"
             value={sortBy}
-            onChange={(value) => setSortBy(value as ArtworkSort)}
+            onChange={(value) => setSortBy(value as GallerySort)}
             options={SORT_OPTIONS}
             align="end"
             className="min-w-0 flex-1 sm:w-52 sm:flex-none"
@@ -245,24 +333,13 @@ export function GalleryBrowser({ initialArtworks, eras, totalArtworks }: Props) 
           // items and kept them, so "chronological" showed the shuffle and
           // switching back to "shuffled" showed the chronological order.
           key={generation}
-          artworks={visibleArtworks}
+          artworks={loadedArtworks}
           loadMoreArtworks={loadMoreArtworks}
           hasMoreArtworks={pageInfo.hasMore}
-          initialSeed={Math.min(PAGE_SIZE, visibleArtworks.length)}
-          scope={{ kind: "gallery" }}
+          initialSeed={Math.min(PAGE_SIZE, loadedArtworks.length)}
+          scope={scope}
         />
       )}
     </div>
   );
-}
-
-function rankLoadedArtworks(
-  artworks: ArtworkListing[],
-  fuse: FuseSearch,
-  query: string,
-): ArtworkListing[] {
-  const ranked = fuse.search(query).map((result) => result.item);
-  if (ranked.length === 0) return artworks;
-  const seen = new Set(ranked.map((artwork) => artwork.id));
-  return [...ranked, ...artworks.filter((artwork) => !seen.has(artwork.id))];
 }

@@ -1,21 +1,15 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { ArtworkBackLink } from "@/components/artwork-back-link";
 import { ArtworkCard } from "@/components/artwork-card";
 import { ArtworkDownloads } from "@/components/artwork-downloads";
+import { ArtworkScopeNav } from "@/components/artwork-scope-nav";
 import { ArtworkViewer } from "@/components/artwork-viewer";
 import { LicenseBadge } from "@/components/license-badge";
 import { buttonVariants } from "@/components/ui/button";
 import { chipClasses, touchTextLinkClasses } from "@/components/ui/pill";
 import { originalTitleSubtitle } from "@/lib/artwork-format";
-import {
-  artworkHref,
-  encodeScope,
-  resolveScope,
-  type Scope,
-  scopeLabel,
-} from "@/lib/artwork-scope";
+import { encodeScope, resolveScope, type Scope, scopeLabel } from "@/lib/artwork-scope";
 import {
   type Artwork,
   artworks,
@@ -121,10 +115,10 @@ export default async function ArtworkPage({ params }: { params: Promise<Params> 
 
   // Prev/next over the global pool. Reading `?from=` here would have to
   // happen through `searchParams`, and one await of that turns the route
-  // fully dynamic — so the scoped walk is a client concern: the lightbox
-  // (LightboxProvider, mounted by the /artwork layout) reads `?from=` via
-  // `useSearchParams`, fetches the scoped order from
-  // /api/artworks/scope, and steps through that instead.
+  // fully dynamic — so the scoped walk is a client concern: ArtworkScopeNav
+  // and the lightbox read `?from=` via `useSearchParams`, fetch the scope's
+  // order from /api/artworks/scope, and step through that instead. These
+  // two are the fallback for a work opened without a scope.
   const idx = artworks.findIndex((a) => a.id === art.id);
   const prevId = idx > 0 ? artworks[idx - 1].id : null;
   const nextId = idx < artworks.length - 1 ? artworks[idx + 1].id : null;
@@ -154,25 +148,12 @@ export default async function ArtworkPage({ params }: { params: Promise<Params> 
   return (
     <div className="mx-auto max-w-6xl px-4 py-8">
       <script {...jsonLdScriptProps(artworkJsonLd(art))} />
-      <div className="mb-6 flex items-center justify-between text-sm text-[var(--muted-foreground)]">
-        <ArtworkBackLink labels={backLinkLabels(art, eraId, plateSet?.id ?? null)} />
-        {/* gap-4 rather than gap-3 on phones: "Next →" is only just past
-            44px wide, so a little more dead space between the two
-            44px-tall targets keeps a thumb from catching the wrong one.
-            The targets shrink back at `sm:`, so the gap does too. */}
-        <div className="flex items-center gap-4 sm:gap-3">
-          {prevId && (
-            <Link href={artworkHref(prevId, null)} replace className={touchTextLinkClasses}>
-              ← Previous
-            </Link>
-          )}
-          {nextId && (
-            <Link href={artworkHref(nextId, null)} replace className={touchTextLinkClasses}>
-              Next →
-            </Link>
-          )}
-        </div>
-      </div>
+      <ArtworkScopeNav
+        id={art.id}
+        prevId={prevId}
+        nextId={nextId}
+        labels={backLinkLabels(art, eraId, plateSet?.id ?? null)}
+      />
 
       <div className="grid gap-8 md:grid-cols-[1.3fr_1fr]">
         <div className="flex max-h-[85vh] flex-col self-start rounded-xl border border-[var(--border)] bg-[var(--muted)] p-[10px]">
@@ -188,8 +169,6 @@ export default async function ArtworkPage({ params }: { params: Promise<Params> 
               width: art.width,
               height: art.height,
             }}
-            prevId={prevId}
-            nextId={nextId}
           />
         </div>
 
@@ -437,7 +416,8 @@ function generatedByline(a: Artwork): string {
     : "From the Collection of Beauty — a public-domain art gallery.";
 }
 
-/** "Back to …" labels for every scope a link to this work can carry. */
+/** Name of every scope a link to this work can carry, for the nav bar's
+ *  "Back to …" link and its line saying what prev/next is walking. */
 function backLinkLabels(
   art: Artwork,
   eraId: EraId | null,

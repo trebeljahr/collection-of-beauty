@@ -1,3 +1,4 @@
+import Fuse from "fuse.js";
 import { sortByColorStrength } from "@/lib/artwork-colors";
 import {
   type ArtworkPage,
@@ -44,24 +45,79 @@ export type ArtworkPageInput = {
   color?: ColorBucketId | "" | null;
 };
 
-let cachedDefaultGalleryOrder: ArtworkListing[] | null = null;
+/** The ordering half of `ArtworkPageInput`: everything except the
+ *  window into the result. */
+export type ArtworkOrderInput = Omit<ArtworkPageInput, "offset" | "limit">;
 
 /** Full collection in the home page's default display order:
  *  shuffle-with-artist-spread (default seed) + pinned head. Used by the
  *  `gallery` scope so prev/next on the artwork detail page walks the
- *  same sequence visible on the home grid. The order is deterministic
- *  given the default seed and pinned ids, so a module-scope cache pays
- *  the ~2,950-item sort exactly once per server instance. */
+ *  same sequence visible on the home grid. */
 export function getAllListingsInDefaultOrder(): ArtworkListing[] {
-  if (cachedDefaultGalleryOrder) return cachedDefaultGalleryOrder;
-  const sorted = sortArtworkListings(artworkListings, DEFAULT_ARTWORK_SORT, DEFAULT_SHUFFLE_SEED);
-  cachedDefaultGalleryOrder = applyPinnedHead(sorted, PINNED_FIRST_PAGE_IDS);
-  return cachedDefaultGalleryOrder;
+  return orderedArtworkListings();
 }
 
 export function getArtworkListingPage(input: ArtworkPageInput = {}): ArtworkPage {
   const offset = Math.max(0, Math.trunc(input.offset ?? 0));
   const limit = clampLimit(input.limit);
+  const ordered = orderedArtworkListings(input);
+  const items = ordered.slice(offset, offset + limit);
+  const nextOffset = offset + items.length;
+
+  return {
+    items,
+    total: ordered.length,
+    nextOffset: nextOffset < ordered.length ? nextOffset : null,
+    hasMore: nextOffset < ordered.length,
+  };
+}
+
+type NormalizedOrderInput = {
+  sort: ArtworkSort;
+  seed: string;
+  query: string;
+  era: EraId | "";
+  artistSlug: string;
+  collection: string;
+  color: ColorBucketId | "";
+};
+
+/** Recently ordered lists, keyed by their normalised input. Every page
+ *  of a gallery is a slice of one of these, and so is the sequence the
+ *  artwork page's prev/next walks, so a visitor scrolling a search and
+ *  then stepping through it pays for the filter, sort and ranking once.
+ *  The query is caller input, so the key space is capped; a Map keeps
+ *  insertion order, which makes the oldest key the first one. */
+const orderCache = new Map<string, ArtworkListing[]>();
+const ORDER_CACHE_CAP = 64;
+
+/** The whole sequence a gallery surface displays for these filters, in
+ *  display order. `getArtworkListingPage` is a window into it and
+ *  `resolveScope` returns it outright — one function, so the order the
+ *  grid shows and the order prev/next walks cannot drift apart.
+ *
+ *  The returned array is shared through the cache: callers must not
+ *  mutate it. */
+export function orderedArtworkListings(input: ArtworkOrderInput = {}): ArtworkListing[] {
+  const normalized = normalizeOrderInput(input);
+  const key = JSON.stringify(normalized);
+  const hit = orderCache.get(key);
+  if (hit) {
+    // Re-insert so a busy key is the last to be evicted.
+    orderCache.delete(key);
+    orderCache.set(key, hit);
+    return hit;
+  }
+  const ordered = computeOrder(normalized);
+  orderCache.set(key, ordered);
+  if (orderCache.size > ORDER_CACHE_CAP) {
+    const oldest = orderCache.keys().next().value;
+    if (oldest !== undefined) orderCache.delete(oldest);
+  }
+  return ordered;
+}
+
+function normalizeOrderInput(input: ArtworkOrderInput): NormalizedOrderInput {
   const requestedSort = input.sort ?? DEFAULT_ARTWORK_SORT;
   // "color" ranks by how much of a family a work carries, so without a
   // family it isn't a weaker version of itself — it *is* the default
@@ -69,8 +125,20 @@ export function getArtworkListingPage(input: ArtworkPageInput = {}): ArtworkPage
   // inside the sort keeps `?sort=color` with no `color=` from returning
   // a subtly different home page than `?sort=shuffle`.
   const sort = requestedSort === "color" && !input.color ? DEFAULT_ARTWORK_SORT : requestedSort;
-  const seed = input.seed || DEFAULT_SHUFFLE_SEED;
-  const query = normalizeQuery(input.query);
+  return {
+    sort,
+    seed: input.seed || DEFAULT_SHUFFLE_SEED,
+    query: (input.query ?? "").trim(),
+    era: input.era || "",
+    artistSlug: input.artistSlug || "",
+    collection: input.collection || "",
+    color: input.color || "",
+  };
+}
+
+function computeOrder(input: NormalizedOrderInput): ArtworkListing[] {
+  const { sort, seed, query } = input;
+  const terms = normalizeQuery(query);
 
   // A collection is an ordered sequence, not a filter over the global
   // pool — take the plate order as the base list so `sort` never gets a
@@ -78,7 +146,7 @@ export function getArtworkListingPage(input: ArtworkPageInput = {}): ArtworkPage
   let list = input.collection ? plateSetListings(input.collection) : artworkListings;
   const plateOrdered = Boolean(input.collection) && sort === "plate";
 
-  if (query) list = list.filter((artwork) => matchesQuery(artwork, query));
+  if (terms.length > 0) list = list.filter((artwork) => matchesQuery(artwork, terms));
   if (input.era) list = list.filter((artwork) => assignEra(artwork) === input.era);
   if (input.artistSlug) {
     list = list.filter((artwork) => artwork.artistSlug === input.artistSlug);
@@ -89,25 +157,39 @@ export function getArtworkListingPage(input: ArtworkPageInput = {}): ArtworkPage
   }
 
   const sorted = plateOrdered ? [...list] : sortArtworkListings(list, sort, seed, input.color);
-  const ordered =
-    sort === "shuffle" &&
-    seed === DEFAULT_SHUFFLE_SEED &&
-    query.length === 0 &&
-    !input.era &&
-    !input.artistSlug &&
-    !input.collection &&
-    !input.color
-      ? applyPinnedHead(sorted, PINNED_FIRST_PAGE_IDS)
-      : sorted;
-  const items = ordered.slice(offset, offset + limit);
-  const nextOffset = offset + items.length;
+  const unfiltered =
+    terms.length === 0 && !input.era && !input.artistSlug && !input.collection && !input.color;
+  if (sort === "shuffle" && seed === DEFAULT_SHUFFLE_SEED && unfiltered) {
+    return applyPinnedHead(sorted, PINNED_FIRST_PAGE_IDS);
+  }
+  // A search left on the default sort is ordered by how well each work
+  // matches, not shuffled. This used to happen in the browser over
+  // whatever pages had loaded so far, which meant the order changed as
+  // the visitor scrolled and no server-side walk could reproduce it.
+  if (sort === "shuffle" && terms.length > 0) return rankByRelevance(sorted, query);
+  return sorted;
+}
 
-  return {
-    items,
-    total: sorted.length,
-    nextOffset: nextOffset < sorted.length ? nextOffset : null,
-    hasMore: nextOffset < sorted.length,
-  };
+/** Fuzzy relevance over the substring-filtered list: title first, then
+ *  artist. Works Fuse doesn't score keep their shuffled order behind the
+ *  ones it does, so the ranking never drops a work the filter kept. Ties
+ *  keep the input order, which is the seeded shuffle, so the result is
+ *  deterministic. */
+function rankByRelevance(list: ArtworkListing[], query: string): ArtworkListing[] {
+  const fuse = new Fuse(list, {
+    keys: [
+      { name: "title", weight: 0.45 },
+      { name: "artist", weight: 0.35 },
+      { name: "movement", weight: 0.1 },
+      { name: "nationality", weight: 0.1 },
+    ],
+    threshold: 0.33,
+    ignoreLocation: true,
+  });
+  const ranked = fuse.search(query).map((result) => result.item);
+  if (ranked.length === 0) return list;
+  const seen = new Set(ranked.map((artwork) => artwork.id));
+  return [...ranked, ...list.filter((artwork) => !seen.has(artwork.id))];
 }
 
 function clampLimit(limit: number | undefined): number {
@@ -151,12 +233,8 @@ function sortArtworkListings(
  *  proportional to their share of the pool. Round-robin dealing (the
  *  previous approach) alternated artists only until the smaller buckets
  *  ran dry, leaving a long single-artist tail — on the natural-history
- *  era that read as 300+ consecutive Audubon plates. Exported so
- *  resolveScope can mirror the era page's order exactly. */
-export function shuffleWithArtistSpread(
-  artworks: ArtworkListing[],
-  seed: string,
-): ArtworkListing[] {
+ *  era that read as 300+ consecutive Audubon plates. */
+function shuffleWithArtistSpread(artworks: ArtworkListing[], seed: string): ArtworkListing[] {
   const buckets = new Map<string, ArtworkListing[]>();
   for (const artwork of artworks) {
     const key = artwork.artist ?? `__unknown__:${artwork.id}`;

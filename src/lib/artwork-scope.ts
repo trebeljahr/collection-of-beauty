@@ -1,55 +1,61 @@
-import { listingsForColor, sortByColorStrength } from "@/lib/artwork-colors";
-import { DEFAULT_SHUFFLE_SEED } from "@/lib/artwork-page-schema";
-import { getAllListingsInDefaultOrder, shuffleWithArtistSpread } from "@/lib/artwork-pagination";
+import { type ArtworkOrderInput, orderedArtworkListings } from "@/lib/artwork-pagination";
 import { getColorBucket } from "@/lib/color-buckets.mjs";
-import { type ArtworkListing, artworkListings, getArtist } from "@/lib/data";
-import { assignEra, getEra } from "@/lib/gallery-eras";
-import { getPlateSet, plateSetListings } from "@/lib/plate-sets";
+import { type ArtworkListing, getArtist } from "@/lib/data";
+import { getEra } from "@/lib/gallery-eras";
+import { getPlateSet } from "@/lib/plate-sets";
 import type { Scope } from "@/lib/scope-href";
+import { timelineListings } from "@/lib/timeline";
 
 // The pure `?from=` helpers live in scope-href.ts so client components can
 // reach them without pulling artworks.json into a browser chunk. Re-exported
 // here because server code reads the whole scope API from one module.
-export { artworkHref, encodeScope, parseScope, type Scope, scopeHref } from "@/lib/scope-href";
+export {
+  artworkHref,
+  encodeScope,
+  parseScope,
+  parseScopeParams,
+  type Scope,
+  scopeHref,
+  scopeSearch,
+} from "@/lib/scope-href";
 
-/** Resolve a scope to the ordered slim listing the lightbox / prev-next
- *  should cycle through. Order matches the source page exactly:
- *    gallery → home page default order (shuffle + pinned head)
- *    artist  → artist page (year asc, undated last)
- *    decade  → every dated work in year asc, title tiebreaker — spans the
- *              whole timeline so prev/next walks past the entry decade's
- *              boundary into the neighbouring decades. `scope.start` is
- *              the entry anchor used by scopeHref/scopeLabel, not a filter.
- *    collection → plate order (the order the book prints them in), so
- *              prev/next walks plate 1 → 435 rather than a shuffle
- *    color   → strongest-first by how much of the family the work
- *              carries — matches the /colours/<family> page, which
- *              paginates with sort=color
- *    era     → seeded artist-spread shuffle (default seed) — matches the
- *              /era/<id> page, which paginates with sort=shuffle. Year
- *              order clumped single-artist cohorts (435 Audubon plates
- *              before any Haeckel on natural-history).
- */
+/** Resolve a scope to the ordered slim listing the artwork page's
+ *  prev/next and the lightbox cycle through. The order is the source
+ *  page's own, because every kind but `decade` goes through the same
+ *  `orderedArtworkListings` call that page paginates with (see
+ *  `scopeOrderInput`); `decade` is the timeline's list. */
 export function resolveScope(scope: Scope): ArtworkListing[] {
-  if (scope.kind === "gallery") return getAllListingsInDefaultOrder();
-  if (scope.kind === "artist") {
-    return artworkListings
-      .filter((a) => a.artistSlug === scope.slug)
-      .sort((a, b) => (a.year ?? 99999) - (b.year ?? 99999));
-  }
   if (scope.kind === "decade") {
-    return artworkListings
-      .filter((a) => a.year != null)
-      .sort((a, b) => (a.year ?? 0) - (b.year ?? 0) || a.title.localeCompare(b.title));
+    // Every dated work, not just the entry decade's, so prev/next walks
+    // across decade boundaries. `scope.start` is the entry anchor used
+    // by scopeHref/scopeLabel, not a filter.
+    return timelineListings({ query: scope.filter?.q, era: scope.filter?.era });
   }
-  if (scope.kind === "collection") return plateSetListings(scope.id);
-  if (scope.kind === "color") {
-    return sortByColorStrength(listingsForColor(scope.id), scope.id);
+  return orderedArtworkListings(scopeOrderInput(scope));
+}
+
+/** The /api/artworks/page input each scope's landing page renders with:
+ *    gallery    → the home grid's search, era and sort; unfiltered, the
+ *                 default shuffle with its pinned head
+ *    artist     → year ascending, undated last, title as tiebreaker
+ *    era        → seeded artist-spread shuffle. Year order clumped
+ *                 single-artist cohorts (435 Audubon plates before any
+ *                 Haeckel on natural-history).
+ *    collection → plate order, the order the book prints them in
+ *    color      → strongest-first by how much of the family a work
+ *                 carries */
+export function scopeOrderInput(scope: Exclude<Scope, { kind: "decade" }>): ArtworkOrderInput {
+  if (scope.kind === "gallery") {
+    return {
+      query: scope.filter?.q,
+      era: scope.filter?.era,
+      sort: scope.filter?.sort ?? "shuffle",
+    };
   }
-  return shuffleWithArtistSpread(
-    artworkListings.filter((a) => assignEra(a) === scope.id),
-    DEFAULT_SHUFFLE_SEED,
-  );
+  if (scope.kind === "artist") return { artistSlug: scope.slug, sort: "year" };
+  if (scope.kind === "collection") return { collection: scope.id, sort: "plate" };
+  if (scope.kind === "color") return { color: scope.id, sort: "color" };
+  return { era: scope.id, sort: "shuffle" };
 }
 
 /** Human label for the scope, suitable for breadcrumbs / "Back to X"
