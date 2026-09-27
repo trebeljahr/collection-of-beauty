@@ -504,3 +504,57 @@
     transform: translateX(-50%) rotate(0deg) translateY(1.5rem);
   }
 }
+
+/* ── Artwork glow (see artwork-glow.tsx) ──────────────────────────────
+   Soft light in the work's average colour around the hero frame on
+   /artwork/[id] and /surprise. Two box-shadows on an element the size of
+   the frame: they follow the frame's shape, add no scrollable overflow
+   (so no sideways scroll at 375px) and paint once, with no filter.
+   `z-index: -1` puts the glow under every line of text on the page.
+
+   The tint keeps the work's hue, multiplies its chroma by 2.5 (a
+   whole-image average is greyish: the catalogue median is 0.028) and
+   fixes lightness per theme, so contrast doesn't depend on how dark the
+   work is. A mid-brown at its own lightness looks like a smudge on the
+   light background; at L 0.8 it is a pale amber. A colour with almost no
+   chroma gets half the alpha, since a grey glow reads as a drop shadow.
+
+   Contrast: the glow is strongest right at the frame's edge. There, with
+   these alphas, `--muted-foreground` text is at least 5.4:1 (light) and
+   4.7:1 (dark) over the tinted background, for every dominantColor in
+   the catalogue. Raising an alpha breaks that, dark mode first. */
+@property --artwork-glow {
+  syntax: "<color>";
+  inherits: false;
+  initial-value: transparent;
+}
+
+.artwork-glow {
+  --glow-l: 0.8;
+  --glow-near: 0.45;
+  --glow-far: 0.5;
+  --glow-tint: oklch(
+    from var(--artwork-glow) var(--glow-l) min(c * 2.5, 0.12) h / calc(alpha * clamp(0.5, c * 40, 1))
+  );
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  border-radius: inherit;
+  pointer-events: none;
+  transition: --artwork-glow 700ms ease;
+  box-shadow:
+    0 0 48px oklch(from var(--glow-tint) l c h / calc(alpha * var(--glow-near))),
+    0 0 200px 16px oklch(from var(--glow-tint) l c h / calc(alpha * var(--glow-far)));
+}
+
+.dark .artwork-glow {
+  --glow-l: 0.55;
+  --glow-near: 0.24;
+  --glow-far: 0.24;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .artwork-glow {
+    transition: none;
+  }
+}

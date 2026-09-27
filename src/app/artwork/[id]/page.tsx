@@ -3,6 +3,7 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { ArtworkCard } from "@/components/artwork-card";
 import { ArtworkDownloads } from "@/components/artwork-downloads";
+import { ArtworkGlow } from "@/components/artwork-glow";
 import { ArtworkScopeNav } from "@/components/artwork-scope-nav";
 import { ArtworkViewer } from "@/components/artwork-viewer";
 import { LicenseBadge } from "@/components/license-badge";
@@ -156,7 +157,8 @@ export default async function ArtworkPage({ params }: { params: Promise<Params> 
       />
 
       <div className="grid gap-8 md:grid-cols-[1.3fr_1fr]">
-        <div className="flex max-h-[85vh] flex-col self-start rounded-xl border border-[var(--border)] bg-[var(--muted)] p-[10px]">
+        <div className="relative flex max-h-[85vh] flex-col self-start rounded-xl border border-[var(--border)] bg-[var(--muted)] p-[10px]">
+          <ArtworkGlow color={art.dominantColor} />
           <ArtworkViewer
             art={{
               id: art.id,

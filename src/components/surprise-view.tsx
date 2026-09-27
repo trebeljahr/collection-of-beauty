@@ -9,6 +9,7 @@ import {
   useRef,
   useState,
 } from "react";
+import { ArtworkGlow } from "@/components/artwork-glow";
 import { Lightbox } from "@/components/lightbox";
 import { ResponsiveImage } from "@/components/responsive-image";
 import { ShuffleIcon } from "@/components/ui/shuffle-icon";
@@ -193,6 +194,9 @@ export function SurpriseView({ deck }: Props) {
           className="relative block w-full max-w-full rounded-md focus:outline-none focus-visible:ring-2 focus-visible:ring-[var(--ring)] focus-visible:ring-offset-2 focus-visible:ring-offset-[var(--background)]"
           style={frameStyle(current.width, current.height)}
         >
+          {/* Not keyed, unlike the image: one element for the whole deck,
+              so each swap cross-fades from the previous work's colour. */}
+          <ArtworkGlow color={current.dominantColor} />
           {/* key on the id so the <img> is a fresh element per work —
               without it React reuses the node and the browser paints the
               previous painting until the new bytes decode. */}
