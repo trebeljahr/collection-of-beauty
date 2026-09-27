@@ -206,26 +206,45 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
               All works shown are in the public domain or openly licensed. Metadata sourced from
               public archives — mostly Wikimedia Commons. Every work links back to its own source.
             </p>
-            <p className="mt-2 inline-flex items-center justify-center gap-1">
-              Made with{" "}
-              <svg
-                className="heartbeat inline-block h-3 w-3 fill-current text-[#e8839b]"
-                viewBox="0 0 24 24"
-                aria-hidden="true"
-              >
-                <title>love</title>
-                <path d="M11.645 20.91l-.007-.003-.022-.012a15.247 15.247 0 01-.383-.218 25.18 25.18 0 01-4.244-3.17C4.688 15.36 2.25 12.174 2.25 8.25 2.25 5.322 4.714 3 7.688 3A5.5 5.5 0 0112 5.052 5.5 5.5 0 0116.313 3c2.973 0 5.437 2.322 5.437 5.25 0 3.925-2.438 7.111-4.739 9.256a25.175 25.175 0 01-4.244 3.17 15.247 15.247 0 01-.383.219l-.022.012-.007.004-.003.001a.752.752 0 01-.704 0l-.003-.001z" />
-              </svg>{" "}
-              by{" "}
+            {/* One run of inline text, not a flex row: flex items are
+                blockified, so a selection of the old inline-flex byline
+                copied as "Made withby" plus a newline before the name. The
+                heart is aria-hidden, and the sr-only "love" straight after
+                it is what screen readers and the clipboard get instead, so
+                both read "Made with love by Rico Trebeljahr". The spaces
+                live in fixed-width inline-blocks with `whitespace-pre`, so
+                they still copy while each gap stays the old gap-1 (4px): a
+                bare space is 3.4px in SF Pro and another width again in
+                Segoe UI or Roboto. The heart's 20px slot holds two of those
+                spaces, which makes its box the text's own 16px line box,
+                and `inset-y-0 my-auto` centres the heart on that box the
+                way items-center did, in any font. */}
+            <p className="mt-2">
+              Made with
+              <span className="relative inline-block w-5 whitespace-pre">
+                {" "}
+                <svg
+                  className="heartbeat absolute inset-y-0 left-1 my-auto h-3 w-3 fill-current text-[#e8839b]"
+                  viewBox="0 0 24 24"
+                  aria-hidden="true"
+                >
+                  <title>love</title>
+                  <path d="M11.645 20.91l-.007-.003-.022-.012a15.247 15.247 0 01-.383-.218 25.18 25.18 0 01-4.244-3.17C4.688 15.36 2.25 12.174 2.25 8.25 2.25 5.322 4.714 3 7.688 3A5.5 5.5 0 0112 5.052 5.5 5.5 0 0116.313 3c2.973 0 5.437 2.322 5.437 5.25 0 3.925-2.438 7.111-4.739 9.256a25.175 25.175 0 01-4.244 3.17 15.247 15.247 0 01-.383.219l-.022.012-.007.004-.003.001a.752.752 0 01-.704 0l-.003-.001z" />
+                </svg>
+                <span className="sr-only">love</span>{" "}
+              </span>
+              by
+              <span className="inline-block w-1 whitespace-pre"> </span>
               {/* No px here, unlike the nav links: this anchor sits inline
-                  between "by" and the paragraph's own gap-1, so horizontal
-                  padding would visibly detach it from "by". Its 84px width
-                  already clears the target minimum — only height was short.
-                  `-my-3` gives the extra 24px straight back (the paragraph
-                  is a row-direction inline-flex, so a block-axis margin
-                  shrinks this item's outer height without touching the
-                  horizontal gap-1) and the whole thing ends at `sm:`, so
-                  the line box is the old one at every width. */}
+                  right after "by" and its 4px gap, so horizontal padding
+                  would visibly detach it from "by". Its 84px width already
+                  clears the target minimum — only height was short. `-my-3`
+                  gives the extra 24px straight back (the anchor is an
+                  inline-flex, an atomic inline whose margin box is what the
+                  line box holds, so a block-axis margin shrinks its outer
+                  height without moving it sideways) and the whole thing
+                  ends at `sm:`, so the line box is the old one at every
+                  width. */}
               <a
                 href="https://ricos.site"
                 target="_blank"
