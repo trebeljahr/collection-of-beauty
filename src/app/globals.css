@@ -433,3 +433,74 @@
 .ri-frame[data-instant="true"] .ri-full {
   transition: none;
 }
+
+/* ── Edition fan (/sub/confirmed) ─────────────────────────────────────
+   A hand of prints. Every card sits on the same pivot, 1.4 card-heights
+   below its bottom edge, and turns by its offset from the middle card
+   times --fan-step, so the tops spread while the bottoms stay bunched.
+   The container leaves room below for the outer cards' lower corners,
+   which swing down as they turn. On load the cards deal out from a
+   straight stack; `backwards` fill (not `both`) hands the transform back
+   to the base rule once the deal ends, so hover can move it. */
+.edition-fan {
+  --fan-h: 7rem;
+  --fan-step: 12deg;
+  position: relative;
+  height: calc(var(--fan-h) * 1.55);
+  margin-inline: auto;
+  max-width: 100%;
+}
+@media (min-width: 768px) {
+  .edition-fan {
+    --fan-h: 10.5rem;
+    --fan-step: 14deg;
+  }
+}
+.edition-fan-slot {
+  --fan-angle: calc(var(--fan-offset) * var(--fan-step));
+  position: absolute;
+  left: 50%;
+  bottom: calc(var(--fan-h) * 0.4);
+  height: var(--fan-h);
+  width: calc(var(--fan-h) * var(--fan-aspect));
+  z-index: var(--fan-z);
+  transform-origin: 50% 240%;
+  transform: translateX(-50%) rotate(var(--fan-angle));
+  transition: transform 350ms cubic-bezier(0.2, 0.7, 0.2, 1);
+  animation: edition-fan-deal 800ms cubic-bezier(0.2, 0.7, 0.2, 1) backwards;
+  animation-delay: calc(300ms + var(--fan-i) * 80ms);
+}
+.edition-fan-slot:hover,
+.edition-fan-slot:focus-within {
+  z-index: 20;
+  transform: translateX(-50%) rotate(var(--fan-angle)) translateY(-0.9rem);
+}
+.edition-fan-card {
+  display: block;
+  height: 100%;
+  width: 100%;
+  padding: 5px;
+  border-radius: 3px;
+  background: var(--card);
+  border: 1px solid var(--border);
+  box-shadow:
+    0 1px 2px oklch(0.3 0.03 50 / 0.08),
+    0 10px 24px -10px oklch(0.3 0.03 50 / 0.35);
+  transition: box-shadow 350ms ease;
+}
+.edition-fan-slot:hover .edition-fan-card,
+.edition-fan-card:focus-visible {
+  box-shadow:
+    0 2px 4px oklch(0.3 0.03 50 / 0.1),
+    0 22px 40px -14px oklch(0.3 0.03 50 / 0.45);
+}
+.edition-fan-card:focus-visible {
+  outline: 2px solid var(--ring);
+  outline-offset: 2px;
+}
+@keyframes edition-fan-deal {
+  from {
+    opacity: 0;
+    transform: translateX(-50%) rotate(0deg) translateY(1.5rem);
+  }
+}
