@@ -27,6 +27,13 @@ function readSlow(): boolean {
   return c.effectiveType === "slow-2g" || c.effectiveType === "2g" || c.effectiveType === "3g";
 }
 
+/** Synchronous read for code that decides at call time, such as the
+ *  slideshow picking a rung. The hook below reads false on its first
+ *  render, which would size the first slide for a fast link. */
+export function isSlowConnection(): boolean {
+  return readSlow();
+}
+
 /**
  * Whether this client is on a slow or data-saving connection, used to
  * decide if a gallery tile should spend an extra ~10 KB thumbnail on
