@@ -1,6 +1,6 @@
 "use client";
 
-import { type RefObject, useCallback, useEffect, useState } from "react";
+import { type RefObject, useCallback, useEffect, useMemo, useState } from "react";
 
 /** Safari on macOS before 16.4, and Safari on iPad, only expose the
  *  prefixed API. lib.dom does not declare it. */
@@ -77,5 +77,7 @@ export function useFullscreen(ref: RefObject<HTMLElement | null>): {
     else quietly(el.webkitRequestFullscreen?.());
   }, [ref, exit]);
 
-  return { supported, active, toggle, exit };
+  // Memoised so callers can list the result as an effect dependency
+  // without re-binding their listeners on every render.
+  return useMemo(() => ({ supported, active, toggle, exit }), [supported, active, toggle, exit]);
 }
