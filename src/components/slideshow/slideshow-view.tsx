@@ -23,21 +23,24 @@ import { pathnameOf, previousPathname } from "@/lib/navigation-history";
 import {
   FADE_MS,
   fadeMs,
+  failureBackoffMs,
   IDLE_HIDE_MS,
   INTERVAL_STORAGE_KEY,
   initialPlayerState,
   intervalMs as intervalFor,
   nextIntervalChoice,
   type PlayableScope,
+  PREPARE_TIMEOUT_MS,
   parseStoredInterval,
   playerReducer,
   playHref,
   type SlideViewport,
   SPINNER_DELAY_MS,
+  STALL_RETRY_MS,
   swipeDirection,
   TAP_MAX_MOVE_PX,
 } from "@/lib/slideshow";
-import { useSlideDeck } from "@/lib/use-slide-deck";
+import { SlideNotInScopeError, useSlideDeck } from "@/lib/use-slide-deck";
 import { isSlowConnection, useSlowConnection } from "@/lib/use-slow-connection";
 import { cn } from "@/lib/utils";
 import { type PreparedSlide, prepareSlide } from "./prepare-slide";
@@ -138,16 +141,36 @@ export function SlideshowView({
   }, []);
 
   // --- prepare -------------------------------------------------------------
-  // biome-ignore lint/correctness/useExhaustiveDependencies: retryNonce is a trigger — "Try again" must re-run this even when target and targetReady are unchanged
+  // After a failure the next attempt waits (failureBackoffMs), so a short
+  // outage does not burn through all three tries at once. Each attempt
+  // has a deadline, and running past it counts as a failure: a request
+  // that hangs without erroring would otherwise hold the show for good.
+  // biome-ignore lint/correctness/useExhaustiveDependencies: retryNonce, epoch and failures are triggers — "Try again", a stage change and a retried listing must re-run this even when target and targetReady are unchanged
   useEffect(() => {
     if (state.stalled || state.targetReady) return;
     const index = state.target;
     const controller = new AbortController();
     const { signal } = controller;
-    (async () => {
+    let cleanedUp = false;
+    let deadline: number | undefined;
+    const backoff = window.setTimeout(() => {
+      deadline = window.setTimeout(() => controller.abort(), PREPARE_TIMEOUT_MS);
+      void run();
+    }, failureBackoffMs(state.failures));
+    const run = async () => {
+      let art: ArtworkListing;
       try {
-        const art = deck.peek(index) ?? (await deck.load(index, signal));
-        if (signal.aborted) return;
+        art = deck.peek(index) ?? (await deck.load(index, signal));
+      } catch (err) {
+        // A page that did not arrive says nothing about this work: try it
+        // again. An index the scope no longer has is skipped.
+        if (!cleanedUp) {
+          dispatch({ type: "failed", index, retrySame: !(err instanceof SlideNotInScopeError) });
+        }
+        return;
+      }
+      try {
+        if (signal.aborted) throw new DOMException("Aborted", "AbortError");
         const slide = await prepareSlide({
           index,
           art,
@@ -158,17 +181,34 @@ export function SlideshowView({
           reducedMotion: reduced,
           signal,
         });
-        if (signal.aborted) return;
+        if (signal.aborted) throw new DOMException("Aborted", "AbortError");
         const map = prepared.current;
         for (const key of map.keys()) if (key !== index) map.delete(key);
         map.set(index, slide);
         dispatch({ type: "ready", index });
       } catch {
-        if (!signal.aborted) dispatch({ type: "failed", index });
+        if (!cleanedUp) dispatch({ type: "failed", index });
+      } finally {
+        window.clearTimeout(deadline);
       }
-    })();
-    return () => controller.abort();
-  }, [state.target, state.targetReady, state.stalled, retryNonce, deck, measure, reduced]);
+    };
+    return () => {
+      cleanedUp = true;
+      window.clearTimeout(backoff);
+      window.clearTimeout(deadline);
+      controller.abort();
+    };
+  }, [
+    state.target,
+    state.targetReady,
+    state.stalled,
+    state.epoch,
+    state.failures,
+    retryNonce,
+    deck,
+    measure,
+    reduced,
+  ]);
 
   // --- commit --------------------------------------------------------------
   const trackedRef = useRef(false);
@@ -253,8 +293,15 @@ export function SlideshowView({
       window.clearTimeout(t);
     };
   }, []);
+  // Skips the mount run: the first prepare has just started with the
+  // current values, and restarting it would fetch the first image twice.
+  const stageMountedRef = useRef(false);
   // biome-ignore lint/correctness/useExhaustiveDependencies: both values are triggers; the waiting slide was sized and planned for the old ones
   useEffect(() => {
+    if (!stageMountedRef.current) {
+      stageMountedRef.current = true;
+      return;
+    }
     dispatch({ type: "invalidate" });
   }, [fullscreen.active, reduced]);
 
@@ -272,15 +319,44 @@ export function SlideshowView({
     window.addEventListener("online", onOnline);
     return () => window.removeEventListener("online", onOnline);
   }, [retry]);
+  // A server or CDN error fires no `online` event. A show left playing
+  // keeps trying on its own, so a redeploy does not end it.
+  useEffect(() => {
+    if (!state.stalled || !state.playing || !pageVisible) return;
+    const t = window.setTimeout(retry, STALL_RETRY_MS);
+    return () => window.clearTimeout(t);
+  }, [state.stalled, state.playing, pageVisible, retry]);
+  useEffect(() => {
+    if (state.stalled) setAnnouncement("Images are not loading. Press Try again to retry.");
+  }, [state.stalled]);
 
   // --- screen, chrome ----------------------------------------------------------
-  useWakeLock(state.playing && !state.stalled);
+  // Held through a stall too: the show retries by itself and the last
+  // work stays on screen meanwhile.
+  useWakeLock(state.playing);
 
   const { idle, wake, hide } = useIdle(
     state.playing && state.shown !== null && !state.stalled,
     IDLE_HIDE_MS,
   );
-  const chromeVisible = !idle;
+  // Focus a viewer moved with Tab keeps the chrome up, so the focused
+  // control and its ring never fade out under them. The initial
+  // programmatic focus on Play does not count, or a TV left running would
+  // never hide its chrome. Any pointer press hands control back to idle.
+  const [kbdFocus, setKbdFocus] = useState(false);
+  useEffect(() => {
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === "Tab") setKbdFocus(true);
+    };
+    const onPointer = () => setKbdFocus(false);
+    window.addEventListener("keydown", onKey, true);
+    window.addEventListener("pointerdown", onPointer, true);
+    return () => {
+      window.removeEventListener("keydown", onKey, true);
+      window.removeEventListener("pointerdown", onPointer, true);
+    };
+  }, []);
+  const chromeVisible = !idle || kbdFocus;
 
   const wantSpinner =
     !state.stalled && (state.shown === null || (state.intent === "manual" && !state.targetReady));
@@ -412,6 +488,9 @@ export function SlideshowView({
         "fixed inset-0 z-[100] touch-none select-none overflow-hidden bg-black text-white",
         !chromeVisible && "cursor-none",
       )}
+      onBlur={(e) => {
+        if (!e.currentTarget.contains(e.relatedTarget as Node | null)) setKbdFocus(false);
+      }}
     >
       {/* biome-ignore lint/a11y/noStaticElementInteractions: the stage is a gesture surface; every action on it has a button in the toolbar */}
       {/* biome-ignore lint/a11y/useKeyWithClickEvents: keys are bound on window, not on the stage */}
@@ -432,6 +511,7 @@ export function SlideshowView({
             layer={layer}
             front={layer === front}
             paused={!running}
+            reducedMotion={reduced}
             onShown={onShown}
           />
         ))}
@@ -440,8 +520,10 @@ export function SlideshowView({
       {spinner && <SlideshowSpinner />}
 
       {state.stalled && (
-        <div className="absolute inset-0 z-20 flex items-center justify-center p-4">
-          <div className="flex flex-col items-center gap-3 rounded-lg bg-black/70 px-6 py-5 text-center">
+        // Only the message box takes the pointer, so Exit and the toolbar
+        // underneath stay usable while stalled.
+        <div className="pointer-events-none absolute inset-0 z-20 flex items-center justify-center p-4">
+          <div className="pointer-events-auto flex flex-col items-center gap-3 rounded-lg bg-black/70 px-6 py-5 text-center">
             <p>Images are not loading.</p>
             <button type="button" onClick={retry} className={cn(CHROME_BUTTON, "h-11 px-4")}>
               Try again

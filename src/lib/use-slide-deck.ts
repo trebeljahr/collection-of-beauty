@@ -5,6 +5,7 @@ import type { ArtworkListing } from "@/lib/data";
 import {
   indicesToEnsure,
   missingPageStarts,
+  PAGE_TIMEOUT_MS,
   type PlayableScope,
   pageStartFor,
   SLIDESHOW_PAGE_SIZE,
@@ -12,6 +13,10 @@ import {
   wrapIndex,
 } from "@/lib/slideshow";
 import { fetchArtworkPage } from "@/lib/use-artwork-pagination";
+
+/** The index is past the end of the scope as the server now sees it (a
+ *  smaller catalogue after a deploy). Retrying the same index cannot help. */
+export class SlideNotInScopeError extends Error {}
 
 export type SlideDeck = {
   /** The listing at `index`, if its page has arrived. */
@@ -38,8 +43,10 @@ export type SlideDeck = {
  * Page requests are shared: two callers that need the same page get one
  * fetch. The fetch runs on the deck's own AbortController (aborted on
  * unmount), not the caller's signal, so one caller giving up does not
- * fail the request for the other. A failed page is forgotten, so the
- * next caller retries it.
+ * fail the request for the other; a caller that gives up stops waiting
+ * at once. A failed page is forgotten, so the next caller retries it,
+ * and a page that takes longer than PAGE_TIMEOUT_MS counts as failed, so
+ * one hung request cannot block its page for the rest of the show.
  */
 export function useSlideDeck(opts: {
   scope: PlayableScope;
@@ -75,8 +82,14 @@ export function useSlideDeck(opts: {
     (pageStart: number): Promise<void> => {
       const existing = inflightRef.current.get(pageStart);
       if (existing) return existing;
-      const controller = controllerRef.current;
-      if (!controller) return Promise.reject(new Error("slide deck is unmounted"));
+      const deckController = controllerRef.current;
+      if (!deckController) return Promise.reject(new Error("slide deck is unmounted"));
+      // Per request: aborted by unmount or by the deadline. Built by hand
+      // rather than with AbortSignal.any/timeout, which older TV browsers lack.
+      const controller = new AbortController();
+      const abort = () => controller.abort();
+      deckController.signal.addEventListener("abort", abort, { once: true });
+      const deadline = setTimeout(abort, PAGE_TIMEOUT_MS);
       const request: Promise<void> = fetchArtworkPage(
         query,
         pageStart,
@@ -98,6 +111,8 @@ export function useSlideDeck(opts: {
           }
         })
         .finally(() => {
+          clearTimeout(deadline);
+          deckController.signal.removeEventListener("abort", abort);
           // Settled either way: a success lives in `items`, and a failure
           // must not be cached, or the page could never be retried.
           if (inflightRef.current.get(pageStart) === request) {
@@ -116,10 +131,25 @@ export function useSlideDeck(opts: {
     async (index: number, signal?: AbortSignal): Promise<ArtworkListing> => {
       const hit = itemsRef.current?.get(index);
       if (hit) return hit;
-      await ensurePage(pageStartFor(index));
+      const page = ensurePage(pageStartFor(index));
+      if (signal) {
+        let stop = () => {};
+        const aborted = new Promise<never>((_, reject) => {
+          stop = () => reject(new DOMException("Aborted", "AbortError"));
+          if (signal.aborted) stop();
+        });
+        signal.addEventListener("abort", stop, { once: true });
+        try {
+          await Promise.race([page, aborted]);
+        } finally {
+          signal.removeEventListener("abort", stop);
+        }
+      } else {
+        await page;
+      }
       if (signal?.aborted) throw new DOMException("Aborted", "AbortError");
       const art = itemsRef.current?.get(index);
-      if (!art) throw new Error(`slide ${index} is not in the scope`);
+      if (!art) throw new SlideNotInScopeError(`slide ${index} is not in the scope`);
       return art;
     },
     [ensurePage],

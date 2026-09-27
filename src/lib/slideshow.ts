@@ -70,6 +70,25 @@ export const TAP_MAX_MOVE_PX = 10;
 /** Consecutive works that failed to load before the show stops and says
  *  so. Three broken images in a row means the network, not the images. */
 export const MAX_CONSECUTIVE_FAILURES = 3;
+/** Wait before the next attempt after the Nth consecutive failure. With
+ *  no wait, three failures land within milliseconds and a 20 s outage
+ *  (a redeploy, a CDN hiccup) stalls the show. The third failure stalls,
+ *  and STALL_RETRY_MS takes over from there. */
+export const FAILURE_BACKOFF_MS = [0, 2_000, 5_000] as const;
+/** While stalled and playing, try again this often. The `online` event
+ *  covers a dropped connection but not a server or CDN error. */
+export const STALL_RETRY_MS = 45_000;
+/** Deadline for one prepare (listing, fetch and decode). A request that
+ *  hangs without erroring would otherwise hold the current work forever
+ *  and never count as a failure. */
+export const PREPARE_TIMEOUT_MS = 30_000;
+/** Deadline for one /api/artworks/page request. Shorter than the prepare's,
+ *  so a hung page is dropped from the deck's in-flight map and retried. */
+export const PAGE_TIMEOUT_MS = 20_000;
+/** AVIF decodes that failed while the WebP of the same work loaded, with
+ *  no AVIF success, before the player stops asking for AVIF. One is not
+ *  enough: a single missing rung looks the same. */
+export const AVIF_MISSES_TO_GIVE_UP = 2;
 
 // ---------------------------------------------------------------------------
 // Scope and URL
@@ -360,6 +379,33 @@ export function nextIntervalChoice(currentS: number): number {
   return choices[(at + 1) % choices.length];
 }
 
+/** Delay before the next prepare after `failures` consecutive failures. */
+export function failureBackoffMs(failures: number): number {
+  if (failures <= 0) return 0;
+  return FAILURE_BACKOFF_MS[Math.min(failures, FAILURE_BACKOFF_MS.length - 1)];
+}
+
+// ---------------------------------------------------------------------------
+// AVIF support
+
+/** What the player has learned about AVIF in this page load. The
+ *  variants are static files with no Accept negotiation, and an off-screen
+ *  `new Image()` cannot skip a type it does not support the way
+ *  `<picture>` does: it downloads the whole AVIF before decode() fails. */
+export type AvifSupport = { supported: boolean | null; misses: number };
+
+export const INITIAL_AVIF_SUPPORT: AvifSupport = { supported: null, misses: 0 };
+
+/** Fold one prepare's outcome in. `"ok"`: the AVIF decoded. `"miss"`: the
+ *  AVIF failed and the WebP of the same work decoded. One success settles
+ *  it for good; `AVIF_MISSES_TO_GIVE_UP` misses without one mean no AVIF. */
+export function nextAvifSupport(state: AvifSupport, outcome: "ok" | "miss"): AvifSupport {
+  if (state.supported !== null) return state;
+  if (outcome === "ok") return { supported: true, misses: 0 };
+  const misses = state.misses + 1;
+  return { supported: misses >= AVIF_MISSES_TO_GIVE_UP ? false : null, misses };
+}
+
 /** The viewer's own choice wins; otherwise 12 s, or 20 s on a slow link. */
 export function intervalMs(storedS: number | null, slow: boolean): number {
   const s = storedS ?? (slow ? SLOW_INTERVAL_S : DEFAULT_INTERVAL_S);
@@ -411,11 +457,17 @@ export type PlayerState = {
   commits: number;
   /** The intent of the latest commit, which picks its fade length. */
   committedIntent: "auto" | "manual" | null;
+  /** Bumped by `invalidate`, so a prepare already in flight for the old
+   *  stage restarts, not only one that has finished. */
+  epoch: number;
 };
 
 export type PlayerEvent =
   | { type: "ready"; index: number }
-  | { type: "failed"; index: number }
+  /** `retrySame`: the listing could not be fetched (a page request, not
+   *  the image), so the same work is tried again after the backoff rather
+   *  than skipped. */
+  | { type: "failed"; index: number; retrySame?: boolean }
   | { type: "due" }
   | { type: "step"; delta: 1 | -1 }
   | { type: "play" }
@@ -439,6 +491,7 @@ export function initialPlayerState(total: number, startIndex: number): PlayerSta
     stalled: false,
     commits: 0,
     committedIntent: null,
+    epoch: 0,
   };
 }
 
@@ -477,6 +530,7 @@ export function playerReducer(state: PlayerState, event: PlayerEvent): PlayerSta
       if (failures >= MAX_CONSECUTIVE_FAILURES || state.total <= 1) {
         return { ...state, failures, stalled: true, targetReady: false };
       }
+      if (event.retrySame) return { ...state, failures, targetReady: false };
       // Skip the broken work in the direction the viewer was going.
       return {
         ...state,
@@ -526,8 +580,9 @@ export function playerReducer(state: PlayerState, event: PlayerEvent): PlayerSta
 
     case "invalidate":
       // The stage changed size (resize, fullscreen) or motion preference
-      // flipped: the waiting slide was sized for the old one.
-      return state.targetReady ? { ...state, targetReady: false } : state;
+      // flipped: the waiting slide, ready or still loading, was sized and
+      // planned for the old one.
+      return { ...state, targetReady: false, epoch: state.epoch + 1 };
 
     case "total": {
       if (event.total < 1 || event.total === state.total) return state;

@@ -35,17 +35,20 @@ export function SlideLayer({
   layer,
   front,
   paused,
+  reducedMotion,
   onShown,
 }: {
   layer: SlideLayerData;
   front: boolean;
   paused: boolean;
+  /** Turned on mid-show: the pan planned before it stops where it is. */
+  reducedMotion: boolean;
   onShown: (key: number) => void;
 }) {
   const ref = useRef<HTMLImageElement | null>(null);
   const panRef = useRef<Animation | null>(null);
-  const pausedRef = useRef(paused);
-  pausedRef.current = paused;
+  const stillRef = useRef(paused || reducedMotion);
+  stillRef.current = paused || reducedMotion;
   const onShownRef = useRef(onShown);
   onShownRef.current = onShown;
 
@@ -83,7 +86,7 @@ export function SlideLayer({
             easing: "linear",
             fill: "forwards",
           });
-          if (pausedRef.current) pan.pause();
+          if (stillRef.current) pan.pause();
           panRef.current = pan;
         }
         fade.finished
@@ -101,15 +104,18 @@ export function SlideLayer({
     };
   }, []);
 
-  // Pause freezes the drift where it is. A fade in progress is left to
-  // finish: half a cross-fade frozen on screen is two works at once.
+  // Pause freezes the drift where it is, and so does reduced motion
+  // switched on while this work is up: freezing avoids the jump that
+  // snapping back to the unzoomed frame would be. A fade in progress is
+  // left to finish: half a cross-fade frozen on screen is two works at once.
+  const still = paused || reducedMotion;
   useEffect(() => {
     const pan = panRef.current;
     // play() on a finished animation rewinds it to the first frame.
     if (!pan || pan.playState === "finished") return;
-    if (paused) pan.pause();
+    if (still) pan.pause();
     else pan.play();
-  }, [paused]);
+  }, [still]);
 
   const art = layer.slide.art;
   return (

@@ -6,12 +6,15 @@ import {
   containedCssWidth,
   FADE_MS,
   fadeMs,
+  failureBackoffMs,
+  INITIAL_AVIF_SUPPORT,
   indicesToEnsure,
   initialPlayerState,
   intervalMs,
   isPlayableScope,
   MANUAL_FADE_MS,
   missingPageStarts,
+  nextAvifSupport,
   nextIntervalChoice,
   PAN_MAX_SCALE,
   PAN_SHIFT_PCT,
@@ -500,5 +503,55 @@ describe("playerReducer", () => {
     const s = run(showing(5), { type: "ready", index: 6 }, { type: "invalidate" });
     expect(s.targetReady).toBe(false);
     expect(s.shown).toBe(5);
+  });
+
+  it("invalidate restarts a prepare still in flight", () => {
+    const before = showing(5);
+    const after = run(before, { type: "invalidate" });
+    expect(after.targetReady).toBe(false);
+    expect(after.target).toBe(before.target);
+    expect(after.epoch).toBe(before.epoch + 1);
+  });
+
+  it("retries the same work when its listing failed to load", () => {
+    const s = run(showing(5), { type: "failed", index: 6, retrySame: true });
+    expect(s.target).toBe(6);
+    expect(s.failures).toBe(1);
+    const stalled = run(
+      s,
+      { type: "failed", index: 6, retrySame: true },
+      { type: "failed", index: 6, retrySame: true },
+    );
+    expect(stalled.stalled).toBe(true);
+  });
+});
+
+describe("failureBackoffMs", () => {
+  it("waits longer after each failure in a row", () => {
+    expect(failureBackoffMs(0)).toBe(0);
+    expect(failureBackoffMs(1)).toBeGreaterThan(0);
+    expect(failureBackoffMs(2)).toBeGreaterThan(failureBackoffMs(1));
+    expect(failureBackoffMs(99)).toBe(failureBackoffMs(2));
+  });
+});
+
+describe("nextAvifSupport", () => {
+  it("settles on the first AVIF that decodes", () => {
+    const s = nextAvifSupport(INITIAL_AVIF_SUPPORT, "ok");
+    expect(s.supported).toBe(true);
+    expect(nextAvifSupport(s, "miss")).toBe(s);
+  });
+
+  it("gives up on AVIF only after repeated misses", () => {
+    const one = nextAvifSupport(INITIAL_AVIF_SUPPORT, "miss");
+    expect(one.supported).toBeNull();
+    const two = nextAvifSupport(one, "miss");
+    expect(two.supported).toBe(false);
+    expect(nextAvifSupport(two, "ok")).toBe(two);
+  });
+
+  it("a success after one miss keeps AVIF", () => {
+    const s = nextAvifSupport(nextAvifSupport(INITIAL_AVIF_SUPPORT, "miss"), "ok");
+    expect(s.supported).toBe(true);
   });
 });
