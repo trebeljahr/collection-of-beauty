@@ -27,6 +27,11 @@ const BOTTOM_BAR: CSSProperties = {
   paddingTop: "3rem",
 };
 
+/* The gradients alone leave the text on a nearly clear backdrop over a
+   pale work (white paper, a pale sky). The shadow gives every line its
+   own dark edge, whatever is behind it. */
+const TEXT_SCRIM = "[text-shadow:0_1px_3px_rgb(0_0_0/0.9),0_0_8px_rgb(0_0_0/0.6)]";
+
 export const CHROME_BUTTON =
   "inline-flex shrink-0 items-center justify-center rounded-full bg-white/10 text-white transition-colors hover:bg-white/20 focus:outline-none focus-visible:ring-2 focus-visible:ring-white";
 
@@ -73,15 +78,15 @@ export function SlideshowControls(props: SlideshowControlsProps) {
     <>
       <div
         className={cn(
-          "pointer-events-none absolute inset-x-0 top-0 z-10 flex items-start justify-between gap-4 bg-gradient-to-b from-black/60 to-transparent",
+          "pointer-events-none absolute inset-x-0 top-0 z-10 flex items-start justify-between gap-4 bg-gradient-to-b from-black/80 via-black/50 to-transparent",
           fade,
         )}
         style={TOP_BAR}
         {...props.chrome}
       >
-        <div className="min-w-0 flex-1">
-          <p className="truncate text-sm text-white/80">{props.heading}</p>
-          {props.position && <p className="text-xs tabular-nums text-white/60">{props.position}</p>}
+        <div className={cn("min-w-0 flex-1", TEXT_SCRIM)}>
+          <p className="truncate text-sm text-white/90">{props.heading}</p>
+          {props.position && <p className="text-xs tabular-nums text-white/85">{props.position}</p>}
         </div>
         {/* A real link, so the overlay can be left without JS. 44 px hit
             area around a 36 px circle, as on the lightbox's Close. */}
@@ -104,19 +109,19 @@ export function SlideshowControls(props: SlideshowControlsProps) {
 
       <div
         className={cn(
-          "pointer-events-none absolute inset-x-0 bottom-0 z-10 flex flex-col gap-3 bg-gradient-to-t from-black/70 to-transparent sm:flex-row sm:items-end sm:justify-between",
+          "pointer-events-none absolute inset-x-0 bottom-0 z-10 flex flex-col gap-3 bg-gradient-to-t from-black/80 via-black/55 to-transparent sm:flex-row sm:items-end sm:justify-between",
           fade,
         )}
         style={BOTTOM_BAR}
         {...props.chrome}
       >
-        <div className="min-w-0">
+        <div className={cn("min-w-0", TEXT_SCRIM)}>
           {art && (
             <>
               <p className="line-clamp-2 font-serif text-lg leading-tight md:text-xl">
                 {displayTitle(art)}
               </p>
-              <p className="text-sm text-white/70">
+              <p className="text-sm text-white/85">
                 {art.artist ?? "Artist unknown"}
                 {art.year != null && ` · ${art.year}`}
               </p>
