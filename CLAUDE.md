@@ -197,6 +197,16 @@ required by the Dockerfile — don't remove it.
   app needs (`LISTMONK_TX_TEMPLATE_ID` + `LISTMONK_CAMPAIGN_TEMPLATE_ID`)
   are created idempotently by `pnpm listmonk:bootstrap`; the script
   prints the ids to paste into both env files.
+- **Double opt-in is the app's, not ListMonk's.** The subscribe form
+  creates the ListMonk subscriber on *no* list (`ensureSubscriber`) so
+  `/api/tx` can deliver the HMAC confirmation email; only the confirm
+  route adds `LISTMONK_LIST_ID`, as `confirmed`. The lists are
+  `optin: single`, and ListMonk sends single-opt-in campaigns to every
+  member not `unsubscribed`, `unconfirmed` included — so any code that
+  adds a membership before the click mails that address every issue.
+  Don't flip the lists to double opt-in either: with
+  `app.send_optin_confirmation` on, ListMonk would send its own opt-in
+  email next to ours.
 - The public archive lives at `/newsletter` (index) and
   `/newsletter/<slug>` (per-edition magazine-style page). Both are
   in the sitemap. Drafts never reach the public surface.

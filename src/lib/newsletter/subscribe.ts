@@ -3,10 +3,10 @@ import { render } from "@react-email/render";
 import { createElement } from "react";
 import ConfirmSubscription from "../../../emails/confirm-subscription";
 import {
+  ensureSubscriber,
   isConfirmedOnList,
   confirmSubscription as listmonkConfirm,
   sendTransactional,
-  upsertSubscriber,
 } from "./listmonk";
 
 // Confirmation tokens are valid for 21 days. Long enough that an email
@@ -83,16 +83,6 @@ export function normalizeEmail(raw: unknown): string | null {
 }
 
 /**
- * Adds (or upserts) the subscriber on the configured ListMonk list with
- * the given subscription status. Re-exported under the historical
- * `addListMember` name so existing call sites in the API routes stay
- * tidy.
- */
-export async function addListMember(email: string, confirmed: boolean = true): Promise<void> {
-  await upsertSubscriber(email, confirmed ? "confirmed" : "unconfirmed");
-}
-
-/**
  * `true` when the address is already a confirmed member of the
  * environment-resolved list. Used by the subscribe endpoint to
  * short-circuit and skip the confirmation send for repeat signups.
@@ -124,9 +114,9 @@ export type SendConfirmationEmailParams = {
 
 export async function sendConfirmationEmail(params: SendConfirmationEmailParams): Promise<void> {
   // The recipient must exist as a ListMonk subscriber before /api/tx
-  // will accept the send. Create them as `unconfirmed` so they show up
-  // in the admin UI even if they never click the confirmation link.
-  await upsertSubscriber(params.to, "unconfirmed");
+  // will accept the send. It stays off the list until the link is
+  // clicked: the list is single opt-in, so any member gets campaigns.
+  await ensureSubscriber(params.to);
 
   const element = createElement(ConfirmSubscription, {
     confirmUrl: params.confirmUrl,
@@ -152,8 +142,8 @@ export { listmonkConfirm as confirmSubscription };
 //
 // This intentionally resets on container restart. Subscribe is a low-volume
 // endpoint (~one POST per legitimate user, ever) and the worst-case after a
-// restart is a small spam burst that ends at the ListMonk layer (dedupe via
-// upsert) anyway. A real shared store would be overkill.
+// restart is a small spam burst that ends at the ListMonk layer (dedupe in
+// `ensureSubscriber`) anyway. A real shared store would be overkill.
 // ────────────────────────────────────────────────────────────────────────────
 
 const RATE_WINDOW_MS = 60_000;

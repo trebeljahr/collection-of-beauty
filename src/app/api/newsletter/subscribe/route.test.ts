@@ -49,6 +49,7 @@ beforeEach(() => {
 
 afterEach(() => {
   vi.restoreAllMocks();
+  vi.unstubAllGlobals();
 });
 
 describe("POST /api/newsletter/subscribe", () => {
@@ -119,5 +120,71 @@ describe("POST /api/newsletter/subscribe", () => {
     const sixth = await POST(makeRequest({ email: "blocked@example.com" }));
     expect(sixth.status).toBe(429);
     expect(await sixth.json()).toMatchObject({ error: "rate_limited" });
+  });
+});
+
+// The list is single opt-in, so ListMonk sends campaigns to every member
+// that isn't `unsubscribed`, `unconfirmed` included. These run the real
+// `sendConfirmationEmail` against a stubbed ListMonk to prove the form
+// never touches list membership; only the confirm route may add it.
+const actual = await vi.importActual<typeof import("@/lib/newsletter/subscribe")>(
+  "@/lib/newsletter/subscribe",
+);
+
+describe("POST /api/newsletter/subscribe → ListMonk", () => {
+  type FetchCall = [RequestInfo | URL, RequestInit?];
+
+  function stubListmonk(existing: object | null) {
+    const fetchMock = vi.fn(async (input: RequestInfo | URL, init?: RequestInit) => {
+      const path = `${init?.method ?? "GET"} ${new URL(input as string).pathname}`;
+      const data =
+        path === "GET /api/subscribers"
+          ? { results: existing ? [existing] : [], total: existing ? 1 : 0 }
+          : path === "POST /api/subscribers"
+            ? { id: 42, email: "new@example.com", lists: [] }
+            : true;
+      return new Response(JSON.stringify({ data }), { status: 200 });
+    });
+    vi.stubGlobal("fetch", fetchMock);
+    return fetchMock;
+  }
+
+  function writes(calls: FetchCall[]): string[] {
+    return calls
+      .filter(([, init]) => (init?.method ?? "GET") !== "GET")
+      .map(([input, init]) => `${init?.method} ${new URL(input as string).pathname}`);
+  }
+
+  beforeEach(() => {
+    process.env.LISTMONK_URL = "https://listmonk.test";
+    process.env.LISTMONK_API_USER = "api-user";
+    process.env.LISTMONK_API_TOKEN = "api-token";
+    process.env.LISTMONK_LIST_ID = "4";
+    process.env.LISTMONK_TX_TEMPLATE_ID = "5";
+    process.env.SES_FROM_EMAIL = "noreply@example.com";
+    sendConfirmationEmail.mockImplementation(actual.sendConfirmationEmail);
+  });
+
+  it("creates a new address with no list before sending the confirmation", async () => {
+    const fetchMock = stubListmonk(null);
+    const res = await POST(makeRequest({ email: "new@example.com" }));
+    expect(res.status).toBe(200);
+    const calls = fetchMock.mock.calls;
+    expect(writes(calls)).toEqual(["POST /api/subscribers", "POST /api/tx"]);
+    const created = calls.find(([, init]) => init?.method === "POST");
+    expect(JSON.parse(created?.[1]?.body as string).lists).toEqual([]);
+  });
+
+  it("does not put a re-submitting subscriber on the list", async () => {
+    // Known to ListMonk (another project's list, or unsubscribed from
+    // ours) but not a confirmed member, so the form sends a new link.
+    const fetchMock = stubListmonk({
+      id: 42,
+      email: "old@example.com",
+      lists: [{ id: 4, subscription_status: "unsubscribed" }],
+    });
+    const res = await POST(makeRequest({ email: "old@example.com" }));
+    expect(res.status).toBe(200);
+    expect(writes(fetchMock.mock.calls)).toEqual(["POST /api/tx"]);
   });
 });

@@ -4,7 +4,8 @@
  * We talk to a self-hosted ListMonk instance (configured to deliver via
  * Amazon SES SMTP) over its REST API:
  *
- *   - Subscribers + list memberships are stored in ListMonk.
+ *   - Subscribers + list memberships are stored in ListMonk. An address
+ *     joins the list only once it confirms (see `confirmSubscription`).
  *   - Transactional emails (double-opt-in confirmation, welcome issue)
  *     go through `POST /api/tx` against a pre-defined passthrough
  *     template.
@@ -159,32 +160,19 @@ export async function isConfirmedOnList(email: string): Promise<boolean> {
   return entry?.subscription_status === "confirmed";
 }
 
-/**
- * Create the subscriber if missing, otherwise add the configured list
- * with the given subscription status. Idempotent.
- */
-export async function upsertSubscriber(
-  email: string,
-  status: SubscriptionStatus,
-): Promise<ListmonkSubscriber> {
-  const listId = resolveListId();
-  const existing = await findSubscriber(email);
+// Double opt-in and list membership
+//
+// The lists are `optin: single` on a ListMonk instance shared with other
+// projects. ListMonk sends a single-opt-in campaign to every list member
+// whose status is not `unsubscribed`, `unconfirmed` included. So a list
+// membership is a delivery, whatever its status: an address goes on the
+// list only after the HMAC link in our confirmation email is clicked.
+// Until then it exists as a subscriber with no lists, which is all
+// `/api/tx` needs to deliver the confirmation email.
 
-  if (existing) {
-    await listmonkFetch("/api/subscribers/lists", {
-      method: "PUT",
-      body: JSON.stringify({
-        ids: [existing.id],
-        action: "add",
-        target_list_ids: [listId],
-        status,
-      }),
-    });
-    // Re-fetch so callers see the updated `lists` array.
-    return (await findSubscriber(email)) ?? existing;
-  }
+type CreateResp = { data: ListmonkSubscriber };
 
-  type CreateResp = { data: ListmonkSubscriber };
+async function createSubscriber(email: string, listIds: number[]): Promise<ListmonkSubscriber> {
   const created = await listmonkFetch<CreateResp>("/api/subscribers", {
     method: "POST",
     body: JSON.stringify({
@@ -193,24 +181,53 @@ export async function upsertSubscriber(
       // only thing we ask for in the form, so reuse it.
       name: email.toLowerCase(),
       status: "enabled",
-      lists: [listId],
-      // We run our own double opt-in (custom HMAC token + designed
-      // confirmation email), so ask ListMonk *not* to send its own
-      // opt-in email. New list subscriptions land as `unconfirmed`
-      // until we promote them in `confirmSubscription`.
-      preconfirm_subscriptions: status === "confirmed",
+      lists: listIds,
+      // Marks any list in `listIds` as `confirmed`. It also stops
+      // ListMonk's own opt-in email: with `false`, ListMonk mails its
+      // confirmation for every double-opt-in list in `listIds` (when
+      // `app.send_optin_confirmation` is on), on top of ours.
+      preconfirm_subscriptions: true,
     }),
   });
   return created.data;
 }
 
 /**
- * Promote an existing subscription from `unconfirmed` to `confirmed`.
- * Idempotent: if the subscriber is missing entirely (e.g. cleaned up
- * server-side after token issuance), we recreate them as confirmed.
+ * Make sure `email` exists as a ListMonk subscriber, without adding it
+ * to any list. Call this before sending the confirmation email.
+ *
+ * An existing subscriber is returned untouched. It may belong to other
+ * projects' lists, or be `unsubscribed` from ours, and submitting the
+ * form again must not put it on our list before the confirm click.
+ */
+export async function ensureSubscriber(email: string): Promise<ListmonkSubscriber> {
+  return (await findSubscriber(email)) ?? (await createSubscriber(email, []));
+}
+
+/**
+ * Add `email` to the configured list as `confirmed`. Only the confirm
+ * route calls this, after the token has proven the reader owns the
+ * address. Idempotent: an existing membership, whatever its status,
+ * becomes `confirmed`. A subscriber that has gone missing since the
+ * token was issued (e.g. "delete orphan subscribers" in the admin UI)
+ * is recreated.
  */
 export async function confirmSubscription(email: string): Promise<void> {
-  await upsertSubscriber(email, "confirmed");
+  const listId = resolveListId();
+  const existing = await findSubscriber(email);
+  if (!existing) {
+    await createSubscriber(email, [listId]);
+    return;
+  }
+  await listmonkFetch("/api/subscribers/lists", {
+    method: "PUT",
+    body: JSON.stringify({
+      ids: [existing.id],
+      action: "add",
+      target_list_ids: [listId],
+      status: "confirmed",
+    }),
+  });
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
@@ -230,7 +247,7 @@ export type SendTransactionalParams = {
  * `{{ .Tx.Data.subject }}` and `{{ .Tx.Data.body | Safe }}`.
  *
  * The recipient must already exist as a subscriber. Call
- * `upsertSubscriber` before sending the confirmation email.
+ * `ensureSubscriber` before sending the confirmation email.
  */
 export async function sendTransactional(params: SendTransactionalParams): Promise<void> {
   const templateId = Number(required("LISTMONK_TX_TEMPLATE_ID"));

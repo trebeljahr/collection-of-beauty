@@ -1,5 +1,11 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
-import { findSubscriber, isConfirmedOnList, sendTransactional, upsertSubscriber } from "./listmonk";
+import {
+  confirmSubscription,
+  ensureSubscriber,
+  findSubscriber,
+  isConfirmedOnList,
+  sendTransactional,
+} from "./listmonk";
 
 const subscriber = {
   id: 42,
@@ -111,29 +117,86 @@ describe("isConfirmedOnList", () => {
   });
 });
 
-describe("upsertSubscriber", () => {
-  it("adds the configured list to existing subscribers", async () => {
+type FetchCall = [RequestInfo | URL, RequestInit?];
+
+/** Every request except the `findSubscriber` lookups, as "METHOD /path". */
+function writes(calls: FetchCall[]): string[] {
+  return calls
+    .filter(([, init]) => (init?.method ?? "GET") !== "GET")
+    .map(([input, init]) => `${init?.method} ${new URL(input as string).pathname}`);
+}
+
+function body(call: FetchCall): unknown {
+  return JSON.parse(call[1]?.body as string);
+}
+
+describe("ensureSubscriber", () => {
+  it("creates a missing subscriber on no list", async () => {
     const fetchMock = vi
-      .fn(async (_input: RequestInfo | URL, _init?: RequestInit) =>
-        jsonResponse({ data: { results: [], total: 0 } }),
-      )
-      .mockResolvedValueOnce(jsonResponse({ data: { results: [subscriber], total: 1 } }))
-      .mockResolvedValueOnce(jsonResponse({ data: true }))
-      .mockResolvedValueOnce(jsonResponse({ data: { results: [subscriber], total: 1 } }));
+      .fn(async (_input: RequestInfo | URL, _init?: RequestInit) => jsonResponse({}))
+      .mockResolvedValueOnce(jsonResponse({ data: { results: [], total: 0 } }))
+      .mockResolvedValueOnce(jsonResponse({ data: { ...subscriber, lists: [] } }));
     vi.stubGlobal("fetch", fetchMock);
 
-    await expect(upsertSubscriber("reader@example.com", "unconfirmed")).resolves.toEqual(
-      subscriber,
-    );
+    await ensureSubscriber("Reader@Example.com");
 
-    const updateCall = fetchMock.mock.calls[1];
-    expect(new URL(updateCall[0] as string).pathname).toBe("/api/subscribers/lists");
-    expect(updateCall[1]).toMatchObject({ method: "PUT" });
-    expect(JSON.parse((updateCall[1] as RequestInit).body as string)).toEqual({
+    expect(writes(fetchMock.mock.calls)).toEqual(["POST /api/subscribers"]);
+    expect(body(fetchMock.mock.calls[1])).toMatchObject({
+      email: "reader@example.com",
+      lists: [],
+    });
+  });
+
+  it("leaves an existing subscriber's lists alone", async () => {
+    // Unsubscribed from ours: submitting the form again must not re-add it.
+    const existing = {
+      ...subscriber,
+      lists: [{ ...subscriber.lists[0], subscription_status: "unsubscribed" as const }],
+    };
+    const fetchMock = vi.fn(async (_input: RequestInfo | URL, _init?: RequestInit) =>
+      jsonResponse({ data: { results: [existing], total: 1 } }),
+    );
+    vi.stubGlobal("fetch", fetchMock);
+
+    await expect(ensureSubscriber("reader@example.com")).resolves.toEqual(existing);
+    expect(writes(fetchMock.mock.calls)).toEqual([]);
+  });
+});
+
+describe("confirmSubscription", () => {
+  it("adds an existing subscriber to the configured list as confirmed", async () => {
+    const fetchMock = vi
+      .fn(async (_input: RequestInfo | URL, _init?: RequestInit) => jsonResponse({ data: true }))
+      .mockResolvedValueOnce(
+        jsonResponse({ data: { results: [{ ...subscriber, lists: [] }], total: 1 } }),
+      );
+    vi.stubGlobal("fetch", fetchMock);
+
+    await confirmSubscription("reader@example.com");
+
+    expect(writes(fetchMock.mock.calls)).toEqual(["PUT /api/subscribers/lists"]);
+    expect(body(fetchMock.mock.calls[1])).toEqual({
       ids: [42],
       action: "add",
       target_list_ids: [4],
-      status: "unconfirmed",
+      status: "confirmed",
+    });
+  });
+
+  it("recreates a missing subscriber on the list, preconfirmed", async () => {
+    const fetchMock = vi
+      .fn(async (_input: RequestInfo | URL, _init?: RequestInit) => jsonResponse({}))
+      .mockResolvedValueOnce(jsonResponse({ data: { results: [], total: 0 } }))
+      .mockResolvedValueOnce(jsonResponse({ data: subscriber }));
+    vi.stubGlobal("fetch", fetchMock);
+
+    await confirmSubscription("reader@example.com");
+
+    expect(writes(fetchMock.mock.calls)).toEqual(["POST /api/subscribers"]);
+    expect(body(fetchMock.mock.calls[1])).toMatchObject({
+      email: "reader@example.com",
+      lists: [4],
+      preconfirm_subscriptions: true,
     });
   });
 });
