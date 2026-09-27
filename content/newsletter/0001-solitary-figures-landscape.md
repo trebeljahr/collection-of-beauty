@@ -1,9 +1,9 @@
 ---
 title: "Solitary figures in landscape"
 subject: "Issue 1: Solitary figures in landscape"
-publishedAt: "2026-05-17"
+publishedAt: "2026-09-28"
 excerpt: "Friedrich's monk at the sea, and a mule train you have to hunt for under a Song-dynasty cliff. The first issue, on being small in a large landscape."
-draft: true
+draft: false
 cover:
   artworkId: "collection-of-beauty-caspar-david-friedrich-der-monch-am-meer-google-art-project"
 tags:
