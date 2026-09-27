@@ -4,6 +4,7 @@ import { notFound } from "next/navigation";
 import { ArtworkCard } from "@/components/artwork-card";
 import { ArtworkDownloads } from "@/components/artwork-downloads";
 import { ArtworkGlow } from "@/components/artwork-glow";
+import { ArtworkScale } from "@/components/artwork-scale";
 import { ArtworkScopeNav } from "@/components/artwork-scope-nav";
 import { ArtworkViewer } from "@/components/artwork-viewer";
 import { LicenseBadge } from "@/components/license-badge";
@@ -23,6 +24,7 @@ import { assignEra, type EraId, getEra } from "@/lib/gallery-eras";
 import { suggestFixUrl } from "@/lib/links";
 import type { PlateSetId } from "@/lib/plate-set-definitions";
 import { holdingSentence, plateNumberFor, plateSetForArtwork } from "@/lib/plate-sets";
+import { scaleReferenceFor, trustworthyRealSize } from "@/lib/real-size";
 import { artworkJsonLd, buildOpenGraph, jsonLdScriptProps, ogImagesForArtwork } from "@/lib/seo";
 import { sourceLabel } from "@/lib/source-label";
 
@@ -146,6 +148,10 @@ export default async function ArtworkPage({ params }: { params: Promise<Params> 
   const plateSet = plateSetForArtwork(art);
   const plateNumber = plateSet ? plateNumberFor(art.id, plateSet.id) : null;
 
+  // Null when the size is missing or fails the audit; the scale view then
+  // does not render at all, rather than drawing a guessed size.
+  const realSize = trustworthyRealSize(art);
+
   return (
     <div className="mx-auto max-w-6xl px-4 py-8">
       <script {...jsonLdScriptProps(artworkJsonLd(art))} />
@@ -250,6 +256,15 @@ export default async function ArtworkPage({ params }: { params: Promise<Params> 
                   renders on 475 of its pages. */}
               {holdingSentence(plateSet)}
             </p>
+          )}
+
+          {realSize && (
+            <ArtworkScale
+              objectKey={art.objectKey}
+              variantWidths={art.variantWidths}
+              size={realSize}
+              reference={scaleReferenceFor(realSize)}
+            />
           )}
 
           <ArtworkDownloads artwork={art} />

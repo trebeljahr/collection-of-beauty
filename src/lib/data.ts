@@ -55,7 +55,29 @@ export type Artwork = {
   realDimensions: {
     widthCm: number;
     heightCm: number;
-    source: "wikidata" | "wikimedia-template" | "wikimedia-template-mm" | "static";
+    /** Where the numbers came from; `trustworthyRealSize()` in
+     *  `real-size.ts` decides per source whether they describe the image.
+     *  - wikidata: P2049 × P2048 on the painting's item.
+     *  - wikimedia-template / wikimedia-template-mm: the Commons file
+     *    page's dimensions field; `-mm` means build-data divided a value
+     *    over 400 cm by 10.
+     *  - static: one sheet size per book (Audubon, Redouté, Haeckel).
+     *  - series-default: a Japanese print format (ōban ≈ 24 × 36), not a
+     *    measurement of the print.
+     *  - museum / commons / wikipedia: researched from a collection page,
+     *    the Commons file page, or a Wikipedia infobox (10108cf).
+     *  - curated: a researched correction for a crop, multi-panel or
+     *    mis-resolved value (ce62de1). */
+    source:
+      | "wikidata"
+      | "wikimedia-template"
+      | "wikimedia-template-mm"
+      | "static"
+      | "series-default"
+      | "museum"
+      | "commons"
+      | "wikipedia"
+      | "curated";
   } | null;
   /** Widths (in px) for which a pre-built variant exists under
    *  assets-web/<folder>/<basename>/<width>.{avif,webp}. Emitted by
