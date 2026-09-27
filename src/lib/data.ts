@@ -92,6 +92,22 @@ export type Artwork = {
    *  variant (or the original) via `sharp().stats()` in build-data.
    *  Null when nothing on disk was readable at build time. */
   dominantColor: string | null;
+  /** ThumbHash of the work (https://evanw.github.io/thumbhash/): ~20
+   *  bytes of DCT coefficients, standard base64 *without* `=` padding
+   *  (23-32 characters). Gallery tiles decode it into a blurred preview
+   *  of the actual picture that paints over `dominantColor` until the
+   *  variant arrives — the flat average says "brownish", the preview
+   *  says "that Rembrandt". Encoded by `pnpm assets:build-data` from the
+   *  same smallest variant `dominantColor` reads. Null under the same
+   *  contract as `dominantColor`: nothing on disk was readable.
+   *
+   *  Decoded only in client components, by `src/lib/thumbhash-grid.ts`,
+   *  so the ~240-character data URL never enters the RSC payload. The
+   *  full-catalogue endpoints (`/api/artworks`, and `/api/artworks/scope`
+   *  without `fields=id`) strip it: their consumers — the 3D gallery and
+   *  the lightbox's prev/next list — paint no tiles, and on 4,557 rows it
+   *  is +117 KB gzipped (+33%). See `catalogueListings`. */
+  thumbHash: string | null;
   /** Colour families this work reads as, best-first (e.g.
    *  `["blue", "gold"]`), drawn from the ids in
    *  `src/lib/color-buckets.mjs`. Powers the browse-by-colour filter.
@@ -219,8 +235,13 @@ export type ArtworkListing = Pick<
   | "height"
   | "realDimensions"
   | "dominantColor"
+  | "thumbHash"
   | "colorBuckets"
 >;
+
+/** An `ArtworkListing` as the full-catalogue endpoints serve it: without
+ *  `thumbHash`. See `catalogueListings`. */
+export type CatalogueListing = Omit<ArtworkListing, "thumbHash">;
 
 const _artworkListings: ArtworkListing[] = (artworksJson as Artwork[]).map((a) => ({
   id: a.id,
@@ -237,9 +258,50 @@ const _artworkListings: ArtworkListing[] = (artworksJson as Artwork[]).map((a) =
   height: a.height,
   realDimensions: a.realDimensions,
   dominantColor: a.dominantColor,
+  // `?? null` because a catalogue built before build-data encoded hashes
+  // has no such key, and the listing contract is null, not undefined.
+  thumbHash: a.thumbHash ?? null,
   colorBuckets: a.colorBuckets,
 }));
 export const artworkListings: ArtworkListing[] = _artworkListings;
+
+/** Listings without `thumbHash`, memoised per source array. The arrays
+ *  that reach here are shared caches (`orderedArtworkListings`' order
+ *  cache, the timeline's dated list), so this copies rather than deleting
+ *  in place, and keys the copy on the source's identity: a WeakMap lets a
+ *  copy go once its source has been evicted.
+ *
+ *  Rows are memoised too. The order cache holds up to 64 arrays, most of
+ *  them re-orderings of the same 4,557 listings; stripping each row per
+ *  array would cost ~0.77 MB of heap per full-catalogue copy, where
+ *  sharing the stripped rows leaves each copy an array of pointers. */
+const withoutThumbHashCache = new WeakMap<readonly ArtworkListing[], CatalogueListing[]>();
+const strippedRows = new WeakMap<ArtworkListing, CatalogueListing>();
+
+function stripRow(row: ArtworkListing): CatalogueListing {
+  let stripped = strippedRows.get(row);
+  if (!stripped) {
+    const { thumbHash: _thumbHash, ...rest } = row;
+    stripped = rest;
+    strippedRows.set(row, stripped);
+  }
+  return stripped;
+}
+
+export function withoutThumbHash(list: readonly ArtworkListing[]): CatalogueListing[] {
+  const hit = withoutThumbHashCache.get(list);
+  if (hit) return hit;
+  const stripped = list.map(stripRow);
+  withoutThumbHashCache.set(list, stripped);
+  return stripped;
+}
+
+/** What `/api/artworks` serves: every listing, minus `thumbHash`. Its
+ *  consumers (the 3D gallery, the lightbox's prev/next list) never paint
+ *  a DOM tile, and across all 4,557 rows the hashes would add ~197 KB raw
+ *  / ~117 KB gzipped — a third of the response — for nothing. Computed
+ *  once; the route is force-static anyway. */
+export const catalogueListings: CatalogueListing[] = withoutThumbHash(artworkListings);
 export const summary = summaryJson as {
   totalArtworks: number;
   totalArtists: number;

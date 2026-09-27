@@ -6,6 +6,7 @@ import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { imageSize } from "image-size";
 import sharp from "sharp";
+import { rgbaToThumbHash } from "thumbhash";
 import { colorProfileFromHistogram } from "../src/lib/color-buckets.mjs";
 import { loadArtistsDb, matchArtist } from "./lib/artist-alias.mjs";
 import { artworkId, ID_MAX_LENGTH, slugify } from "./lib/artwork-id.mjs";
@@ -205,7 +206,8 @@ async function dominantColorFor(folderKey, filename) {
 // does — a cold run spends over two minutes decoding pixels, and `pnpm dev`
 // blocks on all of it before Next even starts. Almost none of that work
 // changes between runs: the assets are static, so a file's dimensions,
-// dominant color and colour families are a pure function of its bytes.
+// dominant color, colour families and ThumbHash are a pure function of its
+// bytes.
 // Persist the results keyed
 // by (mtime, size) of the original plus the mtime of its variant directory,
 // and a warm run reuses everything and finishes in seconds.
@@ -214,11 +216,14 @@ async function dominantColorFor(folderKey, filename) {
 // Wikimedia response cache) rather than src/data/, which is committed.
 // v3 added colorStrength, which no v2 entry carries — the amounts only
 // exist by re-reading pixels, so the bump forces one full re-probe.
+// v4 added thumbHash, which likewise only exists by re-reading pixels. A v3
+// entry restored as-is would give every work a null hash, indistinguishable
+// from "unreadable", and the matching signature would keep it that way.
 //
 // Only probes that produced dimensions are cached. A failure is an event to
 // retry and report, not a fact about the bytes, and caching one made the
 // resulting null width/height in artworks.json permanent and invisible.
-const PROBE_CACHE_VERSION = 3;
+const PROBE_CACHE_VERSION = 4;
 const PROBE_CACHE_FILE = path.join(META, ".cache", "image-probe.json");
 
 // Signature of everything the probe results depend on. Returns null when the
@@ -251,13 +256,18 @@ async function loadProbeCache() {
     const raw = JSON.parse(await readFile(PROBE_CACHE_FILE, "utf8"));
     if (raw.version !== PROBE_CACHE_VERSION) return {};
     const entries = raw.entries ?? {};
-    // Only successful probes are written (see prefillImageProbes), but v3
+    // Only successful probes are written (see prefillImageProbes), but
     // caches predating that rule can hold an entry whose dimension probe
     // threw. Dropping them here re-probes exactly those files instead of
     // forcing a full 4,500-image re-probe with a version bump.
+    //
+    // Every entry written since v4 carries a thumbHash key, null when the
+    // pixels were unreadable. One without the key was not written by this
+    // code, and restoring it would turn `undefined` into a null that looks
+    // exactly like a real "unreadable", so it is re-probed too.
     const usable = {};
     for (const [key, entry] of Object.entries(entries)) {
-      if (entry?.width && entry?.height) usable[key] = entry;
+      if (entry?.width && entry?.height && entry.thumbHash !== undefined) usable[key] = entry;
     }
     return usable;
   } catch {
@@ -314,10 +324,11 @@ function makeProgressReporter(label, total) {
   };
 }
 
-// Populate dimensionCache / colorCache / profileCache / variantsCache for every artwork we
-// are about to emit, reusing cached probe results where the files haven't
-// moved and probing the rest in parallel. After this returns, the per-entry
-// `await dimensionsFor(...)` calls in the main loop are pure cache hits.
+// Populate dimensionCache / colorCache / profileCache / thumbHashCache /
+// variantsCache for every artwork we are about to emit, reusing cached probe
+// results where the files haven't moved and probing the rest in parallel.
+// After this returns, the per-entry `await dimensionsFor(...)` calls in the
+// main loop are pure cache hits.
 async function prefillImageProbes(work) {
   const cached = await loadProbeCache();
   const fresh = {};
@@ -334,6 +345,7 @@ async function prefillImageProbes(work) {
     fresh[key] = hit;
     dimensionCache.set(key, { width: hit.width, height: hit.height });
     colorCache.set(key, hit.dominantColor ?? null);
+    thumbHashCache.set(key, hit.thumbHash ?? null);
     profileCache.set(
       key,
       hit.colorBuckets ? { buckets: hit.colorBuckets, strength: hit.colorStrength ?? {} } : null,
@@ -354,6 +366,7 @@ async function prefillImageProbes(work) {
       const dims = await dimensionsFor(item.folderKey, item.fname);
       const dominantColor = await dominantColorFor(item.folderKey, item.fname);
       const profile = await colorProfileFor(item.folderKey, item.fname);
+      const thumbHash = await thumbHashFor(item.folderKey, item.fname);
       const variantWidths = variantWidthsFor(item.folderKey, item.fname);
       // Cache successes only. A null dimension probe here means the file was
       // there (probeSignature already returns null for a missing original) and
@@ -365,6 +378,7 @@ async function prefillImageProbes(work) {
           width: dims.width,
           height: dims.height,
           dominantColor,
+          thumbHash,
           colorBuckets: profile?.buckets ?? null,
           colorStrength: profile?.strength ?? null,
           variantWidths,
@@ -455,6 +469,52 @@ async function colorProfileFor(folderKey, filename) {
     }
   }
   profileCache.set(key, result);
+  return result;
+}
+
+// ThumbHash placeholder (https://evanw.github.io/thumbhash/): a 17-24 byte
+// DCT of the image's lowest frequencies. dominantColor paints one flat tint;
+// this decodes to a blurred preview of the composition (a light sky above a
+// dark shore), so a slow tile shows roughly the right picture while its
+// variant downloads. The client decodes it into a small PNG grid at the
+// work's true aspect; see src/lib/thumbhash-grid.ts.
+//
+// Read from the same smallest variant as the other pixel passes. The encoder
+// refuses input above 100x100, and fit: "inside" keeps the aspect, which the
+// hash records. flatten() mirrors shrink-sources (alpha → white), so an
+// original-plate fallback hashes what the site shows; it is a no-op on the
+// 3-channel variants. toColourspace("srgb") promotes a 1-channel greyscale
+// source to three channels, so ensureAlpha() always yields exactly RGBA.
+//
+// Stored as standard base64 without "=" padding: 23-32 characters, about 43
+// bytes per row of artworks.json. null means nothing on disk was readable,
+// the same contract as dominantColor.
+const THUMBHASH_SAMPLE_PX = 100;
+
+const thumbHashCache = new Map();
+async function thumbHashFor(folderKey, filename) {
+  const key = `${folderKey}/${filename}`;
+  if (thumbHashCache.has(key)) return thumbHashCache.get(key);
+  let result = null;
+  const source = smallestSourceFor(folderKey, filename);
+  if (source) {
+    try {
+      const { data, info } = await sharp(source)
+        .flatten({ background: "#ffffff" })
+        .resize(THUMBHASH_SAMPLE_PX, THUMBHASH_SAMPLE_PX, { fit: "inside" })
+        .toColourspace("srgb")
+        .ensureAlpha()
+        .raw()
+        .toBuffer({ resolveWithObject: true });
+      if (info.channels === 4) {
+        const hash = rgbaToThumbHash(info.width, info.height, data);
+        result = Buffer.from(hash).toString("base64").replace(/=+$/, "");
+      }
+    } catch {
+      // leave null
+    }
+  }
+  thumbHashCache.set(key, result);
   return result;
 }
 
@@ -1632,6 +1692,7 @@ async function main() {
       const variantWidths = variantWidthsFor(folderKey, fname);
       const dominantColor = await dominantColorFor(folderKey, fname);
       const colorProfile = await colorProfileFor(folderKey, fname);
+      const thumbHash = await thumbHashFor(folderKey, fname);
       const originalDateString = dateOriginals.get(fname.normalize("NFC")) ?? null;
       artworks.push({
         id,
@@ -1653,6 +1714,7 @@ async function main() {
         realDimensions: real,
         variantWidths: variantWidths.length > 0 ? variantWidths : null,
         dominantColor,
+        thumbHash,
         colorBuckets: colorProfile?.buckets ?? null,
         colorStrength: colorProfile?.strength ?? null,
         fileUrl: entry.source.file_url,

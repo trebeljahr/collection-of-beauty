@@ -15,7 +15,8 @@ export type TimelineDecade = { decade: number; count: number; aspects: number[] 
 
 /** Everything a timeline tile actually reads off an artwork: the
  *  thumbnail and its pixel size (the justified row solver in
- *  <ArtworkRows> needs the aspect ratio), the hover tooltip
+ *  <ArtworkRows> needs the aspect ratio), its placeholder
+ *  (`dominantColor`, and the `thumbHash` blur over it), the hover tooltip
  *  (title / artist / year), and the href. Deliberately narrower than
  *  `ArtworkListing` — movement, nationality and realDimensions are
  *  filter inputs the timeline resolves on the server, so shipping them
@@ -32,6 +33,7 @@ export type TimelineListing = Pick<
   | "width"
   | "height"
   | "dominantColor"
+  | "thumbHash"
 >;
 
 export type TimelineFilter = {
@@ -172,6 +174,7 @@ function toTimelineListing(artwork: ArtworkListing): TimelineListing {
     width: artwork.width,
     height: artwork.height,
     dominantColor: artwork.dominantColor,
+    thumbHash: artwork.thumbHash,
   };
 }
 

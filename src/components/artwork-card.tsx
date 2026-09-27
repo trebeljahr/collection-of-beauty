@@ -30,6 +30,13 @@ export function ArtworkCard({ artwork, priority, scope }: Props) {
           sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 20vw"
           priority={priority}
           dominantColor={artwork.dominantColor}
+          // This is a server component, so ResponsiveImage hands the hash
+          // to its client leaf (ThumbHashPicture) and the decode happens
+          // there. The work's size sets the blur's aspect, so its cover
+          // crop into the 4:5 box matches the image's.
+          thumbHash={artwork.thumbHash}
+          workWidth={artwork.width}
+          workHeight={artwork.height}
           className="transition-transform duration-500 group-hover:scale-105 group-active:scale-[1.02]"
         />
       </div>

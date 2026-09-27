@@ -49,6 +49,9 @@ export function Gallery3DClient() {
     fetch("/api/artworks", { signal: controller.signal })
       .then((res) => {
         if (!res.ok) throw new Error(`fetch /api/artworks: ${res.status}`);
+        // The route serves `CatalogueListing`s: `thumbHash` is stripped
+        // there, and nothing under gallery-3d reads it, so treating the
+        // rows as full listings is safe.
         return res.json() as Promise<ArtworkListing[]>;
       })
       .then(setArtworks)

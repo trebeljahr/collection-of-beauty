@@ -1,5 +1,6 @@
-import type { CSSProperties } from "react";
+import type { CSSProperties, ReactNode } from "react";
 import { ProgressiveImage } from "@/components/progressive-image";
+import { type ThumbHashFit, ThumbHashPicture } from "@/components/thumbhash-picture";
 import { cn, fallbackVariantUrl, variantSrcSet } from "@/lib/utils";
 
 type Props = {
@@ -38,6 +39,30 @@ type Props = {
    *  (an LCP image wants its full pixels first, not a thumbnail ahead of
    *  them) and when no variants exist. See progressive-image.tsx. */
   progressive?: boolean;
+  /** Artwork.thumbHash. When set, a blurred preview of the work paints
+   *  over the `dominantColor` tint until the variant's pixels arrive, then
+   *  cross-fades to them (see thumbhash-picture.tsx). Decoded in a client
+   *  leaf, so a server component can pass it without the data URL
+   *  entering the RSC payload. Null/undefined renders exactly the markup
+   *  this component always has. */
+  thumbHash?: string | null;
+  /** How the blur maps onto the image box. Defaults to `stretch` outside
+   *  `fill` mode, where the <img> box is the work's own aspect, and to
+   *  `cover` inside it, matching the object-cover crop. */
+  thumbHashFit?: ThumbHashFit;
+  /** The work's own pixel size, read only for the aspect the blur is
+   *  decoded at; null/missing falls back to `srcWidth`/`srcHeight`, then
+   *  to the hash's own aspect. Pass it wherever those aren't the work's
+   *  size: a `fill` image has none, and a gallery tile's are its solved
+   *  cell size, rounded to 3 decimals, which can tip a 3:4 work (exactly
+   *  4.5 cells on the short side) to a different grid once the client
+   *  re-solves the row at its measured width. */
+  workWidth?: number | null;
+  workHeight?: number | null;
+  /** Keep the blur out of the server and hydration renders and add it
+   *  right after hydration. For SSR'd gallery tiles past the eager
+   *  budget (EAGER_BLUR_TILES in artwork-gallery.tsx). */
+  deferThumbHash?: boolean;
 };
 
 /**
@@ -67,6 +92,11 @@ export function ResponsiveImage({
   dominantColor,
   style,
   progressive,
+  thumbHash,
+  thumbHashFit,
+  workWidth,
+  workHeight,
+  deferThumbHash,
 }: Props) {
   // React accepts `fetchPriority` (camelCase) as of 18.3 / 19. Older React
   // would warn but still emit it; we're on 19 so this is clean.
@@ -74,6 +104,9 @@ export function ResponsiveImage({
   const resolvedLoading = priority ? "eager" : loading;
 
   const hasVariants = variantWidths && variantWidths.length > 0;
+  const blurFit: ThumbHashFit = thumbHashFit ?? (fill ? "cover" : "stretch");
+  const blurWidth = workWidth ?? srcWidth;
+  const blurHeight = workHeight ?? srcHeight;
 
   // Progressive path: only for lazy tiles that have a variant ladder. An
   // LCP/priority image skips it (it wants full pixels first, not a
@@ -91,6 +124,11 @@ export function ResponsiveImage({
         fill={fill}
         dominantColor={dominantColor}
         className={className}
+        thumbHash={thumbHash}
+        thumbHashFit={blurFit}
+        workWidth={blurWidth}
+        workHeight={blurHeight}
+        deferThumbHash={deferThumbHash}
       />
     );
   }
@@ -99,6 +137,26 @@ export function ResponsiveImage({
     ? { backgroundColor: dominantColor, ...style }
     : style;
 
+  // With a hash the <picture> becomes the blur's client leaf; without
+  // one this is the identity and the markup is what it always was.
+  const withBlur = (children: ReactNode) =>
+    thumbHash ? (
+      <ThumbHashPicture
+        thumbHash={thumbHash}
+        width={blurWidth}
+        height={blurHeight}
+        fit={blurFit}
+        fill={fill}
+        defer={deferThumbHash}
+        objectKey={objectKey}
+        dominantColor={dominantColor}
+      >
+        {children}
+      </ThumbHashPicture>
+    ) : (
+      children
+    );
+
   if (!hasVariants) {
     // No manifest — serve a single fallback variant, no <picture>: a
     // srcSet of widths we can't vouch for would leave the <img> broken
@@ -106,8 +164,10 @@ export function ResponsiveImage({
     // option here either; originals were never synced to the asset
     // bucket, so `assetUrl()` (what this branch used to serve) is a
     // guaranteed 404. Assuming the standard ladder at least resolves
-    // for anything that has actually been shrunk.
-    return (
+    // for anything that has actually been shrunk. A blur still needs a
+    // wrapper to fade over, so with a hash the lone <img> goes inside a
+    // <picture> with no <source>s, which is valid and changes nothing else.
+    return withBlur(
       // eslint-disable-next-line @next/next/no-img-element
       // biome-ignore lint/performance/noImgElement: fallback when no variants exist; next/image does not fit the rclone-backed pipeline (variants are pre-built, not optimized at request time).
       <img
@@ -120,7 +180,7 @@ export function ResponsiveImage({
         fetchPriority={fetchPriority}
         className={cn(fill && fillClasses, className)}
         style={mergedStyle}
-      />
+      />,
     );
   }
 
@@ -135,10 +195,11 @@ export function ResponsiveImage({
 
   // In `fill` mode the parent's box supplies the geometry, so intrinsic
   // width/height are omitted and the <img> is stretched to cover it.
-  return (
-    <picture>
+  const sources = (
+    <>
       <source type="image/avif" srcSet={avif} sizes={sizes} />
       {/* eslint-disable-next-line @next/next/no-img-element */}
+      {/* biome-ignore lint/performance/noImgElement: always ends up inside a <picture> (below, or ThumbHashPicture's); the fragment just hides that from the rule. */}
       <img
         src={fallback}
         alt={alt}
@@ -151,6 +212,7 @@ export function ResponsiveImage({
         className={fill ? cn(fillClasses, className) : className}
         style={mergedStyle}
       />
-    </picture>
+    </>
   );
+  return thumbHash ? withBlur(sources) : <picture>{sources}</picture>;
 }

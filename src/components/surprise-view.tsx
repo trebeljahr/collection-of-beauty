@@ -182,7 +182,9 @@ export function SurpriseView({ deck }: Props) {
 
       <figure className="flex w-full flex-col items-center gap-5">
         {/* Opens the full-screen lightbox in place. The href is the
-            no-JS and modified-click fallback. */}
+            no-JS and modified-click fallback. No overflow-hidden: the
+            thumbHash blur's <picture> inherits this rounding itself, and
+            a clip here would cut off anything painted around the frame. */}
         <Link
           href={`/artwork/${current.id}`}
           aria-label={`View ${title} full screen`}
@@ -200,7 +202,7 @@ export function SurpriseView({ deck }: Props) {
           {/* key on the id so the <img> is a fresh element per work —
               without it React reuses the node and the browser paints the
               previous painting until the new bytes decode. */}
-          <SurpriseImage key={current.id} art={current} priority />
+          <SurpriseImage key={current.id} art={current} priority preview />
         </Link>
 
         <figcaption className="flex w-full max-w-3xl flex-col items-center gap-1 text-center">
@@ -312,7 +314,18 @@ function surpriseSizes(art: ArtworkListing): string {
   return `(max-width: 768px) 100vw, min(100vw, calc((${FRAME_MAX_HEIGHT_VH}) * ${ratio}))`;
 }
 
-function SurpriseImage({ art, priority }: { art: ArtworkListing; priority?: boolean }) {
+function SurpriseImage({
+  art,
+  priority,
+  preview,
+}: {
+  art: ArtworkListing;
+  priority?: boolean;
+  /** Paint the thumbHash blur while the variant loads. Only the visible
+   *  work wants it: the warming copy is invisible, and its blur would be
+   *  ~240 bytes of server HTML nobody sees. */
+  preview?: boolean;
+}) {
   return (
     <ResponsiveImage
       objectKey={art.objectKey}
@@ -320,6 +333,13 @@ function SurpriseImage({ art, priority }: { art: ArtworkListing; priority?: bool
       sizes={surpriseSizes(art)}
       variantWidths={art.variantWidths}
       dominantColor={art.dominantColor}
+      thumbHash={preview ? art.thumbHash : null}
+      // The frame already has the work's aspect (frameStyle), so the
+      // blur stretches to it. `contain` would contain the grid's
+      // rounded aspect instead and leave bars of tint on two sides.
+      thumbHashFit="stretch"
+      workWidth={art.width}
+      workHeight={art.height}
       fill
       // The wrapper already carries the artwork's exact aspect ratio, so
       // contain and cover agree — contain just guarantees no crop if a

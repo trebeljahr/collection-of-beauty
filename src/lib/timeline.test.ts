@@ -100,6 +100,7 @@ describe("getTimelineDecadeWorks", () => {
         "height",
         "id",
         "objectKey",
+        "thumbHash",
         "title",
         "variantWidths",
         "width",

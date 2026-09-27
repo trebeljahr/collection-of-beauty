@@ -30,6 +30,9 @@ export type GalleryPhoto = {
   artist: string | null;
   year: number | null;
   dominantColor: string | null;
+  /** Artwork.thumbHash, normalised to null: a listing from an API
+   *  response cached before the field existed has no such key. */
+  thumbHash: string | null;
 };
 
 /** The fields a gallery tile reads. Narrower than `ArtworkListing` so the
@@ -46,6 +49,7 @@ export type GalleryPhotoSource = Pick<
   | "width"
   | "height"
   | "dominantColor"
+  | "thumbHash"
 >;
 
 export function toGalleryPhoto(a: GalleryPhotoSource, scope: Scope | null = null): GalleryPhoto {
@@ -61,6 +65,10 @@ export function toGalleryPhoto(a: GalleryPhotoSource, scope: Scope | null = null
     artist: a.artist,
     year: a.year,
     dominantColor: a.dominantColor,
+    // `?? null` rather than trusting the type: /api/artworks/page and
+    // /api/timeline/works allow a day of stale-while-revalidate, so rows
+    // from before the field existed can still arrive after a deploy.
+    thumbHash: a.thumbHash ?? null,
   };
 }
 
@@ -326,6 +334,55 @@ const SINGLE_ROW_MAX_SCALE = 1.5;
 
 type RowHeight = number | ((width: number) => number);
 
+/** How many tiles, counted from the top of the grid, carry their
+ *  thumbHash blur in the server HTML — at least; `eagerBlurTileCount`
+ *  rounds it up to the end of its row. Each blur is a ~240-character
+ *  data URL, and the home page server-renders 80 tiles: all of them would
+ *  add ~20 KB to the document, most of it for tiles below the fold. The
+ *  rest are left out of the server render and the hydration render, so
+ *  the two still match, and pick the blur up right after hydration. Tiles
+ *  mounted on the client (load-more, a client navigation, the timeline's
+ *  decades) are past hydration already and decode on first render. */
+export const EAGER_BLUR_TILES = 24;
+
+/** EAGER_BLUR_TILES, rounded up to the end of the row that tile lands in.
+ *
+ *  Until hydration every viewport shows the rows the server solved at
+ *  `defaultContainerWidth`, scaled with CSS. On a 375 px phone and on a
+ *  2560 px screen that puts five rows, ~26 tiles, in the first screen, and
+ *  a flat 24 cut the fifth row in half: four blurred tiles beside two flat
+ *  tints, for as long as hydration takes (20-40 s on slow 3G).
+ *  react-photo-album solves those rows during render, with this solver
+ *  and these inputs, until it has measured itself, so the server render
+ *  and the hydration render agree on the count. After hydration the count
+ *  no longer matters: every tile has its blur. */
+function eagerBlurTileCount(
+  photos: readonly GalleryPhoto[],
+  containerWidth: number,
+  target: number,
+): number {
+  const last = EAGER_BLUR_TILES - 1;
+  const chunkStart = Math.floor(last / CHUNK_SIZE) * CHUNK_SIZE;
+  const group = photos.slice(chunkStart, chunkStart + CHUNK_SIZE);
+  const local = last - chunkStart;
+  if (group.length <= local) return EAGER_BLUR_TILES;
+  // Mirrors what <RowsPhotoAlbum> passes computeRowsLayout below: no
+  // padding, no minPhotos, and the album's own width, which is
+  // `defaultContainerWidth` until its ref has measured it.
+  const layout = computeRowsLayout(
+    group,
+    ROW_SPACING_PX,
+    0,
+    containerWidth,
+    target,
+    undefined,
+    rowConstraints(target).maxPhotos,
+  );
+  const row = layout?.tracks.find((track) => track.photos.some((p) => p.index === local));
+  const rowEnd = row?.photos.at(-1)?.index ?? local;
+  return chunkStart + Math.max(rowEnd, local) + 1;
+}
+
 function resolveRowHeight(targetRowHeight: RowHeight, width: number): number {
   return typeof targetRowHeight === "function" ? targetRowHeight(width) : targetRowHeight;
 }
@@ -402,6 +459,10 @@ export function ArtworkRows({
   const initialContainerWidth = containerWidth ?? 1200;
   const target = resolveRowHeight(targetRowHeight, initialContainerWidth);
   const constraints = useMemo(() => rowConstraints(target), [target]);
+  const eagerBlurTiles = useMemo(
+    () => eagerBlurTileCount(photos, initialContainerWidth, target),
+    [photos, initialContainerWidth, target],
+  );
 
   // The container width, restated for the browser's variant picker.
   // react-photo-album turns `sizes` into a per-tile
@@ -493,8 +554,11 @@ export function ArtworkRows({
               // for the common case but avoids a class of edge-case
               // re-flows when the browser swaps the layout-aspect for
               // the loaded image's natural-aspect during decoding.
-              image: (props, { photo, width: renderedWidth, height: renderedHeight }) => {
+              image: (props, { photo, index, width: renderedWidth, height: renderedHeight }) => {
                 const p = photo as GalleryPhoto;
+                // `index` is the tile's place within this chunk; every
+                // chunk but the last holds exactly CHUNK_SIZE.
+                const gridIndex = i * CHUNK_SIZE + index;
                 return (
                   <ResponsiveImage
                     objectKey={p.src}
@@ -505,6 +569,10 @@ export function ArtworkRows({
                     sizes={props.sizes ?? `${Math.ceil(renderedWidth)}px`}
                     loading="lazy"
                     dominantColor={p.dominantColor}
+                    thumbHash={p.thumbHash}
+                    workWidth={p.width}
+                    workHeight={p.height}
+                    deferThumbHash={gridIndex >= eagerBlurTiles}
                     progressive={slowConnection}
                     style={{ width: "100%", height: "auto" }}
                   />

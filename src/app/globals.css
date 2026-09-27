@@ -409,6 +409,52 @@
   background-color: var(--muted);
 }
 
+/* ThumbHash blur (see thumbhash-picture.tsx). The client leaf sets the
+   decoded grid once, as --ri-blur on the tile's <picture>; the <img>
+   inherits the variable and paints the same blur as its own background,
+   over its dominantColor. The img's copy is what a view-transition
+   snapshot or the back-flip sees, so the img is right on its own at every
+   moment. The picture's copy is what shows through while the img fades
+   in (ri-reveal) once its pixels land. The progressive frame paints it
+   too, and so does its 256 px thumbnail until that img's pixels cover
+   it: the thumbnail is the tile's first <img> there, the one the
+   view-transition snapshot takes. An unset variable computes to `none`,
+   so tiles without a hash paint exactly as before. --ri-blur-size is
+   "100% 100%" when the box already has the work's aspect, cover when an
+   object-cover image is cropped. */
+.ri-blur {
+  display: block;
+}
+.ri-blur,
+.ri-blur > img,
+.ri-frame,
+.ri-frame > .ri-lqip {
+  background-image: var(--ri-blur);
+  background-size: var(--ri-blur-size, cover);
+  background-position: center;
+  background-repeat: no-repeat;
+}
+/* Set by the load handler, never in server markup: an SSR'd img is
+   always visible. prefers-reduced-motion collapses it via the catch-all
+   above. */
+.ri-blur > img[data-ri-reveal] {
+  animation: ri-reveal 400ms ease-out both;
+}
+/* A tile about to be snapshotted for a FLIP (data-settled: the tile's
+   click and the back-flip set it) shows its pixels at full opacity, not
+   a half-faded img over a blur the snapshot doesn't include. */
+[data-settled] .ri-blur > img[data-ri-reveal] {
+  animation: none;
+}
+@keyframes ri-reveal {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
 .ri-shimmer {
   position: absolute;
   inset: 0;
@@ -456,6 +502,12 @@
 .ri-lqip {
   filter: blur(14px);
   transform: scale(1.08);
+}
+/* The sweep sits above the thumbnail (its thumbHash background would
+   hide it from the first frame otherwise), so the thumbnail's pixels
+   retire it the way the sharp layer's do. */
+.ri-frame[data-thumb="true"] .ri-shimmer {
+  opacity: 0;
 }
 .ri-full {
   opacity: 0;

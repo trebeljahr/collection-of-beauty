@@ -59,6 +59,30 @@ required by the Dockerfile — don't remove it.
   compare strengths across families: `blue: 0.3` is not "more" than
   `gold: 0.5`, since the corpus is full of gold. That comparison is what
   the prior-normalised score exists for.
+- `Artwork.thumbHash` is a [ThumbHash](https://evanw.github.io/thumbhash/)
+  of the smallest variant: ~20 bytes, unpadded base64 (~28 chars). A tile
+  paints it as a blurred preview over the `dominantColor` tint until the
+  variant loads, then fades to the pixels. It is in `ArtworkListing` and
+  `TimelineListing`; `dominantColor` stays as the fallback underneath.
+  - **Decode only in client components** —
+    [`src/lib/thumbhash-grid.ts`](src/lib/thumbhash-grid.ts), called from
+    `ThumbHashPicture` and `ProgressiveImage`. The hash crosses the RSC
+    boundary, the ~240-char data URL never does, which is why the server
+    `ArtworkCard` hands the hash to `ResponsiveImage` and not a URL.
+  - **Not `thumbHashToDataURL`.** That renders a 32 px RGBA PNG, ~4.3 KB
+    of data URL per tile. The fork evaluates the DCT at the cell centres
+    of a 6-cell grid at the work's true aspect and writes an uncompressed
+    PNG. Its output is byte-identical in V8 and JavaScriptCore, and the
+    SSR/hydration match depends on that: keep `Math.round`, and no canvas.
+  - `/api/artworks` and the listings form of `/api/artworks/scope` strip
+    it (`catalogueListings`, `withoutThumbHash()` in `data.ts`). Their
+    consumers, the 3D gallery and the lightbox's prev/next list, paint no
+    tiles, and over 4,557 rows the hashes are +117 KB gzipped (+33%).
+    `resolveScope` returns a shared cached array, so the strip copies.
+  - Only the first `EAGER_BLUR_TILES` (24) tiles of a server-rendered
+    grid carry the blur in the HTML (~2.5 KB gzipped). The rest add it
+    right after hydration (`useHydrated`), so the server render and the
+    hydration render stay identical.
 - `PROBE_CACHE_VERSION` in `build-data.mjs` gates the image-probe cache.
   Bump it whenever the probe emits a new field, or every cached entry
   silently keeps the old shape (this is why v3 exists).
