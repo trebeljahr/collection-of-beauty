@@ -24,22 +24,24 @@ const COLUMNS = [
  *  its top, not a face. */
 const COLUMN_OFFSET = ["-mt-8", "-mt-24", "-mt-2", "-mt-16", "-mt-28", "-mt-6", "-mt-20", "-mt-12"];
 
-/** Where the veil has closed over the works, and how long it takes to
- *  close: the works show clear down to banner minus ramp. Set on both the
+/** Where the page's content starts (less the spacer's 1rem), and how long
+ *  the veil takes to close over the works above that. Set on both the
  *  layer (for the veil's gradient, `VEIL`) and the spacer that pushes the
  *  page's own content below it. */
 const BANNER =
   "[--backdrop-banner:12rem] [--backdrop-ramp:5rem] md:[--backdrop-banner:20rem] md:[--backdrop-ramp:7rem]";
 /** The strip's banner is lower: it heads a page of plain text (the
  *  imprint, the privacy policy), where an 18rem band pushed the heading
- *  a third of the way down a laptop screen. */
-const STRIP_BANNER = "[--backdrop-banner:9rem] md:[--backdrop-banner:12rem]";
+ *  a third of the way down a laptop screen. Its heading sits where it did
+ *  when the strip had a fade of its own (11.5rem, 14.5rem from md). */
+const STRIP_BANNER =
+  "[--backdrop-banner:10.5rem] [--backdrop-ramp:4rem] md:[--backdrop-banner:13.5rem] md:[--backdrop-ramp:5rem]";
 
 /** The veil over the tiles. Clear across the banner, then the page colour
- *  closes over the works along the ramp and is solid where the banner
- *  ends, so the page's text starts on plain paper. Two weaker versions
- *  (55% then 95% shut at the heading, the works faintly behind the text)
- *  both left the first paragraph reading over tinted boxes. The ramp is
+ *  closes over the works along the ramp and is solid 1.25rem above the
+ *  banner's end, so the page's text starts well inside plain paper. Weaker
+ *  versions (55%, then 95% shut at the heading; then solid exactly at the
+ *  banner's end) all read as the works crowding the heading. The ramp is
  *  long on purpose; a short one draws a line across every column. No blur:
  *  masked into the ramp, a backdrop-filter smeared a band across the
  *  tiles.
@@ -49,15 +51,10 @@ const STRIP_BANNER = "[--backdrop-banner:9rem] md:[--backdrop-banner:12rem]";
  *  serving a globals.css build without a newly added rule, which showed
  *  the tiles bare behind the text. */
 const VEIL = `linear-gradient(to bottom,
-  transparent calc(var(--backdrop-banner) - var(--backdrop-ramp)),
-  color-mix(in oklab, var(--background) 65%, transparent) calc(var(--backdrop-banner) - var(--backdrop-ramp) / 2),
-  color-mix(in oklab, var(--background) 92%, transparent) calc(var(--backdrop-banner) - var(--backdrop-ramp) / 5),
-  var(--background) var(--backdrop-banner))`;
-/** `strip`: nothing over the page, only a fade at the foot of the banner
- *  so the tiles don't end on a hard line. 4rem, so the lower strip still
- *  shows most of its height clear. */
-const STRIP_VEIL =
-  "linear-gradient(to bottom, transparent calc(100% - 4rem), var(--background) 100%)";
+  transparent calc(var(--backdrop-banner) - 1.25rem - var(--backdrop-ramp)),
+  color-mix(in oklab, var(--background) 72%, transparent) calc(var(--backdrop-banner) - 1.25rem - var(--backdrop-ramp) / 2),
+  color-mix(in oklab, var(--background) 95%, transparent) calc(var(--backdrop-banner) - 1.25rem - var(--backdrop-ramp) / 5),
+  var(--background) calc(var(--backdrop-banner) - 1.25rem))`;
 
 const SIZES =
   "(min-width: 1536px) 13vw, (min-width: 1280px) 15vw, (min-width: 1024px) 17vw, (min-width: 768px) 20vw, (min-width: 640px) 25vw, 34vw";
@@ -76,7 +73,7 @@ const SLIVER_SIZES = "(min-width: 768px) 8vw, 17vw";
 /**
  * Works tiled across the top of a prose page: shown clearly across a
  * banner, then fading into the page colour along a long ramp, solid before
- * the text starts. With `strip`, a lower banner with a short fade, for
+ * the text starts. With `strip`, a lower banner with a shorter fade, for
  * pages where the text should start high (the imprint, the privacy
  * policy).
  *
@@ -109,10 +106,9 @@ export function PageBackdrop({
         className={cn(
           strip ? STRIP_BANNER : BANNER,
           "pointer-events-none absolute inset-x-0 top-0 -z-10 overflow-hidden select-none",
-          // The full layer ends where its veil turns solid: a tile below
-          // that line would only ever sit under paper, and clipped it is
-          // never fetched.
-          strip ? "h-[calc(var(--backdrop-banner)+1rem)]" : "h-[var(--backdrop-banner)]",
+          // Past the banner the veil is solid, so the layer stops there;
+          // a tile below it could only ever sit under paper.
+          "h-[var(--backdrop-banner)]",
         )}
       >
         <div className="flex gap-1.5 px-1.5 md:gap-2 md:px-2">
@@ -142,16 +138,11 @@ export function PageBackdrop({
             </div>
           ))}
         </div>
-        <div className="absolute inset-0" style={{ backgroundImage: strip ? STRIP_VEIL : VEIL }} />
+        <div className="absolute inset-0" style={{ backgroundImage: VEIL }} />
       </div>
       <div
         aria-hidden
-        className={cn(
-          strip ? STRIP_BANNER : BANNER,
-          strip
-            ? "h-[calc(var(--backdrop-banner)+2.5rem)]"
-            : "h-[calc(var(--backdrop-banner)+1rem)]",
-        )}
+        className={cn(strip ? STRIP_BANNER : BANNER, "h-[calc(var(--backdrop-banner)+1rem)]")}
       />
     </>
   );
