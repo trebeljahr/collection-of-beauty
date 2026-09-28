@@ -149,7 +149,10 @@ export default async function CollectionPage({ params }: { params: Promise<Param
       </Link>
 
       <header className="mt-4 mb-8 flex flex-col gap-3">
-        <h1 className="font-serif text-3xl md:text-4xl">{set.title}</h1>
+        <div className="flex flex-wrap items-center justify-between gap-x-6 gap-y-3">
+          <h1 className="font-serif text-3xl md:text-4xl">{set.title}</h1>
+          <PlayLink scope={scope} />
+        </div>
         {set.subtitle && (
           <p className="font-serif text-lg italic text-[var(--muted-foreground)]">{set.subtitle}</p>
         )}
@@ -175,9 +178,6 @@ export default async function CollectionPage({ params }: { params: Promise<Param
           <Link href={`/era/${era.id}`} className={chipClasses}>
             {era.title}
           </Link>
-        </div>
-        <div>
-          <PlayLink scope={scope} />
         </div>
       </header>
 

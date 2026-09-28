@@ -102,7 +102,10 @@ export default async function EraPage({ params }: { params: Promise<Params> }) {
       </Link>
 
       <header className="mt-4 mb-6 flex flex-col gap-3">
-        <h1 className="font-serif text-3xl md:text-4xl">{era.title}</h1>
+        <div className="flex flex-wrap items-center justify-between gap-x-6 gap-y-3">
+          <h1 className="font-serif text-3xl md:text-4xl">{era.title}</h1>
+          <PlayLink scope={{ kind: "era", id: era.id }} />
+        </div>
         <div className="flex flex-wrap items-center gap-3 text-[var(--muted-foreground)]">
           <span>{eraYearLabel(era)}</span>
           <span>
@@ -124,9 +127,6 @@ export default async function EraPage({ params }: { params: Promise<Params> }) {
           </p>
         )}
         <p className="max-w-prose italic text-[var(--muted-foreground)]">{era.blurb}</p>
-        <div>
-          <PlayLink scope={{ kind: "era", id: era.id }} />
-        </div>
       </header>
 
       {(prev || next) && (

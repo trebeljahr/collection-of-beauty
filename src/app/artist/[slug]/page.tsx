@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound, permanentRedirect, redirect } from "next/navigation";
 import { PlayLink } from "@/components/play-link";
+import { ResponsiveImage } from "@/components/responsive-image";
 import { ScopedGallery } from "@/components/scoped-gallery";
 import { chipClasses, touchTextLinkClasses } from "@/components/ui/pill";
 import { displayTitle } from "@/lib/artwork-format";
@@ -18,6 +19,7 @@ import { assignEra, type EraId, getEra } from "@/lib/gallery-eras";
 import { artistRedirect } from "@/lib/redirects";
 import { artistJsonLd, buildOpenGraph, jsonLdScriptProps, ogImagesForArtist } from "@/lib/seo";
 import { sourceLabel } from "@/lib/source-label";
+import { cn } from "@/lib/utils";
 
 type Params = { slug: string };
 
@@ -197,7 +199,14 @@ export default async function ArtistPage({ params }: { params: Promise<Params> }
     .sort((a, b) => b.artist.count - a.artist.count);
 
   const known = connected.filter((c) => c.kind === "known");
-  const contemporaries = connected.filter((c) => c.kind === "movement");
+  // Every "movement" edge is "shared movement: <this artist's movement>",
+  // so the list is the rest of that movement, not people alive at the same
+  // time: Serov and Chase sit on Monet's. The most-represented 24 are kept,
+  // then read in birth order so the dates beside each name line up.
+  const sameMovement = connected
+    .filter((c) => c.kind === "movement")
+    .slice(0, 24)
+    .sort((a, b) => (a.artist.born ?? 99999) - (b.artist.born ?? 99999));
 
   // Most artists land in one era; a few span two (Monet → fin-de-siècle
   // + modern). Preserve era chronological order so the line reads
@@ -232,7 +241,12 @@ export default async function ArtistPage({ params }: { params: Promise<Params> }
       </Link>
 
       <header className="mt-4 mb-8 flex flex-col gap-2">
-        <h1 className="font-serif text-3xl md:text-4xl">{artist.name}</h1>
+        {/* Wraps under the name when the two don't fit on one line, which
+            on a phone is most names. */}
+        <div className="flex flex-wrap items-center justify-between gap-x-6 gap-y-3">
+          <h1 className="font-serif text-3xl md:text-4xl">{artist.name}</h1>
+          <PlayLink scope={{ kind: "artist", slug: artist.slug }} />
+        </div>
         <div className="flex flex-wrap items-center gap-3 text-[var(--muted-foreground)]">
           {artist.born && artist.died && (
             <span>
@@ -260,43 +274,58 @@ export default async function ArtistPage({ params }: { params: Promise<Params> }
             ))}
           </div>
         )}
-        <div>
-          <PlayLink scope={{ kind: "artist", slug: artist.slug }} />
-        </div>
       </header>
 
       {known.length > 0 && (
-        <section className="mb-8">
-          <h2 className="mb-3 text-sm font-medium uppercase tracking-wide text-[var(--muted-foreground)]">
-            Knew personally
-          </h2>
-          <div className="flex flex-wrap gap-2">
+        <section className="mb-10">
+          <h2 className={sectionHeadingClasses}>Knew personally</h2>
+          {/* The label says how they knew each other. It used to sit in a
+              title tooltip, which a touch screen never shows. */}
+          <ul className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
             {known.map((c) => (
-              <Link
-                key={c.artist.slug}
-                href={`/artist/${c.artist.slug}`}
-                className={chipClasses}
-                title={c.label}
-              >
-                {c.artist.name}
-              </Link>
+              <li key={c.artist.slug}>
+                <Link
+                  href={`/artist/${c.artist.slug}`}
+                  className="flex h-full gap-3 rounded-lg border border-[var(--border)] bg-[var(--card)] p-3 transition-colors hover:bg-[var(--muted)] focus:outline-none focus-visible:ring-2 focus-visible:ring-[var(--ring)]"
+                >
+                  <ArtistThumb artist={c.artist} className="size-16 rounded-md" />
+                  <div className="min-w-0">
+                    <p className="font-medium leading-snug">{c.artist.name}</p>
+                    <p className="text-xs tabular-nums text-[var(--muted-foreground)]">
+                      {lifespanLabel(c.artist)}
+                    </p>
+                    <p className="mt-1.5 text-sm leading-snug text-[var(--muted-foreground)]">
+                      {sentenceCase(c.label)}
+                    </p>
+                  </div>
+                </Link>
+              </li>
             ))}
-          </div>
+          </ul>
         </section>
       )}
 
-      {contemporaries.length > 0 && (
-        <section className="mb-8">
-          <h2 className="mb-3 text-sm font-medium uppercase tracking-wide text-[var(--muted-foreground)]">
-            Contemporaries
-          </h2>
-          <div className="flex flex-wrap gap-2">
-            {contemporaries.slice(0, 24).map((c) => (
-              <Link key={c.artist.slug} href={`/artist/${c.artist.slug}`} className={chipClasses}>
-                {c.artist.name}
-              </Link>
+      {artist.movement && sameMovement.length > 0 && (
+        <section className="mb-10">
+          <h2 className={sectionHeadingClasses}>More {artist.movement}</h2>
+          <ul className="grid grid-cols-2 gap-x-4 gap-y-1 sm:gap-x-6 md:grid-cols-3 lg:grid-cols-4">
+            {sameMovement.map((c) => (
+              <li key={c.artist.slug}>
+                <Link
+                  href={`/artist/${c.artist.slug}`}
+                  className="-mx-2 flex items-center gap-3 rounded-md px-2 py-1.5 transition-colors hover:bg-[var(--muted)] focus:outline-none focus-visible:ring-2 focus-visible:ring-[var(--ring)]"
+                >
+                  <ArtistThumb artist={c.artist} className="size-10 rounded-full" />
+                  <span className="min-w-0">
+                    <span className="block text-sm leading-snug font-medium">{c.artist.name}</span>
+                    <span className="block text-xs tabular-nums text-[var(--muted-foreground)]">
+                      {lifespanLabel(c.artist)}
+                    </span>
+                  </span>
+                </Link>
+              </li>
             ))}
-          </div>
+          </ul>
         </section>
       )}
 
@@ -314,5 +343,48 @@ export default async function ArtistPage({ params }: { params: Promise<Params> }
         />
       </section>
     </div>
+  );
+}
+
+const sectionHeadingClasses =
+  "mb-3 text-sm font-medium uppercase tracking-wide text-[var(--muted-foreground)]";
+
+function lifespanLabel(artist: Artist): string | null {
+  if (artist.born && artist.died) return `${artist.born}–${artist.died}`;
+  if (artist.born) return `b. ${artist.born}`;
+  return null;
+}
+
+/** The connection labels are written lower-case to read mid-sentence
+ *  ("painted side-by-side at La Grenouillère"); here each starts a line. */
+function sentenceCase(text: string): string {
+  return text.charAt(0).toUpperCase() + text.slice(1);
+}
+
+/** The artist's cover work, cropped to a small square or circle. Decorative:
+ *  the name beside it is the link text. */
+function ArtistThumb({ artist, className }: { artist: Artist; className: string }) {
+  // A cover crop of a wide work draws wider than its 64px box; ask for
+  // enough pixels to fill it (coverSizes does the same for `vw` hints).
+  const overhang = artist.coverFit === "contain" ? 1 : Math.max(1, artist.coverAspect ?? 1);
+  const thumbWidth = Math.ceil(64 * overhang);
+  return (
+    <span
+      aria-hidden
+      className={cn("relative shrink-0 overflow-hidden bg-[var(--muted)]", className)}
+    >
+      {artist.coverObjectKey && (
+        <ResponsiveImage
+          objectKey={artist.coverObjectKey}
+          variantWidths={artist.coverVariantWidths}
+          alt=""
+          fill
+          sizes={`${thumbWidth}px`}
+          loading="lazy"
+          className={cn(artist.coverFit === "contain" && "object-contain p-1")}
+          style={artist.coverPosition ? { objectPosition: artist.coverPosition } : undefined}
+        />
+      )}
+    </span>
   );
 }
