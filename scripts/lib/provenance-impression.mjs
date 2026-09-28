@@ -427,6 +427,27 @@ export function refitLocation(item, graph, stored) {
 const holdingMembers = (item, graph, c) =>
   buildHoldings(item, graph).find((h) => h.members.includes(c))?.members ?? [c];
 
+// Stored values an older fetch wrote before the resolver learned to read
+// them, fixed in place on records --reresolve otherwise leaves alone. An
+// "unknown value" IRI where a collection or number should be becomes null.
+// A bare QID where the collection's or location's name should be (labels
+// were English-only then, and many museums now carry only a "mul" label)
+// becomes that item's label, or null when it has none.
+export function scrubStored(stored, item, graph) {
+  const out = { ...stored };
+  for (const f of ["collection", "collectionWikidataId", "location", "inventory", "describedAt"]) {
+    if (UNKNOWN_VALUE.test(out[f] ?? "")) out[f] = null;
+  }
+  for (const f of ["collection", "location"]) {
+    if (QID.test(out[f] ?? "")) out[f] = labelOf(graph, item ?? emptyItem(), out[f]);
+  }
+  return out;
+}
+
+// QIDs stored where a name should be, so the caller can fetch their labels.
+export const storedLabelQids = (stored) =>
+  [stored?.collection, stored?.location].filter((v) => QID.test(v ?? ""));
+
 function labelOf(graph, item, q) {
   const fromGraph = graph[q]?.label;
   if (fromGraph && !QID.test(fromGraph)) return fromGraph;

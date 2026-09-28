@@ -6,6 +6,7 @@
 //   node scripts/fetch-provenance.mjs collection-of-beauty audubon-birds
 //   node scripts/fetch-provenance.mjs collection-of-beauty --limit 20
 //   node scripts/fetch-provenance.mjs --reresolve
+//   node scripts/fetch-provenance.mjs --reresolve --keys corrected.txt
 //
 // Two phases:
 //   A. Wikidata — for each Commons filename, look up the painting's
@@ -27,6 +28,11 @@
 // for items with several P195 or P217 values, and a location that doesn't
 // fit its collection is replaced. Keys, wikidataId and sourceLinks are left
 // alone, so hand-removed or hand-corrected items keep their stored QID.
+// --keys names a file with one provenance.json key per line: those records
+// are resolved again in full whatever their item looks like. Use it after
+// correcting a wikidataId by hand, so the other fields follow the new item.
+// Every record also has stored "unknown value" IRIs and bare-QID labels
+// scrubbed (see scrubStored).
 //
 // Polite to Wikimedia / WDQS:
 //   - Descriptive User-Agent (contact + purpose)
@@ -65,6 +71,8 @@ import {
   refitLocation,
   reresolveMode,
   resolveImpression,
+  scrubStored,
+  storedLabelQids,
 } from "./lib/provenance-impression.mjs";
 import { SOURCE_FOLDERS } from "./lib/source-folders.mjs";
 
@@ -535,9 +543,10 @@ async function processFolder(folderName, opts) {
 // Correct existing entries from their stored QID. Only records that may mix
 // impressions are touched (see reresolveMode): an item with several P195 or
 // P217 values is resolved again in full, a stored location that doesn't fit
-// the stored collection is replaced on its own. Keys keep their exact
-// NFC/NFD form, and wikidataId and sourceLinks are never rewritten.
-async function reresolveExisting(existing) {
+// the stored collection is replaced on its own. Records named in `forced`
+// are resolved in full regardless. Keys keep their exact NFC/NFD form, and
+// wikidataId and sourceLinks are never rewritten.
+async function reresolveExisting(existing, forced = new Set()) {
   const sidecar = new Map();
   for (const folder of SOURCE_FOLDERS) {
     const file = path.join(ROOT, "metadata", `${folder}.json`);
@@ -558,15 +567,16 @@ async function reresolveExisting(existing) {
 
   const withItem = Object.entries(existing).filter(([, prov]) => prov?.wikidataId);
   const statements = await loadStatements(withItem.map(([, prov]) => prov.wikidataId));
-  const graph = await loadGraph(
-    withItem.flatMap(([, prov]) => statementQids(statements[prov.wikidataId])),
-  );
+  const graph = await loadGraph([
+    ...withItem.flatMap(([, prov]) => statementQids(statements[prov.wikidataId])),
+    ...Object.values(existing).flatMap(storedLabelQids),
+  ]);
 
   const records = [];
   const locationOnly = new Map();
   for (const [key, prov] of withItem) {
     const item = statements[prov.wikidataId];
-    const mode = reresolveMode(item, graph, prov);
+    const mode = forced.has(key.normalize("NFC")) ? "full" : reresolveMode(item, graph, prov);
     if (mode === "location") locationOnly.set(key, refitLocation(item, graph, prov));
     if (mode !== "full") continue;
     const side = sidecar.get(key) ?? sidecar.get(key.normalize("NFC"));
@@ -591,6 +601,7 @@ async function reresolveExisting(existing) {
     let next = prov;
     if (resolved.has(key)) next = { ...prov, ...withoutBasis(resolved.get(key)) };
     else if (locationOnly.has(key)) next = { ...prov, location: locationOnly.get(key) };
+    next = scrubStored(next, statements[prov?.wikidataId], graph);
     if (JSON.stringify(next) !== JSON.stringify(prov)) changed++;
     out[key] = next;
   }
@@ -600,11 +611,12 @@ async function reresolveExisting(existing) {
 
 function parseArgs(argv) {
   const folders = [];
-  const opts = { limit: null, reresolve: false };
+  const opts = { limit: null, reresolve: false, keys: null };
   for (let i = 0; i < argv.length; i++) {
     const a = argv[i];
     if (a === "--limit") opts.limit = Number.parseInt(argv[++i], 10);
     else if (a === "--reresolve") opts.reresolve = true;
+    else if (a === "--keys") opts.keys = argv[++i];
     else folders.push(a);
   }
   return { folders, opts };
@@ -614,7 +626,7 @@ const { folders, opts } = parseArgs(process.argv.slice(2));
 if (!folders.length && !opts.reresolve) {
   console.error(
     "usage: node fetch-provenance.mjs <folder> [folder...] [--limit N]\n" +
-      "       node fetch-provenance.mjs --reresolve",
+      "       node fetch-provenance.mjs --reresolve [--keys <file>]",
   );
   process.exit(1);
 }
@@ -624,7 +636,23 @@ const existing = fs.existsSync(outPath) ? JSON.parse(fs.readFileSync(outPath, "u
 
 let final;
 if (opts.reresolve) {
-  final = await reresolveExisting(existing);
+  const forced = new Set();
+  if (opts.keys) {
+    for (const line of fs.readFileSync(opts.keys, "utf8").split("\n")) {
+      if (line.trim()) forced.add(line.trim().normalize("NFC"));
+    }
+    const known = new Set(
+      Object.entries(existing)
+        .filter(([, prov]) => prov?.wikidataId)
+        .map(([key]) => key.normalize("NFC")),
+    );
+    const unknown = [...forced].filter((k) => !known.has(k));
+    if (unknown.length) {
+      console.error(`--keys: no record with a wikidataId for:\n  ${unknown.join("\n  ")}`);
+      process.exit(1);
+    }
+  }
+  final = await reresolveExisting(existing, forced);
 } else {
   const merged = {};
   for (const f of folders) {

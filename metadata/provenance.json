@@ -212,9 +212,9 @@
   "1280px-Gericault_Theodore_1819-20_Portrait_eines_Jungen_mit_langem_blonden_Haar.jpg": {
     "wikidataId": "Q72753442",
     "wikidataUrl": "https://www.wikidata.org/wiki/Q72753442",
-    "collection": "Q1741629",
+    "collection": "Kimbell Art Museum",
     "collectionWikidataId": "Q1741629",
-    "location": "Q1741629",
+    "location": "Kimbell Art Museum",
     "inventory": "AP 1969.07",
     "describedAt": "https://www.kimbellart.org/collection-object/portrait-study-youth",
     "sourceLinks": []
@@ -642,21 +642,21 @@
   "2560px-Van_Gogh_-_Acker_mit_pflügenden_Bauern.jpeg": {
     "wikidataId": "Q26221172",
     "wikidataUrl": "https://www.wikidata.org/wiki/Q26221172",
-    "collection": "http://www.wikidata.org/.well-known/genid/ccbe2f5fbd2a03d1d64e3a3de14912f2",
-    "collectionWikidataId": "http://www.wikidata.org/.well-known/genid/ccbe2f5fbd2a03d1d64e3a3de14912f2",
+    "collection": null,
+    "collectionWikidataId": null,
     "location": null,
     "inventory": null,
     "describedAt": "http://www.vggallery.com/painting/p_0625.htm",
     "sourceLinks": []
   },
   "2560px-Van_Gogh_The_Olive_Trees..jpg": {
-    "wikidataId": "Q7087213",
-    "wikidataUrl": "https://www.wikidata.org/wiki/Q7087213",
+    "wikidataId": "Q9212498",
+    "wikidataUrl": "https://www.wikidata.org/wiki/Q9212498",
     "collection": "Museum of Modern Art",
     "collectionWikidataId": "Q188740",
     "location": "Museum of Modern Art",
     "inventory": "581.1998",
-    "describedAt": "http://www.vggallery.com/painting/p_0712.htm",
+    "describedAt": null,
     "sourceLinks": []
   },
   "2560px-Vincent_van_Gogh_-_Grapes,_Lemons,_Pears,_and_Apples_-_1949.215_-_Art_Institute_of_Chicago.jpg": {
@@ -802,8 +802,8 @@
   "960px-Van_Gogh_-_Le_Moulin_de_la_Galette4.jpeg": {
     "wikidataId": "Q26220239",
     "wikidataUrl": "https://www.wikidata.org/wiki/Q26220239",
-    "collection": "http://www.wikidata.org/.well-known/genid/105a804be5bd569e13519f25da167a35",
-    "collectionWikidataId": "http://www.wikidata.org/.well-known/genid/105a804be5bd569e13519f25da167a35",
+    "collection": null,
+    "collectionWikidataId": null,
     "location": null,
     "inventory": null,
     "describedAt": "http://www.vggallery.com/painting/p_0349.htm",
@@ -867,7 +867,7 @@
   "A_View_of_the_Archbishop's_Palace,_Lambeth.jpg": {
     "wikidataId": "Q16038609",
     "wikidataUrl": "https://www.wikidata.org/wiki/Q16038609",
-    "collection": "Q1117704",
+    "collection": "Indianapolis Museum of Art",
     "collectionWikidataId": "Q1117704",
     "location": null,
     "inventory": null,
@@ -1142,8 +1142,8 @@
   "Alfons_Mucha_-_1896_-_Autumn.jpg": {
     "wikidataId": "Q124987784",
     "wikidataUrl": "https://www.wikidata.org/wiki/Q124987784",
-    "collection": "http://www.wikidata.org/.well-known/genid/9ddb22f8f2859443d9e12c7e3fcde99b",
-    "collectionWikidataId": "http://www.wikidata.org/.well-known/genid/9ddb22f8f2859443d9e12c7e3fcde99b",
+    "collection": null,
+    "collectionWikidataId": null,
     "location": null,
     "inventory": null,
     "describedAt": null,
@@ -1152,8 +1152,8 @@
   "Alfons_Mucha_-_1896_-_Spring.jpg": {
     "wikidataId": "Q124987762",
     "wikidataUrl": "https://www.wikidata.org/wiki/Q124987762",
-    "collection": "http://www.wikidata.org/.well-known/genid/c7c51b3d3521de1e3009675fe18545fc",
-    "collectionWikidataId": "http://www.wikidata.org/.well-known/genid/c7c51b3d3521de1e3009675fe18545fc",
+    "collection": null,
+    "collectionWikidataId": null,
     "location": null,
     "inventory": null,
     "describedAt": null,
@@ -1162,8 +1162,8 @@
   "Alfons_Mucha_-_1896_-_Summer.jpg": {
     "wikidataId": "Q124987771",
     "wikidataUrl": "https://www.wikidata.org/wiki/Q124987771",
-    "collection": "http://www.wikidata.org/.well-known/genid/d106183001762ccf6f427d14aeaa4a54",
-    "collectionWikidataId": "http://www.wikidata.org/.well-known/genid/d106183001762ccf6f427d14aeaa4a54",
+    "collection": null,
+    "collectionWikidataId": null,
     "location": null,
     "inventory": null,
     "describedAt": null,
@@ -1172,8 +1172,8 @@
   "Alfons_Mucha_-_1896_-_Winter.jpg": {
     "wikidataId": "Q124987777",
     "wikidataUrl": "https://www.wikidata.org/wiki/Q124987777",
-    "collection": "http://www.wikidata.org/.well-known/genid/46ea37c264fec331ca41932a466f3965",
-    "collectionWikidataId": "http://www.wikidata.org/.well-known/genid/46ea37c264fec331ca41932a466f3965",
+    "collection": null,
+    "collectionWikidataId": null,
     "location": null,
     "inventory": null,
     "describedAt": null,
@@ -1260,11 +1260,11 @@
     "sourceLinks": []
   },
   "Annibale_Carracci_-_The_Butcher's_Shop_-_Google_Art_Project.jpg": {
-    "wikidataId": "Q1221070",
-    "wikidataUrl": "https://www.wikidata.org/wiki/Q1221070",
-    "collection": "Q1741629",
+    "wikidataId": "Q28776027",
+    "wikidataUrl": "https://www.wikidata.org/wiki/Q28776027",
+    "collection": "Kimbell Art Museum",
     "collectionWikidataId": "Q1741629",
-    "location": "Q1741629",
+    "location": "Kimbell Art Museum",
     "inventory": "AP 1980.08",
     "describedAt": "https://kimbellart.org/collection/ap-198008",
     "sourceLinks": []
@@ -1312,8 +1312,8 @@
   "Arcimboldo_Air_(copy).jpg": {
     "wikidataId": "Q25999324",
     "wikidataUrl": "https://www.wikidata.org/wiki/Q25999324",
-    "collection": "http://www.wikidata.org/.well-known/genid/fa0f7513d56e32b7bd76a9d82e09ce17",
-    "collectionWikidataId": "http://www.wikidata.org/.well-known/genid/fa0f7513d56e32b7bd76a9d82e09ce17",
+    "collection": null,
+    "collectionWikidataId": null,
     "location": null,
     "inventory": null,
     "describedAt": "https://www.freeart.com/gallery/a/arcimboldo/arcimboldo5.html",
@@ -1322,8 +1322,8 @@
   "Arcimboldo_Earth.jpg": {
     "wikidataId": "Q110436924",
     "wikidataUrl": "https://www.wikidata.org/wiki/Q110436924",
-    "collection": "http://www.wikidata.org/.well-known/genid/b8a67b8fcca64af07f581689b8741d04",
-    "collectionWikidataId": "http://www.wikidata.org/.well-known/genid/b8a67b8fcca64af07f581689b8741d04",
+    "collection": null,
+    "collectionWikidataId": null,
     "location": null,
     "inventory": null,
     "describedAt": null,
@@ -1362,8 +1362,8 @@
   "Artemisia_Gentileschi_Cleopatra2.jpg": {
     "wikidataId": "Q19890804",
     "wikidataUrl": "https://www.wikidata.org/wiki/Q19890804",
-    "collection": "http://www.wikidata.org/.well-known/genid/d3f80b9afe0abd983890f19ab9cc5ba0",
-    "collectionWikidataId": "http://www.wikidata.org/.well-known/genid/d3f80b9afe0abd983890f19ab9cc5ba0",
+    "collection": null,
+    "collectionWikidataId": null,
     "location": null,
     "inventory": null,
     "describedAt": null,
@@ -1517,8 +1517,8 @@
   "Bathsheba_(c.1827),_by_Francesco_Hayez.jpg": {
     "wikidataId": "Q131413521",
     "wikidataUrl": "https://www.wikidata.org/wiki/Q131413521",
-    "collection": "http://www.wikidata.org/.well-known/genid/061c067f39c5f2ca4e757d755abab31f",
-    "collectionWikidataId": "http://www.wikidata.org/.well-known/genid/061c067f39c5f2ca4e757d755abab31f",
+    "collection": null,
+    "collectionWikidataId": null,
     "location": null,
     "inventory": null,
     "describedAt": null,
@@ -1672,8 +1672,8 @@
   "CLAUDE_MONET_1840_-_1926_NYMPHÉAS_AVEC_REFLETS_DE_HAUTES_HERBES.jpg": {
     "wikidataId": "Q136341525",
     "wikidataUrl": "https://www.wikidata.org/wiki/Q136341525",
-    "collection": "http://www.wikidata.org/.well-known/genid/daabbfa96425d0ad30d004f59673e93a",
-    "collectionWikidataId": "http://www.wikidata.org/.well-known/genid/daabbfa96425d0ad30d004f59673e93a",
+    "collection": null,
+    "collectionWikidataId": null,
     "location": null,
     "inventory": null,
     "describedAt": "https://www.sothebys.com/en/auctions/ecatalogue/2013/impressionist-modern-art-evening-sale-l13002/lot.20.html",
@@ -1740,8 +1740,8 @@
     "sourceLinks": []
   },
   "Carl_Spitzweg_-_Der_arme_Poet_(Neue_Pinakothek).jpg": {
-    "wikidataId": "Q1198304",
-    "wikidataUrl": "https://www.wikidata.org/wiki/Q1198304",
+    "wikidataId": "Q114152335",
+    "wikidataUrl": "https://www.wikidata.org/wiki/Q114152335",
     "collection": "Bavarian State Painting Collections",
     "collectionWikidataId": "Q812285",
     "location": "Neue Pinakothek",
@@ -2042,9 +2042,9 @@
   "Claude_Monet_-_A_Walk_in_the_Meadows_at_Argenteuil_-_1998.107_-_Rhode_Island_School_of_Design_Museum.jpg": {
     "wikidataId": "Q64517633",
     "wikidataUrl": "https://www.wikidata.org/wiki/Q64517633",
-    "collection": "Q2148186",
+    "collection": "Rhode Island School of Design Museum",
     "collectionWikidataId": "Q2148186",
-    "location": "Q2148186",
+    "location": "Rhode Island School of Design Museum",
     "inventory": "1998.107",
     "describedAt": "https://risdmuseum.org/art-design/collection/walk-meadows-argenteuil-1998107",
     "sourceLinks": []
@@ -2185,8 +2185,8 @@
     "sourceLinks": []
   },
   "Claude_Monet_-_Houses_of_Parliament,_Sunlight_Effect_(Le_Parlement,_effet_de_soleil)_-_Google_Art_Project.jpg": {
-    "wikidataId": "Q468623",
-    "wikidataUrl": "https://www.wikidata.org/wiki/Q468623",
+    "wikidataId": "Q28777013",
+    "wikidataUrl": "https://www.wikidata.org/wiki/Q28777013",
     "collection": "Brooklyn Museum",
     "collectionWikidataId": "Q632682",
     "location": "Brooklyn Museum",
@@ -2247,8 +2247,8 @@
   "Claude_Monet_-_L'été_-_Champ_de_coquelicots.jpeg": {
     "wikidataId": "Q50768368",
     "wikidataUrl": "https://www.wikidata.org/wiki/Q50768368",
-    "collection": "http://www.wikidata.org/.well-known/genid/ea9c3070ae8246a9041c519e96093c67",
-    "collectionWikidataId": "http://www.wikidata.org/.well-known/genid/ea9c3070ae8246a9041c519e96093c67",
+    "collection": null,
+    "collectionWikidataId": null,
     "location": null,
     "inventory": null,
     "describedAt": null,
@@ -2277,9 +2277,9 @@
   "Claude_Monet_-_La_Pointe_de_la_Hève_at_Low_Tide_-_Google_Art_Project.jpg": {
     "wikidataId": "Q28776277",
     "wikidataUrl": "https://www.wikidata.org/wiki/Q28776277",
-    "collection": "Q1741629",
+    "collection": "Kimbell Art Museum",
     "collectionWikidataId": "Q1741629",
-    "location": "Q1741629",
+    "location": "Kimbell Art Museum",
     "inventory": "AP 1968.07",
     "describedAt": "https://www.kimbellart.org/collection-object/la-pointe-de-la-h%C3%A8ve-low-tide",
     "sourceLinks": []
@@ -2287,8 +2287,8 @@
   "Claude_Monet_-_La_Seine_à_Vétheuil_(1881).jpg": {
     "wikidataId": "Q48977034",
     "wikidataUrl": "https://www.wikidata.org/wiki/Q48977034",
-    "collection": "http://www.wikidata.org/.well-known/genid/d5bfbd37a90db73aa61dc1c5cea3be18",
-    "collectionWikidataId": "http://www.wikidata.org/.well-known/genid/d5bfbd37a90db73aa61dc1c5cea3be18",
+    "collection": null,
+    "collectionWikidataId": null,
     "location": "Minnesota Marine Art Museum",
     "inventory": null,
     "describedAt": null,
@@ -2327,8 +2327,8 @@
   "Claude_Monet_-_Le_pont_de_chemin_der_fer_à_Argenteuil.jpg": {
     "wikidataId": "Q18543496",
     "wikidataUrl": "https://www.wikidata.org/wiki/Q18543496",
-    "collection": "http://www.wikidata.org/.well-known/genid/05011e005c7c4bec0b10fdba2010764d",
-    "collectionWikidataId": "http://www.wikidata.org/.well-known/genid/05011e005c7c4bec0b10fdba2010764d",
+    "collection": null,
+    "collectionWikidataId": null,
     "location": null,
     "inventory": null,
     "describedAt": "http://news.bbc.co.uk/2/hi/entertainment/7387487.stm",
@@ -2337,8 +2337,8 @@
   "Claude_Monet_-_Les_Pyramides_de_Port-Coton,_effet_de_soleil.jpg": {
     "wikidataId": "Q66502278",
     "wikidataUrl": "https://www.wikidata.org/wiki/Q66502278",
-    "collection": "http://www.wikidata.org/.well-known/genid/0a9faab3cb991cab652bf693a1e2cd1f",
-    "collectionWikidataId": "http://www.wikidata.org/.well-known/genid/0a9faab3cb991cab652bf693a1e2cd1f",
+    "collection": null,
+    "collectionWikidataId": null,
     "location": null,
     "inventory": null,
     "describedAt": null,
@@ -2535,8 +2535,8 @@
     "sourceLinks": []
   },
   "Claude_Monet_-_The_Houses_of_Parliament,_Sunset.jpg": {
-    "wikidataId": "Q468623",
-    "wikidataUrl": "https://www.wikidata.org/wiki/Q468623",
+    "wikidataId": "Q20190858",
+    "wikidataUrl": "https://www.wikidata.org/wiki/Q20190858",
     "collection": "National Gallery of Art",
     "collectionWikidataId": "Q214867",
     "location": "National Gallery of Art",
@@ -2747,8 +2747,8 @@
   "Claude_Monet_-_Waterlilies_-_Nympheas_(1908).jpg": {
     "wikidataId": "Q136341500",
     "wikidataUrl": "https://www.wikidata.org/wiki/Q136341500",
-    "collection": "http://www.wikidata.org/.well-known/genid/6da0bf67725b16cca26c66f9b837ffa6",
-    "collectionWikidataId": "http://www.wikidata.org/.well-known/genid/6da0bf67725b16cca26c66f9b837ffa6",
+    "collection": null,
+    "collectionWikidataId": null,
     "location": null,
     "inventory": null,
     "describedAt": "https://www.sothebys.com/en/auctions/ecatalogue/2019/impressionist-modern-art-evening-sale-l19006/lot.10.html",
@@ -2787,8 +2787,8 @@
   "Claude_Monet_-_Église_de_Varengeville,_effet_matinal.jpg": {
     "wikidataId": "Q67195466",
     "wikidataUrl": "https://www.wikidata.org/wiki/Q67195466",
-    "collection": "http://www.wikidata.org/.well-known/genid/35d46d47ae97e321ba929b18814b14f8",
-    "collectionWikidataId": "http://www.wikidata.org/.well-known/genid/35d46d47ae97e321ba929b18814b14f8",
+    "collection": null,
+    "collectionWikidataId": null,
     "location": null,
     "inventory": null,
     "describedAt": null,
@@ -3112,8 +3112,8 @@
   "Dans-la-prairie-by-Claude-001.jpg": {
     "wikidataId": "Q10264105",
     "wikidataUrl": "https://www.wikidata.org/wiki/Q10264105",
-    "collection": "http://www.wikidata.org/.well-known/genid/a8bc67d9e15b2f71a34652a8976f5381",
-    "collectionWikidataId": "http://www.wikidata.org/.well-known/genid/a8bc67d9e15b2f71a34652a8976f5381",
+    "collection": null,
+    "collectionWikidataId": null,
     "location": null,
     "inventory": null,
     "describedAt": null,
@@ -3779,20 +3779,20 @@
     "sourceLinks": []
   },
   "Franz_von_Stuck_-Wounded_Amazon,_1903.jpg": {
-    "wikidataId": "Q25219205",
-    "wikidataUrl": "https://www.wikidata.org/wiki/Q25219205",
-    "collection": null,
-    "collectionWikidataId": null,
-    "location": "Van Gogh Museum",
-    "inventory": null,
+    "wikidataId": "Q106862849",
+    "wikidataUrl": "https://www.wikidata.org/wiki/Q106862849",
+    "collection": "Harvard Art Museums",
+    "collectionWikidataId": "Q3783572",
+    "location": "Harvard Art Museums",
+    "inventory": "2002.96",
     "describedAt": null,
     "sourceLinks": []
   },
   "Franz_von_Stuck_Salome.jpg": {
     "wikidataId": "Q98642559",
     "wikidataUrl": "https://www.wikidata.org/wiki/Q98642559",
-    "collection": "http://www.wikidata.org/.well-known/genid/009abe0081952d1e3d5a6bda7a75eec1",
-    "collectionWikidataId": "http://www.wikidata.org/.well-known/genid/009abe0081952d1e3d5a6bda7a75eec1",
+    "collection": null,
+    "collectionWikidataId": null,
     "location": null,
     "inventory": null,
     "describedAt": null,
@@ -3841,8 +3841,8 @@
   "G._Caillebotte_-_Le_jardin_du_Petit_Gennevilliers_en_hiver.jpg": {
     "wikidataId": "Q116878510",
     "wikidataUrl": "https://www.wikidata.org/wiki/Q116878510",
-    "collection": "http://www.wikidata.org/.well-known/genid/7a8910dd170968b37a458937fbae9de8",
-    "collectionWikidataId": "http://www.wikidata.org/.well-known/genid/7a8910dd170968b37a458937fbae9de8",
+    "collection": null,
+    "collectionWikidataId": null,
     "location": null,
     "inventory": null,
     "describedAt": null,
@@ -3851,8 +3851,8 @@
   "G._Caillebotte_-_Nasturces.jpg": {
     "wikidataId": "Q116878476",
     "wikidataUrl": "https://www.wikidata.org/wiki/Q116878476",
-    "collection": "http://www.wikidata.org/.well-known/genid/094c4d20aaa6f316701d4698fb783bf9",
-    "collectionWikidataId": "http://www.wikidata.org/.well-known/genid/094c4d20aaa6f316701d4698fb783bf9",
+    "collection": null,
+    "collectionWikidataId": null,
     "location": null,
     "inventory": null,
     "describedAt": null,
@@ -4056,8 +4056,8 @@
   "Gerome_venus.jpg": {
     "wikidataId": "Q3211036",
     "wikidataUrl": "https://www.wikidata.org/wiki/Q3211036",
-    "collection": "http://www.wikidata.org/.well-known/genid/a90283a41c3f0d07302a35b098906aaf",
-    "collectionWikidataId": "http://www.wikidata.org/.well-known/genid/a90283a41c3f0d07302a35b098906aaf",
+    "collection": null,
+    "collectionWikidataId": null,
     "location": null,
     "inventory": null,
     "describedAt": null,
@@ -4116,8 +4116,8 @@
   "Gérôme_-_Summer_Afternoon_on_a_Lake.jpg": {
     "wikidataId": "Q114354833",
     "wikidataUrl": "https://www.wikidata.org/wiki/Q114354833",
-    "collection": "http://www.wikidata.org/.well-known/genid/710f70d721e37a88e5bfdff90a54dd35",
-    "collectionWikidataId": "http://www.wikidata.org/.well-known/genid/710f70d721e37a88e5bfdff90a54dd35",
+    "collection": null,
+    "collectionWikidataId": null,
     "location": null,
     "inventory": null,
     "describedAt": null,
@@ -4246,7 +4246,7 @@
   "Gustave_Courbet_-_Le_Désespéré_(1843).jpg": {
     "wikidataId": "Q3222585",
     "wikidataUrl": "https://www.wikidata.org/wiki/Q3222585",
-    "collection": "Q136497529",
+    "collection": "Art Mill Museum",
     "collectionWikidataId": "Q136497529",
     "location": null,
     "inventory": null,
@@ -4371,8 +4371,8 @@
   "Hayez,_Lot_con_le_figlie,_1833.png": {
     "wikidataId": "Q134738037",
     "wikidataUrl": "https://www.wikidata.org/wiki/Q134738037",
-    "collection": "http://www.wikidata.org/.well-known/genid/9aa36bdc7c8e156c8cc2d2a2aa137377",
-    "collectionWikidataId": "http://www.wikidata.org/.well-known/genid/9aa36bdc7c8e156c8cc2d2a2aa137377",
+    "collection": null,
+    "collectionWikidataId": null,
     "location": null,
     "inventory": null,
     "describedAt": null,
@@ -4669,8 +4669,8 @@
     "sourceLinks": []
   },
   "Idylls_of_the_King_3.jpg": {
-    "wikidataId": "Q220437",
-    "wikidataUrl": "https://www.wikidata.org/wiki/Q220437",
+    "wikidataId": null,
+    "wikidataUrl": null,
     "collection": null,
     "collectionWikidataId": null,
     "location": null,
@@ -4699,13 +4699,13 @@
     "sourceLinks": []
   },
   "Ilia_Efimovich_Repin_(1844-1930)_-_Volga_Boatmen_(1870-1873).jpg": {
-    "wikidataId": "Q650399",
-    "wikidataUrl": "https://www.wikidata.org/wiki/Q650399",
-    "collection": null,
-    "collectionWikidataId": null,
-    "location": "shore",
-    "inventory": null,
-    "describedAt": null,
+    "wikidataId": "Q175628",
+    "wikidataUrl": "https://www.wikidata.org/wiki/Q175628",
+    "collection": "Russian Museum",
+    "collectionWikidataId": "Q211043",
+    "location": "Russian Museum",
+    "inventory": "Ж-4056",
+    "describedAt": "https://rusmuseumvrm.ru/data/collections/painting/19_20/zh_4056/?lang=en",
     "sourceLinks": []
   },
   "Ilja_Jefimowitsch_Repin_-_Reply_of_the_Zaporozhian_Cossacks_-_Yorck.jpg": {
@@ -4749,11 +4749,11 @@
     "sourceLinks": []
   },
   "Imaginary_tour_through_Xiao-xiang.jpg": {
-    "wikidataId": "Q841721",
-    "wikidataUrl": "https://www.wikidata.org/wiki/Q841721",
+    "wikidataId": "Q107045369",
+    "wikidataUrl": "https://www.wikidata.org/wiki/Q107045369",
     "collection": "Tokyo National Museum",
     "collectionWikidataId": "Q653433",
-    "location": null,
+    "location": "Tokyo National Museum",
     "inventory": "TA-161",
     "describedAt": null,
     "sourceLinks": []
@@ -4769,13 +4769,13 @@
     "sourceLinks": []
   },
   "IngresOdipusAndSphinx.jpg": {
-    "wikidataId": "Q130890",
-    "wikidataUrl": "https://www.wikidata.org/wiki/Q130890",
-    "collection": null,
-    "collectionWikidataId": null,
-    "location": null,
-    "inventory": null,
-    "describedAt": null,
+    "wikidataId": "Q5818528",
+    "wikidataUrl": "https://www.wikidata.org/wiki/Q5818528",
+    "collection": "Department of Paintings of the Louvre",
+    "collectionWikidataId": "Q3044768",
+    "location": "Louvre Museum storage",
+    "inventory": "RF 218",
+    "describedAt": "http://www.louvre.fr/oeuvre-notices/oedipe-explique-l-enigme-du-sphinx",
     "sourceLinks": []
   },
   "Ingres_(atelier)_-_Angélique_-_Piscine_Roubaix.jpg": {
@@ -4864,12 +4864,12 @@
     "sourceLinks": []
   },
   "Jacob_Jordaens_-_Prometheus_bound.jpg": {
-    "wikidataId": "Q10396346",
-    "wikidataUrl": "https://www.wikidata.org/wiki/Q10396346",
-    "collection": null,
-    "collectionWikidataId": null,
-    "location": null,
-    "inventory": null,
+    "wikidataId": "Q1198657",
+    "wikidataUrl": "https://www.wikidata.org/wiki/Q1198657",
+    "collection": "Wallraf–Richartz Museum",
+    "collectionWikidataId": "Q700959",
+    "location": "Wallraf–Richartz Museum",
+    "inventory": "WRM 1044",
     "describedAt": null,
     "sourceLinks": []
   },
@@ -4904,8 +4904,8 @@
     "sourceLinks": []
   },
   "Jacob_Wrestles_with_the_Angel_(89394819).jpg": {
-    "wikidataId": "Q23901476",
-    "wikidataUrl": "https://www.wikidata.org/wiki/Q23901476",
+    "wikidataId": null,
+    "wikidataUrl": null,
     "collection": null,
     "collectionWikidataId": null,
     "location": null,
@@ -5019,8 +5019,8 @@
     ]
   },
   "Jan_Brueghel_de_Oude_en_Peter_Paul_Rubens_-_Het_aards_paradijs_met_de_zondeval_van_Adam_en_Eva.jpg": {
-    "wikidataId": "L1374089",
-    "wikidataUrl": "https://www.wikidata.org/wiki/L1374089",
+    "wikidataId": "Q3898507",
+    "wikidataUrl": "https://www.wikidata.org/wiki/Q3898507",
     "collection": "Mauritshuis",
     "collectionWikidataId": "Q221092",
     "location": "Mauritshuis",
@@ -5144,8 +5144,8 @@
     ]
   },
   "Jean-Leon_Gerome_Pollice_Verso.jpg": {
-    "wikidataId": "Q482999",
-    "wikidataUrl": "https://www.wikidata.org/wiki/Q482999",
+    "wikidataId": "Q1237863",
+    "wikidataUrl": "https://www.wikidata.org/wiki/Q1237863",
     "collection": "Phoenix Art Museum",
     "collectionWikidataId": "Q977015",
     "location": "Phoenix Art Museum",
@@ -5164,8 +5164,8 @@
     "sourceLinks": []
   },
   "Jean-Léon_Gérôme,_The_Story_of_Anacreon_3--Cupid_Runs_out_the_Door,_c1899.jpg": {
-    "wikidataId": "Q136351547",
-    "wikidataUrl": "https://www.wikidata.org/wiki/Q136351547",
+    "wikidataId": null,
+    "wikidataUrl": null,
     "collection": null,
     "collectionWikidataId": null,
     "location": null,
@@ -5374,13 +5374,13 @@
     "sourceLinks": []
   },
   "Jheronimus_Bosch_-_De_hooiwagen_(c.1516,_Prado).jpg": {
-    "wikidataId": "Q79218",
-    "wikidataUrl": "https://www.wikidata.org/wiki/Q79218",
+    "wikidataId": "Q2213811",
+    "wikidataUrl": "https://www.wikidata.org/wiki/Q2213811",
     "collection": "Museo del Prado",
     "collectionWikidataId": "Q160112",
     "location": "Museo del Prado",
     "inventory": "P002052",
-    "describedAt": "https://www.tate.org.uk/art/art-terms/t/triptych",
+    "describedAt": null,
     "sourceLinks": []
   },
   "Jheronimus_Bosch_011.jpg": {
@@ -5436,7 +5436,7 @@
   "Johann_Heinrich_Füssli_054.jpg": {
     "wikidataId": "Q107552750",
     "wikidataUrl": "https://www.wikidata.org/wiki/Q107552750",
-    "collection": "Q135334615",
+    "collection": "collection du musée des Beaux-Arts d'Argovie",
     "collectionWikidataId": "Q135334615",
     "location": null,
     "inventory": null,
@@ -5444,13 +5444,13 @@
     "sourceLinks": []
   },
   "Johannes_(Jan)_Vermeer_-_Christ_in_the_House_of_Martha_and_Mary_-_Google_Art_Project.jpg": {
-    "wikidataId": "Q239058",
-    "wikidataUrl": "https://www.wikidata.org/wiki/Q239058",
-    "collection": "Scottish National Gallery",
-    "collectionWikidataId": "Q942713",
+    "wikidataId": "Q927449",
+    "wikidataUrl": "https://www.wikidata.org/wiki/Q927449",
+    "collection": "National Galleries Scotland",
+    "collectionWikidataId": "Q2051997",
     "location": "Scottish National Gallery",
     "inventory": "NG 1670",
-    "describedAt": "https://www.nationalgalleries.org/art-and-artists/5539",
+    "describedAt": "https://web.archive.org/web/20151226152922/http://www.nationalgalleries.org/whatson/exhibitions/the-young-vermeer/christ-in-the-house-of-martha-and-mary",
     "sourceLinks": []
   },
   "Johannes_Vermeer_-_Gezicht_op_huizen_in_Delft,_bekend_als_'Het_straatje'_-_Google_Art_Project.jpg": {
@@ -5464,8 +5464,8 @@
     "sourceLinks": []
   },
   "Johannes_Vermeer_-_Het_melkmeisje_-_Google_Art_Project.jpg": {
-    "wikidataId": "L1372994",
-    "wikidataUrl": "https://www.wikidata.org/wiki/L1372994",
+    "wikidataId": "Q167605",
+    "wikidataUrl": "https://www.wikidata.org/wiki/Q167605",
     "collection": "Rijksmuseum",
     "collectionWikidataId": "Q190804",
     "location": "Gallery of Honour",
@@ -5504,8 +5504,8 @@
     "sourceLinks": []
   },
   "John_Constable_(1776-1837)_-_Maria_Bicknell,_Mrs_John_Constable_-_N02655_-_National_Gallery.jpg": {
-    "wikidataId": "Q19257634",
-    "wikidataUrl": "https://www.wikidata.org/wiki/Q19257634",
+    "wikidataId": "Q28533112",
+    "wikidataUrl": "https://www.wikidata.org/wiki/Q28533112",
     "collection": "Tate",
     "collectionWikidataId": "Q430682",
     "location": "Tate",
@@ -5534,8 +5534,8 @@
     "sourceLinks": []
   },
   "John_Constable_-_Wivenhoe_Park,_Essex_-_Google_Art_Project.jpg": {
-    "wikidataId": "Q8028681",
-    "wikidataUrl": "https://www.wikidata.org/wiki/Q8028681",
+    "wikidataId": "Q18589150",
+    "wikidataUrl": "https://www.wikidata.org/wiki/Q18589150",
     "collection": "National Gallery of Art",
     "collectionWikidataId": "Q214867",
     "location": "National Gallery of Art",
@@ -5564,8 +5564,8 @@
     "sourceLinks": []
   },
   "John_Everett_Millais_-_Mariana_-_Google_Art_Project.jpg": {
-    "wikidataId": "Q184814",
-    "wikidataUrl": "https://www.wikidata.org/wiki/Q184814",
+    "wikidataId": "Q4281369",
+    "wikidataUrl": "https://www.wikidata.org/wiki/Q4281369",
     "collection": "Tate",
     "collectionWikidataId": "Q430682",
     "location": "Tate Britain",
@@ -5664,8 +5664,8 @@
     "sourceLinks": []
   },
   "John_Henry_Newman_by_Sir_John_Everett_Millais,_1st_Bt.jpg": {
-    "wikidataId": "Q44490",
-    "wikidataUrl": "https://www.wikidata.org/wiki/Q44490",
+    "wikidataId": "Q28050382",
+    "wikidataUrl": "https://www.wikidata.org/wiki/Q28050382",
     "collection": "National Portrait Gallery",
     "collectionWikidataId": "Q238587",
     "location": "National Portrait Gallery",
@@ -5709,12 +5709,12 @@
     "sourceLinks": []
   },
   "John_Singer_Sargent_-_Atlas_and_the_Hesperides,_1922-1925.jpg": {
-    "wikidataId": "Q4816856",
-    "wikidataUrl": "https://www.wikidata.org/wiki/Q4816856",
-    "collection": null,
-    "collectionWikidataId": null,
-    "location": null,
-    "inventory": null,
+    "wikidataId": "Q20771630",
+    "wikidataUrl": "https://www.wikidata.org/wiki/Q20771630",
+    "collection": "Museum of Fine Arts Boston",
+    "collectionWikidataId": "Q49133",
+    "location": "Museum of Fine Arts Boston",
+    "inventory": "25.643",
     "describedAt": null,
     "sourceLinks": []
   },
@@ -6359,8 +6359,8 @@
     "sourceLinks": []
   },
   "Joseph_Mallord_William_Turner_-_The_Sun_of_Venice_Going_to_Sea_-_Google_Art_Project.jpg": {
-    "wikidataId": "L648258-S1",
-    "wikidataUrl": "https://www.wikidata.org/wiki/L648258-S1",
+    "wikidataId": "Q18687507",
+    "wikidataUrl": "https://www.wikidata.org/wiki/Q18687507",
     "collection": "Tate",
     "collectionWikidataId": "Q430682",
     "location": "Tate Britain",
@@ -6444,8 +6444,8 @@
     "sourceLinks": []
   },
   "KIYONOBU-Yamanaka-Ichikawa-1714.jpg": {
-    "wikidataId": "Q101130389",
-    "wikidataUrl": "https://www.wikidata.org/wiki/Q101130389",
+    "wikidataId": null,
+    "wikidataUrl": null,
     "collection": null,
     "collectionWikidataId": null,
     "location": null,
@@ -6494,8 +6494,8 @@
     "sourceLinks": []
   },
   "Kanō_Eitoku_-_Rakuchū_rakugai_zu_(Uesugi)_-_left_screen.jpg": {
-    "wikidataId": "Q11145889",
-    "wikidataUrl": "https://www.wikidata.org/wiki/Q11145889",
+    "wikidataId": "Q107044831",
+    "wikidataUrl": "https://www.wikidata.org/wiki/Q107044831",
     "collection": "Yonezawa City Uesugi Museum",
     "collectionWikidataId": "Q11604262",
     "location": "Yonezawa City Uesugi Museum",
@@ -6554,8 +6554,8 @@
     "sourceLinks": []
   },
   "Karl_Joseph_Stieler_-_Porträt_von_Katharina_Botzaris,_1841.jpg": {
-    "wikidataId": "Q6375965",
-    "wikidataUrl": "https://www.wikidata.org/wiki/Q6375965",
+    "wikidataId": "Q123127827",
+    "wikidataUrl": "https://www.wikidata.org/wiki/Q123127827",
     "collection": "Nymphenburg Palace",
     "collectionWikidataId": "Q131631",
     "location": "Nymphenburg Palace",
@@ -6574,8 +6574,8 @@
     "sourceLinks": []
   },
   "Katsushika_Hokusai,_Goten-yama_hill,_Shinagawa_on_the_Tōkaidō,_ca._1832.jpg": {
-    "wikidataId": "Q11489173",
-    "wikidataUrl": "https://www.wikidata.org/wiki/Q11489173",
+    "wikidataId": "Q18173429",
+    "wikidataUrl": "https://www.wikidata.org/wiki/Q18173429",
     "collection": null,
     "collectionWikidataId": null,
     "location": null,
@@ -6624,12 +6624,12 @@
     "sourceLinks": []
   },
   "Konrad_Witz_004.jpg": {
-    "wikidataId": "Q193507",
-    "wikidataUrl": "https://www.wikidata.org/wiki/Q193507",
-    "collection": null,
-    "collectionWikidataId": null,
-    "location": null,
-    "inventory": null,
+    "wikidataId": "Q126717878",
+    "wikidataUrl": "https://www.wikidata.org/wiki/Q126717878",
+    "collection": "Kunstmuseum Basel",
+    "collectionWikidataId": "Q194626",
+    "location": "Kunstmuseum Basel",
+    "inventory": "646",
     "describedAt": null,
     "sourceLinks": []
   },
@@ -6684,8 +6684,8 @@
     "sourceLinks": []
   },
   "La_Liberté_guidant_le_peuple_-_Eugène_Delacroix_-_Musée_du_Louvre_Peintures_RF_129_-_après_restauration_2024.jpg": {
-    "wikidataId": "Q2979",
-    "wikidataUrl": "https://www.wikidata.org/wiki/Q2979",
+    "wikidataId": "Q29530",
+    "wikidataUrl": "https://www.wikidata.org/wiki/Q29530",
     "collection": "Department of Paintings of the Louvre",
     "collectionWikidataId": "Q3044768",
     "location": "Room 700",
@@ -6784,8 +6784,8 @@
     "sourceLinks": []
   },
   "Las_Meninas,_by_Diego_Velázquez,_from_Prado_in_Google_Earth.jpg": {
-    "wikidataId": "Q106765937",
-    "wikidataUrl": "https://www.wikidata.org/wiki/Q106765937",
+    "wikidataId": "Q208758",
+    "wikidataUrl": "https://www.wikidata.org/wiki/Q208758",
     "collection": "Museo del Prado",
     "collectionWikidataId": "Q160112",
     "location": "Museo del Prado",
@@ -6794,8 +6794,8 @@
     "sourceLinks": []
   },
   "Laurits_Tuxen_-_The_North_Sea_in_stormy_weather._After_sunset._Højen_-_Google_Art_Project.jpg": {
-    "wikidataId": "Q17489412",
-    "wikidataUrl": "https://www.wikidata.org/wiki/Q17489412",
+    "wikidataId": "Q18393586",
+    "wikidataUrl": "https://www.wikidata.org/wiki/Q18393586",
     "collection": "Skagens Museum",
     "collectionWikidataId": "Q3555520",
     "location": "Skagens Museum",
@@ -6836,8 +6836,8 @@
   "Le_bassin_aux_nymphéas_-_Claude_Monet.jpg": {
     "wikidataId": "Q136341513",
     "wikidataUrl": "https://www.wikidata.org/wiki/Q136341513",
-    "collection": "http://www.wikidata.org/.well-known/genid/54eff5f035b99162e94953d769ab54e1",
-    "collectionWikidataId": "http://www.wikidata.org/.well-known/genid/54eff5f035b99162e94953d769ab54e1",
+    "collection": null,
+    "collectionWikidataId": null,
     "location": null,
     "inventory": null,
     "describedAt": null,
@@ -6856,8 +6856,8 @@
   "Leda_and_the_Swan_by_Jean-Leon_Gerome.jpg": {
     "wikidataId": "Q114263789",
     "wikidataUrl": "https://www.wikidata.org/wiki/Q114263789",
-    "collection": "http://www.wikidata.org/.well-known/genid/38a71f1dff27a642b1fd2f9e6d2ed62e",
-    "collectionWikidataId": "http://www.wikidata.org/.well-known/genid/38a71f1dff27a642b1fd2f9e6d2ed62e",
+    "collection": null,
+    "collectionWikidataId": null,
     "location": null,
     "inventory": null,
     "describedAt": null,
@@ -6886,18 +6886,18 @@
   "Leighton-Alain_Chartier-1903.jpg": {
     "wikidataId": "Q139406948",
     "wikidataUrl": "https://www.wikidata.org/wiki/Q139406948",
-    "collection": "http://www.wikidata.org/.well-known/genid/83be836533d799dc45ce15899f74b159",
-    "collectionWikidataId": "http://www.wikidata.org/.well-known/genid/83be836533d799dc45ce15899f74b159",
+    "collection": null,
+    "collectionWikidataId": null,
     "location": null,
     "inventory": null,
     "describedAt": null,
     "sourceLinks": []
   },
   "Leighton-God_Speed!.jpg": {
-    "wikidataId": "L1373752",
-    "wikidataUrl": "https://www.wikidata.org/wiki/L1373752",
-    "collection": "http://www.wikidata.org/.well-known/genid/febc0c58ee3f26c80588e69bfd04e90f",
-    "collectionWikidataId": "http://www.wikidata.org/.well-known/genid/febc0c58ee3f26c80588e69bfd04e90f",
+    "wikidataId": "Q17466708",
+    "wikidataUrl": "https://www.wikidata.org/wiki/Q17466708",
+    "collection": null,
+    "collectionWikidataId": null,
     "location": null,
     "inventory": null,
     "describedAt": null,
@@ -6906,8 +6906,8 @@
   "Leighton-Stitching_the_Standard.jpg": {
     "wikidataId": "Q17466631",
     "wikidataUrl": "https://www.wikidata.org/wiki/Q17466631",
-    "collection": "http://www.wikidata.org/.well-known/genid/933adeabca4e3705726ffae2fa005a9a",
-    "collectionWikidataId": "http://www.wikidata.org/.well-known/genid/933adeabca4e3705726ffae2fa005a9a",
+    "collection": null,
+    "collectionWikidataId": null,
     "location": null,
     "inventory": null,
     "describedAt": null,
@@ -6974,8 +6974,8 @@
     "sourceLinks": []
   },
   "London,_the_Houses_of_Parliament,_Sunlight_Opening_in_Fog,_by_Claude_Monet.jpg": {
-    "wikidataId": "Q468623",
-    "wikidataUrl": "https://www.wikidata.org/wiki/Q468623",
+    "wikidataId": "Q17493907",
+    "wikidataUrl": "https://www.wikidata.org/wiki/Q17493907",
     "collection": "Musée d'Orsay",
     "collectionWikidataId": "Q23402",
     "location": "Musée d'Orsay",
@@ -6994,13 +6994,13 @@
     "sourceLinks": []
   },
   "Lot_en_zijn_dochters_Rijksmuseum_SK-A-4866.jpeg": {
-    "wikidataId": "Q117025169",
-    "wikidataUrl": "https://www.wikidata.org/wiki/Q117025169",
+    "wikidataId": "Q17341200",
+    "wikidataUrl": "https://www.wikidata.org/wiki/Q17341200",
     "collection": "Rijksmuseum",
     "collectionWikidataId": "Q190804",
     "location": "Rijksmuseum",
     "inventory": "SK-A-4866",
-    "describedAt": "https://www.rijksmuseum.nl/nl/collectie/SK-A-4866",
+    "describedAt": "https://www.europeana.eu/de/item/90402/SK_A_4866?lang=",
     "sourceLinks": []
   },
   "Louis-Francois_Bertin.jpg": {
@@ -7014,18 +7014,18 @@
     "sourceLinks": []
   },
   "Louis_XIV_of_France.jpg": {
-    "wikidataId": "Q116",
-    "wikidataUrl": "https://www.wikidata.org/wiki/Q116",
-    "collection": null,
-    "collectionWikidataId": null,
-    "location": null,
-    "inventory": null,
+    "wikidataId": "Q3399440",
+    "wikidataUrl": "https://www.wikidata.org/wiki/Q3399440",
+    "collection": "Department of Paintings of the Louvre",
+    "collectionWikidataId": "Q3044768",
+    "location": "Room 602",
+    "inventory": "INV 7492",
     "describedAt": null,
     "sourceLinks": []
   },
   "Louise_Jane_Jopling_(née_Goode,_later_Rowe)_by_Sir_John_Everett_Millais,_1st_Bt.jpg": {
-    "wikidataId": "Q538642",
-    "wikidataUrl": "https://www.wikidata.org/wiki/Q538642",
+    "wikidataId": "Q28050352",
+    "wikidataUrl": "https://www.wikidata.org/wiki/Q28050352",
     "collection": "National Portrait Gallery",
     "collectionWikidataId": "Q238587",
     "location": "National Portrait Gallery",
@@ -7044,8 +7044,8 @@
     "sourceLinks": []
   },
   "Lucas_Cranach_-_Der_Jungbrunnen_(Gemäldegalerie_Berlin).jpg": {
-    "wikidataId": "Q775332",
-    "wikidataUrl": "https://www.wikidata.org/wiki/Q775332",
+    "wikidataId": "Q20828882",
+    "wikidataUrl": "https://www.wikidata.org/wiki/Q20828882",
     "collection": "Gemäldegalerie Berlin",
     "collectionWikidataId": "Q165631",
     "location": "German painting from the 13th to 16th centuries, room III",
@@ -7076,20 +7076,20 @@
   "Lucas_Cranach_d._Ä._(Werkst.)_-_Moses_und_die_Wolkensäule_(nach_1530).jpg": {
     "wikidataId": "Q116962838",
     "wikidataUrl": "https://www.wikidata.org/wiki/Q116962838",
-    "collection": "http://www.wikidata.org/.well-known/genid/5d2e92fa5ddbe74b3289a0e7fe1c9a63",
-    "collectionWikidataId": "http://www.wikidata.org/.well-known/genid/5d2e92fa5ddbe74b3289a0e7fe1c9a63",
+    "collection": null,
+    "collectionWikidataId": null,
     "location": null,
     "inventory": null,
     "describedAt": null,
     "sourceLinks": []
   },
   "Lucas_Cranach_d._Ä._-_Judith_Victorious_-_WGA05720.jpg": {
-    "wikidataId": "Q13077250",
-    "wikidataUrl": "https://www.wikidata.org/wiki/Q13077250",
-    "collection": null,
-    "collectionWikidataId": null,
-    "location": null,
-    "inventory": null,
+    "wikidataId": "Q116962794",
+    "wikidataUrl": "https://www.wikidata.org/wiki/Q116962794",
+    "collection": "Prussian Palaces and Gardens Foundation Berlin-Brandenburg",
+    "collectionWikidataId": "Q531772",
+    "location": "Jagdschloss Grunewald",
+    "inventory": "GKI1182",
     "describedAt": null,
     "sourceLinks": []
   },
@@ -7469,13 +7469,13 @@
     "sourceLinks": []
   },
   "Monet,_Claude,_Houses_of_Parliament,_Seagulls.jpg": {
-    "wikidataId": "Q468623",
-    "wikidataUrl": "https://www.wikidata.org/wiki/Q468623",
-    "collection": null,
-    "collectionWikidataId": null,
-    "location": null,
-    "inventory": null,
-    "describedAt": null,
+    "wikidataId": "Q106767908",
+    "wikidataUrl": "https://www.wikidata.org/wiki/Q106767908",
+    "collection": "Princeton Art Museum",
+    "collectionWikidataId": "Q2603905",
+    "location": "Princeton Art Museum",
+    "inventory": "y1979-54",
+    "describedAt": "https://artmuseum.princeton.edu/collections/objects/32454",
     "sourceLinks": []
   },
   "Monet,_Claude_-_Hut_in_Trouville,_Low_Tide,_the_(1881).jpg": {
@@ -7686,8 +7686,8 @@
   "Monet_-_Nenúfares.jpg": {
     "wikidataId": "Q10336177",
     "wikidataUrl": "https://www.wikidata.org/wiki/Q10336177",
-    "collection": "http://www.wikidata.org/.well-known/genid/85fcf587a4d57af071758bef796466d4",
-    "collectionWikidataId": "http://www.wikidata.org/.well-known/genid/85fcf587a4d57af071758bef796466d4",
+    "collection": null,
+    "collectionWikidataId": null,
     "location": null,
     "inventory": null,
     "describedAt": "https://www.sothebys.com/en/auctions/ecatalogue/2007/impressionist-modern-art-evening-l07007/lot.7.html",
@@ -7744,8 +7744,8 @@
     "sourceLinks": []
   },
   "Monet_-_Tulpenfelder_in_Sassenheim_-_1886.jpg": {
-    "wikidataId": "Q15713320",
-    "wikidataUrl": "https://www.wikidata.org/wiki/Q15713320",
+    "wikidataId": "Q55647440",
+    "wikidataUrl": "https://www.wikidata.org/wiki/Q55647440",
     "collection": "Clark Art Institute",
     "collectionWikidataId": "Q1465805",
     "location": "Clark Art Institute",
@@ -7806,18 +7806,18 @@
   "Monet_Extérieur_de_la_gare_Saint-Lazare,_effet_de_soleil.jpg": {
     "wikidataId": "Q50006171",
     "wikidataUrl": "https://www.wikidata.org/wiki/Q50006171",
-    "collection": "http://www.wikidata.org/.well-known/genid/e40c4d94b128c8a3af3c4ea71c62a838",
-    "collectionWikidataId": "http://www.wikidata.org/.well-known/genid/e40c4d94b128c8a3af3c4ea71c62a838",
+    "collection": null,
+    "collectionWikidataId": null,
     "location": null,
     "inventory": null,
     "describedAt": null,
     "sourceLinks": []
   },
   "Monet_Houses_of_Parliament,_Sunset.jpg": {
-    "wikidataId": "Q468623",
-    "wikidataUrl": "https://www.wikidata.org/wiki/Q468623",
-    "collection": "http://www.wikidata.org/.well-known/genid/923d010d30717fc6a0128500ec19ea1a",
-    "collectionWikidataId": "http://www.wikidata.org/.well-known/genid/923d010d30717fc6a0128500ec19ea1a",
+    "wikidataId": "Q48609824",
+    "wikidataUrl": "https://www.wikidata.org/wiki/Q48609824",
+    "collection": null,
+    "collectionWikidataId": null,
     "location": null,
     "inventory": null,
     "describedAt": null,
@@ -7879,11 +7879,11 @@
     "sourceLinks": []
   },
   "Monet_Veduta_di_Rouelles.jpg": {
-    "wikidataId": "Q3443130",
-    "wikidataUrl": "https://www.wikidata.org/wiki/Q3443130",
+    "wikidataId": "Q22338327",
+    "wikidataUrl": "https://www.wikidata.org/wiki/Q22338327",
     "collection": "Marunuma Art Park",
     "collectionWikidataId": "Q114873993",
-    "location": "Museum of Modern Art, Saitama",
+    "location": "Marunuma Art Park",
     "inventory": null,
     "describedAt": "https://artinwords.de/claude-monet-eugene-boudin-in-thyssen-bornemisza/",
     "sourceLinks": []
@@ -7931,8 +7931,8 @@
   "Monet_trouville.jpg": {
     "wikidataId": "Q50774271",
     "wikidataUrl": "https://www.wikidata.org/wiki/Q50774271",
-    "collection": "http://www.wikidata.org/.well-known/genid/cd7d59b31ff2cc0b3098aaa3a03c242b",
-    "collectionWikidataId": "http://www.wikidata.org/.well-known/genid/cd7d59b31ff2cc0b3098aaa3a03c242b",
+    "collection": null,
+    "collectionWikidataId": null,
     "location": null,
     "inventory": null,
     "describedAt": null,
@@ -7981,8 +7981,8 @@
   "Monet_w1708.jpg": {
     "wikidataId": "Q136341497",
     "wikidataUrl": "https://www.wikidata.org/wiki/Q136341497",
-    "collection": "http://www.wikidata.org/.well-known/genid/191a5989fcd6048141da5121cb5621c5",
-    "collectionWikidataId": "http://www.wikidata.org/.well-known/genid/191a5989fcd6048141da5121cb5621c5",
+    "collection": null,
+    "collectionWikidataId": null,
     "location": null,
     "inventory": null,
     "describedAt": null,
@@ -8138,11 +8138,11 @@
     "sourceLinks": []
   },
   "Narcissus-Caravaggio_(1594-96)_edited.jpg": {
-    "wikidataId": "Q186529",
-    "wikidataUrl": "https://www.wikidata.org/wiki/Q186529",
-    "collection": null,
-    "collectionWikidataId": null,
-    "location": null,
+    "wikidataId": "Q746716",
+    "wikidataUrl": "https://www.wikidata.org/wiki/Q746716",
+    "collection": "Galleria Nazionale d'Arte Antica",
+    "collectionWikidataId": "Q2266081",
+    "location": "Galleria Nazionale d'Arte Antica",
     "inventory": null,
     "describedAt": null,
     "sourceLinks": []
@@ -8160,8 +8160,8 @@
   "Neapolitan_woman_(1894)_by_Ilya_Repin_-_Неаполитанка.jpg": {
     "wikidataId": "Q123697089",
     "wikidataUrl": "https://www.wikidata.org/wiki/Q123697089",
-    "collection": "http://www.wikidata.org/.well-known/genid/02509ea754fb97ef8ab86cb961accccf",
-    "collectionWikidataId": "http://www.wikidata.org/.well-known/genid/02509ea754fb97ef8ab86cb961accccf",
+    "collection": null,
+    "collectionWikidataId": null,
     "location": null,
     "inventory": null,
     "describedAt": null,
@@ -8193,8 +8193,8 @@
     "sourceLinks": []
   },
   "NiccoloPaganini.jpeg": {
-    "wikidataId": "Q66075",
-    "wikidataUrl": "https://www.wikidata.org/wiki/Q66075",
+    "wikidataId": null,
+    "wikidataUrl": null,
     "collection": null,
     "collectionWikidataId": null,
     "location": null,
@@ -8293,8 +8293,8 @@
     "sourceLinks": []
   },
   "Nuremberg_chronicles_-_Dance_of_Death_(CCLXIIIIv).jpg": {
-    "wikidataId": "Q473450",
-    "wikidataUrl": "https://www.wikidata.org/wiki/Q473450",
+    "wikidataId": null,
+    "wikidataUrl": null,
     "collection": null,
     "collectionWikidataId": null,
     "location": null,
@@ -8333,8 +8333,8 @@
     "sourceLinks": []
   },
   "On_the_Beach_--_Two_Are_Company,_Three_Are_None.jpg": {
-    "wikidataId": "Q7458796",
-    "wikidataUrl": "https://www.wikidata.org/wiki/Q7458796",
+    "wikidataId": null,
+    "wikidataUrl": null,
     "collection": null,
     "collectionWikidataId": null,
     "location": null,
@@ -8410,10 +8410,10 @@
   "Parmigianino_-_Madonna_and_Child_with_Angels,_known_as_the_Madonna_with_the_Long_Neck.jpg": {
     "wikidataId": "Q867403",
     "wikidataUrl": "https://www.wikidata.org/wiki/Q867403",
-    "collection": null,
-    "collectionWikidataId": null,
-    "location": null,
-    "inventory": null,
+    "collection": "Uffizi Gallery",
+    "collectionWikidataId": "Q51252",
+    "location": "Uffizi Gallery",
+    "inventory": "00287693",
     "describedAt": null,
     "sourceLinks": []
   },
@@ -8478,11 +8478,11 @@
     ]
   },
   "Paul_Gustave_Dore_Andromeda.jpg": {
-    "wikidataId": "Q371093",
-    "wikidataUrl": "https://www.wikidata.org/wiki/Q371093",
-    "collection": null,
-    "collectionWikidataId": null,
-    "location": null,
+    "wikidataId": "Q15845534",
+    "wikidataUrl": "https://www.wikidata.org/wiki/Q15845534",
+    "collection": "Chimei Museum",
+    "collectionWikidataId": "Q5095087",
+    "location": "Chimei Museum",
     "inventory": null,
     "describedAt": null,
     "sourceLinks": []
@@ -8773,7 +8773,7 @@
     "collection": "St. Paul's Church",
     "collectionWikidataId": "Q2272511",
     "location": "St. Paul's Church",
-    "inventory": "http://www.wikidata.org/.well-known/genid/913a59ab8bda6aeebdaf28e029fc90b4",
+    "inventory": null,
     "describedAt": null,
     "sourceLinks": []
   },
@@ -8802,7 +8802,7 @@
     "wikidataUrl": "https://www.wikidata.org/wiki/Q21601951",
     "collection": "Gemäldegalerie Berlin",
     "collectionWikidataId": "Q165631",
-    "location": "Q123139884",
+    "location": "Flämische und niederländische Malerei des 17. Jahrhundert Raum 9",
     "inventory": "763",
     "describedAt": null,
     "sourceLinks": []
@@ -8978,8 +8978,8 @@
     "sourceLinks": []
   },
   "Peter_Paul_Rubens_-_Lot_and_his_daughters_in_a_rock_grotto_(Schwerin).jpg": {
-    "wikidataId": "Q5981362",
-    "wikidataUrl": "https://www.wikidata.org/wiki/Q5981362",
+    "wikidataId": "Q109321080",
+    "wikidataUrl": "https://www.wikidata.org/wiki/Q109321080",
     "collection": "Staatliches Museum Schwerin",
     "collectionWikidataId": "Q2324618",
     "location": "Staatliches Museum Schwerin",
@@ -9393,8 +9393,8 @@
     "sourceLinks": []
   },
   "Peter_Paul_Rubens_115.jpg": {
-    "wikidataId": "Q2273452",
-    "wikidataUrl": "https://www.wikidata.org/wiki/Q2273452",
+    "wikidataId": "Q17519102",
+    "wikidataUrl": "https://www.wikidata.org/wiki/Q17519102",
     "collection": "Museo del Prado",
     "collectionWikidataId": "Q160112",
     "location": "Museo del Prado",
@@ -9488,8 +9488,8 @@
     "sourceLinks": []
   },
   "Pierre-Auguste_Renoir,_1880,_Portrait_of_Mademoiselle_Irène_Cahen_d'Anvers,_Sammlung_E.G._Bührle.jpg": {
-    "wikidataId": "Q109293376",
-    "wikidataUrl": "https://www.wikidata.org/wiki/Q109293376",
+    "wikidataId": "Q3937570",
+    "wikidataUrl": "https://www.wikidata.org/wiki/Q3937570",
     "collection": null,
     "collectionWikidataId": null,
     "location": null,
@@ -9528,8 +9528,8 @@
     "sourceLinks": []
   },
   "Pierre-Auguste_Renoir_-_Luncheon_of_the_Boating_Party_-_Google_Art_Project.jpg": {
-    "wikidataId": "L1154894-S1",
-    "wikidataUrl": "https://www.wikidata.org/wiki/L1154894-S1",
+    "wikidataId": "Q1167907",
+    "wikidataUrl": "https://www.wikidata.org/wiki/Q1167907",
     "collection": "The Phillips Collection",
     "collectionWikidataId": "Q578485",
     "location": "The Phillips Collection",
@@ -9558,8 +9558,8 @@
     "sourceLinks": []
   },
   "Pierre-Cécile_Puvis_de_Chavannes_003.jpg": {
-    "wikidataId": "Q16674527",
-    "wikidataUrl": "https://www.wikidata.org/wiki/Q16674527",
+    "wikidataId": null,
+    "wikidataUrl": null,
     "collection": null,
     "collectionWikidataId": null,
     "location": null,
@@ -9628,22 +9628,22 @@
     "sourceLinks": []
   },
   "Pieter_Bruegel_the_Elder_-_The_Tower_of_Babel_(Rotterdam)_-_Google_Art_Project_-_edited.jpg": {
-    "wikidataId": "Q699091",
-    "wikidataUrl": "https://www.wikidata.org/wiki/Q699091",
-    "collection": null,
-    "collectionWikidataId": null,
-    "location": null,
-    "inventory": null,
-    "describedAt": null,
+    "wikidataId": "Q15295671",
+    "wikidataUrl": "https://www.wikidata.org/wiki/Q15295671",
+    "collection": "Museum Boijmans Van Beuningen",
+    "collectionWikidataId": "Q679527",
+    "location": "Museum Boijmans Van Beuningen",
+    "inventory": "2443 (OK)",
+    "describedAt": "https://www.boijmans.nl/collectie/kunstwerken/3723",
     "sourceLinks": []
   },
   "Pieter_Bruegel_the_Elder_-_The_Tower_of_Babel_(Vienna)_-_Google_Art_Project_-_edited.jpg": {
-    "wikidataId": "Q277372",
-    "wikidataUrl": "https://www.wikidata.org/wiki/Q277372",
-    "collection": null,
-    "collectionWikidataId": null,
-    "location": null,
-    "inventory": null,
+    "wikidataId": "Q15293656",
+    "wikidataUrl": "https://www.wikidata.org/wiki/Q15293656",
+    "collection": "Kunsthistorisches Museum",
+    "collectionWikidataId": "Q95569",
+    "location": "Kunsthistorisches Museum",
+    "inventory": "GG_1026",
     "describedAt": null,
     "sourceLinks": []
   },
@@ -9668,8 +9668,8 @@
     "sourceLinks": []
   },
   "Pope-peter_pprubens.jpg": {
-    "wikidataId": "Q33923",
-    "wikidataUrl": "https://www.wikidata.org/wiki/Q33923",
+    "wikidataId": "Q27699389",
+    "wikidataUrl": "https://www.wikidata.org/wiki/Q27699389",
     "collection": "Museo del Prado",
     "collectionWikidataId": "Q160112",
     "location": "Museo del Prado",
@@ -9678,11 +9678,11 @@
     "sourceLinks": []
   },
   "Pope_Julius_II.jpg": {
-    "wikidataId": "Q80516",
-    "wikidataUrl": "https://www.wikidata.org/wiki/Q80516",
+    "wikidataId": "Q11918714",
+    "wikidataUrl": "https://www.wikidata.org/wiki/Q11918714",
     "collection": "National Gallery",
     "collectionWikidataId": "Q180788",
-    "location": null,
+    "location": "National Gallery",
     "inventory": "NG27",
     "describedAt": "http://www.3pp.website/2011/12/portrait-of-julius-ii-raphael-case.html",
     "sourceLinks": []
@@ -9698,22 +9698,22 @@
     "sourceLinks": []
   },
   "Portrait_Of_The_Artists_Brother_by_Élisabeth_Vigée-Lebrun.jpg": {
-    "wikidataId": "Q3592389",
-    "wikidataUrl": "https://www.wikidata.org/wiki/Q3592389",
-    "collection": null,
-    "collectionWikidataId": null,
-    "location": null,
-    "inventory": null,
+    "wikidataId": "Q78735078",
+    "wikidataUrl": "https://www.wikidata.org/wiki/Q78735078",
+    "collection": "Saint Louis Art Museum",
+    "collectionWikidataId": "Q1760539",
+    "location": "Saint Louis Art Museum",
+    "inventory": "3:1940",
     "describedAt": null,
     "sourceLinks": []
   },
   "Portrait_de_l'artiste_avec_un_ami,_by_Raffaello_Sanzio,_from_C2RMF_retouched.jpg": {
-    "wikidataId": "Q3107048",
-    "wikidataUrl": "https://www.wikidata.org/wiki/Q3107048",
-    "collection": null,
-    "collectionWikidataId": null,
-    "location": null,
-    "inventory": null,
+    "wikidataId": "Q2275653",
+    "wikidataUrl": "https://www.wikidata.org/wiki/Q2275653",
+    "collection": "Department of Paintings of the Louvre",
+    "collectionWikidataId": "Q3044768",
+    "location": "Room 712",
+    "inventory": "INV 614",
     "describedAt": null,
     "sourceLinks": []
   },
@@ -9828,8 +9828,8 @@
     "sourceLinks": []
   },
   "Raffaello_Sanzio_-_Ritratto_di_Bindo_Altoviti.jpg": {
-    "wikidataId": "Q22810427",
-    "wikidataUrl": "https://www.wikidata.org/wiki/Q22810427",
+    "wikidataId": "Q2528106",
+    "wikidataUrl": "https://www.wikidata.org/wiki/Q2528106",
     "collection": "National Gallery of Art",
     "collectionWikidataId": "Q214867",
     "location": "National Gallery of Art",
@@ -9848,12 +9848,12 @@
     "sourceLinks": []
   },
   "Raphael_-_The_Miraculous_Draft_of_Fishes_-_Google_Art_Project.jpg": {
-    "wikidataId": "Q936852",
-    "wikidataUrl": "https://www.wikidata.org/wiki/Q936852",
-    "collection": "Victoria and Albert Museum",
-    "collectionWikidataId": "Q213322",
-    "location": "The Raphael Cartoons",
-    "inventory": null,
+    "wikidataId": "Q3900659",
+    "wikidataUrl": "https://www.wikidata.org/wiki/Q3900659",
+    "collection": "Royal Collection",
+    "collectionWikidataId": "Q1459037",
+    "location": null,
+    "inventory": "RCIN%20912944",
     "describedAt": null,
     "sourceLinks": []
   },
@@ -9868,18 +9868,18 @@
     "sourceLinks": []
   },
   "Red_Fuji_southern_wind_clear_morning.jpg": {
-    "wikidataId": "Q36649",
-    "wikidataUrl": "https://www.wikidata.org/wiki/Q36649",
+    "wikidataId": "Q3565037",
+    "wikidataUrl": "https://www.wikidata.org/wiki/Q3565037",
     "collection": null,
     "collectionWikidataId": null,
     "location": null,
     "inventory": null,
-    "describedAt": "http://honolulumuseum.org/art/exhibitions/324-hokusai_s_summit_thirty-six_views_of_mount_fuji/",
+    "describedAt": null,
     "sourceLinks": []
   },
   "Rembrandt-Belsazar.jpg": {
-    "wikidataId": "Q883704",
-    "wikidataUrl": "https://www.wikidata.org/wiki/Q883704",
+    "wikidataId": "Q1167932",
+    "wikidataUrl": "https://www.wikidata.org/wiki/Q1167932",
     "collection": "National Gallery",
     "collectionWikidataId": "Q180788",
     "location": "National Gallery",
@@ -9898,13 +9898,13 @@
     "sourceLinks": []
   },
   "Rembrandt_-_The_Anatomy_Lesson_of_Dr_Nicolaes_Tulp.jpg": {
-    "wikidataId": "Q62480284",
-    "wikidataUrl": "https://www.wikidata.org/wiki/Q62480284",
+    "wikidataId": "Q661378",
+    "wikidataUrl": "https://www.wikidata.org/wiki/Q661378",
     "collection": "Mauritshuis",
     "collectionWikidataId": "Q221092",
     "location": "Mauritshuis",
     "inventory": "146",
-    "describedAt": "https://archief.amsterdam/stukken/dood/chirurgijnsboek/index.nl.html",
+    "describedAt": "https://www.mauritshuis.nl/nl-nl/verdiep/de-collectie/kunstwerken/de-anatomische-les-van-dr-nicolaes-tulp-146/",
     "sourceLinks": []
   },
   "Rembrandt_-_Zelfportret_-_Google_Art_Project.jpg": {
@@ -9920,8 +9920,8 @@
   "Rembrandt_Christ_in_the_Storm_on_the_Lake_of_Galilee.jpg": {
     "wikidataId": "Q2246489",
     "wikidataUrl": "https://www.wikidata.org/wiki/Q2246489",
-    "collection": "http://www.wikidata.org/.well-known/genid/96339d00960f46af8f0348af5c1d2d2b",
-    "collectionWikidataId": "http://www.wikidata.org/.well-known/genid/96339d00960f46af8f0348af5c1d2d2b",
+    "collection": null,
+    "collectionWikidataId": null,
     "location": null,
     "inventory": "P21s24",
     "describedAt": "https://www.gardnermuseum.org/experience/collection/10953",
@@ -9938,12 +9938,12 @@
     "sourceLinks": []
   },
   "Rembrandt_Girl_in_a_Picture_Frame.jpg": {
-    "wikidataId": "Q4993710",
-    "wikidataUrl": "https://www.wikidata.org/wiki/Q4993710",
+    "wikidataId": "Q11695670",
+    "wikidataUrl": "https://www.wikidata.org/wiki/Q11695670",
     "collection": "Royal Castle in Warsaw",
     "collectionWikidataId": "Q756098",
     "location": "Royal Castle in Warsaw",
-    "inventory": "566",
+    "inventory": "ZKW/3906",
     "describedAt": null,
     "sourceLinks": []
   },
@@ -9993,13 +9993,13 @@
     "sourceLinks": []
   },
   "Rembrandt_van_Rijn_-_Self-Portrait_-_Google_Art_Project.jpg": {
-    "wikidataId": "Q5598",
-    "wikidataUrl": "https://www.wikidata.org/wiki/Q5598",
+    "wikidataId": "Q2872723",
+    "wikidataUrl": "https://www.wikidata.org/wiki/Q2872723",
     "collection": "National Gallery of Art",
     "collectionWikidataId": "Q214867",
     "location": "National Gallery of Art",
     "inventory": "1937.1.72",
-    "describedAt": "http://www.nationalgallery.org.uk/artists/rembrandt",
+    "describedAt": "http://www.rembrandtdatabase.org/Rembrandt/painting/29822/self-portrait",
     "sourceLinks": []
   },
   "Rembrandt_van_Rijn_-_The_Mill_-_Google_Art_Project.jpg": {
@@ -10053,8 +10053,8 @@
     ]
   },
   "Retrato_de_Juan_Pareja,_by_Diego_Velázquez.jpg": {
-    "wikidataId": "Q191923",
-    "wikidataUrl": "https://www.wikidata.org/wiki/Q191923",
+    "wikidataId": "Q4717953",
+    "wikidataUrl": "https://www.wikidata.org/wiki/Q4717953",
     "collection": "Metropolitan Museum of Art",
     "collectionWikidataId": "Q160236",
     "location": "Metropolitan Museum of Art",
@@ -10113,10 +10113,10 @@
     "sourceLinks": []
   },
   "Robert_Delaunay_L'homme_à_la_tulipe_(Portrait_de_Jean_Metzinger)_1906.jpg": {
-    "wikidataId": "Q2487023",
-    "wikidataUrl": "https://www.wikidata.org/wiki/Q2487023",
-    "collection": "http://www.wikidata.org/.well-known/genid/bda812a4862cbc45f0227a29698bdc2c",
-    "collectionWikidataId": "http://www.wikidata.org/.well-known/genid/bda812a4862cbc45f0227a29698bdc2c",
+    "wikidataId": "Q18720766",
+    "wikidataUrl": "https://www.wikidata.org/wiki/Q18720766",
+    "collection": null,
+    "collectionWikidataId": null,
     "location": null,
     "inventory": null,
     "describedAt": null,
@@ -10182,8 +10182,8 @@
     "sourceLinks": []
   },
   "Roman_Charity_-_Pieter_Pauwel_Reubens.jpg": {
-    "wikidataId": "Q1269174",
-    "wikidataUrl": "https://www.wikidata.org/wiki/Q1269174",
+    "wikidataId": "Q9184549",
+    "wikidataUrl": "https://www.wikidata.org/wiki/Q9184549",
     "collection": "Hermitage Museum",
     "collectionWikidataId": "Q132783",
     "location": "Hermitage Museum",
@@ -10194,8 +10194,8 @@
   "Rome,_From_Mount_Aventine.jpg": {
     "wikidataId": "Q18605938",
     "wikidataUrl": "https://www.wikidata.org/wiki/Q18605938",
-    "collection": "http://www.wikidata.org/.well-known/genid/d82539bfa66181ac24f0dbdbcdcfeeda",
-    "collectionWikidataId": "http://www.wikidata.org/.well-known/genid/d82539bfa66181ac24f0dbdbcdcfeeda",
+    "collection": null,
+    "collectionWikidataId": null,
     "location": null,
     "inventory": null,
     "describedAt": null,
@@ -10296,7 +10296,7 @@
     "wikidataUrl": "https://www.wikidata.org/wiki/Q647202",
     "collection": "Kunsthistorisches Museum",
     "collectionWikidataId": "Q95569",
-    "location": "Q109998474",
+    "location": "Kabinett 20",
     "inventory": "GG_3834",
     "describedAt": null,
     "sourceLinks": []
@@ -10394,8 +10394,8 @@
   "Saint_Sebastian_tended_by_two_angels).jpg": {
     "wikidataId": "Q78781107",
     "wikidataUrl": "https://www.wikidata.org/wiki/Q78781107",
-    "collection": "http://www.wikidata.org/.well-known/genid/908dd4b6aaf77239ded4a5ab4af0e06b",
-    "collectionWikidataId": "http://www.wikidata.org/.well-known/genid/908dd4b6aaf77239ded4a5ab4af0e06b",
+    "collection": null,
+    "collectionWikidataId": null,
     "location": "Rubenshuis",
     "inventory": null,
     "describedAt": "https://www.rubenshuis.be/en/page/peter-paul-rubens-2",
@@ -10451,18 +10451,18 @@
     "sourceLinks": []
   },
   "Sandro_Botticelli_-_Idealized_Portrait_of_a_Lady_(Portrait_of_Simonetta_Vespucci_as_Nymph)_-_Google_Art_Project.jpg": {
-    "wikidataId": "Q234125",
-    "wikidataUrl": "https://www.wikidata.org/wiki/Q234125",
-    "collection": null,
-    "collectionWikidataId": null,
-    "location": null,
-    "inventory": null,
-    "describedAt": null,
+    "wikidataId": "Q4373363",
+    "wikidataUrl": "https://www.wikidata.org/wiki/Q4373363",
+    "collection": "Städel Museum",
+    "collectionWikidataId": "Q163804",
+    "location": "Städel Museum",
+    "inventory": "936",
+    "describedAt": "https://staedelmuseum.de/go/ds/936",
     "sourceLinks": []
   },
   "Sandro_Botticelli_-_La_nascita_di_Venere_-_Google_Art_Project_-_edited.jpg": {
-    "wikidataId": "Q123569441",
-    "wikidataUrl": "https://www.wikidata.org/wiki/Q123569441",
+    "wikidataId": "Q151047",
+    "wikidataUrl": "https://www.wikidata.org/wiki/Q151047",
     "collection": "Uffizi Gallery",
     "collectionWikidataId": "Q51252",
     "location": "Uffizi Gallery - Room 11-12, Botticelli's, Florence, Italy",
@@ -10491,11 +10491,11 @@
     "sourceLinks": []
   },
   "Sandro_Botticelli_050.jpg": {
-    "wikidataId": "Q1180413",
-    "wikidataUrl": "https://www.wikidata.org/wiki/Q1180413",
-    "collection": null,
-    "collectionWikidataId": null,
-    "location": null,
+    "wikidataId": "Q1114329",
+    "wikidataUrl": "https://www.wikidata.org/wiki/Q1114329",
+    "collection": "Ognissanti Church",
+    "collectionWikidataId": "Q2778991",
+    "location": "Ognissanti Church",
     "inventory": null,
     "describedAt": null,
     "sourceLinks": []
@@ -10531,10 +10531,10 @@
     "sourceLinks": []
   },
   "Sargent_-_Madame_Ramón_Subercaseaux,_c._1880-81,_nr._41.jpg": {
-    "wikidataId": "Q94539407",
-    "wikidataUrl": "https://www.wikidata.org/wiki/Q94539407",
-    "collection": null,
-    "collectionWikidataId": null,
+    "wikidataId": "Q17748013",
+    "wikidataUrl": "https://www.wikidata.org/wiki/Q17748013",
+    "collection": "Sarofim Foundation",
+    "collectionWikidataId": "Q137771155",
     "location": null,
     "inventory": null,
     "describedAt": null,
@@ -10551,8 +10551,8 @@
     "sourceLinks": []
   },
   "Schongauer_Anthony.jpg": {
-    "wikidataId": "Q177413",
-    "wikidataUrl": "https://www.wikidata.org/wiki/Q177413",
+    "wikidataId": "Q5968221",
+    "wikidataUrl": "https://www.wikidata.org/wiki/Q5968221",
     "collection": null,
     "collectionWikidataId": null,
     "location": null,
@@ -10581,8 +10581,8 @@
     "sourceLinks": []
   },
   "Self-portrait_in_a_Straw_Hat_by_Elisabeth-Louise_Vigée-Lebrun.jpg": {
-    "wikidataId": "Q213163",
-    "wikidataUrl": "https://www.wikidata.org/wiki/Q213163",
+    "wikidataId": "Q18719540",
+    "wikidataUrl": "https://www.wikidata.org/wiki/Q18719540",
     "collection": "National Gallery",
     "collectionWikidataId": "Q180788",
     "location": "National Gallery",
@@ -10591,8 +10591,8 @@
     "sourceLinks": []
   },
   "Self-portrait_with_Her_Daughter_by_Elisabeth-Louise_Vigée_Le_Brun.jpg": {
-    "wikidataId": "Q2999575",
-    "wikidataUrl": "https://www.wikidata.org/wiki/Q2999575",
+    "wikidataId": "Q19273424",
+    "wikidataUrl": "https://www.wikidata.org/wiki/Q19273424",
     "collection": "Department of Paintings of the Louvre",
     "collectionWikidataId": "Q3044768",
     "location": "Room 702",
@@ -10611,13 +10611,13 @@
     "sourceLinks": []
   },
   "Seven_Sacraments_Rogier.jpg": {
-    "wikidataId": "Q49703",
-    "wikidataUrl": "https://www.wikidata.org/wiki/Q49703",
-    "collection": null,
-    "collectionWikidataId": null,
-    "location": null,
-    "inventory": null,
-    "describedAt": "http://www.vatican.va/archive/compendium_ccc/documents/archive_2005_compendium-ccc_sp.html#LOS%20SIETE%20SACRAMENTOS%20DE%20LA%20IGLESIA",
+    "wikidataId": "Q434461",
+    "wikidataUrl": "https://www.wikidata.org/wiki/Q434461",
+    "collection": "Vlaamse Kunstcollectie",
+    "collectionWikidataId": "Q2542010",
+    "location": "Royal Museum of Fine Arts Antwerp",
+    "inventory": "393-395",
+    "describedAt": "http://vlaamsekunstcollectie.be/collection/work/data/393-395",
     "sourceLinks": []
   },
   "Sharaku_(1794)_Ebisu.jpg": {
@@ -10631,13 +10631,13 @@
     "sourceLinks": []
   },
   "Shipwreck_turner.jpg": {
-    "wikidataId": "Q2554524",
-    "wikidataUrl": "https://www.wikidata.org/wiki/Q2554524",
-    "collection": null,
-    "collectionWikidataId": null,
-    "location": null,
-    "inventory": null,
-    "describedAt": null,
+    "wikidataId": "Q25445073",
+    "wikidataUrl": "https://www.wikidata.org/wiki/Q25445073",
+    "collection": "Calouste Gulbenkian Museum",
+    "collectionWikidataId": "Q211262",
+    "location": "Calouste Gulbenkian Museum",
+    "inventory": "260",
+    "describedAt": "https://gulbenkian.pt/museu/works_museu/naufragio-de-um-cargueiro/",
     "sourceLinks": []
   },
   "Siernetel_in_bloempot_-_s0185V1962_-_Van_Gogh_Museum.jpg": {
@@ -10666,11 +10666,11 @@
     ]
   },
   "Sir_Anthony_Van_Dyck_-_Charles_I_(1600-49)_-_Google_Art_Project.jpg": {
-    "wikidataId": "Q2284765",
-    "wikidataUrl": "https://www.wikidata.org/wiki/Q2284765",
+    "wikidataId": "Q3998985",
+    "wikidataUrl": "https://www.wikidata.org/wiki/Q3998985",
     "collection": "Royal Collection",
     "collectionWikidataId": "Q1459037",
-    "location": null,
+    "location": "Windsor Castle",
     "inventory": "RCIN 404420",
     "describedAt": null,
     "sourceLinks": []
@@ -10696,8 +10696,8 @@
     "sourceLinks": []
   },
   "Sir_Henry_Raeburn_-_Colonel_Alastair_Ranaldson_Macdonell_of_Glengarry_(1771_-_1828)_-_Google_Art_Project.jpg": {
-    "wikidataId": "Q4719916",
-    "wikidataUrl": "https://www.wikidata.org/wiki/Q4719916",
+    "wikidataId": "Q18685147",
+    "wikidataUrl": "https://www.wikidata.org/wiki/Q18685147",
     "collection": "National Galleries Scotland",
     "collectionWikidataId": "Q2051997",
     "location": "National Galleries Scotland",
@@ -10786,13 +10786,13 @@
     "sourceLinks": []
   },
   "Sower_at_Sunset_-_Vincent_Van_Gogh.jpg": {
-    "wikidataId": "Q3955068",
-    "wikidataUrl": "https://www.wikidata.org/wiki/Q3955068",
+    "wikidataId": "Q24020423",
+    "wikidataUrl": "https://www.wikidata.org/wiki/Q24020423",
     "collection": "Kröller-Müller Museum",
     "collectionWikidataId": "Q1051928",
-    "location": null,
-    "inventory": null,
-    "describedAt": null,
+    "location": "Kröller-Müller Museum",
+    "inventory": "KM 106.399",
+    "describedAt": "http://www.kmm.nl/object/KM%20106.399",
     "sourceLinks": []
   },
   "Spring_(Fruit_Trees_in_Bloom)_MET_DT1902.jpg": {
@@ -10816,13 +10816,13 @@
     "sourceLinks": []
   },
   "Starry_Night_Over_the_Rhone.jpg": {
-    "wikidataId": "Q5347413",
-    "wikidataUrl": "https://www.wikidata.org/wiki/Q5347413",
-    "collection": null,
-    "collectionWikidataId": null,
-    "location": null,
-    "inventory": null,
-    "describedAt": null,
+    "wikidataId": "Q1464531",
+    "wikidataUrl": "https://www.wikidata.org/wiki/Q1464531",
+    "collection": "Musée d'Orsay",
+    "collectionWikidataId": "Q23402",
+    "location": "Musée d'Orsay",
+    "inventory": "RF 1975 19",
+    "describedAt": "http://www.vggallery.com/painting/p_0474.htm",
     "sourceLinks": []
   },
   "Stieler-Jane_Digby.jpg": {
@@ -10836,18 +10836,18 @@
     "sourceLinks": []
   },
   "Stieler_-_Auguste_Strobl_(Schönheitengalerie).jpg": {
-    "wikidataId": "Q105977",
-    "wikidataUrl": "https://www.wikidata.org/wiki/Q105977",
-    "collection": "Nymphenburg Palace",
-    "collectionWikidataId": "Q131631",
-    "location": "Nymphenburg Palace",
+    "wikidataId": null,
+    "wikidataUrl": null,
+    "collection": null,
+    "collectionWikidataId": null,
+    "location": null,
     "inventory": null,
     "describedAt": null,
     "sourceLinks": []
   },
   "Stieler_-_Lola_Montez_(Schönheitengalerie).jpg": {
-    "wikidataId": "Q161154",
-    "wikidataUrl": "https://www.wikidata.org/wiki/Q161154",
+    "wikidataId": "Q123385241",
+    "wikidataUrl": "https://www.wikidata.org/wiki/Q123385241",
     "collection": "Nymphenburg Palace",
     "collectionWikidataId": "Q131631",
     "location": "Nymphenburg Palace",
@@ -10856,8 +10856,8 @@
     "sourceLinks": []
   },
   "Stieler_-_Marianna_Marchesa_Florenzi,_1831.jpeg": {
-    "wikidataId": "Q450819",
-    "wikidataUrl": "https://www.wikidata.org/wiki/Q450819",
+    "wikidataId": "Q122973426",
+    "wikidataUrl": "https://www.wikidata.org/wiki/Q122973426",
     "collection": "Nymphenburg Palace",
     "collectionWikidataId": "Q131631",
     "location": "Nymphenburg Palace",
@@ -10881,8 +10881,8 @@
     ]
   },
   "Stieler_-_Portrait_of_Friederike_Freiin_Von_Gumppenberg.jpg": {
-    "wikidataId": "Q94773290",
-    "wikidataUrl": "https://www.wikidata.org/wiki/Q94773290",
+    "wikidataId": "Q123385073",
+    "wikidataUrl": "https://www.wikidata.org/wiki/Q123385073",
     "collection": "Nymphenburg Palace",
     "collectionWikidataId": "Q131631",
     "location": "Nymphenburg Palace",
@@ -10911,13 +10911,13 @@
     "sourceLinks": []
   },
   "Stückelberg_Sappho_1897.jpg": {
-    "wikidataId": "Q1807978",
-    "wikidataUrl": "https://www.wikidata.org/wiki/Q1807978",
-    "collection": null,
-    "collectionWikidataId": null,
-    "location": null,
-    "inventory": null,
-    "describedAt": null,
+    "wikidataId": "Q131585778",
+    "wikidataUrl": "https://www.wikidata.org/wiki/Q131585778",
+    "collection": "Kunsthaus Zürich",
+    "collectionWikidataId": "Q685038",
+    "location": "Kunsthaus Zürich",
+    "inventory": "1939",
+    "describedAt": "https://collection.kunsthaus.ch/en/collection/item/3784/",
     "sourceLinks": []
   },
   "Sunset_across_the_Ryogoku_bridge_from_the_bank_of_the_Sumida_river_at_Onmagayashi.jpg": {
@@ -10933,8 +10933,8 @@
   "Sunset_at_Montmajour_1888_Van_Gogh.jpg": {
     "wikidataId": "Q14866847",
     "wikidataUrl": "https://www.wikidata.org/wiki/Q14866847",
-    "collection": "http://www.wikidata.org/.well-known/genid/61d6642e3de4cf0ca1e28b9ad8982004",
-    "collectionWikidataId": "http://www.wikidata.org/.well-known/genid/61d6642e3de4cf0ca1e28b9ad8982004",
+    "collection": null,
+    "collectionWikidataId": null,
     "location": "Norway",
     "inventory": null,
     "describedAt": "http://www.vggallery.com/painting/pb_0003.htm",
@@ -10961,20 +10961,20 @@
     "sourceLinks": []
   },
   "Susanna_and_the_Elders_(1610),_Artemisia_Gentileschi.jpg": {
-    "wikidataId": "Q16930210",
-    "wikidataUrl": "https://www.wikidata.org/wiki/Q16930210",
-    "collection": null,
-    "collectionWikidataId": null,
-    "location": null,
-    "inventory": null,
+    "wikidataId": "Q3978274",
+    "wikidataUrl": "https://www.wikidata.org/wiki/Q3978274",
+    "collection": "Schloss Weißenstein",
+    "collectionWikidataId": "Q179062",
+    "location": "Schloss Weißenstein",
+    "inventory": "191",
     "describedAt": null,
     "sourceLinks": []
   },
   "Susanna_i_badet,_1879,_115_x_89,5_cm,_privateje.jpg": {
     "wikidataId": "Q21976035",
     "wikidataUrl": "https://www.wikidata.org/wiki/Q21976035",
-    "collection": "http://www.wikidata.org/.well-known/genid/869f6e2e5115123f8334743d28aebaaa",
-    "collectionWikidataId": "http://www.wikidata.org/.well-known/genid/869f6e2e5115123f8334743d28aebaaa",
+    "collection": null,
+    "collectionWikidataId": null,
     "location": null,
     "inventory": null,
     "describedAt": null,
@@ -11011,8 +11011,8 @@
     "sourceLinks": []
   },
   "Tabi_miyage_dai_isshū,_Shiobara_Arayu_no_aki_by_Kawase_Hasui.jpg": {
-    "wikidataId": "Q11428629",
-    "wikidataUrl": "https://www.wikidata.org/wiki/Q11428629",
+    "wikidataId": null,
+    "wikidataUrl": null,
     "collection": null,
     "collectionWikidataId": null,
     "location": null,
@@ -11091,8 +11091,8 @@
     "sourceLinks": []
   },
   "The_Christian_Martyrs'_Last_Prayer_GA&C.jpg": {
-    "wikidataId": "Q554482",
-    "wikidataUrl": "https://www.wikidata.org/wiki/Q554482",
+    "wikidataId": "Q18748901",
+    "wikidataUrl": "https://www.wikidata.org/wiki/Q18748901",
     "collection": "Walters Art Museum",
     "collectionWikidataId": "Q210081",
     "location": "Walters Art Museum",
@@ -11193,8 +11193,8 @@
   "The_Hookah_Lighter.jpg": {
     "wikidataId": "Q19861894",
     "wikidataUrl": "https://www.wikidata.org/wiki/Q19861894",
-    "collection": "http://www.wikidata.org/.well-known/genid/0957ad46b59c568640975f33f31c78ae",
-    "collectionWikidataId": "http://www.wikidata.org/.well-known/genid/0957ad46b59c568640975f33f31c78ae",
+    "collection": null,
+    "collectionWikidataId": null,
     "location": null,
     "inventory": null,
     "describedAt": null,
@@ -11221,13 +11221,13 @@
     "sourceLinks": []
   },
   "The_Incredulity_of_Saint_Thomas-Caravaggio_(1601-2).jpg": {
-    "wikidataId": "Q43669",
-    "wikidataUrl": "https://www.wikidata.org/wiki/Q43669",
-    "collection": null,
-    "collectionWikidataId": null,
-    "location": null,
-    "inventory": null,
-    "describedAt": null,
+    "wikidataId": "Q2419166",
+    "wikidataUrl": "https://www.wikidata.org/wiki/Q2419166",
+    "collection": "Sanssouci Picture Gallery",
+    "collectionWikidataId": "Q451555",
+    "location": "Sanssouci Palace",
+    "inventory": "GK I 5438",
+    "describedAt": "https://brandenburg.museum-digital.de/object/11898",
     "sourceLinks": []
   },
   "The_Junction_of_the_Thames_and_the_Medway_A10955.jpg": {
@@ -11263,8 +11263,8 @@
   "The_Rising_Squall,_Hot_Wells,_from_St_Vincent's_Rock,_Bristol).jpg": {
     "wikidataId": "Q135103562",
     "wikidataUrl": "https://www.wikidata.org/wiki/Q135103562",
-    "collection": "http://www.wikidata.org/.well-known/genid/97ace74c0f1d15f3aa968bbcadf5605a",
-    "collectionWikidataId": "http://www.wikidata.org/.well-known/genid/97ace74c0f1d15f3aa968bbcadf5605a",
+    "collection": null,
+    "collectionWikidataId": null,
     "location": null,
     "inventory": null,
     "describedAt": null,
@@ -11283,9 +11283,9 @@
   "The_Seine_at_Bougival_1946_4.jpg": {
     "wikidataId": "Q83901171",
     "wikidataUrl": "https://www.wikidata.org/wiki/Q83901171",
-    "collection": "Q14715853",
+    "collection": "Smith College Museum of Art",
     "collectionWikidataId": "Q14715853",
-    "location": "Q14715853",
+    "location": "Smith College Museum of Art",
     "inventory": "SC 1946.4",
     "describedAt": "https://museums.fivecolleges.edu/detail.php?museum=all&t=objects&type=all&f=&s=Monet&record=41",
     "sourceLinks": []
@@ -11311,8 +11311,8 @@
     "sourceLinks": []
   },
   "The_Triumph_of_Bacchus;_oil_on_canvas,_1736_Charles-Joseph_Natoire.jpg": {
-    "wikidataId": "Q123907",
-    "wikidataUrl": "https://www.wikidata.org/wiki/Q123907",
+    "wikidataId": null,
+    "wikidataUrl": null,
     "collection": null,
     "collectionWikidataId": null,
     "location": null,
@@ -11383,8 +11383,8 @@
   "The_end_of_the_pose,_by_Jean-Léon_Gérôme.jpg": {
     "wikidataId": "Q19861917",
     "wikidataUrl": "https://www.wikidata.org/wiki/Q19861917",
-    "collection": "http://www.wikidata.org/.well-known/genid/7ce65a3b8b97f8bc45e710ccdaee86be",
-    "collectionWikidataId": "http://www.wikidata.org/.well-known/genid/7ce65a3b8b97f8bc45e710ccdaee86be",
+    "collection": null,
+    "collectionWikidataId": null,
     "location": null,
     "inventory": null,
     "describedAt": null,
@@ -11411,8 +11411,8 @@
     "sourceLinks": []
   },
   "Thomas-howard-rubensportrait.jpg": {
-    "wikidataId": "Q166517",
-    "wikidataUrl": "https://www.wikidata.org/wiki/Q166517",
+    "wikidataId": "Q26706679",
+    "wikidataUrl": "https://www.wikidata.org/wiki/Q26706679",
     "collection": "National Gallery",
     "collectionWikidataId": "Q180788",
     "location": "National Gallery",
@@ -11471,12 +11471,12 @@
     "sourceLinks": []
   },
   "Three_Friends_of_Winter_by_Zhao_Mengjian.jpg": {
-    "wikidataId": "Q3208788",
-    "wikidataUrl": "https://www.wikidata.org/wiki/Q3208788",
-    "collection": null,
-    "collectionWikidataId": null,
-    "location": null,
-    "inventory": null,
+    "wikidataId": "Q140460491",
+    "wikidataUrl": "https://www.wikidata.org/wiki/Q140460491",
+    "collection": "National Palace Museum",
+    "collectionWikidataId": "Q540668",
+    "location": "National Palace Museum",
+    "inventory": "故畫001290N000000006",
     "describedAt": null,
     "sourceLinks": []
   },
@@ -11521,8 +11521,8 @@
     "sourceLinks": []
   },
   "Tizian_-_Danae_receiving_the_Golden_Rain_-_Prado.jpg": {
-    "wikidataId": "Q1431523",
-    "wikidataUrl": "https://www.wikidata.org/wiki/Q1431523",
+    "wikidataId": "Q14425553",
+    "wikidataUrl": "https://www.wikidata.org/wiki/Q14425553",
     "collection": "Museo del Prado",
     "collectionWikidataId": "Q160112",
     "location": "Museo del Prado",
@@ -11531,8 +11531,8 @@
     "sourceLinks": []
   },
   "Tizian_-_Portrait_of_Federico_II_Gonzaga_-_circa_1525.jpg": {
-    "wikidataId": "Q932200",
-    "wikidataUrl": "https://www.wikidata.org/wiki/Q932200",
+    "wikidataId": "Q3937527",
+    "wikidataUrl": "https://www.wikidata.org/wiki/Q3937527",
     "collection": "Museo del Prado",
     "collectionWikidataId": "Q160112",
     "location": "Museo del Prado",
@@ -11551,8 +11551,8 @@
     "sourceLinks": []
   },
   "Tizian_085.jpg": {
-    "wikidataId": "Q3993006",
-    "wikidataUrl": "https://www.wikidata.org/wiki/Q3993006",
+    "wikidataId": "Q18002417",
+    "wikidataUrl": "https://www.wikidata.org/wiki/Q18002417",
     "collection": "Isabella Stewart Gardner Museum",
     "collectionWikidataId": "Q49135",
     "location": "Isabella Stewart Gardner Museum",
@@ -11581,8 +11581,8 @@
     "sourceLinks": []
   },
   "Tōkyō_nijū_kei,_Shin_Ōhashi_by_Kawase_Hasui.jpg": {
-    "wikidataId": "Q103839831",
-    "wikidataUrl": "https://www.wikidata.org/wiki/Q103839831",
+    "wikidataId": "Q117360870",
+    "wikidataUrl": "https://www.wikidata.org/wiki/Q117360870",
     "collection": null,
     "collectionWikidataId": null,
     "location": null,
@@ -11613,9 +11613,9 @@
   "Triumphant_Entry_of_Constantine_into_Rome_by_Peter_Paul_Rubens.jpg": {
     "wikidataId": "Q27895177",
     "wikidataUrl": "https://www.wikidata.org/wiki/Q27895177",
-    "collection": "Q1117704",
+    "collection": "Indianapolis Museum of Art",
     "collectionWikidataId": "Q1117704",
-    "location": "Q1117704",
+    "location": "Indianapolis Museum of Art",
     "inventory": "2001.237",
     "describedAt": null,
     "sourceLinks": []
@@ -11643,8 +11643,8 @@
   "Turner_-_Newark_Abbey_on_the_River_Wey,_5765910.jpg": {
     "wikidataId": "Q54820865",
     "wikidataUrl": "https://www.wikidata.org/wiki/Q54820865",
-    "collection": "http://www.wikidata.org/.well-known/genid/ebc13ffbf3f2c75873c0208f9627f5e2",
-    "collectionWikidataId": "http://www.wikidata.org/.well-known/genid/ebc13ffbf3f2c75873c0208f9627f5e2",
+    "collection": null,
+    "collectionWikidataId": null,
     "location": "private collection",
     "inventory": null,
     "describedAt": "https://www.christies.com/lotfinder/Lot/joseph-mallord-william-turner-ra-london-1775-1851-5765910-details.aspx",
@@ -11683,9 +11683,9 @@
   "Turner_-_The_Banks_of_the_Loire,_about_1829,_1940.59.jpg": {
     "wikidataId": "Q38580588",
     "wikidataUrl": "https://www.wikidata.org/wiki/Q38580588",
-    "collection": "Q847508",
+    "collection": "Worcester Art Museum",
     "collectionWikidataId": "Q847508",
-    "location": "Q847508",
+    "location": "Worcester Art Museum",
     "inventory": "1940.59",
     "describedAt": "http://www.worcesterart.org",
     "sourceLinks": []
@@ -11793,8 +11793,8 @@
   "Van_Gogh_-_Am_Stadtrand_von_Paris1.jpeg": {
     "wikidataId": "Q26220240",
     "wikidataUrl": "https://www.wikidata.org/wiki/Q26220240",
-    "collection": "http://www.wikidata.org/.well-known/genid/85ba2035d691c5a4dc12d1f6a7a97fbb",
-    "collectionWikidataId": "http://www.wikidata.org/.well-known/genid/85ba2035d691c5a4dc12d1f6a7a97fbb",
+    "collection": null,
+    "collectionWikidataId": null,
     "location": null,
     "inventory": null,
     "describedAt": "http://www.vggallery.com/painting/p_0351.htm",
@@ -11843,8 +11843,8 @@
   "Van_Gogh_-_Weißes_Bauernhaus_zwischen_Olivenbäumen.jpeg": {
     "wikidataId": "Q26221187",
     "wikidataUrl": "https://www.wikidata.org/wiki/Q26221187",
-    "collection": "http://www.wikidata.org/.well-known/genid/cf55bb138040fcefc6a5493928907cbc",
-    "collectionWikidataId": "http://www.wikidata.org/.well-known/genid/cf55bb138040fcefc6a5493928907cbc",
+    "collection": null,
+    "collectionWikidataId": null,
     "location": null,
     "inventory": null,
     "describedAt": "http://www.vggallery.com/painting/p_0664.htm",
@@ -11901,12 +11901,12 @@
     "sourceLinks": []
   },
   "Venus_and_Adonis_by_Titian.jpg": {
-    "wikidataId": "Q58177931",
-    "wikidataUrl": "https://www.wikidata.org/wiki/Q58177931",
-    "collection": null,
-    "collectionWikidataId": null,
-    "location": null,
-    "inventory": null,
+    "wikidataId": "Q603703",
+    "wikidataUrl": "https://www.wikidata.org/wiki/Q603703",
+    "collection": "Museo del Prado",
+    "collectionWikidataId": "Q160112",
+    "location": "Museo del Prado",
+    "inventory": "P000422",
     "describedAt": null,
     "sourceLinks": []
   },
@@ -11983,8 +11983,8 @@
   "Vincent_Willem_van_Gogh_030.jpg": {
     "wikidataId": "Q3225777",
     "wikidataUrl": "https://www.wikidata.org/wiki/Q3225777",
-    "collection": "http://www.wikidata.org/.well-known/genid/6382cb61074e9a97c8454216fb24278f",
-    "collectionWikidataId": "http://www.wikidata.org/.well-known/genid/6382cb61074e9a97c8454216fb24278f",
+    "collection": null,
+    "collectionWikidataId": null,
     "location": null,
     "inventory": null,
     "describedAt": "http://www.vggallery.com/painting/p_0481.htm",
@@ -12031,8 +12031,8 @@
     "sourceLinks": []
   },
   "Vincent_van_Gogh_-_Houses_at_Auvers_-_Google_Art_Project.jpg": {
-    "wikidataId": "Q9209961",
-    "wikidataUrl": "https://www.wikidata.org/wiki/Q9209961",
+    "wikidataId": "Q19829089",
+    "wikidataUrl": "https://www.wikidata.org/wiki/Q19829089",
     "collection": "Toledo Museum of Art",
     "collectionWikidataId": "Q1743116",
     "location": "Toledo Museum of Art",
@@ -12221,18 +12221,18 @@
     "sourceLinks": []
   },
   "Vincent_van_Gogh_-_Wheatfield_with_a_reaper_-_Google_Art_Project.jpg": {
-    "wikidataId": "Q110279115",
-    "wikidataUrl": "https://www.wikidata.org/wiki/Q110279115",
-    "collection": null,
-    "collectionWikidataId": null,
-    "location": null,
-    "inventory": null,
-    "describedAt": null,
+    "wikidataId": "Q19833776",
+    "wikidataUrl": "https://www.wikidata.org/wiki/Q19833776",
+    "collection": "Van Gogh Museum",
+    "collectionWikidataId": "Q224124",
+    "location": "Van Gogh Museum",
+    "inventory": "s0049V1962",
+    "describedAt": "http://www.vangoghmuseum.nl/nl/collectie/s0049V1962",
     "sourceLinks": []
   },
   "Vincent_van_Gogh_-_Zeegezicht_bij_Les_Saintes-Maries-de-la-Mer_-_Google_Art_Project.jpg": {
-    "wikidataId": "Q9372583",
-    "wikidataUrl": "https://www.wikidata.org/wiki/Q9372583",
+    "wikidataId": "Q19836177",
+    "wikidataUrl": "https://www.wikidata.org/wiki/Q19836177",
     "collection": "Van Gogh Museum",
     "collectionWikidataId": "Q224124",
     "location": "Van Gogh Museum",
@@ -12243,8 +12243,8 @@
   "Vincent_van_gogh_coin_de_jardin_avec_papillons).jpg": {
     "wikidataId": "Q26220284",
     "wikidataUrl": "https://www.wikidata.org/wiki/Q26220284",
-    "collection": "http://www.wikidata.org/.well-known/genid/31aa8b2bdd7d919c4771c71eb7985f00",
-    "collectionWikidataId": "http://www.wikidata.org/.well-known/genid/31aa8b2bdd7d919c4771c71eb7985f00",
+    "collection": null,
+    "collectionWikidataId": null,
     "location": "Van Gogh Museum",
     "inventory": null,
     "describedAt": "http://www.vggallery.com/painting/p_0460.htm",
@@ -12255,7 +12255,7 @@
     "wikidataUrl": "https://www.wikidata.org/wiki/Q26422904",
     "collection": "Department of Prints and Drawings of the Louvre",
     "collectionWikidataId": "Q3044753",
-    "location": "Q116685845",
+    "location": "Petit format horizontal",
     "inventory": "INV 18579, Recto",
     "describedAt": "http://www.louvre.fr/en/oeuvre-notices/view-arco-valley",
     "sourceLinks": []
@@ -12351,8 +12351,8 @@
     "sourceLinks": []
   },
   "Whaling_off_the_Coast_of_the_Goto_Islands.jpg": {
-    "wikidataId": "Q2963437",
-    "wikidataUrl": "https://www.wikidata.org/wiki/Q2963437",
+    "wikidataId": "Q60232302",
+    "wikidataUrl": "https://www.wikidata.org/wiki/Q60232302",
     "collection": null,
     "collectionWikidataId": null,
     "location": null,
@@ -12361,13 +12361,13 @@
     "sourceLinks": []
   },
   "Wheat_Field_with_Reaper_and_Sun_(F617),_1889.jpg": {
-    "wikidataId": "Q110279115",
-    "wikidataUrl": "https://www.wikidata.org/wiki/Q110279115",
-    "collection": null,
-    "collectionWikidataId": null,
-    "location": null,
-    "inventory": null,
-    "describedAt": null,
+    "wikidataId": "Q24022750",
+    "wikidataUrl": "https://www.wikidata.org/wiki/Q24022750",
+    "collection": "Kröller-Müller Museum",
+    "collectionWikidataId": "Q1051928",
+    "location": "Kröller-Müller Museum",
+    "inventory": "KM 101.173",
+    "describedAt": "https://krollermuller.nl/en/vincent-van-gogh-wheat-field-with-reaper-and-sun",
     "sourceLinks": []
   },
   "Whistler-Nocturne_in_black_and_gold.jpg": {
@@ -12443,9 +12443,9 @@
   "William_Merritt_Chase_-_First_Touch_of_Autumn_-_Google_Art_Project.jpg": {
     "wikidataId": "Q27896028",
     "wikidataUrl": "https://www.wikidata.org/wiki/Q27896028",
-    "collection": "Q1117704",
+    "collection": "Indianapolis Museum of Art",
     "collectionWikidataId": "Q1117704",
-    "location": "Q1117704",
+    "location": "Indianapolis Museum of Art",
     "inventory": "1997.183",
     "describedAt": null,
     "sourceLinks": []
@@ -12473,9 +12473,9 @@
   "William_Merritt_Chase_-_Still_Life_with_Hummingbird_-_Google_Art_Project.jpg": {
     "wikidataId": "Q27897349",
     "wikidataUrl": "https://www.wikidata.org/wiki/Q27897349",
-    "collection": "Q1117704",
+    "collection": "Indianapolis Museum of Art",
     "collectionWikidataId": "Q1117704",
-    "location": "Q1117704",
+    "location": "Indianapolis Museum of Art",
     "inventory": "58.31",
     "describedAt": null,
     "sourceLinks": []
@@ -12553,7 +12553,7 @@
   "Winslow_Homer_-_Crab_Fishing.jpg": {
     "wikidataId": "Q136708916",
     "wikidataUrl": "https://www.wikidata.org/wiki/Q136708916",
-    "collection": "Q847508",
+    "collection": "Worcester Art Museum",
     "collectionWikidataId": "Q847508",
     "location": null,
     "inventory": "1937.13",
@@ -12623,8 +12623,8 @@
   "Winslow_Homer_-_Shark_fishing.jpg": {
     "wikidataId": "Q111822140",
     "wikidataUrl": "https://www.wikidata.org/wiki/Q111822140",
-    "collection": "http://www.wikidata.org/.well-known/genid/b3f0114061fbaf793ec4c8c6530bf558",
-    "collectionWikidataId": "http://www.wikidata.org/.well-known/genid/b3f0114061fbaf793ec4c8c6530bf558",
+    "collection": null,
+    "collectionWikidataId": null,
     "location": null,
     "inventory": null,
     "describedAt": null,
@@ -12703,8 +12703,8 @@
   "Winslow_Homer_-_The_Reaper.jpg": {
     "wikidataId": "Q118325307",
     "wikidataUrl": "https://www.wikidata.org/wiki/Q118325307",
-    "collection": "http://www.wikidata.org/.well-known/genid/6f6a8cf63f490bb79d2b538d71793bb7",
-    "collectionWikidataId": "http://www.wikidata.org/.well-known/genid/6f6a8cf63f490bb79d2b538d71793bb7",
+    "collection": null,
+    "collectionWikidataId": null,
     "location": null,
     "inventory": null,
     "describedAt": null,
@@ -12921,8 +12921,8 @@
     "sourceLinks": []
   },
   "Двери_Тимура_(Тамерлана).jpg": {
-    "wikidataId": "Q4466070",
-    "wikidataUrl": "https://www.wikidata.org/wiki/Q4466070",
+    "wikidataId": "Q24084656",
+    "wikidataUrl": "https://www.wikidata.org/wiki/Q24084656",
     "collection": "Tretyakov Gallery",
     "collectionWikidataId": "Q183334",
     "location": "Tretyakov Gallery",
@@ -13813,8 +13813,8 @@
     "sourceLinks": []
   },
   "Thomas_Cole_-_The_Voyage_of_Life_Childhood,_1842_(National_Gallery_of_Art).jpg": {
-    "wikidataId": "Q3277782",
-    "wikidataUrl": "https://www.wikidata.org/wiki/Q3277782",
+    "wikidataId": "Q19900097",
+    "wikidataUrl": "https://www.wikidata.org/wiki/Q19900097",
     "collection": "National Gallery of Art",
     "collectionWikidataId": "Q214867",
     "location": "National Gallery of Art",

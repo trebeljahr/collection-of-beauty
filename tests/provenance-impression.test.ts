@@ -7,6 +7,7 @@ import {
   refitLocation,
   reresolveMode,
   resolveImpression,
+  scrubStored,
 } from "../scripts/lib/provenance-impression.mjs";
 
 // Shapes follow the WDQS JSON results for fetch-provenance's STATEMENTS and
@@ -447,5 +448,38 @@ describe("reresolveMode", () => {
     expect(
       reresolveMode(item, GRAPH, { collectionWikidataId: "Q194626", location: "Room 1" }),
     ).toBeNull();
+  });
+});
+
+describe("scrubStored", () => {
+  const GENID = "http://www.wikidata.org/.well-known/genid/febc0c58ee3f26c80588e69bfd04e90f";
+
+  it("clears an unknown value stored as collection or number", () => {
+    const stored = {
+      collection: GENID,
+      collectionWikidataId: GENID,
+      location: "Van Gogh Museum",
+      inventory: GENID,
+    };
+    expect(scrubStored(stored, undefined, GRAPH)).toEqual({
+      collection: null,
+      collectionWikidataId: null,
+      location: "Van Gogh Museum",
+      inventory: null,
+    });
+  });
+
+  it("replaces a bare QID with the item's label, or null when it has none", () => {
+    const stored = { collection: "Q214867", collectionWikidataId: "Q214867", location: "Q999" };
+    expect(scrubStored(stored, undefined, GRAPH)).toEqual({
+      collection: "National Gallery of Art",
+      collectionWikidataId: "Q214867",
+      location: null,
+    });
+  });
+
+  it("leaves a clean record as it is", () => {
+    const stored = { collection: "Tate", collectionWikidataId: "Q430682", inventory: "N02065" };
+    expect(scrubStored(stored, undefined, GRAPH)).toEqual(stored);
   });
 });

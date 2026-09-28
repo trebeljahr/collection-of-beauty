@@ -98,9 +98,13 @@ required by the Dockerfile — don't remove it.
   P195 qualifier and picks the holding the Commons file page names. When
   nothing identifies it, those fields stay null. `--reresolve` corrects
   existing entries from their stored QID without touching keys.
-  Some stored `wikidataId`s are not artworks at all (Q2979 is the concept
-  of liberty, Q80516 is Pope Julius II himself); their fields can't be
-  re-derived and were fixed by hand.
+  The P18 lookup also matched people, concepts and series whose image is
+  the painting: Q2979, the concept of liberty, stood for Delacroix's
+  Liberty Leading the People. On 28 September 2026, 95 such ids were
+  replaced with the item the Commons page names (`{{Artwork|wikidata=}}`
+  or structured-data P6243) and 11 were set to null. After correcting an
+  id by hand, pass its key to `--reresolve --keys <file>`. Without it, a
+  record whose item has one holding keeps its old fields.
 - Artwork ids are minted from filenames, so a rescan, dedup or artist
   merge retires published URLs. `src/data/redirects.json` maps old ids and
   artist slugs to current ones; `pnpm redirects:build`
