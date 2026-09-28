@@ -14,8 +14,8 @@ import {
   isPlayableScope,
   MANUAL_FADE_MS,
   missingPageStarts,
+  movedEnoughToWake,
   nextAvifSupport,
-  nextIntervalChoice,
   PAN_MAX_SCALE,
   PAN_SHIFT_PCT,
   type PlayableScope,
@@ -25,6 +25,7 @@ import {
   panKeyframes,
   panPlan,
   parseStartParam,
+  parseStoredInfo,
   parseStoredInterval,
   playerReducer,
   playHref,
@@ -35,6 +36,7 @@ import {
   scopePageQuery,
   slideshowHeading,
   swipeDirection,
+  WAKE_MOVE_PX,
   wrapIndex,
 } from "@/lib/slideshow";
 import { FULL_SIZE_MIN_WIDTH, VARIANT_WIDTHS } from "@/lib/variant-config.mjs";
@@ -372,12 +374,20 @@ describe("timing", () => {
     expect(parseStoredInterval(null)).toBeNull();
   });
 
-  it("nextIntervalChoice", () => {
-    expect(nextIntervalChoice(8)).toBe(12);
-    expect(nextIntervalChoice(12)).toBe(20);
-    expect(nextIntervalChoice(20)).toBe(30);
-    expect(nextIntervalChoice(30)).toBe(8);
-    expect(nextIntervalChoice(15)).toBe(12);
+  it("parseStoredInfo", () => {
+    expect(parseStoredInfo("on")).toBe(true);
+    expect(parseStoredInfo("off")).toBe(false);
+    expect(parseStoredInfo("true")).toBeNull();
+    expect(parseStoredInfo("")).toBeNull();
+    expect(parseStoredInfo(null)).toBeNull();
+  });
+
+  it("movedEnoughToWake", () => {
+    const rest = { x: 100, y: 100 };
+    expect(movedEnoughToWake(rest, rest)).toBe(false);
+    expect(movedEnoughToWake(rest, { x: 104, y: 104 })).toBe(false);
+    expect(movedEnoughToWake(rest, { x: 100 + WAKE_MOVE_PX, y: 100 })).toBe(true);
+    expect(movedEnoughToWake(rest, { x: 90, y: 110 })).toBe(true);
   });
 });
 

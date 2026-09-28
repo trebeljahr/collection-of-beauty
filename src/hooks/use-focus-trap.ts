@@ -89,7 +89,9 @@ export function useFocusTrap({
         (e.shiftKey ? last : first).focus();
         return;
       }
-      if (e.shiftKey && activeEl === first) {
+      // The container itself may hold focus (a dialog that focuses
+      // itself on open); Shift+Tab from there wraps like from `first`.
+      if (e.shiftKey && (activeEl === first || activeEl === root)) {
         e.preventDefault();
         last.focus();
       } else if (!e.shiftKey && activeEl === last) {

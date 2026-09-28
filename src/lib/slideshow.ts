@@ -32,11 +32,24 @@ export const DEFAULT_INTERVAL_S = 12;
 export const SLOW_INTERVAL_S = 20;
 /** Per-viewer convenience only (see `parseStoredInterval`). */
 export const INTERVAL_STORAGE_KEY = "cob-slideshow-interval";
+/** Whether the title and artist stay on the work. Per-viewer, like the
+ *  interval: a screen left running is set up once in its own browser. */
+export const INFO_STORAGE_KEY = "cob-slideshow-info";
 
 export const FADE_MS = 1500;
 export const MANUAL_FADE_MS = 400;
 export const REDUCED_FADE_MS = 600;
+/** Controls and cursor fade after this long without the mouse moving,
+ *  playing or paused. */
 export const IDLE_HIDE_MS = 3000;
+/** A pointer that moved less than this since the controls hid leaves them
+ *  hidden. Covers a jittery TV pointer remote, a knocked desk, and the
+ *  synthetic moves some browsers fire when the page under the cursor
+ *  changes. */
+export const WAKE_MOVE_PX = 8;
+/** After "Hide controls" is pressed, pointer moves are ignored this long,
+ *  so the hand leaving the button does not bring them straight back. */
+export const MANUAL_HIDE_GRACE_MS = 1000;
 /** A spinner that flashes for 100 ms on every step reads as flicker. */
 export const SPINNER_DELAY_MS = 400;
 
@@ -371,12 +384,21 @@ export function parseStoredInterval(raw: string | null): number | null {
   return (INTERVAL_CHOICES_S as readonly number[]).includes(n) ? n : null;
 }
 
-/** The interval button cycles 8 → 12 → 20 → 30 → 8. */
-export function nextIntervalChoice(currentS: number): number {
-  const choices = INTERVAL_CHOICES_S as readonly number[];
-  const at = choices.indexOf(currentS);
-  if (at < 0) return DEFAULT_INTERVAL_S;
-  return choices[(at + 1) % choices.length];
+/** The stored info setting, or null (the default, shown) for anything
+ *  else. Untrusted for the same reason as the interval. */
+export function parseStoredInfo(raw: string | null): boolean | null {
+  if (raw === "on") return true;
+  if (raw === "off") return false;
+  return null;
+}
+
+/** Whether a pointer at `to` has moved far enough from `from`, where it
+ *  rested when the controls hid, to bring them back. */
+export function movedEnoughToWake(
+  from: { x: number; y: number },
+  to: { x: number; y: number },
+): boolean {
+  return Math.hypot(to.x - from.x, to.y - from.y) >= WAKE_MOVE_PX;
 }
 
 /** Delay before the next prepare after `failures` consecutive failures. */

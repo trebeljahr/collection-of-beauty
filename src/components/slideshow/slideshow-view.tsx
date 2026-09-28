@@ -24,12 +24,14 @@ import {
   fadeMs,
   failureBackoffMs,
   IDLE_HIDE_MS,
+  INFO_STORAGE_KEY,
   INTERVAL_STORAGE_KEY,
   initialPlayerState,
   intervalMs as intervalFor,
-  nextIntervalChoice,
+  MANUAL_HIDE_GRACE_MS,
   type PlayableScope,
   PREPARE_TIMEOUT_MS,
+  parseStoredInfo,
   parseStoredInterval,
   playerReducer,
   playHref,
@@ -44,7 +46,7 @@ import { isSlowConnection, useSlowConnection } from "@/lib/use-slow-connection";
 import { cn } from "@/lib/utils";
 import { type PreparedSlide, prepareSlide } from "./prepare-slide";
 import { SlideLayer, type SlideLayerData } from "./slide-layer";
-import { CHROME_BUTTON, SlideshowControls, SlideshowSpinner } from "./slideshow-controls";
+import { GLASS_BUTTON, SlideshowControls, SlideshowSpinner } from "./slideshow-controls";
 
 export type SlideshowViewProps = {
   scope: PlayableScope;
@@ -61,6 +63,8 @@ export type SlideshowViewProps = {
   /** One page of slim listings around the start. Never the full Artwork. */
   initial: ArtworkListing[];
 };
+
+const isHideKey = (e: KeyboardEvent) => e.key === "h" || e.key === "H";
 
 /** Resize events arrive in bursts while a window is dragged; re-preparing
  *  the waiting slide once the drag settles is enough. */
@@ -95,7 +99,6 @@ export function SlideshowView({
   const router = useRouter();
   const rootRef = useRef<HTMLDivElement | null>(null);
   const stageRef = useRef<HTMLDivElement | null>(null);
-  const playButtonRef = useRef<HTMLButtonElement | null>(null);
 
   const [state, dispatch] = useReducer(playerReducer, undefined, () =>
     initialPlayerState(total, startIndex),
@@ -105,14 +108,16 @@ export function SlideshowView({
   const slow = useSlowConnection();
   const fullscreen = useFullscreen(rootRef);
 
-  // Per-viewer interval, remembered in this browser only. Read after
-  // mount so server and client render the same default.
+  // Per-viewer interval and caption setting, remembered in this browser
+  // only. Read after mount so server and client render the same default.
   const [storedS, setStoredS] = useState<number | null>(null);
+  const [info, setInfo] = useState(true);
   useEffect(() => {
     try {
       setStoredS(parseStoredInterval(window.localStorage.getItem(INTERVAL_STORAGE_KEY)));
+      setInfo(parseStoredInfo(window.localStorage.getItem(INFO_STORAGE_KEY)) ?? true);
     } catch {
-      // Storage blocked (private mode, site data off): keep the default.
+      // Storage blocked (private mode, site data off): keep the defaults.
     }
   }, []);
   const intervalMs = intervalFor(storedS, slow);
@@ -337,28 +342,59 @@ export function SlideshowView({
   // work stays on screen meanwhile.
   useWakeLock(state.playing);
 
+  // The kind of pointer last used. A mouse resting on a control keeps the
+  // chrome up; a finger leaves `:hover` stuck on whatever it tapped, so a
+  // touch never does.
+  const pointerKindRef = useRef("mouse");
+  const [menuOpen, setMenuOpen] = useState(false);
+  // Hides while paused too: a screen left on one work should show the
+  // work. An open menu holds the chrome, and so does a stall, whose
+  // message and Try again must stay reachable.
   const { idle, wake, hide } = useIdle(
-    state.playing && state.shown !== null && !state.stalled,
+    state.shown !== null && !state.stalled && !menuOpen,
     IDLE_HIDE_MS,
+    {
+      stayAwake: () =>
+        pointerKindRef.current !== "touch" &&
+        rootRef.current?.querySelector("[data-chrome]:hover") != null,
+      // H toggles the chrome; waking it first would leave nothing to hide.
+      keyWakes: (e) => !isHideKey(e),
+    },
   );
   // Focus a viewer moved with Tab keeps the chrome up, so the focused
   // control and its ring never fade out under them. The initial
-  // programmatic focus on Play does not count, or a TV left running would
-  // never hide its chrome. Any pointer press hands control back to idle.
+  // programmatic focus on the stage does not count, or a TV left running
+  // would never hide its chrome. Any pointer press hands control back to
+  // idle.
   const [kbdFocus, setKbdFocus] = useState(false);
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
       if (e.key === "Tab") setKbdFocus(true);
     };
-    const onPointer = () => setKbdFocus(false);
+    const onPointer = (e: PointerEvent) => {
+      pointerKindRef.current = e.pointerType;
+      if (e.type === "pointerdown") setKbdFocus(false);
+    };
     window.addEventListener("keydown", onKey, true);
     window.addEventListener("pointerdown", onPointer, true);
+    window.addEventListener("pointermove", onPointer, { capture: true, passive: true });
     return () => {
       window.removeEventListener("keydown", onKey, true);
       window.removeEventListener("pointerdown", onPointer, true);
+      window.removeEventListener("pointermove", onPointer, true);
     };
   }, []);
   const chromeVisible = !idle || kbdFocus;
+  const chromeVisibleRef = useRef(chromeVisible);
+  chromeVisibleRef.current = chromeVisible;
+
+  // "Hide controls": everything but the caption goes at once, and stays
+  // gone until the mouse moves again or a key is pressed.
+  const hideChrome = useCallback(() => {
+    setKbdFocus(false);
+    setMenuOpen(false);
+    hide(MANUAL_HIDE_GRACE_MS);
+  }, [hide]);
 
   const wantSpinner =
     !state.stalled && (state.shown === null || (state.intent === "manual" && !state.targetReady));
@@ -380,6 +416,17 @@ export function SlideshowView({
     dispatch({ type: "toggle" });
   }, []);
   const step = useCallback((delta: 1 | -1) => dispatch({ type: "step", delta }), []);
+  const infoRef = useRef(info);
+  infoRef.current = info;
+  const toggleInfo = useCallback(() => {
+    const next = !infoRef.current;
+    setInfo(next);
+    try {
+      window.localStorage.setItem(INFO_STORAGE_KEY, next ? "on" : "off");
+    } catch {
+      // Not remembered; still applies for this visit.
+    }
+  }, []);
 
   const exit = useCallback(() => {
     fullscreen.exit();
@@ -406,9 +453,12 @@ export function SlideshowView({
   });
   // Declared after the trap on purpose: rAF callbacks run in order, so
   // this lands after the trap has focused the first control (Exit) and
-  // moves focus to Play, where Space and Enter do what a viewer expects.
+  // moves focus to the slideshow itself. A focused control would draw its
+  // ring on a screen nobody has touched yet, and Enter on Exit would end
+  // the show; from here Space, the arrows and the letter keys all work,
+  // and Tab reaches the controls.
   useEffect(() => {
-    const raf = window.requestAnimationFrame(() => playButtonRef.current?.focus());
+    const raf = window.requestAnimationFrame(() => rootRef.current?.focus());
     return () => window.cancelAnimationFrame(raf);
   }, []);
 
@@ -432,11 +482,18 @@ export function SlideshowView({
       } else if ((e.key === "f" || e.key === "F") && fullscreen.supported && !e.repeat) {
         e.preventDefault();
         fullscreen.toggle();
+      } else if ((e.key === "i" || e.key === "I") && !e.repeat) {
+        e.preventDefault();
+        toggleInfo();
+      } else if (isHideKey(e) && !e.repeat) {
+        e.preventDefault();
+        if (chromeVisibleRef.current) hideChrome();
+        else wake();
       }
     };
     window.addEventListener("keydown", onKey);
     return () => window.removeEventListener("keydown", onKey);
-  }, [togglePlay, step, fullscreen]);
+  }, [togglePlay, step, fullscreen, toggleInfo, hideChrome, wake]);
 
   // --- touch -----------------------------------------------------------------
   // Same gesture rules as the lightbox: one finger, far enough, mostly
@@ -486,8 +543,9 @@ export function SlideshowView({
       role="dialog"
       aria-modal="true"
       aria-label="Slideshow"
+      tabIndex={-1}
       className={cn(
-        "fixed inset-0 z-[100] touch-none select-none overflow-hidden bg-black text-white",
+        "fixed inset-0 z-[100] touch-none select-none overflow-hidden bg-black text-white outline-none",
         !chromeVisible && "cursor-none",
       )}
       onBlur={(e) => {
@@ -527,7 +585,7 @@ export function SlideshowView({
         <div className="pointer-events-none absolute inset-0 z-20 flex items-center justify-center p-4">
           <div className="pointer-events-auto flex flex-col items-center gap-3 rounded-lg bg-black/70 px-6 py-5 text-center">
             <p>Images are not loading.</p>
-            <button type="button" onClick={retry} className={cn(CHROME_BUTTON, "h-11 px-4")}>
+            <button type="button" onClick={retry} className={cn(GLASS_BUTTON, "h-11 px-4")}>
               Try again
             </button>
           </div>
@@ -541,13 +599,14 @@ export function SlideshowView({
         exitHref={exitHref}
         onExit={onExitClick}
         art={front?.slide.art ?? null}
+        info={info}
+        onInfo={toggleInfo}
         playing={state.playing}
         onToggle={togglePlay}
         onPrev={() => step(-1)}
         onNext={() => step(1)}
         intervalS={intervalS}
-        onInterval={() => {
-          const next = nextIntervalChoice(intervalS);
+        onInterval={(next) => {
           setStoredS(next);
           try {
             window.localStorage.setItem(INTERVAL_STORAGE_KEY, String(next));
@@ -555,8 +614,11 @@ export function SlideshowView({
             // Not remembered; still applies for this visit.
           }
         }}
+        menuOpen={menuOpen}
+        onMenuOpen={setMenuOpen}
+        onHide={hideChrome}
         fullscreen={fullscreen}
-        playButtonRef={playButtonRef}
+        reducedMotion={reduced}
         chrome={{ onPointerDown: wake }}
       />
 
