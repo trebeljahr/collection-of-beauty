@@ -75,9 +75,7 @@ export default function PrivacyPage() {
             cookies, does not use cross-site or cross-device tracking, and does not collect IP
             addresses, device identifiers, or any data that could be used to identify a visitor.
             Aggregate page-view counts, referrer, country (from IP at request time, not stored), and
-            browser/OS family are recorded. Plausible also counts clicks on links to other sites,
-            file downloads, and slideshow starts. A slideshow start records only the type of
-            selection it plays, such as an artist or an era.
+            browser/OS family are recorded.
           </p>
           <p className="mt-2 text-[var(--muted-foreground)]">
             Legal basis: Art. 6(1)(f) GDPR — legitimate interest in understanding which pages are
