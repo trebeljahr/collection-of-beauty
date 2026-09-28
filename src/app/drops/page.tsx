@@ -22,42 +22,47 @@ export const metadata: Metadata = {
   }),
 };
 
-// Tiled behind the top of the page. The top row opens on three of issue
-// 1's works (the Kawase Hasui left out: his German copyright status is
-// still open, CLAUDE.md "Copyright"); the rest are mostly the hours of
-// the day the text below names as a theme. No artist shows twice: the
-// Yoshida and Monet works in the second and third rows sit under Fan
+// Tiled behind the top of the page. The top row holds three of issue 1's
+// works (the Kawase Hasui left out: his German copyright status is still
+// open, CLAUDE.md "Copyright"); the rest are mostly the hours of the day
+// the text below names as a theme.
+//
+// The top row alternates wide and tall, starting wide, so every screen
+// width shows the same rhythm: a landscape with the next row's work under
+// it, then a column filled by one tall work. Three landscapes side by
+// side drew one straight seam across the banner, and two tall works side
+// by side read as a wall. The works under a tall one barely show.
+//
+// No artist shows twice: the second Yoshida and Monet sit under Fan
 // Kuan's scroll, which is taller than the banner. Yoshida's Sailing Boats
-// prints share one composition, so only the morning one is used; four of
-// them read as one tile repeated. None repeat /sub's, the page this one
-// sends subscribers to. The first three are a phone's top row, the first
-// eight the widest screen's. Decoration, so an id that stops resolving
-// drops that one tile.
+// prints share one composition, so only the morning one is used. None
+// repeat /sub's, the page this one sends subscribers to. Decoration, so
+// an id that stops resolving drops that one tile.
 const BACKDROP_IDS = [
   "collection-of-beauty-sower-at-sunset-vincent-van-gogh",
   "collection-of-beauty-sailing-boats-morning-hiroshi-yoshida",
+  "collection-of-beauty-red-fuji-southern-wind-clear-morning",
   "collection-of-beauty-xsxlt-fankuan",
   "collection-of-beauty-a-sunday-on-la-grande-jatte-georges-seurat-1884",
-  "collection-of-beauty-red-fuji-southern-wind-clear-morning",
-  "collection-of-beauty-la-bohemienne-endormie",
+  "collection-of-beauty-scops-owl-cherry-blossoms-and-moon-by-shoson",
   "collection-of-beauty-caspar-david-friedrich-der-einsame-baum-google-art-project",
-  "collection-of-beauty-monet-houses-of-parliament-sunset",
+  "collection-of-beauty-edvard-munch-1922-starry-night-munch-museum-oslo",
   "collection-of-beauty-mart-levitan",
   "collection-of-beauty-whistler-nocturne-in-black-and-gold",
+  "collection-of-beauty-monet-houses-of-parliament-sunset",
   "collection-of-beauty-kagurazaka-street-at-night-after-rain-from-the-series-twelve-scenes-of-tokyo-hiroshi-yoshida",
   "collection-of-beauty-laurits-tuxen-the-north-sea-in-stormy-weather-after-sunset-h-jen-google-art-project",
-  "collection-of-beauty-scops-owl-cherry-blossoms-and-moon-by-shoson",
-  "collection-of-beauty-hiroshige-53-stations-hoeido-16-kanbara-mfa-02",
-  "collection-of-beauty-john-singer-sargent-carnation-lily-lily-rose-google-art-project",
   "collection-of-beauty-ayvazovskiy-gayvazovskiy-ivan-oganes-konstantinovich-lunnaya-noch-na-bosfore",
+  "collection-of-beauty-la-bohemienne-endormie",
+  "collection-of-beauty-john-singer-sargent-carnation-lily-lily-rose-google-art-project",
   "collection-of-beauty-inness-sunset-on-the-passaic-oil-on-canvas-1891",
-  "collection-of-beauty-joseph-mallord-william-turner-keelmen-heaving-in-coals-by-moonlight-google-art-project",
-  "collection-of-beauty-monet-w0145",
-  "collection-of-beauty-edvard-munch-1922-starry-night-munch-museum-oslo",
-  "collection-of-beauty-winslow-homer-moonlight",
-  "collection-of-beauty-karl-friedrich-schinkel-der-morgen-google-art-project",
-  "collection-of-beauty-jean-francois-millet-el-angelus-museo-de-orsay-1857-1859-oleo-sobre-lienzo-55-5-x-66-cm",
   "collection-of-beauty-suzuki-harunobu-woman-admiring-plum-blossoms-at-night",
+  "collection-of-beauty-hiroshige-53-stations-hoeido-16-kanbara-mfa-02",
+  "collection-of-beauty-monet-w0145",
+  "collection-of-beauty-jean-francois-millet-el-angelus-museo-de-orsay-1857-1859-oleo-sobre-lienzo-55-5-x-66-cm",
+  "collection-of-beauty-winslow-homer-moonlight",
+  "collection-of-beauty-joseph-mallord-william-turner-keelmen-heaving-in-coals-by-moonlight-google-art-project",
+  "collection-of-beauty-karl-friedrich-schinkel-der-morgen-google-art-project",
 ];
 const byId = new Map(artworkListings.map((a) => [a.id, a]));
 const BACKDROP = BACKDROP_IDS.flatMap((id) => byId.get(id) ?? []);
