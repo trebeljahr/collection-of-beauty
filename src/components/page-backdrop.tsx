@@ -35,7 +35,7 @@ const COLUMNS = [
  *  clear. Set on both the layer (for `VEIL`) and the spacer that pushes
  *  the page's own content below it. */
 const NAV = "[--backdrop-nav:69px] md:[--backdrop-nav:59px]";
-const RAMP = "[--backdrop-ramp:calc(var(--backdrop-banner)*0.35)]";
+const RAMP = "[--backdrop-ramp:calc(var(--backdrop-banner)*0.3)]";
 const BANNER = cn(
   NAV,
   RAMP,
@@ -52,10 +52,11 @@ const STRIP_BANNER = cn(
 );
 
 /** The veil over the tiles. Clear across the banner, then the page colour
- *  closes over the works along the ramp and is solid 1.25rem above the
- *  banner's end, so the page's text starts well inside plain paper. Weaker
- *  versions (55%, then 95% shut at the heading; then solid exactly at the
- *  banner's end) all read as the works crowding the heading. The ramp is
+ *  closes over the works along the ramp and is solid 0.5rem above the
+ *  banner's end, 1.5rem above the heading, so the page's text starts
+ *  inside plain paper. Weaker versions (55%, then 95% shut at the heading;
+ *  then solid 1rem above it) all read as the works crowding the heading;
+ *  solid 2.25rem above it faded the works out too early. The ramp is
  *  long on purpose; a short one draws a line across every column. No blur:
  *  masked into the ramp, a backdrop-filter smeared a band across the
  *  tiles.
@@ -65,10 +66,10 @@ const STRIP_BANNER = cn(
  *  serving a globals.css build without a newly added rule, which showed
  *  the tiles bare behind the text. */
 const VEIL = `linear-gradient(to bottom,
-  transparent calc(var(--backdrop-banner) - 1.25rem - var(--backdrop-ramp)),
-  color-mix(in oklab, var(--background) 72%, transparent) calc(var(--backdrop-banner) - 1.25rem - var(--backdrop-ramp) / 2),
-  color-mix(in oklab, var(--background) 95%, transparent) calc(var(--backdrop-banner) - 1.25rem - var(--backdrop-ramp) / 5),
-  var(--background) calc(var(--backdrop-banner) - 1.25rem))`;
+  transparent calc(var(--backdrop-banner) - 0.5rem - var(--backdrop-ramp)),
+  color-mix(in oklab, var(--background) 72%, transparent) calc(var(--backdrop-banner) - 0.5rem - var(--backdrop-ramp) / 2),
+  color-mix(in oklab, var(--background) 95%, transparent) calc(var(--backdrop-banner) - 0.5rem - var(--backdrop-ramp) / 5),
+  var(--background) calc(var(--backdrop-banner) - 0.5rem))`;
 
 const SIZES =
   "(min-width: 1536px) 13vw, (min-width: 1280px) 15vw, (min-width: 1024px) 17vw, (min-width: 768px) 20vw, (min-width: 640px) 25vw, 34vw";
@@ -125,11 +126,11 @@ export function PageBackdrop({
           "h-[var(--backdrop-banner)]",
         )}
       >
-        {/* Every column starts at the top, one gap under the nav. They used
-            to start at staggered heights above it, so the nav's edge cut
-            the top off most of the first row. The works' own proportions
-            still stagger the columns further down. */}
-        <div className="flex gap-1.5 p-1.5 md:gap-2 md:p-2">
+        {/* Every column starts flush under the nav. They used to start at
+            staggered heights above it, so the nav's edge cut the top off
+            most of the first row. The works' own proportions still stagger
+            the columns further down. */}
+        <div className="flex gap-1.5 px-1.5 md:gap-2 md:px-2">
           {columns.map((column, c) => (
             <div
               // biome-ignore lint/suspicious/noArrayIndexKey: fixed column slots, never reordered
