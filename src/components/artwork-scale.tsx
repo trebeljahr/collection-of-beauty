@@ -21,7 +21,6 @@ import {
   useState,
 } from "react";
 import { formatCm, type RealSize, type ScaleReference } from "@/lib/real-size";
-import { HANG_CENTRE_CM, type Scene } from "@/lib/real-size-scene";
 import { HAND_PATH, HAND_SHAPE, PERSON_PATH, PERSON_SHAPE } from "@/lib/scale-figures";
 import { cn } from "@/lib/utils";
 
@@ -59,28 +58,7 @@ export function useScaleView(): boolean {
   return useContext(ScaleViewContext).scaled;
 }
 
-/** One line under the toggle naming the reference and, beside the
- *  figure, where the work hangs. */
-function scaleCaption(scene: Scene, reference: ScaleReference): string {
-  // The work is the subject: after the figure's label, a subjectless
-  // sentence reads as describing the figure.
-  const note = scene.standsOnFloor
-    ? `The work is over ${(2 * HANG_CENTRE_CM) / 100} m tall, so it stands on the floor.`
-    : reference.kind === "person"
-      ? `The work hangs with its centre ${HANG_CENTRE_CM} cm above the floor.`
-      : null;
-  return `${reference.label.replace(/\.$/, "")}.${note ? ` ${note}` : ""}`;
-}
-
-export function ArtworkScaleToggle({
-  size,
-  scene,
-  reference,
-}: {
-  size: RealSize;
-  scene: Scene;
-  reference: ScaleReference;
-}) {
+export function ArtworkScaleToggle({ size }: { size: RealSize }) {
   const { scaled, setScaled } = useContext(ScaleViewContext);
 
   const toggle = () => {
@@ -117,11 +95,6 @@ export function ArtworkScaleToggle({
           {scaled ? "Hide scale" : "Show to scale"}
         </button>
       </div>
-      {scaled && (
-        <p className="mt-2 text-xs leading-relaxed text-[var(--muted-foreground)]">
-          {scaleCaption(scene, reference)}
-        </p>
-      )}
     </div>
   );
 }

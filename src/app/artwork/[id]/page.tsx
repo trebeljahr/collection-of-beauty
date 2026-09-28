@@ -272,9 +272,7 @@ export default async function ArtworkPage({ params }: { params: Promise<Params> 
             </p>
           )}
 
-          {realSize && scale && (
-            <ArtworkScaleToggle size={realSize} scene={scale.scene} reference={scale.reference} />
-          )}
+          {realSize && scale && <ArtworkScaleToggle size={realSize} />}
 
           <ArtworkDownloads artwork={art} />
 

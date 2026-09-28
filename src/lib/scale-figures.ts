@@ -15,18 +15,31 @@ type Point = readonly [number, number] | readonly [number, number, 1];
 
 const num = (v: number) => String(Math.round(v * 10) / 10);
 
-/** Closed Catmull-Rom spline through `points`, as SVG cubic Béziers. */
+/** Closed centripetal Catmull-Rom spline through `points`, as SVG cubic
+ *  Béziers. Centripetal, because the outlines mix long straight runs with
+ *  tight turns (fingertips, the armpit, the feet), and the uniform
+ *  variant overshoots wherever neighbouring points are unevenly spaced. */
 export function splinePath(points: readonly Point[]): string {
   const n = points.length;
-  const k = 1 / 6;
+  // Square root of the chord length: the centripetal parameterisation.
+  const span = (a: Point, b: Point) => Math.max(1e-6, Math.hypot(b[0] - a[0], b[1] - a[1]) ** 0.5);
   let d = `M${num(points[0][0])} ${num(points[0][1])}`;
   for (let i = 0; i < n; i++) {
     const p0 = points[(i - 1 + n) % n];
     const p1 = points[i];
     const p2 = points[(i + 1) % n];
     const p3 = points[(i + 2) % n];
-    const c1 = p1[2] ? p1 : [p1[0] + (p2[0] - p0[0]) * k, p1[1] + (p2[1] - p0[1]) * k];
-    const c2 = p2[2] ? p2 : [p2[0] - (p3[0] - p1[0]) * k, p2[1] - (p3[1] - p1[1]) * k];
+    const d1 = span(p0, p1);
+    const d2 = span(p1, p2);
+    const d3 = span(p2, p3);
+    const handle = (a: Point, b: Point, c: Point, da: number, db: number) =>
+      [0, 1].map(
+        (k) =>
+          (da * da * c[k] - db * db * a[k] + (2 * da * da + 3 * da * db + db * db) * b[k]) /
+          (3 * da * (da + db)),
+      );
+    const c1 = p1[2] ? p1 : handle(p0, p1, p2, d1, d2);
+    const c2 = p2[2] ? p2 : handle(p3, p2, p1, d3, d2);
     d += `C${num(c1[0])} ${num(c1[1])} ${num(c2[0])} ${num(c2[1])} ${num(p2[0])} ${num(p2[1])}`;
   }
   return `${d}Z`;
@@ -34,28 +47,37 @@ export function splinePath(points: readonly Point[]): string {
 
 // ── Figure ──────────────────────────────────────────────────────────────
 
-/** Standing adult, front view, arms at the sides, in cm: 175 tall, head
- *  about one eighth of that, shoulders 44 wide, fingertips 71 cm above
- *  the floor. No face, hair or clothing. */
-export const PERSON_SHAPE = { w: 54, h: 175 } as const;
+/** Standing adult, front view, arms at the sides, in cm. Proportions of
+ *  a 7.5-head figure: 175 tall, head 23 from crown to chin, shoulders 46
+ *  across the deltoids and hips 34, crotch 80 cm and fingertips 73 cm
+ *  above the floor, knees together and feet a little apart. No face,
+ *  hair or clothing. */
+export const PERSON_SHAPE = { w: 50, h: 175 } as const;
 
 /** Right half, clockwise from the top of the head to the crotch, as
  *  [distance from the centre line, depth below the top of the head]. */
 // biome-ignore format: one row per stretch of the outline
 const PERSON_HALF: readonly Point[] = [
-  [0, 0], [4.9, 1.2], [7.3, 4.9], [7.8, 10.3], [7.0, 15.6], [6.0, 19.3], [5.7, 22.2],
-  // Neck and shoulder.
-  [6.0, 25.3], [9.9, 27.7], [15.9, 29.5], [20.3, 31.7], [22.2, 35.9],
+  // Crown, the ear, the jaw.
+  [0, 0], [4.2, 1.4], [6.6, 4.0], [7.7, 7.0], [7.9, 9.8],
+  [8.1, 11.4], [8.2, 13.4], [7.7, 15.4], [7.1, 17.2], [6.3, 19.4], [5.9, 21.2],
+  // Neck, trapezius, shoulder.
+  [6.0, 23.0], [6.2, 25.0], [7.6, 26.6], [11.2, 27.9], [15.6, 29.3], [19.3, 30.8],
+  [21.5, 32.7], [22.6, 35.8], [22.9, 40],
   // Outside of the arm, the hand, then the inside of the arm up to the armpit.
-  [22.8, 44], [23.4, 54], [24.0, 63], [24.7, 73], [25.2, 83],
-  [25.9, 88.5], [26.2, 95], [25.5, 100.8], [23.7, 103.6], [21.9, 102.3], [21.0, 97],
-  [20.8, 90], [20.7, 85], [20.2, 76], [19.4, 65], [18.5, 54], [17.3, 45], [16.1, 40.2, 1],
+  [22.8, 46], [22.7, 53], [22.7, 61], [23.3, 69], [23.9, 78], [24.2, 84],
+  [24.5, 89], [24.6, 95], [24.0, 99.6], [22.6, 102.2], [21.1, 101.4], [20.2, 97.5],
+  [19.9, 92], [20.1, 87.5], [20.2, 84],
+  [19.7, 77], [18.9, 69], [18.3, 62], [17.8, 54], [17.4, 46], [16.9, 40.8, 1],
   // Chest, waist, hip.
-  [15.6, 45], [14.8, 55], [13.9, 65], [14.6, 73], [16.4, 81], [17.0, 89], [16.6, 98],
+  [16.6, 44], [16.4, 49], [15.9, 56], [15.3, 63], [15.4, 69.5], [16.1, 76.5], [16.9, 84],
+  [17.1, 90], [16.6, 99],
   // Outside of the leg, the foot, then the inside of the leg up to the crotch.
-  [15.3, 110], [13.4, 122], [13.6, 132], [12.3, 146], [10.0, 158.5], [9.2, 165],
-  [10.0, 169.8], [11.3, 172.9], [11.1, 175, 1], [3.1, 175, 1], [2.8, 171.4], [3.4, 165.5],
-  [3.5, 150], [4.5, 138], [4.0, 125], [3.0, 112], [1.8, 100], [0, 94.5, 1],
+  [15.7, 108], [14.5, 117], [13.4, 124], [13.1, 130], [13.3, 137], [12.6, 146], [11.5, 155],
+  [10.4, 161], [10.1, 164.6], [9.8, 167.6], [10.9, 170.4], [12.2, 172.8], [12.6, 174.3],
+  [12.2, 175, 1], [3.6, 175, 1], [3.1, 173.8], [3.3, 171], [3.9, 167.8], [4.3, 164],
+  [3.9, 158], [3.1, 150], [2.6, 141], [2.7, 133], [2.1, 125], [1.8, 117], [1.6, 108],
+  [1.2, 100], [0, 95.2, 1],
 ];
 
 function mirrored(half: readonly Point[], centre: number): Point[] {
