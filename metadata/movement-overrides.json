@@ -115,5 +115,9 @@
   "collection-of-beauty-vesalius-fabrica-p163": "Natural history illustration",
   "collection-of-beauty-vesalius-fabrica-p184": "Natural history illustration",
   "collection-of-beauty-old-guitarist-chicago": "Expressionism",
-  "collection-of-beauty-robert-delaunay-c-1906-paysage-au-disque-solaire-oil-on-canvas-54-x-46-cm-musee-national-d-art-mode": "Neo-Impressionism"
+  "collection-of-beauty-robert-delaunay-c-1906-paysage-au-disque-solaire-oil-on-canvas-54-x-46-cm-musee-national-d-art-mode": "Neo-Impressionism",
+
+  "_imitator_attribution": "Cattle Watering by a Stream is by an imitator of Gainsborough (YCBA B1977.14.6174; see metadata/artist-overrides.json). The imitator has no artists-db entry and YCBA gives no date, so without this tag it has neither a movement nor a year and drops out of the 3D museum. It is tagged Rococo, the movement the catalogue gives Gainsborough, because it copies his manner. This is a style tag, not a claim about when it was made.",
+
+  "collection-of-beauty-thomas-gainsborough-cattle-watering-by-a-stream-google-art-project": "Rococo"
 }

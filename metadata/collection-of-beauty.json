@@ -89615,12 +89615,12 @@
       "needs_review": false,
       "title": "Peter Paul Rubens - The Elevation of the Cross",
       "artist": "Peter Paul Rubens",
-      "date_created": "1610",
+      "date_created": "circa 1620 date QS:P571,+1620-00-00T00:00:00Z/9,P1480,Q5727902",
       "source": {
         "type": "Wikimedia Commons",
-        "canonical_title": "Peter_Paul_Rubens_-_Raising_of_the_Cross_Tryptich.jpg",
-        "url": "https://commons.wikimedia.org/wiki/File:Peter_Paul_Rubens_-_Raising_of_the_Cross_Tryptich.jpg",
-        "file_url": "https://upload.wikimedia.org/wikipedia/commons/3/3b/Peter_Paul_Rubens_-_Raising_of_the_Cross_Tryptich.jpg",
+        "canonical_title": "File:Peter Paul Rubens - The Elevation of the Cross.JPG",
+        "url": "https://commons.wikimedia.org/wiki/File%3APeter_Paul_Rubens_-_The_Elevation_of_the_Cross.JPG",
+        "file_url": "https://upload.wikimedia.org/wikipedia/commons/8/82/Peter_Paul_Rubens_-_The_Elevation_of_the_Cross.JPG",
         "credit": null,
         "permission": null,
         "attribution": null
@@ -89631,9 +89631,9 @@
         "license_url": null,
         "usage_terms": null
       },
-      "year": 1610,
-      "description": "A celebrated triptych by Flemish master Peter Paul Rubens depicting the crucial moment of the Crucifixion when the cross bearing Jesus is lifted upright. Executed circa 1610–1611, the work exemplifies Rubens' dramatic Baroque style with muscular figures, rich color, and dynamic composition spread across three interlocking panels.",
-      "year_source": "date_created_plain"
+      "year": 1620,
+      "description": "crucifixion of Jesus Raising of the Cross",
+      "year_source": "wikidata_qs"
     },
     "Peter_Paul_Rubens_-_The_Entombment_-_93.PA.9_-_J._Paul_Getty_Museum.jpg": {
       "filename": "Peter_Paul_Rubens_-_The_Entombment_-_93.PA.9_-_J._Paul_Getty_Museum.jpg",

@@ -11074,7 +11074,11 @@
   "status": "minor-fixed"
  },
  "collection-of-beauty-peter-paul-rubens-the-elevation-of-the-cross": {
-  "status": "accurate"
+  "audit": "2026-09",
+  "method": "span-edits",
+  "previousStatus": "accurate",
+  "problem": "Described the wrong object. The image is the Louvre oil sketch MI 964, which the Louvre catalogues as the modello for the tenth ceiling painting in the galleries of the Antwerp Jesuit church; the text described the St Walburga triptych as an altarpiece. Only the right-hand figure is a soldier.",
+  "status": "major-fixed"
  },
  "collection-of-beauty-peter-paul-rubens-the-entombment-93-pa-9-j-paul-getty-museum": {
   "status": "accurate"
@@ -13285,7 +13289,11 @@
   "status": "accurate"
  },
  "collection-of-beauty-thomas-gainsborough-cattle-watering-by-a-stream-google-art-project": {
-  "status": "accurate"
+  "audit": "2026-09",
+  "method": "span-edits",
+  "previousStatus": "accurate",
+  "problem": "Placed the sheet among Gainsborough's own Suffolk landscapes; the Yale Center for British Art (B1977.14.6174) catalogues it as by an imitator of Thomas Gainsborough. The cattle are being driven along the stream, not pausing.",
+  "status": "major-fixed"
  },
  "collection-of-beauty-thomas-gainsborough-clayton-jones-google-art-project": {
   "problem": "'Brown coat' is wrong—the sitter wears a dark blue coat. 'Half-length' is wrong; the portrait is full-length, the sitter shown seated.",

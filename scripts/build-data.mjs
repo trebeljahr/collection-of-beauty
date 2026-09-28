@@ -9,7 +9,7 @@ import sharp from "sharp";
 import { rgbaToThumbHash } from "thumbhash";
 import { colorProfileFromHistogram } from "../src/lib/color-buckets.mjs";
 import { GOOGLE_ART_PROJECT } from "../src/lib/google-art-project.mjs";
-import { loadArtistsDb, matchArtist } from "./lib/artist-alias.mjs";
+import { loadArtistsDb, matchArtist, matchArtistExact } from "./lib/artist-alias.mjs";
 import { artworkId, ID_MAX_LENGTH, slugify } from "./lib/artwork-id.mjs";
 import { SOURCE_FOLDERS } from "./lib/source-folders.mjs";
 import { loadTakedowns } from "./lib/takedowns.mjs";
@@ -1664,10 +1664,14 @@ async function main() {
       // name re-introduced, and one that names an artist missing from the db
       // ("After Peter Paul Rubens", a copy) must not be routed back through
       // the sidecar's `artist_info`, which still carries the attribution the
-      // override exists to correct.
+      // override exists to correct. Nor through the db's loose containment
+      // match, which reads the painter's name out of the qualified one: an
+      // override matches the db exactly or not at all.
       const artistCleared = artistOverrides.get(objectKeyNFC) === null;
       const artistOverridden = artistOverrides.has(objectKeyNFC);
-      let artistInfo = matchArtist(normalizedArtistName, byAlias);
+      let artistInfo = artistOverridden
+        ? matchArtistExact(normalizedArtistName, byAlias)
+        : matchArtist(normalizedArtistName, byAlias);
       if (!artistInfo && !artistOverridden && entry.artist_info) {
         // entry.artist_info acts as a per-record fallback: use its name to
         // re-query the curated db when present, otherwise inject the

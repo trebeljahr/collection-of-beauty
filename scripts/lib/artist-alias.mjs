@@ -77,3 +77,12 @@ export function matchArtist(name, byAlias) {
   }
   return null;
 }
+
+// Exact folded hit only, for a name a person has already researched (an
+// artist override). Containment would find "Thomas Gainsborough" inside
+// "Imitator of Thomas Gainsborough" and file the imitation under the painter
+// the override exists to take it away from.
+export function matchArtistExact(name, byAlias) {
+  if (!name) return null;
+  return byAlias.get(foldArtistName(name)) ?? null;
+}

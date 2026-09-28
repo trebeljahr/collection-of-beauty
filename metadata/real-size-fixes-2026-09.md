@@ -52,8 +52,8 @@ the holding museum's figure (`source: "museum"`).
 | Munch, The Brooch. Eva Mudocci, Munchmuseet MM.G.00255-24 | 53.2 × 76 | 46.8 × 60.9 | [Munchmuseet](https://www.munch.no/en/object/MM.G.00255-24): "Motiv (Motif): 609 × 468 mm"; the stored value was the sheet, the scan shows the motif |
 
 Six were millimetres read as centimetres. YCBA attributes Cattle Watering by
-a Stream to an "imitator of Thomas Gainsborough"; the catalogue still names
-Gainsborough.
+a Stream to an "imitator of Thomas Gainsborough". The catalogue now names
+that imitator too (see below).
 
 ## Other wrong values
 
@@ -94,8 +94,27 @@ A full-frame scan would make each of them drawable. Everything else hidden
 is hidden by design: 644 Redouté sheet sizes on cut-out scans, 214
 `series-default` print formats and 4 Vesalius page sizes.
 
-## Known description errors found on the way
+## Metadata errors found on the way
 
-- The Elevation of the Cross description describes the Antwerp triptych,
-  and its source URL in `metadata/collection-of-beauty.json` points to the
-  triptych file. The image is the Louvre sketch.
+Both are fixed.
+
+- The Elevation of the Cross: the description described the Antwerp
+  triptych for St Walburga, and the sidecar in
+  `metadata/collection-of-beauty.json` pointed to the triptych file on
+  Commons, with the triptych's date, 1610. The image is byte-identical to
+  [File:Peter Paul Rubens - The Elevation of the Cross.JPG](https://commons.wikimedia.org/wiki/File:Peter_Paul_Rubens_-_The_Elevation_of_the_Cross.JPG),
+  the Louvre sketch. The sidecar now points there and takes its date,
+  circa 1620 (Wikidata Q29655273; the Louvre gives 1600–1625). The Louvre
+  record calls the sketch the modello for the tenth ceiling painting in the
+  galleries of the Jesuit church in Antwerp. The description now says so,
+  through verified span edits.
+- Cattle Watering by a Stream: `metadata/artist-overrides.json` records it
+  as "Imitator of Thomas Gainsborough", like the catalogue's one other
+  qualified name, "Follower of Rogier van der Weyden". The alias matcher
+  found "Thomas Gainsborough" inside the qualified name and filed the work
+  under him again, so build-data now matches an override against
+  artists-db by exact name only (`matchArtistExact`). No earlier override
+  changes. The work has no date and the imitator no artists-db entry, so
+  `metadata/movement-overrides.json` tags it Rococo to keep it in the 3D
+  museum. The description's sentence placing it among Gainsborough's own
+  landscapes is replaced by the attribution.
