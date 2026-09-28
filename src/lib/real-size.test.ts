@@ -1,5 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { artworks } from "@/lib/data";
+import { GOOGLE_ART_PROJECT } from "./google-art-project.mjs";
 import {
   ASPECT_TOLERANCE,
   formatCm,
@@ -84,8 +85,9 @@ describe("trustworthyRealSize — shape check", () => {
     ).toBeNull();
   });
 
-  // A measurement that matches only when turned is a data error, not a
-  // reading to correct at render time (Carracci's Susanna, Monet W1698).
+  // A measurement that matches only when turned is a data error, fixed
+  // in the sidecar rather than read at render time. Carracci's Susanna
+  // was one until its Commons template was parsed by name.
   it("rejects a per-work size whose width and height are swapped", () => {
     // Stored 92.1 wide × 73.7 tall; the image is portrait.
     const art = work(92.1, 73.7, "wikidata", { px: [737, 921] });
@@ -98,7 +100,8 @@ describe("trustworthyRealSize — shape check", () => {
   });
 
   it("rejects a size that fails in both orders", () => {
-    // Monet W419 in the catalogue: 194 × 173 cm against a 1024 × 737 image.
+    // Monet W419 as audited: the Hermitage panel's 194 × 173 cm on the
+    // 1024 × 737 scan of its study.
     expect(trustworthyRealSize(work(194, 173, "museum", { px: [1024, 737] }))).toBeNull();
   });
 });
@@ -117,7 +120,7 @@ describe("trustworthyRealSize — absolute bounds", () => {
 
 describe("trustworthyRealSize — unit mix-ups", () => {
   // Google Art Project template values have no knowable unit below the
-  // 400 cm rescale line: Turner's 1793 watercolour reads 276 × 200 cm.
+  // 400 cm rescale line: Turner's 1793 watercolour read 276 × 200 cm.
   it("rejects an un-rescaled template value on a Google Art Project scan", () => {
     const art = work(276, 200, "wikimedia-template", { objectKey: GAP_KEY });
     expect(trustworthyRealSize(art)).toBeNull();
@@ -131,17 +134,11 @@ describe("trustworthyRealSize — unit mix-ups", () => {
     expect(trustworthyRealSize(art)).toEqual({ widthCm: 381, heightCm: 199 });
   });
 
-  // The mm reading is right for Google Art Project (American Gothic
-  // reads 65.3 × 78) and wrong elsewhere: Tintoretto's 535 × 435 cm
-  // Marriage at Cana became 53.5 × 43.5.
-  it("keeps a /10 rescale only on a Google Art Project scan", () => {
+  // build-data applies the /10 rescale on Google Art Project files only,
+  // where the mm reading is right: American Gothic reads 65.3 × 78.
+  it("keeps a /10 rescale on a Google Art Project scan", () => {
     const gap = work(65.3, 78, "wikimedia-template-mm", { objectKey: GAP_KEY });
     expect(trustworthyRealSize(gap)).toEqual({ widthCm: 65.3, heightCm: 78 });
-
-    const other = work(53.5, 43.5, "wikimedia-template-mm", {
-      objectKey: "collection-of-beauty/Jacopo_Tintoretto_-_Marriage_at_Cana_-_WGA22470.jpg",
-    });
-    expect(trustworthyRealSize(other)).toBeNull();
   });
 
   it("matches the Google Art Project marker in either spelling", () => {
@@ -220,31 +217,6 @@ describe("trustworthyRealSize — per-source rules", () => {
       objectKey: "collection-of-beauty/De_humani_corporis_fabrica_(24).jpg",
     });
     expect(trustworthyRealSize(plate)).toBeNull();
-  });
-});
-
-// Single works whose stored value is wrong in a way the shape check
-// cannot see. Each passes every rule under another id, so the id is what
-// hides it.
-describe("trustworthyRealSize — excluded works", () => {
-  it("hides Monet W875, whose size contradicts its own description", () => {
-    const stored = work(65, 81, "museum", {
-      id: "collection-of-beauty-monet-w875",
-      objectKey: "collection-of-beauty/Monet_w875.jpg",
-      px: [1320, 1676],
-    });
-    expect(trustworthyRealSize(stored)).toBeNull();
-    expect(trustworthyRealSize({ ...stored, id: "collection-of-beauty-test" })).not.toBeNull();
-  });
-
-  it("hides Rubens's Consequences of War, stored 11% too narrow", () => {
-    const stored = work(305, 206, "wikidata", {
-      id: "collection-of-beauty-los-horrores-de-la-guerra",
-      objectKey: "collection-of-beauty/Los_horrores_de_la_guerra.jpg",
-      px: [1350, 809],
-    });
-    expect(trustworthyRealSize(stored)).toBeNull();
-    expect(trustworthyRealSize({ ...stored, id: "collection-of-beauty-test" })).not.toBeNull();
   });
 });
 
@@ -346,15 +318,24 @@ describe("the catalogue", () => {
     }
   });
 
-  it("hides the works the mm/cm rescale shrunk tenfold", () => {
-    const shrunk = [
-      "collection-of-beauty-tentaciones-de-cristo-botticelli",
-      "collection-of-beauty-jacopo-tintoretto-marriage-at-cana-wga22470",
-      "collection-of-beauty-tintoretto-prayer-in-the-garden",
+  // The mm/cm rescale belongs to Google Art Project's pretty_dimensions
+  // field. Applied to every template value, it shrank these three tenfold.
+  it("rescales only Google Art Project files", () => {
+    for (const a of artworks) {
+      if (a.realDimensions?.source !== "wikimedia-template-mm") continue;
+      expect(GOOGLE_ART_PROJECT.test(a.objectKey), a.id).toBe(true);
+    }
+  });
+
+  it("keeps real centimetres over 4 m outside Google Art Project", () => {
+    const frescoes: [string, number, number][] = [
+      ["collection-of-beauty-tentaciones-de-cristo-botticelli", 555, 345.5],
+      ["collection-of-beauty-jacopo-tintoretto-marriage-at-cana-wga22470", 535, 435],
+      ["collection-of-beauty-tintoretto-prayer-in-the-garden", 455, 538],
     ];
-    for (const id of shrunk) {
+    for (const [id, widthCm, heightCm] of frescoes) {
       const art = artworks.find((a) => a.id === id);
-      if (art) expect(trustworthyRealSize(art), id).toBeNull();
+      if (art) expect(trustworthyRealSize(art), id).toEqual({ widthCm, heightCm });
     }
   });
 

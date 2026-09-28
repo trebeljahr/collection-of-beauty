@@ -60,7 +60,7 @@ export type Artwork = {
      *  - wikidata: P2049 × P2048 on the painting's item.
      *  - wikimedia-template / wikimedia-template-mm: the Commons file
      *    page's dimensions field; `-mm` means build-data divided a value
-     *    over 400 cm by 10.
+     *    over 400 cm by 10, which it does on Google Art Project files only.
      *  - static: one sheet size per book (Audubon, Redouté, Haeckel).
      *  - series-default: a Japanese print format (ōban ≈ 24 × 36), not a
      *    measurement of the print.

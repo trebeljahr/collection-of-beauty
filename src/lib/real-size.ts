@@ -10,6 +10,7 @@
 // all 4,557 works (3,091 with a size) in September 2026. Every number
 // quoted in a comment here is from that audit.
 import type { ArtworkListing } from "@/lib/data";
+import { GOOGLE_ART_PROJECT } from "./google-art-project.mjs";
 
 /** Fields the predicate may read. Both `Artwork` and `ArtworkListing`
  *  satisfy it. */
@@ -44,11 +45,12 @@ export type ScaleReference = {
  *  measurements (every source except book sheet sizes and print-format
  *  defaults). The ten 0.5%-wide bins from 10% to 15% hold 45 works; the
  *  four from 15% to 17% hold 1, 0, 1, 0. The tail beyond is sparse and
- *  mostly wrong. Examples are Monet W419 (194 × 173 cm against a 1.39:1
- *  image, 21%) and Parmigianino's Madonna with the Long Neck (132 × 219
- *  cm against a cropped 0.73:1 scan, 19%). Below the gap the mismatches
- *  are mostly frames, mounts and loose crops on correct sizes. An
- *  example is Turner's Wreck Buoy (123.2 × 92.7 cm, 14%). */
+ *  mostly wrong. In the audit Monet W419, a 60 × 81.5 cm study, carried
+ *  the 173 × 194 cm of the Hermitage panel it prepares (21%).
+ *  Parmigianino's Madonna with the Long Neck is right at 132 × 219 cm,
+ *  but the scan is a detail of her head (19%). Below the gap the
+ *  mismatches are mostly frames, mounts and loose crops on correct
+ *  sizes. An example is Turner's Wreck Buoy (123.2 × 92.7 cm, 14%). */
 export const ASPECT_TOLERANCE = 0.15;
 
 // ── Absolute bounds ─────────────────────────────────────────────────────
@@ -86,25 +88,21 @@ const SHEET_SCANS: readonly { folder: string; widthCm: number; heightCm: number 
   { folder: "kunstformen-images/", widthCm: 26, heightCm: 36 },
 ];
 
-/** Google Art Project scans take their size from the Commons
- *  `pretty_dimensions` field, which is sometimes millimetres labelled as
- *  cm. build-data divides by 10 above 400 cm ("wikimedia-template-mm").
- *  That is right for all 25 Google Art Project files it touched: American
- *  Gothic reads 65.3 × 78, Renoir's La Grenouillère 81 × 66.5. It is
- *  wrong for the 3 other files, which held real centimetres and are now
- *  a tenth of their size. Botticelli's Sistine fresco The Temptations of
- *  Christ (555 × 345.5 cm) became 55.5 × 34.55. Tintoretto's Marriage at
- *  Cana (535 × 435 cm) became 53.5 × 43.5, and his Prayer in the Garden
- *  (455 × 538 in the source) became 45.5 × 53.8.
+/* Google Art Project scans take their size from the Commons
+ * `pretty_dimensions` field, which is sometimes millimetres labelled as
+ * cm. build-data divides by 10 above 400 cm ("wikimedia-template-mm"),
+ * on Google Art Project files only (GOOGLE_ART_PROJECT is shared with it).
+ * That is right for all 25 files it touches: American Gothic reads
+ * 65.3 × 78, Renoir's La Grenouillère 81 × 66.5. Before the rescale was
+ * restricted, it also divided 3 other files that held real centimetres,
+ * such as Botticelli's Sistine fresco The Temptations of Christ
+ * (555 × 345.5 cm, stored as 55.5 × 34.55).
  *
- *  Below 400 the rescale never runs, so a Google Art Project template
- *  value has no knowable unit. 6 of its 17 values are almost certainly
- *  millimetres: they read 2–3.8 m on the long side. Turner's 1793
- *  watercolour of Clare Hall, described as a sheet, reads 276 × 200 cm.
- *  Whistler's Green and Silver: Beaulieu, described as a small
- *  landscape, reads 216 × 129 cm. The other 11 look right, but nothing
- *  in the record separates them from the 6. */
-const GOOGLE_ART_PROJECT = /google[_ ]art[_ ]project/i;
+ * Below 400 the rescale never runs, so a Google Art Project template
+ * value has no knowable unit. In the September 2026 audit 6 of the 17
+ * such values were millimetres: Turner's 1793 watercolour of Clare Hall,
+ * a sheet, read 276 × 200 cm. All 17 have since been re-sourced from
+ * the holding museum's record. The rule stays for the next ingest. */
 
 /** Works that pass every rule above yet are known to be wrong. Keep
  *  this list short: a problem shared by a class of records belongs in a
@@ -119,17 +117,6 @@ const EXCLUDED_IDS: ReadonlySet<string> = new Set([
   "collection-of-beauty-de-humani-corporis-fabrica-25",
   "collection-of-beauty-de-humani-corporis-fabrica-26",
   "collection-of-beauty-de-humani-corporis-fabrica-27",
-  // Two single-work value errors the shape check cannot see. Remove each
-  // once metadata/artwork-dimensions.json (or the description) is fixed
-  // and the catalogue rebuilt.
-  // Monet, Palm Trees at Bordighera (W875): stored 65 × 81 cm (museum),
-  // but the work's own description on the same page gives "The upright
-  // canvas (92 x 73 cm)". The page would contradict itself.
-  "collection-of-beauty-monet-w875",
-  // Rubens, The Consequences of War (Pitti): stored 305 × 206 cm
-  // (Wikidata). The 1350 × 809 image matches the Pitti's 342 × 206, so
-  // the drawing would be about 11% too narrow; 12% off, inside tolerance.
-  "collection-of-beauty-los-horrores-de-la-guerra",
 ]);
 
 const isPositiveFinite = (n: unknown): n is number =>
@@ -161,9 +148,7 @@ export function trustworthyRealSize(art: RealSizeInput): RealSize | null {
     );
   if (source === "static" && !sheetScan) return null;
 
-  const googleArtProject = GOOGLE_ART_PROJECT.test(art.objectKey);
-  if (source === "wikimedia-template" && googleArtProject) return null;
-  if (source === "wikimedia-template-mm" && !googleArtProject) return null;
+  if (source === "wikimedia-template" && GOOGLE_ART_PROJECT.test(art.objectKey)) return null;
 
   if (EXCLUDED_IDS.has(art.id)) return null;
 
@@ -178,9 +163,10 @@ export function trustworthyRealSize(art: RealSizeInput): RealSize | null {
   // portrait, and his 177 landscape plates are the same sheet turned
   // (the restored plate 278 at 10.3%, the rest within 4.9%). Only there
   // is the swap a reading of the value rather than a correction of it.
-  // A per-work measurement that matches only when turned (Carracci's
-  // Susanna, Monet W1698) is a data error and stays hidden until the
-  // catalogue is fixed.
+  // A per-work measurement that matches only when turned is a data
+  // error, fixed in the sidecar rather than here. The audit found two:
+  // Carracci's Susanna (a Commons template read out of order) and Monet
+  // W1698 (the size of another painting's Wikidata item).
   if (sheetScan) {
     const turned = Math.abs(Math.log(heightCm / widthCm / pixelAspect));
     if (turned <= ASPECT_TOLERANCE) return { widthCm: heightCm, heightCm: widthCm };

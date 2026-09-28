@@ -236,26 +236,34 @@ function parseDimensionString(raw) {
       .filter(Boolean);
     let unit = null;
     const nums = [];
+    // Named sides (`{{Size|unit=cm|width=31|height=35.1}}`) can come in
+    // either order. Pushing them positionally read that one, Carracci's
+    // Susanna, as 35.1 wide × 31 tall.
+    const named = {};
     for (const p of parts) {
       const eq = p.match(/^([^=]+)=(.*)$/);
       if (eq) {
         const key = eq[1].trim().toLowerCase();
         const val = eq[2].trim();
         if (key === "unit") unit = val.toLowerCase();
-        else if (!Number.isNaN(Number.parseFloat(val)) && /^[\d.]+$/.test(val))
-          nums.push(Number.parseFloat(val));
+        else if (!Number.isNaN(Number.parseFloat(val)) && /^[\d.]+$/.test(val)) {
+          if (key === "height" || key === "width") named[key] = Number.parseFloat(val);
+          else nums.push(Number.parseFloat(val));
+        }
       } else if (/^[a-zA-Z]+$/.test(p) && unit == null) {
         unit = p.toLowerCase();
       } else if (!Number.isNaN(Number.parseFloat(p))) {
         nums.push(Number.parseFloat(p));
       }
     }
-    if (nums.length >= 2 && unit) {
+    // {{size|unit|HEIGHT|WIDTH}} (Commons convention, height first)
+    const h = named.height ?? nums[0];
+    const w = named.width ?? nums[named.height == null ? 1 : 0];
+    if (h != null && w != null && unit) {
       const factor = unitToCmFactor(unit);
       if (factor) {
-        // {{size|unit|HEIGHT|WIDTH}} (Commons convention, height first)
-        const heightCm = round(nums[0] * factor, 2);
-        const widthCm = round(nums[1] * factor, 2);
+        const heightCm = round(h * factor, 2);
+        const widthCm = round(w * factor, 2);
         if (plausibleCm(widthCm) && plausibleCm(heightCm)) return { widthCm, heightCm };
       }
     }

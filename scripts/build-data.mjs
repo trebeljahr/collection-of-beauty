@@ -8,6 +8,7 @@ import { imageSize } from "image-size";
 import sharp from "sharp";
 import { rgbaToThumbHash } from "thumbhash";
 import { colorProfileFromHistogram } from "../src/lib/color-buckets.mjs";
+import { GOOGLE_ART_PROJECT } from "../src/lib/google-art-project.mjs";
 import { loadArtistsDb, matchArtist } from "./lib/artist-alias.mjs";
 import { artworkId, ID_MAX_LENGTH, slugify } from "./lib/artwork-id.mjs";
 import { SOURCE_FOLDERS } from "./lib/source-folders.mjs";
@@ -1203,7 +1204,7 @@ const KNOWN_CONNECTIONS = [
 // we want correct. So they stay.
 const PLACEHOLDER_DIMS = new Set(["4100:7600", "7600:4100"]);
 
-function sanitizeRealDimensions(dims) {
+function sanitizeRealDimensions(dims, objectKey) {
   if (!dims) return null;
   const { widthCm, heightCm, source } = dims;
 
@@ -1212,13 +1213,20 @@ function sanitizeRealDimensions(dims) {
 
   // Google Art Project's `|pretty_dimensions = w997 x h610 cm` format
   // sometimes stores millimetres labelled as centimetres (confirmed on
-  // "The Deposition" and others). Real paintings over ~4 m in either
-  // dimension are rare and almost always covered by Wikidata, so anything
-  // sourced from the wikitext template and exceeding 400 cm is very likely
-  // the mm/cm bug. If dividing by 10 gives a plausible painting (both dims
-  // 1–300 cm), accept the mm interpretation; otherwise drop the value as
-  // unreliable so the room renderer falls back to skipping it.
-  if (source === "wikimedia-template" && (widthCm > 400 || heightCm > 400)) {
+  // "The Deposition" and others). On those files a value over 400 cm is
+  // taken as the mm/cm bug: if dividing by 10 gives a plausible painting
+  // (both dims 1–300 cm), accept the mm interpretation; otherwise drop the
+  // value as unreliable.
+  //
+  // Only on those files. Elsewhere a value over 4 m is a real size:
+  // Botticelli's Sistine fresco The Temptations of Christ (555 × 345.5),
+  // Tintoretto's Marriage at Cana (535 × 435). Rescaling every template
+  // value made those three works a tenth of their size.
+  if (
+    source === "wikimedia-template" &&
+    GOOGLE_ART_PROJECT.test(objectKey) &&
+    (widthCm > 400 || heightCm > 400)
+  ) {
     const wMm = widthCm / 10;
     const hMm = heightCm / 10;
     if (wMm >= 1 && hMm >= 1 && wMm <= 300 && hMm <= 300) {
@@ -1230,6 +1238,8 @@ function sanitizeRealDimensions(dims) {
   return { widthCm, heightCm, source };
 }
 
+/** Raw sidecar entries by artwork id. `sanitizeRealDimensions()` runs per
+ *  artwork in the build loop, where the objectKey it needs is known. */
 async function loadRealDimensions() {
   // Sidecar produced by scripts/fetch-artwork-dimensions.mjs. Optional — if
   // missing, every artwork simply gets realDimensions: null.
@@ -1237,9 +1247,6 @@ async function loadRealDimensions() {
   if (!existsSync(p)) return new Map();
   const raw = JSON.parse(await readFile(p, "utf8"));
   const m = new Map();
-  let droppedPlaceholder = 0;
-  let mmFixed = 0;
-  let droppedUnreliable = 0;
   for (const [id, v] of Object.entries(raw)) {
     if (v == null) continue;
     // `{ error: true }` marks a lookup that failed rather than an answer —
@@ -1252,21 +1259,34 @@ async function loadRealDimensions() {
     ) {
       continue;
     }
-    const sanitized = sanitizeRealDimensions(v);
-    if (!sanitized) {
-      // Distinguish the two drop reasons for the stats line.
-      const sig = `${Math.round(v.widthCm * 100)}:${Math.round(v.heightCm * 100)}`;
-      if (PLACEHOLDER_DIMS.has(sig)) droppedPlaceholder++;
-      else droppedUnreliable++;
+    m.set(id, v);
+  }
+  return m;
+}
+
+/** Stats line for the sizes the catalogue ended up with. Counts only
+ *  catalogued works, so sidecar entries for removed files don't skew it. */
+function logRealDimensionStats(artworks, rawDims) {
+  let kept = 0;
+  let mmFixed = 0;
+  let droppedPlaceholder = 0;
+  let droppedUnreliable = 0;
+  for (const a of artworks) {
+    const raw = rawDims.get(a.id);
+    if (!raw) continue;
+    if (a.realDimensions) {
+      kept++;
+      if (a.realDimensions.source === "wikimedia-template-mm") mmFixed++;
       continue;
     }
-    if (sanitized.source === "wikimedia-template-mm") mmFixed++;
-    m.set(id, sanitized);
+    // Distinguish the two drop reasons.
+    const sig = `${Math.round(raw.widthCm * 100)}:${Math.round(raw.heightCm * 100)}`;
+    if (PLACEHOLDER_DIMS.has(sig)) droppedPlaceholder++;
+    else droppedUnreliable++;
   }
   console.log(
-    `[build-data] realDimensions: ${m.size} kept, ${droppedPlaceholder} placeholders dropped, ${mmFixed} mm/cm rescales, ${droppedUnreliable} unreliable dropped`,
+    `[build-data] realDimensions: ${kept} kept, ${droppedPlaceholder} placeholders dropped, ${mmFixed} mm/cm rescales, ${droppedUnreliable} unreliable dropped`,
   );
-  return m;
 }
 
 // English-title overrides for foreign-script or romaji-stub titles.
@@ -1688,7 +1708,7 @@ async function main() {
       const id = uniqueId(baseId, `${folderKey}/${fname}`);
 
       const dims = await dimensionsFor(folderKey, fname);
-      const real = realDimensions.get(id) || null;
+      const real = sanitizeRealDimensions(realDimensions.get(id), objectKey);
       const variantWidths = variantWidthsFor(folderKey, fname);
       const dominantColor = await dominantColorFor(folderKey, fname);
       const colorProfile = await colorProfileFor(folderKey, fname);
@@ -1798,6 +1818,8 @@ async function main() {
       `[build-data] withheld ${droppedTakedown.count} entries for copyright (takedowns.json, or an artist marked "copyrighted"${byArtist ? `: ${byArtist}` : ""})`,
     );
   }
+
+  logRealDimensionStats(artworks, realDimensions);
 
   artworks.sort((a, b) => {
     const ay = a.year ?? 99999;
