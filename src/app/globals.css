@@ -649,3 +649,85 @@
     transition: none;
   }
 }
+
+/* ── 404 wall (see not-found-wall.tsx) ─────────────────────────────────
+   A gilt moulding, a mat, and a wall label, drawn without images so the
+   404 costs nothing to load. The empty frame shows the wall through it,
+   with the slightly paler patch a painting leaves when it comes down.
+   Tokens live here rather than in :root's palette because nothing else
+   uses them. */
+:root {
+  --frame-light: oklch(0.83 0.075 88);
+  --frame-mid: oklch(0.67 0.085 78);
+  --frame-dark: oklch(0.47 0.07 64);
+  --frame-mat: oklch(0.975 0.006 85);
+  --frame-void: oklch(0.955 0.008 80);
+}
+.dark {
+  --frame-light: oklch(0.72 0.07 86);
+  --frame-mid: oklch(0.56 0.07 76);
+  --frame-dark: oklch(0.36 0.05 62);
+  --frame-mat: oklch(0.23 0.01 60);
+  --frame-void: oklch(0.19 0.01 50);
+}
+
+.wall-frame {
+  display: inline-block;
+  padding: clamp(0.5rem, 1.4vw, 0.8rem);
+  border-radius: 2px;
+  background: linear-gradient(
+    135deg,
+    var(--frame-light) 0%,
+    var(--frame-mid) 38%,
+    var(--frame-dark) 72%,
+    var(--frame-mid) 100%
+  );
+  /* Bevel on the moulding's outer edge, then the shadow it casts on the
+     wall: tight at the top, long and soft below, as under a ceiling
+     light. */
+  box-shadow:
+    inset 1px 1px 0 oklch(1 0 0 / 0.5),
+    inset -1px -1px 0 oklch(0 0 0 / 0.28),
+    0 1px 2px oklch(0.2 0.02 50 / 0.18),
+    0 20px 34px -16px oklch(0.2 0.02 50 / 0.5);
+}
+
+.wall-frame-mat {
+  padding: clamp(0.6rem, 2.4vw, 1.5rem);
+  background: var(--frame-mat);
+  /* Inner lip where the mat meets the moulding. */
+  box-shadow:
+    inset 1px 1px 3px oklch(0 0 0 / 0.32),
+    inset 0 0 0 1px oklch(0 0 0 / 0.06);
+}
+
+/* Empty frame: no mat, the wall itself inside. */
+.wall-frame-empty .wall-frame-mat {
+  background: var(--background);
+}
+.wall-frame-void {
+  background: var(--frame-void);
+  border-radius: 1px;
+}
+
+.wall-frame-hung {
+  animation: wall-hang 520ms cubic-bezier(0.2, 0.7, 0.2, 1) both;
+}
+@keyframes wall-hang {
+  from {
+    opacity: 0;
+    transform: translateY(-6px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* The small card beside a work: title, name, date. */
+.wall-label {
+  border: 1px solid var(--border);
+  border-radius: 2px;
+  background: var(--card);
+  box-shadow: 0 1px 2px oklch(0.2 0.02 50 / 0.08);
+}
