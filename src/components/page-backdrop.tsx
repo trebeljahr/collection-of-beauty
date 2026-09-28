@@ -16,26 +16,40 @@ const COLUMNS = [
   "hidden 2xl:flex",
 ] as const;
 
-/** Each column starts at its own height, some above the page top, so the
- *  banner's top edge cuts through the works at different points and the
- *  grid reads as tiles on a wall rather than a table. The top work of a
- *  high column loses its top: column 1 (the second work) starts 6rem up,
- *  which on a phone hides most of it, so put a work there that can spare
- *  its top, not a face. */
-const COLUMN_OFFSET = ["-mt-8", "-mt-24", "-mt-2", "-mt-16", "-mt-28", "-mt-6", "-mt-20", "-mt-12"];
-
-/** Where the page's content starts (less the spacer's 1rem), and how long
- *  the veil takes to close over the works above that. Set on both the
- *  layer (for the veil's gradient, `VEIL`) and the spacer that pushes the
- *  page's own content below it. */
-const BANNER =
-  "[--backdrop-banner:12rem] [--backdrop-ramp:5rem] md:[--backdrop-banner:20rem] md:[--backdrop-ramp:7rem]";
-/** The strip's banner is lower: it heads a page of plain text (the
- *  imprint, the privacy policy), where an 18rem band pushed the heading
- *  a third of the way down a laptop screen. Its heading sits where it did
- *  when the strip had a fade of its own (11.5rem, 14.5rem from md). */
-const STRIP_BANNER =
-  "[--backdrop-banner:10.5rem] [--backdrop-ramp:4rem] md:[--backdrop-banner:13.5rem] md:[--backdrop-ramp:5rem]";
+/** Where the page's heading lands, as a share of the screen height counted
+ *  from the top of the viewport, so the sticky SiteNav above this layer is
+ *  part of it: a third of the way down, and a little higher for the strip.
+ *  A fixed 20rem under the nav put the heading halfway down a laptop screen
+ *  (55% at 720 px tall). `svh`, so a phone's URL bar showing or hiding
+ *  doesn't move the page. Clamped: short screens keep a band of works,
+ *  tall ones stop at the old 20rem.
+ *
+ *  `--backdrop-nav` is SiteNav's rendered height: 69 px below md (the 44 px
+ *  menu button, py-3, the border), 59 px from md (the 34 px Surprise pill,
+ *  py-3, the border; 57 px until lg, where the pill has no label). Keep it
+ *  in step with site-nav.tsx.
+ *
+ *  `--backdrop-banner` is where the veil ends and the spacer's 1rem starts;
+ *  `--backdrop-ramp` is how long the veil takes to close over the works,
+ *  a fixed share of the banner so a short banner still shows some works
+ *  clear. Set on both the layer (for `VEIL`) and the spacer that pushes
+ *  the page's own content below it. */
+const NAV = "[--backdrop-nav:69px] md:[--backdrop-nav:59px]";
+const RAMP = "[--backdrop-ramp:calc(var(--backdrop-banner)*0.35)]";
+const BANNER = cn(
+  NAV,
+  RAMP,
+  "[--backdrop-banner:clamp(7rem,calc(100svh/3_-_var(--backdrop-nav)_-_1rem),20rem)]",
+);
+/** The strip heads a page of plain text (the imprint, the privacy policy),
+ *  where the text should start high: its heading lands at 30% of the
+ *  screen, at most 13.5rem under the nav. On a phone that is where it was
+ *  before; 28% left a laptop only a sliver of each work. */
+const STRIP_BANNER = cn(
+  NAV,
+  RAMP,
+  "[--backdrop-banner:clamp(6rem,calc(30svh_-_var(--backdrop-nav)_-_1rem),13.5rem)]",
+);
 
 /** The veil over the tiles. Clear across the banner, then the page colour
  *  closes over the works along the ramp and is solid 1.25rem above the
@@ -59,7 +73,7 @@ const VEIL = `linear-gradient(to bottom,
 const SIZES =
   "(min-width: 1536px) 13vw, (min-width: 1280px) 15vw, (min-width: 1024px) 17vw, (min-width: 768px) 20vw, (min-width: 640px) 25vw, 34vw";
 /** Two rows fill the banner on most screens. The third is for the short
- *  columns (a landscape under a high offset, at tablet widths), where
+ *  columns (two landscapes stacked, at tablet widths), where
  *  without it the banner shows holes of bare paper; it shows at most as a
  *  sliver inside the ramp, so it asks for about half its width and gets
  *  the 256 px rung. Nothing past the third row is rendered: lazy loading
@@ -72,7 +86,7 @@ const SLIVER_SIZES = "(min-width: 768px) 8vw, 17vw";
 
 /**
  * Works tiled across the top of a prose page: shown clearly across a
- * banner, then fading into the page colour along a long ramp, solid before
+ * banner that starts just under the nav, every column's top work whole, then fading into the page colour along a long ramp, solid before
  * the text starts. With `strip`, a lower banner with a shorter fade, for
  * pages where the text should start high (the imprint, the privacy
  * policy).
@@ -111,15 +125,16 @@ export function PageBackdrop({
           "h-[var(--backdrop-banner)]",
         )}
       >
-        <div className="flex gap-1.5 px-1.5 md:gap-2 md:px-2">
+        {/* Every column starts at the top, one gap under the nav. They used
+            to start at staggered heights above it, so the nav's edge cut
+            the top off most of the first row. The works' own proportions
+            still stagger the columns further down. */}
+        <div className="flex gap-1.5 p-1.5 md:gap-2 md:p-2">
           {columns.map((column, c) => (
             <div
-              key={COLUMN_OFFSET[c]}
-              className={cn(
-                COLUMNS[c],
-                COLUMN_OFFSET[c],
-                "min-w-0 flex-1 flex-col gap-1.5 md:gap-2",
-              )}
+              // biome-ignore lint/suspicious/noArrayIndexKey: fixed column slots, never reordered
+              key={c}
+              className={cn(COLUMNS[c], "min-w-0 flex-1 flex-col gap-1.5 md:gap-2")}
             >
               {column.map((work, row) => (
                 <ResponsiveImage
