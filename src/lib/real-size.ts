@@ -200,7 +200,7 @@ export const HAND_MAX_CM = 15;
 // scale-figures.test.ts fails if the two drift apart.
 const PERSON: ScaleReference = {
   kind: "person",
-  widthCm: 50,
+  widthCm: 40.6,
   heightCm: 175,
   label: "Figure 175 cm tall",
 };

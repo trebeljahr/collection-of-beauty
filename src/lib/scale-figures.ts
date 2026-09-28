@@ -47,50 +47,38 @@ export function splinePath(points: readonly Point[]): string {
 
 // ── Figure ──────────────────────────────────────────────────────────────
 
-/** Standing adult, front view, arms at the sides, in cm. Proportions of
- *  a 7.5-head figure: 175 tall, head 23 from crown to chin, shoulders 46
- *  across the deltoids and hips 34, crotch 80 cm and fingertips 73 cm
- *  above the floor, knees together and feet a little apart. No face,
- *  hair or clothing. */
-export const PERSON_SHAPE = { w: 50, h: 175 } as const;
+/** Woman standing with her arms folded, in the manner of an architect's
+ *  scale figure: long hair over her left shoulder, a knee-length coat,
+ *  feet a little apart. 175 cm tall, in cm. No face or other detail. */
+export const PERSON_SHAPE = { w: 40.6, h: 175 } as const;
 
-/** Right half, clockwise from the top of the head to the crotch, as
- *  [distance from the centre line, depth below the top of the head]. */
+/** Clockwise from the top of the head, as [cm from the left edge, cm
+ *  below the top of the head]. */
 // biome-ignore format: one row per stretch of the outline
-const PERSON_HALF: readonly Point[] = [
-  // Crown, the ear, the jaw.
-  [0, 0], [4.2, 1.4], [6.6, 4.0], [7.7, 7.0], [7.9, 9.8],
-  [8.1, 11.4], [8.2, 13.4], [7.7, 15.4], [7.1, 17.2], [6.3, 19.4], [5.9, 21.2],
-  // Neck, trapezius, shoulder.
-  [6.0, 23.0], [6.2, 25.0], [7.6, 26.6], [11.2, 27.9], [15.6, 29.3], [19.3, 30.8],
-  [21.5, 32.7], [22.6, 35.8], [22.9, 40],
-  // Outside of the arm, the hand, then the inside of the arm up to the armpit.
-  [22.8, 46], [22.7, 53], [22.7, 61], [23.3, 69], [23.9, 78], [24.2, 84],
-  [24.5, 89], [24.6, 95], [24.0, 99.6], [22.6, 102.2], [21.1, 101.4], [20.2, 97.5],
-  [19.9, 92], [20.1, 87.5], [20.2, 84],
-  [19.7, 77], [18.9, 69], [18.3, 62], [17.8, 54], [17.4, 46], [16.9, 40.8, 1],
-  // Chest, waist, hip.
-  [16.6, 44], [16.4, 49], [15.9, 56], [15.3, 63], [15.4, 69.5], [16.1, 76.5], [16.9, 84],
-  [17.1, 90], [16.6, 99],
-  // Outside of the leg, the foot, then the inside of the leg up to the crotch.
-  [15.7, 108], [14.5, 117], [13.4, 124], [13.1, 130], [13.3, 137], [12.6, 146], [11.5, 155],
-  [10.4, 161], [10.1, 164.6], [9.8, 167.6], [10.9, 170.4], [12.2, 172.8], [12.6, 174.3],
-  [12.2, 175, 1], [3.6, 175, 1], [3.1, 173.8], [3.3, 171], [3.9, 167.8], [4.3, 164],
-  [3.9, 158], [3.1, 150], [2.6, 141], [2.7, 133], [2.1, 125], [1.8, 117], [1.6, 108],
-  [1.2, 100], [0, 95.2, 1],
+export const PERSON_POINTS: readonly Point[] = [
+  // Head, and the hair falling over her left shoulder (the viewer's right).
+  [20.8, 0], [24.8, 0.8], [27.7, 3.4], [29.1, 7.4], [29.3, 12], [29, 17], [29.4, 21.5],
+  [30.2, 25], [31, 27.4, 1],
+  // Shoulder, the folded arm's elbow, then the coat down to its hem.
+  [33.7, 29.1], [36.6, 31], [38.2, 34.3], [38.8, 40], [39.1, 47], [39.7, 55], [40.2, 61],
+  [39.5, 65.4], [37.4, 67.4], [35.4, 70.5], [34.7, 80], [35.2, 92], [36, 108], [36.8, 122],
+  [37.2, 131.8, 1], [32.4, 133.1], [28.4, 133.6], [27.6, 133.8, 1],
+  // Her left leg and shoe.
+  [28, 140], [27.8, 147], [26.6, 156], [25.4, 164], [25.8, 168], [27.4, 171], [28.6, 173.4],
+  [28.4, 175, 1], [21.4, 175, 1], [21, 172.6], [21.3, 168], [21.1, 164], [21, 156], [20.9, 148],
+  [21.2, 140], [20.3, 134.4, 1],
+  // Her right leg and shoe.
+  [19.4, 140], [19.6, 148], [19.2, 156], [18.7, 164], [18.6, 168], [18.8, 172.5],
+  [18.9, 175, 1], [11.4, 175, 1], [11.2, 173.4], [12.4, 171], [14, 168.4], [14.4, 164],
+  [13.3, 156], [12.6, 147], [12.8, 140], [13.4, 134, 1],
+  // Hem, coat and elbow up to the shoulder.
+  [9.6, 133.3], [5, 131.5, 1], [5.4, 122], [6, 108], [6.6, 92], [7, 80], [5.9, 70.5],
+  [3.8, 67.2], [1.2, 65.2], [0.4, 60], [0.9, 53], [1.4, 46], [1.9, 39], [2.9, 33.8],
+  [5.2, 30.8], [7.8, 28.9],
+  // Neck and jaw on the side where the hair is tucked behind.
+  [10.6, 27.6], [13.2, 26.2], [14, 24.2], [13.9, 21.8], [13, 19.6], [12.2, 16.4], [11.9, 12],
+  [12.4, 7.2], [13.9, 3.4], [16.7, 0.8],
 ];
-
-function mirrored(half: readonly Point[], centre: number): Point[] {
-  const right = half.map(([x, y, c]) => (c ? [centre + x, y, c] : [centre + x, y]) as Point);
-  // The first and last points are on the centre line and shared.
-  const left = half
-    .slice(1, -1)
-    .reverse()
-    .map(([x, y, c]) => (c ? [centre - x, y, c] : [centre - x, y]) as Point);
-  return [...right, ...left];
-}
-
-export const PERSON_POINTS = mirrored(PERSON_HALF, PERSON_SHAPE.w / 2);
 export const PERSON_PATH = splinePath(PERSON_POINTS);
 
 // ── Hand ────────────────────────────────────────────────────────────────

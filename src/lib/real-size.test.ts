@@ -245,7 +245,7 @@ describe("scaleReferenceFor", () => {
   it("describes each reference by its drawn bounding box", () => {
     expect(scaleReferenceFor({ widthCm: 100, heightCm: 100 })).toEqual({
       kind: "person",
-      widthCm: 50,
+      widthCm: 40.6,
       heightCm: 175,
       label: "Figure 175 cm tall",
     });

@@ -22,7 +22,7 @@ function bounds(points: readonly (readonly number[])[]) {
 }
 
 describe("reference outlines", () => {
-  it("keep the figure inside its box, head at the top and soles on the floor", () => {
+  it("keep the figure inside its box, head at the top and shoes on the floor", () => {
     const b = bounds(PERSON_POINTS);
     expect(b.minY).toBe(0);
     expect(b.maxY).toBe(PERSON_SHAPE.h);
@@ -31,11 +31,6 @@ describe("reference outlines", () => {
     // Filling the box: under 1 cm spare on each side.
     expect(b.minX).toBeLessThan(1);
     expect(PERSON_SHAPE.w - b.maxX).toBeLessThan(1);
-  });
-
-  it("mirrors the figure about its centre line", () => {
-    const b = bounds(PERSON_POINTS);
-    expect(b.minX + b.maxX).toBeCloseTo(PERSON_SHAPE.w, 9);
   });
 
   it("keep the hand inside its box, wrist on the baseline", () => {

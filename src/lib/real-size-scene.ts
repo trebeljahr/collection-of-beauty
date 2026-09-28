@@ -11,7 +11,7 @@ import type { RealSize, ScaleReference } from "@/lib/real-size";
 export const HANG_CENTRE_CM = 150;
 
 /** Space between the work and the reference, as a share of the
- *  reference's width: 30 cm beside the figure, ~13 cm beside A4. */
+ *  reference's width: 24 cm beside the figure, ~13 cm beside A4. */
 export const GAP_PER_REFERENCE_WIDTH = 0.6;
 
 /** Empty space above the taller object, as a share of its height. */
