@@ -713,6 +713,22 @@
     inset 0 0 0 1px oklch(0 0 0 / 0.1);
 }
 
+/* What hangs in the empty frame is the 404 notice itself. Stacked on a
+   phone the frame spans the column and is only as tall as the text, so
+   the work beside it still starts above the fold. Side by side it takes
+   the 4:5 box a portrait would (EMPTY_RATIO in not-found-wall.tsx), and
+   a long path grows it rather than spilling out. */
+.wall-notice {
+  padding: 1.75rem 1rem;
+}
+@media (min-width: 768px) {
+  .wall-notice {
+    aspect-ratio: 4 / 5;
+    width: min(var(--wall-w), calc(var(--wall-h) * 0.8));
+    padding: 1.5rem;
+  }
+}
+
 .wall-frame-hung {
   animation: wall-hang 520ms cubic-bezier(0.2, 0.7, 0.2, 1) both;
 }

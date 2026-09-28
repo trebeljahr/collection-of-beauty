@@ -11,15 +11,15 @@ import type { NotFoundItem, NotFoundResponse } from "@/lib/not-found-match";
 
 /**
  * The 404 page as a museum wall: an empty frame where the requested page
- * should hang, with a wall label naming the URL, and beside it a work
- * that is here.
+ * should hang, with the notice and the URL written on the wall inside it,
+ * and beside it a work that is here.
  *
  * Which work depends on how sure `/api/not-found` is about what the
  * visitor meant. A clear match (a typo, a cut-off link, a renamed work)
  * hangs that work and asks "Did you mean this?". Several plausible
  * matches go in a row underneath and a random work hangs instead, as it
  * does when nothing matched. A clear match on a page without a picture
- * (a colour, the timeline) is named on the label itself.
+ * (a colour, the timeline) is named inside the empty frame itself.
  *
  * The path is read after mount, not during render: a not-found page for
  * an unmatched route is prerendered once, so the server can't know it.
@@ -36,12 +36,11 @@ const TEXT_LINK =
 /** Frame geometry, as CSS variables so one inline `width` expression
  *  works at every breakpoint. `--wall-h` is the tallest a work may hang,
  *  `--wall-w` the widest; a work's box is whichever binds first at its
- *  aspect ratio. Below md the empty frame shrinks to a thumbnail beside
- *  its label, so the work that is here starts above the fold. */
+ *  aspect ratio. The empty frame's box is `.wall-notice` in globals.css. */
 const WALL_VARS =
-  "[--wall-h:min(40svh,20rem)] [--wall-w:calc(100vw-5.5rem)] [--empty-h:min(18svh,7.5rem)] md:[--wall-h:min(56svh,26rem)] md:[--wall-w:24rem] md:[--empty-h:var(--wall-h)] lg:[--wall-w:28rem]";
+  "[--wall-h:min(40svh,20rem)] [--wall-w:calc(100vw-5.5rem)] md:[--wall-h:min(56svh,26rem)] md:[--wall-w:24rem] lg:[--wall-w:28rem]";
 
-/** Portrait, like most of what hangs here. */
+/** Portrait, like most of what hangs here. `.wall-notice` uses the same. */
 const EMPTY_RATIO = 4 / 5;
 
 type Featured =
@@ -108,35 +107,32 @@ export function NotFoundWall() {
   return (
     <div className={`flex flex-col gap-14 ${WALL_VARS}`}>
       <div className="flex flex-col items-center gap-10 md:flex-row md:items-start md:justify-center md:gap-16">
-        <figure className="flex w-full max-w-md items-center gap-4 md:w-auto md:max-w-none md:flex-col md:gap-5">
-          <div className="wall-slot shrink-0">
-            <div aria-hidden="true" className="wall-frame wall-frame-empty">
-              <div className="wall-frame-mat">
-                <div style={boxStyle(EMPTY_RATIO, "var(--empty-h)", "var(--wall-w)")} />
+        <div className="wall-slot w-full max-w-md md:w-auto md:max-w-none">
+          <div className="wall-frame wall-frame-empty w-full md:w-auto">
+            <div className="wall-frame-mat">
+              <div className="wall-notice flex flex-col items-center justify-center text-center">
+                <h1 className="font-serif text-2xl leading-snug">Page not found</h1>
+                <p className="mt-2 min-h-4 max-w-full font-mono text-xs break-all text-[var(--muted-foreground)]">
+                  {path}
+                </p>
+                <p className="mt-0.5 text-xs text-[var(--muted-foreground)]">HTTP 404</p>
+                {namedPage ? (
+                  <p className="mt-4 text-sm text-balance">
+                    Did you mean{" "}
+                    <Link href={namedPage.href} className={TEXT_LINK}>
+                      {namedPage.label}
+                    </Link>
+                    ?
+                  </p>
+                ) : (
+                  <p className="mt-4 text-sm text-balance text-[var(--muted-foreground)]">
+                    The link may have a typo, or the work was renamed or removed.
+                  </p>
+                )}
               </div>
             </div>
           </div>
-          <WallLabel className="min-w-0 flex-1 md:flex-none">
-            <h1 className="font-serif text-lg leading-snug">Page not found</h1>
-            <p className="mt-1 min-h-4 font-mono text-xs break-all text-[var(--muted-foreground)]">
-              {path}
-            </p>
-            <p className="mt-0.5 text-xs text-[var(--muted-foreground)]">HTTP 404</p>
-            {namedPage ? (
-              <p className="mt-3 text-sm">
-                Did you mean{" "}
-                <Link href={namedPage.href} className={TEXT_LINK}>
-                  {namedPage.label}
-                </Link>
-                ?
-              </p>
-            ) : (
-              <p className="mt-3 text-sm text-[var(--muted-foreground)]">
-                The link may have a typo, or the work was renamed or removed.
-              </p>
-            )}
-          </WallLabel>
-        </figure>
+        </div>
 
         <figure className="flex flex-col items-center gap-5">
           <div className="wall-slot">
@@ -274,11 +270,9 @@ function HungWork({
   );
 }
 
-function WallLabel({ children, className }: { children: ReactNode; className?: string }) {
+function WallLabel({ children }: { children: ReactNode }) {
   return (
-    <figcaption
-      className={`wall-label w-[17rem] max-w-full px-4 py-3 text-left ${className ?? ""}`}
-    >
+    <figcaption className="wall-label w-[17rem] max-w-full px-4 py-3 text-left">
       {children}
     </figcaption>
   );
