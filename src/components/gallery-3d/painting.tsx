@@ -7,6 +7,7 @@ import * as THREE from "three";
 import type { ArtworkListing } from "@/lib/data";
 import { PAINTING_WALL_OFFSET } from "@/lib/gallery-layout/place-paintings";
 import type { Placement } from "@/lib/gallery-layout/types";
+import { formatCm, trustworthyRealSize } from "@/lib/real-size";
 import { GALLERY_LOD_WIDTH, variantProxyUrl } from "@/lib/utils";
 import { FOV_DEFAULT_DEG, ZOOM_PIXEL_HEADROOM } from "./camera-config";
 import { type PaintingEntry, registerPainting, unregisterPainting } from "./painting-registry";
@@ -681,12 +682,13 @@ function Plaque({ artwork, widthM }: { artwork: ArtworkListing; widthM: number }
       artwork.artist ?? undefined,
     );
     const b = formatByline(artwork);
+    // The same audited size the artwork page draws to scale; a rejected
+    // one leaves the plaque without a size line.
+    const size = trustworthyRealSize(artwork);
     return {
       title: t,
       byline: b,
-      dims: artwork.realDimensions
-        ? `${artwork.realDimensions.widthCm.toFixed(0)} × ${artwork.realDimensions.heightCm.toFixed(0)} cm`
-        : "",
+      dims: size ? formatCm(size) : "",
       estTitleH:
         estimateWrappedLines(t, PLAQUE_TITLE_CHARS_PER_LINE) * PLAQUE_TITLE_FONT * PLAQUE_TITLE_LH,
       estBylineH:

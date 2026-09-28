@@ -10,6 +10,7 @@ import {
 import { artworkAlt, displayTitle } from "@/lib/artwork-format";
 import type { ArtworkListing } from "@/lib/data";
 import { deepZoomTileSource, largestSingleImageWidth } from "@/lib/deep-zoom";
+import { formatCm, trustworthyRealSize } from "@/lib/real-size";
 import { cn, fallbackVariantUrl, variantUrl } from "@/lib/utils";
 import { peekBestCachedTexture } from "./texture-cache";
 
@@ -183,7 +184,8 @@ export function ZoomModal({
     [cachedTexture],
   );
 
-  const dims = artwork.realDimensions;
+  // Only a size that passes the audit, as on the plaque and artwork page.
+  const size = trustworthyRealSize(artwork);
   // Track the fallback placeholder's load only when there's no cached
   // texture to draw. With the canvas (or once high-res lands) the spinner
   // never shows.
@@ -348,11 +350,7 @@ export function ZoomModal({
           {artwork.year != null && <> · {artwork.year}</>}
           {artwork.movement && <> · {artwork.movement}</>}
         </div>
-        {dims && (
-          <div className="text-xs text-neutral-500">
-            {dims.widthCm.toFixed(0)} × {dims.heightCm.toFixed(0)} cm
-          </div>
-        )}
+        {size && <div className="text-xs text-neutral-500">{formatCm(size)}</div>}
         <div className="mt-2 text-[11px] uppercase tracking-wider text-neutral-500">
           close · Esc · E
         </div>

@@ -24,7 +24,7 @@ import { assignEra, type EraId, getEra } from "@/lib/gallery-eras";
 import { suggestFixUrl } from "@/lib/links";
 import type { PlateSetId } from "@/lib/plate-set-definitions";
 import { holdingSentence, plateNumberFor, plateSetForArtwork } from "@/lib/plate-sets";
-import { scaleReferenceFor, trustworthyRealSize } from "@/lib/real-size";
+import { formatCm, scaleReferenceFor, trustworthyRealSize } from "@/lib/real-size";
 import { artworkRedirect } from "@/lib/redirects";
 import { artworkJsonLd, buildOpenGraph, jsonLdScriptProps, ogImagesForArtwork } from "@/lib/seo";
 import { sourceLabel } from "@/lib/source-label";
@@ -430,11 +430,9 @@ function generatedByline(a: Artwork): string {
   if (a.movement) {
     parts.push(`Part of the ${a.movement} movement.`);
   }
-  if (a.realDimensions) {
-    parts.push(
-      `Original dimensions ${a.realDimensions.widthCm.toFixed(0)} × ${a.realDimensions.heightCm.toFixed(0)} cm.`,
-    );
-  }
+  // The audited size only, so the prose matches the scale view below it.
+  const realSize = trustworthyRealSize(a);
+  if (realSize) parts.push(`Original dimensions ${formatCm(realSize)}.`);
   return parts.length > 0
     ? parts.join(" ")
     : "From the Collection of Beauty — a public-domain art gallery.";

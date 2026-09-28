@@ -13,6 +13,7 @@ import { resolveEditionCover } from "@/lib/newsletter/cover";
 import { findEdition, loadUiVisibleEditions, showDraftsInUi } from "@/lib/newsletter/editions";
 import { rehypeExternalLinks } from "@/lib/newsletter/markdown";
 import type { Edition } from "@/lib/newsletter/types";
+import { formatCm, type RealSize, trustworthyRealSize } from "@/lib/real-size";
 import { buildOpenGraph, SITE_NAME } from "@/lib/seo";
 
 type Params = { slug: string };
@@ -131,7 +132,7 @@ export default async function EditionPage({ params }: { params: Promise<Params> 
       )}
 
       <section className="flex flex-col gap-7 md:gap-10">
-        {resolved.map(({ artwork, note }) => (
+        {resolved.map(({ artwork, note, realSize }) => (
           <figure key={artwork.id} className="m-0">
             <Link
               href={`/artwork/${artwork.id}`}
@@ -169,9 +170,7 @@ export default async function EditionPage({ params }: { params: Promise<Params> 
                 {artwork.artist ?? "Unknown artist"}
                 {artwork.year ? ` · ${artwork.year}` : ""}
                 {artwork.movement ? ` · ${artwork.movement}` : ""}
-                {artwork.realDimensions
-                  ? ` · ${artwork.realDimensions.widthCm.toFixed(0)} × ${artwork.realDimensions.heightCm.toFixed(0)} cm`
-                  : ""}
+                {realSize ? ` · ${formatCm(realSize)}` : ""}
               </p>
               {note && (
                 <div className="mt-5 text-[var(--foreground)] leading-[1.75] text-[1.0625rem]">
@@ -346,7 +345,12 @@ function EditionFooterLink({
 function resolveArtworks(edition: Edition) {
   const byId = new Map(ALL_ARTWORKS.map((a) => [a.id, a]));
   const tolerateMissing = edition.draft && process.env.NODE_ENV !== "production";
-  const resolved: { artwork: (typeof ALL_ARTWORKS)[number]; note: string | undefined }[] = [];
+  const resolved: {
+    artwork: (typeof ALL_ARTWORKS)[number];
+    note: string | undefined;
+    /** Audited size for the caption; null hides it, as on the artwork page. */
+    realSize: RealSize | null;
+  }[] = [];
   for (const entry of edition.artworks) {
     const artwork = byId.get(entry.id);
     if (!artwork) {
@@ -358,7 +362,7 @@ function resolveArtworks(edition: Edition) {
       }
       throw new Error(`Edition ${edition.fileSlug}: artworks references unknown id "${entry.id}".`);
     }
-    resolved.push({ artwork, note: entry.note });
+    resolved.push({ artwork, note: entry.note, realSize: trustworthyRealSize(artwork) });
   }
   return resolved;
 }

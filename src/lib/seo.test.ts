@@ -170,6 +170,30 @@ describe("artworkJsonLd", () => {
     expect(json).not.toContain("undefined");
     expect(JSON.parse(json).image[0].contentUrl).toBeTruthy();
   });
+
+  it("gives the physical size in centimetres when the size passes the audit", () => {
+    // 4000 × 3175 px; the Starry Night is 92.1 × 73.7 cm.
+    const jsonLd = artworkJsonLd(
+      makeArtwork({ realDimensions: { widthCm: 92.1, heightCm: 73.7, source: "wikidata" } }),
+    );
+    expect(jsonLd.width).toEqual({ "@type": "QuantitativeValue", unitCode: "CMT", value: 92.1 });
+    expect(jsonLd.height).toEqual({ "@type": "QuantitativeValue", unitCode: "CMT", value: 73.7 });
+  });
+
+  // Structured data is read as fact. A print-format default, or a size
+  // whose shape contradicts the image, is left out rather than asserted.
+  it("omits a size the audit rejects", () => {
+    for (const realDimensions of [
+      // Same shape as the image, but a format guess.
+      { widthCm: 36, heightCm: 28.6, source: "series-default" as const },
+      // A measurement, turned against the landscape image.
+      { widthCm: 73.7, heightCm: 92.1, source: "wikidata" as const },
+    ]) {
+      const jsonLd = artworkJsonLd(makeArtwork({ realDimensions }));
+      expect(jsonLd.width, realDimensions.source).toBeUndefined();
+      expect(jsonLd.height, realDimensions.source).toBeUndefined();
+    }
+  });
 });
 
 describe("ogImagesForArtwork", () => {

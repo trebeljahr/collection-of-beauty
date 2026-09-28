@@ -6,6 +6,7 @@ import { ERAS } from "@/lib/gallery-eras";
 import { encodingFormat, licensableVariants } from "@/lib/licensable-images";
 import { getLicenseInfo } from "@/lib/license";
 import { SITE_URL } from "@/lib/links";
+import { trustworthyRealSize } from "@/lib/real-size";
 import { sourceLabel } from "@/lib/source-label";
 import { variantUrl } from "@/lib/utils";
 
@@ -208,6 +209,7 @@ export function buildOpenGraph(
 export function artworkJsonLd(artwork: Artwork): Record<string, unknown> {
   const license = getLicenseInfo(artwork.license);
   const detailUrl = absoluteUrl(`/artwork/${artwork.id}`);
+  const realSize = trustworthyRealSize(artwork);
   return {
     "@context": "https://schema.org",
     "@type": "VisualArtwork",
@@ -231,18 +233,13 @@ export function artworkJsonLd(artwork: Artwork): Record<string, unknown> {
     // license + acquireLicensePage, and a plain string can't carry those.
     image: artworkImageObjects(artwork),
     url: detailUrl,
-    ...(artwork.realDimensions
+    // Only a size that passes the scale view's audit. A search engine
+    // takes these as fact, and an omitted size is harmless where a 10×
+    // unit slip or a print-format default is not.
+    ...(realSize
       ? {
-          width: {
-            "@type": "QuantitativeValue",
-            unitCode: "CMT",
-            value: artwork.realDimensions.widthCm,
-          },
-          height: {
-            "@type": "QuantitativeValue",
-            unitCode: "CMT",
-            value: artwork.realDimensions.heightCm,
-          },
+          width: { "@type": "QuantitativeValue", unitCode: "CMT", value: realSize.widthCm },
+          height: { "@type": "QuantitativeValue", unitCode: "CMT", value: realSize.heightCm },
         }
       : {}),
     ...(artwork.movement ? { artMovement: artwork.movement } : {}),
