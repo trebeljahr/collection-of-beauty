@@ -24,32 +24,37 @@ const COLUMNS = [
  *  its top, not a face. */
 const COLUMN_OFFSET = ["-mt-8", "-mt-24", "-mt-2", "-mt-16", "-mt-28", "-mt-6", "-mt-20", "-mt-12"];
 
-/** How far the works show before the veil closes over them. Set on both
- *  the layer (for the veil's gradient, `VEIL`) and the spacer that
- *  pushes the page's own content below it. */
-const BANNER = "[--backdrop-banner:11rem] md:[--backdrop-banner:18rem]";
+/** Where the veil has closed over the works, and how long it takes to
+ *  close: the works show clear down to banner minus ramp. Set on both the
+ *  layer (for the veil's gradient, `VEIL`) and the spacer that pushes the
+ *  page's own content below it. */
+const BANNER =
+  "[--backdrop-banner:12rem] [--backdrop-ramp:5rem] md:[--backdrop-banner:20rem] md:[--backdrop-ramp:7rem]";
 /** The strip's banner is lower: it heads a page of plain text (the
  *  imprint, the privacy policy), where an 18rem band pushed the heading
  *  a third of the way down a laptop screen. */
 const STRIP_BANNER = "[--backdrop-banner:9rem] md:[--backdrop-banner:12rem]";
 
 /** The veil over the tiles. Clear across the banner, then the page colour
- *  closes over the works: most of the way within a few rem, so the heading
- *  under the banner already sits on near-paper, and solid by the bottom of
- *  the layer, where the tiles end. A long ramp on purpose; a short one
- *  draws a line across every column. No blur: masked into the ramp, a
- *  backdrop-filter smeared a band across the tiles.
+ *  closes over the works along the ramp, and is 95% shut where the banner
+ *  ends, so the heading below it sits on paper. Under the text the works
+ *  are a faint tint (3–5% through), and gone by three quarters of the
+ *  layer. An earlier, weaker veil (55% at the heading, 86% under the first
+ *  paragraph) let dark tiles grey out whole lines of text. The ramp is
+ *  long on purpose; a short one draws a line across every column. No blur:
+ *  masked into the ramp, a backdrop-filter smeared a band across the
+ *  tiles.
  *
  *  Inline rather than in globals.css. The gradient only means anything
  *  next to this layer's geometry, and Turbopack's dev server twice kept
  *  serving a globals.css build without a newly added rule, which showed
  *  the tiles bare behind the text. */
 const VEIL = `linear-gradient(to bottom,
-  transparent calc(var(--backdrop-banner) - 5rem),
-  color-mix(in oklab, var(--background) 55%, transparent) var(--backdrop-banner),
-  color-mix(in oklab, var(--background) 86%, transparent) calc(var(--backdrop-banner) + 5rem),
-  color-mix(in oklab, var(--background) 92%, transparent) 70%,
-  var(--background) 100%)`;
+  transparent calc(var(--backdrop-banner) - var(--backdrop-ramp)),
+  color-mix(in oklab, var(--background) 60%, transparent) calc(var(--backdrop-banner) - var(--backdrop-ramp) / 2),
+  color-mix(in oklab, var(--background) 95%, transparent) var(--backdrop-banner),
+  color-mix(in oklab, var(--background) 97%, transparent) calc(var(--backdrop-banner) + 6rem),
+  var(--background) 75%)`;
 /** `strip`: nothing over the page, only a fade at the foot of the banner
  *  so the tiles don't end on a hard line. 4rem, so the lower strip still
  *  shows most of its height clear. */
