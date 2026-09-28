@@ -667,7 +667,7 @@
 @media (min-width: 768px) {
   .wall-notice {
     aspect-ratio: 3 / 2;
-    width: min(32rem, var(--wall-w));
+    width: min(38rem, var(--wall-w));
     padding: 2rem 3rem;
   }
 }
@@ -704,4 +704,28 @@
   border-radius: 2px;
   background: var(--card);
   box-shadow: 0 1px 2px oklch(0.2 0.02 50 / 0.08);
+}
+
+/* The note a plaque keeps behind its (i) button. From lg it floats
+   above the plaque as the same card, lifted off the wall. */
+.wall-note {
+  animation: wall-note-in 140ms ease-out;
+}
+@media (min-width: 1024px) {
+  .wall-note {
+    border: 1px solid var(--border);
+    border-radius: 2px;
+    background: var(--card);
+    box-shadow: 0 10px 24px -8px oklch(0.2 0.02 50 / 0.28);
+  }
+}
+@keyframes wall-note-in {
+  from {
+    opacity: 0;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .wall-note {
+    animation: none;
+  }
 }

@@ -1,71 +1,32 @@
 import { describe, expect, it } from "vitest";
 import {
-  buildMatchIndex,
   editDistance,
-  type MatchDoc,
-  matchPath,
+  maxEdits,
   normalizePath,
+  suggestFor,
+  type TypoTarget,
   tokenize,
-  tokenSimilarity,
 } from "./not-found-match";
 
-const artwork = (id: string, title: string, artist: string): MatchDoc => ({
-  kind: "artwork",
+const artwork = (id: string, label: string): TypoTarget => ({
   href: `/artwork/${id}`,
+  label,
   keys: [id, id.replace(/^(collection-of-beauty|audubon-birds)-/, "")],
-  text: [title, artist],
 });
 
-const DOCS: MatchDoc[] = [
-  artwork(
-    "collection-of-beauty-charles-le-brun-the-sacrifice-of-polyxena",
-    "The Sacrifice of Polyxena",
-    "Charles Le Brun",
-  ),
-  artwork(
-    "collection-of-beauty-henri-rousseau-tropical-forest-with-monkeys-1910-nga-61253",
-    "Tropical Forest with Monkeys",
-    "Henri Rousseau",
-  ),
-  artwork("collection-of-beauty-surprised-rousseau", "Surprised!", "Henri Rousseau"),
-  artwork("audubon-birds-55-cuvier-s-regulus", "Cuvier's Regulus", "John James Audubon"),
-  artwork("audubon-birds-56-red-shouldered-hawk", "Red-shouldered Hawk", "John James Audubon"),
-  artwork("audubon-birds-1-wild-turkey", "Wild Turkey", "John James Audubon"),
-  artwork("audubon-birds-6-wild-turkey", "Wild Turkey", "John James Audubon"),
-  artwork(
-    "collection-of-beauty-descent-from-the-cross-rembrant",
-    "Descent from the Cross",
-    "Rembrandt van Rijn",
-  ),
-  {
-    kind: "artist",
-    href: "/artist/rembrandt-van-rijn",
-    keys: ["rembrandt-van-rijn"],
-    text: ["Rembrandt van Rijn"],
-  },
-  {
-    kind: "artist",
-    href: "/artist/john-james-audubon",
-    keys: ["john-james-audubon"],
-    text: ["John James Audubon"],
-  },
-  { kind: "page", href: "/timeline", keys: ["timeline"], text: ["Timeline"] },
-  { kind: "page", href: "/gallery-3d", keys: ["gallery-3d", "3d", "museum"], text: ["The Museum"] },
-  { kind: "page", href: "/colours/blue", keys: ["blue"], text: ["Blue"] },
-  {
-    kind: "page",
-    href: "/era/baroque",
-    keys: ["baroque"],
-    text: ["Baroque & the Dutch Golden Age"],
-  },
+const TARGETS: TypoTarget[] = [
+  artwork("collection-of-beauty-charles-le-brun-the-sacrifice-of-polyxena", "Polyxena"),
+  artwork("audubon-birds-55-cuvier-s-regulus", "Cuvier's Regulus"),
+  artwork("audubon-birds-1-wild-turkey", "Wild Turkey, plate 1"),
+  artwork("audubon-birds-6-wild-turkey", "Wild Turkey, plate 6"),
+  { href: "/artist/rembrandt-van-rijn", label: "Rembrandt", keys: ["rembrandt-van-rijn"] },
+  { href: "/timeline", label: "Timeline", keys: ["timeline"] },
+  { href: "/gallery-3d", label: "The Museum", keys: ["gallery-3d", "3d", "museum"] },
+  { href: "/colours/blue", label: "Blue", keys: ["blue"] },
+  { href: "/colours/red", label: "Red", keys: ["red"] },
 ];
 
-const INDEX = buildMatchIndex(DOCS, { prefixes: ["collection-of-beauty-", "audubon-birds-"] });
-
-const top = (path: string) => {
-  const result = matchPath(INDEX, path);
-  return result && { confidence: result.confidence, href: result.hits[0]?.doc.href };
-};
+const hrefFor = (path: string) => suggestFor(TARGETS, path)?.href ?? null;
 
 describe("normalizePath", () => {
   it("forgives what links pick up on the way", () => {
@@ -82,20 +43,6 @@ describe("tokenize", () => {
   });
 });
 
-describe("tokenSimilarity", () => {
-  it("scores typos, truncations and exact words", () => {
-    expect(tokenSimilarity("polyxena", "polyxena")).toBe(1);
-    expect(tokenSimilarity("polyxana", "polyxena")).toBeGreaterThan(0.8);
-    expect(tokenSimilarity("mon", "monkeys")).toBe(0);
-    expect(tokenSimilarity("monk", "monkeys")).toBe(0.8);
-  });
-
-  it("never fuzzes numbers: plate 55 is not plate 56", () => {
-    expect(tokenSimilarity("55", "56")).toBe(0);
-    expect(tokenSimilarity("1871", "1872")).toBe(0);
-  });
-});
-
 describe("editDistance", () => {
   it("counts an adjacent swap as one edit", () => {
     expect(editDistance("rembrnadt", "rembrandt")).toBe(1);
@@ -104,65 +51,48 @@ describe("editDistance", () => {
   });
 });
 
-describe("matchPath", () => {
-  it("calls a respelling of an existing page exact", () => {
-    expect(
-      top("/Artwork/Collection-of-Beauty-Charles-Le-Brun-The-Sacrifice-of-Polyxena)."),
-    ).toEqual({
-      confidence: "exact",
-      href: "/artwork/collection-of-beauty-charles-le-brun-the-sacrifice-of-polyxena",
-    });
-    // Folder prefix left off.
-    expect(top("/artwork/charles-le-brun-the-sacrifice-of-polyxena")?.confidence).toBe("exact");
-    expect(top("/3d")).toEqual({ confidence: "exact", href: "/gallery-3d" });
+describe("maxEdits", () => {
+  it("allows more typos in longer slugs and none in short ones", () => {
+    expect(maxEdits(3)).toBe(0);
+    expect(maxEdits(7)).toBe(1);
+    expect(maxEdits(18)).toBe(2);
+    expect(maxEdits(53)).toBe(3);
   });
+});
 
-  it("picks one clear winner for a typo", () => {
-    expect(top("/artwork/the-sacrifice-of-polyxana")).toEqual({
-      confidence: "high",
-      href: "/artwork/collection-of-beauty-charles-le-brun-the-sacrifice-of-polyxena",
-    });
-    expect(top("/timline")).toEqual({ confidence: "high", href: "/timeline" });
-    expect(top("/colours/bleu")).toEqual({ confidence: "high", href: "/colours/blue" });
-  });
-
-  it("finds the work behind a cut-off link", () => {
-    expect(top("/artwork/collection-of-beauty-henri-rousseau-tropical-forest-with-mon")).toEqual({
-      confidence: "high",
-      href: "/artwork/collection-of-beauty-henri-rousseau-tropical-forest-with-monkeys-1910-nga-61253",
-    });
-    expect(top("/artwork/audubon-birds-55")).toEqual({
-      confidence: "high",
-      href: "/artwork/audubon-birds-55-cuvier-s-regulus",
-    });
-  });
-
-  it("prefers the section the URL names", () => {
-    // An artwork id carries the same misspelling, but the URL asked for
-    // an artist.
-    expect(top("/artist/rembrant")).toEqual({
-      confidence: "high",
-      href: "/artist/rembrandt-van-rijn",
-    });
-  });
-
-  it("lists ties without picking one", () => {
-    const result = matchPath(INDEX, "/artwork/wild-turkey");
-    expect(result?.confidence).toBe("medium");
-    expect(result?.hits.map((h) => h.doc.href)).toEqual([
-      "/artwork/audubon-birds-1-wild-turkey",
+describe("suggestFor", () => {
+  it("names the page a typo misspells", () => {
+    expect(hrefFor("/timelin")).toBe("/timeline");
+    expect(hrefFor("/artist/rembrant-van-rijn")).toBe("/artist/rembrandt-van-rijn");
+    expect(hrefFor("/artwork/audubon-birds-6-wild-turky")).toBe(
       "/artwork/audubon-birds-6-wild-turkey",
-    ]);
+    );
+    expect(hrefFor("/artwork/charles-le-brun-the-sacrifice-of-polyxana")).toBe(
+      "/artwork/collection-of-beauty-charles-le-brun-the-sacrifice-of-polyxena",
+    );
   });
 
-  it("never lets a bare number pick a page", () => {
-    expect(matchPath(INDEX, "/artwork/1910")?.confidence ?? null).not.toBe("high");
-    expect(top("/artwork/12345")).toBeNull();
+  it("matches a respelling and an alias exactly", () => {
+    expect(hrefFor("/Timeline/")).toBe("/timeline");
+    expect(hrefFor("/3d")).toBe("/gallery-3d");
   });
 
-  it("returns nothing for scanner noise", () => {
-    expect(top("/wp-admin")).toBeNull();
-    expect(top("/xmlrpc.php")).toBeNull();
-    expect(top("/")).toBeNull();
+  it("returns the label with the link", () => {
+    expect(suggestFor(TARGETS, "/timelin")).toEqual({ href: "/timeline", label: "Timeline" });
+  });
+
+  it("gives up on a tie between two pages", () => {
+    // One edit from plate 1 and from plate 6.
+    expect(hrefFor("/artwork/audubon-birds-7-wild-turkey")).toBeNull();
+  });
+
+  it("allows no typo in a short slug", () => {
+    expect(hrefFor("/colours/blu")).toBeNull();
+    expect(hrefFor("/rad")).toBeNull();
+  });
+
+  it("returns nothing for scanner noise or an empty path", () => {
+    expect(hrefFor("/wp-admin/setup-config.php")).toBeNull();
+    expect(hrefFor("/")).toBeNull();
   });
 });
