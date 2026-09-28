@@ -345,22 +345,29 @@ set up; if you need one, scaffold a Testing Library setup separately.
 
 ## Outstanding tickets (memory)
 
-- 1,466 of 4,557 works lack `realDimensions`, all in the
-  `collection-of-beauty` folder (September 2026). 1,175 have no entry
-  in `metadata/artwork-dimensions.json`, so a plain run of
-  `scripts/fetch-artwork-dimensions.mjs` would ask for them; 291 were
-  asked and have no answer (`null`). Without a size the gallery layout
+- 563 of 4,557 works lack `realDimensions`, all in the
+  `collection-of-beauty` folder (28 September 2026). Every one was
+  asked and has no answer (`null` in `metadata/artwork-dimensions.json`):
+  neither Wikidata nor the Commons template gives a size. A plain run of
+  `scripts/fetch-artwork-dimensions.mjs` asks for nothing more, so each
+  needs a size researched by hand. Without a size the gallery layout
   falls back to a pixel-aspect estimate. Fix is data-side, not
   filter-tightening.
-- Of the 3,091 works with a size, `trustworthyRealSize()` in
-  [`real-size.ts`](src/lib/real-size.ts) hides 866 from the scale view,
+- Of the 3,994 works with a size, `trustworthyRealSize()` in
+  [`real-size.ts`](src/lib/real-size.ts) hides 889 from the scale view,
   the JSON-LD and every caption. 862 are hidden by design: 644 Redouté
   sheet sizes on cut-out scans, 214 `series-default` print formats, 4
-  Vesalius page sizes. The other 4 have a correct size on a cropped or
-  mounted scan, and need a full-frame scan, not a new number. Fixes go
+  Vesalius page sizes. 13 are Google Art Project template values, which
+  have no knowable unit. The other 14 have a size the scan does not
+  match: mostly a correct size on a cropped or mounted scan, which needs
+  a full-frame scan, not a new number. Fixes go
   into `metadata/artwork-dimensions.json` with a researched `source`,
   never into `src/data/*.json`. The file's comments give each rule;
   `metadata/real-size-fixes-2026-09.md` gives the sources for past fixes.
+- Hidden is not harmless. The 3D gallery sizes each painting from the
+  raw `realDimensions` long edge (`sizeWork()` in `place-paintings.ts`),
+  and the Grand Hall leads with the largest works. A value ten times too
+  big, such as Malevich's Suprematism at 805 cm tall, would hang there.
 - 100 paintings lack a `movement` tag (~2% of the corpus) — they fall
   through to year-based era assignment in
   [`gallery-eras.ts`](src/lib/gallery-eras.ts). All come from the

@@ -308,6 +308,13 @@ function parseDimensionString(raw) {
     const w = Number.parseFloat(gm[1].replace(",", "."));
     const h = Number.parseFloat(gm[2].replace(",", "."));
     const unit = gm[3];
+    // A GAP value labelled inches has been millimetres every time: 6 of 6
+    // in the September 2026 fetch, each matching the Wikidata item in mm.
+    // Five read over 10 m and were dropped as implausible. The sixth,
+    // Benjamin West's Franklin (`w256 x h340 in`, a 25.6 × 34 cm sketch),
+    // read 650 × 864 cm, and build-data's rescale turned that into a
+    // plausible 65 × 86 cm. So skip the value and let Wikidata answer.
+    if (/^in/i.test(unit)) return null;
     let wCm = convertToCm(w, unit);
     let hCm = convertToCm(h, unit);
     if (/^cm$/i.test(unit) && wCm != null && hCm != null && (wCm >= 400 || hCm >= 400)) {
@@ -321,7 +328,11 @@ function parseDimensionString(raw) {
     if (wCm != null && hCm != null && plausibleCm(wCm) && plausibleCm(hCm))
       return { widthCm: round(wCm, 2), heightCm: round(hCm, 2) };
   }
-  const pairRe = /(\d+(?:[.,]\d+)?)\s*(?:[x×X]|by)\s*(\d+(?:[.,]\d+)?)\s*(cm|mm|m|in|inches?)\b/i;
+  // The lookbehind keeps the first number whole. Without it,
+  // `19 1/2 by 14 in.; 49.5 by 35.6 cm.` matched `2 by 14 in` inside the
+  // fraction and stored Benjamin West's Venus as 35.56 × 5.08 cm.
+  const pairRe =
+    /(?<![\d/.,])(\d+(?:[.,]\d+)?)\s*(?:[x×X]|by)\s*(\d+(?:[.,]\d+)?)\s*(cm|mm|m|in|inches?)\b/i;
   const pm = raw.match(pairRe);
   if (pm) {
     const a = Number.parseFloat(pm[1].replace(",", "."));
