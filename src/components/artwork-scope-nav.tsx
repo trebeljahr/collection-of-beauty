@@ -152,40 +152,47 @@ function NavBar({
   context?: string | null;
   position?: { index: number; total: number } | null;
 }) {
+  const count = position
+    ? `${(position.index + 1).toLocaleString("en-US")} of ${position.total.toLocaleString("en-US")}`
+    : null;
   return (
     <div className="text-sm text-[var(--muted-foreground)]">
-      <div className="flex items-center justify-between">
-        <Link href={back.href} onClick={onBack} className={touchTextLinkClasses}>
-          ← Back{back.label ? ` to ${back.label}` : ""}
-        </Link>
+      {/* From `sm:` up everything shares one row: the context beside the
+          back link, the count between the steps it counts. The scope is
+          only known after hydration, so both fill in sideways and push
+          nothing down; the context truncates to whatever room is left. */}
+      <div className="flex items-center justify-between gap-4 sm:mb-5">
+        <div className="flex min-w-0 items-baseline gap-3">
+          <Link href={back.href} onClick={onBack} className={`${touchTextLinkClasses} shrink-0`}>
+            ← Back{back.label ? ` to ${back.label}` : ""}
+          </Link>
+          <span className="hidden truncate text-xs sm:inline" title={context ?? undefined}>
+            {context}
+          </span>
+        </div>
         {/* gap-4 rather than gap-3 on phones: "Next →" is only just past
             44px wide, so a little more dead space between the two
             44px-tall targets keeps a thumb from catching the wrong one.
             The targets shrink back at `sm:`, so the gap does too. */}
-        <div className="flex items-center gap-4 sm:gap-3">
+        <div className="flex shrink-0 items-baseline gap-4 sm:gap-3">
           <StepLink href={prevHref} rel="prev">
             ← Previous
           </StepLink>
+          {count && <span className="hidden text-xs tabular-nums sm:inline">{count}</span>}
           <StepLink href={nextHref} rel="next">
             Next →
           </StepLink>
         </div>
       </div>
-      {/* Always rendered, empty or not, and exactly the 24px the row's
-          bottom margin used to be: the scope is only known after
-          hydration, and a line appearing then would push the whole page
-          down. One line, truncated, for the same reason. The count sits
-          under Previous / Next, the steps it counts. */}
-      <p className="flex h-6 items-center justify-between gap-4 text-xs">
+      {/* Phones have no room for either on the row above, so they get a
+          line of their own. Always rendered, empty or not, and exactly
+          the 24px the row's bottom margin would be, so a line appearing
+          after hydration doesn't push the page down. */}
+      <p className="flex h-6 items-center justify-between gap-4 text-xs sm:hidden">
         <span className="truncate" title={context ?? undefined}>
           {context}
         </span>
-        {position && (
-          <span className="shrink-0 tabular-nums">
-            {(position.index + 1).toLocaleString("en-US")} of{" "}
-            {position.total.toLocaleString("en-US")}
-          </span>
-        )}
+        {count && <span className="shrink-0 tabular-nums">{count}</span>}
       </p>
     </div>
   );
@@ -232,16 +239,19 @@ function StepLink({
 const disabledStepClasses =
   "-my-3 inline-flex min-h-11 cursor-default items-center opacity-40 sm:my-0 sm:inline sm:min-h-0";
 
-/** What the walk is over, in the words of the page it started on. */
-function scopePhrase(scope: Scope, label: string | undefined): string {
-  if (scope.kind === "gallery") return filterPhrase("All works", "Results for", scope.filter);
+/** What the walk is over, in the words of the page it started on. Null
+ *  when the back link already says it: "Back to Rogier van der Weyden"
+ *  next to "Works by Rogier van der Weyden" is the same fact twice. */
+function scopePhrase(scope: Scope, label: string | undefined): string | null {
+  if (scope.kind === "gallery") {
+    return scope.filter ? filterPhrase("All works", "Results for", scope.filter) : null;
+  }
   if (scope.kind === "decade") {
     return filterPhrase("Timeline", "Timeline results for", scope.filter);
   }
-  if (scope.kind === "artist") return `Works by ${label ?? scope.slug}`;
-  if (scope.kind === "collection") return `Plates from ${label ?? scope.id}`;
+  // "Back to red" alone doesn't say it is a colour.
   if (scope.kind === "color") return `Colour: ${label ?? scope.id}`;
-  return `Era: ${label ?? getEra(scope.id).title}`;
+  return null;
 }
 
 /** The home gallery's and the timeline's controls, read back as one
