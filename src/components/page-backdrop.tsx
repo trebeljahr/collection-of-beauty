@@ -25,6 +25,10 @@ const COLUMN_OFFSET = ["-mt-8", "-mt-24", "-mt-2", "-mt-16", "-mt-28", "-mt-6", 
  *  the layer (for the veil's gradient, `VEIL`) and the spacer that
  *  pushes the page's own content below it. */
 const BANNER = "[--backdrop-banner:11rem] md:[--backdrop-banner:18rem]";
+/** The strip's banner is lower: it heads a page of plain text (the
+ *  imprint, the privacy policy), where an 18rem band pushed the heading
+ *  a third of the way down a laptop screen. */
+const STRIP_BANNER = "[--backdrop-banner:9rem] md:[--backdrop-banner:12rem]";
 
 /** The veil over the tiles. Clear across the banner, then the page colour
  *  closes over the works: most of the way within a few rem, so the heading
@@ -44,9 +48,10 @@ const VEIL = `linear-gradient(to bottom,
   color-mix(in oklab, var(--background) 92%, transparent) 70%,
   var(--background) 100%)`;
 /** `strip`: nothing over the page, only a fade at the foot of the banner
- *  so the tiles don't end on a hard line. */
+ *  so the tiles don't end on a hard line. 4rem, so the lower strip still
+ *  shows most of its height clear. */
 const STRIP_VEIL =
-  "linear-gradient(to bottom, transparent calc(100% - 6rem), var(--background) 100%)";
+  "linear-gradient(to bottom, transparent calc(100% - 4rem), var(--background) 100%)";
 
 const SIZES =
   "(min-width: 1536px) 13vw, (min-width: 1280px) 15vw, (min-width: 1024px) 17vw, (min-width: 768px) 20vw, (min-width: 640px) 25vw, 34vw";
@@ -89,7 +94,7 @@ export function PageBackdrop({
       <div
         aria-hidden
         className={cn(
-          BANNER,
+          strip ? STRIP_BANNER : BANNER,
           "pointer-events-none absolute inset-x-0 top-0 -z-10 overflow-hidden select-none",
           strip ? "h-[calc(var(--backdrop-banner)+1rem)]" : "h-[32rem] md:h-[50rem]",
         )}
@@ -126,7 +131,7 @@ export function PageBackdrop({
       <div
         aria-hidden
         className={cn(
-          BANNER,
+          strip ? STRIP_BANNER : BANNER,
           strip
             ? "h-[calc(var(--backdrop-banner)+2.5rem)]"
             : "h-[calc(var(--backdrop-banner)+1rem)]",
