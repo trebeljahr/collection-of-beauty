@@ -27,6 +27,7 @@ const STATIC_PAGES: { href: string; label: string; aliases?: string[]; words?: s
     aliases: ["3d", "museum", "gallery", "3d-gallery", "gallery3d", "3d-museum"],
   },
   { href: "/surprise", label: "Surprise me", aliases: ["random", "surprise-me"] },
+  { href: "/play", label: "Slideshow", aliases: ["slideshow", "slides"] },
   { href: "/drops", label: "Newsletter", aliases: ["subscribe", "newsletters"] },
   { href: "/newsletter", label: "Newsletter archive", words: "editions" },
   { href: "/about", label: "About", aliases: ["about-us"] },
