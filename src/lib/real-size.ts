@@ -102,7 +102,9 @@ const SHEET_SCANS: readonly { folder: string; widthCm: number; heightCm: number 
  * value has no knowable unit. In the September 2026 audit 6 of the 17
  * such values were millimetres: Turner's 1793 watercolour of Clare Hall,
  * a sheet, read 276 × 200 cm. All 17 have since been re-sourced from
- * the holding museum's record. The rule stays for the next ingest. */
+ * the holding museum's record. A later fetch added 13 more: 11 are
+ * re-sourced, and 2 whose museum gives no size online stay hidden.
+ * The rule stays for the next ingest. */
 
 /** Works that pass every rule above yet are known to be wrong. Keep
  *  this list short: a problem shared by a class of records belongs in a

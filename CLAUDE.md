@@ -354,13 +354,16 @@ set up; if you need one, scaffold a Testing Library setup separately.
   falls back to a pixel-aspect estimate. Fix is data-side, not
   filter-tightening.
 - Of the 3,992 works with a size, `trustworthyRealSize()` in
-  [`real-size.ts`](src/lib/real-size.ts) hides 888 from the scale view,
+  [`real-size.ts`](src/lib/real-size.ts) hides 877 from the scale view,
   the JSON-LD and every caption. 862 are hidden by design: 644 Redouté
   sheet sizes on cut-out scans, 214 `series-default` print formats, 4
-  Vesalius page sizes. 13 are Google Art Project template values, which
-  have no knowable unit. The other 13 have a size the scan does not
-  match: mostly a correct size on a cropped or mounted scan, which needs
-  a full-frame scan, not a new number. Fixes go
+  Vesalius page sizes. 2 are Google Art Project template values, which
+  have no knowable unit and no size on the museum's own record: the
+  Philbrook lists only the frame of Copley's Portrait of a Lady, and the
+  Glyptotek has no online record of David's Comte de Turenne. The other
+  13 have a size the scan does not match: mostly a correct size on a
+  cropped or mounted scan, which needs a full-frame scan, not a new
+  number. Fixes go
   into `metadata/artwork-dimensions.json` with a researched `source`,
   never into `src/data/*.json`. The file's comments give each rule;
   `metadata/real-size-fixes-2026-09.md` gives the sources for past fixes.

@@ -207,13 +207,10 @@ share an item. The known wrong-link case, a Commons page whose
 
 ### Still hidden, not fixed
 
-- 13 Google Art Project template values. Most look right (Walker Art
-  Gallery's Death of Nelson 247 × 182, Kimbell's May Sartoris 90 × 152),
-  but a template value from those files has no knowable unit, so the
-  rule hides them. One is Boilly's Jan Anthony d'Averhoult, stored
-  42 × 55: Google Arts & Culture gives 42.6 × 55.2 cm, Wikidata the same
-  numbers in millimetres, and the Centraal Museum's own record was
-  unreachable.
+- 13 Google Art Project template values. A template value from those
+  files has no knowable unit, so the rule hid them. 11 now carry the
+  holding museum's figure and 2 stay hidden; see "Google Art Project
+  template values from the plain fetch" below.
 - Correct size, scan shows less: David's Les Amours de Pâris et d'Hélène
   (a portrait crop of a landscape canvas), Aivazovsky's 1874 self-portrait
   (the file is named "cropped"), Gauguin's L'Esprit Moderne et le
@@ -250,3 +247,46 @@ kept works.
 
 Both originals are in `assets/.rejected/dedup-merged/`. Their variant
 folders stay in `assets-web/`.
+
+## Google Art Project template values from the plain fetch
+
+The plain fetch of 28 September 2026 stored 13 values from the Google Art
+Project template. `trustworthyRealSize()` hid all 13. Each was checked
+against the holding museum's record on the same day. 11 now carry the
+museum's figure (`source: "museum"`).
+
+| Work | Was | Now | Source |
+| --- | --- | --- | --- |
+| Wtewael, Portrait of Christina Wtewael van Halen, Centraal Museum 2263 | 75 × 99 | 75.7 × 99.2 | [Centraal Museum (archived)](http://web.archive.org/web/20231201011945/https://www.centraalmuseum.nl/en/collection/2263-portret-van-christina-van-halen-1568-1629-echtgenote-van-joachim-wtewael-joachim-wtewael?set_language=en): "hoogte 99.2 cm breedte 75.7 cm" |
+| Wtewael, Self-portrait, Centraal Museum 2264 | 73 × 98 | 73.6 × 98 | [Centraal Museum (archived)](http://web.archive.org/web/20240302061008/https://www.centraalmuseum.nl/en/collection/2264-zelfportret-joachim-wtewael): "hoogte 98 cm breedte 73.6 cm" |
+| Wtewael, The Fruit and Vegetable Seller, Centraal Museum 2262 | 161 × 118 | 161.3 × 118.8 | [Centraal Museum (archived)](http://web.archive.org/web/20241108174245/https://www.centraalmuseum.nl/nl/collectie/2262-de-groentevrouw-joachim-wtewael): "hoogte 118.8 cm breedte 161.3 cm" |
+| Honthorst, Granida and Daifilo, Centraal Museum 5571 | 179 × 144 | 179 × 144.7 | [Centraal Museum (archived)](http://web.archive.org/web/20241110175720/https://www.centraalmuseum.nl/en/collection/5571-granida-en-daifilo-gerard-van-honthorst): "hoogte 144.7 cm breedte 179 cm" |
+| Boilly, Portrait of Jan Anthony d'Averhoult, Centraal Museum 22584 | 42 × 55 | 42.6 × 55.2 | [Centraal Museum (archived)](http://web.archive.org/web/20241107162407/https://www.centraalmuseum.nl/nl/collectie/22584-portret-van-jan-anthony-daverhoult-1756-1792-louis-lopold-boilly): "hoogte 55.2 cm breedte 42.6 cm" |
+| Rembrandt, The Hundred Guilder Print, NMWA G.1981-0001 | 38.6 × 28 | 38.6 × 28 | [NMWA](https://collection.nmwa.go.jp/en/G.1981-0001.html): "Size（cm） 28.0 x 38.6" |
+| Boucher, Young Country Girl Dancing, AGO 98/129 | 29.2 × 46.2 | 29.2 × 46.2 | [AGO](https://ago.ca/collection/object/98/129): "Overall: 46.2 x 29.2 cm" |
+| Gainsborough, Madame Lebrun, AGSA 0.2025 | 102 × 127 | 102.6 × 127 | [AGSA](https://www.agsa.sa.gov.au/collection-publications/collection/works/madame-lebrun/24126/): "127.0 x 102.6 cm" |
+| West, The Death of Nelson, Walker Art Gallery WAG 3132 | 247 × 182 | 247.6 × 182.2 | [National Museums Liverpool](https://www.liverpoolmuseums.org.uk/artifact/death-of-nelson-0): "Canvas/support: 182.2 cm x 247.6 cm" |
+| Leighton, Portrait of May Sartoris, Kimbell ACF 1964.03 | 90 × 152 | 90.2 × 152.1 | [Kimbell (archived)](http://web.archive.org/web/20240312164451/https://kimbellart.org/collection/acf-196403): "59 7/8 x 35 1/2 in. (152.1 x 90.2 cm)" |
+| Cézanne, Maison Maria with a View of Château Noir, Kimbell AP 1982.05 | 81 × 65 | 81 × 65 | [Kimbell (archived)](http://web.archive.org/web/20240814231626/https://kimbellart.org/collection/ap-198205): "25 9/16 x 31 7/8 in. (65 x 81 cm)" |
+
+None of the 11 was a unit slip. Each template value was the museum's
+figure, or that figure cut to whole centimetres. Each matches its scan's
+pixel aspect within 2%. The Centraal Museum site answered HTTP 401 and
+the Kimbell site a bot check, so those rows cite the Wayback Machine.
+
+### Still hidden
+
+- Copley, Portrait of a Lady, Philbrook Museum of Art 1943.2, stored
+  71.1 × 91.4. The [Philbrook record](https://philbrook.emuseum.com/objects/1008/portrait-of-a-lady)
+  gives the frame only: "Frame: 43 x 35 3/4 x 2 3/4 " (109.2 x 90.8 x 7 cm)".
+  The Wayback Machine has no copy of an older record. Do not store the
+  frame: it is 7% off the scan's aspect, so the shape check would pass
+  it and the scale view would draw the painting too large.
+- David, Portrait of the Comte de Turenne, Ny Carlsberg Glyptotek
+  MIN 1900, stored 81 × 112. The Glyptotek has no online collection
+  record. Its artwork page from 2015
+  ([archived](http://web.archive.org/web/20151030103140/http://www.glyptoteket.com/explore/the-collections/artwork/jacques-louis-david-portrait-comte-de-turenne))
+  gives no size.
+
+After this pass, `trustworthyRealSize()` hides 877 of the 3,992 works
+with a size. 862 of them are hidden by design.
