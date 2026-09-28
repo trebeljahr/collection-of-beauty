@@ -103,6 +103,24 @@ async function main(): Promise<void> {
   // recipient when delivering the campaign.
   const rendered = await renderEdition({ edition, siteUrl, unsubscribeMode: "listmonk-campaign" });
 
+  // The header image is rendered by the deployed site on first request.
+  // Requesting it here proves the deploy serves it and warms its cache
+  // before Apple's privacy proxy fetches it for every recipient at once.
+  const wallProblem = await checkWallImage(rendered.wallUrl);
+  console.info(`[newsletter] header:    ${rendered.wallUrl}`);
+  if (wallProblem) {
+    if (production && !dryRun) {
+      console.error(
+        `[newsletter] refusing production send: header image ${wallProblem}. ` +
+          "Deploy the edition first (push main), then retry.",
+      );
+      process.exit(1);
+    }
+    console.warn(
+      `[newsletter] warning:   header image ${wallProblem} — recipients would see a gap.`,
+    );
+  }
+
   if (dryRun) {
     console.info(`[newsletter] dry-run — no email sent.`);
     console.info(`[newsletter] html bytes: ${rendered.html.length}`);
@@ -129,6 +147,18 @@ async function main(): Promise<void> {
   console.info(`[newsletter] admin URL:   ${result.url}`);
   console.info(`[newsletter] status:      running (ListMonk is dispatching via SES)`);
   console.info(`[newsletter] done.`);
+}
+
+async function checkWallImage(url: string): Promise<string | null> {
+  try {
+    const res = await fetch(url, { signal: AbortSignal.timeout(60_000) });
+    await res.arrayBuffer();
+    if (!res.ok) return `returned ${res.status}`;
+    const type = res.headers.get("content-type") ?? "";
+    return type.startsWith("image/jpeg") ? null : `returned ${type || "no content type"}`;
+  } catch (err) {
+    return `could not be fetched (${err instanceof Error ? err.message : String(err)})`;
+  }
 }
 
 function latestPublishedEdition(): ReturnType<typeof findEdition> {

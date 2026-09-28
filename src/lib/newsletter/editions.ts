@@ -2,6 +2,7 @@ import { readdirSync, readFileSync } from "node:fs";
 import path from "node:path";
 import matter from "gray-matter";
 import type { CoverFocus, Edition, EditionArtworkEntry, EditionCover } from "./types";
+import { isWallColour, WALL_COLOUR_NAMES } from "./wall-layout";
 
 /**
  * Average adult reads ~225 words per minute on prose. We round up so a
@@ -80,6 +81,7 @@ export function parseEdition(filename: string, raw: string): Edition {
 
   const tags = parseTags(filename, data.tags);
   const cover = parseCover(filename, data.cover);
+  const wall = parseWall(filename, data.wall);
 
   const rawArtworks = data.artworks;
   if (!Array.isArray(rawArtworks) || rawArtworks.length !== 5) {
@@ -116,8 +118,20 @@ export function parseEdition(filename: string, raw: string): Edition {
     draft,
     tags,
     cover,
+    ...(wall !== undefined && { wall }),
     readingTimeMinutes: estimateReadingTimeMinutes(body),
   };
+}
+
+function parseWall(filename: string, raw: unknown): string | undefined {
+  if (raw === undefined || raw === null) return undefined;
+  if (typeof raw !== "string" || !isWallColour(raw)) {
+    throw new Error(
+      `${filename}: frontmatter "wall" must be one of ${WALL_COLOUR_NAMES.join(", ")} ` +
+        `or a "#rrggbb" hex (got ${JSON.stringify(raw)}).`,
+    );
+  }
+  return raw;
 }
 
 function parseTags(filename: string, raw: unknown): string[] {

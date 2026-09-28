@@ -13,6 +13,7 @@ import {
   Text,
 } from "@react-email/components";
 import * as React from "react";
+import { WALL_COLOURS, type WallPalette, wallPalette } from "../src/lib/newsletter/wall-layout";
 
 void React; // referenced by JSX runtime under classic transform
 
@@ -55,7 +56,24 @@ export type WeeklyDigestProps = {
    * unsubscribe footer.
    */
   unsubscribeUrl?: string | null;
+  /**
+   * Header image: the issue's works hung on a gallery wall, plus the
+   * colours the title under it is set in. Omitted, the header is the
+   * title alone on the default wall colour.
+   */
+  wall?: DigestWall | null;
 };
+
+export type DigestWall = {
+  imageUrl: string;
+  /** CSS px; the image itself is twice this for retina screens. */
+  width: number;
+  height: number;
+  alt: string;
+  palette: WallPalette;
+};
+
+const DEFAULT_PALETTE = wallPalette(WALL_COLOURS.green.base);
 
 // ListMonk substitutes this in the rendered campaign body (Go template
 // engine). The double-brace literal stays verbatim in the HTML we hand
@@ -71,7 +89,9 @@ export default function WeeklyDigest({
   siteUrl = "https://example.com",
   archiveUrl = "https://example.com/newsletter/0001-preview",
   unsubscribeUrl = LISTMONK_UNSUBSCRIBE_TOKEN,
+  wall = null,
 }: WeeklyDigestProps) {
+  const palette = wall?.palette ?? DEFAULT_PALETTE;
   const previewText =
     artworks.length > 0
       ? `${title}. ${artworks[0].title}${artworks[0].artist ? ` by ${artworks[0].artist}` : ""} and ${artworks.length - 1} more.`
@@ -99,25 +119,57 @@ export default function WeeklyDigest({
       <Tailwind>
         <Body className="bg-stone-50 font-serif text-stone-900">
           <Container className="mx-auto max-w-[640px] bg-white px-0 py-0">
-            <Section className="bg-stone-950 px-8 py-9 text-center">
-              <Text className="m-0 text-[11px] uppercase tracking-[0.24em] text-stone-300">
-                Drops of Beauty
-              </Text>
-              <Heading
-                as="h1"
-                className="mx-auto mt-4 mb-0 max-w-[520px] font-serif text-[34px] font-normal leading-tight text-stone-50"
-              >
-                {title}
-              </Heading>
-              <Text className="mt-4 mb-0 text-xs uppercase tracking-[0.18em] text-stone-400">
-                Issue {issueNumber} · {issueDate}
-              </Text>
-              <Link
-                href={archiveUrl}
-                className="mt-6 inline-block rounded-full border border-stone-600 px-4 py-2 text-xs uppercase tracking-[0.16em] text-stone-100 no-underline"
-              >
-                Read on the web
-              </Link>
+            {/*
+              The wall image and the title cell share the wall's base
+              colour: the image's bottom rows are exactly that colour, so
+              the picture runs into the live-text title without a seam.
+            */}
+            <Section style={{ backgroundColor: palette.base }}>
+              {wall && (
+                <Img
+                  src={wall.imageUrl}
+                  alt={wall.alt}
+                  width={wall.width}
+                  height={wall.height}
+                  style={{
+                    display: "block",
+                    width: "100%",
+                    height: "auto",
+                    border: 0,
+                    color: palette.meta,
+                    fontSize: "12px",
+                  }}
+                />
+              )}
+              <Section className={`px-8 pb-10 text-center ${wall ? "pt-1" : "pt-10"}`}>
+                <Text
+                  className="m-0 text-[11px] uppercase tracking-[0.24em]"
+                  style={{ color: palette.kicker }}
+                >
+                  Drops of Beauty · Issue {issueNumber}
+                </Text>
+                <Heading
+                  as="h1"
+                  className="mx-auto mt-3 mb-0 max-w-[520px] font-serif text-[34px] font-normal leading-tight"
+                  style={{ color: palette.title }}
+                >
+                  {title}
+                </Heading>
+                <Text className="mt-3 mb-0 text-[13px]" style={{ color: palette.meta }}>
+                  {issueDate} ·{" "}
+                  <Link
+                    href={archiveUrl}
+                    style={{
+                      color: palette.meta,
+                      textDecorationLine: "underline",
+                      textDecorationColor: palette.underline,
+                      textUnderlineOffset: "3px",
+                    }}
+                  >
+                    Read on the web
+                  </Link>
+                </Text>
+              </Section>
             </Section>
 
             <Section className="px-8 py-10">

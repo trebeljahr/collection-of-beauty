@@ -48,6 +48,10 @@ cover:                                          # optional; defaults to artworks
 # cover.focus: { x, y } — optional, percent of width/height that must stay
 # in frame when the /drops card crops a very tall or very wide cover.
 # Alternatively: cover: { src: "/path/foo.webp", alt: "..." } for non-artwork covers.
+wall: green                                     # optional; email header wall colour
+# wall: green, navy, teal, oxblood, plum, slate, or a "#rrggbb" hex.
+# Unset picks one from the works' colour families, never the same as the
+# issue before.
 tags:                                           # optional
   - "impressionism"
   - "spring"

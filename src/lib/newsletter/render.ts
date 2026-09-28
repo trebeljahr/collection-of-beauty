@@ -9,11 +9,14 @@ import WeeklyDigest, {
 } from "../../../emails/weekly-digest";
 import { inlineEmailLinkStyles, markdownToHtml } from "./markdown";
 import type { Edition } from "./types";
+import { editionWallUrl, resolveEditionWall } from "./wall";
 
 export type RenderedEdition = {
   subject: string;
   html: string;
   text: string;
+  /** Header image URL; the send CLI checks it is live before sending. */
+  wallUrl: string;
 };
 
 /** Build the per-artwork shape the email template needs. */
@@ -91,6 +94,8 @@ export async function renderEdition(input: RenderEditionInput): Promise<Rendered
 
   const issueDate = formatIssueDate(edition.publishedAt);
   const archiveUrl = editionArchiveUrl(siteUrl, edition.fileSlug);
+  const wall = resolveEditionWall(edition);
+  const wallUrl = editionWallUrl(siteUrl, edition, wall);
 
   const props: WeeklyDigestProps = {
     issueNumber: edition.number,
@@ -103,12 +108,19 @@ export async function renderEdition(input: RenderEditionInput): Promise<Rendered
     // Default prop is the ListMonk placeholder; setting `null` removes
     // the block entirely for transactional sends.
     unsubscribeUrl: unsubscribeMode === "tx-template" ? null : undefined,
+    wall: {
+      imageUrl: wallUrl,
+      width: wall.layout.width,
+      height: wall.layout.height,
+      alt: wall.alt,
+      palette: wall.palette,
+    },
   };
 
   const element = createElement(WeeklyDigest, props);
   const [html, text] = await Promise.all([render(element), render(element, { plainText: true })]);
   const subject = buildSubject(edition);
-  return { subject, html, text };
+  return { subject, html, text, wallUrl };
 }
 
 function buildSubject(edition: Edition): string {

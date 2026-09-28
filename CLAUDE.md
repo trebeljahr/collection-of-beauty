@@ -234,6 +234,15 @@ required by the Dockerfile — don't remove it.
 - The public archive lives at `/newsletter` (index) and
   `/newsletter/<slug>` (per-edition magazine-style page). Both are
   in the sitemap. Drafts never reach the public surface.
+- The email header is the issue's five works framed on a gallery wall,
+  a JPEG rendered on request by `/newsletter/<slug>/wall.jpg` (sharp,
+  sources fetched from the CDN, kept in memory). Nothing is committed,
+  so **sharp is a runtime dependency** — keep it in `dependencies`.
+  Only the works are in the picture; the title under it is live HTML on
+  the wall's base colour, and the image's bottom rows must stay exactly
+  that colour or a seam shows. Drafts render too, for test sends. The
+  send CLI fetches the image first and refuses a live send when the
+  deployed site does not serve it.
 
 ## Copyright
 

@@ -51,6 +51,12 @@ export type Edition = {
    */
   cover: EditionCover | null;
   /**
+   * Wall colour behind the works in the email header: a name from
+   * `WALL_COLOURS` in wall-layout.ts or a `#rrggbb` hex. Unset picks one
+   * from the works' colour families.
+   */
+  wall?: string;
+  /**
    * Estimated reading time, in minutes, derived from the markdown body
    * at parse time. 0 when the body is empty.
    */

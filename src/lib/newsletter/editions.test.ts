@@ -94,6 +94,17 @@ body`;
     expect(() => parseEdition("0001-test.md", md)).toThrow(/tags\[0\]/);
   });
 
+  it("parses an optional wall colour by name or hex", () => {
+    expect(parseEdition("0001-t.md", minimalFrontmatter()).wall).toBeUndefined();
+    expect(parseEdition("0001-t.md", minimalFrontmatter({ wall: "green" })).wall).toBe("green");
+    expect(parseEdition("0001-t.md", minimalFrontmatter({ wall: '"#3a443e"' })).wall).toBe(
+      "#3a443e",
+    );
+    expect(() => parseEdition("0001-t.md", minimalFrontmatter({ wall: "mauve" }))).toThrow(
+      /"wall" must be one of green, navy/,
+    );
+  });
+
   it("parses cover with artworkId", () => {
     const md = `---
 title: "Test"
