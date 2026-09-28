@@ -112,6 +112,14 @@ required by the Dockerfile — don't remove it.
   word-overlap matching: it mapped "After a success" to "After a failure",
   and a 308 is cached for good. Anything weaker belongs on the 404 page,
   whose "did you mean" matcher is `src/lib/not-found-match.ts`.
+- An artist re-attribution that keeps the work's id is visible to one
+  redirects run only, the one before it is committed. So the generator
+  keeps every artist entry the file already holds while the old slug
+  stays retired and the target exists
+  (`src/lib/artist-slug-redirects.ts`). Commit `redirects.json` with the
+  catalogue change, and delete an artist entry by hand to retire it.
+  Voting over every slug an id ever carried was tried and dropped: its
+  shared-word guard let `gentile-bellini` through to `giovanni-bellini`.
 
 ## Asset URL conventions
 

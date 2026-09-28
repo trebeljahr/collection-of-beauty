@@ -24,10 +24,9 @@
  * works (metadata/takedowns.json) are never mapped: a copyright takedown
  * must keep answering 404.
  *
- * An artist slug maps to the slug its surviving works now carry, when at
- * least two thirds of them agree and the two names share a word. The
- * second test keeps a corrected attribution from redirecting one
- * person's page to another's.
+ * A retired artist slug maps to the slug its works now carry. The rule,
+ * and why the artist entries of the last run are kept, is in
+ * src/lib/artist-slug-redirects.ts.
  *
  * Writes src/data/redirects.json, read by src/lib/redirects.ts. Reads the
  * catalogue from the working tree, so running it straight after
@@ -36,9 +35,10 @@
  */
 
 import { execFileSync } from "node:child_process";
-import { readFileSync, writeFileSync } from "node:fs";
+import { existsSync, readFileSync, writeFileSync } from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
+import { artistSlugRedirects, type SlugMove } from "../src/lib/artist-slug-redirects";
 import { normalizeSegment, tokenize } from "../src/lib/not-found-match";
 import { loadTakedowns } from "./lib/takedowns.mjs";
 
@@ -184,24 +184,19 @@ function main() {
   }
 
   // Artist slugs: follow each retired slug's works to where they are now.
-  const currentSlugs = new Set(current.map((a) => a.artistSlug).filter(Boolean));
-  const votes = new Map<string, Map<string, number>>();
+  const currentById = new Map(current.map((a) => [a.id, a]));
+  const moves: SlugMove[] = [];
   for (const old of history.values()) {
-    if (!old.artistSlug || currentSlugs.has(old.artistSlug)) continue;
-    const nowId = currentIds.has(old.id) ? old.id : artworks[old.id];
-    const now = nowId ? current.find((a) => a.id === nowId) : undefined;
-    if (!now?.artistSlug) continue;
-    const tally = votes.get(old.artistSlug) ?? new Map<string, number>();
-    tally.set(now.artistSlug, (tally.get(now.artistSlug) ?? 0) + 1);
-    votes.set(old.artistSlug, tally);
+    const now = currentById.get(currentIds.has(old.id) ? old.id : artworks[old.id]);
+    if (old.artistSlug && now?.artistSlug) moves.push({ from: old.artistSlug, to: now.artistSlug });
   }
-  const artists: Record<string, string> = {};
-  for (const [slug, tally] of votes) {
-    const total = [...tally.values()].reduce((sum, n) => sum + n, 0);
-    const [winner, count] = [...tally.entries()].sort((a, b) => b[1] - a[1])[0];
-    const shared = tokenize(slug).some((w) => tokenize(winner).includes(w));
-    if (count / total >= 2 / 3 && shared) artists[slug] = winner;
-  }
+  const currentSlugs = new Set(current.flatMap((a) => (a.artistSlug ? [a.artistSlug] : [])));
+  const previous: Record<string, string> = existsSync(OUT_FILE)
+    ? (JSON.parse(readFileSync(OUT_FILE, "utf8")).artists ?? {})
+    : {};
+  const artists = artistSlugRedirects(moves, currentSlugs, previous);
+  const voted = artistSlugRedirects(moves, currentSlugs);
+  const kept = Object.keys(artists).filter((slug) => !Object.hasOwn(voted, slug)).length;
 
   const sorted = (o: Record<string, string>) =>
     Object.fromEntries(Object.entries(o).sort(([a], [b]) => a.localeCompare(b)));
@@ -216,7 +211,8 @@ function main() {
   console.log(
     `${history.size} ids in history, ${current.length} current. Mapped ${Object.keys(artworks).length} artwork ids ` +
       `(commons ${evidence.commons}, file ${evidence.file}, title ${evidence.title}); ` +
-      `${unmapped} left to the 404 page, ${takenDown} taken down. Mapped ${Object.keys(artists).length} artist slugs.`,
+      `${unmapped} left to the 404 page, ${takenDown} taken down. Mapped ${Object.keys(artists).length} artist slugs ` +
+      `(${kept} kept from the last run).`,
   );
 }
 
