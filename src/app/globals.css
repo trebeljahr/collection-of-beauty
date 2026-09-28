@@ -417,11 +417,11 @@
    moment. The picture's copy is what shows through while the img fades
    in (ri-reveal) once its pixels land. The progressive frame paints it
    too, and so does its 256 px thumbnail until that img's pixels cover
-   it: the thumbnail is the tile's first <img> there, the one the
-   view-transition snapshot takes. An unset variable computes to `none`,
-   so tiles without a hash paint exactly as before. --ri-blur-size is
-   "100% 100%" when the box already has the work's aspect, cover when an
-   object-cover image is cropped. */
+   it. There the view transition names the frame, not an img (see
+   artwork-gallery.tsx). An unset variable computes to `none`, so tiles
+   without a hash paint exactly as before. --ri-blur-size is "100% 100%"
+   when the box already has the work's aspect, cover when an object-cover
+   image is cropped. */
 .ri-blur {
   display: block;
 }

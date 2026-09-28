@@ -69,9 +69,9 @@ type Props = {
  * itself at every moment. The picture's copy is what shows through when
  * the img, on its load event, runs a short opacity 0 -> 1 keyframe: the
  * blur beneath is identical, so the pixels cross-fade in over it. No
- * extra <img> for the blur (the FLIP takes the tile's first img), and no
- * `data-object-key` on anything but the real image (image-cache.ts
- * records every one that loads).
+ * `data-object-key` on anything but the real image: image-cache.ts
+ * records every one that loads, and the FLIP and the back-flip find the
+ * tile's image by it.
  */
 export function ThumbHashPicture({
   thumbHash,

@@ -604,9 +604,14 @@ function GalleryTileLink({
   const transitionNav = useTransitionNav();
   const onClick = (e: React.MouseEvent<HTMLAnchorElement>) => {
     const link = e.currentTarget;
-    const img = link.querySelector("img");
+    // The real image, the only <img> with data-object-key. A progressive
+    // tile's first <img> is its 256 px thumbnail, blurred and scaled 8%
+    // past the frame. Its sharp layer is no better a target: it stays
+    // transparent until its pixels land, and would snapshot as nothing.
+    // The frame around it shows whatever the tile shows, in the same box.
+    const img = link.querySelector<HTMLImageElement>("img[data-object-key]");
     transitionNav(e, photo.href, {
-      vtElement: img,
+      vtElement: img?.closest<HTMLElement>(".ri-frame") ?? img,
       vtName: artworkHeroVtName(photo.key),
     });
     // A tile peeking over the fold is mid-reveal: translated and faded.

@@ -1,6 +1,6 @@
 "use client";
 
-import { type CSSProperties, useEffect, useRef, useState } from "react";
+import { type CSSProperties, useLayoutEffect, useRef, useState } from "react";
 import { type ThumbHashFit, thumbHashBlurStyle } from "@/components/thumbhash-picture";
 import { getLoadedVariant } from "@/lib/image-cache";
 import { thumbHashBlurUrl } from "@/lib/thumbhash-grid";
@@ -58,12 +58,15 @@ const LQIP_WIDTH = 256;
  * doesn't flash empty→sharp.
  *
  * The thumb sits under the shimmer because it paints the thumbHash blur
- * as its own background until its pixels arrive. It is the first <img>
- * in the tile, which is the element the view-transition FLIP snapshots
- * and the back-flip measures, so it has to show the preview by itself;
- * the frame's copy beneath it isn't in that snapshot. Above the thumb,
- * the sweep would otherwise be hidden by that opaque background from the
+ * as its own background until its pixels arrive. Above the thumb, the
+ * sweep would otherwise be hidden by that opaque background from the
  * first frame.
+ *
+ * Neither <img> is what the view-transition FLIP snapshots. The thumb is
+ * blurred and scaled 8% past the frame, and the sharp layer stays
+ * transparent until its pixels land, so the gallery names the frame. The
+ * back-flip measures the sharp layer, whose box is the frame's. Both find
+ * it by `data-object-key`, which only the sharp layer carries.
  *
  * This only ever mounts after hydration, replacing a plain tile once the
  * connection reads as slow. The plain tile already painted the blur, so
@@ -92,16 +95,21 @@ export function ProgressiveImage({
   workHeight,
   deferThumbHash,
 }: Props) {
-  const [loaded, setLoaded] = useState(false);
+  // A variant this session already loaded, most often by the plain tile
+  // this one just replaced: paint it straight away, no shimmer, no fade.
+  // Read during render, so the first frame already shows it; an effect
+  // runs after that frame is painted, and the tile would blink to the
+  // blur and back. Safe to read here because this never renders on the
+  // server or in a hydration render (see above).
+  const [instant, setInstant] = useState(() => getLoadedVariant(objectKey) != null);
+  const [loaded, setLoaded] = useState(instant);
   const [thumbLoaded, setThumbLoaded] = useState(false);
-  const [instant, setInstant] = useState(false);
   const imgRef = useRef<HTMLImageElement>(null);
 
-  useEffect(() => {
-    // A fast cache hit can finish decoding before React attaches onLoad
-    // (the SSR'd <img> resolves during hydration), and a prior page may
-    // have left this variant in the HTTP cache. Either way: paint it
-    // straight away, no shimmer, no fade.
+  useLayoutEffect(() => {
+    // A memory-cache hit the registry hasn't seen can be complete on
+    // insert, before React attaches onLoad. Layout effect, not effect,
+    // for the same reason as above: it lands before the first paint.
     const img = imgRef.current;
     if ((img?.complete && img.naturalWidth > 0) || getLoadedVariant(objectKey)) {
       setInstant(true);

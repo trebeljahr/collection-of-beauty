@@ -213,7 +213,10 @@ async function attemptFlip(pass: ActivePass, reveal: () => void): Promise<void> 
   const snapshot = readFreshSnapshot();
   if (!snapshot) return;
 
-  const selector = `[data-artwork-id="${cssEscape(snapshot.id)}"] img`;
+  // The real image, which is the only one carrying data-object-key. A
+  // progressive tile's first <img> is its 256 px thumbnail, scaled 8%
+  // past the frame, so the clone would land too big and then snap.
+  const selector = `[data-artwork-id="${cssEscape(snapshot.id)}"] img[data-object-key]`;
   let tile = document.querySelector<HTMLImageElement>(selector);
 
   // Tile not in DOM yet — ask the gallery to load more, then re-check.
