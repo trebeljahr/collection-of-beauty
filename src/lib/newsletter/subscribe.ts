@@ -115,7 +115,7 @@ export type SendConfirmationEmailParams = {
 export async function sendConfirmationEmail(params: SendConfirmationEmailParams): Promise<void> {
   // The recipient must exist as a ListMonk subscriber before /api/tx
   // will accept the send. It stays off the list until the link is
-  // clicked: the list is single opt-in, so any member gets campaigns.
+  // clicked (see "Double opt-in and list membership" in listmonk.ts).
   await ensureSubscriber(params.to);
 
   const element = createElement(ConfirmSubscription, {

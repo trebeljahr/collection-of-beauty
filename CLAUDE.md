@@ -255,16 +255,21 @@ required by the Dockerfile — don't remove it.
   app needs (`LISTMONK_TX_TEMPLATE_ID` + `LISTMONK_CAMPAIGN_TEMPLATE_ID`)
   are created idempotently by `pnpm listmonk:bootstrap`; the script
   prints the ids to paste into both env files.
-- **Double opt-in is the app's, not ListMonk's.** The subscribe form
+- **The app sends the opt-in email, not ListMonk.** The subscribe form
   creates the ListMonk subscriber on *no* list (`ensureSubscriber`) so
   `/api/tx` can deliver the HMAC confirmation email; only the confirm
-  route adds `LISTMONK_LIST_ID`, as `confirmed`. The lists are
-  `optin: single`, and ListMonk sends single-opt-in campaigns to every
-  member not `unsubscribed`, `unconfirmed` included — so any code that
-  adds a membership before the click mails that address every issue.
-  Don't flip the lists to double opt-in either: with
-  `app.send_optin_confirmation` on, ListMonk would send its own opt-in
-  email next to ours.
+  route adds `LISTMONK_LIST_ID`, as `confirmed`. Lists 3 (prod) and 4
+  (test) are `optin: double` since 28 September 2026 (Hatchkit had
+  created them single), so ListMonk campaigns reach `confirmed` members
+  only. That holds only while membership is added as `confirmed`, with
+  `preconfirm_subscriptions: true` on every create: ListMonk sends its
+  own opt-in email (`app.send_optin_confirmation` is on) for an
+  `unconfirmed` membership on a double list, next to ours.
+- **Confirmation emails that never arrive** are usually SES, not code.
+  SES in eu-west-1 is in sandbox and delivers only to verified
+  addresses. `/api/tx` queues the email and returns 200 before SMTP
+  runs, so the form shows "Check your inbox" either way. The SES
+  rejection shows only in ListMonk's `GET /api/logs`.
 - The public archive lives at `/newsletter` (index) and
   `/newsletter/<slug>` (per-edition magazine-style page). Both are
   in the sitemap. Drafts never reach the public surface.

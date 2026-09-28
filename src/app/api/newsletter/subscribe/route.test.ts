@@ -123,8 +123,8 @@ describe("POST /api/newsletter/subscribe", () => {
   });
 });
 
-// The list is single opt-in, so ListMonk sends campaigns to every member
-// that isn't `unsubscribed`, `unconfirmed` included. These run the real
+// An `unconfirmed` membership either gets campaigns (single opt-in list)
+// or a second, ListMonk-sent opt-in email (double). These run the real
 // `sendConfirmationEmail` against a stubbed ListMonk to prove the form
 // never touches list membership; only the confirm route may add it.
 const actual = await vi.importActual<typeof import("@/lib/newsletter/subscribe")>(

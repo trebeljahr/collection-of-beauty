@@ -167,13 +167,17 @@ export async function isConfirmedOnList(email: string): Promise<boolean> {
 
 // Double opt-in and list membership
 //
-// The lists are `optin: single` on a ListMonk instance shared with other
-// projects. ListMonk sends a single-opt-in campaign to every list member
-// whose status is not `unsubscribed`, `unconfirmed` included. So a list
-// membership is a delivery, whatever its status: an address goes on the
-// list only after the HMAC link in our confirmation email is clicked.
-// Until then it exists as a subscriber with no lists, which is all
-// `/api/tx` needs to deliver the confirmation email.
+// An address goes on the list only after the HMAC link in our
+// confirmation email is clicked, and then as `confirmed`. Until then it
+// exists as a subscriber with no lists, which is all `/api/tx` needs to
+// deliver the confirmation email.
+//
+// The lists are `optin: double` (since 2026-09-28), so campaigns reach
+// `confirmed` members only. That is a second guard, not the mechanism:
+// ListMonk sends its own opt-in email for any `unconfirmed` membership on
+// a double list created or updated without `preconfirm_subscriptions`,
+// next to ours. And if a list is ever single again, ListMonk mails every
+// member not `unsubscribed`, `unconfirmed` included.
 
 type CreateResp = { data: ListmonkSubscriber };
 
