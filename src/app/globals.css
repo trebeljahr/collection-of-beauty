@@ -710,19 +710,19 @@
     inset 0 0 0 1px oklch(0 0 0 / 0.1);
 }
 
-/* What hangs in the empty frame is the 404 notice itself. Stacked on a
-   phone the frame spans the column and is only as tall as the text, so
-   the work beside it still starts above the fold. Side by side it takes
-   the 4:5 box a portrait would (EMPTY_RATIO in not-found-wall.tsx), and
-   a long path grows it rather than spilling out. */
+/* What hangs in the empty frame is the 404 notice itself. On a phone
+   the frame spans the column and is only as tall as the text, so the
+   work below still starts on the first screen. Wider, it takes a 3:2
+   landscape box, low enough to leave the work below in reach, and a long
+   path grows it rather than spilling out. */
 .wall-notice {
   padding: 1.75rem 1rem;
 }
 @media (min-width: 768px) {
   .wall-notice {
-    aspect-ratio: 4 / 5;
-    width: min(var(--wall-w), calc(var(--wall-h) * 0.8));
-    padding: 1.5rem;
+    aspect-ratio: 3 / 2;
+    width: 32rem;
+    padding: 2rem 3rem;
   }
 }
 
@@ -740,9 +740,9 @@
   }
 }
 
-/* Side by side, both frames hang on one centre line, as in a gallery:
-   each sits centred in a slot as tall as the tallest frame can be, so a
-   landscape beside a portrait doesn't ride up and lift its label. */
+/* The work hangs centred in a slot as tall as the tallest work can be,
+   so a landscape after a portrait doesn't pull "Show me another" out
+   from under the pointer. */
 @media (min-width: 768px) {
   .wall-slot {
     display: flex;

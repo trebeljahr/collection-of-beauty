@@ -12,8 +12,8 @@ const LINK =
   "rounded-sm underline underline-offset-2 hover:text-[var(--foreground)] focus:outline-none focus-visible:ring-2 focus-visible:ring-[var(--ring)]";
 
 /**
- * Static shell. Everything that depends on the URL — the path on the
- * label, the "did you mean" match, the work on the wall — is filled in
+ * Static shell. Everything that depends on the URL — the path in the
+ * frame, the "did you mean" match, the work on the wall — is filled in
  * by <NotFoundWall> in the browser. Renamed ids and near-miss spellings
  * of /artwork and /artist URLs never get here: those pages redirect
  * first (src/lib/redirects.ts).

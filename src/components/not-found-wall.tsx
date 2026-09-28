@@ -11,12 +11,13 @@ import type { NotFoundItem, NotFoundResponse } from "@/lib/not-found-match";
 
 /**
  * The 404 page as a museum wall: an empty frame where the requested page
- * should hang, with the notice and the URL written on the wall inside it,
- * and beside it a work that is here.
+ * should hang, with the notice and the URL written on the wall inside it
+ * and a wall label that catalogues the gap as a work. Below it hangs a
+ * work that is here.
  *
  * Which work depends on how sure `/api/not-found` is about what the
  * visitor meant. A clear match (a typo, a cut-off link, a renamed work)
- * hangs that work and asks "Did you mean this?". Several plausible
+ * hangs that work under "Did you mean this work?". Several plausible
  * matches go in a row underneath and a random work hangs instead, as it
  * does when nothing matched. A clear match on a page without a picture
  * (a colour, the timeline) is named inside the empty frame itself.
@@ -38,10 +39,18 @@ const TEXT_LINK =
  *  `--wall-w` the widest; a work's box is whichever binds first at its
  *  aspect ratio. The empty frame's box is `.wall-notice` in globals.css. */
 const WALL_VARS =
-  "[--wall-h:min(40svh,20rem)] [--wall-w:calc(100vw-5.5rem)] md:[--wall-h:min(56svh,26rem)] md:[--wall-w:24rem] lg:[--wall-w:28rem]";
+  "[--wall-h:min(40svh,20rem)] [--wall-w:calc(100vw-5.5rem)] md:[--wall-h:min(60svh,32rem)] md:[--wall-w:40rem]";
 
-/** Portrait, like most of what hangs here. `.wall-notice` uses the same. */
+/** Portrait, like most of what hangs here: the loading placeholder. */
 const EMPTY_RATIO = 4 / 5;
+
+/** The line between the empty frame and the work below it. */
+const LEAD_IN: Record<NotFoundItem["kind"] | "random", string> = {
+  artwork: "Did you mean this work?",
+  artist: "Did you mean this artist?",
+  page: "Did you mean this page?",
+  random: "No worries. Here is a random work from the collection instead.",
+};
 
 type Featured =
   | { kind: "match"; item: NotFoundItem & { work: ArtworkListing } }
@@ -106,16 +115,22 @@ export function NotFoundWall() {
 
   return (
     <div className={`flex flex-col gap-14 ${WALL_VARS}`}>
-      <div className="flex flex-col items-center gap-10 md:flex-row md:items-start md:justify-center md:gap-16">
-        <div className="wall-slot w-full max-w-md md:w-auto md:max-w-none">
-          <div className="wall-frame wall-frame-empty w-full md:w-auto">
+      <div className="flex flex-col items-center">
+        <figure className="flex w-full flex-col items-center gap-5">
+          <div className="wall-frame wall-frame-empty w-full max-w-md md:w-auto md:max-w-none">
             <div className="wall-frame-mat">
               <div className="wall-notice flex flex-col items-center justify-center text-center">
-                <h1 className="font-serif text-2xl leading-snug">Page not found</h1>
+                <h1 className="font-serif">
+                  <span className="block text-6xl leading-none tracking-tight md:text-8xl">
+                    404
+                  </span>
+                  <span className="mt-3 block text-xl leading-snug md:text-2xl">
+                    Page not found
+                  </span>
+                </h1>
                 <p className="mt-2 min-h-4 max-w-full font-mono text-xs break-all text-[var(--muted-foreground)]">
                   {path}
                 </p>
-                <p className="mt-0.5 text-xs text-[var(--muted-foreground)]">HTTP 404</p>
                 {namedPage ? (
                   <p className="mt-4 text-sm text-balance">
                     Did you mean{" "}
@@ -132,7 +147,24 @@ export function NotFoundWall() {
               </div>
             </div>
           </div>
-        </div>
+          {/* The gap, catalogued like everything else on the wall. */}
+          <WallLabel>
+            <p className="font-serif text-base leading-snug">Untitled (404)</p>
+            <p className="mt-0.5 text-xs text-[var(--muted-foreground)]">
+              Artist unknown · undated
+            </p>
+            <p className="mt-2 text-xs leading-relaxed text-[var(--muted-foreground)]">
+              When the Mona Lisa was stolen in 1911, crowds came to the Louvre to look at the four
+              empty hooks. Kafka was one of them.
+            </p>
+          </WallLabel>
+        </figure>
+
+        {/* Holds its line while the suggestion loads, so the frame below
+            doesn't jump when the text arrives. */}
+        <h2 className="mt-10 mb-6 min-h-7 max-w-md text-center font-serif text-xl text-balance md:mt-20 md:mb-10">
+          {featured && LEAD_IN[featured.kind === "match" ? featured.item.kind : "random"]}
+        </h2>
 
         <figure className="flex flex-col items-center gap-5">
           <div className="wall-slot">
@@ -146,7 +178,7 @@ export function NotFoundWall() {
               />
             ) : (
               // Holds the space while the suggestion loads, so the label
-              // beside it doesn't jump when the work arrives.
+              // below doesn't jump when the work arrives.
               <div aria-hidden="true" className="wall-frame wall-frame-empty opacity-40">
                 <div className="wall-frame-mat">
                   <div style={boxStyle(EMPTY_RATIO, "var(--wall-h)", "var(--wall-w)")} />
@@ -157,9 +189,6 @@ export function NotFoundWall() {
           {featured?.kind === "match" && <MatchLabel item={featured.item} />}
           {featured?.kind === "random" && (
             <WallLabel>
-              <p className="text-[0.6875rem] tracking-wide text-[var(--muted-foreground)] uppercase">
-                A random work from the collection
-              </p>
               <WorkCaption work={featured.work} />
               <div className="mt-3 flex flex-wrap gap-2">
                 <a href="/surprise" onClick={onAnother} className={PRIMARY_BUTTON}>
@@ -250,7 +279,7 @@ function HungWork({
           <ResponsiveImage
             objectKey={work.objectKey}
             alt={artworkAlt(work)}
-            sizes={`(max-width: 768px) calc(100vw - 5.5rem), min(28rem, calc(min(56vh, 26rem) * ${ratio.toFixed(3)}))`}
+            sizes={`(max-width: 768px) calc(100vw - 5.5rem), min(40rem, calc(min(60vh, 32rem) * ${ratio.toFixed(3)}))`}
             variantWidths={work.variantWidths}
             dominantColor={work.dominantColor}
             // The box already has the work's aspect, so the blur
@@ -281,7 +310,7 @@ function WallLabel({ children }: { children: ReactNode }) {
 function WorkCaption({ work }: { work: ArtworkListing }) {
   return (
     <>
-      <p className="mt-1 font-serif text-base leading-snug text-balance">{displayTitle(work)}</p>
+      <p className="font-serif text-base leading-snug text-balance">{displayTitle(work)}</p>
       <p className="mt-0.5 text-xs text-[var(--muted-foreground)]">
         {work.artist ?? "Artist unknown"}
         {work.year != null && ` · ${work.year}`}
@@ -290,23 +319,14 @@ function WorkCaption({ work }: { work: ArtworkListing }) {
   );
 }
 
-const MATCH_EYEBROW: Record<NotFoundItem["kind"], string> = {
-  artwork: "Did you mean this work?",
-  artist: "Did you mean this artist?",
-  page: "Did you mean this page?",
-};
-
 function MatchLabel({ item }: { item: NotFoundItem & { work: ArtworkListing } }) {
   return (
     <WallLabel>
-      <p className="text-[0.6875rem] tracking-wide text-[var(--muted-foreground)] uppercase">
-        {MATCH_EYEBROW[item.kind]}
-      </p>
       {item.kind === "artwork" ? (
         <WorkCaption work={item.work} />
       ) : (
         <>
-          <p className="mt-1 font-serif text-base leading-snug text-balance">{item.label}</p>
+          <p className="font-serif text-base leading-snug text-balance">{item.label}</p>
           <p className="mt-0.5 text-xs text-[var(--muted-foreground)]">{subline(item)}</p>
         </>
       )}
