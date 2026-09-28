@@ -48,8 +48,6 @@ type Featured =
   | { kind: "match"; item: NotFoundItem & { work: ArtworkListing } }
   | { kind: "random"; work: ArtworkListing };
 
-type PlausibleFn = (event: string, options?: { props?: Record<string, string> }) => void;
-
 export function NotFoundWall() {
   const pathname = usePathname();
   const [path, setPath] = useState<string | null>(null);
@@ -74,10 +72,6 @@ export function NotFoundWall() {
       .then((body) => {
         if (!body) return;
         setData(body);
-        const plausible = (window as Window & { plausible?: PlausibleFn }).plausible;
-        plausible?.("404", {
-          props: { path: current, match: body.suggestion?.confidence ?? "none" },
-        });
       })
       .catch(() => {
         // Offline or aborted: the frame, the label and the links below
