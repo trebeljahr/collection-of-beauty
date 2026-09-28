@@ -999,6 +999,16 @@
     "describedAt": "https://clevelandart.org/art/1965.231",
     "sourceLinks": []
   },
+  "Albrecht_Dürer,_Selbstbildnis_mit_26_Jahren_(Prado,_Madrid).jpg": {
+    "wikidataId": "Q2388965",
+    "wikidataUrl": "https://www.wikidata.org/wiki/Q2388965",
+    "collection": "Museo del Prado",
+    "collectionWikidataId": "Q160112",
+    "location": "Prado Hall 055B",
+    "inventory": "P002179",
+    "describedAt": null,
+    "sourceLinks": []
+  },
   "Albrecht_Dürer,_The_Flagellation,_c._1497,_NGA_6736.jpg": {
     "wikidataId": "Q18338552",
     "wikidataUrl": "https://www.wikidata.org/wiki/Q18338552",
@@ -10557,16 +10567,6 @@
     "collectionWikidataId": "Q840886",
     "location": "Museum of Fine Arts, Budapest",
     "inventory": "58.43",
-    "describedAt": null,
-    "sourceLinks": []
-  },
-  "Selbstporträt,_by_Albrecht_Dürer,_from_Prado_in_Google_Earth.jpg": {
-    "wikidataId": "Q2388965",
-    "wikidataUrl": "https://www.wikidata.org/wiki/Q2388965",
-    "collection": "Museo del Prado",
-    "collectionWikidataId": "Q160112",
-    "location": "Prado Hall 055B",
-    "inventory": "P002179",
     "describedAt": null,
     "sourceLinks": []
   },
