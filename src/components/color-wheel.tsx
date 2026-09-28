@@ -1,4 +1,3 @@
-import Link from "next/link";
 import type { ColorBucketCounts } from "@/lib/artwork-colors";
 import { COLOR_BUCKETS, type ColorBucketId } from "@/lib/color-buckets.mjs";
 
@@ -6,10 +5,6 @@ type Props = {
   counts: ColorBucketCounts;
   /** Family whose segment is drawn pulled out and outlined. */
   active?: ColorBucketId | null;
-  /** Show the labelled list under the wheel. On at the `/colours` index,
-   *  off where the wheel is a secondary navigation aid beside a heading
-   *  that already names the family. */
-  showLegend?: boolean;
 };
 
 const OUTER = 160;
@@ -48,20 +43,20 @@ function segmentPath(cx: number, cy: number, startDeg: number, endDeg: number): 
  *  family, sized equally rather than by population — the ring is a
  *  chooser, not a chart, and scaling segments by count would make the
  *  rarest families (pink has a few dozen works) impossible to hit.
- *  Populations are stated as numbers in the legend instead.
+ *  Populations are stated as numbers where the wheel is used: beside each
+ *  family's row on `/colours`, under the heading on a family page.
  *
  *  Rendered server-side as plain SVG `<a>` links, so it needs no client
  *  JavaScript and every segment is a real, focusable, crawlable link.
  *  Deliberately not `next/link` here: inside `<svg>` React creates an SVG
  *  anchor, whose `href` is an `SVGAnimatedString` rather than a string,
- *  which is not what the router's click handling expects. The legend
- *  below is in HTML context and does use `next/link`.
+ *  which is not what the router's click handling expects.
  */
-export function ColorWheel({ counts, active = null, showLegend = true }: Props) {
+export function ColorWheel({ counts, active = null }: Props) {
   const step = 360 / COLOR_BUCKETS.length;
 
   return (
-    <div className="flex flex-col items-center gap-6">
+    <div className="flex flex-col items-center">
       <svg
         viewBox={`0 0 ${VIEWBOX} ${VIEWBOX}`}
         role="group"
@@ -117,40 +112,6 @@ export function ColorWheel({ counts, active = null, showLegend = true }: Props) 
           {active ? "works" : "families"}
         </text>
       </svg>
-
-      {/* The legend is not decoration: it carries the labels and counts
-          the wheel can only express as accessible names, and it is what a
-          narrow screen or a pointer user actually reads. */}
-      {showLegend && (
-        <ul className="flex flex-wrap justify-center gap-x-4 gap-y-2 text-sm">
-          {COLOR_BUCKETS.map((bucket) => {
-            const count = counts[bucket.id] ?? 0;
-            const isActive = bucket.id === active;
-            return (
-              <li key={bucket.id}>
-                <Link
-                  href={`/colours/${bucket.id}`}
-                  className={`flex items-center gap-1.5 rounded-sm focus:outline-none focus-visible:ring-2 focus-visible:ring-[var(--ring)] ${
-                    isActive
-                      ? "font-medium"
-                      : "text-[var(--muted-foreground)] hover:text-[var(--foreground)]"
-                  }`}
-                >
-                  <span
-                    aria-hidden
-                    className="size-3 rounded-full ring-1 ring-black/15 ring-inset"
-                    style={{ backgroundColor: bucket.swatch }}
-                  />
-                  {bucket.label}
-                  <span className="tabular-nums text-xs text-[var(--muted-foreground)]">
-                    {count}
-                  </span>
-                </Link>
-              </li>
-            );
-          })}
-        </ul>
-      )}
     </div>
   );
 }

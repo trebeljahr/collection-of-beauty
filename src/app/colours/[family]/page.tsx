@@ -116,7 +116,7 @@ export default async function ColourFamilyPage({ params }: { params: Promise<Par
         </header>
 
         <div className="md:w-[280px]">
-          <ColorWheel counts={allColorBucketCounts()} active={bucket.id} showLegend={false} />
+          <ColorWheel counts={allColorBucketCounts()} active={bucket.id} />
         </div>
       </div>
 

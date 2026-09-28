@@ -1,10 +1,12 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { ColorWheel } from "@/components/color-wheel";
+import { ResponsiveImage } from "@/components/responsive-image";
 import { allColorBucketCounts } from "@/lib/artwork-colors";
-import { COLOR_BUCKETS } from "@/lib/color-buckets.mjs";
-import { summary } from "@/lib/data";
+import { colorFamilyStrips, type StripFrame, stripCount } from "@/lib/color-strips";
+import { type ArtworkListing, summary } from "@/lib/data";
 import { buildOpenGraph } from "@/lib/seo";
+import { cn } from "@/lib/utils";
 
 // Rendered entirely from the bundled artwork JSON — nothing here reads a
 // request, so match the sitemap's daily window instead of re-rendering.
@@ -27,62 +29,139 @@ export const metadata: Metadata = {
   }),
 };
 
+/** Strip geometry per breakpoint, smallest first. `width` is the strip's
+ *  width at `viewport`, so it is tied to the layout below: `px-4` page
+ *  padding, the `max-w-7xl` column, and from `lg` the 10rem label column
+ *  and its 2rem gap. `gap` matches `gap-1.5 sm:gap-2` on the strip. The
+ *  classes are literal so Tailwind sees them. */
+const FRAMES: (StripFrame & { viewport: number; show: string; hide: string })[] = [
+  { viewport: 390, width: 358, height: 112, gap: 6, show: "block", hide: "hidden" },
+  { viewport: 640, width: 608, height: 140, gap: 8, show: "sm:block", hide: "sm:hidden" },
+  { viewport: 768, width: 736, height: 150, gap: 8, show: "md:block", hide: "md:hidden" },
+  { viewport: 1024, width: 800, height: 160, gap: 8, show: "lg:block", hide: "lg:hidden" },
+  { viewport: 1280, width: 1056, height: 180, gap: 8, show: "xl:block", hide: "xl:hidden" },
+];
+
+/** SSR'd tiles that carry their ThumbHash blur in the HTML; the rest add
+ *  it after hydration. Same budget, for the same reason, as
+ *  EAGER_BLUR_TILES in artwork-gallery.tsx, which is a client module and
+ *  so can't lend its constant to a server component. */
+const EAGER_BLUR_TILES = 24;
+
+type Tile = { work: ArtworkListing; className: string; sizes: string; aspect: number };
+
+/** A family's works laid out as one justified line per breakpoint: every
+ *  work at the row's height and its own aspect, uncropped. `stripCount`
+ *  picks how many show at each breakpoint and CSS hides the rest, so the
+ *  line fills the strip exactly at every width without measuring it. */
+function stripTiles(works: ArtworkListing[]): Tile[] {
+  // pickColorStrip only passes works with a size.
+  const aspectOf = (work: ArtworkListing) => (work.width ?? 1) / (work.height ?? 1);
+  const counts = FRAMES.map((frame) => stripCount(works, frame));
+  // Each frame's row height, which is what a tile's width follows from.
+  const rowHeights = FRAMES.map((frame, i) => {
+    const aspects = works.slice(0, counts[i]).reduce((sum, w) => sum + aspectOf(w), 0);
+    return (frame.width - (counts[i] - 1) * frame.gap) / aspects;
+  });
+  const shown = Math.max(...counts);
+
+  return works.slice(0, shown).map((work, index) => {
+    const aspect = aspectOf(work);
+    const className = FRAMES.map((frame, i) => (index < counts[i] ? frame.show : frame.hide)).join(
+      " ",
+    );
+    // Widest breakpoint first, as `sizes` takes the first match. Below
+    // `xl` the strip, and so every tile, widens with the viewport until
+    // the next breakpoint, so those are vw; from `xl` the column is capped
+    // and the width is fixed.
+    const sizes = FRAMES.map((frame, i) => {
+      const px = Math.ceil(aspect * rowHeights[i]);
+      const size =
+        i === FRAMES.length - 1 ? `${px}px` : `${Math.ceil((px / frame.viewport) * 100)}vw`;
+      return i === 0 ? size : `(min-width: ${frame.viewport}px) ${size}`;
+    })
+      .reverse()
+      .join(", ");
+    return { work, className, sizes, aspect };
+  });
+}
+
 export default function ColoursPage() {
   const counts = allColorBucketCounts();
+  let tilesBefore = 0;
+  const rows = colorFamilyStrips().map(({ bucket, works }) => {
+    const tiles = stripTiles(works);
+    const firstTile = tilesBefore;
+    tilesBefore += tiles.length;
+    return { bucket, tiles, firstTile };
+  });
 
   return (
-    <div className="mx-auto max-w-4xl px-4 py-8 md:py-12">
+    <div className="mx-auto max-w-7xl px-4 py-8 md:py-12">
       <header className="mb-10 text-center">
         <h1 className="font-serif text-3xl md:text-4xl">Colours</h1>
       </header>
 
-      {/* Below `md` the wheel's legend is hidden and the tile grid below
-          takes over: a legend row is a single 20px line of text, under half
-          the ~44px a thumb needs, and this page is nothing but a chooser, so
-          its only navigation must not be the hardest thing on the site to
-          hit. On a pointer the legend is fine and stays exactly as it was —
-          hence the viewport gate rather than `showLegend={false}`, which
-          would have stripped the labels and counts off the desktop page too.
-          The wheel segments are the visual index in both cases.
+      <ColorWheel counts={counts} />
 
-          The gate is caller-side CSS because `showLegend` is a boolean the
-          server evaluates once, with no viewport to consult. It reaches into
-          the wheel's markup, which is only safe because that component
-          renders exactly one `<ul>` — the legend. A `legendClassName`-style
-          prop on ColorWheel would express this without the coupling. */}
-      <div className="max-md:[&_ul]:hidden">
-        <ColorWheel counts={counts} />
-      </div>
-
-      {/* Mobile-only twin of the legend: same twelve destinations, same
-          labels and counts, as targets a thumb can land on. Hidden from `md`
-          up, where the legend above is back and this would just repeat it. */}
-      <ul className="mt-8 grid grid-cols-2 gap-2 sm:grid-cols-3 md:hidden">
-        {COLOR_BUCKETS.map((bucket) => {
+      {/* One row per family, each a single link to that family's page,
+          whose grid opens on the same works: the strip is the head of its
+          strongest-first order. The whole row is the target, so on a phone
+          this is also the list of twelve destinations the wheel's thin
+          segments can't be. */}
+      <ul className="mt-12 space-y-8 md:mt-16 lg:space-y-10">
+        {rows.map(({ bucket, tiles, firstTile }) => {
           const count = counts[bucket.id] ?? 0;
           return (
             <li key={bucket.id}>
               <Link
                 href={`/colours/${bucket.id}`}
-                /* min-h-12 (48px) rather than the bare 44px minimum: two
-                   stacked lines plus padding already exceed it, and the
-                   floor only matters for the shortest label. */
-                className="flex min-h-12 items-center gap-3 rounded-md border border-[var(--border)] px-3 py-2 transition-colors hover:border-[var(--ring)] hover:bg-[var(--muted)] focus:outline-none focus-visible:ring-2 focus-visible:ring-[var(--ring)]"
+                className="group block rounded-sm focus:outline-none focus-visible:ring-2 focus-visible:ring-[var(--ring)] focus-visible:ring-offset-4 focus-visible:ring-offset-[var(--background)] lg:grid lg:grid-cols-[10rem_minmax(0,1fr)] lg:items-center lg:gap-8"
               >
-                <span
-                  aria-hidden
-                  /* Ring is a flat black alpha rather than a token: it has
-                     to read as an edge against both the pale white swatch
-                     and the near-black one, in either theme. */
-                  className="size-6 shrink-0 rounded-full ring-1 ring-black/15 ring-inset"
-                  style={{ backgroundColor: bucket.swatch }}
-                />
-                <span className="min-w-0">
-                  <span className="block truncate text-sm">{bucket.label}</span>
-                  <span className="block text-xs tabular-nums text-[var(--muted-foreground)]">
+                <div className="mb-3 flex items-baseline gap-3 lg:mb-0 lg:flex-col lg:items-start lg:gap-1">
+                  <h2 className="flex items-center gap-2.5 font-serif text-xl leading-tight">
+                    <span
+                      aria-hidden
+                      /* Ring is a flat black alpha rather than a token: it
+                         has to read as an edge against both the pale white
+                         swatch and the near-black one. */
+                      className="size-4 shrink-0 rounded-full ring-1 ring-black/15 ring-inset"
+                      style={{ backgroundColor: bucket.swatch }}
+                    />
+                    <span className="underline-offset-4 group-hover:underline">{bucket.label}</span>
+                  </h2>
+                  <p className="text-sm tabular-nums text-[var(--muted-foreground)] lg:pl-[1.625rem]">
                     {count.toLocaleString()} work{count === 1 ? "" : "s"}
-                  </span>
-                </span>
+                  </p>
+                </div>
+                <div className="flex items-start gap-1.5 sm:gap-2">
+                  {tiles.map(({ work, className, sizes, aspect }, i) => (
+                    <div
+                      key={work.id}
+                      className={cn("relative", className)}
+                      // Grow in proportion to the aspect ratio from a zero
+                      // basis, and every tile in the line lands at the
+                      // same height: the justified row, in CSS alone.
+                      style={{ flex: `${aspect} 1 0%`, aspectRatio: aspect }}
+                    >
+                      {/* alt="" because the link is named by the family
+                            and its count; these works are that family's
+                            face, not destinations of their own. */}
+                      <ResponsiveImage
+                        objectKey={work.objectKey}
+                        variantWidths={work.variantWidths}
+                        alt=""
+                        fill
+                        sizes={sizes}
+                        dominantColor={work.dominantColor}
+                        thumbHash={work.thumbHash}
+                        workWidth={work.width}
+                        workHeight={work.height}
+                        deferThumbHash={firstTile + i >= EAGER_BLUR_TILES}
+                      />
+                    </div>
+                  ))}
+                </div>
               </Link>
             </li>
           );
