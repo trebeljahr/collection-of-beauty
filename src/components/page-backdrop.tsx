@@ -36,11 +36,10 @@ const BANNER =
 const STRIP_BANNER = "[--backdrop-banner:9rem] md:[--backdrop-banner:12rem]";
 
 /** The veil over the tiles. Clear across the banner, then the page colour
- *  closes over the works along the ramp, and is 95% shut where the banner
- *  ends, so the heading below it sits on paper. Under the text the works
- *  are a faint tint (3–5% through), and gone by three quarters of the
- *  layer. An earlier, weaker veil (55% at the heading, 86% under the first
- *  paragraph) let dark tiles grey out whole lines of text. The ramp is
+ *  closes over the works along the ramp and is solid where the banner
+ *  ends, so the page's text starts on plain paper. Two weaker versions
+ *  (55% then 95% shut at the heading, the works faintly behind the text)
+ *  both left the first paragraph reading over tinted boxes. The ramp is
  *  long on purpose; a short one draws a line across every column. No blur:
  *  masked into the ramp, a backdrop-filter smeared a band across the
  *  tiles.
@@ -51,10 +50,9 @@ const STRIP_BANNER = "[--backdrop-banner:9rem] md:[--backdrop-banner:12rem]";
  *  the tiles bare behind the text. */
 const VEIL = `linear-gradient(to bottom,
   transparent calc(var(--backdrop-banner) - var(--backdrop-ramp)),
-  color-mix(in oklab, var(--background) 60%, transparent) calc(var(--backdrop-banner) - var(--backdrop-ramp) / 2),
-  color-mix(in oklab, var(--background) 95%, transparent) var(--backdrop-banner),
-  color-mix(in oklab, var(--background) 97%, transparent) calc(var(--backdrop-banner) + 6rem),
-  var(--background) 75%)`;
+  color-mix(in oklab, var(--background) 65%, transparent) calc(var(--backdrop-banner) - var(--backdrop-ramp) / 2),
+  color-mix(in oklab, var(--background) 92%, transparent) calc(var(--backdrop-banner) - var(--backdrop-ramp) / 5),
+  var(--background) var(--backdrop-banner))`;
 /** `strip`: nothing over the page, only a fade at the foot of the banner
  *  so the tiles don't end on a hard line. 4rem, so the lower strip still
  *  shows most of its height clear. */
@@ -63,20 +61,24 @@ const STRIP_VEIL =
 
 const SIZES =
   "(min-width: 1536px) 13vw, (min-width: 1280px) 15vw, (min-width: 1024px) 17vw, (min-width: 768px) 20vw, (min-width: 640px) 25vw, 34vw";
-/** Tiles from the third row down are under most of the veil, where the
- *  256 px rung looks the same as a sharp one. Asking for about half their
- *  width steers the browser to it: on /about that took the backdrop from
- *  265 to 150 KB at 1440 px on a 2x screen, and from 191 to 25 KB on a
- *  390 px phone at 3x. */
-const VEILED_SIZES = "(min-width: 768px) 8vw, 17vw";
-const SHARP_ROWS = 2;
+/** Two rows fill the banner on most screens. The third is for the short
+ *  columns (a landscape under a high offset, at tablet widths), where
+ *  without it the banner shows holes of bare paper; it shows at most as a
+ *  sliver inside the ramp, so it asks for about half its width and gets
+ *  the 256 px rung. Nothing past the third row is rendered: lazy loading
+ *  goes by distance from the viewport, not by the layer's clip, so every
+ *  tile in the markup is fetched. /about measures 21 tiles and ~720 KB at
+ *  1440 px on a 2x screen, 9 tiles and ~300 KB on a 390 px phone. */
+const FULL_ROWS = 2;
+const MAX_ROWS = 3;
+const SLIVER_SIZES = "(min-width: 768px) 8vw, 17vw";
 
 /**
- * Works tiled behind the top of a prose page: shown clearly across a
- * banner, then fading under a veil of the page colour, so the text below
- * reads on nearly plain paper with the works still faintly behind it.
- * With `strip`, only the banner: the tiles end in a short fade just below
- * it and the page under them is plain.
+ * Works tiled across the top of a prose page: shown clearly across a
+ * banner, then fading into the page colour along a long ramp, solid before
+ * the text starts. With `strip`, a lower banner with a short fade, for
+ * pages where the text should start high (the imprint, the privacy
+ * policy).
  *
  * Decoration only: hidden from assistive tech, no links and no captions.
  * Render it as the first child of a `relative isolate` wrapper (the
@@ -86,7 +88,8 @@ const SHARP_ROWS = 2;
  *
  * `works` are dealt into the columns left to right, row by row, so the
  * first three are the top row on a phone and the first eight the top row
- * on the widest screens. Order them by how much each should be seen.
+ * on the widest screens. Order them by how much each should be seen. At
+ * most three rows are used (24 works); the rest are ignored.
  */
 export function PageBackdrop({
   works,
@@ -95,7 +98,9 @@ export function PageBackdrop({
   works: readonly ArtworkListing[];
   strip?: boolean;
 }) {
-  const columns = COLUMNS.map((_, c) => works.filter((_, i) => i % COLUMNS.length === c));
+  const columns = COLUMNS.map((_, c) =>
+    works.filter((_, i) => i % COLUMNS.length === c).slice(0, MAX_ROWS),
+  );
 
   return (
     <>
@@ -104,7 +109,10 @@ export function PageBackdrop({
         className={cn(
           strip ? STRIP_BANNER : BANNER,
           "pointer-events-none absolute inset-x-0 top-0 -z-10 overflow-hidden select-none",
-          strip ? "h-[calc(var(--backdrop-banner)+1rem)]" : "h-[32rem] md:h-[50rem]",
+          // The full layer ends where its veil turns solid: a tile below
+          // that line would only ever sit under paper, and clipped it is
+          // never fetched.
+          strip ? "h-[calc(var(--backdrop-banner)+1rem)]" : "h-[var(--backdrop-banner)]",
         )}
       >
         <div className="flex gap-1.5 px-1.5 md:gap-2 md:px-2">
@@ -122,7 +130,7 @@ export function PageBackdrop({
                   key={work.id}
                   objectKey={work.objectKey}
                   alt=""
-                  sizes={strip || row < SHARP_ROWS ? SIZES : VEILED_SIZES}
+                  sizes={row < FULL_ROWS ? SIZES : SLIVER_SIZES}
                   variantWidths={work.variantWidths}
                   srcWidth={work.width ?? undefined}
                   srcHeight={work.height ?? undefined}
