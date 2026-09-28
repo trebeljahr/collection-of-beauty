@@ -2,10 +2,12 @@ import type { Metadata, Viewport } from "next";
 import Link from "next/link";
 import Script from "next/script";
 import "./globals.css";
+import { DonationSupportedTracker } from "@/components/donation-supported-tracker";
 import { Gallery3DProvider } from "@/components/gallery-3d-state";
 import { ImageCacheTracker } from "@/components/image-cache-tracker";
 import { NavigationTracker } from "@/components/navigation-tracker";
 import { SiteNav } from "@/components/site-nav";
+import { DONATE_URL } from "@/lib/donation-supported";
 import {
   jsonLdScriptProps,
   SITE_DESCRIPTION,
@@ -22,7 +24,7 @@ import {
    row's `gap-x-4` — 8px of padding on each of two neighbours is the same
    16px of visible spacing, but now that space is tappable instead of
    dead. Both end at `sm:`: 2.5.5 is a *touch* criterion, a mouse pointer
-   is governed by 2.5.8's 24px, and a six-link row of 44px boxes would
+   is governed by 2.5.8's 24px, and a seven-link row of 44px boxes would
    turn a 16px-tall footer strip into a 44px one for no accessibility
    gain. Above the breakpoint the padding hands the spacing back to the
    nav's `sm:gap-x-4` and the row is byte-for-byte the old one. */
@@ -155,6 +157,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         <Gallery3DProvider>
           <ImageCacheTracker />
           <NavigationTracker />
+          <DonationSupportedTracker />
           <SiteNav />
           <main id="main-content" className="flex-1">
             {children}
@@ -196,6 +199,11 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
               <Link href="/artists" className={FOOTER_LINK}>
                 Browse all artists
               </Link>
+              {/* Same tab: nothing here is lost by leaving, and the donate
+                  page links back to /?supported=1 after payment. */}
+              <a href={DONATE_URL} className={FOOTER_LINK}>
+                Donate
+              </a>
               <Link href="/imprint" className={FOOTER_LINK}>
                 Imprint
               </Link>

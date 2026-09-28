@@ -279,7 +279,10 @@ const faq = [
     "Will you add more artists / more works?",
     'Yes. Rico keeps adding works he finds beautiful. Suggestions for "you should look at X" are welcome via GitHub or email, and he decides what goes in.',
   ],
-  ["Is there a Patreon / membership / paid tier?", "No."],
+  [
+    "Is there a Patreon / membership / paid tier?",
+    "There is no paid tier or membership, and everything on the site stays free. Donations are optional, through the Donate link in the footer, and give no extra access.",
+  ],
 ] as const;
 
 const acknowledgements = [
