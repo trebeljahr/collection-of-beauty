@@ -22,30 +22,33 @@ export const metadata: Metadata = {
   }),
 };
 
-// Tiled behind the top of the page. The top row opens on issue 1's works
-// (the Kawase Hasui left out: his German copyright status is still open,
-// CLAUDE.md "Copyright"); the rest are the hours of the day the text
-// below names as a theme, with Hiroshi Yoshida's four Sailing Boats
-// prints (morning, afternoon, evening, night) spread across the columns.
-// None repeat /sub's, the page this one sends subscribers to. The first
-// three are a phone's top row, the first eight the widest screen's.
-// Decoration, so an id that stops resolving drops that one tile.
+// Tiled behind the top of the page. The top row opens on three of issue
+// 1's works (the Kawase Hasui left out: his German copyright status is
+// still open, CLAUDE.md "Copyright"); the rest are mostly the hours of
+// the day the text below names as a theme. No artist shows twice: the
+// Yoshida and Monet works in the second and third rows sit under Fan
+// Kuan's scroll, which is taller than the banner. Yoshida's Sailing Boats
+// prints share one composition, so only the morning one is used; four of
+// them read as one tile repeated. None repeat /sub's, the page this one
+// sends subscribers to. The first three are a phone's top row, the first
+// eight the widest screen's. Decoration, so an id that stops resolving
+// drops that one tile.
 const BACKDROP_IDS = [
   "collection-of-beauty-sower-at-sunset-vincent-van-gogh",
   "collection-of-beauty-sailing-boats-morning-hiroshi-yoshida",
   "collection-of-beauty-xsxlt-fankuan",
-  "collection-of-beauty-caspar-david-friedrich-der-monch-am-meer-google-art-project",
-  "collection-of-beauty-sailing-boats-afternoon-hiroshi-yoshida",
-  "collection-of-beauty-starry-night-over-the-rhone",
+  "collection-of-beauty-a-sunday-on-la-grande-jatte-georges-seurat-1884",
+  "collection-of-beauty-red-fuji-southern-wind-clear-morning",
+  "collection-of-beauty-la-bohemienne-endormie",
   "collection-of-beauty-caspar-david-friedrich-der-einsame-baum-google-art-project",
   "collection-of-beauty-monet-houses-of-parliament-sunset",
-  "collection-of-beauty-besneeuwde-ochtend-in-koishikawa-rijksmuseum-ak-mak-1588",
+  "collection-of-beauty-mart-levitan",
   "collection-of-beauty-whistler-nocturne-in-black-and-gold",
   "collection-of-beauty-kagurazaka-street-at-night-after-rain-from-the-series-twelve-scenes-of-tokyo-hiroshi-yoshida",
-  "collection-of-beauty-sailing-boats-night-hiroshi-yoshida",
-  "collection-of-beauty-1902-monet-die-waterloo-brucke-anagoria",
+  "collection-of-beauty-laurits-tuxen-the-north-sea-in-stormy-weather-after-sunset-h-jen-google-art-project",
+  "collection-of-beauty-scops-owl-cherry-blossoms-and-moon-by-shoson",
   "collection-of-beauty-hiroshige-53-stations-hoeido-16-kanbara-mfa-02",
-  "collection-of-beauty-sailing-boats-evening-hiroshi-yoshida",
+  "collection-of-beauty-john-singer-sargent-carnation-lily-lily-rose-google-art-project",
   "collection-of-beauty-ayvazovskiy-gayvazovskiy-ivan-oganes-konstantinovich-lunnaya-noch-na-bosfore",
   "collection-of-beauty-inness-sunset-on-the-passaic-oil-on-canvas-1891",
   "collection-of-beauty-joseph-mallord-william-turner-keelmen-heaving-in-coals-by-moonlight-google-art-project",
@@ -53,8 +56,8 @@ const BACKDROP_IDS = [
   "collection-of-beauty-edvard-munch-1922-starry-night-munch-museum-oslo",
   "collection-of-beauty-winslow-homer-moonlight",
   "collection-of-beauty-karl-friedrich-schinkel-der-morgen-google-art-project",
-  "collection-of-beauty-van-gogh-abendstunde-nach-millet",
-  "collection-of-beauty-frosty-morning-montclair-by-george-inness",
+  "collection-of-beauty-jean-francois-millet-el-angelus-museo-de-orsay-1857-1859-oleo-sobre-lienzo-55-5-x-66-cm",
+  "collection-of-beauty-suzuki-harunobu-woman-admiring-plum-blossoms-at-night",
 ];
 const byId = new Map(artworkListings.map((a) => [a.id, a]));
 const BACKDROP = BACKDROP_IDS.flatMap((id) => byId.get(id) ?? []);
