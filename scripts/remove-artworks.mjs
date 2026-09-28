@@ -1,12 +1,17 @@
 #!/usr/bin/env node
 /**
- * Remove a curated set of artwork records and the on-disk files they
- * point at. Used to delete duplicate scans of the same work that the
- * dHash sweep (scripts/find-duplicate-images.mjs) surfaced.
+ * Retire a curated set of artwork records. Used for duplicate scans of the
+ * same work that the dHash sweep (scripts/find-duplicate-images.mjs) or a
+ * review surfaced.
  *
  * Targets:
- *   - assets/<folder>/<filename>                            (original)
- *   - assets-web/<folder>/<basenameWithoutExt>/             (variants)
+ *   - assets/<folder>/<filename>  moved to assets/.rejected/dedup-merged/.
+ *     Nothing is deleted: the originals exist nowhere else. The move is
+ *     still needed, because scripts/fetch-wikimedia-metadata.mjs lists the
+ *     folder on disk and would give a file left there a new entry.
+ *   - assets-web/<folder>/<basenameWithoutExt>/ is left in place. The
+ *     catalogue no longer points at it, and deleting it would make the next
+ *     `pnpm assets:sync` (rclone sync) delete the objects from R2.
  *   - metadata/<folder>.json    .entries[<filename>]        (Wikimedia entry)
  *   - metadata/artwork-dimensions.json [<id>]
  *   - metadata/date-originals.json     [<filename>]
@@ -14,10 +19,10 @@
  *   - metadata/provenance.json         [<filename>]
  *   - metadata/title-overrides.json    [<folder>/<filename>]
  *
- * After running, rerun `pnpm build:data` to regenerate src/data/*.json.
+ * After running, rerun `pnpm assets:build-data` to regenerate src/data/*.json.
  *
- * Usage:  ASSETS_DIR=… ASSETS_WEB_DIR=… node scripts/remove-artworks.mjs
- * (env vars optional; default to the repo's assets/ and assets-web/ dirs).
+ * Usage:  ASSETS_DIR=… node scripts/remove-artworks.mjs
+ * (env var optional; defaults to the repo's assets/ dir).
  */
 
 import fs from "node:fs/promises";
@@ -31,17 +36,16 @@ const META = path.join(ROOT, "metadata");
 const ASSETS = process.env.ASSETS_DIR
   ? path.resolve(process.env.ASSETS_DIR)
   : path.join(ROOT, "assets");
-const ASSETS_WEB = process.env.ASSETS_WEB_DIR
-  ? path.resolve(process.env.ASSETS_WEB_DIR)
-  : path.join(ROOT, "assets-web");
+const REJECTED = path.join(ASSETS, ".rejected", "dedup-merged");
 
 // Curated removal list. Each entry: keep filename → remove filename.
 // All entries are duplicate scans of the same painting; the kept file is
 // higher-resolution and/or has a cleaner canonical filename.
 //
 // This array is re-used between passes; entries already removed in a
-// previous run are no-ops because rmIfExists() and the metadata checks
-// short-circuit on missing files / keys.
+// previous run are no-ops because retireOriginal() and the metadata checks
+// short-circuit on missing files / keys. The first three passes predate
+// the move to .rejected: they deleted their originals and variants.
 const REMOVALS = [
   // First pass (committed in 7a0adf0) — kept for the audit trail.
   {
@@ -242,18 +246,58 @@ const REMOVALS = [
     reason:
       "identical fileUrl; same Hasui Daikon-gashi print, keeper has the taller scan and the descriptive filename",
   },
+
+  // Fourth pass — same size in the September 2026 dimension fetch
+  // (metadata/real-size-fixes-2026-09.md), confirmed side by side.
+  {
+    folder: "collection-of-beauty",
+    remove: "Fiesta_campestre.jpg",
+    keep: "Le_Concert_champêtre,_by_Titian,_from_C2RMF_retouchedFXD.jpg",
+    reason:
+      "same Louvre Concert champêtre (136.5 × 105 cm); keeper is the 6000×4776 C2RMF scan, remove is 2814×2266 with yellowed colour and a fortunecity.es source",
+  },
+  {
+    folder: "collection-of-beauty",
+    remove: "Creación_de_Adán.jpg",
+    keep: "The_Creation_of_Adam.jpg",
+    reason:
+      "same Sistine Chapel Creation of Adam (570 × 280 cm); keeper frames the panel and carries the Wikidata item, remove is 4256×2843 but takes in four ignudi and the painted architecture, so its aspect cannot carry the fresco's size",
+  },
 ];
 
-async function rmIfExists(p) {
+/** The name a file actually has in `dir`. Commons filenames arrive in NFC
+ *  or NFD, and the REMOVALS list above is typed in NFC. */
+async function onDiskName(dir, filename) {
   try {
-    const stat = await fs.stat(p);
-    if (stat.isDirectory()) await fs.rm(p, { recursive: true, force: true });
-    else await fs.unlink(p);
-    return true;
+    const want = filename.normalize("NFC");
+    return (await fs.readdir(dir)).find((n) => n.normalize("NFC") === want) ?? null;
   } catch (err) {
-    if (err.code === "ENOENT") return false;
+    if (err.code === "ENOENT") return null;
     throw err;
   }
+}
+
+/** Move an original into assets/.rejected/dedup-merged/. Never deletes, and
+ *  refuses to overwrite a file already parked there. */
+async function retireOriginal(folder, filename) {
+  const dir = path.join(ASSETS, folder);
+  const name = await onDiskName(dir, filename);
+  if (!name) return false;
+  const dest = path.join(REJECTED, name);
+  if (await onDiskName(REJECTED, name)) {
+    throw new Error(`Already in ${REJECTED}, not overwriting: ${name}`);
+  }
+  await fs.mkdir(REJECTED, { recursive: true });
+  await fs.rename(path.join(dir, name), dest);
+  return true;
+}
+
+/** Key of `filename` in a filename-keyed sidecar, in whichever
+ *  normalisation form the sidecar stored it. */
+function keyOf(obj, filename) {
+  if (Object.hasOwn(obj, filename)) return filename;
+  const want = filename.normalize("NFC");
+  return Object.keys(obj).find((k) => k.normalize("NFC") === want) ?? null;
 }
 
 async function loadJson(p) {
@@ -265,13 +309,10 @@ async function saveJson(p, data) {
 }
 
 async function main() {
-  // Verify keepers exist on disk before we delete anything.
+  // Verify keepers exist on disk before we retire anything.
   for (const r of REMOVALS) {
-    const keep = path.join(ASSETS, r.folder, r.keep);
-    try {
-      await fs.access(keep);
-    } catch {
-      throw new Error(`Keeper missing on disk: ${keep}`);
+    if (!(await onDiskName(path.join(ASSETS, r.folder), r.keep))) {
+      throw new Error(`Keeper missing on disk: ${path.join(ASSETS, r.folder, r.keep)}`);
     }
   }
 
@@ -301,20 +342,14 @@ async function main() {
     const id = artworkId(r.folder, r.remove);
     const filename = r.remove;
     const filenameKey = `${r.folder}/${filename}`;
-    const basename = filename.replace(/\.[^.]+$/, "");
-    const origPath = path.join(ASSETS, r.folder, filename);
-    const variantDir = path.join(ASSETS_WEB, r.folder, basename);
 
     const removed = [];
-    if (await rmIfExists(origPath)) removed.push("asset");
-    if (await rmIfExists(variantDir)) removed.push("variants");
+    if (await retireOriginal(r.folder, filename)) removed.push("asset → .rejected/dedup-merged");
 
     const fm = await folderMeta(r.folder);
     // Folder metadata keys mix NFC and NFD (Wikimedia / macOS combining
-    // marks). Try both forms when looking up the entry to delete.
-    const entryKey = Object.hasOwn(fm.data.entries, filename)
-      ? filename
-      : Object.keys(fm.data.entries).find((k) => k.normalize("NFC") === filename.normalize("NFC"));
+    // marks), and so do the filename-keyed sidecars below.
+    const entryKey = keyOf(fm.data.entries, filename);
     if (entryKey) {
       delete fm.data.entries[entryKey];
       removed.push("folder-entry");
@@ -324,20 +359,23 @@ async function main() {
       delete dims[id];
       removed.push("dimensions");
     }
-    if (Object.hasOwn(dates, filename)) {
-      delete dates[filename];
+    const dateKey = keyOf(dates, filename);
+    if (dateKey) {
+      delete dates[dateKey];
       removed.push("date-original");
     }
     if (Object.hasOwn(cdesc, id)) {
       delete cdesc[id];
       removed.push("curator-desc");
     }
-    if (Object.hasOwn(prov, filename)) {
-      delete prov[filename];
+    const provKey = keyOf(prov, filename);
+    if (provKey) {
+      delete prov[provKey];
       removed.push("provenance");
     }
-    if (Object.hasOwn(overrides, filenameKey)) {
-      delete overrides[filenameKey];
+    const overrideKey = keyOf(overrides, filenameKey);
+    if (overrideKey) {
+      delete overrides[overrideKey];
       removed.push("title-override");
     }
 
@@ -361,7 +399,7 @@ async function main() {
   await saveJson(provPath, prov);
   await saveJson(overridesPath, overrides);
 
-  console.log(`\nRemoved ${REMOVALS.length} artworks. Now run: pnpm build:data`);
+  console.log(`\nProcessed ${REMOVALS.length} removals. Now run: pnpm assets:build-data`);
 }
 
 main().catch((err) => {

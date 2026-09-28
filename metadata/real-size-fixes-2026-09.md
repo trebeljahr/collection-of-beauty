@@ -214,8 +214,7 @@ share an item. The known wrong-link case, a Commons page whose
   42 × 55: Google Arts & Culture gives 42.6 × 55.2 cm, Wikidata the same
   numbers in millimetres, and the Centraal Museum's own record was
   unreachable.
-- Correct size, scan shows less: Michelangelo's Creation of Adam (the
-  fresco, 570 × 280, on a crop), David's Les Amours de Pâris et d'Hélène
+- Correct size, scan shows less: David's Les Amours de Pâris et d'Hélène
   (a portrait crop of a landscape canvas), Aivazovsky's 1874 self-portrait
   (the file is named "cropped"), Gauguin's L'Esprit Moderne et le
   Catholicisme (one cover's size, a scan of both).
@@ -234,3 +233,20 @@ share an item. The known wrong-link case, a Commons page whose
 Two new works are second files of works already catalogued, with the
 same size: Titian's Fiesta campestre is Le Concert champêtre, and
 Creación de Adán is The Creation of Adam.
+
+Both were retired on 28 September 2026 by the fourth pass of
+`scripts/remove-artworks.mjs`. Their ids now answer with a 308 to the
+kept works.
+
+- `collection-of-beauty-fiesta-campestre` goes to the C2RMF scan of Le
+  Concert champêtre. The kept file is 6000 × 4776. The retired file is
+  2814 × 2266, its colour is yellowed, and its source is fortunecity.es.
+- `collection-of-beauty-creacion-de-adan` goes to `The_Creation_of_Adam.jpg`.
+  The retired file is larger (4256 × 2843 against 1614 × 741), but it
+  also shows four ignudi and the painted architecture round the panel.
+  Its pixel aspect is 1.50 and the fresco's is 2.04, so the rule hid its
+  size. The kept file shows the panel only and carries Wikidata Q500242. A
+  larger scan of the panel alone would be an upgrade.
+
+Both originals are in `assets/.rejected/dedup-merged/`. Their variant
+folders stay in `assets-web/`.

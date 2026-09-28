@@ -3,8 +3,8 @@
   "kind": "wikimedia_image_collection",
   "generated_at": "2026-06-04T08:04:00.955Z",
   "source_api": "Wikimedia Commons action=query&prop=imageinfo",
-  "file_count": 3701,
-  "resolved_count": 3409,
+  "file_count": 3699,
+  "resolved_count": 3407,
   "unresolved_count": 292,
   "entries": {
     "_Horror__from_Le_Brun,_Wellcome_L0012156.jpg": {
@@ -25099,32 +25099,6 @@
       },
       "year_source": "wikidata_qs"
     },
-    "Creación_de_Adán.jpg": {
-      "filename": "Creación_de_Adán.jpg",
-      "resolved": true,
-      "needs_review": false,
-      "title": "Creación de Adán",
-      "artist": "Michelangelo",
-      "date_created": "1511",
-      "source": {
-        "type": "Wikimedia Commons",
-        "canonical_title": "Creación_de_Adán.jpg",
-        "url": "https://commons.wikimedia.org/wiki/File:Creación_de_Adán.jpg",
-        "file_url": "https://upload.wikimedia.org/wikipedia/commons/e/e0/Creaci%C3%B3n_de_Ad%C3%A1n.jpg",
-        "credit": null,
-        "permission": null,
-        "attribution": null
-      },
-      "copyright": {
-        "copyrighted": false,
-        "license_short": "Public domain",
-        "license_url": null,
-        "usage_terms": null
-      },
-      "year": 1511,
-      "description": "One of the most iconic frescoes in the history of Western art, painted by Michelangelo on the Sistine Chapel ceiling in Vatican City. This scene depicts God breathing life into Adam, the first human, and is celebrated for its masterful depiction of human anatomy and the moment of divine creation. The work remains among the most recognized and studied paintings in existence.",
-      "year_source": "date_created_plain"
-    },
     "Cristo_en_casa_de_Marta_y_María,_by_Diego_Velázquez.jpg": {
       "filename": "Cristo_en_casa_de_Marta_y_María,_by_Diego_Velázquez.jpg",
       "resolved": true,
@@ -33970,44 +33944,6 @@
       "year": 1878,
       "year_source": "date_created_plain",
       "description": "A satirical drawing by Belgian artist Félicien Rops exemplifying the Decadent movement aesthetics of the late 19th century. The work is housed in the Musée provincial Félicien Rops and reflects the artist's characteristic engagement with provocative social themes through printmaking and drawing."
-    },
-    "Fiesta_campestre.jpg": {
-      "filename": "Fiesta_campestre.jpg",
-      "resolved": true,
-      "needs_review": false,
-      "title": "Pastoral Concert",
-      "artist": "Giorgione / Titian",
-      "date_created": "circa 1510 date QS:P571,+1510-00-00T00:00:00Z/9,P1480,Q5727902",
-      "year": 1510,
-      "description": null,
-      "source": {
-        "type": "Wikimedia Commons",
-        "canonical_title": "File:Fiesta campestre.jpg",
-        "url": "https://commons.wikimedia.org/wiki/File%3AFiesta_campestre.jpg",
-        "file_url": "https://upload.wikimedia.org/wikipedia/commons/6/61/Fiesta_campestre.jpg",
-        "credit": "[1] ( [2] )",
-        "permission": null,
-        "attribution": null
-      },
-      "copyright": {
-        "copyrighted": false,
-        "license_short": "Public domain",
-        "license_url": null,
-        "usage_terms": "Public domain"
-      },
-      "artist_info": {
-        "name": "Titian",
-        "aliases": [
-          "Tiziano Vecellio",
-          "Titian"
-        ],
-        "born": 1488,
-        "died": 1576,
-        "nationality": "Italian",
-        "movement": "Renaissance",
-        "pd_status": "public_domain_worldwide"
-      },
-      "year_source": "wikidata_qs"
     },
     "Figure_Studies_MET_175850.jpg": {
       "filename": "Figure_Studies_MET_175850.jpg",

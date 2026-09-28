@@ -593,7 +593,10 @@ export const ARTIST_COVERS: Record<string, CoverPick> = {
     position: "50% 10%",
   },
   // The Creation of Adam
-  "michelangelo-buonarroti": { id: "collection-of-beauty-creacion-de-adan", position: "45% 50%" },
+  "michelangelo-buonarroti": {
+    id: "collection-of-beauty-the-creation-of-adam",
+    position: "40% 50%",
+  },
   // Bull subdued by dogs
   "paul-de-vos": {
     id: "collection-of-beauty-paul-de-vos-bull-subdued-by-dogs",

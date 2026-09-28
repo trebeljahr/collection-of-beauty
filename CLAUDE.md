@@ -345,7 +345,7 @@ set up; if you need one, scaffold a Testing Library setup separately.
 
 ## Outstanding tickets (memory)
 
-- 563 of 4,557 works lack `realDimensions`, all in the
+- 563 of 4,555 works lack `realDimensions`, all in the
   `collection-of-beauty` folder (28 September 2026). Every one was
   asked and has no answer (`null` in `metadata/artwork-dimensions.json`):
   neither Wikidata nor the Commons template gives a size. A plain run of
@@ -353,12 +353,12 @@ set up; if you need one, scaffold a Testing Library setup separately.
   needs a size researched by hand. Without a size the gallery layout
   falls back to a pixel-aspect estimate. Fix is data-side, not
   filter-tightening.
-- Of the 3,994 works with a size, `trustworthyRealSize()` in
-  [`real-size.ts`](src/lib/real-size.ts) hides 889 from the scale view,
+- Of the 3,992 works with a size, `trustworthyRealSize()` in
+  [`real-size.ts`](src/lib/real-size.ts) hides 888 from the scale view,
   the JSON-LD and every caption. 862 are hidden by design: 644 Redouté
   sheet sizes on cut-out scans, 214 `series-default` print formats, 4
   Vesalius page sizes. 13 are Google Art Project template values, which
-  have no knowable unit. The other 14 have a size the scan does not
+  have no knowable unit. The other 13 have a size the scan does not
   match: mostly a correct size on a cropped or mounted scan, which needs
   a full-frame scan, not a new number. Fixes go
   into `metadata/artwork-dimensions.json` with a researched `source`,
