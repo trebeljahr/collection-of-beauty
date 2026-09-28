@@ -36,10 +36,10 @@ const TEXT_LINK =
 /** Frame geometry, as CSS variables so one inline `width` expression
  *  works at every breakpoint. `--wall-h` is the tallest a work may hang,
  *  `--wall-w` the widest; a work's box is whichever binds first at its
- *  aspect ratio. Below md the two frames stack and the empty one shrinks,
- *  so the work that is here stays above the fold. */
+ *  aspect ratio. Below md the empty frame shrinks to a thumbnail beside
+ *  its label, so the work that is here starts above the fold. */
 const WALL_VARS =
-  "[--wall-h:min(46svh,22rem)] [--wall-w:calc(100vw-5.5rem)] [--empty-h:min(26svh,11rem)] md:[--wall-h:min(56svh,26rem)] md:[--wall-w:24rem] md:[--empty-h:var(--wall-h)] lg:[--wall-w:28rem]";
+  "[--wall-h:min(40svh,20rem)] [--wall-w:calc(100vw-5.5rem)] [--empty-h:min(18svh,7.5rem)] md:[--wall-h:min(56svh,26rem)] md:[--wall-w:24rem] md:[--empty-h:var(--wall-h)] lg:[--wall-w:28rem]";
 
 /** Portrait, like most of what hangs here. */
 const EMPTY_RATIO = 4 / 5;
@@ -114,16 +114,15 @@ export function NotFoundWall() {
   return (
     <div className={`flex flex-col gap-14 ${WALL_VARS}`}>
       <div className="flex flex-col items-center gap-10 md:flex-row md:items-start md:justify-center md:gap-16">
-        <figure className="flex flex-col items-center gap-5">
-          <div aria-hidden="true" className="wall-frame wall-frame-empty">
-            <div className="wall-frame-mat">
-              <div
-                className="wall-frame-void"
-                style={boxStyle(EMPTY_RATIO, "var(--empty-h)", "var(--wall-w)")}
-              />
+        <figure className="flex w-full max-w-md items-center gap-4 md:w-auto md:max-w-none md:flex-col md:gap-5">
+          <div className="wall-slot shrink-0">
+            <div aria-hidden="true" className="wall-frame wall-frame-empty">
+              <div className="wall-frame-mat">
+                <div style={boxStyle(EMPTY_RATIO, "var(--empty-h)", "var(--wall-w)")} />
+              </div>
             </div>
           </div>
-          <WallLabel>
+          <WallLabel className="min-w-0 flex-1 md:flex-none">
             <h1 className="font-serif text-lg leading-snug">Page not found</h1>
             <p className="mt-1 min-h-4 font-mono text-xs break-all text-[var(--muted-foreground)]">
               {path}
@@ -146,24 +145,25 @@ export function NotFoundWall() {
         </figure>
 
         <figure className="flex flex-col items-center gap-5">
-          {featured ? (
-            <HungWork
-              key={featured.kind === "match" ? featured.item.href : featured.work.id}
-              work={featured.kind === "match" ? featured.item.work : featured.work}
-              href={featured.kind === "match" ? featured.item.href : `/artwork/${featured.work.id}`}
-            />
-          ) : (
-            // Holds the space while the suggestion loads, so the label
-            // beside it doesn't jump when the work arrives.
-            <div aria-hidden="true" className="wall-frame wall-frame-empty opacity-40">
-              <div className="wall-frame-mat">
-                <div
-                  className="wall-frame-void"
-                  style={boxStyle(EMPTY_RATIO, "var(--wall-h)", "var(--wall-w)")}
-                />
+          <div className="wall-slot">
+            {featured ? (
+              <HungWork
+                key={featured.kind === "match" ? featured.item.href : featured.work.id}
+                work={featured.kind === "match" ? featured.item.work : featured.work}
+                href={
+                  featured.kind === "match" ? featured.item.href : `/artwork/${featured.work.id}`
+                }
+              />
+            ) : (
+              // Holds the space while the suggestion loads, so the label
+              // beside it doesn't jump when the work arrives.
+              <div aria-hidden="true" className="wall-frame wall-frame-empty opacity-40">
+                <div className="wall-frame-mat">
+                  <div style={boxStyle(EMPTY_RATIO, "var(--wall-h)", "var(--wall-w)")} />
+                </div>
               </div>
-            </div>
-          )}
+            )}
+          </div>
           {featured?.kind === "match" && <MatchLabel item={featured.item} />}
           {featured?.kind === "random" && (
             <WallLabel>
@@ -263,6 +263,13 @@ function HungWork({
             sizes={`(max-width: 768px) calc(100vw - 5.5rem), min(28rem, calc(min(56vh, 26rem) * ${ratio.toFixed(3)}))`}
             variantWidths={work.variantWidths}
             dominantColor={work.dominantColor}
+            // The box already has the work's aspect, so the blur
+            // stretches to it, as on /surprise. The warming copy is
+            // invisible and skips it.
+            thumbHash={preload ? null : work.thumbHash}
+            thumbHashFit="stretch"
+            workWidth={work.width}
+            workHeight={work.height}
             fill
             className="object-contain"
             loading="eager"
@@ -273,9 +280,11 @@ function HungWork({
   );
 }
 
-function WallLabel({ children }: { children: ReactNode }) {
+function WallLabel({ children, className }: { children: ReactNode; className?: string }) {
   return (
-    <figcaption className="wall-label w-[17rem] max-w-full px-4 py-3 text-left">
+    <figcaption
+      className={`wall-label w-[17rem] max-w-full px-4 py-3 text-left ${className ?? ""}`}
+    >
       {children}
     </figcaption>
   );
@@ -353,6 +362,9 @@ function MatchCard({ item }: { item: NotFoundItem }) {
             sizes="(max-width: 640px) 45vw, 13rem"
             variantWidths={item.work.variantWidths}
             dominantColor={item.work.dominantColor}
+            thumbHash={item.work.thumbHash}
+            workWidth={item.work.width}
+            workHeight={item.work.height}
             fill
             className="object-cover transition duration-300 group-hover:scale-[1.03]"
           />

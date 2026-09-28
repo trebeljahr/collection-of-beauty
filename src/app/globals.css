@@ -652,8 +652,8 @@
 
 /* ── 404 wall (see not-found-wall.tsx) ─────────────────────────────────
    A gilt moulding, a mat, and a wall label, drawn without images so the
-   404 costs nothing to load. The empty frame shows the wall through it,
-   with the slightly paler patch a painting leaves when it comes down.
+   404 costs nothing to load. The empty frame has no mat: the wall shows
+   straight through it, shaded where the moulding stands off the wall.
    Tokens live here rather than in :root's palette because nothing else
    uses them. */
 :root {
@@ -661,19 +661,22 @@
   --frame-mid: oklch(0.67 0.085 78);
   --frame-dark: oklch(0.47 0.07 64);
   --frame-mat: oklch(0.975 0.006 85);
-  --frame-void: oklch(0.955 0.008 80);
 }
 .dark {
   --frame-light: oklch(0.72 0.07 86);
   --frame-mid: oklch(0.56 0.07 76);
   --frame-dark: oklch(0.36 0.05 62);
   --frame-mat: oklch(0.23 0.01 60);
-  --frame-void: oklch(0.19 0.01 50);
+}
+
+:root {
+  --frame-pad: clamp(0.5rem, 1.4vw, 0.8rem);
+  --mat-pad: clamp(0.6rem, 2.4vw, 1.5rem);
 }
 
 .wall-frame {
   display: inline-block;
-  padding: clamp(0.5rem, 1.4vw, 0.8rem);
+  padding: var(--frame-pad);
   border-radius: 2px;
   background: linear-gradient(
     135deg,
@@ -693,7 +696,7 @@
 }
 
 .wall-frame-mat {
-  padding: clamp(0.6rem, 2.4vw, 1.5rem);
+  padding: var(--mat-pad);
   background: var(--frame-mat);
   /* Inner lip where the mat meets the moulding. */
   box-shadow:
@@ -701,13 +704,13 @@
     inset 0 0 0 1px oklch(0 0 0 / 0.06);
 }
 
-/* Empty frame: no mat, the wall itself inside. */
+/* Empty frame: no mat, the wall itself inside, in the moulding's shadow
+   along the top and left edges. */
 .wall-frame-empty .wall-frame-mat {
   background: var(--background);
-}
-.wall-frame-void {
-  background: var(--frame-void);
-  border-radius: 1px;
+  box-shadow:
+    inset 3px 4px 10px -2px oklch(0.2 0.02 50 / 0.3),
+    inset 0 0 0 1px oklch(0 0 0 / 0.1);
 }
 
 .wall-frame-hung {
@@ -721,6 +724,18 @@
   to {
     opacity: 1;
     transform: translateY(0);
+  }
+}
+
+/* Side by side, both frames hang on one centre line, as in a gallery:
+   each sits centred in a slot as tall as the tallest frame can be, so a
+   landscape beside a portrait doesn't ride up and lift its label. */
+@media (min-width: 768px) {
+  .wall-slot {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: calc(var(--wall-h) + 2 * var(--frame-pad) + 2 * var(--mat-pad));
   }
 }
 
