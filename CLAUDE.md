@@ -86,6 +86,21 @@ required by the Dockerfile — don't remove it.
 - `PROBE_CACHE_VERSION` in `build-data.mjs` gates the image-probe cache.
   Bump it whenever the probe emits a new field, or every cached entry
   silently keeps the old shape (this is why v3 exists).
+- `metadata/provenance.json` comes from `scripts/fetch-provenance.mjs`,
+  which finds a work's Wikidata item through its P18 image. For a print
+  that item is the whole edition: Knight, Death and the Devil lists 23
+  collections and 29 inventory numbers. Reading `wdt:` values one property
+  at a time mixed museums: collection from one impression, location,
+  number and URL from others. The fix on 28 September 2026 changed 176
+  records, 169 of them catalogued. Collection, location,
+  inventory and describedAt are now resolved together by
+  `scripts/lib/provenance-impression.mjs`, which pairs each P217 with its
+  P195 qualifier and picks the holding the Commons file page names. When
+  nothing identifies it, those fields stay null. `--reresolve` corrects
+  existing entries from their stored QID without touching keys.
+  Some stored `wikidataId`s are not artworks at all (Q2979 is the concept
+  of liberty, Q80516 is Pope Julius II himself); their fields can't be
+  re-derived and were fixed by hand.
 - Artwork ids are minted from filenames, so a rescan, dedup or artist
   merge retires published URLs. `src/data/redirects.json` maps old ids and
   artist slugs to current ones; `pnpm redirects:build`

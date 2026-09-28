@@ -75,15 +75,15 @@
     "collection": "Art Museums of Bergen",
     "collectionWikidataId": "Q1770313",
     "location": "Art Museums of Bergen",
-    "inventory": "SS.00042",
+    "inventory": null,
     "describedAt": null,
     "sourceLinks": []
   },
   "(Barcelona)_Apullia_in_Search_of_Appullus_1814_-_William_Turner_-_Tate_Britain.jpg": {
     "wikidataId": "Q28540661",
     "wikidataUrl": "https://www.wikidata.org/wiki/Q28540661",
-    "collection": "National Gallery",
-    "collectionWikidataId": "Q180788",
+    "collection": "Tate",
+    "collectionWikidataId": "Q430682",
     "location": "Tate",
     "inventory": "N00495",
     "describedAt": "http://www.tate.org.uk/art/artworks/turner-apullia-in-search-of-appullus-n00495",
@@ -92,8 +92,8 @@
   "(Barcelona)_Lake_Lucerne_;_the_Bay_of_Uri_from_above_Brunnen_-_William_Turner_-_Tate_Britain.jpg": {
     "wikidataId": "Q28533542",
     "wikidataUrl": "https://www.wikidata.org/wiki/Q28533542",
-    "collection": "National Gallery",
-    "collectionWikidataId": "Q180788",
+    "collection": "Tate",
+    "collectionWikidataId": "Q430682",
     "location": "Tate",
     "inventory": "N05476",
     "describedAt": "http://www.tate.org.uk/art/artworks/turner-lake-lucerne-the-bay-of-uri-from-above-brunnen-n05476",
@@ -102,8 +102,8 @@
   "(Barcelona)_Story_of_Apollo_and_Daphne_1837_-_William_Turner_-_Tate_Britain.jpg": {
     "wikidataId": "Q28538493",
     "wikidataUrl": "https://www.wikidata.org/wiki/Q28538493",
-    "collection": "National Gallery",
-    "collectionWikidataId": "Q180788",
+    "collection": "Tate",
+    "collectionWikidataId": "Q430682",
     "location": "Tate",
     "inventory": "N00520",
     "describedAt": "http://www.tate.org.uk/art/artworks/turner-story-of-apollo-and-daphne-n00520",
@@ -112,8 +112,8 @@
   "(Barcelona)_Stromy_Sea_with_Blazing_Wreck_-_William_Turner_-_Tate_Britain.jpg": {
     "wikidataId": "Q28532867",
     "wikidataUrl": "https://www.wikidata.org/wiki/Q28532867",
-    "collection": "National Gallery",
-    "collectionWikidataId": "Q180788",
+    "collection": "Tate",
+    "collectionWikidataId": "Q430682",
     "location": "Tate",
     "inventory": "N04658",
     "describedAt": "http://www.tate.org.uk/art/artworks/turner-stormy-sea-with-blazing-wreck-n04658",
@@ -122,8 +122,8 @@
   "(Barcelona)_The_Lake,_Petworth,_Sunset;_Sample_Study_-_William_Turner_-_Tate_Britain.jpg": {
     "wikidataId": "Q28532512",
     "wikidataUrl": "https://www.wikidata.org/wiki/Q28532512",
-    "collection": "National Gallery",
-    "collectionWikidataId": "Q180788",
+    "collection": "Tate",
+    "collectionWikidataId": "Q430682",
     "location": "Tate",
     "inventory": "N02701",
     "describedAt": "http://www.tate.org.uk/art/artworks/turner-the-lake-petworth-sunset-sample-study-n02701",
@@ -132,8 +132,8 @@
   "(Barcelona)_The_New_Moon;_or,_‘I’ve_lost_My_Boat,_You_shan’t_have_Your_Hoop’_-_William_Turner_-_Tate_Britain.jpg": {
     "wikidataId": "Q28538587",
     "wikidataUrl": "https://www.wikidata.org/wiki/Q28538587",
-    "collection": "National Gallery",
-    "collectionWikidataId": "Q180788",
+    "collection": "Tate",
+    "collectionWikidataId": "Q430682",
     "location": "Tate",
     "inventory": "N00526",
     "describedAt": "http://www.tate.org.uk/art/artworks/turner-the-new-moon-or-ive-lost-my-boat-you-shant-have-your-hoop-n00526",
@@ -162,11 +162,11 @@
   "10_The_Prodigal_Son.jpg": {
     "wikidataId": "Q18338496",
     "wikidataUrl": "https://www.wikidata.org/wiki/Q18338496",
-    "collection": "Chester Beatty Library",
-    "collectionWikidataId": "Q391976",
-    "location": "Chester Beatty Library",
-    "inventory": "1986.41",
-    "describedAt": "https://sammlung.staedelmuseum.de/en/work/the-prodigal-son-amind-the-swine",
+    "collection": "Rijksmuseum",
+    "collectionWikidataId": "Q190804",
+    "location": "Rijksmuseum",
+    "inventory": "RP-P-OB-1185",
+    "describedAt": null,
     "sourceLinks": []
   },
   "1280px-Arcimboldo_Winter_1563.jpg": {
@@ -364,7 +364,7 @@
     "wikidataUrl": "https://www.wikidata.org/wiki/Q3649290",
     "collection": "J. Paul Getty Museum",
     "collectionWikidataId": "Q731126",
-    "location": "Getty Center",
+    "location": null,
     "inventory": "79.PB.72",
     "describedAt": "https://www.getty.edu/art/collection/object/103REK",
     "sourceLinks": []
@@ -522,11 +522,11 @@
   "2560px-Bonaparte_ante_la_Esfinge,_por_Jean-Léon_Gérôme.jpg": {
     "wikidataId": "Q2909909",
     "wikidataUrl": "https://www.wikidata.org/wiki/Q2909909",
-    "collection": "Hearst Castle",
-    "collectionWikidataId": "Q378143",
-    "location": "Hearst Castle",
+    "collection": "California state park",
+    "collectionWikidataId": "Q28399100",
+    "location": null,
     "inventory": "529-9-5092",
-    "describedAt": "http://www.museumcollections.parks.ca.gov/code/emuseum.asp?collection=5958&collectionname=Works%20of%20Jean-L%C3%A9on%20G%C3%A9r%C3%B4me%20at%20Hearst%20Castle&style=Browse&currentrecord=1&page=collection&profile=objects&searchdesc=Works%20of%20Jean-L%C3%A9on%20G%C3%A9r%C3%B4me%20at%20Hearst%20Castle&sessionid=B7706B55-A8E3-48C1-AB0A-19B741539837&action=collection&style=single&currentrecord=2",
+    "describedAt": null,
     "sourceLinks": []
   },
   "2560px-Courbet_LAtelier_du_peintre.jpg": {
@@ -612,10 +612,10 @@
   "2560px-Saint_Jerome_Writing-Caravaggio_(1605-6).jpg": {
     "wikidataId": "Q2715177",
     "wikidataUrl": "https://www.wikidata.org/wiki/Q2715177",
-    "collection": "Borghese Collection",
-    "collectionWikidataId": "Q683074",
+    "collection": "Galleria Borghese",
+    "collectionWikidataId": "Q841506",
     "location": "Galleria Borghese",
-    "inventory": "56",
+    "inventory": "056",
     "describedAt": "http://www.caravaggio.org/saint-jerome-writing-1605.jsp",
     "sourceLinks": []
   },
@@ -732,8 +732,8 @@
   "4344-vis_Print_14762kopie.jpg": {
     "wikidataId": "Q132252879",
     "wikidataUrl": "https://www.wikidata.org/wiki/Q132252879",
-    "collection": "Snijders&Rockox House",
-    "collectionWikidataId": "Q2662909",
+    "collection": "The Phoebus Foundation",
+    "collectionWikidataId": "Q54082797",
     "location": null,
     "inventory": null,
     "describedAt": "https://www.sothebys.com/en/auctions/ecatalogue/2017/old-masters-evening-sale-l17033/lot.54.html",
@@ -907,11 +907,11 @@
   "AdamEveParadiseCranach.jpg": {
     "wikidataId": "Q6637364",
     "wikidataUrl": "https://www.wikidata.org/wiki/Q6637364",
-    "collection": "British Museum",
-    "collectionWikidataId": "Q6373",
-    "location": "British Museum",
-    "inventory": "1943.3.2884",
-    "describedAt": "https://research.britishmuseum.org/research/collection_online/collection_object_details.aspx?objectId=1419025&partId=1",
+    "collection": "Fine Arts Museums of San Francisco",
+    "collectionWikidataId": "Q1416890",
+    "location": "Fine Arts Museums of San Francisco",
+    "inventory": null,
+    "describedAt": null,
     "sourceLinks": []
   },
   "Admiral_of_the_White_by_Thomas_Gainsborough.jpg": {
@@ -929,7 +929,7 @@
     "wikidataUrl": "https://www.wikidata.org/wiki/Q18683022",
     "collection": "Alte Nationalgalerie",
     "collectionWikidataId": "Q162111",
-    "location": "Washington, D.C.",
+    "location": "Alte Nationalgalerie",
     "inventory": "A I 900",
     "describedAt": null,
     "sourceLinks": []
@@ -974,7 +974,7 @@
     "wikidataUrl": "https://www.wikidata.org/wiki/Q29655311",
     "collection": "Department of Paintings of the Louvre",
     "collectionWikidataId": "Q3044768",
-    "location": "Louvre storage (depot)",
+    "location": "Louvre Museum storage",
     "inventory": "INV 1794",
     "describedAt": "https://photo.rmn.fr/ark:/36255/14-576595?posInSet=1&queryId=83c2991b-26f8-4096-be10-e08d09a1e4c6",
     "sourceLinks": []
@@ -992,11 +992,11 @@
   "Albrecht_Dürer,_Knight,_Death_and_Devil,_1513,_NGA_6637.jpg": {
     "wikidataId": "Q1755464",
     "wikidataUrl": "https://www.wikidata.org/wiki/Q1755464",
-    "collection": "Rosenwald Collection",
-    "collectionWikidataId": "Q62274660",
-    "location": "Germanisches Nationalmuseum",
-    "inventory": "StN2197",
-    "describedAt": "https://clevelandart.org/art/1965.231",
+    "collection": "National Gallery of Art",
+    "collectionWikidataId": "Q214867",
+    "location": "National Gallery of Art",
+    "inventory": "1943.3.3519",
+    "describedAt": null,
     "sourceLinks": []
   },
   "Albrecht_Dürer,_Selbstbildnis_mit_26_Jahren_(Prado,_Madrid).jpg": {
@@ -1012,21 +1012,21 @@
   "Albrecht_Dürer,_The_Flagellation,_c._1497,_NGA_6736.jpg": {
     "wikidataId": "Q18338552",
     "wikidataUrl": "https://www.wikidata.org/wiki/Q18338552",
-    "collection": "Metropolitan Museum of Art",
-    "collectionWikidataId": "Q160236",
-    "location": "Cleveland Museum of Art",
-    "inventory": "19.70.3",
-    "describedAt": "https://clevelandart.org/art/1926.115",
+    "collection": "National Gallery of Art",
+    "collectionWikidataId": "Q214867",
+    "location": "National Gallery of Art",
+    "inventory": "1943.3.3618",
+    "describedAt": null,
     "sourceLinks": []
   },
   "Albrecht_Dürer,_The_Four_Horsemen,_1498,_NGA_142352.jpg": {
     "wikidataId": "Q5980742",
     "wikidataUrl": "https://www.wikidata.org/wiki/Q5980742",
-    "collection": "Staatliche Kunsthalle Karlsruhe",
-    "collectionWikidataId": "Q658725",
+    "collection": "National Gallery of Art",
+    "collectionWikidataId": "Q214867",
     "location": "National Gallery of Art",
-    "inventory": "31489",
-    "describedAt": "https://clevelandart.org/art/1932.313",
+    "inventory": "2008.109.5",
+    "describedAt": null,
     "sourceLinks": []
   },
   "Albrecht_Dürer,_Tuft_of_Cowslips,_1526,_NGA_74162.jpg": {
@@ -1082,11 +1082,11 @@
   "Albrecht_Dürer_-_Melencolia_I_-_Google_Art_Project_(427760).jpg": {
     "wikidataId": "Q1362177",
     "wikidataUrl": "https://www.wikidata.org/wiki/Q1362177",
-    "collection": "British Museum",
-    "collectionWikidataId": "Q6373",
-    "location": "British Museum",
-    "inventory": "1926.211",
-    "describedAt": "https://museums.gov.il/he/items/Pages/ItemCard.aspx?IdItem=ICMS_IMJ_219761",
+    "collection": "National Gallery of Victoria",
+    "collectionWikidataId": "Q1464509",
+    "location": "National Gallery of Victoria",
+    "inventory": "3486-4",
+    "describedAt": "https://www.ngv.vic.gov.au/explore/collection/work/43335/",
     "sourceLinks": []
   },
   "Albrecht_Dürer_-_Praying_Hands,_1508_-_Google_Art_Project.jpg": {
@@ -1112,11 +1112,11 @@
   "Albrecht_Dürer_-_The_Men’s_Bath_-_Google_Art_Project.jpg": {
     "wikidataId": "Q3632916",
     "wikidataUrl": "https://www.wikidata.org/wiki/Q3632916",
-    "collection": "British Museum",
-    "collectionWikidataId": "Q6373",
-    "location": "National Gallery of Art",
+    "collection": "Art Institute of Chicago",
+    "collectionWikidataId": "Q239303",
+    "location": null,
     "inventory": "2009.133",
-    "describedAt": "http://germanprints.ru/data/prints/durer/2192_men_bath/index.php",
+    "describedAt": null,
     "sourceLinks": []
   },
   "Alexander_III_reception_by_Repin.jpg": {
@@ -1195,7 +1195,7 @@
     "collection": "Van Gogh Museum",
     "collectionWikidataId": "Q224124",
     "location": "Van Gogh Museum",
-    "inventory": "20048",
+    "inventory": "s0530N2012",
     "describedAt": "http://www.vangoghmuseum.nl/nl/collectie/s0530N2012",
     "sourceLinks": []
   },
@@ -1392,10 +1392,10 @@
   "As_the_Old_Sing,_So_the_Young_Pipe,_by_Jacob_Jordaens.jpg": {
     "wikidataId": "Q19753101",
     "wikidataUrl": "https://www.wikidata.org/wiki/Q19753101",
-    "collection": "Department of Paintings of the Louvre",
-    "collectionWikidataId": "Q3044768",
+    "collection": "Musée des Beaux-Arts de Valenciennes",
+    "collectionWikidataId": "Q3330222",
     "location": "Musée des Beaux-Arts de Valenciennes",
-    "inventory": "INV 1407",
+    "inventory": "P.Y.36",
     "describedAt": null,
     "sourceLinks": []
   },
@@ -1462,11 +1462,11 @@
   "Autoportrait_au_turban_(Perpignan).jpg": {
     "wikidataId": "Q71828472",
     "wikidataUrl": "https://www.wikidata.org/wiki/Q71828472",
-    "collection": "Musées Nationaux Récupération",
-    "collectionWikidataId": "Q19013512",
-    "location": "Führermuseum",
-    "inventory": "2844",
-    "describedAt": "https://www.hyacinthe-rigaud.com/catalogue-raisonne-hyacinthe-rigaud/autoportraits/12-rigaud-hyacinthe-1698",
+    "collection": null,
+    "collectionWikidataId": null,
+    "location": null,
+    "inventory": null,
+    "describedAt": null,
     "sourceLinks": []
   },
   "B159_Rembrandt.jpg": {
@@ -1482,11 +1482,11 @@
   "B320_Rembrandt.jpg": {
     "wikidataId": "Q23649174",
     "wikidataUrl": "https://www.wikidata.org/wiki/Q23649174",
-    "collection": "Städel Museum",
-    "collectionWikidataId": "Q163804",
+    "collection": null,
+    "collectionWikidataId": null,
     "location": null,
-    "inventory": "6055 D",
-    "describedAt": "http://expositions.bnf.fr/rembrandt/grand/006.htm",
+    "inventory": null,
+    "describedAt": null,
     "sourceLinks": []
   },
   "Baigneurs_a_Asnieres.jpg": {
@@ -1622,8 +1622,8 @@
   "Boy_with_a_Basket_of_Fruit-Caravaggio_(1593).jpg": {
     "wikidataId": "Q2610936",
     "wikidataUrl": "https://www.wikidata.org/wiki/Q2610936",
-    "collection": "Borghese Collection",
-    "collectionWikidataId": "Q683074",
+    "collection": "Galleria Borghese",
+    "collectionWikidataId": "Q841506",
     "location": "Galleria Borghese",
     "inventory": "136",
     "describedAt": "https://www.arteworld.it/fanciullo-con-canestro-di-frutta-caravaggio-analisi/",
@@ -1722,10 +1722,10 @@
   "Carl_Spitzweg_-_Das_Auge_des_Gesetzes_(Justitia)_-_1857.jpg": {
     "wikidataId": "Q1714279",
     "wikidataUrl": "https://www.wikidata.org/wiki/Q1714279",
-    "collection": "Führermuseum",
-    "collectionWikidataId": "Q475667",
-    "location": "Führermuseum",
-    "inventory": "9629",
+    "collection": null,
+    "collectionWikidataId": null,
+    "location": null,
+    "inventory": null,
     "describedAt": null,
     "sourceLinks": []
   },
@@ -1744,7 +1744,7 @@
     "wikidataUrl": "https://www.wikidata.org/wiki/Q1198304",
     "collection": "Bavarian State Painting Collections",
     "collectionWikidataId": "Q812285",
-    "location": "Charlottenburg Palace",
+    "location": "Neue Pinakothek",
     "inventory": "7751",
     "describedAt": null,
     "sourceLinks": []
@@ -1782,9 +1782,9 @@
   "Carl_Spitzweg_Der_Schmetterlingsjäger_1840.jpg": {
     "wikidataId": "Q99646769",
     "wikidataUrl": "https://www.wikidata.org/wiki/Q99646769",
-    "collection": "Museum Wiesbaden",
-    "collectionWikidataId": "Q316514",
-    "location": "Museum Wiesbaden",
+    "collection": "Führermuseum",
+    "collectionWikidataId": "Q475667",
+    "location": "Führermuseum",
     "inventory": "0187",
     "describedAt": null,
     "sourceLinks": []
@@ -1902,8 +1902,8 @@
   "Chichester_Canal_(1828).jpg": {
     "wikidataId": "Q15149679",
     "wikidataUrl": "https://www.wikidata.org/wiki/Q15149679",
-    "collection": "National Gallery",
-    "collectionWikidataId": "Q180788",
+    "collection": "Tate",
+    "collectionWikidataId": "Q430682",
     "location": "Tate Britain",
     "inventory": "N00560",
     "describedAt": "http://www.tate.org.uk/art/artworks/turner-chichester-canal-n00560",
@@ -1912,8 +1912,8 @@
   "Childe_harold.jpg": {
     "wikidataId": "Q28538534",
     "wikidataUrl": "https://www.wikidata.org/wiki/Q28538534",
-    "collection": "National Gallery",
-    "collectionWikidataId": "Q180788",
+    "collection": "Tate",
+    "collectionWikidataId": "Q430682",
     "location": "Tate",
     "inventory": "N00516",
     "describedAt": "http://www.tate.org.uk/art/artworks/turner-childe-harolds-pilgrimage-italy-n00516",
@@ -1924,7 +1924,7 @@
     "wikidataUrl": "https://www.wikidata.org/wiki/Q30056306",
     "collection": "Bavarian State Painting Collections",
     "collectionWikidataId": "Q812285",
-    "location": "Alte Pinakothek",
+    "location": "Alte Pinakothek, upper floor, gallery IX",
     "inventory": "339",
     "describedAt": null,
     "sourceLinks": []
@@ -2014,7 +2014,7 @@
     "wikidataUrl": "https://www.wikidata.org/wiki/Q20181919",
     "collection": "J. Paul Getty Museum",
     "collectionWikidataId": "Q731126",
-    "location": "Getty Center",
+    "location": null,
     "inventory": "83.PA.215",
     "describedAt": null,
     "sourceLinks": []
@@ -2117,11 +2117,11 @@
   "Claude_Monet_-_Champ_de_coquelicots_près_de_Vétheuil.jpg": {
     "wikidataId": "Q1114220",
     "wikidataUrl": "https://www.wikidata.org/wiki/Q1114220",
-    "collection": "Foundation E.G. Bührle Collection",
-    "collectionWikidataId": "Q666331",
-    "location": "Foundation E.G. Bührle Collection",
-    "inventory": "71",
-    "describedAt": "https://collection.kunsthaus.ch/en/collection/item/586961/",
+    "collection": null,
+    "collectionWikidataId": null,
+    "location": null,
+    "inventory": null,
+    "describedAt": null,
     "sourceLinks": []
   },
   "Claude_Monet_-_Cliff_Walk_at_Pourville_-_Google_Art_Project.jpg": {
@@ -2257,11 +2257,11 @@
   "Claude_Monet_-_La_Corniche_near_Monaco_-_Google_Art_Project.jpg": {
     "wikidataId": "Q17324913",
     "wikidataUrl": "https://www.wikidata.org/wiki/Q17324913",
-    "collection": "Rijksmuseum",
-    "collectionWikidataId": "Q190804",
-    "location": "Rijksmuseum",
-    "inventory": "SK-A-1892",
-    "describedAt": "https://www.rijksmuseum.nl/nl/collectie/SK-A-1892",
+    "collection": "Van Gogh Museum",
+    "collectionWikidataId": "Q224124",
+    "location": "Van Gogh Museum",
+    "inventory": null,
+    "describedAt": null,
     "sourceLinks": []
   },
   "Claude_Monet_-_La_Manneporte_(Étretat).jpg": {
@@ -2974,7 +2974,7 @@
     "wikidataUrl": "https://www.wikidata.org/wiki/Q398126",
     "collection": "Tate",
     "collectionWikidataId": "Q430682",
-    "location": "National Gallery",
+    "location": "Tate Britain",
     "inventory": "T13896",
     "describedAt": "http://www.tate.org.uk/art/artworks/constable-salisbury-cathedral-from-the-meadows-t13896",
     "sourceLinks": []
@@ -3094,7 +3094,7 @@
     "wikidataUrl": "https://www.wikidata.org/wiki/Q3698197",
     "collection": "Department of Paintings of the Louvre",
     "collectionWikidataId": "Q3044768",
-    "location": "Verona",
+    "location": "Room 710",
     "inventory": "INV 368",
     "describedAt": null,
     "sourceLinks": []
@@ -3142,8 +3142,8 @@
   "David_with_the_Head_of_Goliath-Caravaggio_(1610).jpg": {
     "wikidataId": "Q2627056",
     "wikidataUrl": "https://www.wikidata.org/wiki/Q2627056",
-    "collection": "Borghese Collection",
-    "collectionWikidataId": "Q683074",
+    "collection": "Galleria Borghese",
+    "collectionWikidataId": "Q841506",
     "location": "Galleria Borghese",
     "inventory": "455",
     "describedAt": "https://www.collezionegalleriaborghese.it/en/opere/david-with-the-head-of-goliath",
@@ -3152,10 +3152,10 @@
   "De_pruimenboomgaard_te_Kameido-Rijksmuseum_RP-P-1956-743.jpeg": {
     "wikidataId": "Q21127606",
     "wikidataUrl": "https://www.wikidata.org/wiki/Q21127606",
-    "collection": "Chester Beatty Library",
-    "collectionWikidataId": "Q391976",
-    "location": "Chester Beatty Library",
-    "inventory": "30.1478.30",
+    "collection": null,
+    "collectionWikidataId": null,
+    "location": null,
+    "inventory": null,
     "describedAt": null,
     "sourceLinks": []
   },
@@ -3464,7 +3464,7 @@
     "wikidataUrl": "https://www.wikidata.org/wiki/Q1195238",
     "collection": "Museo del Prado",
     "collectionWikidataId": "Q160112",
-    "location": "Flanders",
+    "location": "Museo del Prado",
     "inventory": "P001690",
     "describedAt": null,
     "sourceLinks": []
@@ -3475,7 +3475,7 @@
     "collection": "Museo del Prado",
     "collectionWikidataId": "Q160112",
     "location": "Museo del Prado",
-    "inventory": "65.1296",
+    "inventory": "P002785",
     "describedAt": "https://www.museodelprado.es/en/the-collection/art-work/the-colossus/2a678f69-fbdd-409c-8959-5c873f8feb82",
     "sourceLinks": []
   },
@@ -3721,11 +3721,11 @@
   "Frans_Snijders_-_Keukenstilleven.jpg": {
     "wikidataId": "Q19925870",
     "wikidataUrl": "https://www.wikidata.org/wiki/Q19925870",
-    "collection": "Stichting Nederlands Kunstbezit",
-    "collectionWikidataId": "Q28045665",
+    "collection": "Museum Boijmans Van Beuningen",
+    "collectionWikidataId": "Q679527",
     "location": "Museum Boijmans Van Beuningen",
-    "inventory": "NK1686",
-    "describedAt": "http://herkomstgezocht.nl/nl/nk-collectie/stilleven-met-groenten-fruit-wild-en-een-kreeft",
+    "inventory": "3190 (OK)",
+    "describedAt": null,
     "sourceLinks": []
   },
   "Frans_Snyders_-_Concert_of_Birds_-_WGA21526.jpg": {
@@ -4098,7 +4098,7 @@
     "wikidataUrl": "https://www.wikidata.org/wiki/Q24965698",
     "collection": "Sheffield Galleries and Museums Trust",
     "collectionWikidataId": "Q7492669",
-    "location": "Graves Art Gallery",
+    "location": null,
     "inventory": "VIS.1844",
     "describedAt": "http://collections.museums-sheffield.org.uk/view/objects/asitem/search@/0?t:state:flow=85d8e8ed-44b1-4bf1-904d-b751cccf8041",
     "sourceLinks": []
@@ -4248,7 +4248,7 @@
     "wikidataUrl": "https://www.wikidata.org/wiki/Q3222585",
     "collection": "Q136497529",
     "collectionWikidataId": "Q136497529",
-    "location": "Musée d'Orsay website",
+    "location": null,
     "inventory": null,
     "describedAt": null,
     "sourceLinks": []
@@ -4351,10 +4351,10 @@
   "HavreMonet.jpg": {
     "wikidataId": "Q90913879",
     "wikidataUrl": "https://www.wikidata.org/wiki/Q90913879",
-    "collection": "Liege Fine Arts Museum",
-    "collectionWikidataId": "Q80784",
-    "location": "Liege Fine Arts Museum",
-    "inventory": "AM 399/151",
+    "collection": "La Boverie",
+    "collectionWikidataId": "Q21511875",
+    "location": null,
+    "inventory": "BA.AMC.05b.1900.21591",
     "describedAt": "https://www.laboverie.com/les-collections/le-musee-des-beaux-arts/les-collections-permanentes-classees-par-artiste#section-5",
     "sourceLinks": []
   },
@@ -4536,8 +4536,8 @@
   "Henry_Fuseli_-_Titania_and_Bottom_-_Google_Art_Project.jpg": {
     "wikidataId": "Q18686639",
     "wikidataUrl": "https://www.wikidata.org/wiki/Q18686639",
-    "collection": "National Gallery",
-    "collectionWikidataId": "Q180788",
+    "collection": "Tate",
+    "collectionWikidataId": "Q430682",
     "location": "Tate Britain",
     "inventory": "N01228",
     "describedAt": null,
@@ -4601,11 +4601,11 @@
   "Hokusai_1760-1849_Ocean_waves.jpg": {
     "wikidataId": "Q21402255",
     "wikidataUrl": "https://www.wikidata.org/wiki/Q21402255",
-    "collection": "Art Institute of Chicago",
-    "collectionWikidataId": "Q239303",
+    "collection": null,
+    "collectionWikidataId": null,
     "location": null,
-    "inventory": "EO1852",
-    "describedAt": "http://www.ccma-net.jp/collection_img/collection_01-04_hokusai_choshi.html",
+    "inventory": null,
+    "describedAt": null,
     "sourceLinks": []
   },
   "Holbein_—_Dead_Christ.jpg": {
@@ -4613,7 +4613,7 @@
     "wikidataUrl": "https://www.wikidata.org/wiki/Q4310527",
     "collection": "Kunstmuseum Basel",
     "collectionWikidataId": "Q194626",
-    "location": "Germany",
+    "location": "Kunstmuseum Basel",
     "inventory": "318",
     "describedAt": null,
     "sourceLinks": []
@@ -4631,10 +4631,10 @@
   "Honjo_Tatekawa,_the_timberyard_at_Honjo.jpg": {
     "wikidataId": "Q18173427",
     "wikidataUrl": "https://www.wikidata.org/wiki/Q18173427",
-    "collection": "Metropolitan Museum of Art",
-    "collectionWikidataId": "Q160236",
+    "collection": null,
+    "collectionWikidataId": null,
     "location": null,
-    "inventory": "1916.1166",
+    "inventory": null,
     "describedAt": null,
     "sourceLinks": []
   },
@@ -4753,7 +4753,7 @@
     "wikidataUrl": "https://www.wikidata.org/wiki/Q841721",
     "collection": "Tokyo National Museum",
     "collectionWikidataId": "Q653433",
-    "location": "Xiaoxiang",
+    "location": null,
     "inventory": "TA-161",
     "describedAt": null,
     "sourceLinks": []
@@ -4858,7 +4858,7 @@
     "wikidataUrl": "https://www.wikidata.org/wiki/Q137778676",
     "collection": "Department of Prints and Drawings of the Louvre",
     "collectionWikidataId": "Q3044753",
-    "location": "Q115788118",
+    "location": "Petit format",
     "inventory": "RF 674",
     "describedAt": null,
     "sourceLinks": []
@@ -4888,7 +4888,7 @@
     "wikidataUrl": "https://www.wikidata.org/wiki/Q29965212",
     "collection": "Bavarian State Painting Collections",
     "collectionWikidataId": "Q812285",
-    "location": "Munich Central Collecting Point",
+    "location": "Staatsgalerie Neuburg",
     "inventory": "12876",
     "describedAt": null,
     "sourceLinks": []
@@ -4936,8 +4936,8 @@
   "James_Abbot_McNeill_Whistler_006.jpg": {
     "wikidataId": "Q589002",
     "wikidataUrl": "https://www.wikidata.org/wiki/Q589002",
-    "collection": "National Gallery",
-    "collectionWikidataId": "Q180788",
+    "collection": "Tate",
+    "collectionWikidataId": "Q430682",
     "location": "Tate Britain",
     "inventory": "N01959",
     "describedAt": "http://www.tate.org.uk/art/artworks/whistler-nocturne-blue-and-gold-old-battersea-bridge-n01959",
@@ -5043,9 +5043,9 @@
     "wikidataUrl": "https://www.wikidata.org/wiki/Q588695",
     "collection": "Kunsthistorisches Museum",
     "collectionWikidataId": "Q95569",
-    "location": "Q110991859",
+    "location": "Kunsthistorisches Museum",
     "inventory": "GG_9128",
-    "describedAt": null,
+    "describedAt": "https://www.essentialvermeer.com/catalogue/art_of_painting.html",
     "sourceLinks": []
   },
   "Jan_Vermeer_van_Delft_-_Brieflezend_meisje_bij_het_venster_(ca._1657-59).jpg": {
@@ -5266,8 +5266,8 @@
   "Jean-Léon_Gérôme_-_The_Harem_in_the_Kiosk_(1870)_(Sotheby's)_099l1905-b9ddk.jpg": {
     "wikidataId": "Q114355049",
     "wikidataUrl": "https://www.wikidata.org/wiki/Q114355049",
-    "collection": "Najd Collection",
-    "collectionWikidataId": "Q132158401",
+    "collection": "Lusail Museum",
+    "collectionWikidataId": "Q136522910",
     "location": null,
     "inventory": "QM.2024.1569",
     "describedAt": "https://www.sothebys.com/en/buy/auction/2019/important-works-from-the-najd-collection/jean-leon-gerome-the-harem-in-the-kiosk",
@@ -5336,9 +5336,9 @@
   "Jean_Auguste_Dominique_Ingres_-_The_Spring_-_Google_Art_Project_2.jpg": {
     "wikidataId": "Q1215604",
     "wikidataUrl": "https://www.wikidata.org/wiki/Q1215604",
-    "collection": "Musée d'Orsay",
-    "collectionWikidataId": "Q23402",
-    "location": "Musée d'Orsay",
+    "collection": "Department of Paintings of the Louvre",
+    "collectionWikidataId": "Q3044768",
+    "location": null,
     "inventory": "RF 219",
     "describedAt": null,
     "sourceLinks": []
@@ -5400,7 +5400,7 @@
     "collectionWikidataId": "Q214867",
     "location": "National Gallery of Art",
     "inventory": "1952.5.33",
-    "describedAt": "http://web.archive.org/web/20160309172951/http://www.hetnoordbrabantsmuseum.nl/english/press-jheronimus-bosch/persbeelden-eng/",
+    "describedAt": "https://web.archive.org/web/20160309172951/http://www.hetnoordbrabantsmuseum.nl/english/press-jheronimus-bosch/persbeelden-eng/",
     "sourceLinks": []
   },
   "Joachim_Patinir_-_Rest_during_the_Flight_to_Egypt,_Museo_del_Prado.jpg": {
@@ -5426,11 +5426,11 @@
   "Joachim_Patinir_010.jpg": {
     "wikidataId": "Q18640770",
     "wikidataUrl": "https://www.wikidata.org/wiki/Q18640770",
-    "collection": "Hermann Göring Collection",
-    "collectionWikidataId": "Q2647884",
-    "location": "Munich Central Collecting Point",
-    "inventory": "6725",
-    "describedAt": "http://herkomstgezocht.nl/nl/nk-collectie/landschap-met-de-ondergang-van-sodom-en-gomorra",
+    "collection": null,
+    "collectionWikidataId": null,
+    "location": null,
+    "inventory": null,
+    "describedAt": null,
     "sourceLinks": []
   },
   "Johann_Heinrich_Füssli_054.jpg": {
@@ -5438,7 +5438,7 @@
     "wikidataUrl": "https://www.wikidata.org/wiki/Q107552750",
     "collection": "Q135334615",
     "collectionWikidataId": "Q135334615",
-    "location": "Aargauer Kunsthaus",
+    "location": null,
     "inventory": null,
     "describedAt": null,
     "sourceLinks": []
@@ -5479,7 +5479,7 @@
     "collection": "Department of Paintings of the Louvre",
     "collectionWikidataId": "Q3044768",
     "location": "Louvre Museum",
-    "inventory": "1479",
+    "inventory": "RF 1983 28",
     "describedAt": "http://www.louvre.fr/oeuvre-notices/l-astronome",
     "sourceLinks": []
   },
@@ -5490,7 +5490,7 @@
     "collectionWikidataId": "Q163804",
     "location": "Städel Museum",
     "inventory": "1149",
-    "describedAt": null,
+    "describedAt": "https://staedelmuseum.de/go/ds/1149",
     "sourceLinks": []
   },
   "Johannes_Vermeer_-_The_lacemaker_(c.1669-1671).jpg": {
@@ -5506,8 +5506,8 @@
   "John_Constable_(1776-1837)_-_Maria_Bicknell,_Mrs_John_Constable_-_N02655_-_National_Gallery.jpg": {
     "wikidataId": "Q19257634",
     "wikidataUrl": "https://www.wikidata.org/wiki/Q19257634",
-    "collection": "National Gallery",
-    "collectionWikidataId": "Q180788",
+    "collection": "Tate",
+    "collectionWikidataId": "Q430682",
     "location": "Tate",
     "inventory": "N02655",
     "describedAt": "http://www.tate.org.uk/art/artworks/constable-maria-bicknell-mrs-john-constable-n02655",
@@ -5576,8 +5576,8 @@
   "John_Everett_Millais_-_Ophelia_-_Google_Art_Project.jpg": {
     "wikidataId": "Q1065493",
     "wikidataUrl": "https://www.wikidata.org/wiki/Q1065493",
-    "collection": "National Gallery",
-    "collectionWikidataId": "Q180788",
+    "collection": "Tate",
+    "collectionWikidataId": "Q430682",
     "location": "Tate Britain",
     "inventory": "N01506",
     "describedAt": "https://www.tate.org.uk/art/artworks/millais-ophelia-n01506/story-ophelia",
@@ -5731,8 +5731,8 @@
   "John_Singer_Sargent_-_Carnation,_Lily,_Lily,_Rose_-_Google_Art_Project.jpg": {
     "wikidataId": "Q1560719",
     "wikidataUrl": "https://www.wikidata.org/wiki/Q1560719",
-    "collection": "National Gallery",
-    "collectionWikidataId": "Q180788",
+    "collection": "Tate",
+    "collectionWikidataId": "Q430682",
     "location": "Tate Britain",
     "inventory": "N01615",
     "describedAt": "http://www.tate.org.uk/art/artworks/sargent-carnation-lily-lily-rose-n01615",
@@ -5771,8 +5771,8 @@
   "Joseph_Mallord_William_Turner_(1775-1851)_-_A_Ship_Aground,_Yarmouth,_Sample_Study_-_N02065_-_National_Gallery.jpg": {
     "wikidataId": "Q28542080",
     "wikidataUrl": "https://www.wikidata.org/wiki/Q28542080",
-    "collection": "National Gallery",
-    "collectionWikidataId": "Q180788",
+    "collection": "Tate",
+    "collectionWikidataId": "Q430682",
     "location": "Tate",
     "inventory": "N02065",
     "describedAt": "http://www.tate.org.uk/art/artworks/turner-a-ship-aground-yarmouth-sample-study-n02065",
@@ -5781,8 +5781,8 @@
   "Joseph_Mallord_William_Turner_(1775-1851)_-_Buttermere_Lake,_with_Part_of_Cromackwater,_Cumberland,_a_Shower_-_N00460_-_National_Gallery.jpg": {
     "wikidataId": "Q28540734",
     "wikidataUrl": "https://www.wikidata.org/wiki/Q28540734",
-    "collection": "National Gallery",
-    "collectionWikidataId": "Q180788",
+    "collection": "Tate",
+    "collectionWikidataId": "Q430682",
     "location": "Tate",
     "inventory": "N00460",
     "describedAt": "http://www.tate.org.uk/art/artworks/turner-buttermere-lake-with-part-of-cromackwater-cumberland-a-shower-n00460",
@@ -5801,8 +5801,8 @@
   "Joseph_Mallord_William_Turner_(1775-1851)_-_Cassiobury_Park,_Reaping_-_N04663_-_National_Gallery.jpg": {
     "wikidataId": "Q28532912",
     "wikidataUrl": "https://www.wikidata.org/wiki/Q28532912",
-    "collection": "National Gallery",
-    "collectionWikidataId": "Q180788",
+    "collection": "Tate",
+    "collectionWikidataId": "Q430682",
     "location": "Tate",
     "inventory": "N04663",
     "describedAt": "http://www.tate.org.uk/art/artworks/turner-cassiobury-park-reaping-n04663",
@@ -5811,8 +5811,8 @@
   "Joseph_Mallord_William_Turner_(1775-1851)_-_First_Sketch_for_'The_Battle_of_Trafalgar'_-_N05480_-_National_Gallery.jpg": {
     "wikidataId": "Q28533537",
     "wikidataUrl": "https://www.wikidata.org/wiki/Q28533537",
-    "collection": "National Gallery",
-    "collectionWikidataId": "Q180788",
+    "collection": "Tate",
+    "collectionWikidataId": "Q430682",
     "location": "Tate",
     "inventory": "N05480",
     "describedAt": "http://www.tate.org.uk/art/artworks/turner-first-sketch-for-the-battle-of-trafalgar-n05480",
@@ -5821,8 +5821,8 @@
   "Joseph_Mallord_William_Turner_(1775-1851)_-_Fishing_Boats_Bringing_a_Disabled_Ship_into_Port_Ruysdael_-_N00536_-_National_Gallery.jpg": {
     "wikidataId": "Q28538568",
     "wikidataUrl": "https://www.wikidata.org/wiki/Q28538568",
-    "collection": "National Gallery",
-    "collectionWikidataId": "Q180788",
+    "collection": "Tate",
+    "collectionWikidataId": "Q430682",
     "location": "Tate",
     "inventory": "N00536",
     "describedAt": "http://www.tate.org.uk/art/artworks/turner-fishing-boats-bringing-a-disabled-ship-into-port-ruysdael-n00536",
@@ -5831,8 +5831,8 @@
   "Joseph_Mallord_William_Turner_(1775-1851)_-_Grenoble_Seen_from_the_River_Drac_with_Mont_Blanc_in_the_Distance_-_N02988_-_National_Gallery.jpg": {
     "wikidataId": "Q28541417",
     "wikidataUrl": "https://www.wikidata.org/wiki/Q28541417",
-    "collection": "National Gallery",
-    "collectionWikidataId": "Q180788",
+    "collection": "Tate",
+    "collectionWikidataId": "Q430682",
     "location": "Tate",
     "inventory": "N02988",
     "describedAt": "http://www.tate.org.uk/art/artworks/turner-grenoble-seen-from-the-river-drac-with-mont-blanc-in-the-distance-n02988",
@@ -5841,8 +5841,8 @@
   "Joseph_Mallord_William_Turner_(1775-1851)_-_Head_of_a_Person_Asleep_-_N05494_-_National_Gallery.jpg": {
     "wikidataId": "Q28533429",
     "wikidataUrl": "https://www.wikidata.org/wiki/Q28533429",
-    "collection": "National Gallery",
-    "collectionWikidataId": "Q180788",
+    "collection": "Tate",
+    "collectionWikidataId": "Q430682",
     "location": "Tate",
     "inventory": "N05494",
     "describedAt": "http://www.tate.org.uk/art/artworks/turner-head-of-a-person-asleep-n05494",
@@ -5851,8 +5851,8 @@
   "Joseph_Mallord_William_Turner_(1775-1851)_-_Hill_Town_on_the_Edge_of_the_Campagna_-_N05526_-_National_Gallery.jpg": {
     "wikidataId": "Q28542169",
     "wikidataUrl": "https://www.wikidata.org/wiki/Q28542169",
-    "collection": "National Gallery",
-    "collectionWikidataId": "Q180788",
+    "collection": "Tate",
+    "collectionWikidataId": "Q430682",
     "location": "Tate",
     "inventory": "N05526",
     "describedAt": "http://www.tate.org.uk/art/artworks/turner-hill-town-on-the-edge-of-the-campagna-n05526",
@@ -5861,18 +5861,18 @@
   "Joseph_Mallord_William_Turner_(1775-1851)_-_Petworth,_Sussex,_the_Seat_of_the_Earl_of_Egremont,_Dewy_Morning_-_T03880_-_Tate.jpg": {
     "wikidataId": "Q28552855",
     "wikidataUrl": "https://www.wikidata.org/wiki/Q28552855",
-    "collection": "National Trust",
-    "collectionWikidataId": "Q333515",
-    "location": "Petworth House",
-    "inventory": "486630",
+    "collection": "Tate",
+    "collectionWikidataId": "Q430682",
+    "location": null,
+    "inventory": "T03880",
     "describedAt": "http://www.tate.org.uk/art/artworks/turner-petworth-sussex-the-seat-of-the-earl-of-egremont-dewy-morning-t03880",
     "sourceLinks": []
   },
   "Joseph_Mallord_William_Turner_(1775-1851)_-_Petworth_Park,_Tillington_Church_in_the_Distance_-_N00559_-_National_Gallery.jpg": {
     "wikidataId": "Q28538672",
     "wikidataUrl": "https://www.wikidata.org/wiki/Q28538672",
-    "collection": "National Gallery",
-    "collectionWikidataId": "Q180788",
+    "collection": "Tate",
+    "collectionWikidataId": "Q430682",
     "location": "Tate",
     "inventory": "N00559",
     "describedAt": "http://www.tate.org.uk/art/artworks/turner-petworth-park-tillington-church-in-the-distance-n00559",
@@ -5881,8 +5881,8 @@
   "Joseph_Mallord_William_Turner_(1775-1851)_-_Rocky_Coast_-_N05499_-_National_Gallery.jpg": {
     "wikidataId": "Q28533524",
     "wikidataUrl": "https://www.wikidata.org/wiki/Q28533524",
-    "collection": "National Gallery",
-    "collectionWikidataId": "Q180788",
+    "collection": "Tate",
+    "collectionWikidataId": "Q430682",
     "location": "Tate",
     "inventory": "N05499",
     "describedAt": "http://www.tate.org.uk/art/artworks/turner-rocky-coast-n05499",
@@ -5891,8 +5891,8 @@
   "Joseph_Mallord_William_Turner_(1775-1851)_-_Shipping_by_a_Breakwater_-_N00469_-_National_Gallery.jpg": {
     "wikidataId": "Q28540771",
     "wikidataUrl": "https://www.wikidata.org/wiki/Q28540771",
-    "collection": "National Gallery",
-    "collectionWikidataId": "Q180788",
+    "collection": "Tate",
+    "collectionWikidataId": "Q430682",
     "location": "Tate",
     "inventory": "N00469",
     "describedAt": "http://www.tate.org.uk/art/artworks/turner-shipping-by-a-breakwater-n00469",
@@ -5901,8 +5901,8 @@
   "Joseph_Mallord_William_Turner_(1775-1851)_-_Shipping_off_East_Cowes_Headland_-_N01999_-_National_Gallery.jpg": {
     "wikidataId": "Q28539813",
     "wikidataUrl": "https://www.wikidata.org/wiki/Q28539813",
-    "collection": "National Gallery",
-    "collectionWikidataId": "Q180788",
+    "collection": "Tate",
+    "collectionWikidataId": "Q430682",
     "location": "Tate",
     "inventory": "N01999",
     "describedAt": "http://www.tate.org.uk/art/artworks/turner-shipping-off-east-cowes-headland-n01999",
@@ -5911,8 +5911,8 @@
   "Joseph_Mallord_William_Turner_(1775-1851)_-_Sketch_for_'East_Cowes_Castle,_the_Regatta_Beating_to_Windward'_No._1_-_N01995_-_National_Gallery.jpg": {
     "wikidataId": "Q28539798",
     "wikidataUrl": "https://www.wikidata.org/wiki/Q28539798",
-    "collection": "National Gallery",
-    "collectionWikidataId": "Q180788",
+    "collection": "Tate",
+    "collectionWikidataId": "Q430682",
     "location": "Tate",
     "inventory": "N01995",
     "describedAt": "http://www.tate.org.uk/art/artworks/turner-sketch-for-east-cowes-castle-the-regatta-beating-to-windward-no-1-n01995",
@@ -5921,8 +5921,8 @@
   "Joseph_Mallord_William_Turner_(1775-1851)_-_Sketch_for_'East_Cowes_Castle,_the_Regatta_Beating_to_Windward'_No._2_-_N01994_-_National_Gallery.jpg": {
     "wikidataId": "Q28539639",
     "wikidataUrl": "https://www.wikidata.org/wiki/Q28539639",
-    "collection": "National Gallery",
-    "collectionWikidataId": "Q180788",
+    "collection": "Tate",
+    "collectionWikidataId": "Q430682",
     "location": "Tate",
     "inventory": "N01994",
     "describedAt": "http://www.tate.org.uk/art/artworks/turner-sketch-for-east-cowes-castle-the-regatta-beating-to-windward-no-2-n01994",
@@ -5931,8 +5931,8 @@
   "Joseph_Mallord_William_Turner_(1775-1851)_-_Sun_Setting_over_a_Lake_-_N04665_-_National_Gallery.jpg": {
     "wikidataId": "Q28532889",
     "wikidataUrl": "https://www.wikidata.org/wiki/Q28532889",
-    "collection": "National Gallery",
-    "collectionWikidataId": "Q180788",
+    "collection": "Tate",
+    "collectionWikidataId": "Q430682",
     "location": "Tate",
     "inventory": "N04665",
     "describedAt": "https://www.tate.org.uk/art/artworks/turner-sun-setting-over-a-lake-n04665",
@@ -5941,8 +5941,8 @@
   "Joseph_Mallord_William_Turner_(1775-1851)_-_Sunset_on_the_River_-_N02311_-_National_Gallery.jpg": {
     "wikidataId": "Q28532602",
     "wikidataUrl": "https://www.wikidata.org/wiki/Q28532602",
-    "collection": "National Gallery",
-    "collectionWikidataId": "Q180788",
+    "collection": "Tate",
+    "collectionWikidataId": "Q430682",
     "location": "Tate",
     "inventory": "N02311",
     "describedAt": "http://www.tate.org.uk/art/artworks/turner-sunset-on-the-river-n02311",
@@ -5951,10 +5951,10 @@
   "Joseph_Mallord_William_Turner_(1775-1851)_-_Teignmouth_-_T03882_-_Tate.jpg": {
     "wikidataId": "Q28552823",
     "wikidataUrl": "https://www.wikidata.org/wiki/Q28552823",
-    "collection": "National Trust",
-    "collectionWikidataId": "Q333515",
-    "location": "Petworth House",
-    "inventory": "486634",
+    "collection": "Tate",
+    "collectionWikidataId": "Q430682",
+    "location": null,
+    "inventory": "T03882",
     "describedAt": "http://www.tate.org.uk/art/artworks/turner-teignmouth-t03882",
     "sourceLinks": []
   },
@@ -5971,10 +5971,10 @@
   "Joseph_Mallord_William_Turner_(1775-1851)_-_The_Confluence_of_the_Thames_and_the_Medway_-_T03874_-_Tate.jpg": {
     "wikidataId": "Q28552954",
     "wikidataUrl": "https://www.wikidata.org/wiki/Q28552954",
-    "collection": "National Trust",
-    "collectionWikidataId": "Q333515",
+    "collection": "Tate",
+    "collectionWikidataId": "Q430682",
     "location": "Tate",
-    "inventory": "486635",
+    "inventory": "T03874",
     "describedAt": "http://www.tate.org.uk/art/artworks/turner-the-confluence-of-the-thames-and-the-medway-t03874",
     "sourceLinks": []
   },
@@ -5983,16 +5983,16 @@
     "wikidataUrl": "https://www.wikidata.org/wiki/Q28538509",
     "collection": "National Gallery",
     "collectionWikidataId": "Q180788",
-    "location": "Tate",
-    "inventory": "N00500",
-    "describedAt": "http://www.tate.org.uk/art/artworks/turner-the-field-of-waterloo-n00500",
+    "location": null,
+    "inventory": "NG500",
+    "describedAt": null,
     "sourceLinks": []
   },
   "Joseph_Mallord_William_Turner_(1775-1851)_-_The_Garreteer's_Petition_-_N00482_-_National_Gallery.jpg": {
     "wikidataId": "Q28540908",
     "wikidataUrl": "https://www.wikidata.org/wiki/Q28540908",
-    "collection": "National Gallery",
-    "collectionWikidataId": "Q180788",
+    "collection": "Tate",
+    "collectionWikidataId": "Q430682",
     "location": "Tate",
     "inventory": "N00482",
     "describedAt": "http://www.tate.org.uk/art/artworks/turner-the-garreteers-petition-n00482",
@@ -6011,18 +6011,18 @@
   "Joseph_Mallord_William_Turner_(1775-1851)_-_The_Thames_near_Windsor_-_T03871_-_Tate.jpg": {
     "wikidataId": "Q52253867",
     "wikidataUrl": "https://www.wikidata.org/wiki/Q52253867",
-    "collection": "National Trust",
-    "collectionWikidataId": "Q333515",
-    "location": "Petworth House",
-    "inventory": "486620",
+    "collection": "Tate",
+    "collectionWikidataId": "Q430682",
+    "location": null,
+    "inventory": "T03871",
     "describedAt": "http://www.tate.org.uk/art/artworks/turner-the-thames-near-windsor-t03871",
     "sourceLinks": []
   },
   "Joseph_Mallord_William_Turner_(1775-1851)_-_Tree_Tops_and_Sky,_Guildford_Castle(^),_Evening_-_N02309_-_National_Gallery.jpg": {
     "wikidataId": "Q28532612",
     "wikidataUrl": "https://www.wikidata.org/wiki/Q28532612",
-    "collection": "National Gallery",
-    "collectionWikidataId": "Q180788",
+    "collection": "Tate",
+    "collectionWikidataId": "Q430682",
     "location": "Tate",
     "inventory": "N02309",
     "describedAt": "http://www.tate.org.uk/art/artworks/turner-tree-tops-and-sky-guildford-castle-evening-n02309",
@@ -6031,8 +6031,8 @@
   "Joseph_Mallord_William_Turner_(1775-1851)_-_Venice_Quay,_Ducal_Palace_-_N00540_-_National_Gallery.jpg": {
     "wikidataId": "Q28538549",
     "wikidataUrl": "https://www.wikidata.org/wiki/Q28538549",
-    "collection": "National Gallery",
-    "collectionWikidataId": "Q180788",
+    "collection": "Tate",
+    "collectionWikidataId": "Q430682",
     "location": "Tate",
     "inventory": "N00540",
     "describedAt": "http://www.tate.org.uk/art/artworks/turner-venice-quay-ducal-palace-n00540",
@@ -6041,8 +6041,8 @@
   "Joseph_Mallord_William_Turner_(1775-1851)_-_View_of_Orvieto,_Painted_in_Rome_-_N00511_-_National_Gallery.jpg": {
     "wikidataId": "Q28538517",
     "wikidataUrl": "https://www.wikidata.org/wiki/Q28538517",
-    "collection": "National Gallery",
-    "collectionWikidataId": "Q180788",
+    "collection": "Tate",
+    "collectionWikidataId": "Q430682",
     "location": "Tate",
     "inventory": "N00511",
     "describedAt": "http://www.tate.org.uk/art/artworks/turner-view-of-orvieto-painted-in-rome-n00511",
@@ -6051,8 +6051,8 @@
   "Joseph_Mallord_William_Turner_(1775-1851)_-_Waves_Breaking_against_the_Wind_-_N02881_-_National_Gallery.jpg": {
     "wikidataId": "Q28539405",
     "wikidataUrl": "https://www.wikidata.org/wiki/Q28539405",
-    "collection": "National Gallery",
-    "collectionWikidataId": "Q180788",
+    "collection": "Tate",
+    "collectionWikidataId": "Q430682",
     "location": "Tate",
     "inventory": "N02881",
     "describedAt": "http://www.tate.org.uk/art/artworks/turner-waves-breaking-against-the-wind-n02881",
@@ -6061,8 +6061,8 @@
   "Joseph_Mallord_William_Turner_(1775-1851)_-_Weir_and_Cattle_-_N02705_-_National_Gallery.jpg": {
     "wikidataId": "Q28532510",
     "wikidataUrl": "https://www.wikidata.org/wiki/Q28532510",
-    "collection": "National Gallery",
-    "collectionWikidataId": "Q180788",
+    "collection": "Tate",
+    "collectionWikidataId": "Q430682",
     "location": "Tate",
     "inventory": "N02705",
     "describedAt": "http://www.tate.org.uk/art/artworks/turner-weir-and-cattle-n02705",
@@ -6071,8 +6071,8 @@
   "Joseph_Mallord_William_Turner_(1775-1851)_-_Willows_beside_a_Stream_-_N02706_-_National_Gallery.jpg": {
     "wikidataId": "Q28532503",
     "wikidataUrl": "https://www.wikidata.org/wiki/Q28532503",
-    "collection": "National Gallery",
-    "collectionWikidataId": "Q180788",
+    "collection": "Tate",
+    "collectionWikidataId": "Q430682",
     "location": "Tate",
     "inventory": "N02706",
     "describedAt": "http://www.tate.org.uk/art/artworks/turner-willows-beside-a-stream-n02706",
@@ -6091,8 +6091,8 @@
   "Joseph_Mallord_William_Turner_(1775–1851)_-_The_Tenth_Plague_of_Egypt_-_N00470_-_National_Gallery.jpg": {
     "wikidataId": "Q28540587",
     "wikidataUrl": "https://www.wikidata.org/wiki/Q28540587",
-    "collection": "National Gallery",
-    "collectionWikidataId": "Q180788",
+    "collection": "Tate",
+    "collectionWikidataId": "Q430682",
     "location": "Tate",
     "inventory": "N00470",
     "describedAt": "http://www.tate.org.uk/art/artworks/turner-the-tenth-plague-of-egypt-n00470",
@@ -6121,8 +6121,8 @@
   "Joseph_Mallord_William_Turner_-_Caligula's_Palace_and_Bridge_-_Google_Art_Project.jpg": {
     "wikidataId": "Q18687480",
     "wikidataUrl": "https://www.wikidata.org/wiki/Q18687480",
-    "collection": "National Gallery",
-    "collectionWikidataId": "Q180788",
+    "collection": "Tate",
+    "collectionWikidataId": "Q430682",
     "location": "Tate Britain",
     "inventory": "N00512",
     "describedAt": "http://www.tate.org.uk/art/artworks/turner-caligulas-palace-and-bridge-n00512",
@@ -6151,8 +6151,8 @@
   "Joseph_Mallord_William_Turner_-_Cliveden_on_Thames_-_Google_Art_Project.jpg": {
     "wikidataId": "Q18687364",
     "wikidataUrl": "https://www.wikidata.org/wiki/Q18687364",
-    "collection": "National Gallery",
-    "collectionWikidataId": "Q180788",
+    "collection": "Tate",
+    "collectionWikidataId": "Q430682",
     "location": "Tate Britain",
     "inventory": "N01180",
     "describedAt": "http://www.tate.org.uk/art/artworks/turner-cliveden-on-thames-n01180",
@@ -6161,10 +6161,10 @@
   "Joseph_Mallord_William_Turner_-_Death_on_a_pale_horse_-_Google_Art_Project.jpg": {
     "wikidataId": "Q18687288",
     "wikidataUrl": "https://www.wikidata.org/wiki/Q18687288",
-    "collection": "National Gallery",
-    "collectionWikidataId": "Q180788",
+    "collection": "Tate",
+    "collectionWikidataId": "Q430682",
     "location": "Tate Britain",
-    "inventory": "NG5504",
+    "inventory": "N05504",
     "describedAt": "http://www.tate.org.uk/art/artworks/turner-death-on-a-pale-horse-n05504",
     "sourceLinks": []
   },
@@ -6211,8 +6211,8 @@
   "Joseph_Mallord_William_Turner_-_Fishing_upon_the_Blythe-Sand,_Tide_Setting_In_-_Google_Art_Project.jpg": {
     "wikidataId": "Q18687324",
     "wikidataUrl": "https://www.wikidata.org/wiki/Q18687324",
-    "collection": "National Gallery",
-    "collectionWikidataId": "Q180788",
+    "collection": "Tate",
+    "collectionWikidataId": "Q430682",
     "location": "Tate Britain",
     "inventory": "N00496",
     "describedAt": "http://www.tate.org.uk/art/artworks/turner-fishing-upon-the-blythe-sand-tide-setting-in-n00496",
@@ -6241,8 +6241,8 @@
   "Joseph_Mallord_William_Turner_-_London_from_Greenwich_Park_-_Google_Art_Project.jpg": {
     "wikidataId": "Q18687310",
     "wikidataUrl": "https://www.wikidata.org/wiki/Q18687310",
-    "collection": "National Gallery",
-    "collectionWikidataId": "Q180788",
+    "collection": "Tate",
+    "collectionWikidataId": "Q430682",
     "location": "Tate Britain",
     "inventory": "N00483",
     "describedAt": "http://www.tate.org.uk/art/artworks/turner-london-from-greenwich-park-n00483",
@@ -6261,8 +6261,8 @@
   "Joseph_Mallord_William_Turner_-_Norham_Castle,_Sunrise_-_WGA23182.jpg": {
     "wikidataId": "Q28539779",
     "wikidataUrl": "https://www.wikidata.org/wiki/Q28539779",
-    "collection": "National Gallery",
-    "collectionWikidataId": "Q180788",
+    "collection": "Tate",
+    "collectionWikidataId": "Q430682",
     "location": "Tate",
     "inventory": "N01981",
     "describedAt": "http://www.tate.org.uk/art/artworks/turner-norham-castle-sunrise-n01981",
@@ -6291,8 +6291,8 @@
   "Joseph_Mallord_William_Turner_-_Shipping_at_the_Mouth_of_the_Thames_-_Google_Art_Project.jpg": {
     "wikidataId": "Q18687403",
     "wikidataUrl": "https://www.wikidata.org/wiki/Q18687403",
-    "collection": "National Gallery",
-    "collectionWikidataId": "Q180788",
+    "collection": "Tate",
+    "collectionWikidataId": "Q430682",
     "location": "Tate Britain",
     "inventory": "N02702",
     "describedAt": "http://www.tate.org.uk/art/artworks/turner-shipping-at-the-mouth-of-the-thames-n02702",
@@ -6301,9 +6301,9 @@
   "Joseph_Mallord_William_Turner_-_Snow_Storm_-_Steam-Boat_off_a_Harbour's_Mouth_-_WGA23178.jpg": {
     "wikidataId": "Q16038731",
     "wikidataUrl": "https://www.wikidata.org/wiki/Q16038731",
-    "collection": "National Gallery",
-    "collectionWikidataId": "Q180788",
-    "location": "Museum of Fine Arts Boston",
+    "collection": "Tate",
+    "collectionWikidataId": "Q430682",
+    "location": "Tate",
     "inventory": "N00530",
     "describedAt": "http://www.tate.org.uk/art/artworks/turner-snow-storm-steam-boat-off-a-harbours-mouth-n00530",
     "sourceLinks": []
@@ -6351,8 +6351,8 @@
   "Joseph_Mallord_William_Turner_-_The_Shipwreck_-_Google_Art_Project.jpg": {
     "wikidataId": "Q18687275",
     "wikidataUrl": "https://www.wikidata.org/wiki/Q18687275",
-    "collection": "National Gallery",
-    "collectionWikidataId": "Q180788",
+    "collection": "Tate",
+    "collectionWikidataId": "Q430682",
     "location": "Tate Britain",
     "inventory": "N00476",
     "describedAt": "http://www.tate.org.uk/art/artworks/turner-the-shipwreck-n00476",
@@ -6361,8 +6361,8 @@
   "Joseph_Mallord_William_Turner_-_The_Sun_of_Venice_Going_to_Sea_-_Google_Art_Project.jpg": {
     "wikidataId": "L648258-S1",
     "wikidataUrl": "https://www.wikidata.org/wiki/L648258-S1",
-    "collection": "National Gallery",
-    "collectionWikidataId": "Q180788",
+    "collection": "Tate",
+    "collectionWikidataId": "Q430682",
     "location": "Tate Britain",
     "inventory": "N00535",
     "describedAt": "http://www.tate.org.uk/art/artworks/turner-the-sun-of-venice-going-to-sea-n00535",
@@ -6401,8 +6401,8 @@
   "Joseph_Wright_of_Derby_(1734-1797)_-_A_Moonlight_with_a_Lighthouse,_Coast_of_Tuscany_-_N05882_-_National_Gallery.jpg": {
     "wikidataId": "Q28540017",
     "wikidataUrl": "https://www.wikidata.org/wiki/Q28540017",
-    "collection": "National Gallery",
-    "collectionWikidataId": "Q180788",
+    "collection": "Tate",
+    "collectionWikidataId": "Q430682",
     "location": "Tate",
     "inventory": "N05882",
     "describedAt": "http://www.tate.org.uk/art/artworks/wright-a-moonlight-with-a-lighthouse-coast-of-tuscany-n05882",
@@ -6468,7 +6468,7 @@
     "wikidataUrl": "https://www.wikidata.org/wiki/Q9389442",
     "collection": "Saint Nicholas Cathedral in Kalisz",
     "collectionWikidataId": "Q11737350",
-    "location": "Belgium",
+    "location": "Saint Nicholas Cathedral in Kalisz",
     "inventory": null,
     "describedAt": null,
     "sourceLinks": []
@@ -6586,10 +6586,10 @@
   "Katsushika_Hokusai_(1760-1849),_De_Roben_waterval_(1835).jpg": {
     "wikidataId": "Q60229722",
     "wikidataUrl": "https://www.wikidata.org/wiki/Q60229722",
-    "collection": "Metropolitan Museum of Art",
-    "collectionWikidataId": "Q160236",
+    "collection": null,
+    "collectionWikidataId": null,
     "location": null,
-    "inventory": "JP2",
+    "inventory": null,
     "describedAt": null,
     "sourceLinks": []
   },
@@ -6606,10 +6606,10 @@
   "Katsushika_Hokusai_(1760-1849),_Veld_in_de_Owari_provincie_(1829-33).jpg": {
     "wikidataId": "Q60230385",
     "wikidataUrl": "https://www.wikidata.org/wiki/Q60230385",
-    "collection": "British Museum",
-    "collectionWikidataId": "Q6373",
+    "collection": null,
+    "collectionWikidataId": null,
     "location": null,
-    "inventory": "A-10569-2781",
+    "inventory": null,
     "describedAt": null,
     "sourceLinks": []
   },
@@ -6659,7 +6659,7 @@
     "collection": "Fitzwilliam Museum",
     "collectionWikidataId": "Q1421440",
     "location": "Fitzwilliam Museum",
-    "inventory": "PCF4",
+    "inventory": null,
     "describedAt": "https://www.cezannecatalogue.com/catalogue/entry.php?id=132",
     "sourceLinks": []
   },
@@ -6728,7 +6728,7 @@
     "wikidataUrl": "https://www.wikidata.org/wiki/Q29840322",
     "collection": "Department of Paintings of the Louvre",
     "collectionWikidataId": "Q3044768",
-    "location": "Louvre storage (depot)",
+    "location": "Louvre Museum storage",
     "inventory": "INV 7520",
     "describedAt": null,
     "sourceLinks": []
@@ -6736,11 +6736,11 @@
   "La_grande_piscine_de_brousse.jpg": {
     "wikidataId": "Q19861886",
     "wikidataUrl": "https://www.wikidata.org/wiki/Q19861886",
-    "collection": null,
-    "collectionWikidataId": null,
+    "collection": "Indianapolis Museum of Art",
+    "collectionWikidataId": "Q1117704",
     "location": null,
     "inventory": null,
-    "describedAt": null,
+    "describedAt": "https://www.sothebys.com/en/auctions/ecatalogue/2004/19th-century-european-paintings-including-german-austrian-hungarian-slavic-paintings-the-orientalist-sale-and-the-scandinavian-sale-l04100/lot.112.html",
     "sourceLinks": []
   },
   "La_route_de_Vétheuil,_effet_de_neige_by_Claude_Monet.jpg": {
@@ -6766,8 +6766,8 @@
   "Landschaft_mit_Kühen_und_Entenjägern_-_Gemäldegalerie_Berlin_-_5226981.jpg": {
     "wikidataId": "Q107443638",
     "wikidataUrl": "https://www.wikidata.org/wiki/Q107443638",
-    "collection": "Bode Museum",
-    "collectionWikidataId": "Q157825",
+    "collection": "Gemäldegalerie Berlin",
+    "collectionWikidataId": "Q165631",
     "location": "Gemäldegalerie Berlin",
     "inventory": "2013",
     "describedAt": null,
@@ -6876,10 +6876,10 @@
   "Leda_et_le_cygne_par_Paolo_Veronese_1.jpg": {
     "wikidataId": "Q55168666",
     "wikidataUrl": "https://www.wikidata.org/wiki/Q55168666",
-    "collection": "Musées Nationaux Récupération",
-    "collectionWikidataId": "Q19013512",
-    "location": "Munich Central Collecting Point",
-    "inventory": "MNR 274",
+    "collection": null,
+    "collectionWikidataId": null,
+    "location": null,
+    "inventory": null,
     "describedAt": null,
     "sourceLinks": []
   },
@@ -6946,11 +6946,11 @@
   "Lille_PdBA_monet_la_debacle.jpeg": {
     "wikidataId": "Q17491946",
     "wikidataUrl": "https://www.wikidata.org/wiki/Q17491946",
-    "collection": "Musée d'Orsay",
-    "collectionWikidataId": "Q23402",
+    "collection": "Palais des Beaux-Arts de Lille",
+    "collectionWikidataId": "Q2628596",
     "location": "Palais des Beaux-Arts de Lille",
     "inventory": "P 1891",
-    "describedAt": "http://www.pba-lille.fr/Collections/Chefs-d-OEuvre/Peintures-XVI-sup-e-sup-XXI-sup-e-sup-siecles/La-Debacle",
+    "describedAt": null,
     "sourceLinks": []
   },
   "Lille_Pdba_rubens_marie_madeleine.jpeg": {
@@ -6988,7 +6988,7 @@
     "wikidataUrl": "https://www.wikidata.org/wiki/Q3687201",
     "collection": "Galleria Palatina",
     "collectionWikidataId": "Q866498",
-    "location": "Belgium",
+    "location": "Galleria Palatina",
     "inventory": "86",
     "describedAt": null,
     "sourceLinks": []
@@ -7204,8 +7204,8 @@
     "collection": "National Gallery",
     "collectionWikidataId": "Q180788",
     "location": "National Gallery",
-    "inventory": "3260",
-    "describedAt": "http://emuseum.pointblank.ie/online_catalogue/work-detail.php?objectid=1234",
+    "inventory": "NG3260",
+    "describedAt": null,
     "sourceLinks": []
   },
   "MB-Mon-14_Monet_Strada-Romana-in-Bordighera.jpg": {
@@ -7293,7 +7293,7 @@
     "wikidataUrl": "https://www.wikidata.org/wiki/Q3937622",
     "collection": "Liechtenstein Museum",
     "collectionWikidataId": "Q1824069",
-    "location": "Vaduz Castle",
+    "location": null,
     "inventory": "GE 58",
     "describedAt": null,
     "sourceLinks": []
@@ -7441,8 +7441,8 @@
   "Millais_-_Das_Tal_der_Stille.jpg": {
     "wikidataId": "Q470541",
     "wikidataUrl": "https://www.wikidata.org/wiki/Q470541",
-    "collection": "National Gallery",
-    "collectionWikidataId": "Q180788",
+    "collection": "Tate",
+    "collectionWikidataId": "Q430682",
     "location": "Tate Britain",
     "inventory": "N01507",
     "describedAt": "http://www.tate.org.uk/art/artworks/millais-the-vale-of-rest-n01507",
@@ -7451,8 +7451,8 @@
   "Millais_-_Überfahrt_nach_Nordwest.jpg": {
     "wikidataId": "Q18686780",
     "wikidataUrl": "https://www.wikidata.org/wiki/Q18686780",
-    "collection": "National Gallery",
-    "collectionWikidataId": "Q180788",
+    "collection": "Tate",
+    "collectionWikidataId": "Q430682",
     "location": "Tate Britain",
     "inventory": "N01509",
     "describedAt": "http://www.tate.org.uk/art/artworks/millais-the-north-west-passage-n01509",
@@ -7591,11 +7591,11 @@
   "Monet_-_Das_Nachtessen,_1868-69.jpg": {
     "wikidataId": "Q64174101",
     "wikidataUrl": "https://www.wikidata.org/wiki/Q64174101",
-    "collection": "Foundation E.G. Bührle Collection",
-    "collectionWikidataId": "Q666331",
-    "location": "Foundation E.G. Bührle Collection",
-    "inventory": "75",
-    "describedAt": "https://www.buehrle.ch/en/collection/artwork/detail/the-dinner/",
+    "collection": null,
+    "collectionWikidataId": null,
+    "location": null,
+    "inventory": null,
+    "describedAt": null,
     "sourceLinks": []
   },
   "Monet_-_Die_Zaan_bei_Zaandam.jpg": {
@@ -7648,7 +7648,7 @@
     "wikidataUrl": "https://www.wikidata.org/wiki/Q328523",
     "collection": "Musée Marmottan Monet",
     "collectionWikidataId": "Q1327886",
-    "location": "Porto-Vecchio",
+    "location": "Musée Marmottan Monet",
     "inventory": "4014",
     "describedAt": "https://www.marmottan.fr/notice/4014/",
     "sourceLinks": []
@@ -7776,11 +7776,11 @@
   "Monet_-_Waterlilies_Pond,_Green_Reflection,_1920-26,_Wildenstein_1979.jpg": {
     "wikidataId": "Q64174089",
     "wikidataUrl": "https://www.wikidata.org/wiki/Q64174089",
-    "collection": "Foundation E.G. Bührle Collection",
-    "collectionWikidataId": "Q666331",
-    "location": "Foundation E.G. Bührle Collection",
-    "inventory": "73",
-    "describedAt": "https://collection.kunsthaus.ch/en/collection/item/6491/",
+    "collection": null,
+    "collectionWikidataId": null,
+    "location": null,
+    "inventory": null,
+    "describedAt": null,
     "sourceLinks": []
   },
   "Monet_-_ice-floes-on-the-seine-at-bougival-1868.jpg": {
@@ -8011,11 +8011,11 @@
   "Monet_w593(1).jpg": {
     "wikidataId": "Q64174086",
     "wikidataUrl": "https://www.wikidata.org/wiki/Q64174086",
-    "collection": "Foundation E.G. Bührle Collection",
-    "collectionWikidataId": "Q666331",
-    "location": "Foundation E.G. Bührle Collection",
-    "inventory": "180",
-    "describedAt": "https://collection.kunsthaus.ch/en/collection/item/604966/",
+    "collection": null,
+    "collectionWikidataId": null,
+    "location": null,
+    "inventory": null,
+    "describedAt": null,
     "sourceLinks": []
   },
   "Monet_w684.jpg": {
@@ -8083,7 +8083,7 @@
     "wikidataUrl": "https://www.wikidata.org/wiki/Q60616795",
     "collection": "museum collection of the Prague City Gallery",
     "collectionWikidataId": "Q101017476",
-    "location": "Prague City Gallery",
+    "location": null,
     "inventory": null,
     "describedAt": null,
     "sourceLinks": []
@@ -8091,11 +8091,11 @@
   "Munch_-_Self-Portrait_with_Palette,_1926,_Lot_114.jpg": {
     "wikidataId": "Q18890828",
     "wikidataUrl": "https://www.wikidata.org/wiki/Q18890828",
-    "collection": "Kunsthalle Mannheim",
-    "collectionWikidataId": "Q468458",
+    "collection": "\"degenerate art\" collection",
+    "collectionWikidataId": "Q111796449",
     "location": "\"degenerate art\" collection",
     "inventory": "6080",
-    "describedAt": "http://emuseum.campus.fu-berlin.de/eMuseumPlus?service=ExternalInterface&module=collection&objectId=120454&viewType=detailView",
+    "describedAt": null,
     "sourceLinks": []
   },
   "Murillo_Descanso_en_la_huida_a_Egipto.jpg": {
@@ -8130,10 +8130,10 @@
   "Nakahara_in_the_Sagami_province.jpg": {
     "wikidataId": "Q18173428",
     "wikidataUrl": "https://www.wikidata.org/wiki/Q18173428",
-    "collection": "British Museum",
-    "collectionWikidataId": "Q6373",
+    "collection": null,
+    "collectionWikidataId": null,
     "location": null,
-    "inventory": "1937,0710,0.136",
+    "inventory": null,
     "describedAt": null,
     "sourceLinks": []
   },
@@ -8185,8 +8185,8 @@
   "Newton-WilliamBlake.jpg": {
     "wikidataId": "Q1996494",
     "wikidataUrl": "https://www.wikidata.org/wiki/Q1996494",
-    "collection": "National Gallery",
-    "collectionWikidataId": "Q180788",
+    "collection": "Tate",
+    "collectionWikidataId": "Q430682",
     "location": "Tate",
     "inventory": "N05058",
     "describedAt": null,
@@ -8217,7 +8217,7 @@
     "wikidataUrl": "https://www.wikidata.org/wiki/Q20178571",
     "collection": "J. Paul Getty Museum",
     "collectionWikidataId": "Q731126",
-    "location": "Getty Center",
+    "location": null,
     "inventory": "97.PA.60",
     "describedAt": null,
     "sourceLinks": []
@@ -8245,9 +8245,9 @@
   "Nicolas_Poussin_-_The_Sacrament_of_Ordination_(Christ_Presenting_the_Keys_to_Saint_Peter)_-_Google_Art_Project.jpg": {
     "wikidataId": "Q26713733",
     "wikidataUrl": "https://www.wikidata.org/wiki/Q26713733",
-    "collection": "National Gallery",
-    "collectionWikidataId": "Q180788",
-    "location": "Q1741629",
+    "collection": "Kimbell Art Museum",
+    "collectionWikidataId": "Q1741629",
+    "location": "Kimbell Art Museum",
     "inventory": "AP 2011.01",
     "describedAt": "https://www.kimbellart.org/collection-object/sacrament-ordination-christ-presenting-keys-saint-peter",
     "sourceLinks": []
@@ -8365,8 +8365,8 @@
   "Pallas_Athena_by_Rembrandt_Museu_Calouste_Gulbenkian_1488.jpg": {
     "wikidataId": "Q3610098",
     "wikidataUrl": "https://www.wikidata.org/wiki/Q3610098",
-    "collection": "Hermitage Museum",
-    "collectionWikidataId": "Q132783",
+    "collection": "Calouste Gulbenkian Museum",
+    "collectionWikidataId": "Q211262",
     "location": "Calouste Gulbenkian Museum",
     "inventory": "1488",
     "describedAt": null,
@@ -8410,10 +8410,10 @@
   "Parmigianino_-_Madonna_and_Child_with_Angels,_known_as_the_Madonna_with_the_Long_Neck.jpg": {
     "wikidataId": "Q867403",
     "wikidataUrl": "https://www.wikidata.org/wiki/Q867403",
-    "collection": "Uffizi Gallery",
-    "collectionWikidataId": "Q51252",
-    "location": "Uffizi Gallery",
-    "inventory": "00287693",
+    "collection": null,
+    "collectionWikidataId": null,
+    "location": null,
+    "inventory": null,
     "describedAt": null,
     "sourceLinks": []
   },
@@ -8455,11 +8455,11 @@
   "Paul_Gauguin_001.jpg": {
     "wikidataId": "Q4528214",
     "wikidataUrl": "https://www.wikidata.org/wiki/Q4528214",
-    "collection": "Statens Museum for Kunst",
-    "collectionWikidataId": "Q671384",
-    "location": "Copenhagen",
-    "inventory": "KMS3453",
-    "describedAt": "https://collection.smk.dk/#/en/detail/KMS3453",
+    "collection": "Ny Carlsberg Glyptotek",
+    "collectionWikidataId": "Q1140507",
+    "location": "Ny Carlsberg Glyptotek",
+    "inventory": "MIN smk-3453",
+    "describedAt": null,
     "sourceLinks": []
   },
   "Paul_Gauguin_085.jpg": {
@@ -8590,8 +8590,8 @@
   "Peter_Paul_Rubens-Der_Heilige_Hieronymus.jpg": {
     "wikidataId": "Q111204183",
     "wikidataUrl": "https://www.wikidata.org/wiki/Q111204183",
-    "collection": "Sanssouci Picture Gallery",
-    "collectionWikidataId": "Q451555",
+    "collection": "Prussian Palaces and Gardens Foundation Berlin-Brandenburg",
+    "collectionWikidataId": "Q531772",
     "location": "Sanssouci Picture Gallery",
     "inventory": "GK I 7578",
     "describedAt": "https://brandenburg.museum-digital.de/index.php?t=objekt&oges=7357",
@@ -8660,9 +8660,9 @@
   "Peter_Paul_Rubens_(1577-1640)_-_Diana_and_two_nymphs_surprised_by_satyrs_while_bathing_-_762C_-_Gemäldegalerie.jpg": {
     "wikidataId": "Q107437053",
     "wikidataUrl": "https://www.wikidata.org/wiki/Q107437053",
-    "collection": "Bode Museum",
-    "collectionWikidataId": "Q157825",
-    "location": "Bode Museum",
+    "collection": "Gemäldegalerie Berlin",
+    "collectionWikidataId": "Q165631",
+    "location": "Gemäldegalerie Berlin",
     "inventory": "762C",
     "describedAt": null,
     "sourceLinks": []
@@ -8670,9 +8670,9 @@
   "Peter_Paul_Rubens_(1577-1640)_-_Diana_hunting_deer_-_774_-_Gemäldegalerie.jpg": {
     "wikidataId": "Q107437058",
     "wikidataUrl": "https://www.wikidata.org/wiki/Q107437058",
-    "collection": "Bode Museum",
-    "collectionWikidataId": "Q157825",
-    "location": "Bode Museum",
+    "collection": null,
+    "collectionWikidataId": null,
+    "location": "Flak towers in Berlin",
     "inventory": "774",
     "describedAt": null,
     "sourceLinks": []
@@ -8690,8 +8690,8 @@
   "Peter_Paul_Rubens_(1577-1640)_-_Neptune_and_Amphitrite_-_776A_-_Gemäldegalerie.jpg": {
     "wikidataId": "Q107091726",
     "wikidataUrl": "https://www.wikidata.org/wiki/Q107091726",
-    "collection": "Bode Museum",
-    "collectionWikidataId": "Q157825",
+    "collection": "Gemäldegalerie Berlin",
+    "collectionWikidataId": "Q165631",
     "location": "Gemäldegalerie Berlin",
     "inventory": "776A",
     "describedAt": "https://commons.wikimedia.org/wiki/File:Rubens_-_Neptune_and_Amphitrite_-_c._1614.jpg",
@@ -8720,8 +8720,8 @@
   "Peter_Paul_Rubens_(1577-1640)_-_The_Bacchanal_-_776B_-_Gemäldegalerie.jpg": {
     "wikidataId": "Q89188848",
     "wikidataUrl": "https://www.wikidata.org/wiki/Q89188848",
-    "collection": "Bode Museum",
-    "collectionWikidataId": "Q157825",
+    "collection": "Gemäldegalerie Berlin",
+    "collectionWikidataId": "Q165631",
     "location": "Bode Museum",
     "inventory": "776B",
     "describedAt": null,
@@ -8732,7 +8732,7 @@
     "wikidataUrl": "https://www.wikidata.org/wiki/Q20184013",
     "collection": "J. Paul Getty Museum",
     "collectionWikidataId": "Q731126",
-    "location": "Getty Center",
+    "location": null,
     "inventory": "2000.68",
     "describedAt": "http://www.getty.edu/art/collection/objects/130326/",
     "sourceLinks": []
@@ -8870,11 +8870,11 @@
   "Peter_Paul_Rubens_-_Heilige_Familie_met_de_papegaai_-_KMSK.A.0312_-_Rubenshuis.jpg": {
     "wikidataId": "Q21614590",
     "wikidataUrl": "https://www.wikidata.org/wiki/Q21614590",
-    "collection": "Royal Museum of Fine Arts Antwerp",
-    "collectionWikidataId": "Q1471477",
-    "location": "Rubenshuis",
-    "inventory": "312",
-    "describedAt": "https://search.rubenshuis.be/Details/collect/401893",
+    "collection": null,
+    "collectionWikidataId": null,
+    "location": null,
+    "inventory": null,
+    "describedAt": null,
     "sourceLinks": []
   },
   "Peter_Paul_Rubens_-_Hercules_as_Heroic_Virtue_Overcoming_Discord_(cropped).jpg": {
@@ -9140,9 +9140,9 @@
   "Peter_Paul_Rubens_-_Summer_-_WGA20398.jpg": {
     "wikidataId": "Q28027728",
     "wikidataUrl": "https://www.wikidata.org/wiki/Q28027728",
-    "collection": "Buckingham Palace",
-    "collectionWikidataId": "Q42182",
-    "location": "Buckingham Palace",
+    "collection": "Royal Collection",
+    "collectionWikidataId": "Q1459037",
+    "location": null,
     "inventory": "RCIN 401416",
     "describedAt": null,
     "sourceLinks": []
@@ -9185,8 +9185,8 @@
   "Peter_Paul_Rubens_-_The_Deposition_(Galleria_Borghese.jpg": {
     "wikidataId": "Q3705720",
     "wikidataUrl": "https://www.wikidata.org/wiki/Q3705720",
-    "collection": "Borghese Collection",
-    "collectionWikidataId": "Q683074",
+    "collection": "Galleria Borghese",
+    "collectionWikidataId": "Q841506",
     "location": "Galleria Borghese",
     "inventory": "Inv. 411",
     "describedAt": "https://www.collezionegalleriaborghese.it/opere/compianto-su-cristo-morto",
@@ -9207,7 +9207,7 @@
     "wikidataUrl": "https://www.wikidata.org/wiki/Q20185562",
     "collection": "J. Paul Getty Museum",
     "collectionWikidataId": "Q731126",
-    "location": "Villa San Donato",
+    "location": "J. Paul Getty Museum",
     "inventory": "93.PA.9",
     "describedAt": null,
     "sourceLinks": []
@@ -9327,7 +9327,7 @@
     "wikidataUrl": "https://www.wikidata.org/wiki/Q4009226",
     "collection": "National Gallery",
     "collectionWikidataId": "Q180788",
-    "location": "Belgium",
+    "location": "National Gallery",
     "inventory": "NG66",
     "describedAt": null,
     "sourceLinks": []
@@ -9345,8 +9345,8 @@
   "Peter_Paul_Rubens_-_Woman_with_a_Mirror_-_WGA20336.jpg": {
     "wikidataId": "Q55864314",
     "wikidataUrl": "https://www.wikidata.org/wiki/Q55864314",
-    "collection": "Gemäldegalerie Alte Meister",
-    "collectionWikidataId": "Q1501219",
+    "collection": "Hessen Kassel Heritage",
+    "collectionWikidataId": "Q1954840",
     "location": "Gemäldegalerie Alte Meister",
     "inventory": "GK 90",
     "describedAt": null,
@@ -9397,7 +9397,7 @@
     "wikidataUrl": "https://www.wikidata.org/wiki/Q2273452",
     "collection": "Museo del Prado",
     "collectionWikidataId": "Q160112",
-    "location": "Gemäldegalerie Alte Meister",
+    "location": "Museo del Prado",
     "inventory": "P001669",
     "describedAt": null,
     "sourceLinks": []
@@ -9520,8 +9520,8 @@
   "Pierre-Auguste_Renoir_-_Frédéric_Bazille.jpg": {
     "wikidataId": "Q3089617",
     "wikidataUrl": "https://www.wikidata.org/wiki/Q3089617",
-    "collection": "Musée d'Orsay",
-    "collectionWikidataId": "Q23402",
+    "collection": "Musée Fabre",
+    "collectionWikidataId": "Q1519002",
     "location": "Musée Fabre",
     "inventory": "D2006.3.5",
     "describedAt": null,
@@ -9682,7 +9682,7 @@
     "wikidataUrl": "https://www.wikidata.org/wiki/Q80516",
     "collection": "National Gallery",
     "collectionWikidataId": "Q180788",
-    "location": "Sistine Chapel",
+    "location": null,
     "inventory": "NG27",
     "describedAt": "http://www.3pp.website/2011/12/portrait-of-julius-ii-raphael-case.html",
     "sourceLinks": []
@@ -9777,7 +9777,7 @@
     "wikidataUrl": "https://www.wikidata.org/wiki/Q28769001",
     "collection": "Metropolitan Museum of Art",
     "collectionWikidataId": "Q160236",
-    "location": "Hammer Museum",
+    "location": null,
     "inventory": "AH.90.69",
     "describedAt": "https://collections.hammer.ucla.edu/artwork/AH.90.69",
     "sourceLinks": []
@@ -9842,7 +9842,7 @@
     "wikidataUrl": "https://www.wikidata.org/wiki/Q2531790",
     "collection": "Vatican Museums",
     "collectionWikidataId": "Q182955",
-    "location": "Apostolic Palace",
+    "location": null,
     "inventory": null,
     "describedAt": null,
     "sourceLinks": []
@@ -9853,8 +9853,8 @@
     "collection": "Victoria and Albert Museum",
     "collectionWikidataId": "Q213322",
     "location": "The Raphael Cartoons",
-    "inventory": "RCIN%20912944",
-    "describedAt": "http://collections.vam.ac.uk/item/O102006/the-miraculous-draught-of-fishes-cartoon-for-a-raphael/",
+    "inventory": null,
+    "describedAt": null,
     "sourceLinks": []
   },
   "Raphael_-_Young_Man_Carrying_an_Old_Man_on_His_Back,_c._1514_-_Google_Art_Project.jpg": {
@@ -9892,7 +9892,7 @@
     "wikidataUrl": "https://www.wikidata.org/wiki/Q1243299",
     "collection": "J. Paul Getty Museum",
     "collectionWikidataId": "Q731126",
-    "location": "Getty Center",
+    "location": null,
     "inventory": "95.PB.7",
     "describedAt": "https://rembrandtinsocal.org/virtual-exhibition/the-abduction-of-europa/",
     "sourceLinks": []
@@ -9963,7 +9963,7 @@
     "collection": "Rijksmuseum",
     "collectionWikidataId": "Q190804",
     "location": "Rijksmuseum",
-    "inventory": "SA 8292",
+    "inventory": "SK-C-216",
     "describedAt": "https://www.rijksmuseum.nl/nl/collectie/SK-C-216",
     "sourceLinks": []
   },
@@ -9985,8 +9985,8 @@
   "Rembrandt_Winterlandschap_1646.jpg": {
     "wikidataId": "Q21406281",
     "wikidataUrl": "https://www.wikidata.org/wiki/Q21406281",
-    "collection": "Gemäldegalerie Alte Meister",
-    "collectionWikidataId": "Q1501219",
+    "collection": "Hessen Kassel Heritage",
+    "collectionWikidataId": "Q1954840",
     "location": "Gemäldegalerie Alte Meister",
     "inventory": "241",
     "describedAt": "http://www.rembrandtdatabase.org/Rembrandt/painting/56547/winter-landscape",
@@ -10065,8 +10065,8 @@
   "Reverend_Robert_Walker_(1755_-_1808)_Skating_on_Duddingston_Loch.jpg": {
     "wikidataId": "Q2146810",
     "wikidataUrl": "https://www.wikidata.org/wiki/Q2146810",
-    "collection": "Scottish National Gallery",
-    "collectionWikidataId": "Q942713",
+    "collection": "National Galleries Scotland",
+    "collectionWikidataId": "Q2051997",
     "location": "United Kingdom",
     "inventory": "NG 2112",
     "describedAt": null,
@@ -10384,10 +10384,10 @@
   "Saint_Jerome_Writing-Caravaggio_(1605-6).jpg": {
     "wikidataId": "Q2715177",
     "wikidataUrl": "https://www.wikidata.org/wiki/Q2715177",
-    "collection": "Borghese Collection",
-    "collectionWikidataId": "Q683074",
+    "collection": "Galleria Borghese",
+    "collectionWikidataId": "Q841506",
     "location": "Galleria Borghese",
-    "inventory": "56",
+    "inventory": "056",
     "describedAt": "http://www.caravaggio.org/saint-jerome-writing-1605.jsp",
     "sourceLinks": []
   },
@@ -10670,7 +10670,7 @@
     "wikidataUrl": "https://www.wikidata.org/wiki/Q2284765",
     "collection": "Royal Collection",
     "collectionWikidataId": "Q1459037",
-    "location": "Kingdom of England",
+    "location": null,
     "inventory": "RCIN 404420",
     "describedAt": null,
     "sourceLinks": []
@@ -10710,7 +10710,7 @@
     "wikidataUrl": "https://www.wikidata.org/wiki/Q28035504",
     "collection": "Royal Collection",
     "collectionWikidataId": "Q1459037",
-    "location": "Buckingham Palace",
+    "location": null,
     "inventory": "RCIN 401417",
     "describedAt": null,
     "sourceLinks": []
@@ -10730,7 +10730,7 @@
     "wikidataUrl": "https://www.wikidata.org/wiki/Q28016086",
     "collection": "Royal Collection",
     "collectionWikidataId": "Q1459037",
-    "location": "Buckingham Palace",
+    "location": null,
     "inventory": "RCIN 405333",
     "describedAt": null,
     "sourceLinks": []
@@ -10740,7 +10740,7 @@
     "wikidataUrl": "https://www.wikidata.org/wiki/Q219344",
     "collection": "Museum of Fine Arts Boston",
     "collectionWikidataId": "Q49133",
-    "location": "United Kingdom",
+    "location": "Museum of Fine Arts Boston",
     "inventory": "99.22",
     "describedAt": "https://www.archieven.nl/nl/zoeken?mivast=0&mizig=210&miadt=239&miaet=1&micode=20&minr=14705890",
     "sourceLinks": []
@@ -10750,7 +10750,7 @@
     "wikidataUrl": "https://www.wikidata.org/wiki/Q59161470",
     "collection": "museum collection of the Prague City Gallery",
     "collectionWikidataId": "Q101017476",
-    "location": "Prague City Gallery",
+    "location": null,
     "inventory": null,
     "describedAt": null,
     "sourceLinks": []
@@ -10788,11 +10788,11 @@
   "Sower_at_Sunset_-_Vincent_Van_Gogh.jpg": {
     "wikidataId": "Q3955068",
     "wikidataUrl": "https://www.wikidata.org/wiki/Q3955068",
-    "collection": "Van Gogh Museum",
-    "collectionWikidataId": "Q224124",
-    "location": "Kröller-Müller Museum",
-    "inventory": "KM 106.399",
-    "describedAt": "http://www.vggallery.com/painting/p_0422.htm",
+    "collection": "Kröller-Müller Museum",
+    "collectionWikidataId": "Q1051928",
+    "location": null,
+    "inventory": null,
+    "describedAt": null,
     "sourceLinks": []
   },
   "Spring_(Fruit_Trees_in_Bloom)_MET_DT1902.jpg": {
@@ -10896,7 +10896,7 @@
     "collection": "Augustiner Museum",
     "collectionWikidataId": "Q542932",
     "location": "Augustiner Museum",
-    "inventory": "0834",
+    "inventory": "M 62/004",
     "describedAt": "https://onlinesammlung.freiburg.de/en/object/C2C0F99C4CD29E875EE643B900D3AA8A",
     "sourceLinks": []
   },
@@ -10987,7 +10987,7 @@
     "collectionWikidataId": "Q221092",
     "location": "Mauritshuis",
     "inventory": "147",
-    "describedAt": "https://www.mauritshuis.nl/nl-nl/verdiep/de-collectie/kunstwerken/suzanna-147/",
+    "describedAt": "https://www.mauritshuis.nl/ontdek-collectie/kunstwerken/147-suzanna",
     "sourceLinks": []
   },
   "Suzanna_en_de_ouderlingen_Rijksmuseum_SK-A-1042.jpeg": {
@@ -11103,8 +11103,8 @@
   "The_Conspiracy_of_the_Batavians_under_Claudius_Civilis_(Rembrandt_Harmensz._van_Rijn)_-_Nationalmuseum_-_17581.tif": {
     "wikidataId": "Q2234397",
     "wikidataUrl": "https://www.wikidata.org/wiki/Q2234397",
-    "collection": "Rijksmuseum",
-    "collectionWikidataId": "Q190804",
+    "collection": "Nationalmuseum",
+    "collectionWikidataId": "Q842858",
     "location": "Nationalmuseum",
     "inventory": "NM 578",
     "describedAt": null,
@@ -11115,7 +11115,7 @@
     "wikidataUrl": "https://www.wikidata.org/wiki/Q500242",
     "collection": "Vatican Museums",
     "collectionWikidataId": "Q182955",
-    "location": "Sistine Chapel",
+    "location": null,
     "inventory": null,
     "describedAt": null,
     "sourceLinks": []
@@ -11455,7 +11455,7 @@
     "wikidataUrl": "https://www.wikidata.org/wiki/Q6929863",
     "collection": "National Gallery of Art",
     "collectionWikidataId": "Q214867",
-    "location": "England",
+    "location": "National Gallery of Art",
     "inventory": "1937.1.92",
     "describedAt": "https://www.nga.gov/collection/art-object-page.99.html",
     "sourceLinks": []
@@ -11546,7 +11546,7 @@
     "collection": "National Gallery",
     "collectionWikidataId": "Q180788",
     "location": "National Gallery",
-    "inventory": "NG 2844",
+    "inventory": "NG 6616",
     "describedAt": null,
     "sourceLinks": []
   },
@@ -11633,8 +11633,8 @@
   "Turner-deluge.jpg": {
     "wikidataId": "Q28540902",
     "wikidataUrl": "https://www.wikidata.org/wiki/Q28540902",
-    "collection": "National Gallery",
-    "collectionWikidataId": "Q180788",
+    "collection": "Tate",
+    "collectionWikidataId": "Q430682",
     "location": "Tate",
     "inventory": "N00493",
     "describedAt": "http://www.tate.org.uk/art/artworks/turner-the-deluge-n00493",
@@ -11673,10 +11673,10 @@
   "Turner_-_Ships_Bearing_up_for_Anchorage_(‘The_Egremont_Seapiece’),_exhibited_1802,_T03868.jpg": {
     "wikidataId": "Q28552754",
     "wikidataUrl": "https://www.wikidata.org/wiki/Q28552754",
-    "collection": "National Trust",
-    "collectionWikidataId": "Q333515",
+    "collection": "Tate",
+    "collectionWikidataId": "Q430682",
     "location": "Tate",
-    "inventory": "486621",
+    "inventory": "T03868",
     "describedAt": "http://www.tate.org.uk/art/artworks/turner-ships-bearing-up-for-anchorage-the-egremont-seapiece-t03868",
     "sourceLinks": []
   },
@@ -11753,8 +11753,8 @@
   "Unmatinapresledeluge.jpg": {
     "wikidataId": "Q219271",
     "wikidataUrl": "https://www.wikidata.org/wiki/Q219271",
-    "collection": "National Gallery",
-    "collectionWikidataId": "Q180788",
+    "collection": "Tate",
+    "collectionWikidataId": "Q430682",
     "location": "Tate",
     "inventory": "N00532",
     "describedAt": "http://www.tate.org.uk/art/artworks/turner-light-and-colour-goethes-theory-the-morning-after-the-deluge-moses-writing-the-book-n00532",
@@ -11945,7 +11945,7 @@
     "wikidataUrl": "https://www.wikidata.org/wiki/Q16333797",
     "collection": "Palace of Versailles",
     "collectionWikidataId": "Q2946",
-    "location": "Skokloster Castle",
+    "location": null,
     "inventory": "SKO 11615",
     "describedAt": "http://emuseumplus.lsh.se/eMuseumPlus?service=ExternalInterface&module=collection&objectId=32631",
     "sourceLinks": []
@@ -12053,11 +12053,11 @@
   "Vincent_van_Gogh_-_Landscape_from_Saint-Rémy_-_Google_Art_Project.jpg": {
     "wikidataId": "Q11747755",
     "wikidataUrl": "https://www.wikidata.org/wiki/Q11747755",
-    "collection": "Statens Museum for Kunst",
-    "collectionWikidataId": "Q671384",
-    "location": "Statens Museum for Kunst",
-    "inventory": "KMS1840",
-    "describedAt": "http://www.vggallery.com/painting/p_0611.htm",
+    "collection": "Ny Carlsberg Glyptotek",
+    "collectionWikidataId": "Q1140507",
+    "location": null,
+    "inventory": "SMK 1840",
+    "describedAt": null,
     "sourceLinks": []
   },
   "Vincent_van_Gogh_-_Landscape_with_Carriage_and_Train_in_the_Background_(1890).jpg": {
@@ -12333,8 +12333,8 @@
   "Water_Lilies_by_Monet_(Yamagata_Museum_of_Art).jpg": {
     "wikidataId": "Q95911180",
     "wikidataUrl": "https://www.wikidata.org/wiki/Q95911180",
-    "collection": "Yoshino Gypsum",
-    "collectionWikidataId": "Q11414496",
+    "collection": "Yamagata Museum of Art",
+    "collectionWikidataId": "Q11468661",
     "location": "Yamagata Museum of Art",
     "inventory": null,
     "describedAt": "http://www.yamagata-art-museum.or.jp/collection/261.html",
@@ -12493,8 +12493,8 @@
   "William_Turner,_Bridge_of_Sighs,_Ducal_Palace_and_Custom-House.jpg": {
     "wikidataId": "Q20018652",
     "wikidataUrl": "https://www.wikidata.org/wiki/Q20018652",
-    "collection": "National Gallery",
-    "collectionWikidataId": "Q180788",
+    "collection": "Tate",
+    "collectionWikidataId": "Q430682",
     "location": "Tate",
     "inventory": "N00370",
     "describedAt": "http://www.tate.org.uk/art/artworks/turner-bridge-of-sighs-ducal-palace-and-custom-house-venice-canaletti-painting-n00370",
@@ -12873,9 +12873,9 @@
   "Élisabeth_Vigée_Le_Brun._La_paix_ramenant_l'abondance.jpg": {
     "wikidataId": "Q19006513",
     "wikidataUrl": "https://www.wikidata.org/wiki/Q19006513",
-    "collection": "Académie royale de peinture et de sculpture",
-    "collectionWikidataId": "Q337579",
-    "location": "Louvre storage (depot)",
+    "collection": "Department of Paintings of the Louvre",
+    "collectionWikidataId": "Q3044768",
+    "location": "Louvre Museum storage",
     "inventory": "INV 3052",
     "describedAt": null,
     "sourceLinks": []
@@ -13036,7 +13036,7 @@
     "collection": "Metropolitan Museum of Art",
     "collectionWikidataId": "Q160236",
     "location": null,
-    "inventory": "A-10569-2776",
+    "inventory": "JP2931",
     "describedAt": null,
     "sourceLinks": []
   },
@@ -13897,7 +13897,7 @@
     "wikidataUrl": "https://www.wikidata.org/wiki/Q20179916",
     "collection": "J. Paul Getty Museum",
     "collectionWikidataId": "Q731126",
-    "location": "Getty Center",
+    "location": null,
     "inventory": "71.PA.8",
     "describedAt": null,
     "sourceLinks": []
@@ -14057,7 +14057,7 @@
     "wikidataUrl": "https://www.wikidata.org/wiki/Q3760161",
     "collection": "National Gallery of Art",
     "collectionWikidataId": "Q214867",
-    "location": "National Gallery of Art",
+    "location": "National Gallery of Art - Gallery 10",
     "inventory": "1939.1.258",
     "describedAt": null,
     "sourceLinks": []

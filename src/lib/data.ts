@@ -14,14 +14,18 @@ export type Provenance = {
    *  on any Wikidata item. */
   wikidataId: string | null;
   wikidataUrl: string | null;
-  /** P195 — institution that owns the work. */
+  /** P195 — institution that owns the work. For a print, whose Wikidata
+   *  item lists every impression, this and the next three fields describe
+   *  the impression in the scanned file, and are null when that can't be
+   *  told. See scripts/lib/provenance-impression.mjs. */
   collection: string | null;
   collectionWikidataId: string | null;
-  /** P276 — current physical location (often the same as collection). */
+  /** P276 — the collection itself, a room or building in it, or its town. */
   location: string | null;
-  /** P217 — accession / inventory number. */
+  /** P217 — accession / inventory number in `collection`. */
   inventory: string | null;
-  /** P973 — canonical museum page for the work. */
+  /** P973 — canonical museum page for the work. Never another
+   *  impression's museum. */
   describedAt: string | null;
   /** Resolved [N] footnote URLs scraped from the Commons file page,
    *  capped at 4. Useful as a "see also" list when there's no Wikidata
