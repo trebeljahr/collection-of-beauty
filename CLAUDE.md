@@ -86,6 +86,17 @@ required by the Dockerfile — don't remove it.
 - `PROBE_CACHE_VERSION` in `build-data.mjs` gates the image-probe cache.
   Bump it whenever the probe emits a new field, or every cached entry
   silently keeps the old shape (this is why v3 exists).
+- Artwork ids are minted from filenames, so a rescan, dedup or artist
+  merge retires published URLs. `src/data/redirects.json` maps old ids and
+  artist slugs to current ones; `pnpm redirects:build`
+  (`scripts/build-redirects.ts`) regenerates it from the git history of
+  `artworks.json` and runs after `pnpm assets:build-data`. The artwork and
+  artist pages serve those as 308s before calling `notFound()`
+  (`src/lib/redirects.ts`). Evidence must name one work: same Commons page,
+  same file, or same artist and title within a decade. Don't add
+  word-overlap matching: it mapped "After a success" to "After a failure",
+  and a 308 is cached for good. Anything weaker belongs on the 404 page,
+  whose "did you mean" matcher is `src/lib/not-found-match.ts`.
 
 ## Asset URL conventions
 
