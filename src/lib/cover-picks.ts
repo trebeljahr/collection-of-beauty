@@ -1080,11 +1080,6 @@ export const ARTIST_COVERS: Record<string, CoverPick> = {
   "konrad-witz": { id: "collection-of-beauty-konrad-witz-004", position: "50% 55%" },
   // Lakeside
   "kuroda-seiki": { id: "collection-of-beauty-kuroda-seiki-kohan00-6-1b", position: "15% 50%" },
-  // Christ at the Sea of Galilee
-  "lambert-sustris": {
-    id: "collection-of-beauty-tintoretto-jacopo-christ-at-the-sea-of-galilee",
-    position: "0% 50%",
-  },
   // Spring Tide with Rain (Li Di, Song dynasty)
   "li-di": { id: "collection-of-beauty-9", position: "10% 50%" },
   // Imaginary tour through Xiao-xiang
@@ -1153,6 +1148,11 @@ export const ARTIST_COVERS: Record<string, CoverPick> = {
   "pieter-van-hanselaere": {
     id: "collection-of-beauty-suzanna-en-de-ouderlingen-rijksmuseum-sk-a-1042",
     position: "50% 45%",
+  },
+  // Christ at the Sea of Galilee
+  "probably-lambert-sustris": {
+    id: "collection-of-beauty-tintoretto-jacopo-christ-at-the-sea-of-galilee",
+    position: "0% 50%",
   },
   // Summer Study from the Bingzi Year
   "pu-xian": { id: "collection-of-beauty-summer-study-from-the-bingzi-year", position: "50% 80%" },

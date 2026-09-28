@@ -18,7 +18,10 @@
 //     epithet ("Brueghel" → "Pieter Brueghel the Younger");
 //   - a multi-token alias matches on containment either way, which covers
 //     punctuation and short-form variants ("Vincent van Gogh." → "Vincent van
-//     Gogh").
+//     Gogh");
+//   - only the unqualified part of a name is matched, so containment cannot
+//     read the painter out of "Follower of Hieronymus Bosch" or "Giovanni
+//     Cariani / Formerly attributed to Titian" (see unqualifiedArtistName).
 //
 // Callers that hold a raw Commons artist string get more hits by normalising
 // it first (build-data.mjs's normalizeArtistName strips "(1848 - 1903)",
@@ -60,9 +63,39 @@ export function loadArtistsDb() {
   return { artists, byAlias: buildArtistAliasIndex(artists) };
 }
 
+// Wording that credits a work to someone other than the painter it names: a
+// follower, a workshop, a copyist ("After Peter Paul Rubens"), or a painter
+// the work has been taken away from ("Formerly attributed to Titian").
+// "Attributed to X", "X and workshop" and "X or workshop" are left out on
+// purpose: museums catalogue those under X.
+const ARTIST_QUALIFIER =
+  /\b(?:(?:follower|circle|workshop|studio|school|imitator|manner|pupil)\s+of|formerly\s+attributed\s+to|after)\b/i;
+
+export function isQualifiedArtistName(name) {
+  return Boolean(name) && ARTIST_QUALIFIER.test(name);
+}
+
+// The part of an artist string that names the maker. Commons joins credits
+// with " / "; a credit that opens with a qualifier is dropped, and one with a
+// qualifier inside is cut there ("Jean-Nicolas Laugier after Jacques-Louis
+// David" → "Jean-Nicolas Laugier"). Empty when every credit is qualified.
+export function unqualifiedArtistName(name) {
+  return String(name)
+    .split(/\s+\/\s+/)
+    .map((credit) => {
+      const q = ARTIST_QUALIFIER.exec(credit);
+      return (q ? credit.slice(0, q.index) : credit).replace(/[\s,;:–—-]+$/u, "");
+    })
+    .filter(Boolean)
+    .join(" / ");
+}
+
 export function matchArtist(name, byAlias) {
   if (!name) return null;
-  const low = foldArtistName(name);
+  const whole = foldArtistName(name);
+  if (byAlias.has(whole)) return byAlias.get(whole);
+  const low = foldArtistName(unqualifiedArtistName(name));
+  if (!low) return null;
   if (byAlias.has(low)) return byAlias.get(low);
   const lowTokens = low.split(/\s+/).filter(Boolean);
   const lowLast = lowTokens[lowTokens.length - 1];
@@ -79,9 +112,11 @@ export function matchArtist(name, byAlias) {
 }
 
 // Exact folded hit only, for a name a person has already researched (an
-// artist override). Containment would find "Thomas Gainsborough" inside
-// "Imitator of Thomas Gainsborough" and file the imitation under the painter
-// the override exists to take it away from.
+// artist override). The override already says who made the work, so it is a
+// db artist or its own artist, never a near match: containment would still
+// find "Rembrandt" inside a researched "Attributed to Rembrandt", which the
+// qualifier rule leaves alone, and file it under the painter the override
+// exists to take it away from.
 export function matchArtistExact(name, byAlias) {
   if (!name) return null;
   return byAlias.get(foldArtistName(name)) ?? null;

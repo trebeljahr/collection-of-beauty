@@ -119,5 +119,13 @@
 
   "_imitator_attribution": "Cattle Watering by a Stream is by an imitator of Gainsborough (YCBA B1977.14.6174; see metadata/artist-overrides.json). The imitator has no artists-db entry and YCBA gives no date, so without this tag it has neither a movement nor a year and drops out of the 3D museum. It is tagged Rococo, the movement the catalogue gives Gainsborough, because it copies his manner. This is a style tag, not a claim about when it was made.",
 
-  "collection-of-beauty-thomas-gainsborough-cattle-watering-by-a-stream-google-art-project": "Rococo"
+  "collection-of-beauty-thomas-gainsborough-cattle-watering-by-a-stream-google-art-project": "Rococo",
+
+  "_copy_and_workshop_attributions": "Five works that September 2026 research took away from the painter they are after (see metadata/artist-overrides.json). Each is now credited to a copy, a workshop or a named copyist with no artists-db entry, so it has no movement of its own. The drawing after Holbein has no year either and would drop out of the 3D museum. The other four have a year, but the year fallback would move them: the Hokusai colour version to the Romanticism floor, since Ukiyo-e hangs by tag only; the Ingres workshop canvas (1819) and Laugier's engraving after David (1826) off the Neoclassicism floor; and Leemput's copy of Holbein's Whitehall mural (1667) off the Renaissance floor. Each is tagged with the movement the catalogue gives the painter it copies. As with the Gainsborough imitation above, this is a style tag, not a claim about when the work was made.",
+
+  "collection-of-beauty-battle-scene-after-hans-holbein-the-younger": "Northern Renaissance",
+  "collection-of-beauty-remigius-van-leemput-whitehall-mural": "Northern Renaissance",
+  "collection-of-beauty-a-colored-version-of-the-big-wave-from-100-views-of-the-fuji-2nd-volume": "Ukiyo-e",
+  "collection-of-beauty-ingres-atelier-angelique-piscine-roubaix": "Neoclassicism",
+  "collection-of-beauty-david-s-leonidas-and-thermoplyae": "Neoclassicism"
 }

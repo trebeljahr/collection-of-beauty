@@ -9,7 +9,12 @@ import sharp from "sharp";
 import { rgbaToThumbHash } from "thumbhash";
 import { colorProfileFromHistogram } from "../src/lib/color-buckets.mjs";
 import { GOOGLE_ART_PROJECT } from "../src/lib/google-art-project.mjs";
-import { loadArtistsDb, matchArtist, matchArtistExact } from "./lib/artist-alias.mjs";
+import {
+  isQualifiedArtistName,
+  loadArtistsDb,
+  matchArtist,
+  matchArtistExact,
+} from "./lib/artist-alias.mjs";
 import { artworkId, ID_MAX_LENGTH, slugify } from "./lib/artwork-id.mjs";
 import { SOURCE_FOLDERS } from "./lib/source-folders.mjs";
 import { loadTakedowns } from "./lib/takedowns.mjs";
@@ -1678,9 +1683,13 @@ async function main() {
         // movement/nationality directly. The name-less form is how
         // genuinely anonymous works (e.g. the Hungry Ghosts Scroll) opt
         // out of the European year fallback in gallery-eras.
-        artistInfo = entry.artist_info.name
-          ? (matchArtist(entry.artist_info.name, byAlias) ?? entry.artist_info)
-          : entry.artist_info;
+        // A named snapshot is skipped for a qualified artist string: the
+        // fetch script stamped it from the same containment match that
+        // filed "Workshop of Jean-Auguste-Dominique Ingres" under Ingres.
+        if (!entry.artist_info.name) artistInfo = entry.artist_info;
+        else if (!isQualifiedArtistName(normalizedArtistName)) {
+          artistInfo = matchArtist(entry.artist_info.name, byAlias) ?? entry.artist_info;
+        }
       }
       artistInfo = artistInfo ?? null;
       // An artist the curated db marks "copyrighted" is still in copyright

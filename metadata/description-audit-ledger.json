@@ -2177,7 +2177,11 @@
   "status": "minor-fixed"
  },
  "collection-of-beauty-after-rubens-anne-of-austria-queen-of-france-louvre-inv-1794": {
-  "status": "accurate"
+  "audit": "2026-09",
+  "method": "span-edits",
+  "previousStatus": "accurate",
+  "problem": "Called the picture a studio copy. The Louvre (INV 1794) catalogues it as after Rubens and says it is not a workshop replica but a rather heavy old copy.",
+  "status": "minor-fixed"
  },
  "collection-of-beauty-after-the-attack-plevna-1877-1878": {
   "status": "accurate"
@@ -2633,8 +2637,11 @@
   "status": "accurate"
  },
  "collection-of-beauty-anthonis-van-dyck-054": {
-  "problem": "Composition described as 'tightly cropped' but the scene is wide with putti at lower right visible.",
-  "status": "minor-fixed"
+  "audit": "2026-09",
+  "method": "span-edits",
+  "previousStatus": "minor-fixed",
+  "problem": "Treated van Dyck as the painter. The National Gallery, London (NG853) gives 'Possibly by Anthony van Dyck' and says it is not sure who painted it: a joint effort by several young painters in Rubens's studio.",
+  "status": "major-fixed"
  },
  "collection-of-beauty-anthony-van-dyck-mary-ruthven-lady-van-dyck": {
   "problem": "Describes 'silvery silks' but the dress is distinctly blue satin.",
@@ -2673,7 +2680,11 @@
   "status": "minor-fixed"
  },
  "collection-of-beauty-arcimboldo-air-copy": {
-  "status": "accurate"
+  "audit": "2026-09",
+  "method": "span-edits",
+  "previousStatus": "accurate",
+  "problem": "Presented the canvas as one of the allegories painted for the Habsburg court. It is a copy after Arcimboldo in a Swiss private collection (Commons, citing the KHM 2008 exhibition catalogue; the Web Gallery of Art also calls it a copy).",
+  "status": "major-fixed"
  },
  "collection-of-beauty-arcimboldo-earth": {
   "problem": "Lists 'lion' and 'ox' among the animals, but image shows leopard/cheetah and sheep; no crown is visible on the profile.",
@@ -4457,7 +4468,11 @@
   "status": "accurate"
  },
  "collection-of-beauty-dore-gustave-la-sainte-trinite": {
-  "status": "accurate"
+  "audit": "2026-09",
+  "method": "span-edits",
+  "previousStatus": "accurate",
+  "problem": "Said Rubens painted it. The Glynn Vivian Art Gallery (Art UK record, accession no. 39) gives it to Gustave Doré; it is a 19th-century copy after Rubens's Holy Trinity.",
+  "status": "major-fixed"
  },
  "collection-of-beauty-dore-i-had-done-a-hellish-thing": {
   "status": "accurate"
@@ -4829,8 +4844,11 @@
   "status": "minor-fixed"
  },
  "collection-of-beauty-el-coloso": {
-  "rechecked": "2026-09 accurate",
-  "status": "accurate"
+  "audit": "2026-09",
+  "method": "span-edits",
+  "previousStatus": "accurate",
+  "problem": "Credited the picture to Goya's late imagination after calling the attribution historical. The Prado (P002785) gives 'Attributed to Francisco de Goya y Lucientes' and says experts have not agreed on the attribution.",
+  "status": "major-fixed"
  },
  "collection-of-beauty-el-dos-de-mayo-de-1808-en-madrid": {
   "status": "accurate"
@@ -13408,8 +13426,11 @@
   "status": "accurate"
  },
  "collection-of-beauty-tizian-080": {
-  "problem": "Subject is a young, lightly bearded man — not notably bearded; description overstates beard and omits held object and window background.",
-  "status": "minor-fixed"
+  "audit": "2026-09",
+  "method": "span-edits",
+  "previousStatus": "minor-fixed",
+  "problem": "Placed the portrait in Titian's early period. The National Gallery of Art, Washington (1939.1.258) attributes it to Giovanni Cariani; Titian is a former attribution.",
+  "status": "major-fixed"
  },
  "collection-of-beauty-tizian-085": {
   "status": "accurate"
