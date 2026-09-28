@@ -39,15 +39,15 @@ describe("layoutScene — hanging beside the figure", () => {
     expect(s.standsOnFloor).toBe(true);
   });
 
-  it("rests a work beside the A4 sheet or the hand on the baseline", () => {
-    for (const [w, h] of [
-      [26, 36],
-      [5, 7],
-    ]) {
-      const s = sceneFor(w, h);
-      expect(s.work.y, `${w} × ${h}`).toBe(0);
-      expect(s.standsOnFloor, `${w} × ${h}`).toBe(false);
-    }
+  it("hangs a print beside the figure", () => {
+    const s = sceneFor(26, 36);
+    expect(s.work.y + s.work.h / 2).toBe(HANG_CENTRE_CM);
+  });
+
+  it("rests a work beside the hand on the baseline", () => {
+    const s = sceneFor(5, 7);
+    expect(s.work.y).toBe(0);
+    expect(s.standsOnFloor).toBe(false);
   });
 });
 

@@ -11,7 +11,7 @@ import type { RealSize, ScaleReference } from "@/lib/real-size";
 export const HANG_CENTRE_CM = 150;
 
 /** Space between the work and the reference, as a share of the
- *  reference's width: 24 cm beside the figure, ~13 cm beside A4. */
+ *  reference's width: 24 cm beside the figure, 7 cm beside the hand. */
 export const GAP_PER_REFERENCE_WIDTH = 0.6;
 
 /** Empty space above the taller object, as a share of its height. */
@@ -36,8 +36,8 @@ export type Scene = {
 };
 
 /** The work on the left, the reference on the right, both in cm. Beside
- *  the figure the work hangs at museum height; beside a sheet or a hand
- *  both rest on the same baseline. */
+ *  the figure the work hangs at museum height; beside the hand both rest
+ *  on the same baseline. */
 export function layoutScene(size: RealSize, reference: ScaleReference): Scene {
   const gap = GAP_PER_REFERENCE_WIDTH * reference.widthCm;
   const hung = reference.kind === "person";

@@ -1,5 +1,6 @@
 // Physical size for the artwork page's scale drawing: the work as a
-// rectangle at true size beside a figure, an A4 sheet or a hand.
+// rectangle at true size beside a figure or, for the smallest prints, a
+// hand.
 //
 // A wrong size drawn next to a person is far more visible than the same
 // wrong number in a caption, so this module decides what may be drawn
@@ -21,7 +22,7 @@ export type RealSizeInput = Pick<
 
 export type RealSize = { widthCm: number; heightCm: number };
 
-export type ScaleReferenceKind = "person" | "a4" | "hand";
+export type ScaleReferenceKind = "person" | "hand";
 
 export type ScaleReference = {
   kind: ScaleReferenceKind;
@@ -179,19 +180,16 @@ export function trustworthyRealSize(art: RealSizeInput): RealSize | null {
 
 // ── Reference object ────────────────────────────────────────────────────
 
-/** Longest side at and above which the work stands beside a figure. At
- *  60 cm the work is 0.34 of the figure's height and 2.0× the A4 sheet,
- *  so each reference stays readable on both sides of the switch. The
- *  trusted distribution has no gap to follow here: 44 works sit in
- *  55–60 cm and 52 in 60–65 cm. Every Audubon plate (100.3 cm, 434
- *  trusted) gets the figure at a ratio of 0.57, which is how the plates
- *  are hung and seen. */
-export const PERSON_MIN_CM = 60;
-
-/** Longest side below which the work sits beside a hand. The 14 trusted
- *  works under it are 5–14.8 cm etchings and engravings (Rembrandt,
- *  Schongauer, Dürer), and the next is 15.6 cm, so the line falls in a
- *  gap. At 5 cm a work is 0.17 of an A4 sheet but 0.26 of the hand. */
+/** Longest side below which the work sits beside a hand instead of the
+ *  figure. The 19 trusted works under it are 5–14.8 cm etchings and
+ *  engravings (Rembrandt, Schongauer, Dürer), and the next is 15.5 cm,
+ *  so the line falls in a gap. At 5 cm a work is 0.26 of the hand but
+ *  0.03 of the figure, a speck.
+ *
+ *  Everything from 15 cm up hangs beside the figure, as it would in a
+ *  gallery: a 15 cm print is 0.09 of her height, still about 60 px in a
+ *  full-height frame. Works of 15–60 cm used to get an A4 sheet, but a
+ *  blank page with a folded corner reads as a broken image. */
 export const HAND_MAX_CM = 15;
 
 // Boxes match the drawings' bounding boxes in scale-figures.ts (the UI
@@ -204,12 +202,6 @@ const PERSON: ScaleReference = {
   heightCm: 175,
   label: "Figure 175 cm tall",
 };
-const A4: ScaleReference = {
-  kind: "a4",
-  widthCm: 21,
-  heightCm: 29.7,
-  label: "A4 sheet, 21 × 29.7 cm",
-};
 // Wrist crease to fingertip, thumb out; the drawing is 116 × 190 units.
 const HAND: ScaleReference = {
   kind: "hand",
@@ -220,16 +212,13 @@ const HAND: ScaleReference = {
 
 /** Which reference object to draw beside a work of this size.
  *
- *  Bands for the 2,194 trusted works: figure 1,759, A4 421 (including
- *  all 100 Haeckel plates at 36 cm), hand 14. The work's longest side
- *  stays within 0.26–5.7× the reference's height across the catalogue.
- *  The extremes are a 5 cm etching beside the hand and the 994 cm
- *  Veronese beside the figure. */
+ *  Of the 3,115 trusted works, 3,096 get the figure and 19 the hand. The
+ *  work's longest side stays within 0.09–5.7× the reference's height
+ *  across the catalogue. The extremes are a 15.5 cm print and the 994 cm
+ *  Veronese, both beside the figure. */
 export function scaleReferenceFor(size: RealSize): ScaleReference {
   const longest = Math.max(size.widthCm, size.heightCm);
-  if (longest >= PERSON_MIN_CM) return { ...PERSON };
-  if (longest >= HAND_MAX_CM) return { ...A4 };
-  return { ...HAND };
+  return longest >= HAND_MAX_CM ? { ...PERSON } : { ...HAND };
 }
 
 /** "73.7 × 92.1 cm": width × height, at most one decimal, no trailing

@@ -7,7 +7,6 @@ import {
   HAND_MAX_CM,
   MAX_SIDE_CM,
   MIN_SIDE_CM,
-  PERSON_MIN_CM,
   type RealSizeInput,
   scaleReferenceFor,
   trustworthyRealSize,
@@ -221,25 +220,21 @@ describe("trustworthyRealSize — per-source rules", () => {
 });
 
 describe("scaleReferenceFor", () => {
-  it("switches from the A4 sheet to the figure at the person threshold", () => {
-    expect(scaleReferenceFor({ widthCm: 40, heightCm: PERSON_MIN_CM - 0.1 }).kind).toBe("a4");
-    expect(scaleReferenceFor({ widthCm: 40, heightCm: PERSON_MIN_CM }).kind).toBe("person");
-  });
-
-  it("switches from the hand to the A4 sheet at the hand threshold", () => {
+  it("switches from the hand to the figure at the hand threshold", () => {
     expect(scaleReferenceFor({ widthCm: 10, heightCm: HAND_MAX_CM - 0.1 }).kind).toBe("hand");
-    expect(scaleReferenceFor({ widthCm: 10, heightCm: HAND_MAX_CM }).kind).toBe("a4");
+    expect(scaleReferenceFor({ widthCm: 10, heightCm: HAND_MAX_CM }).kind).toBe("person");
   });
 
   it("uses the longest side, so a long low scroll gets the figure", () => {
     expect(scaleReferenceFor({ widthCm: 243.7, heightCm: 29.4 }).kind).toBe("person");
   });
 
-  it("gives Audubon plates the figure and Haeckel and ōban prints the A4 sheet", () => {
+  it("gives Audubon plates, Haeckel plates, ōban prints and small panels the figure", () => {
     expect(scaleReferenceFor({ widthCm: 67.31, heightCm: 100.33 }).kind).toBe("person");
     expect(scaleReferenceFor({ widthCm: 100.33, heightCm: 67.31 }).kind).toBe("person");
-    expect(scaleReferenceFor({ widthCm: 26, heightCm: 36 }).kind).toBe("a4");
-    expect(scaleReferenceFor({ widthCm: 24, heightCm: 36 }).kind).toBe("a4");
+    expect(scaleReferenceFor({ widthCm: 26, heightCm: 36 }).kind).toBe("person");
+    expect(scaleReferenceFor({ widthCm: 24, heightCm: 36 }).kind).toBe("person");
+    expect(scaleReferenceFor({ widthCm: 35.3, heightCm: 44.1 }).kind).toBe("person");
   });
 
   it("describes each reference by its drawn bounding box", () => {
@@ -248,12 +243,6 @@ describe("scaleReferenceFor", () => {
       widthCm: 40.6,
       heightCm: 175,
       label: "Figure 175 cm tall",
-    });
-    expect(scaleReferenceFor({ widthCm: 30, heightCm: 30 })).toEqual({
-      kind: "a4",
-      widthCm: 21,
-      heightCm: 29.7,
-      label: "A4 sheet, 21 × 29.7 cm",
     });
     expect(scaleReferenceFor({ widthCm: 5, heightCm: 5 })).toEqual({
       kind: "hand",
@@ -270,19 +259,12 @@ describe("scaleReferenceFor", () => {
   });
 
   // Neither drawing should shrink to a speck at the band edges: the work's
-  // longest side stays within 0.15–6× the reference's height.
-  it("keeps work and reference within 0.15–6× of each other at every band edge", () => {
-    for (const longest of [
-      5,
-      HAND_MAX_CM - 0.1,
-      HAND_MAX_CM,
-      PERSON_MIN_CM - 0.1,
-      PERSON_MIN_CM,
-      994,
-    ]) {
+  // longest side stays within 0.08–6× the reference's height.
+  it("keeps work and reference within 0.08–6× of each other at every band edge", () => {
+    for (const longest of [5, HAND_MAX_CM - 0.1, HAND_MAX_CM, 994]) {
       const ref = scaleReferenceFor({ widthCm: longest, heightCm: longest / 2 });
       const ratio = longest / ref.heightCm;
-      expect(ratio, `longest ${longest} cm`).toBeGreaterThanOrEqual(0.15);
+      expect(ratio, `longest ${longest} cm`).toBeGreaterThanOrEqual(0.08);
       expect(ratio, `longest ${longest} cm`).toBeLessThanOrEqual(6);
     }
   });
@@ -339,11 +321,11 @@ describe("the catalogue", () => {
     }
   });
 
-  it("keeps every drawn work within 0.15–6× its reference", () => {
+  it("keeps every drawn work within 0.08–6× its reference", () => {
     for (const { a, size } of trusted) {
       const ref = scaleReferenceFor(size);
       const ratio = Math.max(size.widthCm, size.heightCm) / ref.heightCm;
-      expect(ratio, a.id).toBeGreaterThanOrEqual(0.15);
+      expect(ratio, a.id).toBeGreaterThanOrEqual(0.08);
       expect(ratio, a.id).toBeLessThanOrEqual(6);
     }
   });

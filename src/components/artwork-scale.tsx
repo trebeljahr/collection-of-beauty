@@ -2,9 +2,9 @@
 
 // Scale view on /artwork/[id]. "Show to scale" in the aside resizes the
 // hero image on the left to the work's physical size and draws a
-// reference object beside it: a 175 cm figure for paintings, an A4 sheet
-// or a hand for plates and prints. ArtworkViewer draws the scene; this
-// file holds the shared on/off state, the toggle and the drawings.
+// reference beside it: a 175 cm figure, or a hand for the smallest
+// prints. ArtworkViewer draws the scene; this file holds the shared
+// on/off state, the toggle and the drawings.
 //
 // No image is fetched for it: the hero is already on screen and only
 // changes size.
@@ -112,50 +112,19 @@ export function ScaleReferenceDrawing({
   style: CSSProperties;
   className?: string;
 }) {
-  const { widthCm: w, heightCm: h } = reference;
-  const svgProps = {
-    focusable: "false",
-    overflow: "visible",
-    className: cn("absolute", className),
-    style,
-  } as const;
-
-  if (reference.kind === "a4") {
-    // Sheet outline with a folded top corner, so it reads as paper rather
-    // than as a second, blank work.
-    const fold = Math.min(w, h) * 0.12;
-    return (
-      <svg aria-hidden="true" viewBox={`0 0 ${w} ${h}`} {...svgProps}>
-        <path
-          d={`M0 0H${w - fold}L${w} ${fold}V${h}H0Z`}
-          className="fill-[var(--card)]"
-          stroke="currentColor"
-          strokeWidth="1.25"
-          strokeLinejoin="round"
-          vectorEffect="non-scaling-stroke"
-        />
-        <path
-          d={`M${w - fold} 0V${fold}H${w}`}
-          fill="none"
-          stroke="currentColor"
-          strokeWidth="1.25"
-          strokeLinejoin="round"
-          vectorEffect="non-scaling-stroke"
-        />
-      </svg>
-    );
-  }
-
   const shape = reference.kind === "person" ? PERSON_SHAPE : HAND_SHAPE;
   return (
     <svg
       aria-hidden="true"
       viewBox={`0 0 ${shape.w} ${shape.h}`}
       preserveAspectRatio="xMidYMax meet"
-      {...svgProps}
+      focusable="false"
+      overflow="visible"
+      className={cn("absolute", className)}
+      style={style}
     >
-      {/* A silhouette is a solid mass beside the work; lighter than the
-          sheet's outline so it does not outweigh the painting. */}
+      {/* A solid silhouette; lighter than the text colour so it does not
+          outweigh the painting. */}
       <path
         d={reference.kind === "person" ? PERSON_PATH : HAND_PATH}
         fill="currentColor"
