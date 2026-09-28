@@ -16,7 +16,6 @@ import { useIdle } from "@/hooks/use-idle";
 import { usePageVisible } from "@/hooks/use-page-visible";
 import { useReducedMotion } from "@/hooks/use-reduced-motion";
 import { useWakeLock } from "@/hooks/use-wake-lock";
-import { trackEvent } from "@/lib/analytics";
 import { artworkAlt } from "@/lib/artwork-format";
 import type { ArtworkListing } from "@/lib/data";
 import { pathnameOf, previousPathname } from "@/lib/navigation-history";
@@ -220,7 +219,6 @@ export function SlideshowView({
   ]);
 
   // --- commit --------------------------------------------------------------
-  const trackedRef = useRef(false);
   // biome-ignore lint/correctness/useExhaustiveDependencies: runs once per commit; everything else is read at that moment
   useEffect(() => {
     if (state.commits === 0 || state.shown === null) return;
@@ -252,11 +250,6 @@ export function SlideshowView({
     // Automatic advances are never announced: a screen reader reading a
     // title every 12 s would talk over everything else.
     if (state.committedIntent === "manual") setAnnouncement(artworkAlt(slide.art));
-
-    if (state.commits === 1 && !trackedRef.current) {
-      trackedRef.current = true;
-      trackEvent("Slideshow", { scope: scope.kind });
-    }
   }, [state.commits]);
 
   const onShown = useCallback((key: number) => {

@@ -38,8 +38,11 @@ const FOOTER_LINK =
    what silenced analytics after the 2026-09-13 move. */
 const plausibleHostname = "collectionofbeauty.com";
 const plausibleSiteId = "beauty.trebeljahr.com";
-const plausibleScriptUrl =
-  "https://plausible.trebeljahr.com/js/script.file-downloads.hash.outbound-links.pageview-props.revenue.tagged-events.js";
+/* The plain script: page loads and client-side navigations, nothing else.
+   No extensions (outbound links, file downloads, custom events), and not
+   `hash` either, which would count every #decade-N jump on the timeline as
+   a page view. */
+const plausibleScriptUrl = "https://plausible.trebeljahr.com/js/script.js";
 
 export const metadata: Metadata = {
   metadataBase: new URL(SITE_URL),
@@ -138,9 +141,6 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
           {`
               (function () {
                 if (location.hostname !== ${JSON.stringify(plausibleHostname)}) return;
-                window.plausible = window.plausible || function() {
-                  (window.plausible.q = window.plausible.q || []).push(arguments);
-                };
                 var script = document.createElement("script");
                 script.defer = true;
                 script.dataset.domain = ${JSON.stringify(plausibleSiteId)};
