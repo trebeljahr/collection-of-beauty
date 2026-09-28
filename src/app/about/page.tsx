@@ -35,8 +35,8 @@ const INLINE_LINK =
 // takedown) drops that one tile instead of failing the page.
 const BACKDROP_IDS = [
   "collection-of-beauty-tsunami-by-hokusai-19th-century",
-  "collection-of-beauty-1665-girl-with-a-pearl-earring",
   "collection-of-beauty-vincent-willem-van-gogh-128",
+  "collection-of-beauty-1665-girl-with-a-pearl-earring",
   "audubon-birds-431-american-flamingo",
   "collection-of-beauty-claude-monet-water-lilies-1906-ryerson",
   "collection-of-beauty-alfons-mucha-1896-summer",

@@ -18,7 +18,10 @@ const COLUMNS = [
 
 /** Each column starts at its own height, some above the page top, so the
  *  banner's top edge cuts through the works at different points and the
- *  grid reads as tiles on a wall rather than a table. */
+ *  grid reads as tiles on a wall rather than a table. The top work of a
+ *  high column loses its top: column 1 (the second work) starts 6rem up,
+ *  which on a phone hides most of it, so put a work there that can spare
+ *  its top, not a face. */
 const COLUMN_OFFSET = ["-mt-8", "-mt-24", "-mt-2", "-mt-16", "-mt-28", "-mt-6", "-mt-20", "-mt-12"];
 
 /** How far the works show before the veil closes over them. Set on both
