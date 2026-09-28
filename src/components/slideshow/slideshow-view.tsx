@@ -153,8 +153,17 @@ export function SlideshowView({
     const { signal } = controller;
     let cleanedUp = false;
     let deadline: number | undefined;
+    // Only time the tab is shown counts: a hidden tab holds the decode
+    // until it is shown again (see prepare-slide.ts), and timing that out
+    // would skip good works as broken while nobody is watching.
+    const armDeadline = () => {
+      deadline = window.setTimeout(() => {
+        if (document.visibilityState === "hidden") armDeadline();
+        else controller.abort();
+      }, PREPARE_TIMEOUT_MS);
+    };
     const backoff = window.setTimeout(() => {
-      deadline = window.setTimeout(() => controller.abort(), PREPARE_TIMEOUT_MS);
+      armDeadline();
       void run();
     }, failureBackoffMs(state.failures));
     const run = async () => {

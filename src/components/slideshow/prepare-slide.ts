@@ -53,11 +53,43 @@ async function decode(url: string, signal: AbortSignal): Promise<HTMLImageElemen
   signal.addEventListener("abort", cancel, { once: true });
   try {
     img.src = url;
+    // Chromium holds decode() pending in a hidden tab until it is shown
+    // again, while `load` still fires. Wait for the bytes, then for the
+    // tab, then decode, so a slideshow opened in a background tab has its
+    // image downloaded and decodes it the moment the viewer looks.
+    await Promise.race([loaded(img), aborted]);
+    await Promise.race([whenShown(signal), aborted]);
     await Promise.race([img.decode(), aborted]);
     return img;
   } finally {
     signal.removeEventListener("abort", cancel);
   }
+}
+
+function loaded(img: HTMLImageElement): Promise<void> {
+  if (img.complete && img.naturalWidth > 0) return Promise.resolve();
+  return new Promise((resolve, reject) => {
+    img.addEventListener("load", () => resolve(), { once: true });
+    img.addEventListener("error", () => reject(new Error(`image failed: ${img.src}`)), {
+      once: true,
+    });
+  });
+}
+
+/** Resolves once the tab is not hidden. Never rejects: the caller races
+ *  it against the abort, and the abort removes the listener. */
+function whenShown(signal: AbortSignal): Promise<void> {
+  if (document.visibilityState !== "hidden") return Promise.resolve();
+  return new Promise((resolve) => {
+    const stop = () => document.removeEventListener("visibilitychange", onChange);
+    const onChange = () => {
+      if (document.visibilityState === "hidden") return;
+      stop();
+      resolve();
+    };
+    document.addEventListener("visibilitychange", onChange);
+    signal.addEventListener("abort", stop, { once: true });
+  });
 }
 
 /**
