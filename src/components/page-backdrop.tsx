@@ -22,9 +22,31 @@ const COLUMNS = [
 const COLUMN_OFFSET = ["-mt-8", "-mt-24", "-mt-2", "-mt-16", "-mt-28", "-mt-6", "-mt-20", "-mt-12"];
 
 /** How far the works show before the veil closes over them. Set on both
- *  the layer (for the veil's gradient in globals.css) and the spacer that
+ *  the layer (for the veil's gradient, `VEIL`) and the spacer that
  *  pushes the page's own content below it. */
 const BANNER = "[--backdrop-banner:11rem] md:[--backdrop-banner:18rem]";
+
+/** The veil over the tiles. Clear across the banner, then the page colour
+ *  closes over the works: most of the way within a few rem, so the heading
+ *  under the banner already sits on near-paper, and solid by the bottom of
+ *  the layer, where the tiles end. A long ramp on purpose; a short one
+ *  draws a line across every column. No blur: masked into the ramp, a
+ *  backdrop-filter smeared a band across the tiles.
+ *
+ *  Inline rather than in globals.css. The gradient only means anything
+ *  next to this layer's geometry, and Turbopack's dev server twice kept
+ *  serving a globals.css build without a newly added rule, which showed
+ *  the tiles bare behind the text. */
+const VEIL = `linear-gradient(to bottom,
+  transparent calc(var(--backdrop-banner) - 5rem),
+  color-mix(in oklab, var(--background) 55%, transparent) var(--backdrop-banner),
+  color-mix(in oklab, var(--background) 86%, transparent) calc(var(--backdrop-banner) + 5rem),
+  color-mix(in oklab, var(--background) 92%, transparent) 70%,
+  var(--background) 100%)`;
+/** `strip`: nothing over the page, only a fade at the foot of the banner
+ *  so the tiles don't end on a hard line. */
+const STRIP_VEIL =
+  "linear-gradient(to bottom, transparent calc(100% - 6rem), var(--background) 100%)";
 
 const SIZES =
   "(min-width: 1536px) 13vw, (min-width: 1280px) 15vw, (min-width: 1024px) 17vw, (min-width: 768px) 20vw, (min-width: 640px) 25vw, 34vw";
@@ -99,7 +121,7 @@ export function PageBackdrop({
             </div>
           ))}
         </div>
-        <div className={cn(strip ? "backdrop-veil-strip" : "backdrop-veil", "absolute inset-0")} />
+        <div className="absolute inset-0" style={{ backgroundImage: strip ? STRIP_VEIL : VEIL }} />
       </div>
       <div
         aria-hidden

@@ -759,26 +759,3 @@
   background: var(--card);
   box-shadow: 0 1px 2px oklch(0.2 0.02 50 / 0.08);
 }
-
-/* PageBackdrop's veil (page-backdrop.tsx). Clear across the banner, then
-   the page colour closes over the works: most of the way within a few
-   rem, so the heading under the banner already sits on near-paper, and
-   solid by the bottom of the layer, where the tiles end. A long ramp on
-   purpose; a short one draws a line across every column. No blur: masked
-   into the ramp, a backdrop-filter smears a band across the tiles. */
-.backdrop-veil {
-  background: linear-gradient(
-    to bottom,
-    transparent calc(var(--backdrop-banner) - 5rem),
-    color-mix(in oklab, var(--background) 55%, transparent) var(--backdrop-banner),
-    color-mix(in oklab, var(--background) 86%, transparent) calc(var(--backdrop-banner) + 5rem),
-    color-mix(in oklab, var(--background) 92%, transparent) 70%,
-    var(--background) 100%
-  );
-}
-
-/* The `strip` variant: no veil over the page, only a fade at the foot of
-   the banner so the tiles don't end on a hard line. */
-.backdrop-veil-strip {
-  background: linear-gradient(to bottom, transparent calc(100% - 6rem), var(--background) 100%);
-}
