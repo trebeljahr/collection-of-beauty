@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { notFound } from "next/navigation";
+import { notFound, permanentRedirect, redirect } from "next/navigation";
 import { PlayLink } from "@/components/play-link";
 import { ScopedGallery } from "@/components/scoped-gallery";
 import { chipClasses, touchTextLinkClasses } from "@/components/ui/pill";
@@ -15,6 +15,7 @@ import {
   getConnectionsFor,
 } from "@/lib/data";
 import { assignEra, type EraId, getEra } from "@/lib/gallery-eras";
+import { artistRedirect } from "@/lib/redirects";
 import { artistJsonLd, buildOpenGraph, jsonLdScriptProps, ogImagesForArtist } from "@/lib/seo";
 import { sourceLabel } from "@/lib/source-label";
 
@@ -166,7 +167,13 @@ export async function generateMetadata({ params }: { params: Promise<Params> }):
 export default async function ArtistPage({ params }: { params: Promise<Params> }) {
   const { slug } = await params;
   const artist = getArtist(slug);
-  if (!artist) notFound();
+  if (!artist) {
+    // Renamed ids and near-miss spellings resolve before the 404 does.
+    const target = artistRedirect(slug);
+    if (target?.permanent) permanentRedirect(target.href);
+    if (target) redirect(target.href);
+    notFound();
+  }
 
   // Full works array stays server-side for the era-line derivation
   // below — only its length + per-work movement/year is needed there.

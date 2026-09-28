@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { notFound } from "next/navigation";
+import { notFound, permanentRedirect, redirect } from "next/navigation";
 import { ArtworkCard } from "@/components/artwork-card";
 import { ArtworkDownloads } from "@/components/artwork-downloads";
 import { ArtworkGlow } from "@/components/artwork-glow";
@@ -25,6 +25,7 @@ import { suggestFixUrl } from "@/lib/links";
 import type { PlateSetId } from "@/lib/plate-set-definitions";
 import { holdingSentence, plateNumberFor, plateSetForArtwork } from "@/lib/plate-sets";
 import { scaleReferenceFor, trustworthyRealSize } from "@/lib/real-size";
+import { artworkRedirect } from "@/lib/redirects";
 import { artworkJsonLd, buildOpenGraph, jsonLdScriptProps, ogImagesForArtwork } from "@/lib/seo";
 import { sourceLabel } from "@/lib/source-label";
 
@@ -107,7 +108,13 @@ export async function generateMetadata({ params }: { params: Promise<Params> }):
 export default async function ArtworkPage({ params }: { params: Promise<Params> }) {
   const { id } = await params;
   const art = getArtwork(id);
-  if (!art) notFound();
+  if (!art) {
+    // Renamed ids and near-miss spellings resolve before the 404 does.
+    const target = artworkRedirect(id);
+    if (target?.permanent) permanentRedirect(target.href);
+    if (target) redirect(target.href);
+    notFound();
+  }
 
   const artist = art.artistSlug ? getArtist(art.artistSlug) : null;
   const moreByArtist = art.artistSlug

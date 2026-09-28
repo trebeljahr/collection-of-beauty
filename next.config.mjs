@@ -160,6 +160,20 @@ const nextConfig = {
         destination: "/collection/:slug",
         permanent: true,
       },
+      // Plural and US spellings of the section names. Temporary rather
+      // than permanent: any of these could become a real route one day,
+      // and a cached 308 would shadow it. The 404 page's matcher catches
+      // the misspellings these don't.
+      { source: "/artworks/:id", destination: "/artwork/:id", permanent: false },
+      { source: "/artists/:slug", destination: "/artist/:slug", permanent: false },
+      { source: "/eras/:id", destination: "/era/:id", permanent: false },
+      { source: "/collections/:slug", destination: "/collection/:slug", permanent: false },
+      { source: "/:section(colors|color|colour)", destination: "/colours", permanent: false },
+      {
+        source: "/:section(colors|color|colour)/:family",
+        destination: "/colours/:family",
+        permanent: false,
+      },
       {
         // The botanical era floor was merged back into natural-history
         // (one era, one floor with the dense print-room hang). Keep any
