@@ -16,7 +16,8 @@
 export const WALL_WIDTH = 640;
 
 const SIDE_MARGIN = 28;
-const GAP = 18;
+/** Space between neighbouring frames. */
+export const FRAME_GAP = 18;
 export const FRAME_WIDTH = 3;
 const TOP_PAD = 52;
 // Shadow offset (8) plus ~2.5 sigma of its blur (9) must fit below the
@@ -87,7 +88,7 @@ export function hangLayout(aspectRatios: readonly number[], centreIndex: number)
   const unitHeights = ratios.map((ar, n) => Math.sqrt(weights[n] / ar));
 
   const frameCount = order.length;
-  const fixedWidth = GAP * (frameCount - 1) + 2 * FRAME_WIDTH * frameCount;
+  const fixedWidth = FRAME_GAP * (frameCount - 1) + 2 * FRAME_WIDTH * frameCount;
   const scaleForWidth = (WALL_WIDTH - 2 * SIDE_MARGIN - fixedWidth) / sum(unitWidths);
   const scaleForHeight = (MAX_FRAME_HEIGHT - 2 * FRAME_WIDTH) / Math.max(...unitHeights);
   const scale = Math.min(scaleForWidth, scaleForHeight);
@@ -97,7 +98,7 @@ export function hangLayout(aspectRatios: readonly number[], centreIndex: number)
     height: scale * unitHeights[n] + 2 * FRAME_WIDTH,
   }));
   const tallest = Math.max(...sizes.map((s) => s.height));
-  const rowWidth = sum(sizes.map((s) => s.width)) + GAP * (frameCount - 1);
+  const rowWidth = sum(sizes.map((s) => s.width)) + FRAME_GAP * (frameCount - 1);
   const centreLine = TOP_PAD + tallest / 2;
 
   let x = (WALL_WIDTH - rowWidth) / 2;
@@ -109,7 +110,7 @@ export function hangLayout(aspectRatios: readonly number[], centreIndex: number)
       width: sizes[n].width,
       height: sizes[n].height,
     };
-    x += sizes[n].width + GAP;
+    x += sizes[n].width + FRAME_GAP;
     return frame;
   });
 

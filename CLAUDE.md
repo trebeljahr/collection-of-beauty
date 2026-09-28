@@ -258,7 +258,9 @@ required by the Dockerfile — don't remove it.
   inlines the wall SVG (`wall-svg.ts`, the string sharp rasterises) and
   lays the works over it as `<picture>` elements, so the page gets
   srcsets and ThumbHash blurs. Change the drawing in `wall-svg.ts` and
-  both headers follow.
+  both headers follow. On the page each framed work links to
+  `#<artwork.id>`, the id of its `<figure>` below; the email's frames
+  are not links.
 
 ## Copyright
 

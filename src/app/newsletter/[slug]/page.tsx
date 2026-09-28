@@ -161,7 +161,8 @@ export default async function EditionPage({ params }: { params: Promise<Params> 
 
       <section className="flex flex-col gap-7 md:gap-10">
         {resolved.map(({ artwork, note, realSize }) => (
-          <figure key={artwork.id} className="m-0">
+          // The id is what the wall's frames at the top link to.
+          <figure key={artwork.id} id={artwork.id} className="m-0">
             <Link
               href={`/artwork/${artwork.id}`}
               className="block focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--ring)] rounded-md overflow-hidden"
