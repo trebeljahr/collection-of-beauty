@@ -254,6 +254,11 @@ required by the Dockerfile — don't remove it.
   that colour or a seam shows. Drafts render too, for test sends. The
   send CLI fetches the image first and refuses a live send when the
   deployed site does not serve it.
+- `/newsletter/<slug>` opens with the same wall, but not the JPEG: it
+  inlines the wall SVG (`wall-svg.ts`, the string sharp rasterises) and
+  lays the works over it as `<picture>` elements, so the page gets
+  srcsets and ThumbHash blurs. Change the drawing in `wall-svg.ts` and
+  both headers follow.
 
 ## Copyright
 

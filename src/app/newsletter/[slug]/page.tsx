@@ -5,6 +5,7 @@ import { notFound } from "next/navigation";
 import Markdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 import { NewsletterEditionSubscribe } from "@/components/newsletter-edition-subscribe";
+import { NewsletterWall } from "@/components/newsletter-wall";
 import { ResponsiveImage } from "@/components/responsive-image";
 import { touchTextLinkClasses } from "@/components/ui/pill";
 import { artworkAlt, displayTitle } from "@/lib/artwork-format";
@@ -13,6 +14,8 @@ import { resolveEditionCover } from "@/lib/newsletter/cover";
 import { findEdition, loadUiVisibleEditions, showDraftsInUi } from "@/lib/newsletter/editions";
 import { rehypeExternalLinks } from "@/lib/newsletter/markdown";
 import type { Edition } from "@/lib/newsletter/types";
+import { resolveEditionWall } from "@/lib/newsletter/wall";
+import { DEFAULT_WALL_PALETTE } from "@/lib/newsletter/wall-layout";
 import { formatCm, type RealSize, trustworthyRealSize } from "@/lib/real-size";
 import { buildOpenGraph, SITE_NAME } from "@/lib/seo";
 
@@ -68,6 +71,10 @@ export default async function EditionPage({ params }: { params: Promise<Params> 
   const previousEdition = index > 0 ? editions[index - 1] : null;
   const nextEdition = index >= 0 && index < editions.length - 1 ? editions[index + 1] : null;
   const resolved = resolveArtworks(edition);
+  // A draft in dev can name a work the catalogue lacks. resolveArtworks
+  // skips it; the wall needs every work, so it is left out instead.
+  const wall = resolved.length === edition.artworks.length ? resolveEditionWall(edition) : null;
+  const palette = wall?.palette ?? DEFAULT_WALL_PALETTE;
 
   return (
     <article className="mx-auto max-w-3xl px-4 py-12 md:py-20">
@@ -93,25 +100,46 @@ export default async function EditionPage({ params }: { params: Promise<Params> 
       </nav>
 
       <header className="mb-10 md:mb-14">
-        <div className="flex flex-wrap items-baseline gap-x-3 gap-y-1 text-xs uppercase tracking-[0.18em] text-[var(--muted-foreground)]">
-          <span>Issue {edition.number}</span>
-          <span aria-hidden="true">·</span>
-          <time dateTime={edition.publishedAt}>{formatDate(edition.publishedAt)}</time>
-          {edition.readingTimeMinutes > 0 && (
-            <>
-              <span aria-hidden="true">·</span>
-              <span>{edition.readingTimeMinutes} min read</span>
-            </>
-          )}
-          {edition.draft && (
-            <span className="rounded border border-amber-500 px-1.5 py-0.5 text-amber-600 dark:text-amber-400">
-              Draft
-            </span>
-          )}
+        {/* The email's header: the works on the issue's wall, and the title
+            as live text on the wall's base colour, which the wall's bottom
+            rows end in. Full bleed on a phone, as the email is. */}
+        <div
+          className="-mx-4 overflow-hidden sm:mx-0 sm:rounded-md"
+          style={{ backgroundColor: palette.base }}
+        >
+          {wall && <NewsletterWall wall={wall} artworks={resolved.map((r) => r.artwork)} />}
+          <div className={`px-6 pb-10 text-center md:px-10 ${wall ? "pt-1" : "pt-10"}`}>
+            <p
+              className="text-[11px] uppercase tracking-[0.24em]"
+              style={{ color: palette.kicker }}
+            >
+              Drops of Beauty · Issue {edition.number}
+            </p>
+            <h1
+              className="mx-auto mt-3 max-w-2xl font-serif text-3xl md:text-5xl tracking-tight leading-tight"
+              style={{ color: palette.title }}
+            >
+              {edition.title}
+            </h1>
+            <div
+              className="mt-4 flex flex-wrap items-baseline justify-center gap-x-2 gap-y-1 text-sm"
+              style={{ color: palette.meta }}
+            >
+              <time dateTime={edition.publishedAt}>{formatDate(edition.publishedAt)}</time>
+              {edition.readingTimeMinutes > 0 && (
+                <>
+                  <span aria-hidden="true">·</span>
+                  <span>{edition.readingTimeMinutes} min read</span>
+                </>
+              )}
+              {edition.draft && (
+                <span className="rounded border border-amber-300 px-1.5 py-0.5 text-xs uppercase tracking-[0.18em] text-amber-200">
+                  Draft
+                </span>
+              )}
+            </div>
+          </div>
         </div>
-        <h1 className="mt-5 font-serif text-3xl md:text-5xl tracking-tight leading-tight">
-          {edition.title}
-        </h1>
         {edition.tags.length > 0 && (
           <ul className="mt-6 flex flex-wrap gap-1.5 text-[10px] uppercase tracking-widest text-[var(--muted-foreground)]">
             {edition.tags.map((t) => (

@@ -13,7 +13,7 @@ import {
   Text,
 } from "@react-email/components";
 import * as React from "react";
-import { WALL_COLOURS, type WallPalette, wallPalette } from "../src/lib/newsletter/wall-layout";
+import { DEFAULT_WALL_PALETTE, type WallPalette } from "../src/lib/newsletter/wall-layout";
 
 void React; // referenced by JSX runtime under classic transform
 
@@ -73,8 +73,6 @@ export type DigestWall = {
   palette: WallPalette;
 };
 
-const DEFAULT_PALETTE = wallPalette(WALL_COLOURS.green.base);
-
 // ListMonk substitutes this in the rendered campaign body (Go template
 // engine). The double-brace literal stays verbatim in the HTML we hand
 // off, and ListMonk swaps it for the recipient's signed unsub URL.
@@ -91,7 +89,7 @@ export default function WeeklyDigest({
   unsubscribeUrl = LISTMONK_UNSUBSCRIBE_TOKEN,
   wall = null,
 }: WeeklyDigestProps) {
-  const palette = wall?.palette ?? DEFAULT_PALETTE;
+  const palette = wall?.palette ?? DEFAULT_WALL_PALETTE;
   const previewText =
     artworks.length > 0
       ? `${title}. ${artworks[0].title}${artworks[0].artist ? ` by ${artworks[0].artist}` : ""} and ${artworks.length - 1} more.`

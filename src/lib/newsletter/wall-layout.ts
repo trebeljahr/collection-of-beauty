@@ -1,13 +1,16 @@
 // Geometry and colour for the email header: the issue's five works framed
 // and hung on a painted gallery wall. Pure, no catalogue or sharp import,
-// so the email template, the image route and the tests all share it.
+// so the email template, the image route, the edition page and the tests
+// all share it.
 //
-// The wall is one JPEG per issue (see wall-image.ts). Only the works and
-// the wall are in the picture; the title under it stays live HTML on a
-// table cell painted the wall's base colour. That split is why the image's
-// bottom rows must be exactly `palette.base`: the gradient ends there, and
-// BOTTOM_PAD leaves room for the frame shadows to fade out before the edge,
-// so the image runs into the HTML cell without a seam.
+// In the email the wall is one JPEG per issue (see wall-image.ts); the
+// edition page draws the same SVG with the works laid over it as HTML
+// images (see wall-svg.ts). Only the works and the wall are in the
+// picture; the title under it stays live HTML on a block painted the
+// wall's base colour. That split is why the picture's bottom rows must be
+// exactly `palette.base`: the gradient ends there, and BOTTOM_PAD leaves
+// room for the frame shadows to fade out before the edge, so the picture
+// runs into the HTML block without a seam.
 
 /** Email content width, in CSS px. The image is rendered at 2x this. */
 export const WALL_WIDTH = 640;
@@ -217,3 +220,6 @@ export function mixWithWhite(hex: string, amount: number): string {
     )
     .join("")}`;
 }
+
+/** Colours for a header drawn without a wall. */
+export const DEFAULT_WALL_PALETTE = wallPalette(WALL_COLOURS.green.base);
