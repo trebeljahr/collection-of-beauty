@@ -721,7 +721,7 @@
 @media (min-width: 768px) {
   .wall-notice {
     aspect-ratio: 3 / 2;
-    width: 32rem;
+    width: min(32rem, var(--wall-w));
     padding: 2rem 3rem;
   }
 }
@@ -740,10 +740,10 @@
   }
 }
 
-/* The work hangs centred in a slot as tall as the tallest work can be,
-   so a landscape after a portrait doesn't pull "Show me another" out
-   from under the pointer. */
-@media (min-width: 768px) {
+/* With its plaque beside it, the work hangs centred in a slot as tall as
+   the tallest work can be, so a landscape after a portrait doesn't pull
+   "Show me another" out from under the pointer. */
+@media (min-width: 1024px) {
   .wall-slot {
     display: flex;
     align-items: center;

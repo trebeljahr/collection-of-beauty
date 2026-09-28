@@ -37,9 +37,18 @@ const TEXT_LINK =
 /** Frame geometry, as CSS variables so one inline `width` expression
  *  works at every breakpoint. `--wall-h` is the tallest a work may hang,
  *  `--wall-w` the widest; a work's box is whichever binds first at its
- *  aspect ratio. The empty frame's box is `.wall-notice` in globals.css. */
+ *  aspect ratio. The empty frame's box is `.wall-notice` in globals.css.
+ *  From lg the plaques hang to the right of the frames, so `--wall-w`
+ *  leaves a gutter of plaque plus gap on both sides of the centre line:
+ *  the page's 80rem column, less 2 × 16.5rem of gutter, 2rem of page
+ *  padding and ~4.6rem of moulding and mat. */
 const WALL_VARS =
-  "[--wall-h:min(40svh,20rem)] [--wall-w:calc(100vw-5.5rem)] md:[--wall-h:min(60svh,32rem)] md:[--wall-w:40rem]";
+  "[--wall-h:min(40svh,20rem)] [--wall-w:calc(100vw-5.5rem)] md:[--wall-h:min(60svh,32rem)] md:[--wall-w:40rem] lg:[--wall-w:min(40rem,calc(min(100vw,80rem)_-_40rem))]";
+
+/** A plaque hangs below its frame on narrow screens, and from lg to the
+ *  right of it, level with the frame's bottom edge. Absolute, so the
+ *  frame keeps the centre line. */
+const PLAQUE_BESIDE = "lg:absolute lg:bottom-0 lg:left-full lg:ml-6 lg:w-60";
 
 /** Portrait, like most of what hangs here: the loading placeholder. */
 const EMPTY_RATIO = 4 / 5;
@@ -49,7 +58,8 @@ const LEAD_IN: Record<NotFoundItem["kind"] | "random", string> = {
   artwork: "Did you mean this work?",
   artist: "Did you mean this artist?",
   page: "Did you mean this page?",
-  random: "No worries. Here is a random work from the collection instead.",
+  random:
+    "No worries. Sometimes we don't find what we were looking for, but we do find something else.",
 };
 
 type Featured =
@@ -116,8 +126,8 @@ export function NotFoundWall() {
   return (
     <div className={`flex flex-col gap-14 ${WALL_VARS}`}>
       <div className="flex flex-col items-center">
-        <figure className="flex w-full flex-col items-center gap-5">
-          <div className="wall-frame wall-frame-empty w-full max-w-md md:w-auto md:max-w-none">
+        <figure className="relative flex w-full max-w-md flex-col items-center gap-5 md:w-auto md:max-w-none">
+          <div className="wall-frame wall-frame-empty w-full md:w-auto">
             <div className="wall-frame-mat">
               <div className="wall-notice flex flex-col items-center justify-center text-center">
                 <h1 className="font-serif">
@@ -148,7 +158,7 @@ export function NotFoundWall() {
             </div>
           </div>
           {/* The gap, catalogued like everything else on the wall. */}
-          <WallLabel>
+          <WallLabel className={PLAQUE_BESIDE}>
             <p className="font-serif text-base leading-snug">Untitled (404)</p>
             <p className="mt-0.5 text-xs text-[var(--muted-foreground)]">
               Artist unknown · undated
@@ -162,23 +172,34 @@ export function NotFoundWall() {
 
         {/* Holds its line while the suggestion loads, so the frame below
             doesn't jump when the text arrives. */}
-        <h2 className="mt-10 mb-6 min-h-7 max-w-md text-center font-serif text-xl text-balance md:mt-20 md:mb-10">
+        <h2 className="mt-10 mb-6 min-h-7 max-w-xl text-center font-serif text-xl text-balance md:mt-20 md:mb-10">
           {featured && LEAD_IN[featured.kind === "match" ? featured.item.kind : "random"]}
         </h2>
 
-        <figure className="flex flex-col items-center gap-5">
+        <div className="flex flex-col items-center gap-5">
           <div className="wall-slot">
             {featured ? (
-              <HungWork
+              <figure
                 key={featured.kind === "match" ? featured.item.href : featured.work.id}
-                work={featured.kind === "match" ? featured.item.work : featured.work}
-                href={
-                  featured.kind === "match" ? featured.item.href : `/artwork/${featured.work.id}`
-                }
-              />
+                className="relative flex flex-col items-center gap-5"
+              >
+                <HungWork
+                  work={featured.kind === "match" ? featured.item.work : featured.work}
+                  href={
+                    featured.kind === "match" ? featured.item.href : `/artwork/${featured.work.id}`
+                  }
+                />
+                {featured.kind === "match" ? (
+                  <MatchLabel item={featured.item} className={PLAQUE_BESIDE} />
+                ) : (
+                  <WallLabel className={PLAQUE_BESIDE}>
+                    <WorkCaption work={featured.work} />
+                  </WallLabel>
+                )}
+              </figure>
             ) : (
-              // Holds the space while the suggestion loads, so the label
-              // below doesn't jump when the work arrives.
+              // Holds the space while the suggestion loads, so the buttons
+              // below don't jump when the work arrives.
               <div aria-hidden="true" className="wall-frame wall-frame-empty opacity-40">
                 <div className="wall-frame-mat">
                   <div style={boxStyle(EMPTY_RATIO, "var(--wall-h)", "var(--wall-w)")} />
@@ -186,11 +207,17 @@ export function NotFoundWall() {
               </div>
             )}
           </div>
-          {featured?.kind === "match" && <MatchLabel item={featured.item} />}
-          {featured?.kind === "random" && (
-            <WallLabel>
-              <WorkCaption work={featured.work} />
-              <div className="mt-3 flex flex-wrap gap-2">
+          <div className="flex flex-wrap justify-center gap-2">
+            {featured?.kind === "match" && (
+              <Link href={featured.item.href} className={PRIMARY_BUTTON}>
+                {featured.item.kind === "artwork"
+                  ? "Open this work"
+                  : `Go to ${featured.item.label}`}{" "}
+                <span aria-hidden="true">→</span>
+              </Link>
+            )}
+            {featured?.kind === "random" && (
+              <>
                 <a href="/surprise" onClick={onAnother} className={PRIMARY_BUTTON}>
                   <ShuffleIcon />
                   Show me another
@@ -198,19 +225,15 @@ export function NotFoundWall() {
                 <Link href={`/artwork/${featured.work.id}`} className={SECONDARY_BUTTON}>
                   About this work <span aria-hidden="true">→</span>
                 </Link>
-              </div>
-            </WallLabel>
-          )}
-          {!featured && (
-            <WallLabel>
-              <p className="text-sm text-[var(--muted-foreground)]">
-                <a href="/surprise" className={TEXT_LINK}>
-                  Show me a random work
-                </a>
-              </p>
-            </WallLabel>
-          )}
-        </figure>
+              </>
+            )}
+            {!featured && (
+              <a href="/surprise" className={`text-sm text-[var(--muted-foreground)] ${TEXT_LINK}`}>
+                Show me a random work
+              </a>
+            )}
+          </div>
+        </div>
       </div>
 
       {rest.length > 0 && (
@@ -299,9 +322,11 @@ function HungWork({
   );
 }
 
-function WallLabel({ children }: { children: ReactNode }) {
+function WallLabel({ children, className }: { children: ReactNode; className?: string }) {
   return (
-    <figcaption className="wall-label w-[17rem] max-w-full px-4 py-3 text-left">
+    <figcaption
+      className={`wall-label w-[17rem] max-w-full px-4 py-3 text-left ${className ?? ""}`}
+    >
       {children}
     </figcaption>
   );
@@ -319,9 +344,15 @@ function WorkCaption({ work }: { work: ArtworkListing }) {
   );
 }
 
-function MatchLabel({ item }: { item: NotFoundItem & { work: ArtworkListing } }) {
+function MatchLabel({
+  item,
+  className,
+}: {
+  item: NotFoundItem & { work: ArtworkListing };
+  className?: string;
+}) {
   return (
-    <WallLabel>
+    <WallLabel className={className}>
       {item.kind === "artwork" ? (
         <WorkCaption work={item.work} />
       ) : (
@@ -330,12 +361,6 @@ function MatchLabel({ item }: { item: NotFoundItem & { work: ArtworkListing } })
           <p className="mt-0.5 text-xs text-[var(--muted-foreground)]">{subline(item)}</p>
         </>
       )}
-      <div className="mt-3">
-        <Link href={item.href} className={PRIMARY_BUTTON}>
-          {item.kind === "artwork" ? "Open this work" : `Go to ${item.label}`}{" "}
-          <span aria-hidden="true">→</span>
-        </Link>
-      </div>
     </WallLabel>
   );
 }
