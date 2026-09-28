@@ -3,7 +3,7 @@ import Link from "next/link";
 import { notFound, permanentRedirect, redirect } from "next/navigation";
 import { ArtworkCard } from "@/components/artwork-card";
 import { ArtworkDownloads } from "@/components/artwork-downloads";
-import { ArtworkScale } from "@/components/artwork-scale";
+import { ArtworkScaleToggle, ScaleViewProvider } from "@/components/artwork-scale";
 import { ArtworkScopeNav } from "@/components/artwork-scope-nav";
 import { ArtworkViewer } from "@/components/artwork-viewer";
 import { LicenseBadge } from "@/components/license-badge";
@@ -24,6 +24,7 @@ import { suggestFixUrl } from "@/lib/links";
 import type { PlateSetId } from "@/lib/plate-set-definitions";
 import { holdingSentence, plateNumberFor, plateSetForArtwork } from "@/lib/plate-sets";
 import { formatCm, scaleReferenceFor, trustworthyRealSize } from "@/lib/real-size";
+import { layoutScene } from "@/lib/real-size-scene";
 import { artworkRedirect } from "@/lib/redirects";
 import { artworkJsonLd, buildOpenGraph, jsonLdScriptProps, ogImagesForArtwork } from "@/lib/seo";
 import { sourceLabel } from "@/lib/source-label";
@@ -157,6 +158,11 @@ export default async function ArtworkPage({ params }: { params: Promise<Params> 
   // Null when the size is missing or fails the audit; the scale view then
   // does not render at all, rather than drawing a guessed size.
   const realSize = trustworthyRealSize(art);
+  const scaleReference = realSize ? scaleReferenceFor(realSize) : null;
+  const scale =
+    realSize && scaleReference
+      ? { scene: layoutScene(realSize, scaleReference), reference: scaleReference }
+      : null;
 
   return (
     <div className="mx-auto max-w-6xl px-4 py-8">
@@ -168,7 +174,9 @@ export default async function ArtworkPage({ params }: { params: Promise<Params> 
         labels={backLinkLabels(art, eraId, plateSet?.id ?? null)}
       />
 
-      <div className="grid gap-8 md:grid-cols-[1.3fr_1fr]">
+      {/* Renders the two-column grid: the toggle in the aside resizes
+          the image in the frame. */}
+      <ScaleViewProvider className="grid gap-8 md:grid-cols-[1.3fr_1fr]">
         <div className="flex max-h-[85vh] flex-col self-start rounded-xl border border-[var(--border)] bg-[var(--muted)] p-[10px]">
           <ArtworkViewer
             art={{
@@ -182,6 +190,7 @@ export default async function ArtworkPage({ params }: { params: Promise<Params> 
               width: art.width,
               height: art.height,
             }}
+            scale={scale}
           />
         </div>
 
@@ -263,13 +272,8 @@ export default async function ArtworkPage({ params }: { params: Promise<Params> 
             </p>
           )}
 
-          {realSize && (
-            <ArtworkScale
-              objectKey={art.objectKey}
-              variantWidths={art.variantWidths}
-              size={realSize}
-              reference={scaleReferenceFor(realSize)}
-            />
+          {realSize && scale && (
+            <ArtworkScaleToggle size={realSize} scene={scale.scene} reference={scale.reference} />
           )}
 
           <ArtworkDownloads artwork={art} />
@@ -294,7 +298,7 @@ export default async function ArtworkPage({ params }: { params: Promise<Params> 
             </a>
           </div>
         </aside>
-      </div>
+      </ScaleViewProvider>
 
       {moreByArtist.length > 0 && art.artist && (
         <section className="mt-16">

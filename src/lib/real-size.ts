@@ -194,13 +194,13 @@ export const PERSON_MIN_CM = 60;
  *  gap. At 5 cm a work is 0.17 of an A4 sheet but 0.26 of the hand. */
 export const HAND_MAX_CM = 15;
 
-// Boxes match the UI's drawings (artwork-scale.tsx scales each shape to
-// the height and centres it in this box), so the drawing never spills
-// past the box into the gap beside the work. If a shape changes there,
-// change its box here.
+// Boxes match the drawings' bounding boxes in scale-figures.ts (the UI
+// scales each shape to the height and centres it in this box), so the
+// drawing never spills past the box into the gap beside the work.
+// scale-figures.test.ts fails if the two drift apart.
 const PERSON: ScaleReference = {
   kind: "person",
-  widthCm: 50,
+  widthCm: 54,
   heightCm: 175,
   label: "Figure 175 cm tall",
 };

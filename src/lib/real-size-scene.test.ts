@@ -1,13 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { type RealSize, scaleReferenceFor } from "./real-size";
-import {
-  HANG_CENTRE_CM,
-  HEADROOM,
-  layoutScene,
-  SCENE_MAX_HEIGHT_REM,
-  sceneMaxWidthRem,
-  workSizes,
-} from "./real-size-scene";
+import { HANG_CENTRE_CM, HEADROOM, layoutScene } from "./real-size-scene";
 
 function sceneFor(widthCm: number, heightCm: number) {
   const size: RealSize = { widthCm, heightCm };
@@ -77,61 +70,4 @@ describe("layoutScene — geometry", () => {
       expect(s.height).toBeGreaterThanOrEqual(s.ref.h * (1 + HEADROOM));
     });
   }
-});
-
-describe("sceneMaxWidthRem", () => {
-  it("keeps every scene at or under the height cap", () => {
-    for (const [w, h] of SIZES) {
-      const s = sceneFor(w, h);
-      expect((sceneMaxWidthRem(s) * s.height) / s.width, `${w} × ${h}`).toBeCloseTo(
-        SCENE_MAX_HEIGHT_REM,
-        9,
-      );
-    }
-  });
-});
-
-describe("workSizes", () => {
-  // Wide scene: the height cap binds at 590 px on a phone, but never in the
-  // two-column layout, where the aside tops out at 447 px.
-  it("Veronese: fluid, capped, fluid again from md to the container, then fixed", () => {
-    const s = sceneFor(994, 677);
-    expect(workSizes(s, s.work)).toBe(
-      "(max-width: 589px) calc((100vw - 58px) * 0.9255), " +
-        "(max-width: 767px) 493px, " +
-        "(max-width: 1151px) calc(((100vw - 64px) / 2.3 - 26px) * 0.9255), " +
-        "414px",
-    );
-  });
-
-  // The cap binds inside the md band too, so the md fluid entry stops
-  // where the aside outgrows the capped scene.
-  it("landscape Audubon plate: the md fluid entry stops at the cap", () => {
-    const s = sceneFor(100.33, 67.31);
-    expect(workSizes(s, s.work)).toBe(
-      "(max-width: 387px) calc((100vw - 58px) * 0.5564), " +
-        "(max-width: 767px) 184px, " +
-        "(max-width: 880px) calc(((100vw - 64px) / 2.3 - 26px) * 0.5564), " +
-        "184px",
-    );
-  });
-
-  // Tall scene: the cap binds on phones and throughout md, so one fixed
-  // size covers every viewport from 306 px up.
-  it("small hung work: collapses to one fixed size once the cap binds", () => {
-    const s = sceneFor(60, 80);
-    expect(workSizes(s, s.work)).toBe("(max-width: 305px) calc((100vw - 58px) * 0.4286), 106px");
-  });
-
-  it("lists max-widths in ascending order and ends with a bare length", () => {
-    for (const [w, h] of SIZES) {
-      const s = sceneFor(w, h);
-      const entries = workSizes(s, s.work).split(", ");
-      const maxes = entries.slice(0, -1).map((e) => Number(/^\(max-width: (\d+)px\)/.exec(e)?.[1]));
-      for (const m of maxes) expect(m, `${w} × ${h}`).toBeGreaterThan(0);
-      expect(maxes, `${w} × ${h}`).toEqual([...maxes].sort((a, b) => a - b));
-      expect(new Set(maxes).size, `${w} × ${h}`).toBe(maxes.length);
-      expect(entries.at(-1), `${w} × ${h}`).toMatch(/^\d+px$/);
-    }
-  });
 });

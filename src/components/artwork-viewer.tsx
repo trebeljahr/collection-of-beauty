@@ -1,11 +1,21 @@
 "use client";
 
-import { type CSSProperties, type SyntheticEvent, useEffect, useRef, useState } from "react";
+import {
+  type CSSProperties,
+  type SyntheticEvent,
+  type TransitionEvent,
+  useEffect,
+  useRef,
+  useState,
+} from "react";
 import { artworkAlt, displayTitle } from "@/lib/artwork-format";
 import { getLoadedVariant, recordLoadedVariant } from "@/lib/image-cache";
+import type { ScaleReference } from "@/lib/real-size";
+import type { Box, Scene } from "@/lib/real-size-scene";
 import { saveBackFlipSnapshot } from "@/lib/use-artwork-back-flip";
 import { cn, fallbackVariantUrl, variantSrcSet, variantUrl } from "@/lib/utils";
 import { artworkHeroVtName } from "@/lib/view-transitions";
+import { SCALE_STAGE_ID, ScaleReferenceDrawing, useScaleView } from "./artwork-scale";
 import { useLightbox } from "./lightbox-provider";
 
 type ArtworkLike = {
@@ -22,12 +32,17 @@ type ArtworkLike = {
 
 type Props = {
   art: ArtworkLike;
+  /** Scale view geometry, for a work with a trusted size. The toggle in
+   *  the aside (ArtworkScaleToggle) switches it on. */
+  scale?: { scene: Scene; reference: ScaleReference } | null;
 };
 
 // Prev/next, their arrow keys and their prefetch live in ArtworkScopeNav,
 // which knows the scope the visitor is walking.
-export function ArtworkViewer({ art }: Props) {
+export function ArtworkViewer({ art, scale = null }: Props) {
   const { open } = useLightbox();
+  const scaleOn = useScaleView();
+  const scene = scale && scaleOn ? scale.scene : null;
 
   // Force scroll to top on prev/next navigation. Next.js App Router's
   // default scroll handling for same-layout, same-segment transitions
@@ -39,43 +54,115 @@ export function ArtworkViewer({ art }: Props) {
 
   const alt = artworkAlt(art);
 
+  // The scale view resizes the image in place, so the back-to-gallery
+  // FLIP must start from wherever it ends up, not the full-size box.
+  const saveSnapshot = (e: TransitionEvent<HTMLDivElement>) => {
+    const img = e.currentTarget.querySelector<HTMLImageElement>("img[data-object-key]");
+    if (img) saveBackFlipSnapshot(art.id, img);
+  };
+
   return (
-    <div className="flex min-h-0 flex-1 flex-col">
-      <button
-        type="button"
-        onClick={() => open(art)}
-        title="View fullscreen"
-        aria-label={`Open ${displayTitle(art)} in fullscreen viewer`}
-        className="flex min-h-0 w-full flex-1 cursor-zoom-in items-start justify-center rounded-md border-0 bg-transparent p-0 focus:outline-none focus-visible:ring-2 focus-visible:ring-[var(--ring)]"
+    <div className="@container flex min-h-0 flex-1 flex-col">
+      <div
+        id={scale ? SCALE_STAGE_ID : undefined}
+        className={cn("relative mx-auto scroll-mt-20", RESIZE_MOTION)}
+        style={stageStyle(scene ? scene.width / scene.height : imageAspect(art))}
+        onTransitionEnd={scale ? saveSnapshot : undefined}
       >
-        {/* key on the artwork id so progressive state resets cleanly on
-            prev/next navigation. */}
-        <ArtworkImage key={art.id} art={art} alt={alt} />
-      </button>
+        <button
+          type="button"
+          onClick={() => open(art)}
+          title="View fullscreen"
+          aria-label={`Open ${displayTitle(art)} in fullscreen viewer`}
+          className={cn(
+            "absolute block cursor-zoom-in rounded-md border-0 bg-transparent p-0 focus:outline-none focus-visible:ring-2 focus-visible:ring-[var(--ring)]",
+            RESIZE_MOTION,
+          )}
+          style={scene ? placeIn(scene.work, scene) : FILL}
+        >
+          {/* key on the artwork id so progressive state resets cleanly on
+              prev/next navigation. */}
+          <ArtworkImage key={art.id} art={art} alt={alt} />
+        </button>
+        {scale && (
+          <ScaleReferenceDrawing
+            reference={scale.reference}
+            style={placeIn(scale.scene.ref, scale.scene)}
+            className={cn(
+              "pointer-events-none text-[var(--muted-foreground)] transition-opacity motion-reduce:transition-none",
+              // In once the image has started to move, out at once.
+              scene ? "opacity-70 delay-200 duration-300" : "opacity-0 duration-150",
+            )}
+          />
+        )}
+      </div>
+      {scale && (
+        // The floor: a line under the stage across the whole frame, with
+        // the frame's bottom padding below it tinted as the ground.
+        <div
+          aria-hidden="true"
+          className={cn(
+            "-mx-[10px] -mb-[10px] h-[10px] rounded-b-[11px] border-t border-[var(--muted-foreground)]/40 bg-[var(--foreground)]/[0.05] transition-opacity duration-300 motion-reduce:transition-none",
+            scene ? "opacity-100" : "opacity-0",
+          )}
+        />
+      )}
     </div>
   );
 }
 
-// The image fills its wrapper exactly (the wrapper carries the artwork's
-// aspect ratio), so no intrinsic sizing is needed to lay it out.
+/** Same duration and curve on the stage and the image inside it, so the
+ *  image's percentages and the stage's size move as one. */
+const RESIZE_MOTION =
+  "transition-[width,height,left,bottom] duration-500 ease-[cubic-bezier(0.22,1,0.36,1)] motion-reduce:transition-none";
+
+const FILL: CSSProperties = { left: "0%", bottom: "0%", width: "100%", height: "100%" };
+
+function pct(fraction: number): string {
+  return `${(fraction * 100).toFixed(3)}%`;
+}
+
+/** A scene box (cm, origin bottom left) as percentages of the stage. */
+function placeIn(box: Box, scene: Scene): CSSProperties {
+  return {
+    left: pct(box.x / scene.width),
+    bottom: pct(box.y / scene.height),
+    width: pct(box.w / scene.width),
+    height: pct(box.h / scene.height),
+  };
+}
+
+// The image fills its wrapper, and the wrapper fills the stage, which
+// carries the artwork's aspect ratio, so no intrinsic sizing is needed to
+// lay it out.
 const IMG_BOX = "block h-full w-full rounded-md object-contain";
 
-// Geometry for the wrapper box, derived purely from the artwork's known
-// source dimensions. Reserving it in CSS means the frame has its final
-// size on the very first paint — before a single byte of the image has
-// arrived. Without this, an undecoded <img> with width/height:auto has no
-// intrinsic size, so the browser lays it out at the 300 px replaced-element
-// default and the grey frame visibly snaps open once the image decodes —
-// a flicker on every prev/next navigation.
+function imageAspect({ width, height }: Pick<ArtworkLike, "width" | "height">): number {
+  const w = width && width > 0 ? width : 1600;
+  const h = height && height > 0 ? height : 2000;
+  return w / h;
+}
+
+// Geometry for the stage, derived purely from the artwork's known source
+// dimensions (in the scale view, from the scene's). Reserving it in CSS
+// means the frame has its final size on the very first paint — before a
+// single byte of the image has arrived. Without this, an undecoded <img>
+// with width/height:auto has no intrinsic size, so the browser lays it
+// out at the 300 px replaced-element default and the grey frame visibly
+// snaps open once the image decodes — a flicker on every prev/next
+// navigation.
+//
+// Width and height are both given, rather than a width and an
+// aspect-ratio, so the switch to the scale view can transition them.
+// `cqw` is the frame's content width: the viewer root is the container.
 //
 // Cap the height a touch under the bordered box's max-h-[85vh] so the
 // 10 px padding on either side never makes it overflow the frame.
-function boxStyle(width: number | null, height: number | null): CSSProperties {
-  const w = width && width > 0 ? width : 1600;
-  const h = height && height > 0 ? height : 2000;
+function stageStyle(aspect: number): CSSProperties {
+  const maxHeight = "(85vh - 24px)";
   return {
-    aspectRatio: `${w} / ${h}`,
-    width: `min(100%, calc((85vh - 24px) * ${w / h}))`,
+    width: `min(100cqw, calc(${maxHeight} * ${aspect}))`,
+    height: `min(calc(100cqw / ${aspect}), calc${maxHeight})`,
   };
 }
 
@@ -152,7 +239,7 @@ function ArtworkImage({ art, alt }: { art: ArtworkLike; alt: string }) {
   if (!hasVariants) {
     // No manifest — single fallback-variant load, no ladder to bridge.
     return (
-      <div className="relative min-h-0" style={boxStyle(art.width, art.height)}>
+      <div className="relative h-full w-full">
         {/* biome-ignore lint/performance/noImgElement: rclone-backed variant ladder; next/image's request-time optimizer is not in this path. */}
         <img
           ref={highRef}
@@ -171,7 +258,7 @@ function ArtworkImage({ art, alt }: { art: ArtworkLike; alt: string }) {
   }
 
   return (
-    <div className="relative min-h-0" style={boxStyle(art.width, art.height)}>
+    <div className="relative h-full w-full">
       {/* block + full size so the <img>'s h-full resolves against the
           aspect-ratio wrapper rather than an auto-height inline box. */}
       <picture className="block h-full w-full">
