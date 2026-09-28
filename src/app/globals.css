@@ -529,7 +529,11 @@
    The container leaves room below for the outer cards' lower corners,
    which swing down as they turn. On load the cards deal out from a
    straight stack; `backwards` fill (not `both`) hands the transform back
-   to the base rule once the deal ends, so hover can move it. */
+   to the base rule once the deal ends.
+   These rules are the two resting states: in the hand, and pulled to the
+   top ([data-top]). edition-fan.tsx scripts the motion between them and
+   reads the pivot and --fan-step from here. .edition-fan-hit is an
+   invisible copy of the hand that never moves; it takes the pointer. */
 .edition-fan {
   --fan-h: 7rem;
   --fan-step: 12deg;
@@ -544,7 +548,18 @@
     --fan-step: 14deg;
   }
 }
-.edition-fan-slot {
+.edition-fan-hand,
+.edition-fan-hits {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+}
+.edition-fan-hits {
+  z-index: 1;
+  pointer-events: none;
+}
+.edition-fan-slot,
+.edition-fan-hit {
   --fan-angle: calc(var(--fan-offset) * var(--fan-step));
   position: absolute;
   left: 50%;
@@ -552,16 +567,22 @@
   height: var(--fan-h);
   width: calc(var(--fan-h) * var(--fan-aspect));
   z-index: var(--fan-z);
+  translate: -50% 0;
   transform-origin: 50% 240%;
-  transform: translateX(-50%) rotate(var(--fan-angle));
-  transition: transform 350ms cubic-bezier(0.2, 0.7, 0.2, 1);
+  transform: rotate(var(--fan-angle));
+}
+.edition-fan-slot[data-top],
+.edition-fan-hit[data-top] {
+  z-index: var(--fan-top);
+  transform: rotate(var(--fan-angle)) translateY(-0.9rem);
+}
+.edition-fan-slot {
   animation: edition-fan-deal 800ms cubic-bezier(0.2, 0.7, 0.2, 1) backwards;
   animation-delay: calc(300ms + var(--fan-i) * 80ms);
 }
-.edition-fan-slot:hover,
-.edition-fan-slot:focus-within {
-  z-index: 20;
-  transform: translateX(-50%) rotate(var(--fan-angle)) translateY(-0.9rem);
+.edition-fan-hit {
+  pointer-events: auto;
+  -webkit-tap-highlight-color: transparent;
 }
 .edition-fan-card {
   display: block;
@@ -574,22 +595,19 @@
   box-shadow:
     0 1px 2px oklch(0.3 0.03 50 / 0.08),
     0 10px 24px -10px oklch(0.3 0.03 50 / 0.35);
+  /* The lift grows a card about its bottom edge, toward the pivot. */
+  transform-origin: 50% 100%;
   transition: box-shadow 350ms ease;
 }
-.edition-fan-slot:hover .edition-fan-card,
-.edition-fan-card:focus-visible {
+.edition-fan-slot[data-top] .edition-fan-card {
   box-shadow:
     0 2px 4px oklch(0.3 0.03 50 / 0.1),
     0 22px 40px -14px oklch(0.3 0.03 50 / 0.45);
 }
-.edition-fan-card:focus-visible {
-  outline: 2px solid var(--ring);
-  outline-offset: 2px;
-}
 @keyframes edition-fan-deal {
   from {
     opacity: 0;
-    transform: translateX(-50%) rotate(0deg) translateY(1.5rem);
+    transform: rotate(0deg) translateY(1.5rem);
   }
 }
 
