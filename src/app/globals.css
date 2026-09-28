@@ -597,8 +597,10 @@
    A gilt moulding, a mat, and a wall label, drawn without images so the
    404 costs nothing to load. The empty frame has no mat: the wall shows
    straight through it, shaded where the moulding stands off the wall.
-   Tokens live here rather than in :root's palette because nothing else
-   uses them. */
+   The scale view on /artwork/[id] (artwork-viewer.tsx) frames the work
+   in the same moulding and mat, sized in cm rather than by padding, so
+   the 404 sets its padding in its markup. Tokens live here rather than
+   in :root's palette because nothing else uses them. */
 :root {
   --frame-light: oklch(0.83 0.075 88);
   --frame-mid: oklch(0.67 0.085 78);
@@ -619,7 +621,6 @@
 
 .wall-frame {
   display: inline-block;
-  padding: var(--frame-pad);
   border-radius: 2px;
   background: linear-gradient(
     135deg,
@@ -639,7 +640,6 @@
 }
 
 .wall-frame-mat {
-  padding: var(--mat-pad);
   background: var(--frame-mat);
   /* Inner lip where the mat meets the moulding. */
   box-shadow:

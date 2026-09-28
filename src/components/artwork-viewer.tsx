@@ -69,6 +69,28 @@ export function ArtworkViewer({ art, scale = null }: Props) {
         style={stageStyle(scene ? scene.width / scene.height : imageAspect(art))}
         onTransitionEnd={scale ? saveSnapshot : undefined}
       >
+        {scale && (
+          // The 404 wall's moulding and mat, to scale round the work. The
+          // mat also fills any gap between the box and the scan when their
+          // aspects differ.
+          <>
+            <div
+              aria-hidden="true"
+              className={cn(
+                "wall-frame absolute",
+                sceneFade(scene),
+                // A frame standing on the floor casts no shadow below it.
+                scale.scene.frame.y <= 0 && "[clip-path:inset(-4rem_-4rem_0_-4rem)]",
+              )}
+              style={placeIn(scale.scene.frame, scale.scene)}
+            />
+            <div
+              aria-hidden="true"
+              className={cn("wall-frame-mat absolute", sceneFade(scene))}
+              style={placeIn(scale.scene.mat, scale.scene)}
+            />
+          </>
+        )}
         <button
           type="button"
           onClick={() => open(art)}
@@ -77,6 +99,8 @@ export function ArtworkViewer({ art, scale = null }: Props) {
           className={cn(
             "absolute block cursor-zoom-in rounded-md border-0 bg-transparent p-0 focus:outline-none focus-visible:ring-2 focus-visible:ring-[var(--ring)]",
             RESIZE_MOTION,
+            // Square corners inside the mat.
+            scene && "[&_img]:rounded-none",
           )}
           style={scene ? placeIn(scene.work, scene) : FILL}
         >
@@ -89,9 +113,8 @@ export function ArtworkViewer({ art, scale = null }: Props) {
             reference={scale.reference}
             style={placeIn(scale.scene.ref, scale.scene)}
             className={cn(
-              "pointer-events-none text-[var(--muted-foreground)] transition-opacity motion-reduce:transition-none",
-              // In once the image has started to move, out at once.
-              scene ? "opacity-70 delay-200 duration-300" : "opacity-0 duration-150",
+              "pointer-events-none text-[var(--muted-foreground)]",
+              sceneFade(scene, "opacity-70"),
             )}
           />
         )}
@@ -117,6 +140,15 @@ const RESIZE_MOTION =
   "transition-[width,height,left,bottom] duration-500 ease-[cubic-bezier(0.22,1,0.36,1)] motion-reduce:transition-none";
 
 const FILL: CSSProperties = { left: "0%", bottom: "0%", width: "100%", height: "100%" };
+
+/** The frame and the reference fade in once the image has started to
+ *  move, and out at once. */
+function sceneFade(scene: Scene | null, shown = "opacity-100"): string {
+  return cn(
+    "transition-opacity motion-reduce:transition-none",
+    scene ? `${shown} delay-200 duration-300` : "opacity-0 duration-150",
+  );
+}
 
 function pct(fraction: number): string {
   return `${(fraction * 100).toFixed(3)}%`;

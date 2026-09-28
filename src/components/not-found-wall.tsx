@@ -102,8 +102,8 @@ export function NotFoundWall({ deck }: { deck: ArtworkListing[] }) {
   return (
     <div className={`flex flex-col items-center ${WALL_VARS} ${WALL_AXIS}`}>
       <figure className="relative flex w-full max-w-md flex-col items-center gap-5 md:w-auto md:max-w-none">
-        <div className="wall-frame wall-frame-empty w-full md:w-auto">
-          <div className="wall-frame-mat">
+        <div className="wall-frame wall-frame-empty w-full p-[var(--frame-pad)] md:w-auto">
+          <div className="wall-frame-mat p-[var(--mat-pad)]">
             <div className="wall-notice flex flex-col items-center justify-center text-center">
               <h1 className="font-serif">
                 <span className="block text-6xl leading-none tracking-tight md:text-8xl">404</span>
@@ -209,8 +209,8 @@ function ratioOf(work: ArtworkListing): number {
 function HungWork({ work, preload }: { work: ArtworkListing; preload?: boolean }) {
   const ratio = ratioOf(work);
   return (
-    <div className="wall-frame wall-frame-hung block rounded-[2px]">
-      <div className="wall-frame-mat">
+    <div className="wall-frame wall-frame-hung block rounded-[2px] p-[var(--frame-pad)]">
+      <div className="wall-frame-mat p-[var(--mat-pad)]">
         <div className="relative" style={boxStyle(ratio, "var(--wall-h)", "var(--wall-w)")}>
           <ResponsiveImage
             objectKey={work.objectKey}
