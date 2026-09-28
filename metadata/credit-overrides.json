@@ -1,0 +1,7 @@
+{
+  "_comment": "Per-artwork credit-line corrections, keyed by objectKey (folder/filename, NFC-normalised). build-data.mjs uses the value verbatim in place of the sidecar's Commons source field, which a re-fetch would restore. Every entry cites the holding institution's record in _why. Regenerate data with 'pnpm assets:build-data' after editing.",
+  "_why": {
+    "collection-of-beauty/Portrait_of_Alexandrine_Le_Normant_d'Étiolles_(daughter_of_Madame_de_Pompadour),_playing_with_a_Goldfinch.jpg": "The Commons source field is 'www.sothebys.com', the sale room the image came from. The picture has been at the Château de Versailles since 2019. The château's collections database (https://collections.chateauversailles.fr, searched for 'V.2019.29') lists 'Alexandrine Le Normant d'Etiolles', inventory V.2019.29, 'François Boucher, 1703-1770'. The château's acquisition notice (https://www.chateauversailles.fr/actualites/vie-domaine/acquisition-oeuvre-francois-boucher) says the canvas, signed and dated 'f. Boucher 1749' on the cage, joined its collections through the Société des Amis de Versailles with the Fondation du patrimoine."
+  },
+  "collection-of-beauty/Portrait_of_Alexandrine_Le_Normant_d'Étiolles_(daughter_of_Madame_de_Pompadour),_playing_with_a_Goldfinch.jpg": "Château de Versailles, V.2019.29"
+}

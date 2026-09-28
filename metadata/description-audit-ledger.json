@@ -2532,7 +2532,10 @@
   "status": "prior-audit"
  },
  "collection-of-beauty-amalia-van-solms-gerard-van-honthorst-1650": {
-  "problem": "Attribution omits 'workshop of'; unverifiable claim that the portrait commemorates the Treaty of Münster.",
+  "audit": "2026-09",
+  "method": "span-edits",
+  "previousStatus": "minor-fixed",
+  "problem": "Called the sprig an olive branch. The Rijksmuseum (SK-A-179) text says 'In de rechterhand een kersentakje' (a cherry sprig in the right hand); the image shows round fruit on long stalks.",
   "status": "minor-fixed"
  },
  "collection-of-beauty-ambroise-vollard-avec-un-foulard-rouge": {
@@ -2648,7 +2651,10 @@
   "status": "minor-fixed"
  },
  "collection-of-beauty-anthony-van-dyck-rachel-de-ruvigny": {
-  "problem": "Identified as Fortune, but a skull at her feet is a Vanitas attribute, not Fortune's; she leans on the globe rather than sitting atop it.",
+  "audit": "2026-09",
+  "method": "span-edits",
+  "previousStatus": "minor-fixed",
+  "problem": "Called the sphere a terrestrial globe. The NGV (1246-3) describes her arm resting on a sphere of dark, reflective crystal; the image shows a dark, mirror-like ball with no map.",
   "status": "minor-fixed"
  },
  "collection-of-beauty-antoine-coypel-man-resting-in-the-lap-of-a-woman": {
@@ -3570,7 +3576,10 @@
   "status": "accurate"
  },
  "collection-of-beauty-charles-le-brun-daedalus-and-icarus-wga12535": {
-  "problem": "Le Brun's Roman study under Poussin preceded this work (1642–46), not followed it; Hermitage provenance is unsupported.",
+  "audit": "2026-09",
+  "method": "span-edits",
+  "previousStatus": "minor-fixed",
+  "problem": "Called the canvas 'Attributed to Charles Le Brun' and dated it between 1645 and 1646. The Hermitage (ГЭ-40) gives Le Brun without a qualifier and dates it between 1642 and 1646, painted while he was in Italy.",
   "status": "minor-fixed"
  },
  "collection-of-beauty-charles-le-brun-la-colere": {
@@ -4307,8 +4316,11 @@
   "status": "minor-fixed"
  },
  "collection-of-beauty-david-s-leonidas-and-thermoplyae": {
-  "problem": "Leonidas stands at the centre of the composition, not seated; the description incorrectly states he is seated.",
-  "status": "minor-fixed"
+  "audit": "2026-09",
+  "method": "span-edits",
+  "previousStatus": "minor-fixed",
+  "problem": "Said the National Gallery of Art published the engraving in 1826. The NGA Library record (alma991680593804896) gives 'published May 1826' and the lettering names a Paris publisher and the Paris printer P. Dien; the library holds an impression.",
+  "status": "major-fixed"
  },
  "collection-of-beauty-david-self-portrait": {
   "problem": "David is not shown at an easel; he wears a reddish-brown coat, not shirtsleeves or a loose dark coat.",
@@ -4412,7 +4424,11 @@
   "status": "minor-fixed"
  },
  "collection-of-beauty-descent-from-the-cross-rembrant": {
-  "status": "accurate"
+  "audit": "2026-09",
+  "method": "span-edits",
+  "previousStatus": "accurate",
+  "problem": "Said the canvas is one of the Passion pictures commissioned by Stadholder Frederick Henry. The Hermitage (ГЭ-753) says Rembrandt made it in 1634 not to a commission but from personal inspiration.",
+  "status": "major-fixed"
  },
  "collection-of-beauty-descente-de-croix-rubens": {
   "status": "accurate"
@@ -4996,7 +5012,10 @@
   "status": "accurate"
  },
  "collection-of-beauty-erasmus-quellinus-ii-el-amor-dormido-1630": {
-  "problem": "No bow or quiver visible in the image; the sleeping figure's accessories are not depicted.",
+  "audit": "2026-09",
+  "method": "span-edits",
+  "previousStatus": "minor-fixed",
+  "problem": "Dated the picture to around 1630, the year in the Commons file name. The Prado (P001718) dates it 1636–1638, with the Torre de la Parada series.",
   "status": "minor-fixed"
  },
  "collection-of-beauty-erasmus-quellinus-ii-the-rape-of-europe": {
@@ -6096,7 +6115,10 @@
   "status": "accurate"
  },
  "collection-of-beauty-gowy-atalanta-prado": {
-  "problem": "Philip IV commission claim unsourced; canvas is by Gowy after Rubens, not merely a workshop version",
+  "audit": "2026-09",
+  "method": "span-edits",
+  "previousStatus": "minor-fixed",
+  "problem": "Called the painting 'attributed to' Gowy and dated it between 1635 and 1637. The Prado (P001538) gives Jacob Peeter Gowy without a qualifier and dates it 1636–1638, with the Torre de la Parada series.",
   "status": "minor-fixed"
  },
  "collection-of-beauty-goya-maja-naga2": {
@@ -6504,7 +6526,10 @@
  },
  "collection-of-beauty-hieronymous-bosch-tondals-visions": {
   "audit": "2026-09",
-  "status": "accurate"
+  "method": "span-edits",
+  "previousStatus": "accurate",
+  "problem": "Called the panel the work of a follower of Bosch, the older Commons reading. The Museo Lázaro Galdiano (inv. 02892) gives 'Hieronymus van Aeken (El Bosco): Taller de' and concludes, after López Redondo (2017, 2023), that it is attributable to his workshop.",
+  "status": "minor-fixed"
  },
  "collection-of-beauty-hieronymus-bosch-the-garden-of-earthly-delights-the-exterior-shutters": {
   "status": "accurate"
@@ -6964,7 +6989,10 @@
   "status": "accurate"
  },
  "collection-of-beauty-ingres-atelier-angelique-piscine-roubaix": {
-  "problem": "Describes a pencil drawing and 'disciplined pencil contour'; image shows a painted oil of Angélique chained to a rock.",
+  "audit": "2026-09",
+  "method": "span-edits",
+  "previousStatus": "minor-fixed",
+  "problem": "Said the canvas is dated 1819. La Piscine, Roubaix (navigart, inv. 11747-155-141) dates the workshop picture only '1er quart XIXe siècle?' (first quarter of the 19th century, queried).",
   "status": "minor-fixed"
  },
  "collection-of-beauty-ingres-estudo-de-nu-1801": {
@@ -10510,7 +10538,11 @@
   "status": "accurate"
  },
  "collection-of-beauty-pallas-athena-by-rembrandt-museu-calouste-gulbenkian-1488": {
-  "status": "accurate"
+  "audit": "2026-09",
+  "method": "span-edits",
+  "previousStatus": "accurate",
+  "problem": "Credited Rembrandt alone with the painting of the armour. The Calouste Gulbenkian Museum (inv. 1488) gives 'Rembrandt Harmensz. van Rijn e aluno' and says the picture was made by Rembrandt and a pupil.",
+  "status": "minor-fixed"
  },
  "collection-of-beauty-pallasetlecentaure": {
   "problem": "Pallas described as 'armoured'; she wears embroidered decorative robes, not armour.",
@@ -11418,7 +11450,10 @@
   "status": "written"
  },
  "collection-of-beauty-portrait-of-alexandrine-le-normant-d-etiolles-daughter-of-madame-de-pompadour-playing-with-a-goldfi": {
-  "problem": "Description says she holds a goldfinch on a tethered thread; image shows the bird inside a cage beside her, not on a thread.",
+  "audit": "2026-09",
+  "method": "span-edits",
+  "previousStatus": "minor-fixed",
+  "problem": "Called the portrait 'Attributed to François Boucher', the qualifier on the Commons record, whose image came from Sotheby's. The Château de Versailles (V.2019.29) catalogues it under Boucher and says it is signed and dated 'f. Boucher 1749' on the cage.",
   "status": "minor-fixed"
  },
  "collection-of-beauty-portrait-of-ann-ford-gainsborough": {
@@ -13401,7 +13436,11 @@
   "status": "fabricated-fixed"
  },
  "collection-of-beauty-tintoretto-jacopo-christ-at-the-sea-of-galilee": {
-  "status": "accurate"
+  "audit": "2026-09",
+  "method": "span-edits",
+  "previousStatus": "accurate",
+  "problem": "Described Christ appearing on a storm-tossed sea. The NGA (1952.5.27) identifies the episode as John 21: the risen Christ on the shore of Lake Galilee appears to seven disciples in a boat, and Peter leaps into the water. The image shows Christ standing on the shore.",
+  "status": "major-fixed"
  },
  "collection-of-beauty-tintoretto-prayer-in-the-garden": {
   "status": "accurate"

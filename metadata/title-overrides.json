@@ -1,4 +1,8 @@
 {
+  "_why": {
+    "collection-of-beauty/Ingres_(atelier)_-_Angélique_-_Piscine_Roubaix.jpg": "La Piscine, Roubaix, inv. 11747-155-141. The museum's navigart collection database (https://api.navigart.fr/23/artworks?q=Angélique) gives the title 'Angélique' (title_notice and title_list), for 'Jean-Auguste-Dominique INGRES (atelier de)', oil on canvas, 102 x 73.7 cm. The catalogue showed 'Ingres': the Commons title is the file name, 'Ingres (atelier) - Angélique - Piscine Roubaix', and the build's title cleanup cut it down to its first word. The museum's French title is kept, as the catalogue's own description names the figure Angélique.",
+    "collection-of-beauty/David's_Leonidas_and_Thermoplyae.jpg": "National Gallery of Art Library, Washington, Department of Image Collections, DPA 1006600094 (https://library.nga.gov/permalink/01NGA_INST/1p5jkvq/alma991680593804896, read through the library's Primo record API). The record's title is 'Leonidas at Thermoplyae.', with the added title 'Léonidas aux Thermopyles.'; the record transcribes the plate's Greek lettering as 'Λεωνιδας ε̆ν Θερμοπúλαις' (Leonidas at Thermopylae). 'Thermoplyae' is a typo in the NGA record, which Commons copied into its file name and title 'David's Leonidas and Thermoplyae'. The override is the NGA title with the typo corrected. The artwork id keeps the misspelling because ids are minted from file names."
+  },
   "collection-of-beauty/01_-_Ichikobu_Bridge.jpg": "Thirty-six Views of Mount Fuji: Ichikobu Bridge in the Eastern Capital",
   "collection-of-beauty/Matteo_Ripa001_-_Morning_Glow_on_the_Western_Ridge.jpg": "Morning Glow on the Western Ridge, from Thirty-six Views of the Imperial Summer Resort at Chengde",
   "collection-of-beauty/09_-_The_Teahouse_with_the_View_of_Mt._Fuji.jpg": "Teahouse with a View of Mount Fuji, from the series Thirty-six Views of Mount Fuji",
@@ -970,5 +974,7 @@
   "collection-of-beauty/1906,_Cézanne,_Still_Life_with_Carafe,_Bottle,_and_Fruit.jpg": "Still Life with Carafe, Bottle, and Fruit",
   "collection-of-beauty/Cezanne-Thyssen.jpg": "Seated Man",
   "collection-of-beauty/Claude_Monet_-_On_the_Boat_-_Google_Art_Project.jpg": "On the Boat",
-  "collection-of-beauty/Paul_Cézanne_-_Bouteille,_carafe,_broc_et_citrons.jpg": "Bottle, Carafe, Jug and Lemons"
+  "collection-of-beauty/Paul_Cézanne_-_Bouteille,_carafe,_broc_et_citrons.jpg": "Bottle, Carafe, Jug and Lemons",
+  "collection-of-beauty/Ingres_(atelier)_-_Angélique_-_Piscine_Roubaix.jpg": "Angélique",
+  "collection-of-beauty/David's_Leonidas_and_Thermoplyae.jpg": "Leonidas at Thermopylae"
 }
