@@ -26,9 +26,8 @@ type Props = {
   /** Average RGB hex painted behind the layers until pixels arrive. */
   dominantColor?: string | null;
   className?: string;
-  /** Artwork.thumbHash. Its blur paints over the tint, on the frame and
-   *  on the 256 px thumbnail until that has pixels, under the shimmer and
-   *  the sharp layer. */
+  /** Artwork.thumbHash. Its blur is the frame's background, over the
+   *  tint and under the shimmer, the thumbnail and the sharp layer. */
   thumbHash?: string | null;
   /** Same meaning, and same defaults, as in ResponsiveImage — which
    *  passes all three resolved, so both paths paint the identical preview
@@ -51,16 +50,11 @@ const LQIP_WIDTH = 256;
  *   2. a blurred 256 px thumbnail (tiny, fast)
  *   3. the sharp responsive variant, fading in on top once decoded
  *
- * Layers are stacked in the DOM (thumb → shimmer → sharp), so the sharp
- * layer simply paints over the rest as its bytes land. JS fades the sharp
- * layer in and retires the shimmer, once the thumb or the sharp layer has
- * pixels, and skips both when the variant is already cached so a revisit
- * doesn't flash empty→sharp.
- *
- * The thumb sits under the shimmer because it paints the thumbHash blur
- * as its own background until its pixels arrive. Above the thumb, the
- * sweep would otherwise be hidden by that opaque background from the
- * first frame.
+ * Layers are stacked in the DOM (shimmer → thumb → sharp), so each one
+ * simply paints over the one below as its bytes land. The tint and the
+ * blur are the frame's own background, under all three; the thumb paints
+ * nothing until its pixels arrive. JS only fades the sharp layer in and
+ * retires the shimmer.
  *
  * Neither <img> is what the view-transition FLIP snapshots. The thumb is
  * blurred and scaled 8% past the frame, and the sharp layer stays
@@ -74,10 +68,17 @@ const LQIP_WIDTH = 256;
  * geometry and fit: the swap goes blur to blur, never through the bare
  * tint.
  *
- * The extra 256 px fetch is the deliberate cost: it buys a real preview
- * seconds before the full variant on a slow link. `priority`/LCP images
- * must not pay it, which is why ResponsiveImage only delegates here for
- * lazy tiles.
+ * A tile whose variant is already loaded, such as every tile the plain
+ * path finished before the swap, renders neither the shimmer nor the
+ * thumb and shows the sharp layer without a fade. There is nothing left
+ * to preview, and a revisit doesn't flash empty→sharp.
+ *
+ * The extra 256 px fetch is the deliberate cost for every other tile: it
+ * buys a real preview seconds before the full variant on a slow link.
+ * `priority`/LCP images must not pay it, which is why ResponsiveImage
+ * only delegates here for lazy tiles. At DPR 1 a small tile's sharp layer
+ * picks the 256w rung, the thumb's own URL, and the browser fetches it
+ * once.
  */
 export function ProgressiveImage({
   objectKey,
@@ -96,20 +97,21 @@ export function ProgressiveImage({
   deferThumbHash,
 }: Props) {
   // A variant this session already loaded, most often by the plain tile
-  // this one just replaced: paint it straight away, no shimmer, no fade.
-  // Read during render, so the first frame already shows it; an effect
-  // runs after that frame is painted, and the tile would blink to the
-  // blur and back. Safe to read here because this never renders on the
-  // server or in a hydration render (see above).
+  // this one just replaced: paint it straight away, no shimmer, no thumb,
+  // no fade. Read during render, so the first frame already shows it; an
+  // effect runs after that frame is painted, and the tile would blink to
+  // the blur and back. Safe to read here because this never renders on
+  // the server or in a hydration render (see above).
   const [instant, setInstant] = useState(() => getLoadedVariant(objectKey) != null);
   const [loaded, setLoaded] = useState(instant);
-  const [thumbLoaded, setThumbLoaded] = useState(false);
   const imgRef = useRef<HTMLImageElement>(null);
 
   useLayoutEffect(() => {
     // A memory-cache hit the registry hasn't seen can be complete on
     // insert, before React attaches onLoad. Layout effect, not effect,
-    // for the same reason as above: it lands before the first paint.
+    // for the same reason as above: it lands before the first paint. The
+    // re-render it causes removes the lazy thumb in the same task, before
+    // the browser's lazy-load check has requested it.
     const img = imgRef.current;
     if ((img?.complete && img.naturalWidth > 0) || getLoadedVariant(objectKey)) {
       setInstant(true);
@@ -143,22 +145,17 @@ export function ProgressiveImage({
     <span
       className={cn("ri-frame", fill && "absolute inset-0", className)}
       data-loaded={loaded ? "true" : "false"}
-      data-thumb={thumbLoaded ? "true" : undefined}
       data-instant={instant ? "true" : undefined}
       style={frameStyle}
     >
-      {/* eslint-disable-next-line @next/next/no-img-element */}
-      {/* biome-ignore lint/performance/noImgElement: pre-built variant, not /_next/image */}
-      <img
-        className="ri-lqip"
-        src={lqip}
-        alt=""
-        aria-hidden
-        loading="lazy"
-        decoding="async"
-        onLoad={() => setThumbLoaded(true)}
-      />
-      <span className="ri-shimmer" aria-hidden />
+      {!instant && (
+        <>
+          <span className="ri-shimmer" aria-hidden />
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          {/* biome-ignore lint/performance/noImgElement: pre-built variant, not /_next/image */}
+          <img className="ri-lqip" src={lqip} alt="" aria-hidden loading="lazy" decoding="async" />
+        </>
+      )}
       <picture>
         <source type="image/avif" srcSet={avif} sizes={sizes} />
         {/* eslint-disable-next-line @next/next/no-img-element */}

@@ -397,11 +397,13 @@
 
 /* ── Progressive gallery tile (see progressive-image.tsx) ──────────────
    On a slow connection a tile paints in three passes as bytes arrive:
-   the dominantColor tint under a soft light sweep, then a blurred 256 px
-   thumbnail, then the sharp variant fading in on top. The frame reserves
-   the exact aspect box (no CLS) and clips both the thumb's blur overscan
-   and the sweep band. The sharp <img> is fetchpriority=low so the tiny
-   thumbs win bandwidth first and content appears roughly top-to-bottom. */
+   the dominantColor tint and thumbHash blur under a soft light sweep,
+   then a blurred 256 px thumbnail, then the sharp variant fading in on
+   top. A tile whose variant is already loaded renders only the sharp
+   layer. The frame reserves the exact aspect box (no CLS) and clips both
+   the thumb's blur overscan and the sweep band. The sharp <img> is
+   fetchpriority=low so the tiny thumbs win bandwidth first and content
+   appears roughly top-to-bottom. */
 .ri-frame {
   display: block;
   position: relative;
@@ -416,19 +418,18 @@
    snapshot or the back-flip sees, so the img is right on its own at every
    moment. The picture's copy is what shows through while the img fades
    in (ri-reveal) once its pixels land. The progressive frame paints it
-   too, and so does its 256 px thumbnail until that img's pixels cover
-   it. There the view transition names the frame, not an img (see
-   artwork-gallery.tsx). An unset variable computes to `none`, so tiles
-   without a hash paint exactly as before. --ri-blur-size is "100% 100%"
-   when the box already has the work's aspect, cover when an object-cover
-   image is cropped. */
+   too, under its sweep and its thumbnail. There the view transition
+   names the frame, not an img (see artwork-gallery.tsx), so the
+   thumbnail needs no copy of its own. An unset variable computes to
+   `none`, so tiles without a hash paint exactly as before.
+   --ri-blur-size is "100% 100%" when the box already has the work's
+   aspect, cover when an object-cover image is cropped. */
 .ri-blur {
   display: block;
 }
 .ri-blur,
 .ri-blur > img,
-.ri-frame,
-.ri-frame > .ri-lqip {
+.ri-frame {
   background-image: var(--ri-blur);
   background-size: var(--ri-blur-size, cover);
   background-position: center;
@@ -503,12 +504,6 @@
   filter: blur(14px);
   transform: scale(1.08);
 }
-/* The sweep sits above the thumbnail (its thumbHash background would
-   hide it from the first frame otherwise), so the thumbnail's pixels
-   retire it the way the sharp layer's do. */
-.ri-frame[data-thumb="true"] .ri-shimmer {
-  opacity: 0;
-}
 .ri-full {
   opacity: 0;
   transition: opacity 450ms ease;
@@ -516,11 +511,13 @@
 .ri-frame[data-loaded="true"] .ri-full {
   opacity: 1;
 }
-/* Once the thumb or the sharp image covers the tint, retire the sweep. */
+/* The thumbnail's pixels cover the sweep; the sharp layer fades in, so
+   retire the sweep under it rather than let it show through the fade. */
 .ri-frame[data-loaded="true"] .ri-shimmer {
   opacity: 0;
 }
-/* Cache hit that resolved before hydration: show it outright, no fade. */
+/* A variant already loaded when the tile mounted: show it outright, no
+   fade. */
 .ri-frame[data-instant="true"] .ri-full {
   transition: none;
 }
