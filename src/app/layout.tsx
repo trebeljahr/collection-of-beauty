@@ -29,7 +29,15 @@ import {
 const FOOTER_LINK =
   "inline-flex min-h-11 items-center rounded-sm px-2 underline hover:text-[var(--foreground)] focus:outline-none focus-visible:ring-2 focus-visible:ring-[var(--ring)] sm:min-h-0 sm:px-0";
 
-const plausibleDomain = "beauty.trebeljahr.com";
+/* Two different names. `plausibleHostname` is the host the loader runs
+   on: the production apex only, so dev, localhost and preview hosts send
+   nothing (the old host and www 308 to the apex in next.config.mjs, so no
+   page renders there). `plausibleSiteId` is the site's id on the Plausible
+   dashboard, sent as data-domain; it is still the pre-migration name until
+   the site is renamed there. Checking the hostname against the site id is
+   what silenced analytics after the 2026-09-13 move. */
+const plausibleHostname = "collectionofbeauty.com";
+const plausibleSiteId = "beauty.trebeljahr.com";
 const plausibleScriptUrl =
   "https://plausible.trebeljahr.com/js/script.file-downloads.hash.outbound-links.pageview-props.revenue.tagged-events.js";
 
@@ -129,14 +137,13 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         <Script id="plausible-loader" strategy="afterInteractive">
           {`
               (function () {
-                var domain = ${JSON.stringify(plausibleDomain)};
-                if (location.hostname !== domain) return;
+                if (location.hostname !== ${JSON.stringify(plausibleHostname)}) return;
                 window.plausible = window.plausible || function() {
                   (window.plausible.q = window.plausible.q || []).push(arguments);
                 };
                 var script = document.createElement("script");
                 script.defer = true;
-                script.dataset.domain = domain;
+                script.dataset.domain = ${JSON.stringify(plausibleSiteId)};
                 script.src = ${JSON.stringify(plausibleScriptUrl)};
                 document.head.appendChild(script);
               })();
