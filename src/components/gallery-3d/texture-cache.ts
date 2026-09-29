@@ -28,66 +28,10 @@
 // painting can paint a 256 px thumb, then the base, then each LOD tier
 // without re-suspending (and without re-rendering) in between.
 //
-// ─────────────────────────────────────────────────────────────────────
-// Two prefetch pipelines share this module. They are non-overlapping
-// by design — read this before touching either or adding a third.
-// ─────────────────────────────────────────────────────────────────────
-//
-//   A. Per-painting LOD (painting.tsx + lod-controller.tsx)
-//      Drives the *current floor's* paintings. The LodController ticks
-//      at ~5 Hz, walks the painting registry, and per-painting:
-//        • MRU-touches the base texture in `cache` so it can't age out
-//          while mounted — without this the LRU would dispose textures
-//          the player is still looking at.
-//        • Prefetches the next-higher LOD tier into `hiresCache` as the
-//          player crosses each tier's `prefetchSq` radius, and upgrades
-//          `material.map` once the tier is resident. Demotes back on
-//          retreat past `releaseSq` (hysteresis).
-//      Capacity-wise this pipeline owns `cache` (~256 MB, base/thumb)
-//      and `hiresCache` (~320 MB, hi-res tiers). Both are byte-budgeted
-//      and both use the *high* upload queue. Eviction is per-pool LRU
-//      with disposal; the per-tick MRU touch is what keeps in-view
-//      textures from being evicted.
-//
-//   B. Staircase-approach preload (FloorPreloader in index.tsx)
-//      Drives the *adjacent floor's* thumbs before the player crosses
-//      the stair. The Player edge-fires `nearbyStairId` when the camera
-//      crosses STAIR_PROXIMITY_RADIUS (12 m) around any stair; the
-//      FloorPreloader walks the connected floor's placements and primes
-//      every 256 px AVIF thumb into `preloadCache` via the *low* upload
-//      queue. None of those paintings are mounted yet (`FloorScene`
-//      keeps adjacent floors at `showOnly="stairwell"` until the player
-//      actually rides the stair), so pipeline A *cannot* be touching
-//      them — there are no PaintingPlanes to fire useLayoutEffects yet.
-//      When the player rides the stair, the destination floor upgrades
-//      to full geometry, paintings mount, and their useLayoutEffect
-//      calls `peekCached(thumbUrl)` → finds the preloaded thumb →
-//      promotes it into `cache` (evictWithoutDispose + put) → installs
-//      it on `material.map` *before first paint*. No brown-swatch flash.
-//
-// Invariants this module enforces:
-//
-//   • Three separate Maps (`cache`, `hiresCache`, `preloadCache`). No
-//     cross-pool eviction — a preload burst of an entire floor's worth
-//     of thumbs (256 cap) cannot push out current-floor base textures.
-//   • Upload queue is high-before-low. A floor-wide preload (potentially
-//     hundreds of `initTexture` calls) cannot delay a hi-res upgrade the
-//     player is actively walking toward.
-//   • Within a tier, both the network gate and the upload queue serve
-//     the item closest to the camera first (see "Distance-ordered
-//     scheduling" below). Callers pass the world position of the
-//     painting a load belongs to; anything unpositioned is treated as a
-//     direct user action and jumps the queue.
-//   • Promotion is destructive on the preload side only: the thumb's
-//     GPU texture survives via `evictWithoutDispose`, and from that
-//     point the LodController's per-tick MRU touch keeps it alive in
-//     `cache`. The preload pool itself isn't tickled by the LOD loop,
-//     so without the handoff a promoted-not-removed thumb would age out
-//     the moment the player walked deeper into the new floor.
-//
-// If you add a third prefetch path, decide up front which pool it owns
-// and whether it should ride the high or low upload queue — the
-// invariants above only hold for these two callers.
+// Mounted previews and nearby-floor thumbnails have first claim on
+// network and upload slots. Base/detail textures follow; distance orders
+// each priority. Separate preload storage cannot evict current paintings.
+// A mounted painting adopts an in-flight preload before fetching again.
 
 import * as THREE from "three";
 import { variantProxyUrl, variantUrl } from "@/lib/utils";
@@ -457,13 +401,10 @@ type UploadTask = {
   resolve: () => void;
   origin: LoadOrigin;
 };
-type UploadPriority = "high" | "low";
-// Two queues, drained high-before-low, and *within* each queue nearest
-// the player first (see LoadOrigin). "low" backs preload uploads so a
-// floor's worth of thumb uploads can't push past a hi-res upgrade the
-// player is actively walking toward.
+type UploadPriority = "preview" | "high";
+// Preview uploads precede detail; nearest painting wins within a queue.
+const previewUploadQueue: UploadTask[] = [];
 const uploadQueue: UploadTask[] = [];
-const lowUploadQueue: UploadTask[] = [];
 let pumpScheduled = false;
 
 function schedulePump() {
@@ -474,7 +415,7 @@ function schedulePump() {
 
 function pumpUploads() {
   pumpScheduled = false;
-  const task = takeNearest(uploadQueue) ?? takeNearest(lowUploadQueue);
+  const task = takeNearest(previewUploadQueue) ?? takeNearest(uploadQueue);
   if (task) {
     try {
       task.renderer.initTexture(task.tex);
@@ -484,7 +425,9 @@ function pumpUploads() {
     }
     task.resolve();
   }
-  if (uploadQueue.length > 0 || lowUploadQueue.length > 0) schedulePump();
+  if (previewUploadQueue.length > 0 || uploadQueue.length > 0) {
+    schedulePump();
+  }
 }
 
 function enqueueUpload(
@@ -494,7 +437,7 @@ function enqueueUpload(
   origin: LoadOrigin = null,
 ): Promise<void> {
   return new Promise((resolve) => {
-    const q = priority === "low" ? lowUploadQueue : uploadQueue;
+    const q = priority === "preview" ? previewUploadQueue : uploadQueue;
     q.push({ tex, renderer, resolve, origin });
     schedulePump();
   });
@@ -519,14 +462,13 @@ function delay(ms: number): Promise<void> {
 //
 // Crucially the per-load timeout is armed *inside* withLoadSlot — only
 // once a slot is held and the fetch is about to go out — so time spent
-// waiting for a slot never counts against the timeout. High-before-low
-// mirrors the upload queue: player-facing base/hi-res loads jump ahead
-// of a low-priority preload burst.
+// waiting for a slot never counts against the timeout. Preview-first
+// mirrors the upload queue: fill paintings before sharpening them.
 const NETWORK_CONCURRENCY = 6;
 let activeLoads = 0;
 type LoadWaiter = { resolve: () => void; origin: LoadOrigin };
+const previewLoadWaiters: LoadWaiter[] = [];
 const highLoadWaiters: LoadWaiter[] = [];
-const lowLoadWaiters: LoadWaiter[] = [];
 
 function acquireLoadSlot(priority: UploadPriority, origin: LoadOrigin): Promise<void> {
   if (activeLoads < NETWORK_CONCURRENCY) {
@@ -534,15 +476,16 @@ function acquireLoadSlot(priority: UploadPriority, origin: LoadOrigin): Promise<
     return Promise.resolve();
   }
   return new Promise((resolve) => {
-    (priority === "low" ? lowLoadWaiters : highLoadWaiters).push({ resolve, origin });
+    const queue = priority === "preview" ? previewLoadWaiters : highLoadWaiters;
+    queue.push({ resolve, origin });
   });
 }
 
 function releaseLoadSlot(): void {
-  // Hand the slot straight to the next waiter (high first, nearest the
+  // Hand the slot straight to the next waiter (previews first, nearest the
   // player within each tier) without touching the counter; only drop
   // the count when nobody is waiting.
-  const next = takeNearest(highLoadWaiters) ?? takeNearest(lowLoadWaiters);
+  const next = takeNearest(previewLoadWaiters) ?? takeNearest(highLoadWaiters);
   if (next) next.resolve();
   else activeLoads--;
 }
@@ -598,6 +541,7 @@ async function loadTextureCached(
   url: string,
   renderer: THREE.WebGLRenderer | null,
   origin: LoadOrigin = null,
+  priority: UploadPriority = "high",
 ): Promise<THREE.Texture> {
   const cached = cache.get(url);
   if (cached) return cached;
@@ -618,11 +562,21 @@ async function loadTextureCached(
   if (existing) return existing;
 
   const promise = (async () => {
+    const pendingPreload = preloadInFlight.get(url);
+    if (pendingPreload) {
+      const loaded = await pendingPreload;
+      // An approach can be cancelled during the floor transition. In
+      // that case fall through to the normal foreground load.
+      if (loaded) {
+        const promoted = peekCached(url);
+        if (promoted) return promoted;
+      }
+    }
     let lastError: unknown;
 
     for (let attempt = 1; attempt <= TEXTURE_LOAD_ATTEMPTS; attempt++) {
       try {
-        const tex = await withLoadSlot("high", origin, () =>
+        const tex = await withLoadSlot(priority, origin, () =>
           withTextureTimeout(url, async (signal) => {
             // createImageBitmap decodes off-thread, which matters for a burst
             // of painting loads. `imageOrientation: flipY` avoids the expensive
@@ -650,7 +604,7 @@ async function loadTextureCached(
         // GPU upload runs outside the network gate + timeout: it has its
         // own rAF-paced queue, so a backed-up upload mustn't hold a
         // network slot or count toward the load timeout.
-        if (renderer) await enqueueUpload(tex, renderer, "high", origin);
+        if (renderer) await enqueueUpload(tex, renderer, priority, origin);
         cache.put(url, tex);
         return tex;
       } catch (err) {
@@ -794,7 +748,7 @@ export function peekBestCachedTexture(
 // ─────────────────────────────────────────────────────────────────────
 // Preload — same fetch + decode + upload pipeline as `loadCached`, but
 // targets the dedicated preload pool and routes the GPU upload through
-// the low-priority queue. Used by FloorPreloader to prime the adjacent
+// the preview-priority queue. Used by FloorPreloader to prime the adjacent
 // floor's 256 px thumbs while the player is still approaching the
 // staircase — by the time the destination floor mounts, the thumbs are
 // resident in the cache and PaintingPlane installs them on first paint
@@ -818,18 +772,24 @@ export function preloadCached(
   if (cached) return Promise.resolve(cached);
   const alreadyPreloaded = preloadCache.get(url);
   if (alreadyPreloaded) return Promise.resolve(alreadyPreloaded);
+  const foreground = inFlight.get(url);
+  if (foreground) return foreground.catch(() => null);
   const existing = preloadInFlight.get(url);
   if (existing) return existing;
 
   const promise = (async () => {
     try {
-      const texture = await withLoadSlot("low", origin, async () => {
+      const texture = await withLoadSlot("preview", origin, async () => {
+        if (signal?.aborted) return null;
         const res = await fetch(url, { credentials: "omit", signal });
         if (!res.ok) return null;
         const blob = await res.blob();
         if (signal?.aborted) return null;
         const bitmap = await createImageBitmap(blob, { imageOrientation: "flipY" });
-        if (signal?.aborted) return null;
+        if (signal?.aborted) {
+          bitmap.close();
+          return null;
+        }
         const t = new THREE.Texture(bitmap);
         t.name = url;
         t.colorSpace = THREE.SRGBColorSpace;
@@ -842,7 +802,7 @@ export function preloadCached(
         return t;
       });
       if (!texture) return null;
-      if (renderer) await enqueueUpload(texture, renderer, "low", origin);
+      if (renderer) await enqueueUpload(texture, renderer, "preview", origin);
       preloadCache.put(url, texture);
       return texture;
     } catch {
@@ -858,13 +818,14 @@ export function preloadCached(
 
 /** Eager async load into the base pool, through the shared LRU + upload
  *  queue. Used by the painting's progressive loader to fire-and-forget
- *  both the 256 px placeholder and the 960 px base in parallel. */
+ *  both the 256 px preview and the 480 px base in parallel. */
 export function loadCached(
   url: string,
   renderer: THREE.WebGLRenderer | null,
   origin: LoadOrigin = null,
+  priority: "preview" | "high" = "high",
 ): Promise<THREE.Texture> {
-  return loadTextureCached(url, renderer, origin);
+  return loadTextureCached(url, renderer, origin, priority);
 }
 
 export const _textureCacheDebug = {
@@ -904,13 +865,13 @@ export const _textureCacheDebug = {
   get preloadInFlight() {
     return preloadInFlight.size;
   },
-  get lowQueued() {
-    return lowUploadQueue.length;
+  get previewQueued() {
+    return previewUploadQueue.length;
   },
   get activeLoads() {
     return activeLoads;
   },
   get queuedLoads() {
-    return highLoadWaiters.length + lowLoadWaiters.length;
+    return previewLoadWaiters.length + highLoadWaiters.length;
   },
 };

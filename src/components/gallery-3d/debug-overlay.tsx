@@ -275,7 +275,7 @@ function formatStats(): string {
     `  hi-res  ${mib(t.hiresBytes)} / ${mib(t.hiresBudget)} · ${t.hiresSize}`,
     `  preload ${mib(t.preloadBytes)} · ${t.preloadSize}`,
     `  total   ${mib(t.bytes + t.hiresBytes + t.preloadBytes)}`,
-    `  net ${t.activeLoads} active · ${t.queuedLoads} queued · upload ${t.queued}/${t.lowQueued} (hi/lo)`,
+    `  net ${t.activeLoads} active · ${t.queuedLoads} queued · upload ${t.previewQueued}/${t.queued} (preview/detail)`,
     `  in-flight base ${t.inFlight} · hi-res ${t.hiresInFlight} · preload ${t.preloadInFlight}`,
     `paintings registered ${_paintingRegistryDebug.size}`,
     `cam ${stats.camera.map((v) => v.toFixed(2)).join(", ")} · fov ${stats.fov.toFixed(1)}°`,

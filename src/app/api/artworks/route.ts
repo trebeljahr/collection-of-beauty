@@ -2,10 +2,9 @@ import { catalogueListings } from "@/lib/data";
 
 export const dynamic = "force-static";
 
-/** The whole catalogue as slim listings, for the 3D gallery and the
- *  lightbox's unscoped prev/next list. `thumbHash` is stripped: neither
- *  paints a DOM tile, and on every row it is a third of the gzipped
- *  response. */
+/** The whole catalogue as slim listings for the lightbox's unscoped
+ *  prev/next list. `thumbHash` is stripped because this list does not
+ *  display preview images. */
 export function GET() {
   return Response.json(catalogueListings, {
     headers: {

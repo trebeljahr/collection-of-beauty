@@ -972,7 +972,7 @@ function FloorScene({
  * Adjacent-floor texture preloader. Fires when the Player edge-reports
  * crossing into a staircase's proximity radius. Walks every painting
  * placement on the connected floor and pumps its 256 px AVIF thumb
- * through the texture cache's low-priority preload queue — so by the
+ * through the texture cache's preview-priority queue — so by the
  * time the player rides the stair into the destination, the painting
  * planes can install a thumb on first mount rather than flashing the
  * brown swatch while the cold 256 fetches.
@@ -988,7 +988,7 @@ function FloorScene({
  */
 /** Thumbs primed per stair approach. Comfortably inside the preload
  *  pool's capacity so an approach can't evict its own earlier work. */
-const PRELOAD_LIMIT = 160;
+const PRELOAD_LIMIT = 64;
 
 function FloorPreloader({
   layout,

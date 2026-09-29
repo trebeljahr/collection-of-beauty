@@ -107,10 +107,9 @@ export type Artwork = {
    *
    *  Decoded only in client components, by `src/lib/thumbhash-grid.ts`,
    *  so the ~240-character data URL never enters the RSC payload. The
-   *  full-catalogue endpoints (`/api/artworks`, and `/api/artworks/scope`
-   *  without `fields=id`) strip it: their consumers — the 3D gallery and
-   *  the lightbox's prev/next list — paint no tiles, and on 4,557 rows it
-   *  is +117 KB gzipped (+33%). See `catalogueListings`. */
+   *  lightbox catalogue endpoints strip it to save response bytes.
+   *  `/api/artworks/museum` retains it for instant 3D painting previews.
+   *  See `catalogueListings`. */
   thumbHash: string | null;
   /** Colour families this work reads as, best-first (e.g.
    *  `["blue", "gold"]`), drawn from the ids in
@@ -301,10 +300,9 @@ export function withoutThumbHash(list: readonly ArtworkListing[]): CatalogueList
 }
 
 /** What `/api/artworks` serves: every listing, minus `thumbHash`. Its
- *  consumers (the 3D gallery, the lightbox's prev/next list) never paint
- *  a DOM tile, and across all 4,557 rows the hashes would add ~197 KB raw
- *  / ~117 KB gzipped — a third of the response — for nothing. Computed
- *  once; the route is force-static anyway. */
+ *  lightbox consumers do not display previews. The museum uses a
+ *  separate endpoint that retains the hashes. Computed once for the
+ *  static catalogue route. */
 export const catalogueListings: CatalogueListing[] = withoutThumbHash(artworkListings);
 export const summary = summaryJson as {
   totalArtworks: number;

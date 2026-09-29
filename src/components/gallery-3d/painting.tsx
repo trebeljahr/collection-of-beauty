@@ -10,6 +10,7 @@ import type { Placement } from "@/lib/gallery-layout/types";
 import { formatCm, trustworthyRealSize } from "@/lib/real-size";
 import { GALLERY_LOD_WIDTH, variantProxyUrl } from "@/lib/utils";
 import { FOV_DEFAULT_DEG, ZOOM_PIXEL_HEADROOM } from "./camera-config";
+import { createPaintingPreview } from "./painting-preview";
 import { type PaintingEntry, registerPainting, unregisterPainting } from "./painting-registry";
 import {
   FRAME_VARIANTS,
@@ -34,10 +35,9 @@ import {
  * global painting-registry so the Player's aim raycast can skip the
  * full scene traversal.
  *
- * The base texture is sized to the work's display size (see
- * `pickBaseWidth`): 960 px for anything over ~1.1 m on its long edge,
- * 480 px for the small plates and prints below it. The texture-cache
- * handles LRU eviction + rAF-paced GPU uploads so a floor-wide burst of
+ * A 480 px base fills the room quickly; proximity upgrades add detail.
+ * An embedded blur preview covers the network wait on first visits.
+ * The texture-cache handles LRU eviction + rAF-paced GPU uploads so a floor-wide burst of
  * loads doesn't hitch the frame.
  */
 // Tiered proximity LOD. Each tier identifies a texture source and four
@@ -78,31 +78,12 @@ type LodTier = {
 // live for the painting's whole lifetime in the registry).
 const _registerScratchQuat = new THREE.Quaternion();
 
-// Base-texture ladder. The base is what a painting shows from across
-// the room, so it only has to out-resolve the pixels the work actually
-// covers on screen — a 0.5 m botanical plate seen from 3 m never needs
-// the same texture as a 2.5 m Rubens. Sizing the base by display size
-// keeps a floor's resident textures a few hundred MB instead of a few
-// GB (a 960 px RGBA + mipmaps is ~3.9 MB; the 480 px step is ~1 MB),
-// which is what lets the LRU hold a whole room without thrashing.
-const BASE_WIDTH_SMALL = 480;
-const BASE_WIDTH_LARGE = 960;
-/** Display long edge (metres) above which a work gets the 960 px base. */
-const BASE_WIDTH_LARGE_EDGE_M = 1.1;
-
-/** Pick the base variant width for a work, then snap it to a width the
- *  shrink pipeline actually produced for that artwork (`variantWidths`) —
- *  requesting a width that was never built 404s and leaves the painting
- *  on its brown swatch. */
-function pickBaseWidth(artwork: ArtworkListing, displayEdgeM: number): number {
-  const want = displayEdgeM > BASE_WIDTH_LARGE_EDGE_M ? BASE_WIDTH_LARGE : BASE_WIDTH_SMALL;
+// A modest base fills rooms quickly. The proximity ladder adds detail
+// only as the player approaches, including 960 px for larger canvases.
+function pickBaseWidth(artwork: ArtworkListing): number {
   const widths = artwork.variantWidths;
-  if (!widths || widths.length === 0) return want;
-  let best = widths[0];
-  for (const w of widths) {
-    if (w <= want && w > best) best = w;
-  }
-  return best;
+  if (!widths?.length) return 480;
+  return widths.filter((width) => width <= 480).at(-1) ?? widths[0];
 }
 
 // Candidate rungs, ASCENDING. This is the whole module-scope tier
@@ -447,7 +428,7 @@ export const Painting = memo(function Painting({
   onSettled?: (status: "loaded" | "failed") => void;
 }) {
   const { artwork, position, rotation, widthM, heightM } = placement;
-  const baseWidth = pickBaseWidth(artwork, Math.max(widthM, heightM));
+  const baseWidth = pickBaseWidth(artwork);
   const url = variantProxyUrl(artwork.objectKey, baseWidth, "avif");
 
   // Aspect-corrected plane size. The slot's widthM/heightM are derived
@@ -1031,7 +1012,7 @@ function PaintingPlane({
   onSettled,
   onTextureAspect,
 }: {
-  /** 480 or 960 px AVIF (see pickBaseWidth) — the base "good enough"
+  /** 480 px AVIF (see pickBaseWidth) — the base "good enough"
    *  texture; once it lands the painting reads as fully loaded. */
   url: string;
   /** Width of that base variant. LOD tiers at or below it are skipped —
@@ -1085,7 +1066,7 @@ function PaintingPlane({
       LOD_HEIGHT_QUANTUM_PX,
   );
 
-  // Track the base 960 px texture. The LOD effect uses this as the
+  // Track the base texture. The LOD effect uses this as the
   // "demote target" when the player retreats past every higher tier.
   // Held in a ref (not state) so swapping it doesn't re-run the LOD
   // registration effect — that would abort in-flight prefetches and
@@ -1101,26 +1082,28 @@ function PaintingPlane({
   const displayedWidthRef = useRef(0);
 
   // Sync the material's initial map + color BEFORE the first paint so
-  // the swatch never flashes on a return visit. Runs once after the
-  // mesh + material refs land. We do NOT bind `map` or `color` as JSX
+  // preview is present on first visits too. Runs after the mesh and
+  // material refs land, and when the artwork changes. We do NOT bind `map` or `color` as JSX
   // props on <meshBasicMaterial> below, because R3F re-applies prop
   // values on every reconciliation — that would silently overwrite
   // both this initial install AND the .then mutations from the load
   // effect (you'd see paintings stuck at the brown swatch even after
   // the texture loaded).
-  // biome-ignore lint/correctness/useExhaustiveDependencies: one-shot mount setup; the load effect below handles updates after.
+  // biome-ignore lint/correctness/useExhaustiveDependencies: callbacks should not reset the displayed texture.
   useLayoutEffect(() => {
     const material = matRef.current;
     if (!material) return;
     const cachedBase = peekCached(url);
     const cachedThumb = cachedBase ? null : peekCached(thumbUrl);
-    const initial = cachedBase ?? cachedThumb;
+    const preview = cachedBase || cachedThumb ? null : createPaintingPreview(artwork.thumbHash);
+    const initial = cachedBase ?? cachedThumb ?? preview;
+    baseTextureRef.current = cachedBase ?? null;
+    setBaseLoaded(Boolean(cachedBase));
+    displayedWidthRef.current = 0;
+    material.map = initial;
     if (initial) {
-      material.map = initial;
       material.color.setHex(0xffffff);
       if (cachedBase) {
-        baseTextureRef.current = cachedBase;
-        setBaseLoaded(true);
         onSettled?.("loaded");
         const img = cachedBase.image as { width?: number; height?: number } | undefined;
         if (img?.width && img?.height) {
@@ -1128,16 +1111,17 @@ function PaintingPlane({
         }
       }
     } else {
-      material.color.setHex(0x3a2e20);
+      material.color.set(artwork.dominantColor ?? "#3a2e20");
     }
     material.needsUpdate = true;
-  }, []);
+    return () => {
+      preview?.dispose();
+    };
+  }, [url, thumbUrl, artwork.thumbHash, artwork.dominantColor]);
 
-  // Progressive loader: kick off both the 256 placeholder and the 960
-  // base in parallel. Whichever lands first paints. If 256 wins (the
-  // common case — it's 10× smaller), the 960 then upgrades on top of
-  // it; if 960 wins (return-visit cache hit, or fast network), the
-  // thumb is silently discarded and we never bother painting it.
+  // Both network tiers run alongside the local blur preview. The queue
+  // gives 256 px previews priority; the 480 px base replaces them when
+  // ready. A late thumbnail must never overwrite a sharper texture.
   //
   // Same warning as the layout effect above: we mutate material.map
   // and material.color directly here, not via JSX props.
@@ -1155,7 +1139,7 @@ function PaintingPlane({
     displayedWidthRef.current = 0;
 
     if (!baseInstalled) {
-      loadCached(thumbUrl, gl, origin)
+      loadCached(thumbUrl, gl, origin, "preview")
         .then((tex) => {
           if (cancelled || baseInstalled) return;
           // Install the placeholder. The base will overwrite this when
@@ -1173,7 +1157,7 @@ function PaintingPlane({
         })
         .catch(() => {
           // 256 might 404 for a sub-256 px source — silent fallback to
-          // the brown swatch until the base lands.
+          // the embedded blur preview until the base lands.
         });
     }
 
