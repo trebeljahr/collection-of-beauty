@@ -3,7 +3,7 @@
    ricos.site uses, so a later inline ask can stay quiet for 90 days after
    it (ricos.site's `isInQuietPeriod`). Nothing reads the value yet. */
 
-export const DONATE_URL = "https://ricos.site/donate?from=collection-of-beauty";
+export const DONATE_URL = "https://ricos.site/donate/collection-of-beauty";
 export const SUPPORTED_QUERY_KEY = "supported";
 export const SUPPORTED_AT_STORAGE_KEY = "donation-supported-at";
 

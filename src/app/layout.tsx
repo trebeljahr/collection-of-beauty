@@ -1,6 +1,7 @@
 import type { Metadata, Viewport } from "next";
 import Link from "next/link";
 import Script from "next/script";
+import { ProjectDonateLink } from "../components/project-donate-link";
 import "./globals.css";
 import { DonationSupportedTracker } from "@/components/donation-supported-tracker";
 import { Gallery3DProvider } from "@/components/gallery-3d-state";
@@ -201,9 +202,9 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
               </Link>
               {/* Same tab: nothing here is lost by leaving, and the donate
                   page links back to /?supported=1 after payment. */}
-              <a href={DONATE_URL} className={FOOTER_LINK}>
+              <ProjectDonateLink href={DONATE_URL} className={FOOTER_LINK}>
                 Donate
-              </a>
+              </ProjectDonateLink>
               <Link href="/imprint" className={FOOTER_LINK}>
                 Imprint
               </Link>
