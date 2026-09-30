@@ -35,7 +35,7 @@ describe("legacy bridge", () => {
   });
   it("fails closed for a migration without a bridge", async () => {
     process.env.LISTMONK_MESSENGER = "project-ses";
-    process.env.NEWSLETTER_MIGRATION_STARTED_AT = "2026-09-30T00:00:00Z";
+    // Missing cutoff must not silently restore the direct-write path.
     await expect(legacyBridge("confirm", "token")).rejects.toThrow(/required/);
   });
   it("forwards the raw signed token and project role with project-only auth", async () => {

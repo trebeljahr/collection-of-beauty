@@ -4,9 +4,7 @@ export async function legacyBridge(
   token?: string,
 ): Promise<boolean> {
   const raw = process.env.NEWSLETTER_BRIDGE_URL;
-  const required =
-    process.env.LISTMONK_MESSENGER === "project-ses" &&
-    !!process.env.NEWSLETTER_MIGRATION_STARTED_AT;
+  const required = process.env.LISTMONK_MESSENGER === "project-ses";
   if (!raw) {
     if (required) throw new Error("Newsletter migration bridge is required.");
     return false;
