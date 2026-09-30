@@ -30,6 +30,9 @@ services:
       # Optional operator gates; absent values leave the existing runtime alone.
       - NEWSLETTER_WRITES_PAUSED
       - NEWSLETTER_MIGRATION_STARTED_AT
+      - NEWSLETTER_BRIDGE_URL=${NEWSLETTER_BRIDGE_URL:-}
+      - NEWSLETTER_BRIDGE_PASSWORD=${NEWSLETTER_BRIDGE_PASSWORD:-}
+      - NEWSLETTER_BRIDGE_LIST_ROLE=${NEWSLETTER_BRIDGE_LIST_ROLE:-}
     labels:
       - "traefik.enable=true"
       # Shared middleware definitions. Same names Coolify generates for

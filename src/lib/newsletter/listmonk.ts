@@ -1,3 +1,5 @@
+import { legacyBridge } from "./bridge";
+
 /**
  * ListMonk HTTP API client.
  *
@@ -250,8 +252,13 @@ export async function ensureSubscriber(email: string): Promise<ListmonkSubscribe
  * This read/write pair is not atomic: cutover still requires a write freeze
  * and feedback reconciliation before sending.
  */
-export async function confirmSubscription(email: string, tokenIssuedAt?: number): Promise<void> {
+export async function confirmSubscription(
+  email: string,
+  tokenIssuedAt?: number,
+  token?: string,
+): Promise<void> {
   assertNewsletterWritesEnabled();
+  if (await legacyBridge("confirm", token)) return;
   const listId = resolveListId();
   const existing = await findSubscriber(email);
   // During migration, an old token cannot create or confirm an unattributed

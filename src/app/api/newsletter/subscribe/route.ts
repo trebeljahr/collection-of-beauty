@@ -91,6 +91,7 @@ export async function POST(request: NextRequest) {
 
   try {
     await sendConfirmationEmail({
+      confirmationToken: token,
       to: email,
       confirmUrl,
       heroImageUrl: hero.imageUrl,

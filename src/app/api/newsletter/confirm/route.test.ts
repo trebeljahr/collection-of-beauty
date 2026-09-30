@@ -36,7 +36,7 @@ describe("confirmation consent boundary", () => {
     const response = await GET(
       new NextRequest(`http://localhost/api/newsletter/confirm?token=${encodeURIComponent(token)}`),
     );
-    expect(confirmSubscription).toHaveBeenCalledWith("reader@example.com", now);
+    expect(confirmSubscription).toHaveBeenCalledWith("reader@example.com", now, expect.any(String));
     expect(response.headers.get("location")).toContain("/sub/confirmed");
     expect(sendTransactional).toHaveBeenCalledTimes(1);
   });
