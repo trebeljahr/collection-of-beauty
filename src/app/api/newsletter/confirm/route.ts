@@ -72,7 +72,7 @@ export async function GET(request: NextRequest) {
   const alreadyConfirmed = await isAlreadySubscribed(result.email);
 
   try {
-    await confirmSubscription(result.email);
+    await confirmSubscription(result.email, result.issuedAt);
   } catch (err) {
     log("error", "list_add_failed", { message: (err as Error).message });
     return NextResponse.redirect(`${SITE_URL}/sub/error?reason=list_add_failed`, { status: 303 });

@@ -40,9 +40,10 @@ describe("normalizeEmail", () => {
 
 describe("confirm token", () => {
   it("round-trips a fresh token", () => {
-    const tok = mintConfirmToken("a@b.com");
-    const res = verifyConfirmToken(tok);
-    expect(res).toEqual({ ok: true, email: "a@b.com" });
+    const now = Date.now();
+    const tok = mintConfirmToken("a@b.com", now);
+    const res = verifyConfirmToken(tok, now);
+    expect(res).toEqual({ ok: true, email: "a@b.com", issuedAt: now });
   });
 
   it("rejects a tampered signature", () => {

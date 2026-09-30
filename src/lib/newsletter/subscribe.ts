@@ -42,7 +42,7 @@ export function mintConfirmToken(email: string, now: number = Date.now()): strin
 }
 
 export type VerifyResult =
-  | { ok: true; email: string }
+  | { ok: true; email: string; issuedAt: number }
   | { ok: false; reason: "malformed" | "bad_signature" | "expired" };
 
 export function verifyConfirmToken(token: string, now: number = Date.now()): VerifyResult {
@@ -62,11 +62,15 @@ export function verifyConfirmToken(token: string, now: number = Date.now()): Ver
   } catch {
     return { ok: false, reason: "malformed" };
   }
-  if (typeof payload.e !== "string" || typeof payload.x !== "number") {
+  if (
+    typeof payload.e !== "string" ||
+    typeof payload.x !== "number" ||
+    !Number.isFinite(payload.x)
+  ) {
     return { ok: false, reason: "malformed" };
   }
   if (payload.x < now) return { ok: false, reason: "expired" };
-  return { ok: true, email: payload.e };
+  return { ok: true, email: payload.e, issuedAt: payload.x - CONFIRM_TOKEN_TTL_MS };
 }
 
 // RFC 5322 is wildly permissive; this is the standard "good enough" check

@@ -20,6 +20,16 @@ vi.mock("@/lib/newsletter/subscribe", async () => {
   };
 });
 
+// Newsletter routing tests do not need the full artwork catalogue.
+vi.mock("@/lib/newsletter/confirmation-cover", () => ({
+  resolveConfirmHero: (origin: string) => ({
+    imageUrl: `${origin}/fixture.jpg`,
+    artworkUrl: `${origin}/artwork/fixture`,
+    caption: "Fixture",
+    alt: "Fixture",
+  }),
+}));
+
 const { POST } = await import("./route");
 const { SITE_URL } = await import("@/lib/links");
 const subscribeMod = await import("@/lib/newsletter/subscribe");
@@ -181,6 +191,7 @@ describe("POST /api/newsletter/subscribe → ListMonk", () => {
     const fetchMock = stubListmonk({
       id: 42,
       email: "old@example.com",
+      status: "enabled",
       lists: [{ id: 4, subscription_status: "unsubscribed" }],
     });
     const res = await POST(makeRequest({ email: "old@example.com" }));

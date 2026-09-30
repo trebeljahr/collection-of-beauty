@@ -95,6 +95,16 @@ export function describeListTarget(): string {
     : `LISTMONK_LIST_ID=${id} (development env file)`;
 }
 
+function resolveMessenger(): string {
+  return process.env.LISTMONK_MESSENGER || "email";
+}
+
+function assertNewsletterWritesEnabled(): void {
+  if (process.env.NEWSLETTER_WRITES_PAUSED === "true") {
+    throw new Error("Newsletter writes are paused for migration. Retry after reconciliation.");
+  }
+}
+
 /**
  * From-address for outbound campaigns. Defaults to the SES verified
  * sender that Hatchkit emits as `SES_FROM_EMAIL`; an explicit
@@ -102,7 +112,20 @@ export function describeListTarget(): string {
  * campaign and transactional sends when a richer header is wanted.
  */
 function resolveFromAddress(): string {
-  return process.env.LISTMONK_FROM ?? required("SES_FROM_EMAIL");
+  const from = process.env.LISTMONK_FROM ?? required("SES_FROM_EMAIL");
+  if (resolveMessenger() === "project-ses") {
+    if (from !== required("SES_FROM_EMAIL") || !/^[a-z0-9][a-z0-9._+-]*@[a-z0-9.-]+$/.test(from)) {
+      throw new Error(
+        "project-ses requires LISTMONK_FROM to be unset or equal to the bare SES_FROM_EMAIL mailbox.",
+      );
+    }
+    if (process.env.LISTMONK_REPLY_TO) {
+      throw new Error(
+        "project-ses does not support LISTMONK_REPLY_TO. Review this setting before cutover.",
+      );
+    }
+  }
+  return from;
 }
 
 function resolveEmailHeaders(): Array<Record<string, string>> {
@@ -121,6 +144,7 @@ export type ListmonkSubscriberList = {
   uuid: string;
   name: string;
   subscription_status: SubscriptionStatus;
+  subscription_updated_at?: string;
 };
 
 export type ListmonkSubscriber = {
@@ -160,7 +184,7 @@ export async function findSubscriber(email: string): Promise<ListmonkSubscriber 
 export async function isConfirmedOnList(email: string): Promise<boolean> {
   const listId = resolveListId();
   const sub = await findSubscriber(email);
-  if (!sub) return false;
+  if (!sub || sub.status !== "enabled") return false;
   const entry = sub.lists?.find((l) => l.id === listId);
   return entry?.subscription_status === "confirmed";
 }
@@ -210,23 +234,61 @@ async function createSubscriber(email: string, listIds: number[]): Promise<Listm
  * form again must not put it on our list before the confirm click.
  */
 export async function ensureSubscriber(email: string): Promise<ListmonkSubscriber> {
-  return (await findSubscriber(email)) ?? (await createSubscriber(email, []));
+  assertNewsletterWritesEnabled();
+  const existing = await findSubscriber(email);
+  if (existing && existing.status !== "enabled") {
+    throw new Error("Subscriber is suppressed; confirmation mail is not allowed.");
+  }
+  return existing ?? (await createSubscriber(email, []));
 }
 
 /**
  * Add `email` to the configured list as `confirmed`. Only the confirm
- * route calls this, after the token has proven the reader owns the
- * address. Idempotent: an existing membership, whatever its status,
- * becomes `confirmed`. A subscriber that has gone missing since the
- * token was issued (e.g. "delete orphan subscribers" in the admin UI)
- * is recreated.
+ * route calls this after verifying the token. Suppression wins over consent.
+ * An unsubscribed member needs a token issued after that unsubscribe.
+ * Preserve membership timestamps during migration; unknown dates fail closed.
+ * This read/write pair is not atomic: cutover still requires a write freeze
+ * and feedback reconciliation before sending.
  */
-export async function confirmSubscription(email: string): Promise<void> {
+export async function confirmSubscription(email: string, tokenIssuedAt?: number): Promise<void> {
+  assertNewsletterWritesEnabled();
   const listId = resolveListId();
   const existing = await findSubscriber(email);
+  // During migration, an old token cannot create or confirm an unattributed
+  // orphan, even if a new signup has since created its row. Project membership
+  // must come from the reviewed transfer/legacy reconciliation first.
+  const started = process.env.NEWSLETTER_MIGRATION_STARTED_AT;
+  if (started) {
+    const cutoff = Date.parse(started);
+    if (!Number.isFinite(cutoff) || !Number.isFinite(tokenIssuedAt)) {
+      throw new Error("Migration confirmation timing is invalid.");
+    }
+    if (
+      (tokenIssuedAt as number) < cutoff &&
+      !existing?.lists?.some((list) => list.id === listId)
+    ) {
+      throw new Error(
+        "Legacy confirmation needs suppression reconciliation before adding membership.",
+      );
+    }
+  }
   if (!existing) {
     await createSubscriber(email, [listId]);
     return;
+  }
+  if (existing.status !== "enabled") {
+    throw new Error("Subscriber is suppressed; subscription cannot be confirmed.");
+  }
+  const membership = existing.lists?.find((list) => list.id === listId);
+  if (membership?.subscription_status === "unsubscribed") {
+    const unsubscribedAt = Date.parse(membership.subscription_updated_at ?? "");
+    if (
+      !Number.isFinite(unsubscribedAt) ||
+      !Number.isFinite(tokenIssuedAt) ||
+      (tokenIssuedAt as number) <= unsubscribedAt
+    ) {
+      throw new Error("Confirmation predates unsubscribe or consent timing is unknown.");
+    }
   }
   await listmonkFetch("/api/subscribers/lists", {
     method: "PUT",
@@ -259,6 +321,7 @@ export type SendTransactionalParams = {
  * `ensureSubscriber` before sending the confirmation email.
  */
 export async function sendTransactional(params: SendTransactionalParams): Promise<void> {
+  assertNewsletterWritesEnabled();
   const templateId = Number(required("LISTMONK_TX_TEMPLATE_ID"));
   const headers = resolveEmailHeaders();
   await listmonkFetch("/api/tx", {
@@ -270,7 +333,7 @@ export async function sendTransactional(params: SendTransactionalParams): Promis
       ...(headers.length > 0 ? { headers } : {}),
       data: { subject: params.subject, body: params.html },
       content_type: "html",
-      messenger: "email",
+      messenger: resolveMessenger(),
     }),
   });
 }
@@ -300,6 +363,7 @@ export type CampaignResult = { id: number; url: string };
  * admin UI.
  */
 export async function sendCampaign(params: SendCampaignParams): Promise<CampaignResult> {
+  assertNewsletterWritesEnabled();
   const listId = resolveListId();
   const fromEmail = resolveFromAddress();
   const headers = resolveEmailHeaders();
@@ -320,6 +384,7 @@ export async function sendCampaign(params: SendCampaignParams): Promise<Campaign
       template_id: templateId,
       ...(headers.length > 0 ? { headers } : {}),
       send_later: false,
+      ...(process.env.LISTMONK_MESSENGER ? { messenger: resolveMessenger() } : {}),
     }),
   });
 
