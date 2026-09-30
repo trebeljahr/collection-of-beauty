@@ -95,6 +95,10 @@ COPY --from=build /app/.next/static ./.next/static
 RUN npm install --prefix /opt/dotenvx --no-audit --no-fund @dotenvx/dotenvx@1.64.0
 COPY --from=build /app/.env.production ./.env.production
 
+# Next writes image and incremental-render caches at runtime.
+RUN mkdir -p /app/.next/cache && chown -R node:node /app/.next
+USER node
+
 EXPOSE 80
 
 # Coolify's bundled Traefik consults the container's Docker healthcheck before
