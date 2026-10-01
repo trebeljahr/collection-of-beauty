@@ -36,12 +36,12 @@ describe("confirmation consent boundary", () => {
     const response = await GET(
       new NextRequest(`http://localhost/api/newsletter/confirm?token=${encodeURIComponent(token)}`),
     );
-    expect(confirmSubscription).toHaveBeenCalledWith("reader@example.com", now, expect.any(String));
+    expect(confirmSubscription).toHaveBeenCalledWith("reader@example.com", now);
     expect(response.headers.get("location")).toContain("/sub/confirmed");
     expect(sendTransactional).toHaveBeenCalledTimes(1);
   });
 
-  it("does not send a welcome when suppression or migration blocks confirmation", async () => {
+  it("does not send a welcome when suppression blocks confirmation", async () => {
     vi.mocked(confirmSubscription).mockRejectedValueOnce(new Error("Subscriber is suppressed"));
     const token = mintConfirmToken("reader@example.com");
     const response = await GET(

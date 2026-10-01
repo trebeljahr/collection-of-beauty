@@ -2,7 +2,6 @@ import { createHmac, timingSafeEqual } from "node:crypto";
 import { render } from "@react-email/render";
 import { createElement } from "react";
 import ConfirmSubscription from "../../../emails/confirm-subscription";
-import { legacyBridge } from "./bridge";
 import {
   ensureSubscriber,
   isConfirmedOnList,
@@ -105,7 +104,6 @@ export async function isAlreadySubscribed(email: string): Promise<boolean> {
 }
 
 export type SendConfirmationEmailParams = {
-  confirmationToken?: string;
   to: string;
   confirmUrl: string;
   /** Public URL of the cover artwork shown in the email header. */
@@ -122,7 +120,6 @@ export async function sendConfirmationEmail(params: SendConfirmationEmailParams)
   // The recipient must exist as a ListMonk subscriber before /api/tx
   // will accept the send. It stays off the list until the link is
   // clicked (see "Double opt-in and list membership" in listmonk.ts).
-  await legacyBridge("prepare", params.confirmationToken);
   await ensureSubscriber(params.to);
 
   const element = createElement(ConfirmSubscription, {

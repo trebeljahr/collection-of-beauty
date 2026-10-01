@@ -1,5 +1,3 @@
-import { legacyBridge } from "./bridge";
-
 /**
  * ListMonk HTTP API client.
  *
@@ -97,16 +95,6 @@ export function describeListTarget(): string {
     : `LISTMONK_LIST_ID=${id} (development env file)`;
 }
 
-function resolveMessenger(): string {
-  return process.env.LISTMONK_MESSENGER || "email";
-}
-
-function assertNewsletterWritesEnabled(): void {
-  if (process.env.NEWSLETTER_WRITES_PAUSED === "true") {
-    throw new Error("Newsletter writes are paused for migration. Retry after reconciliation.");
-  }
-}
-
 /**
  * From-address for outbound campaigns. Defaults to the SES verified
  * sender that Hatchkit emits as `SES_FROM_EMAIL`; an explicit
@@ -114,34 +102,10 @@ function assertNewsletterWritesEnabled(): void {
  * campaign and transactional sends when a richer header is wanted.
  */
 function resolveFromAddress(): string {
-  const from = process.env.LISTMONK_FROM ?? required("SES_FROM_EMAIL");
-  if (resolveMessenger() === "project-ses") {
-    if (from !== required("SES_FROM_EMAIL") || !/^[a-z0-9][a-z0-9._+-]*@[a-z0-9.-]+$/.test(from)) {
-      throw new Error(
-        "project-ses requires LISTMONK_FROM to be unset or equal to the bare SES_FROM_EMAIL mailbox.",
-      );
-    }
-    const pinnedReplyTo = process.env.SES_PROJECT_REPLY_TO;
-    if (
-      pinnedReplyTo &&
-      (pinnedReplyTo.trim() !== pinnedReplyTo ||
-        !/^[a-zA-Z0-9._+-]+@(?:[a-zA-Z0-9-]+\.)+[a-zA-Z]{2,63}$/.test(pinnedReplyTo))
-    ) {
-      throw new Error("project-ses requires a bare SES_PROJECT_REPLY_TO mailbox.");
-    }
-    if (process.env.LISTMONK_REPLY_TO && process.env.LISTMONK_REPLY_TO !== pinnedReplyTo) {
-      throw new Error(
-        "project-ses requires LISTMONK_REPLY_TO to match the relay's SES_PROJECT_REPLY_TO.",
-      );
-    }
-  }
-  return from;
+  return process.env.LISTMONK_FROM ?? required("SES_FROM_EMAIL");
 }
 
 function resolveEmailHeaders(): Array<Record<string, string>> {
-  // The isolated relay sets its operator-pinned Reply-To. Request headers
-  // cannot override that value; resolveFromAddress checks the app's intent.
-  if (resolveMessenger() === "project-ses") return [];
   const replyTo = process.env.LISTMONK_REPLY_TO;
   return replyTo ? [{ "Reply-To": replyTo }] : [];
 }
@@ -247,7 +211,6 @@ async function createSubscriber(email: string, listIds: number[]): Promise<Listm
  * form again must not put it on our list before the confirm click.
  */
 export async function ensureSubscriber(email: string): Promise<ListmonkSubscriber> {
-  assertNewsletterWritesEnabled();
   const existing = await findSubscriber(email);
   if (existing && existing.status !== "enabled") {
     throw new Error("Subscriber is suppressed; confirmation mail is not allowed.");
@@ -259,37 +222,11 @@ export async function ensureSubscriber(email: string): Promise<ListmonkSubscribe
  * Add `email` to the configured list as `confirmed`. Only the confirm
  * route calls this after verifying the token. Suppression wins over consent.
  * An unsubscribed member needs a token issued after that unsubscribe.
- * Preserve membership timestamps during migration; unknown dates fail closed.
- * This read/write pair is not atomic: cutover still requires a write freeze
- * and feedback reconciliation before sending.
+ * Unknown unsubscribe dates fail closed.
  */
-export async function confirmSubscription(
-  email: string,
-  tokenIssuedAt?: number,
-  token?: string,
-): Promise<void> {
-  assertNewsletterWritesEnabled();
-  if (await legacyBridge("confirm", token)) return;
+export async function confirmSubscription(email: string, tokenIssuedAt?: number): Promise<void> {
   const listId = resolveListId();
   const existing = await findSubscriber(email);
-  // During migration, an old token cannot create or confirm an unattributed
-  // orphan, even if a new signup has since created its row. Project membership
-  // must come from the reviewed transfer/legacy reconciliation first.
-  const started = process.env.NEWSLETTER_MIGRATION_STARTED_AT;
-  if (started) {
-    const cutoff = Date.parse(started);
-    if (!Number.isFinite(cutoff) || !Number.isFinite(tokenIssuedAt)) {
-      throw new Error("Migration confirmation timing is invalid.");
-    }
-    if (
-      (tokenIssuedAt as number) < cutoff &&
-      !existing?.lists?.some((list) => list.id === listId)
-    ) {
-      throw new Error(
-        "Legacy confirmation needs suppression reconciliation before adding membership.",
-      );
-    }
-  }
   if (!existing) {
     await createSubscriber(email, [listId]);
     return;
@@ -339,7 +276,6 @@ export type SendTransactionalParams = {
  * `ensureSubscriber` before sending the confirmation email.
  */
 export async function sendTransactional(params: SendTransactionalParams): Promise<void> {
-  assertNewsletterWritesEnabled();
   const templateId = Number(required("LISTMONK_TX_TEMPLATE_ID"));
   const headers = resolveEmailHeaders();
   await listmonkFetch("/api/tx", {
@@ -351,7 +287,7 @@ export async function sendTransactional(params: SendTransactionalParams): Promis
       ...(headers.length > 0 ? { headers } : {}),
       data: { subject: params.subject, body: params.html },
       content_type: "html",
-      messenger: resolveMessenger(),
+      messenger: "email",
     }),
   });
 }
@@ -381,7 +317,6 @@ export type CampaignResult = { id: number; url: string };
  * admin UI.
  */
 export async function sendCampaign(params: SendCampaignParams): Promise<CampaignResult> {
-  assertNewsletterWritesEnabled();
   const listId = resolveListId();
   const fromEmail = resolveFromAddress();
   const headers = resolveEmailHeaders();
@@ -402,7 +337,6 @@ export async function sendCampaign(params: SendCampaignParams): Promise<Campaign
       template_id: templateId,
       ...(headers.length > 0 ? { headers } : {}),
       send_later: false,
-      ...(process.env.LISTMONK_MESSENGER ? { messenger: resolveMessenger() } : {}),
     }),
   });
 
