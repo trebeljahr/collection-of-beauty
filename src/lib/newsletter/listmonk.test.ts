@@ -44,6 +44,7 @@ beforeEach(() => {
   delete process.env.NEWSLETTER_MIGRATION_STARTED_AT;
   delete process.env.LISTMONK_FROM;
   delete process.env.LISTMONK_REPLY_TO;
+  delete process.env.SES_PROJECT_REPLY_TO;
 });
 
 afterEach(() => {
@@ -250,6 +251,38 @@ describe("dedicated messenger", () => {
     await sendCampaign(campaign);
     expect(body(fetchMock.mock.calls[0])).toMatchObject({ messenger: "email" });
     expect(body(fetchMock.mock.calls[1])).not.toHaveProperty("messenger");
+  });
+
+  it("uses the relay's pinned Reply-To without passing custom headers", async () => {
+    process.env.LISTMONK_MESSENGER = "project-ses";
+    process.env.SES_PROJECT_REPLY_TO = "hi@example.com";
+    process.env.LISTMONK_REPLY_TO = "hi@example.com";
+    const fetchMock = vi.fn(async (_input: RequestInfo | URL, _init?: RequestInit) =>
+      jsonResponse({ data: { id: 11 } }),
+    );
+    vi.stubGlobal("fetch", fetchMock);
+    await sendTransactional(tx);
+    await sendCampaign(campaign);
+    for (const call of fetchMock.mock.calls) {
+      expect(body(call)).not.toHaveProperty("headers");
+    }
+  });
+
+  it.each([
+    ["hi@example.com", "foreign@example.com"],
+    ["hi@example.com", "Brand <hi@example.com>"],
+    ["hi@example.com\r\nBcc: other@example.com", "hi@example.com\r\nBcc: other@example.com"],
+    ["Brand <hi@example.com>", undefined],
+    ["hi@example.com\n", "hi@example.com\n"],
+  ])("rejects mismatched or malformed pinned replies before sending", async (pin, reply) => {
+    process.env.LISTMONK_MESSENGER = "project-ses";
+    process.env.SES_PROJECT_REPLY_TO = pin;
+    if (reply) process.env.LISTMONK_REPLY_TO = reply;
+    const fetchMock = vi.fn();
+    vi.stubGlobal("fetch", fetchMock);
+    await expect(sendTransactional(tx)).rejects.toThrow(/project-ses/);
+    await expect(sendCampaign(campaign)).rejects.toThrow(/project-ses/);
+    expect(fetchMock).not.toHaveBeenCalled();
   });
 
   it.each([

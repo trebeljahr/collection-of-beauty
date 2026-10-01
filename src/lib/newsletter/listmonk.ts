@@ -121,9 +121,17 @@ function resolveFromAddress(): string {
         "project-ses requires LISTMONK_FROM to be unset or equal to the bare SES_FROM_EMAIL mailbox.",
       );
     }
-    if (process.env.LISTMONK_REPLY_TO) {
+    const pinnedReplyTo = process.env.SES_PROJECT_REPLY_TO;
+    if (
+      pinnedReplyTo &&
+      (pinnedReplyTo.trim() !== pinnedReplyTo ||
+        !/^[a-zA-Z0-9._+-]+@(?:[a-zA-Z0-9-]+\.)+[a-zA-Z]{2,63}$/.test(pinnedReplyTo))
+    ) {
+      throw new Error("project-ses requires a bare SES_PROJECT_REPLY_TO mailbox.");
+    }
+    if (process.env.LISTMONK_REPLY_TO && process.env.LISTMONK_REPLY_TO !== pinnedReplyTo) {
       throw new Error(
-        "project-ses does not support LISTMONK_REPLY_TO. Review this setting before cutover.",
+        "project-ses requires LISTMONK_REPLY_TO to match the relay's SES_PROJECT_REPLY_TO.",
       );
     }
   }
@@ -131,6 +139,9 @@ function resolveFromAddress(): string {
 }
 
 function resolveEmailHeaders(): Array<Record<string, string>> {
+  // The isolated relay sets its operator-pinned Reply-To. Request headers
+  // cannot override that value; resolveFromAddress checks the app's intent.
+  if (resolveMessenger() === "project-ses") return [];
   const replyTo = process.env.LISTMONK_REPLY_TO;
   return replyTo ? [{ "Reply-To": replyTo }] : [];
 }
