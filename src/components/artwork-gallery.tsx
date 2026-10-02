@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { type ReactNode, useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { memo, type ReactNode, useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { computeRowsLayout, RowsPhotoAlbum } from "react-photo-album";
 import "react-photo-album/rows.css";
 import { useArtworkTooltip } from "@/components/artwork-tooltip";
@@ -517,74 +517,121 @@ export function ArtworkRows({
   return (
     <div ref={galleryRef}>
       {chunks.map((group, i) => (
-        <div
+        <ArtworkRowChunk
           // biome-ignore lint/suspicious/noArrayIndexKey: chunks are append-only; index is stable
           key={i}
-          className="mb-1.5"
-        >
-          <RowsPhotoAlbum
-            photos={group}
-            targetRowHeight={target}
-            spacing={ROW_SPACING_PX}
-            // Pre-measured from the gallery container (see the
-            // callback ref above). Falls back to 1200 only on the very
-            // first SSR render, before the ref has attached.
-            defaultContainerWidth={initialContainerWidth}
-            sizes={albumSizes}
-            rowConstraints={constraints}
-            render={{
-              link: ({ href: _href, children, className, ...rest }, { photo }) => {
-                const p = photo as GalleryPhoto;
-                return (
-                  <GalleryTileLink
-                    {...rest}
-                    photo={p}
-                    className={`${className ?? ""} rounded-sm focus:outline-none focus-visible:ring-2 focus-visible:ring-[var(--ring)] focus-visible:ring-offset-2 focus-visible:ring-offset-[var(--background)]`.trim()}
-                  >
-                    {children}
-                  </GalleryTileLink>
-                );
-              },
-              // Pass the rendered cell dimensions (in CSS px) from the
-              // row solver as the <img>'s width/height attrs. Matches
-              // ricos.site's CustomImageRenderer — gives the browser
-              // exact pixel space to reserve, instead of the intrinsic
-              // source dimensions (e.g. 4096×5120) it would have to
-              // scale via aspect-ratio. Layout reservation is identical
-              // for the common case but avoids a class of edge-case
-              // re-flows when the browser swaps the layout-aspect for
-              // the loaded image's natural-aspect during decoding.
-              image: (props, { photo, index, width: renderedWidth, height: renderedHeight }) => {
-                const p = photo as GalleryPhoto;
-                // `index` is the tile's place within this chunk; every
-                // chunk but the last holds exactly CHUNK_SIZE.
-                const gridIndex = i * CHUNK_SIZE + index;
-                return (
-                  <ResponsiveImage
-                    objectKey={p.src}
-                    variantWidths={p.variantWidths}
-                    alt={p.alt ?? ""}
-                    srcWidth={renderedWidth}
-                    srcHeight={renderedHeight}
-                    sizes={props.sizes ?? `${Math.ceil(renderedWidth)}px`}
-                    loading="lazy"
-                    dominantColor={p.dominantColor}
-                    thumbHash={p.thumbHash}
-                    workWidth={p.width}
-                    workHeight={p.height}
-                    deferThumbHash={gridIndex >= eagerBlurTiles}
-                    progressive={slowConnection}
-                    style={{ width: "100%", height: "auto" }}
-                  />
-                );
-              },
-            }}
-          />
-        </div>
+          group={group}
+          index={i}
+          target={target}
+          containerWidth={initialContainerWidth}
+          albumSizes={albumSizes}
+          constraints={constraints}
+          eagerBlurTiles={eagerBlurTiles}
+          slowConnection={slowConnection}
+        />
       ))}
     </div>
   );
 }
+
+type ArtworkRowChunkProps = {
+  group: GalleryPhoto[];
+  index: number;
+  target: number;
+  containerWidth: number;
+  albumSizes: { size: string };
+  constraints: ReturnType<typeof rowConstraints>;
+  eagerBlurTiles: number;
+  slowConnection: boolean;
+};
+
+// Appending one page changes the photos array, but completed chunks keep
+// the same photos. Skip their row solver and tile subtree on every append.
+const ArtworkRowChunk = memo(
+  function ArtworkRowChunk({
+    group,
+    index: chunkIndex,
+    target,
+    containerWidth,
+    albumSizes,
+    constraints,
+    eagerBlurTiles,
+    slowConnection,
+  }: ArtworkRowChunkProps) {
+    return (
+      <div className="mb-1.5">
+        <RowsPhotoAlbum
+          photos={group}
+          targetRowHeight={target}
+          spacing={ROW_SPACING_PX}
+          // Pre-measured from the gallery container (see the
+          // callback ref above). Falls back to 1200 only on the very
+          // first SSR render, before the ref has attached.
+          defaultContainerWidth={containerWidth}
+          sizes={albumSizes}
+          rowConstraints={constraints}
+          render={{
+            link: ({ href: _href, children, className, ...rest }, { photo }) => {
+              const p = photo as GalleryPhoto;
+              return (
+                <GalleryTileLink
+                  {...rest}
+                  photo={p}
+                  className={`${className ?? ""} rounded-sm focus:outline-none focus-visible:ring-2 focus-visible:ring-[var(--ring)] focus-visible:ring-offset-2 focus-visible:ring-offset-[var(--background)]`.trim()}
+                >
+                  {children}
+                </GalleryTileLink>
+              );
+            },
+            // Pass the rendered cell dimensions (in CSS px) from the
+            // row solver as the <img>'s width/height attrs. Matches
+            // ricos.site's CustomImageRenderer — gives the browser
+            // exact pixel space to reserve, instead of the intrinsic
+            // source dimensions (e.g. 4096×5120) it would have to
+            // scale via aspect-ratio. Layout reservation is identical
+            // for the common case but avoids a class of edge-case
+            // re-flows when the browser swaps the layout-aspect for
+            // the loaded image's natural-aspect during decoding.
+            image: (props, { photo, index, width: renderedWidth, height: renderedHeight }) => {
+              const p = photo as GalleryPhoto;
+              // `index` is the tile's place within this chunk; every
+              // chunk but the last holds exactly CHUNK_SIZE.
+              const gridIndex = chunkIndex * CHUNK_SIZE + index;
+              return (
+                <ResponsiveImage
+                  objectKey={p.src}
+                  variantWidths={p.variantWidths}
+                  alt={p.alt ?? ""}
+                  srcWidth={renderedWidth}
+                  srcHeight={renderedHeight}
+                  sizes={props.sizes ?? `${Math.ceil(renderedWidth)}px`}
+                  loading="lazy"
+                  dominantColor={p.dominantColor}
+                  thumbHash={p.thumbHash}
+                  workWidth={p.width}
+                  workHeight={p.height}
+                  deferThumbHash={gridIndex >= eagerBlurTiles}
+                  progressive={slowConnection}
+                  style={{ width: "100%", height: "auto" }}
+                />
+              );
+            },
+          }}
+        />
+      </div>
+    );
+  },
+  (prev, next) =>
+    prev.index === next.index &&
+    prev.target === next.target &&
+    prev.containerWidth === next.containerWidth &&
+    prev.albumSizes === next.albumSizes &&
+    prev.constraints === next.constraints &&
+    prev.eagerBlurTiles === next.eagerBlurTiles &&
+    prev.slowConnection === next.slowConnection &&
+    prev.group.length === next.group.length &&
+    prev.group.every((photo, index) => photo === next.group[index]),
+);
 
 function GalleryTileLink({
   photo,

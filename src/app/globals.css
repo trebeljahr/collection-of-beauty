@@ -349,7 +349,10 @@
   }
 }
 
-@media (prefers-reduced-motion: no-preference) {
+/* A view timeline on every tile forces scroll-linked animation work on
+   every touch frame. Keep the reveal for precise-pointer devices; touch
+   galleries paint their tiles immediately and retain native momentum. */
+@media (prefers-reduced-motion: no-preference) and (hover: hover) and (pointer: fine) {
   @supports (animation-timeline: view()) {
     /* data-settled: a tile about to be measured for a FLIP, by the hero
        view transition or the back-flip. Pins it at the end state. */
