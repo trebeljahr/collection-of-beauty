@@ -8,6 +8,10 @@
   "mlServices": [],
   "s3Provider": "existing",
   "deployTarget": "existing",
+  "coolifyRuntime": "image",
+  "containerPorts": {
+    "app": 80
+  },
   "ports": {
     "server": 3000,
     "client": 3001

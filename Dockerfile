@@ -2,7 +2,7 @@
 #
 # Next.js image for collection-of-beauty.
 # Built by .github/workflows/deploy.yml, pushed to GHCR, pulled by
-# Coolify via docker-compose.yml. The final stage runs Next's standalone
+# Coolify as a Docker Image application. The final stage runs Next's standalone
 # server because this app includes dynamic route handlers for the newsletter
 # flow; a static nginx image cannot serve those routes.
 #
@@ -94,6 +94,11 @@ COPY --from=build /app/.next/static ./.next/static
 # broke the deploy). dotenvx needs none of those packages.
 RUN npm install --prefix /opt/dotenvx --no-audit --no-fund @dotenvx/dotenvx@1.64.0
 COPY --from=build /app/.env.production ./.env.production
+COPY --chmod=755 drain-entrypoint.sh /usr/local/bin/drain-entrypoint
+COPY drain.cjs /usr/local/lib/drain.cjs
+ENV SHUTDOWN_DRAIN_SECONDS=20
+ENV HEALTH_CHECK_PATH=/
+ENTRYPOINT ["/usr/local/bin/drain-entrypoint"]
 
 # Next writes image and incremental-render caches at runtime.
 RUN mkdir -p /app/.next/cache && chown -R node:node /app/.next
@@ -106,7 +111,7 @@ EXPOSE 80
 # `health: starting` indefinitely and the proxy may keep returning 502s even
 # after Next has bound to $PORT. Hit `/` because Next standalone has no
 # built-in /healthz; node 24's global fetch keeps the check dependency-free.
-HEALTHCHECK --interval=30s --timeout=10s --start-period=30s --retries=5 \
+HEALTHCHECK --interval=2s --timeout=5s --start-period=15s --retries=5 \
   CMD node -e "fetch('http://127.0.0.1:' + (process.env.PORT || '80') + '/').then(r => { if (!r.ok) process.exit(1); }).catch(() => process.exit(1))"
 
-CMD ["/opt/dotenvx/node_modules/.bin/dotenvx", "run", "-f", ".env.production", "--", "node", "server.js"]
+CMD ["/opt/dotenvx/node_modules/.bin/dotenvx", "run", "-f", ".env.production", "--", "node", "--require", "/usr/local/lib/drain.cjs", "server.js"]
