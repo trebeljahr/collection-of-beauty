@@ -1,13 +1,9 @@
 import { type NextRequest, NextResponse } from "next/server";
 import { SITE_URL } from "@/lib/links";
 import { loadPublishedEditions } from "@/lib/newsletter/editions";
-import { sendTransactional } from "@/lib/newsletter/listmonk";
+import { isConfirmedOnList, sendTransactional } from "@/lib/newsletter/listmonk";
 import { renderEdition } from "@/lib/newsletter/render";
-import {
-  confirmSubscription,
-  isAlreadySubscribed,
-  verifyConfirmToken,
-} from "@/lib/newsletter/subscribe";
+import { confirmSubscription, verifyConfirmToken } from "@/lib/newsletter/subscribe";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -69,7 +65,17 @@ export async function GET(request: NextRequest) {
   // Re-confirmation case: the user clicked a stale token for an address
   // that's already subscribed. Skip the welcome send so they don't get a
   // duplicate latest-issue email every time they revisit the link.
-  const alreadyConfirmed = await isAlreadySubscribed(result.email);
+  let alreadyConfirmed: boolean;
+  try {
+    alreadyConfirmed = await isConfirmedOnList(result.email);
+  } catch (err) {
+    log("error", "list_lookup_failed", {
+      message: err instanceof Error ? err.message : String(err),
+    });
+    return NextResponse.redirect(`${SITE_URL}/sub/error?reason=list_lookup_failed`, {
+      status: 303,
+    });
+  }
 
   try {
     await confirmSubscription(result.email, result.issuedAt);

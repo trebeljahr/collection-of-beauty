@@ -76,6 +76,7 @@ export function TimelineView({ initialDecades, initialTotal, eras }: Props) {
   const [summaryStatus, setSummaryStatus] = useState<"idle" | "loading" | "failed">("idle");
   // decade -> works, only for decades fetched under the *current* filter.
   const [works, setWorks] = useState<Record<number, TimelineListing[]>>({});
+  const [failedDecades, setFailedDecades] = useState<Record<number, boolean>>({});
 
   // `?q=` and `?era=` preselect the filters, and every change is written
   // back with replaceState, so Back from an artwork reopens the timeline
@@ -151,12 +152,12 @@ export function TimelineView({ initialDecades, initialTotal, eras }: Props) {
   // the new shape. Guarded against the mount run — resetting there would
   // throw away the first sections' responses and make them fetch twice.
   const lastFilterKeyRef = useRef(filterKey);
-  // biome-ignore lint/correctness/useExhaustiveDependencies: filterKey is the identity of the current filter; resetting on it is the point.
   useEffect(() => {
     if (lastFilterKeyRef.current === filterKey) return;
     lastFilterKeyRef.current = filterKey;
     loadedRef.current.clear();
     setWorks({});
+    setFailedDecades({});
   }, [filterKey]);
 
   const loadDecade = useCallback((decade: number): Promise<void> => {
@@ -166,6 +167,7 @@ export function TimelineView({ initialDecades, initialTotal, eras }: Props) {
     if (loadedRef.current.has(key)) return Promise.resolve();
 
     const filterAtRequest = filterRef.current;
+    setFailedDecades((prev) => (prev[decade] ? { ...prev, [decade]: false } : prev));
     const promise = fetchDecadeWorks(decade, filterAtRequest)
       .then((items) => {
         // Drop the response if the filters moved on while it was in
@@ -174,11 +176,13 @@ export function TimelineView({ initialDecades, initialTotal, eras }: Props) {
         // that is actually on screen.
         if (filterKeyOf(filterAtRequest) !== filterKeyRef.current) return;
         loadedRef.current.add(key);
+        setFailedDecades((prev) => (prev[decade] ? { ...prev, [decade]: false } : prev));
         setWorks((prev) => ({ ...prev, [decade]: items }));
       })
       .catch(() => {
-        // Leave the section unloaded; the observer retries when it
-        // re-enters the viewport.
+        if (filterKeyOf(filterAtRequest) === filterKeyRef.current) {
+          setFailedDecades((prev) => ({ ...prev, [decade]: true }));
+        }
       })
       .finally(() => {
         inFlightRef.current.delete(key);
@@ -344,6 +348,7 @@ export function TimelineView({ initialDecades, initialTotal, eras }: Props) {
             count={d.count}
             aspects={d.aspects}
             works={works[d.decade] ?? null}
+            failed={Boolean(failedDecades[d.decade])}
             filter={scopeFilter}
             onVisible={loadDecade}
           />
@@ -364,6 +369,7 @@ function DecadeSection({
   count,
   aspects,
   works,
+  failed,
   filter,
   onVisible,
 }: {
@@ -371,6 +377,7 @@ function DecadeSection({
   count: number;
   aspects: number[];
   works: TimelineListing[] | null;
+  failed: boolean;
   filter: ScopeFilter | undefined;
   onVisible: (decade: number) => Promise<void>;
 }) {
@@ -422,7 +429,18 @@ function DecadeSection({
           <Badge variant="outline">{count}</Badge>
         </div>
       </div>
-      {photos ? <ArtworkRows photos={photos} /> : <DecadePlaceholder aspects={aspects} />}
+      {photos ? (
+        <ArtworkRows photos={photos} />
+      ) : failed ? (
+        <div className="py-8 text-center text-sm" role="alert">
+          <p>Could not load this decade.</p>
+          <button type="button" className="mt-2 underline" onClick={() => void onVisible(decade)}>
+            Try again
+          </button>
+        </div>
+      ) : (
+        <DecadePlaceholder aspects={aspects} />
+      )}
     </section>
   );
 }

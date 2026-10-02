@@ -7,10 +7,8 @@
 // option and is worse in every direction: ~530 MB of binaries in git, stale
 // the moment a plate is re-shrunk.
 //
-// Caching: the archive is byte-deterministic for a given (set, catalogue)
-// — zip-stream.ts zeroes every timestamp precisely so this holds — which
-// makes a strong ETag meaningful. A conditional request costs a 304 and no
-// origin fetches at all.
+// A variant can be re-encoded at the same object key, so the archive has no
+// safe metadata-only validator. Do not cache a ZIP across asset rebuilds.
 
 import { type NextRequest, NextResponse } from "next/server";
 import {
@@ -31,7 +29,10 @@ export const dynamic = "force-dynamic";
 // truncating an archive mid-write.
 export const maxDuration = 900;
 
-export async function GET(request: NextRequest, { params }: { params: Promise<{ slug: string }> }) {
+export async function GET(
+  _request: NextRequest,
+  { params }: { params: Promise<{ slug: string }> },
+) {
   const { slug } = await params;
   const collection = getCollection(slug.replace(/\.zip$/, ""));
   if (!collection) {
@@ -44,13 +45,6 @@ export async function GET(request: NextRequest, { params }: { params: Promise<{ 
       { error: "No variants have been built for this collection yet." },
       { status: 503 },
     );
-  }
-
-  // Identity of the archive = which plates, at which width. Both change
-  // only when the catalogue is rebuilt and the site redeployed.
-  const etag = `W/"${collection.slug}-${ZIP_VARIANT_WIDTH}-${artworks.length}"`;
-  if (request.headers.get("if-none-match") === etag) {
-    return new NextResponse(null, { status: 304, headers: { ETag: etag } });
   }
 
   const readme = buildReadme(
@@ -67,7 +61,7 @@ export async function GET(request: NextRequest, { params }: { params: Promise<{ 
       name: `${collection.slug}/${zipEntryName(art, i)}`,
       open: async () => {
         const upstream = await fetch(publicVariantUrl(art.objectKey, ZIP_VARIANT_WIDTH, "avif"), {
-          cache: "force-cache",
+          cache: "no-store",
         });
         if (!upstream.ok || !upstream.body) {
           // Aborting is deliberate. A ZIP that silently skips plates looks
@@ -87,8 +81,7 @@ export async function GET(request: NextRequest, { params }: { params: Promise<{ 
       // No Content-Length: sizes are only known as each entry streams
       // past, and computing them up front would mean fetching the whole
       // set twice.
-      "Cache-Control": "public, max-age=3600, s-maxage=604800, stale-while-revalidate=86400",
-      ETag: etag,
+      "Cache-Control": "no-store",
       "X-Entry-Count": String(entries.length),
       "X-Variant-Width": String(ZIP_VARIANT_WIDTH),
     },

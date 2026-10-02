@@ -17,6 +17,25 @@ const flush = async () => {
 };
 
 describe("painting streaming", () => {
+  it("closes a decoded hi-res bitmap when its request is cancelled", async () => {
+    const controller = new AbortController();
+    const close = vi.fn();
+    vi.stubGlobal(
+      "fetch",
+      vi.fn(async () => response()),
+    );
+    vi.stubGlobal(
+      "createImageBitmap",
+      vi.fn(async () => {
+        controller.abort();
+        return { width: 256, height: 256, close };
+      }),
+    );
+    const { loadHiRes } = await import("./texture-cache");
+    await expect(loadHiRes("cancelled-hires", null, controller.signal)).rejects.toThrow();
+    expect(close).toHaveBeenCalledOnce();
+  });
+
   it("serves visible and approaching-floor previews before queued detail", async () => {
     const started: string[] = [];
     const releases: (() => void)[] = [];

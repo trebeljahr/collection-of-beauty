@@ -90,6 +90,8 @@ type NormalizedOrderInput = {
  *  insertion order, which makes the oldest key the first one. */
 const orderCache = new Map<string, ArtworkListing[]>();
 const ORDER_CACHE_CAP = 64;
+const MAX_QUERY_LENGTH = 200;
+const MAX_SEED_LENGTH = 100;
 
 /** The whole sequence a gallery surface displays for these filters, in
  *  display order. `getArtworkListingPage` is a window into it and
@@ -127,8 +129,8 @@ function normalizeOrderInput(input: ArtworkOrderInput): NormalizedOrderInput {
   const sort = requestedSort === "color" && !input.color ? DEFAULT_ARTWORK_SORT : requestedSort;
   return {
     sort,
-    seed: input.seed || DEFAULT_SHUFFLE_SEED,
-    query: (input.query ?? "").trim(),
+    seed: (input.seed || DEFAULT_SHUFFLE_SEED).slice(0, MAX_SEED_LENGTH),
+    query: (input.query ?? "").trim().slice(0, MAX_QUERY_LENGTH),
     era: input.era || "",
     artistSlug: input.artistSlug || "",
     collection: input.collection || "",

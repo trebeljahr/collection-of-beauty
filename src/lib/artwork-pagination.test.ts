@@ -75,4 +75,15 @@ describe("getArtworkListingPage", () => {
     expect(page.items).toHaveLength(MAX_ARTWORK_PAGE_SIZE);
     expect(getArtworkListingPage().items).toHaveLength(DEFAULT_ARTWORK_PAGE_SIZE);
   });
+
+  it("bounds caller-controlled search and seed lengths", () => {
+    const query = "monet" + " ".repeat(300);
+    expect(getArtworkListingPage({ query }).total).toBe(
+      getArtworkListingPage({ query: query.trim().slice(0, 200) }).total,
+    );
+    const prefix = "s".repeat(100);
+    expect(getArtworkListingPage({ seed: `${prefix}extra` }).items).toEqual(
+      getArtworkListingPage({ seed: prefix }).items,
+    );
+  });
 });

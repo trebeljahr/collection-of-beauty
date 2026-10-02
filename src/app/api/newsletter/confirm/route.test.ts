@@ -8,7 +8,6 @@ vi.mock("@/lib/newsletter/subscribe", async () => {
   );
   return {
     ...actual,
-    isAlreadySubscribed: vi.fn(async () => false),
     confirmSubscription: vi.fn(async () => {}),
   };
 });
@@ -18,15 +17,19 @@ vi.mock("@/lib/newsletter/editions", () => ({
 vi.mock("@/lib/newsletter/render", () => ({
   renderEdition: async () => ({ subject: "fixture", html: "<p>fixture</p>" }),
 }));
-vi.mock("@/lib/newsletter/listmonk", () => ({ sendTransactional: vi.fn(async () => {}) }));
+vi.mock("@/lib/newsletter/listmonk", () => ({
+  isConfirmedOnList: vi.fn(async () => false),
+  sendTransactional: vi.fn(async () => {}),
+}));
 
 const { GET } = await import("./route");
 const { mintConfirmToken, confirmSubscription } = await import("@/lib/newsletter/subscribe");
-const { sendTransactional } = await import("@/lib/newsletter/listmonk");
+const { isConfirmedOnList, sendTransactional } = await import("@/lib/newsletter/listmonk");
 
 beforeEach(() => {
   vi.mocked(confirmSubscription).mockReset().mockResolvedValue();
   vi.mocked(sendTransactional).mockReset().mockResolvedValue();
+  vi.mocked(isConfirmedOnList).mockReset().mockResolvedValue(false);
 });
 
 describe("confirmation consent boundary", () => {
@@ -48,6 +51,17 @@ describe("confirmation consent boundary", () => {
       new NextRequest(`http://localhost/api/newsletter/confirm?token=${encodeURIComponent(token)}`),
     );
     expect(response.headers.get("location")).toContain("reason=list_add_failed");
+    expect(sendTransactional).not.toHaveBeenCalled();
+  });
+
+  it("reports a lookup failure before changing membership", async () => {
+    vi.mocked(isConfirmedOnList).mockRejectedValueOnce(new Error("ListMonk unavailable"));
+    const token = mintConfirmToken("reader@example.com");
+    const response = await GET(
+      new NextRequest(`http://localhost/api/newsletter/confirm?token=${encodeURIComponent(token)}`),
+    );
+    expect(response.headers.get("location")).toContain("reason=list_lookup_failed");
+    expect(confirmSubscription).not.toHaveBeenCalled();
     expect(sendTransactional).not.toHaveBeenCalled();
   });
 });

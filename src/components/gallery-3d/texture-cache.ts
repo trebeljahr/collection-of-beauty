@@ -588,7 +588,10 @@ async function loadTextureCached(
             const bitmap = await createImageBitmap(blob, {
               imageOrientation: "flipY",
             });
-            if (signal.aborted) throw new DOMException("aborted", "AbortError");
+            if (signal.aborted) {
+              bitmap.close();
+              throw new DOMException("aborted", "AbortError");
+            }
             const texture = new THREE.Texture(bitmap);
             texture.name = url;
             texture.colorSpace = THREE.SRGBColorSpace;
@@ -670,7 +673,10 @@ export function loadHiRes(
       const blob = await res.blob();
       if (signal?.aborted) throw new DOMException("aborted", "AbortError");
       const bitmap = await createImageBitmap(blob, { imageOrientation: "flipY" });
-      if (signal?.aborted) throw new DOMException("aborted", "AbortError");
+      if (signal?.aborted) {
+        bitmap.close();
+        throw new DOMException("aborted", "AbortError");
+      }
       const texture = new THREE.Texture(bitmap);
       texture.name = url;
       texture.colorSpace = THREE.SRGBColorSpace;
