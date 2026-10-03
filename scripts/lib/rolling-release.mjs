@@ -8,6 +8,12 @@ export const APP = Object.freeze({
   coolify: "https://coolify.trebeljahr.com",
   image: "ghcr.io/trebeljahr/collection-of-beauty",
 });
+// Only errors authored here may enter release artifacts or workflow logs.
+// Transport, parsing and provider failures may contain response bodies or URLs.
+export class ReleaseError extends Error {}
+export const safeFailure = (error) =>
+  error instanceof ReleaseError ? error.message : "Release operation failed.";
+
 const TYPES = [
   "application/vnd.oci.image.index.v1+json",
   "application/vnd.docker.distribution.manifest.list.v2+json",
@@ -25,25 +31,27 @@ export function validateRelease(config, release) {
     config.branch !== APP.branch ||
     config.baseUrl !== APP.coolify
   )
-    throw new Error("The hook bundle must name exactly the configured Collection of Beauty app.");
+    throw new ReleaseError(
+      "The hook bundle must name exactly the configured Collection of Beauty app.",
+    );
   if (!config.secret || !config.actor || !config.token)
-    throw new Error("Missing scoped hook or registry credentials.");
+    throw new ReleaseError("Missing scoped hook or registry credentials.");
   if (!isSha(release.sha) || !isDigest(release.digest))
-    throw new Error("A full SHA and exact image digest are required.");
+    throw new ReleaseError("A full SHA and exact image digest are required.");
   if (!["manual", "automatic"].includes(config.mode))
-    throw new Error("Rolling deployment is not activated.");
+    throw new ReleaseError("Rolling deployment is not activated.");
   if (release.automatic && config.mode !== "automatic")
-    throw new Error("Automatic rolling deployment is not activated.");
+    throw new ReleaseError("Automatic rolling deployment is not activated.");
   if (!release.automatic && !isDigest(release.expectedCurrentDigest)) {
-    throw new Error("Manual deployment requires the expected current image digest.");
+    throw new ReleaseError("Manual deployment requires the expected current image digest.");
   }
 }
 
 export function queuedDeployment(body) {
-  if (!Array.isArray(body)) throw new Error("Coolify did not return a deployment list.");
+  if (!Array.isArray(body)) throw new ReleaseError("Coolify did not return a deployment list.");
   const accepted = body.filter((item) => item?.status === "success");
   if (accepted.some((item) => item.application_uuid !== APP.uuid)) {
-    const error = new Error(
+    const error = new ReleaseError(
       "The signed hook accepted another app; stop and inspect hook isolation.",
     );
     error.code = "UNSAFE_HOOK_TARGET";
@@ -55,7 +63,7 @@ export function queuedDeployment(body) {
     !/^[a-z0-9]{10,64}$/.test(accepted[0].deployment_uuid ?? "") ||
     body.some((item) => item?.status === "skipped")
   )
-    throw new Error("Coolify did not queue exactly one identified deployment of this app.");
+    throw new ReleaseError("Coolify did not queue exactly one identified deployment of this app.");
   return accepted[0].deployment_uuid;
 }
 
@@ -95,10 +103,10 @@ export async function rollingRelease(config, release, dependencies = {}) {
     redirect: "error",
     signal: AbortSignal.timeout(15000),
   });
-  if (!auth.ok) throw new Error(`Registry authentication failed (${auth.status}).`);
+  if (!auth.ok) throw new ReleaseError(`Registry authentication failed (${auth.status}).`);
   const tokenBody = await auth.json();
   const token = tokenBody.token ?? tokenBody.access_token;
-  if (typeof token !== "string" || !token) throw new Error("Registry token is missing.");
+  if (typeof token !== "string" || !token) throw new ReleaseError("Registry token is missing.");
 
   const registry = async (path, options = {}) => {
     const response = await request(`https://ghcr.io/v2/${APP.repository}/${path}`, {
@@ -112,16 +120,16 @@ export async function rollingRelease(config, release, dependencies = {}) {
   const manifest = async (reference, optional = false) => {
     const response = await registry(`manifests/${reference}`);
     if (optional && response.status === 404) return null;
-    if (!response.ok) throw new Error(`Registry manifest read failed (${response.status}).`);
+    if (!response.ok) throw new ReleaseError(`Registry manifest read failed (${response.status}).`);
     const bytes = Buffer.from(await response.arrayBuffer());
     const digest = hash(bytes);
     const reported = response.headers.get("docker-content-digest");
     if ((reported && reported !== digest) || (isDigest(reference) && reference !== digest)) {
-      throw new Error("Registry manifest digest does not match its bytes.");
+      throw new ReleaseError("Registry manifest digest does not match its bytes.");
     }
     const body = JSON.parse(bytes.toString("utf8"));
     const type = response.headers.get("content-type")?.split(";")[0] || body.mediaType;
-    if (!TYPES.includes(type)) throw new Error("Unsupported registry manifest type.");
+    if (!TYPES.includes(type)) throw new ReleaseError("Unsupported registry manifest type.");
     return { bytes, digest, type, body };
   };
   const revision = async (image) => {
@@ -131,11 +139,11 @@ export async function rollingRelease(config, release, dependencies = {}) {
         (item) => item.platform?.os === "linux" && item.platform?.architecture === "amd64",
       );
       if (linux.length !== 1 || !isDigest(linux[0].digest))
-        throw new Error("Image must contain one linux/amd64 manifest.");
+        throw new ReleaseError("Image must contain one linux/amd64 manifest.");
       selected = await manifest(linux[0].digest);
     }
     const digest = selected.body.config?.digest;
-    if (!isDigest(digest)) throw new Error("Image config digest is missing.");
+    if (!isDigest(digest)) throw new ReleaseError("Image config digest is missing.");
     let response = await registry(`blobs/${digest}`, { redirect: "manual" });
     if ([302, 307].includes(response.status)) {
       const location = new URL(response.headers.get("location") ?? "", "https://ghcr.io");
@@ -146,7 +154,7 @@ export async function rollingRelease(config, release, dependencies = {}) {
         location.password ||
         location.port
       ) {
-        throw new Error("Untrusted registry blob redirect.");
+        throw new ReleaseError("Untrusted registry blob redirect.");
       }
       // GHCR redirects blobs to a signed download URL. Never forward registry
       // authorization to that host, nor print the signed URL in reports.
@@ -155,13 +163,16 @@ export async function rollingRelease(config, release, dependencies = {}) {
         signal: AbortSignal.timeout(15000),
       });
     }
-    if (!response.ok) throw new Error(`Image config read failed (${response.status}).`);
+    if (!response.ok) throw new ReleaseError(`Image config read failed (${response.status}).`);
     const bytes = Buffer.from(await response.arrayBuffer());
-    if (hash(bytes) !== digest) throw new Error("Image config digest does not match its bytes.");
+    if (hash(bytes) !== digest)
+      throw new ReleaseError("Image config digest does not match its bytes.");
     const body = JSON.parse(bytes.toString("utf8"));
     const sha = body.config?.Labels?.["org.opencontainers.image.revision"];
     if (body.os !== "linux" || body.architecture !== "amd64" || !isSha(sha)) {
-      throw new Error("Image config must identify a linux/amd64 build and full source commit.");
+      throw new ReleaseError(
+        "Image config must identify a linux/amd64 build and full source commit.",
+      );
     }
     return sha;
   };
@@ -171,9 +182,9 @@ export async function rollingRelease(config, release, dependencies = {}) {
       body: image.bytes,
       headers: { "Content-Type": image.type },
     });
-    if (!response.ok) throw new Error(`Registry ${tag} update failed (${response.status}).`);
+    if (!response.ok) throw new ReleaseError(`Registry ${tag} update failed (${response.status}).`);
     if ((await manifest(tag)).digest !== image.digest)
-      throw new Error(`Registry ${tag} update did not persist.`);
+      throw new ReleaseError(`Registry ${tag} update did not persist.`);
   };
   const queue = async (sha) => {
     const body = JSON.stringify({
@@ -195,18 +206,20 @@ export async function rollingRelease(config, release, dependencies = {}) {
       },
     });
     if (!response.ok)
-      throw new Error(`Coolify hook failed (${response.status}); queue outcome may be unknown.`);
+      throw new ReleaseError(
+        `Coolify hook failed (${response.status}); queue outcome may be unknown.`,
+      );
     return queuedDeployment(await response.json());
   };
 
   const target = await manifest(release.digest);
   if ((await revision(target)) !== release.sha)
-    throw new Error("Target image revision differs from the requested commit.");
+    throw new ReleaseError("Target image revision differs from the requested commit.");
   if ((await manifest(release.sha)).digest !== release.digest)
-    throw new Error("SHA tag differs from the reviewed image digest.");
+    throw new ReleaseError("SHA tag differs from the reviewed image digest.");
   const previous = await manifest("latest");
   if (release.expectedCurrentDigest && previous.digest !== release.expectedCurrentDigest) {
-    throw new Error("Current latest differs from the reviewed baseline.");
+    throw new ReleaseError("Current latest differs from the reviewed baseline.");
   }
   const previousSha = await revision(previous);
   report.previousSha = previousSha;
@@ -216,12 +229,14 @@ export async function rollingRelease(config, release, dependencies = {}) {
   const verified = await manifest("rolling-verified", true);
   if (started || verified) {
     if (started?.digest !== previous.digest || verified?.digest !== previous.digest) {
-      throw new Error(
+      throw new ReleaseError(
         "An unfinished release or external registry change requires operator reconciliation.",
       );
     }
   } else if (release.automatic) {
-    throw new Error("The first rolling release must run manually to initialize its journal.");
+    throw new ReleaseError(
+      "The first rolling release must run manually to initialize its journal.",
+    );
   }
   // First adoption of an old image without /version.json remains operator-owned.
   await verify(previousSha);
@@ -230,7 +245,7 @@ export async function rollingRelease(config, release, dependencies = {}) {
     return report;
   }
   if ((await manifest("latest")).digest !== previous.digest)
-    throw new Error("Latest changed during preflight.");
+    throw new ReleaseError("Latest changed during preflight.");
 
   let hookAttempted = false;
   try {
@@ -240,7 +255,7 @@ export async function rollingRelease(config, release, dependencies = {}) {
     save("starting");
     await point("rolling-started", target);
     if ((await manifest("latest")).digest !== previous.digest)
-      throw new Error("Latest changed before promotion.");
+      throw new ReleaseError("Latest changed before promotion.");
     save("promoting");
     await point("latest", target);
     save("queueing");
@@ -250,12 +265,12 @@ export async function rollingRelease(config, release, dependencies = {}) {
     save("verifying");
     await verify(release.sha);
     if ((await manifest("latest")).digest !== target.digest)
-      throw new Error("Latest changed while verifying the release.");
+      throw new ReleaseError("Latest changed while verifying the release.");
     await point("rolling-verified", target);
     save("http-verified");
     return report;
   } catch (error) {
-    report.error = error instanceof Error ? error.message : "Release failed.";
+    report.error = safeFailure(error);
     save("recovery-required");
     if (hookAttempted) {
       // A queued job can still pull latest after an HTTP timeout. Even seeing
@@ -264,20 +279,20 @@ export async function rollingRelease(config, release, dependencies = {}) {
       report.recovery =
         "Inspect the exact Coolify queue before rollback or marker reconciliation; no second hook or tag rewrite was attempted.";
       save("recovery-required");
-      throw new Error(`${report.error} ${report.recovery}`);
+      throw new ReleaseError(`${report.error} ${report.recovery}`);
     }
     try {
       const current = await manifest("latest");
       if (![target.digest, previous.digest].includes(current.digest)) {
-        throw new Error("Latest belongs to another writer; refusing to overwrite it.");
+        throw new ReleaseError("Latest belongs to another writer; refusing to overwrite it.");
       }
       if (current.digest === target.digest) await point("latest", previous);
       report.rollback =
         "previous digest restored before any webhook; operator must reconcile markers";
     } catch (rollbackError) {
-      report.rollback = rollbackError instanceof Error ? rollbackError.message : "Rollback failed.";
+      report.rollback = safeFailure(rollbackError);
     }
     save("recovery-required");
-    throw new Error(`${report.error} ${report.rollback}`);
+    throw new ReleaseError(`${report.error} ${report.rollback}`);
   }
 }

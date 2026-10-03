@@ -1,7 +1,7 @@
 import assert from "node:assert/strict";
 import { createHash, createHmac } from "node:crypto";
 import test from "node:test";
-import { APP, queuedDeployment, rollingRelease } from "./lib/rolling-release.mjs";
+import { APP, queuedDeployment, rollingRelease, safeFailure } from "./lib/rolling-release.mjs";
 
 const OLD = "a".repeat(40);
 const NEW = "b".repeat(40);
@@ -98,7 +98,8 @@ function platform(options = {}) {
         assert.equal(payload.ref, "refs/heads/main");
         assert.deepEqual(payload.commits[0].modified, [".hatchkit/deploy-webhook"]);
         hooks.push(payload.after);
-        if (options.hookThrows && hooks.length === 1) throw new Error("Unknown queue outcome.");
+        if (options.hookThrows && hooks.length === 1)
+          throw new Error(options.failureText ?? "Unknown queue outcome.");
         if (options.foreignHook)
           return Response.json([
             {
@@ -253,7 +254,7 @@ test("baseline drift during public checks blocks promotion", async () => {
 
 test("failed candidate leaves the target and latch untouched for exact queue inspection", async () => {
   const p = platform({ failTarget: true });
-  await assert.rejects(rollingRelease(config, p.release, p.deps), /Candidate is unhealthy/);
+  await assert.rejects(rollingRelease(config, p.release, p.deps), /Release operation failed/);
   assert.deepEqual(p.hooks, [NEW]);
   assert.equal(p.tags.get("latest"), p.release.digest);
   assert.equal(p.tags.get("rolling-started"), p.release.digest);
@@ -270,7 +271,7 @@ test("failed candidate leaves the target and latch untouched for exact queue ins
 
 test("unknown webhook outcome preserves the tag and remains latched without retry", async () => {
   const p = platform({ hookThrows: true });
-  await assert.rejects(rollingRelease(config, p.release, p.deps), /Unknown queue outcome/);
+  await assert.rejects(rollingRelease(config, p.release, p.deps), /Release operation failed/);
   assert.deepEqual(p.hooks, [NEW]);
   assert.equal(p.tags.get("latest"), p.release.digest);
   assert.notEqual(p.tags.get("rolling-started"), p.tags.get("rolling-verified"));
@@ -278,7 +279,7 @@ test("unknown webhook outcome preserves the tag and remains latched without retr
 
 test("lost marker response cannot queue a deployment and blocks next run", async () => {
   const p = platform({ crashMarker: true });
-  await assert.rejects(rollingRelease(config, p.release, p.deps), /Marker response lost/);
+  await assert.rejects(rollingRelease(config, p.release, p.deps), /Release operation failed/);
   assert.equal(p.hooks.length, 0);
   await assert.rejects(rollingRelease(config, p.release, p.deps), /operator reconciliation/);
 });
@@ -379,4 +380,15 @@ test("an already verified image is a read-only no-op", async () => {
   );
   assert.equal(result.stage, "already-serving");
   assert.equal(writes(p).length, 0);
+});
+
+test("untrusted failure details never enter release artifacts or user-facing errors", async () => {
+  const raw = "synthetic-private-token in invalid provider JSON at signed-url";
+  const p = platform({ hookThrows: true, failureText: raw });
+  await assert.rejects(rollingRelease(config, p.release, p.deps), (error) => {
+    assert.equal(error.message.includes(raw), false);
+    return true;
+  });
+  assert.equal(JSON.stringify(p.reports).includes(raw), false);
+  assert.equal(safeFailure(new SyntaxError(raw)), "Release operation failed.");
 });

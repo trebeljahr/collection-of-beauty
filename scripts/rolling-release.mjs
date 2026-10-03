@@ -1,5 +1,5 @@
 import { writeFileSync } from "node:fs";
-import { rollingRelease } from "./lib/rolling-release.mjs";
+import { ReleaseError, rollingRelease, safeFailure } from "./lib/rolling-release.mjs";
 
 const env = (name) => (process.env[name] ?? "").trim();
 try {
@@ -7,10 +7,10 @@ try {
     env("GITHUB_REPOSITORY") !== "trebeljahr/collection-of-beauty" ||
     env("GITHUB_REF") !== "refs/heads/main"
   ) {
-    throw new Error("Rolling deployment only runs from this repository's main workflow.");
+    throw new ReleaseError("Rolling deployment only runs from this repository's main workflow.");
   }
   if (!["push", "workflow_dispatch"].includes(env("GITHUB_EVENT_NAME")))
-    throw new Error("Unsupported release trigger.");
+    throw new ReleaseError("Unsupported release trigger.");
   await rollingRelease(
     {
       baseUrl: env("COOLIFY_BASE_URL").replace(/\/$/, ""),
@@ -36,6 +36,6 @@ try {
     },
   );
 } catch (error) {
-  console.error(error instanceof Error ? error.message : "Rolling deployment failed.");
+  console.error(safeFailure(error));
   process.exitCode = 1;
 }
