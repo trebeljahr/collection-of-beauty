@@ -31,6 +31,7 @@ function fakeHttp({
   commits = [SHA],
   cache = "no-store",
   homepage = 200,
+  htmlCommit = SHA,
   alias = 308,
   dropQuery = false,
 } = {}) {
@@ -51,7 +52,10 @@ function fakeHttp({
         const commit = commits[Math.min(versions++, commits.length - 1)];
         return Response.json({ commit }, { headers: { "cache-control": cache } });
       }
-      return new Response("<html>Collection of Beauty</html>", { status: homepage });
+      return new Response(
+        `<html><head><meta name="build-commit" content="${htmlCommit}"/></head>Collection of Beauty</html>`,
+        { status: homepage },
+      );
     },
   };
 }
@@ -90,6 +94,7 @@ test("cached version, broken homepage, and wrong redirect each fail closed", asy
   for (const scenario of [
     { cache: "public, max-age=3600" },
     { homepage: 503 },
+    { htmlCommit: OLD_SHA },
     { alias: 200 },
     { dropQuery: true },
   ]) {

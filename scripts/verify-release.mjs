@@ -38,8 +38,17 @@ export async function verifyRelease(
         ...options,
         signal: AbortSignal.timeout(5000),
       });
-      if (page.status !== 200 || !(await page.text()).includes("Collection of Beauty")) {
+      const html = await page.text();
+      if (page.status !== 200 || !html.includes("Collection of Beauty")) {
         throw new Error("The canonical homepage did not serve the gallery.");
+      }
+      const pageCommits = [
+        ...html.matchAll(
+          /<meta\b(?=[^>]*\bname=["']build-commit["'])(?=[^>]*\bcontent=["']([a-f0-9]{40})["'])[^>]*>/gi,
+        ),
+      ];
+      if (pageCommits.length !== 1 || pageCommits[0][1] !== commit) {
+        throw new Error("Homepage HTML is not the expected build.");
       }
       consecutive += 1;
       if (consecutive >= stableSamples) {
