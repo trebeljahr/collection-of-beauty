@@ -55,6 +55,7 @@ RUN --mount=type=secret,id=dotenvx_private_key,env=DOTENV_PRIVATE_KEY_PRODUCTION
 # throws "module factory is not available" and shows the error card.
 ARG DEPLOYMENT_ID
 ENV NEXT_DEPLOYMENT_ID=${DEPLOYMENT_ID}
+RUN node scripts/write-version.mjs
 RUN --mount=type=secret,id=dotenvx_private_key,env=DOTENV_PRIVATE_KEY_PRODUCTION \
     pnpm dlx @dotenvx/dotenvx run -- pnpm build
 
@@ -98,6 +99,7 @@ COPY --chmod=755 drain-entrypoint.sh /usr/local/bin/drain-entrypoint
 COPY drain.cjs /usr/local/lib/drain.cjs
 ENV SHUTDOWN_DRAIN_SECONDS=20
 ENV HEALTH_CHECK_PATH=/
+STOPSIGNAL SIGTERM
 ENTRYPOINT ["/usr/local/bin/drain-entrypoint"]
 
 # Next writes image and incremental-render caches at runtime.

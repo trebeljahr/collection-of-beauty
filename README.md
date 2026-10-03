@@ -23,7 +23,8 @@ asset pipeline (no Next image optimizer in the hot path).
 - Deployed as a **standalone** Next build, packaged into a Docker image
   ([`Dockerfile`](Dockerfile)), pushed to GHCR by
   [`.github/workflows/deploy.yml`](.github/workflows/deploy.yml), pulled by **Coolify** via
-  [`docker-compose.yml`](docker-compose.yml).
+  as a Docker Image application. [`docker-compose.yml`](docker-compose.yml)
+  remains a local/reference configuration.
 
 ## First-time setup
 
@@ -163,12 +164,37 @@ script prints the resulting `LISTMONK_TX_TEMPLATE_ID` and
 
 ## Deployment
 
-On push to `main`, CI first runs `pnpm typecheck` + `pnpm test`, then
-builds the Docker image and pushes
-`ghcr.io/trebeljahr/collection-of-beauty:latest`. Coolify pulls and
-restarts on a webhook. No staging environment — the asset bucket and
-the ListMonk instance are shared between dev and prod (separated by
-list id), so `pnpm sendNewsletter --dry-run` is the pre-flight.
+On push to `main`, CI runs typecheck, unit tests and release contract tests,
+then publishes `ghcr.io/trebeljahr/collection-of-beauty:<full-commit-sha>`.
+The `release-<sha>` workflow artifact records the exact registry digest.
+CI does not move `latest` or queue a deployment. Rebuilding a commit can
+produce a different image; the recorded digest is the immutable identity.
+
+The first rolling release requires an operator to pin that digest on the
+existing Coolify Docker Image app `bbu24hzgels1n2m1sznx3fdu`, then deploy it.
+Coolify 4.0.0-beta.469 represents a digest pin in its image tag field as
+`sha256-<64 hex characters>`. Before deployment, confirm its image repository,
+port 80, no host port bindings or persistent mounts, and container naming that
+allows two versions to overlap. Configure `GET /` on loopback port 80, expected
+200, interval 2 seconds, timeout 5 seconds, retries 5 and start period 15 seconds.
+The image drains for 20 seconds on SIGTERM; the platform stop timeout must allow
+at least 30 seconds. Preserve the previous image digest and configuration for
+rollback, and inspect the exact deployment ID and running container digest.
+
+After deployment, dispatch **Build & Verify Release** with operation `verify`
+and the full target SHA, or run `node scripts/verify-release.mjs <full-sha>`.
+This read-only check requires the image-baked `/version.json` and gallery page
+to agree for 16 consecutive samples, and checks both canonical redirects.
+It supplements the provider/container checks; HTTP identity alone does not
+prove that the old container finished draining.
+
+Automatic deployment remains disabled until an authorized capability can pin
+and verify this one app's digest before queueing it. The old signed hook can
+only redeploy Coolify's stored image tag; its payload commit does not select
+the image. Existing hook secrets are retained for a future reviewed setup.
+
+The asset bucket and ListMonk instance are shared between dev and prod
+(separated by list id). Release checks do not send newsletters or modify assets.
 
 ## Memory & onboarding for AI agents
 

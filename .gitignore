@@ -23,6 +23,7 @@ dist/
 build/
 out/
 .next/
+public/version.json
 *.tsbuildinfo
 next-env.d.ts
 
