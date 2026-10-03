@@ -199,6 +199,14 @@ hook secret, watch path `.hatchkit/deploy-webhook`, and no other writer or
 pending deployment. The signed endpoint selects apps by repository and secret;
 its commit payload cannot choose an image tag.
 
+Set the app's `git_repository` and the existing GitHub Actions secret
+`COOLIFY_DEPLOY_REPOSITORY` to `trebeljahr/collection-of-beauty`, with
+`git_branch` and `COOLIFY_DEPLOY_BRANCH` both set to `main`. Docker Image apps
+can retain Coolify's placeholder repository `coollabsio/coolify`; publishing
+the correct image does not repair that hook binding. Inspect both sides and
+reconcile them before enabling the rollout variable. Keep this configuration
+step separate from webhook-secret rotation, which changes credentials only.
+
 An old image without build identity or draining needs operator-led adoption.
 Keep the rollout variable off, save the prior digest and configuration, and
 first deploy the candidate by exact digest. Coolify 4.0.0-beta.469 represents a
