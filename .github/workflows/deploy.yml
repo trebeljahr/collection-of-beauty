@@ -1,7 +1,6 @@
-# Build SHA-tagged images without changing the image currently served by Coolify.
-# The signed hook cannot choose an image tag. Deployment stays with the
-# operator until an authorized capability can pin and verify the exact digest.
-name: Build & Verify Release
+# Build candidates independently; release only after explicit activation.
+# COLLECTION_OF_BEAUTY_ROLLOUT_MODE: unset/off, manual, or automatic.
+name: Build & Release
 
 on:
   push:
@@ -9,12 +8,20 @@ on:
   workflow_dispatch:
     inputs:
       operation:
-        description: Build an image, or verify an already deployed release
+        description: Build, deploy a reviewed image, or verify a release
         type: choice
-        options: [build, verify]
+        options: [build, deploy, verify]
         default: build
       target_sha:
-        description: Full commit SHA to verify (required for verify)
+        description: Full commit SHA (required for deploy or verify)
+        type: string
+        required: false
+      image_digest:
+        description: Exact sha256 image digest from the build artifact (deploy only)
+        type: string
+        required: false
+      expected_current_digest:
+        description: Reviewed current latest digest (deploy only)
         type: string
         required: false
 
@@ -36,7 +43,7 @@ jobs:
   # when src/data/artworks.json changed. The whole suite is a few seconds;
   # cheap insurance against shipping a catalogue regression.
   test:
-    if: github.repository == 'trebeljahr/collection-of-beauty' && github.ref == 'refs/heads/main' && inputs.operation != 'verify'
+    if: github.repository == 'trebeljahr/collection-of-beauty' && github.ref == 'refs/heads/main' && inputs.operation != 'verify' && inputs.operation != 'deploy'
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v5
@@ -74,8 +81,10 @@ jobs:
   # src/data/artworks.json changes. Drift is caught before the push ever
   # reaches CI. See scripts/verify-r2.mjs and .husky/pre-push.
   build:
-    if: github.repository == 'trebeljahr/collection-of-beauty' && github.ref == 'refs/heads/main' && inputs.operation != 'verify'
+    if: github.repository == 'trebeljahr/collection-of-beauty' && github.ref == 'refs/heads/main' && inputs.operation != 'verify' && inputs.operation != 'deploy'
     needs: test
+    outputs:
+      digest: ${{ steps.image.outputs.digest }}
     runs-on: ubuntu-latest
     permissions:
       contents: read
@@ -137,7 +146,7 @@ jobs:
 
       - uses: actions/upload-artifact@v4
         with:
-          name: release-${{ github.sha }}
+          name: release-${{ github.sha }}-${{ github.run_id }}-${{ github.run_attempt }}
           path: release.json
           if-no-files-found: error
 
@@ -158,3 +167,40 @@ jobs:
         env:
           EXPECTED_SHA: ${{ inputs.target_sha }}
         run: node scripts/verify-release.mjs "$EXPECTED_SHA"
+
+  deploy:
+    needs: build
+    if: >-
+      always() && !cancelled() &&
+      github.repository == 'trebeljahr/collection-of-beauty' && github.ref == 'refs/heads/main' &&
+      ((github.event_name == 'push' && vars.COLLECTION_OF_BEAUTY_ROLLOUT_MODE == 'automatic' && needs.build.result == 'success') ||
+       (github.event_name == 'workflow_dispatch' && inputs.operation == 'deploy'))
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    permissions:
+      contents: read
+      packages: write
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-node@v6
+        with:
+          node-version: '24'
+      - name: Promote, queue this app, and verify the release
+        env:
+          ROLLOUT_MODE: ${{ vars.COLLECTION_OF_BEAUTY_ROLLOUT_MODE }}
+          TARGET_SHA: ${{ github.event_name == 'push' && github.sha || inputs.target_sha }}
+          TARGET_DIGEST: ${{ github.event_name == 'push' && needs.build.outputs.digest || inputs.image_digest }}
+          EXPECTED_CURRENT_DIGEST: ${{ inputs.expected_current_digest }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          COOLIFY_BASE_URL: ${{ secrets.COOLIFY_BASE_URL }}
+          COOLIFY_RESOURCE_UUID: ${{ secrets.COOLIFY_RESOURCE_UUID }}
+          COOLIFY_DEPLOY_SECRET: ${{ secrets.COOLIFY_DEPLOY_SECRET }}
+          COOLIFY_DEPLOY_REPOSITORY: ${{ secrets.COOLIFY_DEPLOY_REPOSITORY }}
+          COOLIFY_DEPLOY_BRANCH: ${{ secrets.COOLIFY_DEPLOY_BRANCH }}
+        run: node scripts/rolling-release.mjs
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: rollout-${{ github.run_id }}-${{ github.run_attempt }}
+          path: rollout.json
+          if-no-files-found: warn
