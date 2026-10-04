@@ -21,7 +21,7 @@
     "start": "next start",
     "typecheck": "next typegen && tsc --noEmit && tsc --noEmit -p tsconfig.scripts.json",
     "test": "vitest run",
-    "test:release": "node --test scripts/release.test.mjs scripts/rolling-release.test.mjs scripts/retained-assets.test.mjs scripts/shared-assets.test.mjs scripts/shared-assets-http.test.mjs",
+    "test:release": "node --test scripts/release.test.mjs scripts/rolling-release.test.mjs scripts/retained-assets.test.mjs scripts/shared-assets.test.mjs scripts/shared-assets-http.test.mjs scripts/press-kit.test.mjs",
     "test:watch": "vitest",
     "test:coverage": "vitest run --coverage",
     "email:dev": "email dev --dir ./emails --port 3001",

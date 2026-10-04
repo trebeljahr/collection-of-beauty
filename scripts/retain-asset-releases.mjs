@@ -10,7 +10,7 @@ async function version(directory) {
   return JSON.parse(await readFile(join(directory, "version.json"), "utf8")).commit;
 }
 
-async function copyTree(source, target, { root = true, collisionCheck = false } = {}) {
+async function copyTree(source, target, { root = true } = {}) {
   if (!(await lstat(source)).isDirectory()) throw new Error("Expected an export directory.");
   await mkdir(target, { recursive: true });
   for (const entry of await readdir(source, { withFileTypes: true })) {
@@ -18,18 +18,26 @@ async function copyTree(source, target, { root = true, collisionCheck = false } 
     const from = join(source, entry.name),
       to = join(target, entry.name);
     if (entry.isSymbolicLink()) throw new Error("Symlinks are not allowed in retained exports.");
-    if (entry.isDirectory()) await copyTree(from, to, { root: false, collisionCheck });
+    if (entry.isDirectory()) await copyTree(from, to, { root: false });
+    else if (entry.isFile()) await copyFile(from, to);
+    else throw new Error("Unsupported exported file.");
+  }
+}
+
+// The shared store merges every retained tree into one immutable namespace.
+// Check that merge here, without writing a third copy of the bytes into the image.
+async function checkMerge(source, seen, prefix = "") {
+  for (const entry of await readdir(source, { withFileTypes: true })) {
+    const relative = prefix + entry.name;
+    if (entry.isSymbolicLink()) throw new Error("Symlinks are not allowed in retained exports.");
+    if (entry.isDirectory()) await checkMerge(join(source, entry.name), seen, relative + "/");
     else if (entry.isFile()) {
-      if (collisionCheck) {
-        try {
-          if (!(await readFile(from)).equals(await readFile(to)))
-            throw new Error("Immutable asset path collision.");
-          continue;
-        } catch (error) {
-          if (error.code !== "ENOENT") throw error;
-        }
-      }
-      await copyFile(from, to);
+      const sha256 = createHash("sha256")
+        .update(await readFile(join(source, entry.name)))
+        .digest("hex");
+      if (seen.has(relative) && seen.get(relative) !== sha256)
+        throw new Error("Immutable asset path collision.");
+      seen.set(relative, sha256);
     } else throw new Error("Unsupported exported file.");
   }
 }
@@ -112,19 +120,12 @@ export async function retainAssetReleases(
       throw new Error("Retained export identity differs from its directory.");
     await copyTree(source, join(output, "__releases", id));
   }
-  await copyTree(current, output);
+  await copyFile(join(current, "version.json"), join(output, "version.json"));
   await copyTree(legacySource, join(output, "__legacy-assets"), { root: false });
-  await copyTree(legacySource, join(output, "_next", "static"), {
-    root: false,
-    collisionCheck: true,
-  });
-  for (const id of releases) {
-    await copyTree(
-      join(output, "__releases", id, "_next", "static"),
-      join(output, "_next", "static"),
-      { root: false, collisionCheck: true },
-    );
-  }
+  const merged = new Map();
+  await checkMerge(legacySource, merged);
+  for (const id of releases)
+    await checkMerge(join(output, "__releases", id, "_next", "static"), merged);
   const metadata = {
     schema: 1,
     current: sha,

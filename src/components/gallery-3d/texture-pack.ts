@@ -16,6 +16,7 @@
 // the textured map automatically.
 
 import * as THREE from "three";
+import { releasePublicPath } from "@/lib/release-public";
 
 const loader = new THREE.TextureLoader();
 
@@ -36,7 +37,7 @@ function loadSource(slug: string, map: MapKind): THREE.Texture {
   const cached = sourceCache.get(key);
   if (cached) return cached;
   // Mirror the layout written by scripts/download-textures.mjs.
-  const url = `/textures/${slug}/${slug}_${map}_1k.jpg`;
+  const url = releasePublicPath(`/textures/${slug}/${slug}_${map}_1k.jpg`);
   const tex = loader.load(url, undefined, undefined, (err) => {
     console.warn(`[texture-pack] failed to load ${url}:`, err);
   });

@@ -2,6 +2,7 @@ import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { withLocalDev } from "@hatchkit/dev-plugin-next";
 import bundleAnalyzer from "@next/bundle-analyzer";
+import { pressKitRedirects } from "./scripts/press-kit-download.mjs";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
@@ -86,6 +87,8 @@ const nextConfig = {
   // search-engine entries still resolve.
   async redirects() {
     return [
+      // Published press kit: hand the long transfer to immutable storage.
+      ...pressKitRedirects(),
       // The site moved from beauty.trebeljahr.com to collectionofbeauty.com.
       // Traefik routes the old host and www to this container (see
       // docker-compose.yml), so every indexed or shared URL lands on the

@@ -1,8 +1,18 @@
 import assert from "node:assert/strict";
-import { access, readFile, rm, symlink, truncate, writeFile } from "node:fs/promises";
+import {
+  access,
+  lstat,
+  readdir,
+  readFile,
+  rm,
+  symlink,
+  truncate,
+  writeFile,
+} from "node:fs/promises";
 import { join } from "node:path";
 import test from "node:test";
-import { fixture, ids } from "./shared-assets-fixtures.mjs";
+import { storeUsage } from "./shared-asset-releases.mjs";
+import { fixture, ids, media } from "./shared-assets-fixtures.mjs";
 
 test("publishes future assets before readiness and protects all live image leases during bounded GC", async () => {
   const f = await fixture();
@@ -69,9 +79,60 @@ test("caps accumulated store bytes before adding another image", async () => {
     await f.lease(ids[1]);
     const oversized = join(f.store, "interrupted-publication");
     await writeFile(oversized, "");
-    await truncate(oversized, 257 * 1024 * 1024);
+    await truncate(oversized, 1025 * 1024 * 1024);
     await assert.rejects(f.publish(1), /capacity/);
     await assert.rejects(access(join(f.store, "releases.json")));
+  } finally {
+    await rm(f.root, { recursive: true, force: true });
+  }
+});
+
+test("SHA-scoped public snapshots follow release retention and share inodes with their export", async () => {
+  const f = await fixture();
+  try {
+    await f.lease(ids[1]);
+    await f.publish(1);
+    await f.lease(ids[2]);
+    await f.publish(2);
+    for (const id of [ids[1], ids[2]]) {
+      const shared = join(f.store, "_next/static", media(id));
+      assert.equal(await readFile(shared, "utf8"), `texture-${id}`);
+      const exported = join(f.store, "releases", id, "_next/static", media(id));
+      assert.equal((await lstat(shared)).ino, (await lstat(exported)).ino);
+    }
+    // Same public path, different release: each tab keeps its own bytes.
+    assert.notEqual(media(ids[1]), media(ids[2]));
+    f.held.delete(ids[1]);
+    f.held.delete(ids[2]);
+    for (const i of [3, 4]) {
+      await f.lease(ids[i]);
+      await f.publish(i);
+      f.held.delete(ids[i]);
+    }
+    await f.lease(ids[4]);
+    await f.publish(4);
+    await assert.rejects(access(join(f.store, "_next/static", media(ids[1]))));
+    await access(join(f.store, "_next/static", media(ids[2])));
+  } finally {
+    await rm(f.root, { recursive: true, force: true });
+  }
+});
+
+test("store usage counts hard-linked names once", async () => {
+  const f = await fixture();
+  try {
+    await f.lease(ids[1]);
+    await f.publish(1);
+    const usage = await storeUsage(f.store);
+    let naive = 0;
+    async function walk(path) {
+      for (const entry of await readdir(path, { withFileTypes: true })) {
+        if (entry.isDirectory()) await walk(join(path, entry.name));
+        else naive += (await lstat(join(path, entry.name))).size;
+      }
+    }
+    await walk(f.store);
+    assert.ok(usage.bytes < naive, "linked snapshot bytes are not double counted");
   } finally {
     await rm(f.root, { recursive: true, force: true });
   }

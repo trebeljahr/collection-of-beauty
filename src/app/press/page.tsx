@@ -434,12 +434,13 @@ export default function PressPage() {
                     whatever their box models differ by — no border padding
                     needed on the filled one to match its outlined
                     sibling. */}
-                <Link
+                <a
                   href="/press-kit.zip"
+                  download
                   className="inline-flex min-h-11 items-center rounded-md bg-[var(--foreground)] px-4 py-2 text-sm font-medium text-[var(--background)] transition hover:opacity-85 focus:outline-none focus-visible:ring-2 focus-visible:ring-[var(--ring)] sm:min-h-0"
                 >
                   Download press kit
-                </Link>
+                </a>
                 <a
                   href={`mailto:${PRESS_EMAIL}`}
                   className="inline-flex min-h-11 items-center rounded-md border border-[var(--border)] bg-[var(--background)]/70 px-4 py-2 text-sm font-medium transition hover:bg-[var(--accent)] focus:outline-none focus-visible:ring-2 focus-visible:ring-[var(--ring)] sm:min-h-0"
@@ -613,12 +614,13 @@ export default function PressPage() {
                 {FEATURED_NAMES ? `${FEATURED_NAMES} are among the` : "There are"}{" "}
                 {pressImages.works.length} works in these images. None of them is cropped. Each
                 image comes in two sizes, the larger up to 5,120 px wide. The{" "}
-                <Link
+                <a
                   href="/press-kit.zip"
+                  download
                   className="rounded-sm underline underline-offset-2 hover:text-[var(--foreground)] focus:outline-none focus-visible:ring-2 focus-visible:ring-[var(--ring)]"
                 >
                   press kit ZIP
-                </Link>{" "}
+                </a>{" "}
                 has every file, and a text file with the artist, title and date of each work.
               </p>
 
@@ -785,12 +787,13 @@ export default function PressPage() {
               </div>
               {/* Same 44px-on-touch treatment as the hero pair above. */}
               <div className="flex flex-wrap gap-3">
-                <Link
+                <a
                   href="/press-kit.zip"
+                  download
                   className="inline-flex min-h-11 items-center rounded-md bg-[var(--foreground)] px-4 py-2 text-sm font-medium text-[var(--background)] transition hover:opacity-85 focus:outline-none focus-visible:ring-2 focus-visible:ring-[var(--ring)] sm:min-h-0"
                 >
                   Download press kit
-                </Link>
+                </a>
                 <Link
                   href="/"
                   className="inline-flex min-h-11 items-center rounded-md border border-[var(--border)] px-4 py-2 text-sm font-medium transition hover:bg-[var(--accent)] focus:outline-none focus-visible:ring-2 focus-visible:ring-[var(--ring)] sm:min-h-0"

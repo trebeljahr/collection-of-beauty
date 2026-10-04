@@ -19,6 +19,7 @@ import {
   galleryLayoutIdentity,
   restoreGalleryVisit,
 } from "@/lib/gallery-release-state";
+import { releasePublicPath } from "@/lib/release-public";
 import { registerReleaseSnapshot, rememberReleaseState } from "@/lib/release-session";
 import { variantProxyUrl } from "@/lib/utils";
 
@@ -37,7 +38,7 @@ import { StairwellAccents } from "./stairwell-rail";
 import { preloadCached } from "./texture-cache";
 import { ZoomModal } from "./zoom-modal";
 
-const AMBIENCE_SRC = "/audio/ambience-loop.mp3";
+const AMBIENCE_SRC = releasePublicPath("/audio/ambience-loop.mp3");
 
 type Props = { artworks: ArtworkListing[] };
 

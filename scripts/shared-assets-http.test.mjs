@@ -5,7 +5,7 @@ import { createServer } from "node:http";
 import { createRequire } from "node:module";
 import { join } from "node:path";
 import test from "node:test";
-import { fixture, ids } from "./shared-assets-fixtures.mjs";
+import { fixture, ids, media } from "./shared-assets-fixtures.mjs";
 
 const { handler } = createRequire(import.meta.url)("../shared-assets.cjs");
 test("running old/new handlers serve changed future/old chunks and guard mismatched RSC in both directions", async () => {
@@ -37,6 +37,12 @@ test("running old/new handlers serve changed future/old chunks and guard mismatc
         assert.equal(r.status, 200);
         assert.match(r.headers.get("content-type"), /javascript/);
         assert.equal(await r.text(), `window.revision='${id}';`);
+        // Lazily loaded public media resolves to the requesting tab's release.
+        const texture = await fetch(server + `/_next/static/${media(id)}`);
+        assert.equal(texture.status, 200);
+        assert.equal(texture.headers.get("content-type"), "image/jpeg");
+        assert.equal(texture.headers.get("content-encoding"), null);
+        assert.equal(await texture.text(), `texture-${id}`);
       }
       const metadata = await (await fetch(server + "/releases.json")).json();
       assert.equal(metadata.head, ids[2]);

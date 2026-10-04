@@ -109,7 +109,11 @@ if [ "${1:-}" = "--" ]; then shift; fi
 #   --stats 5s    fallback rate when there's no TTY — progress degrades
 #                 to periodic stats blocks instead of in-place redraw.
 # To opt back into per-file lines for debugging: pnpm assets:sync -- -v
+# `downloads/` holds append-only content-addressed objects (the press kit,
+# scripts/publish-press-kit.sh) that are not in assets-web/. `sync` would
+# delete them; open tabs, paused downloads and rollbacks still need them.
 RCLONE_FLAGS=(
+  --exclude "downloads/**"
   --header-upload "Cache-Control: public, max-age=31536000, immutable"
   --size-only
   --fast-list

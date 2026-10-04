@@ -44,15 +44,17 @@ test("retains exact asset bundles and changed lazy chunks, then prunes outside t
           `metadata-${id}`,
         );
         assert.equal(
-          await readFile(join(output, "_next/static/chunks", `${id}.js`), "utf8"),
+          await readFile(join(output, "__releases", id, "_next/static/chunks", `${id}.js`), "utf8"),
           `window.fixture = '${id}';`,
         );
       }
+      // Only the release snapshots carry bytes; no merged third copy enters the image.
+      await assert.rejects(access(join(output, "_next")));
       previous = output;
     }
     await assert.rejects(access(join(previous, "__releases", ids[0])));
-    await access(join(previous, "_next/static/chunks", `${ids[0]}.js`));
-    await assert.rejects(access(join(previous, "_next/static/chunks", `${ids[1]}.js`)));
+    await access(join(previous, "__legacy-assets/chunks", `${ids[0]}.js`));
+    await assert.rejects(access(join(previous, "__releases", ids[1])));
   } finally {
     await rm(root, { recursive: true, force: true });
   }

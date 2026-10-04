@@ -173,13 +173,16 @@ async function serve(req, res, pathname, store) {
     await file?.close();
   }
 }
-module.exports = { handler };
-if (process.env.COB_SHARED_ASSETS === "1") {
-  const revision = JSON.parse(readFileSync("/app/release-assets/version.json", "utf8")).commit;
-  const shared = handler(STORE, revision);
+// Every http.Server answers the shared namespace before Next sees the request.
+function install(store, revision) {
+  const shared = handler(store, revision);
   const original = http.Server.prototype.emit;
   http.Server.prototype.emit = function (event, ...args) {
     if (event === "request" && shared(args[0], args[1])) return true;
     return original.call(this, event, ...args);
   };
+}
+module.exports = { handler, install };
+if (process.env.COB_SHARED_ASSETS === "1") {
+  install(STORE, JSON.parse(readFileSync("/app/release-assets/version.json", "utf8")).commit);
 }

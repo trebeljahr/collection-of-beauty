@@ -103,6 +103,8 @@ jobs:
       - uses: actions/setup-node@v6
         with:
           node-version: '24'
+      - name: Verify the press kit object before publishing an image
+        run: node scripts/press-kit-download.mjs --ci
       - name: Verify the serving parent and reject an existing SHA tag
         id: parent
         env:

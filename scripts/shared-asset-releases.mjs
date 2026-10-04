@@ -24,8 +24,11 @@ export const STORE_ID = Object.freeze({
   volume: "collection-of-beauty-releases",
   purpose: "immutable-next-assets",
 });
-const MAX_STORE_BYTES = 256 * 1024 * 1024;
-const MAX_STORE_FILES = 20000;
+// Each snapshot carries its Next static files plus the release-public media
+// (~33 MB today). Up to three window releases plus three leased images, with
+// the legacy baseline, stay far below this; reaching it requires reconciliation.
+export const MAX_STORE_BYTES = 1024 * 1024 * 1024;
+export const MAX_STORE_FILES = 40000;
 const isSha = (value) => /^[a-f0-9]{40}$/.test(value ?? "");
 async function json(path) {
   return JSON.parse(await readFile(path, "utf8"));
@@ -102,6 +105,22 @@ export async function validateMount(store = STORE, mountInfo) {
   if (JSON.stringify(marker) !== JSON.stringify(STORE_ID))
     throw new Error("Release store identity differs.");
 }
+// Unique-inode usage of everything in the store, including crash leftovers.
+export async function storeUsage(store) {
+  const inodes = new Set();
+  let bytes = 0,
+    count = 0;
+  for (const name of await files(store)) {
+    const stat = await lstat(join(store, name));
+    count++;
+    const key = `${stat.dev}:${stat.ino}`;
+    if (inodes.has(key)) continue;
+    inodes.add(key);
+    bytes += stat.size;
+  }
+  return { bytes, count };
+}
+
 export async function releaseSha(source) {
   const sha = (await json(join(source, "version.json"))).commit;
   if (!isSha(sha)) throw new Error("Invalid local release.");
@@ -125,16 +144,17 @@ export async function publishRelease(
 ) {
   await files(store);
   // Bound even crash leftovers or repeatedly rejected candidates. Reproducible
-  // docs must never turn this app-owned volume into an unbounded asset archive.
-  let bytes = 0,
-    count = 0;
-  for (const root of [store, source])
-    for (const name of await files(root)) {
-      bytes += (await lstat(join(root, name))).size;
-      count++;
-      if (bytes > MAX_STORE_BYTES || count > MAX_STORE_FILES)
-        throw new Error("Release store capacity requires reconciliation.");
-    }
+  // assets must never turn this app-owned volume into an unbounded archive.
+  // Hard-linked names share one inode and count once; the whole incoming image
+  // bundle counts in full, as if none of it were deduplicated.
+  const usage = await storeUsage(store);
+  let { bytes, count } = usage;
+  for (const name of await files(source)) {
+    bytes += (await lstat(join(source, name))).size;
+    count++;
+  }
+  if (bytes > MAX_STORE_BYTES || count > MAX_STORE_FILES)
+    throw new Error("Release store capacity requires reconciliation.");
   const meta = await json(join(source, "releases.json"));
   if (
     meta.schema !== 1 ||
@@ -210,22 +230,30 @@ export async function publishRelease(
     }
   }
   const required = new Set();
-  for (const input of [legacy, ...keep.map((id) => join(store, "releases", id, "_next/static"))]) {
-    for (const relative of await files(input)) {
+  const inputs = [
+    { root: legacy, onVolume: false },
+    ...keep.map((id) => ({ root: join(store, "releases", id, "_next/static"), onVolume: true })),
+  ];
+  for (const { root, onVolume } of inputs) {
+    for (const relative of await files(root)) {
       required.add(relative);
       const destination = join(store, "_next/static", relative);
       await safeDirectory(resolve(destination, ".."));
       if (await present(destination)) {
         if (
           !(await lstat(destination)).isFile() ||
-          !(await readFile(destination)).equals(await readFile(join(input, relative)))
+          !(await readFile(destination)).equals(await readFile(join(root, relative)))
         )
           throw new Error("Immutable asset collision.");
+      } else if (onVolume) {
+        // Snapshot files are complete and never rewritten: one atomic link
+        // publishes the name without a second copy of the bytes.
+        await link(join(root, relative), destination);
       } else {
         // Copy into the volume, then atomically link: readers never see a partial file.
         const staged = join(store, ".asset-" + randomUUID());
         try {
-          await copyFile(join(input, relative), staged);
+          await copyFile(join(root, relative), staged);
           await link(staged, destination);
         } finally {
           await rm(staged, { force: true });
