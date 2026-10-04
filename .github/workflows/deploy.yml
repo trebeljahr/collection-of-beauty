@@ -100,6 +100,15 @@ jobs:
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
+      - uses: actions/setup-node@v6
+        with:
+          node-version: '24'
+      - name: Verify the serving parent and reject an existing SHA tag
+        id: parent
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: node scripts/prepare-asset-build.mjs
+
       - id: meta
         uses: docker/metadata-action@v5
         with:
@@ -121,6 +130,9 @@ jobs:
           # Next's skew protection id, see the Dockerfile.
           build-args: |
             DEPLOYMENT_ID=${{ github.sha }}
+            PREVIOUS_IMAGE=${{ steps.parent.outputs.previous_image }}
+            PREVIOUS_SHA=${{ steps.parent.outputs.previous_sha }}
+            PREVIOUS_DIGEST=${{ steps.parent.outputs.previous_digest }}
           # BuildKit secret for decrypting .env.production at build
           # time. Mounted as tmpfs inside the Dockerfile's RUN step,
           # never written to a layer or `docker history`. The Dockerfile
@@ -147,7 +159,9 @@ jobs:
       - uses: actions/upload-artifact@v4
         with:
           name: release-${{ github.sha }}-${{ github.run_id }}-${{ github.run_attempt }}
-          path: release.json
+          path: |
+            release.json
+            build-inputs.json
           if-no-files-found: error
 
   # This only observes public HTTP responses. It never queues a deployment,

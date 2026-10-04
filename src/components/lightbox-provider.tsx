@@ -13,6 +13,11 @@ import {
   useState,
 } from "react";
 import { artworkAlt } from "@/lib/artwork-format";
+import {
+  readReleaseState,
+  registerReleaseSnapshot,
+  rememberReleaseState,
+} from "@/lib/release-session";
 import { artworkHref, parseScopeParams, type Scope, scopeSearch } from "@/lib/scope-href";
 import { Lightbox } from "./lightbox";
 
@@ -27,6 +32,31 @@ type LightboxArtwork = {
   width: number | null;
   height: number | null;
 };
+
+type SavedLightbox = { path: string; artwork: LightboxArtwork | null };
+function isSavedLightbox(value: unknown): value is SavedLightbox {
+  if (!value || typeof value !== "object") return false;
+  const saved = value as SavedLightbox;
+  if (typeof saved.path !== "string" || saved.path.length > 2000) return false;
+  const art = saved.artwork;
+  return (
+    art === null ||
+    (typeof art === "object" &&
+      [art.id, art.objectKey, art.title].every(
+        (text) => typeof text === "string" && text.length <= 2000,
+      ) &&
+      [art.englishTitle, art.artist].every(
+        (text) => text === null || (typeof text === "string" && text.length <= 2000),
+      ) &&
+      [art.year, art.width, art.height].every(
+        (number) => number === null || (typeof number === "number" && Number.isFinite(number)),
+      ) &&
+      (art.variantWidths === null ||
+        (Array.isArray(art.variantWidths) &&
+          art.variantWidths.length < 50 &&
+          art.variantWidths.every((width) => Number.isFinite(width) && width > 0))))
+  );
+}
 
 type LightboxApi = {
   open: (artwork: LightboxArtwork) => void;
@@ -100,6 +130,23 @@ function LightboxProviderInner({
   const scopeKey = scopeParam ?? "__all__";
 
   const [current, setCurrent] = useState<LightboxArtwork | null>(null);
+  const currentRef = useRef(current);
+  currentRef.current = current;
+  useEffect(() => {
+    const saved = readReleaseState("artwork-lightbox", isSavedLightbox);
+    if (saved?.path === window.location.pathname + window.location.search) {
+      currentRef.current = saved.artwork;
+      setCurrent(saved.artwork);
+    }
+    return registerReleaseSnapshot("artwork-lightbox", () =>
+      currentRef.current
+        ? {
+            path: window.location.pathname + window.location.search,
+            artwork: currentRef.current,
+          }
+        : undefined,
+    );
+  }, []);
   const [artworks, setArtworks] = useState<LightboxArtwork[] | null>(null);
   const artworksByScopeRef = useRef<Map<string, LightboxArtwork[]>>(new Map());
   const promisesByScopeRef = useRef<Map<string, Promise<LightboxArtwork[]>>>(new Map());
@@ -158,13 +205,25 @@ function LightboxProviderInner({
 
   const open = useCallback(
     (artwork: LightboxArtwork) => {
+      currentRef.current = artwork;
       setCurrent(artwork);
       void loadArtworks();
     },
     [loadArtworks],
   );
 
-  const close = useCallback(() => setCurrent(null), []);
+  const close = useCallback(() => {
+    currentRef.current = null;
+    setCurrent(null);
+    rememberReleaseState("artwork-lightbox", {
+      path: window.location.pathname + window.location.search,
+      artwork: null,
+    });
+  }, []);
+
+  useEffect(() => {
+    if (current) void loadArtworks();
+  }, [current, loadArtworks]);
 
   const index = useMemo(() => {
     if (!current || !artworks) return -1;
@@ -180,6 +239,7 @@ function LightboxProviderInner({
       const target = index + delta;
       if (target < 0 || target >= artworks.length) return;
       const artwork = artworks[target];
+      currentRef.current = artwork;
       setCurrent(artwork);
       // Soft URL sync: page below the modal swaps for the new artwork
       // (so closing the lightbox lands on what the user was viewing,

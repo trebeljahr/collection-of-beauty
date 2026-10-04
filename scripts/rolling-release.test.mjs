@@ -1,7 +1,9 @@
 import assert from "node:assert/strict";
 import { createHash, createHmac } from "node:crypto";
+import { readFileSync } from "node:fs";
 import test from "node:test";
 import { APP, queuedDeployment, rollingRelease, safeFailure } from "./lib/rolling-release.mjs";
+import { buildBaselineProof, INITIAL_ADOPTION, prepareAssetBuild } from "./prepare-asset-build.mjs";
 
 const OLD = "a".repeat(40);
 const NEW = "b".repeat(40);
@@ -33,7 +35,19 @@ function platform(options = {}) {
         os: "linux",
         architecture: "amd64",
         config: {
-          Labels: { "org.opencontainers.image.revision": sha },
+          Labels: {
+            "org.opencontainers.image.revision": sha,
+            ...(sha === NEW
+              ? {
+                  "io.hatchkit.assets.parent-digest": options.wrongParent
+                    ? "sha256:" + "0".repeat(64)
+                    : tags.get(OLD),
+                  "io.hatchkit.assets.parent-sha": OLD,
+                  "io.hatchkit.assets.retention": "3",
+                  "io.hatchkit.assets.storage": options.wrongStorage ? "local-only" : "shared-v1",
+                }
+              : {}),
+          },
         },
       }),
     );
@@ -81,7 +95,10 @@ function platform(options = {}) {
       const target = new URL(url);
       if (target.pathname === "/token") {
         assert.equal(target.origin, "https://ghcr.io");
-        assert.equal(target.searchParams.get("scope"), `repository:${APP.repository}:pull,push`);
+        assert.equal(
+          target.searchParams.get("scope"),
+          `repository:${APP.registryRepository}:pull,push`,
+        );
         assert.equal(init.redirect, "error");
         return Response.json({ token: "fixture-bearer" });
       }
@@ -124,6 +141,10 @@ function platform(options = {}) {
       }
       assert.equal(target.origin, "https://ghcr.io");
       assert.equal(init.headers.Authorization, "Bearer fixture-bearer");
+      assert.ok(
+        target.pathname.startsWith(`/v2/${APP.registryRepository}/`),
+        "Registry traffic must use the fixed image package, not the source repository.",
+      );
       if (blob) {
         if (options.blobRedirect)
           return new Response(null, {
@@ -382,6 +403,14 @@ test("an already verified image is a read-only no-op", async () => {
   assert.equal(writes(p).length, 0);
 });
 
+// Source repositories and deployed image packages intentionally differ for some apps.
+test("source hook and registry package are independently fixed", () => {
+  assert.equal(APP.uuid, "bbu24hzgels1n2m1sznx3fdu");
+  assert.equal(APP.repository, "trebeljahr/collection-of-beauty");
+  assert.equal(APP.image, "ghcr.io/trebeljahr/collection-of-beauty");
+  assert.equal(APP.registryRepository, "trebeljahr/collection-of-beauty");
+});
+
 test("untrusted failure details never enter release artifacts or user-facing errors", async () => {
   const raw = "synthetic-private-token in invalid provider JSON at signed-url";
   const p = platform({ hookThrows: true, failureText: raw });
@@ -391,4 +420,47 @@ test("untrusted failure details never enter release artifacts or user-facing err
   });
   assert.equal(JSON.stringify(p.reports).includes(raw), false);
   assert.equal(safeFailure(new SyntaxError(raw)), "Release operation failed.");
+});
+
+test("build, verify and deploy workflow gates all name the fixed source repository", () => {
+  const workflow = readFileSync(
+    new URL("../.github/workflows/deploy.yml", import.meta.url),
+    "utf8",
+  );
+  const repositories = [...workflow.matchAll(/github\.repository == '([^']+)'/g)].map(
+    (match) => match[1],
+  );
+  assert.ok(repositories.length >= 3);
+  assert.deepEqual([...new Set(repositories)], [APP.repository]);
+});
+
+test("candidate ancestry and shared-storage contract must match before promotion", async () => {
+  for (const options of [{ wrongParent: true }, { wrongStorage: true }]) {
+    const p = platform(options);
+    await assert.rejects(rollingRelease(config, p.release, p.deps), /exact current image/);
+    assert.equal(writes(p).length, 0);
+  }
+});
+
+test("build ancestry pins the verified image and rejects SHA rebuilds or baseline drift", async () => {
+  const p = platform({ initialized: true });
+  await assert.rejects(prepareAssetBuild(config, NEW, p.deps), /already exists/);
+  p.tags.delete(NEW);
+  const result = await prepareAssetBuild(config, NEW, p.deps);
+  assert.equal(result.previousDigest, p.release.expectedCurrentDigest);
+  assert.equal(result.baselineProof, "verified-journal");
+  assert.equal(writes(p).length, 0);
+  const drift = platform({ initialized: true, driftDuringBaseline: true });
+  drift.tags.delete(NEW);
+  await assert.rejects(prepareAssetBuild(config, NEW, drift.deps), /exact verified/);
+  const partial = platform({ initialized: true });
+  partial.tags.delete(NEW);
+  partial.tags.delete("rolling-started");
+  await assert.rejects(prepareAssetBuild(config, NEW, partial.deps), /journal/);
+});
+test("building asset retention requires both verified journal markers", () => {
+  const { sha, digest } = INITIAL_ADOPTION;
+  assert.throws(() => buildBaselineProof(digest, sha, null, null), /journal/);
+  assert.throws(() => buildBaselineProof(digest, sha, { digest }, null), /journal/);
+  assert.equal(buildBaselineProof(digest, sha, { digest }, { digest }), "verified-journal");
 });

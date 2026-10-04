@@ -1,3 +1,5 @@
+import { flushReleaseState } from "./release-session";
+
 // A tab opened before a deploy still runs the old build's client
 // chunks. Once the new container is live those chunks are gone, so the
 // next lazy chunk or client navigation mixes two builds and Turbopack
@@ -28,7 +30,11 @@ export function isStaleDeployError(error: unknown): boolean {
 
 /** Reloads the page once for a stale-deploy error. Returns true if it did. */
 export function reloadIfStaleDeploy(error: unknown): boolean {
-  if (!isStaleDeployError(error)) return false;
+  return isStaleDeployError(error) && reloadForReleaseChange();
+}
+
+export function reloadForReleaseChange(): boolean {
+  if (!flushReleaseState()) return false;
   try {
     const last = Number(sessionStorage.getItem(RELOAD_KEY) ?? 0);
     if (Date.now() - last < RELOAD_WINDOW_MS) return false;

@@ -2,7 +2,24 @@
 
 import { useEffect, useRef, useState } from "react";
 import type { DeepZoomTileSource } from "@/lib/deep-zoom";
+import {
+  readReleaseState,
+  registerReleaseSnapshot,
+  rememberReleaseState,
+} from "@/lib/release-session";
 import { cn } from "@/lib/utils";
+
+type SavedView = { source: string; x: number; y: number; zoom: number };
+function isSavedView(value: unknown): value is SavedView {
+  if (!value || typeof value !== "object") return false;
+  const v = value as SavedView;
+  return (
+    typeof v.source === "string" &&
+    v.source.length < 2000 &&
+    [v.x, v.y, v.zoom].every((n) => Number.isFinite(n) && Math.abs(n) < 100_000) &&
+    v.zoom > 0
+  );
+}
 
 type Props = {
   tileSource: DeepZoomTileSource;
@@ -107,6 +124,9 @@ export function DeepZoomViewer({
 
   useEffect(() => {
     let cancelled = false;
+    const source = tileSource.getTileUrl(0, 0, 0);
+    let snapshot: SavedView | undefined;
+    const removeSnapshot = registerReleaseSnapshot("deep-zoom", () => snapshot);
     let viewer: Awaited<ReturnType<typeof create>> | null = null;
 
     // Probe the pyramid before mounting anything. DZI level 0 is a single
@@ -228,6 +248,28 @@ export function DeepZoomViewer({
         if (failedCold >= 2) onUnavailableRef.current();
       });
 
+      const saveView = () => {
+        if (cancelled) return;
+        const center = v.viewport.getCenter();
+        const zoom = v.viewport.getZoom();
+        const value = { source, x: center.x, y: center.y, zoom };
+        if (isSavedView(value)) snapshot = value;
+      };
+      const saved = readReleaseState("deep-zoom", isSavedView);
+      v.addOnceHandler("open", () => {
+        if (saved?.source === source) {
+          v.viewport.zoomTo(saved.zoom, undefined, true);
+          v.viewport.panTo(new OpenSeadragon.Point(saved.x, saved.y), true);
+          v.viewport.applyConstraints(true);
+        }
+        saveView();
+      });
+      v.addHandler("animation", saveView);
+      v.addHandler("animation-finish", () => {
+        saveView();
+        if (snapshot) rememberReleaseState("deep-zoom", snapshot);
+      });
+
       // Publish zoom state upwards so the lightbox can gate its
       // swipe-to-navigate on it (see the swipe handlers there). Without
       // this signal the lightbox has no way to know whether a horizontal
@@ -276,6 +318,7 @@ export function DeepZoomViewer({
       });
 
     return () => {
+      removeSnapshot();
       cancelled = true;
       viewer?.destroy();
       viewerRef.current = null;

@@ -7,6 +7,7 @@ import * as THREE from "three";
 import type { ArtworkListing } from "@/lib/data";
 import type { FloorLayout, Staircase } from "@/lib/gallery-layout/types";
 import { CELL_SIZE, worldToCell } from "@/lib/gallery-layout/world-coords";
+import type { GalleryPose } from "@/lib/gallery-release-state";
 import { FOV_DEFAULT_DEG, FOV_ZOOMED_DEG } from "./camera-config";
 import { fitsDoorwayApertures, nudgeTowardDoorwayCenter } from "./doorway-collision";
 import {
@@ -110,6 +111,7 @@ export function Player({
   floor,
   allStaircases,
   spawnAt,
+  resumePose,
   onRoomChange,
   onFloorChange,
   onPositionSample,
@@ -127,6 +129,7 @@ export function Player({
    *  their cumulative angle crosses a revolution boundary. */
   allStaircases: readonly Staircase[];
   spawnAt: [number, number, number];
+  resumePose?: GalleryPose | null;
   onRoomChange?: (roomIndex: number) => void;
   /** Called when the player's Y crosses the midpoint between the
    *  current floor and an adjacent floor (via stairs). The callback
@@ -137,7 +140,16 @@ export function Player({
    *  0 = facing +x on the minimap, grows clockwise as the player turns
    *  right). Used by the host to remember position across floor-swap
    *  remounts and to drive the minimap compass arrow. */
-  onPositionSample?: (x: number, z: number, yaw: number) => void;
+  onPositionSample?: (
+    x: number,
+    z: number,
+    yaw: number,
+    y: number,
+    qx: number,
+    qy: number,
+    qz: number,
+    qw: number,
+  ) => void;
   /** Called with an ArtworkListing when the player clicks/aims at a painting,
    *  so the host can open an inspect/zoom overlay. */
   onZoomRequest?: (artwork: ArtworkListing) => void;
@@ -273,7 +285,15 @@ export function Player({
   const latestFloorRef = useRef(floor);
   latestFloorRef.current = floor;
 
+  const didResume = useRef(false);
   useEffect(() => {
+    if (!didResume.current && resumePose) {
+      didResume.current = true;
+      camera.position.fromArray(resumePose.position);
+      camera.quaternion.fromArray(resumePose.quaternion);
+      return;
+    }
+    didResume.current = true;
     const eyeY = spawnAt[1] + EYE_HEIGHT;
     camera.position.set(spawnAt[0], eyeY, spawnAt[2]);
     // Face the central spiral so the navigation affordance is the first
@@ -289,7 +309,7 @@ export function Player({
     } else {
       camera.lookAt(spawnAt[0], eyeY, spawnAt[2] - 5);
     }
-  }, [camera, spawnAt]);
+  }, [camera, spawnAt, resumePose]);
 
   useEffect(() => {
     const tryZoom = () => {
@@ -863,7 +883,16 @@ export function Player({
       // forward vector. On the minimap +x is right, +z is down, so this
       // angle tells the arrow which way to point directly.
       const yaw = Math.atan2(forward.z, forward.x);
-      onPositionSample(camera.position.x, camera.position.z, yaw);
+      onPositionSample(
+        camera.position.x,
+        camera.position.z,
+        yaw,
+        camera.position.y,
+        camera.quaternion.x,
+        camera.quaternion.y,
+        camera.quaternion.z,
+        camera.quaternion.w,
+      );
     }
 
     // Throttled aim raycast for the inspect-cursor affordance. ~10 Hz

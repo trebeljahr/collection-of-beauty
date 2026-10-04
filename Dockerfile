@@ -24,6 +24,9 @@
 # encrypted in .env.production and are decrypted by dotenvx only when the
 # server process starts.
 ARG NODE_VERSION=24
+ARG PREVIOUS_IMAGE
+
+FROM ${PREVIOUS_IMAGE} AS previous
 
 FROM node:${NODE_VERSION}-alpine AS build
 WORKDIR /app
@@ -60,6 +63,11 @@ RUN node scripts/write-version.mjs
 RUN --mount=type=secret,id=dotenvx_private_key,env=DOTENV_PRIVATE_KEY_PRODUCTION \
     pnpm dlx @dotenvx/dotenvx run -- pnpm build
 
+ARG PREVIOUS_SHA
+ARG PREVIOUS_DIGEST
+RUN --mount=from=previous,source=/app,target=/previous-app,ro \
+    node scripts/build-asset-bundle.mjs "$DEPLOYMENT_ID" "$PREVIOUS_SHA" "$PREVIOUS_DIGEST"
+
 FROM node:${NODE_VERSION}-alpine AS runner
 WORKDIR /app
 
@@ -74,6 +82,16 @@ ENV PORT=80
 COPY --from=build /app/.next/standalone ./
 COPY --from=build /app/public ./public
 COPY --from=build /app/.next/static ./.next/static
+COPY --from=build /retained-assets ./release-assets
+COPY scripts/shared-asset-releases.mjs scripts/retain-asset-releases.mjs scripts/asset-bootstrap.mjs /usr/local/lib/releases/
+COPY shared-assets.cjs /usr/local/lib/shared-assets.cjs
+ARG PREVIOUS_SHA
+ARG PREVIOUS_DIGEST
+LABEL io.hatchkit.assets.parent-sha=$PREVIOUS_SHA \
+      io.hatchkit.assets.parent-digest=$PREVIOUS_DIGEST \
+      io.hatchkit.assets.retention="3" \
+      io.hatchkit.assets.storage="shared-v1"
+ENV COB_SHARED_ASSETS=1
 
 # Keep dotenvx available in the runner so encrypted runtime env values can be
 # decrypted from .env.production without persisting plaintext secrets in a
@@ -117,4 +135,4 @@ EXPOSE 80
 HEALTHCHECK --interval=2s --timeout=5s --start-period=15s --retries=5 \
   CMD node -e "fetch('http://127.0.0.1:' + (process.env.PORT || '80') + '/').then(r => { if (!r.ok) process.exit(1); }).catch(() => process.exit(1))"
 
-CMD ["/opt/dotenvx/node_modules/.bin/dotenvx", "run", "-f", ".env.production", "--", "node", "--require", "/usr/local/lib/drain.cjs", "server.js"]
+CMD ["/opt/dotenvx/node_modules/.bin/dotenvx", "run", "-f", ".env.production", "--", "node", "--require", "/usr/local/lib/shared-assets.cjs", "--require", "/usr/local/lib/drain.cjs", "server.js"]

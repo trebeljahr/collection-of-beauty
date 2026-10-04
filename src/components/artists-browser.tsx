@@ -5,6 +5,7 @@ import { useDeferredValue, useEffect, useMemo, useRef, useState } from "react";
 import { ResponsiveImage } from "@/components/responsive-image";
 import { Input } from "@/components/ui/input";
 import type { Artist } from "@/lib/data";
+import { isPageLimit, isShortText, useReleaseState } from "@/lib/use-release-state";
 import { cn, coverSizes } from "@/lib/utils";
 
 const PAGE = 24;
@@ -20,9 +21,9 @@ type FuseSearch = {
 type FuseCtor = new (list: Artist[], options: Record<string, unknown>) => FuseSearch;
 
 export function ArtistsBrowser({ artists }: Props) {
-  const [query, setQuery] = useState("");
+  const [query, setQuery, queryReady] = useReleaseState("artists-query", "", isShortText);
   const deferredQuery = useDeferredValue(query);
-  const [limit, setLimit] = useState(INITIAL);
+  const [limit, setLimit] = useReleaseState("artists-limit", INITIAL, isPageLimit);
   const [Fuse, setFuse] = useState<FuseCtor | null>(null);
   const sentinelRef = useRef<HTMLDivElement | null>(null);
 
@@ -57,10 +58,13 @@ export function ArtistsBrowser({ artists }: Props) {
     return fuse.search(trimmedQuery).map((r) => r.item);
   }, [artists, trimmedQuery, fuse]);
 
-  // biome-ignore lint/correctness/useExhaustiveDependencies: deferredQuery IS the trigger; setLimit is a stable setter.
+  const previousQuery = useRef<string | null>(null);
   useEffect(() => {
-    setLimit(INITIAL);
-  }, [deferredQuery]);
+    if (!queryReady || deferredQuery !== query) return;
+    if (previousQuery.current !== null && previousQuery.current !== deferredQuery)
+      setLimit(INITIAL);
+    previousQuery.current = deferredQuery;
+  }, [deferredQuery, query, queryReady, setLimit]);
 
   useEffect(() => {
     const el = sentinelRef.current;
@@ -75,7 +79,7 @@ export function ArtistsBrowser({ artists }: Props) {
     );
     io.observe(el);
     return () => io.disconnect();
-  }, [filtered.length]);
+  }, [filtered.length, setLimit]);
 
   const visible = filtered.slice(0, limit);
   const hasMore = limit < filtered.length;

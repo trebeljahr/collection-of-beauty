@@ -7,6 +7,22 @@
 # it 5 s later, long before the drain is over. drain.cjs writes its pid
 # to $HATCHKIT_DRAIN_PIDFILE; without one (drain off), the signal goes
 # to the command as usual.
+# Seed the shared immutable assets before starting Next or passing readiness.
+# This descriptor remains leased until the application process has exited.
+if [ "${COB_SHARED_ASSETS:-0}" = "1" ]; then
+  set -e
+  release_sha=$(node /usr/local/lib/releases/shared-asset-releases.mjs check)
+  store=/var/lib/collection-of-beauty-releases
+  mkdir -p "$store/leases"
+  exec 9>"$store/leases/$release_sha.lock"
+  flock -s 9
+  exec 8>"$store/.publish.lock"
+  flock -x 8
+  node /usr/local/lib/releases/shared-asset-releases.mjs publish
+  flock -u 8
+  exec 8>&-
+  set +e
+fi
 export HATCHKIT_DRAIN_PIDFILE="${HATCHKIT_DRAIN_PIDFILE:-/tmp/hatchkit-drain.pid}"
 rm -f "$HATCHKIT_DRAIN_PIDFILE"
 "$@" &

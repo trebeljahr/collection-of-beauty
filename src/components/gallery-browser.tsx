@@ -22,6 +22,7 @@ import {
   DEFAULT_SHUFFLE_SEED,
 } from "@/lib/artwork-page-schema";
 import type { ArtworkListing } from "@/lib/data";
+import { registerReleaseSnapshot } from "@/lib/release-session";
 import { cleanFilter, filterSearch, parseFilterParams, type Scope } from "@/lib/scope-href";
 import {
   type ArtworkPageInfo,
@@ -98,6 +99,24 @@ export function GalleryBrowser({ initialArtworks, eras, totalArtworks }: Props) 
   const [era, setEra] = useState<string>(initialControls.era);
   const [sortBy, setSortBy] = useState<GallerySort>(initialControls.sort);
   const requestSeqRef = useRef(0);
+  const liveControls = useRef({ query, era, sort: sortBy });
+  liveControls.current = { query, era, sort: sortBy };
+  useEffect(() => {
+    const route = window.location.pathname;
+    return registerReleaseSnapshot("gallery-url", () => {
+      if (window.location.pathname !== route) return undefined;
+      const controls = liveControls.current;
+      const search = filterSearch(
+        cleanFilter({ q: controls.query, era: controls.era, sort: controls.sort }),
+      );
+      window.history.replaceState(
+        window.history.state,
+        "",
+        `${route}${search ? `?${search}` : ""}${window.location.hash}`,
+      );
+      return undefined;
+    });
+  }, []);
 
   const pageQuery = useMemo<ArtworkPageQuery>(
     () => pageQueryOf({ query: deferredQuery, era, sort: sortBy }),

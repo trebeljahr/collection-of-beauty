@@ -12,6 +12,14 @@ import { useAudioSettings } from "@/lib/audio-settings";
 import type { ArtworkListing } from "@/lib/data";
 import { layoutMuseum } from "@/lib/gallery-layout/layout-museum";
 import type { FloorLayout, MuseumLayout, Staircase } from "@/lib/gallery-layout/types";
+import {
+  GALLERY_RELEASE_KEY,
+  type GalleryPose,
+  type GalleryReleaseState,
+  galleryLayoutIdentity,
+  restoreGalleryVisit,
+} from "@/lib/gallery-release-state";
+import { registerReleaseSnapshot, rememberReleaseState } from "@/lib/release-session";
 import { variantProxyUrl } from "@/lib/utils";
 
 import { FOV_DEFAULT_DEG } from "./camera-config";
@@ -42,8 +50,15 @@ type Props = { artworks: ArtworkListing[] };
  */
 export function Gallery3D({ artworks }: Props) {
   const layout = useMemo(() => layoutMuseum(artworks), [artworks]);
+  const layoutIdentity = useMemo(() => galleryLayoutIdentity(layout), [layout]);
+  const [restoredVisit] = useState(() => restoreGalleryVisit(layout, layoutIdentity));
+  const poseRef = useRef<GalleryPose | null>(restoredVisit?.pose ?? null);
+  const resumePoseRef = useRef(restoredVisit?.pose ?? null);
+  const savedAt = useRef(0);
   const [hasStarted, setHasStarted] = useState(false);
-  const [currentFloorIdx, setCurrentFloorIdx] = useState(layout.entry.floorIndex);
+  const [currentFloorIdx, setCurrentFloorIdx] = useState(
+    restoredVisit?.floorIndex ?? layout.entry.floorIndex,
+  );
   const [activeRoomIdx, setActiveRoomIdx] = useState<number>(-1);
   const [zoomed, setZoomed] = useState<ArtworkListing | null>(null);
   const [aiming, setAiming] = useState<ArtworkListing | null>(null);
@@ -71,7 +86,9 @@ export function Gallery3D({ artworks }: Props) {
   // Settings modal — pauses player input + drops pointer-lock so the
   // user can interact with sliders / buttons / the home link.
   const [settingsOpen, setSettingsOpen] = useState(false);
-  const [viewedMapFloorIdx, setViewedMapFloorIdx] = useState(layout.entry.floorIndex);
+  const [viewedMapFloorIdx, setViewedMapFloorIdx] = useState(
+    restoredVisit?.floorIndex ?? layout.entry.floorIndex,
+  );
   // Big-map size — sized once on open, doesn't track viewport resize
   // (rare during a play session). Capped so it doesn't dominate the
   // screen on huge monitors.
@@ -97,8 +114,21 @@ export function Gallery3D({ artworks }: Props) {
   // Entry room — used as the basis for the start-overlay loading bar.
   // We wait for this room's paintings to decode before the player can
   // click "Enter", so they don't walk in to a wall of brown swatches.
-  const entryFloor = layout.floors[layout.entry.floorIndex];
-  const entryRoom = entryFloor.rooms.find((r) => r.isAnchor) ?? entryFloor.rooms[0];
+  const initialFloorIdx = restoredVisit?.floorIndex ?? layout.entry.floorIndex;
+  const entryFloor = layout.floors[initialFloorIdx];
+  const entryRoom =
+    entryFloor.rooms.find((room) => {
+      const pose = restoredVisit?.pose;
+      return (
+        pose &&
+        pose.position[0] >= room.worldRect.xMin &&
+        pose.position[0] <= room.worldRect.xMax &&
+        pose.position[2] >= room.worldRect.zMin &&
+        pose.position[2] <= room.worldRect.zMax
+      );
+    }) ??
+    entryFloor.rooms.find((room) => room.isAnchor) ??
+    entryFloor.rooms[0];
   const entryRoomTotal = entryRoom?.placements.length ?? 0;
   const [entryRoomResults, setEntryRoomResults] = useState<Record<string, "loaded" | "failed">>({});
   const entryRoomStatuses = Object.values(entryRoomResults);
@@ -261,7 +291,9 @@ export function Gallery3D({ artworks }: Props) {
   // overwrite this to the anchor of the target floor. Stair-driven
   // floor changes set it to the *current* XZ so the player continues
   // walking where they were, with Y matched to the new floor.
-  const spawnForFloor = useRef<[number, number, number]>(layout.entry.worldPosition);
+  const spawnForFloor = useRef<[number, number, number]>(
+    restoredVisit?.spawn ?? layout.entry.worldPosition,
+  );
   // Bumped on every teleport so the new spawn array reaches Player even
   // when nothing else about the render changed — clicking the room you
   // already stand in changes neither floor nor active room, so without
@@ -278,6 +310,33 @@ export function Gallery3D({ artworks }: Props) {
   // the player would enter the gallery un-locked, and their first
   // painting click would just be the relock click rather than a zoom.
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
+
+  const visitSnapshot = useRef<GalleryReleaseState | null>(null);
+  visitSnapshot.current = {
+    layout: layoutIdentity,
+    floorEra: layout.floors[currentFloorIdx].era.id,
+    pose: poseRef.current,
+    artworkId: zoomed?.id ?? (!hasStarted ? (restoredVisit?.saved.artworkId ?? null) : null),
+    started: hasStarted || Boolean(restoredVisit?.saved.started),
+    mapOpen: !hasStarted && restoredVisit ? restoredVisit.saved.mapOpen : mapOpen,
+    settingsOpen: !hasStarted && restoredVisit ? restoredVisit.saved.settingsOpen : settingsOpen,
+    viewedFloorEra:
+      !hasStarted && restoredVisit
+        ? restoredVisit.saved.viewedFloorEra
+        : layout.floors[viewedMapFloorIdx].era.id,
+  };
+  useEffect(
+    () =>
+      registerReleaseSnapshot(GALLERY_RELEASE_KEY, () =>
+        visitSnapshot.current?.started
+          ? {
+              ...visitSnapshot.current,
+              pose: poseRef.current,
+            }
+          : undefined,
+      ),
+    [],
+  );
 
   const teleportToFloor = useCallback(
     (idx: number) => {
@@ -509,6 +568,7 @@ export function Gallery3D({ artworks }: Props) {
                 if (last) {
                   spawnForFloor.current = [last.x, spawnForFloor.current[1], last.z];
                 }
+                resumePoseRef.current = poseRef.current ? structuredClone(poseRef.current) : null;
                 setContextLost(false);
                 setCanvasKey((k) => k + 1);
               }, 300);
@@ -563,9 +623,7 @@ export function Gallery3D({ artworks }: Props) {
               showOnly={mode === "full" ? undefined : mode}
               // Only the entry floor wires the load-tally callback, and
               // only before the player starts.
-              entryRoomId={
-                !hasStarted && idx === layout.entry.floorIndex ? entryRoom?.id : undefined
-              }
+              entryRoomId={!hasStarted && idx === initialFloorIdx ? entryRoom?.id : undefined}
               onEntryPaintingSettled={handleEntryPaintingSettled}
             />
           ))}
@@ -583,10 +641,27 @@ export function Gallery3D({ artworks }: Props) {
           floor={currentFloor}
           allStaircases={layout.allStaircases}
           spawnAt={spawnForFloor.current}
+          resumePose={resumePoseRef.current}
           onRoomChange={handleRoomChange}
           onFloorChange={handleStairFloorChange}
-          onPositionSample={(x, z, yaw) => {
+          onPositionSample={(x, z, yaw, y, qx, qy, qz, qw) => {
             lastCameraRef.current = { x, z, yaw };
+            poseRef.current ??= { position: [x, y, z], quaternion: [qx, qy, qz, qw] };
+            const pose = poseRef.current;
+            pose.position[0] = x;
+            pose.position[1] = y;
+            pose.position[2] = z;
+            pose.quaternion[0] = qx;
+            pose.quaternion[1] = qy;
+            pose.quaternion[2] = qz;
+            pose.quaternion[3] = qw;
+            if (Date.now() - savedAt.current > 250) {
+              savedAt.current = Date.now();
+              rememberReleaseState(GALLERY_RELEASE_KEY, {
+                ...visitSnapshot.current,
+                pose: poseRef.current,
+              });
+            }
           }}
           onZoomRequest={setZoomed}
           onAimChange={setAiming}
@@ -648,6 +723,17 @@ export function Gallery3D({ artworks }: Props) {
             // it on Enter would hide the page nav so completely that
             // re-revealing it for the settings modal wouldn't work
             // without yanking the user out of fullscreen.
+            if (restoredVisit) {
+              setZoomed(
+                artworks.find((artwork) => artwork.id === restoredVisit.saved.artworkId) ?? null,
+              );
+              setMapOpen(restoredVisit.saved.mapOpen);
+              setSettingsOpen(restoredVisit.saved.settingsOpen);
+              const viewed = layout.floors.findIndex(
+                (floor) => floor.era.id === restoredVisit.saved.viewedFloorEra,
+              );
+              if (viewed >= 0) setViewedMapFloorIdx(viewed);
+            }
             setHasStarted(true);
           }}
         />

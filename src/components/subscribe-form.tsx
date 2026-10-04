@@ -3,6 +3,8 @@
 import { useId, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { holdReleaseReload } from "@/lib/release-session";
+import { isShortText, useReleaseState } from "@/lib/use-release-state";
 import { cn } from "@/lib/utils";
 
 type Status =
@@ -40,7 +42,7 @@ export function SubscribeForm({
   const emailId = `${id}-newsletter-email`;
   const websiteId = `${id}-newsletter-website`;
   const inlineErrorId = `${id}-newsletter-email-error`;
-  const [email, setEmail] = useState("");
+  const [email, setEmail] = useReleaseState("newsletter-email", "", isShortText);
   // Honeypot — wired but never shown to the user. Bots that fill every
   // input get filtered server-side before any ListMonk call.
   const [website, setWebsite] = useState("");
@@ -75,6 +77,7 @@ export function SubscribeForm({
     }
     setFormatError(null);
     setStatus({ kind: "submitting" });
+    const releaseHold = holdReleaseReload();
     try {
       const res = await fetch("/api/newsletter/subscribe", {
         method: "POST",
@@ -90,9 +93,12 @@ export function SubscribeForm({
         return;
       }
       const data = (await res.json().catch(() => ({}))) as { alreadySubscribed?: boolean };
+      setEmail("");
       setStatus({ kind: data.alreadySubscribed ? "already-subscribed" : "success" });
     } catch {
       setStatus({ kind: "error", message: "Network error. Please try again." });
+    } finally {
+      releaseHold();
     }
   }
 

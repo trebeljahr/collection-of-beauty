@@ -7,6 +7,7 @@ import { DonationSupportedTracker } from "@/components/donation-supported-tracke
 import { Gallery3DProvider } from "@/components/gallery-3d-state";
 import { ImageCacheTracker } from "@/components/image-cache-tracker";
 import { NavigationTracker } from "@/components/navigation-tracker";
+import { ReleaseNavigationGuard } from "@/components/release-navigation-guard";
 import { SiteNav } from "@/components/site-nav";
 import { DONATE_URL } from "@/lib/donation-supported";
 import {
@@ -141,6 +142,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
           padding, not margins, so the flex item's formatting context
           changes no spacing. */}
       <body className="flex min-h-dvh flex-col antialiased" suppressHydrationWarning>
+        <ReleaseNavigationGuard />
         <Script id="plausible-loader" strategy="afterInteractive">
           {`
               (function () {
