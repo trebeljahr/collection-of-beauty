@@ -1,6 +1,7 @@
 import assert from "node:assert/strict";
 import { spawn } from "node:child_process";
 import { once } from "node:events";
+import http from "node:http";
 import { mkdtempSync, readFileSync, rmSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
@@ -203,6 +204,37 @@ test("entrypoint bypasses wrapper signals and finishes in-flight work after the 
     }
     child.kill("SIGKILL");
     await exited;
+    rmSync(directory, { recursive: true, force: true });
+  }
+});
+
+test("a stuck server shutdown is cut before docker stop escalates to SIGKILL", { timeout: 30000 }, async () => {
+  const directory = mkdtempSync(join(tmpdir(), "cob-drain-stuck-"));
+  const server = join(directory, "server.cjs");
+  // Next registers its own SIGTERM handler; this one never completes, like a
+  // server.close() waiting on a connection that stays open.
+  writeFileSync(
+    server,
+    `const http=require("node:http");const s=http.createServer((q,r)=>{r.writeHead(200);r.write("x");});s.listen(0,"127.0.0.1",()=>process.send(s.address().port));process.on("SIGTERM",()=>s.close());`,
+  );
+  const child = spawn(process.execPath, ["--require", join(ROOT, "drain.cjs"), server], {
+    env: { ...process.env, SHUTDOWN_DRAIN_SECONDS: "1", HEALTH_CHECK_PATH: "/health" },
+    stdio: ["ignore", "ignore", "ignore", "ipc"],
+  });
+  try {
+    const [port] = await once(child, "message");
+    const request = http.get(`http://127.0.0.1:${port}/stream`);
+    await once(request, "response");
+    const started = Date.now();
+    child.kill("SIGTERM");
+    const [code, signal] = await once(child, "exit");
+    const elapsed = Date.now() - started;
+    assert.equal(signal, null);
+    assert.equal(code, 0);
+    assert.ok(elapsed >= 8900 && elapsed < 12000, `exited after ${elapsed} ms`);
+    request.destroy();
+  } finally {
+    if (child.exitCode === null) child.kill("SIGKILL");
     rmSync(directory, { recursive: true, force: true });
   }
 });
