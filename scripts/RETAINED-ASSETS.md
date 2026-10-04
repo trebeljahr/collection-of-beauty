@@ -74,7 +74,8 @@ answers `/press-kit.zip` with a 307 to the content-addressed object
 asset origin, so storage owns the transfer and its ranges. The press page links
 are plain download anchors, so Next never prefetches the archive.
 
-The committed metadata is unpublished. To publish, with release authorization:
+Published 2026-10-05 (object verified by full SHA-256 from the public origin).
+To publish a changed press kit, with release authorization:
 
 1. `pnpm exec dotenvx run -f .env.production -- bash scripts/publish-press-kit.sh`
    (append-only `rclone copyto --immutable`, attachment and immutable headers).

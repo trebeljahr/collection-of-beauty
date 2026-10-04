@@ -27,10 +27,9 @@ const meta = (origin, extra = {}) =>
     ...extra,
   });
 
-test("committed metadata names the exact tracked press kit and stays unpublished", async () => {
+test("committed metadata names the exact tracked press kit", async () => {
   const committed = readPressKit();
-  assert.equal(committed.published, false);
-  assert.deepEqual(pressKitRedirects(committed), []);
+  assert.deepEqual(pressKitRedirects({ ...committed, published: false }), []);
   const result = await checkPressKit({ meta: committed });
   assert.equal(result.sha256, committed.sha256);
   assert.equal(result.bytes, committed.bytes);

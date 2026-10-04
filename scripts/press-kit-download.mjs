@@ -1,5 +1,6 @@
 import { createHash } from "node:crypto";
 import { createReadStream, readFileSync } from "node:fs";
+import { setDefaultAutoSelectFamilyAttemptTimeout } from "node:net";
 import { resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 
@@ -106,6 +107,8 @@ export async function checkPressKit({
 
 if (process.argv[1] && resolve(process.argv[1]) === fileURLToPath(import.meta.url)) {
   const args = process.argv.slice(2);
+  // Node's 250 ms per-address default drops slow IPv4 handshakes when IPv6 is unroutable.
+  setDefaultAutoSelectFamilyAttemptTimeout(3000);
   try {
     const meta = readPressKit();
     // CI: always the local identity; the remote object only once redirects use it.

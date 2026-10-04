@@ -31,6 +31,8 @@ export RCLONE_S3_PROVIDER=Cloudflare
 export RCLONE_S3_ENDPOINT="$R2_ENDPOINT"
 export RCLONE_S3_ACCESS_KEY_ID="$R2_ACCESS_KEY_ID"
 export RCLONE_S3_SECRET_ACCESS_KEY="$R2_SECRET_ACCESS_KEY"
+# The bucket exists; the scoped token may not create buckets.
+export RCLONE_S3_NO_CHECK_BUCKET=true
 rclone copyto "$ROOT/public/press-kit.zip" ":s3:$R2_ASSETS_BUCKET/$OBJECT_PATH" \
   --immutable \
   --header-upload "Cache-Control: public, max-age=31536000, immutable" \
