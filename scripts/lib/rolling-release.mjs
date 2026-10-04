@@ -46,6 +46,29 @@ export function validateRelease(config, release) {
   if (!release.automatic && !isDigest(release.expectedCurrentDigest)) {
     throw new ReleaseError("Manual deployment requires the expected current image digest.");
   }
+  if (release.rollback && release.automatic)
+    throw new ReleaseError("Rollback only runs as a reviewed manual operation.");
+}
+
+// The shared store's retention window, as every replica serves it.
+export async function liveReleaseWindow(request = fetch) {
+  const response = await request(`https://collectionofbeauty.com/releases.json?at=${Date.now()}`, {
+    redirect: "error",
+    cache: "no-store",
+    signal: AbortSignal.timeout(10000),
+  });
+  if (!response.ok) throw new ReleaseError(`Live release window unavailable (${response.status}).`);
+  const body = await response.json();
+  if (
+    body?.schema !== 2 ||
+    !Array.isArray(body.window) ||
+    body.window.length < 1 ||
+    body.window.length > 3 ||
+    !body.window.every(isSha) ||
+    body.window[0] !== body.head
+  )
+    throw new ReleaseError("Live release window is invalid.");
+  return body.window;
 }
 
 export function queuedDeployment(body) {
@@ -94,7 +117,7 @@ export async function rollingRelease(config, release, dependencies = {}) {
   };
   save("preflight");
 
-  const { registry, manifest, revision, identity } = await openRegistry(config, dependencies);
+  const { registry, manifest, identity } = await openRegistry(config, dependencies);
   const point = async (tag, image) => {
     const response = await registry(`manifests/${tag}`, {
       method: "PUT",
@@ -141,8 +164,24 @@ export async function rollingRelease(config, release, dependencies = {}) {
   if (release.expectedCurrentDigest && previous.digest !== release.expectedCurrentDigest) {
     throw new ReleaseError("Current latest differs from the reviewed baseline.");
   }
-  const previousSha = await revision(previous);
-  if (
+  const previousIdentity = await identity(previous);
+  const previousSha = previousIdentity.sha;
+  const shared = (labels) =>
+    labels["io.hatchkit.assets.retention"] === "3" &&
+    labels["io.hatchkit.assets.storage"] === "shared-v1";
+  if (release.rollback) {
+    // Return to an image the shared store still retains. Its assets, and the
+    // assets of every tab opened since, stay published; the store allows an
+    // image within its window to start again without rewinding.
+    if (target.digest === previous.digest)
+      throw new ReleaseError("Rollback target is already the current image.");
+    if (!shared(targetIdentity.labels) || !shared(previousIdentity.labels))
+      throw new ReleaseError("Rollback requires shared-storage images on both sides.");
+    const window = await (dependencies.releaseWindow ?? liveReleaseWindow)(request);
+    if (window[0] !== previousSha || !window.slice(1).includes(release.sha))
+      throw new ReleaseError("Rollback target is not retained behind the serving release.");
+    report.operation = "rollback";
+  } else if (
     target.digest !== previous.digest &&
     (targetIdentity.labels["io.hatchkit.assets.parent-digest"] !== previous.digest ||
       targetIdentity.labels["io.hatchkit.assets.parent-sha"] !== previousSha ||

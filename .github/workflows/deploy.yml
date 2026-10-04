@@ -8,20 +8,20 @@ on:
   workflow_dispatch:
     inputs:
       operation:
-        description: Build, deploy a reviewed image, or verify a release
+        description: Build, deploy a reviewed image, roll back to a retained image, or verify a release
         type: choice
-        options: [build, deploy, verify]
+        options: [build, deploy, rollback, verify]
         default: build
       target_sha:
-        description: Full commit SHA (required for deploy or verify)
+        description: Full commit SHA (required for deploy, rollback or verify)
         type: string
         required: false
       image_digest:
-        description: Exact sha256 image digest from the build artifact (deploy only)
+        description: Exact sha256 image digest from the build artifact (deploy or rollback)
         type: string
         required: false
       expected_current_digest:
-        description: Reviewed current latest digest (deploy only)
+        description: Reviewed current latest digest (deploy or rollback)
         type: string
         required: false
 
@@ -43,7 +43,7 @@ jobs:
   # when src/data/artworks.json changed. The whole suite is a few seconds;
   # cheap insurance against shipping a catalogue regression.
   test:
-    if: github.repository == 'trebeljahr/collection-of-beauty' && github.ref == 'refs/heads/main' && inputs.operation != 'verify' && inputs.operation != 'deploy'
+    if: github.repository == 'trebeljahr/collection-of-beauty' && github.ref == 'refs/heads/main' && inputs.operation != 'verify' && inputs.operation != 'deploy' && inputs.operation != 'rollback'
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v5
@@ -81,7 +81,7 @@ jobs:
   # src/data/artworks.json changes. Drift is caught before the push ever
   # reaches CI. See scripts/verify-r2.mjs and .husky/pre-push.
   build:
-    if: github.repository == 'trebeljahr/collection-of-beauty' && github.ref == 'refs/heads/main' && inputs.operation != 'verify' && inputs.operation != 'deploy'
+    if: github.repository == 'trebeljahr/collection-of-beauty' && github.ref == 'refs/heads/main' && inputs.operation != 'verify' && inputs.operation != 'deploy' && inputs.operation != 'rollback'
     needs: test
     outputs:
       digest: ${{ steps.image.outputs.digest }}
@@ -190,7 +190,7 @@ jobs:
       always() && !cancelled() &&
       github.repository == 'trebeljahr/collection-of-beauty' && github.ref == 'refs/heads/main' &&
       ((github.event_name == 'push' && vars.COLLECTION_OF_BEAUTY_ROLLOUT_MODE == 'automatic' && needs.build.result == 'success') ||
-       (github.event_name == 'workflow_dispatch' && inputs.operation == 'deploy'))
+       (github.event_name == 'workflow_dispatch' && (inputs.operation == 'deploy' || inputs.operation == 'rollback')))
     runs-on: ubuntu-latest
     timeout-minutes: 30
     permissions:
@@ -204,6 +204,7 @@ jobs:
       - name: Promote, queue this app, and verify the release
         env:
           ROLLOUT_MODE: ${{ vars.COLLECTION_OF_BEAUTY_ROLLOUT_MODE }}
+          OPERATION: ${{ github.event_name == 'workflow_dispatch' && inputs.operation || 'deploy' }}
           TARGET_SHA: ${{ github.event_name == 'push' && github.sha || inputs.target_sha }}
           TARGET_DIGEST: ${{ github.event_name == 'push' && needs.build.outputs.digest || inputs.image_digest }}
           EXPECTED_CURRENT_DIGEST: ${{ inputs.expected_current_digest }}

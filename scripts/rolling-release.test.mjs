@@ -37,6 +37,9 @@ function platform(options = {}) {
         config: {
           Labels: {
             "org.opencontainers.image.revision": sha,
+            ...(sha === OLD && options.rollback
+              ? { "io.hatchkit.assets.retention": "3", "io.hatchkit.assets.storage": "shared-v1" }
+              : {}),
             ...(sha === NEW
               ? {
                   "io.hatchkit.assets.parent-digest": options.wrongParent
@@ -67,12 +70,13 @@ function platform(options = {}) {
     images.set(hash(manifest), manifest);
     tags.set(sha, hash(manifest));
   }
-  tags.set("latest", tags.get(OLD));
-  if (options.initialized) {
-    tags.set("rolling-started", tags.get(OLD));
-    tags.set("rolling-verified", tags.get(OLD));
+  const current = options.rollback ? NEW : OLD;
+  tags.set("latest", tags.get(current));
+  if (options.initialized || options.rollback) {
+    tags.set("rolling-started", tags.get(current));
+    tags.set("rolling-verified", tags.get(current));
   }
-  let serving = OLD;
+  let serving = current;
   const responseFor = (bytes) =>
     new Response(bytes, {
       headers: {
@@ -81,11 +85,13 @@ function platform(options = {}) {
       },
     });
   const deps = {
+    releaseWindow: async () => options.window ?? [NEW, OLD],
     record: (report) => reports.push(report),
     verify: async (sha) => {
       verified.push(sha);
       if (options.baselineUnavailable && sha === OLD) throw new Error("No public build identity.");
-      if (options.failTarget && sha === NEW) throw new Error("Candidate is unhealthy.");
+      if (options.failTarget && sha === (options.rollback ? OLD : NEW))
+        throw new Error("Candidate is unhealthy.");
       assert.equal(serving, sha);
       if (options.driftDuringBaseline && sha === OLD) tags.set("latest", tags.get(OTHER));
       if (options.driftDuringTarget && sha === NEW) tags.set("latest", tags.get(OTHER));
@@ -168,12 +174,15 @@ function platform(options = {}) {
       return responseFor(bytes);
     },
   };
-  const release = {
-    sha: NEW,
-    digest: tags.get(NEW),
-    expectedCurrentDigest: tags.get(OLD),
-    automatic: false,
-  };
+  const release = options.rollback
+    ? {
+        sha: OLD,
+        digest: tags.get(OLD),
+        expectedCurrentDigest: tags.get(NEW),
+        automatic: false,
+        rollback: true,
+      }
+    : { sha: NEW, digest: tags.get(NEW), expectedCurrentDigest: tags.get(OLD), automatic: false };
   return { deps, release, tags, images, blobs, requests, reports, hooks, verified };
 }
 
@@ -463,4 +472,49 @@ test("building asset retention requires both verified journal markers", () => {
   assert.throws(() => buildBaselineProof(digest, sha, null, null), /journal/);
   assert.throws(() => buildBaselineProof(digest, sha, { digest }, null), /journal/);
   assert.equal(buildBaselineProof(digest, sha, { digest }, { digest }), "verified-journal");
+});
+
+test("rollback returns to a retained shared image and completes the journal on it", async () => {
+  const p = platform({ rollback: true });
+  const result = await rollingRelease(config, p.release, p.deps);
+  assert.equal(result.stage, "http-verified");
+  assert.equal(result.operation, "rollback");
+  for (const tag of ["latest", "rolling-started", "rolling-verified"])
+    assert.equal(p.tags.get(tag), p.tags.get(OLD), tag);
+  assert.deepEqual(p.hooks, [OLD]);
+  assert.deepEqual(p.verified, [NEW, OLD]);
+});
+
+test("rollback refuses targets the store no longer retains, legacy images and automatic runs", async () => {
+  for (const window of [[NEW], [NEW, OTHER], [OTHER, OLD]]) {
+    const p = platform({ rollback: true, window });
+    await assert.rejects(rollingRelease(config, p.release, p.deps), /not retained/);
+    assert.equal(writes(p).length, 0);
+  }
+  const legacy = platform({ rollback: true, wrongStorage: true });
+  await assert.rejects(rollingRelease(config, legacy.release, legacy.deps), /shared-storage/);
+  assert.equal(writes(legacy).length, 0);
+  const auto = platform({ rollback: true });
+  await assert.rejects(
+    rollingRelease(
+      { ...config, mode: "automatic" },
+      { ...auto.release, automatic: true },
+      auto.deps,
+    ),
+    /manual/,
+  );
+  const same = platform({ rollback: true });
+  await assert.rejects(
+    rollingRelease(config, { ...same.release, sha: NEW, digest: same.tags.get(NEW) }, same.deps),
+    /already the current image/,
+  );
+});
+
+test("a deploy still requires the exact current parent outside rollback", async () => {
+  const p = platform({ rollback: true });
+  await assert.rejects(
+    rollingRelease(config, { ...p.release, rollback: false }, p.deps),
+    /exact current image/,
+  );
+  assert.equal(writes(p).length, 0);
 });

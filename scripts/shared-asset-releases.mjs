@@ -190,18 +190,26 @@ export async function publishRelease(
     throw new Error("Invalid shared retention metadata.");
   if (!old && (meta.previousSha !== bootstrap.sha || meta.previousDigest !== bootstrap.digest))
     throw new Error("Only the fixed first adoption may initialize an empty store.");
-  const restarting = old?.window.includes(meta.current);
-  if (old && !restarting && old.head !== meta.previousSha)
-    throw new Error(
-      "Prepared head differs from the image parent; reconcile the failed candidate first.",
-    );
-  const window = restarting ? old.window : meta.releases;
   const held = [];
   for (const name of await readdir(join(store, "leases"))) {
     if (!/^[a-f0-9]{40}\.lock$/.test(name) || !(await lstat(join(store, "leases", name))).isFile())
       throw new Error("Invalid lease file.");
     if (isHeld(join(store, "leases", name))) held.push(name.slice(0, 40));
   }
+  const restarting = old?.window.includes(meta.current);
+  // A head that is not this image's parent was rolled back or never became
+  // healthy. Building on a retained older release replaces it only once no
+  // image of that head is still running.
+  if (
+    old &&
+    !restarting &&
+    old.head !== meta.previousSha &&
+    (!old.window.includes(meta.previousSha) || held.includes(old.head))
+  )
+    throw new Error(
+      "Prepared head differs from the image parent; reconcile the failed candidate first.",
+    );
+  const window = restarting ? old.window : meta.releases;
   if (held.length > 3 || !held.includes(meta.current))
     throw new Error("Missing image lease or too many live releases.");
   const keep = [...new Set([...window, ...held])];

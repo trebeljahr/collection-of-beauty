@@ -42,11 +42,22 @@ cannot mistake its own release for an expired one. The fixed legacy asset
 baseline survives all normal pruning. Empty lease files remain to avoid a lock
 unlink/reopen race; they count toward the capacity limit.
 
-A previously prepared failed candidate may leave the shared head ahead of the
-serving image. Do not erase or rewind it automatically. Reconcile image identity,
-active leases, registry journals, and the failed deployment first. Restarting an
-image within the retained window is allowed without rewinding the shared head.
-Starting an expired image is refused. This volume holds reproducible public
+Restarting an image within the retained window is allowed without rewinding the
+shared head; starting an expired image is refused. A rolled-back or failed
+candidate leaves the shared head ahead of the serving image. The next build is
+a child of the serving image; its publication replaces that head only when its
+parent is in the window and no running image still holds the head's lease. Its
+tabs then expire and reload on a retained release. With the head still running,
+publication is refused for operator reconciliation.
+
+## Rollback
+
+Run the workflow with `operation=rollback`, the target commit and digest, and
+the reviewed current digest. The controller accepts only a shared-storage
+target whose commit sits behind the serving release in the live
+`releases.json` window, from a shared-storage current image. It then moves the
+journal and `latest` to the target, queues one deployment, and verifies it, like
+a deploy. A rollback to the fixed legacy image is a separate controlled step. This volume holds reproducible public
 artifacts and has no application-data backup requirement.
 
 ## Release-sensitive public files

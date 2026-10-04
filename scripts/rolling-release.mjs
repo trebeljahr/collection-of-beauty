@@ -27,6 +27,7 @@ try {
       digest: env("TARGET_DIGEST"),
       expectedCurrentDigest: env("EXPECTED_CURRENT_DIGEST"),
       automatic: env("GITHUB_EVENT_NAME") === "push",
+      rollback: env("OPERATION") === "rollback",
     },
     {
       record: (report) => {
