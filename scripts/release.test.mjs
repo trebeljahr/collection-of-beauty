@@ -238,3 +238,63 @@ test("a stuck server shutdown is cut before docker stop escalates to SIGKILL", {
     rmSync(directory, { recursive: true, force: true });
   }
 });
+
+// Starts a plain server under the drain and returns its port and child.
+async function drainedServer(env) {
+  const directory = mkdtempSync(join(tmpdir(), "cob-drain-probe-"));
+  const server = join(directory, "server.cjs");
+  writeFileSync(
+    server,
+    `require("node:http").createServer((q,r)=>r.end("ok")).listen(0,"127.0.0.1",function(){process.send(this.address().port)});`,
+  );
+  const child = spawn(process.execPath, ["--require", join(ROOT, "drain.cjs"), server], {
+    env: { ...process.env, HEALTH_CHECK_PATH: "/health", ...env },
+    stdio: ["ignore", "ignore", "ignore", "ipc"],
+  });
+  const [port] = await once(child, "message");
+  return { child, port, directory };
+}
+const probe = (port) =>
+  fetch(`http://127.0.0.1:${port}/health`)
+    .then((r) => r.status)
+    .catch(() => "closed");
+
+test("the drain ends once Docker has seen enough failed probes, waiting for late ones", { timeout: 60000 }, async () => {
+  const env = { SHUTDOWN_DRAIN_SECONDS: "1", SHUTDOWN_DRAIN_EXTRA_SECONDS: "5", HEALTH_CHECK_RETRIES: "3" };
+  const timed = async (schedule) => {
+    const { child, port, directory } = await drainedServer(env);
+    try {
+      const started = Date.now();
+      child.kill("SIGTERM");
+      const statuses = [];
+      const probing = schedule(port, statuses);
+      const [code, signal] = await once(child, "exit");
+      await probing;
+      return { elapsed: Date.now() - started, code, signal, statuses };
+    } finally {
+      if (child.exitCode === null) child.kill("SIGKILL");
+      rmSync(directory, { recursive: true, force: true });
+    }
+  };
+  // Prompt probes: third failure at ~0.3 s, plus the 2 s margin.
+  const prompt = await timed(async (port, statuses) => {
+    for (let i = 0; i < 3; i++) {
+      await new Promise((r) => setTimeout(r, 100));
+      statuses.push(await probe(port));
+    }
+  });
+  assert.deepEqual(prompt.statuses, [503, 503, 503]);
+  assert.equal(prompt.code, 0);
+  assert.ok(prompt.elapsed >= 2000 && prompt.elapsed < 3500, `prompt ${prompt.elapsed} ms`);
+  // Late probes: nothing until 3 s, so the drain outlasts its 1 s minimum.
+  const late = await timed(async (port, statuses) => {
+    await new Promise((r) => setTimeout(r, 3000));
+    for (let i = 0; i < 3; i++) statuses.push(await probe(port));
+  });
+  assert.deepEqual(late.statuses, [503, 503, 503]);
+  assert.ok(late.elapsed >= 4800 && late.elapsed < 6000, `late ${late.elapsed} ms`);
+  // No probes at all: bounded by the extension.
+  const none = await timed(async () => {});
+  assert.equal(none.code, 0);
+  assert.ok(none.elapsed >= 5900 && none.elapsed < 7500, `none ${none.elapsed} ms`);
+});

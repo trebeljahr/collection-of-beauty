@@ -152,3 +152,13 @@ node --test scripts/release.test.mjs scripts/rolling-release.test.mjs scripts/re
 node node_modules/vitest/vitest.mjs run src/lib/release-session.test.ts src/lib/gallery-release-state.test.ts src/lib/stale-deploy.test.ts --maxWorkers=1
 node node_modules/typescript/bin/tsc --noEmit
 ```
+
+## Drain timing
+
+`drain.cjs` answers the loopback health probe with 503 for at least
+`SHUTDOWN_DRAIN_SECONDS` (20). It counts the failed probes it answers and ends
+the drain only after `HEALTH_CHECK_RETRIES` (5) of them plus 2 seconds, so
+Docker has marked the container unhealthy and Traefik has dropped it. On a
+loaded host, where probes run late, it waits up to `SHUTDOWN_DRAIN_EXTRA_SECONDS`
+(5) longer. The process exits at the latest 28 seconds after SIGTERM, inside
+`docker stop`'s 30 seconds.

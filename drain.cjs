@@ -14,7 +14,9 @@
 //      never over loopback, so they are served normally throughout.
 //   2. waits SHUTDOWN_DRAIN_SECONDS: time for Docker to count enough
 //      failed probes to mark the container unhealthy, and for Traefik to
-//      drop it.
+//      drop it. It counts the failed probes it answers; when a loaded host
+//      runs them late, it keeps waiting for HEALTH_CHECK_RETRIES of them, up
+//      to SHUTDOWN_DRAIN_EXTRA_SECONDS longer.
 //   3. then runs the server's own SIGTERM handling (Next.js closes its
 //      server and exits): every SIGTERM listener the server registers is
 //      held until the drain ends. A server with none gets its HTTP
@@ -39,13 +41,21 @@ const http = require("node:http");
 const { isMainThread } = require("node:worker_threads");
 
 const drainMs = Math.max(0, Number(process.env.SHUTDOWN_DRAIN_SECONDS) || 0) * 1000;
+// Docker marks a container unhealthy after this many failed probes in a row;
+// only then does the proxy stop routing here.
+const healthRetries = Math.max(1, Number(process.env.HEALTH_CHECK_RETRIES) || 5);
+// A loaded host runs probes late. The drain waits up to this long past
+// SHUTDOWN_DRAIN_SECONDS for the failures Docker needs, then stops anyway.
+const extraDrainMs = Math.max(0, Number(process.env.SHUTDOWN_DRAIN_EXTRA_SECONDS ?? 5)) * 1000;
+const PROBE_MARGIN_MS = 2000;
 const healthPaths = (process.env.HEALTH_CHECK_PATH || "/,/api/health")
   .split(",")
   .map((p) => p.trim())
   .filter(Boolean);
-// After the drain, how long the server's own shutdown (or, without one,
-// in-flight requests) may take before its connections are cut. With the
-// 20 s drain this ends at 28 s, inside `docker stop`'s 30 s before SIGKILL.
+// The process exits at the latest this long after the nominal drain: the
+// server's own shutdown (or, without one, in-flight requests) gets what is
+// left after any drain extension. With the 20 s drain the deadline is 28 s
+// after SIGTERM, inside `docker stop`'s 30 s before SIGKILL.
 const CLOSE_TIMEOUT_MS = 8000;
 
 // A child this process forks inherits `--require`. Only the process that
@@ -69,6 +79,9 @@ function install() {
   let finished = false;
   let timer;
   let heldCalls = 0;
+  let termAt = 0;
+  let failedProbes = 0;
+  let unhealthyAt = 0;
   let release;
   const drained = new Promise((resolve) => {
     release = resolve;
@@ -87,6 +100,8 @@ function install() {
     if (event === "listening") servers.add(this);
     if (event === "close") servers.delete(this);
     if (event === "request" && draining && isProbe(args[0])) {
+      failedProbes += 1;
+      if (failedProbes === healthRetries) unhealthyAt = Date.now();
       args[1].writeHead(503, { "content-type": "text/plain", connection: "close" });
       args[1].end("draining\n");
       return true;
@@ -100,6 +115,8 @@ function install() {
     clearTimeout(timer);
     release();
     const exit = () => process.exit(0);
+    // One deadline from SIGTERM, however long the drain itself took.
+    const remaining = Math.max(0, termAt + drainMs + CLOSE_TIMEOUT_MS - Date.now());
     // Held listeners ran on this signal, and now run on the promise
     // above. They own the shutdown, but must finish before `docker stop`
     // escalates to SIGKILL; past CLOSE_TIMEOUT_MS cut what is left and exit.
@@ -107,7 +124,7 @@ function install() {
       setTimeout(() => {
         for (const server of servers) server.closeAllConnections?.();
         exit();
-      }, CLOSE_TIMEOUT_MS).unref();
+      }, remaining).unref();
       return;
     }
     let open = servers.size;
@@ -121,17 +138,27 @@ function install() {
     setTimeout(() => {
       for (const server of servers) server.closeAllConnections?.();
       exit();
-    }, CLOSE_TIMEOUT_MS).unref();
+    }, remaining).unref();
+  };
+
+  // Docker must have seen enough failed probes for the proxy to have dropped
+  // this container. Normally that happened long before SHUTDOWN_DRAIN_SECONDS.
+  const settle = () => {
+    const now = Date.now();
+    const seen = failedProbes >= healthRetries && now - unhealthyAt >= PROBE_MARGIN_MS;
+    if (seen || now - termAt >= drainMs + extraDrainMs) return finish();
+    timer = setTimeout(settle, 250);
   };
 
   const onSigterm = () => {
     // A second SIGTERM means stop waiting.
     if (draining) return finish();
     draining = true;
+    termAt = Date.now();
     console.log(
-      `[drain] SIGTERM: failing the health check for ${drainMs / 1000}s so the proxy stops routing here, then shutting down`,
+      `[drain] SIGTERM: failing the health check for at least ${drainMs / 1000}s so the proxy stops routing here, then shutting down`,
     );
-    timer = setTimeout(finish, drainMs);
+    timer = setTimeout(settle, drainMs);
   };
   // Registered before process.on is wrapped below, so it is the one
   // SIGTERM listener that runs at once.
