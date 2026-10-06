@@ -4,6 +4,8 @@ import { join } from "node:path";
 import { assetInventoryHash, retainAssetReleases } from "./retain-asset-releases.mjs";
 import { publishRelease, STORE_ID } from "./shared-asset-releases.mjs";
 export const ids = ["a", "b", "c", "d", "e"].map((x) => x.repeat(40));
+// Turbopack chunk names can contain "~" (e.g. `0kl6_f75l1~9u.js`).
+export const tildeChunk = (id) => `chunks/0kl6_f75l1~${id.slice(0, 2)}.js`;
 export const media = (id) => `release-public/${id}/textures/wall/wall_diff_1k.jpg`;
 const digest = "sha256:" + "1".repeat(64);
 export async function fixture() {
@@ -24,6 +26,7 @@ export async function fixture() {
       join(raw, "_next/static/chunks", `${ids[i]}.js`),
       `window.revision='${ids[i]}';`,
     );
+    await writeFile(join(raw, "_next/static", tildeChunk(ids[i])), `window.tilde='${ids[i]}';`);
     if (i) {
       await mkdir(join(raw, "_next/static", media(ids[i]), ".."), { recursive: true });
       await writeFile(join(raw, "_next/static", media(ids[i])), `texture-${ids[i]}`);
