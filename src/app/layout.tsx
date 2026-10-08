@@ -37,11 +37,12 @@ const FOOTER_LINK =
    on: the production apex only, so dev, localhost and preview hosts send
    nothing (the old host and www 308 to the apex in next.config.mjs, so no
    page renders there). `plausibleSiteId` is the site's id on the Plausible
-   dashboard, sent as data-domain; it is still the pre-migration name until
-   the site is renamed there. Checking the hostname against the site id is
+   dashboard, sent as data-domain. Since 2026-10-08 it is the
+   collectionofbeauty.com site; stats from before then stay under the old
+   beauty.trebeljahr.com site. Checking the hostname against the site id is
    what silenced analytics after the 2026-09-13 move. */
 const plausibleHostname = "collectionofbeauty.com";
-const plausibleSiteId = "beauty.trebeljahr.com";
+const plausibleSiteId = "collectionofbeauty.com";
 /* The plain script: page loads and client-side navigations, nothing else.
    No extensions (outbound links, file downloads, custom events), and not
    `hash` either, which would count every #decade-N jump on the timeline as
