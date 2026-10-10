@@ -218,8 +218,38 @@ required by the Dockerfile — don't remove it.
   `distributePaintings` skips the hall so spill can't break the
   symmetry. A floor with fewer than 4 composable works falls back to
   the ordinary hang.
-- The pendant lamp fixture lives in `lamp-fixture.tsx`. Geometry is
-  module-scope so room swaps don't reallocate buffers.
+- **There are no three.js lights on the works, on purpose.** Each
+  painting has a picture light (`painting-light.tsx`, geometry in
+  `painting-light-rig.ts`): a ceiling can and the pool it throws, drawn
+  as one shader quad on the wall and floor behind the frame, with the
+  frame's shadow inside it. A real `SpotLight` per work would be priced
+  into every wall fragment, and a floor mounts dozens of works at once.
+  The quad multiplies what is already on screen, so:
+  - the fill light (ambient + hemisphere in `index.tsx`, environment
+    intensity in `room-env-map.tsx`) is kept low. Raise it and the pools
+    clip to white on pale walls;
+  - a pool is clipped to its own wall: doorways and room corners are cut
+    out (`wallContextFor`), or it would brighten the next room seen
+    through the door;
+  - frames, canvas and plaque sit in front of the quad and are not lit
+    by it. The plaque card carries its own emissive for that reason.
+- Frames are moulding profiles swept round the canvas with mitred
+  corners (`frame-geometry.ts`), one profile per variant. A profile may
+  not reach more than 0.05 m past the canvas: the plaque starts 0.06 m
+  out, and `place-paintings.ts` budgets wall space by that footprint.
+  Frame and fixture metal reflect their own environment map
+  (`frame-env.ts`, the room gradient plus bright lamp spots), assigned in
+  `RoomEnvironment`.
+- Tone mapping is Khronos Neutral, so a palette colour shows on screen
+  as authored. The environment map's light is pulled most of the way to
+  grey (`asLight`): a cream wall lit by its own cream comes out khaki.
+- Two ways to aim the camera headless, where Chromium refuses pointer
+  lock. `scripts/build-museum-screenshots.mjs` stubs the Pointer Lock
+  API and walks with timed keys, which changes nothing in the app but
+  lands a little differently each run. For an exact, repeatable pose
+  (a before/after comparison), `?debug` exposes the camera as
+  `window.__galleryCamera`: set its position and quaternion, then
+  screenshot. Launch with `--use-angle=metal` for a real GPU.
 
 ## Newsletter
 

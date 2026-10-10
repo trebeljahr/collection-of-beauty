@@ -14,13 +14,14 @@ import {
   ROOM_HEIGHT,
   SPIRAL_FLOOR_CUTOUT_RADIUS,
 } from "@/lib/gallery-layout/world-coords";
+import { Laylight } from "./laylight";
 import { Painting } from "./painting";
 import { getPaletteMaterials, getRoomFloorMaterial } from "./palette-materials";
 import { WallWithDoors } from "./wall";
 
 /**
- * Render a single room: floor, ceiling, 4 walls with the room's door
- * openings cut out, plus simple lighting. Uses shared per-palette
+ * Render a single room: floor, ceiling with its laylight, 4 walls with
+ * the room's door openings cut out, and its paintings. Uses shared per-palette
  * materials so every room of the same era reuses the same 4 materials
  * instead of allocating fresh ones.
  */
@@ -142,10 +143,19 @@ export function RoomGeometry({
         </>
       )}
       {isStandardRoom && (
-        <mesh rotation={[Math.PI / 2, 0, 0]} position={[cxWorld, floorY + ROOM_HEIGHT, czWorld]}>
-          <planeGeometry args={[width, depth]} />
-          <primitive object={mats.ceiling} attach="material" />
-        </mesh>
+        <>
+          <mesh rotation={[Math.PI / 2, 0, 0]} position={[cxWorld, floorY + ROOM_HEIGHT, czWorld]}>
+            <planeGeometry args={[width, depth]} />
+            <primitive object={mats.ceiling} attach="material" />
+          </mesh>
+          <Laylight
+            cx={cxWorld}
+            cz={czWorld}
+            ceilingY={floorY + ROOM_HEIGHT}
+            width={width}
+            depth={depth}
+          />
+        </>
       )}
 
       {/* Stairwell main floor. On the ground floor the spiral only
@@ -213,7 +223,14 @@ export function RoomGeometry({
           then a few per frame, nearest the stair first. */}
       {revealedPlacements.map((p) => {
         const paintingKey = `${room.id}-${p.artwork.id}-${p.position.join(",")}`;
-        return <Painting key={paintingKey} placement={p} onSettled={settledHandler(paintingKey)} />;
+        return (
+          <Painting
+            key={paintingKey}
+            placement={p}
+            room={room}
+            onSettled={settledHandler(paintingKey)}
+          />
+        );
       })}
     </group>
   );

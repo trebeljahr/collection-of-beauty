@@ -158,6 +158,19 @@ export function DebugProbe() {
     };
   }, [gl]);
 
+  // Headless visual checks can't turn the camera: pointer lock is
+  // refused there, and the spawn effect re-aims at the stairwell after a
+  // restored pose. With the HUD on, a script can set
+  // `__galleryCamera.quaternion` before taking a screenshot.
+  const camera = useThree((s) => s.camera);
+  useEffect(() => {
+    const w = window as { __galleryCamera?: THREE.Camera };
+    w.__galleryCamera = camera;
+    return () => {
+      delete w.__galleryCamera;
+    };
+  }, [camera]);
+
   useFrame((state) => {
     const now = performance.now();
     if (lastFrame.current > 0) {

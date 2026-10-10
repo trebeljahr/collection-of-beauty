@@ -13,20 +13,40 @@
 
 import * as THREE from "three";
 import type { Palette } from "@/lib/gallery-eras";
+import type { FrameProfileId } from "./frame-geometry";
 import { buildMapBundle } from "./texture-pack";
 
 // One floor texture for the whole building. Eras tint the floor with
 // `floorColor` (and rooms with `roomAccents`), but the underlying
-// surface is always patterned brick so tiles join cleanly at every
-// staircase landing and room↔hallway threshold instead of switching
-// abruptly between era-themed pads.
-const SHARED_FLOOR_TEXTURE_SLUG = "patterned_brick_floor";
+// surface is always the same herringbone parquet so boards join cleanly
+// at every staircase landing and room↔room threshold instead of
+// switching abruptly between era-themed pads.
+//
+// It was dark patterned brick until the rooms got picture lights. Brick
+// under near-black tints gave the spill of a spot nothing to land on,
+// and the walls now sit dimmer between pools, so a dark floor closed the
+// room in. Oak parquet is the common floor of the picture galleries the
+// lighting is modelled on.
+const SHARED_FLOOR_TEXTURE_SLUG = "herringbone_parquet";
 
-// Floor tiles use (1, 1) repeat at the material level; per-mesh
-// world-unit UVs (see room-geometry.tsx + hallway.tsx) drive the
-// actual tile density so 1 unit of UV = 1 m of world. Each Poly
-// Haven 1 m² texture then reads at a consistent scale across rooms
-// of any size.
+// The palette's floor colours were authored as near-black tints for the
+// brick. Over wood they would read as charred, so each is lifted most of
+// the way to white: the room keeps a trace of its warm or cool cast and
+// the board colour comes from the texture.
+const FLOOR_TINT_LIFT = 0.62;
+const _white = new THREE.Color("#ffffff");
+function floorTint(color: string): THREE.Color {
+  return new THREE.Color(color).lerp(_white, FLOOR_TINT_LIFT);
+}
+
+// Satin lacquer: enough sheen for the floor to pick up the room, short
+// of the wet look the set's own roughness map (≈ 0.10) gives.
+const FLOOR_ROUGHNESS = 0.42;
+
+// Per-mesh world-unit UVs (see room-geometry.tsx + hallway.tsx) make
+// 1 unit of UV = 1 m of world, so the repeat here is tiles per metre.
+// The parquet set shows eight courses across its width; at one tile per
+// 3 m a board comes out about 37 cm long, the size of a real block.
 //
 // Walls are intentionally NOT textured. The first attempt looked
 // worse than the flat-tinted plaster: AO baked into the diffuse
@@ -35,7 +55,7 @@ const SHARED_FLOOR_TEXTURE_SLUG = "patterned_brick_floor";
 // by spreading `buildMapBundle(palette.wallTexture, 1, 1)` into the
 // wall material — the `wallTexture` field on the Palette type is
 // still there.
-const FLOOR_REPEAT: [number, number] = [1, 1];
+const FLOOR_REPEAT: [number, number] = [1 / 3, 1 / 3];
 
 export type PaletteMaterials = {
   wall: THREE.MeshStandardMaterial;
@@ -58,23 +78,16 @@ export function getPaletteMaterials(palette: Palette): PaletteMaterials {
       side: THREE.DoubleSide,
     }),
     floor: new THREE.MeshStandardMaterial({
-      color: palette.floorColor,
+      color: floorTint(palette.floorColor),
       ...floorTextures,
-      // Override the roughnessMap from the bundle with a fixed
-      // moderate scalar. Per-set roughness ARM channels vary wildly
-      // (herringbone_parquet ≈ 0.10 = mirror, patterned_brick_floor
-      // ≈ 0.82 = chalk) so two floors with the same `floorColor` and
-      // similar lighting can read as either bright-and-glossy or
-      // crushed-to-black depending on the texture. Forcing a uniform
-      // 0.55 gives every floor a similar specular pickup from the
-      // room lamps + env map and keeps the gallery readable on the
-      // matte sets (Gothic patterned_brick_floor, the Baroque
-      // checkered tiles) without making the polished sets look like
-      // a wet ice rink.
+      // Override the roughnessMap from the bundle with a fixed scalar.
+      // Per-set roughness ARM channels vary wildly (herringbone_parquet
+      // ≈ 0.10 = mirror, patterned_brick_floor ≈ 0.82 = chalk), so the
+      // map decides whether a floor reads bright-and-glossy or crushed
+      // to black more than the lighting does.
       roughnessMap: null,
-      roughness: 0.55,
+      roughness: FLOOR_ROUGHNESS,
       metalness: 0,
-      envMapIntensity: 0.7,
     }),
     ceiling: new THREE.MeshStandardMaterial({
       color: palette.ceilingColor,
@@ -108,15 +121,13 @@ export function getRoomFloorMaterial(color: string): THREE.MeshStandardMaterial 
   if (mat) return mat;
   const textures = buildMapBundle(SHARED_FLOOR_TEXTURE_SLUG, FLOOR_REPEAT[0], FLOOR_REPEAT[1]);
   mat = new THREE.MeshStandardMaterial({
-    color,
+    color: floorTint(color),
     ...textures,
-    // See getPaletteMaterials' floor for why we override roughnessMap
-    // with a uniform scalar — keeps all eras' floors equally readable
-    // regardless of texture-pack roughness.
+    // See getPaletteMaterials' floor for why the roughnessMap is
+    // replaced by a uniform scalar.
     roughnessMap: null,
-    roughness: 0.55,
+    roughness: FLOOR_ROUGHNESS,
     metalness: 0,
-    envMapIntensity: 0.7,
     // Stairwell floors above the player are viewed from below (looking
     // up through the well). Single-sided rendering would backface-cull
     // the underside and leave the scene's black backdrop showing through
@@ -145,112 +156,103 @@ export const frameMaterial = new THREE.MeshStandardMaterial({
 });
 
 // ── Frame variants ────────────────────────────────────────────────────
-// Five distinct frame looks, picked per-artwork in painting.tsx based on
-// the painting's movement. Each variant tweaks colour, depth, inset, and
-// (optionally) an inner liner rim to match the work's era.
+// Five frame looks, picked per artwork in painting.tsx from its
+// movement. Each pairs a moulding profile (frame-geometry.ts) with the
+// materials for its two slots: the moulding itself and, where the
+// profile has one, the slip or fillet next to the canvas. Every frame
+// material reads the profile's baked occlusion from vertex colours.
 
 export type FrameVariantId = "gilded" | "walnut" | "ebony" | "paleAsh" | "redLacquer";
 
 export type FrameVariant = {
-  material: THREE.MeshStandardMaterial;
-  depth: number;
-  inset: number;
-  liner?: {
-    material: THREE.MeshStandardMaterial;
-    /** width of the visible rim around the canvas, in metres */
-    width: number;
-  };
+  profile: FrameProfileId;
+  /** [moulding, slip]: indexed by the frame geometry's groups. */
+  materials: THREE.MeshStandardMaterial[];
 };
 
-// Warm carved gold — Baroque / Renaissance / Academicism. Deep & chunky
-// so it reads as an ornate frame from across the room. A dark-red velvet
-// liner sits just inside, the way real period frames are mounted.
+// Warm gilt over red bole: Baroque, Renaissance, Academicism. The
+// colour is close to gold's reflectance; the warmth comes from the
+// highlight map the frame materials reflect (frame-env.ts).
 const gildedMaterial = new THREE.MeshStandardMaterial({
-  color: "#b8893a",
-  roughness: 0.32,
-  metalness: 0.85,
+  color: "#c9a35a",
+  roughness: 0.34,
+  metalness: 0.9,
+  vertexColors: true,
 });
 
-const gildedLinerMaterial = new THREE.MeshStandardMaterial({
+// Dark red velvet slip between the canvas and the gilt.
+const gildedSlipMaterial = new THREE.MeshStandardMaterial({
   color: "#3a0d10",
-  roughness: 0.78,
-  metalness: 0.05,
+  roughness: 0.85,
+  metalness: 0,
+  vertexColors: true,
 });
 
-// Dark walnut — Dutch Golden Age, Realism, Romanticism, Tonalism. The
-// original "default" look, kept as one of the variants.
+// Dark walnut: Dutch Golden Age, Realism, Romanticism, Tonalism.
 const walnutMaterial = new THREE.MeshStandardMaterial({
-  color: "#1a1108",
-  roughness: 0.55,
+  color: "#2a1a0e",
+  roughness: 0.5,
   metalness: 0.05,
+  vertexColors: true,
 });
 
-// Slim black lacquer — Modernism, Fauvism, Post-Impressionism. Slight
-// sheen, no liner; reads as a confident minimal frame.
+// Slim black lacquer: Modernism, Fauvism, Post-Impressionism.
 const ebonyMaterial = new THREE.MeshStandardMaterial({
-  color: "#0a0807",
-  roughness: 0.22,
-  metalness: 0.15,
+  color: "#0d0b0a",
+  roughness: 0.28,
+  metalness: 0.1,
+  vertexColors: true,
 });
 
-// Pale ash / birch — Impressionism, Pre-Raphaelite, Art Nouveau. Light,
-// matte, lets the painting's colours dominate.
+// Pale ash: Impressionism, Pre-Raphaelite, Art Nouveau.
 const paleAshMaterial = new THREE.MeshStandardMaterial({
   color: "#c9b48a",
-  roughness: 0.78,
+  roughness: 0.7,
   metalness: 0.02,
+  vertexColors: true,
 });
 
-// Deep red-black with a thin metallic-gold liner — Ukiyo-e. Echoes
-// East-Asian lacquer mounting without going full kimono.
+// Red-black lacquer with a gold fillet: Ukiyo-e.
 const redLacquerMaterial = new THREE.MeshStandardMaterial({
   color: "#2a0a08",
-  roughness: 0.28,
-  metalness: 0.18,
+  roughness: 0.26,
+  metalness: 0.15,
+  vertexColors: true,
 });
 
-const goldLinerMaterial = new THREE.MeshStandardMaterial({
+const goldFilletMaterial = new THREE.MeshStandardMaterial({
   color: "#d4a73a",
   roughness: 0.3,
   metalness: 0.95,
+  vertexColors: true,
 });
 
-// Frame depth is hard-capped well under the canvas plane offset of
-// 14 mm (see PaintingPlane). Anything ≥ 0.028 puts the frame's front
-// face at or in front of the canvas plane and z-fights with it; deeper
-// still and the frame box visibly occludes the painting. We cap at
-// 0.020 (front face at 0.010 → 4 mm clearance to canvas) and lean on
-// material + inset width + an optional liner rim for variant identity
-// instead of depth.
 export const FRAME_VARIANTS: Record<FrameVariantId, FrameVariant> = {
-  gilded: {
-    material: gildedMaterial,
-    depth: 0.02,
-    inset: 0.045,
-    liner: { material: gildedLinerMaterial, width: 0.011 },
-  },
-  walnut: {
-    material: walnutMaterial,
-    depth: 0.02,
-    inset: 0.025,
-  },
-  ebony: {
-    material: ebonyMaterial,
-    depth: 0.014,
-    inset: 0.016,
-  },
-  paleAsh: {
-    material: paleAshMaterial,
-    depth: 0.018,
-    inset: 0.035,
-  },
-  redLacquer: {
-    material: redLacquerMaterial,
-    depth: 0.02,
-    inset: 0.025,
-    liner: { material: goldLinerMaterial, width: 0.006 },
-  },
+  gilded: { profile: "gilded", materials: [gildedMaterial, gildedSlipMaterial] },
+  walnut: { profile: "walnut", materials: [walnutMaterial] },
+  ebony: { profile: "ebony", materials: [ebonyMaterial] },
+  paleAsh: { profile: "paleAsh", materials: [paleAshMaterial] },
+  redLacquer: { profile: "redLacquer", materials: [redLacquerMaterial, goldFilletMaterial] },
 };
+
+// Dark bronze metalwork: the frame round each laylight (laylight.tsx).
+export const fixtureMaterial = new THREE.MeshStandardMaterial({
+  color: "#1c1b1a",
+  roughness: 0.4,
+  metalness: 0.7,
+});
+
+/** Materials that reflect the frame highlight map instead of the plain
+ *  room gradient: everything polished enough to show a glint. */
+export const HIGHLIGHT_ENV_MATERIALS: THREE.MeshStandardMaterial[] = [
+  gildedMaterial,
+  walnutMaterial,
+  ebonyMaterial,
+  paleAshMaterial,
+  redLacquerMaterial,
+  goldFilletMaterial,
+  fixtureMaterial,
+];
 
 export const signBaseMaterial = new THREE.MeshStandardMaterial({
   color: "#1a1108",
@@ -265,8 +267,11 @@ export const signBaseMaterial = new THREE.MeshStandardMaterial({
 // environment reflections that wash out small text.
 export const plaqueBaseMaterial = new THREE.MeshStandardMaterial({
   color: "#f5f5f7",
-  emissive: new THREE.Color("#202024"),
-  emissiveIntensity: 0.08,
+  // The card hangs inside its work's pool of light, but the pool is
+  // drawn on the wall behind it and never reaches the card. Enough
+  // self-light to read as lit paper next to the lit wall.
+  emissive: new THREE.Color("#f3efe6"),
+  emissiveIntensity: 0.42,
   roughness: 0.85,
   metalness: 0,
 });
@@ -280,3 +285,4 @@ export const plaqueMountMaterial = new THREE.MeshStandardMaterial({
   roughness: 0.18,
   metalness: 1.0,
 });
+HIGHLIGHT_ENV_MATERIALS.push(plaqueMountMaterial);

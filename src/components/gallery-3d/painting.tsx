@@ -6,10 +6,21 @@ import { memo, useCallback, useEffect, useLayoutEffect, useMemo, useRef, useStat
 import * as THREE from "three";
 import type { ArtworkListing } from "@/lib/data";
 import { PAINTING_WALL_OFFSET } from "@/lib/gallery-layout/place-paintings";
-import type { Placement } from "@/lib/gallery-layout/types";
+import type { Placement, RoomLayout } from "@/lib/gallery-layout/types";
+import { CELL_SIZE, ROOM_HEIGHT } from "@/lib/gallery-layout/world-coords";
 import { formatCm, trustworthyRealSize } from "@/lib/real-size";
 import { GALLERY_LOD_WIDTH, variantProxyUrl } from "@/lib/utils";
 import { FOV_DEFAULT_DEG, ZOOM_PIXEL_HEADROOM } from "./camera-config";
+import {
+  buildFrameGeometry,
+  FRAME_PROFILES,
+  frameScale,
+  profileFrontZ,
+  profileWidth,
+  scaleProfile,
+} from "./frame-geometry";
+import { PaintingLight } from "./painting-light";
+import { buildLightRig, wallContextFor } from "./painting-light-rig";
 import { createPaintingPreview } from "./painting-preview";
 import { type PaintingEntry, registerPainting, unregisterPainting } from "./painting-registry";
 import {
@@ -419,9 +430,13 @@ function deriveTiers(
  *  the default shallow comparison is enough. */
 export const Painting = memo(function Painting({
   placement,
+  room,
   onSettled,
 }: {
   placement: Placement;
+  /** The room the work hangs in: its walls, doors and floor bound the
+   *  picture light's pool. */
+  room: RoomLayout;
   /** Fires once when the base 960 px texture has finished loading and
    *  also fires on final failure after retries. Used by Gallery3D to
    *  drive the start overlay without allowing one bad image to hang it. */
@@ -462,36 +477,69 @@ export const Painting = memo(function Painting({
   );
 
   const variant = FRAME_VARIANTS[pickFrameVariant(artwork)];
-  const frameDepth = variant.depth;
-  const frameInset = variant.inset;
-
-  // Liner is a flat rim sitting on top of the frame's front face,
-  // sandwiched between the frame face (at z = frameDepth/2) and the
-  // canvas plane (at z = 0.014). Keep ≥1.5 mm on both sides to stay well
-  // out of depth-buffer noise. Liner is canvas-sized + 2 × width in XY
-  // so it's strictly inside the frame outer rectangle (no XY clipping)
-  // and the canvas plane occludes its centre, leaving a visible rim.
-  const linerDepth = 0.001;
-  const linerClearance = 0.0015;
-  const linerZ = frameDepth / 2 + linerClearance + linerDepth / 2;
-
   const dW = renderDims.widthM;
   const dH = renderDims.heightM;
 
+  // Moulded frame, rebuilt only when the canvas is refitted to its
+  // texture's aspect. See frame-geometry.ts.
+  const profile = useMemo(
+    () => scaleProfile(FRAME_PROFILES[variant.profile], frameScale(dW, dH)),
+    [variant, dW, dH],
+  );
+  const frameGeometry = useMemo(
+    () => buildFrameGeometry(profile, dW, dH, PAINTING_WALL_OFFSET),
+    [profile, dW, dH],
+  );
+  useEffect(() => () => frameGeometry.dispose(), [frameGeometry]);
+  const frameReach = profileWidth(profile);
+
+  // Picture light: one can per work, its pool clipped to this wall's
+  // clear stretches. See painting-light-rig.ts.
+  const wall = useMemo(() => {
+    const cb = room.cellBounds;
+    return wallContextFor(
+      {
+        xMin: cb.xMin * CELL_SIZE,
+        xMax: (cb.xMax + 1) * CELL_SIZE,
+        zMin: cb.zMin * CELL_SIZE,
+        zMax: (cb.zMax + 1) * CELL_SIZE,
+      },
+      room.doors,
+      room.worldRect.y,
+      position,
+      rotation[1],
+    );
+  }, [room, position, rotation]);
+  const ceilingY = wall.floorY + ROOM_HEIGHT;
+  const rig = useMemo(
+    () =>
+      buildLightRig({
+        frameHalfW: dW / 2 + frameReach,
+        frameHalfH: dH / 2 + frameReach,
+        canvasH: dH,
+        floorY: wall.floorY,
+        ceilingY,
+        wallOffset: PAINTING_WALL_OFFSET,
+        roomSpan: wall.roomSpan,
+        wallSpans: wall.wallSpans,
+        roomDepth: wall.roomDepth,
+      }),
+    [dW, dH, frameReach, wall, ceilingY],
+  );
+  const plaqueRect = useMemo(
+    () => ({
+      x: dW / 2 + PLAQUE_GAP + PLAQUE_MOUNT_W / 2,
+      y: 0,
+      halfW: PLAQUE_MOUNT_W / 2,
+      halfH: (PLAQUE_FACE_H_BASE + PLAQUE_MOUNT_PAD) / 2,
+      frontZ: -PAINTING_WALL_OFFSET + PLAQUE_WALL_CLEAR + PLAQUE_MOUNT_DEPTH + PLAQUE_FACE_DEPTH,
+    }),
+    [dW],
+  );
+
   return (
     <group position={position} rotation={rotation}>
-      <mesh>
-        <boxGeometry args={[dW + frameInset * 2, dH + frameInset * 2, frameDepth]} />
-        <primitive object={variant.material} attach="material" />
-      </mesh>
-      {variant.liner && (
-        <mesh position={[0, 0, linerZ]}>
-          <boxGeometry
-            args={[dW + variant.liner.width * 2, dH + variant.liner.width * 2, linerDepth]}
-          />
-          <primitive object={variant.liner.material} attach="material" />
-        </mesh>
-      )}
+      <mesh geometry={frameGeometry} material={variant.materials} />
       <PaintingPlane
         url={url}
         baseWidth={baseWidth}
@@ -504,6 +552,19 @@ export const Painting = memo(function Painting({
         onTextureAspect={handleTextureAspect}
       />
       <Plaque artwork={artwork} widthM={dW} />
+      <PaintingLight
+        rig={rig}
+        wallZ={-PAINTING_WALL_OFFSET}
+        floorY={wall.floorY}
+        ceilingY={ceilingY}
+        frameHalfW={dW / 2 + frameReach}
+        frameHalfH={dH / 2 + frameReach}
+        frameFrontZ={profileFrontZ(profile) - PAINTING_WALL_OFFSET}
+        plaque={plaqueRect}
+        // The stairwell is open to the storey above: no ceiling to hang
+        // a can from, so its works get the pool without the fixture.
+        fixtures={!room.isStairwell}
+      />
     </group>
   );
 });

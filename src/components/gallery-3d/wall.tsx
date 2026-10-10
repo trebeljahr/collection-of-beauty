@@ -1,7 +1,9 @@
 "use client";
 
+import { useEffect, useMemo } from "react";
 import type * as THREE from "three";
 import { darkWoodTrimMaterial } from "./palette-materials";
+import { buildSkirtingGeometry } from "./skirting-geometry";
 
 type Vec3 = [number, number, number];
 
@@ -22,11 +24,30 @@ export function SolidWall({
   material: THREE.Material;
 }) {
   return (
-    <mesh position={position} rotation={rotation}>
-      <planeGeometry args={[width, height]} />
-      <primitive object={material} attach="material" />
-    </mesh>
+    <group position={position} rotation={rotation}>
+      <mesh>
+        <planeGeometry args={[width, height]} />
+        <primitive object={material} attach="material" />
+      </mesh>
+      <Skirting spans={[{ xMin: -width / 2, xMax: width / 2 }]} floorY={-height / 2} />
+    </group>
   );
+}
+
+/** Skirting along a wall's clear spans, in the wall's local frame. */
+function Skirting({
+  spans,
+  floorY,
+}: {
+  spans: ReadonlyArray<{ xMin: number; xMax: number }>;
+  floorY: number;
+}) {
+  const key = spans.map((s) => `${s.xMin.toFixed(3)}:${s.xMax.toFixed(3)}`).join(",");
+  // biome-ignore lint/correctness/useExhaustiveDependencies: `key` is the content of `spans`, whose array identity changes every render.
+  const geometry = useMemo(() => buildSkirtingGeometry(spans, floorY), [key, floorY]);
+  useEffect(() => () => geometry?.dispose(), [geometry]);
+  if (!geometry) return null;
+  return <mesh geometry={geometry} material={darkWoodTrimMaterial} />;
 }
 
 type DoorOpening = {
@@ -110,6 +131,7 @@ export function WallWithDoors({
           </mesh>
         );
       })}
+      <Skirting spans={strips} floorY={-halfH} />
       {sorted.map((d) => (
         <DoorTrim
           key={`trim-${d.centerLocalX}-${d.width}-${d.height}`}

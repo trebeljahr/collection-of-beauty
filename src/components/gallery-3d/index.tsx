@@ -538,7 +538,13 @@ export function Gallery3D({ artworks }: Props) {
         dpr={[1, 2]}
         gl={{ antialias: true, powerPreference: "high-performance" }}
         onCreated={({ gl, scene }) => {
-          gl.toneMapping = THREE.ACESFilmicToneMapping;
+          // Khronos PBR Neutral: colours below ~0.8 pass through as
+          // authored. ACES bleached pale walls toward white when the
+          // rooms were bright and pushed them toward mustard once they
+          // were dimmed for the picture lights; with Neutral a palette's
+          // wall colour is the colour on screen at any light level.
+          // Paintings are untouched either way (toneMapped: false).
+          gl.toneMapping = THREE.NeutralToneMapping;
           gl.toneMappingExposure = 1.0;
           scene.fog = new THREE.Fog("#0a0805", 20, 80);
           canvasRef.current = gl.domElement;
@@ -579,27 +585,22 @@ export function Gallery3D({ artworks }: Props) {
         }}
       >
         <color attach="background" args={["#0a0805"]} />
-        {/* Global fill for non-active rooms. Tuning is a balance between
-            three failure modes:
-              - too dim (was 0.35 + 0.45): non-active rooms unreadable
-                from the doorway.
-              - too flat (was 0.85 + 1.1): per-room lamps got washed out
-                and the gallery lost depth.
-              - too directional (high hemi, dark groundColor): the ground
-                floor (floor 0) reads darker than upper floors because
-                most of what's visible from there is undersides — the
-                stair going up and the underside of floor 1's annular
-                stairwell slab — and undersides receive the hemi's
-                groundColor only. Upper floors don't have this problem
-                because the cutout gives them bright top-face surfaces
-                visible through the well as well.
-            Today's mix biases toward ambient (uniform from every
-            direction) and warms + dims the hemi so undersides on floor
-            0 are not pitch black. The hemi position is purely cosmetic;
-            HemisphereLight ignores it for shading and shines from
-            world-up regardless. */}
-        <ambientLight intensity={0.202} />
-        <hemisphereLight args={["#fff3d0", "#2a1f15", 0.154]} position={[0, 20, 0]} />
+        {/* Fill light, kept low on purpose. Every work has its own picture
+            light (painting-light.tsx): a pool on the wall behind it that
+            multiplies whatever the fill puts there. The pools only read
+            if the wall between them sits clearly below white, so the
+            fill (these two lights plus the environment map's intensity
+            in room-env-map.tsx) is set for a mid-toned wall, not a
+            bright one. At the old levels (0.2 / 0.15 / env 1.6) every
+            pool clipped to white.
+            The split between the two still follows the older finding:
+            mostly ambient, with a weak and warm hemisphere, because a
+            strong hemisphere with a dark ground colour left the ground
+            floor's view of stair and slab undersides near black. The
+            hemisphere's position is cosmetic; it shines from world-up
+            regardless. */}
+        <ambientLight intensity={0.1} />
+        <hemisphereLight args={["#fff8ea", "#2a1f15", 0.08]} position={[0, 20, 0]} />
         {/* Procedural environment map painted from the active era's
             palette (ceiling/wall/floor colours). Replaces a `sunset`
             HDRI preset that gave metallic surfaces something to reflect

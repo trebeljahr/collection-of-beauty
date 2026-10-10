@@ -21,6 +21,8 @@ import { useThree } from "@react-three/fiber";
 import { useEffect } from "react";
 import * as THREE from "three";
 import type { Palette } from "@/lib/gallery-eras";
+import { buildFrameEnvEquirect } from "./frame-env";
+import { HIGHLIGHT_ENV_MATERIALS } from "./palette-materials";
 
 // A PMREM WebGLRenderTarget's texture is bound to the GL context that
 // built it. Keying the cache by Palette alone (module-scope, lifetime
@@ -33,6 +35,11 @@ import type { Palette } from "@/lib/gallery-eras";
 // new context. WeakMap so a dead renderer's targets are GC'd once it is
 // (its GPU memory already died with the context — no manual dispose).
 const cacheByRenderer = new WeakMap<THREE.WebGLRenderer, Map<Palette, THREE.WebGLRenderTarget>>();
+// Same keying for the frame highlight map (frame-env.ts).
+const frameCacheByRenderer = new WeakMap<
+  THREE.WebGLRenderer,
+  Map<Palette, THREE.WebGLRenderTarget>
+>();
 
 function hexToRgb(hex: string): [number, number, number] {
   const h = hex.replace("#", "");
@@ -57,6 +64,32 @@ function mix(a: string, b: string, t: number): string {
   return rgbToHex(ar * (1 - t) + br * t, ag * (1 - t) + bg * t, ab * (1 - t) + bb * t);
 }
 
+/** Pull a colour most of the way to its own grey.
+ *
+ *  The map lights the walls, and a wall's shaded colour is its albedo
+ *  times the light's colour. Lit by a map of its own cream, a cream wall
+ *  comes out cream squared: khaki. That was invisible while the map ran
+ *  at 1.6 and tone mapping bleached the result back toward white, and it
+ *  showed as soon as the rooms were dimmed for the picture lights. Real
+ *  inter-reflection does tint a room, but far less than one full
+ *  multiply, so the light keeps only part of the palette's hue. */
+const LIGHT_HUE_KEPT = 0.12;
+function asLight(hex: string): string {
+  const [r, g, b] = hexToRgb(hex);
+  const grey = 0.2126 * r + 0.7152 * g + 0.0722 * b;
+  const k = LIGHT_HUE_KEPT;
+  return rgbToHex(grey + (r - grey) * k, grey + (g - grey) * k, grey + (b - grey) * k);
+}
+
+/** The three stops of the room gradient, shared with the frame map. */
+function roomLightStops(palette: Palette): { top: string; wall: string; bottom: string } {
+  return {
+    top: asLight(mix(palette.wallColor, palette.ceilingColor, 0.55)),
+    wall: asLight(palette.wallColor),
+    bottom: asLight(mix(palette.wallColor, palette.floorColor, 0.4)),
+  };
+}
+
 // Equirect maps latitude → vertical canvas axis: top row projects to
 // straight up, bottom row to straight down. Real interiors converge —
 // after enough diffuse bounces — to an ambient that's roughly wall-
@@ -79,13 +112,12 @@ function paintRoomEquirect(palette: Palette): HTMLCanvasElement {
   const ctx = canvas.getContext("2d");
   if (!ctx) return canvas;
 
-  const top = mix(palette.wallColor, palette.ceilingColor, 0.55);
-  const bottom = mix(palette.wallColor, palette.floorColor, 0.4);
+  const { top, wall, bottom } = roomLightStops(palette);
 
   const grad = ctx.createLinearGradient(0, 0, 0, 128);
   grad.addColorStop(0.0, top);
-  grad.addColorStop(0.4, palette.wallColor);
-  grad.addColorStop(0.6, palette.wallColor);
+  grad.addColorStop(0.4, wall);
+  grad.addColorStop(0.6, wall);
   grad.addColorStop(1.0, bottom);
   ctx.fillStyle = grad;
   ctx.fillRect(0, 0, 256, 128);
@@ -120,6 +152,25 @@ function getRoomEnvironmentMap(palette: Palette, renderer: THREE.WebGLRenderer):
   return target.texture;
 }
 
+function getFrameEnvironmentMap(palette: Palette, renderer: THREE.WebGLRenderer): THREE.Texture {
+  let perPalette = frameCacheByRenderer.get(renderer);
+  if (!perPalette) {
+    perPalette = new Map();
+    frameCacheByRenderer.set(renderer, perPalette);
+  }
+  const cached = perPalette.get(palette);
+  if (cached) return cached.texture;
+
+  const { top, wall, bottom } = roomLightStops(palette);
+  const equirect = buildFrameEnvEquirect(top, wall, bottom);
+  const pmrem = new THREE.PMREMGenerator(renderer);
+  const target = pmrem.fromEquirectangular(equirect);
+  pmrem.dispose();
+  equirect.dispose();
+  perPalette.set(palette, target);
+  return target.texture;
+}
+
 type Props = {
   palette: Palette;
   /** Multiplier on the env map's contribution to PBR shading. */
@@ -129,13 +180,13 @@ type Props = {
 /**
  * Drop-in replacement for drei's `<Environment>`. Builds (or recalls
  * from cache) the procedural map for `palette` and binds it to
- * `scene.environment`. Default intensity sits well above 1: the
- * sunset preset we replaced was an HDRI with super-bright sky values
- * baked in, so its irradiance at 0.4 was much higher than an LDR
- * canvas at 0.4 can deliver. 1.6 brings the room's creamy ambient
- * back to roughly the level the gallery shipped with.
+ * `scene.environment`. The default intensity is the room's fill level:
+ * it puts a pale wall at a mid tone, so the picture lights' pools
+ * (painting-light.tsx) have headroom above it. It ran at 1.6 before the
+ * works had lights of their own, which left the walls at near-white
+ * and nothing for a pool to add.
  */
-export function RoomEnvironment({ palette, intensity = 1.6 }: Props) {
+export function RoomEnvironment({ palette, intensity = 0.74 }: Props) {
   const gl = useThree((s) => s.gl);
   const scene = useThree((s) => s.scene);
 
@@ -143,11 +194,24 @@ export function RoomEnvironment({ palette, intensity = 1.6 }: Props) {
     const envMap = getRoomEnvironmentMap(palette, gl);
     scene.environment = envMap;
     scene.environmentIntensity = intensity;
+    // Frames and fixtures reflect the highlight map instead, at the
+    // same strength as the room's.
+    const frameEnv = getFrameEnvironmentMap(palette, gl);
+    for (const m of HIGHLIGHT_ENV_MATERIALS) {
+      m.envMap = frameEnv;
+      m.envMapIntensity = intensity;
+      m.needsUpdate = true;
+    }
     return () => {
       // Don't dispose — the cache keeps the target alive across floor
       // swaps. Just detach so a re-mount isn't briefly lit by the
-      // previous palette's map.
+      // previous palette's map, and so a remounted renderer never
+      // samples a target from a lost context.
       scene.environment = null;
+      for (const m of HIGHLIGHT_ENV_MATERIALS) {
+        m.envMap = null;
+        m.needsUpdate = true;
+      }
     };
   }, [palette, intensity, gl, scene]);
 
