@@ -6,7 +6,7 @@ import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import * as THREE from "three";
 import { GalleryCurtain } from "@/app/gallery-3d/gallery-curtain";
 import { useSetIs3DActive } from "@/components/gallery-3d-state";
-import { useJoystick } from "@/hooks/use-joystick";
+import { JOYSTICK_REACH, useJoystick } from "@/hooks/use-joystick";
 import { useNeedsRotate, useTouchDevice } from "@/hooks/use-touch-device";
 import { useAudioSettings } from "@/lib/audio-settings";
 import type { ArtworkListing } from "@/lib/data";
@@ -34,7 +34,7 @@ import { HallwayRenderer } from "./hallway";
 import { LandscapePrompt } from "./landscape-prompt";
 import { LodController } from "./lod-controller";
 import { boostForMap, Minimap, type PlayerSample, roomRect } from "./minimap";
-import { Player } from "./player";
+import { Player, type PlayerHandle } from "./player";
 import { RoomEnvironment } from "./room-env-map";
 import { RoomGeometry } from "./room-geometry";
 import { Gallery3DSettings } from "./settings-modal";
@@ -45,6 +45,14 @@ import { preloadCached } from "./texture-cache";
 import { ZoomModal } from "./zoom-modal";
 
 const AMBIENCE_SRC = releasePublicPath("/audio/ambience-loop.mp3");
+
+// Centre of the look stick's pad, from the viewport's left and bottom
+// edges, as joystick-controller reads it. The jump button is placed
+// from the same pair.
+const LOOK_STICK_AT = { x: "88%", y: "18%" };
+// Clear space in px between the look stick's knob at full throw and the
+// jump button above it.
+const JUMP_BUTTON_GAP = 16;
 
 type Props = { artworks: ArtworkListing[] };
 
@@ -206,9 +214,12 @@ export function Gallery3D({ artworks }: Props) {
   });
   const lookJoystick = useJoystick({
     enabled: joysticksActive,
-    params: { x: "88%", y: "18%" },
+    params: LOOK_STICK_AT,
     parentRef: galleryHostRef,
   });
+  // Touch has no Space key: the HUD's jump button calls the player's
+  // jump through this.
+  const playerHandle = useRef<PlayerHandle | null>(null);
 
   // Mirror `hasStarted` into the global Gallery3D context so the
   // SiteNav can hide itself and the body can lock vertical scroll
@@ -658,6 +669,7 @@ export function Gallery3D({ artworks }: Props) {
         />
 
         <Player
+          ref={playerHandle}
           enabled={hasStarted && !zoomed && !mapOpen && !settingsOpen}
           floor={currentFloor}
           allStaircases={layout.allStaircases}
@@ -861,11 +873,39 @@ export function Gallery3D({ artworks }: Props) {
                 <kbd className="rounded border border-white/30 px-1 font-mono">F</kbd> zoom ·{" "}
                 <kbd className="rounded border border-white/30 px-1 font-mono">C</kbd> duck ·{" "}
                 <kbd className="rounded border border-white/30 px-1 font-mono">R</kbd> tiptoe ·{" "}
-                <kbd className="rounded border border-white/30 px-1 font-mono">E</kbd> inspect
+                <kbd className="rounded border border-white/30 px-1 font-mono">E</kbd> inspect ·{" "}
+                <kbd className="rounded border border-white/30 px-1 font-mono">Space</kbd> jump
               </>
             )}
           </div>
         ))}
+      {/* Jump, for touch. It stands straight above the look stick and
+          clear of the knob's full throw, so the right thumb reaches it
+          from the screen's edge without lying across the stick. It is a
+          sibling of the canvas: a tap here never reaches the canvas's
+          pointerdown listener, which opens the work under the crosshair.
+          It jumps on pointerdown, since a click waits for the finger to
+          lift. `fixed`, because the sticks are. */}
+      {joysticksActive && (
+        <button
+          type="button"
+          onPointerDown={(e) => {
+            e.preventDefault();
+            playerHandle.current?.jump();
+          }}
+          onContextMenu={(e) => e.preventDefault()}
+          className="fixed z-40 flex size-16 -translate-x-1/2 touch-none select-none items-center justify-center rounded-full border-2 border-[rgba(255,245,220,0.7)] bg-black/50 text-xs font-semibold uppercase tracking-wider text-[rgb(250,240,220)] active:bg-black/75"
+          style={{
+            left: LOOK_STICK_AT.x,
+            bottom: `calc(${LOOK_STICK_AT.y} + ${JOYSTICK_REACH + JUMP_BUTTON_GAP}px)`,
+            animation: "joystick-fade-in 260ms ease-out",
+            WebkitTouchCallout: "none",
+            WebkitTapHighlightColor: "transparent",
+          }}
+        >
+          Jump
+        </button>
+      )}
       {/* Crosshair — small dot in the centre of the screen so the
           player knows exactly where they're aiming. Swaps to a
           magnifying-glass icon when the aim raycast lands on a

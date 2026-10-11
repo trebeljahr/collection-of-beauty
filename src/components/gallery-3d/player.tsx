@@ -2,7 +2,7 @@
 
 import { useFrame, useThree } from "@react-three/fiber";
 import type { JoystickOnMove } from "joystick-controller";
-import { useEffect, useRef } from "react";
+import { type Ref, useCallback, useEffect, useImperativeHandle, useRef } from "react";
 import * as THREE from "three";
 import type { ArtworkListing } from "@/lib/data";
 import {
@@ -111,6 +111,14 @@ const _moveScratch = new THREE.Vector3();
 const _UP_SCRATCH = new THREE.Vector3(0, 1, 0);
 const PITCH_LIMIT = Math.PI / 2 - 0.05;
 
+/** What the host can ask of the player from outside the canvas. Touch
+ *  devices have no Space key, so their jump is a HUD button. */
+export type PlayerHandle = {
+  /** The Space key's jump. Returns false when it did nothing: the
+   *  player is disabled or already in the air. */
+  jump: () => boolean;
+};
+
 /**
  * First-person player with grid-based collision. The active floor's
  * `walkable` mask is consulted every frame: a proposed move is accepted
@@ -118,6 +126,7 @@ const PITCH_LIMIT = Math.PI / 2 - 0.05;
  * whichever axis individually lands on a walkable cell.
  */
 export function Player({
+  ref,
   enabled,
   floor,
   allStaircases,
@@ -133,6 +142,7 @@ export function Player({
   joystickMoveGetter,
   joystickLookGetter,
 }: {
+  ref?: Ref<PlayerHandle>;
   enabled: boolean;
   floor: FloorLayout;
   /** Every staircase in the building. Needed so the spiral physics can
@@ -265,6 +275,16 @@ export function Player({
     enabledRef.current = enabled;
   }, [enabled]);
 
+  // The one jump. Space and the touch HUD's button both land here, so
+  // neither can jump while disabled or in mid-air.
+  const jump = useCallback(() => {
+    if (!enabledRef.current || !grounded.current) return false;
+    velocityY.current = JUMP_IMPULSE;
+    grounded.current = false;
+    return true;
+  }, []);
+  useImperativeHandle(ref, () => ({ jump }), [jump]);
+
   useEffect(() => {
     let cancelled = false;
     physicsRef.current?.dispose();
@@ -342,11 +362,7 @@ export function Player({
     const down = (e: KeyboardEvent) => {
       keys.current[e.code] = true;
       if (!enabledRef.current) return;
-      if (e.code === "Space" && grounded.current) {
-        velocityY.current = JUMP_IMPULSE;
-        grounded.current = false;
-        e.preventDefault();
-      }
+      if (e.code === "Space" && jump()) e.preventDefault();
       if (e.code === "KeyE") tryZoom();
       if (e.code === "KeyF") {
         if (!e.repeat) zoomFov.current = !zoomFov.current;
@@ -399,7 +415,7 @@ export function Player({
       document.removeEventListener("pointerlockchange", clearKeys);
       canvas.removeEventListener("pointerdown", pointer);
     };
-  }, [camera, gl, onZoomRequest]);
+  }, [camera, gl, onZoomRequest, jump]);
 
   useFrame((_, delta) => {
     if (!enabled) return;

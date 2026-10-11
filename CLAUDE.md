@@ -300,6 +300,14 @@ required by the Dockerfile — don't remove it.
   - Dividers and benches are part of `galleryLayoutIdentity`. Change
     where they stand and every saved visit restarts once in its floor's
     Grand Hall.
+- **Jump has one code path.** `jump()` in `player.tsx` checks `enabled`
+  and `grounded`. The Space key calls it, and the touch HUD's Jump button
+  calls it through `PlayerHandle`, the Player's `ref`. The button stands
+  above the look stick and is placed from that stick's position
+  (`LOOK_STICK_AT` in `index.tsx`) and the knob's throw (`JOYSTICK_REACH`
+  in `use-joystick.ts`). A touch control is a sibling of the canvas: a tap
+  on it must not reach the canvas's `pointerdown`, which opens the work
+  under the crosshair.
 - **A second floor plan sits behind `/gallery-3d?plan=wings`**
   (`src/lib/gallery-layout/layout-wings.ts`). The tower is the museum;
   the wings plan exists so Rico can walk it and decide. Three floors,
