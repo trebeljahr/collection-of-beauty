@@ -1,11 +1,42 @@
 "use client";
 
-import { useEffect, useMemo } from "react";
+import { useCallback, useEffect, useMemo } from "react";
 import type * as THREE from "three";
 import { darkWoodTrimMaterial } from "./palette-materials";
 import { buildSkirtingGeometry } from "./skirting-geometry";
 
 type Vec3 = [number, number, number];
+
+/** A wall plane whose UVs are metres along the wall and up from the
+ *  floor, so a tiling wall texture (wall-damask.ts) is the same size on
+ *  every wall and runs unbroken across the strips either side of a door.
+ *  `u0`/`v0` are the plane's lower left corner in that frame. A wall
+ *  with a flat colour ignores the UVs. */
+function MetrePlane({
+  width,
+  height,
+  u0,
+  v0,
+}: {
+  width: number;
+  height: number;
+  u0: number;
+  v0: number;
+}) {
+  const ref = useCallback(
+    (g: THREE.PlaneGeometry | null) => {
+      if (!g) return;
+      const pos = g.attributes.position;
+      const uv = g.attributes.uv;
+      for (let i = 0; i < uv.count; i++) {
+        uv.setXY(i, u0 + pos.getX(i) + width / 2, v0 + pos.getY(i) + height / 2);
+      }
+      uv.needsUpdate = true;
+    },
+    [width, height, u0, v0],
+  );
+  return <planeGeometry ref={ref} args={[width, height]} />;
+}
 
 /** Flat wall plane — two-sided so the player can't see through it from
  *  either direction. Accepts a shared `THREE.Material` so callers can
@@ -26,7 +57,7 @@ export function SolidWall({
   return (
     <group position={position} rotation={rotation}>
       <mesh>
-        <planeGeometry args={[width, height]} />
+        <MetrePlane width={width} height={height} u0={0} v0={0} />
         <primitive object={material} attach="material" />
       </mesh>
       <Skirting spans={[{ xMin: -width / 2, xMax: width / 2 }]} floorY={-height / 2} />
@@ -112,7 +143,7 @@ export function WallWithDoors({
         const cx = (s.xMin + s.xMax) / 2;
         return (
           <mesh key={`strip-${s.xMin}-${s.xMax}`} position={[cx, 0, 0]}>
-            <planeGeometry args={[w, height]} />
+            <MetrePlane width={w} height={height} u0={s.xMin + halfW} v0={0} />
             <primitive object={material} attach="material" />
           </mesh>
         );
@@ -126,7 +157,12 @@ export function WallWithDoors({
             key={`lintel-${d.centerLocalX}-${d.width}-${d.height}`}
             position={[d.centerLocalX, cy, 0]}
           >
-            <planeGeometry args={[d.width, lintelH]} />
+            <MetrePlane
+              width={d.width}
+              height={lintelH}
+              u0={d.centerLocalX - d.width / 2 + halfW}
+              v0={d.height}
+            />
             <primitive object={material} attach="material" />
           </mesh>
         );

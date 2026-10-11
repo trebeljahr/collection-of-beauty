@@ -240,9 +240,42 @@ required by the Dockerfile — don't remove it.
   Frame and fixture metal reflect their own environment map
   (`frame-env.ts`, the room gradient plus bright lamp spots), assigned in
   `RoomEnvironment`.
-- Tone mapping is Khronos Neutral, so a palette colour shows on screen
-  as authored. The environment map's light is pulled most of the way to
-  grey (`asLight`): a cream wall lit by its own cream comes out khaki.
+- Tone mapping is Khronos Neutral, so a pale palette colour shows on
+  screen as authored (a deep wall skips it, see the next point). The
+  environment map's light is pulled most of the way to grey (`asLight`):
+  a cream wall lit by its own cream comes out khaki.
+- Wall and ceiling colours are per era, in the `Palette` objects of
+  [`gallery-eras.ts`](src/lib/gallery-eras.ts). Each is modelled on a
+  real room that hangs that period, and the comment above it names the
+  room and says how well the colour is sourced: crimson damask on the
+  Baroque floor after the Wallace Collection's Great Gallery, midnight
+  blue on the Renaissance floor after the Louvre's Salle des États. Two
+  have no written source (Rococo is read from photographs, Natural
+  History rests on one temporary show), so check the comment before
+  quoting a room as fact. Three functions in
+  [`wall-light.ts`](src/components/gallery-3d/wall-light.ts) make a deep
+  colour work, and each returns a pale wall unchanged:
+  - `wallAsLightSource`. The environment map is painted from the wall
+    colour, so a dark wall dimmed its own room, ceiling and floor
+    included. The wall enters the map lifted to the grey of the cream
+    the fill was tuned on.
+  - `isDeepWall`. Neutral subtracts the weakest channel from all three,
+    up to 0.04 in linear light. On crimson that took green to zero and
+    the wall rendered signal red, so a deep wall's material is
+    `toneMapped: false`.
+  - `poolGainScale`. A pool multiplies the wall, so on midnight blue or
+    charcoal it added almost nothing. The gain on the wall rises as the
+    wall's brightest channel falls, capped at 2.
+  The hex is about what shows inside a pool. Between pools the fill puts
+  a wall near 0.43 of it in linear light, so judge a new colour in a
+  screenshot, never from the swatch.
+- `Palette.wallPattern: "damask"` (the Baroque floor only) binds a
+  procedural roughness map (`wall-damask.ts`). It is roughness and
+  nothing else, because a damask is one colour and its figure is a
+  change of sheen. Photographed wall textures were tried earlier and
+  taken out: their baked occlusion fought the lighting round the frames.
+  Wall planes carry UVs in metres (`MetrePlane` in `wall.tsx`) so the
+  repeat is the same size on every wall.
 - Two ways to aim the camera headless, where Chromium refuses pointer
   lock. `scripts/build-museum-screenshots.mjs` stubs the Pointer Lock
   API and walks with timed keys, which changes nothing in the app but

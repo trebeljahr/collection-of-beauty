@@ -23,6 +23,7 @@ import * as THREE from "three";
 import type { Palette } from "@/lib/gallery-eras";
 import { buildFrameEnvEquirect } from "./frame-env";
 import { HIGHLIGHT_ENV_MATERIALS } from "./palette-materials";
+import { greyOf, hexToRgb, rgbToHex, wallAsLightSource } from "./wall-light";
 
 // A PMREM WebGLRenderTarget's texture is bound to the GL context that
 // built it. Keying the cache by Palette alone (module-scope, lifetime
@@ -40,23 +41,6 @@ const frameCacheByRenderer = new WeakMap<
   THREE.WebGLRenderer,
   Map<Palette, THREE.WebGLRenderTarget>
 >();
-
-function hexToRgb(hex: string): [number, number, number] {
-  const h = hex.replace("#", "");
-  return [
-    Number.parseInt(h.slice(0, 2), 16),
-    Number.parseInt(h.slice(2, 4), 16),
-    Number.parseInt(h.slice(4, 6), 16),
-  ];
-}
-
-function rgbToHex(r: number, g: number, b: number): string {
-  const clamp = (n: number) =>
-    Math.max(0, Math.min(255, Math.round(n)))
-      .toString(16)
-      .padStart(2, "0");
-  return `#${clamp(r)}${clamp(g)}${clamp(b)}`;
-}
 
 function mix(a: string, b: string, t: number): string {
   const [ar, ag, ab] = hexToRgb(a);
@@ -76,17 +60,20 @@ function mix(a: string, b: string, t: number): string {
 const LIGHT_HUE_KEPT = 0.12;
 function asLight(hex: string): string {
   const [r, g, b] = hexToRgb(hex);
-  const grey = 0.2126 * r + 0.7152 * g + 0.0722 * b;
+  const grey = greyOf(hex);
   const k = LIGHT_HUE_KEPT;
   return rgbToHex(grey + (r - grey) * k, grey + (g - grey) * k, grey + (b - grey) * k);
 }
 
-/** The three stops of the room gradient, shared with the frame map. */
+/** The three stops of the room gradient, shared with the frame map.
+ *  The wall enters as `wallAsLightSource`, so a deep wall colour does
+ *  not dim the room it is painted on (see wall-light.ts). */
 function roomLightStops(palette: Palette): { top: string; wall: string; bottom: string } {
+  const wall = wallAsLightSource(palette.wallColor);
   return {
-    top: asLight(mix(palette.wallColor, palette.ceilingColor, 0.55)),
-    wall: asLight(palette.wallColor),
-    bottom: asLight(mix(palette.wallColor, palette.floorColor, 0.4)),
+    top: asLight(mix(wall, palette.ceilingColor, 0.55)),
+    wall: asLight(wall),
+    bottom: asLight(mix(wall, palette.floorColor, 0.4)),
   };
 }
 

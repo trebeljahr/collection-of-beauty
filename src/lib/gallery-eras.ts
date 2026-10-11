@@ -22,6 +22,10 @@ export type Palette = {
    *  Floors are handled separately — every era shares one
    *  building-wide floor texture, hard-coded in palette-materials. */
   wallTexture?: string;
+  /** Woven wall covering, drawn as a procedural roughness map over the
+   *  flat `wallColor` (gallery-3d/wall-damask.ts). Absent = painted
+   *  plaster. */
+  wallPattern?: "damask";
 };
 
 export type AnchorSpec = {
@@ -69,9 +73,11 @@ export const ERAS: Era[] = [
     yearMax: 1499,
     movements: ["Gothic", "International Gothic", "Proto-Renaissance", "Byzantine"],
     palette: {
-      wallColor: "#e8dcbd",
+      // National Gallery London, Sainsbury Wing: paintings before 1500
+      // on pale grey walls with grey pietra serena stone.
+      wallColor: "#e0dcd0",
       floorColor: "#3a2a1f",
-      ceilingColor: "#f3e9cf",
+      ceilingColor: "#f0eee8",
       accent: "#c68642",
       // Cool stone + plum + teal — medieval cathedral floor stones, each
       // worn a different colour from centuries of foot traffic.
@@ -96,9 +102,12 @@ export const ERAS: Era[] = [
     yearMax: 1599,
     movements: ["Renaissance", "Northern Renaissance", "Mannerism"],
     palette: {
-      wallColor: "#ece2c9",
+      // Louvre, Salle des États: the Venetians (Titian, Veronese's
+      // Wedding Feast at Cana) and the Mona Lisa on midnight blue since
+      // the 2019 repaint.
+      wallColor: "#24385c",
       floorColor: "#3a2a1f",
-      ceilingColor: "#f4ead2",
+      ceilingColor: "#e9e7e0",
       accent: "#b98a4f",
       // Warm earth: terracotta, sienna, olive, chocolate.
       roomAccents: ["#3a2a1f", "#3f2820", "#3a2e1c", "#322318", "#42301f"],
@@ -124,9 +133,12 @@ export const ERAS: Era[] = [
       "Spanish Golden Age",
     ],
     palette: {
-      wallColor: "#d4cdb9",
+      // Wallace Collection, Great Gallery: Hals, Velázquez, Rubens and
+      // Poussin on crimson silk damask, rehung in 2014.
+      wallColor: "#8e1b2b",
       floorColor: "#221711",
-      ceilingColor: "#e8ddc3",
+      ceilingColor: "#efe6d4",
+      wallPattern: "damask",
       accent: "#8a5a2b",
       // Tenebrist velvets: charcoal, wine, midnight, forest.
       roomAccents: ["#221711", "#2a1418", "#1a1822", "#1f261b", "#1a1612"],
@@ -147,9 +159,12 @@ export const ERAS: Era[] = [
     yearMax: 1799,
     movements: ["Rococo", "Neoclassicism", "Enlightenment"],
     palette: {
-      wallColor: "#e4d7b4",
+      // Wallace Collection, Oval Drawing Room: Fragonard's Swing and
+      // Boucher's Madame de Pompadour on pale blue-grey silk. The colour
+      // is read from photographs; no written source names it.
+      wallColor: "#b9c8ce",
       floorColor: "#2e2015",
-      ceilingColor: "#f1e7cd",
+      ceilingColor: "#f2f1ea",
       accent: "#c49a66",
       // Refined drawing-room tones: muted plum, sage, rose-brown, dusty blue.
       roomAccents: ["#2e2015", "#3a2a35", "#28332a", "#3a2c22", "#28303a"],
@@ -179,9 +194,11 @@ export const ERAS: Era[] = [
       "Hudson River School",
     ],
     palette: {
-      wallColor: "#c8c1ad",
+      // Hamburger Kunsthalle, the Caspar David Friedrich room as it
+      // reopened in 2016: the Wanderer on green-grey walls.
+      wallColor: "#6e7b74",
       floorColor: "#1e1711",
-      ceilingColor: "#dcd3bd",
+      ceilingColor: "#e8e8e1",
       accent: "#6e4f2e",
       // Stormy weather underfoot: storm-blue, slate, rust, moss.
       roomAccents: ["#1e1711", "#1a2230", "#2a221c", "#2e1f17", "#1f261c"],
@@ -211,12 +228,14 @@ export const ERAS: Era[] = [
     // plate still has its own page, the 3D floor just shows a slice.
     movements: ["Natural history illustration", "Botanical illustration"],
     palette: {
-      // Specimen-plate cream walls, deep moss floor, brass-olive accent
-      // — Victorian natural-history museum, lit so the plates' fine
-      // line work reads cleanly against the wall.
-      wallColor: "#ddd2af",
+      // No permanent gallery of book plates with a documented wall
+      // colour was found. The nearest is a 2016 show of Audubon's Birds
+      // of America at the Paine Art Center, hung on green. Deep moss
+      // floor and brass-olive accent as before; the cream sheets stand
+      // off a green wall where they sank into a cream one.
+      wallColor: "#55663f",
       floorColor: "#1a1f17",
-      ceilingColor: "#ebe1c2",
+      ceilingColor: "#ece6cf",
       accent: "#6a7d3f",
       // Field colours under glass: moss, walnut, slate-sky, deep bog, ochre-soil.
       roomAccents: ["#1a1f17", "#241a12", "#1c2630", "#1a241c", "#2a2218"],
@@ -240,12 +259,14 @@ export const ERAS: Era[] = [
     yearMax: 0,
     movements: ["Realism", "Academicism", "Academic art", "Orientalism"],
     palette: {
-      // Warm rose-tan walls, dark walnut floor, salon-red accent —
-      // 19th-c Paris Salon hang, deep velvet drag on the floor and
-      // brick-red trim where the gilt frames would rest.
-      wallColor: "#d8b9a3",
+      // Musée d'Orsay, as its 2008 annual report describes the Courbet
+      // hang: The Painter's Studio and A Burial at Ornans on "rouge
+      // pompéien". The Russian Museum's academic hall, where Bryullov's
+      // Last Day of Pompeii hangs, is a similar terracotta. Dark walnut
+      // floor and salon-red accent as before.
+      wallColor: "#8f4a36",
       floorColor: "#221814",
-      ceilingColor: "#ecd9c2",
+      ceilingColor: "#efe2cf",
       accent: "#8a3a2c",
       // Salon velvets: wine, deep teal, olive, charcoal, plum.
       roomAccents: ["#221814", "#1c2628", "#262218", "#1d1614", "#28181f"],
@@ -281,12 +302,14 @@ export const ERAS: Era[] = [
     // prints on the Romantic floor, etc.).
     movements: ["Ukiyo-e", "Shin-hanga", "Nihonga", "Classical East Asian"],
     palette: {
-      // Rice-paper warm white walls, dark walnut + black floor, red
-      // lacquer accent. Mirrors a traditional Edo gallery — the
-      // redLacquer frame variant is already coded for these works.
-      wallColor: "#efe6ce",
+      // Charcoal. The Nezu Museum in Tokyo and the Ando Gallery at the
+      // Art Institute of Chicago show screens and scrolls in darkened
+      // rooms; sources document the darkness, not a paint colour. Dark
+      // walnut floor and red lacquer accent as before, and the
+      // redLacquer frame variant is coded for these works.
+      wallColor: "#403a34",
       floorColor: "#1a120c",
-      ceilingColor: "#f3eccf",
+      ceilingColor: "#efe9d6",
       accent: "#a23b2c",
       roomAccents: ["#1a120c", "#2c1a18", "#1a1c25", "#1f2418", "#2a1a16"],
     },
@@ -317,9 +340,11 @@ export const ERAS: Era[] = [
     // belongs with the Impressionism-era floor, not Romanticism.
     movements: ["Impressionism", "Neo-Impressionism", "Pointillism", "Tonalism"],
     palette: {
-      wallColor: "#f0e7d2",
+      // Musée de l'Orangerie, the two Nymphéas rooms: off-white walls
+      // under daylight from above, restored in 2006.
+      wallColor: "#efeadd",
       floorColor: "#2a1d14",
-      ceilingColor: "#f9f1db",
+      ceilingColor: "#f8f6f0",
       accent: "#c88a47",
       // Garden dapple: sage, dusty rose, lavender, butter.
       roomAccents: ["#2a1d14", "#283325", "#3a2a2e", "#2e2838", "#3a3220"],
@@ -351,12 +376,12 @@ export const ERAS: Era[] = [
     // Modernism floors.
     movements: ["Post-Impressionism", "Les Nabis", "Symbolism", "Art Nouveau", "Naive art"],
     palette: {
-      // Warm wheat walls, deep aubergine floor, violet accent —
-      // van Gogh starry-night complementaries crossed with Munch
-      // bruised palette and Mucha's jewel-tone posters.
-      wallColor: "#e6d6b0",
+      // Barnes Foundation: Cézanne, Seurat, Rousseau and Van Gogh on
+      // ochre burlap, as Albert Barnes specified and the 2012 building
+      // repeats. Deep aubergine floor and violet accent as before.
+      wallColor: "#c2a15e",
       floorColor: "#1a1419",
-      ceilingColor: "#f0e2bd",
+      ceilingColor: "#f0e8d2",
       accent: "#6e3a8a",
       // Sunflower ochre, starry-night blue, deep wine, Mucha jade, Gauguin red-clay.
       roomAccents: ["#1a1419", "#1a1c30", "#2a1418", "#1a2a22", "#2e1a14"],
@@ -403,11 +428,12 @@ export const ERAS: Era[] = [
       "Mir Iskusstva",
     ],
     palette: {
-      // Warm gallery-white walls, near-black polished floor, primary-
-      // red accent — Bauhaus-adjacent without going full white cube.
-      wallColor: "#efe8db",
+      // The Museum of Modern Art under Alfred Barr: beige monk's cloth
+      // at first, white paint soon after. Near-black floor tint and
+      // primary-red accent as before.
+      wallColor: "#f4f4f2",
       floorColor: "#101010",
-      ceilingColor: "#f6f1e6",
+      ceilingColor: "#fafaf8",
       accent: "#c5402c",
       // Mondrian-leaning primaries muted to room tints: blue, red, ochre, charcoal, off-black.
       roomAccents: ["#101010", "#10182a", "#2a1010", "#2a2210", "#181818"],

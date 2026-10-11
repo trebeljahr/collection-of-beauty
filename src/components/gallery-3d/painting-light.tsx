@@ -62,6 +62,7 @@ uniform vec3 uFrame;   // half width, half height, front plane z
 uniform vec4 uPlaque;  // centre x, centre y, half width, half height
 uniform float uPlaqueZ;
 uniform vec3 uColor;
+uniform float uWallGain;
 uniform float uShoulder;
 uniform float uContact;
 uniform float uFade;
@@ -107,7 +108,9 @@ void main() {
   }
   e = e / (1.0 + uShoulder * e);
   float k = uFade * (1.0 - smoothstep(uFog.x, uFog.y, vDepth));
-  gl_FragColor = vec4(uColor * e * k, 1.0 - min(contact, 0.6) * k);
+  // The wall's boost stays off the floor: every era has the same oak.
+  float gain = n.z > 0.5 ? uWallGain : 1.0;
+  gl_FragColor = vec4(uColor * e * k * gain, 1.0 - min(contact, 0.6) * k);
 }
 `;
 
@@ -124,6 +127,7 @@ function makePoolMaterial(): THREE.ShaderMaterial {
       uPlaque: { value: new THREE.Vector4() },
       uPlaqueZ: { value: 0 },
       uColor: { value: LIGHT_TINT.clone().multiplyScalar(POOL_GAIN) },
+      uWallGain: { value: 1 },
       uShoulder: { value: POOL_SHOULDER },
       uContact: { value: CONTACT_SHADOW },
       uFade: { value: 0 },
@@ -304,6 +308,9 @@ export type PaintingLightProps = {
   plaque: { x: number; y: number; halfW: number; halfH: number; frontZ: number };
   /** Draw the ceiling cans as well as the pool. */
   fixtures: boolean;
+  /** Multiplier on the pool's strength on the wall, 1 on a pale wall
+   *  (`poolGainScale` in wall-light.ts). */
+  wallGain?: number;
 };
 
 export const PaintingLight = memo(function PaintingLight({
@@ -316,6 +323,7 @@ export const PaintingLight = memo(function PaintingLight({
   frameFrontZ,
   plaque,
   fixtures,
+  wallGain = 1,
 }: PaintingLightProps) {
   const material = useMemo(makePoolMaterial, []);
   const geometry = useMemo(() => buildPoolGeometry(rig, wallZ, floorY), [rig, wallZ, floorY]);
@@ -336,7 +344,8 @@ export const PaintingLight = memo(function PaintingLight({
     (u.uFrame.value as THREE.Vector3).set(frameHalfW, frameHalfH, frameFrontZ);
     (u.uPlaque.value as THREE.Vector4).set(plaque.x, plaque.y, plaque.halfW, plaque.halfH);
     u.uPlaqueZ.value = plaque.frontZ;
-  }, [material, rig, frameHalfW, frameHalfH, frameFrontZ, plaque]);
+    u.uWallGain.value = wallGain;
+  }, [material, rig, frameHalfW, frameHalfH, frameFrontZ, plaque, wallGain]);
 
   // Fade in when the work mounts, so a room's pools come up like a
   // circuit being switched on rather than popping in one by one.

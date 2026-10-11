@@ -5,6 +5,7 @@ import { useThree } from "@react-three/fiber";
 import { memo, useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from "react";
 import * as THREE from "three";
 import type { ArtworkListing } from "@/lib/data";
+import { ERAS } from "@/lib/gallery-eras";
 import { PAINTING_WALL_OFFSET } from "@/lib/gallery-layout/place-paintings";
 import type { Placement, RoomLayout } from "@/lib/gallery-layout/types";
 import { CELL_SIZE, ROOM_HEIGHT } from "@/lib/gallery-layout/world-coords";
@@ -38,6 +39,7 @@ import {
   loadHiRes,
   peekCached,
 } from "./texture-cache";
+import { poolGainScale } from "./wall-light";
 
 /**
  * One painting on a wall. Renders a thin box behind the canvas so the
@@ -564,6 +566,7 @@ export const Painting = memo(function Painting({
         // The stairwell is open to the storey above: no ceiling to hang
         // a can from, so its works get the pool without the fixture.
         fixtures={!room.isStairwell}
+        wallGain={poolGainScale(ERAS[room.floorIndex].palette.wallColor)}
       />
     </group>
   );

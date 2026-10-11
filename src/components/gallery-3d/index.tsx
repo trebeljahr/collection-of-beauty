@@ -541,8 +541,10 @@ export function Gallery3D({ artworks }: Props) {
           // Khronos PBR Neutral: colours below ~0.8 pass through as
           // authored. ACES bleached pale walls toward white when the
           // rooms were bright and pushed them toward mustard once they
-          // were dimmed for the picture lights; with Neutral a palette's
-          // wall colour is the colour on screen at any light level.
+          // were dimmed for the picture lights; with Neutral a pale
+          // wall colour is the colour on screen at any light level. A
+          // deep one is not: Neutral strips its weakest channel, so
+          // those walls opt out (isDeepWall in wall-light.ts).
           // Paintings are untouched either way (toneMapped: false).
           gl.toneMapping = THREE.NeutralToneMapping;
           gl.toneMappingExposure = 1.0;

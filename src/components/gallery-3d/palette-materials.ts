@@ -15,6 +15,8 @@ import * as THREE from "three";
 import type { Palette } from "@/lib/gallery-eras";
 import type { FrameProfileId } from "./frame-geometry";
 import { buildMapBundle } from "./texture-pack";
+import { getDamaskRoughnessMap } from "./wall-damask";
+import { isDeepWall } from "./wall-light";
 
 // One floor texture for the whole building. Eras tint the floor with
 // `floorColor` (and rooms with `roomAccents`), but the underlying
@@ -48,13 +50,13 @@ const FLOOR_ROUGHNESS = 0.42;
 // The parquet set shows eight courses across its width; at one tile per
 // 3 m a board comes out about 37 cm long, the size of a real block.
 //
-// Walls are intentionally NOT textured. The first attempt looked
+// Walls carry no photographed texture. The first attempt looked
 // worse than the flat-tinted plaster: AO baked into the diffuse
 // fought the engine's lighting around painting frames, and uniform-
-// repeat tiling stretched badly on long room walls. Re-enable later
-// by spreading `buildMapBundle(palette.wallTexture, 1, 1)` into the
-// wall material — the `wallTexture` field on the Palette type is
-// still there.
+// repeat tiling stretched badly on long room walls. The `wallTexture`
+// field on the Palette type is still there for a second try. What a
+// wall can have is `wallPattern`: a procedural roughness map with no
+// colour and no occlusion in it (wall-damask.ts), on UVs in metres.
 const FLOOR_REPEAT: [number, number] = [1 / 3, 1 / 3];
 
 export type PaletteMaterials = {
@@ -76,6 +78,12 @@ export function getPaletteMaterials(palette: Palette): PaletteMaterials {
       color: palette.wallColor,
       roughness: 0.92,
       side: THREE.DoubleSide,
+      // A deep period colour skips tone mapping, or Neutral strips its
+      // weakest channel and crimson shows as signal red (wall-light.ts).
+      toneMapped: !isDeepWall(palette.wallColor),
+      ...(palette.wallPattern === "damask"
+        ? { roughness: 1, roughnessMap: getDamaskRoughnessMap() }
+        : null),
     }),
     floor: new THREE.MeshStandardMaterial({
       color: floorTint(palette.floorColor),
