@@ -161,3 +161,55 @@ describe("wallContextFor", () => {
     expect(ctx.wallSpans[0][1]).toBeCloseTo(86 - 81.25 - 0.79, 6);
   });
 });
+
+describe("wallContextFor with dividers", () => {
+  // A 22.5 × 12.5 m room, x 50..72.5 and z 37.5..50, with a wing wall
+  // built off its north wall on x = 57.5 and a panel standing free.
+  const bounds = { xMin: 50, xMax: 72.5, zMin: 37.5, zMax: 50 };
+  const wing = { axis: "z" as const, line: 23, start: 15, end: 16 };
+  const panel = { axis: "x" as const, line: 18, start: 25, end: 27 };
+  const dividers = [wing, panel];
+
+  it("gives a work on a divider that divider's face for a wall", () => {
+    // East face of the wing wall: x = 57.7, looking +x, hung like a
+    // west wall. The wing runs z 37.5..40.
+    const ctx = wallContextFor(bounds, [], 0, [57.72, 1.65, 38.75], Math.PI / 2, {
+      dividers,
+      on: 0,
+    });
+    // Right hand points at -z: the span is the wing's 2.5 m.
+    expect(ctx.roomSpan[0]).toBeCloseTo(38.75 - 40, 6);
+    expect(ctx.roomSpan[1]).toBeCloseTo(38.75 - 37.5, 6);
+    expect(ctx.wallSpans).toEqual([ctx.roomSpan]);
+    // The floor runs on past the wing's free end, to the room's walls.
+    expect(ctx.floorSpan[0]).toBeCloseTo(38.75 - 50, 6);
+    expect(ctx.floorSpan[1]).toBeCloseTo(38.75 - 37.5, 6);
+    // From the face at 57.7 to the east wall at 72.5.
+    expect(ctx.roomDepth).toBeCloseTo(72.5 - 57.7, 6);
+  });
+
+  it("stops a room wall's pool at a wing wall built off it", () => {
+    // North wall, a metre east of the wing: the bay starts at its face.
+    const ctx = wallContextFor(bounds, [], 0, [58.7, 1.65, 37.52], 0, { dividers });
+    expect(ctx.roomSpan[0]).toBeCloseTo(57.7 - 58.7, 6);
+    expect(ctx.roomSpan[1]).toBeCloseTo(72.5 - 58.7, 6);
+    expect(ctx.floorSpan).toEqual(ctx.roomSpan);
+    // And west of it, the bay ends at the wing's other face.
+    const west = wallContextFor(bounds, [], 0, [55, 1.65, 37.52], 0, { dividers });
+    expect(west.roomSpan[1]).toBeCloseTo(57.3 - 55, 6);
+  });
+
+  it("leaves the opposite wall's pool alone", () => {
+    const ctx = wallContextFor(bounds, [], 0, [58.7, 1.65, 49.98], Math.PI, { dividers });
+    expect(ctx.roomSpan[1] - ctx.roomSpan[0]).toBeCloseTo(22.5, 6);
+  });
+
+  it("stops the floor pool at a panel standing in front of the work", () => {
+    // The panel is on z = 45, x 62.5..67.5. A work on the south wall
+    // behind it sees its face 4.8 m away, not the north wall 12.5 m off.
+    const behind = wallContextFor(bounds, [], 0, [65, 1.65, 49.98], Math.PI, { dividers });
+    expect(behind.roomDepth).toBeCloseTo(50 - 45.2, 6);
+    const beside = wallContextFor(bounds, [], 0, [70, 1.65, 49.98], Math.PI, { dividers });
+    expect(beside.roomDepth).toBeCloseTo(12.5, 6);
+  });
+});

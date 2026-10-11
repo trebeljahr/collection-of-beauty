@@ -223,6 +223,63 @@ required by the Dockerfile — don't remove it.
   placements carry it as `Placement.frame`; without one the renderer
   uses `pickFrameVariant`. The slot's wall and lift come from that same
   frame, so read `Placement.frame` wherever a hall work's reach matters.
+- A room has fittings besides its four walls: a ceiling height,
+  freestanding divider walls and benches
+  ([`fittings.ts`](src/lib/gallery-layout/fittings.ts)). They are
+  planned from the room's footprint and the doors it has when all 24
+  slots are open (`fittingsFor` in `layout-museum.ts`), so a room is
+  fitted the same on every storey and its wall can be counted before a
+  floor's doors are wired.
+  - **Ceiling.** `RoomLayout.ceilingHeight`: 3.4 m when the narrow side
+    is 10 m, 5.4 m when it is 17.5 m or more, 4.2 m between and in the
+    stairwell. Walls still run to the slab above; the height sets the
+    ceiling plane, the laylights and where the picture lights hang. The
+    hang keeps a metre under the ceiling, so a 3.4 m room caps a work at
+    2.4 m. It does not hang taller than 3.2 m under a taller ceiling.
+  - **Dividers.** `RoomLayout.dividers`: segments on grid lines, drawn
+    0.4 m thick (`divider-geometry.ts`). A long room (17.5 m or more,
+    and 1.4 times its width) gets pairs of wing walls with the middle
+    left open. A hall (17.5 m both ways) gets panels either side of its
+    axis, stopped where a side door looks across. The Grand Hall gets
+    none. No divider stands in a door's line of sight;
+    `layout-museum.test.ts` checks it on a floor with every room open.
+    A divider is four things, and a new one needs all four:
+    1. blocked cell edges, written by `writeDividerEdges` after the
+       room-ownership pass, which leaves edges inside one room free;
+    2. a collider at its real thickness (`addFittingColliders`), since
+       the edge mask alone stops the player 0.1 m inside the plaster;
+    3. two runs in `computeRoomRuns`, one per face (`WallRun.divider`,
+       `Placement.divider`), and a cut in the room wall a wing wall is
+       built off. `dividerWallMetres` counts them when a floor decides
+       how many rooms to open: the tower went from 116 rooms to 96;
+    4. a wall for the picture light: `wallContextFor` takes the
+       divider's face, so the pool stops at its ends.
+    Laylights are cut where a divider reaches under them
+    (`laylight-layout.ts`).
+  - **Portals.** The doors between the rooms of the stair column
+    (`Door.portal`, 3.5 × 3.0 m; every other door is 1.4 × 2.4 m). A
+    door centre sits mid-cell, so a portal opens three cell edges
+    (`doorOpenHalfSpan`) and is narrower than the three cells: the
+    physics world closes each jamb with a collider, and
+    `fitsDoorwayApertures` does the same without one. A portal costs
+    the Grand Hall's front and back walls 2.1 m each, so the composed
+    hang takes smaller second pairs there, or none (Baroque: 8 works,
+    12 before).
+  - **Benches.** `RoomLayout.benches`, modelled in `bench-geometry.ts`.
+    One in each bay of a long room, two facing the panels of a hall, an
+    island of two back to back in any other room 15 m or more across,
+    two islands in the Grand Hall. None stands in the walking line
+    between doors. A bench is smaller than a cell, so it is in no edge
+    mask: it is a box collider, and `clearOfFittings` in
+    `canAcceptPhysicsMove` applies the same rectangle when the physics
+    world has not loaded. The collider is 1.5 m tall on purpose. At
+    bench height the capsule's round end meets it on the curve and the
+    controller rides over it, and a jump lifts the feet 0.82 m.
+  - A bench can stand on a room's centre, so nothing sends the player
+    to a raw room centre: use `arrivalPoint`.
+  - Dividers and benches are part of `galleryLayoutIdentity`. Change
+    where they stand and every saved visit restarts once in its floor's
+    Grand Hall.
 - **There are no three.js lights on the works, on purpose.** Each
   painting has a picture light (`painting-light.tsx`, geometry in
   `painting-light-rig.ts`): a ceiling can and the pool it throws, drawn

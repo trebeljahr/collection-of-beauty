@@ -7,9 +7,9 @@
 // by daylight above it.
 //
 // It is drawn, not lit: a MeshBasicMaterial with a small tiling pane
-// texture. The room's fill still comes from the environment map, so the
-// panel costs two draw calls a room (glass, frame) and no shader work
-// on the walls.
+// texture. The room's fill still comes from the environment map, so a
+// panel costs two draw calls (glass, frame) and no shader work on the
+// walls. Where the panels go is decided in laylight-layout.ts.
 
 import { useEffect, useMemo } from "react";
 import * as THREE from "three";
@@ -20,11 +20,6 @@ import { fixtureMaterial } from "./palette-materials";
 /** Target pane size, metres. The grid is fitted so whole panes span the
  *  panel in both directions. */
 const PANE_M = 1.25;
-/** Clear ceiling left between the panel and the walls. The picture
- *  lights hang in this margin (LIGHT_MAX_THROW is 2.0 m). */
-const MARGIN_M = 2.6;
-/** A room narrower than this in either direction gets no laylight. */
-const MIN_PANEL_M = 2.4;
 /** How far the panel and its frame hang below the ceiling plane. */
 const PANEL_DROP = 0.012;
 const FRAME_WIDTH = 0.09;
@@ -84,31 +79,20 @@ export function getGlassMaterial(): THREE.MeshBasicMaterial {
   return glassMaterial;
 }
 
-/** Panel size for a room, or null when the room is too small. */
-export function laylightSize(width: number, depth: number): { w: number; d: number } | null {
-  const w = width - 2 * MARGIN_M;
-  const d = depth - 2 * MARGIN_M;
-  if (w < MIN_PANEL_M || d < MIN_PANEL_M) return null;
-  return { w, d };
-}
-
+/** One glazed panel, `w` by `d` metres, centred on (cx, cz). */
 export function Laylight({
   cx,
   cz,
   ceilingY,
-  width,
-  depth,
+  w,
+  d,
 }: {
   cx: number;
   cz: number;
   ceilingY: number;
-  width: number;
-  depth: number;
+  w: number;
+  d: number;
 }) {
-  const size = laylightSize(width, depth);
-  const w = size?.w ?? 0;
-  const d = size?.d ?? 0;
-
   const glass = useMemo(() => {
     if (w <= 0 || d <= 0) return null;
     const g = new THREE.PlaneGeometry(w, d);

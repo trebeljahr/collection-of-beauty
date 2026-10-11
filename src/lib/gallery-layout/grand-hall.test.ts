@@ -30,6 +30,8 @@ function door(side: Door["side"], roomId: string): Door {
     worldZ: at[1],
     worldY: 0,
     width: 1.4,
+    height: 2.4,
+    portal: false,
     connectsTo: { kind: "room", roomId },
   };
 }
@@ -53,7 +55,9 @@ function makeHall(doors: Door[]): RoomLayout {
       y: 0,
     },
     doors,
-    hasBench: true,
+    ceilingHeight: 5.4,
+    dividers: [],
+    benches: [],
     placements: [],
     artworks: [],
     floorColor: "#fff",

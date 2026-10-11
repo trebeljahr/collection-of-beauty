@@ -1,8 +1,11 @@
 import { describe, expect, it } from "vitest";
-import type { FloorLayout, Staircase } from "@/lib/gallery-layout/types";
+import { writeDividerEdges } from "@/lib/gallery-layout/fittings";
+import type { Bench, Divider, Door, FloorLayout, Staircase } from "@/lib/gallery-layout/types";
 import {
   CELL_SIZE,
   FLOOR_SEPARATION,
+  PORTAL_HEIGHT,
+  PORTAL_WIDTH,
   SPIRAL_INNER_RADIUS,
   SPIRAL_OUTER_RADIUS,
   SPIRAL_STEPS_PER_FLOOR,
@@ -40,6 +43,7 @@ const groundFloor = {
   walkable: new Uint8Array(GRID * GRID).fill(1),
   blockedEdgesEW: new Uint8Array((GRID - 1) * GRID),
   blockedEdgesNS: new Uint8Array(GRID * (GRID - 1)),
+  rooms: [],
   stairsIn: [],
   stairsOut: [stair],
 } as unknown as FloorLayout;
@@ -79,5 +83,120 @@ describe("ground-floor spiral perimeter", () => {
     const gate = stair.entryAngle + spiralGateHalfArc(stair.numSteps) * 0.35;
     const reached = await walkInwardAt(gate);
     expect(reached).toBeLessThan(SPIRAL_OUTER_RADIUS);
+  });
+});
+
+describe("room fittings", () => {
+  // One open 30 m square room with no stair: a bench in the middle of
+  // nowhere, a wing wall off the north wall, and a wall right across at
+  // z = 20 with a portal in it.
+  const bench: Bench = { x: 6.25, z: 8.75, along: "x" };
+  const divider: Divider = { axis: "z", line: 8, start: 0, end: 2 };
+  const WALL_Z = 20;
+  const PORTAL_X = 13.75;
+  const portal = {
+    side: "south",
+    worldX: PORTAL_X,
+    worldZ: WALL_Z,
+    worldY: 0,
+    width: PORTAL_WIDTH,
+    height: PORTAL_HEIGHT,
+    portal: true,
+    connectsTo: { kind: "room", roomId: "south" },
+  } satisfies Door;
+
+  function makeFloor(): FloorLayout {
+    const blockedEdgesEW = new Uint8Array((GRID - 1) * GRID);
+    const blockedEdgesNS = new Uint8Array(GRID * (GRID - 1));
+    // The cross wall, open on the three cell edges the portal reaches.
+    for (let x = 0; x < GRID; x++) {
+      const mid = (x + 0.5) * CELL_SIZE;
+      if (Math.abs(mid - PORTAL_X) > 3) blockedEdgesNS[7 * GRID + x] = 1;
+    }
+    writeDividerEdges([divider], { x: GRID, z: GRID }, blockedEdgesEW, blockedEdgesNS);
+    return {
+      index: 0,
+      y: 0,
+      gridSize: { x: GRID, z: GRID },
+      walkable: new Uint8Array(GRID * GRID).fill(1),
+      blockedEdgesEW,
+      blockedEdgesNS,
+      rooms: [
+        {
+          cellBounds: { xMin: 0, xMax: GRID - 1, zMin: 0, zMax: GRID - 1 },
+          ceilingHeight: 4.2,
+          dividers: [divider],
+          benches: [bench],
+          doors: [portal],
+        },
+      ],
+      stairsIn: [],
+      stairsOut: [],
+    } as unknown as FloorLayout;
+  }
+
+  /** Walk in a straight line, 5 cm at a time, and report where it ends. */
+  async function walk(from: [number, number], heading: [number, number], metres: number) {
+    const controller = await createGalleryCollisionController(makeFloor(), [], PLAYER_RADIUS);
+    const length = Math.hypot(heading[0], heading[1]);
+    const step = { x: (0.05 * heading[0]) / length, y: 0, z: (0.05 * heading[1]) / length };
+    let [x, z] = from;
+    for (let i = 0; i < metres / 0.05; i++) {
+      const allowed = controller.move({ x, y: 0, z }, step);
+      x += allowed.x;
+      z += allowed.z;
+    }
+    controller.dispose();
+    return { x, z };
+  }
+
+  it("stops the player at a bench's edge", async () => {
+    // The bench runs x 5.25..7.25 and z 8.45..9.05.
+    const fromEast = await walk([10, 8.75], [-1, 0], 6);
+    expect(fromEast.x).toBeGreaterThan(7.25 + PLAYER_RADIUS);
+    expect(fromEast.x).toBeLessThan(7.25 + PLAYER_RADIUS + 0.1);
+    const fromSouth = await walk([6.25, 12], [0, -1], 6);
+    expect(fromSouth.z).toBeGreaterThan(9.05 + PLAYER_RADIUS);
+    expect(fromSouth.z).toBeLessThan(9.05 + PLAYER_RADIUS + 0.1);
+  });
+
+  it("lets the player slide round a bench", async () => {
+    // Heading west and a little north, into the bench's east end.
+    const end = await walk([10, 9.0], [-1, -0.35], 8);
+    expect(end.x).toBeLessThan(5.25);
+    expect(end.z).toBeLessThan(8.45 - PLAYER_RADIUS + 0.05);
+  });
+
+  it("does not let a jump clear a bench", async () => {
+    const controller = await createGalleryCollisionController(makeFloor(), [], PLAYER_RADIUS);
+    // Feet at the top of a jump (0.82 m), right beside the bench.
+    const allowed = controller.move({ x: 7.6, y: 0.82, z: 8.75 }, { x: -0.3, y: 0, z: 0 });
+    controller.dispose();
+    expect(7.6 + allowed.x).toBeGreaterThan(7.25 + PLAYER_RADIUS);
+  });
+
+  it("stops the player at a divider's face, not on its grid line", async () => {
+    // The wing wall stands on x = 20, 0.4 m thick, z 0..5.
+    const fromWest = await walk([17, 2.5], [1, 0], 6);
+    expect(fromWest.x).toBeLessThan(19.8 - PLAYER_RADIUS);
+    expect(fromWest.x).toBeGreaterThan(19.8 - PLAYER_RADIUS - 0.1);
+    const fromEast = await walk([23, 2.5], [-1, 0], 6);
+    expect(fromEast.x).toBeGreaterThan(20.2 + PLAYER_RADIUS);
+  });
+
+  it("leaves the passage past a divider's free end open", async () => {
+    const end = await walk([17, 6], [1, 0], 6);
+    expect(end.x).toBeGreaterThan(22.5);
+  });
+
+  it("walks through a portal and is stopped by its jambs", async () => {
+    const through = await walk([PORTAL_X + 1.3, 17], [0, 1], 6);
+    expect(through.z).toBeGreaterThan(WALL_Z + 2);
+    // 2.2 m off the centre: inside the three cells the masks open,
+    // outside the 3.5 m opening.
+    const jamb = await walk([PORTAL_X + 2.2, 17], [0, 1], 6);
+    expect(jamb.z).toBeLessThan(WALL_Z - PLAYER_RADIUS);
+    const farJamb = await walk([PORTAL_X - 3.4, 17], [0, 1], 6);
+    expect(farJamb.z).toBeLessThan(WALL_Z - PLAYER_RADIUS);
   });
 });

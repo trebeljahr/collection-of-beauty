@@ -7,9 +7,11 @@ import type {
   RigidBody,
   World,
 } from "@dimforge/rapier3d-compat";
+import { benchRect, dividerRect } from "@/lib/gallery-layout/fittings";
 import type { FloorLayout, Staircase } from "@/lib/gallery-layout/types";
 import {
   CELL_SIZE,
+  doorOpenHalfSpan,
   FLOOR_THICKNESS,
   hasStairwellCutout,
   INTER_FLOOR_HEIGHT,
@@ -37,6 +39,14 @@ const PLAYER_CAPSULE_HALF_HEIGHT = (PLAYER_COLLIDER_TOTAL_HEIGHT - 2 * 0.3) / 2;
 const PHYSICS_OFFSET = 0.02;
 const WALL_HALF_THICKNESS = 0.05;
 const ARC_SEGMENT_MAX_LEN = 0.55;
+// A bench's collider is taller than the bench. The player's capsule
+// ends in a 0.3 m hemisphere, and a box that stops within that height
+// of its feet meets it on the curve, where the contact normal points up
+// and the character controller rides over the bench as if it were a
+// ramp. A jump lifts the feet 0.82 m, so the box has to reach past
+// 1.12 m for the capsule's straight side to meet a vertical face at any
+// point of it.
+const BENCH_COLLIDER_HEIGHT = 1.5;
 
 let rapierPromise: Promise<RapierModule> | null = null;
 
@@ -191,6 +201,8 @@ function buildStaticColliders(
 
   addFloorColliders(floor, addCuboid);
   addWallColliders(floor, addCuboid);
+  addPortalJambColliders(floor, addCuboid);
+  addFittingColliders(floor, addCuboid);
   addStairwellColliders(floor, allStaircases, addCuboid, addCylinder, addArc);
 }
 
@@ -339,6 +351,99 @@ function addWallColliders(
       if (!isWalkableCell(x + 1, z) || isBlockedEW(x, z)) addEW(x);
       if (!isWalkableCell(x, z - 1) || isBlockedNS(x, z - 1)) addNS(z - 1);
       if (!isWalkableCell(x, z + 1) || isBlockedNS(x, z)) addNS(z);
+    }
+  }
+}
+
+/**
+ * The wall either side of a portal. A portal opens three cell edges in
+ * the masks and is narrower than the three cells, so the mask leaves
+ * its jambs without a wall collider: a metre of each. A 1.4 m door has
+ * the same gap on a smaller scale (0.55 m), which `fitsDoorwayApertures`
+ * and the doorway nudge handle well enough; a portal's jamb is long
+ * enough to walk into square on, and needs something to slide along.
+ */
+function addPortalJambColliders(
+  floor: FloorLayout,
+  addCuboid: (
+    cx: number,
+    cy: number,
+    cz: number,
+    hx: number,
+    hy: number,
+    hz: number,
+    rotY?: number,
+  ) => void,
+) {
+  const seen = new Set<string>();
+  const wallY = floor.y + INTER_FLOOR_HEIGHT / 2;
+  const wallHalfY = INTER_FLOOR_HEIGHT / 2;
+  for (const room of floor.rooms) {
+    for (const door of room.doors) {
+      const openHalf = doorOpenHalfSpan(door.width);
+      const jamb = openHalf - door.width / 2;
+      if (openHalf <= CELL_SIZE / 2 || jamb <= 0.01) continue;
+      // Both rooms carry the door; build its jambs once.
+      const key = `${door.worldX.toFixed(2)}:${door.worldZ.toFixed(2)}`;
+      if (seen.has(key)) continue;
+      seen.add(key);
+      const alongX = door.side === "north" || door.side === "south";
+      for (const side of [-1, 1]) {
+        const offset = side * (door.width / 2 + jamb / 2);
+        addCuboid(
+          door.worldX + (alongX ? offset : 0),
+          wallY,
+          door.worldZ + (alongX ? 0 : offset),
+          alongX ? jamb / 2 : WALL_HALF_THICKNESS,
+          wallHalfY,
+          alongX ? WALL_HALF_THICKNESS : jamb / 2,
+        );
+      }
+    }
+  }
+}
+
+/**
+ * Dividers and benches, as the boxes they are. The edge masks already
+ * carry a divider as a 0.1 m wall on its grid line; this is its real
+ * 0.4 m, so the player stops at the plaster and not inside it. A bench
+ * is in no mask at all (it is smaller than a cell) and this is its only
+ * collider. `clearOfFittings` is the same rule without a physics world.
+ */
+function addFittingColliders(
+  floor: FloorLayout,
+  addCuboid: (
+    cx: number,
+    cy: number,
+    cz: number,
+    hx: number,
+    hy: number,
+    hz: number,
+    rotY?: number,
+  ) => void,
+) {
+  for (const room of floor.rooms) {
+    for (const divider of room.dividers) {
+      const r = dividerRect(divider);
+      addCuboid(
+        (r.xMin + r.xMax) / 2,
+        floor.y + room.ceilingHeight / 2,
+        (r.zMin + r.zMax) / 2,
+        (r.xMax - r.xMin) / 2,
+        room.ceilingHeight / 2,
+        (r.zMax - r.zMin) / 2,
+      );
+    }
+    for (const bench of room.benches) {
+      const r = benchRect(bench);
+      addCuboid(
+        (r.xMin + r.xMax) / 2,
+        floor.y + BENCH_COLLIDER_HEIGHT / 2,
+        (r.zMin + r.zMax) / 2,
+        (r.xMax - r.xMin) / 2,
+        BENCH_COLLIDER_HEIGHT / 2,
+        (r.zMax - r.zMin) / 2,
+      );
     }
   }
 }

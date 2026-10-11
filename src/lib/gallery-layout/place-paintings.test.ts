@@ -2,6 +2,9 @@ import { describe, expect, it } from "vitest";
 import type { ArtworkListing } from "@/lib/data";
 import {
   computeRoomRuns,
+  dividerWallMetres,
+  estimateWallMetres,
+  PAINTING_WALL_OFFSET,
   PLAQUE_FOOTPRINT,
   packRun,
   runLength,
@@ -30,6 +33,8 @@ function makeRoom(args: {
   zMin: number;
   zMax: number;
   doors?: RoomLayout["doors"];
+  dividers?: RoomLayout["dividers"];
+  ceilingHeight?: number;
 }): RoomLayout {
   const { xMin, xMax, zMin, zMax } = args;
   return {
@@ -50,7 +55,9 @@ function makeRoom(args: {
       y: 0,
     },
     doors: args.doors ?? [],
-    hasBench: false,
+    ceilingHeight: args.ceilingHeight ?? 4.2,
+    dividers: args.dividers ?? [],
+    benches: [],
     placements: [],
     artworks: [],
     floorColor: "#fff",
@@ -86,6 +93,8 @@ describe("computeRoomRuns", () => {
             worldZ: 0,
             worldY: 0,
             width: 1.4,
+            height: 2.4,
+            portal: false,
             connectsTo: { kind: "room", roomId: "h" },
           },
         ],
@@ -157,5 +166,92 @@ describe("packRun", () => {
     const leftMargin = lo - run.uMin;
     const rightMargin = run.uMax - hi;
     expect(leftMargin).toBeCloseTo(rightMargin, 9);
+  });
+});
+
+describe("divider runs", () => {
+  // A 22.5 × 12.5 m room with one wing wall built off its north wall
+  // and one panel standing free, both across the room (along z).
+  const wing = { axis: "z" as const, line: 3, start: 0, end: 1 };
+  const panel = { axis: "x" as const, line: 3, start: 5, end: 8 };
+  const bounds = { xMin: 0, xMax: 8, zMin: 0, zMax: 4 };
+  const room = makeRoom({ ...bounds, dividers: [wing, panel] });
+  const runs = computeRoomRuns(room);
+
+  it("offers both faces of a divider, half its thickness off the grid line", () => {
+    const faces = runs.filter((r) => r.divider === 0);
+    expect(faces).toHaveLength(2);
+    const west = faces.find((r) => r.normalX === 1);
+    const east = faces.find((r) => r.normalX === -1);
+    expect(west?.surface).toBeCloseTo(3 * CELL_SIZE + 0.2, 9);
+    expect(east?.surface).toBeCloseTo(3 * CELL_SIZE - 0.2, 9);
+    for (const face of faces) {
+      expect(face.axis).toBe("z");
+      expect(runLength(face)).toBeCloseTo(CELL_SIZE - 2 * WALL_MARGIN, 9);
+    }
+  });
+
+  it("hangs a work on a divider's face, facing out of it", () => {
+    const face = runs.find((r) => r.divider === 1 && r.normalZ === 1);
+    expect(face).toBeDefined();
+    const [placement] = packRun(face as NonNullable<typeof face>, [makeWork("a", 1.2, 0.9)]);
+    expect(placement.divider).toBe(1);
+    // On the panel's south face, inside its length.
+    expect(placement.position[2]).toBeCloseTo(3 * CELL_SIZE + 0.2 + PAINTING_WALL_OFFSET, 9);
+    expect(placement.position[0]).toBeGreaterThan(5 * CELL_SIZE);
+    expect(placement.position[0]).toBeLessThan(8 * CELL_SIZE);
+    expect(placement.rotation[1]).toBe(0);
+  });
+
+  it("does not mark a work on a room wall", () => {
+    const wall = runs.find((r) => r.divider === undefined);
+    const [placement] = packRun(wall as NonNullable<typeof wall>, [makeWork("a", 1, 1)]);
+    expect(placement.divider).toBeUndefined();
+  });
+
+  it("cuts the wall a wing wall is built off, and no other", () => {
+    const north = runs.filter((r) => r.side === "north" && r.divider === undefined);
+    expect(north).toHaveLength(2);
+    // Each stops a margin short of the wing wall's face.
+    expect(north[0].uMax).toBeCloseTo(3 * CELL_SIZE - 0.2 - WALL_MARGIN, 9);
+    expect(north[1].uMin).toBeCloseTo(3 * CELL_SIZE + 0.2 + WALL_MARGIN, 9);
+    const south = runs.filter((r) => r.side === "south" && r.divider === undefined);
+    expect(south).toHaveLength(1);
+  });
+
+  it("counts the wall dividers add to the metre", () => {
+    const length = (list: ReturnType<typeof computeRoomRuns>) =>
+      list.reduce((sum, r) => sum + runLength(r), 0);
+    const bare = length(computeRoomRuns(makeRoom(bounds)));
+    expect(dividerWallMetres(bounds, [wing, panel])).toBeCloseTo(length(runs) - bare, 9);
+    // The room's own walls are still what the estimate says they are.
+    expect(bare).toBeCloseTo(estimateWallMetres(9 * CELL_SIZE, 5 * CELL_SIZE, 0), 9);
+  });
+});
+
+describe("ceiling height and the hang", () => {
+  it("caps a low room's works a metre under its ceiling", () => {
+    const low = computeRoomRuns(
+      makeRoom({ xMin: 0, xMax: 3, zMin: 0, zMax: 3, ceilingHeight: 3.4 }),
+    );
+    expect(low.every((r) => Math.abs(r.maxHeight - 2.4) < 1e-9)).toBe(true);
+    const [placement] = packRun(low[0], [makeWork("tall", 1.6, 3.2)]);
+    expect(placement.heightM).toBeCloseTo(2.4, 9);
+    expect(placement.position[1] + placement.heightM / 2).toBeLessThan(3.4 - 0.3);
+  });
+
+  it("does not hang taller works under a taller ceiling", () => {
+    const standard = computeRoomRuns(makeRoom({ xMin: 0, xMax: 3, zMin: 0, zMax: 3 }));
+    const tall = computeRoomRuns(
+      makeRoom({ xMin: 0, xMax: 3, zMin: 0, zMax: 3, ceilingHeight: 5.4 }),
+    );
+    expect(standard[0].maxHeight).toBe(3.2);
+    expect(tall[0].maxHeight).toBe(3.2);
+  });
+});
+
+describe("estimateWallMetres", () => {
+  it("takes a portal's extra width off the wall", () => {
+    expect(estimateWallMetres(20, 10, 3, 1)).toBeCloseTo(estimateWallMetres(20, 10, 3) - 2.1, 9);
   });
 });

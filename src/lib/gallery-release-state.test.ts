@@ -21,6 +21,9 @@ const layout = {
       {
         id: `room-${index}`,
         isAnchor: true,
+        cellBounds: { xMin: 0, xMax: 3, zMin: 0, zMax: 3 },
+        dividers: [],
+        benches: [],
         worldRect: { xMin: 0, xMax: 10, zMin: 0, zMax: 10, y: index * 6.12 },
       },
     ],

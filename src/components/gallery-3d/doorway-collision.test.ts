@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import type { Door, FloorLayout, RoomLayout } from "@/lib/gallery-layout/types";
-import { CELL_SIZE, DOOR_WIDTH } from "@/lib/gallery-layout/world-coords";
+import { CELL_SIZE, DOOR_WIDTH, PORTAL_WIDTH } from "@/lib/gallery-layout/world-coords";
 import { fitsDoorwayApertures, nudgeTowardDoorwayCenter } from "./doorway-collision";
 
 const BODY_RADIUS = 0.3;
@@ -27,14 +27,16 @@ function makeRoom(doors: Door[]): RoomLayout {
       y: 0,
     },
     doors,
-    hasBench: false,
+    ceilingHeight: 4.2,
+    dividers: [],
+    benches: [],
     placements: [],
     artworks: [],
     floorColor: "#fff",
   };
 }
 
-function makeFloor(): Pick<FloorLayout, "rooms"> {
+function makeFloor(width = DOOR_WIDTH): Pick<FloorLayout, "rooms"> {
   return {
     rooms: [
       makeRoom([
@@ -43,7 +45,9 @@ function makeFloor(): Pick<FloorLayout, "rooms"> {
           worldX: WALL_X,
           worldZ: DOOR_Z,
           worldY: 0,
-          width: DOOR_WIDTH,
+          width,
+          height: 2.4,
+          portal: width > DOOR_WIDTH,
           connectsTo: { kind: "room", roomId: "b" },
         },
       ]),
@@ -97,5 +101,19 @@ describe("doorway collision", () => {
     );
 
     expect(nudged).toBeNull();
+  });
+
+  it("gives a portal its full width, and keeps its jambs solid", () => {
+    const floor = makeFloor(PORTAL_WIDTH);
+    // 3.5 m opening: a 0.3 m body fits up to 1.45 m off the centre.
+    expect(fitsDoorwayApertures(floor, WALL_X - 0.1, DOOR_Z + 1.4, BODY_RADIUS)).toBe(true);
+    expect(fitsDoorwayApertures(floor, WALL_X - 0.1, DOOR_Z - 1.4, BODY_RADIUS)).toBe(true);
+    // The jamb runs on to the end of the three cells the portal opens,
+    // well past the one cell a door's check used to cover.
+    expect(fitsDoorwayApertures(floor, WALL_X - 0.1, DOOR_Z + 1.6, BODY_RADIUS)).toBe(false);
+    expect(fitsDoorwayApertures(floor, WALL_X - 0.1, DOOR_Z + 3.0, BODY_RADIUS)).toBe(false);
+    expect(fitsDoorwayApertures(floor, WALL_X - 0.1, DOOR_Z - 3.9, BODY_RADIUS)).toBe(false);
+    // Beyond that span the wall is another cell edge's business.
+    expect(fitsDoorwayApertures(floor, WALL_X - 0.1, DOOR_Z + 4.2, BODY_RADIUS)).toBe(true);
   });
 });

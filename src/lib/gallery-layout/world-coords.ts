@@ -6,7 +6,13 @@
 // revolution over that span, so the gap also sets the stair pitch.
 
 export const CELL_SIZE = 2.5; // metres per cell on the XZ plane
-export const ROOM_HEIGHT = 4.2; // interior ceiling plane of a room
+// Interior ceiling plane of a room. A room carries its own height
+// (`RoomLayout.ceilingHeight`, set in fittings.ts): cabinets are low,
+// halls are tall, everything else and the stairwell use ROOM_HEIGHT.
+// The tallest still clears the slab above (INTER_FLOOR_HEIGHT, 5.92 m).
+export const ROOM_HEIGHT = 4.2;
+export const ROOM_HEIGHT_LOW = 3.4;
+export const ROOM_HEIGHT_TALL = 5.4;
 export const CORRIDOR_HEIGHT = 3.12; // lower interior ceiling in hallways
 // Metres between floor surfaces. Sized so the room-height : floor-pitch
 // ratio matches 4.2 / 6.12 ≈ 0.69 — the spiral staircase still climbs
@@ -21,6 +27,16 @@ export const WALL_THICKNESS = 0.1;
 // rather than the ceiling dominating.
 export const DOOR_WIDTH = 1.4;
 export const DOOR_HEIGHT = 2.4;
+// Portals: the openings on a room sequence's main axis. A door centre
+// sits mid-cell, so 3.5 m reaches half a metre into the cells either
+// side; collision opens all three cell edges and closes the jambs with
+// colliders of their own (see `doorOpenHalfSpan`). 3.0 m tall leaves a
+// lintel under the lowest ceiling (ROOM_HEIGHT_LOW).
+export const PORTAL_WIDTH = 3.5;
+export const PORTAL_HEIGHT = 3.0;
+// Freestanding divider walls are real boxes, seen end-on, where every
+// other wall is a zero-thickness plane between two rooms.
+export const DIVIDER_THICKNESS = 0.4;
 
 // ── Central open-well spiral staircase ───────────────────────────────
 // One full revolution per storey. The inner radius is generous so the
@@ -59,6 +75,19 @@ export const SPIRAL_ROOM_CELLS = 9;
  *  always straddles either the floor or the spiral — no walking over
  *  empty no-man's-land. */
 export const SPIRAL_FLOOR_CUTOUT_RADIUS = SPIRAL_OUTER_RADIUS + 0.04;
+
+/**
+ * Half the stretch of wall whose cell edges a door opens, metres either
+ * side of the door's centre. Collision is per cell edge, and a door
+ * centre sits mid-cell: a 1.4 m door opens its own edge (1.25 m either
+ * side), a 3.5 m portal reaches into both neighbours and opens three
+ * (3.75 m). Whatever lies between the opening and the end of that span
+ * is solid jamb.
+ */
+export function doorOpenHalfSpan(width: number): number {
+  const extraCells = Math.max(0, Math.ceil((width / 2 - CELL_SIZE / 2) / CELL_SIZE - 1e-6));
+  return CELL_SIZE / 2 + extraCells * CELL_SIZE;
+}
 
 export function floorY(floorIndex: number): number {
   return floorIndex * FLOOR_SEPARATION;

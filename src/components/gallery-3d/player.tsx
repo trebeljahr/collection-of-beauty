@@ -5,6 +5,7 @@ import type { JoystickOnMove } from "joystick-controller";
 import { useEffect, useRef } from "react";
 import * as THREE from "three";
 import type { ArtworkListing } from "@/lib/data";
+import { clearOfFittings } from "@/lib/gallery-layout/fittings";
 import type { FloorLayout, Staircase } from "@/lib/gallery-layout/types";
 import { CELL_SIZE, worldToCell } from "@/lib/gallery-layout/world-coords";
 import type { GalleryPose } from "@/lib/gallery-release-state";
@@ -40,6 +41,11 @@ const PLAYER_RADIUS = 0.3;
 // the movement target toward this wider comfort band so the camera
 // doesn't skim the cut wall plane.
 const DOORWAY_CAMERA_CLEARANCE = 0.45;
+// How far into a divider or bench the layout check lets the body
+// reach. The physics world stops the capsule a skin's width outside
+// the same boxes; without this the check would reject the positions
+// that sliding along one produces.
+const FITTING_SLOP = 0.05;
 const DOORWAY_NUDGE_MAX_CORRECTION = 0.35;
 // Max distance (m) at which the crosshair swaps to the magnifying-glass
 // "inspect" affordance. Click-to-zoom still works at any range; this is
@@ -979,7 +985,9 @@ function isWalkable(floor: FloorLayout, worldX: number, worldZ: number): boolean
  *  are not yet represented as full walkable-surface physics: grid
  *  membership for normal floors, the "you can only enter a spiral where
  *  there's a tread at your feet" rule, and the "don't step off a spiral
- *  mid-flight through a rail gap" one. */
+ *  mid-flight through a rail gap" one. Dividers and benches are
+ *  colliders too; they are checked again here because this predicate is
+ *  also the whole of collision until the physics world has loaded. */
 function canAcceptPhysicsMove(
   floor: FloorLayout,
   allStaircases: readonly Staircase[],
@@ -1025,6 +1033,7 @@ function canAcceptPhysicsMove(
   if (!isWalkable(floor, toX, toZ)) return false;
   if (!canCrossEdges(floor, fromX, fromZ, toX, toZ)) return false;
   if (!fitsDoorwayApertures(floor, toX, toZ, PLAYER_RADIUS)) return false;
+  if (!clearOfFittings(floor, toX, toZ, PLAYER_RADIUS - FITTING_SLOP)) return false;
   return true;
 }
 

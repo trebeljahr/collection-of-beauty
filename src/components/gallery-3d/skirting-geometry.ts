@@ -15,8 +15,8 @@ import { mergeGeometries } from "three/examples/jsm/utils/BufferGeometryUtils.js
 export const SKIRTING_HEIGHT = 0.15;
 export const SKIRTING_PROUD = 0.014;
 /** Moulded cap along the top: a thinner, slightly deeper bead. */
-const CAP_HEIGHT = 0.022;
-const CAP_PROUD = 0.02;
+export const SKIRTING_CAP_HEIGHT = 0.022;
+export const SKIRTING_CAP_PROUD = 0.02;
 
 /** Board segments for the clear spans of a wall, in the wall's local
  *  frame (x along the wall, y up from `floorY`, z through the wall). */
@@ -31,8 +31,8 @@ export function buildSkirtingGeometry(
     const cx = (s.xMin + s.xMax) / 2;
     const board = new THREE.BoxGeometry(w, SKIRTING_HEIGHT, SKIRTING_PROUD * 2);
     board.translate(cx, floorY + SKIRTING_HEIGHT / 2, 0);
-    const cap = new THREE.BoxGeometry(w, CAP_HEIGHT, CAP_PROUD * 2);
-    cap.translate(cx, floorY + SKIRTING_HEIGHT - CAP_HEIGHT / 2, 0);
+    const cap = new THREE.BoxGeometry(w, SKIRTING_CAP_HEIGHT, SKIRTING_CAP_PROUD * 2);
+    cap.translate(cx, floorY + SKIRTING_HEIGHT - SKIRTING_CAP_HEIGHT / 2, 0);
     parts.push(board, cap);
   }
   if (parts.length === 0) return null;

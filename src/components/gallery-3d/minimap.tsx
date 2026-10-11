@@ -1,6 +1,7 @@
 "use client";
 
 import { type RefObject, useEffect, useRef } from "react";
+import { benchRect, dividerRect, type Rect } from "@/lib/gallery-layout/fittings";
 import type { FloorLayout, RoomLayout } from "@/lib/gallery-layout/types";
 import { CELL_SIZE } from "@/lib/gallery-layout/world-coords";
 
@@ -152,6 +153,24 @@ export function Minimap({
       }
     }
     ctx.lineCap = "butt";
+
+    // Dividers and benches, to scale. A divider is a wall like the
+    // room's own, so it takes the outline's colour at its real 0.4 m; a
+    // bench is furniture and stays faint.
+    for (const [i, room] of floor.rooms.entries()) {
+      const isActive = i === activeRoomIdx;
+      const toMap = (r: Rect) =>
+        [
+          ox + (r.xMin / CELL_SIZE) * scale,
+          oy + (r.zMin / CELL_SIZE) * scale,
+          Math.max(1, ((r.xMax - r.xMin) / CELL_SIZE) * scale),
+          Math.max(1, ((r.zMax - r.zMin) / CELL_SIZE) * scale),
+        ] as const;
+      ctx.fillStyle = isActive ? "#fff1c8" : "rgba(255, 240, 210, 0.6)";
+      for (const divider of room.dividers) ctx.fillRect(...toMap(dividerRect(divider)));
+      ctx.fillStyle = isActive ? "rgba(26, 18, 11, 0.55)" : "rgba(20, 14, 8, 0.45)";
+      for (const bench of room.benches) ctx.fillRect(...toMap(benchRect(bench)));
+    }
 
     // Spiral staircase footprint — annulus (treads) around an open
     // central well. Drawn only for flights leaving this floor so two

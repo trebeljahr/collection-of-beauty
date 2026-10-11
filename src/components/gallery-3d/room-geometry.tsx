@@ -7,22 +7,24 @@ import { ERAS } from "@/lib/gallery-eras";
 import type { Placement, RoomLayout } from "@/lib/gallery-layout/types";
 import {
   CELL_SIZE,
-  DOOR_HEIGHT,
   FLOOR_THICKNESS,
   hasStairwellCutout,
   INTER_FLOOR_HEIGHT,
-  ROOM_HEIGHT,
   SPIRAL_FLOOR_CUTOUT_RADIUS,
 } from "@/lib/gallery-layout/world-coords";
+import { RoomBenches } from "./bench";
+import { RoomDividers } from "./divider";
 import { registerMirrorRoom } from "./floor-mirror";
 import { Laylight } from "./laylight";
+import { laylightPanels } from "./laylight-layout";
 import { Painting } from "./painting";
 import { getPaletteMaterials, getRoomFloorMaterial } from "./palette-materials";
 import { WallWithDoors } from "./wall";
 
 /**
- * Render a single room: floor, ceiling with its laylight, 4 walls with
- * the room's door openings cut out, and its paintings. Uses shared per-palette
+ * Render a single room: floor, ceiling with its laylights, 4 walls with
+ * the room's door openings cut out, its dividers and benches, and its
+ * paintings. Uses shared per-palette
  * materials so every room of the same era reuses the same 4 materials
  * instead of allocating fresh ones.
  */
@@ -60,8 +62,11 @@ export function RoomGeometry({
   const floorY = room.worldRect.y;
   // Walls span floor-to-next-slab so the building has no visible gap
   // above the interior ceiling when seen from across the open well;
-  // the ceiling plane at ROOM_HEIGHT covers the plenum from inside.
+  // the ceiling plane, at the room's own height, covers the plenum
+  // from inside.
   const wallMidY = floorY + INTER_FLOOR_HEIGHT / 2;
+  const ceilingY = floorY + room.ceilingHeight;
+  const laylights = useMemo(() => laylightPanels(room), [room]);
 
   // Floor plane with world-unit UVs so 1 m of floor = 1 m of texture
   // tile, regardless of room size. UVs are anchored to the room's
@@ -92,22 +97,26 @@ export function RoomGeometry({
   const nDoors = doorsBySide.north.map((d) => ({
     centerLocalX: d.worldX - cxWorld,
     width: d.width,
-    height: DOOR_HEIGHT,
+    height: d.height,
+    portal: d.portal,
   }));
   const sDoors = doorsBySide.south.map((d) => ({
     centerLocalX: -(d.worldX - cxWorld),
     width: d.width,
-    height: DOOR_HEIGHT,
+    height: d.height,
+    portal: d.portal,
   }));
   const eDoors = doorsBySide.east.map((d) => ({
     centerLocalX: d.worldZ - czWorld,
     width: d.width,
-    height: DOOR_HEIGHT,
+    height: d.height,
+    portal: d.portal,
   }));
   const wDoors = doorsBySide.west.map((d) => ({
     centerLocalX: -(d.worldZ - czWorld),
     width: d.width,
-    height: DOOR_HEIGHT,
+    height: d.height,
+    portal: d.portal,
   }));
 
   // Stairwell rooms render neither the plain floor (the well is open
@@ -155,17 +164,20 @@ export function RoomGeometry({
       )}
       {isStandardRoom && (
         <>
-          <mesh rotation={[Math.PI / 2, 0, 0]} position={[cxWorld, floorY + ROOM_HEIGHT, czWorld]}>
+          <mesh rotation={[Math.PI / 2, 0, 0]} position={[cxWorld, ceilingY, czWorld]}>
             <planeGeometry args={[width, depth]} />
             <primitive object={mats.ceiling} attach="material" />
           </mesh>
-          <Laylight
-            cx={cxWorld}
-            cz={czWorld}
-            ceilingY={floorY + ROOM_HEIGHT}
-            width={width}
-            depth={depth}
-          />
+          {laylights.map((p) => (
+            <Laylight
+              key={`${p.xMin}:${p.zMin}`}
+              cx={(p.xMin + p.xMax) / 2}
+              cz={(p.zMin + p.zMax) / 2}
+              ceilingY={ceilingY}
+              w={p.xMax - p.xMin}
+              d={p.zMax - p.zMin}
+            />
+          ))}
         </>
       )}
 
@@ -229,6 +241,12 @@ export function RoomGeometry({
           doors={eDoors}
         />
       )}
+
+      {/* Freestanding walls and benches. Both are part of the shell:
+          they are colliders whether or not they are drawn, so they
+          mount with the room, not with its paintings. */}
+      <RoomDividers room={room} material={mats.wall} />
+      <RoomBenches benches={room.benches} floorY={floorY} />
 
       {/* Paintings — revealed lazily once the player nears this room,
           then a few per frame, nearest the stair first. */}

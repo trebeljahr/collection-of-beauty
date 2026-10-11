@@ -1,3 +1,4 @@
+import { arrivalPoint } from "./gallery-layout/fittings";
 import type { MuseumLayout } from "./gallery-layout/types";
 import { FLOOR_SEPARATION, worldToCell } from "./gallery-layout/world-coords";
 import { readReleaseState } from "./release-session";
@@ -44,14 +45,15 @@ export function isGalleryReleaseState(value: unknown): value is GalleryReleaseSt
   );
 }
 
-/** Geometry identity only: changes to code or artwork descriptions keep a visit's position. */
+/** Geometry identity only: changes to code or artwork descriptions keep a visit's position.
+ *  Dividers and benches are geometry: a saved position can be inside one that was not there. */
 export function galleryLayoutIdentity(layout: MuseumLayout): string {
   const geometry = JSON.stringify(
     layout.floors.map((floor) => [
       floor.era.id,
       floor.y,
       floor.gridSize,
-      floor.rooms.map((room) => [room.id, room.worldRect]),
+      floor.rooms.map((room) => [room.id, room.worldRect, room.dividers, room.benches]),
       floor.stairsIn,
       floor.stairsOut,
     ]),
@@ -85,12 +87,9 @@ export function restoreGalleryVisit(layout: MuseumLayout, identity: string) {
     saved.pose.position[1] >= floor.y - FLOOR_SEPARATION &&
     saved.pose.position[1] <= floor.y + FLOOR_SEPARATION + 2.2;
   const pose = sameLayout && validPosition ? saved.pose : null;
+  const arrival = arrivalPoint(room);
   const spawn: [number, number, number] = pose
     ? [pose.position[0], pose.position[1] - 1.75, pose.position[2]]
-    : [
-        (room.worldRect.xMin + room.worldRect.xMax) / 2,
-        room.worldRect.y,
-        (room.worldRect.zMin + room.worldRect.zMax) / 2,
-      ];
+    : [arrival.x, room.worldRect.y, arrival.z];
   return { saved, floorIndex, pose, spawn, layoutChanged: !sameLayout };
 }

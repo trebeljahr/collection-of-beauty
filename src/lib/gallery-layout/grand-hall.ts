@@ -213,7 +213,9 @@ function flanks(side: Door["side"]): readonly [Door["side"], Door["side"]] {
  *  is left bare — the Grand Hall's doors are always centred, so that is
  *  a guard, not a layout. */
 function planWall(runs: WallRun[], side: Door["side"]): WallPlan | null {
-  const own = runs.filter((r) => r.side === side).sort((a, b) => a.uMin - b.uMin);
+  const own = runs
+    .filter((r) => r.side === side && r.divider === undefined)
+    .sort((a, b) => a.uMin - b.uMin);
   if (own.length === 1) {
     const run = own[0];
     return {

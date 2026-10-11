@@ -8,6 +8,9 @@ import type { FrameVariantId } from "./frame-profiles";
 
 export type Band = "small" | "medium" | "large";
 
+/** A rectangle of grid cells, both ends inclusive. */
+export type CellRect = { xMin: number; xMax: number; zMin: number; zMax: number };
+
 export type Placement = {
   artwork: ArtworkListing;
   position: [number, number, number];
@@ -20,6 +23,9 @@ export type Placement = {
   /** The frame, when the hang chose it: a Grand Hall pair shares one.
    *  Unset, the work hangs in its own (`pickFrameVariant`). */
   frame?: FrameVariantId;
+  /** Index into the room's `dividers` when the work hangs on one. Its
+   *  position is then on that divider's face, not on a room wall. */
+  divider?: number;
 };
 
 export type Door = {
@@ -28,12 +34,45 @@ export type Door = {
   worldZ: number;
   worldY: number;
   width: number;
+  /** Clear height of the opening, metres. */
+  height: number;
+  /** A wide opening on a room sequence's main axis, cased like a wall
+   *  opening instead of trimmed like a door. Set by the layout; the
+   *  width and height above already carry its size. */
+  portal: boolean;
   /** The room on the other side of this shared wall. Every connection in
    *  the museum is a door cut through a wall two rooms share — there are
    *  no corridors (`FloorLayout.hallways` is permanently empty) and the
    *  stairwell is itself a room, so a `hallway` / `staircase` variant
    *  had nothing to describe and was never constructed. */
   connectsTo: { kind: "room"; roomId: string };
+};
+
+/**
+ * A freestanding wall inside a room: a wing wall reaching in from a
+ * side wall, or a panel standing clear of every wall. It lies on a cell
+ * line, so collision can hold it as blocked cell edges, and it is
+ * `DIVIDER_THICKNESS` thick, centred on that line. Both faces are
+ * hangable wall.
+ */
+export type Divider = {
+  /** World axis the wall runs along. */
+  axis: "x" | "z";
+  /** Grid line it stands on: a z line when it runs along x, an x line
+   *  when it runs along z. Line `n` is the boundary between cell `n - 1`
+   *  and cell `n`. */
+  line: number;
+  /** Extent along `axis`, in grid lines (`start < end`). */
+  start: number;
+  end: number;
+};
+
+/** A gallery bench: its centre on the floor in world metres, and the
+ *  world axis its long side runs along. */
+export type Bench = {
+  x: number;
+  z: number;
+  along: "x" | "z";
 };
 
 export type RoomLayout = {
@@ -55,7 +94,7 @@ export type RoomLayout = {
    *  (`StairwellLight`), and it has no full floor — the stair geometry
    *  provides the walking surface between landings. */
   isStairwell: boolean;
-  cellBounds: { xMin: number; xMax: number; zMin: number; zMax: number };
+  cellBounds: CellRect;
   /** World rectangle of the interior floor (walls exclusive). */
   worldRect: {
     xMin: number;
@@ -65,7 +104,12 @@ export type RoomLayout = {
     y: number;
   };
   doors: Door[];
-  hasBench: boolean;
+  /** Height of the ceiling plane above the floor, metres. Walls run on
+   *  up to the slab above; this is where the room stops. */
+  ceilingHeight: number;
+  /** Freestanding walls, in grid lines. Empty for most rooms. */
+  dividers: Divider[];
+  benches: Bench[];
   placements: Placement[];
   artworks: ArtworkListing[];
   /** Per-room floor tint, picked deterministically from the era's
@@ -135,8 +179,9 @@ export type FloorLayout = {
   /** -1 for hallway/stair, else room index into `rooms`. */
   cellOwner: Int16Array;
   /** Blocks the edge between cell (x, z) and (x+1, z) — set to 1 when
-   *  a wall divides them and no door cut spans the cell midpoint.
-   *  Indexed as `z * (gridSize.x - 1) + x`. */
+   *  a wall divides them and no door opening reaches into the edge, or
+   *  when a room's divider stands on it. Indexed as
+   *  `z * (gridSize.x - 1) + x`. */
   blockedEdgesEW: Uint8Array;
   /** Blocks the edge between cell (x, z) and (x, z+1). Indexed as
    *  `z * gridSize.x + x`. */

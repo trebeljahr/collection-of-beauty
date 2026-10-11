@@ -16,6 +16,9 @@
 // the viewer's right along the wall, +y up, +z out of the wall into the
 // room. The wall surface is the plane z = -wallOffset.
 
+import { dividerRect } from "@/lib/gallery-layout/fittings";
+import type { Divider } from "@/lib/gallery-layout/types";
+
 /** Tilt of the beam off vertical. 30° is the usual museum rule: steep
  *  enough that a varnished canvas doesn't throw the glare back at an
  *  eye-height viewer, shallow enough that the frame's shadow stays a
@@ -82,6 +85,10 @@ export type LightRigInput = {
   /** Distance from this wall to the opposite one, so a floor pool
    *  never crosses the room. */
   roomDepth: number;
+  /** The floor in front of the wall, from side to side in local x.
+   *  Defaults to `roomSpan`. Wider than it for a work on a divider,
+   *  whose floor runs on past the divider's free end. */
+  floorSpan?: [number, number];
 };
 
 const deg = Math.PI / 180;
@@ -244,7 +251,7 @@ export function buildLightRig(input: LightRigInput): LightRig {
           yMin: wallZ,
           yMax: Math.min(wallZ + input.roomDepth, Math.max(...zs) + pad),
         },
-        [input.roomSpan],
+        [input.floorSpan ?? input.roomSpan],
       )[0] ?? null;
   }
   return { heads, wall, floor };
@@ -275,10 +282,15 @@ export function clearSpans(
 export type WallContext = {
   roomSpan: [number, number];
   wallSpans: Array<[number, number]>;
+  floorSpan: [number, number];
   roomDepth: number;
   /** Local y of the room's floor. */
   floorY: number;
 };
+
+/** The room's freestanding walls, and which of them the work hangs on
+ *  (an index into `dividers`) when it is not on a room wall. */
+export type WallFittings = { dividers: readonly Divider[]; on?: number };
 
 /** Door half-width beyond its opening that the trim covers. */
 const DOOR_TRIM_CLEARANCE = 0.09;
@@ -288,6 +300,13 @@ const DOOR_TRIM_CLEARANCE = 0.09;
  * room's wall planes in world x/z; `rotationY` is the placement's, which
  * place-paintings sets per compass wall (0 north, π south, π/2 west,
  * -π/2 east), so the painting's right axis is (cos r, 0, -sin r).
+ *
+ * Dividers change the wall in two ways. A work on a room wall has its
+ * pool stopped at any wing wall built off that wall, as at a corner, and
+ * its floor pool stopped at a panel standing in front of it. A work on
+ * a divider (`fittings.on`) has that divider's face for its wall: the
+ * pool ends at the divider's ends, where there is no wall left to light,
+ * and only the floor runs on.
  */
 export function wallContextFor(
   bounds: { xMin: number; xMax: number; zMin: number; zMax: number },
@@ -295,6 +314,7 @@ export function wallContextFor(
   floorWorldY: number,
   position: readonly [number, number, number],
   rotationY: number,
+  fittings: WallFittings = { dividers: [] },
 ): WallContext {
   const rx = Math.cos(rotationY);
   const rz = -Math.sin(rotationY);
@@ -311,9 +331,51 @@ export function wallContextFor(
   ];
   const xs = corners.map(([x, z]) => localX(x, z));
   const zs = corners.map(([x, z]) => localZ(x, z));
+  const floorY = floorWorldY - position[1];
+
+  // Every divider as a box in the local frame.
+  const boxes = fittings.dividers.map((d) => {
+    const r = dividerRect(d);
+    const bx = [localX(r.xMin, r.zMin), localX(r.xMax, r.zMax)];
+    const bz = [localZ(r.xMin, r.zMin), localZ(r.xMax, r.zMax)];
+    return {
+      xMin: Math.min(...bx),
+      xMax: Math.max(...bx),
+      zMin: Math.min(...bz),
+      zMax: Math.max(...bz),
+    };
+  });
+  // Nearest divider standing in front of the work, across its beam.
+  const depthTo = (wallZ: number, far: number, skip?: number) => {
+    let depth = far - wallZ;
+    boxes.forEach((b, i) => {
+      if (i === skip || b.xMin > 0 || b.xMax < 0 || b.zMin <= wallZ + 0.1) return;
+      depth = Math.min(depth, b.zMin - wallZ);
+    });
+    return depth;
+  };
+
+  if (fittings.on !== undefined && boxes[fittings.on]) {
+    const own = boxes[fittings.on];
+    const span: [number, number] = [own.xMin, own.xMax];
+    return {
+      roomSpan: span,
+      wallSpans: [span],
+      floorSpan: [Math.min(...xs), Math.max(...xs)],
+      roomDepth: depthTo(own.zMax, Math.max(...zs), fittings.on),
+      floorY,
+    };
+  }
+
   const roomSpan: [number, number] = [Math.min(...xs), Math.max(...xs)];
   const wallZ = Math.min(...zs);
-  const roomDepth = Math.max(...zs) - wallZ;
+  // A wing wall built off this wall closes the bay like a corner.
+  for (const b of boxes) {
+    if (b.zMin > wallZ + 0.05) continue;
+    if (b.xMin > 0) roomSpan[1] = Math.min(roomSpan[1], b.xMin);
+    else if (b.xMax < 0) roomSpan[0] = Math.max(roomSpan[0], b.xMax);
+  }
+  const roomDepth = depthTo(wallZ, Math.max(...zs));
 
   const quarter = Math.round(rotationY / (Math.PI / 2));
   const side =
@@ -335,7 +397,8 @@ export function wallContextFor(
   return {
     roomSpan,
     wallSpans: clearSpans(roomSpan, openings),
+    floorSpan: roomSpan,
     roomDepth,
-    floorY: floorWorldY - position[1],
+    floorY,
   };
 }

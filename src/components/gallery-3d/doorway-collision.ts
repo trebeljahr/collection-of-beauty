@@ -1,5 +1,5 @@
 import type { Door, FloorLayout } from "@/lib/gallery-layout/types";
-import { CELL_SIZE } from "@/lib/gallery-layout/world-coords";
+import { doorOpenHalfSpan } from "@/lib/gallery-layout/world-coords";
 
 type DoorFrame = {
   planeAxis: "x" | "z";
@@ -7,6 +7,9 @@ type DoorFrame = {
   openingAxis: "x" | "z";
   openingCenter: number;
   openingHalfWidth: number;
+  /** Half the stretch of wall the door's cell edges open: the opening
+   *  plus the solid jamb either side of it. */
+  openHalfSpan: number;
 };
 
 type DoorwayNudge = {
@@ -24,6 +27,7 @@ function doorFrame(door: Door): DoorFrame {
       openingAxis: "z",
       openingCenter: door.worldZ,
       openingHalfWidth: door.width / 2,
+      openHalfSpan: doorOpenHalfSpan(door.width),
     };
   }
   return {
@@ -32,6 +36,7 @@ function doorFrame(door: Door): DoorFrame {
     openingAxis: "x",
     openingCenter: door.worldX,
     openingHalfWidth: door.width / 2,
+    openHalfSpan: doorOpenHalfSpan(door.width),
   };
 }
 
@@ -49,9 +54,9 @@ function clamp(value: number, min: number, max: number): number {
 
 /**
  * Cell edge collision is grid-coarse: a visual 1.4 m doorway opens one
- * full 2.5 m cell edge. This pass restores the real doorway aperture
- * near the wall plane, so the player capsule cannot occupy the solid
- * jamb on either side of the cut-out.
+ * full 2.5 m cell edge, and a 3.5 m portal opens three. This pass
+ * restores the real doorway aperture near the wall plane, so the player
+ * capsule cannot occupy the solid jamb on either side of the cut-out.
  */
 export function fitsDoorwayApertures(
   floor: Pick<FloorLayout, "rooms">,
@@ -66,7 +71,7 @@ export function fitsDoorwayApertures(
       if (Math.abs(planeDist) >= bodyRadius) continue;
 
       const axisDelta = coord(frame.openingAxis, x, z) - frame.openingCenter;
-      if (Math.abs(axisDelta) > CELL_SIZE / 2 + bodyRadius) continue;
+      if (Math.abs(axisDelta) > frame.openHalfSpan + bodyRadius) continue;
 
       const sideClearance = Math.min(
         bodyRadius,

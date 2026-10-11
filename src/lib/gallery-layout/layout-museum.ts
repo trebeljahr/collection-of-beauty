@@ -27,13 +27,33 @@
 // Audubon plates therefore opens fewer, denser rooms than a storey of
 // Romantic canvases with the same work count, and no floor ends up
 // with 16 rooms hung at a third of their capacity.
+//
+// A room is more than its rectangle: it has a ceiling height, and the
+// long rooms and halls have freestanding divider walls and benches
+// (fittings.ts). Divider wall is hangable, so it counts toward the
+// plaster a floor has open.
 
 import type { ArtworkListing } from "@/lib/data";
 import { assignEra, ERAS, type Era, type EraId, eraAccentColor, getEra } from "@/lib/gallery-eras";
 import { slugify } from "@/lib/utils";
+import {
+  arrivalPoint,
+  ceilingHeightFor,
+  planBenches,
+  planDividers,
+  writeDividerEdges,
+} from "./fittings";
 import { hangGrandHall, pickHallCandidates } from "./grand-hall";
-import { distributePaintings, estimateWallMetres, wallFootprint } from "./place-paintings";
+import {
+  distributePaintings,
+  dividerWallMetres,
+  estimateWallMetres,
+  wallFootprint,
+} from "./place-paintings";
 import type {
+  Bench,
+  CellRect,
+  Divider,
   Door,
   FloorLayout,
   HallwayLayout,
@@ -43,8 +63,13 @@ import type {
 } from "./types";
 import {
   CELL_SIZE,
+  DOOR_HEIGHT,
   DOOR_WIDTH,
+  doorOpenHalfSpan,
   floorY,
+  PORTAL_HEIGHT,
+  PORTAL_WIDTH,
+  ROOM_HEIGHT,
   SPIRAL_INNER_RADIUS,
   SPIRAL_OUTER_RADIUS,
   SPIRAL_ROOM_CELLS,
@@ -57,7 +82,7 @@ import {
 const GRID_SIZE = 48;
 const STAIR_LABEL = "Stairwell";
 
-export type CellRect = { xMin: number; xMax: number; zMin: number; zMax: number };
+export type { CellRect };
 
 // Stairwell sits dead centre. Its size scales with SPIRAL_ROOM_CELLS
 // (currently 9), so every band below is derived from STAIR_MIN /
@@ -103,9 +128,9 @@ const COL_E = { xMin: STAIR_MAX + 1, xMax: STAIR_MAX + 6 }; // 6 cells
 const COL_E_FAR = { xMin: STAIR_MAX + 7, xMax: STAIR_MAX + 14 }; // 8 cells
 
 /** Row bands, north (low z) → south (high z). Depths run 10 / 12.5 /
- *  22.5 / 17.5 / 15 m. Nothing is deeper than 22.5 m: the ceiling is
- *  4.2 m, and a room much wider than five times its height stops
- *  reading as a gallery and starts reading as a warehouse. */
+ *  22.5 / 17.5 / 15 m. Nothing is deeper than 22.5 m: the tallest
+ *  ceiling is 5.4 m, and a room much wider than five times its height
+ *  stops reading as a gallery and starts reading as a warehouse. */
 const ROW_N_FAR = { zMin: STAIR_MIN - 9, zMax: STAIR_MIN - 6 }; // 4 cells
 const ROW_N = { zMin: STAIR_MIN - 5, zMax: STAIR_MIN - 1 }; // 5 cells
 const ROW_C = { zMin: STAIR_MIN, zMax: STAIR_MAX }; // 9 cells (stair)
@@ -184,13 +209,93 @@ export const SLOT_STAGES: Slot[][] = [
 
 const SLOTS: Slot[] = SLOT_STAGES.flat();
 
+// --- Fittings -------------------------------------------------------------
+
+/** What a room of the plan is fitted with, apart from its walls. */
+type Fittings = {
+  ceilingHeight: number;
+  dividers: Divider[];
+  benches: Bench[];
+  /** Doors of the room that are portals when every slot is open. */
+  portals: number;
+};
+
+const GRAND_HALL_KEY = "grand-hall";
+const STAIRWELL_KEY = "stairwell";
+const BARE: Fittings = { ceilingHeight: ROOM_HEIGHT, dividers: [], benches: [], portals: 0 };
+
+let planFittings: Map<string, Fittings> | null = null;
+
+/**
+ * Ceiling height, dividers and benches for one room of the plan, keyed
+ * by slot id.
+ *
+ * Planned once from the doors a room has when every slot is open, and
+ * reused on every storey. A storey that opens 9 of the 24 slots has
+ * fewer doors, but its rooms are fitted as if the rest were there: the
+ * building has one set of rooms, and the wall a floor will offer can be
+ * counted before its doors are wired, which is when the floor decides
+ * how many rooms to open.
+ */
+export function fittingsFor(key: string): Fittings {
+  if (!planFittings) {
+    const era = ERAS[0];
+    const rooms = [
+      { key: GRAND_HALL_KEY, rect: GRAND_HALL },
+      ...SLOTS.map((slot) => ({ key: slot.id, rect: slot.rect })),
+      { key: STAIRWELL_KEY, rect: STAIR },
+    ].map(({ key, rect }) => ({
+      key,
+      room: buildRoom({
+        era,
+        id: key,
+        rect,
+        movement: "",
+        artworks: [],
+        isAnchor: key === GRAND_HALL_KEY,
+        isStairwell: key === STAIRWELL_KEY,
+        fittings: BARE,
+      }),
+    }));
+    wireDoors(rooms.map((r) => r.room));
+
+    planFittings = new Map();
+    for (const { key, room } of rooms) {
+      if (room.isStairwell) continue;
+      const portals = room.doors.filter((d) => d.portal);
+      // The Grand Hall stays one open room. It is composed about its
+      // portal axis and is where a visitor is put down, so it gets an
+      // island of benches either side of that axis and no walls.
+      const dividers = room.isAnchor ? [] : planDividers(room.cellBounds, room.doors);
+      const mirrorAxis =
+        room.isAnchor && portals.length > 0
+          ? portals[0].side === "north" || portals[0].side === "south"
+            ? "z"
+            : "x"
+          : undefined;
+      planFittings.set(key, {
+        ceilingHeight: ceilingHeightFor(room.cellBounds),
+        dividers,
+        benches: planBenches(room.cellBounds, room.doors, dividers, mirrorAxis),
+        portals: portals.length,
+      });
+    }
+  }
+  return planFittings.get(key) ?? BARE;
+}
+
 /** Hangable wall a slot offers, in metres. Doors aren't wired yet when
- *  the floor picks its rooms, so assume the typical three. */
-function slotWallMetres(rect: CellRect): number {
-  return estimateWallMetres(
-    (rect.xMax - rect.xMin + 1) * CELL_SIZE,
-    (rect.zMax - rect.zMin + 1) * CELL_SIZE,
-    3,
+ *  the floor picks its rooms, so assume the typical three; the dividers
+ *  are known, and counted to the metre. */
+function slotWallMetres(key: string, rect: CellRect): number {
+  const fittings = fittingsFor(key);
+  return (
+    estimateWallMetres(
+      (rect.xMax - rect.xMin + 1) * CELL_SIZE,
+      (rect.zMax - rect.zMin + 1) * CELL_SIZE,
+      3,
+      Math.min(3, fittings.portals),
+    ) + dividerWallMetres(rect, fittings.dividers)
   );
 }
 
@@ -227,11 +332,8 @@ export function layoutMuseum(allArtworks: ArtworkListing[]): MuseumLayout {
   // builds the hall first, so the anchor always exists.
   const ground = floors[0];
   const anchor = ground.rooms.find((r) => r.isAnchor) ?? ground.rooms[0];
-  const entryWorld: [number, number, number] = [
-    (anchor.worldRect.xMin + anchor.worldRect.xMax) / 2,
-    anchor.worldRect.y,
-    (anchor.worldRect.zMin + anchor.worldRect.zMax) / 2,
-  ];
+  const arrival = arrivalPoint(anchor);
+  const entryWorld: [number, number, number] = [arrival.x, anchor.worldRect.y, arrival.z];
 
   return {
     floors,
@@ -398,11 +500,11 @@ function buildFloor(era: Era, allEraArtworks: ArtworkListing[]): FloorLayout {
   // density. The Grand Hall is always open, so it seeds the running
   // total; the first stage always opens too, so no floor is a single
   // room with a staircase in it.
-  let openWall = slotWallMetres(GRAND_HALL);
+  let openWall = slotWallMetres(GRAND_HALL_KEY, GRAND_HALL);
   let totalSlots = 0;
   for (const stage of SLOT_STAGES) {
     if (totalSlots > 0 && openWall >= neededWall) break;
-    for (const slot of stage) openWall += slotWallMetres(slot.rect);
+    for (const slot of stage) openWall += slotWallMetres(slot.id, slot.rect);
     totalSlots += stage.length;
   }
 
@@ -415,6 +517,7 @@ function buildFloor(era: Era, allEraArtworks: ArtworkListing[]): FloorLayout {
     artworks: [],
     isAnchor: true,
     isStairwell: false,
+    fittings: fittingsFor(GRAND_HALL_KEY),
   });
   const slotRooms = slots.map((slot) => {
     const suppressWalls: NonNullable<RoomLayout["suppressWalls"]> = {};
@@ -428,6 +531,7 @@ function buildFloor(era: Era, allEraArtworks: ArtworkListing[]): FloorLayout {
       isAnchor: false,
       isStairwell: false,
       suppressWalls,
+      fittings: fittingsFor(slot.id),
     });
   });
   // Stairwell — owns its 4 walls and connects via cardinal doors to the
@@ -440,6 +544,7 @@ function buildFloor(era: Era, allEraArtworks: ArtworkListing[]): FloorLayout {
     artworks: [],
     isAnchor: false,
     isStairwell: true,
+    fittings: BARE,
   });
   const rooms: RoomLayout[] = [hall, ...slotRooms, stairwell];
 
@@ -479,8 +584,9 @@ function buildFloor(era: Era, allEraArtworks: ArtworkListing[]): FloorLayout {
   // A composed hall is finished; only when the floor had too few large
   // works to compose one does the hall join the ordinary deal.
   const dealtRooms = hallPlacements ? slotRooms : [hall, ...slotRooms];
+  const slotWalls = slots.map((slot) => slotWallMetres(slot.id, slot.rect));
   const fills = fillRooms(
-    dealtRooms.map((r) => r.cellBounds),
+    hallPlacements ? slotWalls : [slotWallMetres(GRAND_HALL_KEY, GRAND_HALL), ...slotWalls],
     queue,
     era,
   );
@@ -595,11 +701,10 @@ const TARGET_WALL_COVERAGE = 0.66;
  * enfilade. The last room takes whatever is left over.
  */
 function fillRooms(
-  rects: CellRect[],
+  walls: number[],
   queue: Array<{ name: string; artworks: ArtworkListing[] }>,
   era: Era,
 ): Array<{ name: string; artworks: ArtworkListing[] }> {
-  const walls = rects.map(slotWallMetres);
   const totalWall = walls.reduce((a, b) => a + b, 0);
   const totalFootprint = queue.reduce(
     (sum, entry) => sum + entry.artworks.reduce((s, a) => s + wallFootprint(a), 0),
@@ -610,8 +715,8 @@ function fillRooms(
   const out: Array<{ name: string; artworks: ArtworkListing[] }> = [];
   let qi = 0;
 
-  for (let i = 0; i < rects.length; i++) {
-    const isLast = i === rects.length - 1;
+  for (let i = 0; i < walls.length; i++) {
+    const isLast = i === walls.length - 1;
     const share = walls[i] * density;
     const taken: ArtworkListing[] = [];
     const contributed = new Map<string, number>();
@@ -727,8 +832,9 @@ function buildRoom(opts: {
   isAnchor: boolean;
   isStairwell: boolean;
   suppressWalls?: RoomLayout["suppressWalls"];
+  fittings: Fittings;
 }): RoomLayout {
-  const { era, rect } = opts;
+  const { era, rect, fittings } = opts;
   const id = slugify(opts.id) || opts.id;
   return {
     id,
@@ -748,7 +854,9 @@ function buildRoom(opts: {
       y: floorY(era.index),
     },
     doors: [],
-    hasBench: opts.isAnchor,
+    ceilingHeight: fittings.ceilingHeight,
+    dividers: fittings.dividers,
+    benches: fittings.benches,
     placements: [],
     artworks: opts.artworks,
     // Placeholder — buildFloor reassigns this by movement rank once
@@ -769,6 +877,11 @@ function buildRoom(opts: {
  * The owner of a shared wall is whichever room does NOT suppress that
  * side; the suppressor draws no wall there but still gets a door so
  * painting placement skips the overlap.
+ *
+ * Doors between two rooms of the stair column are portals. That column
+ * is the building's main axis: strip, hall, stairwell, Grand Hall and
+ * strip stand in one line north to south with their doors on one
+ * sightline, and a wide opening there is what makes it read as one.
  */
 function wireDoors(rooms: RoomLayout[]) {
   const stairwell = rooms.find((r) => r.isStairwell);
@@ -791,10 +904,18 @@ function wireDoors(rooms: RoomLayout[]) {
       }
 
       const { worldX, worldZ, aSide, bSide } = adj;
-      addDoor(a, aSide, worldX, worldZ, { kind: "room", roomId: b.id });
-      addDoor(b, bSide, worldX, worldZ, { kind: "room", roomId: a.id });
+      const portal =
+        (aSide === "north" || aSide === "south") &&
+        inStairColumn(a.cellBounds) &&
+        inStairColumn(b.cellBounds);
+      addDoor(a, aSide, worldX, worldZ, { kind: "room", roomId: b.id }, portal);
+      addDoor(b, bSide, worldX, worldZ, { kind: "room", roomId: a.id }, portal);
     }
   }
+}
+
+function inStairColumn(rect: CellRect): boolean {
+  return rect.xMin === STAIR.xMin && rect.xMax === STAIR.xMax;
 }
 
 /**
@@ -854,20 +975,25 @@ function adjacency(
  * Build the per-edge wall mask the player uses for collision. Walls
  * sit on cell boundaries; if cells (x, z) and (x+1, z) belong to two
  * different rooms, a wall divides them — and that edge is blocked
- * unless one of the room's doors covers the cell midpoint.
+ * unless one of the room's doors opens into it. A door opens every
+ * edge its opening reaches (`doorOpenHalfSpan`): one for a 1.4 m door,
+ * three for a portal, whose jambs the physics world closes again.
  *
- * Edges between same-room cells, or between any room/hallway and
- * non-walkable space, are NOT in this mask (the latter is handled by
- * the cell `walkable` mask; the former is free passage by definition).
+ * Edges between a room and non-walkable space are NOT in this mask
+ * (the cell `walkable` mask handles those). Edges between two cells of
+ * one room are free, except where one of the room's dividers stands on
+ * them: those are written last.
  */
-function computeBlockedEdges(
+export function computeBlockedEdges(
   gridSize: number,
   rooms: RoomLayout[],
   cellOwner: Int16Array,
 ): { blockedEdgesEW: Uint8Array; blockedEdgesNS: Uint8Array } {
   const blockedEdgesEW = new Uint8Array((gridSize - 1) * gridSize);
   const blockedEdgesNS = new Uint8Array(gridSize * (gridSize - 1));
-  const HALF_DOOR = DOOR_WIDTH / 2; // tolerance for "covers".
+  // Does the door reach the edge whose midpoint is `offset` along the
+  // wall from the door's centre?
+  const reaches = (d: Door, offset: number) => Math.abs(offset) < doorOpenHalfSpan(d.width) - 0.01;
 
   for (let z = 0; z < gridSize; z++) {
     for (let x = 0; x < gridSize - 1; x++) {
@@ -881,13 +1007,13 @@ function computeBlockedEdges(
           (d) =>
             d.side === "east" &&
             Math.abs(d.worldX - edgeWorldX) < 0.01 &&
-            Math.abs(d.worldZ - edgeWorldZ) < HALF_DOOR,
+            reaches(d, d.worldZ - edgeWorldZ),
         ) ||
         rooms[b].doors.some(
           (d) =>
             d.side === "west" &&
             Math.abs(d.worldX - edgeWorldX) < 0.01 &&
-            Math.abs(d.worldZ - edgeWorldZ) < HALF_DOOR,
+            reaches(d, d.worldZ - edgeWorldZ),
         );
       if (!open) blockedEdgesEW[z * (gridSize - 1) + x] = 1;
     }
@@ -907,16 +1033,20 @@ function computeBlockedEdges(
           (d) =>
             d.side === "south" &&
             Math.abs(d.worldZ - edgeWorldZ) < 0.01 &&
-            Math.abs(d.worldX - edgeWorldX) < HALF_DOOR,
+            reaches(d, d.worldX - edgeWorldX),
         ) ||
         rooms[b].doors.some(
           (d) =>
             d.side === "north" &&
             Math.abs(d.worldZ - edgeWorldZ) < 0.01 &&
-            Math.abs(d.worldX - edgeWorldX) < HALF_DOOR,
+            reaches(d, d.worldX - edgeWorldX),
         );
       if (!open) blockedEdgesNS[z * gridSize + x] = 1;
     }
+  }
+
+  for (const room of rooms) {
+    writeDividerEdges(room.dividers, { x: gridSize, z: gridSize }, blockedEdgesEW, blockedEdgesNS);
   }
 
   return { blockedEdgesEW, blockedEdgesNS };
@@ -940,13 +1070,16 @@ function addDoor(
   worldX: number,
   worldZ: number,
   connectsTo: Door["connectsTo"],
+  portal: boolean,
 ) {
   room.doors.push({
     side,
     worldX,
     worldZ,
     worldY: room.worldRect.y,
-    width: DOOR_WIDTH,
+    width: portal ? PORTAL_WIDTH : DOOR_WIDTH,
+    height: portal ? PORTAL_HEIGHT : DOOR_HEIGHT,
+    portal,
     connectsTo,
   });
 }

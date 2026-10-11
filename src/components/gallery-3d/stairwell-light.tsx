@@ -19,7 +19,6 @@ import { mergeGeometries } from "three/examples/jsm/utils/BufferGeometryUtils.js
 import type { FloorLayout, RoomLayout } from "@/lib/gallery-layout/types";
 import {
   CELL_SIZE,
-  DOOR_HEIGHT,
   INTER_FLOOR_HEIGHT,
   SPIRAL_FLOOR_CUTOUT_RADIUS,
 } from "@/lib/gallery-layout/world-coords";
@@ -161,7 +160,7 @@ function roomWalls(room: RoomLayout, width: number, depth: number, cx: number, c
   const doors = (side: string, along: (x: number, z: number) => number): WashDoor[] =>
     room.doors
       .filter((d) => d.side === side)
-      .map((d) => ({ center: along(d.worldX, d.worldZ), width: d.width, height: DOOR_HEIGHT }));
+      .map((d) => ({ center: along(d.worldX, d.worldZ), width: d.width, height: d.height }));
   return [
     { rotation: 0, origin: [0, -depth / 2], length: width, doors: doors("north", (x) => x - cx) },
     {

@@ -20,7 +20,7 @@ import {
   PLAQUE_WIDTH,
 } from "@/lib/gallery-layout/place-paintings";
 import type { Placement, RoomLayout } from "@/lib/gallery-layout/types";
-import { CELL_SIZE, ROOM_HEIGHT } from "@/lib/gallery-layout/world-coords";
+import { CELL_SIZE } from "@/lib/gallery-layout/world-coords";
 import { formatCm, trustworthyRealSize } from "@/lib/real-size";
 import { GALLERY_LOD_WIDTH, variantProxyUrl } from "@/lib/utils";
 import { FOV_DEFAULT_DEG, ZOOM_PIXEL_HEADROOM } from "./camera-config";
@@ -499,7 +499,8 @@ export const Painting = memo(function Painting({
   const frameReach = profileWidth(profile);
 
   // Picture light: one can per work, its pool clipped to this wall's
-  // clear stretches. See painting-light-rig.ts.
+  // clear stretches, or to the divider the work hangs on. See
+  // painting-light-rig.ts.
   const wall = useMemo(() => {
     const cb = room.cellBounds;
     return wallContextFor(
@@ -513,9 +514,10 @@ export const Painting = memo(function Painting({
       room.worldRect.y,
       position,
       rotation[1],
+      { dividers: room.dividers, on: placement.divider },
     );
-  }, [room, position, rotation]);
-  const ceilingY = wall.floorY + ROOM_HEIGHT;
+  }, [room, position, rotation, placement.divider]);
+  const ceilingY = wall.floorY + room.ceilingHeight;
   const rig = useMemo(
     () =>
       buildLightRig({
@@ -527,6 +529,7 @@ export const Painting = memo(function Painting({
         wallOffset: PAINTING_WALL_OFFSET,
         roomSpan: wall.roomSpan,
         wallSpans: wall.wallSpans,
+        floorSpan: wall.floorSpan,
         roomDepth: wall.roomDepth,
       }),
     [dW, dH, frameReach, wall, ceilingY],

@@ -87,6 +87,8 @@ type DoorOpening = {
   centerLocalX: number;
   width: number;
   height: number;
+  /** A wide opening on a main axis: cased like a wall, not a door. */
+  portal?: boolean;
 };
 
 /**
@@ -176,37 +178,50 @@ export function WallWithDoors({
           width={d.width}
           height={d.height}
           wallHeight={height}
+          portal={d.portal}
         />
       ))}
     </group>
   );
 }
 
+/** Casing of a portal: wider than a door's trim, and deep enough to
+ *  give the paper-thin wall a reveal, so a 3.5 m opening reads as cut
+ *  through masonry. */
+const PORTAL_TRIM = 0.14;
+const PORTAL_TRIM_DEPTH = 0.32;
+
 function DoorTrim({
   centerLocalX,
   width,
   height,
   wallHeight,
+  portal,
 }: {
   centerLocalX: number;
   width: number;
   height: number;
   wallHeight: number;
+  portal?: boolean;
 }) {
-  const trim = 0.06;
+  const trim = portal ? PORTAL_TRIM : 0.06;
+  const depth = portal ? PORTAL_TRIM_DEPTH : 0.08;
+  // A door's trim is too slight to show in the floor. A portal's casing
+  // is not: it stays in the floor's reflection.
+  const layer = portal ? 0 : UNREFLECTED_LAYER;
   const floorY = -wallHeight / 2;
   return (
     <group position={[centerLocalX, floorY, 0]}>
-      <mesh position={[-width / 2 - trim / 2, height / 2, 0]} layers={UNREFLECTED_LAYER}>
-        <boxGeometry args={[trim, height, 0.08]} />
+      <mesh position={[-width / 2 - trim / 2, height / 2, 0]} layers={layer}>
+        <boxGeometry args={[trim, height, depth]} />
         <primitive object={darkWoodTrimMaterial} attach="material" />
       </mesh>
-      <mesh position={[width / 2 + trim / 2, height / 2, 0]} layers={UNREFLECTED_LAYER}>
-        <boxGeometry args={[trim, height, 0.08]} />
+      <mesh position={[width / 2 + trim / 2, height / 2, 0]} layers={layer}>
+        <boxGeometry args={[trim, height, depth]} />
         <primitive object={darkWoodTrimMaterial} attach="material" />
       </mesh>
-      <mesh position={[0, height + trim / 2, 0]} layers={UNREFLECTED_LAYER}>
-        <boxGeometry args={[width + trim * 2, trim, 0.08]} />
+      <mesh position={[0, height + trim / 2, 0]} layers={layer}>
+        <boxGeometry args={[width + trim * 2, trim, depth]} />
         <primitive object={darkWoodTrimMaterial} attach="material" />
       </mesh>
     </group>

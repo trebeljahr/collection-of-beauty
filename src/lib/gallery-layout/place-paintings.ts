@@ -23,8 +23,8 @@
 import type { ArtworkListing } from "@/lib/data";
 import { frameReach, pickFrameVariant } from "./frame-profiles";
 import { artworkBand } from "./painting-bands";
-import type { Door, FloorLayout, Placement, RoomLayout } from "./types";
-import { CELL_SIZE, DOOR_WIDTH } from "./world-coords";
+import type { CellRect, Divider, Door, FloorLayout, Placement, RoomLayout } from "./types";
+import { CELL_SIZE, DIVIDER_THICKNESS, DOOR_WIDTH, PORTAL_WIDTH } from "./world-coords";
 
 /** Eye-height-ish centre for every wall-mounted painting. Sized so the
  *  largest 3.2 m painting tops out at 3.25 m and bottoms at 0.05 m —
@@ -49,6 +49,12 @@ const MIN_DISPLAY_LONG_EDGE = 0.45;
  *  the run itself, so the two caps now match. */
 export const MAX_PAINTING_W = 3.2;
 const MAX_PAINTING_H_ROOM = 3.2;
+/** Wall left bare between the tallest work a room hangs and its
+ *  ceiling. The picture lights hang in it. Under the standard 4.2 m
+ *  ceiling it gives the 3.2 m cap above; a 3.4 m cabinet hangs nothing
+ *  taller than 2.4 m. Taller rooms keep the cap: the hang does not
+ *  grow with the ceiling. */
+const CEILING_CLEARANCE = 1.0;
 /** Inset from the wall surface so paintings don't z-fight. Sized to
  *  put the back of the painting frame box flush against the wall —
  *  frame box depth in painting.tsx is 0.025 m, half-depth + a 1 mm
@@ -126,6 +132,10 @@ export type WallRun = {
   /** Canonical eye-line centre for works on this run. */
   centerY: number;
   maxHeight: number;
+  /** Set when the run is a face of one of the room's dividers: the
+   *  index into `room.dividers`. `side` then names the compass wall the
+   *  face is hung like (a face looking south hangs like a north wall). */
+  divider?: number;
 };
 
 export function runLength(run: WallRun): number {
@@ -133,94 +143,85 @@ export function runLength(run: WallRun): number {
 }
 
 /**
- * Cut a room's four walls into paintable runs: inset from the corners
- * by WALL_MARGIN, split at every door opening.
+ * Cut a room's walls into paintable runs: the four room walls inset
+ * from the corners by WALL_MARGIN and split at every door opening and
+ * at every wing wall built off them, then both faces of each divider.
  */
 export function computeRoomRuns(room: RoomLayout): WallRun[] {
   const { cellBounds, worldRect } = room;
   const centerY = worldRect.y + CANONICAL_Y_CENTER_OFFSET;
+  const maxHeight = Math.min(MAX_PAINTING_H_ROOM, room.ceilingHeight - CEILING_CLEARANCE);
 
-  // Mapping (verified from rotationY + normal):
-  //   north → viewer faces +Z, right = +X (higher x) → sign +1
-  //   south → viewer faces -Z, right = -X (lower x)  → sign -1
-  //   west  → viewer faces +X, right = -Z (lower z)  → sign -1
-  //   east  → viewer faces -X, right = +Z (higher z) → sign +1
   const walls: Array<{
     side: Door["side"];
     axis: "x" | "z";
-    surface: number;
+    /** Grid line the wall stands on. */
+    line: number;
     cellMin: number;
     cellMax: number;
-    sign: 1 | -1;
-    rotationY: number;
-    normalX: -1 | 0 | 1;
-    normalZ: -1 | 0 | 1;
   }> = [
     {
       side: "north",
       axis: "x",
-      surface: cellBounds.zMin * CELL_SIZE,
+      line: cellBounds.zMin,
       cellMin: cellBounds.xMin,
       cellMax: cellBounds.xMax,
-      sign: 1,
-      rotationY: 0,
-      normalX: 0,
-      normalZ: 1,
     },
     {
       side: "south",
       axis: "x",
-      surface: (cellBounds.zMax + 1) * CELL_SIZE,
+      line: cellBounds.zMax + 1,
       cellMin: cellBounds.xMin,
       cellMax: cellBounds.xMax,
-      sign: -1,
-      rotationY: Math.PI,
-      normalX: 0,
-      normalZ: -1,
     },
     {
       side: "west",
       axis: "z",
-      surface: cellBounds.xMin * CELL_SIZE,
+      line: cellBounds.xMin,
       cellMin: cellBounds.zMin,
       cellMax: cellBounds.zMax,
-      sign: -1,
-      rotationY: Math.PI / 2,
-      normalX: 1,
-      normalZ: 0,
     },
     {
       side: "east",
       axis: "z",
-      surface: (cellBounds.xMax + 1) * CELL_SIZE,
+      line: cellBounds.xMax + 1,
       cellMin: cellBounds.zMin,
       cellMax: cellBounds.zMax,
-      sign: 1,
-      rotationY: -Math.PI / 2,
-      normalX: -1,
-      normalZ: 0,
     },
   ];
 
   const runs: WallRun[] = [];
   for (const wall of walls) {
+    const facing = FACINGS[wall.side];
     const worldStart = wall.cellMin * CELL_SIZE + WALL_MARGIN;
     const worldEnd = (wall.cellMax + 1) * CELL_SIZE - WALL_MARGIN;
     if (worldEnd - worldStart < MIN_RUN_LENGTH) continue;
 
     // Door openings become forbidden intervals in `u`.
     const cuts: Array<[number, number]> = [];
+    const cut = (from: number, to: number) => {
+      const lo = facing.sign * from;
+      const hi = facing.sign * to;
+      cuts.push(lo < hi ? [lo, hi] : [hi, lo]);
+    };
     for (const door of room.doors) {
       if (door.side !== wall.side) continue;
       const coord = wall.axis === "x" ? door.worldX : door.worldZ;
-      const lo = wall.sign * (coord - door.width / 2 - DOOR_CLEARANCE);
-      const hi = wall.sign * (coord + door.width / 2 + DOOR_CLEARANCE);
-      cuts.push(lo < hi ? [lo, hi] : [hi, lo]);
+      cut(coord - door.width / 2 - DOOR_CLEARANCE, coord + door.width / 2 + DOOR_CLEARANCE);
+    }
+    // So does a wing wall built off this wall: it covers its own
+    // thickness, and a work needs the same margin from that corner as
+    // from the room's.
+    for (const divider of room.dividers) {
+      if (!attachesTo(divider, wall.axis, wall.line)) continue;
+      const coord = divider.line * CELL_SIZE;
+      const half = DIVIDER_THICKNESS / 2 + WALL_MARGIN;
+      cut(coord - half, coord + half);
     }
     cuts.sort((a, b) => a[0] - b[0]);
 
-    const spanLo = Math.min(wall.sign * worldStart, wall.sign * worldEnd);
-    const spanHi = Math.max(wall.sign * worldStart, wall.sign * worldEnd);
+    const spanLo = Math.min(facing.sign * worldStart, facing.sign * worldEnd);
+    const spanHi = Math.max(facing.sign * worldStart, facing.sign * worldEnd);
 
     let cursor = spanLo;
     const push = (uMin: number, uMax: number) => {
@@ -228,16 +229,13 @@ export function computeRoomRuns(room: RoomLayout): WallRun[] {
       runs.push({
         side: wall.side,
         axis: wall.axis,
-        surface: wall.surface,
-        sign: wall.sign,
+        surface: wall.line * CELL_SIZE,
+        ...facing,
         uMin,
         uMax,
-        rotationY: wall.rotationY,
-        normalX: wall.normalX,
-        normalZ: wall.normalZ,
         floorY: worldRect.y,
         centerY,
-        maxHeight: MAX_PAINTING_H_ROOM,
+        maxHeight,
       });
     };
     for (const [lo, hi] of cuts) {
@@ -249,7 +247,53 @@ export function computeRoomRuns(room: RoomLayout): WallRun[] {
     push(cursor, spanHi);
   }
 
+  // Both faces of every divider, each one run from end to end. A face
+  // is hung like the room wall that looks the same way, half the
+  // divider's thickness off its grid line.
+  room.dividers.forEach((divider, index) => {
+    const worldStart = divider.start * CELL_SIZE + WALL_MARGIN;
+    const worldEnd = divider.end * CELL_SIZE - WALL_MARGIN;
+    if (worldEnd - worldStart < MIN_RUN_LENGTH) return;
+    const sides: Array<Door["side"]> = divider.axis === "x" ? ["north", "south"] : ["west", "east"];
+    for (const side of sides) {
+      const facing = FACINGS[side];
+      const out = divider.axis === "x" ? facing.normalZ : facing.normalX;
+      runs.push({
+        side,
+        axis: divider.axis,
+        surface: divider.line * CELL_SIZE + (out * DIVIDER_THICKNESS) / 2,
+        ...facing,
+        uMin: Math.min(facing.sign * worldStart, facing.sign * worldEnd),
+        uMax: Math.max(facing.sign * worldStart, facing.sign * worldEnd),
+        floorY: worldRect.y,
+        centerY,
+        maxHeight,
+        divider: index,
+      });
+    }
+  });
+
   return runs;
+}
+
+// How a work hangs on a wall that looks into the room from each compass
+// side (verified from rotationY + normal). The viewer faces the wall:
+//   north → wall looks +Z, viewer's right = +X (higher x) → sign +1
+//   south → wall looks -Z, viewer's right = -X (lower x)  → sign -1
+//   west  → wall looks +X, viewer's right = -Z (lower z)  → sign -1
+//   east  → wall looks -X, viewer's right = +Z (higher z) → sign +1
+const FACINGS: Record<Door["side"], Pick<WallRun, "sign" | "rotationY" | "normalX" | "normalZ">> = {
+  north: { sign: 1, rotationY: 0, normalX: 0, normalZ: 1 },
+  south: { sign: -1, rotationY: Math.PI, normalX: 0, normalZ: -1 },
+  west: { sign: -1, rotationY: Math.PI / 2, normalX: 1, normalZ: 0 },
+  east: { sign: 1, rotationY: -Math.PI / 2, normalX: -1, normalZ: 0 },
+};
+
+/** Is this divider built off the wall that runs along `wallAxis` on
+ *  grid line `wallLine`? Only a divider across the wall can be, and
+ *  only when one of its ends is on that line. */
+function attachesTo(divider: Divider, wallAxis: "x" | "z", wallLine: number): boolean {
+  return divider.axis !== wallAxis && (divider.start === wallLine || divider.end === wallLine);
 }
 
 export type DistributionStats = {
@@ -471,6 +515,7 @@ export function packRun(run: WallRun, works: SizedWork[]): Placement[] {
       band: artworkBand(work.artwork),
       widthM: work.wM,
       heightM: work.hM,
+      ...(run.divider !== undefined && { divider: run.divider }),
     });
     cursor += work.left + work.wM + work.right + gap;
   }
@@ -579,13 +624,44 @@ export function wallFootprint(artwork: ArtworkListing): number {
 }
 
 /**
- * Hangable wall a room of this size offers, before it exists. Exact
- * for the room shapes this museum uses: `computeRoomRuns` trims
- * WALL_MARGIN off both ends of all four walls and DOOR_CLEARANCE off
- * both sides of every door opening, so the only estimate here is the
- * door count.
+ * Hangable wall the four walls of a room this size offer, before it
+ * exists. Exact for the room shapes this museum uses: `computeRoomRuns`
+ * trims WALL_MARGIN off both ends of all four walls and DOOR_CLEARANCE
+ * off both sides of every door opening, so the only estimate here is
+ * the door count. `portalCount` of the doors are portals. Dividers are
+ * counted apart, by `dividerWallMetres`.
  */
-export function estimateWallMetres(widthM: number, depthM: number, doorCount: number): number {
+export function estimateWallMetres(
+  widthM: number,
+  depthM: number,
+  doorCount: number,
+  portalCount = 0,
+): number {
   const perimeter = 2 * (widthM + depthM);
-  return perimeter - 8 * WALL_MARGIN - doorCount * (DOOR_WIDTH + 2 * DOOR_CLEARANCE);
+  return (
+    perimeter -
+    8 * WALL_MARGIN -
+    doorCount * (DOOR_WIDTH + 2 * DOOR_CLEARANCE) -
+    portalCount * (PORTAL_WIDTH - DOOR_WIDTH)
+  );
+}
+
+/**
+ * Hangable wall a room's dividers add, in metres: both faces of each,
+ * less the stretch of room wall a wing wall covers where it is built
+ * off one. The same arithmetic as `computeRoomRuns`, so the floor
+ * builder counts divider wall before it opens rooms and does not open
+ * more than the works need.
+ */
+export function dividerWallMetres(rect: CellRect, dividers: readonly Divider[]): number {
+  let metres = 0;
+  for (const d of dividers) {
+    const face = (d.end - d.start) * CELL_SIZE - 2 * WALL_MARGIN;
+    if (face >= MIN_RUN_LENGTH) metres += 2 * face;
+    const lowLine = d.axis === "x" ? rect.xMin : rect.zMin;
+    const highLine = (d.axis === "x" ? rect.xMax : rect.zMax) + 1;
+    const attached = (d.start === lowLine ? 1 : 0) + (d.end === highLine ? 1 : 0);
+    metres -= attached * (DIVIDER_THICKNESS + 2 * WALL_MARGIN);
+  }
+  return metres;
 }

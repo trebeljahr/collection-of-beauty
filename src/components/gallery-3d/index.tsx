@@ -10,6 +10,7 @@ import { useJoystick } from "@/hooks/use-joystick";
 import { useNeedsRotate, useTouchDevice } from "@/hooks/use-touch-device";
 import { useAudioSettings } from "@/lib/audio-settings";
 import type { ArtworkListing } from "@/lib/data";
+import { arrivalPoint } from "@/lib/gallery-layout/fittings";
 import { layoutMuseum } from "@/lib/gallery-layout/layout-museum";
 import type { FloorLayout, MuseumLayout, Staircase } from "@/lib/gallery-layout/types";
 import {
@@ -348,11 +349,8 @@ export function Gallery3D({ artworks }: Props) {
       const f = layout.floors[idx];
       const anchor = f.rooms.find((r) => r.isAnchor) ?? f.rooms[0];
       if (!anchor) return;
-      spawnForFloor.current = [
-        (anchor.worldRect.xMin + anchor.worldRect.xMax) / 2,
-        anchor.worldRect.y,
-        (anchor.worldRect.zMin + anchor.worldRect.zMax) / 2,
-      ];
+      const arrival = arrivalPoint(anchor);
+      spawnForFloor.current = [arrival.x, anchor.worldRect.y, arrival.z];
       setCurrentFloorIdx(idx);
       setActiveRoomIdx(-1);
       setSpawnNonce((n) => n + 1);
@@ -361,18 +359,14 @@ export function Gallery3D({ artworks }: Props) {
   );
 
   // Teleport straight into one room of one floor — driven by clicking a
-  // room on the big map. Lands on the room's interior centre, which is
-  // always walkable (the hang is on the walls) and is where the plan
-  // shows the number.
+  // room on the big map. Lands on the room's interior centre, where the
+  // plan shows the number, or beside it when a bench stands there.
   const teleportToRoom = useCallback(
     (floorIdx: number, roomIdx: number) => {
       const room = layout.floors[floorIdx]?.rooms[roomIdx];
       if (!room) return;
-      spawnForFloor.current = [
-        (room.worldRect.xMin + room.worldRect.xMax) / 2,
-        room.worldRect.y,
-        (room.worldRect.zMin + room.worldRect.zMax) / 2,
-      ];
+      const arrival = arrivalPoint(room);
+      spawnForFloor.current = [arrival.x, room.worldRect.y, arrival.z];
       setCurrentFloorIdx(floorIdx);
       setActiveRoomIdx(roomIdx);
       setSpawnNonce((n) => n + 1);
