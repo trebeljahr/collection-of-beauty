@@ -40,6 +40,13 @@ export function RoomGeometry({
 }) {
   const era = eraOfRoom(room);
   const mats = getPaletteMaterials(era.palette);
+  // A room that carries its own era stands beside rooms in other
+  // colours. It draws all four of its walls on its own side only, and
+  // its neighbour does the same from the other side. In the tower a
+  // floor is one colour and a shared wall is one two-sided plane.
+  const ownWalls = room.era !== undefined;
+  const wallMat = ownWalls ? mats.wallInside : mats.wall;
+  const suppress = ownWalls ? undefined : room.suppressWalls;
   // Stairwell rooms drop the per-room accent and use the era's base
   // floor colour instead, so the floor reads as continuous when
   // stepping between the spiral and the surrounding corridor — accents
@@ -201,43 +208,43 @@ export function RoomGeometry({
 
       {/* Four walls — each may be suppressed when a neighbouring room
           owns the shared wall (and draws it with a door cut). */}
-      {!room.suppressWalls?.north && (
+      {!suppress?.north && (
         <WallWithDoors
           position={[cxWorld, wallMidY, zMin]}
           rotation={[0, 0, 0]}
           width={width}
           height={INTER_FLOOR_HEIGHT}
-          material={mats.wall}
+          material={wallMat}
           doors={nDoors}
         />
       )}
-      {!room.suppressWalls?.south && (
+      {!suppress?.south && (
         <WallWithDoors
           position={[cxWorld, wallMidY, zMax]}
           rotation={[0, Math.PI, 0]}
           width={width}
           height={INTER_FLOOR_HEIGHT}
-          material={mats.wall}
+          material={wallMat}
           doors={sDoors}
         />
       )}
-      {!room.suppressWalls?.west && (
+      {!suppress?.west && (
         <WallWithDoors
           position={[xMin, wallMidY, czWorld]}
           rotation={[0, Math.PI / 2, 0]}
           width={depth}
           height={INTER_FLOOR_HEIGHT}
-          material={mats.wall}
+          material={wallMat}
           doors={wDoors}
         />
       )}
-      {!room.suppressWalls?.east && (
+      {!suppress?.east && (
         <WallWithDoors
           position={[xMax, wallMidY, czWorld]}
           rotation={[0, -Math.PI / 2, 0]}
           width={depth}
           height={INTER_FLOOR_HEIGHT}
-          material={mats.wall}
+          material={wallMat}
           doors={eDoors}
         />
       )}

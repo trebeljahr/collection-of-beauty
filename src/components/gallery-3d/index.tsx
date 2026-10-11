@@ -11,8 +11,8 @@ import { useNeedsRotate, useTouchDevice } from "@/hooks/use-touch-device";
 import { useAudioSettings } from "@/lib/audio-settings";
 import type { ArtworkListing } from "@/lib/data";
 import { arrivalPoint } from "@/lib/gallery-layout/fittings";
+import { layoutBlock } from "@/lib/gallery-layout/layout-block";
 import { layoutMuseum } from "@/lib/gallery-layout/layout-museum";
-import { layoutWings } from "@/lib/gallery-layout/layout-wings";
 import { eraOfRoom, floorTitle } from "@/lib/gallery-layout/room-era";
 import type { FloorLayout, MuseumLayout, Staircase } from "@/lib/gallery-layout/types";
 import {
@@ -64,15 +64,15 @@ type Props = { artworks: ArtworkListing[] };
  * organic floor-to-floor walking.
  */
 export function Gallery3D({ artworks }: Props) {
-  // `?plan=wings` walks the second floor plan (layout-wings.ts): three
-  // floors of four wings round a stair hall. The tower is the museum
-  // until that plan has been judged on foot. Read once: the layout must
-  // not change under a running visit.
+  // `?plan=block` walks the second floor plan (layout-block.ts): four
+  // floors of large rooms round three stair halls. The tower is the
+  // museum until that plan has been judged on foot. Read once: the
+  // layout must not change under a running visit.
   const [plan] = useState(() =>
-    new URLSearchParams(window.location.search).get("plan") === "wings" ? "wings" : "tower",
+    new URLSearchParams(window.location.search).get("plan") === "block" ? "block" : "tower",
   );
   const layout = useMemo(
-    () => (plan === "wings" ? layoutWings(artworks) : layoutMuseum(artworks)),
+    () => (plan === "block" ? layoutBlock(artworks) : layoutMuseum(artworks)),
     [artworks, plan],
   );
   const layoutIdentity = useMemo(() => galleryLayoutIdentity(layout), [layout]);

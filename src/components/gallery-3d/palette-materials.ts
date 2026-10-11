@@ -63,6 +63,11 @@ const FLOOR_REPEAT: [number, number] = [1 / 3, 1 / 3];
 
 export type PaletteMaterials = {
   wall: THREE.MeshStandardMaterial;
+  /** The same wall, drawn on its room side only. For a room that draws
+   *  all four of its own walls beside neighbours in other colours (the
+   *  block plan): two rooms then each put a plane on the shared line,
+   *  facing opposite ways, and a visitor sees the one that faces them. */
+  wallInside: THREE.MeshStandardMaterial;
   floor: THREE.MeshStandardMaterial;
   ceiling: THREE.MeshStandardMaterial;
 };
@@ -75,18 +80,23 @@ export function getPaletteMaterials(palette: Palette): PaletteMaterials {
 
   const floorTextures = buildMapBundle(SHARED_FLOOR_TEXTURE_SLUG, FLOOR_REPEAT[0], FLOOR_REPEAT[1]);
 
+  const wall = new THREE.MeshStandardMaterial({
+    color: palette.wallColor,
+    roughness: 0.92,
+    side: THREE.DoubleSide,
+    // A deep period colour skips tone mapping, or Neutral strips its
+    // weakest channel and crimson shows as signal red (wall-light.ts).
+    toneMapped: !isDeepWall(palette.wallColor),
+    ...(palette.wallPattern === "damask"
+      ? { roughness: 1, roughnessMap: getDamaskRoughnessMap() }
+      : null),
+  });
+  const wallInside = wall.clone();
+  wallInside.side = THREE.FrontSide;
+
   entry = {
-    wall: new THREE.MeshStandardMaterial({
-      color: palette.wallColor,
-      roughness: 0.92,
-      side: THREE.DoubleSide,
-      // A deep period colour skips tone mapping, or Neutral strips its
-      // weakest channel and crimson shows as signal red (wall-light.ts).
-      toneMapped: !isDeepWall(palette.wallColor),
-      ...(palette.wallPattern === "damask"
-        ? { roughness: 1, roughnessMap: getDamaskRoughnessMap() }
-        : null),
-    }),
+    wall,
+    wallInside,
     floor: withFloorReflection(
       new THREE.MeshStandardMaterial({
         color: floorTint(palette.floorColor),

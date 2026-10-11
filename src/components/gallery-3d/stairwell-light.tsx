@@ -369,14 +369,24 @@ function buildGlazingFrame(closed: boolean): THREE.BufferGeometry {
  * through the well is lit the same way.
  */
 export function StairwellLight({ floor }: { floor: FloorLayout }) {
-  const room = useMemo(() => floor.rooms.find((r) => r.isStairwell) ?? null, [floor.rooms]);
+  // One for each stair hall. The tower has one a floor.
+  const rooms = useMemo(() => floor.rooms.filter((r) => r.isStairwell), [floor.rooms]);
+  return (
+    <>
+      {rooms.map((room) => (
+        <StairHallLight key={room.id} floor={floor} room={room} />
+      ))}
+    </>
+  );
+}
+
+function StairHallLight({ floor, room }: { floor: FloorLayout; room: RoomLayout }) {
   // No flight climbs through the top floor's ceiling, so its well is
   // closed with an oculus instead of left open to nothing.
   const closed = floor.stairsOut.length === 0;
   const { wallColor } = floor.era.palette;
 
   const built = useMemo(() => {
-    if (!room) return null;
     const { cellBounds } = room;
     const xMin = cellBounds.xMin * CELL_SIZE;
     const xMax = (cellBounds.xMax + 1) * CELL_SIZE;
@@ -401,16 +411,15 @@ export function StairwellLight({ floor }: { floor: FloorLayout }) {
 
   useEffect(
     () => () => {
-      built?.wash.dispose();
-      built?.cans.dispose();
-      built?.ceiling.dispose();
-      built?.glass.dispose();
-      built?.frame.dispose();
+      built.wash.dispose();
+      built.cans.dispose();
+      built.ceiling.dispose();
+      built.glass.dispose();
+      built.frame.dispose();
     },
     [built],
   );
 
-  if (!built) return null;
   return (
     <group position={built.position}>
       <mesh

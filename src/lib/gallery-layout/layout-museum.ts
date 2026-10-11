@@ -432,7 +432,13 @@ const MAX_WORKS_PER_FLOOR = 300;
  * spread across the whole series rather than the first 100 plates of
  * volume one.
  */
-export function selectFloorWorks(artworks: ArtworkListing[], cap: number): ArtworkListing[] {
+export function selectFloorWorks(
+  artworks: ArtworkListing[],
+  cap: number,
+  /** When given, an artist's share goes to their highest-ranked works.
+   *  Without it the share is an even stride through their works. */
+  rank?: (artwork: ArtworkListing) => number,
+): ArtworkListing[] {
   if (artworks.length <= cap) return artworks;
 
   const byArtist = new Map<string, ArtworkListing[]>();
@@ -468,6 +474,11 @@ export function selectFloorWorks(artworks: ArtworkListing[], cap: number): Artwo
 
   const keep = new Set<string>();
   for (const { works, take } of buckets) {
+    if (rank) {
+      const best = [...works].sort((x, y) => rank(y) - rank(x) || x.id.localeCompare(y.id));
+      for (let i = 0; i < take; i++) keep.add(best[i].id);
+      continue;
+    }
     for (let i = 0; i < take; i++) keep.add(works[Math.floor((i * works.length) / take)].id);
   }
 
@@ -998,20 +1009,23 @@ function adjacency(
  * them: those are written last.
  */
 export function computeBlockedEdges(
-  gridSize: number,
+  grid: number | { x: number; z: number },
   rooms: RoomLayout[],
   cellOwner: Int16Array,
 ): { blockedEdgesEW: Uint8Array; blockedEdgesNS: Uint8Array } {
-  const blockedEdgesEW = new Uint8Array((gridSize - 1) * gridSize);
-  const blockedEdgesNS = new Uint8Array(gridSize * (gridSize - 1));
+  // The tower's grid is square; the block plan's is not.
+  const gx = typeof grid === "number" ? grid : grid.x;
+  const gz = typeof grid === "number" ? grid : grid.z;
+  const blockedEdgesEW = new Uint8Array((gx - 1) * gz);
+  const blockedEdgesNS = new Uint8Array(gx * (gz - 1));
   // Does the door reach the edge whose midpoint is `offset` along the
   // wall from the door's centre?
   const reaches = (d: Door, offset: number) => Math.abs(offset) < doorOpenHalfSpan(d.width) - 0.01;
 
-  for (let z = 0; z < gridSize; z++) {
-    for (let x = 0; x < gridSize - 1; x++) {
-      const a = cellOwner[z * gridSize + x];
-      const b = cellOwner[z * gridSize + (x + 1)];
+  for (let z = 0; z < gz; z++) {
+    for (let x = 0; x < gx - 1; x++) {
+      const a = cellOwner[z * gx + x];
+      const b = cellOwner[z * gx + (x + 1)];
       if (a < 0 || b < 0 || a === b) continue;
       const edgeWorldX = (x + 1) * CELL_SIZE;
       const edgeWorldZ = (z + 0.5) * CELL_SIZE;
@@ -1028,14 +1042,14 @@ export function computeBlockedEdges(
             Math.abs(d.worldX - edgeWorldX) < 0.01 &&
             reaches(d, d.worldZ - edgeWorldZ),
         );
-      if (!open) blockedEdgesEW[z * (gridSize - 1) + x] = 1;
+      if (!open) blockedEdgesEW[z * (gx - 1) + x] = 1;
     }
   }
 
-  for (let z = 0; z < gridSize - 1; z++) {
-    for (let x = 0; x < gridSize; x++) {
-      const a = cellOwner[z * gridSize + x];
-      const b = cellOwner[(z + 1) * gridSize + x];
+  for (let z = 0; z < gz - 1; z++) {
+    for (let x = 0; x < gx; x++) {
+      const a = cellOwner[z * gx + x];
+      const b = cellOwner[(z + 1) * gx + x];
       if (a < 0 || b < 0 || a === b) continue;
       const edgeWorldX = (x + 0.5) * CELL_SIZE;
       const edgeWorldZ = (z + 1) * CELL_SIZE;
@@ -1054,12 +1068,12 @@ export function computeBlockedEdges(
             Math.abs(d.worldZ - edgeWorldZ) < 0.01 &&
             reaches(d, d.worldX - edgeWorldX),
         );
-      if (!open) blockedEdgesNS[z * gridSize + x] = 1;
+      if (!open) blockedEdgesNS[z * gx + x] = 1;
     }
   }
 
   for (const room of rooms) {
-    writeDividerEdges(room.dividers, { x: gridSize, z: gridSize }, blockedEdgesEW, blockedEdgesNS);
+    writeDividerEdges(room.dividers, { x: gx, z: gz }, blockedEdgesEW, blockedEdgesNS);
   }
 
   return { blockedEdgesEW, blockedEdgesNS };

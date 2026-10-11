@@ -28,7 +28,7 @@ import {
   RAIL_BAR_HALF_WIDTH,
   RAIL_HEIGHT,
 } from "./rail-constants";
-import { findStairAbove, spiralGateHalfArc } from "./spiral-physics";
+import { findStairAbove, floorShafts, type StairShaft, spiralGateHalfArc } from "./spiral-physics";
 
 type RapierModule = typeof RAPIER;
 
@@ -243,15 +243,15 @@ function addFloorColliders(
   // this collider anyway — vertical position on the spiral and on a
   // plain floor is both driven analytically in `player.tsx`, and the
   // cutout rail keeps a player at floor level well outside the hole.
-  const cutoutStair = hasStairwellCutout(floor.index)
-    ? (floor.stairsIn[0] ?? floor.stairsOut[0])
-    : null;
+  const cutoutStairs = hasStairwellCutout(floor.index)
+    ? floorShafts(floor).map((shaft) => shaft.reference)
+    : [];
   const emitRun = (startX: number, endX: number, z: number) => {
     const x0 = startX * CELL_SIZE;
     const x1 = (endX + 1) * CELL_SIZE;
     const cz = z * CELL_SIZE + CELL_SIZE / 2;
-    const spans: Array<[number, number]> = [[x0, x1]];
-    if (cutoutStair) {
+    let spans: Array<[number, number]> = [[x0, x1]];
+    for (const cutoutStair of cutoutStairs) {
       // Widest chord the hole cuts anywhere in this row's z-band —
       // measured at whichever row edge is nearest the centre, or 0 when
       // the row straddles it — so a row the circle merely clips still
@@ -265,9 +265,14 @@ function addFloorColliders(
         );
         const holeMin = cutoutStair.centerX - half;
         const holeMax = cutoutStair.centerX + half;
-        spans.length = 0;
-        if (x0 < holeMin) spans.push([x0, Math.min(x1, holeMin)]);
-        if (x1 > holeMax) spans.push([Math.max(x0, holeMax), x1]);
+        // A row can cross more than one well: cut each out of what the
+        // wells before it left.
+        const cut: Array<[number, number]> = [];
+        for (const [a, b] of spans) {
+          if (a < holeMin) cut.push([a, Math.min(b, holeMin)]);
+          if (b > holeMax) cut.push([Math.max(a, holeMax), b]);
+        }
+        spans = cut;
       }
     }
     for (const [a, b] of spans) {
@@ -501,9 +506,7 @@ function addStairwellColliders(
     }
   }
 
-  const reference = floor.stairsOut[0] ?? floor.stairsIn[0];
-  if (!reference) return;
-  addCutoutRailColliders(floor, reference, addCuboid, addArc);
+  for (const shaft of floorShafts(floor)) addCutoutRailColliders(floor, shaft, addCuboid, addArc);
 }
 
 function addSpiralRailColliders(
@@ -546,7 +549,7 @@ function addSpiralRailColliders(
 
 function addCutoutRailColliders(
   floor: FloorLayout,
-  reference: Staircase,
+  shaft: StairShaft,
   addCuboid: (
     cx: number,
     cy: number,
@@ -567,8 +570,7 @@ function addCutoutRailColliders(
     thickness: number,
   ) => void,
 ) {
-  const stairOut = floor.stairsOut[0];
-  const stairIn = floor.stairsIn[0];
+  const { stairOut, stairIn, reference } = shaft;
   const hasCutout = hasStairwellCutout(floor.index);
   const upSideOpen = !!stairOut;
   const downSideOpen = !!stairIn;

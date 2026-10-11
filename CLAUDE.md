@@ -308,30 +308,44 @@ required by the Dockerfile — don't remove it.
   in `use-joystick.ts`). A touch control is a sibling of the canvas: a tap
   on it must not reach the canvas's `pointerdown`, which opens the work
   under the crosshair.
-- **A second floor plan sits behind `/gallery-3d?plan=wings`**
-  (`src/lib/gallery-layout/layout-wings.ts`). The tower is the museum;
-  the wings plan exists so Rico can walk it and decide. Three floors,
-  each a stair hall with four wings; a wing is one era: a vestibule and
-  eight galleries in a ring round a salon. Corner cabinets join
-  neighbouring wings. What follows from it:
-  - A floor there holds four eras, so read a room's era through
+- **A second floor plan sits behind `/gallery-3d?plan=block`**
+  (`src/lib/gallery-layout/layout-block.ts`). The tower is the museum;
+  the block plan exists so Rico can walk it and decide. One rectangular
+  block, 102.5 × 57.5 m, on four floors: three stair halls on the long
+  axis, a row of five rooms in front and five behind, two rooms between.
+  Rooms are the size of the tower's larger ones and take its dividers
+  and benches. A floor holds two or three eras, dealt along a route
+  that ends in the great hall. What follows from it:
+  - A floor there holds several eras, so read a room's era through
     `eraOfRoom()` and a floor's name through `floorTitle()`
     (`room-era.ts`), never `ERAS[room.floorIndex]`. `FloorLayout.era`
-    is the north wing's: the id a saved visit is filed under.
-  - Walls are single planes seen from both sides. Where two palettes
-    meet, exactly one room may draw the wall (`suppressWalls` in
-    `buildFloor`): the stair hall against a vestibule, the suite's rooms
-    against a vestibule or cabinet, a cabinet against a vestibule.
-  - Every room is an odd number of cells wide, which puts each door in
-    the middle of a cell. The collision grid needs that. Wing doors are
-    2.4 m, one cell edge, so they need no jamb colliders.
-  - A wing is hung on its own (`hangWing`): the placer is given only the
-    wing's rooms, so spill cannot carry a work into another era.
-  - Not built: the paired straight flights of the stair hall (it has
-    the tower's spiral), a spiral at the end of each wing, works too
-    large for a room, ornament. All 45 rooms of a floor mount at once:
-    365 to 750 draw calls at 1600 × 900, where the tower's spawn has
-    170. The design and its sheets are in the vault note
+    is the floor's first: the id a saved visit is filed under.
+  - **Walls there are two-sided.** A room that carries its own era
+    draws all four of its walls with `wallInside`, a front-side-only
+    material, and ignores `suppressWalls`; its neighbour does the same
+    from the other side. The two planes lie on one line and face
+    opposite ways, so there is no z-fight and each room is its own
+    colour. In the tower a shared wall is one two-sided plane.
+  - **A floor can have several stair wells.** `floorShafts()` in
+    `spiral-physics.ts` groups a floor's flights by centre;
+    `findStairAbove` / `findStairBelow` stay within a well. The floor
+    slab's colliders, the cutout rail, the gate signs and the stair
+    hall's light are all built once per well. Do not reach for
+    `floor.stairsOut[0]`.
+  - Every band of the plan is an odd number of cells, which puts each
+    door in the middle of a cell. The collision grid needs that. Room
+    doors are 2.4 m, one cell edge, so they need no jamb colliders. The
+    grid is 41 × 23: `computeBlockedEdges` takes `{ x, z }`.
+  - An era is hung on its own (`hangZone`): the placer is given only
+    its rooms, so spill cannot carry a work into another era. An
+    artist's share of the wall goes to their sharpest scans
+    (`selectFloorWorks` with a rank).
+  - Rejected on the way, 12 October 2026: `?plan=wings`, 12.5 m
+    galleries in rings round a salon, 44 rooms a floor. Rooms too
+    small, too many, no dividers, too few doors between them.
+  - Not built: the monumental pair of straight flights for the middle
+    stair hall (all three hold the tower's spiral), works too large for
+    a room, ornament. The design and its sheets are in the vault note
     `collection-of-beauty-museum-floor-plans.md`.
 - **How high things are, and what may hang.** Three numbers Rico set
   on 12 October 2026; a change to any of them changes

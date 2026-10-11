@@ -333,8 +333,14 @@ export function Player({
     // depending on era-specific room sizing), so a hardcoded -Z lookAt
     // isn't reliable. Use the actual stair centre on the current floor;
     // fall back to a north-facing default if a floor has no spiral.
+    // A floor can have more than one stair: face the nearest.
     const f = latestFloorRef.current;
-    const stair = f.stairsOut[0] ?? f.stairsIn[0] ?? null;
+    const stair =
+      [...f.stairsOut, ...f.stairsIn].sort(
+        (a, b) =>
+          Math.hypot(a.centerX - spawnAt[0], a.centerZ - spawnAt[2]) -
+          Math.hypot(b.centerX - spawnAt[0], b.centerZ - spawnAt[2]),
+      )[0] ?? null;
     if (stair) {
       camera.lookAt(stair.centerX, eyeY, stair.centerZ);
     } else {

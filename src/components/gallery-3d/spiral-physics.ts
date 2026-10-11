@@ -132,7 +132,7 @@ export function findStairAbove(
   staircase: Staircase,
   all: readonly Staircase[],
 ): Staircase | undefined {
-  return all.find((s) => s.lowerFloor === staircase.upperFloor);
+  return all.find((s) => s.lowerFloor === staircase.upperFloor && sameShaft(s, staircase));
 }
 
 /** Mirror of findStairAbove for descent. */
@@ -140,7 +140,37 @@ export function findStairBelow(
   staircase: Staircase,
   all: readonly Staircase[],
 ): Staircase | undefined {
-  return all.find((s) => s.upperFloor === staircase.lowerFloor);
+  return all.find((s) => s.upperFloor === staircase.lowerFloor && sameShaft(s, staircase));
+}
+
+/** Two flights stand in the same well when they share a centre. The
+ *  tower has one well; the block plan has three to a floor. */
+export function sameShaft(a: Staircase, b: Staircase): boolean {
+  return Math.abs(a.centerX - b.centerX) < 0.01 && Math.abs(a.centerZ - b.centerZ) < 0.01;
+}
+
+/** One stair well of a floor: the flight that climbs out of it, the
+ *  flight that arrives in it from below, and either of them to read the
+ *  well's centre and radii from. */
+export type StairShaft = { stairOut?: Staircase; stairIn?: Staircase; reference: Staircase };
+
+/** A floor's stair wells, in the order its flights are listed. */
+export function floorShafts(floor: FloorLayout): StairShaft[] {
+  const shafts: StairShaft[] = [];
+  const at = (stair: Staircase) => {
+    let shaft = shafts.find((s) => sameShaft(s.reference, stair));
+    if (!shaft) {
+      shaft = { reference: stair };
+      shafts.push(shaft);
+    }
+    return shaft;
+  };
+  for (const stair of floor.stairsOut) at(stair).stairOut = stair;
+  for (const stair of floor.stairsIn) at(stair).stairIn = stair;
+  // Prefer the flight that leaves the floor as the reference, as the
+  // callers did when a floor had one well.
+  for (const shaft of shafts) shaft.reference = shaft.stairOut ?? shaft.stairIn ?? shaft.reference;
+  return shafts;
 }
 
 /** Y of the walking surface at `rawAngle` on `stair`, as seen from a

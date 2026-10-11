@@ -16,6 +16,7 @@ import {
   RAIL_BAR_HEIGHT,
   RAIL_HEIGHT,
 } from "./rail-constants";
+import { floorShafts, type StairShaft } from "./spiral-physics";
 import { finialGeometry, mergeBoxes, StairSign, spiralGateHalfArc } from "./staircase";
 
 // Materials are still local — the cutout-edge rail and the spiral rails
@@ -181,8 +182,18 @@ function buildCutoutBalusters(
  * face-on as you walk up to the staircase.
  */
 export function StairwellAccents({ floor }: { floor: FloorLayout }) {
-  const stairwell = useMemo(() => floor.rooms.find((r) => r.isStairwell) ?? null, [floor.rooms]);
+  // One set for each stair well. The tower has one a floor.
+  const shafts = useMemo(() => floorShafts(floor), [floor]);
+  return (
+    <>
+      {shafts.map((shaft) => (
+        <ShaftAccents key={shaft.reference.id} floor={floor} shaft={shaft} />
+      ))}
+    </>
+  );
+}
 
+function ShaftAccents({ floor, shaft }: { floor: FloorLayout; shaft: StairShaft }) {
   // The ground floor has no cutout — the spiral rises out of solid
   // ground — so there's nothing to fence off. Render only the gate
   // posts + signs (still useful wayfinding) and skip the cutout-edge
@@ -191,11 +202,7 @@ export function StairwellAccents({ floor }: { floor: FloorLayout }) {
   const hasCutout = floor.index > 0;
 
   const data = useMemo(() => {
-    if (!stairwell) return null;
-    const stairOut = floor.stairsOut[0];
-    const stairIn = floor.stairsIn[0];
-    const reference = stairOut ?? stairIn;
-    if (!reference) return null;
+    const { stairOut, stairIn, reference } = shaft;
     const cx = reference.centerX;
     const cz = reference.centerZ;
     const railR = CUTOUT_RAIL_RADIUS;
@@ -344,7 +351,7 @@ export function StairwellAccents({ floor }: { floor: FloorLayout }) {
       upSideOpen,
       downSideOpen,
     };
-  }, [floor, stairwell, hasCutout]);
+  }, [floor, shaft, hasCutout]);
 
   // Free the cutout rail's and balusters' BufferGeometries on unmount /
   // floor swap. R3F doesn't auto-dispose externally-created geometries,
@@ -360,7 +367,7 @@ export function StairwellAccents({ floor }: { floor: FloorLayout }) {
     [data],
   );
 
-  if (!stairwell || !data) return null;
+  if (!data) return null;
   const {
     cx,
     cz,
@@ -431,12 +438,7 @@ export function StairwellAccents({ floor }: { floor: FloorLayout }) {
         </mesh>
       )}
       {balusterGeom && (
-        <mesh
-          geometry={balusterGeom}
-          position={[cx, 0, cz]}
-          layers={UNREFLECTED_LAYER}
-          castShadow
-        >
+        <mesh geometry={balusterGeom} position={[cx, 0, cz]} layers={UNREFLECTED_LAYER} castShadow>
           <primitive object={balusterMaterial} attach="material" />
         </mesh>
       )}
