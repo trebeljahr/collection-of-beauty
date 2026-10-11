@@ -23,6 +23,7 @@ import { useFrame, useThree } from "@react-three/fiber";
 import { useEffect, useRef, useState } from "react";
 import * as THREE from "three";
 import type { ArtworkListing } from "@/lib/data";
+import { floorReflectionDebug, forceFloorReflection } from "./floor-reflection";
 import { frameMapStats } from "./frame-maps";
 import { _paintingRegistryDebug, raycastNearestPaintingHit } from "./painting-registry";
 import { _textureCacheDebug, estimateTextureBytes } from "./texture-cache";
@@ -162,13 +163,21 @@ export function DebugProbe() {
   // Headless visual checks can't turn the camera: pointer lock is
   // refused there, and the spawn effect re-aims at the stairwell after a
   // restored pose. With the HUD on, a script can set
-  // `__galleryCamera.quaternion` before taking a screenshot.
+  // `__galleryCamera.quaternion` before taking a screenshot, and pin the
+  // floor reflection on or off with `__galleryFloorReflection(true)`
+  // (`null` returns it to its own gates) to compare the two.
   const camera = useThree((s) => s.camera);
   useEffect(() => {
-    const w = window as { __galleryCamera?: THREE.Camera };
+    const w = window as {
+      __galleryCamera?: THREE.Camera;
+      __galleryFloorReflection?: typeof forceFloorReflection;
+    };
     w.__galleryCamera = camera;
+    w.__galleryFloorReflection = forceFloorReflection;
     return () => {
       delete w.__galleryCamera;
+      delete w.__galleryFloorReflection;
+      forceFloorReflection(null);
     };
   }, [camera]);
 
@@ -279,6 +288,11 @@ function formatStats(): string {
   const lines = [
     `FPS ${stats.fps.toFixed(0).padStart(3)}  frame ${stats.frameAvgMs.toFixed(1)} ms avg · ${stats.frameMaxMs.toFixed(1)} max · ${stats.jank} >33ms`,
     `draw ${fmtInt(stats.calls)} calls · ${fmtInt(stats.triangles)} tris`,
+    // The floor's mirror pass is a render of its own, so `draw` above
+    // (the last render of the frame) does not include it.
+    floorReflectionDebug.calls > 0
+      ? `mirror ${fmtInt(floorReflectionDebug.calls)} calls · ${fmtInt(floorReflectionDebug.triangles)} tris · ${floorReflectionDebug.cpuMs.toFixed(2)} ms cpu`
+      : `mirror ${floorReflectionDebug.state}`,
     `mem  ${stats.geometries} geom · ${stats.textures} tex · ${stats.programs} programs`,
     `frame maps ${frameMapStats().count} tex · ${mib(frameMapStats().bytes)} (with mips)`,
     `canvas ${stats.backingW}×${stats.backingH} @${stats.dpr.toFixed(2)}x · maxTex ${stats.maxTextureSize}`,

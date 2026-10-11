@@ -14,6 +14,7 @@
 import { useEffect, useMemo } from "react";
 import * as THREE from "three";
 import { mergeGeometries } from "three/examples/jsm/utils/BufferGeometryUtils.js";
+import { UNREFLECTED_LAYER } from "./floor-mirror";
 import { fixtureMaterial } from "./palette-materials";
 
 /** Target pane size, metres. The grid is fitted so whole panes span the
@@ -146,7 +147,12 @@ export function Laylight({
         rotation={[Math.PI / 2, 0, 0]}
         position={[0, -PANEL_DROP, 0]}
       />
-      <mesh geometry={frame} material={fixtureMaterial} position={[0, -FRAME_DROP / 2, 0]} />
+      <mesh
+        geometry={frame}
+        material={fixtureMaterial}
+        position={[0, -FRAME_DROP / 2, 0]}
+        layers={UNREFLECTED_LAYER}
+      />
     </group>
   );
 }

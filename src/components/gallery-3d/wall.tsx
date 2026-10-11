@@ -2,6 +2,7 @@
 
 import { useCallback, useEffect, useMemo } from "react";
 import type * as THREE from "three";
+import { UNREFLECTED_LAYER } from "./floor-mirror";
 import { darkWoodTrimMaterial } from "./palette-materials";
 import { buildSkirtingGeometry } from "./skirting-geometry";
 
@@ -78,7 +79,7 @@ function Skirting({
   const geometry = useMemo(() => buildSkirtingGeometry(spans, floorY), [key, floorY]);
   useEffect(() => () => geometry?.dispose(), [geometry]);
   if (!geometry) return null;
-  return <mesh geometry={geometry} material={darkWoodTrimMaterial} />;
+  return <mesh geometry={geometry} material={darkWoodTrimMaterial} layers={UNREFLECTED_LAYER} />;
 }
 
 type DoorOpening = {
@@ -196,15 +197,15 @@ function DoorTrim({
   const floorY = -wallHeight / 2;
   return (
     <group position={[centerLocalX, floorY, 0]}>
-      <mesh position={[-width / 2 - trim / 2, height / 2, 0]}>
+      <mesh position={[-width / 2 - trim / 2, height / 2, 0]} layers={UNREFLECTED_LAYER}>
         <boxGeometry args={[trim, height, 0.08]} />
         <primitive object={darkWoodTrimMaterial} attach="material" />
       </mesh>
-      <mesh position={[width / 2 + trim / 2, height / 2, 0]}>
+      <mesh position={[width / 2 + trim / 2, height / 2, 0]} layers={UNREFLECTED_LAYER}>
         <boxGeometry args={[trim, height, 0.08]} />
         <primitive object={darkWoodTrimMaterial} attach="material" />
       </mesh>
-      <mesh position={[0, height + trim / 2, 0]}>
+      <mesh position={[0, height + trim / 2, 0]} layers={UNREFLECTED_LAYER}>
         <boxGeometry args={[width + trim * 2, trim, 0.08]} />
         <primitive object={darkWoodTrimMaterial} attach="material" />
       </mesh>

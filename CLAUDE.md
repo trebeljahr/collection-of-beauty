@@ -336,6 +336,48 @@ required by the Dockerfile — don't remove it.
   taken out: their baked occlusion fought the lighting round the frames.
   Wall planes carry UVs in metres (`MetrePlane` in `wall.tsx`) so the
   repeat is the same size on every wall.
+- The parquet reflects the room: one more render of the scene each
+  frame, from a camera mirrored under the floor of the storey the
+  visitor is on, blurred and fed to every floor material on that storey
+  in place of the environment map's radiance
+  (`floor-reflection.tsx`; shader patch, mirror camera and frame-rate
+  guard in `floor-mirror.ts`). three's indirect-specular term then
+  applies Fresnel and roughness, so it is a few percent underfoot and a
+  clear sheen toward the far wall. Before changing it:
+  - **Three gates, and no other quality tier.** Off on touch devices.
+    Paused on the stairs, where two storeys are mounted in full. Given
+    up for the rest of the visit once most frames run under 48 fps for
+    three 1.5 s windows in a row (`createFrameRateGuard`). Off means the
+    floor materials compile to three's stock shader
+    (`#ifdef FLOOR_REFLECTION`).
+  - **What the mirror leaves out.** Small parts sit on
+    `UNREFLECTED_LAYER`: fixtures, frame mouldings, plaques and their
+    text, skirting, door trim, balusters. A three.js layer is not
+    inherited, so a new small mesh sets `layers={UNREFLECTED_LAYER}`
+    itself; forget it and the part costs a draw call in both passes.
+    The works of rooms more than 5 m from the visitor are hidden for
+    the pass as well (`registerMirrorRoom`): three culls by frustum
+    only and would draw them behind the walls.
+  - **The mirror target is flagged `isXRRenderTarget`**, in the
+    canvas's colour space, so three gives it the canvas's output
+    transform and both passes run the same shader programs. An ordinary
+    target would compile a second variant of every program and look it
+    up again whenever a material changes pass. The picture lights'
+    pools multiply the framebuffer, so they also need the same encoding
+    to look the same. The flag is internal to three. After an upgrade,
+    check that `programs` on the debug HUD does not jump when the
+    reflection comes on and that the floor is not too bright or dark.
+  - **The frame's own render reuses the mirror render's world
+    matrices** (`scene.matrixWorldAutoUpdate = false` for that one
+    render). An object moved in a `useFrame` mounted after
+    `<FloorReflection>` would be drawn a frame late. Nothing does today.
+  - Cost on an M5 at 2560 × 1440, frame-rate cap lifted: 2.5 → 3.1 ms a
+    frame at the Baroque Grand Hall spawn, 3.9 → 4.4 ms in the
+    Impressionism north hall. The pass adds 140 to 185 draw calls and
+    about 11,000 triangles, and holds 60 fps there. `?debug` prints it
+    on the HUD's `mirror` line, and
+    `window.__galleryFloorReflection(true | false | null)` pins it on
+    or off for an A/B at one pose.
 - Two ways to aim the camera headless, where Chromium refuses pointer
   lock. `scripts/build-museum-screenshots.mjs` stubs the Pointer Lock
   API and walks with timed keys, which changes nothing in the app but

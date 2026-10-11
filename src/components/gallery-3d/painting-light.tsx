@@ -18,6 +18,7 @@ import { useFrame } from "@react-three/fiber";
 import { memo, useEffect, useMemo, useRef } from "react";
 import * as THREE from "three";
 import { mergeGeometries } from "three/examples/jsm/utils/BufferGeometryUtils.js";
+import { UNREFLECTED_LAYER } from "./floor-mirror";
 import type { LightRig } from "./painting-light-rig";
 
 /** Warm tungsten-halogen tint, about 3000 K. */
@@ -294,7 +295,7 @@ function Fixture({
     [position, direction, ceilingY],
   );
   useEffect(() => () => geometry.dispose(), [geometry]);
-  return <mesh geometry={geometry} material={fixtureUnlitMaterial} />;
+  return <mesh geometry={geometry} material={fixtureUnlitMaterial} layers={UNREFLECTED_LAYER} />;
 }
 
 export type PaintingLightProps = {

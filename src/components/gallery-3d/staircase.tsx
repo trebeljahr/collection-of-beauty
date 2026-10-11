@@ -6,6 +6,7 @@ import * as THREE from "three";
 import { mergeGeometries } from "three/examples/jsm/utils/BufferGeometryUtils.js";
 import type { Staircase } from "@/lib/gallery-layout/types";
 import { SPIRAL_COLUMN_RADIUS } from "@/lib/gallery-layout/world-coords";
+import { UNREFLECTED_LAYER } from "./floor-mirror";
 import { LIGHT_TINT } from "./painting-light";
 import { HIGHLIGHT_ENV_MATERIALS, signBaseMaterial } from "./palette-materials";
 import {
@@ -915,7 +916,7 @@ export function StaircaseRenderer({
       {/* Brackets from the column to each tread: forged iron
           hardware anchoring the wooden treads to the masonry spine. */}
       {bracketGeom && (
-        <mesh geometry={bracketGeom} castShadow>
+        <mesh geometry={bracketGeom} layers={UNREFLECTED_LAYER} castShadow>
           <primitive object={bracketMaterial} attach="material" />
         </mesh>
       )}
@@ -932,7 +933,7 @@ export function StaircaseRenderer({
       </mesh>
       {/* Both rails' balusters. */}
       {balusterGeom && (
-        <mesh geometry={balusterGeom} castShadow>
+        <mesh geometry={balusterGeom} layers={UNREFLECTED_LAYER} castShadow>
           <primitive object={balusterMaterial} attach="material" />
         </mesh>
       )}
@@ -952,18 +953,34 @@ export function StaircaseRenderer({
           rail is continuous through the boundary. endpoints[0] is the
           segment's start (low Y), endpoints[1] its end (high Y). */}
       {!hasFlightBelow && innerRail.endpoints[0] && (
-        <mesh position={innerRail.endpoints[0]} geometry={finialGeometry} castShadow>
+        <mesh
+          position={innerRail.endpoints[0]}
+          geometry={finialGeometry}
+          layers={UNREFLECTED_LAYER}
+          castShadow
+        >
           <primitive object={railTopMaterial} attach="material" />
         </mesh>
       )}
       {!hasFlightAbove && innerRail.endpoints[1] && (
-        <mesh position={innerRail.endpoints[1]} geometry={finialGeometry} castShadow>
+        <mesh
+          position={innerRail.endpoints[1]}
+          geometry={finialGeometry}
+          layers={UNREFLECTED_LAYER}
+          castShadow
+        >
           <primitive object={railTopMaterial} attach="material" />
         </mesh>
       )}
       {outerRail.endpoints.map((p, i) => (
-        // biome-ignore lint/suspicious/noArrayIndexKey: endpoints array is fixed-length per rail, never reorders.
-        <mesh key={`out-finial-${i}`} position={p} geometry={finialGeometry} castShadow>
+        <mesh
+          // biome-ignore lint/suspicious/noArrayIndexKey: endpoints array is fixed-length per rail, never reorders.
+          key={`out-finial-${i}`}
+          position={p}
+          geometry={finialGeometry}
+          layers={UNREFLECTED_LAYER}
+          castShadow
+        >
           <primitive object={railTopMaterial} attach="material" />
         </mesh>
       ))}
@@ -991,7 +1008,7 @@ export function StairSign({
           so post + sign read as one architectural unit, not a + cross.
           Slightly taller than before to give the wrapped era titles
           room to breathe across two lines. */}
-      <mesh>
+      <mesh layers={UNREFLECTED_LAYER}>
         <boxGeometry args={[0.78, 0.42, 0.025]} />
         <primitive object={signBaseMaterial} attach="material" />
       </mesh>
@@ -999,9 +1016,11 @@ export function StairSign({
         position={[0, 0.13, 0.014]}
         geometry={direction === "up" ? upArrowGeometry : downArrowGeometry}
         material={signGlyphMaterial}
+        layers={UNREFLECTED_LAYER}
       />
       <Text
         position={[0, -0.07, 0.014]}
+        layers={UNREFLECTED_LAYER}
         fontSize={0.09}
         color="#f2e9d0"
         anchorX="center"

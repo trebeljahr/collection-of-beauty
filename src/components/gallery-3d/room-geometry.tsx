@@ -14,6 +14,7 @@ import {
   ROOM_HEIGHT,
   SPIRAL_FLOOR_CUTOUT_RADIUS,
 } from "@/lib/gallery-layout/world-coords";
+import { registerMirrorRoom } from "./floor-mirror";
 import { Laylight } from "./laylight";
 import { Painting } from "./painting";
 import { getPaletteMaterials, getRoomFloorMaterial } from "./palette-materials";
@@ -121,6 +122,15 @@ export function RoomGeometry({
   const revealedPlacements = useRevealedPlacements(room);
   const settledHandler = usePaintingSettledHandlers(onPaintingSettled);
 
+  // The floor's mirror pass draws this room's works only while the
+  // visitor is in or next to the room (floor-mirror.ts).
+  const worksRef = useRef<THREE.Group>(null);
+  useEffect(() => {
+    const works = worksRef.current;
+    if (!works) return;
+    return registerMirrorRoom({ works, xMin, xMax, zMin, zMax, y: floorY });
+  }, [xMin, xMax, zMin, zMax, floorY]);
+
   return (
     <group>
       {isStandardRoom && (
@@ -222,17 +232,19 @@ export function RoomGeometry({
 
       {/* Paintings — revealed lazily once the player nears this room,
           then a few per frame, nearest the stair first. */}
-      {revealedPlacements.map((p) => {
-        const paintingKey = `${room.id}-${p.artwork.id}-${p.position.join(",")}`;
-        return (
-          <Painting
-            key={paintingKey}
-            placement={p}
-            room={room}
-            onSettled={settledHandler(paintingKey)}
-          />
-        );
-      })}
+      <group ref={worksRef}>
+        {revealedPlacements.map((p) => {
+          const paintingKey = `${room.id}-${p.artwork.id}-${p.position.join(",")}`;
+          return (
+            <Painting
+              key={paintingKey}
+              placement={p}
+              room={room}
+              onSettled={settledHandler(paintingKey)}
+            />
+          );
+        })}
+      </group>
     </group>
   );
 }

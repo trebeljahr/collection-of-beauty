@@ -3,6 +3,7 @@
 import { useEffect, useMemo } from "react";
 import * as THREE from "three";
 import type { FloorLayout } from "@/lib/gallery-layout/types";
+import { UNREFLECTED_LAYER } from "./floor-mirror";
 import { HIGHLIGHT_ENV_MATERIALS } from "./palette-materials";
 import {
   BALUSTER_HEIGHT,
@@ -430,7 +431,12 @@ export function StairwellAccents({ floor }: { floor: FloorLayout }) {
         </mesh>
       )}
       {balusterGeom && (
-        <mesh geometry={balusterGeom} position={[cx, 0, cz]} castShadow>
+        <mesh
+          geometry={balusterGeom}
+          position={[cx, 0, cz]}
+          layers={UNREFLECTED_LAYER}
+          castShadow
+        >
           <primitive object={balusterMaterial} attach="material" />
         </mesh>
       )}
@@ -463,6 +469,7 @@ export function StairwellAccents({ floor }: { floor: FloorLayout }) {
           <mesh
             position={[cx + lBridge.cornerPos[0], lBridge.cornerPos[1], cz + lBridge.cornerPos[2]]}
             geometry={finialGeometry}
+            layers={UNREFLECTED_LAYER}
             castShadow
           >
             <primitive object={railTopMaterial} attach="material" />
@@ -470,6 +477,7 @@ export function StairwellAccents({ floor }: { floor: FloorLayout }) {
           <mesh
             position={[cx + lBridge.endPos[0], lBridge.endPos[1], cz + lBridge.endPos[2]]}
             geometry={finialGeometry}
+            layers={UNREFLECTED_LAYER}
             castShadow
           >
             <primitive object={railTopMaterial} attach="material" />
@@ -479,6 +487,7 @@ export function StairwellAccents({ floor }: { floor: FloorLayout }) {
               // biome-ignore lint/suspicious/noArrayIndexKey: fixed support set for one L bridge.
               key={`l-bridge-support-${i}`}
               position={[cx + p[0], p[1], cz + p[2]]}
+              layers={UNREFLECTED_LAYER}
               castShadow
             >
               <boxGeometry args={[BALUSTER_SIZE, BALUSTER_HEIGHT, BALUSTER_SIZE]} />

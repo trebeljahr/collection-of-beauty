@@ -23,6 +23,7 @@ import {
   INTER_FLOOR_HEIGHT,
   SPIRAL_FLOOR_CUTOUT_RADIUS,
 } from "@/lib/gallery-layout/world-coords";
+import { UNREFLECTED_LAYER } from "./floor-mirror";
 import { getGlassMaterial } from "./laylight";
 import {
   buildFixtureGeometry,
@@ -423,9 +424,14 @@ export function StairwellLight({ floor }: { floor: FloorLayout }) {
         material={getGlassMaterial()}
         position={[0, CEILING_Y - GLASS_DROP, 0]}
       />
-      <mesh geometry={built.frame} material={fixtureMaterial} position={[0, CEILING_Y, 0]} />
+      <mesh
+        geometry={built.frame}
+        material={fixtureMaterial}
+        position={[0, CEILING_Y, 0]}
+        layers={UNREFLECTED_LAYER}
+      />
       <mesh geometry={built.wash} material={built.washMaterial} renderOrder={1} />
-      <mesh geometry={built.cans} material={fixtureUnlitMaterial} />
+      <mesh geometry={built.cans} material={fixtureUnlitMaterial} layers={UNREFLECTED_LAYER} />
     </group>
   );
 }

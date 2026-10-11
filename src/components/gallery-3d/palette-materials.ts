@@ -13,6 +13,7 @@
 
 import * as THREE from "three";
 import type { Palette } from "@/lib/gallery-eras";
+import { withFloorReflection } from "./floor-mirror";
 import { FRAME_HIGHLIGHT_MATERIALS } from "./frame-materials";
 import { buildMapBundle } from "./texture-pack";
 import { getDamaskRoughnessMap } from "./wall-damask";
@@ -42,7 +43,8 @@ function floorTint(color: string): THREE.Color {
 }
 
 // Satin lacquer: enough sheen for the floor to pick up the room, short
-// of the wet look the set's own roughness map (≈ 0.10) gives.
+// of the wet look the set's own roughness map (≈ 0.10) gives. What it
+// picks up is the room itself, mirrored: see floor-reflection.tsx.
 const FLOOR_ROUGHNESS = 0.42;
 
 // Per-mesh world-unit UVs (see room-geometry.tsx + hallway.tsx) make
@@ -85,18 +87,20 @@ export function getPaletteMaterials(palette: Palette): PaletteMaterials {
         ? { roughness: 1, roughnessMap: getDamaskRoughnessMap() }
         : null),
     }),
-    floor: new THREE.MeshStandardMaterial({
-      color: floorTint(palette.floorColor),
-      ...floorTextures,
-      // Override the roughnessMap from the bundle with a fixed scalar.
-      // Per-set roughness ARM channels vary wildly (herringbone_parquet
-      // ≈ 0.10 = mirror, patterned_brick_floor ≈ 0.82 = chalk), so the
-      // map decides whether a floor reads bright-and-glossy or crushed
-      // to black more than the lighting does.
-      roughnessMap: null,
-      roughness: FLOOR_ROUGHNESS,
-      metalness: 0,
-    }),
+    floor: withFloorReflection(
+      new THREE.MeshStandardMaterial({
+        color: floorTint(palette.floorColor),
+        ...floorTextures,
+        // Override the roughnessMap from the bundle with a fixed scalar.
+        // Per-set roughness ARM channels vary wildly (herringbone_parquet
+        // ≈ 0.10 = mirror, patterned_brick_floor ≈ 0.82 = chalk), so the
+        // map decides whether a floor reads bright-and-glossy or crushed
+        // to black more than the lighting does.
+        roughnessMap: null,
+        roughness: FLOOR_ROUGHNESS,
+        metalness: 0,
+      }),
+    ),
     ceiling: new THREE.MeshStandardMaterial({
       color: palette.ceilingColor,
       roughness: 0.96,
@@ -128,21 +132,23 @@ export function getRoomFloorMaterial(color: string): THREE.MeshStandardMaterial 
   let mat = roomFloorCache.get(color);
   if (mat) return mat;
   const textures = buildMapBundle(SHARED_FLOOR_TEXTURE_SLUG, FLOOR_REPEAT[0], FLOOR_REPEAT[1]);
-  mat = new THREE.MeshStandardMaterial({
-    color: floorTint(color),
-    ...textures,
-    // See getPaletteMaterials' floor for why the roughnessMap is
-    // replaced by a uniform scalar.
-    roughnessMap: null,
-    roughness: FLOOR_ROUGHNESS,
-    metalness: 0,
-    // Stairwell floors above the player are viewed from below (looking
-    // up through the well). Single-sided rendering would backface-cull
-    // the underside and leave the scene's black backdrop showing through
-    // — the "see-through floor" bug. Regular room floors are never
-    // viewed from below, so DoubleSide is a no-op there.
-    side: THREE.DoubleSide,
-  });
+  mat = withFloorReflection(
+    new THREE.MeshStandardMaterial({
+      color: floorTint(color),
+      ...textures,
+      // See getPaletteMaterials' floor for why the roughnessMap is
+      // replaced by a uniform scalar.
+      roughnessMap: null,
+      roughness: FLOOR_ROUGHNESS,
+      metalness: 0,
+      // Stairwell floors above the player are viewed from below (looking
+      // up through the well). Single-sided rendering would backface-cull
+      // the underside and leave the scene's black backdrop showing through
+      // — the "see-through floor" bug. Regular room floors are never
+      // viewed from below, so DoubleSide is a no-op there.
+      side: THREE.DoubleSide,
+    }),
+  );
   roomFloorCache.set(color, mat);
   return mat;
 }

@@ -25,6 +25,8 @@ import { variantProxyUrl } from "@/lib/utils";
 
 import { FOV_DEFAULT_DEG } from "./camera-config";
 import { DebugOverlay, DebugProbe, useGalleryDebug } from "./debug-overlay";
+import { UNREFLECTED_LAYER } from "./floor-mirror";
+import { FloorReflection } from "./floor-reflection";
 import { HallwayRenderer } from "./hallway";
 import { LandscapePrompt } from "./landscape-prompt";
 import { LodController } from "./lod-controller";
@@ -173,7 +175,8 @@ export function Gallery3D({ artworks }: Props) {
   // joystick-controller appends to `document.body` by default, but
   // fullscreen only paints the fullscreen subtree, so any DOM outside
   // it disappears the moment the user enters the gallery.
-  const isTouch = useTouchDevice() === true;
+  const touchDevice = useTouchDevice();
+  const isTouch = touchDevice === true;
   // Dev-only HUD: texture on the aimed painting + frame / renderer /
   // texture-pool stats. Backquote toggles; `?debug` forces it on.
   const debug = useGalleryDebug();
@@ -538,7 +541,10 @@ export function Gallery3D({ artworks }: Props) {
         camera={{ fov: FOV_DEFAULT_DEG, near: 0.1, far: 500 }}
         dpr={[1, 2]}
         gl={{ antialias: true, powerPreference: "high-performance" }}
-        onCreated={({ gl, scene }) => {
+        onCreated={({ gl, scene, camera }) => {
+          // The visitor sees the small parts the floor's mirror pass
+          // leaves out (floor-mirror.ts).
+          camera.layers.enable(UNREFLECTED_LAYER);
           // Khronos PBR Neutral: colours below ~0.8 pass through as
           // authored. ACES bleached pale walls toward white when the
           // rooms were bright and pushed them toward mustard once they
@@ -674,6 +680,14 @@ export function Gallery3D({ artworks }: Props) {
           onNearbyStairChange={setNearbyStairId}
           joystickMoveGetter={isTouch ? moveJoystick.getData : undefined}
           joystickLookGetter={isTouch ? lookJoystick.getData : undefined}
+        />
+        {/* After Player on purpose: its frame callback mirrors the camera
+            Player has just moved. */}
+        <FloorReflection
+          floorY={currentFloor.y}
+          touch={touchDevice}
+          onStairs={activeStairId !== null}
+          watchFrameRate={hasStarted}
         />
         {/* Pointer-lock is desktop-only — on touch the joysticks own
             move/look, and mobile browsers don't support it anyway.

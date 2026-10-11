@@ -24,6 +24,7 @@ import { CELL_SIZE, ROOM_HEIGHT } from "@/lib/gallery-layout/world-coords";
 import { formatCm, trustworthyRealSize } from "@/lib/real-size";
 import { GALLERY_LOD_WIDTH, variantProxyUrl } from "@/lib/utils";
 import { FOV_DEFAULT_DEG, ZOOM_PIXEL_HEADROOM } from "./camera-config";
+import { UNREFLECTED_LAYER } from "./floor-mirror";
 import { buildFrameGeometry } from "./frame-geometry";
 import { PaintingLight } from "./painting-light";
 import { buildLightRig, wallContextFor } from "./painting-light-rig";
@@ -542,7 +543,10 @@ export const Painting = memo(function Painting({
 
   return (
     <group position={position} rotation={rotation}>
-      <mesh geometry={frameGeometry} material={variant.materials} />
+      {/* Out of the floor's mirror: a moulding is at most 17 cm wide,
+          about the mirror's blur radius, and holds most of a work's
+          triangles. The canvas and its pool carry the reflection. */}
+      <mesh geometry={frameGeometry} material={variant.materials} layers={UNREFLECTED_LAYER} />
       <PaintingPlane
         url={url}
         baseWidth={baseWidth}
@@ -750,18 +754,19 @@ function Plaque({
   return (
     <group position={[localX, localY, 0]}>
       {/* Brass mount plate */}
-      <mesh position={[0, 0, mountCenterZ]}>
+      <mesh position={[0, 0, mountCenterZ]} layers={UNREFLECTED_LAYER}>
         <boxGeometry args={[PLAQUE_MOUNT_W, PLAQUE_MOUNT_H, PLAQUE_MOUNT_DEPTH]} />
         <primitive object={plaqueMountMaterial} attach="material" />
       </mesh>
       {/* Cream face card on top of the mount */}
-      <mesh position={[0, 0, faceCenterZ]}>
+      <mesh position={[0, 0, faceCenterZ]} layers={UNREFLECTED_LAYER}>
         <boxGeometry args={[PLAQUE_FACE_W, PLAQUE_FACE_H, PLAQUE_FACE_DEPTH]} />
         <primitive object={plaqueBaseMaterial} attach="material" />
       </mesh>
       {/* Title — bold and largest. */}
       <Text
         position={[0, titleTopY, textZ]}
+        layers={UNREFLECTED_LAYER}
         fontSize={PLAQUE_TITLE_FONT}
         lineHeight={PLAQUE_TITLE_LH}
         color="#0d0a08"
@@ -777,6 +782,7 @@ function Plaque({
       {/* Artist · year */}
       <Text
         position={[0, bylineTopY, textZ]}
+        layers={UNREFLECTED_LAYER}
         fontSize={PLAQUE_BYLINE_FONT}
         lineHeight={PLAQUE_BYLINE_LH}
         color="#1c1410"
@@ -793,6 +799,7 @@ function Plaque({
       {dims && (
         <Text
           position={[0, dimsTopY, textZ]}
+          layers={UNREFLECTED_LAYER}
           fontSize={PLAQUE_DIMS_FONT}
           lineHeight={PLAQUE_DIMS_LH}
           color="#3a2c22"
