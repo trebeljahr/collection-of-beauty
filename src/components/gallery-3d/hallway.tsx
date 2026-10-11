@@ -9,7 +9,6 @@ import {
   FLOOR_THICKNESS,
   INTER_FLOOR_HEIGHT,
 } from "@/lib/gallery-layout/world-coords";
-import { Painting } from "./painting";
 import { getPaletteMaterials } from "./palette-materials";
 import { SolidWall } from "./wall";
 
@@ -82,10 +81,10 @@ export function HallwayRenderer({
 
   return (
     <group>
-      {hallway.placements.map((p, i) => (
-        // biome-ignore lint/suspicious/noArrayIndexKey: deterministic per-hallway placements, never reorders.
-        <Painting key={`${hallway.id}-p${i}`} placement={p} />
-      ))}
+      {/* No paintings: `hallway.placements` is always empty (see
+          FloorLayout.hallways), and a Painting now needs the room it
+          hangs in to clip its picture light to the wall. A corridor
+          that hangs works again has to supply that context. */}
 
       {hallway.cells.map((c, idx) => {
         const x0 = c.x * CELL_SIZE;
