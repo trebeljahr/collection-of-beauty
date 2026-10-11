@@ -40,7 +40,7 @@ export function greyOf(hex: string): number {
  * The map stands in for the light the room's surfaces bounce at each
  * other, and it is painted from the wall colour because walls are most
  * of what a room sees. That holds for a pale wall. A crimson wall's grey
- * is a thirtieth of a cream wall's in linear light, so a map painted
+ * is a twentieth of a cream wall's in linear light, so a map painted
  * from it left floor, ceiling and the wall itself near black: the room
  * was lit by its own darkness. A real gallery with dark walls is lit by
  * its laylight and lamps, and the eye adapts to it, so the wall is
