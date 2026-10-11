@@ -3,7 +3,7 @@
 import { useFrame } from "@react-three/fiber";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import * as THREE from "three";
-import { ERAS } from "@/lib/gallery-eras";
+import { eraOfRoom } from "@/lib/gallery-layout/room-era";
 import type { Placement, RoomLayout } from "@/lib/gallery-layout/types";
 import {
   CELL_SIZE,
@@ -38,7 +38,7 @@ export function RoomGeometry({
    *  overlay can show first-room load progress / failures. */
   onPaintingSettled?: (key: string, status: "loaded" | "failed") => void;
 }) {
-  const era = ERAS[room.floorIndex];
+  const era = eraOfRoom(room);
   const mats = getPaletteMaterials(era.palette);
   // Stairwell rooms drop the per-room accent and use the era's base
   // floor colour instead, so the floor reads as continuous when

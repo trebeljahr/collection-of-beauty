@@ -353,7 +353,7 @@ export function layoutMuseum(allArtworks: ArtworkListing[]): MuseumLayout {
 
 // --- Era bucketing --------------------------------------------------------
 
-function bucketByEra(all: ArtworkListing[]): Map<EraId, ArtworkListing[]> {
+export function bucketByEra(all: ArtworkListing[]): Map<EraId, ArtworkListing[]> {
   const m = new Map<EraId, ArtworkListing[]>();
   for (const era of ERAS) m.set(era.id, []);
 
@@ -432,7 +432,7 @@ const MAX_WORKS_PER_FLOOR = 300;
  * spread across the whole series rather than the first 100 plates of
  * volume one.
  */
-function selectFloorWorks(artworks: ArtworkListing[], cap: number): ArtworkListing[] {
+export function selectFloorWorks(artworks: ArtworkListing[], cap: number): ArtworkListing[] {
   if (artworks.length <= cap) return artworks;
 
   const byArtist = new Map<string, ArtworkListing[]>();
@@ -710,7 +710,7 @@ const TARGET_WALL_COVERAGE = 0.66;
  * when the current one is empty, so movements stay contiguous along the
  * enfilade. The last room takes whatever is left over.
  */
-function fillRooms(
+export function fillRooms(
   walls: number[],
   queue: Array<{ name: string; artworks: ArtworkListing[] }>,
   era: Era,
@@ -760,7 +760,7 @@ function fillRooms(
 /** The movement most of a room's works belong to, once the placer has
  *  finished moving spill around. Used for the room's sign, so it always
  *  agrees with what is actually on the walls. */
-function dominantMovement(artworks: ArtworkListing[], era: Era): string | null {
+export function dominantMovement(artworks: ArtworkListing[], era: Era): string | null {
   if (artworks.length === 0) return null;
   const counts = new Map<string, number>();
   for (const a of artworks) {
@@ -772,7 +772,7 @@ function dominantMovement(artworks: ArtworkListing[], era: Era): string | null {
 
 // --- Helpers --------------------------------------------------------------
 
-function shuffleByIdHash<T extends { id: string }>(items: T[]): T[] {
+export function shuffleByIdHash<T extends { id: string }>(items: T[]): T[] {
   return items
     .map((item) => ({ item, h: fnv1aHash(item.id) }))
     .sort((a, b) => a.h - b.h)
@@ -788,7 +788,10 @@ function fnv1aHash(s: string): number {
   return h >>> 0;
 }
 
-function groupMovements(era: Era, eraArtworks: ArtworkListing[]): Map<string, ArtworkListing[]> {
+export function groupMovements(
+  era: Era,
+  eraArtworks: ArtworkListing[],
+): Map<string, ArtworkListing[]> {
   const byMovement = new Map<string, ArtworkListing[]>();
   for (const a of eraArtworks) {
     const key = a.movement?.trim() ? a.movement : era.title;
@@ -1127,7 +1130,7 @@ function buildStaircase(lower: FloorLayout, upper: FloorLayout): Staircase | nul
 
 // --- Copy helpers ---------------------------------------------------------
 
-function describeRoom(movement: string, artworks: ArtworkListing[]): string {
+export function describeRoom(movement: string, artworks: ArtworkListing[]): string {
   if (artworks.length === 0) return movement;
   const years = artworks.map((a) => a.year).filter((y): y is number => y != null);
   if (years.length === 0) return `${movement} · ${artworks.length} works`;

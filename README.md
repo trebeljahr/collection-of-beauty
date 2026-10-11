@@ -103,6 +103,9 @@ only when the catalogue changed. Typecheck and tests are gated in CI
   anything handed to a client component is the slim `ArtworkListing`
   projection from `src/lib/data.ts`, which keeps the RSC payload small
   (artworks.json is ~6 MB).
+- `src/lib/gallery-layout/` — the museum's floor plan and hang. `layout-museum.ts` is the
+  11-storey tower visitors get. `layout-wings.ts` is a second plan on three floors,
+  reachable only at `/gallery-3d?plan=wings`, kept for comparison until one is chosen.
 - `src/components/gallery-3d/` — the WebGL museum. Lazy-loaded from
   `src/app/gallery-3d/gallery-3d-client.tsx`. Has its own readme in
   the directory headers — start with `index.tsx`.

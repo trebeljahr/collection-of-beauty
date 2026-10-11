@@ -5,7 +5,6 @@ import { useThree } from "@react-three/fiber";
 import { memo, useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from "react";
 import * as THREE from "three";
 import type { ArtworkListing } from "@/lib/data";
-import { ERAS } from "@/lib/gallery-eras";
 import {
   FRAME_PROFILES,
   frameScale,
@@ -19,6 +18,7 @@ import {
   PLAQUE_GAP,
   PLAQUE_WIDTH,
 } from "@/lib/gallery-layout/place-paintings";
+import { eraOfRoom } from "@/lib/gallery-layout/room-era";
 import type { Placement, RoomLayout } from "@/lib/gallery-layout/types";
 import { CELL_SIZE } from "@/lib/gallery-layout/world-coords";
 import { formatCm, trustworthyRealSize } from "@/lib/real-size";
@@ -576,7 +576,7 @@ export const Painting = memo(function Painting({
         // can would hang in mid-air, so a work there gets the pool
         // without the fixture.
         fixtures={!room.isStairwell}
-        wallGain={poolGainScale(ERAS[room.floorIndex].palette.wallColor)}
+        wallGain={poolGainScale(eraOfRoom(room).palette.wallColor)}
       />
     </group>
   );

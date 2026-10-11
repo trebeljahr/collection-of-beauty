@@ -3,7 +3,7 @@
 // the R3F renderer lives here.
 
 import type { ArtworkListing } from "@/lib/data";
-import type { Era } from "@/lib/gallery-eras";
+import type { Era, EraId } from "@/lib/gallery-eras";
 import type { FrameVariantId } from "./frame-profiles";
 
 export type Band = "small" | "medium" | "large";
@@ -78,6 +78,10 @@ export type Bench = {
 export type RoomLayout = {
   id: string;
   floorIndex: number;
+  /** The era this room shows, when its floor holds more than one (the
+   *  wings plan, `layout-wings.ts`). Unset in the tower, where a floor
+   *  is an era: read it through `eraOfRoom`. */
+  era?: EraId;
   movement: string;
   title: string;
   description: string;
@@ -171,6 +175,10 @@ export type Staircase = {
 export type FloorLayout = {
   index: number;
   era: Era;
+  /** What the floor is called on the map and the entry card, when it
+   *  holds more than one era. Unset in the tower: read it through
+   *  `floorTitle`. */
+  title?: string;
   /** World Y of the walking surface. */
   y: number;
   gridSize: { x: number; z: number };

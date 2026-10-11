@@ -12,6 +12,8 @@ import { useAudioSettings } from "@/lib/audio-settings";
 import type { ArtworkListing } from "@/lib/data";
 import { arrivalPoint } from "@/lib/gallery-layout/fittings";
 import { layoutMuseum } from "@/lib/gallery-layout/layout-museum";
+import { layoutWings } from "@/lib/gallery-layout/layout-wings";
+import { eraOfRoom, floorTitle } from "@/lib/gallery-layout/room-era";
 import type { FloorLayout, MuseumLayout, Staircase } from "@/lib/gallery-layout/types";
 import {
   GALLERY_RELEASE_KEY,
@@ -54,7 +56,17 @@ type Props = { artworks: ArtworkListing[] };
  * organic floor-to-floor walking.
  */
 export function Gallery3D({ artworks }: Props) {
-  const layout = useMemo(() => layoutMuseum(artworks), [artworks]);
+  // `?plan=wings` walks the second floor plan (layout-wings.ts): three
+  // floors of four wings round a stair hall. The tower is the museum
+  // until that plan has been judged on foot. Read once: the layout must
+  // not change under a running visit.
+  const [plan] = useState(() =>
+    new URLSearchParams(window.location.search).get("plan") === "wings" ? "wings" : "tower",
+  );
+  const layout = useMemo(
+    () => (plan === "wings" ? layoutWings(artworks) : layoutMuseum(artworks)),
+    [artworks, plan],
+  );
   const layoutIdentity = useMemo(() => galleryLayoutIdentity(layout), [layout]);
   const [restoredVisit] = useState(() => restoreGalleryVisit(layout, layoutIdentity));
   const poseRef = useRef<GalleryPose | null>(restoredVisit?.pose ?? null);
@@ -221,6 +233,10 @@ export function Gallery3D({ artworks }: Props) {
 
   const currentFloor = layout.floors[currentFloorIdx];
   const activeRoom = activeRoomIdx >= 0 ? currentFloor.rooms[activeRoomIdx] : undefined;
+  // The era the visitor stands in. In the tower that is the floor's; in
+  // the wings plan it changes from wing to wing, and the room's own
+  // light and reflections change with it.
+  const activeEra = activeRoom ? eraOfRoom(activeRoom) : currentFloor.era;
 
   // Player reports the owning room of the cell it's in (-1 on a stair).
   // Track the exact owner for the HUD / minimap.
@@ -611,7 +627,7 @@ export function Gallery3D({ artworks }: Props) {
             "outside the building" — the museum is a closed interior, so
             the env map should reflect the room itself. See
             room-env-map.tsx for the canvas → PMREM pipeline. */}
-        <RoomEnvironment palette={currentFloor.era.palette} />
+        <RoomEnvironment palette={activeEra.palette} />
 
         {/* One FloorScene per visible floor, keyed by floor index so a
             floor keeps its instance (and its in-progress room reveal)
@@ -712,7 +728,7 @@ export function Gallery3D({ artworks }: Props) {
         // slots that were already holding their space.
         <GalleryCurtain
           overlay
-          title={currentFloor.era.title}
+          title={floorTitle(currentFloor)}
           blurb={currentFloor.era.blurb}
           progress={entryRoomProgress}
           ready={entryRoomReady}
@@ -807,7 +823,7 @@ export function Gallery3D({ artworks }: Props) {
           }`}
         >
           <div className="text-xs text-neutral-500">
-            Floor {currentFloorIdx + 1} · {currentFloor.era.title}
+            Floor {currentFloorIdx + 1} · {activeEra.title}
           </div>
           {activeRoom && (
             <>
@@ -945,7 +961,7 @@ export function Gallery3D({ artworks }: Props) {
           playerRef={lastCameraRef}
           showPlayer={viewedMapFloorIdx === currentFloorIdx}
           floorCount={layout.floors.length}
-          floorTitles={layout.floors.map((f) => f.era.title)}
+          floorTitles={layout.floors.map(floorTitle)}
           viewedFloorIdx={viewedMapFloorIdx}
           currentFloorIdx={currentFloorIdx}
           size={bigMapSize}

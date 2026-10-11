@@ -2,6 +2,7 @@
 
 import { type RefObject, useEffect, useRef } from "react";
 import { benchRect, dividerRect, type Rect } from "@/lib/gallery-layout/fittings";
+import { floorTitle } from "@/lib/gallery-layout/room-era";
 import type { FloorLayout, RoomLayout } from "@/lib/gallery-layout/types";
 import { CELL_SIZE } from "@/lib/gallery-layout/world-coords";
 
@@ -240,7 +241,7 @@ export function Minimap({
     ctx.textBaseline = "top";
     ctx.fillStyle = "rgba(255, 240, 210, 0.72)";
     ctx.font = "12px ui-sans-serif, system-ui, sans-serif";
-    ctx.fillText(`Floor ${floor.index + 1} · ${floor.era.title}`, 6, 5);
+    ctx.fillText(`Floor ${floor.index + 1} · ${floorTitle(floor)}`, 6, 5);
 
     // Footer — active room title + description, or a hint when the
     // player isn't standing in any one room.
