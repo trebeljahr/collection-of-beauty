@@ -10,20 +10,23 @@ export const CELL_SIZE = 2.5; // metres per cell on the XZ plane
 // (`RoomLayout.ceilingHeight`, set in fittings.ts): cabinets are low,
 // halls are tall, everything else and the stairwell use ROOM_HEIGHT.
 // The tallest still clears the slab above (INTER_FLOOR_HEIGHT, 5.92 m).
-export const ROOM_HEIGHT = 4.2;
-export const ROOM_HEIGHT_LOW = 3.4;
-export const ROOM_HEIGHT_TALL = 5.4;
+// Raised by 0.3 to 0.6 m on 12 October 2026: the rooms felt low, and a
+// 3.2 m canvas hung 0.4 m off the floor in its frame reaches 3.94 m,
+// which left no wall for the picture light under 4.2 m.
+export const ROOM_HEIGHT = 4.8;
+export const ROOM_HEIGHT_LOW = 4.0;
+export const ROOM_HEIGHT_TALL = 5.7;
 export const CORRIDOR_HEIGHT = 3.12; // lower interior ceiling in hallways
-// Metres between floor surfaces. Sized so the room-height : floor-pitch
-// ratio matches 4.2 / 6.12 ≈ 0.69 — the spiral staircase still climbs
-// a full revolution per storey at a comfortable rise per tread.
+// Metres between floor surfaces. The spiral staircase climbs a full
+// revolution per storey, so this also sets the rise per tread (0.235 m
+// at 26 steps). It caps every ceiling above.
 export const FLOOR_SEPARATION = 6.12;
 export const WALL_THICKNESS = 0.1;
 
 // Door openings. 1.4 m wide leaves ≥ 0.55 m of wall on each side of a
 // CELL_SIZE-wide cell so doorframes look architectural, not just a hole.
 // 2.4 m tall is a normal human-scale door — kept compact against the
-// taller 4.2 m ceiling so paintings and doors still set the room scale
+// taller ceiling so paintings and doors still set the room scale
 // rather than the ceiling dominating.
 export const DOOR_WIDTH = 1.4;
 export const DOOR_HEIGHT = 2.4;

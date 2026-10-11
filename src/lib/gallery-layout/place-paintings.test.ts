@@ -4,6 +4,7 @@ import {
   computeRoomRuns,
   dividerWallMetres,
   estimateWallMetres,
+  PAINTING_FLOOR_GAP,
   PAINTING_WALL_OFFSET,
   PLAQUE_FOOTPRINT,
   packRun,
@@ -55,7 +56,7 @@ function makeRoom(args: {
       y: 0,
     },
     doors: args.doors ?? [],
-    ceilingHeight: args.ceilingHeight ?? 4.2,
+    ceilingHeight: args.ceilingHeight ?? 4.8,
     dividers: args.dividers ?? [],
     benches: [],
     placements: [],
@@ -230,20 +231,24 @@ describe("divider runs", () => {
 });
 
 describe("ceiling height and the hang", () => {
-  it("caps a low room's works a metre under its ceiling", () => {
+  it("caps a low room's works under its ceiling and off its floor", () => {
     const low = computeRoomRuns(
-      makeRoom({ xMin: 0, xMax: 3, zMin: 0, zMax: 3, ceilingHeight: 3.4 }),
+      makeRoom({ xMin: 0, xMax: 3, zMin: 0, zMax: 3, ceilingHeight: 4.0 }),
     );
-    expect(low.every((r) => Math.abs(r.maxHeight - 2.4) < 1e-9)).toBe(true);
+    expect(low.every((r) => Math.abs(r.maxHeight - 2.6) < 1e-9)).toBe(true);
     const [placement] = packRun(low[0], [makeWork("tall", 1.6, 3.2)]);
-    expect(placement.heightM).toBeCloseTo(2.4, 9);
-    expect(placement.position[1] + placement.heightM / 2).toBeLessThan(3.4 - 0.3);
+    expect(placement.heightM).toBeCloseTo(2.6, 9);
+    expect(placement.position[1] + placement.heightM / 2).toBeLessThan(4.0 - 0.3);
+    // The canvas, not just its centre, clears the floor by the gap.
+    expect(placement.position[1] - placement.heightM / 2).toBeGreaterThanOrEqual(
+      PAINTING_FLOOR_GAP,
+    );
   });
 
   it("does not hang taller works under a taller ceiling", () => {
     const standard = computeRoomRuns(makeRoom({ xMin: 0, xMax: 3, zMin: 0, zMax: 3 }));
     const tall = computeRoomRuns(
-      makeRoom({ xMin: 0, xMax: 3, zMin: 0, zMax: 3, ceilingHeight: 5.4 }),
+      makeRoom({ xMin: 0, xMax: 3, zMin: 0, zMax: 3, ceilingHeight: 5.7 }),
     );
     expect(standard[0].maxHeight).toBe(3.2);
     expect(tall[0].maxHeight).toBe(3.2);

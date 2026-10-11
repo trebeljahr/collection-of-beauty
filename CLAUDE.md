@@ -280,6 +280,28 @@ required by the Dockerfile — don't remove it.
   - Dividers and benches are part of `galleryLayoutIdentity`. Change
     where they stand and every saved visit restarts once in its floor's
     Grand Hall.
+- **How high things are, and what may hang.** Three numbers Rico set
+  on 12 October 2026; a change to any of them changes
+  `galleryLayoutIdentity`.
+  - Ceilings (`world-coords.ts`): 4.0 m in a room 10 m wide or less,
+    4.8 m as standard, 5.7 m in a hall. They were 3.4, 4.2 and 5.4 and
+    felt low. The slab above is at 5.92 m, so 5.7 is near the limit;
+    more height means a larger `FLOOR_SEPARATION` and a spiral with
+    more steps.
+  - `PAINTING_FLOOR_GAP` is 0.4 m, measured to the frame's bottom edge.
+    A work's height cap is the ceiling less that gap and a metre for the
+    frame's top rail and the picture light, and never more than 3.2 m.
+  - A work hangs only if its texture has 1,000 pixels for each metre of
+    its hung width (`sharpness.ts`): sharp for a visitor a metre away on
+    a 2,560 px screen. The widest texture is the 4096 rung, or 6144
+    where that rung exists, and never more than the source. 373 of
+    4,552 works fail, most of them large canvases from small scans. Do
+    not raise the threshold past 1,280: that is all a 3.2 m canvas has
+    on the 4096 rung.
+  - Dividers add wall to a room and do not count when a floor decides
+    how many rooms to open (`roomWallMetres` in `layout-museum.ts`).
+    Counted, they closed rooms and filled the rest: 30 works a room
+    where it had been 25.
 - **There are no three.js lights on the works, on purpose.** Each
   painting has a picture light (`painting-light.tsx`, geometry in
   `painting-light-rig.ts`): a ceiling can and the pool it throws, drawn

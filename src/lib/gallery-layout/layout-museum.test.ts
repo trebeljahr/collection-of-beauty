@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
 import type { ArtworkListing } from "@/lib/data";
 import { benchRect, dividerRect, type Rect } from "./fittings";
+import { frameReach, pickFrameVariant } from "./frame-profiles";
 import {
   type CellRect,
   GRAND_HALL,
@@ -9,6 +10,8 @@ import {
   type Slot,
   STAIR,
 } from "./layout-museum";
+import { PAINTING_FLOOR_GAP } from "./place-paintings";
+import type { Placement } from "./types";
 import { CELL_SIZE, DOOR_HEIGHT, DOOR_WIDTH, PORTAL_HEIGHT, PORTAL_WIDTH } from "./world-coords";
 
 const SLOTS: Slot[] = SLOT_STAGES.flat();
@@ -142,8 +145,8 @@ describe("a built floor", () => {
           movement: "Baroque",
           year: 1650,
           artistSlug: `artist-${i % 30}`,
-          width: 1200,
-          height: 900,
+          width: 2400,
+          height: 1800,
           realDimensions: { widthCm: 150, heightCm: 112 },
         }) as unknown as ArtworkListing,
     );
@@ -199,9 +202,9 @@ describe("a built floor", () => {
   });
 
   it("gives rooms different ceilings", () => {
-    expect(room("grand-hall").ceilingHeight).toBe(5.4);
-    expect(room("n-hall").ceilingHeight).toBe(4.2);
-    expect(room("stairwell").ceilingHeight).toBe(4.2);
+    expect(room("grand-hall").ceilingHeight).toBe(5.7);
+    expect(room("n-hall").ceilingHeight).toBe(4.8);
+    expect(room("stairwell").ceilingHeight).toBe(4.8);
   });
 
   it("puts a visitor down clear of the Grand Hall's benches", () => {
@@ -228,8 +231,8 @@ describe("a floor with every room open", () => {
         movement: "Baroque",
         year: 1650,
         artistSlug: `artist-${i % 40}`,
-        width: 1600,
-        height: 1200,
+        width: 4096,
+        height: 3072,
         realDimensions: { widthCm: 320, heightCm: 240 },
       }) as unknown as ArtworkListing,
   );
@@ -306,5 +309,50 @@ describe("a floor with every room open", () => {
       }
     }
     expect(onDividers).toBeGreaterThan(0);
+  });
+});
+
+describe("how high the works hang", () => {
+  const sizes = [
+    [320, 240],
+    [200, 320],
+    [120, 90],
+    [45, 60],
+  ];
+  const works = Array.from({ length: 120 }, (_, i) => {
+    const [widthCm, heightCm] = sizes[i % sizes.length];
+    return {
+      id: `hang-${i}`,
+      objectKey: `folder/hang-${i}.jpg`,
+      movement: "Baroque",
+      year: 1650,
+      artistSlug: `artist-${i % 40}`,
+      width: 4096,
+      height: Math.round((4096 * heightCm) / widthCm),
+      realDimensions: { widthCm, heightCm },
+    } as unknown as ArtworkListing;
+  });
+  const floor = layoutMuseum(works).floors.find((f) => f.era.id === "baroque");
+  const hung = (floor?.rooms ?? []).flatMap((room) => room.placements.map((p) => ({ room, p })));
+  /** How far the frame the work actually hangs in reaches past its
+   *  canvas. A Grand Hall pair shares one frame (`Placement.frame`). */
+  const reachOf = (p: Placement) =>
+    frameReach(p.frame ?? pickFrameVariant(p.artwork), p.widthM, p.heightM);
+
+  it("keeps every frame 0.4 m off the floor", () => {
+    expect(hung.length).toBeGreaterThan(100);
+    for (const { room, p } of hung) {
+      const reach = reachOf(p);
+      const bottom = p.position[1] - p.heightM / 2 - reach - room.worldRect.y;
+      expect(bottom, p.artwork.id).toBeGreaterThanOrEqual(PAINTING_FLOOR_GAP - 1e-9);
+    }
+  });
+
+  it("leaves wall for the picture light above every frame", () => {
+    for (const { room, p } of hung) {
+      const reach = reachOf(p);
+      const top = p.position[1] + p.heightM / 2 + reach - room.worldRect.y;
+      expect(room.ceilingHeight - top, p.artwork.id).toBeGreaterThanOrEqual(0.5);
+    }
   });
 });

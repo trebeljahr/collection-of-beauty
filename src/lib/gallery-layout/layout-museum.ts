@@ -50,6 +50,7 @@ import {
   estimateWallMetres,
   wallFootprint,
 } from "./place-paintings";
+import { sharpEnoughToHang } from "./sharpness";
 import type {
   Bench,
   CellRect,
@@ -289,13 +290,19 @@ export function fittingsFor(key: string): Fittings {
  *  are known, and counted to the metre. */
 function slotWallMetres(key: string, rect: CellRect): number {
   const fittings = fittingsFor(key);
-  return (
-    estimateWallMetres(
-      (rect.xMax - rect.xMin + 1) * CELL_SIZE,
-      (rect.zMax - rect.zMin + 1) * CELL_SIZE,
-      3,
-      Math.min(3, fittings.portals),
-    ) + dividerWallMetres(rect, fittings.dividers)
+  return roomWallMetres(key, rect) + dividerWallMetres(rect, fittings.dividers);
+}
+
+/** The slot's wall without its dividers: the measure a floor opens
+ *  rooms by. Counting divider faces there let a floor stop four rooms
+ *  early and hang the rest fuller, 30 works a room where it had been
+ *  25. Dividers now add wall to a room without taking rooms away. */
+function roomWallMetres(key: string, rect: CellRect): number {
+  return estimateWallMetres(
+    (rect.xMax - rect.xMin + 1) * CELL_SIZE,
+    (rect.zMax - rect.zMin + 1) * CELL_SIZE,
+    3,
+    Math.min(3, fittingsFor(key).portals),
   );
 }
 
@@ -350,12 +357,13 @@ function bucketByEra(all: ArtworkListing[]): Map<EraId, ArtworkListing[]> {
   const m = new Map<EraId, ArtworkListing[]>();
   for (const era of ERAS) m.set(era.id, []);
 
-  // No folder or dimension filter — every renderable work hangs
-  // somewhere. Extreme real-world sizes are handled at placement time
-  // (tiny engravings get a minimum display size, oversized frescoes are
-  // scaled to fit their wall slot), so excluding them here would only
-  // shrink the museum. Era assignment routes by movement first, then
-  // year; works with neither get a second chance below.
+  // No folder or dimension filter. Extreme real-world sizes are handled
+  // at placement time (tiny engravings get a minimum display size,
+  // oversized frescoes are scaled to fit their wall slot). The one
+  // filter is sharpness: a work whose scan is too small for the size it
+  // would hang at stays off the walls (see sharpness.ts). Era
+  // assignment routes by movement first, then year; works with neither
+  // get a second chance below.
   const unresolved: ArtworkListing[] = [];
   const erasByArtist = new Map<string, Map<EraId, number>>();
   for (const a of all) {
@@ -365,7 +373,9 @@ function bucketByEra(all: ArtworkListing[]): Map<EraId, ArtworkListing[]> {
       unresolved.push(a);
       continue;
     }
-    m.get(era)!.push(a);
+    // A blurred work still counts toward its artist's era, so an
+    // undated sibling finds the right floor.
+    if (sharpEnoughToHang(a)) m.get(era)!.push(a);
     if (a.artistSlug && a.artistSlug !== "unknown") {
       let tally = erasByArtist.get(a.artistSlug);
       if (!tally) {
@@ -392,7 +402,7 @@ function bucketByEra(all: ArtworkListing[]): Map<EraId, ArtworkListing[]> {
         bestCount = count;
       }
     }
-    if (bestEra) m.get(bestEra)!.push(a);
+    if (bestEra && sharpEnoughToHang(a)) m.get(bestEra)!.push(a);
   }
 
   return m;
@@ -500,11 +510,11 @@ function buildFloor(era: Era, allEraArtworks: ArtworkListing[]): FloorLayout {
   // density. The Grand Hall is always open, so it seeds the running
   // total; the first stage always opens too, so no floor is a single
   // room with a staircase in it.
-  let openWall = slotWallMetres(GRAND_HALL_KEY, GRAND_HALL);
+  let openWall = roomWallMetres(GRAND_HALL_KEY, GRAND_HALL);
   let totalSlots = 0;
   for (const stage of SLOT_STAGES) {
     if (totalSlots > 0 && openWall >= neededWall) break;
-    for (const slot of stage) openWall += slotWallMetres(slot.id, slot.rect);
+    for (const slot of stage) openWall += roomWallMetres(slot.id, slot.rect);
     totalSlots += stage.length;
   }
 

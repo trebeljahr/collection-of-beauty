@@ -26,10 +26,9 @@ import { artworkBand } from "./painting-bands";
 import type { CellRect, Divider, Door, FloorLayout, Placement, RoomLayout } from "./types";
 import { CELL_SIZE, DIVIDER_THICKNESS, DOOR_WIDTH, PORTAL_WIDTH } from "./world-coords";
 
-/** Eye-height-ish centre for every wall-mounted painting. Sized so the
- *  largest 3.2 m painting tops out at 3.25 m and bottoms at 0.05 m —
- *  noticeably more monumental than the door (2.4 m) without crashing
- *  into the 4.2 m ceiling or hanging into the floor. Lowered from
+/** Eye-height-ish centre for every wall-mounted painting. A work too
+ *  tall to hang there without coming within PAINTING_FLOOR_GAP of the
+ *  floor is lifted (see `packRun`). Lowered from
  *  1.9 m to read closer to a real-museum hang (where centres land
  *  around 1.45-1.55 m, slightly below the player's 1.75 m eye line). */
 const CANONICAL_Y_CENTER_OFFSET = 1.65;
@@ -49,11 +48,11 @@ const MIN_DISPLAY_LONG_EDGE = 0.45;
  *  the run itself, so the two caps now match. */
 export const MAX_PAINTING_W = 3.2;
 const MAX_PAINTING_H_ROOM = 3.2;
-/** Wall left bare between the tallest work a room hangs and its
- *  ceiling. The picture lights hang in it. Under the standard 4.2 m
- *  ceiling it gives the 3.2 m cap above; a 3.4 m cabinet hangs nothing
- *  taller than 2.4 m. Taller rooms keep the cap: the hang does not
- *  grow with the ceiling. */
+/** Wall left bare between the tallest canvas a room hangs and its
+ *  ceiling, on top of the gap under it. The frame's top rail and the
+ *  picture light share it. A 4.0 m cabinet hangs nothing taller than
+ *  2.6 m; the standard 4.8 m room reaches the 3.2 m cap above. Taller
+ *  rooms keep the cap: the hang does not grow with the ceiling. */
 const CEILING_CLEARANCE = 1.0;
 /** Inset from the wall surface so paintings don't z-fight. Sized to
  *  put the back of the painting frame box flush against the wall —
@@ -99,8 +98,9 @@ const MIN_RUN_LENGTH = 0.6;
  *  the centre so the frame clears the floor (and the skirting) by this
  *  much; shorter paintings whose frame already exceeds this clearance keep
  *  their canonical centre (the "salon hang" eye-line is the priority for
- *  typical works). */
-export const PAINTING_FLOOR_GAP = 0.2;
+ *  typical works). 0.2 m still read as standing on the floor, so it is
+ *  0.4 m since 12 October 2026. */
+export const PAINTING_FLOOR_GAP = 0.4;
 
 /**
  * A maximal stretch of hangable plaster on one room wall.
@@ -150,7 +150,10 @@ export function runLength(run: WallRun): number {
 export function computeRoomRuns(room: RoomLayout): WallRun[] {
   const { cellBounds, worldRect } = room;
   const centerY = worldRect.y + CANONICAL_Y_CENTER_OFFSET;
-  const maxHeight = Math.min(MAX_PAINTING_H_ROOM, room.ceilingHeight - CEILING_CLEARANCE);
+  const maxHeight = Math.min(
+    MAX_PAINTING_H_ROOM,
+    room.ceilingHeight - PAINTING_FLOOR_GAP - CEILING_CLEARANCE,
+  );
 
   const walls: Array<{
     side: Door["side"];
