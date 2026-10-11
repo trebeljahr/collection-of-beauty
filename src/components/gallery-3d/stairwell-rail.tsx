@@ -3,6 +3,7 @@
 import { useEffect, useMemo } from "react";
 import * as THREE from "three";
 import type { FloorLayout } from "@/lib/gallery-layout/types";
+import { HIGHLIGHT_ENV_MATERIALS } from "./palette-materials";
 import {
   BALUSTER_HEIGHT,
   BALUSTER_SIZE,
@@ -14,7 +15,7 @@ import {
   RAIL_BAR_HEIGHT,
   RAIL_HEIGHT,
 } from "./rail-constants";
-import { finialGeometry, StairSign, spiralGateHalfArc } from "./staircase";
+import { finialGeometry, mergeBoxes, StairSign, spiralGateHalfArc } from "./staircase";
 
 // Materials are still local — the cutout-edge rail and the spiral rails
 // share the same colour vocabulary, but allocating duplicate
@@ -35,6 +36,8 @@ const gatePostMaterial = new THREE.MeshStandardMaterial({
   roughness: 0.7,
   metalness: 0.45,
 });
+// Lit by the same lamp map as the stair they fence (see staircase.tsx).
+HIGHLIGHT_ENV_MATERIALS.push(railTopMaterial, balusterMaterial, gatePostMaterial);
 
 // Half-arc of the entry gate is now derived per-stair from the
 // spiral's numSteps (`spiralGateHalfArc(numSteps)`), so the cutout-edge
@@ -227,9 +230,19 @@ export function StairwellAccents({ floor }: { floor: FloorLayout }) {
     const railGeom = hasCutout
       ? buildCutoutRailGeometry(railR, floor.y, reference.entryAngle, upGap, downGap)
       : null;
-    const balusters = hasCutout
-      ? buildCutoutBalusters(railR, floor.y, reference.entryAngle, upGap, downGap)
-      : [];
+    // One geometry for the whole ring. Each box is turned so its faces
+    // lie in radial / tangential planes — see the matching note in
+    // staircase.tsx's spiral balusters.
+    const balusterGeom = mergeBoxes(
+      (hasCutout
+        ? buildCutoutBalusters(railR, floor.y, reference.entryAngle, upGap, downGap)
+        : []
+      ).map((b) => ({
+        size: [BALUSTER_SIZE, BALUSTER_HEIGHT, BALUSTER_SIZE],
+        position: b.pos,
+        rotationY: -b.angle,
+      })),
+    );
 
     // L-shaped connector from the topmost spiral inner rail's free end
     // (knob A) out to the cutout rail's CCW terminus (knob B). Both knobs
@@ -321,7 +334,7 @@ export function StairwellAccents({ floor }: { floor: FloorLayout }) {
       cz,
       railR,
       railGeom,
-      balusters,
+      balusterGeom,
       lBridge,
       entryAngle: reference.entryAngle,
       gateHalfArc,
@@ -332,15 +345,16 @@ export function StairwellAccents({ floor }: { floor: FloorLayout }) {
     };
   }, [floor, stairwell, hasCutout]);
 
-  // Free the cutout rail's BufferGeometry on unmount / floor swap. R3F
-  // doesn't auto-dispose externally-created geometries, so without this
-  // every floor change strands rail tubes in VRAM. Null on the ground
-  // floor (no rail), in which case there's nothing to dispose. The
-  // L-bridge uses declarative <boxGeometry> + the shared finialGeometry,
-  // both R3F-managed, so neither needs disposing here.
+  // Free the cutout rail's and balusters' BufferGeometries on unmount /
+  // floor swap. R3F doesn't auto-dispose externally-created geometries,
+  // so without this every floor change strands them in VRAM. Both are
+  // null on the ground floor (no rail), in which case there's nothing to
+  // dispose. The L-bridge uses declarative <boxGeometry> + the shared
+  // finialGeometry, both R3F-managed, so neither needs disposing here.
   useEffect(
     () => () => {
       data?.railGeom?.dispose();
+      data?.balusterGeom?.dispose();
     },
     [data],
   );
@@ -351,7 +365,7 @@ export function StairwellAccents({ floor }: { floor: FloorLayout }) {
     cz,
     railR,
     railGeom,
-    balusters,
+    balusterGeom,
     lBridge,
     entryAngle,
     gateHalfArc,
@@ -415,21 +429,11 @@ export function StairwellAccents({ floor }: { floor: FloorLayout }) {
           <primitive object={railTopMaterial} attach="material" />
         </mesh>
       )}
-      {balusters.map((b, i) => (
-        // Rotate so the box's faces lie in radial / tangential planes —
-        // see the matching note in staircase.tsx's spiral baluster
-        // render.
-        <mesh
-          // biome-ignore lint/suspicious/noArrayIndexKey: deterministic baluster ring around a fixed cutout, never reorders.
-          key={`cutout-bal-${i}`}
-          position={[cx + b.pos[0], b.pos[1], cz + b.pos[2]]}
-          rotation={[0, -b.angle, 0]}
-          castShadow
-        >
-          <boxGeometry args={[BALUSTER_SIZE, BALUSTER_HEIGHT, BALUSTER_SIZE]} />
+      {balusterGeom && (
+        <mesh geometry={balusterGeom} position={[cx, 0, cz]} castShadow>
           <primitive object={balusterMaterial} attach="material" />
         </mesh>
-      ))}
+      )}
 
       {/* L-shaped connector from the topmost spiral inner rail's free
           end (knob A) to the cutout rail's CCW terminus (knob B). Only

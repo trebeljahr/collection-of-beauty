@@ -109,9 +109,10 @@ export function RoomGeometry({
     height: DOOR_HEIGHT,
   }));
 
-  // Stairwell rooms render no floor (the well is open down to the
-  // storey below) and no ceiling (open up to the storey above) — the
-  // walls + the spiral itself give the well its visible shape.
+  // Stairwell rooms render neither the plain floor (the well is open
+  // down to the storey below) nor the ceiling at room height: theirs is
+  // a storey up, with the well cut out of it and its own lighting (see
+  // stairwell-light.tsx).
   const isStandardRoom = !room.isStairwell;
 
   // Paintings load lazily, image by image, only once the player is near

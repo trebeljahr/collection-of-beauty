@@ -563,8 +563,9 @@ export const Painting = memo(function Painting({
         frameHalfH={dH / 2 + frameReach}
         frameFrontZ={profileFrontZ(profile) - PAINTING_WALL_OFFSET}
         plaque={plaqueRect}
-        // The stairwell is open to the storey above: no ceiling to hang
-        // a can from, so its works get the pool without the fixture.
+        // The stairwell's ceiling is a storey up, not at room height: a
+        // can would hang in mid-air, so a work there gets the pool
+        // without the fixture.
         fixtures={!room.isStairwell}
         wallGain={poolGainScale(ERAS[room.floorIndex].palette.wallColor)}
       />

@@ -46,9 +46,10 @@ export type RoomLayout = {
    *  the same movement name, so the labels truncated to the same
    *  unreadable stub in every cell. */
   roomNumber: number | null;
-  /** True for the stairwell room. Rendered without a ceiling so the
-   *  ascending stair flight is visible, and without a full floor — the
-   *  stair geometry provides the walking surface between landings. */
+  /** True for the stairwell room. Its ceiling is a storey up and has the
+   *  well cut out of it, so the ascending stair flight is visible
+   *  (`StairwellLight`), and it has no full floor — the stair geometry
+   *  provides the walking surface between landings. */
   isStairwell: boolean;
   cellBounds: { xMin: number; xMax: number; zMin: number; zMax: number };
   /** World rectangle of the interior floor (walls exclusive). */

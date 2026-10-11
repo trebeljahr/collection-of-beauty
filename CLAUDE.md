@@ -233,6 +233,22 @@ required by the Dockerfile — don't remove it.
     through the door;
   - frames, canvas and plaque sit in front of the quad and are not lit
     by it. The plaque card carries its own emissive for that reason.
+- The stairwell hangs no works, so it has its own light
+  (`stairwell-light.tsx`, geometry in `stairwell-light-rig.ts`), built
+  the same way:
+  - a plaster ceiling a storey up, with a glazed ring round the well.
+    On the top floor the ring closes into an oculus;
+  - six wall washers along each wall. Their pools are one mesh for the
+    room. A fragment adds the can it stands under and that can's two
+    neighbours, so a cone may not reach a gap and a half along the wall
+    (`stairwell-light-rig.test.ts` pins it);
+  - the stair's materials reflect the frames' lamp map, so a tread's top
+    takes about twice the light of the flight's underside;
+  - a step light under every nosing, baked into the treads' vertex
+    colours (`staircase.tsx`).
+  A flight's balusters and brackets are merged into one geometry each
+  (`mergeBoxes`). As a mesh apiece they were about 100 draw calls a
+  stairwell, which is what pays for the light.
 - Frames are moulding profiles swept round the canvas with mitred
   corners (`frame-geometry.ts`), one profile per variant. A profile may
   not reach more than 0.05 m past the canvas: the plaque starts 0.06 m

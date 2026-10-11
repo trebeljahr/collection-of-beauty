@@ -21,24 +21,24 @@ import { mergeGeometries } from "three/examples/jsm/utils/BufferGeometryUtils.js
 import type { LightRig } from "./painting-light-rig";
 
 /** Warm tungsten-halogen tint, about 3000 K. */
-const LIGHT_TINT = new THREE.Color("#ffe9cc");
+export const LIGHT_TINT = new THREE.Color("#ffe9cc");
 /** How much the pool brightens the wall: the displayed colour is
  *  (1 + POOL_GAIN × light) × the unlit wall, where light is 1 at the
  *  aim point before the shoulder below. */
-const POOL_GAIN = 0.55;
+export const POOL_GAIN = 0.55;
 /** Shoulder on the pool's brightness, e / (1 + k·e). The top of a pool
  *  is nearer the lamp and would otherwise run to twice the aim point's
  *  light, which clips a pale wall: red and green reach white before
  *  blue does, and the pool turns yellow. */
-const POOL_SHOULDER = 0.35;
+export const POOL_SHOULDER = 0.35;
 /** Darkening right at the frame's edge from ambient occlusion. */
 const CONTACT_SHADOW = 0.3;
 /** The pool fades with the scene fog so it never brightens the fog. */
-const FOG_NEAR = 20;
-const FOG_FAR = 80;
+export const FOG_NEAR = 20;
+export const FOG_FAR = 80;
 const FADE_IN_S = 0.6;
 /** Offset of the quads off their surfaces, metres. */
-const SURFACE_LIFT = 0.002;
+export const SURFACE_LIFT = 0.002;
 
 const vertexShader = /* glsl */ `
 varying vec3 vPos;
@@ -215,7 +215,10 @@ const stemGeometry = new THREE.CylinderGeometry(STEM_RADIUS, STEM_RADIUS, 1, 8, 
 
 const fixtureBodyColor = new THREE.Color("#2b2927");
 const fixtureLensColor = new THREE.Color("#fff1d6");
-const fixtureUnlitMaterial = new THREE.MeshBasicMaterial({ vertexColors: true, toneMapped: false });
+export const fixtureUnlitMaterial = new THREE.MeshBasicMaterial({
+  vertexColors: true,
+  toneMapped: false,
+});
 
 const UP = new THREE.Vector3(0, 1, 0);
 
@@ -234,7 +237,7 @@ function tint(g: THREE.BufferGeometry, color: THREE.Color, shaded: boolean): THR
   return g;
 }
 
-function buildFixtureGeometry(
+export function buildFixtureGeometry(
   position: [number, number, number],
   direction: [number, number, number],
   ceilingY: number,

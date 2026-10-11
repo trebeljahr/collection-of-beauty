@@ -3,9 +3,11 @@
 import { Text } from "@react-three/drei";
 import { useEffect, useMemo } from "react";
 import * as THREE from "three";
+import { mergeGeometries } from "three/examples/jsm/utils/BufferGeometryUtils.js";
 import type { Staircase } from "@/lib/gallery-layout/types";
 import { SPIRAL_COLUMN_RADIUS } from "@/lib/gallery-layout/world-coords";
-import { signBaseMaterial } from "./palette-materials";
+import { LIGHT_TINT } from "./painting-light";
+import { HIGHLIGHT_ENV_MATERIALS, signBaseMaterial } from "./palette-materials";
 import {
   BALUSTER_HEIGHT,
   BALUSTER_SIZE,
@@ -36,7 +38,52 @@ const treadMaterial = new THREE.MeshStandardMaterial({
   color: "#3a2a1f",
   roughness: 0.7,
   metalness: 0.1,
+  // The step lights are baked into the treads' vertex colours.
+  vertexColors: true,
 });
+
+// ── Step lights ───────────────────────────────────────────────────────
+// A strip under the nosing of every tread, washing the riser below it
+// and the back of the next tread down. The flight above shades every
+// tread from the ceiling, so the stair was the one dark mass in a lit
+// room and its steps were hard to tell apart on the way up.
+//
+// The light is baked: a vertex colour is the factor by which a point is
+// brighter than the bare wood, so the strips cost no draw call and no
+// shader work. The figures were set by eye against the wall washers.
+
+/** Height of the strip itself at the top of a riser, metres. */
+const STEP_LIGHT_HEIGHT = 0.014;
+/** Wash on the riser, just under the strip and at the riser's foot. */
+const RISER_WASH_TOP = 5;
+const RISER_WASH_FOOT = 1.5;
+/** Spill on the tread below, by distance from the riser as a fraction
+ *  of the tread's depth: one figure per row of vertices. */
+const TREAD_SPILL = [2.6, 1.7, 1.2, 1, 1];
+/** Share of the lamps' warm tint the wash carries; the rest is white,
+ *  so lit wood keeps its own colour. */
+const WASH_TINT = 0.35;
+
+type Rgb = [number, number, number];
+const UNLIT: Rgb = [1, 1, 1];
+
+/** Vertex colour for wood lit `k` times as brightly as the fill. */
+function wash(k: number): Rgb {
+  const t = LIGHT_TINT;
+  const add = k - 1;
+  return [
+    1 + add * (1 - WASH_TINT + WASH_TINT * t.r),
+    1 + add * (1 - WASH_TINT + WASH_TINT * t.g),
+    1 + add * (1 - WASH_TINT + WASH_TINT * t.b),
+  ];
+}
+
+/** Vertex colour that turns the tread's wood into the strip's light. */
+const STRIP: Rgb = (() => {
+  const wood = treadMaterial.color;
+  const t = LIGHT_TINT;
+  return [t.r / wood.r, t.g / wood.g, t.b / wood.b];
+})();
 const railTopMaterial = new THREE.MeshStandardMaterial({
   // Aged brass — visibly metallic but not mirror-bright. Lower
   // metalness + higher roughness than polished brass, so the rail
@@ -70,6 +117,38 @@ const bracketMaterial = new THREE.MeshStandardMaterial({
   roughness: 0.7,
   metalness: 0.45,
 });
+
+// The stair reflects the lamp-lit map the frames do, not the room's
+// plain gradient. That map's lamps sit high, so a surface that faces up
+// takes about twice the light of one that faces down: treads and rail
+// tops read as lit from the ceiling and the underside of the flight
+// above stays in shade, with no light in the scene to pay for it.
+HIGHLIGHT_ENV_MATERIALS.push(
+  treadMaterial,
+  railTopMaterial,
+  balusterMaterial,
+  columnMaterial,
+  bracketMaterial,
+);
+
+type BoxPart = {
+  size: [number, number, number];
+  position: [number, number, number];
+  rotationY: number;
+};
+
+/** Many boxes as one geometry. A flight has some 75 balusters and
+ *  brackets; as a mesh each they were most of the stairwell's draw
+ *  calls. */
+export function mergeBoxes(parts: readonly BoxPart[]): THREE.BufferGeometry | null {
+  if (parts.length === 0) return null;
+  const boxes = parts.map((p) =>
+    new THREE.BoxGeometry(...p.size).rotateY(p.rotationY).translate(...p.position),
+  );
+  const merged = mergeGeometries(boxes, false);
+  for (const b of boxes) b.dispose();
+  return merged;
+}
 
 // Procedural arrow geometry for stair signs. Built as a flat
 // THREE.Shape (same idea as an SVG path) so the up/down indicator is
@@ -152,28 +231,49 @@ function buildTreadGeometry(
   topY: number,
   thickness: number,
   segments: number,
-): { positions: number[]; indices: number[] } {
+  /** Which radial cap is the block's riser, the face a climber walks
+   *  toward. It takes a step light; null leaves the block unlit. */
+  riser: "start" | "end" | null = null,
+  /** Whether the top takes the spill of the next riser up, which
+   *  stands on the far side from this block's own. */
+  spill = false,
+): { positions: number[]; colors: number[]; indices: number[] } {
   const positions: number[] = [];
+  const colors: number[] = [];
   const indices: number[] = [];
   const bottomY = topY - thickness;
 
-  const pushVertex = (x: number, y: number, z: number): number => {
+  const pushVertex = (x: number, y: number, z: number, color: Rgb = UNLIT): number => {
     const idx = positions.length / 3;
     positions.push(x, y, z);
+    colors.push(color[0], color[1], color[2]);
     return idx;
   };
 
   // Helper: build a row of (segments+1) verts at a fixed radius and
-  // height, returning the index of each.
-  const ringAt = (r: number, y: number): number[] => {
+  // height, returning the index of each. `colorAt` takes the vertex's
+  // place along the arc, 0 at thetaStart to 1 at thetaEnd.
+  const ringAt = (r: number, y: number, colorAt?: (t: number) => Rgb): number[] => {
     const out: number[] = [];
     for (let i = 0; i <= segments; i++) {
       const t = i / segments;
       const theta = thetaStart + (thetaEnd - thetaStart) * t;
-      out.push(pushVertex(r * Math.cos(theta), y, r * Math.sin(theta)));
+      out.push(pushVertex(r * Math.cos(theta), y, r * Math.sin(theta), colorAt?.(t)));
     }
     return out;
   };
+
+  // Spill on the top: brightest in the row under the next riser,
+  // gone by the middle of the tread.
+  const spillAt =
+    spill && riser
+      ? (t: number): Rgb => {
+          const fromRiser = (riser === "start" ? 1 - t : t) * (TREAD_SPILL.length - 1);
+          const i = Math.min(TREAD_SPILL.length - 2, Math.floor(fromRiser));
+          const f = fromRiser - i;
+          return wash(TREAD_SPILL[i] * (1 - f) + TREAD_SPILL[i + 1] * f);
+        }
+      : undefined;
 
   // ── Top face (+Y normal) — independent inner & outer rows.
   // Going inner→inner-next→outer (Z then X under the right-hand
@@ -182,8 +282,8 @@ function buildTreadGeometry(
   // which is why looking down on the spiral showed see-through
   // "sheets" — the top faces were back-culled and the camera read
   // straight through to the bottom face one rise below.
-  const topInner = ringAt(innerR, topY);
-  const topOuter = ringAt(outerR, topY);
+  const topInner = ringAt(innerR, topY, spillAt);
+  const topOuter = ringAt(outerR, topY, spillAt);
   for (let i = 0; i < segments; i++) {
     indices.push(topInner[i], topInner[i + 1], topOuter[i]);
     indices.push(topInner[i + 1], topOuter[i + 1], topOuter[i]);
@@ -219,25 +319,48 @@ function buildTreadGeometry(
     indices.push(outerCurveBot[i + 1], outerCurveTop[i], outerCurveTop[i + 1]);
   }
 
-  // ── Cap at thetaStart (−tangent normal). Owns its own 4 verts so
-  // the riser reads as a hard-edged flat panel rather than blending
-  // into the adjacent tread top / bottom / curve normals.
-  const startIB = pushVertex(innerR * Math.cos(thetaStart), bottomY, innerR * Math.sin(thetaStart));
-  const startIT = pushVertex(innerR * Math.cos(thetaStart), topY, innerR * Math.sin(thetaStart));
-  const startOB = pushVertex(outerR * Math.cos(thetaStart), bottomY, outerR * Math.sin(thetaStart));
-  const startOT = pushVertex(outerR * Math.cos(thetaStart), topY, outerR * Math.sin(thetaStart));
-  indices.push(startIB, startIT, startOB);
-  indices.push(startIT, startOT, startOB);
+  // ── Radial caps. Each owns its verts so a riser reads as a
+  // hard-edged flat panel rather than blending into the adjacent tread
+  // top / bottom / curve normals. The cap at thetaStart faces −tangent,
+  // the one at thetaEnd +tangent. The riser is cut in two: the strip of
+  // light under the nosing, and the wash it throws down the face.
+  const cap = (theta: number, end: "start" | "end") => {
+    const at = (r: number, y: number, color?: Rgb) =>
+      pushVertex(r * Math.cos(theta), y, r * Math.sin(theta), color);
+    const quad = (ib: number, it: number, ob: number, ot: number) => {
+      if (end === "start") indices.push(ib, it, ob, it, ot, ob);
+      else indices.push(ib, ob, it, it, ob, ot);
+    };
+    if (riser !== end) {
+      quad(at(innerR, bottomY), at(innerR, topY), at(outerR, bottomY), at(outerR, topY));
+      return;
+    }
+    const stripY = topY - STEP_LIGHT_HEIGHT;
+    const foot = wash(RISER_WASH_FOOT);
+    const top = wash(RISER_WASH_TOP);
+    quad(
+      at(innerR, bottomY, foot),
+      at(innerR, stripY, top),
+      at(outerR, bottomY, foot),
+      at(outerR, stripY, top),
+    );
+    quad(
+      at(innerR, stripY, STRIP),
+      at(innerR, topY, STRIP),
+      at(outerR, stripY, STRIP),
+      at(outerR, topY, STRIP),
+    );
+  };
+  cap(thetaStart, "start");
+  cap(thetaEnd, "end");
 
-  // ── Cap at thetaEnd (+tangent normal). Same idea.
-  const endIB = pushVertex(innerR * Math.cos(thetaEnd), bottomY, innerR * Math.sin(thetaEnd));
-  const endIT = pushVertex(innerR * Math.cos(thetaEnd), topY, innerR * Math.sin(thetaEnd));
-  const endOB = pushVertex(outerR * Math.cos(thetaEnd), bottomY, outerR * Math.sin(thetaEnd));
-  const endOT = pushVertex(outerR * Math.cos(thetaEnd), topY, outerR * Math.sin(thetaEnd));
-  indices.push(endIB, endOB, endIT);
-  indices.push(endIT, endOB, endOT);
+  return { positions, colors, indices };
+}
 
-  return { positions, indices };
+/** The cap of a block that a climber walks toward: the one at its
+ *  lower angle when the spiral climbs with increasing angle. */
+function risingCap(direction: number): "start" | "end" {
+  return direction > 0 ? "start" : "end";
 }
 
 /** Merge all the spiral's tread wedges into one BufferGeometry. The
@@ -262,6 +385,7 @@ function buildSpiralStepsGeometry(staircase: Staircase): THREE.BufferGeometry {
   const stepAngle = ((Math.PI * 2) / numSteps) * direction;
   const stepRise = (upperY - lowerY) / numSteps;
   const positions: number[] = [];
+  const colors: number[] = [];
   const indices: number[] = [];
   const segPerStep = 4;
 
@@ -271,7 +395,11 @@ function buildSpiralStepsGeometry(staircase: Staircase): THREE.BufferGeometry {
     const lo = Math.min(aStart, aEnd);
     const hi = Math.max(aStart, aEnd);
     const topY = lowerY + i * stepRise;
-    const { positions: p, indices: idx } = buildTreadGeometry(
+    const {
+      positions: p,
+      colors: c,
+      indices: idx,
+    } = buildTreadGeometry(
       innerRadius,
       outerRadius,
       lo,
@@ -279,14 +407,18 @@ function buildSpiralStepsGeometry(staircase: Staircase): THREE.BufferGeometry {
       topY,
       stepRise,
       segPerStep,
+      risingCap(direction),
+      true,
     );
     const base = positions.length / 3;
     for (let k = 0; k < p.length; k++) positions.push(p[k]);
+    for (let k = 0; k < c.length; k++) colors.push(c[k]);
     for (let k = 0; k < idx.length; k++) indices.push(idx[k] + base);
   }
 
   const geom = new THREE.BufferGeometry();
   geom.setAttribute("position", new THREE.Float32BufferAttribute(positions, 3));
+  geom.setAttribute("color", new THREE.Float32BufferAttribute(colors, 3));
   geom.setIndex(indices);
   geom.computeVertexNormals();
   return geom;
@@ -562,7 +694,9 @@ function buildTopLandingGeometry(staircase: Staircase): THREE.BufferGeometry {
   const lo = Math.min(start, end);
   const hi = Math.max(start, end);
   const stepRise = (upperY - lowerY) / numSteps;
-  const { positions, indices } = buildTreadGeometry(
+  // The landing's edge is the last riser of the climb, so it takes a
+  // step light like the rest; its top is a floor, not a tread.
+  const { positions, colors, indices } = buildTreadGeometry(
     innerRadius,
     outerRadius,
     lo,
@@ -570,9 +704,11 @@ function buildTopLandingGeometry(staircase: Staircase): THREE.BufferGeometry {
     upperY,
     stepRise,
     32,
+    risingCap(direction),
   );
   const geom = new THREE.BufferGeometry();
   geom.setAttribute("position", new THREE.Float32BufferAttribute(positions, 3));
+  geom.setAttribute("color", new THREE.Float32BufferAttribute(colors, 3));
   geom.setIndex(indices);
   geom.computeVertexNormals();
   return geom;
@@ -691,7 +827,38 @@ export function StaircaseRenderer({
     () => buildSpiralRail(staircase, "outer", spiralGateHalfArc(staircase.numSteps), false),
     [staircase],
   );
-  const brackets = useMemo(() => buildStepBrackets(staircase), [staircase]);
+  // Rotate each baluster by -angle around Y so the box's local +X / +Z
+  // axes align with the radial / tangential directions at its point on
+  // the spiral. Without this each box reads as cocked relative to its
+  // step (its corners pointing at world ±X / ±Z regardless of where it
+  // lives on the curve).
+  const balusterGeom = useMemo(
+    () =>
+      mergeBoxes(
+        [...innerRail.balusters, ...outerRail.balusters].map((b) => ({
+          size: [BALUSTER_SIZE, b.height, BALUSTER_SIZE],
+          position: b.pos,
+          rotationY: -b.angle,
+        })),
+      ),
+    [innerRail, outerRail],
+  );
+  // Per-step radial beams tying each tread back to the column. Box's
+  // local axes after Y-rotation:
+  //   X = radial (length, spanning column → tread),
+  //   Y = vertical (height, fills most of the step rise),
+  //   Z = tangential (width, ≈ half the step's inner arc).
+  const bracketGeom = useMemo(
+    () =>
+      mergeBoxes(
+        buildStepBrackets(staircase).map((b) => ({
+          size: [b.length, b.height, b.width],
+          position: b.position,
+          rotationY: b.rotationY,
+        })),
+      ),
+    [staircase],
+  );
   // Top landing — only the helix's topmost flight gets one. It caps
   // the spiral with a flat half-revolution at upperY so the climb has
   // a visible architectural ending; intermediate flights stack
@@ -709,8 +876,10 @@ export function StaircaseRenderer({
       innerRail.rail.dispose();
       outerRail.rail.dispose();
       landingGeom?.dispose();
+      balusterGeom?.dispose();
+      bracketGeom?.dispose();
     },
-    [stepsGeom, innerRail, outerRail, landingGeom],
+    [stepsGeom, innerRail, outerRail, landingGeom, balusterGeom, bracketGeom],
   );
   const columnHeight = upperY - lowerY;
   const columnY = (lowerY + upperY) / 2;
@@ -743,50 +912,30 @@ export function StaircaseRenderer({
         </mesh>
       )}
 
-      {/* Per-step radial beams tying each tread back to the
-          column. Reads as forged iron hardware anchoring the
-          wooden treads to the masonry spine. Box's local axes
-          after Y-rotation:
-            X = radial (length, spanning column → tread),
-            Y = vertical (height, fills most of the step rise),
-            Z = tangential (width, ≈ half the step's inner arc). */}
-      {brackets.map((b, i) => (
-        // biome-ignore lint/suspicious/noArrayIndexKey: deterministic geometry list, never reorders.
-        <mesh key={`bracket-${i}`} position={b.position} rotation={[0, b.rotationY, 0]} castShadow>
-          <boxGeometry args={[b.length, b.height, b.width]} />
+      {/* Brackets from the column to each tread: forged iron
+          hardware anchoring the wooden treads to the masonry spine. */}
+      {bracketGeom && (
+        <mesh geometry={bracketGeom} castShadow>
           <primitive object={bracketMaterial} attach="material" />
         </mesh>
-      ))}
+      )}
 
       {/* Inner railing around the open well. */}
       <mesh geometry={innerRail.rail} castShadow>
         <primitive object={railTopMaterial} attach="material" />
       </mesh>
-      {innerRail.balusters.map((b, i) => (
-        // Rotate by -angle around Y so the box's local +X / +Z axes
-        // align with the radial / tangential directions at this point
-        // around the spiral. Without this each box reads as cocked
-        // relative to its step (its corners pointing at world ±X / ±Z
-        // regardless of where it lives on the curve).
-        // biome-ignore lint/suspicious/noArrayIndexKey: deterministic baluster list around a fixed spiral, never reorders.
-        <mesh key={`in-bal-${i}`} position={b.pos} rotation={[0, -b.angle, 0]} castShadow>
-          <boxGeometry args={[BALUSTER_SIZE, b.height, BALUSTER_SIZE]} />
-          <primitive object={balusterMaterial} attach="material" />
-        </mesh>
-      ))}
 
       {/* Outer railing along the outside of the spiral, with a
           one-step gap at the entry direction. */}
       <mesh geometry={outerRail.rail} castShadow>
         <primitive object={railTopMaterial} attach="material" />
       </mesh>
-      {outerRail.balusters.map((b, i) => (
-        // biome-ignore lint/suspicious/noArrayIndexKey: deterministic baluster list, never reorders.
-        <mesh key={`out-bal-${i}`} position={b.pos} rotation={[0, -b.angle, 0]} castShadow>
-          <boxGeometry args={[BALUSTER_SIZE, b.height, BALUSTER_SIZE]} />
+      {/* Both rails' balusters. */}
+      {balusterGeom && (
+        <mesh geometry={balusterGeom} castShadow>
           <primitive object={balusterMaterial} attach="material" />
         </mesh>
-      ))}
+      )}
 
       {/* Newel-cap finials at every rail terminus. Each open tube end
           on a hand-built rectangular tube would otherwise expose its

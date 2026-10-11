@@ -66,7 +66,7 @@ let glassMaterial: THREE.MeshBasicMaterial | null = null;
 /** Shared across every room. A CanvasTexture holds its pixels on the
  *  CPU, so it re-uploads by itself after the Canvas remounts on a lost
  *  WebGL context. */
-function getGlassMaterial(): THREE.MeshBasicMaterial {
+export function getGlassMaterial(): THREE.MeshBasicMaterial {
   if (glassMaterial) return glassMaterial;
   paneTexture = new THREE.CanvasTexture(paintPane());
   paneTexture.colorSpace = THREE.SRGBColorSpace;
