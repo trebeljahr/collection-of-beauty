@@ -272,9 +272,29 @@ required by the Dockerfile — don't remove it.
     between doors. A bench is smaller than a cell, so it is in no edge
     mask: it is a box collider, and `clearOfFittings` in
     `canAcceptPhysicsMove` applies the same rectangle when the physics
-    world has not loaded. The collider is 1.5 m tall on purpose. At
-    bench height the capsule's round end meets it on the curve and the
-    controller rides over it, and a jump lifts the feet 0.82 m.
+    world has not loaded.
+  - A bench can be jumped onto and over. It is a wall while the feet are
+    under the seat (`clearsBenches`, 0.45 m less a 5 cm step) and ground
+    once they are not. A jump lifts the feet 0.82 m. Three places apply
+    that one height, and they must agree:
+    1. `GalleryCollisionController.move` leaves the bench colliders out
+       of the cast. The collider stays 1.5 m tall: at seat height the
+       capsule's round end meets it on the curve and the controller
+       rides up it without a jump.
+    2. `clearOfFittings` takes `overBenches` and then tests dividers
+       only.
+    3. The player's vertical step stands the body on the seat where
+       `benchUnder` finds a bench under it. The seat is not a collider:
+       the physics world only answers horizontal moves.
+    The feet height is read at the start of a frame, before the eye
+    height is damped. Read after it, getting up from a crouch puts the
+    feet under the seat and the body drops into the bench. The seat
+    carries a body out to one radius (0.30 m) past its edge, less than
+    the 0.32 m the collider keeps a walking body off, so a jump in
+    place beside a bench lands on the floor.
+    Nothing stops a jump at the ceiling. Off a bench on tiptoe the
+    camera reaches 3.42 m and the lowest ceiling is at 4.0 m; a ceiling
+    under 3.6 m would need a clamp.
   - A bench can stand on a room's centre, so nothing sends the player
     to a raw room centre: use `arrivalPoint`.
   - Dividers and benches are part of `galleryLayoutIdentity`. Change

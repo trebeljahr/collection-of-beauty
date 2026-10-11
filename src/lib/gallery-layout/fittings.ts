@@ -37,6 +37,8 @@ import {
 export const BENCH_LENGTH = 2.0;
 export const BENCH_DEPTH = 0.6;
 export const BENCH_HEIGHT = 0.45;
+/** How far under the seat a body's feet may be and still get onto it. */
+const BENCH_STEP_UP = 0.05;
 /** Air between the two benches of a back-to-back island. */
 const ISLAND_GAP = 0.02;
 
@@ -555,6 +557,33 @@ function circleHitsRect(x: number, z: number, radius: number, r: Rect): boolean 
 }
 
 /**
+ * Are a body's feet high enough to be over a bench? Under this height a
+ * bench is in the way like a wall; from it on, a bench is a floor.
+ * A jump lifts the feet 0.82 m, a seat is 0.45 m up.
+ */
+export function clearsBenches(feetAboveFloor: number): boolean {
+  return feetAboveFloor >= BENCH_HEIGHT - BENCH_STEP_UP;
+}
+
+type FittedFloor = {
+  rooms: ReadonlyArray<{
+    cellBounds: CellRect;
+    dividers: readonly Divider[];
+    benches: readonly Bench[];
+  }>;
+};
+
+function nearRoom(room: { cellBounds: CellRect }, x: number, z: number, radius: number): boolean {
+  const b = room.cellBounds;
+  return (
+    x >= b.xMin * CELL_SIZE - radius &&
+    x <= (b.xMax + 1) * CELL_SIZE + radius &&
+    z >= b.zMin * CELL_SIZE - radius &&
+    z <= (b.zMax + 1) * CELL_SIZE + radius
+  );
+}
+
+/**
  * Can a body of this radius stand at (x, z) without overlapping a
  * divider or a bench?
  *
@@ -564,33 +593,40 @@ function circleHitsRect(x: number, z: number, radius: number, r: Rect): boolean 
  * physics world carries the same rectangles as colliders, which is what
  * lets the player slide round them; this is the rule that holds when
  * the physics world is not loaded, and the check on what it returns.
+ *
+ * `overBenches` is for a body in the air above seat height
+ * (`clearsBenches`): only the dividers are in its way.
  */
 export function clearOfFittings(
-  floor: {
-    rooms: ReadonlyArray<{
-      cellBounds: CellRect;
-      dividers: readonly Divider[];
-      benches: readonly Bench[];
-    }>;
-  },
+  floor: FittedFloor,
   x: number,
   z: number,
   radius: number,
+  overBenches = false,
 ): boolean {
   for (const room of floor.rooms) {
     if (room.dividers.length === 0 && room.benches.length === 0) continue;
-    const b = room.cellBounds;
-    if (
-      x < b.xMin * CELL_SIZE - radius ||
-      x > (b.xMax + 1) * CELL_SIZE + radius ||
-      z < b.zMin * CELL_SIZE - radius ||
-      z > (b.zMax + 1) * CELL_SIZE + radius
-    ) {
-      continue;
+    if (!nearRoom(room, x, z, radius)) continue;
+    for (const d of room.dividers) {
+      if (circleHitsRect(x, z, radius, dividerRect(d))) return false;
     }
-    for (const r of fittingRects(room)) if (circleHitsRect(x, z, radius, r)) return false;
+    if (overBenches) continue;
+    for (const b of room.benches) {
+      if (circleHitsRect(x, z, radius, benchRect(b))) return false;
+    }
   }
   return true;
+}
+
+/** Does a body of this radius at (x, z) overlap a bench's footprint? */
+export function benchUnder(floor: FittedFloor, x: number, z: number, radius: number): boolean {
+  for (const room of floor.rooms) {
+    if (room.benches.length === 0 || !nearRoom(room, x, z, radius)) continue;
+    for (const b of room.benches) {
+      if (circleHitsRect(x, z, radius, benchRect(b))) return true;
+    }
+  }
+  return false;
 }
 
 /** Room a visitor needs round the point they are put down on. */

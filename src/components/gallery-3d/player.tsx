@@ -5,7 +5,12 @@ import type { JoystickOnMove } from "joystick-controller";
 import { useEffect, useRef } from "react";
 import * as THREE from "three";
 import type { ArtworkListing } from "@/lib/data";
-import { clearOfFittings } from "@/lib/gallery-layout/fittings";
+import {
+  BENCH_HEIGHT,
+  benchUnder,
+  clearOfFittings,
+  clearsBenches,
+} from "@/lib/gallery-layout/fittings";
 import type { FloorLayout, Staircase } from "@/lib/gallery-layout/types";
 import { CELL_SIZE, worldToCell } from "@/lib/gallery-layout/world-coords";
 import type { GalleryPose } from "@/lib/gallery-release-state";
@@ -399,6 +404,12 @@ export function Player({
   useFrame((_, delta) => {
     if (!enabled) return;
     const dt = Math.min(delta, 0.1);
+    // Where the feet are as this frame starts. Read before the eye
+    // height moves: the camera is clamped to ground + eye height at the
+    // end of a frame, so with last frame's eye height a body standing
+    // on a bench has its feet on the seat exactly. With this frame's,
+    // getting up from a crouch would put them under it.
+    const feetY = camera.position.y - eyeHeight.current;
 
     // Smoothly damp eye height toward the held-key target. Hold C to
     // drift down toward DUCK, hold R to drift up toward TIPTOE; release
@@ -531,7 +542,6 @@ export function Player({
       const desiredMoveX = doorwayNudge ? doorwayNudge.x - curX : move.x;
       const desiredMoveZ = doorwayNudge ? doorwayNudge.z - curZ : move.z;
       const physics = physicsRef.current;
-      const feetY = camera.position.y - eyeHeight.current;
       if (physics) {
         const allowed = physics.move(
           { x: curX, y: feetY, z: curZ },
@@ -695,7 +705,6 @@ export function Player({
         activeStair &&
         (!spiralState.current || spiralState.current.staircaseId !== activeStair.id)
       ) {
-        const feetY = camera.position.y - eyeHeight.current;
         activeStair = stairSurfaceAt(
           floor,
           allStaircases,
@@ -826,7 +835,18 @@ export function Player({
         spiralState.current = null;
         velocityY.current -= GRAVITY * dt;
         camera.position.y += velocityY.current * dt;
-        const floorHeight = floor.y + eyeHeight.current;
+        // A bench is ground for a body that came down on it: one that
+        // overlaps it and started the frame with its feet at the seat
+        // or higher. Lower than that a bench is solid from the side, so
+        // nothing is over one, save a pose restored from a crouch on
+        // it. That body is inside the bench and is put back on top.
+        const onBench = benchUnder(
+          floor,
+          camera.position.x,
+          camera.position.z,
+          clearsBenches(feetY - floor.y) ? PLAYER_RADIUS : PLAYER_RADIUS - FITTING_SLOP,
+        );
+        const floorHeight = floor.y + (onBench ? BENCH_HEIGHT : 0) + eyeHeight.current;
         if (camera.position.y <= floorHeight) {
           camera.position.y = floorHeight;
           velocityY.current = 0;
@@ -987,7 +1007,8 @@ function isWalkable(floor: FloorLayout, worldX: number, worldZ: number): boolean
  *  there's a tread at your feet" rule, and the "don't step off a spiral
  *  mid-flight through a rail gap" one. Dividers and benches are
  *  colliders too; they are checked again here because this predicate is
- *  also the whole of collision until the physics world has loaded. */
+ *  also the whole of collision until the physics world has loaded. A
+ *  bench stops only a body whose feet are under its seat. */
 function canAcceptPhysicsMove(
   floor: FloorLayout,
   allStaircases: readonly Staircase[],
@@ -1033,7 +1054,8 @@ function canAcceptPhysicsMove(
   if (!isWalkable(floor, toX, toZ)) return false;
   if (!canCrossEdges(floor, fromX, fromZ, toX, toZ)) return false;
   if (!fitsDoorwayApertures(floor, toX, toZ, PLAYER_RADIUS)) return false;
-  if (!clearOfFittings(floor, toX, toZ, PLAYER_RADIUS - FITTING_SLOP)) return false;
+  const overBenches = clearsBenches(feetY - floor.y);
+  if (!clearOfFittings(floor, toX, toZ, PLAYER_RADIUS - FITTING_SLOP, overBenches)) return false;
   return true;
 }
 

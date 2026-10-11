@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { writeDividerEdges } from "@/lib/gallery-layout/fittings";
+import { BENCH_HEIGHT, writeDividerEdges } from "@/lib/gallery-layout/fittings";
 import type { Bench, Divider, Door, FloorLayout, Staircase } from "@/lib/gallery-layout/types";
 import {
   CELL_SIZE,
@@ -167,12 +167,47 @@ describe("room fittings", () => {
     expect(end.z).toBeLessThan(8.45 - PLAYER_RADIUS + 0.05);
   });
 
-  it("does not let a jump clear a bench", async () => {
+  it("lets a jump onto a bench and over it", async () => {
     const controller = await createGalleryCollisionController(makeFloor(), [], PLAYER_RADIUS);
     // Feet at the top of a jump (0.82 m), right beside the bench.
-    const allowed = controller.move({ x: 7.6, y: 0.82, z: 8.75 }, { x: -0.3, y: 0, z: 0 });
+    const jumping = controller.move({ x: 7.6, y: 0.82, z: 8.75 }, { x: -0.3, y: 0, z: 0 });
+    expect(jumping.x).toBeCloseTo(-0.3, 6);
+    // Feet on the seat, in the middle of the bench.
+    const standing = controller.move({ x: 6.25, y: BENCH_HEIGHT, z: 8.75 }, { x: 0, y: 0, z: 0.3 });
+    expect(standing.z).toBeCloseTo(0.3, 6);
     controller.dispose();
-    expect(7.6 + allowed.x).toBeGreaterThan(7.25 + PLAYER_RADIUS);
+  });
+
+  it("stops a body whose feet are still under the seat", async () => {
+    const controller = await createGalleryCollisionController(makeFloor(), [], PLAYER_RADIUS);
+    // A step's height, and the capsule's round end level with the
+    // seat's edge. Neither rides up the bench.
+    for (const feet of [0.2, 0.32, 0.39]) {
+      const allowed = controller.move({ x: 7.6, y: feet, z: 8.75 }, { x: -0.3, y: 0, z: 0 });
+      expect(7.6 + allowed.x, `feet at ${feet}`).toBeGreaterThan(7.25 + PLAYER_RADIUS);
+    }
+    controller.dispose();
+  });
+
+  it("stops a body over a bench at a divider all the same", async () => {
+    const controller = await createGalleryCollisionController(makeFloor(), [], PLAYER_RADIUS);
+    const allowed = controller.move({ x: 19.2, y: 0.82, z: 2.5 }, { x: 0.5, y: 0, z: 0 });
+    controller.dispose();
+    expect(19.2 + allowed.x).toBeLessThan(19.8 - PLAYER_RADIUS);
+  });
+
+  it("leaves a body free to walk on where it drops off a bench", async () => {
+    const controller = await createGalleryCollisionController(makeFloor(), [], PLAYER_RADIUS);
+    // The seat stops carrying a body one radius past its edge, which
+    // is nearer than the collider lets a walking body come.
+    const edge = 7.25 + PLAYER_RADIUS;
+    const away = controller.move({ x: edge, y: 0, z: 8.75 }, { x: 0.05, y: 0, z: 0 });
+    expect(away.x).toBeCloseTo(0.05, 6);
+    const along = controller.move({ x: edge, y: 0, z: 8.75 }, { x: 0, y: 0, z: 0.05 });
+    expect(along.z).toBeCloseTo(0.05, 3);
+    const back = controller.move({ x: edge, y: 0, z: 8.75 }, { x: -0.05, y: 0, z: 0 });
+    expect(back.x).toBeGreaterThan(-0.001);
+    controller.dispose();
   });
 
   it("stops the player at a divider's face, not on its grid line", async () => {

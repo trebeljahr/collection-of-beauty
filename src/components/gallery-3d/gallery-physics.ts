@@ -7,7 +7,7 @@ import type {
   RigidBody,
   World,
 } from "@dimforge/rapier3d-compat";
-import { benchRect, dividerRect } from "@/lib/gallery-layout/fittings";
+import { benchRect, clearsBenches, dividerRect } from "@/lib/gallery-layout/fittings";
 import type { FloorLayout, Staircase } from "@/lib/gallery-layout/types";
 import {
   CELL_SIZE,
@@ -43,9 +43,10 @@ const ARC_SEGMENT_MAX_LEN = 0.55;
 // ends in a 0.3 m hemisphere, and a box that stops within that height
 // of its feet meets it on the curve, where the contact normal points up
 // and the character controller rides over the bench as if it were a
-// ramp. A jump lifts the feet 0.82 m, so the box has to reach past
-// 1.12 m for the capsule's straight side to meet a vertical face at any
-// point of it.
+// ramp. So the box is a wall for as long as the feet are under the
+// seat, and `move` leaves it out altogether once they are not: getting
+// onto a bench takes a jump. What the player then stands on is not this
+// collider. The seat's height comes from `benchUnder` in `player.tsx`.
 const BENCH_COLLIDER_HEIGHT = 1.5;
 
 let rapierPromise: Promise<RapierModule> | null = null;
@@ -74,6 +75,8 @@ export class GalleryCollisionController {
   private readonly body: RigidBody;
   private readonly collider: Collider;
   private readonly controller: KinematicCharacterController;
+  private readonly floorY: number;
+  private readonly benchHandles: ReadonlySet<number>;
 
   constructor(
     rapier: RapierModule,
@@ -91,7 +94,8 @@ export class GalleryCollisionController {
     this.controller.setSlideEnabled(true);
     this.controller.enableAutostep(0.32, radius * 2, false);
     this.controller.enableSnapToGround(0.12);
-    buildStaticColliders(rapier, this.world, floor, allStaircases);
+    this.floorY = floor.y;
+    this.benchHandles = buildStaticColliders(rapier, this.world, floor, allStaircases);
   }
 
   move(fromFeet: Vec3, desired: Vec3): Vec3 {
@@ -103,12 +107,15 @@ export class GalleryCollisionController {
     // flushes that pose into the collider sets before the KCC casts
     // against rail/wall colliders.
     this.world.step();
+    const overBenches = clearsBenches(fromFeet.y - this.floorY);
     this.controller.computeColliderMovement(
       this.collider,
       desired,
       undefined,
       undefined,
-      (collider) => collider.handle !== this.collider.handle,
+      (collider) =>
+        collider.handle !== this.collider.handle &&
+        !(overBenches && this.benchHandles.has(collider.handle)),
     );
     return this.controller.computedMovement();
   }
@@ -128,12 +135,13 @@ export async function createGalleryCollisionController(
   return new GalleryCollisionController(rapier, floor, allStaircases, radius);
 }
 
+/** Builds the floor's colliders and returns the handles of its benches. */
 function buildStaticColliders(
   rapier: RapierModule,
   world: World,
   floor: FloorLayout,
   allStaircases: readonly Staircase[],
-) {
+): Set<number> {
   const fixedBody = world.createRigidBody(rapier.RigidBodyDesc.fixed());
   const addCuboid = (
     cx: number,
@@ -144,8 +152,8 @@ function buildStaticColliders(
     hz: number,
     rotY = 0,
   ) => {
-    if (hx <= 0 || hy <= 0 || hz <= 0) return;
-    world.createCollider(
+    if (hx <= 0 || hy <= 0 || hz <= 0) return null;
+    return world.createCollider(
       rapier.ColliderDesc.cuboid(hx, hy, hz)
         .setTranslation(cx, cy, cz)
         .setRotation(yRotation(rotY))
@@ -202,8 +210,9 @@ function buildStaticColliders(
   addFloorColliders(floor, addCuboid);
   addWallColliders(floor, addCuboid);
   addPortalJambColliders(floor, addCuboid);
-  addFittingColliders(floor, addCuboid);
+  const benchHandles = addFittingColliders(floor, addCuboid);
   addStairwellColliders(floor, allStaircases, addCuboid, addCylinder, addArc);
+  return benchHandles;
 }
 
 function addFloorColliders(
@@ -409,6 +418,7 @@ function addPortalJambColliders(
  * 0.4 m, so the player stops at the plaster and not inside it. A bench
  * is in no mask at all (it is smaller than a cell) and this is its only
  * collider. `clearOfFittings` is the same rule without a physics world.
+ * Returns the benches' collider handles.
  */
 function addFittingColliders(
   floor: FloorLayout,
@@ -420,8 +430,9 @@ function addFittingColliders(
     hy: number,
     hz: number,
     rotY?: number,
-  ) => void,
-) {
+  ) => Collider | null,
+): Set<number> {
+  const benchHandles = new Set<number>();
   for (const room of floor.rooms) {
     for (const divider of room.dividers) {
       const r = dividerRect(divider);
@@ -436,7 +447,7 @@ function addFittingColliders(
     }
     for (const bench of room.benches) {
       const r = benchRect(bench);
-      addCuboid(
+      const collider = addCuboid(
         (r.xMin + r.xMax) / 2,
         floor.y + BENCH_COLLIDER_HEIGHT / 2,
         (r.zMin + r.zMax) / 2,
@@ -444,8 +455,10 @@ function addFittingColliders(
         BENCH_COLLIDER_HEIGHT / 2,
         (r.zMax - r.zMin) / 2,
       );
+      if (collider) benchHandles.add(collider.handle);
     }
   }
+  return benchHandles;
 }
 
 function addStairwellColliders(

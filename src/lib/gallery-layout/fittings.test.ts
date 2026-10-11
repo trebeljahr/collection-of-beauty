@@ -2,10 +2,13 @@ import { describe, expect, it } from "vitest";
 import {
   arrivalPoint,
   BENCH_DEPTH,
+  BENCH_HEIGHT,
   BENCH_LENGTH,
   benchRect,
+  benchUnder,
   ceilingHeightFor,
   clearOfFittings,
+  clearsBenches,
   dividerRect,
   type PlanDoor,
   planBenches,
@@ -361,6 +364,52 @@ describe("clearOfFittings", () => {
 
   it("ignores rooms the body is nowhere near", () => {
     expect(clearOfFittings(floor, 100, 100, RADIUS)).toBe(true);
+  });
+
+  it("lets a body over the benches through, and still stops it at a divider", () => {
+    expect(clearOfFittings(floor, 10, 10, RADIUS, true)).toBe(true);
+    expect(clearOfFittings(floor, 11.29, 10, RADIUS, true)).toBe(true);
+    expect(clearOfFittings(floor, 5 + 0.2 + 0.29, 2, RADIUS, true)).toBe(false);
+  });
+});
+
+describe("standing on a bench", () => {
+  const bench: Bench = { x: 10, z: 10, along: "x" };
+  const divider: Divider = { axis: "z", line: 2, start: 0, end: 2 };
+  const floor = { rooms: [{ cellBounds: rect(8, 8), dividers: [divider], benches: [bench] }] };
+  const RADIUS = 0.3;
+
+  it("takes a jump to get over the seat, and a jump is enough", () => {
+    expect(clearsBenches(0)).toBe(false);
+    // A step is not a jump.
+    expect(clearsBenches(0.32)).toBe(false);
+    expect(clearsBenches(BENCH_HEIGHT)).toBe(true);
+    // The top of a jump: 6 m/s against 22 m/s².
+    expect(clearsBenches(6 ** 2 / (2 * 22))).toBe(true);
+  });
+
+  it("carries a body that overlaps the bench at all", () => {
+    expect(benchUnder(floor, 10, 10, RADIUS)).toBe(true);
+    expect(benchUnder(floor, 11.29, 10, RADIUS)).toBe(true);
+    expect(benchUnder(floor, 11.31, 10, RADIUS)).toBe(false);
+    expect(benchUnder(floor, 10, 10.61, RADIUS)).toBe(false);
+    expect(benchUnder(floor, 100, 100, RADIUS)).toBe(false);
+  });
+
+  it("is not carried by a divider", () => {
+    expect(benchUnder(floor, 5, 2, RADIUS)).toBe(false);
+  });
+
+  it("carries a body wherever a bench would stop it on the floor", () => {
+    // Where the seat ends under the feet, the floor has to be free to
+    // land on. Otherwise a body walking off a bench drops into it.
+    for (let x = 8.5; x <= 11.5; x += 0.01) {
+      for (const z of [9.5, 9.75, 10, 10.25, 10.5]) {
+        if (!benchUnder(floor, x, z, RADIUS)) {
+          expect(clearOfFittings(floor, x, z, RADIUS), `${x}, ${z}`).toBe(true);
+        }
+      }
+    }
   });
 });
 
