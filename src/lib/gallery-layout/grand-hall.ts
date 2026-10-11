@@ -16,7 +16,7 @@
 //    in the middle hangs matched pairs, one each side of the opening; a
 //    solid wall hangs one centrepiece with pairs outboard. The two works
 //    of a pair are brought to the same height, so their top and bottom
-//    edges line up across the door.
+//    edges line up across the door, and hung in the same frame.
 //  - The wall the player faces on spawn — the one with the stairwell
 //    door — takes the biggest pair, right beside the opening, then the
 //    next pair outboard. The wall behind gets the largest remaining work
@@ -26,6 +26,7 @@
 
 import type { ArtworkListing } from "@/lib/data";
 import { isSurpriseWorthy } from "@/lib/surprise";
+import { type FrameVariantId, frameReach, pickPairFrame } from "./frame-profiles";
 import { artworkBand } from "./painting-bands";
 import {
   computeRoomRuns,
@@ -139,16 +140,40 @@ export function pickHallCandidates(works: ArtworkListing[]): ArtworkListing[] {
 }
 
 /** One mirrored position on a wall: the two works hung at the same
- *  distance either side of the wall's centre. `span` is the wider of the
- *  two and `claim` the wall the wider-framed of the two needs, so both
- *  halves lay out identically. */
-type Slot = { low: SizedWork; high: SizedWork; span: number; claim: number };
+ *  distance either side of the wall's centre. `low` is the lead, the
+ *  work that came first in the queue. `span` is the wider canvas of the
+ *  two, `reach` the wider cut of their shared frame, and `claim` the
+ *  wall that takes, so both halves lay out identically. */
+type Slot = {
+  low: SizedWork;
+  high: SizedWork;
+  frame: FrameVariantId;
+  span: number;
+  reach: number;
+  claim: number;
+};
 
-/** Wall a work of canvas width `span` claims in the hall. The plaque is
- *  reserved on both sides: which side it lands on depends on the wall,
- *  and the hang is mirrored. */
-function claimOf(span: number, ...works: SizedWork[]): number {
-  return span + 2 * (Math.max(...works.map(frameReachOf)) + PLAQUE_FOOTPRINT);
+/** A pair and the one frame both its works hang in. Each work chooses
+ *  its own frame by school and id, so left alone a pair came out as
+ *  carved gilt on one side of the door and walnut on the other, in 34
+ *  of the museum's 76 pairs. The moulding is still cut to each canvas:
+ *  `reach` is the wider of the two cuts, and it sets both the wall the
+ *  slot reserves and the lift that clears the floor. */
+function slotOf(lead: SizedWork, partner: SizedWork): Slot {
+  const frame = pickPairFrame(lead.artwork, partner.artwork);
+  const span = Math.max(lead.wM, partner.wM);
+  const reach = Math.max(
+    frameReach(frame, lead.wM, lead.hM),
+    frameReach(frame, partner.wM, partner.hM),
+  );
+  return { low: lead, high: partner, frame, span, reach, claim: claimOf(span, reach) };
+}
+
+/** Wall a canvas of width `span` claims in the hall when its frame
+ *  reaches `reach` past it. The plaque is reserved on both sides: which
+ *  side it lands on depends on the wall, and the hang is mirrored. */
+function claimOf(span: number, reach: number): number {
+  return span + 2 * (reach + PLAQUE_FOOTPRINT);
 }
 
 type WallPlan = {
@@ -294,7 +319,7 @@ export function hangGrandHall(
     const i = queue.findIndex((w) => w.wM <= wall * (HALL_WIDTH_COVERAGE / 2));
     if (i < 0) return;
     const [work] = queue.splice(i, 1);
-    const claimed = claimOf(work.wM, work);
+    const claimed = claimOf(work.wM, frameReachOf(work));
     plan.centrepiece = work;
     plan.innerOffset = claimed / 2;
     plan.halfLength = wall / 2 - plan.innerOffset;
@@ -306,21 +331,19 @@ export function hangGrandHall(
   const takePair = (plan: WallPlan | null): boolean => {
     if (!plan) return false;
     for (let i = 0; i < queue.length; i++) {
-      let best: { j: number; pair: [SizedWork, SizedWork]; cost: number } | null = null;
+      let best: { j: number; slot: Slot; cost: number } | null = null;
       for (let j = i + 1; j < Math.min(queue.length, i + 1 + PAIR_WINDOW); j++) {
         const pair = matchHeights(queue[i], queue[j]);
         if (!pair) continue;
-        const span = Math.max(pair[0].wM, pair[1].wM);
-        if (!halfAccepts(plan, span, claimOf(span, pair[0], pair[1]))) continue;
+        const slot = slotOf(pair[0], pair[1]);
+        if (!halfAccepts(plan, slot.span, slot.claim)) continue;
         const cost = pairCost(queue[i], queue[j]);
-        if (!best || cost < best.cost) best = { j, pair, cost };
+        if (!best || cost < best.cost) best = { j, slot, cost };
       }
       if (!best) continue;
-      const [a, b] = best.pair;
       queue.splice(best.j, 1);
       queue.splice(i, 1);
-      const span = Math.max(a.wM, b.wM);
-      plan.slots.push({ low: a, high: b, span, claim: claimOf(span, a, b) });
+      plan.slots.push(best.slot);
       return true;
     }
     return false;
@@ -367,17 +390,21 @@ function layoutWall(plan: WallPlan): Placement[] {
   for (const slot of bySize) {
     const claimed = slot.claim;
     const offset = cursor + claimed / 2;
-    // One lift for the pair, from the wider of their two frames, so
-    // their canvases stay level.
-    const reach = Math.max(frameReachOf(slot.low), frameReachOf(slot.high));
-    out.push(place(plan.run, plan.centre - offset, slot.low, reach));
-    out.push(place(plan.run, plan.centre + offset, slot.high, reach));
+    // One frame and one lift for the pair, so their canvases stay level.
+    out.push(place(plan.run, plan.centre - offset, slot.low, slot.reach, slot.frame));
+    out.push(place(plan.run, plan.centre + offset, slot.high, slot.reach, slot.frame));
     cursor += claimed + gap;
   }
   return out;
 }
 
-function place(run: WallRun, u: number, work: SizedWork, reach: number): Placement {
+function place(
+  run: WallRun,
+  u: number,
+  work: SizedWork,
+  reach: number,
+  frame?: FrameVariantId,
+): Placement {
   // Same lift the ordinary hang applies: tall works rise so their frame
   // clears the floor, everything else keeps the eye line.
   const centerY = Math.max(run.centerY, run.floorY + PAINTING_FLOOR_GAP + reach + work.hM / 2);
@@ -393,5 +420,6 @@ function place(run: WallRun, u: number, work: SizedWork, reach: number): Placeme
     band: artworkBand(work.artwork),
     widthM: work.wM,
     heightM: work.hM,
+    ...(frame && { frame }),
   };
 }

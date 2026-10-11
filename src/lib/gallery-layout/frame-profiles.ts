@@ -607,24 +607,48 @@ function hashId(id: string): number {
   return Math.abs(h);
 }
 
-/** The frame a work hangs in: by movement, then by date for the works
- *  without one. Deterministic per id. */
-export function pickFrameVariant(
-  artwork: Pick<ArtworkListing, "id" | "movement" | "year">,
-): FrameVariantId {
-  const pick = (pool: FrameVariantId[]) => pool[hashId(artwork.id) % pool.length];
+/** The frames a museum would plausibly have this work in: by movement,
+ *  then by date for the works without one. */
+function framePool(artwork: Pick<ArtworkListing, "movement" | "year">): FrameVariantId[] {
   const m = artwork.movement;
   const year = artwork.year;
   const paper = m && PAPER_FRAMES.find(([name]) => m.includes(name));
-  if (paper) return pick(paper[1]);
+  if (paper) return paper[1];
   if (year != null && year < PANEL_BEFORE_YEAR) {
-    return pick(["cassetta", "cassetta", "cassetta", "walnut"]);
+    return ["cassetta", "cassetta", "cassetta", "walnut"];
   }
   const painting = m && PAINTING_FRAMES.find(([name]) => m.includes(name));
-  if (painting) return pick(painting[1]);
-  if (year == null) return pick(["walnut", "giltCove", "paleAsh"]);
-  if (year < 1700) return pick(["gilded", "walnut", "ebony"]);
-  if (year < 1860) return pick(["giltCove", "gilded", "walnut"]);
-  if (year < 1905) return pick(["giltCove", "walnut", "paleAsh"]);
-  return pick(["ebony", "floater", "paleAsh"]);
+  if (painting) return painting[1];
+  if (year == null) return ["walnut", "giltCove", "paleAsh"];
+  if (year < 1700) return ["gilded", "walnut", "ebony"];
+  if (year < 1860) return ["giltCove", "gilded", "walnut"];
+  if (year < 1905) return ["giltCove", "walnut", "paleAsh"];
+  return ["ebony", "floater", "paleAsh"];
+}
+
+type Framed = Pick<ArtworkListing, "id" | "movement" | "year">;
+
+/** The frame a work hangs in. Deterministic per id. */
+export function pickFrameVariant(artwork: Framed): FrameVariantId {
+  const pool = framePool(artwork);
+  return pool[hashId(artwork.id) % pool.length];
+}
+
+/**
+ * One frame for two works hung as a pair (the Grand Hall's mirrored
+ * slots). It is the lead work's own frame when the partner's school
+ * hangs in that frame too. Otherwise it is the next frame in the lead's
+ * list that the partner's school allows, so a Baroque canvas beside a
+ * Dutch one takes the walnut both rules name. Two schools with no frame
+ * in common keep the lead's own.
+ */
+export function pickPairFrame(lead: Framed, partner: Framed): FrameVariantId {
+  const pool = framePool(lead);
+  const allowed = new Set(framePool(partner));
+  const own = hashId(lead.id) % pool.length;
+  for (let k = 0; k < pool.length; k++) {
+    const frame = pool[(own + k) % pool.length];
+    if (allowed.has(frame)) return frame;
+  }
+  return pool[own];
 }

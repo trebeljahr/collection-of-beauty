@@ -217,7 +217,12 @@ required by the Dockerfile — don't remove it.
   candidates are picked before `selectFloorWorks` samples the era, and
   `distributePaintings` skips the hall so spill can't break the
   symmetry. A floor with fewer than 4 composable works falls back to
-  the ordinary hang.
+  the ordinary hang. Both works of a pair hang in one frame
+  (`pickPairFrame`): the lead's own when the partner's school allows it,
+  else the next frame in the lead's list that it does. The pair's
+  placements carry it as `Placement.frame`; without one the renderer
+  uses `pickFrameVariant`. The slot's wall and lift come from that same
+  frame, so read `Placement.frame` wherever a hall work's reach matters.
 - **There are no three.js lights on the works, on purpose.** Each
   painting has a picture light (`painting-light.tsx`, geometry in
   `painting-light-rig.ts`): a ceiling can and the pool it throws, drawn

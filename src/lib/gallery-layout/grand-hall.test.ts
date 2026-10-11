@@ -1,7 +1,8 @@
 import { describe, expect, it } from "vitest";
 import type { ArtworkListing } from "@/lib/data";
+import { frameReach, pickFrameVariant } from "./frame-profiles";
 import { hangGrandHall, pickHallCandidates } from "./grand-hall";
-import { sideClearance } from "./place-paintings";
+import { PLAQUE_FOOTPRINT } from "./place-paintings";
 import type { Door, Placement, RoomLayout } from "./types";
 import { CELL_SIZE } from "./world-coords";
 
@@ -61,11 +62,18 @@ function makeHall(doors: Door[]): RoomLayout {
 
 /** A hall-worthy work: measured size, a large scan with the full variant
  *  ladder, and pixel aspect matching its real shape. */
-function work(id: string, widthCm: number, heightCm: number, artistSlug = id): ArtworkListing {
+function work(
+  id: string,
+  widthCm: number,
+  heightCm: number,
+  artistSlug = id,
+  movement: string | null = null,
+): ArtworkListing {
   const scale = 4000 / Math.max(widthCm, heightCm);
   return {
     id,
     artistSlug,
+    movement,
     objectKey: `${id}.jpg`,
     width: Math.round(widthCm * scale),
     height: Math.round(heightCm * scale),
@@ -74,9 +82,11 @@ function work(id: string, widthCm: number, heightCm: number, artistSlug = id): A
   } as ArtworkListing;
 }
 
+// The two giants are of schools with one frame in common: Baroque hangs
+// in gilt or walnut, Dutch Golden Age in ebony or walnut.
 const POOL = [
-  work("giant-a", 320, 200),
-  work("giant-b", 310, 195),
+  work("giant-a", 320, 200, "giant-a", "Baroque"),
+  work("giant-b", 310, 195, "giant-b", "Dutch Golden Age"),
   work("big-a", 240, 180),
   work("big-b", 230, 175),
   work("mid-a", 180, 150),
@@ -89,6 +99,11 @@ const POOL = [
   work("small-d", 90, 115),
   work("portrait", 200, 300),
 ];
+
+/** The frame a placement is drawn in, as the renderer resolves it. */
+function frameOf(p: Placement) {
+  return p.frame ?? pickFrameVariant(p.artwork);
+}
 
 function wallOf(p: Placement, room: RoomLayout): Door["side"] {
   const [x, , z] = p.position;
@@ -140,16 +155,47 @@ describe("hangGrandHall", () => {
     }
   });
 
+  it("hangs both works of a mirrored pair in one frame", () => {
+    let pairs = 0;
+    let wouldDiffer = 0;
+    for (const side of ["north", "south", "west", "east"] as const) {
+      const wall = placements.filter((p) => wallOf(p, hall) === side);
+      const along = (p: Placement) =>
+        side === "north" || side === "south" ? p.position[0] - centreX : p.position[2] - centreZ;
+      for (const p of wall) {
+        if (Math.abs(along(p)) < 1e-6) {
+          // A centrepiece has no twin and keeps its own frame.
+          expect(p.frame).toBeUndefined();
+          continue;
+        }
+        const twin = wall.find((q) => q !== p && Math.abs(along(q) + along(p)) < 1e-6);
+        expect(p.frame, `${p.artwork.id} on ${side} carries no frame`).toBeDefined();
+        expect(twin?.frame).toBe(p.frame);
+        pairs++;
+        if (twin && pickFrameVariant(twin.artwork) !== pickFrameVariant(p.artwork)) wouldDiffer++;
+      }
+    }
+    expect(pairs).toBeGreaterThanOrEqual(8);
+    // Left to choose for themselves, some of these pairs would not match.
+    expect(wouldDiffer).toBeGreaterThan(0);
+  });
+
+  it("frames a pair in the moulding both schools hang in", () => {
+    const giants = placements.filter((p) => p.artwork.id.startsWith("giant-"));
+    expect(giants.map((p) => p.frame)).toEqual(["walnut", "walnut"]);
+  });
+
   it("keeps paintings and plaques clear of doors and of each other", () => {
     for (const side of ["north", "south", "west", "east"] as const) {
       const wall = placements.filter((p) => wallOf(p, hall) === side);
       const along = (p: Placement) =>
         side === "north" || side === "south" ? p.position[0] : p.position[2];
-      // Reserve the frame and the plaque on both sides, since which side
-      // the plaque lands on depends on the wall's orientation.
+      // Reserve the frame the work is drawn in and the plaque on both
+      // sides, since which side the plaque lands on depends on the
+      // wall's orientation.
       const spans = wall
         .map((p) => {
-          const side = sideClearance({ artwork: p.artwork, wM: p.widthM, hM: p.heightM }).right;
+          const side = frameReach(frameOf(p), p.widthM, p.heightM) + PLAQUE_FOOTPRINT;
           return [along(p) - p.widthM / 2 - side, along(p) + p.widthM / 2 + side];
         })
         .sort((a, b) => a[0] - b[0]);

@@ -445,7 +445,7 @@ export const Painting = memo(function Painting({
    *  drive the start overlay without allowing one bad image to hang it. */
   onSettled?: (status: "loaded" | "failed") => void;
 }) {
-  const { artwork, position, rotation, widthM, heightM } = placement;
+  const { artwork, position, rotation, widthM, heightM, frame } = placement;
   const baseWidth = pickBaseWidth(artwork);
   const url = variantProxyUrl(artwork.objectKey, baseWidth, "avif");
 
@@ -479,7 +479,8 @@ export const Painting = memo(function Painting({
     [widthM, heightM],
   );
 
-  const variantId = useMemo(() => pickFrameVariant(artwork), [artwork]);
+  // A Grand Hall pair hangs in one frame, which the placement carries.
+  const variantId = useMemo(() => frame ?? pickFrameVariant(artwork), [frame, artwork]);
   const variant = FRAME_VARIANTS[variantId];
   const dW = renderDims.widthM;
   const dH = renderDims.heightM;

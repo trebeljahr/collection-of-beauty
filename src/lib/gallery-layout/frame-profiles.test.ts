@@ -9,6 +9,7 @@ import {
   MAX_FRAME_REACH,
   type ProfilePoint,
   pickFrameVariant,
+  pickPairFrame,
   profileWidth,
   shadeProfile,
 } from "./frame-profiles";
@@ -138,5 +139,74 @@ describe("pickFrameVariant", () => {
       ).length;
     expect(count("Cubism", 1912, "floater")).toBeGreaterThan(40);
     expect(count("Baroque", 1650, "gilded")).toBeGreaterThan(50);
+  });
+});
+
+describe("pickPairFrame", () => {
+  const work = (id: string, movement: string | null, year: number | null) => ({
+    id,
+    movement,
+    year,
+  });
+  const ids = Array.from({ length: 40 }, (_, i) => `w${i}`);
+  const framesOf = (movement: string, year: number) =>
+    new Set(ids.map((id) => pickFrameVariant(work(id, movement, year))));
+
+  it("keeps the lead's own frame when the partner's school hangs in it too", () => {
+    for (const id of ids) {
+      const lead = work(id, "Romanticism", 1830);
+      expect(pickPairFrame(lead, work(`${id}-twin`, "Romanticism", 1820))).toBe(
+        pickFrameVariant(lead),
+      );
+    }
+  });
+
+  it("takes the frame both schools name when the lead's own is not one", () => {
+    // Baroque hangs in gilt or walnut, Dutch Golden Age in ebony or
+    // walnut: walnut is the one frame the two rules share.
+    for (const id of ids) {
+      expect(pickPairFrame(work(id, "Baroque", 1640), work("b", "Dutch Golden Age", 1642))).toBe(
+        "walnut",
+      );
+      expect(pickPairFrame(work(id, "Dutch Golden Age", 1642), work("b", "Baroque", 1640))).toBe(
+        "walnut",
+      );
+    }
+  });
+
+  it("falls back to the lead's own frame when the schools share none", () => {
+    for (const id of ids) {
+      const lead = work(id, "Mir Iskusstva", 1916);
+      expect(pickPairFrame(lead, work("b", "Suprematism", 1928))).toBe(pickFrameVariant(lead));
+    }
+    expect(pickPairFrame(work("a", "Nihonga", 1907), work("b", "Shin-hanga", 1916))).toBe("mount");
+  });
+
+  it("never leaves the lead's school, nor the partner's when they overlap", () => {
+    const schools: Array<[string, number]> = [
+      ["Renaissance", 1520],
+      ["Northern Renaissance", 1520],
+      ["Mannerism", 1580],
+      ["Baroque", 1640],
+      ["Rococo", 1760],
+      ["Neoclassicism", 1800],
+      ["Realism", 1870],
+      ["Impressionism", 1880],
+      ["Symbolism", 1890],
+      ["Cubism", 1912],
+      ["Expressionism", 1912],
+    ];
+    for (const [a, yearA] of schools) {
+      for (const [b, yearB] of schools) {
+        const own = framesOf(a, yearA);
+        const theirs = framesOf(b, yearB);
+        const shared = [...own].some((frame) => theirs.has(frame));
+        for (const id of ids) {
+          const frame = pickPairFrame(work(id, a, yearA), work("partner", b, yearB));
+          expect(own.has(frame), `${a} + ${b}: ${frame}`).toBe(true);
+          if (shared) expect(theirs.has(frame), `${a} + ${b}: ${frame}`).toBe(true);
+        }
+      }
+    }
   });
 });
