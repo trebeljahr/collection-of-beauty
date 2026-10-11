@@ -6,30 +6,30 @@ import { memo, useCallback, useEffect, useLayoutEffect, useMemo, useRef, useStat
 import * as THREE from "three";
 import type { ArtworkListing } from "@/lib/data";
 import { ERAS } from "@/lib/gallery-eras";
-import { PAINTING_WALL_OFFSET } from "@/lib/gallery-layout/place-paintings";
+import {
+  FRAME_PROFILES,
+  frameScale,
+  pickFrameVariant,
+  profileFrontZ,
+  profileWidth,
+  scaleProfile,
+} from "@/lib/gallery-layout/frame-profiles";
+import {
+  PAINTING_WALL_OFFSET,
+  PLAQUE_GAP,
+  PLAQUE_WIDTH,
+} from "@/lib/gallery-layout/place-paintings";
 import type { Placement, RoomLayout } from "@/lib/gallery-layout/types";
 import { CELL_SIZE, ROOM_HEIGHT } from "@/lib/gallery-layout/world-coords";
 import { formatCm, trustworthyRealSize } from "@/lib/real-size";
 import { GALLERY_LOD_WIDTH, variantProxyUrl } from "@/lib/utils";
 import { FOV_DEFAULT_DEG, ZOOM_PIXEL_HEADROOM } from "./camera-config";
-import {
-  buildFrameGeometry,
-  FRAME_PROFILES,
-  frameScale,
-  profileFrontZ,
-  profileWidth,
-  scaleProfile,
-} from "./frame-geometry";
+import { buildFrameGeometry } from "./frame-geometry";
 import { PaintingLight } from "./painting-light";
 import { buildLightRig, wallContextFor } from "./painting-light-rig";
 import { createPaintingPreview } from "./painting-preview";
 import { type PaintingEntry, registerPainting, unregisterPainting } from "./painting-registry";
-import {
-  FRAME_VARIANTS,
-  type FrameVariantId,
-  plaqueBaseMaterial,
-  plaqueMountMaterial,
-} from "./palette-materials";
+import { FRAME_VARIANTS, plaqueBaseMaterial, plaqueMountMaterial } from "./palette-materials";
 import {
   estimateTextureBytes,
   getHiRes,
@@ -478,15 +478,16 @@ export const Painting = memo(function Painting({
     [widthM, heightM],
   );
 
-  const variant = FRAME_VARIANTS[pickFrameVariant(artwork)];
+  const variantId = useMemo(() => pickFrameVariant(artwork), [artwork]);
+  const variant = FRAME_VARIANTS[variantId];
   const dW = renderDims.widthM;
   const dH = renderDims.heightM;
 
   // Moulded frame, rebuilt only when the canvas is refitted to its
   // texture's aspect. See frame-geometry.ts.
   const profile = useMemo(
-    () => scaleProfile(FRAME_PROFILES[variant.profile], frameScale(dW, dH)),
-    [variant, dW, dH],
+    () => scaleProfile(FRAME_PROFILES[variantId], frameScale(variantId, dW, dH)),
+    [variantId, dW, dH],
   );
   const frameGeometry = useMemo(
     () => buildFrameGeometry(profile, dW, dH, PAINTING_WALL_OFFSET),
@@ -530,13 +531,13 @@ export const Painting = memo(function Painting({
   );
   const plaqueRect = useMemo(
     () => ({
-      x: dW / 2 + PLAQUE_GAP + PLAQUE_MOUNT_W / 2,
+      x: dW / 2 + frameReach + PLAQUE_GAP + PLAQUE_MOUNT_W / 2,
       y: 0,
       halfW: PLAQUE_MOUNT_W / 2,
       halfH: (PLAQUE_FACE_H_BASE + PLAQUE_MOUNT_PAD) / 2,
       frontZ: -PAINTING_WALL_OFFSET + PLAQUE_WALL_CLEAR + PLAQUE_MOUNT_DEPTH + PLAQUE_FACE_DEPTH,
     }),
-    [dW],
+    [dW, frameReach],
   );
 
   return (
@@ -553,7 +554,7 @@ export const Painting = memo(function Painting({
         onSettled={onSettled}
         onTextureAspect={handleTextureAspect}
       />
-      <Plaque artwork={artwork} widthM={dW} />
+      <Plaque artwork={artwork} frameEdgeX={dW / 2 + frameReach} />
       <PaintingLight
         rig={rig}
         wallZ={-PAINTING_WALL_OFFSET}
@@ -591,72 +592,19 @@ function fitToAspect(
   return { widthM: w, heightM: h };
 }
 
-// Pick a frame variant that complements the painting's era. Each rule
-// below is a substring match against the artwork's `movement` field —
-// some entries in the dataset are slashed combos like "Realism /
-// Impressionism", so the first match wins. Anything unmatched (and the
-// non-trivial number of artworks with `movement: null`) falls through to
-// a stable hash on the artwork id, which keeps a consistent look per
-// painting across reloads while still spreading variety across the
-// gallery.
-function pickFrameVariant(artwork: ArtworkListing): FrameVariantId {
-  const m = artwork.movement;
-  if (m) {
-    if (m.includes("Ukiyo-e")) return "redLacquer";
-    if (
-      m.includes("Renaissance") ||
-      m.includes("Baroque") ||
-      m.includes("Mannerism") ||
-      m.includes("Academicism") ||
-      m.includes("Neoclassicism")
-    )
-      return "gilded";
-    if (
-      m.includes("Impressionism") ||
-      m.includes("Pre-Raphaelite") ||
-      m.includes("Art Nouveau") ||
-      m.includes("Neo-Impressionism")
-    )
-      return "paleAsh";
-    if (
-      m.includes("Modernism") ||
-      m.includes("Fauvism") ||
-      m.includes("Post-Impressionism") ||
-      m.includes("Symbolism") ||
-      m.includes("Expressionism")
-    )
-      return "ebony";
-    if (
-      m.includes("Dutch Golden Age") ||
-      m.includes("Realism") ||
-      m.includes("Romanticism") ||
-      m.includes("Tonalism") ||
-      m.includes("Regionalism")
-    )
-      return "walnut";
-  }
-  // Stable hash → deterministic per id, distributed across all five.
-  const order: FrameVariantId[] = ["walnut", "ebony", "paleAsh", "gilded", "redLacquer"];
-  let h = 0;
-  for (let i = 0; i < artwork.id.length; i++) h = (h * 31 + artwork.id.charCodeAt(i)) | 0;
-  return order[Math.abs(h) % order.length];
-}
-
 // ── Plaque ────────────────────────────────────────────────────────────
 // A small museum-style label to the right of each painting at canvas
 // centre height. Two-layer construction: a brass mount plate fixed
 // flush to the wall, with a slightly inset cream face card on top
 // carrying title / artist / year / dimensions in three sized lines.
 
-// Cream face WIDTH is constant — placement code (place-paintings.ts)
-// caps painting widths against PLAQUE_FOOTPRINT, which is built from
-// this width plus PLAQUE_GAP. Don't change W without re-running
-// placement. HEIGHT is adaptive: long titles bump the plaque taller
+// The plaque's WIDTH and its gap from the frame come from
+// place-paintings.ts (PLAQUE_WIDTH, PLAQUE_GAP), which budgets wall by
+// them: change them there. HEIGHT is adaptive: long titles bump the plaque taller
 // so the title block doesn't crash through the byline (e.g. Hokusai
 // "Tenman Bridge at Settsu Province (Sesshū Tenmanbashi), from the
 // series Remarkable Views of Bridges in Various Provinces (Shokoku
 // meikyō kiran)" — 144 chars overflows the standard plaque).
-const PLAQUE_FACE_W = 0.28;
 const PLAQUE_FACE_H_BASE = 0.18;
 const PLAQUE_FACE_DEPTH = 0.004;
 // Brushed-steel mount sits a hair larger than the face, framing it
@@ -664,9 +612,9 @@ const PLAQUE_FACE_DEPTH = 0.004;
 // from the mount more visible at typical viewing distances.
 const PLAQUE_MOUNT_REVEAL = 0.014;
 const PLAQUE_MOUNT_PAD = PLAQUE_MOUNT_REVEAL * 2;
-const PLAQUE_MOUNT_W = PLAQUE_FACE_W + PLAQUE_MOUNT_PAD;
+const PLAQUE_MOUNT_W = PLAQUE_WIDTH;
+const PLAQUE_FACE_W = PLAQUE_MOUNT_W - PLAQUE_MOUNT_PAD;
 const PLAQUE_MOUNT_DEPTH = 0.008;
-const PLAQUE_GAP = 0.06;
 // `placement.position` is offset PAINTING_WALL_OFFSET (= 0.02 m) into
 // the room from the wall plane, so localZ = -PAINTING_WALL_OFFSET
 // lands the plaque back exactly on the wall surface. Imported so the
@@ -710,7 +658,15 @@ function readTroikaBlockHeight(mesh: unknown): number | null {
   return Math.abs(bb[3] - bb[1]);
 }
 
-function Plaque({ artwork, widthM }: { artwork: ArtworkListing; widthM: number }) {
+function Plaque({
+  artwork,
+  frameEdgeX,
+}: {
+  artwork: ArtworkListing;
+  /** Local x of the frame's outer right edge: the plaque hangs
+   *  PLAQUE_GAP beyond it. */
+  frameEdgeX: number;
+}) {
   // All three strings and the pre-render estimates derive from the
   // artwork alone, so they are memoised on it: `formatTitle` /
   // `formatByline` are regex-heavy, and a Plaque re-renders on every
@@ -773,7 +729,7 @@ function Plaque({ artwork, widthM }: { artwork: ArtworkListing; widthM: number }
   // Plaque always hangs on the painting's right (local +X). Slot sizing
   // in place-paintings.ts guarantees painting + plaque clear the wall
   // margin even at right-corner cells, so no flip is needed.
-  const localX = widthM / 2 + PLAQUE_GAP + PLAQUE_MOUNT_W / 2;
+  const localX = frameEdgeX + PLAQUE_GAP + PLAQUE_MOUNT_W / 2;
   const localY = 0;
   // Mount sits a few mm off the wall so it doesn't z-fight with it; face
   // is parked just in front of the mount; text floats a hair above the

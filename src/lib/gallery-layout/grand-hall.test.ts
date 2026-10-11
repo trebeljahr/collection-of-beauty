@@ -1,10 +1,10 @@
 import { describe, expect, it } from "vitest";
 import type { ArtworkListing } from "@/lib/data";
 import { hangGrandHall, pickHallCandidates } from "./grand-hall";
+import { sideClearance } from "./place-paintings";
 import type { Door, Placement, RoomLayout } from "./types";
 import { CELL_SIZE } from "./world-coords";
 
-const PLAQUE_FOOTPRINT = 0.06 + 0.308;
 const DOOR_CLEARANCE = 0.35;
 
 // Grand Hall footprint: 9 × 7 cells, doors centred on north (stairwell),
@@ -145,13 +145,13 @@ describe("hangGrandHall", () => {
       const wall = placements.filter((p) => wallOf(p, hall) === side);
       const along = (p: Placement) =>
         side === "north" || side === "south" ? p.position[0] : p.position[2];
-      // Reserve the plaque on both sides, since which side it lands on
-      // depends on the wall's orientation.
+      // Reserve the frame and the plaque on both sides, since which side
+      // the plaque lands on depends on the wall's orientation.
       const spans = wall
-        .map((p) => [
-          along(p) - p.widthM / 2 - PLAQUE_FOOTPRINT,
-          along(p) + p.widthM / 2 + PLAQUE_FOOTPRINT,
-        ])
+        .map((p) => {
+          const side = sideClearance({ artwork: p.artwork, wM: p.widthM, hM: p.heightM }).right;
+          return [along(p) - p.widthM / 2 - side, along(p) + p.widthM / 2 + side];
+        })
         .sort((a, b) => a[0] - b[0]);
       for (let i = 1; i < spans.length; i++) {
         expect(spans[i][0]).toBeGreaterThanOrEqual(spans[i - 1][1] - 1e-9);

@@ -186,7 +186,10 @@ export function RoomEnvironment({ palette, intensity = 0.74 }: Props) {
     const frameEnv = getFrameEnvironmentMap(palette, gl);
     for (const m of HIGHLIGHT_ENV_MATERIALS) {
       m.envMap = frameEnv;
-      m.envMapIntensity = intensity;
+      // A material may ask for less of the room than the walls get
+      // (`userData.envScale`): gilt that mirrors a pale room at full
+      // strength is one flat yellow.
+      m.envMapIntensity = intensity * ((m.userData.envScale as number | undefined) ?? 1);
       m.needsUpdate = true;
     }
     return () => {

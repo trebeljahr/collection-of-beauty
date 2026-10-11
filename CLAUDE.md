@@ -232,7 +232,9 @@ required by the Dockerfile — don't remove it.
     out (`wallContextFor`), or it would brighten the next room seen
     through the door;
   - frames, canvas and plaque sit in front of the quad and are not lit
-    by it. The plaque card carries its own emissive for that reason.
+    by it. The plaque card and the mat board carry their own emissive
+    for that reason, and frame materials add the light themselves (see
+    the frame maps below).
 - The stairwell hangs no works, so it has its own light
   (`stairwell-light.tsx`, geometry in `stairwell-light-rig.ts`), built
   the same way:
@@ -250,12 +252,54 @@ required by the Dockerfile — don't remove it.
   (`mergeBoxes`). As a mesh apiece they were about 100 draw calls a
   stairwell, which is what pays for the light.
 - Frames are moulding profiles swept round the canvas with mitred
-  corners (`frame-geometry.ts`), one profile per variant. A profile may
-  not reach more than 0.05 m past the canvas: the plaque starts 0.06 m
-  out, and `place-paintings.ts` budgets wall space by that footprint.
+  corners (`frame-geometry.ts`). There are ten: carved gilt, fluted
+  gilt, a cassetta for panels, walnut, ripple ebony, pale ash, two
+  matted print frames, a silk mount and a floater. Which work gets
+  which, each profile and how far it reaches past the canvas are in
+  `src/lib/gallery-layout/frame-profiles.ts`. That module has no
+  three.js in it because the hang reads it too.
+  - **A frame's width is part of the hang.** `sideClearance()` in
+    `place-paintings.ts` reserves the frame on both sides of a canvas
+    and the plaque beyond it; the Grand Hall uses the same number. A
+    gilt frame on a 3.2 m canvas reaches 17 cm, a floater 2.4 cm.
+    Widening a profile or its `SCALE_RANGE` adds wall demand, which adds
+    rooms, which changes `galleryLayoutIdentity` and sends every visitor
+    with a saved position back to the room's centre.
+  - A profile is geometry only. `shadeProfile` works out the occlusion,
+    the burnished high points and the wear from the cross-section. Set
+    `ao`, `rough` or `wear` on a point only to override it (mats do).
+- **Frame maps** (`frame-maps.ts`) are procedural: 13 tiling
+  DataTextures built once when `frame-materials.ts` loads, 6 MiB on the
+  GPU with mips, shared by every frame. Nothing is downloaded.
+  - Surface maps tile in metres along the rail (u) and along the profile
+    (v), so grain turns at each mitre: gold leaf in squares with a wear
+    mask in alpha, walnut and ash with roughness in alpha, crazed
+    lacquer, shippō silk, canvas weave, paper.
+  - The carve atlas has one row per ornament (pearl, leaf, egg and
+    dart, laurel, flute, ripple, rope, punchwork). A profile point names
+    a `band`; the geometry's second uv set (`aCarveUv`) points that
+    stretch at its row. Rows are stacked to exactly 512 texels: a new
+    band needs room taken from another.
+  - Carving is set out from the corners (`carvePeriods`): the two halves
+    of a rail run mirrored and hold a whole number of periods, and the
+    mitre continues at the ornament's own pitch, so the pattern meets
+    itself across the joint. An ornament must look right mirrored.
+  - They are DataTextures on purpose. three uploads them again after
+    the Canvas remounts for a lost context. A render target here would
+    need the per-renderer cache `room-env-map.tsx` uses.
+- Frame materials (`frame-materials.ts`) are stock
+  `MeshStandardMaterial`s with one patch, `patchFrameShader`. It adds
+  the carve atlas as a second normal map, per-vertex roughness, red bole
+  on worn gilt, and a directional term for the picture light, which is
+  shader arithmetic on the frame and not a three.js light. It also
+  builds the tangent frame from the metre uv: three builds it from the
+  map's own uv, and a map with an uneven `repeat` (wood: 0.64 × 0.16 m)
+  then loses most of its relief on one axis.
   Frame and fixture metal reflect their own environment map
   (`frame-env.ts`, the room gradient plus bright lamp spots), assigned in
-  `RoomEnvironment`.
+  `RoomEnvironment`. A material can take less of it through
+  `userData.envScale`: gilt takes 0.6, so the picture light models its
+  carving and the room's reflection does not flatten it.
 - Tone mapping is Khronos Neutral, so a pale palette colour shows on
   screen as authored (a deep wall skips it, see the next point). The
   environment map's light is pulled most of the way to grey (`asLight`):

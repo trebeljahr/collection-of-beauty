@@ -21,6 +21,7 @@
 // small ones, and a full empty cell wherever supply ran short.)
 
 import type { ArtworkListing } from "@/lib/data";
+import { frameReach, pickFrameVariant } from "./frame-profiles";
 import { artworkBand } from "./painting-bands";
 import type { Door, FloorLayout, Placement, RoomLayout } from "./types";
 import { CELL_SIZE, DOOR_WIDTH } from "./world-coords";
@@ -56,15 +57,17 @@ const MAX_PAINTING_H_ROOM = 3.2;
  *  plaque parks itself at -PAINTING_WALL_OFFSET in local space to land
  *  back on the wall surface). */
 export const PAINTING_WALL_OFFSET = 0.02;
-/** Combined width of the museum plaque to the side of every painting.
- *  Sum of `PLAQUE_GAP` (0.06) and `PLAQUE_MOUNT_W` (0.308) in
- *  painting.tsx — keep in sync if those move. Plaques always hang on
- *  the painting's right (museum convention), so a work's footprint on
- *  the wall is its width plus this. */
-export const PLAQUE_FOOTPRINT = 0.06 + 0.308;
+/** Air between a frame's outer edge and the plaque beside it. */
+export const PLAQUE_GAP = 0.05;
+/** Width of the plaque, mount plate included. painting.tsx draws it
+ *  from this. */
+export const PLAQUE_WIDTH = 0.308;
+/** Wall the plaque takes beyond the frame. Plaques always hang on the
+ *  painting's right (museum convention). */
+export const PLAQUE_FOOTPRINT = PLAQUE_GAP + PLAQUE_WIDTH;
 /** Minimum gap from a run's end to the perpendicular room wall. */
 const WALL_MARGIN = 0.3;
-/** Minimum gap between a painting's plaque and the next painting.
+/** Minimum gap between a painting's plaque and the next frame.
  *  Only binds when a run is packed to capacity; normally the leftover
  *  plaster opens the gap well past this. */
 const ADJACENT_GAP = 0.1;
@@ -84,12 +87,13 @@ const DOOR_CLEARANCE = 0.35;
 /** A run shorter than this can't hold even the smallest work plus its
  *  plaque, so it's discarded rather than carried around empty. */
 const MIN_RUN_LENGTH = 0.6;
-/** Minimum air gap between a painting's bottom edge and the floor. The
+/** Minimum air gap between a frame's bottom edge and the floor. The
  *  canonical wallY centre puts a max-height (3.2 m) painting's bottom at
  *  ~0.05 m, which reads as touching the floor. For tall paintings we lift
- *  the centre so the bottom clears the floor by this much; shorter paintings
- *  whose bottom already exceeds this clearance keep their canonical centre
- *  (the "salon hang" eye-line is the priority for typical works). */
+ *  the centre so the frame clears the floor (and the skirting) by this
+ *  much; shorter paintings whose frame already exceeds this clearance keep
+ *  their canonical centre (the "salon hang" eye-line is the priority for
+ *  typical works). */
 export const PAINTING_FLOOR_GAP = 0.2;
 
 /**
@@ -262,10 +266,27 @@ export type DistributionStats = {
  *  run it lands in. */
 export type SizedWork = { artwork: ArtworkListing; wM: number; hM: number };
 
-/** Footprint a work claims on a wall: its own width plus the plaque
- *  that hangs to its right. */
+/** How far the work's frame reaches past each canvas edge, metres.
+ *  The frame is chosen per work and scaled to its size (see
+ *  frame-profiles.ts), so a gilt frame on a 3 m canvas claims 17 cm a
+ *  side and a floater 2 cm. */
+export function frameReachOf(work: SizedWork): number {
+  return frameReach(pickFrameVariant(work.artwork), work.wM, work.hM);
+}
+
+/** Wall to keep clear beside a work's canvas, left and right as the
+ *  viewer sees it: the frame on both sides, then the plaque. This is
+ *  the one place the hang learns what surrounds a canvas. */
+export function sideClearance(work: SizedWork): { left: number; right: number } {
+  const reach = frameReachOf(work);
+  return { left: reach, right: reach + PLAQUE_FOOTPRINT };
+}
+
+/** Footprint a work claims on a wall: its frame, its canvas, and the
+ *  plaque that hangs to its right. */
 function footprintOf(work: SizedWork): number {
-  return work.wM + PLAQUE_FOOTPRINT;
+  const { left, right } = sideClearance(work);
+  return left + work.wM + right;
 }
 
 /** One room's runs plus the works assigned to each, tracked with a
@@ -411,11 +432,12 @@ export function packRun(run: WallRun, works: SizedWork[]): Placement[] {
   const span = runLength(run);
   const fitted = works.map((work) => {
     const { wM, hM } = fitTo(work, Math.min(MAX_PAINTING_W, span), run.maxHeight);
-    return { artwork: work.artwork, wM, hM };
+    const sized = { artwork: work.artwork, wM, hM };
+    return { ...sized, ...sideClearance(sized) };
   });
 
   const ordered = centreOut(fitted);
-  const total = ordered.reduce((sum, w) => sum + w.wM + PLAQUE_FOOTPRINT, 0);
+  const total = ordered.reduce((sum, w) => sum + w.left + w.wM + w.right, 0);
   const leftover = Math.max(0, span - total);
 
   // gaps: one before the first work, one between each pair, one after
@@ -430,12 +452,12 @@ export function packRun(run: WallRun, works: SizedWork[]): Placement[] {
 
   const placements: Placement[] = [];
   for (const work of ordered) {
-    const centreU = cursor + work.wM / 2;
+    const centreU = cursor + work.left + work.wM / 2;
     // Lift the centre for paintings tall enough that the canonical hang
-    // would put their bottom edge into the floor. Most paintings keep
-    // the canonical eye-line; only the tallest get raised so the bottom
+    // would put their frame into the floor. Most paintings keep the
+    // canonical eye-line; only the tallest get raised so the frame
     // clears the floor by PAINTING_FLOOR_GAP.
-    const minCenterY = run.floorY + PAINTING_FLOOR_GAP + work.hM / 2;
+    const minCenterY = run.floorY + PAINTING_FLOOR_GAP + work.left + work.hM / 2;
     const centerY = Math.max(run.centerY, minCenterY);
     const along = run.sign * centreU;
     placements.push({
@@ -450,7 +472,7 @@ export function packRun(run: WallRun, works: SizedWork[]): Placement[] {
       widthM: work.wM,
       heightM: work.hM,
     });
-    cursor += work.wM + PLAQUE_FOOTPRINT + gap;
+    cursor += work.left + work.wM + work.right + gap;
   }
 
   return placements;
@@ -545,8 +567,8 @@ export function sizeWork(artwork: ArtworkListing): SizedWork {
 }
 
 /**
- * Wall metres one work will claim once hung — its display width plus
- * the plaque beside it. The floor builder sizes rooms against this so
+ * Wall metres one work will claim once hung — its display width, its
+ * frame on both sides and the plaque beside it. The floor builder sizes rooms against this so
  * a storey's wall supply is matched to what it actually has to hang,
  * rather than to a flat works-per-room guess (a floor of Audubon
  * plates needs roughly half the plaster of a floor of Romantic

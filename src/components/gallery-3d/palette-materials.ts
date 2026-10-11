@@ -13,7 +13,7 @@
 
 import * as THREE from "three";
 import type { Palette } from "@/lib/gallery-eras";
-import type { FrameProfileId } from "./frame-geometry";
+import { FRAME_HIGHLIGHT_MATERIALS } from "./frame-materials";
 import { buildMapBundle } from "./texture-pack";
 import { getDamaskRoughnessMap } from "./wall-damask";
 import { isDeepWall } from "./wall-light";
@@ -164,84 +164,12 @@ export const frameMaterial = new THREE.MeshStandardMaterial({
 });
 
 // ── Frame variants ────────────────────────────────────────────────────
-// Five frame looks, picked per artwork in painting.tsx from its
-// movement. Each pairs a moulding profile (frame-geometry.ts) with the
-// materials for its two slots: the moulding itself and, where the
-// profile has one, the slip or fillet next to the canvas. Every frame
-// material reads the profile's baked occlusion from vertex colours.
+// The frame looks, their materials and their surface maps live in
+// frame-materials.ts and frame-maps.ts; which work gets which is decided
+// in lib/gallery-layout/frame-profiles.ts. Re-exported here because
+// this is where the rest of the gallery looks for materials.
 
-export type FrameVariantId = "gilded" | "walnut" | "ebony" | "paleAsh" | "redLacquer";
-
-export type FrameVariant = {
-  profile: FrameProfileId;
-  /** [moulding, slip]: indexed by the frame geometry's groups. */
-  materials: THREE.MeshStandardMaterial[];
-};
-
-// Warm gilt over red bole: Baroque, Renaissance, Academicism. The
-// colour is close to gold's reflectance; the warmth comes from the
-// highlight map the frame materials reflect (frame-env.ts).
-const gildedMaterial = new THREE.MeshStandardMaterial({
-  color: "#c9a35a",
-  roughness: 0.34,
-  metalness: 0.9,
-  vertexColors: true,
-});
-
-// Dark red velvet slip between the canvas and the gilt.
-const gildedSlipMaterial = new THREE.MeshStandardMaterial({
-  color: "#3a0d10",
-  roughness: 0.85,
-  metalness: 0,
-  vertexColors: true,
-});
-
-// Dark walnut: Dutch Golden Age, Realism, Romanticism, Tonalism.
-const walnutMaterial = new THREE.MeshStandardMaterial({
-  color: "#2a1a0e",
-  roughness: 0.5,
-  metalness: 0.05,
-  vertexColors: true,
-});
-
-// Slim black lacquer: Modernism, Fauvism, Post-Impressionism.
-const ebonyMaterial = new THREE.MeshStandardMaterial({
-  color: "#0d0b0a",
-  roughness: 0.28,
-  metalness: 0.1,
-  vertexColors: true,
-});
-
-// Pale ash: Impressionism, Pre-Raphaelite, Art Nouveau.
-const paleAshMaterial = new THREE.MeshStandardMaterial({
-  color: "#c9b48a",
-  roughness: 0.7,
-  metalness: 0.02,
-  vertexColors: true,
-});
-
-// Red-black lacquer with a gold fillet: Ukiyo-e.
-const redLacquerMaterial = new THREE.MeshStandardMaterial({
-  color: "#2a0a08",
-  roughness: 0.26,
-  metalness: 0.15,
-  vertexColors: true,
-});
-
-const goldFilletMaterial = new THREE.MeshStandardMaterial({
-  color: "#d4a73a",
-  roughness: 0.3,
-  metalness: 0.95,
-  vertexColors: true,
-});
-
-export const FRAME_VARIANTS: Record<FrameVariantId, FrameVariant> = {
-  gilded: { profile: "gilded", materials: [gildedMaterial, gildedSlipMaterial] },
-  walnut: { profile: "walnut", materials: [walnutMaterial] },
-  ebony: { profile: "ebony", materials: [ebonyMaterial] },
-  paleAsh: { profile: "paleAsh", materials: [paleAshMaterial] },
-  redLacquer: { profile: "redLacquer", materials: [redLacquerMaterial, goldFilletMaterial] },
-};
+export { FRAME_VARIANTS, type FrameVariant } from "./frame-materials";
 
 // Dark bronze metalwork: the frame round each laylight (laylight.tsx).
 export const fixtureMaterial = new THREE.MeshStandardMaterial({
@@ -253,12 +181,7 @@ export const fixtureMaterial = new THREE.MeshStandardMaterial({
 /** Materials that reflect the frame highlight map instead of the plain
  *  room gradient: everything polished enough to show a glint. */
 export const HIGHLIGHT_ENV_MATERIALS: THREE.MeshStandardMaterial[] = [
-  gildedMaterial,
-  walnutMaterial,
-  ebonyMaterial,
-  paleAshMaterial,
-  redLacquerMaterial,
-  goldFilletMaterial,
+  ...FRAME_HIGHLIGHT_MATERIALS,
   fixtureMaterial,
 ];
 

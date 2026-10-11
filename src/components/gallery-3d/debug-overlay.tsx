@@ -23,6 +23,7 @@ import { useFrame, useThree } from "@react-three/fiber";
 import { useEffect, useRef, useState } from "react";
 import * as THREE from "three";
 import type { ArtworkListing } from "@/lib/data";
+import { frameMapStats } from "./frame-maps";
 import { _paintingRegistryDebug, raycastNearestPaintingHit } from "./painting-registry";
 import { _textureCacheDebug, estimateTextureBytes } from "./texture-cache";
 
@@ -279,6 +280,7 @@ function formatStats(): string {
     `FPS ${stats.fps.toFixed(0).padStart(3)}  frame ${stats.frameAvgMs.toFixed(1)} ms avg · ${stats.frameMaxMs.toFixed(1)} max · ${stats.jank} >33ms`,
     `draw ${fmtInt(stats.calls)} calls · ${fmtInt(stats.triangles)} tris`,
     `mem  ${stats.geometries} geom · ${stats.textures} tex · ${stats.programs} programs`,
+    `frame maps ${frameMapStats().count} tex · ${mib(frameMapStats().bytes)} (with mips)`,
     `canvas ${stats.backingW}×${stats.backingH} @${stats.dpr.toFixed(2)}x · maxTex ${stats.maxTextureSize}`,
     stats.gpu ? `gpu  ${stats.gpu}` : null,
     heap != null ? `heap ${mib(heap)}` : null,

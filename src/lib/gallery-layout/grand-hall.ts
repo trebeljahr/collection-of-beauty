@@ -29,6 +29,7 @@ import { isSurpriseWorthy } from "@/lib/surprise";
 import { artworkBand } from "./painting-bands";
 import {
   computeRoomRuns,
+  frameReachOf,
   MAX_PAINTING_W,
   PAINTING_FLOOR_GAP,
   PAINTING_WALL_OFFSET,
@@ -139,8 +140,16 @@ export function pickHallCandidates(works: ArtworkListing[]): ArtworkListing[] {
 
 /** One mirrored position on a wall: the two works hung at the same
  *  distance either side of the wall's centre. `span` is the wider of the
- *  two, so both halves lay out identically. */
-type Slot = { low: SizedWork; high: SizedWork; span: number };
+ *  two and `claim` the wall the wider-framed of the two needs, so both
+ *  halves lay out identically. */
+type Slot = { low: SizedWork; high: SizedWork; span: number; claim: number };
+
+/** Wall a work of canvas width `span` claims in the hall. The plaque is
+ *  reserved on both sides: which side it lands on depends on the wall,
+ *  and the hang is mirrored. */
+function claimOf(span: number, ...works: SizedWork[]): number {
+  return span + 2 * (Math.max(...works.map(frameReachOf)) + PLAQUE_FOOTPRINT);
+}
 
 type WallPlan = {
   side: Door["side"];
@@ -210,17 +219,17 @@ function planWall(runs: WallRun[], side: Door["side"]): WallPlan | null {
   return null;
 }
 
-/** Air left between neighbours if the half holds these slot widths. */
-function halfGap(plan: WallPlan, spans: number[]): number {
-  const claimed = spans.reduce((sum, s) => sum + s + 2 * PLAQUE_FOOTPRINT, 0);
-  return (plan.halfLength - claimed) / (spans.length + 1);
+/** Air left between neighbours if the half holds these claims. */
+function halfGap(plan: WallPlan, claims: number[]): number {
+  const claimed = claims.reduce((sum, c) => sum + c, 0);
+  return (plan.halfLength - claimed) / (claims.length + 1);
 }
 
-function halfAccepts(plan: WallPlan, span: number): boolean {
+function halfAccepts(plan: WallPlan, span: number, claim: number): boolean {
   if (plan.slots.length >= MAX_PER_HALF) return false;
-  const spans = [...plan.slots.map((s) => s.span), span];
-  const painted = spans.reduce((a, b) => a + b, 0);
-  return painted <= HALL_WIDTH_COVERAGE * plan.halfLength && halfGap(plan, spans) >= HALL_MIN_GAP;
+  const painted = plan.slots.reduce((sum, s) => sum + s.span, span);
+  const claims = [...plan.slots.map((s) => s.claim), claim];
+  return painted <= HALL_WIDTH_COVERAGE * plan.halfLength && halfGap(plan, claims) >= HALL_MIN_GAP;
 }
 
 /** Bring two works to one height, keeping each one's aspect, or null if
@@ -285,7 +294,7 @@ export function hangGrandHall(
     const i = queue.findIndex((w) => w.wM <= wall * (HALL_WIDTH_COVERAGE / 2));
     if (i < 0) return;
     const [work] = queue.splice(i, 1);
-    const claimed = work.wM + 2 * PLAQUE_FOOTPRINT;
+    const claimed = claimOf(work.wM, work);
     plan.centrepiece = work;
     plan.innerOffset = claimed / 2;
     plan.halfLength = wall / 2 - plan.innerOffset;
@@ -300,7 +309,9 @@ export function hangGrandHall(
       let best: { j: number; pair: [SizedWork, SizedWork]; cost: number } | null = null;
       for (let j = i + 1; j < Math.min(queue.length, i + 1 + PAIR_WINDOW); j++) {
         const pair = matchHeights(queue[i], queue[j]);
-        if (!pair || !halfAccepts(plan, Math.max(pair[0].wM, pair[1].wM))) continue;
+        if (!pair) continue;
+        const span = Math.max(pair[0].wM, pair[1].wM);
+        if (!halfAccepts(plan, span, claimOf(span, pair[0], pair[1]))) continue;
         const cost = pairCost(queue[i], queue[j]);
         if (!best || cost < best.cost) best = { j, pair, cost };
       }
@@ -308,7 +319,8 @@ export function hangGrandHall(
       const [a, b] = best.pair;
       queue.splice(best.j, 1);
       queue.splice(i, 1);
-      plan.slots.push({ low: a, high: b, span: Math.max(a.wM, b.wM) });
+      const span = Math.max(a.wM, b.wM);
+      plan.slots.push({ low: a, high: b, span, claim: claimOf(span, a, b) });
       return true;
     }
     return false;
@@ -339,11 +351,13 @@ export function hangGrandHall(
  *  slots laid out from the centre outwards with even gaps, mirrored. */
 function layoutWall(plan: WallPlan): Placement[] {
   const out: Placement[] = [];
-  if (plan.centrepiece) out.push(place(plan.run, plan.centre, plan.centrepiece));
+  if (plan.centrepiece) {
+    out.push(place(plan.run, plan.centre, plan.centrepiece, frameReachOf(plan.centrepiece)));
+  }
 
   const gap = halfGap(
     plan,
-    plan.slots.map((s) => s.span),
+    plan.slots.map((s) => s.claim),
   );
   let cursor = plan.innerOffset + gap;
   // Largest pair nearest the centre, so every wall steps down towards
@@ -351,19 +365,22 @@ function layoutWall(plan: WallPlan): Placement[] {
   // size order once a lead has had to wait for its partner.
   const bySize = [...plan.slots].sort((a, b) => b.span * b.low.hM - a.span * a.low.hM);
   for (const slot of bySize) {
-    const claimed = slot.span + 2 * PLAQUE_FOOTPRINT;
+    const claimed = slot.claim;
     const offset = cursor + claimed / 2;
-    out.push(place(plan.run, plan.centre - offset, slot.low));
-    out.push(place(plan.run, plan.centre + offset, slot.high));
+    // One lift for the pair, from the wider of their two frames, so
+    // their canvases stay level.
+    const reach = Math.max(frameReachOf(slot.low), frameReachOf(slot.high));
+    out.push(place(plan.run, plan.centre - offset, slot.low, reach));
+    out.push(place(plan.run, plan.centre + offset, slot.high, reach));
     cursor += claimed + gap;
   }
   return out;
 }
 
-function place(run: WallRun, u: number, work: SizedWork): Placement {
-  // Same lift the ordinary hang applies: tall works rise so their bottom
-  // edge clears the floor, everything else keeps the eye line.
-  const centerY = Math.max(run.centerY, run.floorY + PAINTING_FLOOR_GAP + work.hM / 2);
+function place(run: WallRun, u: number, work: SizedWork, reach: number): Placement {
+  // Same lift the ordinary hang applies: tall works rise so their frame
+  // clears the floor, everything else keeps the eye line.
+  const centerY = Math.max(run.centerY, run.floorY + PAINTING_FLOOR_GAP + reach + work.hM / 2);
   const along = run.sign * u;
   return {
     artwork: work.artwork,

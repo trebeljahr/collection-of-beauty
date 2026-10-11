@@ -1,134 +1,29 @@
-// Picture frames as swept mouldings. A frame used to be one box behind
-// the canvas, which read as a flat border from any distance. Here each
-// variant is a 2-D moulding profile swept round the canvas with 45°
-// mitres, the way a framer cuts four lengths of moulding. The coves,
-// beads and rolls catch the environment map differently, and a baked
-// per-vertex occlusion darkens the recesses, so a frame reads as carved
-// without a texture or a light of its own.
+// Picture frames as swept mouldings. Each variant is a 2-D moulding
+// profile (lib/gallery-layout/frame-profiles.ts) swept round the canvas
+// with 45° mitres, the way a framer cuts four lengths of moulding. The
+// coves, beads and rolls catch the light differently, a baked
+// per-vertex occlusion darkens the recesses, and the surface maps
+// (frame-maps.ts, frame-materials.ts) put leaf, grain and carving on it.
 //
 // All four sides go into one BufferGeometry: one draw call per material
-// slot, the same as the old box plus liner.
+// slot.
 
 import * as THREE from "three";
+import type { CarveBand, ShadedPoint } from "@/lib/gallery-layout/frame-profiles";
+import { CARVE_ROWS } from "./frame-maps";
 
-/** One point of a moulding cross-section.
- *  - `o`: outward offset from the canvas edge, metres. Negative values
- *    reach over the canvas: that is the rabbet lip that hides its edge.
- *  - `z`: height above the wall surface, metres.
- *  - `ao`: baked occlusion, 1 = fully open. Defaults to 1.
- *  - `slot`: material slot of the segment that starts at this point
- *    (0 = moulding, 1 = slip or fillet). Defaults to 0.
- *  - `crease`: a hard edge here instead of a smoothed one. */
-export type ProfilePoint = {
-  o: number;
-  z: number;
-  ao?: number;
-  slot?: 0 | 1;
-  crease?: boolean;
-};
-
-/** Height of the canvas face above the wall: PAINTING_WALL_OFFSET (0.02)
- *  plus the canvas plane's local z (0.014). Every lip must clear it. */
-export const CANVAS_FACE_Z = 0.034;
-
-// Profiles run from the sight edge outward and end on the wall. The
-// widest stays under 0.05 m: the plaque's left edge sits PLAQUE_GAP
-// (0.06 m) right of the canvas, and place-paintings budgets the wall by
-// that footprint, so a wider frame would run into its own label.
-export const FRAME_PROFILES = {
-  // Carved gilt: a velvet slip, a sight bead, a cove, an ogee rising to
-  // a burnished top roll, and a rounded back edge.
-  gilded: [
-    { o: -0.005, z: 0.0365, slot: 1, ao: 0.55 },
-    { o: 0.006, z: 0.0375, slot: 1, ao: 0.7, crease: true },
-    { o: 0.006, z: 0.041, ao: 0.6, crease: true },
-    { o: 0.009, z: 0.0445 },
-    { o: 0.0125, z: 0.0415, ao: 0.55 },
-    { o: 0.017, z: 0.0405, ao: 0.5 },
-    { o: 0.023, z: 0.0455, ao: 0.75 },
-    { o: 0.03, z: 0.053 },
-    { o: 0.037, z: 0.0575 },
-    { o: 0.0435, z: 0.0555 },
-    { o: 0.048, z: 0.049, ao: 0.85 },
-    { o: 0.049, z: 0.04, ao: 0.7, crease: true },
-    { o: 0.049, z: 0.004, ao: 0.35 },
-  ],
-  // Dark walnut: a bevelled sight edge and a broad, slightly falling
-  // face with a rounded outer edge.
-  walnut: [
-    { o: -0.004, z: 0.0365, ao: 0.6, crease: true },
-    { o: -0.001, z: 0.0425, crease: true },
-    { o: 0.006, z: 0.0475 },
-    { o: 0.026, z: 0.046 },
-    { o: 0.032, z: 0.0435 },
-    { o: 0.035, z: 0.038, ao: 0.8, crease: true },
-    { o: 0.035, z: 0.004, ao: 0.4 },
-  ],
-  // Slim black box frame: a sharp inner wall and a flat face.
-  ebony: [
-    { o: -0.004, z: 0.0365, ao: 0.55, crease: true },
-    { o: -0.004, z: 0.047, crease: true },
-    { o: 0.0, z: 0.049 },
-    { o: 0.016, z: 0.049 },
-    { o: 0.0195, z: 0.0465, crease: true },
-    { o: 0.0195, z: 0.004, ao: 0.4 },
-  ],
-  // Pale ash: a low, wide, gently rounded profile with a soft step.
-  paleAsh: [
-    { o: -0.004, z: 0.0365, ao: 0.65, crease: true },
-    { o: 0.0, z: 0.0415 },
-    { o: 0.006, z: 0.0435 },
-    { o: 0.012, z: 0.0435, crease: true },
-    { o: 0.014, z: 0.046 },
-    { o: 0.033, z: 0.0465 },
-    { o: 0.039, z: 0.043 },
-    { o: 0.04, z: 0.038, ao: 0.8, crease: true },
-    { o: 0.04, z: 0.004, ao: 0.4 },
-  ],
-  // Red-black lacquer with a gold inner fillet.
-  redLacquer: [
-    { o: -0.004, z: 0.0365, slot: 1, ao: 0.7 },
-    { o: 0.0, z: 0.0405, slot: 1 },
-    { o: 0.004, z: 0.041, slot: 1, crease: true },
-    { o: 0.005, z: 0.045, crease: true },
-    { o: 0.026, z: 0.046 },
-    { o: 0.03, z: 0.042 },
-    { o: 0.0305, z: 0.037, ao: 0.8, crease: true },
-    { o: 0.0305, z: 0.004, ao: 0.4 },
-  ],
-} satisfies Record<string, ProfilePoint[]>;
-
-export type FrameProfileId = keyof typeof FRAME_PROFILES;
-
-/** Outer reach of a profile past the canvas edge, metres. */
-export function profileWidth(profile: readonly ProfilePoint[]): number {
-  return Math.max(...profile.map((p) => p.o));
-}
-
-/** Highest point of a profile above the wall, metres. */
-export function profileFrontZ(profile: readonly ProfilePoint[]): number {
-  return Math.max(...profile.map((p) => p.z));
-}
-
-/** Scale a profile for the size of the work. Small works get a slimmer
- *  moulding, the way a framer would cut it. Only the part in front of
- *  the canvas face is scaled, so the lip always stays in front of it. */
-export function scaleProfile(profile: readonly ProfilePoint[], scale: number): ProfilePoint[] {
-  return profile.map((p) => ({
-    ...p,
-    o: p.o * scale,
-    z: p.z > CANVAS_FACE_Z ? CANVAS_FACE_Z + (p.z - CANVAS_FACE_Z) * scale : p.z,
-  }));
-}
-
-/** Moulding scale for a canvas of the given size, metres. */
-export function frameScale(widthM: number, heightM: number): number {
-  return Math.min(1, Math.max(0.62, 0.55 + 0.22 * Math.max(widthM, heightM)));
-}
+export {
+  CANVAS_FACE_Z,
+  FRAME_PROFILES,
+  frameScale,
+  profileFrontZ,
+  profileWidth,
+  scaleProfile,
+} from "@/lib/gallery-layout/frame-profiles";
 
 type Normal2 = [number, number];
 
-function segmentNormal(a: ProfilePoint, b: ProfilePoint): Normal2 {
+function segmentNormal(a: ShadedPoint, b: ShadedPoint): Normal2 {
   // Rotate the segment direction (do, dz) a quarter turn to (-dz, do):
   // for a profile walked outward this points to the viewer's side.
   const dO = b.o - a.o;
@@ -137,14 +32,69 @@ function segmentNormal(a: ProfilePoint, b: ProfilePoint): Normal2 {
   return [-dZ / l, dO / l];
 }
 
+/** A carved stretch of the profile: which ornament, and where along the
+ *  profile's length it starts and ends. */
+type BandRun = { band: CarveBand; start: number; end: number };
+
+/** Per segment, the carved run it belongs to, or null. A segment is
+ *  carved when both its ends name the same band. */
+function bandRuns(
+  profile: readonly ShadedPoint[],
+  along: readonly number[],
+): Array<BandRun | null> {
+  const n = profile.length;
+  const out: Array<BandRun | null> = new Array(n - 1).fill(null);
+  for (let i = 0; i < n - 1; ) {
+    const band = profile[i].band;
+    if (!band || profile[i + 1].band !== band) {
+      i++;
+      continue;
+    }
+    let j = i;
+    while (j + 1 < n - 1 && profile[j + 1].band === band && profile[j + 2].band === band) j++;
+    const run: BandRun = { band, start: along[i], end: along[j + 1] };
+    for (let k = i; k <= j; k++) out[k] = run;
+    i = j + 1;
+  }
+  return out;
+}
+
+/**
+ * Ornament periods from a rail's inner corner to a point on it.
+ *
+ * A carved moulding is set out from its corners. Between the two inner
+ * corners of a rail the ornament is stretched by a few per cent so each
+ * half holds a whole number of periods: the halves, which run mirrored,
+ * then meet on a period at the centre. Past the inner corner, in the
+ * mitre, the count runs on at the ornament's own pitch, which is the
+ * same on both rails, so the carving meets itself across the joint.
+ *
+ * `along` is measured from the rail's centre, `half` is half the
+ * canvas edge, `period` the ornament's pitch, all in metres.
+ */
+export function carvePeriods(along: number, half: number, period: number): number {
+  const fromCorner = half - Math.abs(along);
+  if (fromCorner <= 0) return fromCorner / period;
+  return (Math.max(1, Math.round(half / period)) * fromCorner) / half;
+}
+
 /**
  * Sweep `profile` round a canvas of `widthM` × `heightM` centred on the
  * origin. Local z is measured from the Painting group's origin, which
  * sits `wallOffset` in front of the wall, so profile heights shift back
- * by that much. Geometry groups: 0 = moulding, 1 = slip / fillet.
+ * by that much. Geometry groups: 0 = moulding, 1 = slip, mat or silk.
+ *
+ * Attributes beyond position and normal:
+ *  - `color`: baked occlusion (grey).
+ *  - `uv`: metres. u along the rail from its centre, v along the profile
+ *    from the sight edge. Grain and leaf are read with it, so grain
+ *    turns at every mitre.
+ *  - `aCarveUv`: the carve atlas, for the carved stretches.
+ *  - `aFrame`: x roughness multiplier, y carving gate (its sign flips
+ *    the map's u on the half of a rail that runs mirrored), z wear.
  */
 export function buildFrameGeometry(
-  profile: readonly ProfilePoint[],
+  profile: readonly ShadedPoint[],
   widthM: number,
   heightM: number,
   wallOffset: number,
@@ -182,6 +132,8 @@ export function buildFrameGeometry(
   const normals: number[] = [];
   const colors: number[] = [];
   const uvs: number[] = [];
+  const carveUvs: number[] = [];
+  const frame: number[] = [];
   const indicesBySlot: [number[], number[]] = [[], []];
 
   // Cumulative profile length, for the v texture coordinate.
@@ -191,38 +143,73 @@ export function buildFrameGeometry(
       along[i - 1] + Math.hypot(profile[i].o - profile[i - 1].o, profile[i].z - profile[i - 1].z),
     );
   }
+  const runs = bandRuns(profile, along);
 
   let vertex = 0;
   for (const side of sides) {
     for (let s = 0; s < n - 1; s++) {
-      const a = profile[s];
-      const b = profile[s + 1];
-      const na = endNormal(s, true);
-      const nb = endNormal(s, false);
-      // Corner points at offset o: centre + u·(hu + o) ± v·(hv + o).
-      // Mitres fall out of using the same o along both sides.
-      const quad: Array<[ProfilePoint, Normal2, number, number]> = [
-        [a, na, 1, along[s]],
-        [a, na, -1, along[s]],
-        [b, nb, -1, along[s + 1]],
-        [b, nb, 1, along[s + 1]],
+      const ends: Array<[ShadedPoint, Normal2, number]> = [
+        [profile[s], endNormal(s, true), along[s]],
+        [profile[s + 1], endNormal(s, false), along[s + 1]],
       ];
-      for (const [p, nrm, sign, vCoord] of quad) {
-        const reachU = side.hu + p.o;
-        const reachV = side.hv + p.o;
-        positions.push(
-          side.u[0] * reachU + sign * side.v[0] * reachV,
-          side.u[1] * reachU + sign * side.v[1] * reachV,
-          p.z - wallOffset,
-        );
-        normals.push(side.u[0] * nrm[0], side.u[1] * nrm[0], nrm[1]);
-        const ao = p.ao ?? 1;
-        colors.push(ao, ao, ao);
-        uvs.push(sign * reachV, vCoord);
+      const run = runs[s];
+      const row = run ? CARVE_ROWS[run.band] : null;
+      const bandWidth = run ? run.end - run.start : 1;
+      const period = row ? row.aspect * bandWidth : 1;
+      const slot = profile[s].slot ?? 0;
+
+      // Each rail is cut at its two inner corners and its centre, so
+      // the carving can be set out from the corners (see carvePeriods).
+      // The two halves keep separate vertices at the centre: the map's
+      // u runs toward the centre on both, so one of them is mirrored.
+      for (const half of [-1, 1] as const) {
+        // Columns from the mitre to the centre: where each sits along
+        // the rail for a point at offset `o`.
+        const columns = (o: number) => [side.hv + o, Math.min(side.hv, side.hv + o), 0];
+        const base = vertex;
+        for (const [pt, nrm, arcAt] of ends) {
+          for (const reach of columns(pt.o)) {
+            const a = half * reach;
+            positions.push(
+              side.u[0] * (side.hu + pt.o) + a * side.v[0],
+              side.u[1] * (side.hu + pt.o) + a * side.v[1],
+              pt.z - wallOffset,
+            );
+            normals.push(side.u[0] * nrm[0], side.u[1] * nrm[0], nrm[1]);
+            colors.push(pt.ao, pt.ao, pt.ao);
+            uvs.push(a, arcAt);
+            if (run && row) {
+              const t = (arcAt - run.start) / bandWidth;
+              carveUvs.push(
+                carvePeriods(a, side.hv, period) / row.repeats,
+                row.v0 + (row.v1 - row.v0) * t,
+              );
+            } else {
+              carveUvs.push(0, 0);
+            }
+            // On the left half the map's u grows with the rail's own u;
+            // on the right half it runs against it.
+            frame.push(pt.rough, run ? -half : 0, pt.wear);
+            vertex++;
+          }
+        }
+        // base + 0..2: the segment's start at mitre, corner, centre;
+        // base + 3..5: its end at the same three columns.
+        for (let c = 0; c < 2; c++) {
+          // The lip reaches over the canvas, where the rail is shorter
+          // than the canvas edge and the mitre column coincides with
+          // the corner column: nothing to draw between them.
+          if (c === 0 && ends[0][0].o <= 0 && ends[1][0].o <= 0) continue;
+          const a0 = base + c;
+          const a1 = base + c + 1;
+          const b0 = base + 3 + c;
+          const b1 = base + 3 + c + 1;
+          // Wound so the face looks along the profile's normal; the two
+          // halves run in opposite directions along the rail.
+          if (half === 1) indicesBySlot[slot].push(a0, a1, b1, a0, b1, b0);
+          else indicesBySlot[slot].push(a1, a0, b0, a1, b0, b1);
+        }
       }
-      const slot = a.slot ?? 0;
-      indicesBySlot[slot].push(vertex, vertex + 1, vertex + 2, vertex, vertex + 2, vertex + 3);
-      vertex += 4;
     }
   }
 
@@ -231,6 +218,8 @@ export function buildFrameGeometry(
   geometry.setAttribute("normal", new THREE.Float32BufferAttribute(normals, 3));
   geometry.setAttribute("color", new THREE.Float32BufferAttribute(colors, 3));
   geometry.setAttribute("uv", new THREE.Float32BufferAttribute(uvs, 2));
+  geometry.setAttribute("aCarveUv", new THREE.Float32BufferAttribute(carveUvs, 2));
+  geometry.setAttribute("aFrame", new THREE.Float32BufferAttribute(frame, 3));
   const [moulding, slip] = indicesBySlot;
   geometry.setIndex([...moulding, ...slip]);
   geometry.addGroup(0, moulding.length, 0);
