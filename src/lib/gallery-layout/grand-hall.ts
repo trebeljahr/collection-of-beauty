@@ -26,7 +26,7 @@
 
 import type { ArtworkListing } from "@/lib/data";
 import { isSurpriseWorthy } from "@/lib/surprise";
-import { type FrameVariantId, frameReach, pickPairFrame } from "./frame-profiles";
+import { type FrameDesign, frameReach, pickPairDesign } from "./frame-design";
 import { artworkBand } from "./painting-bands";
 import {
   computeRoomRuns,
@@ -147,7 +147,7 @@ export function pickHallCandidates(works: ArtworkListing[]): ArtworkListing[] {
 type Slot = {
   low: SizedWork;
   high: SizedWork;
-  frame: FrameVariantId;
+  frame: FrameDesign;
   span: number;
   reach: number;
   claim: number;
@@ -160,7 +160,7 @@ type Slot = {
  *  `reach` is the wider of the two cuts, and it sets both the wall the
  *  slot reserves and the lift that clears the floor. */
 function slotOf(lead: SizedWork, partner: SizedWork): Slot {
-  const frame = pickPairFrame(lead.artwork, partner.artwork);
+  const frame = pickPairDesign(lead.artwork, partner.artwork);
   const span = Math.max(lead.wM, partner.wM);
   const reach = Math.max(
     frameReach(frame, lead.wM, lead.hM),
@@ -405,7 +405,7 @@ function place(
   u: number,
   work: SizedWork,
   reach: number,
-  frame?: FrameVariantId,
+  frame?: FrameDesign,
 ): Placement {
   // Same lift the ordinary hang applies: tall works rise so their frame
   // clears the floor, everything else keeps the eye line.

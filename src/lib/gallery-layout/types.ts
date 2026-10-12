@@ -4,7 +4,7 @@
 
 import type { ArtworkListing } from "@/lib/data";
 import type { Era, EraId } from "@/lib/gallery-eras";
-import type { FrameVariantId } from "./frame-profiles";
+import type { FrameDesign } from "./frame-design";
 
 export type Band = "small" | "medium" | "large";
 
@@ -21,8 +21,8 @@ export type Placement = {
   /** Painting height in world metres (already aspect-fit to the slot). */
   heightM: number;
   /** The frame, when the hang chose it: a Grand Hall pair shares one.
-   *  Unset, the work hangs in its own (`pickFrameVariant`). */
-  frame?: FrameVariantId;
+   *  Unset, the work hangs in its own (`pickFrameDesign`). */
+  frame?: FrameDesign;
   /** Index into the room's `dividers` when the work hangs on one. Its
    *  position is then on that divider's face, not on a room wall. */
   divider?: number;

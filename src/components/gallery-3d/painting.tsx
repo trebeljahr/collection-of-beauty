@@ -5,14 +5,9 @@ import { useThree } from "@react-three/fiber";
 import { memo, useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from "react";
 import * as THREE from "three";
 import type { ArtworkListing } from "@/lib/data";
-import {
-  FRAME_PROFILES,
-  frameScale,
-  pickFrameVariant,
-  profileFrontZ,
-  profileWidth,
-  scaleProfile,
-} from "@/lib/gallery-layout/frame-profiles";
+import { frameMoulding, pickFrameDesign } from "@/lib/gallery-layout/frame-design";
+import { profileFrontZ, profileWidth } from "@/lib/gallery-layout/frame-profiles";
+import { swollenWidth } from "@/lib/gallery-layout/frame-styles";
 import {
   PAINTING_WALL_OFFSET,
   PLAQUE_GAP,
@@ -30,7 +25,7 @@ import { PaintingLight } from "./painting-light";
 import { buildLightRig, wallContextFor } from "./painting-light-rig";
 import { createPaintingPreview } from "./painting-preview";
 import { type PaintingEntry, registerPainting, unregisterPainting } from "./painting-registry";
-import { FRAME_VARIANTS, plaqueBaseMaterial, plaqueMountMaterial } from "./palette-materials";
+import { frameMaterials, plaqueBaseMaterial, plaqueMountMaterial } from "./palette-materials";
 import { setWorkBounds } from "./room-culling";
 import {
   estimateTextureBytes,
@@ -481,23 +476,25 @@ export const Painting = memo(function Painting({
   );
 
   // A Grand Hall pair hangs in one frame, which the placement carries.
-  const variantId = useMemo(() => frame ?? pickFrameVariant(artwork), [frame, artwork]);
-  const variant = FRAME_VARIANTS[variantId];
+  const design = useMemo(() => frame ?? pickFrameDesign(artwork), [frame, artwork]);
   const dW = renderDims.widthM;
   const dH = renderDims.heightM;
 
   // Moulded frame, rebuilt only when the canvas is refitted to its
   // texture's aspect. See frame-geometry.ts.
-  const profile = useMemo(
-    () => scaleProfile(FRAME_PROFILES[variantId], frameScale(variantId, dW, dH)),
-    [variantId, dW, dH],
-  );
+  const moulding = useMemo(() => frameMoulding(design, dW, dH), [design, dW, dH]);
+  const profile = moulding.profile;
   const frameGeometry = useMemo(
-    () => buildFrameGeometry(profile, dW, dH, PAINTING_WALL_OFFSET),
-    [profile, dW, dH],
+    () =>
+      buildFrameGeometry(profile, dW, dH, PAINTING_WALL_OFFSET, {
+        slots: design.slots,
+        swell: moulding.swell,
+      }),
+    [profile, moulding.swell, design, dW, dH],
   );
   useEffect(() => () => frameGeometry.dispose(), [frameGeometry]);
-  const frameReach = profileWidth(profile);
+  // At its widest: a swept frame's corners stand out past its rails.
+  const frameReach = swollenWidth(profileWidth(profile), moulding.swell);
 
   // Picture light: one can per work, its pool clipped to this wall's
   // clear stretches, or to the divider the work hangs on. See
@@ -559,10 +556,10 @@ export const Painting = memo(function Painting({
 
   return (
     <group ref={groupRef} position={position} rotation={rotation}>
-      {/* Out of the floor's mirror: a moulding is at most 17 cm wide,
+      {/* Out of the floor's mirror: a moulding is at most 19 cm wide,
           about the mirror's blur radius, and holds most of a work's
           triangles. The canvas and its pool carry the reflection. */}
-      <mesh geometry={frameGeometry} material={variant.materials} layers={UNREFLECTED_LAYER} />
+      <mesh geometry={frameGeometry} material={frameMaterials(design)} layers={UNREFLECTED_LAYER} />
       <PaintingPlane
         url={url}
         baseWidth={baseWidth}

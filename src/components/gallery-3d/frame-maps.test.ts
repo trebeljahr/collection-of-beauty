@@ -5,7 +5,8 @@ import {
   buildGiltMaps,
   buildLacquerMaps,
   buildWoodMaps,
-  CARVE_ATLAS_SIZE,
+  CARVE_ATLAS_H,
+  CARVE_ATLAS_W,
   CARVE_ROWS,
   heightToNormal,
   tileCracks,
@@ -111,7 +112,7 @@ describe("carve atlas", () => {
     expect(rows[0].v0).toBeGreaterThan(0);
     expect(rows[rows.length - 1].v1).toBeLessThan(1);
     for (let i = 1; i < rows.length; i++) {
-      expect(rows[i].v0 - rows[i - 1].v1).toBeGreaterThanOrEqual(5 / CARVE_ATLAS_SIZE);
+      expect(rows[i].v0 - rows[i - 1].v1).toBeGreaterThanOrEqual(5 / CARVE_ATLAS_H);
     }
     for (const row of rows) {
       expect(row.v1).toBeGreaterThan(row.v0);
@@ -120,11 +121,12 @@ describe("carve atlas", () => {
   });
 
   const atlas = buildCarveAtlas();
-  const S = CARVE_ATLAS_SIZE;
+  const S = CARVE_ATLAS_W;
+  const H = CARVE_ATLAS_H;
 
   it("holds unit normals that face out of the surface", () => {
-    expect(atlas.length).toBe(S * S * 4);
-    for (let i = 0; i < S * S; i += 7) {
+    expect(atlas.length).toBe(S * H * 4);
+    for (let i = 0; i < S * H; i += 7) {
       const x = atlas[i * 4] / 127.5 - 1;
       const y = atlas[i * 4 + 1] / 127.5 - 1;
       const z = atlas[i * 4 + 2] / 127.5 - 1;
@@ -136,7 +138,7 @@ describe("carve atlas", () => {
 
   it("carves relief into every band's row", () => {
     for (const row of rows) {
-      const y = Math.round(((row.v0 + row.v1) / 2) * S);
+      const y = Math.round(((row.v0 + row.v1) / 2) * H);
       let min = 255;
       let max = 0;
       for (let x = 0; x < S; x++) {
@@ -149,7 +151,7 @@ describe("carve atlas", () => {
   });
 
   it("repeats along the rail without a seam", () => {
-    const { seam, inside } = maxStepX(atlas, S, S, 4, 0);
+    const { seam, inside } = maxStepX(atlas, S, H, 4, 0);
     expect(seam).toBeLessThanOrEqual(inside);
   });
 });

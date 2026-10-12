@@ -1,16 +1,9 @@
 import { describe, expect, it } from "vitest";
-import { movements } from "@/lib/data";
 import {
-  FRAME_PROFILES,
-  FRAME_VARIANT_IDS,
-  frameReach,
-  frameScale,
-  hasFrameRule,
-  MAX_FRAME_REACH,
+  CANVAS_FACE_Z,
   type ProfilePoint,
-  pickFrameVariant,
-  pickPairFrame,
-  profileWidth,
+  profileFrontZ,
+  scaleProfile,
   shadeProfile,
 } from "./frame-profiles";
 
@@ -62,151 +55,18 @@ describe("shadeProfile", () => {
   });
 });
 
-describe("frame reach", () => {
-  it("grows with the work and stays within the widest frame", () => {
-    for (const id of FRAME_VARIANT_IDS) {
-      const small = frameReach(id, 0.3, 0.4);
-      const large = frameReach(id, 3.2, 2);
-      expect(large).toBeGreaterThanOrEqual(small);
-      expect(large).toBeLessThanOrEqual(MAX_FRAME_REACH + 1e-12);
-      expect(small).toBeGreaterThan(0.015);
-      expect(frameReach(id, 1, 1)).toBeCloseTo(
-        profileWidth(FRAME_PROFILES[id]) * frameScale(id, 1, 1),
-        12,
-      );
-    }
-    // Wide enough to budget for, narrow enough to hang a wall of them.
-    expect(MAX_FRAME_REACH).toBeGreaterThan(0.12);
-    expect(MAX_FRAME_REACH).toBeLessThan(0.2);
-  });
-
-  it("cuts a floater at one size", () => {
-    expect(frameReach("floater", 0.4, 0.4)).toBe(frameReach("floater", 3, 3));
-  });
-});
-
-describe("pickFrameVariant", () => {
-  const work = (id: string, movement: string | null, year: number | null) => ({
-    id,
-    movement,
-    year,
-  });
-
-  it("is stable per work", () => {
-    const w = work("collection-of-beauty-some-baroque-canvas", "Baroque", 1640);
-    expect(pickFrameVariant(w)).toBe(pickFrameVariant({ ...w }));
-  });
-
-  it("mats prints and mounts silk whatever their date", () => {
-    expect(pickFrameVariant(work("a", "Ukiyo-e", 1830))).toBe("redLacquer");
-    expect(pickFrameVariant(work("b", "Natural history illustration", 1838))).toBe("print");
-    expect(pickFrameVariant(work("c", "Botanical illustration", 1805))).toBe("print");
-    // Sesshū: fifteenth century, but ink on paper, not a panel.
-    expect(pickFrameVariant(work("d", "Classical East Asian", 1486))).toBe("mount");
-  });
-
-  it("puts works before 1500 in panel frames whatever their school", () => {
-    for (let i = 0; i < 40; i++) {
-      for (const movement of ["Renaissance", "Northern Renaissance", null]) {
-        expect(["cassetta", "walnut"]).toContain(pickFrameVariant(work(`w${i}`, movement, 1470)));
-      }
-    }
-  });
-
-  it("matches the narrower school first", () => {
-    const seen = (movement: string) =>
-      new Set(
-        Array.from({ length: 60 }, (_, i) => pickFrameVariant(work(`w${i}`, movement, 1880))),
-      );
-    // Never the gilt a plain "Impressionism" match could give.
-    expect(seen("Post-Impressionism").has("giltCove")).toBe(false);
-    expect([...seen("Neo-Impressionism")]).toEqual(["paleAsh"]);
-    expect(seen("Dutch Golden Age").has("gilded")).toBe(false);
-  });
-
-  it("has a rule for every movement in the catalogue", () => {
-    // A tagged work without a rule would hang in a frame chosen by its
-    // year alone.
-    for (const movement of movements) {
-      expect(hasFrameRule(movement), `no frame rule for "${movement}"`).toBe(true);
-    }
-  });
-
-  it("frames a modern floor in floaters and an old one in gilt", () => {
-    const count = (movement: string, year: number, id: string) =>
-      Array.from({ length: 90 }, (_, i) => pickFrameVariant(work(`w${i}`, movement, year))).filter(
-        (v) => v === id,
-      ).length;
-    expect(count("Cubism", 1912, "floater")).toBeGreaterThan(40);
-    expect(count("Baroque", 1650, "gilded")).toBeGreaterThan(50);
-  });
-});
-
-describe("pickPairFrame", () => {
-  const work = (id: string, movement: string | null, year: number | null) => ({
-    id,
-    movement,
-    year,
-  });
-  const ids = Array.from({ length: 40 }, (_, i) => `w${i}`);
-  const framesOf = (movement: string, year: number) =>
-    new Set(ids.map((id) => pickFrameVariant(work(id, movement, year))));
-
-  it("keeps the lead's own frame when the partner's school hangs in it too", () => {
-    for (const id of ids) {
-      const lead = work(id, "Romanticism", 1830);
-      expect(pickPairFrame(lead, work(`${id}-twin`, "Romanticism", 1820))).toBe(
-        pickFrameVariant(lead),
-      );
-    }
-  });
-
-  it("takes the frame both schools name when the lead's own is not one", () => {
-    // Baroque hangs in gilt or walnut, Dutch Golden Age in ebony or
-    // walnut: walnut is the one frame the two rules share.
-    for (const id of ids) {
-      expect(pickPairFrame(work(id, "Baroque", 1640), work("b", "Dutch Golden Age", 1642))).toBe(
-        "walnut",
-      );
-      expect(pickPairFrame(work(id, "Dutch Golden Age", 1642), work("b", "Baroque", 1640))).toBe(
-        "walnut",
-      );
-    }
-  });
-
-  it("falls back to the lead's own frame when the schools share none", () => {
-    for (const id of ids) {
-      const lead = work(id, "Mir Iskusstva", 1916);
-      expect(pickPairFrame(lead, work("b", "Suprematism", 1928))).toBe(pickFrameVariant(lead));
-    }
-    expect(pickPairFrame(work("a", "Nihonga", 1907), work("b", "Shin-hanga", 1916))).toBe("mount");
-  });
-
-  it("never leaves the lead's school, nor the partner's when they overlap", () => {
-    const schools: Array<[string, number]> = [
-      ["Renaissance", 1520],
-      ["Northern Renaissance", 1520],
-      ["Mannerism", 1580],
-      ["Baroque", 1640],
-      ["Rococo", 1760],
-      ["Neoclassicism", 1800],
-      ["Realism", 1870],
-      ["Impressionism", 1880],
-      ["Symbolism", 1890],
-      ["Cubism", 1912],
-      ["Expressionism", 1912],
+describe("scaleProfile", () => {
+  it("scales the reach and only the depth in front of the canvas", () => {
+    const profile: ProfilePoint[] = [
+      { o: -0.005, z: 0.037 },
+      { o: 0.05, z: 0.07 },
+      { o: 0.06, z: 0.004 },
     ];
-    for (const [a, yearA] of schools) {
-      for (const [b, yearB] of schools) {
-        const own = framesOf(a, yearA);
-        const theirs = framesOf(b, yearB);
-        const shared = [...own].some((frame) => theirs.has(frame));
-        for (const id of ids) {
-          const frame = pickPairFrame(work(id, a, yearA), work("partner", b, yearB));
-          expect(own.has(frame), `${a} + ${b}: ${frame}`).toBe(true);
-          if (shared) expect(theirs.has(frame), `${a} + ${b}: ${frame}`).toBe(true);
-        }
-      }
-    }
+    const half = scaleProfile(profile, 0.5);
+    expect(half.map((pt) => pt.o)).toEqual([-0.0025, 0.025, 0.03]);
+    // The lip stays in front of the canvas face, the foot on the wall.
+    expect(half[0].z).toBeGreaterThan(CANVAS_FACE_Z);
+    expect(half[2].z).toBe(0.004);
+    expect(profileFrontZ(half)).toBeCloseTo(CANVAS_FACE_Z + (0.07 - CANVAS_FACE_Z) / 2, 12);
   });
 });

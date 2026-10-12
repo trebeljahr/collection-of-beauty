@@ -21,7 +21,7 @@
 // small ones, and a full empty cell wherever supply ran short.)
 
 import type { ArtworkListing } from "@/lib/data";
-import { frameReach, pickFrameVariant } from "./frame-profiles";
+import { frameReach, pickFrameDesign } from "./frame-design";
 import { artworkBand } from "./painting-bands";
 import type { CellRect, Divider, Door, FloorLayout, Placement, RoomLayout } from "./types";
 import { CELL_SIZE, DIVIDER_THICKNESS, DOOR_WIDTH, PORTAL_WIDTH } from "./world-coords";
@@ -315,10 +315,10 @@ export type SizedWork = { artwork: ArtworkListing; wM: number; hM: number };
 
 /** How far the work's frame reaches past each canvas edge, metres.
  *  The frame is chosen per work and scaled to its size (see
- *  frame-profiles.ts), so a gilt frame on a 3 m canvas claims 17 cm a
- *  side and a floater 2 cm. */
+ *  frame-design.ts), so a carved gilt frame on a 3 m canvas claims
+ *  19 cm a side and a strip frame 1 cm. */
 export function frameReachOf(work: SizedWork): number {
-  return frameReach(pickFrameVariant(work.artwork), work.wM, work.hM);
+  return frameReach(pickFrameDesign(work.artwork), work.wM, work.hM);
 }
 
 /** Wall to keep clear beside a work's canvas, left and right as the

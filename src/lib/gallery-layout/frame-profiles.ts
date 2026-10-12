@@ -1,13 +1,11 @@
-// Picture-frame styles: which frame a work gets, the moulding's
-// cross-section, and how far it reaches past the canvas.
+// Picture-frame mouldings: the cross-section a frame is swept from, the
+// tools to draw one, and the shading read off its shape.
 //
 // Pure data and arithmetic, no three.js, because two sides read it. The
-// hang (place-paintings.ts) budgets wall by `frameReach`, and the
+// hang (place-paintings.ts) budgets wall by a frame's reach, and the
 // renderer (components/gallery-3d/frame-geometry.ts) sweeps the same
-// profile round the canvas. Keeping both on one module is what stops a
-// frame from running into its neighbour's label.
-
-import type { ArtworkListing } from "@/lib/data";
+// profile round the canvas. The mouldings themselves are in
+// frame-styles.ts; which work gets which is in frame-design.ts.
 
 /** Carved ornament that runs along a stretch of the profile. Each is a
  *  row of the carve atlas (components/gallery-3d/frame-maps.ts). */
@@ -19,14 +17,25 @@ export type CarveBand =
   | "flute"
   | "ripple"
   | "rope"
-  | "punch";
+  | "punch"
+  | "acanthus"
+  | "beadReel"
+  | "gadroon"
+  | "ribbon"
+  | "guilloche"
+  | "meander"
+  | "scale"
+  | "shell"
+  | "hammer";
 
 /** One point of a moulding cross-section.
  *  - `o`: outward offset from the canvas edge, metres. Negative values
  *    reach over the canvas: that is the rabbet lip that hides its edge.
  *  - `z`: height above the wall surface, metres.
  *  - `slot`: material slot of the segment that starts at this point
- *    (0 = moulding, 1 = slip, mat, silk or canvas edge). Defaults to 0.
+ *    (0 = moulding; 1 = what lies inside it: slip, mat, silk, liner or
+ *    canvas edge; 2 = an accent: parcel gilding, a fillet, a painted
+ *    frieze). Defaults to 0.
  *  - `crease`: a hard edge here instead of a smoothed one.
  *  - `band`: carved ornament. A segment is carved when both its ends
  *    name the same band.
@@ -35,7 +44,7 @@ export type CarveBand =
 export type ProfilePoint = {
   o: number;
   z: number;
-  slot?: 0 | 1;
+  slot?: FrameSlot;
   crease?: boolean;
   band?: CarveBand;
   /** Baked occlusion, 1 = fully open. */
@@ -47,6 +56,9 @@ export type ProfilePoint = {
   wear?: number;
 };
 
+export type FrameSlot = 0 | 1 | 2;
+export const FRAME_SLOTS = 3;
+
 export type ShadedPoint = ProfilePoint & { ao: number; rough: number; wear: number };
 
 /** Height of the canvas face above the wall: PAINTING_WALL_OFFSET (0.02)
@@ -55,14 +67,14 @@ export const CANVAS_FACE_Z = 0.034;
 
 // ── Building profiles ─────────────────────────────────────────────────
 
-type Extra = Partial<Omit<ProfilePoint, "o" | "z">>;
+export type Extra = Partial<Omit<ProfilePoint, "o" | "z">>;
 
-const p = (o: number, z: number, extra: Extra = {}): ProfilePoint => ({ o, z, ...extra });
-const hard: Extra = { crease: true };
+export const p = (o: number, z: number, extra: Extra = {}): ProfilePoint => ({ o, z, ...extra });
+export const hard: Extra = { crease: true };
 
 /** Arc of radius `r` round (`co`, `cz`). Angles in degrees: 0 points
  *  outward, 90 toward the viewer. */
-function arc(
+export function arc(
   co: number,
   cz: number,
   r: number,
@@ -80,7 +92,7 @@ function arc(
 }
 
 /** Curve from `a` to `b` whose height follows `shape` (0 → 1). */
-function sweep(
+export function sweep(
   a: [number, number],
   b: [number, number],
   steps: number,
@@ -96,18 +108,20 @@ function sweep(
 }
 
 /** S-curve: hollow at the start, rounded at the end (cyma recta). */
-const ogee = (t: number) => t * t * (3 - 2 * t);
+export const ogee = (t: number) => t * t * (3 - 2 * t);
 /** Hollow that starts flat and ends steep (cavetto). */
-const cove = (t: number) => 1 - Math.sqrt(Math.max(0, 1 - t * t));
+export const cove = (t: number) => 1 - Math.sqrt(Math.max(0, 1 - t * t));
 /** Quarter round that starts steep and ends flat (ovolo). */
-const ovolo = (t: number) => Math.sqrt(Math.max(0, 1 - (1 - t) * (1 - t)));
+export const ovolo = (t: number) => Math.sqrt(Math.max(0, 1 - (1 - t) * (1 - t)));
 /** Fall that starts steep and levels out. */
-const scoop = (t: number) => 1 - (1 - t) * (1 - t);
+export const scoop = (t: number) => 1 - (1 - t) * (1 - t);
+/** Straight line. */
+export const flat = (t: number) => t;
 
 /** The side of the moulding, from its outer arris at (`o`, `z`) down
  *  to the wall. Nothing burnishes or handles it: a gilder leaves it in
  *  flat ochre, a cabinetmaker in the plain wood. */
-function backEdge(o: number, z: number): ProfilePoint[] {
+export function backEdge(o: number, z: number): ProfilePoint[] {
   return [
     { o, z: z - 0.001, crease: true, rough: 1.5, wear: 0, ao: 0.86 },
     { o, z: 0.004, rough: 1.5, wear: 0, ao: 0.6 },
@@ -117,7 +131,7 @@ function backEdge(o: number, z: number): ProfilePoint[] {
 /** Join point lists. Where two parts meet on the same point, the point
  *  keeps a crease and a band from either, and takes the later part's
  *  slot: the slot belongs to the segment that starts there. */
-function join(...parts: Array<ProfilePoint | ProfilePoint[]>): ProfilePoint[] {
+export function join(...parts: Array<ProfilePoint | ProfilePoint[]>): ProfilePoint[] {
   const out: ProfilePoint[] = [];
   for (const part of parts) {
     for (const pt of Array.isArray(part) ? part : [part]) {
@@ -293,213 +307,7 @@ export function shadeProfile(points: readonly ProfilePoint[]): ShadedPoint[] {
   });
 }
 
-// ── The profiles ──────────────────────────────────────────────────────
-// Each runs from the sight edge outward and ends on the wall, drawn at
-// the size it has on a work about 1.7 m long (scale 1). `frameScale`
-// slims it for small works and widens it for large ones.
-
-export type FrameVariantId =
-  | "gilded"
-  | "giltCove"
-  | "cassetta"
-  | "walnut"
-  | "ebony"
-  | "paleAsh"
-  | "print"
-  | "redLacquer"
-  | "mount"
-  | "floater";
-
-const RAW_PROFILES: Record<FrameVariantId, ProfilePoint[]> = {
-  // Carved Baroque gilt: a pearl sight bead, a matte cove, a leaf-carved
-  // ogee, and a laurel torus as the high point, falling to a plain back.
-  gilded: join(
-    p(-0.006, 0.0365, hard),
-    p(-0.006, 0.0435, hard),
-    p(-0.003, 0.0455),
-    p(0.0005, 0.0455, hard),
-    p(0.0005, 0.0432, hard),
-    arc(0.0065, 0.0432, 0.006, 180, 0, 6, { band: "pearl" }),
-    p(0.0125, 0.0432, hard),
-    p(0.014, 0.0432, hard),
-    sweep([0.014, 0.0432], [0.024, 0.052], 4, cove),
-    p(0.024, 0.052, hard),
-    p(0.024, 0.0545, hard),
-    p(0.0262, 0.0545, hard),
-    sweep([0.0262, 0.0545], [0.068, 0.0805], 8, ogee, { band: "leaf" }),
-    p(0.068, 0.0805, hard),
-    p(0.0705, 0.0805, hard),
-    p(0.0705, 0.0785, hard),
-    arc(0.0835, 0.0785, 0.013, 180, 12, 8, { band: "laurel" }),
-    p(0.0978, 0.0775, hard),
-    arc(0.1015, 0.0745, 0.0042, 135, 0, 3),
-    sweep([0.1057, 0.0745], [0.1135, 0.055], 4, scoop),
-    p(0.115, 0.052, hard),
-    ...backEdge(0.115, 0.052),
-  ),
-  // Neoclassical and Salon gilt: pearls at the sight, a deep fluted
-  // hollow, a crown fillet, and an egg-and-dart ovolo falling outward.
-  giltCove: join(
-    p(-0.006, 0.0365, hard),
-    p(-0.006, 0.043, hard),
-    p(-0.0035, 0.045),
-    p(0, 0.045, hard),
-    p(0, 0.043, hard),
-    arc(0.0052, 0.043, 0.0052, 180, 0, 6, { band: "pearl" }),
-    p(0.0104, 0.043, hard),
-    p(0.0118, 0.043, hard),
-    p(0.0118, 0.0455, hard),
-    p(0.014, 0.0455, hard),
-    sweep([0.014, 0.0455], [0.06, 0.08], 7, cove, { band: "flute" }),
-    p(0.06, 0.08, hard),
-    p(0.06, 0.0825, hard),
-    p(0.066, 0.0825, hard),
-    arc(0.066, 0.0645, 0.018, 90, 8, 6, { band: "eggDart" }),
-    p(0.0845, 0.0635, hard),
-    p(0.0875, 0.0635, hard),
-    sweep([0.0875, 0.0635], [0.0985, 0.05], 3, scoop),
-    p(0.1, 0.048, hard),
-    ...backEdge(0.1, 0.048),
-  ),
-  // Italian cassetta for panel paintings: a rope-twist sight moulding,
-  // a wide flat frieze with punched ornament, a raised outer torus.
-  cassetta: join(
-    p(-0.006, 0.0365, hard),
-    p(-0.006, 0.046, hard),
-    p(-0.0008, 0.046, hard),
-    arc(0.0055, 0.046, 0.0063, 180, 0, 6, { band: "rope" }),
-    p(0.0118, 0.046, hard),
-    p(0.014, 0.046, hard),
-    p(0.014, 0.0435, hard),
-    sweep([0.014, 0.0435], [0.072, 0.0435], 4, () => 0, { band: "punch" }),
-    p(0.072, 0.0435, hard),
-    p(0.072, 0.047, hard),
-    sweep([0.072, 0.047], [0.08, 0.0555], 3, cove),
-    p(0.08, 0.0555, hard),
-    arc(0.091, 0.0545, 0.0105, 170, 10, 7),
-    p(0.1028, 0.053, hard),
-    p(0.105, 0.05, hard),
-    ...backEdge(0.105, 0.05),
-  ),
-  // Dark walnut bolection with a gilt sight slip.
-  walnut: join(
-    p(-0.005, 0.0365, { slot: 1, crease: true }),
-    p(-0.005, 0.0415, { slot: 1, crease: true }),
-    arc(-0.001, 0.0415, 0.004, 180, 0, 4, { slot: 1 }),
-    p(0.003, 0.0415, hard),
-    p(0.003, 0.046, hard),
-    p(0.006, 0.0475),
-    p(0.012, 0.0475, hard),
-    p(0.012, 0.05, hard),
-    sweep([0.012, 0.05], [0.052, 0.071], 7, ogee),
-    arc(0.052, 0.058, 0.013, 90, 10, 5),
-    p(0.066, 0.057, hard),
-    p(0.0725, 0.057, hard),
-    p(0.075, 0.054, hard),
-    ...backEdge(0.075, 0.054),
-  ),
-  // Dutch ebonised frame: two ripple mouldings either side of a
-  // polished flat.
-  ebony: join(
-    p(-0.005, 0.0365, hard),
-    p(-0.005, 0.0445, hard),
-    p(-0.002, 0.0465),
-    p(0.002, 0.0465, hard),
-    sweep([0.002, 0.0465], [0.015, 0.0555], 4, ogee, { band: "ripple" }),
-    p(0.015, 0.0555, hard),
-    p(0.0175, 0.0555, hard),
-    p(0.0175, 0.053, hard),
-    p(0.046, 0.053, hard),
-    p(0.046, 0.0565, hard),
-    sweep([0.046, 0.0565], [0.062, 0.069], 4, ovolo, { band: "ripple" }),
-    p(0.062, 0.069, hard),
-    p(0.071, 0.069),
-    p(0.0765, 0.0665),
-    p(0.08, 0.06, hard),
-    ...backEdge(0.08, 0.06),
-  ),
-  // Pale ash: a sight step, a wide scoop, a rounded outer edge.
-  paleAsh: join(
-    p(-0.004, 0.0365, hard),
-    p(-0.004, 0.043, hard),
-    p(0, 0.0455),
-    p(0.008, 0.0455, hard),
-    p(0.008, 0.048, hard),
-    sweep([0.008, 0.048], [0.056 - 0.009 * Math.SQRT1_2, 0.0575 + 0.009 * Math.SQRT1_2], 6, cove),
-    arc(0.056, 0.0575, 0.009, 135, 0, 5),
-    p(0.068, 0.05, hard),
-    ...backEdge(0.068, 0.05),
-  ),
-  // Print room: a window mat with a bevelled white core in a slim
-  // flat-topped ash frame. The mat is slot 1.
-  print: join(
-    p(-0.004, 0.0362, { slot: 1, crease: true, ao: 1, rough: 1, wear: 0 }),
-    p(-0.0012, 0.039, { slot: 1, crease: true, ao: 0.9, rough: 1, wear: 0 }),
-    p(0.06, 0.0392, { slot: 1, ao: 0.9, rough: 1, wear: 0 }),
-    p(0.068, 0.0392, { crease: true, ao: 0.62 }),
-    p(0.068, 0.0485, hard),
-    p(0.07, 0.0505),
-    p(0.086, 0.0505),
-    p(0.09, 0.0478),
-    p(0.092, 0.044, hard),
-    ...backEdge(0.092, 0.044),
-  ),
-  // Japanese prints: the same mat in a half-round red-black lacquer
-  // frame.
-  redLacquer: join(
-    p(-0.004, 0.0362, { slot: 1, crease: true, ao: 1, rough: 1, wear: 0 }),
-    p(-0.0012, 0.039, { slot: 1, crease: true, ao: 0.9, rough: 1, wear: 0 }),
-    p(0.056, 0.0392, { slot: 1, ao: 0.9, rough: 1, wear: 0 }),
-    p(0.064, 0.0392, { crease: true, ao: 0.62 }),
-    p(0.064, 0.047, hard),
-    arc(0.0735, 0.047, 0.0095, 180, 0, 8),
-    p(0.083, 0.004),
-  ),
-  // East Asian mount: the painting lies flush in a silk border (slot 1)
-  // finished with a thin dark-wood edge.
-  mount: join(
-    p(-0.003, 0.0362, { slot: 1, crease: true, ao: 0.94, rough: 1, wear: 0 }),
-    p(0.057, 0.0362, { slot: 1, ao: 0.94, rough: 1, wear: 0 }),
-    p(0.064, 0.0362, { crease: true, ao: 0.66 }),
-    p(0.064, 0.041, hard),
-    arc(0.0705, 0.041, 0.0065, 180, 0, 6),
-    p(0.078, 0.038, hard),
-    ...backEdge(0.078, 0.038),
-  ),
-  // Floater: no lip. The canvas edge (slot 1) drops into a dark tray
-  // with a shadow gap round it.
-  floater: join(
-    p(0, 0.0336, { slot: 1, crease: true, rough: 1, wear: 0 }),
-    p(0, 0.012, { crease: true, rough: 1.3, wear: 0 }),
-    p(0.01, 0.012, { crease: true, rough: 1.3, wear: 0 }),
-    p(0.01, 0.0405, hard),
-    p(0.011, 0.0415),
-    p(0.022, 0.0415),
-    p(0.024, 0.0395, hard),
-    ...backEdge(0.024, 0.0395),
-  ),
-};
-
-export const FRAME_PROFILES: Record<FrameVariantId, ShadedPoint[]> = Object.fromEntries(
-  Object.entries(RAW_PROFILES).map(([id, points]) => [id, shadeProfile(points)]),
-) as Record<FrameVariantId, ShadedPoint[]>;
-
-export const FRAME_VARIANT_IDS = Object.keys(RAW_PROFILES) as FrameVariantId[];
-
-/** Smallest and largest scale each variant is cut at. A floater is the
- *  same strip on any canvas; a mat grows less than a carved moulding. */
-const SCALE_RANGE: Record<FrameVariantId, [number, number]> = {
-  gilded: [0.62, 1.45],
-  giltCove: [0.62, 1.4],
-  cassetta: [0.6, 1.3],
-  walnut: [0.66, 1.4],
-  ebony: [0.66, 1.3],
-  paleAsh: [0.7, 1.3],
-  print: [0.8, 1.25],
-  redLacquer: [0.8, 1.25],
-  mount: [0.8, 1.25],
-  floater: [1, 1],
-};
+// ── Measuring and scaling ─────────────────────────────────────────────
 
 /** Outer reach of a profile past the canvas edge, metres. */
 export function profileWidth(profile: readonly ProfilePoint[]): number {
@@ -511,13 +319,6 @@ export function profileFrontZ(profile: readonly ProfilePoint[]): number {
   return Math.max(...profile.map((pt) => pt.z));
 }
 
-/** Moulding scale for a canvas of the given size, metres. A framer cuts
- *  a heavier moulding for a larger picture. */
-export function frameScale(variant: FrameVariantId, widthM: number, heightM: number): number {
-  const [lo, hi] = SCALE_RANGE[variant];
-  return Math.min(hi, Math.max(lo, 0.5 + 0.3 * Math.max(widthM, heightM)));
-}
-
 /** Scale a profile for the size of the work. Only the part in front of
  *  the canvas face is scaled in depth, so a lip stays in front of it. */
 export function scaleProfile<T extends ProfilePoint>(profile: readonly T[], scale: number): T[] {
@@ -526,129 +327,4 @@ export function scaleProfile<T extends ProfilePoint>(profile: readonly T[], scal
     o: pt.o * scale,
     z: pt.z > CANVAS_FACE_Z ? CANVAS_FACE_Z + (pt.z - CANVAS_FACE_Z) * scale : pt.z,
   }));
-}
-
-/** How far a work's frame reaches past each canvas edge, metres. The
- *  hang reserves this on both sides of every work. */
-export function frameReach(variant: FrameVariantId, widthM: number, heightM: number): number {
-  return profileWidth(FRAME_PROFILES[variant]) * frameScale(variant, widthM, heightM);
-}
-
-/** Widest any frame gets, metres: a gilded frame on the largest canvas. */
-export const MAX_FRAME_REACH = Math.max(
-  ...FRAME_VARIANT_IDS.map((id) => profileWidth(FRAME_PROFILES[id]) * SCALE_RANGE[id][1]),
-);
-
-// ── Which frame a work gets ───────────────────────────────────────────
-
-// First match wins, so a narrower name sits above the one it contains
-// ("Northern Renaissance" above "Renaissance"). A rule lists the frames
-// a museum would plausibly have a work of that school in; listing one
-// twice doubles its share. The pick within a rule is a stable hash of
-// the work's id, so a wall mixes frames and a work keeps its own.
-type FrameRule = [movement: string, frames: FrameVariantId[]];
-
-/** Works on paper and silk: matted or mounted whatever their date. */
-const PAPER_FRAMES: FrameRule[] = [
-  ["Ukiyo-e", ["redLacquer"]],
-  ["Shin-hanga", ["print", "redLacquer"]],
-  ["Classical East Asian", ["mount"]],
-  ["Nihonga", ["mount"]],
-  ["Natural history", ["print"]],
-  ["Botanical", ["print"]],
-];
-
-const PAINTING_FRAMES: FrameRule[] = [
-  ["Northern Renaissance", ["walnut", "walnut", "cassetta", "ebony"]],
-  ["Mannerism", ["gilded", "gilded", "cassetta"]],
-  ["Renaissance", ["cassetta", "cassetta", "gilded"]],
-  ["Flemish Baroque", ["gilded", "ebony"]],
-  ["Dutch Golden Age", ["ebony", "ebony", "walnut"]],
-  ["Baroque", ["gilded", "gilded", "gilded", "walnut"]],
-  ["Rococo", ["gilded", "gilded", "giltCove"]],
-  ["Neoclassicism", ["giltCove", "giltCove", "gilded"]],
-  ["Academicism", ["giltCove", "gilded"]],
-  ["Orientalism", ["gilded", "giltCove"]],
-  ["Hudson River", ["giltCove", "gilded"]],
-  ["Romanticism", ["giltCove", "walnut", "gilded", "walnut"]],
-  ["Pre-Raphaelite", ["cassetta", "giltCove"]],
-  ["Realism", ["walnut", "walnut", "giltCove"]],
-  ["Tonalism", ["walnut", "giltCove"]],
-  ["Neo-Impressionism", ["paleAsh"]],
-  ["Post-Impressionism", ["paleAsh", "ebony", "walnut"]],
-  ["Impressionism", ["paleAsh", "paleAsh", "giltCove"]],
-  ["Art Nouveau", ["paleAsh", "ebony"]],
-  ["Symbolism", ["ebony", "giltCove", "walnut"]],
-  ["Naive", ["paleAsh", "walnut"]],
-  ["Mir Iskusstva", ["walnut", "paleAsh", "ebony"]],
-  ["Regionalism", ["walnut", "paleAsh"]],
-  ["Cubism", ["floater", "floater", "ebony"]],
-  ["Dada", ["floater", "floater", "ebony"]],
-  ["Suprematism", ["floater"]],
-  ["Bauhaus", ["floater"]],
-  ["Expressionism", ["floater", "ebony", "paleAsh"]],
-  ["Fauvism", ["floater", "paleAsh"]],
-  ["Modernism", ["floater", "ebony"]],
-];
-
-/** Works dated before this are panel paintings and get the cassetta,
- *  whatever school they are tagged with. */
-const PANEL_BEFORE_YEAR = 1500;
-
-/** Whether a movement tag has a frame rule of its own, or falls
- *  through to the date. */
-export function hasFrameRule(movement: string): boolean {
-  return [...PAPER_FRAMES, ...PAINTING_FRAMES].some(([name]) => movement.includes(name));
-}
-
-function hashId(id: string): number {
-  let h = 0;
-  for (let i = 0; i < id.length; i++) h = (h * 31 + id.charCodeAt(i)) | 0;
-  return Math.abs(h);
-}
-
-/** The frames a museum would plausibly have this work in: by movement,
- *  then by date for the works without one. */
-function framePool(artwork: Pick<ArtworkListing, "movement" | "year">): FrameVariantId[] {
-  const m = artwork.movement;
-  const year = artwork.year;
-  const paper = m && PAPER_FRAMES.find(([name]) => m.includes(name));
-  if (paper) return paper[1];
-  if (year != null && year < PANEL_BEFORE_YEAR) {
-    return ["cassetta", "cassetta", "cassetta", "walnut"];
-  }
-  const painting = m && PAINTING_FRAMES.find(([name]) => m.includes(name));
-  if (painting) return painting[1];
-  if (year == null) return ["walnut", "giltCove", "paleAsh"];
-  if (year < 1700) return ["gilded", "walnut", "ebony"];
-  if (year < 1860) return ["giltCove", "gilded", "walnut"];
-  if (year < 1905) return ["giltCove", "walnut", "paleAsh"];
-  return ["ebony", "floater", "paleAsh"];
-}
-
-type Framed = Pick<ArtworkListing, "id" | "movement" | "year">;
-
-/** The frame a work hangs in. Deterministic per id. */
-export function pickFrameVariant(artwork: Framed): FrameVariantId {
-  const pool = framePool(artwork);
-  return pool[hashId(artwork.id) % pool.length];
-}
-
-/**
- * One frame for two works hung as a pair (the Grand Hall's mirrored
- * slots). It is the lead work's own frame when the partner's school
- * hangs in that frame too. Otherwise it is the next frame in the lead's
- * list that the partner's school allows, so a Baroque canvas beside a
- * Dutch one takes the walnut both rules name. Two schools with no frame
- * in common keep the lead's own.
- */
-export function pickPairFrame(lead: Framed, partner: Framed): FrameVariantId {
-  const pool = framePool(lead);
-  const allowed = new Set(framePool(partner));
-  const own = hashId(lead.id) % pool.length;
-  for (let k = 0; k < pool.length; k++) {
-    const frame = pool[(own + k) % pool.length];
-    if (allowed.has(frame)) return frame;
-  }
-  return pool[own];
 }

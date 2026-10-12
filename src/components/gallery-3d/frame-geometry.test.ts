@@ -1,45 +1,31 @@
 import * as THREE from "three";
 import { describe, expect, it } from "vitest";
+import { profileWidth } from "@/lib/gallery-layout/frame-profiles";
 import {
-  CANVAS_FACE_Z,
-  FRAME_PROFILES,
-  FRAME_VARIANT_IDS,
-  frameScale,
-  profileWidth,
-  scaleProfile,
-} from "@/lib/gallery-layout/frame-profiles";
+  buildStyle,
+  FRAME_STYLE_IDS,
+  type FrameStyleId,
+  type StyleOptions,
+  styleChoices,
+  swollenWidth,
+} from "@/lib/gallery-layout/frame-styles";
 import { buildFrameGeometry, carvePeriods } from "./frame-geometry";
 import { CARVE_ROWS } from "./frame-maps";
 
 const WALL_OFFSET = 0.02;
 
-describe("frame profiles", () => {
-  it.each(FRAME_VARIANT_IDS)("%s clears the canvas and ends on the wall", (id) => {
-    const profile = FRAME_PROFILES[id];
-    if (profile[0].o < 0) {
-      // A lip must sit in front of the canvas face or it z-fights it.
-      expect(profile[0].z).toBeGreaterThan(CANVAS_FACE_Z + 0.002);
-    } else {
-      // No lip (a floater): the profile starts at the canvas edge, just
-      // behind its face.
-      expect(profile[0].o).toBe(0);
-      expect(profile[0].z).toBeLessThan(CANVAS_FACE_Z);
-    }
-    // The frame ends on (just off) the wall, at its widest.
-    const last = profile[profile.length - 1];
-    expect(last.z).toBeLessThan(0.01);
-    expect(last.o).toBeCloseTo(profileWidth(profile), 9);
-  });
-
-  it("keeps the lip in front of the canvas when scaled down", () => {
-    for (const id of FRAME_VARIANT_IDS) {
-      const profile = FRAME_PROFILES[id];
-      if (profile[0].o >= 0) continue;
-      const small = scaleProfile(profile, frameScale(id, 0.3, 0.2));
-      expect(small[0].z).toBeGreaterThan(CANVAS_FACE_Z);
-    }
-  });
-});
+/** A style with the first ornament of each of its lists. */
+function firstOf(id: FrameStyleId, more: Partial<StyleOptions> = {}): StyleOptions {
+  const c = styleChoices(id);
+  return {
+    sight: c.sight[0],
+    field: c.field[0],
+    crown: c.crown[0],
+    variant: 0,
+    detail: 0,
+    ...more,
+  };
+}
 
 describe("carvePeriods", () => {
   const half = 0.5;
@@ -76,7 +62,7 @@ describe("carvePeriods", () => {
 });
 
 describe("buildFrameGeometry", () => {
-  const profile = FRAME_PROFILES.gilded;
+  const profile = buildStyle("leafTorus", firstOf("leafTorus")).profile;
   const geom = buildFrameGeometry(profile, 1, 0.6, WALL_OFFSET);
 
   it("wraps the canvas symmetrically and reaches the profile's width", () => {
@@ -90,36 +76,47 @@ describe("buildFrameGeometry", () => {
     expect(box.min.z).toBeCloseTo(0.004 - WALL_OFFSET, 6);
   });
 
-  it("puts a slip, mat or canvas edge in its own material group", () => {
-    expect(geom.groups.map((g) => g.materialIndex)).toEqual([0]);
-    for (const id of ["walnut", "print", "redLacquer", "mount", "floater"] as const) {
-      const g = buildFrameGeometry(FRAME_PROFILES[id], 1, 0.6, WALL_OFFSET);
-      expect(g.groups.map((group) => group.materialIndex)).toEqual([0, 1]);
+  it("puts each material slot the moulding uses in its own group", () => {
+    const groupsOf = (id: FrameStyleId, more: Partial<StyleOptions> = {}) => {
+      const g = buildFrameGeometry(buildStyle(id, firstOf(id, more)).profile, 1, 0.6, WALL_OFFSET);
       expect(g.groups.reduce((n, group) => n + group.count, 0)).toBe(g.index?.count);
+      return g.groups.map((group) => group.materialIndex);
+    };
+    expect(geom.groups.map((g) => g.materialIndex)).toEqual([0]);
+    // A slip, a mat, a silk border, a canvas edge.
+    for (const id of ["bolection", "print", "mount", "floater", "watts"] as const) {
+      expect(groupsOf(id)).toEqual([0, 1]);
     }
+    // Parcel gilding, and a Hogarth frame's two gilt beads round a mat.
+    expect(groupsOf("parcel")).toEqual([0, 2]);
+    expect(groupsOf("print", { variant: 2 })).toEqual([0, 1, 2]);
   });
 
-  it.each(FRAME_VARIANT_IDS)("winds every face of %s toward its normal", (id) => {
-    const g = buildFrameGeometry(FRAME_PROFILES[id], 0.8, 1.1, WALL_OFFSET);
-    const pos = g.getAttribute("position");
-    const nrm = g.getAttribute("normal");
-    const idx = g.index as THREE.BufferAttribute;
-    const a = new THREE.Vector3();
-    const b = new THREE.Vector3();
-    const c = new THREE.Vector3();
-    const n = new THREE.Vector3();
-    let faces = 0;
-    for (let t = 0; t < idx.count; t += 3) {
-      a.fromBufferAttribute(pos, idx.getX(t));
-      b.fromBufferAttribute(pos, idx.getX(t + 1));
-      c.fromBufferAttribute(pos, idx.getX(t + 2));
-      const face = b.clone().sub(a).cross(c.clone().sub(a));
-      if (face.lengthSq() < 1e-16) continue;
-      n.fromBufferAttribute(nrm, idx.getX(t));
-      expect(face.normalize().dot(n)).toBeGreaterThan(0.2);
-      faces++;
+  it.each(FRAME_STYLE_IDS)("winds every face of %s toward its normal", (id) => {
+    const c = styleChoices(id);
+    for (let variant = 0; variant < c.variants; variant++) {
+      const style = buildStyle(id, firstOf(id, { variant }));
+      const g = buildFrameGeometry(style.profile, 0.8, 1.1, WALL_OFFSET, { swell: style.swell });
+      const pos = g.getAttribute("position");
+      const nrm = g.getAttribute("normal");
+      const idx = g.index as THREE.BufferAttribute;
+      const a = new THREE.Vector3();
+      const b = new THREE.Vector3();
+      const c3 = new THREE.Vector3();
+      const n = new THREE.Vector3();
+      let faces = 0;
+      for (let t = 0; t < idx.count; t += 3) {
+        a.fromBufferAttribute(pos, idx.getX(t));
+        b.fromBufferAttribute(pos, idx.getX(t + 1));
+        c3.fromBufferAttribute(pos, idx.getX(t + 2));
+        const face = b.clone().sub(a).cross(c3.clone().sub(a));
+        if (face.lengthSq() < 1e-16) continue;
+        n.fromBufferAttribute(nrm, idx.getX(t));
+        expect(face.normalize().dot(n)).toBeGreaterThan(0.2);
+        faces++;
+      }
+      expect(faces).toBeGreaterThan(30);
     }
-    expect(faces).toBeGreaterThan(40);
   });
 
   it("points carved stretches at their atlas row and leaves the rest ungated", () => {
@@ -170,5 +167,97 @@ describe("buildFrameGeometry", () => {
       checked++;
     }
     expect(checked).toBeGreaterThan(10);
+  });
+
+  it("writes a frame's own tone, polish, wear and carving into its vertices", () => {
+    const plain = buildFrameGeometry(profile, 1, 0.6, WALL_OFFSET);
+    const own = buildFrameGeometry(profile, 1, 0.6, WALL_OFFSET, {
+      slots: [{ tint: [0.5, 0.25, 1.5], rough: 2, burnish: 0, wear: 0, carve: 0.5 }],
+    });
+    const color = own.getAttribute("color");
+    const frame = own.getAttribute("aFrame");
+    const base = plain.getAttribute("aFrame");
+    expect(frame.itemSize).toBe(4);
+    for (let i = 0; i < color.count; i += 7) {
+      const ao = frame.getW(i);
+      expect(ao).toBeCloseTo(base.getW(i), 6);
+      expect(color.getX(i)).toBeCloseTo(0.5 * ao, 6);
+      expect(color.getY(i)).toBeCloseTo(0.25 * ao, 6);
+      expect(color.getZ(i)).toBeCloseTo(1.5 * ao, 6);
+      // No burnishing: the roughness multiplier is the finish's alone.
+      expect(frame.getX(i)).toBeCloseTo(2, 6);
+      expect(frame.getZ(i)).toBe(0);
+      expect(Math.abs(frame.getY(i))).toBeCloseTo(Math.abs(base.getY(i)) * 0.5, 6);
+    }
+  });
+});
+
+describe("a swept frame", () => {
+  const style = buildStyle("swept", firstOf("swept"));
+  const swell = style.swell;
+  const plain = profileWidth(style.profile);
+  const g = buildFrameGeometry(style.profile, 1.6, 1.2, WALL_OFFSET, { swell });
+  const pos = g.getAttribute("position");
+  /** Furthest the right rail reaches in a band of y. */
+  const reachAt = (y0: number, y1: number) => {
+    let x = 0;
+    for (let i = 0; i < pos.count; i++) {
+      const y = pos.getY(i);
+      if (y >= y0 && y <= y1) x = Math.max(x, pos.getX(i));
+    }
+    return x - 0.8;
+  };
+
+  it("swells at the corners and the centres and runs straight between", () => {
+    if (!swell) throw new Error("swept has a swell");
+    const at = (share: number) => swell.pivot + (plain - swell.pivot) * (1 + share);
+    g.computeBoundingBox();
+    const box = g.boundingBox as THREE.Box3;
+    expect(box.max.x - 0.8).toBeCloseTo(swollenWidth(plain, swell), 6);
+    expect(box.max.y - 0.6).toBeCloseTo(swollenWidth(plain, swell), 6);
+    expect(reachAt(-0.001, 0.001)).toBeCloseTo(at(swell.centre), 6);
+    // Where the centre swell ends and where the corner swell begins:
+    // the rail between them is one straight stretch.
+    expect(reachAt(swell.centreSpan - 0.001, swell.centreSpan + 0.001)).toBeCloseTo(plain, 6);
+    expect(reachAt(0.599 - swell.cornerSpan, 0.601 - swell.cornerSpan)).toBeCloseTo(plain, 6);
+    expect(reachAt(0.599, 0.8)).toBeCloseTo(at(swell.corner), 6);
+  });
+
+  it("leaves the sight edge straight", () => {
+    for (let i = 0; i < pos.count; i++) {
+      const x = Math.abs(pos.getX(i));
+      const y = Math.abs(pos.getY(i));
+      // Nothing of the frame lies over the picture beyond the lip.
+      expect(x > 0.8 - 0.0065 || y > 0.6 - 0.0065).toBe(true);
+    }
+  });
+
+  it("carves a shell on the swells in place of the running ornament", () => {
+    const carve = g.getAttribute("aCarveUv");
+    const frame = g.getAttribute("aFrame");
+    const shell = CARVE_ROWS.shell;
+    let shells = 0;
+    for (let i = 0; i < carve.count; i++) {
+      if (frame.getY(i) === 0) continue;
+      const v = carve.getY(i);
+      if (v >= shell.v0 - 1e-6 && v <= shell.v1 + 1e-6) {
+        shells++;
+        // Half a tile either side of a centre line or a mitre.
+        expect(carve.getX(i)).toBeGreaterThanOrEqual(0);
+        expect(carve.getX(i)).toBeLessThanOrEqual(0.5 / shell.repeats + 1e-6);
+      }
+    }
+    expect(shells).toBeGreaterThan(50);
+  });
+
+  it("stays light: a few thousand triangles", () => {
+    expect((g.index as THREE.BufferAttribute).count / 3).toBeLessThan(5000);
+    const straight = buildFrameGeometry(
+      buildStyle("empire", firstOf("empire")).profile,
+      1.6,
+      1.2,
+      WALL_OFFSET,
+    );
+    expect((straight.index as THREE.BufferAttribute).count / 3).toBeLessThan(1200);
   });
 });

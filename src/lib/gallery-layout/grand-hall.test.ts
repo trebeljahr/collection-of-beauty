@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import type { ArtworkListing } from "@/lib/data";
-import { frameReach, pickFrameVariant } from "./frame-profiles";
+import { frameReach, pickFrameDesign } from "./frame-design";
 import { hangGrandHall, pickHallCandidates } from "./grand-hall";
 import { PLAQUE_FOOTPRINT } from "./place-paintings";
 import type { Door, Placement, RoomLayout } from "./types";
@@ -86,8 +86,9 @@ function work(
   } as ArtworkListing;
 }
 
-// The two giants are of schools with one frame in common: Baroque hangs
-// in gilt or walnut, Dutch Golden Age in ebony or walnut.
+// The two giants are of schools with one look in common, the wood
+// bolection: Baroque otherwise hangs in gilt or black and gold, Dutch
+// Golden Age in ebony.
 const POOL = [
   work("giant-a", 320, 200, "giant-a", "Baroque"),
   work("giant-b", 310, 195, "giant-b", "Dutch Golden Age"),
@@ -106,7 +107,7 @@ const POOL = [
 
 /** The frame a placement is drawn in, as the renderer resolves it. */
 function frameOf(p: Placement) {
-  return p.frame ?? pickFrameVariant(p.artwork);
+  return p.frame ?? pickFrameDesign(p.artwork);
 }
 
 function wallOf(p: Placement, room: RoomLayout): Door["side"] {
@@ -176,7 +177,9 @@ describe("hangGrandHall", () => {
         expect(p.frame, `${p.artwork.id} on ${side} carries no frame`).toBeDefined();
         expect(twin?.frame).toBe(p.frame);
         pairs++;
-        if (twin && pickFrameVariant(twin.artwork) !== pickFrameVariant(p.artwork)) wouldDiffer++;
+        if (twin && pickFrameDesign(twin.artwork).key !== pickFrameDesign(p.artwork).key) {
+          wouldDiffer++;
+        }
       }
     }
     expect(pairs).toBeGreaterThanOrEqual(8);
@@ -186,7 +189,8 @@ describe("hangGrandHall", () => {
 
   it("frames a pair in the moulding both schools hang in", () => {
     const giants = placements.filter((p) => p.artwork.id.startsWith("giant-"));
-    expect(giants.map((p) => p.frame)).toEqual(["walnut", "walnut"]);
+    expect(giants.map((p) => p.frame?.look)).toEqual(["bolection", "bolection"]);
+    expect(giants[0].frame).toBe(giants[1].frame);
   });
 
   it("keeps paintings and plaques clear of doors and of each other", () => {

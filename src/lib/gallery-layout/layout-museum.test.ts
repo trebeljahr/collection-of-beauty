@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest";
 import type { ArtworkListing } from "@/lib/data";
 import { benchRect, dividerRect, type Rect } from "./fittings";
-import { frameReach, pickFrameVariant } from "./frame-profiles";
+import { frameReach, pickFrameDesign } from "./frame-design";
 import {
   type CellRect,
   GRAND_HALL,
@@ -337,7 +337,7 @@ describe("how high the works hang", () => {
   /** How far the frame the work actually hangs in reaches past its
    *  canvas. A Grand Hall pair shares one frame (`Placement.frame`). */
   const reachOf = (p: Placement) =>
-    frameReach(p.frame ?? pickFrameVariant(p.artwork), p.widthM, p.heightM);
+    frameReach(p.frame ?? pickFrameDesign(p.artwork), p.widthM, p.heightM);
 
   it("keeps every frame 0.4 m off the floor", () => {
     expect(hung.length).toBeGreaterThan(100);

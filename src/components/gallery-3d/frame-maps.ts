@@ -196,7 +196,8 @@ export function heightToNormal(
 
 // ── Carve atlas ───────────────────────────────────────────────────────
 
-export const CARVE_ATLAS_SIZE = 512;
+export const CARVE_ATLAS_W = 512;
+export const CARVE_ATLAS_H = 1024;
 /** Texels of each row's own edge repeated above and below it, so
  *  filtering never reads a neighbouring ornament. */
 const ROW_PAD = 3;
@@ -368,6 +369,220 @@ const BANDS: Record<CarveBand, BandSpec> = {
     relief: 0.06,
     height: (u) => 0.5 + 0.5 * Math.cos(2 * Math.PI * u),
   },
+  // Acanthus leaves lying along the moulding, each over the root of the
+  // next: a serrated outline, a centre rib, veins raking back from it.
+  // They point along the rail, so the two halves of a rail meet tip to
+  // tip at its centre, as carvers set them out.
+  acanthus: {
+    rows: 88,
+    repeats: 2,
+    aspect: 1.15,
+    relief: 0.13,
+    height: (u, v) => {
+      let h = 0.08;
+      for (let k = -1; k <= 0; k++) {
+        const s = (u - k) / 1.3;
+        if (s <= 0 || s >= 1) continue;
+        const t = v - 0.5;
+        const lobes = 0.8 + 0.2 * Math.abs(Math.sin(5 * Math.PI * s));
+        const w = 0.47 * Math.sin(Math.PI * s) ** 0.55 * (1 - 0.3 * s) * lobes;
+        if (Math.abs(t) >= w) continue;
+        const across = Math.sqrt(1 - (t / w) ** 2);
+        const rib = Math.exp(-((t / 0.045) ** 2)) * (1 - s);
+        const vein = 0.5 + 0.5 * Math.cos(13 * Math.PI * (s - 0.75 * Math.abs(t)));
+        const leaf = (0.3 + 0.55 * s) * across ** 0.7 + 0.14 * rib + 0.1 * vein * across;
+        if (leaf > h) h = leaf;
+      }
+      return h;
+    },
+  },
+  // Guilloche: two bands braided round a row of bosses.
+  guilloche: {
+    rows: 56,
+    repeats: 4,
+    aspect: 1.5,
+    relief: 0.07,
+    height: (u, v) => {
+      const wave = 0.3 * Math.sin(2 * Math.PI * u);
+      const over = Math.cos(2 * Math.PI * u) > 0;
+      let h = 0.15;
+      for (const [sign, top] of [
+        [1, over],
+        [-1, !over],
+      ] as const) {
+        const d = Math.abs(v - 0.5 - sign * wave) / 0.085;
+        if (d < 1) h = Math.max(h, (top ? 0.95 : 0.7) * (0.55 + 0.45 * Math.sqrt(1 - d * d)));
+      }
+      for (const c of [0.25, 0.75]) {
+        const r = Math.hypot((u - c) * 1.5, v - 0.5) / 0.13;
+        if (r < 1) h = Math.max(h, 0.45 + 0.5 * Math.sqrt(1 - r * r));
+      }
+      if (v < 0.07 || v > 0.93) h = Math.max(h, 0.6);
+      return h;
+    },
+  },
+  // A shell between two scrolls: the cartouche a swept frame carries at
+  // its corners and centres. One tile, symmetric about its middle; the
+  // hinge is at the sight side.
+  shell: {
+    rows: 80,
+    repeats: 4,
+    aspect: 1.8,
+    relief: 0.14,
+    height: (u, v) => {
+      const x = (u - 0.5) * 1.8;
+      const y = v - 0.1;
+      const r = Math.hypot(x, y);
+      const a = Math.atan2(y, x);
+      let h = 0.12;
+      if (y > 0 && a > 0.1 * Math.PI && a < 0.9 * Math.PI) {
+        const rim = 0.8 - 0.05 * Math.cos(9 * a);
+        if (r < rim) {
+          const flutes = 0.72 + 0.28 * Math.cos(9 * a);
+          h = 0.3 + 0.6 * (r / rim) ** 0.8 * flutes;
+        }
+      }
+      if (r < 0.13) h = 0.5 + 0.45 * Math.sqrt(1 - (r / 0.13) ** 2);
+      for (const side of [-1, 1]) {
+        const d = Math.hypot(x - side * 0.66, v - 0.4);
+        const ring = Math.abs(d - 0.17) / 0.055;
+        if (ring < 1) h = Math.max(h, 0.4 + 0.5 * Math.sqrt(1 - ring * ring));
+        if (d < 0.07) h = Math.max(h, 0.5 + 0.4 * Math.sqrt(1 - (d / 0.07) ** 2));
+      }
+      return h;
+    },
+  },
+  // Imbrication: coin-shaped scales in three staggered rows.
+  scale: {
+    rows: 40,
+    repeats: 8,
+    aspect: 0.55,
+    relief: 0.09,
+    height: (u, v) => {
+      let h = 0;
+      for (let row = 0; row < 4; row++) {
+        const cv = row * 0.33 - 0.08;
+        const t = (v - cv) / 0.44;
+        if (t < 0 || t > 1) continue;
+        for (let k = -1; k <= 1; k++) {
+          const x = (u - (k + 0.5 * (row % 2) + 0.5)) / 0.5;
+          const d = Math.hypot(x, t);
+          if (d >= 1) continue;
+          // Each scale rises to its free edge and carries a rim there.
+          const lift = 0.25 + 0.6 * t + 0.2 * smooth(0.78, 0.95, d);
+          if (lift > h) h = lift;
+        }
+      }
+      return h;
+    },
+  },
+  // Greek key: a raised fret between two fillets. A base line runs
+  // the length of the moulding and a square hook rises from it once a
+  // period.
+  meander: {
+    rows: 36,
+    repeats: 8,
+    aspect: 1.2,
+    relief: 0.05,
+    height: (u, v) => {
+      if (v < 0.08 || v > 0.92) return 1;
+      const hook: Array<[number, number]> = [
+        [0.15, 0.8],
+        [0.15, 0.2],
+        [0.85, 0.2],
+        [0.85, 0.62],
+        [0.48, 0.62],
+        [0.48, 0.42],
+        [0.66, 0.42],
+      ];
+      let d = Math.abs(v - 0.8);
+      for (let i = 0; i < hook.length - 1; i++) {
+        const [ax, ay] = hook[i];
+        const [bx, by] = hook[i + 1];
+        const t = sat(
+          ((u - ax) * (bx - ax) + (v - ay) * (by - ay)) / ((bx - ax) ** 2 + (by - ay) ** 2),
+        );
+        // The band is `aspect` times longer than it is wide.
+        d = Math.min(d, Math.hypot((u - ax - t * (bx - ax)) * 1.2, v - ay - t * (by - ay)));
+      }
+      return d < 0.055 ? 1 : 0.2 * smooth(0.11, 0.055, d);
+    },
+  },
+  // Gadroons: fat slanted lobes, rounded off at both edges.
+  gadroon: {
+    rows: 36,
+    repeats: 8,
+    aspect: 0.5,
+    relief: 0.2,
+    height: (u, v) => {
+      const x = (fract(u + 0.5 * (v - 0.5)) - 0.5) / 0.47;
+      const ends = smooth(0, 0.2, v) * smooth(1, 0.82, v);
+      return Math.abs(x) < 1 ? Math.sqrt(1 - x * x) * (0.25 + 0.75 * ends) : 0;
+    },
+  },
+  // Ribbon and stick: a rod along the moulding with a ribbon wound
+  // round it.
+  ribbon: {
+    rows: 36,
+    repeats: 8,
+    aspect: 0.9,
+    relief: 0.14,
+    height: (u, v) => {
+      const t = v - 0.5;
+      const stick = Math.abs(t) < 0.17 ? 0.55 * Math.sqrt(1 - (t / 0.17) ** 2) : 0;
+      const s = fract(u + 0.95 * t);
+      if (s > 0.12 && s < 0.6 && Math.abs(t) < 0.46) {
+        const along = (s - 0.36) / 0.24;
+        return Math.max(stick, 0.62 + 0.3 * Math.sqrt(1 - along * along) * (1 - (t / 0.46) ** 2));
+      }
+      return stick;
+    },
+  },
+  // Bead and reel: a long bead between pairs of discs.
+  beadReel: {
+    rows: 24,
+    repeats: 8,
+    aspect: 1.5,
+    relief: 0.3,
+    height: (u) => {
+      const bead = (u - 0.5) / 0.27;
+      if (Math.abs(bead) < 1) return Math.sqrt(1 - bead * bead);
+      let h = 0;
+      for (const c of [0.1, 0.9]) {
+        const reel = (u - c) / 0.055;
+        if (Math.abs(reel) < 1) h = Math.max(h, 0.85 * Math.sqrt(1 - reel * reel));
+      }
+      return h;
+    },
+  },
+  // Planished metal: the shallow dimples a hammer leaves.
+  hammer: {
+    rows: 32,
+    repeats: 4,
+    aspect: 1,
+    relief: 0.03,
+    height: (u, v) => {
+      const G = 5;
+      const gx = u * G;
+      const gy = v * G;
+      let nearest = 1e9;
+      for (let j = -1; j <= 1; j++) {
+        for (let i = -1; i <= 1; i++) {
+          const cx = Math.floor(gx) + i;
+          const cy = Math.floor(gy) + j;
+          // Jitter from the cell, wrapped in u so the tile repeats.
+          const key = (((cx % G) + G) % G) * 37 + cy * 101;
+          const jx = fract(Math.sin(key * 12.9898) * 43758.5453);
+          const jy = fract(Math.sin(key * 78.233) * 12543.531);
+          nearest = Math.min(
+            nearest,
+            Math.hypot(cx + 0.2 + 0.6 * jx - gx, cy + 0.2 + 0.6 * jy - gy),
+          );
+        }
+      }
+      return smooth(0, 0.6, nearest);
+    },
+  },
 };
 
 export type CarveRow = {
@@ -386,23 +601,23 @@ export const CARVE_ROWS: Record<CarveBand, CarveRow> = (() => {
   for (const [name, spec] of Object.entries(BANDS) as Array<[CarveBand, BandSpec]>) {
     y += ROW_PAD;
     out[name] = {
-      v0: (y + 0.5) / CARVE_ATLAS_SIZE,
-      v1: (y + spec.rows - 0.5) / CARVE_ATLAS_SIZE,
+      v0: (y + 0.5) / CARVE_ATLAS_H,
+      v1: (y + spec.rows - 0.5) / CARVE_ATLAS_H,
       repeats: spec.repeats,
       aspect: spec.aspect,
     };
     y += spec.rows + ROW_PAD;
   }
-  if (y > CARVE_ATLAS_SIZE) throw new Error(`carve atlas rows need ${y} texels`);
+  if (y > CARVE_ATLAS_H) throw new Error(`carve atlas rows need ${y} texels`);
   return out;
 })();
 
 /** The carve atlas as a tangent-space normal map. */
 export function buildCarveAtlas(): Uint8Array {
-  const S = CARVE_ATLAS_SIZE;
-  const out = new Uint8Array(S * S * 4);
+  const S = CARVE_ATLAS_W;
+  const out = new Uint8Array(S * CARVE_ATLAS_H * 4);
   // Flat everywhere a band does not write.
-  for (let i = 0; i < S * S; i++) {
+  for (let i = 0; i < S * CARVE_ATLAS_H; i++) {
     out[i * 4] = 128;
     out[i * 4 + 1] = 128;
     out[i * 4 + 2] = 255;
@@ -639,7 +854,8 @@ export function buildLacquerMaps(): { color: Pixels; normal: Pixels } {
 /**
  * Silk brocade for an East Asian mount: interlocked circles (shippō)
  * woven in a lighter, glossier thread. sRGB, roughness multiplier in
- * alpha.
+ * alpha. The frame maps hold one in grey: a mount's colour is its tint
+ * (frame-design.ts), so every silk shares the texture.
  */
 export function buildSilkMap(
   ground: [number, number, number],
@@ -674,6 +890,10 @@ export function buildSilkMap(
   }
   return { data, width: S, height: S };
 }
+
+/** Ground of the shared silk map. `SURFACE_BASE.silk` in frame-design.ts
+ *  is the same grey: a silk's tint is its colour over this. */
+export const SILK_GROUND: [number, number, number] = [200, 200, 200];
 
 /** Plain weave: the threads of silk, or of canvas on a stretcher edge. */
 export function buildWeaveNormal(): Pixels {
@@ -747,11 +967,9 @@ export function getFrameMaps(): FrameMaps {
   const ash = buildWoodMaps(ASH);
   const lacquer = buildLacquerMaps();
   maps = {
-    carve: texture(
-      { data: buildCarveAtlas(), width: CARVE_ATLAS_SIZE, height: CARVE_ATLAS_SIZE },
-      null,
-      { clampV: true },
-    ),
+    carve: texture({ data: buildCarveAtlas(), width: CARVE_ATLAS_W, height: CARVE_ATLAS_H }, null, {
+      clampV: true,
+    }),
     giltColor: texture(gilt.color, TILE_M.gilt),
     giltRough: texture(gilt.rough, TILE_M.gilt),
     giltNormal: texture(gilt.normal, TILE_M.gilt),
@@ -761,7 +979,7 @@ export function getFrameMaps(): FrameMaps {
     ashNormal: texture(ash.normal, TILE_M.wood),
     lacquerColor: texture(lacquer.color, TILE_M.lacquer),
     lacquerNormal: texture(lacquer.normal, TILE_M.lacquer),
-    silkColor: texture(buildSilkMap([150, 133, 92], [203, 184, 132]), TILE_M.silk, { srgb: true }),
+    silkColor: texture(buildSilkMap(SILK_GROUND, [255, 255, 255]), TILE_M.silk, { srgb: true }),
     weaveNormal: texture(buildWeaveNormal(), TILE_M.weave),
     paperNormal: texture(buildPaperNormal(), TILE_M.paper),
   };

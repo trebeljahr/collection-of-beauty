@@ -179,13 +179,13 @@ export const frameMaterial = new THREE.MeshStandardMaterial({
   metalness: 0.05,
 });
 
-// ── Frame variants ────────────────────────────────────────────────────
-// The frame looks, their materials and their surface maps live in
-// frame-materials.ts and frame-maps.ts; which work gets which is decided
-// in lib/gallery-layout/frame-profiles.ts. Re-exported here because
-// this is where the rest of the gallery looks for materials.
+// ── Frames ────────────────────────────────────────────────────────────
+// The frame materials and their surface maps live in frame-materials.ts
+// and frame-maps.ts; which work gets which frame is decided in
+// lib/gallery-layout/frame-design.ts. Re-exported here because this is
+// where the rest of the gallery looks for materials.
 
-export { FRAME_VARIANTS, type FrameVariant } from "./frame-materials";
+export { frameMaterials } from "./frame-materials";
 
 // Dark bronze metalwork: the frame round each laylight (laylight.tsx).
 export const fixtureMaterial = new THREE.MeshStandardMaterial({

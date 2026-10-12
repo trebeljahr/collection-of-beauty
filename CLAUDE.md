@@ -218,11 +218,12 @@ required by the Dockerfile — don't remove it.
   `distributePaintings` skips the hall so spill can't break the
   symmetry. A floor with fewer than 4 composable works falls back to
   the ordinary hang. Both works of a pair hang in one frame
-  (`pickPairFrame`): the lead's own when the partner's school allows it,
-  else the next frame in the lead's list that it does. The pair's
-  placements carry it as `Placement.frame`; without one the renderer
-  uses `pickFrameVariant`. The slot's wall and lift come from that same
-  frame, so read `Placement.frame` wherever a hall work's reach matters.
+  (`pickPairDesign`), drawn from the looks both schools hang in, each
+  weighted by how well it suits both pictures. Two schools with no look
+  in common keep the lead's own design. The pair's placements carry it
+  as `Placement.frame`; without one the renderer uses `pickFrameDesign`.
+  The slot's wall and lift come from that same frame, so read
+  `Placement.frame` wherever a hall work's reach matters.
 - A room has fittings besides its four walls: a ceiling height,
   freestanding divider walls and benches
   ([`fittings.ts`](src/lib/gallery-layout/fittings.ts)). They are
@@ -403,53 +404,114 @@ required by the Dockerfile — don't remove it.
   (`mergeBoxes`). As a mesh apiece they were about 100 draw calls a
   stairwell, which is what pays for the light.
 - Frames are moulding profiles swept round the canvas with mitred
-  corners (`frame-geometry.ts`). There are ten: carved gilt, fluted
-  gilt, a cassetta for panels, walnut, ripple ebony, pale ash, two
-  matted print frames, a silk mount and a floater. Which work gets
-  which, each profile and how far it reaches past the canvas are in
-  `src/lib/gallery-layout/frame-profiles.ts`. That module has no
-  three.js in it because the hang reads it too.
+  corners (`frame-geometry.ts`). What is swept is decided in three
+  modules of `src/lib/gallery-layout/`, none with three.js in it because
+  the hang reads them too:
+  - `frame-profiles.ts`: the tools to draw a cross-section, and
+    `shadeProfile`, which works out occlusion, burnished high points and
+    wear from the shape. Set `ao`, `rough` or `wear` on a point only to
+    override it (mats do).
+  - `frame-styles.ts`: 21 mouldings, from the Baroque leaf torus to a
+    strip frame. Each is a builder. It takes the ornament for its sight
+    moulding, its field and its crown, and two structural alternates, so
+    one style yields dozens of profiles: a print mat comes 44 to 88 mm
+    wide, with or without a gilt line, in five frames. A profile is
+    shaded once per combination and cached.
+  - `frame-design.ts`: which frame a work gets (`pickFrameDesign`). A
+    design is a *look* (35: a moulding and the finishes it comes in),
+    its ornament, one finish per material slot, and the work's own
+    numbers: how heavy the moulding is cut, how worn and how polished it
+    is, how deep its carving, the exact tone of its gold or its mat. On
+    12 October 2026 each of the 4,555 works had a design no other work
+    has, cut from 329 different mouldings (`frame-design.test.ts` pins
+    97 %).
+  - **The picture chooses with the school.** School and date name the
+    looks a museum would plausibly have the work in, weighted
+    (`looksFor`). `readPicture` then shifts the weights: a dark painting
+    takes gilding, a high-key one a pale or painted frame, gold is
+    warmed beside a cool picture and cooled beside a warm one, a mat or
+    a silk mount takes its tone from the sheet. Country and words in the
+    title (portrait, landscape, still life) bias it too. Warmth comes
+    from `colorBuckets`, because `dominantColor` calls nearly every
+    painting warm brown. The pick is a weighted draw on a hash of the
+    id, so the server, the browser and every visit agree. Everything it
+    reads is in `ArtworkListing`, which `/api/artworks/museum` serves
+    whole. Strip `colorBuckets`, `dominantColor`, `title` or
+    `nationality` from that response and the frames stop matching their
+    pictures, with no error.
   - **A frame's width is part of the hang.** `sideClearance()` in
     `place-paintings.ts` reserves the frame on both sides of a canvas
-    and the plaque beyond it; the Grand Hall uses the same number. A
-    gilt frame on a 3.2 m canvas reaches 17 cm, a floater 2.4 cm.
-    Widening a profile or its `SCALE_RANGE` adds wall demand, which adds
+    and the plaque beyond it; the Grand Hall uses the same number
+    (`frameReach`). A swept Louis XV frame on a 3.2 m canvas reaches
+    19 cm at its corners, a strip frame 1 cm. Widening a profile, its
+    scale range or a design's `weight` adds wall demand, which adds
     rooms, which changes `galleryLayoutIdentity` and sends every visitor
-    with a saved position back to the room's centre.
-  - A profile is geometry only. `shadeProfile` works out the occlusion,
-    the burnished high points and the wear from the cross-section. Set
-    `ao`, `rough` or `wear` on a point only to override it (mats do).
+    with a saved position back to the room's centre. The move from ten
+    frames to these added 0.1 to 1.8 cm of mean reach a floor and no
+    room: check both numbers after touching a width.
+  - **Swells.** A style may return a `Swell`: the moulding beyond a
+    pivot pushes outward at the corners and the middle of each rail
+    (Louis XV, Régence). The geometry cuts those rails into stations
+    3.5 cm apart, and a shell from the carve atlas takes the place of
+    the running ornament there. A swept frame is about 2,600 triangles
+    (3,900 at most) where the mean over the catalogue is 890.
+    `frameReach` counts the swell.
+  - `/gallery-3d/frames` is a debug sheet of works in their frames, lit
+    as in the galleries: `?m=Baroque` for a school, `?look=hogarth` for
+    a look, `?n=12&cols=4` for fewer and larger, `?page=2` for more.
 - **Frame maps** (`frame-maps.ts`) are procedural: 13 tiling
-  DataTextures built once when `frame-materials.ts` loads, 6 MiB on the
-  GPU with mips, shared by every frame. Nothing is downloaded.
+  DataTextures built once when `frame-materials.ts` loads, 7.5 MiB on
+  the GPU with mips, shared by every frame. Nothing is downloaded.
   - Surface maps tile in metres along the rail (u) and along the profile
     (v), so grain turns at each mitre: gold leaf in squares with a wear
     mask in alpha, walnut and ash with roughness in alpha, crazed
-    lacquer, shippō silk, canvas weave, paper.
-  - The carve atlas has one row per ornament (pearl, leaf, egg and
-    dart, laurel, flute, ripple, rope, punchwork). A profile point names
-    a `band`; the geometry's second uv set (`aCarveUv`) points that
-    stretch at its row. Rows are stacked to exactly 512 texels: a new
-    band needs room taken from another.
+    lacquer, shippō silk in grey, canvas weave, paper.
+  - The carve atlas (512 × 1,024) has one row per ornament: pearl, leaf,
+    egg and dart, laurel, flute, ripple, rope, punchwork, acanthus,
+    guilloche, shell, scales, Greek key, gadroon, ribbon and stick, bead
+    and reel, hammering. A profile point names a `band`; the geometry's
+    second uv set (`aCarveUv`) points that stretch at its row. 30 texels
+    are free: a larger band needs room taken from another.
   - Carving is set out from the corners (`carvePeriods`): the two halves
     of a rail run mirrored and hold a whole number of periods, and the
     mitre continues at the ornament's own pitch, so the pattern meets
-    itself across the joint. An ornament must look right mirrored.
+    itself across the joint. An ornament must look right mirrored. The
+    directional ones (acanthus, gadroon, ribbon, rope) meet tip to tip
+    at the centre of a rail, as carvers set them out.
   - They are DataTextures on purpose. three uploads them again after
     the Canvas remounts for a lost context. A render target here would
     need the per-renderer cache `room-env-map.tsx` uses.
-- Frame materials (`frame-materials.ts`) are stock
-  `MeshStandardMaterial`s with one patch, `patchFrameShader`. It adds
-  the carve atlas as a second normal map, per-vertex roughness, red bole
-  on worn gilt, and a directional term for the picture light, which is
-  shader arithmetic on the frame and not a three.js light. It also
-  builds the tangent frame from the metre uv: three builds it from the
-  map's own uv, and a map with an uneven `repeat` (wood: 0.64 × 0.16 m)
-  then loses most of its relief on one axis.
+- Frame materials (`frame-materials.ts`): nine, one per *surface*
+  (leaf, leaf on oak, dark wood, pale wood, lacquer, paint, mat board,
+  silk, cloth). A finish is a surface in a colour, and the colour is in
+  the frame's vertices, with its wear, polish and carving depth
+  (`aFrame`, and `color` = tint × occlusion). A frame is one draw call
+  per material it uses: one for 54 % of works, two for 30 %, three for
+  16 % (a Hogarth frame: black, gilt beads, mat). So yellow, lemon and red
+  gold and silver leaf are one material, and oak, maple and mahogany are
+  ash grain under a tint. Add a finish in `FINISHES`
+  (`frame-design.ts`); add a material only for a surface that needs
+  another map. Each is a stock `MeshStandardMaterial` with one patch,
+  `patchFrameShader`, which adds:
+  - the carve atlas as a second normal map, per-vertex roughness, red
+    bole on worn gilt, and a directional term for the picture light,
+    which is shader arithmetic on the frame and not a three.js light;
+  - the tangent frame from the metre uv: three builds it from the map's
+    own uv, and a map with an uneven `repeat` (wood: 0.64 × 0.16 m) then
+    loses most of its relief on one axis;
+  - **shading by distance** (`frameFar`). From across a room a bead or a
+    carved leaf is smaller than a pixel. Each pixel then lands on a
+    different facet, and on polished metal under the lamps of the frame
+    environment map that is a glint on one frame and none on the next:
+    the gilt crawled as the visitor walked, which read as z-fighting.
+    Past 2 mm of moulding a pixel the maps fade, the normal leans toward
+    the frame's face and the roughness rises to 0.62; by 10 mm a pixel
+    the frame is a smooth matte band with its baked shadows. Keep any
+    new high-frequency detail under that fade.
   Frame and fixture metal reflect their own environment map
   (`frame-env.ts`, the room gradient plus bright lamp spots), assigned in
   `RoomEnvironment`. A material can take less of it through
-  `userData.envScale`: gilt takes 0.6, so the picture light models its
+  `userData.envScale`: leaf takes 0.6, so the picture light models its
   carving and the room's reflection does not flatten it.
 - Tone mapping is Khronos Neutral, so a pale palette colour shows on
   screen as authored (a deep wall skips it, see the next point). The
