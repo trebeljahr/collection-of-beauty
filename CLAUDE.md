@@ -176,30 +176,55 @@ required by the Dockerfile — don't remove it.
   the catalogue's, the page carries a deletion tag, or the artist's
   German term is still running. The replaced copy goes to
   `assets/.rejected/replaced-smaller/` and the replacement is recorded
-  in `metadata/refetched-originals.json`. 23 works were done that day,
-  all from the museum's unhung list. The other 373 same-file works wait
-  for Rico's word; the list is in the vault note
-  `collection-of-beauty-commons-larger-originals.md`.
+  in `metadata/refetched-originals.json`. 333 works were done that day:
+  23 from the museum's unhung list, then 310 of the other 373 on Rico's
+  word. 63 were left: 43 for the German term (Kawase Hasui 41, Kawai
+  Gyokudō 2), 9 where the licence class differs (5 Hokusai prints are
+  CC0 on Commons and "Public domain" in the sidecar, 4 carry a licence
+  string that is not a plain tag), 4 with no death year for the artist
+  and no year for the work, and 7 where the larger upload is another
+  picture. The vault note
+  `collection-of-beauty-commons-larger-originals.md` lists both sets.
 - A larger upload on the same page is not always the same picture. Two
   Mucha canvases were uploaded again in June 2026 as paler photographs
   with another crop; one shows the frame along its top edge. The script
   compares proportions and a 32 × 32 reduction of both files and
   leaves such a work alone unless its id is passed to
-  `--accept-changed`.
+  `--accept-changed`. Of 317 downloads in the second run it stopped 12.
+  Look at both files before passing an id. Rico's rule, 12 October 2026:
+  a slight colour change at the same framing is acceptable (Gauguin's
+  Self-Portrait with Halo and Snake, mean difference 7.7 of 255, a
+  newer capture from the same museum). Five were taken that way.
+  Another crop, a paler or a much darker photograph is not the same
+  picture: Raphael's School of Athens, Giorgione's Tempest, Sargent's
+  Olmsted, Spitzweg's Bookworm, Tuxen's Christian IX (mean difference
+  15.1) and the two Mucha canvases stay as they were.
+- `sameFile()` leaves punctuation out, so it takes
+  `"The School of Athens" by Raffaello Sanzio da Urbino.jpg`, the file
+  on disk, and `The School of Athens by Raffaello Sanzio da Urbino.jpg`,
+  a user's own photograph of 2024 that the sidecar links, for one file.
+  The picture check is what stopped that download.
 - After it, encode by file: `pnpm assets:shrink
   --folder=collection-of-beauty --only=<part of the filename>`, then
   build-data, then `pnpm assets:tiles --only=<part of the filename>`
   (tiles read the catalogue, so they come after build-data). Without
   `--only` both scripts take on a backlog that is not yours: on 12
   October 2026 a dry run of shrink listed 56 other stale sources in
-  the folder (436 over all folders), and only 13 of the 975 tile
-  pyramids existed on disk (2 from the first trial, 11 from that day's
-  refetch). The lightbox falls back to the plain image for the other
-  962.
+  the folder (436 over all folders), and by the end of that day 152 of
+  the 1,114 tile pyramids existed on disk (2 from the first trial, 150
+  from the day's two refetches). The lightbox falls back to the plain
+  image for the other 962.
+- Encoding is the slow part. The 310 sources of the second run took
+  4 h 40 min on five lanes while other sessions held the machine at a
+  load average of 60 to 240; their 139 pyramids took 6 minutes on
+  seven lanes once the machine was quiet. Start the lanes with
+  `unsetopt bgnice` first: zsh runs a background job at nice 5. Never
+  kill a shrink run to restart it: it writes each variant in place, and
+  a cut-off file with a fresh mtime counts as done.
 
 ## Deep zoom (tiled lightbox)
 
-- ~965 works have a source big enough that its full-size encode clears
+- ~1,115 works have a source big enough that its full-size encode clears
   `FULL_SIZE_MIN_WIDTH` (4096 px, in
   [`variant-config.mjs`](src/lib/variant-config.mjs)). For those,
   `pnpm assets:shrink` emits a per-source full-resolution AVIF
@@ -510,8 +535,9 @@ required by the Dockerfile — don't remove it.
   - A work hangs only if its texture has 1,000 pixels for each metre of
     its hung width (`sharpness.ts`): sharp for a visitor a metre away on
     a 2,560 px screen. The widest texture is the 4096 rung, or 6144
-    where that rung exists, and never more than the source. 373 of
-    4,552 works fail, most of them large canvases from small scans. Do
+    where that rung exists, and never more than the source. 353 of
+    4,555 works fail (12 October 2026), most of them large canvases
+    from small scans. Do
     not raise the threshold past 1,280: that is all a 3.2 m canvas has
     on the 4096 rung.
   - Dividers add wall to a room and do not count when a floor decides
