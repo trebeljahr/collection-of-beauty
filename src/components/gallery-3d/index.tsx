@@ -11,7 +11,7 @@ import { useNeedsRotate, useTouchDevice } from "@/hooks/use-touch-device";
 import { useAudioSettings } from "@/lib/audio-settings";
 import type { ArtworkListing } from "@/lib/data";
 import { arrivalPoint } from "@/lib/gallery-layout/fittings";
-import { layoutBlock } from "@/lib/gallery-layout/layout-block";
+import { blockArrivalPoint, layoutBlock } from "@/lib/gallery-layout/layout-block";
 import { layoutMuseum } from "@/lib/gallery-layout/layout-museum";
 import { eraOfRoom, floorTitle } from "@/lib/gallery-layout/room-era";
 import { shaftKey, wallSharers } from "@/lib/gallery-layout/room-visibility";
@@ -31,6 +31,7 @@ import { FOV_DEFAULT_DEG } from "./camera-config";
 import { DebugOverlay, DebugProbe, useGalleryDebug } from "./debug-overlay";
 import { UNREFLECTED_LAYER } from "./floor-mirror";
 import { FloorReflection } from "./floor-reflection";
+import { GrandStaircase } from "./grand-staircase";
 import { HallwayRenderer } from "./hallway";
 import { LandscapePrompt } from "./landscape-prompt";
 import { LodController } from "./lod-controller";
@@ -261,10 +262,12 @@ export function Gallery3D({ artworks }: Props) {
   // adjacent-floor blocks below fall back to stairwell-only.
   const stairOtherFloorIdx = useMemo(() => {
     if (activeStairId == null) return null;
-    const stair = layout.allStaircases.find((s) => s.id === activeStairId);
+    const stair =
+      layout.allStaircases.find((s) => s.id === activeStairId) ??
+      layout.grandStairs?.find((s) => s.id === activeStairId);
     if (!stair) return null;
     return stair.lowerFloor === currentFloorIdx ? stair.upperFloor : stair.lowerFloor;
-  }, [activeStairId, currentFloorIdx, layout.allStaircases]);
+  }, [activeStairId, currentFloorIdx, layout.allStaircases, layout.grandStairs]);
 
   // Floor index TWO levels away from the player in the direction of the
   // active stair — i.e. one floor BEYOND the destination. While the
@@ -300,6 +303,7 @@ export function Gallery3D({ artworks }: Props) {
   // (and restart its progressive room reveal) at the floor-swap
   // boundary — that double-mount was a second freeze just as the player
   // crested the stairs.
+  const hasGrandStairs = (layout.grandStairs?.length ?? 0) > 0;
   const floorModes = useMemo(() => {
     const modes = new Map<number, "full" | "stairwell" | "stairs">();
     modes.set(currentFloorIdx, "full");
@@ -319,8 +323,31 @@ export function Gallery3D({ artworks }: Props) {
     if (stairBeyondFloorIdx != null && !modes.has(stairBeyondFloorIdx)) {
       modes.set(stairBeyondFloorIdx, "stairs");
     }
+    // A grand stair's opening is as wide as its hall, and the openings
+    // of a hall stand over one another: from the hall floor a visitor
+    // sees past the next floor's gallery to the ones above it. Every
+    // floor's stair halls are mounted, so that view ends in a ceiling.
+    // Room culling draws only the halls of the well in sight.
+    //
+    // In such a hall the floor below and the floor above both show their
+    // doors, one through the opening underfoot and one from its gallery
+    // overhead. Both are mounted in full, or those doors open on
+    // nothing. Their rooms are drawn only where a door shows them.
+    if (hasGrandStairs) {
+      for (let i = 0; i <= lastIdx; i++) {
+        if (modes.get(i) === "full") continue;
+        const inHall = stairOtherFloorIdx != null && Math.abs(i - currentFloorIdx) === 1;
+        modes.set(i, inHall ? "full" : "stairwell");
+      }
+    }
     return modes;
-  }, [currentFloorIdx, stairOtherFloorIdx, stairBeyondFloorIdx, layout.floors.length]);
+  }, [
+    currentFloorIdx,
+    stairOtherFloorIdx,
+    stairBeyondFloorIdx,
+    layout.floors.length,
+    hasGrandStairs,
+  ]);
 
   // Spawn point driver. Default: entry on floor 0. Teleport keys
   // overwrite this to the anchor of the target floor. Stair-driven
@@ -394,7 +421,7 @@ export function Gallery3D({ artworks }: Props) {
     (floorIdx: number, roomIdx: number) => {
       const room = layout.floors[floorIdx]?.rooms[roomIdx];
       if (!room) return;
-      const arrival = arrivalPoint(room);
+      const arrival = blockArrivalPoint(layout, room);
       spawnForFloor.current = [arrival.x, room.worldRect.y, arrival.z];
       setCurrentFloorIdx(floorIdx);
       setActiveRoomIdx(roomIdx);
@@ -675,6 +702,7 @@ export function Gallery3D({ artworks }: Props) {
           enabled={hasStarted && !zoomed && !mapOpen && !settingsOpen}
           floor={currentFloor}
           allStaircases={layout.allStaircases}
+          grandStairs={layout.grandStairs}
           spawnAt={spawnForFloor.current}
           resumePose={resumePoseRef.current}
           onRoomChange={handleRoomChange}
@@ -1137,6 +1165,9 @@ function FloorScene({
         {stairs.map((s) => (
           <StaircaseRenderer key={s.id} staircase={s} allStaircases={allStaircases} />
         ))}
+        {floor.grandStairsOut?.map((s) => (
+          <GrandStaircase key={s.id} stair={s} />
+        ))}
         {/* Cutout-edge railing + entry gate posts + signage. Rendered
             for the active floor and showOnly="stairwell" adjacent floors
             so the player sees the full vertical stack of railings as
@@ -1188,7 +1219,9 @@ function FloorPreloader({
   const { gl } = useThree();
   useEffect(() => {
     if (!nearbyStairId) return;
-    const stair = layout.allStaircases.find((s) => s.id === nearbyStairId);
+    const stair =
+      layout.allStaircases.find((s) => s.id === nearbyStairId) ??
+      layout.grandStairs?.find((s) => s.id === nearbyStairId);
     if (!stair) return;
     const otherIdx = stair.lowerFloor === currentFloorIdx ? stair.upperFloor : stair.lowerFloor;
     if (otherIdx < 0 || otherIdx >= layout.floors.length) return;

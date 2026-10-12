@@ -398,7 +398,9 @@ function mulberry32(seed: number) {
 
 describe.each([
   ["the tower's Baroque floor", tower, 8],
-  ["a floor of the block plan", block, 15],
+  // Thirteen: twelve rooms and three stair halls, less the two a floor
+  // joins into its long gallery.
+  ["a floor of the block plan", block, 13],
 ])("visibleRooms on %s", (_name, floorRooms, atLeast) => {
   const byId = new Map(floorRooms.map((r) => [r.id, r]));
   const visibility = new Map(floorRooms.map((r) => [r.id, visibilityRoom(r)]));

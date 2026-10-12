@@ -11,6 +11,13 @@ import {
   clearOfFittings,
   clearsBenches,
 } from "@/lib/gallery-layout/fittings";
+import {
+  type GrandStair,
+  grandFloorFor,
+  grandMoveAllowed,
+  grandStairsAt,
+  grandSurfaceAt,
+} from "@/lib/gallery-layout/grand-stair";
 import type { FloorLayout, Staircase } from "@/lib/gallery-layout/types";
 import { CELL_SIZE, worldToCell } from "@/lib/gallery-layout/world-coords";
 import type { GalleryPose } from "@/lib/gallery-release-state";
@@ -91,6 +98,10 @@ const STAIR_PROXIMITY_RADIUS_SQ = STAIR_PROXIMITY_RADIUS * STAIR_PROXIMITY_RADIU
 // ring on the way down. Tied to ~28° of revolution = ~0.49 m of vertical
 // slack at FLOOR_SEPARATION = 6.12 m.
 const STAIR_LANDING_TOL = 0.5;
+const NO_GRAND_STAIRS: readonly GrandStair[] = [];
+// How far above a grand stair's tread the feet may be and still be
+// walking it: more than a riser, less than a jump.
+const GRAND_TREAD_REACH = 0.45;
 // Early-entry trigger when descending a spiral. Once the player has
 // completed ⅓ of the descent (cumulativeAngle drops below 2π·⅔), we
 // promote floor.index to the destination floor — well before the
@@ -130,6 +141,7 @@ export function Player({
   enabled,
   floor,
   allStaircases,
+  grandStairs = NO_GRAND_STAIRS,
   spawnAt,
   resumePose,
   onRoomChange,
@@ -149,6 +161,10 @@ export function Player({
    *  transition the player from one storey's flight to the next when
    *  their cumulative angle crosses a revolution boundary. */
   allStaircases: readonly Staircase[];
+  /** The building's grand stairs (`grand-stair.ts`). Where the visitor
+   *  stands in one of their halls is read off the hall's surfaces, with
+   *  no state. None in the tower. */
+  grandStairs?: readonly GrandStair[];
   spawnAt: [number, number, number];
   resumePose?: GalleryPose | null;
   onRoomChange?: (roomIndex: number) => void;
@@ -216,6 +232,10 @@ export function Player({
   const velocityY = useRef(0);
   const grounded = useRef(true);
   const lastRoomIdx = useRef<number>(-2);
+  // The floor that room was reported on. A grand stair changes the
+  // floor under a visitor who stays in the same hall: the room's index
+  // is the same on both floors and has to be reported again.
+  const lastRoomFloor = useRef<number>(-1);
   /** F toggles a narrowed-FOV "partial zoom" so the player can read
    *  details on a painting without opening the modal — useful for
    *  large works where the inspect overlay isn't worth invoking. */
@@ -426,6 +446,21 @@ export function Player({
   useFrame((_, delta) => {
     if (!enabled) return;
     const dt = Math.min(delta, 0.1);
+    // In a grand stair hall a move also has to end on a surface the
+    // visitor can step onto from where their feet are.
+    const canAcceptPhysicsMove = (
+      f: FloorLayout,
+      all: readonly Staircase[],
+      fromX: number,
+      fromZ: number,
+      toX: number,
+      toZ: number,
+      stairId: string | null,
+      cum: number,
+      feet: number,
+    ) =>
+      grandMoveAllowed(grandStairs, fromX, fromZ, toX, toZ, feet) &&
+      canAcceptFloorMove(f, all, fromX, fromZ, toX, toZ, stairId, cum, feet);
     // Where the feet are as this frame starts. Read before the eye
     // height moves: the camera is clamped to ground + eye height at the
     // end of a frame, so with last frame's eye height a body standing
@@ -745,11 +780,28 @@ export function Player({
         }
       }
 
+      // A grand stair hall: what is under the visitor, and which of the
+      // hall's stairs the host should treat them as being on. That is
+      // the whole hall, not only its flights: the floor above shows
+      // through the opening from anywhere in it, and so do its rooms
+      // through its doors, so both storeys are wanted in full.
+      const hall =
+        !activeStair && grandStairs.length > 0
+          ? grandStairsAt(grandStairs, camera.position.x, camera.position.z)
+          : NO_GRAND_STAIRS;
+      const grandSurface =
+        hall.length > 0 ? grandSurfaceAt(hall, camera.position.x, camera.position.z, feetY) : null;
+      const hallStair =
+        grandSurface?.stair ??
+        hall.find((s) => s.upperFloor === floor.index) ??
+        hall.find((s) => s.lowerFloor === floor.index) ??
+        null;
+
       // Notify host on edge-changes only — same-stair frames are silent
       // so onActiveStairChange isn't a per-frame storm. Edge-fires when
       // entering a stair, leaving one, or stepping from one stair onto
       // another (stair-to-stair transition during continuous descent).
-      const newStairId = activeStair?.id ?? null;
+      const newStairId = activeStair?.id ?? hallStair?.id ?? null;
       if (newStairId !== lastStairId.current) {
         lastStairId.current = newStairId;
         onActiveStairChange?.(newStairId);
@@ -868,13 +920,29 @@ export function Player({
           camera.position.z,
           clearsBenches(feetY - floor.y) ? PLAYER_RADIUS : PLAYER_RADIUS - FITTING_SLOP,
         );
-        const floorHeight = floor.y + (onBench ? BENCH_HEIGHT : 0) + eyeHeight.current;
-        if (camera.position.y <= floorHeight) {
+        const groundY = grandSurface ? grandSurface.y : floor.y;
+        const floorHeight = groundY + (onBench ? BENCH_HEIGHT : 0) + eyeHeight.current;
+        const drop = camera.position.y - floorHeight;
+        if (grandSurface?.stair && velocityY.current <= 0 && drop < GRAND_TREAD_REACH) {
+          // On a flight the ground changes by a riser at a time. The
+          // camera is eased onto each tread, up and down, so the climb
+          // reads as steps without the jolt of a snap or the float of a
+          // fall from one tread to the next. A jump leaves this branch:
+          // its velocity is upward.
+          camera.position.y = floorHeight + THREE.MathUtils.damp(drop, 0, 18, dt);
+          velocityY.current = 0;
+          grounded.current = true;
+        } else if (camera.position.y <= floorHeight) {
           camera.position.y = floorHeight;
           velocityY.current = 0;
           grounded.current = true;
         } else {
           grounded.current = false;
+        }
+        // The floor the visitor is on follows their height in the hall.
+        if (grandSurface && onFloorChange && grounded.current) {
+          const target = grandFloorFor(hall, grandSurface.y, floor.index);
+          if (target !== floor.index) onFloorChange(target);
         }
       }
     } catch (err) {
@@ -919,6 +987,15 @@ export function Player({
           nearestDistSq = d2;
           nearestId = s.id;
         }
+      }
+      // A grand stair hall is all "near": prefer the stair that leaves
+      // the floor, as the spiral does.
+      if (nearestId === null && grandStairs.length > 0) {
+        const near = grandStairsAt(grandStairs, cx, cz);
+        const stair =
+          near.find((g) => g.lowerFloor === floor.index) ??
+          near.find((g) => g.upperFloor === floor.index);
+        nearestId = stair?.id ?? null;
       }
       if (nearestId !== lastNearbyStairId.current) {
         lastNearbyStairId.current = nearestId;
@@ -972,8 +1049,9 @@ export function Player({
       const { x: cx, z: cz } = worldToCell(camera.position.x, camera.position.z);
       if (cx >= 0 && cx < floor.gridSize.x && cz >= 0 && cz < floor.gridSize.z) {
         const owner = floor.cellOwner[cz * floor.gridSize.x + cx];
-        if (owner !== lastRoomIdx.current) {
+        if (owner !== lastRoomIdx.current || floor.index !== lastRoomFloor.current) {
           lastRoomIdx.current = owner;
+          lastRoomFloor.current = floor.index;
           onRoomChange(owner);
         }
       }
@@ -1031,7 +1109,7 @@ function isWalkable(floor: FloorLayout, worldX: number, worldZ: number): boolean
  *  colliders too; they are checked again here because this predicate is
  *  also the whole of collision until the physics world has loaded. A
  *  bench stops only a body whose feet are under its seat. */
-function canAcceptPhysicsMove(
+function canAcceptFloorMove(
   floor: FloorLayout,
   allStaircases: readonly Staircase[],
   fromX: number,

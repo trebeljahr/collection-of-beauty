@@ -5,7 +5,7 @@ import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import * as THREE from "three";
 import { eraOfRoom } from "@/lib/gallery-layout/room-era";
 import { visibilityRoom } from "@/lib/gallery-layout/room-visibility";
-import type { Door, Placement, RoomLayout } from "@/lib/gallery-layout/types";
+import type { Door, Placement, RoomLayout, WorldOpening } from "@/lib/gallery-layout/types";
 import {
   CELL_SIZE,
   FLOOR_THICKNESS,
@@ -21,6 +21,7 @@ import { laylightPanels } from "./laylight-layout";
 import { Painting } from "./painting";
 import { getPaletteMaterials, getRoomFloorMaterial } from "./palette-materials";
 import { registerCulledRoom } from "./room-culling";
+import { openingHole } from "./stair-opening";
 import { WallWithDoors } from "./wall";
 
 type Side = Door["side"];
@@ -228,7 +229,13 @@ export function RoomGeometry({
             depth={depth}
             floorY={floorY}
             floorMat={floorMat}
-            cutHole={hasStairwellCutout(room.floorIndex)}
+            hole={
+              room.floorOpening !== undefined
+                ? room.floorOpening
+                : hasStairwellCutout(room.floorIndex)
+                  ? "spiral"
+                  : null
+            }
           />
         )}
 
@@ -551,7 +558,7 @@ function StairwellFloor({
   depth,
   floorY,
   floorMat,
-  cutHole,
+  hole: opening,
 }: {
   cxWorld: number;
   czWorld: number;
@@ -559,7 +566,8 @@ function StairwellFloor({
   depth: number;
   floorY: number;
   floorMat: THREE.MeshStandardMaterial;
-  cutHole: boolean;
+  /** The spiral's round well, a grand stair's opening, or no hole. */
+  hole: WorldOpening | "spiral" | null;
 }) {
   const { topGeom, slabGeom } = useMemo(() => {
     const shape = new THREE.Shape();
@@ -570,10 +578,12 @@ function StairwellFloor({
     shape.lineTo(halfW, halfD);
     shape.lineTo(-halfW, halfD);
     shape.closePath();
-    if (cutHole) {
+    if (opening === "spiral") {
       const hole = new THREE.Path();
       hole.absarc(0, 0, SPIRAL_FLOOR_CUTOUT_RADIUS, 0, Math.PI * 2, false);
       shape.holes.push(hole);
+    } else if (opening) {
+      shape.holes.push(openingHole(opening, cxWorld, czWorld, -1));
     }
     const top = new THREE.ShapeGeometry(shape, 32);
     // Shape lives on XY plane; rotate it down onto XZ so it lies flat.
@@ -605,7 +615,7 @@ function StairwellFloor({
     applyWorldXZ_UV(top, cxWorld, czWorld);
     applyWorldXZ_UV(slab, cxWorld, czWorld);
     return { topGeom: top, slabGeom: slab };
-  }, [width, depth, cutHole, cxWorld, czWorld]);
+  }, [width, depth, opening, cxWorld, czWorld]);
   // Free GPU buffers when the stairwell unmounts or its dimensions
   // change. R3F only auto-disposes geometries it created from JSX
   // intrinsics; these were allocated by us, so we own teardown.

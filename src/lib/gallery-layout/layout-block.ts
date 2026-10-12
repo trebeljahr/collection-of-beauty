@@ -35,6 +35,13 @@ import { slugify } from "@/lib/utils";
 import { arrivalPoint, ceilingHeightFor, planBenches, planDividers } from "./fittings";
 import { hangGrandHall, pickHallCandidates } from "./grand-hall";
 import {
+  buildGrandStair,
+  type GrandStair,
+  type GrandStairDesign,
+  grandHallArrival,
+  openingInWorld,
+} from "./grand-stair";
+import {
   bucketByEra,
   computeBlockedEdges,
   describeRoom,
@@ -46,17 +53,8 @@ import {
 } from "./layout-museum";
 import { computeRoomRuns, distributePaintings, runLength, wallFootprint } from "./place-paintings";
 import { texturePxPerMetre } from "./sharpness";
-import type { CellRect, Door, FloorLayout, MuseumLayout, RoomLayout, Staircase } from "./types";
-import {
-  CELL_SIZE,
-  floorY,
-  PORTAL_HEIGHT,
-  PORTAL_WIDTH,
-  SPIRAL_INNER_RADIUS,
-  SPIRAL_OUTER_RADIUS,
-  SPIRAL_STEPS_PER_FLOOR,
-  WALL_THICKNESS,
-} from "./world-coords";
+import type { CellRect, Door, FloorLayout, MuseumLayout, RoomLayout } from "./types";
+import { CELL_SIZE, floorY, PORTAL_HEIGHT, PORTAL_WIDTH, WALL_THICKNESS } from "./world-coords";
 
 export const BLOCK_GRID = { x: 41, z: 23 };
 
@@ -110,12 +108,19 @@ export const BLOCK_ROOMS: ReadonlyArray<{ key: RoomKey; rect: CellRect }> = [
   { key: "s4", rect: rect(3, ROW_S) },
   { key: "s5", rect: rect(4, ROW_S) },
 ];
-/** The three stair halls, west to east. The middle one is where the
- *  monumental stair belongs; for now all three hold the tower's spiral. */
-export const BLOCK_STAIRS: ReadonlyArray<{ key: RoomKey; rect: CellRect }> = [
-  { key: "stair-w", rect: rect(0, ROW_M) },
-  { key: "stair-c", rect: rect(2, ROW_M) },
-  { key: "stair-e", rect: rect(4, ROW_M) },
+/** The three stair halls, west to east, each 22.5 m square with a grand
+ *  stair of its own design (`grand-stair.ts`). Each faces the door a
+ *  visitor comes to it through: the middle stair rises north from the
+ *  great hall, the end stairs rise away from the long axis's portals. */
+export const BLOCK_STAIRS: ReadonlyArray<{
+  key: RoomKey;
+  rect: CellRect;
+  design: GrandStairDesign;
+  turns: GrandStair["turns"];
+}> = [
+  { key: "stair-w", rect: rect(0, ROW_M), design: "arcs", turns: 3 },
+  { key: "stair-c", rect: rect(2, ROW_M), design: "imperial", turns: 0 },
+  { key: "stair-e", rect: rect(4, ROW_M), design: "hourglass", turns: 1 },
 ];
 export const GREAT_HALL: RoomKey = "s3";
 
@@ -263,13 +268,25 @@ export function layoutBlock(allArtworks: ArtworkListing[]): MuseumLayout {
   const byEra = bucketByEra(allArtworks);
   const floors = BLOCK_PLAN.map((plan, index) => buildFloor(index, plan, byEra));
 
-  const allStaircases: Staircase[] = [];
+  const grandStairs: GrandStair[] = [];
   for (let i = 0; i < floors.length - 1; i++) {
     for (const shaft of BLOCK_STAIRS) {
-      const stair = buildStaircase(floors[i], floors[i + 1], shaft);
-      floors[i].stairsOut.push(stair);
-      floors[i + 1].stairsIn.push(stair);
-      allStaircases.push(stair);
+      const stair = buildStair(floors[i], floors[i + 1], shaft, floors.length);
+      floors[i].grandStairsOut!.push(stair);
+      floors[i + 1].grandStairsIn!.push(stair);
+      grandStairs.push(stair);
+    }
+  }
+  // Each hall's floor has the hole of the stair that arrives on it, and
+  // its ceiling the hole of the stair that leaves it.
+  for (const floor of floors) {
+    for (const room of floor.rooms) {
+      if (!room.isStairwell) continue;
+      const mine = (s: GrandStair) => s.id.startsWith(`${hallKey(room)}-`);
+      const arriving = floor.grandStairsIn!.find(mine);
+      const leaving = floor.grandStairsOut!.find(mine);
+      room.floorOpening = arriving ? openingInWorld(arriving) : null;
+      room.ceilingOpening = leaving ? openingInWorld(leaving) : null;
     }
   }
 
@@ -281,8 +298,28 @@ export function layoutBlock(allArtworks: ArtworkListing[]): MuseumLayout {
     entry: { floorIndex: 0, worldPosition: [arrival.x, anchor.worldRect.y, arrival.z] },
     allRooms: floors.flatMap((f) => f.rooms),
     allHallways: [],
-    allStaircases,
+    allStaircases: [],
+    grandStairs,
   };
+}
+
+const hallKey = (room: RoomLayout) => room.id.replace(/^f\d+-/, "");
+
+/** Where a visitor sent to a room lands. A stair hall's centre is a
+ *  flight or the open well, so there it is inside the hall's main door. */
+export function blockArrivalPoint(
+  layout: MuseumLayout,
+  room: RoomLayout,
+): { x: number; z: number } {
+  if (room.isStairwell) {
+    const stair = layout.grandStairs?.find(
+      (s) =>
+        s.id.startsWith(`${hallKey(room)}-`) &&
+        (s.lowerFloor === room.floorIndex || s.upperFloor === room.floorIndex),
+    );
+    if (stair) return grandHallArrival(stair);
+  }
+  return arrivalPoint(room);
 }
 
 // --- One floor ------------------------------------------------------------
@@ -387,6 +424,8 @@ function buildFloor(
     hallways: [],
     stairsIn: [],
     stairsOut: [],
+    grandStairsIn: [],
+    grandStairsOut: [],
   };
 
   plan.zones.forEach((zone, z) => {
@@ -575,27 +614,27 @@ function connect(a: RoomLayout, b: RoomLayout, width: number, height: number) {
   b.doors.push(door(b, OPPOSITE[side], a));
 }
 
-function buildStaircase(
+function buildStair(
   lower: FloorLayout,
   upper: FloorLayout,
   shaft: (typeof BLOCK_STAIRS)[number],
-): Staircase {
+  floorCount: number,
+): GrandStair {
   const r = shaft.rect;
-  return {
+  return buildGrandStair({
     id: `${shaft.key}-${lower.index}-to-${upper.index}`,
+    design: shaft.design,
     lowerFloor: lower.index,
     upperFloor: upper.index,
     lowerLabel: `Floor ${lower.index + 1}`,
     upperLabel: `Floor ${upper.index + 1}`,
-    centerX: ((r.xMin + r.xMax + 1) / 2) * CELL_SIZE,
-    centerZ: ((r.zMin + r.zMax + 1) / 2) * CELL_SIZE,
-    innerRadius: SPIRAL_INNER_RADIUS,
-    outerRadius: SPIRAL_OUTER_RADIUS,
-    numSteps: SPIRAL_STEPS_PER_FLOOR,
-    direction: 1,
     lowerY: lower.y,
     upperY: upper.y,
-    // Step 0 at the south, the side the great hall is on.
-    entryAngle: Math.PI / 2,
-  };
+    centerX: ((r.xMin + r.xMax + 1) / 2) * CELL_SIZE,
+    centerZ: ((r.zMin + r.zMax + 1) / 2) * CELL_SIZE,
+    half: ((r.xMax - r.xMin + 1) * CELL_SIZE) / 2,
+    turns: shaft.turns,
+    hasFlightBelow: lower.index > 0,
+    hasFlightAbove: upper.index < floorCount - 1,
+  });
 }

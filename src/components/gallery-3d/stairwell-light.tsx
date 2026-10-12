@@ -35,6 +35,7 @@ import {
   SURFACE_LIFT,
 } from "./painting-light";
 import { fixtureMaterial, getPaletteMaterials } from "./palette-materials";
+import { openingHole } from "./stair-opening";
 import {
   fitWashRow,
   OCULUS_HUB_R,
@@ -274,15 +275,23 @@ function buildCansGeometry(walls: Wall[], rows: WashRow[]): THREE.BufferGeometry
 // ── Ceiling and glazing ───────────────────────────────────────────────
 
 /** The plaster ceiling, facing down, with the well cut out of it unless
- *  the room is `closed`. */
-function buildCeilingGeometry(width: number, depth: number, closed: boolean): THREE.BufferGeometry {
+ *  the room is `closed`: the spiral's round well, or the opening a grand
+ *  stair climbs out through (`hole`, already about the room's centre). */
+function buildCeilingGeometry(
+  width: number,
+  depth: number,
+  closed: boolean,
+  grandHole: THREE.Path | null,
+): THREE.BufferGeometry {
   const shape = new THREE.Shape();
   shape.moveTo(-width / 2, -depth / 2);
   shape.lineTo(width / 2, -depth / 2);
   shape.lineTo(width / 2, depth / 2);
   shape.lineTo(-width / 2, depth / 2);
   shape.closePath();
-  if (!closed) {
+  if (grandHole) {
+    shape.holes.push(grandHole);
+  } else if (!closed) {
     const hole = new THREE.Path();
     hole.absarc(0, 0, SPIRAL_FLOOR_CUTOUT_RADIUS, 0, Math.PI * 2, false);
     shape.holes.push(hole);
@@ -382,8 +391,13 @@ export function StairwellLight({ floor }: { floor: FloorLayout }) {
 
 function StairHallLight({ floor, room }: { floor: FloorLayout; room: RoomLayout }) {
   // No flight climbs through the top floor's ceiling, so its well is
-  // closed with an oculus instead of left open to nothing.
-  const closed = floor.stairsOut.length === 0;
+  // closed with an oculus instead of left open to nothing. A grand stair
+  // hall says for itself whether a stair leaves it (`ceilingOpening`);
+  // where one does, the ceiling is cut to that stair's opening and has
+  // no glazing: the next floor's gallery is what is overhead.
+  const grand = room.ceilingOpening;
+  const closed = grand !== undefined ? grand === null : floor.stairsOut.length === 0;
+  const glazed = closed || grand === undefined;
   const { wallColor } = floor.era.palette;
 
   const built = useMemo(() => {
@@ -403,11 +417,16 @@ function StairHallLight({ floor, room }: { floor: FloorLayout; room: RoomLayout 
       washMaterial: getWashMaterial(rows[0]),
       wash: buildWashGeometry(walls, rows, poolGainScale(wallColor)),
       cans: buildCansGeometry(walls, rows),
-      ceiling: buildCeilingGeometry(width, depth, closed),
+      ceiling: buildCeilingGeometry(
+        width,
+        depth,
+        closed,
+        grand ? openingHole(grand, cx, cz, 1) : null,
+      ),
       glass: buildGlassGeometry(closed),
       frame: buildGlazingFrame(closed),
     };
-  }, [room, closed, wallColor]);
+  }, [room, closed, grand, wallColor]);
 
   useEffect(
     () => () => {
@@ -427,17 +446,21 @@ function StairHallLight({ floor, room }: { floor: FloorLayout; room: RoomLayout 
         material={getPaletteMaterials(floor.era.palette).ceiling}
         position={[0, CEILING_Y, 0]}
       />
-      <mesh
-        geometry={built.glass}
-        material={getGlassMaterial()}
-        position={[0, CEILING_Y - GLASS_DROP, 0]}
-      />
-      <mesh
-        geometry={built.frame}
-        material={fixtureMaterial}
-        position={[0, CEILING_Y, 0]}
-        layers={UNREFLECTED_LAYER}
-      />
+      {glazed && (
+        <>
+          <mesh
+            geometry={built.glass}
+            material={getGlassMaterial()}
+            position={[0, CEILING_Y - GLASS_DROP, 0]}
+          />
+          <mesh
+            geometry={built.frame}
+            material={fixtureMaterial}
+            position={[0, CEILING_Y, 0]}
+            layers={UNREFLECTED_LAYER}
+          />
+        </>
+      )}
       <mesh geometry={built.wash} material={built.washMaterial} renderOrder={1} />
       <mesh geometry={built.cans} material={fixtureUnlitMaterial} layers={UNREFLECTED_LAYER} />
     </group>

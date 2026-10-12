@@ -8,6 +8,13 @@ import type {
   World,
 } from "@dimforge/rapier3d-compat";
 import { benchRect, clearsBenches, dividerRect } from "@/lib/gallery-layout/fittings";
+import {
+  GRAND_RAIL_HEIGHT,
+  type GrandStair,
+  openingInWorld,
+  railInWorld,
+  toStairWorld,
+} from "@/lib/gallery-layout/grand-stair";
 import type { FloorLayout, Staircase } from "@/lib/gallery-layout/types";
 import {
   CELL_SIZE,
@@ -212,7 +219,76 @@ function buildStaticColliders(
   addPortalJambColliders(floor, addCuboid);
   const benchHandles = addFittingColliders(floor, addCuboid);
   addStairwellColliders(floor, allStaircases, addCuboid, addCylinder, addArc);
+  addGrandStairColliders(floor, addCuboid);
   return benchHandles;
+}
+
+/** Margin a floor collider keeps back from a grand stair's opening. A
+ *  flight runs along the opening's edge, and a visitor on it passes the
+ *  slab at shoulder height: the slab must not reach them. The
+ *  balustrade is what stops a visitor on the gallery. */
+const OPENING_COLLIDER_MARGIN = 0.4;
+const GRAND_RAIL_THICKNESS = 0.24;
+const GRAND_RAIL_PIECE = 0.7;
+
+/**
+ * Balustrades and piers of the grand stairs that meet this floor. A
+ * rail on a flight is a row of short boxes, each at its own height,
+ * because the visitor's capsule is put at their feet's height each
+ * frame: a rail only stops a visitor who is level with it. Where a rail
+ * stands on masonry the box runs down to the floor it stands on.
+ */
+function addGrandStairColliders(
+  floor: FloorLayout,
+  addCuboid: (
+    cx: number,
+    cy: number,
+    cz: number,
+    hx: number,
+    hy: number,
+    hz: number,
+    rotY?: number,
+  ) => unknown,
+) {
+  const stairs: GrandStair[] = [...(floor.grandStairsIn ?? []), ...(floor.grandStairsOut ?? [])];
+  for (const stair of stairs) {
+    for (const local of stair.rails) {
+      const r = railInWorld(stair, local);
+      const len = Math.hypot(r.x1 - r.x0, r.z1 - r.z0);
+      if (len < 0.01) continue;
+      const pieces = Math.max(1, Math.ceil(len / GRAND_RAIL_PIECE));
+      const rotY = -Math.atan2(r.z1 - r.z0, r.x1 - r.x0);
+      for (let i = 0; i < pieces; i++) {
+        const t0 = i / pieces;
+        const t1 = (i + 1) / pieces;
+        const ya = r.y0 + (r.y1 - r.y0) * t0;
+        const yb = r.y0 + (r.y1 - r.y0) * t1;
+        const bottom = r.skirtTo ?? Math.min(ya, yb);
+        const top = Math.max(ya, yb) + GRAND_RAIL_HEIGHT;
+        const tm = (t0 + t1) / 2;
+        addCuboid(
+          r.x0 + (r.x1 - r.x0) * tm,
+          (bottom + top) / 2,
+          r.z0 + (r.z1 - r.z0) * tm,
+          len / pieces / 2,
+          (top - bottom) / 2,
+          GRAND_RAIL_THICKNESS / 2,
+          rotY,
+        );
+      }
+    }
+    for (const column of stair.columns) {
+      const at = toStairWorld(stair, column.x, column.z);
+      addCuboid(
+        at.x,
+        (column.y0 + column.y1) / 2,
+        at.z,
+        column.size / 2,
+        (column.y1 - column.y0) / 2,
+        column.size / 2,
+      );
+    }
+  }
 }
 
 function addFloorColliders(
@@ -243,37 +319,60 @@ function addFloorColliders(
   // this collider anyway — vertical position on the spiral and on a
   // plain floor is both driven analytically in `player.tsx`, and the
   // cutout rail keeps a player at floor level well outside the hole.
-  const cutoutStairs = hasStairwellCutout(floor.index)
-    ? floorShafts(floor).map((shaft) => shaft.reference)
+  type Hole =
+    | { kind: "disc"; x: number; z: number; r: number }
+    | { kind: "rect"; xMin: number; xMax: number; zMin: number; zMax: number };
+  const holes: Hole[] = hasStairwellCutout(floor.index)
+    ? floorShafts(floor).map((shaft) => ({
+        kind: "disc",
+        x: shaft.reference.centerX,
+        z: shaft.reference.centerZ,
+        r: SPIRAL_FLOOR_CUTOUT_RADIUS,
+      }))
     : [];
+  // A grand stair's opening, in the floor it arrives on.
+  for (const stair of floor.grandStairsIn ?? []) {
+    const o = openingInWorld(stair);
+    const m = OPENING_COLLIDER_MARGIN;
+    holes.push(
+      o.kind === "disc"
+        ? { ...o, r: o.r + m }
+        : { kind: "rect", xMin: o.xMin - m, xMax: o.xMax + m, zMin: o.zMin - m, zMax: o.zMax + m },
+    );
+  }
   const emitRun = (startX: number, endX: number, z: number) => {
     const x0 = startX * CELL_SIZE;
     const x1 = (endX + 1) * CELL_SIZE;
     const cz = z * CELL_SIZE + CELL_SIZE / 2;
     let spans: Array<[number, number]> = [[x0, x1]];
-    for (const cutoutStair of cutoutStairs) {
-      // Widest chord the hole cuts anywhere in this row's z-band —
-      // measured at whichever row edge is nearest the centre, or 0 when
-      // the row straddles it — so a row the circle merely clips still
-      // loses its whole overlap rather than a cell-quantised slice.
-      const zNear = z * CELL_SIZE - cutoutStair.centerZ;
-      const zFar = (z + 1) * CELL_SIZE - cutoutStair.centerZ;
-      const near = zNear * zFar <= 0 ? 0 : Math.min(Math.abs(zNear), Math.abs(zFar));
-      if (near < SPIRAL_FLOOR_CUTOUT_RADIUS) {
-        const half = Math.sqrt(
-          SPIRAL_FLOOR_CUTOUT_RADIUS * SPIRAL_FLOOR_CUTOUT_RADIUS - near * near,
-        );
-        const holeMin = cutoutStair.centerX - half;
-        const holeMax = cutoutStair.centerX + half;
-        // A row can cross more than one well: cut each out of what the
-        // wells before it left.
-        const cut: Array<[number, number]> = [];
-        for (const [a, b] of spans) {
-          if (a < holeMin) cut.push([a, Math.min(b, holeMin)]);
-          if (b > holeMax) cut.push([Math.max(a, holeMax), b]);
-        }
-        spans = cut;
+    for (const hole of holes) {
+      let holeMin: number;
+      let holeMax: number;
+      if (hole.kind === "rect") {
+        if ((z + 1) * CELL_SIZE <= hole.zMin || z * CELL_SIZE >= hole.zMax) continue;
+        holeMin = hole.xMin;
+        holeMax = hole.xMax;
+      } else {
+        // Widest chord the hole cuts anywhere in this row's z-band —
+        // measured at whichever row edge is nearest the centre, or 0 when
+        // the row straddles it — so a row the circle merely clips still
+        // loses its whole overlap rather than a cell-quantised slice.
+        const zNear = z * CELL_SIZE - hole.z;
+        const zFar = (z + 1) * CELL_SIZE - hole.z;
+        const near = zNear * zFar <= 0 ? 0 : Math.min(Math.abs(zNear), Math.abs(zFar));
+        if (near >= hole.r) continue;
+        const half = Math.sqrt(hole.r * hole.r - near * near);
+        holeMin = hole.x - half;
+        holeMax = hole.x + half;
       }
+      // A row can cross more than one well: cut each out of what the
+      // wells before it left.
+      const cut: Array<[number, number]> = [];
+      for (const [a, b] of spans) {
+        if (a < holeMin) cut.push([a, Math.min(b, holeMin)]);
+        if (b > holeMax) cut.push([Math.max(a, holeMax), b]);
+      }
+      spans = cut;
     }
     for (const [a, b] of spans) {
       const width = b - a;

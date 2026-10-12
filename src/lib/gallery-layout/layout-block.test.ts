@@ -2,19 +2,21 @@ import { describe, expect, it } from "vitest";
 import type { ArtworkListing } from "@/lib/data";
 import { ERAS } from "@/lib/gallery-eras";
 import { galleryLayoutIdentity } from "@/lib/gallery-release-state";
+import { grandStairsAt, grandSurfaceAt } from "./grand-stair";
 import {
   BLOCK_DOOR_WIDTH,
   BLOCK_GRID,
   BLOCK_PLAN,
   BLOCK_ROUTE,
   BLOCK_WALL_COVERAGE,
+  blockArrivalPoint,
   blockFloorRooms,
   layoutBlock,
 } from "./layout-block";
 import { layoutMuseum } from "./layout-museum";
 import { computeRoomRuns, runLength, wallFootprint } from "./place-paintings";
 import { eraOfRoom, floorTitle } from "./room-era";
-import type { RoomLayout } from "./types";
+import type { Door, RoomLayout } from "./types";
 import { CELL_SIZE, doorOpenHalfSpan, PORTAL_WIDTH } from "./world-coords";
 
 /** 160 sharp works for every era, in mixed sizes, by 40 artists each.
@@ -47,6 +49,9 @@ function catalogue(): ArtworkListing[] {
 
 const layout = layoutBlock(catalogue());
 const keyOf = (room: RoomLayout) => room.id.replace(/^f\d-/, "");
+/** True when a point is within 2 m of a door, across its wall or along it. */
+const nearDoor = (door: Door, p: { x: number; z: number }) =>
+  Math.abs(door.worldX - p.x) <= 2 && Math.abs(door.worldZ - p.z) <= 2;
 /** The room of a floor that holds this room of the diagram. */
 const roomOf = (floorIndex: number, cell: string) => {
   const key = blockFloorRooms(BLOCK_PLAN[floorIndex]).keyOf(cell);
@@ -75,11 +80,43 @@ describe("the block plan", () => {
       expect(floor.rooms.filter((r) => r.isStairwell)).toHaveLength(3);
       expect(floor.rooms.filter((r) => !r.isStairwell)).toHaveLength(12 - joined);
     }
-    // Three wells, three flights each.
-    expect(layout.allStaircases).toHaveLength(9);
-    expect(layout.floors[0].stairsOut).toHaveLength(3);
-    expect(layout.floors[3].stairsIn).toHaveLength(3);
-    expect(layout.floors[3].stairsOut).toHaveLength(0);
+    // Three stair halls, a grand stair in each from every floor to the
+    // next, and no spiral.
+    expect(layout.allStaircases).toHaveLength(0);
+    expect(layout.grandStairs).toHaveLength(9);
+    expect(layout.floors[0].grandStairsOut).toHaveLength(3);
+    expect(layout.floors[0].grandStairsIn).toHaveLength(0);
+    expect(layout.floors[3].grandStairsIn).toHaveLength(3);
+    expect(layout.floors[3].grandStairsOut).toHaveLength(0);
+  });
+
+  it("gives each stair hall a stair of its own design, facing the hall's main door", () => {
+    const designs = new Map(layout.grandStairs!.map((s) => [s.id.replace(/-\d-to-\d$/, ""), s]));
+    expect([...designs.keys()].sort()).toEqual(["stair-c", "stair-e", "stair-w"]);
+    expect(new Set([...designs.values()].map((s) => s.design)).size).toBe(3);
+    for (const floor of layout.floors) {
+      for (const hall of floor.rooms.filter((r) => r.isStairwell)) {
+        const stair = designs.get(keyOf(hall))!;
+        // The hall is the stair's square.
+        expect(hall.cellBounds.xMin * CELL_SIZE).toBe(stair.centerX - stair.half);
+        expect((hall.cellBounds.zMax + 1) * CELL_SIZE).toBe(stair.centerZ + stair.half);
+        // A visitor sent to the hall lands on its floor, inside the door
+        // the long axis (or, in the middle, the great hall) comes in by.
+        const arrival = blockArrivalPoint(layout, hall);
+        const stairs = grandStairsAt(layout.grandStairs!, arrival.x, arrival.z);
+        expect(stairs).toHaveLength(3);
+        expect(grandSurfaceAt(stairs, arrival.x, arrival.z, floor.y)?.floorIndex).toBe(floor.index);
+        const door = hall.doors.find((d) => d.width === PORTAL_WIDTH && nearDoor(d, arrival))!;
+        expect(door, `${hall.id} arrives by a portal`).toBeDefined();
+        // The floor has a hole where a stair arrives from below, and the
+        // ceiling one where a stair leaves.
+        expect(hall.floorOpening === null).toBe(floor.index === 0);
+        expect(hall.ceilingOpening === null).toBe(floor.index === 3);
+      }
+    }
+    // The middle stair rises north, away from the great hall.
+    expect(designs.get("stair-c")!.design).toBe("imperial");
+    expect(designs.get("stair-c")!.turns).toBe(0);
   });
 
   it("names each floor and files it under an era of its own", () => {

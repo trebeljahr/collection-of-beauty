@@ -5,6 +5,7 @@
 import type { ArtworkListing } from "@/lib/data";
 import type { Era, EraId } from "@/lib/gallery-eras";
 import type { FrameDesign } from "./frame-design";
+import type { GrandStair } from "./grand-stair";
 
 export type Band = "small" | "medium" | "large";
 
@@ -75,6 +76,11 @@ export type Bench = {
   along: "x" | "z";
 };
 
+/** A hole in a stair hall's floor or ceiling, world metres. */
+export type WorldOpening =
+  | { kind: "rect"; xMin: number; xMax: number; zMin: number; zMax: number }
+  | { kind: "disc"; x: number; z: number; r: number };
+
 export type RoomLayout = {
   id: string;
   floorIndex: number;
@@ -98,6 +104,12 @@ export type RoomLayout = {
    *  (`StairwellLight`), and it has no full floor — the stair geometry
    *  provides the walking surface between landings. */
   isStairwell: boolean;
+  /** A stair hall with a grand stair (`grand-stair.ts`): the hole in its
+   *  floor where the stair from below arrives, and the hole in its
+   *  ceiling where its own stair climbs out. `null` is no hole. Both
+   *  unset in a spiral's stairwell, which is cut round by rule. */
+  floorOpening?: WorldOpening | null;
+  ceilingOpening?: WorldOpening | null;
   cellBounds: CellRect;
   /** World rectangle of the interior floor (walls exclusive). */
   worldRect: {
@@ -207,6 +219,10 @@ export type FloorLayout = {
   hallways: HallwayLayout[];
   stairsIn: Staircase[];
   stairsOut: Staircase[];
+  /** Grand stairs that arrive on and leave this floor. Unset in the
+   *  tower, whose stairs are all spirals. */
+  grandStairsIn?: GrandStair[];
+  grandStairsOut?: GrandStair[];
 };
 
 export type MuseumLayout = {
@@ -215,4 +231,6 @@ export type MuseumLayout = {
   allRooms: RoomLayout[];
   allHallways: HallwayLayout[];
   allStaircases: Staircase[];
+  /** Every grand stair of the building. Unset in the tower. */
+  grandStairs?: GrandStair[];
 };

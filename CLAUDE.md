@@ -356,7 +356,12 @@ required by the Dockerfile — don't remove it.
   axis, a row of five rooms in front and five behind, two rooms between.
   Rooms are the size of the tower's larger ones and take its dividers
   and benches. A floor holds two or three eras, dealt along a route
-  that ends in the great hall. What follows from it:
+  that ends in the great hall. Each floor joins two or three neighbours
+  of a row into one long gallery of 40 or 57.5 m
+  (`BLOCK_PLAN[].merges`), differently on every floor, so read a floor's
+  rooms through `blockFloorRooms()` and never assume the twelve of the
+  diagram. A great hall joined to its neighbour is hung like any long
+  room: the composed hang needs one centred door. What follows from it:
   - A floor there holds several eras, so read a room's era through
     `eraOfRoom()` and a floor's name through `floorTitle()`
     (`room-era.ts`), never `ERAS[room.floorIndex]`. `FloorLayout.era`
@@ -372,7 +377,52 @@ required by the Dockerfile — don't remove it.
     `findStairAbove` / `findStairBelow` stay within a well. The floor
     slab's colliders, the cutout rail, the gate signs and the stair
     hall's light are all built once per well. Do not reach for
-    `floor.stairsOut[0]`.
+    `floor.stairsOut[0]`. The block plan has had no spiral since
+    12 October 2026 (next point); this code is what a plan that mixes
+    the two would use.
+  - **Its three stair halls hold grand stairs, not spirals**
+    ([`grand-stair.ts`](src/lib/gallery-layout/grand-stair.ts), drawn
+    by `grand-staircase.tsx`). West: two curved flights round a rotunda.
+    Middle: one flight to a half landing and two back along the sides.
+    East: one straight flight that narrows to a landing at its waist.
+    Each is 40 risers a storey and stacks, so every hall reaches every
+    floor and keeps a gallery round its opening. They are in
+    `FloorLayout.grandStairsIn` / `grandStairsOut` and
+    `MuseumLayout.grandStairs`; `stairsIn` / `stairsOut` and
+    `allStaircases` are empty there. Before changing one:
+    - **A grand stair has no state.** It is a list of surfaces
+      (`patches`): each a piece of plan with a height over it. Where the
+      visitor stands is the highest surface no more than 0.4 m above
+      their feet (`grandSurfaceAt`), hall floors and galleries included.
+      A move is allowed when it ends on one (`grandMoveAllowed`). The
+      spiral's cumulative angle, its landing tolerances and its
+      floor-swap arcs have no counterpart: the rule does not ask which
+      floor is current. The floor follows the visitor's height
+      (`grandFloorFor`), past the half-way point and not on it.
+    - A design is drawn in the hall's own frame, the visitor coming in
+      from +z and the first flight rising toward -z, and turned by
+      `turns` to face the hall's portal. Physics turns the point
+      (`toStairLocal`), the renderer turns the group. Keep both.
+    - The lowest stair of a hall is masonry to the floor (`solid`): no
+      floor under it. Higher ones span free, and the hall floor is
+      walkable under any flight or landing with 2.3 m of headroom.
+    - Rails are colliders, one short box per 0.7 m at its own height,
+      because the capsule is put at the feet's height each frame. The
+      floor collider's hole is 0.4 m wider than the opening: a visitor
+      on a flight along the opening's edge passes the slab at shoulder
+      height.
+    - `RoomLayout.floorOpening` / `ceilingOpening` are the holes in a
+      stair hall's floor and ceiling (`null` for none). Unset means a
+      spiral's stairwell, cut round by rule.
+    - A hall's centre is a flight or the open well. Send a visitor to
+      `blockArrivalPoint()`, never to the room's centre.
+    - In a hall the visitor counts as on its stair (`activeStairId`),
+      on a flight or not. The floors above and below are then mounted
+      in full, and every other floor's stair halls always are: the
+      openings stand over one another and show three storeys at once.
+      Unmounted, their doors open on black. It costs up to 1,050 draw
+      calls in the middle hall on floor 2 (M5, headless), 500 to 800
+      elsewhere.
   - Every band of the plan is an odd number of cells, which puts each
     door in the middle of a cell. The collision grid needs that. Room
     doors are 2.4 m, one cell edge, so they need no jamb colliders. The
@@ -384,10 +434,12 @@ required by the Dockerfile — don't remove it.
   - Rejected on the way, 12 October 2026: `?plan=wings`, 12.5 m
     galleries in rings round a salon, 44 rooms a floor. Rooms too
     small, too many, no dividers, too few doors between them.
-  - Not built: the monumental pair of straight flights for the middle
-    stair hall (all three hold the tower's spiral), works too large for
-    a room, ornament. The design and its sheets are in the vault note
-    `collection-of-beauty-museum-floor-plans.md`.
+  - Not built: works too large for a room on the stair halls' walls,
+    signs at the stairs, ornament beyond balustrades, piers, carpet and
+    lamp standards. The design, its sheets and Rico's reference
+    photographs are in the vault notes
+    `collection-of-beauty-museum-floor-plans.md` and
+    `collection-of-beauty-museum-stair-references.md`.
 - **How high things are, and what may hang.** Three numbers Rico set
   on 12 October 2026; a change to any of them changes
   `galleryLayoutIdentity`.
