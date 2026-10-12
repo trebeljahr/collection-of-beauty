@@ -38,6 +38,35 @@ describe("sameFile", () => {
       false,
     );
   });
+
+  it("tells a title in quotation marks from the same words without them", () => {
+    // Real: the file on disk is the first page, a stitch of 2013. The
+    // sidecar linked the second, a user's own photograph of 2024.
+    const onDisk = "_The_School_of_Athens__by_Raffaello_Sanzio_da_Urbino.jpg";
+    expect(sameFile(onDisk, 'File:"The School of Athens" by Raffaello Sanzio da Urbino.jpg')).toBe(
+      true,
+    );
+    expect(sameFile(onDisk, "File:The School of Athens by Raffaello Sanzio da Urbino.jpg")).toBe(
+      false,
+    );
+    // The title as a URL writes it, and a file that kept its quotation marks.
+    expect(sameFile(onDisk, 'File:"The_School_of_Athens"_by_Raffaello_Sanzio_da_Urbino.jpg')).toBe(
+      true,
+    );
+    expect(
+      sameFile(
+        '"The_School_of_Athens"_by_Raffaello_Sanzio_da_Urbino.jpg',
+        "File:The School of Athens by Raffaello Sanzio da Urbino.jpg",
+      ),
+    ).toBe(false);
+    // Quotation marks with no space beside them leave no doubled underscore.
+    expect(
+      sameFile(
+        "Rembrandt_Harmensz._van_Rijn_-_Christ_Crucified_Between_the_Two_Thieves_(_The_Three_Crosses_)_-_Google_Art_Project.jpg",
+        'File:Rembrandt Harmensz. van Rijn - Christ Crucified Between the Two Thieves ("The Three Crosses") - Google Art Project.jpg',
+      ),
+    ).toBe(true);
+  });
 });
 
 describe("licenceClass", () => {

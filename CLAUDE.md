@@ -169,6 +169,18 @@ required by the Dockerfile — don't remove it.
   The Gothenburg Olive Grove is CC BY 4.0 on Commons and "Public
   Domain" in the sidecar. The vault note
   `collection-of-beauty-commons-larger-originals.md` lists all 26.
+  A 27th turned up in the refetch and was relinked on 13 October 2026.
+  Raphael's School of Athens linked a user's own photograph of 2024
+  (17,402 px, another crop). The file on disk is
+  `"The School of Athens" by Raffaello Sanzio da Urbino.jpg`, a stitch
+  of 2013 at 3,820 px, by SHA-1.
+- To read `source` and `copyright` again for a few entries, run the
+  fetch script in a scratch root. Copy `fetch-wikimedia-metadata.mjs`,
+  `normalize-metadata.mjs`, `artists-db.json`, `scripts/lib/` and
+  `metadata/takedowns.json` there, put one empty file per work in its
+  `assets/<folder>/`, named as the Commons page, and run it. It asks
+  for those pages only and writes a sidecar there; copy the two blocks
+  over. A run in the repo rewrites every entry of the folder.
 - `scripts/refetch-commons-originals.mjs --ids=<file>` downloads a
   work's own file at full size and keeps the filename and the id. It
   checks the download against the SHA-1 the API reports, and skips a
@@ -185,9 +197,19 @@ required by the Dockerfile — don't remove it.
   and no year for the work, and 7 where the larger upload is another
   picture. The vault note
   `collection-of-beauty-commons-larger-originals.md` lists both sets.
+- The 9 and the 4 were left for what the catalogue recorded, and were
+  run again on 13 October 2026. The 9 entries got `source` and
+  `copyright` from their own page, and all 9 were fetched. Of the 4,
+  page 184 of Vesalius's Fabrica got the year its page states (1543,
+  `metadata/date-overrides.json`) and was fetched. Three stay, because
+  their pages state no year: Carp Leaping up a Cascade (no date), the
+  coloured wave after Hokusai ("19th century") and the Gainsborough
+  imitator's Cattle Watering by a Stream ("undated"). The script needs
+  a death year, or a year 170 years back. With the six of the next
+  point, `metadata/refetched-originals.json` holds 349 works.
 - Correcting a link can make a work a candidate. Eight of the 18
   relinked works are previews of the page they now name. Six were
-  fetched on 13 October 2026 on Rico's word, 339 in all: Carpaccio's
+  fetched on 13 October 2026 on Rico's word: Carpaccio's
   Hunting on the Lagoon (1,280 → 6,506 px), Hokusai's wave from One
   Hundred Views, Boucher's Resting Girl, Gérôme's Ave Caesar, Van
   Gogh's Moulin de la Galette and Rops's Pornokratès. The script left
@@ -205,23 +227,33 @@ required by the Dockerfile — don't remove it.
   Self-Portrait with Halo and Snake, mean difference 7.7 of 255, a
   newer capture from the same museum). Five were taken that way.
   Another crop, a paler or a much darker photograph is not the same
-  picture: Raphael's School of Athens, Giorgione's Tempest, Sargent's
-  Olmsted, Spitzweg's Bookworm, Tuxen's Christian IX (mean difference
-  15.1) and the two Mucha canvases stay as they were.
-- `sameFile()` leaves punctuation out, so it takes
-  `"The School of Athens" by Raffaello Sanzio da Urbino.jpg`, the file
-  on disk, and `The School of Athens by Raffaello Sanzio da Urbino.jpg`,
-  a user's own photograph of 2024 that the sidecar links, for one file.
-  The picture check is what stopped that download.
+  picture: Giorgione's Tempest, Sargent's Olmsted, Spitzweg's Bookworm,
+  Tuxen's Christian IX (mean difference 15.1) and the two Mucha
+  canvases stay as they were. The seventh stop, Raphael's School of
+  Athens, was a wrong link (next point).
+- `sameFile()` compares letters, digits and underscores, with the
+  title written the way a browser saves it: a space becomes an
+  underscore, and so does a quotation mark. Until 13 October 2026 it
+  compared letters and digits only, and took
+  `_The_School_of_Athens__by_Raffaello_Sanzio_da_Urbino.jpg`, which is
+  the page `"The School of Athens" by …`, for the page
+  `The School of Athens by …`. The picture check stopped that download.
+  The Commons API reads the name the same wrong way: it drops a leading
+  underscore and folds two into one, so a lookup by that filename
+  answers with the page that has no quotation marks. A folder-wide
+  `fetch-wikimedia-metadata.mjs` would write the wrong link back; its
+  report lists the work under "resolved to a different page". 18 works
+  link a title with quotation marks. This is the only one whose title
+  without them is a page too.
 - After it, encode by file: `pnpm assets:shrink
   --folder=collection-of-beauty --only=<part of the filename>`, then
   build-data, then `pnpm assets:tiles --only=<part of the filename>`
   (tiles read the catalogue, so they come after build-data). Without
   `--only` both scripts take on a backlog that is not yours: on 12
   October 2026 a dry run of shrink listed 56 other stale sources in
-  the folder (436 over all folders). On 13 October 154 of the 1,116
-  tile pyramids existed on disk (2 from the first trial, 152 from the
-  three refetches). The lightbox falls back to the plain image for the
+  the folder (436 over all folders). On 13 October 155 of the 1,117
+  tile pyramids existed on disk (2 from the first trial, 153 from the
+  four refetches). The lightbox falls back to the plain image for the
   other 962.
 - A work's probe in `metadata/.cache/image-probe.json` is keyed on the
   mtime of its variant folder, and `assets:tiles` adds a `tiles/`

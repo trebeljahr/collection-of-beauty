@@ -5766,5 +5766,175 @@
       "bytes": 281764,
       "sha1": "972f05376183f59ebc9f04b9faa54731f79e0de0"
     }
+  },
+  "collection-of-beauty/1280px-Arcimboldo_Winter_1563.jpg": {
+    "id": "collection-of-beauty-1280px-arcimboldo-winter-1563",
+    "fetchedAt": "2026-10-12T23:08:11.955Z",
+    "commonsTitle": "File:Arcimboldo Winter 1563.jpg",
+    "licence": "Public domain",
+    "revision": "2008-05-25T18:47:23Z",
+    "sha1": "5b497acdd1ea67e0702e3694240598d6568b2cdd",
+    "bytes": 426671,
+    "width": 1368,
+    "height": 1807,
+    "previous": {
+      "width": 1280,
+      "height": 1691,
+      "bytes": 343311,
+      "sha1": "d159fcc1cc3a7875e9e24c50e191808bc3b1ab82"
+    }
+  },
+  "collection-of-beauty/1280px-Gustave_Caillebotte_-_The_Orange_Trees_-_Google_Art_Project.jpg": {
+    "id": "collection-of-beauty-1280px-gustave-caillebotte-the-orange-trees-google-art-project",
+    "fetchedAt": "2026-10-12T23:08:25.340Z",
+    "commonsTitle": "File:Gustave Caillebotte - The Orange Trees - Google Art Project.jpg",
+    "licence": "Public domain",
+    "revision": "2012-10-03T01:56:16Z",
+    "sha1": "751700c774d0b38193c4a14c91a6fe0f6223aedf",
+    "bytes": 9634738,
+    "width": 6433,
+    "height": 8455,
+    "previous": {
+      "width": 1280,
+      "height": 1682,
+      "bytes": 586331,
+      "sha1": "3279919662e462e24e1e7f0c4b361c54ad1a621a"
+    }
+  },
+  "collection-of-beauty/2560px-Gustave_Courbet,_1857,_Le_Pont_d'Ambrussum,_huile_sur_papier_marouflé_sur_bois,_48_x_63_cm,_Musée_Fabre.jpg": {
+    "id": "collection-of-beauty-2560px-gustave-courbet-1857-le-pont-d-ambrussum-huile-sur-papier-maroufle-sur-bois-48-x-63-cm-musee",
+    "fetchedAt": "2026-10-12T23:08:33.986Z",
+    "commonsTitle": "File:Gustave Courbet, 1857, Le Pont d'Ambrussum, huile sur papier marouflé sur bois, 48 x 63 cm, Musée Fabre.jpg",
+    "licence": "Public domain",
+    "revision": "2017-10-03T22:21:29Z",
+    "sha1": "0de19b63692d43cffaa74fa3b48287b442cc37e0",
+    "bytes": 5021728,
+    "width": 3189,
+    "height": 2351,
+    "previous": {
+      "width": 2560,
+      "height": 1887,
+      "bytes": 2025719,
+      "sha1": "3e042c12418a1ef3eaf28fae9a6166881ccf753d"
+    }
+  },
+  "collection-of-beauty/冨嶽三十六景_五百らかん寺さざゐどう-Sazai_Hall_at_the_Temple_of_the_Five_Hundred_Arhats_(Gohyaku_Rakanji_Sazaidō),_from_the_series_Thirty-six_Views_of_Mount_Fuji_(Fugaku_sanjūrokkei)_MET_DP141020.jpg": {
+    "id": "collection-of-beauty-sazai-hall-at-the-temple-of-the-five-hundred-arhats-gohyaku-rakanji-sazaido-from-the-series-thirty-",
+    "fetchedAt": "2026-10-12T23:08:39.689Z",
+    "commonsTitle": "File:冨嶽三十六景 五百らかん寺さざゐどう-Sazai Hall at the Temple of the Five Hundred Arhats (Gohyaku Rakanji Sazaidō), from the series Thirty-six Views of Mount Fuji (Fugaku sanjūrokkei) MET DP141020.jpg",
+    "licence": "CC0",
+    "revision": "2017-05-11T15:43:16Z",
+    "sha1": "c95b12194d3ff2c2893b3deecfcb45daefb340d1",
+    "bytes": 3076185,
+    "width": 3904,
+    "height": 2757,
+    "previous": {
+      "width": 2560,
+      "height": 1808,
+      "bytes": 1560296,
+      "sha1": "099eb974cb2dc659a3ddff7fb799c9341bfa9154"
+    }
+  },
+  "collection-of-beauty/冨嶽三十六景_東海道保土ケ谷-Hodogaya_on_the_Tōkaidō_(Tōkaidō_Hodogaya),_from_the_series_Thirty-six_Views_of_Mount_Fuji_(Fugaku_sanjūrokkei)_MET_DP141025.jpg": {
+    "id": "collection-of-beauty-hodogaya-on-the-tokaido-tokaido-hodogaya-from-the-series-thirty-six-views-of-mount-fuji-fugaku-sanj",
+    "fetchedAt": "2026-10-12T23:08:44.076Z",
+    "commonsTitle": "File:冨嶽三十六景 東海道保土ケ谷-Hodogaya on the Tōkaidō (Tōkaidō Hodogaya), from the series Thirty-six Views of Mount Fuji (Fugaku sanjūrokkei) MET DP141025.jpg",
+    "licence": "CC0",
+    "revision": "2017-05-11T19:37:15Z",
+    "sha1": "1418a620b3601e594d620ca6bbc0ea73367ef120",
+    "bytes": 3120359,
+    "width": 3932,
+    "height": 2701,
+    "previous": {
+      "width": 2560,
+      "height": 1759,
+      "bytes": 1568659,
+      "sha1": "8dbae734a61337aad73fd3d1da6607b46a1a5ba0"
+    }
+  },
+  "collection-of-beauty/冨嶽三十六景_東海道江尻田子の浦略図-Tago_Bay_near_Ejiri_on_the_Tōkaidō_(Tōkaidō_Ejiri_Tago_no_ura_ryaku_zu),_from_the_series_Thirty-six_Views_of_Mount_Fuji_(Fugaku_sanjūrokkei)_MET_DP141037.jpg": {
+    "id": "collection-of-beauty-tago-bay-near-ejiri-on-the-tokaido-tokaido-ejiri-tago-no-ura-ryaku-zu-from-the-series-thirty-six-vi",
+    "fetchedAt": "2026-10-12T23:08:49.204Z",
+    "commonsTitle": "File:冨嶽三十六景 東海道江尻田子の浦略図-Tago Bay near Ejiri on the Tōkaidō (Tōkaidō Ejiri Tago no ura ryaku zu), from the series Thirty-six Views of Mount Fuji (Fugaku sanjūrokkei) MET DP141037.jpg",
+    "licence": "CC0",
+    "revision": "2017-05-11T20:20:37Z",
+    "sha1": "a1db271a1f832b59e56ec61892958ca4ea7fd97d",
+    "bytes": 3261704,
+    "width": 3907,
+    "height": 2669,
+    "previous": {
+      "width": 2560,
+      "height": 1749,
+      "bytes": 1651618,
+      "sha1": "bcff1c3f9c6c233bf4a096d4c670e385a25b5c36"
+    }
+  },
+  "collection-of-beauty/冨嶽三十六景_遠江山中-In_the_Mountains_of_Tōtomi_Province_(Tōtomi_sanchū),_from_the_series_Thirty-six_Views_of_Mount_Fuji_(Fugaku_sanjūrokkei)_MET_DP140988.jpg": {
+    "id": "collection-of-beauty-in-the-mountains-of-totomi-province-totomi-sanchu-from-the-series-thirty-six-views-of-mount-fuji-fu",
+    "fetchedAt": "2026-10-12T23:08:54.802Z",
+    "commonsTitle": "File:冨嶽三十六景 遠江山中-In the Mountains of Tōtomi Province (Tōtomi sanchū), from the series Thirty-six Views of Mount Fuji (Fugaku sanjūrokkei) MET DP140988.jpg",
+    "licence": "CC0",
+    "revision": "2017-05-11T15:50:05Z",
+    "sha1": "fabc0d6159e03cda216b39a5c28c259802af50f5",
+    "bytes": 2895998,
+    "width": 3839,
+    "height": 2498,
+    "previous": {
+      "width": 2560,
+      "height": 1666,
+      "bytes": 1517611,
+      "sha1": "c7a65e6aaf118938343b8a844c3fb294e970b4ac"
+    }
+  },
+  "collection-of-beauty/冨嶽三十六景_隅田川関屋の里-Sekiya_Village_on_the_Sumida_River_(Sumidagawa_Sekiya_no_sato),_from_the_series_Thirty-six_Views_of_Mount_Fuji_(Fugaku_sanjūrokkei)_MET_DP141023.jpg": {
+    "id": "collection-of-beauty-sekiya-village-on-the-sumida-river-sumidagawa-sekiya-no-sato-from-the-series-thirty-six-views-of-mo",
+    "fetchedAt": "2026-10-12T23:09:00.015Z",
+    "commonsTitle": "File:冨嶽三十六景 隅田川関屋の里-Sekiya Village on the Sumida River (Sumidagawa Sekiya no sato), from the series Thirty-six Views of Mount Fuji (Fugaku sanjūrokkei) MET DP141023.jpg",
+    "licence": "CC0",
+    "revision": "2017-05-11T19:26:45Z",
+    "sha1": "272ab7468d791eb4f24cddf4584db072d6b60f10",
+    "bytes": 2930926,
+    "width": 3912,
+    "height": 2634,
+    "previous": {
+      "width": 2560,
+      "height": 1724,
+      "bytes": 1485794,
+      "sha1": "0eea4dd81b59429a58c6e3bd986ed4bb07c6d095"
+    }
+  },
+  "collection-of-beauty/1280px-Suzuki_Harunobu_-_Evening_Snow_on_the_Heater.jpg": {
+    "id": "collection-of-beauty-1280px-suzuki-harunobu-evening-snow-on-the-heater",
+    "fetchedAt": "2026-10-12T23:09:05.722Z",
+    "commonsTitle": "File:Suzuki Harunobu - Evening Snow on the Heater.jpg",
+    "licence": "Public domain",
+    "revision": "2014-02-14T00:13:41Z",
+    "sha1": "770516bd190f10028dfafbdc9b38899db54e5f6d",
+    "bytes": 3128681,
+    "width": 2784,
+    "height": 3805,
+    "previous": {
+      "width": 1280,
+      "height": 1749,
+      "bytes": 554645,
+      "sha1": "368930bb8afbdc311336bd9adbe54f7a75d636f0"
+    }
+  },
+  "collection-of-beauty/Vesalius_Fabrica_p184.jpg": {
+    "id": "collection-of-beauty-vesalius-fabrica-p184",
+    "fetchedAt": "2026-10-12T23:09:09.438Z",
+    "commonsTitle": "File:Vesalius Fabrica p184.jpg",
+    "licence": "Public domain",
+    "revision": "2005-12-13T05:27:21Z",
+    "sha1": "b4327e2e4adef59ae9c18a0360f975da953c747e",
+    "bytes": 1693985,
+    "width": 1041,
+    "height": 1764,
+    "previous": {
+      "width": 960,
+      "height": 1627,
+      "bytes": 685020,
+      "sha1": "39fcb1d863b1e309779daa8f04283aa17f204303"
+    }
   }
 }

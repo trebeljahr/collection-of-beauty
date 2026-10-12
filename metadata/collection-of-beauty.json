@@ -1456,18 +1456,18 @@
       "date_created": "1563",
       "source": {
         "type": "Wikimedia Commons",
-        "canonical_title": "Arcimboldo Winter 1563.jpg",
-        "url": "https://commons.wikimedia.org/wiki/File:Arcimboldo_Winter_1563.jpg",
-        "file_url": "https://upload.wikimedia.org/wikipedia/commons/Arcimboldo_Winter_1563.jpg",
-        "credit": null,
+        "canonical_title": "File:Arcimboldo Winter 1563.jpg",
+        "url": "https://commons.wikimedia.org/wiki/File%3AArcimboldo_Winter_1563.jpg",
+        "file_url": "https://upload.wikimedia.org/wikipedia/commons/f/f8/Arcimboldo_Winter_1563.jpg",
+        "credit": "Unknown source Unknown source , scanned by uploader",
         "permission": null,
         "attribution": null
       },
       "copyright": {
         "copyrighted": false,
-        "license_short": "Likely public domain (16th-century work)",
+        "license_short": "Public domain",
         "license_url": null,
-        "usage_terms": null
+        "usage_terms": "Public domain"
       },
       "year": 1563,
       "year_source": "date_created_plain",
@@ -1615,18 +1615,18 @@
       "date_created": "1878",
       "source": {
         "type": "Wikimedia Commons",
-        "canonical_title": "Gustave_Caillebotte_-_The_Orange_Trees_-_Google_Art_Project.jpg",
-        "url": "https://commons.wikimedia.org/wiki/File:Gustave_Caillebotte_-_The_Orange_Trees_-_Google_Art_Project.jpg",
+        "canonical_title": "File:Gustave Caillebotte - The Orange Trees - Google Art Project.jpg",
+        "url": "https://commons.wikimedia.org/wiki/File%3AGustave_Caillebotte_-_The_Orange_Trees_-_Google_Art_Project.jpg",
         "file_url": "https://upload.wikimedia.org/wikipedia/commons/e/ed/Gustave_Caillebotte_-_The_Orange_Trees_-_Google_Art_Project.jpg",
-        "credit": null,
+        "credit": "3QHnQ99LLC7m3A at Google Cultural Institute maximum zoom level",
         "permission": null,
         "attribution": null
       },
       "copyright": {
         "copyrighted": false,
-        "license_short": "Public Domain / CC0",
+        "license_short": "Public domain",
         "license_url": null,
-        "usage_terms": null
+        "usage_terms": "Public domain"
       },
       "year": 1878,
       "description": "Oil on canvas depicting a serene domestic garden scene characteristic of Caillebotte's intimate genre paintings. The work showcases his masterful treatment of light and spatial composition, capturing the quiet elegance of an interior courtyard adorned with flourishing orange trees. Housed in the Museum of Fine Arts, Houston.",
@@ -1800,18 +1800,18 @@
       "date_created": "1765",
       "source": {
         "type": "Wikimedia Commons",
-        "canonical_title": "Suzuki_Harunobu_-_Evening_Snow_on_the_Heater.jpg",
-        "url": "https://commons.wikimedia.org/wiki/File:Suzuki_Harunobu_-_Evening_Snow_on_the_Heater.jpg",
-        "file_url": "https://upload.wikimedia.org/wikipedia/commons/a/af/Suzuki_Harunobu_-_Evening_Snow_on_the_Heater.jpg",
-        "credit": null,
-        "permission": null,
+        "canonical_title": "File:Suzuki Harunobu - Evening Snow on the Heater.jpg",
+        "url": "https://commons.wikimedia.org/wiki/File%3ASuzuki_Harunobu_-_Evening_Snow_on_the_Heater.jpg",
+        "file_url": "https://upload.wikimedia.org/wikipedia/commons/c/cc/Suzuki_Harunobu_-_Evening_Snow_on_the_Heater.jpg",
+        "credit": "This file was donated to Wikimedia Commons as part of a project by the Metropolitan Museum of Art . See the Image and Data Resources Open Access Policy",
+        "permission": "This file is made available under the Creative Commons CC0 1.0 Universal Public Domain Dedication . The person who associated a work with this deed has dedicated the work to the public domain by waiving all of their rights to the work worldwide under copyright law, including all related and neighboring rights, to the extent allowed by law. You can copy, modify, distribute and perform the work, even for commercial purposes, all without asking permission. http://creativecommons.org/publicdomain/zero/1.0/deed.en CC0 Creative Commons Zero, Public Domain Dedication false false",
         "attribution": null
       },
       "copyright": {
         "copyrighted": false,
-        "license_short": "CC0 Public Domain",
+        "license_short": "Public domain",
         "license_url": null,
-        "usage_terms": null
+        "usage_terms": "Public domain"
       },
       "year": 1765,
       "description": "A polychrome woodblock print from Suzuki Harunobu's series \"Zashiki Hakkei\" (Eight Parlour Views), depicting a woman making cotton wadding over a heated dome. The embossed white floss silk creates the \"evening snow\" motif, a reference to classical Chinese landscape imagery adapted to a domestic interior scene. Created circa 1765, this work exemplifies Harunobu's mastery of full-color nishiki-e printing, a technique he pioneered.",
@@ -4473,18 +4473,18 @@
       "date_created": "1857",
       "source": {
         "type": "Wikimedia Commons",
-        "canonical_title": "Gustave Courbet, 1857, Le Pont d'Ambrussum, huile sur papier marouflé sur bois, 48 x 63 cm, Musée Fabre.jpg",
-        "url": "https://commons.wikimedia.org/wiki/File:Gustave_Courbet,_1857,_Le_Pont_d%27Ambrussum,_huile_sur_papier_maroufl%C3%A9_sur_bois,_48_x_63_cm,_Mus%C3%A9e_Fabre.jpg",
-        "file_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/Gustave_Courbet,_1857,_Le_Pont_d%27Ambrussum,_huile_sur_papier_maroufl%C3%A9_sur_bois,_48_x_63_cm,_Mus%C3%A9e_Fabre.jpg",
-        "credit": null,
-        "permission": null,
+        "canonical_title": "File:Gustave Courbet, 1857, Le Pont d'Ambrussum, huile sur papier marouflé sur bois, 48 x 63 cm, Musée Fabre.jpg",
+        "url": "https://commons.wikimedia.org/wiki/File%3AGustave_Courbet%2C_1857%2C_Le_Pont_d'Ambrussum%2C_huile_sur_papier_maroufl%C3%A9_sur_bois%2C_48_x_63_cm%2C_Mus%C3%A9e_Fabre.jpg",
+        "file_url": "https://upload.wikimedia.org/wikipedia/commons/b/bb/Gustave_Courbet%2C_1857%2C_Le_Pont_d%27Ambrussum%2C_huile_sur_papier_maroufl%C3%A9_sur_bois%2C_48_x_63_cm%2C_Mus%C3%A9e_Fabre.jpg",
+        "credit": "http://free-artworks.gatag.net/2013/07/06/090000.html",
+        "permission": "This is a faithful photographic reproduction of a two-dimensional, public domain work of art. The work of art itself is in the public domain for the following reason: Public domain Public domain false false This work is in the public domain in its country of origin and other countries and areas where the copyright term is the author's life plus 100 years or fewer . This work is in the public domain in the United States because it was published (or registered with the U.S. Copyright Office ) before January 1, 1931. This file has been identified as being free of known restrictions under copyright law, including all related and neighboring rights. https://creativecommons.org/publicdomain/mark/1.0/ PDM Creative Commons Public Domain Mark 1.0 false false The official position taken by the Wikimedia Foundation is that \" faithful reproductions of two-dimensional public domain works of art are public domain \". This photographic reproduction is therefore also considered to be in the public domain in the United States. In other jurisdictions, re-use of this content may be restricted; see Reuse of PD-Art photographs for details.",
         "attribution": null
       },
       "copyright": {
         "copyrighted": false,
-        "license_short": "Not retrieved (rate limit)",
+        "license_short": "Public domain",
         "license_url": null,
-        "usage_terms": null
+        "usage_terms": "Public domain"
       },
       "year": 1857,
       "year_source": "date_created_plain",
@@ -120563,11 +120563,11 @@
       "description": "A fresco that depicts a gathering of ancient philosophers, mathematicians, and scientists, with Plato and Aristotle prominently at the center. It is noted for its precise use of perspective projection, a hallmark of Renaissance art. Raphael included a self-portrait next to Ptolemy.",
       "source": {
         "type": "Wikimedia Commons",
-        "canonical_title": "File:The School of Athens by Raffaello Sanzio da Urbino.jpg",
-        "url": "https://commons.wikimedia.org/wiki/File%3AThe_School_of_Athens_by_Raffaello_Sanzio_da_Urbino.jpg",
-        "file_url": "https://upload.wikimedia.org/wikipedia/commons/f/f2/The_School_of_Athens_by_Raffaello_Sanzio_da_Urbino.jpg",
-        "credit": "Own work",
-        "permission": "This is a faithful photographic reproduction of a two-dimensional, public domain work of art. The work of art itself is in the public domain for the following reason: Public domain Public domain false false The author died in 1520, so this work is in the public domain in its country of origin and other countries and areas where the copyright term is the author's life plus 100 years or fewer . This work is in the public domain in the United States because it was published (or registered with the U.S. Copyright Office ) before January 1, 1931. This file has been identified as being free of known restrictions under copyright law, including all related and neighboring rights. https://creativecommons.org/publicdomain/mark/1.0/ PDM Creative Commons Public Domain Mark 1.0 false false The official position taken by the Wikimedia Foundation is that \" faithful reproductions of two-dimensional public domain works of art are public domain \". This photographic reproduction is therefore also considered to be in the public domain in the United States. In other jurisdictions, re-use of this content may be restricted; see Reuse of PD-Art photographs for details.",
+        "canonical_title": "File:\"The School of Athens\" by Raffaello Sanzio da Urbino.jpg",
+        "url": "https://commons.wikimedia.org/wiki/File%3A%22The_School_of_Athens%22_by_Raffaello_Sanzio_da_Urbino.jpg",
+        "file_url": "https://upload.wikimedia.org/wikipedia/commons/4/49/%22The_School_of_Athens%22_by_Raffaello_Sanzio_da_Urbino.jpg",
+        "credit": "Stitched together from vatican.va",
+        "permission": null,
         "attribution": null
       },
       "copyright": {
@@ -123303,18 +123303,18 @@
       "date_created": "1830-1832",
       "source": {
         "type": "Wikimedia Commons",
-        "canonical_title": "冨嶽三十六景 五百らかん寺さざゐどう-Sazai Hall at the Temple of the Five Hundred Arhats (Gohyaku Rakanji Sazaidō), from the series Thirty-six Views of Mount Fuji (Fugaku sanjūrokkei) MET DP141020.jpg",
-        "url": "https://commons.wikimedia.org/wiki/File:冨嶽三十六景_五百らかん寺さざゐどう-Sazai_Hall_at_the_Temple_of_the_Five_Hundred_Arhats_(Gohyaku_Rakanji_Sazaidō),_from_the_series_Thirty-six_Views_of_Mount_Fuji_(Fugaku_sanjūrokkei)_MET_DP141020.jpg",
-        "file_url": "https://commons.wikimedia.org/wiki/File:冨嶽三十六景_五百らかん寺さざゐどう-Sazai_Hall_at_the_Temple_of_the_Five_Hundred_Arhats_(Gohyaku_Rakanji_Sazaidō),_from_the_series_Thirty-six_Views_of_Mount_Fuji_(Fugaku_sanjūrokkei)_MET_DP141020.jpg",
-        "credit": null,
-        "permission": null,
+        "canonical_title": "File:冨嶽三十六景 五百らかん寺さざゐどう-Sazai Hall at the Temple of the Five Hundred Arhats (Gohyaku Rakanji Sazaidō), from the series Thirty-six Views of Mount Fuji (Fugaku sanjūrokkei) MET DP141020.jpg",
+        "url": "https://commons.wikimedia.org/wiki/File%3A%E5%86%A8%E5%B6%BD%E4%B8%89%E5%8D%81%E5%85%AD%E6%99%AF_%E4%BA%94%E7%99%BE%E3%82%89%E3%81%8B%E3%82%93%E5%AF%BA%E3%81%95%E3%81%96%E3%82%90%E3%81%A9%E3%81%86-Sazai_Hall_at_the_Temple_of_the_Five_Hundred_Arhats_(Gohyaku_Rakanji_Sazaid%C5%8D)%2C_from_the_series_Thirty-six_Views_of_Mount_Fuji_(Fugaku_sanj%C5%ABrokkei)_MET_DP141020.jpg",
+        "file_url": "https://upload.wikimedia.org/wikipedia/commons/0/00/%E5%86%A8%E5%B6%BD%E4%B8%89%E5%8D%81%E5%85%AD%E6%99%AF_%E4%BA%94%E7%99%BE%E3%82%89%E3%81%8B%E3%82%93%E5%AF%BA%E3%81%95%E3%81%96%E3%82%90%E3%81%A9%E3%81%86-Sazai_Hall_at_the_Temple_of_the_Five_Hundred_Arhats_%28Gohyaku_Rakanji_Sazaid%C5%8D%29%2C_from_the_series_Thirty-six_Views_of_Mount_Fuji_%28Fugaku_sanj%C5%ABrokkei%29_MET_DP141020.jpg",
+        "credit": "This file was donated to Wikimedia Commons as part of a project by the Metropolitan Museum of Art . See the Image and Data Resources Open Access Policy",
+        "permission": "This file is made available under the Creative Commons CC0 1.0 Universal Public Domain Dedication . The person who associated a work with this deed has dedicated the work to the public domain by waiving all of their rights to the work worldwide under copyright law, including all related and neighboring rights, to the extent allowed by law. You can copy, modify, distribute and perform the work, even for commercial purposes, all without asking permission. http://creativecommons.org/publicdomain/zero/1.0/deed.en CC0 Creative Commons Zero, Public Domain Dedication false false",
         "attribution": null
       },
       "copyright": {
-        "copyrighted": false,
-        "license_short": "Public domain",
-        "license_url": null,
-        "usage_terms": null
+        "copyrighted": true,
+        "license_short": "CC0",
+        "license_url": "http://creativecommons.org/publicdomain/zero/1.0/deed.en",
+        "usage_terms": "Creative Commons Zero, Public Domain Dedication"
       },
       "year": 1830,
       "description": "Woodblock print depicting the Sazaidō hall of Gohyaku Rakanji temple, part of Hokusai's celebrated series \"Thirty-six Views of Mount Fuji.\" The composition showcases the artist's mastery of perspective and landscape design, with Mount Fuji visible in the distance. From The Metropolitan Museum of Art collection.",
@@ -123381,18 +123381,18 @@
       "date_created": "1830-1832",
       "source": {
         "type": "Wikimedia Commons",
-        "canonical_title": "冨嶽三十六景 東海道保土ケ谷-Hodogaya on the Tōkaidō (Tōkaidō Hodogaya), from the series Thirty-six Views of Mount Fuji (Fugaku sanjūrokkei) MET DP141025.jpg",
-        "url": "https://commons.wikimedia.org/wiki/File:冨嶽三十六景_東海道保土ケ谷-Hodogaya_on_the_Tōkaidō_(Tōkaidō_Hodogaya),_from_the_series_Thirty-six_Views_of_Mount_Fuji_(Fugaku_sanjūrokkei)_MET_DP141025.jpg",
-        "file_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/[placeholder]/[placeholder]",
-        "credit": null,
-        "permission": null,
+        "canonical_title": "File:冨嶽三十六景 東海道保土ケ谷-Hodogaya on the Tōkaidō (Tōkaidō Hodogaya), from the series Thirty-six Views of Mount Fuji (Fugaku sanjūrokkei) MET DP141025.jpg",
+        "url": "https://commons.wikimedia.org/wiki/File%3A%E5%86%A8%E5%B6%BD%E4%B8%89%E5%8D%81%E5%85%AD%E6%99%AF_%E6%9D%B1%E6%B5%B7%E9%81%93%E4%BF%9D%E5%9C%9F%E3%82%B1%E8%B0%B7-Hodogaya_on_the_T%C5%8Dkaid%C5%8D_(T%C5%8Dkaid%C5%8D_Hodogaya)%2C_from_the_series_Thirty-six_Views_of_Mount_Fuji_(Fugaku_sanj%C5%ABrokkei)_MET_DP141025.jpg",
+        "file_url": "https://upload.wikimedia.org/wikipedia/commons/1/1d/%E5%86%A8%E5%B6%BD%E4%B8%89%E5%8D%81%E5%85%AD%E6%99%AF_%E6%9D%B1%E6%B5%B7%E9%81%93%E4%BF%9D%E5%9C%9F%E3%82%B1%E8%B0%B7-Hodogaya_on_the_T%C5%8Dkaid%C5%8D_%28T%C5%8Dkaid%C5%8D_Hodogaya%29%2C_from_the_series_Thirty-six_Views_of_Mount_Fuji_%28Fugaku_sanj%C5%ABrokkei%29_MET_DP141025.jpg",
+        "credit": "This file was donated to Wikimedia Commons as part of a project by the Metropolitan Museum of Art . See the Image and Data Resources Open Access Policy",
+        "permission": "This file is made available under the Creative Commons CC0 1.0 Universal Public Domain Dedication . The person who associated a work with this deed has dedicated the work to the public domain by waiving all of their rights to the work worldwide under copyright law, including all related and neighboring rights, to the extent allowed by law. You can copy, modify, distribute and perform the work, even for commercial purposes, all without asking permission. http://creativecommons.org/publicdomain/zero/1.0/deed.en CC0 Creative Commons Zero, Public Domain Dedication false false",
         "attribution": null
       },
       "copyright": {
-        "copyrighted": false,
-        "license_short": "Public domain",
-        "license_url": null,
-        "usage_terms": null
+        "copyrighted": true,
+        "license_short": "CC0",
+        "license_url": "http://creativecommons.org/publicdomain/zero/1.0/deed.en",
+        "usage_terms": "Creative Commons Zero, Public Domain Dedication"
       },
       "year": 1830,
       "description": "A woodblock print from Katsushika Hokusai's iconic series Thirty-six Views of Mount Fuji, depicting the town of Hodogaya along the Tōkaidō road. The composition features one of Hokusai's characteristic elevated perspectives with strong compositional depth. This Metropolitan Museum of Art example (DP141025) represents the series at its artistic zenith during the Edo period.",
@@ -123433,18 +123433,18 @@
       "date_created": "1830",
       "source": {
         "type": "Wikimedia Commons",
-        "canonical_title": "冨嶽三十六景 東海道江尻田子の浦略図-Tago Bay near Ejiri on the Tōkaidō (Tōkaidō Ejiri Tago no ura ryaku zu), from the series Thirty-six Views of Mount Fuji (Fugaku sanjūrokkei) MET DP141037.jpg",
-        "url": "https://commons.wikimedia.org/wiki/File:冨嶽三十六景_東海道江尻田子の浦略図-Tago_Bay_near_Ejiri_on_the_Tōkaidō_(Tōkaidō_Ejiri_Tago_no_ura_ryaku_zu),_from_the_series_Thirty-six_Views_of_Mount_Fuji_(Fugaku_sanjūrokkei)_MET_DP141037.jpg",
-        "file_url": "https://upload.wikimedia.org/wikipedia/commons/a/a0/冨嶽三十六景_東海道江尻田子の浦略図-Tago_Bay_near_Ejiri_on_the_Tōkaidō_%28Tōkaidō_Ejiri_Tago_no_ura_ryaku_zu%29%2C_from_the_series_Thirty-six_Views_of_Mount_Fuji_%28Fugaku_sanjūrokkei%29_MET_DP141037.jpg",
-        "credit": null,
-        "permission": null,
+        "canonical_title": "File:冨嶽三十六景 東海道江尻田子の浦略図-Tago Bay near Ejiri on the Tōkaidō (Tōkaidō Ejiri Tago no ura ryaku zu), from the series Thirty-six Views of Mount Fuji (Fugaku sanjūrokkei) MET DP141037.jpg",
+        "url": "https://commons.wikimedia.org/wiki/File%3A%E5%86%A8%E5%B6%BD%E4%B8%89%E5%8D%81%E5%85%AD%E6%99%AF_%E6%9D%B1%E6%B5%B7%E9%81%93%E6%B1%9F%E5%B0%BB%E7%94%B0%E5%AD%90%E3%81%AE%E6%B5%A6%E7%95%A5%E5%9B%B3-Tago_Bay_near_Ejiri_on_the_T%C5%8Dkaid%C5%8D_(T%C5%8Dkaid%C5%8D_Ejiri_Tago_no_ura_ryaku_zu)%2C_from_the_series_Thirty-six_Views_of_Mount_Fuji_(Fugaku_sanj%C5%ABrokkei)_MET_DP141037.jpg",
+        "file_url": "https://upload.wikimedia.org/wikipedia/commons/e/e5/%E5%86%A8%E5%B6%BD%E4%B8%89%E5%8D%81%E5%85%AD%E6%99%AF_%E6%9D%B1%E6%B5%B7%E9%81%93%E6%B1%9F%E5%B0%BB%E7%94%B0%E5%AD%90%E3%81%AE%E6%B5%A6%E7%95%A5%E5%9B%B3-Tago_Bay_near_Ejiri_on_the_T%C5%8Dkaid%C5%8D_%28T%C5%8Dkaid%C5%8D_Ejiri_Tago_no_ura_ryaku_zu%29%2C_from_the_series_Thirty-six_Views_of_Mount_Fuji_%28Fugaku_sanj%C5%ABrokkei%29_MET_DP141037.jpg",
+        "credit": "This file was donated to Wikimedia Commons as part of a project by the Metropolitan Museum of Art . See the Image and Data Resources Open Access Policy",
+        "permission": "This file is made available under the Creative Commons CC0 1.0 Universal Public Domain Dedication . The person who associated a work with this deed has dedicated the work to the public domain by waiving all of their rights to the work worldwide under copyright law, including all related and neighboring rights, to the extent allowed by law. You can copy, modify, distribute and perform the work, even for commercial purposes, all without asking permission. http://creativecommons.org/publicdomain/zero/1.0/deed.en CC0 Creative Commons Zero, Public Domain Dedication false false",
         "attribution": null
       },
       "copyright": {
-        "copyrighted": false,
-        "license_short": "Public Domain",
-        "license_url": null,
-        "usage_terms": null
+        "copyrighted": true,
+        "license_short": "CC0",
+        "license_url": "http://creativecommons.org/publicdomain/zero/1.0/deed.en",
+        "usage_terms": "Creative Commons Zero, Public Domain Dedication"
       },
       "year": 1830,
       "description": "A woodblock print from Katsushika Hokusai's renowned series \"Thirty-six Views of Mount Fuji\" (Fugaku sanjūrokkei). This print depicts Tago Bay near the town of Ejiri along the Tōkaidō highway, capturing the dramatic coastal landscape with Mount Fuji visible in the distance. Created during the mid-Edo period (1830), it exemplifies the ukiyo-e artistic tradition and Hokusai's mastery of perspective and color composition.",
@@ -123643,18 +123643,18 @@
       "date_created": "1830",
       "source": {
         "type": "Wikimedia Commons",
-        "canonical_title": "冨嶽三十六景 遠江山中-In the Mountains of Tōtomi Province (Tōtomi sanchū), from the series Thirty-six Views of Mount Fuji (Fugaku sanjūrokkei) MET DP140988.jpg",
-        "url": "https://commons.wikimedia.org/wiki/File:%E5%86%A8%E5%B6%BD%E4%B8%89%E5%8D%81%E5%85%AD%E6%99%AF_%E9%81%A0%E6%B1%9F%E5%B1%B1%E4%B8%AD-In_the_Mountains_of_T%C5%8Dtomi_Province_(T%C5%8Dtomi_sanch%C5%AB),_from_the_series_Thirty-six_Views_of_Mount_Fuji_(Fugaku_sanj%C5%ABrokkei)_MET_DP140988.jpg",
-        "file_url": "https://upload.wikimedia.org/wikipedia/commons/8/88/%E5%86%A8%E5%B6%BD%E4%B8%89%E5%8D%81%E5%85%AD%E6%99%AF_%E9%81%A0%E6%B1%9F%E5%B1%B1%E4%B8%AD-In_the_Mountains_of_T%C5%8Dtomi_Province_%28T%C5%8Dtomi_sanch%C5%AB%29%2C_from_the_series_Thirty-six_Views_of_Mount_Fuji_%28Fugaku_sanj%C5%ABrokkei%29_MET_DP140988.jpg",
-        "credit": null,
-        "permission": null,
+        "canonical_title": "File:冨嶽三十六景 遠江山中-In the Mountains of Tōtomi Province (Tōtomi sanchū), from the series Thirty-six Views of Mount Fuji (Fugaku sanjūrokkei) MET DP140988.jpg",
+        "url": "https://commons.wikimedia.org/wiki/File%3A%E5%86%A8%E5%B6%BD%E4%B8%89%E5%8D%81%E5%85%AD%E6%99%AF_%E9%81%A0%E6%B1%9F%E5%B1%B1%E4%B8%AD-In_the_Mountains_of_T%C5%8Dtomi_Province_(T%C5%8Dtomi_sanch%C5%AB)%2C_from_the_series_Thirty-six_Views_of_Mount_Fuji_(Fugaku_sanj%C5%ABrokkei)_MET_DP140988.jpg",
+        "file_url": "https://upload.wikimedia.org/wikipedia/commons/3/3d/%E5%86%A8%E5%B6%BD%E4%B8%89%E5%8D%81%E5%85%AD%E6%99%AF_%E9%81%A0%E6%B1%9F%E5%B1%B1%E4%B8%AD-In_the_Mountains_of_T%C5%8Dtomi_Province_%28T%C5%8Dtomi_sanch%C5%AB%29%2C_from_the_series_Thirty-six_Views_of_Mount_Fuji_%28Fugaku_sanj%C5%ABrokkei%29_MET_DP140988.jpg",
+        "credit": "This file was donated to Wikimedia Commons as part of a project by the Metropolitan Museum of Art . See the Image and Data Resources Open Access Policy",
+        "permission": "This file is made available under the Creative Commons CC0 1.0 Universal Public Domain Dedication . The person who associated a work with this deed has dedicated the work to the public domain by waiving all of their rights to the work worldwide under copyright law, including all related and neighboring rights, to the extent allowed by law. You can copy, modify, distribute and perform the work, even for commercial purposes, all without asking permission. http://creativecommons.org/publicdomain/zero/1.0/deed.en CC0 Creative Commons Zero, Public Domain Dedication false false",
         "attribution": null
       },
       "copyright": {
-        "copyrighted": false,
-        "license_short": "Public Domain",
-        "license_url": null,
-        "usage_terms": null
+        "copyrighted": true,
+        "license_short": "CC0",
+        "license_url": "http://creativecommons.org/publicdomain/zero/1.0/deed.en",
+        "usage_terms": "Creative Commons Zero, Public Domain Dedication"
       },
       "year": 1830,
       "description": "A woodblock print from Katsushika Hokusai's celebrated series \"Thirty-six Views of Mount Fuji,\" created during the Edo period. This composition depicts the mountains of Tōtomi Province with Fuji visible in the distance, exemplifying Hokusai's mastery of perspective and landscape composition. One of the most iconic prints in the series, combining traditional Japanese aesthetics with Western artistic influence.",
@@ -123669,18 +123669,18 @@
       "date_created": "1829-1833",
       "source": {
         "type": "Wikimedia Commons",
-        "canonical_title": "冨嶽三十六景 隅田川関屋の里-Sekiya Village on the Sumida River (Sumidagawa Sekiya no sato), from the series Thirty-six Views of Mount Fuji (Fugaku sanjūrokkei) MET DP141023.jpg",
-        "url": "https://commons.wikimedia.org/wiki/File:冨嶽三十六景_隅田川関屋の里-Sekiya_Village_on_the_Sumida_River_(Sumidagawa_Sekiya_no_sato),_from_the_series_Thirty-six_Views_of_Mount_Fuji_(Fugaku_sanjūrokkei)_MET_DP141023.jpg",
-        "file_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/[path-pending-api]",
-        "credit": null,
-        "permission": null,
+        "canonical_title": "File:冨嶽三十六景 隅田川関屋の里-Sekiya Village on the Sumida River (Sumidagawa Sekiya no sato), from the series Thirty-six Views of Mount Fuji (Fugaku sanjūrokkei) MET DP141023.jpg",
+        "url": "https://commons.wikimedia.org/wiki/File%3A%E5%86%A8%E5%B6%BD%E4%B8%89%E5%8D%81%E5%85%AD%E6%99%AF_%E9%9A%85%E7%94%B0%E5%B7%9D%E9%96%A2%E5%B1%8B%E3%81%AE%E9%87%8C-Sekiya_Village_on_the_Sumida_River_(Sumidagawa_Sekiya_no_sato)%2C_from_the_series_Thirty-six_Views_of_Mount_Fuji_(Fugaku_sanj%C5%ABrokkei)_MET_DP141023.jpg",
+        "file_url": "https://upload.wikimedia.org/wikipedia/commons/2/28/%E5%86%A8%E5%B6%BD%E4%B8%89%E5%8D%81%E5%85%AD%E6%99%AF_%E9%9A%85%E7%94%B0%E5%B7%9D%E9%96%A2%E5%B1%8B%E3%81%AE%E9%87%8C-Sekiya_Village_on_the_Sumida_River_%28Sumidagawa_Sekiya_no_sato%29%2C_from_the_series_Thirty-six_Views_of_Mount_Fuji_%28Fugaku_sanj%C5%ABrokkei%29_MET_DP141023.jpg",
+        "credit": "This file was donated to Wikimedia Commons as part of a project by the Metropolitan Museum of Art . See the Image and Data Resources Open Access Policy",
+        "permission": "This file is made available under the Creative Commons CC0 1.0 Universal Public Domain Dedication . The person who associated a work with this deed has dedicated the work to the public domain by waiving all of their rights to the work worldwide under copyright law, including all related and neighboring rights, to the extent allowed by law. You can copy, modify, distribute and perform the work, even for commercial purposes, all without asking permission. http://creativecommons.org/publicdomain/zero/1.0/deed.en CC0 Creative Commons Zero, Public Domain Dedication false false",
         "attribution": null
       },
       "copyright": {
-        "copyrighted": false,
-        "license_short": "Public domain",
-        "license_url": null,
-        "usage_terms": null
+        "copyrighted": true,
+        "license_short": "CC0",
+        "license_url": "http://creativecommons.org/publicdomain/zero/1.0/deed.en",
+        "usage_terms": "Creative Commons Zero, Public Domain Dedication"
       },
       "year": 1829,
       "description": "A woodblock print from Katsushika Hokusai's celebrated series \"Thirty-six Views of Mount Fuji,\" depicting the village of Sekiya along the Sumida River. The composition exemplifies Hokusai's mastery of perspective and color gradation, showing the influence of European compositional techniques on Japanese ukiyo-e printmaking during the Edo period.",

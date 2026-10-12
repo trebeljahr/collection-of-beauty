@@ -6,19 +6,28 @@
 const TERM_YEARS = 70;
 
 /** A filename and a page title name the same file when they agree on
- *  their letters and digits. A browser turns a quote or a colon into an
- *  underscore and a saved preview carries a `1280px-` prefix, so the
- *  punctuation and that prefix are left out. */
+ *  their letters, digits and underscores, once the title is written the
+ *  way a browser saves it: a space becomes an underscore, and so does a
+ *  character a filename may not hold, such as a quote or a colon. Other
+ *  punctuation is left out, and so is the `1280px-` prefix of a saved
+ *  preview.
+ *
+ *  The underscores are what tells a title in quotation marks from the
+ *  same words without them. `_The_School_of_Athens__by_Raffaello…` on
+ *  disk is the page `"The School of Athens" by Raffaello…`. The page
+ *  `The School of Athens by Raffaello…` is another photograph of the
+ *  fresco, and comparing letters alone took the two for one file. */
 export function sameFile(filename, pageTitle) {
-  const bare = (s) =>
+  const saved = (s) =>
     String(s)
       .normalize("NFC")
       .replace(/^file:/i, "")
       .replace(/^\d+px-/, "")
       .replace(/\.(jpe?g|png|tiff?|webp|gif)$/i, "")
-      .replace(/[^\p{L}\p{N}]+/gu, "")
+      .replace(/[ "*/:?\\]/g, "_")
+      .replace(/[^\p{L}\p{N}_]+/gu, "")
       .toLowerCase();
-  return bare(filename) === bare(pageTitle);
+  return saved(filename) === saved(pageTitle);
 }
 
 /** Public-domain tags are worded many ways ("Public domain", "PD-Art",
