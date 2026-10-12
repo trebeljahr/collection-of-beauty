@@ -5664,5 +5664,107 @@
       "sha1": "4efb3500dbc99eacd2ddb44afac2b381badb8f17"
     },
     "acceptedChange": true
+  },
+  "collection-of-beauty/1280px-Vittore_Carpaccio_-_Hunting_on_the_Lagoon_(recto),_Letter_Rack_(verso)_-_79.PB.72_-_J._Paul_Getty_Museum.jpg": {
+    "id": "collection-of-beauty-1280px-vittore-carpaccio-hunting-on-the-lagoon-recto-letter-rack-verso-79-pb-72-j-paul-getty-museum",
+    "fetchedAt": "2026-10-12T23:02:34.978Z",
+    "commonsTitle": "File:Vittore Carpaccio - Hunting on the Lagoon (recto), Letter Rack (verso) - 79.PB.72 - J. Paul Getty Museum.jpg",
+    "licence": "Public domain",
+    "revision": "2016-04-22T20:29:22Z",
+    "sha1": "449884f0617175ca2d5a36c1a74b9d0f80dd7b41",
+    "bytes": 94147886,
+    "width": 6506,
+    "height": 7807,
+    "previous": {
+      "width": 1280,
+      "height": 1536,
+      "bytes": 457402,
+      "sha1": "239cc2bd6d753c5239660b0e62a961567fe6c443"
+    }
+  },
+  "collection-of-beauty/2560px-The_Big_wave_from_100_views_of_the_Fuji,_2nd_volume.jpg": {
+    "id": "collection-of-beauty-2560px-the-big-wave-from-100-views-of-the-fuji-2nd-volume",
+    "fetchedAt": "2026-10-12T23:02:39.771Z",
+    "commonsTitle": "File:The Big wave from 100 views of the Fuji, 2nd volume.jpg",
+    "licence": "Public domain",
+    "revision": "2005-09-07T17:35:48Z",
+    "sha1": "9705dd41321320e65900f575213e63f8a69fe118",
+    "bytes": 2349457,
+    "width": 4149,
+    "height": 3052,
+    "previous": {
+      "width": 2560,
+      "height": 1883,
+      "bytes": 1482008,
+      "sha1": "0a61ddc663f3834197892e7cf3cf8c6d4c6edb13"
+    }
+  },
+  "collection-of-beauty/Resting_Girl_by_François_Boucher_(1753)_-_Alte_Pinakothek_-_Munich_-_Germany_2017_(crop).jpg": {
+    "id": "collection-of-beauty-resting-girl-by-francois-boucher-1753-alte-pinakothek-munich-germany-2017-crop",
+    "fetchedAt": "2026-10-12T23:02:49.258Z",
+    "commonsTitle": "File:Resting Girl by François Boucher (1753) - Alte Pinakothek - Munich - Germany 2017 (crop).jpg",
+    "licence": "Public domain",
+    "revision": "2017-09-10T02:55:35Z",
+    "sha1": "e4cec5a9061210830c7bf3acbd43bdd1c6a1fe28",
+    "bytes": 8984112,
+    "width": 3597,
+    "height": 2871,
+    "previous": {
+      "width": 1920,
+      "height": 1532,
+      "bytes": 818601,
+      "sha1": "15d5480fa223edb7a66436dd888efe0fcee93791"
+    }
+  },
+  "collection-of-beauty/Ave_Caesar_Morituri_te_Salutant_(Gérôme)_01.jpg": {
+    "id": "collection-of-beauty-ave-caesar-morituri-te-salutant-gerome-01",
+    "fetchedAt": "2026-10-12T23:02:58.657Z",
+    "commonsTitle": "File:Ave Caesar Morituri te Salutant (Gérôme) 01.jpg",
+    "licence": "Public domain",
+    "revision": "2020-07-18T17:46:55Z",
+    "sha1": "b959c318c569635e4e0578db4ee507ed7c341149",
+    "bytes": 5360126,
+    "width": 3000,
+    "height": 1881,
+    "previous": {
+      "width": 2560,
+      "height": 1605,
+      "bytes": 969868,
+      "sha1": "bffcc315fca8ff9a1ffa40f81a82381455a4bb50"
+    }
+  },
+  "collection-of-beauty/960px-Van_Gogh_-_Le_Moulin_de_la_Galette4.jpeg": {
+    "id": "collection-of-beauty-960px-van-gogh-le-moulin-de-la-galette4",
+    "fetchedAt": "2026-10-12T23:03:02.538Z",
+    "commonsTitle": "File:Van Gogh - Le Moulin de la Galette4.jpeg",
+    "licence": "Public domain",
+    "revision": "2016-03-15T22:24:06Z",
+    "sha1": "1b00e2e7a18b2f474c383809f8e1b2c8064ee515",
+    "bytes": 1519292,
+    "width": 2000,
+    "height": 2943,
+    "previous": {
+      "width": 960,
+      "height": 1413,
+      "bytes": 609187,
+      "sha1": "0a576180982eb354fea152657348be9f2b35d6c7"
+    }
+  },
+  "collection-of-beauty/Félicien_Rops_-_Pornokratès_-_1878_(2).jpg": {
+    "id": "collection-of-beauty-felicien-rops-pornokrates-1878-2",
+    "fetchedAt": "2026-10-12T23:03:03.378Z",
+    "commonsTitle": "File:Félicien Rops - Pornokratès - 1878 (2).jpg",
+    "licence": "Public domain",
+    "revision": "2020-04-14T08:12:03Z",
+    "sha1": "efd95150011d0e51ff8f45d1b270adba243c86e8",
+    "bytes": 198705,
+    "width": 1256,
+    "height": 2010,
+    "previous": {
+      "width": 960,
+      "height": 1536,
+      "bytes": 281764,
+      "sha1": "972f05376183f59ebc9f04b9faa54731f79e0de0"
+    }
   }
 }

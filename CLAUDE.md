@@ -185,6 +185,15 @@ required by the Dockerfile — don't remove it.
   and no year for the work, and 7 where the larger upload is another
   picture. The vault note
   `collection-of-beauty-commons-larger-originals.md` lists both sets.
+- Correcting a link can make a work a candidate. Eight of the 18
+  relinked works are previews of the page they now name. Six were
+  fetched on 13 October 2026 on Rico's word, 339 in all: Carpaccio's
+  Hunting on the Lagoon (1,280 → 6,506 px), Hokusai's wave from One
+  Hundred Views, Boucher's Resting Girl, Gérôme's Ave Caesar, Van
+  Gogh's Moulin de la Galette and Rops's Pornokratès. The script left
+  Hasui's Daikon-gashi for the German term. Baldung's Death and the
+  Maiden was named by hand (`Death and the Maiden Baldung.jpg`), so
+  `sameFile()` does not take it for its page and it is still 960 px.
 - A larger upload on the same page is not always the same picture. Two
   Mucha canvases were uploaded again in June 2026 as paler photographs
   with another crop; one shows the frame along its top edge. The script
@@ -210,10 +219,15 @@ required by the Dockerfile — don't remove it.
   (tiles read the catalogue, so they come after build-data). Without
   `--only` both scripts take on a backlog that is not yours: on 12
   October 2026 a dry run of shrink listed 56 other stale sources in
-  the folder (436 over all folders), and by the end of that day 152 of
-  the 1,114 tile pyramids existed on disk (2 from the first trial, 150
-  from the day's two refetches). The lightbox falls back to the plain
-  image for the other 962.
+  the folder (436 over all folders). On 13 October 154 of the 1,116
+  tile pyramids existed on disk (2 from the first trial, 152 from the
+  three refetches). The lightbox falls back to the plain image for the
+  other 962.
+- A work's probe in `metadata/.cache/image-probe.json` is keyed on the
+  mtime of its variant folder, and `assets:tiles` adds a `tiles/`
+  folder there. So the first build-data after a tile run probes those
+  works again and writes the same values. Copy the cache to the main
+  checkout after that run, not before the tiles.
 - Encoding is the slow part. The 310 sources of the second run took
   4 h 40 min on five lanes while other sessions held the machine at a
   load average of 60 to 240; their 139 pyramids took 6 minutes on
