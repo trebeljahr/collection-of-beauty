@@ -14845,5 +14845,15 @@
     "inventory": "RF 4046",
     "describedAt": null,
     "sourceLinks": []
+  },
+  "Vincent_van_Gogh_-_Pietà_(after_Delacroix).jpg": {
+    "wikidataId": "Q26221218",
+    "wikidataUrl": "https://www.wikidata.org/wiki/Q26221218",
+    "collection": "Collection of Modern Religious Art, Vatican Museums",
+    "collectionWikidataId": "Q2034945",
+    "location": "Vatican Museums",
+    "inventory": "23698",
+    "describedAt": "https://catalogo.museivaticani.va/index.php/Detail/objects/MV.23698.0.0",
+    "sourceLinks": []
   }
 }

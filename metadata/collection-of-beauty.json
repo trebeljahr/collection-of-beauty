@@ -4743,7 +4743,7 @@
       "needs_review": false,
       "title": "2560px-The Big wave from 100 views of the Fuji, 2nd volume",
       "artist": "Katsushika Hokusai",
-      "date_created": "1829-1832",
+      "date_created": "1835",
       "source": {
         "type": "Wikimedia Commons",
         "canonical_title": "File:The Big wave from 100 views of the Fuji, 2nd volume.jpg",
@@ -4759,8 +4759,8 @@
         "license_url": null,
         "usage_terms": "Public domain"
       },
-      "year": 1829,
-      "description": "A color woodcut from the series \"36 Views of Mount Fuji,\" depicting large offshore waves with Mount Fuji visible in the background. Created by Japanese artist Katsushika Hokusai in the early 19th century, this iconic print captures the dynamic movement of okinami (offshore waves) in characteristic ukiyo-e style.",
+      "year": 1835,
+      "description": "It is a mirrored version of the famous Big wave of Kanagawa from the 36 views of the Fuji. There are no boats and the wave crests are birds.",
       "year_source": "date_created_plain"
     },
     "2560px-The_Calm_Sea_MET_DT1973.jpg": {
@@ -5974,7 +5974,7 @@
         "usage_terms": "Public domain"
       },
       "year": 1886,
-      "description": "Vincent van Gogh's impressionist rendering of the Moulin de la Galette in Paris, painted in autumn 1886. This work captures the bustling entertainment venue with characteristic bold brushwork and vibrant color palette. Housed in the Alte Nationalgalerie, Berlin.",
+      "description": "Vincent van Gogh's impressionist rendering of the Moulin de la Galette in Paris, painted in autumn 1886. This work captures the bustling entertainment venue with characteristic bold brushwork and vibrant color palette. Held in a private collection.",
       "year_source": "date_created_plain"
     },
     "A_Foolish_Virgin_in_Half-Figure_MET_DP820007.jpg": {
@@ -110952,7 +110952,7 @@
       "needs_review": false,
       "title": "Tōkyō jūnidai, Daikon-gashi by Kawase Hasui",
       "artist": "Kawase Hasui",
-      "date_created": "1927 (Showa 2)",
+      "date_created": "1920",
       "source": {
         "type": "Wikimedia Commons",
         "canonical_title": "File:Tōkyō jūnidai, Daikon-gashi by Kawase Hasui.jpg",
@@ -110968,8 +110968,8 @@
         "license_url": null,
         "usage_terms": "Public domain"
       },
-      "year": 1927,
-      "description": "Daybreak over the Daikon vegetable wharf on the Sumida River, from Hasui's series Twenty Views of Tōkyō. This shin-hanga exemplifies the artist's distinctive atmospheric effects, merging traditional ukiyo-e workshop techniques with Western-influenced perspective to capture the modernising city at dawn.",
+      "year": 1920,
+      "description": "Daikon-gashi, from the series Twelve Scenes of Tōkyō (Tōkyō jūnidai), woodblock print",
       "year_source": "date_created_plain"
     },
     "Tōkyō_jūnidai,_Fukagawa_Kaminohashi_by_Kawase_Hasui.jpg": {
@@ -115629,7 +115629,7 @@
         "usage_terms": "Public domain"
       },
       "year": 1889,
-      "description": "Oil painting created by Vincent van Gogh in Saint-Rémy-de-Provence in 1889 as part of his series copying Old Master works. The composition depicts the Pietà scene and reflects Van Gogh's deep engagement with Renaissance tradition. Originally housed in the Van Gogh Museum in Amsterdam (catalog s0168V1962).",
+      "description": "Oil painting created by Vincent van Gogh in Saint-Rémy-de-Provence in 1889 as part of his series copying Old Master works. The composition depicts the Pietà scene and reflects Van Gogh's deep engagement with Renaissance tradition. Housed in the Vatican Museums (inventory 23698).",
       "year_source": "date_created_plain"
     },
     "Vincent_van_Gogh_-_Road_with_Cypress_and_Star_-_c._12-15_May_1890.jpg": {
@@ -122638,8 +122638,8 @@
       "resolved": true,
       "needs_review": false,
       "title": "Мавзолей Шах-и-Зинда в Самарканде",
-      "artist": "Akhemen",
-      "date_created": "2018",
+      "artist": "Vasily Vereshchagin",
+      "date_created": "between 1869 and 1870 date QS:P,+1850-00-00T00:00:00Z/7,P1319,+1869-00-00T00:00:00Z/9,P1326,+1870-00-00T00:00:00Z/9",
       "source": {
         "type": "Wikimedia Commons",
         "canonical_title": "File:Мавзолей Шах-и-Зинда в Самарканде.jpg",
@@ -122655,8 +122655,23 @@
         "license_url": null,
         "usage_terms": "Public domain"
       },
-      "year": null,
-      "description": "Photograph of the Shah-i-Zinda mausoleum ensemble in Samarkand, Uzbekistan, one of Central Asia's most significant architectural complexes. The site comprises a series of connected mausoleums built from the 11th to 15th centuries along a narrow street on the outskirts of the ancient Silk Road city. This image captures the ornate tilework and facades characteristic of Timurid-era Islamic architecture."
+      "year": 1869,
+      "description": "Painting of the Shah-i-Zinda mausoleum ensemble in Samarkand, Uzbekistan, one of Central Asia's most significant architectural complexes. The site comprises a series of connected mausoleums built from the 11th to 15th centuries along a narrow street on the outskirts of the ancient Silk Road city. This image captures the ornate tilework and facades characteristic of Timurid-era Islamic architecture.",
+      "year_source": "wikidata_qs",
+      "artist_info": {
+        "name": "Vasily Vereshchagin",
+        "aliases": [
+          "Vasily Vereshchagin",
+          "Vereshchagin",
+          "Verestchagin",
+          "Vereschagin"
+        ],
+        "born": 1842,
+        "died": 1904,
+        "nationality": "Russian",
+        "movement": "Realism",
+        "pd_status": "public_domain_worldwide"
+      }
     },
     "Медресе_Шир-Дор_на_площади_Регистан_в_Самарканде.jpg": {
       "filename": "Медресе_Шир-Дор_на_площади_Регистан_в_Самарканде.jpg",

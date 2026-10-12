@@ -1,7 +1,9 @@
 {
   "_why": {
     "collection-of-beauty/Ingres_(atelier)_-_Angélique_-_Piscine_Roubaix.jpg": "La Piscine, Roubaix, inv. 11747-155-141. The museum's navigart collection database (https://api.navigart.fr/23/artworks?q=Angélique) gives the title 'Angélique' (title_notice and title_list), for 'Jean-Auguste-Dominique INGRES (atelier de)', oil on canvas, 102 x 73.7 cm. The catalogue showed 'Ingres': the Commons title is the file name, 'Ingres (atelier) - Angélique - Piscine Roubaix', and the build's title cleanup cut it down to its first word. The museum's French title is kept, as the catalogue's own description names the figure Angélique.",
-    "collection-of-beauty/David's_Leonidas_and_Thermoplyae.jpg": "National Gallery of Art Library, Washington, Department of Image Collections, DPA 1006600094 (https://library.nga.gov/permalink/01NGA_INST/1p5jkvq/alma991680593804896, read through the library's Primo record API). The record's title is 'Leonidas at Thermoplyae.', with the added title 'Léonidas aux Thermopyles.'; the record transcribes the plate's Greek lettering as 'Λεωνιδας ε̆ν Θερμοπúλαις' (Leonidas at Thermopylae). 'Thermoplyae' is a typo in the NGA record, which Commons copied into its file name and title 'David's Leonidas and Thermoplyae'. The override is the NGA title with the typo corrected. The artwork id keeps the misspelling because ids are minted from file names."
+    "collection-of-beauty/David's_Leonidas_and_Thermoplyae.jpg": "National Gallery of Art Library, Washington, Department of Image Collections, DPA 1006600094 (https://library.nga.gov/permalink/01NGA_INST/1p5jkvq/alma991680593804896, read through the library's Primo record API). The record's title is 'Leonidas at Thermoplyae.', with the added title 'Léonidas aux Thermopyles.'; the record transcribes the plate's Greek lettering as 'Λεωνιδας ε̆ν Θερμοπúλαις' (Leonidas at Thermopylae). 'Thermoplyae' is a typo in the NGA record, which Commons copied into its file name and title 'David's Leonidas and Thermoplyae'. The override is the NGA title with the typo corrected. The artwork id keeps the misspelling because ids are minted from file names.",
+    "collection-of-beauty/2560px-The_Big_wave_from_100_views_of_the_Fuji,_2nd_volume.jpg": "Harvard Art Museums 1933.4.1064 (https://harvardartmuseums.org/collections/object/178177) titles its impression of this book page 'Fuji at Sea (Kaijō no Fuji)', original-language title 富嶽百景二編 海上の不二. The same 海上の不二 is printed at the upper right of this image. The catalogue showed 'The Great Wave off Kanagawa', the title of the colour print from Thirty-six Views of Mount Fuji, whose Commons file the sidecar named until d554436.",
+    "collection-of-beauty/Мавзолей_Шах-и-Зинда_в_Самарканде.jpg": "Commons File:Мавзолей Шах-и-Зинда в Самарканде.jpg (https://commons.wikimedia.org/wiki/File:Мавзолей_Шах-и-Зинда_в_Самарканде.jpg), the page of the file on disk, titles Vereshchagin's painting 'Мавзолей Шах-и-Зинда в Самарканде'. The English Wikipedia article on Vereshchagin captions this file 'Shah-i-Zinda Mausoleum in Samarkand (1869–1870)'. The catalogue's 'Shah-i-Zinda Mausoleum Ensemble, Samarkand' was made from the name of another upload, the photograph 'Shahi Zinda Ensemble of Mausoleum in Samarkand.jpg', which the sidecar named until d554436."
   },
   "collection-of-beauty/01_-_Ichikobu_Bridge.jpg": "Thirty-six Views of Mount Fuji: Ichikobu Bridge in the Eastern Capital",
   "collection-of-beauty/Matteo_Ripa001_-_Morning_Glow_on_the_Western_Ridge.jpg": "Morning Glow on the Western Ridge, from Thirty-six Views of the Imperial Summer Resort at Chengde",
@@ -271,7 +273,7 @@
   "collection-of-beauty/Дети_племени_солонов.jpg": "Children of the Solon People",
   "collection-of-beauty/Киргизские_кибитки_на_реке_Чу.jpg": "Kyrgyz Yurts on the Chu River",
   "collection-of-beauty/Китайская_палатка.jpg": "Chinese Tent",
-  "collection-of-beauty/Мавзолей_Шах-и-Зинда_в_Самарканде.jpg": "Shah-i-Zinda Mausoleum Ensemble, Samarkand",
+  "collection-of-beauty/Мавзолей_Шах-и-Зинда_в_Самарканде.jpg": "Shah-i-Zinda Mausoleum in Samarkand",
   "collection-of-beauty/Медресе_Шир-Дор_на_площади_Регистан_в_Самарканде.jpg": "Shir-Dor Madrasa on Registan Square, Samarkand",
   "collection-of-beauty/Парламентёры.jpg": "The Envoys",
   "collection-of-beauty/Перекочевка_киргизов_2.jpg": "Kyrgyz Migration",
@@ -429,7 +431,7 @@
   "collection-of-beauty/2560px-NDL-DC_2586549-07_Kawase_Hasui_S03_crd.jpg": "Akashi-chō after Rain",
   "collection-of-beauty/2560px-NDL-DC_2586549-12_Kawase_Hasui_T15_crd.jpg": "Ryuga Island, Oga Peninsula",
   "collection-of-beauty/2560px-Pieter_Bruegel_the_Elder_-_Hunters_in_the_Snow_(Winter)_-_Google_Art_Project.jpg": "Hunters in the Snow",
-  "collection-of-beauty/2560px-The_Big_wave_from_100_views_of_the_Fuji,_2nd_volume.jpg": "The Great Wave off Kanagawa",
+  "collection-of-beauty/2560px-The_Big_wave_from_100_views_of_the_Fuji,_2nd_volume.jpg": "Fuji at Sea (Kaijō no Fuji)",
   "collection-of-beauty/2560px-The_Langlois_Bridge_at_Arles_-_My_Dream.jpg": "The Langlois Bridge at Arles - My Dream",
   "collection-of-beauty/2560px-Van_Gogh_The_Olive_Trees..jpg": "Olive Trees with the Alpilles in the Background",
   "collection-of-beauty/2560px-Vincent_van_Gogh_-_Grapes,_Lemons,_Pears,_and_Apples_-_1949.215_-_Art_Institute_of_Chicago.jpg": "Grapes, Lemons, Pears, and Apples",

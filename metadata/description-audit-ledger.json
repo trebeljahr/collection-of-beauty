@@ -2067,8 +2067,11 @@
   "status": "minor-fixed"
  },
  "collection-of-beauty-960px-van-gogh-le-moulin-de-la-galette4": {
-  "problem": "Palette is light blues and ochres, not muted Dutch earth tones.",
-  "status": "minor-fixed"
+  "audit": "2026-10",
+  "method": "span-edits",
+  "previousStatus": "minor-fixed",
+  "problem": "Said this version is in the Alte Nationalgalerie, Berlin. The file shown is the upright version F349 (55 × 38.5 cm). Wikidata Q26220239 and vggallery.com (p_0349) give a private collection, and Commons sources the photograph to the Dickinson Gallery. The Berlin picture is another version, whose Commons file the sidecar named until d554436.",
+  "status": "major-fixed"
  },
  "collection-of-beauty-a-colored-version-of-the-big-wave-from-100-views-of-the-fuji-2nd-volume": {
   "status": "accurate"
@@ -13488,7 +13491,10 @@
   "status": "accurate"
  },
  "collection-of-beauty-tokyo-junidai-daikon-gashi-by-kawase-hasui": {
-  "problem": "Description names Nihonbashi River; sourceDescription identifies the waterway as the Sumida River.",
+  "audit": "2026-10",
+  "method": "span-edits",
+  "previousStatus": "minor-fixed",
+  "problem": "Placed the wharf on the Sumida River. Daikon-gashi was the vegetable market beside Kyōbashi: the print's Commons page quotes Hasui's own note (大根河岸は、京橋の傍にある青物市場です) and carries the category 'Kyōbashi River, Tokyo'. An earlier audit took 'Sumida River' from the sidecar description, a blurb written from the page of another print.",
   "status": "minor-fixed"
  },
  "collection-of-beauty-tokyo-junidai-samidare-furu-sanno-by-kawase-hasui": {
@@ -13988,8 +13994,10 @@
   "status": "minor-fixed"
  },
  "collection-of-beauty-vincent-van-gogh-pieta-after-delacroix": {
-  "audit": "2026-09",
-  "problem": "The painting is a copy after Delacroix, a nineteenth-century Romantic — as the record's own English title says. The Saint-Rémy copies were made after prints of Delacroix, Millet, Rembrandt and Doré, not after Renaissance art, so the sentence points at the wrong tradition and at nothing in the picture.",
+  "audit": "2026-10",
+  "method": "span-edits",
+  "previousStatus": "major-fixed",
+  "problem": "Said the picture is in the Van Gogh Museum, Amsterdam, inventory s0168V1962. That is the larger version, F630 (73 × 60.5 cm). The file shown is the smaller version, F757 (42 × 34 cm): its Commons page links Wikidata Q26221218, which gives inventory 23698, and the Vatican Museums' online catalogue lists it as MV.23698.0.0 in the Collezione di Arte Contemporanea. The Amsterdam holder came from another Commons upload, which the sidecar named until d554436.",
   "status": "major-fixed"
  },
  "collection-of-beauty-vincent-van-gogh-road-with-cypress-and-star-c-12-15-may-1890": {

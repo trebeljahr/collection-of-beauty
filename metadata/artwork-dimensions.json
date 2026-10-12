@@ -21749,5 +21749,9 @@
     "source": "wikimedia-template"
   },
   "collection-of-beauty-bruni-christ": null,
-  "collection-of-beauty-mavzoley-shakh-i-zinda-v-samarkande": null
+  "collection-of-beauty-mavzoley-shakh-i-zinda-v-samarkande": {
+    "widthCm": 36.6,
+    "heightCm": 26.8,
+    "source": "wikipedia"
+  }
 }
