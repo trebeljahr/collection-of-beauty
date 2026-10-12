@@ -955,6 +955,28 @@ the *why* rather than the *what* — the diff already shows the what.
 functions in `src/lib/` are the target. React component tests aren't
 set up; if you need one, scaffold a Testing Library setup separately.
 
+Several sessions run the suite while the machine is at a load average of
+50 to 150. A starved run takes 90 to 140 s where a quiet one takes 10 to
+30, and a test then runs 4 to 18 times slower. Two rules follow:
+
+- **No `expect` in a loop over the catalogue, a texture or a geometry.**
+  A call costs about 0.08 ms on a quiet machine. The 15,800 calls of one
+  test in `artwork-colors.test.ts` were 1.3 s of it there and 4.9 to
+  9.5 s in a starved run; the test now takes 10 ms. Read the values in a
+  plain loop, keep the one nearest the limit and the id, triangle or
+  texel it belongs to, and assert once with that name as the message.
+  Keep a NaN once met (`value < least || Number.isNaN(value)`), or the
+  next value replaces it and the test passes. For a yes-or-no rule,
+  collect the ids that break it and assert that the list is empty.
+- **`testTimeout` in `vitest.config.ts` is 120 s**, where vitest's
+  default is 5 s. Tests whose cost is the work under test (a layout over
+  a catalogue, a stair walk, a sharp render, the first render of an
+  email) crossed 5 s in starved runs, other ones each run, and single
+  tests have taken 70 s at a load average of 200 to 400. None waits on
+  anything. A test that needs longer sets its own:
+  `frame-design.test.ts > variety` picks a frame for every work, 9 s
+  quiet and 46 s starved, and has `{ timeout: 300_000 }`.
+
 ## Things that look like bugs but aren't
 
 - **`THREE.WebGLRenderer: Context Lost.` in dev** — Fast Refresh

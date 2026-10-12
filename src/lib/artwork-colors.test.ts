@@ -168,13 +168,29 @@ describe("colorStrength over the baked corpus", () => {
   });
 
   it("keeps every baked strength inside 0-1", () => {
+    // Each limit is asserted once, on the strength nearest to it. Two
+    // `expect` calls for every family of every work were 15,800, which
+    // ran past the timeout when the machine was busy. A NaN is kept once
+    // met, so it fails both.
+    let least = Infinity;
+    let leastOf = "";
+    let most = -Infinity;
+    let mostOf = "";
     for (const artwork of artworkListings) {
       for (const id of artwork.colorBuckets ?? []) {
         const value = colorStrength(artwork.id, id);
-        expect(value, `${artwork.id}/${id}`).toBeGreaterThan(0);
-        expect(value, `${artwork.id}/${id}`).toBeLessThanOrEqual(1);
+        if (value < least || Number.isNaN(value)) {
+          least = value;
+          leastOf = `${artwork.id}/${id}`;
+        }
+        if (value > most || Number.isNaN(value)) {
+          most = value;
+          mostOf = `${artwork.id}/${id}`;
+        }
       }
     }
+    expect(least, leastOf).toBeGreaterThan(0);
+    expect(most, mostOf).toBeLessThanOrEqual(1);
   });
 
   it("spreads a family across a real range rather than one flat value", () => {

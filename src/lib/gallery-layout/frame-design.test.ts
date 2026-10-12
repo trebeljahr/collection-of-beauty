@@ -114,16 +114,23 @@ describe("pickFrameDesign", () => {
   });
 
   it("names only looks that exist, with a weight", () => {
+    const known = new Set<string>(LOOK_IDS);
+    const none: string[] = [];
+    const unknown: string[] = [];
+    const weightless: string[] = [];
     for (const movement of [...movements, null]) {
       for (const year of [1450, 1650, 1800, 1880, 1930, null]) {
         const looks = looksFor({ movement, year });
-        expect(looks.length).toBeGreaterThan(0);
+        if (!(looks.length > 0)) none.push(`${movement} ${year}`);
         for (const [look, weight] of looks) {
-          expect(LOOK_IDS).toContain(look);
-          expect(weight).toBeGreaterThan(0);
+          if (!known.has(look)) unknown.push(`${movement} ${year}: ${look}`);
+          if (!(weight > 0)) weightless.push(`${movement} ${year}: ${look} ${weight}`);
         }
       }
     }
+    expect(none, "no look at all").toEqual([]);
+    expect(unknown, "looks that do not exist").toEqual([]);
+    expect(weightless, "looks without a weight").toEqual([]);
   });
 
   it("frames a modern floor in strips and floaters and an old one in gilt", () => {
@@ -194,7 +201,7 @@ describe("matching the frame to the picture", () => {
 });
 
 // These walk the whole catalogue: about 4,500 designs.
-describe("variety", { timeout: 60_000 }, () => {
+describe("variety", { timeout: 300_000 }, () => {
   it("gives almost every work in the catalogue a frame of its own", () => {
     const keys = new Set(artworkListings.map((a) => pickFrameDesign(a).key));
     expect(keys.size).toBeGreaterThan(artworkListings.length * 0.97);
@@ -273,19 +280,30 @@ describe("pickPairDesign", () => {
 
 describe("frame reach", () => {
   it("grows with the work and is the moulding's width at its scale", () => {
+    // The works that break each rule, by id.
+    const shrinks: string[] = [];
+    const tooNarrow: string[] = [];
+    const tooWide: string[] = [];
+    const sideDiffers: string[] = [];
+    const offScale: string[] = [];
     for (const a of artworkListings.slice(0, 400)) {
       const design = pickFrameDesign(a);
       const small = frameReach(design, 0.3, 0.4);
       const large = frameReach(design, 3.2, 2);
-      expect(large).toBeGreaterThanOrEqual(small);
-      expect(small).toBeGreaterThan(0.009);
-      expect(large).toBeLessThan(0.26);
-      expect(frameExtents(design, 1, 1).side).toBe(frameReach(design, 1, 1));
-      expect(frameReach(design, 1, 1)).toBeCloseTo(
-        buildStyle(design.style, design.options).width * frameScale(design, 1, 1),
-        12,
-      );
+      if (!(large >= small)) shrinks.push(a.id);
+      if (!(small > 0.009)) tooNarrow.push(a.id);
+      if (!(large < 0.26)) tooWide.push(a.id);
+      const reach = frameReach(design, 1, 1);
+      if (!Object.is(frameExtents(design, 1, 1).side, reach)) sideDiffers.push(a.id);
+      // Equal to twelve places, as `toBeCloseTo(…, 12)` has it.
+      const width = buildStyle(design.style, design.options).width * frameScale(design, 1, 1);
+      if (!(Math.abs(width - reach) < 5e-13)) offScale.push(a.id);
     }
+    expect(shrinks, "reach on a large work below the reach on a small one").toEqual([]);
+    expect(tooNarrow, "reach of 9 mm or less on a small work").toEqual([]);
+    expect(tooWide, "reach of 26 cm or more on a large work").toEqual([]);
+    expect(sideDiffers, "side extent is not the reach").toEqual([]);
+    expect(offScale, "reach is not the moulding's width at its scale").toEqual([]);
   });
 
   it("cuts a floater at one size", () => {

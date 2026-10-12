@@ -106,30 +106,44 @@ describe("buildFrameGeometry", () => {
     expect(groupsOf("scroll")).toEqual([0, 1, 2]);
   });
 
+  // The tests below read every triangle or vertex of a frame in a plain
+  // loop and assert once, on the one furthest out. An `expect` per
+  // triangle was 5,900 calls for the swept frame alone, which ran past the
+  // timeout whenever the machine was busy. Each loop keeps a NaN once it
+  // has met one, so a NaN still fails.
   it.each(FRAME_STYLE_IDS)("winds every face of %s toward its normal", (id) => {
     const c = styleChoices(id);
+    const a = new THREE.Vector3();
+    const b = new THREE.Vector3();
+    const c3 = new THREE.Vector3();
+    const n = new THREE.Vector3();
+    const face = new THREE.Vector3();
     for (let variant = 0; variant < c.variants; variant++) {
       const detail = Math.min(1, c.details - 1);
       const g = frameOf(id, { variant, detail }, 0.8, 1.1);
       const pos = g.getAttribute("position");
       const nrm = g.getAttribute("normal");
       const idx = g.index as THREE.BufferAttribute;
-      const a = new THREE.Vector3();
-      const b = new THREE.Vector3();
-      const c3 = new THREE.Vector3();
-      const n = new THREE.Vector3();
       let faces = 0;
+      let worst = Infinity;
+      let worstAt = -1;
       for (let t = 0; t < idx.count; t += 3) {
         a.fromBufferAttribute(pos, idx.getX(t));
         b.fromBufferAttribute(pos, idx.getX(t + 1));
         c3.fromBufferAttribute(pos, idx.getX(t + 2));
-        const face = b.clone().sub(a).cross(c3.clone().sub(a));
+        face.subVectors(b, a).cross(c3.sub(a));
         if (face.lengthSq() < 1e-16) continue;
         n.fromBufferAttribute(nrm, idx.getX(t));
-        expect(face.normalize().dot(n)).toBeGreaterThan(0.2);
+        const dot = face.normalize().dot(n);
+        if (dot < worst || Number.isNaN(dot)) {
+          worst = dot;
+          worstAt = t / 3;
+        }
         faces++;
       }
-      expect(faces).toBeGreaterThan(30);
+      const which = `${id} variant ${variant}`;
+      expect(worst, `${which}, triangle ${worstAt}`).toBeGreaterThan(0.2);
+      expect(faces, which).toBeGreaterThan(30);
     }
   });
 
@@ -143,12 +157,30 @@ describe("buildFrameGeometry", () => {
     const b = old.getAttribute("color");
     const ao = clean.getAttribute("aFrame");
     let darker = 0;
+    let gain = -Infinity;
+    let gainAt = -1;
+    let openShift = -Infinity;
+    let openAt = -1;
     for (let i = 0; i < a.count; i++) {
-      expect(b.getX(i)).toBeLessThanOrEqual(a.getX(i) + 1e-9);
+      // No point comes out lighter.
+      const lighter = b.getX(i) - (a.getX(i) + 1e-9);
+      if (lighter > gain || Number.isNaN(lighter)) {
+        gain = lighter;
+        gainAt = i;
+      }
       // A point in the open keeps its tone; one in a hollow loses some.
-      if (ao.getW(i) > 0.96) expect(b.getX(i)).toBeCloseTo(a.getX(i), 6);
+      if (ao.getW(i) > 0.96) {
+        const shift = Math.abs(b.getX(i) - a.getX(i));
+        if (shift > openShift || Number.isNaN(shift)) {
+          openShift = shift;
+          openAt = i;
+        }
+      }
       if (b.getX(i) < a.getX(i) - 0.05) darker++;
     }
+    expect(gain, `vertex ${gainAt}`).toBeLessThanOrEqual(0);
+    // Equal to six places, as `toBeCloseTo(…, 6)` has it.
+    expect(openShift, `vertex ${openAt}`).toBeLessThan(5e-7);
     expect(darker).toBeGreaterThan(a.count * 0.1);
   });
 
@@ -157,14 +189,18 @@ describe("buildFrameGeometry", () => {
     const frame = geom.getAttribute("aFrame");
     const rows = [CARVE_ROWS.pearl, CARVE_ROWS.leaf, CARVE_ROWS.laurel];
     let carved = 0;
+    const halfGated: number[] = [];
+    const offRow: number[] = [];
     for (let i = 0; i < carve.count; i++) {
       const gate = frame.getY(i);
       if (gate === 0) continue;
       carved++;
-      expect(Math.abs(gate)).toBe(1);
+      if (Math.abs(gate) !== 1) halfGated.push(i);
       const v = carve.getY(i);
-      expect(rows.some((r) => v >= r.v0 - 1e-6 && v <= r.v1 + 1e-6)).toBe(true);
+      if (!rows.some((r) => v >= r.v0 - 1e-6 && v <= r.v1 + 1e-6)) offRow.push(i);
     }
+    expect(halfGated, "vertices gated at neither 1 nor -1").toEqual([]);
+    expect(offRow, "carved vertices outside the pearl, leaf and laurel rows").toEqual([]);
     expect(carved).toBeGreaterThan(0);
     expect(carved).toBeLessThan(carve.count);
   });
@@ -211,17 +247,31 @@ describe("buildFrameGeometry", () => {
     const frame = own.getAttribute("aFrame");
     const base = plain.getAttribute("aFrame");
     expect(frame.itemSize).toBe(4);
-    for (let i = 0; i < color.count; i += 7) {
+    // The value furthest from what it should be, over every vertex.
+    let worst = 0;
+    let worstOf = "";
+    const check = (what: string, i: number, got: number, want: number) => {
+      const off = Math.abs(got - want);
+      if (off > worst || Number.isNaN(off)) {
+        worst = off;
+        worstOf = `${what} of vertex ${i}: ${got}, not ${want}`;
+      }
+    };
+    const worn: number[] = [];
+    for (let i = 0; i < color.count; i++) {
       const ao = frame.getW(i);
-      expect(ao).toBeCloseTo(base.getW(i), 6);
-      expect(color.getX(i)).toBeCloseTo(0.5 * ao, 6);
-      expect(color.getY(i)).toBeCloseTo(0.25 * ao, 6);
-      expect(color.getZ(i)).toBeCloseTo(1.5 * ao, 6);
+      check("occlusion", i, ao, base.getW(i));
+      check("red", i, color.getX(i), 0.5 * ao);
+      check("green", i, color.getY(i), 0.25 * ao);
+      check("blue", i, color.getZ(i), 1.5 * ao);
       // No burnishing: the roughness multiplier is the finish's alone.
-      expect(frame.getX(i)).toBeCloseTo(2, 6);
-      expect(frame.getZ(i)).toBe(0);
-      expect(Math.abs(frame.getY(i))).toBeCloseTo(Math.abs(base.getY(i)) * 0.5, 6);
+      check("roughness", i, frame.getX(i), 2);
+      if (!Object.is(frame.getZ(i), 0)) worn.push(i);
+      check("carving", i, Math.abs(frame.getY(i)), Math.abs(base.getY(i)) * 0.5);
     }
+    // Equal to six places, as `toBeCloseTo(…, 6)` has it.
+    expect(worst, worstOf).toBeLessThan(5e-7);
+    expect(worn, "vertices with wear").toEqual([]);
   });
 });
 
@@ -257,12 +307,21 @@ describe("a swept frame", () => {
   });
 
   it("leaves the sight edge straight", () => {
+    // How far inside the lip the vertex deepest over the picture lies:
+    // negative while it is outside on either axis.
+    let deepest = -Infinity;
+    let deepestAt = -1;
     for (let i = 0; i < pos.count; i++) {
       const x = Math.abs(pos.getX(i));
       const y = Math.abs(pos.getY(i));
-      // Nothing of the frame lies over the picture beyond the lip.
-      expect(x > 0.8 - 0.0065 || y > 0.6 - 0.0065).toBe(true);
+      const depth = Math.min(0.8 - 0.0065 - x, 0.6 - 0.0065 - y);
+      if (depth > deepest || Number.isNaN(depth)) {
+        deepest = depth;
+        deepestAt = i;
+      }
     }
+    // Nothing of the frame lies over the picture beyond the lip.
+    expect(deepest, `vertex ${deepestAt}`).toBeLessThan(0);
   });
 
   it("carves a shell on the swells in place of the running ornament", () => {
@@ -270,16 +329,29 @@ describe("a swept frame", () => {
     const frame = g.getAttribute("aFrame");
     const shell = CARVE_ROWS.shell;
     let shells = 0;
+    let least = Infinity;
+    let leastAt = -1;
+    let most = -Infinity;
+    let mostAt = -1;
     for (let i = 0; i < carve.count; i++) {
       if (frame.getY(i) === 0) continue;
       const v = carve.getY(i);
       if (v >= shell.v0 - 1e-6 && v <= shell.v1 + 1e-6) {
         shells++;
-        // Half a tile either side of a centre line or a mitre.
-        expect(carve.getX(i)).toBeGreaterThanOrEqual(0);
-        expect(carve.getX(i)).toBeLessThanOrEqual(0.5 / shell.repeats + 1e-6);
+        const u = carve.getX(i);
+        if (u < least || Number.isNaN(u)) {
+          least = u;
+          leastAt = i;
+        }
+        if (u > most || Number.isNaN(u)) {
+          most = u;
+          mostAt = i;
+        }
       }
     }
+    // Half a tile either side of a centre line or a mitre.
+    expect(least, `vertex ${leastAt}`).toBeGreaterThanOrEqual(0);
+    expect(most, `vertex ${mostAt}`).toBeLessThanOrEqual(0.5 / shell.repeats + 1e-6);
     expect(shells).toBeGreaterThan(50);
   });
 

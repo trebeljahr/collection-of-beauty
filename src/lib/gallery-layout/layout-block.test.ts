@@ -127,15 +127,17 @@ describe("the block plan", () => {
   it("fills the grid with no gap and no overlap", () => {
     for (const floor of layout.floors) {
       const owned = new Set<string>();
+      const overlaps: string[] = [];
       for (const room of floor.rooms) {
         const b = room.cellBounds;
         for (let x = b.xMin; x <= b.xMax; x++) {
           for (let z = b.zMin; z <= b.zMax; z++) {
-            expect(owned.has(`${x}:${z}`), `${room.id} ${x}:${z}`).toBe(false);
+            if (owned.has(`${x}:${z}`)) overlaps.push(`${room.id} ${x}:${z}`);
             owned.add(`${x}:${z}`);
           }
         }
       }
+      expect(overlaps, "cells owned twice").toEqual([]);
       expect(owned.size).toBe(BLOCK_GRID.x * BLOCK_GRID.z);
     }
   });
@@ -259,9 +261,10 @@ describe("the block plan", () => {
         for (const room of rooms) {
           expect(eraOfRoom(room).id, room.id).toBe(zone.era);
           expect(room.placements.length, room.id).toBeGreaterThan(0);
-          for (const p of room.placements) {
-            expect(p.artwork.id.startsWith(`${zone.era}-`), p.artwork.id).toBe(true);
-          }
+          const strays = room.placements
+            .map((p) => p.artwork.id)
+            .filter((id) => !id.startsWith(`${zone.era}-`));
+          expect(strays, room.id).toEqual([]);
         }
       }
       // No long gallery lies across two eras.
@@ -327,9 +330,10 @@ describe("the block plan", () => {
   });
 
   it("has an identity of its own, so a visit saved in the tower starts afresh", () => {
-    const works = catalogue();
-    expect(galleryLayoutIdentity(layoutBlock(works))).not.toBe(
-      galleryLayoutIdentity(layoutMuseum(works)),
+    // `layout` is the block plan of this same catalogue. Only the tower
+    // is built here.
+    expect(galleryLayoutIdentity(layout)).not.toBe(
+      galleryLayoutIdentity(layoutMuseum(catalogue())),
     );
   });
 });

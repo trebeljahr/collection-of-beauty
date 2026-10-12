@@ -117,10 +117,16 @@ describe("the hall's frame", () => {
 
 describe.each(DESIGNS)("the %s stair", (design) => {
   const stairs = hall(design);
+  // The three tests below read one walk of the hall, made by whichever of
+  // them runs first. Each used to make its own: about a second apiece.
+  let walked: ReturnType<typeof walkFrom> | undefined;
+  const walk = () => {
+    walked ??= walkFrom(stairs, grandHallArrival(stairs[0]), 0);
+    return walked;
+  };
 
   it("is walked from the hall's door to every floor above", () => {
-    const start = grandHallArrival(stairs[0]);
-    const reached = walkFrom(stairs, start, 0);
+    const reached = walk();
     for (let floor = 1; floor < 4; floor++) {
       expect(
         reached.some((p) => p.floorIndex === floor),
@@ -133,7 +139,7 @@ describe.each(DESIGNS)("the %s stair", (design) => {
     // From the head of one stair to the foot of the next is a walk round
     // the gallery: the spot inside the door is reached on every floor.
     const start = grandHallArrival(stairs[0]);
-    const reached = walkFrom(stairs, start, 0);
+    const reached = walk();
     for (let floor = 1; floor < 4; floor++) {
       const y = floor * FLOOR_SEPARATION;
       expect(
@@ -151,8 +157,7 @@ describe.each(DESIGNS)("the %s stair", (design) => {
   it("never asks for more than a step", () => {
     // Along every walk the next surface is within a step up. The walk
     // itself refuses more; this checks the flights are not walls.
-    const start = grandHallArrival(stairs[0]);
-    const reached = walkFrom(stairs, start, 0);
+    const reached = walk();
     const heights = new Set(reached.map((p) => p.y.toFixed(3)));
     const riser = FLOOR_SEPARATION / GRAND_RISERS;
     expect(riser).toBeLessThan(GRAND_STEP_UP);
@@ -183,12 +188,43 @@ describe.each(DESIGNS)("the %s stair", (design) => {
   it("keeps its balustrades to the hall and gives each a length", () => {
     for (const stair of stairs) {
       expect(stair.rails.length).toBeGreaterThan(4);
-      for (const r of stair.rails) {
-        expect(Math.hypot(r.x1 - r.x0, r.z1 - r.z0)).toBeGreaterThan(0.05);
-        for (const v of [r.x0, r.z0, r.x1, r.z1]) expect(Math.abs(v)).toBeLessThan(HALF);
-        expect(Math.min(r.y0, r.y1)).toBeGreaterThanOrEqual(stair.lowerY - 1e-9);
-        expect(Math.max(r.y0, r.y1)).toBeLessThanOrEqual(stair.upperY + 1e-9);
-      }
+      // Each limit is asserted once for the stair, on the rail nearest to
+      // it. A NaN is kept once met, so it fails its limit.
+      let shortest = Infinity;
+      let shortestAt = -1;
+      let furthest = -Infinity;
+      let furthestAt = -1;
+      let under = Infinity;
+      let underAt = -1;
+      let over = -Infinity;
+      let overAt = -1;
+      stair.rails.forEach((r, i) => {
+        const length = Math.hypot(r.x1 - r.x0, r.z1 - r.z0);
+        if (length < shortest || Number.isNaN(length)) {
+          shortest = length;
+          shortestAt = i;
+        }
+        const out = Math.max(Math.abs(r.x0), Math.abs(r.z0), Math.abs(r.x1), Math.abs(r.z1));
+        if (out > furthest || Number.isNaN(out)) {
+          furthest = out;
+          furthestAt = i;
+        }
+        const low = Math.min(r.y0, r.y1) - (stair.lowerY - 1e-9);
+        if (low < under || Number.isNaN(low)) {
+          under = low;
+          underAt = i;
+        }
+        const high = Math.max(r.y0, r.y1) - (stair.upperY + 1e-9);
+        if (high > over || Number.isNaN(high)) {
+          over = high;
+          overAt = i;
+        }
+      });
+      const rail = (i: number) => `${stair.id} rail ${i}`;
+      expect(shortest, rail(shortestAt)).toBeGreaterThan(0.05);
+      expect(furthest, rail(furthestAt)).toBeLessThan(HALF);
+      expect(under, `${rail(underAt)}, over its own floor`).toBeGreaterThanOrEqual(0);
+      expect(over, `${rail(overAt)}, over the floor above`).toBeLessThanOrEqual(0);
     }
   });
 

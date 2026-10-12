@@ -67,25 +67,60 @@ describe("frame styles", () => {
   });
 
   it.each(FRAME_STYLE_IDS)("%s is one clean outline", (id) => {
-    for (const options of optionsOf(id)) {
-      for (const profile of sections(id, options)) {
+    // Each rule is asserted once for the style, on the point of all its
+    // sections that comes nearest to breaking it. An `expect` per point
+    // was 4,000 calls for the print mat. A NaN is kept once met, so it
+    // fails its rule.
+    let shortest = Infinity;
+    let shortestAt = "";
+    let topSlot = -Infinity;
+    let topSlotAt = "";
+    let lowest = Infinity;
+    let lowestAt = "";
+    let fold = Infinity;
+    let foldAt = "";
+    optionsOf(id).forEach((options, n) => {
+      sections(id, options).forEach((profile, s) => {
+        const at = (i: number) =>
+          `${id} variant ${options.variant} detail ${options.detail} (options ${n}), section ${s}, point ${i}`;
         for (let i = 0; i < profile.length - 1; i++) {
           const a = profile[i];
           const b = profile[i + 1];
-          // No doubled point: a zero-length segment has no normal.
-          expect(Math.hypot(b.o - a.o, b.z - a.z), `${id} point ${i}`).toBeGreaterThan(1e-5);
-          expect(a.slot ?? 0).toBeLessThan(FRAME_SLOTS);
-          // Nothing reaches behind the wall or sits on it.
-          expect(a.z).toBeGreaterThanOrEqual(0.004);
+          const length = Math.hypot(b.o - a.o, b.z - a.z);
+          if (length < shortest || Number.isNaN(length)) {
+            shortest = length;
+            shortestAt = at(i);
+          }
+          const slot = a.slot ?? 0;
+          if (slot > topSlot || Number.isNaN(slot)) {
+            topSlot = slot;
+            topSlotAt = at(i);
+          }
+          if (a.z < lowest || Number.isNaN(a.z)) {
+            lowest = a.z;
+            lowestAt = at(i);
+          }
         }
-        // A moulding does not fold back over itself by more than a bead.
+        // How far each point stays ahead of a bead's width behind the
+        // furthest reach before it.
         let reach = profile[0].o;
-        for (const pt of profile) {
-          expect(pt.o, `${id} folds back`).toBeGreaterThan(reach - 0.016);
+        profile.forEach((pt, i) => {
+          const ahead = pt.o - (reach - 0.016);
+          if (ahead < fold || Number.isNaN(ahead)) {
+            fold = ahead;
+            foldAt = at(i);
+          }
           reach = Math.max(reach, pt.o);
-        }
-      }
-    }
+        });
+      });
+    });
+    // No doubled point: a zero-length segment has no normal.
+    expect(shortest, shortestAt).toBeGreaterThan(1e-5);
+    expect(topSlot, topSlotAt).toBeLessThan(FRAME_SLOTS);
+    // Nothing reaches behind the wall or sits on it.
+    expect(lowest, lowestAt).toBeGreaterThanOrEqual(0.004);
+    // A moulding does not fold back over itself by more than a bead.
+    expect(fold, `${foldAt} folds back`).toBeGreaterThan(0);
   });
 
   it("keeps the lip in front of the canvas when cut small", () => {

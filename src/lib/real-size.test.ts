@@ -294,10 +294,14 @@ describe("the catalogue", () => {
     );
 
   it("draws no Redouté plate and no print-format default", () => {
+    const plates: string[] = [];
+    const defaults: string[] = [];
     for (const { a } of trusted) {
-      expect(a.folder.startsWith("redoute-"), a.id).toBe(false);
-      expect(a.realDimensions?.source, a.id).not.toBe("series-default");
+      if (a.folder.startsWith("redoute-")) plates.push(a.id);
+      if (a.realDimensions?.source === "series-default") defaults.push(a.id);
     }
+    expect(plates, "Redouté plates drawn").toEqual([]);
+    expect(defaults, "print-format defaults drawn").toEqual([]);
   });
 
   // The mm/cm rescale belongs to Google Art Project's pretty_dimensions
@@ -322,12 +326,26 @@ describe("the catalogue", () => {
   });
 
   it("keeps every drawn work within 0.08–6× its reference", () => {
+    // Each limit is asserted once, on the work nearest to it. A NaN is
+    // kept once met, so it fails both.
+    let least = Infinity;
+    let leastOf = "";
+    let most = -Infinity;
+    let mostOf = "";
     for (const { a, size } of trusted) {
       const ref = scaleReferenceFor(size);
       const ratio = Math.max(size.widthCm, size.heightCm) / ref.heightCm;
-      expect(ratio, a.id).toBeGreaterThanOrEqual(0.08);
-      expect(ratio, a.id).toBeLessThanOrEqual(6);
+      if (ratio < least || Number.isNaN(ratio)) {
+        least = ratio;
+        leastOf = a.id;
+      }
+      if (ratio > most || Number.isNaN(ratio)) {
+        most = ratio;
+        mostOf = a.id;
+      }
     }
+    expect(least, leastOf).toBeGreaterThanOrEqual(0.08);
+    expect(most, mostOf).toBeLessThanOrEqual(6);
   });
 
   it("turns a stored size only for a book's sheet", () => {

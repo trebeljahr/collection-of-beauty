@@ -1,3 +1,4 @@
+import { isDeepStrictEqual } from "node:util";
 import { describe, expect, it } from "vitest";
 import { GET as getCatalogue } from "@/app/api/artworks/route";
 import { GET as getScope } from "@/app/api/artworks/scope/route";
@@ -22,9 +23,12 @@ describe("thumbHash gating", () => {
   it("strips thumbHash from the catalogue projection and nothing else", () => {
     expect(catalogueListings).toHaveLength(artworkListings.length);
     expect(catalogueListings.some(hasThumbHashKey)).toBe(false);
+    // Rows are compared without `expect`, and only one that differs is
+    // handed to it, so a failure prints that row. An `expect` per row was
+    // 4,557 calls.
     catalogueListings.forEach((row, i) => {
       const { thumbHash: _thumbHash, ...rest } = artworkListings[i];
-      expect(row).toEqual(rest);
+      if (!isDeepStrictEqual(row, rest)) expect(row, `row ${i}`).toEqual(rest);
     });
   });
 
