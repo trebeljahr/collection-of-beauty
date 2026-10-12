@@ -1,0 +1,69 @@
+import { describe, expect, it } from "vitest";
+
+import {
+  licenceClass,
+  publicDomainInGermanyFrom,
+  sameFile,
+} from "../scripts/lib/commons-refetch.mjs";
+
+describe("sameFile", () => {
+  it("matches a saved preview to the page it was saved from", () => {
+    expect(
+      sameFile("2560px-Courbet_LAtelier_du_peintre.jpg", "File:Courbet LAtelier du peintre.jpg"),
+    ).toBe(true);
+  });
+
+  it("matches through the punctuation a browser rewrites, and NFD", () => {
+    expect(
+      sameFile("Carl_Spitzweg_-__The_Bookworm_.jpg", 'File:Carl Spitzweg - "The Bookworm".jpg'),
+    ).toBe(true);
+    expect(
+      sameFile(
+        "Kanō_Eitoku_-_Rakuchū_rakugai_zu.jpg".normalize("NFD"),
+        "File:Kanō Eitoku - Rakuchū rakugai zu.jpg",
+      ),
+    ).toBe(true);
+    expect(sameFile("David_Brutus.jpeg", "File:David Brutus.JPG")).toBe(true);
+  });
+
+  it("tells another upload of the same painting apart", () => {
+    // Both pairs are real: the sidecar names the second file for the first.
+    expect(
+      sameFile(
+        "El_jardín_de_las_Delicias,_de_El_Bosco.jpg",
+        "File:The Garden of Earthly Delights by Bosch High Resolution.jpg",
+      ),
+    ).toBe(false);
+    expect(sameFile("Carl_Spitzweg_036.jpg", "File:Carl Spitzweg - Sonntagsspaziergang.jpg")).toBe(
+      false,
+    );
+  });
+});
+
+describe("licenceClass", () => {
+  it("reads every public-domain wording as one class", () => {
+    for (const tag of ["Public domain", "Public Domain", "PD-Art", "PD-old-100", "PD"]) {
+      expect(licenceClass(tag)).toBe("public-domain");
+    }
+  });
+
+  it("keeps CC0 and the attribution licences apart from it", () => {
+    expect(licenceClass("CC0")).toBe("cc0");
+    expect(licenceClass("CC0 1.0 Universal Public Domain Dedication")).toBe("cc0");
+    expect(licenceClass("CC BY-SA 4.0")).toBe("cc by-sa 4.0");
+    expect(licenceClass("CC BY-SA 4.0")).not.toBe(licenceClass("CC BY 4.0"));
+  });
+
+  it("has no class for a missing tag", () => {
+    expect(licenceClass(null)).toBeNull();
+    expect(licenceClass("")).toBeNull();
+  });
+});
+
+describe("publicDomainInGermanyFrom", () => {
+  it("counts 70 years from the end of the death year", () => {
+    // Kawai Gyokudō died in 1957: protected through 2027.
+    expect(publicDomainInGermanyFrom(1957)).toBe(2028);
+    expect(publicDomainInGermanyFrom(1939)).toBe(2010);
+  });
+});

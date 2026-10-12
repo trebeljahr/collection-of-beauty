@@ -59,6 +59,7 @@
  *   node scripts/build-tiles.mjs --dry-run          # count + estimate
  *   node scripts/build-tiles.mjs --folder=audubon-birds
  *   node scripts/build-tiles.mjs --limit=5          # first N (smoke test)
+ *   node scripts/build-tiles.mjs --only=goya        # filenames containing it
  *   node scripts/build-tiles.mjs --force            # rebuild everything
  *   node scripts/build-tiles.mjs --concurrency=4
  */
@@ -99,6 +100,10 @@ const DRY_RUN = args["dry-run"] === true;
 const FORCE = args.force === true;
 const LIMIT = args.limit ? Number.parseInt(args.limit, 10) : Infinity;
 const FOLDER = typeof args.folder === "string" ? args.folder : null;
+/** `--only=<substring>` restricts to source filenames containing it, as
+ *  in shrink-sources.mjs. For pyramiding the few works a refetch made
+ *  large enough, without starting on the rest of the catalogue. */
+const ONLY = typeof args.only === "string" ? args.only.toLowerCase() : null;
 const CONCURRENCY = Number.parseInt(
   args.concurrency ?? String(Math.min(6, Math.max(2, os.cpus().length - 2))),
   10,
@@ -142,6 +147,7 @@ function collectJobs() {
     if (!size) continue;
     if (FOLDER && art.folder !== FOLDER) continue;
     const filename = art.objectKey.slice(art.objectKey.lastIndexOf("/") + 1);
+    if (ONLY && !filename.toLowerCase().includes(ONLY)) continue;
     const basename = filename.replace(/\.[^.]+$/, "");
     jobs.push({
       id: art.id,

@@ -139,6 +139,46 @@ required by the Dockerfile — don't remove it.
   scan. New artworks have `variantWidths: null` until shrink + build-data
   run.
 
+## Originals saved as previews
+
+- Most of `assets/collection-of-beauty` was saved by hand from a
+  browser, and a right-click on a Wikipedia page saves the preview: the
+  download address is `…/commons/thumb/…/960px-<name>`, and the file is
+  960, 1,280 or 2,560 px wide whatever the original holds. macOS keeps
+  that address on the file (`xattr -p com.apple.metadata:kMDItemWhereFroms`).
+  On 12 October 2026 the Commons file a work's `commonsUrl` names was
+  larger than the copy on disk for 422 of the 3,910 works that link to
+  one: 381 saved previews, 15 uploaded again larger or saved by a route
+  macOS did not record, and 26 where the sidecar names another upload
+  of the painting than the file on disk.
+- `scripts/refetch-commons-originals.mjs --ids=<file>` downloads a
+  work's own file at full size and keeps the filename and the id. It
+  checks the download against the SHA-1 the API reports, and skips a
+  work when the page is another file, the licence class differs from
+  the catalogue's, the page carries a deletion tag, or the artist's
+  German term is still running. The replaced copy goes to
+  `assets/.rejected/replaced-smaller/` and the replacement is recorded
+  in `metadata/refetched-originals.json`. 23 works were done that day,
+  all from the museum's unhung list. The other 373 same-file works wait
+  for Rico's word; the list is in the vault note
+  `collection-of-beauty-commons-larger-originals.md`.
+- A larger upload on the same page is not always the same picture. Two
+  Mucha canvases were uploaded again in June 2026 as paler photographs
+  with another crop; one shows the frame along its top edge. The script
+  compares proportions and a 32 × 32 reduction of both files and
+  leaves such a work alone unless its id is passed to
+  `--accept-changed`.
+- After it, encode by file: `pnpm assets:shrink
+  --folder=collection-of-beauty --only=<part of the filename>`, then
+  build-data, then `pnpm assets:tiles --only=<part of the filename>`
+  (tiles read the catalogue, so they come after build-data). Without
+  `--only` both scripts take on a backlog that is not yours: on 12
+  October 2026 a dry run of shrink listed 56 other stale sources in
+  the folder (436 over all folders), and only 13 of the 975 tile
+  pyramids existed on disk (2 from the first trial, 11 from that day's
+  refetch). The lightbox falls back to the plain image for the other
+  962.
+
 ## Deep zoom (tiled lightbox)
 
 - ~965 works have a source big enough that its full-size encode clears
