@@ -3,9 +3,10 @@
 // A frame design is a moulding (frame-styles.ts), the ornament carved
 // on it, a finish for each of its materials, and a few numbers that are
 // the work's own: how heavy the moulding is cut, how worn the gilding
-// is, the exact tone of its gold or its mat. The combinations run to
-// tens of thousands, so two works rarely share one, while the renderer
-// still draws all of them with nine materials and one texture atlas.
+// is, the exact tone of its gold or its mat, sometimes a liner set
+// inside it. The combinations outnumber the works many times over, so
+// no two works share one, while the renderer still draws all of them
+// with nine materials and one texture atlas.
 //
 // The choice is made the way a framer makes it, in two steps:
 //  1. The school and date of the work name the frames a museum would
@@ -20,10 +21,20 @@
 // No three.js here: the hang reads `frameReach`.
 
 import type { ArtworkListing } from "@/lib/data";
-import { type CarveBand, FRAME_SLOTS, type ShadedPoint, scaleProfile } from "./frame-profiles";
 import {
+  CANVAS_FACE_Z,
+  type CarveBand,
+  FRAME_SLOTS,
+  type ShadedPoint,
+  scaleProfile,
+} from "./frame-profiles";
+import {
+  type BuiltStyle,
   buildStyle,
+  type CornerBlocks,
+  type FrameExtents,
   type FrameStyleId,
+  type Rail,
   type StyleOptions,
   type Swell,
   scaleSwell,
@@ -51,6 +62,9 @@ export type FinishId =
   | "giltRed"
   | "giltDark"
   | "silver"
+  | "bronze"
+  | "copper"
+  | "pewter"
   | "giltOak"
   | "walnut"
   | "mahogany"
@@ -60,20 +74,26 @@ export type FinishId =
   | "maple"
   | "ash"
   | "kiri"
+  | "limedOak"
+  | "greenOak"
   | "stained"
   | "ebony"
   | "blackLacquer"
   | "redLacquer"
+  | "tortoise"
   | "white"
   | "greyPaint"
+  | "blueGrey"
   | "sage"
   | "blackMatte"
   | "azure"
   | "boleRed"
   | "mat"
+  | "matInner"
   | "silk"
   | "brocade"
   | "linen"
+  | "linenGrey"
   | "canvasEdge";
 
 /** What a finish does to the picture it surrounds, for the fit rules. */
@@ -126,6 +146,11 @@ export const FINISHES: Record<FinishId, FinishSpec> = {
   giltDark: finish("leaf", "#ae8743", "gold", 1.2, 0.8, 1.35, 1),
   // Silver leaf under a toned varnish.
   silver: finish("leaf", "#c6c2b3", "silver", 1.05, 0.9, 0.6, 1),
+  // Bronze powder and Dutch metal, gone brown; copper and pewter leaf,
+  // as the Arts and Crafts workshops beat them.
+  bronze: finish("leaf", "#8c6b3c", "gold", 1.2, 0.7, 0.8, 1),
+  copper: finish("leaf", "#b9764a", "gold", 1.05, 0.8, 0.5, 1),
+  pewter: finish("leaf", "#8f8e86", "silver", 1.15, 0.7, 0.4, 1),
   // Oil gilding straight on oak: the grain shows through the leaf.
   giltOak: finish("leafOak", "#cfa552", "gold", 1.1, 0.4, 0.4, 0),
   walnut: finish("darkWood", "#3a2518", "darkWood", 1, 0.35, 0, 0.8),
@@ -137,6 +162,9 @@ export const FINISHES: Record<FinishId, FinishSpec> = {
   ash: finish("paleWood", "#c6aa7e", "paleWood", 1, 0.25, 0, 0.6),
   // Paulownia, the pale grey-brown wood of Japanese boxes and frames.
   kiri: finish("paleWood", "#c2ad90", "paleWood", 1.05, 0.2, 0, 0.5),
+  limedOak: finish("paleWood", "#b9b1a2", "pale", 1.1, 0.2, 0, 0.6),
+  // Oak stained green, a Secession and Arts and Crafts finish.
+  greenOak: finish("paleWood", "#5d6548", "darkWood", 1, 0.25, 0, 0.7),
   // Black-stained ash: the grain still shows.
   stained: finish("paleWood", "#231f1c", "black", 1.12, 0.2, 0, 0.6),
   // Ebonised and polished.
@@ -144,10 +172,13 @@ export const FINISHES: Record<FinishId, FinishSpec> = {
   blackLacquer: finish("lacquer", "#0c0b0d", "black", 0.85, 0.3, 0, 1),
   // Red-black urushi.
   redLacquer: finish("lacquer", "#4a100c", "red", 0.87, 0.3, 0, 1),
+  // Tortoiseshell veneer between the ripples of a Dutch frame.
+  tortoise: finish("lacquer", "#5c2513", "red", 0.8, 0.3, 0, 0),
   // Painted frames: the white and tinted frames Degas, Pissarro and
   // Seurat showed in, and the painted friezes of a cassetta.
   white: finish("paint", "#e6e1d3", "pale", 1, 0.15, 0, 0.6),
   greyPaint: finish("paint", "#b5b3a8", "pale", 1, 0.15, 0, 0.6),
+  blueGrey: finish("paint", "#8d9aa3", "pale", 1, 0.15, 0, 0.6),
   sage: finish("paint", "#a6ab95", "pale", 1, 0.15, 0, 0.6),
   blackMatte: finish("paint", "#1c1b1a", "black", 0.9, 0.2, 0, 0.7),
   azure: finish("paint", "#2a3c5e", "black", 1, 0.1, 0, 0.5),
@@ -155,9 +186,12 @@ export const FINISHES: Record<FinishId, FinishSpec> = {
   // A mat and a mounting silk take their colour from the sheet inside
   // them (`matFor`, `silkFor`); these are only their starting tones.
   mat: finish("board", "#f3eee2", "pale"),
+  // The second board of a double mat (`matInnerFor`).
+  matInner: finish("board", "#b9b3a4", "pale"),
   silk: finish("silk", "#96855c", "paleWood"),
   brocade: finish("silk", "#b3924e", "gold", 0.8),
   linen: finish("cloth", "#d6cdb8", "pale"),
+  linenGrey: finish("cloth", "#b7b4aa", "pale"),
   canvasEdge: finish("cloth", "#d9d2c2", "pale"),
 };
 
@@ -313,7 +347,24 @@ export type LookId =
   | "printGilt"
   | "japanLacquer"
   | "japanWood"
-  | "silkMount";
+  | "japanBamboo"
+  | "oxford"
+  | "silkMount"
+  | "scroll"
+  | "tabernacle"
+  | "reverse"
+  | "reverseBlack"
+  | "panelFrame"
+  | "kent"
+  | "narrowGilt"
+  | "narrowWood"
+  | "tortoiseshell"
+  | "greyGilt"
+  | "bullseye"
+  | "oakBlocks"
+  | "hammered"
+  | "deco"
+  | "canted";
 
 type Look = {
   style: FrameStyleId;
@@ -325,129 +376,85 @@ type Look = {
   accent?: FinishId[];
   /** The style's structural alternates this look uses. Default: all. */
   variants?: number[];
+  details?: number[];
+  /** A liner some frames of this look are fitted with: how often, and
+   *  in which finishes (slot 1). */
+  liner?: { chance: number; finishes: FinishId[] };
   /** Ornament for the field, when the look narrows the style's own list. */
   field?: Array<CarveBand | null>;
 };
 
+const GILT_SLIP = { chance: 0.3, finishes: ["gilt", "giltDark"] as FinishId[] };
+
+// biome-ignore format: one look a line reads as the table it is.
 const LOOKS: Record<LookId, Look> = {
+  // Carved and gilt.
   baroque: { style: "leafTorus", main: ["gilt", "giltRed", "giltDark"] },
   louisXV: { style: "swept", main: ["gilt", "giltRed", "giltPale"] },
   regence: { style: "regence", main: ["gilt", "giltDark", "giltRed"] },
-  louisXVI: { style: "flutedCove", main: ["gilt", "giltPale", "giltRed"] },
-  empire: { style: "empire", main: ["gilt", "giltPale"] },
+  louisXVI: { style: "flutedCove", main: ["gilt", "giltPale", "giltRed"], liner: { chance: 0.15, finishes: ["giltPale", "linen"] } },
+  empire: { style: "empire", main: ["gilt", "giltPale"], liner: { chance: 0.2, finishes: ["giltPale", "linen"] } },
   salvator: { style: "salvator", main: ["gilt", "giltDark", "giltRed"], variants: [0] },
-  salvatorBlack: {
-    style: "salvator",
-    main: ["gilt", "giltDark"],
-    accent: ["blackMatte", "ebony"],
-    variants: [1],
-  },
+  salvatorBlack: { style: "salvator", main: ["gilt", "giltDark"], accent: ["blackMatte", "ebony"], variants: [1] },
+  reverse: { style: "scotia", main: ["gilt", "giltDark", "giltRed", "bronze"] },
+  panelFrame: { style: "panel", main: ["gilt", "giltRed", "giltDark"] },
+  kent: { style: "kent", main: ["gilt", "giltPale", "giltDark"] },
+  narrowGilt: { style: "morland", main: ["gilt", "giltPale", "giltDark", "giltRed"] },
   cassetta: { style: "cassetta", main: ["gilt", "giltDark"], variants: [0] },
-  cassettaPainted: {
-    style: "cassetta",
-    main: ["gilt", "giltDark"],
-    accent: ["azure", "boleRed", "blackMatte", "walnut"],
-    variants: [1],
-    // A painted frieze is not carved.
-    field: [null],
-  },
+  // A painted frieze is not carved.
+  cassettaPainted: { style: "cassetta", main: ["gilt", "giltDark"], accent: ["azure", "boleRed", "blackMatte", "walnut"], variants: [1], field: [null] },
   cassettaWalnut: { style: "cassetta", main: ["walnut", "fruitwood"], variants: [0] },
-  spanish: { style: "parcel", main: ["ebony", "blackMatte"], accent: ["gilt", "giltDark"] },
-  barbizon: { style: "barbizon", main: ["gilt", "giltRed", "giltDark"] },
+  tabernacle: { style: "tabernacle", main: ["gilt", "giltDark"], accent: ["azure", "boleRed", "blackMatte"] },
+  barbizon: { style: "barbizon", main: ["gilt", "giltRed", "giltDark"], liner: { chance: 0.3, finishes: ["linen", "giltPale", "gilt"] } },
   watts: { style: "watts", main: ["gilt", "giltDark"], inner: ["giltOak"] },
-  whistler: { style: "reeded", main: ["giltPale", "silver", "giltDark", "gilt"] },
-  degasWhite: { style: "reeded", main: ["white", "greyPaint", "sage"] },
-  secession: {
-    style: "plate",
-    main: ["giltDark", "gilt", "silver"],
-    accent: ["giltPale"],
-    field: ["hammer", "hammer", null],
-  },
-  dutchRipple: { style: "ripple", main: ["ebony"] },
-  ebonyCushion: { style: "cushion", main: ["ebony", "blackLacquer"] },
-  blackPlate: {
-    style: "plate",
-    main: ["blackMatte", "stained"],
-    accent: ["gilt", "giltPale"],
-    field: [null],
-  },
-  bolection: {
-    style: "bolection",
-    main: ["walnut", "mahogany", "oak", "rosewood"],
-    inner: ["gilt", "giltDark"],
-  },
-  fruitCushion: { style: "cushion", main: ["fruitwood", "mahogany", "walnut", "maple"] },
-  oakPlate: {
-    style: "plate",
-    main: ["oak", "ash", "walnut"],
-    accent: ["giltDark", "gilt"],
-    field: [null],
-  },
-  woodScoop: { style: "scoop", main: ["ash", "oak", "fruitwood"] },
-  whiteScoop: { style: "scoop", main: ["white", "greyPaint", "sage"] },
+  whistler: { style: "reeded", main: ["giltPale", "silver", "giltDark", "gilt"], details: [0], liner: { chance: 0.35, finishes: ["giltPale", "gilt"] } },
+  secession: { style: "plate", main: ["giltDark", "gilt", "silver"], accent: ["giltPale"], field: ["hammer", "hammer", null], variants: [0, 1] },
+  // Beaten metal on a plain board, as the Arts and Crafts shops made it.
+  hammered: { style: "plate", main: ["copper", "bronze", "pewter"], field: ["hammer"], variants: [0] },
+  // Parcel gilt: a second colour with gilt members.
+  spanish: { style: "parcel", main: ["ebony", "blackMatte"], accent: ["gilt", "giltDark"] },
+  // Painted grey or white with gilt beads: Louis XVI and Gustavian.
+  greyGilt: { style: "parcel", main: ["greyPaint", "white", "sage", "blueGrey"], accent: ["gilt", "giltPale"] },
+  // Dark.
+  dutchRipple: { style: "ripple", main: ["ebony"], variants: [0, 1], liner: { chance: 0.25, finishes: ["gilt", "giltDark"] } },
+  tortoiseshell: { style: "ripple", main: ["ebony"], accent: ["tortoise"], variants: [2] },
+  reverseBlack: { style: "scotia", main: ["ebony", "blackMatte", "walnut"], liner: GILT_SLIP },
+  ebonyCushion: { style: "cushion", main: ["ebony", "blackLacquer"], liner: { chance: 0.35, finishes: ["gilt", "giltDark"] } },
+  blackPlate: { style: "plate", main: ["blackMatte", "stained"], accent: ["gilt", "giltPale"], field: [null], variants: [0, 1], liner: { chance: 0.25, finishes: ["linen", "white"] } },
+  // Wood.
+  bolection: { style: "bolection", main: ["walnut", "mahogany", "oak", "rosewood"], inner: ["gilt", "giltDark"] },
+  fruitCushion: { style: "cushion", main: ["fruitwood", "mahogany", "walnut", "maple"], liner: GILT_SLIP },
+  narrowWood: { style: "morland", main: ["walnut", "mahogany", "fruitwood", "ebony"] },
+  oakPlate: { style: "plate", main: ["oak", "ash", "walnut"], accent: ["giltDark", "gilt"], field: [null], variants: [0, 1], liner: { chance: 0.3, finishes: ["linen", "giltDark"] } },
+  // A rosette block on each corner.
+  oakBlocks: { style: "plate", main: ["oak", "greenOak", "walnut"], field: [null], variants: [2] },
+  bullseye: { style: "reeded", main: ["walnut", "mahogany", "oak", "giltPale", "white"], details: [1] },
+  woodScoop: { style: "scoop", main: ["ash", "oak", "fruitwood"], liner: { chance: 0.3, finishes: ["linen", "giltPale"] } },
+  canted: { style: "canted", main: ["ash", "oak", "limedOak", "white", "blackMatte", "walnut", "greenOak"], liner: { chance: 0.25, finishes: ["linen", "linenGrey", "white"] } },
+  // Pale and painted.
+  whiteScoop: { style: "scoop", main: ["white", "greyPaint", "sage"], liner: { chance: 0.25, finishes: ["linen", "white"] } },
+  degasWhite: { style: "reeded", main: ["white", "greyPaint", "sage", "blueGrey"], details: [0], liner: { chance: 0.3, finishes: ["white", "linen"] } },
   paleGiltScoop: { style: "scoop", main: ["giltPale", "silver"] },
-  floater: {
-    style: "floater",
-    main: ["stained", "stained", "ash", "white", "walnut"],
-    inner: ["canvasEdge"],
-  },
+  // Modern.
+  deco: { style: "deco", main: ["silver", "pewter", "giltPale", "blackLacquer", "white"], accent: ["silver", "blackLacquer", "giltPale", "copper"] },
+  floater: { style: "floater", main: ["stained", "stained", "ash", "white", "walnut"], inner: ["canvasEdge"] },
   strip: { style: "strip", main: ["blackMatte", "white", "ash", "walnut", "giltPale", "stained"] },
-  liner: {
-    style: "liner",
-    main: ["stained", "ash", "white", "giltPale", "oak"],
-    inner: ["linen"],
-    accent: ["giltPale", "gilt"],
-  },
-  printWood: {
-    style: "print",
-    main: ["ash", "oak", "maple", "walnut", "fruitwood"],
-    inner: ["mat"],
-    accent: ["giltPale"],
-    variants: [0, 0, 3],
-  },
-  printBlack: {
-    style: "print",
-    main: ["blackMatte", "stained", "ebony"],
-    inner: ["mat"],
-    accent: ["giltPale"],
-    variants: [0, 3, 1],
-  },
+  liner: { style: "liner", main: ["stained", "ash", "white", "giltPale", "oak"], inner: ["linen", "linenGrey"], accent: ["giltPale", "gilt"] },
+  // Paper.
+  printWood: { style: "print", main: ["ash", "oak", "maple", "walnut", "fruitwood"], inner: ["mat"], accent: ["giltPale", "blackMatte"], variants: [0, 0, 3] },
+  printBlack: { style: "print", main: ["blackMatte", "stained", "ebony"], inner: ["mat"], accent: ["giltPale"], variants: [0, 3, 1] },
   // The Hogarth frame: black between two gilt beads, the print room's
   // standard since the 18th century.
-  hogarth: {
-    style: "print",
-    main: ["blackMatte", "ebony"],
-    inner: ["mat"],
-    accent: ["gilt", "giltPale"],
-    variants: [2],
-  },
-  printGilt: {
-    style: "print",
-    main: ["gilt", "giltPale", "giltDark"],
-    inner: ["mat"],
-    accent: ["giltPale"],
-    variants: [4, 4, 3],
-  },
-  japanLacquer: {
-    style: "print",
-    main: ["redLacquer", "blackLacquer"],
-    inner: ["mat"],
-    accent: ["giltPale"],
-    variants: [1],
-  },
-  japanWood: {
-    style: "print",
-    main: ["kiri", "walnut", "stained", "rosewood"],
-    inner: ["mat"],
-    accent: ["giltPale"],
-    variants: [0, 3],
-  },
-  silkMount: {
-    style: "mount",
-    main: ["walnut", "blackLacquer", "redLacquer", "rosewood"],
-    inner: ["silk"],
-    accent: ["brocade"],
-  },
+  hogarth: { style: "print", main: ["blackMatte", "ebony"], inner: ["mat"], accent: ["gilt", "giltPale"], variants: [2] },
+  printGilt: { style: "print", main: ["gilt", "giltPale", "giltDark"], inner: ["mat"], accent: ["giltPale", "blackMatte"], variants: [4, 4, 3] },
+  // Four bars crossing at the corners: the Victorian Oxford frame.
+  oxford: { style: "oxford", main: ["oak", "walnut", "maple", "ebony", "stained"], inner: ["mat"] },
+  japanLacquer: { style: "print", main: ["redLacquer", "blackLacquer"], inner: ["mat"], accent: ["giltPale"], variants: [1] },
+  japanWood: { style: "print", main: ["kiri", "walnut", "stained", "rosewood"], inner: ["mat"], accent: ["giltPale", "blackMatte"], variants: [0, 3] },
+  japanBamboo: { style: "print", main: ["kiri", "maple", "ash", "stained", "walnut"], inner: ["mat"], accent: ["blackMatte"], variants: [5] },
+  // Silk.
+  silkMount: { style: "mount", main: ["walnut", "blackLacquer", "redLacquer", "rosewood"], inner: ["silk"], accent: ["brocade"] },
+  scroll: { style: "scroll", main: ["walnut", "blackLacquer", "redLacquer", "rosewood"], inner: ["silk"], accent: ["brocade"] },
 };
 
 export const LOOK_IDS = Object.keys(LOOKS) as LookId[];
@@ -460,54 +467,58 @@ type FrameRule = [movement: string, looks: Weights];
 // a museum would plausibly have a work of that school in, with a weight
 // for how often.
 
-/** Works on paper and silk: matted or mounted whatever their date. */
+/** Works on paper and silk: matted or mounted whatever their date. A
+ *  silk painting gets a scroll or a flat mount by its shape
+ *  (`scoreLooks`). */
+// biome-ignore format: one school a line reads as the table it is.
 const PAPER_RULES: FrameRule[] = [
-  ["Ukiyo-e", { japanLacquer: 4, japanWood: 3, printBlack: 1 }],
-  ["Shin-hanga", { japanWood: 3, japanLacquer: 2, printWood: 2, printBlack: 2 }],
-  ["Classical East Asian", { silkMount: 1 }],
-  ["Nihonga", { silkMount: 1 }],
-  ["Natural history", { printWood: 4, hogarth: 3, printBlack: 2, printGilt: 2 }],
-  ["Botanical", { printGilt: 3, printWood: 3, hogarth: 3, printBlack: 1 }],
+  ["Ukiyo-e", { japanLacquer: 4, japanWood: 3, japanBamboo: 2, printBlack: 1 }],
+  ["Shin-hanga", { japanWood: 3, japanLacquer: 2, japanBamboo: 2, printWood: 2, printBlack: 2 }],
+  ["Classical East Asian", { silkMount: 1, scroll: 1 }],
+  ["Nihonga", { silkMount: 1, scroll: 1 }],
+  ["Natural history", { printWood: 4, hogarth: 3, oxford: 2, printBlack: 2, printGilt: 2 }],
+  ["Botanical", { printGilt: 3, printWood: 3, hogarth: 3, oxford: 1, printBlack: 1 }],
 ];
 
 // biome-ignore format: one school a line reads as the table it is.
 const PAINTING_RULES: FrameRule[] = [
-  ["Northern Renaissance", { bolection: 3, cassettaWalnut: 2, dutchRipple: 2, cassetta: 2, cassettaPainted: 1, ebonyCushion: 1 }],
-  ["Mannerism", { baroque: 2, cassetta: 2, salvator: 2, cassettaPainted: 1, spanish: 1 }],
-  ["Renaissance", { cassetta: 4, cassettaPainted: 2, cassettaWalnut: 1, baroque: 1, salvator: 1 }],
-  ["Flemish Baroque", { baroque: 3, dutchRipple: 2, spanish: 1, bolection: 1 }],
-  ["Dutch Golden Age", { dutchRipple: 4, ebonyCushion: 2, bolection: 2, fruitCushion: 1 }],
-  ["Baroque", { baroque: 4, salvator: 3, spanish: 2, salvatorBlack: 1, bolection: 1, regence: 1 }],
-  ["Rococo", { louisXV: 5, regence: 3, baroque: 1, louisXVI: 1 }],
-  ["Neoclassicism", { louisXVI: 4, empire: 3, salvator: 1, regence: 1 }],
-  ["Academicism", { louisXVI: 2, barbizon: 2, empire: 2, watts: 1 }],
-  ["Orientalism", { barbizon: 2, louisXVI: 2, baroque: 1, empire: 1 }],
-  ["Hudson River", { barbizon: 3, louisXVI: 2, empire: 1 }],
-  ["Romanticism", { empire: 2, louisXVI: 2, barbizon: 2, bolection: 2, baroque: 1, salvator: 1, fruitCushion: 1 }],
-  ["Pre-Raphaelite", { watts: 4, cassetta: 2, whistler: 1, oakPlate: 1 }],
-  ["Realism", { bolection: 3, barbizon: 3, louisXVI: 1, fruitCushion: 1, empire: 1 }],
-  ["Tonalism", { whistler: 3, barbizon: 2, bolection: 2, paleGiltScoop: 1 }],
-  ["Neo-Impressionism", { degasWhite: 3, whiteScoop: 3, paleGiltScoop: 1 }],
-  ["Post-Impressionism", { whiteScoop: 2, woodScoop: 2, oakPlate: 2, degasWhite: 1, bolection: 1, dutchRipple: 1, barbizon: 1 }],
-  ["Impressionism", { barbizon: 2, louisXV: 2, whiteScoop: 2, degasWhite: 2, paleGiltScoop: 2, woodScoop: 1, louisXVI: 1 }],
-  ["Art Nouveau", { secession: 3, oakPlate: 2, whistler: 2, woodScoop: 1, ebonyCushion: 1 }],
-  ["Symbolism", { secession: 2, watts: 2, bolection: 2, dutchRipple: 1, barbizon: 1, blackPlate: 1 }],
-  ["Naive", { woodScoop: 2, bolection: 2, fruitCushion: 2, oakPlate: 1 }],
-  ["Mir Iskusstva", { bolection: 2, oakPlate: 2, woodScoop: 1, secession: 1, blackPlate: 1 }],
-  ["Regionalism", { oakPlate: 2, bolection: 2, woodScoop: 1, liner: 1 }],
-  ["Cubism", { floater: 2, strip: 2, blackPlate: 2, liner: 1 }],
-  ["Dada", { floater: 2, strip: 2, blackPlate: 1 }],
-  ["Suprematism", { floater: 2, strip: 2 }],
-  ["Bauhaus", { floater: 2, strip: 2 }],
-  ["Expressionism", { liner: 2, blackPlate: 2, floater: 1, oakPlate: 1, strip: 1 }],
-  ["Fauvism", { liner: 2, whiteScoop: 1, floater: 1, strip: 1 }],
-  ["Modernism", { floater: 2, strip: 2, liner: 1, blackPlate: 1 }],
+  ["Northern Renaissance", { bolection: 3, cassettaWalnut: 2, dutchRipple: 2, cassetta: 2, cassettaPainted: 1, ebonyCushion: 1, tabernacle: 1, reverseBlack: 1, tortoiseshell: 1, narrowWood: 1 }],
+  ["Mannerism", { baroque: 2, cassetta: 2, salvator: 2, reverse: 2, cassettaPainted: 1, spanish: 1, tabernacle: 1 }],
+  ["Renaissance", { cassetta: 4, cassettaPainted: 2, tabernacle: 2, cassettaWalnut: 1, baroque: 1, salvator: 1, reverse: 1 }],
+  ["Flemish Baroque", { baroque: 3, dutchRipple: 2, spanish: 1, bolection: 1, reverse: 1, reverseBlack: 1, tortoiseshell: 1 }],
+  ["Dutch Golden Age", { dutchRipple: 4, ebonyCushion: 2, bolection: 2, tortoiseshell: 2, reverseBlack: 2, fruitCushion: 1, narrowWood: 1 }],
+  ["Baroque", { baroque: 4, salvator: 3, spanish: 2, reverse: 2, panelFrame: 2, salvatorBlack: 1, bolection: 1, regence: 1, kent: 1 }],
+  ["Rococo", { louisXV: 5, regence: 3, baroque: 1, louisXVI: 1, kent: 1, panelFrame: 1, greyGilt: 1, narrowGilt: 1 }],
+  ["Neoclassicism", { louisXVI: 4, empire: 3, greyGilt: 2, salvator: 1, regence: 1, kent: 1, narrowGilt: 1 }],
+  ["Academicism", { louisXVI: 2, barbizon: 2, empire: 2, watts: 1, narrowGilt: 1 }],
+  ["Orientalism", { barbizon: 2, louisXVI: 2, baroque: 1, empire: 1, reverse: 1 }],
+  ["Hudson River", { barbizon: 3, louisXVI: 2, empire: 1, bullseye: 1 }],
+  ["Romanticism", { empire: 2, louisXVI: 2, barbizon: 2, bolection: 2, baroque: 1, salvator: 1, fruitCushion: 1, narrowGilt: 1, greyGilt: 1, panelFrame: 1 }],
+  ["Pre-Raphaelite", { watts: 4, cassetta: 2, whistler: 1, oakPlate: 1, oakBlocks: 1, tabernacle: 1 }],
+  ["Realism", { bolection: 3, barbizon: 3, louisXVI: 1, fruitCushion: 1, empire: 1, bullseye: 1, narrowGilt: 1, narrowWood: 1, oakBlocks: 1 }],
+  ["Tonalism", { whistler: 3, barbizon: 2, bolection: 2, paleGiltScoop: 1, bullseye: 1 }],
+  ["Neo-Impressionism", { degasWhite: 3, whiteScoop: 3, paleGiltScoop: 1, canted: 1 }],
+  ["Post-Impressionism", { whiteScoop: 2, woodScoop: 2, oakPlate: 2, canted: 2, degasWhite: 1, bolection: 1, dutchRipple: 1, barbizon: 1, hammered: 1, oakBlocks: 1 }],
+  ["Impressionism", { barbizon: 2, louisXV: 2, whiteScoop: 2, degasWhite: 2, paleGiltScoop: 2, woodScoop: 1, louisXVI: 1, canted: 1, narrowGilt: 1 }],
+  ["Art Nouveau", { secession: 3, oakPlate: 2, whistler: 2, hammered: 2, woodScoop: 1, ebonyCushion: 1, deco: 1, oakBlocks: 1 }],
+  ["Symbolism", { secession: 2, watts: 2, bolection: 2, dutchRipple: 1, barbizon: 1, blackPlate: 1, hammered: 1, oakBlocks: 1, tabernacle: 1 }],
+  ["Naive", { woodScoop: 2, bolection: 2, fruitCushion: 2, oakPlate: 1, canted: 1, bullseye: 1, oakBlocks: 1 }],
+  ["Mir Iskusstva", { bolection: 2, oakPlate: 2, woodScoop: 1, secession: 1, blackPlate: 1, deco: 1, canted: 1, hammered: 1 }],
+  ["Regionalism", { oakPlate: 2, bolection: 2, canted: 2, woodScoop: 1, liner: 1, deco: 1 }],
+  ["Cubism", { floater: 2, strip: 2, blackPlate: 2, deco: 2, liner: 1, canted: 1 }],
+  ["Dada", { floater: 2, strip: 2, blackPlate: 1, deco: 1 }],
+  ["Suprematism", { floater: 2, strip: 2, canted: 1 }],
+  ["Bauhaus", { floater: 2, strip: 2, deco: 1 }],
+  ["Expressionism", { liner: 2, blackPlate: 2, canted: 2, floater: 1, oakPlate: 1, strip: 1, deco: 1 }],
+  ["Fauvism", { liner: 2, canted: 2, whiteScoop: 1, floater: 1, strip: 1 }],
+  ["Modernism", { floater: 2, strip: 2, deco: 2, liner: 1, blackPlate: 1, canted: 1 }],
 ];
 
 /** Works dated before this are panel paintings, whatever school they
  *  are tagged with. */
 const PANEL_BEFORE_YEAR = 1500;
-const PANEL_LOOKS: Weights = { cassetta: 4, cassettaPainted: 2, cassettaWalnut: 2, bolection: 1 };
+// biome-ignore format: a table.
+const PANEL_LOOKS: Weights = { cassetta: 4, tabernacle: 3, cassettaPainted: 2, cassettaWalnut: 2, bolection: 1 };
 
 /** Whether a movement tag has a frame rule of its own, or falls
  *  through to the date. */
@@ -529,11 +540,11 @@ function weightsFor(artwork: Pick<Framed, "movement" | "year">): Weights {
   if (year != null && year < PANEL_BEFORE_YEAR) return PANEL_LOOKS;
   const painting = m && PAINTING_RULES.find(([name]) => m.includes(name));
   if (painting) return painting[1];
-  if (year == null) return { bolection: 2, louisXVI: 1, woodScoop: 1, barbizon: 1 };
-  if (year < 1700) return { baroque: 2, bolection: 2, dutchRipple: 1, salvator: 1 };
-  if (year < 1860) return { louisXVI: 2, bolection: 2, empire: 1, baroque: 1 };
-  if (year < 1905) return { barbizon: 2, bolection: 2, woodScoop: 1, louisXVI: 1 };
-  return { blackPlate: 1, floater: 1, woodScoop: 1, liner: 1, strip: 1 };
+  if (year == null) return { bolection: 2, louisXVI: 1, woodScoop: 1, barbizon: 1, narrowGilt: 1 };
+  if (year < 1700) return { baroque: 2, bolection: 2, dutchRipple: 1, salvator: 1, reverse: 1 };
+  if (year < 1860) return { louisXVI: 2, bolection: 2, empire: 1, baroque: 1, narrowGilt: 1 };
+  if (year < 1905) return { barbizon: 2, bolection: 2, woodScoop: 1, louisXVI: 1, narrowGilt: 1 };
+  return { blackPlate: 1, floater: 1, woodScoop: 1, liner: 1, strip: 1, deco: 1, canted: 1 };
 }
 
 // ── Fit: what the picture does to the weights ─────────────────────────
@@ -571,31 +582,29 @@ function finishFit(finish: FinishId, tone: PictureTone, year: number | null | un
   }
 }
 
-const NATION_BIAS: Array<[nation: RegExp, looks: Partial<Record<LookId, number>>]> = [
-  [
-    /Dutch|Flemish|Netherlandish|Belgian/,
-    { dutchRipple: 1.6, ebonyCushion: 1.4, fruitCushion: 1.3 },
-  ],
+// biome-ignore format: a table.
+const NATION_BIAS: Array<[nation: RegExp, looks: Weights]> = [
+  [/Dutch|Flemish|Netherlandish|Belgian/, { dutchRipple: 1.6, ebonyCushion: 1.4, fruitCushion: 1.3, tortoiseshell: 1.6, reverseBlack: 1.5 }],
   [/Spanish/, { spanish: 3, salvatorBlack: 1.5 }],
-  [/Italian/, { salvator: 1.7, salvatorBlack: 1.5, cassetta: 1.3 }],
+  [/Italian/, { salvator: 1.7, salvatorBlack: 1.5, cassetta: 1.3, reverse: 1.6, panelFrame: 1.4, tabernacle: 1.3 }],
   [/French/, { louisXV: 1.3, regence: 1.3, louisXVI: 1.3, empire: 1.3, barbizon: 1.3 }],
-  [/English|British|Scottish/, { watts: 1.4, salvator: 1.4, whistler: 1.2 }],
-  [/American/, { whistler: 1.4, barbizon: 1.2 }],
-  [/German|Austrian|Swiss|Danish/, { fruitCushion: 1.8, secession: 1.5, bolection: 1.2 }],
-  [/Norwegian|Swedish|Finnish/, { oakPlate: 1.5, whiteScoop: 1.3 }],
+  [/English|British|Scottish/, { watts: 1.4, salvator: 1.4, whistler: 1.2, kent: 2.5, panelFrame: 1.6 }],
+  [/American/, { whistler: 1.4, barbizon: 1.2, bullseye: 2 }],
+  [/German|Austrian|Swiss|Danish/, { fruitCushion: 1.8, secession: 1.5, bolection: 1.2, hammered: 1.5, deco: 1.2 }],
+  [/Norwegian|Swedish|Finnish|Danish/, { oakPlate: 1.5, whiteScoop: 1.3, greyGilt: 2.5 }],
 ];
 
-const SUBJECT_BIAS: Array<[title: RegExp, looks: Partial<Record<LookId, number>>]> = [
-  [
-    /portrait|bildnis|self-portrait/i,
-    { salvator: 1.4, empire: 1.3, louisXVI: 1.2, bolection: 1.2 },
-  ],
-  [
-    /landscape|view of|river|forest|coast|sea\b|harbou?r|mountain|valley|lake/i,
-    { barbizon: 1.5, woodScoop: 1.2 },
-  ],
-  [/still life|nature morte|stilleven/i, { dutchRipple: 1.4, bolection: 1.3, fruitCushion: 1.3 }],
+// biome-ignore format: a table.
+const SUBJECT_BIAS: Array<[title: RegExp, looks: Weights]> = [
+  [/portrait|bildnis|self-portrait/i, { salvator: 1.4, empire: 1.3, louisXVI: 1.2, bolection: 1.2, panelFrame: 1.4, kent: 1.2 }],
+  [/landscape|view of|river|forest|coast|sea\b|harbou?r|mountain|valley|lake/i, { barbizon: 1.5, woodScoop: 1.2, canted: 1.2 }],
+  [/still life|nature morte|stilleven/i, { dutchRipple: 1.4, bolection: 1.3, fruitCushion: 1.3, tortoiseshell: 1.3 }],
 ];
+
+/** Subjects an altarpiece shows. A tabernacle frame is church
+ *  architecture: it suits these and looks borrowed on a portrait. */
+const SACRED =
+  /madonna|virgin|annunciation|adoration|nativity|crucifi|saint|\bst\.? |christ|piet[aà]|altar|holy|baptism|lamentation|coronation|assumption|resurrection|entombment|trinity/i;
 
 /** Largest hung edge of a work in metres, or null without a size. */
 function longEdge(artwork: Framed): number | null {
@@ -603,10 +612,17 @@ function longEdge(artwork: Framed): number | null {
   return d ? Math.max(d.widthCm, d.heightCm) / 100 : null;
 }
 
+/** Height over width of the picture, or null without pixel sizes. */
+function tallness(artwork: Framed): number | null {
+  return artwork.width && artwork.height ? artwork.height / artwork.width : null;
+}
+
 /** The look's weight for this work: the school's, times how well its
- *  finishes suit the picture, its country, its subject and its size. */
+ *  finishes suit the picture, its country, its subject, its size and
+ *  its shape. */
 function scoreLooks(artwork: Framed, tone: PictureTone): Array<[LookId, number]> {
   const edge = longEdge(artwork);
+  const tall = tallness(artwork);
   return looksFor(artwork).map(([id, weight]) => {
     const look = LOOKS[id];
     // The look fits as well as its best finish does.
@@ -617,14 +633,21 @@ function scoreLooks(artwork: Framed, tone: PictureTone): Array<[LookId, number]>
     for (const [title, bias] of SUBJECT_BIAS) {
       if (artwork.title && title.test(artwork.title)) score *= bias[id] ?? 1;
     }
-    // A cabinet picture drowns in the heaviest mouldings.
-    if (
-      edge != null &&
-      edge < 0.45 &&
-      (id === "barbizon" || id === "louisXV" || id === "baroque")
-    ) {
-      score *= 0.6;
+    // A cabinet picture drowns in the heaviest mouldings, and a narrow
+    // one is lost round a large canvas.
+    const heavy = id === "barbizon" || id === "louisXV" || id === "baroque";
+    const narrow = id === "narrowGilt" || id === "narrowWood";
+    if (edge != null && edge < 0.45 && heavy) score *= 0.6;
+    if (edge != null && narrow) score *= edge < 0.6 ? 2.2 : edge > 1.3 ? 0.2 : 1;
+    if (id === "tabernacle") {
+      score *= artwork.title && SACRED.test(artwork.title) ? 3 : 0.35;
+      // An entablature over a 3 m canvas is a building, not a frame.
+      if (edge != null && edge > 2.4) score *= 0.4;
     }
+    // A hanging scroll is an upright: a wide painting on silk was a
+    // screen or a handscroll and gets the flat mount.
+    if (id === "scroll") score *= tall != null && tall >= 1.25 ? 4 : 0;
+    if (id === "silkMount" && tall != null && tall >= 1.25) score *= 0.5;
     return [id, score];
   });
 }
@@ -686,6 +709,8 @@ export type SlotLook = {
   burnish: number;
   wear: number;
   carve: number;
+  /** How far dirt and toned size have darkened its hollows, 0..1. */
+  patina: number;
 };
 
 export type FrameDesign = {
@@ -783,6 +808,15 @@ function silkFor(artwork: Framed, tone: PictureTone): Rgb {
   return fromOklab([base[0] + shade, base[1], base[2]]);
 }
 
+/** The second board of a double mat: a mid tone that picks up the
+ *  picture's own colour, so the 6 mm of it that shows ties sheet and
+ *  mat together. */
+function matInnerFor(artwork: Framed, tone: PictureTone): Rgb {
+  const pull = (c: number) => clamp(c * 1.4, -0.06, 0.06);
+  const light = 0.6 + 0.16 * draw(artwork.id, "mat-inner");
+  return fromOklab([light, pull(tone.lab[1]), pull(tone.lab[2])]);
+}
+
 /** A finish's colour for this work, as a tint on its surface: the
  *  finish's own, shifted a little from frame to frame, and for gold
  *  leaned against the picture's warmth. */
@@ -790,6 +824,7 @@ function tintFor(finish: FinishId, artwork: Framed, tone: PictureTone, slot: num
   const spec = FINISHES[finish];
   let target: Rgb;
   if (finish === "mat") target = matFor(artwork, tone);
+  else if (finish === "matInner") target = matInnerFor(artwork, tone);
   else if (finish === "silk") target = silkFor(artwork, tone);
   else {
     const lab = toOklab(hexToLinear(spec.color) ?? [1, 1, 1]);
@@ -808,10 +843,12 @@ function tintFor(finish: FinishId, artwork: Framed, tone: PictureTone, slot: num
   return [target[0] / base[0], target[1] / base[1], target[2] / base[2]];
 }
 
-/** Which material slots a profile uses. */
-function slotsUsed(profile: readonly ShadedPoint[]): boolean[] {
+/** Which material slots a frame uses, in its moulding and its rails. */
+function slotsUsed(style: BuiltStyle): boolean[] {
   const used = new Array<boolean>(FRAME_SLOTS).fill(false);
-  for (let i = 0; i < profile.length - 1; i++) used[profile[i].slot ?? 0] = true;
+  for (const profile of [style.profile, ...style.rails.map((rail) => rail.profile)]) {
+    for (let i = 0; i < profile.length - 1; i++) used[profile[i].slot ?? 0] = true;
+  }
   return used;
 }
 
@@ -833,7 +870,10 @@ function designOf(
   const variant = look.variants
     ? drawFrom(look.variants, id, "variant")
     : Math.floor(draw(id, "variant") * choices.variants);
-  let detail = Math.floor(draw(id, "detail") * choices.details);
+  let detail = look.details
+    ? drawFrom(look.details, id, "detail")
+    : Math.floor(draw(id, "detail") * choices.details);
+  let doubleMat = false;
   if (look.style === "print") {
     // A small sheet gets the wider mats, a large one the narrower:
     // the mat is there to give the sheet room, not to double its wall.
@@ -845,25 +885,56 @@ function designOf(
           : edge > 0.85
             ? Math.floor(draw(id, "mat-width") * 2)
             : 1 + Math.floor(draw(id, "mat-width") * 2);
-    const line = draw(id, "mat-line") < 0.3 ? 4 : 0;
+    // One in five is a double mat, and of the rest three in ten carry
+    // a line round the window.
+    doubleMat = draw(id, "mat-double") < 0.2;
+    const line = !doubleMat && draw(id, "mat-line") < 0.3 ? 4 : 0;
     const wide = draw(id, "frame-face") < 0.35 ? 8 : 0;
-    detail = mat + line + wide;
+    detail = mat + line + wide + (doubleMat ? 16 : 0);
   }
+  // A liner where the look is sometimes fitted with one: the cloth ones
+  // broad, a gilt or painted slip narrow.
+  const lined = look.liner && choices.liner && draw(id, "liner") < look.liner.chance;
+  const linerFinish = lined
+    ? drawWeighted(
+        (look.liner?.finishes ?? []).map((f) => [f, suits(f)] as const),
+        id,
+        "liner-finish",
+        FIT_SHARPNESS,
+      )
+    : null;
   const options: StyleOptions = {
     sight: drawFrom(choices.sight, id, "sight"),
     field: drawFrom(look.field ?? choices.field, id, "field"),
     crown: drawFrom(choices.crown, id, "crown"),
     variant,
     detail,
+    liner: linerFinish
+      ? FINISHES[linerFinish].surface === "cloth"
+        ? 0.026 + 0.012 * draw(id, "liner-width")
+        : 0.012 + 0.008 * draw(id, "liner-width")
+      : 0,
   };
 
-  const used = slotsUsed(buildStyle(look.style, options).profile);
-  const pools: FinishId[][] = [look.main, look.inner ?? look.main, look.accent ?? ["giltPale"]];
+  const used = slotsUsed(buildStyle(look.style, options));
+  const pools: FinishId[][] = [
+    look.main,
+    linerFinish ? [linerFinish] : (look.inner ?? look.main),
+    doubleMat ? ["matInner"] : (look.accent ?? ["giltPale"]),
+  ];
   // Gilding wears with age and handling, and no two frames alike.
-  const age = artwork.year != null && artwork.year < 1700 ? 1.15 : 1;
+  const year = artwork.year;
+  const age = year != null && year < 1700 ? 1.15 : 1;
   const wear = (0.7 + 0.6 * draw(id, "wear")) * age;
   const polish = 0.9 + 0.22 * draw(id, "polish");
   const depth = 0.8 + 0.35 * draw(id, "depth");
+  // Some frames were cleaned last year and some never: dirt and toned
+  // size in the hollows, more of it on the old ones.
+  const patina = clamp(
+    0.75 * draw(id, "patina") + (year == null ? 0.1 : year < 1700 ? 0.25 : year < 1850 ? 0.12 : 0),
+    0,
+    1,
+  );
 
   const slots: SlotLook[] = pools.map((pool, slot) => {
     const finish =
@@ -884,6 +955,8 @@ function designOf(
       burnish: spec.burnish,
       wear: spec.wear * wear,
       carve: spec.carve * depth,
+      // Board, cloth and silk are kept clean.
+      patina: spec.burnish > 0 ? patina : 0,
     };
   });
 
@@ -896,7 +969,9 @@ function designOf(
     options.crown,
     variant,
     detail,
+    round(options.liner ?? 0),
     round(weight),
+    round(patina),
     ...slots.flatMap((s, slot) =>
       used[slot] ? [s.finish, ...s.tint.map(round), round(s.wear)] : [],
     ),
@@ -950,22 +1025,45 @@ export function frameScale(design: FrameDesign, widthM: number, heightM: number)
   return clamp(0.5 + 0.3 * Math.max(widthM, heightM), lo, hi) * design.weight;
 }
 
-/** How far a work's frame reaches past each canvas edge, metres, at its
- *  widest. The hang reserves this on both sides of every work. */
+/** How far a work's frame reaches past the canvas to left and right,
+ *  metres, at its widest. The hang reserves this on both sides of
+ *  every work. */
 export function frameReach(design: FrameDesign, widthM: number, heightM: number): number {
   return buildStyle(design.style, design.options).width * frameScale(design, widthM, heightM);
 }
 
-/** The moulding of a design cut for a canvas of the given size. */
-export function frameMoulding(
-  design: FrameDesign,
-  widthM: number,
-  heightM: number,
-): { profile: ShadedPoint[]; swell: Swell | null } {
+/** The frame's reach on each side. Left and right are `frameReach`;
+ *  a tabernacle's entablature or a scroll's head reaches further up,
+ *  its plinth or its roller further down. */
+export function frameExtents(design: FrameDesign, widthM: number, heightM: number): FrameExtents {
+  const { extents } = buildStyle(design.style, design.options);
+  const scale = frameScale(design, widthM, heightM);
+  return { side: extents.side * scale, top: extents.top * scale, bottom: extents.bottom * scale };
+}
+
+/** A design cut for a canvas of the given size: what the renderer
+ *  hands to `buildFrameGeometry`. */
+export type Moulding = {
+  profile: ShadedPoint[];
+  swell: Swell | null;
+  blocks: CornerBlocks | null;
+  rails: Array<Rail<ShadedPoint>>;
+  /** Highest point above the wall, metres. */
+  frontZ: number;
+};
+
+export function frameMoulding(design: FrameDesign, widthM: number, heightM: number): Moulding {
   const style = buildStyle(design.style, design.options);
   const scale = frameScale(design, widthM, heightM);
   return {
     profile: scaleProfile(style.profile, scale),
     swell: style.swell && scaleSwell(style.swell, scale),
+    blocks: style.blocks && { from: style.blocks.from * scale, lift: style.blocks.lift * scale },
+    rails: style.rails.map((rail) => ({
+      ...rail,
+      profile: scaleProfile(rail.profile, scale),
+      past: rail.past * scale,
+    })),
+    frontZ: CANVAS_FACE_Z + (style.frontZ - CANVAS_FACE_Z) * scale,
   };
 }

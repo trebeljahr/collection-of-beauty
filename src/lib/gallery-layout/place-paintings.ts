@@ -21,7 +21,7 @@
 // small ones, and a full empty cell wherever supply ran short.)
 
 import type { ArtworkListing } from "@/lib/data";
-import { frameReach, pickFrameDesign } from "./frame-design";
+import { frameExtents, frameReach, pickFrameDesign } from "./frame-design";
 import { artworkBand } from "./painting-bands";
 import type { CellRect, Divider, Door, FloorLayout, Placement, RoomLayout } from "./types";
 import { CELL_SIZE, DIVIDER_THICKNESS, DOOR_WIDTH, PORTAL_WIDTH } from "./world-coords";
@@ -321,6 +321,13 @@ export function frameReachOf(work: SizedWork): number {
   return frameReach(pickFrameDesign(work.artwork), work.wM, work.hM);
 }
 
+/** How far the work's frame reaches below its canvas, metres. The same
+ *  as its reach to the sides for a mitred frame; more for a tabernacle
+ *  frame's plinth or a hanging scroll's roller. */
+export function frameDropOf(work: SizedWork): number {
+  return frameExtents(pickFrameDesign(work.artwork), work.wM, work.hM).bottom;
+}
+
 /** Wall to keep clear beside a work's canvas, left and right as the
  *  viewer sees it: the frame on both sides, then the plaque. This is
  *  the one place the hang learns what surrounds a canvas. */
@@ -480,7 +487,7 @@ export function packRun(run: WallRun, works: SizedWork[]): Placement[] {
   const fitted = works.map((work) => {
     const { wM, hM } = fitTo(work, Math.min(MAX_PAINTING_W, span), run.maxHeight);
     const sized = { artwork: work.artwork, wM, hM };
-    return { ...sized, ...sideClearance(sized) };
+    return { ...sized, ...sideClearance(sized), drop: frameDropOf(sized) };
   });
 
   const ordered = centreOut(fitted);
@@ -504,7 +511,7 @@ export function packRun(run: WallRun, works: SizedWork[]): Placement[] {
     // would put their frame into the floor. Most paintings keep the
     // canonical eye-line; only the tallest get raised so the frame
     // clears the floor by PAINTING_FLOOR_GAP.
-    const minCenterY = run.floorY + PAINTING_FLOOR_GAP + work.left + work.hM / 2;
+    const minCenterY = run.floorY + PAINTING_FLOOR_GAP + work.drop + work.hM / 2;
     const centerY = Math.max(run.centerY, minCenterY);
     const along = run.sign * centreU;
     placements.push({

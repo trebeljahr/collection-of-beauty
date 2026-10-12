@@ -61,6 +61,16 @@ describe("carvePeriods", () => {
   });
 });
 
+/** The whole frame of a style: moulding, swell, blocks and rails. */
+function frameOf(id: FrameStyleId, more: Partial<StyleOptions>, w: number, h: number) {
+  const style = buildStyle(id, firstOf(id, more));
+  return buildFrameGeometry(style.profile, w, h, WALL_OFFSET, {
+    swell: style.swell,
+    blocks: style.blocks,
+    rails: style.rails,
+  });
+}
+
 describe("buildFrameGeometry", () => {
   const profile = buildStyle("leafTorus", firstOf("leafTorus")).profile;
   const geom = buildFrameGeometry(profile, 1, 0.6, WALL_OFFSET);
@@ -78,7 +88,7 @@ describe("buildFrameGeometry", () => {
 
   it("puts each material slot the moulding uses in its own group", () => {
     const groupsOf = (id: FrameStyleId, more: Partial<StyleOptions> = {}) => {
-      const g = buildFrameGeometry(buildStyle(id, firstOf(id, more)).profile, 1, 0.6, WALL_OFFSET);
+      const g = frameOf(id, more, 1, 0.6);
       expect(g.groups.reduce((n, group) => n + group.count, 0)).toBe(g.index?.count);
       return g.groups.map((group) => group.materialIndex);
     };
@@ -90,13 +100,17 @@ describe("buildFrameGeometry", () => {
     // Parcel gilding, and a Hogarth frame's two gilt beads round a mat.
     expect(groupsOf("parcel")).toEqual([0, 2]);
     expect(groupsOf("print", { variant: 2 })).toEqual([0, 1, 2]);
+    // A liner, a painted tabernacle, a scroll's silk and brocade.
+    expect(groupsOf("barbizon", { liner: 0.03 })).toEqual([0, 1]);
+    expect(groupsOf("tabernacle", { variant: 1 })).toEqual([0, 2]);
+    expect(groupsOf("scroll")).toEqual([0, 1, 2]);
   });
 
   it.each(FRAME_STYLE_IDS)("winds every face of %s toward its normal", (id) => {
     const c = styleChoices(id);
     for (let variant = 0; variant < c.variants; variant++) {
-      const style = buildStyle(id, firstOf(id, { variant }));
-      const g = buildFrameGeometry(style.profile, 0.8, 1.1, WALL_OFFSET, { swell: style.swell });
+      const detail = Math.min(1, c.details - 1);
+      const g = frameOf(id, { variant, detail }, 0.8, 1.1);
       const pos = g.getAttribute("position");
       const nrm = g.getAttribute("normal");
       const idx = g.index as THREE.BufferAttribute;
@@ -117,6 +131,25 @@ describe("buildFrameGeometry", () => {
       }
       expect(faces).toBeGreaterThan(30);
     }
+  });
+
+  it("darkens the hollows of a frame that carries patina", () => {
+    const slot = { tint: [1, 1, 1] as const, rough: 1, burnish: 1, wear: 1, carve: 1 };
+    const clean = buildFrameGeometry(profile, 1, 0.6, WALL_OFFSET, { slots: [slot] });
+    const old = buildFrameGeometry(profile, 1, 0.6, WALL_OFFSET, {
+      slots: [{ ...slot, patina: 1 }],
+    });
+    const a = clean.getAttribute("color");
+    const b = old.getAttribute("color");
+    const ao = clean.getAttribute("aFrame");
+    let darker = 0;
+    for (let i = 0; i < a.count; i++) {
+      expect(b.getX(i)).toBeLessThanOrEqual(a.getX(i) + 1e-9);
+      // A point in the open keeps its tone; one in a hollow loses some.
+      if (ao.getW(i) > 0.96) expect(b.getX(i)).toBeCloseTo(a.getX(i), 6);
+      if (b.getX(i) < a.getX(i) - 0.05) darker++;
+    }
+    expect(darker).toBeGreaterThan(a.count * 0.1);
   });
 
   it("points carved stretches at their atlas row and leaves the rest ungated", () => {
@@ -259,5 +292,158 @@ describe("a swept frame", () => {
       WALL_OFFSET,
     );
     expect((straight.index as THREE.BufferAttribute).count / 3).toBeLessThan(1200);
+  });
+});
+
+describe("frames built from rails", () => {
+  it("builds a tabernacle frame to its three reaches and closes its ends", () => {
+    const style = buildStyle("tabernacle", firstOf("tabernacle"));
+    const g = frameOf("tabernacle", {}, 0.8, 1.1);
+    g.computeBoundingBox();
+    const box = g.boundingBox as THREE.Box3;
+    expect(box.max.y - 0.55).toBeCloseTo(style.extents.top, 6);
+    expect(-box.min.y - 0.55).toBeCloseTo(style.extents.bottom, 6);
+    expect(box.max.x - 0.4).toBeCloseTo(style.extents.side, 6);
+    expect(-box.min.x - 0.4).toBeCloseTo(style.extents.side, 6);
+    // The entablature is cut square: faces at its ends look along it.
+    const pos = g.getAttribute("position");
+    const nrm = g.getAttribute("normal");
+    let caps = 0;
+    for (let i = 0; i < pos.count; i++) {
+      if (Math.abs(nrm.getX(i)) === 1 && Math.abs(Math.abs(pos.getX(i)) - box.max.x) < 1e-6) {
+        caps++;
+      }
+    }
+    expect(caps).toBeGreaterThan(40);
+    // No mitre: nothing of a pilaster lies above the canvas's top edge.
+    const pilaster = style.rails.find((r) => r.side === "left");
+    expect(pilaster?.past).toBe(0);
+  });
+
+  it("hangs a scroll with its roller standing out past the silk", () => {
+    const style = buildStyle("scroll", firstOf("scroll"));
+    const g = frameOf("scroll", {}, 0.6, 1.4);
+    const pos = g.getAttribute("position");
+    const silk = style.rails.find((r) => r.side === "left");
+    const silkEdge = 0.3 + profileWidth(silk?.profile ?? []);
+    let widestBelow = 0;
+    let widestBeside = 0;
+    for (let i = 0; i < pos.count; i++) {
+      const x = Math.abs(pos.getX(i));
+      if (pos.getY(i) < -0.7 - style.extents.bottom + 0.035) widestBelow = Math.max(widestBelow, x);
+      if (Math.abs(pos.getY(i)) < 0.5) widestBeside = Math.max(widestBeside, x);
+    }
+    expect(widestBeside).toBeCloseTo(silkEdge, 6);
+    expect(widestBelow).toBeGreaterThan(silkEdge + 0.02);
+  });
+
+  it("crosses the bars of an Oxford frame without sharing a surface", () => {
+    const g = frameOf("oxford", {}, 0.5, 0.7);
+    const style = buildStyle("oxford", firstOf("oxford"));
+    const [top, , left] = style.rails;
+    expect(left.side).toBe("left");
+    const high = (rail: typeof top) => Math.max(...rail.profile.map((pt) => pt.z));
+    expect(high(left)).toBeGreaterThan(high(top) + 0.0015);
+    // The bars stand out past the corners both ways.
+    g.computeBoundingBox();
+    const box = g.boundingBox as THREE.Box3;
+    expect(box.max.x - 0.25).toBeCloseTo(style.extents.side, 6);
+    expect(box.max.y - 0.35).toBeCloseTo(style.extents.top, 6);
+  });
+});
+
+describe("corner blocks, ears and panels", () => {
+  it("sets a carved block on each corner", () => {
+    const style = buildStyle("empire", firstOf("empire", { variant: 1 }));
+    const plain = frameOf("empire", { variant: 0 }, 1, 0.8);
+    const g = frameOf("empire", { variant: 1 }, 1, 0.8);
+    plain.computeBoundingBox();
+    g.computeBoundingBox();
+    const lift = style.blocks?.lift ?? 0;
+    expect((g.boundingBox as THREE.Box3).max.z).toBeCloseTo(
+      (plain.boundingBox as THREE.Box3).max.z + lift,
+      6,
+    );
+    // Four blocks of five faces, two triangles a face.
+    const tris = (x: THREE.BufferGeometry) => (x.index as THREE.BufferAttribute).count / 3;
+    expect(tris(g) - tris(plain)).toBe(40);
+    const carve = g.getAttribute("aCarveUv");
+    const rosette = CARVE_ROWS.rosette;
+    let carved = 0;
+    for (let i = 0; i < carve.count; i++) {
+      const v = carve.getY(i);
+      if (
+        g.getAttribute("aFrame").getY(i) !== 0 &&
+        v >= rosette.v0 - 1e-6 &&
+        v <= rosette.v1 + 1e-6
+      ) {
+        carved++;
+      }
+    }
+    expect(carved).toBe(16);
+  });
+
+  it("steps a Kent frame's corners out square", () => {
+    const style = buildStyle("kent", firstOf("kent"));
+    const swell = style.swell;
+    if (!swell) throw new Error("kent has ears");
+    const plain = profileWidth(style.profile);
+    const g = frameOf("kent", {}, 1.6, 1.2);
+    const pos = g.getAttribute("position");
+    const reachAt = (y0: number, y1: number) => {
+      let x = 0;
+      for (let i = 0; i < pos.count; i++) {
+        const y = pos.getY(i);
+        if (y >= y0 && y <= y1) x = Math.max(x, pos.getX(i));
+      }
+      return x - 0.8;
+    };
+    const ear = swell.pivot + (plain - swell.pivot) * (1 + swell.corner);
+    expect(style.width).toBeCloseTo(ear, 12);
+    // Straight along the rail, full reach all along the ear.
+    expect(reachAt(-0.001, 0.001)).toBeCloseTo(plain, 6);
+    expect(reachAt(0.6 - swell.cornerSpan - 0.001, 0.6 - swell.cornerSpan + 0.001)).toBeCloseTo(
+      plain,
+      6,
+    );
+    // The ear is one flat run: no station between its return and the
+    // corner, so nothing is found there.
+    expect(reachAt(0.6 - swell.cornerSpan * 0.9, 0.6 - swell.cornerSpan * 0.5)).toBe(-0.8);
+    expect(reachAt(0.6 - swell.cornerSpan * 0.941, 0.6 - swell.cornerSpan * 0.939)).toBeCloseTo(
+      ear,
+      6,
+    );
+    expect(reachAt(0.599, 0.601)).toBeCloseTo(ear, 6);
+  });
+
+  it("carves a panel frame at its corners and centres and nowhere between", () => {
+    const style = buildStyle("panel", firstOf("panel", { variant: 0 }));
+    const g = frameOf("panel", { variant: 0 }, 1.6, 1.2);
+    g.computeBoundingBox();
+    // Its outline stays straight.
+    expect((g.boundingBox as THREE.Box3).max.x - 0.8).toBeCloseTo(profileWidth(style.profile), 6);
+    const carve = g.getAttribute("aCarveUv");
+    const frame = g.getAttribute("aFrame");
+    const shell = CARVE_ROWS.shell;
+    const host = CARVE_ROWS[style.swell?.host ?? "leaf"];
+    let shells = 0;
+    let running = 0;
+    for (let i = 0; i < carve.count; i++) {
+      if (frame.getY(i) === 0) continue;
+      const v = carve.getY(i);
+      if (v >= shell.v0 - 1e-6 && v <= shell.v1 + 1e-6) shells++;
+      if (v >= host.v0 - 1e-6 && v <= host.v1 + 1e-6) running++;
+    }
+    expect(shells).toBeGreaterThan(50);
+    expect(running).toBe(0);
+    // Variant 1 carves the cushion all along as well.
+    const carvedAll = frameOf("panel", { variant: 1 }, 1.6, 1.2);
+    const f = carvedAll.getAttribute("aFrame");
+    const c = carvedAll.getAttribute("aCarveUv");
+    let along = 0;
+    for (let i = 0; i < c.count; i++) {
+      if (f.getY(i) !== 0 && c.getY(i) >= host.v0 - 1e-6 && c.getY(i) <= host.v1 + 1e-6) along++;
+    }
+    expect(along).toBeGreaterThan(50);
   });
 });

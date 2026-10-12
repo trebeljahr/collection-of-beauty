@@ -10,12 +10,17 @@
 // deep its carving. So a few shared materials draw every frame, and no
 // two frames need look alike.
 //
-// All four sides go into one BufferGeometry: one draw call per material
-// slot the moulding uses.
+// Most frames are one profile mitred round the canvas (`sweep`). A few
+// are built from straight rails cut square (`addRail`): a tabernacle's
+// entablature, a scroll's roller, the crossing bars of an Oxford frame.
+// A frame may also carry a block on each corner (`addBlocks`).
+//
+// Everything goes into one BufferGeometry: one draw call per material
+// slot the frame uses.
 
 import * as THREE from "three";
 import { type CarveBand, FRAME_SLOTS, type ShadedPoint } from "@/lib/gallery-layout/frame-profiles";
-import type { Swell } from "@/lib/gallery-layout/frame-styles";
+import type { CornerBlocks, Rail, Swell } from "@/lib/gallery-layout/frame-styles";
 import { CARVE_ROWS } from "./frame-maps";
 
 type Normal2 = [number, number];
@@ -88,6 +93,8 @@ export type FrameSlotFinish = {
   wear: number;
   /** Depth of carving, 0 for none. */
   carve: number;
+  /** How far dirt and toned size have darkened the hollows, 0..1. */
+  patina?: number;
 };
 
 const PLAIN: FrameSlotFinish = { tint: [1, 1, 1], rough: 1, burnish: 1, wear: 1, carve: 1 };
@@ -97,6 +104,10 @@ export type FrameFinish = {
   slots?: readonly FrameSlotFinish[];
   /** Swell at the corners and centres, already scaled to the moulding. */
   swell?: Swell | null;
+  /** Blocks on the corners, already scaled. */
+  blocks?: CornerBlocks | null;
+  /** Rails, already scaled. */
+  rails?: ReadonlyArray<Rail<ShadedPoint>>;
 };
 
 /** A swell is cut into stations this far apart along the rail, metres,
@@ -110,35 +121,43 @@ const swellSteps = (span: number) =>
 
 /** 1 at the middle of a swell, 0 at its end and beyond. */
 const bump = (t: number) => (t >= 1 ? 0 : 0.5 * (1 + Math.cos(Math.PI * Math.max(0, t))));
+/** The same for an ear: full reach to its end, then a short return. */
+const EAR_RETURN = 0.94;
+const earBump = (t: number) => (t >= 1 ? 0 : t > EAR_RETURN ? (1 - t) / (1 - EAR_RETURN) : 1);
 
-/**
- * Sweep `profile` round a canvas of `widthM` × `heightM` centred on the
- * origin. Local z is measured from the Painting group's origin, which
- * sits `wallOffset` in front of the wall, so profile heights shift back
- * by that much. Geometry groups are the profile's material slots.
- *
- * Attributes beyond position and normal:
- *  - `color`: the slot's tint times the baked occlusion.
- *  - `uv`: metres. u along the rail from its centre, v along the profile
- *    from the sight edge. Grain and leaf are read with it, so grain
- *    turns at every mitre.
- *  - `aCarveUv`: the carve atlas, for the carved stretches.
- *  - `aFrame`: x roughness multiplier, y carving depth (its sign flips
- *    the map's u where the ornament runs mirrored), z wear, w occlusion.
- */
-export function buildFrameGeometry(
-  profile: readonly ShadedPoint[],
-  widthM: number,
-  heightM: number,
-  wallOffset: number,
-  finish: FrameFinish = {},
-): THREE.BufferGeometry {
+/** The vertex arrays of a frame under construction. */
+type Mesh = {
+  positions: number[];
+  normals: number[];
+  colors: number[];
+  uvs: number[];
+  carveUvs: number[];
+  frame: number[];
+  indicesBySlot: number[][];
+  count: number;
+  wallOffset: number;
+  slot: (slot: number) => FrameSlotFinish;
+};
+
+/** A side of the canvas: outward axis u, along-axis v (u turned a
+ *  quarter left), and the half extents measured along u and along v. */
+type Side = { u: Normal2; v: Normal2; hu: number; hv: number };
+
+function sidesOf(halfW: number, halfH: number): Record<Rail["side"], Side> {
+  return {
+    top: { u: [0, 1], v: [-1, 0], hu: halfH, hv: halfW },
+    right: { u: [1, 0], v: [0, 1], hu: halfW, hv: halfH },
+    bottom: { u: [0, -1], v: [1, 0], hu: halfH, hv: halfW },
+    left: { u: [-1, 0], v: [0, -1], hu: halfW, hv: halfH },
+  };
+}
+
+/** What a profile needs worked out once before it is swept: the normal
+ *  at each end of each segment, lengths along it, its carved runs. */
+function measure(profile: readonly ShadedPoint[]) {
   const n = profile.length;
-  const swell = finish.swell ?? null;
-  const slotFinish = (slot: number) => finish.slots?.[slot] ?? PLAIN;
   const segNormals: Normal2[] = [];
   for (let i = 0; i < n - 1; i++) segNormals.push(segmentNormal(profile[i], profile[i + 1]));
-
   // Per segment end, the normal to shade with: the segment's own at a
   // crease or the profile's ends, else the average with its neighbour.
   const endNormal = (seg: number, atStart: boolean): Normal2 => {
@@ -152,26 +171,6 @@ export function buildFrameGeometry(
     const l = Math.hypot(x, y) || 1;
     return [x / l, y / l];
   };
-
-  const halfW = widthM / 2;
-  const halfH = heightM / 2;
-  // Each side: outward axis u, along-axis v (u turned a quarter left),
-  // and the half extents measured along u and along v.
-  const sides: Array<{ u: Normal2; v: Normal2; hu: number; hv: number }> = [
-    { u: [0, 1], v: [-1, 0], hu: halfH, hv: halfW },
-    { u: [1, 0], v: [0, 1], hu: halfW, hv: halfH },
-    { u: [0, -1], v: [1, 0], hu: halfH, hv: halfW },
-    { u: [-1, 0], v: [0, -1], hu: halfW, hv: halfH },
-  ];
-
-  const positions: number[] = [];
-  const normals: number[] = [];
-  const colors: number[] = [];
-  const uvs: number[] = [];
-  const carveUvs: number[] = [];
-  const frame: number[] = [];
-  const indicesBySlot: number[][] = Array.from({ length: FRAME_SLOTS }, () => []);
-
   // Cumulative profile length, for the v texture coordinate.
   const along: number[] = [0];
   for (let i = 1; i < n; i++) {
@@ -179,11 +178,64 @@ export function buildFrameGeometry(
       along[i - 1] + Math.hypot(profile[i].o - profile[i - 1].o, profile[i].z - profile[i - 1].z),
     );
   }
-  const runs = bandRuns(profile, along);
-  const shell = CARVE_ROWS.shell;
+  return { endNormal, along, runs: bandRuns(profile, along) };
+}
 
-  let vertex = 0;
-  for (const side of sides) {
+/** The slot's tint on a point: darker in the hollows the more patina
+ *  the frame carries. */
+function tintAt(look: FrameSlotFinish, ao: number): [number, number, number] {
+  const hollow = 1 - Math.min(1, Math.max(0, (ao - 0.5) / 0.45));
+  const k = ao * (1 - 0.6 * (look.patina ?? 0) * hollow);
+  return [look.tint[0] * k, look.tint[1] * k, look.tint[2] * k];
+}
+
+/** One vertex of a moulding: a profile point at a place along a side. */
+function pushPoint(
+  mesh: Mesh,
+  side: Side,
+  pt: ShadedPoint,
+  normal: Normal2,
+  o: number,
+  signed: number,
+  arcAt: number,
+  look: FrameSlotFinish,
+  carve: [u: number, v: number, gate: number] | null,
+): number {
+  mesh.positions.push(
+    side.u[0] * (side.hu + o) + signed * side.v[0],
+    side.u[1] * (side.hu + o) + signed * side.v[1],
+    pt.z - mesh.wallOffset,
+  );
+  mesh.normals.push(side.u[0] * normal[0], side.u[1] * normal[0], normal[1]);
+  mesh.colors.push(...tintAt(look, pt.ao));
+  mesh.uvs.push(signed, arcAt);
+  mesh.carveUvs.push(carve?.[0] ?? 0, carve?.[1] ?? 0);
+  mesh.frame.push(
+    look.rough * (1 + (pt.rough - 1) * look.burnish),
+    (carve?.[2] ?? 0) * look.carve,
+    Math.min(1.5, pt.wear * look.wear),
+    pt.ao,
+  );
+  return mesh.count++;
+}
+
+/**
+ * Mitre `profile` round the canvas. Geometry groups are the profile's
+ * material slots.
+ */
+function sweep(
+  mesh: Mesh,
+  profile: readonly ShadedPoint[],
+  halfW: number,
+  halfH: number,
+  swell: Swell | null,
+): void {
+  const n = profile.length;
+  const { endNormal, along, runs } = measure(profile);
+  const shell = CARVE_ROWS.shell;
+  const swellBump = swell?.ear ? earBump : bump;
+
+  for (const side of Object.values(sidesOf(halfW, halfH))) {
     const hv = side.hv;
     // A swell runs at most half the rail, and the centre one is left
     // out where the two corner swells already fill a short rail.
@@ -195,7 +247,7 @@ export function buildFrameGeometry(
     const swellAt = (a: number) => {
       if (!swell) return 1;
       let f = 1;
-      if (cornerSpan > 0) f += swell.corner * bump((hv - a) / cornerSpan);
+      if (cornerSpan > 0) f += swell.corner * swellBump((hv - a) / cornerSpan);
       if (centreSpan > 0) f += swell.centre * bump(a / centreSpan);
       return f;
     };
@@ -213,25 +265,34 @@ export function buildFrameGeometry(
       const bandWidth = run ? run.end - run.start : 1;
       const period = row ? row.aspect * bandWidth : 1;
       const slot = profile[s].slot ?? 0;
-      const look = slotFinish(slot);
+      const look = mesh.slot(slot);
       const moves = !!swell && (ends[0][0].o > swell.pivot || ends[1][0].o > swell.pivot);
 
       // A cartouche takes the place of the running ornament at the
-      // corners and the centre of a swollen rail: half a shell either
-      // side of the centre line, and half on each rail of a corner with
-      // the shell's middle on the mitre.
+      // corners and the centre of a rail: half a shell either side of
+      // the centre line, and half on each rail of a corner with the
+      // shell's middle on the mitre. By default it goes wherever the
+      // moulding swells.
       const halfTile = (shell.aspect * bandWidth) / 2;
       const hosts = !!swell && !!run && run.band === swell.host;
-      const cornerTile = hosts && cornerSwell > 1 && hv >= 1.2 * halfTile ? halfTile : 0;
-      const centreTile = hosts && centreOn && hv >= 3.2 * halfTile ? halfTile : 0;
+      const atCorners = swell?.cartouche ? true : cornerSwell > 1;
+      const atCentres = swell?.cartouche ? swell.cartouche === "both" : centreOn;
+      const cornerTile = hosts && atCorners && hv >= 1.2 * halfTile ? halfTile : 0;
+      const centreTile = hosts && atCentres && hv >= 3.2 * halfTile ? halfTile : 0;
+      // A panel frame is plain between its cartouches.
+      const plain = hosts && !!swell?.plain;
 
       // Stations along the rail, from its centre to the inner corner.
       // The mitre follows as one more. A straight rail needs only the
       // two; a swollen one is cut along each swell.
       const stations = [0, hv];
       if (moves && cornerSpan > 0) {
-        const steps = swellSteps(cornerSpan);
-        for (let k = 1; k <= steps; k++) stations.push(hv - (cornerSpan * k) / steps);
+        if (swell?.ear) {
+          stations.push(hv - cornerSpan, hv - cornerSpan * EAR_RETURN);
+        } else {
+          const steps = swellSteps(cornerSpan);
+          for (let k = 1; k <= steps; k++) stations.push(hv - (cornerSpan * k) / steps);
+        }
       }
       if (moves && centreSpan > 0) {
         const steps = swellSteps(centreSpan);
@@ -250,51 +311,38 @@ export function buildFrameGeometry(
         // `a` is where the pair sits for a point with o >= 0; the lip
         // reaches over the canvas, where the rail is shorter.
         const pushPair = (a: number, f: number, mitre: boolean, mode: number): number => {
-          const base = vertex;
+          const base = mesh.count;
           for (const [pt, nrm, arcAt] of ends) {
             const o = pushed(pt.o, f);
             const at = mitre ? hv + o : Math.min(a, hv + Math.min(0, pt.o));
             const signed = half * at;
-            positions.push(
-              side.u[0] * (side.hu + o) + signed * side.v[0],
-              side.u[1] * (side.hu + o) + signed * side.v[1],
-              pt.z - wallOffset,
-            );
-            normals.push(side.u[0] * nrm[0], side.u[1] * nrm[0], nrm[1]);
-            colors.push(look.tint[0] * pt.ao, look.tint[1] * pt.ao, look.tint[2] * pt.ao);
-            uvs.push(signed, arcAt);
             // The running ornament's u grows toward the centre; on the
             // left half that is the rail's own direction, on the right
             // half it runs against it. A corner cartouche runs the
             // other way: its middle is on the mitre.
-            let gate = 0;
+            let carve: [number, number, number] | null = null;
             if (run && row) {
               const t = (arcAt - run.start) / bandWidth;
               if (mode === 0) {
-                carveUvs.push(
+                carve = [
                   carvePeriods(signed, hv, period) / row.repeats,
                   row.v0 + (row.v1 - row.v0) * t,
-                );
-                gate = -half;
+                  plain ? 0 : -half,
+                ];
               } else {
                 // Metres along the rail to the shell's middle: the centre
                 // line, or the mitre, which lies further out the further
                 // the point is from the sight edge.
                 const toMiddle = mode === 1 ? at : hv + Math.max(0, o) - at;
                 const tile = Math.max(0, 0.5 - (0.5 * toMiddle) / halfTile);
-                carveUvs.push(tile / shell.repeats, shell.v0 + (shell.v1 - shell.v0) * t);
-                gate = mode === 1 ? -half : half;
+                carve = [
+                  tile / shell.repeats,
+                  shell.v0 + (shell.v1 - shell.v0) * t,
+                  mode === 1 ? -half : half,
+                ];
               }
-            } else {
-              carveUvs.push(0, 0);
             }
-            frame.push(
-              look.rough * (1 + (pt.rough - 1) * look.burnish),
-              gate * look.carve,
-              Math.min(1.5, pt.wear * look.wear),
-              pt.ao,
-            );
-            vertex++;
+            pushPoint(mesh, side, pt, nrm, o, signed, arcAt, look, carve);
           }
           return base;
         };
@@ -303,8 +351,8 @@ export function buildFrameGeometry(
           // along the profile's normal; the two halves run in opposite
           // directions along the rail.
           const [a0, b0, a1, b1] = [far, far + 1, near, near + 1];
-          if (half === 1) indicesBySlot[slot].push(a0, a1, b1, a0, b1, b0);
-          else indicesBySlot[slot].push(a1, a0, b0, a1, b0, b1);
+          if (half === 1) mesh.indicesBySlot[slot].push(a0, a1, b1, a0, b1, b0);
+          else mesh.indicesBySlot[slot].push(a1, a0, b0, a1, b0, b1);
         };
         /** 0 running ornament, 1 centre cartouche, 2 corner cartouche. */
         const modeOf = (from: number, to: number) => {
@@ -336,17 +384,230 @@ export function buildFrameGeometry(
       }
     }
   }
+}
+
+/** Wall-side foot of a rail's end cap, metres above the wall. */
+const CAP_FOOT_Z = 0.004;
+
+/**
+ * One straight rail along a side of the canvas, cut square at both
+ * ends and closed there. Its ornament is set out from the ends to the
+ * middle like a mitred rail's.
+ */
+function addRail(mesh: Mesh, rail: Rail<ShadedPoint>, halfW: number, halfH: number): void {
+  const side = sidesOf(halfW, halfH)[rail.side];
+  const profile = rail.profile;
+  const { endNormal, along, runs } = measure(profile);
+  const length = side.hv + rail.past;
+  if (length <= 0) return;
+
+  for (let s = 0; s < profile.length - 1; s++) {
+    const ends: Array<[ShadedPoint, Normal2, number]> = [
+      [profile[s], endNormal(s, true), along[s]],
+      [profile[s + 1], endNormal(s, false), along[s + 1]],
+    ];
+    const run = runs[s];
+    const row = run ? CARVE_ROWS[run.band] : null;
+    const bandWidth = run ? run.end - run.start : 1;
+    const period = row ? row.aspect * bandWidth : 1;
+    const slot = profile[s].slot ?? 0;
+    const look = mesh.slot(slot);
+
+    for (const half of [-1, 1] as const) {
+      const pair = (a: number) => {
+        const base = mesh.count;
+        for (const [pt, nrm, arcAt] of ends) {
+          const signed = half * a;
+          const carve: [number, number, number] | null =
+            run && row
+              ? [
+                  carvePeriods(signed, length, period) / row.repeats,
+                  row.v0 + ((row.v1 - row.v0) * (arcAt - run.start)) / bandWidth,
+                  -half,
+                ]
+              : null;
+          pushPoint(mesh, side, pt, nrm, pt.o, signed, arcAt, look, carve);
+        }
+        return base;
+      };
+      const near = pair(0);
+      const far = pair(length);
+      if (half === 1) mesh.indicesBySlot[slot].push(far, near, near + 1, far, near + 1, far + 1);
+      else mesh.indicesBySlot[slot].push(near, far, far + 1, near, far + 1, near + 1);
+
+      // The end: this segment's share of the cut face, down to the wall.
+      const [a, b] = [ends[0][0], ends[1][0]];
+      if (b.o - a.o < 1e-6) continue;
+      const base = mesh.count;
+      const cap: Array<[number, number]> = [
+        [a.o, a.z],
+        [b.o, b.z],
+        [b.o, CAP_FOOT_Z],
+        [a.o, CAP_FOOT_Z],
+      ];
+      const shade = 0.78;
+      for (const [o, z] of cap) {
+        mesh.positions.push(
+          side.u[0] * (side.hu + o) + half * length * side.v[0],
+          side.u[1] * (side.hu + o) + half * length * side.v[1],
+          z - mesh.wallOffset,
+        );
+        mesh.normals.push(half * side.v[0], half * side.v[1], 0);
+        mesh.colors.push(...tintAt(look, shade));
+        mesh.uvs.push(o, z);
+        mesh.carveUvs.push(0, 0);
+        mesh.frame.push(look.rough * 1.2, 0, 0, shade);
+        mesh.count++;
+      }
+      if (half === 1)
+        mesh.indicesBySlot[slot].push(base, base + 1, base + 2, base, base + 2, base + 3);
+      else mesh.indicesBySlot[slot].push(base, base + 2, base + 1, base, base + 3, base + 2);
+    }
+  }
+}
+
+/**
+ * A square block on each corner of a mitred frame, from `blocks.from`
+ * to the moulding's outer edge both ways, standing `blocks.lift` proud
+ * of its highest point and carved with a rosette. Slot 0.
+ */
+function addBlocks(
+  mesh: Mesh,
+  profile: readonly ShadedPoint[],
+  blocks: CornerBlocks,
+  halfW: number,
+  halfH: number,
+): void {
+  const outer = Math.max(...profile.map((pt) => pt.o));
+  const top = Math.max(...profile.map((pt) => pt.z)) + blocks.lift - mesh.wallOffset;
+  const foot = CAP_FOOT_Z - mesh.wallOffset;
+  const size = outer - blocks.from;
+  if (size <= 0) return;
+  const look = mesh.slot(0);
+  const row = CARVE_ROWS.rosette;
+  const vertex = (
+    x: number,
+    y: number,
+    z: number,
+    normal: [number, number, number],
+    ao: number,
+    carve: [number, number] | null,
+  ) => {
+    mesh.positions.push(x, y, z);
+    mesh.normals.push(...normal);
+    mesh.colors.push(...tintAt(look, ao));
+    mesh.uvs.push(x, y);
+    mesh.carveUvs.push(carve?.[0] ?? 0, carve?.[1] ?? 0);
+    mesh.frame.push(
+      look.rough,
+      carve ? look.carve : 0,
+      carve ? Math.min(1.5, 0.5 * look.wear) : 0,
+      ao,
+    );
+    return mesh.count++;
+  };
+  for (const sx of [-1, 1]) {
+    for (const sy of [-1, 1]) {
+      const x0 = sx * (halfW + blocks.from);
+      const x1 = sx * (halfW + outer);
+      const y0 = sy * (halfH + blocks.from);
+      const y1 = sy * (halfH + outer);
+      // Corners of the square, counter-clockwise seen from the front:
+      // which way round that is depends on the corner.
+      const ccw: Array<[number, number]> =
+        sx * sy > 0
+          ? [
+              [x0, y0],
+              [x1, y0],
+              [x1, y1],
+              [x0, y1],
+            ]
+          : [
+              [x0, y0],
+              [x0, y1],
+              [x1, y1],
+              [x1, y0],
+            ];
+      const base = mesh.count;
+      for (const [x, y] of ccw) {
+        vertex(x, y, top, [0, 0, 1], 1, [
+          Math.abs(x - x0) / size / row.repeats,
+          row.v0 + ((row.v1 - row.v0) * Math.abs(y - y0)) / size,
+        ]);
+      }
+      mesh.indicesBySlot[0].push(base, base + 1, base + 2, base, base + 2, base + 3);
+      // Four sides, each facing away from the block's middle.
+      for (let i = 0; i < 4; i++) {
+        const [ax, ay] = ccw[i];
+        const [bx, by] = ccw[(i + 1) % 4];
+        const nx = by - ay;
+        const ny = ax - bx;
+        const l = Math.hypot(nx, ny) || 1;
+        const n: [number, number, number] = [nx / l, ny / l, 0];
+        const b = mesh.count;
+        vertex(ax, ay, top, n, 0.85, null);
+        vertex(bx, by, top, n, 0.85, null);
+        vertex(bx, by, foot, n, 0.6, null);
+        vertex(ax, ay, foot, n, 0.6, null);
+        mesh.indicesBySlot[0].push(b, b + 2, b + 1, b, b + 3, b + 2);
+      }
+    }
+  }
+}
+
+/**
+ * Build a frame round a canvas of `widthM` × `heightM` centred on the
+ * origin: `profile` mitred round it, plus any rails and corner blocks
+ * in `finish`. Local z is measured from the Painting group's origin,
+ * which sits `wallOffset` in front of the wall, so profile heights
+ * shift back by that much. Geometry groups are the material slots.
+ *
+ * Attributes beyond position and normal:
+ *  - `color`: the slot's tint times the baked occlusion.
+ *  - `uv`: metres. u along the rail from its centre, v along the profile
+ *    from the sight edge. Grain and leaf are read with it, so grain
+ *    turns at every mitre.
+ *  - `aCarveUv`: the carve atlas, for the carved stretches.
+ *  - `aFrame`: x roughness multiplier, y carving depth (its sign flips
+ *    the map's u where the ornament runs mirrored), z wear, w occlusion.
+ */
+export function buildFrameGeometry(
+  profile: readonly ShadedPoint[],
+  widthM: number,
+  heightM: number,
+  wallOffset: number,
+  finish: FrameFinish = {},
+): THREE.BufferGeometry {
+  const mesh: Mesh = {
+    positions: [],
+    normals: [],
+    colors: [],
+    uvs: [],
+    carveUvs: [],
+    frame: [],
+    indicesBySlot: Array.from({ length: FRAME_SLOTS }, () => []),
+    count: 0,
+    wallOffset,
+    slot: (slot) => finish.slots?.[slot] ?? PLAIN,
+  };
+  const halfW = widthM / 2;
+  const halfH = heightM / 2;
+  if (profile.length > 1) {
+    sweep(mesh, profile, halfW, halfH, finish.swell ?? null);
+    if (finish.blocks) addBlocks(mesh, profile, finish.blocks, halfW, halfH);
+  }
+  for (const rail of finish.rails ?? []) addRail(mesh, rail, halfW, halfH);
 
   const geometry = new THREE.BufferGeometry();
-  geometry.setAttribute("position", new THREE.Float32BufferAttribute(positions, 3));
-  geometry.setAttribute("normal", new THREE.Float32BufferAttribute(normals, 3));
-  geometry.setAttribute("color", new THREE.Float32BufferAttribute(colors, 3));
-  geometry.setAttribute("uv", new THREE.Float32BufferAttribute(uvs, 2));
-  geometry.setAttribute("aCarveUv", new THREE.Float32BufferAttribute(carveUvs, 2));
-  geometry.setAttribute("aFrame", new THREE.Float32BufferAttribute(frame, 4));
+  geometry.setAttribute("position", new THREE.Float32BufferAttribute(mesh.positions, 3));
+  geometry.setAttribute("normal", new THREE.Float32BufferAttribute(mesh.normals, 3));
+  geometry.setAttribute("color", new THREE.Float32BufferAttribute(mesh.colors, 3));
+  geometry.setAttribute("uv", new THREE.Float32BufferAttribute(mesh.uvs, 2));
+  geometry.setAttribute("aCarveUv", new THREE.Float32BufferAttribute(mesh.carveUvs, 2));
+  geometry.setAttribute("aFrame", new THREE.Float32BufferAttribute(mesh.frame, 4));
   const index: number[] = [];
   for (let slot = 0; slot < FRAME_SLOTS; slot++) {
-    const part = indicesBySlot[slot];
+    const part = mesh.indicesBySlot[slot];
     if (part.length === 0) continue;
     geometry.addGroup(index.length, part.length, slot);
     for (const i of part) index.push(i);

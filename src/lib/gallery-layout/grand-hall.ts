@@ -26,10 +26,11 @@
 
 import type { ArtworkListing } from "@/lib/data";
 import { isSurpriseWorthy } from "@/lib/surprise";
-import { type FrameDesign, frameReach, pickPairDesign } from "./frame-design";
+import { type FrameDesign, frameExtents, frameReach, pickPairDesign } from "./frame-design";
 import { artworkBand } from "./painting-bands";
 import {
   computeRoomRuns,
+  frameDropOf,
   frameReachOf,
   MAX_PAINTING_W,
   PAINTING_FLOOR_GAP,
@@ -150,6 +151,8 @@ type Slot = {
   frame: FrameDesign;
   span: number;
   reach: number;
+  /** How far the frame hangs below the lower of the two canvases. */
+  drop: number;
   claim: number;
 };
 
@@ -166,7 +169,11 @@ function slotOf(lead: SizedWork, partner: SizedWork): Slot {
     frameReach(frame, lead.wM, lead.hM),
     frameReach(frame, partner.wM, partner.hM),
   );
-  return { low: lead, high: partner, frame, span, reach, claim: claimOf(span, reach) };
+  const drop = Math.max(
+    frameExtents(frame, lead.wM, lead.hM).bottom,
+    frameExtents(frame, partner.wM, partner.hM).bottom,
+  );
+  return { low: lead, high: partner, frame, span, reach, drop, claim: claimOf(span, reach) };
 }
 
 /** Wall a canvas of width `span` claims in the hall when its frame
@@ -377,7 +384,7 @@ export function hangGrandHall(
 function layoutWall(plan: WallPlan): Placement[] {
   const out: Placement[] = [];
   if (plan.centrepiece) {
-    out.push(place(plan.run, plan.centre, plan.centrepiece, frameReachOf(plan.centrepiece)));
+    out.push(place(plan.run, plan.centre, plan.centrepiece, frameDropOf(plan.centrepiece)));
   }
 
   const gap = halfGap(
@@ -393,8 +400,8 @@ function layoutWall(plan: WallPlan): Placement[] {
     const claimed = slot.claim;
     const offset = cursor + claimed / 2;
     // One frame and one lift for the pair, so their canvases stay level.
-    out.push(place(plan.run, plan.centre - offset, slot.low, slot.reach, slot.frame));
-    out.push(place(plan.run, plan.centre + offset, slot.high, slot.reach, slot.frame));
+    out.push(place(plan.run, plan.centre - offset, slot.low, slot.drop, slot.frame));
+    out.push(place(plan.run, plan.centre + offset, slot.high, slot.drop, slot.frame));
     cursor += claimed + gap;
   }
   return out;
@@ -404,12 +411,12 @@ function place(
   run: WallRun,
   u: number,
   work: SizedWork,
-  reach: number,
+  drop: number,
   frame?: FrameDesign,
 ): Placement {
   // Same lift the ordinary hang applies: tall works rise so their frame
   // clears the floor, everything else keeps the eye line.
-  const centerY = Math.max(run.centerY, run.floorY + PAINTING_FLOOR_GAP + reach + work.hM / 2);
+  const centerY = Math.max(run.centerY, run.floorY + PAINTING_FLOOR_GAP + drop + work.hM / 2);
   const along = run.sign * u;
   return {
     artwork: work.artwork,

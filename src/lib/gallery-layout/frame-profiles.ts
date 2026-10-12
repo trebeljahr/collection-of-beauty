@@ -26,7 +26,15 @@ export type CarveBand =
   | "meander"
   | "scale"
   | "shell"
-  | "hammer";
+  | "hammer"
+  | "oak"
+  | "waterleaf"
+  | "lattice"
+  | "husk"
+  | "wave"
+  | "rosette"
+  | "dentil"
+  | "bamboo";
 
 /** One point of a moulding cross-section.
  *  - `o`: outward offset from the canvas edge, metres. Negative values

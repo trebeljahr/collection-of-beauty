@@ -197,7 +197,7 @@ export function heightToNormal(
 // ── Carve atlas ───────────────────────────────────────────────────────
 
 export const CARVE_ATLAS_W = 512;
-export const CARVE_ATLAS_H = 1024;
+export const CARVE_ATLAS_H = 1536;
 /** Texels of each row's own edge repeated above and below it, so
  *  filtering never reads a neighbouring ornament. */
 const ROW_PAD = 3;
@@ -581,6 +581,156 @@ const BANDS: Record<CarveBand, BandSpec> = {
         }
       }
       return smooth(0, 0.6, nearest);
+    },
+  },
+  // Oak leaves with their lobed outline, an acorn between each pair,
+  // lying along a torus like the laurel.
+  oak: {
+    rows: 72,
+    repeats: 2,
+    aspect: 1.25,
+    relief: 0.08,
+    height: (u, v) => {
+      let h = 0.05;
+      for (let row = 0; row < 2; row++) {
+        const t = (v - (0.28 + row * 0.44)) / 0.3;
+        for (let k = -1; k <= 1; k++) {
+          const s = (u - (k + row * 0.5 + 0.5)) / 1.3 + 0.5;
+          if (s <= 0 || s >= 1) continue;
+          const lobes = 0.72 + 0.28 * Math.abs(Math.cos(4 * Math.PI * s));
+          const wl = Math.sin(Math.PI * s) ** 0.6 * lobes;
+          if (Math.abs(t) >= wl) continue;
+          const body = Math.sqrt(1 - (t / wl) ** 2);
+          const leaf = (0.3 + 0.5 * s) * body + 0.12 * Math.exp(-((t / 0.1) ** 2)) * body;
+          if (leaf > h) h = leaf;
+        }
+      }
+      // Acorns on the centre line, where the two rows of leaves part.
+      const acorn = Math.hypot((fract(u + 0.25) - 0.5) / 0.09, (v - 0.5) / 0.13);
+      if (acorn < 1) h = Math.max(h, 0.6 + 0.4 * Math.sqrt(1 - acorn * acorn));
+      return h;
+    },
+  },
+  // Water leaf: broad plain tongues with a sunk midrib, a shorter leaf
+  // showing between each pair.
+  waterleaf: {
+    rows: 48,
+    repeats: 4,
+    aspect: 0.75,
+    relief: 0.13,
+    height: (u, v) => {
+      const leaf = (x: number, length: number, lift: number) => {
+        if (v >= length) return 0;
+        const w = 0.49 * Math.sqrt(1 - (v / length) ** 2.4);
+        if (Math.abs(x) >= w) return 0;
+        const dome = Math.sqrt(1 - (x / w) ** 2);
+        return lift * (0.45 + 0.55 * dome) * (1 - 0.35 * Math.exp(-((x / 0.05) ** 2)));
+      };
+      return Math.max(0.05, leaf(wrapDist(u, 0), 0.6, 0.55), leaf(u - 0.5, 0.97, 1));
+    },
+  },
+  // Diaper: a trellis of raised bands with a boss in each lozenge.
+  lattice: {
+    rows: 48,
+    repeats: 8,
+    aspect: 1,
+    relief: 0.05,
+    height: (u, v) => {
+      if (v < 0.06 || v > 0.94) return 0.9;
+      const a = Math.abs(fract(u + v) - 0.5);
+      const b = Math.abs(fract(u - v) - 0.5);
+      if (Math.min(a, b) < 0.07) return 0.85;
+      const boss = Math.hypot(fract(u + v) - 0.5, fract(u - v) - 0.5) / 0.16;
+      return boss < 1 ? 0.3 + 0.5 * Math.sqrt(1 - boss * boss) : 0.3;
+    },
+  },
+  // Husks: a chain of bellflowers, each a three-part drop, with a bead
+  // between.
+  husk: {
+    rows: 40,
+    repeats: 4,
+    aspect: 1.6,
+    relief: 0.14,
+    height: (u, v) => {
+      const t = v - 0.5;
+      const s = u / 0.86;
+      let h = 0.08;
+      if (s < 1) {
+        const w = 0.44 * Math.sin(Math.PI * s) ** 0.8 * (1 - 0.5 * s);
+        if (Math.abs(t) < w) {
+          const split = Math.exp(-(((Math.abs(t) - w / 3) / 0.035) ** 2));
+          h = 0.3 + 0.6 * Math.sqrt(1 - (t / w) ** 2) - 0.22 * split * s;
+        }
+      }
+      const bead = Math.hypot((u - 0.93) / 0.055, t / 0.09);
+      if (bead < 1) h = Math.max(h, 0.4 + 0.5 * Math.sqrt(1 - bead * bead));
+      return h;
+    },
+  },
+  // Vitruvian scroll: a row of waves, each curling into the next.
+  wave: {
+    rows: 40,
+    repeats: 4,
+    aspect: 1.3,
+    relief: 0.1,
+    height: (u, v) => {
+      if (v < 0.07 || v > 0.93) return 0.85;
+      let h = 0.12;
+      for (const shift of [-1, 0, 1]) {
+        const x = (u - shift - 0.42) * 1.3;
+        const y = v - 0.46;
+        // The curl: a ring open at its lower right, where the tail of
+        // the next wave runs in.
+        const ring = Math.abs(Math.hypot(x, y) - 0.24) / 0.07;
+        const open = Math.atan2(y, x) > 0.15 && Math.atan2(y, x) < 1.2;
+        if (ring < 1 && !open) h = Math.max(h, 0.4 + 0.55 * Math.sqrt(1 - ring * ring));
+        // The tail: from under the curl out along the base to the next.
+        const along = (x - 0.1) / 0.75;
+        if (along > 0 && along < 1) {
+          const line = Math.abs(y - (0.3 - 0.52 * along * along)) / 0.065;
+          if (line < 1) h = Math.max(h, 0.4 + 0.5 * Math.sqrt(1 - line * line));
+        }
+      }
+      return h;
+    },
+  },
+  // A rosette in a square: the patera on a corner block. One tile.
+  rosette: {
+    rows: 64,
+    repeats: 8,
+    aspect: 1,
+    relief: 0.14,
+    height: (u, v) => {
+      const x = u - 0.5;
+      const y = v - 0.5;
+      if (Math.max(Math.abs(x), Math.abs(y)) > 0.43) return 0.75;
+      const r = Math.hypot(x, y);
+      if (r < 0.085) return 0.55 + 0.45 * Math.sqrt(1 - (r / 0.085) ** 2);
+      const petal = 0.5 + 0.5 * Math.cos(8 * Math.atan2(y, x));
+      const edge = 0.24 + 0.14 * petal;
+      if (r < edge) return 0.35 + 0.5 * Math.sqrt(1 - (r / edge) ** 2) * (0.55 + 0.45 * petal);
+      return 0.15;
+    },
+  },
+  // Dentils: a row of square teeth under a cornice.
+  dentil: {
+    rows: 16,
+    repeats: 16,
+    aspect: 1.1,
+    relief: 0.3,
+    height: (u, v) => (u > 0.2 && u < 0.8 && v > 0.12 ? 1 : 0.1),
+  },
+  // The nodes of a bamboo cane: a ring with a waist either side.
+  bamboo: {
+    rows: 16,
+    repeats: 4,
+    aspect: 2.4,
+    relief: 0.5,
+    height: (u) => {
+      const d = wrapDist(u, 0);
+      return (
+        0.5 + 0.5 * Math.exp(-((d / 0.022) ** 2)) - 0.3 * Math.exp(-(((d - 0.05) / 0.03) ** 2))
+      );
     },
   },
 };

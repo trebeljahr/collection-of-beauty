@@ -60,6 +60,8 @@ function SheetWork({
     return buildFrameGeometry(moulding.profile, w, h, PAINTING_WALL_OFFSET, {
       slots: design.slots,
       swell: moulding.swell,
+      blocks: moulding.blocks,
+      rails: moulding.rails,
     });
   }, [design, w, h]);
   useEffect(() => () => geometry.dispose(), [geometry]);

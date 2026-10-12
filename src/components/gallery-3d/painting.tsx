@@ -5,9 +5,7 @@ import { useThree } from "@react-three/fiber";
 import { memo, useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from "react";
 import * as THREE from "three";
 import type { ArtworkListing } from "@/lib/data";
-import { frameMoulding, pickFrameDesign } from "@/lib/gallery-layout/frame-design";
-import { profileFrontZ, profileWidth } from "@/lib/gallery-layout/frame-profiles";
-import { swollenWidth } from "@/lib/gallery-layout/frame-styles";
+import { frameExtents, frameMoulding, pickFrameDesign } from "@/lib/gallery-layout/frame-design";
 import {
   PAINTING_WALL_OFFSET,
   PLAQUE_GAP,
@@ -483,18 +481,23 @@ export const Painting = memo(function Painting({
   // Moulded frame, rebuilt only when the canvas is refitted to its
   // texture's aspect. See frame-geometry.ts.
   const moulding = useMemo(() => frameMoulding(design, dW, dH), [design, dW, dH]);
-  const profile = moulding.profile;
   const frameGeometry = useMemo(
     () =>
-      buildFrameGeometry(profile, dW, dH, PAINTING_WALL_OFFSET, {
+      buildFrameGeometry(moulding.profile, dW, dH, PAINTING_WALL_OFFSET, {
         slots: design.slots,
         swell: moulding.swell,
+        blocks: moulding.blocks,
+        rails: moulding.rails,
       }),
-    [profile, moulding.swell, design, dW, dH],
+    [moulding, design, dW, dH],
   );
   useEffect(() => () => frameGeometry.dispose(), [frameGeometry]);
-  // At its widest: a swept frame's corners stand out past its rails.
-  const frameReach = swollenWidth(profileWidth(profile), moulding.swell);
+  // At its widest: a swept frame's corners stand out past its rails,
+  // and a scroll or a tabernacle frame reaches further up and down
+  // than to the sides.
+  const extents = useMemo(() => frameExtents(design, dW, dH), [design, dW, dH]);
+  const frameReach = extents.side;
+  const frameRise = Math.max(extents.top, extents.bottom);
 
   // Picture light: one can per work, its pool clipped to this wall's
   // clear stretches, or to the divider the work hangs on. See
@@ -520,7 +523,7 @@ export const Painting = memo(function Painting({
     () =>
       buildLightRig({
         frameHalfW: dW / 2 + frameReach,
-        frameHalfH: dH / 2 + frameReach,
+        frameHalfH: dH / 2 + frameRise,
         canvasH: dH,
         floorY: wall.floorY,
         ceilingY,
@@ -530,7 +533,7 @@ export const Painting = memo(function Painting({
         floorSpan: wall.floorSpan,
         roomDepth: wall.roomDepth,
       }),
-    [dW, dH, frameReach, wall, ceilingY],
+    [dW, dH, frameReach, frameRise, wall, ceilingY],
   );
   const plaqueRect = useMemo(
     () => ({
@@ -578,8 +581,8 @@ export const Painting = memo(function Painting({
         floorY={wall.floorY}
         ceilingY={ceilingY}
         frameHalfW={dW / 2 + frameReach}
-        frameHalfH={dH / 2 + frameReach}
-        frameFrontZ={profileFrontZ(profile) - PAINTING_WALL_OFFSET}
+        frameHalfH={dH / 2 + frameRise}
+        frameFrontZ={moulding.frontZ - PAINTING_WALL_OFFSET}
         plaque={plaqueRect}
         // The stairwell's ceiling is a storey up, not at room height: a
         // can would hang in mid-air, so a work there gets the pool

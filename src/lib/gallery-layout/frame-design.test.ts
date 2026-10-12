@@ -2,6 +2,7 @@ import { describe, expect, it } from "vitest";
 import { artworkListings, movements } from "@/lib/data";
 import {
   FINISHES,
+  frameExtents,
   frameMoulding,
   frameReach,
   frameScale,
@@ -12,8 +13,7 @@ import {
   pickPairDesign,
   readPicture,
 } from "./frame-design";
-import { profileWidth } from "./frame-profiles";
-import { buildStyle, swollenWidth } from "./frame-styles";
+import { buildStyle } from "./frame-styles";
 
 type Work = Parameters<typeof pickFrameDesign>[0];
 const work = (id: string, movement: string | null, year: number | null, more = {}): Work => ({
@@ -66,19 +66,30 @@ describe("pickFrameDesign", () => {
   });
 
   it("mats prints and mounts silk whatever their date", () => {
+    const matted = ["print", "oxford"];
     for (const id of ids) {
       expect(pickFrameDesign(work(id, "Ukiyo-e", 1830)).style).toBe("print");
-      expect(pickFrameDesign(work(id, "Natural history illustration", 1838)).style).toBe("print");
-      expect(pickFrameDesign(work(id, "Botanical illustration", 1805)).style).toBe("print");
+      expect(matted).toContain(
+        pickFrameDesign(work(id, "Natural history illustration", 1838)).style,
+      );
+      expect(matted).toContain(pickFrameDesign(work(id, "Botanical illustration", 1805)).style);
+      for (const design of [
+        pickFrameDesign(work(id, "Natural history illustration", 1838)),
+        pickFrameDesign(work(id, "Ukiyo-e", 1830)),
+      ]) {
+        expect(design.slots[1].surface).toBe("board");
+      }
       // Sesshū: fifteenth century, but ink on paper, not a panel.
-      expect(pickFrameDesign(work(id, "Classical East Asian", 1486)).style).toBe("mount");
+      expect(["mount", "scroll"]).toContain(
+        pickFrameDesign(work(id, "Classical East Asian", 1486)).style,
+      );
     }
   });
 
   it("puts works before 1500 in panel frames whatever their school", () => {
     for (const movement of ["Renaissance", "Northern Renaissance", null]) {
       for (const id of ids) {
-        expect(["cassetta", "bolection"]).toContain(
+        expect(["cassetta", "tabernacle", "bolection"]).toContain(
           pickFrameDesign(work(id, movement, 1470)).style,
         );
       }
@@ -89,7 +100,7 @@ describe("pickFrameDesign", () => {
     // Never the Louis XV gilt a plain "Impressionism" match could give.
     expect(share(looksOf("Post-Impressionism", 1890), "louisXV", "paleGiltScoop")).toBe(0);
     expect(new Set(looksOf("Neo-Impressionism", 1888))).toEqual(
-      new Set(["degasWhite", "whiteScoop", "paleGiltScoop"]),
+      new Set(["degasWhite", "whiteScoop", "paleGiltScoop", "canted"]),
     );
     expect(share(looksOf("Dutch Golden Age", 1650), "baroque", "salvator", "spanish")).toBe(0);
   });
@@ -117,7 +128,10 @@ describe("pickFrameDesign", () => {
 
   it("frames a modern floor in strips and floaters and an old one in gilt", () => {
     const modern = ids.map((id) => pickFrameDesign(work(id, "Cubism", 1912)).style);
-    expect(modern.filter((s) => s === "floater" || s === "strip").length).toBeGreaterThan(35);
+    expect(modern.filter((s) => s === "floater" || s === "strip").length).toBeGreaterThan(18);
+    expect(modern.filter((s) => s === "leafTorus" || s === "swept" || s === "cassetta")).toEqual(
+      [],
+    );
     const old = ids.map((id) => pickFrameDesign(work(id, "Baroque", 1650)).slots[0].finish);
     expect(old.filter((f) => FINISHES[f].surface === "leaf").length).toBeGreaterThan(45);
   });
@@ -233,8 +247,8 @@ describe("pickPairDesign", () => {
 
   it("falls back to the lead's own frame when the schools share none", () => {
     for (const id of ids) {
-      const lead = work(id, "Mir Iskusstva", 1916);
-      expect(pickPairDesign(lead, work("b", "Suprematism", 1928))).toBe(pickFrameDesign(lead));
+      const lead = work(id, "Ukiyo-e", 1830);
+      expect(pickPairDesign(lead, work("b", "Baroque", 1640))).toBe(pickFrameDesign(lead));
     }
     expect(pickPairDesign(work("a", "Nihonga", 1907), work("b", "Shin-hanga", 1916)).style).toBe(
       "mount",
@@ -265,9 +279,8 @@ describe("frame reach", () => {
       const large = frameReach(design, 3.2, 2);
       expect(large).toBeGreaterThanOrEqual(small);
       expect(small).toBeGreaterThan(0.009);
-      expect(large).toBeLessThan(0.24);
-      const { profile, swell } = frameMoulding(design, 1, 1);
-      expect(frameReach(design, 1, 1)).toBeCloseTo(swollenWidth(profileWidth(profile), swell), 12);
+      expect(large).toBeLessThan(0.26);
+      expect(frameExtents(design, 1, 1).side).toBe(frameReach(design, 1, 1));
       expect(frameReach(design, 1, 1)).toBeCloseTo(
         buildStyle(design.style, design.options).width * frameScale(design, 1, 1),
         12,
@@ -281,5 +294,69 @@ describe("frame reach", () => {
       .find((d) => d.style === "floater");
     expect(floater).toBeDefined();
     if (floater) expect(frameReach(floater, 0.4, 0.4)).toBe(frameReach(floater, 3, 3));
+  });
+});
+
+describe("shape and subject", () => {
+  const silk = (id: string, width: number, height: number) =>
+    work(id, "Classical East Asian", 1650, { width, height });
+
+  it("hangs an upright painting on silk as a scroll and a wide one in a flat mount", () => {
+    const upright = ids.map((id) => pickFrameDesign(silk(id, 1000, 2400)).style);
+    const wide = ids.map((id) => pickFrameDesign(silk(id, 3000, 1400)).style);
+    expect(wide.every((s) => s === "mount")).toBe(true);
+    expect(upright.filter((s) => s === "scroll").length).toBeGreaterThan(ids.length * 0.6);
+  });
+
+  it("lets a scroll reach further down than sideways", () => {
+    const scroll = ids
+      .map((id) => pickFrameDesign(silk(id, 1000, 2400)))
+      .find((d) => d.style === "scroll");
+    expect(scroll).toBeDefined();
+    if (!scroll) return;
+    const extents = frameExtents(scroll, 0.6, 1.4);
+    expect(extents.top).toBeGreaterThan(extents.bottom);
+    expect(extents.bottom).toBeGreaterThan(extents.side * 1.5);
+    const moulding = frameMoulding(scroll, 0.6, 1.4);
+    expect(moulding.profile).toEqual([]);
+    expect(moulding.rails.length).toBe(5);
+    expect(moulding.frontZ).toBeGreaterThan(0.034);
+  });
+
+  it("keeps the tabernacle frame for sacred subjects", () => {
+    const share = (title: string) =>
+      ids.filter(
+        (id) => pickFrameDesign(work(id, "Renaissance", 1510, { title })).style === "tabernacle",
+      ).length / ids.length;
+    expect(share("Madonna and Child with Saints")).toBeGreaterThan(share("Portrait of a Man") * 3);
+    expect(share("Portrait of a Man")).toBeLessThan(0.12);
+  });
+
+  it("keeps narrow frames for small works", () => {
+    const share = (cm: number) =>
+      ids.filter((id) => {
+        const design = pickFrameDesign(
+          work(id, "Realism", 1870, { realDimensions: { widthCm: cm, heightCm: cm * 0.8 } }),
+        );
+        return design.style === "morland";
+      }).length;
+    expect(share(40)).toBeGreaterThan(share(220) + 5);
+  });
+
+  it("fits some frames with a liner and some mats with a second board", () => {
+    const barbizon = artworkListings
+      .map((a) => pickFrameDesign(a))
+      .filter((d) => d.look === "barbizon");
+    const lined = barbizon.filter((d) => (d.options.liner ?? 0) > 0);
+    expect(lined.length).toBeGreaterThan(barbizon.length * 0.15);
+    expect(lined.length).toBeLessThan(barbizon.length * 0.5);
+    for (const d of lined) expect(["cloth", "leaf"]).toContain(d.slots[1].surface);
+
+    const prints = artworkListings
+      .map((a) => pickFrameDesign(a))
+      .filter((d) => d.style === "print");
+    const doubled = prints.filter((d) => (d.options.detail & 16) !== 0);
+    expect(doubled.length).toBeGreaterThan(prints.length * 0.1);
+    for (const d of doubled) expect(d.slots[2].finish).toBe("matInner");
   });
 });
