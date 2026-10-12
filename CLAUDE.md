@@ -111,8 +111,12 @@ required by the Dockerfile — don't remove it.
   (`scripts/build-redirects.ts`) regenerates it from the git history of
   `artworks.json` and runs after `pnpm assets:build-data`. The artwork and
   artist pages serve those as 308s before calling `notFound()`
-  (`src/lib/redirects.ts`). Evidence must name one work: same Commons page,
-  same file, or same artist and title within a decade. Don't add
+  (`src/lib/redirects.ts`). Evidence must name one work: same source
+  file (`objectKey`), same Commons page, same Commons file, or same artist
+  and title within a decade. The source file comes first: an id minted
+  again for a file that stayed in place (60 of them, mostly Cyrillic
+  names) keeps its redirect when the work's Commons link is corrected.
+  Don't add
   word-overlap matching: it mapped "After a success" to "After a failure",
   and a 308 is cached for good. Anything weaker belongs on the 404 page,
   whose "did you mean" matcher is `src/lib/not-found-match.ts`.
@@ -151,6 +155,20 @@ required by the Dockerfile — don't remove it.
   one: 381 saved previews, 15 uploaded again larger or saved by a route
   macOS did not record, and 26 where the sidecar names another upload
   of the painting than the file on disk.
+- The 26 were sorted the same day. 18 sidecar entries now name the page
+  of the file on disk: `source` and `copyright` as
+  `fetch-wikimedia-metadata.mjs` writes them, `file_url` without the
+  `?utm_…` query the API now appends. A page was accepted on the file's
+  SHA-1 (10) or on the exact size of a preview whose download address
+  macOS kept (8). `list=allimages&aisha1=<sha1>` finds the page of a
+  file that was renamed by hand. A file with no page under its own name
+  keeps the link, because the fetch falls back to
+  `source.canonical_title`. 4 already named their file: a redirect, an
+  older revision, two previews. 4 are open. Boucher's Diana is Sailko's
+  photograph under CC BY 3.0, and three files are on no Commons page.
+  The Gothenburg Olive Grove is CC BY 4.0 on Commons and "Public
+  Domain" in the sidecar. The vault note
+  `collection-of-beauty-commons-larger-originals.md` lists all 26.
 - `scripts/refetch-commons-originals.mjs --ids=<file>` downloads a
   work's own file at full size and keeps the filename and the id. It
   checks the download against the SHA-1 the API reports, and skips a
@@ -908,6 +926,11 @@ Standard flow for an agent:
 
 The user explicitly does **not** want PRs opened. Don't run `gh pr create`
 unless asked.
+
+`assets/` and `assets-web/` are one directory for every worktree.
+build-data probes what is on disk, so a run while another session
+replaces originals writes that session's sizes and variants into
+`src/data`. Read the diff work by work before committing it.
 
 ## Prose
 

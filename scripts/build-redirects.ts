@@ -12,14 +12,19 @@
  *
  * A 308 is cached by browsers and search engines for good, so only
  * evidence that names one work outright counts, strongest first:
- *   1. the same Wikimedia Commons page (commonsUrl)
- *   2. the same Commons file (fileUrl)
- *   3. the same artist and the same title after case and accents, when
+ *   1. the same source file (objectKey): the id was minted again for a
+ *      file that stayed where it was, as when a Cyrillic name that
+ *      slugified to nothing got a romanised id. It comes first because
+ *      it holds when the work's Commons link is corrected: without it,
+ *      pointing three works at the right upload dropped their redirects.
+ *   2. the same Wikimedia Commons page (commonsUrl)
+ *   3. the same Commons file (fileUrl)
+ *   4. the same artist and the same title after case and accents, when
  *      that artist has exactly one current work so titled, the title is
  *      not just the artist's name, and the years are within a decade
  * Word-overlap title matching was tried and dropped: it sent "After a
  * success" to Vereshchagin's "After a failure" and one Hiroshige pass to
- * another. Ids that fail all three stay unmapped and the 404 page offers
+ * another. Ids that fail all four stay unmapped and the 404 page offers
  * its nearest matches instead, which is where a guess belongs. Taken-down
  * works (metadata/takedowns.json) are never mapped: a copyright takedown
  * must keep answering 404.
@@ -59,7 +64,7 @@ type Record_ = {
   year: number | null;
 };
 
-type Evidence = "commons" | "file" | "title";
+type Evidence = "source" | "commons" | "file" | "title";
 
 const MAX_YEAR_DRIFT = 10;
 
@@ -133,6 +138,9 @@ function main() {
   const history = historicalArtworks();
   const takedowns = loadTakedowns();
 
+  // Keys on disk are a mix of NFC and NFD; one file can be recorded both ways.
+  const sourceKey = (a: Record_) => a.objectKey.normalize("NFC");
+  const bySource = uniqueBy(current, sourceKey);
   const byCommons = uniqueBy(current, (a) => a.commonsUrl);
   const byFile = uniqueBy(current, (a) => a.fileUrl);
   const byArtist = new Map<string, Record_[]>();
@@ -143,7 +151,7 @@ function main() {
   }
 
   const artworks: Record<string, string> = {};
-  const evidence: Record<Evidence, number> = { commons: 0, file: 0, title: 0 };
+  const evidence: Record<Evidence, number> = { source: 0, commons: 0, file: 0, title: 0 };
   let takenDown = 0;
   let unmapped = 0;
 
@@ -162,9 +170,11 @@ function main() {
 
     let target: Record_ | null = null;
     let how: Evidence | null = null;
+    const source = bySource.get(sourceKey(old));
     const commons = old.commonsUrl ? byCommons.get(old.commonsUrl) : null;
     const file = old.fileUrl ? byFile.get(old.fileUrl) : null;
-    if (commons) [target, how] = [commons, "commons"];
+    if (source) [target, how] = [source, "source"];
+    else if (commons) [target, how] = [commons, "commons"];
     else if (file) [target, how] = [file, "file"];
     else if (titleNamesWork(old)) {
       const sameArtist = byArtist.get(normalizeSegment(old.artist ?? "")) ?? [];
@@ -210,7 +220,7 @@ function main() {
 
   console.log(
     `${history.size} ids in history, ${current.length} current. Mapped ${Object.keys(artworks).length} artwork ids ` +
-      `(commons ${evidence.commons}, file ${evidence.file}, title ${evidence.title}); ` +
+      `(source ${evidence.source}, commons ${evidence.commons}, file ${evidence.file}, title ${evidence.title}); ` +
       `${unmapped} left to the 404 page, ${takenDown} taken down. Mapped ${Object.keys(artists).length} artist slugs ` +
       `(${kept} kept from the last run).`,
   );
