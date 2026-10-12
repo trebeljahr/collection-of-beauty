@@ -16,7 +16,6 @@ import type { Palette } from "@/lib/gallery-eras";
 import { withFloorReflection } from "./floor-mirror";
 import { FRAME_HIGHLIGHT_MATERIALS } from "./frame-materials";
 import { buildMapBundle } from "./texture-pack";
-import { getDamaskRoughnessMap } from "./wall-damask";
 import { isDeepWall } from "./wall-light";
 
 // One floor texture for the whole building. Eras tint the floor with
@@ -56,9 +55,10 @@ const FLOOR_ROUGHNESS = 0.42;
 // worse than the flat-tinted plaster: AO baked into the diffuse
 // fought the engine's lighting around painting frames, and uniform-
 // repeat tiling stretched badly on long room walls. The `wallTexture`
-// field on the Palette type is still there for a second try. What a
-// wall can have is `wallPattern`: a procedural roughness map with no
-// colour and no occlusion in it (wall-damask.ts), on UVs in metres.
+// field on the Palette type is still there for a second try. A second
+// attempt, a damask drawn as a roughness map on the crimson Baroque
+// walls, was taken out on 12 October 2026: Rico did not like it. Walls
+// are one flat colour.
 const FLOOR_REPEAT: [number, number] = [1 / 3, 1 / 3];
 
 export type PaletteMaterials = {
@@ -87,9 +87,6 @@ export function getPaletteMaterials(palette: Palette): PaletteMaterials {
     // A deep period colour skips tone mapping, or Neutral strips its
     // weakest channel and crimson shows as signal red (wall-light.ts).
     toneMapped: !isDeepWall(palette.wallColor),
-    ...(palette.wallPattern === "damask"
-      ? { roughness: 1, roughnessMap: getDamaskRoughnessMap() }
-      : null),
   });
   const wallInside = wall.clone();
   wallInside.side = THREE.FrontSide;

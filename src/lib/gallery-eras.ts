@@ -22,10 +22,6 @@ export type Palette = {
    *  Floors are handled separately — every era shares one
    *  building-wide floor texture, hard-coded in palette-materials. */
   wallTexture?: string;
-  /** Woven wall covering, drawn as a procedural roughness map over the
-   *  flat `wallColor` (gallery-3d/wall-damask.ts). Absent = painted
-   *  plaster. */
-  wallPattern?: "damask";
 };
 
 export type AnchorSpec = {
@@ -134,11 +130,11 @@ export const ERAS: Era[] = [
     ],
     palette: {
       // Wallace Collection, Great Gallery: Hals, Velázquez, Rubens and
-      // Poussin on crimson silk damask, rehung in 2014.
+      // Poussin on crimson silk damask, rehung in 2014. The colour only:
+      // the wall carries no woven figure.
       wallColor: "#8e1b2b",
       floorColor: "#221711",
       ceilingColor: "#efe6d4",
-      wallPattern: "damask",
       accent: "#8a5a2b",
       // Tenebrist velvets: charcoal, wine, midnight, forest.
       roomAccents: ["#221711", "#2a1418", "#1a1822", "#1f261b", "#1a1612"],

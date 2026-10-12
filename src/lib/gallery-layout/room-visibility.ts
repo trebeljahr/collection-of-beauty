@@ -112,8 +112,8 @@ type Side = "north" | "south" | "east" | "west";
  * That holds for a neighbour that draws the same wall itself as much as
  * for one that leaves it out (`RoomLayout.suppressWalls`). Where both
  * draw, the two planes coincide and the copy three draws last shows. If
- * one copy went with its room, a damask wall would change its figure the
- * moment that room came into view.
+ * one copy went with its room, a wall with a pattern on it would change
+ * its figure the moment that room came into view.
  */
 export function wallSharers(
   room: RoomLayout,

@@ -9,10 +9,10 @@ import { buildSkirtingGeometry } from "./skirting-geometry";
 type Vec3 = [number, number, number];
 
 /** A wall plane whose UVs are metres along the wall and up from the
- *  floor, so a tiling wall texture (wall-damask.ts) is the same size on
- *  every wall and runs unbroken across the strips either side of a door.
- *  `u0`/`v0` are the plane's lower left corner in that frame. A wall
- *  with a flat colour ignores the UVs. */
+ *  floor, so a tiling wall texture would be the same size on every wall
+ *  and run unbroken across the strips either side of a door. `u0`/`v0`
+ *  are the plane's lower left corner in that frame. No wall carries a
+ *  texture today, and a flat colour ignores the UVs. */
 function MetrePlane({
   width,
   height,

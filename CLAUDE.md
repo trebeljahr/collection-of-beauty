@@ -560,12 +560,12 @@ required by the Dockerfile — don't remove it.
 - Wall and ceiling colours are per era, in the `Palette` objects of
   [`gallery-eras.ts`](src/lib/gallery-eras.ts). Each is modelled on a
   real room that hangs that period, and the comment above it names the
-  room and says how well the colour is sourced: crimson damask on the
-  Baroque floor after the Wallace Collection's Great Gallery, midnight
-  blue on the Renaissance floor after the Louvre's Salle des États. Two
-  have no written source (Rococo is read from photographs, Natural
-  History rests on one temporary show), so check the comment before
-  quoting a room as fact. Three functions in
+  room and says how well the colour is sourced: crimson on the Baroque
+  floor after the damask of the Wallace Collection's Great Gallery,
+  midnight blue on the Renaissance floor after the Louvre's Salle des
+  États. Two have no written source (Rococo is read from photographs,
+  Natural History rests on one temporary show), so check the comment
+  before quoting a room as fact. Three functions in
   [`wall-light.ts`](src/components/gallery-3d/wall-light.ts) make a deep
   colour work, and each returns a pale wall unchanged:
   - `wallAsLightSource`. The environment map is painted from the wall
@@ -582,13 +582,13 @@ required by the Dockerfile — don't remove it.
   The hex is about what shows inside a pool. Between pools the fill puts
   a wall near 0.43 of it in linear light, so judge a new colour in a
   screenshot, never from the swatch.
-- `Palette.wallPattern: "damask"` (the Baroque floor only) binds a
-  procedural roughness map (`wall-damask.ts`). It is roughness and
-  nothing else, because a damask is one colour and its figure is a
-  change of sheen. Photographed wall textures were tried earlier and
-  taken out: their baked occlusion fought the lighting round the frames.
-  Wall planes carry UVs in metres (`MetrePlane` in `wall.tsx`) so the
-  repeat is the same size on every wall.
+- **Walls are one flat colour. Two wall textures were tried and taken
+  out.** Photographed textures first: their baked occlusion fought the
+  lighting round the frames. Then a damask on the crimson Baroque walls,
+  drawn as a procedural roughness map (`Palette.wallPattern`,
+  `wall-damask.ts`): Rico did not like it and had it removed on
+  12 October 2026. Do not add a wall pattern without asking him. Wall
+  planes still carry UVs in metres (`MetrePlane` in `wall.tsx`).
 - The parquet reflects the room: one more render of the scene each
   frame, from a camera mirrored under the floor of the storey the
   visitor is on, blurred and fed to every floor material on that storey
@@ -661,7 +661,7 @@ required by the Dockerfile — don't remove it.
     laylights, dividers, benches, works) are one group. Its walls are
     one group a side, outside that group: a wall between two rooms is
     drawn while either is seen (`wallSharers`). Where both rooms draw
-    the wall, both copies stay, or a damask wall changes its figure
+    the wall, both copies stay, or a patterned wall changes its figure
     when the neighbour comes into view. Its works: in a room seen
     through a door, a work is drawn only if its bounds can show in the
     part of the screen the door covers. `Painting` measures the bounds
