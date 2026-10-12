@@ -49,10 +49,15 @@ function maxStepY(data: ArrayLike<number>, w: number, h: number, stride = 1, cha
 describe("tileable noise", () => {
   it("stays in 0..1 and wraps at both edges", () => {
     for (const noise of [tileNoise(64, 48, 5, 7, 1), tileFbm(64, 48, 3, 4, 3, 2)]) {
+      // Math.min and Math.max return NaN for a NaN sample, which fails both.
+      let min = Infinity;
+      let max = -Infinity;
       for (const v of noise) {
-        expect(v).toBeGreaterThanOrEqual(0);
-        expect(v).toBeLessThanOrEqual(1);
+        min = Math.min(min, v);
+        max = Math.max(max, v);
       }
+      expect(min).toBeGreaterThanOrEqual(0);
+      expect(max).toBeLessThanOrEqual(1);
       const x = maxStepX(noise, 64, 48);
       const y = maxStepY(noise, 64, 48);
       expect(x.seam).toBeLessThanOrEqual(x.inside);
@@ -124,16 +129,56 @@ describe("carve atlas", () => {
   const S = CARVE_ATLAS_W;
   const H = CARVE_ATLAS_H;
 
+  /** Where texel `i` of the atlas is, for a failure message. */
+  const where = (i: number) => {
+    const x = i % S;
+    const y = Math.floor(i / S);
+    const v = (y + 0.5) / H;
+    let band = "";
+    let gap = Infinity;
+    for (const [name, row] of Object.entries(CARVE_ROWS)) {
+      const d = Math.max(row.v0 - v, v - row.v1, 0);
+      if (d < gap) {
+        gap = d;
+        band = name;
+      }
+    }
+    return `texel (${x}, ${y}), ${gap === 0 ? "in" : "beside"} the ${band} row`;
+  };
+
   it("holds unit normals that face out of the surface", () => {
     expect(atlas.length).toBe(S * H * 4);
-    for (let i = 0; i < S * H; i += 7) {
+    // Every texel is read, and each limit is asserted once, on the texel
+    // nearest to it. An `expect` per texel would be 1.5 million calls. At
+    // every seventh texel it was 225,000, which ran past the 5 s timeout
+    // whenever the machine was busy.
+    let steepest = 0;
+    let shortest = 0;
+    let longest = 0;
+    let minZ = Infinity;
+    let minLength = Infinity;
+    let maxLength = 0;
+    for (let i = 0; i < S * H; i++) {
       const x = atlas[i * 4] / 127.5 - 1;
       const y = atlas[i * 4 + 1] / 127.5 - 1;
       const z = atlas[i * 4 + 2] / 127.5 - 1;
-      expect(z).toBeGreaterThan(0.3);
-      expect(Math.hypot(x, y, z)).toBeGreaterThan(0.97);
-      expect(Math.hypot(x, y, z)).toBeLessThan(1.03);
+      const length = Math.hypot(x, y, z);
+      if (z < minZ) {
+        minZ = z;
+        steepest = i;
+      }
+      if (length < minLength) {
+        minLength = length;
+        shortest = i;
+      }
+      if (length > maxLength) {
+        maxLength = length;
+        longest = i;
+      }
     }
+    expect(minZ, where(steepest)).toBeGreaterThan(0.3);
+    expect(minLength, where(shortest)).toBeGreaterThan(0.97);
+    expect(maxLength, where(longest)).toBeLessThan(1.03);
   });
 
   it("carves relief into every band's row", () => {
