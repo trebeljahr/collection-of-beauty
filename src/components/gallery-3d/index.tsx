@@ -14,6 +14,7 @@ import { arrivalPoint } from "@/lib/gallery-layout/fittings";
 import { layoutBlock } from "@/lib/gallery-layout/layout-block";
 import { layoutMuseum } from "@/lib/gallery-layout/layout-museum";
 import { eraOfRoom, floorTitle } from "@/lib/gallery-layout/room-era";
+import { shaftKey, wallSharers } from "@/lib/gallery-layout/room-visibility";
 import type { FloorLayout, MuseumLayout, Staircase } from "@/lib/gallery-layout/types";
 import {
   GALLERY_RELEASE_KEY,
@@ -35,6 +36,7 @@ import { LandscapePrompt } from "./landscape-prompt";
 import { LodController } from "./lod-controller";
 import { boostForMap, Minimap, type PlayerSample, roomRect } from "./minimap";
 import { Player, type PlayerHandle } from "./player";
+import { RoomCulling, registerShaftFittings } from "./room-culling";
 import { RoomEnvironment } from "./room-env-map";
 import { RoomGeometry } from "./room-geometry";
 import { Gallery3DSettings } from "./settings-modal";
@@ -703,8 +705,11 @@ export function Gallery3D({ artworks }: Props) {
           joystickMoveGetter={isTouch ? moveJoystick.getData : undefined}
           joystickLookGetter={isTouch ? lookJoystick.getData : undefined}
         />
-        {/* After Player on purpose: its frame callback mirrors the camera
-            Player has just moved. */}
+        {/* Both after Player on purpose: their frame callbacks read the
+            camera Player has just moved. Culling comes first: the mirror
+            pass lifts its flags while it renders and puts them back for
+            the frame's own render. */}
+        <RoomCulling />
         <FloorReflection
           floorY={currentFloor.y}
           touch={touchDevice}
@@ -1098,34 +1103,56 @@ function FloorScene({
   // the same stair on the upper floor — the geometry is the same
   // object either way.
   const stairs = floor.stairsOut;
+
+  // For room culling (room-culling.ts): which of a room's walls a
+  // neighbour relies on, and the stairwells that everything else this
+  // storey puts in a well is drawn with. A floor with several stair
+  // halls draws the fittings of all of them while any one is seen.
+  const sharedWalls = useMemo(
+    () => new Map(floor.rooms.map((room) => [room.id, wallSharers(room, floor.rooms)])),
+    [floor],
+  );
+  const shafts = useMemo(() => floor.rooms.flatMap((room) => shaftKey(room) ?? []), [floor]);
+  const wellRef = useRef<THREE.Group>(null);
+  useEffect(() => {
+    const well = wellRef.current;
+    if (!well) return;
+    return registerShaftFittings(shafts, well);
+  }, [shafts]);
+
   return (
     <group>
       {rooms.map((room) => (
         <RoomGeometry
           key={room.id}
           room={room}
+          sharedWalls={sharedWalls.get(room.id) ?? NO_SHARED_WALLS}
           onPaintingSettled={room.id === entryRoomId ? onEntryPaintingSettled : undefined}
         />
       ))}
       {hallways.map((hw) => (
         <HallwayRenderer key={hw.id} hallway={hw} floor={floor} />
       ))}
-      {stairs.map((s) => (
-        <StaircaseRenderer key={s.id} staircase={s} allStaircases={allStaircases} />
-      ))}
-      {/* Cutout-edge railing + entry gate posts + signage. Rendered
-          for the active floor and showOnly="stairwell" adjacent floors
-          so the player sees the full vertical stack of railings as
-          they travel up. Skipped in showOnly="stairs" mode (beyond
-          floor) per the user's "stairs but nothing else" intent. */}
-      {showOnly !== "stairs" && <StairwellAccents floor={floor} />}
-      {/* The stairwell's ceiling, glazing and wall washers, under the
-          same rule: a neighbouring floor seen through the well is lit
-          like the one the player stands on. */}
-      {showOnly !== "stairs" && <StairwellLight floor={floor} />}
+      <group ref={wellRef}>
+        {stairs.map((s) => (
+          <StaircaseRenderer key={s.id} staircase={s} allStaircases={allStaircases} />
+        ))}
+        {/* Cutout-edge railing + entry gate posts + signage. Rendered
+            for the active floor and showOnly="stairwell" adjacent floors
+            so the player sees the full vertical stack of railings as
+            they travel up. Skipped in showOnly="stairs" mode (beyond
+            floor) per the user's "stairs but nothing else" intent. */}
+        {showOnly !== "stairs" && <StairwellAccents floor={floor} />}
+        {/* The stairwell's ceiling, glazing and wall washers, under the
+            same rule: a neighbouring floor seen through the well is lit
+            like the one the player stands on. */}
+        {showOnly !== "stairs" && <StairwellLight floor={floor} />}
+      </group>
     </group>
   );
 }
+
+const NO_SHARED_WALLS = { north: [], south: [], east: [], west: [] };
 
 /**
  * Adjacent-floor texture preloader. Fires when the Player edge-reports

@@ -1,9 +1,9 @@
 import type * as THREE from "three";
 import { describe, expect, it } from "vitest";
-import { buildSkirtingGeometry, SKIRTING_HEIGHT } from "./skirting-geometry";
+import { buildSkirtingGeometry, SKIRTING_HEIGHT, SKIRTING_SINK } from "./skirting-geometry";
 
 describe("buildSkirtingGeometry", () => {
-  it("runs along each clear span, from the floor up, on both faces of the wall", () => {
+  it("runs along each clear span, from just under the floor up, on both faces of the wall", () => {
     const g = buildSkirtingGeometry(
       [
         { xMin: -5, xMax: -0.7 },
@@ -15,7 +15,9 @@ describe("buildSkirtingGeometry", () => {
     const box = g.boundingBox as THREE.Box3;
     expect(box.min.x).toBeCloseTo(-5, 6);
     expect(box.max.x).toBeCloseTo(5, 6);
-    expect(box.min.y).toBeCloseTo(-2.96, 6);
+    // Sunk past the stairwell's floor, 5 mm under the others.
+    expect(box.min.y).toBeCloseTo(-2.96 - SKIRTING_SINK, 6);
+    expect(SKIRTING_SINK).toBeGreaterThan(0.005);
     expect(box.max.y).toBeCloseTo(-2.96 + SKIRTING_HEIGHT, 6);
     // Straddles the wall plane, so the room behind gets a skirting too.
     expect(box.min.z).toBeCloseTo(-box.max.z, 6);

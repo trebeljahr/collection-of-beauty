@@ -14,6 +14,12 @@ import { mergeGeometries } from "three/examples/jsm/utils/BufferGeometryUtils.js
 /** Board: height and how far it stands off the wall on each side. */
 export const SKIRTING_HEIGHT = 0.15;
 export const SKIRTING_PROUD = 0.014;
+/** How far the board runs on below the floor. The stairwell's floor
+ *  lies 5 mm under the level its walls start at, which left a slit
+ *  under the board there: through it showed the floor slab of the room
+ *  behind the wall, or the dark outside once room culling hid that room
+ *  (room-culling.ts). */
+export const SKIRTING_SINK = 0.012;
 /** Moulded cap along the top: a thinner, slightly deeper bead. */
 export const SKIRTING_CAP_HEIGHT = 0.022;
 export const SKIRTING_CAP_PROUD = 0.02;
@@ -29,8 +35,8 @@ export function buildSkirtingGeometry(
     const w = s.xMax - s.xMin;
     if (w <= 0.01) continue;
     const cx = (s.xMin + s.xMax) / 2;
-    const board = new THREE.BoxGeometry(w, SKIRTING_HEIGHT, SKIRTING_PROUD * 2);
-    board.translate(cx, floorY + SKIRTING_HEIGHT / 2, 0);
+    const board = new THREE.BoxGeometry(w, SKIRTING_HEIGHT + SKIRTING_SINK, SKIRTING_PROUD * 2);
+    board.translate(cx, floorY + (SKIRTING_HEIGHT - SKIRTING_SINK) / 2, 0);
     const cap = new THREE.BoxGeometry(w, SKIRTING_CAP_HEIGHT, SKIRTING_CAP_PROUD * 2);
     cap.translate(cx, floorY + SKIRTING_HEIGHT - SKIRTING_CAP_HEIGHT / 2, 0);
     parts.push(board, cap);

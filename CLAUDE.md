@@ -508,7 +508,8 @@ required by the Dockerfile — don't remove it.
     itself; forget it and the part costs a draw call in both passes.
     The works of rooms more than 5 m from the visitor are hidden for
     the pass as well (`registerMirrorRoom`): three culls by frustum
-    only and would draw them behind the walls.
+    only and would draw them behind the walls. Room culling (below)
+    does not apply to the pass.
   - **The mirror target is flagged `isXRRenderTarget`**, in the
     canvas's colour space, so three gives it the canvas's output
     transform and both passes run the same shader programs. An ordinary
@@ -529,6 +530,84 @@ required by the Dockerfile — don't remove it.
     on the HUD's `mirror` line, and
     `window.__galleryFloorReflection(true | false | null)` pins it on
     or off for an A/B at one pose.
+- Rooms and works the visitor cannot see are not drawn. three culls by
+  the view frustum only, so a storey used to draw every room and every
+  mounted work in the direction of view, walls or not. Once a frame the
+  ones that cannot be on screen get `visible = false`. The test is a
+  portal walk over the door graph, with no three.js in it:
+  [`room-visibility.ts`](src/lib/gallery-layout/room-visibility.ts).
+  [`room-culling.ts`](src/components/gallery-3d/room-culling.ts) holds
+  the scene objects and sets the flags (`<RoomCulling>`, mounted after
+  `<Player>` and before `<FloorReflection>`). Before changing either:
+  - **The walk.** The room the camera is in is seen whole. A room next
+    to it is seen through the door between them, in the part of the
+    screen that door covers. A room beyond is seen in the part both
+    doors cover. The walk ends where that part is empty, so it has no
+    depth limit: a limit would hide the last room of an enfilade. It
+    reads room boxes, `Door.connectsTo` and `isStairwell`, and nothing
+    of the plan. Within 0.75 m of a door the visitor counts as standing
+    in both rooms. A camera in no mounted room gets everything drawn.
+  - **A stairwell is one room through every storey** (`shaft`: the
+    stairwells that stand on one footprint). Reach one and each mounted
+    storey's is seen, and the walk goes on through all their doors. The
+    well is not tested as an opening. A storey's flights, railings and
+    stairwell lights are drawn with it (`registerShaftFittings`, from
+    `FloorScene`). On the block plan a floor has three stair halls and
+    so three shafts; their fittings are one group, drawn while any of
+    the three is seen.
+  - **A room is three kinds of object.** Its contents (floor, ceiling,
+    laylights, dividers, benches, works) are one group. Its walls are
+    one group a side, outside that group: a wall between two rooms is
+    drawn while either is seen (`wallSharers`). Where both rooms draw
+    the wall, both copies stay, or a damask wall changes its figure
+    when the neighbour comes into view. Its works: in a room seen
+    through a door, a work is drawn only if its bounds can show in the
+    part of the screen the door covers. `Painting` measures the bounds
+    from what it has mounted, after every render.
+  - **What it cannot see for you.** An opening between rooms that is
+    not a `Door` (a window, a balcony, an arcade) hides the room behind
+    it until the walk is given it as an opening. A mesh that belongs to
+    a room goes inside the room's contents group; outside it, it is
+    drawn always.
+  - **The floor's mirror pass is drawn without it**
+    (`suspendRoomCulling`). The mirror camera is under the floor and
+    sees every room from below, past the foot of the walls, and its
+    image is blurred, so the floor along a wall takes colour from the
+    room behind that wall. With that room hidden the strip went up to
+    13 levels of 255 darker, and changed when a door came into view.
+  - **How it was checked.** `room-visibility.test.ts` follows 2.44
+    million rays from 6,512 poses through rooms and doors, on a floor
+    of the tower and a floor of the block plan. Every room a ray enters
+    must be in the answer, in a rectangle that holds the ray. In the
+    browser the frame with culling on was compared with the frame with
+    it off at 79 poses, 70 on the tower and 9 on the block plan
+    (`window.__galleryRoomCulling(false)` draws everything). What still
+    differs is one pixel wide and was a leak in the old picture: a
+    picture light's floor pool showing through the bottom row of the
+    skirting, and specks where a hidden room's ceiling meets the shared
+    wall edge-on. The skirting now runs 12 mm below the floor
+    (`SKIRTING_SINK`): the stairwell's floor lies 5 mm low, and the
+    slit under its skirting showed the dark outside once the room
+    behind was hidden.
+  - Draw calls of the frame's own render on an M5 at 2560 × 1440,
+    Baroque floor, one walk, culling off → on: 357 → 221 at the Grand
+    Hall spawn, 666 → 446 along the hall, 859 → 403 across it, 1,151 →
+    334 from the south-west room looking back, 1,325 → 382 half-way up
+    the stair with two storeys mounted. Triangles fall with them
+    (197,926 → 51,828 in the south-west room). On the block plan: 848 →
+    302 from the great hall looking north through the stair hall, 970 →
+    399 across a corner room, 912 → 210 half-way up the middle stair.
+    53 poses picked at random on the Baroque floor went from 590 to 215
+    on average. The mirror pass stays where it was: 150 to 240 draw
+    calls on the tower, 220 to 450 on the block plan. The HUD's `rooms`
+    line prints rooms and works drawn of those mounted.
+  - Frame time with the cap lifted, across the Grand Hall (604 → 403
+    draw calls on a fresh load), the two states alternating in one
+    page: 10.3 → 8.5 ms with the floor reflection on, 8.6 → 6.6 ms with
+    it off, so 17% and 22% less. Other sessions held the machine at a
+    load average near 400 that day, which makes both figures about
+    three times a quiet M5's: keep the ratio, not the milliseconds.
+    Touch devices run without the mirror pass and get the larger share.
 - Two ways to aim the camera headless, where Chromium refuses pointer
   lock. `scripts/build-museum-screenshots.mjs` stubs the Pointer Lock
   API and walks with timed keys, which changes nothing in the app but

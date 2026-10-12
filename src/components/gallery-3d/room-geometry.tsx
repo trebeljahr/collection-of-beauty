@@ -4,7 +4,8 @@ import { useFrame } from "@react-three/fiber";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import * as THREE from "three";
 import { eraOfRoom } from "@/lib/gallery-layout/room-era";
-import type { Placement, RoomLayout } from "@/lib/gallery-layout/types";
+import { visibilityRoom } from "@/lib/gallery-layout/room-visibility";
+import type { Door, Placement, RoomLayout } from "@/lib/gallery-layout/types";
 import {
   CELL_SIZE,
   FLOOR_THICKNESS,
@@ -19,7 +20,11 @@ import { Laylight } from "./laylight";
 import { laylightPanels } from "./laylight-layout";
 import { Painting } from "./painting";
 import { getPaletteMaterials, getRoomFloorMaterial } from "./palette-materials";
+import { registerCulledRoom } from "./room-culling";
 import { WallWithDoors } from "./wall";
+
+type Side = Door["side"];
+const SIDES: readonly Side[] = ["north", "south", "east", "west"];
 
 /**
  * Render a single room: floor, ceiling with its laylights, 4 walls with
@@ -30,9 +35,13 @@ import { WallWithDoors } from "./wall";
  */
 export function RoomGeometry({
   room,
+  sharedWalls,
   onPaintingSettled,
 }: {
   room: RoomLayout;
+  /** For each side, the rooms across it, whose wall this room's is
+   *  too (`wallSharers`). */
+  sharedWalls: Record<Side, readonly string[]>;
   /** Fires once per painting after its 960 px texture loads. Optional —
    *  Gallery3D only passes it for the entry room so the start
    *  overlay can show first-room load progress / failures. */
@@ -147,64 +156,104 @@ export function RoomGeometry({
     return registerMirrorRoom({ works, xMin, xMax, zMin, zMax, y: floorY });
   }, [xMin, xMax, zMin, zMax, floorY]);
 
+  // Room culling draws the room only while it can be on screen, and each
+  // wall while this room or the one it is shared with can
+  // (room-culling.ts). The walls stay out of `contentsRef` for that.
+  const contentsRef = useRef<THREE.Group>(null);
+  const wallRefs = useRef<Partial<Record<Side, THREE.Group | null>>>({});
+  useEffect(() => {
+    const contents = contentsRef.current;
+    const works = worksRef.current;
+    if (!contents || !works) return;
+    const walls = SIDES.flatMap((side) => {
+      const object = wallRefs.current[side];
+      return object ? [{ object, sharedWith: sharedWalls[side] }] : [];
+    });
+    return registerCulledRoom({ room: visibilityRoom(room), contents, walls, works });
+  }, [room, sharedWalls]);
+
   return (
     <group>
-      {isStandardRoom && (
-        <>
-          <mesh
-            rotation={[-Math.PI / 2, 0, 0]}
-            position={[cxWorld, floorY, czWorld]}
-            geometry={floorGeom}
-          >
-            <primitive object={floorMat} attach="material" />
-          </mesh>
-          {/* Slab body — same XZ footprint as the walking surface
+      <group ref={contentsRef}>
+        {isStandardRoom && (
+          <>
+            <mesh
+              rotation={[-Math.PI / 2, 0, 0]}
+              position={[cxWorld, floorY, czWorld]}
+              geometry={floorGeom}
+            >
+              <primitive object={floorMat} attach="material" />
+            </mesh>
+            {/* Slab body — same XZ footprint as the walking surface
               above, dropped 1 mm so the textured plane wins the
               z-fight on top. Renders the underside + cross-section
               edges that make the floor read as a real slab from the
               open well or any wall opening. */}
-          <mesh position={[cxWorld, floorY - FLOOR_THICKNESS / 2 - 0.001, czWorld]}>
-            <boxGeometry args={[width, FLOOR_THICKNESS, depth]} />
-            <primitive object={floorMat} attach="material" />
-          </mesh>
-        </>
-      )}
-      {isStandardRoom && (
-        <>
-          <mesh rotation={[Math.PI / 2, 0, 0]} position={[cxWorld, ceilingY, czWorld]}>
-            <planeGeometry args={[width, depth]} />
-            <primitive object={mats.ceiling} attach="material" />
-          </mesh>
-          {laylights.map((p) => (
-            <Laylight
-              key={`${p.xMin}:${p.zMin}`}
-              cx={(p.xMin + p.xMax) / 2}
-              cz={(p.zMin + p.zMax) / 2}
-              ceilingY={ceilingY}
-              w={p.xMax - p.xMin}
-              d={p.zMax - p.zMin}
-            />
-          ))}
-        </>
-      )}
+            <mesh position={[cxWorld, floorY - FLOOR_THICKNESS / 2 - 0.001, czWorld]}>
+              <boxGeometry args={[width, FLOOR_THICKNESS, depth]} />
+              <primitive object={floorMat} attach="material" />
+            </mesh>
+          </>
+        )}
+        {isStandardRoom && (
+          <>
+            <mesh rotation={[Math.PI / 2, 0, 0]} position={[cxWorld, ceilingY, czWorld]}>
+              <planeGeometry args={[width, depth]} />
+              <primitive object={mats.ceiling} attach="material" />
+            </mesh>
+            {laylights.map((p) => (
+              <Laylight
+                key={`${p.xMin}:${p.zMin}`}
+                cx={(p.xMin + p.xMax) / 2}
+                cz={(p.zMin + p.zMax) / 2}
+                ceilingY={ceilingY}
+                w={p.xMax - p.xMin}
+                d={p.zMax - p.zMin}
+              />
+            ))}
+          </>
+        )}
 
-      {/* Stairwell main floor. On the ground floor the spiral only
+        {/* Stairwell main floor. On the ground floor the spiral only
           rises (no stair below), so the floor stays solid — a hole
           there would just expose blackness. On every other floor the
           stair from below ascends through this level, so we cut a
           clean circular hole around the spiral so the descending
           flights stay visible. */}
-      {room.isStairwell && (
-        <StairwellFloor
-          cxWorld={cxWorld}
-          czWorld={czWorld}
-          width={width}
-          depth={depth}
-          floorY={floorY}
-          floorMat={floorMat}
-          cutHole={hasStairwellCutout(room.floorIndex)}
-        />
-      )}
+        {room.isStairwell && (
+          <StairwellFloor
+            cxWorld={cxWorld}
+            czWorld={czWorld}
+            width={width}
+            depth={depth}
+            floorY={floorY}
+            floorMat={floorMat}
+            cutHole={hasStairwellCutout(room.floorIndex)}
+          />
+        )}
+
+        {/* Freestanding walls and benches. Both are part of the shell:
+          they are colliders whether or not they are drawn, so they
+          mount with the room, not with its paintings. */}
+        <RoomDividers room={room} material={mats.wall} />
+        <RoomBenches benches={room.benches} floorY={floorY} />
+
+        {/* Paintings — revealed lazily once the player nears this room,
+          then a few per frame, nearest the stair first. */}
+        <group ref={worksRef}>
+          {revealedPlacements.map((p) => {
+            const paintingKey = `${room.id}-${p.artwork.id}-${p.position.join(",")}`;
+            return (
+              <Painting
+                key={paintingKey}
+                placement={p}
+                room={room}
+                onSettled={settledHandler(paintingKey)}
+              />
+            );
+          })}
+        </group>
+      </group>
 
       {/* Four walls — each may be suppressed when a neighbouring room
           owns the shared wall (and draws it with a door cut). */}
@@ -216,6 +265,9 @@ export function RoomGeometry({
           height={INTER_FLOOR_HEIGHT}
           material={wallMat}
           doors={nDoors}
+          groupRef={(group) => {
+            wallRefs.current.north = group;
+          }}
         />
       )}
       {!suppress?.south && (
@@ -226,6 +278,9 @@ export function RoomGeometry({
           height={INTER_FLOOR_HEIGHT}
           material={wallMat}
           doors={sDoors}
+          groupRef={(group) => {
+            wallRefs.current.south = group;
+          }}
         />
       )}
       {!suppress?.west && (
@@ -236,6 +291,9 @@ export function RoomGeometry({
           height={INTER_FLOOR_HEIGHT}
           material={wallMat}
           doors={wDoors}
+          groupRef={(group) => {
+            wallRefs.current.west = group;
+          }}
         />
       )}
       {!suppress?.east && (
@@ -246,30 +304,11 @@ export function RoomGeometry({
           height={INTER_FLOOR_HEIGHT}
           material={wallMat}
           doors={eDoors}
+          groupRef={(group) => {
+            wallRefs.current.east = group;
+          }}
         />
       )}
-
-      {/* Freestanding walls and benches. Both are part of the shell:
-          they are colliders whether or not they are drawn, so they
-          mount with the room, not with its paintings. */}
-      <RoomDividers room={room} material={mats.wall} />
-      <RoomBenches benches={room.benches} floorY={floorY} />
-
-      {/* Paintings — revealed lazily once the player nears this room,
-          then a few per frame, nearest the stair first. */}
-      <group ref={worksRef}>
-        {revealedPlacements.map((p) => {
-          const paintingKey = `${room.id}-${p.artwork.id}-${p.position.join(",")}`;
-          return (
-            <Painting
-              key={paintingKey}
-              placement={p}
-              room={room}
-              onSettled={settledHandler(paintingKey)}
-            />
-          );
-        })}
-      </group>
     </group>
   );
 }

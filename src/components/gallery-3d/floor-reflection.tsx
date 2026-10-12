@@ -32,6 +32,7 @@ import {
   placeFloorMirrorCamera,
   setFloorReflectionCompiled,
 } from "./floor-mirror";
+import { resumeRoomCulling, suspendRoomCulling } from "./room-culling";
 
 /** Mirror image size. The blur below leaves no detail that needs more. */
 const MIRROR_PX = 512;
@@ -269,12 +270,17 @@ export function FloorReflection({
     const started = performance.now();
     const previous = gl.getRenderTarget();
     gl.setRenderTarget(rig.image);
+    // The mirror sees under the walls into every room, so room culling
+    // steps aside for it (room-culling.ts says why) and the pass keeps
+    // its own, coarser rule for the works.
+    suspendRoomCulling();
     hideDistantWorks(camera.position.x, camera.position.z, floorY, hidden.current);
     try {
       gl.render(scene, mirror);
     } finally {
       for (const works of hidden.current) works.visible = true;
       hidden.current.length = 0;
+      resumeRoomCulling();
     }
     debug.calls = gl.info.render.calls;
     debug.triangles = gl.info.render.triangles;

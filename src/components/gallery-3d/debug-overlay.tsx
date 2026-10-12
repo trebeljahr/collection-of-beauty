@@ -26,6 +26,7 @@ import type { ArtworkListing } from "@/lib/data";
 import { floorReflectionDebug, forceFloorReflection } from "./floor-reflection";
 import { frameMapStats } from "./frame-maps";
 import { _paintingRegistryDebug, raycastNearestPaintingHit } from "./painting-registry";
+import { forceRoomCulling, roomCullingDebug } from "./room-culling";
 import { _textureCacheDebug, estimateTextureBytes } from "./texture-cache";
 
 const DEBUG_AVAILABLE = process.env.NODE_ENV !== "production";
@@ -166,18 +167,24 @@ export function DebugProbe() {
   // `__galleryCamera.quaternion` before taking a screenshot, and pin the
   // floor reflection on or off with `__galleryFloorReflection(true)`
   // (`null` returns it to its own gates) to compare the two.
+  // `__galleryRoomCulling(false)` draws every mounted room, as three's
+  // frustum test alone would.
   const camera = useThree((s) => s.camera);
   useEffect(() => {
     const w = window as {
       __galleryCamera?: THREE.Camera;
       __galleryFloorReflection?: typeof forceFloorReflection;
+      __galleryRoomCulling?: typeof forceRoomCulling;
     };
     w.__galleryCamera = camera;
     w.__galleryFloorReflection = forceFloorReflection;
+    w.__galleryRoomCulling = forceRoomCulling;
     return () => {
       delete w.__galleryCamera;
       delete w.__galleryFloorReflection;
+      delete w.__galleryRoomCulling;
       forceFloorReflection(null);
+      forceRoomCulling(null);
     };
   }, [camera]);
 
@@ -293,6 +300,9 @@ function formatStats(): string {
     floorReflectionDebug.calls > 0
       ? `mirror ${fmtInt(floorReflectionDebug.calls)} calls · ${fmtInt(floorReflectionDebug.triangles)} tris · ${floorReflectionDebug.cpuMs.toFixed(2)} ms cpu`
       : `mirror ${floorReflectionDebug.state}`,
+    roomCullingDebug.on
+      ? `rooms ${roomCullingDebug.rooms} of ${roomCullingDebug.ofRooms} drawn · works ${roomCullingDebug.works} of ${roomCullingDebug.ofWorks}`
+      : `rooms all ${roomCullingDebug.ofRooms} drawn (culling off) · works ${roomCullingDebug.ofWorks}`,
     `mem  ${stats.geometries} geom · ${stats.textures} tex · ${stats.programs} programs`,
     `frame maps ${frameMapStats().count} tex · ${mib(frameMapStats().bytes)} (with mips)`,
     `canvas ${stats.backingW}×${stats.backingH} @${stats.dpr.toFixed(2)}x · maxTex ${stats.maxTextureSize}`,

@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useMemo } from "react";
+import { type Ref, useCallback, useEffect, useMemo } from "react";
 import type * as THREE from "three";
 import { UNREFLECTED_LAYER } from "./floor-mirror";
 import { darkWoodTrimMaterial } from "./palette-materials";
@@ -48,15 +48,17 @@ export function SolidWall({
   width,
   height,
   material,
+  groupRef,
 }: {
   position: Vec3;
   rotation: Vec3;
   width: number;
   height: number;
   material: THREE.Material;
+  groupRef?: Ref<THREE.Group>;
 }) {
   return (
-    <group position={position} rotation={rotation}>
+    <group ref={groupRef} position={position} rotation={rotation}>
       <mesh>
         <MetrePlane width={width} height={height} u0={0} v0={0} />
         <primitive object={material} attach="material" />
@@ -103,6 +105,7 @@ export function WallWithDoors({
   height,
   material,
   doors,
+  groupRef,
 }: {
   position: Vec3;
   rotation: Vec3;
@@ -110,6 +113,9 @@ export function WallWithDoors({
   height: number;
   material: THREE.Material;
   doors: DoorOpening[];
+  /** The group holding the whole wall: strips, lintels, skirting and
+   *  door trim. Room culling shows and hides a wall by it. */
+  groupRef?: Ref<THREE.Group>;
 }) {
   if (doors.length === 0) {
     return (
@@ -119,6 +125,7 @@ export function WallWithDoors({
         width={width}
         height={height}
         material={material}
+        groupRef={groupRef}
       />
     );
   }
@@ -139,7 +146,7 @@ export function WallWithDoors({
   if (prevEnd < halfW) strips.push({ xMin: prevEnd, xMax: halfW });
 
   return (
-    <group position={position} rotation={rotation}>
+    <group ref={groupRef} position={position} rotation={rotation}>
       {strips.map((s) => {
         const w = s.xMax - s.xMin;
         if (w <= 0.001) return null;

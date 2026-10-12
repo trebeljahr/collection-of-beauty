@@ -31,6 +31,7 @@ import { buildLightRig, wallContextFor } from "./painting-light-rig";
 import { createPaintingPreview } from "./painting-preview";
 import { type PaintingEntry, registerPainting, unregisterPainting } from "./painting-registry";
 import { FRAME_VARIANTS, plaqueBaseMaterial, plaqueMountMaterial } from "./palette-materials";
+import { setWorkBounds } from "./room-culling";
 import {
   estimateTextureBytes,
   getHiRes,
@@ -545,8 +546,19 @@ export const Painting = memo(function Painting({
     [dW, frameReach],
   );
 
+  // How far the work reaches, for room culling (room-culling.ts):
+  // measured from what is mounted, after every render, so the frame,
+  // the plaque, the cans and the pool on wall and floor are all inside
+  // whatever they are refitted to.
+  const groupRef = useRef<THREE.Group>(null);
+  useEffect(() => {
+    const group = groupRef.current;
+    if (!group) return;
+    setWorkBounds(group, _bounds.setFromObject(group).getBoundingSphere(new THREE.Sphere()));
+  });
+
   return (
-    <group position={position} rotation={rotation}>
+    <group ref={groupRef} position={position} rotation={rotation}>
       {/* Out of the floor's mirror: a moulding is at most 17 cm wide,
           about the mirror's blur radius, and holds most of a work's
           triangles. The canvas and its pool carry the reflection. */}
@@ -581,6 +593,8 @@ export const Painting = memo(function Painting({
     </group>
   );
 });
+
+const _bounds = new THREE.Box3();
 
 /** Refit a plane size to match a texture aspect while staying inside
  *  the slot's max bounds. Width-first: if width-fit overshoots height,
