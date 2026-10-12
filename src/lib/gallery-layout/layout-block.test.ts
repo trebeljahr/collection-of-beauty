@@ -8,6 +8,7 @@ import {
   BLOCK_PLAN,
   BLOCK_ROUTE,
   BLOCK_WALL_COVERAGE,
+  blockFloorRooms,
   layoutBlock,
 } from "./layout-block";
 import { layoutMuseum } from "./layout-museum";
@@ -46,16 +47,33 @@ function catalogue(): ArtworkListing[] {
 
 const layout = layoutBlock(catalogue());
 const keyOf = (room: RoomLayout) => room.id.replace(/^f\d-/, "");
+/** The room of a floor that holds this room of the diagram. */
+const roomOf = (floorIndex: number, cell: string) => {
+  const key = blockFloorRooms(BLOCK_PLAN[floorIndex]).keyOf(cell);
+  return layout.floors[floorIndex].rooms.find((r) => keyOf(r) === key)!;
+};
+/** The rooms each era of a floor hangs in. */
+const zonesOf = (floorIndex: number) => {
+  const plan = BLOCK_PLAN[floorIndex];
+  let cursor = 0;
+  return plan.zones.map((zone, z) => {
+    const cells = BLOCK_ROUTE.slice(cursor, cursor + zone.rooms);
+    cursor += zone.rooms;
+    return { zone, rooms: [...new Set(cells.map((cell) => roomOf(floorIndex, cell)))], z };
+  });
+};
 const wallOf = (room: RoomLayout) =>
   computeRoomRuns(room).reduce((sum, run) => sum + runLength(run), 0);
 
 describe("the block plan", () => {
-  it("is four floors of twelve rooms and three stair halls", () => {
+  it("is four floors of three stair halls and twelve rooms, less the ones joined", () => {
     expect(layout.floors).toHaveLength(4);
     for (const floor of layout.floors) {
+      const plan = BLOCK_PLAN[floor.index];
+      const joined = plan.merges.reduce((n, merge) => n + merge.length - 1, 0);
       expect(floor.gridSize).toEqual(BLOCK_GRID);
       expect(floor.rooms.filter((r) => r.isStairwell)).toHaveLength(3);
-      expect(floor.rooms.filter((r) => !r.isStairwell)).toHaveLength(12);
+      expect(floor.rooms.filter((r) => !r.isStairwell)).toHaveLength(12 - joined);
     }
     // Three wells, three flights each.
     expect(layout.allStaircases).toHaveLength(9);
@@ -137,66 +155,92 @@ describe("the block plan", () => {
   });
 
   it("lines the doors up along the long axis, the short axis and both rows", () => {
-    const floor = layout.floors[0];
-    const room = (key: string) => floor.rooms.find((r) => keyOf(r) === key)!;
-    const door = (from: string, to: string) =>
-      room(from).doors.find((d) => d.connectsTo.roomId === room(to).id)!;
-    // The long axis: five rooms through the three stair halls, as portals.
-    const spine = ["stair-w", "mw", "stair-c", "me", "stair-e"];
-    const spineDoors = spine.slice(1).map((key, i) => door(spine[i], key));
-    expect(new Set(spineDoors.map((d) => d.worldZ)).size).toBe(1);
-    for (const d of spineDoors) expect(d.width).toBe(PORTAL_WIDTH);
-    // The short axis through the middle stair hall.
-    expect(door("n3", "stair-c").worldX).toBe(door("stair-c", "s3").worldX);
-    expect(door("stair-c", "s3").width).toBe(PORTAL_WIDTH);
-    // Both rows of five.
-    for (const row of ["n", "s"]) {
-      const doors = [1, 2, 3, 4].map((i) => door(`${row}${i}`, `${row}${i + 1}`));
-      expect(new Set(doors.map((d) => d.worldZ)).size, row).toBe(1);
+    for (const floor of layout.floors) {
+      const door = (from: string, to: string) => {
+        const a = roomOf(floor.index, from);
+        const b = roomOf(floor.index, to);
+        return a.doors.find((d) => d.connectsTo.roomId === b.id);
+      };
+      // The long axis: five rooms through the three stair halls, as portals.
+      const spine = ["stair-w", "mw", "stair-c", "me", "stair-e"];
+      const spineDoors = spine.slice(1).map((key, i) => door(spine[i], key)!);
+      expect(new Set(spineDoors.map((d) => d.worldZ)).size).toBe(1);
+      for (const d of spineDoors) expect(d.width).toBe(PORTAL_WIDTH);
+      // The short axis through the middle stair hall.
+      expect(door("n3", "stair-c")!.worldX).toBe(door("stair-c", "s3")!.worldX);
+      expect(door("stair-c", "s3")!.width).toBe(PORTAL_WIDTH);
+      // Both rows of five: the doors that are left once rooms are joined.
+      for (const row of ["n", "s"]) {
+        const doors = [1, 2, 3, 4].flatMap((i) => door(`${row}${i}`, `${row}${i + 1}`) ?? []);
+        expect(new Set(doors.map((d) => d.worldZ)).size, row).toBe(1);
+      }
     }
   });
 
-  it("stands dividers in the large rooms and leaves the great hall open", () => {
+  it("joins neighbours of a row into long galleries, differently on each floor", () => {
+    const shapes = new Set<string>();
     for (const floor of layout.floors) {
-      const room = (key: string) => floor.rooms.find((r) => keyOf(r) === key)!;
-      for (const key of ["n1", "n3", "n5", "s1", "s5", "mw", "me"]) {
-        expect(room(key).dividers.length, key).toBeGreaterThan(0);
+      const plan = BLOCK_PLAN[floor.index];
+      expect(plan.merges.length).toBeGreaterThan(0);
+      shapes.add(JSON.stringify(plan.merges));
+      for (const merge of plan.merges) {
+        const gallery = roomOf(floor.index, merge[0]);
+        for (const cell of merge) expect(roomOf(floor.index, cell)).toBe(gallery);
+        const b = gallery.cellBounds;
+        // One row deep, 40 m or more long, in bays between wing walls.
+        expect(b.zMax - b.zMin + 1).toBe(7);
+        expect((b.xMax - b.xMin + 1) * CELL_SIZE).toBeGreaterThanOrEqual(40);
+        expect(gallery.dividers.length).toBeGreaterThan(0);
+        expect(gallery.roomNumber).not.toBeNull();
       }
-      expect(room("s3").dividers).toEqual([]);
-      expect(room("s3").benches.length).toBeGreaterThan(0);
-      expect(room("s3").isAnchor).toBe(true);
+    }
+    expect(shapes.size).toBe(layout.floors.length);
+    // The north gallery of the first floor: three rooms, 57.5 m.
+    const north = roomOf(0, "n3");
+    expect((north.cellBounds.xMax - north.cellBounds.xMin + 1) * CELL_SIZE).toBe(57.5);
+  });
+
+  it("stands dividers in the large rooms and leaves a composed great hall open", () => {
+    for (const floor of layout.floors) {
+      for (const key of ["n1", "n3", "n5", "s1", "s5", "mw", "me"]) {
+        expect(roomOf(floor.index, key).dividers.length, key).toBeGreaterThan(0);
+      }
+      const hall = roomOf(floor.index, "s3");
+      expect(hall.isAnchor).toBe(true);
+      expect(floor.rooms.filter((r) => r.isAnchor)).toHaveLength(1);
+      // Joined to its neighbour it is a long gallery, hung like one.
+      const joined = keyOf(hall) !== "s3";
+      expect(hall.dividers.length > 0).toBe(joined);
+      if (!joined) expect(hall.benches.length).toBeGreaterThan(0);
     }
   });
 
   it("hangs each era in rooms that touch, in route order", () => {
     for (const floor of layout.floors) {
-      const plan = BLOCK_PLAN[floor.index];
-      let cursor = 0;
-      for (const zone of plan.zones) {
-        const keys = BLOCK_ROUTE.slice(cursor, cursor + zone.rooms);
-        cursor += zone.rooms;
-        for (const key of keys) {
-          const room = floor.rooms.find((r) => keyOf(r) === key)!;
-          expect(eraOfRoom(room).id, `${floor.index} ${key}`).toBe(zone.era);
-          expect(room.placements.length, `${floor.index} ${key}`).toBeGreaterThan(0);
+      const zones = zonesOf(floor.index);
+      for (const { zone, rooms } of zones) {
+        for (const room of rooms) {
+          expect(eraOfRoom(room).id, room.id).toBe(zone.era);
+          expect(room.placements.length, room.id).toBeGreaterThan(0);
           for (const p of room.placements) {
             expect(p.artwork.id.startsWith(`${zone.era}-`), p.artwork.id).toBe(true);
           }
         }
       }
-      expect(cursor).toBe(12);
+      // No long gallery lies across two eras.
+      const all = zones.flatMap((z) => z.rooms);
+      expect(new Set(all).size).toBe(all.length);
+      expect(all).toHaveLength(floor.rooms.filter((r) => !r.isStairwell).length);
+      // Rooms are numbered along the walk, and the great hall ends it.
+      const numbered = [...all].sort((a, b) => a.roomNumber! - b.roomNumber!);
+      expect(numbered.map((r) => r.roomNumber)).toEqual(all.map((_, i) => i + 1));
+      expect(numbered[numbered.length - 1].isAnchor).toBe(true);
     }
   });
 
   it("covers no more of an era's wall than the target", () => {
     for (const floor of layout.floors) {
-      const plan = BLOCK_PLAN[floor.index];
-      let cursor = 0;
-      for (const zone of plan.zones) {
-        const rooms = BLOCK_ROUTE.slice(cursor, cursor + zone.rooms).map(
-          (key) => floor.rooms.find((r) => keyOf(r) === key)!,
-        );
-        cursor += zone.rooms;
+      for (const { zone, rooms } of zonesOf(floor.index)) {
         const wall = rooms.reduce((sum, r) => sum + wallOf(r), 0);
         const hung = rooms
           .flatMap((r) => r.placements)

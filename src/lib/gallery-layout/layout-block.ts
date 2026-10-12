@@ -18,6 +18,11 @@
 // so they take the tower's dividers and benches. A floor holds two or
 // three eras, each in rooms that touch, each room in its era's colour.
 //
+// No two floors are the same plan. Each joins two or three neighbours
+// of a row into one long gallery (`BLOCK_PLAN[].merges`), 40 or 57.5 m
+// of it, so a floor is not its own mirror image and the next floor up
+// is not a copy of this one.
+//
 // It exists to be walked and judged against the tower
 // (`layout-museum.ts`), which stays the default. An earlier plan of
 // 12.5 m galleries in rings (`?plan=wings`, 12 October 2026) was walked
@@ -145,13 +150,25 @@ const PORTALS: ReadonlyArray<readonly [RoomKey, RoomKey]> = [
 ];
 
 type Zone = { era: EraId; rooms: number; coverage?: number };
+type FloorPlan = {
+  title: string;
+  /** Eras in route order. `rooms` counts cells of the diagram above: a
+   *  long gallery counts as the rooms it was joined from, and goes to
+   *  the era its first room falls in. */
+  zones: readonly Zone[];
+  /** Neighbours of one row joined into one long gallery, west to east.
+   *  Keep each inside one era. */
+  merges: ReadonlyArray<readonly RoomKey[]>;
+};
 /** What hangs on each floor, in route order, and in how many rooms.
  *  The two collections that stand beside the timeline share the top
  *  floor; East Asian painting comes last there, so its screens and
  *  scrolls take the great hall. */
-export const BLOCK_PLAN: ReadonlyArray<{ title: string; zones: readonly Zone[] }> = [
+export const BLOCK_PLAN: readonly FloorPlan[] = [
   {
     title: "Gothic to Baroque",
+    // The north range's middle three rooms: one gallery of 57.5 m.
+    merges: [["n2", "n3", "n4"]],
     zones: [
       { era: "gothic", rooms: 2 },
       { era: "renaissance", rooms: 5 },
@@ -160,6 +177,11 @@ export const BLOCK_PLAN: ReadonlyArray<{ title: string; zones: readonly Zone[] }
   },
   {
     title: "Rococo to Realism",
+    // The great hall runs on into the room east of it.
+    merges: [
+      ["n4", "n5"],
+      ["s3", "s4"],
+    ],
     zones: [
       { era: "enlightenment", rooms: 4 },
       { era: "romantic", rooms: 4 },
@@ -168,6 +190,10 @@ export const BLOCK_PLAN: ReadonlyArray<{ title: string; zones: readonly Zone[] }
   },
   {
     title: "Impressionism to Modernism",
+    merges: [
+      ["s1", "s2"],
+      ["n3", "n4"],
+    ],
     zones: [
       { era: "fin-de-siecle", rooms: 5 },
       { era: "post-impressionism", rooms: 4 },
@@ -176,12 +202,60 @@ export const BLOCK_PLAN: ReadonlyArray<{ title: string; zones: readonly Zone[] }
   },
   {
     title: "Natural History and East Asia",
+    merges: [
+      ["n1", "n2"],
+      ["s4", "s5"],
+    ],
     zones: [
       { era: "natural-history", rooms: 6, coverage: BLOCK_PRINT_COVERAGE },
       { era: "ukiyo-e", rooms: 6, coverage: BLOCK_PRINT_COVERAGE },
     ],
   },
 ];
+
+/** The key of a long gallery: its rooms' keys, joined. */
+const mergedKey = (keys: readonly RoomKey[]) => keys.join("-");
+
+/**
+ * A floor's rooms once its long galleries are joined: the rooms that
+ * hang works, the route through them, and what each room of the diagram
+ * became. The great hall is whichever room holds `GREAT_HALL`.
+ */
+export function blockFloorRooms(plan: FloorPlan): {
+  rooms: Array<{ key: RoomKey; rect: CellRect; cells: readonly RoomKey[] }>;
+  route: RoomKey[];
+  keyOf: (cell: RoomKey) => RoomKey;
+  greatHall: RoomKey;
+} {
+  const into = new Map<RoomKey, RoomKey>();
+  for (const merge of plan.merges) for (const cell of merge) into.set(cell, mergedKey(merge));
+  const keyOf = (cell: RoomKey) => into.get(cell) ?? cell;
+
+  const rooms: Array<{ key: RoomKey; rect: CellRect; cells: RoomKey[] }> = [];
+  for (const { key: cell, rect: r } of BLOCK_ROOMS) {
+    const key = keyOf(cell);
+    const room = rooms.find((x) => x.key === key);
+    if (!room) {
+      rooms.push({ key, rect: { ...r }, cells: [cell] });
+      continue;
+    }
+    room.cells.push(cell);
+    room.rect = {
+      xMin: Math.min(room.rect.xMin, r.xMin),
+      xMax: Math.max(room.rect.xMax, r.xMax),
+      zMin: Math.min(room.rect.zMin, r.zMin),
+      zMax: Math.max(room.rect.zMax, r.zMax),
+    };
+  }
+  // A long gallery is walked once. It keeps the last place any of its
+  // rooms had on the route, so the great hall still ends the walk.
+  const route: RoomKey[] = [];
+  BLOCK_ROUTE.forEach((cell, i) => {
+    const key = keyOf(cell);
+    if (!BLOCK_ROUTE.slice(i + 1).some((later) => keyOf(later) === key)) route.push(key);
+  });
+  return { rooms, route, keyOf, greatHall: keyOf(GREAT_HALL) };
+}
 
 // --- Public entry ---------------------------------------------------------
 
@@ -222,15 +296,26 @@ function buildFloor(
   // is filed under, and the palette of the stair halls.
   const floorEra = getEra(plan.zones[0].era);
 
-  // Which era each room shows: zones laid along the route.
+  const { rooms: floorRooms, route, keyOf, greatHall } = blockFloorRooms(plan);
+  // A great hall joined to its neighbour is a long gallery with two
+  // doors in its front wall: nothing to compose a mirrored hang about.
+  const composedHall = greatHall === GREAT_HALL;
+
+  // Which era each room shows: zones laid along the route, a long
+  // gallery in the era of its first room.
   const eraOfKey = new Map<RoomKey, Era>();
+  const zoneKeys: RoomKey[][] = plan.zones.map(() => []);
   let cursor = 0;
-  for (const zone of plan.zones) {
-    for (const key of BLOCK_ROUTE.slice(cursor, cursor + zone.rooms)) {
+  plan.zones.forEach((zone, z) => {
+    for (const cell of BLOCK_ROUTE.slice(cursor, cursor + zone.rooms)) {
+      const key = keyOf(cell);
+      if (eraOfKey.has(key)) continue;
       eraOfKey.set(key, getEra(zone.era));
+      zoneKeys[z].push(key);
     }
     cursor += zone.rooms;
-  }
+  });
+  for (const keys of zoneKeys) keys.sort((a, b) => route.indexOf(a) - route.indexOf(b));
 
   const rooms: RoomLayout[] = [];
   const byKey = new Map<RoomKey, RoomLayout>();
@@ -241,15 +326,17 @@ function buildFloor(
   for (const { key, rect: r } of BLOCK_STAIRS) {
     add(key, makeRoom(index, key, r, floorEra, { title: "Stair hall", isStairwell: true }));
   }
-  for (const { key, rect: r } of BLOCK_ROOMS) {
+  for (const { key, rect: r } of floorRooms) {
     const era = eraOfKey.get(key) ?? floorEra;
-    add(key, makeRoom(index, key, r, era, { title: era.title, isAnchor: key === GREAT_HALL }));
+    add(key, makeRoom(index, key, r, era, { title: era.title, isAnchor: key === greatHall }));
   }
 
   // A door in every wall two rooms share.
   const keys = [...byKey.keys()];
   const isPortal = (a: RoomKey, b: RoomKey) =>
-    PORTALS.some(([x, y]) => (x === a && y === b) || (x === b && y === a));
+    PORTALS.some(
+      ([x, y]) => (keyOf(x) === a && keyOf(y) === b) || (keyOf(x) === b && keyOf(y) === a),
+    );
   for (let i = 0; i < keys.length; i++) {
     for (let j = i + 1; j < keys.length; j++) {
       const a = byKey.get(keys[i])!;
@@ -267,9 +354,9 @@ function buildFloor(
 
   // Dividers and benches need the doors. The great hall stays one open
   // room, composed about the door to the stair hall, as in the tower.
-  for (const { key } of BLOCK_ROOMS) {
+  for (const { key } of floorRooms) {
     const room = byKey.get(key)!;
-    const hall = key === GREAT_HALL;
+    const hall = composedHall && key === greatHall;
     room.dividers = hall ? [] : planDividers(room.cellBounds, room.doors);
     room.benches = planBenches(room.cellBounds, room.doors, room.dividers, hall ? "z" : undefined);
   }
@@ -302,22 +389,19 @@ function buildFloor(
     stairsOut: [],
   };
 
-  cursor = 0;
-  for (const zone of plan.zones) {
-    const zoneRooms = BLOCK_ROUTE.slice(cursor, cursor + zone.rooms).map((k) => byKey.get(k)!);
-    cursor += zone.rooms;
+  plan.zones.forEach((zone, z) => {
     hangZone(
       floor,
-      zoneRooms,
+      zoneKeys[z].map((k) => byKey.get(k)!),
       getEra(zone.era),
       byEra.get(zone.era) ?? [],
-      byKey.get("stair-c")!,
+      composedHall ? byKey.get("stair-c")! : null,
       zone.coverage ?? BLOCK_WALL_COVERAGE,
     );
-  }
+  });
 
   let roomNumber = 0;
-  for (const key of BLOCK_ROUTE) {
+  for (const key of route) {
     const room = byKey.get(key)!;
     const era = eraOfKey.get(key) ?? floorEra;
     room.artworks = room.placements.map((p) => p.artwork);
@@ -336,7 +420,9 @@ function hangZone(
   zoneRooms: RoomLayout[],
   era: Era,
   candidates: ArtworkListing[],
-  middleStair: RoomLayout,
+  /** The stair hall the great hall is composed about, or null when the
+   *  floor's great hall is a long gallery and hangs like any room. */
+  middleStair: RoomLayout | null,
   coverage: number,
 ) {
   const wallOf = (room: RoomLayout) =>
@@ -363,10 +449,9 @@ function hangZone(
 
   // The great hall is composed from the era's largest works, in pairs
   // either side of the door to the stair hall.
-  const hall = zoneRooms.find((r) => r.isAnchor);
-  const hallPlacements = hall
-    ? hangGrandHall(hall, pickHallCandidates(chosen), middleStair.id)
-    : null;
+  const hall = middleStair ? zoneRooms.find((r) => r.isAnchor) : undefined;
+  const hallPlacements =
+    hall && middleStair ? hangGrandHall(hall, pickHallCandidates(chosen), middleStair.id) : null;
   if (hall && hallPlacements) hall.placements = hallPlacements;
   const inHall = new Set(hallPlacements?.map((p) => p.artwork.id));
 
