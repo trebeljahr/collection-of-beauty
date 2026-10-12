@@ -78,7 +78,12 @@ export type Bench = {
 
 /** A hole in a stair hall's floor or ceiling, world metres. */
 export type WorldOpening =
-  | { kind: "rect"; xMin: number; xMax: number; zMin: number; zMax: number }
+  | {
+      kind: "rects";
+      rects: Array<{ xMin: number; xMax: number; zMin: number; zMax: number }>;
+      /** The rectangles' edge as one closed line of [x, z] points. */
+      outline: Array<[number, number]>;
+    }
   | { kind: "disc"; x: number; z: number; r: number };
 
 export type RoomLayout = {
@@ -110,6 +115,9 @@ export type RoomLayout = {
    *  unset in a spiral's stairwell, which is cut round by rule. */
   floorOpening?: WorldOpening | null;
   ceilingOpening?: WorldOpening | null;
+  /** What a grand stair hall is on this floor, for the map: the stair
+   *  leaves it, arrives on it, or only its void passes through. */
+  stairGlyph?: "up" | "down" | "void";
   cellBounds: CellRect;
   /** World rectangle of the interior floor (walls exclusive). */
   worldRect: {
@@ -223,6 +231,9 @@ export type FloorLayout = {
    *  tower, whose stairs are all spirals. */
   grandStairsIn?: GrandStair[];
   grandStairsOut?: GrandStair[];
+  /** Every grand stair whose hall this floor is a storey of: the floor
+   *  it leaves, the floor it arrives on and each balcony floor above. */
+  grandHalls?: GrandStair[];
 };
 
 export type MuseumLayout = {

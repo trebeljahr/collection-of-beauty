@@ -787,7 +787,7 @@ export function Player({
       // through its doors, so both storeys are wanted in full.
       const hall =
         !activeStair && grandStairs.length > 0
-          ? grandStairsAt(grandStairs, camera.position.x, camera.position.z)
+          ? grandStairsAt(grandStairs, camera.position.x, camera.position.z, feetY)
           : NO_GRAND_STAIRS;
       const grandSurface =
         hall.length > 0 ? grandSurfaceAt(hall, camera.position.x, camera.position.z, feetY) : null;
@@ -795,6 +795,8 @@ export function Player({
         grandSurface?.stair ??
         hall.find((s) => s.upperFloor === floor.index) ??
         hall.find((s) => s.lowerFloor === floor.index) ??
+        // A balcony floor of a hall open above its stair.
+        hall[0] ??
         null;
 
       // Notify host on edge-changes only — same-stair frames are silent
@@ -991,10 +993,11 @@ export function Player({
       // A grand stair hall is all "near": prefer the stair that leaves
       // the floor, as the spiral does.
       if (nearestId === null && grandStairs.length > 0) {
-        const near = grandStairsAt(grandStairs, cx, cz);
+        const near = grandStairsAt(grandStairs, cx, cz, feetY);
         const stair =
           near.find((g) => g.lowerFloor === floor.index) ??
-          near.find((g) => g.upperFloor === floor.index);
+          near.find((g) => g.upperFloor === floor.index) ??
+          near[0];
         nearestId = stair?.id ?? null;
       }
       if (nearestId !== lastNearbyStairId.current) {

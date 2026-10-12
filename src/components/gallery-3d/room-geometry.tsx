@@ -34,12 +34,26 @@ const SIDES: readonly Side[] = ["north", "south", "east", "west"];
  * materials so every room of the same era reuses the same 4 materials
  * instead of allocating fresh ones.
  */
+// What stands in a doorway for a room that is not mounted: the dim of
+// an unlit room, where the scene's background would read as a hole in
+// the building. Seen only from a stair hall, across its well, on a floor
+// two or more storeys from the visitor's.
+const doorBlindMaterial = new THREE.MeshBasicMaterial({
+  color: "#4a443b",
+  side: THREE.DoubleSide,
+});
+const DOOR_BLIND_SETBACK = 0.45;
+
 export function RoomGeometry({
   room,
   sharedWalls,
+  mountedRooms,
   onPaintingSettled,
 }: {
   room: RoomLayout;
+  /** The rooms of this floor that are mounted, when not all are. A door
+   *  to any other gets a blind. */
+  mountedRooms?: ReadonlySet<string>;
   /** For each side, the rooms across it, whose wall this room's is
    *  too (`wallSharers`). */
   sharedWalls: Record<Side, readonly string[]>;
@@ -238,6 +252,28 @@ export function RoomGeometry({
             }
           />
         )}
+
+        {mountedRooms &&
+          room.doors
+            .filter((door) => !mountedRooms.has(door.connectsTo.roomId))
+            .map((door) => {
+              const alongX = door.side === "north" || door.side === "south";
+              const out = door.side === "north" || door.side === "west" ? -1 : 1;
+              return (
+                <mesh
+                  key={`blind:${door.side}:${door.worldX}:${door.worldZ}`}
+                  material={doorBlindMaterial}
+                  position={[
+                    door.worldX + (alongX ? 0 : out * DOOR_BLIND_SETBACK),
+                    floorY + door.height / 2,
+                    door.worldZ + (alongX ? out * DOOR_BLIND_SETBACK : 0),
+                  ]}
+                  rotation={[0, alongX ? 0 : Math.PI / 2, 0]}
+                >
+                  <planeGeometry args={[door.width + 1.2, door.height + 0.6]} />
+                </mesh>
+              );
+            })}
 
         {/* Freestanding walls and benches. Both are part of the shell:
           they are colliders whether or not they are drawn, so they

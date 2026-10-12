@@ -26,16 +26,12 @@ export function openingHole(
     );
     return hole;
   }
-  const x0 = opening.xMin - centerX;
-  const x1 = opening.xMax - centerX;
-  const a = zSign * (opening.zMin - centerZ);
-  const b = zSign * (opening.zMax - centerZ);
-  const y0 = Math.min(a, b);
-  const y1 = Math.max(a, b);
-  hole.moveTo(x0, y0);
-  hole.lineTo(x0, y1);
-  hole.lineTo(x1, y1);
-  hole.lineTo(x1, y0);
+  opening.outline.forEach(([x, z], k) => {
+    const px = x - centerX;
+    const py = zSign * (z - centerZ);
+    if (k === 0) hole.moveTo(px, py);
+    else hole.lineTo(px, py);
+  });
   hole.closePath();
   return hole;
 }

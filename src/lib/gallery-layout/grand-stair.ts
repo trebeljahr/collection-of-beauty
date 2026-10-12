@@ -19,9 +19,12 @@
 //   hourglass  One straight flight that narrows to a landing at its
 //              waist and widens again. Kunstmuseum Bonn.
 //
-// All three stack: the flights of one storey stand over the flights of
-// the storey below, and a hall keeps a gallery round the opening on
-// every floor. A design is drawn in the hall's own frame, the visitor
+// A stair can stand alone in a hall that is open above it to the roof
+// (`topFloor`): the floors over the one it arrives on are balconies
+// round the same opening. That is how the block plan uses them, one
+// stair to a hall. They can also stack, the flights of one storey over
+// the flights of the storey below (`hasFlightAbove`), which was built
+// first and felt cramped: a soffit 5.8 m over every flight. A design is drawn in the hall's own frame, the visitor
 // coming in from +z (south) and the first flight rising toward -z, and
 // turned a quarter at a time to face the hall's main door (`turns`).
 //
@@ -99,8 +102,15 @@ export type StairColumn = { x: number; z: number; size: number; y0: number; y1: 
 export type StairLamp = { x: number; z: number; y: number };
 
 /** The hole a stair leaves in the floor it arrives on. */
+export type PlanRect = { xMin: number; xMax: number; zMin: number; zMax: number };
+
+/** The hole a stair's hall has in every floor over the one the stair
+ *  leaves: round, or one or more rectangles that touch. `outline` is the
+ *  rectangles' edge as one closed line of points, in order. The hole is
+ *  the stair's own footprint and, in a hall with nothing over the stair,
+ *  as much more of the hall as leaves a gallery inside its walls. */
 export type StairOpening =
-  | { kind: "rect"; xMin: number; xMax: number; zMin: number; zMax: number }
+  | { kind: "rects"; rects: PlanRect[]; outline: Array<[number, number]> }
   | { kind: "disc"; r: number };
 
 export type GrandStair = {
@@ -108,6 +118,11 @@ export type GrandStair = {
   design: GrandStairDesign;
   lowerFloor: number;
   upperFloor: number;
+  /** The highest floor the hall's void reaches: `upperFloor`, or a
+   *  floor above it when nothing stands over the stair and the hall is
+   *  open to there. Each floor between has the stair's opening in it and
+   *  a balcony round it. */
+  topFloor: number;
   lowerY: number;
   upperY: number;
   lowerLabel: string;
@@ -189,19 +204,33 @@ export function toStairWorld(
 export function openingInWorld(
   stair: GrandStair,
 ):
-  | { kind: "rect"; xMin: number; xMax: number; zMin: number; zMax: number }
+  | { kind: "rects"; rects: PlanRect[]; outline: Array<[number, number]> }
   | { kind: "disc"; x: number; z: number; r: number } {
   const o = stair.opening;
   if (o.kind === "disc") return { kind: "disc", x: stair.centerX, z: stair.centerZ, r: o.r };
-  const a = toStairWorld(stair, o.xMin, o.zMin);
-  const b = toStairWorld(stair, o.xMax, o.zMax);
   return {
-    kind: "rect",
-    xMin: Math.min(a.x, b.x),
-    xMax: Math.max(a.x, b.x),
-    zMin: Math.min(a.z, b.z),
-    zMax: Math.max(a.z, b.z),
+    kind: "rects",
+    rects: o.rects.map((r) => {
+      const a = toStairWorld(stair, r.xMin, r.zMin);
+      const b = toStairWorld(stair, r.xMax, r.zMax);
+      return {
+        xMin: Math.min(a.x, b.x),
+        xMax: Math.max(a.x, b.x),
+        zMin: Math.min(a.z, b.z),
+        zMax: Math.max(a.z, b.z),
+      };
+    }),
+    outline: o.outline.map(([x, z]) => {
+      const p = toStairWorld(stair, x, z);
+      return [p.x, p.z];
+    }),
   };
+}
+
+/** How far an opening reaches from the hall's centre. */
+export function openingReach(o: StairOpening): number {
+  if (o.kind === "disc") return o.r;
+  return Math.max(...o.rects.flatMap((r) => [-r.xMin, r.xMax, -r.zMin, r.zMax]));
 }
 
 // ── Surfaces ──────────────────────────────────────────────────────────
@@ -260,7 +289,7 @@ function patchUnderside(p: StairPatch, x: number, z: number, baseY: number): num
 export function inOpening(stair: GrandStair, x: number, z: number): boolean {
   const o = stair.opening;
   if (o.kind === "disc") return Math.hypot(x, z) < o.r;
-  return x > o.xMin && x < o.xMax && z > o.zMin && z < o.zMax;
+  return o.rects.some((r) => x >= r.xMin && x <= r.xMax && z >= r.zMin && z <= r.zMax);
 }
 
 /** True when the hall floor a stair leaves cannot be walked at this
@@ -273,15 +302,32 @@ function blocksFloor(stair: GrandStair, x: number, z: number): boolean {
   return false;
 }
 
+/** Height of one of the floors a stair's hall reaches. */
+export function grandLevelY(stair: GrandStair, floorIndex: number): number {
+  return stair.lowerY + (floorIndex - stair.lowerFloor) * FLOOR_SEPARATION;
+}
+
+/** The floors a stair's hall is a hall on: from the floor the stair
+ *  leaves to the top of its void. Under the first of them the same
+ *  square is an ordinary room. */
+export function grandHallFloors(stair: GrandStair): number[] {
+  const out: number[] = [];
+  for (let f = stair.lowerFloor; f <= stair.topFloor; f++) out.push(f);
+  return out;
+}
+
 /** The stairs of the hall a world point is in. Empty outside every
- *  grand stair hall. */
+ *  grand stair hall, and under one: with `feetY`, a visitor in the room
+ *  below a hall is not in it. */
 export function grandStairsAt(
   stairs: readonly GrandStair[],
   worldX: number,
   worldZ: number,
+  feetY?: number,
 ): GrandStair[] {
   const out: GrandStair[] = [];
   for (const s of stairs) {
+    if (feetY !== undefined && feetY < s.lowerY - 1) continue;
     if (Math.abs(worldX - s.centerX) <= s.half && Math.abs(worldZ - s.centerZ) <= s.half) {
       out.push(s);
     }
@@ -311,17 +357,19 @@ export function grandSurfacesAt(
   if (hall.length === 0) return out;
   const { x, z } = toStairLocal(hall[0], worldX, worldZ);
 
-  // A hall floor is there unless the stair that arrives on it left a
-  // hole, or the stair that leaves it stands in the way.
+  // A hall floor is there unless a stair's opening passes through it
+  // (the floor the stair arrives on and every balcony floor over that),
+  // or the stair that leaves it stands in the way.
   const levels = new Map<number, number>();
   for (const s of hall) {
-    levels.set(s.lowerFloor, s.lowerY);
-    levels.set(s.upperFloor, s.upperY);
+    for (const f of grandHallFloors(s)) levels.set(f, grandLevelY(s, f));
   }
   for (const [floorIndex, y] of levels) {
-    const arriving = hall.find((s) => s.upperFloor === floorIndex);
+    const open = hall.some(
+      (s) => floorIndex > s.lowerFloor && floorIndex <= s.topFloor && inOpening(s, x, z),
+    );
+    if (open) continue;
     const leaving = hall.find((s) => s.lowerFloor === floorIndex);
-    if (arriving && inOpening(arriving, x, z)) continue;
     if (leaving && blocksFloor(leaving, x, z)) continue;
     out.push({ y, stair: null, floorIndex });
   }
@@ -371,11 +419,11 @@ export function grandMoveAllowed(
   toZ: number,
   feetY: number,
 ): boolean {
-  const hall = grandStairsAt(stairs, toX, toZ);
+  const hall = grandStairsAt(stairs, toX, toZ, feetY);
   if (hall.length === 0) return true;
   const to = grandSurfaceAt(hall, toX, toZ, feetY);
   if (to && to.y >= feetY - GRAND_MAX_DROP) return true;
-  const from = grandSurfaceAt(grandStairsAt(stairs, fromX, fromZ), fromX, fromZ, feetY);
+  const from = grandSurfaceAt(grandStairsAt(stairs, fromX, fromZ, feetY), fromX, fromZ, feetY);
   return from === null || from.y < feetY - GRAND_MAX_DROP;
 }
 
@@ -388,13 +436,10 @@ export function grandFloorFor(hall: readonly GrandStair[], y: number, current: n
   let currentDist = Number.POSITIVE_INFINITY;
   const seen = new Set<number>();
   for (const s of hall) {
-    for (const [index, level] of [
-      [s.lowerFloor, s.lowerY],
-      [s.upperFloor, s.upperY],
-    ] as const) {
+    for (const index of grandHallFloors(s)) {
       if (seen.has(index)) continue;
       seen.add(index);
-      const d = Math.abs(level - y);
+      const d = Math.abs(grandLevelY(s, index) - y);
       if (index === current) currentDist = d;
       if (d < bestDist) {
         bestDist = d;
@@ -414,7 +459,33 @@ export function grandHallArrival(stair: GrandStair): { x: number; z: number } {
 // ── Designs ───────────────────────────────────────────────────────────
 
 type Built = Pick<GrandStair, "patches" | "rails" | "columns" | "lamps" | "opening">;
-type Site = { lowerY: number; upperY: number; hasFlightAbove: boolean; hasFlightBelow: boolean };
+type Site = {
+  /** Half the hall's side. */
+  half: number;
+  lowerY: number;
+  upperY: number;
+  hasFlightAbove: boolean;
+  hasFlightBelow: boolean;
+  /** Heights of the balcony floors over the floor the stair arrives
+   *  on: the opening is fenced all round on each. */
+  balconies: number[];
+};
+
+/** Floor a hall keeps inside its walls on the floors over its stair,
+ *  where the void is cut wider than the stair. */
+const HALL_GALLERY = 5;
+
+/** Balustrades along an opening's outline at one height, but for the
+ *  edges a flight arrives at or leaves from. */
+function fence(outline: ReadonlyArray<[number, number]>, y: number, open: number[] = []) {
+  const out: StairRail[] = [];
+  outline.forEach(([x0, z0], i) => {
+    const [x1, z1] = outline[(i + 1) % outline.length];
+    if (open.includes(i) || Math.hypot(x1 - x0, z1 - z0) < 0.05) return;
+    out.push(rail(x0, z0, y, x1, z1, y));
+  });
+  return out;
+}
 
 const rail = (
   x0: number,
@@ -501,21 +572,41 @@ function buildImperial(site: Site): Built {
       rail(side * half, landingSouth, mid, side * half, south, upperY),
     );
   }
-  // Round the opening on the floor above. The next stair's central
-  // flight leaves from the middle of the near edge.
-  rails.push(
-    rail(-half, north, upperY, half, north, upperY),
-    rail(-half, north, upperY, -half, south, upperY),
-    rail(half, north, upperY, half, south, upperY),
-  );
-  if (hasFlightAbove) {
-    rails.push(
-      rail(-sideInner, south, upperY, -centralHalf, south, upperY),
-      rail(centralHalf, south, upperY, sideInner, south, upperY),
-    );
-  } else {
-    rails.push(rail(-sideInner, south, upperY, sideInner, south, upperY));
-  }
+  // The opening in the floors above. Over the stair it is the stair's
+  // own width. With nothing over the stair it runs on south over the
+  // hall floor in front of the middle flight, between two strips of
+  // floor the side flights arrive on, and stops a gallery's depth from
+  // the wall: the hall is open to the roof from the door to the landing.
+  // Under another stair it ends at the stair, and the next middle flight
+  // leaves from the middle of that edge.
+  const court = site.half - HALL_GALLERY;
+  const courted = !hasFlightAbove && court > south + 2;
+  const stairRect: PlanRect = { xMin: -half, xMax: half, zMin: north, zMax: south };
+  const outline: Array<[number, number]> = courted
+    ? [
+        [-half, north],
+        [half, north],
+        [half, south],
+        [sideInner, south],
+        [sideInner, court],
+        [-sideInner, court],
+        [-sideInner, south],
+        [-half, south],
+      ]
+    : [
+        [-half, north],
+        [half, north],
+        [half, south],
+        [sideInner, south],
+        [centralHalf, south],
+        [-centralHalf, south],
+        [-sideInner, south],
+        [-half, south],
+      ];
+  // The heads of the two side flights, and the foot of the next stair.
+  const arrivals = courted ? [2, 6] : hasFlightAbove ? [2, 4, 6] : [2, 6];
+  rails.push(...fence(outline, upperY, arrivals));
+  for (const y of site.balconies) rails.push(...fence(outline, y));
 
   // Piers under the landing's far edge. Each stands on the landing of
   // the stair below, or on the hall floor.
@@ -532,7 +623,13 @@ function buildImperial(site: Site): Built {
     rails,
     columns,
     lamps: [-1, 1].map((side) => ({ x: side * centralHalf, z: south, y: lowerY })),
-    opening: { kind: "rect", xMin: -half, xMax: half, zMin: north, zMax: south },
+    opening: {
+      kind: "rects",
+      rects: courted
+        ? [stairRect, { xMin: -sideInner, xMax: sideInner, zMin: south, zMax: court }]
+        : [stairRect],
+      outline,
+    },
   };
 }
 
@@ -655,6 +752,8 @@ function buildArcs(site: Site): Built {
     arcRail(rOut, north + gate, TAU - 2 * gate, upperY, upperY);
   }
 
+  for (const y of site.balconies) arcRail(rOut, north + gate, TAU, y, y);
+
   return {
     patches,
     rails,
@@ -727,12 +826,26 @@ function buildHourglass(site: Site): Built {
       rail(side * wide, end, lowerY, side * waist, landingHalfDepth, mid, skirt),
       rail(side * waist, landingHalfDepth, mid, side * waist, -landingHalfDepth, mid),
       rail(side * waist, -landingHalfDepth, mid, side * wide, -end, upperY),
-      // The opening's long sides on the floor above.
-      rail(side * wide, -end, upperY, side * wide, end, upperY),
     );
   }
-  // Its near end, unless the next stair leaves from it.
-  if (!hasFlightAbove) rails.push(rail(-wide, end, upperY, wide, end, upperY));
+  // The opening in the floors above: the stair's length, and with
+  // nothing over the stair twice its width, so the flight stands free
+  // in the well with air on both sides. The head arrives in the middle
+  // of the far edge; under another stair, the next foot leaves from the
+  // near one.
+  const voidHalf = hasFlightAbove
+    ? wide
+    : Math.max(wide, Math.min(site.half - HALL_GALLERY, 2 * wide));
+  const outline: Array<[number, number]> = [
+    [-voidHalf, -end],
+    [-wide, -end],
+    [wide, -end],
+    [voidHalf, -end],
+    [voidHalf, end],
+    [-voidHalf, end],
+  ];
+  rails.push(...fence(outline, upperY, hasFlightAbove ? [1, 4] : [1]));
+  for (const y of site.balconies) rails.push(...fence(outline, y));
 
   const footY = hasFlightBelow ? mid - FLOOR_SEPARATION : lowerY;
   const columns: StairColumn[] = [-1, 1].map((side) => ({
@@ -748,7 +861,11 @@ function buildHourglass(site: Site): Built {
     rails,
     columns,
     lamps: [-1, 1].map((side) => ({ x: side * wide, z: end, y: lowerY })),
-    opening: { kind: "rect", xMin: -wide, xMax: wide, zMin: -end, zMax: end },
+    opening: {
+      kind: "rects",
+      rects: [{ xMin: -voidHalf, xMax: voidHalf, zMin: -end, zMax: end }],
+      outline,
+    },
   };
 }
 
@@ -761,7 +878,11 @@ const BUILDERS: Record<GrandStairDesign, (site: Site) => Built> = {
 export function buildGrandStair(
   spec: Omit<GrandStair, "patches" | "rails" | "columns" | "lamps" | "opening">,
 ): GrandStair {
-  return { ...spec, ...BUILDERS[spec.design](spec) };
+  const balconies: number[] = [];
+  for (let f = spec.upperFloor + 1; f <= spec.topFloor; f++) {
+    balconies.push(spec.lowerY + (f - spec.lowerFloor) * FLOOR_SEPARATION);
+  }
+  return { ...spec, ...BUILDERS[spec.design]({ ...spec, balconies }) };
 }
 
 /** A rail's ends in the world. */

@@ -13,6 +13,7 @@ import {
   grandSurfacesAt,
   IMPERIAL,
   openingInWorld,
+  openingReach,
   STAIR_HEADROOM,
   toStairLocal,
   toStairWorld,
@@ -32,6 +33,7 @@ function hall(design: GrandStairDesign, turns: GrandStair["turns"] = 0, floors =
       design,
       lowerFloor: i,
       upperFloor: i + 1,
+      topFloor: i + 1,
       lowerLabel: "",
       upperLabel: "",
       lowerY: i * FLOOR_SEPARATION,
@@ -54,7 +56,12 @@ const at = (stairs: GrandStair[], x: number, z: number) => toStairWorld(stairs[0
  * hall, walking from `start` in steps of a quarter metre, never dropping
  * more than half a metre.
  */
-function walkFrom(stairs: GrandStair[], start: { x: number; z: number }, startY: number) {
+function walkFrom(
+  stairs: GrandStair[],
+  start: { x: number; z: number },
+  startY: number,
+  half = HALF,
+) {
   const step = 0.25;
   const key = (ix: number, iz: number, y: number) => `${ix}:${iz}:${y.toFixed(2)}`;
   const seen = new Set<string>();
@@ -72,7 +79,7 @@ function walkFrom(stairs: GrandStair[], start: { x: number; z: number }, startY:
       const x = start.x + (ix + dx) * step;
       const z = start.z + (iz + dz) * step;
       // Inside the hall's walls.
-      if (Math.abs(x - CX) > HALF - 0.3 || Math.abs(z - CZ) > HALF - 0.3) continue;
+      if (Math.abs(x - CX) > half - 0.3 || Math.abs(z - CZ) > half - 0.3) continue;
       const surface = grandSurfaceAt(stairs, x, z, y);
       if (!surface || surface.y < y - 0.5) continue;
       const k = key(ix + dx, iz + dz, surface.y);
@@ -104,14 +111,21 @@ describe("the hall's frame", () => {
   it("turns the opening with it", () => {
     const [stair] = hall("imperial", 1);
     const o = openingInWorld(stair);
-    expect(o.kind).toBe("rect");
-    if (o.kind !== "rect") return;
+    expect(o.kind).toBe("rects");
+    if (o.kind !== "rects") return;
     // Unturned it reaches from z -8 to 1.8; a quarter turn puts that
     // along x, the far end to the east.
-    expect(o.xMin).toBeCloseTo(CX - IMPERIAL.south, 9);
-    expect(o.xMax).toBeCloseTo(CX - IMPERIAL.north, 9);
-    expect(o.zMin).toBeCloseTo(CZ - IMPERIAL.half, 9);
-    expect(o.zMax).toBeCloseTo(CZ + IMPERIAL.half, 9);
+    const [r] = o.rects;
+    expect(r.xMin).toBeCloseTo(CX - IMPERIAL.south, 9);
+    expect(r.xMax).toBeCloseTo(CX - IMPERIAL.north, 9);
+    expect(r.zMin).toBeCloseTo(CZ - IMPERIAL.half, 9);
+    expect(r.zMax).toBeCloseTo(CZ + IMPERIAL.half, 9);
+    // Its outline turns with it, and stays on the rectangle's edge.
+    for (const [x, z] of o.outline) {
+      const onX = Math.abs(x - r.xMin) < 1e-9 || Math.abs(x - r.xMax) < 1e-9;
+      const onZ = Math.abs(z - r.zMin) < 1e-9 || Math.abs(z - r.zMax) < 1e-9;
+      expect(onX || onZ).toBe(true);
+    }
   });
 });
 
@@ -230,9 +244,7 @@ describe.each(DESIGNS)("the %s stair", (design) => {
 
   it("leaves a gallery at least 3 m wide inside every wall of the floor above", () => {
     const [stair] = stairs;
-    const o = stair.opening;
-    const reach = o.kind === "disc" ? o.r : Math.max(-o.xMin, o.xMax, -o.zMin, o.zMax);
-    expect(HALF - reach).toBeGreaterThanOrEqual(3);
+    expect(HALF - openingReach(stair.opening)).toBeGreaterThanOrEqual(3);
   });
 });
 
@@ -328,5 +340,82 @@ describe("which floor a visitor in a hall is on", () => {
     expect(grandStairsAt(stairs, CX + HALF + 0.5, CZ)).toHaveLength(0);
     // Outside every hall the ordinary floor rules decide.
     expect(grandMoveAllowed(stairs, 0, 0, 1, 1, 0)).toBe(true);
+  });
+});
+
+describe.each(DESIGNS)("the %s stair alone in a hall open to the roof", (design) => {
+  // One stair from the second floor to the third, in a hall whose void
+  // goes on up through the fourth.
+  const stair = buildGrandStair({
+    id: `${design}-atrium`,
+    design,
+    lowerFloor: 1,
+    upperFloor: 2,
+    topFloor: 3,
+    lowerLabel: "",
+    upperLabel: "",
+    lowerY: FLOOR_SEPARATION,
+    upperY: 2 * FLOOR_SEPARATION,
+    centerX: CX,
+    centerZ: CZ,
+    half: 13.75,
+    turns: 0,
+    hasFlightBelow: false,
+    hasFlightAbove: false,
+  });
+  const door = grandHallArrival(stair);
+
+  it("has a balcony round the same opening on the floor above the stair's head", () => {
+    const top = 3 * FLOOR_SEPARATION;
+    expect(grandSurfaceAt([stair], door.x, door.z, top)?.floorIndex).toBe(3);
+    const voidPoint = { imperial: [3.6, -2], arcs: [0, 0], hourglass: [3.6, 0] }[design];
+    const p = toStairWorld(stair, voidPoint[0], voidPoint[1]);
+    expect(grandMoveAllowed([stair], door.x, door.z, p.x, p.z, top)).toBe(false);
+    // The balcony is fenced all the way round.
+    const fenced = stair.rails.filter((r) => r.y0 === top && r.y1 === top);
+    const length = fenced.reduce((sum, r) => sum + Math.hypot(r.x1 - r.x0, r.z1 - r.z0), 0);
+    const o = stair.opening;
+    const round =
+      o.kind === "disc"
+        ? 2 * Math.PI * o.r
+        : o.outline.reduce((sum, [x, z], i) => {
+            const [nx, nz] = o.outline[(i + 1) % o.outline.length];
+            return sum + Math.hypot(nx - x, nz - z);
+          }, 0);
+    expect(length / round).toBeGreaterThan(0.98);
+    expect(grandFloorFor([stair], top, 2)).toBe(3);
+  });
+
+  it("is not a hall for a visitor in the room under it", () => {
+    expect(grandStairsAt([stair], CX, CZ, 0)).toHaveLength(0);
+    expect(grandStairsAt([stair], CX, CZ, FLOOR_SEPARATION)).toHaveLength(1);
+    // Down there the ordinary floor rules decide every move.
+    expect(grandMoveAllowed([stair], CX, CZ, CX + 1, CZ, 0)).toBe(true);
+  });
+
+  it("leaves 5 m or more of floor inside every wall", () => {
+    expect(stair.half - openingReach(stair.opening)).toBeGreaterThanOrEqual(5);
+  });
+
+  it("is open over more than its stair, and still lands its flights on floor", () => {
+    const o = stair.opening;
+    if (o.kind === "disc") return;
+    // The hall floor in front of the first flight is under the void.
+    const before = { imperial: [0, 5], hourglass: [7, 0] }[design as "imperial" | "hourglass"];
+    const p = toStairWorld(stair, before[0], before[1]);
+    const upper = 2 * FLOOR_SEPARATION;
+    expect(grandSurfaceAt([stair], p.x, p.z, FLOOR_SEPARATION)?.floorIndex).toBe(1);
+    expect(grandSurfacesAt([stair], p.x, p.z).some((s) => s.floorIndex === 2)).toBe(false);
+    // A walk from the door still reaches the floor above and comes back
+    // round to the door on it.
+    const reached = walkFrom([stair], door, FLOOR_SEPARATION, stair.half);
+    expect(
+      reached.some(
+        (q) =>
+          Math.abs(q.y - upper) < 1e-6 &&
+          Math.abs(q.x - door.x) < 0.3 &&
+          Math.abs(q.z - door.z) < 0.3,
+      ),
+    ).toBe(true);
   });
 });

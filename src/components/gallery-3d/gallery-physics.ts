@@ -250,7 +250,12 @@ function addGrandStairColliders(
     rotY?: number,
   ) => unknown,
 ) {
-  const stairs: GrandStair[] = [...(floor.grandStairsIn ?? []), ...(floor.grandStairsOut ?? [])];
+  // Every rail of a stair is in the world of each floor of its hall,
+  // at its own height: the balcony's on its floor, the flights' below.
+  const stairs: GrandStair[] = floor.grandHalls ?? [
+    ...(floor.grandStairsIn ?? []),
+    ...(floor.grandStairsOut ?? []),
+  ];
   for (const stair of stairs) {
     for (const local of stair.rails) {
       const r = railInWorld(stair, local);
@@ -330,15 +335,28 @@ function addFloorColliders(
         r: SPIRAL_FLOOR_CUTOUT_RADIUS,
       }))
     : [];
-  // A grand stair's opening, in the floor it arrives on.
-  for (const stair of floor.grandStairsIn ?? []) {
+  // A grand stair's opening, in the floor it arrives on and in every
+  // balcony floor of its hall above that.
+  const openStairs =
+    floor.grandHalls?.filter((stair) => floor.index > stair.lowerFloor) ??
+    floor.grandStairsIn ??
+    [];
+  for (const stair of openStairs) {
     const o = openingInWorld(stair);
     const m = OPENING_COLLIDER_MARGIN;
-    holes.push(
-      o.kind === "disc"
-        ? { ...o, r: o.r + m }
-        : { kind: "rect", xMin: o.xMin - m, xMax: o.xMax + m, zMin: o.zMin - m, zMax: o.zMax + m },
-    );
+    if (o.kind === "disc") {
+      holes.push({ ...o, r: o.r + m });
+      continue;
+    }
+    for (const r of o.rects) {
+      holes.push({
+        kind: "rect",
+        xMin: r.xMin - m,
+        xMax: r.xMax + m,
+        zMin: r.zMin - m,
+        zMax: r.zMax + m,
+      });
+    }
   }
   const emitRun = (startX: number, endX: number, z: number) => {
     const x0 = startX * CELL_SIZE;

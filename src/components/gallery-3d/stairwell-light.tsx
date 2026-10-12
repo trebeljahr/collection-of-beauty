@@ -23,7 +23,7 @@ import {
   SPIRAL_FLOOR_CUTOUT_RADIUS,
 } from "@/lib/gallery-layout/world-coords";
 import { UNREFLECTED_LAYER } from "./floor-mirror";
-import { getGlassMaterial } from "./laylight";
+import { getGlassMaterial, Laylight } from "./laylight";
 import {
   buildFixtureGeometry,
   FOG_FAR,
@@ -397,7 +397,12 @@ function StairHallLight({ floor, room }: { floor: FloorLayout; room: RoomLayout 
   // no glazing: the next floor's gallery is what is overhead.
   const grand = room.ceilingOpening;
   const closed = grand !== undefined ? grand === null : floor.stairsOut.length === 0;
-  const glazed = closed || grand === undefined;
+  // The top of a grand stair hall is glazed over the void under it: a
+  // laylight the shape of a rectangular opening, the oculus over a
+  // round one.
+  const voidUnder = closed && grand !== undefined ? room.floorOpening : null;
+  const laylight = voidUnder?.kind === "rects" ? voidUnder.rects : null;
+  const glazed = (closed || grand === undefined) && !laylight;
   const { wallColor } = floor.era.palette;
 
   const built = useMemo(() => {
@@ -440,10 +445,44 @@ function StairHallLight({ floor, room }: { floor: FloorLayout; room: RoomLayout 
   );
 
   return (
+    <>
+      {laylight?.map((r) => (
+        <Laylight
+          key={`${r.xMin}:${r.zMin}`}
+          cx={(r.xMin + r.xMax) / 2}
+          cz={(r.zMin + r.zMax) / 2}
+          ceilingY={room.worldRect.y + CEILING_Y}
+          w={r.xMax - r.xMin}
+          d={r.zMax - r.zMin}
+        />
+      ))}
+      <StairHallFixtures built={built} glazed={glazed} palette={floor.era.palette} />
+    </>
+  );
+}
+
+function StairHallFixtures({
+  built,
+  glazed,
+  palette,
+}: {
+  built: {
+    position: [number, number, number];
+    washMaterial: THREE.ShaderMaterial;
+    wash: THREE.BufferGeometry;
+    cans: THREE.BufferGeometry;
+    ceiling: THREE.BufferGeometry;
+    glass: THREE.BufferGeometry;
+    frame: THREE.BufferGeometry;
+  };
+  glazed: boolean;
+  palette: Parameters<typeof getPaletteMaterials>[0];
+}) {
+  return (
     <group position={built.position}>
       <mesh
         geometry={built.ceiling}
-        material={getPaletteMaterials(floor.era.palette).ceiling}
+        material={getPaletteMaterials(palette).ceiling}
         position={[0, CEILING_Y, 0]}
       />
       {glazed && (

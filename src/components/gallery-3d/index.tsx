@@ -304,6 +304,10 @@ export function Gallery3D({ artworks }: Props) {
   // boundary — that double-mount was a second freeze just as the player
   // crested the stairs.
   const hasGrandStairs = (layout.grandStairs?.length ?? 0) > 0;
+  const activeGrandStair = useMemo(
+    () => layout.grandStairs?.find((s) => s.id === activeStairId) ?? null,
+    [layout.grandStairs, activeStairId],
+  );
   const floorModes = useMemo(() => {
     const modes = new Map<number, "full" | "stairwell" | "stairs">();
     modes.set(currentFloorIdx, "full");
@@ -336,7 +340,14 @@ export function Gallery3D({ artworks }: Props) {
     if (hasGrandStairs) {
       for (let i = 0; i <= lastIdx; i++) {
         if (modes.get(i) === "full") continue;
-        const inHall = stairOtherFloorIdx != null && Math.abs(i - currentFloorIdx) === 1;
+        // The floor next to this one, when the hall reaches it. A floor
+        // further off shows its doors too, small and far: there a blind
+        // stands in for the room behind each (`mountedRooms`).
+        const inHall =
+          activeGrandStair != null &&
+          Math.abs(i - currentFloorIdx) === 1 &&
+          i >= activeGrandStair.lowerFloor &&
+          i <= activeGrandStair.topFloor;
         modes.set(i, inHall ? "full" : "stairwell");
       }
     }
@@ -347,6 +358,7 @@ export function Gallery3D({ artworks }: Props) {
     stairBeyondFloorIdx,
     layout.floors.length,
     hasGrandStairs,
+    activeGrandStair,
   ]);
 
   // Spawn point driver. Default: entry on floor 0. Teleport keys
@@ -1118,12 +1130,15 @@ function FloorScene({
   // building solid (no voids through the enfilade doorways). The
   // expensive, numerous part — the paintings — is what loads lazily, per
   // room, image by image (see RoomGeometry's proximity-gated reveal).
-  const rooms =
-    showOnly === "stairs"
-      ? []
-      : showOnly === "stairwell"
-        ? floor.rooms.filter((r) => r.isStairwell)
-        : floor.rooms;
+  const rooms = useMemo(
+    () =>
+      showOnly === "stairs"
+        ? []
+        : showOnly === "stairwell"
+          ? floor.rooms.filter((r) => r.isStairwell)
+          : floor.rooms,
+    [floor, showOnly],
+  );
 
   const hallways = showOnly ? [] : floor.hallways;
   // Stair geometry only mounts once per Staircase (from the lower
@@ -1148,12 +1163,20 @@ function FloorScene({
     return registerShaftFittings(shafts, well);
   }, [shafts]);
 
+  // In "stairwell" mode only the stair halls are mounted. Their doors
+  // to the rooms that are not get a blind each.
+  const mountedRooms = useMemo(
+    () => (showOnly === "stairwell" ? new Set(rooms.map((r) => r.id)) : undefined),
+    [showOnly, rooms],
+  );
+
   return (
     <group>
       {rooms.map((room) => (
         <RoomGeometry
           key={room.id}
           room={room}
+          mountedRooms={mountedRooms}
           sharedWalls={sharedWalls.get(room.id) ?? NO_SHARED_WALLS}
           onPaintingSettled={room.id === entryRoomId ? onEntryPaintingSettled : undefined}
         />

@@ -281,9 +281,14 @@ describe("visibleRooms, the stairwell", () => {
   });
 
   it("keeps the stair halls of one floor apart and stacks each through the floors", () => {
+    // A hall of the block plan starts on the floor its stair leaves:
+    // one hall on the first floor, two on the second, three from there.
+    // Each keeps one key through every floor it is a hall on.
     const keys = blockPlan.floors.map((floor) => floor.rooms.flatMap((r) => shaftKey(r) ?? []));
-    expect(new Set(keys[0]).size).toBe(3);
-    for (const floorKeys of keys) expect(floorKeys).toEqual(keys[0]);
+    const top = keys[keys.length - 1];
+    expect(new Set(top).size).toBe(3);
+    expect(keys.map((k) => new Set(k).size)).toEqual([1, 2, 3, 3]);
+    for (const floorKeys of keys) for (const key of floorKeys) expect(top).toContain(key);
     expect(tower.flatMap((r) => shaftKey(r) ?? [])).toHaveLength(1);
   });
 

@@ -225,7 +225,10 @@ export function Minimap({
       const isActive = i === activeRoomIdx;
       const cx = rx + rw / 2;
       const cy = ry + rh / 2;
-      const glyph = room.isStairwell ? "↑" : room.roomNumber ? String(room.roomNumber) : "";
+      // A grand stair hall says what it is on this floor: the stair
+      // leaves it, arrives on it, or only its open well passes through.
+      const stairGlyph = room.stairGlyph === "down" ? "↓" : room.stairGlyph === "void" ? "○" : "↑";
+      const glyph = room.isStairwell ? stairGlyph : room.roomNumber ? String(room.roomNumber) : "";
       if (!glyph) continue;
       // Scale the numeral with the map so it stays readable on the
       // 220 px minimap and doesn't look lost on the 600 px big map.
