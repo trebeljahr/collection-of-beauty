@@ -109,21 +109,35 @@ const STRINGER_WIDTH = 0.18;
 const STRINGER_DEPTH = 0.5;
 /** How far the carpet stands off the stone. */
 const CARPET_LIFT = 0.012;
+/** How far inside its hall's wall lines a stair stops. A wall is a plane
+ *  with no thickness, and the room behind it draws its own on the same
+ *  line. A balustrade that ends at a wall has its post centred on that
+ *  line: drawn whole, half of the post stood in the gallery next door. */
+const WALL_CLEAR = 0.02;
 
 type P3 = [number, number, number];
 
-/** Collects flat-shaded boxes into one geometry. */
+/** Collects flat-shaded boxes into one geometry. With a `reach`, no box
+ *  goes further than that from the hall's centre in x or z: one that
+ *  would is cut off there, so a post on a wall is a half post against it. */
 class Solid {
   private readonly position: number[] = [];
   private readonly normal: number[] = [];
   private readonly color: number[] = [];
+  private readonly reach: number;
+
+  constructor(reach = Number.POSITIVE_INFINITY) {
+    this.reach = reach;
+  }
 
   /** A box of eight corners: the four of its underside in order round
    *  it, then the four over them. Each face is turned outward, so the
    *  order may run either way round. `light` is the share of its light
    *  each corner keeps (all of it, unset); `sidesOnly` leaves out the
    *  underside and the top, for a piece that stands on another. */
-  hexa(c: readonly P3[], light?: readonly number[], sidesOnly = false) {
+  hexa(corners: readonly P3[], light?: readonly number[], sidesOnly = false) {
+    const within = (v: number) => Math.max(-this.reach, Math.min(this.reach, v));
+    const c = corners.map(([x, y, z]): P3 => [within(x), y, within(z)]);
     const centre: P3 = [0, 0, 0];
     for (const p of c) {
       centre[0] += p[0] / 8;
@@ -474,10 +488,11 @@ function addNewels(stone: Solid, rails: readonly StairRail[]) {
   }
 }
 
-function buildStair(stair: GrandStair) {
-  const stone = new Solid();
-  const balusters = new Solid();
-  const carpet = new Solid();
+export function buildStair(stair: GrandStair) {
+  const reach = stair.half - WALL_CLEAR;
+  const stone = new Solid(reach);
+  const balusters = new Solid(reach);
+  const carpet = new Solid(reach);
   for (const p of stair.patches) addPatch(stone, carpet, p, stair.lowerY);
   for (const r of stair.rails) addRail(stone, balusters, r);
   addNewels(stone, stair.rails);
@@ -489,7 +504,7 @@ function buildStair(stair: GrandStair) {
     stone.box(c.x - h - 0.1, c.x + h + 0.1, c.y1 - 0.2, c.y1, c.z - h - 0.1, c.z + h + 0.1);
   }
   // Lamp standards: a bronze stem on the post, a globe on the stem.
-  const stems = new Solid();
+  const stems = new Solid(reach);
   const globes: THREE.BufferGeometry[] = [];
   for (const lamp of stair.lamps) {
     const foot = lamp.y + LAMP_STEM_FOOT;

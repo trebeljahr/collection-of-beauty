@@ -692,6 +692,14 @@ required by the Dockerfile — don't remove it.
       hall's floor and ceiling (`null` for none). Unset means a
       spiral's stairwell, cut round by rule. The top floor's ceiling is
       closed and glazed: a laylight over the void.
+    - **A stair is cut off at its hall's walls** (`WALL_CLEAR` in
+      `grand-staircase.tsx`). A wall is a plane with no thickness, and
+      the room behind draws its own on the same line. A loggia's gallery
+      fence ends at the side wall, and the post there is centred on the
+      wall line. Until 13 October 2026 the 12 such posts each stood
+      22 cm into the long gallery next door. Every box of a stair goes
+      through `Solid`, which stops it 2 cm inside the wall. A part of a
+      hall drawn another way has to stay inside the wall lines itself.
     - A hall's centre is a flight or the open well. Send a visitor to
       `blockArrivalPoint()`, never to the room's centre: the floor
       keys, the map and a restored visit all use it. It answers for the
