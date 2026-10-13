@@ -142,6 +142,24 @@ required by the Dockerfile — don't remove it.
   catalogue change, and delete an artist entry by hand to retire it.
   Voting over every slug an id ever carried was tried and dropped: its
   shared-word guard let `gentile-bellini` through to `giovanni-bellini`.
+- `metadata/title-overrides.json` gives a work its English title
+  (`englishTitle`), keyed by `<folder>/<filename>`. On 13 October 2026,
+  438 works got one. Their titles were in French, German, Spanish,
+  Dutch, Russian or Korean, were a file name ("Monet w 235", "Holbein
+  Danse Macabre 7"), or carried the artist's name. Two things an entry
+  can change besides the title:
+  - **The id**, for a file whose name has no Latin letters. The id then
+    comes from `englishTitle ?? title`, so a first English title mints
+    a new one. One work moved that day (`…-cb9001fb`, Kim Hong-do's
+    Chongseokjeong). Its keys in `artwork-dimensions.json`,
+    `curator-descriptions.json`, `description-audit-ledger.json` and
+    `description-review-proposals.json` were renamed by hand; the
+    redirect comes from `pnpm redirects:build`.
+  - **A redirect.** Title evidence must name one work. A second work by
+    the same artist with the same title within a decade removes the
+    redirect of the first. Rubens's Madrid Susanna is "Susanna and the
+    Elders (Madrid version)" for that reason. Read the diff of
+    `redirects.json` after adding titles.
 
 ## Asset URL conventions
 
