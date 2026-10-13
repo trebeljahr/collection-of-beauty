@@ -144,10 +144,15 @@ required by the Dockerfile — don't remove it.
   shared-word guard let `gentile-bellini` through to `giovanni-bellini`.
 - `metadata/title-overrides.json` gives a work its English title
   (`englishTitle`), keyed by `<folder>/<filename>`. On 13 October 2026,
-  438 works got one. Their titles were in French, German, Spanish,
+  453 works got one. Their titles were in French, German, Spanish,
   Dutch, Russian or Korean, were a file name ("Monet w 235", "Holbein
-  Danse Macabre 7"), or carried the artist's name. Two things an entry
-  can change besides the title:
+  Danse Macabre 7"), or carried the artist's name. Wikipedia's lists of
+  Monet's and Van Gogh's works name the Commons file beside each
+  catalogue number, which settles a title like "Monet w 42". Four
+  file-name titles are left: Cézanne's `FWN 1974` and three Hasui
+  prints of the NDL album (`ndl-dc-2586550-50`, `-58`, `-74`), which
+  neither Commons nor Wikidata names. Two things an entry can change
+  besides the title:
   - **The id**, for a file whose name has no Latin letters. The id then
     comes from `englishTitle ?? title`, so a first English title mints
     a new one. One work moved that day (`…-cb9001fb`, Kim Hong-do's
