@@ -83,4 +83,32 @@ describe("buildDividerGeometry", () => {
       }
     }
   });
+
+  it("has no screen geometry for walls that hang both faces", () => {
+    const g = buildDividerGeometry([WING, PANEL], ROOM, 0, 4.2);
+    expect((g as NonNullable<typeof g>).screen).toBeNull();
+  });
+
+  it("builds a door screen's back as its own face, turned to the door", () => {
+    for (const [divider, axis] of [
+      [{ ...PANEL, bare: "low" }, "z"],
+      [{ ...PANEL, bare: "high" }, "z"],
+      [{ axis: "z", line: 2, start: 1.5, end: 3.5, bare: "low" }, "x"],
+      [{ axis: "z", line: 2, start: 1.5, end: 3.5, bare: "high" }, "x"],
+    ] as Array<[Divider, "x" | "z"]>) {
+      const g = buildDividerGeometry([divider], ROOM, 0, 4.2);
+      const { wall, screen } = g as NonNullable<typeof g>;
+      // The hung face and two ends stay with the plaster.
+      expect(wall.getAttribute("position").count / 4).toBe(3);
+      const back = screen as THREE.BufferGeometry;
+      const pos = back.getAttribute("position");
+      const normal = back.getAttribute("normal");
+      expect(pos.count / 4).toBe(1);
+      const out = divider.bare === "high" ? 1 : -1;
+      const across = axis === "z" ? pos.getZ(0) : pos.getX(0);
+      const facing = axis === "z" ? normal.getZ(0) : normal.getX(0);
+      expect(across).toBeCloseTo(5 + out * 0.2, 4);
+      expect(facing).toBeCloseTo(out, 4);
+    }
+  });
 });

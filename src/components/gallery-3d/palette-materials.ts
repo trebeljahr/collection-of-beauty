@@ -16,7 +16,7 @@ import type { Palette } from "@/lib/gallery-eras";
 import { withFloorReflection } from "./floor-mirror";
 import { FRAME_HIGHLIGHT_MATERIALS } from "./frame-materials";
 import { buildMapBundle } from "./texture-pack";
-import { isDeepWall } from "./wall-light";
+import { isDeepWall, screenShade } from "./wall-light";
 
 // One floor texture for the whole building. Eras tint the floor with
 // `floorColor` (and rooms with `roomAccents`), but the underlying
@@ -68,6 +68,9 @@ export type PaletteMaterials = {
    *  block plan): two rooms then each put a plane on the shared line,
    *  facing opposite ways, and a visitor sees the one that faces them. */
   wallInside: THREE.MeshStandardMaterial;
+  /** The back of a door screen, the face it turns to its door: the
+   *  wall's colour a step darker (`screenShade`). */
+  screen: THREE.MeshStandardMaterial;
   floor: THREE.MeshStandardMaterial;
   ceiling: THREE.MeshStandardMaterial;
 };
@@ -90,10 +93,15 @@ export function getPaletteMaterials(palette: Palette): PaletteMaterials {
   });
   const wallInside = wall.clone();
   wallInside.side = THREE.FrontSide;
+  // It keeps the wall's tone mapping, deep or pale, so the two differ
+  // by the shade alone.
+  const screen = wallInside.clone();
+  screen.color.multiplyScalar(screenShade(palette.wallColor));
 
   entry = {
     wall,
     wallInside,
+    screen,
     floor: withFloorReflection(
       new THREE.MeshStandardMaterial({
         color: floorTint(palette.floorColor),

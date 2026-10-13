@@ -1,11 +1,15 @@
-// A room's freestanding divider walls as two meshes: plaster and
-// skirting. Every other wall in the building is a zero-thickness plane
-// between two rooms. A divider is seen end-on from inside one room, so
-// it is built at its real thickness: two faces, a finished end wherever
-// it stands free, and a skirting that runs round that end.
+// A room's freestanding divider walls as meshes: plaster, the backs of
+// its door screens, and skirting. Every other wall in the building is a
+// zero-thickness plane between two rooms. A divider is seen end-on from
+// inside one room, so it is built at its real thickness: two faces, a
+// finished end wherever it stands free, and a skirting that runs round
+// that end.
+//
+// A door screen's back (`Divider.bare`) is its own geometry, because it
+// is drawn darker than the room's walls (`screenShade` in wall-light.ts).
 //
 // All of a room's dividers are merged, so they cost two draw calls
-// however many there are.
+// however many there are, and a third in a room with a door screen.
 
 import * as THREE from "three";
 import { mergeGeometries } from "three/examples/jsm/utils/BufferGeometryUtils.js";
@@ -40,17 +44,23 @@ function face(w: number, h: number, yaw: number, x: number, y: number, z: number
 
 /**
  * Plaster and skirting for `dividers`, in world coordinates. `floorY`
- * is the room's floor and `height` its ceiling above it. Null when the
- * room has none.
+ * is the room's floor and `height` its ceiling above it. `screen` is
+ * the face each door screen turns to its door, null when the room has
+ * no screen. Null when the room has no dividers.
  */
 export function buildDividerGeometry(
   dividers: readonly Divider[],
   room: CellRect,
   floorY: number,
   height: number,
-): { wall: THREE.BufferGeometry; skirting: THREE.BufferGeometry } | null {
+): {
+  wall: THREE.BufferGeometry;
+  screen: THREE.BufferGeometry | null;
+  skirting: THREE.BufferGeometry;
+} | null {
   if (dividers.length === 0) return null;
   const walls: THREE.BufferGeometry[] = [];
+  const backs: THREE.BufferGeometry[] = [];
   const boards: THREE.BufferGeometry[] = [];
   const t = DIVIDER_THICKNESS;
   const y = floorY + height / 2;
@@ -66,14 +76,22 @@ export function buildDividerGeometry(
     // other one.
     const at = (along: number, across: number): [number, number, number] =>
       d.axis === "x" ? [along, y, across] : [across, y, along];
-    // Yaw that turns a +z plane to face down the divider's axis, and
-    // the quarter turn from there to face out of each side.
+    // Yaw that turns a +z plane to face down the divider's axis, for
+    // its ends.
     const alongYaw = d.axis === "x" ? Math.PI / 2 : 0;
 
-    walls.push(
-      face(len, height, alongYaw - Math.PI / 2, ...at(mid, line + (d.axis === "x" ? t : -t) / 2)),
-      face(len, height, alongYaw + Math.PI / 2, ...at(mid, line - (d.axis === "x" ? t : -t) / 2)),
+    // The face that looks toward higher coordinates across the wall,
+    // then the one that looks toward lower ones. A screen's back
+    // (`bare`) goes to its own geometry.
+    const high = face(len, height, d.axis === "x" ? 0 : Math.PI / 2, ...at(mid, line + t / 2));
+    const low = face(
+      len,
+      height,
+      d.axis === "x" ? Math.PI : -Math.PI / 2,
+      ...at(mid, line - t / 2),
     );
+    (d.bare === "high" ? backs : walls).push(high);
+    (d.bare === "low" ? backs : walls).push(low);
     if (!attached.start) walls.push(face(t, height, alongYaw + Math.PI, ...at(lo, line)));
     if (!attached.end) walls.push(face(t, height, alongYaw, ...at(hi, line)));
 
@@ -96,7 +114,8 @@ export function buildDividerGeometry(
   }
 
   const wall = mergeGeometries(walls, false);
+  const screen = backs.length > 0 ? mergeGeometries(backs, false) : null;
   const skirting = mergeGeometries(boards, false);
-  for (const g of [...walls, ...boards]) g.dispose();
-  return { wall, skirting };
+  for (const g of [...walls, ...backs, ...boards]) g.dispose();
+  return { wall, screen, skirting };
 }

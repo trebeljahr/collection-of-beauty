@@ -5,6 +5,8 @@ import {
   isDeepWall,
   POOL_MAX_BOOST,
   poolGainScale,
+  SCREEN_SHADE_STEP,
+  screenShade,
   WALL_LIGHT_FLOOR,
   wallAsLightSource,
 } from "./wall-light";
@@ -75,3 +77,46 @@ describe("poolGainScale", () => {
     expect(poolGainScale("#000000")).toBe(POOL_MAX_BOOST);
   });
 });
+
+describe("screenShade", () => {
+  it("darkens a door screen's back by one step of lightness on every era's wall", () => {
+    let widest = 0;
+    let at = "";
+    for (const era of ERAS) {
+      const hex = era.palette.wallColor;
+      const wall = Math.cbrt(luminance(hex));
+      const back = Math.cbrt(luminance(hex) * screenShade(hex));
+      const off = Math.abs(wall - back - SCREEN_SHADE_STEP);
+      if (off > widest || Number.isNaN(off)) {
+        widest = off;
+        at = era.id;
+      }
+    }
+    expect(widest, at).toBeLessThan(1e-9);
+  });
+
+  it("takes more of the light off a deep wall than off a pale one", () => {
+    const blue = screenShade("#24385c");
+    const cream = screenShade("#efeadd");
+    expect(blue).toBeGreaterThan(0.5);
+    expect(blue).toBeLessThan(0.6);
+    expect(cream).toBeGreaterThan(0.8);
+    expect(cream).toBeLessThan(0.85);
+  });
+
+  it("never turns a wall's colour negative", () => {
+    // Black has no lightness to take the step from.
+    expect(screenShade("#000000")).toBe(1);
+    const nearBlack = screenShade("#020202");
+    expect(nearBlack).toBeGreaterThan(0);
+    expect(nearBlack).toBeLessThan(1);
+  });
+});
+
+function luminance(hex: string): number {
+  const [r, g, b] = [1, 3, 5].map((i) => {
+    const v = Number.parseInt(hex.slice(i, i + 2), 16) / 255;
+    return v <= 0.04045 ? v / 12.92 : ((v + 0.055) / 1.055) ** 2.4;
+  });
+  return 0.2126 * r + 0.7152 * g + 0.0722 * b;
+}

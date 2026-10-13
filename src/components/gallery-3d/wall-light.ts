@@ -95,3 +95,39 @@ export function poolGainScale(hex: string): number {
   const brightest = Math.max(...hexToRgb(hex));
   return Math.min(POOL_MAX_BOOST, Math.max(1, POOL_REFERENCE_CHANNEL / Math.max(brightest, 1)));
 }
+
+/** How much darker than its room's walls the back of a door screen is
+ *  drawn, as a step of lightness (the cube root of luminance, 0–1).
+ *  Looked at on five walls at 0.05 and 0.08: at 0.05 the step is
+ *  faint on charcoal, at 0.08 the back reads as another paint. */
+export const SCREEN_SHADE_STEP = 0.06;
+
+/** Linear-light luminance of a colour, 0–1. */
+function luminanceOf(hex: string): number {
+  const [r, g, b] = hexToRgb(hex).map((c) => {
+    const v = c / 255;
+    return v <= 0.04045 ? v / 12.92 : ((v + 0.055) / 1.055) ** 2.4;
+  });
+  return 0.2126 * r + 0.7152 * g + 0.0722 * b;
+}
+
+/**
+ * The share of its room's light the back of a door screen shows: the
+ * factor its wall colour is multiplied by, in linear light.
+ *
+ * A screen stands 2.5 m inside a door with its back to it, in the
+ * colour of the wall the door is cut in. Nothing in the scene casts a
+ * shadow, so through the door the two were one colour and the opening
+ * read as walled up: only the strip of floor and the skirting said the
+ * wall behind was another wall. The back hangs nothing and has no
+ * picture light, so it is drawn as a face turned from the room's light.
+ *
+ * The step is one of lightness, not one factor for every wall: a
+ * factor takes a smaller step off a deep wall than off a pale one.
+ * The step comes to 0.56 on midnight blue and 0.82 on cream.
+ */
+export function screenShade(hex: string): number {
+  const lightness = Math.cbrt(luminanceOf(hex));
+  if (lightness <= SCREEN_SHADE_STEP) return 1;
+  return ((lightness - SCREEN_SHADE_STEP) / lightness) ** 3;
+}

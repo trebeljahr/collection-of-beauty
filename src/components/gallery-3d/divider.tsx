@@ -8,10 +8,19 @@ import { UNREFLECTED_LAYER } from "./floor-mirror";
 import { darkWoodTrimMaterial } from "./palette-materials";
 
 /** A room's freestanding divider walls: plaster in the room's wall
- *  material and a skirting round each. See divider-geometry.ts. The
- *  plaster shows in the floor's reflection, the skirting does not, as
- *  on the room's own walls. */
-export function RoomDividers({ room, material }: { room: RoomLayout; material: THREE.Material }) {
+ *  material, the back of a door screen in a darker one, and a skirting
+ *  round each. See divider-geometry.ts. The plaster shows in the
+ *  floor's reflection, the skirting does not, as on the room's own
+ *  walls. */
+export function RoomDividers({
+  room,
+  material,
+  screenMaterial,
+}: {
+  room: RoomLayout;
+  material: THREE.Material;
+  screenMaterial: THREE.Material;
+}) {
   const geometry = useMemo(
     () =>
       buildDividerGeometry(room.dividers, room.cellBounds, room.worldRect.y, room.ceilingHeight),
@@ -20,6 +29,7 @@ export function RoomDividers({ room, material }: { room: RoomLayout; material: T
   useEffect(
     () => () => {
       geometry?.wall.dispose();
+      geometry?.screen?.dispose();
       geometry?.skirting.dispose();
     },
     [geometry],
@@ -28,6 +38,7 @@ export function RoomDividers({ room, material }: { room: RoomLayout; material: T
   return (
     <>
       <mesh geometry={geometry.wall} material={material} />
+      {geometry.screen && <mesh geometry={geometry.screen} material={screenMaterial} />}
       <mesh
         geometry={geometry.skirting}
         material={darkWoodTrimMaterial}

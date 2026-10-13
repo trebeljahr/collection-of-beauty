@@ -307,7 +307,7 @@ export function RoomGeometry({
         {/* Freestanding walls and benches. Both are part of the shell:
           they are colliders whether or not they are drawn, so they
           mount with the room, not with its paintings. */}
-        <RoomDividers room={room} material={mats.wall} />
+        <RoomDividers room={room} material={mats.wall} screenMaterial={mats.screen} />
         <RoomBenches benches={room.benches} floorY={floorY} />
 
         {/* Paintings — revealed lazily once the player nears this room,

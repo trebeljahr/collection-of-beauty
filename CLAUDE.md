@@ -472,6 +472,17 @@ required by the Dockerfile — don't remove it.
   - **Door screens.** A wall 2.5 m inside a door and parallel to it,
     5 m long, or 2.5 m in front of a 1.4 m door in a wall under 15 m.
     `Divider.bare` names the face toward the door, which hangs nothing.
+    That face is drawn darker than the room's walls (`screenShade` in
+    `wall-light.ts`): nothing casts a shadow, so in the wall's own
+    colour it and the wall the door is cut in were one surface, and the
+    door read as walled up. Rico, 13 October 2026: the screens "look a
+    bit bad because they have exactly the same color". The step is 0.06
+    of lightness (the cube root of luminance), which is 0.56 of the
+    light on midnight blue and 0.82 on cream: one factor would take a
+    smaller step off a deep wall than off a pale one. The screen's ends
+    and its hung face keep the wall's colour. The back is its own
+    geometry and material (`PaletteMaterials.screen`): one draw call
+    more in a room with a screen.
     The face toward the room takes one picture, the largest of the
     room's works that fits it, hung on the middle of the screen
     (`hangFeatures`, `WallRun.feature`). A room of small sheets has no
