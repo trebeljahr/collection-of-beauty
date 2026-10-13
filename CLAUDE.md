@@ -627,8 +627,8 @@ required by the Dockerfile — don't remove it.
       storeys at once. A stair hall mounted alone has a blind in each
       door to a room that is not (`mountedRooms` in `room-geometry.tsx`),
       or its doors would open on the scene's background. Measured
-      headless on an M5 at 1600 × 900, room culling on: 240 to 570 draw
-      calls on the first two floors, 690 in the 62.5 m gallery, 840 to
+      headless on an M5 at 1600 × 900, room culling on: 150 to 580 draw
+      calls on the first two floors, 690 in the 62.5 m gallery, up to
       990 from a hall's balcony on the upper floors, where the portals
       of the spine show five bays at once.
   - **The room places the bench, and the bench places the work**
