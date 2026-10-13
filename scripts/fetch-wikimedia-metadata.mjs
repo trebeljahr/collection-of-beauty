@@ -43,9 +43,9 @@ import {
   isNonLatinName,
   mergePayloads,
   readBatchCache,
+  recordedTitleFor,
   requestTitle,
   resolveBatchPages,
-  titleKey,
   writeBatchCache,
 } from "./lib/commons-batch.mjs";
 import { emValue } from "./lib/commons-extmetadata.mjs";
@@ -261,28 +261,34 @@ async function processFolder(folderName, options) {
   //     in the sidecar: resolve-unresolved.mjs matches those by search and
   //     records the page it found as source.canonical_title. Looking up only
   //     the filename wrote all of them back out as needs_review, so fetch
-  //     those pages by the recorded title instead.
+  //     those pages by the recorded title instead. The same goes for a name
+  //     Commons answers with another file's page (see recordedTitleFor).
   const currentByNfc = new Map(
     Object.entries(currentEntries).map(([k, v]) => [k.normalize("NFC"), v]),
   );
   const aliasOf = new Map(); // filename -> recorded title, without "File:"
+  const misread = []; // the name found a page, and it is another file
   for (const filename of allFiles) {
-    if (hasImageInfo(rawByFilename.get(filename))) continue;
-    const old = currentByNfc.get(filename.normalize("NFC"));
-    const recorded = old?.resolved ? old.source?.canonical_title : null;
-    if (!recorded || titleKey(recorded) === titleKey(requestTitle(filename))) continue;
-    // A few titles were recorded percent-encoded ("%22" for a quote), which
-    // Commons rejects as invalid characters.
-    let title = recorded;
-    try {
-      title = decodeURIComponent(recorded);
-    } catch {}
-    aliasOf.set(filename, title.replace(/^file:/i, ""));
+    const page = rawByFilename.get(filename);
+    const title = recordedTitleFor(filename, page, currentByNfc.get(filename.normalize("NFC")));
+    if (!title) continue;
+    if (hasImageInfo(page)) misread.push(filename);
+    aliasOf.set(filename, title);
   }
-  const kept = []; // resolved before, and neither page exists on Commons now
+  const kept = []; // resolved before, and the recorded page is gone from Commons
+  if (misread.length) {
+    console.log(
+      `[${folderName}] ${misread.length} file(s) found another file's page under their own name; fetching the page recorded in the sidecar`,
+    );
+    for (const f of misread) {
+      console.log(
+        `[${folderName}]     ${f}: ${rawByFilename.get(f).title}, recorded ${aliasOf.get(f)}`,
+      );
+    }
+  }
   if (aliasOf.size) {
     console.log(
-      `[${folderName}] ${aliasOf.size} file(s) have no page under their own name; fetching the page recorded in the sidecar`,
+      `[${folderName}] ${aliasOf.size - misread.length} file(s) have no page under their own name; fetching the page recorded in the sidecar`,
     );
     const aliases = [...new Set(aliasOf.values())].sort();
     const byAlias = await fetchPages(aliases, {

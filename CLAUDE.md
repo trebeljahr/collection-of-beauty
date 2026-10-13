@@ -251,11 +251,14 @@ required by the Dockerfile — don't remove it.
   `The School of Athens by …`. The picture check stopped that download.
   The Commons API reads the name the same wrong way: it drops a leading
   underscore and folds two into one, so a lookup by that filename
-  answers with the page that has no quotation marks. A folder-wide
-  `fetch-wikimedia-metadata.mjs` would write the wrong link back; its
-  report lists the work under "resolved to a different page". 18 works
-  link a title with quotation marks. This is the only one whose title
-  without them is a page too.
+  answers with the page that has no quotation marks. 18 works link a
+  title with quotation marks, and this is the only one whose title
+  without them is a page too. `fetch-wikimedia-metadata.mjs` asks for
+  the page the sidecar records when the page a name found fails
+  `sameFile()` and the recorded one passes it (`recordedTitleFor` in
+  `scripts/lib/commons-batch.mjs`), and prints the file. It can only do
+  that while the sidecar holds the right page: a new file of this kind
+  gets the wrong page on its first fetch.
 - After it, encode by file: `pnpm assets:shrink
   --folder=collection-of-beauty --only=<part of the filename>`, then
   build-data, then `pnpm assets:tiles --only=<part of the filename>`

@@ -7,6 +7,7 @@ import {
   diffResolution,
   mergePayloads,
   readBatchCache,
+  recordedTitleFor,
   resolveBatchPages,
   titleKey,
   writeBatchCache,
@@ -89,6 +90,71 @@ describe("mergePayloads", () => {
     const out = resolveBatchPages(mergePayloads(a, b), ["A_1.jpg", "Б.jpg"]);
     expect(out.get("A_1.jpg")?.title).toBe("File:A 1.jpg");
     expect(out.get("Б.jpg")?.title).toBe("File:Б.jpg");
+  });
+});
+
+describe("recordedTitleFor", () => {
+  const recorded = (canonical_title: string) => ({ resolved: true, source: { canonical_title } });
+
+  it("asks for the recorded page when the name has none", () => {
+    expect(
+      recordedTitleFor(
+        "1280px-Arcimboldo_Winter_1563.jpg",
+        null,
+        recorded("File:Arcimboldo Winter 1563.jpg"),
+      ),
+    ).toBe("Arcimboldo Winter 1563.jpg");
+    // Recorded percent-encoded, which Commons rejects as it stands.
+    expect(
+      recordedTitleFor(
+        "Carl_Spitzweg_-__The_Bookworm_.jpg",
+        { title: "File:Carl Spitzweg - The Bookworm.jpg", missing: true },
+        recorded("File:Carl Spitzweg - %22The Bookworm%22.jpg"),
+      ),
+    ).toBe('Carl Spitzweg - "The Bookworm".jpg');
+  });
+
+  it("asks for the recorded page when Commons reads the name as another file", () => {
+    // Real: saved from the page with the quotation marks. Commons drops the
+    // underscore at the start and folds the doubled one, and the title that
+    // leaves is a page too: a user's own photograph of 2024.
+    const filename = "_The_School_of_Athens__by_Raffaello_Sanzio_da_Urbino.jpg";
+    const found = page("File:The School of Athens by Raffaello Sanzio da Urbino.jpg");
+    expect(
+      recordedTitleFor(
+        filename,
+        found,
+        recorded('File:"The School of Athens" by Raffaello Sanzio da Urbino.jpg'),
+      ),
+    ).toBe('"The School of Athens" by Raffaello Sanzio da Urbino.jpg');
+    // A sidecar that records the page found has nothing better to offer.
+    expect(recordedTitleFor(filename, found, recorded(found.title))).toBeNull();
+  });
+
+  it("lets a lookup by name stand when it found the file", () => {
+    // The sidecar names another upload of the painting; the run reports
+    // that as "resolved to a different page".
+    expect(
+      recordedTitleFor(
+        "Carl_Spitzweg_036.jpg",
+        page("File:Carl Spitzweg 036.jpg"),
+        recorded("File:Carl Spitzweg - Sonntagsspaziergang.jpg"),
+      ),
+    ).toBeNull();
+    expect(
+      recordedTitleFor("David_Brutus.jpeg", page("File:David Brutus.jpeg"), undefined),
+    ).toBeNull();
+  });
+
+  it("has nothing to ask for without a resolved entry, or one under the same name", () => {
+    expect(recordedTitleFor("Nowhere.jpg", null, undefined)).toBeNull();
+    expect(
+      recordedTitleFor("Nowhere.jpg", null, {
+        resolved: false,
+        source: { canonical_title: "File:Somewhere.jpg" },
+      }),
+    ).toBeNull();
+    expect(recordedTitleFor("Gone_page.jpg", null, recorded("File:Gone page.jpg"))).toBeNull();
   });
 });
 

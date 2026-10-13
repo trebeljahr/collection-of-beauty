@@ -4,6 +4,7 @@
 // can exercise them against real payload shapes without the network.
 
 import fs from "node:fs";
+import { sameFile } from "./commons-refetch.mjs";
 
 // Bump when the on-disk envelope changes. Anything else reads as stale.
 export const BATCH_CACHE_VERSION = 2;
@@ -79,6 +80,40 @@ export function mergePayloads(a, b) {
 }
 
 export const hasImageInfo = (page) => Boolean(page && !page.missing && page.imageinfo?.[0]);
+
+// The title to ask Commons for in place of a file's own name, or null when
+// the lookup by name stands. `page` is what the name found, `entry` the
+// file's current sidecar entry.
+//
+// Two cases send the script to the page the sidecar records:
+//
+//   - the name has no page. resolve-unresolved.mjs matched such a file by
+//     search and recorded the page it found;
+//   - the name found a page that is another file. Commons drops an
+//     underscore at the start of a title and reads two as one. A browser
+//     saves a quotation mark as an underscore, so the file saved from
+//     `"The School of Athens" by Raffaello…` is
+//     `_The_School_of_Athens__by_Raffaello…` on disk, and Commons answers
+//     that name with `The School of Athens by Raffaello…`, a different
+//     photograph. sameFile() tells the two apart. The recorded page is
+//     asked for only when it is the file by that test and the page found
+//     is not; a sidecar that names another upload changes nothing here.
+export function recordedTitleFor(filename, page, entry) {
+  const recorded = entry?.resolved ? entry.source?.canonical_title : null;
+  if (!recorded) return null;
+  if (hasImageInfo(page)) {
+    if (sameFile(filename, page.title) || !sameFile(filename, recorded)) return null;
+  } else if (titleKey(recorded) === titleKey(requestTitle(filename))) {
+    return null;
+  }
+  // A few titles were recorded percent-encoded ("%22" for a quote), which
+  // Commons rejects as invalid characters.
+  let title = recorded;
+  try {
+    title = decodeURIComponent(recorded);
+  } catch {}
+  return title.replace(/^file:/i, "");
+}
 
 // A cache file is reused only when it was written for exactly this batch.
 // Batches are numbered by position in the sorted file listing, so adding,
