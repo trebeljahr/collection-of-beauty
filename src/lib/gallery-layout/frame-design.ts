@@ -28,20 +28,17 @@
 // No three.js here: the hang reads `frameReach`.
 
 import type { ArtworkListing } from "@/lib/data";
-import {
-  CANVAS_FACE_Z,
-  type CarveBand,
-  FRAME_SLOTS,
-  type ShadedPoint,
-  scaleProfile,
-} from "./frame-profiles";
+import { type CarveBand, FRAME_SLOTS, type ShadedPoint, scaleProfile } from "./frame-profiles";
 import {
   type BuiltStyle,
   buildStyle,
   type CornerBlocks,
   type FrameExtents,
   type FrameStyleId,
+  type HungCord,
+  hangCord,
   type Rail,
+  railPast,
   type StyleOptions,
   type Swell,
   scaleSwell,
@@ -1461,9 +1458,24 @@ export function frameReach(design: FrameDesign, widthM: number, heightM: number)
  *  a tabernacle's entablature or a scroll's head reaches further up,
  *  its plinth or its roller further down. */
 export function frameExtents(design: FrameDesign, widthM: number, heightM: number): FrameExtents {
-  const { extents } = buildStyle(design.style, design.options);
+  const { extents, cord } = buildStyle(design.style, design.options);
   const scale = frameScale(design, widthM, heightM);
-  return { side: extents.side * scale, top: extents.top * scale, bottom: extents.bottom * scale };
+  // A scroll's cord rises to its nail above the stave.
+  const hung = cord && hangCord(cord, widthM, scale);
+  return {
+    side: extents.side * scale,
+    top: Math.max(extents.top * scale, hung ? hung.from + hung.rise + hung.width : 0),
+    bottom: extents.bottom * scale,
+  };
+}
+
+/** The reach of the frame's solid on each side: what stands between
+ *  the picture light and the wall. A scroll's cord and the knobs of its
+ *  roller are not in it. */
+export function frameBody(design: FrameDesign, widthM: number, heightM: number): FrameExtents {
+  const { body } = buildStyle(design.style, design.options);
+  const scale = frameScale(design, widthM, heightM);
+  return { side: body.side * scale, top: body.top * scale, bottom: body.bottom * scale };
 }
 
 /** A design cut for a canvas of the given size: what the renderer
@@ -1473,22 +1485,33 @@ export type Moulding = {
   swell: Swell | null;
   blocks: CornerBlocks | null;
   rails: Array<Rail<ShadedPoint>>;
+  cord: HungCord | null;
   /** Highest point above the wall, metres. */
   frontZ: number;
+  /** The picture's face above the wall, metres: `CANVAS_FACE_Z` in a
+   *  frame, a few millimetres on a hanging scroll. */
+  faceZ: number;
 };
 
 export function frameMoulding(design: FrameDesign, widthM: number, heightM: number): Moulding {
   const style = buildStyle(design.style, design.options);
   const scale = frameScale(design, widthM, heightM);
+  const { faceZ } = style;
   return {
-    profile: scaleProfile(style.profile, scale),
+    profile: scaleProfile(style.profile, scale, faceZ),
     swell: style.swell && scaleSwell(style.swell, scale),
     blocks: style.blocks && { from: style.blocks.from * scale, lift: style.blocks.lift * scale },
-    rails: style.rails.map((rail) => ({
-      ...rail,
-      profile: scaleProfile(rail.profile, scale),
-      past: rail.past * scale,
-    })),
-    frontZ: CANVAS_FACE_Z + (style.frontZ - CANVAS_FACE_Z) * scale,
+    rails: style.rails.map((rail) => {
+      const past = railPast(rail.past);
+      return {
+        ...rail,
+        profile: scaleProfile(rail.profile, scale, faceZ),
+        past: { top: past.top * scale, bottom: past.bottom * scale },
+        ends: rail.ends === undefined ? undefined : rail.ends * scale,
+      };
+    }),
+    cord: style.cord && hangCord(style.cord, widthM, scale),
+    frontZ: faceZ + (style.frontZ - faceZ) * scale,
+    faceZ,
   };
 }

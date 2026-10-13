@@ -1044,6 +1044,9 @@ export function buildSilkMap(
 /** Ground of the shared silk map. `SURFACE_BASE.silk` in frame-design.ts
  *  is the same grey: a silk's tint is its colour over this. */
 export const SILK_GROUND: [number, number, number] = [200, 200, 200];
+/** The figure's thread: a damask, woven a little lighter than its
+ *  ground and glossier. In white the lattice was all a mount showed. */
+const SILK_THREAD: [number, number, number] = [226, 226, 226];
 
 /** Plain weave: the threads of silk, or of canvas on a stretcher edge. */
 export function buildWeaveNormal(): Pixels {
@@ -1129,7 +1132,7 @@ export function getFrameMaps(): FrameMaps {
     ashNormal: texture(ash.normal, TILE_M.wood),
     lacquerColor: texture(lacquer.color, TILE_M.lacquer),
     lacquerNormal: texture(lacquer.normal, TILE_M.lacquer),
-    silkColor: texture(buildSilkMap(SILK_GROUND, [255, 255, 255]), TILE_M.silk, { srgb: true }),
+    silkColor: texture(buildSilkMap(SILK_GROUND, SILK_THREAD), TILE_M.silk, { srgb: true }),
     weaveNormal: texture(buildWeaveNormal(), TILE_M.weave),
     paperNormal: texture(buildPaperNormal(), TILE_M.paper),
   };

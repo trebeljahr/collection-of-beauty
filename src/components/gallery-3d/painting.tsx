@@ -5,7 +5,12 @@ import { useThree } from "@react-three/fiber";
 import { memo, useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from "react";
 import * as THREE from "three";
 import type { ArtworkListing } from "@/lib/data";
-import { frameExtents, frameMoulding, pickFrameDesign } from "@/lib/gallery-layout/frame-design";
+import {
+  frameBody,
+  frameExtents,
+  frameMoulding,
+  pickFrameDesign,
+} from "@/lib/gallery-layout/frame-design";
 import {
   PAINTING_WALL_OFFSET,
   PLAQUE_GAP,
@@ -117,7 +122,8 @@ const LOD_LADDER = [960, 1920, 2560, 4096, GALLERY_LOD_WIDTH];
 // the wall plane, the collision controller tests walls and staircases
 // only (frames and canvases are not colliders), and the canvas surface
 // sits just 0.034 m proud of the wall (PAINTING_WALL_OFFSET 0.02 plus
-// the plane's local z 0.014). Designing for 0.27 m would ask for 1.7×
+// the plane's local z 0.014; a scroll's painting lies nearer the wall
+// still). Designing for 0.27 m would ask for 1.7×
 // the pixels and put nearly every work back on the top rung, erasing
 // the memory win for detail nobody can resolve while their nose is
 // against the frame. 0.45 m says: we promise 1:1 with screen pixels at
@@ -488,6 +494,7 @@ export const Painting = memo(function Painting({
         swell: moulding.swell,
         blocks: moulding.blocks,
         rails: moulding.rails,
+        cord: moulding.cord,
       }),
     [moulding, design, dW, dH],
   );
@@ -498,6 +505,9 @@ export const Painting = memo(function Painting({
   const extents = useMemo(() => frameExtents(design, dW, dH), [design, dW, dH]);
   const frameReach = extents.side;
   const frameRise = Math.max(extents.top, extents.bottom);
+  // What of it throws a shadow: the pool is dark behind this rectangle,
+  // so it must not be larger than the frame is solid.
+  const body = useMemo(() => frameBody(design, dW, dH), [design, dW, dH]);
 
   // Picture light: one can per work, its pool clipped to this wall's
   // clear stretches, or to the divider the work hangs on, and faded out
@@ -571,6 +581,7 @@ export const Painting = memo(function Painting({
         thumbUrl={variantProxyUrl(artwork.objectKey, 256, "avif")}
         widthM={dW}
         heightM={dH}
+        faceZ={moulding.faceZ - PAINTING_WALL_OFFSET}
         artwork={artwork}
         onSettled={onSettled}
         onTextureAspect={handleTextureAspect}
@@ -587,8 +598,9 @@ export const Painting = memo(function Painting({
           wallZ={-PAINTING_WALL_OFFSET}
           floorY={wall.floorY}
           ceilingY={ceilingY}
-          frameHalfW={dW / 2 + frameReach}
-          frameHalfH={dH / 2 + frameRise}
+          frameHalfW={dW / 2 + body.side}
+          frameHalfH={dH / 2 + (body.top + body.bottom) / 2}
+          frameCenterY={(body.top - body.bottom) / 2}
           frameFrontZ={moulding.frontZ - PAINTING_WALL_OFFSET}
           plaque={plaqueRect}
           // The stairwell's ceiling is a storey up, not at room height: a
@@ -1065,6 +1077,7 @@ function PaintingPlane({
   thumbUrl,
   widthM,
   heightM,
+  faceZ,
   artwork,
   onSettled,
   onTextureAspect,
@@ -1086,6 +1099,9 @@ function PaintingPlane({
   thumbUrl: string;
   widthM: number;
   heightM: number;
+  /** Local z of the picture's face: 0.014 in a frame, on the wall for
+   *  a hanging scroll (`Moulding.faceZ`). */
+  faceZ: number;
   artwork: Placement["artwork"];
   onSettled?: (status: "loaded" | "failed") => void;
   /** Reports the loaded texture's true pixel aspect (w/h). Parent uses
@@ -1498,7 +1514,7 @@ function PaintingPlane({
   }, [widthM, heightM]);
 
   return (
-    <mesh ref={meshRef} position={[0, 0, 0.014]} userData={{ artwork }}>
+    <mesh ref={meshRef} position={[0, 0, faceZ]} userData={{ artwork }}>
       <planeGeometry args={[widthM, heightM]} />
       {/* No `map` or `color` props — both are mutated directly on the
           material via the layout effect (initial state) and load effect

@@ -4,6 +4,7 @@ import {
   buildStyle,
   FRAME_STYLE_IDS,
   type FrameStyleId,
+  hangCord,
   type StyleOptions,
   styleChoices,
   swollenWidth,
@@ -43,15 +44,16 @@ describe("frame styles", () => {
   it.each(FRAME_STYLE_IDS)("%s clears the canvas and ends on the wall", (id) => {
     for (const options of optionsOf(id)) {
       const all = sections(id, options);
+      const { faceZ } = buildStyle(id, options);
       expect(all.length).toBeGreaterThan(0);
       for (const profile of all) {
         if (profile[0].o < 0) {
           // A lip must sit in front of the canvas face or it z-fights it.
-          expect(profile[0].z).toBeGreaterThan(CANVAS_FACE_Z + 0.002);
+          expect(profile[0].z).toBeGreaterThan(faceZ + 0.002);
         } else if (profile[0].o === 0) {
           // No lip (a floater, a scroll's silk): the section starts at
           // the canvas edge, just behind its face.
-          expect(profile[0].z).toBeLessThan(CANVAS_FACE_Z);
+          expect(profile[0].z).toBeLessThan(faceZ);
         } else {
           // A bar or a roller that stands clear of the canvas starts on
           // the wall.
@@ -202,16 +204,54 @@ describe("frame styles", () => {
     expect(tabernacle.width).toBe(tabernacle.extents.side);
 
     const scroll = buildStyle("scroll", optionsOf("scroll")[0]);
-    // More silk above than below, and the roller wider than the mount.
+    // More silk above than below, and more below than beside.
     expect(scroll.extents.top).toBeGreaterThan(scroll.extents.bottom);
-    expect(scroll.extents.bottom).toBeGreaterThan(scroll.extents.side * 1.5);
+    expect(scroll.extents.bottom).toBeGreaterThan(scroll.extents.side);
+    // The roller's knobs stand out past the silk, and are no part of
+    // what throws a shadow.
     const silk = scroll.rails.find((r) => r.side === "left");
-    expect(scroll.extents.side).toBeGreaterThan(profileWidth(silk?.profile ?? []) + 0.02);
+    const silkWidth = profileWidth(silk?.profile ?? []);
+    expect(scroll.extents.side).toBeGreaterThan(silkWidth + 0.02);
+    expect(scroll.body.side).toBeCloseTo(silkWidth, 12);
+    expect(scroll.rails.filter((r) => r.ends !== undefined).length).toBe(1);
+    expect(empire.body).toEqual(empire.extents);
+    expect(tabernacle.body).toEqual(tabernacle.extents);
 
     // An Oxford frame's bars run on past the corners, the same all round.
     const oxford = buildStyle("oxford", optionsOf("oxford")[0]);
     expect(oxford.extents.top).toBeCloseTo(oxford.extents.side, 12);
     expect(oxford.extents.side).toBeGreaterThan(profileWidth(oxford.profile) + 0.03);
+  });
+
+  it("lays only a scroll flat on the wall, and hangs only a scroll by a cord", () => {
+    for (const id of FRAME_STYLE_IDS) {
+      const style = buildStyle(id, optionsOf(id)[0]);
+      if (id === "scroll") continue;
+      expect(style.faceZ, id).toBe(CANVAS_FACE_Z);
+      expect(style.cord, id).toBeNull();
+    }
+    for (const options of optionsOf("scroll")) {
+      const scroll = buildStyle("scroll", options);
+      // Clear of the picture light's pool, which lies 2 mm off the wall.
+      expect(scroll.faceZ).toBeGreaterThan(0.004);
+      expect(scroll.faceZ).toBeLessThan(0.01);
+      // The silk is a sheet: under 2 mm above the painting. Only the
+      // roller stands out, by its own thickness.
+      const silk = scroll.rails.find((r) => r.side === "left");
+      const silkTop = Math.max(...(silk?.profile ?? []).map((pt) => pt.z));
+      expect(silkTop - scroll.faceZ).toBeLessThan(0.002);
+      expect(scroll.frontZ).toBeGreaterThan(scroll.faceZ + 0.02);
+      expect(scroll.frontZ).toBeLessThan(CANVAS_FACE_Z + 0.004);
+      // The cord is tied on the stave and rises with the scroll's width.
+      expect(scroll.cord).not.toBeNull();
+      if (!scroll.cord) continue;
+      expect(scroll.cord.from).toBeLessThan(scroll.extents.top);
+      const narrow = hangCord(scroll.cord, 0.3, 1);
+      const wide = hangCord(scroll.cord, 1.2, 1);
+      expect(narrow.reach).toBeLessThan(0.15 + scroll.body.side);
+      expect(wide.rise).toBeGreaterThan(narrow.rise * 2);
+      expect(hangCord(scroll.cord, 0.3, 0.8).width).toBeCloseTo(narrow.width * 0.8, 12);
+    }
   });
 
   it("puts blocks on the corners of the styles that have them", () => {

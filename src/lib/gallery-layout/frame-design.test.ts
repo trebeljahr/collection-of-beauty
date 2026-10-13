@@ -4,6 +4,7 @@ import {
   FINISHES,
   type FrameDesign,
   familyOf,
+  frameBody,
   frameExtents,
   frameMoulding,
   frameReach,
@@ -513,7 +514,7 @@ describe("shape and subject", () => {
     expect(upright.filter((s) => s === "scroll").length).toBeGreaterThan(ids.length * 0.6);
   });
 
-  it("lets a scroll reach further down than sideways", () => {
+  it("lets a scroll reach further up and down than sideways", () => {
     const scroll = ids
       .map((id) => pickFrameDesign(silk(id, 1000, 2400)))
       .find((d) => d.style === "scroll");
@@ -521,11 +522,32 @@ describe("shape and subject", () => {
     if (!scroll) return;
     const extents = frameExtents(scroll, 0.6, 1.4);
     expect(extents.top).toBeGreaterThan(extents.bottom);
-    expect(extents.bottom).toBeGreaterThan(extents.side * 1.5);
+    expect(extents.bottom).toBeGreaterThan(extents.side);
     const moulding = frameMoulding(scroll, 0.6, 1.4);
     expect(moulding.profile).toEqual([]);
-    expect(moulding.rails.length).toBe(5);
-    expect(moulding.frontZ).toBeGreaterThan(0.034);
+    expect(moulding.rails.length).toBe(7);
+    // The painting lies on the wall, and only the roller stands out.
+    expect(moulding.faceZ).toBeLessThan(0.01);
+    expect(moulding.frontZ).toBeGreaterThan(moulding.faceZ + 0.015);
+    expect(moulding.frontZ).toBeLessThan(0.05);
+    // The cord and its nail are inside the reach upward, and outside
+    // what throws a shadow, as the roller's knobs are to the sides.
+    expect(moulding.cord).not.toBeNull();
+    const cord = moulding.cord;
+    if (!cord) return;
+    expect(extents.top).toBeGreaterThanOrEqual(cord.from + cord.rise);
+    const body = frameBody(scroll, 0.6, 1.4);
+    expect(body.top).toBeLessThan(cord.from + cord.rise);
+    expect(body.side).toBeLessThan(extents.side - 0.015);
+    expect(body.bottom).toBeLessThanOrEqual(extents.bottom);
+  });
+
+  it("gives a mitred frame no cord, a canvas's depth and a solid as wide as its reach", () => {
+    const framed = pickFrameDesign(work("oil", "Baroque", 1650, { width: 1200, height: 900 }));
+    const moulding = frameMoulding(framed, 1.2, 0.9);
+    expect(moulding.cord).toBeNull();
+    expect(moulding.faceZ).toBe(0.034);
+    expect(frameBody(framed, 1.2, 0.9)).toEqual(frameExtents(framed, 1.2, 0.9));
   });
 
   it("keeps the tabernacle frame for sacred subjects", () => {

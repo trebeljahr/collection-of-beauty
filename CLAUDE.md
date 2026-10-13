@@ -1129,7 +1129,7 @@ required by the Dockerfile — don't remove it.
     left and right. `frameExtents` adds `top` and `bottom`, which differ
     only for a frame built from rails, and the hang lifts a work by its
     bottom extent (`frameDropOf`), not its reach: a scroll's roller
-    hangs up to 23 cm below its painting.
+    hangs up to 18 cm below its painting.
   - **Swells.** A style may return a `Swell`: the moulding beyond a
     pivot pushes outward at the corners and the middle of each rail
     (Louis XV, Régence). The geometry cuts those rails into stations
@@ -1147,6 +1147,49 @@ required by the Dockerfile — don't remove it.
     entablature is taller at its inner face than the pilasters are
     deep. A style may also return `blocks`, a carved square on each
     corner (`addBlocks`).
+  - **A hanging scroll is not a frame.** Until 13 October 2026 it was
+    built like one: silk 3.6 cm proud of the wall round a painting at a
+    canvas's depth, one cloth all round, a black rod under it. Rico:
+    top and bottom "too long", "not properly like scrolls", "weird/
+    glitchy". What it is built of now:
+    - It lies on the wall. `StyleSpec.faceZ` puts the painting 6 mm off
+      the wall, where a canvas is at 34 mm (`CANVAS_FACE_Z`), and the
+      silk 0.8 mm in front of it. `Moulding.faceZ` places the picture
+      plane in `painting.tsx` and `frame-sheet.tsx`, and `scaleProfile`
+      scales depth from it. The picture light's pool lies 2 mm off the
+      wall: keep a face above 4 mm.
+    - Three tiers. A strip of brocade as wide as the painting on its
+      top and bottom edges, an inner border of silk round painting and
+      strips, and an outer cloth above and below. A frame has three
+      material slots, so the outer cloth is the same silk at 0.66 of
+      its tone (`SCROLL_OUTER`), set as `ao` on its points. Two cloths
+      meet in a seam 0.4 mm wide: on one shared point the first shades
+      into the second.
+    - Silk above the painting 13.5 cm and below it 8.5 cm at scale 1
+      (variant 1: 18 and 11), where it was 19 and 11.5 (26 and 15). A
+      real mounting has two to three times as much. Rico found the old
+      lengths too long, so do not lengthen them for accuracy.
+    - The foot is wound on a roller that stands whole in front of the
+      silk. Only the knobs at its two ends are wood: a rail with `ends`
+      is built as its two end pieces. The silk beside the painting runs
+      2 cm past the top corners and 1.2 cm past the bottom ones, beside
+      the strips: `Rail.past` takes `{ top, bottom }` for an upright
+      rail.
+    - It hangs by a cord from its top stave to a nail (`Cord`,
+      `addCord`). The cord rises by a share of the scroll's width, so
+      `frameExtents` adds it: it is not in `BuiltStyle.extents`.
+    - Its reach to the sides is what it was, 7.2 cm at scale 1 (silk
+      and a knob). On both plans every work kept its room and its place
+      along the wall, and `galleryLayoutIdentity` did not change. Only
+      the height scrolls hang at moved.
+  - **The pool is dark behind the rectangle the light is given.**
+    `PaintingLight` takes a frame as one rectangle and lights no wall
+    behind it. It was given the frame's reach, as far down as up. A
+    scroll then hung on a dark board as wide as its knobs and as tall
+    as its cord. It now gets `frameBody()`, the reach of what is solid
+    (no rail with `ends`, no cord), and `frameCenterY`, since a scroll
+    and a tabernacle frame reach further up than down. `buildLightRig`
+    still aims by the reach.
   - `/gallery-3d/frames` is a debug sheet of works in their own frames,
     lit as in the galleries: `?m=Baroque` for a school, `?look=hogarth`
     for a look, `?n=12&cols=4` for fewer and larger, `?page=2` for more.
@@ -1158,7 +1201,9 @@ required by the Dockerfile — don't remove it.
   - Surface maps tile in metres along the rail (u) and along the profile
     (v), so grain turns at each mitre: gold leaf in squares with a wear
     mask in alpha, walnut and ash with roughness in alpha, crazed
-    lacquer, shippō silk in grey, canvas weave, paper.
+    lacquer, shippō silk in grey, canvas weave, paper. The silk's
+    figure is woven at 226 on a ground of 200 (`SILK_THREAD`). In
+    white, the lattice was all a mount showed.
   - The carve atlas (512 × 1,536) has one row per ornament, 25 of them:
     pearl, leaf, egg and dart, laurel, flute, ripple, rope, punchwork,
     acanthus, guilloche, shell, scales, Greek key, gadroon, ribbon and

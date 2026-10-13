@@ -114,6 +114,7 @@ uniform vec3 uLightDir[2];
 uniform vec2 uCone[2];
 uniform float uLightI[2];
 uniform vec3 uFrame;   // half width, half height, front plane z
+uniform float uFrameY; // centre y: a frame may reach further up than down
 uniform vec4 uPlaque;  // centre x, centre y, half width, half height
 uniform float uPlaqueZ;
 uniform vec3 uColor;
@@ -150,7 +151,7 @@ void main() {
     vec3 l = toL * inversesqrt(d2);
     float spot = smoothstep(uCone[i].x, uCone[i].y, dot(-l, uLightDir[i]));
     float lambert = max(dot(n, l), 0.0);
-    float vis = occlusion(vPos, toL, uFrame.z, vec2(0.0), uFrame.xy)
+    float vis = occlusion(vPos, toL, uFrame.z, vec2(0.0, uFrameY), uFrame.xy)
               * occlusion(vPos, toL, uPlaqueZ, uPlaque.xy, uPlaque.zw);
     e += uLightI[i] * lambert * spot * vis / d2;
   }
@@ -158,7 +159,7 @@ void main() {
   if (n.z > 0.5) {
     // Ambient light comes mostly from above, so the dark rim hangs a
     // little low on the frame and on the plaque.
-    contact = uContact * exp(-max(boxSdf(vPos.xy, vec2(0.0, -0.01), uFrame.xy), 0.0) / 0.03);
+    contact = uContact * exp(-max(boxSdf(vPos.xy, vec2(0.0, uFrameY - 0.01), uFrame.xy), 0.0) / 0.03);
     contact += uContact * 0.5 * exp(-max(boxSdf(vPos.xy, uPlaque.xy - vec2(0.0, 0.004), uPlaque.zw), 0.0) / 0.012);
   }
   e = e / (1.0 + uShoulder * e);
@@ -181,6 +182,7 @@ function makePoolMaterial(): THREE.ShaderMaterial {
       uCone: { value: [new THREE.Vector2(0.5, 0.6), new THREE.Vector2(0.5, 0.6)] },
       uLightI: { value: [0, 0] },
       uFrame: { value: new THREE.Vector3() },
+      uFrameY: { value: 0 },
       uPlaque: { value: new THREE.Vector4() },
       uPlaqueZ: { value: 0 },
       uColor: { value: LIGHT_TINT.clone().multiplyScalar(POOL_GAIN) },
@@ -361,9 +363,12 @@ export type PaintingLightProps = {
   wallZ: number;
   floorY: number;
   ceilingY: number;
-  /** Outer half extents and front plane of the frame. */
+  /** Half extents and front plane of the frame's solid, and how far
+   *  its middle lies above the canvas's: a scroll and a tabernacle
+   *  frame reach further up than down. */
   frameHalfW: number;
   frameHalfH: number;
+  frameCenterY?: number;
   frameFrontZ: number;
   /** Plaque mount rectangle on the wall. */
   plaque: { x: number; y: number; halfW: number; halfH: number; frontZ: number };
@@ -381,6 +386,7 @@ export const PaintingLight = memo(function PaintingLight({
   ceilingY,
   frameHalfW,
   frameHalfH,
+  frameCenterY = 0,
   frameFrontZ,
   plaque,
   fixtures,
@@ -403,11 +409,12 @@ export const PaintingLight = memo(function PaintingLight({
       (u.uCone.value[i] as THREE.Vector2).set(head.cosOuter, head.cosInner);
     }
     (u.uFrame.value as THREE.Vector3).set(frameHalfW, frameHalfH, frameFrontZ);
+    u.uFrameY.value = frameCenterY;
     (u.uPlaque.value as THREE.Vector4).set(plaque.x, plaque.y, plaque.halfW, plaque.halfH);
     u.uPlaqueZ.value = plaque.frontZ;
     u.uWallGain.value = wallGain;
     setThresholds(u.uDoor.value, rig.thresholds);
-  }, [material, rig, frameHalfW, frameHalfH, frameFrontZ, plaque, wallGain]);
+  }, [material, rig, frameHalfW, frameHalfH, frameCenterY, frameFrontZ, plaque, wallGain]);
 
   // Fade in when the work mounts, so a room's pools come up like a
   // circuit being switched on rather than popping in one by one.
