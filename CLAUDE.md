@@ -799,6 +799,38 @@ required by the Dockerfile — don't remove it.
     how many rooms to open (`roomWallMetres` in `layout-museum.ts`).
     Counted, they closed rooms and filled the rest: 30 works a room
     where it had been 25.
+- **Where in a room a work hangs** (`place-paintings.ts`) is decided
+  in two steps. `tryAssign` puts a work in a room, spill included.
+  `evenOutRoom` then deals the room's works over its runs again:
+  largest first, each to the run whose gap is widest. A run's gap is
+  its bare wall divided by its works plus one, which is the spacing
+  `packRun` hangs it at, ends included. Before changing it:
+  - Until 13 October 2026 a run took works by the share of its length
+    they covered, and `packRun` stopped a gap at 2 m and centred the
+    group. A long wall with a few works then stood bare for metres at
+    each end, next to a 4.4 m panel hung at 0.8 m gaps. Beside a door a
+    bare end read as a work taken down. On the block plan the widest
+    bare stretch went from 5.7 m to 2.6 m, and stretches over 1.6
+    times their room's median gap from 138 to 1. On the tower the
+    widest went from 5.4 m to 3.3 m.
+  - A run with nothing on it counts twice its length
+    (`BARE_RUN_WEIGHT`). At 1 the tower left 44 panel faces bare
+    beside hung ones. At 3, a room with as many runs as works hung one
+    on each, and an 11.9 m wall had 4.9 m either side of its canvas.
+    At 2 the tower has 18 bare runs: 15 under 1.5 m and 3 panel faces,
+    where it had 18 bare panel faces before.
+  - What is left of a run beside a work hung for a bench
+    (`WallRun.abuts`) is a gap, not a bare run. Counted as bare, a 1 m
+    sliver of a panel took a small sheet 10 cm from the bench's work:
+    10 runs of the block plan hung that way on 13 October.
+  - `evenOutRoom` deals every run of the room. A run whose works are
+    set on purpose has to be kept out of it, as the works for benches
+    are (`Container.fixed`).
+  - It evens a room out; it cannot fill one. The block plan's Gothic
+    rooms cover 0.29 to 0.33 of their wall where the plan aims at 0.45,
+    because the era has too few works for three rooms, and hang at
+    gaps of 1.7 to 2.6 m all round. That is for `BLOCK_PLAN[].zones`
+    to change, not the hang.
 - **There are no three.js lights on the works, on purpose.** Each
   painting has a picture light (`painting-light.tsx`, geometry in
   `painting-light-rig.ts`): a ceiling can and the pool it throws, drawn

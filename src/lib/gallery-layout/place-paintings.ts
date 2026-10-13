@@ -76,16 +76,12 @@ const WALL_MARGIN = 0.3;
  *  Only binds when a run is packed to capacity; normally the leftover
  *  plaster opens the gap well past this. */
 const ADJACENT_GAP = 0.1;
-/** Widest gap the even spread will open before a run stops stretching
- *  and centres its works instead, letting the leftover plaster sit at
- *  the run's ends. The building's median in-run gap is ~1.6 m, so this
- *  binds only on the thinly-hung runs — it trades a few metres of blank
- *  wall at a run's ends (which read as margins) for an upper bound on
- *  the holes *between* works (which read as something missing).
- *  Measured over the whole corpus, dropping it from 3.5 to 2.0 moves
- *  the gap p90 from 2.65 m to 2.00 m and costs 0.4 m on the margin
- *  p90. */
-const MAX_HANG_GAP = 2.0;
+/** How much wider a run with nothing on it reads than a gap of the same
+ *  length between two works. At 1 the tower left 44 panel faces bare
+ *  beside hung ones; at 3 a room with as many surfaces as works hung
+ *  one work on each, and an 11.9 m wall stood with 4.9 m bare either
+ *  side of its one canvas. */
+const BARE_RUN_WEIGHT = 2;
 /** Plaster either side of a door opening that stays empty, so a
  *  painting never crowds the doorframe. */
 const DOOR_CLEARANCE = 0.35;
@@ -136,6 +132,10 @@ export type WallRun = {
    *  index into `room.dividers`. `side` then names the compass wall the
    *  face is hung like (a face looking south hangs like a north wall). */
   divider?: number;
+  /** Set on what is left of a run either side of a work hung at a set
+   *  place (`hangForBenches`): one end of it is that work. With nothing
+   *  on it, it is a gap beside a work and not a bare wall. */
+  abuts?: true;
 };
 
 export function runLength(run: WallRun): number {
@@ -448,8 +448,8 @@ function hangForBenches(container: Container) {
       container.fixedIds.add(work.artwork.id);
       // What is left of the run, either side of the work.
       const parts = [
-        { ...run, uMax: lo - ADJACENT_GAP },
-        { ...run, uMin: hi + ADJACENT_GAP },
+        { ...run, uMax: lo - ADJACENT_GAP, abuts: true as const },
+        { ...run, uMin: hi + ADJACENT_GAP, abuts: true as const },
       ].filter((part) => runLength(part) >= MIN_RUN_LENGTH);
       container.runs.splice(index, 1, ...parts);
       container.assigned.splice(index, 1, ...parts.map(() => []));
@@ -471,8 +471,8 @@ function slack(container: Container, runIdx: number): number {
  *  the one with the most slack per metre of plaster — if any run can
  *  still take it. Absolute slack would pour everything into the room's
  *  longest wall and leave the short stretches beside doors bare;
- *  relative slack fills every run at the same rate, so the hang reads
- *  evenly all the way round the room. */
+ *  relative slack fills every run at the same rate. This settles which
+ *  room the work hangs in; `evenOutRoom` settles the run. */
 function tryAssign(container: Container, work: SizedWork): boolean {
   const need = footprintOf(work);
   let bestIdx = -1;
@@ -490,6 +490,65 @@ function tryAssign(container: Container, work: SizedWork): boolean {
   container.assigned[bestIdx].push(work);
   container.used[bestIdx] += need;
   return true;
+}
+
+/** The gap a run's works hang at: the plaster they leave, shared out
+ *  between them and the run's two ends (`packRun`). A run with nothing
+ *  on it is one gap, its whole length, and counts BARE_RUN_WEIGHT times
+ *  that unless a hung work stands at one end of it (`WallRun.abuts`). */
+function hangGap(container: Container, runIdx: number): number {
+  const run = container.runs[runIdx];
+  const count = container.assigned[runIdx].length;
+  if (count === 0) return (run.abuts ? 1 : BARE_RUN_WEIGHT) * runLength(run);
+  return (runLength(run) - container.used[runIdx]) / (count + 1);
+}
+
+/**
+ * Deal a room's works over its runs again, so that every run ends at
+ * about the same gap. `tryAssign` decides which room a work hangs in;
+ * this decides where in the room.
+ *
+ * The gap is what a visitor reads. `tryAssign` shares the wall out by
+ * the metres hung, and a 27 m wall with two large canvases is level
+ * with a 4 m panel with one small sheet by that measure: 9 m of bare
+ * wall beside the canvases against 1.5 m beside the sheet. Here a work
+ * goes to the run whose gap is widest, largest work first. The long
+ * walls are the widest gaps while the room is empty, so they take the
+ * large canvases; the small works then go wherever a gap is still wider
+ * than the rest, on both sides of a door alike.
+ *
+ * A deal that cannot place every work again leaves the room as it was.
+ */
+function evenOutRoom(container: Container): void {
+  const before = { assigned: container.assigned, used: container.used };
+  // Widest claim on the wall first. The sort is stable, so works of one
+  // size keep the order they were dealt in.
+  const works = container.assigned
+    .flat()
+    .map((work) => ({ work, need: footprintOf(work) }))
+    .sort((a, b) => b.need - a.need);
+  container.assigned = container.runs.map(() => []);
+  container.used = container.runs.map(() => 0);
+
+  for (const { work, need } of works) {
+    let widest = -1;
+    let widestGap = 0;
+    for (let i = 0; i < container.runs.length; i++) {
+      if (slack(container, i) < need) continue;
+      const gap = hangGap(container, i);
+      if (gap > widestGap) {
+        widest = i;
+        widestGap = gap;
+      }
+    }
+    if (widest < 0) {
+      container.assigned = before.assigned;
+      container.used = before.used;
+      return;
+    }
+    container.assigned[widest].push(work);
+    container.used[widest] += need;
+  }
 }
 
 /**
@@ -567,6 +626,9 @@ export function distributePaintings(
     if (!best || !tryAssign(best, work)) dropped++;
   }
 
+  // Every work has its room. Now each room is hung for the eye.
+  for (const container of containers) evenOutRoom(container);
+
   let wallMetres = 0;
   let hungMetres = 0;
   let placed = 0;
@@ -591,10 +653,12 @@ export function distributePaintings(
  *
  * The leftover plaster — run length minus every footprint — is split
  * evenly into the gaps between works and the two end margins, so the
- * rhythm is identical regardless of how the widths vary. When that
- * would open a gap wider than MAX_HANG_GAP the run stops stretching and
- * the group is centred instead, which is what keeps an under-hung wall
- * from reading as scattered.
+ * rhythm is identical regardless of how the widths vary, and no end of
+ * a run is barer than its middle. Until 13 October 2026 a gap stopped
+ * at 2 m and the group was centred: a thinly hung run then stood with
+ * up to 9.4 m bare at each end, which beside a door read as a work
+ * taken down. A run is kept from being thinly hung by `evenOutRoom`,
+ * not here.
  *
  * Within the run works are arranged largest-in-the-middle, tapering
  * outwards, so a wall reads as a composed group rather than a random
@@ -621,13 +685,8 @@ export function packRun(
 
   // gaps: one before the first work, one between each pair, one after
   // the last — hence works.length + 1.
-  let gap = leftover / (ordered.length + 1);
+  const gap = leftover / (ordered.length + 1);
   let cursor = run.uMin + gap;
-  if (gap > MAX_HANG_GAP) {
-    gap = MAX_HANG_GAP;
-    const grouped = total + gap * (ordered.length - 1);
-    cursor = run.uMin + (span - grouped) / 2;
-  }
 
   const placements: Placement[] = [];
   for (const work of ordered) {

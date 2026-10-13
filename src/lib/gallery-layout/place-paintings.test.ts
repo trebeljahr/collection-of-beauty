@@ -2,6 +2,7 @@ import { describe, expect, it } from "vitest";
 import type { ArtworkListing } from "@/lib/data";
 import {
   computeRoomRuns,
+  distributePaintings,
   dividerWallMetres,
   estimateWallMetres,
   PAINTING_FLOOR_GAP,
@@ -10,8 +11,9 @@ import {
   packRun,
   runLength,
   sideClearance,
+  type WallRun,
 } from "./place-paintings";
-import type { Placement, RoomLayout } from "./types";
+import type { FloorLayout, Placement, RoomLayout } from "./types";
 import { CELL_SIZE } from "./world-coords";
 
 // Expected wall-margin and door clearance, mirrored from
@@ -158,15 +160,151 @@ describe("packRun", () => {
     expect(sorted[1].artwork.id).toBe("wide");
   });
 
-  it("centres a sparse run instead of stretching it across the wall", () => {
-    // One small work on a 10 m wall: stretching would put it in the
-    // middle anyway, but the two end margins must stay equal.
+  it("centres a lone work on its run", () => {
     const placements = packRun(run, [makeWork("lonely", 0.4, 0.5)]);
     const p = placements[0];
     const [lo, hi] = claim(p);
     const leftMargin = lo - run.uMin;
     const rightMargin = run.uMax - hi;
     expect(leftMargin).toBeCloseTo(rightMargin, 9);
+  });
+
+  it("leaves a thin run's ends no barer than its middle", () => {
+    // Two small works on a 9.4 m wall. Grouped in the middle at a set
+    // gap, they left 3 m bare at each end.
+    const placements = packRun(run, [makeWork("a", 0.4, 0.5), makeWork("b", 0.5, 0.6)]);
+    const [first, second] = [...placements].sort((a, b) => a.position[0] - b.position[0]);
+    const between = claim(second)[0] - claim(first)[1];
+    expect(claim(first)[0] - run.uMin).toBeCloseTo(between, 9);
+    expect(run.uMax - claim(second)[1]).toBeCloseTo(between, 9);
+  });
+});
+
+describe("distributePaintings", () => {
+  /** The bare stretches of a run, end to end: before its first work,
+   *  between each pair, after its last. A run with nothing on it is one
+   *  stretch. */
+  function blanks(run: WallRun, placements: Placement[]): number[] {
+    const claims = placements
+      .filter((p) => {
+        const across = run.axis === "x" ? p.position[2] : p.position[0];
+        return (
+          Math.abs(across - run.surface) < 0.05 &&
+          Math.abs(p.rotation[1] - run.rotationY) < 1e-6 &&
+          p.divider === run.divider
+        );
+      })
+      .map((p) => {
+        const u = run.sign * (run.axis === "x" ? p.position[0] : p.position[2]);
+        const { left, right } = sideClearance({ artwork: p.artwork, wM: p.widthM, hM: p.heightM });
+        return [u - p.widthM / 2 - left, u + p.widthM / 2 + right];
+      })
+      .filter(([lo, hi]) => lo > run.uMin - 1e-6 && hi < run.uMax + 1e-6)
+      .sort((a, b) => a[0] - b[0]);
+    const out: number[] = [];
+    let cursor = run.uMin;
+    for (const [lo, hi] of claims) {
+      out.push(lo - cursor);
+      cursor = hi;
+    }
+    out.push(run.uMax - cursor);
+    return out;
+  }
+
+  /** Works in five sizes, large canvases and small sheets mixed, in the
+   *  order a floor deals them. */
+  function mixedWorks(count: number): ArtworkListing[] {
+    const sizes = [
+      [300, 220],
+      [60, 45],
+      [90, 120],
+      [40, 55],
+      [160, 120],
+      [40, 55],
+      [60, 45],
+      [90, 120],
+    ];
+    return Array.from({ length: count }, (_, i) => {
+      const [widthCm, heightCm] = sizes[i % sizes.length];
+      return {
+        id: `work-${i}`,
+        width: 4000,
+        height: Math.round((4000 * heightCm) / widthCm),
+        realDimensions: { widthCm, heightCm },
+      } as unknown as ArtworkListing;
+    });
+  }
+
+  /** A 27.5 × 17.5 m room: a door a third of the way along its north
+   *  wall, so the wall is a 6.9 m run and a 16.9 m one, and two panels
+   *  standing clear of the walls. Nine runs, 4.4 to 26.9 m. */
+  function hang(count: number) {
+    const room = makeRoom({
+      xMin: 0,
+      xMax: 10,
+      zMin: 0,
+      zMax: 6,
+      doors: [
+        {
+          side: "north",
+          worldX: 3.5 * CELL_SIZE,
+          worldZ: 0,
+          worldY: 0,
+          width: 2.4,
+          height: 2.9,
+          portal: false,
+          connectsTo: { kind: "room", roomId: "x" },
+        },
+      ],
+      dividers: [
+        { axis: "x", line: 3, start: 2, end: 4 },
+        { axis: "x", line: 4, start: 6, end: 8 },
+      ],
+    });
+    room.artworks = mixedWorks(count);
+    const stats = distributePaintings({ rooms: [room] } as unknown as FloorLayout);
+    const perRun = computeRoomRuns(room).map((run) => blanks(run, room.placements));
+    return { room, stats, perRun };
+  }
+
+  it("hangs every work of a room that has the wall for them", () => {
+    const { room, stats } = hang(24);
+    expect(stats.dropped).toBe(0);
+    expect(room.placements).toHaveLength(24);
+  });
+
+  it("hangs every run of a room at about the same gap", () => {
+    // 24 works on 102 m of wall, a third of it covered. Shared out by
+    // the metres hung, the 26.9 m wall got the two large canvases and
+    // stood bare for metres either side of them, while a panel with two
+    // small sheets hung at a third of that gap.
+    const { perRun } = hang(24);
+    const all = perRun.flat().sort((a, b) => a - b);
+    const median = all[Math.floor(all.length / 2)];
+    expect(all[all.length - 1]).toBeLessThan(1.6 * median);
+    expect(all[0]).toBeGreaterThan(0.5 * median);
+  });
+
+  it("hangs both sides of a door alike", () => {
+    const { perRun } = hang(24);
+    // The first two runs are the north wall's, west and east of the door.
+    const [short, long] = perRun;
+    expect(short[0] / long[0]).toBeGreaterThan(0.75);
+    expect(short[0] / long[0]).toBeLessThan(1.33);
+  });
+
+  it("leaves no run bare while another holds two works", () => {
+    // Fewer works than would fill the room: one to a run comes first.
+    const { perRun } = hang(11);
+    const bare = perRun.filter((gaps) => gaps.length === 1).length;
+    expect(bare).toBe(0);
+  });
+
+  it("gives the long walls the large canvases", () => {
+    const { room } = hang(24);
+    const onPanel = room.placements.filter((p) => p.divider !== undefined);
+    const widest = Math.max(...onPanel.map((p) => p.widthM));
+    expect(widest).toBeLessThan(2);
   });
 });
 
