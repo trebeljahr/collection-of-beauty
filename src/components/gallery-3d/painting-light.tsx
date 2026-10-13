@@ -19,7 +19,12 @@ import { memo, useEffect, useMemo, useRef } from "react";
 import * as THREE from "three";
 import { mergeGeometries } from "three/examples/jsm/utils/BufferGeometryUtils.js";
 import { UNREFLECTED_LAYER } from "./floor-mirror";
-import type { LightRig } from "./painting-light-rig";
+import {
+  type LightRig,
+  POOL_THRESHOLDS,
+  THRESHOLD_FADE_M,
+  type Threshold,
+} from "./painting-light-rig";
 
 /** Warm tungsten-halogen tint, about 3000 K. */
 export const LIGHT_TINT = new THREE.Color("#ffe9cc");
@@ -40,6 +45,55 @@ export const FOG_FAR = 80;
 const FADE_IN_S = 0.6;
 /** Offset of the quads off their surfaces, metres. */
 export const SURFACE_LIFT = 0.002;
+
+/** Where an unused threshold slot is parked: too far to fade anything. */
+const NO_THRESHOLD = 1e6;
+
+/**
+ * GLSL for the share of a floor pool left at `p`, which falls to nothing
+ * at each of `count` doorway thresholds (`THRESHOLD_FADE_M` in
+ * painting-light-rig.ts says why). `uDoor[i]` holds a threshold's two
+ * ends in the frame `p` is in. The steps are multiplied, not the nearest
+ * taken, so two doors close together leave no ridge between them.
+ */
+export function thresholdFadeGlsl(count: number): string {
+  return /* glsl */ `
+uniform vec4 uDoor[${count}];
+uniform float uDoorFade;
+float thresholdFade(vec2 p) {
+  float k = 1.0;
+  for (int i = 0; i < ${count}; i++) {
+    vec2 a = uDoor[i].xy;
+    vec2 ab = uDoor[i].zw - a;
+    float t = clamp(dot(p - a, ab) / max(dot(ab, ab), 1e-6), 0.0, 1.0);
+    k *= smoothstep(0.0, uDoorFade, distance(p, a + ab * t));
+  }
+  return k;
+}
+`;
+}
+
+/** Uniform values for `thresholdFadeGlsl(count)`. */
+export function thresholdUniforms(count: number) {
+  return {
+    uDoor: {
+      value: Array.from(
+        { length: count },
+        () => new THREE.Vector4(NO_THRESHOLD, NO_THRESHOLD, NO_THRESHOLD, NO_THRESHOLD),
+      ),
+    },
+    uDoorFade: { value: THRESHOLD_FADE_M },
+  };
+}
+
+/** Write thresholds into a `uDoor` array, parking the slots left over. */
+export function setThresholds(slots: THREE.Vector4[], thresholds: readonly Threshold[]): void {
+  slots.forEach((slot, i) => {
+    const t = thresholds[i];
+    if (t) slot.set(t[0], t[1], t[2], t[3]);
+    else slot.setScalar(NO_THRESHOLD);
+  });
+}
 
 const vertexShader = /* glsl */ `
 varying vec3 vPos;
@@ -71,7 +125,7 @@ uniform vec2 uFog;
 varying vec3 vPos;
 varying vec3 vNormal;
 varying float vDepth;
-
+${thresholdFadeGlsl(POOL_THRESHOLDS)}
 float boxSdf(vec2 p, vec2 c, vec2 h) {
   vec2 d = abs(p - c) - h;
   return length(max(d, 0.0)) + min(max(d.x, d.y), 0.0);
@@ -109,6 +163,8 @@ void main() {
   }
   e = e / (1.0 + uShoulder * e);
   float k = uFade * (1.0 - smoothstep(uFog.x, uFog.y, vDepth));
+  // On the floor the pool gives out before a doorway's threshold.
+  if (n.y > 0.5) k *= thresholdFade(vPos.xz);
   // The wall's boost stays off the floor: every era has the same oak.
   float gain = n.z > 0.5 ? uWallGain : 1.0;
   gl_FragColor = vec4(uColor * e * k * gain, 1.0 - min(contact, 0.6) * k);
@@ -133,6 +189,7 @@ function makePoolMaterial(): THREE.ShaderMaterial {
       uContact: { value: CONTACT_SHADOW },
       uFade: { value: 0 },
       uFog: { value: new THREE.Vector2(FOG_NEAR, FOG_FAR) },
+      ...thresholdUniforms(POOL_THRESHOLDS),
     },
     transparent: true,
     depthWrite: false,
@@ -349,6 +406,7 @@ export const PaintingLight = memo(function PaintingLight({
     (u.uPlaque.value as THREE.Vector4).set(plaque.x, plaque.y, plaque.halfW, plaque.halfH);
     u.uPlaqueZ.value = plaque.frontZ;
     u.uWallGain.value = wallGain;
+    setThresholds(u.uDoor.value, rig.thresholds);
   }, [material, rig, frameHalfW, frameHalfH, frameFrontZ, plaque, wallGain]);
 
   // Fade in when the work mounts, so a room's pools come up like a

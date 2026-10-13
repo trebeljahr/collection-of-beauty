@@ -500,8 +500,8 @@ export const Painting = memo(function Painting({
   const frameRise = Math.max(extents.top, extents.bottom);
 
   // Picture light: one can per work, its pool clipped to this wall's
-  // clear stretches, or to the divider the work hangs on. See
-  // painting-light-rig.ts.
+  // clear stretches, or to the divider the work hangs on, and faded out
+  // on the floor toward the room's doorways. See painting-light-rig.ts.
   const wall = useMemo(() => {
     const cb = room.cellBounds;
     return wallContextFor(
@@ -532,6 +532,7 @@ export const Painting = memo(function Painting({
         wallSpans: wall.wallSpans,
         floorSpan: wall.floorSpan,
         roomDepth: wall.roomDepth,
+        thresholds: wall.thresholds,
       }),
     [dW, dH, frameReach, frameRise, wall, ceilingY],
   );

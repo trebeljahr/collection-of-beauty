@@ -643,6 +643,13 @@ required by the Dockerfile — don't remove it.
   - a pool is clipped to its own wall: doorways and room corners are cut
     out (`wallContextFor`), or it would brighten the next room seen
     through the door;
+  - on the floor a pool fades to nothing within 1.5 m of a doorway's
+    threshold (`THRESHOLD_FADE_M`, `thresholdFadeGlsl`), on whichever
+    wall the door is. A pool stops where its room does, and in a doorway
+    nothing hides the stop: it showed as a line across the floor from
+    jamb to jamb, about 30 % brighter on the side with a work or a
+    washer near the door. The stairwell's washers fade the same way.
+    Anything new that lights a floor has to reach a threshold at zero;
   - frames, canvas and plaque sit in front of the quad and are not lit
     by it. The plaque card and the mat board carry their own emissive
     for that reason, and frame materials add the light themselves (see

@@ -42,7 +42,25 @@ export const LIGHT_TWIN_WIDTH = 1.7;
  *  bright top does not land above the work. */
 export const LIGHT_AIM_DROP = 0.06;
 
+/** A floor pool fades out over this distance to a doorway's threshold.
+ *  A pool stops where its room does. A wall hides that everywhere but in
+ *  a doorway, where the floor runs on into the next room unlit: the stop
+ *  showed as a line across the floor from jamb to jamb, the brighter
+ *  side being whichever room had a work or a washer near the door. No
+ *  pool reaches a threshold now, so the two floors meet at one
+ *  brightness. Wide enough that the fall reads as the doorway's shade
+ *  and not as a second edge. */
+export const THRESHOLD_FADE_M = 1.5;
+/** Thresholds a picture light's shader takes: the nearest to its floor
+ *  pool. A pool is a few metres across, so a door on either side of the
+ *  work and one round the corner is the most it meets. */
+export const POOL_THRESHOLDS = 4;
+
 export type Vec3 = [number, number, number];
+
+/** A doorway's threshold: the line across the floor where one room's
+ *  floor ends and the next room's begins. Its two ends, x then z each. */
+export type Threshold = [x0: number, z0: number, x1: number, z1: number];
 
 export type LightHead = {
   position: Vec3;
@@ -63,6 +81,9 @@ export type LightRig = {
   wall: Rect2[];
   /** Pool footprint on the floor plane: x and local z (yMin/yMax hold z). */
   floor: Rect2 | null;
+  /** Thresholds the floor pool fades toward, x and local z, nearest
+   *  first (`thresholdsNear`). */
+  thresholds: Threshold[];
 };
 
 export type LightRigInput = {
@@ -89,6 +110,8 @@ export type LightRigInput = {
    *  Defaults to `roomSpan`. Wider than it for a work on a divider,
    *  whose floor runs on past the divider's free end. */
   floorSpan?: [number, number];
+  /** The room's doorways, x and local z, on whichever wall. */
+  thresholds?: readonly Threshold[];
 };
 
 const deg = Math.PI / 180;
@@ -242,7 +265,8 @@ export function buildLightRig(input: LightRigInput): LightRig {
     const xs = floorPts.map((p) => p[0]);
     const zs = floorPts.map((p) => p[1]);
     // The floor runs on under a doorway, so only the room's corners
-    // bound it, not the door cuts.
+    // bound it, not the door cuts. The shader fades it out toward the
+    // threshold instead (`thresholds` below).
     floor =
       clipX(
         {
@@ -254,7 +278,45 @@ export function buildLightRig(input: LightRigInput): LightRig {
         [input.floorSpan ?? input.roomSpan],
       )[0] ?? null;
   }
-  return { heads, wall, floor };
+  return {
+    heads,
+    wall,
+    floor,
+    thresholds: floor ? thresholdsNear(floor, input.thresholds ?? []) : [],
+  };
+}
+
+/** A door's threshold in the world, x and z, on its wall's line. */
+export function doorThreshold(door: {
+  side: string;
+  worldX: number;
+  worldZ: number;
+  width: number;
+}): Threshold {
+  const alongX = door.side === "north" || door.side === "south";
+  const hx = alongX ? door.width / 2 : 0;
+  const hz = alongX ? 0 : door.width / 2;
+  return [door.worldX - hx, door.worldZ - hz, door.worldX + hx, door.worldZ + hz];
+}
+
+/** The thresholds within the fade's reach of a floor pool (x, and z in
+ *  yMin/yMax), nearest first and `limit` at most. Both are square to the
+ *  axes, so the gap between them is the gap between two rectangles. */
+export function thresholdsNear(
+  floor: Rect2,
+  thresholds: readonly Threshold[],
+  limit = POOL_THRESHOLDS,
+): Threshold[] {
+  return thresholds
+    .map((t) => {
+      const dx = Math.max(0, Math.min(t[0], t[2]) - floor.xMax, floor.xMin - Math.max(t[0], t[2]));
+      const dz = Math.max(0, Math.min(t[1], t[3]) - floor.yMax, floor.yMin - Math.max(t[1], t[3]));
+      return { t, gap: Math.hypot(dx, dz) };
+    })
+    .filter((e) => e.gap < THRESHOLD_FADE_M)
+    .sort((a, b) => a.gap - b.gap)
+    .slice(0, limit)
+    .map((e) => e.t);
 }
 
 /** Subtract door openings from a wall's clear span, both in local x. */
@@ -286,6 +348,8 @@ export type WallContext = {
   roomDepth: number;
   /** Local y of the room's floor. */
   floorY: number;
+  /** Every doorway of the room, x and local z. */
+  thresholds: Threshold[];
 };
 
 /** The room's freestanding walls, and which of them the work hangs on
@@ -307,6 +371,10 @@ const DOOR_TRIM_CLEARANCE = 0.09;
  * a divider (`fittings.on`) has that divider's face for its wall: the
  * pool ends at the divider's ends, where there is no wall left to light,
  * and only the floor runs on.
+ *
+ * `thresholds` are the room's doorways on all four walls: a floor pool
+ * fades toward each (`THRESHOLD_FADE_M`), and one beside a corner reaches
+ * a door in the next wall.
  */
 export function wallContextFor(
   bounds: { xMin: number; xMax: number; zMin: number; zMax: number },
@@ -332,6 +400,10 @@ export function wallContextFor(
   const xs = corners.map(([x, z]) => localX(x, z));
   const zs = corners.map(([x, z]) => localZ(x, z));
   const floorY = floorWorldY - position[1];
+  const thresholds = doors.map((d): Threshold => {
+    const [x0, z0, x1, z1] = doorThreshold(d);
+    return [localX(x0, z0), localZ(x0, z0), localX(x1, z1), localZ(x1, z1)];
+  });
 
   // Every divider as a box in the local frame.
   const boxes = fittings.dividers.map((d) => {
@@ -364,6 +436,7 @@ export function wallContextFor(
       floorSpan: [Math.min(...xs), Math.max(...xs)],
       roomDepth: depthTo(own.zMax, Math.max(...zs), fittings.on),
       floorY,
+      thresholds,
     };
   }
 
@@ -400,5 +473,6 @@ export function wallContextFor(
     floorSpan: roomSpan,
     roomDepth,
     floorY,
+    thresholds,
   };
 }

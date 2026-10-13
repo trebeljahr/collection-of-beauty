@@ -12,6 +12,11 @@
 // neighbours, so 24 cans cost three evaluations a fragment, whatever
 // the length of the wall. The room adds five draw calls: ceiling,
 // glass, glazing frame, pools, cans.
+//
+// On the floor the pools fade out toward each doorway, as the picture
+// lights' do (`THRESHOLD_FADE_M` in painting-light-rig.ts): the band a
+// row of washers lays along the foot of its wall ran through the door
+// openings and stopped dead on the threshold.
 
 import { useEffect, useMemo } from "react";
 import * as THREE from "three";
@@ -33,7 +38,11 @@ import {
   POOL_GAIN,
   POOL_SHOULDER,
   SURFACE_LIFT,
+  setThresholds,
+  thresholdFadeGlsl,
+  thresholdUniforms,
 } from "./painting-light";
+import { doorThreshold, type Threshold } from "./painting-light-rig";
 import { fixtureMaterial, getPaletteMaterials } from "./palette-materials";
 import { openingHole } from "./stair-opening";
 import {
@@ -72,17 +81,24 @@ varying vec3 vWall;
 varying vec3 vRow;
 varying float vFloor;
 varying float vDepth;
+varying vec2 vRoom;
 void main() {
   vWall = aWall;
   vRow = aRow;
   vFloor = aFloor;
+  // The mesh sits at the middle of the room's floor.
+  vRoom = position.xz;
   vec4 mv = modelViewMatrix * vec4(position, 1.0);
   vDepth = -mv.z;
   gl_Position = projectionMatrix * mv;
 }
 `;
 
-const washFragmentShader = /* glsl */ `
+/** Slots come in fours, so rooms with two doors and with four share a
+ *  program. */
+const washSlots = (doors: number) => Math.max(4, Math.ceil(doors / 4) * 4);
+
+const washFragmentShader = (slots: number) => /* glsl */ `
 uniform vec2 uLamp;   // height, distance from the wall
 uniform vec2 uAxis;   // beam axis (y, z) in the wall's frame
 uniform vec2 uCone;
@@ -94,7 +110,8 @@ varying vec3 vWall;   // position in the wall's frame
 varying vec3 vRow;    // can spacing, half the wall's length, pool gain
 varying float vFloor; // 0 on the wall, 1 on the floor
 varying float vDepth;
-
+varying vec2 vRoom;   // position on the room's floor, from its middle
+${thresholdFadeGlsl(slots)}
 float lamp(float x) {
   if (abs(x) > vRow.y) return 0.0;
   vec3 toL = vec3(x - vWall.x, uLamp.x - vWall.y, uLamp.y - vWall.z);
@@ -111,21 +128,30 @@ void main() {
   float e = lamp(x - vRow.x) + lamp(x) + lamp(x + vRow.x);
   e = e / (1.0 + uShoulder * e);
   float k = 1.0 - smoothstep(uFog.x, uFog.y, vDepth);
+  if (vFloor > 0.5) k *= thresholdFade(vRoom);
   gl_FragColor = vec4(uColor * e * k * vRow.z, 1.0);
 }
 `;
 
-let washMaterial: THREE.ShaderMaterial | null = null;
+const washMaterials = new Map<string, THREE.ShaderMaterial>();
 
-/** Shared by every stairwell: the cans hang at one height, so the
- *  uniforms are the same. What differs from wall to wall and floor to
- *  floor rides on the vertices. */
-function getWashMaterial(row: WashRow): THREE.ShaderMaterial {
-  if (washMaterial) return washMaterial;
-  washMaterial = new THREE.ShaderMaterial({
+/** One for each set of doorways, kept for the visit: a building has a
+ *  dozen stairwells or so, and those with their doors in the same
+ *  places share one. The cans hang at one height, so the other uniforms
+ *  are the same in all of them. What differs from wall to wall rides on
+ *  the vertices. */
+function getWashMaterial(row: WashRow, thresholds: Threshold[]): THREE.ShaderMaterial {
+  const key = thresholds.map((t) => t.map((v) => v.toFixed(3)).join(",")).join(";");
+  const cached = washMaterials.get(key);
+  if (cached) return cached;
+  const slots = washSlots(thresholds.length);
+  const doors = thresholdUniforms(slots);
+  setThresholds(doors.uDoor.value, thresholds);
+  const washMaterial = new THREE.ShaderMaterial({
     vertexShader: washVertexShader,
-    fragmentShader: washFragmentShader,
+    fragmentShader: washFragmentShader(slots),
     uniforms: {
+      ...doors,
       uLamp: { value: new THREE.Vector2(row.lampY, row.throwM) },
       uAxis: { value: new THREE.Vector2(row.dirY, row.dirZ) },
       uCone: { value: new THREE.Vector2(row.cosOuter, row.cosInner) },
@@ -147,6 +173,7 @@ function getWashMaterial(row: WashRow): THREE.ShaderMaterial {
     polygonOffsetFactor: -1,
     polygonOffsetUnits: -2,
   });
+  washMaterials.set(key, washMaterial);
   return washMaterial;
 }
 
@@ -419,7 +446,13 @@ function StairHallLight({ floor, room }: { floor: FloorLayout; room: RoomLayout 
     const rows = walls.map((w) => fitWashRow(w.length, CEILING_Y));
     return {
       position: [cx, room.worldRect.y, cz] as [number, number, number],
-      washMaterial: getWashMaterial(rows[0]),
+      washMaterial: getWashMaterial(
+        rows[0],
+        room.doors.map((d): Threshold => {
+          const [x0, z0, x1, z1] = doorThreshold(d);
+          return [x0 - cx, z0 - cz, x1 - cx, z1 - cz];
+        }),
+      ),
       wash: buildWashGeometry(walls, rows, poolGainScale(wallColor)),
       cans: buildCansGeometry(walls, rows),
       ceiling: buildCeilingGeometry(

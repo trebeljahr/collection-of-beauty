@@ -2,7 +2,12 @@ import { describe, expect, it } from "vitest";
 import {
   buildLightRig,
   clearSpans,
+  doorThreshold,
   type LightRigInput,
+  POOL_THRESHOLDS,
+  THRESHOLD_FADE_M,
+  type Threshold,
+  thresholdsNear,
   wallContextFor,
 } from "./painting-light-rig";
 
@@ -106,6 +111,62 @@ describe("buildLightRig", () => {
     }
     expect(rig.floor?.xMin).toBeGreaterThanOrEqual(-0.9);
   });
+
+  it("fades its floor pool toward the door beside the work, not one across the room", () => {
+    const beside: Threshold = [0.9, -0.02, 2.3, -0.02];
+    const across: Threshold = [-0.7, 9.98, 0.7, 9.98];
+    const rig = buildLightRig(input({ thresholds: [across, beside] }));
+    expect(rig.floor).not.toBeNull();
+    expect(rig.thresholds).toEqual([beside]);
+  });
+
+  it("lists no threshold for a pool that stays on the wall", () => {
+    // A floor 40 m down: every rim ray meets the wall first.
+    const rig = buildLightRig(input({ floorY: -40, thresholds: [[0.9, -0.02, 2.3, -0.02]] }));
+    expect(rig.floor).toBeNull();
+    expect(rig.thresholds).toEqual([]);
+  });
+});
+
+describe("thresholdsNear", () => {
+  const floor = { xMin: -2, xMax: 2, yMin: 0, yMax: 3 };
+
+  it("keeps the doorways a pool can reach, nearest first", () => {
+    const touching: Threshold = [1, 0, 3, 0];
+    const close: Threshold = [3, 0, 5, 0];
+    const roundTheCorner: Threshold = [2.5, 1, 2.5, 3];
+    const far: Threshold = [2 + THRESHOLD_FADE_M, 0, 6, 0];
+    expect(thresholdsNear(floor, [far, close, roundTheCorner, touching])).toEqual([
+      touching,
+      roundTheCorner,
+      close,
+    ]);
+  });
+
+  it("measures to a doorway past a corner along the diagonal", () => {
+    const d = THRESHOLD_FADE_M / Math.SQRT2;
+    const inside: Threshold = [2 + d - 0.01, 3 + d - 0.01, 9, 3 + d - 0.01];
+    const outside: Threshold = [2 + d + 0.01, 3 + d + 0.01, 9, 3 + d + 0.01];
+    expect(thresholdsNear(floor, [inside, outside])).toEqual([inside]);
+  });
+
+  it("takes no more than the shader has slots for", () => {
+    const many = Array.from({ length: 7 }, (_, i): Threshold => [-2, -0.1 * i, 2, -0.1 * i]);
+    const kept = thresholdsNear(floor, many);
+    expect(kept).toHaveLength(POOL_THRESHOLDS);
+    expect(kept).toEqual(many.slice(0, POOL_THRESHOLDS));
+  });
+});
+
+describe("doorThreshold", () => {
+  it("runs along the wall the door is in, on that wall's line", () => {
+    expect(doorThreshold({ side: "north", worldX: 61.25, worldZ: 72.5, width: 1.4 })).toEqual([
+      60.55, 72.5, 61.95, 72.5,
+    ]);
+    expect(doorThreshold({ side: "west", worldX: 50, worldZ: 81.25, width: 2.4 })).toEqual([
+      50, 80.05, 50, 82.45,
+    ]);
+  });
 });
 
 describe("clearSpans", () => {
@@ -159,6 +220,30 @@ describe("wallContextFor", () => {
     expect(ctx.roomDepth).toBeCloseTo(22.5, 6);
     expect(ctx.wallSpans).toHaveLength(2);
     expect(ctx.wallSpans[0][1]).toBeCloseTo(86 - 81.25 - 0.79, 6);
+  });
+
+  it("gives every doorway of the room as a threshold in the work's frame", () => {
+    const north = wallContextFor(bounds, doors, 0, [57.36, 1.65, 72.52], 0);
+    expect(north.thresholds).toHaveLength(2);
+    // The door in the work's own wall lies on the wall line, to its right.
+    const [own, west] = north.thresholds;
+    expect(own[0]).toBeCloseTo(61.25 - 0.7 - 57.36, 6);
+    expect(own[2]).toBeCloseTo(61.25 + 0.7 - 57.36, 6);
+    expect(own[1]).toBeCloseTo(-0.02, 6);
+    expect(own[3]).toBeCloseTo(-0.02, 6);
+    // The west door runs out into the room along the left-hand wall.
+    expect(west[0]).toBeCloseTo(50 - 57.36, 6);
+    expect(west[2]).toBeCloseTo(50 - 57.36, 6);
+    expect(west[1]).toBeCloseTo(81.25 - 0.7 - 72.52, 6);
+    expect(west[3]).toBeCloseTo(81.25 + 0.7 - 72.52, 6);
+
+    // From the west wall the same door is in the work's own wall.
+    const fromWest = wallContextFor(bounds, doors, 0, [50.02, 1.65, 86], Math.PI / 2);
+    const ownWest = fromWest.thresholds[1];
+    expect(ownWest[1]).toBeCloseTo(-0.02, 6);
+    expect(ownWest[3]).toBeCloseTo(-0.02, 6);
+    expect(Math.min(ownWest[0], ownWest[2])).toBeCloseTo(86 - 81.25 - 0.7, 6);
+    expect(Math.max(ownWest[0], ownWest[2])).toBeCloseTo(86 - 81.25 + 0.7, 6);
   });
 });
 
