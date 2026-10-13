@@ -603,6 +603,15 @@ function stripUploadTimestamp(s) {
     .trim();
 }
 
+// A browser saves a Wikipedia preview as "1280px-<name>", and a title
+// made from that filename kept the prefix:
+//   "1280px-Gustave Caillebotte - The Orange Trees"
+// With it in front, the "Artist - " rule in cleanTitle never matched
+// either. 38 works carried one on 13 October 2026.
+function stripPreviewPrefix(s) {
+  return s ? s.replace(/^\d+px-/, "") : s;
+}
+
 // Treat a string as "needs an English fallback" when the visible
 // content is overwhelmingly non-Latin (CJK, Cyrillic, Arabic, Hebrew,
 // Devanagari, etc.). Latin-with-diacritics is fine — French/Italian/
@@ -863,7 +872,7 @@ const TRAILING_ABBREV_RX =
   /\b(Mr|Mrs|Ms|Dr|St|Sr|Jr|Inc|Co|Ltd|fl|ca|cm|in|d\. ?J|d\. ?Ä|etc|vs|Ave|Blvd|i\.e|e\.g)\.$/i;
 
 function cleanTitle(raw, fname, artist) {
-  const fallback = (fname ?? "").replace(/\.[^.]+$/, "").replace(/[_]/g, " ");
+  const fallback = stripPreviewPrefix((fname ?? "").replace(/\.[^.]+$/, "").replace(/[_]/g, " "));
   if (!raw) return fallback;
 
   // 1. Drop QuickStatements clutter and bracketed asides; commas often
@@ -887,8 +896,8 @@ function cleanTitle(raw, fname, artist) {
     cleaned = cleaned.slice(0, -1).trim();
   }
 
-  // 2. Strip leading upload timestamps.
-  cleaned = stripUploadTimestamp(cleaned);
+  // 2. Strip leading upload timestamps and a saved preview's prefix.
+  cleaned = stripPreviewPrefix(stripUploadTimestamp(cleaned));
 
   // 3. If what's left is overwhelmingly non-Latin, look for an English
   //    title baked into the filename.

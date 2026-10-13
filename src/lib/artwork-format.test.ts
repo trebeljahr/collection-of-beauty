@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
 
 import { artworkAlt, displayTitle, originalTitleSubtitle } from "./artwork-format";
+import { artworks } from "./data";
 
 describe("originalTitleSubtitle", () => {
   it("shows the original title when the source is in another script", () => {
@@ -44,5 +45,18 @@ describe("displayTitle / artworkAlt", () => {
     };
     expect(displayTitle(art)).toBe("The Sleeping Princess");
     expect(artworkAlt(art)).toBe("The Sleeping Princess by Viktor Vasnetsov, 1900");
+  });
+});
+
+describe("catalogue titles", () => {
+  it("carry no prefix of a saved preview", () => {
+    // A browser saves a Wikipedia preview as "1280px-<name>", and a title
+    // made from that filename kept the prefix until build-data began to
+    // strip it. The source title also goes out as JSON-LD `alternateName`.
+    const prefix = /^\d+px-/;
+    const prefixed = artworks
+      .filter((a) => prefix.test(a.title) || prefix.test(a.englishTitle ?? ""))
+      .map((a) => a.id);
+    expect(prefixed).toEqual([]);
   });
 });

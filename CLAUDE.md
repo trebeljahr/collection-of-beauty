@@ -33,6 +33,20 @@ required by the Dockerfile — don't remove it.
   array, it should be `ArtworkListing[]`. Server pages pass
   `artworkListings` (the precomputed slim array) — passing `artworks`
   to a client component is a regression (~6 MB into the RSC payload).
+- A work has two titles. `Artwork.title` is the source title after
+  build-data's cleanup, often still a filename ("NDL-DC 2586549-12
+  Kawase Hasui T15 crd"). `englishTitle` comes from
+  `metadata/title-overrides.json`, and pages, tiles and plaques show
+  `displayTitle()`: `englishTitle` when there is one, else `title`.
+  For 802 works the two differ. So a bad `title` is not what a visitor
+  reads; check `displayTitle` before calling a title wrong. `title`
+  still does three things: it orders the catalogue (year, then title),
+  it is the JSON-LD `alternateName` when it differs from the English
+  one, and the 3D museum picks frames by words in it. The order matters
+  on a museum floor at its 300 cap, where an artist's share is taken at
+  an even stride through their works: on 13 October 2026 dropping a
+  preview prefix from three Hasui titles swapped 12 of his prints on
+  the East Asian floor for 12 others.
 - `src/data/*.json` is generated. Don't hand-edit. Re-run
   `pnpm assets:build-data` after touching metadata or the build script.
 - `Artwork.dominantColor` (whole-image average) is for placeholder tints
