@@ -1,11 +1,13 @@
 import { describe, expect, it } from "vitest";
 import type { ArtworkListing } from "@/lib/data";
+import { arrangementOf } from "./divider-plans";
 import { benchRect, dividerRect, type Rect } from "./fittings";
 import { frameReach, pickFrameDesign } from "./frame-design";
 import {
   type CellRect,
   GRAND_HALL,
   layoutMuseum,
+  SLOT_SCREENS,
   SLOT_STAGES,
   type Slot,
   STAIR,
@@ -267,28 +269,121 @@ describe("a floor with every room open", () => {
     expect(rooms).toHaveLength(SLOTS.length + 1);
   });
 
-  it("stands no divider across a door's line of sight", () => {
+  type Room = (typeof rooms)[number];
+  /** The door a screen stands in front of: the one in the wall its bare
+   *  face looks at, a cell away. */
+  const doorBehind = (room: Room, divider: Room["dividers"][number]) => {
+    if (!divider.bare) return undefined;
+    const wall = (divider.line + (divider.bare === "low" ? -1 : 1)) * CELL_SIZE;
+    const side =
+      divider.axis === "x"
+        ? divider.bare === "low"
+          ? "north"
+          : "south"
+        : divider.bare === "low"
+          ? "west"
+          : "east";
+    return room.doors.find((door) => {
+      const across = divider.axis === "x" ? door.worldZ : door.worldX;
+      const along = (divider.axis === "x" ? door.worldX : door.worldZ) / CELL_SIZE;
+      return (
+        door.side === side &&
+        Math.abs(across - wall) < 1e-6 &&
+        along > divider.start &&
+        along < divider.end
+      );
+    });
+  };
+  const screened = (room: Room) =>
+    new Set(room.dividers.map((d) => doorBehind(room, d)).filter((d) => d !== undefined));
+  const OPPOSITE = { north: "south", south: "north", east: "west", west: "east" } as const;
+
+  it("stands no divider but a screen across a door's line of sight", () => {
     let dividers = 0;
+    const inSight: string[] = [];
     for (const room of rooms) {
+      const behindScreen = screened(room);
       for (const divider of room.dividers) {
         dividers++;
+        const own = doorBehind(room, divider);
         for (const door of room.doors) {
-          expect(
-            overlap(dividerRect(divider), strip(room, door, 0.25)),
-            `${room.id} ${door.side}`,
-          ).toBe(false);
+          if (!overlap(dividerRect(divider), strip(room, door, 0.25))) continue;
+          // A screen is looked at by its own door, and by a door in the
+          // wall opposite, which sees its picture. A door behind a
+          // screen looks at nothing further.
+          const allowed =
+            behindScreen.has(door) || (own !== undefined && door.side === OPPOSITE[own.side]);
+          if (!allowed) inSight.push(`${room.id} ${door.side}`);
         }
       }
     }
+    expect(inSight).toEqual([]);
     expect(dividers).toBeGreaterThan(40);
+  });
+
+  it("stands each screen of the plan a cell in front of its door, back to it", () => {
+    const built = new Set<string>();
+    for (const [slot, toward] of SLOT_SCREENS) {
+      const room = rooms.find((r) => r.id === `baroque-${slot.replace(/_/g, "-")}`);
+      const door = room?.doors.find(
+        (d) => d.connectsTo.roomId === `baroque-${toward.replace(/_/g, "-")}`,
+      );
+      expect(door, `${slot} has a door to ${toward}`).toBeDefined();
+      const screen = room?.dividers.find((d) => doorBehind(room, d) === door);
+      expect(screen, `${slot}: a screen at the door to ${toward}`).toBeDefined();
+      if (!room || !door || !screen) continue;
+      // Wider than the door by half a metre each side, and centred on it.
+      const along = (screen.axis === "x" ? door.worldX : door.worldZ) / CELL_SIZE;
+      expect((screen.start + screen.end) / 2, slot).toBeCloseTo(along, 6);
+      expect((screen.end - screen.start) * CELL_SIZE, slot).toBeGreaterThanOrEqual(door.width + 1);
+      expect(door.portal, slot).toBe(false);
+      // One side of a door at most.
+      expect(built.has(`${toward}>${slot}`), `${slot} and ${toward} both screen one door`).toBe(
+        false,
+      );
+      built.add(`${slot}>${toward}`);
+    }
+    // No screen but those.
+    const all = rooms.flatMap((r) => r.dividers.filter((d) => d.bare));
+    expect(all).toHaveLength(SLOT_SCREENS.length);
+    expect(rooms.find((r) => r.isAnchor)?.dividers).toEqual([]);
+  });
+
+  it("screens only a door that is there on every storey its room is", () => {
+    const stageOf = (slot: string) =>
+      SLOT_STAGES.findIndex((stage) => stage.some((s) => s.id === slot));
+    for (const [slot, toward] of SLOT_SCREENS) {
+      expect(stageOf(slot), slot).toBeGreaterThanOrEqual(0);
+      expect(stageOf(toward), toward).toBeGreaterThanOrEqual(0);
+      expect(stageOf(toward), `${toward} opens no later than ${slot}`).toBeLessThanOrEqual(
+        stageOf(slot),
+      );
+    }
+  });
+
+  it("hangs one picture on a screen, on the face toward the room", () => {
+    for (const room of rooms) {
+      room.dividers.forEach((divider, index) => {
+        if (!divider.bare) return;
+        const hung = room.placements.filter((p) => p.divider === index);
+        expect(hung.length, room.id).toBeLessThanOrEqual(1);
+        for (const p of hung) {
+          const across = (divider.axis === "x" ? p.position[2] : p.position[0]) / CELL_SIZE;
+          expect(Math.sign(across - divider.line), room.id).toBe(divider.bare === "low" ? 1 : -1);
+        }
+      });
+    }
   });
 
   it("stands no bench in the walking line between doors", () => {
     let benches = 0;
     for (const room of rooms) {
+      // A visitor walks round a screen, not on through its door's line.
+      const behindScreen = screened(room);
       for (const bench of room.benches) {
         benches++;
         for (const door of room.doors) {
+          if (behindScreen.has(door)) continue;
           expect(
             overlap(benchRect(bench), strip(room, door, 0.45)),
             `${room.id} ${door.side}`,
@@ -297,6 +392,43 @@ describe("a floor with every room open", () => {
       }
     }
     expect(benches).toBeGreaterThan(20);
+  });
+
+  it("divides no two halls or long rooms that share a door the same way", () => {
+    const styleOf = (room: Room) =>
+      JSON.stringify(
+        room.dividers
+          .filter((d) => !d.bare)
+          .map((d) => [
+            d.axis,
+            d.end - d.start,
+            d.start === (d.axis === "x" ? room.cellBounds.xMin : room.cellBounds.zMin),
+          ])
+          .sort(),
+      );
+    const kinds = new Set<string>();
+    const twins: string[] = [];
+    for (const room of rooms) {
+      if (room.dividers.every((d) => d.bare)) continue;
+      const arrangement = arrangementOf(room.cellBounds, room.dividers);
+      kinds.add(`${arrangement.kind}:${styleOf(room)}`);
+      for (const door of room.doors) {
+        const other = rooms.find((r) => r.id === door.connectsTo.roomId);
+        if (!other || other.dividers.every((d) => d.bare)) continue;
+        const b = other.cellBounds;
+        const a = room.cellBounds;
+        const sameShape =
+          a.xMax - a.xMin === b.xMax - b.xMin && a.zMax - a.zMin === b.zMax - b.zMin;
+        if (sameShape && styleOf(room) === styleOf(other)) twins.push(`${room.id} ${other.id}`);
+      }
+    }
+    expect(twins).toEqual([]);
+    // Wall lengths from 2.5 m to 7.5 m, in rows, bays and staggered.
+    expect(kinds.size).toBeGreaterThanOrEqual(8);
+    const lengths = new Set(
+      rooms.flatMap((r) => r.dividers.map((d) => (d.end - d.start) * CELL_SIZE)),
+    );
+    expect([...lengths].sort((x, y) => x - y)).toEqual([2.5, 5, 7.5]);
   });
 
   it("hangs works on dividers, each on a divider its room has", () => {

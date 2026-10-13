@@ -74,7 +74,14 @@ import {
   planPanelBenches,
   wallIsland,
 } from "./feature-benches";
-import { arrivalPoint, ceilingHeightFor, planBenches, planDividers } from "./fittings";
+import type { DividerStyle } from "./divider-plans";
+import {
+  arrivalPoint,
+  benchClearOf,
+  ceilingHeightFor,
+  planBenches,
+  planDividers,
+} from "./fittings";
 import { fitsStorey, giantSize, hangHallStoreys, hangSheerWall } from "./giants";
 import { hangGrandHall, pickHallCandidates } from "./grand-hall";
 import {
@@ -104,7 +111,7 @@ import {
   wallFootprint,
 } from "./place-paintings";
 import { texturePxPerMetre } from "./sharpness";
-import type { CellRect, Door, FloorLayout, MuseumLayout, RoomLayout } from "./types";
+import type { Bench, CellRect, Door, FloorLayout, MuseumLayout, RoomLayout } from "./types";
 import { CELL_SIZE, floorY, PORTAL_HEIGHT, PORTAL_WIDTH, WALL_THICKNESS } from "./world-coords";
 
 export const BLOCK_GRID = { x: 47, z: 25 };
@@ -121,6 +128,9 @@ export const BLOCK_DOOR_HEIGHT = 2.9;
  *  wallpaper. */
 export const BLOCK_WALL_COVERAGE = 0.45;
 export const BLOCK_PRINT_COVERAGE = 0.38;
+
+/** Floor between a bench and the nearest freestanding wall. */
+const ISLAND_CLEARANCE = 2.2;
 
 // Columns and rows, in cells, both ends inclusive. Every band is an odd
 // number of cells, which puts the middle of a shared wall in the middle
@@ -227,6 +237,13 @@ type FloorPlan = {
   /** Neighbours of one row joined into one long gallery, west to east.
    *  Keep each inside one era. */
   merges: ReadonlyArray<readonly RoomKey[]>;
+  /** How a room's freestanding walls are set out, by one of its
+   *  squares (`DividerStyle`). A room not named takes rows of panels.
+   *  No two rooms that share a door are divided the same way. */
+  styles: Readonly<Record<RoomKey, DividerStyle>>;
+  /** Door screens: in the first room, in front of its door to the
+   *  second. Never both sides of one door, and never a portal. */
+  screens: ReadonlyArray<readonly [RoomKey, RoomKey]>;
 };
 /** What hangs on each floor and where. The first floor has both end
  *  halls' squares as galleries (14 rooms), the second the east one
@@ -239,6 +256,21 @@ export const BLOCK_PLAN: readonly FloorPlan[] = [
     // The north range behind the middle stair hall, which has no door
     // on this side here: one gallery of 62.5 m.
     merges: [["n2", "n3", "n4"]],
+    styles: {
+      s1: "staggered",
+      s2: "open",
+      cw: "bays",
+      "hall-w": "pinwheel",
+      n5: "bays",
+      "hall-e": "cross-rows",
+      ce: "long-rows",
+      s5: "long-rows",
+    },
+    screens: [
+      ["s2", "cw"],
+      ["n1", "hall-w"],
+      ["s5", "s4"],
+    ],
     zones: [
       { era: "gothic", cells: ["s2", "s1", "cw"] },
       { era: "renaissance", cells: ["hall-w", "n1", "n2", "n3", "n4"] },
@@ -253,6 +285,19 @@ export const BLOCK_PLAN: readonly FloorPlan[] = [
       ["n1", "n2"],
       ["s1", "s2"],
     ],
+    styles: {
+      s1: "long-rows",
+      n1: "bays",
+      n4: "open",
+      n5: "staggered",
+      "hall-e": "pinwheel",
+      ce: "staggered",
+    },
+    screens: [
+      ["n3", "n2"],
+      ["n4", "ce"],
+      ["s5", "hall-e"],
+    ],
     zones: [
       { era: "enlightenment", cells: ["s2", "s1", "cw", "n2", "n1"] },
       { era: "romantic", cells: ["n3", "n4", "n5", "hall-e"] },
@@ -266,6 +311,21 @@ export const BLOCK_PLAN: readonly FloorPlan[] = [
       ["n4", "n5"],
       ["s4", "s5"],
     ],
+    styles: {
+      s1: "long-rows",
+      cw: "long-rows",
+      n1: "staggered",
+      n2: "open",
+      n3: "bays",
+      n4: "long-rows",
+      ce: "bays",
+      s4: "staggered",
+    },
+    screens: [
+      ["s1", "hall-w"],
+      ["n2", "cw"],
+      ["n3", "n4"],
+    ],
     zones: [
       { era: "fin-de-siecle", cells: ["s2", "s1", "cw", "n1", "n2"] },
       { era: "post-impressionism", cells: ["n3", "n4", "n5", "ce"] },
@@ -278,6 +338,20 @@ export const BLOCK_PLAN: readonly FloorPlan[] = [
     merges: [
       ["n2", "n3"],
       ["s3", "s4"],
+    ],
+    styles: {
+      s2: "open",
+      cw: "staggered",
+      n1: "bays",
+      n2: "staggered",
+      n4: "open",
+      n5: "long-rows",
+      s5: "bays",
+    },
+    screens: [
+      ["s2", "cw"],
+      ["n4", "ce"],
+      ["n5", "hall-e"],
     ],
     zones: [
       {
@@ -547,21 +621,46 @@ function buildFloor(
   for (const { key } of floorRooms) {
     const room = byKey.get(key)!;
     const hall = composedHall && key === greatHall;
-    room.dividers = hall ? [] : planDividers(room.cellBounds, room.doors);
-    room.benches = planBenches(room.cellBounds, room.doors, room.dividers, hall ? "z" : undefined);
-    // A room with no panels is seated on its own lines: on its centre
-    // when there is no way straight through it, in front of its one
-    // wall without a door when there is. `planBenches` keeps clear of
-    // every door's line and so stands the island in one quarter of it.
-    if (!hall && room.dividers.length === 0) {
+    const styled = Object.keys(plan.styles).find((cell) => keyOf(cell) === key);
+    const screens = plan.screens
+      .filter(([cell]) => keyOf(cell) === key)
+      .map(([, toward]) => byKey.get(keyOf(toward))?.id)
+      .flatMap((id) => room.doors.filter((d) => d.connectsTo.roomId === id));
+    room.dividers = hall
+      ? []
+      : planDividers(room.cellBounds, room.doors, {
+          style: styled ? plan.styles[styled] : undefined,
+          screens,
+        });
+    // Benches keep further from a wall here than in the tower: a bay
+    // bench a metre from a screen's picture is in the way of it.
+    room.benches = planBenches(
+      room.cellBounds,
+      room.doors,
+      room.dividers,
+      hall ? "z" : undefined,
+    ).filter((b) => benchClearOf(b, room.dividers, ISLAND_CLEARANCE));
+    // A room with no walls but a door screen is seated on its own
+    // lines: on its centre when there is no way straight through it, in
+    // front of its one wall without a door when there is. `planBenches`
+    // keeps clear of every door's line and so stands the island in one
+    // quarter of it.
+    const clear = (island: Bench[] | null) =>
+      island?.every((b) => benchClearOf(b, room.dividers, ISLAND_CLEARANCE)) ? island : null;
+    if (!hall && room.dividers.every((d) => d.bare)) {
       room.benches =
-        centredIsland(room.cellBounds, room.doors) ??
-        wallIsland(room.cellBounds, room.doors) ??
+        clear(centredIsland(room.cellBounds, room.doors)) ??
+        clear(wallIsland(room.cellBounds, room.doors)) ??
         room.benches;
     }
     // A room with panels is seated on the lines of its panels. All of
     // it before the hang, which puts a work in front of each bench.
     room.benches = [...room.benches, ...planPanelBenches(room)];
+    // A room whose panels give no place, and that no one walks straight
+    // through, takes the island on its centre when that stands clear.
+    if (room.benches.length === 0) {
+      room.benches = clear(centredIsland(room.cellBounds, room.doors)) ?? [];
+    }
   }
 
   const walkable = new Uint8Array(BLOCK_GRID.x * BLOCK_GRID.z);

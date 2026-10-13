@@ -36,6 +36,7 @@
 import type { ArtworkListing } from "@/lib/data";
 import { assignEra, ERAS, type Era, type EraId, eraAccentColor, getEra } from "@/lib/gallery-eras";
 import { slugify } from "@/lib/utils";
+import type { DividerStyle } from "./divider-plans";
 import {
   arrivalPoint,
   ceilingHeightFor,
@@ -221,6 +222,42 @@ type Fittings = {
   portals: number;
 };
 
+/**
+ * How a slot's freestanding walls are set out, where it is not the
+ * usual for its shape (rows of panels in a hall, bays in a long room):
+ * see `DividerStyle`. Two halls or two long rooms that share a door are
+ * not divided the same way.
+ */
+export const SLOT_STYLES: Readonly<Record<string, DividerStyle>> = {
+  nw: "staggered",
+  west: "long-rows",
+  s_strip: "staggered",
+  e2_s: "bays",
+  e2_n: "staggered",
+  w_far: "staggered",
+  n_w: "staggered",
+};
+
+/**
+ * Door screens: in the first slot, in front of its door to the second.
+ *
+ * A room is fitted once, for every storey, and a storey that opens few
+ * slots has few doors. A screen in front of a wall with no door in it
+ * would be a wall for nothing, so the second slot is always one that
+ * opens no later than the first (`SLOT_STAGES`). Never both sides of
+ * one door, never a portal, and none in the Grand Hall.
+ */
+export const SLOT_SCREENS: ReadonlyArray<readonly [string, string]> = [
+  ["west", "sw"],
+  ["e_far", "east"],
+  ["e2_s", "se"],
+  ["s_w", "sw"],
+  ["s_e", "s_strip"],
+  ["w2_n", "nw"],
+  ["o_se", "e2_s"],
+  ["o_sw", "s_w"],
+];
+
 const GRAND_HALL_KEY = "grand-hall";
 const STAIRWELL_KEY = "stairwell";
 const BARE: Fittings = { ceilingHeight: ROOM_HEIGHT, dividers: [], benches: [], portals: 0 };
@@ -267,7 +304,12 @@ export function fittingsFor(key: string): Fittings {
       // The Grand Hall stays one open room. It is composed about its
       // portal axis and is where a visitor is put down, so it gets an
       // island of benches either side of that axis and no walls.
-      const dividers = room.isAnchor ? [] : planDividers(room.cellBounds, room.doors);
+      const screens = SLOT_SCREENS.filter(([slot]) => slot === key).flatMap(([, toward]) =>
+        room.doors.filter((d) => d.connectsTo.roomId === (slugify(toward) || toward)),
+      );
+      const dividers = room.isAnchor
+        ? []
+        : planDividers(room.cellBounds, room.doors, { style: SLOT_STYLES[key], screens });
       const mirrorAxis =
         room.isAnchor && portals.length > 0
           ? portals[0].side === "north" || portals[0].side === "south"

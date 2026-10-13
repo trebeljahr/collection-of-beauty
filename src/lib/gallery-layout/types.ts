@@ -63,7 +63,7 @@ export type Door = {
  * side wall, or a panel standing clear of every wall. It lies on a cell
  * line, so collision can hold it as blocked cell edges, and it is
  * `DIVIDER_THICKNESS` thick, centred on that line. Both faces are
- * hangable wall.
+ * hangable wall, unless one is `bare`.
  */
 export type Divider = {
   /** World axis the wall runs along. */
@@ -72,9 +72,15 @@ export type Divider = {
    *  when it runs along z. Line `n` is the boundary between cell `n - 1`
    *  and cell `n`. */
   line: number;
-  /** Extent along `axis`, in grid lines (`start < end`). */
+  /** Extent along `axis`, in grid lines (`start < end`). Whole lines
+   *  for a wall built off a room wall; a screen centred on a door ends
+   *  on half lines. */
   start: number;
   end: number;
+  /** The face that hangs nothing: the one looking toward lower or
+   *  higher coordinates across the wall. Set on a door screen, whose
+   *  back is to its door (`divider-plans.ts`). */
+  bare?: "low" | "high";
 };
 
 /** A gallery bench: its centre on the floor in world metres, and the

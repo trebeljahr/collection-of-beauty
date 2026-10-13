@@ -368,6 +368,59 @@ describe("divider runs", () => {
   });
 });
 
+describe("a door screen", () => {
+  // A 17.5 m room with a screen in front of a door in its east wall:
+  // on line 6, a cell in from the wall on line 7, its back to the door.
+  const bounds = { xMin: 0, xMax: 6, zMin: 0, zMax: 6 };
+  const screen = { axis: "z" as const, line: 6, start: 2.5, end: 4.5, bare: "high" as const };
+  const sheet = (id: string, widthCm: number, heightCm: number) =>
+    ({
+      id,
+      width: 4000,
+      height: Math.round((4000 * heightCm) / widthCm),
+      realDimensions: { widthCm, heightCm },
+    }) as unknown as ArtworkListing;
+  const hang = (artworks: ArtworkListing[]) => {
+    const room = { ...makeRoom({ ...bounds, dividers: [screen] }), artworks };
+    distributePaintings({ rooms: [room] } as unknown as FloorLayout);
+    return room.placements;
+  };
+
+  it("offers the face toward the room and not the one toward the door", () => {
+    const faces = computeRoomRuns(makeRoom({ ...bounds, dividers: [screen] })).filter(
+      (r) => r.divider === 0,
+    );
+    expect(faces).toHaveLength(1);
+    // Looking west, into the room, 0.2 m west of the line.
+    expect(faces[0].normalX).toBe(-1);
+    expect(faces[0].surface).toBeCloseTo(6 * CELL_SIZE - 0.2, 9);
+    expect(runLength(faces[0])).toBeCloseTo(2 * CELL_SIZE - 2 * WALL_MARGIN, 9);
+    expect(faces[0].feature).toBe(true);
+    expect(dividerWallMetres(bounds, [screen])).toBeCloseTo(runLength(faces[0]), 9);
+  });
+
+  it("hangs it with one picture: the room's largest that fits", () => {
+    const placements = hang([
+      sheet("small", 60, 45),
+      sheet("large", 240, 180),
+      sheet("middle", 120, 90),
+      // 4.4 m of wall less a frame and a plaque: too wide for it.
+      ...Array.from({ length: 12 }, (_, i) => sheet(`more-${i}`, 90, 70)),
+    ]);
+    const onScreen = placements.filter((p) => p.divider === 0);
+    expect(onScreen.map((p) => p.artwork.id)).toEqual(["large"]);
+    // In the middle of the screen, facing west.
+    expect(onScreen[0].position[2]).toBeCloseTo(3.5 * CELL_SIZE, 1);
+    expect(onScreen[0].position[0]).toBeLessThan(6 * CELL_SIZE - 0.2);
+    expect(placements).toHaveLength(15);
+  });
+
+  it("hangs it like any wall in a room of small sheets", () => {
+    const placements = hang(Array.from({ length: 40 }, (_, i) => sheet(`print-${i}`, 40, 55)));
+    expect(placements.filter((p) => p.divider === 0).length).toBeGreaterThan(1);
+  });
+});
+
 describe("ceiling height and the hang", () => {
   it("caps a low room's works under its ceiling and off its floor", () => {
     const low = computeRoomRuns(

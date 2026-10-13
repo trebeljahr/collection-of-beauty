@@ -446,21 +446,60 @@ required by the Dockerfile — don't remove it.
     hang keeps a metre under the ceiling, so a 3.4 m room caps a work at
     2.4 m. It does not hang taller than 3.2 m under a taller ceiling.
   - **Dividers.** `RoomLayout.dividers`: segments on grid lines, drawn
-    0.4 m thick (`divider-geometry.ts`). A long room (17.5 m or more,
-    and 1.4 times its width) gets pairs of wing walls with the middle
-    left open. A hall (17.5 m both ways) gets panels either side of its
-    axis, stopped where a side door looks across. The Grand Hall gets
-    none. No divider stands in a door's line of sight;
-    `layout-museum.test.ts` checks it on a floor with every room open.
-    A divider is four things, and a new one needs all four:
+    0.4 m thick (`divider-geometry.ts`) and planned in
+    [`divider-plans.ts`](src/lib/gallery-layout/divider-plans.ts). A
+    room is divided in one of six ways (`DividerStyle`):
+    - `rows`: panels either side of the room's axis, stopped where a
+      side door looks across. One 7.5 m panel, or two of 5 m;
+    - `long-rows`: the same rows with panels of 7.5 and 12.5 m;
+    - `bays`: pairs of wing walls with the middle left open;
+    - `staggered`: single wing walls from alternate sides;
+    - `pinwheel`: four panels, each a quarter turn from the last, in a
+      room 22.5 m or more both ways;
+    - `cross-rows`: rows along the room's other axis.
+    The plan names a style for each room: `SLOT_STYLES` in the tower,
+    `BLOCK_PLAN[].styles` in the block plan. A room not named, or named
+    a style it has no place for, takes rows when it is a hall (17.5 m
+    both ways) and bays when it is a long room (17.5 m or more, and 1.4
+    times its width). The Grand Hall gets none. Until 13 October 2026
+    every hall had the same four panels and every long room the same
+    paired wing walls, and Rico found it repetitive: both plans' tests
+    check that two neighbours are not divided alike.
+  - **Door screens.** A wall 2.5 m inside a door and parallel to it,
+    5 m long, or 2.5 m in front of a 1.4 m door in a wall under 15 m.
+    `Divider.bare` names the face toward the door, which hangs nothing.
+    The face toward the room takes one picture, the largest of the
+    room's works that fits it, hung on the middle of the screen
+    (`hangFeatures`, `WallRun.feature`). A room of small sheets has no
+    work that holds 4.4 m alone and hangs the screen like any wall. The
+    plan names each screen by its room and the room its door leads to:
+    `SLOT_SCREENS`, `BLOCK_PLAN[].screens`. Before adding one:
+    - never in front of a portal, never on both sides of one door, and
+      only where 12.5 m of room lie behind the door;
+    - in the tower a slot is fitted once for every storey, so a screen
+      goes only at a door to a slot that opens no later than its own
+      (`SLOT_STAGES`). At any other door it would stand in front of a
+      blank wall on the storeys that open fewer rooms;
+    - a door stands in the middle of a cell, so a 5 m screen ends on
+      half lines. `writeDividerEdges` blocks whole cells only; the rest
+      is the collider and `clearOfFittings`;
+    - a screened door has no line of sight to keep. A row runs on past
+      it, and the door in the wall opposite looks at the screen's
+      picture. No other divider stands in an open door's line of sight;
+      `layout-museum.test.ts` checks it on a floor with every room open;
+    - two walls keep 5 m apart face to face, 2.5 m end to end in one
+      line and 3.75 m corner to corner (`clash`). A row or a wing wall
+      that would stand nearer a screen is left out.
+  - A divider is four things, and a new one needs all four:
     1. blocked cell edges, written by `writeDividerEdges` after the
        room-ownership pass, which leaves edges inside one room free;
     2. a collider at its real thickness (`addFittingColliders`), since
        the edge mask alone stops the player 0.1 m inside the plaster;
     3. two runs in `computeRoomRuns`, one per face (`WallRun.divider`,
-       `Placement.divider`), and a cut in the room wall a wing wall is
-       built off. `dividerWallMetres` counts them when a floor decides
-       how many rooms to open: the tower went from 116 rooms to 96;
+       `Placement.divider`; one run for a screen), and a cut in the room
+       wall a wing wall is built off. `dividerWallMetres` counts them
+       when a floor decides how many rooms to open: the tower went from
+       116 rooms to 96;
     4. a wall for the picture light: `wallContextFor` takes the
        divider's face, so the pool stops at its ends.
     Laylights are cut where a divider reaches under them
@@ -475,10 +514,12 @@ required by the Dockerfile — don't remove it.
     hang takes smaller second pairs there, or none (Baroque: 8 works,
     12 before).
   - **Benches.** `RoomLayout.benches`, modelled in `bench-geometry.ts`.
-    One in each bay of a long room, two facing the panels of a hall, an
-    island of two back to back in any other room 15 m or more across,
-    two islands in the Grand Hall. None stands in the walking line
-    between doors. A bench is smaller than a cell, so it is in no edge
+    They follow how the room's walls are set out (`arrangementOf`): one
+    in each bay between wing walls, two facing the panels of a room of
+    rows, an island of two back to back in any other room 15 m or more
+    across, two islands in the Grand Hall. A door screen seats nothing,
+    and no bench stands within a metre of one. None stands in the
+    walking line between doors; a screened door has none. A bench is smaller than a cell, so it is in no edge
     mask: it is a box collider, and `clearOfFittings` in
     `canAcceptPhysicsMove` applies the same rectangle when the physics
     world has not loaded.
@@ -659,27 +700,38 @@ required by the Dockerfile — don't remove it.
     hang.
     - `planBenches` seats a room from its footprint and doors. It was
       made for the tower's 1.4 m doors: here it seats the composed
-      great hall and nothing with panels, where its nave benches come
-      5 cm too near a panel.
+      great hall and the rooms of wing walls, bay by bay, and nothing
+      with panels, where its nave benches come 5 cm too near a panel.
+      A bench of its that stands within 2.2 m of a divider is left out.
     - A room with panels takes benches in line with a row of panels, in
       the middle of a gap between two of them, and in the middle of an
       aisle 8 m or more wide, opposite a panel (`planPanelBenches`).
-      Never in the line of a door in the wall beside it.
+      Never in the line of a door in the wall beside it. The rows may
+      run along either axis, and a pinwheel's four panels are seated
+      one each, from their aisles. A place counts only where the bench
+      looks at a wall or a panel within reach (`benchAnchors`): the gap
+      in a row 10 m from both walls of a square room is none.
     - A room with no panels and no way straight through it takes an
       island of two on its centre (`centredIsland`). The spine plan has
       none: its four small rooms have a door in three walls. Each takes
       an island on its centre line, 4.25 m in front of the wall without
-      a door (`wallIsland`).
+      a door (`wallIsland`). A door screen is no panel: a small room
+      keeps its island with one, and the island's other bench looks at
+      the screen's picture. A room with one panel and a screen, which
+      no one walks straight through, takes the centre island too.
     - The two galleries of the spine have a portal in both long walls
-      on the floors above the first. Every line of their panels is one
-      of two walking lines, so they have no bench there.
-    - The hang then finds what each bench looks at: the nearest wall or
-      panel face square in front of it and behind it, within 9.5 m
-      (`benchAnchors`). It hangs the room's largest works there first,
-      each centred on its bench, cuts the run in two either side of the
-      work, and hangs the rest of the room on what is left
-      (`hangForBenches`). On 13 October 2026 all 76 benches had a work
-      centred on them.
+      on the floors above the first. In rows, every line of their
+      panels is one of two walking lines, so they have no bench there
+      (three of the six). Divided by wing walls they take one in each
+      end bay.
+    - The hang gives each door screen its one picture first
+      (`hangFeatures`). Then it finds what each bench looks at: the
+      nearest wall or panel face square in front of it and behind it,
+      within 9.5 m (`benchAnchors`). It hangs the room's largest works
+      there, each centred on its bench, cuts the run in two either side
+      of the work, and hangs the rest of the room on what is left
+      (`hangForBenches`). On 13 October 2026 all 100 benches had a
+      work centred on them.
     - The composed great hall is hung by `grand-hall.ts` and skipped by
       that. Its two islands are turned and moved in line with the pair
       beside the stair hall door (`hallIslandsFacingPair`).
@@ -695,12 +747,18 @@ required by the Dockerfile — don't remove it.
     door in the middle of a cell. The collision grid needs that. Room
     doors are 2.4 m, one cell edge, so they need no jamb colliders. The
     grid is 47 × 25: `computeBlockedEdges` takes `{ x, z }`.
-  - **A long gallery has a row of panels down each side of its nave.**
-    `planPanels` (`fittings.ts`) set one panel in a stretch of hall no
-    door looks across, however long. A stretch of 12 cells or more now
-    takes as many as fit, a panel's length apart
-    (`PANEL_ROW_MIN_CELLS`). The tower's longest stretch is 7 cells, so
-    its rooms are fitted as before.
+  - **A long gallery in rows has a row of panels down each side of its
+    nave.** `rows` (`divider-plans.ts`) set one panel in a stretch of
+    hall no door looks across, however long. A stretch of 12 cells or
+    more takes as many as fit, a panel's length apart
+    (`PANEL_ROW_MIN_CELLS`). The tower's longest stretch is 7 cells.
+  - **No two rooms that share a door are divided the same way**
+    (`BLOCK_PLAN[].styles`), and each floor has three door screens
+    (`BLOCK_PLAN[].screens`): see "Dividers" and "Door screens" above.
+    The square under a stair hall takes the pinwheel on the first floor
+    and on the second. A style is the plan's wish: a room with a screen
+    at a side door has no place for paired wing walls and falls back to
+    rows, so look at the plan after naming one.
   - An era is hung on its own (`hangZone`): the placer is given only
     its rooms, so spill cannot carry a work into another era. An
     artist's share of the wall goes to their sharpest scans

@@ -1,9 +1,11 @@
 import { describe, expect, it } from "vitest";
+import { arrangementOf, dividerStyles } from "./divider-plans";
 import {
   arrivalPoint,
   BENCH_DEPTH,
   BENCH_HEIGHT,
   BENCH_LENGTH,
+  benchClearOf,
   benchRect,
   benchUnder,
   ceilingHeightFor,
@@ -149,6 +151,234 @@ describe("planDividers", () => {
     const r = rect(9, 5, 20, 15);
     const dividers = planDividers(r, [door(r, "west", 2)]);
     expect(dividers[0]).toEqual({ axis: "z", line: 23, start: 15, end: 16 });
+  });
+});
+
+describe("planDividers, by style", () => {
+  /** A hall 27.5 × 17.5 m with a door in the middle of each wall but
+   *  the south one. */
+  const hall = rect(11, 7);
+  const hallDoors = [
+    door(hall, "west", 3, 2.4),
+    door(hall, "east", 3, 2.4),
+    door(hall, "north", 5, 2.4),
+  ];
+
+  it("divides a hall into bays with a pair of 5 m wing walls either side of its side door", () => {
+    expect(planDividers(hall, hallDoors, { style: "bays" })).toEqual([
+      { axis: "z", line: 4, start: 0, end: 2 },
+      { axis: "z", line: 4, start: 5, end: 7 },
+      { axis: "z", line: 7, start: 0, end: 2 },
+      { axis: "z", line: 7, start: 5, end: 7 },
+    ]);
+  });
+
+  it("staggers single wing walls from alternate sides", () => {
+    expect(planDividers(hall, hallDoors, { style: "staggered" })).toEqual([
+      { axis: "z", line: 4, start: 0, end: 2 },
+      { axis: "z", line: 7, start: 5, end: 7 },
+    ]);
+  });
+
+  it("stands longer panels in the same rows", () => {
+    const usual = planDividers(hall, hallDoors);
+    const long = planDividers(hall, hallDoors, { style: "long-rows" });
+    expect(usual.map((d) => d.end - d.start)).toEqual([2, 2, 2, 2]);
+    expect(long.map((d) => d.end - d.start)).toEqual([3, 3, 3, 3]);
+    expect(new Set(long.map((d) => d.line))).toEqual(new Set(usual.map((d) => d.line)));
+    // Through the middle of a room no door looks across: 12.5 m.
+    const r = rect(11, 7);
+    const through = planDividers(r, [door(r, "west", 3), door(r, "east", 3)], {
+      style: "long-rows",
+    });
+    expect(through).toEqual([
+      { axis: "x", line: 2, start: 3, end: 8 },
+      { axis: "x", line: 5, start: 3, end: 8 },
+    ]);
+  });
+
+  it("turns four panels round the middle of a large square room", () => {
+    const r = rect(11, 11);
+    const doors = [
+      door(r, "west", 5, PORTAL_WIDTH),
+      door(r, "east", 5, PORTAL_WIDTH),
+      door(r, "north", 5, 2.4),
+      door(r, "south", 5, 2.4),
+    ];
+    const dividers = planDividers(r, doors, { style: "pinwheel" });
+    expect(dividers).toEqual([
+      { axis: "x", line: 4, start: 1, end: 4 },
+      { axis: "z", line: 7, start: 1, end: 4 },
+      { axis: "x", line: 7, start: 7, end: 10 },
+      { axis: "z", line: 4, start: 7, end: 10 },
+    ]);
+    // A quarter turn about the middle of the room takes each to the next.
+    const turned = dividers.map((d) => ({
+      axis: d.axis === "x" ? "z" : "x",
+      line: d.axis === "x" ? d.line : 11 - d.line,
+      start: d.axis === "x" ? 11 - d.end : d.start,
+      end: d.axis === "x" ? 11 - d.start : d.end,
+    }));
+    const key = (d: { axis: string; line: number; start: number; end: number }) =>
+      `${d.axis}:${d.line}:${d.start}:${d.end}`;
+    expect(turned.map(key).sort()).toEqual(dividers.map(key).sort());
+    expect(arrangementOf(r, dividers)).toEqual({ kind: "pinwheel" });
+    // Rows the other way are one more arrangement of the same room.
+    const cross = planDividers(r, doors, { style: "cross-rows" });
+    expect(cross.every((d) => d.axis === "z")).toBe(true);
+    expect(dividerStyles(r, doors)).toEqual([
+      "rows",
+      "long-rows",
+      "bays",
+      "staggered",
+      "pinwheel",
+      "cross-rows",
+    ]);
+  });
+
+  it("falls back to the usual arrangement where a style has no place", () => {
+    // 17.5 m is too small for a pinwheel.
+    expect(planDividers(hall, hallDoors, { style: "pinwheel" })).toEqual(
+      planDividers(hall, hallDoors),
+    );
+    // A long narrow room has breadth for wing walls only.
+    const gallery = rect(9, 5);
+    const doors = [door(gallery, "west", 2), door(gallery, "east", 2)];
+    expect(planDividers(gallery, doors, { style: "rows" })).toEqual(planDividers(gallery, doors));
+    expect(dividerStyles(gallery, doors)).toEqual(["bays", "staggered"]);
+    expect(planDividers(hall, hallDoors, { style: "open" })).toEqual([]);
+    expect(planDividers(rect(6, 6), [], { style: "bays" })).toEqual([]);
+  });
+
+  it("tells wing walls from rows from a room with neither", () => {
+    expect(arrangementOf(hall, planDividers(hall, hallDoors))).toEqual({ kind: "rows", axis: "x" });
+    expect(arrangementOf(hall, planDividers(hall, hallDoors, { style: "staggered" }))).toEqual({
+      kind: "wings",
+      axis: "x",
+    });
+    expect(arrangementOf(hall, [])).toEqual({ kind: "none" });
+  });
+
+  it("keeps every wall of every style out of every door's line of sight", () => {
+    const rooms: Array<[CellRect, PlanDoor[]]> = [
+      [hall, hallDoors],
+      [rect(7, 11), [door(rect(7, 11), "north", 3, 2.4), door(rect(7, 11), "east", 5, 3.5)]],
+      [rect(22, 7), [door(rect(22, 7), "west", 3, 2.4), door(rect(22, 7), "south", 5, 2.4)]],
+      [rect(9, 5), [door(rect(9, 5), "west", 2), door(rect(9, 5), "north", 4)]],
+      [rect(8, 9), [door(rect(8, 9), "north", 3), door(rect(8, 9), "west", 4)]],
+    ];
+    const inSight: string[] = [];
+    for (const [r, doors] of rooms) {
+      for (const style of dividerStyles(r, doors)) {
+        for (const d of planDividers(r, doors, { style })) {
+          for (const dr of doors) {
+            if (overlap(dividerRect(d), doorStrip(r, dr, 0.05))) {
+              inSight.push(`${r.xMax + 1}x${r.zMax + 1} ${style} ${dr.side}`);
+            }
+          }
+        }
+      }
+    }
+    expect(inSight).toEqual([]);
+  });
+});
+
+describe("door screens", () => {
+  const room = rect(7, 7);
+  const east = door(room, "east", 3, 2.4);
+  const south = door(room, "south", 3, 2.4);
+
+  it("stands a 5 m screen a cell in front of the door, its back to it", () => {
+    expect(planDividers(room, [east, south], { style: "open", screens: [east] })).toEqual([
+      // East wall on line 7: the screen on line 6, the door's centre
+      // (3.5) in its middle, the face toward the door bare.
+      { axis: "z", line: 6, start: 2.5, end: 4.5, bare: "high" },
+    ]);
+    expect(planDividers(room, [east, south], { style: "open", screens: [south] })).toEqual([
+      { axis: "x", line: 6, start: 2.5, end: 4.5, bare: "high" },
+    ]);
+    const west = door(room, "west", 3, 2.4);
+    expect(planDividers(room, [west], { style: "open", screens: [west] })).toEqual([
+      { axis: "z", line: 1, start: 2.5, end: 4.5, bare: "low" },
+    ]);
+  });
+
+  it("is 2.5 m in front of a narrow door in a short wall", () => {
+    const small = rect(5, 5);
+    const d = door(small, "east", 2);
+    expect(planDividers(small, [d], { screens: [d] })).toEqual([
+      { axis: "z", line: 4, start: 2, end: 3, bare: "high" },
+    ]);
+  });
+
+  it("leaves a portal open, and a door into a shallow room", () => {
+    const portal = door(room, "north", 3, PORTAL_WIDTH);
+    expect(planDividers(room, [portal], { style: "open", screens: [portal] })).toEqual([]);
+    // 10 m from the door to the wall opposite: no room behind a screen.
+    const shallow = rect(7, 4);
+    const d = door(shallow, "north", 3);
+    expect(planDividers(shallow, [d], { style: "open", screens: [d] })).toEqual([]);
+    // A door a cell from the corner: no way round one end.
+    const corner = door(room, "north", 0);
+    expect(planDividers(room, [corner], { style: "open", screens: [corner] })).toEqual([]);
+  });
+
+  it("stands no screen across another door's way in", () => {
+    // Two doors side by side in one wall: a screen for one would stand
+    // in front of the other.
+    const a = door(room, "north", 2, 2.4);
+    const b = door(room, "north", 3, 2.4);
+    expect(planDividers(room, [a, b], { style: "open", screens: [a] })).toEqual([]);
+    // The door opposite looks at the screen's picture: that is allowed.
+    const facing = door(room, "south", 2, 2.4);
+    expect(planDividers(room, [a, facing], { style: "open", screens: [a] })).toHaveLength(1);
+  });
+
+  it("lets a row run on past a screened door, and keeps the rows clear of the screen", () => {
+    const hall = rect(11, 7);
+    const west = door(hall, "west", 3, 2.4);
+    const eastDoor = door(hall, "east", 3, 2.4);
+    const north = door(hall, "north", 5, 2.4);
+    const open = planDividers(hall, [west, eastDoor, north]);
+    const screened = planDividers(hall, [west, eastDoor, north], { screens: [north] });
+    // Open, the north door looks across the hall and both rows stop for
+    // it. Screened, the far row is one panel through the middle, and the
+    // near row keeps two cells' width of floor to the screen.
+    expect(open.filter((d) => d.line === 5)).toHaveLength(2);
+    expect(screened.filter((d) => d.line === 5)).toEqual([
+      { axis: "x", line: 5, start: 4, end: 7 },
+    ]);
+    const screen = screened[screened.length - 1];
+    expect(screen).toEqual({ axis: "x", line: 1, start: 4.5, end: 6.5, bare: "low" });
+    for (const d of screened.filter((o) => o.line === 2)) {
+      expect(d.end <= screen.start - 1 || d.start >= screen.end + 1).toBe(true);
+    }
+    // A screen at an end door: the rows start two cells behind it.
+    const ended = planDividers(hall, [west, eastDoor], { screens: [west] });
+    expect(Math.min(...ended.filter((d) => !d.bare).map((d) => d.start))).toBeGreaterThanOrEqual(3);
+  });
+
+  it("builds no wing wall beside a screen on its own side of the room", () => {
+    const hall = rect(11, 7);
+    const doors = [door(hall, "west", 3, 2.4), door(hall, "east", 3, 2.4)];
+    const north = door(hall, "north", 5, 2.4);
+    const dividers = planDividers(hall, [...doors, north], {
+      style: "staggered",
+      screens: [north],
+    });
+    const wingWalls = dividers.filter((d) => !d.bare);
+    expect(wingWalls.length).toBeGreaterThan(0);
+    // All from the south wall: the north side belongs to the screen.
+    expect(wingWalls.every((d) => d.end === 7)).toBe(true);
+  });
+
+  it("seats no bench within a metre of a screen", () => {
+    const d = door(room, "east", 3, 2.4);
+    const dividers = planDividers(room, [d], { style: "open", screens: [d] });
+    const benches = planBenches(room, [d], dividers);
+    expect(benches.length).toBeGreaterThan(0);
+    for (const bench of benches) expect(benchClearOf(bench, dividers, 1)).toBe(true);
+    expect(benchClearOf({ x: 14, z: 8.75, along: "z" }, dividers, 1)).toBe(false);
   });
 });
 
@@ -324,6 +554,15 @@ describe("writeDividerEdges", () => {
     // Along z on x line 4: between columns 3 and 4, rows 0 and 1.
     const blockedEW = [...ew].flatMap((v, i) => (v ? [i] : []));
     expect(blockedEW).toEqual([0 * (grid.x - 1) + 3, 1 * (grid.x - 1) + 3]);
+  });
+
+  it("blocks whole cells only under a screen that ends on half lines", () => {
+    const ew = new Uint8Array((grid.x - 1) * grid.z);
+    const ns = new Uint8Array(grid.x * (grid.z - 1));
+    writeDividerEdges([{ axis: "x", line: 2, start: 1.5, end: 3.5, bare: "low" }], grid, ew, ns);
+    // Columns 1.5 to 3.5: only column 2 lies wholly under the wall.
+    expect([...ns].flatMap((v, i) => (v ? [i] : []))).toEqual([1 * grid.x + 2]);
+    expect([...ew].every((v) => v === 0)).toBe(true);
   });
 
   it("ignores a line on the edge of the grid", () => {

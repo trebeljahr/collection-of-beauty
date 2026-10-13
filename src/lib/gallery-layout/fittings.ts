@@ -1,29 +1,43 @@
-// Room fittings: ceiling height, freestanding divider walls and benches.
+// Room fittings: ceiling height, benches, and the floor a room's
+// freestanding walls and benches take up.
 //
 // A room is a rectangle of 2.5 m cells with doors in its walls. Left at
 // that, every room is the same empty box at a different size. The
 // fittings are what tell a cabinet from a hall:
 //
-//  - Ceiling height follows the room's narrow side: 3.4 m over a 10 m
-//    cabinet, 5.4 m over a hall 17.5 m and wider, 4.2 m between.
-//  - A long room (17.5 m or more, and at least 1.4 times its width) is
-//    cut into bays by pairs of wing walls, one from each long wall, with
-//    the middle left open as one sightline down the room.
-//  - A hall (17.5 m or more both ways) gets panels either side of its
-//    axis: a nave between them and an aisle behind each.
-//  - Benches: one in each bay of a long room, a pair facing the panels
-//    of a hall, an island of two back to back in any other large room.
+//  - Ceiling height follows the room's narrow side: 4.0 m over a 10 m
+//    cabinet, 5.7 m over a hall 17.5 m and wider, 4.8 m between.
+//  - Freestanding walls: panels, wing walls and door screens, set out
+//    in `divider-plans.ts`.
+//  - Benches: one in each bay between wing walls, a pair facing the
+//    panels of a hall, an island of two back to back in any other
+//    large room.
 //
-// Everything here is planned from the room's rectangle and its doors,
-// so a divider never stands across a door's line of sight and a bench
-// never stands in the walking line between two doors. Dividers lie on
-// cell lines; `writeDividerEdges` puts them into the collision masks.
+// Everything here is planned from the room's rectangle, its doors and
+// its dividers, so a bench never stands in the walking line between two
+// doors. Dividers lie on cell lines; `writeDividerEdges` puts them into
+// the collision masks.
 //
 // The layout calls the planners with the doors a room has when every
 // slot of the plan is open (see `PLAN_FITTINGS` in layout-museum.ts), so
 // a room is fitted the same way on every storey.
 
-import type { Bench, CellRect, Divider, Door } from "./types";
+import { arrangementOf } from "./divider-plans";
+import {
+  cellsX,
+  cellsZ,
+  DIVIDED_MIN_CELLS,
+  EPS,
+  type Frame,
+  type FrameDoor,
+  frameDoors,
+  frameFor,
+  hallAxis,
+  longAxis,
+  type PlanDoor,
+  roomKind,
+} from "./room-frame";
+import type { Bench, CellRect, Divider } from "./types";
 import {
   CELL_SIZE,
   DIVIDER_THICKNESS,
@@ -31,6 +45,9 @@ import {
   ROOM_HEIGHT_LOW,
   ROOM_HEIGHT_TALL,
 } from "./world-coords";
+
+export { planDividers } from "./divider-plans";
+export { longAxis, type PlanDoor, type RoomKind, roomKind } from "./room-frame";
 
 // ── Bench ─────────────────────────────────────────────────────────────
 
@@ -42,31 +59,8 @@ const BENCH_STEP_UP = 0.05;
 /** Air between the two benches of a back-to-back island. */
 const ISLAND_GAP = 0.02;
 
-// ── Room kinds ────────────────────────────────────────────────────────
-
-/** Cells in 17.5 m: the length from which a room is divided. */
-const DIVIDED_MIN_CELLS = 7;
-/** A long room is at least this many times longer than wide. */
-const GALLERY_MIN_ASPECT = 1.4;
 /** Narrow side from which a room without panels gets a bench island. */
 const LARGE_MIN_CELLS = 6;
-
-export type RoomKind = "hall" | "gallery" | "room";
-
-function cellsX(rect: CellRect): number {
-  return rect.xMax - rect.xMin + 1;
-}
-function cellsZ(rect: CellRect): number {
-  return rect.zMax - rect.zMin + 1;
-}
-
-export function roomKind(rect: CellRect): RoomKind {
-  const long = Math.max(cellsX(rect), cellsZ(rect));
-  const short = Math.min(cellsX(rect), cellsZ(rect));
-  if (short >= DIVIDED_MIN_CELLS) return "hall";
-  if (long >= DIVIDED_MIN_CELLS && long >= GALLERY_MIN_ASPECT * short) return "gallery";
-  return "room";
-}
 
 /** Ceiling height for a room of this footprint. */
 export function ceilingHeightFor(rect: CellRect): number {
@@ -74,237 +68,6 @@ export function ceilingHeightFor(rect: CellRect): number {
   if (short <= 4) return ROOM_HEIGHT_LOW;
   if (short >= DIVIDED_MIN_CELLS) return ROOM_HEIGHT_TALL;
   return ROOM_HEIGHT;
-}
-
-// ── Local frame ───────────────────────────────────────────────────────
-// Planning happens along the room's long axis: `a` runs along it and `c`
-// across it, both measured from the room's low corner.
-
-/** What the planners need to know about a door. */
-export type PlanDoor = Pick<Door, "side" | "worldX" | "worldZ" | "width">;
-
-type Frame = {
-  axis: "x" | "z";
-  /** Cells along and across the axis. */
-  length: number;
-  breadth: number;
-  /** Grid lines of the room's low corner, along and across. */
-  a0: number;
-  c0: number;
-};
-
-/** A door in the frame, in cells. An end door is in a wall the axis
- *  runs into, so it looks down the room at cross position `c`; a side
- *  door looks across it at position `a`. */
-type FrameDoor = { wall: "end" | "side"; pos: number; width: number };
-
-function frameFor(rect: CellRect, axis: "x" | "z"): Frame {
-  return axis === "x"
-    ? { axis, length: cellsX(rect), breadth: cellsZ(rect), a0: rect.xMin, c0: rect.zMin }
-    : { axis, length: cellsZ(rect), breadth: cellsX(rect), a0: rect.zMin, c0: rect.xMin };
-}
-
-/** The room's long axis; a square room runs east–west. */
-export function longAxis(rect: CellRect): "x" | "z" {
-  return cellsZ(rect) > cellsX(rect) ? "z" : "x";
-}
-
-function frameDoors(frame: Frame, doors: readonly PlanDoor[]): FrameDoor[] {
-  return doors.map((d) => {
-    const inEndWall =
-      frame.axis === "x"
-        ? d.side === "west" || d.side === "east"
-        : d.side === "north" || d.side === "south";
-    // An end door is placed by its coordinate across the axis, a side
-    // door by its coordinate along it.
-    const acrossAxis = frame.axis === "x" ? "z" : "x";
-    const world = (inEndWall ? acrossAxis : frame.axis) === "x" ? d.worldX : d.worldZ;
-    return {
-      wall: inEndWall ? "end" : "side",
-      pos: world / CELL_SIZE - (inEndWall ? frame.c0 : frame.a0),
-      width: d.width,
-    };
-  });
-}
-
-function toDivider(frame: Frame, line: number, start: number, end: number): Divider {
-  // `line` is across the axis for a wall running along it, and the
-  // other way round for a wall running across.
-  return { axis: frame.axis, line: frame.c0 + line, start: frame.a0 + start, end: frame.a0 + end };
-}
-
-function toCrossDivider(frame: Frame, line: number, start: number, end: number): Divider {
-  return {
-    axis: frame.axis === "x" ? "z" : "x",
-    line: frame.a0 + line,
-    start: frame.c0 + start,
-    end: frame.c0 + end,
-  };
-}
-
-// ── Dividers ──────────────────────────────────────────────────────────
-
-/** Clear floor kept either side of a door opening along its line of
- *  sight, metres. A divider never enters that strip. */
-const SIGHT_MARGIN = 0.3;
-/** Wall left between a door jamb and a wing wall built off the same
- *  wall, metres. */
-const ATTACH_CLEARANCE = 1.0;
-/** Bays a long room is cut into are this long at best, in cells. */
-const IDEAL_BAY_CELLS = 3;
-const MIN_BAY_CELLS = 2;
-/** Half the nave between a hall's two panel lines, in cells. */
-const NAVE_HALF_CELLS = 1.5;
-/** Narrowest aisle left between a panel line and the side wall. */
-const MIN_AISLE_CELLS = 2;
-/** Panel length in cells: one unbroken panel, or each of the two a
- *  cross door's sightline splits it into. */
-const PANEL_CELLS = 3;
-const SPLIT_PANEL_CELLS = 2;
-/** A stretch of a hall this long with no door looking across it takes a
- *  row of panels, a panel's length apart, and not one. Only a long
- *  gallery joined from several rooms has one: the tower's longest
- *  stretch is 7 cells. */
-const PANEL_ROW_MIN_CELLS = 12;
-const PANEL_ROW_GAP_CELLS = 3;
-
-const EPS = 1e-6;
-
-function sightHalfCells(width: number): number {
-  return (width / 2 + SIGHT_MARGIN) / CELL_SIZE;
-}
-
-/**
- * Freestanding walls for a room, from its footprint and doors. Empty
- * for anything shorter than 17.5 m.
- */
-export function planDividers(rect: CellRect, doors: readonly PlanDoor[]): Divider[] {
-  const kind = roomKind(rect);
-  if (kind === "room") return [];
-  const frame = frameFor(rect, longAxis(rect));
-  const fd = frameDoors(frame, doors);
-  return kind === "gallery" ? planWingWalls(frame, fd) : planPanels(frame, fd);
-}
-
-/** Pairs of wing walls across a long room: one from each long wall on
- *  the same line, the passage between them left open. */
-function planWingWalls(frame: Frame, doors: FrameDoor[]): Divider[] {
-  const { length, breadth } = frame;
-  const endDoors = doors.filter((d) => d.wall === "end");
-  const sideDoors = doors.filter((d) => d.wall === "side");
-
-  // A third of the width from each side, shortened until every end
-  // door looks down the open passage.
-  let wing = Math.max(1, Math.floor(breadth / 3));
-  for (const d of endDoors) {
-    const half = sightHalfCells(d.width);
-    while (wing > 0 && (d.pos - half < wing - EPS || d.pos + half > breadth - wing + EPS)) wing--;
-  }
-  if (wing === 0) return [];
-
-  // Lines a pair may stand on: clear of every door in the long walls,
-  // and leaving a real bay at each end.
-  const allowed: number[] = [];
-  for (let line = MIN_BAY_CELLS; line <= length - MIN_BAY_CELLS; line++) {
-    const clear = sideDoors.every(
-      (d) => Math.abs(line - d.pos) * CELL_SIZE >= d.width / 2 + ATTACH_CLEARANCE,
-    );
-    if (clear) allowed.push(line);
-  }
-
-  // Every way of using those lines, scored by how far its bays are from
-  // the ideal length and from mirror symmetry. At most seven lines, so
-  // the search is exhaustive.
-  let best: { lines: number[]; score: number } | null = null;
-  for (let mask = 1; mask < 1 << allowed.length; mask++) {
-    const lines = allowed.filter((_, i) => mask & (1 << i));
-    const edges = [0, ...lines, length];
-    const bays = edges.slice(1).map((e, i) => e - edges[i]);
-    if (bays.some((b) => b < MIN_BAY_CELLS)) continue;
-    let score = 0;
-    for (let i = 0; i < bays.length; i++) {
-      score += (bays[i] - IDEAL_BAY_CELLS) ** 2;
-      score += Math.abs(bays[i] - bays[bays.length - 1 - i]);
-    }
-    if (!best || score < best.score - EPS) best = { lines, score };
-  }
-  if (!best) return [];
-
-  return best.lines.flatMap((line) => [
-    toCrossDivider(frame, line, 0, wing),
-    toCrossDivider(frame, line, breadth - wing, breadth),
-  ]);
-}
-
-/** Panels either side of a hall's axis. A door in a side wall looks
- *  across the hall, so the panels stop either side of its sightline. */
-function planPanels(frame: Frame, doors: FrameDoor[]): Divider[] {
-  const { length, breadth } = frame;
-  const endDoors = doors.filter((d) => d.wall === "end");
-  const sideDoors = doors.filter((d) => d.wall === "side");
-
-  const axis = hallAxis(frame, doors);
-  const lo = Math.floor(axis - NAVE_HALF_CELLS + EPS);
-  const hi = Math.ceil(axis + NAVE_HALF_CELLS - EPS);
-  if (lo < MIN_AISLE_CELLS || breadth - hi < MIN_AISLE_CELLS) return [];
-  for (const d of endDoors) {
-    const half = sightHalfCells(d.width);
-    if (d.pos - half < lo + EPS || d.pos + half > hi - EPS) return [];
-  }
-
-  // Stretches along the hall no side door looks across, a cell clear of
-  // each end wall.
-  let free: Array<[number, number]> = [[1, length - 1]];
-  for (const d of sideDoors) {
-    const half = sightHalfCells(d.width);
-    const cutLo = Math.floor(d.pos - half + EPS);
-    const cutHi = Math.ceil(d.pos + half - EPS);
-    free = free.flatMap(([s, e]): Array<[number, number]> => {
-      if (cutHi <= s || cutLo >= e) return [[s, e]];
-      const parts: Array<[number, number]> = [];
-      if (cutLo > s) parts.push([s, cutLo]);
-      if (cutHi < e) parts.push([cutHi, e]);
-      return parts;
-    });
-  }
-
-  const centre = length / 2;
-  const pieces: Array<[number, number]> = [];
-  for (const [s, e] of free) {
-    if (e - s >= PANEL_ROW_MIN_CELLS) {
-      // A long gallery: as many panels as fit at an even pitch, set out
-      // about the middle of the stretch.
-      const pitch = PANEL_CELLS + PANEL_ROW_GAP_CELLS;
-      const count = Math.floor((e - s + PANEL_ROW_GAP_CELLS) / pitch);
-      const span = count * pitch - PANEL_ROW_GAP_CELLS;
-      const start = Math.min(e - span, Math.max(s, Math.round((s + e - span) / 2)));
-      for (let i = 0; i < count; i++) {
-        pieces.push([start + i * pitch, start + i * pitch + PANEL_CELLS]);
-      }
-    } else if (s < centre && e > centre) {
-      // Unbroken through the middle: one panel, centred.
-      const len = Math.min(PANEL_CELLS, e - s);
-      const start = Math.min(e - len, Math.max(s, Math.round(centre - len / 2)));
-      pieces.push([start, start + len]);
-    } else {
-      // Beside a sightline: a shorter panel, at the end nearer the
-      // middle of the hall.
-      const len = Math.min(SPLIT_PANEL_CELLS, e - s);
-      pieces.push(e <= centre ? [e - len, e] : [s, s + len]);
-    }
-  }
-
-  return pieces
-    .filter(([s, e]) => e - s >= SPLIT_PANEL_CELLS)
-    .flatMap(([s, e]) => [toDivider(frame, lo, s, e), toDivider(frame, hi, s, e)]);
-}
-
-/** Cross position of a hall's axis, in cells: where its end doors
- *  stand, or the middle when it has none. */
-function hallAxis(frame: Frame, doors: FrameDoor[]): number {
-  const endDoors = doors.filter((d) => d.wall === "end");
-  if (endDoors.length === 0) return frame.breadth / 2;
-  return endDoors.reduce((sum, d) => sum + d.pos, 0) / endDoors.length;
 }
 
 // ── Benches ───────────────────────────────────────────────────────────
@@ -318,6 +81,9 @@ const BENCH_WALL_CLEARANCE = 1.5;
 const BENCH_DIVIDER_CLEARANCE = 1.2;
 /** Gap between a bench and the walking line it stands beside. */
 const BENCH_WALK_GAP = 0.1;
+/** Clear floor between a bench and any wall that was not planned with
+ *  it: a door screen. */
+const BENCH_SCREEN_CLEARANCE = 1.0;
 
 type Band = [number, number];
 
@@ -367,6 +133,12 @@ function toBench(frame: Frame, a: number, c: number, along: "axis" | "across"): 
 /**
  * Benches for a room, from its footprint, doors and dividers.
  *
+ * How the room is seated follows how its walls are set out
+ * (`arrangementOf`): a bench in each bay between wing walls, a pair in
+ * the nave between rows of panels, an island in a room with neither. A
+ * door screen seats nothing, and no bench stands within a metre of one.
+ * A pinwheel is seated by the plan that hangs it, after the hang.
+ *
  * `mirrorAxis` is for a room composed about one axis (the Grand Hall
  * about its portals): it names the world axis that line runs along, and
  * the room gets an island each side of it, a quarter of the room out.
@@ -378,12 +150,39 @@ export function planBenches(
   mirrorAxis?: "x" | "z",
 ): Bench[] {
   const kind = roomKind(rect);
-  const frame = frameFor(rect, mirrorAxis ?? longAxis(rect));
+  const set = arrangementOf(rect, dividers);
+  const walls = dividers.filter((d) => !d.bare);
+  const setAxis = set.kind === "wings" || set.kind === "rows" ? set.axis : longAxis(rect);
+  const frame = frameFor(rect, mirrorAxis ?? setAxis);
   const fd = frameDoors(frame, doors);
-  if (kind === "gallery") return planBayBenches(frame, fd, dividers);
-  if (dividers.length > 0) return planNaveBenches(frame, fd, dividers);
-  if (Math.min(frame.length, frame.breadth) < LARGE_MIN_CELLS) return [];
-  return planIslands(frame, fd, mirrorAxis !== undefined);
+
+  let benches: Bench[];
+  if (set.kind === "wings" || (set.kind === "none" && kind === "gallery")) {
+    benches = planBayBenches(frame, fd, walls);
+  } else if (set.kind === "rows") {
+    benches = planNaveBenches(frame, fd, walls);
+  } else if (set.kind === "pinwheel") {
+    benches = [];
+  } else if (Math.min(frame.length, frame.breadth) < LARGE_MIN_CELLS) {
+    benches = [];
+  } else {
+    benches = planIslands(frame, fd, mirrorAxis !== undefined);
+  }
+  return benches.filter((b) => benchClearOf(b, dividers, BENCH_SCREEN_CLEARANCE));
+}
+
+/** Is a bench at least `clearance` from every one of `dividers`? */
+export function benchClearOf(
+  bench: Bench,
+  dividers: readonly Divider[],
+  clearance: number,
+): boolean {
+  const r = benchRect(bench);
+  return dividers.map(dividerRect).every((d) => {
+    const dx = Math.max(0, r.xMin - d.xMax, d.xMin - r.xMax);
+    const dz = Math.max(0, r.zMin - d.zMax, d.zMin - r.zMax);
+    return Math.hypot(dx, dz) >= clearance - EPS;
+  });
 }
 
 /** Strip either side of the room's walking axis, in metres across. */
@@ -468,8 +267,10 @@ function planNaveBenches(frame: Frame, doors: FrameDoor[], dividers: readonly Di
   const out: Bench[] = [];
   for (const side of [-1, 1] as const) {
     const c = strip.centre + side * offset;
-    // Room to stand between the bench and the panel it faces.
+    // Room to stand between the bench and the panel it faces. A side
+    // with no panel has nothing for a bench to face.
     const panel = faces.filter((f) => (f - strip.centre) * side > 0);
+    if (panel.length === 0) continue;
     const gap = Math.min(...panel.map((f) => Math.abs(f - c))) - BENCH_DEPTH / 2;
     if (gap - DIVIDER_THICKNESS / 2 >= BENCH_DIVIDER_CLEARANCE) {
       out.push(toBench(frame, a, c, "axis"));
@@ -703,7 +504,10 @@ export function writeDividerEdges(
   blockedEdgesNS: Uint8Array,
 ): void {
   for (const d of dividers) {
-    for (let i = d.start; i < d.end; i++) {
+    // Whole cells only. A screen ends on a half line, and an edge
+    // blocked for half a wall would stop a body in open floor; the
+    // rest of it is held by its collider and `clearOfFittings`.
+    for (let i = Math.ceil(d.start - EPS); i < Math.floor(d.end + EPS); i++) {
       if (d.axis === "x") {
         // Along x on z line `line`: between cells (i, line-1) and (i, line).
         const z = d.line - 1;

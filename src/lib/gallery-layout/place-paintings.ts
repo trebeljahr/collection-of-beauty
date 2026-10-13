@@ -136,6 +136,9 @@ export type WallRun = {
    *  place (`hangForBenches`): one end of it is that work. With nothing
    *  on it, it is a gap beside a work and not a bare wall. */
   abuts?: true;
+  /** The hung face of a door screen: a wall for one picture, the
+   *  largest the room has that fits it (`hangFeatures`). */
+  feature?: boolean;
 };
 
 export function runLength(run: WallRun): number {
@@ -252,7 +255,8 @@ export function computeRoomRuns(room: RoomLayout): WallRun[] {
 
   // Both faces of every divider, each one run from end to end. A face
   // is hung like the room wall that looks the same way, half the
-  // divider's thickness off its grid line.
+  // divider's thickness off its grid line. A screen's back, the face
+  // toward its door, is no run.
   room.dividers.forEach((divider, index) => {
     const worldStart = divider.start * CELL_SIZE + WALL_MARGIN;
     const worldEnd = divider.end * CELL_SIZE - WALL_MARGIN;
@@ -261,6 +265,7 @@ export function computeRoomRuns(room: RoomLayout): WallRun[] {
     for (const side of sides) {
       const facing = FACINGS[side];
       const out = divider.axis === "x" ? facing.normalZ : facing.normalX;
+      if (divider.bare === (out > 0 ? "high" : "low")) continue;
       runs.push({
         side,
         axis: divider.axis,
@@ -272,6 +277,7 @@ export function computeRoomRuns(room: RoomLayout): WallRun[] {
         centerY,
         maxHeight,
         divider: index,
+        ...(divider.bare && { feature: true }),
       });
     }
   });
@@ -351,8 +357,9 @@ type Container = {
   assigned: SizedWork[][];
   /** Sum of assigned footprints per run. */
   used: number[];
-  /** Works hung at a set place before the rest: one in front of each
-   *  bench (`anchorToBenches`). */
+  /** Works hung at a set place before the rest: the one picture of a
+   *  door screen (`hangFeatures`), and one in front of each bench
+   *  (`anchorToBenches`). */
   fixed: Placement[];
   fixedMetres: number;
   fixedIds: Set<string>;
@@ -456,6 +463,45 @@ function hangForBenches(container: Container) {
       container.used.splice(index, 1, ...parts.map(() => 0));
       break;
     }
+  }
+}
+
+/** A screen's face is given to one work when that work and its plaque
+ *  cover this share of it. A room of small sheets has none that does,
+ *  and hangs the screen like any wall. */
+const FEATURE_MIN_SHARE = 0.3;
+
+/**
+ * Hang each door screen of a room with one picture: the largest of the
+ * room's works that fits its face, in the middle of the screen with its
+ * plaque beside it. Centred with its plaque it would hang 18 cm off the
+ * middle of a wall that is seen head-on. The face then takes nothing
+ * more.
+ */
+function hangFeatures(container: Container) {
+  for (let i = container.runs.length - 1; i >= 0; i--) {
+    const run = container.runs[i];
+    if (!run.feature) continue;
+    const length = runLength(run);
+    let best: SizedWork | null = null;
+    for (const artwork of container.room.artworks) {
+      if (container.fixedIds.has(artwork.id)) continue;
+      const work = sizeWork(artwork);
+      if (footprintOf(work) > length) continue;
+      if (!best || work.wM * work.hM > best.wM * best.hM) best = work;
+    }
+    if (!best || footprintOf(best) < length * FEATURE_MIN_SHARE) continue;
+    const { left, right } = sideClearance(best);
+    const centre = Math.max(
+      run.uMin + left + best.wM / 2,
+      Math.min((run.uMin + run.uMax) / 2, run.uMax - right - best.wM / 2),
+    );
+    container.fixed.push(placementAt(run, { ...best, drop: frameDropOf(best) }, centre));
+    container.fixedMetres += footprintOf(best);
+    container.fixedIds.add(best.artwork.id);
+    container.runs.splice(i, 1);
+    container.assigned.splice(i, 1);
+    container.used.splice(i, 1);
   }
 }
 
@@ -592,6 +638,8 @@ export function distributePaintings(
       };
     });
 
+  // A screen's picture first, so no bench claims the screen's face.
+  for (const container of containers) hangFeatures(container);
   if (options.anchorToBenches) for (const container of containers) hangForBenches(container);
 
   const pool: SizedWork[] = [];
@@ -849,9 +897,9 @@ export function estimateWallMetres(
 }
 
 /**
- * Hangable wall a room's dividers add, in metres: both faces of each,
- * less the stretch of room wall a wing wall covers where it is built
- * off one. The same arithmetic as `computeRoomRuns`, so the floor
+ * Hangable wall a room's dividers add, in metres: both faces of each
+ * (one of a door screen), less the stretch of room wall a wing wall
+ * covers where it is built off one. The same arithmetic as `computeRoomRuns`, so the floor
  * builder counts divider wall before it opens rooms and does not open
  * more than the works need.
  */
@@ -859,7 +907,7 @@ export function dividerWallMetres(rect: CellRect, dividers: readonly Divider[]):
   let metres = 0;
   for (const d of dividers) {
     const face = (d.end - d.start) * CELL_SIZE - 2 * WALL_MARGIN;
-    if (face >= MIN_RUN_LENGTH) metres += 2 * face;
+    if (face >= MIN_RUN_LENGTH) metres += (d.bare ? 1 : 2) * face;
     const lowLine = d.axis === "x" ? rect.xMin : rect.zMin;
     const highLine = (d.axis === "x" ? rect.xMax : rect.zMax) + 1;
     const attached = (d.start === lowLine ? 1 : 0) + (d.end === highLine ? 1 : 0);

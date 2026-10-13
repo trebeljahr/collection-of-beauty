@@ -18,7 +18,8 @@
 // - in line with a row of panels, in the middle of a gap between two of
 //   them or of a long stretch past the last one, where the room is open
 //   across its whole breadth. It reads as one more piece of the row:
-//   panel, bench, panel;
+//   panel, bench, panel. The panels may run along either axis of the
+//   room; a pinwheel's four are seated one by one, from their aisles;
 // - in the middle of an aisle, opposite the middle of a panel, where the
 //   aisle is wide enough to be a room of its own (8 m). A 5 m aisle is a
 //   passage and gets none;
@@ -38,15 +39,17 @@
 // places the work. "Largest" is by hung area: the catalogue the museum
 // is laid out from has no measure of how well known a work is.
 
+import { arrangementOf } from "./divider-plans";
 import {
   BENCH_DEPTH,
   BENCH_LENGTH,
+  benchClearOf,
   benchRect,
-  dividerRect,
   longAxis,
   type PlanDoor,
 } from "./fittings";
-import type { Bench, CellRect, RoomLayout } from "./types";
+import { benchAnchors, computeRoomRuns } from "./place-paintings";
+import type { Bench, CellRect, Divider, RoomLayout } from "./types";
 import { CELL_SIZE, DIVIDER_THICKNESS } from "./world-coords";
 
 /** Floor kept free either side of the line a door is walked through. */
@@ -62,7 +65,9 @@ const MIN_AISLE = 8;
 /** Gap between the two benches of an island, back to back. */
 const ISLAND_GAP = 0.02;
 
-type Slot = { a: number; c: number };
+/** A place for a bench, and how far it is from the middle of the room
+ *  along the panels it was found by. */
+type Slot = { bench: Bench; offMiddle: number };
 
 /** How many benches a room with panels takes, by its size. */
 function quota(lengthM: number, breadthM: number): number {
@@ -71,22 +76,73 @@ function quota(lengthM: number, breadthM: number): number {
   return 2;
 }
 
+/** Floor between a bench and any wall of the room, and any divider. */
+const WALL_CLEARANCE = 4;
+const DIVIDER_CLEARANCE = 2.2;
+
 /**
- * Benches for a room with panels along its long axis, on the lines of
- * its panels. Empty for a room that is already seated, or has no such
- * panels.
+ * Benches for a room with freestanding panels, on the lines of its
+ * panels. Empty for a room that is already seated, or has no panels: a
+ * room of wing walls is seated bay by bay (`planBenches`), and a door
+ * screen is no line to seat a room on.
  */
-export function planPanelBenches(
-  room: Pick<RoomLayout, "cellBounds" | "doors" | "dividers" | "benches">,
-): Bench[] {
+export function planPanelBenches(room: RoomLayout): Bench[] {
   if (room.benches.length > 0) return [];
   const rect = room.cellBounds;
-  const axis = longAxis(rect);
-  const panels = room.dividers.filter((d) => d.axis === axis);
-  if (panels.length === 0) return [];
+  const set = arrangementOf(rect, room.dividers);
+  if (set.kind !== "rows" && set.kind !== "pinwheel") return [];
+  const walls = room.dividers.filter((d) => !d.bare);
+  const runs = computeRoomRuns(room);
 
-  // The room in its own frame: `a` runs along its long axis from its low
-  // end, `c` across it from its low side, both in metres.
+  const slots: Slot[] = [];
+  for (const axis of ["x", "z"] as const) {
+    const panels = walls.filter((d) => d.axis === axis);
+    // A pinwheel's panels stand one to a line: each is seated from its
+    // aisle, and none from a gap in a row.
+    if (panels.length > 0) slots.push(...panelSlots(room, axis, panels, set.kind === "rows"));
+  }
+
+  const x0 = rect.xMin * CELL_SIZE + WALL_CLEARANCE;
+  const x1 = (rect.xMax + 1) * CELL_SIZE - WALL_CLEARANCE;
+  const z0 = rect.zMin * CELL_SIZE + WALL_CLEARANCE;
+  const z1 = (rect.zMax + 1) * CELL_SIZE - WALL_CLEARANCE;
+  const stands = ({ bench }: Slot) => {
+    const r = benchRect(bench);
+    return (
+      r.xMin >= x0 - 1e-6 &&
+      r.xMax <= x1 + 1e-6 &&
+      r.zMin >= z0 - 1e-6 &&
+      r.zMax <= z1 + 1e-6 &&
+      benchClearOf(bench, room.dividers, DIVIDER_CLEARANCE) &&
+      // The hang puts a work in front of every bench, so a bench stands
+      // only where it looks at a wall or a panel within reach. The gap
+      // in a row 10 m from both walls of a square room is no place.
+      benchAnchors({ benches: [bench] }, runs).length > 0
+    );
+  };
+
+  // Where there are more places than benches, the ones nearest the
+  // middle of the room along their panels are taken, in plan order.
+  const length = Math.max(rect.xMax - rect.xMin, rect.zMax - rect.zMin) + 1;
+  const breadth = Math.min(rect.xMax - rect.xMin, rect.zMax - rect.zMin) + 1;
+  return slots
+    .filter(stands)
+    .map((slot, order) => ({ slot, order }))
+    .sort((p, q) => p.slot.offMiddle - q.slot.offMiddle || p.order - q.order)
+    .slice(0, quota(length * CELL_SIZE, breadth * CELL_SIZE))
+    .map(({ slot }) => slot.bench);
+}
+
+/** The places the panels along one axis give a bench. */
+function panelSlots(
+  room: Pick<RoomLayout, "cellBounds" | "doors">,
+  axis: "x" | "z",
+  panels: readonly Divider[],
+  inRows: boolean,
+): Slot[] {
+  const rect = room.cellBounds;
+  // The room in the panels' frame: `a` runs along them from the room's
+  // low end, `c` across from its low side, both in metres.
   const a0 = (axis === "x" ? rect.xMin : rect.zMin) * CELL_SIZE;
   const c0 = (axis === "x" ? rect.zMin : rect.xMin) * CELL_SIZE;
   const length = (axis === "x" ? rect.xMax - rect.xMin + 1 : rect.zMax - rect.zMin + 1) * CELL_SIZE;
@@ -94,8 +150,8 @@ export function planPanelBenches(
     (axis === "x" ? rect.zMax - rect.zMin + 1 : rect.xMax - rect.xMin + 1) * CELL_SIZE;
   const along = (p: { x: number; z: number }) => (axis === "x" ? p.x : p.z) - a0;
 
-  // The line each door in a long wall is walked through, as a band along
-  // the room, and which long wall the door is in.
+  // The line each door in a wall beside the panels is walked through, as
+  // a band along the room, and which of those walls the door is in.
   const lowSide = axis === "x" ? "north" : "west";
   const highSide = axis === "x" ? "south" : "east";
   const bands = room.doors
@@ -109,6 +165,11 @@ export function planPanelBenches(
     bands.some(
       (b) => b.low === low && a + BENCH_LENGTH / 2 > b.from && a - BENCH_LENGTH / 2 < b.to,
     );
+  const slot = (a: number, c: number): Slot => ({
+    bench:
+      axis === "x" ? { x: a0 + a, z: c0 + c, along: "x" } : { x: c0 + c, z: a0 + a, along: "z" },
+    offMiddle: Math.abs(a - length / 2),
+  });
 
   const rows = [...new Set(panels.map((d) => d.line * CELL_SIZE - c0))].sort((p, q) => p - q);
   const slots: Slot[] = [];
@@ -119,25 +180,27 @@ export function planPanelBenches(
       .map((d) => [d.start * CELL_SIZE - a0, d.end * CELL_SIZE - a0] as const)
       .sort((p, q) => p[0] - q[0]);
 
-    // In the row, between two of its panels.
-    for (let i = 0; i + 1 < spans.length; i++) {
-      const from = spans[i][1];
-      const to = spans[i + 1][0];
-      if (to - from < BENCH_LENGTH + 2 * ROW_END_CLEARANCE) continue;
-      const a = (from + to) / 2;
-      if (inDoorLine(a, low)) continue;
-      slots.push({ a, c });
-    }
-    // In the row, where it stops well short of an end of the room: a
-    // long gallery joined from two rooms has one end without panels.
-    for (const [from, to] of [
-      [0, spans[0][0]],
-      [spans[spans.length - 1][1], length],
-    ]) {
-      if (to - from < MIN_OPEN_END) continue;
-      const a = (from + to) / 2;
-      if (inDoorLine(a, low)) continue;
-      slots.push({ a, c });
+    if (inRows) {
+      // In the row, between two of its panels.
+      for (let i = 0; i + 1 < spans.length; i++) {
+        const from = spans[i][1];
+        const to = spans[i + 1][0];
+        if (to - from < BENCH_LENGTH + 2 * ROW_END_CLEARANCE) continue;
+        const a = (from + to) / 2;
+        if (inDoorLine(a, low)) continue;
+        slots.push(slot(a, c));
+      }
+      // In the row, where it stops well short of an end of the room: a
+      // long gallery joined from two rooms has one end without panels.
+      for (const [from, to] of [
+        [0, spans[0][0]],
+        [spans[spans.length - 1][1], length],
+      ]) {
+        if (to - from < MIN_OPEN_END) continue;
+        const a = (from + to) / 2;
+        if (inDoorLine(a, low)) continue;
+        slots.push(slot(a, c));
+      }
     }
 
     // In the aisle between the row and its wall, where that is wide.
@@ -147,26 +210,10 @@ export function planPanelBenches(
     for (const [from, to] of spans) {
       const a = (from + to) / 2;
       if (inDoorLine(a, low)) continue;
-      slots.push({ a, c: (face + wall) / 2 });
+      slots.push(slot(a, (face + wall) / 2));
     }
   }
-
-  // Where there are more places than benches, the ones nearest the
-  // middle of the room's length are taken, in plan order.
-  const wanted = quota(length, breadth);
-  const chosen = slots
-    .map((slot, order) => ({ slot, order }))
-    .sort(
-      (p, q) =>
-        Math.abs(p.slot.a - length / 2) - Math.abs(q.slot.a - length / 2) || p.order - q.order,
-    )
-    .slice(0, wanted)
-    .map(({ slot }) => slot);
-
-  return chosen.map(
-    ({ a, c }): Bench =>
-      axis === "x" ? { x: a0 + a, z: c0 + c, along: "x" } : { x: c0 + c, z: a0 + a, along: "z" },
-  );
+  return slots;
 }
 
 /**
@@ -232,12 +279,7 @@ export function benchClearOfDividers(
   room: Pick<RoomLayout, "dividers">,
   clearance: number,
 ): boolean {
-  const r = benchRect(bench);
-  return room.dividers.map(dividerRect).every((d) => {
-    const dx = Math.max(0, r.xMin - d.xMax, d.xMin - r.xMax);
-    const dz = Math.max(0, r.zMin - d.zMax, d.zMin - r.zMax);
-    return Math.hypot(dx, dz) >= clearance;
-  });
+  return benchClearOf(bench, room.dividers, clearance);
 }
 
 /**

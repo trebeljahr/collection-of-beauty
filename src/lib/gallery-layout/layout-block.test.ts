@@ -3,7 +3,8 @@ import type { ArtworkListing } from "@/lib/data";
 import { ERAS } from "@/lib/gallery-eras";
 import { galleryLayoutIdentity } from "@/lib/gallery-release-state";
 import { benchClearOfDividers, centredIsland } from "./feature-benches";
-import { benchRect } from "./fittings";
+import { arrangementOf } from "./divider-plans";
+import { benchRect, longAxis } from "./fittings";
 import { grandStairsAt, grandSurfaceAt, openingReach, toStairLocal } from "./grand-stair";
 import {
   BLOCK_DOOR_WIDTH,
@@ -301,7 +302,16 @@ describe("the block plan", () => {
           expect(room.benches.length, room.id).toBeGreaterThanOrEqual(2);
         }
         const rects = room.benches.map(benchRect);
-        const panelLines = room.dividers.map((d) => ({ axis: d.axis, at: d.line * CELL_SIZE }));
+        const set = arrangementOf(room.cellBounds, room.dividers);
+        const panels = room.dividers
+          .filter((d) => !d.bare)
+          .map((d) => ({ axis: d.axis, at: d.line * CELL_SIZE }));
+        // An island of two on the room's centre: a room with one panel
+        // and a door screen, which no one walks straight through.
+        const n = Math.max(1, room.benches.length);
+        const onCentre =
+          Math.abs(room.benches.reduce((sum, q) => sum + q.x, 0) / n - (x0 + x1) / 2) < 1e-6 &&
+          Math.abs(room.benches.reduce((sum, q) => sum + q.z, 0) / n - (z0 + z1) / 2) < 1e-6;
         room.benches.forEach((bench, i) => {
           const r = rects[i];
           // 4 m or more of floor to every wall: a bench in the 5 m
@@ -310,18 +320,21 @@ describe("the block plan", () => {
             Math.min(r.xMin - x0, x1 - r.xMax, r.zMin - z0, z1 - r.zMax),
             room.id,
           ).toBeGreaterThanOrEqual(4);
+          // And 2.2 m to every freestanding wall, a door screen included.
           expect(benchClearOfDividers(bench, room, 2.2), room.id).toBe(true);
-          // In a room with panels a bench runs the way the panels do,
-          // and stands in line with a row of them or in the middle of a
-          // wide aisle.
-          if (panelLines.length > 0) {
-            expect(
-              panelLines.every((p) => p.axis === bench.along),
-              room.id,
-            ).toBe(true);
+          if (set.kind === "wings") {
+            // Between wing walls a bench lies along the room, across
+            // the wings.
+            expect(bench.along, room.id).toBe(set.axis);
+          } else if ((set.kind === "rows" || set.kind === "pinwheel") && !onCentre) {
+            // In a room with panels a bench runs the way a panel does,
+            // and stands in line with a row of them or in the middle of
+            // a wide aisle.
+            const parallel = panels.filter((p) => p.axis === bench.along);
+            expect(parallel.length, room.id).toBeGreaterThan(0);
             const across = bench.along === "x" ? bench.z : bench.x;
-            const inRow = panelLines.some((p) => Math.abs(p.at - across) < 1e-6);
-            const nearest = Math.min(...panelLines.map((p) => Math.abs(p.at - across)));
+            const inRow = parallel.some((p) => Math.abs(p.at - across) < 1e-6);
+            const nearest = Math.min(...parallel.map((p) => Math.abs(p.at - across)));
             expect(inRow || nearest >= 4.5, room.id).toBe(true);
           }
           rects.slice(i + 1).forEach((q) => {
@@ -344,9 +357,10 @@ describe("the block plan", () => {
     expect(island.reduce((sum, bench) => sum + bench.z, 0) / 2).toBeCloseTo(8.75, 6);
     // A small room with a door in three walls is walked straight through
     // one way: its island stands on its centre line, in front of the
-    // wall without a door.
+    // wall without a door. This one has a screen at its third door, and
+    // the island's other bench looks at the screen's picture.
     const small = roomOf(0, "s2");
-    expect(small.dividers).toHaveLength(0);
+    expect(small.dividers.map((d) => d.bare)).toEqual(["low"]);
     expect(small.doors.map((d) => d.side).sort()).toEqual(["east", "north", "west"]);
     expect(small.benches).toHaveLength(2);
     const cx = ((small.cellBounds.xMin + small.cellBounds.xMax + 1) / 2) * CELL_SIZE;
@@ -434,12 +448,153 @@ describe("the block plan", () => {
           ? Math.abs(largest.position[0] - bench.x) < 0.02
           : Math.abs(largest.position[2] - bench.z) < 0.02,
       );
-      if (inFront) led++;
+      // Or it is the one picture of a door screen.
+      const onScreen =
+        largest.divider !== undefined && room.dividers[largest.divider].bare !== undefined;
+      if (inFront || onScreen) led++;
     }
     expect(overlaps).toEqual([]);
     // In nearly every room: a work wider than the stretch of wall a
-    // bench looks at hangs elsewhere.
+    // bench looks at, or than a screen, hangs elsewhere.
     expect(led / rooms).toBeGreaterThan(0.8);
+  });
+
+  it("divides no two rooms that share a door the same way, and each floor in four ways", () => {
+    /** How a room's walls stand, apart from where the room is. */
+    const styleOf = (room: RoomLayout) => {
+      const b = room.cellBounds;
+      const walls = room.dividers.map((d) => {
+        const low = d.axis === "x" ? b.xMin : b.zMin;
+        const line = d.line - (d.axis === "x" ? b.zMin : b.xMin);
+        return [d.axis === longAxis(b) ? "along" : "across", line, d.start - low, d.end - low];
+      });
+      return JSON.stringify(walls.sort());
+    };
+    const twins: string[] = [];
+    for (const floor of layout.floors) {
+      const kinds = new Set<string>();
+      for (const room of floor.rooms.filter((r) => !r.isStairwell)) {
+        // What a visitor would tell apart: rows from wing walls, wing
+        // walls in pairs from single ones, and how long the walls are.
+        const walls = room.dividers.filter((d) => !d.bare);
+        const lengths = walls.map((d) => d.end - d.start);
+        const perLine = walls.map(
+          (d) => walls.filter((o) => o.axis === d.axis && o.line === d.line).length,
+        );
+        const set = arrangementOf(room.cellBounds, room.dividers);
+        kinds.add(`${set.kind}:${Math.max(0, ...lengths)}:${Math.max(0, ...perLine)}`);
+        if (room.dividers.length === 0) continue;
+        for (const door of room.doors) {
+          const other = floor.rooms.find((r) => r.id === door.connectsTo.roomId)!;
+          if (styleOf(room) === styleOf(other)) twins.push(`${room.id} and ${other.id}`);
+        }
+      }
+      expect(kinds.size, floor.title).toBeGreaterThanOrEqual(4);
+    }
+    expect(twins).toEqual([]);
+    // The square under a stair hall is the one room large enough for a
+    // pinwheel: four panels, two each way, and a bench in front of each.
+    const square = roomOf(0, "hall-w");
+    expect(arrangementOf(square.cellBounds, square.dividers).kind).toBe("pinwheel");
+    expect(square.dividers).toHaveLength(4);
+    expect(square.benches).toHaveLength(4);
+    // Walls of 5 m, 7.5 m and 12.5 m.
+    const lengths = new Set(
+      layout.floors.flatMap((f) =>
+        f.rooms.flatMap((r) => r.dividers.map((d) => (d.end - d.start) * CELL_SIZE)),
+      ),
+    );
+    expect([...lengths].sort((p, q) => p - q)).toEqual([5, 7.5, 12.5]);
+  });
+
+  it("stands a screen in front of each door the plan names, hung on the room's side", () => {
+    for (const floor of layout.floors) {
+      const plan = BLOCK_PLAN[floor.index];
+      expect(plan.screens.length, floor.title).toBeGreaterThanOrEqual(3);
+      const sides = new Set<string>();
+      for (const [cell, toward] of plan.screens) {
+        const room = roomOf(floor.index, cell);
+        const other = floor.rooms.find(
+          (r) => keyOf(r) === blockFloorRooms(floor.index).keyOf(toward),
+        );
+        const door = room.doors.find((d) => d.connectsTo.roomId === other?.id);
+        expect(door, `${room.id} has a door to ${toward}`).toBeDefined();
+        if (!door || !other) continue;
+        expect(door.width, room.id).toBeLessThan(PORTAL_WIDTH);
+        expect(sides.has(`${other.id}>${room.id}`), `${room.id}: both sides of one door`).toBe(
+          false,
+        );
+        sides.add(`${room.id}>${other.id}`);
+
+        // 2.5 m into the room, parallel to the door's wall, 5 m long
+        // and centred on the door.
+        const northSouth = door.side === "north" || door.side === "south";
+        const wall = (northSouth ? door.worldZ : door.worldX) / CELL_SIZE;
+        const inward = door.side === "north" || door.side === "west" ? 1 : -1;
+        const index = room.dividers.findIndex(
+          (d) => d.bare && d.axis === (northSouth ? "x" : "z") && d.line === wall + inward,
+        );
+        const screen = room.dividers[index];
+        expect(screen, `${room.id}: a screen at its door to ${toward}`).toBeDefined();
+        if (!screen) continue;
+        expect(screen.bare, room.id).toBe(inward === 1 ? "low" : "high");
+        const along = (northSouth ? door.worldX : door.worldZ) / CELL_SIZE;
+        expect((screen.start + screen.end) / 2, room.id).toBeCloseTo(along, 6);
+        expect((screen.end - screen.start) * CELL_SIZE, room.id).toBe(5);
+
+        // One picture, on the middle of the face toward the room, and
+        // nothing on the face toward the door.
+        const hung = room.placements.filter((p) => p.divider === index);
+        expect(hung, room.id).toHaveLength(1);
+        const [work] = hung;
+        const across = (northSouth ? work.position[2] : work.position[0]) / CELL_SIZE;
+        expect(Math.sign(across - screen.line), room.id).toBe(inward);
+        expect((northSouth ? work.position[0] : work.position[2]) / CELL_SIZE, room.id).toBeCloseTo(
+          along,
+          6,
+        );
+        // The largest work of the room that the screen can take.
+        const faceMetres = 5 - 0.6;
+        const fitting = room.placements.filter((p) => wallFootprint(p.artwork) <= faceMetres);
+        const largest = Math.max(...fitting.map((p) => p.widthM * p.heightM));
+        expect(work.widthM * work.heightM, room.id).toBeCloseTo(largest, 6);
+      }
+      // No screen but those, and none in a stair hall or a composed
+      // great hall.
+      const all = floor.rooms.flatMap((r) => r.dividers.filter((d) => d.bare));
+      expect(all, floor.title).toHaveLength(plan.screens.length);
+    }
+  });
+
+  it("leaves every part of every floor within reach round its walls", () => {
+    for (const floor of layout.floors) {
+      const { x: gx, z: gz } = floor.gridSize;
+      const seen = new Uint8Array(gx * gz);
+      const start = floor.rooms.find((r) => r.isAnchor)!.cellBounds;
+      const queue = [start.zMin * gx + start.xMin];
+      seen[queue[0]] = 1;
+      while (queue.length > 0) {
+        const cell = queue.pop()!;
+        const x = cell % gx;
+        const z = (cell - x) / gx;
+        const step = (nx: number, nz: number, blocked: number) => {
+          if (nx < 0 || nz < 0 || nx >= gx || nz >= gz || blocked) return;
+          const next = nz * gx + nx;
+          if (seen[next] || !floor.walkable[next]) return;
+          seen[next] = 1;
+          queue.push(next);
+        };
+        step(x + 1, z, x < gx - 1 ? floor.blockedEdgesEW[z * (gx - 1) + x] : 1);
+        step(x - 1, z, x > 0 ? floor.blockedEdgesEW[z * (gx - 1) + x - 1] : 1);
+        step(x, z + 1, z < gz - 1 ? floor.blockedEdgesNS[z * gx + x] : 1);
+        step(x, z - 1, z > 0 ? floor.blockedEdgesNS[(z - 1) * gx + x] : 1);
+      }
+      const cut: string[] = [];
+      for (let i = 0; i < seen.length; i++) {
+        if (floor.walkable[i] && !seen[i]) cut.push(`${i % gx}:${Math.floor(i / gx)}`);
+      }
+      expect(cut, floor.title).toEqual([]);
+    }
   });
 
   it("names each floor and files it under an era of its own", () => {
@@ -567,11 +722,11 @@ describe("the block plan", () => {
         const gallery = roomOf(floor.index, merge[0]);
         for (const cell of merge) expect(roomOf(floor.index, cell)).toBe(gallery);
         const b = gallery.cellBounds;
-        // One row deep, 45 m or more long, with a row of panels down
-        // each side of its nave.
+        // One row deep, 45 m or more long, and divided: rows of panels
+        // down each side of its nave, or wing walls.
         expect(b.zMax - b.zMin + 1).toBe(7);
         expect((b.xMax - b.xMin + 1) * CELL_SIZE).toBeGreaterThanOrEqual(45);
-        expect(gallery.dividers.length).toBeGreaterThanOrEqual(4);
+        expect(gallery.dividers.length).toBeGreaterThanOrEqual(2);
         expect(gallery.roomNumber).not.toBeNull();
       }
     }
