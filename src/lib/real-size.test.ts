@@ -259,13 +259,16 @@ describe("scaleReferenceFor", () => {
   });
 
   // Neither drawing should shrink to a speck at the band edges: the work's
-  // longest side stays within 0.08–6× the reference's height.
-  it("keeps work and reference within 0.08–6× of each other at every band edge", () => {
-    for (const longest of [5, HAND_MAX_CM - 0.1, HAND_MAX_CM, 994]) {
+  // longest side stays within 0.08–10× the reference's height. The two
+  // limits are the same case seen from either side. At 0.089 a 15.5 cm
+  // print is 9% of the figure's height. At 9.7 the figure is 10% of the
+  // length of Monet's Les Deux Saules, 17 m of canvas 2 m high.
+  it("keeps work and reference within 0.08–10× of each other at every band edge", () => {
+    for (const longest of [5, HAND_MAX_CM - 0.1, HAND_MAX_CM, 994, 1700]) {
       const ref = scaleReferenceFor({ widthCm: longest, heightCm: longest / 2 });
       const ratio = longest / ref.heightCm;
       expect(ratio, `longest ${longest} cm`).toBeGreaterThanOrEqual(0.08);
-      expect(ratio, `longest ${longest} cm`).toBeLessThanOrEqual(6);
+      expect(ratio, `longest ${longest} cm`).toBeLessThanOrEqual(10);
     }
   });
 });
@@ -325,7 +328,11 @@ describe("the catalogue", () => {
     }
   });
 
-  it("keeps every drawn work within 0.08–6× its reference", () => {
+  // The upper limit was 6 while the longest trusted side was the 994 cm
+  // of the Wedding at Cana. Nine works found in October 2026 are longer
+  // than 10.5 m: the Sistine Last Judgment, Veronese's Feast in the House
+  // of Levi, five Nymphéas panels and two handscrolls.
+  it("keeps every drawn work within 0.08–10× its reference", () => {
     // Each limit is asserted once, on the work nearest to it. A NaN is
     // kept once met, so it fails both.
     let least = Infinity;
@@ -345,7 +352,7 @@ describe("the catalogue", () => {
       }
     }
     expect(least, leastOf).toBeGreaterThanOrEqual(0.08);
-    expect(most, mostOf).toBeLessThanOrEqual(6);
+    expect(most, mostOf).toBeLessThanOrEqual(10);
   });
 
   it("turns a stored size only for a book's sheet", () => {

@@ -57,11 +57,19 @@ export const ASPECT_TOLERANCE = 0.15;
 // ── Absolute bounds ─────────────────────────────────────────────────────
 
 /** No catalogued side is below 4.3 cm (a Rembrandt etching) or above
- *  994 cm (Veronese's Wedding at Cana). These bounds only catch values
- *  that cannot be an object on a wall or in a portfolio: a unit slip
- *  that the shape check cannot see, since ×10 keeps the aspect. */
+ *  1,700 cm (Monet's Les Deux Saules at the Orangerie, H. 200 ; L. 1700
+ *  in the museum's record). These bounds only catch values that cannot
+ *  be an object on a wall or in a portfolio: a unit slip that the shape
+ *  check cannot see, since ×10 keeps the aspect.
+ *
+ *  The upper bound was 1,500 until October 2026, when the largest size
+ *  was the 994 cm of Veronese's Wedding at Cana. The sizes found for the
+ *  works that had none include five between 12 and 17 m, each from its
+ *  museum: the Orangerie's Nymphéas panels, the Sistine Last Judgment
+ *  and Veronese's Feast in the House of Levi. At 1,500 the bound hid the
+ *  one panel of 17 m as if it were a slip. */
 export const MIN_SIDE_CM = 2;
-export const MAX_SIDE_CM = 1500;
+export const MAX_SIDE_CM = 2000;
 
 // ── Source rules ────────────────────────────────────────────────────────
 
@@ -103,8 +111,9 @@ const SHEET_SCANS: readonly { folder: string; widthCm: number; heightCm: number 
  * value has no knowable unit. In the September 2026 audit 6 of the 17
  * such values were millimetres: Turner's 1793 watercolour of Clare Hall,
  * a sheet, read 276 × 200 cm. All 17 have since been re-sourced from
- * the holding museum's record. A later fetch added 13 more: 11 are
- * re-sourced, and 2 whose museum gives no size online stay hidden.
+ * the holding museum's record. A later fetch added 13 more: 12 are
+ * re-sourced, and 1 whose museum gives only the frame online stays hidden
+ * (Copley's Portrait of a Lady at the Philbrook).
  * The rule stays for the next ingest. */
 
 /** Works that pass every rule above yet are known to be wrong. Keep
@@ -181,9 +190,10 @@ export function trustworthyRealSize(art: RealSizeInput): RealSize | null {
 // ── Reference object ────────────────────────────────────────────────────
 
 /** Longest side below which the work sits beside a hand instead of the
- *  figure. The 19 trusted works under it are 5–14.8 cm etchings and
- *  engravings (Rembrandt, Schongauer, Dürer), and the next is 15.5 cm,
- *  so the line falls in a gap. At 5 cm a work is 0.26 of the hand but
+ *  figure. The 66 trusted works under it are 5–14.8 cm prints and
+ *  miniatures (Rembrandt, Schongauer, Dürer, and the 47 woodcuts of
+ *  Holbein's Dance of Death at about 6.5 × 4.9 cm), and the next is
+ *  15.5 cm, so the line falls in a gap. At 5 cm a work is 0.26 of the hand but
  *  0.03 of the figure, a speck.
  *
  *  Everything from 15 cm up hangs beside the figure, as it would in a
@@ -212,10 +222,10 @@ const HAND: ScaleReference = {
 
 /** Which reference object to draw beside a work of this size.
  *
- *  Of the 3,115 trusted works, 3,096 get the figure and 19 the hand. The
- *  work's longest side stays within 0.09–5.7× the reference's height
- *  across the catalogue. The extremes are a 15.5 cm print and the 994 cm
- *  Veronese, both beside the figure. */
+ *  Of the 3,530 trusted works, 3,464 get the figure and 66 the hand. The
+ *  work's longest side stays within 0.09–9.7× the reference's height
+ *  across the catalogue. The extremes are a 15.5 cm print and Monet's
+ *  1,700 cm Les Deux Saules, both beside the figure. */
 export function scaleReferenceFor(size: RealSize): ScaleReference {
   const longest = Math.max(size.widthCm, size.heightCm);
   return longest >= HAND_MAX_CM ? { ...PERSON } : { ...HAND };

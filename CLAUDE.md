@@ -1406,32 +1406,66 @@ Several sessions run the suite while the machine is at a load average of
 
 ## Outstanding tickets (memory)
 
-- 563 of 4,555 works lack `realDimensions`, all in the
-  `collection-of-beauty` folder (28 September 2026). Every one was
-  asked and has no answer (`null` in `metadata/artwork-dimensions.json`):
-  neither Wikidata nor the Commons template gives a size. A plain run of
-  `scripts/fetch-artwork-dimensions.mjs` asks for nothing more, so each
-  needs a size researched by hand. Without a size the gallery layout
-  falls back to a pixel-aspect estimate. Fix is data-side, not
-  filter-tightening.
-- Of the 3,992 works with a size, `trustworthyRealSize()` in
-  [`real-size.ts`](src/lib/real-size.ts) hides 877 from the scale view,
-  the JSON-LD and every caption. 862 are hidden by design: 644 Redouté
-  sheet sizes on cut-out scans, 214 `series-default` print formats, 4
-  Vesalius page sizes. 2 are Google Art Project template values, which
-  have no knowable unit and no size on the museum's own record: the
-  Philbrook lists only the frame of Copley's Portrait of a Lady, and the
-  Glyptotek has no online record of David's Comte de Turenne. The other
-  13 have a size the scan does not match: mostly a correct size on a
-  cropped or mounted scan, which needs a full-frame scan, not a new
-  number. Fixes go
+- 143 of 4,555 works lack `realDimensions`, all in the
+  `collection-of-beauty` folder (13 October 2026). They were 562 that
+  morning. 419 got a size from a record of the object: 168 from the
+  holding museum, 108 Monets from the Wildenstein catalogue, 47 Holbein
+  woodcuts from museum impressions, 59 from the Commons page the work
+  links. `metadata/real-size-fixes-2026-10.md` tells how, and
+  `metadata/real-size-open-2026-10.md` lists the 143 with what the
+  search found. Before taking up one of them:
+  - Each new entry has a `ref` beside `source` in
+    `metadata/artwork-dimensions.json`: the record, the words read and
+    the address. build-data drops it. A `--force` fetch loses it.
+  - The fetch asked Commons by the filename on disk and stored a final
+    `null` for 55 works that link a page of another name. It now asks
+    for the linked page. A `null` there means that page and its
+    Wikidata item have no size.
+  - A scan that is a detail gets no size, since the hang would size it
+    as the whole painting. Eight are listed with the whole work's size.
+  - The works behind a bot check need a person with a browser:
+    honolulu.emuseum.com asks for verification in Chrome too. Do not
+    work round it.
+  - Web search is one allowance of 200 for a turn, shared by every agent
+    in it. Fourteen research agents used it up two thirds of the way
+    through their batches. Give search to the works that need it, and
+    read known records (museum APIs, the catalogue raisonné) without it.
+  - Monet's catalogue raisonné is online as page scans. Its text cannot
+    be parsed: read the entry from the page image.
+- Of the 4,412 works with a size, `trustworthyRealSize()` in
+  [`real-size.ts`](src/lib/real-size.ts) hides 882 from the plaque, the
+  scale view, the JSON-LD and every caption. 862 are hidden by design:
+  644 Redouté sheet sizes on cut-out scans, 214 `series-default` print
+  formats, 4 Vesalius page sizes. Showing those would be a product
+  decision, such as a line labelled as the sheet size. 1 is a Google Art
+  Project template value with no knowable unit: the Philbrook lists only
+  the frame of Copley's Portrait of a Lady. The other 19 have a size the
+  scan does not match: a correct size on a cropped, mounted or obliquely
+  photographed scan, which needs a full-frame scan from Commons, not a
+  new number. Five have no record that settles them (Rubens's
+  Crucifixion of Saint Peter, Le Brun's Capture of Ghent, Kustodiev's
+  Fair, Vereshchagin's Darjeeling temple and Forgotten Soldier). Fixes go
   into `metadata/artwork-dimensions.json` with a researched `source`,
   never into `src/data/*.json`. The file's comments give each rule;
-  `metadata/real-size-fixes-2026-09.md` gives the sources for past fixes.
+  `metadata/real-size-fixes-2026-09.md` and `-2026-10.md` give the
+  sources for past fixes.
 - Hidden is not harmless. The 3D gallery sizes each painting from the
   raw `realDimensions` long edge (`sizeWork()` in `place-paintings.ts`),
   and the Grand Hall leads with the largest works. A value ten times too
   big, such as Malevich's Suprematism at 805 cm tall, would hang there.
+  Three details hang as large as their whole painting for that reason:
+  Parmigianino's Madonna with the Long Neck (the head and bust, hung
+  219 cm tall), Rembrandt's Ganymede (177 cm) and David's Paris and
+  Helen (181 cm). Works hung at real size in the block plan's stair
+  halls are safe: `giants.ts` takes `trustworthyRealSize()`.
+- A new size changes how large a work hangs, and so the wall a floor
+  needs. The 419 sizes kept both plans at their room totals (tower 119,
+  block 52) but moved two tower floors (Renaissance 13 → 11 rooms,
+  Ukiyo-e 9 → 11) and changed `galleryLayoutIdentity` on both plans.
+  `real-size.test.ts` holds one rule that moves with such data: no
+  trusted work is longer than 10 times its reference in the scale view.
+  It was 6 until nine works over 10.5 m came in, the longest Monet's
+  Les Deux Saules at 17 m (`MAX_SIDE_CM` is 2,000 for it).
 - 95 works lack a `movement` tag (13 October 2026, ~2% of the corpus) — they fall
   through to year-based era assignment in
   [`gallery-eras.ts`](src/lib/gallery-eras.ts). All come from the

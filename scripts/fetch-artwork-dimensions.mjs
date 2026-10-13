@@ -169,6 +169,24 @@ function objectKeyToFileTitle(objectKey) {
   return ("File:" + filename.replace(/ /g, "_")).normalize("NFC");
 }
 
+// The Commons page to ask about a work: the one the catalogue links.
+// That is not always the file's own name. A file saved as a preview
+// carries a "960px-" prefix, and some were renamed by hand: on 13 October
+// 2026, 55 of the 562 works without a size linked a page of another name,
+// and a lookup by filename had found nothing for them. 59 sizes were on
+// those pages or on the Wikidata items they name.
+function commonsFileTitle(artwork) {
+  const m = artwork.commonsUrl?.match(/\/wiki\/(.+)$/);
+  if (m) {
+    try {
+      return decodeURIComponent(m[1]).replace(/ /g, "_").normalize("NFC");
+    } catch {
+      // A malformed escape: fall through to the filename.
+    }
+  }
+  return objectKeyToFileTitle(artwork.objectKey);
+}
+
 // ---------------------------------------------------------------------------
 // wikitext parsing
 
@@ -561,7 +579,7 @@ async function main() {
   // title -> artwork map
   const titleToArtwork = new Map();
   for (const a of wikimediaTodo) {
-    const t = objectKeyToFileTitle(a.objectKey);
+    const t = commonsFileTitle(a);
     if (!titleToArtwork.has(t)) titleToArtwork.set(t, []);
     titleToArtwork.get(t).push(a);
   }
