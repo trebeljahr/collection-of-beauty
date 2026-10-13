@@ -862,12 +862,12 @@ required by the Dockerfile — don't remove it.
       ones under it last.
     - A frame fits a storey up to 5.38 m (`STOREY_FRAME_ROOM`): canvases
       to about 4.9 m. Taller ones go to the sheer walls (next point).
-    - `Placement.giant` drops the picture light: the frame's top is a
-      hand under the gallery above. `Placement.plaque` moves the plaque
-      to eye level (`dy`), sideways (`dx`), or leaves it out (`null`,
-      a work with no floor in front of it at its own height).
-    - 68 of 70 giants hang (13 October 2026): 14 on the sheer walls,
-      28 in the court, 26 on the stair halls' storeys. Two of Monet's
+    - `Placement.giant` changes the picture light (next point but
+      one). `Placement.plaque` moves the plaque to eye level (`dy`),
+      sideways (`dx`), or leaves it out (`null`, a work with no floor in
+      front of it at its own height).
+    - 68 of 70 giants hang (13 October 2026): 16 on the sheer walls,
+      28 in the court, 24 on the stair halls' storeys. Two of Monet's
       Orangerie panels, 12.75 m long, have no wall and hang in their
       rooms at 3.2 m.
     - The tower has no such wall: its stairwell is one storey high
@@ -875,21 +875,42 @@ required by the Dockerfile — don't remove it.
   - **Three walls of a stair hall are sheer** (`GrandStair.sheerWall`,
     `RoomLayout.sheer`): the building's end wall behind the stair, 27.5
     m long, and 11.45 m of each side wall beyond the galleries, all 24
-    m high. `hangSheerWalls` composes them from the works taller than a
-    storey and the largest of the others (`SHEER_CHOICE`). On the end
-    wall: the widest in the axis of the stair, level with the second
-    floor, where it is seen from the hall's door over the first half
-    landing; a pair of like height on the hall floor either side of it;
-    a pair level with the top floor. A work too wide for any other
-    wall hangs over the first, 3 m and more above it (`AXIS_CLEAR`),
-    and that wall then has no upper pair: three canvases are about 10 m
-    wide and taller than a storey, and there are two end walls. So the
-    Coronation of Napoleon hangs over the Feast in the House of Levi,
-    and one Orangerie panel over Cana. On each side wall: one work on
-    every second storey, the two walls a storey apart. The two halls
-    are dealt to in turn, the one with fewer tall works first, and the
-    pair is picked before the side walls, which would take one of two
-    works made as a pair. What it costs and what it needs:
+    m high. `hangSheerWalls` hangs the three as one composition about
+    the stair's axis, from the works taller than a storey and some of
+    the others. Such a work carries `Placement.sheer`.
+    - **End wall, level with the second floor: three works, one to a
+      bay of the piers.** Four piers stand under each half landing,
+      11 m in front of the wall. From the foot of the stair the two
+      middle ones frame 10.6 m of it (`axisBay` in `grand-stair.ts`).
+      The largest tall work no wider than that hangs in the axis: the
+      Wedding at Cana in the west hall, the Coronation of Napoleon in
+      the east. Beside it hangs a pair, one in the middle of the wall
+      either side, their middles level with its own: the two
+      Tintorettos of San Rocco beside Cana.
+    - **End wall, top: one work too wide for any other place**, over
+      the piers and seen whole from the top floor, 3 m and more over
+      the row below (`AXIS_CLEAR`). It goes to the hall whose axis work
+      is nearest of kin: Veronese's Feast in the House of Levi
+      (13.09 m) over his Cana, Monet's Matin over the Coronation.
+    - **Side walls: a pair on the hall floor and a pair two storeys
+      up**, one work in the middle of each wall. Both walls hang on the
+      same storeys, the ones the end wall leaves bare, so no corner
+      holds two works at one height.
+    - **A pair is two works of like size** (`unlike`, at most 1.5 m
+      apart, but for a tall work that has to hang), by one hand or of
+      one era where the catalogue has such two (`kin`), and at home in
+      the hall (`atHome`: kinship with what hangs there). So Raphael's
+      School of Athens faces his Fire in the Borgo under the Venetian
+      wall, and Jordaens's Triumph faces Le Brun's Alexander Entering
+      Babylon. Do not put `-100 * talls` back into a side pair's score:
+      it paired the two tall works left over, whatever they were.
+    - The hang before this one dealt each wall its works one at a
+      time: the widest in the axis, 13 m of canvas cut by two piers;
+      one side wall hung on the first and third floors, the other on
+      the second and fourth; one end wall with two works and the other
+      with four. Rico, 13 October 2026: the arrangement on the back
+      wall "is a bit meh".
+    What it costs and what it needs:
     - No door in a stair hall's side walls on any floor, and a gallery
       that ends at the landing's far edge, fenced.
     - A hole that touches a shape's edge does not triangulate. A hall's
@@ -898,13 +919,49 @@ required by the Dockerfile — don't remove it.
     - A grand hall's walls run the full `FLOOR_SEPARATION`, so the wall
       goes on through the slab's depth. With a sheer wall they stand
       4 mm inside their lines: the floor slab of the room behind lies in
-      the wall's own plane.
+      the wall's own plane. **Anything laid on such a wall takes
+      `wallInsetOf(room)`** (`painting-light-rig.ts`). The light pools
+      lie 2 mm off their wall, and until 13 October 2026 they lay 2 mm
+      off the wall's line: 2 mm behind the plaster. The depth test
+      passed a pool where the wall was seen at a slant and failed it
+      elsewhere, so a pool came and went in blocks as the visitor
+      turned.
     - Skirting is one-sided on a wall a room draws for itself
       (`ownFace`). Straddling the wall, the board of the room behind
       showed through the sheer wall as a dark line at every storey. It
       is left out where there is no floor (`SkirtingClip`).
     - The wall washers skip the sheer wall and stop short of the strip
-      on the two walls that meet it (`washedWalls`).
+      on the two walls that meet it (`washedWalls`). A wall that meets
+      the sheer wall is two walls to a pool as well: the stretch its
+      gallery runs along, and the strip beyond (`hallBounds`). A pool
+      that crossed from one to the other stopped at a storey's ceiling
+      line in the middle of bare wall.
+  - **In a hall the light follows the works.** Rico, 13 October 2026,
+    of the stair halls: "a bit random stuff going on with the lights".
+    A row of washers stood along every wall at its own even spacing,
+    a scallop half on a canvas and the next on bare wall, and a giant
+    had no light of its own. Now:
+    - A wall of a hall's storey that hangs a work has no washers
+      (`bareWalls` in `stairwell-light.tsx`). A wall that hangs nothing
+      keeps its row. The tower's stairwell and the spiral rooms hang
+      nothing and are lit as before.
+    - A giant is lit from across the hall (`LightRigInput.far`): one
+      lamp to each stretch of frame about as wide as the frame is tall,
+      six at most (`FAR_MAX_HEADS`: Monet's Matin, a handscroll). On a
+      storey the lamps are cans on the gallery's ceiling, up to 4.2 m
+      from the wall. On a sheer wall they stand in the void and are not
+      drawn.
+    - A far pool ends a set distance from its frame all round
+      (`LightRig.soft`, 0.9 to 1.8 m), on the wall and on the floor
+      under it. Its cones only shade it. A cone is round and a canvas
+      is not: fitted to the Wedding at Cana from a lamp above it, the
+      cone lit the wall for 13 m under the frame and 2 m over it.
+    - The pool's shader is compiled for 2 lamps or for 6, so a hall
+      adds one program. A work refitted to its texture can cross from
+      one to the other: the new material takes the fade where the old
+      one was, or its pool would stay dark.
+    - A work's cans are one mesh (`PaintingLight`): a wide work in a
+      room had two draw calls for them.
   - **A hall or a stair room is one colour through every storey**
     (`RoomLayout.paletteEra`, read through `paletteOfRoom`): the pale
     stone of the Gothic rooms. Before, each storey took its floor's
@@ -1000,9 +1057,10 @@ required by the Dockerfile — don't remove it.
     by it. The plaque card and the mat board carry their own emissive
     for that reason, and frame materials add the light themselves (see
     the frame maps below).
-- The stairwell hangs no works, so it has its own light
+- The tower's stairwell hangs no works, so it has its own light
   (`stairwell-light.tsx`, geometry in `stairwell-light-rig.ts`), built
-  the same way:
+  the same way. A hall of the block plan that hangs works is lit for
+  them instead ("In a hall the light follows the works", above):
   - a plaster ceiling a storey up, with a glazed ring round the well.
     On the top floor the ring closes into an oculus;
   - six wall washers along each wall. Their pools are one mesh for the

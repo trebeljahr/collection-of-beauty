@@ -18,14 +18,14 @@ import {
 } from "@/lib/gallery-layout/place-paintings";
 import { paletteOfRoom } from "@/lib/gallery-layout/room-era";
 import type { Placement, RoomLayout } from "@/lib/gallery-layout/types";
-import { CELL_SIZE } from "@/lib/gallery-layout/world-coords";
+import { CELL_SIZE, INTER_FLOOR_HEIGHT } from "@/lib/gallery-layout/world-coords";
 import { formatCm, trustworthyRealSize } from "@/lib/real-size";
 import { GALLERY_LOD_WIDTH, variantProxyUrl } from "@/lib/utils";
 import { FOV_DEFAULT_DEG, ZOOM_PIXEL_HEADROOM } from "./camera-config";
 import { UNREFLECTED_LAYER } from "./floor-mirror";
 import { buildFrameGeometry } from "./frame-geometry";
 import { PaintingLight } from "./painting-light";
-import { buildLightRig, wallContextFor } from "./painting-light-rig";
+import { buildLightRig, hallBounds, wallContextFor, wallInsetOf } from "./painting-light-rig";
 import { createPaintingPreview } from "./painting-preview";
 import { type PaintingEntry, registerPainting, unregisterPainting } from "./painting-registry";
 import { frameMaterials, plaqueBaseMaterial, plaqueMountMaterial } from "./palette-materials";
@@ -40,6 +40,19 @@ import {
   peekCached,
 } from "./texture-cache";
 import { poolGainScale } from "./wall-light";
+
+/** A hall's ceiling plane hangs this far under the slab above
+ *  (`CEILING_Y` in stairwell-light.tsx). */
+const HALL_CEILING_GAP = 0.02;
+/** How far from its wall a hall's pool may reach across the floor, and
+ *  so how far off a storey's lamp may stand: the court's galleries are
+ *  5 m wide, and a pool on the floor ends inside the balustrade. */
+const HALL_POOL_REACH = 4.6;
+/** The most a lamp stands off a sheer wall: the void in front of it is
+ *  11.45 m deep. */
+const SHEER_LAMP_THROW = 9;
+/** Local x of the plaque rectangle of a work that has no plaque. */
+const NO_PLAQUE_X = 1e4;
 
 /**
  * One painting on a wall. Renders a thin box behind the canvas so the
@@ -512,23 +525,34 @@ export const Painting = memo(function Painting({
   // Picture light: one can per work, its pool clipped to this wall's
   // clear stretches, or to the divider the work hangs on, and faded out
   // on the floor toward the room's doorways. See painting-light-rig.ts.
+  //
+  // A hall is a stairwell room: its ceiling is the gallery above, a
+  // storey up whatever `ceilingHeight` says, and a work on its sheer wall
+  // has the hall's floor and roof for its own (`RoomLayout.sheer`).
+  const hall = room.isStairwell;
+  const onSheer = placement.sheer === true && room.sheer !== undefined;
   const wall = useMemo(() => {
     const cb = room.cellBounds;
+    const bounds = {
+      xMin: cb.xMin * CELL_SIZE,
+      xMax: (cb.xMax + 1) * CELL_SIZE,
+      zMin: cb.zMin * CELL_SIZE,
+      zMax: (cb.zMax + 1) * CELL_SIZE,
+    };
     return wallContextFor(
-      {
-        xMin: cb.xMin * CELL_SIZE,
-        xMax: (cb.xMax + 1) * CELL_SIZE,
-        zMin: cb.zMin * CELL_SIZE,
-        zMax: (cb.zMax + 1) * CELL_SIZE,
-      },
+      hall ? hallBounds(bounds, room.sheer, rotation[1], onSheer) : bounds,
       room.doors,
-      room.worldRect.y,
+      onSheer && room.sheer ? room.sheer.base : room.worldRect.y,
       position,
       rotation[1],
       { dividers: room.dividers, on: placement.divider },
     );
-  }, [room, position, rotation, placement.divider]);
-  const ceilingY = wall.floorY + room.ceilingHeight;
+  }, [room, hall, onSheer, position, rotation, placement.divider]);
+  const ceilingY =
+    onSheer && room.sheer
+      ? room.sheer.roof - HALL_CEILING_GAP - position[1]
+      : wall.floorY + (hall ? INTER_FLOOR_HEIGHT - HALL_CEILING_GAP : room.ceilingHeight);
+  const far = placement.giant === true;
   const rig = useMemo(
     () =>
       buildLightRig({
@@ -541,20 +565,38 @@ export const Painting = memo(function Painting({
         roomSpan: wall.roomSpan,
         wallSpans: wall.wallSpans,
         floorSpan: wall.floorSpan,
-        roomDepth: wall.roomDepth,
+        // A hall's floor is a gallery round a void on the storeys over
+        // its first: a pool keeps to the gallery.
+        roomDepth: hall ? Math.min(wall.roomDepth, HALL_POOL_REACH) : wall.roomDepth,
         thresholds: wall.thresholds,
+        far: far
+          ? onSheer
+            ? { maxThrow: SHEER_LAMP_THROW, onCeiling: false }
+            : { maxThrow: HALL_POOL_REACH - 0.4, onCeiling: true }
+          : undefined,
       }),
-    [dW, dH, frameReach, frameRise, wall, ceilingY],
+    [dW, dH, frameReach, frameRise, wall, ceilingY, hall, far, onSheer],
   );
+  // The wall as drawn: a few millimetres inside its line in a hall with
+  // a sheer wall.
+  const poolWallZ =
+    -PAINTING_WALL_OFFSET + (placement.divider === undefined ? wallInsetOf(room) : 0);
+  // Where the plaque hangs, for its shadow in the pool: beside the
+  // frame, or where the hang put it (`Placement.plaque`). A work with
+  // none has the rectangle parked out of the pool's reach.
+  const plaqueAt = placement.plaque;
   const plaqueRect = useMemo(
     () => ({
-      x: dW / 2 + frameReach + PLAQUE_GAP + PLAQUE_MOUNT_W / 2,
-      y: 0,
+      x:
+        plaqueAt === null
+          ? NO_PLAQUE_X
+          : (plaqueAt?.dx ?? dW / 2 + frameReach + PLAQUE_GAP + PLAQUE_MOUNT_W / 2),
+      y: plaqueAt?.dy ?? 0,
       halfW: PLAQUE_MOUNT_W / 2,
       halfH: (PLAQUE_FACE_H_BASE + PLAQUE_MOUNT_PAD) / 2,
       frontZ: -PAINTING_WALL_OFFSET + PLAQUE_WALL_CLEAR + PLAQUE_MOUNT_DEPTH + PLAQUE_FACE_DEPTH,
     }),
-    [dW, frameReach],
+    [dW, frameReach, plaqueAt],
   );
 
   // How far the work reaches, for room culling (room-culling.ts):
@@ -589,27 +631,22 @@ export const Painting = memo(function Painting({
       {placement.plaque !== null && (
         <Plaque artwork={artwork} frameEdgeX={dW / 2 + frameReach} offset={placement.plaque} />
       )}
-      {/* A giant in a stair hall has no light of its own: its top is
-          within a hand of the gallery above, or it hangs on a wall with
-          no ceiling for four storeys. */}
-      {!placement.giant && (
-        <PaintingLight
-          rig={rig}
-          wallZ={-PAINTING_WALL_OFFSET}
-          floorY={wall.floorY}
-          ceilingY={ceilingY}
-          frameHalfW={dW / 2 + body.side}
-          frameHalfH={dH / 2 + (body.top + body.bottom) / 2}
-          frameCenterY={(body.top - body.bottom) / 2}
-          frameFrontZ={moulding.frontZ - PAINTING_WALL_OFFSET}
-          plaque={plaqueRect}
-          // The stairwell's ceiling is a storey up, not at room height: a
-          // can would hang in mid-air, so a work there gets the pool
-          // without the fixture.
-          fixtures={!room.isStairwell}
-          wallGain={poolGainScale(paletteOfRoom(room).wallColor)}
-        />
-      )}
+      <PaintingLight
+        rig={rig}
+        wallZ={poolWallZ}
+        floorY={wall.floorY}
+        ceilingY={ceilingY}
+        frameHalfW={dW / 2 + body.side}
+        frameHalfH={dH / 2 + (body.top + body.bottom) / 2}
+        frameCenterY={(body.top - body.bottom) / 2}
+        frameFrontZ={moulding.frontZ - PAINTING_WALL_OFFSET}
+        plaque={plaqueRect}
+        // A work on a sheer wall is lit from across the void, where
+        // there is no ceiling to hang a can from: its lamps are not
+        // drawn.
+        fixtures={!onSheer}
+        wallGain={poolGainScale(paletteOfRoom(room).wallColor)}
+      />
     </group>
   );
 });

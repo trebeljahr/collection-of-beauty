@@ -28,9 +28,13 @@ export type Placement = {
    *  position is then on that divider's face, not on a room wall. */
   divider?: number;
   /** A work too large for a room, hung at its real size in a stair hall
-   *  (`giants.ts`). It has no picture light of its own: the hall lights
-   *  its walls. */
+   *  (`giants.ts`). Its picture light is a spot from across the hall
+   *  (`farLamp` in painting-light-rig.ts), not a can over its frame. */
   giant?: true;
+  /** Hung on a stair hall's sheer wall (`RoomLayout.sheer`): the wall
+   *  runs on under and over it, past the floor and the ceiling of the
+   *  storey it is filed under. */
+  sheer?: true;
   /** Where the plaque hangs when not beside the middle of the canvas:
    *  metres from the canvas centre to the plaque's, `dy` up and `dx` to
    *  the viewer's right (unset: beside the frame). `null` is no plaque,
@@ -138,8 +142,10 @@ export type RoomLayout = {
    *  on, and the depth of the strip along it that the hall's void takes
    *  on every floor over the stair's foot. The same on each storey of
    *  the hall; `floorOpening` and `ceilingOpening` say whether this
-   *  storey has floor or ceiling there. */
-  sheer?: { side: Door["side"]; depth: number };
+   *  storey has floor or ceiling there. `base` and `roof` are the world
+   *  heights the wall stands between: the hall's floor and its glazed
+   *  ceiling four storeys up. */
+  sheer?: { side: Door["side"]; depth: number; base: number; roof: number };
   /** What a grand stair hall is on this floor, for the map: the stair
    *  leaves it, arrives on it, or only its void passes through. */
   stairGlyph?: "up" | "down" | "both" | "void";

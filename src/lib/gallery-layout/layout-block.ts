@@ -89,6 +89,7 @@ import {
   stretchMiddle,
 } from "./giants";
 import {
+  axisBay,
   buildGrandStair,
   type GrandStair,
   type GrandStairDesign,
@@ -127,6 +128,7 @@ import type {
 import {
   CELL_SIZE,
   floorY,
+  INTER_FLOOR_HEIGHT,
   PORTAL_HEIGHT,
   PORTAL_WIDTH,
   SPIRAL_INNER_RADIUS,
@@ -377,7 +379,14 @@ export function layoutBlock(allArtworks: ArtworkListing[]): MuseumLayout {
       room.ceilingOpening = f < top ? openingInWorld(above) : null;
       room.stairGlyph = court ? "void" : f === 0 ? "up" : f === top ? "down" : "both";
       const stair = stairs[0];
-      if (stair.sheerWall) room.sheer = { side: sheerSide(stair), depth: sheerStripDepth(stair) };
+      if (stair.sheerWall) {
+        room.sheer = {
+          side: sheerSide(stair),
+          depth: sheerStripDepth(stair),
+          base: floors[0].y,
+          roof: floors[top].y + INTER_FLOOR_HEIGHT,
+        };
+      }
     }
   }
 
@@ -392,7 +401,7 @@ export function layoutBlock(allArtworks: ArtworkListing[]): MuseumLayout {
   }
 
   // The giants go to the halls first; each era then hangs what is left.
-  const inHalls = hangGiants(floors, byEra);
+  const inHalls = hangGiants(floors, byEra, grandStairs);
   const forRooms = new Map(
     [...byEra].map(([era, works]) => [era, works.filter((a) => !inHalls.has(a.id))]),
   );
@@ -419,13 +428,17 @@ const hallRoom = (floor: FloorLayout, key: RoomKey) =>
 
 /**
  * Hang the works too large for a room in the halls, at their real size
- * (`giants.ts`). The works taller than a storey and the largest of the
- * others go to the sheer walls of the two stair halls, dealt to them in
- * turn. Every other giant hangs on the floor of its era, one to a
+ * (`giants.ts`). The works taller than a storey and some of the others
+ * go to the sheer walls of the two stair halls, which are composed
+ * alike. Every other giant hangs on the floor of its era, one to a
  * stretch of wall, in the court and the two stair halls alike. Returns
  * the ids hung.
  */
-function hangGiants(floors: FloorLayout[], byEra: Map<EraId, ArtworkListing[]>): Set<string> {
+function hangGiants(
+  floors: FloorLayout[],
+  byEra: Map<EraId, ArtworkListing[]>,
+  grandStairs: GrandStair[],
+): Set<string> {
   const tall: SizedWork[] = [];
   const others: Array<{ work: SizedWork; start: number }> = [];
   BLOCK_PLAN.forEach((plan, floorIndex) => {
@@ -442,7 +455,11 @@ function hangGiants(floors: FloorLayout[], byEra: Map<EraId, ArtworkListing[]>):
   const storeysOf = (key: RoomKey) => floors.map((floor) => hallRoom(floor, key));
   const left = new Set(
     hangSheerWalls(
-      BLOCK_HALLS.filter((h) => h.design === "loggia").map((h) => storeysOf(h.key)),
+      BLOCK_HALLS.filter((h) => h.design === "loggia").map((h) => {
+        // The piers stand in one place on every storey.
+        const stair = grandStairs.find((s) => s.id.startsWith(`${h.key}-`));
+        return { storeys: storeysOf(h.key), bay: stair ? axisBay(stair) : undefined };
+      }),
       tall,
       others.map((o) => o.work),
     ).map((w) => w.artwork.id),

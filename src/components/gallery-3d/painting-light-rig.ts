@@ -42,6 +42,39 @@ export const LIGHT_TWIN_WIDTH = 1.7;
  *  bright top does not land above the work. */
 export const LIGHT_AIM_DROP = 0.06;
 
+// A work too large for a room hangs in a hall (`giants.ts`), with its
+// frame's top a hand under the gallery above, or on a wall that is sheer
+// for four storeys. A can 2 m out from the wall lights the top of a
+// canvas five metres tall at six times its middle. Such a work is lit as
+// museums light one: by spots from across the hall, far enough off that
+// the light is even, one spot to each stretch of the canvas about as
+// wide as it is tall.
+//
+// A spot's cone is round and the canvas is not. Fitted to a canvas ten
+// metres wide from a lamp above it, the cone reached the wall thirteen
+// metres under the frame and two over it. So a far pool is not ended by
+// its cones: the cones only shade it, brighter toward the lamp, and the
+// pool ends a set distance from the frame all round (`LightRig.soft`),
+// as a framing projector's does.
+/** Heads a far-lit work may take. Monet's Matin is 12.75 m by 2. */
+export const FAR_MAX_HEADS = 6;
+/** A head lights a stretch of frame no narrower than this, metres. */
+const FAR_MIN_SPAN = 2.4;
+/** A far lamp's distance from the wall, as a share of the longer side
+ *  of the stretch it lights, and the least it stands off. */
+const FAR_THROW = 1.1;
+const FAR_MIN_THROW = 3;
+/** How high a far lamp stands over its aim point where it hangs from
+ *  no ceiling, as an angle up from the wall's normal. */
+const FAR_RISE_DEG = 28;
+/** How far beyond the frame a far pool reaches: a share of the frame's
+ *  shorter side, between two limits, metres. */
+const FAR_SOFT_SHARE = 0.25;
+const FAR_SOFT_MIN = 0.9;
+const FAR_SOFT_MAX = 1.8;
+/** A far cone's own soft edge, outside the pool's. */
+const FAR_CONE_EDGE_DEG = 6;
+
 /** A floor pool fades out over this distance to a doorway's threshold.
  *  A pool stops where its room does. A wall hides that everywhere but in
  *  a doorway, where the floor runs on into the next room unlit: the stop
@@ -84,6 +117,9 @@ export type LightRig = {
   /** Thresholds the floor pool fades toward, x and local z, nearest
    *  first (`thresholdsNear`). */
   thresholds: Threshold[];
+  /** A far-lit work's pool ends this far from its frame, on the wall
+   *  and on the floor alike. Unset: the cones end the pool. */
+  soft?: number;
 };
 
 export type LightRigInput = {
@@ -112,6 +148,12 @@ export type LightRigInput = {
   floorSpan?: [number, number];
   /** The room's doorways, x and local z, on whichever wall. */
   thresholds?: readonly Threshold[];
+  /** Light the work from across the room, no further from the wall
+   *  than `maxThrow`: a giant in a hall (see `FAR_MAX_HEADS`). With
+   *  `onCeiling` the lamps hang from the ceiling as a room's cans do,
+   *  only further out; without, they stand in the air in front of the
+   *  work, where a hall has no ceiling. */
+  far?: { maxThrow: number; onCeiling: boolean };
 };
 
 const deg = Math.PI / 180;
@@ -175,6 +217,123 @@ function fitHead(input: LightRigInput, x: number, halfW: number, share: number):
   };
 }
 
+/** What a head lays on the wall at (x, y), as the pool's shader counts
+ *  it: I·cosθ/d² inside the cone, eased out across its soft edge. */
+function wallLight(head: LightHead, x: number, y: number, wallZ: number): number {
+  const toL = sub(head.position, [x, y, wallZ]);
+  const d2 = dot(toL, toL);
+  const l = norm(toL);
+  const along = -dot(l, head.direction);
+  const t = Math.min(1, Math.max(0, (along - head.cosOuter) / (head.cosInner - head.cosOuter)));
+  return (head.intensity * Math.max(0, l[2]) * t * t * (3 - 2 * t)) / d2;
+}
+
+/** How far beyond its frame a far-lit work's pool reaches. */
+function farSoftEdge(input: LightRigInput): number {
+  const shorter = 2 * Math.min(input.frameHalfW, input.frameHalfH);
+  return Math.min(FAR_SOFT_MAX, Math.max(FAR_SOFT_MIN, FAR_SOFT_SHARE * shorter));
+}
+
+/** A far head at `x`, lighting the frame span [x - halfW, x + halfW]
+ *  from `throwM` off the wall. Its intensity is 1; `farHeads` sets it. */
+function fitFarHead(
+  input: LightRigInput,
+  x: number,
+  halfW: number,
+  throwM: number,
+  onCeiling: boolean,
+): LightHead {
+  const wallZ = -input.wallOffset;
+  const aim: Vec3 = [x, -LIGHT_AIM_DROP * input.canvasH, wallZ];
+  const hung = input.ceilingY - LIGHT_CEILING_DROP;
+  const lightY = onCeiling ? hung : Math.min(hung, aim[1] + throwM * Math.tan(FAR_RISE_DEG * deg));
+  const position: Vec3 = [x, lightY, wallZ + throwM];
+  const direction = norm(sub(aim, position));
+  // The cone holds its stretch of frame and, where a head can open so
+  // wide, the pool's soft edge round it: the pool is ended by `soft`,
+  // not by the cone.
+  const grow = farSoftEdge(input);
+  let widest = 0;
+  for (const cx of [x - halfW - grow, x + halfW + grow]) {
+    for (const cy of [-input.frameHalfH - grow, input.frameHalfH + grow]) {
+      const toCorner = norm(sub([cx, cy, wallZ], position));
+      widest = Math.max(widest, Math.acos(Math.min(1, dot(toCorner, direction))));
+    }
+  }
+  const inner = Math.min(widest, (LIGHT_MAX_OUTER_DEG - FAR_CONE_EDGE_DEG) * deg);
+  const outer = inner + FAR_CONE_EDGE_DEG * deg;
+  return {
+    position,
+    direction,
+    cosOuter: Math.cos(outer),
+    cosInner: Math.cos(inner),
+    intensity: 1,
+  };
+}
+
+/** The heads that light a giant: one to each stretch of its frame about
+ *  as wide as the frame is tall, set so the brightest of their aim
+ *  points takes the light a room's work takes at its own. */
+function farHeads(input: LightRigInput, far: NonNullable<LightRigInput["far"]>): LightHead[] {
+  const width = input.frameHalfW * 2;
+  const height = input.frameHalfH * 2;
+  const count = Math.min(
+    FAR_MAX_HEADS,
+    Math.max(1, Math.round(width / Math.max(height, FAR_MIN_SPAN))),
+  );
+  const span = width / count;
+  const throwM = Math.min(
+    far.maxThrow,
+    Math.max(FAR_MIN_THROW, FAR_THROW * Math.max(span, height)),
+  );
+  const heads = Array.from({ length: count }, (_, i) =>
+    fitFarHead(input, -input.frameHalfW + (i + 0.5) * span, span / 2, throwM, far.onCeiling),
+  );
+  const wallZ = -input.wallOffset;
+  const aimY = -LIGHT_AIM_DROP * input.canvasH;
+  const brightest = Math.max(
+    ...heads.map((at) =>
+      heads.reduce((sum, h) => sum + wallLight(h, at.position[0], aimY, wallZ), 0),
+    ),
+  );
+  return heads.map((h) => ({ ...h, intensity: 1 / brightest }));
+}
+
+/** A far-lit work's rig: its heads, and a pool that ends `soft` metres
+ *  from the frame. On the floor that is the floor within `soft` of the
+ *  frame's foot, where the frame hangs low enough. */
+function buildFarRig(input: LightRigInput, far: NonNullable<LightRigInput["far"]>): LightRig {
+  const soft = farSoftEdge(input);
+  const wallZ = -input.wallOffset;
+  const pad = 0.05;
+  const xMin = -input.frameHalfW - soft - pad;
+  const xMax = input.frameHalfW + soft + pad;
+  const wall = clipX(
+    {
+      xMin,
+      xMax,
+      yMin: Math.max(input.floorY, -input.frameHalfH - soft - pad),
+      yMax: Math.min(input.ceilingY, input.frameHalfH + soft + pad),
+    },
+    input.wallSpans,
+  );
+  const gap = -input.frameHalfH - input.floorY;
+  const reach = gap < soft ? Math.sqrt(soft * soft - Math.max(0, gap) ** 2) : 0;
+  const floor =
+    reach > 0.05
+      ? (clipX({ xMin, xMax, yMin: wallZ, yMax: wallZ + Math.min(input.roomDepth, reach + pad) }, [
+          input.floorSpan ?? input.roomSpan,
+        ])[0] ?? null)
+      : null;
+  return {
+    heads: farHeads(input, far),
+    wall,
+    floor,
+    thresholds: floor ? thresholdsNear(floor, input.thresholds ?? []) : [],
+    soft,
+  };
+}
+
 /** Sample the outer cone's rim and return where it lands. */
 function coneHits(head: LightHead, input: LightRigInput) {
   const wallZ = -input.wallOffset;
@@ -223,8 +382,10 @@ function clipX(rect: Rect2, spans: Array<[number, number]>): Rect2[] {
   return out;
 }
 
-/** Fit one or two heads to a frame and bound the pool they throw. */
+/** Fit one or two heads to a frame, or a giant's far heads, and bound
+ *  the pool they throw. */
 export function buildLightRig(input: LightRigInput): LightRig {
+  if (input.far) return buildFarRig(input, input.far);
   const twin = input.frameHalfW * 2 > LIGHT_TWIN_WIDTH;
   const heads = twin
     ? [
@@ -340,6 +501,70 @@ export function clearSpans(
   return spans.filter(([s, e]) => e - s > 0.01);
 }
 
+/** How far inside their lines a stair hall with a sheer wall draws its
+ *  walls (room-geometry.tsx says why). Every pool in such a hall lies on
+ *  the wall as drawn. Left on the wall's line, 2 mm off it, a pool was
+ *  2 mm behind the plaster: the depth test passed it where the wall was
+ *  seen at a slant and failed it elsewhere, and a pool came and went in
+ *  blocks as the visitor turned. */
+export const SHEER_HALL_WALL_INSET = 0.004;
+export function wallInsetOf(room: { sheer?: unknown }): number {
+  return room.sheer ? SHEER_HALL_WALL_INSET : 0;
+}
+
+/** The compass wall a placement hangs on, from its turn about y
+ *  (place-paintings: 0 north, π south, π/2 west, -π/2 east). */
+export function wallSideOf(rotationY: number): "north" | "south" | "east" | "west" {
+  const quarter = Math.round(rotationY / (Math.PI / 2));
+  return quarter === 0
+    ? "north"
+    : quarter === 2 || quarter === -2
+      ? "south"
+      : quarter === 1
+        ? "west"
+        : "east";
+}
+
+type Bounds = { xMin: number; xMax: number; zMin: number; zMax: number };
+
+/**
+ * The part of a stair hall that is one wall to a work's pool.
+ *
+ * A wall that meets the hall's sheer wall (`RoomLayout.sheer`) is two
+ * walls: the stretch its gallery runs along, with a floor and a ceiling
+ * on every storey, and the strip beyond the gallery's end, sheer from
+ * the hall floor to the roof. A pool that crossed from one to the other
+ * would stop at a storey's ceiling line in the middle of bare wall.
+ * `onSheer` says which of the two the work hangs on. The sheer wall
+ * itself, and the wall across from it, are whole.
+ */
+export function hallBounds(
+  bounds: Bounds,
+  sheer: { side: "north" | "south" | "east" | "west"; depth: number } | undefined,
+  rotationY: number,
+  onSheer: boolean,
+): Bounds {
+  if (!sheer) return bounds;
+  const side = wallSideOf(rotationY);
+  const sheerAlongX = sheer.side === "north" || sheer.side === "south";
+  if ((side === "north" || side === "south") === sheerAlongX) return bounds;
+  const out = { ...bounds };
+  if (sheer.side === "west") {
+    if (onSheer) out.xMax = bounds.xMin + sheer.depth;
+    else out.xMin = bounds.xMin + sheer.depth;
+  } else if (sheer.side === "east") {
+    if (onSheer) out.xMin = bounds.xMax - sheer.depth;
+    else out.xMax = bounds.xMax - sheer.depth;
+  } else if (sheer.side === "north") {
+    if (onSheer) out.zMax = bounds.zMin + sheer.depth;
+    else out.zMin = bounds.zMin + sheer.depth;
+  } else {
+    if (onSheer) out.zMin = bounds.zMax - sheer.depth;
+    else out.zMax = bounds.zMax - sheer.depth;
+  }
+  return out;
+}
+
 /** What the rig needs to know about the wall a work hangs on. */
 export type WallContext = {
   roomSpan: [number, number];
@@ -450,15 +675,7 @@ export function wallContextFor(
   }
   const roomDepth = depthTo(wallZ, Math.max(...zs));
 
-  const quarter = Math.round(rotationY / (Math.PI / 2));
-  const side =
-    quarter === 0
-      ? "north"
-      : quarter === 2 || quarter === -2
-        ? "south"
-        : quarter === 1
-          ? "west"
-          : "east";
+  const side = wallSideOf(rotationY);
   const openings = doors
     .filter((d) => d.side === side)
     .map((d): [number, number] => {

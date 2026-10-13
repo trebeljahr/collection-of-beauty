@@ -21,6 +21,7 @@ import { registerMirrorRoom } from "./floor-mirror";
 import { Laylight } from "./laylight";
 import { laylightPanels } from "./laylight-layout";
 import { Painting } from "./painting";
+import { wallInsetOf } from "./painting-light-rig";
 import { getPaletteMaterials, getRoomFloorMaterial } from "./palette-materials";
 import { registerCulledRoom } from "./room-culling";
 import { openingHole, rectsAround } from "./stair-opening";
@@ -103,8 +104,9 @@ export function RoomGeometry({
   const wallMidY = floorY + wallHeight / 2;
   // A hall with a sheer wall stands its walls a few millimetres inside
   // their lines. On the sheer wall nothing hides the edge of the floor
-  // slab of the room behind, which lies in the wall's own plane.
-  const wallInset = room.sheer ? 0.004 : 0;
+  // slab of the room behind, which lies in the wall's own plane. The
+  // hall's light pools stand on the same line (`wallInsetOf`).
+  const wallInset = wallInsetOf(room);
   const ceilingY = floorY + room.ceilingHeight;
   // Skirting follows the floor: none along a sheer wall on the storeys
   // where the hall's void lies in front of it.

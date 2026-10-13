@@ -1,8 +1,9 @@
 "use client";
 
 // The stairwell's lighting: a plaster ceiling with a glazed ring round
-// the well, and a row of wall washers along each wall. See
-// stairwell-light-rig.ts for the geometry and the reasoning.
+// the well, and a row of wall washers along each wall that hangs
+// nothing. See stairwell-light-rig.ts for the geometry and the
+// reasoning.
 //
 // Like the picture lights, none of it is a three.js light. The washers'
 // pools are one mesh for the whole room, drawn with the picture lights'
@@ -43,7 +44,7 @@ import {
   thresholdFadeGlsl,
   thresholdUniforms,
 } from "./painting-light";
-import { doorThreshold, type Threshold } from "./painting-light-rig";
+import { doorThreshold, type Threshold, wallInsetOf, wallSideOf } from "./painting-light-rig";
 import { fixtureMaterial, getPaletteMaterials } from "./palette-materials";
 import { openingHole, rectsAround } from "./stair-opening";
 import {
@@ -230,6 +231,24 @@ function washedWalls(room: RoomLayout, walls: Wall[]): Wall[] {
   });
 }
 
+/** The walls that hang nothing on this storey. A work brings its own
+ *  pool (painting-light.tsx), fitted to its frame; a row of washers along
+ *  the same wall stood at its own even spacing, a scallop half on a
+ *  canvas and the next on bare wall. So a wall is lit for its works, or
+ *  washed when it has none. */
+function bareWalls(room: RoomLayout, walls: Wall[], cx: number, cz: number): Wall[] {
+  return walls.filter((wall) => {
+    const dir = fromWall(wall, [1, 0, 0], false);
+    return !room.placements.some((p) => {
+      if (p.divider !== undefined || wallSideOf(p.rotation[1]) !== wall.side) return false;
+      const along =
+        (p.position[0] - cx - wall.origin[0]) * dir[0] +
+        (p.position[2] - cz - wall.origin[1]) * dir[2];
+      return Math.abs(along) < wall.length / 2;
+    });
+  });
+}
+
 function roomWalls(room: RoomLayout, width: number, depth: number, cx: number, cz: number): Wall[] {
   // Same four placements as RoomGeometry's walls, so a door's place
   // along the wall takes the same sign.
@@ -285,7 +304,14 @@ function fromWall(
 /** `wallGain` is the boost a deep wall colour needs for a pool to show
  *  on it (`poolGainScale` in wall-light.ts). As for the picture lights,
  *  it stays off the floor: every era has the same oak. */
-function buildWashGeometry(walls: Wall[], rows: WashRow[], wallGain: number): THREE.BufferGeometry {
+function buildWashGeometry(
+  walls: Wall[],
+  rows: WashRow[],
+  wallGain: number,
+  /** How far inside its line the wall is drawn (`wallInsetOf`). */
+  inset: number,
+): THREE.BufferGeometry {
+  const wallZ = inset + SURFACE_LIFT;
   const pos: number[] = [];
   const local: number[] = [];
   const rowAttr: number[] = [];
@@ -306,10 +332,10 @@ function buildWashGeometry(walls: Wall[], rows: WashRow[], wallGain: number): TH
     for (const r of washWallRects(row, wall.length, wall.doors)) {
       quad(
         [
-          [r.xMin, r.yMin, SURFACE_LIFT],
-          [r.xMax, r.yMin, SURFACE_LIFT],
-          [r.xMax, r.yMax, SURFACE_LIFT],
-          [r.xMin, r.yMax, SURFACE_LIFT],
+          [r.xMin, r.yMin, wallZ],
+          [r.xMax, r.yMin, wallZ],
+          [r.xMax, r.yMax, wallZ],
+          [r.xMin, r.yMax, wallZ],
         ],
         0,
       );
@@ -515,19 +541,25 @@ function StairHallLight({ floor, room }: { floor: FloorLayout; room: RoomLayout 
     const depth = zMax - zMin;
     const cx = (xMin + xMax) / 2;
     const cz = (zMin + zMax) / 2;
-    const walls = washedWalls(room, roomWalls(room, width, depth, cx, cz));
+    const walls = bareWalls(room, washedWalls(room, roomWalls(room, width, depth, cx, cz)), cx, cz);
     const rows = walls.map((w) => fitWashRow(w.length, CEILING_Y));
+    // A storey with a work on every wall has no washers at all.
+    const washed = rows.length > 0;
     return {
       position: [cx, room.worldRect.y, cz] as [number, number, number],
-      washMaterial: getWashMaterial(
-        rows[0],
-        room.doors.map((d): Threshold => {
-          const [x0, z0, x1, z1] = doorThreshold(d);
-          return [x0 - cx, z0 - cz, x1 - cx, z1 - cz];
-        }),
-      ),
-      wash: buildWashGeometry(walls, rows, poolGainScale(wallColor)),
-      cans: buildCansGeometry(walls, rows),
+      washMaterial: washed
+        ? getWashMaterial(
+            rows[0],
+            room.doors.map((d): Threshold => {
+              const [x0, z0, x1, z1] = doorThreshold(d);
+              return [x0 - cx, z0 - cz, x1 - cx, z1 - cz];
+            }),
+          )
+        : null,
+      wash: washed
+        ? buildWashGeometry(walls, rows, poolGainScale(wallColor), wallInsetOf(room))
+        : null,
+      cans: washed ? buildCansGeometry(walls, rows) : null,
       ceiling: buildCeilingGeometry(
         width,
         depth,
@@ -542,8 +574,8 @@ function StairHallLight({ floor, room }: { floor: FloorLayout; room: RoomLayout 
 
   useEffect(
     () => () => {
-      built.wash.dispose();
-      built.cans.dispose();
+      built.wash?.dispose();
+      built.cans?.dispose();
       built.ceiling.dispose();
       built.glass.dispose();
       built.frame.dispose();
@@ -575,9 +607,9 @@ function StairHallFixtures({
 }: {
   built: {
     position: [number, number, number];
-    washMaterial: THREE.ShaderMaterial;
-    wash: THREE.BufferGeometry;
-    cans: THREE.BufferGeometry;
+    washMaterial: THREE.ShaderMaterial | null;
+    wash: THREE.BufferGeometry | null;
+    cans: THREE.BufferGeometry | null;
     ceiling: THREE.BufferGeometry;
     glass: THREE.BufferGeometry;
     frame: THREE.BufferGeometry;
@@ -607,8 +639,12 @@ function StairHallFixtures({
           />
         </>
       )}
-      <mesh geometry={built.wash} material={built.washMaterial} renderOrder={1} />
-      <mesh geometry={built.cans} material={fixtureUnlitMaterial} layers={UNREFLECTED_LAYER} />
+      {built.wash && built.washMaterial && (
+        <mesh geometry={built.wash} material={built.washMaterial} renderOrder={1} />
+      )}
+      {built.cans && (
+        <mesh geometry={built.cans} material={fixtureUnlitMaterial} layers={UNREFLECTED_LAYER} />
+      )}
     </group>
   );
 }

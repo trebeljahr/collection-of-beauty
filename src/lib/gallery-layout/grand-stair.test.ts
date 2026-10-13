@@ -1,5 +1,6 @@
 import { describe, expect, it } from "vitest";
 import {
+  axisBay,
   buildGrandStair,
   GRAND_RISERS,
   GRAND_STEP_UP,
@@ -527,6 +528,20 @@ describe("a loggia: the imperial stair on every storey, in the front of its hall
     walked ??= walkFrom(stairs, door, 0, half);
     return walked;
   };
+
+  it("frames 10.6 m of the wall it climbs toward between its two middle piers", () => {
+    // Seen from the foot of the middle flight, 21.25 m from the wall,
+    // past piers 4.9 m apart that stand 9.8 m off: the sight line clears
+    // each pier's far corner.
+    const inner = IMPERIAL.centralHalf + 0.5 - 0.3;
+    const far = north + 0.3 - 0.3;
+    for (const stair of stairs) {
+      expect(axisBay(stair)).toBeCloseTo((2 * inner * (south + half)) / (south - far), 9);
+      expect(axisBay(stair)).toBeCloseTo(10.625, 3);
+    }
+    // No pier, no limit.
+    expect(axisBay({ ...stairs[0], columns: [] })).toBe(Number.POSITIVE_INFINITY);
+  });
 
   it("stands against a lobby on every floor, the same stair in the same place", () => {
     expect(half - south).toBeCloseTo(LOGGIA.lobby, 9);

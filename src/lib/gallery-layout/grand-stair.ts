@@ -256,6 +256,31 @@ export function sheerStripDepth(stair: Pick<GrandStair, "half" | "design">): num
   return stair.half + IMPERIAL.north + (stair.design === "loggia" ? loggiaShift(stair.half) : 0);
 }
 
+/**
+ * How much of the wall a stair climbs toward is seen between the two
+ * piers nearest its axis, by a visitor at the foot of the middle flight:
+ * metres along the wall, about the axis. A canvas no wider hangs in the
+ * axis with a pier either side of it; a wider one is cut by them. No
+ * limit when no pier stands in the way.
+ */
+export function axisBay(stair: Pick<GrandStair, "patches" | "columns" | "half">): number {
+  const flight = stair.patches.find(
+    (p): p is FlightPatch => p.kind === "flight" && Math.abs(p.cx) < 1e-6,
+  );
+  if (!flight) return Number.POSITIVE_INFINITY;
+  const foot = flight.z0;
+  let bay = Number.POSITIVE_INFINITY;
+  for (const c of stair.columns) {
+    // The pier's face toward the axis, at its corner away from the
+    // visitor: the sight line that clears it.
+    const inner = Math.abs(c.x) - c.size / 2;
+    const far = c.z - c.size / 2;
+    if (inner <= 0 || far >= foot) continue;
+    bay = Math.min(bay, (2 * inner * (foot + stair.half)) / (foot - far));
+  }
+  return bay;
+}
+
 /** How far an opening reaches from the hall's centre. */
 export function openingReach(o: StairOpening): number {
   if (o.kind === "disc") return o.r;
