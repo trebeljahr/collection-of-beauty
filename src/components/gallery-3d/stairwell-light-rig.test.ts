@@ -6,8 +6,10 @@ import {
   RING_OUTER_R,
   RING_ROW_M,
   RING_ROWS,
+  WASH_SIDE_REACH,
   type WashRow,
   washLampXs,
+  washStretches,
   washWallRects,
 } from "./stairwell-light-rig";
 
@@ -145,6 +147,107 @@ describe("washWallRects", () => {
   it("drops the lintel of a door taller than the pools", () => {
     const rects = washWallRects(row, WALL, [{ center: 3, width: 1.4, height: 5.5 }]);
     expect(rects).toHaveLength(2);
+  });
+});
+
+describe("washStretches", () => {
+  // A wall of the block plan's court on one storey: 27.5 m, a portal
+  // 3.5 m wide and 3 m high in its middle.
+  const COURT = 27.5;
+  const portal = { center: 0, width: 3.5, height: 3 };
+
+  it("gives each stretch beside a door an even row about its own middle", () => {
+    const stretches = washStretches(COURT, [portal], CEILING);
+    expect(stretches.map((s) => s.center)).toEqual([-7.75, 7.75]);
+    for (const s of stretches) {
+      expect(s.row.count).toBe(4);
+      expect(s.row.spacing).toBeCloseTo(3, 6);
+      const xs = washLampXs(s.row);
+      for (const [i, x] of xs.entries()) expect(x).toBeCloseTo(-xs[xs.length - 1 - i], 6);
+    }
+  });
+
+  it("sets a row out about the one work its stretch holds", () => {
+    // The work hangs 0.4 m off the stretch's middle: a hall's side wall,
+    // where the hang keeps a metre from the sheer strip.
+    const [left, right] = washStretches(COURT, [portal], CEILING, [-8.15, 7.75]);
+    expect(left.center).toBeCloseTo(-8.15, 6);
+    expect(right.center).toBeCloseTo(7.75, 6);
+    // Every can still hangs inside the stretch, 1.75 to 13.75 m out.
+    const xs = washLampXs(left.row).map((x) => x + left.center);
+    expect(Math.min(...xs)).toBeGreaterThan(-13.75 + 0.5);
+    expect(Math.max(...xs)).toBeLessThan(-1.75 - 0.5);
+    // The stretch's rectangle is the wall, wherever the row stands.
+    expect(left.rects[0].xMin + left.center).toBeCloseTo(-13.75, 6);
+    expect(left.rects[0].xMax + left.center).toBeCloseTo(-1.75, 6);
+  });
+
+  it("keeps to the stretch's middle for a work too far off it, or for two", () => {
+    expect(washStretches(COURT, [portal], CEILING, [-11.5])[0].center).toBeCloseTo(-7.75, 6);
+    expect(washStretches(COURT, [portal], CEILING, [-10, -5])[0].center).toBeCloseTo(-7.75, 6);
+  });
+
+  it("lights the half of the lintel next to each stretch, and nothing in the doorway", () => {
+    const [left, right] = washStretches(COURT, [portal], CEILING);
+    expect(left.rects).toHaveLength(2);
+    const lintel = left.rects[1];
+    expect(lintel.xMin + left.center).toBeCloseTo(-1.75, 6);
+    expect(lintel.xMax + left.center).toBeCloseTo(0, 6);
+    expect(lintel.yMin).toBe(3);
+    expect(right.rects[1].xMin + right.center).toBeCloseTo(0, 6);
+    expect(right.rects[1].xMax + right.center).toBeCloseTo(1.75, 6);
+    // The floor in front runs to the middle of the doorway, where the
+    // other stretch takes over.
+    expect(left.floor[1] + left.center).toBeCloseTo(0, 6);
+    expect(right.floor[0] + right.center).toBeCloseTo(0, 6);
+    for (const s of [left, right]) {
+      for (const r of s.rects) {
+        const inDoor = r.xMin + s.center < 1.75 - 1e-6 && r.xMax + s.center > -1.75 + 1e-6;
+        if (inDoor) expect(r.yMin).toBeGreaterThanOrEqual(3);
+      }
+    }
+  });
+
+  it("lights a wall with no door as one stretch from corner to corner", () => {
+    const [only, ...rest] = washStretches(16.05, [], CEILING);
+    expect(rest).toHaveLength(0);
+    expect(only.center).toBe(0);
+    expect(only.rects).toEqual([{ xMin: -8.025, xMax: 8.025, yMin: 0, yMax: only.row.wallTop }]);
+    expect(only.floor).toEqual([-8.025, 8.025]);
+  });
+
+  it("holds a can's cone inside the reach the stretches count on", () => {
+    const row = fitWashRow(COURT, CEILING);
+    const lone: WashRow = { ...row, count: 1 };
+    let widest = 0;
+    for (let x = 0; x <= 6; x += 0.05) {
+      let lit = false;
+      for (let y = 0; y <= row.wallTop && !lit; y += 0.1) {
+        lit = illuminance(lone, [x, y, 0], false) > 0;
+      }
+      for (let z = 0; z <= row.floorReach && !lit; z += 0.1) {
+        lit = illuminance(lone, [x, 0, z], true) > 0;
+      }
+      if (lit) widest = x;
+    }
+    expect(widest).toBeGreaterThan(2.5);
+    expect(widest).toBeLessThan(WASH_SIDE_REACH);
+  });
+
+  it("gives a short stretch a row and no more wall than its own", () => {
+    // 4 m between a door and a corner: two cans 2 m apart. The shader
+    // adds a fragment's own can and one each side, so past the row's end
+    // it would leave out a can that still reaches there.
+    const door = { center: -COURT / 2 + 4 + 0.7, width: 1.4, height: 2.4 };
+    const first = washStretches(COURT, [door], CEILING)[0];
+    expect(first.row.count).toBe(2);
+    expect(first.row.spacing).toBeCloseTo(2, 6);
+    expect(first.rects).toHaveLength(1);
+    expect(first.floor[1] - first.floor[0]).toBeCloseTo(4, 6);
+    // And none at all under a metre and a half.
+    expect(
+      washStretches(COURT, [{ center: -COURT / 2 + 1.7, width: 1.4, height: 2.4 }], CEILING),
+    ).toHaveLength(1);
   });
 });
 

@@ -6,7 +6,9 @@
 //
 //  - wall washers: a row of ceiling cans along each wall, throwing the
 //    same pool a picture light does. With no frame to fit, the pools
-//    overlap into a run of scallops and a band on the floor below;
+//    overlap into a run of scallops and a band on the floor below. A
+//    hall that hangs giants is lit the same way, a row to each stretch
+//    of wall, set out about the work that hangs there (`washStretches`);
 //  - a glazed ring round the well in place of the galleries' laylight.
 //    On the top floor, where no flight passes through the ceiling, the
 //    ring closes into a full oculus.
@@ -128,4 +130,89 @@ export function washWallRects(row: WashRow, wallLength: number, doors: WashDoor[
     }
   });
   return rects;
+}
+
+/** A stretch shorter than this takes no row: its two cans would hang a
+ *  few decimetres apart. */
+export const WASH_MIN_STRETCH = 1.5;
+/** How far along the wall a can's cone reaches at its widest, at the
+ *  wall's foot. `stairwell-light-rig.test.ts` holds the cone to it. */
+export const WASH_SIDE_REACH = 3.75;
+/** The end can of a row stands at least this far inside its stretch. */
+const WASH_END_CLEAR = 0.6;
+
+/** A stretch of a hall's wall and the row that lights it. `center` is
+ *  where the row's middle stands along the wall. The rectangles and the
+ *  floor's two ends are measured from there, as the cans are. */
+export type WashStretch = {
+  center: number;
+  row: WashRow;
+  rects: Rect2[];
+  floor: [number, number];
+};
+
+/**
+ * A hall's wall as its stretches between doors and corners, each with a
+ * row of washers of its own.
+ *
+ * A hall hangs one giant in the middle of each stretch (`giants.ts`).
+ * One row fitted to the whole wall, as a stairwell has, stands by its
+ * own count: on the court's 27.5 m wall, with a portal in the middle, a
+ * can hung 0.84 m to one side of each work's centre, and the work sat
+ * under a scallop and a half. A row to a stretch is even about the
+ * stretch's middle, and about the one work the stretch holds where that
+ * is a little off it (`works`, along the wall).
+ *
+ * A stretch also lights the half of each door's lintel next to it, and
+ * the floor in front of that half. In a stretch too short for that (the
+ * shader would leave out a can that reaches there) it lights itself
+ * only.
+ */
+export function washStretches(
+  wallLength: number,
+  doors: WashDoor[],
+  ceilingY: number,
+  works: number[] = [],
+): WashStretch[] {
+  const half = wallLength / 2;
+  const openings = doors.map((d): [number, number] => [
+    Math.max(-half, d.center - d.width / 2),
+    Math.min(half, d.center + d.width / 2),
+  ]);
+  const out: WashStretch[] = [];
+  for (const [a, b] of clearSpans([-half, half], openings)) {
+    if (b - a < WASH_MIN_STRETCH) continue;
+    const row = fitWashRow(b - a, ceilingY);
+    const mid = (a + b) / 2;
+    // A fragment adds its own can and one each side. Past the row's end
+    // the nearest can it leaves out is a gap and a half away.
+    const wide = 1.5 * row.spacing >= WASH_SIDE_REACH;
+    const held = works.filter((x) => x > a && x < b);
+    const slack = row.spacing / 2 - WASH_END_CLEAR;
+    const center = wide && held.length === 1 && Math.abs(held[0] - mid) <= slack ? held[0] : mid;
+    const rects: Rect2[] = [{ xMin: a - center, xMax: b - center, yMin: 0, yMax: row.wallTop }];
+    let lo = a;
+    let hi = b;
+    if (wide) {
+      doors.forEach((d, i) => {
+        const [o0, o1] = openings[i];
+        const m = (o0 + o1) / 2;
+        const lintel = d.height < row.wallTop;
+        if (Math.abs(o1 - a) < 1e-6) {
+          lo = m;
+          if (lintel) {
+            rects.push({ xMin: m - center, xMax: a - center, yMin: d.height, yMax: row.wallTop });
+          }
+        }
+        if (Math.abs(o0 - b) < 1e-6) {
+          hi = m;
+          if (lintel) {
+            rects.push({ xMin: b - center, xMax: m - center, yMin: d.height, yMax: row.wallTop });
+          }
+        }
+      });
+    }
+    out.push({ center, row, rects, floor: [lo - center, hi - center] });
+  }
+  return out;
 }

@@ -20,7 +20,6 @@ import * as THREE from "three";
 import { mergeGeometries } from "three/examples/jsm/utils/BufferGeometryUtils.js";
 import { UNREFLECTED_LAYER } from "./floor-mirror";
 import {
-  FAR_MAX_HEADS,
   type LightRig,
   POOL_THRESHOLDS,
   THRESHOLD_FADE_M,
@@ -109,13 +108,11 @@ void main() {
 }
 `;
 
-/** `heads` is how many lamps the pool can take: 2 for a room's work, more
- *  for a giant lit from across a hall (`FAR_MAX_HEADS`). */
-const fragmentShader = (heads: number) => /* glsl */ `
-uniform vec3 uLightPos[${heads}];
-uniform vec3 uLightDir[${heads}];
-uniform vec2 uCone[${heads}];
-uniform float uLightI[${heads}];
+const fragmentShader = /* glsl */ `
+uniform vec3 uLightPos[2];
+uniform vec3 uLightDir[2];
+uniform vec2 uCone[2];
+uniform float uLightI[2];
 uniform vec3 uFrame;   // half width, half height, front plane z
 uniform float uFrameY; // centre y: a frame may reach further up than down
 uniform vec4 uPlaque;  // centre x, centre y, half width, half height
@@ -126,7 +123,6 @@ uniform float uShoulder;
 uniform float uContact;
 uniform float uFade;
 uniform vec2 uFog;
-uniform vec2 uSoft;    // a far pool's reach beyond the frame (0: none), wall plane z
 varying vec3 vPos;
 varying vec3 vNormal;
 varying float vDepth;
@@ -149,7 +145,7 @@ float occlusion(vec3 p, vec3 toL, float planeZ, vec2 c, vec2 h) {
 void main() {
   vec3 n = normalize(vNormal);
   float e = 0.0;
-  for (int i = 0; i < ${heads}; i++) {
+  for (int i = 0; i < 2; i++) {
     vec3 toL = uLightPos[i] - vPos;
     float d2 = dot(toL, toL);
     vec3 l = toL * inversesqrt(d2);
@@ -167,16 +163,6 @@ void main() {
     contact += uContact * 0.5 * exp(-max(boxSdf(vPos.xy, uPlaque.xy - vec2(0.0, 0.004), uPlaque.zw), 0.0) / 0.012);
   }
   e = e / (1.0 + uShoulder * e);
-  // A far-lit work's pool ends a set distance from its frame, on the
-  // wall and on the floor under it (LightRig.soft).
-  if (uSoft.x > 0.0) {
-    vec2 off = abs(vPos.xy - vec2(0.0, uFrameY)) - uFrame.xy;
-    vec3 q = vec3(max(off, 0.0), max(vPos.z - uSoft.y, 0.0));
-    // Falling fastest at the frame and running out level: eased at both
-    // ends, the fall gathered half way out and drew a second edge there.
-    float t = 1.0 - min(length(q) / uSoft.x, 1.0);
-    e *= t * t;
-  }
   float k = uFade * (1.0 - smoothstep(uFog.x, uFog.y, vDepth));
   // On the floor the pool gives out before a doorway's threshold.
   if (n.y > 0.5) k *= thresholdFade(vPos.xz);
@@ -186,16 +172,15 @@ void main() {
 }
 `;
 
-function makePoolMaterial(heads: number): THREE.ShaderMaterial {
-  const each = <T,>(make: () => T) => Array.from({ length: heads }, make);
+function makePoolMaterial(): THREE.ShaderMaterial {
   return new THREE.ShaderMaterial({
     vertexShader,
-    fragmentShader: fragmentShader(heads),
+    fragmentShader,
     uniforms: {
-      uLightPos: { value: each(() => new THREE.Vector3()) },
-      uLightDir: { value: each(() => new THREE.Vector3(0, -1, 0)) },
-      uCone: { value: each(() => new THREE.Vector2(0.5, 0.6)) },
-      uLightI: { value: each(() => 0) },
+      uLightPos: { value: [new THREE.Vector3(), new THREE.Vector3()] },
+      uLightDir: { value: [new THREE.Vector3(0, -1, 0), new THREE.Vector3(0, -1, 0)] },
+      uCone: { value: [new THREE.Vector2(0.5, 0.6), new THREE.Vector2(0.5, 0.6)] },
+      uLightI: { value: [0, 0] },
       uFrame: { value: new THREE.Vector3() },
       uFrameY: { value: 0 },
       uPlaque: { value: new THREE.Vector4() },
@@ -206,7 +191,6 @@ function makePoolMaterial(heads: number): THREE.ShaderMaterial {
       uContact: { value: CONTACT_SHADOW },
       uFade: { value: 0 },
       uFog: { value: new THREE.Vector2(FOG_NEAR, FOG_FAR) },
-      uSoft: { value: new THREE.Vector2(0, 0) },
       ...thresholdUniforms(POOL_THRESHOLDS),
     },
     transparent: true,
@@ -394,14 +378,10 @@ export const PaintingLight = memo(function PaintingLight({
   fixtures,
   wallGain = 1,
 }: PaintingLightProps) {
-  // Two programs at most: a room's work has one head or two, a giant
-  // as many as `FAR_MAX_HEADS`.
-  const capacity = rig.heads.length > 2 ? FAR_MAX_HEADS : 2;
-  const material = useMemo(() => makePoolMaterial(capacity), [capacity]);
+  const material = useMemo(makePoolMaterial, []);
   const geometry = useMemo(() => buildPoolGeometry(rig, wallZ, floorY), [rig, wallZ, floorY]);
 
-  // Every can of the work as one mesh: a wide work has two, a giant on
-  // a hall's storey up to six.
+  // Every can of the work as one mesh: a wide work has two.
   const cans = useMemo(() => {
     if (!fixtures || rig.heads.length === 0) return null;
     const parts = rig.heads.map((h) => buildFixtureGeometry(h.position, h.direction, ceilingY));
@@ -421,10 +401,7 @@ export const PaintingLight = memo(function PaintingLight({
 
   useEffect(() => {
     const u = material.uniforms;
-    // A work refitted to its texture can cross from two heads to three
-    // and take the other material: that one starts where this one was.
-    u.uFade.value = easeFade(fade.current);
-    for (let i = 0; i < capacity; i++) {
+    for (let i = 0; i < 2; i++) {
       const head = rig.heads[i];
       u.uLightI.value[i] = head ? head.intensity : 0;
       if (!head) continue;
@@ -437,20 +414,8 @@ export const PaintingLight = memo(function PaintingLight({
     (u.uPlaque.value as THREE.Vector4).set(plaque.x, plaque.y, plaque.halfW, plaque.halfH);
     u.uPlaqueZ.value = plaque.frontZ;
     u.uWallGain.value = wallGain;
-    (u.uSoft.value as THREE.Vector2).set(rig.soft ?? 0, wallZ + SURFACE_LIFT);
     setThresholds(u.uDoor.value, rig.thresholds);
-  }, [
-    material,
-    capacity,
-    rig,
-    wallZ,
-    frameHalfW,
-    frameHalfH,
-    frameCenterY,
-    frameFrontZ,
-    plaque,
-    wallGain,
-  ]);
+  }, [material, rig, frameHalfW, frameHalfH, frameCenterY, frameFrontZ, plaque, wallGain]);
 
   useFrame((_, dt) => {
     if (fade.current >= 1) return;

@@ -1,9 +1,9 @@
 "use client";
 
 // The stairwell's lighting: a plaster ceiling with a glazed ring round
-// the well, and a row of wall washers along each wall that hangs
-// nothing. See stairwell-light-rig.ts for the geometry and the
-// reasoning.
+// the well, and a row of wall washers along each wall. A hall of the
+// block plan is lit the same way, a row to each stretch of its walls.
+// See stairwell-light-rig.ts for the geometry and the reasoning.
 //
 // Like the picture lights, none of it is a three.js light. The washers'
 // pools are one mesh for the whole room, drawn with the picture lights'
@@ -44,7 +44,13 @@ import {
   thresholdFadeGlsl,
   thresholdUniforms,
 } from "./painting-light";
-import { doorThreshold, type Threshold, wallInsetOf, wallSideOf } from "./painting-light-rig";
+import {
+  doorThreshold,
+  type Rect2,
+  type Threshold,
+  wallInsetOf,
+  wallSideOf,
+} from "./painting-light-rig";
 import { fixtureMaterial, getPaletteMaterials } from "./palette-materials";
 import { openingHole, rectsAround } from "./stair-opening";
 import {
@@ -58,6 +64,7 @@ import {
   type WashDoor,
   type WashRow,
   washLampXs,
+  washStretches,
   washWallRects,
 } from "./stairwell-light-rig";
 import { poolGainScale } from "./wall-light";
@@ -231,22 +238,44 @@ function washedWalls(room: RoomLayout, walls: Wall[]): Wall[] {
   });
 }
 
-/** The walls that hang nothing on this storey. A work brings its own
- *  pool (painting-light.tsx), fitted to its frame; a row of washers along
- *  the same wall stood at its own even spacing, a scallop half on a
- *  canvas and the next on bare wall. So a wall is lit for its works, or
- *  washed when it has none. */
-function bareWalls(room: RoomLayout, walls: Wall[], cx: number, cz: number): Wall[] {
-  return walls.filter((wall) => {
-    const dir = fromWall(wall, [1, 0, 0], false);
-    return !room.placements.some((p) => {
-      if (p.divider !== undefined || wallSideOf(p.rotation[1]) !== wall.side) return false;
-      const along =
+/** A row of washers and what it lights. The rectangles on the wall and
+ *  the floor's two ends are in the frame of `wall`, whose origin is the
+ *  middle of the row. */
+type Wash = { wall: Wall; row: WashRow; rects: Rect2[]; floor: [number, number] };
+
+/** One row for a whole wall: a stairwell's, which hangs nothing. */
+function wholeWall(wall: Wall): Wash {
+  const row = fitWashRow(wall.length, CEILING_Y);
+  return {
+    wall,
+    row,
+    rects: washWallRects(row, wall.length, wall.doors),
+    floor: [-wall.length / 2, wall.length / 2],
+  };
+}
+
+/** A row for each stretch of a hall's wall, its cones set out about the
+ *  giant that hangs there (`washStretches`). */
+function wallStretches(room: RoomLayout, wall: Wall, cx: number, cz: number): Wash[] {
+  const dir = fromWall(wall, [1, 0, 0], false);
+  // The works on this wall's storey. One on the sheer strip beyond the
+  // galleries hangs past the end of the wall as trimmed.
+  const works = room.placements
+    .filter((p) => p.divider === undefined && !p.sheer && wallSideOf(p.rotation[1]) === wall.side)
+    .map(
+      (p) =>
         (p.position[0] - cx - wall.origin[0]) * dir[0] +
-        (p.position[2] - cz - wall.origin[1]) * dir[2];
-      return Math.abs(along) < wall.length / 2;
-    });
-  });
+        (p.position[2] - cz - wall.origin[1]) * dir[2],
+    );
+  return washStretches(wall.length, wall.doors, CEILING_Y, works).map((stretch) => ({
+    wall: {
+      ...wall,
+      origin: [wall.origin[0] + dir[0] * stretch.center, wall.origin[1] + dir[2] * stretch.center],
+    },
+    row: stretch.row,
+    rects: stretch.rects,
+    floor: stretch.floor,
+  }));
 }
 
 function roomWalls(room: RoomLayout, width: number, depth: number, cx: number, cz: number): Wall[] {
@@ -305,8 +334,7 @@ function fromWall(
  *  on it (`poolGainScale` in wall-light.ts). As for the picture lights,
  *  it stays off the floor: every era has the same oak. */
 function buildWashGeometry(
-  walls: Wall[],
-  rows: WashRow[],
+  washes: Wash[],
   wallGain: number,
   /** How far inside its line the wall is drawn (`wallInsetOf`). */
   inset: number,
@@ -317,19 +345,18 @@ function buildWashGeometry(
   const rowAttr: number[] = [];
   const floorAttr: number[] = [];
   const idx: number[] = [];
-  walls.forEach((wall, w) => {
-    const row = rows[w];
+  for (const { wall, row, rects, floor: ends } of washes) {
     const quad = (corners: Array<[number, number, number]>, floor: number) => {
       const base = pos.length / 3;
       for (const c of corners) {
         pos.push(...fromWall(wall, c, true));
         local.push(...c);
-        rowAttr.push(row.spacing, wall.length / 2, floor ? 1 : wallGain);
+        rowAttr.push(row.spacing, (row.count * row.spacing) / 2, floor ? 1 : wallGain);
         floorAttr.push(floor);
       }
       idx.push(base, base + 1, base + 2, base, base + 2, base + 3);
     };
-    for (const r of washWallRects(row, wall.length, wall.doors)) {
+    for (const r of rects) {
       quad(
         [
           [r.xMin, r.yMin, wallZ],
@@ -340,17 +367,16 @@ function buildWashGeometry(
         0,
       );
     }
-    const half = wall.length / 2;
     quad(
       [
-        [-half, SURFACE_LIFT, row.floorReach],
-        [half, SURFACE_LIFT, row.floorReach],
-        [half, SURFACE_LIFT, 0],
-        [-half, SURFACE_LIFT, 0],
+        [ends[0], SURFACE_LIFT, row.floorReach],
+        [ends[1], SURFACE_LIFT, row.floorReach],
+        [ends[1], SURFACE_LIFT, 0],
+        [ends[0], SURFACE_LIFT, 0],
       ],
       1,
     );
-  });
+  }
   const g = new THREE.BufferGeometry();
   g.setAttribute("position", new THREE.Float32BufferAttribute(pos, 3));
   g.setAttribute("aWall", new THREE.Float32BufferAttribute(local, 3));
@@ -362,10 +388,9 @@ function buildWashGeometry(
 }
 
 /** Every can in the room as one geometry. */
-function buildCansGeometry(walls: Wall[], rows: WashRow[]): THREE.BufferGeometry {
+function buildCansGeometry(washes: Wash[]): THREE.BufferGeometry {
   const parts: THREE.BufferGeometry[] = [];
-  walls.forEach((wall, w) => {
-    const row = rows[w];
+  for (const { wall, row } of washes) {
     const direction = fromWall(wall, [0, row.dirY, row.dirZ], false);
     for (const x of washLampXs(row)) {
       parts.push(
@@ -376,7 +401,7 @@ function buildCansGeometry(walls: Wall[], rows: WashRow[]): THREE.BufferGeometry
         ),
       );
     }
-  });
+  }
   const merged = mergeGeometries(parts, false);
   for (const p of parts) p.dispose();
   return merged;
@@ -541,25 +566,28 @@ function StairHallLight({ floor, room }: { floor: FloorLayout; room: RoomLayout 
     const depth = zMax - zMin;
     const cx = (xMin + xMax) / 2;
     const cz = (zMin + zMax) / 2;
-    const walls = bareWalls(room, washedWalls(room, roomWalls(room, width, depth, cx, cz)), cx, cz);
-    const rows = walls.map((w) => fitWashRow(w.length, CEILING_Y));
-    // A storey with a work on every wall has no washers at all.
-    const washed = rows.length > 0;
+    const walls = washedWalls(room, roomWalls(room, width, depth, cx, cz));
+    // A hall of the block plan hangs a giant on the middle of each
+    // stretch of wall, and has a row to each stretch. A stairwell hangs
+    // nothing and has a row to each wall.
+    const washes =
+      grand !== undefined
+        ? walls.flatMap((wall) => wallStretches(room, wall, cx, cz))
+        : walls.map(wholeWall);
+    const washed = washes.length > 0;
     return {
       position: [cx, room.worldRect.y, cz] as [number, number, number],
       washMaterial: washed
         ? getWashMaterial(
-            rows[0],
+            washes[0].row,
             room.doors.map((d): Threshold => {
               const [x0, z0, x1, z1] = doorThreshold(d);
               return [x0 - cx, z0 - cz, x1 - cx, z1 - cz];
             }),
           )
         : null,
-      wash: washed
-        ? buildWashGeometry(walls, rows, poolGainScale(wallColor), wallInsetOf(room))
-        : null,
-      cans: washed ? buildCansGeometry(walls, rows) : null,
+      wash: washed ? buildWashGeometry(washes, poolGainScale(wallColor), wallInsetOf(room)) : null,
+      cans: washed ? buildCansGeometry(washes) : null,
       ceiling: buildCeilingGeometry(
         width,
         depth,

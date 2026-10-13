@@ -883,8 +883,9 @@ required by the Dockerfile — don't remove it.
       ones under it last.
     - A frame fits a storey up to 5.38 m (`STOREY_FRAME_ROOM`): canvases
       to about 4.9 m. Taller ones go to the sheer walls (next point).
-    - `Placement.giant` changes the picture light (next point but
-      one). `Placement.plaque` moves the plaque to eye level (`dy`),
+    - `Placement.giant` drops the picture light: the hall's washers
+      light the wall (next point but one). `Placement.plaque` moves
+      the plaque to eye level (`dy`),
       sideways (`dx`), or leaves it out (`null`, a work with no floor in
       front of it at its own height).
     - 68 of 70 giants hang (13 October 2026): 16 on the sheer walls,
@@ -952,35 +953,30 @@ required by the Dockerfile — don't remove it.
       showed through the sheer wall as a dark line at every storey. It
       is left out where there is no floor (`SkirtingClip`).
     - The wall washers skip the sheer wall and stop short of the strip
-      on the two walls that meet it (`washedWalls`). A wall that meets
-      the sheer wall is two walls to a pool as well: the stretch its
-      gallery runs along, and the strip beyond (`hallBounds`). A pool
-      that crossed from one to the other stopped at a storey's ceiling
-      line in the middle of bare wall.
-  - **In a hall the light follows the works.** Rico, 13 October 2026,
-    of the stair halls: "a bit random stuff going on with the lights".
-    A row of washers stood along every wall at its own even spacing,
-    a scallop half on a canvas and the next on bare wall, and a giant
-    had no light of its own. Now:
-    - A wall of a hall's storey that hangs a work has no washers
-      (`bareWalls` in `stairwell-light.tsx`). A wall that hangs nothing
-      keeps its row. The tower's stairwell and the spiral rooms hang
-      nothing and are lit as before.
-    - A giant is lit from across the hall (`LightRigInput.far`): one
-      lamp to each stretch of frame about as wide as the frame is tall,
-      six at most (`FAR_MAX_HEADS`: Monet's Matin, a handscroll). On a
-      storey the lamps are cans on the gallery's ceiling, up to 4.2 m
-      from the wall. On a sheer wall they stand in the void and are not
-      drawn.
-    - A far pool ends a set distance from its frame all round
-      (`LightRig.soft`, 0.9 to 1.8 m), on the wall and on the floor
-      under it. Its cones only shade it. A cone is round and a canvas
-      is not: fitted to the Wedding at Cana from a lamp above it, the
-      cone lit the wall for 13 m under the frame and 2 m over it.
-    - The pool's shader is compiled for 2 lamps or for 6, so a hall
-      adds one program. A work refitted to its texture can cross from
-      one to the other: the new material takes the fade where the old
-      one was, or its pool would stay dark.
+      on the two walls that meet it (`washedWalls`): no ceiling is
+      there to hang a can from. A work on a sheer wall has no pool.
+  - **A hall is lit by rows of wall washers, set out about its
+    works.** Rico, 13 October 2026, of the halls as first hung: "a bit
+    random stuff going on with the lights". One row to a wall stood by
+    its own count: on the court's 27.5 m wall a can hung 0.84 m to one
+    side of each work's centre. The first answer was wrong. It took
+    the washers off every wall with a work and lit each giant from
+    across the hall, by a pool that ended 0.9 to 1.8 m from its frame
+    all round (`dbc2a56`). Rico the same evening: "the weird 'back
+    lights' instead of the beautiful light cones that were there
+    before". Now:
+    - Every wall of a hall's storey has its washers, a row to each
+      stretch between a door and a corner (`washStretches` in
+      `stairwell-light-rig.ts`). A row is even about the middle of its
+      stretch, or about the one work the stretch holds, so a giant has
+      the same cones on either side of it.
+    - A giant has no light of its own. Do not light a work by a glow
+      that follows its frame: he read it as a back light.
+    - A stretch lights the half of each door's lintel next to it. The
+      shader adds a fragment's own can and one each side, so a stretch
+      under 5 m lights itself only.
+    - The tower's stairwell and the spiral rooms hang nothing and keep
+      one row to a wall.
     - A work's cans are one mesh (`PaintingLight`): a wide work in a
       room had two draw calls for them.
   - **A hall or a stair room is one colour through every storey**
@@ -1137,8 +1133,9 @@ required by the Dockerfile — don't remove it.
   block plan's spine a room 50 m off is half dark through it.
 - The tower's stairwell hangs no works, so it has its own light
   (`stairwell-light.tsx`, geometry in `stairwell-light-rig.ts`), built
-  the same way. A hall of the block plan that hangs works is lit for
-  them instead ("In a hall the light follows the works", above):
+  the same way. A hall of the block plan has the same washers, a row to
+  each stretch of its walls ("A hall is lit by rows of wall washers",
+  above):
   - a plaster ceiling a storey up, with a glazed ring round the well.
     On the top floor the ring closes into an oculus;
   - six wall washers along each wall. Their pools are one mesh for the

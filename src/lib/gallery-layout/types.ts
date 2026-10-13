@@ -28,8 +28,8 @@ export type Placement = {
    *  position is then on that divider's face, not on a room wall. */
   divider?: number;
   /** A work too large for a room, hung at its real size in a stair hall
-   *  (`giants.ts`). Its picture light is a spot from across the hall
-   *  (`farLamp` in painting-light-rig.ts), not a can over its frame. */
+   *  (`giants.ts`). It has no picture light of its own: the hall's
+   *  washers light its wall, set out about it (stairwell-light.tsx). */
   giant?: true;
   /** Hung on a stair hall's sheer wall (`RoomLayout.sheer`): the wall
    *  runs on under and over it, past the floor and the ceiling of the
