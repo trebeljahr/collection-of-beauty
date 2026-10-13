@@ -14,9 +14,10 @@ const TERM_YEARS = 70;
  *
  *  The underscores are what tells a title in quotation marks from the
  *  same words without them. `_The_School_of_Athens__by_Raffaello…` on
- *  disk is the page `"The School of Athens" by Raffaello…`. The page
- *  `The School of Athens by Raffaello…` is another photograph of the
- *  fresco, and comparing letters alone took the two for one file. */
+ *  disk is the name of the page `"The School of Athens" by Raffaello…`.
+ *  The page `The School of Athens by Raffaello…` is another photograph
+ *  of the fresco, and comparing letters alone took the two for one
+ *  file. */
 export function sameFile(filename, pageTitle) {
   const saved = (s) =>
     String(s)

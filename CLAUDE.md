@@ -183,11 +183,17 @@ required by the Dockerfile — don't remove it.
   The Gothenburg Olive Grove is CC BY 4.0 on Commons and "Public
   Domain" in the sidecar. The vault note
   `collection-of-beauty-commons-larger-originals.md` lists all 26.
-  A 27th turned up in the refetch and was relinked on 13 October 2026.
-  Raphael's School of Athens linked a user's own photograph of 2024
-  (17,402 px, another crop). The file on disk is
-  `"The School of Athens" by Raffaello Sanzio da Urbino.jpg`, a stitch
-  of 2013 at 3,820 px, by SHA-1.
+  A 27th turned up in the refetch. Raphael's School of Athens linked
+  `The School of Athens by Raffaello Sanzio da Urbino.jpg`, a user's own
+  photograph of 2024 (17,402 px, another crop), while the file on disk
+  was `"The School of Athens" by …`, a stitch of 2013 at 3,820 px. It
+  was relinked on 13 October 2026, and the same day Rico saw both and
+  took the photograph. Its bytes are on disk now under the old name
+  `_The_School_of_Athens__by_Raffaello_Sanzio_da_Urbino.jpg`, so the
+  id, the variant folder and the side tables stay, and the sidecar
+  links the 2024 page again. Name and page disagree for this one work
+  on purpose: check it by SHA-1 (`metadata/refetched-originals.json`,
+  `otherCommonsFile`), and do not relink it.
 - To read `source` and `copyright` again for a few entries, run the
   fetch script in a scratch root. Copy `fetch-wikimedia-metadata.mjs`,
   `normalize-metadata.mjs`, `artists-db.json`, `scripts/lib/` and
@@ -220,8 +226,8 @@ required by the Dockerfile — don't remove it.
   coloured wave after Hokusai ("19th century") and the Gainsborough
   imitator's Cattle Watering by a Stream ("undated"). The script needs
   a death year, or a year 170 years back. With the seven of the next
-  point and Bonnard's nude, `metadata/refetched-originals.json` holds
-  351 works.
+  point, Bonnard's nude and the three Rico took on sight (below),
+  `metadata/refetched-originals.json` holds 354 works.
 - Correcting a link can make a work a candidate. Eight of the 18
   relinked works are previews of the page they now name. Seven were
   fetched on 13 October 2026 on Rico's word: Carpaccio's
@@ -252,16 +258,21 @@ required by the Dockerfile — don't remove it.
   Self-Portrait with Halo and Snake, mean difference 7.7 of 255, a
   newer capture from the same museum). Five were taken that way.
   Another crop, a paler or a much darker photograph is not the same
-  picture: Giorgione's Tempest, Sargent's Olmsted, Spitzweg's Bookworm,
-  Tuxen's Christian IX (mean difference 15.1) and the two Mucha
-  canvases stay as they were. The seventh stop, Raphael's School of
-  Athens, was a wrong link (next point).
+  picture, and those go to Rico with both files side by side. On
+  13 October 2026 he took three of five: Tuxen's Christian IX (same
+  framing, mean difference 15.1, 1,600 → 5,752 px), Giorgione's Tempest
+  (another photograph; the old copy was 800 px with a "© GA-VE" mark)
+  and Raphael's School of Athens (another Commons file, 3,820 →
+  17,402 px). He kept Sargent's Olmsted (546 → 755 px) and Spitzweg's
+  Bookworm (1,256 → 1,500 px). A large gain outweighed a change of
+  colour or crop; a small one did not. The two Mucha canvases stay as
+  they were.
 - `sameFile()` compares letters, digits and underscores, with the
   title written the way a browser saves it: a space becomes an
   underscore, and so does a quotation mark. Until 13 October 2026 it
   compared letters and digits only, and took
-  `_The_School_of_Athens__by_Raffaello_Sanzio_da_Urbino.jpg`, which is
-  the page `"The School of Athens" by …`, for the page
+  `_The_School_of_Athens__by_Raffaello_Sanzio_da_Urbino.jpg`, the name
+  a browser gives the page `"The School of Athens" by …`, for the page
   `The School of Athens by …`. The picture check stopped that download.
   The Commons API reads the name the same wrong way: it drops a leading
   underscore and folds two into one, so a lookup by that filename
@@ -272,17 +283,19 @@ required by the Dockerfile — don't remove it.
   `sameFile()` and the recorded one passes it (`recordedTitleFor` in
   `scripts/lib/commons-batch.mjs`), and prints the file. It can only do
   that while the sidecar holds the right page: a new file of this kind
-  gets the wrong page on its first fetch.
+  gets the wrong page on its first fetch. Since Rico took the 2024
+  photograph, the School of Athens records the page without quotation
+  marks, the lookup by name stands, and that is the right answer.
 - After it, encode by file: `pnpm assets:shrink
   --folder=collection-of-beauty --only=<part of the filename>`, then
   build-data, then `pnpm assets:tiles --only=<part of the filename>`
   (tiles read the catalogue, so they come after build-data). Without
   `--only` both scripts take on a backlog that is not yours: on 12
   October 2026 a dry run of shrink listed 56 other stale sources in
-  the folder (436 over all folders). On 13 October 155 of the 1,117
-  tile pyramids existed on disk (2 from the first trial, 153 from the
-  four refetches). The lightbox falls back to the plain image for the
-  other 962.
+  the folder (436 over all folders). On 13 October 157 of the 1,119
+  tile pyramids existed on disk (2 from the first trial, 155 from the
+  refetches). The lightbox falls back to the plain image for the other
+  962.
 - A work's probe in `metadata/.cache/image-probe.json` is keyed on the
   mtime of its variant folder, and `assets:tiles` adds a `tiles/`
   folder there. So the first build-data after a tile run probes those

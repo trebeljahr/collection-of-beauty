@@ -5972,5 +5972,60 @@
       "sha1": "526eeccb520401ba332fb3aeaa43c536f7375598"
     },
     "renamedByHand": true
+  },
+  "collection-of-beauty/Christian_IX_of_Denmark_with_family_(Tuxen).jpg": {
+    "id": "collection-of-beauty-christian-ix-of-denmark-with-family-tuxen",
+    "fetchedAt": "2026-10-13T01:58:42.173Z",
+    "commonsTitle": "File:Christian IX of Denmark with family (Tuxen).jpg",
+    "licence": "Public domain",
+    "revision": "2026-05-18T21:47:21Z",
+    "sha1": "761beaa798c59ff75b802cbfb51e464bce0e72a8",
+    "bytes": 5182014,
+    "width": 5752,
+    "height": 3620,
+    "previous": {
+      "width": 1600,
+      "height": 1007,
+      "bytes": 290077,
+      "sha1": "076794b5546c19610c0d58131a1a1f7c1a86a9a7"
+    },
+    "acceptedChange": true
+  },
+  "collection-of-beauty/Giorgione,_The_tempest.jpg": {
+    "id": "collection-of-beauty-giorgione-the-tempest",
+    "fetchedAt": "2026-10-13T01:59:06.421Z",
+    "commonsTitle": "File:Giorgione, The tempest.jpg",
+    "licence": "Public domain",
+    "revision": "2026-06-06T17:15:28Z",
+    "sha1": "def9e98b64808fa80f67c51b21afd1a7bae8cfd1",
+    "bytes": 12680008,
+    "width": 3241,
+    "height": 3624,
+    "previous": {
+      "width": 800,
+      "height": 913,
+      "bytes": 195767,
+      "sha1": "1218cca3e86302e0a5bea65a8657605fc0a68fa5"
+    },
+    "acceptedChange": true
+  },
+  "collection-of-beauty/_The_School_of_Athens__by_Raffaello_Sanzio_da_Urbino.jpg": {
+    "id": "collection-of-beauty-the-school-of-athens-by-raffaello-sanzio-da-urbino",
+    "fetchedAt": "2026-10-13T01:59:24.604Z",
+    "commonsTitle": "File:The School of Athens by Raffaello Sanzio da Urbino.jpg",
+    "licence": "Public domain",
+    "revision": "2024-03-02T15:22:18Z",
+    "sha1": "ca90e704aa480f20d1a31e56b6838578c8d6f8b7",
+    "bytes": 207011285,
+    "width": 17402,
+    "height": 12132,
+    "previous": {
+      "width": 3820,
+      "height": 2964,
+      "bytes": 2468838,
+      "sha1": "af44cdaee5a6aea3cc27d6611d42baa6bca05236"
+    },
+    "acceptedChange": true,
+    "otherCommonsFile": "File:\"The School of Athens\" by Raffaello Sanzio da Urbino.jpg"
   }
 }

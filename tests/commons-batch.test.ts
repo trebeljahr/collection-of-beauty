@@ -117,7 +117,8 @@ describe("recordedTitleFor", () => {
   it("asks for the recorded page when Commons reads the name as another file", () => {
     // Real: saved from the page with the quotation marks. Commons drops the
     // underscore at the start and folds the doubled one, and the title that
-    // leaves is a page too: a user's own photograph of 2024.
+    // leaves is a page too: a user's own photograph of 2024. (Since
+    // 13 October 2026 the sidecar records that page, the second case below.)
     const filename = "_The_School_of_Athens__by_Raffaello_Sanzio_da_Urbino.jpg";
     const found = page("File:The School of Athens by Raffaello Sanzio da Urbino.jpg");
     expect(

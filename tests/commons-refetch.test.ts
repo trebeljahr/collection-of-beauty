@@ -51,8 +51,9 @@ describe("sameFile", () => {
   });
 
   it("tells a title in quotation marks from the same words without them", () => {
-    // Real: the file on disk is the first page, a stitch of 2013. The
-    // sidecar linked the second, a user's own photograph of 2024.
+    // Real: the file on disk was saved from the first page, a stitch of
+    // 2013. The sidecar linked the second, a user's own photograph of 2024.
+    // (Rico took that photograph on 13 October 2026, under the old name.)
     const onDisk = "_The_School_of_Athens__by_Raffaello_Sanzio_da_Urbino.jpg";
     expect(sameFile(onDisk, 'File:"The School of Athens" by Raffaello Sanzio da Urbino.jpg')).toBe(
       true,
