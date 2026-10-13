@@ -129,54 +129,52 @@ export function getPaletteMaterials(palette: Palette): PaletteMaterials {
       side: THREE.DoubleSide,
     }),
   };
-  // Lit as their own room is, from wherever they are seen.
-  for (const material of Object.values(entry)) litByRoom(material, palette);
+  // Lit as their own room is, from wherever they are seen. Not the
+  // floor: it runs on through every doorway (see below).
+  for (const material of [wall, wallInside, screen, entry.ceiling]) litByRoom(material, palette);
   cache.set(palette, entry);
   return entry;
 }
 
 // ── Per-room floor materials ──────────────────────────────────────────
 // Rooms carry their own floor tint (see Era.palette.roomAccents) but
-// share one texture across the whole building. Cached by palette and
-// colour: the palette is the room's light (room-light.ts).
+// share one texture across the whole building. Cached by colour alone.
+//
+// A floor takes the scene's light, not its room's (room-light.ts). It is
+// the one surface that runs on through a doorway: lit by each room's own
+// map, the parquet stepped in brightness on the threshold, a line from
+// jamb to jamb, by up to two fifths between a stone hall and a room in a
+// deep colour. What a room gives its floor is its reflection.
 
-const roomFloorCache = new Map<Palette, Map<string, THREE.MeshStandardMaterial>>();
+const roomFloorCache = new Map<string, THREE.MeshStandardMaterial>();
 
 /**
  * Per-room floor material. Reuses the building-wide shared floor
  * texture (floor 0's slug) so adjacent rooms and hallways tile
  * continuously, with only the colour tint distinguishing rooms.
  */
-export function getRoomFloorMaterial(palette: Palette, color: string): THREE.MeshStandardMaterial {
-  let byColor = roomFloorCache.get(palette);
-  if (!byColor) {
-    byColor = new Map();
-    roomFloorCache.set(palette, byColor);
-  }
-  let mat = byColor.get(color);
+export function getRoomFloorMaterial(color: string): THREE.MeshStandardMaterial {
+  let mat = roomFloorCache.get(color);
   if (mat) return mat;
   const textures = buildMapBundle(SHARED_FLOOR_TEXTURE_SLUG, FLOOR_REPEAT[0], FLOOR_REPEAT[1]);
-  mat = litByRoom(
-    withFloorReflection(
-      new THREE.MeshStandardMaterial({
-        color: floorTint(color),
-        ...textures,
-        // See getPaletteMaterials' floor for why the roughnessMap is
-        // replaced by a uniform scalar.
-        roughnessMap: null,
-        roughness: FLOOR_ROUGHNESS,
-        metalness: 0,
-        // Stairwell floors above the player are viewed from below (looking
-        // up through the well). Single-sided rendering would backface-cull
-        // the underside and leave the scene's black backdrop showing through
-        // — the "see-through floor" bug. Regular room floors are never
-        // viewed from below, so DoubleSide is a no-op there.
-        side: THREE.DoubleSide,
-      }),
-    ),
-    palette,
+  mat = withFloorReflection(
+    new THREE.MeshStandardMaterial({
+      color: floorTint(color),
+      ...textures,
+      // See getPaletteMaterials' floor for why the roughnessMap is
+      // replaced by a uniform scalar.
+      roughnessMap: null,
+      roughness: FLOOR_ROUGHNESS,
+      metalness: 0,
+      // Stairwell floors above the player are viewed from below (looking
+      // up through the well). Single-sided rendering would backface-cull
+      // the underside and leave the scene's black backdrop showing through
+      // — the "see-through floor" bug. Regular room floors are never
+      // viewed from below, so DoubleSide is a no-op there.
+      side: THREE.DoubleSide,
+    }),
   );
-  byColor.set(color, mat);
+  roomFloorCache.set(color, mat);
   return mat;
 }
 

@@ -98,10 +98,7 @@ export function RoomGeometry({
   // created a visible colour edge at the doorway into the stairwell.
   // Regular rooms keep their accent: their walls + frames break the
   // line of sight to the corridor floor, so any edge stays hidden.
-  const floorMat = getRoomFloorMaterial(
-    palette,
-    room.isStairwell ? palette.floorColor : room.floorColor,
-  );
+  const floorMat = getRoomFloorMaterial(room.isStairwell ? palette.floorColor : room.floorColor);
   // What every room shares, lit as this one is (room-light.ts).
   const trim = inRoomLight(darkWoodTrimMaterial, palette);
   const fixture = inRoomLight(fixtureMaterial, palette);

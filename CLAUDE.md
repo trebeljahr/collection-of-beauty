@@ -1168,16 +1168,34 @@ required by the Dockerfile — don't remove it.
     material carries the map of its own room's palette as its `envMap`
     ([`room-light.ts`](src/components/gallery-3d/room-light.ts)), and a
     room looks the same from inside as through a door:
-    - walls, ceilings and floors are made per palette (`litByRoom`);
+    - walls and ceilings are made per palette (`litByRoom`);
     - what every room shares is cloned once per palette (`inRoomLight`):
-      frame surfaces, plaque, bench, skirting and door trim, laylight
-      frames. A clone runs its base's program and differs in one
-      texture. A new mesh that stands in a room takes its material
-      through `inRoomLight`, or it is lit as the stairs are;
-    - `scene.environment` is left to what belongs to no room, the stairs
-      and their rails (`stairPalette` in `index.tsx`): the floor's
-      palette in the tower, the halls' stone on every storey of the
-      block plan. Never key it to the room the visitor is in.
+      frame surfaces, plaque, bench, skirting, laylight frames. A clone
+      runs its base's program and differs in one texture. A new mesh
+      that stands in a room takes its material through `inRoomLight`,
+      or it is lit as the stairs are;
+    - `scene.environment` is left to what belongs to no one room
+      (`stairPalette` in `index.tsx`): the floor's palette in the tower,
+      the halls' stone on every storey of the block plan. Never key it
+      to the room the visitor is in. Three things take it: the stairs
+      and their rails, the floors, and the casing of a door.
+    - **A floor is not lit as its room.** It is the one surface that
+      runs on through a doorway. The first build lit each floor by its
+      room's map, and the parquet stepped in brightness on the threshold
+      of every door between a pale room and one in a deep colour, a line
+      from jamb to jamb: a quarter brighter in the west stair hall than
+      in the blue gallery beside it, a third from the ochre gallery to
+      the white one. Rico, 13 October 2026: a "clear separation line on
+      the floor that looks broken". The floor just beyond a threshold
+      over the floor just before it, at ten doors: 0.80 to 1.32 then,
+      0.97 to 1.06 now, and what is left is the next room's reflection
+      coming in over half a metre. What a room gives its floor is that
+      reflection. The per-room tints (`roomAccents`) are about 1 % at a
+      door and stay.
+    - **A door's casing is one material for both its rooms.** Where two
+      rooms each draw the wall between them (the block plan), both put a
+      casing on the same spot and its jamb faces lie in one plane. Lit
+      as two rooms they flickered in stripes of the two.
   - **The floor's reflection** was paused in a hall, the court included.
     With the pass off a floor shows the even sheen of the environment
     map, with it on the room itself, which in a crimson room is far

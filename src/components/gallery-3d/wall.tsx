@@ -153,8 +153,8 @@ export function WallWithDoors({
   width: number;
   height: number;
   material: THREE.Material;
-  /** Wood of the skirting and the door trim. A room passes its own,
-   *  lit as the room is (room-light.ts). */
+  /** Wood of the skirting. A room passes its own, lit as the room is
+   *  (room-light.ts). */
   trim?: THREE.Material;
   doors: DoorOpening[];
   /** The group holding the whole wall: strips, lintels, skirting and
@@ -242,7 +242,6 @@ export function WallWithDoors({
           height={d.height}
           wallHeight={height}
           portal={d.portal}
-          material={trim}
         />
       ))}
     </group>
@@ -251,7 +250,13 @@ export function WallWithDoors({
 
 /** Casing of a portal: wider than a door's trim, and deep enough to
  *  give the paper-thin wall a reveal, so a 3.5 m opening reads as cut
- *  through masonry. */
+ *  through masonry.
+ *
+ *  A door's trim is always the one shared material, never a room's own
+ *  (room-light.ts). Where two rooms each draw the wall between them,
+ *  both put a casing on the same spot and its faces lie in one plane.
+ *  In one material that shows nothing. Lit as two rooms, the jambs
+ *  flickered in stripes of the two. */
 const PORTAL_TRIM = 0.14;
 const PORTAL_TRIM_DEPTH = 0.32;
 
@@ -261,14 +266,12 @@ function DoorTrim({
   height,
   wallHeight,
   portal,
-  material,
 }: {
   centerLocalX: number;
   width: number;
   height: number;
   wallHeight: number;
   portal?: boolean;
-  material: THREE.Material;
 }) {
   const trim = portal ? PORTAL_TRIM : 0.06;
   const depth = portal ? PORTAL_TRIM_DEPTH : 0.08;
@@ -280,15 +283,15 @@ function DoorTrim({
     <group position={[centerLocalX, floorY, 0]}>
       <mesh position={[-width / 2 - trim / 2, height / 2, 0]} layers={layer}>
         <boxGeometry args={[trim, height, depth]} />
-        <primitive object={material} attach="material" />
+        <primitive object={darkWoodTrimMaterial} attach="material" />
       </mesh>
       <mesh position={[width / 2 + trim / 2, height / 2, 0]} layers={layer}>
         <boxGeometry args={[trim, height, depth]} />
-        <primitive object={material} attach="material" />
+        <primitive object={darkWoodTrimMaterial} attach="material" />
       </mesh>
       <mesh position={[0, height + trim / 2, 0]} layers={layer}>
         <boxGeometry args={[width + trim * 2, trim, depth]} />
-        <primitive object={material} attach="material" />
+        <primitive object={darkWoodTrimMaterial} attach="material" />
       </mesh>
     </group>
   );
