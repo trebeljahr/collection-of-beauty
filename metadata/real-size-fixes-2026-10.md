@@ -9,8 +9,8 @@ one had been asked before: Wikidata and the Commons template had answered
 A first pass found a size for 419 of them. 412 pass every check and are
 printed. 7 are stored but stay hidden, because the scan shows more or less
 than the measured object. A second pass the same day went back to the 143
-that were left and found 40 more, all printed: see "The second pass"
-below. 103 are still `null`; they are listed with the reason in
+that were left and found 42 more, all printed: see "The second pass"
+below. 101 are still `null`; they are listed with the reason in
 [real-size-open-2026-10.md](real-size-open-2026-10.md).
 
 All sizes below are width × height in cm, as stored. Sources print height
@@ -138,7 +138,7 @@ Metropolitan Museum's set (19.57.x, each sheet measured, 6.4–6.7 ×
 Rijksmuseum states one image size, 65 × 50 mm, on every print of its set.
 Those nine are a set figure and their `ref` says so.
 
-## The second pass (40)
+## The second pass (42)
 
 The first pass ran 20 research agents on one allowance of 200 web
 searches, which ran out two thirds of the way through, and it could not
@@ -150,7 +150,7 @@ before it took a size.
 | `source` | Entries | What it is |
 | --- | --- | --- |
 | `museum` | 14 | The holding museum's own record |
-| `curated` | 26 | A catalogue raisonné or the owner's own catalogue (6), a museum's record of another impression of the same print (7), the publication of a museum that showed or borrowed the work (7), an auction lot or dealer listing of that picture (5), the RKD (1) |
+| `curated` | 28 | A catalogue raisonné or the owner's own catalogue (6), a museum's record of another impression of the same print (7), the publication of a museum that showed or borrowed the work (7), an auction lot or dealer listing of that picture (5), the RKD (1), two sources Rico ruled on (2) |
 
 ### Records read in a browser, or reachable again (14)
 
@@ -234,6 +234,24 @@ caption names the holder, and its illustration is the scan's picture.
 
 A record that states inches alone is stored at 2.54 cm to the inch, to
 one decimal, and its `ref` keeps the inches.
+
+### On Rico's word (2)
+
+Seven works had a figure from a source the rules do not list. Rico saw
+each as an outline on its scan on 13 October 2026 and took two. Their
+`ref` says so.
+
+| Work | Stored | Record |
+| --- | --- | --- |
+| Kim Hong-do, Samgongbulhwando | 418 × 133 | [Encyclopedia of Korean Culture](https://encykorea.aks.ac.kr/Article/E0026469): "세로 133㎝, 가로 418㎝이며, 삼성미술관 리움에 소장되어 있다". The Korea Heritage Service record of Treasure 2000 and the Leeum's collection state no size |
+| Boilly, The Barrel Game | 46.8 × 37.8 | The National Gallery's caption for its exhibition of 2019, as [a blog reprints it](http://www.alaintruong.com/archives/2019/02/26/37133362.html): "Oil on canvas, 37.8 × 46.8 cm, The Ramsbury Manor Foundation". The Gallery's own pages print no sizes |
+
+Both fit their scan to 1%. He left five: Bakst's Awakening (the
+catalogue's plate was not seen, and its sheet is 10% wider than the
+scan), Aivazovsky's Passage of the Jews and Kustodiev's Blue House
+(captions that do not fit their own illustration), Byam Shaw's Pilgrim
+Year and Boilly's Two Young Friends (figures that disagree). They are in
+the open file with the ruling.
 
 ## Rules used
 
@@ -324,14 +342,18 @@ that evening (four floors, 44 rooms with halls and stair rooms):
 
 | | Tower | Block plan (`?plan=block`) |
 | --- | --- | --- |
-| Rooms | 119 → 117: Ukiyo-e 11 → 9 | 44, unchanged |
-| Works hung | 2,771, unchanged | 1,387 → 1,389 |
-| Works hung at real size in the stair halls | none in this plan | 68, unchanged |
-| `galleryLayoutIdentity` | changed | unchanged |
+| Rooms | 119, unchanged | 44, unchanged |
+| Works hung | 2,771, unchanged | 1,387 → 1,390 |
+| Works hung at real size in the halls | none in this plan | 68 → 69 |
+| `galleryLayoutIdentity` | unchanged | unchanged |
 
-Seven of the 40 hang on the Ukiyo-e floor: four Japanese prints and
-Bartlett's three woodcuts. Each hung with a long edge of 0.9 m, and five
-of them are under 45 cm. The floor needs two rooms fewer.
+Eight of the 42 hang on the Ukiyo-e floor, and their changes cancel.
+Four Japanese prints and Bartlett's three woodcuts hung with a long edge
+of 0.9 m, and five of them are under 45 cm: with those alone the floor
+needs two rooms fewer (117 in the tower). Kim Hong-do's screen is 4.18 m
+long and hangs at the room's limit of 3.2 m, which brings the two rooms
+back. In the block plan the screen hangs at its real size in the court
+of the top floor.
 
 A saved visit restarts once in its floor's Grand Hall. A work with no size
 hung with a long edge of 0.9 m; with a size it hangs at that size, between

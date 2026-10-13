@@ -1,8 +1,8 @@
 # Works still without a size, 13 October 2026
 
-103 of the 4,555 works have no size. They were 562 on the morning of
+101 of the 4,555 works have no size. They were 562 on the morning of
 13 October 2026. A first pass that day found 419 sizes and a second
-found 40; both are described in
+found 42; both are described in
 [real-size-fixes-2026-10.md](real-size-fixes-2026-10.md).
 
 Each line gives the work, its id without the `collection-of-beauty-`
@@ -20,43 +20,13 @@ One record sits behind a challenge that needs a person:
   Chrome too. Search it for Holbein, "Tête de femme", and read the
   size.
 
-Seven works have a figure, and whether its source is enough is a
-decision:
-
-- Kim Hong-do, Samgongbulhwando (`kim-hong-do-samgongbulhwando`): the
-  Encyclopedia of Korean Culture gives "세로 133㎝, 가로 418㎝", which
-  fits the scan. The Korea Heritage Service record of Treasure 2000 and
-  the Leeum collection state no size. An encyclopedia is not a record.
-- Léon Bakst, Sleeping Beauty, scene 4: The Awakening
-  (`sleeping-beauty-by-l-bakst-04`): Schouvaloff's catalogue of the
-  Thyssen-Bornemisza Collection (1987), cat. 12, "Pencil and
-  watercolour 48 x 66.8cm". It was read in the Internet Archive's full
-  text, the plate was not seen, and the scan is 9% narrower than that
-  sheet. Bakst repeated his designs.
-- Ivan Aivazovsky, Passage of the Jews through the Red Sea
-  (`aivazovsky-passage-of-the-jews-through-the-red-sea`): the Tretyakov
-  Gallery Magazine, no. 4 2016, captions the same picture "96 × 160.
-  Частное собрание, США". It is a caption in an essay about a picture
-  in private hands, and the scan is 8% wider.
-- Boris Kustodiev, The Blue House (`kustodiev-goluboydomik`): held by
-  Peterhof, as the museum's own news says. The Tretyakov Gallery
-  Magazine (2004) gives "97×80"; the scan and the journal's own
-  illustration are both near 0.74 wide to 1 high, the figure is 0.82.
-- John Byam Liston Shaw, Now Is the Pilgrim Year Fair Autumn's Charge
-  (`shaw-john-byam-liston-now-is-pilgrim-fair-autumn-s-charge`): the
-  dealer's page says "120.00cm wide 88.30cm high"; the Victorian Web
-  quotes the same dealer with "33 1/2 x 47 inches, 85 x 119.5
-  centimetres".
-- Louis-Léopold Boilly, Two Young Friends Kissing
-  (`deux-jeunes-amies-qui-s-embrassent-de-l-l-boilly-musee-cognacq-jay-paris-51992741281`):
-  three figures 3 cm apart. The Cognacq-Jay press kit says 42,5 × 35, a
-  blog's copy of the National Gallery's caption 45.5 × 37.5, and
-  Christie's London, 13 December 1996, lot 65, 45.7 × 37.8.
-- Louis-Léopold Boilly, The Barrel Game
-  (`louis-leopold-boilly-the-barrel-game`): 37.8 × 46.8 cm fits the
-  scan. It is the National Gallery's caption for its exhibition of
-  2019, read only as a blog reprints it. The Art UK story on the
-  exhibition does not print it.
+Rico ruled on seven figures on 13 October 2026, each shown to him on its
+scan. Two were taken: Kim Hong-do's Samgongbulhwando from the
+Encyclopedia of Korean Culture, and Boilly's Barrel Game from the
+National Gallery's caption as a blog reprints it. Five stay open and
+are listed below with the ruling: Bakst's Awakening, Aivazovsky's
+Passage of the Jews, Kustodiev's Blue House, Byam Shaw's Pilgrim Year
+and Boilly's Two Young Friends.
 
 ### The scan is a detail, a crop, or shows more than the work (15)
 
@@ -80,7 +50,7 @@ would hang as large as the whole painting.
 - Ernst Ludwig Kirchner, Female Nude with Foliage Shadows (`female-nude-with-foliage-shadows`): the photograph shows the picture in its frame; the board fills about three fifths of the width. Kirchner Museum Davos has no online record.
 - Tsuchiya Kōitsu, Chinese Warship Ting Yuang Visiting Japan (`chinese-warship-ting-yuang-visiting-japan`): a dealer's photograph of three loose sheets with gaps on a grey ground. No museum record of the triptych was found.
 
-### A record was found, and a rule keeps it out (24)
+### A record was found, and a rule keeps it out (26)
 
 - Pieter de Jode II, Portrait of Gerard van Honthorst (`gerard-honthorst-gulden-cabinet`): Rijksmuseum RP-P-2024-1112, the state printed in Het Gulden Cabinet: "plaatrand: hoogte 166 mm x breedte 115 mm". The scan is the book page with about 6% more paper in width, over the 5% another impression may differ.
 - Unknown, Tab. V: Fetus with Umbilical Cord and Placenta (`tab-v-fetus-with-umbilical-cord-and-placenta-wellcome-l0034071`): College of Physicians of Philadelphia, "57 x 40 cm", with no word for what was measured. The scan shows the plate mark with a rim of paper; 5.4% off.
@@ -106,8 +76,10 @@ would hang as large as the whole painting.
 - Andreas Vesalius, Fourth muscle man (`fourth-muscle-man-by-vesalius-wellcome-l0001647`): records give the leaf, never the woodcut. The Royal Academy's "Fourth Muscle Figure" is a leaf of 416 × 275 mm.
 - Andreas Vesalius, De humani corporis fabrica, page 163 (`vesalius-fabrica-p163`): the same. The scan is a page crop of a copy Commons does not name.
 - Andreas Vesalius, De humani corporis fabrica, page 184 (`vesalius-fabrica-p184`): the same. Philadelphia's leaf of p. 184 is "38 x 27 cm".
+- Léon Bakst, Sleeping Beauty, scene 4: The Awakening (`sleeping-beauty-by-l-bakst-04`): Schouvaloff's catalogue of the Thyssen-Bornemisza Collection (1987), cat. 12: "Pencil and watercolour 48 x 66.8cm". It was read in the Internet Archive's full text; the plate was not seen, and that sheet is 10% wider in proportion than the scan. Bakst repeated his designs. Rico, 13 October 2026: no, until someone sees the plate.
+- Ivan Aivazovsky, Passage of the Jews through the Red Sea (`aivazovsky-passage-of-the-jews-through-the-red-sea`): the Tretyakov Gallery Magazine, no. 4 2016, captions the picture "96 × 160. Частное собрание, США". The scan is 8% wider than that and the journal's own illustration 6% wider. Rico: no.
 
-### The record cannot be reached (10)
+### The record cannot be reached (11)
 
 `catalog.shm.ru` answers 403 and `sammlung-online.berlin.museum` an
 error page in Chrome too. `goskatalog.ru` does not answer from this
@@ -122,9 +94,10 @@ network.
 - Boris Kustodiev, Trinity Day (`kustodiev-trinity-day`): Radishchev Museum, Saratov. Not among its 195 exhibits on ar.culture.ru; Goskatalog would hold it.
 - Valentin Serov, Portrait of the Writer Maxim Gorky (`portrait-of-the-writer-maxim-gorky`): Gorky Museum, Moscow, by Commons. No record and no lead outside Goskatalog.
 - Isaac Levitan, Autumn Landscape (`levitanii-osennpzh1880tver`): «Осень. Охотник», Tver Picture Gallery, as the Tretyakov Gallery Magazine confirms. Lead 93 × 68 cm.
+- Boris Kustodiev, The Blue House (`kustodiev-goluboydomik`): held by Peterhof, as the museum's own news says; its record would be on Goskatalog. The Tretyakov Gallery Magazine (2004) gives "97×80", which is 13% wider in proportion than the scan and than the journal's own illustration. Rico: no.
 - Ivan Aivazovsky, Walking on Water (`po-vodam-1888`): Museum of the History of Religion, St Petersburg, which has no object records online. It is not the Feodosia version of 1897 (150 × 103 cm).
 
-### No citable size found (46)
+### No citable size found (48)
 
 - Albert Gleizes, Portrait of Florent Schmitt (`albert-gleizes-1914-15-portrait-de-florent-schmitt-le-pianiste-pastel-36-x-27-cm`): "36 x 27 cm" stands only on Commons and Wikipedia. The Centre Pompidou's studies and a Christie's lot of 2023 are other sheets.
 - Albert Gleizes, Sketch for the Portrait of Jean Cocteau (`albert-gleizes-1915-16-esquisse-pour-le-portrait-de-jean-cocteau`): the scan is a page of Troços. The Pompidou's study (31,3 × 21,4 cm) is another drawing.
@@ -158,12 +131,14 @@ network.
 - Ivan Aivazovsky, Kronstadt Roadstead (`kronshtadtskiy-reyd-ayvazovskogo`): the Central Naval Museum's page for the painting has no size. Lead 124 × 199 cm.
 - Jean-Léon Gérôme, Summer Afternoon on a Lake (`gerome-summer-afternoon-on-a-lake`): Wikidata has no size and no lot was found. 59.7 × 92 cm comes from a reproduction shop.
 - Jean-Léon Gérôme, The Hookah Lighter (`the-hookah-lighter`): private collection, Ackerman no. 450. 54.6 × 66 cm is a transcription of Ackerman, whose catalogue is not online. Nothing supports the Khanenko Museum that Commons names.
+- John Byam Liston Shaw, Now Is the Pilgrim Year Fair Autumn's Charge (`shaw-john-byam-liston-now-is-pilgrim-fair-autumn-s-charge`): one dealer, two heights. The Leicester Galleries' page says "120.00cm wide 88.30cm high"; the Victorian Web quotes the same dealer with "33 1/2 x 47 inches, 85 x 119.5 centimetres". Rico: neither, until a third record is read (Sotheby's Belgravia, 24 October 1978, lot 14).
 - Katsushika Hokusai, Fuji at Sea (`2560px-the-big-wave-from-100-views-of-the-fuji-2nd-volume`): no record describes the opening or the block frames. MAK Vienna KI 11069-24 catalogues the opening without a measurement.
 - Katsushika Hokusai, Carp Leaping up a Cascade (`carp-leaping-up-a-cascade`): the object is not identified.
 - Kim Hong-do, Chongseokjeong (`chongseokjeong-from-the-album-of-the-four-districts-of-mount-geumgang`): a private album. No record states a leaf size.
 - Kim Hong-do, Songhachwisaengdo (`kim-hong-do-songhachwisaengdo`): the one record, Google Arts & Culture with "Collection: Korea University Museum", has no size.
 - Laurits Tuxen, Christian IX of Denmark with his family (`christian-ix-of-denmark-with-family-tuxen`): the Christiansborg canvas, as the Royal Danish Collection confirms without a size. Leads disagree: 440 × 670 cm (a Bruun Rasmussen note citing Svanholm no. 275) and 500 × 700 cm.
 - Léon Bakst, Costume Design for Nijinsky in Le Dieu bleu (`le-dieu-bleu-nijinsky`): the scan is a halftone, very probably the plate of the programme of 1912. No holder or size of the drawing is stated anywhere.
+- Louis-Léopold Boilly, Two Young Friends Kissing (`deux-jeunes-amies-qui-s-embrassent-de-l-l-boilly-musee-cognacq-jay-paris-51992741281`): three figures 3 cm apart and of one shape. The Cognacq-Jay press kit says 42,5 × 35 cm under this picture; Christie's London, 13 December 1996, lot 65, says 45.7 × 37.8 cm, and a blog's copy of the National Gallery's caption 45.5 × 37.5 cm. Rico: hold. Breton and Zuber's catalogue (Arthena, 2019) settles it.
 - Peter Paul Rubens, The Descent from the Cross (after Rubens) (`die-kreuzabnahme-rubens`): a private loan to the Siegerlandmuseum. The press says 200 × 255 cm, Wikipedia 203 × 257 cm.
 - Pu Xian, Summer Study from the Bingzi Year (`summer-study-from-the-bingzi-year`): no holder and no record. The inscription reads 丙子夏日為鬘雲女史雅屬 毅齋溥僩寫生.
 - Thomas Gainsborough, Colonel John Bullock (`colonel-john-bullock`): the Blanton's online collection has three works after Gainsborough and not this one. The Sotheby's page of the 2002 sale (L02152, lot 7) shows the title only.

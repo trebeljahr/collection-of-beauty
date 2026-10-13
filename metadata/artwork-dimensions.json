@@ -20488,7 +20488,12 @@
     "heightCm": 174,
     "source": "wikidata"
   },
-  "collection-of-beauty-kim-hong-do-samgongbulhwando": null,
+  "collection-of-beauty-kim-hong-do-samgongbulhwando": {
+    "widthCm": 418,
+    "heightCm": 133,
+    "source": "curated",
+    "ref": "Encyclopedia of Korean Culture (한국민족문화대백과사전, Academy of Korean Studies), article 삼공불환도: \"세로 133㎝, 가로 418㎝이며, 삼성미술관 리움에 소장되어 있다\" — https://encykorea.aks.ac.kr/Article/E0026469; taken: the eight-panel screen. An encyclopedia, taken on Rico’s word of 13 October 2026: the Korea Heritage Service record of Treasure 2000 and the Leeum’s online collection state no size"
+  },
   "collection-of-beauty-benjamin-west-milkmaids-in-st-james-s-park-westminster-abbey-beyond-b2014-2-yale-center-for-british": {
     "widthCm": 143.5,
     "heightCm": 100.6,
@@ -20917,7 +20922,12 @@
     "heightCm": 100.96,
     "source": "wikidata"
   },
-  "collection-of-beauty-louis-leopold-boilly-the-barrel-game": null,
+  "collection-of-beauty-louis-leopold-boilly-the-barrel-game": {
+    "widthCm": 46.8,
+    "heightCm": 37.8,
+    "source": "curated",
+    "ref": "The National Gallery, London, caption for its exhibition Boilly: Scenes of Parisian Life (2019), as Alain Truong reprints it: \"Louis-Léopold Boilly, The Barrel Game, about 1828. Oil on canvas, 37.8 × 46.8 cm, The Ramsbury Manor Foundation\" — http://www.alaintruong.com/archives/2019/02/26/37133362.html; taken: canvas. Read second hand, taken on Rico’s word of 13 October 2026: the Gallery’s own pages print no sizes"
+  },
   "collection-of-beauty-john-constable-the-vale-of-dedham-google-art-project": {
     "widthCm": 122,
     "heightCm": 144.5,
