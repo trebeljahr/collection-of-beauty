@@ -18,6 +18,13 @@
 // The pick is a weighted draw on a hash of the work's id, so it is the
 // same on the server, in the browser and on every visit.
 //
+// That is a work's own frame, and it is what the hang measures a wall
+// with. What hangs is chosen once more, with the room (`Hanging`): the
+// wall colour scores each finish, a room keeps to one family of
+// finishes, and a wall leads with one frame. A work follows where its
+// school has that frame, so a room reads as one hang and the variety is
+// from room to room.
+//
 // No three.js here: the hang reads `frameReach`.
 
 import type { ArtworkListing } from "@/lib/data";
@@ -221,6 +228,10 @@ function hexToLinear(hex: string | null | undefined): Rgb | null {
   if (!hex || !/^#[0-9a-f]{6}$/i.test(hex)) return null;
   return [1, 3, 5].map((i) => srgbToLinear(Number.parseInt(hex.slice(i, i + 2), 16) / 255)) as Rgb;
 }
+
+const SURFACE_LINEAR = Object.fromEntries(
+  Object.entries(SURFACE_BASE).map(([surface, hex]) => [surface, hexToLinear(hex) ?? [1, 1, 1]]),
+) as Record<FrameSurface, Rgb>;
 
 /** Linear RGB to OKLab: lightness 0..1 and two opponent axes. */
 function toOklab([r, g, b]: Rgb): Rgb {
@@ -617,22 +628,48 @@ function tallness(artwork: Framed): number | null {
   return artwork.width && artwork.height ? artwork.height / artwork.width : null;
 }
 
+/** What a work's record says of it apart from its picture: read once,
+ *  because a hang scores a work's looks several times over. */
+type Bearings = {
+  looks: Array<[LookId, number]>;
+  /** The country and subject tables its record matches. */
+  biases: Weights[];
+  sacred: boolean;
+  edge: number | null;
+  tall: number | null;
+};
+
+const bearings = new WeakMap<Framed, Bearings>();
+
+function bearingsOf(artwork: Framed): Bearings {
+  let read = bearings.get(artwork);
+  if (!read) {
+    const { nationality, title } = artwork;
+    read = {
+      looks: looksFor(artwork),
+      biases: [
+        ...NATION_BIAS.filter(([nation]) => nationality && nation.test(nationality)),
+        ...SUBJECT_BIAS.filter(([subject]) => title && subject.test(title)),
+      ].map(([, bias]) => bias),
+      sacred: Boolean(title && SACRED.test(title)),
+      edge: longEdge(artwork),
+      tall: tallness(artwork),
+    };
+    bearings.set(artwork, read);
+  }
+  return read;
+}
+
 /** The look's weight for this work: the school's, times how well its
- *  finishes suit the picture, its country, its subject, its size and
- *  its shape. */
-function scoreLooks(artwork: Framed, tone: PictureTone): Array<[LookId, number]> {
-  const edge = longEdge(artwork);
-  const tall = tallness(artwork);
-  return looksFor(artwork).map(([id, weight]) => {
+ *  finishes do (`main` scores one), its country, its subject, its size
+ *  and its shape. */
+function scoreLooks(artwork: Framed, main: (finish: FinishId) => number): Array<[LookId, number]> {
+  const { looks, biases, sacred, edge, tall } = bearingsOf(artwork);
+  return looks.map(([id, weight]) => {
     const look = LOOKS[id];
     // The look fits as well as its best finish does.
-    let score = weight * Math.max(...look.main.map((f) => finishFit(f, tone, artwork.year)));
-    for (const [nation, bias] of NATION_BIAS) {
-      if (artwork.nationality && nation.test(artwork.nationality)) score *= bias[id] ?? 1;
-    }
-    for (const [title, bias] of SUBJECT_BIAS) {
-      if (artwork.title && title.test(artwork.title)) score *= bias[id] ?? 1;
-    }
+    let score = weight * Math.max(...look.main.map((f) => main(f)));
+    for (const bias of biases) score *= bias[id] ?? 1;
     // A cabinet picture drowns in the heaviest mouldings, and a narrow
     // one is lost round a large canvas.
     const heavy = id === "barbizon" || id === "louisXV" || id === "baroque";
@@ -640,7 +677,7 @@ function scoreLooks(artwork: Framed, tone: PictureTone): Array<[LookId, number]>
     if (edge != null && edge < 0.45 && heavy) score *= 0.6;
     if (edge != null && narrow) score *= edge < 0.6 ? 2.2 : edge > 1.3 ? 0.2 : 1;
     if (id === "tabernacle") {
-      score *= artwork.title && SACRED.test(artwork.title) ? 3 : 0.35;
+      score *= sacred ? 3 : 0.35;
       // An entablature over a 3 m canvas is a building, not a frame.
       if (edge != null && edge > 2.4) score *= 0.4;
     }
@@ -654,20 +691,33 @@ function scoreLooks(artwork: Framed, tone: PictureTone): Array<[LookId, number]>
 
 // ── Deterministic draws ───────────────────────────────────────────────
 
-function hash(text: string): number {
-  let h = 2166136261;
-  for (let i = 0; i < text.length; i++) h = Math.imul(h ^ text.charCodeAt(i), 16777619);
+/** One more string into an FNV-1a hash. */
+function hashOn(h: number, text: string): number {
+  let out = h;
+  for (let i = 0; i < text.length; i++) out = Math.imul(out ^ text.charCodeAt(i), 16777619);
+  return out;
+}
+
+/**
+ * A number in (0, 1) that depends only on the work and the question.
+ * The hash is of `question`, then `/` and `item` when one is given, a
+ * NUL, and `id`. It takes them a string at a time: a frame is some
+ * forty draws, and joining the strings first was a third of the time a
+ * floor took to lay out.
+ */
+function draw(id: string, question: string, item?: string): number {
+  let h = hashOn(2166136261, question);
+  // "/" is 47; a NUL changes nothing in the xor.
+  if (item !== undefined) h = hashOn(Math.imul(h ^ 47, 16777619), item);
+  h = hashOn(Math.imul(h, 16777619), id);
   // Final mix, so ids that differ in one character land far apart.
   h ^= h >>> 16;
   h = Math.imul(h, 0x85ebca6b);
   h ^= h >>> 13;
   h = Math.imul(h, 0xc2b2ae35);
   h ^= h >>> 16;
-  return h >>> 0;
+  return ((h >>> 0) + 0.5) / 4294967296;
 }
-
-/** A number in (0, 1) that depends only on the work and the question. */
-const draw = (id: string, question: string) => (hash(`${question}\u0000${id}`) + 0.5) / 4294967296;
 
 /** A weighted draw: each item wins in proportion to its weight raised
  *  to `sharpness`, and a small change of weights changes few picks. */
@@ -681,7 +731,7 @@ function drawWeighted<T extends string | number | null>(
   let bestKey = Number.NEGATIVE_INFINITY;
   for (const [item, weight] of items) {
     if (!(weight > 0)) continue;
-    const key = Math.log(draw(id, `${question}/${item}`)) / weight ** sharpness;
+    const key = Math.log(draw(id, question, String(item))) / weight ** sharpness;
     if (key > bestKey) {
       bestKey = key;
       best = item;
@@ -695,6 +745,329 @@ function drawFrom<T extends string | number | null>(items: readonly T[], id: str
   const counts = new Map<T, number>();
   for (const item of items) counts.set(item, (counts.get(item) ?? 0) + 1);
   return drawWeighted([...counts.entries()], id, q);
+}
+
+// ── The wall and the neighbours ───────────────────────────────────────
+
+/** Finishes that read as one from across a room. `silk` is every mount
+ *  and scroll, whatever its rods are made of. */
+export type FinishFamily = "gilt" | "silver" | "dark" | "wood" | "pale" | "red" | "silk";
+
+// biome-ignore format: a table.
+const FAMILY_FINISHES: Record<Exclude<FinishFamily, "silk">, FinishId[]> = {
+  gilt: ["gilt", "giltPale", "giltRed", "giltDark", "giltOak", "bronze", "copper"],
+  silver: ["silver", "pewter"],
+  dark: ["walnut", "mahogany", "rosewood", "stained", "ebony", "blackLacquer", "blackMatte"],
+  wood: ["fruitwood", "oak", "greenOak", "maple", "ash", "kiri"],
+  pale: ["limedOak", "white", "greyPaint", "blueGrey", "sage"],
+  red: ["redLacquer"],
+};
+
+const FAMILY_OF = new Map<FinishId, FinishFamily>(
+  (Object.entries(FAMILY_FINISHES) as Array<[FinishFamily, FinishId[]]>).flatMap(
+    ([family, finishes]) => finishes.map((f) => [f, family] as const),
+  ),
+);
+
+/** The family a frame of this look reads as with its moulding in
+ *  `finish`. Null for a finish no moulding comes in. */
+export function familyOf(look: LookId, finish: FinishId): FinishFamily | null {
+  const style = LOOKS[look].style;
+  if (style === "mount" || style === "scroll") return "silk";
+  return FAMILY_OF.get(finish) ?? null;
+}
+
+/** OKLab of a `#rrggbb` this module names itself: a finish, a mat
+ *  board, a silk. Parsed once. */
+const NAMED_LAB = new Map<string, Rgb>();
+
+function labOfHex(hex: string): Rgb {
+  let lab = NAMED_LAB.get(hex);
+  if (!lab) {
+    lab = toOklab(hexToLinear(hex) ?? [1, 1, 1]);
+    NAMED_LAB.set(hex, lab);
+  }
+  return lab;
+}
+
+const labOf = (finish: FinishId): Rgb => labOfHex(FINISHES[finish].color);
+
+/** How clear a colour is of a wall: 0 where it sinks into it, 1 where
+ *  it stands off. The distance is in OKLab: walnut is 0.07 from the
+ *  charcoal of the East Asian rooms and ebony 0.18, maple 0.02 from the
+ *  ochre of the Post-Impressionist ones and oak 0.16. */
+function clearOf(lab: Rgb, wall: Rgb): number {
+  const apart = Math.hypot(lab[0] - wall[0], lab[1] - wall[1], lab[2] - wall[2]);
+  const t = clamp((apart - 0.05) / 0.15, 0, 1);
+  return t * t * (3 - 2 * t);
+}
+
+/** How well a moulding in this finish does on a wall of this colour,
+ *  0.25 to 1. Leaf loses less: its highlights and the shadow in its
+ *  hollows show it where a paint or a wood of the wall's tone is lost. */
+function wallFit(finish: FinishId, wall: Rgb): number {
+  const clear = clearOf(labOf(finish), wall);
+  const { surface } = FINISHES[finish];
+  return surface === "leaf" || surface === "leafOak" ? 0.6 + 0.4 * clear : 0.25 + 0.75 * clear;
+}
+
+/** What the hang decides for a work before its frame is drawn
+ *  (`roomHanging`, `wallHanging`). */
+export type Hanging = {
+  /** The wall behind the work, OKLab. */
+  wall: Rgb | null;
+  /** The family of finishes its room keeps to. */
+  family: FinishFamily | null;
+  /** The frame its wall leads with. */
+  lead: { look: LookId; finish: FinishId } | null;
+  /** The works it hangs among. Their liners, accents, mats and silks
+   *  are drawn once for all of them, on `key`, for the tone of them
+   *  all. */
+  company: { key: string; tone: PictureTone } | null;
+};
+
+/** How many times likelier a frame of the room's family is than the
+ *  work's school makes it, when the work's moulding is drawn. A school
+ *  that hangs in the family one time in ten then takes a moulding that
+ *  comes in it three times in four, and one that would three times in
+ *  ten, nine times in ten. A school with no such moulding keeps its
+ *  own. */
+const FAMILY_PULL = 30;
+/** The same for the moulding a wall leads with, and for its finish. */
+const LEAD_LOOK_PULL = 3;
+const LEAD_FINISH_PULL = 6;
+/** How far a room goes with its majority. At 1 a family is chosen as
+ *  often as the room's works would choose it one by one; above it the
+ *  larger share wins more often. */
+const ELECTION_SHARPNESS = 1.25;
+
+type Pull = (look: LookId, finish: FinishId) => number;
+
+function pullOf(hanging: Hanging | undefined): Pull | null {
+  if (!hanging || (!hanging.family && !hanging.lead)) return null;
+  const { family, lead } = hanging;
+  return (look, finish) =>
+    (family && familyOf(look, finish) === family ? FAMILY_PULL : 1) *
+    (lead && lead.look === look ? LEAD_LOOK_PULL : 1) *
+    (lead && lead.finish === finish ? LEAD_FINISH_PULL : 1);
+}
+
+/** The frames a work may get, before one is drawn. */
+type Candidates = {
+  /** Its looks and their scores (`scoreLooks`). */
+  looks: Array<readonly [LookId, number]>;
+  /** How a finish does as the moulding: on the picture, and on the
+   *  wall when there is one. */
+  main: (finish: FinishId) => number;
+  /** How it does inside the moulding: on the picture alone. */
+  suits: (finish: FinishId) => number;
+  /** `main`, sharpened: a moulding finish's chance against the look's
+   *  others. */
+  weight: (finish: FinishId) => number;
+};
+
+const sharpened = (main: (finish: FinishId) => number) => once((f) => main(f) ** FIT_SHARPNESS);
+
+/** A score worked out once per finish. */
+function once(score: (finish: FinishId) => number): (finish: FinishId) => number {
+  const known = new Map<FinishId, number>();
+  return (finish) => {
+    let value = known.get(finish);
+    if (value === undefined) {
+      value = score(finish);
+      known.set(finish, value);
+    }
+    return value;
+  };
+}
+
+type Reading = { wall: Rgb | null; tone: PictureTone; c: Candidates };
+
+// A room asks for a work's candidates three times, for its family, for
+// its wall's lead and for the frame, and the Grand Hall once for every
+// pair it tries. The last answer is kept per record, for one wall: the
+// `Hanging`s of a room share theirs.
+const readings = new WeakMap<Framed, Reading>();
+
+/** A work's tone and its candidates on a wall, or on none. */
+function readingOf(artwork: Framed, wall: Rgb | null): Reading {
+  const hit = readings.get(artwork);
+  if (hit && hit.wall === wall) return hit;
+  const tone = readPicture(artwork);
+  const suits = once((f) => finishFit(f, tone, artwork.year));
+  const main = wall ? once((f) => suits(f) * wallFit(f, wall)) : suits;
+  const c = { looks: scoreLooks(artwork, main), main, suits, weight: sharpened(main) };
+  const reading = { wall, tone, c };
+  readings.set(artwork, reading);
+  return reading;
+}
+
+/** One frame for two works: the looks both schools hang in, each scored
+ *  by how well it does on both pictures. Null when they share none. */
+function pairCandidates(lead: Framed, partner: Framed, wall: Rgb | null): Candidates | null {
+  const a = readingOf(lead, wall).c;
+  const b = readingOf(partner, wall).c;
+  const theirs = new Map(b.looks);
+  const looks = a.looks
+    .map(([id, score]) => [id, Math.sqrt(score * (theirs.get(id) ?? 0))] as const)
+    .filter(([, score]) => score > 0);
+  if (looks.length === 0) return null;
+  const main = once((f) => Math.sqrt(a.main(f) * b.main(f)));
+  return {
+    looks,
+    main,
+    suits: once((f) => Math.sqrt(a.suits(f) * b.suits(f))),
+    weight: sharpened(main),
+  };
+}
+
+const MAINS = new Map<LookId, FinishId[]>();
+
+/** The finishes a look's moulding comes in, each once. */
+function mainsOf(look: LookId): FinishId[] {
+  let mains = MAINS.get(look);
+  if (!mains) {
+    mains = [...new Set(LOOKS[look].main)];
+    MAINS.set(look, mains);
+  }
+  return mains;
+}
+
+/** A look's chance against the work's other looks: its score,
+ *  sharpened, and under a pull the mean pull on its finishes, each
+ *  counted for the share of the look's frames it has. */
+function lookWeights(c: Candidates, pull: Pull | null): Array<readonly [LookId, number]> {
+  return c.looks.map(([id, score]) => {
+    const weight = score ** FIT_SHARPNESS;
+    if (!pull) return [id, weight] as const;
+    let total = 0;
+    let pulled = 0;
+    for (const f of mainsOf(id)) {
+      const share = c.weight(f);
+      total += share;
+      pulled += share * pull(id, f);
+    }
+    return [id, total > 0 ? (weight * pulled) / total : 0] as const;
+  });
+}
+
+/**
+ * The finishes a look's moulding may take under a hanging, each with
+ * its chance against the others. Where the look comes in the room's
+ * family it takes no other: a pull alone left one moulding in fourteen
+ * in a finish of its own, and one green frame among five white ones is
+ * what a visitor sees. The wall's lead finish is a pull, among those.
+ */
+function mainOptions(
+  c: Candidates,
+  look: LookId,
+  hanging: Hanging | undefined,
+): Array<readonly [FinishId, number]> {
+  const mains = mainsOf(look);
+  const family = hanging?.family;
+  const inFamily = family ? mains.filter((f) => familyOf(look, f) === family) : [];
+  const lead = hanging?.lead?.finish;
+  return (inFamily.length > 0 ? inFamily : mains).map(
+    (f) => [f, f === lead ? c.weight(f) * LEAD_FINISH_PULL : c.weight(f)] as const,
+  );
+}
+
+/** Call `each` with every frame the work may get, as a look and the
+ *  finish of its moulding, and its chance. The chances sum to 1. */
+function eachChance(
+  c: Candidates,
+  hanging: Hanging | undefined,
+  each: (look: LookId, finish: FinishId, chance: number) => void,
+): void {
+  const looks = lookWeights(c, pullOf(hanging));
+  let sum = 0;
+  for (const [, weight] of looks) if (weight > 0) sum += weight;
+  for (const [look, weight] of looks) {
+    if (!(weight > 0)) continue;
+    const options = mainOptions(c, look, hanging);
+    let total = 0;
+    for (const [, share] of options) total += share;
+    if (!(total > 0)) continue;
+    for (const [finish, share] of options) {
+      if (share > 0) each(look, finish, (weight / sum) * (share / total));
+    }
+  }
+}
+
+/** The tone of several works taken together, on `wall`. */
+function meanTone(works: readonly Framed[], wall: Rgb | null): PictureTone {
+  const lab: Rgb = [0, 0, 0];
+  let warmth = 0;
+  for (const work of works) {
+    const { tone } = readingOf(work, wall);
+    for (let i = 0; i < 3; i++) lab[i] += tone.lab[i] / works.length;
+    warmth += tone.warmth / works.length;
+  }
+  return { light: clamp(lab[0], 0, 1), chroma: Math.hypot(lab[1], lab[2]), warmth, lab };
+}
+
+/**
+ * What a room decides for the works on its walls: the wall colour they
+ * are framed for, and one family of finishes. The family is drawn from
+ * what the works would choose one by one, so a room of Dutch pictures
+ * is mostly a dark room and now and then an oak one. `room` names the
+ * room: the same works in another room may draw another family.
+ */
+export function roomHanging(
+  room: string,
+  wall: string | null | undefined,
+  works: readonly Framed[],
+): Hanging {
+  const linear = hexToLinear(wall);
+  const hanging: Hanging = {
+    wall: linear && toOklab(linear),
+    family: null,
+    lead: null,
+    company: null,
+  };
+  if (works.length < 2) return hanging;
+  const mass = new Map<FinishFamily, number>();
+  for (const work of works) {
+    eachChance(readingOf(work, hanging.wall).c, hanging, (look, finish, chance) => {
+      const family = familyOf(look, finish);
+      if (family) mass.set(family, (mass.get(family) ?? 0) + chance);
+    });
+  }
+  if (mass.size === 0) return hanging;
+  return {
+    ...hanging,
+    family: drawWeighted([...mass], room, "family", ELECTION_SHARPNESS),
+    company: { key: room, tone: meanTone(works, hanging.wall) },
+  };
+}
+
+/**
+ * What one wall of a room decides for the works on it: the frame it
+ * leads with, a moulding in a finish, drawn from what its works would
+ * choose in the room's family. `key` names the wall. A work alone on
+ * its wall goes with the room.
+ */
+export function wallHanging(room: Hanging, key: string, works: readonly Framed[]): Hanging {
+  if (works.length < 2) return room;
+  // The chance of each moulding in each finish, summed over the works.
+  const mass = new Map<LookId, Map<FinishId, number>>();
+  for (const work of works) {
+    eachChance(readingOf(work, room.wall).c, room, (look, finish, chance) => {
+      const finishes = mass.get(look) ?? new Map<FinishId, number>();
+      mass.set(look, finishes);
+      finishes.set(finish, (finishes.get(finish) ?? 0) + chance);
+    });
+  }
+  const frames = [...mass].flatMap(([look, finishes]) =>
+    [...finishes].map(([finish, chance]) => [`${look}|${finish}`, chance] as const),
+  );
+  if (frames.length === 0) return room;
+  const [look, finish] = drawWeighted(frames, key, "lead", ELECTION_SHARPNESS).split("|");
+  return {
+    ...room,
+    lead: { look: look as LookId, finish: finish as FinishId },
+    company: { key, tone: meanTone(works, room.wall) },
+  };
 }
 
 // ── The design ────────────────────────────────────────────────────────
@@ -754,10 +1127,13 @@ const SILK_TONES: Array<[tone: string, hex: string]> = [
  *  away from the paper so the sheet reads against it, then leans it
  *  toward the picture: buff and oatmeal beside warm sheets, stone and
  *  blue-grey beside cool ones. */
-function matFor(artwork: Framed, tone: PictureTone): Rgb {
-  const warm = Math.max(0, tone.warmth);
-  const cool = Math.max(0, -tone.warmth);
-  const whiteSheet = tone.light > 0.86 && tone.chroma < 0.03;
+function matFor(artwork: Framed, tone: PictureTone, company: Hanging["company"]): Rgb {
+  // The mats of one wall are cut from one board, chosen for all its
+  // sheets.
+  const of = company?.tone ?? tone;
+  const warm = Math.max(0, of.warmth);
+  const cool = Math.max(0, -of.warmth);
+  const whiteSheet = of.light > 0.86 && of.chroma < 0.03;
   const pick = drawWeighted(
     [
       ["ivory", 3],
@@ -769,13 +1145,14 @@ function matFor(artwork: Framed, tone: PictureTone): Rgb {
       ["blueGrey", 0.4 + 2.2 * cool],
       ["sage", 0.5 + 1.2 * cool + (whiteSheet ? 0.5 : 0)],
     ],
-    artwork.id,
+    company?.key ?? artwork.id,
     "mat",
   );
-  const base = toOklab(hexToLinear(MAT_TONES.find(([name]) => name === pick)?.[1]) ?? [1, 1, 1]);
-  // A trace of the picture's own hue, and a little lighter or darker
-  // from sheet to sheet, the way board from different batches is.
-  const k = 0.22;
+  const base = labOfHex(MAT_TONES.find(([name]) => name === pick)?.[1] ?? "#ffffff");
+  // A trace of the picture's own hue, fainter among other sheets, and
+  // a little lighter or darker from sheet to sheet, the way board from
+  // different batches is.
+  const k = company ? 0.1 : 0.22;
   const shade = (draw(artwork.id, "mat-shade") - 0.5) * 0.03;
   return fromOklab([
     clamp(base[0] + shade, 0.7, 0.97),
@@ -787,23 +1164,31 @@ function matFor(artwork: Framed, tone: PictureTone): Rgb {
 /** The silk of a mount: a tone the painting does not already hold. A
  *  pale ground takes a deeper silk and a dark one a paler; a warm
  *  picture takes indigo or celadon and a cool one gold or russet. */
-function silkFor(artwork: Framed, tone: PictureTone): Rgb {
-  const warm = Math.max(0, tone.warmth);
-  const cool = Math.max(0, -tone.warmth);
-  const pale = clamp((tone.light - 0.5) / 0.3, 0, 1);
+function silkFor(artwork: Framed, tone: PictureTone, hanging: Hanging | undefined): Rgb {
+  // One silk for the mounts of a wall, chosen for all its paintings.
+  const company = hanging?.company;
+  const of = company?.tone ?? tone;
+  const warm = Math.max(0, of.warmth);
+  const cool = Math.max(0, -of.warmth);
+  const pale = clamp((of.light - 0.5) / 0.3, 0, 1);
+  const labs = new Map(SILK_TONES.map(([name, hex]) => [name, labOfHex(hex)] as const));
+  // The silk is what lies against the wall, so it has to stand off it.
+  const wall = hanging?.wall;
+  const clear = (name: string) =>
+    wall ? 0.25 + 0.75 * clearOf(labs.get(name) ?? [1, 0, 0], wall) : 1;
   const pick = drawWeighted(
     [
-      ["gold", 2 + cool],
-      ["ivory", 0.6 + 1.6 * (1 - pale)],
-      ["indigo", 0.8 + 1.6 * warm + pale],
-      ["celadon", 0.8 + 1.2 * warm],
-      ["russet", 0.8 + 1.6 * cool],
-      ["tea", 1 + 0.6 * pale],
+      ["gold", (2 + cool) * clear("gold")],
+      ["ivory", (0.6 + 1.6 * (1 - pale)) * clear("ivory")],
+      ["indigo", (0.8 + 1.6 * warm + pale) * clear("indigo")],
+      ["celadon", (0.8 + 1.2 * warm) * clear("celadon")],
+      ["russet", (0.8 + 1.6 * cool) * clear("russet")],
+      ["tea", (1 + 0.6 * pale) * clear("tea")],
     ],
-    artwork.id,
+    company?.key ?? artwork.id,
     "silk",
   );
-  const base = toOklab(hexToLinear(SILK_TONES.find(([name]) => name === pick)?.[1]) ?? [1, 1, 1]);
+  const base = labs.get(pick) ?? [1, 0, 0];
   const shade = (draw(artwork.id, "silk-shade") - 0.5) * 0.05;
   return fromOklab([base[0] + shade, base[1], base[2]]);
 }
@@ -820,14 +1205,20 @@ function matInnerFor(artwork: Framed, tone: PictureTone): Rgb {
 /** A finish's colour for this work, as a tint on its surface: the
  *  finish's own, shifted a little from frame to frame, and for gold
  *  leaned against the picture's warmth. */
-function tintFor(finish: FinishId, artwork: Framed, tone: PictureTone, slot: number): Rgb {
+function tintFor(
+  finish: FinishId,
+  artwork: Framed,
+  tone: PictureTone,
+  slot: number,
+  hanging: Hanging | undefined,
+): Rgb {
   const spec = FINISHES[finish];
   let target: Rgb;
-  if (finish === "mat") target = matFor(artwork, tone);
+  if (finish === "mat") target = matFor(artwork, tone, hanging?.company ?? null);
   else if (finish === "matInner") target = matInnerFor(artwork, tone);
-  else if (finish === "silk") target = silkFor(artwork, tone);
+  else if (finish === "silk") target = silkFor(artwork, tone, hanging);
   else {
-    const lab = toOklab(hexToLinear(spec.color) ?? [1, 1, 1]);
+    const lab: Rgb = [...labOf(finish)];
     const q = `tint${slot}`;
     // No two batches of leaf, stain or paint are one colour.
     lab[0] *= 1 + (draw(artwork.id, `${q}-l`) - 0.5) * 0.09;
@@ -839,31 +1230,44 @@ function tintFor(finish: FinishId, artwork: Framed, tone: PictureTone, slot: num
     }
     target = fromOklab(lab);
   }
-  const base = hexToLinear(SURFACE_BASE[spec.surface]) ?? [1, 1, 1];
+  const base = SURFACE_LINEAR[spec.surface];
   return [target[0] / base[0], target[1] / base[1], target[2] / base[2]];
 }
 
+const SLOTS_USED = new WeakMap<BuiltStyle, boolean[]>();
+
 /** Which material slots a frame uses, in its moulding and its rails. */
 function slotsUsed(style: BuiltStyle): boolean[] {
-  const used = new Array<boolean>(FRAME_SLOTS).fill(false);
-  for (const profile of [style.profile, ...style.rails.map((rail) => rail.profile)]) {
-    for (let i = 0; i < profile.length - 1; i++) used[profile[i].slot ?? 0] = true;
+  let used = SLOTS_USED.get(style);
+  if (!used) {
+    used = new Array<boolean>(FRAME_SLOTS).fill(false);
+    for (const profile of [style.profile, ...style.rails.map((rail) => rail.profile)]) {
+      for (let i = 0; i < profile.length - 1; i++) used[profile[i].slot ?? 0] = true;
+    }
+    SLOTS_USED.set(style, used);
   }
   return used;
 }
 
 /**
- * Build the design of `look` for `artwork`. `suits` scores a finish for
- * the picture, or for the two pictures of a pair.
+ * Build the design of `look` for `artwork`. `c` scores a finish for the
+ * picture, or for the two pictures of a pair. Under a `hanging` the
+ * moulding takes a finish of the room's family where it comes in one
+ * (`mainOptions`), and what lies inside the moulding is drawn with the
+ * work's neighbours.
  */
 function designOf(
   lookId: LookId,
   artwork: Framed,
   tone: PictureTone,
-  suits: (finish: FinishId) => number,
+  c: Candidates,
+  hanging: Hanging | undefined,
 ): FrameDesign {
   const look = LOOKS[lookId];
   const id = artwork.id;
+  const company = hanging?.company;
+  const drawnOn = company?.key ?? id;
+  const inside = company ? (f: FinishId) => finishFit(f, company.tone, artwork.year) : c.suits;
   const choices = styleChoices(look.style);
   const edge = longEdge(artwork);
 
@@ -897,8 +1301,8 @@ function designOf(
   const lined = look.liner && choices.liner && draw(id, "liner") < look.liner.chance;
   const linerFinish = lined
     ? drawWeighted(
-        (look.liner?.finishes ?? []).map((f) => [f, suits(f)] as const),
-        id,
+        (look.liner?.finishes ?? []).map((f) => [f, inside(f)] as const),
+        drawnOn,
         "liner-finish",
         FIT_SHARPNESS,
       )
@@ -937,20 +1341,29 @@ function designOf(
   );
 
   const slots: SlotLook[] = pools.map((pool, slot) => {
-    const finish =
-      pool.length === 1 || !used[slot]
-        ? pool[0]
-        : drawWeighted(
-            pool.map((f) => [f, suits(f)] as const),
-            id,
-            `finish${slot}`,
-            FIT_SHARPNESS,
-          );
+    let finish = pool[0];
+    if (pool.length > 1 && used[slot]) {
+      finish =
+        slot === 0
+          ? drawWeighted(
+              hanging
+                ? mainOptions(c, lookId, hanging)
+                : pool.map((f) => [f, c.weight(f)] as const),
+              id,
+              "finish0",
+            )
+          : drawWeighted(
+              pool.map((f) => [f, inside(f)] as const),
+              drawnOn,
+              `finish${slot}`,
+              FIT_SHARPNESS,
+            );
+    }
     const spec = FINISHES[finish];
     return {
       finish,
       surface: spec.surface,
-      tint: used[slot] ? tintFor(finish, artwork, tone, slot) : [1, 1, 1],
+      tint: used[slot] ? tintFor(finish, artwork, tone, slot, hanging) : [1, 1, 1],
       rough: spec.rough * polish,
       burnish: spec.burnish,
       wear: spec.wear * wear,
@@ -984,14 +1397,33 @@ function designOf(
 // goes when the catalogue does.
 const designs = new WeakMap<Framed, FrameDesign>();
 
-/** The frame a work hangs in. Deterministic per work. */
-export function pickFrameDesign(artwork: Framed): FrameDesign {
-  const hit = designs.get(artwork);
+/** Draw a look from the candidates, then its design. The draw is on
+ *  the work's id whatever the hanging, so a pull the work's own choice
+ *  already answers leaves it its own frame. */
+function drawDesign(
+  c: Candidates,
+  artwork: Framed,
+  tone: PictureTone,
+  hanging: Hanging | undefined,
+): FrameDesign {
+  const look = drawWeighted(lookWeights(c, pullOf(hanging)), artwork.id, "look");
+  return designOf(look, artwork, tone, c, hanging);
+}
+
+/**
+ * The frame a work hangs in. Deterministic per work.
+ *
+ * Without a `hanging` it is the work's own frame, chosen from its
+ * school and its picture alone: what the hang measures a wall with, and
+ * what a work hangs in when its room has not chosen. With one it is the
+ * frame for that wall among those neighbours.
+ */
+export function pickFrameDesign(artwork: Framed, hanging?: Hanging): FrameDesign {
+  const hit = hanging ? undefined : designs.get(artwork);
   if (hit) return hit;
-  const tone = readPicture(artwork);
-  const look = drawWeighted(scoreLooks(artwork, tone), artwork.id, "look", FIT_SHARPNESS);
-  const design = designOf(look, artwork, tone, (f) => finishFit(f, tone, artwork.year));
-  designs.set(artwork, design);
+  const { tone, c } = readingOf(artwork, hanging?.wall ?? null);
+  const design = drawDesign(c, artwork, tone, hanging);
+  if (!hanging) designs.set(artwork, design);
   return design;
 }
 
@@ -1002,18 +1434,11 @@ export function pickFrameDesign(artwork: Framed): FrameDesign {
  * work's draws, so the pair's frame is still the lead's own kind of
  * frame. Two schools with no look in common keep the lead's own design.
  */
-export function pickPairDesign(lead: Framed, partner: Framed): FrameDesign {
-  const leadTone = readPicture(lead);
-  const partnerTone = readPicture(partner);
-  const theirs = new Map(scoreLooks(partner, partnerTone));
-  const shared = scoreLooks(lead, leadTone)
-    .map(([id, score]) => [id, Math.sqrt(score * (theirs.get(id) ?? 0))] as const)
-    .filter(([, score]) => score > 0);
-  if (shared.length === 0) return pickFrameDesign(lead);
-  const look = drawWeighted(shared, lead.id, "look", FIT_SHARPNESS);
-  return designOf(look, lead, leadTone, (f) =>
-    Math.sqrt(finishFit(f, leadTone, lead.year) * finishFit(f, partnerTone, partner.year)),
-  );
+export function pickPairDesign(lead: Framed, partner: Framed, hanging?: Hanging): FrameDesign {
+  const wall = hanging?.wall ?? null;
+  const c = pairCandidates(lead, partner, wall);
+  if (!c) return pickFrameDesign(lead, hanging);
+  return drawDesign(c, lead, readingOf(lead, wall).tone, hanging);
 }
 
 // ── Size ──────────────────────────────────────────────────────────────

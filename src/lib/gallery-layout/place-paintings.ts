@@ -21,8 +21,16 @@
 // small ones, and a full empty cell wherever supply ran short.)
 
 import type { ArtworkListing } from "@/lib/data";
-import { frameExtents, frameReach, pickFrameDesign } from "./frame-design";
+import {
+  type FrameDesign,
+  frameExtents,
+  frameReach,
+  pickFrameDesign,
+  roomHanging,
+  wallHanging,
+} from "./frame-design";
 import { artworkBand } from "./painting-bands";
+import { eraOfRoom } from "./room-era";
 import type { CellRect, Divider, Door, FloorLayout, Placement, RoomLayout } from "./types";
 import { CELL_SIZE, DIVIDER_THICKNESS, DOOR_WIDTH, PORTAL_WIDTH } from "./world-coords";
 
@@ -143,6 +151,12 @@ export type WallRun = {
 
 export function runLength(run: WallRun): number {
   return run.uMax - run.uMin;
+}
+
+/** Names the wall a run is a stretch of: one face of a room wall or of
+ *  a divider. Runs either side of a door share it. */
+function wallKey(run: WallRun): string {
+  return `${run.side}:${run.surface}:${run.divider ?? ""}`;
 }
 
 /**
@@ -322,23 +336,27 @@ export type SizedWork = { artwork: ArtworkListing; wM: number; hM: number };
 /** How far the work's frame reaches past each canvas edge, metres.
  *  The frame is chosen per work and scaled to its size (see
  *  frame-design.ts), so a carved gilt frame on a 3 m canvas claims
- *  19 cm a side and a strip frame 1 cm. */
-export function frameReachOf(work: SizedWork): number {
-  return frameReach(pickFrameDesign(work.artwork), work.wM, work.hM);
+ *  19 cm a side and a strip frame 1 cm. `frame` is the one its room
+ *  chose, when it has; unset, the work's own. */
+export function frameReachOf(work: SizedWork, frame?: FrameDesign): number {
+  return frameReach(frame ?? pickFrameDesign(work.artwork), work.wM, work.hM);
 }
 
 /** How far the work's frame reaches below its canvas, metres. The same
  *  as its reach to the sides for a mitred frame; more for a tabernacle
  *  frame's plinth or a hanging scroll's roller. */
-export function frameDropOf(work: SizedWork): number {
-  return frameExtents(pickFrameDesign(work.artwork), work.wM, work.hM).bottom;
+export function frameDropOf(work: SizedWork, frame?: FrameDesign): number {
+  return frameExtents(frame ?? pickFrameDesign(work.artwork), work.wM, work.hM).bottom;
 }
 
 /** Wall to keep clear beside a work's canvas, left and right as the
  *  viewer sees it: the frame on both sides, then the plaque. This is
  *  the one place the hang learns what surrounds a canvas. */
-export function sideClearance(work: SizedWork): { left: number; right: number } {
-  const reach = frameReachOf(work);
+export function sideClearance(
+  work: SizedWork,
+  frame?: FrameDesign,
+): { left: number; right: number } {
+  const reach = frameReachOf(work, frame);
   return { left: reach, right: reach + PLAQUE_FOOTPRINT };
 }
 
@@ -359,8 +377,9 @@ type Container = {
   used: number[];
   /** Works hung at a set place before the rest: the one picture of a
    *  door screen (`hangFeatures`), and one in front of each bench
-   *  (`anchorToBenches`). */
-  fixed: Placement[];
+   *  (`anchorToBenches`). `u` is the centre of the canvas on `run`, as
+   *  the run was before the work took it or cut it in two. */
+  fixed: Array<{ run: WallRun; work: SizedWork; u: number }>;
   fixedMetres: number;
   fixedIds: Set<string>;
 };
@@ -431,14 +450,11 @@ function hangForBenches(container: Container) {
   // place and found again in the runs as they then are.
   const places = anchors.map(({ run, u }) => {
     const r = container.runs[run];
-    return { key: `${r.side}:${r.surface}:${r.divider ?? ""}`, u };
+    return { key: wallKey(r), u };
   });
   for (const place of places) {
     const index = container.runs.findIndex(
-      (r) =>
-        `${r.side}:${r.surface}:${r.divider ?? ""}` === place.key &&
-        place.u > r.uMin &&
-        place.u < r.uMax,
+      (r) => wallKey(r) === place.key && place.u > r.uMin && place.u < r.uMax,
     );
     if (index < 0) continue;
     const run = container.runs[index];
@@ -450,7 +466,7 @@ function hangForBenches(container: Container) {
       const lo = place.u - fitted.wM / 2 - left;
       const hi = place.u + fitted.wM / 2 + right;
       if (lo < run.uMin || hi > run.uMax) continue;
-      container.fixed.push(placementAt(run, { ...sized, drop: frameDropOf(sized) }, place.u));
+      container.fixed.push({ run, work: sized, u: place.u });
       container.fixedMetres += hi - lo;
       container.fixedIds.add(work.artwork.id);
       // What is left of the run, either side of the work.
@@ -496,7 +512,7 @@ function hangFeatures(container: Container) {
       run.uMin + left + best.wM / 2,
       Math.min((run.uMin + run.uMax) / 2, run.uMax - right - best.wM / 2),
     );
-    container.fixed.push(placementAt(run, { ...best, drop: frameDropOf(best) }, centre));
+    container.fixed.push({ run, work: best, u: centre });
     container.fixedMetres += footprintOf(best);
     container.fixedIds.add(best.artwork.id);
     container.runs.splice(i, 1);
@@ -612,6 +628,11 @@ function evenOutRoom(container: Container): void {
  *  - Rooms named in `skipRoomIds` already carry a composed hang (the
  *    Grand Hall, see grand-hall.ts) and are left alone — neither hung
  *    nor used as spill space, which would break their symmetry.
+ *  - Walls are measured with each work's own frame. Once every work has
+ *    its wall the room frames them together (`roomHanging`,
+ *    `wallHanging` in frame-design.ts): for its wall colour, in one
+ *    family of finishes, each wall with a frame it leads with.
+ *    `packRun` hangs those frames.
  */
 export function distributePaintings(
   floor: FloorLayout,
@@ -681,15 +702,51 @@ export function distributePaintings(
   let hungMetres = 0;
   let placed = 0;
   for (const container of containers) {
+    const { room } = container;
     wallMetres += container.fixedMetres;
     hungMetres += container.fixedMetres;
     placed += container.fixed.length;
-    container.room.placements.push(...container.fixed);
+
+    // Every work has its wall now, so the room frames them together:
+    // for its wall colour, in one family of finishes, each wall with a
+    // frame it leads with. A wall is all its runs, either side of a
+    // door and of a work hung for a bench.
+    const walls = new Map<string, ArtworkListing[]>();
+    const on = (run: WallRun) => {
+      const works = walls.get(wallKey(run)) ?? [];
+      walls.set(wallKey(run), works);
+      return works;
+    };
+    for (const { run, work } of container.fixed) on(run).push(work.artwork);
+    container.runs.forEach((run, i) => {
+      on(run).push(...container.assigned[i].map((work) => work.artwork));
+    });
+    const hanging = roomHanging(
+      room.id,
+      eraOfRoom(room).palette.wallColor,
+      [...walls.values()].flat(),
+    );
+    const hangings = new Map(
+      [...walls].map(([key, works]) => [key, wallHanging(hanging, `${room.id}/${key}`, works)]),
+    );
+    const frameOf = (run: WallRun, artwork: ArtworkListing) =>
+      pickFrameDesign(artwork, hangings.get(wallKey(run)) ?? hanging);
+
+    for (const { run, work, u } of container.fixed) {
+      // Its place was measured for its own frame, so it takes the
+      // room's only where that reaches no further.
+      const chosen = frameOf(run, work.artwork);
+      const frame = frameReachOf(work, chosen) <= frameReachOf(work) ? chosen : undefined;
+      room.placements.push(placementAt(run, { ...work, frame, drop: frameDropOf(work, frame) }, u));
+    }
     for (let i = 0; i < container.runs.length; i++) {
-      wallMetres += runLength(container.runs[i]);
+      const run = container.runs[i];
+      const works = container.assigned[i];
+      wallMetres += runLength(run);
       hungMetres += container.used[i];
-      placed += container.assigned[i].length;
-      container.room.placements.push(...packRun(container.runs[i], container.assigned[i]));
+      placed += works.length;
+      const frames = works.map((work) => frameOf(run, work.artwork));
+      room.placements.push(...packRun(run, works, MAX_PAINTING_W, frames));
     }
   }
 
@@ -711,24 +768,50 @@ export function distributePaintings(
  * Within the run works are arranged largest-in-the-middle, tapering
  * outwards, so a wall reads as a composed group rather than a random
  * sequence of sizes.
+ *
+ * `frames` are the frames the room chose, one per work. The run was
+ * measured with each work's own frame, so where the chosen ones are
+ * wider and the run is full, the works that gained most go back to
+ * their own until the run holds them again.
  */
 export function packRun(
   run: WallRun,
   works: SizedWork[],
   /** Widest canvas the run hangs. A stair hall hangs wider (`giants.ts`). */
   maxWidth = MAX_PAINTING_W,
+  /** The frames the room chose, one per work. Unset, each work's own. */
+  frames?: FrameDesign[],
 ): Placement[] {
   if (works.length === 0) return [];
 
   const span = runLength(run);
-  const fitted = works.map((work) => {
+  const fitted = works.map((work, i) => {
     const { wM, hM } = fitTo(work, Math.min(maxWidth, span), run.maxHeight);
     const sized = { artwork: work.artwork, wM, hM };
-    return { ...sized, ...sideClearance(sized), drop: frameDropOf(sized) };
+    const frame = frames?.[i];
+    return { ...sized, frame, ...sideClearance(sized, frame), drop: frameDropOf(sized, frame) };
   });
 
+  const footprint = () => fitted.reduce((sum, w) => sum + w.left + w.wM + w.right, 0);
+  const room = span - ADJACENT_GAP * (fitted.length - 1);
+  if (frames && footprint() > room) {
+    const gained = fitted
+      .map((work, i) => ({ i, own: sideClearance(work) }))
+      .map(({ i, own }) => ({
+        i,
+        own,
+        by: fitted[i].left + fitted[i].right - own.left - own.right,
+      }))
+      .filter(({ by }) => by > 0)
+      .sort((a, b) => b.by - a.by);
+    for (const { i, own } of gained) {
+      if (footprint() <= room) break;
+      fitted[i] = { ...fitted[i], frame: undefined, ...own, drop: frameDropOf(fitted[i]) };
+    }
+  }
+
   const ordered = centreOut(fitted);
-  const total = ordered.reduce((sum, w) => sum + w.left + w.wM + w.right, 0);
+  const total = footprint();
   const leftover = Math.max(0, span - total);
 
   // gaps: one before the first work, one between each pair, one after
@@ -748,7 +831,7 @@ export function packRun(
 /** A work on a run, its canvas centred at `centreU`. */
 function placementAt(
   run: WallRun,
-  work: { artwork: ArtworkListing; wM: number; hM: number; drop: number },
+  work: { artwork: ArtworkListing; wM: number; hM: number; drop: number; frame?: FrameDesign },
   centreU: number,
 ): Placement {
   // Lift the centre for paintings tall enough that the canonical hang
@@ -769,6 +852,7 @@ function placementAt(
     band: artworkBand(work.artwork),
     widthM: work.wM,
     heightM: work.hM,
+    ...(work.frame && { frame: work.frame }),
     ...(run.divider !== undefined && { divider: run.divider }),
   };
 }

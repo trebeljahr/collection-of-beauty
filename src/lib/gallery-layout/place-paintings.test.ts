@@ -1,5 +1,6 @@
 import { describe, expect, it } from "vitest";
 import type { ArtworkListing } from "@/lib/data";
+import { familyOf, frameReach, pickFrameDesign } from "./frame-design";
 import {
   computeRoomRuns,
   distributePaintings,
@@ -26,7 +27,10 @@ const DOOR_CLEARANCE = 0.35;
 /** Where a hung work's claim on the wall starts and ends: its frame on
  *  the left, its frame and plaque on the right. */
 function claim(p: Placement): [number, number] {
-  const { left, right } = sideClearance({ artwork: p.artwork, wM: p.widthM, hM: p.heightM });
+  const { left, right } = sideClearance(
+    { artwork: p.artwork, wM: p.widthM, hM: p.heightM },
+    p.frame,
+  );
   return [p.position[0] - p.widthM / 2 - left, p.position[0] + p.widthM / 2 + right];
 }
 
@@ -305,6 +309,84 @@ describe("distributePaintings", () => {
     const onPanel = room.placements.filter((p) => p.divider !== undefined);
     const widest = Math.max(...onPanel.map((p) => p.widthM));
     expect(widest).toBeLessThan(2);
+  });
+});
+
+describe("the frames a room chose", () => {
+  const [run] = computeRoomRuns(makeRoom({ xMin: 0, xMax: 3, zMin: 0, zMax: 3 })).filter(
+    (r) => r.normalZ === 1,
+  );
+  // Four works whose own frames are slim, and one heavy frame from
+  // another work to hang them all in.
+  const ids = Array.from({ length: 300 }, (_, i) => `w${i}`);
+  const reachOf = (id: string) => frameReach(pickFrameDesign({ id }), 0.8, 0.8);
+  const slim = ids.filter((id) => reachOf(id) < 0.07).slice(0, 4);
+  const heavy = pickFrameDesign({ id: ids.find((id) => reachOf(id) > 0.12) ?? "" });
+  const works = slim.map((id) => makeWork(id, 0.8, 0.8));
+  const frames = works.map(() => heavy);
+
+  it("hangs them, and measures the wall with them", () => {
+    expect(slim).toHaveLength(4);
+    const placements = packRun(run, works, undefined, frames);
+    expect(placements.map((p) => p.frame)).toEqual(frames);
+    const sorted = [...placements].sort((a, b) => a.position[0] - b.position[0]);
+    const gaps = sorted.slice(1).map((p, i) => claim(p)[0] - claim(sorted[i])[1]);
+    for (const gap of gaps) expect(gap).toBeCloseTo(gaps[0], 9);
+    // Hung in their own frames the same works stand closer together.
+    const own = [...packRun(run, works)].sort((a, b) => a.position[0] - b.position[0]);
+    expect(own.map((p) => p.frame)).toEqual([undefined, undefined, undefined, undefined]);
+    expect(sorted[1].position[0] - sorted[0].position[0]).not.toBeCloseTo(
+      own[1].position[0] - own[0].position[0],
+      3,
+    );
+  });
+
+  it("goes back to a work's own frame on a run the chosen ones overfill", () => {
+    // A run that holds the works in their own frames and no more.
+    const own = works.reduce((sum, work) => {
+      const { left, right } = sideClearance(work);
+      return sum + left + work.wM + right;
+    }, 0);
+    const full = { ...run, uMax: run.uMin + own + 0.1 * (works.length - 1) + 0.02 };
+    const placements = packRun(full, works, undefined, frames);
+    expect(placements.filter((p) => !p.frame).length).toBeGreaterThan(0);
+    const sorted = [...placements].sort((a, b) => a.position[0] - b.position[0]);
+    expect(claim(sorted[0])[0]).toBeGreaterThanOrEqual(full.uMin - 1e-9);
+    expect(claim(sorted[sorted.length - 1])[1]).toBeLessThanOrEqual(full.uMax + 1e-9);
+    const overlaps = sorted.slice(1).filter((p, i) => claim(p)[0] < claim(sorted[i])[1] - 1e-9);
+    expect(overlaps).toEqual([]);
+  });
+
+  it("frames a room's works together when it hangs them", () => {
+    // Post-Impressionists on their ochre wall: floor 9 of the tower.
+    const artworks = Array.from({ length: 30 }, (_, i) => ({
+      id: `p${i}`,
+      movement: "Post-Impressionism",
+      year: 1890,
+      width: 1200,
+      height: 1000,
+      realDimensions: { widthCm: 90, heightCm: 75 },
+    })) as unknown as ArtworkListing[];
+    const room = { ...makeRoom({ xMin: 0, xMax: 5, zMin: 0, zMax: 5 }), floorIndex: 9, artworks };
+    const stats = distributePaintings({ rooms: [room] } as unknown as FloorLayout);
+    expect(stats.placed).toBe(artworks.length);
+    expect(room.placements.filter((p) => !p.frame)).toEqual([]);
+
+    const families = (designs: Array<NonNullable<Placement["frame"]>>) => {
+      const counts = new Map<string | null, number>();
+      for (const d of designs) {
+        const family = familyOf(d.look, d.slots[0].finish);
+        counts.set(family, (counts.get(family) ?? 0) + 1);
+      }
+      return Math.max(...counts.values()) / designs.length;
+    };
+    const hung = room.placements.flatMap((p) => (p.frame ? [p.frame] : []));
+    const own = artworks.map((a) => pickFrameDesign(a));
+    expect(families(own)).toBeLessThan(0.65);
+    expect(families(hung)).toBeGreaterThan(0.8);
+    // Nothing the colour of the wall.
+    const lost = hung.map((d) => d.slots[0].finish).filter((f) => ["maple", "ash"].includes(f));
+    expect(lost).toEqual([]);
   });
 });
 

@@ -26,7 +26,15 @@
 
 import type { ArtworkListing } from "@/lib/data";
 import { isSurpriseWorthy } from "@/lib/surprise";
-import { type FrameDesign, frameExtents, frameReach, pickPairDesign } from "./frame-design";
+import {
+  type FrameDesign,
+  frameExtents,
+  frameReach,
+  type Hanging,
+  pickFrameDesign,
+  pickPairDesign,
+  roomHanging,
+} from "./frame-design";
 import { artworkBand } from "./painting-bands";
 import {
   computeRoomRuns,
@@ -41,6 +49,7 @@ import {
   sizeWork,
   type WallRun,
 } from "./place-paintings";
+import { eraOfRoom } from "./room-era";
 import type { Door, Placement, RoomLayout } from "./types";
 
 /** How many works the hall draws its hang from. Comfortably more than
@@ -162,8 +171,8 @@ type Slot = {
  *  of the museum's 76 pairs. The moulding is still cut to each canvas:
  *  `reach` is the wider of the two cuts, and it sets both the wall the
  *  slot reserves and the lift that clears the floor. */
-function slotOf(lead: SizedWork, partner: SizedWork): Slot {
-  const frame = pickPairDesign(lead.artwork, partner.artwork);
+function slotOf(lead: SizedWork, partner: SizedWork, hanging: Hanging): Slot {
+  const frame = pickPairDesign(lead.artwork, partner.artwork, hanging);
   const span = Math.max(lead.wM, partner.wM);
   const reach = Math.max(
     frameReach(frame, lead.wM, lead.hM),
@@ -196,6 +205,8 @@ type WallPlan = {
   halfLength: number;
   kind: "portal" | "solid";
   centrepiece: SizedWork | null;
+  /** The centrepiece's frame, chosen with the hall's. */
+  centreFrame: FrameDesign | null;
   slots: Slot[];
 };
 
@@ -233,6 +244,7 @@ function planWall(runs: WallRun[], side: Door["side"]): WallPlan | null {
       halfLength: runLength(run) / 2,
       kind: "solid",
       centrepiece: null,
+      centreFrame: null,
       slots: [],
     };
   }
@@ -247,6 +259,7 @@ function planWall(runs: WallRun[], side: Door["side"]): WallPlan | null {
       halfLength: Math.min(runLength(low), runLength(high)),
       kind: "portal",
       centrepiece: null,
+      centreFrame: null,
       slots: [],
     };
   }
@@ -319,6 +332,10 @@ export function hangGrandHall(
   const rightWall = planWall(runs, right);
 
   const queue: SizedWork[] = pool.map(sizeWork);
+  // The hall frames for its wall colour and keeps to one family of
+  // finishes, like any room. It is chosen from the whole pool, before
+  // a pair is, because a pair's frame decides the wall the pair claims.
+  const hanging = roomHanging(room.id, eraOfRoom(room).palette.wallColor, pool);
 
   // A solid wall's centrepiece: the first work in the queue narrow
   // enough to leave its wall a real pair of halves either side.
@@ -328,8 +345,10 @@ export function hangGrandHall(
     const i = queue.findIndex((w) => w.wM <= wall * (HALL_WIDTH_COVERAGE / 2));
     if (i < 0) return;
     const [work] = queue.splice(i, 1);
-    const claimed = claimOf(work.wM, frameReachOf(work));
+    const frame = pickFrameDesign(work.artwork, hanging);
+    const claimed = claimOf(work.wM, frameReachOf(work, frame));
     plan.centrepiece = work;
+    plan.centreFrame = frame;
     plan.innerOffset = claimed / 2;
     plan.halfLength = wall / 2 - plan.innerOffset;
   };
@@ -344,7 +363,7 @@ export function hangGrandHall(
       for (let j = i + 1; j < Math.min(queue.length, i + 1 + PAIR_WINDOW); j++) {
         const pair = matchHeights(queue[i], queue[j]);
         if (!pair) continue;
-        const slot = slotOf(pair[0], pair[1]);
+        const slot = slotOf(pair[0], pair[1], hanging);
         if (!halfAccepts(plan, slot.span, slot.claim)) continue;
         const cost = pairCost(queue[i], queue[j]);
         if (!best || cost < best.cost) best = { j, slot, cost };
@@ -384,7 +403,9 @@ export function hangGrandHall(
 function layoutWall(plan: WallPlan): Placement[] {
   const out: Placement[] = [];
   if (plan.centrepiece) {
-    out.push(place(plan.run, plan.centre, plan.centrepiece, frameDropOf(plan.centrepiece)));
+    const frame = plan.centreFrame ?? undefined;
+    const drop = frameDropOf(plan.centrepiece, frame);
+    out.push(place(plan.run, plan.centre, plan.centrepiece, drop, frame));
   }
 
   const gap = halfGap(

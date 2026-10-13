@@ -1,5 +1,5 @@
 // Debug sheet of the museum's picture frames: a wall of works, each in
-// the frame `pickFrameDesign` gives it, lit as in the galleries.
+// its own frame (`pickFrameDesign`), lit as in the galleries.
 //
 //   /gallery-3d/frames                 a spread across every school
 //   /gallery-3d/frames?m=Baroque       one school (substring of the tag)
@@ -7,6 +7,10 @@
 //   /gallery-3d/frames?n=12&cols=4     fewer, larger
 //   /gallery-3d/frames?page=2          the next sheet
 //   /gallery-3d/frames?real=1          works at their measured sizes
+//   /gallery-3d/frames?hung=1          framed as a room frames them: for
+//                                      the wall colour, in one family of
+//                                      finishes, each row as one wall
+//   /gallery-3d/frames?era=baroque     on another era's wall
 
 import type { Metadata } from "next";
 import { type ArtworkListing, artworkListings } from "@/lib/data";
@@ -77,5 +81,13 @@ export default async function FramesPage({
   const page = Math.max(0, Number(one("page")) || 0);
   const works = pickWorks(one("m"), one("look"), count, page);
   const era = one("era") ?? (works[0] && assignEra(works[0])) ?? "baroque";
-  return <FrameSheetClient works={works} cols={cols} eraId={era} realSize={one("real") === "1"} />;
+  return (
+    <FrameSheetClient
+      works={works}
+      cols={cols}
+      eraId={era}
+      realSize={one("real") === "1"}
+      hung={one("hung") === "1"}
+    />
+  );
 }

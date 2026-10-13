@@ -2,6 +2,8 @@ import { describe, expect, it } from "vitest";
 import { artworkListings, movements } from "@/lib/data";
 import {
   FINISHES,
+  type FrameDesign,
+  familyOf,
   frameExtents,
   frameMoulding,
   frameReach,
@@ -12,6 +14,8 @@ import {
   pickFrameDesign,
   pickPairDesign,
   readPicture,
+  roomHanging,
+  wallHanging,
 } from "./frame-design";
 import { buildStyle } from "./frame-styles";
 
@@ -275,6 +279,189 @@ describe("pickPairDesign", () => {
         return FINISHES[pair.slots[0].finish].surface === "leaf";
       }).length;
     expect(gilt(dark)).toBeGreaterThanOrEqual(gilt(pale));
+  });
+});
+
+describe("framing a room together", () => {
+  const school = (movement: string, year: number, n = 24) =>
+    ids.slice(0, n).map((id) => work(id, movement, year));
+  const familyIn = (d: FrameDesign) => familyOf(d.look, d.slots[0].finish);
+  /** The share of the list its most common entry has. */
+  const most = (items: Array<string | null>) => {
+    const counts = new Map<string | null, number>();
+    for (const item of items) counts.set(item, (counts.get(item) ?? 0) + 1);
+    return Math.max(...counts.values()) / items.length;
+  };
+  const rooms = Array.from({ length: 40 }, (_, i) => `room-${i}`);
+  const mean = (values: number[]) => values.reduce((a, b) => a + b, 0) / values.length;
+
+  it("leaves a work its own frame where the room has nothing to say", () => {
+    const alone = work("alone", "Baroque", 1640);
+    const hanging = roomHanging("room", null, [alone]);
+    expect(hanging).toEqual({ wall: null, family: null, lead: null, company: null });
+    expect(pickFrameDesign(alone, hanging)).toEqual(pickFrameDesign(alone));
+  });
+
+  it("gives every finish a moulding comes in a family", () => {
+    const none = artworkListings
+      .map((a) => pickFrameDesign(a))
+      .filter((d) => familyIn(d) === null)
+      .map((d) => `${d.look}/${d.slots[0].finish}`);
+    expect([...new Set(none)]).toEqual([]);
+  });
+
+  it("keeps a room to one family of finishes", () => {
+    // Impressionists hang in gilt, in white and grey paint, in silver
+    // and in wood: left to themselves, six in ten share a family.
+    const works = school("Impressionism", 1880);
+    expect(most(works.map((w) => familyIn(pickFrameDesign(w))))).toBeLessThan(0.7);
+    const together = rooms.map((room) => {
+      const hanging = roomHanging(room, null, works);
+      return most(works.map((w) => familyIn(pickFrameDesign(w, hanging))));
+    });
+    expect(mean(together)).toBeGreaterThan(0.85);
+  });
+
+  it("gives a moulding no finish outside the room's family where it comes in it", () => {
+    const works = school("Post-Impressionism", 1890);
+    // Which families each moulding was seen in, over every room.
+    const comesIn = new Map<string, Set<string | null>>();
+    const hung: Array<{ room: string | null; look: string; family: string | null }> = [];
+    for (const room of rooms) {
+      const hanging = roomHanging(room, null, works);
+      for (const w of works) {
+        const design = pickFrameDesign(w, hanging);
+        const family = familyIn(design);
+        comesIn.set(design.look, (comesIn.get(design.look) ?? new Set()).add(family));
+        hung.push({ room: hanging.family, look: design.look, family });
+      }
+    }
+    const strays = hung
+      .filter((h) => comesIn.get(h.look)?.has(h.room) && h.family !== h.room)
+      .map((h) => `${h.look} in ${h.family}, room in ${h.room}`);
+    expect(strays).toEqual([]);
+    // The canted frame comes in white, black, oak and green: it is the test.
+    expect(comesIn.get("canted")?.size).toBeGreaterThanOrEqual(3);
+  });
+
+  it("draws the family again for every room", () => {
+    const works = school("Impressionism", 1880);
+    const counts = new Map<string | null, number>();
+    for (const room of rooms) {
+      const { family } = roomHanging(room, null, works);
+      counts.set(family, (counts.get(family) ?? 0) + 1);
+    }
+    expect(counts.size).toBeGreaterThanOrEqual(3);
+    // Gilt is what most of the works would choose, so it is the family
+    // of more rooms than any other, and not of all of them.
+    const gilt = counts.get("gilt") ?? 0;
+    expect(gilt).toBe(Math.max(...counts.values()));
+    expect(gilt).toBeLessThan(rooms.length * 0.8);
+  });
+
+  it("leads each wall with one frame", () => {
+    const works = school("Romanticism", 1830);
+    const wall = works.slice(0, 8);
+    const own = wall.map((w) => pickFrameDesign(w));
+    const leads = new Set<string>();
+    const sameLook: number[] = [];
+    const sameFinish: number[] = [];
+    for (const room of rooms) {
+      const hanging = wallHanging(roomHanging(room, null, works), `${room}/north`, wall);
+      leads.add(`${hanging.lead?.look}/${hanging.lead?.finish}`);
+      const designs = wall.map((w) => pickFrameDesign(w, hanging));
+      sameLook.push(most(designs.map((d) => d.look)));
+      sameFinish.push(most(designs.map((d) => d.slots[0].finish)));
+    }
+    expect(mean(sameLook)).toBeGreaterThan(most(own.map((d) => d.look)) + 0.2);
+    expect(mean(sameFinish)).toBeGreaterThan(most(own.map((d) => d.slots[0].finish)) + 0.2);
+    // And not the same frame on every wall.
+    expect(leads.size).toBeGreaterThan(8);
+  });
+
+  it("passes over a finish of the wall's own tone", () => {
+    const many = (movement: string, year: number) =>
+      Array.from({ length: 200 }, (_, i) => work(`m${i}`, movement, year));
+    const on = (works: Work[], wall: string | null, finishes: string[]) =>
+      works
+        .map((w) => pickFrameDesign(w, roomHanging("room", wall, [w])))
+        .filter((d) => finishes.includes(d.slots[0].finish)).length / works.length;
+    // Maple, ash and gold on the ochre of the Post-Impressionist rooms.
+    const ochre = ["maple", "ash", "kiri", "gilt", "giltRed", "giltOak"];
+    const postImpressionists = many("Post-Impressionism", 1890);
+    expect(on(postImpressionists, null, ochre)).toBeGreaterThan(0.1);
+    expect(on(postImpressionists, "#c2a15e", ochre)).toBeLessThan(0.06);
+    // A white frame on a white wall.
+    expect(on(postImpressionists, null, ["white"])).toBeGreaterThan(0.05);
+    expect(on(postImpressionists, "#f4f4f2", ["white"])).toBeLessThan(0.03);
+    // Walnut and black-stained ash on the charcoal of the East Asian ones.
+    const dark = ["walnut", "rosewood", "mahogany", "stained"];
+    const prints = many("Ukiyo-e", 1830);
+    expect(on(prints, "#403a34", dark)).toBeLessThan(on(prints, null, dark) * 0.7);
+  });
+
+  it("keeps gilding on a wall of any colour", () => {
+    const works = Array.from({ length: 200 }, (_, i) => work(`g${i}`, "Baroque", 1640));
+    const gilt = (wall: string) =>
+      works.filter((w) => familyIn(pickFrameDesign(w, roomHanging("room", wall, [w]))) === "gilt")
+        .length / works.length;
+    for (const wall of ["#8e1b2b", "#24385c", "#e0dcd0", "#c2a15e"]) {
+      expect(gilt(wall), wall).toBeGreaterThan(0.6);
+    }
+  });
+
+  it("cuts the mats of a wall from one board and mounts it in one silk", () => {
+    const tones: Array<[string, string[]]> = [
+      ["#e8e0c8", ["gold"]],
+      ["#c9d6dc", ["blue"]],
+      ["#d9c9a0", ["orange"]],
+      ["#e4e4e0", []],
+      ["#b8c8a0", ["green"]],
+    ];
+    const wallOf = (movement: string, more = {}) =>
+      ids.slice(0, 10).map((id, i) =>
+        work(id, movement, 1820, {
+          dominantColor: tones[i % 5][0],
+          colorBuckets: tones[i % 5][1],
+          ...more,
+        }),
+      );
+    /** How far apart the tints of one finish lie across the wall. */
+    const spread = (designs: FrameDesign[], finish: string) => {
+      const tints = designs.map((d) => d.slots[1]).filter((s) => s.finish === finish);
+      expect(tints.length).toBe(designs.length);
+      return Math.max(
+        ...[0, 1, 2].map(
+          (c) =>
+            Math.max(...tints.map((s) => s.tint[c])) - Math.min(...tints.map((s) => s.tint[c])),
+        ),
+      );
+    };
+    const together = (works: Work[], wall: string) => {
+      const hanging = wallHanging(roomHanging("room", wall, works), "room/north", works);
+      return works.map((w) => pickFrameDesign(w, hanging));
+    };
+    const sheets = wallOf("Botanical");
+    const ownMats = spread(
+      sheets.map((w) => pickFrameDesign(w)),
+      "mat",
+    );
+    expect(spread(together(sheets, "#55663f"), "mat")).toBeLessThan(ownMats * 0.4);
+    const silks = wallOf("Nihonga", { width: 1000, height: 2000 });
+    const ownSilks = spread(
+      silks.map((w) => pickFrameDesign(w)),
+      "silk",
+    );
+    expect(spread(together(silks, "#403a34"), "silk")).toBeLessThan(ownSilks * 0.4);
+  });
+
+  it("frames a pair for the hall it hangs in", () => {
+    const pool = Array.from({ length: 24 }, (_, i) => work(`h${i}`, "Impressionism", 1880));
+    const hanging = roomHanging("hall", "#efeadd", pool);
+    const pairs = Array.from({ length: 12 }, (_, i) =>
+      pickPairDesign(pool[2 * i], pool[2 * i + 1], hanging),
+    );
+    expect(most(pairs.map(familyIn))).toBeGreaterThan(0.8);
   });
 });
 

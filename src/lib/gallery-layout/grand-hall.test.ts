@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import type { ArtworkListing } from "@/lib/data";
-import { frameReach, pickFrameDesign } from "./frame-design";
+import { familyOf, frameReach, pickFrameDesign } from "./frame-design";
 import { hangGrandHall, pickHallCandidates } from "./grand-hall";
 import { PLAQUE_FOOTPRINT } from "./place-paintings";
 import type { Door, Placement, RoomLayout } from "./types";
@@ -169,8 +169,9 @@ describe("hangGrandHall", () => {
         side === "north" || side === "south" ? p.position[0] - centreX : p.position[2] - centreZ;
       for (const p of wall) {
         if (Math.abs(along(p)) < 1e-6) {
-          // A centrepiece has no twin and keeps its own frame.
-          expect(p.frame).toBeUndefined();
+          // A centrepiece has no twin. Its frame is chosen with the
+          // hall's, like any other.
+          expect(p.frame, `${p.artwork.id} on ${side} carries no frame`).toBeDefined();
           continue;
         }
         const twin = wall.find((q) => q !== p && Math.abs(along(q) + along(p)) < 1e-6);
@@ -185,6 +186,16 @@ describe("hangGrandHall", () => {
     expect(pairs).toBeGreaterThanOrEqual(8);
     // Left to choose for themselves, some of these pairs would not match.
     expect(wouldDiffer).toBeGreaterThan(0);
+  });
+
+  it("keeps the hall to one family of finishes", () => {
+    const counts = new Map<string | null, number>();
+    for (const p of placements) {
+      const design = frameOf(p);
+      const family = familyOf(design.look, design.slots[0].finish);
+      counts.set(family, (counts.get(family) ?? 0) + 1);
+    }
+    expect(Math.max(...counts.values()) / placements.length).toBeGreaterThan(0.75);
   });
 
   it("frames a pair in the moulding both schools hang in", () => {

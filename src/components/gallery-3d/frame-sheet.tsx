@@ -11,7 +11,13 @@ import { useEffect, useMemo, useState } from "react";
 import * as THREE from "three";
 import type { ArtworkListing } from "@/lib/data";
 import { ERAS, isEraId } from "@/lib/gallery-eras";
-import { frameMoulding, pickFrameDesign } from "@/lib/gallery-layout/frame-design";
+import {
+  type FrameDesign,
+  frameMoulding,
+  pickFrameDesign,
+  roomHanging,
+  wallHanging,
+} from "@/lib/gallery-layout/frame-design";
 import { PAINTING_WALL_OFFSET, sizeWork } from "@/lib/gallery-layout/place-paintings";
 import { variantProxyUrl } from "@/lib/utils";
 import { UNREFLECTED_LAYER } from "./floor-mirror";
@@ -27,6 +33,10 @@ export type FrameSheetProps = {
   /** Hang the works at their measured sizes; otherwise each is fitted
    *  to the same box so the frames can be compared. */
   realSize: boolean;
+  /** Frame the sheet as a room frames its works: for the wall colour,
+   *  in one family of finishes, each row as one wall. Otherwise every
+   *  work is in its own frame. */
+  hung: boolean;
 };
 
 /** Width and height of one cell of the sheet, metres. */
@@ -38,16 +48,17 @@ const FOV_DEG = 30;
 
 function SheetWork({
   work,
+  design,
   x,
   y,
   realSize,
 }: {
   work: ArtworkListing;
+  design: FrameDesign;
   x: number;
   y: number;
   realSize: boolean;
 }) {
-  const design = useMemo(() => pickFrameDesign(work), [work]);
   const [w, h] = useMemo(() => {
     const sized = sizeWork(work);
     const k = realSize
@@ -120,8 +131,19 @@ function SheetWork({
   );
 }
 
-export function FrameSheet({ works, cols, eraId, realSize }: FrameSheetProps) {
+export function FrameSheet({ works, cols, eraId, realSize, hung }: FrameSheetProps) {
   const era = ERAS.find((e) => e.id === (isEraId(eraId) ? eraId : "baroque")) ?? ERAS[0];
+  const designs = useMemo(() => {
+    if (!hung) return works.map((work) => pickFrameDesign(work));
+    const room = roomHanging("sheet", era.palette.wallColor, works);
+    const out: FrameDesign[] = [];
+    for (let from = 0; from < works.length; from += cols) {
+      const row = works.slice(from, from + cols);
+      const wall = wallHanging(room, `sheet/${from / cols}`, row);
+      out.push(...row.map((work) => pickFrameDesign(work, wall)));
+    }
+    return out;
+  }, [works, cols, hung, era]);
   const rows = Math.max(1, Math.ceil(works.length / cols));
   const width = cols * CELL_W;
   const height = rows * CELL_H;
@@ -155,6 +177,7 @@ export function FrameSheet({ works, cols, eraId, realSize }: FrameSheetProps) {
           <SheetWork
             key={work.id}
             work={work}
+            design={designs[i]}
             x={((i % cols) + 0.5) * CELL_W - width / 2}
             y={height / 2 - (Math.floor(i / cols) + 0.5) * CELL_H + 0.08}
             realSize={realSize}

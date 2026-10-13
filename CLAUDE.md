@@ -428,8 +428,12 @@ required by the Dockerfile — don't remove it.
   the ordinary hang. Both works of a pair hang in one frame
   (`pickPairDesign`), drawn from the looks both schools hang in, each
   weighted by how well it suits both pictures. Two schools with no look
-  in common keep the lead's own design. The pair's placements carry it
-  as `Placement.frame`; without one the renderer uses `pickFrameDesign`.
+  in common keep the lead's own design. The hall frames for its wall
+  colour and keeps to one family of finishes like any room
+  (`roomHanging` over its whole pool, before a pair is chosen, because
+  a pair's frame decides the wall the pair claims). The placements
+  carry the frame as `Placement.frame`; without one the renderer uses
+  `pickFrameDesign`.
   The slot's wall and lift come from that same frame, so read
   `Placement.frame` wherever a hall work's reach matters.
 - A room has fittings besides its four walls: a ceiling height,
@@ -1000,6 +1004,66 @@ required by the Dockerfile — don't remove it.
     whole. Strip `colorBuckets`, `dominantColor`, `title` or
     `nationality` from that response and the frames stop matching their
     pictures, with no error.
+  - **A room frames its works together.** `pickFrameDesign(work)` is a
+    work's own frame. Hung in those, a wall mixed gilt, black, white
+    and oak, and Rico found it too mixed ("bunt") on 13 October 2026:
+    two neighbours on a wall shared a family of finishes in 55 % of
+    1,748 pairs, a finish in 18 %. What hangs is now chosen once more,
+    under a `Hanging` (`roomHanging`, `wallHanging`), when every work
+    has its wall:
+    - The wall colour scores each finish (`wallFit`, OKLab distance). A
+      finish within 0.05 of the wall keeps a quarter of its weight, 0.6
+      as leaf; one 0.2 away keeps all of it. Maple, ash and gold sink
+      into the ochre of the Post-Impressionist rooms, walnut into the
+      charcoal of the East Asian ones. Frames within 0.12 of their wall:
+      42 % → 7 % on the Post-Impressionist floor, 55 % → 24 % on the
+      East Asian one, where the pale mats do the separating.
+    - A room draws one family of finishes (`FinishFamily`: gilt, silver,
+      dark, wood, pale, red, and silk for every mount and scroll) from
+      what its works would choose one by one. A moulding that comes in
+      the family is 30 times likelier, and once drawn it takes no
+      finish outside it (`mainOptions`). With the family only a pull on
+      the finish too, one work in fourteen kept a finish of its own,
+      and a green-stained frame stood among five white ones. A school
+      with no moulding in the family keeps its own.
+    - A wall draws one frame to lead with. A wall is all its runs,
+      either side of a door. That moulding is 3 times likelier and its
+      finish 6 times.
+    - Liners, accents, mats and silks are drawn once a wall, for the
+      mean tone of its works: one mat board and one silk a wall.
+    After it neighbours share a family in 94 % of pairs, a finish in
+    58 % and a moulding in 50 % (20 % before). A family is drawn about
+    as often as the works would choose it, so a floor keeps its mix
+    from room to room: 144 of the 169 pairings of a moulding with a
+    finish still hang in the tower.
+    - Every draw is still on the work's id, with the room's pull as a
+      weight. A work the room's choice already suits keeps its own
+      frame, and a hanging with no wall, family or lead gives it back
+      exactly.
+    - **Walls are measured with the own frame, and framed after.**
+      `wallFootprint` and `tryAssign` never see a `Hanging`, so the
+      pulls change no room count and not the tower's
+      `galleryLayoutIdentity`. `packRun` takes the chosen frames; where
+      they overfill a run, the works that gained most go back to their
+      own. A work hung for a bench or alone on a door screen takes the
+      room's frame only where it reaches no further than its own. For
+      one of these reasons 3 of the tower's 2,771 works hang in their
+      own frame (13 October 2026). The Grand Hall is the
+      exception: it is composed with its hanging, so a pull can change
+      which pairs fit a wall, and in the block plan where the hall's
+      benches stand, which is part of that plan's identity. On
+      13 October 2026 it changed neither, on either plan. The giants
+      of the block plan's stair halls (`giants.ts`) hang in their own
+      frames.
+    - Every hung work carries its frame in `Placement.frame`. Read a
+      placed work's frame as `p.frame ?? pickFrameDesign(p.artwork)`.
+    - It is a second design for every hung work, and the tower's
+      layout takes a tenth to a fifth longer for it (290 to 330 ms of
+      CPU against 260 to 300, warm, on an M5 under load). It was two
+      fifths before `draw` hashed its strings one at a time and a
+      work's candidates were kept from the room's question to the
+      wall's (`readingOf`). Neither changes a draw: the own frames of
+      all 4,555 works came out the same.
   - **A frame's width is part of the hang.** `sideClearance()` in
     `place-paintings.ts` reserves the frame on both sides of a canvas
     and the plaque beyond it; the Grand Hall uses the same number
@@ -1032,9 +1096,11 @@ required by the Dockerfile — don't remove it.
     entablature is taller at its inner face than the pilasters are
     deep. A style may also return `blocks`, a carved square on each
     corner (`addBlocks`).
-  - `/gallery-3d/frames` is a debug sheet of works in their frames, lit
-    as in the galleries: `?m=Baroque` for a school, `?look=hogarth` for
-    a look, `?n=12&cols=4` for fewer and larger, `?page=2` for more.
+  - `/gallery-3d/frames` is a debug sheet of works in their own frames,
+    lit as in the galleries: `?m=Baroque` for a school, `?look=hogarth`
+    for a look, `?n=12&cols=4` for fewer and larger, `?page=2` for more.
+    `?hung=1` frames the sheet as a room would, each row as one wall,
+    and `?era=baroque` puts it on another era's wall.
 - **Frame maps** (`frame-maps.ts`) are procedural: 13 tiling
   DataTextures built once when `frame-materials.ts` loads, 8.8 MiB on
   the GPU with mips, shared by every frame. Nothing is downloaded.
