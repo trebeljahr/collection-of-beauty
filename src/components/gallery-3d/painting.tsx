@@ -5,7 +5,10 @@ import { useThree } from "@react-three/fiber";
 import { memo, useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from "react";
 import * as THREE from "three";
 import type { ArtworkListing } from "@/lib/data";
+import type { Palette } from "@/lib/gallery-eras";
 import {
+  FINISHES,
+  type FrameDesign,
   frameBody,
   frameExtents,
   frameMoulding,
@@ -30,6 +33,7 @@ import { createPaintingPreview } from "./painting-preview";
 import { type PaintingEntry, registerPainting, unregisterPainting } from "./painting-registry";
 import { frameMaterials, plaqueBaseMaterial, plaqueMountMaterial } from "./palette-materials";
 import { setWorkBounds } from "./room-culling";
+import { inRoomLight } from "./room-light";
 import {
   estimateTextureBytes,
   getHiRes,
@@ -447,12 +451,18 @@ function deriveTiers(
 export const Painting = memo(function Painting({
   placement,
   room,
+  revealed = true,
   onSettled,
 }: {
   placement: Placement;
   /** The room the work hangs in: its walls, doors and floor bound the
    *  picture light's pool. */
   room: RoomLayout;
+  /** False while the room is out of reach (room-geometry.tsx): the work
+   *  is then its picture light and a stand-in, with no texture, frame
+   *  geometry or plaque. The light is the same one in both states, so
+   *  it neither goes out nor comes on as the visitor walks up. */
+  revealed?: boolean;
   /** Fires once when the base 960 px texture has finished loading and
    *  also fires on final failure after retries. Used by Gallery3D to
    *  drive the start overlay without allowing one bad image to hang it. */
@@ -494,24 +504,16 @@ export const Painting = memo(function Painting({
 
   // A Grand Hall pair hangs in one frame, which the placement carries.
   const design = useMemo(() => frame ?? pickFrameDesign(artwork), [frame, artwork]);
+  // Frame and plaque are lit as their room is (room-light.ts).
+  const palette = paletteOfRoom(room);
   const dW = renderDims.widthM;
   const dH = renderDims.heightM;
 
-  // Moulded frame, rebuilt only when the canvas is refitted to its
-  // texture's aspect. See frame-geometry.ts.
+  // The moulding's section. Its geometry is built with the frame
+  // (`FrameMesh`), once the work is revealed.
   const moulding = useMemo(() => frameMoulding(design, dW, dH), [design, dW, dH]);
-  const frameGeometry = useMemo(
-    () =>
-      buildFrameGeometry(moulding.profile, dW, dH, PAINTING_WALL_OFFSET, {
-        slots: design.slots,
-        swell: moulding.swell,
-        blocks: moulding.blocks,
-        rails: moulding.rails,
-        cord: moulding.cord,
-      }),
-    [moulding, design, dW, dH],
-  );
-  useEffect(() => () => frameGeometry.dispose(), [frameGeometry]);
+  // Local z of the picture's face, for the canvas and for its stand-in.
+  const faceZ = moulding.faceZ - PAINTING_WALL_OFFSET;
   // At its widest: a swept frame's corners stand out past its rails,
   // and a scroll or a tabernacle frame reaches further up and down
   // than to the sides.
@@ -612,24 +614,45 @@ export const Painting = memo(function Painting({
 
   return (
     <group ref={groupRef} position={position} rotation={rotation}>
-      {/* Out of the floor's mirror: a moulding is at most 19 cm wide,
-          about the mirror's blur radius, and holds most of a work's
-          triangles. The canvas and its pool carry the reflection. */}
-      <mesh geometry={frameGeometry} material={frameMaterials(design)} layers={UNREFLECTED_LAYER} />
-      <PaintingPlane
-        url={url}
-        baseWidth={baseWidth}
-        origin={position}
-        thumbUrl={variantProxyUrl(artwork.objectKey, 256, "avif")}
-        widthM={dW}
-        heightM={dH}
-        faceZ={moulding.faceZ - PAINTING_WALL_OFFSET}
-        artwork={artwork}
-        onSettled={onSettled}
-        onTextureAspect={handleTextureAspect}
-      />
-      {placement.plaque !== null && (
-        <Plaque artwork={artwork} frameEdgeX={dW / 2 + frameReach} offset={placement.plaque} />
+      {revealed ? (
+        <>
+          <FrameMesh
+            design={design}
+            moulding={moulding}
+            widthM={dW}
+            heightM={dH}
+            palette={palette}
+          />
+          <PaintingPlane
+            url={url}
+            baseWidth={baseWidth}
+            origin={position}
+            thumbUrl={variantProxyUrl(artwork.objectKey, 256, "avif")}
+            widthM={dW}
+            heightM={dH}
+            faceZ={faceZ}
+            artwork={artwork}
+            onSettled={onSettled}
+            onTextureAspect={handleTextureAspect}
+          />
+          {placement.plaque !== null && (
+            <Plaque
+              artwork={artwork}
+              palette={palette}
+              frameEdgeX={dW / 2 + frameReach}
+              offset={placement.plaque}
+            />
+          )}
+        </>
+      ) : (
+        <StandIn
+          artwork={artwork}
+          design={design}
+          widthM={dW}
+          heightM={dH}
+          extents={extents}
+          faceZ={faceZ}
+        />
       )}
       <PaintingLight
         rig={rig}
@@ -645,13 +668,170 @@ export const Painting = memo(function Painting({
         // there is no ceiling to hang a can from: its lamps are not
         // drawn.
         fixtures={!onSheer}
-        wallGain={poolGainScale(paletteOfRoom(room).wallColor)}
+        wallGain={poolGainScale(palette.wallColor)}
       />
     </group>
   );
 });
 
 const _bounds = new THREE.Box3();
+
+/** A work's moulded frame, rebuilt only when the canvas is refitted to
+ *  its texture's aspect. See frame-geometry.ts.
+ *
+ *  Out of the floor's mirror: a moulding is at most 19 cm wide, about
+ *  the mirror's blur radius, and holds most of a work's triangles. The
+ *  canvas and its pool carry the reflection. */
+function FrameMesh({
+  design,
+  moulding,
+  widthM,
+  heightM,
+  palette,
+}: {
+  design: FrameDesign;
+  moulding: ReturnType<typeof frameMoulding>;
+  widthM: number;
+  heightM: number;
+  palette: Palette;
+}) {
+  const geometry = useMemo(
+    () =>
+      buildFrameGeometry(moulding.profile, widthM, heightM, PAINTING_WALL_OFFSET, {
+        slots: design.slots,
+        swell: moulding.swell,
+        blocks: moulding.blocks,
+        rails: moulding.rails,
+        cord: moulding.cord,
+      }),
+    [moulding, design, widthM, heightM],
+  );
+  useEffect(() => () => geometry.dispose(), [geometry]);
+  return (
+    <mesh
+      geometry={geometry}
+      material={frameMaterials(design, palette)}
+      layers={UNREFLECTED_LAYER}
+    />
+  );
+}
+
+// ── Stand-in ──────────────────────────────────────────────────────────
+// What a work shows while its room is out of reach: the band of its
+// frame in the colour of its finish, and its canvas as the 16 px preview
+// decoded from its ThumbHash. No download, no moulding, no plaque, two
+// draw calls. With the picture light, which stays on, a room seen
+// through a portal from across the building is hung and lit, and the
+// works sharpen as the visitor walks up where they used to appear.
+
+/** How much of its finish's colour a frame shows from across a room,
+ *  in linear light. The fill puts a surface near 0.43 of its albedo
+ *  (wall-light.ts) and the picture light lifts a moulding's top faces. */
+const STAND_IN_FRAME_SHADE = 0.5;
+
+const standInFrameMaterial = new THREE.MeshBasicMaterial({
+  vertexColors: true,
+  toneMapped: false,
+});
+
+/** The band between the canvas and the frame's outer edge, as four
+ *  quads round the canvas and in its plane (`faceZ`): nothing overlaps,
+ *  so nothing z-fights at any distance. */
+function buildStandInBand(
+  widthM: number,
+  heightM: number,
+  extents: { side: number; top: number; bottom: number },
+  faceZ: number,
+  color: THREE.Color,
+): THREE.BufferGeometry {
+  const x0 = -widthM / 2;
+  const x1 = widthM / 2;
+  const y0 = -heightM / 2;
+  const y1 = heightM / 2;
+  const X0 = x0 - extents.side;
+  const X1 = x1 + extents.side;
+  const Y0 = y0 - extents.bottom;
+  const Y1 = y1 + extents.top;
+  // Left and right uprights at full height, top and bottom rails between.
+  const rects = [
+    [X0, Y0, x0, Y1],
+    [x1, Y0, X1, Y1],
+    [x0, y1, x1, Y1],
+    [x0, Y0, x1, y0],
+  ];
+  const positions: number[] = [];
+  const colors: number[] = [];
+  const index: number[] = [];
+  for (const [ax, ay, bx, by] of rects) {
+    const base = positions.length / 3;
+    positions.push(ax, ay, faceZ, bx, ay, faceZ, bx, by, faceZ, ax, by, faceZ);
+    for (let i = 0; i < 4; i++) colors.push(color.r, color.g, color.b);
+    index.push(base, base + 1, base + 2, base, base + 2, base + 3);
+  }
+  const geometry = new THREE.BufferGeometry();
+  geometry.setAttribute("position", new THREE.Float32BufferAttribute(positions, 3));
+  geometry.setAttribute("color", new THREE.Float32BufferAttribute(colors, 3));
+  geometry.setIndex(index);
+  return geometry;
+}
+
+function StandIn({
+  artwork,
+  design,
+  widthM,
+  heightM,
+  extents,
+  faceZ,
+}: {
+  artwork: ArtworkListing;
+  design: FrameDesign;
+  widthM: number;
+  heightM: number;
+  extents: { side: number; top: number; bottom: number };
+  /** Local z of the picture's face (`Moulding.faceZ`). */
+  faceZ: number;
+}) {
+  const finish = design.slots[0]?.finish;
+  const band = useMemo(() => {
+    const color = new THREE.Color(finish ? FINISHES[finish].color : "#2a1d14");
+    return buildStandInBand(
+      widthM,
+      heightM,
+      extents,
+      faceZ,
+      color.multiplyScalar(STAND_IN_FRAME_SHADE),
+    );
+  }, [widthM, heightM, extents, faceZ, finish]);
+  useEffect(() => () => band.dispose(), [band]);
+
+  // The canvas as `PaintingPlane` first paints it, so the hand-over is
+  // one blurred picture giving way to a sharper one. Set on the material
+  // directly, as there: see the note in `PaintingPlane`.
+  const matRef = useRef<THREE.MeshBasicMaterial>(null);
+  useLayoutEffect(() => {
+    const material = matRef.current;
+    if (!material) return;
+    const preview = createPaintingPreview(artwork.thumbHash);
+    material.map = preview;
+    if (preview) material.color.setHex(0xffffff);
+    else material.color.set(artwork.dominantColor ?? "#3a2e20");
+    material.needsUpdate = true;
+    return () => {
+      material.map = null;
+      preview?.dispose();
+    };
+  }, [artwork.thumbHash, artwork.dominantColor]);
+
+  return (
+    <>
+      <mesh geometry={band} material={standInFrameMaterial} layers={UNREFLECTED_LAYER} />
+      <mesh position={[0, 0, faceZ]}>
+        <planeGeometry args={[widthM, heightM]} />
+        <meshBasicMaterial ref={matRef} toneMapped={false} />
+      </mesh>
+    </>
+  );
+}
 
 /** Refit a plane size to match a texture aspect while staying inside
  *  the slot's max bounds. Width-first: if width-fit overshoots height,
@@ -739,10 +919,13 @@ function readTroikaBlockHeight(mesh: unknown): number | null {
 
 function Plaque({
   artwork,
+  palette,
   frameEdgeX,
   offset,
 }: {
   artwork: ArtworkListing;
+  /** The room's palette: mount and card are lit as the room is. */
+  palette: Palette;
   /** Local x of the frame's outer right edge: the plaque hangs
    *  PLAQUE_GAP beyond it. */
   frameEdgeX: number;
@@ -834,12 +1017,12 @@ function Plaque({
       {/* Brass mount plate */}
       <mesh position={[0, 0, mountCenterZ]} layers={UNREFLECTED_LAYER}>
         <boxGeometry args={[PLAQUE_MOUNT_W, PLAQUE_MOUNT_H, PLAQUE_MOUNT_DEPTH]} />
-        <primitive object={plaqueMountMaterial} attach="material" />
+        <primitive object={inRoomLight(plaqueMountMaterial, palette)} attach="material" />
       </mesh>
       {/* Cream face card on top of the mount */}
       <mesh position={[0, 0, faceCenterZ]} layers={UNREFLECTED_LAYER}>
         <boxGeometry args={[PLAQUE_FACE_W, PLAQUE_FACE_H, PLAQUE_FACE_DEPTH]} />
-        <primitive object={plaqueBaseMaterial} attach="material" />
+        <primitive object={inRoomLight(plaqueBaseMaterial, palette)} attach="material" />
       </mesh>
       {/* Title — bold and largest. */}
       <Text

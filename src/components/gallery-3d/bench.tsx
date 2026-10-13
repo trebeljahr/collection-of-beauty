@@ -10,12 +10,15 @@
 
 import { useEffect, useMemo } from "react";
 import * as THREE from "three";
+import type { Palette } from "@/lib/gallery-eras";
 import type { Bench } from "@/lib/gallery-layout/types";
 import { buildBenchesGeometry, SHADOW_FADE_U, SHADOW_FADE_V } from "./bench-geometry";
 import { UNREFLECTED_LAYER } from "./floor-mirror";
+import { inRoomLight } from "./room-light";
 
 // Dark saddle leather and a walnut frame. Neither takes its colour from
-// the era's palette: the same benches stand on every storey.
+// the era's palette: the same benches stand on every storey. Their light
+// is the room's (room-light.ts).
 const leatherMaterial = new THREE.MeshStandardMaterial({
   color: "#7a482d",
   roughness: 0.42,
@@ -79,7 +82,15 @@ function getShadowMaterial(): THREE.MeshBasicMaterial {
 /** Every bench of one room: three draw calls however many there are.
  *  Seat and frame stay in the floor's reflection, where a bench is one
  *  of the few things standing on the parquet; the shadow is skipped. */
-export function RoomBenches({ benches, floorY }: { benches: readonly Bench[]; floorY: number }) {
+export function RoomBenches({
+  benches,
+  floorY,
+  palette,
+}: {
+  benches: readonly Bench[];
+  floorY: number;
+  palette: Palette;
+}) {
   const geometry = useMemo(() => buildBenchesGeometry(benches, floorY), [benches, floorY]);
   useEffect(
     () => () => {
@@ -92,8 +103,8 @@ export function RoomBenches({ benches, floorY }: { benches: readonly Bench[]; fl
   if (!geometry) return null;
   return (
     <>
-      <mesh geometry={geometry.seat} material={leatherMaterial} />
-      <mesh geometry={geometry.frame} material={woodMaterial} />
+      <mesh geometry={geometry.seat} material={inRoomLight(leatherMaterial, palette)} />
+      <mesh geometry={geometry.frame} material={inRoomLight(woodMaterial, palette)} />
       <mesh
         geometry={geometry.shadow}
         material={getShadowMaterial()}

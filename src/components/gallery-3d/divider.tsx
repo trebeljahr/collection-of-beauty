@@ -5,7 +5,6 @@ import type * as THREE from "three";
 import type { RoomLayout } from "@/lib/gallery-layout/types";
 import { buildDividerGeometry } from "./divider-geometry";
 import { UNREFLECTED_LAYER } from "./floor-mirror";
-import { darkWoodTrimMaterial } from "./palette-materials";
 
 /** A room's freestanding divider walls: plaster in the room's wall
  *  material, the back of a door screen in a darker one, and a skirting
@@ -16,10 +15,13 @@ export function RoomDividers({
   room,
   material,
   screenMaterial,
+  trim,
 }: {
   room: RoomLayout;
   material: THREE.Material;
   screenMaterial: THREE.Material;
+  /** The skirting's wood, lit as the room is. */
+  trim: THREE.Material;
 }) {
   const geometry = useMemo(
     () =>
@@ -39,11 +41,7 @@ export function RoomDividers({
     <>
       <mesh geometry={geometry.wall} material={material} />
       {geometry.screen && <mesh geometry={geometry.screen} material={screenMaterial} />}
-      <mesh
-        geometry={geometry.skirting}
-        material={darkWoodTrimMaterial}
-        layers={UNREFLECTED_LAYER}
-      />
+      <mesh geometry={geometry.skirting} material={trim} layers={UNREFLECTED_LAYER} />
     </>
   );
 }

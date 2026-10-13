@@ -48,6 +48,7 @@ export function SolidWall({
   width,
   height,
   material,
+  trim = darkWoodTrimMaterial,
   groupRef,
   skirting,
   ownFace,
@@ -57,6 +58,9 @@ export function SolidWall({
   width: number;
   height: number;
   material: THREE.Material;
+  /** Wood of the skirting. A room passes its own, lit as the room is
+   *  (room-light.ts). */
+  trim?: THREE.Material;
   groupRef?: Ref<THREE.Group>;
   skirting?: SkirtingClip;
   ownFace?: boolean;
@@ -71,6 +75,7 @@ export function SolidWall({
         spans={clipSpans([{ xMin: -width / 2, xMax: width / 2 }], skirting)}
         floorY={-height / 2}
         oneSided={ownFace}
+        material={trim}
       />
     </group>
   );
@@ -99,10 +104,12 @@ function Skirting({
   spans,
   floorY,
   oneSided,
+  material,
 }: {
   spans: ReadonlyArray<{ xMin: number; xMax: number }>;
   floorY: number;
   oneSided?: boolean;
+  material: THREE.Material;
 }) {
   const key = spans.map((s) => `${s.xMin.toFixed(3)}:${s.xMax.toFixed(3)}`).join(",");
   // biome-ignore lint/correctness/useExhaustiveDependencies: `key` is the content of `spans`, whose array identity changes every render.
@@ -112,7 +119,7 @@ function Skirting({
   );
   useEffect(() => () => geometry?.dispose(), [geometry]);
   if (!geometry) return null;
-  return <mesh geometry={geometry} material={darkWoodTrimMaterial} layers={UNREFLECTED_LAYER} />;
+  return <mesh geometry={geometry} material={material} layers={UNREFLECTED_LAYER} />;
 }
 
 type DoorOpening = {
@@ -135,6 +142,7 @@ export function WallWithDoors({
   width,
   height,
   material,
+  trim = darkWoodTrimMaterial,
   doors,
   groupRef,
   skirting,
@@ -145,6 +153,9 @@ export function WallWithDoors({
   width: number;
   height: number;
   material: THREE.Material;
+  /** Wood of the skirting and the door trim. A room passes its own,
+   *  lit as the room is (room-light.ts). */
+  trim?: THREE.Material;
   doors: DoorOpening[];
   /** The group holding the whole wall: strips, lintels, skirting and
    *  door trim. Room culling shows and hides a wall by it. */
@@ -162,6 +173,7 @@ export function WallWithDoors({
         width={width}
         height={height}
         material={material}
+        trim={trim}
         groupRef={groupRef}
         skirting={skirting}
         ownFace={ownFace}
@@ -216,7 +228,12 @@ export function WallWithDoors({
           </mesh>
         );
       })}
-      <Skirting spans={clipSpans(strips, skirting)} floorY={-halfH} oneSided={ownFace} />
+      <Skirting
+        spans={clipSpans(strips, skirting)}
+        floorY={-halfH}
+        oneSided={ownFace}
+        material={trim}
+      />
       {sorted.map((d) => (
         <DoorTrim
           key={`trim-${d.centerLocalX}-${d.width}-${d.height}`}
@@ -225,6 +242,7 @@ export function WallWithDoors({
           height={d.height}
           wallHeight={height}
           portal={d.portal}
+          material={trim}
         />
       ))}
     </group>
@@ -243,12 +261,14 @@ function DoorTrim({
   height,
   wallHeight,
   portal,
+  material,
 }: {
   centerLocalX: number;
   width: number;
   height: number;
   wallHeight: number;
   portal?: boolean;
+  material: THREE.Material;
 }) {
   const trim = portal ? PORTAL_TRIM : 0.06;
   const depth = portal ? PORTAL_TRIM_DEPTH : 0.08;
@@ -260,15 +280,15 @@ function DoorTrim({
     <group position={[centerLocalX, floorY, 0]}>
       <mesh position={[-width / 2 - trim / 2, height / 2, 0]} layers={layer}>
         <boxGeometry args={[trim, height, depth]} />
-        <primitive object={darkWoodTrimMaterial} attach="material" />
+        <primitive object={material} attach="material" />
       </mesh>
       <mesh position={[width / 2 + trim / 2, height / 2, 0]} layers={layer}>
         <boxGeometry args={[trim, height, depth]} />
-        <primitive object={darkWoodTrimMaterial} attach="material" />
+        <primitive object={material} attach="material" />
       </mesh>
       <mesh position={[0, height + trim / 2, 0]} layers={layer}>
         <boxGeometry args={[width + trim * 2, trim, depth]} />
-        <primitive object={darkWoodTrimMaterial} attach="material" />
+        <primitive object={material} attach="material" />
       </mesh>
     </group>
   );

@@ -22,8 +22,10 @@
 //    three.js light: it costs nothing on the walls or floor.
 
 import * as THREE from "three";
+import type { Palette } from "@/lib/gallery-eras";
 import type { FrameDesign, FrameSurface } from "@/lib/gallery-layout/frame-design";
 import { getFrameMaps } from "./frame-maps";
+import { inRoomLight } from "./room-light";
 
 /** Direction to the picture light in the frame's own space (x right,
  *  y up, z out of the wall): above and in front, like the can. */
@@ -311,16 +313,29 @@ export const FRAME_SURFACES: Record<FrameSurface, THREE.MeshStandardMaterial> = 
   cloth,
 };
 
-const materialSets = new Map<string, THREE.MeshStandardMaterial[]>();
+const materialSets = new Map<Palette | undefined, Map<string, THREE.MeshStandardMaterial[]>>();
 
 /** The materials of a design, indexed by the frame geometry's groups.
- *  Designs with the same surfaces share one array. */
-export function frameMaterials(design: FrameDesign): THREE.MeshStandardMaterial[] {
+ *  Designs with the same surfaces share one array. With a `palette`
+ *  they are lit as a room of that palette is (room-light.ts); without
+ *  one they take the scene's light, as on the debug sheet. */
+export function frameMaterials(
+  design: FrameDesign,
+  palette?: Palette,
+): THREE.MeshStandardMaterial[] {
+  let sets = materialSets.get(palette);
+  if (!sets) {
+    sets = new Map();
+    materialSets.set(palette, sets);
+  }
   const key = design.slots.map((s) => s.surface).join("|");
-  let set = materialSets.get(key);
+  let set = sets.get(key);
   if (!set) {
-    set = design.slots.map((s) => FRAME_SURFACES[s.surface]);
-    materialSets.set(key, set);
+    set = design.slots.map((s) => {
+      const surface = FRAME_SURFACES[s.surface];
+      return palette ? inRoomLight(surface, palette) : surface;
+    });
+    sets.set(key, set);
   }
   return set;
 }

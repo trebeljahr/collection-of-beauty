@@ -9,13 +9,21 @@
 // height. Floors of other storeys are told apart by that height in the
 // shader and keep the plain environment reflection.
 //
-// On the stairs the pass is paused and the reflection fades out. Two
-// storeys are mounted in full there, the most the museum ever draws, and
-// the camera looks down at the floors at angles where Fresnel leaves a
-// few percent of reflection to see. The stairwell's own floor reflects
-// like any other. Where it is cut out round the spiral there is no floor
-// and so nothing to reflect in, and the storey below, seen through the
-// hole, lies under the mirror's clip plane and stays out of the image.
+// On a spiral the pass is paused and the reflection fades out. Two
+// storeys are mounted in full there, and the camera looks down at the
+// floors at angles where Fresnel leaves a few percent of reflection to
+// see. The stairwell's own floor reflects like any other. Where it is
+// cut out round the spiral there is no floor and so nothing to reflect
+// in, and the storey below, seen through the hole, lies under the
+// mirror's clip plane and stays out of the image.
+//
+// A grand stair hall is not the stairs: the pass runs on its floor as in
+// any room. It was paused there until 13 October 2026, and a gallery's
+// floor then changed as the visitor stepped out of the hall: with the
+// pass off a floor shows the even sheen of the environment map, with it
+// on the room itself, which in a crimson room is far darker. Up a hall's
+// flight the reflection thins out with the eye's height (`FLIGHT_FADE_M`)
+// and is gone before the visitor's floor becomes the one above.
 //
 // It is off on touch devices and switches itself off for the rest of the
 // visit when the frame rate stays low (createFrameRateGuard). Off means
@@ -41,6 +49,13 @@ const BLUR_PX = 256;
  *  rest keeps a trace of the even sheen the floor had before. */
 const MIRROR_MIX = 0.9;
 const FADE_S = 0.5;
+/** Eye heights over the floor of the visitor's storey between which the
+ *  reflection thins to nothing, on the way up a grand stair's flight.
+ *  It is a matter of height and not of time, so it is gone at any pace
+ *  before the storey above becomes the visitor's: that happens half a
+ *  storey up, with a ducked eye at 4.11 m. A jump off a bench on tiptoe
+ *  reaches 3.42 m and stays under the range. */
+const FLIGHT_FADE_M: readonly [number, number] = [3.6, 4.1];
 /** Blur taps move this far per pass, in uv. Four passes at 0.5, 1.5,
  *  2.5 and 3.5 steps spread a point over about 2 % of the image's width
  *  and 6 % of its height: a satin floor smears a reflection along the
@@ -231,20 +246,22 @@ export function FloorReflection({
       return;
     }
 
-    const eyeY = camera.position.y;
-    const standing = !onStairs && eyeY > floorY && eyeY < floorY + INTER_FLOOR_HEIGHT;
+    const eye = camera.position.y - floorY;
+    const standing = !onStairs && eye > 0 && eye < INTER_FLOOR_HEIGHT;
     const target = standing && !closing.current ? MIRROR_MIX : 0;
     const step = (MIRROR_MIX / FADE_S) * Math.min(dt, 0.1);
     mix.current =
       mix.current < target
         ? Math.min(target, mix.current + step)
         : Math.max(target, mix.current - step);
-    floorMirrorUniforms.uFloorMirrorMix.value = mix.current;
+    const shown =
+      mix.current * (1 - THREE.MathUtils.smoothstep(eye, FLIGHT_FADE_M[0], FLIGHT_FADE_M[1]));
+    floorMirrorUniforms.uFloorMirrorMix.value = shown;
     debug.state = standing ? "on" : "paused";
-    if (mix.current === 0) {
+    if (shown === 0) {
       // Faded out after the guard tripped: drop the targets and the
       // shader patch for the rest of the visit.
-      if (closing.current) setGate({ gaveUp: true });
+      if (closing.current && mix.current === 0) setGate({ gaveUp: true });
       return;
     }
 

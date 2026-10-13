@@ -22,8 +22,14 @@ import { Laylight } from "./laylight";
 import { laylightPanels } from "./laylight-layout";
 import { Painting } from "./painting";
 import { wallInsetOf } from "./painting-light-rig";
-import { getPaletteMaterials, getRoomFloorMaterial } from "./palette-materials";
+import {
+  darkWoodTrimMaterial,
+  fixtureMaterial,
+  getPaletteMaterials,
+  getRoomFloorMaterial,
+} from "./palette-materials";
 import { registerCulledRoom } from "./room-culling";
+import { inRoomLight } from "./room-light";
 import { openingHole, rectsAround } from "./stair-opening";
 import { type SkirtingClip, WallWithDoors } from "./wall";
 
@@ -80,7 +86,13 @@ export function RoomGeometry({
   // created a visible colour edge at the doorway into the stairwell.
   // Regular rooms keep their accent: their walls + frames break the
   // line of sight to the corridor floor, so any edge stays hidden.
-  const floorMat = getRoomFloorMaterial(room.isStairwell ? palette.floorColor : room.floorColor);
+  const floorMat = getRoomFloorMaterial(
+    palette,
+    room.isStairwell ? palette.floorColor : room.floorColor,
+  );
+  // What every room shares, lit as this one is (room-light.ts).
+  const trim = inRoomLight(darkWoodTrimMaterial, palette);
+  const fixture = inRoomLight(fixtureMaterial, palette);
   const { cellBounds } = room;
 
   const xMin = cellBounds.xMin * CELL_SIZE;
@@ -186,9 +198,9 @@ export function RoomGeometry({
   const isStandardRoom = !room.isStairwell;
 
   // Paintings load lazily, image by image, only once the player is near
-  // this room (see useRevealedPlacements). The shell above always
-  // renders, so an unloaded room reads as bare walls, never a hole.
-  const revealedPlacements = useRevealedPlacements(room);
+  // this room (see useRoomWorks). Until then each is its picture light
+  // and a stand-in, so a room seen from afar is lit and hung.
+  const works = useRoomWorks(room);
   const settledHandler = usePaintingSettledHandlers(onPaintingSettled);
 
   // The floor's mirror pass draws this room's works only while the
@@ -253,6 +265,7 @@ export function RoomGeometry({
                 ceilingY={ceilingY}
                 w={p.xMax - p.xMin}
                 d={p.zMax - p.zMin}
+                fixture={fixture}
               />
             ))}
           </>
@@ -307,19 +320,20 @@ export function RoomGeometry({
         {/* Freestanding walls and benches. Both are part of the shell:
           they are colliders whether or not they are drawn, so they
           mount with the room, not with its paintings. */}
-        <RoomDividers room={room} material={mats.wall} screenMaterial={mats.screen} />
-        <RoomBenches benches={room.benches} floorY={floorY} />
+        <RoomDividers room={room} material={mats.wall} screenMaterial={mats.screen} trim={trim} />
+        <RoomBenches benches={room.benches} floorY={floorY} palette={palette} />
 
-        {/* Paintings — revealed lazily once the player nears this room,
-          then a few per frame, nearest the stair first. */}
+        {/* Paintings — lit from the start, revealed lazily once the
+          player nears this room, then a few per frame, nearest first. */}
         <group ref={worksRef}>
-          {revealedPlacements.map((p) => {
+          {works.mounted.map((p) => {
             const paintingKey = `${room.id}-${p.artwork.id}-${p.position.join(",")}`;
             return (
               <Painting
                 key={paintingKey}
                 placement={p}
                 room={room}
+                revealed={works.revealed.has(p)}
                 onSettled={settledHandler(paintingKey)}
               />
             );
@@ -336,6 +350,7 @@ export function RoomGeometry({
           width={width}
           height={wallHeight}
           material={wallMat}
+          trim={trim}
           doors={nDoors}
           skirting={skirting("north")}
           ownFace={ownWalls}
@@ -351,6 +366,7 @@ export function RoomGeometry({
           width={width}
           height={wallHeight}
           material={wallMat}
+          trim={trim}
           doors={sDoors}
           skirting={skirting("south")}
           ownFace={ownWalls}
@@ -366,6 +382,7 @@ export function RoomGeometry({
           width={depth}
           height={wallHeight}
           material={wallMat}
+          trim={trim}
           doors={wDoors}
           skirting={skirting("west")}
           ownFace={ownWalls}
@@ -381,6 +398,7 @@ export function RoomGeometry({
           width={depth}
           height={wallHeight}
           material={wallMat}
+          trim={trim}
           doors={eDoors}
           skirting={skirting("east")}
           ownFace={ownWalls}
@@ -393,14 +411,13 @@ export function RoomGeometry({
   );
 }
 
-// Painting reveal tuning. A room's paintings mount only once the camera
-// is within PAINTING_LOAD_RADIUS (metres, XZ) of the room — so far rooms
-// stay paintless until approached (bare walls, never a hole, since the
-// shell always renders) — and then PAINTINGS_PER_FRAME at a time, so a
-// dense room never mounts its whole wall of paintings (each carrying
-// troika-text plaques) in one hitching frame. ~14 m reaches the rooms
-// directly off the stairwell while the player is still on the spiral, so
-// the arrival view is loading before they crest.
+// Painting reveal tuning. A room's paintings mount in full only once the
+// camera is within PAINTING_LOAD_RADIUS (metres, XZ) of the room, and
+// then PAINTINGS_PER_FRAME at a time, so a dense room never mounts its
+// whole wall of paintings (each carrying troika-text plaques) in one
+// hitching frame. ~14 m reaches the rooms directly off the stairwell
+// while the player is still on the spiral, so the arrival view is
+// loading before they crest.
 const PAINTING_LOAD_RADIUS = 14;
 const PAINTING_LOAD_RADIUS_SQ = PAINTING_LOAD_RADIUS * PAINTING_LOAD_RADIUS;
 const PAINTINGS_PER_FRAME = 2;
@@ -410,40 +427,60 @@ const PAINTINGS_PER_FRAME = 2;
 // in the LRU on every LOD tick, which is what made a floor's textures
 // churn (evict → dispose → re-upload) until nothing rendered reliably.
 // Well outside the 14 m mount radius so a player pacing a doorway can't
-// flap between the two, and far enough that an unmounted room is never
-// in view: rooms are ≤ 17.5 m across, so at 34 m the nearest edge of a
-// dropped room is a room-and-a-half away through a doorway.
+// flap between the two.
 const PAINTING_UNLOAD_RADIUS = 34;
 const PAINTING_UNLOAD_RADIUS_SQ = PAINTING_UNLOAD_RADIUS * PAINTING_UNLOAD_RADIUS;
+// A room out of that range is not bare. Every work keeps its picture
+// light and a stand-in for frame and canvas (painting.tsx) for as long
+// as its floor is mounted, at no cost in textures. They used to mount
+// with the work, and the pools faded in as it did: a room seen through a
+// portal from over 14 m away stood unlit, and its lights came on as the
+// visitor walked up to it. In the tower a room that far is seldom in
+// view. In the block plan the spine is five rooms in a line through
+// 3.5 m portals. Lights mount this many a frame from the moment the
+// floor does, nearest room first.
+const LIGHTS_PER_FRAME = 6;
 
-// Reveal is serialised across rooms, nearest first. Several rooms are
-// inside the mount radius at once (the room you're in plus whatever the
-// doorways open onto), and letting each ramp in parallel interleaved
+// Both ramps are serialised across rooms, nearest first. Several rooms
+// are inside the mount radius at once (the room you're in plus whatever
+// the doorways open onto), and letting each ramp in parallel interleaved
 // their loads: the room you're standing in finished last because it was
 // sharing the network gate and the GPU upload queue with rooms behind
 // you. Rooms with paintings still to mount publish their distance here
 // each frame, and only the closest one spends the frame's budget — so a
 // floor fills outward from the player instead of all at once.
 const pendingRooms = new Map<string, number>();
+const pendingLights = new Map<string, number>();
 
-/** Is `roomId` the closest room still waiting to mount paintings? */
-function isNearestPending(roomId: string, distSq: number): boolean {
-  for (const [otherId, otherDist] of pendingRooms) {
+/** Is `roomId` the closest room still waiting in `pending`? */
+function isNearestPending(
+  pending: ReadonlyMap<string, number>,
+  roomId: string,
+  distSq: number,
+): boolean {
+  for (const [otherId, otherDist] of pending) {
     if (otherId === roomId) continue;
     if (otherDist < distSq) return false;
   }
   return true;
 }
 
-/** Which of a room's paintings to render right now. Returns none until
- *  the camera comes within PAINTING_LOAD_RADIUS of the room, then ramps
- *  PAINTINGS_PER_FRAME per frame — but only while this is the nearest
- *  room still waiting — ordered nearest the player first. Past
- *  PAINTING_UNLOAD_RADIUS they unmount again, which bounds how many
- *  paintings a floor holds at once (and therefore how many textures
- *  compete for the LRU). A return visit re-ramps from the texture cache,
- *  so it costs frames, not network. */
-function useRevealedPlacements(room: RoomLayout): Placement[] {
+/** Which of a room's works to mount right now, and which of those in
+ *  full. A work not in `revealed` is its picture light and a stand-in.
+ *
+ *  Lights and stand-ins ramp up from the moment the room mounts,
+ *  LIGHTS_PER_FRAME a frame, and stay. Works are revealed once the
+ *  camera comes within PAINTING_LOAD_RADIUS of the room,
+ *  PAINTINGS_PER_FRAME a frame, ordered nearest the player first. Each
+ *  ramp runs only while this is the nearest room still waiting for it.
+ *  Past PAINTING_UNLOAD_RADIUS the works go back to stand-ins, which
+ *  bounds how many paintings a floor holds at once (and therefore how
+ *  many textures compete for the LRU). A return visit re-ramps from the
+ *  texture cache, so it costs frames, not network. */
+function useRoomWorks(room: RoomLayout): {
+  mounted: Placement[];
+  revealed: ReadonlySet<Placement>;
+} {
   const bounds = useMemo(() => {
     const cb = room.cellBounds;
     return {
@@ -457,6 +494,8 @@ function useRevealedPlacements(room: RoomLayout): Placement[] {
   const total = room.placements.length;
   const [count, setCount] = useState(0);
   const countRef = useRef(0);
+  const [lit, setLit] = useState(0);
+  const litRef = useRef(0);
   const nearRef = useRef(false);
   // Reveal order, fixed when the room comes into range: nearest the
   // player's entry point first, so the wall you walk in facing fills
@@ -467,11 +506,14 @@ function useRevealedPlacements(room: RoomLayout): Placement[] {
   // Reset if this instance is ever reused for a different room.
   useEffect(() => {
     countRef.current = 0;
+    litRef.current = 0;
     nearRef.current = false;
     orderRef.current = room.placements;
     setCount(0);
+    setLit(0);
     return () => {
       pendingRooms.delete(room.id);
+      pendingLights.delete(room.id);
     };
   }, [room]);
 
@@ -482,6 +524,16 @@ function useRevealedPlacements(room: RoomLayout): Placement[] {
     const dx = x - nx;
     const dz = z - nz;
     const distSq = dx * dx + dz * dz;
+
+    if (litRef.current >= total) {
+      pendingLights.delete(room.id);
+    } else {
+      pendingLights.set(room.id, distSq);
+      if (isNearestPending(pendingLights, room.id, distSq)) {
+        litRef.current = Math.min(total, litRef.current + LIGHTS_PER_FRAME);
+        setLit(litRef.current);
+      }
+    }
 
     if (nearRef.current) {
       if (distSq > PAINTING_UNLOAD_RADIUS_SQ) {
@@ -507,12 +559,16 @@ function useRevealedPlacements(room: RoomLayout): Placement[] {
     // Queue up behind any room closer to the player that still has
     // paintings to mount.
     pendingRooms.set(room.id, distSq);
-    if (!isNearestPending(room.id, distSq)) return;
+    if (!isNearestPending(pendingRooms, room.id, distSq)) return;
     countRef.current = Math.min(total, countRef.current + PAINTINGS_PER_FRAME);
     setCount(countRef.current);
   });
 
-  return count >= total ? orderRef.current : orderRef.current.slice(0, count);
+  const revealed = new Set(count >= total ? orderRef.current : orderRef.current.slice(0, count));
+  // A work revealed ahead of the light ramp mounts whole, light and all.
+  const mounted =
+    lit >= total ? room.placements : room.placements.filter((p, i) => i < lit || revealed.has(p));
+  return { mounted, revealed };
 }
 
 /** Per-painting `onSettled` callbacks that keep their identity across

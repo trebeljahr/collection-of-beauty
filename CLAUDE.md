@@ -723,10 +723,12 @@ required by the Dockerfile — don't remove it.
       four storeys at once. One of them mounted alone has a blind in
       each door to a room that is not (`mountedRooms` in
       `room-geometry.tsx`), or its doors would open on the scene's
-      background. The floor's mirror pass is paused in a hall, the
-      court included. Measured headless on an M5 at 2560 × 1440, room
-      culling on: 90 to 140 draw calls in a stair hall, 290 to 610 in a
-      gallery, 1,020 to 1,180 in the court, which shows sixteen doors.
+      background. The floor's mirror pass runs in a hall as in any
+      room ("A room's light is the room's", below). Measured headless on
+      an M5 at 2560 × 1440, room culling on: 90 to 140 draw calls in a
+      stair hall, 290 to 610 in a gallery, 1,020 to 1,180 in the court,
+      which shows sixteen doors. The mirror pass adds 80 in a stair hall
+      and 270 in the court.
   - **A baluster is turned, and stone is shaded by the way it faces**
     (`grand-staircase.tsx`). Nothing in the scene casts a shadow. With
     one tone for every upright face, a square post's two visible faces
@@ -1076,6 +1078,63 @@ required by the Dockerfile — don't remove it.
     by it. The plaque card and the mat board carry their own emissive
     for that reason, and frame materials add the light themselves (see
     the frame maps below).
+- **A room's light is the room's, never the visitor's.** Rico, 13
+  October 2026, of the block plan: "it shouldn't look like the lights
+  are turning on/off when going between rooms". Three things did, each
+  by keying light to where the visitor stood. The tower has one palette
+  a floor and rooms 17.5 m across at most, behind 1.4 m doors, so it
+  showed none of them.
+  - **The fill.** One environment map lit the whole scene: the map of
+    the room the visitor was in (`scene.environment`). In the block plan
+    it changed in every doorway between two palettes. One step from the
+    court into the Baroque gallery took 21 % off the frame's mean
+    brightness (luma 90 to 71 of 255), one step from the
+    Post-Impressionist gallery into the Modernist one added 25 %. Now a
+    material carries the map of its own room's palette as its `envMap`
+    ([`room-light.ts`](src/components/gallery-3d/room-light.ts)), and a
+    room looks the same from inside as through a door:
+    - walls, ceilings and floors are made per palette (`litByRoom`);
+    - what every room shares is cloned once per palette (`inRoomLight`):
+      frame surfaces, plaque, bench, skirting and door trim, laylight
+      frames. A clone runs its base's program and differs in one
+      texture. A new mesh that stands in a room takes its material
+      through `inRoomLight`, or it is lit as the stairs are;
+    - `scene.environment` is left to what belongs to no room, the stairs
+      and their rails (`stairPalette` in `index.tsx`): the floor's
+      palette in the tower, the halls' stone on every storey of the
+      block plan. Never key it to the room the visitor is in.
+  - **The floor's reflection** was paused in a hall, the court included.
+    With the pass off a floor shows the even sheen of the environment
+    map, with it on the room itself, which in a crimson room is far
+    darker: a gallery's floor changed as the visitor stepped out of the
+    hall. The pass now runs in a hall and is paused on a spiral only.
+    Up a grand stair's flight it thins out with the eye's height
+    (`FLIGHT_FADE_M`, 3.6 to 4.1 m over the floor) and is gone before
+    the storey above becomes the visitor's.
+  - **The picture lights** mounted with their works, once the visitor
+    came within 14 m of a room, and faded in. A room seen through a
+    portal from further off stood bare and unlit, and lit up as the
+    visitor walked to it. Every work of a mounted floor now keeps its
+    light and a stand-in (`useRoomWorks` in `room-geometry.tsx`,
+    `StandIn` in `painting.tsx`): the band of its frame in the finish's
+    colour and its canvas as the ThumbHash preview. Neither downloads
+    anything. Within 14 m the work is revealed in full (frame, textures,
+    plaque), past 34 m it goes back to its stand-in, and the light is
+    one component through both. Do not raise the two distances to keep
+    more works in full: the base texture pool is at its 256 MB in the
+    block plan's court as it is.
+  - **The check.** Two camera poses 10 cm apart, either side of the
+    line where the visitor's room changes, the same view. Their frames
+    may differ by parallax only. On 13 October 2026 the mean luma of
+    such a pair differed by 0.05 to 0.4 of 255 at six doorways between
+    two palettes and at the 14 m line. Before, it differed by 19 to 31
+    at the two doorways measured. A door between two rooms of one
+    palette differs by 1.1, all of it parallax. The tower's frames did
+    not change: at 8 poses on three floors the mean difference from
+    main was under 0.04 of 255, all of it rooms seen through a door
+    that are now lit. Those rooms cost up to 72 draw calls more.
+  The scene's fog (`index.tsx`, 20 to 80 m) is left as it was. Down the
+  block plan's spine a room 50 m off is half dark through it.
 - The tower's stairwell hangs no works, so it has its own light
   (`stairwell-light.tsx`, geometry in `stairwell-light-rig.ts`), built
   the same way. A hall of the block plan that hangs works is lit for
@@ -1325,8 +1384,8 @@ required by the Dockerfile — don't remove it.
     the frame is a smooth matte band with its baked shadows. Keep any
     new high-frequency detail under that fade.
   Frame and fixture metal reflect their own environment map
-  (`frame-env.ts`, the room gradient plus bright lamp spots), assigned in
-  `RoomEnvironment`. A material can take less of it through
+  (`frame-env.ts`, the room gradient plus bright lamp spots), each
+  room's own (`room-light.ts`). A material can take less of it through
   `userData.envScale`: leaf takes 0.6, so the picture light models its
   carving and the room's reflection does not flatten it.
 - Tone mapping is Khronos Neutral, so a pale palette colour shows on
@@ -1374,7 +1433,7 @@ required by the Dockerfile — don't remove it.
   applies Fresnel and roughness, so it is a few percent underfoot and a
   clear sheen toward the far wall. Before changing it:
   - **Three gates, and no other quality tier.** Off on touch devices.
-    Paused on the stairs, where two storeys are mounted in full. Given
+    Paused on a spiral, where two storeys are mounted in full. Given
     up for the rest of the visit once most frames run under 48 fps for
     three 1.5 s windows in a row (`createFrameRateGuard`). Off means the
     floor materials compile to three's stock shader

@@ -86,12 +86,16 @@ export function Laylight({
   ceilingY,
   w,
   d,
+  fixture = fixtureMaterial,
 }: {
   cx: number;
   cz: number;
   ceilingY: number;
   w: number;
   d: number;
+  /** Bronze of the frame. A room passes its own, lit as the room is
+   *  (room-light.ts). */
+  fixture?: THREE.Material;
 }) {
   const glass = useMemo(() => {
     if (w <= 0 || d <= 0) return null;
@@ -133,7 +137,7 @@ export function Laylight({
       />
       <mesh
         geometry={frame}
-        material={fixtureMaterial}
+        material={fixture}
         position={[0, -FRAME_DROP / 2, 0]}
         layers={UNREFLECTED_LAYER}
       />

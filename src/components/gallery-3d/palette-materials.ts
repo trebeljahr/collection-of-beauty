@@ -15,6 +15,7 @@ import * as THREE from "three";
 import type { Palette } from "@/lib/gallery-eras";
 import { withFloorReflection } from "./floor-mirror";
 import { FRAME_HIGHLIGHT_MATERIALS } from "./frame-materials";
+import { HIGHLIGHT_ENV_MATERIALS, litByRoom } from "./room-light";
 import { buildMapBundle } from "./texture-pack";
 import { isDeepWall, screenShade } from "./wall-light";
 
@@ -128,43 +129,54 @@ export function getPaletteMaterials(palette: Palette): PaletteMaterials {
       side: THREE.DoubleSide,
     }),
   };
+  // Lit as their own room is, from wherever they are seen.
+  for (const material of Object.values(entry)) litByRoom(material, palette);
   cache.set(palette, entry);
   return entry;
 }
 
 // ── Per-room floor materials ──────────────────────────────────────────
 // Rooms carry their own floor tint (see Era.palette.roomAccents) but
-// share one texture across the whole building. Cached by colour alone.
+// share one texture across the whole building. Cached by palette and
+// colour: the palette is the room's light (room-light.ts).
 
-const roomFloorCache = new Map<string, THREE.MeshStandardMaterial>();
+const roomFloorCache = new Map<Palette, Map<string, THREE.MeshStandardMaterial>>();
 
 /**
  * Per-room floor material. Reuses the building-wide shared floor
  * texture (floor 0's slug) so adjacent rooms and hallways tile
  * continuously, with only the colour tint distinguishing rooms.
  */
-export function getRoomFloorMaterial(color: string): THREE.MeshStandardMaterial {
-  let mat = roomFloorCache.get(color);
+export function getRoomFloorMaterial(palette: Palette, color: string): THREE.MeshStandardMaterial {
+  let byColor = roomFloorCache.get(palette);
+  if (!byColor) {
+    byColor = new Map();
+    roomFloorCache.set(palette, byColor);
+  }
+  let mat = byColor.get(color);
   if (mat) return mat;
   const textures = buildMapBundle(SHARED_FLOOR_TEXTURE_SLUG, FLOOR_REPEAT[0], FLOOR_REPEAT[1]);
-  mat = withFloorReflection(
-    new THREE.MeshStandardMaterial({
-      color: floorTint(color),
-      ...textures,
-      // See getPaletteMaterials' floor for why the roughnessMap is
-      // replaced by a uniform scalar.
-      roughnessMap: null,
-      roughness: FLOOR_ROUGHNESS,
-      metalness: 0,
-      // Stairwell floors above the player are viewed from below (looking
-      // up through the well). Single-sided rendering would backface-cull
-      // the underside and leave the scene's black backdrop showing through
-      // — the "see-through floor" bug. Regular room floors are never
-      // viewed from below, so DoubleSide is a no-op there.
-      side: THREE.DoubleSide,
-    }),
+  mat = litByRoom(
+    withFloorReflection(
+      new THREE.MeshStandardMaterial({
+        color: floorTint(color),
+        ...textures,
+        // See getPaletteMaterials' floor for why the roughnessMap is
+        // replaced by a uniform scalar.
+        roughnessMap: null,
+        roughness: FLOOR_ROUGHNESS,
+        metalness: 0,
+        // Stairwell floors above the player are viewed from below (looking
+        // up through the well). Single-sided rendering would backface-cull
+        // the underside and leave the scene's black backdrop showing through
+        // — the "see-through floor" bug. Regular room floors are never
+        // viewed from below, so DoubleSide is a no-op there.
+        side: THREE.DoubleSide,
+      }),
+    ),
+    palette,
   );
-  roomFloorCache.set(color, mat);
+  byColor.set(color, mat);
   return mat;
 }
 
@@ -191,6 +203,7 @@ export const frameMaterial = new THREE.MeshStandardMaterial({
 // where the rest of the gallery looks for materials.
 
 export { frameMaterials } from "./frame-materials";
+export { HIGHLIGHT_ENV_MATERIALS } from "./room-light";
 
 // Dark bronze metalwork: the frame round each laylight (laylight.tsx).
 export const fixtureMaterial = new THREE.MeshStandardMaterial({
@@ -199,12 +212,10 @@ export const fixtureMaterial = new THREE.MeshStandardMaterial({
   metalness: 0.7,
 });
 
-/** Materials that reflect the frame highlight map instead of the plain
- *  room gradient: everything polished enough to show a glint. */
-export const HIGHLIGHT_ENV_MATERIALS: THREE.MeshStandardMaterial[] = [
-  ...FRAME_HIGHLIGHT_MATERIALS,
-  fixtureMaterial,
-];
+// Materials that reflect the frame highlight map instead of the plain
+// room gradient: everything polished enough to show a glint. The list
+// is kept in room-light.ts, which decides what each material reflects.
+HIGHLIGHT_ENV_MATERIALS.push(...FRAME_HIGHLIGHT_MATERIALS, fixtureMaterial);
 
 export const signBaseMaterial = new THREE.MeshStandardMaterial({
   color: "#1a1108",

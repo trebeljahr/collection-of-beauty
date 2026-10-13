@@ -247,10 +247,22 @@ export function Gallery3D({ artworks }: Props) {
 
   const currentFloor = layout.floors[currentFloorIdx];
   const activeRoom = activeRoomIdx >= 0 ? currentFloor.rooms[activeRoomIdx] : undefined;
-  // The era the visitor stands in. In the tower that is the floor's; in
-  // the wings plan it changes from wing to wing, and the room's own
-  // light and reflections change with it.
+  // The era the visitor stands in, for the HUD. In the tower that is
+  // the floor's; in the block plan it changes from room to room. The
+  // light does not follow it: every room is lit by its own palette
+  // wherever the visitor stands (room-light.ts).
   const activeEra = activeRoom ? eraOfRoom(activeRoom) : currentFloor.era;
+  // The stairs belong to no room and take the palette of the stair
+  // column: the floor's in the tower, one stone through every storey in
+  // the block plan.
+  const stairPalette = useMemo(() => {
+    const well = currentFloor.rooms.find((room) => room.isStairwell);
+    return well ? paletteOfRoom(well) : currentFloor.era.palette;
+  }, [currentFloor]);
+  // On a spiral, between two storeys. A grand stair hall is a room with
+  // a floor of its own and does not count.
+  const onSpiral =
+    activeStairId !== null && layout.allStaircases.some((s) => s.id === activeStairId);
 
   // Player reports the owning room of the cell it's in (-1 on a stair).
   // Track the exact owner for the HUD / minimap.
@@ -679,14 +691,14 @@ export function Gallery3D({ artworks }: Props) {
             regardless. */}
         <ambientLight intensity={0.1} />
         <hemisphereLight args={["#fff8ea", "#2a1f15", 0.08]} position={[0, 20, 0]} />
-        {/* Procedural environment map painted from the active era's
-            palette (ceiling/wall/floor colours). Replaces a `sunset`
-            HDRI preset that gave metallic surfaces something to reflect
-            but tinted walls and ceilings with light that read as
-            "outside the building" — the museum is a closed interior, so
-            the env map should reflect the room itself. See
+        {/* Procedural environment maps painted from the eras' palettes
+            (ceiling/wall/floor colours), one per room's palette. They
+            replace a `sunset` HDRI preset that gave metallic surfaces
+            something to reflect but tinted walls and ceilings with light
+            that read as "outside the building" — the museum is a closed
+            interior, so the env map should reflect the room itself. See
             room-env-map.tsx for the canvas → PMREM pipeline. */}
-        <RoomEnvironment palette={activeRoom ? paletteOfRoom(activeRoom) : activeEra.palette} />
+        <RoomEnvironment palette={stairPalette} />
 
         {/* One FloorScene per visible floor, keyed by floor index so a
             floor keeps its instance (and its in-progress room reveal)
@@ -760,7 +772,7 @@ export function Gallery3D({ artworks }: Props) {
         <FloorReflection
           floorY={currentFloor.y}
           touch={touchDevice}
-          onStairs={activeStairId !== null}
+          onStairs={onSpiral}
           watchFrameRate={hasStarted}
         />
         {/* Pointer-lock is desktop-only — on touch the joysticks own

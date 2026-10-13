@@ -1,6 +1,7 @@
 "use client";
 
-// Procedural environment map keyed off the active era's palette.
+// Procedural environment maps, one per palette: a room's fill light.
+// Which material is lit by which map is in room-light.ts.
 //
 // We previously fed the scene a `sunset` HDRI from drei. That gave
 // metallic surfaces (gilded frames, plaque chrome rims) something to
@@ -23,6 +24,7 @@ import * as THREE from "three";
 import type { Palette } from "@/lib/gallery-eras";
 import { buildFrameEnvEquirect } from "./frame-env";
 import { HIGHLIGHT_ENV_MATERIALS } from "./palette-materials";
+import { setRoomLightSource } from "./room-light";
 import { greyOf, hexToRgb, rgbToHex, wallAsLightSource } from "./wall-light";
 
 // A PMREM WebGLRenderTarget's texture is bound to the GL context that
@@ -159,23 +161,38 @@ function getFrameEnvironmentMap(palette: Palette, renderer: THREE.WebGLRenderer)
 }
 
 type Props = {
+  /** Palette for what belongs to no room: the stairs and their rails.
+   *  It must not follow the visitor from room to room (room-light.ts). */
   palette: Palette;
   /** Multiplier on the env map's contribution to PBR shading. */
   intensity?: number;
 };
 
 /**
- * Drop-in replacement for drei's `<Environment>`. Builds (or recalls
- * from cache) the procedural map for `palette` and binds it to
- * `scene.environment`. The default intensity is the room's fill level:
- * it puts a pale wall at a mid tone, so the picture lights' pools
- * (painting-light.tsx) have headroom above it. It ran at 1.6 before the
- * works had lights of their own, which left the walls at near-white
- * and nothing for a pool to add.
+ * Drop-in replacement for drei's `<Environment>`. Hands every room its
+ * own map (room-light.ts) and binds the map of `palette` to
+ * `scene.environment` for the rest. The default intensity is the room's
+ * fill level: it puts a pale wall at a mid tone, so the picture lights'
+ * pools (painting-light.tsx) have headroom above it. It ran at 1.6
+ * before the works had lights of their own, which left the walls at
+ * near-white and nothing for a pool to add.
  */
 export function RoomEnvironment({ palette, intensity = 0.74 }: Props) {
   const gl = useThree((s) => s.gl);
   const scene = useThree((s) => s.scene);
+
+  // Each room's own light. The maps are built (or recalled from the
+  // cache) as rooms ask for them, so a floor pays for its own palettes.
+  useEffect(() => {
+    setRoomLightSource({
+      map: (p, kind) =>
+        kind === "highlight" ? getFrameEnvironmentMap(p, gl) : getRoomEnvironmentMap(p, gl),
+      intensity,
+    });
+    // Detach, so a remounted renderer never samples a target from a
+    // lost context.
+    return () => setRoomLightSource(null);
+  }, [gl, intensity]);
 
   useEffect(() => {
     const envMap = getRoomEnvironmentMap(palette, gl);
