@@ -246,6 +246,79 @@ describe("the block plan", () => {
     }
   });
 
+  it("hangs a work centred in front of every bench", () => {
+    // The room places the bench and the bench places the work: on the
+    // nearest wall or panel a bench looks at, a work hangs with its
+    // middle on the bench's middle.
+    const unmatched: string[] = [];
+    let benches = 0;
+    for (const room of layout.allRooms.filter((r) => !r.isStairwell)) {
+      for (const bench of room.benches) {
+        benches++;
+        const faced = room.placements.some((p) => {
+          const nx = Math.round(Math.sin(p.rotation[1]));
+          const nz = Math.round(Math.cos(p.rotation[1]));
+          // The work faces the bench, from 0.5 to 9.6 m away, and is
+          // centred on it along its wall.
+          const [ahead, off] =
+            bench.along === "x"
+              ? [(bench.z - p.position[2]) * nz, p.position[0] - bench.x]
+              : [(bench.x - p.position[0]) * nx, p.position[2] - bench.z];
+          return ahead > 0.5 && ahead < 9.6 && Math.abs(off) < 0.02;
+        });
+        if (!faced) unmatched.push(`${room.id} (${bench.x}, ${bench.z})`);
+      }
+    }
+    expect(benches).toBeGreaterThan(60);
+    expect(unmatched).toEqual([]);
+  });
+
+  it("gives the bench's work to one of the room's largest, and overlaps none", () => {
+    const overlaps: string[] = [];
+    let led = 0;
+    let rooms = 0;
+    for (const room of layout.allRooms.filter((r) => !r.isStairwell && !r.isAnchor)) {
+      // Works on one surface, by their place along it.
+      const bySurface = new Map<string, Array<{ at: number; half: number; id: string }>>();
+      for (const p of room.placements) {
+        const alongX = Math.abs(Math.cos(p.rotation[1])) > 0.5;
+        const key = `${p.divider ?? "wall"}:${p.rotation[1].toFixed(3)}:${(
+          alongX ? p.position[2] : p.position[0]
+        ).toFixed(2)}`;
+        const list = bySurface.get(key) ?? [];
+        list.push({
+          at: alongX ? p.position[0] : p.position[2],
+          half: p.widthM / 2,
+          id: p.artwork.id,
+        });
+        bySurface.set(key, list);
+      }
+      for (const list of bySurface.values()) {
+        list.sort((a, b) => a.at - b.at);
+        for (let i = 0; i + 1 < list.length; i++) {
+          if (list[i].at + list[i].half > list[i + 1].at - list[i + 1].half) {
+            overlaps.push(`${room.id}: ${list[i].id} / ${list[i + 1].id}`);
+          }
+        }
+      }
+      // The room's largest work hangs in front of a bench.
+      const largest = [...room.placements].sort(
+        (p, q) => q.widthM * q.heightM - p.widthM * p.heightM,
+      )[0];
+      rooms++;
+      const inFront = room.benches.some((bench) =>
+        bench.along === "x"
+          ? Math.abs(largest.position[0] - bench.x) < 0.02
+          : Math.abs(largest.position[2] - bench.z) < 0.02,
+      );
+      if (inFront) led++;
+    }
+    expect(overlaps).toEqual([]);
+    // In nearly every room: a work wider than the stretch of wall a
+    // bench looks at hangs elsewhere.
+    expect(led / rooms).toBeGreaterThan(0.8);
+  });
+
   it("names each floor and files it under an era of its own", () => {
     expect(layout.floors.map(floorTitle)).toEqual(BLOCK_PLAN.map((p) => p.title));
     expect(new Set(layout.floors.map((f) => f.era.id)).size).toBe(4);

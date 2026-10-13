@@ -25,9 +25,16 @@
 // - in the middle of a room with no panels and no way straight through
 //   it (`centredIsland`).
 //
-// Among those places, the ones in front of the largest works are taken
-// first. "Largest" is by hung area: the catalogue the museum is laid out
-// from has no measure of how well known a work is.
+// A bench placed so is on a line of the room, but nothing says a work
+// hangs on that line: Rico, the same day, "now they are not aligning
+// with the images anymore... I want them both aligned with the rooms
+// proportions and with the images." So the benches are planned before
+// the hang, and the hang puts the room's largest works where the benches
+// look: `distributePaintings` with `anchorToBenches` centres one on the
+// wall, or the panel, square in front of each bench and hangs the rest
+// of the room round them. The room places the bench, and the bench
+// places the work. "Largest" is by hung area: the catalogue the museum
+// is laid out from has no measure of how well known a work is.
 
 import {
   BENCH_DEPTH,
@@ -50,13 +57,10 @@ const ROW_END_CLEARANCE = 2.25;
 const MIN_OPEN_END = 9;
 /** An aisle narrower than this is a passage: no bench. */
 const MIN_AISLE = 8;
-/** How far along a wall from a bench a work still counts as the work
- *  the bench is in front of. */
-const FACING_REACH = 4;
 /** Gap between the two benches of an island, back to back. */
 const ISLAND_GAP = 0.02;
 
-type Slot = { a: number; c: number; score: number };
+type Slot = { a: number; c: number };
 
 /** How many benches a room with panels takes, by its size. */
 function quota(lengthM: number, breadthM: number): number {
@@ -71,7 +75,7 @@ function quota(lengthM: number, breadthM: number): number {
  * panels.
  */
 export function planPanelBenches(
-  room: Pick<RoomLayout, "cellBounds" | "doors" | "dividers" | "benches" | "placements">,
+  room: Pick<RoomLayout, "cellBounds" | "doors" | "dividers" | "benches">,
 ): Bench[] {
   if (room.benches.length > 0) return [];
   const rect = room.cellBounds;
@@ -87,7 +91,6 @@ export function planPanelBenches(
   const breadth =
     (axis === "x" ? rect.zMax - rect.zMin + 1 : rect.xMax - rect.xMin + 1) * CELL_SIZE;
   const along = (p: { x: number; z: number }) => (axis === "x" ? p.x : p.z) - a0;
-  const across = (p: { x: number; z: number }) => (axis === "x" ? p.z : p.x) - c0;
 
   // The line each door in a long wall is walked through, as a band along
   // the room, and which long wall the door is in.
@@ -105,19 +108,6 @@ export function planPanelBenches(
       (b) => b.low === low && a + BENCH_LENGTH / 2 > b.from && a - BENCH_LENGTH / 2 < b.to,
     );
 
-  // The largest work on a long wall within reach of a place along it.
-  const facing = (a: number, low: boolean) => {
-    let best = 0;
-    for (const p of room.placements) {
-      if (p.divider !== undefined) continue;
-      const pc = across({ x: p.position[0], z: p.position[2] });
-      const onWall = low ? pc < 0.6 : pc > breadth - 0.6;
-      const pa = along({ x: p.position[0], z: p.position[2] });
-      if (onWall && Math.abs(pa - a) <= FACING_REACH) best = Math.max(best, p.widthM * p.heightM);
-    }
-    return best;
-  };
-
   const rows = [...new Set(panels.map((d) => d.line * CELL_SIZE - c0))].sort((p, q) => p - q);
   const slots: Slot[] = [];
   for (const c of rows) {
@@ -134,7 +124,7 @@ export function planPanelBenches(
       if (to - from < BENCH_LENGTH + 2 * ROW_END_CLEARANCE) continue;
       const a = (from + to) / 2;
       if (inDoorLine(a, low)) continue;
-      slots.push({ a, c, score: facing(a, low) });
+      slots.push({ a, c });
     }
     // In the row, where it stops well short of an end of the room: a
     // long gallery joined from two rooms has one end without panels.
@@ -145,7 +135,7 @@ export function planPanelBenches(
       if (to - from < MIN_OPEN_END) continue;
       const a = (from + to) / 2;
       if (inDoorLine(a, low)) continue;
-      slots.push({ a, c, score: facing(a, low) });
+      slots.push({ a, c });
     }
 
     // In the aisle between the row and its wall, where that is wide.
@@ -155,16 +145,19 @@ export function planPanelBenches(
     for (const [from, to] of spans) {
       const a = (from + to) / 2;
       if (inDoorLine(a, low)) continue;
-      slots.push({ a, c: (face + wall) / 2, score: facing(a, low) });
+      slots.push({ a, c: (face + wall) / 2 });
     }
   }
 
-  // The places in front of the largest works first; ties in plan order,
-  // so the same room is seated the same way every time.
+  // Where there are more places than benches, the ones nearest the
+  // middle of the room's length are taken, in plan order.
   const wanted = quota(length, breadth);
   const chosen = slots
     .map((slot, order) => ({ slot, order }))
-    .sort((p, q) => q.slot.score - p.slot.score || p.order - q.order)
+    .sort(
+      (p, q) =>
+        Math.abs(p.slot.a - length / 2) - Math.abs(q.slot.a - length / 2) || p.order - q.order,
+    )
     .slice(0, wanted)
     .map(({ slot }) => slot);
 
@@ -205,4 +198,53 @@ export function benchClearOfDividers(
     const dz = Math.max(0, r.zMin - d.zMax, d.zMin - r.zMax);
     return Math.hypot(dx, dz) >= clearance;
   });
+}
+
+/**
+ * The composed great hall's two islands, turned to look at its two
+ * largest works: the pair that hangs either side of the door to the
+ * stair hall. `planBenches` stands the islands a quarter of the room
+ * out, looking at the side walls. Here each island keeps its distance
+ * from the front wall and moves in line with one work of the pair, one
+ * bench facing it and one facing the back wall.
+ *
+ * Null when the front wall has no such pair, or a bench would stand in
+ * the walking line of its door.
+ */
+export function hallIslandsFacingPair(
+  hall: Pick<RoomLayout, "cellBounds" | "doors" | "benches" | "placements">,
+  frontRoomId: string,
+): Bench[] | null {
+  const door = hall.doors.find((d) => d.connectsTo.roomId === frontRoomId);
+  if (!door || hall.benches.length === 0) return null;
+  const alongX = door.side === "north" || door.side === "south";
+  // Along the front wall, and away from it.
+  const along = (p: { x: number; z: number }) => (alongX ? p.x : p.z);
+  const away = (p: { x: number; z: number }) => (alongX ? p.z : p.x);
+  const wall = away({ x: door.worldX, z: door.worldZ });
+  const onFront = hall.placements
+    .filter((p) => Math.abs(away({ x: p.position[0], z: p.position[2] }) - wall) < 0.3)
+    .sort((p, q) => q.widthM * q.heightM - p.widthM * p.heightM);
+  const lead = onFront[0];
+  if (!lead) return null;
+  const axis = along({ x: door.worldX, z: door.worldZ });
+  const offset = Math.abs(along({ x: lead.position[0], z: lead.position[2] }) - axis);
+  // Its mirror image across the door.
+  const twin = onFront.some(
+    (p) =>
+      p !== lead &&
+      Math.abs(Math.abs(along({ x: p.position[0], z: p.position[2] }) - axis) - offset) < 0.05,
+  );
+  if (!twin || offset - BENCH_LENGTH / 2 < door.width / 2 + DOOR_LINE_MARGIN) return null;
+
+  const depth = hall.benches.reduce((sum, b) => sum + away(b), 0) / hall.benches.length;
+  const back = (BENCH_DEPTH + ISLAND_GAP) / 2;
+  return [-offset, offset].flatMap((side) =>
+    [-back, back].map(
+      (off): Bench =>
+        alongX
+          ? { x: axis + side, z: depth + off, along: "x" }
+          : { x: depth + off, z: axis + side, along: "z" },
+    ),
+  );
 }

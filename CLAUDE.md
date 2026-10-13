@@ -579,26 +579,40 @@ required by the Dockerfile — don't remove it.
       or its doors would open on the scene's background. Measured
       headless on an M5: 250 to 810 draw calls in the halls, 960 in the
       55 m gallery.
-  - **Benches stand on the room's own lines**
-    (`feature-benches.ts`). `planBenches` seats a room from its
-    footprint and doors, before the hang. It was made for the tower's
-    1.4 m doors: here it seats the composed great hall and nothing with
-    panels, where its nave benches come 5 cm too near a panel. Then:
-    - a room with panels takes benches in line with a row of panels, in
+  - **The room places the bench, and the bench places the work**
+    (`feature-benches.ts`, and `anchorToBenches` in
+    `place-paintings.ts`). Rico asked for both at once on 13 October
+    2026: benches "aligned with the rooms proportions and with the
+    images". So the order is fixed: dividers, then benches, then the
+    hang.
+    - `planBenches` seats a room from its footprint and doors. It was
+      made for the tower's 1.4 m doors: here it seats the composed
+      great hall and nothing with panels, where its nave benches come
+      5 cm too near a panel.
+    - A room with panels takes benches in line with a row of panels, in
       the middle of a gap between two of them, and in the middle of an
-      aisle 8 m or more wide, opposite a panel (`planPanelBenches`,
-      after the hang). Never in the line of a door in the wall beside
-      it. Where there are more such places than benches, the ones in
-      front of the largest works are taken;
-    - a corner room, which no one walks straight through, takes an
+      aisle 8 m or more wide, opposite a panel (`planPanelBenches`).
+      Never in the line of a door in the wall beside it.
+    - A corner room, which no one walks straight through, takes an
       island of two on its centre (`centredIsland`).
-    A pass that stood a bench in front of each large work, at the
-    distance to see all of it, was walked and thrown out on 13 October
-    2026: the benches landed in the 5 m aisle between a panel and the
-    wall, off every line of the room. A bench is placed by the room, and
-    the works decide only which of the room's places are used. "Largest"
-    is by hung area: the listing has no measure of how well known a work
-    is. The tower does not use this module.
+    - The hang then finds what each bench looks at: the nearest wall or
+      panel face square in front of it and behind it, within 9.5 m
+      (`benchAnchors`). It hangs the room's largest works there first,
+      each centred on its bench, cuts the run in two either side of the
+      work, and hangs the rest of the room on what is left
+      (`hangForBenches`). On 13 October 2026 all 84 benches had a work
+      centred on them.
+    - The composed great hall is hung by `grand-hall.ts` and skipped by
+      that. Its two islands are turned and moved in line with the pair
+      beside the stair hall door (`hallIslandsFacingPair`).
+    Two earlier passes were walked and thrown out that day. A bench in
+    front of each large work, at the distance to see all of it, landed
+    in the 5 m aisle between a panel and the wall. A bench on the
+    room's lines with the hang left alone had no work behind it. Do not
+    place a bench from a work's position, and do not move a bench
+    without the hang. "Largest" is by hung area: the listing has no
+    measure of how well known a work is. The tower uses none of this:
+    `distributePaintings` anchors only when asked.
   - Every band of the plan is an odd number of cells, which puts each
     door in the middle of a cell. The collision grid needs that. Room
     doors are 2.4 m, one cell edge, so they need no jamb colliders. The

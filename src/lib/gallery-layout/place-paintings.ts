@@ -351,7 +351,113 @@ type Container = {
   assigned: SizedWork[][];
   /** Sum of assigned footprints per run. */
   used: number[];
+  /** Works hung at a set place before the rest: one in front of each
+   *  bench (`anchorToBenches`). */
+  fixed: Placement[];
+  fixedMetres: number;
+  fixedIds: Set<string>;
 };
+
+/** How far from a bench a wall still counts as the wall it looks at. */
+const ANCHOR_REACH = 9.5;
+/** A work hung for a bench keeps this far from the end of its run. */
+const ANCHOR_MARGIN = 0.6;
+
+/**
+ * The places on a room's walls its benches look at: for each bench, the
+ * nearest hangable surface square in front of it and the nearest square
+ * behind it, at the point the bench's middle is opposite. `u` is in the
+ * run's own coordinate.
+ */
+export function benchAnchors(
+  room: Pick<RoomLayout, "benches">,
+  runs: readonly WallRun[],
+): Array<{ run: number; u: number }> {
+  const out: Array<{ run: number; u: number }> = [];
+  for (const bench of room.benches) {
+    // A bench is sat on across its long side, facing either way.
+    const ways: Array<[number, number]> =
+      bench.along === "x"
+        ? [
+            [0, -1],
+            [0, 1],
+          ]
+        : [
+            [-1, 0],
+            [1, 0],
+          ];
+    for (const [dx, dz] of ways) {
+      let best: { run: number; u: number; dist: number } | null = null;
+      runs.forEach((run, i) => {
+        // The surface faces back at the bench.
+        if (run.normalX !== -dx || run.normalZ !== -dz) return;
+        const dist = dx !== 0 ? (run.surface - bench.x) * dx : (run.surface - bench.z) * dz;
+        if (dist < 0.5 || dist > ANCHOR_REACH) return;
+        const u = run.sign * (run.axis === "x" ? bench.x : bench.z);
+        if (u < run.uMin + ANCHOR_MARGIN || u > run.uMax - ANCHOR_MARGIN) return;
+        if (!best || dist < best.dist) best = { run: i, u, dist };
+      });
+      const hit = best as { run: number; u: number; dist: number } | null;
+      if (hit && !out.some((a) => a.run === hit.run && Math.abs(a.u - hit.u) < 0.5)) {
+        out.push({ run: hit.run, u: hit.u });
+      }
+    }
+  }
+  return out;
+}
+
+/**
+ * Hang the room's largest works where its benches look: one centred on
+ * each place `benchAnchors` finds. The run is then cut in two either
+ * side of the work, and the rest of the room is hung on what is left as
+ * on any other wall. So a bench stands on a line of the room and a work
+ * hangs on the same line.
+ */
+function hangForBenches(container: Container) {
+  const anchors = benchAnchors(container.room, container.runs);
+  if (anchors.length === 0) return;
+  const works = container.room.artworks
+    .map(sizeWork)
+    .sort((a, b) => b.wM * b.hM - a.wM * a.hM || a.artwork.id.localeCompare(b.artwork.id));
+
+  // Runs are cut as works are fixed, so an anchor is kept as a world
+  // place and found again in the runs as they then are.
+  const places = anchors.map(({ run, u }) => {
+    const r = container.runs[run];
+    return { key: `${r.side}:${r.surface}:${r.divider ?? ""}`, u };
+  });
+  for (const place of places) {
+    const index = container.runs.findIndex(
+      (r) =>
+        `${r.side}:${r.surface}:${r.divider ?? ""}` === place.key &&
+        place.u > r.uMin &&
+        place.u < r.uMax,
+    );
+    if (index < 0) continue;
+    const run = container.runs[index];
+    for (const work of works) {
+      if (container.fixedIds.has(work.artwork.id)) continue;
+      const fitted = fitTo(work, Math.min(MAX_PAINTING_W, runLength(run)), run.maxHeight);
+      const sized = { artwork: work.artwork, ...fitted };
+      const { left, right } = sideClearance(sized);
+      const lo = place.u - fitted.wM / 2 - left;
+      const hi = place.u + fitted.wM / 2 + right;
+      if (lo < run.uMin || hi > run.uMax) continue;
+      container.fixed.push(placementAt(run, { ...sized, drop: frameDropOf(sized) }, place.u));
+      container.fixedMetres += hi - lo;
+      container.fixedIds.add(work.artwork.id);
+      // What is left of the run, either side of the work.
+      const parts = [
+        { ...run, uMax: lo - ADJACENT_GAP },
+        { ...run, uMin: hi + ADJACENT_GAP },
+      ].filter((part) => runLength(part) >= MIN_RUN_LENGTH);
+      container.runs.splice(index, 1, ...parts);
+      container.assigned.splice(index, 1, ...parts.map(() => []));
+      container.used.splice(index, 1, ...parts.map(() => 0));
+      break;
+    }
+  }
+}
 
 /** Plaster left on a run after its current works and their minimum
  *  separations — how much more it could absorb. */
@@ -405,6 +511,10 @@ function tryAssign(container: Container, work: SizedWork): boolean {
 export function distributePaintings(
   floor: FloorLayout,
   skipRoomIds: ReadonlySet<string> = new Set(),
+  /** `anchorToBenches`: hang a room's largest works centred in front of
+   *  its benches first (`hangForBenches`). The benches have to be
+   *  planned before the hang. */
+  options: { anchorToBenches?: boolean } = {},
 ): DistributionStats {
   // Stairwell rooms are excluded — their walls hold the spiral steps
   // and signs, not paintings.
@@ -417,12 +527,18 @@ export function distributePaintings(
         runs,
         assigned: runs.map(() => []),
         used: runs.map(() => 0),
+        fixed: [],
+        fixedMetres: 0,
+        fixedIds: new Set<string>(),
       };
     });
+
+  if (options.anchorToBenches) for (const container of containers) hangForBenches(container);
 
   const pool: SizedWork[] = [];
   for (const container of containers) {
     for (const artwork of container.room.artworks) {
+      if (container.fixedIds.has(artwork.id)) continue;
       const work = sizeWork(artwork);
       if (!tryAssign(container, work)) pool.push(work);
     }
@@ -455,6 +571,10 @@ export function distributePaintings(
   let hungMetres = 0;
   let placed = 0;
   for (const container of containers) {
+    wallMetres += container.fixedMetres;
+    hungMetres += container.fixedMetres;
+    placed += container.fixed.length;
+    container.room.placements.push(...container.fixed);
     for (let i = 0; i < container.runs.length; i++) {
       wallMetres += runLength(container.runs[i]);
       hungMetres += container.used[i];
@@ -506,31 +626,39 @@ export function packRun(run: WallRun, works: SizedWork[]): Placement[] {
 
   const placements: Placement[] = [];
   for (const work of ordered) {
-    const centreU = cursor + work.left + work.wM / 2;
-    // Lift the centre for paintings tall enough that the canonical hang
-    // would put their frame into the floor. Most paintings keep the
-    // canonical eye-line; only the tallest get raised so the frame
-    // clears the floor by PAINTING_FLOOR_GAP.
-    const minCenterY = run.floorY + PAINTING_FLOOR_GAP + work.drop + work.hM / 2;
-    const centerY = Math.max(run.centerY, minCenterY);
-    const along = run.sign * centreU;
-    placements.push({
-      artwork: work.artwork,
-      position: [
-        (run.axis === "x" ? along : run.surface) + run.normalX * PAINTING_WALL_OFFSET,
-        centerY,
-        (run.axis === "z" ? along : run.surface) + run.normalZ * PAINTING_WALL_OFFSET,
-      ],
-      rotation: [0, run.rotationY, 0],
-      band: artworkBand(work.artwork),
-      widthM: work.wM,
-      heightM: work.hM,
-      ...(run.divider !== undefined && { divider: run.divider }),
-    });
+    placements.push(placementAt(run, work, cursor + work.left + work.wM / 2));
     cursor += work.left + work.wM + work.right + gap;
   }
 
   return placements;
+}
+
+/** A work on a run, its canvas centred at `centreU`. */
+function placementAt(
+  run: WallRun,
+  work: { artwork: ArtworkListing; wM: number; hM: number; drop: number },
+  centreU: number,
+): Placement {
+  // Lift the centre for paintings tall enough that the canonical hang
+  // would put their frame into the floor. Most paintings keep the
+  // canonical eye-line; only the tallest get raised so the frame
+  // clears the floor by PAINTING_FLOOR_GAP.
+  const minCenterY = run.floorY + PAINTING_FLOOR_GAP + work.drop + work.hM / 2;
+  const centerY = Math.max(run.centerY, minCenterY);
+  const along = run.sign * centreU;
+  return {
+    artwork: work.artwork,
+    position: [
+      (run.axis === "x" ? along : run.surface) + run.normalX * PAINTING_WALL_OFFSET,
+      centerY,
+      (run.axis === "z" ? along : run.surface) + run.normalZ * PAINTING_WALL_OFFSET,
+    ],
+    rotation: [0, run.rotationY, 0],
+    band: artworkBand(work.artwork),
+    widthM: work.wM,
+    heightM: work.hM,
+    ...(run.divider !== undefined && { divider: run.divider }),
+  };
 }
 
 /** Reorder so the widest work sits in the middle of the run and the

@@ -48,7 +48,7 @@
 import type { ArtworkListing } from "@/lib/data";
 import { type Era, type EraId, eraAccentColor, getEra } from "@/lib/gallery-eras";
 import { slugify } from "@/lib/utils";
-import { centredIsland, planPanelBenches } from "./feature-benches";
+import { centredIsland, hallIslandsFacingPair, planPanelBenches } from "./feature-benches";
 import { arrivalPoint, ceilingHeightFor, planBenches, planDividers } from "./fittings";
 import { hangGrandHall, pickHallCandidates } from "./grand-hall";
 import {
@@ -441,6 +441,9 @@ function buildFloor(
     if (!hall && room.dividers.length === 0) {
       room.benches = centredIsland(room.cellBounds, room.doors) ?? room.benches;
     }
+    // A room with panels is seated on the lines of its panels. All of
+    // it before the hang, which puts a work in front of each bench.
+    room.benches = [...room.benches, ...planPanelBenches(room)];
   }
 
   const walkable = new Uint8Array(BLOCK_GRID.x * BLOCK_GRID.z);
@@ -485,12 +488,12 @@ function buildFloor(
     );
   });
 
-  // A room with panels is seated on the lines of its panels, after the
-  // hang: of the places those lines give, the ones in front of the
-  // largest works are taken.
-  for (const { key } of floorRooms) {
-    const room = byKey.get(key)!;
-    room.benches = [...room.benches, ...planPanelBenches(room)];
+  // The composed great hall is hung by its own rule, about the door to
+  // the stair hall. Its islands turn to look at the pair beside that
+  // door, the floor's two largest works.
+  if (composedHall) {
+    const hall = byKey.get(greatHall)!;
+    hall.benches = hallIslandsFacingPair(hall, byKey.get(MAIN_HALL)!.id) ?? hall.benches;
   }
 
   let roomNumber = 0;
@@ -566,6 +569,7 @@ function hangZone(
   const stats = distributePaintings(
     { ...floor, rooms: zoneRooms },
     hall && hallPlacements ? new Set([hall.id]) : undefined,
+    { anchorToBenches: true },
   );
   if (stats.dropped > 0 && process.env.NODE_ENV !== "production") {
     console.warn(`[gallery-layout] ${era.title}: ${stats.dropped} works did not fit their rooms`);
