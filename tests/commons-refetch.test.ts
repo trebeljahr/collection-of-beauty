@@ -26,6 +26,17 @@ describe("sameFile", () => {
     expect(sameFile("David_Brutus.jpeg", "File:David Brutus.JPG")).toBe(true);
   });
 
+  it("cannot match a file that was renamed by hand, only its page to itself", () => {
+    // Baldung's Death and the Maiden: a 960 px preview saved under a
+    // typed name. `--accept-renamed` then compares the catalogue's
+    // title with the title the API answers with.
+    const page = "File:Gw11 0001031 20170619 001 Baldung Der Tod und das Maedchen.jpg";
+    expect(sameFile("Death and the Maiden Baldung.jpg", page)).toBe(false);
+    expect(
+      sameFile("File:Gw11_0001031_20170619_001_Baldung_Der_Tod_und_das_Maedchen.jpg", page),
+    ).toBe(true);
+  });
+
   it("tells another upload of the same painting apart", () => {
     // Both pairs are real: the sidecar names the second file for the first.
     expect(

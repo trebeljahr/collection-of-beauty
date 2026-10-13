@@ -5936,5 +5936,23 @@
       "bytes": 685020,
       "sha1": "39fcb1d863b1e309779daa8f04283aa17f204303"
     }
+  },
+  "collection-of-beauty/Death and the Maiden Baldung.jpg": {
+    "id": "collection-of-beauty-death-and-the-maiden-baldung",
+    "fetchedAt": "2026-10-13T01:46:36.628Z",
+    "commonsTitle": "File:Gw11 0001031 20170619 001 Baldung Der Tod und das Maedchen.jpg",
+    "licence": "Public domain",
+    "revision": "2022-03-25T16:24:46Z",
+    "sha1": "02f45549846bca625c22aae599592e335f92f131",
+    "bytes": 16335638,
+    "width": 2810,
+    "height": 6013,
+    "previous": {
+      "width": 960,
+      "height": 2054,
+      "bytes": 800901,
+      "sha1": "000b48890c9fdc3b863651b16eac2011db106810"
+    },
+    "renamedByHand": true
   }
 }

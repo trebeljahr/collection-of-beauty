@@ -16,7 +16,12 @@
  * A work is skipped, with the reason, when:
  *   - the Commons page is not the file on disk. Some sidecar entries
  *     name a different upload of the same painting; that is a new
- *     source and a person decides it;
+ *     source and a person decides it. The two are matched by name, so
+ *     a file that was renamed by hand is skipped as well.
+ *     `--accept-renamed=<id>,<id>` takes such a file, after someone
+ *     has matched it to the page another way: its SHA-1 is a revision
+ *     of the page, or macOS kept the page's preview address on it
+ *     (`xattr -p com.apple.metadata:kMDItemWhereFroms`);
  *   - the file is on the takedown list, or the artist's German term
  *     (70 years after the death year, §64 UrhG) has not ended. No
  *     exception is made for the open rule-of-the-shorter-term cases;
@@ -97,6 +102,9 @@ const args = Object.fromEntries(
 const DRY_RUN = args["dry-run"] === true;
 const ACCEPT_CHANGED = new Set(
   typeof args["accept-changed"] === "string" ? args["accept-changed"].split(",") : [],
+);
+const ACCEPT_RENAMED = new Set(
+  typeof args["accept-renamed"] === "string" ? args["accept-renamed"].split(",") : [],
 );
 
 const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
@@ -201,7 +209,10 @@ async function refetch(work, ctx) {
     return skip("no Commons page in the catalogue");
   }
   const title = decodeURIComponent(new URL(work.commonsUrl).pathname.slice("/wiki/".length));
-  if (!sameFile(filename, title)) {
+  // A name given by hand says nothing about the page. The picture
+  // check below still stops such a file when it is not the page's.
+  const renamed = ACCEPT_RENAMED.has(work.id) && !sameFile(filename, title);
+  if (!renamed && !sameFile(filename, title)) {
     return skip(`the catalogue names another Commons file: ${title}`);
   }
   if (takedowns.has(folder, filename)) return skip("on the takedown list");
@@ -233,7 +244,9 @@ async function refetch(work, ctx) {
   const page = json.query?.pages?.[0];
   const info = page?.imageinfo?.[0];
   if (!page || page.missing || !info) return skip("the page is gone from Commons");
-  if (!sameFile(filename, page.title)) return skip(`the page is now ${page.title}`);
+  if (!sameFile(renamed ? title : filename, page.title)) {
+    return skip(`the page is now ${page.title}`);
+  }
 
   const flagged = (page.templates ?? []).map((t) => t.title);
   if (flagged.length) return skip(`the page is tagged ${flagged.join(", ")}`);
@@ -320,6 +333,7 @@ async function refetch(work, ctx) {
     height: info.height,
     previous: result.previous,
     ...(changed ? { acceptedChange: true } : {}),
+    ...(renamed ? { renamedByHand: true } : {}),
   };
   await fs.writeFile(LOG_PATH, `${JSON.stringify(log, null, 2)}\n`);
   return { ...result, action: "replaced" };

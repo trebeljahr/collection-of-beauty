@@ -205,17 +205,23 @@ required by the Dockerfile — don't remove it.
   their pages state no year: Carp Leaping up a Cascade (no date), the
   coloured wave after Hokusai ("19th century") and the Gainsborough
   imitator's Cattle Watering by a Stream ("undated"). The script needs
-  a death year, or a year 170 years back. With the six of the next
-  point, `metadata/refetched-originals.json` holds 349 works.
+  a death year, or a year 170 years back. With the seven of the next
+  point, `metadata/refetched-originals.json` holds 350 works.
 - Correcting a link can make a work a candidate. Eight of the 18
-  relinked works are previews of the page they now name. Six were
+  relinked works are previews of the page they now name. Seven were
   fetched on 13 October 2026 on Rico's word: Carpaccio's
   Hunting on the Lagoon (1,280 → 6,506 px), Hokusai's wave from One
   Hundred Views, Boucher's Resting Girl, Gérôme's Ave Caesar, Van
-  Gogh's Moulin de la Galette and Rops's Pornokratès. The script left
-  Hasui's Daikon-gashi for the German term. Baldung's Death and the
-  Maiden was named by hand (`Death and the Maiden Baldung.jpg`), so
-  `sameFile()` does not take it for its page and it is still 960 px.
+  Gogh's Moulin de la Galette, Rops's Pornokratès and Baldung's Death
+  and the Maiden (960 → 2,810 px). The script left Hasui's
+  Daikon-gashi for the German term.
+- `sameFile()` cannot match a file that was renamed by hand. The
+  Baldung is `Death and the Maiden Baldung.jpg` on disk and
+  `Gw11 0001031 20170619 001 Baldung Der Tod und das Maedchen.jpg` on
+  Commons. `--accept-renamed=<id>` takes such a work. Pass an id once
+  the file is matched to the page another way: its SHA-1 is a revision
+  of the page, or macOS kept the page's preview address on it. Every
+  other check still runs, the picture check included.
 - A larger upload on the same page is not always the same picture. Two
   Mucha canvases were uploaded again in June 2026 as paler photographs
   with another crop; one shows the frame along its top edge. The script
