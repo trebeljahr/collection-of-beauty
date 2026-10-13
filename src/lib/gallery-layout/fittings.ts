@@ -161,6 +161,12 @@ const MIN_AISLE_CELLS = 2;
  *  cross door's sightline splits it into. */
 const PANEL_CELLS = 3;
 const SPLIT_PANEL_CELLS = 2;
+/** A stretch of a hall this long with no door looking across it takes a
+ *  row of panels, a panel's length apart, and not one. Only a long
+ *  gallery joined from several rooms has one: the tower's longest
+ *  stretch is 7 cells. */
+const PANEL_ROW_MIN_CELLS = 12;
+const PANEL_ROW_GAP_CELLS = 3;
 
 const EPS = 1e-6;
 
@@ -265,7 +271,17 @@ function planPanels(frame: Frame, doors: FrameDoor[]): Divider[] {
   const centre = length / 2;
   const pieces: Array<[number, number]> = [];
   for (const [s, e] of free) {
-    if (s < centre && e > centre) {
+    if (e - s >= PANEL_ROW_MIN_CELLS) {
+      // A long gallery: as many panels as fit at an even pitch, set out
+      // about the middle of the stretch.
+      const pitch = PANEL_CELLS + PANEL_ROW_GAP_CELLS;
+      const count = Math.floor((e - s + PANEL_ROW_GAP_CELLS) / pitch);
+      const span = count * pitch - PANEL_ROW_GAP_CELLS;
+      const start = Math.min(e - span, Math.max(s, Math.round((s + e - span) / 2)));
+      for (let i = 0; i < count; i++) {
+        pieces.push([start + i * pitch, start + i * pitch + PANEL_CELLS]);
+      }
+    } else if (s < centre && e > centre) {
       // Unbroken through the middle: one panel, centred.
       const len = Math.min(PANEL_CELLS, e - s);
       const start = Math.min(e - len, Math.max(s, Math.round(centre - len / 2)));

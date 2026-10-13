@@ -23,7 +23,9 @@
 //   aisle is wide enough to be a room of its own (8 m). A 5 m aisle is a
 //   passage and gets none;
 // - in the middle of a room with no panels and no way straight through
-//   it (`centredIsland`).
+//   it (`centredIsland`);
+// - on the centre line of a room with no panels and a door in three of
+//   its walls, in front of the fourth (`wallIsland`).
 //
 // A bench placed so is on a line of the room, but nothing says a work
 // hangs on that line: Rico, the same day, "now they are not aligning
@@ -183,6 +185,44 @@ export function centredIsland(rect: CellRect, doors: readonly PlanDoor[]): Bench
   return [-back, back].map(
     (off): Bench => (axis === "x" ? { x, z: z + off, along: "x" } : { x: x + off, z, along: "z" }),
   );
+}
+
+/** How far off a wall an island stands whose one bench faces it. */
+const ISLAND_WALL_VIEW = 4.25;
+
+/**
+ * An island of two for a room with a door in three of its walls: one
+ * line is walked straight through it, and a third door opens on that
+ * line from one side. The island stands on the room's centre line in the
+ * half the fourth wall closes, one bench facing that wall and one the
+ * room. Null for any other room.
+ */
+export function wallIsland(rect: CellRect, doors: readonly PlanDoor[]): Bench[] | null {
+  const sides = ["north", "south", "west", "east"] as const;
+  const closed = sides.filter((side) => !doors.some((d) => d.side === side));
+  if (closed.length !== 1) return null;
+  const x = ((rect.xMin + rect.xMax + 1) / 2) * CELL_SIZE;
+  const z = ((rect.zMin + rect.zMax + 1) / 2) * CELL_SIZE;
+  const back = (BENCH_DEPTH + ISLAND_GAP) / 2;
+  const inset = ISLAND_WALL_VIEW + BENCH_DEPTH + ISLAND_GAP / 2;
+  switch (closed[0]) {
+    case "north": {
+      const at = rect.zMin * CELL_SIZE + inset;
+      return [-back, back].map((off): Bench => ({ x, z: at + off, along: "x" }));
+    }
+    case "south": {
+      const at = (rect.zMax + 1) * CELL_SIZE - inset;
+      return [-back, back].map((off): Bench => ({ x, z: at + off, along: "x" }));
+    }
+    case "west": {
+      const at = rect.xMin * CELL_SIZE + inset;
+      return [-back, back].map((off): Bench => ({ x: at + off, z, along: "z" }));
+    }
+    default: {
+      const at = (rect.xMax + 1) * CELL_SIZE - inset;
+      return [-back, back].map((off): Bench => ({ x: at + off, z, along: "z" }));
+    }
+  }
 }
 
 /** True when a bench stands clear of every divider of its room by at

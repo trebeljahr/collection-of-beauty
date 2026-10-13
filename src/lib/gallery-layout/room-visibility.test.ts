@@ -368,8 +368,9 @@ const works = Array.from(
 );
 const tower = layoutMuseum(works).floors.find((f) => f.era.id === "baroque")?.rooms ?? [];
 
-/** The second plan (layout-block.ts): three stair halls a floor, a door
- *  in every wall two rooms share, each room in its own era's colour. */
+/** The second plan (layout-block.ts): up to three stair halls a floor,
+ *  a door in nearly every wall two rooms share, each room in its own
+ *  era's colour. */
 const blockPlan = layoutBlock(
   ERAS.flatMap((era) =>
     Array.from(
@@ -403,8 +404,8 @@ function mulberry32(seed: number) {
 
 describe.each([
   ["the tower's Baroque floor", tower, 8],
-  // Thirteen: twelve rooms and three stair halls, less the two a floor
-  // joins into its long gallery.
+  // Thirteen: twelve rooms and the three halls' squares, less the two
+  // the first floor joins into its long gallery.
   ["a floor of the block plan", block, 13],
 ])("visibleRooms on %s", (_name, floorRooms, atLeast) => {
   const byId = new Map(floorRooms.map((r) => [r.id, r]));
