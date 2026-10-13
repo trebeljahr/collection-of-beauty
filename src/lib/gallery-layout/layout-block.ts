@@ -48,7 +48,7 @@
 import type { ArtworkListing } from "@/lib/data";
 import { type Era, type EraId, eraAccentColor, getEra } from "@/lib/gallery-eras";
 import { slugify } from "@/lib/utils";
-import { planFeatureBenches } from "./feature-benches";
+import { centredIsland, planPanelBenches } from "./feature-benches";
 import { arrivalPoint, ceilingHeightFor, planBenches, planDividers } from "./fittings";
 import { hangGrandHall, pickHallCandidates } from "./grand-hall";
 import {
@@ -435,6 +435,12 @@ function buildFloor(
     const hall = composedHall && key === greatHall;
     room.dividers = hall ? [] : planDividers(room.cellBounds, room.doors);
     room.benches = planBenches(room.cellBounds, room.doors, room.dividers, hall ? "z" : undefined);
+    // A room with no panels and no way straight through it (a corner of
+    // the ring) is seated on its centre. `planBenches` keeps clear of
+    // both doors' lines and so stands the island in one quarter of it.
+    if (!hall && room.dividers.length === 0) {
+      room.benches = centredIsland(room.cellBounds, room.doors) ?? room.benches;
+    }
   }
 
   const walkable = new Uint8Array(BLOCK_GRID.x * BLOCK_GRID.z);
@@ -479,11 +485,12 @@ function buildFloor(
     );
   });
 
-  // Benches in front of a room's largest works come after the hang:
-  // they need to know what hangs where.
+  // A room with panels is seated on the lines of its panels, after the
+  // hang: of the places those lines give, the ones in front of the
+  // largest works are taken.
   for (const { key } of floorRooms) {
     const room = byKey.get(key)!;
-    room.benches = [...room.benches, ...planFeatureBenches(room)];
+    room.benches = [...room.benches, ...planPanelBenches(room)];
   }
 
   let roomNumber = 0;

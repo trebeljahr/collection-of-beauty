@@ -549,14 +549,26 @@ required by the Dockerfile — don't remove it.
       or its doors would open on the scene's background. Measured
       headless on an M5: 250 to 810 draw calls in the halls, 960 in the
       55 m gallery.
-  - **Benches come in two passes.** `planBenches` seats a room from its
-    footprint and doors, before the hang. With a door to every
-    neighbour it finds no place in most of this plan's rooms.
-    `planFeatureBenches` (`feature-benches.ts`) runs after the hang and
-    stands a bench in front of a room's largest works, facing each, far
-    enough back to see the whole canvas: two in a 27.5 m room, three or
-    four in a long gallery. "Largest" is by hung area: the listing has
-    no measure of how well known a work is. The tower does not use it.
+  - **Benches stand on the room's own lines**
+    (`feature-benches.ts`). `planBenches` seats a room from its
+    footprint and doors, before the hang. It was made for the tower's
+    1.4 m doors: here it seats the composed great hall and nothing with
+    panels, where its nave benches come 5 cm too near a panel. Then:
+    - a room with panels takes benches in line with a row of panels, in
+      the middle of a gap between two of them, and in the middle of an
+      aisle 8 m or more wide, opposite a panel (`planPanelBenches`,
+      after the hang). Never in the line of a door in the wall beside
+      it. Where there are more such places than benches, the ones in
+      front of the largest works are taken;
+    - a corner room, which no one walks straight through, takes an
+      island of two on its centre (`centredIsland`).
+    A pass that stood a bench in front of each large work, at the
+    distance to see all of it, was walked and thrown out on 13 October
+    2026: the benches landed in the 5 m aisle between a panel and the
+    wall, off every line of the room. A bench is placed by the room, and
+    the works decide only which of the room's places are used. "Largest"
+    is by hung area: the listing has no measure of how well known a work
+    is. The tower does not use this module.
   - Every band of the plan is an odd number of cells, which puts each
     door in the middle of a cell. The collision grid needs that. Room
     doors are 2.4 m, one cell edge, so they need no jamb colliders. The

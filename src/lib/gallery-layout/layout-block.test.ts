@@ -2,8 +2,8 @@ import { describe, expect, it } from "vitest";
 import type { ArtworkListing } from "@/lib/data";
 import { ERAS } from "@/lib/gallery-eras";
 import { galleryLayoutIdentity } from "@/lib/gallery-release-state";
-import { benchFacing } from "./feature-benches";
-import { benchRect, dividerRect } from "./fittings";
+import { benchClearOfDividers } from "./feature-benches";
+import { benchRect } from "./fittings";
 import { grandStairsAt, grandSurfaceAt, openingReach } from "./grand-stair";
 import {
   BLOCK_DOOR_WIDTH,
@@ -180,25 +180,41 @@ describe("the block plan", () => {
     expect(turns).toEqual({ "hall-w": 3, "hall-c": 0, "hall-e": 1 });
   });
 
-  it("seats visitors in every gallery, in front of its largest works", () => {
+  it("seats every gallery on the lines of the room, never in a passage", () => {
     for (const floor of layout.floors) {
       for (const room of floor.rooms.filter((r) => !r.isStairwell)) {
         expect(room.benches.length, room.id).toBeGreaterThan(0);
-        const long = (room.cellBounds.xMax - room.cellBounds.xMin + 1) * CELL_SIZE;
-        if (long >= 45) expect(room.benches.length, room.id).toBeGreaterThanOrEqual(3);
-        // No bench stands in a wall, a divider or another bench, or in
-        // the line a door is walked through.
         const b = room.cellBounds;
+        const x0 = b.xMin * CELL_SIZE;
+        const x1 = (b.xMax + 1) * CELL_SIZE;
+        const z0 = b.zMin * CELL_SIZE;
+        const z1 = (b.zMax + 1) * CELL_SIZE;
+        if (Math.max(x1 - x0, z1 - z0) >= 45) {
+          expect(room.benches.length, room.id).toBeGreaterThanOrEqual(2);
+        }
         const rects = room.benches.map(benchRect);
-        rects.forEach((r, i) => {
-          expect(r.xMin).toBeGreaterThan(b.xMin * CELL_SIZE + 1);
-          expect(r.xMax).toBeLessThan((b.xMax + 1) * CELL_SIZE - 1);
-          expect(r.zMin).toBeGreaterThan(b.zMin * CELL_SIZE + 1);
-          expect(r.zMax).toBeLessThan((b.zMax + 1) * CELL_SIZE - 1);
-          for (const d of room.dividers.map(dividerRect)) {
-            expect(r.xMin < d.xMax && d.xMin < r.xMax && r.zMin < d.zMax && d.zMin < r.zMax).toBe(
-              false,
-            );
+        const panelLines = room.dividers.map((d) => ({ axis: d.axis, at: d.line * CELL_SIZE }));
+        room.benches.forEach((bench, i) => {
+          const r = rects[i];
+          // 4 m or more of floor to every wall: a bench in the 5 m
+          // aisle between a panel and a wall could not have it.
+          expect(
+            Math.min(r.xMin - x0, x1 - r.xMax, r.zMin - z0, z1 - r.zMax),
+            room.id,
+          ).toBeGreaterThanOrEqual(4);
+          expect(benchClearOfDividers(bench, room, 2.2), room.id).toBe(true);
+          // In a room with panels a bench runs the way the panels do,
+          // and stands in line with a row of them or in the middle of a
+          // wide aisle.
+          if (panelLines.length > 0) {
+            expect(
+              panelLines.every((p) => p.axis === bench.along),
+              room.id,
+            ).toBe(true);
+            const across = bench.along === "x" ? bench.z : bench.x;
+            const inRow = panelLines.some((p) => Math.abs(p.at - across) < 1e-6);
+            const nearest = Math.min(...panelLines.map((p) => Math.abs(p.at - across)));
+            expect(inRow || nearest >= 4.5, room.id).toBe(true);
           }
           rects.slice(i + 1).forEach((q) => {
             expect(r.xMin < q.xMax && q.xMin < r.xMax && r.zMin < q.zMax && q.zMin < r.zMax).toBe(
@@ -208,16 +224,26 @@ describe("the block plan", () => {
         });
       }
     }
-    // A bench of this pass faces one of its room's five largest works.
-    const gallery = roomOf(0, "n3");
-    const largest = [...gallery.placements]
-      .sort((p, q) => q.widthM * q.heightM - p.widthM * p.heightM)
-      .slice(0, 8)
-      .map(benchFacing);
-    const faced = gallery.benches.filter((bench) =>
-      largest.some((f) => Math.abs(f.x - bench.x) < 1e-6 && Math.abs(f.z - bench.z) < 1e-6),
-    );
-    expect(faced.length).toBeGreaterThan(0);
+    // A corner room is seated on its centre: no one walks straight
+    // through it.
+    const corner = roomOf(0, "n1");
+    expect(corner.benches).toHaveLength(2);
+    const cx = ((corner.cellBounds.xMin + corner.cellBounds.xMax + 1) / 2) * CELL_SIZE;
+    const cz = ((corner.cellBounds.zMin + corner.cellBounds.zMax + 1) / 2) * CELL_SIZE;
+    expect(corner.benches.reduce((sum, bench) => sum + bench.x, 0) / 2).toBeCloseTo(cx, 6);
+    expect(corner.benches.reduce((sum, bench) => sum + bench.z, 0) / 2).toBeCloseTo(cz, 6);
+    // A long gallery's benches stand in the gaps of its rows of panels,
+    // and none in the line of a door in the wall beside it.
+    const gallery = roomOf(1, "s3");
+    expect(gallery.benches.length).toBeGreaterThanOrEqual(3);
+    for (const bench of gallery.benches) {
+      for (const door of gallery.doors.filter((d) => d.side === "north" || d.side === "south")) {
+        const sameSide =
+          (door.side === "north") ===
+          bench.z < (gallery.worldRect.zMin + gallery.worldRect.zMax) / 2;
+        if (sameSide) expect(Math.abs(bench.x - door.worldX)).toBeGreaterThan(door.width / 2 + 1);
+      }
+    }
   });
 
   it("names each floor and files it under an era of its own", () => {
