@@ -160,6 +160,21 @@ required by the Dockerfile — don't remove it.
     redirect of the first. Rubens's Madrid Susanna is "Susanna and the
     Elders (Madrid version)" for that reason. Read the diff of
     `redirects.json` after adding titles.
+- A plaque or page says "Unknown" when `artist` is null. That was 75
+  works on 13 October 2026, and for 70 the Commons page names the
+  artist in a category or the description while its artist field is
+  empty or holds the uploader: 40 plates of Holbein's Dance of Death,
+  30 others. They have entries in `metadata/artist-overrides.json`,
+  each with its evidence under `_why`. 5 stay without an artist: the
+  Hungry Ghosts Scroll, Flora Tristan (a lithograph of 1838), the
+  Illustrated London News engraving of Carlyle, a plate of Albinus
+  that names no engraver, and The Fall of Phaethon, which Commons
+  files as "formerly attributed to Jan Carel van Eyck". A name in a
+  file's title is not evidence by itself: that last file is named
+  after van Eyck.
+  The build cuts a known artist's name off the front of a source
+  title ("Nicolas Poussin - L'Enlèvement des Sabines"), so an artist
+  override can change `title` too.
 
 ## Asset URL conventions
 
@@ -1267,14 +1282,14 @@ Several sessions run the suite while the machine is at a load average of
   raw `realDimensions` long edge (`sizeWork()` in `place-paintings.ts`),
   and the Grand Hall leads with the largest works. A value ten times too
   big, such as Malevich's Suprematism at 805 cm tall, would hang there.
-- 100 paintings lack a `movement` tag (~2% of the corpus) — they fall
+- 95 works lack a `movement` tag (13 October 2026, ~2% of the corpus) — they fall
   through to year-based era assignment in
   [`gallery-eras.ts`](src/lib/gallery-eras.ts). All come from the
   `collection-of-beauty` folder; `audubon-birds` and
   `kunstformen-images` are 100% tagged. The bulk of the old gap (775)
   was closed by adding ~110 artists to `scripts/artists-db.json`; what
   remains is deliberate or unfixable-by-alias:
-    - 25 anonymous works (no `artist`). Nothing to match an alias
+    - 2 of the 5 works with no `artist`. Nothing to match an alias
       against — they need per-artwork
       `metadata/movement-overrides.json` entries or year fallback.
     - 28 Boilly works. He has a db entry (so the five spelling
