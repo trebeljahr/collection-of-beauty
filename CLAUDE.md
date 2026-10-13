@@ -1718,13 +1718,18 @@ Several sessions run the suite while the machine is at a load average of
 
 ## Outstanding tickets (memory)
 
-- 143 of 4,555 works lack `realDimensions`, all in the
+- 103 of 4,555 works lack `realDimensions`, all in the
   `collection-of-beauty` folder (13 October 2026). They were 562 that
-  morning. 419 got a size from a record of the object: 168 from the
-  holding museum, 108 Monets from the Wildenstein catalogue, 47 Holbein
-  woodcuts from museum impressions, 59 from the Commons page the work
-  links. `metadata/real-size-fixes-2026-10.md` tells how, and
-  `metadata/real-size-open-2026-10.md` lists the 143 with what the
+  morning. Two passes that day found 459 sizes, each from a record of
+  the object. The first found 419: 168 from the holding museum, 108
+  Monets from the Wildenstein catalogue, 47 Holbein woodcuts from museum
+  impressions, 59 from the Commons page the work links. The second found
+  40 of the 143 that were left, 12 of them in records that open only in
+  Rico's Chrome: the British Museum, Honolulu, the Dorotheum's lot
+  archive, the Musei Civici di Venezia, the RKD, MFA Boston and the
+  Academy of Arts museum in St Petersburg.
+  `metadata/real-size-fixes-2026-10.md` tells how, and
+  `metadata/real-size-open-2026-10.md` lists the 103 with what the
   search found. Before taking up one of them:
   - Each new entry has a `ref` beside `source` in
     `metadata/artwork-dimensions.json`: the record, the words read and
@@ -1734,17 +1739,28 @@ Several sessions run the suite while the machine is at a load average of
     for the linked page. A `null` there means that page and its
     Wikidata item have no size.
   - A scan that is a detail gets no size, since the hang would size it
-    as the whole painting. Eight are listed with the whole work's size.
-  - The works behind a bot check need a person with a browser:
-    honolulu.emuseum.com asks for verification in Chrome too. Do not
-    work round it.
+    as the whole painting. Fifteen scans are details, crops or show more
+    than the work; seven are listed with the whole work's size.
+  - A bot check is never worked round. In Chrome, honolulu.emuseum.com
+    and blanton.emuseum.com passed their check by themselves on
+    13 October. collections.louvre.fr asks for a click, so Holbein's
+    Head of a Woman waits for a person. catalog.shm.ru, agkg.ru and
+    sammlung-online.berlin.museum refuse Chrome as well.
+  - Seven works have a figure whose source needs Rico's word: an
+    encyclopedia, a caption in an essay, two figures that disagree. The
+    open file lists them first.
+  - A print may take another museum's impression of the same block or
+    plate within 5% of the scan's shape, also where the scanned
+    impression's own record has no size. A joined triptych takes only a
+    size a record states for the joined sheets.
   - Web search is one allowance of 200 for a turn, shared by every agent
     in it. Fourteen research agents used it up two thirds of the way
-    through their batches. Give search to the works that need it, and
-    read known records (museum APIs, the catalogue raisonné) without it.
+    through their batches; five agents with a limit each used 117. Give
+    search to the works that need it, and read known records (museum
+    APIs, the catalogue raisonné) without it.
   - Monet's catalogue raisonné is online as page scans. Its text cannot
     be parsed: read the entry from the page image.
-- Of the 4,412 works with a size, `trustworthyRealSize()` in
+- Of the 4,452 works with a size, `trustworthyRealSize()` in
   [`real-size.ts`](src/lib/real-size.ts) hides 882 from the plaque, the
   scale view, the JSON-LD and every caption. 862 are hidden by design:
   644 Redouté sheet sizes on cut-out scans, 214 `series-default` print
@@ -1774,6 +1790,9 @@ Several sessions run the suite while the machine is at a load average of
   needs. The 419 sizes kept both plans at their room totals (tower 119,
   block 52) but moved two tower floors (Renaissance 13 → 11 rooms,
   Ukiyo-e 9 → 11) and changed `galleryLayoutIdentity` on both plans.
+  The 40 of the second pass took those two rooms off the Ukiyo-e floor
+  again (tower 117) and changed the tower's identity; the block plan
+  kept its 44 rooms and its identity.
   `real-size.test.ts` holds one rule that moves with such data: no
   trusted work is longer than 10 times its reference in the scale view.
   It was 6 until nine works over 10.5 m came in, the longest Monet's

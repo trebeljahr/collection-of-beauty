@@ -2779,7 +2779,12 @@
     "heightCm": 40.5,
     "source": "wikidata"
   },
-  "collection-of-beauty-500px-kuniyoshi-utagawa-hawk": null,
+  "collection-of-beauty-500px-kuniyoshi-utagawa-hawk": {
+    "widthCm": 23.6,
+    "heightCm": 69.5,
+    "source": "curated",
+    "ref": "Fine Arts Museums of San Francisco, Achenbach Foundation, 54755.1065, Utagawa Kuniyoshi, Hawk and Nestlings in Pine Tree, ca. 1840, publisher Marusei, \"Color Woodcut Vertical Diptych\" (another impression): \"69.5 x 23.6 cm (image); 69.5 x 23.6 cm (sheet); 69.5 x 23.6 cm\" — https://web.archive.org/web/20220118135622/https://art.famsf.org/utagawa-kuniyoshi/hawk-and-nestlings-pine-tree-547551065 (live page, behind a bot check: https://www.famsf.org/artworks/hawk-and-nestlings-in-pine-tree); taken: the two sheets joined, as the scan shows them; the scanned impression is not named"
+  },
   "collection-of-beauty-500px-kuniyoshi-utagawa-tiger": null,
   "collection-of-beauty-9": {
     "widthCm": 48,
@@ -4733,7 +4738,12 @@
     "heightCm": 125,
     "source": "wikidata"
   },
-  "collection-of-beauty-de-gion-brug-te-hondo-in-amakusa-amakusa-hondo-gionbashi-titel-op-object-selectie-van-gezichten-op-": null,
+  "collection-of-beauty-de-gion-brug-te-hondo-in-amakusa-amakusa-hondo-gionbashi-titel-op-object-selectie-van-gezichten-op-": {
+    "widthCm": 23,
+    "heightCm": 30.1,
+    "source": "curated",
+    "ref": "Art Institute of Chicago, 1990.607.639, Kawase Hasui, Gion Bridge, Amakusa, from the series \"Selection of Scenes of Japan\" (Nihon fukei senshu, Amakusa hondo Gionbashi), 1924, color woodblock print (another impression of the same blocks): \"Paper: 30.1 × 23 cm (11 7/8 × 9 1/16 in.); Block: 28.7 × 20.5 cm (11 5/16 × 8 1/8 in.)\" — https://api.artic.edu/api/v1/artworks/197318 (page: https://www.artic.edu/artworks/197318); taken: sheet. The scan is the Rijksmuseum impression RP-P-1990-147, whose record gives \"blad: hoogte 230 mm x breedte 230 mm\", a square for an upright sheet"
+  },
   "collection-of-beauty-de-gion-brug-te-hondo-in-amakusa-amakusa-hondo-gionbashi-titel-op-object-selectie-van-gezichten-op-japan-serietitel-nihon-fukei-senshu-serietitel-rp-p-1990-147": {
     "widthCm": 27,
     "heightCm": 39,
@@ -5245,7 +5255,12 @@
     "heightCm": 54,
     "source": "wikimedia-template"
   },
-  "collection-of-beauty-eugen-von-blaas-plauderei-1905": null,
+  "collection-of-beauty-eugen-von-blaas-plauderei-1905": {
+    "widthCm": 118,
+    "heightCm": 90,
+    "source": "curated",
+    "ref": "Dorotheum, Vienna, 19th century paintings, 31 May 2007, lot 174: \"The Conversation, signed and dated Eg. de Blaas 1905, oil on canvas, 90 x 118 cm, framed\" — https://www.dorotheum.com/en/l/1939765/ (the press page the Commons file comes from lists \"Eugen von Blaas, The Conversation 1905 € 684.000\"; the lot shows EUR 721.050; both are a hammer price of 570,000)"
+  },
   "collection-of-beauty-eugen-von-blaas-sharing-the-news-1904": {
     "widthCm": 83.19,
     "heightCm": 110.17,
@@ -5772,7 +5787,12 @@
     "heightCm": 55.2,
     "source": "wikidata"
   },
-  "collection-of-beauty-gerome-l-entree-du-christ-a-jerusalem-cadre": null,
+  "collection-of-beauty-gerome-l-entree-du-christ-a-jerusalem-cadre": {
+    "widthCm": 127,
+    "heightCm": 80,
+    "source": "museum",
+    "ref": "Musée de Vesoul (now Musée Georges-Garret), catalogue of its Gérôme exhibition of August 1981, published by the Ville de Vesoul (Gilles Cugnier, conservateur du Musée de Vesoul), no. 153: \"153 Entrée de Jésus a Jérusalem T. H. 0,80; L. 1,27. S.b.d. sur le rocher : J.L. Gérome. Musée de Vesoul, n° 945.2.15.\" [as the OCR prints it] — https://archive.org/details/bwb_T3-BNU-173; taken: canvas. Read in the Internet Archive’s full text of the catalogue, not on the page"
+  },
   "collection-of-beauty-gerome-painting-breathes-life-into-sculpture-v1": {
     "widthCm": 68.8,
     "heightCm": 50.1,
@@ -6135,7 +6155,12 @@
     "heightCm": 59.1,
     "source": "wikidata"
   },
-  "collection-of-beauty-henri-fantin-latour-vase-of-flowers-with-a-coffee-cup-13648335833": null,
+  "collection-of-beauty-henri-fantin-latour-vase-of-flowers-with-a-coffee-cup-13648335833": {
+    "widthCm": 39.5,
+    "heightCm": 47.6,
+    "source": "curated",
+    "ref": "Christie's, New York, sale 20682, 14 May 2022, lot 819, Henri Fantin-Latour, \"Nature morte à la tasse de café\": \"signed and dated 'Fantin. 1865.' (lower right) / oil on canvas / 18 7⁄8 x 15 5⁄8 in. (47.6 x 39.5 cm.) / Painted in 1865\" — https://www.christies.com/en/lot/lot-6369573; taken: canvas. The lot’s photograph is the scan’s picture"
+  },
   "collection-of-beauty-henri-julien-felix-rousseau-french-carnival-evening-google-art-project": {
     "widthCm": 89.61,
     "heightCm": 117.4,
@@ -8262,7 +8287,12 @@
     "heightCm": 39,
     "source": "series-default"
   },
-  "collection-of-beauty-keisai-eisen-wasserdrachen": null,
+  "collection-of-beauty-keisai-eisen-wasserdrachen": {
+    "widthCm": 26.5,
+    "heightCm": 37,
+    "source": "curated",
+    "ref": "Museum of Fine Arts, Boston, 11.22534, Keisai Eisen, Water Dragons (Mizuchi), from the series Pictures of Birds, Animals, Insects, and Fish (Kinjûchûgyo zue), woodblock print (another impression of the same blocks): \"Vertical ôban; 37 x 26.5 cm (14 9/16 x 10 7/16 in.)\" — https://collections.mfa.org/objects/215131; taken: sheet. The scan is the Museum für Kunst und Gewerbe Hamburg impression S2009.32, whose record has no size"
+  },
   "collection-of-beauty-kenko-shokei-shosho-hakkei-enji-bansho": {
     "widthCm": 23.6,
     "heightCm": 35.5,
@@ -8765,7 +8795,12 @@
     "heightCm": 40.3,
     "source": "wikidata"
   },
-  "collection-of-beauty-ludwig-deutsch-the-nubian-palace-guard": null,
+  "collection-of-beauty-ludwig-deutsch-the-nubian-palace-guard": {
+    "widthCm": 46.8,
+    "heightCm": 56,
+    "source": "curated",
+    "ref": "Dorotheum, Vienna, 19th century paintings, 29 November 2006, lot 152: \"The Nubian Palace Guard, signed L. deutsch Paris, oil on panel, 56 x 46.8 cm, bombé, framed\", realized EUR 516.000, the price on the press page the Commons file comes from — https://www.dorotheum.com/en/l/1939753/"
+  },
   "collection-of-beauty-ludwig-deutsch-the-sahleb-vendor-cairo-1886": {
     "widthCm": 45.1,
     "heightCm": 54.6,
@@ -9503,7 +9538,12 @@
     "source": "curated",
     "ref": "Wildenstein 1996, no. 1668, vol. IV, p. 754 (WPI online scan, viewer page 58): \"1668 Bassin aux nymphéas, le pont / The Bridge over the Water-Lily Pond … 90 x 100 cm · Signed and dated lower left: Claude Monet 1905\""
   },
-  "collection-of-beauty-monet-w1675": null,
+  "collection-of-beauty-monet-w1675": {
+    "widthCm": 100,
+    "heightCm": 89,
+    "source": "curated",
+    "ref": "Wildenstein 1996, no. 1676, vol. IV, p. 761 (WPI online scan, viewer page 65; illustration p. 760, viewer page 64): \"1676 Nymphéas … 89 x 100 cm … Signed lower right: Claude Monet\" — https://view.publitas.com/wildenstein-plattner-institute-ol46yv9z6qv6/c-r_claude_monet_volume_iv_wildenstein_institute/page/65 (the file is named Monet_w1675.jpg; the scan is the picture the catalogue illustrates as 1676, compared with it side by side; 1675, 89 x 92 cm, is another composition)"
+  },
   "collection-of-beauty-monet-w1695": {
     "widthCm": 100,
     "heightCm": 81,
@@ -9819,7 +9859,12 @@
     "source": "curated",
     "ref": "Wildenstein 1996, no. 700, vol. II, p. 262 (WPI online scan, viewer page 266): \"700 Près de Vétheuil / Near Vétheuil … 65 x 81 cm\""
   },
-  "collection-of-beauty-monet-w706": null,
+  "collection-of-beauty-monet-w706": {
+    "widthCm": 72.1,
+    "heightCm": 58.4,
+    "source": "museum",
+    "ref": "Dixon Gallery and Gardens, Memphis, 1996.2.7, the museum’s entry on Google Arts & Culture, Port of Dieppe, Evening, 1882, oil on canvas: \"Physical Dimensions: 23 x 28 3/8 inches\" (58.4 × 72.1 cm at 2.54) — https://artsandculture.google.com/asset/port-of-dieppe-evening-claude-monet/FgE8ekQvMHflqw (Wildenstein 1996, no. 706, prints \"69 x 73 cm\", which its own illustration contradicts)"
+  },
   "collection-of-beauty-monet-w712-low-tide-at-pourville": {
     "widthCm": 81.3,
     "heightCm": 59.9,
@@ -9936,7 +9981,12 @@
     "heightCm": 73.5,
     "source": "wikidata"
   },
-  "collection-of-beauty-monet-w835": null,
+  "collection-of-beauty-monet-w835": {
+    "widthCm": 100,
+    "heightCm": 60,
+    "source": "curated",
+    "ref": "Wildenstein 1996, no. 834, vol. II, p. 310 (WPI online scan, viewer page 314): \"834 La Seine à Port-Villez … 60 x 100 cm … Signed and dated lower left: Claude Monet 83\" — https://view.publitas.com/wildenstein-plattner-institute-ol46yv9z6qv6/c-r_claude_monet_volume_ii_wildenstein_institute/page/314 (the file is named Monet_w835.jpg; the scan is the picture the catalogue illustrates as 834, compared with it side by side; 835, 65 x 92 cm, is another composition)"
+  },
   "collection-of-beauty-monet-w844": {
     "widthCm": 73,
     "heightCm": 60,
@@ -12218,7 +12268,12 @@
     "heightCm": 65.1,
     "source": "wikidata"
   },
-  "collection-of-beauty-sir-david-wilkie-s-residence-in-kensington-london-by-william-collins-1841-painted-just-after-wilkie": null,
+  "collection-of-beauty-sir-david-wilkie-s-residence-in-kensington-london-by-william-collins-1841-painted-just-after-wilkie": {
+    "widthCm": 50.8,
+    "heightCm": 35.5,
+    "source": "museum",
+    "ref": "National Galleries of Scotland, NG 2818, William Collins, View of Sir David Wilkie’s House in Vicarage Place, Kensington, 1841–1842, oil on prepared board: \"Measurements: 35.50 x 50.80 cm; Framed: 47.00 x 62.00 x 5.00 cm\" — https://www.nationalgalleries.org/art-and-artists/92738 (read in the Wayback capture of 9 July 2026); taken: board. The scan is a visitor’s photograph that stops about a tenth short at the right and at the bottom"
+  },
   "collection-of-beauty-sir-henry-raeburn-colonel-alastair-ranaldson-macdonell-of-glengarry-1771-1828-google-art-project": {
     "widthCm": 151.1,
     "heightCm": 241.9,
@@ -12813,7 +12868,12 @@
     "heightCm": 280,
     "source": "museum"
   },
-  "collection-of-beauty-the-devil-s-bridge-st-gotthard-pass": null,
+  "collection-of-beauty-the-devil-s-bridge-st-gotthard-pass": {
+    "widthCm": 62.8,
+    "heightCm": 76.8,
+    "source": "curated",
+    "ref": "Tate, Turner Worldwide catalogue, TW1813, Joseph Mallord William Turner, \"The Devil's Bridge, St Gothard\", circa 1803-4, oil on canvas, private collection, Butlin & Joll 147: \"Dimensions support: 768 x 628 mm\" — https://web.archive.org/web/20120809144609/http://www.tate.org.uk/art/artworks/turner-the-devils-bridge-st-gothard-tw1813; taken: support"
+  },
   "collection-of-beauty-the-doorway-met-dp811134": {
     "widthCm": 20,
     "heightCm": 29.2,
@@ -12988,7 +13048,12 @@
     "source": "museum",
     "ref": "Wellcome Collection, 35352i: \"1 print : engraving ; platemark 35.6 x 22.5 cm\" — https://wellcomecollection.org/works/u55hehsn; taken: plate"
   },
-  "collection-of-beauty-the-muscles-of-the-human-body-fourth-layer-seen-from-the-f-wellcome-v0007799": null,
+  "collection-of-beauty-the-muscles-of-the-human-body-fourth-layer-seen-from-the-f-wellcome-v0007799": {
+    "widthCm": 39.69,
+    "heightCm": 55.72,
+    "source": "curated",
+    "ref": "Flayed Skeleton, from Cours complet d'anatomie, published Nancy, 1773, Minneapolis Institute of Art, P.84.8: \"21 15/16 x 15 5/8 in. (55.72 x 39.69 cm) (plate)\" — https://collections.artsmia.org/art/55852; taken: plate. Another impression of the plate: the scan is the Wellcome’s 32556i, whose record has no size. Minneapolis gives \"Singer 6 / BN 6\", and Singer 1917 lists no. 6 as plate VI with the lettering of the scan"
+  },
   "collection-of-beauty-the-old-adam-and-eve": null,
   "collection-of-beauty-the-petit-bras-of-the-seine-at-argenteuil": {
     "widthCm": 71.8,
@@ -13509,7 +13574,12 @@
     "source": "museum",
     "ref": "Museum of Fine Arts, Boston, 11.16827: \"Vertical ôban; 33.8 x 22.2cm (13 5/16 x 8 3/4in.)\" — https://collections.mfa.org/objects/268337; taken: sheet"
   },
-  "collection-of-beauty-utagawa-kunisada-1857-imayo-mitate-shino-kosho-yori-shokunin": null,
+  "collection-of-beauty-utagawa-kunisada-1857-imayo-mitate-shino-kosho-yori-shokunin": {
+    "widthCm": 74.7,
+    "heightCm": 36.1,
+    "source": "curated",
+    "ref": "Rijksmuseum, RP-P-2015-26-2135, Utagawa Kunisada (I), Vrouwen maken prenten, 1857, \"kleurenhoutsnede met blinddruk; drieluik\" (another impression, the record of the three sheets as one object): \"beeld: hoogte 361 mm x breedte 747 mm\" — https://id.rijksmuseum.nl/200659188; taken: the three sheets joined, as the scan shows them; the scanned impression is not named"
+  },
   "collection-of-beauty-utagawa-kunisada-i-c-1832-dawn-at-futami-ga-ura": {
     "widthCm": 38,
     "heightCm": 26.2,
@@ -18241,7 +18311,12 @@
     "heightCm": 150,
     "source": "wikidata"
   },
-  "collection-of-beauty-durer-ecureuil": null,
+  "collection-of-beauty-durer-ecureuil": {
+    "widthCm": 24.8,
+    "heightCm": 25.4,
+    "source": "curated",
+    "ref": "W. H. James Weale and J. P. Richter, A Descriptive Catalogue of the Collection of Pictures Belonging to the Earl of Northbrook (London 1889), p. 17, no. 18, Albrecht Dürer, \"2. Squirrels\": \"Vellum. 10 × 9¾ in.\" — https://archive.org/details/gri_33125000903597/page/n56/mode/1up; taken: sheet, 10 in × 9¾ in at 2.54. The sheet was in the Northbrook collection, not the Albertina; the catalogue reads its date as 1512"
+  },
   "collection-of-beauty-quinten-massys-the-virgin-and-child-enthroned-with-four-angels-google-art-project": {
     "widthCm": 43.2,
     "heightCm": 62.2,
@@ -18495,7 +18570,12 @@
     "heightCm": 309,
     "source": "wikidata"
   },
-  "collection-of-beauty-ca-rezzonico-matrimonio-mistico-di-santa-caterina-inv-236-biagio-pupini-detto-dalle-lame": null,
+  "collection-of-beauty-ca-rezzonico-matrimonio-mistico-di-santa-caterina-inv-236-biagio-pupini-detto-dalle-lame": {
+    "widthCm": 36,
+    "heightCm": 44,
+    "source": "museum",
+    "ref": "Fondazione Musei Civici di Venezia, catalogo delle collezioni, Pupini, Matrimonio mistico di santa Caterina, olio su tavola, inv. 236, Pinacoteca Egidio Martini: \"MISURE Altezza 44 Larghezza 36\" (the catalogue states sizes in cm) — https://www.archiviodellacomunicazione.it/sicap/OpereArte/376869/?WEB=MuseiVE"
+  },
   "collection-of-beauty-margaret-lady-elyot-by-hans-holbein-the-younger": {
     "widthCm": 20.9,
     "heightCm": 28,
@@ -18797,7 +18877,12 @@
     "heightCm": 95.5,
     "source": "wikidata"
   },
-  "collection-of-beauty-peter-paul-rubens-1577-1640-the-bacchanal-776b-gemaldegalerie": null,
+  "collection-of-beauty-peter-paul-rubens-1577-1640-the-bacchanal-776b-gemaldegalerie": {
+    "widthCm": 266,
+    "heightCm": 212,
+    "source": "museum",
+    "ref": "Gemäldegalerie, Staatliche Museen zu Berlin, 776B, Peter Paul Rubens, Das Bacchanal, Leinwand: \"Bildmaß: 212 x 266 cm\" — https://id.smb.museum/object/867087"
+  },
   "collection-of-beauty-a-kitchenmaid-by-joachim-anthonisz-wtewael": {
     "widthCm": 72.3,
     "heightCm": 103.2,
@@ -18910,7 +18995,12 @@
     "heightCm": 34,
     "source": "wikidata"
   },
-  "collection-of-beauty-drawing-of-mules-by-claude-lorrain": null,
+  "collection-of-beauty-drawing-of-mules-by-claude-lorrain": {
+    "widthCm": 25.7,
+    "heightCm": 14.3,
+    "source": "museum",
+    "ref": "British Museum, Oo,6.40, Claude Lorrain, \"Mules; four studies of mules including one whole-length\": \"Height: 143 millimetres / Width: 257 millimetres\" — https://www.britishmuseum.org/collection/object/P_Oo-6-40"
+  },
   "collection-of-beauty-rembrandt-harmensz-van-rijn-jeremia-treurend-over-de-verwoesting-van-jeruzalem-google-art-project": {
     "widthCm": 46,
     "heightCm": 58,
@@ -18926,7 +19016,12 @@
     "heightCm": 134.4,
     "source": "wikidata"
   },
-  "collection-of-beauty-gerard-van-honthorst-lviv-gallery2": null,
+  "collection-of-beauty-gerard-van-honthorst-lviv-gallery2": {
+    "widthCm": 67.5,
+    "heightCm": 84,
+    "source": "curated",
+    "ref": "RKDimages 308637, Gerard van Honthorst, Man with a viola da gamba, dated 1631, Lviv, Lviv Art Museum, inv./cat.nr. 789: \"Shape/sizes rectangle (portrait format) 84 x 67.5 cm\" — https://rkd.nl/images/308637"
+  },
   "collection-of-beauty-aeltje-uylenburgh-by-rembrandt": {
     "widthCm": 55.88,
     "heightCm": 73.66,
@@ -19195,7 +19290,12 @@
     "heightCm": 28.5,
     "source": "wikimedia-template"
   },
-  "collection-of-beauty-gustaf-lundberg-portratt-av-friherre-charles-de-geer": null,
+  "collection-of-beauty-gustaf-lundberg-portratt-av-friherre-charles-de-geer": {
+    "widthCm": 50,
+    "heightCm": 65,
+    "source": "curated",
+    "ref": "Uppsala Auktionskammare, auction of 2 June 2009, lot 17, \"Gustaf Lundberg 1695-1786. Porträtt - föreställande hovmarskalken Friherre Charles de Geer (1720-1778) samt hans maka Catharina Charlotta Ribbing (1720-1787). Två stycken\": \"Pasteller, 65 x 50 respektive 66 x 52.\" — https://web.archive.org/web/20090713044330/http://www.uppsalaauktion.se:80/objekt101551/gustaf_lundberg.html; taken: the first of the pair, which the lot names first. Jeffares, Dictionary of pastellists, J.503.1231, illustrates this pastel and cites the lot"
+  },
   "collection-of-beauty-gustaf-lundberg-marie-anne-de-bourbon-conde": {
     "widthCm": 104.14,
     "heightCm": 137.16,
@@ -20330,7 +20430,12 @@
     "source": "museum",
     "ref": "British Museum, 1910,0212.289: \"Dimensions Height: 226 millimetres Width: 302 millimetres\" — https://www.britishmuseum.org/collection/object/P_1910-0212-289; taken: sheet"
   },
-  "collection-of-beauty-boilly-incroyable-parade": null,
+  "collection-of-beauty-boilly-incroyable-parade": {
+    "widthCm": 51,
+    "heightCm": 39.3,
+    "source": "curated",
+    "ref": "Musée Cognacq-Jay / Paris Musées, dossier de presse \"Boilly. Chroniques parisiennes\" (exhibition 16 February – 26 June 2022), p. 18, \"Visuels disponibles pour la presse\": \"La Marche incroyable, vers 1797. Huile sur panneau, 39,3 × 51 cm. Collection particulière © Guillaume Benoît\" — https://www.museecognacqjay.paris.fr/sites/default/files/2022-02/DP%20-%20Boilly.%20Chroniques%20parisiennes.pdf; taken: panel. The caption stands under the reproduction, which is the scan’s picture"
+  },
   "collection-of-beauty-stuart-george-washington-constable-1797": {
     "widthCm": 101.6,
     "heightCm": 127,
@@ -20405,7 +20510,12 @@
     "heightCm": 74.14,
     "source": "wikidata"
   },
-  "collection-of-beauty-jerome-bonaparte-by-gilbert-stuart-1804": null,
+  "collection-of-beauty-jerome-bonaparte-by-gilbert-stuart-1804": {
+    "widthCm": 59.7,
+    "heightCm": 71.8,
+    "source": "curated",
+    "ref": "Lawrence Park, Gilbert Stuart: An Illustrated Descriptive List of His Works (New York 1926), vol. 1, no. 90, pp. 159–160, \"Jerome Bonaparte\": \"Washington, 1804. Canvas, 28¼ x 23½ inches. This unfinished bust portrait shows him three-quarters right\" — https://archive.org/details/gilbertstuartill01park/page/160/mode/1up; taken: canvas, 28¼ in × 23½ in at 2.54"
+  },
   "collection-of-beauty-anna-payne-cutts-by-gilbert-stuart-1804": {
     "widthCm": 61.3,
     "heightCm": 73.7,
@@ -20637,7 +20747,12 @@
     "heightCm": 7.6,
     "source": "wikidata"
   },
-  "collection-of-beauty-hampstead-heath-by-john-constable-watercolour": null,
+  "collection-of-beauty-hampstead-heath-by-john-constable-watercolour": {
+    "widthCm": 20.6,
+    "heightCm": 12.4,
+    "source": "museum",
+    "ref": "British Museum, 1900,0824.505, John Constable, \"Hampstead Heath; view looking across undulating country\", watercolour: \"Height: 124 millimetres / Width: 206 millimetres\" — https://www.britishmuseum.org/collection/object/P_1900-0824-505"
+  },
   "collection-of-beauty-john-constable-waterloo-bridge-google-art-project": {
     "widthCm": 77.9,
     "heightCm": 55.1,
@@ -21137,7 +21252,12 @@
     "heightCm": 102,
     "source": "wikidata"
   },
-  "collection-of-beauty-stormy-sea-at-night": null,
+  "collection-of-beauty-stormy-sea-at-night": {
+    "widthCm": 106,
+    "heightCm": 89,
+    "source": "curated",
+    "ref": "Tretyakov Gallery Magazine (журнал «Третьяковская галерея») #4 2016 (53), the issue for the Tretyakov Gallery's Aivazovsky exhibition of 2016, G. Churak, section «Выставки», «Художник „эллинского духа“», caption to the illustration: \"И.К. АЙВАЗОВСКИЙ. Буря на море ночью. 1861. Холст, масло. 89 × 106. ГМЗ «Павловск»\" — https://www.tg-m.ru/articles/4-2016-53/khudozhnik-ellinskogo-dukha; taken: canvas. The caption dates the painting 1861"
+  },
   "collection-of-beauty-carl-spitzweg-the-bookworm": {
     "widthCm": 26.8,
     "heightCm": 49.5,
@@ -21181,7 +21301,12 @@
     "heightCm": 59.8,
     "source": "wikidata"
   },
-  "collection-of-beauty-watts-marie-fox": null,
+  "collection-of-beauty-watts-marie-fox": {
+    "widthCm": 86.4,
+    "heightCm": 111.8,
+    "source": "curated",
+    "ref": "Princess Marie Liechtenstein, Holland House (London 1874), vol. 1, p. 237, the pictures by Watts at Holland House, \"Mary Fox — an old-fashioned picture of an old-fashioned looking little girl, with a fine Spanish pointer as big as herself\": \"The canvas of the original picture is 44 inches by 34.\" — https://archive.org/details/hollandhouse01liec_0/page/236; taken: canvas, 44 in × 34 in at 2.54. The book is the house’s own account of its pictures, written by the sitter"
+  },
   "collection-of-beauty-eugene-ferdinand-victor-delacroix-025": {
     "widthCm": 47,
     "heightCm": 56,
@@ -21325,7 +21450,12 @@
     "heightCm": 82.5,
     "source": "wikidata"
   },
-  "collection-of-beauty-burya-nad-evpatoriey-ayvazovskiy": null,
+  "collection-of-beauty-burya-nad-evpatoriey-ayvazovskiy": {
+    "widthCm": 317.3,
+    "heightCm": 206.6,
+    "source": "curated",
+    "ref": "Tretyakov Gallery Magazine (журнал «Третьяковская галерея») #1 2017 (54), the second of its two Aivazovsky issues, V. Bodunova, «Иван Константинович Айвазовский и Алексей Романович Томилов. Художник и его покровитель», caption to the illustration: \"И.К. АЙВАЗОВСКИЙ. Буря под Евпаторией. 1861. Холст, масло. 206,6 × 317,3. ГМЗ Царское Село\" — https://www.tg-m.ru/articles/1-2017-54/ivan-konstantinovich-aivazovskii-i-aleksei-romanovich-tomilov-khudozhnik-i-ego-pokrovitel; taken: canvas. The Russian Museum’s record of its Málaga exhibition of 2021 rounds it: \"Размер 210x318 см\" — https://ar.culture.ru/ru/subject/burya-pod-evpatoriey"
+  },
   "collection-of-beauty-eugene-delacroix-ovide-chez-les-scythes-1862": {
     "widthCm": 50.2,
     "heightCm": 32.1,
@@ -21817,7 +21947,12 @@
     "heightCm": 221,
     "source": "wikimedia-template"
   },
-  "collection-of-beauty-aivazovsky-by-bolotov-1876": null,
+  "collection-of-beauty-aivazovsky-by-bolotov-1876": {
+    "widthCm": 73,
+    "heightCm": 93,
+    "source": "museum",
+    "ref": "Научно-исследовательский музей Российской академии художеств, НИМ РАХ КП-632/15, Ж-196, Болотов Д. М., Портрет И. К. Айвазовского, 1876, холст, масло: \"Размер 93х73 см\" — https://collection.artsacademymuseum.org/entity/OBJECT/29535"
+  },
   "collection-of-beauty-alfred-sisley-065": {
     "widthCm": 65,
     "heightCm": 46,
@@ -22004,7 +22139,12 @@
     "heightCm": 165,
     "source": "wikidata"
   },
-  "collection-of-beauty-francis-brooks-chadwick": null,
+  "collection-of-beauty-francis-brooks-chadwick": {
+    "widthCm": 25.1,
+    "heightCm": 33.7,
+    "source": "curated",
+    "ref": "The Metropolitan Museum of Art, record of a loan (object page 21449, marked \"Returned to lender\"), John Singer Sargent, \"Francis Brooks Chadwick\", 1880, oil on panel, credit line \"Collection of the Martin Andersen-Gracia Andersen Foundation, Inc., on long-term loan to the Orlando Museum of Art\": \"Dimensions: 13 1/4 x 9 7/8 in. (33.7 x 25.1 cm)\" — https://web.archive.org/web/20241110024434/https://www.metmuseum.org/art/collection/search/21449; taken: panel"
+  },
   "collection-of-beauty-frederic-leighton-kittens": {
     "widthCm": 78.8,
     "heightCm": 119.4,
@@ -22177,7 +22317,12 @@
     "heightCm": 222.2,
     "source": "museum"
   },
-  "collection-of-beauty-frosty-morning-montclair-by-george-inness": null,
+  "collection-of-beauty-frosty-morning-montclair-by-george-inness": {
+    "widthCm": 112.1,
+    "heightCm": 76.5,
+    "source": "curated",
+    "ref": "M.S. Rau, New Orleans, dealer listing \"Frosty Morning, Montclair by George Inness\", signed \"G Inness 1885\" (lower right), oil on canvas: \"Canvas: 30 1/8\" high x 44 1/8\" wide\" — https://web.archive.org/web/20190720082804/https://www.rauantiques.com/frosty-morning-montclair-by-george-inness; taken: canvas, 30 1/8 in × 44 1/8 in at 2.54. The Commons file is the dealer’s own upload"
+  },
   "collection-of-beauty-adachi-moor": null,
   "collection-of-beauty-arsene-vigeant-john-singer-sargent-mg-9497": {
     "widthCm": 52,
@@ -22365,7 +22510,12 @@
     "source": "wikidata"
   },
   "collection-of-beauty-po-vodam-1888": null,
-  "collection-of-beauty-portret-s-p-kuvshinnikovoy-1888": null,
+  "collection-of-beauty-portret-s-p-kuvshinnikovoy-1888": {
+    "widthCm": 57,
+    "heightCm": 88,
+    "source": "museum",
+    "ref": "Научно-исследовательский музей Российской академии художеств (Музей-квартира И. И. Бродского), НИМ РАХ КП-664/148, МБр Ж-72, Левитан И. И., Портрет С. П. Кувшинниковой, 1888, холст, масло: \"Размер 88х57\" — https://collection.artsacademymuseum.org/entity/OBJECT/92042 (the Tretyakov Gallery Magazine, no. 3 2010, prints the same: \"Холст, масло. 88 × 57. Музей-квартира И.И.Бродского\")"
+  },
   "collection-of-beauty-garcon-au-gilet-rouge-par-paul-cezanne-aquarelle-yorck": {
     "widthCm": 31,
     "heightCm": 46,
@@ -22646,7 +22796,12 @@
     "heightCm": 74,
     "source": "wikidata"
   },
-  "collection-of-beauty-aivazovsky-catholicos-khrimyan-airik-near-echmiadzin": null,
+  "collection-of-beauty-aivazovsky-catholicos-khrimyan-airik-near-echmiadzin": {
+    "widthCm": 101,
+    "heightCm": 155,
+    "source": "curated",
+    "ref": "Tretyakov Gallery Magazine (журнал «Третьяковская галерея») #4 2016 (53), the issue for the Tretyakov Gallery's Aivazovsky exhibition of 2016, Sh. Khachatrian, «Братья Айвазовские», caption to the illustration: \"И.К. АЙВАЗОВСКИЙ. Католикос М. Хримян в окрестностях Эчмиадзина. 1895. Холст, масло. 155 × 101. Феодосийская картинная галерея имени И.К. Айвазовского (ФКГА)\" — https://www.tg-m.ru/articles/4-2016-53/bratya-aivazovskie; taken: canvas. The journal is the exhibiting museum’s own, and the Feodosia gallery lent to its exhibition of 2016"
+  },
   "collection-of-beauty-flaming-june-by-frederic-lord-leighton-1830-1896": {
     "widthCm": 119.1,
     "heightCm": 119.1,
@@ -22689,7 +22844,12 @@
     "source": "museum",
     "ref": "State Russian Museum (Virtual Russian Museum collection record), Ж-4231: \"Покорение Сибири Ермаком 1895 Холст , масло . 285 x 599 Ж-4231\" — https://rusmuseumvrm.ru/data/collections/painting/19_20/zh_4231/index.php; taken: canvas"
   },
-  "collection-of-beauty-levitani-lilii-ast": null,
+  "collection-of-beauty-levitani-lilii-ast": {
+    "widthCm": 128,
+    "heightCm": 95,
+    "source": "museum",
+    "ref": "Astrakhan Picture Gallery named after P. M. Dogadin, its exhibit record in the Ministry of Culture's guide «Артефакт» (exhibition «Астраханская коллекция русского искусства»), Левитан И.И., «Ненюфары», lines of the record: \"Размер / 95x128 см / Техника / холст, масло / Коллекция / Астраханская картинная галерея им. П.М. Догадина\" — https://ar.culture.ru/ru/subject/nenyufary-1; taken: canvas. The record dates the work 1890"
+  },
   "collection-of-beauty-paul-cezanne-young-italian-woman-at-a-table-99-pa-40-j-paul-getty-museum": {
     "widthCm": 73.5,
     "heightCm": 92.1,
@@ -23300,7 +23460,12 @@
     "source": "museum",
     "ref": "Philadelphia Museum of Art, 1950-134-91: \"\"Dimensions\":\"6 feet 5 inches × 45 1/4 inches (195.6 × 114.9 cm)\" — https://www.philamuseum.org/collection/object/51687; taken: canvas"
   },
-  "collection-of-beauty-albert-gleizes-1912-les-baigneuses-oil-on-canvas-105-x-171-cm-paris-musee-d-art-moderne-de-la-ville": null,
+  "collection-of-beauty-albert-gleizes-1912-les-baigneuses-oil-on-canvas-105-x-171-cm-paris-musee-d-art-moderne-de-la-ville": {
+    "widthCm": 171,
+    "heightCm": 105,
+    "source": "museum",
+    "ref": "Musée d'Art Moderne de Paris, collections en ligne, AMVP 1126, Albert Gleizes, \"Les baigneuses\", 1912, Huile sur toile: \"105 x 171 cm\" — https://www.navigart.fr/mamparis/artwork/albert-gleizes-les-baigneuses-180000000000860; taken: canvas"
+  },
   "collection-of-beauty-ernst-ludwig-kirchner-nollendorfplatz": {
     "widthCm": 60,
     "heightCm": 69,
@@ -23481,7 +23646,12 @@
     "source": "curated",
     "ref": "National Gallery of Canada, 1682 (another impression of the same print): \"Dimensions 26.4 x 34.8 cm; image: 22.4 x 30.1 cm\" — https://www.gallery.ca/collection/artwork/udaipur; taken: sheet"
   },
-  "collection-of-beauty-charles-w-bartlett-color-woodblock-print-charles-w-bartlett-amritsar-woodcut-1916": null,
+  "collection-of-beauty-charles-w-bartlett-color-woodblock-print-charles-w-bartlett-amritsar-woodcut-1916": {
+    "widthCm": 31.4,
+    "heightCm": 23.7,
+    "source": "museum",
+    "ref": "Honolulu Museum of Art, 5381b, Charles W. Bartlett, Amritsar 1916, color woodblock print: \"Image: 8 5/8 x 11 5/8 in. (21.9 x 29.5 cm) Sheet: 9 5/16 x 12 3/8 in. (23.7 x 31.4 cm)\"; the scan shows the sheet with its margins — https://honolulu.emuseum.com/objects/24250"
+  },
   "collection-of-beauty-boris-kustodiev-shrovetide-google-art-project": {
     "widthCm": 190.5,
     "heightCm": 89,
@@ -23525,20 +23695,35 @@
     "heightCm": 100.3,
     "source": "wikidata"
   },
-  "collection-of-beauty-silk-merchants-india-woodblock-print-by-by-charles-w-bartlett-1919-honolulu-academy-of-arts": null,
+  "collection-of-beauty-silk-merchants-india-woodblock-print-by-by-charles-w-bartlett-1919-honolulu-academy-of-arts": {
+    "widthCm": 37,
+    "heightCm": 25.4,
+    "source": "museum",
+    "ref": "Honolulu Museum of Art, 5371, Charles W. Bartlett, Silk Merchants. India., c. 1919, color woodblock print: \"Image: 10 x 14 9/16 in. (25.4 x 37 cm) Sheet: 10 7/8 x 15 3/4 in. (27.6 x 40 cm)\"; the scan is trimmed to the image — https://honolulu.emuseum.com/objects/11390"
+  },
   "collection-of-beauty-kustodiev-winter-shrovetide-festivities-1919": {
     "widthCm": 106,
     "heightCm": 88,
     "source": "museum",
     "ref": "State Russian Museum, ЖС-1295: \"Кустодиев Б. М. Масленица. 1919. Холст, масло. 88 х 106. ЖС-1295. Пост. в 1998, дар И. А. и Я. А. Ржевских, Петербург; ранее – собрание П. И. Волкова, Ленинград\" — https://rusmuseumvrm.ru/data/collections/painting/19_20/zhs-1295/index.php; taken: canvas"
   },
-  "collection-of-beauty-prayers-at-sunset-udaipur-india-woodblock-print-by-charles-w-bartlett-1919-honolulu-academy-of-arts": null,
+  "collection-of-beauty-prayers-at-sunset-udaipur-india-woodblock-print-by-charles-w-bartlett-1919-honolulu-academy-of-arts": {
+    "widthCm": 41.3,
+    "heightCm": 28.9,
+    "source": "museum",
+    "ref": "Honolulu Museum of Art, 5377, Charles W. Bartlett, Prayers at Sunset, c. 1919, color woodblock print: \"Image: 10 1/2 x 15 3/16 in. (26.7 x 38.6 cm) Sheet: 11 3/8 x 16 1/4 in. (28.9 x 41.3 cm)\"; the scan shows the sheet with its margins — https://honolulu.emuseum.com/objects/11396"
+  },
   "collection-of-beauty-francis-picabia-1919-reveil-matin-alarm-clock-ink-on-paper-31-8-x-23-cm-tate-london": {
     "widthCm": 23,
     "heightCm": 31.8,
     "source": "wikimedia-template"
   },
-  "collection-of-beauty-juan-gris-still-life-with-fruit-dish-and-mandolin": null,
+  "collection-of-beauty-juan-gris-still-life-with-fruit-dish-and-mandolin": {
+    "widthCm": 65,
+    "heightCm": 92,
+    "source": "curated",
+    "ref": "Mark Rosenthal, Juan Gris, exhibition catalogue, University Art Museum, University of California, Berkeley (New York: Abbeville Press, 1983), fig. 21: \"Still Life with Fruit Dish and Mandolin (Still Life with Guitar), 1919 / Oil on canvas / 92 x 65 cm. [...] Private collection, Paris (DC 303)\" — https://archive.org/details/juangris00rose; taken: canvas. Read in the Internet Archive’s full text of the catalogue, not on the page; DC 303 is Cooper’s catalogue raisonné number"
+  },
   "collection-of-beauty-albert-gleizes-1920-femme-au-gant-noir-woman-with-black-glove-oil-on-canvas-126-x-100-cm-private-co": {
     "widthCm": 100,
     "heightCm": 126,
@@ -23574,7 +23759,12 @@
     "source": "wikidata"
   },
   "collection-of-beauty-at-volga-kustodiev": null,
-  "collection-of-beauty-francis-picabia-1922c-optophone": null,
+  "collection-of-beauty-francis-picabia-1922c-optophone": {
+    "widthCm": 60,
+    "heightCm": 72,
+    "source": "curated",
+    "ref": "William A. Camfield, Francis Picabia, exhibition catalogue, The Solomon R. Guggenheim Museum, New York, 1970, no. 77, p. 118 (reproduced p. 119): \"Optophone I. c.1922 / Ink and watercolor on composition board, 28 3/8 x 23 5/8\" (72 x 60 cm.) / Inscribed l.r. \"Francis Picabia\"; l.l. \"Optophone\" / Collection André Napier, Neuilly, France\" — https://archive.org/details/francispicabia00camf/page/118/mode/2up; taken: board"
+  },
   "collection-of-beauty-leon-bakst-peasant-woman-costume-design-for-the-vaudeville-old-moscow-1922": null,
   "collection-of-beauty-boris-kustodiev-portrait-of-fyodor-chaliapin-google-art-project": {
     "widthCm": 80,
@@ -23701,7 +23891,12 @@
     "source": "curated",
     "ref": "Germanisches Nationalmuseum, Nürnberg, press image list for the exhibition 'Europa auf Kur' (2021), loan from Kirchner Museum Davos: \"Ernst Ludwig Kirchner: Sertigtal im Herbst, Davos, 1925/26 Öl auf Leinwand 1,36 m hoch x 2 m breit Kirchner Museum Davos Schenkung Erbengemeinschaft Amstad 2000\" — https://www.gnm.de/fileadmin/redakteure/Service/Presse/2021/pdf/Europa_auf_Kur_Angaben_zu_den_Bildern.pdf; taken: canvas"
   },
-  "collection-of-beauty-fritillaria-imperialis-in-les-liliacees": null,
+  "collection-of-beauty-fritillaria-imperialis-in-les-liliacees": {
+    "widthCm": 35.56,
+    "heightCm": 52.07,
+    "source": "curated",
+    "ref": "Fritillaire Imperiale, from Les Liliacées, vol. 3, Minneapolis Institute of Art, P.18,251 (The Minnich Collection): \"20 1/2 x 14 in. (52.07 x 35.56 cm) (plate)\" — https://collections.artsmia.org/art/72995; taken: plate. Another impression of plate 131: the scanned copy is not named, and the scan is cut about 1 cm inside the plate mark"
+  },
   "collection-of-beauty-cezanne-fwn-1974": {
     "widthCm": 47.5,
     "heightCm": 31.5,
@@ -23834,7 +24029,12 @@
     "source": "museum",
     "ref": "Centre Pompidou, Musée national d'art moderne, JP 668 P (Sphinx, [1929]): \"Huile sur toile Dimensions 131 x 163 cm\" — https://www.centrepompidou.fr/en/ressources/oeuvre/cAe64r; the record's inscription 'T.H.G. : Sphinx' is legible at the top left of the scan"
   },
-  "collection-of-beauty-tsar-nikolai": null,
+  "collection-of-beauty-tsar-nikolai": {
+    "widthCm": 24.8,
+    "heightCm": 24.7,
+    "source": "curated",
+    "ref": "State Russian Museum, Аф-50848, Кустодиев Б. М., Его Императорское Величество Государь Император Николай Александрович Самодержец Всероссийский, 1915: \"Хромолитография. 24,7 х 24,8\" — https://rusmuseumvrm.ru/data/collections/engraving/af-50848/index.php; taken: the print. The scan shows this chromolithograph after Kustodiev’s portrait, not the oil: it has the framing of the museum’s photograph to the edge, compared side by side"
+  },
   "collection-of-beauty-benjamin-west-venus-at-her-birth-attired-by-the-three-graces": {
     "widthCm": 35.6,
     "heightCm": 49.5,

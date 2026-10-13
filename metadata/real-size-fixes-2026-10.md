@@ -6,10 +6,12 @@ works had no size at all, and their plaques ended under the byline. Every
 one had been asked before: Wikidata and the Commons template had answered
 `null`.
 
-This pass found a size for 419 of them. 412 pass every check and are
+A first pass found a size for 419 of them. 412 pass every check and are
 printed. 7 are stored but stay hidden, because the scan shows more or less
-than the measured object. 143 are still `null`; they are listed with the
-reason in [real-size-open-2026-10.md](real-size-open-2026-10.md).
+than the measured object. A second pass the same day went back to the 143
+that were left and found 40 more, all printed: see "The second pass"
+below. 103 are still `null`; they are listed with the reason in
+[real-size-open-2026-10.md](real-size-open-2026-10.md).
 
 All sizes below are width × height in cm, as stored. Sources print height
 first unless noted.
@@ -33,6 +35,8 @@ build-data reads `widthCm`, `heightCm` and `source` and drops the rest, so
 `ref` never reaches `src/data`. `fetch-artwork-dimensions.mjs` keeps an
 existing entry whole. A `--force` run still replaces it with the Commons or
 Wikidata value and loses the `ref`.
+
+The first pass:
 
 | `source` | Entries | What it is |
 | --- | --- | --- |
@@ -134,6 +138,103 @@ Metropolitan Museum's set (19.57.x, each sheet measured, 6.4–6.7 ×
 Rijksmuseum states one image size, 65 × 50 mm, on every print of its set.
 Those nine are a set figure and their `ref` says so.
 
+## The second pass (40)
+
+The first pass ran 20 research agents on one allowance of 200 web
+searches, which ran out two thirds of the way through, and it could not
+open records that refuse `curl`. The second pass took the 143 works that
+were left. It had Rico's real Chrome for those records, five agents with
+a search limit each (117 of the 200 used), and it looked at every scan
+before it took a size.
+
+| `source` | Entries | What it is |
+| --- | --- | --- |
+| `museum` | 14 | The holding museum's own record |
+| `curated` | 26 | A catalogue raisonné or the owner's own catalogue (6), a museum's record of another impression of the same print (7), the publication of a museum that showed or borrowed the work (7), an auction lot or dealer listing of that picture (5), the RKD (1) |
+
+### Records read in a browser, or reachable again (14)
+
+| Work | Stored | Record |
+| --- | --- | --- |
+| Claude Lorrain, Study of Mules | 25.7 × 14.3 | [British Museum, Oo,6.40](https://www.britishmuseum.org/collection/object/P_Oo-6-40): "Height: 143 millimetres / Width: 257 millimetres" |
+| Constable, Hampstead Heath | 20.6 × 12.4 | [British Museum, 1900,0824.505](https://www.britishmuseum.org/collection/object/P_1900-0824-505): "Height: 124 millimetres / Width: 206 millimetres" |
+| Eugene de Blaas, A Chat | 118 × 90 | [Dorotheum, 31 May 2007, lot 174](https://www.dorotheum.com/en/l/1939765/): "The Conversation, signed and dated Eg. de Blaas 1905, oil on canvas, 90 x 118 cm" |
+| Ludwig Deutsch, The Nubian Palace Guard | 46.8 × 56 | [Dorotheum, 29 November 2006, lot 152](https://www.dorotheum.com/en/l/1939753/): "oil on panel, 56 x 46.8 cm" |
+| Pupini, Mystic Marriage of Saint Catherine | 36 × 44 | [Musei Civici di Venezia, inv. 236](https://www.archiviodellacomunicazione.it/sicap/OpereArte/376869/?WEB=MuseiVE): "Altezza 44 Larghezza 36" |
+| Bartlett, Amritsar | 31.4 × 23.7 | [Honolulu Museum of Art, 5381b](https://honolulu.emuseum.com/objects/24250): "Sheet: 9 5/16 x 12 3/8 in. (23.7 x 31.4 cm)" |
+| Bartlett, Prayers at Sunset | 41.3 × 28.9 | [Honolulu, 5377](https://honolulu.emuseum.com/objects/11396): "Sheet: 11 3/8 x 16 1/4 in. (28.9 x 41.3 cm)" |
+| Bartlett, Silk Merchants, India | 37 × 25.4 | [Honolulu, 5371](https://honolulu.emuseum.com/objects/11390): "Image: 10 x 14 9/16 in. (25.4 x 37 cm)"; the scan is trimmed to the image |
+| Honthorst, Man with viola da gamba | 67.5 × 84 | [RKDimages 308637](https://rkd.nl/images/308637), Lviv Art Museum, inv. 789: "84 x 67.5 cm" |
+| Keisai Eisen, Water Dragon | 26.5 × 37 | [MFA Boston, 11.22534](https://collections.mfa.org/objects/215131), another impression: "Vertical ôban; 37 x 26.5 cm" |
+| Bolotov, Portrait of Ivan Aivazovsky | 73 × 93 | [Museum of the Academy of Arts, Ж-196](https://collection.artsacademymuseum.org/entity/OBJECT/29535): "Размер 93х73 см" |
+| Levitan, Portrait of Sofia Kuvshinnikova | 57 × 88 | [The same museum, МБр Ж-72](https://collection.artsacademymuseum.org/entity/OBJECT/92042): "Размер 88х57" |
+| Fantin-Latour, Vase of Flowers with a Coffee Cup | 39.5 × 47.6 | [Christie's New York, 14 May 2022, lot 819](https://www.christies.com/en/lot/lot-6369573): "18 7⁄8 x 15 5⁄8 in. (47.6 x 39.5 cm.)" |
+| Rubens, Drunken Silenus | 266 × 212 | [Gemäldegalerie Berlin, 776B](https://id.smb.museum/object/867087): "Bildmaß: 212 x 266 cm". The museum's search site was down in the first pass |
+
+What the browser found on the way:
+
+- honolulu.emuseum.com and blanton.emuseum.com passed their Cloudflare
+  check by themselves, with no click. Nothing was clicked through
+  anywhere.
+- The Dorotheum's press page gave de Blaas's picture as "€ 684.000" and
+  the lot shows EUR 721.050. Both are a hammer price of 570,000, with a
+  premium of 20% and of 26.5%. For Deutsch the two prices are the same.
+- Three sites refuse Chrome as well: `collections.louvre.fr` (an "I am
+  not a robot" box), `catalog.shm.ru` (403) and the Astrakhan gallery's
+  `agkg.ru` (blocked). The Astrakhan record was read on ar.culture.ru.
+
+### Monet (3)
+
+The two files that carry a neighbour's Wildenstein number were compared
+with the catalogue's illustrations side by side.
+
+- `Monet_w835.jpg` is the picture illustrated as 834, La Seine à
+  Port-Villez: "60 x 100 cm" (vol. II, p. 310). Stored 100 × 60.
+- `Monet_w1675.jpg` is the picture illustrated as 1676, Nymphéas:
+  "89 x 100 cm" (vol. IV, p. 761). Stored 100 × 89.
+- W706, Port of Dieppe, Evening, is in the Dixon Gallery and Gardens,
+  Memphis (1996.2.7). Its
+  [entry on Google Arts & Culture](https://artsandculture.google.com/asset/port-of-dieppe-evening-claude-monet/FgE8ekQvMHflqw)
+  reads "Physical Dimensions: 23 x 28 3/8 inches". Stored 72.1 × 58.4.
+  The catalogue prints "69 x 73 cm", which its own illustration
+  contradicts.
+
+### Researched work by work (23)
+
+| Work | Stored | Record |
+| --- | --- | --- |
+| Gleizes, The Bathers | 171 × 105 | [Musée d'Art Moderne de Paris, AMVP 1126](https://www.navigart.fr/mamparis/artwork/albert-gleizes-les-baigneuses-180000000000860): "105 x 171 cm". The museum's own site has the size; Paris Musées does not |
+| Gérôme, Entry of the Christ at Jerusalem | 127 × 80 | Musée de Vesoul, catalogue of 1981, no. 153: "T. H. 0,80; L. 1,27" |
+| William Collins, Sir David Wilkie's residence | 50.8 × 35.5 | [National Galleries of Scotland, NG 2818](https://www.nationalgalleries.org/art-and-artists/92738): "35.50 x 50.80 cm". The visitor's photograph stops about a tenth short at the right and the bottom |
+| Levitan, Water lilies | 128 × 95 | [Astrakhan Picture Gallery on ar.culture.ru](https://ar.culture.ru/ru/subject/nenyufary-1): "95x128 см" |
+| Dürer, Two Squirrels | 24.8 × 25.4 | Weale and Richter, catalogue of the Earl of Northbrook's pictures (1889), no. 18: "Vellum. 10 × 9¾ in." |
+| Watts, Marie Fox | 86.4 × 111.8 | Princess Marie Liechtenstein, Holland House (1874), vol. 1, p. 237: "The canvas of the original picture is 44 inches by 34." The house's own account, by the sitter |
+| Gilbert Stuart, Jérôme Bonaparte | 59.7 × 71.8 | Park, Gilbert Stuart (1926), no. 90: "Canvas, 28¼ x 23½ inches" |
+| Turner, The Devil's Bridge | 62.8 × 76.8 | Tate, Turner Worldwide, TW1813 (Butlin and Joll 147): "support: 768 x 628 mm" |
+| Sargent, Francis Brooks Chadwick | 25.1 × 33.7 | The Met's record of the panel on loan: "13 1/4 x 9 7/8 in. (33.7 x 25.1 cm)" |
+| Picabia, Optophone | 60 × 72 | Camfield, Francis Picabia, Guggenheim Museum 1970, no. 77: "28 3/8 x 23 5/8\" (72 x 60 cm.)" |
+| Juan Gris, Still Life with Fruit Dish and Mandolin | 65 × 92 | Rosenthal, Juan Gris, University Art Museum, Berkeley 1983, fig. 21: "92 x 65 cm", Cooper no. 303 |
+| Boilly, The Incredible Parade | 51 × 39.3 | Musée Cognacq-Jay, press kit of 2022, p. 18: "Huile sur panneau, 39,3 × 51 cm". The caption stands under the scan's picture; the first pass had turned it down because that was inferred |
+| Aivazovsky, Catholicos Khrimyan near Echmiadzin | 101 × 155 | Tretyakov Gallery Magazine, no. 4 2016: "155 × 101. Феодосийская картинная галерея" |
+| Aivazovsky, Storm over Eupatoria | 317.3 × 206.6 | Tretyakov Gallery Magazine, no. 1 2017: "206,6 × 317,3. ГМЗ Царское Село". The Russian Museum's record of an exhibition of 2021 rounds it to 210 × 318 |
+| Aivazovsky, Stormy sea at night | 106 × 89 | Tretyakov Gallery Magazine, no. 4 2016: "89 × 106. ГМЗ «Павловск»" |
+| Inness, Frosty Morning, Montclair | 112.1 × 76.5 | M.S. Rau's listing of 2019: "Canvas: 30 1/8\" high x 44 1/8\" wide". The Commons file is the dealer's own |
+| Lundberg, Portrait of Charles de Geer | 50 × 65 | Uppsala Auktionskammare, 2 June 2009, lot 17: "Pasteller, 65 x 50 respektive 66 x 52"; Jeffares J.503.1231 |
+| Kustodiev, Tsar Nicholas II | 24.8 × 24.7 | [State Russian Museum, Аф-50848](https://rusmuseumvrm.ru/data/collections/engraving/af-50848/index.php): "Хромолитография. 24,7 х 24,8". The scan is the print after the portrait, not the oil |
+| Gautier d'Agoty, The muscles of the human body | 39.69 × 55.72 | [Minneapolis, P.84.8](https://collections.artsmia.org/art/55852), another impression: "(55.72 x 39.69 cm) (plate)" |
+| Redouté, Fritillaria imperialis | 35.56 × 52.07 | [Minneapolis, P.18,251](https://collections.artsmia.org/art/72995), another impression: "(52.07 x 35.56 cm) (plate)". The first pass had turned down a sheet size |
+| Hasui, Gion Bridge at Hondo in Amakusa | 23 × 30.1 | [Art Institute of Chicago, 1990.607.639](https://www.artic.edu/artworks/197318), another impression: "Paper: 30.1 × 23 cm". The Rijksmuseum's record of the scanned sheet says 230 × 230 mm |
+| Kunisada, Craftsmen | 74.7 × 36.1 | Rijksmuseum, RP-P-2015-26-2135, the three sheets as one object: "beeld: hoogte 361 mm x breedte 747 mm" |
+| Kuniyoshi, Hawk | 23.6 × 69.5 | Fine Arts Museums of San Francisco, 54755.1065, a vertical diptych: "69.5 x 23.6 cm (image)" |
+
+The Tretyakov Gallery Magazine is the gallery's own journal. The three
+Aivazovskys are captions in its issues for the gallery's Aivazovsky
+exhibition of 2016, to which Feodosia and the palace museums lent. Each
+caption names the holder, and its illustration is the scan's picture.
+
+A record that states inches alone is stored at 2.54 cm to the inch, to
+one decimal, and its `ref` keeps the inches.
+
 ## Rules used
 
 - A size is stored only when a record of that object states it. Nothing is
@@ -141,7 +242,11 @@ Those nine are a set figure and their `ref` says so.
 - A print whose scanned impression cannot be named may take the size of
   another museum's impression of the same block or plate, within 5% of the
   scan's shape (8% for the padded Holbein scans). `source` is `curated`
-  and `ref` names the impression.
+  and `ref` names the impression. The same holds where the scanned
+  impression is named and its record has no size (the Wellcome's Gautier
+  d'Agoty, Hamburg's Eisen) or a slip (the Rijksmuseum's Hasui).
+- A joined diptych or triptych takes a size only from a record that
+  states it for the joined sheets. Sheet sizes are not added up.
 - A scan that is a detail gets no size. The hang sizes a work from the
   long edge of the stored size, so a detail would hang as large as the
   whole painting. Eight details are listed in the open file with the
@@ -214,6 +319,20 @@ Measured on the catalogue before and after, both floor plans:
 | Works hung at real size in the stair halls | none in this plan | 60 → 63 |
 | `galleryLayoutIdentity` | changed | changed |
 
+The second pass was measured the same way on the block plan as it stood
+that evening (four floors, 44 rooms with halls and stair rooms):
+
+| | Tower | Block plan (`?plan=block`) |
+| --- | --- | --- |
+| Rooms | 119 → 117: Ukiyo-e 11 → 9 | 44, unchanged |
+| Works hung | 2,771, unchanged | 1,387 → 1,389 |
+| Works hung at real size in the stair halls | none in this plan | 68, unchanged |
+| `galleryLayoutIdentity` | changed | unchanged |
+
+Seven of the 40 hang on the Ukiyo-e floor: four Japanese prints and
+Bartlett's three woodcuts. Each hung with a long edge of 0.9 m, and five
+of them are under 45 cm. The floor needs two rooms fewer.
+
 A saved visit restarts once in its floor's Grand Hall. A work with no size
 hung with a long edge of 0.9 m; with a size it hangs at that size, between
 0.45 and 3.2 m in a room. In the block plan seven works join the stair
@@ -275,3 +394,41 @@ Other works:
   Malevich's Suprematist Composition left the Stedelijk in 2008.
 - "Tab. V: Fetus with Umbilical Cord and Placenta" is from Albinus's
   Tabulae VII uteri mulieris gravidae, not the Tabulae sceleti.
+
+Noticed in the second pass:
+
+- Dürer's Two Squirrels is not an Albertina sheet. It was in the Earl of
+  Northbrook's collection and went to a sale on 3 May 1940; the sheet is
+  dated 1512 (1492 stored).
+- Kustodiev's "Tsar Nicholas II" is the chromolithograph of 1915 after
+  his portrait (State Russian Museum, Аф-50848), not the oil.
+- Le Brun's "Anger" is Hebert's print after Le Brun of about 1770
+  (Wellcome 32625i), cropped, not a drawing of 1668. "Plate from Le
+  Brun, Bowles's Passions of the Soul" is plate 2, Attention.
+- "Sir David Wilkie's residence in Kensington London" is View of Sir
+  David Wilkie's House in Vicarage Place, Kensington, 1841–1842,
+  National Galleries of Scotland, NG 2818.
+- Turner's Devil's Bridge is in a private collection in the UK and dates
+  from about 1803–4 (Tate, Turner Worldwide). It was photographed on
+  loan at the Ashmolean.
+- Fantin-Latour's "Vase of Flowers with a Coffee Cup" is Nature morte à
+  la tasse de café, signed and dated 1865.
+- De Blaas's "Curiosity" is the colour plate of Pears' Annual 1892 after
+  the painting. His "A Chat" was sold as The Conversation.
+- Dates. The Astrakhan gallery dates Levitan's Water Lilies 1890 (1895
+  stored). The Tretyakov Gallery Magazine dates Aivazovsky's Stormy Sea
+  at Night 1861 (1849). MAK Vienna dates Kunisada's Evening Snow at Ueno
+  1847–1852 (no year stored). Lundberg's Charles de Geer is the pendant
+  of a pastel dated 1766 (1720 stored).
+- Holders. Kustodiev's Blue House is at Peterhof. Sargent's Francis
+  Brooks Chadwick belongs to the Andersen Foundation and is on loan to
+  the Orlando Museum of Art. The file of Yoshitoshi's Adachi Moor is the
+  uploader's own impression, not LACMA's. Nothing supports the Khanenko
+  Museum for Gérôme's Hookah Lighter. Gérôme's Entry of the Christ is
+  no. 945.2.15 at Vesoul; Commons gives 945.2.14 to it and to the sketch.
+- Redouté's "Centifolia Rose, Anemone and Clematis" is from Choix des
+  plus belles fleurs, not Les Roses.
+- Bartlett's Hana, Maui Coast comes from Douglas Frazer Fine Art. His
+  "Udaipur" is the second of two designs of 1916 with that title.
+- The Encyclopedia of Korean Culture judges the album of the Four
+  Districts of Mount Geumgang a close copy after Kim Hong-do.
