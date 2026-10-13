@@ -70,9 +70,7 @@ export const FRAME_SLOTS = 3;
 export type ShadedPoint = ProfilePoint & { ao: number; rough: number; wear: number };
 
 /** Height of the canvas face above the wall: PAINTING_WALL_OFFSET (0.02)
- *  plus the canvas plane's local z (0.014). Every lip must clear it. A
- *  style may hang its picture lower (`faceZ` in frame-styles.ts): a
- *  scroll's painting lies on the wall with its silk. */
+ *  plus the canvas plane's local z (0.014). Every lip must clear it. */
 export const CANVAS_FACE_Z = 0.034;
 
 // ── Building profiles ─────────────────────────────────────────────────
@@ -330,17 +328,11 @@ export function profileFrontZ(profile: readonly ProfilePoint[]): number {
 }
 
 /** Scale a profile for the size of the work. Only the part in front of
- *  the canvas face is scaled in depth, so a lip stays in front of it.
- *  `faceZ` is where that face lies: lower than `CANVAS_FACE_Z` for a
- *  hanging scroll, which lies flat on the wall. */
-export function scaleProfile<T extends ProfilePoint>(
-  profile: readonly T[],
-  scale: number,
-  faceZ = CANVAS_FACE_Z,
-): T[] {
+ *  the canvas face is scaled in depth, so a lip stays in front of it. */
+export function scaleProfile<T extends ProfilePoint>(profile: readonly T[], scale: number): T[] {
   return profile.map((pt) => ({
     ...pt,
     o: pt.o * scale,
-    z: pt.z > faceZ ? faceZ + (pt.z - faceZ) * scale : pt.z,
+    z: pt.z > CANVAS_FACE_Z ? CANVAS_FACE_Z + (pt.z - CANVAS_FACE_Z) * scale : pt.z,
   }));
 }

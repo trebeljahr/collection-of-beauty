@@ -344,7 +344,7 @@ export function frameReachOf(work: SizedWork, frame?: FrameDesign): number {
 
 /** How far the work's frame reaches below its canvas, metres. The same
  *  as its reach to the sides for a mitred frame; more for a tabernacle
- *  frame's plinth or a hanging scroll's roller. */
+ *  frame's plinth. */
 export function frameDropOf(work: SizedWork, frame?: FrameDesign): number {
   return frameExtents(frame ?? pickFrameDesign(work.artwork), work.wM, work.hM).bottom;
 }

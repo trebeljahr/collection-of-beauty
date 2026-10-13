@@ -1,9 +1,8 @@
-// The mouldings: 30 frame styles, each a cross-section drawn from the
+// The mouldings: 29 frame styles, each a cross-section drawn from the
 // sight edge outward and ending on the wall, at the size it has on a
-// work about 1.7 m long (scale 1). 27 are mitred. Three are built from
-// straight rails cut square (`Rail`): the tabernacle frame, the hanging
-// scroll and the Oxford frame. The scroll is no frame at all: silk flat
-// on the wall, a roller, and the cord it hangs by (`Cord`).
+// work about 1.7 m long (scale 1). 27 are mitred. Two are built from
+// straight rails cut square (`Rail`): the tabernacle frame and the
+// Oxford frame.
 //
 // A style is a builder, not one fixed profile. It takes the ornament to
 // carve on its sight moulding, its field and its crown, and two
@@ -17,7 +16,6 @@
 import {
   arc,
   backEdge,
-  CANVAS_FACE_Z,
   type CarveBand,
   cove,
   type Extra,
@@ -64,7 +62,6 @@ export type FrameStyleId =
   | "deco"
   | "canted"
   | "tabernacle"
-  | "scroll"
   | "oxford";
 
 export type StyleOptions = {
@@ -115,59 +112,15 @@ export type CornerBlocks = {
 };
 
 /** A straight length of moulding along one side of the canvas, cut
- *  square at its ends: what a tabernacle frame, a scroll mount and an
- *  Oxford frame are built from, where the other frames are mitred. */
+ *  square at its ends: what a tabernacle frame and an Oxford frame
+ *  are built from, where the other frames are mitred. */
 export type Rail<P = ProfilePoint> = {
   side: "top" | "bottom" | "left" | "right";
   /** Cross-section: `o` outward from that side's canvas edge. */
   profile: P[];
-  /** How far the rail runs past the canvas corner at each end. An
-   *  upright rail may run further past the top corner than the bottom
-   *  one: a scroll's silk beside the strips of brocade. */
-  past: number | { top: number; bottom: number };
-  /** Build only the rail's two ends, each this long: the knobs of a
-   *  scroll's roller. */
-  ends?: number;
+  /** How far the rail runs past the canvas corner at each end. */
+  past: number;
 };
-
-/** How far a rail runs past the canvas corner at its upper end (its
- *  only figure, for a level rail) and at its lower one. */
-export function railPast(past: Rail["past"]): { top: number; bottom: number } {
-  return typeof past === "number" ? { top: past, bottom: past } : past;
-}
-
-/** The cord a hanging scroll hangs by: from two points on its top
- *  stave up to a nail over the middle. Lengths in metres at scale 1. */
-export type Cord = {
-  /** The line it is tied on, outward from the canvas's top edge. */
-  from: number;
-  /** The mount's reach beside the canvas: the stave is that much
-   *  longer than the canvas is wide, at each end. */
-  side: number;
-  /** Where it is tied, as a share of half the stave's length from the
-   *  middle. */
-  span: number;
-  /** Rise to the nail, as a share of the distance between the nail's
-   *  plumb line and a tie. */
-  slope: number;
-  /** Width of the braid. */
-  width: number;
-};
-
-/** A cord cut for a canvas: metres, measured from the canvas's centre
- *  line and its top edge. What the renderer draws. */
-export type HungCord = { reach: number; from: number; rise: number; width: number };
-
-/** `cord` on a canvas `widthM` wide whose mount is cut at `scale`. */
-export function hangCord(cord: Cord, widthM: number, scale: number): HungCord {
-  const reach = cord.span * (widthM / 2 + cord.side * scale);
-  return {
-    reach,
-    from: cord.from * scale,
-    rise: cord.slope * reach,
-    width: cord.width * scale,
-  };
-}
 
 type StyleSpec = {
   /** Smallest and largest scale the moulding is cut at. */
@@ -182,10 +135,6 @@ type StyleSpec = {
   swell?: (o: StyleOptions) => Swell | null;
   blocks?: (o: StyleOptions) => CornerBlocks | null;
   rails?: (o: StyleOptions) => Rail[];
-  cord?: (o: StyleOptions) => Cord | null;
-  /** Height of the picture's face above the wall. Default
-   *  `CANVAS_FACE_Z`: a canvas on its stretcher. */
-  faceZ?: number;
   /** The moulding can take a liner inside it (`StyleOptions.liner`). */
   liner?: boolean;
 };
@@ -233,67 +182,6 @@ const arcAt = (co: number, cz: number, r: number, deg: number): [number, number]
 const matte: Extra = { rough: 1.5, wear: 0 };
 /** Board or cloth lying in the frame's shadow. */
 const board = (ao: number, slot: 1 | 2 = 1): Extra => ({ slot, ao, rough: 1, wear: 0 });
-
-/** Face of a hanging scroll's painting above the wall: the sheet and
- *  the silk it is pasted into lie on the wall, clear of the picture
- *  light's pool (2 mm). */
-const SCROLL_FACE_Z = 0.006;
-/** The mounting silk lies this far above the wall, a hair in front of
- *  the painting. */
-const SCROLL_SILK_Z = SCROLL_FACE_Z + 0.0008;
-
-/** The front of a rod, round (`co`, `cz`) from `from` degrees over the
- *  top to its outer flank: a scroll's stave or roller under its cloth.
- *  Lit from above the middle, in the cloth's `tone`. */
-function rod(
-  co: number,
-  cz: number,
-  r: number,
-  from: number,
-  steps: number,
-  tone: number,
-  extra: Extra,
-): ProfilePoint[] {
-  return arc(co, cz, r, from, 0, steps).map((pt, i) => {
-    const up = Math.max(0, Math.sin(((from - (from * i) / steps) * Math.PI) / 180));
-    return { ...pt, ...extra, ao: tone * (0.6 + 0.4 * up) };
-  });
-}
-
-/** A scroll's silk beside the painting, the radius of its top stave
- *  and of its roller, and the roller's knobs. */
-const SIDE = 0.042;
-const STAVE_R = 0.006;
-const ROLLER_R = 0.013;
-const KNOB_R = 0.0145;
-const KNOB_LENGTH = 0.03;
-/** Tone of a scroll's inner border and of its outer cloth, as a
- *  multiple of the silk's own colour. */
-const SCROLL_INNER = 0.94;
-const SCROLL_OUTER = 0.66;
-
-/** Where a scroll's cloths change, outward from the painting's top and
- *  bottom edges: the strip of brocade, the inner border, and the outer
- *  cloth to the stave (`head`) or to the roller (`foot`). */
-function scrollPlan(o: StyleOptions) {
-  return o.variant === 1
-    ? {
-        stripTop: 0.02,
-        innerTop: 0.07,
-        head: 0.18,
-        stripBottom: 0.012,
-        innerBottom: 0.046,
-        foot: 0.11,
-      }
-    : {
-        stripTop: 0.02,
-        innerTop: 0.056,
-        head: 0.135,
-        stripBottom: 0.012,
-        innerBottom: 0.038,
-        foot: 0.085,
-      };
-}
 
 // ── The styles ────────────────────────────────────────────────────────
 
@@ -1314,88 +1202,6 @@ const STYLES: Record<FrameStyleId, StyleSpec> = {
       ];
     },
   },
-  // Hanging scroll, mounted in three tiers. Nothing here is a moulding:
-  // the painting and its silk lie flat on the wall (`faceZ`).
-  //  - A strip of gold brocade (slot 2) lies on the painting's top and
-  //    bottom edges, as wide as the painting. Detail 1 weaves the
-  //    strips of the outer cloth.
-  //  - Round painting and strips runs the inner border of silk (slot
-  //    1): two narrow pillars and a band above and below.
-  //  - Above and below that, the outer cloth, the same silk a tone
-  //    deeper, with more of it above than below.
-  //  - The top is turned over a thin stave, which the cord is tied to.
-  //    The foot is wound on a roller that stands in front of the silk,
-  //    and the roller's two knobs (slot 0) stand out past it.
-  // Variant 1 is the taller mounting.
-  scroll: {
-    scale: [0.7, 1.15],
-    sight: [null],
-    field: [null],
-    crown: [null],
-    variants: 2,
-    details: 2,
-    faceZ: SCROLL_FACE_Z,
-    build: () => [],
-    rails: (o) => {
-      const s = scrollPlan(o);
-      const z = SCROLL_SILK_Z;
-      const cloth = (ao: number, slot: 1 | 2 = 1): Extra => ({ ...board(ao, slot), crease: true });
-      const inner = cloth(SCROLL_INNER);
-      const outer = cloth(SCROLL_OUTER);
-      const strip = o.detail === 1 ? outer : cloth(0.96, 2);
-      const underside: Extra = { ao: 0.6, rough: 1, wear: 0 };
-      // The silk starts just behind the painting's face, so no gap
-      // shows at the join.
-      const edge = (of: Extra): ProfilePoint[] => [p(0, SCROLL_FACE_Z - 0.001, of), p(0, z, of)];
-      // One cloth, then the next: a seam 0.4 mm wide, where a shared
-      // point would shade the one into the other.
-      const SEAM = 0.0004;
-      const band = (from: number, seam: number, to: number): ProfilePoint[] => [
-        p(from, z, inner),
-        p(seam, z, inner),
-        p(seam + SEAM, z, outer),
-        p(to, z, outer),
-      ];
-      const pillar = join(edge(inner), p(SIDE, z, inner), p(SIDE, 0.004, underside));
-      const stripOf = (w: number) => join(edge(strip), p(w, z, strip));
-      const top = join(
-        band(s.stripTop, s.innerTop, s.head),
-        rod(s.head + STAVE_R, z, STAVE_R, 180, 6, SCROLL_OUTER, { slot: 1, rough: 1, wear: 0 }),
-        p(s.head + 2 * STAVE_R, 0.004, underside),
-      );
-      // The roller is a whole round in front of the silk: its upper
-      // flank turns back under itself before it meets the cloth.
-      const axis = s.foot + ROLLER_R;
-      const axisZ = z + ROLLER_R;
-      const bottom = join(
-        band(s.stripBottom, s.innerBottom, axis - ROLLER_R * Math.SQRT1_2),
-        rod(axis, axisZ, ROLLER_R, 225, 10, SCROLL_OUTER, { slot: 1, rough: 1, wear: 0 }),
-        p(axis + ROLLER_R, 0.004, underside),
-      );
-      const knob = join(
-        p(axis - KNOB_R, 0.004, hard),
-        p(axis - KNOB_R, axisZ, hard),
-        arc(axis, axisZ, KNOB_R, 180, 0, 8),
-        p(axis + KNOB_R, 0.004),
-      );
-      return [
-        { side: "left", profile: pillar, past: { top: s.stripTop, bottom: s.stripBottom } },
-        { side: "right", profile: pillar, past: { top: s.stripTop, bottom: s.stripBottom } },
-        { side: "top", profile: stripOf(s.stripTop), past: 0 },
-        { side: "bottom", profile: stripOf(s.stripBottom), past: 0 },
-        { side: "top", profile: top, past: SIDE },
-        { side: "bottom", profile: bottom, past: SIDE },
-        { side: "bottom", profile: knob, past: SIDE + KNOB_LENGTH, ends: KNOB_LENGTH },
-      ];
-    },
-    cord: (o) => ({
-      from: scrollPlan(o).head + STAVE_R,
-      side: SIDE,
-      span: 0.56,
-      slope: 0.36,
-      width: 0.0045,
-    }),
-  },
   // Oxford frame: four bars that cross at the corners and run on past
   // them, round a mat (slot 1). The mat is mitred; the bars are rails.
   // Detail sets the mat's width.
@@ -1470,20 +1276,11 @@ export type BuiltStyle = {
    *  and rails included: what the hang reserves. */
   width: number;
   extents: FrameExtents;
-  /** The same for what is solid: what stands between a lamp and the
-   *  wall. Less than `extents` where a part stands out alone, as the
-   *  knobs of a scroll's roller do. */
-  body: FrameExtents;
   /** Highest point above the wall. */
   frontZ: number;
   swell: Swell | null;
   blocks: CornerBlocks | null;
   rails: Array<Rail<ShadedPoint>>;
-  /** A scroll's hanging cord. Its rise is not in `extents`: it grows
-   *  with the canvas's width (`hangCord`). */
-  cord: Cord | null;
-  /** Height of the picture's face above the wall. */
-  faceZ: number;
 };
 
 const built = new Map<string, BuiltStyle>();
@@ -1528,37 +1325,20 @@ export function buildStyle(id: FrameStyleId, o: StyleOptions): BuiltStyle {
 
   const swept = profile.length > 0 ? swollenWidth(profileWidth(profile), swell) : 0;
   const extents = { side: swept, top: swept, bottom: swept };
-  const body = { ...extents };
   let frontZ = profile.length > 0 ? profileFrontZ(profile) + (blocks?.lift ?? 0) : 0;
   for (const rail of rails) {
     const w = profileWidth(rail.profile);
     frontZ = Math.max(frontZ, profileFrontZ(rail.profile));
-    const past = railPast(rail.past);
-    for (const reach of rail.ends === undefined ? [extents, body] : [extents]) {
-      if (rail.side === "top" || rail.side === "bottom") {
-        reach[rail.side] = Math.max(reach[rail.side], w);
-        reach.side = Math.max(reach.side, past.top);
-      } else {
-        reach.side = Math.max(reach.side, w);
-        reach.top = Math.max(reach.top, past.top);
-        reach.bottom = Math.max(reach.bottom, past.bottom);
-      }
+    if (rail.side === "top" || rail.side === "bottom") {
+      extents[rail.side] = Math.max(extents[rail.side], w);
+      extents.side = Math.max(extents.side, rail.past);
+    } else {
+      extents.side = Math.max(extents.side, w);
+      extents.top = Math.max(extents.top, rail.past);
+      extents.bottom = Math.max(extents.bottom, rail.past);
     }
   }
-  const cord = spec.cord?.(o) ?? null;
-  const faceZ = spec.faceZ ?? CANVAS_FACE_Z;
-  const out = {
-    profile,
-    width: extents.side,
-    extents,
-    body,
-    frontZ,
-    swell,
-    blocks,
-    rails,
-    cord,
-    faceZ,
-  };
+  const out = { profile, width: extents.side, extents, frontZ, swell, blocks, rails };
   built.set(key, out);
   return out;
 }

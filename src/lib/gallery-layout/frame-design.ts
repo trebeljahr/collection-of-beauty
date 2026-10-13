@@ -28,17 +28,20 @@
 // No three.js here: the hang reads `frameReach`.
 
 import type { ArtworkListing } from "@/lib/data";
-import { type CarveBand, FRAME_SLOTS, type ShadedPoint, scaleProfile } from "./frame-profiles";
+import {
+  CANVAS_FACE_Z,
+  type CarveBand,
+  FRAME_SLOTS,
+  type ShadedPoint,
+  scaleProfile,
+} from "./frame-profiles";
 import {
   type BuiltStyle,
   buildStyle,
   type CornerBlocks,
   type FrameExtents,
   type FrameStyleId,
-  type HungCord,
-  hangCord,
   type Rail,
-  railPast,
   type StyleOptions,
   type Swell,
   scaleSwell,
@@ -286,8 +289,6 @@ type Framed = Pick<ArtworkListing, "id"> &
       | "dominantColor"
       | "colorBuckets"
       | "realDimensions"
-      | "width"
-      | "height"
     >
   >;
 
@@ -358,7 +359,6 @@ export type LookId =
   | "japanBamboo"
   | "oxford"
   | "silkMount"
-  | "scroll"
   | "tabernacle"
   | "reverse"
   | "reverseBlack"
@@ -462,7 +462,6 @@ const LOOKS: Record<LookId, Look> = {
   japanBamboo: { style: "print", main: ["kiri", "maple", "ash", "stained", "walnut"], inner: ["mat"], accent: ["blackMatte"], variants: [5] },
   // Silk.
   silkMount: { style: "mount", main: ["walnut", "blackLacquer", "redLacquer", "rosewood"], inner: ["silk"], accent: ["brocade"] },
-  scroll: { style: "scroll", main: ["walnut", "blackLacquer", "redLacquer", "rosewood"], inner: ["silk"], accent: ["brocade"] },
 };
 
 export const LOOK_IDS = Object.keys(LOOKS) as LookId[];
@@ -476,14 +475,14 @@ type FrameRule = [movement: string, looks: Weights];
 // for how often.
 
 /** Works on paper and silk: matted or mounted whatever their date. A
- *  silk painting gets a scroll or a flat mount by its shape
- *  (`scoreLooks`). */
+ *  painting on silk hangs framed in a flat mount, upright or wide:
+ *  no work hangs as a scroll. */
 // biome-ignore format: one school a line reads as the table it is.
 const PAPER_RULES: FrameRule[] = [
   ["Ukiyo-e", { japanLacquer: 4, japanWood: 3, japanBamboo: 2, printBlack: 1 }],
   ["Shin-hanga", { japanWood: 3, japanLacquer: 2, japanBamboo: 2, printWood: 2, printBlack: 2 }],
-  ["Classical East Asian", { silkMount: 1, scroll: 1 }],
-  ["Nihonga", { silkMount: 1, scroll: 1 }],
+  ["Classical East Asian", { silkMount: 1 }],
+  ["Nihonga", { silkMount: 1 }],
   ["Natural history", { printWood: 4, hogarth: 3, oxford: 2, printBlack: 2, printGilt: 2 }],
   ["Botanical", { printGilt: 3, printWood: 3, hogarth: 3, oxford: 1, printBlack: 1 }],
 ];
@@ -620,11 +619,6 @@ function longEdge(artwork: Framed): number | null {
   return d ? Math.max(d.widthCm, d.heightCm) / 100 : null;
 }
 
-/** Height over width of the picture, or null without pixel sizes. */
-function tallness(artwork: Framed): number | null {
-  return artwork.width && artwork.height ? artwork.height / artwork.width : null;
-}
-
 /** What a work's record says of it apart from its picture: read once,
  *  because a hang scores a work's looks several times over. */
 type Bearings = {
@@ -633,7 +627,6 @@ type Bearings = {
   biases: Weights[];
   sacred: boolean;
   edge: number | null;
-  tall: number | null;
 };
 
 const bearings = new WeakMap<Framed, Bearings>();
@@ -650,7 +643,6 @@ function bearingsOf(artwork: Framed): Bearings {
       ].map(([, bias]) => bias),
       sacred: Boolean(title && SACRED.test(title)),
       edge: longEdge(artwork),
-      tall: tallness(artwork),
     };
     bearings.set(artwork, read);
   }
@@ -658,10 +650,10 @@ function bearingsOf(artwork: Framed): Bearings {
 }
 
 /** The look's weight for this work: the school's, times how well its
- *  finishes do (`main` scores one), its country, its subject, its size
- *  and its shape. */
+ *  finishes do (`main` scores one), its country, its subject and its
+ *  size. */
 function scoreLooks(artwork: Framed, main: (finish: FinishId) => number): Array<[LookId, number]> {
-  const { looks, biases, sacred, edge, tall } = bearingsOf(artwork);
+  const { looks, biases, sacred, edge } = bearingsOf(artwork);
   return looks.map(([id, weight]) => {
     const look = LOOKS[id];
     // The look fits as well as its best finish does.
@@ -678,10 +670,6 @@ function scoreLooks(artwork: Framed, main: (finish: FinishId) => number): Array<
       // An entablature over a 3 m canvas is a building, not a frame.
       if (edge != null && edge > 2.4) score *= 0.4;
     }
-    // A hanging scroll is an upright: a wide painting on silk was a
-    // screen or a handscroll and gets the flat mount.
-    if (id === "scroll") score *= tall != null && tall >= 1.25 ? 4 : 0;
-    if (id === "silkMount" && tall != null && tall >= 1.25) score *= 0.5;
     return [id, score];
   });
 }
@@ -746,8 +734,8 @@ function drawFrom<T extends string | number | null>(items: readonly T[], id: str
 
 // ── The wall and the neighbours ───────────────────────────────────────
 
-/** Finishes that read as one from across a room. `silk` is every mount
- *  and scroll, whatever its rods are made of. */
+/** Finishes that read as one from across a room. `silk` is every silk
+ *  mount, whatever its edge is made of. */
 export type FinishFamily = "gilt" | "silver" | "dark" | "wood" | "pale" | "red" | "silk";
 
 // biome-ignore format: a table.
@@ -770,7 +758,7 @@ const FAMILY_OF = new Map<FinishId, FinishFamily>(
  *  `finish`. Null for a finish no moulding comes in. */
 export function familyOf(look: LookId, finish: FinishId): FinishFamily | null {
   const style = LOOKS[look].style;
-  if (style === "mount" || style === "scroll") return "silk";
+  if (style === "mount") return "silk";
   return FAMILY_OF.get(finish) ?? null;
 }
 
@@ -1455,27 +1443,12 @@ export function frameReach(design: FrameDesign, widthM: number, heightM: number)
 }
 
 /** The frame's reach on each side. Left and right are `frameReach`;
- *  a tabernacle's entablature or a scroll's head reaches further up,
- *  its plinth or its roller further down. */
+ *  a tabernacle's entablature reaches further up and its plinth
+ *  further down. */
 export function frameExtents(design: FrameDesign, widthM: number, heightM: number): FrameExtents {
-  const { extents, cord } = buildStyle(design.style, design.options);
+  const { extents } = buildStyle(design.style, design.options);
   const scale = frameScale(design, widthM, heightM);
-  // A scroll's cord rises to its nail above the stave.
-  const hung = cord && hangCord(cord, widthM, scale);
-  return {
-    side: extents.side * scale,
-    top: Math.max(extents.top * scale, hung ? hung.from + hung.rise + hung.width : 0),
-    bottom: extents.bottom * scale,
-  };
-}
-
-/** The reach of the frame's solid on each side: what stands between
- *  the picture light and the wall. A scroll's cord and the knobs of its
- *  roller are not in it. */
-export function frameBody(design: FrameDesign, widthM: number, heightM: number): FrameExtents {
-  const { body } = buildStyle(design.style, design.options);
-  const scale = frameScale(design, widthM, heightM);
-  return { side: body.side * scale, top: body.top * scale, bottom: body.bottom * scale };
+  return { side: extents.side * scale, top: extents.top * scale, bottom: extents.bottom * scale };
 }
 
 /** A design cut for a canvas of the given size: what the renderer
@@ -1485,33 +1458,22 @@ export type Moulding = {
   swell: Swell | null;
   blocks: CornerBlocks | null;
   rails: Array<Rail<ShadedPoint>>;
-  cord: HungCord | null;
   /** Highest point above the wall, metres. */
   frontZ: number;
-  /** The picture's face above the wall, metres: `CANVAS_FACE_Z` in a
-   *  frame, a few millimetres on a hanging scroll. */
-  faceZ: number;
 };
 
 export function frameMoulding(design: FrameDesign, widthM: number, heightM: number): Moulding {
   const style = buildStyle(design.style, design.options);
   const scale = frameScale(design, widthM, heightM);
-  const { faceZ } = style;
   return {
-    profile: scaleProfile(style.profile, scale, faceZ),
+    profile: scaleProfile(style.profile, scale),
     swell: style.swell && scaleSwell(style.swell, scale),
     blocks: style.blocks && { from: style.blocks.from * scale, lift: style.blocks.lift * scale },
-    rails: style.rails.map((rail) => {
-      const past = railPast(rail.past);
-      return {
-        ...rail,
-        profile: scaleProfile(rail.profile, scale, faceZ),
-        past: { top: past.top * scale, bottom: past.bottom * scale },
-        ends: rail.ends === undefined ? undefined : rail.ends * scale,
-      };
-    }),
-    cord: style.cord && hangCord(style.cord, widthM, scale),
-    frontZ: faceZ + (style.frontZ - faceZ) * scale,
-    faceZ,
+    rails: style.rails.map((rail) => ({
+      ...rail,
+      profile: scaleProfile(rail.profile, scale),
+      past: rail.past * scale,
+    })),
+    frontZ: CANVAS_FACE_Z + (style.frontZ - CANVAS_FACE_Z) * scale,
   };
 }

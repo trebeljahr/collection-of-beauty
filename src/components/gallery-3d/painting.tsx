@@ -9,7 +9,6 @@ import type { Palette } from "@/lib/gallery-eras";
 import {
   FINISHES,
   type FrameDesign,
-  frameBody,
   frameExtents,
   frameMoulding,
   pickFrameDesign,
@@ -139,8 +138,7 @@ const LOD_LADDER = [960, 1920, 2560, 4096, GALLERY_LOD_WIDTH];
 // the wall plane, the collision controller tests walls and staircases
 // only (frames and canvases are not colliders), and the canvas surface
 // sits just 0.034 m proud of the wall (PAINTING_WALL_OFFSET 0.02 plus
-// the plane's local z 0.014; a scroll's painting lies nearer the wall
-// still). Designing for 0.27 m would ask for 1.7×
+// the plane's local z 0.014). Designing for 0.27 m would ask for 1.7×
 // the pixels and put nearly every work back on the top rung, erasing
 // the memory win for detail nobody can resolve while their nose is
 // against the frame. 0.45 m says: we promise 1:1 with screen pixels at
@@ -512,17 +510,12 @@ export const Painting = memo(function Painting({
   // The moulding's section. Its geometry is built with the frame
   // (`FrameMesh`), once the work is revealed.
   const moulding = useMemo(() => frameMoulding(design, dW, dH), [design, dW, dH]);
-  // Local z of the picture's face, for the canvas and for its stand-in.
-  const faceZ = moulding.faceZ - PAINTING_WALL_OFFSET;
   // At its widest: a swept frame's corners stand out past its rails,
-  // and a scroll or a tabernacle frame reaches further up and down
-  // than to the sides.
+  // and a tabernacle frame reaches further up and down than to the
+  // sides.
   const extents = useMemo(() => frameExtents(design, dW, dH), [design, dW, dH]);
   const frameReach = extents.side;
   const frameRise = Math.max(extents.top, extents.bottom);
-  // What of it throws a shadow: the pool is dark behind this rectangle,
-  // so it must not be larger than the frame is solid.
-  const body = useMemo(() => frameBody(design, dW, dH), [design, dW, dH]);
 
   // Picture light: one can per work, its pool clipped to this wall's
   // clear stretches, or to the divider the work hangs on, and faded out
@@ -630,7 +623,6 @@ export const Painting = memo(function Painting({
             thumbUrl={variantProxyUrl(artwork.objectKey, 256, "avif")}
             widthM={dW}
             heightM={dH}
-            faceZ={faceZ}
             artwork={artwork}
             onSettled={onSettled}
             onTextureAspect={handleTextureAspect}
@@ -645,23 +637,19 @@ export const Painting = memo(function Painting({
           )}
         </>
       ) : (
-        <StandIn
-          artwork={artwork}
-          design={design}
-          widthM={dW}
-          heightM={dH}
-          extents={extents}
-          faceZ={faceZ}
-        />
+        <StandIn artwork={artwork} design={design} widthM={dW} heightM={dH} extents={extents} />
       )}
       <PaintingLight
         rig={rig}
         wallZ={poolWallZ}
         floorY={wall.floorY}
         ceilingY={ceilingY}
-        frameHalfW={dW / 2 + body.side}
-        frameHalfH={dH / 2 + (body.top + body.bottom) / 2}
-        frameCenterY={(body.top - body.bottom) / 2}
+        frameHalfW={dW / 2 + frameReach}
+        // The pool is dark behind this rectangle, so it is no taller
+        // than the frame: a tabernacle's entablature reaches further
+        // up than its plinth does down.
+        frameHalfH={dH / 2 + (extents.top + extents.bottom) / 2}
+        frameCenterY={(extents.top - extents.bottom) / 2}
         frameFrontZ={moulding.frontZ - PAINTING_WALL_OFFSET}
         plaque={plaqueRect}
         // A work on a sheer wall is lit from across the void, where
@@ -702,7 +690,6 @@ function FrameMesh({
         swell: moulding.swell,
         blocks: moulding.blocks,
         rails: moulding.rails,
-        cord: moulding.cord,
       }),
     [moulding, design, widthM, heightM],
   );
@@ -734,14 +721,16 @@ const standInFrameMaterial = new THREE.MeshBasicMaterial({
   toneMapped: false,
 });
 
+/** Local z of the picture's face: `CANVAS_FACE_Z` less the wall offset. */
+const PICTURE_Z = 0.014;
+
 /** The band between the canvas and the frame's outer edge, as four
- *  quads round the canvas and in its plane (`faceZ`): nothing overlaps,
- *  so nothing z-fights at any distance. */
+ *  quads round the canvas and in its plane (`PICTURE_Z`): nothing
+ *  overlaps, so nothing z-fights at any distance. */
 function buildStandInBand(
   widthM: number,
   heightM: number,
   extents: { side: number; top: number; bottom: number },
-  faceZ: number,
   color: THREE.Color,
 ): THREE.BufferGeometry {
   const x0 = -widthM / 2;
@@ -764,7 +753,7 @@ function buildStandInBand(
   const index: number[] = [];
   for (const [ax, ay, bx, by] of rects) {
     const base = positions.length / 3;
-    positions.push(ax, ay, faceZ, bx, ay, faceZ, bx, by, faceZ, ax, by, faceZ);
+    positions.push(ax, ay, PICTURE_Z, bx, ay, PICTURE_Z, bx, by, PICTURE_Z, ax, by, PICTURE_Z);
     for (let i = 0; i < 4; i++) colors.push(color.r, color.g, color.b);
     index.push(base, base + 1, base + 2, base, base + 2, base + 3);
   }
@@ -781,27 +770,18 @@ function StandIn({
   widthM,
   heightM,
   extents,
-  faceZ,
 }: {
   artwork: ArtworkListing;
   design: FrameDesign;
   widthM: number;
   heightM: number;
   extents: { side: number; top: number; bottom: number };
-  /** Local z of the picture's face (`Moulding.faceZ`). */
-  faceZ: number;
 }) {
   const finish = design.slots[0]?.finish;
   const band = useMemo(() => {
     const color = new THREE.Color(finish ? FINISHES[finish].color : "#2a1d14");
-    return buildStandInBand(
-      widthM,
-      heightM,
-      extents,
-      faceZ,
-      color.multiplyScalar(STAND_IN_FRAME_SHADE),
-    );
-  }, [widthM, heightM, extents, faceZ, finish]);
+    return buildStandInBand(widthM, heightM, extents, color.multiplyScalar(STAND_IN_FRAME_SHADE));
+  }, [widthM, heightM, extents, finish]);
   useEffect(() => () => band.dispose(), [band]);
 
   // The canvas as `PaintingPlane` first paints it, so the hand-over is
@@ -825,7 +805,7 @@ function StandIn({
   return (
     <>
       <mesh geometry={band} material={standInFrameMaterial} layers={UNREFLECTED_LAYER} />
-      <mesh position={[0, 0, faceZ]}>
+      <mesh position={[0, 0, PICTURE_Z]}>
         <planeGeometry args={[widthM, heightM]} />
         <meshBasicMaterial ref={matRef} toneMapped={false} />
       </mesh>
@@ -1297,7 +1277,6 @@ function PaintingPlane({
   thumbUrl,
   widthM,
   heightM,
-  faceZ,
   artwork,
   onSettled,
   onTextureAspect,
@@ -1319,9 +1298,6 @@ function PaintingPlane({
   thumbUrl: string;
   widthM: number;
   heightM: number;
-  /** Local z of the picture's face: 0.014 in a frame, on the wall for
-   *  a hanging scroll (`Moulding.faceZ`). */
-  faceZ: number;
   artwork: Placement["artwork"];
   onSettled?: (status: "loaded" | "failed") => void;
   /** Reports the loaded texture's true pixel aspect (w/h). Parent uses
@@ -1734,7 +1710,7 @@ function PaintingPlane({
   }, [widthM, heightM]);
 
   return (
-    <mesh ref={meshRef} position={[0, 0, faceZ]} userData={{ artwork }}>
+    <mesh ref={meshRef} position={[0, 0, PICTURE_Z]} userData={{ artwork }}>
       <planeGeometry args={[widthM, heightM]} />
       {/* No `map` or `color` props — both are mutated directly on the
           material via the layout effect (initial state) and load effect

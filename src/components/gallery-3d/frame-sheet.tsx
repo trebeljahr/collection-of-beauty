@@ -66,18 +66,15 @@ function SheetWork({
       : FIT_EDGE / Math.max(sized.wM, sized.hM);
     return [sized.wM * k, sized.hM * k];
   }, [work, realSize]);
-  const moulding = useMemo(() => frameMoulding(design, w, h), [design, w, h]);
-  const geometry = useMemo(
-    () =>
-      buildFrameGeometry(moulding.profile, w, h, PAINTING_WALL_OFFSET, {
-        slots: design.slots,
-        swell: moulding.swell,
-        blocks: moulding.blocks,
-        rails: moulding.rails,
-        cord: moulding.cord,
-      }),
-    [moulding, design, w, h],
-  );
+  const geometry = useMemo(() => {
+    const moulding = frameMoulding(design, w, h);
+    return buildFrameGeometry(moulding.profile, w, h, PAINTING_WALL_OFFSET, {
+      slots: design.slots,
+      swell: moulding.swell,
+      blocks: moulding.blocks,
+      rails: moulding.rails,
+    });
+  }, [design, w, h]);
   useEffect(() => () => geometry.dispose(), [geometry]);
 
   const [texture, setTexture] = useState<THREE.Texture | null>(null);
@@ -106,7 +103,7 @@ function SheetWork({
   return (
     <group position={[x, y, PAINTING_WALL_OFFSET]}>
       <mesh geometry={geometry} material={frameMaterials(design)} />
-      <mesh position={[0, 0, moulding.faceZ - PAINTING_WALL_OFFSET]}>
+      <mesh position={[0, 0, 0.014]}>
         <planeGeometry args={[w, h]} />
         {/* Keyed on the texture: a material compiled without a map does
             not pick one up later. */}

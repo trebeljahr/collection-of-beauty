@@ -12,22 +12,15 @@
 //
 // Most frames are one profile mitred round the canvas (`sweep`). A few
 // are built from straight rails cut square (`addRail`): a tabernacle's
-// entablature, a scroll's silk and roller, the crossing bars of an
-// Oxford frame. A frame may also carry a block on each corner
-// (`addBlocks`), and a scroll hangs by a cord (`addCord`).
+// entablature, the crossing bars of an Oxford frame.
+// A frame may also carry a block on each corner (`addBlocks`).
 //
 // Everything goes into one BufferGeometry: one draw call per material
 // slot the frame uses.
 
 import * as THREE from "three";
 import { type CarveBand, FRAME_SLOTS, type ShadedPoint } from "@/lib/gallery-layout/frame-profiles";
-import {
-  type CornerBlocks,
-  type HungCord,
-  type Rail,
-  railPast,
-  type Swell,
-} from "@/lib/gallery-layout/frame-styles";
+import type { CornerBlocks, Rail, Swell } from "@/lib/gallery-layout/frame-styles";
 import { CARVE_ROWS } from "./frame-maps";
 
 type Normal2 = [number, number];
@@ -115,8 +108,6 @@ export type FrameFinish = {
   blocks?: CornerBlocks | null;
   /** Rails, already scaled. */
   rails?: ReadonlyArray<Rail<ShadedPoint>>;
-  /** A scroll's hanging cord, cut for the canvas. */
-  cord?: HungCord | null;
 };
 
 /** A swell is cut into stations this far apart along the rail, metres,
@@ -401,18 +392,14 @@ const CAP_FOOT_Z = 0.004;
 /**
  * One straight rail along a side of the canvas, cut square at both
  * ends and closed there. Its ornament is set out from the ends to the
- * middle like a mitred rail's. A rail with `ends` is only its two end
- * pieces, each closed at both cuts.
+ * middle like a mitred rail's.
  */
 function addRail(mesh: Mesh, rail: Rail<ShadedPoint>, halfW: number, halfH: number): void {
   const side = sidesOf(halfW, halfH)[rail.side];
   const profile = rail.profile;
   const { endNormal, along, runs } = measure(profile);
-  const past = railPast(rail.past);
-  // Which half of an upright rail runs up: `v` points down the left
-  // side and up the right one.
-  const lengthOf = (half: -1 | 1) => side.hv + (half * side.v[1] < 0 ? past.bottom : past.top);
-  if (lengthOf(1) <= 0 || lengthOf(-1) <= 0) return;
+  const length = side.hv + rail.past;
+  if (length <= 0) return;
 
   for (let s = 0; s < profile.length - 1; s++) {
     const ends: Array<[ShadedPoint, Normal2, number]> = [
@@ -427,8 +414,6 @@ function addRail(mesh: Mesh, rail: Rail<ShadedPoint>, halfW: number, halfH: numb
     const look = mesh.slot(slot);
 
     for (const half of [-1, 1] as const) {
-      const length = lengthOf(half);
-      const start = rail.ends === undefined ? 0 : Math.max(0, length - rail.ends);
       const pair = (a: number) => {
         const base = mesh.count;
         for (const [pt, nrm, arcAt] of ends) {
@@ -445,123 +430,40 @@ function addRail(mesh: Mesh, rail: Rail<ShadedPoint>, halfW: number, halfH: numb
         }
         return base;
       };
-      const near = pair(start);
+      const near = pair(0);
       const far = pair(length);
       if (half === 1) mesh.indicesBySlot[slot].push(far, near, near + 1, far, near + 1, far + 1);
       else mesh.indicesBySlot[slot].push(near, far, far + 1, near, far + 1, near + 1);
 
-      // A cut: this segment's share of the face, down to the wall,
-      // looking `facing` along the rail.
+      // The end: this segment's share of the cut face, down to the wall.
       const [a, b] = [ends[0][0], ends[1][0]];
       if (b.o - a.o < 1e-6) continue;
-      const cut = (at: number, facing: -1 | 1) => {
-        const base = mesh.count;
-        const cap: Array<[number, number]> = [
-          [a.o, a.z],
-          [b.o, b.z],
-          [b.o, CAP_FOOT_Z],
-          [a.o, CAP_FOOT_Z],
-        ];
-        const shade = 0.78;
-        for (const [o, z] of cap) {
-          mesh.positions.push(
-            side.u[0] * (side.hu + o) + at * side.v[0],
-            side.u[1] * (side.hu + o) + at * side.v[1],
-            z - mesh.wallOffset,
-          );
-          mesh.normals.push(facing * side.v[0], facing * side.v[1], 0);
-          mesh.colors.push(...tintAt(look, shade));
-          mesh.uvs.push(o, z);
-          mesh.carveUvs.push(0, 0);
-          mesh.frame.push(look.rough * 1.2, 0, 0, shade);
-          mesh.count++;
-        }
-        if (facing === 1)
-          mesh.indicesBySlot[slot].push(base, base + 1, base + 2, base, base + 2, base + 3);
-        else mesh.indicesBySlot[slot].push(base, base + 2, base + 1, base, base + 3, base + 2);
-      };
-      cut(half * length, half);
-      if (start > 0) cut(half * start, half === 1 ? -1 : 1);
+      const base = mesh.count;
+      const cap: Array<[number, number]> = [
+        [a.o, a.z],
+        [b.o, b.z],
+        [b.o, CAP_FOOT_Z],
+        [a.o, CAP_FOOT_Z],
+      ];
+      const shade = 0.78;
+      for (const [o, z] of cap) {
+        mesh.positions.push(
+          side.u[0] * (side.hu + o) + half * length * side.v[0],
+          side.u[1] * (side.hu + o) + half * length * side.v[1],
+          z - mesh.wallOffset,
+        );
+        mesh.normals.push(half * side.v[0], half * side.v[1], 0);
+        mesh.colors.push(...tintAt(look, shade));
+        mesh.uvs.push(o, z);
+        mesh.carveUvs.push(0, 0);
+        mesh.frame.push(look.rough * 1.2, 0, 0, shade);
+        mesh.count++;
+      }
+      if (half === 1)
+        mesh.indicesBySlot[slot].push(base, base + 1, base + 2, base, base + 2, base + 3);
+      else mesh.indicesBySlot[slot].push(base, base + 2, base + 1, base, base + 3, base + 2);
     }
   }
-}
-
-/** A cord lies this thick on the wall, and its nail stands this far
- *  out of it, metres. */
-const CORD_THICK = 0.003;
-const NAIL_PROUD = 0.011;
-
-/**
- * A scroll's cord: two straight lengths of braid from the top stave up
- * to a nail over the middle of the canvas, and the nail. Slot 0, in
- * the tone of the roller's knobs.
- */
-function addCord(mesh: Mesh, cord: HungCord, halfH: number): void {
-  const look = mesh.slot(0);
-  const vertex = (x: number, y: number, z: number, n: [number, number, number], ao: number) => {
-    mesh.positions.push(x, y, z - mesh.wallOffset);
-    mesh.normals.push(...n);
-    mesh.colors.push(...tintAt(look, ao));
-    mesh.uvs.push(x, y);
-    mesh.carveUvs.push(0, 0);
-    mesh.frame.push(look.rough * 1.3, 0, 0, ao);
-    return mesh.count++;
-  };
-  /** A bar from `a` to `b` on the wall, `width` across, standing from
-   *  the wall to `top`: its face and its two flanks. */
-  const bar = (a: Normal2, b: Normal2, width: number, top: number) => {
-    const dx = b[0] - a[0];
-    const dy = b[1] - a[1];
-    const l = Math.hypot(dx, dy);
-    if (l < 1e-6) return;
-    // Across the bar, a quarter turn left of its run.
-    const across: Normal2 = [(-dy / l) * (width / 2), (dx / l) * (width / 2)];
-    const corner = (end: Normal2, sign: number): Normal2 => [
-      end[0] + sign * across[0],
-      end[1] + sign * across[1],
-    ];
-    const quad = (pts: Array<[Normal2, number]>, n: [number, number, number], ao: number) => {
-      const base = mesh.count;
-      for (const [[x, y], z] of pts) vertex(x, y, z, n, ao);
-      mesh.indicesBySlot[0].push(base, base + 1, base + 2, base, base + 2, base + 3);
-    };
-    quad(
-      [
-        [corner(a, -1), top],
-        [corner(b, -1), top],
-        [corner(b, 1), top],
-        [corner(a, 1), top],
-      ],
-      [0, 0, 1],
-      1,
-    );
-    for (const sign of [-1, 1]) {
-      const n: [number, number, number] = [
-        (sign * across[0] * 2) / width,
-        (sign * across[1] * 2) / width,
-        0,
-      ];
-      const [from, to] = sign === 1 ? [a, b] : [b, a];
-      quad(
-        [
-          [corner(from, sign), top],
-          [corner(to, sign), top],
-          [corner(to, sign), CAP_FOOT_Z],
-          [corner(from, sign), CAP_FOOT_Z],
-        ],
-        n,
-        0.7,
-      );
-    }
-  };
-  const tieY = halfH + cord.from;
-  const nail: Normal2 = [0, tieY + cord.rise];
-  const top = CAP_FOOT_Z + CORD_THICK;
-  bar([-cord.reach, tieY], nail, cord.width, top);
-  bar(nail, [cord.reach, tieY], cord.width, top);
-  // The nail: a square head, level, a little wider than the braid.
-  const head = cord.width * 0.9;
-  bar([-head, nail[1]], [head, nail[1]], 2 * head, CAP_FOOT_Z + NAIL_PROUD);
 }
 
 /**
@@ -695,7 +597,6 @@ export function buildFrameGeometry(
     if (finish.blocks) addBlocks(mesh, profile, finish.blocks, halfW, halfH);
   }
   for (const rail of finish.rails ?? []) addRail(mesh, rail, halfW, halfH);
-  if (finish.cord) addCord(mesh, finish.cord, halfH);
 
   const geometry = new THREE.BufferGeometry();
   geometry.setAttribute("position", new THREE.Float32BufferAttribute(mesh.positions, 3));

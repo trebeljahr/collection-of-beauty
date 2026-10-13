@@ -5,7 +5,6 @@ import {
   buildStyle,
   FRAME_STYLE_IDS,
   type FrameStyleId,
-  hangCord,
   type StyleOptions,
   styleChoices,
   swollenWidth,
@@ -62,14 +61,13 @@ describe("carvePeriods", () => {
   });
 });
 
-/** The whole frame of a style: moulding, swell, blocks, rails and cord. */
+/** The whole frame of a style: moulding, swell, blocks and rails. */
 function frameOf(id: FrameStyleId, more: Partial<StyleOptions>, w: number, h: number) {
   const style = buildStyle(id, firstOf(id, more));
   return buildFrameGeometry(style.profile, w, h, WALL_OFFSET, {
     swell: style.swell,
     blocks: style.blocks,
     rails: style.rails,
-    cord: style.cord && hangCord(style.cord, w, 1),
   });
 }
 
@@ -102,10 +100,10 @@ describe("buildFrameGeometry", () => {
     // Parcel gilding, and a Hogarth frame's two gilt beads round a mat.
     expect(groupsOf("parcel")).toEqual([0, 2]);
     expect(groupsOf("print", { variant: 2 })).toEqual([0, 1, 2]);
-    // A liner, a painted tabernacle, a scroll's silk and brocade.
+    // A liner, a painted tabernacle, a silk mount's strip of brocade.
     expect(groupsOf("barbizon", { liner: 0.03 })).toEqual([0, 1]);
     expect(groupsOf("tabernacle", { variant: 1 })).toEqual([0, 2]);
-    expect(groupsOf("scroll")).toEqual([0, 1, 2]);
+    expect(groupsOf("mount", { variant: 1 })).toEqual([0, 1, 2]);
   });
 
   // The tests below read every triangle or vertex of a frame in a plain
@@ -392,85 +390,6 @@ describe("frames built from rails", () => {
     // No mitre: nothing of a pilaster lies above the canvas's top edge.
     const pilaster = style.rails.find((r) => r.side === "left");
     expect(pilaster?.past).toBe(0);
-  });
-
-  it("hangs a scroll with its roller standing out past the silk", () => {
-    const style = buildStyle("scroll", firstOf("scroll"));
-    const g = frameOf("scroll", {}, 0.6, 1.4);
-    const pos = g.getAttribute("position");
-    const silk = style.rails.find((r) => r.side === "left");
-    const silkEdge = 0.3 + profileWidth(silk?.profile ?? []);
-    let widestBelow = 0;
-    let widestBeside = 0;
-    for (let i = 0; i < pos.count; i++) {
-      const x = Math.abs(pos.getX(i));
-      if (pos.getY(i) < -0.7 - style.extents.bottom + 0.035) widestBelow = Math.max(widestBelow, x);
-      if (Math.abs(pos.getY(i)) < 0.5) widestBeside = Math.max(widestBeside, x);
-    }
-    expect(widestBeside).toBeCloseTo(silkEdge, 6);
-    expect(widestBelow).toBeGreaterThan(silkEdge + 0.02);
-  });
-
-  it("gives a scroll's roller a knob at each end and nothing of wood between them", () => {
-    const style = buildStyle("scroll", firstOf("scroll"));
-    const [w, h] = [0.6, 1.4];
-    const g = frameOf("scroll", {}, w, h);
-    const pos = g.getAttribute("position");
-    const idx = g.index as THREE.BufferAttribute;
-    const wood = g.groups.find((group) => group.materialIndex === 0);
-    expect(wood).toBeDefined();
-    if (!wood) return;
-    // Slot 0 is the knobs below the canvas and the cord above it.
-    const silkEdge = w / 2 + style.body.side;
-    let innermostKnob = Infinity;
-    let outermostKnob = 0;
-    let lowestCord = Infinity;
-    let highest = -Infinity;
-    for (let i = wood.start; i < wood.start + wood.count; i++) {
-      const v = idx.getX(i);
-      const x = Math.abs(pos.getX(v));
-      const y = pos.getY(v);
-      if (y < 0) {
-        innermostKnob = Math.min(innermostKnob, x);
-        outermostKnob = Math.max(outermostKnob, x);
-      } else {
-        lowestCord = Math.min(lowestCord, y);
-        highest = Math.max(highest, y);
-      }
-    }
-    expect(innermostKnob).toBeCloseTo(silkEdge, 6);
-    expect(outermostKnob).toBeCloseTo(w / 2 + style.extents.side, 6);
-    // The cord starts on the stave and ends at the nail, over the middle.
-    const cord = hangCord(style.cord ?? { from: 0, side: 0, span: 0, slope: 0, width: 0 }, w, 1);
-    expect(lowestCord).toBeGreaterThan(h / 2 + cord.from - cord.width);
-    expect(lowestCord).toBeLessThan(h / 2 + style.body.top);
-    expect(highest).toBeGreaterThan(h / 2 + cord.from + cord.rise);
-    expect(highest).toBeLessThanOrEqual(h / 2 + cord.from + cord.rise + cord.width);
-    // Nothing of the scroll but its roller stands out from the wall.
-    g.computeBoundingBox();
-    const box = g.boundingBox as THREE.Box3;
-    expect(box.max.z + WALL_OFFSET).toBeCloseTo(style.frontZ, 6);
-    expect(style.frontZ).toBeLessThan(0.04);
-  });
-
-  it("runs an upright rail further past one corner than the other when told to", () => {
-    const style = buildStyle("scroll", firstOf("scroll"));
-    const pillar = style.rails.find((r) => r.side === "left");
-    expect(pillar).toBeDefined();
-    if (!pillar || typeof pillar.past === "number") throw new Error("the pillar's past is uneven");
-    expect(pillar.past.top).toBeGreaterThan(pillar.past.bottom);
-    const g = buildFrameGeometry([], 0.6, 1.4, WALL_OFFSET, { rails: [pillar] });
-    g.computeBoundingBox();
-    const box = g.boundingBox as THREE.Box3;
-    expect(box.max.y).toBeCloseTo(0.7 + pillar.past.top, 6);
-    expect(box.min.y).toBeCloseTo(-0.7 - pillar.past.bottom, 6);
-    // The same on the right, where the rail runs the other way.
-    const right = buildFrameGeometry([], 0.6, 1.4, WALL_OFFSET, {
-      rails: [{ ...pillar, side: "right" }],
-    });
-    right.computeBoundingBox();
-    expect((right.boundingBox as THREE.Box3).max.y).toBeCloseTo(0.7 + pillar.past.top, 6);
-    expect((right.boundingBox as THREE.Box3).min.y).toBeCloseTo(-0.7 - pillar.past.bottom, 6);
   });
 
   it("crosses the bars of an Oxford frame without sharing a surface", () => {

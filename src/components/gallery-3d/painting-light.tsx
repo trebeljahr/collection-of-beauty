@@ -365,9 +365,9 @@ export type PaintingLightProps = {
   wallZ: number;
   floorY: number;
   ceilingY: number;
-  /** Half extents and front plane of the frame's solid, and how far
-   *  its middle lies above the canvas's: a scroll and a tabernacle
-   *  frame reach further up than down. */
+  /** Half extents and front plane of the frame, and how far its
+   *  middle lies above the canvas's: a tabernacle frame reaches
+   *  further up than down. */
   frameHalfW: number;
   frameHalfH: number;
   frameCenterY?: number;

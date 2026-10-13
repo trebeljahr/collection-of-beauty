@@ -1160,7 +1160,7 @@ required by the Dockerfile — don't remove it.
     `shadeProfile`, which works out occlusion, burnished high points and
     wear from the shape. Set `ao`, `rough` or `wear` on a point only to
     override it (mats do).
-  - `frame-styles.ts`: 30 mouldings, from the Baroque leaf torus to a
+  - `frame-styles.ts`: 29 mouldings, from the Baroque leaf torus to a
     strip frame. Each is a builder. It takes the ornament for its sight
     moulding, its field and its crown, and two structural alternates, so
     one style yields dozens of profiles: a print mat comes 44 to 88 mm
@@ -1168,7 +1168,7 @@ required by the Dockerfile — don't remove it.
     also take a flat liner inside them (`StyleOptions.liner`). A profile
     is shaded once per combination and cached.
   - `frame-design.ts`: which frame a work gets (`pickFrameDesign`). A
-    design is a *look* (52: a moulding and the finishes it comes in),
+    design is a *look* (51: a moulding and the finishes it comes in),
     its ornament, one finish per material slot, and the work's own
     numbers: how heavy the moulding is cut, how worn and how polished it
     is, how much dirt sits in its hollows, how deep its carving, the
@@ -1181,10 +1181,10 @@ required by the Dockerfile — don't remove it.
     takes gilding, a high-key one a pale or painted frame, gold is
     warmed beside a cool picture and cooled beside a warm one, a mat or
     a silk mount takes its tone from the sheet. Country and words in the
-    title (portrait, landscape, still life) bias it too, and so do size
-    and shape: a narrow moulding goes to small works, a tabernacle frame
-    to sacred subjects, a hanging scroll to an upright painting on silk
-    and a flat mount to a wide one. Warmth comes from `colorBuckets`,
+    title (portrait, landscape, still life) bias it too, and so does
+    size: a narrow moulding goes to small works, a tabernacle frame to
+    sacred subjects. A painting on silk hangs in a flat silk mount,
+    upright or wide. Warmth comes from `colorBuckets`,
     because `dominantColor` calls nearly every painting warm brown. The pick is a weighted draw on a hash of the
     id, so the server, the browser and every visit agree. Everything it
     reads is in `ArtworkListing`, which `/api/artworks/museum` serves
@@ -1206,7 +1206,7 @@ required by the Dockerfile — don't remove it.
       42 % → 7 % on the Post-Impressionist floor, 55 % → 24 % on the
       East Asian one, where the pale mats do the separating.
     - A room draws one family of finishes (`FinishFamily`: gilt, silver,
-      dark, wood, pale, red, and silk for every mount and scroll) from
+      dark, wood, pale, red, and silk for every silk mount) from
       what its works would choose one by one. A moulding that comes in
       the family is 30 times likelier, and once drawn it takes no
       finish outside it (`mainOptions`). With the family only a pull on
@@ -1264,8 +1264,8 @@ required by the Dockerfile — don't remove it.
   - **Reach is to the sides.** `frameReach` is how far a frame goes
     left and right. `frameExtents` adds `top` and `bottom`, which differ
     only for a frame built from rails, and the hang lifts a work by its
-    bottom extent (`frameDropOf`), not its reach: a scroll's roller
-    hangs up to 18 cm below its painting.
+    bottom extent (`frameDropOf`), not its reach: a tabernacle frame's
+    plinth hangs up to 15 cm below its painting.
   - **Swells.** A style may return a `Swell`: the moulding beyond a
     pivot pushes outward at the corners and the middle of each rail
     (Louis XV, Régence). The geometry cuts those rails into stations
@@ -1275,57 +1275,37 @@ required by the Dockerfile — don't remove it.
     straight frame, and `plain` leaves it bare between them (a panel
     frame). A swept frame is about 2,600 triangles (3,900 at most) where
     the mean over the catalogue is 860. `frameReach` counts the swell.
-  - **Rails and blocks.** Three styles are not mitred. A tabernacle
-    frame, a hanging scroll and an Oxford frame return `rails`: straight
+  - **Rails and blocks.** Two styles are not mitred. A tabernacle
+    frame and an Oxford frame return `rails`: straight
     lengths along one side of the canvas, cut square and closed at the
     ends (`addRail`). Rails that cross must not share a surface: the
     Oxford frame's uprights stand 2 mm proud, and a tabernacle's
     entablature is taller at its inner face than the pilasters are
     deep. A style may also return `blocks`, a carved square on each
     corner (`addBlocks`).
-  - **A hanging scroll is not a frame.** Until 13 October 2026 it was
-    built like one: silk 3.6 cm proud of the wall round a painting at a
-    canvas's depth, one cloth all round, a black rod under it. Rico:
-    top and bottom "too long", "not properly like scrolls", "weird/
-    glitchy". What it is built of now:
-    - It lies on the wall. `StyleSpec.faceZ` puts the painting 6 mm off
-      the wall, where a canvas is at 34 mm (`CANVAS_FACE_Z`), and the
-      silk 0.8 mm in front of it. `Moulding.faceZ` places the picture
-      plane in `painting.tsx` and `frame-sheet.tsx`, and `scaleProfile`
-      scales depth from it. The picture light's pool lies 2 mm off the
-      wall: keep a face above 4 mm.
-    - Three tiers. A strip of brocade as wide as the painting on its
-      top and bottom edges, an inner border of silk round painting and
-      strips, and an outer cloth above and below. A frame has three
-      material slots, so the outer cloth is the same silk at 0.66 of
-      its tone (`SCROLL_OUTER`), set as `ao` on its points. Two cloths
-      meet in a seam 0.4 mm wide: on one shared point the first shades
-      into the second.
-    - Silk above the painting 13.5 cm and below it 8.5 cm at scale 1
-      (variant 1: 18 and 11), where it was 19 and 11.5 (26 and 15). A
-      real mounting has two to three times as much. Rico found the old
-      lengths too long, so do not lengthen them for accuracy.
-    - The foot is wound on a roller that stands whole in front of the
-      silk. Only the knobs at its two ends are wood: a rail with `ends`
-      is built as its two end pieces. The silk beside the painting runs
-      2 cm past the top corners and 1.2 cm past the bottom ones, beside
-      the strips: `Rail.past` takes `{ top, bottom }` for an upright
-      rail.
-    - It hangs by a cord from its top stave to a nail (`Cord`,
-      `addCord`). The cord rises by a share of the scroll's width, so
-      `frameExtents` adds it: it is not in `BuiltStyle.extents`.
-    - Its reach to the sides is what it was, 7.2 cm at scale 1 (silk
-      and a knob). On both plans every work kept its room and its place
-      along the wall, and `galleryLayoutIdentity` did not change. Only
-      the height scrolls hang at moved.
+  - **No work hangs as a scroll.** Rico, 13 October 2026: "I would
+    like to have no scrolls but only frames." Until that day an upright
+    painting on silk hung as a hanging scroll. The first build was a
+    slab of silk 3.6 cm proud of the wall, and he found its top and
+    bottom "too long", "not properly like scrolls", "weird/glitchy". A
+    second build lay flat on the wall, in three cloths, on a roller with
+    a knob at each end, by a cord from a nail (commit 0fe0fa0). He saw
+    it and asked for frames. The `scroll` style and look are gone, with
+    the cord, the rails built as two ends and the picture plane on the
+    wall that only it used. Every Classical East Asian and Nihonga
+    painting hangs in the silk mount (`silkMount`), a frame like any
+    other. Do not bring a scroll back without asking him. On both plans
+    `galleryLayoutIdentity`, the rooms and the number of works hung
+    stayed as they were; the works of those rooms moved along their
+    walls, since a mount is wider than a scroll's silk was.
   - **The pool is dark behind the rectangle the light is given.**
     `PaintingLight` takes a frame as one rectangle and lights no wall
-    behind it. It was given the frame's reach, as far down as up. A
-    scroll then hung on a dark board as wide as its knobs and as tall
-    as its cord. It now gets `frameBody()`, the reach of what is solid
-    (no rail with `ends`, no cord), and `frameCenterY`, since a scroll
-    and a tabernacle frame reach further up than down. `buildLightRig`
-    still aims by the reach.
+    behind it. It was given the larger of the frame's reach up and its
+    reach down, both ways. It now gets the frame's own height and
+    `frameCenterY`, how far the frame's middle lies above the canvas's.
+    A tabernacle frame's entablature reaches 15.2 cm up at scale 1 and
+    its plinth 11.3 cm down, so the rectangle ended 3.9 cm under the
+    plinth. `buildLightRig` still aims by the larger reach.
   - `/gallery-3d/frames` is a debug sheet of works in their own frames,
     lit as in the galleries: `?m=Baroque` for a school, `?look=hogarth`
     for a look, `?n=12&cols=4` for fewer and larger, `?page=2` for more.
