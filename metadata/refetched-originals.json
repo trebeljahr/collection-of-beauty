@@ -5954,5 +5954,23 @@
       "sha1": "000b48890c9fdc3b863651b16eac2011db106810"
     },
     "renamedByHand": true
+  },
+  "collection-of-beauty/Nude against the light pierre bonnard.jpg": {
+    "id": "collection-of-beauty-nude-against-the-light-pierre-bonnard",
+    "fetchedAt": "2026-10-13T01:58:11.246Z",
+    "commonsTitle": "File:Nu à contre-jour - Pierre Bonnard.jpg",
+    "licence": "Public domain",
+    "revision": "2018-01-04T19:51:38Z",
+    "sha1": "c1a5ec12cd19b7eb0e0b155bca0b2f32dcba8705",
+    "bytes": 872799,
+    "width": 1338,
+    "height": 1498,
+    "previous": {
+      "width": 960,
+      "height": 1075,
+      "bytes": 289777,
+      "sha1": "526eeccb520401ba332fb3aeaa43c536f7375598"
+    },
+    "renamedByHand": true
   }
 }

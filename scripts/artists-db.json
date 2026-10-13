@@ -2620,6 +2620,15 @@
       "nationality": "Chinese",
       "movement": null,
       "pd_status": "copyrighted"
+    },
+    {
+      "name": "Pierre Bonnard",
+      "aliases": ["Pierre Bonnard"],
+      "born": 1867,
+      "died": 1947,
+      "nationality": "French",
+      "movement": null,
+      "pd_status": "public_domain_in_most_jurisdictions"
     }
   ]
 }

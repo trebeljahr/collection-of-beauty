@@ -206,7 +206,8 @@ required by the Dockerfile — don't remove it.
   coloured wave after Hokusai ("19th century") and the Gainsborough
   imitator's Cattle Watering by a Stream ("undated"). The script needs
   a death year, or a year 170 years back. With the seven of the next
-  point, `metadata/refetched-originals.json` holds 350 works.
+  point and Bonnard's nude, `metadata/refetched-originals.json` holds
+  351 works.
 - Correcting a link can make a work a candidate. Eight of the 18
   relinked works are previews of the page they now name. Seven were
   fetched on 13 October 2026 on Rico's word: Carpaccio's
@@ -221,7 +222,11 @@ required by the Dockerfile — don't remove it.
   Commons. `--accept-renamed=<id>` takes such a work. Pass an id once
   the file is matched to the page another way: its SHA-1 is a revision
   of the page, or macOS kept the page's preview address on it. Every
-  other check still runs, the picture check included.
+  other check still runs, the picture check included. Bonnard's Nude
+  Against the Light (960 → 1,338 px) is the second such file. The
+  script left it until `scripts/artists-db.json` gave Bonnard his
+  dates: it reads the death year from the catalogue's artist record,
+  and an artist with no db entry has none.
 - A larger upload on the same page is not always the same picture. Two
   Mucha canvases were uploaded again in June 2026 as paler photographs
   with another crop; one shows the frame along its top edge. The script
