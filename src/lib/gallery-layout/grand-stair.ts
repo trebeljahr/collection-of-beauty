@@ -139,6 +139,12 @@ export type GrandStair = {
    *  on, or arrives on the floor this one leaves. */
   hasFlightAbove: boolean;
   hasFlightBelow: boolean;
+  /** The hall has no gallery along the wall its stair climbs toward:
+   *  the void reaches that wall on every floor over the stair's foot, so
+   *  the wall stands sheer from the hall floor to the roof. It is where
+   *  the works taller than a storey hang (`giants.ts`). Imperial stair
+   *  only, and only with nothing over the stair. */
+  sheerWall?: boolean;
   /** Everything below is in the hall's frame, heights in world metres. */
   patches: StairPatch[];
   rails: StairRail[];
@@ -225,6 +231,18 @@ export function openingInWorld(
       return [p.x, p.z];
     }),
   };
+}
+
+/** The compass side of the wall a sheer hall's void reaches: the one
+ *  its stair climbs toward. */
+export function sheerSide(stair: Pick<GrandStair, "turns">): "north" | "east" | "south" | "west" {
+  return (["north", "east", "south", "west"] as const)[stair.turns];
+}
+
+/** Depth of the strip a sheer hall has no gallery over, measured in
+ *  from its sheer wall. */
+export function sheerStripDepth(half: number): number {
+  return half + IMPERIAL.north;
 }
 
 /** How far an opening reaches from the hall's centre. */
@@ -466,6 +484,7 @@ type Site = {
   upperY: number;
   hasFlightAbove: boolean;
   hasFlightBelow: boolean;
+  sheerWall?: boolean;
   /** Heights of the balcony floors over the floor the stair arrives
    *  on: the opening is fenced all round on each. */
   balconies: number[];
@@ -581,10 +600,17 @@ function buildImperial(site: Site): Built {
   // leaves from the middle of that edge.
   const court = site.half - HALL_GALLERY;
   const courted = !hasFlightAbove && court > south + 2;
+  // A sheer wall: no gallery behind the half landing either. The void
+  // runs on north to the wall, the hall's whole width, and the side
+  // galleries end level with the landing's far edge.
+  const sheer = courted && site.sheerWall === true;
+  const wall = site.half;
   const stairRect: PlanRect = { xMin: -half, xMax: half, zMin: north, zMax: south };
-  const outline: Array<[number, number]> = courted
+  const outline: Array<[number, number]> = sheer
     ? [
-        [-half, north],
+        [-wall, -wall],
+        [wall, -wall],
+        [wall, north],
         [half, north],
         [half, south],
         [sideInner, south],
@@ -592,21 +618,37 @@ function buildImperial(site: Site): Built {
         [-sideInner, court],
         [-sideInner, south],
         [-half, south],
-      ]
-    : [
         [-half, north],
-        [half, north],
-        [half, south],
-        [sideInner, south],
-        [centralHalf, south],
-        [-centralHalf, south],
-        [-sideInner, south],
-        [-half, south],
-      ];
+        [-wall, north],
+      ]
+    : courted
+      ? [
+          [-half, north],
+          [half, north],
+          [half, south],
+          [sideInner, south],
+          [sideInner, court],
+          [-sideInner, court],
+          [-sideInner, south],
+          [-half, south],
+        ]
+      : [
+          [-half, north],
+          [half, north],
+          [half, south],
+          [sideInner, south],
+          [centralHalf, south],
+          [-centralHalf, south],
+          [-sideInner, south],
+          [-half, south],
+        ];
   // The heads of the two side flights, and the foot of the next stair.
-  const arrivals = courted ? [2, 6] : hasFlightAbove ? [2, 4, 6] : [2, 6];
-  rails.push(...fence(outline, upperY, arrivals));
-  for (const y of site.balconies) rails.push(...fence(outline, y));
+  // No balustrade along a wall: the first two edges and the last of a
+  // sheer hall's outline lie on its walls.
+  const onWall = sheer ? [0, 1, 11] : [];
+  const arrivals = sheer ? [4, 8] : courted ? [2, 6] : hasFlightAbove ? [2, 4, 6] : [2, 6];
+  rails.push(...fence(outline, upperY, [...onWall, ...arrivals]));
+  for (const y of site.balconies) rails.push(...fence(outline, y, onWall));
 
   // Piers under the landing's far edge. Each stands on the landing of
   // the stair below, or on the hall floor.
@@ -625,9 +667,11 @@ function buildImperial(site: Site): Built {
     lamps: [-1, 1].map((side) => ({ x: side * centralHalf, z: south, y: lowerY })),
     opening: {
       kind: "rects",
-      rects: courted
-        ? [stairRect, { xMin: -sideInner, xMax: sideInner, zMin: south, zMax: court }]
-        : [stairRect],
+      rects: [
+        ...(sheer ? [{ xMin: -wall, xMax: wall, zMin: -wall, zMax: north }] : []),
+        stairRect,
+        ...(courted ? [{ xMin: -sideInner, xMax: sideInner, zMin: south, zMax: court }] : []),
+      ],
       outline,
     },
   };

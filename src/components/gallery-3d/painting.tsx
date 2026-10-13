@@ -11,7 +11,7 @@ import {
   PLAQUE_GAP,
   PLAQUE_WIDTH,
 } from "@/lib/gallery-layout/place-paintings";
-import { eraOfRoom } from "@/lib/gallery-layout/room-era";
+import { paletteOfRoom } from "@/lib/gallery-layout/room-era";
 import type { Placement, RoomLayout } from "@/lib/gallery-layout/types";
 import { CELL_SIZE } from "@/lib/gallery-layout/world-coords";
 import { formatCm, trustworthyRealSize } from "@/lib/real-size";
@@ -575,22 +575,29 @@ export const Painting = memo(function Painting({
         onSettled={onSettled}
         onTextureAspect={handleTextureAspect}
       />
-      <Plaque artwork={artwork} frameEdgeX={dW / 2 + frameReach} />
-      <PaintingLight
-        rig={rig}
-        wallZ={-PAINTING_WALL_OFFSET}
-        floorY={wall.floorY}
-        ceilingY={ceilingY}
-        frameHalfW={dW / 2 + frameReach}
-        frameHalfH={dH / 2 + frameRise}
-        frameFrontZ={moulding.frontZ - PAINTING_WALL_OFFSET}
-        plaque={plaqueRect}
-        // The stairwell's ceiling is a storey up, not at room height: a
-        // can would hang in mid-air, so a work there gets the pool
-        // without the fixture.
-        fixtures={!room.isStairwell}
-        wallGain={poolGainScale(eraOfRoom(room).palette.wallColor)}
-      />
+      {placement.plaque !== null && (
+        <Plaque artwork={artwork} frameEdgeX={dW / 2 + frameReach} offset={placement.plaque} />
+      )}
+      {/* A giant in a stair hall has no light of its own: its top is
+          within a hand of the gallery above, or it hangs on a wall with
+          no ceiling for four storeys. */}
+      {!placement.giant && (
+        <PaintingLight
+          rig={rig}
+          wallZ={-PAINTING_WALL_OFFSET}
+          floorY={wall.floorY}
+          ceilingY={ceilingY}
+          frameHalfW={dW / 2 + frameReach}
+          frameHalfH={dH / 2 + frameRise}
+          frameFrontZ={moulding.frontZ - PAINTING_WALL_OFFSET}
+          plaque={plaqueRect}
+          // The stairwell's ceiling is a storey up, not at room height: a
+          // can would hang in mid-air, so a work there gets the pool
+          // without the fixture.
+          fixtures={!room.isStairwell}
+          wallGain={poolGainScale(paletteOfRoom(room).wallColor)}
+        />
+      )}
     </group>
   );
 });
@@ -684,11 +691,14 @@ function readTroikaBlockHeight(mesh: unknown): number | null {
 function Plaque({
   artwork,
   frameEdgeX,
+  offset,
 }: {
   artwork: ArtworkListing;
   /** Local x of the frame's outer right edge: the plaque hangs
    *  PLAQUE_GAP beyond it. */
   frameEdgeX: number;
+  /** Where the hang put the plaque instead (`Placement.plaque`). */
+  offset?: { dy: number; dx?: number };
 }) {
   // All three strings and the pre-render estimates derive from the
   // artwork alone, so they are memoised on it: `formatTitle` /
@@ -752,8 +762,8 @@ function Plaque({
   // Plaque always hangs on the painting's right (local +X). Slot sizing
   // in place-paintings.ts guarantees painting + plaque clear the wall
   // margin even at right-corner cells, so no flip is needed.
-  const localX = frameEdgeX + PLAQUE_GAP + PLAQUE_MOUNT_W / 2;
-  const localY = 0;
+  const localX = offset?.dx ?? frameEdgeX + PLAQUE_GAP + PLAQUE_MOUNT_W / 2;
+  const localY = offset?.dy ?? 0;
   // Mount sits a few mm off the wall so it doesn't z-fight with it; face
   // is parked just in front of the mount; text floats a hair above the
   // face for the same reason.

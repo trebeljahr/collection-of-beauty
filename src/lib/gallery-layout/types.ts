@@ -27,6 +27,15 @@ export type Placement = {
   /** Index into the room's `dividers` when the work hangs on one. Its
    *  position is then on that divider's face, not on a room wall. */
   divider?: number;
+  /** A work too large for a room, hung at its real size in a stair hall
+   *  (`giants.ts`). It has no picture light of its own: the hall lights
+   *  its walls. */
+  giant?: true;
+  /** Where the plaque hangs when not beside the middle of the canvas:
+   *  metres from the canvas centre to the plaque's, `dy` up and `dx` to
+   *  the viewer's right (unset: beside the frame). `null` is no plaque,
+   *  for a work hung out of reading distance. */
+  plaque?: { dy: number; dx?: number } | null;
 };
 
 export type Door = {
@@ -93,6 +102,10 @@ export type RoomLayout = {
    *  wings plan, `layout-wings.ts`). Unset in the tower, where a floor
    *  is an era: read it through `eraOfRoom`. */
   era?: EraId;
+  /** The era whose colours the room takes when they are not its own
+   *  era's: a stair hall is one colour through every storey. Read a
+   *  room's palette through `paletteOfRoom`. */
+  paletteEra?: EraId;
   movement: string;
   title: string;
   description: string;
@@ -115,6 +128,12 @@ export type RoomLayout = {
    *  unset in a spiral's stairwell, which is cut round by rule. */
   floorOpening?: WorldOpening | null;
   ceilingOpening?: WorldOpening | null;
+  /** A stair hall's sheer wall (`GrandStair.sheerWall`): the side it is
+   *  on, and the depth of the strip along it that the hall's void takes
+   *  on every floor over the stair's foot. The same on each storey of
+   *  the hall; `floorOpening` and `ceilingOpening` say whether this
+   *  storey has floor or ceiling there. */
+  sheer?: { side: Door["side"]; depth: number };
   /** What a grand stair hall is on this floor, for the map: the stair
    *  leaves it, arrives on it, or only its void passes through. */
   stairGlyph?: "up" | "down" | "void";

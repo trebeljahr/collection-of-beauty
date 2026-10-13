@@ -145,8 +145,10 @@ describe("the block plan", () => {
         const neighbours = floor.rooms.filter((r) => r !== hall && sideToward(hall, r));
         if (!stairStarts(hall)) {
           // Over the stair the hall is a balcony round its void: a door
-          // to every neighbour.
-          expect(hall.doors, hall.id).toHaveLength(neighbours.length);
+          // to every neighbour, but across its sheer wall.
+          expect(hall.doors, hall.id).toHaveLength(
+            neighbours.filter((r) => sideToward(hall, r) !== hall.sheer?.side).length,
+          );
           continue;
         }
         // One door, a portal, in the wall the stair faces.
@@ -238,8 +240,10 @@ describe("the block plan", () => {
       expect(stair.topFloor).toBe(top);
       expect(stair.hasFlightAbove).toBe(false);
       expect(stair.hasFlightBelow).toBe(false);
-      // 5 m or more of floor between the opening and every wall.
-      expect(stair.half - openingReach(stair.opening)).toBeGreaterThanOrEqual(5);
+      // 5 m or more of floor between the opening and every wall, but
+      // for the middle hall's sheer wall, which the void reaches.
+      if (stair.sheerWall) expect(openingReach(stair.opening)).toBe(stair.half);
+      else expect(stair.half - openingReach(stair.opening)).toBeGreaterThanOrEqual(5);
       const key = stair.id.replace(/-\d-to-\d$/, "");
       for (const floor of layout.floors) {
         const hall = floor.rooms.find((r) => keyOf(r) === key)!;
@@ -464,9 +468,12 @@ describe("the block plan", () => {
   it("gives every room a door to every neighbour, but into the side or back of a stair", () => {
     for (const floor of layout.floors) {
       // The one wall of a hall that has a door on the floor its stair
-      // leaves; any wall on the floors above.
+      // leaves; on the floors above any wall but a sheer one, which has
+      // the hall's void against it.
       const opens = (a: RoomLayout, b: RoomLayout) =>
-        !stairStarts(a) || sideToward(a, b) === hallFront(hallOf(a));
+        stairStarts(a)
+          ? sideToward(a, b) === hallFront(hallOf(a))
+          : sideToward(a, b) !== a.sheer?.side;
       for (const a of floor.rooms) {
         const neighbours = floor.rooms
           .filter((b) => b !== a && sideToward(a, b) && opens(a, b) && opens(b, a))
@@ -525,8 +532,8 @@ describe("the block plan", () => {
       for (const d of spineDoors) expect(d.width).toBe(PORTAL_WIDTH);
       // The short axis through the middle stair hall.
       expect(door("hall-c", "s3")!.width).toBe(PORTAL_WIDTH);
-      if (floor.index === 0) expect(door("n3", "hall-c")).toBeUndefined();
-      else expect(door("n3", "hall-c")!.worldX).toBe(door("hall-c", "s3")!.worldX);
+      // Its north end is the hall's sheer wall: no door on any floor.
+      expect(door("n3", "hall-c")).toBeUndefined();
       // Both ranges of five: the doors that are left once rooms are joined.
       for (const row of ["n", "s"]) {
         const doors = [1, 2, 3, 4].flatMap((i) => door(`${row}${i}`, `${row}${i + 1}`) ?? []);

@@ -8,6 +8,14 @@ export function eraOfRoom(room: Pick<RoomLayout, "era" | "floorIndex">): Era {
   return room.era ? getEra(room.era) : ERAS[room.floorIndex];
 }
 
+/** The colours a room is drawn in: its era's, or those of the era it
+ *  borrows them from (`RoomLayout.paletteEra`). */
+export function paletteOfRoom(
+  room: Pick<RoomLayout, "era" | "floorIndex" | "paletteEra">,
+): Era["palette"] {
+  return room.paletteEra ? getEra(room.paletteEra).palette : eraOfRoom(room).palette;
+}
+
 /** A floor's name: its own when it has one, else its era's. */
 export function floorTitle(floor: Pick<FloorLayout, "title" | "era">): string {
   return floor.title ?? floor.era.title;

@@ -49,6 +49,8 @@ export function SolidWall({
   height,
   material,
   groupRef,
+  skirting,
+  ownFace,
 }: {
   position: Vec3;
   rotation: Vec3;
@@ -56,6 +58,8 @@ export function SolidWall({
   height: number;
   material: THREE.Material;
   groupRef?: Ref<THREE.Group>;
+  skirting?: SkirtingClip;
+  ownFace?: boolean;
 }) {
   return (
     <group ref={groupRef} position={position} rotation={rotation}>
@@ -63,22 +67,49 @@ export function SolidWall({
         <MetrePlane width={width} height={height} u0={0} v0={0} />
         <primitive object={material} attach="material" />
       </mesh>
-      <Skirting spans={[{ xMin: -width / 2, xMax: width / 2 }]} floorY={-height / 2} />
+      <Skirting
+        spans={clipSpans([{ xMin: -width / 2, xMax: width / 2 }], skirting)}
+        floorY={-height / 2}
+        oneSided={ownFace}
+      />
     </group>
   );
+}
+
+/** The stretch of a wall that has floor at its foot, in the wall's
+ *  local x: skirting is drawn there only. `null` is none of it, unset
+ *  all of it. A stair hall's sheer wall has no floor on the storeys
+ *  over its lowest, and the walls that meet it none for the strip's
+ *  depth. */
+export type SkirtingClip = { xMin: number; xMax: number } | null | undefined;
+
+function clipSpans(
+  spans: ReadonlyArray<{ xMin: number; xMax: number }>,
+  clip: SkirtingClip,
+): Array<{ xMin: number; xMax: number }> {
+  if (clip === null) return [];
+  if (clip === undefined) return [...spans];
+  return spans
+    .map((s) => ({ xMin: Math.max(s.xMin, clip.xMin), xMax: Math.min(s.xMax, clip.xMax) }))
+    .filter((s) => s.xMax - s.xMin > 0.001);
 }
 
 /** Skirting along a wall's clear spans, in the wall's local frame. */
 function Skirting({
   spans,
   floorY,
+  oneSided,
 }: {
   spans: ReadonlyArray<{ xMin: number; xMax: number }>;
   floorY: number;
+  oneSided?: boolean;
 }) {
   const key = spans.map((s) => `${s.xMin.toFixed(3)}:${s.xMax.toFixed(3)}`).join(",");
   // biome-ignore lint/correctness/useExhaustiveDependencies: `key` is the content of `spans`, whose array identity changes every render.
-  const geometry = useMemo(() => buildSkirtingGeometry(spans, floorY), [key, floorY]);
+  const geometry = useMemo(
+    () => buildSkirtingGeometry(spans, floorY, oneSided),
+    [key, floorY, oneSided],
+  );
   useEffect(() => () => geometry?.dispose(), [geometry]);
   if (!geometry) return null;
   return <mesh geometry={geometry} material={darkWoodTrimMaterial} layers={UNREFLECTED_LAYER} />;
@@ -106,6 +137,8 @@ export function WallWithDoors({
   material,
   doors,
   groupRef,
+  skirting,
+  ownFace,
 }: {
   position: Vec3;
   rotation: Vec3;
@@ -116,6 +149,10 @@ export function WallWithDoors({
   /** The group holding the whole wall: strips, lintels, skirting and
    *  door trim. Room culling shows and hides a wall by it. */
   groupRef?: Ref<THREE.Group>;
+  skirting?: SkirtingClip;
+  /** The room draws this wall for itself, its neighbour its own: the
+   *  skirting stands on this face only. */
+  ownFace?: boolean;
 }) {
   if (doors.length === 0) {
     return (
@@ -126,6 +163,8 @@ export function WallWithDoors({
         height={height}
         material={material}
         groupRef={groupRef}
+        skirting={skirting}
+        ownFace={ownFace}
       />
     );
   }
@@ -177,7 +216,7 @@ export function WallWithDoors({
           </mesh>
         );
       })}
-      <Skirting spans={strips} floorY={-halfH} />
+      <Skirting spans={clipSpans(strips, skirting)} floorY={-halfH} oneSided={ownFace} />
       {sorted.map((d) => (
         <DoorTrim
           key={`trim-${d.centerLocalX}-${d.width}-${d.height}`}

@@ -20,6 +20,10 @@
 // hall's from the third to the fourth. Under a hall that starts higher
 // up, the same square is one more gallery.
 //
+// The halls hang the works too large for a room, at their real size
+// (`giants.ts`): on each storey's walls, and the tallest on the middle
+// hall's north wall, which has no gallery and stands sheer to the roof.
+//
 // A stair hall is entered where its stair starts. On the floor a stair
 // leaves, its hall has one door, the portal the foot of the first flight
 // faces: the great hall's for the middle stair, the spine's for the two
@@ -71,6 +75,7 @@ import {
   wallIsland,
 } from "./feature-benches";
 import { arrivalPoint, ceilingHeightFor, planBenches, planDividers } from "./fittings";
+import { fitsStorey, giantSize, hangHallStoreys, hangSheerWall } from "./giants";
 import { hangGrandHall, pickHallCandidates } from "./grand-hall";
 import {
   buildGrandStair,
@@ -78,6 +83,8 @@ import {
   type GrandStairDesign,
   grandHallArrival,
   openingInWorld,
+  sheerSide,
+  sheerStripDepth,
 } from "./grand-stair";
 import {
   bucketByEra,
@@ -89,7 +96,13 @@ import {
   selectFloorWorks,
   shuffleByIdHash,
 } from "./layout-museum";
-import { computeRoomRuns, distributePaintings, runLength, wallFootprint } from "./place-paintings";
+import {
+  computeRoomRuns,
+  distributePaintings,
+  runLength,
+  type SizedWork,
+  wallFootprint,
+} from "./place-paintings";
 import { texturePxPerMetre } from "./sharpness";
 import type { CellRect, Door, FloorLayout, MuseumLayout, RoomLayout } from "./types";
 import { CELL_SIZE, floorY, PORTAL_HEIGHT, PORTAL_WIDTH, WALL_THICKNESS } from "./world-coords";
@@ -158,6 +171,11 @@ export const BLOCK_ROOMS: ReadonlyArray<{ key: RoomKey; rect: CellRect }> = [
  * hall, the outer two rise outward from the spine.
  *
  * On a floor under `from` the hall's square is a gallery like any other.
+ *
+ * The middle hall has a sheer wall (`GrandStair.sheerWall`): no gallery
+ * behind the head of its stair, so its north wall stands 24 m from the
+ * floor to the roof, for the works taller than a storey (`giants.ts`).
+ * It has no door in that wall on any floor.
  */
 export const BLOCK_HALLS: ReadonlyArray<{
   key: RoomKey;
@@ -165,11 +183,16 @@ export const BLOCK_HALLS: ReadonlyArray<{
   design: GrandStairDesign;
   turns: GrandStair["turns"];
   from: number;
+  sheer?: boolean;
 }> = [
   { key: "hall-w", rect: rect(0, ROW_M), design: "arcs", turns: 3, from: 1 },
-  { key: "hall-c", rect: rect(2, ROW_M), design: "imperial", turns: 0, from: 0 },
+  { key: "hall-c", rect: rect(2, ROW_M), design: "imperial", turns: 0, from: 0, sheer: true },
   { key: "hall-e", rect: rect(4, ROW_M), design: "hourglass", turns: 1, from: 2 },
 ];
+/** The era whose colours every storey of every stair hall takes: the
+ *  pale stone of the first floor's first rooms. A hall is one room four
+ *  storeys high, and a work on its sheer wall crosses two of them. */
+const HALL_PALETTE: EraId = "gothic";
 export const GREAT_HALL: RoomKey = "s3";
 /** The hall the great hall is composed about. */
 const MAIN_HALL: RoomKey = "hall-c";
@@ -327,7 +350,8 @@ export function blockFloorRooms(floorIndex: number): {
 
 export function layoutBlock(allArtworks: ArtworkListing[]): MuseumLayout {
   const byEra = bucketByEra(allArtworks);
-  const floors = BLOCK_PLAN.map((plan, index) => buildFloor(index, plan, byEra));
+  const built = BLOCK_PLAN.map((plan, index) => buildFloor(index, plan));
+  const floors = built.map((b) => b.floor);
   const top = floors.length - 1;
 
   // One stair to a hall, and the hall open from the stair's foot to the
@@ -346,8 +370,18 @@ export function layoutBlock(allArtworks: ArtworkListing[]): MuseumLayout {
       room.floorOpening = f > hall.from ? opening : null;
       room.ceilingOpening = f < top ? opening : null;
       room.stairGlyph = f === hall.from ? "up" : f === hall.from + 1 ? "down" : "void";
+      if (stair.sheerWall) {
+        room.sheer = { side: sheerSide(stair), depth: sheerStripDepth(stair.half) };
+      }
     }
   }
+
+  // The giants go to the halls first; each era then hangs what is left.
+  const inHalls = hangGiants(floors, byEra);
+  const forRooms = new Map(
+    [...byEra].map(([era, works]) => [era, works.filter((a) => !inHalls.has(a.id))]),
+  );
+  for (const b of built) b.hang(forRooms);
 
   const ground = floors[0];
   const anchor = ground.rooms.find((r) => r.isAnchor) ?? ground.rooms[0];
@@ -363,6 +397,55 @@ export function layoutBlock(allArtworks: ArtworkListing[]): MuseumLayout {
 }
 
 const hallKey = (room: RoomLayout) => room.id.replace(/^f\d+-/, "");
+
+/**
+ * Hang the works too large for a room in the stair halls, at their
+ * real size (`giants.ts`). A hall takes the giants of the floor its
+ * stair leaves, and the last hall those of the floors over it: the
+ * middle hall the old masters, the west hall the eighteenth and
+ * nineteenth centuries, the east hall what came after and the screens
+ * of the top floor. Works taller than a storey go to the sheer wall,
+ * whatever their era. Returns the ids hung.
+ */
+function hangGiants(floors: FloorLayout[], byEra: Map<EraId, ArtworkListing[]>): Set<string> {
+  const storeysOf = (hall: (typeof BLOCK_HALLS)[number]) =>
+    floors
+      .slice(hall.from)
+      .map((floor) => floor.rooms.find((r) => r.isStairwell && hallKey(r) === hall.key)!);
+
+  const tall: SizedWork[] = [];
+  const perHall = new Map<RoomKey, Array<{ work: SizedWork; start: number }>>();
+  BLOCK_PLAN.forEach((plan, floorIndex) => {
+    // The hall whose stair leaves this floor, or the last one below.
+    const hall = [...BLOCK_HALLS]
+      .filter((h) => h.from <= floorIndex)
+      .sort((a, b) => b.from - a.from)[0];
+    for (const zone of plan.zones) {
+      for (const artwork of byEra.get(zone.era) ?? []) {
+        const work = giantSize(artwork);
+        if (!work) continue;
+        if (!fitsStorey(work)) tall.push(work);
+        else {
+          const list = perHall.get(hall.key) ?? [];
+          list.push({ work, start: floorIndex - hall.from });
+          perHall.set(hall.key, list);
+        }
+      }
+    }
+  });
+
+  for (const hall of BLOCK_HALLS) {
+    const storeys = storeysOf(hall);
+    if (hall.sheer) hangSheerWall(storeys, tall);
+    hangHallStoreys(storeys, perHall.get(hall.key) ?? []);
+    for (const room of storeys) room.artworks = room.placements.map((p) => p.artwork);
+  }
+  return new Set(
+    floors
+      .flatMap((f) => f.rooms.filter((r) => r.isStairwell).flatMap((r) => r.artworks))
+      .map((a) => a.id),
+  );
+}
 
 /** Where a visitor sent to a room lands. A stair hall's centre is a
  *  flight or the open well, so there it is inside the door its stair
@@ -383,8 +466,7 @@ export function blockArrivalPoint(
 function buildFloor(
   index: number,
   plan: (typeof BLOCK_PLAN)[number],
-  byEra: Map<EraId, ArtworkListing[]>,
-): FloorLayout {
+): { floor: FloorLayout; hang: (byEra: Map<EraId, ArtworkListing[]>) => void } {
   // The floor as a whole answers to its first era: the id a saved visit
   // is filed under, and the palette of the stair halls.
   const floorEra = getEra(plan.zones[0].era);
@@ -415,7 +497,9 @@ function buildFloor(
     byKey.set(key, room);
   };
   for (const { key, rect: r } of halls) {
-    add(key, makeRoom(index, key, r, floorEra, { title: "Stair hall", isStairwell: true }));
+    const room = makeRoom(index, key, r, floorEra, { title: "Stair hall", isStairwell: true });
+    room.paletteEra = HALL_PALETTE;
+    add(key, room);
   }
   for (const { key, rect: r } of floorRooms) {
     const era = eraOfKey.get(key) ?? floorEra;
@@ -424,8 +508,14 @@ function buildFloor(
 
   // A door in every wall two rooms share, but for a stair hall on the
   // floor its stair leaves: that hall has the one door its stair faces.
+  // And none in a hall's sheer wall on the floors over that one, where
+  // the hall's void lies against it.
   const fronts = new Map<RoomKey, Side>();
-  for (const hall of halls) if (hall.from === index) fronts.set(hall.key, hallFront(hall));
+  const sheerWalls = new Map<RoomKey, Side>();
+  for (const hall of halls) {
+    if (hall.from === index) fronts.set(hall.key, hallFront(hall));
+    else if (hall.sheer) sheerWalls.set(hall.key, sheerSide(hall));
+  }
   const keys = [...byKey.keys()];
   const isPortal = (a: RoomKey, b: RoomKey) =>
     PORTALS.some(
@@ -440,6 +530,7 @@ function buildFloor(
       const aFront = fronts.get(keys[i]);
       const bFront = fronts.get(keys[j]);
       if ((aFront && aFront !== side) || (bFront && bFront !== OPPOSITE[side])) continue;
+      if (sheerWalls.get(keys[i]) === side || sheerWalls.get(keys[j]) === OPPOSITE[side]) continue;
       const portal = isPortal(keys[i], keys[j]);
       connect(
         a,
@@ -504,36 +595,38 @@ function buildFloor(
     grandHalls: [],
   };
 
-  plan.zones.forEach((zone, z) => {
-    hangZone(
-      floor,
-      zoneKeys[z].map((k) => byKey.get(k)!),
-      getEra(zone.era),
-      byEra.get(zone.era) ?? [],
-      composedHall ? byKey.get(MAIN_HALL)! : null,
-      zone.coverage ?? BLOCK_WALL_COVERAGE,
-    );
-  });
+  const hang = (byEra: Map<EraId, ArtworkListing[]>) => {
+    plan.zones.forEach((zone, z) => {
+      hangZone(
+        floor,
+        zoneKeys[z].map((k) => byKey.get(k)!),
+        getEra(zone.era),
+        byEra.get(zone.era) ?? [],
+        composedHall ? byKey.get(MAIN_HALL)! : null,
+        zone.coverage ?? BLOCK_WALL_COVERAGE,
+      );
+    });
 
-  // The composed great hall is hung by its own rule, about the door to
-  // the stair hall. Its islands turn to look at the pair beside that
-  // door, the floor's two largest works.
-  if (composedHall) {
-    const hall = byKey.get(greatHall)!;
-    hall.benches = hallIslandsFacingPair(hall, byKey.get(MAIN_HALL)!.id) ?? hall.benches;
-  }
+    // The composed great hall is hung by its own rule, about the door to
+    // the stair hall. Its islands turn to look at the pair beside that
+    // door, the floor's two largest works.
+    if (composedHall) {
+      const hall = byKey.get(greatHall)!;
+      hall.benches = hallIslandsFacingPair(hall, byKey.get(MAIN_HALL)!.id) ?? hall.benches;
+    }
 
-  let roomNumber = 0;
-  for (const key of route) {
-    const room = byKey.get(key)!;
-    const era = eraOfKey.get(key) ?? floorEra;
-    room.artworks = room.placements.map((p) => p.artwork);
-    room.roomNumber = ++roomNumber;
-    room.movement = dominantMovement(room.artworks, era) ?? era.title;
-    room.title = room.isAnchor ? era.title : room.movement;
-    room.description = describeRoom(room.title, room.artworks);
-  }
-  return floor;
+    let roomNumber = 0;
+    for (const key of route) {
+      const room = byKey.get(key)!;
+      const era = eraOfKey.get(key) ?? floorEra;
+      room.artworks = room.placements.map((p) => p.artwork);
+      room.roomNumber = ++roomNumber;
+      room.movement = dominantMovement(room.artworks, era) ?? era.title;
+      room.title = room.isAnchor ? era.title : room.movement;
+      room.description = describeRoom(room.title, room.artworks);
+    }
+  };
+  return { floor, hang };
 }
 
 /** Hang one era in its rooms. Works with the sharpest scans come first:
@@ -722,5 +815,6 @@ function buildStair(
     // One stair to a hall: masonry from its floor up, and nothing over it.
     hasFlightBelow: false,
     hasFlightAbove: false,
+    sheerWall: hall.sheer === true,
   });
 }

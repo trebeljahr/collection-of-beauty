@@ -715,9 +715,64 @@ required by the Dockerfile — don't remove it.
     inside a ring of twelve rooms, a door in all four walls of each
     (tag `museum-block-core-of-three-2026-10-13`): see "A stair hall is
     entered where its stair starts".
-  - Not built: works too large for a room on the stair halls' walls,
-    signs at the stairs, ornament beyond balustrades, piers, carpet and
-    lamp standards. The design, its sheets and Rico's reference
+  - **Works too large for a room hang in the stair halls, at their
+    real size** ([`giants.ts`](src/lib/gallery-layout/giants.ts)). A room
+    hangs nothing over 3.2 m, so the Wedding at Cana (9.94 m) hung at a
+    third of the size its plaque gave. Rico, 13 October 2026, of a
+    Tintoretto 5.38 m tall: "it's supposed to be 4.65 meters by 5.38m".
+    - A giant is a work with an audited size (`trustworthyRealSize`), a
+      side over 3.2 m, and 400 texture pixels a metre at that size
+      (`GIANT_MIN_PX_PER_METRE`). A room's works need 1,000. The largest
+      have the least: Cana 412, the Coronation of Napoleon 418. Raise the
+      number to 1,000 and 24 of the 60 go back to their rooms at the
+      room's limit.
+    - A hall takes the giants of the floor its stair leaves: the middle
+      hall the old masters, the west hall the 18th and 19th centuries,
+      the east hall what came after and the top floor's screens. They
+      hang one storey after another, largest first, on the stretches
+      between the doors (`hallRuns`), a metre or more apart.
+    - A frame fits a storey up to 5.38 m (`STOREY_FRAME_ROOM`): canvases
+      to about 4.9 m. Taller ones go to the sheer wall (next point).
+    - `Placement.giant` drops the picture light: the frame's top is a
+      hand under the gallery above. `Placement.plaque` moves the plaque
+      to eye level (`dy`), sideways (`dx`), or leaves it out (`null`,
+      the upper tier).
+    - 60 of 61 giants hang (13 October 2026). Raphael's School of
+      Athens, 7.7 m wide, found no place on the upper tier.
+    - The tower has no such wall: its stairwell is one storey high
+      between slabs. Giants hang there as before, at 3.2 m.
+  - **The middle hall's north wall is sheer** (`GrandStair.sheerWall`,
+    `RoomLayout.sheer`): no gallery behind the head of the imperial
+    stair, so the void reaches the wall on the three floors over the
+    first and the wall stands 24 m. Two tiers hang on it
+    (`hangSheerWall`): the widest work in the axis of the stair, lifted
+    over the half landing so it is seen whole from the hall's door, a
+    pair of like height on the floor either side, and a second tier
+    level with the third floor. What it costs and what it needs:
+    - No door between `n3` and `hall-c` on any floor: on the first the
+      hall has its one door, above it the void lies against the wall
+      (`sheerWalls` in `buildFloor`). The side galleries end at the
+      landing's far edge, fenced.
+    - A hole that touches a shape's edge does not triangulate. A hall's
+      floor and ceiling round an opening of rectangles are built from
+      the rectangles left (`rectsAround` in `stair-opening.ts`).
+    - A grand hall's walls run the full `FLOOR_SEPARATION`, so the wall
+      goes on through the slab's depth. With a sheer wall they stand
+      4 mm inside their lines: the floor slab of the room behind lies in
+      the wall's own plane.
+    - Skirting is one-sided on a wall a room draws for itself
+      (`ownFace`). Straddling the wall, the board of the room behind
+      showed through the sheer wall as a dark line at every storey. It
+      is left out where there is no floor (`SkirtingClip`).
+    - The wall washers skip the sheer wall and stop short of the strip
+      on the two walls that meet it (`washedWalls`).
+  - **A stair hall is one colour through every storey**
+    (`RoomLayout.paletteEra`, read through `paletteOfRoom`): the pale
+    stone of the Gothic rooms. Before, each storey took its floor's
+    first era, and the middle hall was four bands. The room's `era` is
+    still the floor's, so the HUD names the floor.
+  - Not built: signs at the stairs, ornament beyond balustrades, piers,
+    carpet and lamp standards. The design, its sheets and Rico's reference
     photographs are in the vault notes
     `collection-of-beauty-museum-floor-plans.md` and
     `collection-of-beauty-museum-stair-references.md`.

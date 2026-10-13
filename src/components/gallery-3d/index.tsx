@@ -13,7 +13,7 @@ import type { ArtworkListing } from "@/lib/data";
 import { arrivalPoint } from "@/lib/gallery-layout/fittings";
 import { blockArrivalPoint, layoutBlock } from "@/lib/gallery-layout/layout-block";
 import { layoutMuseum } from "@/lib/gallery-layout/layout-museum";
-import { eraOfRoom, floorTitle } from "@/lib/gallery-layout/room-era";
+import { eraOfRoom, floorTitle, paletteOfRoom } from "@/lib/gallery-layout/room-era";
 import { shaftKey, wallSharers } from "@/lib/gallery-layout/room-visibility";
 import type { FloorLayout, MuseumLayout, Staircase } from "@/lib/gallery-layout/types";
 import {
@@ -679,7 +679,7 @@ export function Gallery3D({ artworks }: Props) {
             "outside the building" — the museum is a closed interior, so
             the env map should reflect the room itself. See
             room-env-map.tsx for the canvas → PMREM pipeline. */}
-        <RoomEnvironment palette={activeEra.palette} />
+        <RoomEnvironment palette={activeRoom ? paletteOfRoom(activeRoom) : activeEra.palette} />
 
         {/* One FloorScene per visible floor, keyed by floor index so a
             floor keeps its instance (and its in-progress room reveal)

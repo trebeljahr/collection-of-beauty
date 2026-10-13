@@ -15,6 +15,8 @@ import {
   openingInWorld,
   openingReach,
   STAIR_HEADROOM,
+  sheerSide,
+  sheerStripDepth,
   toStairLocal,
   toStairWorld,
 } from "./grand-stair";
@@ -417,5 +419,87 @@ describe.each(DESIGNS)("the %s stair alone in a hall open to the roof", (design)
           Math.abs(q.z - door.z) < 0.3,
       ),
     ).toBe(true);
+  });
+});
+
+describe("an imperial stair in a hall with a sheer wall", () => {
+  const stair = buildGrandStair({
+    id: "imperial-sheer",
+    design: "imperial",
+    lowerFloor: 0,
+    upperFloor: 1,
+    topFloor: 3,
+    lowerLabel: "",
+    upperLabel: "",
+    lowerY: 0,
+    upperY: FLOOR_SEPARATION,
+    centerX: CX,
+    centerZ: CZ,
+    half: 13.75,
+    turns: 0,
+    hasFlightBelow: false,
+    hasFlightAbove: false,
+    sheerWall: true,
+  });
+  const door = grandHallArrival(stair);
+  const levels = [1, 2, 3].map((f) => f * FLOOR_SEPARATION);
+
+  it("has no gallery along the wall its stair climbs toward, on any floor over the first", () => {
+    expect(sheerSide(stair)).toBe("north");
+    expect(sheerStripDepth(stair.half)).toBeCloseTo(5.75, 6);
+    // Behind the half landing, from one side wall to the other.
+    for (const x of [-13, -9, 0, 9, 13]) {
+      const p = toStairWorld(stair, x, -11);
+      expect(grandSurfaceAt([stair], p.x, p.z, 0)?.floorIndex, `floor, x ${x}`).toBe(0);
+      for (const y of levels) {
+        expect(
+          grandSurfacesAt([stair], p.x, p.z).some((s) => Math.abs(s.y - y) < 1e-6),
+          `x ${x}, y ${y}`,
+        ).toBe(false);
+      }
+    }
+    // The side galleries still run as far as the landing's far edge.
+    for (const side of [-1, 1]) {
+      const p = toStairWorld(stair, side * 11, IMPERIAL.north + 0.5);
+      for (const [i, y] of levels.entries()) {
+        expect(grandSurfaceAt([stair], p.x, p.z, y)?.floorIndex).toBe(i + 1);
+      }
+    }
+  });
+
+  it("fences the galleries where they end, and nothing along the walls", () => {
+    for (const y of levels) {
+      const rails = stair.rails.filter((r) => r.y0 === y && r.y1 === y);
+      // Across the end of each side gallery.
+      for (const side of [-1, 1]) {
+        expect(
+          rails.some(
+            (r) =>
+              r.z0 === IMPERIAL.north &&
+              r.z1 === IMPERIAL.north &&
+              Math.min(side * r.x0, side * r.x1) === IMPERIAL.half &&
+              Math.max(side * r.x0, side * r.x1) === stair.half,
+          ),
+          `side ${side}, y ${y}`,
+        ).toBe(true);
+      }
+      // None lies on a wall.
+      const onWall = rails.filter(
+        (r) =>
+          (Math.abs(r.z0) === stair.half && r.z0 === r.z1) ||
+          (Math.abs(r.x0) === stair.half && r.x0 === r.x1),
+      );
+      expect(onWall).toHaveLength(0);
+    }
+  });
+
+  it("is still walked from the door to the floor above, and never out over the strip", () => {
+    const reached = walkFrom([stair], door, 0, stair.half);
+    const upper = FLOOR_SEPARATION;
+    expect(reached.some((q) => Math.abs(q.y - upper) < 1e-6)).toBe(true);
+    const local = reached.map((q) => ({ ...toStairLocal(stair, q.x, q.z), y: q.y }));
+    // Over the hall floor, nobody stands north of the landing's far edge.
+    const over = local.filter((q) => q.y > 1 && q.z < IMPERIAL.north - 0.01);
+    expect(over).toHaveLength(0);
   });
 });

@@ -3,11 +3,13 @@
 import { useFrame } from "@react-three/fiber";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import * as THREE from "three";
-import { eraOfRoom } from "@/lib/gallery-layout/room-era";
+import { mergeGeometries } from "three/examples/jsm/utils/BufferGeometryUtils.js";
+import { paletteOfRoom } from "@/lib/gallery-layout/room-era";
 import { visibilityRoom } from "@/lib/gallery-layout/room-visibility";
 import type { Door, Placement, RoomLayout, WorldOpening } from "@/lib/gallery-layout/types";
 import {
   CELL_SIZE,
+  FLOOR_SEPARATION,
   FLOOR_THICKNESS,
   hasStairwellCutout,
   INTER_FLOOR_HEIGHT,
@@ -21,8 +23,8 @@ import { laylightPanels } from "./laylight-layout";
 import { Painting } from "./painting";
 import { getPaletteMaterials, getRoomFloorMaterial } from "./palette-materials";
 import { registerCulledRoom } from "./room-culling";
-import { openingHole } from "./stair-opening";
-import { WallWithDoors } from "./wall";
+import { openingHole, rectsAround } from "./stair-opening";
+import { type SkirtingClip, WallWithDoors } from "./wall";
 
 type Side = Door["side"];
 const SIDES: readonly Side[] = ["north", "south", "east", "west"];
@@ -62,8 +64,8 @@ export function RoomGeometry({
    *  overlay can show first-room load progress / failures. */
   onPaintingSettled?: (key: string, status: "loaded" | "failed") => void;
 }) {
-  const era = eraOfRoom(room);
-  const mats = getPaletteMaterials(era.palette);
+  const palette = paletteOfRoom(room);
+  const mats = getPaletteMaterials(palette);
   // A room that carries its own era stands beside rooms in other
   // colours. It draws all four of its walls on its own side only, and
   // its neighbour does the same from the other side. In the tower a
@@ -77,9 +79,7 @@ export function RoomGeometry({
   // created a visible colour edge at the doorway into the stairwell.
   // Regular rooms keep their accent: their walls + frames break the
   // line of sight to the corridor floor, so any edge stays hidden.
-  const floorMat = getRoomFloorMaterial(
-    room.isStairwell ? era.palette.floorColor : room.floorColor,
-  );
+  const floorMat = getRoomFloorMaterial(room.isStairwell ? palette.floorColor : room.floorColor);
   const { cellBounds } = room;
 
   const xMin = cellBounds.xMin * CELL_SIZE;
@@ -95,8 +95,35 @@ export function RoomGeometry({
   // above the interior ceiling when seen from across the open well;
   // the ceiling plane, at the room's own height, covers the plenum
   // from inside.
-  const wallMidY = floorY + INTER_FLOOR_HEIGHT / 2;
+  //
+  // A grand stair hall is one room through every storey, and one of its
+  // walls may stand sheer with no gallery against it (`room.sheer`):
+  // there the wall runs on through the slab's depth to the storey above.
+  const wallHeight = room.ceilingOpening !== undefined ? FLOOR_SEPARATION : INTER_FLOOR_HEIGHT;
+  const wallMidY = floorY + wallHeight / 2;
+  // A hall with a sheer wall stands its walls a few millimetres inside
+  // their lines. On the sheer wall nothing hides the edge of the floor
+  // slab of the room behind, which lies in the wall's own plane.
+  const wallInset = room.sheer ? 0.004 : 0;
   const ceilingY = floorY + room.ceilingHeight;
+  // Skirting follows the floor: none along a sheer wall on the storeys
+  // where the hall's void lies in front of it.
+  const skirting = (side: Side): SkirtingClip => {
+    if (!room.sheer || !room.floorOpening) return undefined;
+    const { side: sheer, depth: strip } = room.sheer;
+    if (side === sheer) return null;
+    const alongX = side === "north" || side === "south";
+    if (alongX === (sheer === "north" || sheer === "south")) return undefined;
+    const half = (alongX ? width : depth) / 2;
+    // Which end of this wall's local x the sheer wall is at (see the
+    // door mapping below for each wall's local frame).
+    const atLow =
+      (side === "east" && sheer === "north") ||
+      (side === "west" && sheer === "south") ||
+      (side === "north" && sheer === "west") ||
+      (side === "south" && sheer === "east");
+    return atLow ? { xMin: -half + strip, xMax: half } : { xMin: -half, xMax: half - strip };
+  };
   const laylights = useMemo(() => laylightPanels(room), [room]);
 
   // Floor plane with world-unit UVs so 1 m of floor = 1 m of texture
@@ -302,12 +329,14 @@ export function RoomGeometry({
           owns the shared wall (and draws it with a door cut). */}
       {!suppress?.north && (
         <WallWithDoors
-          position={[cxWorld, wallMidY, zMin]}
+          position={[cxWorld, wallMidY, zMin + wallInset]}
           rotation={[0, 0, 0]}
           width={width}
-          height={INTER_FLOOR_HEIGHT}
+          height={wallHeight}
           material={wallMat}
           doors={nDoors}
+          skirting={skirting("north")}
+          ownFace={ownWalls}
           groupRef={(group) => {
             wallRefs.current.north = group;
           }}
@@ -315,12 +344,14 @@ export function RoomGeometry({
       )}
       {!suppress?.south && (
         <WallWithDoors
-          position={[cxWorld, wallMidY, zMax]}
+          position={[cxWorld, wallMidY, zMax - wallInset]}
           rotation={[0, Math.PI, 0]}
           width={width}
-          height={INTER_FLOOR_HEIGHT}
+          height={wallHeight}
           material={wallMat}
           doors={sDoors}
+          skirting={skirting("south")}
+          ownFace={ownWalls}
           groupRef={(group) => {
             wallRefs.current.south = group;
           }}
@@ -328,12 +359,14 @@ export function RoomGeometry({
       )}
       {!suppress?.west && (
         <WallWithDoors
-          position={[xMin, wallMidY, czWorld]}
+          position={[xMin + wallInset, wallMidY, czWorld]}
           rotation={[0, Math.PI / 2, 0]}
           width={depth}
-          height={INTER_FLOOR_HEIGHT}
+          height={wallHeight}
           material={wallMat}
           doors={wDoors}
+          skirting={skirting("west")}
+          ownFace={ownWalls}
           groupRef={(group) => {
             wallRefs.current.west = group;
           }}
@@ -341,12 +374,14 @@ export function RoomGeometry({
       )}
       {!suppress?.east && (
         <WallWithDoors
-          position={[xMax, wallMidY, czWorld]}
+          position={[xMax - wallInset, wallMidY, czWorld]}
           rotation={[0, -Math.PI / 2, 0]}
           width={depth}
-          height={INTER_FLOOR_HEIGHT}
+          height={wallHeight}
           material={wallMat}
           doors={eDoors}
+          skirting={skirting("east")}
+          ownFace={ownWalls}
           groupRef={(group) => {
             wallRefs.current.east = group;
           }}
@@ -606,6 +641,30 @@ function StairwellFloor({
   hole: WorldOpening | "spiral" | null;
 }) {
   const { topGeom, slabGeom } = useMemo(() => {
+    // An opening of rectangles may reach the hall's walls (a sheer
+    // wall), and a hole that touches a shape's edge does not
+    // triangulate. So the floor is built from the rectangles round the
+    // opening instead: one box each, their inner faces never seen.
+    if (opening && opening !== "spiral" && opening.kind === "rects") {
+      const cells = rectsAround(opening.rects, cxWorld, czWorld, width, depth);
+      const tops = cells.map((c) => {
+        const g = new THREE.PlaneGeometry(c.xMax - c.xMin, c.zMax - c.zMin);
+        g.rotateX(-Math.PI / 2);
+        g.translate((c.xMin + c.xMax) / 2, 0, (c.zMin + c.zMax) / 2);
+        return g;
+      });
+      const slabs = cells.map((c) => {
+        const g = new THREE.BoxGeometry(c.xMax - c.xMin, FLOOR_THICKNESS, c.zMax - c.zMin);
+        g.translate((c.xMin + c.xMax) / 2, -FLOOR_THICKNESS / 2, (c.zMin + c.zMax) / 2);
+        return g;
+      });
+      const top = mergeGeometries(tops, false);
+      const slab = mergeGeometries(slabs, false);
+      for (const g of [...tops, ...slabs]) g.dispose();
+      applyWorldXZ_UV(top, cxWorld, czWorld);
+      applyWorldXZ_UV(slab, cxWorld, czWorld);
+      return { topGeom: top, slabGeom: slab };
+    }
     const shape = new THREE.Shape();
     const halfW = width / 2;
     const halfD = depth / 2;

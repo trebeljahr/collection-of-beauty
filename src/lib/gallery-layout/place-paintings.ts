@@ -338,7 +338,7 @@ export function sideClearance(work: SizedWork): { left: number; right: number } 
 
 /** Footprint a work claims on a wall: its frame, its canvas, and the
  *  plaque that hangs to its right. */
-function footprintOf(work: SizedWork): number {
+export function footprintOf(work: SizedWork): number {
   const { left, right } = sideClearance(work);
   return left + work.wM + right;
 }
@@ -600,12 +600,17 @@ export function distributePaintings(
  * outwards, so a wall reads as a composed group rather than a random
  * sequence of sizes.
  */
-export function packRun(run: WallRun, works: SizedWork[]): Placement[] {
+export function packRun(
+  run: WallRun,
+  works: SizedWork[],
+  /** Widest canvas the run hangs. A stair hall hangs wider (`giants.ts`). */
+  maxWidth = MAX_PAINTING_W,
+): Placement[] {
   if (works.length === 0) return [];
 
   const span = runLength(run);
   const fitted = works.map((work) => {
-    const { wM, hM } = fitTo(work, Math.min(MAX_PAINTING_W, span), run.maxHeight);
+    const { wM, hM } = fitTo(work, Math.min(maxWidth, span), run.maxHeight);
     const sized = { artwork: work.artwork, wM, hM };
     return { ...sized, ...sideClearance(sized), drop: frameDropOf(sized) };
   });

@@ -21,7 +21,8 @@
 import { useEffect, useMemo } from "react";
 import * as THREE from "three";
 import { mergeGeometries } from "three/examples/jsm/utils/BufferGeometryUtils.js";
-import type { FloorLayout, RoomLayout } from "@/lib/gallery-layout/types";
+import { paletteOfRoom } from "@/lib/gallery-layout/room-era";
+import type { Door, FloorLayout, RoomLayout } from "@/lib/gallery-layout/types";
 import {
   CELL_SIZE,
   INTER_FLOOR_HEIGHT,
@@ -44,7 +45,7 @@ import {
 } from "./painting-light";
 import { doorThreshold, type Threshold } from "./painting-light-rig";
 import { fixtureMaterial, getPaletteMaterials } from "./palette-materials";
-import { openingHole } from "./stair-opening";
+import { openingHole, rectsAround } from "./stair-opening";
 import {
   fitWashRow,
   OCULUS_HUB_R,
@@ -180,7 +181,54 @@ function getWashMaterial(row: WashRow, thresholds: Threshold[]): THREE.ShaderMat
 /** A wall in the room's frame (origin at the middle of the floor): the
  *  turn about y that carries the wall's frame onto it, the middle of its
  *  foot, its length and its doors. */
-type Wall = { rotation: number; origin: [number, number]; length: number; doors: WashDoor[] };
+type Wall = {
+  side: Door["side"];
+  rotation: number;
+  origin: [number, number];
+  length: number;
+  doors: WashDoor[];
+};
+
+/** A wall less `start` metres at the low end of its local x and `end`
+ *  at the high end. */
+function trimWall(wall: Wall, start: number, end: number): Wall {
+  const shift = (start - end) / 2;
+  const dir = fromWall(wall, [1, 0, 0], false);
+  const length = wall.length - start - end;
+  return {
+    ...wall,
+    origin: [wall.origin[0] + dir[0] * shift, wall.origin[1] + dir[2] * shift],
+    length,
+    doors: wall.doors
+      .map((d) => ({ ...d, center: d.center - shift }))
+      .filter((d) => Math.abs(d.center) < length / 2),
+  };
+}
+
+/** The walls a hall's washers light: all four, but for a sheer wall,
+ *  which has no ceiling to hang them from, and the strip in front of it
+ *  on the two walls that meet it (`RoomLayout.sheer`). */
+function washedWalls(room: RoomLayout, walls: Wall[]): Wall[] {
+  const sheer = room.sheer;
+  if (!sheer) return walls;
+  // The end of each meeting wall's local x that the sheer wall is at.
+  const lowEnd: Record<string, boolean> = {
+    "north:east": true,
+    "north:west": false,
+    "south:east": false,
+    "south:west": true,
+    "west:north": true,
+    "west:south": false,
+    "east:north": false,
+    "east:south": true,
+  };
+  return walls.flatMap((wall) => {
+    if (wall.side === sheer.side) return [];
+    const low = lowEnd[`${sheer.side}:${wall.side}`];
+    if (low === undefined) return [wall];
+    return [trimWall(wall, low ? sheer.depth : 0, low ? 0 : sheer.depth)];
+  });
+}
 
 function roomWalls(room: RoomLayout, width: number, depth: number, cx: number, cz: number): Wall[] {
   // Same four placements as RoomGeometry's walls, so a door's place
@@ -190,20 +238,29 @@ function roomWalls(room: RoomLayout, width: number, depth: number, cx: number, c
       .filter((d) => d.side === side)
       .map((d) => ({ center: along(d.worldX, d.worldZ), width: d.width, height: d.height }));
   return [
-    { rotation: 0, origin: [0, -depth / 2], length: width, doors: doors("north", (x) => x - cx) },
     {
+      side: "north",
+      rotation: 0,
+      origin: [0, -depth / 2],
+      length: width,
+      doors: doors("north", (x) => x - cx),
+    },
+    {
+      side: "south",
       rotation: Math.PI,
       origin: [0, depth / 2],
       length: width,
       doors: doors("south", (x) => -(x - cx)),
     },
     {
+      side: "west",
       rotation: Math.PI / 2,
       origin: [-width / 2, 0],
       length: depth,
       doors: doors("west", (_, z) => -(z - cz)),
     },
     {
+      side: "east",
       rotation: -Math.PI / 2,
       origin: [width / 2, 0],
       length: depth,
@@ -309,7 +366,21 @@ function buildCeilingGeometry(
   depth: number,
   closed: boolean,
   grandHole: THREE.Path | null,
+  /** A grand stair's opening of rectangles, as the ceiling round it
+   *  (`rectsAround`): it may reach the walls, where a hole cannot. */
+  around: ReturnType<typeof rectsAround> | null = null,
 ): THREE.BufferGeometry {
+  if (around) {
+    const parts = around.map((c) => {
+      const g = new THREE.PlaneGeometry(c.xMax - c.xMin, c.zMax - c.zMin);
+      g.rotateX(Math.PI / 2);
+      g.translate((c.xMin + c.xMax) / 2, 0, (c.zMin + c.zMax) / 2);
+      return g;
+    });
+    const merged = mergeGeometries(parts, false);
+    for (const g of parts) g.dispose();
+    return merged;
+  }
   const shape = new THREE.Shape();
   shape.moveTo(-width / 2, -depth / 2);
   shape.lineTo(width / 2, -depth / 2);
@@ -430,7 +501,9 @@ function StairHallLight({ floor, room }: { floor: FloorLayout; room: RoomLayout 
   const voidUnder = closed && grand !== undefined ? room.floorOpening : null;
   const laylight = voidUnder?.kind === "rects" ? voidUnder.rects : null;
   const glazed = (closed || grand === undefined) && !laylight;
-  const { wallColor } = floor.era.palette;
+  // A stair hall is one colour through every storey.
+  const palette = room.paletteEra ? paletteOfRoom(room) : floor.era.palette;
+  const { wallColor } = palette;
 
   const built = useMemo(() => {
     const { cellBounds } = room;
@@ -442,7 +515,7 @@ function StairHallLight({ floor, room }: { floor: FloorLayout; room: RoomLayout 
     const depth = zMax - zMin;
     const cx = (xMin + xMax) / 2;
     const cz = (zMin + zMax) / 2;
-    const walls = roomWalls(room, width, depth, cx, cz);
+    const walls = washedWalls(room, roomWalls(room, width, depth, cx, cz));
     const rows = walls.map((w) => fitWashRow(w.length, CEILING_Y));
     return {
       position: [cx, room.worldRect.y, cz] as [number, number, number],
@@ -460,6 +533,7 @@ function StairHallLight({ floor, room }: { floor: FloorLayout; room: RoomLayout 
         depth,
         closed,
         grand ? openingHole(grand, cx, cz, 1) : null,
+        grand?.kind === "rects" ? rectsAround(grand.rects, cx, cz, width, depth) : null,
       ),
       glass: buildGlassGeometry(closed),
       frame: buildGlazingFrame(closed),
@@ -489,7 +563,7 @@ function StairHallLight({ floor, room }: { floor: FloorLayout; room: RoomLayout 
           d={r.zMax - r.zMin}
         />
       ))}
-      <StairHallFixtures built={built} glazed={glazed} palette={floor.era.palette} />
+      <StairHallFixtures built={built} glazed={glazed} palette={palette} />
     </>
   );
 }

@@ -29,16 +29,23 @@ export const SKIRTING_CAP_PROUD = 0.02;
 export function buildSkirtingGeometry(
   spans: ReadonlyArray<{ xMin: number; xMax: number }>,
   floorY: number,
+  /** The board stands on the wall's own face only (local +z). For a
+   *  wall each room draws for itself: straddling, the board of the room
+   *  behind a stair hall's sheer wall showed through it as a dark line
+   *  at every storey. */
+  oneSided = false,
 ): THREE.BufferGeometry | null {
   const parts: THREE.BufferGeometry[] = [];
+  const sides = oneSided ? 1 : 2;
+  const z = (proud: number) => (oneSided ? proud / 2 : 0);
   for (const s of spans) {
     const w = s.xMax - s.xMin;
     if (w <= 0.01) continue;
     const cx = (s.xMin + s.xMax) / 2;
-    const board = new THREE.BoxGeometry(w, SKIRTING_HEIGHT + SKIRTING_SINK, SKIRTING_PROUD * 2);
-    board.translate(cx, floorY + (SKIRTING_HEIGHT - SKIRTING_SINK) / 2, 0);
-    const cap = new THREE.BoxGeometry(w, SKIRTING_CAP_HEIGHT, SKIRTING_CAP_PROUD * 2);
-    cap.translate(cx, floorY + SKIRTING_HEIGHT - SKIRTING_CAP_HEIGHT / 2, 0);
+    const board = new THREE.BoxGeometry(w, SKIRTING_HEIGHT + SKIRTING_SINK, SKIRTING_PROUD * sides);
+    board.translate(cx, floorY + (SKIRTING_HEIGHT - SKIRTING_SINK) / 2, z(SKIRTING_PROUD));
+    const cap = new THREE.BoxGeometry(w, SKIRTING_CAP_HEIGHT, SKIRTING_CAP_PROUD * sides);
+    cap.translate(cx, floorY + SKIRTING_HEIGHT - SKIRTING_CAP_HEIGHT / 2, z(SKIRTING_CAP_PROUD));
     parts.push(board, cap);
   }
   if (parts.length === 0) return null;
