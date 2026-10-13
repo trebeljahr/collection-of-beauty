@@ -38,7 +38,7 @@ import { boostForMap, Minimap, type PlayerSample, roomRect } from "./minimap";
 import { Player, type PlayerHandle } from "./player";
 import { RoomCulling, registerShaftFittings } from "./room-culling";
 import { RoomEnvironment } from "./room-env-map";
-import { RoomGeometry } from "./room-geometry";
+import { RoomGeometry, RoomReveals } from "./room-geometry";
 import { Gallery3DSettings } from "./settings-modal";
 import { StaircaseRenderer } from "./staircase";
 import { StairwellLight } from "./stairwell-light";
@@ -713,6 +713,13 @@ export function Gallery3D({ artworks }: Props) {
               floor={layout.floors[idx]}
               allStaircases={layout.allStaircases}
               showOnly={mode === "full" ? undefined : mode}
+              // The visitor's floor, and the one a spiral is taking
+              // them to, whose rooms off the stairwell load during the
+              // climb. A floor mounted because a hall shows its doors
+              // keeps its galleries as stand-ins: from a stair hall the
+              // rooms of three storeys are within reach on the plan,
+              // 562 works where the texture pool holds about 200.
+              worksInFull={idx === currentFloorIdx || (onSpiral && idx === stairOtherFloorIdx)}
               // Only the entry floor wires the load-tally callback, and
               // only before the player starts.
               entryRoomId={!hasStarted && idx === initialFloorIdx ? entryRoom?.id : undefined}
@@ -720,6 +727,7 @@ export function Gallery3D({ artworks }: Props) {
             />
           ))}
 
+        <RoomReveals />
         <LodController />
         {debug && <DebugProbe />}
         <FloorPreloader
@@ -1122,6 +1130,7 @@ function FloorScene({
   floor,
   allStaircases,
   showOnly,
+  worksInFull,
   entryRoomId,
   onEntryPaintingSettled,
 }: {
@@ -1139,6 +1148,9 @@ function FloorScene({
    *  next flight is visible through the destination floor's well
    *  cutout without paying for a full stairwell mount. */
   showOnly?: "stairwell" | "stairs";
+  /** Whether this floor's galleries may show their works in full
+   *  (`RoomGeometry.worksInFull`). */
+  worksInFull: boolean;
   /** Room whose paintings should report load progress. Undefined →
    *  no room reports (e.g. once the player has entered). */
   entryRoomId?: string;
@@ -1196,6 +1208,7 @@ function FloorScene({
           key={room.id}
           room={room}
           mountedRooms={mountedRooms}
+          worksInFull={worksInFull}
           sharedWalls={sharedWalls.get(room.id) ?? NO_SHARED_WALLS}
           onPaintingSettled={room.id === entryRoomId ? onEntryPaintingSettled : undefined}
         />

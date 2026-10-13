@@ -35,6 +35,9 @@ export type PaintingEntry = {
   halfW: number;
   halfH: number;
   artwork: ArtworkListing;
+  /** Address of the base texture on the canvas, for the debug HUD's
+   *  count of works whose base is still in the pool. */
+  baseUrl: string;
   /** Optional LOD tick. Called by the LodController; the painting decides
    *  whether to prefetch, swap, or release its hi-res texture. Only
    *  PaintingPlane sets this — fallback swatches don't have a texture to

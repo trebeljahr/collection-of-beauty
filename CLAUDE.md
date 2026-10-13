@@ -720,7 +720,9 @@ required by the Dockerfile — don't remove it.
       floor below are then mounted in full (`activeHallFloors` in
       `index.tsx`: the floors of every stair that stands in that hall),
       and every floor's halls and stair rooms always are: a hall shows
-      four storeys at once. One of them mounted alone has a blind in
+      four storeys at once. The galleries of those two floors keep
+      their stand-ins ("Works in full take the texture pool", below).
+      One of them mounted alone has a blind in
       each door to a room that is not (`mountedRooms` in
       `room-geometry.tsx`), or its doors would open on the scene's
       background. The floor's mirror pass runs in a hall as in any
@@ -840,6 +842,83 @@ required by the Dockerfile — don't remove it.
     hang nothing, and each corner of the block is part of a long
     gallery, which has less wall than the rooms it could be: the plan
     before hung 1,726, 1,663 of them in 43 rooms.
+  - **Works in full take the texture pool, nearest room first**
+    ([`reveal-budget.ts`](src/lib/gallery-layout/reveal-budget.ts);
+    `useRoomWorks` and `RoomReveals` in `room-geometry.tsx`). The rule
+    holds for the tower too; this plan is where it was found. A work in
+    full pins its 480 px base texture, 1.3 MiB on average, and the base
+    pool is 256 MiB: about 200 works. A room comes into reach 14 m off
+    on the plan and stays until 34 m. On 13 October 2026 the rooms in
+    reach hung more than the pool holds, on both plans:
+    - a hall mounts the floor above and the floor below in full, and
+      reach is measured on the plan. From the court's gallery on the
+      third floor 670 works were in full, from a stair hall there 562;
+    - from the middle of a floor every gallery of it is within 34 m, so
+      a floor that had been walked stayed in full: 437 works from the
+      first floor's court, 300 on the tower's Natural History floor.
+    The pool evicts what was touched longest ago, and the LOD tick
+    touches the works in full in the order they mounted. So the first
+    textures to go were those of the room the visitor stood in: of 411
+    works in full where a visit starts, 193 textures were in the pool.
+    Nothing loads an evicted base again. three.js uploads it once more
+    when it next draws it, outside the pool's count. What bounds it now:
+    - **A gallery shows its works in full on the visitor's floor only**
+      (`worksInFull`), and on the floor a spiral is taking them to. A
+      hall shows its works from every storey.
+    - **The rooms in reach are ranked once a frame, and take 85 % of
+      the pool in that order** (`REVEAL_BYTE_BUDGET`, 217.6 MiB). The
+      rest keep their stand-ins. A room that does not fit is passed
+      over for a smaller one further off. The other 15 % is for the
+      256 px previews of works still loading and for what a room just
+      gave up.
+    - **Rank** is distance on the plan plus height. A room with no door
+      to where the visitor stands counts 14 m further (`DETOUR_M`):
+      where a visit starts, the two galleries of the spine, seen through
+      the court's portals, come before the long galleries behind its
+      south wall. A room in full counts 3 m nearer (`HOLD_M`), so two
+      rooms that vie for the last of the pool do not change places
+      while a visitor paces. The storeys of a hall rank as one room, by
+      distance alone: its giants cross the storeys and all of them
+      together cost less than one gallery (40 MiB for the court and a
+      stair hall).
+    - `RoomReveals` measures every room from one camera position. When
+      each room measured itself in its own frame callback, the frame
+      after a floor key ranked half the rooms from the old place, and a
+      room that fitted was denied and gave its works up.
+    - A room that loses its place gives its works up 8 a frame
+      (`STAND_INS_PER_FRAME`): it can lose it a few metres from the
+      visitor.
+    Before raising a room's works or its size, look at what its works
+    cost (`roomRevealBytes`). The visitor's own room is granted whatever
+    it costs, and `reveal-budget.test.ts` fails on a room over the
+    budget. The largest is the fourth floor's north-west gallery: 83
+    works, 155 MiB. A tower room and the rooms its doors lead to always
+    fit together (215 MiB at most, Natural History west). The galleries
+    of the spine, with four doors each, do not: the fourth floor's west
+    one and its neighbours cost 330 MiB, and one of its two long
+    galleries keeps its stand-ins. On a spiral here the floor above
+    takes the pool from the floor below in the last quarter of the
+    climb; in the tower the rooms off the stairwell fit on both floors.
+    Do not raise the pool to make room.
+
+    At rest on 13 October 2026 (`?debug`, headless, 1600 × 900), works
+    in full before → after. After, each had its base in the pool at
+    every pose (`paintings registered N · base in pool N`). Before, the
+    pool held 140 to 206 textures wherever more than 200 works were in
+    full, previews among them:
+    - first floor: where a visit starts 411 → 144, the court's centre
+      411 → 144, a stair hall's lobby 376 → 144, a long gallery 148 →
+      148, the court after a walk round the floor 437 → 148;
+    - third floor: where a visit starts 670 → 177, a stair hall's lobby
+      562 → 183, a long gallery 146 → 146, the court after a walk round
+      the floor 184 after;
+    - tower: where a visit starts 50 → 50 (83.6 MiB both times), by the
+      Natural History stairwell 213 → 124, its Grand Hall after a walk
+      round the floor 300 → 95.
+    `window.__galleryReveals()` lists each room's claim and the works
+    in full that have no base in the pool. The court's middle is open
+    over the first floor: a camera set there on another floor falls to
+    the first, and the reading is the first floor's.
   - Changed on the way. `?plan=wings`, 12.5 m galleries in rings round
     a salon, 44 rooms a floor: rooms too small, too many, no dividers,
     too few doors between them. Then this block with its three stair
@@ -1117,8 +1196,9 @@ required by the Dockerfile — don't remove it.
     anything. Within 14 m the work is revealed in full (frame, textures,
     plaque), past 34 m it goes back to its stand-in, and the light is
     one component through both. Do not raise the two distances to keep
-    more works in full: the base texture pool is at its 256 MB in the
-    block plan's court as it is.
+    more works in full: the rooms within them already hang more than
+    the base texture pool holds, and take it nearest first (block plan:
+    "Works in full take the texture pool").
   - **The check.** Two camera poses 10 cm apart, either side of the
     line where the visitor's room changes, the same view. Their frames
     may differ by parallax only. On 13 October 2026 the mean luma of

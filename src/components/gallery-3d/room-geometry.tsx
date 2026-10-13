@@ -4,8 +4,14 @@ import { useFrame } from "@react-three/fiber";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import * as THREE from "three";
 import { mergeGeometries } from "three/examples/jsm/utils/BufferGeometryUtils.js";
+import {
+  grantReveals,
+  REVEAL_BYTE_BUDGET,
+  type RevealClaim,
+  roomRevealBytes,
+} from "@/lib/gallery-layout/reveal-budget";
 import { paletteOfRoom } from "@/lib/gallery-layout/room-era";
-import { visibilityRoom } from "@/lib/gallery-layout/room-visibility";
+import { shaftKey, visibilityRoom } from "@/lib/gallery-layout/room-visibility";
 import type { Door, Placement, RoomLayout, WorldOpening } from "@/lib/gallery-layout/types";
 import {
   CELL_SIZE,
@@ -57,9 +63,15 @@ export function RoomGeometry({
   room,
   sharedWalls,
   mountedRooms,
+  worksInFull = true,
   onPaintingSettled,
 }: {
   room: RoomLayout;
+  /** False on a floor that is mounted only because a hall shows its
+   *  doors: its galleries keep their stand-ins however near they are on
+   *  the plan. A hall is one room through every storey and shows its
+   *  works in full from any of them. */
+  worksInFull?: boolean;
   /** The rooms of this floor that are mounted, when not all are. A door
    *  to any other gets a blind. */
   mountedRooms?: ReadonlySet<string>;
@@ -200,7 +212,7 @@ export function RoomGeometry({
   // Paintings load lazily, image by image, only once the player is near
   // this room (see useRoomWorks). Until then each is its picture light
   // and a stand-in, so a room seen from afar is lit and hung.
-  const works = useRoomWorks(room);
+  const works = useRoomWorks(room, worksInFull || room.isStairwell);
   const settledHandler = usePaintingSettledHandlers(onPaintingSettled);
 
   // The floor's mirror pass draws this room's works only while the
@@ -421,24 +433,110 @@ export function RoomGeometry({
 const PAINTING_LOAD_RADIUS = 14;
 const PAINTING_LOAD_RADIUS_SQ = PAINTING_LOAD_RADIUS * PAINTING_LOAD_RADIUS;
 const PAINTINGS_PER_FRAME = 2;
-// Rooms this far behind the player drop their paintings again. Paintings
-// used to mount once and stay for the session, so walking a floor ended
-// with every one of its ~300 paintings mounted — each pinning a texture
-// in the LRU on every LOD tick, which is what made a floor's textures
-// churn (evict → dispose → re-upload) until nothing rendered reliably.
-// Well outside the 14 m mount radius so a player pacing a doorway can't
-// flap between the two.
+// Rooms this far behind the player drop their paintings again. Well
+// outside the 14 m mount radius so a player pacing a doorway can't flap
+// between the two.
 const PAINTING_UNLOAD_RADIUS = 34;
 const PAINTING_UNLOAD_RADIUS_SQ = PAINTING_UNLOAD_RADIUS * PAINTING_UNLOAD_RADIUS;
-// A room out of that range is not bare. Every work keeps its picture
-// light and a stand-in for frame and canvas (painting.tsx) for as long
-// as its floor is mounted, at no cost in textures. They used to mount
-// with the work, and the pools faded in as it did: a room seen through a
-// portal from over 14 m away stood unlit, and its lights came on as the
-// visitor walked up to it. In the tower a room that far is seldom in
-// view. In the block plan the spine is five rooms in a line through
-// 3.5 m portals. Lights mount this many a frame from the moment the
-// floor does, nearest room first.
+// The two radii say which rooms are in reach. They do not bound what
+// the rooms in reach hold: from the middle of a floor every room of it
+// is within 34 m, and a floor that has been walked had all of its ~300
+// paintings in full, each pinning a base texture on every LOD tick, in
+// a pool that holds about 200. So reach is a request. Each mounted room
+// files a claim, `RoomReveals` ranks the claims once a frame, and the
+// rooms nearest the visitor take the pool for as long as their works
+// fit it (reveal-budget.ts). A room acts on an answer one frame old.
+type RoomClaim = RevealClaim & {
+  /** The room's footprint on the plan, and the height of its floor. */
+  xMin: number;
+  xMax: number;
+  zMin: number;
+  zMax: number;
+  floorY: number;
+  /** It has works and is on a storey that shows them in full. */
+  eligible: boolean;
+};
+const revealClaims = new Map<string, RoomClaim>();
+let revealGrants: ReadonlySet<string> = new Set();
+// A room that loses its place gives its paintings up this many a frame,
+// the last revealed first. It can lose it with the visitor a few metres
+// off, and 80 paintings unmounted in one frame is a hitch.
+const STAND_INS_PER_FRAME = 8;
+/** Standing eye height (player.tsx): the camera is this far over the
+ *  visitor's feet. */
+const EYE_HEIGHT_M = 1.75;
+
+/** For the debug HUD: what the last ranking granted. */
+export const roomRevealDebug = {
+  /** Rooms with works that are in reach. */
+  asking: 0,
+  /** Those granted the pool. */
+  granted: 0,
+  /** Base texture bytes of the granted rooms' works. */
+  bytes: 0,
+  budget: REVEAL_BYTE_BUDGET,
+};
+
+/** For the debug HUD's console hook: every mounted room's claim and
+ *  whether the last ranking granted it. */
+export function roomRevealClaims(): Array<RevealClaim & { id: string; granted: boolean }> {
+  return [...revealClaims].map(([id, claim]) => ({
+    id,
+    cost: claim.cost,
+    distance: claim.distance,
+    rise: claim.rise,
+    doors: claim.doors,
+    shaft: claim.shaft,
+    asks: claim.asks,
+    holds: claim.holds,
+    granted: revealGrants.has(id),
+  }));
+}
+
+/** Ranks the rooms' claims on the base texture pool, once a frame.
+ *  Mount one per scene: without it no room shows its works in full. */
+export function RoomReveals() {
+  useFrame(({ camera }) => {
+    // Every room is measured here, from one camera position. Measured
+    // each in its own frame callback, the rooms of the frame a visitor
+    // is sent to another floor or room were ranked half from the old
+    // place and half from the new: a room that had left reach still
+    // counted, and a room that fitted was denied and gave its works up.
+    const { x, y, z } = camera.position;
+    const feet = y - EYE_HEIGHT_M;
+    for (const claim of revealClaims.values()) {
+      const dx = x - Math.min(Math.max(x, claim.xMin), claim.xMax);
+      const dz = z - Math.min(Math.max(z, claim.zMin), claim.zMax);
+      claim.distance = Math.hypot(dx, dz);
+      claim.rise = Math.abs(feet - claim.floorY);
+      claim.asks =
+        claim.eligible &&
+        claim.distance <= (claim.holds ? PAINTING_UNLOAD_RADIUS : PAINTING_LOAD_RADIUS);
+    }
+    revealGrants = grantReveals(revealClaims);
+    let asking = 0;
+    let bytes = 0;
+    for (const [id, claim] of revealClaims) {
+      if (!claim.asks) continue;
+      asking++;
+      if (revealGrants.has(id)) bytes += claim.cost;
+    }
+    roomRevealDebug.asking = asking;
+    roomRevealDebug.granted = revealGrants.size;
+    roomRevealDebug.bytes = bytes;
+  });
+  return null;
+}
+
+// A room out of reach, or in reach and not granted, is not bare. Every
+// work keeps its picture light and a stand-in for frame and canvas
+// (painting.tsx) for as long as its floor is mounted, at no cost in
+// textures. They used to mount with the work, and the pools faded in as
+// it did: a room seen through a portal from over 14 m away stood unlit,
+// and its lights came on as the visitor walked up to it. In the tower a
+// room that far is seldom in view. In the block plan the spine is five
+// rooms in a line through 3.5 m portals. Lights mount this many a frame
+// from the moment the floor does, nearest room first.
 const LIGHTS_PER_FRAME = 6;
 
 // Both ramps are serialised across rooms, nearest first. Several rooms
@@ -470,14 +568,20 @@ function isNearestPending(
  *
  *  Lights and stand-ins ramp up from the moment the room mounts,
  *  LIGHTS_PER_FRAME a frame, and stay. Works are revealed once the
- *  camera comes within PAINTING_LOAD_RADIUS of the room,
- *  PAINTINGS_PER_FRAME a frame, ordered nearest the player first. Each
- *  ramp runs only while this is the nearest room still waiting for it.
- *  Past PAINTING_UNLOAD_RADIUS the works go back to stand-ins, which
- *  bounds how many paintings a floor holds at once (and therefore how
- *  many textures compete for the LRU). A return visit re-ramps from the
- *  texture cache, so it costs frames, not network. */
-function useRoomWorks(room: RoomLayout): {
+ *  camera comes within PAINTING_LOAD_RADIUS of the room and the pool has
+ *  room for them (`revealGrants`), PAINTINGS_PER_FRAME a frame, ordered
+ *  nearest the player first. Each ramp runs only while this is the
+ *  nearest room still waiting for it. Past PAINTING_UNLOAD_RADIUS, or
+ *  when a nearer room needs the pool, the works go back to stand-ins. A
+ *  return visit re-ramps from the texture cache while its textures are
+ *  still there, so it costs frames, not network.
+ *
+ *  `mayReveal` is false for a gallery on a storey the visitor is not on
+ *  (`RoomGeometry.worksInFull`). */
+function useRoomWorks(
+  room: RoomLayout,
+  mayReveal: boolean,
+): {
   mounted: Placement[];
   revealed: ReadonlySet<Placement>;
 } {
@@ -502,6 +606,24 @@ function useRoomWorks(room: RoomLayout): {
   // before the one behind you. Recomputing it every frame would reorder
   // works that are already mounted.
   const orderRef = useRef<Placement[]>(room.placements);
+  // This room's claim on the pool, filed for as long as it is mounted.
+  // A room with no works files one too: the ranking has to know where
+  // the visitor stands, and that is often a stairwell.
+  const claim = useMemo<RoomClaim>(
+    () => ({
+      cost: roomRevealBytes(room),
+      distance: Number.POSITIVE_INFINITY,
+      rise: 0,
+      doors: room.doors.map((door) => door.connectsTo.roomId),
+      shaft: shaftKey(room),
+      asks: false,
+      holds: false,
+      ...bounds,
+      floorY: room.worldRect.y,
+      eligible: false,
+    }),
+    [room, bounds],
+  );
 
   // Reset if this instance is ever reused for a different room.
   useEffect(() => {
@@ -511,11 +633,14 @@ function useRoomWorks(room: RoomLayout): {
     orderRef.current = room.placements;
     setCount(0);
     setLit(0);
+    claim.holds = false;
+    revealClaims.set(room.id, claim);
     return () => {
       pendingRooms.delete(room.id);
       pendingLights.delete(room.id);
+      if (revealClaims.get(room.id) === claim) revealClaims.delete(room.id);
     };
-  }, [room]);
+  }, [room, claim]);
 
   useFrame((state) => {
     const { x, y, z } = state.camera.position;
@@ -535,21 +660,31 @@ function useRoomWorks(room: RoomLayout): {
       }
     }
 
-    if (nearRef.current) {
-      if (distSq > PAINTING_UNLOAD_RADIUS_SQ) {
-        nearRef.current = false;
-        countRef.current = 0;
-        pendingRooms.delete(room.id);
-        setCount(0);
-        return;
+    claim.eligible = mayReveal && total > 0;
+    const inReach =
+      claim.eligible &&
+      distSq <= (nearRef.current ? PAINTING_UNLOAD_RADIUS_SQ : PAINTING_LOAD_RADIUS_SQ);
+
+    if (!inReach || !revealGrants.has(room.id)) {
+      nearRef.current = false;
+      claim.holds = false;
+      pendingRooms.delete(room.id);
+      if (countRef.current > 0) {
+        countRef.current = Math.max(0, countRef.current - STAND_INS_PER_FRAME);
+        setCount(countRef.current);
       }
-    } else if (distSq <= PAINTING_LOAD_RADIUS_SQ) {
-      nearRef.current = true;
-      orderRef.current = [...room.placements].sort(
-        (a, b) => placementDistSq(a, x, y, z) - placementDistSq(b, x, y, z),
-      );
-    } else {
       return;
+    }
+    if (!nearRef.current) {
+      nearRef.current = true;
+      claim.holds = true;
+      // A room granted again while it was still giving its paintings up
+      // keeps its order: the ones left are the first of it.
+      if (countRef.current === 0) {
+        orderRef.current = [...room.placements].sort(
+          (a, b) => placementDistSq(a, x, y, z) - placementDistSq(b, x, y, z),
+        );
+      }
     }
 
     if (countRef.current >= total) {

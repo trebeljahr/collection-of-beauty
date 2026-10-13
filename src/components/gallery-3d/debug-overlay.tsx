@@ -25,8 +25,13 @@ import * as THREE from "three";
 import type { ArtworkListing } from "@/lib/data";
 import { floorReflectionDebug, forceFloorReflection } from "./floor-reflection";
 import { frameMapStats } from "./frame-maps";
-import { _paintingRegistryDebug, raycastNearestPaintingHit } from "./painting-registry";
+import {
+  _paintingRegistryDebug,
+  forEachPainting,
+  raycastNearestPaintingHit,
+} from "./painting-registry";
 import { forceRoomCulling, roomCullingDebug } from "./room-culling";
+import { roomRevealClaims, roomRevealDebug } from "./room-geometry";
 import { _textureCacheDebug, estimateTextureBytes } from "./texture-cache";
 
 const DEBUG_AVAILABLE = process.env.NODE_ENV !== "production";
@@ -168,14 +173,18 @@ export function DebugProbe() {
   // floor reflection on or off with `__galleryFloorReflection(true)`
   // (`null` returns it to its own gates) to compare the two.
   // `__galleryRoomCulling(false)` draws every mounted room, as three's
-  // frustum test alone would.
+  // frustum test alone would. `__galleryReveals()` lists every mounted
+  // room's claim on the base texture pool and whether it was granted
+  // (reveal-budget.ts), and the works in full whose base is not in it.
   const camera = useThree((s) => s.camera);
   useEffect(() => {
     const w = window as {
       __galleryCamera?: THREE.Camera;
       __galleryFloorReflection?: typeof forceFloorReflection;
       __galleryRoomCulling?: typeof forceRoomCulling;
+      __galleryReveals?: () => unknown;
     };
+    w.__galleryReveals = () => ({ rooms: roomRevealClaims(), notInPool: basesNotInPool() });
     w.__galleryCamera = camera;
     w.__galleryFloorReflection = forceFloorReflection;
     w.__galleryRoomCulling = forceRoomCulling;
@@ -183,6 +192,7 @@ export function DebugProbe() {
       delete w.__galleryCamera;
       delete w.__galleryFloorReflection;
       delete w.__galleryRoomCulling;
+      delete w.__galleryReveals;
       forceFloorReflection(null);
       forceRoomCulling(null);
     };
@@ -286,6 +296,16 @@ export function DebugProbe() {
 }
 
 const mib = (b: number) => `${(b / 1048576).toFixed(1)} MiB`;
+
+/** Addresses of the works in full whose base texture is not in the
+ *  pool: still loading, failed, or evicted. */
+function basesNotInPool(): string[] {
+  const missing: string[] = [];
+  forEachPainting((entry) => {
+    if (!_textureCacheDebug.has(entry.baseUrl)) missing.push(entry.baseUrl);
+  });
+  return missing;
+}
 const fmtInt = (n: number) => Math.round(n).toLocaleString("en-US");
 
 function formatStats(): string {
@@ -316,7 +336,11 @@ function formatStats(): string {
     `  total   ${mib(t.bytes + t.hiresBytes + t.preloadBytes)}`,
     `  net ${t.activeLoads} active · ${t.queuedLoads} queued · upload ${t.previewQueued}/${t.queued} (preview/detail)`,
     `  in-flight base ${t.inFlight} · hi-res ${t.hiresInFlight} · preload ${t.preloadInFlight}`,
-    `paintings registered ${_paintingRegistryDebug.size}`,
+    // Works in full, and how many of them still have their base texture
+    // in the pool. Fewer means the pool evicted textures that are on a
+    // wall, which the reveal budget is there to stop (reveal-budget.ts).
+    `paintings registered ${_paintingRegistryDebug.size} · base in pool ${_paintingRegistryDebug.size - basesNotInPool().length}`,
+    `reveal ${roomRevealDebug.granted} of ${roomRevealDebug.asking} rooms in reach · ${mib(roomRevealDebug.bytes)} / ${mib(roomRevealDebug.budget)}`,
     `cam ${stats.camera.map((v) => v.toFixed(2)).join(", ")} · fov ${stats.fov.toFixed(1)}°`,
     "",
   ];

@@ -18,6 +18,7 @@ import {
   PLAQUE_GAP,
   PLAQUE_WIDTH,
 } from "@/lib/gallery-layout/place-paintings";
+import { baseVariantWidth } from "@/lib/gallery-layout/reveal-budget";
 import { paletteOfRoom } from "@/lib/gallery-layout/room-era";
 import type { Placement, RoomLayout } from "@/lib/gallery-layout/types";
 import { CELL_SIZE } from "@/lib/gallery-layout/world-coords";
@@ -93,14 +94,6 @@ type LodTier = {
 // entry's worldPos / worldRight / worldUp must stay per-painting (they
 // live for the painting's whole lifetime in the registry).
 const _registerScratchQuat = new THREE.Quaternion();
-
-// A modest base fills rooms quickly. The proximity ladder adds detail
-// only as the player approaches, including 960 px for larger canvases.
-function pickBaseWidth(artwork: ArtworkListing): number {
-  const widths = artwork.variantWidths;
-  if (!widths?.length) return 480;
-  return widths.filter((width) => width <= 480).at(-1) ?? widths[0];
-}
 
 // Candidate rungs, ASCENDING. This is the whole module-scope tier
 // table now — which rungs a given painting actually gets, and at what
@@ -454,7 +447,9 @@ export const Painting = memo(function Painting({
   onSettled?: (status: "loaded" | "failed") => void;
 }) {
   const { artwork, position, rotation, widthM, heightM, frame } = placement;
-  const baseWidth = pickBaseWidth(artwork);
+  // A modest base fills rooms quickly. The proximity ladder adds detail
+  // only as the player approaches, including 960 px for larger canvases.
+  const baseWidth = baseVariantWidth(artwork);
   const url = variantProxyUrl(artwork.objectKey, baseWidth, "avif");
 
   // Aspect-corrected plane size. The slot's widthM/heightM are derived
@@ -1246,7 +1241,7 @@ function PaintingPlane({
   onSettled,
   onTextureAspect,
 }: {
-  /** 480 px AVIF (see pickBaseWidth) — the base "good enough"
+  /** 480 px AVIF (see baseVariantWidth) — the base "good enough"
    *  texture; once it lands the painting reads as fully loaded. */
   url: string;
   /** Width of that base variant. LOD tiers at or below it are skipped —
@@ -1447,6 +1442,7 @@ function PaintingPlane({
       halfW: widthM / 2,
       halfH: heightM / 2,
       artwork,
+      baseUrl: url,
     };
     entryRef.current = entry;
     registerPainting(entry);
@@ -1454,7 +1450,7 @@ function PaintingPlane({
       unregisterPainting(entry);
       entryRef.current = null;
     };
-  }, [artwork]);
+  }, [artwork, url]);
 
   // Proximity LOD upgrades. Gated on `baseLoaded` so we don't try to
   // swap to a hi-res tier before the base is even up — until then

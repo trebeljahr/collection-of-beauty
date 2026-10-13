@@ -34,6 +34,7 @@
 // A mounted painting adopts an in-flight preload before fetching again.
 
 import * as THREE from "three";
+import { BASE_POOL_BYTE_BUDGET, estimateTextureBytes } from "@/lib/gallery-layout/reveal-budget";
 import { variantProxyUrl, variantUrl } from "@/lib/utils";
 
 // Base-texture pool. Two limits, whichever bites first:
@@ -45,14 +46,16 @@ import { variantProxyUrl, variantUrl } from "@/lib/utils";
 //     still looking at, and they re-upload on the next frame. Sized
 //     above what a floor can mount so eviction is driven by the byte
 //     budget instead.
-//   • byte budget — the real constraint. Paintings now take a base
-//     sized to their display size (480 px ≈ 1 MB decoded + mipmaps,
-//     960 px ≈ 3.9 MB), so a fixed entry count can't express "keep
-//     roughly this much GPU memory". ~256 MB holds a floor's worth of
-//     the small plates or ~65 of the largest canvases — comfortably
-//     more than the mounted set the room unload radius allows.
+//   • byte budget — the real constraint. A painting's base is its
+//     480 px variant, 1.3 MiB decoded with mipmaps on average and more
+//     for a tall one, so a fixed entry count can't express "keep
+//     roughly this much GPU memory". 256 MiB holds about 200 of them,
+//     which is fewer than the rooms in reach can hang: the rooms take
+//     the pool nearest first and the rest keep their stand-ins
+//     (lib/gallery-layout/reveal-budget.ts, which owns the number so
+//     that the two cannot drift apart).
 const TEXTURE_CACHE_CAPACITY = 512;
-const TEXTURE_CACHE_BYTE_BUDGET = 256 * 1024 * 1024;
+const TEXTURE_CACHE_BYTE_BUDGET = BASE_POOL_BYTE_BUDGET;
 const TEXTURE_LOAD_ATTEMPTS = 3;
 const TEXTURE_LOAD_TIMEOUT_MS = 15_000;
 const TEXTURE_RETRY_DELAY_MS = 500;
@@ -156,19 +159,12 @@ const OVERSIZED_ENTRY_RATIO = 0.4;
 // mipmaps ≈ 90 MB, dwarfed by the base 960 px cache budget.
 const PRELOAD_CACHE_CAPACITY = 256;
 
-/** Rough GPU cost of a decoded texture: RGBA8 plus a full mip chain
- *  (the 1/3 geometric series, so ×4/3). Good enough to keep a pool
- *  inside a memory budget; exact driver-side padding doesn't matter.
- *
- *  Exported so painting.tsx can PREDICT an entry's cost from pixel dims
- *  before requesting it (HIRES_ENTRY_BYTE_CAP) using the same formula
- *  the pool later ACCOUNTS with — a prediction that drifted from the
- *  accounting would admit exactly the entries the cap exists to keep
- *  out. */
-export function estimateTextureBytes(w: number, h: number): number {
-  if (!w || !h) return 0;
-  return Math.round(w * h * 4 * 1.34);
-}
+// Re-exported so painting.tsx can PREDICT an entry's cost from pixel
+// dims before requesting it (HIRES_ENTRY_BYTE_CAP) using the same
+// formula the pool later ACCOUNTS with — a prediction that drifted from
+// the accounting would admit exactly the entries the cap exists to keep
+// out.
+export { estimateTextureBytes };
 
 function textureBytes(tex: THREE.Texture): number {
   const img = tex.image as { width?: number; height?: number } | undefined;
@@ -195,6 +191,11 @@ class TextureLRU {
 
   get budget(): number {
     return this.byteBudget;
+  }
+
+  /** Whether `key` is in the pool, without the MRU touch of `get`. */
+  has(key: string): boolean {
+    return this.map.has(key);
   }
 
   get(key: string): THREE.Texture | undefined {
@@ -835,6 +836,10 @@ export function loadCached(
 }
 
 export const _textureCacheDebug = {
+  /** Whether a base texture is in the pool. Does not touch it. */
+  has(url: string): boolean {
+    return cache.has(url);
+  },
   get size() {
     return cache.size;
   },
