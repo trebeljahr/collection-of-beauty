@@ -68,13 +68,13 @@
 import type { ArtworkListing } from "@/lib/data";
 import { type Era, type EraId, eraAccentColor, getEra } from "@/lib/gallery-eras";
 import { slugify } from "@/lib/utils";
+import type { DividerStyle } from "./divider-plans";
 import {
   centredIsland,
   hallIslandsFacingPair,
   planPanelBenches,
   wallIsland,
 } from "./feature-benches";
-import type { DividerStyle } from "./divider-plans";
 import {
   arrivalPoint,
   benchClearOf,
@@ -257,7 +257,9 @@ export const BLOCK_PLAN: readonly FloorPlan[] = [
     // on this side here: one gallery of 62.5 m.
     merges: [["n2", "n3", "n4"]],
     styles: {
-      s1: "staggered",
+      // Long rows: with the room east of it, 190 m of wall for the 69
+      // Gothic works (see `zones`).
+      s1: "long-rows",
       s2: "open",
       cw: "bays",
       "hall-w": "pinwheel",
@@ -272,8 +274,11 @@ export const BLOCK_PLAN: readonly FloorPlan[] = [
       ["s5", "s4"],
     ],
     zones: [
-      { era: "gothic", cells: ["s2", "s1", "cw"] },
-      { era: "renaissance", cells: ["hall-w", "n1", "n2", "n3", "n4"] },
+      // Two rooms. The era has 69 works that are sharp enough to hang:
+      // in three rooms they covered a third of the wall and read as a
+      // collection with works missing.
+      { era: "gothic", cells: ["s2", "s1"] },
+      { era: "renaissance", cells: ["hall-w", "cw", "n1", "n2", "n3", "n4"] },
       { era: "baroque", cells: ["n5", "hall-e", "ce", "s5", "s4", "s3"] },
     ],
   },
@@ -745,14 +750,22 @@ function hangZone(
   const walls = zoneRooms.map(wallOf);
   const budget = walls.reduce((a, b) => a + b, 0) * coverage;
 
-  const meanFootprint =
-    candidates.reduce((sum, a) => sum + wallFootprint(a), 0) / Math.max(1, candidates.length);
-  let chosen = selectFloorWorks(
-    candidates,
-    Math.floor(budget / Math.max(0.5, meanFootprint)),
-    (a) => texturePxPerMetre(a) ?? 0,
+  const metres = (works: ArtworkListing[]) => works.reduce((sum, a) => sum + wallFootprint(a), 0);
+  const sample = (count: number) =>
+    selectFloorWorks(candidates, count, (a) => texturePxPerMetre(a) ?? 0);
+  // The sample is by count and the wall is in metres. An artist's
+  // sharpest scans are their smaller works, so a count from the era's
+  // mean footprint covered 0.38 of two eras' wall where 0.45 was asked.
+  // Take more until the sample covers the wall.
+  let count = Math.floor(
+    budget / Math.max(0.5, metres(candidates) / Math.max(1, candidates.length)),
   );
-  // The sample is by count; trim to the wall it has to fit.
+  let chosen = sample(count);
+  while (chosen.length < candidates.length && metres(chosen) < budget) {
+    count = Math.min(candidates.length, Math.ceil(count * 1.1) + 1);
+    chosen = sample(count);
+  }
+  // Then trim to the wall it has to fit.
   chosen = shuffleByIdHash(chosen);
   let used = 0;
   chosen = chosen.filter((a) => {

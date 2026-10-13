@@ -1,10 +1,12 @@
 import { describe, expect, it } from "vitest";
 import type { ArtworkListing } from "@/lib/data";
+import { ERAS } from "@/lib/gallery-eras";
 import { arrangementOf } from "./divider-plans";
 import { benchRect, dividerRect, type Rect } from "./fittings";
 import { frameReach, pickFrameDesign } from "./frame-design";
 import {
   type CellRect,
+  fillRooms,
   GRAND_HALL,
   layoutMuseum,
   SLOT_SCREENS,
@@ -12,7 +14,7 @@ import {
   type Slot,
   STAIR,
 } from "./layout-museum";
-import { PAINTING_FLOOR_GAP } from "./place-paintings";
+import { PAINTING_FLOOR_GAP, wallFootprint } from "./place-paintings";
 import type { Placement } from "./types";
 import { CELL_SIZE, DOOR_HEIGHT, DOOR_WIDTH, PORTAL_HEIGHT, PORTAL_WIDTH } from "./world-coords";
 
@@ -486,5 +488,41 @@ describe("how high the works hang", () => {
       const top = p.position[1] + p.heightM / 2 + reach - room.worldRect.y;
       expect(room.ceilingHeight - top, p.artwork.id).toBeGreaterThanOrEqual(0.5);
     }
+  });
+});
+
+describe("fillRooms", () => {
+  /** Works of one size, about 2.5 m of wall each. */
+  const works = (count: number) =>
+    Array.from(
+      { length: count },
+      (_, i) =>
+        ({
+          id: `w-${i}`,
+          width: 4000,
+          height: 3000,
+          realDimensions: { widthCm: 200, heightCm: 150 },
+        }) as unknown as ArtworkListing,
+    );
+
+  it("deals every room its share to the nearest work, the last one too", () => {
+    // 18 works for five rooms of one size: 3.6 a room. Stopped short of
+    // its share, each of the first four took 3 and the last took 6.
+    const walls = [20, 20, 20, 20, 20];
+    const fills = fillRooms(walls, [{ name: "m", artworks: works(18) }], ERAS[0]);
+    const counts = fills.map((f) => f.artworks.length);
+    expect(counts.reduce((a, b) => a + b, 0)).toBe(18);
+    expect(Math.max(...counts) - Math.min(...counts)).toBeLessThanOrEqual(1);
+  });
+
+  it("deals rooms of other sizes in proportion to their wall", () => {
+    const walls = [60, 20, 40, 20];
+    const all = works(41);
+    const one = wallFootprint(all[0]);
+    const fills = fillRooms(walls, [{ name: "m", artworks: [...all] }], ERAS[0]);
+    const perMetre = (41 * one) / 140;
+    const off = fills.map((f, i) => Math.abs(f.artworks.length * one - walls[i] * perMetre));
+    // No room is more than a work from its share.
+    expect(Math.max(...off)).toBeLessThanOrEqual(one);
   });
 });

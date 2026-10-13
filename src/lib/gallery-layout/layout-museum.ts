@@ -762,6 +762,11 @@ const TARGET_WALL_COVERAGE = 0.66;
  * A room draws from one movement at a time and only starts on the next
  * when the current one is empty, so movements stay contiguous along the
  * enfilade. The last room takes whatever is left over.
+ *
+ * A room stops at the work that brings the floor nearest to what its
+ * rooms so far are owed. Stopping each room short of its own share left
+ * the difference to the last one: on the Baroque floor its works
+ * covered 0.71 of the wall and 0.39 in the room that mirrors it.
  */
 export function fillRooms(
   walls: number[],
@@ -777,10 +782,14 @@ export function fillRooms(
 
   const out: Array<{ name: string; artworks: ArtworkListing[] }> = [];
   let qi = 0;
+  /** Metres dealt to the rooms before this one, and owed to them and
+   *  this one. */
+  let dealt = 0;
+  let owed = 0;
 
   for (let i = 0; i < walls.length; i++) {
     const isLast = i === walls.length - 1;
-    const share = walls[i] * density;
+    owed += walls[i] * density;
     const taken: ArtworkListing[] = [];
     const contributed = new Map<string, number>();
     let used = 0;
@@ -793,16 +802,18 @@ export function fillRooms(
       }
       const work = entry.artworks[0];
       const need = wallFootprint(work);
-      // Stop once this room has its share — unless it is the last room,
-      // which absorbs the remainder, or is still empty (a single work
-      // never gets stranded for want of a few centimetres).
-      if (!isLast && used > 0 && used + need > share) break;
+      // Stop once the rooms so far have their share, to the nearest
+      // work — unless this is the last room, which absorbs the
+      // remainder, or is still empty (a single work never gets stranded
+      // for want of a few centimetres).
+      if (!isLast && used > 0 && dealt + used + need / 2 > owed) break;
       entry.artworks.shift();
       taken.push(work);
       contributed.set(entry.name, (contributed.get(entry.name) ?? 0) + 1);
       used += need;
     }
 
+    dealt += used;
     const name = [...contributed.entries()].sort((a, b) => b[1] - a[1])[0]?.[0] ?? era.title;
     out.push({ name, artworks: taken });
   }

@@ -763,6 +763,32 @@ required by the Dockerfile — don't remove it.
     its rooms, so spill cannot carry a work into another era. An
     artist's share of the wall goes to their sharpest scans
     (`selectFloorWorks` with a rank).
+  - **An era's rooms fit its works.** Rico, 13 October 2026: "Rooms
+    shouldn't read as sparse and room layout/sizes should fit the number
+    of images that there are." Every era covers its wall to within 0.02
+    of the plan's share (0.45, 0.38 for the two floors of prints), and
+    every room but a composed great hall to within 0.04.
+    `block-fit.test.ts` holds the plan to that against the real
+    catalogue. Three things do it:
+    - `zones` names an era's rooms, and `styles` sets how much wall a
+      room has: a 27.5 × 17.5 m room is 97 m staggered, 113 m in bays
+      and 137 m in long rows. The Gothic era has 69 works sharp enough
+      to hang, 86 m of them. In three rooms (268 m) they covered a
+      third of the wall and read as a collection with works missing. It
+      has two now, `s2` and `s1`, and `s1` is in long rows for it:
+      199 m, 0.43. An era
+      that grows or shrinks gets other rooms or other walls. Do not
+      leave it thin.
+    - `hangZone` takes works until the sample covers the wall. It took
+      a count from the era's mean footprint, and an artist's sharpest
+      scans are their smaller works: two eras with over twice the works
+      they needed covered 0.38.
+    - `fillRooms` deals each room to the nearest work ("Where in a
+      room a work hangs").
+    The tower's Gothic floor is the same 69 works in four rooms and is
+    not fixed: 0.21 to 0.23 in the three that are not the Grand Hall.
+    One room fewer is not possible there (rooms open in mirrored
+    pairs), and the one room behind the stair alone would be at 0.69.
   - Changed on the way. `?plan=wings`, 12.5 m galleries in rings round
     a salon, 44 rooms a floor: rooms too small, too many, no dividers,
     too few doors between them. Then this block with its three stair
@@ -884,11 +910,17 @@ required by the Dockerfile — don't remove it.
   - `evenOutRoom` deals every run of the room. A run whose works are
     set on purpose has to be kept out of it, as the works for benches
     are (`Container.fixed`).
-  - It evens a room out; it cannot fill one. The block plan's Gothic
-    rooms cover 0.29 to 0.33 of their wall where the plan aims at 0.45,
-    because the era has too few works for three rooms, and hang at
-    gaps of 1.7 to 2.6 m all round. That is for `BLOCK_PLAN[].zones`
-    to change, not the hang.
+  - It evens a room out; it cannot fill one. A room with too few works
+    for its wall hangs thin all round, and that is the floor plan's to
+    change (block plan: "An era's rooms fit its works").
+  - Which room a work goes to is `fillRooms`: each room a share of the
+    floor's works in proportion to its wall. A room stops at the work
+    that brings the floor nearest to what its rooms so far are owed.
+    Until 13 October 2026 each room stopped short of its own share and
+    the last took the rest: the tower's Baroque floor ended with 0.71
+    of the wall covered in its last room and 0.39 in the room that
+    mirrors it (now 0.48 and 0.46), and a 17.5 m room of the block plan
+    with 0.56.
 - **There are no three.js lights on the works, on purpose.** Each
   painting has a picture light (`painting-light.tsx`, geometry in
   `painting-light-rig.ts`): a ceiling can and the pool it throws, drawn
