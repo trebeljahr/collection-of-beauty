@@ -1,4 +1,4 @@
-import { arrivalPoint } from "./gallery-layout/fittings";
+import { blockArrivalPoint } from "./gallery-layout/layout-block";
 import type { MuseumLayout } from "./gallery-layout/types";
 import { FLOOR_SEPARATION, worldToCell } from "./gallery-layout/world-coords";
 import { readReleaseState } from "./release-session";
@@ -87,7 +87,7 @@ export function restoreGalleryVisit(layout: MuseumLayout, identity: string) {
     saved.pose.position[1] >= floor.y - FLOOR_SEPARATION &&
     saved.pose.position[1] <= floor.y + FLOOR_SEPARATION + 2.2;
   const pose = sameLayout && validPosition ? saved.pose : null;
-  const arrival = arrivalPoint(room);
+  const arrival = blockArrivalPoint(layout, room);
   const spawn: [number, number, number] = pose
     ? [pose.position[0], pose.position[1] - 1.75, pose.position[2]]
     : [arrival.x, room.worldRect.y, arrival.z];

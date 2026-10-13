@@ -142,7 +142,7 @@ export type RoomLayout = {
   sheer?: { side: Door["side"]; depth: number };
   /** What a grand stair hall is on this floor, for the map: the stair
    *  leaves it, arrives on it, or only its void passes through. */
-  stairGlyph?: "up" | "down" | "void";
+  stairGlyph?: "up" | "down" | "both" | "void";
   cellBounds: CellRect;
   /** World rectangle of the interior floor (walls exclusive). */
   worldRect: {

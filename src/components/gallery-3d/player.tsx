@@ -335,6 +335,8 @@ export function Player({
   // every stair-driven floor swap.
   const latestFloorRef = useRef(floor);
   latestFloorRef.current = floor;
+  const grandStairsRef = useRef(grandStairs);
+  grandStairsRef.current = grandStairs;
 
   const didResume = useRef(false);
   useEffect(() => {
@@ -361,7 +363,11 @@ export function Player({
           Math.hypot(a.centerX - spawnAt[0], a.centerZ - spawnAt[2]) -
           Math.hypot(b.centerX - spawnAt[0], b.centerZ - spawnAt[2]),
       )[0] ?? null;
-    if (stair) {
+    // In a hall, face its middle: the stair, or the open court.
+    const hall = grandStairsAt(grandStairsRef.current, spawnAt[0], spawnAt[2])[0];
+    if (hall) {
+      camera.lookAt(hall.centerX, eyeY, hall.centerZ);
+    } else if (stair) {
       camera.lookAt(stair.centerX, eyeY, stair.centerZ);
     } else {
       camera.lookAt(spawnAt[0], eyeY, spawnAt[2] - 5);
@@ -993,7 +999,8 @@ export function Player({
       // A grand stair hall is all "near": prefer the stair that leaves
       // the floor, as the spiral does.
       if (nearestId === null && grandStairs.length > 0) {
-        const near = grandStairsAt(grandStairs, cx, cz, feetY);
+        // A court has no flights: nothing to load ahead for.
+        const near = grandStairsAt(grandStairs, cx, cz, feetY).filter((g) => g.patches.length > 0);
         const stair =
           near.find((g) => g.lowerFloor === floor.index) ??
           near.find((g) => g.upperFloor === floor.index) ??

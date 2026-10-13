@@ -565,50 +565,53 @@ required by the Dockerfile — don't remove it.
 - **A second floor plan sits behind `/gallery-3d?plan=block`**
   (`src/lib/gallery-layout/layout-block.ts`). The tower is the museum;
   the block plan exists so Rico can walk it and decide. One rectangular
-  block, 117.5 × 62.5 m, on four floors. Down its middle runs a spine
-  of five bays: a stair hall 27.5 m square at each end and one in the
-  centre, and a gallery of 17.5 m between each pair. A range of five
-  rooms runs along the north of the spine and one along the south; the
-  three rows share their columns (27.5, 17.5, 27.5, 17.5, 27.5 m), so
-  every door is in the middle of its room's wall. Rooms are the size of
-  the tower's larger ones and take its dividers and benches. A floor
-  holds two or three eras, each in a list of rooms that touch
-  (`BLOCK_PLAN[].zones`), the last of them in the great hall. Each floor
-  joins neighbours of a row into a long gallery of 45 or 62.5 m
-  (`BLOCK_PLAN[].merges`), differently on every floor, and a hall's
-  square is one more gallery on the floors under its stair, so read a
-  floor's rooms through `blockFloorRooms(floorIndex)` and never assume
-  the twelve of the diagram. A great hall joined to its neighbour is
-  hung like any long room: the composed hang needs one centred door.
-  What follows from it:
-  - **A stair hall is entered where its stair starts.** On the floor a
-    stair leaves, its hall has one door: the portal the foot of the
-    first flight faces (`hallFront`). That is the great hall's for the
-    middle stair and the spine's for the two at the ends. On the floors
-    above, the hall is a balcony round its void and has a door to every
-    neighbour. Rico's verdict on the plan before, 13 October 2026: two
-    stairs stood in adjoining rooms, and the rooms were "accessible from
-    their backs/sides". So:
-    - no two stair halls share a wall. Keep a gallery between them;
-    - do not give a hall a second door on its stair's own floor, not
-      even one that opens in front of the foot from the side;
-    - a corner room beside an end hall would have one door on that
-      floor. `merges` makes it the far end of a long gallery there
-      (west pair on the second floor, east pair on the third). Move a
-      stair and the merges move with it; `layout-block.test.ts` fails
-      on a room with one door;
+  block, 117.5 × 62.5 m, on four floors, the same plan on each. Down
+  its middle runs a spine of five bays: a stair hall 27.5 m square at
+  each end, a court of the same size in the centre, and a gallery of
+  17.5 m between each pair. North and south of the spine a range runs
+  the length of the block: a long gallery (47.5 × 17.5 m), a stair
+  tower (22.5 × 17.5 m) beside the court, a long gallery. So a floor is
+  six galleries (`BLOCK_ROOMS`), two stair halls and the court
+  (`BLOCK_HALLS`) and two spiral rooms (`BLOCK_SPIRALS`). The galleries
+  take the tower's dividers and benches. A floor holds two or three
+  eras, each in rooms that touch or stand either side of a stair tower
+  (`BLOCK_PLAN[].zones`). What follows from it:
+  - **Four stairs, each in the same place on every floor.** Rico, 13
+    October 2026, of the plan before (a hall at the centre and both
+    ends of the spine, one stair to a hall, each between another pair
+    of floors): the staircase "should be at the end and not in the
+    center of the building", one "at either side", the spirals "at the
+    top and bottom"; the stairs "don't 'stack' on the same levels
+    neatly"; and "something like a 'gallery' from above" is worth
+    keeping. So:
+    - a grand stair at each end of the spine, on every storey, one over
+      another (the loggia, next point but two);
+    - the tower's spiral north and south of the court, through every
+      floor, its first step toward the court's door (`entryAngle`);
+    - the court has no stair. It is where a visit starts and where a
+      visitor sent to a floor lands (`GREAT_HALL`, `isAnchor`).
+    From the court's floor one axis ends in the two grand stairs and
+    the other in the two spirals.
+  - **A stair hall has one door, on every floor: the portal of the
+    spine, which its stair's foot faces** (`hallFront`). Rico's verdict
+    on the plan with three halls wall to wall, 13 October 2026: two
+    stairs stood in adjoining rooms, and the rooms were "accessible
+    from their backs/sides". So:
+    - no two halls share a wall. Keep a gallery between them;
+    - no second door, not even one that opens in front of the foot from
+      the side. A stair leaves every floor but the top, and the top
+      follows the rest;
+    - a room in a corner of the block would then have one door. That is
+      why each range is two long galleries and not five rooms.
+      `layout-block.test.ts` fails on a gallery with one door;
+    - a long gallery meets the court at one cell, in the court's
+      corner. Two rooms get a door when they share three cells of wall
+      (`MIN_SHARED_CELLS`);
     - a stair hall does not have to be a room of the grid. Rico: its
       size "doesn't have to match the other parts of the building" as
-      long as the way in and out makes sense. The halls are still
-      27.5 m square because he found 22.5 m cramped. `GrandStair.half`
-      assumes a square.
-  - **The spine is the way up.** Up the middle stair, through the
-    portal beside the head of its west flight, across one gallery to
-    the foot of the west stair. From the west hall's balcony a floor
-    higher the portals line up the length of the building, across the
-    middle hall's balcony, to the foot of the east stair. The two end
-    stairs arrive facing the building's end wall, which is bare: the
-    works too large for a room would hang there.
+      long as the way in and out makes sense. The halls are 27.5 m
+      square because he found 22.5 m cramped. `GrandStair.half` assumes
+      a square.
   - A floor there holds several eras, so read a room's era through
     `eraOfRoom()` and a floor's name through `floorTitle()`
     (`room-era.ts`), never `ERAS[room.floorIndex]`. `FloorLayout.era`
@@ -619,40 +622,49 @@ required by the Dockerfile — don't remove it.
     from the other side. The two planes lie on one line and face
     opposite ways, so there is no z-fight and each room is its own
     colour. In the tower a shared wall is one two-sided plane.
-  - **A floor can have several stair wells.** `floorShafts()` in
+  - **A floor has two spiral wells.** `floorShafts()` in
     `spiral-physics.ts` groups a floor's flights by centre;
     `findStairAbove` / `findStairBelow` stay within a well. The floor
     slab's colliders, the cutout rail, the gate signs and the stair
-    hall's light are all built once per well. Do not reach for
-    `floor.stairsOut[0]`. The block plan has had no spiral since
-    12 October 2026 (next point); this code is what a plan that mixes
-    the two would use.
-  - **Each hall holds one grand stair and is open above it to the
-    roof** ([`grand-stair.ts`](src/lib/gallery-layout/grand-stair.ts),
-    drawn by `grand-staircase.tsx`). Middle hall, first floor to second:
-    one flight to a half landing and two back along the sides. West
-    hall, second to third: two curved flights round a rotunda. East
-    hall, third to fourth: one straight flight that narrows to a landing
-    at its waist. The way up goes through all three (`BLOCK_HALLS`).
-    They are in
-    `FloorLayout.grandStairsIn` / `grandStairsOut` / `grandHalls` and
-    `MuseumLayout.grandStairs`; `stairsIn` / `stairsOut` and
-    `allStaircases` are empty there. Before changing one:
-    - **Why one stair to a hall.** The first build stacked a stair of
-      every storey in each of three 22.5 m halls. Rico found the halls
-      cramped and low: the stair reached to within 3.3 m of the walls,
-      and the underside of the next stair hung 5.8 m over every flight.
-      A grand stair wants a hall it does not fill and nothing over it.
-      `hasFlightAbove` / `hasFlightBelow` still build a stacked hall,
-      and the tests cover it; the layout does not use it.
-    - **The void is wider than the stair** (`StairOpening`, an outline
-      of rectangles that touch, or a disc). Cut only to the stair's own
-      footprint, most of the hall kept a 5.9 m ceiling and read as a
-      room with a hole in it. A hall keeps 5 m of gallery inside its
-      walls on the floors over its stair (`HALL_GALLERY`) and is open
-      over the rest: over the hall floor in front of the middle stair,
-      over twice the width of the east one. `topFloor` is how high the
-      void goes; each floor between is a balcony, fenced all round.
+    room's light are all built once per well. Do not reach for
+    `floor.stairsOut[0]`. A spiral's room is `isStairwell` with
+    `floorOpening` unset; a hall's is `isStairwell` with it set. The
+    player tries the spiral first and a hall after it, so the two never
+    answer for one point.
+  - **The stair halls are loggias and the middle hall is a court**
+    ([`grand-stair.ts`](src/lib/gallery-layout/grand-stair.ts), drawn
+    by `grand-staircase.tsx`). They are in `FloorLayout.grandStairsIn`
+    / `grandStairsOut` / `grandHalls` and `MuseumLayout.grandStairs`:
+    three stairs to a stair hall, and one object with no flights for
+    the court. Before changing one:
+    - **A loggia** (`design: "loggia"`) is the imperial stair on every
+      storey: one flight up the middle to a half landing, two back
+      along the sides, each storey's over the last (`hasFlightAbove` /
+      `hasFlightBelow`). It stands in the front of its hall, a lobby
+      6.25 m deep between the door and its foot on every floor
+      (`LOGGIA.lobby`). A side flight arrives on the lobby and the next
+      middle flight leaves from it. Behind the half landings the hall
+      is open from the floor to the roof and from wall to wall, 11.45 m
+      deep (`sheerStripDepth`): the stair's own opening and that void
+      are one hole (`StairOpening`, rectangles that touch). Beside the
+      stair a gallery 5.75 m wide runs to the landing's far edge on
+      every floor and ends in a balustrade over the void.
+    - **Why the void is beside the stair.** The first build stacked a
+      stair of every storey in three halls 22.5 m square, cut only to
+      the stair's footprint. Rico found the halls cramped and low: the
+      stair reached to within 3.3 m of the walls and the soffit of the
+      next stair hung 5.8 m over every flight. The plan after it gave
+      each hall one stair with the hall open over it, and he found
+      that a stair in another place on each floor reads worse. In a
+      loggia a flight still has the next one 5.8 m over it; the hall
+      has its height behind the stair, and every half landing looks
+      into it. `arcs` and `hourglass` and the single `imperial` are
+      still built and tested; no plan uses them.
+    - **The court** (`design: "court"`) has no patches. Its one object
+      runs from the first floor to the top (`topFloor`): floor from
+      wall to wall on the first, a gallery 5 m wide round a square
+      opening on each floor above (`HALL_GALLERY`), a portal in every
+      wall. The player does not treat it as a stair to load ahead for.
     - **A grand stair has no state.** It is a list of surfaces
       (`patches`): each a piece of plan with a height over it. Where the
       visitor stands is the highest surface no more than 0.4 m above
@@ -663,39 +675,50 @@ required by the Dockerfile — don't remove it.
       does not ask which floor is current. The floor follows the
       visitor's height (`grandFloorFor`), past the half-way point and
       not on it.
-    - Under a hall's lowest floor the same square is an ordinary room.
-      Pass the visitor's feet height to `grandStairsAt` so that room is
-      not taken for the hall.
     - A design is drawn in the hall's own frame, the visitor coming in
       from +z and the first flight rising toward -z, and turned by
       `turns` to face the hall's portal. Physics turns the point
       (`toStairLocal`), the renderer turns the group. Keep both.
-    - The stair is masonry to its floor (`solid`): no floor under its
-      first flight. The hall floor is walkable under any flight or
-      landing with 2.3 m of headroom.
+    - The lowest stair of a hall is masonry to its floor (`solid`): no
+      floor under its middle flight. The hall floor is walkable under
+      any flight or landing with 2.3 m of headroom, so a visitor walks
+      past the stair on the first floor into the hall behind it.
     - Rails are colliders, one short box per 0.7 m at its own height,
       because the capsule is put at the feet's height each frame. The
       floor collider's hole is 0.4 m wider than the opening: a visitor
       on a flight along the opening's edge passes the slab at shoulder
       height.
     - `RoomLayout.floorOpening` / `ceilingOpening` are the holes in a
-      stair hall's floor and ceiling (`null` for none). Unset means a
+      hall's floor and ceiling (`null` for none). Unset means a
       spiral's stairwell, cut round by rule. The top floor's ceiling is
-      closed and glazed: a laylight over a rectangular void, the oculus
-      over a round one.
+      closed and glazed: a laylight over the void.
     - A hall's centre is a flight or the open well. Send a visitor to
-      `blockArrivalPoint()`, never to the room's centre.
+      `blockArrivalPoint()`, never to the room's centre: the floor
+      keys, the map and a restored visit all use it. It answers for the
+      tower too.
     - In a hall the visitor counts as on its stair (`activeStairId`),
       on a flight or not, on any floor of it. The floor above and the
-      floor below are then mounted in full where the hall reaches them,
-      and every floor's stair halls always are: a hall shows four
-      storeys at once. A stair hall mounted alone has a blind in each
-      door to a room that is not (`mountedRooms` in `room-geometry.tsx`),
-      or its doors would open on the scene's background. Measured
-      headless on an M5 at 1600 × 900, room culling on: 150 to 580 draw
-      calls on the first two floors, 690 in the 62.5 m gallery, up to
-      990 from a hall's balcony on the upper floors, where the portals
-      of the spine show five bays at once.
+      floor below are then mounted in full (`activeHallFloors` in
+      `index.tsx`: the floors of every stair that stands in that hall),
+      and every floor's halls and stair rooms always are: a hall shows
+      four storeys at once. One of them mounted alone has a blind in
+      each door to a room that is not (`mountedRooms` in
+      `room-geometry.tsx`), or its doors would open on the scene's
+      background. The floor's mirror pass is paused in a hall, the
+      court included. Measured headless on an M5 at 2560 × 1440, room
+      culling on: 90 to 140 draw calls in a stair hall, 290 to 610 in a
+      gallery, 1,020 to 1,180 in the court, which shows sixteen doors.
+  - **A baluster is turned, and stone is shaded by the way it faces**
+    (`grand-staircase.tsx`). Nothing in the scene casts a shadow. With
+    one tone for every upright face, a square post's two visible faces
+    matched and a balustrade read as a paper cut-out (Rico, 13 October
+    2026: the architecture's depth "is not coming through" in the
+    posts). Now a face that looks sideways takes its share of the light
+    by compass direction, 0.70 to 0.92 (`faceShade`, `SIDE_LIGHT`). The
+    light comes along the hall's x axis, so risers, which look along z,
+    stay under the treads. A baluster is a block, a neck, a belly and a
+    taper (`BALUSTER_PROFILE`), dark at its foot and darkest under the
+    cap. 48 triangles each, about 50,000 a stair hall.
   - **The room places the bench, and the bench places the work**
     (`feature-benches.ts`, and `anchorToBenches` in
     `place-paintings.ts`). Rico asked for both at once on 13 October
@@ -703,42 +726,38 @@ required by the Dockerfile — don't remove it.
     images". So the order is fixed: dividers, then benches, then the
     hang.
     - `planBenches` seats a room from its footprint and doors. It was
-      made for the tower's 1.4 m doors: here it seats the composed
-      great hall and the rooms of wing walls, bay by bay, and nothing
-      with panels, where its nave benches come 5 cm too near a panel.
-      A bench of its that stands within 2.2 m of a divider is left out.
+      made for the tower's 1.4 m doors: here it seats the rooms of wing
+      walls, bay by bay, and nothing with panels, where its nave benches
+      come 5 cm too near a panel. A bench of its that stands within
+      2.2 m of a divider is left out, and so is any bench with less
+      than 4 m of floor to a wall of its room (`BENCH_WALL_FLOOR`): the
+      end bay of a long gallery is 7.5 m.
     - A room with panels takes benches in line with a row of panels, in
       the middle of a gap between two of them, and in the middle of an
       aisle 8 m or more wide, opposite a panel (`planPanelBenches`).
-      Never in the line of a door in the wall beside it. The rows may
-      run along either axis, and a pinwheel's four panels are seated
-      one each, from their aisles. A place counts only where the bench
-      looks at a wall or a panel within reach (`benchAnchors`): the gap
-      in a row 10 m from both walls of a square room is none.
-    - A room with no panels and no way straight through it takes an
-      island of two on its centre (`centredIsland`). The spine plan has
-      none: its four small rooms have a door in three walls. Each takes
-      an island on its centre line, 4.25 m in front of the wall without
-      a door (`wallIsland`). A door screen is no panel: a small room
-      keeps its island with one, and the island's other bench looks at
-      the screen's picture. A room with one panel and a screen, which
-      no one walks straight through, takes the centre island too.
-    - The two galleries of the spine have a portal in both long walls
-      on the floors above the first. In rows, every line of their
-      panels is one of two walking lines, so they have no bench there
-      (three of the six). Divided by wing walls they take one in each
-      end bay.
+      Never in the line of a door in the wall beside it. A place counts
+      only where the bench looks at a wall or a panel within reach
+      (`benchAnchors`).
+    - `centredIsland` and `wallIsland` seat a room with no walls but a
+      door screen. The plan has none today: every gallery is divided.
+    - The two galleries of the spine have a door in all four walls. In
+      rows, every line of their panels is one of two walking lines.
+      They are seated where their walls leave a place: one of the eight
+      has no bench.
     - The hang gives each door screen its one picture first
       (`hangFeatures`). Then it finds what each bench looks at: the
       nearest wall or panel face square in front of it and behind it,
       within 9.5 m (`benchAnchors`). It hangs the room's largest works
       there, each centred on its bench, cuts the run in two either side
       of the work, and hangs the rest of the room on what is left
-      (`hangForBenches`). On 13 October 2026 all 100 benches had a
-      work centred on them.
-    - The composed great hall is hung by `grand-hall.ts` and skipped by
-      that. Its two islands are turned and moved in line with the pair
-      beside the stair hall door (`hallIslandsFacingPair`).
+      (`hangForBenches`). On 13 October 2026 all 61 benches of the
+      galleries had a work centred on them.
+    - The court's first floor has four islands of two (`courtIslands`),
+      one in front of each stretch of its north and south walls, 6.5 m
+      off the wall and beside both lines between its doors. The giant
+      of a stretch hangs with its canvas on the stretch's middle
+      (`stretchMiddle`), so each island has one centred on it. The
+      floors above are a gallery 5 m wide and have no seat.
     Two earlier passes were walked and thrown out that day. A bench in
     front of each large work, at the distance to see all of it, landed
     in the 5 m aisle between a panel and the wall. A bench on the
@@ -759,10 +778,13 @@ required by the Dockerfile — don't remove it.
   - **No two rooms that share a door are divided the same way**
     (`BLOCK_PLAN[].styles`), and each floor has three door screens
     (`BLOCK_PLAN[].screens`): see "Dividers" and "Door screens" above.
-    The square under a stair hall takes the pinwheel on the first floor
-    and on the second. A style is the plan's wish: a room with a screen
-    at a side door has no place for paired wing walls and falls back to
-    rows, so look at the plan after naming one.
+    A long gallery and the gallery of the spine it opens into are rows
+    beside wing walls, or rows of another length, and a floor has four
+    arrangements or five. No room of the plan is large enough for a
+    pinwheel now: that was the square under a stair hall. A style is
+    the plan's wish: a room with a screen at a side door has no place
+    for paired wing walls and falls back to rows, so look at the plan
+    after naming one.
   - An era is hung on its own (`hangZone`): the placer is given only
     its rooms, so spill cannot carry a work into another era. An
     artist's share of the wall goes to their sharpest scans
@@ -771,16 +793,15 @@ required by the Dockerfile — don't remove it.
     shouldn't read as sparse and room layout/sizes should fit the number
     of images that there are." Every era covers its wall to within 0.02
     of the plan's share (0.45, 0.38 for the two floors of prints), and
-    every room but a composed great hall to within 0.04.
-    `block-fit.test.ts` holds the plan to that against the real
-    catalogue. Three things do it:
+    every room to within 0.04. `block-fit.test.ts` holds the plan to
+    that against the real catalogue. Three things do it:
     - `zones` names an era's rooms, and `styles` sets how much wall a
-      room has: a 27.5 × 17.5 m room is 97 m staggered, 113 m in bays
-      and 137 m in long rows. The Gothic era has 69 works sharp enough
-      to hang, 86 m of them. In three rooms (268 m) they covered a
-      third of the wall and read as a collection with works missing. It
-      has two now, `s2` and `s1`, and `s1` is in long rows for it:
-      199 m, 0.43. An era
+      room has: a long gallery is 153 m staggered, 184 m in bays and 187
+      to 194 m in rows; a gallery of the spine 89 to 128 m. The Gothic
+      era has 69 works sharp enough to hang, 86 m of them. In three
+      rooms of an earlier plan they covered a third of the wall and
+      read as a collection with works missing. It has one long gallery
+      now, `sw` in long rows with a door screen: 173 m, 0.45. An era
       that grows or shrinks gets other rooms or other walls. Do not
       leave it thin.
     - `hangZone` takes works until the sample covers the wall. It took
@@ -793,54 +814,84 @@ required by the Dockerfile — don't remove it.
     not fixed: 0.21 to 0.23 in the three that are not the Grand Hall.
     One room fewer is not possible there (rooms open in mirrored
     pairs), and the one room behind the stair alone would be at 0.69.
+  - It hangs 1,387 works (13 October 2026): 1,319 in 24 galleries, 27
+    to 84 a room, and 68 in the halls. The two spiral rooms a floor
+    hang nothing, and each corner of the block is part of a long
+    gallery, which has less wall than the rooms it could be: the plan
+    before hung 1,726, 1,663 of them in 43 rooms.
   - Changed on the way. `?plan=wings`, 12.5 m galleries in rings round
     a salon, 44 rooms a floor: rooms too small, too many, no dividers,
     too few doors between them. Then this block with its three stair
     halls 40 m apart on the long axis and the stairs stacked (tag
-    `museum-block-stacked-stairs-2026-10-12`): see "Why one stair to a
-    hall", and a hall was a room on the way from one gallery to the
-    next. Then the three halls wall to wall in the middle of the block,
-    inside a ring of twelve rooms, a door in all four walls of each
-    (tag `museum-block-core-of-three-2026-10-13`): see "A stair hall is
-    entered where its stair starts".
-  - **Works too large for a room hang in the stair halls, at their
-    real size** ([`giants.ts`](src/lib/gallery-layout/giants.ts)). A room
+    `museum-block-stacked-stairs-2026-10-12`): see "Why the void is
+    beside the stair", and a hall was a room on the way from one
+    gallery to the next. Then the three halls wall to wall in the
+    middle of the block, inside a ring of twelve rooms, a door in all
+    four walls of each (tag `museum-block-core-of-three-2026-10-13`):
+    see "A stair hall has one door". Then a hall at the centre and both
+    ends of the spine, one stair to a hall, five rooms to a range
+    joined differently on each floor (tag
+    `museum-block-spine-of-three-2026-10-13`): see "Four stairs".
+  - **Works too large for a room hang in the halls, at their real
+    size** ([`giants.ts`](src/lib/gallery-layout/giants.ts)). A room
     hangs nothing over 3.2 m, so the Wedding at Cana (9.94 m) hung at a
     third of the size its plaque gave. Rico, 13 October 2026, of a
     Tintoretto 5.38 m tall: "it's supposed to be 4.65 meters by 5.38m".
     - A giant is a work with an audited size (`trustworthyRealSize`), a
       side over 3.2 m, and 400 texture pixels a metre at that size
       (`GIANT_MIN_PX_PER_METRE`). A room's works need 1,000. The largest
-      have the least: Cana 412, the Coronation of Napoleon 418. Raise the
-      number to 1,000 and 24 of the 60 go back to their rooms at the
-      room's limit.
-    - A hall takes the giants of the floor its stair leaves: the middle
-      hall the old masters, the west hall the 18th and 19th centuries,
-      the east hall what came after and the top floor's screens. They
-      hang one storey after another, largest first, on the stretches
-      between the doors (`hallRuns`), a metre or more apart.
+      have the least: Cana 412, the Coronation of Napoleon 418. Raise
+      the number to 1,000 and 33 of the 70 go back to their rooms at
+      the room's limit.
+    - Candidates come from the era buckets, which hold only works sharp
+      enough for a room (`bucketByEra`). 45 more works pass the giant's
+      rule and fail the room's: Bosch's Garden of Earthly Delights, the
+      Surrender of Breda, Sōtatsu's Wind God and Thunder God. They hang
+      nowhere. Whether a hall should take them is Rico's call.
+    - **One work to a stretch.** The first hang put every tall work on
+      one wall, in two tiers 0.8 m apart, and two works on a stretch of
+      a hall's storey. Rico: the big paintings "cluster too close
+      together". A stretch is the wall between a door and a corner, or
+      beside a stair; the work's canvas hangs on its middle.
+    - A giant hangs on the floor of its era, in the court first and in
+      the two stair halls after it, the halls a stretch at a time in
+      turn (`hangHallStoreys`). In a room that is not full, the north
+      and south walls fill first, then the west and east walls a
+      stretch at a time, so walls that face each other hold alike. What
+      a full floor leaves over goes to the floors above, and to the
+      ones under it last.
     - A frame fits a storey up to 5.38 m (`STOREY_FRAME_ROOM`): canvases
-      to about 4.9 m. Taller ones go to the sheer wall (next point).
+      to about 4.9 m. Taller ones go to the sheer walls (next point).
     - `Placement.giant` drops the picture light: the frame's top is a
       hand under the gallery above. `Placement.plaque` moves the plaque
       to eye level (`dy`), sideways (`dx`), or leaves it out (`null`,
-      the upper tier).
-    - 60 of 61 giants hang (13 October 2026). Raphael's School of
-      Athens, 7.7 m wide, found no place on the upper tier.
+      a work with no floor in front of it at its own height).
+    - 68 of 70 giants hang (13 October 2026): 14 on the sheer walls,
+      28 in the court, 26 on the stair halls' storeys. Two of Monet's
+      Orangerie panels, 12.75 m long, have no wall and hang in their
+      rooms at 3.2 m.
     - The tower has no such wall: its stairwell is one storey high
       between slabs. Giants hang there as before, at 3.2 m.
-  - **The middle hall's north wall is sheer** (`GrandStair.sheerWall`,
-    `RoomLayout.sheer`): no gallery behind the head of the imperial
-    stair, so the void reaches the wall on the three floors over the
-    first and the wall stands 24 m. Two tiers hang on it
-    (`hangSheerWall`): the widest work in the axis of the stair, lifted
-    over the half landing so it is seen whole from the hall's door, a
-    pair of like height on the floor either side, and a second tier
-    level with the third floor. What it costs and what it needs:
-    - No door between `n3` and `hall-c` on any floor: on the first the
-      hall has its one door, above it the void lies against the wall
-      (`sheerWalls` in `buildFloor`). The side galleries end at the
-      landing's far edge, fenced.
+  - **Three walls of a stair hall are sheer** (`GrandStair.sheerWall`,
+    `RoomLayout.sheer`): the building's end wall behind the stair, 27.5
+    m long, and 11.45 m of each side wall beyond the galleries, all 24
+    m high. `hangSheerWalls` composes them from the works taller than a
+    storey and the largest of the others (`SHEER_CHOICE`). On the end
+    wall: the widest in the axis of the stair, level with the second
+    floor, where it is seen from the hall's door over the first half
+    landing; a pair of like height on the hall floor either side of it;
+    a pair level with the top floor. A work too wide for any other
+    wall hangs over the first, 3 m and more above it (`AXIS_CLEAR`),
+    and that wall then has no upper pair: three canvases are about 10 m
+    wide and taller than a storey, and there are two end walls. So the
+    Coronation of Napoleon hangs over the Feast in the House of Levi,
+    and one Orangerie panel over Cana. On each side wall: one work on
+    every second storey, the two walls a storey apart. The two halls
+    are dealt to in turn, the one with fewer tall works first, and the
+    pair is picked before the side walls, which would take one of two
+    works made as a pair. What it costs and what it needs:
+    - No door in a stair hall's side walls on any floor, and a gallery
+      that ends at the landing's far edge, fenced.
     - A hole that touches a shape's edge does not triangulate. A hall's
       floor and ceiling round an opening of rectangles are built from
       the rectangles left (`rectsAround` in `stair-opening.ts`).
@@ -854,14 +905,14 @@ required by the Dockerfile — don't remove it.
       is left out where there is no floor (`SkirtingClip`).
     - The wall washers skip the sheer wall and stop short of the strip
       on the two walls that meet it (`washedWalls`).
-  - **A stair hall is one colour through every storey**
+  - **A hall or a stair room is one colour through every storey**
     (`RoomLayout.paletteEra`, read through `paletteOfRoom`): the pale
     stone of the Gothic rooms. Before, each storey took its floor's
-    first era, and the middle hall was four bands. The room's `era` is
-    still the floor's, so the HUD names the floor.
-  - Not built: signs at the stairs, ornament beyond balustrades, piers,
-    carpet and lamp standards. The design, its sheets and Rico's reference
-    photographs are in the vault notes
+    first era, and a hall was four bands. The room's `era` is still the
+    floor's, so the HUD names the floor.
+  - Not built: signs at the grand stairs, ornament beyond balustrades,
+    piers, carpet and lamp standards. The design, its sheets and Rico's
+    reference photographs are in the vault notes
     `collection-of-beauty-museum-floor-plans.md` and
     `collection-of-beauty-museum-stair-references.md`.
 - **How high things are, and what may hang.** Three numbers Rico set
@@ -1257,9 +1308,9 @@ required by the Dockerfile — don't remove it.
     storey's is seen, and the walk goes on through all their doors. The
     well is not tested as an opening. A storey's flights, railings and
     stairwell lights are drawn with it (`registerShaftFittings`, from
-    `FloorScene`). On the block plan a floor has three stair halls and
-    so three shafts; their fittings are one group, drawn while any of
-    the three is seen.
+    `FloorScene`). On the block plan a floor has five: two stair
+    halls, the court and two spiral rooms. Their fittings are one
+    group, drawn while any of the five is seen.
   - **A room is three kinds of object.** Its contents (floor, ceiling,
     laylights, dividers, benches, works) are one group. Its walls are
     one group a side, outside that group: a wall between two rooms is
@@ -1299,12 +1350,14 @@ required by the Dockerfile — don't remove it.
     Hall spawn, 666 → 446 along the hall, 859 → 403 across it, 1,151 →
     334 from the south-west room looking back, 1,325 → 382 half-way up
     the stair with two storeys mounted. Triangles fall with them
-    (197,926 → 51,828 in the south-west room). On the block plan: 848 →
-    302 from the great hall looking north through the stair hall, 970 →
-    399 across a corner room, 912 → 210 half-way up the middle stair.
+    (197,926 → 51,828 in the south-west room). On the block plan's first
+    floor (13 October 2026): 980 → 285 from a gallery of the spine
+    looking at a stair hall, 158 → 88 on a half landing of that hall,
+    596 → 510 along a long gallery, 1,187 → 1,021 where a visit starts
+    in the court, which shows its sixteen doors whatever is culled.
     53 poses picked at random on the Baroque floor went from 590 to 215
     on average. The mirror pass stays where it was: 150 to 240 draw
-    calls on the tower, 220 to 450 on the block plan. The HUD's `rooms`
+    calls on the tower, 130 to 190 on the block plan. The HUD's `rooms`
     line prints rooms and works drawn of those mounted.
   - Frame time with the cap lifted, across the Grand Hall (604 → 403
     draw calls on a fresh load), the two states alternating in one

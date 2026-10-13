@@ -26,7 +26,9 @@
 // - in the middle of a room with no panels and no way straight through
 //   it (`centredIsland`);
 // - on the centre line of a room with no panels and a door in three of
-//   its walls, in front of the fourth (`wallIsland`).
+//   its walls, in front of the fourth (`wallIsland`);
+// - in a court, in front of each stretch of its north and south walls
+//   (`courtIslands`).
 //
 // A bench placed so is on a line of the room, but nothing says a work
 // hangs on that line: Rico, the same day, "now they are not aligning
@@ -236,6 +238,26 @@ export function centredIsland(rect: CellRect, doors: readonly PlanDoor[]): Bench
 
 /** How far off a wall an island stands whose one bench faces it. */
 const ISLAND_WALL_VIEW = 4.25;
+/** The same in a court, where the work on the wall is 4 m wide or more. */
+const COURT_WALL_VIEW = 6.5;
+
+/**
+ * The islands of a court's floor: two benches back to back in front of
+ * each stretch of its north and south walls, one facing the stretch and
+ * one the court. `middles` are the stretches' middles along x, world
+ * metres; the hang centres a work on each (`giants.ts`). The lines
+ * between the court's doors stay clear: an island stands beside both.
+ */
+export function courtIslands(rect: CellRect, middles: readonly number[]): Bench[] {
+  const back = (BENCH_DEPTH + ISLAND_GAP) / 2;
+  const rows = [
+    rect.zMin * CELL_SIZE + COURT_WALL_VIEW,
+    (rect.zMax + 1) * CELL_SIZE - COURT_WALL_VIEW,
+  ];
+  return rows.flatMap((z) =>
+    middles.flatMap((x) => [-back, back].map((off): Bench => ({ x, z: z + off, along: "x" }))),
+  );
+}
 
 /**
  * An island of two for a room with a door in three of its walls: one
@@ -280,53 +302,4 @@ export function benchClearOfDividers(
   clearance: number,
 ): boolean {
   return benchClearOf(bench, room.dividers, clearance);
-}
-
-/**
- * The composed great hall's two islands, turned to look at its two
- * largest works: the pair that hangs either side of the door to the
- * stair hall. `planBenches` stands the islands a quarter of the room
- * out, looking at the side walls. Here each island keeps its distance
- * from the front wall and moves in line with one work of the pair, one
- * bench facing it and one facing the back wall.
- *
- * Null when the front wall has no such pair, or a bench would stand in
- * the walking line of its door.
- */
-export function hallIslandsFacingPair(
-  hall: Pick<RoomLayout, "cellBounds" | "doors" | "benches" | "placements">,
-  frontRoomId: string,
-): Bench[] | null {
-  const door = hall.doors.find((d) => d.connectsTo.roomId === frontRoomId);
-  if (!door || hall.benches.length === 0) return null;
-  const alongX = door.side === "north" || door.side === "south";
-  // Along the front wall, and away from it.
-  const along = (p: { x: number; z: number }) => (alongX ? p.x : p.z);
-  const away = (p: { x: number; z: number }) => (alongX ? p.z : p.x);
-  const wall = away({ x: door.worldX, z: door.worldZ });
-  const onFront = hall.placements
-    .filter((p) => Math.abs(away({ x: p.position[0], z: p.position[2] }) - wall) < 0.3)
-    .sort((p, q) => q.widthM * q.heightM - p.widthM * p.heightM);
-  const lead = onFront[0];
-  if (!lead) return null;
-  const axis = along({ x: door.worldX, z: door.worldZ });
-  const offset = Math.abs(along({ x: lead.position[0], z: lead.position[2] }) - axis);
-  // Its mirror image across the door.
-  const twin = onFront.some(
-    (p) =>
-      p !== lead &&
-      Math.abs(Math.abs(along({ x: p.position[0], z: p.position[2] }) - axis) - offset) < 0.05,
-  );
-  if (!twin || offset - BENCH_LENGTH / 2 < door.width / 2 + DOOR_LINE_MARGIN) return null;
-
-  const depth = hall.benches.reduce((sum, b) => sum + away(b), 0) / hall.benches.length;
-  const back = (BENCH_DEPTH + ISLAND_GAP) / 2;
-  return [-offset, offset].flatMap((side) =>
-    [-back, back].map(
-      (off): Bench =>
-        alongX
-          ? { x: axis + side, z: depth + off, along: "x" }
-          : { x: depth + off, z: axis + side, along: "z" },
-    ),
-  );
 }

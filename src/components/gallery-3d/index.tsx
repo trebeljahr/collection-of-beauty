@@ -10,7 +10,6 @@ import { JOYSTICK_REACH, useJoystick } from "@/hooks/use-joystick";
 import { useNeedsRotate, useTouchDevice } from "@/hooks/use-touch-device";
 import { useAudioSettings } from "@/lib/audio-settings";
 import type { ArtworkListing } from "@/lib/data";
-import { arrivalPoint } from "@/lib/gallery-layout/fittings";
 import { blockArrivalPoint, layoutBlock } from "@/lib/gallery-layout/layout-block";
 import { layoutMuseum } from "@/lib/gallery-layout/layout-museum";
 import { eraOfRoom, floorTitle, paletteOfRoom } from "@/lib/gallery-layout/room-era";
@@ -68,7 +67,8 @@ type Props = { artworks: ArtworkListing[] };
  */
 export function Gallery3D({ artworks }: Props) {
   // `?plan=block` walks the second floor plan (layout-block.ts): four
-  // floors of large rooms round three stair halls. The tower is the
+  // floors of long galleries round a court, a grand stair at each end
+  // and a spiral either side of the court. The tower is the
   // museum until that plan has been judged on foot. Read once: the
   // layout must not change under a running visit.
   const [plan] = useState(() =>
@@ -304,10 +304,16 @@ export function Gallery3D({ artworks }: Props) {
   // boundary — that double-mount was a second freeze just as the player
   // crested the stairs.
   const hasGrandStairs = (layout.grandStairs?.length ?? 0) > 0;
-  const activeGrandStair = useMemo(
-    () => layout.grandStairs?.find((s) => s.id === activeStairId) ?? null,
-    [layout.grandStairs, activeStairId],
-  );
+  // The floors the hall the visitor is in reaches: those of every stair
+  // that stands in it, one over another.
+  const activeHallFloors = useMemo((): [number, number] | null => {
+    const active = layout.grandStairs?.find((s) => s.id === activeStairId);
+    if (!active) return null;
+    const hall = (layout.grandStairs ?? []).filter(
+      (s) => s.centerX === active.centerX && s.centerZ === active.centerZ,
+    );
+    return [Math.min(...hall.map((s) => s.lowerFloor)), Math.max(...hall.map((s) => s.topFloor))];
+  }, [layout.grandStairs, activeStairId]);
   const floorModes = useMemo(() => {
     const modes = new Map<number, "full" | "stairwell" | "stairs">();
     modes.set(currentFloorIdx, "full");
@@ -344,10 +350,10 @@ export function Gallery3D({ artworks }: Props) {
         // further off shows its doors too, small and far: there a blind
         // stands in for the room behind each (`mountedRooms`).
         const inHall =
-          activeGrandStair != null &&
+          activeHallFloors != null &&
           Math.abs(i - currentFloorIdx) === 1 &&
-          i >= activeGrandStair.lowerFloor &&
-          i <= activeGrandStair.topFloor;
+          i >= activeHallFloors[0] &&
+          i <= activeHallFloors[1];
         modes.set(i, inHall ? "full" : "stairwell");
       }
     }
@@ -358,7 +364,7 @@ export function Gallery3D({ artworks }: Props) {
     stairBeyondFloorIdx,
     layout.floors.length,
     hasGrandStairs,
-    activeGrandStair,
+    activeHallFloors,
   ]);
 
   // Spawn point driver. Default: entry on floor 0. Teleport keys
@@ -417,7 +423,8 @@ export function Gallery3D({ artworks }: Props) {
       const f = layout.floors[idx];
       const anchor = f.rooms.find((r) => r.isAnchor) ?? f.rooms[0];
       if (!anchor) return;
-      const arrival = arrivalPoint(anchor);
+      // A hall's centre can be its open well: land inside its door.
+      const arrival = blockArrivalPoint(layout, anchor);
       spawnForFloor.current = [arrival.x, anchor.worldRect.y, arrival.z];
       setCurrentFloorIdx(idx);
       setActiveRoomIdx(-1);

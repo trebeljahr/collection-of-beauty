@@ -281,13 +281,13 @@ describe("visibleRooms, the stairwell", () => {
   });
 
   it("keeps the stair halls of one floor apart and stacks each through the floors", () => {
-    // A hall of the block plan starts on the floor its stair leaves:
-    // one hall on the first floor, two on the second, three from there.
-    // Each keeps one key through every floor it is a hall on.
+    // The block plan has five on every floor: a stair hall at each end
+    // of its spine, the court between them, and a spiral's room north
+    // and south of the court. Each keeps one key through every floor.
     const keys = blockPlan.floors.map((floor) => floor.rooms.flatMap((r) => shaftKey(r) ?? []));
     const top = keys[keys.length - 1];
-    expect(new Set(top).size).toBe(3);
-    expect(keys.map((k) => new Set(k).size)).toEqual([1, 2, 3, 3]);
+    expect(new Set(top).size).toBe(5);
+    expect(keys.map((k) => new Set(k).size)).toEqual([5, 5, 5, 5]);
     for (const floorKeys of keys) for (const key of floorKeys) expect(top).toContain(key);
     expect(tower.flatMap((r) => shaftKey(r) ?? [])).toHaveLength(1);
   });
@@ -368,9 +368,9 @@ const works = Array.from(
 );
 const tower = layoutMuseum(works).floors.find((f) => f.era.id === "baroque")?.rooms ?? [];
 
-/** The second plan (layout-block.ts): up to three stair halls a floor,
- *  a door in nearly every wall two rooms share, each room in its own
- *  era's colour. */
+/** The second plan (layout-block.ts): two stair halls, a court and two
+ *  spirals a floor, a door in nearly every wall two rooms share, each
+ *  room in its own era's colour. */
 const blockPlan = layoutBlock(
   ERAS.flatMap((era) =>
     Array.from(
@@ -404,9 +404,8 @@ function mulberry32(seed: number) {
 
 describe.each([
   ["the tower's Baroque floor", tower, 8],
-  // Thirteen: twelve rooms and the three halls' squares, less the two
-  // the first floor joins into its long gallery.
-  ["a floor of the block plan", block, 13],
+  // Eleven: six galleries, two stair halls, the court and two spirals.
+  ["a floor of the block plan", block, 11],
 ])("visibleRooms on %s", (_name, floorRooms, atLeast) => {
   const byId = new Map(floorRooms.map((r) => [r.id, r]));
   const visibility = new Map(floorRooms.map((r) => [r.id, visibilityRoom(r)]));

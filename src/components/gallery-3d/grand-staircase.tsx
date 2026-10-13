@@ -21,7 +21,8 @@ import { fixtureMaterial, HIGHLIGHT_ENV_MATERIALS } from "./palette-materials";
 //
 // One stair is five meshes: the stone, the balusters (small parts the
 // floor's mirror pass leaves out), the carpet, and the stems and globes
-// of the lamp standards at the foot of its first flight.
+// of the lamp standards at the foot of its first flight. A hall with no
+// stair (a court) is the balustrades of its galleries.
 
 const stoneMaterial = new THREE.MeshStandardMaterial({
   // Pale limestone: the stair is the lightest thing in its hall, as in
@@ -43,8 +44,32 @@ const globeMaterial = new THREE.MeshBasicMaterial({ color: "#ffeccb" });
 
 // Nothing in the scene casts a shadow, so a riser would be as bright as
 // the tread over it and a flight would read as a ramp. Each face takes a
-// share of the stone's colour by the way it looks: up, sideways, down.
-const FACE_SHADE = { up: 1, side: 0.84, down: 0.66 } as const;
+// share of the stone's colour by the way it looks.
+//
+// Up and down are the ends of the scale. A face that looks sideways
+// takes its share by its compass direction, as if the hall had a window
+// in one side wall: with one share for all four, a baluster's two
+// visible faces were the same tone and a balustrade read as a paper
+// cut-out (Rico, 13 October 2026). The light comes along the hall's x
+// axis, so the risers of every flight, which look along z, stay well
+// under the treads.
+const FACE_SHADE = { up: 1, down: 0.64, sideMin: 0.7, sideMax: 0.92 } as const;
+/** Where the side light comes from, in the hall's frame. Off both axes,
+ *  so no two faces of a square post take the same share. */
+const SIDE_LIGHT = { x: 0.96, z: 0.28 } as const;
+/** How much a sloped face gains for leaning up, or loses for leaning
+ *  down: it gives a turned baluster its belly. */
+const SLOPE_SHADE = 0.3;
+
+function faceShade(nx: number, ny: number, nz: number): number {
+  if (ny > 0.75) return FACE_SHADE.up;
+  if (ny < -0.75) return FACE_SHADE.down;
+  const h = Math.hypot(nx, nz) || 1;
+  const toward = (nx * SIDE_LIGHT.x + nz * SIDE_LIGHT.z) / h;
+  const side =
+    FACE_SHADE.sideMin + (FACE_SHADE.sideMax - FACE_SHADE.sideMin) * (0.5 + 0.5 * toward);
+  return Math.min(FACE_SHADE.up, Math.max(FACE_SHADE.down, side * (1 + SLOPE_SHADE * ny)));
+}
 
 // Lamp standard, metres above the floor its post stands on.
 const LAMP_STEM_FOOT = 1.21;
@@ -59,8 +84,24 @@ const PLINTH_HEIGHT = 0.12;
 const PLINTH_WIDTH = 0.28;
 const CAP_HEIGHT = 0.12;
 const CAP_WIDTH = 0.32;
-const BALUSTER_SIZE = 0.11;
-const BALUSTER_PITCH = 0.3;
+const BALUSTER_PITCH = 0.32;
+/** A baluster's outline: half its width at a share of its height. A
+ *  square block, a neck, a belly a third of the way up, a long taper to
+ *  a second neck and a block under the cap. Square in plan, so each
+ *  piece is four faces. */
+const BALUSTER_PROFILE: ReadonlyArray<readonly [number, number]> = [
+  [0, 0.062],
+  [0.1, 0.062],
+  [0.15, 0.036],
+  [0.38, 0.068],
+  [0.85, 0.032],
+  [0.9, 0.056],
+  [1, 0.056],
+];
+/** A baluster stands in the shadow of the plinth's edge and of the cap:
+ *  the share of its light it keeps at its foot and at its head. */
+const BALUSTER_FOOT_SHADE = 0.8;
+const BALUSTER_HEAD_SHADE = 0.66;
 const NEWEL_SIZE = 0.36;
 const NEWEL_RISE = 0.14;
 const SKIRT_WIDTH = 0.3;
@@ -79,8 +120,10 @@ class Solid {
 
   /** A box of eight corners: the four of its underside in order round
    *  it, then the four over them. Each face is turned outward, so the
-   *  order may run either way round. */
-  hexa(c: readonly P3[]) {
+   *  order may run either way round. `light` is the share of its light
+   *  each corner keeps (all of it, unset); `sidesOnly` leaves out the
+   *  underside and the top, for a piece that stands on another. */
+  hexa(c: readonly P3[], light?: readonly number[], sidesOnly = false) {
     const centre: P3 = [0, 0, 0];
     for (const p of c) {
       centre[0] += p[0] / 8;
@@ -95,7 +138,8 @@ class Solid {
       [2, 3, 7, 6],
       [3, 0, 4, 7],
     ];
-    for (const face of faces) {
+    for (const face of sidesOnly ? faces.slice(2) : faces) {
+      let [ia, ib, ic, id] = face;
       let [a, b, cc, d] = face.map((i) => c[i]);
       let n = cross(sub(b, a), sub(cc, a));
       if (lengthOf(n) < 1e-9) n = cross(sub(cc, a), sub(d, a));
@@ -109,15 +153,24 @@ class Solid {
       ];
       if (dot(n, sub(mid, centre)) < 0) {
         [b, d] = [d, b];
+        [ib, id] = [id, ib];
         n = [-n[0], -n[1], -n[2]];
       }
       const unit: P3 = [n[0] / len, n[1] / len, n[2] / len];
-      const shade =
-        unit[1] > 0.5 ? FACE_SHADE.up : unit[1] < -0.5 ? FACE_SHADE.down : FACE_SHADE.side;
-      for (const p of [a, b, cc, a, cc, d]) {
+      const shade = faceShade(unit[0], unit[1], unit[2]);
+      const corners: Array<[P3, number]> = [
+        [a, ia],
+        [b, ib],
+        [cc, ic],
+        [a, ia],
+        [cc, ic],
+        [d, id],
+      ];
+      for (const [p, i] of corners) {
+        const v = shade * (light?.[i] ?? 1);
         this.position.push(p[0], p[1], p[2]);
         this.normal.push(unit[0], unit[1], unit[2]);
-        this.color.push(shade, shade, shade);
+        this.color.push(v, v, v);
       }
     }
   }
@@ -281,6 +334,42 @@ function addPatch(stone: Solid, carpet: Solid, p: StairPatch, baseY: number) {
   }
 }
 
+/** One baluster, its foot at (x, y, z), turned to the rail's direction
+ *  (ux, uz): the pieces of its outline one on another. */
+function addBaluster(
+  solid: Solid,
+  x: number,
+  z: number,
+  y: number,
+  height: number,
+  ux: number,
+  uz: number,
+) {
+  const ring = (at: number, half: number): P3[] => {
+    const ax = ux * half;
+    const az = uz * half;
+    const yy = y + at * height;
+    return [
+      [x - ax + az, yy, z - az - ax],
+      [x + ax + az, yy, z + az - ax],
+      [x + ax - az, yy, z + az + ax],
+      [x - ax - az, yy, z - az + ax],
+    ];
+  };
+  // Dark at the foot, darkest under the cap, full in between.
+  const shadow = (at: number) =>
+    1 -
+    (1 - BALUSTER_FOOT_SHADE) * Math.max(0, 1 - at / 0.2) -
+    (1 - BALUSTER_HEAD_SHADE) * Math.max(0, 1 - (1 - at) / 0.22);
+  for (let k = 0; k < BALUSTER_PROFILE.length - 1; k++) {
+    const [at0, half0] = BALUSTER_PROFILE[k];
+    const [at1, half1] = BALUSTER_PROFILE[k + 1];
+    const lo = shadow(at0);
+    const hi = shadow(at1);
+    solid.hexa([...ring(at0, half0), ...ring(at1, half1)], [lo, lo, lo, lo, hi, hi, hi, hi], true);
+  }
+}
+
 /** One balustrade: plinth, balusters, cap, and what it stands on. */
 function addRail(stone: Solid, balusters: Solid, r: StairRail) {
   const len = Math.hypot(r.x1 - r.x0, r.z1 - r.z0);
@@ -309,13 +398,20 @@ function addRail(stone: Solid, balusters: Solid, r: StairRail) {
     r.y1 + h,
   );
   const count = Math.max(1, Math.round(len / BALUSTER_PITCH));
-  const half = BALUSTER_SIZE / 2;
+  // Square to the rail, so on a curved rail each turns with it.
+  const ux = (r.x1 - r.x0) / len;
+  const uz = (r.z1 - r.z0) / len;
   for (let i = 0; i < count; i++) {
     const t = (i + 0.5) / count;
-    const x = r.x0 + (r.x1 - r.x0) * t;
-    const z = r.z0 + (r.z1 - r.z0) * t;
-    const y = r.y0 + (r.y1 - r.y0) * t;
-    balusters.box(x - half, x + half, y + PLINTH_HEIGHT, y + h - CAP_HEIGHT, z - half, z + half);
+    addBaluster(
+      balusters,
+      r.x0 + (r.x1 - r.x0) * t,
+      r.z0 + (r.z1 - r.z0) * t,
+      r.y0 + (r.y1 - r.y0) * t + PLINTH_HEIGHT,
+      h - PLINTH_HEIGHT - CAP_HEIGHT,
+      ux,
+      uz,
+    );
   }
   const sloped = Math.abs(r.y1 - r.y0) > 1e-6;
   if (r.skirtTo !== undefined) {

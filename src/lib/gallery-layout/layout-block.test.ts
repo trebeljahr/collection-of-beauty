@@ -2,8 +2,8 @@ import { describe, expect, it } from "vitest";
 import type { ArtworkListing } from "@/lib/data";
 import { ERAS } from "@/lib/gallery-eras";
 import { galleryLayoutIdentity } from "@/lib/gallery-release-state";
-import { benchClearOfDividers, centredIsland } from "./feature-benches";
 import { arrangementOf } from "./divider-plans";
+import { benchClearOfDividers, centredIsland } from "./feature-benches";
 import { benchRect, longAxis } from "./fittings";
 import { grandStairsAt, grandSurfaceAt, openingReach, toStairLocal } from "./grand-stair";
 import {
@@ -11,9 +11,10 @@ import {
   BLOCK_GRID,
   BLOCK_HALLS,
   BLOCK_PLAN,
+  BLOCK_ROOMS,
+  BLOCK_SPIRALS,
   BLOCK_WALL_COVERAGE,
   blockArrivalPoint,
-  blockFloorRooms,
   hallFront,
   layoutBlock,
 } from "./layout-block";
@@ -21,7 +22,7 @@ import { layoutMuseum } from "./layout-museum";
 import { computeRoomRuns, runLength, wallFootprint } from "./place-paintings";
 import { eraOfRoom, floorTitle } from "./room-era";
 import type { Door, RoomLayout } from "./types";
-import { CELL_SIZE, doorOpenHalfSpan, PORTAL_WIDTH } from "./world-coords";
+import { CELL_SIZE, doorOpenHalfSpan, PORTAL_WIDTH, SPIRAL_OUTER_RADIUS } from "./world-coords";
 
 /** 160 sharp works for every era, in mixed sizes, by 40 artists each.
  *  Every fourth is a sharper scan of the same size. */
@@ -56,82 +57,86 @@ const keyOf = (room: RoomLayout) => room.id.replace(/^f\d-/, "");
 /** True when a point is within 2 m of a door, across its wall or along it. */
 const nearDoor = (door: Door, p: { x: number; z: number }) =>
   Math.abs(door.worldX - p.x) <= 2 && Math.abs(door.worldZ - p.z) <= 2;
-/** The room of a floor that holds this room of the diagram. */
-const roomOf = (floorIndex: number, cell: string) => {
-  const key = blockFloorRooms(floorIndex).keyOf(cell);
-  return layout.floors[floorIndex].rooms.find((r) => keyOf(r) === key)!;
-};
+const roomOf = (floorIndex: number, key: string) =>
+  layout.floors[floorIndex].rooms.find((r) => keyOf(r) === key)!;
 /** The rooms each era of a floor hangs in. */
 const zonesOf = (floorIndex: number) =>
-  BLOCK_PLAN[floorIndex].zones.map((zone, z) => ({
+  BLOCK_PLAN[floorIndex].zones.map((zone) => ({
     zone,
-    rooms: [...new Set(zone.cells.map((cell) => roomOf(floorIndex, cell)))],
-    z,
+    rooms: zone.cells.map((cell) => roomOf(floorIndex, cell)),
   }));
-/** The side of room `a` that room `b` stands against, or null. */
+/** The side of room `a` that room `b` stands against along three cells
+ *  of wall or more, or null. */
 const sideToward = (a: RoomLayout, b: RoomLayout): Door["side"] | null => {
   const p = a.cellBounds;
   const q = b.cellBounds;
-  const z = p.zMin <= q.zMax && q.zMin <= p.zMax;
-  const x = p.xMin <= q.xMax && q.xMin <= p.xMax;
+  const z = Math.min(p.zMax, q.zMax) - Math.max(p.zMin, q.zMin) + 1 >= 3;
+  const x = Math.min(p.xMax, q.xMax) - Math.max(p.xMin, q.xMin) + 1 >= 3;
   if (z && p.xMax + 1 === q.xMin) return "east";
   if (z && q.xMax + 1 === p.xMin) return "west";
   if (x && p.zMax + 1 === q.zMin) return "south";
   if (x && q.zMax + 1 === p.zMin) return "north";
   return null;
 };
-/** The hall of the diagram a stair hall is, and its stair. */
-const hallOf = (room: RoomLayout) => BLOCK_HALLS.find((h) => h.key === keyOf(room))!;
-const stairOf = (room: RoomLayout) =>
-  layout.grandStairs!.find((s) => s.id.startsWith(`${keyOf(room)}-`))!;
-/** True on the floor a hall's stair leaves: the hall has one door there. */
-const stairStarts = (room: RoomLayout) => room.isStairwell && hallOf(room).from === room.floorIndex;
+const hallOf = (room: RoomLayout) => BLOCK_HALLS.find((h) => h.key === keyOf(room));
+/** A stair hall: an end of the spine, with a grand stair on every floor. */
+const isStairHall = (room: RoomLayout) => hallOf(room)?.design === "loggia";
+const isCourt = (room: RoomLayout) => hallOf(room)?.design === "court";
+const isSpiral = (room: RoomLayout) => BLOCK_SPIRALS.some((s) => s.key === keyOf(room));
+/** The grand stairs of a hall, lowest first. */
+const stairsOf = (key: string) =>
+  layout
+    .grandStairs!.filter((s) => s.id.startsWith(`${key}-`))
+    .sort((a, b) => a.lowerFloor - b.lowerFloor);
 const wallOf = (room: RoomLayout) =>
   computeRoomRuns(room).reduce((sum, run) => sum + runLength(run), 0);
+const metres = (cells: number) => cells * CELL_SIZE;
+const top = layout.floors.length - 1;
 
 describe("the block plan", () => {
-  it("is four floors: a spine of three halls and two galleries between two ranges", () => {
+  it("is four floors of one plan: two stair halls, a court, two spirals and six galleries", () => {
     expect(layout.floors).toHaveLength(4);
     for (const floor of layout.floors) {
-      const plan = BLOCK_PLAN[floor.index];
-      const joined = plan.merges.reduce((n, merge) => n + merge.length - 1, 0);
-      // A hall is a stair hall from the floor its stair leaves; under
-      // that its square hangs works.
-      const halls = BLOCK_HALLS.filter((h) => h.from <= floor.index).length;
       expect(floor.gridSize).toEqual(BLOCK_GRID);
-      expect(floor.rooms.filter((r) => r.isStairwell)).toHaveLength(halls);
-      expect(floor.rooms.filter((r) => !r.isStairwell)).toHaveLength(12 + (3 - halls) - joined);
-      // Every square that hangs works is in one era, once.
-      const cells = plan.zones.flatMap((z) => [...z.cells]);
-      expect(cells).toHaveLength(12 + (3 - halls));
-      expect(new Set(cells).size).toBe(cells.length);
-      expect(blockFloorRooms(floor.index).cells).toEqual(cells);
+      expect(floor.rooms.filter(isStairHall)).toHaveLength(2);
+      expect(floor.rooms.filter(isCourt)).toHaveLength(1);
+      expect(floor.rooms.filter(isSpiral)).toHaveLength(2);
+      expect(floor.rooms.filter((r) => r.isStairwell)).toHaveLength(5);
+      expect(floor.rooms.filter((r) => !r.isStairwell)).toHaveLength(BLOCK_ROOMS.length);
+      // Every gallery is in one era, once.
+      const cells = BLOCK_PLAN[floor.index].zones.flatMap((z) => [...z.cells]);
+      expect([...cells].sort()).toEqual(BLOCK_ROOMS.map((r) => r.key).sort());
     }
-    // One grand stair to a hall, and no spiral.
-    expect(layout.allStaircases).toHaveLength(0);
-    expect(layout.grandStairs).toHaveLength(3);
-    expect(layout.floors.map((f) => f.grandStairsOut!.length)).toEqual([1, 1, 1, 0]);
-    expect(layout.floors.map((f) => f.grandStairsIn!.length)).toEqual([0, 1, 1, 1]);
-    expect(layout.floors.map((f) => f.grandHalls!.length)).toEqual([1, 2, 3, 3]);
+    // A grand stair from each floor to the next in both stair halls, the
+    // court's one opening, and a spiral from each floor to the next in
+    // both towers.
+    expect(layout.grandStairs).toHaveLength(7);
+    expect(layout.allStaircases).toHaveLength(6);
+    expect(layout.floors.map((f) => f.grandStairsOut!.length)).toEqual([3, 2, 2, 0]);
+    expect(layout.floors.map((f) => f.grandStairsIn!.length)).toEqual([0, 3, 2, 2]);
+    expect(layout.floors.map((f) => f.grandHalls!.length)).toEqual([3, 5, 5, 3]);
+    expect(layout.floors.map((f) => f.stairsOut.length)).toEqual([2, 2, 2, 0]);
+    expect(layout.floors.map((f) => f.stairsIn.length)).toEqual([0, 2, 2, 2]);
   });
 
-  it("stands a stair hall in the middle of the spine and one at each end", () => {
-    const [west, centre, east] = BLOCK_HALLS.map((h) => h.rect);
-    for (const r of [west, centre, east]) {
-      expect((r.xMax - r.xMin + 1) * CELL_SIZE).toBe(27.5);
-      expect((r.zMax - r.zMin + 1) * CELL_SIZE).toBe(27.5);
+  it("stands a stair hall at each end of the spine and the court in its middle", () => {
+    const [west, court, east] = BLOCK_HALLS.map((h) => h.rect);
+    expect(BLOCK_HALLS.map((h) => h.design)).toEqual(["loggia", "court", "loggia"]);
+    for (const r of [west, court, east]) {
+      expect(metres(r.xMax - r.xMin + 1)).toBe(27.5);
+      expect(metres(r.zMax - r.zMin + 1)).toBe(27.5);
       // All three in the middle row.
-      expect(r.zMin).toBe(centre.zMin);
+      expect(r.zMin).toBe(court.zMin);
     }
     expect(west.xMin).toBe(0);
     expect(east.xMax).toBe(BLOCK_GRID.x - 1);
-    expect(centre.xMin + centre.xMax).toBe(BLOCK_GRID.x - 1);
+    expect(court.xMin + court.xMax).toBe(BLOCK_GRID.x - 1);
     // A gallery of 17.5 m between each pair.
-    expect((centre.xMin - west.xMax - 1) * CELL_SIZE).toBe(17.5);
-    expect((east.xMin - centre.xMax - 1) * CELL_SIZE).toBe(17.5);
+    expect(metres(court.xMin - west.xMax - 1)).toBe(17.5);
+    expect(metres(east.xMin - court.xMax - 1)).toBe(17.5);
     for (const floor of layout.floors) {
-      // No stair hall has a door to another, or a wall in common.
-      const halls = floor.rooms.filter((r) => r.isStairwell);
+      // No two rooms with a grand stair or a void share a wall.
+      const halls = floor.rooms.filter((r) => isStairHall(r) || isCourt(r));
       for (const hall of halls) {
         for (const other of halls) {
           if (other !== hall) expect(sideToward(hall, other), hall.id).toBeNull();
@@ -140,65 +145,171 @@ describe("the block plan", () => {
     }
   });
 
-  it("enters a stair hall only where its stair starts", () => {
+  it("stands a spiral north and south of the court, through every floor", () => {
+    const court = BLOCK_HALLS[1].rect;
+    for (const shaft of BLOCK_SPIRALS) {
+      const r = shaft.rect;
+      // A room of its own, 22.5 × 17.5 m, on the court's short axis.
+      expect(metres(r.xMax - r.xMin + 1)).toBe(22.5);
+      expect(metres(r.zMax - r.zMin + 1)).toBe(17.5);
+      expect(r.xMin + r.xMax).toBe(court.xMin + court.xMax);
+      const cx = metres(r.xMin + r.xMax + 1) / 2;
+      const cz = metres(r.zMin + r.zMax + 1) / 2;
+      const flights = layout.allStaircases.filter((s) => s.id.startsWith(`${shaft.key}-`));
+      expect(flights.map((s) => [s.lowerFloor, s.upperFloor])).toEqual([
+        [0, 1],
+        [1, 2],
+        [2, 3],
+      ]);
+      for (const s of flights) {
+        expect(s.centerX).toBe(cx);
+        expect(s.centerZ).toBe(cz);
+        // Its first step faces the court's door.
+        expect(Math.sin(s.entryAngle)).toBeCloseTo(shaft.door === "south" ? 1 : -1, 9);
+      }
+      // Floor to walk round the well on every side.
+      expect(metres(r.zMax - r.zMin + 1) / 2 - SPIRAL_OUTER_RADIUS).toBeGreaterThan(3);
+      for (const floor of layout.floors) {
+        const room = roomOf(floor.index, shaft.key);
+        expect(room.isStairwell).toBe(true);
+        // A spiral's well is cut by rule, not from a stair's opening.
+        expect(room.floorOpening).toBeUndefined();
+        expect(room.ceilingOpening).toBeUndefined();
+        expect(room.placements).toHaveLength(0);
+        const door = room.doors.find((d) => d.side === shaft.door)!;
+        expect(keyOf(layout.allRooms.find((x) => x.id === door.connectsTo.roomId)!)).toBe("court");
+        expect(door.width).toBe(PORTAL_WIDTH);
+        expect(door.worldX).toBe(cx);
+        // And a door to the gallery on either side.
+        expect(room.doors.map((d) => d.side).sort()).toEqual(["east", "west", shaft.door].sort());
+      }
+    }
+  });
+
+  it("enters a stair hall by one door on every floor: the portal its stair faces", () => {
     for (const floor of layout.floors) {
-      for (const hall of floor.rooms.filter((r) => r.isStairwell)) {
-        const neighbours = floor.rooms.filter((r) => r !== hall && sideToward(hall, r));
-        if (!stairStarts(hall)) {
-          // Over the stair the hall is a balcony round its void: a door
-          // to every neighbour, but across its sheer wall.
-          expect(hall.doors, hall.id).toHaveLength(
-            neighbours.filter((r) => sideToward(hall, r) !== hall.sheer?.side).length,
-          );
-          continue;
-        }
-        // One door, a portal, in the wall the stair faces.
+      for (const hall of floor.rooms.filter(isStairHall)) {
         expect(hall.doors, hall.id).toHaveLength(1);
         const [door] = hall.doors;
-        expect(door.side).toBe(hallFront(hallOf(hall)));
+        expect(door.side).toBe(hallFront(hallOf(hall)!));
         expect(door.width).toBe(PORTAL_WIDTH);
         // The design is drawn with the visitor coming in from +z, the
         // foot of its first flight toward them: the door is there.
-        const stair = stairOf(hall);
+        const [stair] = stairsOf(keyOf(hall));
         const at = toStairLocal(stair, door.worldX, door.worldZ);
         expect(at.x).toBeCloseTo(0, 9);
         expect(at.z).toBeCloseTo(stair.half, 9);
+        // It opens on the spine's gallery.
+        const from = floor.rooms.find((r) => r.id === door.connectsTo.roomId)!;
+        expect(keyOf(from)).toBe(keyOf(hall) === "hall-w" ? "cw" : "ce");
       }
     }
-    // The middle stair is entered from the great hall, the outer two
-    // from the spine.
-    const from = (floorIndex: number, key: string) =>
-      keyOf(
-        layout.floors[floorIndex].rooms.find(
-          (r) => r.id === roomOf(floorIndex, key).doors[0].connectsTo.roomId,
-        )!,
-      );
-    expect(from(0, "hall-c")).toBe("s3");
-    expect(from(1, "hall-w")).toBe("cw");
-    expect(from(2, "hall-e")).toBe("ce");
   });
 
-  it("leaves no room a dead end, and every room in reach of the great hall", () => {
+  it("stacks a grand stair on every floor of each stair hall, the hall open behind it", () => {
+    for (const key of ["hall-w", "hall-e"]) {
+      const stairs = stairsOf(key);
+      expect(stairs.map((s) => [s.lowerFloor, s.upperFloor, s.topFloor])).toEqual([
+        [0, 1, 1],
+        [1, 2, 2],
+        [2, 3, 3],
+      ]);
+      stairs.forEach((stair, i) => {
+        expect(stair.design).toBe("loggia");
+        expect(stair.hasFlightBelow).toBe(i > 0);
+        expect(stair.hasFlightAbove).toBe(i < stairs.length - 1);
+        expect(stair.sheerWall).toBe(true);
+        // The void reaches three walls.
+        expect(openingReach(stair.opening)).toBe(stair.half);
+      });
+      for (const floor of layout.floors) {
+        const hall = roomOf(floor.index, key);
+        expect(hall.isStairwell).toBe(true);
+        expect(metres(hall.cellBounds.xMin)).toBe(stairs[0].centerX - stairs[0].half);
+        // A hole in every floor over the first, and in every ceiling but
+        // the roof, which is glazed.
+        expect(hall.floorOpening === null).toBe(floor.index === 0);
+        expect(hall.ceilingOpening === null).toBe(floor.index === top);
+        expect(hall.stairGlyph).toBe(
+          floor.index === 0 ? "up" : floor.index === top ? "down" : "both",
+        );
+        // The end wall of the building stands sheer behind the stair.
+        expect(hall.sheer?.side).toBe(key === "hall-w" ? "west" : "east");
+        expect(hall.sheer?.depth).toBeCloseTo(11.45, 6);
+        // A visitor sent to the hall lands on its floor, inside its door.
+        const arrival = blockArrivalPoint(layout, hall);
+        const here = grandStairsAt(layout.grandStairs!, arrival.x, arrival.z, floor.y);
+        expect(grandSurfaceAt(here, arrival.x, arrival.z, floor.y)?.floorIndex).toBe(floor.index);
+        expect(
+          hall.doors.some((d) => nearDoor(d, arrival)),
+          hall.id,
+        ).toBe(true);
+      }
+    }
+    // Each rises away from the middle of the building.
+    expect(stairsOf("hall-w")[0].turns).toBe(3);
+    expect(stairsOf("hall-e")[0].turns).toBe(1);
+  });
+
+  it("opens the court from its floor to the roof, a portal in each wall on every floor", () => {
+    const stairs = stairsOf("court");
+    expect(stairs).toHaveLength(1);
+    const [court] = stairs;
+    expect(court.design).toBe("court");
+    expect(court.patches).toHaveLength(0);
+    expect([court.lowerFloor, court.topFloor]).toEqual([0, top]);
+    // 5 m of gallery inside every wall on the floors above.
+    expect(court.half - openingReach(court.opening)).toBe(5);
+    for (const floor of layout.floors) {
+      const room = roomOf(floor.index, "court");
+      expect(room.isAnchor).toBe(true);
+      expect(floor.rooms.filter((r) => r.isAnchor)).toHaveLength(1);
+      expect(room.floorOpening === null).toBe(floor.index === 0);
+      expect(room.ceilingOpening === null).toBe(floor.index === top);
+      expect(room.stairGlyph).toBe("void");
+      expect(room.sheer).toBeUndefined();
+      expect(room.doors.map((d) => d.side).sort()).toEqual(["east", "north", "south", "west"]);
+      for (const d of room.doors) expect(d.width).toBe(PORTAL_WIDTH);
+      const arrival = blockArrivalPoint(layout, room);
+      const here = grandStairsAt(layout.grandStairs!, arrival.x, arrival.z, floor.y);
+      expect(here).toEqual([court]);
+      expect(grandSurfaceAt(here, arrival.x, arrival.z, floor.y)?.floorIndex).toBe(floor.index);
+    }
+  });
+
+  it("seats the court's floor in front of its north and south walls, clear of its doors", () => {
+    const court = roomOf(0, "court");
+    expect(court.benches).toHaveLength(8);
+    const cx = (court.worldRect.xMin + court.worldRect.xMax) / 2;
+    const cz = (court.worldRect.zMin + court.worldRect.zMax) / 2;
+    for (const bench of court.benches) {
+      expect(bench.along).toBe("x");
+      // Beside both lines between the doors, by 3 m and more.
+      expect(Math.abs(bench.x - cx) - 1).toBeGreaterThan(PORTAL_WIDTH / 2 + 3);
+      expect(Math.abs(bench.z - cz)).toBeGreaterThan(PORTAL_WIDTH / 2 + 3);
+    }
+    // Alike in all four quarters.
+    const quarters = new Set(
+      court.benches.map((b) => `${Math.sign(b.x - cx)}:${Math.sign(b.z - cz)}`),
+    );
+    expect(quarters.size).toBe(4);
+    expect(new Set(court.benches.map((b) => Math.abs(b.x - cx).toFixed(3))).size).toBe(1);
+    // The floors above are a gallery 5 m wide: no seat.
+    for (const floor of layout.floors.slice(1)) {
+      expect(roomOf(floor.index, "court").benches).toHaveLength(0);
+    }
+    for (const room of layout.allRooms.filter((r) => isStairHall(r) || isSpiral(r))) {
+      expect(room.benches, room.id).toHaveLength(0);
+    }
+  });
+
+  it("leaves no gallery a dead end, and every room in reach of the court", () => {
     for (const floor of layout.floors) {
       for (const room of floor.rooms.filter((r) => !r.isStairwell)) {
         expect(room.doors.length, room.id).toBeGreaterThanOrEqual(2);
       }
-      // A corner room beside an end hall with one door is the far end
-      // of a long gallery.
-      const { keyOf: joinedKey } = blockFloorRooms(floor.index);
-      for (const [hall, column] of [
-        ["hall-w", 1],
-        ["hall-e", 5],
-      ] as const) {
-        if (!stairStarts(roomOf(floor.index, hall))) continue;
-        for (const row of ["n", "s"]) {
-          const cell = `${row}${column}`;
-          expect(joinedKey(cell), `${floor.index} ${cell}`).not.toBe(cell);
-        }
-      }
     }
-    // Through doors, and up and down each stair between the two floors
-    // of its hall it joins.
+    // Through doors, and up and down every stair.
     const byId = new Map(layout.allRooms.map((r) => [r.id, r]));
     const start = layout.floors[0].rooms.find((r) => r.isAnchor)!;
     const seen = new Set([start.id]);
@@ -206,15 +317,10 @@ describe("the block plan", () => {
     while (queue.length > 0) {
       const room = queue.pop()!;
       const next = room.doors.map((d) => byId.get(d.connectsTo.roomId)!);
-      if (room.isStairwell) {
-        const stair = stairOf(room);
-        const other =
-          room.floorIndex === stair.lowerFloor
-            ? stair.upperFloor
-            : room.floorIndex === stair.upperFloor
-              ? stair.lowerFloor
-              : null;
-        if (other !== null) next.push(roomOf(other, keyOf(room)));
+      if (isStairHall(room) || isSpiral(room)) {
+        for (const other of [room.floorIndex - 1, room.floorIndex + 1]) {
+          if (other >= 0 && other <= top) next.push(roomOf(other, keyOf(room)));
+        }
       }
       for (const n of next) {
         if (seen.has(n.id)) continue;
@@ -223,74 +329,27 @@ describe("the block plan", () => {
       }
     }
     expect(layout.allRooms.filter((r) => !seen.has(r.id)).map((r) => r.id)).toEqual([]);
-  });
-
-  it("gives each hall one stair, open above it to the roof", () => {
-    const top = layout.floors.length - 1;
-    expect(new Set(layout.grandStairs!.map((s) => s.design)).size).toBe(3);
-    // The way up goes through all three: each stair starts on the floor
-    // the last one arrives on.
-    const byFloor = [...layout.grandStairs!].sort((a, b) => a.lowerFloor - b.lowerFloor);
-    expect(byFloor.map((s) => [s.lowerFloor, s.upperFloor])).toEqual([
-      [0, 1],
-      [1, 2],
-      [2, 3],
-    ]);
-    expect(byFloor[0].id.startsWith("hall-c")).toBe(true);
-    for (const stair of layout.grandStairs!) {
-      expect(stair.topFloor).toBe(top);
-      expect(stair.hasFlightAbove).toBe(false);
-      expect(stair.hasFlightBelow).toBe(false);
-      // 5 m or more of floor between the opening and every wall, but
-      // for the middle hall's sheer wall, which the void reaches.
-      if (stair.sheerWall) expect(openingReach(stair.opening)).toBe(stair.half);
-      else expect(stair.half - openingReach(stair.opening)).toBeGreaterThanOrEqual(5);
-      const key = stair.id.replace(/-\d-to-\d$/, "");
-      for (const floor of layout.floors) {
-        const hall = floor.rooms.find((r) => keyOf(r) === key)!;
-        const inHall = floor.index >= stair.lowerFloor;
-        expect(hall.isStairwell, hall.id).toBe(inHall);
-        if (!inHall) {
-          // Under the hall: a gallery with works on its walls.
-          expect(hall.placements.length).toBeGreaterThan(0);
-          expect(hall.floorOpening).toBeUndefined();
-          continue;
+    // Without the stairs, a floor is one piece too.
+    for (const floor of layout.floors) {
+      const reached = new Set([roomOf(floor.index, "court").id]);
+      const todo = [roomOf(floor.index, "court")];
+      while (todo.length > 0) {
+        for (const d of todo.pop()!.doors) {
+          if (reached.has(d.connectsTo.roomId)) continue;
+          reached.add(d.connectsTo.roomId);
+          todo.push(byId.get(d.connectsTo.roomId)!);
         }
-        expect(hall.cellBounds.xMin * CELL_SIZE).toBe(stair.centerX - stair.half);
-        expect((hall.cellBounds.zMax + 1) * CELL_SIZE).toBe(stair.centerZ + stair.half);
-        // A hole in the floor from the stair's head up, and in the
-        // ceiling all the way to the top floor, which is glazed.
-        expect(hall.floorOpening === null).toBe(floor.index === stair.lowerFloor);
-        expect(hall.ceilingOpening === null).toBe(floor.index === top);
-        expect(hall.stairGlyph).toBe(
-          floor.index === stair.lowerFloor
-            ? "up"
-            : floor.index === stair.upperFloor
-              ? "down"
-              : "void",
-        );
-        // A visitor sent to the hall lands on its floor, inside the
-        // portal its stair faces.
-        const arrival = blockArrivalPoint(layout, hall);
-        const stairs = grandStairsAt(layout.grandStairs!, arrival.x, arrival.z, floor.y);
-        expect(stairs).toEqual([stair]);
-        expect(grandSurfaceAt(stairs, arrival.x, arrival.z, floor.y)?.floorIndex).toBe(floor.index);
-        const door = hall.doors.find((d) => d.width === PORTAL_WIDTH && nearDoor(d, arrival));
-        expect(door, `${hall.id} arrives by a portal`).toBeDefined();
       }
+      expect(reached.size, `floor ${floor.index}`).toBe(floor.rooms.length);
     }
-    // The middle stair rises north, away from the great hall; the outer
-    // two rise away from the middle hall.
-    const turns = Object.fromEntries(layout.grandStairs!.map((s) => [s.id.slice(0, 6), s.turns]));
-    expect(turns).toEqual({ "hall-w": 3, "hall-c": 0, "hall-e": 1 });
   });
 
   it("seats every gallery on the lines of the room, never in a passage", () => {
     for (const floor of layout.floors) {
       for (const room of floor.rooms.filter((r) => !r.isStairwell)) {
-        // A gallery of the spine with a portal in both long walls is a
-        // crossing of two walking lines, and every line of its panels
-        // is one of them: no seat.
+        // A gallery of the spine is a crossing of two walking lines.
+        // With rows of panels every line of them is one of the two: no
+        // seat. Between wing walls it has one.
         const crossing = room.doors.filter((d) => d.width === PORTAL_WIDTH).length === 2;
         if (!crossing) expect(room.benches.length, room.id).toBeGreaterThan(0);
         const b = room.cellBounds;
@@ -342,6 +401,13 @@ describe("the block plan", () => {
               false,
             );
           });
+          // Never in the line of a door in the wall beside it.
+          for (const door of room.doors.filter((d) => d.side === "north" || d.side === "south")) {
+            const sameSide = (door.side === "north") === bench.z < (z0 + z1) / 2;
+            if (sameSide && bench.along === "x" && set.kind === "rows") {
+              expect(Math.abs(bench.x - door.worldX), room.id).toBeGreaterThan(door.width / 2 + 1);
+            }
+          }
         });
       }
     }
@@ -355,32 +421,6 @@ describe("the block plan", () => {
     expect(island).toHaveLength(2);
     expect(island.reduce((sum, bench) => sum + bench.x, 0) / 2).toBeCloseTo(8.75, 6);
     expect(island.reduce((sum, bench) => sum + bench.z, 0) / 2).toBeCloseTo(8.75, 6);
-    // A small room with a door in three walls is walked straight through
-    // one way: its island stands on its centre line, in front of the
-    // wall without a door. This one has a screen at its third door, and
-    // the island's other bench looks at the screen's picture.
-    const small = roomOf(0, "s2");
-    expect(small.dividers.map((d) => d.bare)).toEqual(["low"]);
-    expect(small.doors.map((d) => d.side).sort()).toEqual(["east", "north", "west"]);
-    expect(small.benches).toHaveLength(2);
-    const cx = ((small.cellBounds.xMin + small.cellBounds.xMax + 1) / 2) * CELL_SIZE;
-    const cz = ((small.cellBounds.zMin + small.cellBounds.zMax + 1) / 2) * CELL_SIZE;
-    for (const bench of small.benches) {
-      expect(bench.x).toBeCloseTo(cx, 6);
-      expect(bench.z).toBeGreaterThan(cz + 2.5);
-    }
-    // A long gallery's benches stand in the gaps of its rows of panels,
-    // and none in the line of a door in the wall beside it.
-    const gallery = roomOf(1, "s1");
-    expect(gallery.benches.length).toBeGreaterThanOrEqual(3);
-    for (const bench of gallery.benches) {
-      for (const door of gallery.doors.filter((d) => d.side === "north" || d.side === "south")) {
-        const sameSide =
-          (door.side === "north") ===
-          bench.z < (gallery.worldRect.zMin + gallery.worldRect.zMax) / 2;
-        if (sameSide) expect(Math.abs(bench.x - door.worldX)).toBeGreaterThan(door.width / 2 + 1);
-      }
-    }
   });
 
   it("hangs a work centred in front of every bench", () => {
@@ -406,7 +446,7 @@ describe("the block plan", () => {
         if (!faced) unmatched.push(`${room.id} (${bench.x}, ${bench.z})`);
       }
     }
-    expect(benches).toBeGreaterThan(60);
+    expect(benches).toBeGreaterThan(40);
     expect(unmatched).toEqual([]);
   });
 
@@ -414,7 +454,10 @@ describe("the block plan", () => {
     const overlaps: string[] = [];
     let led = 0;
     let rooms = 0;
-    for (const room of layout.allRooms.filter((r) => !r.isStairwell && !r.isAnchor)) {
+    // A gallery with no seat has no work to lead with.
+    const seated = layout.allRooms.filter((r) => !r.isStairwell && r.benches.length > 0);
+    expect(seated.length).toBeGreaterThanOrEqual(16);
+    for (const room of seated) {
       // Works on one surface, by their place along it.
       const bySurface = new Map<string, Array<{ at: number; half: number; id: string }>>();
       for (const p of room.placements) {
@@ -492,12 +535,23 @@ describe("the block plan", () => {
       expect(kinds.size, floor.title).toBeGreaterThanOrEqual(4);
     }
     expect(twins).toEqual([]);
-    // The square under a stair hall is the one room large enough for a
-    // pinwheel: four panels, two each way, and a bench in front of each.
-    const square = roomOf(0, "hall-w");
-    expect(arrangementOf(square.cellBounds, square.dividers).kind).toBe("pinwheel");
-    expect(square.dividers).toHaveLength(4);
-    expect(square.benches).toHaveLength(4);
+    // Two rooms that share a door are not of one kind either: rows
+    // beside wing walls, or the other way round.
+    for (const floor of layout.floors) {
+      for (const [a, b] of [
+        ["nw", "cw"],
+        ["sw", "cw"],
+        ["ne", "ce"],
+        ["se", "ce"],
+      ]) {
+        const kinds = [a, b].map((key) => {
+          const room = roomOf(floor.index, key);
+          const walls = room.dividers.filter((d) => !d.bare);
+          return `${arrangementOf(room.cellBounds, room.dividers).kind}:${Math.max(0, ...walls.map((d) => d.end - d.start))}`;
+        });
+        expect(kinds[0], `${floor.title} ${a} and ${b}`).not.toBe(kinds[1]);
+      }
+    }
     // Walls of 5 m, 7.5 m and 12.5 m.
     const lengths = new Set(
       layout.floors.flatMap((f) =>
@@ -514,9 +568,7 @@ describe("the block plan", () => {
       const sides = new Set<string>();
       for (const [cell, toward] of plan.screens) {
         const room = roomOf(floor.index, cell);
-        const other = floor.rooms.find(
-          (r) => keyOf(r) === blockFloorRooms(floor.index).keyOf(toward),
-        );
+        const other = floor.rooms.find((r) => keyOf(r) === toward);
         const door = room.doors.find((d) => d.connectsTo.roomId === other?.id);
         expect(door, `${room.id} has a door to ${toward}`).toBeDefined();
         if (!door || !other) continue;
@@ -559,8 +611,7 @@ describe("the block plan", () => {
         const largest = Math.max(...fitting.map((p) => p.widthM * p.heightM));
         expect(work.widthM * work.heightM, room.id).toBeCloseTo(largest, 6);
       }
-      // No screen but those, and none in a stair hall or a composed
-      // great hall.
+      // No screen but those, and none in a hall or a stair's room.
       const all = floor.rooms.flatMap((r) => r.dividers.filter((d) => d.bare));
       expect(all, floor.title).toHaveLength(plan.screens.length);
     }
@@ -620,20 +671,24 @@ describe("the block plan", () => {
     }
   });
 
-  it("gives every room a door to every neighbour, but into the side or back of a stair", () => {
+  it("gives every room a door to every neighbour, but into the side of a stair hall", () => {
     for (const floor of layout.floors) {
-      // The one wall of a hall that has a door on the floor its stair
-      // leaves; on the floors above any wall but a sheer one, which has
-      // the hall's void against it.
+      // A stair hall opens in the one wall its stair faces.
       const opens = (a: RoomLayout, b: RoomLayout) =>
-        stairStarts(a)
-          ? sideToward(a, b) === hallFront(hallOf(a))
-          : sideToward(a, b) !== a.sheer?.side;
+        !isStairHall(a) || sideToward(a, b) === hallFront(hallOf(a)!);
       for (const a of floor.rooms) {
         const neighbours = floor.rooms
           .filter((b) => b !== a && sideToward(a, b) && opens(a, b) && opens(b, a))
           .map((b) => b.id);
         expect(a.doors.map((d) => d.connectsTo.roomId).sort(), a.id).toEqual(neighbours.sort());
+      }
+      // A long gallery meets the court at its corner, along one cell:
+      // no door there.
+      for (const key of ["nw", "ne", "sw", "se"]) {
+        const gallery = roomOf(floor.index, key);
+        expect(
+          gallery.doors.some((d) => d.connectsTo.roomId === roomOf(floor.index, "court").id),
+        ).toBe(false);
       }
     }
   });
@@ -670,93 +725,76 @@ describe("the block plan", () => {
     }
   });
 
-  it("lines the doors up along the spine, the short axis and both ranges", () => {
+  it("lines the doors up along the spine, across the court and along both ranges", () => {
     for (const floor of layout.floors) {
       const door = (from: string, to: string) => {
         const a = roomOf(floor.index, from);
         const b = roomOf(floor.index, to);
         return a.doors.find((d) => d.connectsTo.roomId === b.id);
       };
-      // The spine: portals in one line from end to end. On the first
-      // floor the middle hall has its one door to the south, so the
-      // line stops either side of it.
-      const spine = ["hall-w", "cw", "hall-c", "ce", "hall-e"];
+      // The spine: portals in one line from one grand stair to the other.
+      const spine = ["hall-w", "cw", "court", "ce", "hall-e"];
       const spineDoors = spine.slice(1).flatMap((key, i) => door(spine[i], key) ?? []);
-      expect(spineDoors).toHaveLength(floor.index === 0 ? 2 : 4);
+      expect(spineDoors).toHaveLength(4);
       expect(new Set(spineDoors.map((d) => d.worldZ)).size).toBe(1);
       for (const d of spineDoors) expect(d.width).toBe(PORTAL_WIDTH);
-      // The short axis through the middle stair hall.
-      expect(door("hall-c", "s3")!.width).toBe(PORTAL_WIDTH);
-      // Its north end is the hall's sheer wall: no door on any floor.
-      expect(door("n3", "hall-c")).toBeUndefined();
-      // Both ranges of five: the doors that are left once rooms are joined.
-      for (const row of ["n", "s"]) {
-        const doors = [1, 2, 3, 4].flatMap((i) => door(`${row}${i}`, `${row}${i + 1}`) ?? []);
-        expect(new Set(doors.map((d) => d.worldZ)).size, row).toBe(1);
+      // The short axis: from one spiral through the court to the other.
+      const cross = [door("stair-n", "court")!, door("court", "stair-s")!];
+      expect(new Set(cross.map((d) => d.worldX)).size).toBe(1);
+      for (const d of cross) expect(d.width).toBe(PORTAL_WIDTH);
+      // The two axes cross in the middle of the court.
+      const court = roomOf(floor.index, "court").worldRect;
+      expect(cross[0].worldX).toBeCloseTo((court.xMin + court.xMax) / 2, 9);
+      expect(spineDoors[0].worldZ).toBeCloseTo((court.zMin + court.zMax) / 2, 9);
+      // Each range: a door either side of its stair tower, in one line.
+      for (const [w, stair, e] of [
+        ["nw", "stair-n", "ne"],
+        ["sw", "stair-s", "se"],
+      ]) {
+        const doors = [door(w, stair)!, door(stair, e)!];
+        expect(new Set(doors.map((d) => d.worldZ)).size).toBe(1);
+        for (const d of doors) expect(d.width).toBe(BLOCK_DOOR_WIDTH);
       }
-      // The three rows share their columns, so a room that is one square
-      // of the diagram has each door in the middle of its wall.
-      const { rooms } = blockFloorRooms(floor.index);
-      for (const { key, cells } of rooms.filter((r) => r.cells.length === 1)) {
+      // A gallery of the spine has each door in the middle of its wall.
+      for (const key of ["cw", "ce"]) {
         const room = roomOf(floor.index, key);
         const cx = ((room.cellBounds.xMin + room.cellBounds.xMax + 1) / 2) * CELL_SIZE;
         const cz = ((room.cellBounds.zMin + room.cellBounds.zMax + 1) / 2) * CELL_SIZE;
+        expect(room.doors).toHaveLength(4);
         for (const d of room.doors) {
-          const other = floor.rooms.find((r) => r.id === d.connectsTo.roomId)!;
-          // A door to a long gallery is in the middle of this room's
-          // wall too: the gallery's wall is longer, never shorter.
           const along = d.side === "north" || d.side === "south" ? d.worldX - cx : d.worldZ - cz;
-          expect(along, `${cells[0]} to ${other.id}`).toBeCloseTo(0, 9);
+          expect(along, `${key} ${d.side}`).toBeCloseTo(0, 9);
         }
       }
     }
   });
 
-  it("joins neighbours of a row into long galleries, differently on each floor", () => {
-    const shapes = new Set<string>();
+  it("stands walls in every gallery, and names how for each floor", () => {
     for (const floor of layout.floors) {
       const plan = BLOCK_PLAN[floor.index];
-      expect(plan.merges.length).toBeGreaterThan(0);
-      shapes.add(JSON.stringify(plan.merges));
-      for (const merge of plan.merges) {
-        const gallery = roomOf(floor.index, merge[0]);
-        for (const cell of merge) expect(roomOf(floor.index, cell)).toBe(gallery);
-        const b = gallery.cellBounds;
-        // One row deep, 45 m or more long, and divided: rows of panels
-        // down each side of its nave, or wing walls.
-        expect(b.zMax - b.zMin + 1).toBe(7);
-        expect((b.xMax - b.xMin + 1) * CELL_SIZE).toBeGreaterThanOrEqual(45);
-        expect(gallery.dividers.length).toBeGreaterThanOrEqual(2);
-        expect(gallery.roomNumber).not.toBeNull();
+      for (const { key } of BLOCK_ROOMS) {
+        const room = roomOf(floor.index, key);
+        expect(room.dividers.filter((d) => !d.bare).length, room.id).toBeGreaterThan(0);
+        // A room the plan does not name takes rows of panels.
+        const kind = arrangementOf(room.cellBounds, room.dividers).kind;
+        const style = plan.styles[key] ?? "rows";
+        expect(kind, room.id).toBe(style === "bays" || style === "staggered" ? "wings" : "rows");
       }
-    }
-    expect(shapes.size).toBe(layout.floors.length);
-    // The north gallery of the first floor: three rooms, 62.5 m, behind
-    // the middle stair hall. Three panels a side between its two doors
-    // to the spine, a panel's length apart.
-    const north = roomOf(0, "n3");
-    expect((north.cellBounds.xMax - north.cellBounds.xMin + 1) * CELL_SIZE).toBe(62.5);
-    expect(north.dividers).toHaveLength(6);
-    const starts = [...new Set(north.dividers.map((d) => d.start))].sort((p, q) => p - q);
-    expect(starts.slice(1).map((v, i) => v - starts[i])).toEqual([6, 6]);
-  });
-
-  it("stands dividers in the large rooms and leaves a composed great hall open", () => {
-    for (const floor of layout.floors) {
-      for (const key of ["n1", "n3", "n5", "s1", "s5", "cw", "ce"]) {
-        expect(roomOf(floor.index, key).dividers.length, key).toBeGreaterThan(0);
+      for (const key of ["nw", "ne", "sw", "se"]) {
+        const b = roomOf(floor.index, key).cellBounds;
+        expect(metres(b.zMax - b.zMin + 1)).toBe(17.5);
+        expect(metres(b.xMax - b.xMin + 1)).toBe(47.5);
       }
-      const hall = roomOf(floor.index, "s3");
-      expect(hall.isAnchor).toBe(true);
-      expect(floor.rooms.filter((r) => r.isAnchor)).toHaveLength(1);
-      // Joined to its neighbour it is a long gallery, hung like one.
-      const joined = keyOf(hall) !== "s3";
-      expect(hall.dividers.length > 0).toBe(joined);
-      if (!joined) expect(hall.benches.length).toBeGreaterThan(0);
+      for (const key of Object.keys(plan.styles)) {
+        expect(
+          BLOCK_ROOMS.some((r) => r.key === key),
+          `${floor.title} ${key}`,
+        ).toBe(true);
+      }
     }
   });
 
-  it("hangs each era in rooms that touch, in route order", () => {
+  it("hangs each era in rooms that touch or stand either side of a stair tower", () => {
     for (const floor of layout.floors) {
       const zones = zonesOf(floor.index);
       for (const { zone, rooms } of zones) {
@@ -770,28 +808,32 @@ describe("the block plan", () => {
         }
       }
       // An era's rooms are one group: each is reached from the first
-      // through doors between them.
+      // through doors between them, or through a spiral's room.
+      const spirals = floor.rooms.filter(isSpiral);
       for (const { zone, rooms } of zones) {
         const reached = new Set([rooms[0].id]);
         const queue = [rooms[0]];
         while (queue.length > 0) {
           for (const d of queue.pop()!.doors) {
-            const next = rooms.find((r) => r.id === d.connectsTo.roomId);
+            const next = [...rooms, ...spirals].find((r) => r.id === d.connectsTo.roomId);
             if (!next || reached.has(next.id)) continue;
             reached.add(next.id);
             queue.push(next);
           }
         }
-        expect(reached.size, zone.era).toBe(rooms.length);
+        expect(
+          rooms.filter((r) => !reached.has(r.id)).map((r) => r.id),
+          zone.era,
+        ).toEqual([]);
       }
-      // No long gallery lies across two eras.
+      // Rooms are numbered along the walk.
       const all = zones.flatMap((z) => z.rooms);
       expect(new Set(all).size).toBe(all.length);
       expect(all).toHaveLength(floor.rooms.filter((r) => !r.isStairwell).length);
-      // Rooms are numbered along the walk, and the great hall ends it.
-      const numbered = [...all].sort((a, b) => a.roomNumber! - b.roomNumber!);
-      expect(numbered.map((r) => r.roomNumber)).toEqual(all.map((_, i) => i + 1));
-      expect(numbered[numbered.length - 1].isAnchor).toBe(true);
+      expect(all.map((r) => r.roomNumber)).toEqual(all.map((_, i) => i + 1));
+      for (const room of floor.rooms.filter((r) => r.isStairwell)) {
+        expect(room.roomNumber, room.id).toBeNull();
+      }
     }
   });
 
@@ -836,14 +878,16 @@ describe("the block plan", () => {
     expect(checked).toBeGreaterThan(50);
   });
 
-  it("starts a visit in the great hall, south of the middle stair", () => {
+  it("starts a visit on the floor of the court, inside its south door", () => {
     const [x, y, z] = layout.entry.worldPosition;
-    const hall = layout.floors[0].rooms.find((r) => r.isAnchor)!;
+    const court = layout.floors[0].rooms.find((r) => r.isAnchor)!;
+    expect(keyOf(court)).toBe("court");
     expect(y).toBe(0);
-    expect(x).toBeGreaterThan(hall.worldRect.xMin);
-    expect(x).toBeLessThan(hall.worldRect.xMax);
-    expect(z).toBeGreaterThan(hall.worldRect.zMin);
-    expect(z).toBeLessThan(hall.worldRect.zMax);
+    expect(x).toBeCloseTo((court.worldRect.xMin + court.worldRect.xMax) / 2, 9);
+    expect(z).toBeGreaterThan((court.worldRect.zMin + court.worldRect.zMax) / 2);
+    expect(z).toBeLessThan(court.worldRect.zMax);
+    const here = grandStairsAt(layout.grandStairs!, x, z, 0);
+    expect(grandSurfaceAt(here, x, z, 0)?.floorIndex).toBe(0);
   });
 
   it("has an identity of its own, so a visit saved in the tower starts afresh", () => {
