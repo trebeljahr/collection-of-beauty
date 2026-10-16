@@ -9,9 +9,9 @@
 // pools are one mesh for the whole room, drawn with the picture lights'
 // blend (painting-light.tsx): it multiplies what is on screen, so a pool
 // takes the wall's own colour. A fragment finds the can it stands under
-// from its position along the wall and adds that can and its two
-// neighbours, so 24 cans cost three evaluations a fragment, whatever
-// the length of the wall. The room adds five draw calls: ceiling,
+// from its position along the wall and adds that can and two each side,
+// so 24 cans cost five evaluations a fragment, whatever the length of
+// the wall. The room adds five draw calls: ceiling,
 // glass, glazing frame, pools, cans.
 //
 // On the floor the pools fade toward each doorway, as the picture
@@ -133,11 +133,15 @@ float lamp(float x) {
   return uLampI * max(mix(l.z, l.y, vFloor), 0.0) * spot / d2;
 }
 vec3 washLight() {
-  // The can nearest this fragment, then that one and its neighbours: a
-  // cone is narrower than two spacings. The cans stand vRow.x apart from
-  // -vRow.y to vRow.y, an odd count or an even one.
-  float x = floor((vWall.x + vRow.y) / vRow.x + 0.5) * vRow.x - vRow.y;
-  float e = lamp(x - vRow.x) + lamp(x) + lamp(x + vRow.x);
+  // The can nearest this fragment, then that one and two each side: under
+  // a storey of 8.4 m a cone reaches 5.2 m along the wall at its foot,
+  // more than a gap and a half. The cans stand vRow.x apart from -vRow.y
+  // to vRow.y, an odd count or an even one. Past the row's end the
+  // nearest can is the end can: unclamped, a fragment a gap beyond it
+  // counted no can at all, and the pool stopped in a vertical line.
+  float x = clamp(floor((vWall.x + vRow.y) / vRow.x + 0.5) * vRow.x - vRow.y, -vRow.y, vRow.y);
+  float e = lamp(x - 2.0 * vRow.x) + lamp(x - vRow.x) + lamp(x) + lamp(x + vRow.x)
+    + lamp(x + 2.0 * vRow.x);
   e = e / (1.0 + uShoulder * e);
   float k = 1.0 - smoothstep(uFog.x, uFog.y, vDepth);
   return uColor * e * k * vRow.z;

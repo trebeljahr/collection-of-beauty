@@ -135,14 +135,18 @@ export function fitWashRow(wallLength: number, ceilingY: number): WashRow {
 /**
  * A row whose end cans stand `halfSpan` either side of its middle, with
  * the count whose gap comes nearest WASH_TARGET_SPACING (an even count
- * when `even`). Under a metre of span it is one can on the middle.
+ * when `even`). Under half a gap of span it is one can on the middle:
+ * two cans that near hang over one work, and their pools merge into one
+ * with two crowns. A stair hall's 5.75 m stretch beside its landing,
+ * less WASH_CORNER_GAP, left 1.25 m, and Tintoretto's Magdalene hung
+ * under a pool shaped like a heart.
  *
  * A row that ends at a corner is set out from it: its end can stands
  * WASH_CORNER_GAP inside, so the two walls of a corner match.
  */
 export function spanWashRow(halfSpan: number, ceilingY: number, even = false): WashRow {
   const span = 2 * halfSpan;
-  if (span < 1) return washRow(1, WASH_TARGET_SPACING, ceilingY);
+  if (span < WASH_TARGET_SPACING / 2) return washRow(1, WASH_TARGET_SPACING, ceilingY);
   let best = 0;
   let bestMiss = Number.POSITIVE_INFINITY;
   for (let gaps = 1; gaps <= Math.ceil(span / WASH_TARGET_SPACING) + 1; gaps++) {
@@ -252,8 +256,10 @@ export function washWallRects(row: WashRow, wallLength: number, doors: WashDoor[
  *  few decimetres apart. */
 export const WASH_MIN_STRETCH = 1.5;
 /** How far along the wall a can's cone reaches at its widest, at the
- *  wall's foot. `stairwell-light-rig.test.ts` holds the cone to it. */
-export const WASH_SIDE_REACH = 3.75;
+ *  wall's foot under a storey's ceiling (5.15 m; 3.5 m under the 5.9 m
+ *  ceiling the stairwell had until 17 October 2026).
+ *  `stairwell-light-rig.test.ts` holds the cone to it. */
+export const WASH_SIDE_REACH = 5.25;
 /** The end can of a row stands at least this far inside its stretch. */
 const WASH_END_CLEAR = 0.6;
 
@@ -308,16 +314,19 @@ export function washStretches(
       corners.length > 0
         ? spanWashRow(Math.min(...corners.map((e) => Math.abs(e - c))) - WASH_CORNER_GAP, ceilingY)
         : fitWashRow(b - a, ceilingY);
-    // A fragment adds its own can and one each side. Past the row's end
-    // the nearest can it leaves out is a gap and a half away.
-    const wideRow = (r: WashRow) => 1.5 * r.spacing >= WASH_SIDE_REACH;
+    // A fragment adds its own can and two each side. Past the row's end
+    // the nearest can it leaves out is two gaps and a half away.
+    const wideRow = (r: WashRow) => 2.5 * r.spacing >= WASH_SIDE_REACH;
     let center = mid;
     let row = rowAbout(mid);
     // About the one work the stretch holds, where that takes as many cans
-    // and its end cans still stand inside the stretch. Between two corners the row stays on the
-    // middle, or one corner would get a can nearer than the other.
+    // and its end cans still stand inside the stretch. Between two
+    // corners a row stays on the middle, or one corner would get a can
+    // nearer than the other; a lone can goes over its work all the same
+    // (a stair hall's end wall beside the landing, whose stretch ends at
+    // the corner and at the landing).
     const held = works.filter((x) => x > a && x < b);
-    if (held.length === 1 && corners.length < 2 && wideRow(row)) {
+    if (held.length === 1 && (corners.length < 2 || row.count === 1) && wideRow(row)) {
       const shifted = rowAbout(held[0]);
       const halfSpan = ((shifted.count - 1) * shifted.spacing) / 2;
       if (

@@ -132,19 +132,22 @@ describe("fitWashRow", () => {
     expect(illuminance(row, [x, 0, row.floorReach - 0.5], true)).toBeGreaterThan(0);
   });
 
-  it("reaches no further than a can's two neighbours", () => {
-    // The shader adds three cans a fragment: its own and one each side.
-    // The nearest can it leaves out is a gap and a half away, so a cone
-    // that reached that far would be cut off in a visible line.
-    const row = fitWashRow(WALL, CEILING);
-    const lone: WashRow = { ...row, count: 1 };
-    expect(washLampXs(lone)).toEqual([0]);
-    const away = 1.5 * row.spacing;
-    for (let y = 0; y <= row.wallTop; y += 0.1) {
-      expect(illuminance(lone, [away, y, 0], false)).toBe(0);
-    }
-    for (let z = 0; z <= row.floorReach; z += 0.1) {
-      expect(illuminance(lone, [away, 0, z], true)).toBe(0);
+  it("reaches no further than two cans each side", () => {
+    // The shader adds five cans a fragment: its own and two each side.
+    // The nearest can it leaves out is two gaps and a half away, so a
+    // cone that reached that far would be cut off in a visible line.
+    // The storey's ceiling is the higher one and throws the wider cone.
+    for (const ceiling of [CEILING, INTER_FLOOR_HEIGHT - 0.02]) {
+      const row = fitWashRow(WALL, ceiling);
+      const lone: WashRow = { ...row, count: 1 };
+      expect(washLampXs(lone)).toEqual([0]);
+      const away = 2.5 * row.spacing;
+      for (let y = 0; y <= row.wallTop; y += 0.1) {
+        expect(illuminance(lone, [away, y, 0], false)).toBe(0);
+      }
+      for (let z = 0; z <= row.floorReach; z += 0.1) {
+        expect(illuminance(lone, [away, 0, z], true)).toBe(0);
+      }
     }
   });
 });
@@ -169,6 +172,13 @@ describe("spanWashRow", () => {
   it("hangs one can where the span is too short for two", () => {
     expect(washLampXs(spanWashRow(0.2, CEILING))).toEqual([0]);
     expect(washLampXs(spanWashRow(-0.5, CEILING))).toEqual([0]);
+  });
+
+  it("hangs one can, not two crowded ones, over a span under half a gap", () => {
+    // A stair hall's 5.75 m stretch beside its landing: 0.625 m either
+    // side of its middle once the corner gap is taken.
+    expect(washLampXs(spanWashRow(0.625, INTER_FLOOR_HEIGHT - 0.02))).toEqual([0]);
+    expect(spanWashRow(1, INTER_FLOOR_HEIGHT - 0.02).count).toBe(2);
   });
 });
 
@@ -300,10 +310,10 @@ describe("washStretches", () => {
   });
 
   it("holds a can's cone inside the reach the stretches count on", () => {
-    const row = fitWashRow(COURT, CEILING);
+    const row = fitWashRow(COURT, INTER_FLOOR_HEIGHT - 0.02);
     const lone: WashRow = { ...row, count: 1 };
     let widest = 0;
-    for (let x = 0; x <= 6; x += 0.05) {
+    for (let x = 0; x <= 8; x += 0.05) {
       let lit = false;
       for (let y = 0; y <= row.wallTop && !lit; y += 0.1) {
         lit = illuminance(lone, [x, y, 0], false) > 0;
@@ -313,8 +323,16 @@ describe("washStretches", () => {
       }
       if (lit) widest = x;
     }
-    expect(widest).toBeGreaterThan(2.5);
+    expect(widest).toBeGreaterThan(4.5);
     expect(widest).toBeLessThan(WASH_SIDE_REACH);
+  });
+
+  it("hangs one can over the work beside a stair hall's landing", () => {
+    // The end wall's stretch between the corner and the landing, 5.75 m,
+    // with Tintoretto's Magdalene 0.25 m off its middle.
+    const [s] = washStretches(5.75, [], INTER_FLOOR_HEIGHT - 0.02, [0.25]);
+    expect(s.row.count).toBe(1);
+    expect(s.center).toBeCloseTo(0.25, 6);
   });
 
   it("gives a short stretch one can on its middle", () => {

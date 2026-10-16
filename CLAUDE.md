@@ -1420,7 +1420,12 @@ required by the Dockerfile — don't remove it.
   additively, pulled toward the camera by half its radius and faded by
   the fog. A lens glow has a direction and shows only from in front.
   The globes are an opal shader (white middle, warm rim, past tone
-  mapping). Picture-light lenses are one batch for the scene
+  mapping, written in the canvas's colour space: left linear, the rim
+  showed as an orange ring). A globe's glow has its own profile
+  (`makeGlobeGlowMaterial`): a corona over the globe's edge and a
+  1 / (1 + (r/k)²) halo out to 1.8 m. With the lenses' profile it was a
+  white disc in a thin ring, and Rico found the lamps not "glowing
+  softly". Picture-light lenses are one batch for the scene
   (`GlowField`, `setGlows`): a mesh per work was a draw call per work.
   A stair's lamps and a hall's washers are one glow mesh each.
 - **A room's light is the room's, never the visitor's.** Rico, 13
@@ -1514,9 +1519,13 @@ required by the Dockerfile — don't remove it.
   - wall washers along each wall, an even count, the end cans
     `WASH_CORNER_GAP` from the corners: six on a 22.5 m wall, four on a
     17.5 m one. Their pools are one mesh for the
-    room. A fragment adds the can nearest it and that can's two
-    neighbours, so a cone may not reach a gap and a half along the wall
-    (`stairwell-light-rig.test.ts` pins it);
+    room. A fragment adds the can nearest it, clamped to the row's ends,
+    and two cans each side, so a cone may not reach two gaps and a half
+    along the wall (`stairwell-light-rig.test.ts` pins it). Under the
+    8.4 m storey a cone reaches 5.15 m at the wall's foot. Until
+    17 October 2026 a fragment took one can each side and the nearest
+    can was not clamped: a gap past a row's end it counted none, and a
+    stair hall's pool stopped in a vertical line;
   - the stair's materials reflect the frames' lamp map, so a tread's top
     takes about twice the light of the flight's underside;
   - a step light under every nosing, baked into the treads' vertex

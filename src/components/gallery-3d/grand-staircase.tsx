@@ -11,7 +11,7 @@ import {
   type StairRail,
 } from "@/lib/gallery-layout/grand-stair";
 import { UNREFLECTED_LAYER } from "./floor-mirror";
-import { buildGlowGeometry, lampGlowMaterial, makeGlobeMaterial } from "./glow";
+import { buildGlowGeometry, makeGlobeGlowMaterial, makeGlobeMaterial } from "./glow";
 import { fixtureMaterial, HIGHLIGHT_ENV_MATERIALS } from "./palette-materials";
 
 // A grand stair, drawn from the surfaces the visitor walks
@@ -77,10 +77,13 @@ function faceShade(nx: number, ny: number, nz: number): number {
 const LAMP_STEM_FOOT = 1.21;
 const LAMP_GLOBE_Y = 1.92;
 const LAMP_GLOBE_R = 0.2;
-/** The globe's bloom: how far it reaches, and what it adds at its
- *  middle. Enough to read as switched on in a lit hall. */
-const LAMP_GLOW_R = 1.1;
-const LAMP_GLOW = 0.6;
+/** The globe's bloom: how far it reaches, and what it adds at the
+ *  globe's edge, where its halo starts. Until 17 October 2026 it reached
+ *  1.1 m with the lenses' profile, and Rico found the globes did not
+ *  look "glowing softly": a white disc in a thin ring. */
+const LAMP_GLOW_R = 1.8;
+const LAMP_GLOW = 0.75;
+const globeGlowMaterial = makeGlobeGlowMaterial("#ffe6c4", LAMP_GLOBE_R / LAMP_GLOW_R);
 // Lit from above by the lamp map the frames reflect, as the spiral is:
 // treads take about twice the light of risers and soffits.
 HIGHLIGHT_ENV_MATERIALS.push(stoneMaterial, carpetMaterial);
@@ -501,7 +504,7 @@ export function buildStair(stair: GrandStair) {
     );
     stems.box(lamp.x - 0.1, lamp.x + 0.1, foot, foot + 0.05, lamp.z - 0.1, lamp.z + 0.1);
     globes.push(
-      new THREE.SphereGeometry(LAMP_GLOBE_R, 20, 14).translate(
+      new THREE.SphereGeometry(LAMP_GLOBE_R, 32, 20).translate(
         lamp.x,
         lamp.y + LAMP_GLOBE_Y,
         lamp.z,
@@ -557,7 +560,7 @@ export function GrandStaircase({ stair }: { stair: GrandStair }) {
       {built.glow && (
         <mesh
           geometry={built.glow}
-          material={lampGlowMaterial}
+          material={globeGlowMaterial}
           renderOrder={2}
           layers={UNREFLECTED_LAYER}
         />

@@ -128,8 +128,56 @@ export function makeGlowMaterial(color: THREE.ColorRepresentation): THREE.Shader
   });
 }
 
-/** The warm white of a picture light's lens and of a lamp's globe. */
+/** The warm white of a picture light's lens and of a washer's. */
 export const lampGlowMaterial = makeGlowMaterial("#ffe2b0");
+
+const globeGlowFragmentShader = /* glsl */ `
+uniform vec3 uColor;
+uniform float uCore;
+varying vec2 vCorner;
+varying float vStrength;
+void main() {
+  float r2 = dot(vCorner, vCorner);
+  if (r2 >= 1.0) discard;
+  // Light scattered round a bright source falls off as 1 / (1 + (r/k)^2):
+  // most of it hugs the globe, and a long faint tail runs out from it.
+  // A corona a fifth of the globe's radius wide lies over its edge, so
+  // the white disc runs into the halo with no line, and a wide gaussian
+  // skirt warms the air round the lamp. The lens profile above, a tight
+  // core inside a skirt, ended in a ring at the globe's edge and read as
+  // a sticker, not as a lamp glowing.
+  float k2 = uCore * uCore;
+  float past = max(sqrt(r2) - uCore, 0.0) / (0.2 * uCore);
+  float g = 1.0 / (1.0 + r2 / (1.6 * k2)) + 0.5 * exp(-past * past) + 0.12 * exp(-r2 * 5.0);
+  g *= (1.0 - r2) * (1.0 - r2);
+  gl_FragColor = vec4(uColor * g * vStrength, 1.0);
+}
+`;
+
+/**
+ * The glow round a lamp's globe. `core` is the globe's radius as a share
+ * of the glow's: the halo is brightest there and falls off softly past
+ * it.
+ */
+export function makeGlobeGlowMaterial(
+  color: THREE.ColorRepresentation,
+  core: number,
+): THREE.ShaderMaterial {
+  return new THREE.ShaderMaterial({
+    uniforms: {
+      ...THREE.UniformsUtils.clone(THREE.UniformsLib.fog),
+      uColor: { value: new THREE.Color(color) },
+      uCore: { value: core },
+    },
+    vertexShader,
+    fragmentShader: globeGlowFragmentShader,
+    transparent: true,
+    depthWrite: false,
+    blending: THREE.AdditiveBlending,
+    toneMapped: false,
+    fog: true,
+  });
+}
 
 /** An opal glass globe with a lamp inside: white where the glass faces
  *  the eye and warmer toward its rim, where the light crosses more
@@ -140,7 +188,7 @@ export function makeGlobeMaterial(): THREE.ShaderMaterial {
     uniforms: {
       ...THREE.UniformsUtils.clone(THREE.UniformsLib.fog),
       uCore: { value: new THREE.Color("#fffbf2") },
-      uRim: { value: new THREE.Color("#f5c98a") },
+      uRim: { value: new THREE.Color("#f9d6a0") },
     },
     vertexShader: /* glsl */ `
       #include <fog_pars_vertex>
@@ -164,6 +212,9 @@ export function makeGlobeMaterial(): THREE.ShaderMaterial {
         float facing = clamp(dot(normalize(vNormal), normalize(vView)), 0.0, 1.0);
         gl_FragColor = vec4(mix(uRim, uCore, smoothstep(0.0, 0.85, facing)), 1.0);
         #include <fog_fragment>
+        // Written to the canvas as authored. Left linear, the rim's pale
+        // amber showed as a saturated orange ring round a white disc.
+        #include <colorspace_fragment>
       }
     `,
     toneMapped: false,
