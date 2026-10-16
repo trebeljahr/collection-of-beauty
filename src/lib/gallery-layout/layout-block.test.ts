@@ -97,6 +97,8 @@ const hallOf = (room: RoomLayout) => BLOCK_HALLS.find((h) => h.key === keyOf(roo
 const isStairHall = (room: RoomLayout) => hallOf(room)?.design === "loggia";
 const isCourt = (room: RoomLayout) => hallOf(room)?.design === "court";
 const isSpiral = (room: RoomLayout) => BLOCK_SPIRALS.some((s) => s.key === keyOf(room));
+const isSalon = (room: RoomLayout) => hallOf(room)?.design === "salon";
+const OPPOSITE_SIDE = { north: "south", south: "north", east: "west", west: "east" } as const;
 /** The grand stairs of a hall, lowest first. */
 const stairsOf = (key: string) =>
   layout
@@ -108,34 +110,35 @@ const metres = (cells: number) => cells * CELL_SIZE;
 const top = layout.floors.length - 1;
 
 describe("the block plan", () => {
-  it("is four floors of one plan: two stair halls, a court, two spirals and six galleries", () => {
+  it("is four floors of one plan: two stair halls, a court, a salon, two spirals and six galleries", () => {
     expect(layout.floors).toHaveLength(4);
     for (const floor of layout.floors) {
       expect(floor.gridSize).toEqual(BLOCK_GRID);
       expect(floor.rooms.filter(isStairHall)).toHaveLength(2);
       expect(floor.rooms.filter(isCourt)).toHaveLength(1);
       expect(floor.rooms.filter(isSpiral)).toHaveLength(2);
-      expect(floor.rooms.filter((r) => r.isStairwell)).toHaveLength(5);
+      expect(floor.rooms.filter(isSalon)).toHaveLength(1);
+      expect(floor.rooms.filter((r) => r.isStairwell)).toHaveLength(6);
       expect(floor.rooms.filter((r) => !r.isStairwell)).toHaveLength(BLOCK_ROOMS.length);
       // Every gallery is in one era, once.
       const cells = BLOCK_PLAN[floor.index].zones.flatMap((z) => [...z.cells]);
       expect([...cells].sort()).toEqual(BLOCK_ROOMS.map((r) => r.key).sort());
     }
     // A grand stair from each floor to the next in both stair halls, the
-    // court's one opening, and a spiral from each floor to the next in
-    // both towers.
-    expect(layout.grandStairs).toHaveLength(7);
+    // one opening of the court and of the salon, and a spiral from each
+    // floor to the next in both towers.
+    expect(layout.grandStairs).toHaveLength(8);
     expect(layout.allStaircases).toHaveLength(6);
-    expect(layout.floors.map((f) => f.grandStairsOut!.length)).toEqual([3, 2, 2, 0]);
-    expect(layout.floors.map((f) => f.grandStairsIn!.length)).toEqual([0, 3, 2, 2]);
-    expect(layout.floors.map((f) => f.grandHalls!.length)).toEqual([3, 5, 5, 3]);
+    expect(layout.floors.map((f) => f.grandStairsOut!.length)).toEqual([4, 2, 2, 0]);
+    expect(layout.floors.map((f) => f.grandStairsIn!.length)).toEqual([0, 4, 2, 2]);
+    expect(layout.floors.map((f) => f.grandHalls!.length)).toEqual([4, 6, 6, 4]);
     expect(layout.floors.map((f) => f.stairsOut.length)).toEqual([2, 2, 2, 0]);
     expect(layout.floors.map((f) => f.stairsIn.length)).toEqual([0, 2, 2, 2]);
   });
 
   it("stands a stair hall at each end of the spine and the court in its middle", () => {
     const [west, court, east] = BLOCK_HALLS.map((h) => h.rect);
-    expect(BLOCK_HALLS.map((h) => h.design)).toEqual(["loggia", "court", "loggia"]);
+    expect(BLOCK_HALLS.map((h) => h.design)).toEqual(["loggia", "court", "loggia", "salon"]);
     for (const r of [west, court, east]) {
       expect(metres(r.zMax - r.zMin + 1)).toBe(27.5);
       // All three in the middle row.
@@ -197,8 +200,12 @@ describe("the block plan", () => {
         expect(keyOf(layout.allRooms.find((x) => x.id === door.connectsTo.roomId)!)).toBe("court");
         expect(door.width).toBe(PORTAL_WIDTH);
         expect(door.worldX).toBe(cx);
-        // And a door to the gallery on either side.
-        expect(room.doors.map((d) => d.side).sort()).toEqual(["east", "west", shaft.door].sort());
+        // And a door to the gallery on either side; the south one opens
+        // into the salon too.
+        const salon = shaft.key === "stair-s" ? [OPPOSITE_SIDE[shaft.door]] : [];
+        expect(room.doors.map((d) => d.side).sort()).toEqual(
+          ["east", "west", shaft.door, ...salon].sort(),
+        );
       }
     }
   });
@@ -726,7 +733,12 @@ describe("the block plan", () => {
         (n, h) => n + h.rect.zMax - h.rect.zMin + 1,
         0,
       );
-      expect(owned.size).toBe(BLOCK_GRID.x * BLOCK_GRID.z - behind);
+      // And for the rows south of the block, where only the salon stands.
+      const blockRows = Math.max(...BLOCK_ROOMS.map((r) => r.rect.zMax)) + 1;
+      const salon = BLOCK_HALLS.find((h) => h.design === "salon")!.rect;
+      const salonCells = (salon.xMax - salon.xMin + 1) * (salon.zMax - salon.zMin + 1);
+      const outside = (BLOCK_GRID.z - blockRows) * BLOCK_GRID.x - salonCells;
+      expect(owned.size).toBe(BLOCK_GRID.x * BLOCK_GRID.z - behind - outside);
       for (let z = 0; z < BLOCK_GRID.z; z++) {
         for (const x of [0, BLOCK_GRID.x - 1]) {
           if (!owned.has(`${x}:${z}`)) expect(floor.walkable[z * BLOCK_GRID.x + x]).toBe(0);
@@ -738,7 +750,13 @@ describe("the block plan", () => {
   it("gives every room a door to every neighbour", () => {
     for (const floor of layout.floors) {
       for (const a of floor.rooms) {
-        const neighbours = floor.rooms.filter((b) => b !== a && sideToward(a, b)).map((b) => b.id);
+        // The salon opens from the south spiral's room only.
+        const walled = (b: RoomLayout) =>
+          (isSalon(a) && !keyOf(b).startsWith("stair-")) ||
+          (isSalon(b) && !keyOf(a).startsWith("stair-"));
+        const neighbours = floor.rooms
+          .filter((b) => b !== a && sideToward(a, b) && !walled(b))
+          .map((b) => b.id);
         expect(a.doors.map((d) => d.connectsTo.roomId).sort(), a.id).toEqual(neighbours.sort());
       }
       // A long gallery meets the court at its corner, along one cell:

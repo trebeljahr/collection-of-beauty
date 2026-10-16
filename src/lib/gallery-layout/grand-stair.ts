@@ -25,6 +25,10 @@
 //              wall.
 //   court      No stair: a hall open from its floor to the roof, with
 //              a gallery round the opening on every floor above.
+//   salon      No stair: a hall open from its floor to the roof, with a
+//              gallery along the wall its doors are in and the two
+//              walls beside it on every floor above. The far wall
+//              stands sheer: it hangs a work taller than a storey.
 //
 // A stair can stand alone in a hall that is open above it to the roof
 // (`topFloor`): the floors over the one it arrives on are balconies
@@ -45,7 +49,7 @@
 
 import { FLOOR_SEPARATION } from "./world-coords";
 
-export type GrandStairDesign = "imperial" | "arcs" | "hourglass" | "loggia" | "court";
+export type GrandStairDesign = "imperial" | "arcs" | "hourglass" | "loggia" | "court" | "salon";
 
 /** A straight flight along the hall's z axis. `z0` is its foot and `z1`
  *  its head, so it rises north when `z1 < z0`. Its half width runs from
@@ -806,6 +810,39 @@ function buildCourt(site: Site): Built {
   };
 }
 
+/** Depth of a salon's galleries. */
+export const SALON_GALLERY = 5;
+
+/** A hall with no stair, open from its floor to the roof but for a
+ *  gallery along its front wall (+z) and its two side walls on every
+ *  floor above. The void reaches the far wall (-z), which stands sheer;
+ *  the side galleries run on to it, so each floor looks at the far
+ *  wall's work from beside it. */
+function buildSalon(site: Site): Built {
+  const w = site.half;
+  const inner = w - SALON_GALLERY;
+  const outline: Array<[number, number]> = [
+    [-inner, -w],
+    [inner, -w],
+    [inner, inner],
+    [-inner, inner],
+  ];
+  // A balustrade along each gallery's edge; the first edge is the far
+  // wall.
+  const rails = [site.upperY, ...site.balconies].flatMap((y) => fence(outline, y, [0]));
+  return {
+    patches: [],
+    rails,
+    columns: [],
+    lamps: [],
+    opening: {
+      kind: "rects",
+      rects: [{ xMin: -inner, xMax: inner, zMin: -w, zMax: inner }],
+      outline,
+    },
+  };
+}
+
 // Two curved flights round a rotunda. They leave a level sector on the
 // side the visitor comes in from and meet on a level sector opposite.
 export const ARCS = {
@@ -1048,6 +1085,7 @@ const BUILDERS: Record<GrandStairDesign, (site: Site) => Built> = {
   hourglass: buildHourglass,
   loggia: (site) => buildImperial(site, true),
   court: buildCourt,
+  salon: buildSalon,
 };
 
 export function buildGrandStair(

@@ -2,7 +2,13 @@ import { describe, expect, it } from "vitest";
 import type { ArtworkListing } from "@/lib/data";
 import { ERAS } from "@/lib/gallery-eras";
 import { frameExtents, pickFrameDesign } from "./frame-design";
-import { fitsStorey, GIANT_MIN_PX_PER_METRE, giantSize } from "./giants";
+import {
+  fitsStorey,
+  GIANT_MIN_PX_PER_METRE,
+  giantSize,
+  SALON_MIN_PX_PER_METRE,
+  salonSize,
+} from "./giants";
 import { grandStairsAt, grandSurfaceAt } from "./grand-stair";
 import { BLOCK_HALLS, layoutBlock } from "./layout-block";
 import { MAX_PAINTING_W, PAINTING_FLOOR_GAP, sizeWork } from "./place-paintings";
@@ -47,8 +53,16 @@ function catalogue(): ArtworkListing[] {
     work("screen", "ukiyo-e", 366, 150),
     // Not tall, and longer than any stretch of a storey.
     work("orangerie", "fin-de-siecle", 1275, 200),
-    // Too coarse a scan for its size: stays in its rooms.
+    // Too coarse a scan for a hall, good enough for the salon, where a
+    // work hangs in a pair: two of like size.
     work("coarse", "baroque", 800, 400, 2400),
+    work("coarse-b", "baroque", 780, 400, 2400),
+    // Taller than a storey and too coarse for a hall: the salon's far
+    // wall, with a work by the same hand over it.
+    { ...work("judgment", "renaissance", 1231, 1370, 3950), artistSlug: "buonarroti" },
+    { ...work("adam", "renaissance", 570, 262, 1614), artistSlug: "buonarroti" },
+    // Too coarse a scan even for the salon: stays in its rooms.
+    work("coarser", "baroque", 800, 400, 1600),
     // More of one era than its floor's court has stretches for.
     ...Array.from({ length: 24 }, (_, i) => work(`salon-${i}`, "romantic", 330, 200)),
     // Altarpieces of like size: what the first floor's court leaves
@@ -59,6 +73,8 @@ function catalogue(): ArtworkListing[] {
 
 const layout = layoutBlock(catalogue());
 const halls = layout.allRooms.filter((r) => r.isStairwell);
+/** The halls whose every work hangs on a storey: all but the salon. */
+const storeyHalls = halls.filter((r) => !r.id.endsWith("-salon"));
 const hung = (id: string) => {
   for (const room of layout.allRooms) {
     const p = room.placements.find((q) => q.artwork.id === id);
@@ -141,8 +157,8 @@ describe("giants in the block plan's halls", () => {
     }
   });
 
-  it("leaves a work with too coarse a scan in its rooms, at the room's size", () => {
-    const found = hung("coarse");
+  it("leaves a work with too coarse a scan for the salon in its rooms, at the room's size", () => {
+    const found = hung("coarser");
     if (found) {
       expect(found.room.isStairwell).toBe(false);
       expect(found.p.widthM).toBeLessThanOrEqual(MAX_PAINTING_W);
@@ -155,7 +171,7 @@ describe("giants in the block plan's halls", () => {
       const { artwork } = hung(id)!.p;
       expect(fitsStorey(giantSize(artwork)!), id).toBe(true);
     }
-    for (const room of halls) {
+    for (const room of storeyHalls) {
       for (const p of room.placements) {
         const f = frame(p);
         expect(f.bottom - room.worldRect.y, p.artwork.id).toBeGreaterThanOrEqual(
@@ -281,7 +297,7 @@ describe("giants in the block plan's halls", () => {
       if (paired.length > 0) expect(court.placements, `floor ${floor.index}`).toHaveLength(8);
     }
     // No stretch of a hall's storey holds two.
-    for (const room of halls) {
+    for (const room of storeyHalls) {
       const byWall = new Map<string, number[]>();
       for (const p of room.placements) {
         const alongX = Math.abs(Math.cos(p.rotation[1])) > 0.5;
@@ -298,11 +314,70 @@ describe("giants in the block plan's halls", () => {
   });
 
   it("hangs every plaque beside its work, at eye level over its floor", () => {
-    for (const room of halls) {
+    for (const room of storeyHalls) {
       for (const p of room.placements) {
         // No plaque is left out, and none is moved: unset is beside the
         // frame at eye level over the room's own floor.
         expect(p.plaque, p.artwork.id).toBeUndefined();
+      }
+    }
+  });
+});
+
+describe("the salon", () => {
+  const salon = layout.floors.map((f) => f.rooms.find((r) => key(r) === "salon")!);
+  const inSalon = (id: string) => {
+    const found = hung(id);
+    return found && key(found.room) === "salon" ? found : null;
+  };
+  const hall = BLOCK_HALLS.find((h) => h.design === "salon")!;
+  const axisX = ((hall.rect.xMin + hall.rect.xMax + 1) / 2) * CELL_SIZE;
+  const farZ = (hall.rect.zMax + 1) * CELL_SIZE;
+
+  it("takes a work too large for a storey and too coarse for a hall", () => {
+    expect(giantSize(hung("judgment")!.p.artwork)).toBeNull();
+    expect(salonSize(hung("judgment")!.p.artwork)).not.toBeNull();
+    expect(3950 / 12.31).toBeGreaterThan(SALON_MIN_PX_PER_METRE);
+    expect(inSalon("coarse"), "coarse").not.toBeNull();
+    expect(hung("coarser")?.room.isStairwell ?? false).toBe(false);
+  });
+
+  it("hangs the largest on its far wall, on the hall floor, at its real size", () => {
+    const { room, p } = inSalon("judgment")!;
+    expect(room).toBe(salon[0]);
+    expect(p.position[0]).toBeCloseTo(axisX, 6);
+    expect(p.position[2]).toBeCloseTo(farZ, 1);
+    expect(p.widthM).toBeCloseTo(12.31, 2);
+    expect(p.heightM).toBeCloseTo(13.7, 1);
+    expect(frame(p).bottom).toBeGreaterThanOrEqual(PAINTING_FLOOR_GAP - 1e-6);
+    expect(frame(p).top).toBeGreaterThan(FLOOR_SEPARATION);
+  });
+
+  it("hangs a work by the same hand over it, clear of it, with no plaque", () => {
+    const below = inSalon("judgment")!.p;
+    const { p } = inSalon("adam")!;
+    expect(p.position[0]).toBeCloseTo(axisX, 6);
+    expect(p.position[2]).toBeCloseTo(farZ, 1);
+    expect(frame(p).bottom - frame(below).top).toBeGreaterThanOrEqual(3 - 1e-6);
+    expect(p.plaque).toBeNull();
+  });
+
+  it("hangs every other work on a storey, with floor in front of it", () => {
+    for (const room of salon) {
+      for (const p of room.placements) {
+        if (["judgment", "adam"].includes(p.artwork.id)) continue;
+        const f = frame(p);
+        expect(f.bottom - room.worldRect.y, p.artwork.id).toBeGreaterThanOrEqual(
+          PAINTING_FLOOR_GAP - 1e-6,
+        );
+        expect(f.top - room.worldRect.y, p.artwork.id).toBeLessThan(INTER_FLOOR_HEIGHT - 0.1);
+        expect(p.plaque, p.artwork.id).toBeUndefined();
+        // On the hall floor anywhere; above it only on a wall with a
+        // gallery in front: not the far wall's middle.
+        if (room !== salon[0]) {
+          const onFar = Math.abs(p.position[2] - farZ) < 0.1;
+          expect(onFar && Math.abs(p.position[0] - axisX) < 13.75, p.artwork.id).toBe(false);
+        }
       }
     }
   });

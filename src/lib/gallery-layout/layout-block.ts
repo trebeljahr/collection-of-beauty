@@ -14,7 +14,11 @@
 //   │ │hall-w  │  cw  │  court  │  ce  │  hall-e│ │   the spine
 //   ├──────────┴──────┼─────────┼──────┴──────────┤
 //   │       sw        │ stair-s │       se        │   south
-//   └─────────────────┴─────────┴─────────────────┘
+//   └───────────────┬─┴────┬────┴─┬───────────────┘
+//                   │      │      │
+//                   │    salon    │                    beyond the block
+//                   │             │
+//                   └─────────────┘
 //
 // Four stairs, each in the same place on every floor:
 //
@@ -39,6 +43,17 @@
 // The halls and the court hang the works too large for a room, at their
 // real size (`giants.ts`): one to a stretch of wall on each storey, a
 // stair hall's storey composed about its stair's axis.
+//
+// The salon stands beyond the south front, 37.5 m square and four
+// storeys high, and opens from the south spiral's room on every floor:
+// the court's short axis runs on through the spiral into it. A gallery
+// runs along its front and side walls on every floor above the first;
+// its far wall stands sheer from the floor to the roof. It hangs the
+// largest works no hall holds (`hangSalon`): Michelangelo's Last
+// Judgment, 13.7 m tall, on the far wall, and the rest in pairs on the
+// storeys. Rico, 17 October 2026, of the Last Judgment hung at a
+// quarter of its size: "stuff like this is *exactly* what I want", and
+// asked for a room over more than one storey for such works.
 //
 // The galleries are the size of the tower's larger rooms and take its
 // dividers and benches. A floor holds two or three eras, each in rooms
@@ -72,11 +87,17 @@
 //   gallery seen from above.
 
 import type { ArtworkListing } from "@/lib/data";
-import { type Era, type EraId, eraAccentColor, getEra } from "@/lib/gallery-eras";
+import { assignEra, type Era, type EraId, eraAccentColor, getEra } from "@/lib/gallery-eras";
 import { slugify } from "@/lib/utils";
 import { curatedQueue, roomDescription, roomTitle } from "./curation";
 import type { DividerStyle } from "./divider-plans";
-import { centredIsland, courtIslands, planPanelBenches, wallIsland } from "./feature-benches";
+import {
+  centredIsland,
+  courtIslands,
+  planPanelBenches,
+  salonIslands,
+  wallIsland,
+} from "./feature-benches";
 import {
   arrivalPoint,
   benchClearOf,
@@ -90,7 +111,9 @@ import {
   giantSize,
   hallRuns,
   hangHallStoreys,
+  hangSalon,
   type StairHallStorey,
+  salonSize,
   stairHallHang,
   stretchMiddle,
 } from "./giants";
@@ -100,6 +123,7 @@ import {
   type GrandStairDesign,
   grandHallArrival,
   openingInWorld,
+  SALON_GALLERY,
 } from "./grand-stair";
 import {
   bucketByEra,
@@ -132,6 +156,7 @@ import type {
 import {
   CELL_SIZE,
   floorY,
+  INTER_FLOOR_HEIGHT,
   PORTAL_HEIGHT,
   PORTAL_WIDTH,
   SPIRAL_INNER_RADIUS,
@@ -140,7 +165,7 @@ import {
   WALL_THICKNESS,
 } from "./world-coords";
 
-export const BLOCK_GRID = { x: 47, z: 25 };
+export const BLOCK_GRID = { x: 47, z: 40 };
 
 /** Doors between rooms. One cell wide for the collision grid, so no
  *  jamb colliders (`doorOpenHalfSpan`), and wide enough for a thumb. */
@@ -176,6 +201,8 @@ const BENCH_WALL_FLOOR = 4;
 const ROW_N = [0, 6] as const;
 const ROW_M = [7, 17] as const;
 const ROW_S = [18, 24] as const;
+/** The salon, beyond the block's south front. */
+const ROW_SALON = [25, 39] as const;
 
 const span = (xMin: number, xMax: number, row: readonly [number, number]): CellRect => ({
   xMin,
@@ -220,13 +247,20 @@ export const BLOCK_SPIRALS: ReadonlyArray<{ key: RoomKey; rect: CellRect; door: 
 export const BLOCK_HALLS: ReadonlyArray<{
   key: RoomKey;
   rect: CellRect;
-  design: Extract<GrandStairDesign, "loggia" | "court">;
+  design: Extract<GrandStairDesign, "loggia" | "court" | "salon">;
   turns: GrandStair["turns"];
 }> = [
   { key: "hall-w", rect: span(1, 10, ROW_M), design: "loggia", turns: 3 },
   { key: "court", rect: span(18, 28, ROW_M), design: "court", turns: 0 },
   { key: "hall-e", rect: span(36, 45, ROW_M), design: "loggia", turns: 1 },
+  { key: "salon", rect: span(16, 30, ROW_SALON), design: "salon", turns: 2 },
 ];
+/** The one room the salon opens from, on every floor: the south
+ *  spiral's, so the court's short axis runs on through it into the
+ *  salon. The long galleries beside it share 7.5 m of the salon's front
+ *  wall and have no door to it: a door there stood in the line of the
+ *  door screen in front of their door to the spiral. */
+const SALON_DOOR: RoomKey = "stair-s";
 /** The era whose colours every storey of every hall and stair tower
  *  takes: the pale stone of the first floor's first rooms. A hall is one
  *  room four storeys high, seen through all of them at once. */
@@ -293,6 +327,7 @@ const HALL_NAMES: Readonly<Partial<Record<RoomKey, string>>> = {
   court: "Central Court",
   "stair-n": "North Stair",
   "stair-s": "South Stair",
+  salon: "Grand Salon",
 };
 
 /** What hangs on each floor and where. The two collections that stand
@@ -403,7 +438,7 @@ export function layoutBlock(allArtworks: ArtworkListing[]): MuseumLayout {
   const grandStairs: GrandStair[] = [];
   for (const hall of BLOCK_HALLS) {
     const stairs =
-      hall.design === "court"
+      hall.design !== "loggia"
         ? [buildStair(floors[0], floors[1], hall, top, false, false)]
         : floors
             .slice(0, top)
@@ -414,7 +449,7 @@ export function layoutBlock(allArtworks: ArtworkListing[]): MuseumLayout {
       for (let f = stair.lowerFloor; f <= stair.topFloor; f++) floors[f].grandHalls!.push(stair);
       grandStairs.push(stair);
     }
-    const court = hall.design === "court";
+    const court = hall.design !== "loggia";
     for (let f = 0; f <= top; f++) {
       const room = hallRoom(floors[f], hall.key);
       // The stair whose opening is in this floor, and the one whose
@@ -424,6 +459,16 @@ export function layoutBlock(allArtworks: ArtworkListing[]): MuseumLayout {
       room.floorOpening = f > 0 ? openingInWorld(below) : null;
       room.ceilingOpening = f < top ? openingInWorld(above) : null;
       room.stairGlyph = court ? "void" : f === 0 ? "up" : f === top ? "down" : "both";
+      // The salon's far wall stands sheer from its floor to the roof:
+      // its galleries run along the other three.
+      if (hall.design === "salon") {
+        room.sheer = {
+          side: OPPOSITE[hallFront(hall)],
+          depth: 0,
+          base: floors[0].y,
+          roof: floors[top].y + INTER_FLOOR_HEIGHT,
+        };
+      }
     }
   }
 
@@ -440,7 +485,7 @@ export function layoutBlock(allArtworks: ArtworkListing[]): MuseumLayout {
   // The giants go to the halls first; each era then hangs what is left.
   // A giant no hall took hangs in its era's rooms, at its real size,
   // where a wall holds it.
-  const inHalls = hangGiants(floors, byEra);
+  const inHalls = hangGiants(floors, byEra, allArtworks);
   const forRooms = new Map(
     [...byEra].map(([era, works]) => [era, works.filter((a) => !inHalls.has(a.id))]),
   );
@@ -480,7 +525,11 @@ const hallRoom = (floor: FloorLayout, key: RoomKey) =>
  * floor. The stair halls hang pairs from what is left, and the spiral
  * rooms what no hall holds. Returns the ids hung.
  */
-function hangGiants(floors: FloorLayout[], byEra: Map<EraId, ArtworkListing[]>): Set<string> {
+function hangGiants(
+  floors: FloorLayout[],
+  byEra: Map<EraId, ArtworkListing[]>,
+  allArtworks: readonly ArtworkListing[],
+): Set<string> {
   const works: Array<{ work: SizedWork; start: number }> = [];
   BLOCK_PLAN.forEach((plan, floorIndex) => {
     for (const zone of plan.zones) {
@@ -511,10 +560,37 @@ function hangGiants(floors: FloorLayout[], byEra: Map<EraId, ArtworkListing[]>):
   const unhung = stairs.pairs(
     left.map((work) => ({ work, start: startOf.get(work.artwork.id) ?? 0 })),
   );
-  // The spiral rooms take only what no hall's wall holds: their outer
-  // wall, 22.5 m with no door, is the one wall left for a handscroll
-  // 12 m long once the end walls have their works. Any other work a
-  // pair left hangs in its era's rooms.
+  // The salon takes the largest works no hall holds, on its own rule
+  // (`salonSize`): what the halls left, and the works too thin a scan
+  // for a hall. So it reads the whole catalogue.
+  const hungSoFar = new Set(
+    floors.flatMap((f) => f.rooms.flatMap((r) => r.placements.map((p) => p.artwork.id))),
+  );
+  const salon = BLOCK_HALLS.find((h) => h.design === "salon");
+  if (salon) {
+    const forSalon = allArtworks.flatMap((artwork) => {
+      if (hungSoFar.has(artwork.id) || !assignEra(artwork)) return [];
+      const work = salonSize(artwork);
+      return work ? [work] : [];
+    });
+    const front = hallFront(salon);
+    const width = (salon.rect.xMax - salon.rect.xMin + 1) * CELL_SIZE;
+    hangSalon(
+      floors.map((floor) => hallRoom(floor, salon.key)),
+      forSalon,
+      { far: OPPOSITE[front], front },
+      width / 2 - SALON_GALLERY,
+    );
+  }
+  const inSalon = new Set(
+    salon ? floors.flatMap((f) => hallRoom(f, salon.key).placements.map((p) => p.artwork.id)) : [],
+  );
+
+  // The spiral rooms take only what no hall's wall holds: the north
+  // one's outer wall, 22.5 m with no door, is the one wall left for a
+  // handscroll 12 m long once the end walls have their works (the south
+  // one's opens into the salon). Any other work a pair left hangs in
+  // its era's rooms.
   const stretches = floors.flatMap((floor) => [
     ...courts[floor.index].flat().flatMap(hallRuns),
     ...stairHalls.flatMap((h) =>
@@ -523,7 +599,7 @@ function hangGiants(floors: FloorLayout[], byEra: Map<EraId, ArtworkListing[]>):
   ]);
   hangHallStoreys(
     floors.map((floor) => [BLOCK_SPIRALS.map((s) => hallRoom(floor, s.key))]),
-    unhung.filter((e) => !fitsStretch(stretches, e.work)),
+    unhung.filter((e) => !fitsStretch(stretches, e.work) && !inSalon.has(e.work.artwork.id)),
   );
 
   const halls = floors.flatMap((f) => f.rooms.filter((r) => r.isStairwell));
@@ -571,9 +647,8 @@ function buildFloor(
     byKey.set(key, room);
   };
   for (const { key, rect: r, design } of BLOCK_HALLS) {
-    const court = design === "court";
     const room = makeRoom(index, key, r, floorEra, {
-      title: HALL_NAMES[key] ?? (court ? "Court" : "Stair Hall"),
+      title: HALL_NAMES[key] ?? (design === "court" ? "Court" : "Stair Hall"),
       isStairwell: true,
       isAnchor: key === GREAT_HALL,
     });
@@ -616,6 +691,8 @@ function buildFloor(
       const b = byKey.get(keys[j])!;
       const side = wallBetween(a.cellBounds, b.cellBounds);
       if (!side) continue;
+      const salon = keys[i] === "salon" ? keys[j] : keys[j] === "salon" ? keys[i] : null;
+      if (salon !== null && salon !== SALON_DOOR) continue;
       const aFront = fronts.get(keys[i]);
       const bFront = fronts.get(keys[j]);
       // A hall's back wall stands against no room, so a wall it shares
@@ -694,6 +771,12 @@ function buildFloor(
       .filter((run) => run.side === "north")
       .map(stretchMiddle);
     court.benches = courtIslands(court.cellBounds, middles);
+    const salon = BLOCK_HALLS.find((h) => h.design === "salon");
+    const room = salon && byKey.get(salon.key);
+    const far = salon && OPPOSITE[hallFront(salon)];
+    if (room && (far === "north" || far === "south")) {
+      room.benches = salonIslands(room.cellBounds, far, room.doors[0]?.worldX ?? 0);
+    }
   }
 
   const walkable = new Uint8Array(BLOCK_GRID.x * BLOCK_GRID.z);

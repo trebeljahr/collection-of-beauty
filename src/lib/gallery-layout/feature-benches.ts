@@ -303,3 +303,28 @@ export function benchClearOfDividers(
 ): boolean {
   return benchClearOf(bench, room.dividers, clearance);
 }
+
+/** How far from the salon's far wall its benches stand: the Last
+ *  Judgment, 13.7 m tall, is seen whole from there. */
+const SALON_WALL_VIEW = 13;
+/** How far either side of the salon's axis an island stands: clear of
+ *  the line from its door to the far wall. */
+const SALON_ISLAND_OFFSET = 4;
+
+/**
+ * The islands of the salon's floor: two benches back to back, one
+ * facing the far wall and one the door, either side of the line from
+ * the door to the work in the axis. `axis` is that line, world x.
+ */
+export function salonIslands(rect: CellRect, far: "north" | "south", axis: number): Bench[] {
+  const back = (BENCH_DEPTH + ISLAND_GAP) / 2;
+  const z =
+    far === "south"
+      ? (rect.zMax + 1) * CELL_SIZE - SALON_WALL_VIEW
+      : rect.zMin * CELL_SIZE + SALON_WALL_VIEW;
+  return [-1, 1].flatMap((side) =>
+    [-back, back].map(
+      (off): Bench => ({ x: axis + side * SALON_ISLAND_OFFSET, z: z + off, along: "x" }),
+    ),
+  );
+}

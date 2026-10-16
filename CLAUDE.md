@@ -1064,7 +1064,8 @@ required by the Dockerfile — don't remove it.
       taller than the ceiling allows: 5.2 m under 6.6 m (4.3 m under
       5.7 m until the storey grew on 17 October 2026). One that no
       wall of its era's rooms holds is left out of the era before the
-      sample (`fitsSomeRun` in `hangZone`): the Last Judgment, 13.7 m.
+      sample (`fitsSomeRun` in `hangZone`). The Last Judgment, 13.7 m,
+      was such a work; it hangs in the salon now (next point).
     - A giant no hall and no spiral room took hangs first in its era's
       rooms (`must`). None does today.
     - A work whose size is not trusted keeps the 3.2 m cap: nobody
@@ -1072,14 +1073,48 @@ required by the Dockerfile — don't remove it.
       Hong-do's Gunseondo (5.76 m in the catalogue) and Chen Rong's
       Nine Dragons (9.58 m). Both scans are another shape than the
       museum's size (3.5:1 against 4.3:1, 27:1 against 21:1).
-    - Which works may hang is unchanged: the room's rule judges a work
-      at 3.2 m (`sharpEnoughToHang`). Two groups of large works hang
-      nowhere. The 45 named above fail the room's rule and pass the
-      giant's. 22 have under 400 texture pixels a metre at real size,
-      among them the Last Judgment, the Creation of Adam, Leonardo's
-      Last Supper, the Burial of the Count of Orgaz and two canvases of
-      Mucha's Slav Epic: they need a larger scan.
+    - Which works may hang in a gallery is unchanged: the room's rule
+      judges a work at 3.2 m (`sharpEnoughToHang`).
     - The tower keeps the cap.
+  - **The salon** (`design: "salon"`, `buildSalon` in `grand-stair.ts`,
+    `hangSalon` in `giants.ts`). Rico, 17 October 2026, of the Last
+    Judgment left out at its real size: "stuff like this is *exactly*
+    what I want", and he asked for a room over more than one storey for
+    such works. A hall 37.5 m square beyond the block's south front
+    (grid rows 25 to 39; `BLOCK_GRID` is 47 × 40), four storeys high,
+    entered from the south spiral's room on every floor (`SALON_DOOR`):
+    the court's short axis runs on through the spiral into it.
+    - A gallery 5 m deep runs along its front and side walls on every
+      floor above the first; the side galleries reach the far wall. The
+      far wall stands sheer (`RoomLayout.sheer`, depth 0). The same
+      morning Rico found works hung high over a void "meh" in the stair
+      halls, so only the far wall's middle hangs over a void: the axis
+      work on the hall floor and one work by the same hand over it.
+    - The long galleries beside it (`sw`, `se`) share 7.5 m of its
+      front wall and have no door to it: a door there stood in the line
+      of the door screen in front of their door to the spiral.
+    - It has its own rule for a scan (`SALON_MIN_PX_PER_METRE`, 250: sharp
+      from 4 m), so it reads the whole catalogue, not the era buckets.
+      It takes what the halls left, largest first, after the halls and
+      before the spiral rooms.
+    - The hang (17 October 2026, 28 works): the Last Judgment on the far
+      wall, the Creation of Adam 3 m over it, the Siege of Pskov and the
+      Valley of Tears beside it; on each storey a pair on each half of
+      the side walls and a pair on the front wall either side of the
+      door. A pair is two works of like size (`PAIR_MAX_UNLIKE`), led by
+      the largest work that has such a partner, so a work with no like
+      partner hangs nowhere: Rhythm No. 1 (5.92 × 5.38 m) and the Two
+      Willows (17 m).
+    - 34 more works pass the salon's rule and have no place in it: works
+      3.3 to 4.8 m wide that fail the room's rule (the Garden of Earthly
+      Delights, El Jaleo, Wind God and Thunder God). They would fit a
+      gallery at real size.
+    - Below 250 px a metre, waiting on a larger scan: the two Slav Epic
+      canvases, Grunwald, Tintoretto's Last Supper, Courbet's Kill of
+      the Deer and the Saint Louis Water Lilies. The vault note
+      `collection-of-beauty-giant-larger-scans.md` collects candidates.
+    - Floor benches: two islands 13 m in front of the far wall, 4 m
+      either side of the axis (`salonIslands`).
   - **A stair hall's storey is one composition about its stair's
     axis** (`stairHallHang` in `giants.ts`). Rico asked on 17 October
     2026 for the hall's works to be arranged "more beautifully and not

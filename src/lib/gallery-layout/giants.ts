@@ -56,7 +56,7 @@ import {
 } from "./place-paintings";
 import { widestTexturePx } from "./sharpness";
 import type { Placement, RoomLayout } from "./types";
-import { INTER_FLOOR_HEIGHT } from "./world-coords";
+import { FLOOR_SEPARATION, INTER_FLOOR_HEIGHT } from "./world-coords";
 
 /** Texture pixels a giant needs for each metre of its real width.
  *
@@ -94,7 +94,10 @@ const AWAY_COST = 2;
  * (`trustworthyRealSize`): a size the plaque would not print is not
  * hung at ten metres. The shape is the scan's, as in `sizeWork`.
  */
-export function giantSize(artwork: ArtworkListing): SizedWork | null {
+export function giantSize(
+  artwork: ArtworkListing,
+  minPxPerMetre = GIANT_MIN_PX_PER_METRE,
+): SizedWork | null {
   const size = trustworthyRealSize(artwork);
   if (!size || !artwork.width || !artwork.height) return null;
   const long = Math.max(size.widthCm, size.heightCm) / 100;
@@ -103,7 +106,7 @@ export function giantSize(artwork: ArtworkListing): SizedWork | null {
   const hM = aspect >= 1 ? long / aspect : long;
   if (wM <= MAX_PAINTING_W && hM <= MAX_PAINTING_W) return null;
   const px = widestTexturePx(artwork);
-  if (px == null || px / wM < GIANT_MIN_PX_PER_METRE) return null;
+  if (px == null || px / wM < minPxPerMetre) return null;
   return { artwork, wM, hM };
 }
 
@@ -453,4 +456,210 @@ export function stairHallHang(levels: StairHallStorey[][]) {
   };
 
   return { axes, pairs };
+}
+
+// ── The salon ─────────────────────────────────────────────────────────
+
+/** Texture pixels a work needs for each metre of its real width to hang
+ *  in the salon (`hangSalon`): sharp from 4 m. The salon is for the
+ *  largest works, and the largest have the thinnest scans: the Last
+ *  Judgment has 321. Rico, 17 October 2026, of the Last Judgment left
+ *  out at its real size: "stuff like this is *exactly* what I want". */
+export const SALON_MIN_PX_PER_METRE = 250;
+/** Wall between the work on the salon's far wall and the one over it. */
+const SALON_AXIS_CLEAR = 3;
+
+/** The work at its real size when that is more than a room hangs and
+ *  its scan is good enough for the salon. */
+export function salonSize(artwork: ArtworkListing): SizedWork | null {
+  return giantSize(artwork, SALON_MIN_PX_PER_METRE);
+}
+
+/**
+ * Hang the salon: a hall four storeys high with galleries along its
+ * front and side walls on every floor above, and its far wall sheer
+ * (`buildSalon` in grand-stair.ts). It takes the largest works no other
+ * wall holds, largest first.
+ *
+ *                     far wall
+ *                [ by the same hand ]            on the third floor
+ *     [ flank ]  [       axis       ]  [ flank ]  from the hall floor
+ *   [d]                                      [d]   d, n: a pair on each
+ *   [n]               (void)                 [n]   storey of the side
+ *          [f]         door         [f]            walls; f: a pair on
+ *                                                  each storey's front
+ *
+ * The axis work is the largest no wider than the void, on the hall
+ * floor. Every other work hangs on a storey, with floor in front of it:
+ * Rico found works hung high over a void "meh" in the stair halls. A
+ * pair mirrors about the axis and is two works of like size, the
+ * larger of the two picked first. A side wall's storey holds a pair on
+ * each half, or one pair across both when its largest work needs it.
+ *
+ * `storeys` are the salon's rooms from the floor up; `voidHalf` is half
+ * the width of the opening along the far wall. Returns the works not
+ * hung.
+ */
+export function hangSalon(
+  storeys: RoomLayout[],
+  works: SizedWork[],
+  walls: { far: WallRun["side"]; front: WallRun["side"] },
+  voidHalf: number,
+): SizedWork[] {
+  const base = storeys[0];
+  if (!base) return works;
+  let pool = [...works].sort(bySize).map(framed);
+  const take = (w: Framed) => {
+    pool = pool.filter((x) => x !== w);
+  };
+  const fits = (run: WallRun, w: SizedWork) => footprintOf(w) + 2 * GIANT_GAP <= runLength(run);
+  const onStorey = (w: Framed) => outerHeight(w) <= STOREY_FRAME_ROOM;
+  const roof = storeys[storeys.length - 1].worldRect.y + INTER_FLOOR_HEIGHT - PAINTING_FLOOR_GAP;
+  const farRun = (room: RoomLayout) => hallRuns(room).find((r) => r.side === walls.far);
+  /** The pair of `fitting` led by the largest work that has a partner
+   *  of like size, with the work most like it: size picks first,
+   *  likeness second. */
+  const pairOf = (fitting: Framed[], kinTo: ArtworkListing | null): [Framed, Framed] | null => {
+    for (const [i, anchor] of fitting.entries()) {
+      let best: { work: Framed; score: number } | null = null;
+      for (const work of fitting.slice(i + 1)) {
+        if (unlike(anchor, work) > PAIR_MAX_UNLIKE) continue;
+        const score =
+          unlike(anchor, work) -
+          kin(anchor.artwork, work.artwork) -
+          (kinTo ? kin(work.artwork, kinTo) : 0);
+        if (!best || score < best.score) best = { work, score };
+      }
+      if (best) return [anchor, best.work];
+    }
+    return null;
+  };
+  const hangPair = (room: RoomLayout, runs: [WallRun, WallRun], pair: [Framed, Framed]) => {
+    const centerY = Math.max(...pair.map((w, i) => naturalCenter(runs[i], w)));
+    pair.forEach((w, i) => {
+      take(w);
+      hangOn(room, runs[i], w, centerY);
+    });
+  };
+
+  // 1. The far wall: the axis work on the hall floor, one by the same
+  //    hand over it, and a pair beside it.
+  const run0 = farRun(base);
+  if (run0) {
+    const mid = (run0.uMin + run0.uMax) / 2;
+    const axis = stretch(run0, mid - voidHalf, mid + voidHalf);
+    const hero = pool.find(
+      (w) => fits(axis, w) && base.worldRect.y + PAINTING_FLOOR_GAP + outerHeight(w) <= roof,
+    );
+    if (hero) {
+      take(hero);
+      const centerY = hangOn(base, axis, hero);
+      const heroTop = centerY + hero.hM / 2 + hero.top;
+
+      const over = pool.find(
+        (w) =>
+          kin(w.artwork, hero.artwork) === 2 &&
+          fits(axis, w) &&
+          heroTop + SALON_AXIS_CLEAR + outerHeight(w) <= roof,
+      );
+      if (over) {
+        const bottomY = heroTop + SALON_AXIS_CLEAR;
+        const level = Math.min(
+          storeys.length - 1,
+          Math.floor((bottomY - base.worldRect.y) / FLOOR_SEPARATION),
+        );
+        const room = storeys[level];
+        const run = farRun(room);
+        if (run) {
+          take(over);
+          hangOn(
+            room,
+            stretch(run, axis.uMin, axis.uMax),
+            over,
+            bottomY + over.bottom + over.hM / 2,
+          );
+          // Over the void: nowhere to stand and read a plaque.
+          room.placements[room.placements.length - 1].plaque = null;
+        }
+      }
+
+      const { left, right } = sideClearance(hero);
+      const clear = hero.wM / 2 + Math.max(left, right) + GIANT_GAP;
+      const flanks: [WallRun, WallRun] = [
+        stretch(run0, run0.uMin, mid - clear),
+        stretch(run0, mid + clear, run0.uMax),
+      ];
+      const pair = pairOf(
+        pool.filter(
+          (w) =>
+            onStorey(w) &&
+            outerHeight(w) <= outerHeight(hero) &&
+            fits(flanks[0], w) &&
+            fits(flanks[1], w),
+        ),
+        hero.artwork,
+      );
+      if (pair) hangPair(base, flanks, pair);
+    }
+  }
+
+  // 2. The side walls, a storey at a time from the floor: a pair on the
+  //    half nearer the far wall, then on the half nearer the door, or
+  //    one pair across both halves.
+  const farAtLow = walls.far === "north" || walls.far === "west";
+  const fromFar = (run: WallRun) => {
+    const [a, b] = [run.sign * run.uMin, run.sign * run.uMax];
+    return farAtLow ? Math.min(a, b) : -Math.max(a, b);
+  };
+  const sideNames = (["north", "south", "east", "west"] as const).filter(
+    (s) => s !== walls.far && s !== walls.front,
+  );
+  for (const room of storeys) {
+    const runs = hallRuns(room);
+    const sides = sideNames.map(
+      (s) => runs.filter((r) => r.side === s).sort((a, b) => runLength(b) - runLength(a))[0],
+    );
+    if (sides.some((r) => !r)) continue;
+    const [a, b] = sides as [WallRun, WallRun];
+    const halves = [a, b].map((run) => {
+      const m = (run.uMin + run.uMax) / 2;
+      return [stretch(run, run.uMin, m), stretch(run, m, run.uMax)].sort(
+        (x, y) => fromFar(x) - fromFar(y),
+      );
+    });
+    const inHalf = (w: Framed) => onStorey(w) && halves.every(([d, n]) => fits(d, w) && fits(n, w));
+    // One pair across the wall when the best pair the wall can take
+    // needs all of it; two pairs, one to each half, when it does not.
+    const across = pairOf(
+      pool.filter((w) => onStorey(w) && fits(a, w) && fits(b, w)),
+      null,
+    );
+    if (!across) continue;
+    if (across.every(inHalf)) {
+      for (const k of [0, 1]) {
+        const pair = pairOf(pool.filter(inHalf), null);
+        if (pair) hangPair(room, [halves[0][k], halves[1][k]], pair);
+      }
+    } else {
+      hangPair(room, [a, b], across);
+    }
+  }
+
+  // 3. The front wall of each storey: the two stretches between its
+  //    doors, a pair.
+  for (const room of storeys) {
+    const fronts = hallRuns(room)
+      .filter((r) => r.side === walls.front)
+      .sort((x, y) => runLength(y) - runLength(x))
+      .slice(0, 2);
+    if (fronts.length !== 2) continue;
+    const runs = fronts as [WallRun, WallRun];
+    const pair = pairOf(
+      pool.filter((w) => onStorey(w) && fits(runs[0], w) && fits(runs[1], w)),
+      null,
+    );
+    if (pair) hangPair(room, runs, pair);
+  }
+
+  return pool.map(({ artwork, wM, hM }) => ({ artwork, wM, hM }));
 }
