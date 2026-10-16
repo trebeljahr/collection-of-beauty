@@ -21,7 +21,7 @@ import {
 import type { FloorLayout, Staircase } from "@/lib/gallery-layout/types";
 import { CELL_SIZE, worldToCell } from "@/lib/gallery-layout/world-coords";
 import type { GalleryPose } from "@/lib/gallery-release-state";
-import { FOV_DEFAULT_DEG, FOV_ZOOMED_DEG } from "./camera-config";
+import { baseFovDeg, zoomedFovDeg } from "./camera-config";
 import { fitsDoorwayApertures, nudgeTowardDoorwayCenter } from "./doorway-collision";
 import {
   createGalleryCollisionController,
@@ -240,6 +240,7 @@ export function Player({
    *  details on a painting without opening the modal — useful for
    *  large works where the inspect overlay isn't worth invoking. */
   const zoomFov = useRef(false);
+  const fovSettled = useRef(false);
   /** Smoothed eye height — damps toward the target posture height each
    *  frame. C held → drifts down toward DUCK_EYE_HEIGHT; R held → drifts
    *  up toward TIPTOE_EYE_HEIGHT; release latches at the held height
@@ -495,8 +496,13 @@ export function Player({
     // exposes both .fov and .updateProjectionMatrix.
     if ((camera as THREE.PerspectiveCamera).isPerspectiveCamera) {
       const cam = camera as THREE.PerspectiveCamera;
-      const targetFov = zoomFov.current ? FOV_ZOOMED_DEG : FOV_DEFAULT_DEG;
-      const nextFov = THREE.MathUtils.damp(cam.fov, targetFov, 12, dt);
+      const targetFov = zoomFov.current ? zoomedFovDeg(cam.aspect) : baseFovDeg(cam.aspect);
+      // The first frame snaps: the Canvas mounts at the landscape FOV, and
+      // an upright phone would otherwise watch the view widen on load.
+      const nextFov = fovSettled.current
+        ? THREE.MathUtils.damp(cam.fov, targetFov, 12, dt)
+        : targetFov;
+      fovSettled.current = true;
       if (Math.abs(nextFov - cam.fov) > 0.01) {
         cam.fov = nextFov;
         cam.updateProjectionMatrix();
@@ -575,7 +581,7 @@ export function Player({
       // Walking cancels FOV zoom. The zoomed FOV is meant for standing
       // and reading a painting from across the room — once the player
       // starts moving, the narrow field is more disorienting than
-      // useful, so drop back to FOV_DEFAULT_DEG and let the FOV-damp loop
+      // useful, so drop back to the base FOV and let the FOV-damp loop
       // above ease the camera back out over the next ~150 ms.
       zoomFov.current = false;
       // Movement also releases any latched crouch/tiptoe height — the

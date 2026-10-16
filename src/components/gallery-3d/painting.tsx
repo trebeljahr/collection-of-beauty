@@ -25,7 +25,7 @@ import type { Placement, RoomLayout } from "@/lib/gallery-layout/types";
 import { CELL_SIZE } from "@/lib/gallery-layout/world-coords";
 import { formatCm, trustworthyRealSize } from "@/lib/real-size";
 import { GALLERY_LOD_WIDTH, variantProxyUrl } from "@/lib/utils";
-import { FOV_DEFAULT_DEG, ZOOM_PIXEL_HEADROOM } from "./camera-config";
+import { FOV_DEFAULT_DEG, ladderHeightPx, ZOOM_PIXEL_HEADROOM } from "./camera-config";
 import { UNREFLECTED_LAYER } from "./floor-mirror";
 import { buildFrameGeometry } from "./frame-geometry";
 import { PaintingLight } from "./painting-light";
@@ -133,7 +133,7 @@ const LOD_HEIGHT_QUANTUM_PX = 256;
 // The FOV the ladder is derived AGAINST: FOV_DEFAULT_DEG, always — never
 // the camera's live `fov`.
 //
-// The camera's FOV is animated. player.tsx damps it from 75 to 35 on the
+// The camera's FOV is animated. player.tsx damps it from 50 to 25 on the
 // F key so the player can read a painting from across the room, and
 // `camera.fov` is mutated in place, which means an effect that samples it
 // (a) has no dependency that fires when it changes and (b) captures
@@ -148,7 +148,7 @@ const LOD_HEIGHT_QUANTUM_PX = 256;
 // So the ladder is a fixed, deterministic function of the work and the
 // canvas, and the ZOOM is handled where it belongs: the LodController
 // hands `lodUpdate` a second, FOV-normalised distance (`displaySq`, see
-// camera-config.ts), so at fov 35 every band is reached at 2.43x its
+// camera-config.ts), so at fov 25 every band is reached at 2.10x its
 // nominal radius and the picker climbs the ladder correspondingly
 // earlier. Bands respond to zoom; rungs don't.
 
@@ -294,10 +294,10 @@ function effectiveWidth(label: number, sourceWidth: number): number {
  *
  * ZOOM. All of the above is derived at FOV_DEFAULT_DEG. The F-key zoom
  * is not a fourth clamp and does not add a rung; it arrives as a scaled
- * distance (`displaySq`), so at fov 35 each of these bands is reached at
- * 2.4337x its nominal radius and the picker simply climbs the ladder
+ * distance (`displaySq`), so at fov 25 each of these bands is reached at
+ * 2.1034x its nominal radius and the picker simply climbs the ladder
  * sooner. Provisioning the LADDER for the zoomed case instead would
- * multiply every target by 2.4337 and put most of the corpus straight
+ * multiply every target by 2.1034 and put most of the corpus straight
  * back on the 4096 rung — the exact over-provisioning this function
  * exists to undo — to serve a mode that only works standing still.
  */
@@ -317,7 +317,7 @@ function deriveTiers(
   const wantPx = renderWidthM * pxPerM;
   const baseEff = effectiveWidth(baseWidth, sourceWidth);
   // Nothing above the base could ever be displayed: even the F-key zoom,
-  // which is worth 2.4337x the pixels, asks for less than the base
+  // which is worth 2.1034x the pixels, asks for less than the base
   // already carries. Without this a work with a generous base on a small
   // window still gets a rung whose upgrade radius sits inside D_MIN —
   // prefetched on every pass, displayable never. It fires only on small
@@ -357,7 +357,7 @@ function deriveTiers(
     // already meets `wantPx` the loop still emits one rung above it, and
     // that rung is the zoom headroom: its upgrade radius lands inside
     // D_MIN, so it is unreachable by walking, but `displaySq` shrinks by
-    // 0.411 while F is held and brings it into range at 2.43x that radius.
+    // 0.475 while F is held and brings it into range at 2.10x that radius.
     // The guard above is what keeps this from emitting a rung that stays
     // unreachable even then.
     if (effW >= wantPx) break;
@@ -403,7 +403,7 @@ function deriveTiers(
 //     quarter-gigabyte decodes and uploads while merely standing near a
 //     big canvas. That is the walking stutter.
 //   • Detail. The tier upgraded at 1.05 m, where a 1.5 m-tall canvas
-//     fills the 75° vertical FOV — ~1600 device px on a retina laptop,
+//     filled the then 75° vertical FOV — ~1600 device px on a retina laptop,
 //     ~2160 on a 4K panel. The 4096 px variant is already 3072 px tall
 //     on a 4:3 work. 8192 was 3× oversampled and unresolvable.
 //
@@ -1300,8 +1300,13 @@ function PaintingPlane({
   // guarantee that the rung never changes.
   const derivationHeightPx = useThree(
     (s) =>
-      Math.max(1, Math.round((s.size.height * s.viewport.dpr) / LOD_HEIGHT_QUANTUM_PX)) *
-      LOD_HEIGHT_QUANTUM_PX,
+      Math.max(
+        1,
+        Math.round(
+          ladderHeightPx(s.size.height * s.viewport.dpr, s.size.width / s.size.height) /
+            LOD_HEIGHT_QUANTUM_PX,
+        ),
+      ) * LOD_HEIGHT_QUANTUM_PX,
   );
 
   // Track the base texture. The LOD effect uses this as the
@@ -1560,7 +1565,7 @@ function PaintingPlane({
       // prefetch radius is a bet about how far the player might WALK
       // before the bytes land, and walking cancels the FOV zoom outright
       // (player.tsx), so a stationary zoomed player must not pull the
-      // room's top rungs into the pool at 2.43x their radius. What zoom
+      // room's top rungs into the pool at 2.10x their radius. What zoom
       // does change is which of the already-fetched rungs displays, and
       // that is the picker's business below. getHiRes
       // (used as our "is it cached?" check) touches MRU as a side effect,

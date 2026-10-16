@@ -80,7 +80,7 @@ export function LodController() {
     // an orthographic or otherwise non-perspective camera, which makes
     // `displaySq` collapse back onto `distSq`.
     const cam = state.camera as THREE.PerspectiveCamera;
-    const zoomScaleSq = cam.isPerspectiveCamera ? fovZoomScaleSq(cam.fov) : 1;
+    const zoomScaleSq = cam.isPerspectiveCamera ? fovZoomScaleSq(cam.fov, cam.aspect) : 1;
     forEachPainting((entry) => {
       if (!entry.lodUpdate) return;
       // Camera offset from painting centre, in world space.
@@ -104,7 +104,7 @@ export function LodController() {
       const overR = Math.max(0, Math.abs(localR) - entry.halfW);
       const overU = Math.max(0, Math.abs(localU) - entry.halfH);
       const distSq = overR * overR + overU * overU + perpSq;
-      // Second argument is the same distance expressed at the default
+      // Second argument is the same distance expressed at the base
       // FOV, so the painting's derived bands — which are sized for that
       // FOV — stay correct while the F-key zoom is engaged. See the
       // `lodUpdate` contract in painting-registry.ts for why prefetch
