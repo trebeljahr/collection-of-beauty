@@ -443,12 +443,12 @@ required by the Dockerfile — don't remove it.
   slots are open (`fittingsFor` in `layout-museum.ts`), so a room is
   fitted the same on every storey and its wall can be counted before a
   floor's doors are wired.
-  - **Ceiling.** `RoomLayout.ceilingHeight`: 3.4 m when the narrow side
-    is 10 m, 5.4 m when it is 17.5 m or more, 4.2 m between and in the
-    stairwell. Walls still run to the slab above; the height sets the
-    ceiling plane, the laylights and where the picture lights hang. The
-    hang keeps a metre under the ceiling, so a 3.4 m room caps a work at
-    2.4 m. It does not hang taller than 3.2 m under a taller ceiling.
+  - **Ceiling.** `RoomLayout.ceilingHeight`: 4.6 m when the narrow side
+    is 10 m, 6.6 m when it is 17.5 m or more, 5.6 m between and in the
+    stairwell ("How high things are", below). Walls still run to the
+    slab above; the height sets the ceiling plane, the laylights and
+    where the picture lights hang. The hang keeps 1.4 m under the
+    ceiling, so even a 4.6 m room takes a work to the 3.2 m cap.
   - **Dividers.** `RoomLayout.dividers`: segments on grid lines, drawn
     0.4 m thick (`divider-geometry.ts`) and planned in
     [`divider-plans.ts`](src/lib/gallery-layout/divider-plans.ts). A
@@ -560,7 +560,7 @@ required by the Dockerfile — don't remove it.
     the 0.32 m the collider keeps a walking body off, so a jump in
     place beside a bench lands on the floor.
     Nothing stops a jump at the ceiling. Off a bench on tiptoe the
-    camera reaches 3.42 m and the lowest ceiling is at 4.0 m; a ceiling
+    camera reaches 3.42 m and the lowest ceiling is at 4.6 m; a ceiling
     under 3.6 m would need a clamp.
   - A bench can stand on a room's centre, so nothing sends the player
     to a raw room centre: use `arrivalPoint`.
@@ -582,9 +582,11 @@ required by the Dockerfile — don't remove it.
   as default). `precomputed.ts` and `/gallery-3d/plan` show the block
   plan; `build-museum-screenshots.mjs` walks the tower. One rectangular
   block, 117.5 × 62.5 m, on four floors, the same plan on each. Down
-  its middle runs a spine of five bays: a stair hall 27.5 m square at
-  each end, a court of the same size in the centre, and a gallery of
-  17.5 m between each pair. North and south of the spine a range runs
+  its middle runs a spine of five bays: a stair hall 27.5 m wide and
+  25 m deep at each end, a court 27.5 m square in the centre, and a
+  gallery of 17.5 m between each pair. A stair hall's end wall stands
+  a cell inside the building's end wall; the strip between is no room
+  (`cellOwner` -1, not walkable). North and south of the spine a range runs
   the length of the block: a long gallery (47.5 × 17.5 m), a stair
   tower (22.5 × 17.5 m) beside the court, a long gallery. So a floor is
   six galleries (`BLOCK_ROOMS`), two stair halls and the court
@@ -618,12 +620,12 @@ required by the Dockerfile — don't remove it.
     - no door behind the stair or into its flights. The side doors
       open from the gallery beside the stair into the long gallery
       behind the side wall, 11.25 m in from the front wall, by the foot
-      of the side flight and 3.6 m short of the balustrade over the
-      void. Rico asked for them on 17 October 2026, pointing at the
-      bare wall between Liberty and that balustrade: "here should be a
-      door for the stair ways". Until then a hall had the portal only.
-      The door cuts the side wall's stretch from 15 m to 10 m,
-      so the giant there hangs with less bare wall round it, and the
+      of the side flight. Rico asked for them on 17 October 2026,
+      pointing at the bare wall between Liberty and the balustrade that
+      then ended the side gallery: "here should be a door for the stair
+      ways". Until then a hall had the portal only. The door splits the
+      side wall in two stretches, one pair of works each
+      (`stairHallHang`), and the
       long galleries were divided and seated again for the new door:
       54 benches where there were 61;
     - a room in a corner of the block would then have one door. That is
@@ -635,8 +637,10 @@ required by the Dockerfile — don't remove it.
     - a stair hall does not have to be a room of the grid. Rico: its
       size "doesn't have to match the other parts of the building" as
       long as the way in and out makes sense. The halls are 27.5 m
-      square because he found 22.5 m cramped. `GrandStair.half` assumes
-      a square.
+      wide because he found 22.5 m cramped, and 25 m deep since
+      17 October 2026. A grand stair's frame is the square its front
+      wall makes (`half`); `back` is how far its end wall stands from
+      the centre.
   - A floor there holds several eras, so read a room's era through
     `eraOfRoom()` and a floor's name through `floorTitle()`
     (`room-era.ts`), never `ERAS[room.floorIndex]`. `FloorLayout.era`
@@ -669,11 +673,27 @@ required by the Dockerfile — don't remove it.
       6.25 m deep between the door and its foot on every floor
       (`LOGGIA.lobby`). A side flight arrives on the lobby and the next
       middle flight leaves from it. Behind the half landings the hall
-      is open from the floor to the roof and from wall to wall, 11.45 m
-      deep (`sheerStripDepth`): the stair's own opening and that void
-      are one hole (`StairOpening`, rectangles that touch). Beside the
-      stair a gallery 5.75 m wide runs to the landing's far edge on
-      every floor and ends in a balustrade over the void.
+      is open from the floor to the roof, the stair's width (16 m) and
+      3.95 m deep: the stair's own opening and that void are one hole
+      (`StairOpening`, rectangles that touch). On every floor a gallery
+      runs round it on three sides: 5.75 m wide beside the stair, 5 m
+      deep along the end wall (`LOGGIA.endGallery`), fenced along the
+      void. Every wall of the hall has floor in front of it on every
+      storey.
+    - **Why the end wall stands nearer.** Until 17 October 2026 the
+      void ran on to the end wall, 11.45 m deep and wall to wall, and
+      that wall and 11.45 m of each side wall stood sheer for 24 m. The
+      largest works hung there in a composition across storeys, up to
+      21 m over the floor and 11 m from the nearest gallery, with no
+      plaque. Rico, standing on a side gallery: "this space is still a
+      bit meh". He asked for the wall to move in "slightly", only the
+      stair hall to get smaller, the adjacent rooms to keep their size,
+      and the floors to "extend" to meet the wall, so works hang by the
+      per-floor rules, close enough to see, with room to step back and
+      the plaque beside them. Hence a 25 m hall set out from its front
+      wall (`GrandStair.back`, `buildStair` in `layout-block.ts`): the
+      stair stands where it stood in the square hall. Do not move the
+      wall in further: at two cells the void would be a 2.95 m slot.
     - **Why the void is beside the stair.** The first build stacked a
       stair of every storey in three halls 22.5 m square, cut only to
       the stair's footprint. Rico found the halls cramped and low: the
@@ -681,9 +701,9 @@ required by the Dockerfile — don't remove it.
       next stair hung 5.8 m over every flight. The plan after it gave
       each hall one stair with the hall open over it, and he found
       that a stair in another place on each floor reads worse. In a
-      loggia a flight still has the next one 5.8 m over it; the hall
-      has its height behind the stair, and every half landing looks
-      into it. `arcs` and `hourglass` and the single `imperial` are
+      loggia a flight has the next one 8.1 m over it (5.8 m while the
+      storey was 6.12 m); the hall has its height behind the stair,
+      and every half landing looks into it. `arcs` and `hourglass` and the single `imperial` are
       still built and tested; no plan uses them.
     - **The court** (`design: "court"`) has no patches. Its one object
       runs from the first floor to the top (`topFloor`): floor from
@@ -719,12 +739,14 @@ required by the Dockerfile — don't remove it.
       closed and glazed: a laylight over the void.
     - **A stair is cut off at its hall's walls** (`WALL_CLEAR` in
       `grand-staircase.tsx`). A wall is a plane with no thickness, and
-      the room behind draws its own on the same line. A loggia's gallery
-      fence ends at the side wall, and the post there is centred on the
-      wall line. Until 13 October 2026 the 12 such posts each stood
-      22 cm into the long gallery next door. Every box of a stair goes
-      through `Solid`, which stops it 2 cm inside the wall. A part of a
-      hall drawn another way has to stay inside the wall lines itself.
+      the room behind draws its own on the same line. A sheer hall's
+      gallery fence ends at the side wall, and the post there is
+      centred on the wall line. Until 13 October 2026 the 12 such posts
+      of the loggias each stood 22 cm into the long gallery next door.
+      Every box of a stair goes through `Solid`, which stops it 2 cm
+      inside the wall, and 2 cm inside `back` toward the end wall. A
+      part of a hall drawn another way has to stay inside the wall
+      lines itself.
     - A hall's centre is a flight or the open well. Send a visitor to
       `blockArrivalPoint()`, never to the room's centre: the floor
       keys, the map and a restored visit all use it. It answers for the
@@ -969,17 +991,23 @@ required by the Dockerfile — don't remove it.
       a hall's storey. Rico: the big paintings "cluster too close
       together". A stretch is the wall between a door and a corner, or
       beside a stair; the work's canvas hangs on its middle.
-    - A giant hangs on the floor of its era, in the court first and in
-      the two stair halls after it, the halls a stretch at a time in
-      turn (`hangHallStoreys`). In a room that is not full, the north
-      and south walls fill first, then the west and east walls a
-      stretch at a time, so walls that face each other hold alike. What
-      a full floor leaves over goes to the floors above, and to the
-      ones under it last.
-    - A frame fits a storey up to 5.38 m (`STOREY_FRAME_ROOM`): canvases
-      to about 4.9 m. Taller ones go to the sheer walls (next point).
+    - A giant hangs on the floor of its era, in three passes
+      (`hangGiants` in `layout-block.ts`). Each storey of a stair hall
+      takes the largest work of its floor on the middle of its end
+      wall, or first a work too long for any other stretch
+      (`stairHallHang().axes`). The court then takes one work to a
+      stretch (`hangHallStoreys`): in a room that is not full, the
+      north and south walls fill first, then the west and east walls a
+      stretch at a time, so walls that face each other hold alike, and
+      what a full floor leaves over goes to the floors above, and to
+      the ones under it last. The stair halls then hang pairs from
+      what is left (`stairHallHang().pairs`, "A stair hall's storey is one
+      composition", below).
+    - A frame fits a storey up to 7.66 m (`STOREY_FRAME_ROOM`): every
+      giant of the catalogue. The tallest is the Triumph of Frederick
+      Henry, 7.49 m in its frame. That is why the storey is 8.4 m.
     - `Placement.giant` drops the picture light: the hall's washers
-      light the wall (next point but one). Every plaque hangs
+      light the wall ("A hall is lit by rows of wall washers", below). Every plaque hangs
       beside its frame with its centre 1.45 m over the room's floor
       (`PLAQUE_EYE`), whatever the height of the work: until 17 October
       2026 it hung beside the canvas middle, and a tall work lifted off
@@ -987,19 +1015,16 @@ required by the Dockerfile — don't remove it.
       eye level of another floor (`dy`), sideways (`dx`), or leaves it
       out (`null`, a work with no floor in front of it at its own
       height).
-    - All 71 giants hang (17 October 2026): 16 on the sheer walls, 29
-      in the court, 22 on the stair halls' storeys, 4 in the spiral
-      rooms. A spiral room takes only what no hall's wall holds on any
-      floor (a second `hangHallStoreys` pass): its outer wall is 22.5 m
-      with no door. That is two of Monet's Orangerie panels, 12.75 m
-      long, which hung in their rooms at 3.2 m before, and the two East
-      Asian handscrolls, 11.86 and 11.15 m, which hung on a stair
-      hall's side wall until its door cut the wall to 10 m.
-    - Room left on 17 October 2026: all 16 places on the sheer walls
-      are taken. Of the storeys' stretches long enough for a giant
-      (9.4 m and more), 13 are free, 11 of them on the top floor, which
-      takes what a lower floor cannot hold. The spiral rooms hang 4
-      works on the third and fourth floors and nothing below.
+    - All 71 giants hang (17 October 2026): 32 in the court, 34 in the
+      stair halls, 3 in the spiral rooms and 2 in their era's galleries
+      at real size (The Seven Works of Mercy, Heroes), which no pair
+      took. A spiral room takes only what fits no stretch of a hall but
+      an end wall (a last `hangHallStoreys` pass, `fitsStretch`): its
+      outer wall is 22.5 m with no door. That is Les Nuages, whose
+      floor's two end walls hang the other two Orangerie panels, and
+      the two East Asian handscrolls, 11.86 and 11.15 m.
+    - The tower has no such wall: its stairwell is one storey high
+      between slabs. Giants hang there as before, at 3.2 m.
   - **The galleries hang at real size too.** Rico, 17 October 2026: the
     3.2 m limit "should still not apply" in the rooms, "I want the
     paintings in their real sizes". The block plan's hang passes
@@ -1007,7 +1032,8 @@ required by the Dockerfile — don't remove it.
     - A work with a trusted size (`trustworthyRealSize`) hangs at that
       size and is never shrunk to a wall. A run takes it only when it is
       long enough for the frame and plaque, and when the canvas is no
-      taller than the ceiling allows: 4.3 m under 5.7 m. One that no
+      taller than the ceiling allows: 5.2 m under 6.6 m (4.3 m under
+      5.7 m until the storey grew on 17 October 2026). One that no
       wall of its era's rooms holds is left out of the era before the
       sample (`fitsSomeRun` in `hangZone`): the Last Judgment, 13.7 m.
     - A giant no hall and no spiral room took hangs first in its era's
@@ -1025,71 +1051,36 @@ required by the Dockerfile — don't remove it.
       Last Supper, the Burial of the Count of Orgaz and two canvases of
       Mucha's Slav Epic: they need a larger scan.
     - The tower keeps the cap.
-    - The tower has no such wall: its stairwell is one storey high
-      between slabs. Giants hang there as before, at 3.2 m.
-  - **Three walls of a stair hall are sheer** (`GrandStair.sheerWall`,
-    `RoomLayout.sheer`): the building's end wall behind the stair, 27.5
-    m long, and 11.45 m of each side wall beyond the galleries, all 24
-    m high. `hangSheerWalls` hangs the three as one composition about
-    the stair's axis, from the works taller than a storey and some of
-    the others. Such a work carries `Placement.sheer`.
-    - **End wall, level with the second floor: three works, one to a
-      bay of the piers.** Four piers stand under each half landing,
-      11 m in front of the wall. From the foot of the stair the two
-      middle ones frame 10.6 m of it (`axisBay` in `grand-stair.ts`).
-      The largest tall work no wider than that hangs in the axis: the
-      Wedding at Cana in the west hall, the Coronation of Napoleon in
-      the east. Beside it hangs a pair, one in the middle of the wall
-      either side, their middles level with its own: the two
-      Tintorettos of San Rocco beside Cana.
-    - **End wall, top: one work too wide for any other place**, over
-      the piers and seen whole from the top floor, 3 m and more over
-      the row below (`AXIS_CLEAR`). It goes to the hall whose axis work
-      is nearest of kin: Veronese's Feast in the House of Levi
-      (13.09 m) over his Cana, Monet's Matin over the Coronation.
-    - **Side walls: a pair on the hall floor and a pair two storeys
-      up**, one work in the middle of each wall. Both walls hang on the
-      same storeys, the ones the end wall leaves bare, so no corner
-      holds two works at one height.
-    - **A pair is two works of like size** (`unlike`, at most 1.5 m
-      apart, but for a tall work that has to hang), by one hand or of
-      one era where the catalogue has such two (`kin`), and at home in
-      the hall (`atHome`: kinship with what hangs there). So Raphael's
-      School of Athens faces his Fire in the Borgo under the Venetian
-      wall, and Jordaens's Triumph faces Le Brun's Alexander Entering
-      Babylon. Do not put `-100 * talls` back into a side pair's score:
-      it paired the two tall works left over, whatever they were.
-    - The hang before this one dealt each wall its works one at a
-      time: the widest in the axis, 13 m of canvas cut by two piers;
-      one side wall hung on the first and third floors, the other on
-      the second and fourth; one end wall with two works and the other
-      with four. Rico, 13 October 2026: the arrangement on the back
-      wall "is a bit meh".
-    What it costs and what it needs:
-    - No door in the sheer part of a stair hall's side walls on any
-      floor (the side doors stand clear of it, `layout-block.test.ts`
-      checks), and a gallery that ends at the landing's far edge,
-      fenced.
-    - A hole that touches a shape's edge does not triangulate. A hall's
-      floor and ceiling round an opening of rectangles are built from
-      the rectangles left (`rectsAround` in `stair-opening.ts`).
-    - A grand hall's walls run the full `FLOOR_SEPARATION`, so the wall
-      goes on through the slab's depth. With a sheer wall they stand
-      4 mm inside their lines: the floor slab of the room behind lies in
-      the wall's own plane. **Anything laid on such a wall takes
-      `wallInsetOf(room)`** (`painting-light-rig.ts`). The light pools
-      lie 2 mm off their wall, and until 13 October 2026 they lay 2 mm
-      off the wall's line: 2 mm behind the plaster. The depth test
-      passed a pool where the wall was seen at a slant and failed it
-      elsewhere, so a pool came and went in blocks as the visitor
-      turned.
-    - Skirting is one-sided on a wall a room draws for itself
-      (`ownFace`). Straddling the wall, the board of the room behind
-      showed through the sheer wall as a dark line at every storey. It
-      is left out where there is no floor (`SkirtingClip`).
-    - The wall washers skip the sheer wall and stop short of the strip
-      on the two walls that meet it (`washedWalls`): no ceiling is
-      there to hang a can from. A work on a sheer wall has no pool.
+  - **A stair hall's storey is one composition about its stair's
+    axis** (`stairHallHang` in `giants.ts`). Rico asked on 17 October
+    2026 for the hall's works to be arranged "more beautifully and not
+    as chaotic". Every work hangs on the middle of a stretch:
+    - **End wall**: the axis work, seen from the foot of the stair over
+      the half landing and across the void. Beside it a pair, one on
+      the middle of each half of the wall left over, their middles level
+      with its middle, not taller than it and at least 0.55 of its
+      height (`FLANK_MIN_HEIGHT`). Both halves keep clear of the axis
+      work's plaque, so they mirror each other.
+    - **Side walls**: each split in two stretches. A pair across the
+      void on the halves nearer the end wall, then a pair on the halves
+      nearer the door.
+    - **Front wall**: a pair, one either side of the portal.
+    A pair is two works of like size (`unlike`, at most 1.5 m apart) on
+    one centre line, by one hand or of one era where the pool has such
+    two (`kin`), and of the storey's own floor unless it has none alike
+    (`AWAY_COST`). Nothing hangs alone where a pair belongs: a storey
+    with too few works leaves both stretches bare. The East Asian and
+    Impressionist floors have few giants, and their hall storeys hang
+    three works.
+    No plan has a sheer wall now. The support for one stays, for an
+    imperial stair that asks for it (`GrandStair.sheerWall`) and for
+    `RoomLayout.sheer`, which nothing sets: walls 4 mm inside their
+    lines and `wallInsetOf(room)` for what lies on them, one-sided
+    skirting left out where there is no floor (`SkirtingClip`), and
+    washers that skip the sheer wall (`washedWalls`). A hole that
+    touches a shape's edge does not triangulate, so a hall's floor and
+    ceiling round an opening of rectangles are still built from the
+    rectangles left (`rectsAround` in `stair-opening.ts`).
   - **A hall is lit by rows of wall washers, set out about its
     works.** Rico, 13 October 2026, of the halls as first hung: "a bit
     random stuff going on with the lights". One row to a wall stood by
@@ -1128,11 +1119,15 @@ required by the Dockerfile — don't remove it.
 - **How high things are, and what may hang.** Three numbers Rico set
   on 12 October 2026; a change to any of them changes
   `galleryLayoutIdentity`.
-  - Ceilings (`world-coords.ts`): 4.0 m in a room 10 m wide or less,
-    4.8 m as standard, 5.7 m in a hall. They were 3.4, 4.2 and 5.4 and
-    felt low. The slab above is at 5.92 m, so 5.7 is near the limit;
-    more height means a larger `FLOOR_SEPARATION` and a spiral with
-    more steps.
+  - Ceilings (`world-coords.ts`): 4.6 m in a room 10 m wide or less,
+    5.6 m as standard, 6.6 m in a hall. They were 3.4, 4.2 and 5.4 and
+    felt low, then 4.0, 4.8 and 5.7 under a slab at 5.92 m. On
+    17 October 2026 the storey went from 6.12 to 8.4 m
+    (`FLOOR_SEPARATION`) so the largest works hang on one storey of a
+    stair hall; Rico: "make all the rooms somewhat taller". The slab
+    is now at 8.2 m. The spiral took 36 steps for it (0.233 m each, 26
+    before) and a grand stair 52 risers (0.162 m, 40 before), the
+    flights the same length.
   - `PAINTING_FLOOR_GAP` is 0.4 m, measured to the frame's bottom edge.
     A work's height cap is the ceiling less that gap and a metre for the
     frame's top rail and the picture light, and in the tower never more

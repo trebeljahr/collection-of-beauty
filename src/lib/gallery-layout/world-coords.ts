@@ -9,18 +9,22 @@ export const CELL_SIZE = 2.5; // metres per cell on the XZ plane
 // Interior ceiling plane of a room. A room carries its own height
 // (`RoomLayout.ceilingHeight`, set in fittings.ts): cabinets are low,
 // halls are tall, everything else and the stairwell use ROOM_HEIGHT.
-// The tallest still clears the slab above (INTER_FLOOR_HEIGHT, 5.92 m).
+// The tallest still clears the slab above (INTER_FLOOR_HEIGHT, 8.2 m).
 // Raised by 0.3 to 0.6 m on 12 October 2026: the rooms felt low, and a
 // 3.2 m canvas hung 0.4 m off the floor in its frame reaches 3.94 m,
-// which left no wall for the picture light under 4.2 m.
-export const ROOM_HEIGHT = 4.8;
-export const ROOM_HEIGHT_LOW = 4.0;
-export const ROOM_HEIGHT_TALL = 5.7;
+// which left no wall for the picture light under 4.2 m. Raised again by
+// 0.6 to 0.9 m on 17 October 2026, with the storey (below).
+export const ROOM_HEIGHT = 5.6;
+export const ROOM_HEIGHT_LOW = 4.6;
+export const ROOM_HEIGHT_TALL = 6.6;
 export const CORRIDOR_HEIGHT = 3.12; // lower interior ceiling in hallways
 // Metres between floor surfaces. The spiral staircase climbs a full
-// revolution per storey, so this also sets the rise per tread (0.235 m
-// at 26 steps). It caps every ceiling above.
-export const FLOOR_SEPARATION = 6.12;
+// revolution per storey, so this also sets the rise per tread (0.233 m
+// at 36 steps). It caps every ceiling above. It was 6.12 m until
+// 17 October 2026, when the stair halls lost their sheer walls and every
+// work had to hang on one storey: the tallest, the Triumph of Frederick
+// Henry, is 7.49 m in its frame (`STOREY_FRAME_ROOM` in giants.ts).
+export const FLOOR_SEPARATION = 8.4;
 export const WALL_THICKNESS = 0.1;
 
 // Door openings. 1.4 m wide leaves ≥ 0.55 m of wall on each side of a
@@ -54,7 +58,7 @@ export const DIVIDER_THICKNESS = 0.4;
 // cramped.
 export const SPIRAL_INNER_RADIUS = 2.6; // inner edge of treads
 export const SPIRAL_OUTER_RADIUS = 5.4; // outer edge of treads
-export const SPIRAL_STEPS_PER_FLOOR = 26; // ~13.8° per step (rise ≈ 0.24 m)
+export const SPIRAL_STEPS_PER_FLOOR = 36; // 10° per step (rise ≈ 0.23 m)
 /** Radius of the stone spine running through the centre of the spiral.
  *  Sized well inside SPIRAL_INNER_RADIUS so it never intrudes on the
  *  walking annulus, but visible from the well — gives the helix a

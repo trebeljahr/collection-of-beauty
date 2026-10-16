@@ -9,6 +9,9 @@ import { buildStair } from "./grand-staircase";
 
 const DESIGNS: GrandStairDesign[] = ["loggia", "imperial", "arcs", "hourglass", "court"];
 const HALF = 13.75;
+/** A loggia's end wall stands a cell inside its square, as in the
+ *  block plan. */
+const backOf = (design: GrandStairDesign) => (design === "loggia" ? HALF - 2.5 : HALF);
 
 /** The stair of one storey of a hall four floors high. */
 function stairOf(design: GrandStairDesign, storey: number) {
@@ -25,6 +28,7 @@ function stairOf(design: GrandStairDesign, storey: number) {
     centerX: 0,
     centerZ: 0,
     half: HALF,
+    back: backOf(design),
     turns: 0,
     hasFlightBelow: storey > 0,
     hasFlightAbove: storey < 2,
@@ -38,7 +42,7 @@ describe("grand stair geometry", () => {
   // that runs to the side wall, and the post at that end is centred on
   // the wall: half of it stood in the long gallery next door.
   it("draws nothing outside its hall", () => {
-    let furthest = 0;
+    let furthest = Number.NEGATIVE_INFINITY;
     let where = "";
     for (const design of DESIGNS) {
       for (const storey of [0, 1, 2]) {
@@ -47,7 +51,12 @@ describe("grand stair geometry", () => {
           if (!geometry) continue;
           const at = geometry.getAttribute("position");
           for (let i = 0; i < at.count; i++) {
-            const reach = Math.max(Math.abs(at.getX(i)), Math.abs(at.getZ(i)));
+            // How far past the nearest wall: positive is outside.
+            const reach = Math.max(
+              Math.abs(at.getX(i)) - HALF,
+              at.getZ(i) - HALF,
+              -at.getZ(i) - backOf(design),
+            );
             if (reach > furthest || Number.isNaN(reach)) {
               furthest = reach;
               where = `${design}, storey ${storey}, ${name}, vertex ${i}`;
@@ -56,19 +65,20 @@ describe("grand stair geometry", () => {
         }
       }
     }
-    expect(furthest, where).toBeLessThan(HALF);
+    expect(furthest, where).toBeLessThan(0);
   });
 
   it("keeps a post where a balustrade ends at a wall", () => {
-    // The loggia's gallery fence meets the side wall 2.3 m short of the
-    // hall's middle. The post there is cut at the wall, not left out:
-    // it stands higher than the rail it ends.
-    const stair = stairOf("loggia", 1);
+    // A sheer imperial hall's gallery fence meets the side wall level
+    // with the landing's far edge, 8 m short of the hall's middle. The
+    // post there is cut at the wall, not left out: it stands higher
+    // than the rail it ends.
+    const stair = stairOf("imperial", 2);
     const at = buildStair(stair).stone?.getAttribute("position");
     const overRail = stair.upperY + GRAND_RAIL_HEIGHT + 0.05;
     let onWall = 0;
     for (let i = 0; at && i < at.count; i++) {
-      const atWall = Math.abs(at.getX(i)) > HALF - 0.05 && Math.abs(at.getZ(i) + 2.3) < 0.3;
+      const atWall = Math.abs(at.getX(i)) > HALF - 0.05 && Math.abs(at.getZ(i) + 8) < 0.3;
       if (atWall && at.getY(i) > overRail) onWall++;
     }
     expect(onWall).toBeGreaterThan(0);

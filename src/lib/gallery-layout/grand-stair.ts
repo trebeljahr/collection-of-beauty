@@ -20,8 +20,9 @@
 //              waist and widens again. Kunstmuseum Bonn.
 //   loggia     The imperial stair on every storey, each over the one
 //              below, in the front of its hall. Behind its half
-//              landings the hall is open from the floor to the roof
-//              and from wall to wall.
+//              landings the hall is open from the floor to the roof,
+//              between the side galleries and a gallery along the end
+//              wall.
 //   court      No stair: a hall open from its floor to the roof, with
 //              a gallery round the opening on every floor above.
 //
@@ -141,8 +142,12 @@ export type GrandStair = {
   /** Centre of the hall, world metres. */
   centerX: number;
   centerZ: number;
-  /** Half the hall's side. The hall is square. */
+  /** Half the hall's side: its walls either side of the stair, and its
+   *  front wall, stand this far from the centre. */
   half: number;
+  /** How far the wall the stair climbs toward stands from the centre:
+   *  `half` in a square hall, less where that wall stands nearer. */
+  back: number;
   /** Quarter turns from the design's frame to the world: 0 rises north,
    *  1 east, 2 south, 3 west. */
   turns: 0 | 1 | 2 | 3;
@@ -152,9 +157,9 @@ export type GrandStair = {
   hasFlightBelow: boolean;
   /** The hall has no gallery along the wall its stair climbs toward:
    *  the void reaches that wall on every floor over the stair's foot, so
-   *  the wall stands sheer from the hall floor to the roof. It is where
-   *  the works taller than a storey hang (`giants.ts`). An imperial
-   *  stair with nothing over it, when asked; a loggia always. */
+   *  the wall stands sheer from the hall floor to the roof. An imperial
+   *  stair with nothing over it, when asked. No plan asks: the loggia
+   *  had it until 17 October 2026 (see `LOGGIA`). */
   sheerWall?: boolean;
   /** Everything below is in the hall's frame, heights in world metres. */
   patches: StairPatch[];
@@ -168,8 +173,10 @@ export type GrandStair = {
 export const STAIR_SLAB = 0.3;
 /** Clear height a visitor needs to walk under a flight. */
 export const STAIR_HEADROOM = 2.3;
-/** Risers in a storey: 0.153 m each. */
-export const GRAND_RISERS = 40;
+/** Risers in a storey: 0.162 m each. Forty, 0.153 m each, while the
+ *  storey was 6.12 m: the flights kept their length when it grew, so
+ *  each tread is 0.26 m deep where it was 0.34 m. */
+export const GRAND_RISERS = 52;
 /** How far up the visitor steps without a jump, and how far down a
  *  move may drop them. The drop allows for a jump in progress. */
 export const GRAND_STEP_UP = 0.4;
@@ -252,33 +259,8 @@ export function sheerSide(stair: Pick<GrandStair, "turns">): "north" | "east" | 
 
 /** Depth of the strip a sheer hall has no gallery over, measured in
  *  from its sheer wall: to the far edge of the stair's half landing. */
-export function sheerStripDepth(stair: Pick<GrandStair, "half" | "design">): number {
-  return stair.half + IMPERIAL.north + (stair.design === "loggia" ? loggiaShift(stair.half) : 0);
-}
-
-/**
- * How much of the wall a stair climbs toward is seen between the two
- * piers nearest its axis, by a visitor at the foot of the middle flight:
- * metres along the wall, about the axis. A canvas no wider hangs in the
- * axis with a pier either side of it; a wider one is cut by them. No
- * limit when no pier stands in the way.
- */
-export function axisBay(stair: Pick<GrandStair, "patches" | "columns" | "half">): number {
-  const flight = stair.patches.find(
-    (p): p is FlightPatch => p.kind === "flight" && Math.abs(p.cx) < 1e-6,
-  );
-  if (!flight) return Number.POSITIVE_INFINITY;
-  const foot = flight.z0;
-  let bay = Number.POSITIVE_INFINITY;
-  for (const c of stair.columns) {
-    // The pier's face toward the axis, at its corner away from the
-    // visitor: the sight line that clears it.
-    const inner = Math.abs(c.x) - c.size / 2;
-    const far = c.z - c.size / 2;
-    if (inner <= 0 || far >= foot) continue;
-    bay = Math.min(bay, (2 * inner * (foot + stair.half)) / (foot - far));
-  }
-  return bay;
+export function sheerStripDepth(stair: Pick<GrandStair, "half">): number {
+  return stair.half + IMPERIAL.north;
 }
 
 /** How far an opening reaches from the hall's centre. */
@@ -382,9 +364,8 @@ export function grandStairsAt(
   const out: GrandStair[] = [];
   for (const s of stairs) {
     if (feetY !== undefined && feetY < s.lowerY - 1) continue;
-    if (Math.abs(worldX - s.centerX) <= s.half && Math.abs(worldZ - s.centerZ) <= s.half) {
-      out.push(s);
-    }
+    if (Math.abs(worldX - s.centerX) > s.half || Math.abs(worldZ - s.centerZ) > s.half) continue;
+    if (toStairLocal(s, worldX, worldZ).z >= -s.back) out.push(s);
   }
   return out;
 }
@@ -516,6 +497,8 @@ type Built = Pick<GrandStair, "patches" | "rails" | "columns" | "lamps" | "openi
 type Site = {
   /** Half the hall's side. */
   half: number;
+  /** Centre to the wall the stair climbs toward. */
+  back: number;
   lowerY: number;
   upperY: number;
   hasFlightAbove: boolean;
@@ -525,10 +508,6 @@ type Site = {
    *  on: the opening is fenced all round on each. */
   balconies: number[];
 };
-
-/** Floor a hall keeps inside its walls on the floors over its stair,
- *  where the void is cut wider than the stair. */
-const HALL_GALLERY = 5;
 
 /** Balustrades along an opening's outline at one height, but for the
  *  edges a flight arrives at or leaves from. */
@@ -552,6 +531,10 @@ const rail = (
   skirtTo?: number,
 ): StairRail => ({ x0, z0, y0, x1, z1, y1, ...(skirtTo === undefined ? {} : { skirtTo }) });
 
+/** Floor a hall keeps inside its walls on the floors over its stair,
+ *  where the void is cut wider than the stair. */
+const HALL_GALLERY = 5;
+
 // Imperial stair, metres in the hall's frame. The opening leaves a
 // gallery 3.25 m wide on three sides and a hall 9.45 m deep on the side
 // the visitor comes in from, where the side flights arrive.
@@ -568,8 +551,19 @@ export const IMPERIAL = {
 
 /** A loggia: floor between the hall's door and the foot of the stair,
  *  on every storey. The side flights arrive on it and the next middle
- *  flight leaves from it. */
-export const LOGGIA = { lobby: 6.25 } as const;
+ *  flight leaves from it. Behind the half landings, a gallery along the
+ *  end wall (`endGallery`) joins the two beside the stair: the floor of
+ *  each storey goes round the void on three sides, and every wall of
+ *  the hall has floor in front of it.
+ *
+ *  Until 17 October 2026 the void ran on to the end wall, 11.45 m deep,
+ *  and that wall and the strips of the side walls beside it stood sheer
+ *  for 24 m. The largest works hung there, up to 21 m over the floor
+ *  and 11 m off the nearest gallery, with no plaque. Rico: "this space
+ *  is still a bit meh". He asked for the wall to move nearer the stair
+ *  and the floors to go back to meet it, so that a work hangs on a
+ *  storey, near enough to see and with room to step back. */
+export const LOGGIA = { lobby: 6.25, endGallery: HALL_GALLERY } as const;
 
 /** How far south of its place in a hall of its own the imperial stair
  *  stands in a loggia: up against the lobby. */
@@ -652,10 +646,12 @@ function buildImperial(site: Site, loggia = false): Built {
   const courted = !loggia && !hasFlightAbove && court > south + 2;
   // A sheer wall: no gallery behind the half landing either. The void
   // runs on north to the wall, the hall's whole width, and the side
-  // galleries end level with the landing's far edge. A loggia has it on
-  // every storey: the strip is the open half of the hall.
-  const sheer = loggia || (courted && site.sheerWall === true);
+  // galleries end level with the landing's far edge.
+  const sheer = !loggia && courted && site.sheerWall === true;
   const wall = site.half;
+  // A loggia's void runs on north of the landing, the stair's width,
+  // to the edge of the gallery along the end wall.
+  const voidNorth = loggia ? Math.min(north, -(site.back - LOGGIA.endGallery)) : north;
   const stairRect: PlanRect = { xMin: -half, xMax: half, zMin: north, zMax: south };
   // The stair's own edge on the side the visitor comes in from, east to
   // west: the heads of the side flights at its ends, and in the middle
@@ -688,7 +684,7 @@ function buildImperial(site: Site, loggia = false): Built {
         [-half, north],
         [-wall, north],
       ]
-    : [[-half, north], [half, north], ...front];
+    : [[-half, voidNorth], [half, voidNorth], ...front];
   // Edges with no balustrade. Along a wall: the first two and the last
   // of a sheer hall's outline. The heads of the two side flights. The
   // foot of the next stair, where there is one.
@@ -719,6 +715,7 @@ function buildImperial(site: Site, loggia = false): Built {
       kind: "rects",
       rects: [
         ...(sheer ? [{ xMin: -wall, xMax: wall, zMin: -wall, zMax: north }] : []),
+        ...(voidNorth < north ? [{ xMin: -half, xMax: half, zMin: voidNorth, zMax: north }] : []),
         stairRect,
         ...(courted ? [{ xMin: -sideInner, xMax: sideInner, zMin: south, zMax: court }] : []),
       ],
@@ -992,14 +989,16 @@ const BUILDERS: Record<GrandStairDesign, (site: Site) => Built> = {
 };
 
 export function buildGrandStair(
-  spec: Omit<GrandStair, "patches" | "rails" | "columns" | "lamps" | "opening">,
+  spec: Omit<GrandStair, "patches" | "rails" | "columns" | "lamps" | "opening" | "back"> & {
+    back?: number;
+  },
 ): GrandStair {
   const balconies: number[] = [];
   for (let f = spec.upperFloor + 1; f <= spec.topFloor; f++) {
     balconies.push(spec.lowerY + (f - spec.lowerFloor) * FLOOR_SEPARATION);
   }
-  const sheerWall = spec.design === "loggia" ? true : spec.sheerWall;
-  return { ...spec, sheerWall, ...BUILDERS[spec.design]({ ...spec, sheerWall, balconies }) };
+  const back = spec.back ?? spec.half;
+  return { ...spec, back, ...BUILDERS[spec.design]({ ...spec, back, balconies }) };
 }
 
 /** A rail's ends in the world. */

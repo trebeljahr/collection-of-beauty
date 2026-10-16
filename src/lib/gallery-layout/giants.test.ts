@@ -3,7 +3,7 @@ import type { ArtworkListing } from "@/lib/data";
 import { ERAS } from "@/lib/gallery-eras";
 import { frameExtents, pickFrameDesign } from "./frame-design";
 import { fitsStorey, GIANT_MIN_PX_PER_METRE, giantSize } from "./giants";
-import { axisBay } from "./grand-stair";
+import { grandStairsAt, grandSurfaceAt } from "./grand-stair";
 import { BLOCK_HALLS, layoutBlock } from "./layout-block";
 import { MAX_PAINTING_W, PAINTING_FLOOR_GAP, sizeWork } from "./place-paintings";
 import type { Placement, RoomLayout } from "./types";
@@ -32,8 +32,8 @@ function catalogue(): ArtworkListing[] {
   );
   return [
     ...ordinary,
-    // Taller than a storey: the sheer walls. Three of them too wide for
-    // any wall but the end of a stair hall, which there are two of.
+    // The largest. Levi is too wide for any wall but the end of a stair
+    // hall; the Triumph is the tallest, 7.28 m.
     work("levi", "renaissance", 1310, 555),
     work("cana", "renaissance", 994, 677),
     work("san-rocco-a", "renaissance", 465, 538),
@@ -51,6 +51,9 @@ function catalogue(): ArtworkListing[] {
     work("coarse", "baroque", 800, 400, 2400),
     // More of one era than its floor's court has stretches for.
     ...Array.from({ length: 24 }, (_, i) => work(`salon-${i}`, "romantic", 330, 200)),
+    // Altarpieces of like size: what the first floor's court leaves
+    // over hangs in pairs in its stair halls.
+    ...Array.from({ length: 12 }, (_, i) => work(`altar-${i}`, "renaissance", 420 + i, 350)),
   ];
 }
 
@@ -108,13 +111,15 @@ describe("giants in the block plan's halls", () => {
     return {
       x: (west ? hall.rect.xMin : hall.rect.xMax + 1) * CELL_SIZE,
       midZ: ((hall.rect.zMin + hall.rect.zMax + 1) / 2) * CELL_SIZE,
-      // Where its galleries end, measured along x.
-      stripEnd: west
-        ? hall.rect.xMin * CELL_SIZE + 11.45
-        : (hall.rect.xMax + 1) * CELL_SIZE - 11.45,
       inward: west ? 1 : -1,
     };
   };
+  const hallOf = (room: RoomLayout) => stairHalls.find((h) => h.key === key(room));
+  const onEnd = (room: RoomLayout, p: Placement) => {
+    const hall = hallOf(room);
+    return !!hall && Math.abs(p.position[0] - endWall(hall).x) < 0.05;
+  };
+  const middle = (p: Placement) => (frame(p).top + frame(p).bottom) / 2;
 
   it("hang at their real size, each once, and nowhere else", () => {
     const ids = ["cana", "san-rocco-a", "san-rocco-b", "sacre", "triumph", "alexander", "horatii"];
@@ -144,224 +149,137 @@ describe("giants in the block plan's halls", () => {
     }
   });
 
-  /** The works of a hall on its end wall, and the one in the axis. */
-  const onEndWall = (hall: (typeof BLOCK_HALLS)[number]) => {
-    const wall = endWall(hall);
-    return layout.allRooms
-      .filter((r) => key(r) === hall.key)
-      .flatMap((room) => room.placements.map((p) => ({ room, p })))
-      .filter(({ p }) => Math.abs(p.position[0] - wall.x) < 0.05);
-  };
-
-  it("hangs every work taller than a storey on a sheer wall", () => {
-    const tall = ["levi", "cana", "sacre", "triumph", "san-rocco-a", "san-rocco-b"];
-    for (const id of tall) {
-      const { room, p } = hung(id)!;
-      expect(
-        stairHalls.map((h) => h.key),
-        id,
-      ).toContain(key(room));
-      expect(p.sheer, id).toBe(true);
+  it("fits every work on one storey, the tallest included", () => {
+    // The Triumph of Frederick Henry, 7.28 m in the catalogue.
+    for (const id of ["triumph", "cana", "sacre", "levi"]) {
+      const { artwork } = hung(id)!.p;
+      expect(fitsStorey(giantSize(artwork)!), id).toBe(true);
     }
-    // Only a work on a sheer wall is marked as one.
-    for (const room of layout.allRooms) {
+    for (const room of halls) {
       for (const p of room.placements) {
-        if (!p.sheer) continue;
-        const hall = stairHalls.find((h) => h.key === key(room))!;
-        const wall = endWall(hall);
-        expect((p.position[0] - wall.stripEnd) * wall.inward, p.artwork.id).toBeLessThan(0);
+        const f = frame(p);
+        expect(f.bottom - room.worldRect.y, p.artwork.id).toBeGreaterThanOrEqual(
+          PAINTING_FLOOR_GAP - 1e-6,
+        );
+        expect(f.top - room.worldRect.y, p.artwork.id).toBeLessThan(INTER_FLOOR_HEIGHT - 0.1);
+        expect(p.sheer, p.artwork.id).toBeUndefined();
       }
     }
   });
 
-  it("hangs in the axis of each stair the largest work its piers frame, level with the second floor", () => {
-    // Levi is the largest and 13.1 m wide: the piers would cut it.
-    const bay = axisBay(layout.grandStairs!.find((s) => s.design === "loggia")!);
-    expect(bay).toBeGreaterThan(9.94);
-    expect(bay).toBeLessThan(13.1);
-    expect(key(hung("cana")!.room)).not.toBe(key(hung("sacre")!.room));
-    for (const id of ["cana", "sacre"]) {
-      const { room, p } = hung(id)!;
-      const hall = stairHalls.find((h) => h.key === key(room))!;
-      const wall = endWall(hall);
-      expect(Math.abs(p.position[0] - wall.x), id).toBeLessThan(0.05);
-      expect(p.position[2], id).toBeCloseTo(wall.midZ, 6);
-      expect(p.widthM, id).toBeLessThanOrEqual(bay);
-      expect(room.floorIndex, id).toBe(1);
-      expect(frame(p).bottom, id).toBeCloseTo(FLOOR_SEPARATION + PAINTING_FLOOR_GAP, 6);
-      expect(frame(p).top, id).toBeLessThan(3 * FLOOR_SEPARATION);
-      // Its plaque is read from the hall floor, under it.
-      expect(p.position[1] + (p.plaque?.dy ?? 0), id).toBeCloseTo(1.45, 6);
-      expect(p.plaque?.dx, id).toBe(0);
-    }
-  });
-
-  it("hangs a pair of like size beside it, one to the wall either side, their middles level", () => {
-    const a = hung("san-rocco-a")!;
-    const b = hung("san-rocco-b")!;
-    expect(key(a.room)).toBe(key(b.room));
-    const hall = stairHalls.find((h) => h.key === key(a.room))!;
-    const wall = endWall(hall);
-    const axis = onEndWall(hall).find(
-      ({ room, p }) => room.floorIndex === 1 && Math.abs(p.position[2] - wall.midZ) < 1e-6,
-    )!.p;
-    const middle = (p: Placement) => (frame(p).top + frame(p).bottom) / 2;
-    for (const flank of [a, b]) {
-      expect(flank.room.floorIndex).toBe(1);
-      expect(Math.abs(flank.p.position[0] - wall.x)).toBeLessThan(0.05);
-      expect(middle(flank.p)).toBeCloseTo(middle(axis), 6);
-      // Not as tall as the work between them, and over its foot.
-      expect(frame(flank.p).bottom).toBeGreaterThanOrEqual(frame(axis).bottom - 1e-6);
-      expect(frame(flank.p).top).toBeLessThanOrEqual(frame(axis).top + 1e-6);
-      // Clear of the work in the axis by a metre, inside the corner.
-      const off = Math.abs(flank.p.position[2] - wall.midZ);
-      expect(off - frame(flank.p).half - frame(axis).half).toBeGreaterThanOrEqual(1 - 1e-6);
-      expect(off + frame(flank.p).half).toBeLessThan(13.75 - 0.3);
-      // Read from the hall floor, under it.
-      expect(flank.p.position[1] + (flank.p.plaque?.dy ?? 0)).toBeCloseTo(1.45, 6);
-      expect(flank.p.plaque?.dx).toBe(0);
-    }
-    // The same distance from the axis, one either side.
-    expect(a.p.position[2] - wall.midZ).toBeCloseTo(-(b.p.position[2] - wall.midZ), 6);
-    // The other hall has no two works of like size for the place: its
-    // axis work hangs alone on that storey.
-    const other = stairHalls.find((h) => h.key !== hall.key)!;
-    expect(onEndWall(other).filter(({ room }) => room.floorIndex === 1)).toHaveLength(1);
-  });
-
-  it("hangs a work too wide for any other place over it, 3 m clear and under the roof", () => {
-    const roof = 3 * FLOOR_SEPARATION + INTER_FLOOR_HEIGHT;
-    // The canvas the piers would cut, and the long panel no storey has
-    // a stretch for: one to a hall.
-    const over = ["levi", "orangerie"].map((id) => ({ id, ...hung(id)! }));
-    expect(key(over[0].room)).not.toBe(key(over[1].room));
-    for (const { id, room, p } of over) {
-      const hall = stairHalls.find((h) => h.key === key(room))!;
-      const wall = endWall(hall);
-      expect(Math.abs(p.position[0] - wall.x), id).toBeLessThan(0.05);
-      expect(p.position[2], id).toBeCloseTo(wall.midZ, 6);
-      const under = onEndWall(hall).find(
-        (q) => q.room.floorIndex === 1 && Math.abs(q.p.position[2] - wall.midZ) < 1e-6,
-      )!.p;
-      expect(frame(p).bottom - frame(under).top, id).toBeGreaterThanOrEqual(3 - 1e-6);
-      expect(frame(p).top, id).toBeLessThan(roof);
-      expect(p.plaque, id).toBeNull();
-      // Alone at that height: the wall has its row of three below.
-      const beside = onEndWall(hall).filter((q) => q.p !== p && q.room.floorIndex >= 2);
-      expect(beside, id).toHaveLength(0);
-    }
-    // Of one era with the Wedding at Cana, it hangs over that.
-    expect(key(hung("levi")!.room)).toBe(key(hung("cana")!.room));
-    // The long low one hangs level with the top floor, where its
-    // galleries end.
-    const low = over.find((o) => o.id === "orangerie")!;
-    expect(frame(low.p).bottom).toBeCloseTo(3 * FLOOR_SEPARATION + PAINTING_FLOOR_GAP, 6);
-  });
-
-  it("hangs the two side walls of a hall alike: a pair on the hall floor and a pair two storeys up", () => {
-    for (const hall of stairHalls) {
-      const wall = endWall(hall);
-      const storeys = layout.allRooms.filter((r) => key(r) === hall.key);
-      // Works on the two walls beside the end wall, in the part with no
-      // gallery in front.
-      const beyond = storeys.flatMap((room) =>
-        room.placements
-          .filter(
-            (p) =>
-              Math.abs(p.position[0] - wall.x) > 0.05 &&
-              (p.position[0] - wall.stripEnd) * wall.inward < 0,
-          )
-          .map((p) => ({ room, p })),
-      );
-      const columns = [-1, 1].map((side) =>
-        beyond
-          .filter(({ p }) => Math.sign(p.position[2] - wall.midZ) === side)
-          .sort((m, n) => m.p.position[1] - n.p.position[1]),
-      );
-      // The same storeys on both walls. The end wall leaves the hall
-      // floor to them: its lowest works stand level with the second.
-      const floors = columns.map((column) => column.map(({ room }) => room.floorIndex));
-      expect(floors[0], hall.key).toEqual([0, 2]);
-      expect(floors[1], hall.key).toEqual([0, 2]);
-      for (const { p } of onEndWall(hall)) {
-        expect(frame(p).bottom, p.artwork.id).toBeGreaterThanOrEqual(
-          FLOOR_SEPARATION + PAINTING_FLOOR_GAP - 1e-6,
+  it("hangs every work of a stair hall where its storey has floor in front of it", () => {
+    for (const room of halls.filter((r) => hallOf(r))) {
+      const stairs = layout.grandStairs!.filter((s) => s.id.startsWith(`${key(room)}-`));
+      for (const p of room.placements) {
+        const along = Math.abs(Math.sin(p.rotation[1])) < 0.5;
+        // Facing into the room: 1.5 m out from the wall.
+        const out = 1.5;
+        const x = p.position[0] + (along ? 0 : Math.sin(p.rotation[1]) * out);
+        const z = p.position[2] + (along ? Math.cos(p.rotation[1]) * out : 0);
+        const here = grandStairsAt(stairs, x, z, room.worldRect.y);
+        expect(here.length, p.artwork.id).toBeGreaterThan(0);
+        expect(grandSurfaceAt(here, x, z, room.worldRect.y)?.floorIndex, p.artwork.id).toBe(
+          room.floorIndex,
         );
       }
-      for (const column of columns) {
-        // In the middle of the stretch, one over another.
-        expect(new Set(column.map(({ p }) => p.position[0].toFixed(3))).size).toBe(1);
-        for (let i = 0; i + 1 < column.length; i++) {
-          expect(frame(column[i + 1].p).bottom - frame(column[i].p).top).toBeGreaterThan(1);
-        }
-        for (const { p } of column) {
-          // A metre and more clear of the gallery's end.
-          expect(
-            (wall.stripEnd - p.position[0]) * wall.inward - frame(p).half,
-          ).toBeGreaterThanOrEqual(1 - 1e-6);
-        }
-      }
-      // Across from one another, and of like size where neither is a
-      // work that had to hang.
-      columns[0].forEach(({ p }, i) => {
-        const q = columns[1][i].p;
-        expect(p.position[0], hall.key).toBeCloseTo(q.position[0], 6);
-        const mustHang = [p, q].some((w) => w.artwork.id === "triumph");
-        if (!mustHang) {
-          expect(Math.abs(p.heightM - q.heightM) + Math.abs(p.widthM - q.widthM) / 2).toBeLessThan(
-            1.5,
-          );
-        }
-      });
     }
-    // The tall work that fits neither the axis nor a place beside it
-    // hangs on the hall floor, across from the canvas nearest its size
-    // and of its era.
-    const { room, p } = hung("triumph")!;
-    const wall = endWall(stairHalls.find((h) => h.key === key(room))!);
-    expect(room.floorIndex).toBe(0);
-    expect(Math.abs(p.position[0] - wall.x)).toBeGreaterThan(1);
-    expect((p.position[0] - wall.stripEnd) * wall.inward).toBeLessThan(0);
-    const across = hung("alexander")!;
-    expect(across.room.id).toBe(room.id);
-    expect(across.p.position[0]).toBeCloseTo(p.position[0], 6);
-    expect(Math.sign(across.p.position[2] - wall.midZ)).toBe(-Math.sign(p.position[2] - wall.midZ));
+  });
+
+  it("gives each storey's end wall the largest work of its floor, on the stair's axis", () => {
+    // Levi has no stretch but an end wall; the Wedding at Cana is the
+    // largest of the rest of the first floor.
+    for (const [id, floor] of [
+      ["levi", 0],
+      ["cana", 0],
+      ["sacre", 1],
+      ["orangerie", 2],
+    ] as const) {
+      const { room, p } = hung(id)!;
+      const hall = hallOf(room);
+      expect(hall, id).toBeDefined();
+      expect(room.floorIndex, id).toBe(floor);
+      expect(onEnd(room, p), id).toBe(true);
+      expect(p.position[2], id).toBeCloseTo(endWall(hall!).midZ, 6);
+    }
+    expect(key(hung("levi")!.room)).not.toBe(key(hung("cana")!.room));
+    // One work on the axis of each storey that hangs any.
+    for (const room of halls.filter((r) => hallOf(r) && r.placements.length > 0)) {
+      const axis = room.placements.filter(
+        (p) => onEnd(room, p) && Math.abs(p.position[2] - endWall(hallOf(room)!).midZ) < 1e-6,
+      );
+      expect(axis, room.id).toHaveLength(1);
+    }
+  });
+
+  it("hangs a pair beside the axis work, one to each half of the end wall, their middles level", () => {
+    let flanked = 0;
+    for (const room of halls.filter((r) => hallOf(r))) {
+      const wall = endWall(hallOf(room)!);
+      const end = room.placements.filter((p) => onEnd(room, p));
+      if (end.length < 2) continue;
+      flanked++;
+      expect(end, room.id).toHaveLength(3);
+      const axis = end.find((p) => Math.abs(p.position[2] - wall.midZ) < 1e-6)!;
+      const [a, b] = end.filter((p) => p !== axis);
+      for (const flank of [a, b]) {
+        expect(middle(flank)).toBeCloseTo(middle(axis), 6);
+        // Not as tall as the work between them.
+        expect(frame(flank).bottom).toBeGreaterThanOrEqual(frame(axis).bottom - 1e-6);
+        expect(frame(flank).top).toBeLessThanOrEqual(frame(axis).top + 1e-6);
+        // Clear of the axis work by a metre, inside the corner.
+        const off = Math.abs(flank.position[2] - wall.midZ);
+        expect(off - frame(flank).half - frame(axis).half).toBeGreaterThanOrEqual(1 - 1e-6);
+        expect(off + frame(flank).half).toBeLessThan(13.75 - 0.3);
+      }
+      // Mirrored about the axis: each on the middle of its half.
+      expect(a.position[2] - wall.midZ).toBeCloseTo(-(b.position[2] - wall.midZ), 6);
+    }
+    expect(flanked).toBeGreaterThan(0);
+  });
+
+  it("hangs the other walls of a stair hall in pairs that mirror about the axis", () => {
+    let pairs = 0;
+    for (const room of halls.filter((r) => hallOf(r))) {
+      const wall = endWall(hallOf(room)!);
+      const others = room.placements.filter((p) => !onEnd(room, p));
+      for (const p of others) {
+        const q = others.find(
+          (o) =>
+            o !== p &&
+            Math.abs(o.position[0] - p.position[0]) < 1e-6 &&
+            Math.abs(o.position[2] - wall.midZ + (p.position[2] - wall.midZ)) < 1e-6,
+        );
+        expect(q, `${room.id} ${p.artwork.id}`).toBeDefined();
+        // One centre line, and of like size.
+        expect(q!.position[1]).toBeCloseTo(p.position[1], 6);
+        expect(Math.abs(p.heightM - q!.heightM) + Math.abs(p.widthM - q!.widthM) / 2).toBeLessThan(
+          1.5 + 1e-9,
+        );
+        pairs += 0.5;
+      }
+    }
+    expect(pairs).toBeGreaterThanOrEqual(3);
   });
 
   it("hangs every other giant on the floor of its era, one to a stretch, the court first", () => {
-    // A baroque canvas on the first floor, a neoclassical one on the
-    // second, the water lilies on the third, a screen on the fourth.
     for (const [id, floor] of [
       ["alexander", 0],
       ["horatii", 1],
       ["nympheas", 2],
       ["screen", 3],
     ] as const) {
-      const { room, p } = hung(id)!;
-      // The largest of the others may have gone to a sheer wall.
-      const onStorey = fitsStorey({ artwork: p.artwork, wM: p.widthM, hM: p.heightM });
-      expect(onStorey, id).toBe(true);
-      if (key(room) === "court") expect(room.floorIndex, id).toBe(floor);
+      expect(hung(id)!.room.floorIndex, id).toBe(floor);
     }
-    // The smallest of them is no candidate for a sheer wall: it hangs
-    // in the court of its floor.
-    const screen = hung("screen")!;
-    expect(key(screen.room)).toBe("court");
-    expect(screen.room.floorIndex).toBe(3);
-    // A floor's court is full before its stair halls take a work on
-    // their galleries' walls: eight stretches, two to a wall.
+    // A floor's court takes eight, two to a wall, before a stair hall
+    // hangs pairs beside its stair.
+    expect(layout.floors[1].rooms.find((r) => key(r) === "court")!.placements).toHaveLength(8);
     for (const floor of layout.floors) {
       const court = floor.rooms.find((r) => key(r) === "court")!;
-      const inStairHalls = stairHalls.flatMap((hall) => {
-        const wall = endWall(hall);
-        return floor.rooms
-          .find((r) => key(r) === hall.key)!
-          .placements.filter((p) => (p.position[0] - wall.stripEnd) * wall.inward > 0);
-      });
-      if (inStairHalls.length > 0) expect(court.placements, `floor ${floor.index}`).toHaveLength(8);
-      expect(inStairHalls.length).toBeLessThanOrEqual(8);
+      const paired = floor.rooms
+        .filter((r) => hallOf(r))
+        .flatMap((r) => r.placements.filter((p) => !onEnd(r, p)));
+      if (paired.length > 0) expect(court.placements, `floor ${floor.index}`).toHaveLength(8);
     }
-    expect(layout.floors[1].rooms.find((r) => key(r) === "court")!.placements).toHaveLength(8);
     // No stretch of a hall's storey holds two.
     for (const room of halls) {
       const byWall = new Map<string, number[]>();
@@ -379,50 +297,12 @@ describe("giants in the block plan's halls", () => {
     }
   });
 
-  it("keeps a work on a storey under the gallery above and off the floor", () => {
-    for (const room of halls.filter((r) => key(r) === "court")) {
-      for (const p of room.placements) {
-        const f = frame(p);
-        expect(f.bottom - room.worldRect.y, p.artwork.id).toBeGreaterThanOrEqual(
-          PAINTING_FLOOR_GAP - 1e-6,
-        );
-        expect(f.top - room.worldRect.y, p.artwork.id).toBeLessThan(INTER_FLOOR_HEIGHT - 0.1);
-      }
-    }
-  });
-
-  it("hangs a plaque where it can be read, or none", () => {
+  it("hangs every plaque beside its work, at eye level over its floor", () => {
     for (const room of halls) {
       for (const p of room.placements) {
-        if (p.plaque === null) {
-          // Only a work with no floor in front of it at its own height.
-          expect(room.sheer, p.artwork.id).toBeDefined();
-          expect(room.floorIndex, p.artwork.id).toBeGreaterThan(0);
-          continue;
-        }
-        // Unset is eye level over the room's own floor.
-        const y = p.plaque ? p.position[1] + p.plaque.dy : room.worldRect.y + 1.45;
-        const overFloor = Math.min(
-          ...[0, room.worldRect.y].map((floor) => Math.abs(y - floor - 1.45)),
-        );
-        expect(overFloor, p.artwork.id).toBeLessThan(1e-6);
-      }
-    }
-  });
-
-  it("hangs nothing on a gallery's wall where the gallery has ended", () => {
-    for (const hall of stairHalls) {
-      const wall = endWall(hall);
-      for (const room of halls.filter((r) => key(r) === hall.key)) {
-        for (const p of room.placements) {
-          const beyond = (p.position[0] - wall.stripEnd) * wall.inward < 0;
-          if (!beyond) continue;
-          // On a sheer wall: the end wall, or the middle of a side
-          // stretch. Never a work hung for a gallery to stand before.
-          const onEnd = Math.abs(p.position[0] - wall.x) < 0.05;
-          const mid = (wall.x + wall.inward * 0.3 + wall.stripEnd - wall.inward) / 2;
-          expect(onEnd || Math.abs(p.position[0] - mid) < 1e-6, p.artwork.id).toBe(true);
-        }
+        // No plaque is left out, and none is moved: unset is beside the
+        // frame at eye level over the room's own floor.
+        expect(p.plaque, p.artwork.id).toBeUndefined();
       }
     }
   });

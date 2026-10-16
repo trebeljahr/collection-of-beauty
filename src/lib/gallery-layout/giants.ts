@@ -1,73 +1,62 @@
-// Works too large for a room, hung at their real size in the stair halls.
+// Works too large for a room, hung at their real size in the halls.
 //
 // A room hangs nothing wider or taller than 3.2 m (`MAX_PAINTING_W`), so
 // Veronese's Wedding at Cana, 9.94 m wide, hung at a third of its size
 // beside a plaque that gave the true one. The block plan's halls have
-// the wall a room has not: 27.5 m a side, and in the two stair halls
-// three walls with no gallery in front, sheer from the floor to the roof.
+// the wall a room has not: 27.5 m a side, a storey 8.2 m high, and a
+// gallery in front of every wall on every floor.
 //
-// Two kinds of place:
+// Every place is on a storey, in the middle of a stretch of wall, with
+// the plaque beside the frame at reading height:
 //
-//   A storey of a hall. Each wall has a stretch either side of its door,
-//   one storey high. One work hangs in the middle of a stretch, when its
-//   frame fits under the gallery above: canvases up to about 4.9 m tall.
+//   The court. Each wall has a stretch either side of its door, and
+//   each stretch takes one work (`hangHallStoreys`).
 //
-//   The sheer walls of a stair hall (`RoomLayout.sheer`): the end wall
-//   behind the stair, and the part of each side wall beyond the
-//   galleries. Works taller than a storey hang there, and some of the
-//   others. The three walls are one hang about the stair's axis:
+//   The two stair halls. Each storey is one composition about the
+//   stair's axis (`stairHallHang`): the largest work of the floor on
+//   the middle of the end wall, a pair beside it, and pairs that mirror
+//   each other on the walls beside the stair and the door.
 //
-//     On the end wall, level with the second floor: the largest work
-//     that is seen whole between the stair's piers, and a pair of like
-//     size beside it, one to each bay either side. Level with the top
-//     floor, over the piers: a work too wide for any other place.
-//
-//     On the side walls: a pair, one work to each wall, on the hall
-//     floor, and a second pair two storeys up. The storeys between are
-//     the end wall's, so no corner holds two works at one height.
-//
-//   Two works that hang as a pair are of like size, and by one hand or
-//   of one era where the catalogue has such two: Raphael's School of
-//   Athens faces his Fire in the Borgo.
+//   The spiral rooms' outer walls, 22.5 m with no door, take what no
+//   hall holds: a handscroll 12 m long (`hangGiants` in layout-block).
 //
 // The first hang put every tall work on one wall, in two tiers 0.8 m
 // apart, and a hall's storeys took two works a stretch. Rico, 13 October
 // 2026: the big paintings "cluster too close together". So a stretch
-// takes one work, and no two works of a sheer wall are nearer than a
-// storey over one another.
+// takes one work.
 //
-// The second hang dealt each sheer wall its works one at a time: the
-// widest in the axis, cut by the piers; one side wall hung on the first
-// and third floors and the other on the second and fourth; one end wall
-// with two works and the other with four. Rico, the same day: the
-// arrangement on the back wall "is a bit meh". So the walls mirror each
-// other now, and a work hangs where the piers frame it.
+// Until 17 October 2026 the end wall of a stair hall and the strips of
+// wall beside it stood sheer for 24 m, and the works taller than a
+// storey hung there, the highest 21 m up and 11 m from the nearest
+// floor. Rico found it "a bit meh" twice, and asked for the floors to
+// meet the wall and the works to hang where a visitor can walk up to
+// them, by the per-floor rules. The storey grew from 6.12 to 8.4 m
+// for that, so the Triumph of Frederick Henry, 7.49 m in its frame,
+// hangs on one.
 //
 // Every work here hangs at the size its plaque states. One that fits
-// neither place hangs in its era's rooms, at its real size, where a wall
+// no place hangs in its era's rooms, at its real size, where a wall
 // holds it (`HangOptions.realSize` in place-paintings.ts).
 
 import type { ArtworkListing } from "@/lib/data";
 import { assignEra } from "@/lib/gallery-eras";
 import { trustworthyRealSize } from "@/lib/real-size";
 import { frameExtents, pickFrameDesign } from "./frame-design";
-import { artworkBand } from "./painting-bands";
 import {
   computeRoomRuns,
   footprintOf,
   frameReachOf,
   MAX_PAINTING_W,
   PAINTING_FLOOR_GAP,
-  PAINTING_WALL_OFFSET,
-  PLAQUE_EYE,
   packRun,
   runLength,
   type SizedWork,
+  sideClearance,
   type WallRun,
 } from "./place-paintings";
 import { widestTexturePx } from "./sharpness";
 import type { Placement, RoomLayout } from "./types";
-import { CELL_SIZE, FLOOR_SEPARATION, INTER_FLOOR_HEIGHT } from "./world-coords";
+import { INTER_FLOOR_HEIGHT } from "./world-coords";
 
 /** Texture pixels a giant needs for each metre of its real width.
  *
@@ -86,25 +75,16 @@ const GIANT_GAP = 1.0;
 /** Room a frame has on a storey of a hall: from the gap over the floor
  *  to a hand under the gallery above. */
 const STOREY_FRAME_ROOM = INTER_FLOOR_HEIGHT - PAINTING_FLOOR_GAP - 0.14;
-/** Corner kept clear at each end of a sheer wall. */
-const SHEER_MARGIN = 0.3;
-/** Works that are not taller than a storey and still go to a sheer
- *  wall are picked from this many of the largest. */
-const SHEER_CHOICE = 12;
-/** Wall between the work in the axis of a stair and the one over it,
- *  at least: two storeys' worth of canvas do not read as one block. */
-const AXIS_CLEAR = 3;
-/** A work this wide has no stretch on any storey: the longest is the
- *  wall beside a stair, under 15 m with its margins. */
-const AXIS_ONLY_WIDTH = 12;
 /** A work beside the one in the axis is at least this share of its
- *  height: a low canvas eight metres up beside one of six reads as a
- *  label. */
+ *  height: a low canvas beside one of six reads as a label. */
 const FLANK_MIN_HEIGHT = 0.55;
 /** Two works hang as a pair when they are no more unlike than this in
- *  size (`unlike`, metres). A tall work hangs whatever is across from
- *  it. */
+ *  size (`unlike`, metres). */
 const PAIR_MAX_UNLIKE = 1.5;
+/** What a work of another floor costs a pair, against the metres of
+ *  `unlike`: a pair of the floor's own works wins unless the floor has
+ *  none alike. */
+const AWAY_COST = 2;
 
 /**
  * The work at its real size, when that is more than a room hangs and
@@ -144,43 +124,10 @@ const bySize = (a: SizedWork, b: SizedWork) =>
 
 // ── A storey of a hall ────────────────────────────────────────────────
 
-/**
- * The stretches of a hall storey's walls that hang one work each: not
- * the sheer wall, and on the walls that meet it, not the part beyond
- * the galleries (`room.sheer`). The sheer walls are composed on their
- * own (`hangSheerWalls`).
- */
+/** The stretches of a hall storey's walls, each to hang one work: the
+ *  walls between the corners and the doors, with no cap on height. */
 export function hallRuns(room: RoomLayout): WallRun[] {
-  const runs = computeRoomRuns(room).map((run) => ({
-    ...run,
-    maxHeight: Number.POSITIVE_INFINITY,
-  }));
-  const sheer = room.sheer;
-  if (!sheer) return runs;
-  const cb = room.cellBounds;
-  const out: WallRun[] = [];
-  for (const run of runs) {
-    if (run.side === sheer.side) continue;
-    const alongSheer = (sheer.side === "north" || sheer.side === "south") === (run.axis === "x");
-    if (alongSheer) {
-      out.push(run);
-      continue;
-    }
-    // World coordinate along the run is `sign * u`. Keep what lies
-    // clear of the strip, and a balustrade's depth beyond it.
-    const keep = sheer.depth + GIANT_GAP;
-    let lo = Number.NEGATIVE_INFINITY;
-    let hi = Number.POSITIVE_INFINITY;
-    if (sheer.side === "north") lo = cb.zMin * CELL_SIZE + keep;
-    if (sheer.side === "south") hi = (cb.zMax + 1) * CELL_SIZE - keep;
-    if (sheer.side === "west") lo = cb.xMin * CELL_SIZE + keep;
-    if (sheer.side === "east") hi = (cb.xMax + 1) * CELL_SIZE - keep;
-    const uLo = run.sign === 1 ? lo : -hi;
-    const uHi = run.sign === 1 ? hi : -lo;
-    const trimmed = { ...run, uMin: Math.max(run.uMin, uLo), uMax: Math.min(run.uMax, uHi) };
-    if (runLength(trimmed) > 1) out.push(trimmed);
-  }
-  return out;
+  return computeRoomRuns(room).map((run) => ({ ...run, maxHeight: Number.POSITIVE_INFINITY }));
 }
 
 /** The order a room's stretches are taken in: the longest first; of
@@ -267,12 +214,19 @@ export function hangHallStoreys(
   return left;
 }
 
+/** True when a work fits one of these stretches, a gap clear at each
+ *  end. */
+export function fitsStretch(runs: readonly WallRun[], work: SizedWork): boolean {
+  const need = footprintOf(work) + 2 * GIANT_GAP;
+  return runs.some((run) => runLength(run) >= need);
+}
+
 /** The middle of a stretch along its wall, world metres. */
 export function stretchMiddle(run: WallRun): number {
   return (run.sign * (run.uMin + run.uMax)) / 2;
 }
 
-// ── The sheer walls ───────────────────────────────────────────────────
+// ── The stair halls ───────────────────────────────────────────────────
 
 type Framed = SizedWork & { reach: number; top: number; bottom: number };
 
@@ -281,55 +235,7 @@ function framed(work: SizedWork): Framed {
   return { ...work, reach: frameReachOf(work), top: e.top, bottom: e.bottom };
 }
 
-const outerWidth = (w: Framed) => w.wM + 2 * w.reach;
 const outerHeight = (w: Framed) => w.hM + w.top + w.bottom;
-
-/** A stretch of sheer wall: the run it is part of, its middle along
- *  the wall in world metres, and half its length. */
-type Face = { template: WallRun; worldMid: number; half: number };
-
-/** A stair hall's sheer walls: the end wall, and the part of each side
- *  wall beyond the galleries. */
-function sheerFaces(base: RoomLayout): { end: Face; sides: Face[] } | null {
-  const sheer = base.sheer;
-  if (!sheer) return null;
-  const runs = computeRoomRuns(base);
-  const cb = base.cellBounds;
-  const x0 = cb.xMin * CELL_SIZE;
-  const x1 = (cb.xMax + 1) * CELL_SIZE;
-  const z0 = cb.zMin * CELL_SIZE;
-  const z1 = (cb.zMax + 1) * CELL_SIZE;
-  const template = runs.find((r) => r.side === sheer.side);
-  if (!template) return null;
-  const endAlongX = template.axis === "x";
-  const end: Face = {
-    template,
-    worldMid: endAlongX ? (x0 + x1) / 2 : (z0 + z1) / 2,
-    half: (endAlongX ? x1 - x0 : z1 - z0) / 2 - SHEER_MARGIN,
-  };
-  // Along a side wall: from the corner to where the gallery ends, less
-  // the wall a gallery's own work keeps clear (`hallRuns`).
-  const corner = { north: z0, south: z1, west: x0, east: x1 }[sheer.side];
-  const inward = sheer.side === "north" || sheer.side === "west" ? 1 : -1;
-  const a = corner + inward * SHEER_MARGIN;
-  const b = corner + inward * (sheer.depth - GIANT_GAP);
-  const sideNames = endAlongX ? (["west", "east"] as const) : (["north", "south"] as const);
-  const sides = sideNames.flatMap((name): Face[] => {
-    const run = runs.find((r) => r.side === name);
-    return run ? [{ template: run, worldMid: (a + b) / 2, half: Math.abs(b - a) / 2 }] : [];
-  });
-  return { end, sides };
-}
-
-/** A stair hall whose sheer walls `hangSheerWalls` composes. */
-export type SheerHall = {
-  /** The hall's rooms, from the floor up. */
-  storeys: RoomLayout[];
-  /** How much of the end wall a visitor at the foot of the stair sees
-   *  between the two piers nearest its axis, metres (`axisBay` in
-   *  grand-stair.ts). Unset when no pier stands in front of the wall. */
-  bay?: number;
-};
 
 const eras = new Map<string, ReturnType<typeof assignEra>>();
 function eraOf(artwork: ArtworkListing) {
@@ -345,272 +251,206 @@ function kin(a: ArtworkListing, b: ArtworkListing): number {
 /** How unlike two works are in size, metres: a pair hangs as one. */
 const unlike = (a: SizedWork, b: SizedWork) => Math.abs(a.hM - b.hM) + Math.abs(a.wM - b.wM) / 2;
 
-/**
- * Compose the sheer walls of the stair halls: each hall's end wall and
- * the two strips of wall beside it, as one hang about the stair's axis.
- *
- *   end wall                      each side wall
- *   top     [   widest   ]
- *   2                             [ one of a pair ]
- *   1   [f] [    axis    ] [f]
- *   0                             [ one of a pair ]
- *
- * `tall` are the works too tall for a storey, which hang nowhere else;
- * `others` are the rest, of which some fill the places the tall ones
- * leave. Returns the works not hung.
- */
-export function hangSheerWalls(
-  halls: SheerHall[],
-  tall: SizedWork[],
-  others: SizedWork[],
-): SizedWork[] {
-  let tallPool = [...tall].sort(bySize).map(framed);
-  let otherPool = [...others].sort(bySize).map(framed);
-  const tallIds = new Set(tall.map((w) => w.artwork.id));
-  const isTall = (w: Framed) => tallIds.has(w.artwork.id);
-  const take = (work: Framed) => {
-    tallPool = tallPool.filter((w) => w !== work);
-    otherPool = otherPool.filter((w) => w !== work);
+/** One storey of a stair hall: its room, the wall its stair climbs
+ *  toward and the wall with its door. */
+export type StairHallStorey = { room: RoomLayout; end: WallRun["side"]; front: WallRun["side"] };
+
+/** Where a storey of a stair hall hangs, in the order it is filled:
+ *  the end wall's middle, then pairs that mirror each other about the
+ *  stair's axis. Each place of a pair is a stretch, its work on the
+ *  stretch's middle. */
+type Bay = {
+  storey: StairHallStorey;
+  floor: number;
+  /** The end wall, one stretch from corner to corner. */
+  end: WallRun;
+  /** The two halves of the end wall either side of the axis work, once
+   *  it hangs: a work on the middle of each. */
+  flanks: [WallRun, WallRun] | null;
+  /** The stretches beside the stair, those of each side wall nearer
+   *  the end wall and then those nearer the front; the two stretches
+   *  either side of the portal. */
+  pairs: Array<[WallRun, WallRun]>;
+  hero: { work: Framed; centerY: number } | null;
+};
+
+/** A run cut to the stretch between two points along it (`u`). */
+const stretch = (run: WallRun, uMin: number, uMax: number): WallRun => ({ ...run, uMin, uMax });
+
+function bayOf(storey: StairHallStorey, floor: number): Bay | null {
+  const runs = hallRuns(storey.room);
+  const longest = (side: WallRun["side"]) =>
+    runs.filter((r) => r.side === side).sort((a, b) => runLength(b) - runLength(a));
+  const end = longest(storey.end)[0];
+  if (!end) return null;
+  // Each side wall in two stretches, the one nearer the end wall first:
+  // either side of its door, or its halves when it has none. World
+  // coordinate along a run is `sign * u`: the end wall lies at the low
+  // end of the world axis when it is the north or west wall.
+  const endAtLow = storey.end === "north" || storey.end === "west";
+  const fromEnd = (run: WallRun) => {
+    const [a, b] = [run.sign * run.uMin, run.sign * run.uMax];
+    return endAtLow ? Math.min(a, b) : -Math.max(a, b);
   };
-
-  type Axis = { work: Framed; level: number; bottomY: number };
-  const sites = halls.flatMap(({ storeys, bay }) => {
-    const faces = storeys[0] ? sheerFaces(storeys[0]) : null;
-    return faces
-      ? [
-          {
-            storeys,
-            bay: bay ?? Number.POSITIVE_INFINITY,
-            ...faces,
-            axis: null as Axis | null,
-            top: false,
-            hung: [] as Framed[],
-            talls: 0,
-          },
-        ]
-      : [];
-  });
-  if (sites.length === 0) return [...tall, ...others];
-  type Site = (typeof sites)[number];
-  /** The halls for one place: the one with the fewest tall works so
-   *  far takes first, so the tall works are dealt evenly. */
-  const inTurn = () => [...sites].sort((a, b) => a.talls - b.talls);
-  /** How much at home two works are in a hall: their mean kinship with
-   *  what hangs there, 0 to 2. */
-  const atHome = (site: Site, a: Framed, b: Framed) =>
-    site.hung.length === 0
-      ? 0
-      : site.hung.reduce((n, w) => n + kin(a.artwork, w.artwork) + kin(b.artwork, w.artwork), 0) /
-        (2 * site.hung.length);
-
-  const top = (storeys: RoomLayout[]) => storeys[storeys.length - 1];
-  const roofOf = (storeys: RoomLayout[]) =>
-    top(storeys).worldRect.y + INTER_FLOOR_HEIGHT - PAINTING_FLOOR_GAP;
-  const floorOf = (storeys: RoomLayout[], level: number) =>
-    storeys[level].worldRect.y + PAINTING_FLOOR_GAP;
-
-  /** Hang a work on a face, its canvas centre `u` metres from the
-   *  face's middle to the viewer's right, its frame's foot at `bottomY`. */
-  const place = (
-    site: Site,
-    level: number,
-    face: Face,
-    work: Framed,
-    u: number,
-    bottomY: number,
-    plaque: Placement["plaque"],
-  ) => {
-    const room = site.storeys[level];
-    if (isTall(work)) site.talls++;
-    site.hung.push(work);
-    take(work);
-    const t = face.template;
-    const alongX = t.axis === "x";
-    const centerY = bottomY + work.bottom + work.hM / 2;
-    const along = face.worldMid + t.sign * u;
-    room.placements.push({
-      artwork: work.artwork,
-      position: [
-        (alongX ? along : t.surface) + t.normalX * PAINTING_WALL_OFFSET,
-        centerY,
-        (alongX ? t.surface : along) + t.normalZ * PAINTING_WALL_OFFSET,
-      ],
-      rotation: [0, t.rotationY, 0],
-      band: artworkBand(work.artwork),
-      widthM: work.wM,
-      heightM: work.hM,
-      giant: true,
-      sheer: true,
-      plaque,
+  const halves = (["north", "south", "east", "west"] as const)
+    .filter((side) => side !== storey.end && side !== storey.front)
+    .map((side) => {
+      const own = runs.filter((r) => r.side === side);
+      if (own.length !== 1) return own.sort((a, b) => fromEnd(a) - fromEnd(b));
+      const [run] = own;
+      const mid = (run.uMin + run.uMax) / 2;
+      return [stretch(run, run.uMin, mid), stretch(run, mid, run.uMax)].sort(
+        (a, b) => fromEnd(a) - fromEnd(b),
+      );
     });
-  };
-  /** A plaque at eye level on the floor of `room`, under the work. */
-  const atEye = (room: RoomLayout, work: Framed, bottomY: number, dx = 0) => ({
-    dy: room.worldRect.y + PLAQUE_EYE - (bottomY + work.bottom + work.hM / 2),
-    dx,
-  });
-  /** The plaque of a work that stands on a storey of its own: beside
-   *  its frame at eye level on the hall floor, where there is floor in
-   *  front of it. Over that floor there is none, and no plaque. */
-  const beside = (level: number): Placement["plaque"] => (level > 0 ? null : undefined);
-  /** The pair with the lowest score, of the works in `pool`. */
-  const bestPair = (
-    pool: Framed[],
-    score: (a: Framed, b: Framed) => number | null,
-  ): { pair: [Framed, Framed]; score: number } | null => {
-    let best: { pair: [Framed, Framed]; score: number } | null = null;
-    for (let i = 0; i < pool.length; i++) {
-      for (let j = i + 1; j < pool.length; j++) {
-        const s = score(pool[i], pool[j]);
-        if (s !== null && (!best || s < best.score)) best = { pair: [pool[i], pool[j]], score: s };
-      }
+  const pairs: Array<[WallRun, WallRun]> = [];
+  if (halves.length === 2 && halves[0].length === 2 && halves[1].length === 2) {
+    pairs.push([halves[0][0], halves[1][0]], [halves[0][1], halves[1][1]]);
+  }
+  const fronts = runs.filter((r) => r.side === storey.front).sort((a, b) => a.uMin - b.uMin);
+  if (fronts.length === 2) pairs.push([fronts[0], fronts[1]]);
+  return { storey, floor, end, flanks: null, pairs, hero: null };
+}
+
+/** A work hung on the middle of a stretch, its canvas centre at
+ *  `centerY`, or at the height `packRun` gives it. */
+function hangOn(room: RoomLayout, run: WallRun, work: SizedWork, centerY?: number): number {
+  const [p] = packRun(run, [work], Number.POSITIVE_INFINITY);
+  const position: Placement["position"] = [...p.position];
+  position[run.axis === "x" ? 0 : 2] = stretchMiddle(run);
+  if (centerY !== undefined) position[1] = centerY;
+  room.placements.push({ ...p, position, giant: true });
+  return position[1];
+}
+
+/** The centre height `packRun` gives a work on a run. */
+function naturalCenter(run: WallRun, work: SizedWork): number {
+  return packRun(run, [work], Number.POSITIVE_INFINITY)[0].position[1];
+}
+
+/**
+ * Hang the giants on the storeys of the stair halls, each storey as one
+ * composition about its stair's axis:
+ *
+ *              end wall
+ *     [ flank ]  [  axis  ]  [ flank ]
+ *   [b]                              [b]    b: a pair, the back half of
+ *   [f]          (void)              [f]       each side wall
+ *                                           f: a pair, the front half
+ *          [p]    door    [p]               p: a pair beside the door
+ *
+ * Every work hangs on the middle of its stretch, so a pair mirrors
+ * about the axis, and both works of a pair share a centre line. A pair
+ * is two works of like size (`unlike`), of one hand or one era where
+ * the pool has such two. Nothing hangs alone where a pair belongs.
+ *
+ * Two steps, so a caller can hang other rooms between them: `axes`
+ * gives each storey's end wall the largest work of its floor, and
+ * `pairs` fills the rest from what is left. Each takes and returns the
+ * works not hung, with the floor each belongs to.
+ */
+export function stairHallHang(levels: StairHallStorey[][]) {
+  type Entry = { work: SizedWork; start: number };
+  const bays = levels.flatMap((storeys, floor) =>
+    storeys.map((s) => bayOf(s, floor)).filter((b): b is Bay => b !== null),
+  );
+  const fits = (run: WallRun, w: SizedWork) => footprintOf(w) + 2 * GIANT_GAP <= runLength(run);
+
+  const axes = (works: Entry[]): Entry[] => {
+    let pool = [...works].sort((a, b) => bySize(a.work, b.work));
+    for (const bay of bays) {
+      const entry = pool.find((e) => e.start === bay.floor && fits(bay.end, e.work));
+      if (!entry) continue;
+      pool = pool.filter((e) => e !== entry);
+      const work = framed(entry.work);
+      const centerY = hangOn(bay.storey.room, bay.end, work);
+      bay.hero = { work, centerY };
+      // The two halves of the wall beside it, each from the corner to a
+      // gap beyond its frame and plaque. The plaque is on one side only;
+      // both halves keep clear of it, so they mirror each other.
+      const mid = (bay.end.uMin + bay.end.uMax) / 2;
+      const { left, right } = sideClearance(work);
+      const clear = work.wM / 2 + Math.max(left, right) + GIANT_GAP;
+      bay.flanks = [
+        stretch(bay.end, bay.end.uMin, mid - clear),
+        stretch(bay.end, mid + clear, bay.end.uMax),
+      ];
     }
-    return best;
+    return pool;
   };
 
-  // 1. The axis of the stair, level with the second floor: from the
-  //    hall's door it is seen over the first half landing. The largest
-  //    tall work that is seen whole between the piers; the widest when
-  //    none is.
-  for (const site of sites) {
-    const level = Math.min(1, site.storeys.length - 1);
-    const bottomY = floorOf(site.storeys, level);
-    const fits = (w: Framed) =>
-      outerWidth(w) <= 2 * site.end.half - 2 * GIANT_GAP &&
-      bottomY + outerHeight(w) <= roofOf(site.storeys);
-    const work =
-      tallPool.find((w) => fits(w) && w.wM <= site.bay) ??
-      [...tallPool].sort((a, b) => b.wM - a.wM).find(fits);
-    if (!work) continue;
-    site.axis = { work, level, bottomY };
-    place(site, level, site.end, work, 0, bottomY, atEye(site.storeys[0], work, bottomY));
-  }
-
-  // 2. A pair beside it, one in the middle of the wall either side, its
-  //    middle level with the axis work's: three works, one to a bay of
-  //    the piers. Tall works first, then upright ones, and two of like
-  //    size and kind before two that are not.
-  for (const site of inTurn()) {
-    const { axis } = site;
-    if (!axis) continue;
-    const hero = axis.work;
-    const inner = outerWidth(hero) / 2 + GIANT_GAP;
-    const span = site.end.half - inner;
-    const fits = (w: Framed) =>
-      outerWidth(w) + GIANT_GAP <= span &&
-      outerHeight(w) <= outerHeight(hero) &&
-      w.hM >= FLANK_MIN_HEIGHT * hero.hM;
-    const pool = [...tallPool.filter(fits), ...otherPool.filter((w) => w.hM > w.wM && fits(w))];
-    const found = bestPair(pool, (a, b) =>
-      unlike(a, b) > PAIR_MAX_UNLIKE
-        ? null
-        : unlike(a, b) -
-          kin(a.artwork, b.artwork) -
-          (kin(a.artwork, hero.artwork) + kin(b.artwork, hero.artwork)) / 2 -
-          100 * (Number(isTall(a)) + Number(isTall(b))),
-    );
-    if (!found) continue;
-    const middle = axis.bottomY + outerHeight(hero) / 2;
-    for (const [side, work] of [
-      [-1, found.pair[0]],
-      [1, found.pair[1]],
-    ] as const) {
-      const bottomY = middle - outerHeight(work) / 2;
-      place(
-        site,
-        axis.level,
-        site.end,
-        work,
-        side * (inner + span / 2),
-        bottomY,
-        atEye(site.storeys[0], work, bottomY),
-      );
-    }
-  }
-
-  // 3. Over the axis, level with the top floor or as high as the roof
-  //    allows: a work too wide for any other place, which is over the
-  //    piers there and seen whole. Each goes to the hall whose axis work
-  //    it is nearest of kin to. The catalogue has three canvases about
-  //    10 m wide and taller than a storey, and two end walls.
-  const tooWide = (site: Site, w: Framed) =>
-    isTall(w)
-      ? outerWidth(w) > Math.max(0, ...site.sides.map((face) => 2 * face.half)) - 2 * GIANT_GAP
-      : outerWidth(w) > AXIS_ONLY_WIDTH;
-  for (const work of [...tallPool, ...otherPool].sort((a, b) => b.wM - a.wM)) {
-    const open = sites
-      .filter((site) => {
-        if (!site.axis || site.top || !tooWide(site, work)) return false;
-        const axisTop = site.axis.bottomY + outerHeight(site.axis.work);
-        return (
-          outerWidth(work) <= 2 * site.end.half - 2 * GIANT_GAP &&
-          roofOf(site.storeys) - outerHeight(work) >= axisTop + AXIS_CLEAR
-        );
-      })
-      .sort(
-        (a, b) =>
-          kin(work.artwork, b.axis!.work.artwork) - kin(work.artwork, a.axis!.work.artwork) ||
-          a.talls - b.talls,
-      );
-    const site = open[0];
-    if (!site?.axis) continue;
-    const roof = roofOf(site.storeys);
-    const axisTop = site.axis.bottomY + outerHeight(site.axis.work);
-    const topFloor = floorOf(site.storeys, site.storeys.length - 1);
-    const bottomY = Math.min(roof - outerHeight(work), Math.max(axisTop + AXIS_CLEAR, topFloor));
-    const level = Math.min(
-      site.storeys.length - 1,
-      Math.max(0, Math.floor((bottomY - site.storeys[0].worldRect.y) / FLOOR_SEPARATION)),
-    );
-    site.top = true;
-    place(site, level, site.end, work, 0, bottomY, null);
-  }
-
-  // 4. The side walls: on every second storey from the hall floor, one
-  //    work in the middle of each, the two a pair. Both walls hang on
-  //    the same storeys, the ones the end wall leaves bare, so no corner
-  //    holds two works at one height. A tall work hangs before any
-  //    other; a hall takes the pair most at home in it.
-  const levels = Math.max(...sites.map((s) => s.storeys.length));
-  for (let level = 0; level < levels; level += 2) {
-    const open = new Set(sites.filter((s) => s.sides.length === 2 && level < s.storeys.length));
-    while (open.size > 0) {
-      let best: { site: Site; works: Framed[]; score: number } | null = null;
-      for (const site of open) {
-        const bottomY = floorOf(site.storeys, level);
-        const limit =
-          level + 2 < site.storeys.length
-            ? floorOf(site.storeys, level + 2) - GIANT_GAP
-            : roofOf(site.storeys);
-        const fits = (w: Framed) =>
-          site.sides.every((face) => outerWidth(w) + 2 * GIANT_GAP <= 2 * face.half) &&
-          bottomY + outerHeight(w) <= limit;
-        const talls = tallPool.filter(fits);
-        const pool = [...talls, ...otherPool.slice(0, SHEER_CHOICE).filter(fits)];
-        const found = bestPair(pool, (a, b) => {
-          const mustHang = isTall(a) || isTall(b);
-          if (talls.length > 0 ? !mustHang : unlike(a, b) > PAIR_MAX_UNLIKE) return null;
-          return (
-            unlike(a, b) -
-            kin(a.artwork, b.artwork) -
-            1.5 * atHome(site, a, b) -
-            0.02 * (area(a) + area(b))
-          );
-        });
-        // One tall work and nothing to hang across from it: alone.
-        const works = found ? found.pair : talls.slice(0, 1);
-        const score = found ? found.score : 0;
-        if (works.length > 0 && (!best || score < best.score)) best = { site, works, score };
+  const pairs = (works: Entry[]): Entry[] => {
+    let pool = [...works]
+      .sort((a, b) => bySize(a.work, b.work))
+      .map((e) => ({
+        ...e,
+        framed: framed(e.work),
+      }));
+    type Candidate = (typeof pool)[number];
+    /** The best pair for two stretches, of the works that fit both. */
+    const choose = (
+      bay: Bay,
+      [a, b]: [WallRun, WallRun],
+      also: (w: Framed) => boolean,
+      kinTo: ArtworkListing | null,
+    ) => {
+      const room = pool.filter((e) => fits(a, e.work) && fits(b, e.work) && also(e.framed));
+      let best: { pair: [Candidate, Candidate]; score: number } | null = null;
+      for (let i = 0; i < room.length; i++) {
+        for (let j = i + 1; j < room.length; j++) {
+          const x = room[i];
+          const y = room[j];
+          if (unlike(x.work, y.work) > PAIR_MAX_UNLIKE) continue;
+          const score =
+            unlike(x.work, y.work) -
+            kin(x.work.artwork, y.work.artwork) -
+            (kinTo ? (kin(x.work.artwork, kinTo) + kin(y.work.artwork, kinTo)) / 2 : 0) +
+            AWAY_COST * (Number(x.start !== bay.floor) + Number(y.start !== bay.floor)) -
+            0.02 * (area(x.work) + area(y.work));
+          if (!best || score < best.score) best = { pair: [x, y], score };
+        }
       }
-      if (!best) break;
-      const { site, works } = best;
-      open.delete(site);
-      const bottomY = floorOf(site.storeys, level);
-      works.forEach((work, i) => {
-        place(site, level, site.sides[i], work, 0, bottomY, beside(level));
+      return best?.pair ?? null;
+    };
+    const hangPair = (
+      bay: Bay,
+      runs: [WallRun, WallRun],
+      pair: [Candidate, Candidate],
+      y?: number,
+    ) => {
+      pool = pool.filter((e) => e !== pair[0] && e !== pair[1]);
+      const centerY = y ?? Math.max(...pair.map((e, i) => naturalCenter(runs[i], e.work)));
+      pair.forEach((e, i) => {
+        hangOn(bay.storey.room, runs[i], e.work, centerY);
       });
-    }
-  }
+    };
 
-  return [...tallPool, ...otherPool];
+    // The end wall first: a pair beside each axis work, their middles
+    // level with its middle, of the floor's own works before another's.
+    for (const bay of bays) {
+      if (!bay.hero || !bay.flanks) continue;
+      const hero = bay.hero.work;
+      const pair = choose(
+        bay,
+        bay.flanks,
+        (w) => outerHeight(w) <= outerHeight(hero) && w.hM >= FLANK_MIN_HEIGHT * hero.hM,
+        hero.artwork,
+      );
+      if (pair) hangPair(bay, bay.flanks, pair, bay.hero.centerY);
+    }
+    // Then the walls beside the stair and the door, a pair at a time,
+    // each storey's next pair in turn so the halls fill alike.
+    const most = Math.max(0, ...bays.map((b) => b.pairs.length));
+    for (let k = 0; k < most; k++) {
+      for (const bay of bays) {
+        const runs = bay.pairs[k];
+        if (!runs) continue;
+        const pair = choose(bay, runs, () => true, null);
+        if (pair) hangPair(bay, runs, pair);
+      }
+    }
+    return pool.map(({ work, start }) => ({ work, start }));
+  };
+
+  return { axes, pairs };
 }

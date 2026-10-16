@@ -75,10 +75,10 @@ describe("room kinds and ceilings", () => {
   });
 
   it("sets the ceiling by the narrow side", () => {
-    expect(ceilingHeightFor(rect(9, 4))).toBe(4.0);
-    expect(ceilingHeightFor(rect(9, 5))).toBe(4.8);
-    expect(ceilingHeightFor(rect(6, 7))).toBe(4.8);
-    expect(ceilingHeightFor(rect(7, 9))).toBe(5.7);
+    expect(ceilingHeightFor(rect(9, 4))).toBe(4.6);
+    expect(ceilingHeightFor(rect(9, 5))).toBe(5.6);
+    expect(ceilingHeightFor(rect(6, 7))).toBe(5.6);
+    expect(ceilingHeightFor(rect(7, 9))).toBe(6.6);
   });
 });
 
@@ -519,13 +519,13 @@ describe("the museum's rooms as fitted", () => {
     const hall = fittingsFor("grand-hall");
     expect(hall.dividers).toEqual([]);
     expect(hall.benches).toHaveLength(4);
-    expect(hall.ceilingHeight).toBe(5.7);
+    expect(hall.ceilingHeight).toBe(6.6);
   });
 
   it("fits the stairwell with nothing", () => {
     expect(STAIR.xMax - STAIR.xMin).toBe(8);
     expect(fittingsFor("stairwell")).toEqual({
-      ceilingHeight: 4.8,
+      ceilingHeight: 5.6,
       dividers: [],
       benches: [],
       portals: 0,

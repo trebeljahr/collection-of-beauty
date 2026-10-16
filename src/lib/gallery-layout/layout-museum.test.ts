@@ -206,9 +206,9 @@ describe("a built floor", () => {
   });
 
   it("gives rooms different ceilings", () => {
-    expect(room("grand-hall").ceilingHeight).toBe(5.7);
-    expect(room("n-hall").ceilingHeight).toBe(4.8);
-    expect(room("stairwell").ceilingHeight).toBe(4.8);
+    expect(room("grand-hall").ceilingHeight).toBe(6.6);
+    expect(room("n-hall").ceilingHeight).toBe(5.6);
+    expect(room("stairwell").ceilingHeight).toBe(5.6);
   });
 
   it("puts a visitor down clear of the Grand Hall's benches", () => {

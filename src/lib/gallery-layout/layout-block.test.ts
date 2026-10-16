@@ -8,8 +8,8 @@ import { benchRect, longAxis } from "./fittings";
 import {
   grandStairsAt,
   grandSurfaceAt,
+  inOpening,
   openingReach,
-  sheerStripDepth,
   toStairLocal,
 } from "./grand-stair";
 import {
@@ -136,13 +136,16 @@ describe("the block plan", () => {
     const [west, court, east] = BLOCK_HALLS.map((h) => h.rect);
     expect(BLOCK_HALLS.map((h) => h.design)).toEqual(["loggia", "court", "loggia"]);
     for (const r of [west, court, east]) {
-      expect(metres(r.xMax - r.xMin + 1)).toBe(27.5);
       expect(metres(r.zMax - r.zMin + 1)).toBe(27.5);
       // All three in the middle row.
       expect(r.zMin).toBe(court.zMin);
     }
-    expect(west.xMin).toBe(0);
-    expect(east.xMax).toBe(BLOCK_GRID.x - 1);
+    expect(metres(court.xMax - court.xMin + 1)).toBe(27.5);
+    // A stair hall is 25 m deep: its end wall stands a cell inside the
+    // building's, and the cell between is no room.
+    for (const r of [west, east]) expect(metres(r.xMax - r.xMin + 1)).toBe(25);
+    expect(west.xMin).toBe(1);
+    expect(east.xMax).toBe(BLOCK_GRID.x - 2);
     expect(court.xMin + court.xMax).toBe(BLOCK_GRID.x - 1);
     // A gallery of 17.5 m between each pair.
     expect(metres(court.xMin - west.xMax - 1)).toBe(17.5);
@@ -217,8 +220,8 @@ describe("the block plan", () => {
         expect(keyOf(from)).toBe(keyOf(hall) === "hall-w" ? "cw" : "ce");
 
         // A door in each side wall, from the gallery beside the stair
-        // into a long gallery: clear of the open strip behind the
-        // landings, with the hall's own floor inside it.
+        // into a long gallery, inside the hall's square and before its
+        // end wall, with the hall's own floor inside it.
         const sides = hall.doors.filter((d) => d !== door);
         const galleries = keyOf(hall) === "hall-w" ? ["nw", "sw"] : ["ne", "se"];
         expect(
@@ -232,7 +235,7 @@ describe("the block plan", () => {
           const local = toStairLocal(stair, side.worldX, side.worldZ);
           expect(Math.abs(local.x)).toBeCloseTo(stair.half, 9);
           expect(local.z).toBeCloseTo(stair.half - HALL_SIDE_DOOR, 9);
-          expect(local.z - side.width / 2).toBeGreaterThan(-stair.half + sheerStripDepth(stair));
+          expect(local.z - side.width / 2).toBeGreaterThan(-stair.back);
           // A step inside: the hall's floor on this storey.
           const inX = side.worldX + (side.side === "east" ? -1 : side.side === "west" ? 1 : 0);
           const inZ = side.worldZ + (side.side === "south" ? -1 : side.side === "north" ? 1 : 0);
@@ -255,14 +258,25 @@ describe("the block plan", () => {
         expect(stair.design).toBe("loggia");
         expect(stair.hasFlightBelow).toBe(i > 0);
         expect(stair.hasFlightAbove).toBe(i < stairs.length - 1);
-        expect(stair.sheerWall).toBe(true);
-        // The void reaches three walls.
-        expect(openingReach(stair.opening)).toBe(stair.half);
+        expect(stair.sheerWall).toBeFalsy();
+        // Set out from the front wall as in a square hall; the end wall
+        // a cell nearer.
+        expect(stair.back).toBe(stair.half - 2.5);
+        // The void is the stair's width and reaches no wall: a gallery
+        // runs between it and each wall.
+        expect(openingReach(stair.opening)).toBeLessThanOrEqual(stair.half - 5);
+        expect(inOpening(stair, 0, -stair.back + 4.9)).toBe(false);
       });
       for (const floor of layout.floors) {
         const hall = roomOf(floor.index, key);
         expect(hall.isStairwell).toBe(true);
-        expect(metres(hall.cellBounds.xMin)).toBe(stairs[0].centerX - stairs[0].half);
+        const [stair] = stairs;
+        const end =
+          key === "hall-w" ? metres(hall.cellBounds.xMin) : metres(hall.cellBounds.xMax + 1);
+        expect(Math.abs(end - stair.centerX)).toBe(stair.back);
+        const front =
+          key === "hall-w" ? metres(hall.cellBounds.xMax + 1) : metres(hall.cellBounds.xMin);
+        expect(Math.abs(front - stair.centerX)).toBe(stair.half);
         // A hole in every floor over the first, and in every ceiling but
         // the roof, which is glazed.
         expect(hall.floorOpening === null).toBe(floor.index === 0);
@@ -270,9 +284,8 @@ describe("the block plan", () => {
         expect(hall.stairGlyph).toBe(
           floor.index === 0 ? "up" : floor.index === top ? "down" : "both",
         );
-        // The end wall of the building stands sheer behind the stair.
-        expect(hall.sheer?.side).toBe(key === "hall-w" ? "west" : "east");
-        expect(hall.sheer?.depth).toBeCloseTo(11.45, 6);
+        // Every wall has floor in front of it on every storey.
+        expect(hall.sheer).toBeUndefined();
         // A visitor sent to the hall lands on its floor, inside its door.
         const arrival = blockArrivalPoint(layout, hall);
         const here = grandStairsAt(layout.grandStairs!, arrival.x, arrival.z, floor.y);
@@ -707,7 +720,17 @@ describe("the block plan", () => {
         }
       }
       expect(overlaps, "cells owned twice").toEqual([]);
-      expect(owned.size).toBe(BLOCK_GRID.x * BLOCK_GRID.z);
+      // But for the cell behind each stair hall's end wall.
+      const behind = BLOCK_HALLS.filter((h) => h.design === "loggia").reduce(
+        (n, h) => n + h.rect.zMax - h.rect.zMin + 1,
+        0,
+      );
+      expect(owned.size).toBe(BLOCK_GRID.x * BLOCK_GRID.z - behind);
+      for (let z = 0; z < BLOCK_GRID.z; z++) {
+        for (const x of [0, BLOCK_GRID.x - 1]) {
+          if (!owned.has(`${x}:${z}`)) expect(floor.walkable[z * BLOCK_GRID.x + x]).toBe(0);
+        }
+      }
     }
   });
 

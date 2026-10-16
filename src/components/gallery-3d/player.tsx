@@ -96,7 +96,7 @@ const STAIR_PROXIMITY_RADIUS_SQ = STAIR_PROXIMITY_RADIUS * STAIR_PROXIMITY_RADIU
 // promotion an upper-landing exit would teleport them into the lower
 // floor's grid frame and they'd fall through the upper floor's annular
 // ring on the way down. Tied to ~28° of revolution = ~0.49 m of vertical
-// slack at FLOOR_SEPARATION = 6.12 m.
+// slack at FLOOR_SEPARATION = 6.12 m (0.65 m at 8.4 m).
 const STAIR_LANDING_TOL = 0.5;
 const NO_GRAND_STAIRS: readonly GrandStair[] = [];
 // How far above a grand stair's tread the feet may be and still be

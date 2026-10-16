@@ -3,15 +3,15 @@
 //
 // One rectangular block, 117.5 × 62.5 m, on four floors, the same plan
 // on each. Down its middle runs a spine of five bays: a stair hall 27.5
-// m square at each end, a court of the same size in the centre, and a
-// gallery between each pair. A range runs along the north of the spine
+// m wide and 25 m deep at each end, a court 27.5 m square in the
+// centre, and a gallery between each pair. A range runs along the north of the spine
 // and one along the south: a long gallery, a stair tower, a long
 // gallery.
 //
 //   ┌─────────────────┬─────────┬─────────────────┐
 //   │       nw        │ stair-n │       ne        │   north
 //   ├──────────┬──────┼─────────┼──────┬──────────┤
-//   │  hall-w  │  cw  │  court  │  ce  │  hall-e  │   the spine
+//   │ │hall-w  │  cw  │  court  │  ce  │  hall-e│ │   the spine
 //   ├──────────┴──────┼─────────┼──────┴──────────┤
 //   │       sw        │ stair-s │       se        │   south
 //   └─────────────────┴─────────┴─────────────────┘
@@ -23,8 +23,10 @@
 //   along the sides, storey over storey. It stands in the front of its
 //   hall and faces the portal of the spine. A door in each side wall
 //   leads from the gallery beside it to a long gallery. Behind its
-//   landings the hall is open from the floor to the roof, 11.45 m deep
-//   and 27.5 m wide.
+//   landings the hall is open from the floor to the roof, 16 m wide and
+//   3.95 m deep, with a gallery along the end wall beyond it. The
+//   hall's end wall stands a cell inside the building's: the strip
+//   between is no room.
 // - The tower's spiral north and south of the court, in a room of its
 //   own (22.5 × 17.5 m) with a door to the court and to the gallery on
 //   either side.
@@ -35,8 +37,8 @@
 // the spirals at the two ends of the other.
 //
 // The halls and the court hang the works too large for a room, at their
-// real size (`giants.ts`): one to a stretch of wall on each storey, and
-// the largest on the sheer walls behind the two grand stairs.
+// real size (`giants.ts`): one to a stretch of wall on each storey, a
+// stair hall's storey composed about its stair's axis.
 //
 // The galleries are the size of the tower's larger rooms and take its
 // dividers and benches. A floor holds two or three eras, each in rooms
@@ -83,22 +85,20 @@ import {
   planDividers,
 } from "./fittings";
 import {
-  fitsStorey,
+  fitsStretch,
   giantSize,
   hallRuns,
   hangHallStoreys,
-  hangSheerWalls,
+  type StairHallStorey,
+  stairHallHang,
   stretchMiddle,
 } from "./giants";
 import {
-  axisBay,
   buildGrandStair,
   type GrandStair,
   type GrandStairDesign,
   grandHallArrival,
   openingInWorld,
-  sheerSide,
-  sheerStripDepth,
 } from "./grand-stair";
 import {
   bucketByEra,
@@ -132,7 +132,6 @@ import type {
 import {
   CELL_SIZE,
   floorY,
-  INTER_FLOOR_HEIGHT,
   PORTAL_HEIGHT,
   PORTAL_WIDTH,
   SPIRAL_INNER_RADIUS,
@@ -208,10 +207,13 @@ export const BLOCK_SPIRALS: ReadonlyArray<{ key: RoomKey; rect: CellRect; door: 
  * The halls of the spine, open from the first floor to the roof.
  *
  * The two at the ends are stair halls: a loggia, the grand stair on
- * every storey. Each faces the portal of the spine (`hallFront`), has a
- * door in each side wall (`HALL_SIDE_DOOR`), and has the building's end
- * wall behind its landings: that wall and the two beside it stand sheer
- * for 24 m (`RoomLayout.sheer`).
+ * every storey. Each faces the portal of the spine (`hallFront`) and
+ * has a door in each side wall (`HALL_SIDE_DOOR`). Its end wall stands
+ * a cell inside the building's end wall (cells 0 and 46 of the spine
+ * are no room), so a hall is 27.5 m wide and 25 m deep: the floor of
+ * each storey reaches that wall round the void (`LOGGIA.endGallery`).
+ * The stair is set out from the front wall (`buildStair`), so it
+ * stands where it stood in the square hall.
  *
  * The court in the middle has no stair, and a door in every wall.
  */
@@ -221,13 +223,13 @@ export const BLOCK_HALLS: ReadonlyArray<{
   design: Extract<GrandStairDesign, "loggia" | "court">;
   turns: GrandStair["turns"];
 }> = [
-  { key: "hall-w", rect: span(0, 10, ROW_M), design: "loggia", turns: 3 },
+  { key: "hall-w", rect: span(1, 10, ROW_M), design: "loggia", turns: 3 },
   { key: "court", rect: span(18, 28, ROW_M), design: "court", turns: 0 },
-  { key: "hall-e", rect: span(36, 46, ROW_M), design: "loggia", turns: 1 },
+  { key: "hall-e", rect: span(36, 45, ROW_M), design: "loggia", turns: 1 },
 ];
 /** The era whose colours every storey of every hall and stair tower
  *  takes: the pale stone of the first floor's first rooms. A hall is one
- *  room four storeys high, and a work on its sheer wall crosses two. */
+ *  room four storeys high, seen through all of them at once. */
 const HALL_PALETTE: EraId = "gothic";
 /** Where a visit starts, and where a visitor sent to a floor lands. */
 export const GREAT_HALL: RoomKey = "court";
@@ -401,15 +403,6 @@ export function layoutBlock(allArtworks: ArtworkListing[]): MuseumLayout {
       room.floorOpening = f > 0 ? openingInWorld(below) : null;
       room.ceilingOpening = f < top ? openingInWorld(above) : null;
       room.stairGlyph = court ? "void" : f === 0 ? "up" : f === top ? "down" : "both";
-      const stair = stairs[0];
-      if (stair.sheerWall) {
-        room.sheer = {
-          side: sheerSide(stair),
-          depth: sheerStripDepth(stair),
-          base: floors[0].y,
-          roof: floors[top].y + INTER_FLOOR_HEIGHT,
-        };
-      }
     }
   }
 
@@ -426,7 +419,7 @@ export function layoutBlock(allArtworks: ArtworkListing[]): MuseumLayout {
   // The giants go to the halls first; each era then hangs what is left.
   // A giant no hall took hangs in its era's rooms, at its real size,
   // where a wall holds it.
-  const inHalls = hangGiants(floors, byEra, grandStairs);
+  const inHalls = hangGiants(floors, byEra);
   const forRooms = new Map(
     [...byEra].map(([era, works]) => [era, works.filter((a) => !inHalls.has(a.id))]),
   );
@@ -459,58 +452,57 @@ const hallRoom = (floor: FloorLayout, key: RoomKey) =>
 
 /**
  * Hang the works too large for a room in the halls, at their real size
- * (`giants.ts`). The works taller than a storey and some of the others
- * go to the sheer walls of the two stair halls, which are composed
- * alike. Every other giant hangs on the floor of its era, one to a
- * stretch of wall, in the court and the two stair halls alike. Returns
- * the ids hung.
+ * (`giants.ts`), on the floor of their era where there is a place. Each
+ * storey of a stair hall takes its floor's largest work on the middle
+ * of its end wall, where a visitor sees it from the foot of the stair.
+ * The court then takes one work to a stretch: it is the middle of its
+ * floor. The stair halls hang pairs from what is left, and the spiral
+ * rooms what no hall holds. Returns the ids hung.
  */
-function hangGiants(
-  floors: FloorLayout[],
-  byEra: Map<EraId, ArtworkListing[]>,
-  grandStairs: GrandStair[],
-): Set<string> {
-  const tall: SizedWork[] = [];
-  const others: Array<{ work: SizedWork; start: number }> = [];
+function hangGiants(floors: FloorLayout[], byEra: Map<EraId, ArtworkListing[]>): Set<string> {
+  const works: Array<{ work: SizedWork; start: number }> = [];
   BLOCK_PLAN.forEach((plan, floorIndex) => {
     for (const zone of plan.zones) {
       for (const artwork of byEra.get(zone.era) ?? []) {
         const work = giantSize(artwork);
-        if (!work) continue;
-        if (!fitsStorey(work)) tall.push(work);
-        else others.push({ work, start: floorIndex });
+        if (work) works.push({ work, start: floorIndex });
       }
     }
   });
 
-  const storeysOf = (key: RoomKey) => floors.map((floor) => hallRoom(floor, key));
-  const left = new Set(
-    hangSheerWalls(
-      BLOCK_HALLS.filter((h) => h.design === "loggia").map((h) => {
-        // The piers stand in one place on every storey.
-        const stair = grandStairs.find((s) => s.id.startsWith(`${h.key}-`));
-        return { storeys: storeysOf(h.key), bay: stair ? axisBay(stair) : undefined };
-      }),
-      tall,
-      others.map((o) => o.work),
-    ).map((w) => w.artwork.id),
-  );
-  // The court is the middle of its floor: it takes a floor's giants
-  // before the stair halls do.
-  const rooms = (floor: FloorLayout, design: (typeof BLOCK_HALLS)[number]["design"]) =>
-    BLOCK_HALLS.filter((h) => h.design === design).map((h) => hallRoom(floor, h.key));
-  const unhung = new Set(
-    hangHallStoreys(
-      floors.map((floor) => [rooms(floor, "court"), rooms(floor, "loggia")]),
-      others.filter((o) => left.has(o.work.artwork.id)),
+  const stairHalls = BLOCK_HALLS.filter((h) => h.design === "loggia");
+  const stairs = stairHallHang(
+    floors.map((floor) =>
+      stairHalls.map(
+        (h): StairHallStorey => ({
+          room: hallRoom(floor, h.key),
+          end: OPPOSITE[hallFront(h)],
+          front: hallFront(h),
+        }),
+      ),
     ),
   );
-  // The spiral rooms take only what no hall's wall holds on any floor:
-  // their outer wall, 22.5 m with no door, is the one wall left for a
-  // handscroll 12 m long once the stair halls' side doors cut theirs.
+  const startOf = new Map(works.map((w) => [w.work.artwork.id, w.start]));
+  const courts = floors.map((floor) => [
+    BLOCK_HALLS.filter((h) => h.design === "court").map((h) => hallRoom(floor, h.key)),
+  ]);
+  const left = hangHallStoreys(courts, stairs.axes(works));
+  const unhung = stairs.pairs(
+    left.map((work) => ({ work, start: startOf.get(work.artwork.id) ?? 0 })),
+  );
+  // The spiral rooms take only what no hall's wall holds: their outer
+  // wall, 22.5 m with no door, is the one wall left for a handscroll
+  // 12 m long once the end walls have their works. Any other work a
+  // pair left hangs in its era's rooms.
+  const stretches = floors.flatMap((floor) => [
+    ...courts[floor.index].flat().flatMap(hallRuns),
+    ...stairHalls.flatMap((h) =>
+      hallRuns(hallRoom(floor, h.key)).filter((run) => run.side !== OPPOSITE[hallFront(h)]),
+    ),
+  ]);
   hangHallStoreys(
     floors.map((floor) => [BLOCK_SPIRALS.map((s) => hallRoom(floor, s.key))]),
-    others.filter((o) => unhung.has(o.work)),
+    unhung.filter((e) => !fitsStretch(stretches, e.work)),
   );
 
   const halls = floors.flatMap((f) => f.rooms.filter((r) => r.isStairwell));
@@ -580,7 +572,7 @@ function buildFloor(
   // A door in the middle of every wall two rooms share, but for a stair
   // hall: on every floor the portal its stair faces, and a door in each
   // side wall by the foot of the side flight (`HALL_SIDE_DOOR`). The
-  // back wall is the building's.
+  // back wall faces the cell of the spine that is no room.
   const fronts = new Map<RoomKey, Side>(
     BLOCK_HALLS.filter((h) => h.design === "loggia").map((h) => [h.key, hallFront(h)]),
   );
@@ -919,7 +911,23 @@ function buildStair(
   hasFlightBelow: boolean,
   hasFlightAbove: boolean,
 ): GrandStair {
+  // The stair is set out from the hall's front wall: its frame is the
+  // square the hall's width makes there, and the end wall may stand
+  // inside that square (`back`).
   const r = hall.rect;
+  const x0 = r.xMin * CELL_SIZE;
+  const x1 = (r.xMax + 1) * CELL_SIZE;
+  const z0 = r.zMin * CELL_SIZE;
+  const z1 = (r.zMax + 1) * CELL_SIZE;
+  const alongX = hall.turns % 2 === 1;
+  const half = (alongX ? z1 - z0 : x1 - x0) / 2;
+  const front = hallFront(hall);
+  const centre = { x: (x0 + x1) / 2, z: (z0 + z1) / 2 };
+  if (front === "east") centre.x = x1 - half;
+  if (front === "west") centre.x = x0 + half;
+  if (front === "south") centre.z = z1 - half;
+  if (front === "north") centre.z = z0 + half;
+  const back = alongX ? x1 - x0 - half : z1 - z0 - half;
   return buildGrandStair({
     id: `${hall.key}-${lower.index}-to-${upper.index}`,
     design: hall.design,
@@ -930,9 +938,10 @@ function buildStair(
     upperLabel: `Floor ${upper.index + 1}`,
     lowerY: lower.y,
     upperY: upper.y,
-    centerX: ((r.xMin + r.xMax + 1) / 2) * CELL_SIZE,
-    centerZ: ((r.zMin + r.zMax + 1) / 2) * CELL_SIZE,
-    half: ((r.xMax - r.xMin + 1) * CELL_SIZE) / 2,
+    centerX: centre.x,
+    centerZ: centre.z,
+    half,
+    back,
     turns: hall.turns,
     hasFlightBelow,
     hasFlightAbove,
