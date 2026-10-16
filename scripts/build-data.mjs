@@ -1796,7 +1796,9 @@ async function main() {
         colorStrength: colorProfile?.strength ?? null,
         // A polyptych photographed as one object: its panels in the cut
         // scan (scan-crops.json). Absent on every other work.
-        ...(scanCrops.panels(folderKey, fname) ? { panels: scanCrops.panels(folderKey, fname) } : {}),
+        ...(scanCrops.polyptych(folderKey, fname)
+          ? { polyptych: scanCrops.polyptych(folderKey, fname) }
+          : {}),
         fileUrl: entry.source.file_url,
         commonsUrl: entry.source.url,
         credit: creditOverrides.get(objectKeyNFC) ?? cleanCredit(entry.source.credit),

@@ -295,6 +295,7 @@ type Framed = Pick<ArtworkListing, "id"> &
       | "dominantColor"
       | "colorBuckets"
       | "realDimensions"
+      | "polyptych"
     >
   >;
 
@@ -1074,6 +1075,11 @@ export type FrameDesign = {
   /** What an artist painted on the frame's flat panels, which the
    *  renderer lays over them. Only on a pinned frame. */
   painted?: FramePainting;
+  /** How far the frame reaches past the canvas, metres, whatever the
+   *  canvas's size: a frame whose width is on record (a polyptych's,
+   *  `Polyptych.frameCm`). Unset, the moulding is cut for the canvas
+   *  (`frameScale`). */
+  reach?: number;
 };
 
 /** Paintwork on a frame's panels, drawn by the renderer
@@ -1431,6 +1437,19 @@ type FramePin = {
  * the scan reads as the inner edge of the frame round it.
  */
 const PINNED_FRAMES: Record<string, FramePin> = {
+  // Polyptychs in the frames their scans show them in: the Prado frames
+  // the Garden of Earthly Delights, open and closed, in black with a
+  // gilt fillet at the sight and the outer edge; the KHM frames van der
+  // Weyden's Crucifixion in gilt. Widths: `Polyptych.frameCm`.
+  "collection-of-beauty-el-jardin-de-las-delicias-de-el-bosco": { look: "spanish", main: "ebony" },
+  "collection-of-beauty-hieronymus-bosch-the-garden-of-earthly-delights-the-exterior-shutters": {
+    look: "spanish",
+    main: "ebony",
+  },
+  "collection-of-beauty-rogier-van-der-weyden-triptych-the-crucifixion-google-art-project": {
+    look: "cassetta",
+    main: "gilt",
+  },
   // Stuck designed the frame of his small Salome of 1906 (24.7 × 45.7 cm)
   // as a temple front in gilt: pilasters, a pediment, a plinth with its
   // title. The scan showed it round the canvas, so the scan is cut to
@@ -1456,7 +1475,7 @@ function pinnedDesign(artwork: Framed): FrameDesign | null {
   const hit = pinnedDesigns.get(artwork);
   if (hit) return hit;
   const { tone, c } = readingOf(artwork, null);
-  const design = designOf(pin.look, artwork, tone, c, undefined, pin);
+  const design = recordedReach(artwork, designOf(pin.look, artwork, tone, c, undefined, pin));
   pinnedDesigns.set(artwork, design);
   return design;
 }
@@ -1493,9 +1512,16 @@ export function pickFrameDesign(artwork: Framed, hanging?: Hanging): FrameDesign
   const hit = hanging ? undefined : designs.get(artwork);
   if (hit) return hit;
   const { tone, c } = readingOf(artwork, hanging?.wall ?? null);
-  const design = drawDesign(c, artwork, tone, hanging);
+  const design = recordedReach(artwork, drawDesign(c, artwork, tone, hanging));
   if (!hanging) designs.set(artwork, design);
   return design;
+}
+
+/** A polyptych's frames are as wide as its museum's: the design keeps
+ *  its moulding and is cut to that width. */
+function recordedReach(artwork: Framed, design: FrameDesign): FrameDesign {
+  const cm = artwork.polyptych?.frameCm;
+  return cm ? { ...design, key: `${design.key}|reach${cm}`, reach: cm / 100 } : design;
 }
 
 // ── Size ──────────────────────────────────────────────────────────────
@@ -1503,6 +1529,7 @@ export function pickFrameDesign(artwork: Framed, hanging?: Hanging): FrameDesign
 /** Moulding scale for a canvas of the given size, metres. A framer cuts
  *  a heavier moulding for a larger picture. */
 export function frameScale(design: FrameDesign, widthM: number, heightM: number): number {
+  if (design.reach != null) return design.reach / buildStyle(design.style, design.options).width;
   const [lo, hi] = styleChoices(design.style).scale;
   return clamp(0.5 + 0.3 * Math.max(widthM, heightM), lo, hi) * design.weight;
 }

@@ -14,7 +14,6 @@ import { ERAS, isEraId } from "@/lib/gallery-eras";
 import {
   type FrameDesign,
   frameMoulding,
-  frameReach,
   frameScale,
   pickFrameDesign,
   roomHanging,
@@ -73,16 +72,16 @@ function SheetWork({
   }, [work, realSize]);
   // A polyptych hangs as its panels, each in a frame of its own.
   const panels = useMemo(
-    () =>
-      work.panels ? layoutPanels(work.panels, w, h, (pw, ph) => frameReach(design, pw, ph)) : null,
-    [work.panels, design, w, h],
+    () => (work.polyptych ? layoutPanels(work.polyptych, w) : null),
+    [work.polyptych, w],
   );
   const frames = useMemo(
     () =>
-      (panels ?? [{ x: 0, y: 0, w, h }]).map((p) => {
-        const moulding = frameMoulding(design, p.w, p.h);
+      (panels ?? [{ x: 0, y: 0, w, h, reach: design.reach }]).map((p) => {
+        const cut = { ...design, reach: p.reach };
+        const moulding = frameMoulding(cut, p.w, p.h);
         const geometry = buildFrameGeometry(moulding.profile, p.w, p.h, PAINTING_WALL_OFFSET, {
-          slots: design.slots,
+          slots: cut.slots,
           swell: moulding.swell,
           blocks: moulding.blocks,
           rails: moulding.rails,

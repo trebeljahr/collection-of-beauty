@@ -25,11 +25,18 @@
 //
 //   "panels": [{ "x0": 0, "y0": 0, "x1": 21.0, "y1": 100 }, …]
 //
+// with what the museum hangs them by, from the holding museum's record
+// where it has one:
+//
+//   "panelCm": [[76.5, 185.8], …]   each panel's width and height, bare
+//   "frameCm": 11                   the width of each panel's frame
+//   "gapCm": 0                      between two frames: 0 where hinged
+//
 // Nothing is encoded per panel. build-data copies them to the catalogue
-// (`Artwork.panels`, as fractions), and the museum hangs each panel in a
-// frame of its own (src/lib/gallery-layout/polyptych.ts). The sides of a
-// cut are optional: a scan whose panels stand on a plain ground needs
-// no cut.
+// (`Artwork.polyptych`), and the museum hangs each panel in a frame of
+// its own at those sizes (src/lib/gallery-layout/polyptych.ts). The
+// sides of a cut are optional: a scan whose panels stand on a plain
+// ground needs no cut.
 
 import { existsSync, readFileSync, statSync } from "node:fs";
 import path from "node:path";
@@ -59,7 +66,7 @@ export function loadScanCrops(file = SCAN_CROPS_PATH) {
     const raw = JSON.parse(readFileSync(file, "utf8"));
     for (const [key, entry] of Object.entries(raw)) {
       if (key.startsWith("_")) continue;
-      if (entry.panels) panels.set(nfc(key), readPanels(key, entry.panels));
+      if (entry.panels) panels.set(nfc(key), readPolyptych(key, entry));
       if (SIDES.every((s) => entry[s] === undefined)) continue;
       for (const s of SIDES) {
         const v = entry[s];
@@ -78,14 +85,31 @@ export function loadScanCrops(file = SCAN_CROPS_PATH) {
     get(folder, filename) {
       return crops.get(`${nfc(folder)}/${nfc(filename)}`) ?? null;
     },
-    /** The panels of a polyptych, as fractions of the cut image. */
-    panels(folder, filename) {
+    /** A polyptych's panels (fractions of the cut image, and real
+     *  sizes), its frame width and the gap between frames. */
+    polyptych(folder, filename) {
       return panels.get(`${nfc(folder)}/${nfc(filename)}`) ?? null;
     },
   };
 }
 
 const round4 = (v) => Math.round(v * 100) / 10000;
+
+function readPolyptych(key, entry) {
+  const panels = readPanels(key, entry.panels);
+  const cm = entry.panelCm;
+  if (!Array.isArray(cm) || cm.length !== panels.length)
+    throw new Error(`scan-crops.json: ${key} needs a panelCm for each panel`);
+  for (const [i, wh] of cm.entries()) {
+    if (!(wh?.[0] > 0 && wh?.[1] > 0))
+      throw new Error(`scan-crops.json: ${key} panelCm ${i} is not a size`);
+    panels[i].wCm = wh[0];
+    panels[i].hCm = wh[1];
+  }
+  if (!(entry.frameCm >= 0) || !(entry.gapCm >= 0))
+    throw new Error(`scan-crops.json: ${key} needs frameCm and gapCm`);
+  return { panels, frameCm: entry.frameCm, gapCm: entry.gapCm };
+}
 
 /** Panels in percent, checked and returned as fractions. Two panels may
  *  touch but not overlap, and they run left to right. */

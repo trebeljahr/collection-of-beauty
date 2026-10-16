@@ -111,12 +111,13 @@ export type Artwork = {
    *  `/api/artworks/museum` retains it for instant 3D painting previews.
    *  See `catalogueListings`. */
   thumbHash: string | null;
-  /** The panels of a diptych or triptych photographed as one object,
-   *  left to right, as fractions of the scan (`metadata/scan-crops.json`).
-   *  The museum hangs each in a frame of its own
-   *  (`gallery-layout/polyptych.ts`); a page shows the whole scan. Absent
-   *  on every other work, so it costs the listings nothing. */
-  panels?: ScanPanel[];
+  /** A diptych or triptych photographed as one object: its panels, as
+   *  rectangles of the scan and as real sizes, the width of their frames
+   *  and the gap between them (`metadata/scan-crops.json`). The museum
+   *  hangs each panel in a frame of its own (`gallery-layout/
+   *  polyptych.ts`); a page shows the whole scan. Absent on every other
+   *  work, so it costs the listings nothing. */
+  polyptych?: Polyptych;
   /** Colour families this work reads as, best-first (e.g.
    *  `["blue", "gold"]`), drawn from the ids in
    *  `src/lib/color-buckets.mjs`. Powers the browse-by-colour filter.
@@ -228,8 +229,20 @@ export const connections = connectionsJson as Connection[];
  *  `artworkListings` to anything client; only the /artwork/[id] detail
  *  page (server component) still pulls the full record via
  *  getArtwork(). */
-/** One panel of a polyptych, as fractions of its scan, y down. */
-export type ScanPanel = { x0: number; y0: number; x1: number; y1: number };
+/** One panel of a polyptych: its rectangle of the scan as fractions,
+ *  y down, and its real size, bare, in cm. */
+export type ScanPanel = {
+  x0: number;
+  y0: number;
+  x1: number;
+  y1: number;
+  wCm: number;
+  hCm: number;
+};
+
+/** How a polyptych hangs: its panels left to right, the width of each
+ *  panel's frame, and the gap between two frames (0 where hinged). */
+export type Polyptych = { panels: ScanPanel[]; frameCm: number; gapCm: number };
 
 export type ArtworkListing = Pick<
   Artwork,
@@ -249,7 +262,7 @@ export type ArtworkListing = Pick<
   | "dominantColor"
   | "thumbHash"
   | "colorBuckets"
-  | "panels"
+  | "polyptych"
 >;
 
 /** An `ArtworkListing` as the full-catalogue endpoints serve it: without
@@ -275,7 +288,7 @@ const _artworkListings: ArtworkListing[] = (artworksJson as Artwork[]).map((a) =
   // has no such key, and the listing contract is null, not undefined.
   thumbHash: a.thumbHash ?? null,
   colorBuckets: a.colorBuckets,
-  ...(a.panels ? { panels: a.panels } : {}),
+  ...(a.polyptych ? { polyptych: a.polyptych } : {}),
 }));
 export const artworkListings: ArtworkListing[] = _artworkListings;
 

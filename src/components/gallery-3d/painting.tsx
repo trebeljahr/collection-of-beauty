@@ -11,7 +11,6 @@ import {
   type FrameDesign,
   frameExtents,
   frameMoulding,
-  frameReach as frameReachOf,
   frameScale,
   pickFrameDesign,
 } from "@/lib/gallery-layout/frame-design";
@@ -475,6 +474,9 @@ export const Painting = memo(function Painting({
   const handleTextureAspect = useCallback(
     (texAspect: number) => {
       if (!Number.isFinite(texAspect) || texAspect <= 0) return;
+      // A polyptych's panels have their own sizes; its scan's shape,
+      // the frames between the panels included, is not the work's.
+      if (artwork.polyptych) return;
       const fitted = fitToAspect(texAspect, widthM, heightM);
       setRenderDims((prev) => {
         if (
@@ -486,7 +488,7 @@ export const Painting = memo(function Painting({
         return fitted;
       });
     },
-    [widthM, heightM],
+    [widthM, heightM, artwork.polyptych],
   );
 
   // The frame the hang chose, which the placement carries.
@@ -508,11 +510,8 @@ export const Painting = memo(function Painting({
   // A diptych or triptych photographed as one object hangs as its
   // panels, each in a frame of its own (polyptych.ts).
   const panels = useMemo(
-    () =>
-      artwork.panels
-        ? layoutPanels(artwork.panels, dW, dH, (w, h) => frameReachOf(design, w, h))
-        : null,
-    [artwork.panels, design, dW, dH],
+    () => (artwork.polyptych ? layoutPanels(artwork.polyptych, dW) : null),
+    [artwork.polyptych, dW],
   );
 
   // Picture light: one can per work, its pool clipped to this wall's
@@ -601,8 +600,8 @@ export const Painting = memo(function Painting({
             panels.map((panel) => (
               <group key={`${panel.uv[0]}`} position={[panel.x, panel.y, 0]}>
                 <FrameMesh
-                  design={design}
-                  moulding={frameMoulding(design, panel.w, panel.h)}
+                  design={{ ...design, reach: panel.reach }}
+                  moulding={frameMoulding({ ...design, reach: panel.reach }, panel.w, panel.h)}
                   widthM={panel.w}
                   heightM={panel.h}
                   palette={palette}

@@ -239,20 +239,31 @@ required by the Dockerfile — don't remove it.
 - **Polyptychs.** A diptych or triptych photographed as one object
   stays one work: one id, one scan, one set of variants. Its entry in
   `scan-crops.json` lists `panels` (percent of the cut image, left to
-  right), build-data copies them to `Artwork.panels` (fractions, in
-  `ArtworkListing` for these works only), and the museum hangs each
-  panel in a frame of its own, frames touching, in the wall the hang
-  gave the whole work (`layoutPanels` in `gallery-layout/polyptych.ts`).
-  The canvas is one mesh of a quad per panel on the one texture
-  (`panel-geometry.ts`), so the LOD ladder and the painting registry see
-  one work. What lies between the panels in the scan, frames or a white
-  ground, is not drawn. Pages show the whole scan. Six works have
-  panels (17 October 2026): the open Garden of Earthly Delights and its
-  closed wings, van der Weyden's Crucifixion (all three also cut),
-  Bosch's St Anthony, Dürer's Adam and Eve and the Vienna Diptych.
-  Panels with shaped tops (Massys's Joiners' Altarpiece, the Seven
-  Sacraments, the Isenheim scans) need a mask and are not done; the
-  vault note `collection-of-beauty-polyptychs.md` lists them.
+  right) and how its museum shows it: `panelCm` (each panel bare),
+  `frameCm` and `gapCm` (0 where the wings are hinged), with the
+  sources under `_sizes`. build-data copies them to `Artwork.polyptych`
+  (in `ArtworkListing` for these works only). The museum hangs each
+  panel at its real size in a frame of its own, the work's design cut
+  to `frameCm` (`FrameDesign.reach`), and the hang measures the whole
+  by its panels (`polyptychSize`, used by `sizeWork` and `giants.ts`),
+  never by its scan or its `realDimensions`, which are often the framed
+  size. `layoutPanels` lays them out; the canvas is one mesh of a quad
+  per panel on the one texture (`panel-geometry.ts`), and the texture
+  aspect refit is skipped for them. What lies between the panels in the
+  scan is not drawn. Pages show the whole scan.
+  - Six works (17 October 2026). The Garden of Earthly Delights, open
+    and closed, in the Prado's black frames with gilt fillets
+    (`PINNED_FRAMES`, 11 cm, hinged); van der Weyden's Crucifixion in
+    the KHM's gilt (4 cm, a 2 cm hinge gap); the Vienna Diptych (KHM,
+    3.8 cm, 0.5 cm apart). Bosch's St Anthony and Dürer's Adam and Eve
+    show no frames on their scans: their widths and Dürer's 20 cm gap
+    are chosen, not measured. A polyptych counts as tall when each
+    panel is, so Dürer's pair hangs in a spiral room.
+  - Creation and St Anthony do not hang: their scans are under the
+    1,000 px a metre the hang asks at their real size.
+  - Panels with shaped tops (Massys's Joiners' Altarpiece, the Seven
+    Sacraments, the Isenheim scans) need a mask and are not done; the
+    vault note `collection-of-beauty-polyptychs.md` lists them.
 
 ## Originals saved as previews
 

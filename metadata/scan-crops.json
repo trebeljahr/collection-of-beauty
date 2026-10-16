@@ -1,5 +1,5 @@
 {
-  "_comment": "Scans that show more than the work: the picture frame, a miniature's case, a mount. Keyed '<folder>/<filename>'. l/t/r/b: percent of the displayed original (after EXIF rotation) cut from the left, top, right and bottom. The original stays the Commons file; shrink-sources, build-tiles and build-data apply the cut (scripts/lib/scan-crops.mjs). Editing an entry makes the cropped works' variants and tiles stale: rerun assets:shrink, assets:build-data and assets:tiles with --only for them. Measured on the 1280 variant and checked by eye on 17 October 2026; Rico approved each from before/after proofs. 'panels' lists the panels of a polyptych photographed as one object, x0/y0/x1/y1 in percent of the cut image, left to right; the museum hangs each in its own frame.",
+  "_comment": "Scans that show more than the work: the picture frame, a miniature's case, a mount. Keyed '<folder>/<filename>'. l/t/r/b: percent of the displayed original (after EXIF rotation) cut from the left, top, right and bottom. The original stays the Commons file; shrink-sources, build-tiles and build-data apply the cut (scripts/lib/scan-crops.mjs). Editing an entry makes the cropped works' variants and tiles stale: rerun assets:shrink, assets:build-data and assets:tiles with --only for them. Measured on the 1280 variant and checked by eye on 17 October 2026; Rico approved each from before/after proofs. 'panels' lists the panels of a polyptych photographed as one object, x0/y0/x1/y1 in percent of the cut image, left to right; with panelCm (each panel bare, width and height), frameCm and gapCm (0 where the wings are hinged); the museum hangs each panel in its own frame at those sizes.",
   "collection-of-beauty/La_Fornarina_by_Raffaello.jpg": {
     "l": 16.3,
     "t": 12.7,
@@ -130,7 +130,24 @@
         "y1": 100
       }
     ],
-    "_why": "triptych, open; the scan shows the outer frame and the frames between the panels (The Garden of Earthly Delights, Hieronymus Bosch)"
+    "_why": "triptych, open; the scan shows the outer frame and the frames between the panels (The Garden of Earthly Delights, Hieronymus Bosch)",
+    "panelCm": [
+      [
+        76.5,
+        185.8
+      ],
+      [
+        172.5,
+        185.8
+      ],
+      [
+        76.5,
+        185.8
+      ]
+    ],
+    "frameCm": 11,
+    "gapCm": 0,
+    "_sizes": "Prado: overall 205.5 × 384.9 cm; framed centre 220 × 195 and wing 220 × 97.5 (Wikipedia, after the Prado). Bare panels 172.5 and 76.5 × 185.8 cm; the frames, black with gilt fillets on the scan, are 11 cm (195 − 172.5 = 22.5, and 22 cm between panels on the scan). The wings are hinged: no gap."
   },
   "collection-of-beauty/Hieronymus_Bosch_-_The_Garden_of_Earthly_Delights_-_The_exterior_(shutters).jpg": {
     "l": 7.3,
@@ -151,7 +168,20 @@
         "y1": 100
       }
     ],
-    "_why": "the closed wings of the Garden of Earthly Delights, two panels in their frames (Creation, Hieronymus Bosch)"
+    "_why": "the closed wings of the Garden of Earthly Delights, two panels in their frames (Creation, Hieronymus Bosch)",
+    "panelCm": [
+      [
+        76.5,
+        185.8
+      ],
+      [
+        76.5,
+        185.8
+      ]
+    ],
+    "frameCm": 11,
+    "gapCm": 0,
+    "_sizes": "The Garden's wings closed: the same two panels and frames as the open triptych."
   },
   "collection-of-beauty/Rogier_van_der_Weyden_-_Triptych-_The_Crucifixion_-_Google_Art_Project.jpg": {
     "l": 2.45,
@@ -178,7 +208,24 @@
         "y1": 100
       }
     ],
-    "_why": "triptych; the scan shows the outer frame and the frames between the panels (Crucifixion Triptych, Rogier van der Weyden)"
+    "_why": "triptych; the scan shows the outer frame and the frames between the panels (Crucifixion Triptych, Rogier van der Weyden)",
+    "panelCm": [
+      [
+        27,
+        96
+      ],
+      [
+        69,
+        96
+      ],
+      [
+        27,
+        96
+      ]
+    ],
+    "frameCm": 4,
+    "gapCm": 2,
+    "_sizes": "KHM 901 (khm.at/en/object/2123): middle panel 96 × 69 cm, wings 96 × 27 cm, wing framed 101 × 35 cm, so 4 cm frames. On the scan a dark hinge gap of about 2 cm stands between the gilt frames."
   },
   "collection-of-beauty/Hieronymus_Bosch_-_Triptych_of_Temptation_of_St_Anthony_-_WGA2585.jpg": {
     "panels": [
@@ -201,7 +248,24 @@
         "y1": 100
       }
     ],
-    "_why": "triptych photographed as three panels on a white ground (Triptych of the Temptation of St Anthony, Hieronymus Bosch)"
+    "_why": "triptych photographed as three panels on a white ground (Triptych of the Temptation of St Anthony, Hieronymus Bosch)",
+    "panelCm": [
+      [
+        53,
+        131.5
+      ],
+      [
+        119,
+        131.5
+      ],
+      [
+        53,
+        131.5
+      ]
+    ],
+    "frameCm": 8,
+    "gapCm": 0,
+    "_sizes": "MNAA: overall 131.5 × 238 cm; centre 119 and wings 53 cm wide. The scan shows no frames: 8 cm frames and hinged wings are chosen, not measured."
   },
   "collection-of-beauty/Albrecht_Dürer_-_Adam_and_Eve_(Prado)_2.jpg": {
     "panels": [
@@ -218,7 +282,20 @@
         "y1": 99.7
       }
     ],
-    "_why": "diptych, two panels on a white ground (Adam and Eve, Albrecht Dürer)"
+    "_why": "diptych, two panels on a white ground (Adam and Eve, Albrecht Dürer)",
+    "panelCm": [
+      [
+        81,
+        209
+      ],
+      [
+        80,
+        209
+      ]
+    ],
+    "frameCm": 8,
+    "gapCm": 20,
+    "_sizes": "Prado: Adam 209 × 81 cm, Eve 209 × 80 cm, two pictures in two frames hung side by side. The scan shows no frames: 8 cm frames and a 20 cm gap are chosen, not measured."
   },
   "collection-of-beauty/Hugo_van_der_Goes_-_Vienna_Diptych.jpg": {
     "panels": [
@@ -235,6 +312,19 @@
         "y1": 100
       }
     ],
-    "_why": "diptych, two panels side by side (Vienna Diptych, Hugo van der Goes)"
+    "_why": "diptych, two panels side by side (Vienna Diptych, Hugo van der Goes)",
+    "panelCm": [
+      [
+        22.9,
+        33.8
+      ],
+      [
+        22.9,
+        33.8
+      ]
+    ],
+    "frameCm": 3.8,
+    "gapCm": 0.5,
+    "_sizes": "KHM: Fall of Man 33.8 × 22.9 cm, framed 41 × 30.5 cm, mounted with the Lamentation 61.5 cm wide: 3.8 cm frames and 0.5 cm between them."
   }
 }

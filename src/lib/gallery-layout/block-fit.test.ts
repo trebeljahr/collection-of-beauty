@@ -1,4 +1,5 @@
 import { describe, expect, it } from "vitest";
+import type { ArtworkListing } from "@/lib/data";
 import { artworkListings } from "@/lib/data";
 import { assignEra } from "@/lib/gallery-eras";
 import { trustworthyRealSize } from "@/lib/real-size";
@@ -6,6 +7,7 @@ import { frameExtents, pickFrameDesign } from "./frame-design";
 import { giantSize, tallSize } from "./giants";
 import { BLOCK_PLAN, BLOCK_SPIRALS, BLOCK_WALL_COVERAGE, layoutBlock } from "./layout-block";
 import { computeRoomRuns, runLength, sideClearance, type WallRun } from "./place-paintings";
+import { polyptychSize } from "./polyptych";
 import { eraOfRoom } from "./room-era";
 import type { Placement, RoomLayout } from "./types";
 
@@ -65,6 +67,18 @@ function blanks(run: WallRun, placements: Placement[]): number[] {
   return out;
 }
 
+/** A work's real long edge, metres, where it is trusted. A polyptych's
+ *  record measures it framed; it hangs as its panels, at the size
+ *  `polyptychSize` gives them. */
+function realLongEdgeM(work: ArtworkListing): number | null {
+  if (work.polyptych) {
+    const size = polyptychSize(work.polyptych);
+    return Math.max(size.wCm, size.hCm) / 100;
+  }
+  const size = trustworthyRealSize(work);
+  return size ? Math.max(size.widthCm, size.heightCm) / 100 : null;
+}
+
 describe("the block plan and the catalogue", () => {
   it("gives every era the wall its works cover", () => {
     // Within 0.05 under the share of wall the plan asks for. Three
@@ -119,9 +133,8 @@ describe("the block plan and the catalogue", () => {
     for (const floor of layout.floors) {
       for (const room of floor.rooms) {
         for (const p of room.placements) {
-          const size = trustworthyRealSize(p.artwork);
-          if (!size) continue;
-          const real = Math.max(size.widthCm, size.heightCm) / 100;
+          const real = realLongEdgeM(p.artwork);
+          if (real == null) continue;
           const hung = Math.max(p.widthM, p.heightM);
           if (hung < real - 1e-6) shrunk.push(`${room.id} ${p.artwork.id}: ${hung} of ${real}`);
         }

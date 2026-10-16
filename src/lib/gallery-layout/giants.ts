@@ -68,6 +68,7 @@ import {
   sideClearance,
   type WallRun,
 } from "./place-paintings";
+import { polyptychSize } from "./polyptych";
 import { widestTexturePx } from "./sharpness";
 import type { Placement, RoomLayout } from "./types";
 import { FLOOR_SEPARATION, INTER_FLOOR_HEIGHT } from "./world-coords";
@@ -121,6 +122,11 @@ export function giantSize(
 
 /** The work at its audited real size, in the scan's shape. */
 function realSize(artwork: ArtworkListing): SizedWork | null {
+  // A polyptych hangs as its panels: its record measures it framed.
+  if (artwork.polyptych) {
+    const { wCm, hCm } = polyptychSize(artwork.polyptych);
+    return { artwork, wM: wCm / 100, hM: hCm / 100 };
+  }
   const size = trustworthyRealSize(artwork);
   if (!size || !artwork.width || !artwork.height) return null;
   const long = Math.max(size.widthCm, size.heightCm) / 100;
@@ -144,7 +150,12 @@ const TALL_MIN_ASPECT = 1.25;
  */
 export function tallSize(artwork: ArtworkListing): SizedWork | null {
   const work = realSize(artwork);
-  if (!work || work.hM < TALL_MIN_HEIGHT || work.hM < TALL_MIN_ASPECT * work.wM) return null;
+  // A polyptych is tall when each of its panels is: Dürer's Adam and
+  // Eve are two full-length figures side by side.
+  const narrow = artwork.polyptych
+    ? artwork.polyptych.panels.every((q) => q.hCm >= TALL_MIN_ASPECT * q.wCm)
+    : work != null && work.hM >= TALL_MIN_ASPECT * work.wM;
+  if (!work || work.hM < TALL_MIN_HEIGHT || !narrow) return null;
   if (work.hM > MAX_PAINTING_W && !giantSize(artwork)) return null;
   return fitsStorey(work) ? work : null;
 }

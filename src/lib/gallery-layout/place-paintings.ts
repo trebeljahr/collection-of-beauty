@@ -30,6 +30,7 @@ import {
   roomHanging,
   wallHanging,
 } from "./frame-design";
+import { polyptychSize } from "./polyptych";
 import { eraOfRoom } from "./room-era";
 import type { Divider, Door, FloorLayout, Placement, RoomLayout } from "./types";
 import { CELL_SIZE, DIVIDER_THICKNESS, DOOR_TRIM, PORTAL_TRIM } from "./world-coords";
@@ -1050,8 +1051,18 @@ export function sizeWork(artwork: ArtworkListing, options: HangOptions = {}): Si
   const dims = artwork.realDimensions;
   let wM: number;
   let hM: number;
-  const pxAspect = artwork.width && artwork.height ? artwork.width / artwork.height : null;
-  if (pxAspect != null && dims) {
+  // A polyptych hangs as its panels at their real sizes, so its scan
+  // (with the frames between its panels in it) says nothing of its shape.
+  const poly = artwork.polyptych ? polyptychSize(artwork.polyptych) : null;
+  const pxAspect = poly
+    ? poly.wCm / poly.hCm
+    : artwork.width && artwork.height
+      ? artwork.width / artwork.height
+      : null;
+  if (poly) {
+    wM = poly.wCm / 100;
+    hM = poly.hCm / 100;
+  } else if (pxAspect != null && dims) {
     const longEdgeM = Math.max(dims.widthCm, dims.heightCm) / 100;
     if (pxAspect >= 1) {
       wM = longEdgeM;
