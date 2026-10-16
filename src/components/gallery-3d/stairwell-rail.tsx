@@ -2,6 +2,7 @@
 
 import { useEffect, useMemo } from "react";
 import * as THREE from "three";
+import { stairSignPosts } from "@/lib/gallery-layout/grand-stair";
 import type { FloorLayout } from "@/lib/gallery-layout/types";
 import { UNREFLECTED_LAYER } from "./floor-mirror";
 import { HIGHLIGHT_ENV_MATERIALS } from "./palette-materials";
@@ -555,6 +556,58 @@ function ShaftAccents({ floor, shaft }: { floor: FloorLayout; shaft: StairShaft 
           label={stairIn.lowerLabel}
         />
       )}
+    </group>
+  );
+}
+
+/** The pylons at the foot of each loggia on this storey
+ *  (`stairSignPosts`): the spiral gate's post and plaques, standing
+ *  free on the lobby. A pylon that names both floors carries the floor
+ *  above over the floor below. */
+export function GrandStairSigns({ floor }: { floor: FloorLayout }) {
+  const posts = useMemo(() => stairSignPosts(floor), [floor]);
+  if (posts.length === 0) return null;
+  const front = GATE_POST_RADIAL_DEPTH / 2 + 0.02;
+  return (
+    <group>
+      {posts.map((post) => {
+        const both = post.up !== null && post.down !== null;
+        const plaque = (dy: number) =>
+          [
+            post.x + Math.sin(post.rotationY) * front,
+            floor.y + dy,
+            post.z + Math.cos(post.rotationY) * front,
+          ] as [number, number, number];
+        return (
+          <group key={post.id}>
+            <mesh
+              position={[post.x, floor.y + GATE_POST_HEIGHT / 2, post.z]}
+              rotation={[0, post.rotationY, 0]}
+            >
+              <boxGeometry
+                args={[GATE_POST_TANGENT_WIDTH, GATE_POST_HEIGHT, GATE_POST_RADIAL_DEPTH]}
+              />
+              <primitive object={gatePostMaterial} attach="material" />
+            </mesh>
+            {post.up !== null && (
+              <StairSign
+                position={plaque(both ? 1.88 : 1.65)}
+                rotationY={post.rotationY}
+                direction="up"
+                label={post.up}
+              />
+            )}
+            {post.down !== null && (
+              <StairSign
+                position={plaque(both ? 1.4 : 1.65)}
+                rotationY={post.rotationY}
+                direction="down"
+                label={post.down}
+              />
+            )}
+          </group>
+        );
+      })}
     </group>
   );
 }

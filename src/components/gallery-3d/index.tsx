@@ -43,7 +43,7 @@ import { RoomGeometry, RoomReveals } from "./room-geometry";
 import { Gallery3DSettings } from "./settings-modal";
 import { StaircaseRenderer } from "./staircase";
 import { StairwellLight } from "./stairwell-light";
-import { StairwellAccents } from "./stairwell-rail";
+import { GrandStairSigns, StairwellAccents } from "./stairwell-rail";
 import { preloadCached } from "./texture-cache";
 import { ZoomModal } from "./zoom-modal";
 
@@ -1237,6 +1237,7 @@ function FloorScene({
             they travel up. Skipped in showOnly="stairs" mode (beyond
             floor) per the user's "stairs but nothing else" intent. */}
         {showOnly !== "stairs" && <StairwellAccents floor={floor} />}
+        {showOnly !== "stairs" && <GrandStairSigns floor={floor} />}
         {/* The stairwell's ceiling, glazing and wall washers, under the
             same rule: a neighbouring floor seen through the well is lit
             like the one the player stands on. */}

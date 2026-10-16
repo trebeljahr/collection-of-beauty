@@ -571,6 +571,68 @@ export function loggiaShift(half: number): number {
   return half - LOGGIA.lobby - IMPERIAL.south;
 }
 
+/** A wayfinding pylon at a loggia's foot: where it stands, which way
+ *  it faces, and the floors its plaques name. */
+export type StairSignPost = {
+  id: string;
+  x: number;
+  z: number;
+  /** About Y, as three.js turns an object: the plaque faces the door. */
+  rotationY: number;
+  /** The floor the middle flight climbs to, when there is one. */
+  up: string | null;
+  /** The floor the side flights go down to, when there is one. */
+  down: string | null;
+};
+
+/** Where a loggia's pylons stand on its lobby, in the hall's frame:
+ *  either side of the middle flight's foot, midway to the heads of the
+ *  side flights, and clear of the balustrade between them. That stretch
+ *  of floor leads nowhere, so a pylon there stands in no one's way. */
+export const SIGN_POST_X = (IMPERIAL.centralHalf + (IMPERIAL.half - IMPERIAL.sideWidth)) / 2;
+export const SIGN_POST_SETBACK = 0.3;
+
+/**
+ * The pylons on one storey of every loggia that meets it, two to a
+ * hall, alike so the pair is symmetric about the stair's axis. Each
+ * names the floor above (the middle flight, `stairsOut`) and the floor
+ * below (the side flights down, `stairsIn`), as the spiral's gates do.
+ * A court has no stair and no pylon.
+ */
+export function stairSignPosts(floor: {
+  grandStairsIn?: readonly GrandStair[];
+  grandStairsOut?: readonly GrandStair[];
+}): StairSignPost[] {
+  const halls = new Map<string, { out?: GrandStair; in?: GrandStair }>();
+  const at = (s: GrandStair) => {
+    const key = `${s.centerX.toFixed(2)},${s.centerZ.toFixed(2)}`;
+    const hall = halls.get(key) ?? {};
+    halls.set(key, hall);
+    return hall;
+  };
+  for (const s of floor.grandStairsOut ?? []) if (s.design === "loggia") at(s).out = s;
+  for (const s of floor.grandStairsIn ?? []) if (s.design === "loggia") at(s).in = s;
+
+  const posts: StairSignPost[] = [];
+  for (const { out, in: arrived } of halls.values()) {
+    const stair = out ?? arrived;
+    if (!stair) continue;
+    const z = IMPERIAL.south + loggiaShift(stair.half) + SIGN_POST_SETBACK;
+    for (const side of [-1, 1]) {
+      const p = toStairWorld(stair, side * SIGN_POST_X, z);
+      posts.push({
+        id: `${stair.id}-sign-${side < 0 ? "w" : "e"}`,
+        x: p.x,
+        z: p.z,
+        rotationY: (-stair.turns * Math.PI) / 2,
+        up: out?.upperLabel ?? null,
+        down: arrived?.lowerLabel ?? null,
+      });
+    }
+  }
+  return posts;
+}
+
 function buildImperial(site: Site, loggia = false): Built {
   const { lowerY, upperY, hasFlightAbove, hasFlightBelow } = site;
   const mid = (lowerY + upperY) / 2;

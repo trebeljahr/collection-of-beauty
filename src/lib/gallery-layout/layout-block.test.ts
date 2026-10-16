@@ -10,6 +10,7 @@ import {
   grandSurfaceAt,
   inOpening,
   openingReach,
+  stairSignPosts,
   toStairLocal,
 } from "./grand-stair";
 import {
@@ -954,5 +955,39 @@ describe("the block plan", () => {
     expect(galleryLayoutIdentity(layout)).not.toBe(
       galleryLayoutIdentity(layoutMuseum(catalogue())),
     );
+  });
+
+  it("signs each stair hall's floors on a pair of pylons that stand on its floor", () => {
+    const misplaced: string[] = [];
+    floors: for (const floor of layout.floors) {
+      const posts = stairSignPosts(floor);
+      if (posts.length !== 4) {
+        misplaced.push(`floor ${floor.index + 1}: ${posts.length} pylons`);
+        continue;
+      }
+      for (const post of posts) {
+        const labels = `${post.up ?? "-"}/${post.down ?? "-"}`;
+        const want = `${floor.index < top ? layout.floors[floor.index + 1].title : "-"}/${
+          floor.index > 0 ? layout.floors[floor.index - 1].title : "-"
+        }`;
+        if (labels !== want) misplaced.push(`${post.id}: ${labels}, not ${want}`);
+        // The pylon's footprint, with 0.3 m either side and in front, is
+        // this floor's hall floor: no flight, no void. Its back stands
+        // against the balustrade over the void.
+        for (const dx of [-0.75, 0.75]) {
+          for (const dz of [-0.09, 0.4]) {
+            const x = post.x + dx * Math.cos(post.rotationY) + dz * Math.sin(post.rotationY);
+            const z = post.z - dx * Math.sin(post.rotationY) + dz * Math.cos(post.rotationY);
+            const hall = grandStairsAt(layout.grandStairs!, x, z, floor.y);
+            const surface = grandSurfaceAt(hall, x, z, floor.y);
+            if (surface?.floorIndex !== floor.index || Math.abs(surface.y - floor.y) > 1e-6) {
+              misplaced.push(`${post.id} at ${x.toFixed(2)}, ${z.toFixed(2)}`);
+              continue floors;
+            }
+          }
+        }
+      }
+    }
+    expect(misplaced).toEqual([]);
   });
 });

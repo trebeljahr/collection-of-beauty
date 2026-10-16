@@ -13,6 +13,7 @@ import {
   type GrandStair,
   openingInWorld,
   railInWorld,
+  stairSignPosts,
   toStairWorld,
 } from "@/lib/gallery-layout/grand-stair";
 import type { FloorLayout, Staircase } from "@/lib/gallery-layout/types";
@@ -282,6 +283,18 @@ function addGrandStairColliders(
         column.size / 2,
       );
     }
+  }
+  // The pylons at the foot of each loggia, as the spiral's gate posts.
+  for (const post of stairSignPosts(floor)) {
+    addCuboid(
+      post.x,
+      floor.y + GATE_POST_HEIGHT / 2,
+      post.z,
+      GATE_POST_TANGENT_WIDTH / 2,
+      GATE_POST_HEIGHT / 2,
+      GATE_POST_RADIAL_DEPTH / 2,
+      post.rotationY,
+    );
   }
 }
 
