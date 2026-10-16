@@ -1321,6 +1321,18 @@ required by the Dockerfile — don't remove it.
     by it. The plaque card and the mat board carry their own emissive
     for that reason, and frame materials add the light themselves (see
     the frame maps below).
+- **Bloom is per light, not a pass** ([`glow.ts`](src/components/gallery-3d/glow.ts)).
+  Rico, 17 October 2026: the stair halls' lamp globes should look
+  switched on, and lights generally want "a little bit" of bloom. A
+  full-screen bloom would render the frame into its own target and
+  change the output transform the mirror pass and the multiplied pools
+  are matched to. So a light carries a camera-facing quad, drawn
+  additively, pulled toward the camera by half its radius and faded by
+  the fog. A lens glow has a direction and shows only from in front.
+  The globes are an opal shader (white middle, warm rim, past tone
+  mapping). Picture-light lenses are one batch for the scene
+  (`GlowField`, `setGlows`): a mesh per work was a draw call per work.
+  A stair's lamps and a hall's washers are one glow mesh each.
 - **A room's light is the room's, never the visitor's.** Rico, 13
   October 2026, of the block plan: "it shouldn't look like the lights
   are turning on/off when going between rooms". Three things did, each

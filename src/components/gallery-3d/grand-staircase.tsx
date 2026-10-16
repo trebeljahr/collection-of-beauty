@@ -11,6 +11,7 @@ import {
   type StairRail,
 } from "@/lib/gallery-layout/grand-stair";
 import { UNREFLECTED_LAYER } from "./floor-mirror";
+import { buildGlowGeometry, lampGlowMaterial, makeGlobeMaterial } from "./glow";
 import { fixtureMaterial, HIGHLIGHT_ENV_MATERIALS } from "./palette-materials";
 
 // A grand stair, drawn from the surfaces the visitor walks
@@ -19,9 +20,9 @@ import { fixtureMaterial, HIGHLIGHT_ENV_MATERIALS } from "./palette-materials";
 // hall's own frame and the group is turned to face the hall's door, so
 // what is drawn and what is walked cannot disagree.
 //
-// One stair is five meshes: the stone, the balusters (small parts the
-// floor's mirror pass leaves out), the carpet, and the stems and globes
-// of the lamp standards at the foot of its first flight. A hall with no
+// One stair is six meshes: the stone, the balusters (small parts the
+// floor's mirror pass leaves out), the carpet, and the stems, globes and
+// glows of the lamp standards at the foot of its first flight. A hall with no
 // stair (a court) is the balustrades of its galleries.
 
 const stoneMaterial = new THREE.MeshStandardMaterial({
@@ -40,7 +41,7 @@ const carpetMaterial = new THREE.MeshStandardMaterial({
   vertexColors: true,
 });
 // The globe of a lamp standard. Unlit: it is the light.
-const globeMaterial = new THREE.MeshBasicMaterial({ color: "#ffeccb" });
+const globeMaterial = makeGlobeMaterial();
 
 // Nothing in the scene casts a shadow, so a riser would be as bright as
 // the tread over it and a flight would read as a ramp. Each face takes a
@@ -75,6 +76,10 @@ function faceShade(nx: number, ny: number, nz: number): number {
 const LAMP_STEM_FOOT = 1.21;
 const LAMP_GLOBE_Y = 1.92;
 const LAMP_GLOBE_R = 0.2;
+/** The globe's bloom: how far it reaches, and what it adds at its
+ *  middle. Enough to read as switched on in a lit hall. */
+const LAMP_GLOW_R = 1.1;
+const LAMP_GLOW = 0.6;
 // Lit from above by the lamp map the frames reflect, as the spiral is:
 // treads take about twice the light of risers and soffits.
 HIGHLIGHT_ENV_MATERIALS.push(stoneMaterial, carpetMaterial);
@@ -531,12 +536,20 @@ export function buildStair(stair: GrandStair) {
   }
   const globe = globes.length > 0 ? mergeGeometries(globes, false) : null;
   for (const g of globes) g.dispose();
+  const glow = buildGlowGeometry(
+    stair.lamps.map((lamp) => ({
+      position: [lamp.x, lamp.y + LAMP_GLOBE_Y, lamp.z] as const,
+      radius: LAMP_GLOW_R,
+      strength: LAMP_GLOW,
+    })),
+  );
   return {
     stone: stone.build(),
     balusters: balusters.build(),
     carpet: carpet.build(),
     stems: stems.build(),
     globe,
+    glow,
   };
 }
 
@@ -549,6 +562,7 @@ export function GrandStaircase({ stair }: { stair: GrandStair }) {
       built.carpet?.dispose();
       built.stems?.dispose();
       built.globe?.dispose();
+      built.glow?.dispose();
     },
     [built],
   );
@@ -566,6 +580,14 @@ export function GrandStaircase({ stair }: { stair: GrandStair }) {
         <mesh geometry={built.stems} material={fixtureMaterial} layers={UNREFLECTED_LAYER} />
       )}
       {built.globe && <mesh geometry={built.globe} material={globeMaterial} />}
+      {built.glow && (
+        <mesh
+          geometry={built.glow}
+          material={lampGlowMaterial}
+          renderOrder={2}
+          layers={UNREFLECTED_LAYER}
+        />
+      )}
     </group>
   );
 }

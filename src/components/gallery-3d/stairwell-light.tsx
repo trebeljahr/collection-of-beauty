@@ -30,6 +30,7 @@ import {
   SPIRAL_FLOOR_CUTOUT_RADIUS,
 } from "@/lib/gallery-layout/world-coords";
 import { UNREFLECTED_LAYER } from "./floor-mirror";
+import { buildGlowGeometry, type Glow, lampGlowMaterial } from "./glow";
 import { getGlassMaterial, Laylight } from "./laylight";
 import {
   buildFixtureGeometry,
@@ -37,6 +38,7 @@ import {
   FOG_NEAR,
   fixtureUnlitMaterial,
   LIGHT_TINT,
+  lensGlow,
   POOL_GAIN,
   POOL_SHOULDER,
   SURFACE_LIFT,
@@ -408,6 +410,18 @@ function buildCansGeometry(washes: Wash[]): THREE.BufferGeometry {
   return merged;
 }
 
+/** The lens of every can in the room, as one geometry. */
+function buildCanGlowGeometry(washes: Wash[]): THREE.BufferGeometry | null {
+  const glows: Glow[] = [];
+  for (const { wall, row } of washes) {
+    const direction = fromWall(wall, [0, row.dirY, row.dirZ], false);
+    for (const x of washLampXs(row)) {
+      glows.push(lensGlow(fromWall(wall, [x, row.lampY, row.throwM], true), direction));
+    }
+  }
+  return buildGlowGeometry(glows);
+}
+
 // ── Ceiling and glazing ───────────────────────────────────────────────
 
 /** The plaster ceiling, facing down, with the well cut out of it unless
@@ -650,6 +664,7 @@ function StairHallLight({ floor, room }: { floor: FloorLayout; room: RoomLayout 
         : null,
       wash: washed ? buildWashGeometry(washes, poolGainScale(wallColor), wallInsetOf(room)) : null,
       cans: washed ? buildCansGeometry(washes) : null,
+      canGlow: washed ? buildCanGlowGeometry(washes) : null,
       ceiling: buildCeilingGeometry(
         width,
         depth,
@@ -675,6 +690,7 @@ function StairHallLight({ floor, room }: { floor: FloorLayout; room: RoomLayout 
     () => () => {
       built.wash?.dispose();
       built.cans?.dispose();
+      built.canGlow?.dispose();
       built.ceiling.dispose();
       built.glass.dispose();
       built.frame.dispose();
@@ -711,6 +727,7 @@ function StairHallFixtures({
     washMaterial: THREE.ShaderMaterial | null;
     wash: THREE.BufferGeometry | null;
     cans: THREE.BufferGeometry | null;
+    canGlow: THREE.BufferGeometry | null;
     ceiling: THREE.BufferGeometry;
     glass: THREE.BufferGeometry;
     frame: THREE.BufferGeometry;
@@ -746,6 +763,14 @@ function StairHallFixtures({
       )}
       {built.cans && (
         <mesh geometry={built.cans} material={fixtureUnlitMaterial} layers={UNREFLECTED_LAYER} />
+      )}
+      {built.canGlow && (
+        <mesh
+          geometry={built.canGlow}
+          material={lampGlowMaterial}
+          renderOrder={2}
+          layers={UNREFLECTED_LAYER}
+        />
       )}
     </group>
   );

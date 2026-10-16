@@ -15,10 +15,12 @@
 // keeps the pool off them and the works keep their true colours.
 
 import { useFrame } from "@react-three/fiber";
-import { memo, useEffect, useMemo, useRef } from "react";
+import { memo, useEffect, useLayoutEffect, useMemo, useRef } from "react";
 import * as THREE from "three";
 import { mergeGeometries } from "three/examples/jsm/utils/BufferGeometryUtils.js";
 import { UNREFLECTED_LAYER } from "./floor-mirror";
+import type { Glow } from "./glow";
+import { setGlows } from "./glow-field";
 import {
   type LightRig,
   POOL_THRESHOLDS,
@@ -340,6 +342,28 @@ export function buildFixtureGeometry(
   return merged;
 }
 
+/** A lens's bloom: small, since a room has dozens of cans in view, and
+ *  seen only from in front of the lens (`glow.ts`). */
+const LENS_GLOW_R = 0.16;
+const LENS_GLOW = 0.4;
+
+export function lensGlow(
+  position: readonly [number, number, number],
+  direction: readonly [number, number, number],
+): Glow {
+  const h = CAN_LENGTH / 2;
+  return {
+    position: [
+      position[0] + direction[0] * h,
+      position[1] + direction[1] * h,
+      position[2] + direction[2] * h,
+    ],
+    radius: LENS_GLOW_R,
+    strength: LENS_GLOW,
+    direction,
+  };
+}
+
 /** The pool's strength `t` of the way through its fade in. */
 const easeFade = (t: number) => t * t * (3 - 2 * t);
 
@@ -395,6 +419,24 @@ export const PaintingLight = memo(function PaintingLight({
   useEffect(() => () => material.dispose(), [material]);
   useEffect(() => () => cans?.dispose(), [cans]);
 
+  // The lenses glow in the scene's one batch (`glow-field.tsx`), placed
+  // in world space from where this light hangs.
+  const anchor = useRef<THREE.Group>(null);
+  useLayoutEffect(() => {
+    const group = anchor.current;
+    if (!fixtures || !group) return;
+    group.updateWorldMatrix(true, false);
+    const m = group.matrixWorld;
+    const glows = rig.heads.map((h) => {
+      const g = lensGlow(h.position, h.direction);
+      const p = new THREE.Vector3(...g.position).applyMatrix4(m);
+      const d = new THREE.Vector3(...h.direction).transformDirection(m);
+      return { ...g, position: [p.x, p.y, p.z] as const, direction: [d.x, d.y, d.z] as const };
+    });
+    setGlows(group, glows);
+    return () => setGlows(group, null);
+  }, [fixtures, rig]);
+
   // Fade in when the work mounts, so a room's pools come up like a
   // circuit being switched on rather than popping in one by one.
   const fade = useRef(0);
@@ -427,6 +469,7 @@ export const PaintingLight = memo(function PaintingLight({
     <>
       <mesh geometry={geometry} material={material} renderOrder={1} frustumCulled />
       {cans && <mesh geometry={cans} material={fixtureUnlitMaterial} layers={UNREFLECTED_LAYER} />}
+      <group ref={anchor} />
     </>
   );
 });

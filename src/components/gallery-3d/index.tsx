@@ -29,6 +29,7 @@ import { FOV_DEFAULT_DEG } from "./camera-config";
 import { DebugOverlay, DebugProbe, useGalleryDebug } from "./debug-overlay";
 import { UNREFLECTED_LAYER } from "./floor-mirror";
 import { FloorReflection } from "./floor-reflection";
+import { GlowField } from "./glow-field";
 import { GrandStaircase } from "./grand-staircase";
 import { HallwayRenderer } from "./hallway";
 import { LandscapePrompt } from "./landscape-prompt";
@@ -770,6 +771,7 @@ export function Gallery3D({ artworks }: Props) {
             pass lifts its flags while it renders and puts them back for
             the frame's own render. */}
         <RoomCulling />
+        <GlowField />
         <FloorReflection
           floorY={currentFloor.y}
           touch={touchDevice}
