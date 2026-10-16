@@ -12,8 +12,11 @@
 // and on the plinth two roundels either side of a tablet with the
 // title. The drawing below follows the scan of the framed picture.
 //
-// Each panel is a CanvasTexture drawn once, at PX_PER_M, with the
-// brush strokes seeded so every visit paints the same frame.
+// Each panel is drawn twice into canvases at PX_PER_M, its brush strokes
+// seeded so every visit paints the same frame: once in colour, once as
+// roughness and metal (green and blue, as three reads them). The gilt is
+// metal with long streaks of a sanded ground in it, as on the scan; the
+// paint is neither metal nor polished.
 
 import { useEffect, useMemo } from "react";
 import * as THREE from "three";
@@ -22,13 +25,24 @@ import type { FramePainting } from "@/lib/gallery-layout/frame-design";
 import { STUCK_PANEL } from "@/lib/gallery-layout/frame-styles";
 import { PAINTING_WALL_OFFSET } from "@/lib/gallery-layout/place-paintings";
 import { UNREFLECTED_LAYER } from "./floor-mirror";
-import { inRoomLight } from "./room-light";
+import { paintedGiltFor } from "./frame-materials";
+import { litByRoom, releaseRoomLight } from "./room-light";
 
 const PX_PER_M = 3000;
-/** Stuck's grey-blue, sRGB, as it reads on the scan beside the gilt. */
-const PAINT = [142, 160, 164] as const;
-/** The coat stands this far off the panel, so the two never z-fight. */
+/** Stuck's grey-blue, sRGB: a thin coat, so on the scan it reads with
+ *  the gilt through it as a grey-green (median 118 125 77 where densest). */
+const PAINT = [118, 130, 104] as const;
+/** The painted panel lies this far over the moulding's own flat, so the
+ *  two never z-fight. */
 const COAT = 0.0004;
+/** The gilt, sRGB: the finish's colour (FINISHES.stuckGilt). */
+const GOLD = [250, 202, 84] as const;
+/** Roughness of the gilt between its streaks, and of the paint. */
+const GILT_ROUGH = 0.4;
+const PAINT_ROUGH = 0.85;
+
+/** Which canvas is being drawn: what a stroke of paint writes. */
+let pass: "colour" | "surface" = "colour";
 
 type Panel = {
   /** Centre and size in the frame's own space, metres. */
@@ -36,6 +50,8 @@ type Panel = {
   y: number;
   w: number;
   h: number;
+  /** The gilt was laid and sanded along the panel's long side. */
+  vertical: boolean;
   draw: (ctx: CanvasRenderingContext2D, w: number, h: number, rand: () => number) => void;
 };
 
@@ -48,7 +64,76 @@ function seeded(seed: number): () => number {
   };
 }
 
-const paint = (alpha: number) => `rgba(${PAINT[0]},${PAINT[1]},${PAINT[2]},${alpha})`;
+const paint = (alpha: number) =>
+  pass === "colour"
+    ? `rgba(${PAINT[0]},${PAINT[1]},${PAINT[2]},${alpha})`
+    : `rgba(0,${Math.round(PAINT_ROUGH * 255)},0,${alpha})`;
+
+/** The gilt ground of a panel: the leaf, sanded in long streaks that
+ *  run along the panel, a little lighter, darker, duller or brighter
+ *  each. */
+function gild(
+  ctx: CanvasRenderingContext2D,
+  w: number,
+  h: number,
+  vertical: boolean,
+  rand: () => number,
+): void {
+  const rough = Math.round(GILT_ROUGH * 255);
+  ctx.fillStyle = pass === "colour" ? `rgb(${GOLD.join(",")})` : `rgb(0,${rough},255)`;
+  ctx.fillRect(0, 0, w, h);
+  const across = vertical ? w : h;
+  const along = vertical ? h : w;
+  // Clouds first: the leaf lies in sheets a few centimetres across,
+  // each a shade off the next.
+  for (let i = 0; i < Math.round((w * h) / 0.0006); i++) {
+    const cx = rand() * w;
+    const cy = rand() * h;
+    const r = 0.01 + 0.03 * rand();
+    const shade = (rand() - 0.5) * 2;
+    const g = ctx.createRadialGradient(cx, cy, 0, cx, cy, r);
+    const c =
+      pass === "colour"
+        ? GOLD.map((v) => Math.round(Math.min(255, v * (1 + 0.12 * shade))))
+        : [0, Math.round(Math.min(1, Math.max(0.15, GILT_ROUGH + 0.12 * shade)) * 255), 255];
+    g.addColorStop(0, `rgba(${c.join(",")},0.35)`);
+    g.addColorStop(1, `rgba(${c.join(",")},0)`);
+    ctx.fillStyle = g;
+    ctx.fillRect(cx - r, cy - r, 2 * r, 2 * r);
+  }
+  const n = Math.round(across / 0.0009);
+  for (let i = 0; i < n; i++) {
+    const t = rand() * across;
+    const from = rand() * along * 0.6;
+    const len = along * (0.3 + 0.7 * rand());
+    const shade = (rand() - 0.5) * 2;
+    ctx.lineWidth = 0.0006 + 0.003 * rand();
+    const alpha = rand();
+    if (pass === "colour") {
+      // Lighter streaks keep the gold's hue; darker ones lose blue first,
+      // toward the brown of the bole showing through.
+      const k = 1 + 0.2 * shade;
+      const c = GOLD.map((v, j) =>
+        Math.round(Math.min(255, v * (j === 2 && shade < 0 ? 1 + 0.6 * shade : k))),
+      );
+      ctx.strokeStyle = `rgba(${c.join(",")},${0.15 + 0.35 * alpha})`;
+    } else {
+      // Sanded streaks are duller, burnished ones brighter.
+      const r = Math.round(Math.min(1, Math.max(0.12, GILT_ROUGH + 0.22 * shade)) * 255);
+      ctx.strokeStyle = `rgba(0,${r},255,${0.3 + 0.4 * alpha})`;
+    }
+    const wobble = (rand() - 0.5) * 0.003;
+    ctx.beginPath();
+    if (vertical) {
+      ctx.moveTo(t, from);
+      ctx.lineTo(t + wobble, from + len);
+    } else {
+      ctx.moveTo(from, t);
+      ctx.lineTo(from + len, t + wobble);
+    }
+    ctx.stroke();
+  }
+}
 
 /** A rectangle filled with vertical or horizontal dry-brush strokes. */
 function streaks(
@@ -246,44 +331,57 @@ function stuckPanels(w: number, h: number, scale: number): Panel[] {
   const mid = (from + to) / 2;
   const across = w + 2 * to;
   return [
-    { x: -(w / 2 + mid), y: 0, w: depth, h, draw: column },
-    { x: w / 2 + mid, y: 0, w: depth, h, draw: column },
-    { x: 0, y: h / 2 + mid, w: across, h: depth, draw: pediment },
+    { x: -(w / 2 + mid), y: 0, w: depth, h, vertical: true, draw: column },
+    { x: w / 2 + mid, y: 0, w: depth, h, vertical: true, draw: column },
+    { x: 0, y: h / 2 + mid, w: across, h: depth, vertical: false, draw: pediment },
     {
       x: 0,
       y: -(h / 2 + mid),
       w: across,
       h: depth,
+      vertical: false,
       draw: (ctx, pw, ph, rand) => plinth(ctx, pw, ph, rand, "SALOME"),
     },
   ];
 }
 
-function panelTexture(panel: Panel, seed: number): THREE.CanvasTexture {
+function panelTexture(panel: Panel, seed: number, which: typeof pass): THREE.CanvasTexture {
   const canvas = document.createElement("canvas");
   canvas.width = Math.max(4, Math.round(panel.w * PX_PER_M));
   canvas.height = Math.max(4, Math.round(panel.h * PX_PER_M));
   const ctx = canvas.getContext("2d");
   if (ctx) {
+    pass = which;
     ctx.scale(canvas.width / panel.w, canvas.height / panel.h);
+    // The same seeds in both passes: every stroke lands in both canvases.
+    gild(ctx, panel.w, panel.h, panel.vertical, seeded(seed * 7 + 1));
     panel.draw(ctx, panel.w, panel.h, seeded(seed));
+    pass = "colour";
   }
   const texture = new THREE.CanvasTexture(canvas);
-  texture.colorSpace = THREE.SRGBColorSpace;
+  texture.colorSpace = which === "colour" ? THREE.SRGBColorSpace : THREE.NoColorSpace;
   texture.anisotropy = 4;
+  // The panel's uv is in metres, as a frame's is (frame-materials.ts).
+  texture.repeat.set(1 / panel.w, 1 / panel.h);
   return texture;
 }
 
-/** Paint, not gilding: matte, and dark where the gilt is bright. */
-const coatBase = new THREE.MeshStandardMaterial({
-  transparent: true,
-  depthWrite: false,
-  roughness: 0.9,
-  metalness: 0,
-  polygonOffset: true,
-  polygonOffsetFactor: -1,
-  polygonOffsetUnits: -1,
-});
+/** A panel quad with what the frames' shader patch reads: uv in metres,
+ *  a white vertex colour, and `aFrame` (roughness 1, no carving, no
+ *  wear, fully open). */
+function panelGeometry(w: number, h: number): THREE.BufferGeometry {
+  const g = new THREE.PlaneGeometry(w, h);
+  const uv = g.getAttribute("uv");
+  for (let i = 0; i < uv.count; i++) uv.setXY(i, uv.getX(i) * w, uv.getY(i) * h);
+  const n = g.getAttribute("position").count;
+  g.setAttribute("color", new THREE.Float32BufferAttribute(new Array(n * 3).fill(1), 3));
+  g.setAttribute(
+    "aFrame",
+    new THREE.Float32BufferAttribute(Array.from({ length: n }, () => [1, 0, 0, 1]).flat(), 4),
+  );
+  g.setAttribute("aCarveUv", new THREE.Float32BufferAttribute(new Array(n * 2).fill(0), 2));
+  return g;
+}
 
 export function FramePaint({
   painted,
@@ -302,14 +400,17 @@ export function FramePaint({
   const parts = useMemo(() => {
     const panels = painted === "stuckSalome" ? stuckPanels(widthM, heightM, scale) : [];
     const z = STUCK_PANEL.z * scale - PAINTING_WALL_OFFSET + COAT;
-    const lit = palette ? inRoomLight(coatBase, palette) : coatBase;
     return panels.map((panel, i) => {
-      const material = lit.clone();
-      material.map = panelTexture(panel, 1906 + i);
+      const material = paintedGiltFor();
+      material.map = panelTexture(panel, 1906 + i, "colour");
+      const surface = panelTexture(panel, 1906 + i, "surface");
+      material.roughnessMap = surface;
+      material.metalnessMap = surface;
+      if (palette) litByRoom(material, palette, "highlight");
       return {
         key: i,
         position: [panel.x, panel.y, z] as [number, number, number],
-        geometry: new THREE.PlaneGeometry(panel.w, panel.h),
+        geometry: panelGeometry(panel.w, panel.h),
         material,
       };
     });
@@ -319,6 +420,8 @@ export function FramePaint({
       for (const part of parts) {
         part.geometry.dispose();
         part.material.map?.dispose();
+        part.material.roughnessMap?.dispose();
+        releaseRoomLight(part.material);
         part.material.dispose();
       }
     },

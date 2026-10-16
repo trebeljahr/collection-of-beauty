@@ -221,6 +221,14 @@ required by the Dockerfile — don't remove it.
   his grey-blue paintwork (columns, pediment, roundels, title) drawn
   on the panels by `frame-paint.tsx` (`FrameDesign.painted`). A new
   painted frame needs a style, a pin and a drawing there.
+  Its gold is read off the scan (`FINISHES.stuckGilt`, pinned with
+  `exact`: no tint toward the picture, no patina). The panels are
+  metal with sanded streaks and clouds in their colour and roughness
+  maps, the paint matte and not metal (`paintedGilt` in
+  `frame-materials.ts`, the frames' shader patch, `envScale` 0.85), so
+  the gilt between the brushwork mirrors the lamps as the visitor
+  walks. Checked on 17 October 2026 in the museum (floor 3, `f2-ce`)
+  from three places against the scan.
 - Editing an entry makes that work's variants and tiles stale (they are
   older than the table). Run `pnpm assets:shrink --folder=… --only=…`,
   then build-data, then `assets:tiles --only=…`. A cut can drop a work

@@ -68,6 +68,11 @@ export function litByRoom<T extends THREE.MeshStandardMaterial>(
   return material;
 }
 
+/** Stop lighting a material made for one mount, when it goes. */
+export function releaseRoomLight(material: THREE.MeshStandardMaterial): void {
+  lit.delete(material);
+}
+
 const variants = new WeakMap<
   THREE.MeshStandardMaterial,
   Map<Palette, THREE.MeshStandardMaterial>

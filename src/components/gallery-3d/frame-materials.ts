@@ -301,6 +301,33 @@ const cloth = new THREE.MeshStandardMaterial({
 });
 patchFrameShader(cloth, {});
 
+// Flat gilt with something painted on it: the panels of a frame an
+// artist designed (frame-paint.tsx). Its colour, roughness and metal
+// are maps drawn for each panel, the paint matte and not metal, so the
+// gilt between the brushwork mirrors the room and the lamps as the
+// visitor walks past and the paint does not. It runs the frames' own
+// shader patch, picture light included, so it reads as one surface
+// with the reeds round it.
+export const paintedGilt = new THREE.MeshStandardMaterial({
+  metalness: 1,
+  roughness: 1,
+  normalMap: maps.paperNormal,
+  normalScale: new THREE.Vector2(0.12, 0.12),
+  vertexColors: true,
+});
+patchFrameShader(paintedGilt, {});
+// Flat, clean gilt mirrors more of the room than carved leaf does: at
+// the leaf's 0.6 Stuck's panels read browner than on the scan.
+paintedGilt.userData.envScale = 0.85;
+
+/** A copy of `paintedGilt` for one panel, keeping its shader patch. */
+export function paintedGiltFor(): THREE.MeshStandardMaterial {
+  const m = paintedGilt.clone();
+  m.onBeforeCompile = paintedGilt.onBeforeCompile;
+  m.customProgramCacheKey = paintedGilt.customProgramCacheKey;
+  return m;
+}
+
 export const FRAME_SURFACES: Record<FrameSurface, THREE.MeshStandardMaterial> = {
   leaf,
   leafOak,
@@ -344,6 +371,7 @@ export function frameMaterials(
  *  highlight map (frame-env.ts) instead of the plain room gradient. */
 export const FRAME_HIGHLIGHT_MATERIALS: THREE.MeshStandardMaterial[] = [
   leaf,
+  paintedGilt,
   leafOak,
   darkWood,
   paleWood,

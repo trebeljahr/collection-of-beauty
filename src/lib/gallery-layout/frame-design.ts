@@ -65,6 +65,7 @@ export type FrameSurface =
 
 export type FinishId =
   | "gilt"
+  | "stuckGilt"
   | "giltPale"
   | "giltRed"
   | "giltDark"
@@ -145,6 +146,11 @@ export const FINISHES: Record<FinishId, FinishSpec> = {
   // Water gilding over red bole. Antique gold sits below pure gold's
   // reflectance: old leaf is toned and a little dirty.
   gilt: finish("leaf", "#d8aa55", "gold", 1, 1, 1, 1),
+  // Franz von Stuck's gilding on the frame of his Salome (1906): a
+  // bright, clean yellow gold, read off the scan of the framed picture
+  // (median sRGB 195 160 50 on the panels, highlights 240 215 140). Kept
+  // for that one frame (PINNED_FRAMES).
+  stuckGilt: finish("leaf", "#faca54", "gold", 0.8, 1, 0.3, 1),
   // Lemon gold, the greenish alloy of 19th-century and Whistler frames.
   giltPale: finish("leaf", "#dcc98c", "paleGold", 0.95, 1, 0.7, 1),
   // Red gold, toned warm.
@@ -465,7 +471,7 @@ const LOOKS: Record<LookId, Look> = {
   silkMount: { style: "mount", main: ["walnut", "blackLacquer", "redLacquer", "rosewood"], inner: ["silk"], accent: ["brocade"] },
   // One frame, for one work: Franz von Stuck's own design for his
   // Salome (PINNED_FRAMES). No school draws it.
-  stuck: { style: "stuck", main: ["gilt"] },
+  stuck: { style: "stuck", main: ["stuckGilt"] },
 };
 
 export const LOOK_IDS = Object.keys(LOOKS) as LookId[];
@@ -744,7 +750,7 @@ export type FinishFamily = "gilt" | "silver" | "dark" | "wood" | "pale" | "red" 
 
 // biome-ignore format: a table.
 const FAMILY_FINISHES: Record<Exclude<FinishFamily, "silk">, FinishId[]> = {
-  gilt: ["gilt", "giltPale", "giltRed", "giltDark", "giltOak", "bronze", "copper"],
+  gilt: ["gilt", "giltPale", "giltRed", "giltDark", "giltOak", "bronze", "copper", "stuckGilt"],
   silver: ["silver", "pewter"],
   dark: ["walnut", "mahogany", "rosewood", "stained", "ebony", "blackLacquer", "blackMatte"],
   wood: ["fruitwood", "oak", "greenOak", "maple", "ash", "kiri"],
@@ -1210,6 +1216,13 @@ function tintFor(
   return [target[0] / base[0], target[1] / base[1], target[2] / base[2]];
 }
 
+/** A finish's own colour over its surface's map, untouched. */
+function exactTint(finish: FinishId): Rgb {
+  const target = hexToLinear(FINISHES[finish].color) ?? [1, 1, 1];
+  const base = SURFACE_LINEAR[FINISHES[finish].surface];
+  return [target[0] / base[0], target[1] / base[1], target[2] / base[2]];
+}
+
 const SLOTS_USED = new WeakMap<BuiltStyle, boolean[]>();
 
 /** Which material slots a frame uses, in its moulding and its rails. */
@@ -1345,13 +1358,17 @@ function designOf(
     return {
       finish,
       surface: spec.surface,
-      tint: used[slot] ? tintFor(finish, artwork, tone, slot, hanging) : [1, 1, 1],
+      tint: !used[slot]
+        ? [1, 1, 1]
+        : pin?.exact
+          ? exactTint(finish)
+          : tintFor(finish, artwork, tone, slot, hanging),
       rough: spec.rough * polish,
       burnish: spec.burnish,
       wear: spec.wear * wear,
       carve: spec.carve * depth,
       // Board, cloth and silk are kept clean.
-      patina: spec.burnish > 0 ? patina : 0,
+      patina: spec.burnish > 0 && !pin?.exact ? patina : 0,
     };
   });
 
@@ -1396,6 +1413,10 @@ type FramePin = {
    *  whose scale is fixed at 1 hangs the frame at its real size. */
   weight?: number;
   painted?: FramePainting;
+  /** Take the finish's colour as it is: no drift between batches, no
+   *  pull toward the picture, no dirt in the hollows. For a frame whose
+   *  colour is read off a photograph of it. */
+  exact?: boolean;
 };
 
 /**
@@ -1418,9 +1439,10 @@ const PINNED_FRAMES: Record<string, FramePin> = {
   // on its panels (Rico, 17 October 2026).
   "collection-of-beauty-franz-von-stuck-salome": {
     look: "stuck",
-    main: "gilt",
+    main: "stuckGilt",
     weight: 1,
     painted: "stuckSalome",
+    exact: true,
   },
   "collection-of-beauty-resting-girl-by-francois-boucher-1753-alte-pinakothek-munich-germany-2017-crop":
     { look: "louisXV", variant: 1, main: "gilt" },
