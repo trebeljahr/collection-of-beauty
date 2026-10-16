@@ -921,10 +921,14 @@ function StairwellFloor({
   );
   // The walking surface lies at floorY and the slab 1 mm under it, as
   // in every other room. Until 17 October 2026 both sat 5 mm lower, and
-  // at each door of a stairwell the neighbour's slab stood 4 mm proud
-  // of this floor: its edge face showed as a bright line across the
-  // threshold. Nothing else stands at floorY here: the flights that
-  // arrive on this floor end inside the opening.
+  // a bright line ran across each door of a hall above its first floor,
+  // seen from the hall. It was the lintel over the same door on the
+  // storey below: a hall's walls run a whole storey (`wallHeight`), so
+  // that lintel ends level with this floor, and 5 mm of it stood above
+  // the floor here. Hiding the neighbour's slab left the line; hiding
+  // the lintel removed it. Do not lower this floor again. Nothing else
+  // stands at floorY here: the flights that arrive on this floor end
+  // inside the opening.
   return (
     <>
       <mesh geometry={topGeom} position={[cxWorld, floorY, czWorld]} receiveShadow>

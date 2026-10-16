@@ -1891,8 +1891,10 @@ required by the Dockerfile — don't remove it.
     (`SKIRTING_SINK`): the stairwell's floor lay 5 mm low, and the
     slit under its skirting showed the dark outside once the room
     behind was hidden. It lies at the floor's level since 17 October
-    2026: 5 mm low, the slab of the room next door stood proud of it
-    and drew a bright line across every threshold of a stair hall.
+    2026: 5 mm low, it left the top of the lintel over the same door
+    on the storey below standing above it (a hall's walls run a whole
+    storey), a line of wall colour across every threshold of a stair
+    hall and the court above the first floor.
   - Draw calls of the frame's own render on an M5 at 2560 × 1440,
     Baroque floor, one walk, culling off → on: 357 → 221 at the Grand
     Hall spawn, 666 → 446 along the hall, 859 → 403 across it, 1,151 →
