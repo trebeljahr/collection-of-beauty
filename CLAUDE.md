@@ -1182,6 +1182,15 @@ required by the Dockerfile — don't remove it.
       `stairwell-light-rig.ts`). A row is even about the middle of its
       stretch, or about the one work the stretch holds, so a giant has
       the same cones on either side of it.
+    - **A row that ends at a corner is set out from the corner**: its
+      end can stands `WASH_CORNER_GAP` (2.25 m) from it, on both walls,
+      and the count is what puts the rest nearest 3.75 m apart, odd or
+      even (`spanWashRow`). Until 17 October 2026 each row was set out
+      from its own length, half a gap in from each end, and the two
+      walls of a stair hall's corner had their end cans 1.5 and 2.5 m
+      from it: the near can's pool was cut down the corner line beside
+      a dim wall. Rico: "it looks broken". A court stretch now has three
+      cans, the middle one over its giant.
     - A giant has no light of its own. Do not light a work by a glow
       that follows its frame: he read it as a back light.
     - A stretch lights the half of each door's lintel next to it. The
@@ -1445,8 +1454,10 @@ required by the Dockerfile — don't remove it.
     glass. A spiral room of the block plan is 17.5 m deep, so its dome
     has a 5.85 m rim and its lower floors have no ring (`ringFits`);
     the tower's stairwell keeps its 8.35 m ring;
-  - six wall washers along each wall. Their pools are one mesh for the
-    room. A fragment adds the can it stands under and that can's two
+  - wall washers along each wall, an even count, the end cans
+    `WASH_CORNER_GAP` from the corners: six on a 22.5 m wall, four on a
+    17.5 m one. Their pools are one mesh for the
+    room. A fragment adds the can nearest it and that can's two
     neighbours, so a cone may not reach a gap and a half along the wall
     (`stairwell-light-rig.test.ts` pins it);
   - the stair's materials reflect the frames' lamp map, so a tread's top

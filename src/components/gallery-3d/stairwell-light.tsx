@@ -57,13 +57,14 @@ import { fixtureMaterial, getPaletteMaterials } from "./palette-materials";
 import { openingHole, rectsAround } from "./stair-opening";
 import {
   dome,
-  fitWashRow,
   glazingOuterR,
   OCULUS_HUB_R,
   RING_INNER_R,
   RING_PANES,
   RING_ROW_M,
   ringFits,
+  spanWashRow,
+  WASH_CORNER_GAP,
   type WashDoor,
   type WashRow,
   washLampXs,
@@ -119,13 +120,13 @@ uniform vec3 uColor;
 uniform float uShoulder;
 uniform vec2 uFog;
 varying vec3 vWall;   // position in the wall's frame
-varying vec3 vRow;    // can spacing, half the wall's length, pool gain
+varying vec3 vRow;    // can spacing, end can's distance from the middle, pool gain
 varying float vFloor; // 0 on the wall, 1 on the floor
 varying float vDepth;
 varying vec2 vRoom;   // position on the room's floor, from its middle
 ${thresholdFadeGlsl(slots)}
 float lamp(float x) {
-  if (abs(x) > vRow.y) return 0.0;
+  if (abs(x) > vRow.y + 1e-3) return 0.0;
   vec3 toL = vec3(x - vWall.x, uLamp.x - vWall.y, uLamp.y - vWall.z);
   float d2 = dot(toL, toL);
   vec3 l = toL * inversesqrt(d2);
@@ -134,9 +135,10 @@ float lamp(float x) {
 }
 
 void main() {
-  // The can this fragment stands under, then that one and its
-  // neighbours: a cone is narrower than two spacings.
-  float x = (floor(vWall.x / vRow.x) + 0.5) * vRow.x;
+  // The can nearest this fragment, then that one and its neighbours: a
+  // cone is narrower than two spacings. The cans stand vRow.x apart from
+  // -vRow.y to vRow.y, an odd count or an even one.
+  float x = floor((vWall.x + vRow.y) / vRow.x + 0.5) * vRow.x - vRow.y;
   float e = lamp(x - vRow.x) + lamp(x) + lamp(x + vRow.x);
   e = e / (1.0 + uShoulder * e);
   float k = 1.0 - smoothstep(uFog.x, uFog.y, vDepth);
@@ -246,9 +248,10 @@ function washedWalls(room: RoomLayout, walls: Wall[]): Wall[] {
  *  middle of the row. */
 type Wash = { wall: Wall; row: WashRow; rects: Rect2[]; floor: [number, number] };
 
-/** One row for a whole wall: a stairwell's, which hangs nothing. */
+/** One row for a whole wall: a stairwell's, which hangs nothing. Its end
+ *  cans stand WASH_CORNER_GAP from the corners. */
 function wholeWall(wall: Wall): Wash {
-  const row = fitWashRow(wall.length, CEILING_Y);
+  const row = spanWashRow(wall.length / 2 - WASH_CORNER_GAP, CEILING_Y, true);
   return {
     wall,
     row,
@@ -354,7 +357,7 @@ function buildWashGeometry(
       for (const c of corners) {
         pos.push(...fromWall(wall, c, true));
         local.push(...c);
-        rowAttr.push(row.spacing, (row.count * row.spacing) / 2, floor ? 1 : wallGain);
+        rowAttr.push(row.spacing, ((row.count - 1) * row.spacing) / 2, floor ? 1 : wallGain);
         floorAttr.push(floor);
       }
       idx.push(base, base + 1, base + 2, base, base + 2, base + 3);

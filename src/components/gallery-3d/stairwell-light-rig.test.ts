@@ -11,6 +11,8 @@ import {
   RING_ROW_M,
   RING_ROWS,
   ringFits,
+  spanWashRow,
+  WASH_CORNER_GAP,
   WASH_PEAK,
   WASH_SIDE_REACH,
   WASH_THROW,
@@ -148,6 +150,29 @@ describe("fitWashRow", () => {
   });
 });
 
+describe("spanWashRow", () => {
+  it("hangs the count whose gap is nearest the aimed-for one", () => {
+    const row = spanWashRow(3.75, CEILING);
+    expect(row.count).toBe(3);
+    expect(row.spacing).toBeCloseTo(3.75, 6);
+    expect(washLampXs(row)).toEqual([-3.75, 0, 3.75]);
+  });
+
+  it("keeps the count even when asked", () => {
+    // A spiral room's 22.5 m wall, less a corner gap at each end.
+    const row = spanWashRow(22.5 / 2 - WASH_CORNER_GAP, CEILING, true);
+    expect(row.count % 2).toBe(0);
+    const xs = washLampXs(row);
+    expect(xs[0]).toBeCloseTo(-22.5 / 2 + WASH_CORNER_GAP, 6);
+    expect(xs.at(-1)).toBeCloseTo(22.5 / 2 - WASH_CORNER_GAP, 6);
+  });
+
+  it("hangs one can where the span is too short for two", () => {
+    expect(washLampXs(spanWashRow(0.2, CEILING))).toEqual([0]);
+    expect(washLampXs(spanWashRow(-0.5, CEILING))).toEqual([0]);
+  });
+});
+
 describe("washWallRects", () => {
   const row = fitWashRow(WALL, CEILING);
 
@@ -183,15 +208,43 @@ describe("washStretches", () => {
   const COURT = 27.5;
   const portal = { center: 0, width: 3.5, height: 3 };
 
-  it("gives each stretch beside a door an even row about its own middle", () => {
+  it("sets each stretch's row out from its corner, even about its own middle", () => {
     const stretches = washStretches(COURT, [portal], CEILING);
     expect(stretches.map((s) => s.center)).toEqual([-7.75, 7.75]);
     for (const s of stretches) {
-      expect(s.row.count).toBe(4);
-      expect(s.row.spacing).toBeCloseTo(3, 6);
+      expect(s.row.count).toBe(3);
+      expect(s.row.spacing).toBeCloseTo(3.75, 6);
       const xs = washLampXs(s.row);
       for (const [i, x] of xs.entries()) expect(x).toBeCloseTo(-xs[xs.length - 1 - i], 6);
     }
+    expect(washLampXs(stretches[0].row)[0] + stretches[0].center).toBeCloseTo(
+      -COURT / 2 + WASH_CORNER_GAP,
+      6,
+    );
+    expect(washLampXs(stretches[1].row).at(-1)! + stretches[1].center).toBeCloseTo(
+      COURT / 2 - WASH_CORNER_GAP,
+      6,
+    );
+  });
+
+  it("puts the end can the same distance from every corner, whatever the wall", () => {
+    // A stair hall's walls: 25 m with a side door off its middle, 27.5 m
+    // with the portal, 27.5 m with no door. The cans of two walls that
+    // meet stand as far from their corner.
+    const gaps: number[] = [];
+    for (const [length, doors] of [
+      [25, [{ center: 1.25, width: 2.4, height: 2.9 }]],
+      [27.5, [portal]],
+      [27.5, []],
+      [17.5, [{ center: 0, width: 2.4, height: 2.9 }]],
+    ] as const) {
+      const stretches = washStretches(length, [...doors], INTER_FLOOR_HEIGHT - 0.02);
+      const first = stretches[0];
+      const last = stretches[stretches.length - 1];
+      gaps.push(washLampXs(first.row)[0] + first.center + length / 2);
+      gaps.push(length / 2 - (washLampXs(last.row).at(-1)! + last.center));
+    }
+    for (const gap of gaps) expect(gap).toBeCloseTo(WASH_CORNER_GAP, 6);
   });
 
   it("sets a row out about the one work its stretch holds", () => {
@@ -212,6 +265,10 @@ describe("washStretches", () => {
   it("keeps to the stretch's middle for a work too far off it, or for two", () => {
     expect(washStretches(COURT, [portal], CEILING, [-11.5])[0].center).toBeCloseTo(-7.75, 6);
     expect(washStretches(COURT, [portal], CEILING, [-10, -5])[0].center).toBeCloseTo(-7.75, 6);
+  });
+
+  it("keeps a row between two corners on the wall's middle", () => {
+    expect(washStretches(16.05, [], CEILING, [0.5])[0].center).toBe(0);
   });
 
   it("lights the half of the lintel next to each stretch, and nothing in the doorway", () => {
@@ -261,16 +318,14 @@ describe("washStretches", () => {
     expect(widest).toBeLessThan(WASH_SIDE_REACH);
   });
 
-  it("gives a short stretch a row and no more wall than its own", () => {
-    // 4 m between a door and a corner: two cans 2 m apart. The shader
-    // adds a fragment's own can and one each side, so past the row's end
-    // it would leave out a can that still reaches there.
+  it("gives a short stretch one can on its middle", () => {
+    // 4 m between a door and a corner: too short for two cans each
+    // WASH_CORNER_GAP from its ends.
     const door = { center: -COURT / 2 + 4 + 0.7, width: 1.4, height: 2.4 };
     const first = washStretches(COURT, [door], CEILING)[0];
-    expect(first.row.count).toBe(2);
-    expect(first.row.spacing).toBeCloseTo(2, 6);
-    expect(first.rects).toHaveLength(1);
-    expect(first.floor[1] - first.floor[0]).toBeCloseTo(4, 6);
+    expect(first.row.count).toBe(1);
+    expect(first.center).toBeCloseTo(-COURT / 2 + 2, 6);
+    expect(washLampXs(first.row)).toEqual([0]);
     // And none at all under a metre and a half.
     expect(
       washStretches(COURT, [{ center: -COURT / 2 + 1.7, width: 1.4, height: 2.4 }], CEILING),

@@ -20,10 +20,18 @@
 
 import { clearSpans, LIGHT_CEILING_DROP, LIGHT_PENUMBRA, type Rect2 } from "./painting-light-rig";
 
-/** Aimed-for gap between cans. The count is fitted to the wall, and is
- *  always even so a door in the middle of a wall sits between two pools
- *  rather than under one. */
+/** Aimed-for gap between cans. The count is fitted to the wall. A whole
+ *  wall's is even, so a door in its middle sits between two pools rather
+ *  than under one. */
 export const WASH_TARGET_SPACING = 3.75;
+/** How far from a corner the end can of a row stands, on both walls of
+ *  the corner. Until 17 October 2026 each row was set out from its own
+ *  length: at a stair hall's corner one wall's end can stood 1.5 m from
+ *  it and the other's 2.5 m, and the near can's pool was cut down the
+ *  corner line beside a dim wall. Rico: it "looks broken". At this
+ *  distance the upper half of a pool ends short of the corner, and what
+ *  reaches it is the same on both walls. */
+export const WASH_CORNER_GAP = 2.25;
 /** Fixture distance from the wall, metres. */
 export const WASH_THROW = 1.9;
 /** Height at which the beam's axis meets the wall. */
@@ -133,9 +141,38 @@ const deg = Math.PI / 180;
 const PAD = 0.05;
 
 /** Fit a row of washers to a wall of `wallLength` under a ceiling at
- *  `ceilingY` (both measured from the floor). */
+ *  `ceilingY` (both measured from the floor): an even count, half a gap
+ *  in from each end. A row between two doors is set out this way. */
 export function fitWashRow(wallLength: number, ceilingY: number): WashRow {
   const count = 2 * Math.max(1, Math.round(wallLength / (2 * WASH_TARGET_SPACING)));
+  return washRow(count, wallLength / count, ceilingY);
+}
+
+/**
+ * A row whose end cans stand `halfSpan` either side of its middle, with
+ * the count whose gap comes nearest WASH_TARGET_SPACING (an even count
+ * when `even`). Under a metre of span it is one can on the middle.
+ *
+ * A row that ends at a corner is set out from it: its end can stands
+ * WASH_CORNER_GAP inside, so the two walls of a corner match.
+ */
+export function spanWashRow(halfSpan: number, ceilingY: number, even = false): WashRow {
+  const span = 2 * halfSpan;
+  if (span < 1) return washRow(1, WASH_TARGET_SPACING, ceilingY);
+  let best = 0;
+  let bestMiss = Number.POSITIVE_INFINITY;
+  for (let gaps = 1; gaps <= Math.ceil(span / WASH_TARGET_SPACING) + 1; gaps++) {
+    if (even && gaps % 2 === 0) continue;
+    const miss = Math.abs(Math.log(span / gaps / WASH_TARGET_SPACING));
+    if (miss < bestMiss) {
+      best = gaps;
+      bestMiss = miss;
+    }
+  }
+  return washRow(best + 1, span / best, ceilingY);
+}
+
+function washRow(count: number, spacing: number, ceilingY: number): WashRow {
   const lampY = ceilingY - LIGHT_CEILING_DROP;
   const drop = lampY - WASH_AIM_HEIGHT;
   const dist = Math.hypot(drop, WASH_THROW);
@@ -158,7 +195,7 @@ export function fitWashRow(wallLength: number, ceilingY: number): WashRow {
   const peak = washPeak(lampY, wallTop, -drop / dist, -WASH_THROW / dist, cosOuter, cosInner);
   return {
     count,
-    spacing: wallLength / count,
+    spacing,
     lampY,
     throwM: WASH_THROW,
     dirY: -drop / dist,
@@ -277,14 +314,38 @@ export function washStretches(
   const out: WashStretch[] = [];
   for (const [a, b] of clearSpans([-half, half], openings)) {
     if (b - a < WASH_MIN_STRETCH) continue;
-    const row = fitWashRow(b - a, ceilingY);
     const mid = (a + b) / 2;
+    const cornerA = Math.abs(a + half) < 1e-6;
+    const cornerB = Math.abs(b - half) < 1e-6;
+    // A row that meets a corner is set out from it (WASH_CORNER_GAP); one
+    // between two doors from its own length, half a gap in from each.
+    const corners = [cornerA ? a : null, cornerB ? b : null].filter((e) => e !== null);
+    const rowAbout = (c: number) =>
+      corners.length > 0
+        ? spanWashRow(Math.min(...corners.map((e) => Math.abs(e - c))) - WASH_CORNER_GAP, ceilingY)
+        : fitWashRow(b - a, ceilingY);
     // A fragment adds its own can and one each side. Past the row's end
     // the nearest can it leaves out is a gap and a half away.
-    const wide = 1.5 * row.spacing >= WASH_SIDE_REACH;
+    const wideRow = (r: WashRow) => 1.5 * r.spacing >= WASH_SIDE_REACH;
+    let center = mid;
+    let row = rowAbout(mid);
+    // About the one work the stretch holds, where that takes as many cans
+    // and its end cans still stand inside the stretch. Between two corners the row stays on the
+    // middle, or one corner would get a can nearer than the other.
     const held = works.filter((x) => x > a && x < b);
-    const slack = row.spacing / 2 - WASH_END_CLEAR;
-    const center = wide && held.length === 1 && Math.abs(held[0] - mid) <= slack ? held[0] : mid;
+    if (held.length === 1 && corners.length < 2 && wideRow(row)) {
+      const shifted = rowAbout(held[0]);
+      const halfSpan = ((shifted.count - 1) * shifted.spacing) / 2;
+      if (
+        shifted.count === row.count &&
+        held[0] - halfSpan >= a + WASH_END_CLEAR &&
+        held[0] + halfSpan <= b - WASH_END_CLEAR
+      ) {
+        center = held[0];
+        row = shifted;
+      }
+    }
+    const wide = wideRow(row);
     const rects: Rect2[] = [{ xMin: a - center, xMax: b - center, yMin: 0, yMax: row.wallTop }];
     let lo = a;
     let hi = b;
