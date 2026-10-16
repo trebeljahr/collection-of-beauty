@@ -36,6 +36,7 @@ import { LandscapePrompt } from "./landscape-prompt";
 import { LodController } from "./lod-controller";
 import { Minimap, mapFillOf, type PlayerSample, roomRect } from "./minimap";
 import { Player, type PlayerHandle } from "./player";
+import { quietLock, requestPointerLockQuietly } from "./pointer-lock";
 import { RoomCulling, registerShaftFittings } from "./room-culling";
 import { RoomEnvironment } from "./room-env-map";
 import { RoomGeometry, RoomReveals } from "./room-geometry";
@@ -806,6 +807,7 @@ export function Gallery3D({ artworks }: Props) {
             E (a window keydown) keeps working. */}
         {hasStarted && !zoomed && !mapOpen && !settingsOpen && !isTouch && (
           <PointerLockControls
+            ref={quietLock}
             selector=".gallery-canvas-host"
             domElement={canvasRef.current ?? undefined}
           />
@@ -834,7 +836,7 @@ export function Gallery3D({ artworks }: Props) {
             // the very first painting click opens the inspect overlay
             // instead of being consumed by drei's selector relock.
             // Touch devices have no pointer lock — joysticks own look.
-            if (!isTouch) canvasRef.current?.requestPointerLock?.();
+            if (!isTouch) requestPointerLockQuietly(canvasRef.current);
             // Site nav + page scrollbar are hidden via the Gallery3D
             // context (driven by `hasStarted`) so the museum visit
             // isn't framed by page chrome. Browser fullscreen stays
@@ -1110,7 +1112,7 @@ export function Gallery3D({ artworks }: Props) {
             // to relock there is silently denied. Touch devices have
             // no pointer lock at all.
             if (shouldRelock && !isTouch) {
-              canvasRef.current?.requestPointerLock?.();
+              requestPointerLockQuietly(canvasRef.current);
             }
           }}
         />
