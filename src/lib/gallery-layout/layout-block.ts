@@ -120,6 +120,7 @@ import {
 } from "./giants";
 import {
   buildGrandStair,
+  type CourtBridges,
   type GrandStair,
   type GrandStairDesign,
   grandHallArrival,
@@ -426,7 +427,15 @@ export const BLOCK_PLAN: readonly FloorPlan[] = [
 
 // --- Public entry ---------------------------------------------------------
 
-export function layoutBlock(allArtworks: ArtworkListing[]): MuseumLayout {
+/** How the court's void is crossed on the floors over its first
+ *  (`CourtBridges`). `/gallery-3d?bridges=` shows the others. */
+export const DEFAULT_COURT_BRIDGES: CourtBridges = "alternate";
+
+export function layoutBlock(
+  allArtworks: ArtworkListing[],
+  options: { courtBridges?: CourtBridges } = {},
+): MuseumLayout {
+  const courtBridges = options.courtBridges ?? DEFAULT_COURT_BRIDGES;
   const byEra = bucketByEra(allArtworks);
   const built = BLOCK_PLAN.map((plan, index) => buildFloor(index, plan));
   const floors = built.map((b) => b.floor);
@@ -440,7 +449,17 @@ export function layoutBlock(allArtworks: ArtworkListing[]): MuseumLayout {
   for (const hall of BLOCK_HALLS) {
     const stairs =
       hall.design !== "loggia"
-        ? [buildStair(floors[0], floors[1], hall, top, false, false)]
+        ? [
+            buildStair(
+              floors[0],
+              floors[1],
+              hall,
+              top,
+              false,
+              false,
+              hall.design === "court" ? courtBridges : undefined,
+            ),
+          ]
         : floors
             .slice(0, top)
             .map((lower, i) => buildStair(lower, floors[i + 1], hall, i + 1, i > 0, i + 1 < top));
@@ -457,8 +476,8 @@ export function layoutBlock(allArtworks: ArtworkListing[]): MuseumLayout {
       // opening is in the ceiling: the floor above's.
       const below = court ? stairs[0] : stairs[f - 1];
       const above = court ? stairs[0] : stairs[f];
-      room.floorOpening = f > 0 ? openingInWorld(below) : null;
-      room.ceilingOpening = f < top ? openingInWorld(above) : null;
+      room.floorOpening = f > 0 ? openingInWorld(below, f) : null;
+      room.ceilingOpening = f < top ? openingInWorld(above, f + 1) : null;
       room.stairGlyph = court ? "void" : f === 0 ? "up" : f === top ? "down" : "both";
       // The salon's far wall stands sheer from its floor to the roof:
       // its galleries run along the other three.
@@ -1074,6 +1093,7 @@ function buildStair(
   topFloor: number,
   hasFlightBelow: boolean,
   hasFlightAbove: boolean,
+  bridges?: CourtBridges,
 ): GrandStair {
   // The stair is set out from the hall's front wall: its frame is the
   // square the hall's width makes there, and the end wall may stand
@@ -1109,6 +1129,7 @@ function buildStair(
     turns: hall.turns,
     hasFlightBelow,
     hasFlightAbove,
+    bridges,
   });
 }
 

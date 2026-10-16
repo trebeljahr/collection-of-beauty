@@ -10,6 +10,7 @@ import { JOYSTICK_REACH, useJoystick } from "@/hooks/use-joystick";
 import { useNeedsRotate, useTouchDevice } from "@/hooks/use-touch-device";
 import { useAudioSettings } from "@/lib/audio-settings";
 import type { ArtworkListing } from "@/lib/data";
+import { COURT_BRIDGE_PATTERNS } from "@/lib/gallery-layout/grand-stair";
 import { blockArrivalPoint, layoutBlock } from "@/lib/gallery-layout/layout-block";
 import { layoutMuseum } from "@/lib/gallery-layout/layout-museum";
 import { eraOfRoom, floorBlurb, floorTitle, paletteOfRoom } from "@/lib/gallery-layout/room-era";
@@ -74,9 +75,15 @@ export function Gallery3D({ artworks }: Props) {
   const [plan] = useState(() =>
     new URLSearchParams(window.location.search).get("plan") === "tower" ? "tower" : "block",
   );
+  // `?bridges=none|cross|alternate|middle`: how the court's void is
+  // crossed on the floors over its first (`CourtBridges`).
+  const [courtBridges] = useState(() => {
+    const asked = new URLSearchParams(window.location.search).get("bridges");
+    return COURT_BRIDGE_PATTERNS.find((p) => p === asked);
+  });
   const layout = useMemo(
-    () => (plan === "block" ? layoutBlock(artworks) : layoutMuseum(artworks)),
-    [artworks, plan],
+    () => (plan === "block" ? layoutBlock(artworks, { courtBridges }) : layoutMuseum(artworks)),
+    [artworks, plan, courtBridges],
   );
   const layoutIdentity = useMemo(() => galleryLayoutIdentity(layout), [layout]);
   const [restoredVisit] = useState(() => restoreGalleryVisit(layout, layoutIdentity));

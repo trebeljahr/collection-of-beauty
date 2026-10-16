@@ -739,6 +739,24 @@ required by the Dockerfile — don't remove it.
       wall to wall on the first, a gallery 5 m wide round a square
       opening on each floor above (`HALL_GALLERY`), a portal in every
       wall. The player does not treat it as a stair to load ahead for.
+    - **Walkways cross the court's void** (`GrandStair.bridges`), 3.5 m
+      wide, from a portal to the one opposite. Rico asked on 17 October
+      2026 for walkways "connecting the sides" of the court. Four
+      patterns were built (`CourtBridges`), and `/gallery-3d?bridges=`
+      shows each: `none`, `cross` (both on every floor), `middle` (a
+      cross on the third floor only) and `alternate`, the default:
+      north to south on the second and fourth floors, east to west on
+      the third. A cross on every floor left four shafts 7 m square
+      where the void had been, and on the floor it read as a hall with
+      four wells, not as walkways. A walkway is floor: `openingOn(stair,
+      floor)` is the void less that floor's walkways, and the room's
+      `floorOpening` / `ceilingOpening` are built from it, so the deck,
+      its soffit, the fences and what the player may stand on all follow
+      from the one list. Every fenced edge of the court has a stone beam
+      under it, 0.75 m deep (`StairRail.beam`), the gallery's edge
+      included. Over the top floor's walkway the laylight is two panes.
+      Not in `galleryLayoutIdentity`: a pose saved on a walkway and
+      restored with another pattern stands over the void.
     - **A grand stair has no state.** It is a list of surfaces
       (`patches`): each a piece of plan with a height over it. Where the
       visitor stands is the highest surface no more than 0.4 m above

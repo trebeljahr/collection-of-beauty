@@ -108,6 +108,9 @@ export type StairRail = {
   /** Stands on masonry that reaches the hall floor (`baseY`): the wall
    *  under it is drawn and stops the visitor. */
   skirtTo?: number;
+  /** Runs along the edge of a floor that spans free over a void: a
+   *  stone beam is drawn under it. */
+  beam?: boolean;
 };
 
 /** A square pier. */
@@ -128,6 +131,28 @@ export type PlanRect = { xMin: number; xMax: number; zMin: number; zMax: number 
 export type StairOpening =
   | { kind: "rects"; rects: PlanRect[]; outline: Array<[number, number]> }
   | { kind: "disc"; r: number };
+
+/** A walkway across a hall's void on one floor: floor level with that
+ *  floor's gallery, from one edge of the opening to the other. */
+export type StairBridge = { floor: number; rect: PlanRect };
+
+/** How a court's void is crossed on the floors over its first:
+ *
+ *   none       an open void, a gallery round it on every floor;
+ *   cross      a walkway from each portal to the one opposite, on every
+ *              floor, meeting in the middle;
+ *   alternate  one walkway a floor, north to south on the second floor,
+ *              east to west on the third, and so on;
+ *   middle     a cross on the middle floor of the void only. */
+export type CourtBridges = "none" | "cross" | "alternate" | "middle";
+export const COURT_BRIDGE_PATTERNS: readonly CourtBridges[] = [
+  "none",
+  "cross",
+  "alternate",
+  "middle",
+];
+/** Width of a court's walkway: the portal it leads from. */
+export const COURT_BRIDGE_WIDTH = 3.5;
 
 export type GrandStair = {
   id: string;
@@ -170,7 +195,11 @@ export type GrandStair = {
   rails: StairRail[];
   columns: StairColumn[];
   lamps: StairLamp[];
+  /** The hole in every floor over the one the stair leaves, before any
+   *  walkway: `openingOn` gives one floor's. */
   opening: StairOpening;
+  /** Walkways across the opening, a court's only. */
+  bridges: StairBridge[];
 };
 
 /** Structural depth of a flight or landing that spans free. */
@@ -228,13 +257,53 @@ export function toStairWorld(
   }
 }
 
-/** The opening as a world rectangle or disc. */
+/** The opening in one floor: the void less the walkways across it on
+ *  that floor. Its `outline` stays the void's: a floor with walkways is
+ *  drawn and fenced from its rectangles. */
+export function openingOn(stair: GrandStair, floorIndex?: number): StairOpening {
+  const o = stair.opening;
+  if (floorIndex === undefined || o.kind === "disc") return o;
+  const cut = stair.bridges.filter((b) => b.floor === floorIndex).map((b) => b.rect);
+  if (cut.length === 0) return o;
+  return { kind: "rects", rects: o.rects.flatMap((r) => rectMinus(r, cut)), outline: o.outline };
+}
+
+/** A rectangle less some others, as the cells of the grid their edges
+ *  cut it into that none of them covers. */
+export function rectMinus(r: PlanRect, cut: readonly PlanRect[]): PlanRect[] {
+  const lines = (lo: number, hi: number, edges: number[]) =>
+    [...new Set([lo, hi, ...edges.filter((v) => v > lo && v < hi)])].sort((a, b) => a - b);
+  const xs = lines(
+    r.xMin,
+    r.xMax,
+    cut.flatMap((c) => [c.xMin, c.xMax]),
+  );
+  const zs = lines(
+    r.zMin,
+    r.zMax,
+    cut.flatMap((c) => [c.zMin, c.zMax]),
+  );
+  const out: PlanRect[] = [];
+  for (let i = 0; i < xs.length - 1; i++) {
+    for (let j = 0; j < zs.length - 1; j++) {
+      const x = (xs[i] + xs[i + 1]) / 2;
+      const z = (zs[j] + zs[j + 1]) / 2;
+      if (cut.some((c) => x > c.xMin && x < c.xMax && z > c.zMin && z < c.zMax)) continue;
+      out.push({ xMin: xs[i], xMax: xs[i + 1], zMin: zs[j], zMax: zs[j + 1] });
+    }
+  }
+  return out;
+}
+
+/** The opening as a world rectangle or disc: the void, or with a floor
+ *  the hole in that floor (`openingOn`). */
 export function openingInWorld(
   stair: GrandStair,
+  floorIndex?: number,
 ):
   | { kind: "rects"; rects: PlanRect[]; outline: Array<[number, number]> }
   | { kind: "disc"; x: number; z: number; r: number } {
-  const o = stair.opening;
+  const o = openingOn(stair, floorIndex);
   if (o.kind === "disc") return { kind: "disc", x: stair.centerX, z: stair.centerZ, r: o.r };
   return {
     kind: "rects",
@@ -326,8 +395,10 @@ function patchUnderside(p: StairPatch, x: number, z: number, baseY: number): num
   return p.y0 + (p.y1 - p.y0) * t - STAIR_SLAB;
 }
 
-export function inOpening(stair: GrandStair, x: number, z: number): boolean {
-  const o = stair.opening;
+/** Whether a point of the hall's frame is over the void: on a floor,
+ *  over the hole in that floor, walkways left out. */
+export function inOpening(stair: GrandStair, x: number, z: number, floorIndex?: number): boolean {
+  const o = openingOn(stair, floorIndex);
   if (o.kind === "disc") return Math.hypot(x, z) < o.r;
   return o.rects.some((r) => x >= r.xMin && x <= r.xMax && z >= r.zMin && z <= r.zMax);
 }
@@ -405,7 +476,8 @@ export function grandSurfacesAt(
   }
   for (const [floorIndex, y] of levels) {
     const open = hall.some(
-      (s) => floorIndex > s.lowerFloor && floorIndex <= s.topFloor && inOpening(s, x, z),
+      (s) =>
+        floorIndex > s.lowerFloor && floorIndex <= s.topFloor && inOpening(s, x, z, floorIndex),
     );
     if (open) continue;
     const leaving = hall.find((s) => s.lowerFloor === floorIndex);
@@ -497,7 +569,8 @@ export function grandHallArrival(stair: GrandStair): { x: number; z: number } {
 
 // ── Designs ───────────────────────────────────────────────────────────
 
-type Built = Pick<GrandStair, "patches" | "rails" | "columns" | "lamps" | "opening">;
+type Built = Pick<GrandStair, "patches" | "rails" | "columns" | "lamps" | "opening"> &
+  Partial<Pick<GrandStair, "bridges">>;
 type Site = {
   /** Half the hall's side. */
   half: number;
@@ -511,6 +584,11 @@ type Site = {
   /** Heights of the balcony floors over the floor the stair arrives
    *  on: the opening is fenced all round on each. */
   balconies: number[];
+  /** Index of the floor the stair arrives on. The balconies are the
+   *  floors after it, in order. */
+  upperFloor: number;
+  /** How a court's void is crossed. */
+  bridges: CourtBridges;
 };
 
 /** Balustrades along an opening's outline at one height, but for the
@@ -791,23 +869,81 @@ function buildImperial(site: Site, loggia = false): Built {
 }
 
 /** A hall with no stair, open from its floor to the roof: a gallery
- *  inside its walls on every floor above, round a square opening. */
+ *  inside its walls on every floor above, round a square opening, and
+ *  on some of those floors walkways across the opening from a portal to
+ *  the one opposite (`CourtBridges`). */
 function buildCourt(site: Site): Built {
   const c = site.half - HALL_GALLERY;
+  const whole: PlanRect = { xMin: -c, xMax: c, zMin: -c, zMax: c };
   const outline: Array<[number, number]> = [
     [-c, -c],
     [c, -c],
     [c, c],
     [-c, c],
   ];
-  const rails = [site.upperY, ...site.balconies].flatMap((y) => fence(outline, y));
+  const w = COURT_BRIDGE_WIDTH / 2;
+  const northSouth: PlanRect = { xMin: -w, xMax: w, zMin: -c, zMax: c };
+  const eastWest: PlanRect = { xMin: -c, xMax: c, zMin: -w, zMax: w };
+  const levels = [site.upperY, ...site.balconies];
+  const bridges: StairBridge[] = [];
+  const rails: StairRail[] = [];
+  levels.forEach((y, k) => {
+    const floor = site.upperFloor + k;
+    const across = courtCrossings(site.bridges, k, levels.length).map((axis) =>
+      axis === "ns" ? northSouth : eastWest,
+    );
+    for (const rect of across) bridges.push({ floor, rect });
+    // Every edge of the hole that floor is left with, but where two of
+    // its pieces meet: a walkway is fenced along both sides and is open
+    // at its ends.
+    const pieces = rectMinus(whole, across);
+    for (const r of pieces) {
+      const corners: Array<[number, number]> = [
+        [r.xMin, r.zMin],
+        [r.xMax, r.zMin],
+        [r.xMax, r.zMax],
+        [r.xMin, r.zMax],
+      ];
+      corners.forEach(([x0, z0], i) => {
+        const [x1, z1] = corners[(i + 1) % 4];
+        // A point just across the edge's middle, outward.
+        const mx = (x0 + x1) / 2 + Math.sign(z1 - z0) * 0.01;
+        const mz = (z0 + z1) / 2 - Math.sign(x1 - x0) * 0.01;
+        const shared = pieces.some(
+          (o) => o !== r && mx > o.xMin && mx < o.xMax && mz > o.zMin && mz < o.zMax,
+        );
+        if (!shared) rails.push({ ...rail(x0, z0, y, x1, z1, y), beam: true });
+      });
+    }
+  });
   return {
     patches: [],
     rails,
     columns: [],
     lamps: [],
-    opening: { kind: "rects", rects: [{ xMin: -c, xMax: c, zMin: -c, zMax: c }], outline },
+    opening: { kind: "rects", rects: [whole], outline },
+    bridges,
   };
+}
+
+/** The walkways of the `k`th of a court's `count` floors over its
+ *  first: "ns" from the north portal to the south one, "ew" from west
+ *  to east. */
+export function courtCrossings(
+  pattern: CourtBridges,
+  k: number,
+  count: number,
+): Array<"ns" | "ew"> {
+  switch (pattern) {
+    case "cross":
+      return ["ns", "ew"];
+    case "alternate":
+      return [k % 2 === 0 ? "ns" : "ew"];
+    case "middle":
+      return k === Math.floor((count - 1) / 2) ? ["ns", "ew"] : [];
+    default:
+      return [];
+  }
 }
 
 /** Depth of a salon's galleries. */
@@ -1089,8 +1225,13 @@ const BUILDERS: Record<GrandStairDesign, (site: Site) => Built> = {
 };
 
 export function buildGrandStair(
-  spec: Omit<GrandStair, "patches" | "rails" | "columns" | "lamps" | "opening" | "back"> & {
+  spec: Omit<
+    GrandStair,
+    "patches" | "rails" | "columns" | "lamps" | "opening" | "back" | "bridges"
+  > & {
     back?: number;
+    /** How a court's void is crossed: none, unset. */
+    bridges?: CourtBridges;
   },
 ): GrandStair {
   const balconies: number[] = [];
@@ -1098,7 +1239,9 @@ export function buildGrandStair(
     balconies.push(spec.lowerY + (f - spec.lowerFloor) * FLOOR_SEPARATION);
   }
   const back = spec.back ?? spec.half;
-  return { ...spec, back, ...BUILDERS[spec.design]({ ...spec, back, balconies }) };
+  const { bridges: pattern = "none", ...rest } = spec;
+  const built = BUILDERS[spec.design]({ ...rest, back, balconies, bridges: pattern });
+  return { ...rest, back, ...built, bridges: built.bridges ?? [] };
 }
 
 /** A rail's ends in the world. */

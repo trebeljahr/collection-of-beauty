@@ -23,7 +23,8 @@ import { fixtureMaterial, HIGHLIGHT_ENV_MATERIALS } from "./palette-materials";
 // One stair is six meshes: the stone, the balusters (small parts the
 // floor's mirror pass leaves out), the carpet, and the stems, globes and
 // glows of the lamp standards at the foot of its first flight. A hall with no
-// stair (a court) is the balustrades of its galleries.
+// stair (a court) is the balustrades of its galleries and walkways, and
+// the beams under their edges; the walkways' decks are its floors.
 
 const stoneMaterial = new THREE.MeshStandardMaterial({
   // Pale limestone: the stair is the lightest thing in its hall, as in
@@ -112,6 +113,11 @@ const NEWEL_RISE = 0.14;
 const SKIRT_WIDTH = 0.3;
 const STRINGER_WIDTH = 0.18;
 const STRINGER_DEPTH = 0.5;
+/** The stone beam under the edge of a floor that spans free (a court's
+ *  gallery and walkways): the floor slab alone is 0.2 m, and a walkway
+ *  17.5 m long on it read as a sheet of card. */
+const BEAM_WIDTH = 0.36;
+const BEAM_DEPTH = 0.75;
 /** How far the carpet stands off the stone. */
 const CARPET_LIFT = 0.012;
 /** How far inside its hall's wall lines a stair stops. A wall is a plane
@@ -436,7 +442,19 @@ function addRail(stone: Solid, balusters: Solid, r: StairRail) {
     );
   }
   const sloped = Math.abs(r.y1 - r.y0) > 1e-6;
-  if (r.skirtTo !== undefined) {
+  if (r.beam) {
+    stone.wall(
+      r.x0,
+      r.z0,
+      r.x1,
+      r.z1,
+      BEAM_WIDTH,
+      r.y0 - BEAM_DEPTH,
+      r.y1 - BEAM_DEPTH,
+      r.y0 - 0.005,
+      r.y1 - 0.005,
+    );
+  } else if (r.skirtTo !== undefined) {
     // Masonry down to the floor the stair stands on.
     stone.wall(r.x0, r.z0, r.x1, r.z1, SKIRT_WIDTH, r.skirtTo, r.skirtTo, r.y0, r.y1);
   } else if (sloped) {

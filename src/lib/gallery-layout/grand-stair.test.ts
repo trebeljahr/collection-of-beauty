@@ -1,6 +1,9 @@
 import { describe, expect, it } from "vitest";
 import {
   buildGrandStair,
+  COURT_BRIDGE_WIDTH,
+  type CourtBridges,
+  courtCrossings,
   GRAND_RISERS,
   GRAND_STEP_UP,
   type GrandStair,
@@ -16,7 +19,9 @@ import {
   LOGGIA,
   loggiaShift,
   openingInWorld,
+  openingOn,
   openingReach,
+  rectMinus,
   STAIR_HEADROOM,
   sheerSide,
   sheerStripDepth,
@@ -780,5 +785,108 @@ describe("a court: a hall with no stair, open to the roof", () => {
       const y = floor * FLOOR_SEPARATION;
       expect(grandSurfaceAt([court], arrival.x, arrival.z, y)?.floorIndex).toBe(floor);
     }
+  });
+});
+
+describe("walkways across a court's void", () => {
+  const half = 13.75;
+  const c = half - 5;
+  const w = COURT_BRIDGE_WIDTH / 2;
+  const court = (bridges: CourtBridges) =>
+    buildGrandStair({
+      id: "court",
+      design: "court",
+      lowerFloor: 0,
+      upperFloor: 1,
+      topFloor: 3,
+      lowerLabel: "",
+      upperLabel: "",
+      lowerY: 0,
+      upperY: FLOOR_SEPARATION,
+      centerX: CX,
+      centerZ: CZ,
+      half,
+      turns: 0,
+      hasFlightBelow: false,
+      hasFlightAbove: false,
+      bridges,
+    });
+
+  it("crosses the floors as each pattern says", () => {
+    expect([0, 1, 2].map((k) => courtCrossings("cross", k, 3))).toEqual([
+      ["ns", "ew"],
+      ["ns", "ew"],
+      ["ns", "ew"],
+    ]);
+    expect([0, 1, 2].map((k) => courtCrossings("alternate", k, 3))).toEqual([
+      ["ns"],
+      ["ew"],
+      ["ns"],
+    ]);
+    expect([0, 1, 2].map((k) => courtCrossings("middle", k, 3))).toEqual([[], ["ns", "ew"], []]);
+    expect(court("none").bridges).toHaveLength(0);
+    expect(court("cross").bridges).toHaveLength(6);
+  });
+
+  it("leaves the hole in a crossed floor as four quarters, and the void whole", () => {
+    const stair = court("cross");
+    expect(stair.opening.kind === "rects" && stair.opening.rects).toHaveLength(1);
+    const o = openingOn(stair, 2);
+    expect(o.kind === "rects" && o.rects).toHaveLength(4);
+    expect(rectMinus({ xMin: -c, xMax: c, zMin: -c, zMax: c }, [])).toHaveLength(1);
+  });
+
+  it("is floor on its walkways and void beside them", () => {
+    for (const pattern of ["cross", "alternate"] as const) {
+      const stair = court(pattern);
+      for (const floor of [1, 2, 3]) {
+        const y = floor * FLOOR_SEPARATION;
+        const ns = stair.bridges.some((b) => b.floor === floor && b.rect.zMax - b.rect.zMin > 10);
+        const along = (t: number) => toStairWorld(stair, ns ? 0 : t, ns ? t : 0);
+        const beside = toStairWorld(stair, ns ? w + 1 : 4, ns ? 4 : w + 1);
+        for (const t of [-c + 0.2, -3, 0, 3, c - 0.2]) {
+          const p = along(t);
+          expect(grandSurfaceAt([stair], p.x, p.z, y)?.floorIndex, `${pattern} ${floor} ${t}`).toBe(
+            floor,
+          );
+        }
+        expect(grandSurfacesAt([stair], beside.x, beside.z).some((s) => s.y === y)).toBe(false);
+        // Onto the walkway from the gallery, and off its side refused.
+        const gallery = along(c + 1);
+        const onto = along(c - 1);
+        expect(grandMoveAllowed([stair], gallery.x, gallery.z, onto.x, onto.z, y)).toBe(true);
+        const mid = along(2);
+        expect(grandMoveAllowed([stair], mid.x, mid.z, beside.x, beside.z, y)).toBe(false);
+      }
+    }
+  });
+
+  it("fences each walkway along both sides and leaves its ends open", () => {
+    const stair = court("alternate");
+    const y = FLOOR_SEPARATION;
+    const rails = stair.rails.filter((r) => r.y0 === y);
+    // Two halves of the hole, each fenced on four sides.
+    expect(rails).toHaveLength(8);
+    expect(rails.every((r) => r.beam)).toBe(true);
+    const sides = rails.filter((r) => r.x0 === r.x1 && Math.abs(Math.abs(r.x0) - w) < 1e-9);
+    expect(sides).toHaveLength(2);
+    // Nothing crosses the walkway's ends.
+    const across = rails.filter(
+      (r) =>
+        r.z0 === r.z1 &&
+        Math.abs(Math.abs(r.z0) - c) < 1e-9 &&
+        Math.min(r.x0, r.x1) < 0 &&
+        Math.max(r.x0, r.x1) > 0,
+    );
+    expect(across).toHaveLength(0);
+  });
+
+  it("puts each floor's hole in the world where its walkways leave it", () => {
+    const stair = court("cross");
+    const top = openingInWorld(stair, 3);
+    expect(top.kind === "rects" && top.rects).toHaveLength(4);
+    expect(inOpening(stair, 0, 0, 3)).toBe(false);
+    expect(inOpening(stair, 4, 4, 3)).toBe(true);
+    expect(inOpening(stair, 0, 0)).toBe(true);
   });
 });
