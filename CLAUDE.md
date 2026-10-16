@@ -1656,7 +1656,7 @@ required by the Dockerfile — don't remove it.
     also take a flat liner inside them (`StyleOptions.liner`). A profile
     is shaded once per combination and cached.
   - `frame-design.ts`: which frame a work gets (`pickFrameDesign`). A
-    design is a *look* (51: a moulding and the finishes it comes in),
+    design is a *look* (50: a moulding and the finishes it comes in),
     its ornament, one finish per material slot, and the work's own
     numbers: how heavy the moulding is cut, how worn and how polished it
     is, how much dirt sits in its hollows, how deep its carving, the
@@ -1672,7 +1672,14 @@ required by the Dockerfile — don't remove it.
     title (portrait, landscape, still life) bias it too, and so does
     size: a narrow moulding goes to small works, a tabernacle frame to
     sacred subjects. A painting on silk hangs in a flat silk mount,
-    upright or wide. Warmth comes from `colorBuckets`,
+    upright or wide. A plain look (white, pale wood, black, metal,
+    a strip or a floater) has a year it was first made (`Look.since`),
+    and a work dated before it never gets one, whatever its school or
+    its room. Rico, 17 October 2026, of Copley's John Adams (1783) in a
+    grey painted frame: frames this "hypermodern" do not belong on
+    paintings this old. That grey look (`greyGilt`, the Spanish
+    bolection painted flat) was removed. A modern school on an old date
+    falls back to the looks of the date. Warmth comes from `colorBuckets`,
     because `dominantColor` calls nearly every painting warm brown. The pick is a weighted draw on a hash of the
     id, so the server, the browser and every visit agree. Everything it
     reads is in `ArtworkListing`, which `/api/artworks/museum` serves

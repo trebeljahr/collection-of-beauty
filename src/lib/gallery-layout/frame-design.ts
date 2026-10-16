@@ -374,7 +374,6 @@ export type LookId =
   | "narrowGilt"
   | "narrowWood"
   | "tortoiseshell"
-  | "greyGilt"
   | "bullseye"
   | "oakBlocks"
   | "hammered"
@@ -384,6 +383,12 @@ export type LookId =
 
 type Look = {
   style: FrameStyleId;
+  /** The year frames of this look were first made. A work dated before
+   *  it never gets one: a plain painted, pale or black moulding round a
+   *  canvas of the 1780s reads as a modern gallery frame (Rico,
+   *  17 October 2026, of Copley's John Adams in grey paint). Unset for
+   *  the period looks, which a museum hangs on later works too. */
+  since?: number;
   /** Finishes the moulding comes in. The picture chooses among them. */
   main: FinishId[];
   /** Finishes of what lies inside the moulding (slot 1). */
@@ -424,38 +429,36 @@ const LOOKS: Record<LookId, Look> = {
   barbizon: { style: "barbizon", main: ["gilt", "giltRed", "giltDark"], liner: { chance: 0.3, finishes: ["linen", "giltPale", "gilt"] } },
   watts: { style: "watts", main: ["gilt", "giltDark"], inner: ["giltOak"] },
   whistler: { style: "reeded", main: ["giltPale", "silver", "giltDark", "gilt"], details: [0], liner: { chance: 0.35, finishes: ["giltPale", "gilt"] } },
-  secession: { style: "plate", main: ["giltDark", "gilt", "silver"], accent: ["giltPale"], field: ["hammer", "hammer", null], variants: [0, 1] },
+  secession: { style: "plate", since: 1895, main: ["giltDark", "gilt", "silver"], accent: ["giltPale"], field: ["hammer", "hammer", null], variants: [0, 1] },
   // Beaten metal on a plain board, as the Arts and Crafts shops made it.
-  hammered: { style: "plate", main: ["copper", "bronze", "pewter"], field: ["hammer"], variants: [0] },
+  hammered: { style: "plate", since: 1890, main: ["copper", "bronze", "pewter"], field: ["hammer"], variants: [0] },
   // Parcel gilt: a second colour with gilt members.
   spanish: { style: "parcel", main: ["ebony", "blackMatte"], accent: ["gilt", "giltDark"] },
-  // Painted grey or white with gilt beads: Louis XVI and Gustavian.
-  greyGilt: { style: "parcel", main: ["greyPaint", "white", "sage", "blueGrey"], accent: ["gilt", "giltPale"] },
   // Dark.
   dutchRipple: { style: "ripple", main: ["ebony"], variants: [0, 1], liner: { chance: 0.25, finishes: ["gilt", "giltDark"] } },
   tortoiseshell: { style: "ripple", main: ["ebony"], accent: ["tortoise"], variants: [2] },
   reverseBlack: { style: "scotia", main: ["ebony", "blackMatte", "walnut"], liner: GILT_SLIP },
   ebonyCushion: { style: "cushion", main: ["ebony", "blackLacquer"], liner: { chance: 0.35, finishes: ["gilt", "giltDark"] } },
-  blackPlate: { style: "plate", main: ["blackMatte", "stained"], accent: ["gilt", "giltPale"], field: [null], variants: [0, 1], liner: { chance: 0.25, finishes: ["linen", "white"] } },
+  blackPlate: { style: "plate", since: 1895, main: ["blackMatte", "stained"], accent: ["gilt", "giltPale"], field: [null], variants: [0, 1], liner: { chance: 0.25, finishes: ["linen", "white"] } },
   // Wood.
   bolection: { style: "bolection", main: ["walnut", "mahogany", "oak", "rosewood"], inner: ["gilt", "giltDark"] },
   fruitCushion: { style: "cushion", main: ["fruitwood", "mahogany", "walnut", "maple"], liner: GILT_SLIP },
   narrowWood: { style: "morland", main: ["walnut", "mahogany", "fruitwood", "ebony"] },
-  oakPlate: { style: "plate", main: ["oak", "ash", "walnut"], accent: ["giltDark", "gilt"], field: [null], variants: [0, 1], liner: { chance: 0.3, finishes: ["linen", "giltDark"] } },
+  oakPlate: { style: "plate", since: 1880, main: ["oak", "ash", "walnut"], accent: ["giltDark", "gilt"], field: [null], variants: [0, 1], liner: { chance: 0.3, finishes: ["linen", "giltDark"] } },
   // A rosette block on each corner.
-  oakBlocks: { style: "plate", main: ["oak", "greenOak", "walnut"], field: [null], variants: [2] },
-  bullseye: { style: "reeded", main: ["walnut", "mahogany", "oak", "giltPale", "white"], details: [1] },
-  woodScoop: { style: "scoop", main: ["ash", "oak", "fruitwood"], liner: { chance: 0.3, finishes: ["linen", "giltPale"] } },
-  canted: { style: "canted", main: ["ash", "oak", "limedOak", "white", "blackMatte", "walnut", "greenOak"], liner: { chance: 0.25, finishes: ["linen", "linenGrey", "white"] } },
+  oakBlocks: { style: "plate", since: 1880, main: ["oak", "greenOak", "walnut"], field: [null], variants: [2] },
+  bullseye: { style: "reeded", since: 1880, main: ["walnut", "mahogany", "oak", "giltPale", "white"], details: [1] },
+  woodScoop: { style: "scoop", since: 1880, main: ["ash", "oak", "fruitwood"], liner: { chance: 0.3, finishes: ["linen", "giltPale"] } },
+  canted: { style: "canted", since: 1880, main: ["ash", "oak", "limedOak", "white", "blackMatte", "walnut", "greenOak"], liner: { chance: 0.25, finishes: ["linen", "linenGrey", "white"] } },
   // Pale and painted.
-  whiteScoop: { style: "scoop", main: ["white", "greyPaint", "sage"], liner: { chance: 0.25, finishes: ["linen", "white"] } },
-  degasWhite: { style: "reeded", main: ["white", "greyPaint", "sage", "blueGrey"], details: [0], liner: { chance: 0.3, finishes: ["white", "linen"] } },
-  paleGiltScoop: { style: "scoop", main: ["giltPale", "silver"] },
+  whiteScoop: { style: "scoop", since: 1870, main: ["white", "greyPaint", "sage"], liner: { chance: 0.25, finishes: ["linen", "white"] } },
+  degasWhite: { style: "reeded", since: 1870, main: ["white", "greyPaint", "sage", "blueGrey"], details: [0], liner: { chance: 0.3, finishes: ["white", "linen"] } },
+  paleGiltScoop: { style: "scoop", since: 1870, main: ["giltPale", "silver"] },
   // Modern.
-  deco: { style: "deco", main: ["silver", "pewter", "giltPale", "blackLacquer", "white"], accent: ["silver", "blackLacquer", "giltPale", "copper"] },
-  floater: { style: "floater", main: ["stained", "stained", "ash", "white", "walnut"], inner: ["canvasEdge"] },
-  strip: { style: "strip", main: ["blackMatte", "white", "ash", "walnut", "giltPale", "stained"] },
-  liner: { style: "liner", main: ["stained", "ash", "white", "giltPale", "oak"], inner: ["linen", "linenGrey"], accent: ["giltPale", "gilt"] },
+  deco: { style: "deco", since: 1905, main: ["silver", "pewter", "giltPale", "blackLacquer", "white"], accent: ["silver", "blackLacquer", "giltPale", "copper"] },
+  floater: { style: "floater", since: 1910, main: ["stained", "stained", "ash", "white", "walnut"], inner: ["canvasEdge"] },
+  strip: { style: "strip", since: 1910, main: ["blackMatte", "white", "ash", "walnut", "giltPale", "stained"] },
+  liner: { style: "liner", since: 1905, main: ["stained", "ash", "white", "giltPale", "oak"], inner: ["linen", "linenGrey"], accent: ["giltPale", "gilt"] },
   // Paper.
   printWood: { style: "print", main: ["ash", "oak", "maple", "walnut", "fruitwood"], inner: ["mat"], accent: ["giltPale", "blackMatte"], variants: [0, 0, 3] },
   printBlack: { style: "print", main: ["blackMatte", "stained", "ebony"], inner: ["mat"], accent: ["giltPale"], variants: [0, 3, 1] },
@@ -506,12 +509,12 @@ const PAINTING_RULES: FrameRule[] = [
   ["Flemish Baroque", { baroque: 3, dutchRipple: 2, spanish: 1, bolection: 1, reverse: 1, reverseBlack: 1, tortoiseshell: 1 }],
   ["Dutch Golden Age", { dutchRipple: 4, ebonyCushion: 2, bolection: 2, tortoiseshell: 2, reverseBlack: 2, fruitCushion: 1, narrowWood: 1 }],
   ["Baroque", { baroque: 4, salvator: 3, spanish: 2, reverse: 2, panelFrame: 2, salvatorBlack: 1, bolection: 1, regence: 1, kent: 1 }],
-  ["Rococo", { louisXV: 5, regence: 3, baroque: 1, louisXVI: 1, kent: 1, panelFrame: 1, greyGilt: 1, narrowGilt: 1 }],
-  ["Neoclassicism", { louisXVI: 4, empire: 3, greyGilt: 2, salvator: 1, regence: 1, kent: 1, narrowGilt: 1 }],
+  ["Rococo", { louisXV: 5, regence: 3, baroque: 1, louisXVI: 1, kent: 1, panelFrame: 1, narrowGilt: 1 }],
+  ["Neoclassicism", { louisXVI: 4, empire: 3, salvator: 1, regence: 1, kent: 1, narrowGilt: 1 }],
   ["Academicism", { louisXVI: 2, barbizon: 2, empire: 2, watts: 1, narrowGilt: 1 }],
   ["Orientalism", { barbizon: 2, louisXVI: 2, baroque: 1, empire: 1, reverse: 1 }],
   ["Hudson River", { barbizon: 3, louisXVI: 2, empire: 1, bullseye: 1 }],
-  ["Romanticism", { empire: 2, louisXVI: 2, barbizon: 2, bolection: 2, baroque: 1, salvator: 1, fruitCushion: 1, narrowGilt: 1, greyGilt: 1, panelFrame: 1 }],
+  ["Romanticism", { empire: 2, louisXVI: 2, barbizon: 2, bolection: 2, baroque: 1, salvator: 1, fruitCushion: 1, narrowGilt: 1, panelFrame: 1 }],
   ["Pre-Raphaelite", { watts: 4, cassetta: 2, whistler: 1, oakPlate: 1, oakBlocks: 1, tabernacle: 1 }],
   ["Realism", { bolection: 3, barbizon: 3, louisXVI: 1, fruitCushion: 1, empire: 1, bullseye: 1, narrowGilt: 1, narrowWood: 1, oakBlocks: 1 }],
   ["Tonalism", { whistler: 3, barbizon: 2, bolection: 2, paleGiltScoop: 1, bullseye: 1 }],
@@ -550,7 +553,27 @@ export function looksFor(artwork: Pick<Framed, "movement" | "year">): Array<[Loo
   return Object.entries(weightsFor(artwork)) as Array<[LookId, number]>;
 }
 
+/** The looks for a work, less those made after it was painted
+ *  (`Look.since`). An old work tagged with a modern school, which
+ *  would lose every look, takes the looks of its date. */
 function weightsFor(artwork: Pick<Framed, "movement" | "year">): Weights {
+  const year = artwork.year;
+  const school = schoolWeights(artwork);
+  if (year == null) return school;
+  const kept = madeBy(school, year);
+  return Object.keys(kept).length > 0 ? kept : madeBy(dateWeights(year), year);
+}
+
+function madeBy(weights: Weights, year: number): Weights {
+  const kept: Weights = {};
+  for (const [id, w] of Object.entries(weights) as Array<[LookId, number]>) {
+    const since = LOOKS[id].since;
+    if (since == null || year >= since) kept[id] = w;
+  }
+  return kept;
+}
+
+function schoolWeights(artwork: Pick<Framed, "movement" | "year">): Weights {
   const m = artwork.movement;
   const year = artwork.year;
   const paper = m && PAPER_RULES.find(([name]) => m.includes(name));
@@ -558,6 +581,11 @@ function weightsFor(artwork: Pick<Framed, "movement" | "year">): Weights {
   if (year != null && year < PANEL_BEFORE_YEAR) return PANEL_LOOKS;
   const painting = m && PAINTING_RULES.find(([name]) => m.includes(name));
   if (painting) return painting[1];
+  return dateWeights(year);
+}
+
+/** Looks by date alone, for a work with no school. */
+function dateWeights(year: number | null | undefined): Weights {
   if (year == null) return { bolection: 2, louisXVI: 1, woodScoop: 1, barbizon: 1, narrowGilt: 1 };
   if (year < 1700) return { baroque: 2, bolection: 2, dutchRipple: 1, salvator: 1, reverse: 1 };
   if (year < 1860) return { louisXVI: 2, bolection: 2, empire: 1, baroque: 1, narrowGilt: 1 };
@@ -609,7 +637,7 @@ const NATION_BIAS: Array<[nation: RegExp, looks: Weights]> = [
   [/English|British|Scottish/, { watts: 1.4, salvator: 1.4, whistler: 1.2, kent: 2.5, panelFrame: 1.6 }],
   [/American/, { whistler: 1.4, barbizon: 1.2, bullseye: 2 }],
   [/German|Austrian|Swiss|Danish/, { fruitCushion: 1.8, secession: 1.5, bolection: 1.2, hammered: 1.5, deco: 1.2 }],
-  [/Norwegian|Swedish|Finnish|Danish/, { oakPlate: 1.5, whiteScoop: 1.3, greyGilt: 2.5 }],
+  [/Norwegian|Swedish|Finnish|Danish/, { oakPlate: 1.5, whiteScoop: 1.3 }],
 ];
 
 // biome-ignore format: a table.
