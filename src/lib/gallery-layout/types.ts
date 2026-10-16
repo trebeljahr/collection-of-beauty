@@ -230,6 +230,9 @@ export type FloorLayout = {
    *  holds more than one era. Unset in the tower: read it through
    *  `floorTitle`. */
   title?: string;
+  /** The entry card's line under the title, set with `title`. Read it
+   *  through `floorBlurb`. */
+  blurb?: string;
   /** World Y of the walking surface. */
   y: number;
   gridSize: { x: number; z: number };

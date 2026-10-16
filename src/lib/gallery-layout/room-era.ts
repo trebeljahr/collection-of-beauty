@@ -16,6 +16,12 @@ export function paletteOfRoom(
   return room.paletteEra ? getEra(room.paletteEra).palette : eraOfRoom(room).palette;
 }
 
+/** A floor's line on the entry card: its own when it has one, else its
+ *  era's. */
+export function floorBlurb(floor: Pick<FloorLayout, "blurb" | "era">): string {
+  return floor.blurb ?? floor.era.blurb;
+}
+
 /** A floor's name: its own when it has one, else its era's. */
 export function floorTitle(floor: Pick<FloorLayout, "title" | "era">): string {
   return floor.title ?? floor.era.title;

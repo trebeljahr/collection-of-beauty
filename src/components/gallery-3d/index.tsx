@@ -12,7 +12,7 @@ import { useAudioSettings } from "@/lib/audio-settings";
 import type { ArtworkListing } from "@/lib/data";
 import { blockArrivalPoint, layoutBlock } from "@/lib/gallery-layout/layout-block";
 import { layoutMuseum } from "@/lib/gallery-layout/layout-museum";
-import { eraOfRoom, floorTitle, paletteOfRoom } from "@/lib/gallery-layout/room-era";
+import { eraOfRoom, floorBlurb, floorTitle, paletteOfRoom } from "@/lib/gallery-layout/room-era";
 import { shaftKey, wallSharers } from "@/lib/gallery-layout/room-visibility";
 import type { FloorLayout, MuseumLayout, Staircase } from "@/lib/gallery-layout/types";
 import {
@@ -819,7 +819,7 @@ export function Gallery3D({ artworks }: Props) {
         <GalleryCurtain
           overlay
           title={floorTitle(currentFloor)}
-          blurb={currentFloor.era.blurb}
+          blurb={floorBlurb(currentFloor)}
           progress={entryRoomProgress}
           ready={entryRoomReady}
           failedCount={entryRoomFailed}

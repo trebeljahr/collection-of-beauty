@@ -267,6 +267,9 @@ const MIN_SHARED_CELLS = 3;
 type Zone = { era: EraId; cells: readonly RoomKey[]; coverage?: number };
 type FloorPlan = {
   title: string;
+  /** One sentence for the entry card, under the title. Era blurbs
+   *  describe one era each; a floor here holds two or three. */
+  blurb: string;
   /** Eras in the order they are walked, each with the rooms it hangs
    *  in, in the order of the walk: out of the court to the west, round
    *  the block by the north, and back by the south-east. An era's rooms
@@ -296,6 +299,8 @@ const HALL_NAMES: Readonly<Partial<Record<RoomKey, string>>> = {
 export const BLOCK_PLAN: readonly FloorPlan[] = [
   {
     title: "Old Masters",
+    blurb:
+      "European painting up to about 1700, with Botticelli and Dürer in the first room and Poussin in the last.",
     styles: {
       sw: "long-rows",
       cw: "bays",
@@ -319,6 +324,8 @@ export const BLOCK_PLAN: readonly FloorPlan[] = [
   },
   {
     title: "Salon and Academy",
+    blurb:
+      "Boucher's Rococo, David's Neoclassicism, the Romantics and the Realists, painted between about 1720 and 1900.",
     styles: {
       sw: "bays",
       nw: "long-rows",
@@ -338,6 +345,8 @@ export const BLOCK_PLAN: readonly FloorPlan[] = [
   },
   {
     title: "Modern Art",
+    blurb:
+      "Manet and Monet in the 1860s, Cézanne and Van Gogh after them, and the abstraction of the 1910s and 1920s.",
     styles: {
       cw: "bays",
       nw: "long-rows",
@@ -357,6 +366,8 @@ export const BLOCK_PLAN: readonly FloorPlan[] = [
   },
   {
     title: "Natural History and East Asian Art",
+    blurb:
+      "Book plates of plants and animals in one half; prints and paintings from Japan, China and Korea in the other.",
     styles: {
       sw: "long-rows",
       cw: "staggered",
@@ -700,6 +711,7 @@ function buildFloor(
     index,
     era: floorEra,
     title: plan.title,
+    blurb: plan.blurb,
     y: floorY(index),
     gridSize: { ...BLOCK_GRID },
     walkable,
