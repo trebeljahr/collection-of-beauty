@@ -74,10 +74,32 @@ const CEILING_CLEARANCE = 1.0;
  *  back on the wall surface). */
 export const PAINTING_WALL_OFFSET = 0.02;
 /** Height of a plaque's centre over the floor it is read from. Every
- *  plaque hangs on this line, whatever the height of its work: a work
+ *  plaque but a small work's (`plaqueBesideFrame`) hangs on this line,
+ *  whatever the height of its work: a work
  *  too tall for the canonical centre is lifted, and a plaque beside its
  *  middle was out of reach (Las Meninas put its plaque at 2.1 m). */
 export const PLAQUE_EYE = 1.45;
+/** Height of a plaque with a short title, mount plate included.
+ *  painting.tsx draws it from this; a long title makes it taller. */
+export const PLAQUE_HEIGHT = 0.208;
+
+/** Where a plaque beside its frame hangs, in the work's own frame (y
+ *  up from the canvas centre). On the eye line (`PLAQUE_EYE`), unless
+ *  the frame stops short of that line's plaque: a small work's canvas
+ *  centre keeps the eye line of the hang, 1.65 m, and its frame ended
+ *  above the plaque's lower edge, so the plaque hung below it, aligned
+ *  with nothing. Rico, 17 October 2026: with small works the plaque
+ *  should start where the frame starts. Such a plaque's top is the
+ *  frame's top (`top`); every other plaque's centre is on the eye line
+ *  (`dy`). */
+export function plaqueBesideFrame(
+  floorY: number,
+  frameTop: number,
+  frameBottom: number,
+): { dy: number } | { top: number } {
+  const dy = floorY + PLAQUE_EYE;
+  return frameBottom > dy - PLAQUE_HEIGHT / 2 ? { top: frameTop } : { dy };
+}
 /** Air between a frame's outer edge and the plaque beside it. */
 export const PLAQUE_GAP = 0.05;
 /** Width of the plaque, mount plate included. painting.tsx draws it

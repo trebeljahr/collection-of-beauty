@@ -6,8 +6,11 @@ import {
   distributePaintings,
   PAINTING_FLOOR_GAP,
   PAINTING_WALL_OFFSET,
+  PLAQUE_EYE,
   PLAQUE_FOOTPRINT,
+  PLAQUE_HEIGHT,
   packRun,
+  plaqueBesideFrame,
   runLength,
   sideClearance,
   type WallRun,
@@ -545,5 +548,30 @@ describe("ceiling height and the hang", () => {
     );
     expect(standard[0].maxHeight).toBe(3.2);
     expect(tall[0].maxHeight).toBe(3.2);
+  });
+});
+
+describe("plaqueBesideFrame", () => {
+  // In the work's own frame: the canvas centre at 1.65 m over the floor.
+  const floorY = -1.65;
+
+  it("hangs a small work's plaque level with the top of its frame", () => {
+    // Levitan's Bridge, 30 × 26 cm in a narrow gilt frame.
+    const plaque = plaqueBesideFrame(floorY, 0.18, -0.18);
+    expect(plaque).toEqual({ top: 0.18 });
+  });
+
+  it("keeps the eye line once the frame reaches below that plaque", () => {
+    const eyeBottom = floorY + PLAQUE_EYE - PLAQUE_HEIGHT / 2;
+    expect(plaqueBesideFrame(floorY, 0.4, eyeBottom - 0.01)).toEqual({
+      dy: floorY + PLAQUE_EYE,
+    });
+    expect(plaqueBesideFrame(floorY, 0.3, eyeBottom + 0.01)).toEqual({ top: 0.3 });
+  });
+
+  it("keeps the eye line for a lifted work", () => {
+    // A 2.8 m canvas, lifted so its frame clears the floor by 0.4 m.
+    const lifted = -1.8;
+    expect(plaqueBesideFrame(lifted, 1.48, -1.48)).toEqual({ dy: lifted + PLAQUE_EYE });
   });
 });

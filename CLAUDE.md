@@ -1083,7 +1083,14 @@ required by the Dockerfile — don't remove it.
       eye level of another floor (`dy`), sideways (`dx`), or leaves it
       out (`null`, a work with no floor in front of it at its own
       height). A work over a stair hall's landing has its plaque at eye
-      level over the landing.
+      level over the landing. A small work's plaque is the exception
+      (`plaqueBesideFrame`): where its frame ends above the bottom of
+      the eye-level plaque, the plaque's top is level with the frame's
+      top, and the canvas keeps its 1.65 m centre. Rico, 17 October
+      2026, of Levitan's 30 cm Bridge, its plaque hanging half below
+      the frame: with small works the plaque should start where the
+      image starts. 360 of the 1,381 plaques beside a frame hang so,
+      centres 1.7 to 1.9 m.
     - **Every frame in a hall starts 0.4 m over its floor or landing**
       (`seatedCenter` in `giants.ts`), whatever its size. Rico, 17
       October 2026, of a pair hung on the centre line of a canvas twice

@@ -17,9 +17,10 @@ import {
 } from "@/lib/gallery-layout/frame-design";
 import {
   PAINTING_WALL_OFFSET,
-  PLAQUE_EYE,
   PLAQUE_GAP,
+  PLAQUE_HEIGHT,
   PLAQUE_WIDTH,
+  plaqueBesideFrame,
 } from "@/lib/gallery-layout/place-paintings";
 import { layoutPanels, type PanelPlacement } from "@/lib/gallery-layout/polyptych";
 import { baseVariantWidth } from "@/lib/gallery-layout/reveal-budget";
@@ -559,17 +560,21 @@ export const Painting = memo(function Painting({
         : null,
     [lit, dW, dH, frameReach, frameRise, wall, ceilingY],
   );
-  // The plaque hangs at eye level over the room's floor, whatever the
-  // height of the work (`wall.floorY` is in the work's own frame).
+  // The plaque hangs at eye level over the room's floor, or level with
+  // the top of a small work's frame (`wall.floorY` is in the work's own
+  // frame).
   const plaque = useMemo(
-    () =>
-      placement.plaque === null ? null : (placement.plaque ?? { dy: wall.floorY + PLAQUE_EYE }),
-    [placement.plaque, wall.floorY],
+    (): PlaqueOffset | null =>
+      placement.plaque === null
+        ? null
+        : (placement.plaque ??
+          plaqueBesideFrame(wall.floorY, dH / 2 + extents.top, -dH / 2 - extents.bottom)),
+    [placement.plaque, wall.floorY, dH, extents],
   );
   const plaqueRect = useMemo(
     () => ({
       x: plaque?.dx ?? dW / 2 + frameReach + PLAQUE_GAP + PLAQUE_MOUNT_W / 2,
-      y: plaque?.dy ?? 0,
+      y: !plaque ? 0 : "top" in plaque ? plaque.top - PLAQUE_HEIGHT / 2 : plaque.dy,
       halfW: PLAQUE_MOUNT_W / 2,
       halfH: (PLAQUE_FACE_H_BASE + PLAQUE_MOUNT_PAD) / 2,
       frontZ: -PAINTING_WALL_OFFSET + PLAQUE_WALL_CLEAR + PLAQUE_MOUNT_DEPTH + PLAQUE_FACE_DEPTH,
@@ -841,7 +846,8 @@ function fitToAspect(
 
 // ── Plaque ────────────────────────────────────────────────────────────
 // A small museum-style label to the right of each painting, its centre
-// at eye level (PLAQUE_EYE) over the floor. Two-layer construction: a brass mount plate fixed
+// at eye level (PLAQUE_EYE) over the floor, or its top level with a
+// small work's frame (plaqueBesideFrame). Two-layer construction: a brass mount plate fixed
 // flush to the wall, with a slightly inset cream face card on top
 // carrying title / artist / year / dimensions in three sized lines.
 
@@ -852,13 +858,13 @@ function fitToAspect(
 // "Tenman Bridge at Settsu Province (Sesshū Tenmanbashi), from the
 // series Remarkable Views of Bridges in Various Provinces (Shokoku
 // meikyō kiran)" — 144 chars overflows the standard plaque).
-const PLAQUE_FACE_H_BASE = 0.18;
 const PLAQUE_FACE_DEPTH = 0.004;
 // Brushed-steel mount sits a hair larger than the face, framing it
 // like a polished metal rim. Bigger reveal here makes the shimmer
 // from the mount more visible at typical viewing distances.
 const PLAQUE_MOUNT_REVEAL = 0.014;
 const PLAQUE_MOUNT_PAD = PLAQUE_MOUNT_REVEAL * 2;
+const PLAQUE_FACE_H_BASE = PLAQUE_HEIGHT - PLAQUE_MOUNT_PAD;
 const PLAQUE_MOUNT_W = PLAQUE_WIDTH;
 const PLAQUE_FACE_W = PLAQUE_MOUNT_W - PLAQUE_MOUNT_PAD;
 const PLAQUE_MOUNT_DEPTH = 0.008;
@@ -905,6 +911,8 @@ function readTroikaBlockHeight(mesh: unknown): number | null {
   return Math.abs(bb[3] - bb[1]);
 }
 
+type PlaqueOffset = ({ dy: number } | { top: number }) & { dx?: number };
+
 function Plaque({
   artwork,
   palette,
@@ -917,9 +925,9 @@ function Plaque({
   /** Local x of the frame's outer right edge: the plaque hangs
    *  PLAQUE_GAP beyond it. */
   frameEdgeX: number;
-  /** From the canvas centre to the plaque's centre: `dy` up, `dx` to
-   *  the right (unset: beside the frame). */
-  offset: { dy: number; dx?: number };
+  /** From the canvas centre to the plaque's centre (`dy`) or its top
+   *  edge (`top`), up, and `dx` to the right (unset: beside the frame). */
+  offset: PlaqueOffset;
 }) {
   // All three strings and the pre-render estimates derive from the
   // artwork alone, so they are memoised on it: `formatTitle` /
@@ -984,7 +992,8 @@ function Plaque({
   // in place-paintings.ts guarantees painting + plaque clear the wall
   // margin even at right-corner cells, so no flip is needed.
   const localX = offset.dx ?? frameEdgeX + PLAQUE_GAP + PLAQUE_MOUNT_W / 2;
-  const localY = offset.dy;
+  // A plaque hung by its top grows downward with a long title.
+  const localY = "top" in offset ? offset.top - PLAQUE_MOUNT_H / 2 : offset.dy;
   // Mount sits a few mm off the wall so it doesn't z-fight with it; face
   // is parked just in front of the mount; text floats a hair above the
   // face for the same reason.
