@@ -1,5 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { artworkListings } from "@/lib/data";
+import { trustworthyRealSize } from "@/lib/real-size";
 import { BLOCK_PLAN, BLOCK_WALL_COVERAGE, layoutBlock } from "./layout-block";
 import { computeRoomRuns, runLength, sideClearance, type WallRun } from "./place-paintings";
 import { eraOfRoom } from "./room-era";
@@ -105,5 +106,24 @@ describe("the block plan and the catalogue", () => {
       }
     }
     expect(widest, where).toBeLessThan(3.5);
+  });
+
+  it("hangs no work smaller than its real size", () => {
+    // Rico, 17 October 2026: "I want the paintings in their real
+    // sizes", in the galleries as in the halls. A work whose size is
+    // trusted hangs at that size or not at all.
+    const shrunk: string[] = [];
+    for (const floor of layout.floors) {
+      for (const room of floor.rooms) {
+        for (const p of room.placements) {
+          const size = trustworthyRealSize(p.artwork);
+          if (!size) continue;
+          const real = Math.max(size.widthCm, size.heightCm) / 100;
+          const hung = Math.max(p.widthM, p.heightM);
+          if (hung < real - 1e-6) shrunk.push(`${room.id} ${p.artwork.id}: ${hung} of ${real}`);
+        }
+      }
+    }
+    expect(shrunk).toEqual([]);
   });
 });

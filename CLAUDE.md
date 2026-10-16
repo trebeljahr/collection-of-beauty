@@ -986,6 +986,36 @@ required by the Dockerfile — don't remove it.
       long, which hung in their rooms at 3.2 m before, and the two East
       Asian handscrolls, 11.86 and 11.15 m, which hung on a stair
       hall's side wall until its door cut the wall to 10 m.
+    - Room left on 17 October 2026: all 16 places on the sheer walls
+      are taken. Of the storeys' stretches long enough for a giant
+      (9.4 m and more), 13 are free, 11 of them on the top floor, which
+      takes what a lower floor cannot hold. The spiral rooms hang 4
+      works on the third and fourth floors and nothing below.
+  - **The galleries hang at real size too.** Rico, 17 October 2026: the
+    3.2 m limit "should still not apply" in the rooms, "I want the
+    paintings in their real sizes". The block plan's hang passes
+    `HangOptions.realSize` (`place-paintings.ts`):
+    - A work with a trusted size (`trustworthyRealSize`) hangs at that
+      size and is never shrunk to a wall. A run takes it only when it is
+      long enough for the frame and plaque, and when the canvas is no
+      taller than the ceiling allows: 4.3 m under 5.7 m. One that no
+      wall of its era's rooms holds is left out of the era before the
+      sample (`fitsSomeRun` in `hangZone`): the Last Judgment, 13.7 m.
+    - A giant no hall and no spiral room took hangs first in its era's
+      rooms (`must`). None does today.
+    - A work whose size is not trusted keeps the 3.2 m cap: nobody
+      knows how large it is. Two hang so on the top floor, Kim
+      Hong-do's Gunseondo (5.76 m in the catalogue) and Chen Rong's
+      Nine Dragons (9.58 m). Both scans are another shape than the
+      museum's size (3.5:1 against 4.3:1, 27:1 against 21:1).
+    - Which works may hang is unchanged: the room's rule judges a work
+      at 3.2 m (`sharpEnoughToHang`). Two groups of large works hang
+      nowhere. The 45 named above fail the room's rule and pass the
+      giant's. 22 have under 400 texture pixels a metre at real size,
+      among them the Last Judgment, the Creation of Adam, Leonardo's
+      Last Supper, the Burial of the Count of Orgaz and two canvases of
+      Mucha's Slav Epic: they need a larger scan.
+    - The tower keeps the cap.
     - The tower has no such wall: its stairwell is one storey high
       between slabs. Giants hang there as before, at 3.2 m.
   - **Three walls of a stair hall are sheer** (`GrandStair.sheerWall`,
@@ -1096,7 +1126,9 @@ required by the Dockerfile — don't remove it.
     more steps.
   - `PAINTING_FLOOR_GAP` is 0.4 m, measured to the frame's bottom edge.
     A work's height cap is the ceiling less that gap and a metre for the
-    frame's top rail and the picture light, and never more than 3.2 m.
+    frame's top rail and the picture light, and in the tower never more
+    than 3.2 m. The block plan's galleries have no such cap (see "The
+    galleries hang at real size too").
   - A work hangs only if its texture has 1,000 pixels for each metre of
     its hung width (`sharpness.ts`): sharp for a visitor a metre away on
     a 2,560 px screen. The widest texture is the 4096 rung, or 6144

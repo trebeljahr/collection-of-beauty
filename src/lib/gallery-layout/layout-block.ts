@@ -112,8 +112,10 @@ import {
 import {
   computeRoomRuns,
   distributePaintings,
+  fitsSomeRun,
   runLength,
   type SizedWork,
+  sizeWork,
   wallFootprint,
 } from "./place-paintings";
 import { texturePxPerMetre } from "./sharpness";
@@ -152,6 +154,10 @@ export const BLOCK_DOOR_HEIGHT = 2.9;
  *  wallpaper. */
 export const BLOCK_WALL_COVERAGE = 0.45;
 export const BLOCK_PRINT_COVERAGE = 0.38;
+
+/** The galleries hang every work at its real size where that size is
+ *  trusted, with no 3.2 m cap (`HangOptions`). */
+const REAL_SIZE = { realSize: true } as const;
 
 /** Floor between a bench and the nearest freestanding wall. */
 const ISLAND_CLEARANCE = 2.2;
@@ -413,11 +419,19 @@ export function layoutBlock(allArtworks: ArtworkListing[]): MuseumLayout {
   }
 
   // The giants go to the halls first; each era then hangs what is left.
+  // A giant no hall took hangs in its era's rooms, at its real size,
+  // where a wall holds it.
   const inHalls = hangGiants(floors, byEra, grandStairs);
   const forRooms = new Map(
     [...byEra].map(([era, works]) => [era, works.filter((a) => !inHalls.has(a.id))]),
   );
-  for (const b of built) b.hang(forRooms);
+  const leftGiants = new Set(
+    [...forRooms.values()]
+      .flat()
+      .filter((a) => giantSize(a))
+      .map((a) => a.id),
+  );
+  for (const b of built) b.hang(forRooms, leftGiants);
 
   const ground = floors[0];
   const anchor = ground.rooms.find((r) => r.isAnchor) ?? ground.rooms[0];
@@ -518,7 +532,10 @@ export function blockArrivalPoint(
 function buildFloor(
   index: number,
   plan: (typeof BLOCK_PLAN)[number],
-): { floor: FloorLayout; hang: (byEra: Map<EraId, ArtworkListing[]>) => void } {
+): {
+  floor: FloorLayout;
+  hang: (byEra: Map<EraId, ArtworkListing[]>, must: ReadonlySet<string>) => void;
+} {
   // The floor as a whole answers to its first era: the id a saved visit
   // is filed under.
   const floorEra = getEra(plan.zones[0].era);
@@ -689,7 +706,7 @@ function buildFloor(
     grandHalls: [],
   };
 
-  const hang = (byEra: Map<EraId, ArtworkListing[]>) => {
+  const hang = (byEra: Map<EraId, ArtworkListing[]>, must: ReadonlySet<string>) => {
     for (const zone of plan.zones) {
       hangZone(
         floor,
@@ -697,6 +714,7 @@ function buildFloor(
         getEra(zone.era),
         byEra.get(zone.era) ?? [],
         zone.coverage ?? BLOCK_WALL_COVERAGE,
+        must,
       );
     }
 
@@ -720,15 +738,24 @@ function hangZone(
   floor: FloorLayout,
   zoneRooms: RoomLayout[],
   era: Era,
-  candidates: ArtworkListing[],
+  allCandidates: ArtworkListing[],
   coverage: number,
+  /** Works that hang whenever a wall of the era's rooms holds them,
+   *  whatever the sample: the giants no hall took. */
+  must: ReadonlySet<string>,
 ) {
+  // A work hangs at its real size or not at all. One that no wall of
+  // the era's rooms holds, and no hall took, is left out here, before
+  // it takes a share of the wall.
+  const runs = zoneRooms.flatMap((room) => computeRoomRuns(room, REAL_SIZE));
+  const candidates = allCandidates.filter((a) => fitsSomeRun(sizeWork(a, REAL_SIZE), runs));
   const wallOf = (room: RoomLayout) =>
     computeRoomRuns(room).reduce((sum, run) => sum + runLength(run), 0);
   const walls = zoneRooms.map(wallOf);
   const budget = walls.reduce((a, b) => a + b, 0) * coverage;
 
-  const metres = (works: ArtworkListing[]) => works.reduce((sum, a) => sum + wallFootprint(a), 0);
+  const metres = (works: ArtworkListing[]) =>
+    works.reduce((sum, a) => sum + wallFootprint(a, REAL_SIZE), 0);
   const sample = (count: number) =>
     selectFloorWorks(candidates, count, (a) => texturePxPerMetre(a) ?? 0);
   // The sample is by count and the wall is in metres. An artist's
@@ -743,11 +770,14 @@ function hangZone(
     count = Math.min(candidates.length, Math.ceil(count * 1.1) + 1);
     chosen = sample(count);
   }
-  // Then trim to the wall it has to fit.
-  chosen = shuffleByIdHash(chosen);
+  // Then trim to the wall it has to fit, the works that must hang first.
+  chosen = [
+    ...candidates.filter((a) => must.has(a.id)),
+    ...shuffleByIdHash(chosen).filter((a) => !must.has(a.id)),
+  ];
   let used = 0;
   chosen = chosen.filter((a) => {
-    const need = wallFootprint(a);
+    const need = wallFootprint(a, REAL_SIZE);
     if (used + need > budget) return false;
     used += need;
     return true;
@@ -764,6 +794,7 @@ function hangZone(
   // Spill stays inside the era: the placer sees only its rooms.
   const stats = distributePaintings({ ...floor, rooms: zoneRooms }, undefined, {
     anchorToBenches: true,
+    ...REAL_SIZE,
   });
   if (stats.dropped > 0 && process.env.NODE_ENV !== "production") {
     console.warn(`[gallery-layout] ${era.title}: ${stats.dropped} works did not fit their rooms`);

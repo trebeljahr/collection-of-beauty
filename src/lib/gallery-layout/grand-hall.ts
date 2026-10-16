@@ -331,7 +331,7 @@ export function hangGrandHall(
   const leftWall = planWall(runs, left);
   const rightWall = planWall(runs, right);
 
-  const queue: SizedWork[] = pool.map(sizeWork);
+  const queue: SizedWork[] = pool.map((artwork) => sizeWork(artwork));
   // The hall frames for its wall colour and keeps to one family of
   // finishes, like any room. It is chosen from the whole pool, before
   // a pair is, because a pair's frame decides the wall the pair claims.

@@ -21,6 +21,7 @@
 // small ones, and a full empty cell wherever supply ran short.)
 
 import type { ArtworkListing } from "@/lib/data";
+import { trustworthyRealSize } from "@/lib/real-size";
 import {
   type FrameDesign,
   frameExtents,
@@ -46,8 +47,11 @@ const CANONICAL_Y_CENTER_OFFSET = 1.65;
  *  have, so we cheat them up to a readable small-print size instead of
  *  excluding them. */
 const MIN_DISPLAY_LONG_EDGE = 0.45;
-/** Max painting dimensions in metres, independent of real-world size.
- *  Acts as an upper bound; a short run further constrains this so a
+/** Max painting dimensions in metres, independent of real-world size,
+ *  in the tower. The block plan hangs a work at its real size where its
+ *  size is trusted (`HangOptions.realSize`) and keeps this cap for the
+ *  rest.
+ *  It acts as an upper bound; a short run further constrains this so a
  *  painting never overruns the plaster it was assigned. Sized to feel
  *  monumental against the 2.4 m door while still leaving a metre of
  *  head clearance to the 4.2 m ceiling. Width used to be capped at
@@ -59,8 +63,9 @@ const MAX_PAINTING_H_ROOM = 3.2;
 /** Wall left bare between the tallest canvas a room hangs and its
  *  ceiling, on top of the gap under it. The frame's top rail and the
  *  picture light share it. A 4.0 m cabinet hangs nothing taller than
- *  2.6 m; the standard 4.8 m room reaches the 3.2 m cap above. Taller
- *  rooms keep the cap: the hang does not grow with the ceiling. */
+ *  2.6 m; the standard 4.8 m room reaches the 3.2 m cap above. In the
+ *  tower taller rooms keep the cap. At real size (`HangOptions`) the
+ *  ceiling is the only limit: 4.3 m of canvas under 5.7 m. */
 const CEILING_CLEARANCE = 1.0;
 /** Inset from the wall surface so paintings don't z-fight. Sized to
  *  put the back of the painting frame box flush against the wall —
@@ -164,13 +169,11 @@ function wallKey(run: WallRun): string {
  * from the corners by WALL_MARGIN and split at every door opening and
  * at every wing wall built off them, then both faces of each divider.
  */
-export function computeRoomRuns(room: RoomLayout): WallRun[] {
+export function computeRoomRuns(room: RoomLayout, options: HangOptions = {}): WallRun[] {
   const { cellBounds, worldRect } = room;
   const centerY = worldRect.y + CANONICAL_Y_CENTER_OFFSET;
-  const maxHeight = Math.min(
-    MAX_PAINTING_H_ROOM,
-    room.ceilingHeight - PAINTING_FLOOR_GAP - CEILING_CLEARANCE,
-  );
+  const underCeiling = room.ceilingHeight - PAINTING_FLOOR_GAP - CEILING_CLEARANCE;
+  const maxHeight = options.realSize ? underCeiling : Math.min(MAX_PAINTING_H_ROOM, underCeiling);
 
   const walls: Array<{
     side: Door["side"];
@@ -333,6 +336,17 @@ export type DistributionStats = {
  *  run it lands in. */
 export type SizedWork = { artwork: ArtworkListing; wM: number; hM: number };
 
+/** How a hang sizes its works.
+ *
+ *  `realSize`: a work whose size is trusted (`trustworthyRealSize`)
+ *  hangs at that size, however large, and only on a wall that holds it
+ *  so: a run long enough and a ceiling high enough. It is never shrunk
+ *  to fit. A work whose size is not trusted keeps the 3.2 m cap, since
+ *  nobody knows how large it is. Rico, 17 October 2026: in the rooms
+ *  too, "I want the paintings in their real sizes". The block plan
+ *  hangs this way; the tower keeps the cap. */
+export type HangOptions = { realSize?: boolean };
+
 /** How far the work's frame reaches past each canvas edge, metres.
  *  The frame is chosen per work and scaled to its size (see
  *  frame-design.ts), so a carved gilt frame on a 3 m canvas claims
@@ -367,6 +381,13 @@ export function footprintOf(work: SizedWork): number {
   return left + work.wM + right;
 }
 
+/** True when one of `runs` can hang the work at the size it has: long
+ *  enough for its frame and plaque, high enough for its canvas. */
+export function fitsSomeRun(work: SizedWork, runs: readonly WallRun[]): boolean {
+  const need = footprintOf(work);
+  return runs.some((run) => runLength(run) >= need && work.hM <= run.maxHeight + 1e-9);
+}
+
 /** One room's runs plus the works assigned to each, tracked with a
  *  running footprint total so "does this still fit?" is O(1). */
 type Container = {
@@ -382,7 +403,19 @@ type Container = {
   fixed: Array<{ run: WallRun; work: SizedWork; u: number }>;
   fixedMetres: number;
   fixedIds: Set<string>;
+  realSize: boolean;
 };
+
+/** False when the run cannot hang the work at the size it has: at real
+ *  size a work is never shrunk to a wall. In the tower `packRun` scales
+ *  a work to its run, and every run takes every work. */
+function holds(container: Container, run: WallRun, work: SizedWork): boolean {
+  return !container.realSize || work.hM <= run.maxHeight + 1e-9;
+}
+
+/** Widest canvas a container's walls hang. */
+const widest = (container: Container) =>
+  container.realSize ? Number.POSITIVE_INFINITY : MAX_PAINTING_W;
 
 /** How far from a bench a wall still counts as the wall it looks at. */
 const ANCHOR_REACH = 9.5;
@@ -443,7 +476,7 @@ function hangForBenches(container: Container) {
   const anchors = benchAnchors(container.room, container.runs);
   if (anchors.length === 0) return;
   const works = container.room.artworks
-    .map(sizeWork)
+    .map((artwork) => sizeWork(artwork, container))
     .sort((a, b) => b.wM * b.hM - a.wM * a.hM || a.artwork.id.localeCompare(b.artwork.id));
 
   // Runs are cut as works are fixed, so an anchor is kept as a world
@@ -459,8 +492,9 @@ function hangForBenches(container: Container) {
     if (index < 0) continue;
     const run = container.runs[index];
     for (const work of works) {
-      if (container.fixedIds.has(work.artwork.id)) continue;
-      const fitted = fitTo(work, Math.min(MAX_PAINTING_W, runLength(run)), run.maxHeight);
+      if (container.fixedIds.has(work.artwork.id) || !holds(container, run, work)) continue;
+      const fitted = fitTo(work, Math.min(widest(container), runLength(run)), run.maxHeight);
+      if (container.realSize && fitted.wM < work.wM - 1e-9) continue;
       const sized = { artwork: work.artwork, ...fitted };
       const { left, right } = sideClearance(sized);
       const lo = place.u - fitted.wM / 2 - left;
@@ -502,8 +536,8 @@ function hangFeatures(container: Container) {
     let best: SizedWork | null = null;
     for (const artwork of container.room.artworks) {
       if (container.fixedIds.has(artwork.id)) continue;
-      const work = sizeWork(artwork);
-      if (footprintOf(work) > length) continue;
+      const work = sizeWork(artwork, container);
+      if (footprintOf(work) > length || !holds(container, run, work)) continue;
       if (!best || work.wM * work.hM > best.wM * best.hM) best = work;
     }
     if (!best || footprintOf(best) < length * FEATURE_MIN_SHARE) continue;
@@ -541,7 +575,7 @@ function tryAssign(container: Container, work: SizedWork): boolean {
   let bestDensity = 0;
   for (let i = 0; i < container.runs.length; i++) {
     const s = slack(container, i);
-    if (s < need) continue;
+    if (s < need || !holds(container, container.runs[i], work)) continue;
     const density = s / runLength(container.runs[i]);
     if (density > bestDensity) {
       bestIdx = i;
@@ -596,7 +630,7 @@ function evenOutRoom(container: Container): void {
     let widest = -1;
     let widestGap = 0;
     for (let i = 0; i < container.runs.length; i++) {
-      if (slack(container, i) < need) continue;
+      if (slack(container, i) < need || !holds(container, container.runs[i], work)) continue;
       const gap = hangGap(container, i);
       if (gap > widestGap) {
         widest = i;
@@ -640,14 +674,15 @@ export function distributePaintings(
   /** `anchorToBenches`: hang a room's largest works centred in front of
    *  its benches first (`hangForBenches`). The benches have to be
    *  planned before the hang. */
-  options: { anchorToBenches?: boolean } = {},
+  options: { anchorToBenches?: boolean } & HangOptions = {},
 ): DistributionStats {
+  const realSize = options.realSize ?? false;
   // Stairwell rooms are excluded — their walls hold the spiral steps
   // and signs, not paintings.
   const containers: Container[] = floor.rooms
     .filter((r) => !r.isStairwell && !skipRoomIds.has(r.id))
     .map((room) => {
-      const runs = computeRoomRuns(room);
+      const runs = computeRoomRuns(room, { realSize });
       return {
         room,
         runs,
@@ -656,6 +691,7 @@ export function distributePaintings(
         fixed: [],
         fixedMetres: 0,
         fixedIds: new Set<string>(),
+        realSize,
       };
     });
 
@@ -667,7 +703,7 @@ export function distributePaintings(
   for (const container of containers) {
     for (const artwork of container.room.artworks) {
       if (container.fixedIds.has(artwork.id)) continue;
-      const work = sizeWork(artwork);
+      const work = sizeWork(artwork, { realSize });
       if (!tryAssign(container, work)) pool.push(work);
     }
   }
@@ -684,7 +720,7 @@ export function distributePaintings(
     for (const container of containers) {
       for (let i = 0; i < container.runs.length; i++) {
         const s = slack(container, i);
-        if (s < need) continue;
+        if (s < need || !holds(container, container.runs[i], work)) continue;
         const density = s / runLength(container.runs[i]);
         if (density > bestDensity) {
           best = container;
@@ -746,7 +782,7 @@ export function distributePaintings(
       hungMetres += container.used[i];
       placed += works.length;
       const frames = works.map((work) => frameOf(run, work.artwork));
-      room.placements.push(...packRun(run, works, MAX_PAINTING_W, frames));
+      room.placements.push(...packRun(run, works, widest(container), frames));
     }
   }
 
@@ -895,7 +931,7 @@ function fitTo(work: SizedWork, maxWidth: number, maxHeight: number): { wM: numb
  *  The pixel aspect is what the user actually sees, so use it for shape
  *  and only fall back when missing. realDimensions still controls the
  *  long-edge scale so a small miniature stays smaller than an altarpiece. */
-export function sizeWork(artwork: ArtworkListing): SizedWork {
+export function sizeWork(artwork: ArtworkListing, options: HangOptions = {}): SizedWork {
   const dims = artwork.realDimensions;
   let wM: number;
   let hM: number;
@@ -939,6 +975,8 @@ export function sizeWork(artwork: ArtworkListing): SizedWork {
     hM *= s;
   }
 
+  if (options.realSize && trustworthyRealSize(artwork)) return { artwork, wM, hM };
+
   // Cap once here so the distributor's footprint arithmetic matches
   // what packRun will actually hang.
   const capped = fitTo({ artwork, wM, hM }, MAX_PAINTING_W, MAX_PAINTING_H_ROOM);
@@ -953,8 +991,8 @@ export function sizeWork(artwork: ArtworkListing): SizedWork {
  * plates needs roughly half the plaster of a floor of Romantic
  * canvases for the same work count).
  */
-export function wallFootprint(artwork: ArtworkListing): number {
-  return footprintOf(sizeWork(artwork));
+export function wallFootprint(artwork: ArtworkListing, options: HangOptions = {}): number {
+  return footprintOf(sizeWork(artwork, options));
 }
 
 /**

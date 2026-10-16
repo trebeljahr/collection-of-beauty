@@ -44,7 +44,8 @@
 // other now, and a work hangs where the piers frame it.
 //
 // Every work here hangs at the size its plaque states. One that fits
-// neither place stays in its era's rooms, at the room's limit.
+// neither place hangs in its era's rooms, at its real size, where a wall
+// holds it (`HangOptions.realSize` in place-paintings.ts).
 
 import type { ArtworkListing } from "@/lib/data";
 import { assignEra } from "@/lib/gallery-eras";
