@@ -404,6 +404,26 @@ required by the Dockerfile — don't remove it.
   tile pyramids existed on disk (2 from the first trial, 155 from the
   refetches). The lightbox falls back to the plain image for the other
   962.
+- Another Commons file of the same painting keeps the work's filename
+  and id. On 17 October 2026 Rico took 10 larger files for giants from
+  proofs (vault note `collection-of-beauty-giant-larger-scans.md`). For
+  7 the sidecar entry was relinked to the other page first (`source`
+  and `copyright` from a scratch-root fetch, as above), then the
+  refetch ran with `--accept-renamed` and `--accept-changed`; the log
+  entry names the old page as `otherCommonsFile`. The War file is a
+  PNG saved under its old `.jpg` name; sharp reads it by content.
+- A colour edit Rico asks for goes in `scan-crops.json` as `tone`
+  (a 3 × 3 matrix, gains, offsets, saturation, sharpen), applied by
+  shrink and tiles like a cut. The original stays the published file.
+  The four tones of 17 October were fitted by least squares against the
+  replaced scan in `assets/.rejected/replaced-smaller/`, held near a
+  per-channel fit: an unconstrained matrix overfits.
+- One original is not from Commons: the hermit wing of Rubens's
+  Descent from the Cross, KIK-IRPA photograph KN002637, CC BY 4.0,
+  credited as KIK-IRPA asks. Their IIIF server serves whole images at
+  1,344 px at most, so it was stitched from full-resolution tiles. Their
+  scan is mirrored; the file on disk is flipped. Its log entry in
+  `refetched-originals.json` says how.
 - A work's probe in `metadata/.cache/image-probe.json` is keyed on the
   mtime of its variant folder, and `assets:tiles` adds a `tiles/`
   folder there. So the first build-data after a tile run probes those

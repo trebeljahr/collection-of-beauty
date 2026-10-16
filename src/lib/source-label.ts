@@ -12,6 +12,7 @@ const KNOWN_HOSTS: Record<string, string> = {
   "www.loc.gov": "Library of Congress",
   "www.rijksmuseum.nl": "Rijksmuseum",
   "www.metmuseum.org": "The Met",
+  "balat.kikirpa.be": "KIK-IRPA",
 };
 
 const GENERIC_FALLBACK = "Original source";

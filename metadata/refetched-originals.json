@@ -6027,5 +6027,214 @@
     },
     "acceptedChange": true,
     "otherCommonsFile": "File:\"The School of Athens\" by Raffaello Sanzio da Urbino.jpg"
+  },
+  "collection-of-beauty/The_Creation_of_Adam.jpg": {
+    "id": "collection-of-beauty-the-creation-of-adam",
+    "fetchedAt": "2026-10-16T23:18:56.819Z",
+    "commonsTitle": "File:The Creation of Adam perspective fix.jpg",
+    "licence": "Public domain",
+    "revision": "2019-06-02T12:08:25Z",
+    "sha1": "2bdf12e3a191485af9f25f20d990f2f5204fc04d",
+    "bytes": 3967861,
+    "width": 3572,
+    "height": 1663,
+    "previous": {
+      "width": 1614,
+      "height": 741,
+      "bytes": 358425,
+      "sha1": "f3ee395e0d099fbfdf5754622d6c931fd84df7b6"
+    },
+    "acceptedChange": true,
+    "renamedByHand": true,
+    "otherCommonsFile": "File:The Creation of Adam.jpg"
+  },
+  "collection-of-beauty/Transfiguration_Raphael.jpg": {
+    "id": "collection-of-beauty-transfiguration-raphael",
+    "fetchedAt": "2026-10-16T23:18:58.806Z",
+    "commonsTitle": "File:Raffael 096.jpg",
+    "licence": "Public domain",
+    "revision": "2008-03-02T17:12:11Z",
+    "sha1": "0600ca3dc9d6727562758eab5de202e82df8f750",
+    "bytes": 832804,
+    "width": 2024,
+    "height": 3037,
+    "previous": {
+      "width": 1067,
+      "height": 1608,
+      "bytes": 277957,
+      "sha1": "bcab818d85610f8e0d3cdddb762bcd9e64e6b460"
+    },
+    "acceptedChange": true,
+    "renamedByHand": true,
+    "otherCommonsFile": "File:Transfiguration Raphael.jpg"
+  },
+  "collection-of-beauty/El_Greco_-_The_Burial_of_the_Count_of_Orgaz.JPG": {
+    "id": "collection-of-beauty-el-greco-the-burial-of-the-count-of-orgaz",
+    "fetchedAt": "2026-10-16T23:19:20.539Z",
+    "commonsTitle": "File:El entierro del señor de Orgaz - El Greco.jpg",
+    "licence": "Public domain",
+    "revision": "2015-03-05T19:29:23Z",
+    "sha1": "c8f35c736962c4e8f8e26eb73cab2bc569a32511",
+    "bytes": 15361423,
+    "width": 6817,
+    "height": 9089,
+    "previous": {
+      "width": 1316,
+      "height": 1612,
+      "bytes": 1380374,
+      "sha1": "b67c11fda055cc3dbd657afb74fba6878a9ef34d"
+    },
+    "acceptedChange": true,
+    "renamedByHand": true,
+    "otherCommonsFile": "File:El Greco - The Burial of the Count of Orgaz.JPG"
+  },
+  "collection-of-beauty/Los_horrores_de_la_guerra.jpg": {
+    "id": "collection-of-beauty-los-horrores-de-la-guerra",
+    "fetchedAt": "2026-10-16T23:19:46.537Z",
+    "commonsTitle": "File:Peter Paul Rubens – Consequences of War (1638).png",
+    "licence": "Public domain",
+    "revision": "2020-08-19T04:52:40Z",
+    "sha1": "0615c8f377342cb0c498412e89819a9db0a0401c",
+    "bytes": 18929721,
+    "width": 4590,
+    "height": 2764,
+    "previous": {
+      "width": 1350,
+      "height": 809,
+      "bytes": 150829,
+      "sha1": "7956e1a414459c5cb213121bfc1ef6c288209e33"
+    },
+    "acceptedChange": true,
+    "renamedByHand": true,
+    "otherCommonsFile": "File:Los horrores de la guerra.jpg"
+  },
+  "collection-of-beauty/Eugène_Delacroix_-_The_Death_of_Sardanapalus_-_WGA6173.jpg": {
+    "id": "collection-of-beauty-eugene-delacroix-the-death-of-sardanapalus-wga6173",
+    "fetchedAt": "2026-10-16T23:20:21.350Z",
+    "commonsTitle": "File:La Mort de Sardanapale - Eugène Delacroix - Musée du Louvre Peintures RF 2346.jpg",
+    "licence": "Public domain",
+    "revision": "2025-04-19T08:11:15Z",
+    "sha1": "645546be700d3aa89e699ac0c3a2f4ff7d03d007",
+    "bytes": 24594593,
+    "width": 9842,
+    "height": 7703,
+    "previous": {
+      "width": 1345,
+      "height": 1050,
+      "bytes": 176702,
+      "sha1": "b97c489b21ac2abca1d39f1b1dbfa0a9566b6c23"
+    },
+    "acceptedChange": true,
+    "renamedByHand": true,
+    "otherCommonsFile": "File:Eugène Delacroix - The Death of Sardanapalus - WGA6173.jpg"
+  },
+  "collection-of-beauty/Courbet_-_L'Hallali_du_cerf.jpg": {
+    "id": "collection-of-beauty-courbet-l-hallali-du-cerf",
+    "fetchedAt": "2026-10-16T23:20:24.636Z",
+    "commonsTitle": "File:L' Hallali du cerf, 1867, D.882.2.1.jpg",
+    "licence": "Public domain",
+    "revision": "2022-01-06T03:09:13Z",
+    "sha1": "0515ac3d60671f3172a554ab9cf063e76900ba38",
+    "bytes": 1869528,
+    "width": 4774,
+    "height": 3400,
+    "previous": {
+      "width": 1129,
+      "height": 804,
+      "bytes": 788788,
+      "sha1": "2b2481405dd5b6b98a46d0e0756c3201962acfcd"
+    },
+    "acceptedChange": true,
+    "renamedByHand": true,
+    "otherCommonsFile": "File:Courbet - L'Hallali du cerf.jpg"
+  },
+  "collection-of-beauty/Surikov_Pokoreniye_Sibiri_Yermakom.jpg": {
+    "id": "collection-of-beauty-surikov-pokoreniye-sibiri-yermakom",
+    "fetchedAt": "2026-10-16T23:21:29.154Z",
+    "commonsTitle": "File:Vasily Surikov - Yermak's Conquest of Siberia - Google Art Project.jpg",
+    "licence": "Public domain",
+    "revision": "2012-10-02T01:15:50Z",
+    "sha1": "303f654511f1bb44f604a018c7915b433e6648cd",
+    "bytes": 46633511,
+    "width": 21167,
+    "height": 9856,
+    "previous": {
+      "width": 2305,
+      "height": 1100,
+      "bytes": 440912,
+      "sha1": "d70484998145379f3dfb6917811c5fd85a1e705d"
+    },
+    "acceptedChange": true,
+    "renamedByHand": true,
+    "otherCommonsFile": "File:Surikov Pokoreniye Sibiri Yermakom.jpg"
+  },
+  "collection-of-beauty/Alfons Much Slavnost_svatovitova_na_rujane.jpg": {
+    "id": "collection-of-beauty-alfons-much-slavnost-svatovitova-na-rujane",
+    "fetchedAt": "2026-10-16T23:21:32.315Z",
+    "commonsTitle": "File:Slavnost svatovitova na rujane.jpg",
+    "licence": "Public domain",
+    "revision": "2026-06-28T13:54:51Z",
+    "sha1": "829ba30c1307f90d159df6ca348c812bf1b3b165",
+    "bytes": 1736827,
+    "width": 3539,
+    "height": 2681,
+    "previous": {
+      "width": 1500,
+      "height": 1056,
+      "bytes": 963868,
+      "sha1": "2ca262cd730f11ca91b19cdcd61863864d10ab73"
+    },
+    "acceptedChange": true,
+    "renamedByHand": true
+  },
+  "collection-of-beauty/Slovane_v_pravlasti_81x61m.jpg": {
+    "id": "collection-of-beauty-slovane-v-pravlasti-81x61m",
+    "fetchedAt": "2026-10-16T23:21:39.394Z",
+    "commonsTitle": "File:Slovane v pravlasti 81x61m.jpg",
+    "licence": "Public domain",
+    "revision": "2026-06-28T13:28:29Z",
+    "sha1": "400045021335d56a714a6c31c5826249e2e01ec0",
+    "bytes": 4592333,
+    "width": 3454,
+    "height": 2530,
+    "previous": {
+      "width": 1500,
+      "height": 1079,
+      "bytes": 1271013,
+      "sha1": "a8a3c8345e3ac2944f6e3980eecef2398c2e1e34"
+    },
+    "acceptedChange": true
+  },
+  "collection-of-beauty/Peter_Paul_Rubens_-_Descent_from_the_Cross_(outside_right)_-_WGA20217.jpg": {
+    "id": "collection-of-beauty-peter-paul-rubens-descent-from-the-cross-outside-right-wga20217",
+    "fetchedAt": "2026-10-16T23:29:30.398Z",
+    "source": "KIK-IRPA",
+    "sourcePage": "https://balat.kikirpa.be/en/photo/KN002637/",
+    "iiif": "https://iiif.kikirpa.be/iiif/2/KN002637",
+    "region": {
+      "x": 0,
+      "y": 0,
+      "width": 3072,
+      "height": 7168,
+      "of": {
+        "width": 5767,
+        "height": 7180
+      }
+    },
+    "mirrored": true,
+    "licence": "CC BY 4.0",
+    "credit": "KIK-IRPA, Brussels (Belgium), cliché KN002637",
+    "sha1": "28d3f41e92de2bd1b1027e7510a8ad5a346b4605",
+    "bytes": 6135837,
+    "width": 3072,
+    "height": 7168,
+    "previous": {
+      "width": 605,
+      "height": 1596,
+      "bytes": 138626,
+      "sha1": "e9c154d0c7b4ab92196dae6def120788616c770c"
+    },
+    "acceptedChange": true,
+    "_why": "Not on Commons. Rico took KIK-IRPA's photograph on 17 October 2026 (Larger Scan Proofs). The IIIF server caps a whole-image request at 1,344 px, so the left 3,072 x 7,168 px of the 5,767 x 7,180 colour negative scan were stitched from its 512 px full-resolution tiles and saved as JPEG q95. The scan is mirrored (the hermit and his lantern face the other way from every other photograph of the wing, and the two wings are swapped), so it was flipped left to right. The frame is cut off in scan-crops.json."
   }
 }
