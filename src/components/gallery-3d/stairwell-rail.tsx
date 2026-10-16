@@ -8,7 +8,6 @@ import { UNREFLECTED_LAYER } from "./floor-mirror";
 import { HIGHLIGHT_ENV_MATERIALS } from "./palette-materials";
 import {
   BALUSTER_HEIGHT,
-  BALUSTER_SIZE,
   CUTOUT_RAIL_RADIUS,
   GATE_POST_HEIGHT,
   GATE_POST_RADIAL_DEPTH,
@@ -18,7 +17,7 @@ import {
   RAIL_HEIGHT,
 } from "./rail-constants";
 import { floorShafts, type StairShaft } from "./spiral-physics";
-import { finialGeometry, mergeBoxes, StairSign, spiralGateHalfArc } from "./staircase";
+import { BAR_RADIUS, finialGeometry, mergeBars, StairSign, spiralGateHalfArc } from "./staircase";
 
 // Materials are still local — the cutout-edge rail and the spiral rails
 // share the same colour vocabulary, but allocating duplicate
@@ -239,18 +238,13 @@ function ShaftAccents({ floor, shaft }: { floor: FloorLayout; shaft: StairShaft 
     const railGeom = hasCutout
       ? buildCutoutRailGeometry(railR, floor.y, reference.entryAngle, upGap, downGap)
       : null;
-    // One geometry for the whole ring. Each box is turned so its faces
-    // lie in radial / tangential planes — see the matching note in
-    // staircase.tsx's spiral balusters.
-    const balusterGeom = mergeBoxes(
+    // One geometry for the whole ring: round iron bars, as on the
+    // spiral (`mergeBars`).
+    const balusterGeom = mergeBars(
       (hasCutout
         ? buildCutoutBalusters(railR, floor.y, reference.entryAngle, upGap, downGap)
         : []
-      ).map((b) => ({
-        size: [BALUSTER_SIZE, BALUSTER_HEIGHT, BALUSTER_SIZE],
-        position: b.pos,
-        rotationY: -b.angle,
-      })),
+      ).map((b) => ({ position: b.pos, height: BALUSTER_HEIGHT })),
     );
 
     // L-shaped connector from the topmost spiral inner rail's free end
@@ -493,7 +487,7 @@ function ShaftAccents({ floor, shaft }: { floor: FloorLayout; shaft: StairShaft 
               layers={UNREFLECTED_LAYER}
               castShadow
             >
-              <boxGeometry args={[BALUSTER_SIZE, BALUSTER_HEIGHT, BALUSTER_SIZE]} />
+              <cylinderGeometry args={[BAR_RADIUS, BAR_RADIUS, BALUSTER_HEIGHT, 8]} />
               <primitive object={balusterMaterial} attach="material" />
             </mesh>
           ))}

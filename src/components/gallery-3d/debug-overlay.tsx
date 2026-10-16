@@ -32,6 +32,7 @@ import {
 } from "./painting-registry";
 import { forceRoomCulling, roomCullingDebug } from "./room-culling";
 import { roomRevealClaims, roomRevealDebug } from "./room-geometry";
+import { stairMapStats } from "./stair-maps";
 import { _textureCacheDebug, estimateTextureBytes } from "./texture-cache";
 
 const DEBUG_AVAILABLE = process.env.NODE_ENV !== "production";
@@ -325,6 +326,7 @@ function formatStats(): string {
       : `rooms all ${roomCullingDebug.ofRooms} drawn (culling off) · works ${roomCullingDebug.ofWorks}`,
     `mem  ${stats.geometries} geom · ${stats.textures} tex · ${stats.programs} programs`,
     `frame maps ${frameMapStats().count} tex · ${mib(frameMapStats().bytes)} (with mips)`,
+    `stair maps ${stairMapStats().count} tex · ${mib(stairMapStats().bytes)} (with mips)`,
     `canvas ${stats.backingW}×${stats.backingH} @${stats.dpr.toFixed(2)}x · maxTex ${stats.maxTextureSize}`,
     stats.gpu ? `gpu  ${stats.gpu}` : null,
     heap != null ? `heap ${mib(heap)}` : null,

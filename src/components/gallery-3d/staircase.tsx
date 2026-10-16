@@ -7,6 +7,7 @@ import { mergeGeometries } from "three/examples/jsm/utils/BufferGeometryUtils.js
 import type { Staircase } from "@/lib/gallery-layout/types";
 import { SPIRAL_COLUMN_RADIUS } from "@/lib/gallery-layout/world-coords";
 import { UNREFLECTED_LAYER } from "./floor-mirror";
+import { getFrameMaps } from "./frame-maps";
 import { LIGHT_TINT } from "./painting-light";
 import { HIGHLIGHT_ENV_MATERIALS, signBaseMaterial } from "./palette-materials";
 import {
@@ -22,6 +23,7 @@ import {
   spiralGateHalfArc,
   topLandingDepth,
 } from "./spiral-physics";
+import { getStairMaps } from "./stair-maps";
 
 // The pure physics rules live in `spiral-physics.ts` so they can be
 // imported without Three.js; re-exported here because every existing
@@ -40,13 +42,30 @@ export {
 
 // Shared materials — one "stair vocabulary" for every spiral in the
 // building. Allocated once at module load.
+//
+// Rico, 17 October 2026: the spiral, like the grand stairs, read as a
+// toy in flat colour. The treads are walnut with its grain along each
+// tread (the frames' walnut map, frame-maps.ts), each tread cut from
+// another part of the board, and the column a grey veined marble.
+const frameMaps = getFrameMaps();
+const stairMaps = getStairMaps();
 const treadMaterial = new THREE.MeshStandardMaterial({
-  color: "#3a2a1f",
-  roughness: 0.7,
-  metalness: 0.1,
+  color: "#f4ece4",
+  map: frameMaps.walnutColor,
+  normalMap: frameMaps.walnutNormal,
+  normalScale: new THREE.Vector2(0.5, 0.5),
+  roughness: 0.55,
+  metalness: 0,
   // The step lights are baked into the treads' vertex colours.
   vertexColors: true,
 });
+/** The walnut's mean colour: what the step lights are reckoned against. */
+const TREAD_WOOD = new THREE.Color("#3a2a1f");
+/** How far the soffit stays under a tread's top at its back edge: half a
+ *  rise. Each tread a block with a flat bottom made the underside of
+ *  the flight above a staircase upside down; now it is one helicoid, and
+ *  the column's brackets still meet it under each tread's middle. */
+const SOFFIT_WAIST_RISES = 0.5;
 
 // ── Step lights ───────────────────────────────────────────────────────
 // A strip under the nosing of every tread, washing the riser below it
@@ -86,7 +105,7 @@ function wash(k: number): Rgb {
 
 /** Vertex colour that turns the tread's wood into the strip's light. */
 const STRIP: Rgb = (() => {
-  const wood = treadMaterial.color;
+  const wood = TREAD_WOOD;
   const t = LIGHT_TINT;
   return [t.r / wood.r, t.g / wood.g, t.b / wood.b];
 })();
@@ -107,13 +126,15 @@ const balusterMaterial = new THREE.MeshStandardMaterial({
   metalness: 0.4,
 });
 const columnMaterial = new THREE.MeshStandardMaterial({
-  // Warm dark stone for the central column — distinct from the
-  // wood treads (lighter, more matte) and the iron baluster/posts
-  // (lighter, less metallic) so the column reads as the masonry
-  // spine the steps wrap around.
-  color: "#54463a",
-  roughness: 0.85,
-  metalness: 0.05,
+  // Grey veined marble for the central column: distinct from the wood
+  // treads and the iron, the masonry spine the steps wrap around.
+  color: "#a49d94",
+  map: stairMaps.marbleColor,
+  roughness: 1,
+  roughnessMap: stairMaps.marbleRough,
+  normalMap: stairMaps.marbleNormal,
+  normalScale: new THREE.Vector2(0.3, 0.3),
+  metalness: 0.02,
 });
 const bracketMaterial = new THREE.MeshStandardMaterial({
   // Same wrought-iron family as the balusters — the radial
@@ -154,6 +175,74 @@ export function mergeBoxes(parts: readonly BoxPart[]): THREE.BufferGeometry | nu
   const merged = mergeGeometries(boxes, false);
   for (const b of boxes) b.dispose();
   return merged;
+}
+
+/** A baluster's iron bar: its radius, and the collar at its foot and the
+ *  one under the rail, [radius, height]. Square 7 cm posts read as
+ *  timber painted black; a real stair has a turned or forged bar. */
+export const BAR_RADIUS = 0.017;
+const BAR_FOOT_COLLAR: [number, number] = [0.032, 0.06];
+const BAR_HEAD_COLLAR: [number, number] = [0.026, 0.035];
+const BAR_SIDES = 8;
+
+/** Round iron balusters as one geometry: each a bar with a collar at
+ *  its foot and under its head, `position` its centre. */
+export function mergeBars(
+  parts: ReadonlyArray<{ position: readonly [number, number, number]; height: number }>,
+): THREE.BufferGeometry | null {
+  if (parts.length === 0) return null;
+  const pieces: THREE.BufferGeometry[] = [];
+  for (const {
+    position: [x, y, z],
+    height,
+  } of parts) {
+    const foot = y - height / 2;
+    const head = y + height / 2;
+    pieces.push(
+      new THREE.CylinderGeometry(BAR_RADIUS, BAR_RADIUS, height, BAR_SIDES, 1, true).translate(
+        x,
+        y,
+        z,
+      ),
+      new THREE.CylinderGeometry(
+        BAR_FOOT_COLLAR[0] * 0.85,
+        BAR_FOOT_COLLAR[0],
+        BAR_FOOT_COLLAR[1],
+        BAR_SIDES,
+      ).translate(x, foot + BAR_FOOT_COLLAR[1] / 2, z),
+      new THREE.CylinderGeometry(
+        BAR_HEAD_COLLAR[0],
+        BAR_HEAD_COLLAR[0] * 0.8,
+        BAR_HEAD_COLLAR[1],
+        BAR_SIDES,
+      ).translate(x, head - BAR_HEAD_COLLAR[1] / 2, z),
+    );
+  }
+  const merged = mergeGeometries(pieces, false);
+  for (const g of pieces) g.dispose();
+  return merged;
+}
+
+/** Gives a geometry uvs in metres, each vertex projected on the plane
+ *  its normal looks at most nearly. */
+function boxUv(g: THREE.BufferGeometry) {
+  const pos = g.getAttribute("position");
+  const nor = g.getAttribute("normal");
+  const uv = new Float32Array(pos.count * 2);
+  for (let i = 0; i < pos.count; i++) {
+    const ax = Math.abs(nor.getX(i));
+    const ay = Math.abs(nor.getY(i));
+    const az = Math.abs(nor.getZ(i));
+    const [u, v] =
+      ay >= ax && ay >= az
+        ? [pos.getX(i), pos.getZ(i)]
+        : ax >= az
+          ? [pos.getZ(i), pos.getY(i)]
+          : [pos.getX(i), pos.getY(i)];
+    uv[i * 2] = u;
+    uv[i * 2 + 1] = v;
+  }
+  g.setAttribute("uv", new THREE.BufferAttribute(uv, 2));
 }
 
 // Procedural arrow geometry for stair signs. Built as a flat
@@ -243,31 +332,64 @@ function buildTreadGeometry(
   /** Whether the top takes the spill of the next riser up, which
    *  stands on the far side from this block's own. */
   spill = false,
-): { positions: number[]; colors: number[]; indices: number[] } {
+  /** With a riser: how far the soffit stays under the top at the far
+   *  cap. The bottom then rises across the block by `thickness`, from
+   *  `thickness + waist` under the top at the riser, so the blocks of a
+   *  flight have one sloped underside. */
+  waist = 0,
+  /** Where in the wood the block is cut from: a uv offset, metres. */
+  offset: readonly [number, number] = [0, 0],
+): { positions: number[]; colors: number[]; uvs: number[]; indices: number[] } {
   const positions: number[] = [];
   const colors: number[] = [];
+  const uvs: number[] = [];
   const indices: number[] = [];
-  const bottomY = topY - thickness;
+  const midR = (innerR + outerR) / 2;
+  // The bottom's height at a place along the arc, 0 at thetaStart.
+  const bottomAt = (t: number) =>
+    riser === "start"
+      ? topY - thickness - waist + thickness * t
+      : riser === "end"
+        ? topY - waist - thickness * t
+        : topY - thickness;
 
-  const pushVertex = (x: number, y: number, z: number, color: Rgb = UNLIT): number => {
+  const pushVertex = (
+    x: number,
+    y: number,
+    z: number,
+    u: number,
+    v: number,
+    color: Rgb = UNLIT,
+  ): number => {
     const idx = positions.length / 3;
     positions.push(x, y, z);
     colors.push(color[0], color[1], color[2]);
+    uvs.push(u + offset[0], v + offset[1]);
     return idx;
   };
 
-  // Helper: build a row of (segments+1) verts at a fixed radius and
-  // height, returning the index of each. `colorAt` takes the vertex's
-  // place along the arc, 0 at thetaStart to 1 at thetaEnd.
-  const ringAt = (r: number, y: number, colorAt?: (t: number) => Rgb): number[] => {
+  // Helper: build a row of (segments+1) verts at a fixed radius, at a
+  // height given by place along the arc, returning the index of each.
+  // `colorAt` takes the vertex's place along the arc, 0 at thetaStart to
+  // 1 at thetaEnd. The grain runs along the tread: on its top and
+  // bottom u is the radius; on the curved faces u runs round the arc.
+  const ringAt = (
+    r: number,
+    yAt: (t: number) => number,
+    face: "flat" | "curve",
+    colorAt?: (t: number) => Rgb,
+  ): number[] => {
     const out: number[] = [];
     for (let i = 0; i <= segments; i++) {
       const t = i / segments;
       const theta = thetaStart + (thetaEnd - thetaStart) * t;
-      out.push(pushVertex(r * Math.cos(theta), y, r * Math.sin(theta), colorAt?.(t)));
+      const y = yAt(t);
+      const [u, v] = face === "flat" ? [r, theta * midR] : [theta * r, y];
+      out.push(pushVertex(r * Math.cos(theta), y, r * Math.sin(theta), u, v, colorAt?.(t)));
     }
     return out;
   };
+  const atTop = () => topY;
 
   // Spill on the top: brightest in the row under the next riser,
   // gone by the middle of the tread.
@@ -288,8 +410,8 @@ function buildTreadGeometry(
   // which is why looking down on the spiral showed see-through
   // "sheets" — the top faces were back-culled and the camera read
   // straight through to the bottom face one rise below.
-  const topInner = ringAt(innerR, topY, spillAt);
-  const topOuter = ringAt(outerR, topY, spillAt);
+  const topInner = ringAt(innerR, atTop, "flat", spillAt);
+  const topOuter = ringAt(outerR, atTop, "flat", spillAt);
   for (let i = 0; i < segments; i++) {
     indices.push(topInner[i], topInner[i + 1], topOuter[i]);
     indices.push(topInner[i + 1], topOuter[i + 1], topOuter[i]);
@@ -297,8 +419,8 @@ function buildTreadGeometry(
 
   // ── Bottom face (−Y normal) — mirrored winding of the top.
   // outer→inner-next→outer-next gives X×Z=−Y on the underside.
-  const bottomInner = ringAt(innerR, bottomY);
-  const bottomOuter = ringAt(outerR, bottomY);
+  const bottomInner = ringAt(innerR, bottomAt, "flat");
+  const bottomOuter = ringAt(outerR, bottomAt, "flat");
   for (let i = 0; i < segments; i++) {
     indices.push(bottomInner[i], bottomOuter[i], bottomInner[i + 1]);
     indices.push(bottomInner[i + 1], bottomOuter[i], bottomOuter[i + 1]);
@@ -310,16 +432,16 @@ function buildTreadGeometry(
   // computeVertexNormals averages the −radial(θ_{i−1}) and
   // −radial(θ_i) face normals into a smoothly interpolated direction
   // along the curve.
-  const innerCurveTop = ringAt(innerR, topY);
-  const innerCurveBot = ringAt(innerR, bottomY);
+  const innerCurveTop = ringAt(innerR, atTop, "curve");
+  const innerCurveBot = ringAt(innerR, bottomAt, "curve");
   for (let i = 0; i < segments; i++) {
     indices.push(innerCurveBot[i + 1], innerCurveTop[i], innerCurveBot[i]);
     indices.push(innerCurveBot[i + 1], innerCurveTop[i + 1], innerCurveTop[i]);
   }
 
   // ── Outer curved face (+radial normal, smooth across segments).
-  const outerCurveTop = ringAt(outerR, topY);
-  const outerCurveBot = ringAt(outerR, bottomY);
+  const outerCurveTop = ringAt(outerR, atTop, "curve");
+  const outerCurveBot = ringAt(outerR, bottomAt, "curve");
   for (let i = 0; i < segments; i++) {
     indices.push(outerCurveBot[i], outerCurveTop[i], outerCurveBot[i + 1]);
     indices.push(outerCurveBot[i + 1], outerCurveTop[i], outerCurveTop[i + 1]);
@@ -331,14 +453,17 @@ function buildTreadGeometry(
   // the one at thetaEnd +tangent. The riser is cut in two: the strip of
   // light under the nosing, and the wash it throws down the face.
   const cap = (theta: number, end: "start" | "end") => {
+    const bottomY = bottomAt(end === "start" ? 0 : 1);
     const at = (r: number, y: number, color?: Rgb) =>
-      pushVertex(r * Math.cos(theta), y, r * Math.sin(theta), color);
+      pushVertex(r * Math.cos(theta), y, r * Math.sin(theta), r, y, color);
     const quad = (ib: number, it: number, ob: number, ot: number) => {
       if (end === "start") indices.push(ib, it, ob, it, ot, ob);
       else indices.push(ib, ob, it, it, ob, ot);
     };
     if (riser !== end) {
-      quad(at(innerR, bottomY), at(innerR, topY), at(outerR, bottomY), at(outerR, topY));
+      if (topY - bottomY > 1e-6) {
+        quad(at(innerR, bottomY), at(innerR, topY), at(outerR, bottomY), at(outerR, topY));
+      }
       return;
     }
     const stripY = topY - STEP_LIGHT_HEIGHT;
@@ -360,7 +485,7 @@ function buildTreadGeometry(
   cap(thetaStart, "start");
   cap(thetaEnd, "end");
 
-  return { positions, colors, indices };
+  return { positions, colors, uvs, indices };
 }
 
 /** The cap of a block that a climber walks toward: the one at its
@@ -392,9 +517,13 @@ function buildSpiralStepsGeometry(staircase: Staircase): THREE.BufferGeometry {
   const stepRise = (upperY - lowerY) / numSteps;
   const positions: number[] = [];
   const colors: number[] = [];
+  const uvs: number[] = [];
   const indices: number[] = [];
   // The floor's hole is cut at these vertices (`SPIRAL_EDGE_SEGMENTS`).
   const segPerStep = 4;
+  // Steps of every flight count on from the floor below, so the boards
+  // of two flights never repeat one another.
+  const firstStep = Math.round(lowerY / stepRise);
 
   for (let i = 0; i < numSteps; i++) {
     const aStart = entryAngle + i * stepAngle;
@@ -402,9 +531,12 @@ function buildSpiralStepsGeometry(staircase: Staircase): THREE.BufferGeometry {
     const lo = Math.min(aStart, aEnd);
     const hi = Math.max(aStart, aEnd);
     const topY = lowerY + i * stepRise;
+    const n = firstStep + i;
+    const grain = Math.sin(n * 12.9898) * 43758.5453;
     const {
       positions: p,
       colors: c,
+      uvs: uv,
       indices: idx,
     } = buildTreadGeometry(
       innerRadius,
@@ -416,16 +548,20 @@ function buildSpiralStepsGeometry(staircase: Staircase): THREE.BufferGeometry {
       segPerStep,
       risingCap(direction),
       true,
+      SOFFIT_WAIST_RISES * stepRise,
+      [(grain - Math.floor(grain)) * 5.12, n * 0.37],
     );
     const base = positions.length / 3;
     for (let k = 0; k < p.length; k++) positions.push(p[k]);
     for (let k = 0; k < c.length; k++) colors.push(c[k]);
+    for (let k = 0; k < uv.length; k++) uvs.push(uv[k]);
     for (let k = 0; k < idx.length; k++) indices.push(idx[k] + base);
   }
 
   const geom = new THREE.BufferGeometry();
   geom.setAttribute("position", new THREE.Float32BufferAttribute(positions, 3));
   geom.setAttribute("color", new THREE.Float32BufferAttribute(colors, 3));
+  geom.setAttribute("uv", new THREE.Float32BufferAttribute(uvs, 2));
   geom.setIndex(indices);
   geom.computeVertexNormals();
   return geom;
@@ -789,20 +925,20 @@ function buildTopLandingGeometry(staircase: Staircase): THREE.BufferGeometry {
   geom.setAttribute("color", new THREE.Float32BufferAttribute(colors, 3));
   geom.setIndex(indices);
   geom.computeVertexNormals();
+  boxUv(geom);
   return geom;
 }
 
-/** Build a set of stout horizontal beams — one per step — anchoring
- *  the inner edge of each tread to the central stone column. Each
- *  beam overlaps a few centimetres into the column on its inner end
- *  and a few centimetres into the tread on its outer end, so there's
- *  no visible gap at either join. They're sized to read as proper
- *  forged brackets rather than thin strips: tangentially almost as
- *  wide as the tread's inner edge (0.4 m), vertically a hair under
- *  the full step rise so they fill most of the riser space without
- *  fighting the next tread above. Centred under each tread (not at
- *  the step boundary) so they read as supports for the wedge
- *  directly above them. */
+/** A bracket's square section, metres. */
+const BRACKET_SIZE = 0.12;
+
+/** Build a set of horizontal arms — one per step — anchoring the
+ *  inner edge of each tread to the central stone column. Each arm
+ *  overlaps a few centimetres into the column on its inner end and a
+ *  few centimetres into the tread on its outer end, so there's no
+ *  visible gap at either join. Centred under each tread (not at the
+ *  step boundary) so they read as supports for the wedge directly
+ *  above them. */
 function buildStepBrackets(staircase: Staircase): Array<{
   position: [number, number, number];
   rotationY: number;
@@ -820,15 +956,11 @@ function buildStepBrackets(staircase: Staircase): Array<{
   const outerR = innerRadius + 0.04;
   const length = outerR - innerR;
   const midR = (innerR + outerR) / 2;
-  // Vertical thickness — most of the step rise, leaving a 4 cm
-  // breathing gap above so the next bracket's top doesn't punch
-  // into this bracket from above when the spiral stacks.
-  const height = stepRise - 0.04;
-  // Tangential thickness — wide enough to look like a real beam
-  // rather than a fishing rod, but narrow enough that adjacent
-  // brackets don't visually overlap (step width along inner
-  // tread edge is ≈ innerRadius * stepAngle ≈ 0.74 m).
-  const width = 0.4;
+  // A forged arm, 12 cm square. Until 17 October 2026 each bracket
+  // filled most of a rise and was 40 cm wide; under the treads' one
+  // sloped soffit they read as a second flight of steps in the well.
+  const height = BRACKET_SIZE;
+  const width = BRACKET_SIZE;
   const out: Array<{
     position: [number, number, number];
     rotationY: number;
@@ -840,9 +972,9 @@ function buildStepBrackets(staircase: Staircase): Array<{
     // Centred under the tread's middle angle (not its start), so
     // the bracket sits visually under the wedge it supports.
     const a = entryAngle + (i + 0.5) * stepAngle;
-    // Tread bottom Y = treadTopY - stepRise where
-    // treadTopY = lowerY + i*stepRise; bracket TOP touches that
-    // exactly, so centreline is half a bracket-height below.
+    // Under a tread's middle its soffit is one rise below its top
+    // (`SOFFIT_WAIST_RISES`); the bracket's top touches it there, so
+    // its centreline is half a bracket-height below.
     const treadBottomY = lowerY + i * stepRise - stepRise;
     const yCentre = treadBottomY - height / 2;
     // rotationY = -a, NOT +a: three.js's Y-rotation maps local +X
@@ -905,18 +1037,12 @@ export function StaircaseRenderer({
     () => buildSpiralRail(staircase, "outer", spiralGateHalfArc(staircase.numSteps), false),
     [staircase],
   );
-  // Rotate each baluster by -angle around Y so the box's local +X / +Z
-  // axes align with the radial / tangential directions at its point on
-  // the spiral. Without this each box reads as cocked relative to its
-  // step (its corners pointing at world ±X / ±Z regardless of where it
-  // lives on the curve).
   const balusterGeom = useMemo(
     () =>
-      mergeBoxes(
+      mergeBars(
         [...innerRail.balusters, ...outerRail.balusters].map((b) => ({
-          size: [BALUSTER_SIZE, b.height, BALUSTER_SIZE],
           position: b.pos,
-          rotationY: -b.angle,
+          height: b.height,
         })),
       ),
     [innerRail, outerRail],
@@ -961,6 +1087,28 @@ export function StaircaseRenderer({
   );
   const columnHeight = upperY - lowerY;
   const columnY = (lowerY + upperY) / 2;
+  // The column's uvs in metres, its height counted from the ground, so
+  // the marble runs on unbroken from one storey's segment to the next.
+  const columnGeom = useMemo(() => {
+    const g = new THREE.CylinderGeometry(
+      SPIRAL_COLUMN_RADIUS,
+      SPIRAL_COLUMN_RADIUS,
+      columnHeight,
+      32,
+      1,
+      true,
+    );
+    const uv = g.getAttribute("uv");
+    for (let i = 0; i < uv.count; i++) {
+      uv.setXY(
+        i,
+        uv.getX(i) * 2 * Math.PI * SPIRAL_COLUMN_RADIUS,
+        lowerY + uv.getY(i) * columnHeight,
+      );
+    }
+    return g;
+  }, [columnHeight, lowerY]);
+  useEffect(() => () => columnGeom.dispose(), [columnGeom]);
 
   return (
     <group position={[centerX, 0, centerZ]}>
@@ -971,8 +1119,7 @@ export function StaircaseRenderer({
           annulus. Per-revolution segments stack at floor levels
           to read as one continuous column from floor 0 to the
           top. */}
-      <mesh position={[0, columnY, 0]} castShadow receiveShadow>
-        <cylinderGeometry args={[SPIRAL_COLUMN_RADIUS, SPIRAL_COLUMN_RADIUS, columnHeight, 32]} />
+      <mesh geometry={columnGeom} position={[0, columnY, 0]} castShadow receiveShadow>
         <primitive object={columnMaterial} attach="material" />
       </mesh>
 

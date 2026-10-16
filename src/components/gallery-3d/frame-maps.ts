@@ -911,7 +911,7 @@ export function buildCarveAtlas(): Uint8Array {
 
 // ── Surface maps ──────────────────────────────────────────────────────
 
-type Pixels = { data: Uint8Array; width: number; height: number };
+export type Pixels = { data: Uint8Array; width: number; height: number };
 
 const toByte = (x: number) => Math.round(sat(x) * 255);
 
@@ -1183,7 +1183,7 @@ export function buildPaperNormal(): Pixels {
 
 // ── Textures ──────────────────────────────────────────────────────────
 
-function texture(
+export function texture(
   pixels: Pixels,
   tile: readonly [number, number] | null,
   opts: { srgb?: boolean; clampV?: boolean } = {},

@@ -1840,6 +1840,36 @@ required by the Dockerfile — don't remove it.
   - They are DataTextures on purpose. three uploads them again after
     the Canvas remounts for a lost context. A render target here would
     need the per-renderer cache `room-env-map.tsx` uses.
+- **Stair surfaces** (`stair-maps.ts`), built the same way: veined
+  marble (colour, roughness, normal; 1.6 m tile), ashlar in 0.6 m
+  courses (2.4 × 1.2 m) and the pile of a runner (0.2 m), about 6 MiB
+  with mips, ~55 ms to build once. Rico, 17 October 2026: in flat
+  colour both stairs read as "toy". What changed with the maps:
+  - **Grand stairs.** Treads, landings, balustrades are marble, each
+    block cut from another place in the map (`Solid` with `vary`;
+    `block()` keeps a tread and its nosing one slab). Upright faces of
+    masonry built up from the floor (solid landings, solid flights'
+    sides, skirts under a balustrade) are ashlar, routed by
+    `withSides`. A flight that spans free has one sloped soffit, on
+    the line the physics keeps clear (`STAIR_SLAB` under the nosings):
+    a flat-bottomed block per tread drew a staircase upside down under
+    every flight. Each tread has a nosing 3.5 cm out. The runner's
+    colours are vertex tints (binding, gold band, crimson field,
+    `CARPET_BANDS`); it falls from the nosing to the tread below and a
+    brass rod lies in each angle. Balusters are turned: a square block
+    at foot and head, 8 smooth facets between, 136 triangles each
+    where the square ones were 48. Every hall draws all four storeys'
+    balustrades, so a stair hall went from about 70,000 to 165,000
+    triangles in view, 590,000 looking down the whole hall from a
+    landing (229,000 before); measured +1 ms a frame there on an M5.
+  - **Spirals.** Walnut treads on the frames' walnut map, grain along
+    the tread, a different board per step; the blocks' undersides form
+    one helicoid half a rise under each tread's back edge
+    (`SOFFIT_WAIST_RISES`), and the iron brackets are 12 cm arms that
+    meet it under each tread's middle. Balusters on the spiral and the
+    cutout rail are round bars with collars (`mergeBars`). The column
+    is grey marble with uvs in metres from the ground, so storeys join.
+  - The room walls are untouched: "Walls are one flat colour", below.
 - Frame materials (`frame-materials.ts`): nine, one per *surface*
   (leaf, leaf on oak, dark wood, pale wood, lacquer, paint, mat board,
   silk, cloth). A finish is a surface in a colour, and the colour is in
