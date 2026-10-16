@@ -18,6 +18,7 @@
 // floor, z out of the wall into the room. stairwell-light.tsx turns the
 // result into one mesh for the whole room.
 
+import { INTER_FLOOR_HEIGHT } from "@/lib/gallery-layout/world-coords";
 import { clearSpans, LIGHT_CEILING_DROP, LIGHT_PENUMBRA, type Rect2 } from "./painting-light-rig";
 
 /** Aimed-for gap between cans. The count is fitted to the wall. A whole
@@ -48,6 +49,39 @@ export const WASH_OUTER_DEG = 33;
  *  dimmed until it does not, so a ceiling of 5.9 m or less is lit as
  *  before. */
 export const WASH_PEAK = 3.5;
+
+/** How a row's cans throw their light. A storey's cans hang a couple of
+ *  metres over the works and light the wall as a picture light does. */
+export type WashBeam = {
+  /** Outer half-angle of the cone. */
+  outerDeg: number;
+  /** Height at which the beam's axis meets the wall. */
+  aimY: number;
+  /** Whether the wall's light keeps the brightness it has at the aim
+   *  point down the whole throw, in place of falling with the square of
+   *  the distance. */
+  graze: boolean;
+};
+export const STOREY_BEAM: WashBeam = {
+  outerDeg: WASH_OUTER_DEG,
+  aimY: WASH_AIM_HEIGHT,
+  graze: false,
+};
+/**
+ * The salon's far wall, lit from its roof, 18.65 m over the hall floor:
+ * it stands sheer, with no ceiling nearer to hang a can from. A can can
+ * stand no further out than a storey's, a metre short of the dome's
+ * glass. Lit as a storey's can is, the wall at the foot of the throw
+ * took a twentieth of the light at its top: on a wall nearly edge-on to
+ * the beam the light falls with the cube of the distance. A stage spot
+ * with a hot-centred beam keeps it even, so a long-throw can drops the
+ * square of the distance on the wall. It is aimed at 12 m, so the dips
+ * between its pools stand at 14.7 m, over the Last Judgment's frame
+ * (14.4 m), and its cone is narrower than a storey's, so a pool at the
+ * wall's foot, 18 m away, reaches 8.3 m along it: within the two cans
+ * each side the shader adds (9.2 m at the far wall's spacing).
+ */
+export const LONG_THROW_BEAM: WashBeam = { outerDeg: 28, aimY: 12, graze: true };
 
 /** Panes round the dome, and the depth of one row of them on its
  *  curve. */
@@ -119,6 +153,13 @@ export type WashRow = {
   wallTop: number;
   /** How far they reach across the floor. */
   floorReach: number;
+  /** A long-throw row (`WashBeam.graze`): the wall's light falls with
+   *  the square of `aim2`, the aim point's distance, not its own. */
+  graze: boolean;
+  aim2: number;
+  /** The floor's share of the light, so the band in front of a
+   *  long-throw row is as bright beside its pools as a storey's. */
+  floorGain: number;
 };
 
 const deg = Math.PI / 180;
@@ -127,9 +168,13 @@ const PAD = 0.05;
 /** Fit a row of washers to a wall of `wallLength` under a ceiling at
  *  `ceilingY` (both measured from the floor): an even count, half a gap
  *  in from each end. A row between two doors is set out this way. */
-export function fitWashRow(wallLength: number, ceilingY: number): WashRow {
+export function fitWashRow(
+  wallLength: number,
+  ceilingY: number,
+  beam: WashBeam = STOREY_BEAM,
+): WashRow {
   const count = 2 * Math.max(1, Math.round(wallLength / (2 * WASH_TARGET_SPACING)));
-  return washRow(count, wallLength / count, ceilingY);
+  return washRow(count, wallLength / count, ceilingY, beam);
 }
 
 /**
@@ -144,9 +189,14 @@ export function fitWashRow(wallLength: number, ceilingY: number): WashRow {
  * A row that ends at a corner is set out from it: its end can stands
  * WASH_CORNER_GAP inside, so the two walls of a corner match.
  */
-export function spanWashRow(halfSpan: number, ceilingY: number, even = false): WashRow {
+export function spanWashRow(
+  halfSpan: number,
+  ceilingY: number,
+  even = false,
+  beam: WashBeam = STOREY_BEAM,
+): WashRow {
   const span = 2 * halfSpan;
-  if (span < WASH_TARGET_SPACING / 2) return washRow(1, WASH_TARGET_SPACING, ceilingY);
+  if (span < WASH_TARGET_SPACING / 2) return washRow(1, WASH_TARGET_SPACING, ceilingY, beam);
   let best = 0;
   let bestMiss = Number.POSITIVE_INFINITY;
   for (let gaps = 1; gaps <= Math.ceil(span / WASH_TARGET_SPACING) + 1; gaps++) {
@@ -157,14 +207,14 @@ export function spanWashRow(halfSpan: number, ceilingY: number, even = false): W
       bestMiss = miss;
     }
   }
-  return washRow(best + 1, span / best, ceilingY);
+  return washRow(best + 1, span / best, ceilingY, beam);
 }
 
-function washRow(count: number, spacing: number, ceilingY: number): WashRow {
+function washRow(count: number, spacing: number, ceilingY: number, beam: WashBeam): WashRow {
   const lampY = ceilingY - LIGHT_CEILING_DROP;
-  const drop = lampY - WASH_AIM_HEIGHT;
+  const drop = lampY - beam.aimY;
   const dist = Math.hypot(drop, WASH_THROW);
-  const outer = WASH_OUTER_DEG * deg;
+  const outer = beam.outerDeg * deg;
   // Angle of the beam off vertical, and of the cone's two rims in the
   // vertical plane through the can: those are the highest point the
   // pool reaches on the wall and the farthest it reaches on the floor.
@@ -180,7 +230,33 @@ function washRow(count: number, spacing: number, ceilingY: number): WashRow {
   // I·cosθ/d² = 1 at the aim point, as for a picture light, then less
   // where the top of the pool would pass WASH_PEAK.
   const aimed = (dist * dist) / (WASH_THROW / dist);
-  const peak = washPeak(lampY, wallTop, -drop / dist, -WASH_THROW / dist, cosOuter, cosInner);
+  const aim2 = beam.graze ? dist * dist : 0;
+  const beamOf = {
+    lampY,
+    dirY: -drop / dist,
+    dirZ: -WASH_THROW / dist,
+    cosOuter,
+    cosInner,
+    aim2,
+  };
+  const peak = washPeak(beamOf, wallTop);
+  const floorReach = Math.max(0, WASH_THROW - lampY * Math.tan(lower)) + PAD;
+  // A long-throw row's floor takes the share of its wall's peak that a
+  // storey's does.
+  let floorGain = 1;
+  if (beam.graze) {
+    const storey = washRow(1, 1, STOREY_CEILING, STOREY_BEAM);
+    const storeyBeam = {
+      lampY: storey.lampY,
+      dirY: storey.dirY,
+      dirZ: storey.dirZ,
+      cosOuter: storey.cosOuter,
+      cosInner: storey.cosInner,
+      aim2: 0,
+    };
+    const share = floorPeak(storeyBeam, storey.floorReach) / washPeak(storeyBeam, storey.wallTop);
+    floorGain = Math.min(1, (share * peak) / floorPeak(beamOf, floorReach));
+  }
   return {
     count,
     spacing,
@@ -192,31 +268,58 @@ function washRow(count: number, spacing: number, ceilingY: number): WashRow {
     cosInner,
     intensity: aimed * Math.min(1, WASH_PEAK / (aimed * peak)),
     wallTop,
-    floorReach: Math.max(0, WASH_THROW - lampY * Math.tan(lower)) + PAD,
+    floorReach,
+    graze: beam.graze,
+    aim2,
+    floorGain,
   };
 }
 
+/** A storey's ceiling, which the floor of a long-throw row is matched
+ *  to. */
+const STOREY_CEILING = INTER_FLOOR_HEIGHT - 0.02;
+
+type Beam = {
+  lampY: number;
+  dirY: number;
+  dirZ: number;
+  cosOuter: number;
+  cosInner: number;
+  /** 0 for a storey's can, else the square of the aim point's distance. */
+  aim2: number;
+};
+
+/** The shader's smoothstep for the cone's edge, from the can toward a
+ *  point `up` under it and `out` from the can toward the wall. */
+function spotAt(b: Beam, up: number, out: number, d: number): number {
+  const t = Math.min(
+    1,
+    Math.max(0, (-(up * b.dirY + out * b.dirZ) / d - b.cosOuter) / (b.cosInner - b.cosOuter)),
+  );
+  return t * t * (3 - 2 * t);
+}
+
 /** The most light a can of unit intensity puts on the wall, on the line
- *  under it, between the floor and `wallTop`. The shader's smoothstep
- *  for the cone's edge, sampled every 5 cm. */
-function washPeak(
-  lampY: number,
-  wallTop: number,
-  dirY: number,
-  dirZ: number,
-  cosOuter: number,
-  cosInner: number,
-): number {
+ *  under it, between the floor and `wallTop`, sampled every 5 cm. */
+function washPeak(b: Beam, wallTop: number): number {
   let peak = 0;
   for (let y = 0; y <= wallTop; y += 0.05) {
-    const up = lampY - y;
+    const up = b.lampY - y;
     const d2 = up * up + WASH_THROW * WASH_THROW;
     const d = Math.sqrt(d2);
-    const t = Math.min(
-      1,
-      Math.max(0, (-(up * dirY + WASH_THROW * dirZ) / d - cosOuter) / (cosInner - cosOuter)),
-    );
-    peak = Math.max(peak, ((WASH_THROW / d) * t * t * (3 - 2 * t)) / d2);
+    peak = Math.max(peak, ((WASH_THROW / d) * spotAt(b, up, WASH_THROW, d)) / (b.aim2 || d2));
+  }
+  return peak;
+}
+
+/** The same on the floor, on the line out from the wall under the can. */
+function floorPeak(b: Beam, reach: number): number {
+  let peak = 0;
+  for (let z = 0; z <= reach; z += 0.05) {
+    const out = WASH_THROW - z;
+    const d2 = b.lampY * b.lampY + out * out;
+    const d = Math.sqrt(d2);
+    peak = Math.max(peak, ((b.lampY / d) * spotAt(b, b.lampY, out, d)) / d2);
   }
   return peak;
 }
@@ -295,6 +398,7 @@ export function washStretches(
   doors: WashDoor[],
   ceilingY: number,
   works: number[] = [],
+  beam: WashBeam = STOREY_BEAM,
 ): WashStretch[] {
   const half = wallLength / 2;
   const openings = doors.map((d): [number, number] => [
@@ -312,8 +416,13 @@ export function washStretches(
     const corners = [cornerA ? a : null, cornerB ? b : null].filter((e) => e !== null);
     const rowAbout = (c: number) =>
       corners.length > 0
-        ? spanWashRow(Math.min(...corners.map((e) => Math.abs(e - c))) - WASH_CORNER_GAP, ceilingY)
-        : fitWashRow(b - a, ceilingY);
+        ? spanWashRow(
+            Math.min(...corners.map((e) => Math.abs(e - c))) - WASH_CORNER_GAP,
+            ceilingY,
+            false,
+            beam,
+          )
+        : fitWashRow(b - a, ceilingY, beam);
     // A fragment adds its own can and two each side. Past the row's end
     // the nearest can it leaves out is two gaps and a half away.
     const wideRow = (r: WashRow) => 2.5 * r.spacing >= WASH_SIDE_REACH;
@@ -350,13 +459,23 @@ export function washStretches(
         if (Math.abs(o1 - a) < 1e-6) {
           lo = m;
           if (lintel) {
-            rects.push({ xMin: m - center, xMax: a - center, yMin: d.height, yMax: row.wallTop });
+            rects.push({
+              xMin: m - center,
+              xMax: a - center,
+              yMin: d.height,
+              yMax: row.wallTop,
+            });
           }
         }
         if (Math.abs(o0 - b) < 1e-6) {
           hi = m;
           if (lintel) {
-            rects.push({ xMin: b - center, xMax: m - center, yMin: d.height, yMax: row.wallTop });
+            rects.push({
+              xMin: b - center,
+              xMax: m - center,
+              yMin: d.height,
+              yMax: row.wallTop,
+            });
           }
         }
       });
@@ -394,7 +513,12 @@ export const WASH_SPILL_JAMB = 2;
  *  the door's two ends along the wall that the spill is measured from.
  *  `floor` is the row's band (`WashStretch.floor`); `doors` are along
  *  the wall from the row's middle. */
-export type WashSpill = { xMin: number; xMax: number; zMin: number; door: [number, number] };
+export type WashSpill = {
+  xMin: number;
+  xMax: number;
+  zMin: number;
+  door: [number, number];
+};
 
 export function washSpills(floor: [number, number], doors: WashDoor[]): WashSpill[] {
   const out: WashSpill[] = [];

@@ -24,7 +24,7 @@ import { useEffect, useMemo } from "react";
 import * as THREE from "three";
 import { mergeGeometries } from "three/examples/jsm/utils/BufferGeometryUtils.js";
 import { paletteOfRoom } from "@/lib/gallery-layout/room-era";
-import type { Door, FloorLayout, RoomLayout } from "@/lib/gallery-layout/types";
+import type { Door, FloorLayout, RoomLayout, WorldOpening } from "@/lib/gallery-layout/types";
 import { CELL_SIZE, FLOOR_SEPARATION, INTER_FLOOR_HEIGHT } from "@/lib/gallery-layout/world-coords";
 import { UNREFLECTED_LAYER } from "./floor-mirror";
 import { buildGlowGeometry, type Glow, lampGlowMaterial } from "./glow";
@@ -57,12 +57,14 @@ import {
   DOME_PANES,
   dome,
   glazingOuterR,
+  LONG_THROW_BEAM,
   spanWashRow,
   WASH_CORNER_GAP,
   WASH_DOOR_FADE_M,
   WASH_DOOR_SHARE,
   WASH_SPILL_JAMB,
   WASH_SPILL_M,
+  type WashBeam,
   type WashDoor,
   type WashRow,
   washLampXs,
@@ -124,11 +126,14 @@ uniform vec2 uLamp;   // height, distance from the wall
 uniform vec2 uAxis;   // beam axis (y, z) in the wall's frame
 uniform vec2 uCone;
 uniform float uLampI;
+uniform float uGraze; // a long-throw row: 1 on the wall
+uniform float uAim2;  // its aim point's distance, squared
 uniform vec3 uColor;
 uniform float uShoulder;
 uniform vec2 uFog;
 varying vec3 vWall;   // position in the wall's frame
 varying vec3 vRow;    // can spacing, end can's distance from the middle, pool gain
+                      // (the row's floor gain on the floor)
 varying float vFloor; // 0 on the wall, 1 on the floor
 varying float vDepth;
 float lamp(float x) {
@@ -137,7 +142,10 @@ float lamp(float x) {
   float d2 = dot(toL, toL);
   vec3 l = toL * inversesqrt(d2);
   float spot = smoothstep(uCone.x, uCone.y, -(l.y * uAxis.x + l.z * uAxis.y));
-  return uLampI * max(mix(l.z, l.y, vFloor), 0.0) * spot / d2;
+  // A long-throw row keeps on the wall the light it has at its aim point
+  // (\`WashBeam.graze\`).
+  float fall = mix(d2, uAim2, uGraze * (1.0 - vFloor));
+  return uLampI * max(mix(l.z, l.y, vFloor), 0.0) * spot / fall;
 }
 vec3 washLight() {
   // The can nearest this fragment, then that one and two each side: under
@@ -200,13 +208,16 @@ void main() {
 }
 `;
 
-/** The uniforms every row shares: the cans hang at one height. */
+/** The uniforms the rows of one material share: the cans hang at one
+ *  height and throw one beam. */
 function washUniforms(row: WashRow) {
   return {
     uLamp: { value: new THREE.Vector2(row.lampY, row.throwM) },
     uAxis: { value: new THREE.Vector2(row.dirY, row.dirZ) },
     uCone: { value: new THREE.Vector2(row.cosOuter, row.cosInner) },
     uLampI: { value: row.intensity },
+    uGraze: { value: row.graze ? 1 : 0 },
+    uAim2: { value: row.aim2 },
     uColor: { value: LIGHT_TINT.clone().multiplyScalar(POOL_GAIN) },
     uShoulder: { value: POOL_SHOULDER },
     uFog: { value: new THREE.Vector2(FOG_NEAR, FOG_FAR) },
@@ -230,13 +241,20 @@ const POOL_BLEND = {
 
 const washMaterials = new Map<string, THREE.ShaderMaterial>();
 
-/** One for each set of doorways, kept for the visit: a building has a
- *  dozen stairwells or so, and those with their doors in the same
- *  places share one. The cans hang at one height, so the other uniforms
- *  are the same in all of them. What differs from wall to wall rides on
- *  the vertices. */
+/** What a row's material is made from, besides its doorways: rows that
+ *  agree on it share uniforms. */
+function rowKey(row: WashRow): string {
+  return [row.lampY, row.dirY, row.cosOuter, row.intensity, row.aim2]
+    .map((v) => v.toFixed(4))
+    .join(",");
+}
+
+/** One for each set of doorways and each beam, kept for the visit: a
+ *  building has a dozen stairwells or so, and those with their doors in
+ *  the same places and their cans at the same height share one. What
+ *  differs from wall to wall rides on the vertices. */
 function getWashMaterial(row: WashRow, thresholds: Threshold[]): THREE.ShaderMaterial {
-  const key = thresholds.map((t) => t.map((v) => v.toFixed(3)).join(",")).join(";");
+  const key = `${rowKey(row)}|${thresholds.map((t) => t.map((v) => v.toFixed(3)).join(",")).join(";")}`;
   const cached = washMaterials.get(key);
   if (cached) return cached;
   const slots = washSlots(thresholds.length);
@@ -255,12 +273,15 @@ function getWashMaterial(row: WashRow, thresholds: Threshold[]): THREE.ShaderMat
   return washMaterial;
 }
 
-let spillMaterial: THREE.ShaderMaterial | null = null;
+const spillMaterials = new Map<string, THREE.ShaderMaterial>();
 
-/** One for the building: what differs from door to door rides on the
+/** One for each beam: what differs from door to door rides on the
  *  vertices. */
 function getSpillMaterial(row: WashRow): THREE.ShaderMaterial {
-  spillMaterial ??= new THREE.ShaderMaterial({
+  const key = rowKey(row);
+  const cached = spillMaterials.get(key);
+  if (cached) return cached;
+  const spillMaterial = new THREE.ShaderMaterial({
     vertexShader: spillVertexShader,
     fragmentShader: spillFragmentShader,
     uniforms: {
@@ -271,6 +292,7 @@ function getSpillMaterial(row: WashRow): THREE.ShaderMaterial {
     },
     ...POOL_BLEND,
   });
+  spillMaterials.set(key, spillMaterial);
   return spillMaterial;
 }
 
@@ -289,6 +311,14 @@ type Wall = {
   /** Height over the room's floor the cans hang from, when not the
    *  ceiling: the underside of the next landing, or the roof. */
   hangFrom?: number;
+  /** The ceiling the row is fitted under, over the wall's foot, when not
+   *  a storey's: the salon's top storey's, and its roof over the hall
+   *  floor for the far wall. */
+  ceilingY?: number;
+  beam?: WashBeam;
+  /** How far the floor in front of the wall reaches before the void:
+   *  the band on it stops there. */
+  floorDepth?: number;
 };
 
 /** A wall less `start` metres at the low end of its local x and `end`
@@ -309,10 +339,15 @@ function trimWall(wall: Wall, start: number, end: number): Wall {
 
 /** The walls a hall's washers light: all four, but for a sheer wall,
  *  which has no ceiling to hang them from, and the strip in front of it
- *  on the two walls that meet it (`RoomLayout.sheer`). */
+ *  on the two walls that meet it (`RoomLayout.sheer`). The storey under
+ *  the roof lights the sheer wall from there, from the hall floor up,
+ *  with a long-throw beam (`LONG_THROW_BEAM`): the salon's far wall, the
+ *  Last Judgment on it, was the one unlit wall of the building. */
 function washedWalls(room: RoomLayout, walls: Wall[]): Wall[] {
   const sheer = room.sheer;
   if (!sheer) return walls;
+  const ceiling = ceilingYOf(room);
+  const underRoof = Math.abs(room.worldRect.y + ceiling - sheer.roof) < 0.05;
   // The end of each meeting wall's local x that the sheer wall is at.
   const lowEnd: Record<string, boolean> = {
     "north:east": true,
@@ -324,8 +359,20 @@ function washedWalls(room: RoomLayout, walls: Wall[]): Wall[] {
     "east:north": false,
     "east:south": true,
   };
-  return walls.flatMap((wall) => {
-    if (wall.side === sheer.side) return [];
+  return walls.flatMap((wall): Wall[] => {
+    if (wall.side === sheer.side) {
+      if (!underRoof) return [];
+      const lift = sheer.base - room.worldRect.y;
+      return [
+        {
+          ...wall,
+          lift,
+          hangFrom: ceiling,
+          ceilingY: ceiling - lift,
+          beam: LONG_THROW_BEAM,
+        },
+      ];
+    }
     const low = lowEnd[`${sheer.side}:${wall.side}`];
     if (low === undefined) return [wall];
     return [trimWall(wall, low ? sheer.depth : 0, low ? 0 : sheer.depth)];
@@ -348,7 +395,12 @@ type Wash = {
 /** One row for a whole wall: a stairwell's, which hangs nothing. Its end
  *  cans stand WASH_CORNER_GAP from the corners. */
 function wholeWall(wall: Wall): Wash {
-  const row = spanWashRow(wall.length / 2 - WASH_CORNER_GAP, CEILING_Y, true);
+  const row = spanWashRow(
+    wall.length / 2 - WASH_CORNER_GAP,
+    wall.ceilingY ?? CEILING_Y,
+    true,
+    wall.beam,
+  );
   return {
     wall,
     row,
@@ -399,16 +451,21 @@ function wallStretches(room: RoomLayout, wall: Wall, cx: number, cz: number): Wa
         (p.position[0] - cx - wall.origin[0]) * dir[0] +
         (p.position[2] - cz - wall.origin[1]) * dir[2],
     );
-  return washStretches(wall.length, wall.doors, CEILING_Y, works).map((stretch) => ({
-    wall: {
-      ...wall,
-      origin: [wall.origin[0] + dir[0] * stretch.center, wall.origin[1] + dir[2] * stretch.center],
-    },
-    row: stretch.row,
-    rects: stretch.rects,
-    floor: stretch.floor,
-    along: stretch.center,
-  }));
+  return washStretches(wall.length, wall.doors, wall.ceilingY ?? CEILING_Y, works, wall.beam).map(
+    (stretch) => ({
+      wall: {
+        ...wall,
+        origin: [
+          wall.origin[0] + dir[0] * stretch.center,
+          wall.origin[1] + dir[2] * stretch.center,
+        ],
+      },
+      row: stretch.row,
+      rects: stretch.rects,
+      floor: stretch.floor,
+      along: stretch.center,
+    }),
+  );
 }
 
 function roomWalls(room: RoomLayout, width: number, depth: number, cx: number, cz: number): Wall[] {
@@ -486,7 +543,11 @@ function buildWashGeometry(
         const p = fromWall(wall, c, true);
         pos.push(p[0], p[1] + lift, p[2]);
         local.push(...c);
-        rowAttr.push(row.spacing, ((row.count - 1) * row.spacing) / 2, floor ? 1 : wallGain);
+        rowAttr.push(
+          row.spacing,
+          ((row.count - 1) * row.spacing) / 2,
+          floor ? row.floorGain : wallGain,
+        );
         floorAttr.push(floor);
       }
       idx.push(base, base + 1, base + 2, base, base + 2, base + 3);
@@ -502,10 +563,11 @@ function buildWashGeometry(
         0,
       );
     }
+    const reach = Math.min(row.floorReach, wall.floorDepth ?? Number.POSITIVE_INFINITY);
     quad(
       [
-        [ends[0], SURFACE_LIFT, row.floorReach],
-        [ends[1], SURFACE_LIFT, row.floorReach],
+        [ends[0], SURFACE_LIFT, reach],
+        [ends[1], SURFACE_LIFT, reach],
         [ends[1], SURFACE_LIFT, 0],
         [ends[0], SURFACE_LIFT, 0],
       ],
@@ -549,7 +611,7 @@ function buildSpillGeometry(
           const [x, y, z] = fromWall(wall, c, true);
           pos.push(x + origin[0], y + origin[1], z + origin[2]);
           local.push(...c);
-          rowAttr.push(row.spacing, ((row.count - 1) * row.spacing) / 2, 1);
+          rowAttr.push(row.spacing, ((row.count - 1) * row.spacing) / 2, row.floorGain);
           doorAttr.push(...spill.door);
         }
         idx.push(base, base + 1, base + 2, base, base + 2, base + 3);
@@ -593,8 +655,9 @@ function buildCanGlowGeometry(washes: Wash[]): THREE.BufferGeometry | null {
   const glows: Glow[] = [];
   for (const { wall, row } of washes) {
     const direction = fromWall(wall, [0, row.dirY, row.dirZ], false);
+    const lift = wall.lift ?? 0;
     for (const x of washLampXs(row)) {
-      glows.push(lensGlow(fromWall(wall, [x, row.lampY, row.throwM], true), direction));
+      glows.push(lensGlow(fromWall(wall, [x, row.lampY + lift, row.throwM], true), direction));
     }
   }
   return buildGlowGeometry(glows);
@@ -776,22 +839,63 @@ function roomWashes(room: RoomLayout) {
   const depth = zMax - zMin;
   const cx = (xMin + xMax) / 2;
   const cz = (zMin + zMax) / 2;
-  // A storey that runs higher than a storey keeps its washers at a
-  // storey's height, on stems from its ceiling: the light on its walls
-  // is the light on every other.
-  const hangFrom = room.storeyHeight === undefined ? undefined : ceilingYOf(room);
+  // A storey that runs higher than a storey hangs its washers from its
+  // own ceiling. They hung at a storey's height on stems 2.3 m long, and
+  // Rico found the stems too long (17 October 2026).
+  const ceiling = room.storeyHeight === undefined ? undefined : ceilingYOf(room);
   const walls = washedWalls(room, roomWalls(room, width, depth, cx, cz)).map((wall) =>
-    hangFrom === undefined ? wall : { ...wall, hangFrom },
+    ceiling === undefined || wall.beam ? wall : { ...wall, hangFrom: ceiling, ceilingY: ceiling },
   );
   // A hall of the block plan hangs a giant on the middle of each
   // stretch of wall, and has a row to each stretch; so does a spiral
   // room given a work too long for any hall. A stairwell that hangs
   // nothing has a row to each wall.
-  const washes =
+  const opening = room.floorOpening;
+  const washes = (
     room.ceilingOpening !== undefined || room.placements.length > 0
       ? walls.flatMap((wall) => hallWashes(room, wall, cx, cz))
-      : walls.map(wholeWall);
+      : walls.map(wholeWall)
+  ).map((wash) =>
+    // A row whose band would run on past the edge of the floor into the
+    // hall's void stops at the edge: the salon's top storey hangs its
+    // cans higher than a storey, and its band reaches 5.3 m across a
+    // gallery 5 m deep.
+    opening && !wash.wall.lift
+      ? {
+          ...wash,
+          wall: { ...wash.wall, floorDepth: floorDepthOf(wash, opening, cx, cz) },
+        }
+      : wash,
+  );
   return { xMin, xMax, zMin, zMax, width, depth, cx, cz, washes };
+}
+
+/** How far the floor in front of a row's band runs before the hall's
+ *  floor opening, among the opening's rectangles that lie in front of
+ *  the band. Positions are about the room's middle `cx`, `cz`. */
+function floorDepthOf(wash: Wash, opening: WorldOpening, cx: number, cz: number): number {
+  const [x0, , z0] = fromWall(wash.wall, [wash.floor[0], 0, 0], true);
+  const [x1, , z1] = fromWall(wash.wall, [wash.floor[1], 0, 0], true);
+  const [nx, , nz] = fromWall(wash.wall, [0, 0, 1], false);
+  // Along the wall, and out of it, for a wall along x or along z.
+  const alongX = Math.abs(nz) > 0.5;
+  const [a0, a1] = alongX
+    ? [Math.min(x0, x1), Math.max(x0, x1)]
+    : [Math.min(z0, z1), Math.max(z0, z1)];
+  const at = alongX ? z0 : x0;
+  const out = alongX ? nz : nx;
+  let depth = Number.POSITIVE_INFINITY;
+  for (const r of opening.rects) {
+    const lo = alongX ? r.xMin - cx : r.zMin - cz;
+    const hi = alongX ? r.xMax - cx : r.zMax - cz;
+    if (Math.min(hi, a1) - Math.max(lo, a0) <= 1e-6) continue;
+    const near =
+      out > 0
+        ? (alongX ? r.zMin - cz : r.xMin - cx) - at
+        : at - (alongX ? r.zMax - cz : r.xMax - cx);
+    if (near >= -1e-6) depth = Math.min(depth, Math.max(0, near));
+  }
+  return depth;
 }
 
 /**
@@ -810,13 +914,40 @@ export function StairwellSpill({ floor }: { floor: FloorLayout }) {
         const { cx, cz, washes } = roomWashes(room);
         return { washes, origin: [cx, room.worldRect.y, cz] as [number, number, number] };
       });
-    const row = rooms.find((r) => r.washes.length > 0)?.washes[0].row;
-    const geometry = row ? buildSpillGeometry(rooms) : null;
-    return geometry && row ? { geometry, material: getSpillMaterial(row) } : null;
+    // One mesh for each beam: the salon's top storey hangs its cans higher.
+    return byBeam(rooms.flatMap((r) => r.washes)).flatMap(([row]) => {
+      const geometry = buildSpillGeometry(
+        rooms.map((r) => ({ ...r, washes: r.washes.filter((w) => rowKey(w.row) === rowKey(row)) })),
+      );
+      return geometry ? [{ geometry, material: getSpillMaterial(row) }] : [];
+    });
   }, [floor.rooms]);
-  useEffect(() => () => built?.geometry.dispose(), [built]);
-  if (!built) return null;
-  return <mesh geometry={built.geometry} material={built.material} renderOrder={1} />;
+  useEffect(
+    () => () => {
+      for (const b of built) b.geometry.dispose();
+    },
+    [built],
+  );
+  return (
+    <>
+      {built.map((b) => (
+        <mesh key={b.material.uuid} geometry={b.geometry} material={b.material} renderOrder={1} />
+      ))}
+    </>
+  );
+}
+
+/** Washes grouped by the uniforms their rows need, each group with the
+ *  row that stands for it. */
+function byBeam(washes: Wash[]): Array<[WashRow, Wash[]]> {
+  const groups = new Map<string, [WashRow, Wash[]]>();
+  for (const wash of washes) {
+    const key = rowKey(wash.row);
+    const group = groups.get(key);
+    if (group) group[1].push(wash);
+    else groups.set(key, [wash.row, [wash]]);
+  }
+  return [...groups.values()];
 }
 
 function StairHallLight({ floor, room }: { floor: FloorLayout; room: RoomLayout }) {
@@ -844,19 +975,18 @@ function StairHallLight({ floor, room }: { floor: FloorLayout; room: RoomLayout 
     // The dome's glass stops short of the washers' cans.
     const rimR = glazingOuterR(width, depth);
     const washed = washes.length > 0;
+    const thresholds = room.doors.map((d): Threshold => {
+      const [x0, z0, x1, z1] = doorThreshold(d);
+      return [x0 - cx, z0 - cz, x1 - cx, z1 - cz];
+    });
     return {
       position: [cx, room.worldRect.y, cz] as [number, number, number],
       ceilingY,
-      washMaterial: washed
-        ? getWashMaterial(
-            washes[0].row,
-            room.doors.map((d): Threshold => {
-              const [x0, z0, x1, z1] = doorThreshold(d);
-              return [x0 - cx, z0 - cz, x1 - cx, z1 - cz];
-            }),
-          )
-        : null,
-      wash: washed ? buildWashGeometry(washes, poolGainScale(wallColor), wallInsetOf(room)) : null,
+      // A mesh for each beam: the salon's far wall is lit from its roof.
+      pools: byBeam(washes).map(([row, group]) => ({
+        material: getWashMaterial(row, thresholds),
+        geometry: buildWashGeometry(group, poolGainScale(wallColor), wallInsetOf(room)),
+      })),
       cans: washed ? buildCansGeometry(washes) : null,
       canGlow: washed ? buildCanGlowGeometry(washes) : null,
       ceiling: buildCeilingGeometry(
@@ -879,7 +1009,7 @@ function StairHallLight({ floor, room }: { floor: FloorLayout; room: RoomLayout 
 
   useEffect(
     () => () => {
-      built.wash?.dispose();
+      for (const p of built.pools) p.geometry.dispose();
       built.cans?.dispose();
       built.canGlow?.dispose();
       built.ceiling.dispose();
@@ -915,8 +1045,10 @@ function StairHallFixtures({
   built: {
     position: [number, number, number];
     ceilingY: number;
-    washMaterial: THREE.ShaderMaterial | null;
-    wash: THREE.BufferGeometry | null;
+    pools: Array<{
+      material: THREE.ShaderMaterial;
+      geometry: THREE.BufferGeometry;
+    }>;
     cans: THREE.BufferGeometry | null;
     canGlow: THREE.BufferGeometry | null;
     ceiling: THREE.BufferGeometry;
@@ -947,9 +1079,9 @@ function StairHallFixtures({
           />
         </>
       )}
-      {built.wash && built.washMaterial && (
-        <mesh geometry={built.wash} material={built.washMaterial} renderOrder={1} />
-      )}
+      {built.pools.map((p) => (
+        <mesh key={p.material.uuid} geometry={p.geometry} material={p.material} renderOrder={1} />
+      ))}
       {built.cans && (
         <mesh geometry={built.cans} material={fixtureUnlitMaterial} layers={UNREFLECTED_LAYER} />
       )}

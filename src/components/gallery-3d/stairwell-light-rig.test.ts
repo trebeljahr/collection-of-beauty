@@ -7,6 +7,7 @@ import {
   fitWashRow,
   GLAZING_CAN_CLEAR,
   glazingOuterR,
+  LONG_THROW_BEAM,
   spanWashRow,
   WASH_CORNER_GAP,
   WASH_PEAK,
@@ -36,9 +37,10 @@ function illuminance(row: WashRow, p: [number, number, number], onFloor: boolean
     const cosA = -((toL[1] / d) * row.dirY + (toL[2] / d) * row.dirZ);
     if (cosA <= row.cosOuter) continue;
     const spot = Math.min(1, (cosA - row.cosOuter) / (row.cosInner - row.cosOuter));
-    e += (row.intensity * Math.max(0, (onFloor ? toL[1] : toL[2]) / d) * spot) / d2;
+    const fall = row.graze && !onFloor ? row.aim2 : d2;
+    e += (row.intensity * Math.max(0, (onFloor ? toL[1] : toL[2]) / d) * spot) / fall;
   }
-  return e;
+  return onFloor ? e * row.floorGain : e;
 }
 
 describe("fitWashRow", () => {
@@ -149,6 +151,54 @@ describe("fitWashRow", () => {
         expect(illuminance(lone, [away, 0, z], true)).toBe(0);
       }
     }
+  });
+});
+
+describe("LONG_THROW_BEAM", () => {
+  // The salon's far wall: 37.5 m, its roof 18.65 m over the hall floor.
+  const row = spanWashRow(37.5 / 2 - WASH_CORNER_GAP, 18.65, false, LONG_THROW_BEAM);
+  const [a, b] = washLampXs(row).slice(4, 6);
+
+  it("lights the wall evenly from the floor to over the Last Judgment", () => {
+    // Under a can and between two, from the foot to 14.4 m, the top of
+    // the Last Judgment's frame. Lit as a storey's can, the foot took a
+    // twentieth of the top.
+    let least = Number.POSITIVE_INFINITY;
+    let most = 0;
+    let where = "";
+    for (const x of [a, (a + b) / 2]) {
+      for (let y = 0.4; y <= 14.4; y += 0.2) {
+        const e = illuminance(row, [x, y, 0], false);
+        if (e < least || Number.isNaN(e))
+          [least, where] = [e, `x ${x.toFixed(2)} y ${y.toFixed(1)}`];
+        most = Math.max(most, e);
+      }
+    }
+    expect(least / most, where).toBeGreaterThan(0.4);
+    // No brighter than a storey's row at its peak.
+    expect(most).toBeLessThan(WASH_PEAK * 1.1);
+  });
+
+  it("reaches no further than two cans each side at the wall's foot", () => {
+    const lone: WashRow = { ...row, count: 1 };
+    const away = 2.5 * row.spacing;
+    let lit = 0;
+    for (let y = 0; y <= row.wallTop; y += 0.1) lit += illuminance(lone, [away, y, 0], false);
+    for (let z = 0; z <= row.floorReach; z += 0.1) lit += illuminance(lone, [away, 0, z], true);
+    expect(lit).toBe(0);
+  });
+
+  it("lights the floor in front of it no brighter than a storey's band", () => {
+    const storey = spanWashRow(37.5 / 2 - WASH_CORNER_GAP, INTER_FLOOR_HEIGHT - 0.02);
+    const bandPeak = (r: WashRow) => {
+      let peak = 0;
+      for (let z = 0; z <= r.floorReach; z += 0.1) {
+        peak = Math.max(peak, illuminance(r, [washLampXs(r)[4], 0, z], true));
+      }
+      return peak;
+    };
+    expect(bandPeak(row)).toBeGreaterThan(0);
+    expect(bandPeak(row)).toBeLessThan(bandPeak(storey) * 1.5);
   });
 });
 
@@ -385,7 +435,12 @@ describe("washSpills", () => {
 
   it("carries a band that crosses a door on past its threshold", () => {
     expect(washSpills([-10, 10], [door])).toEqual([
-      { xMin: -1.75 - jamb, xMax: 1.75 + jamb, zMin: -WASH_SPILL_M, door: [-1.75, 1.75] },
+      {
+        xMin: -1.75 - jamb,
+        xMax: 1.75 + jamb,
+        zMin: -WASH_SPILL_M,
+        door: [-1.75, 1.75],
+      },
     ]);
   });
 

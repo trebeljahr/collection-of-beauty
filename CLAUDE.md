@@ -1221,9 +1221,25 @@ required by the Dockerfile — don't remove it.
       floor (`SALON_TOP_STOREY`, `RoomLayout.storeyHeight`: walls to
       the slab, the ceiling 0.22 m under it), and a glazed dome closes
       its middle in place of a laylight (`RoomLayout.domed`, the spiral
-      rooms' dome, a 15.85 m rim rising 11.9 m). Its washers keep a
-      storey's height and hang on stems from that ceiling, so its walls
-      are lit as every other hall's.
+      rooms' dome, a 15.85 m rim rising 11.9 m). Its washers hang
+      from that ceiling, 2 m higher than a storey's, and their band on
+      the floor stops at the gallery's edge (`floorDepthOf` in
+      `stairwell-light.tsx`). Until 17 October 2026 they hung at a
+      storey's height on stems 2.3 m long; Rico found them too long.
+    - **The far wall is lit from the roof.** It has no ceiling nearer,
+      and its washers were left out, so the Last Judgment and its two
+      flanks hung unlit, and the side walls' end pools stopped at the
+      corner beside a dark wall. Rico, 17 October 2026: "these
+      paintings miss lights", and the corner "intersects with the wall
+      weirdly". The top storey now hangs a row along it at its ceiling,
+      18.65 m over the hall floor (`washedWalls`), with a long-throw
+      beam (`LONG_THROW_BEAM` in `stairwell-light-rig.ts`): the wall's
+      light does not fall with the square of the distance, so the foot
+      of the wall is lit as well as the top, and the dips between its
+      pools stand at 14.7 m, over the Last Judgment's frame. Its end
+      cans stand `WASH_CORNER_GAP` from the corners like the side
+      walls'. A row of another beam or height is its own mesh and
+      material (`byBeam`, `rowKey`): one draw call more in the salon.
     - A gallery 5 m deep runs along its front and side walls on the
       second floor; the side galleries reach the far wall. The far wall
       stands sheer (`RoomLayout.sheer`, depth 0). The same morning Rico
@@ -1294,8 +1310,8 @@ required by the Dockerfile — don't remove it.
     No stair hall has a sheer wall now; the salon's far wall is one
     (`RoomLayout.sheer`), and keeps the support: walls 4 mm inside
     their lines and `wallInsetOf(room)` for what lies on them, skirting
-    left out where there is no floor (`SkirtingClip`), and washers that
-    skip the sheer wall (`washedWalls`). A hole that
+    left out where there is no floor (`SkirtingClip`), and washers
+    that light the sheer wall from the roof only (`washedWalls`). A hole that
     touches a shape's edge does not triangulate, so a hall's floor and
     ceiling round an opening of rectangles are still built from the
     rectangles left (`rectsAround` in `stair-opening.ts`).
