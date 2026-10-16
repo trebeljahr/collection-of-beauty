@@ -12,10 +12,13 @@ import type { Artwork } from "@/lib/data";
 import { displayTitle } from "@/lib/data";
 import { attributionText, type DownloadOption, downloadOptions } from "@/lib/downloads";
 import { getLicenseInfo } from "@/lib/license";
-import { cn } from "@/lib/utils";
+import { assetVersion, cn } from "@/lib/utils";
 
-function href(id: string, option: DownloadOption): string {
-  return `/api/download/${id}?w=${option.width}&f=${option.format}`;
+// `v` changes when the work's pixels were encoded again, so the CDN's
+// year-long copy of the old download is not served under the new link.
+function href(artwork: Artwork, option: DownloadOption): string {
+  const version = assetVersion(artwork.objectKey);
+  return `/api/download/${artwork.id}?w=${option.width}&f=${option.format}${version ? `&v=${version}` : ""}`;
 }
 
 // Deliberately no byte-size estimates next to the sizes.
@@ -75,7 +78,7 @@ export function ArtworkDownloads({ artwork }: { artwork: Artwork }) {
         4.5:1 on `--primary` in either theme.
       */}
       <a
-        href={href(artwork.id, largest)}
+        href={href(artwork, largest)}
         className={cn(
           buttonVariants({ variant: "default", size: "default" }),
           "h-auto min-h-9 flex-wrap gap-x-2 gap-y-0.5 py-2",
@@ -100,7 +103,7 @@ export function ArtworkDownloads({ artwork }: { artwork: Artwork }) {
             {rest.map((option) => (
               <li key={`${option.width}-${option.format}`}>
                 <a
-                  href={href(artwork.id, option)}
+                  href={href(artwork, option)}
                   download
                   className="rounded-sm underline underline-offset-4 focus:outline-none focus-visible:ring-2 focus-visible:ring-[var(--ring)]"
                 >

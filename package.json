@@ -7,7 +7,8 @@
     "node": ">=24"
   },
   "scripts": {
-    "assets:build-data": "node scripts/build-data.mjs && pnpm redirects:build",
+    "assets:build-data": "node scripts/build-data.mjs && pnpm redirects:build && pnpm assets:versions",
+    "assets:versions": "node scripts/build-asset-versions.mjs",
     "redirects:build": "tsx scripts/build-redirects.ts",
     "assets:serve": "node scripts/serve-assets.mjs",
     "assets:sync": "dotenvx run -f .env.production -f .env.local --ignore=MISSING_ENV_FILE --quiet -- bash scripts/sync-assets.sh",

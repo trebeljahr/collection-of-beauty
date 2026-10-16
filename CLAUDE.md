@@ -194,6 +194,17 @@ required by the Dockerfile — don't remove it.
   for a given work — populated by `build-data.mjs` from a directory
   scan. New artworks have `variantWidths: null` until shrink + build-data
   run.
+- Variants and tiles are uploaded `immutable` for a year, so a work
+  encoded again under its old filename keeps its old pixels in every
+  browser and at the CDN edge. Such a work's URLs carry `?v=<hash>`
+  (`src/data/asset-versions.json`, read by `variantPath` and
+  `deepZoomTileUrl`; the download links carry it too). The hash is of
+  its `scan-crops.json` cut and its `refetched-originals.json` SHA-1;
+  `pnpm assets:versions` writes it and runs after build-data. On
+  17 October 2026 Krüger's Parade still showed its frame after its cut
+  was encoded. Anything else that re-encodes in place has to add its
+  record to `scripts/build-asset-versions.mjs`. Sync is `--size-only`:
+  a re-encode of exactly the old byte count is not uploaded.
 
 ## Scans that show their frame
 

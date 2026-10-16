@@ -1,6 +1,8 @@
 import { afterEach, describe, expect, it, vi } from "vitest";
+import assetVersions from "@/data/asset-versions.json";
 import {
   assetUrl,
+  assetVersion,
   coverSizes,
   deepZoomTileUrl,
   fallbackVariantUrl,
@@ -152,6 +154,22 @@ describe("variantProxyUrl / deepZoomTileUrl", () => {
     expect(deepZoomTileUrl("collection/Foo.jpg", 7, 3, 2)).toMatch(
       /\/collection\/Foo\/tiles\/7\/3_2\.webp$/,
     );
+  });
+
+  it("versions every URL of a work encoded again in place", () => {
+    // Variants are served immutable, so a cut or refetched work needs a
+    // new URL or browsers keep the old pixels (Krüger's Parade kept its
+    // frame on 17 October 2026).
+    const [key, version] = Object.entries(assetVersions as Record<string, string>)[0];
+    expect(assetVersion(key)).toBe(version);
+    expect(variantUrl(key, 960, "avif")).toMatch(new RegExp(`/960\\.avif\\?v=${version}$`));
+    expect(variantProxyUrl(key, 960, "avif")).toMatch(new RegExp(`\\?v=${version}$`));
+    expect(publicVariantUrl(key, 960, "avif")).toMatch(new RegExp(`\\?v=${version}$`));
+    expect(deepZoomTileUrl(key, 7, 3, 2)).toMatch(
+      new RegExp(`/tiles/7/3_2\\.webp\\?v=${version}$`),
+    );
+    expect(variantSrcSet(key, "avif", [480, 960])).toContain(`480.avif?v=${version} 480w`);
+    expect(assetVersion("collection/Foo.jpg")).toBeNull();
   });
 
   it("keeps the empty-objectKey guard", () => {
