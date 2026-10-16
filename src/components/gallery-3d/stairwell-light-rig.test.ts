@@ -1,16 +1,12 @@
 import { describe, expect, it } from "vitest";
 import { INTER_FLOOR_HEIGHT } from "@/lib/gallery-layout/world-coords";
 import {
+  DOME_HUB_R,
+  DOME_ROW_M,
   dome,
   fitWashRow,
   GLAZING_CAN_CLEAR,
   glazingOuterR,
-  OCULUS_HUB_R,
-  RING_INNER_R,
-  RING_OUTER_R,
-  RING_ROW_M,
-  RING_ROWS,
-  ringFits,
   spanWashRow,
   WASH_CORNER_GAP,
   WASH_PEAK,
@@ -336,61 +332,33 @@ describe("washStretches", () => {
   });
 });
 
-describe("glazing", () => {
-  it("fits whole rows of panes into the ring and the oculus", () => {
-    expect(RING_ROWS * RING_ROW_M).toBeCloseTo(RING_OUTER_R - RING_INNER_R, 6);
-    expect(OCULUS_HUB_R).toBeGreaterThan(0);
-    // The oculus's rows line up with the ring's on the floors below.
-    expect((RING_INNER_R - OCULUS_HUB_R) / RING_ROW_M).toBeCloseTo(
-      Math.round((RING_INNER_R - OCULUS_HUB_R) / RING_ROW_M),
-      6,
-    );
-  });
-});
-
 describe("glass and cans", () => {
-  // The tower's stairwell, 22.5 m square, and a spiral room of the block
-  // plan, 22.5 by 17.5 m.
-  for (const [width, depth] of [
-    [22.5, 22.5],
-    [22.5, 17.5],
-  ]) {
-    it(`keeps every can over plain ceiling in a ${width} × ${depth} m room`, () => {
-      const outerR = glazingOuterR(width, depth);
-      // A can hangs WASH_THROW out from its wall; the nearest one to the
-      // axis is on the middle of the nearer wall.
-      const nearestCan = Math.min(width, depth) / 2 - WASH_THROW;
-      expect(nearestCan - outerR).toBeGreaterThanOrEqual(GLAZING_CAN_CLEAR - 1e-9);
-    });
-  }
-
-  it("keeps the tower's ring as it was", () => {
-    expect(glazingOuterR(22.5, 22.5)).toBe(RING_OUTER_R);
-    expect(ringFits(RING_OUTER_R)).toBe(true);
-  });
-
-  it("leaves no ring round the well of a spiral room too narrow for one", () => {
-    expect(ringFits(glazingOuterR(22.5, 17.5))).toBe(false);
+  it("keeps every can of a spiral room over plain ceiling", () => {
+    // A spiral room of the plan is 22.5 by 17.5 m. A can hangs
+    // WASH_THROW out from its wall; the nearest one to the axis is on
+    // the middle of the nearer wall.
+    const rimR = glazingOuterR(22.5, 17.5);
+    const nearestCan = 17.5 / 2 - WASH_THROW;
+    expect(nearestCan - rimR).toBeGreaterThanOrEqual(GLAZING_CAN_CLEAR - 1e-9);
   });
 });
 
 describe("dome", () => {
-  for (const rimR of [glazingOuterR(22.5, 17.5), RING_OUTER_R]) {
-    it(`rises from its rim to the crown over a ${rimR.toFixed(2)} m rim`, () => {
-      const d = dome(rimR);
-      expect(d.rowEdge(d.rows).r).toBeCloseTo(rimR, 6);
-      expect(d.rowEdge(d.rows).y).toBeCloseTo(0, 6);
-      expect(d.rowEdge(0).r).toBeCloseTo(OCULUS_HUB_R, 6);
-      expect(d.heightAt(0)).toBeCloseTo(d.rise, 6);
-      expect(d.heightAt(rimR)).toBeCloseTo(0, 6);
-      // Rows of panes about as long on the curve as on the flat ring.
-      const a = d.rowEdge(d.rows - 1);
-      const b = d.rowEdge(d.rows);
-      const row = Math.hypot(b.r - a.r, b.y - a.y);
-      expect(row).toBeGreaterThan(RING_ROW_M * 0.75);
-      expect(row).toBeLessThan(RING_ROW_M * 1.33);
-    });
-  }
+  const rimR = glazingOuterR(22.5, 17.5);
+  it("rises from its rim to the crown", () => {
+    const d = dome(rimR);
+    expect(d.rowEdge(d.rows).r).toBeCloseTo(rimR, 6);
+    expect(d.rowEdge(d.rows).y).toBeCloseTo(0, 6);
+    expect(d.rowEdge(0).r).toBeCloseTo(DOME_HUB_R, 6);
+    expect(d.heightAt(0)).toBeCloseTo(d.rise, 6);
+    expect(d.heightAt(rimR)).toBeCloseTo(0, 6);
+    // Rows of panes about DOME_ROW_M long on the curve.
+    const a = d.rowEdge(d.rows - 1);
+    const b = d.rowEdge(d.rows);
+    const row = Math.hypot(b.r - a.r, b.y - a.y);
+    expect(row).toBeGreaterThan(DOME_ROW_M * 0.75);
+    expect(row).toBeLessThan(DOME_ROW_M * 1.33);
+  });
 });
 
 describe("washSpills", () => {

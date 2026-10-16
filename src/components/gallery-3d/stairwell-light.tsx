@@ -1,8 +1,8 @@
 "use client";
 
-// The stairwell's lighting: a plaster ceiling with a glazed ring round
-// the well, and a row of wall washers along each wall. A hall of the
-// block plan is lit the same way, a row to each stretch of its walls.
+// The stair rooms' lighting: a plaster ceiling, a glazed dome over a
+// spiral's top floor, and a row of wall washers along each wall. A
+// stair hall is lit the same way, a row to each stretch of its walls.
 // See stairwell-light-rig.ts for the geometry and the reasoning.
 //
 // Like the picture lights, none of it is a three.js light. The washers'
@@ -51,15 +51,12 @@ import {
   wallSideOf,
 } from "./painting-light-rig";
 import { fixtureMaterial, getPaletteMaterials } from "./palette-materials";
-import { openingHole, rectsAround, spiralHole } from "./stair-opening";
+import { rectsAround, spiralHole } from "./stair-opening";
 import {
+  DOME_HUB_R,
+  DOME_PANES,
   dome,
   glazingOuterR,
-  OCULUS_HUB_R,
-  RING_INNER_R,
-  RING_PANES,
-  RING_ROW_M,
-  ringFits,
   spanWashRow,
   WASH_CORNER_GAP,
   WASH_DOOR_FADE_M,
@@ -82,9 +79,9 @@ const CEILING_Y = INTER_FLOOR_HEIGHT - 0.02;
 const GLASS_DROP = 0.012;
 const FRAME_HALF_WIDTH = 0.045;
 const FRAME_DROP = 0.05;
-/** Segments round the ring, a whole number per pane so the glazing bars
+/** Segments round the dome, a whole number per pane so the glazing bars
  *  land on vertices. */
-const RING_SEGMENTS = RING_PANES * 2;
+const DOME_SEGMENTS = DOME_PANES * 2;
 
 // ── Pools ─────────────────────────────────────────────────────────────
 
@@ -383,10 +380,9 @@ function hallWashes(room: RoomLayout, wall: Wall, cx: number, cz: number): Wash[
  *  giant that hangs there (`washStretches`). */
 function wallStretches(room: RoomLayout, wall: Wall, cx: number, cz: number): Wash[] {
   const dir = fromWall(wall, [1, 0, 0], false);
-  // The works on this wall's storey. One on the sheer strip beyond the
-  // galleries hangs past the end of the wall as trimmed.
+  // The works on this wall's storey.
   const works = room.placements
-    .filter((p) => p.divider === undefined && !p.sheer && wallSideOf(p.rotation[1]) === wall.side)
+    .filter((p) => p.divider === undefined && wallSideOf(p.rotation[1]) === wall.side)
     .map(
       (p) =>
         (p.position[0] - cx - wall.origin[0]) * dir[0] +
@@ -603,7 +599,6 @@ function buildCeilingGeometry(
   width: number,
   depth: number,
   closed: boolean,
-  grandHole: THREE.Path | null,
   /** A grand stair's opening of rectangles, or the laylight over the
    *  top of its void, as the ceiling round it (`rectsAround`): it may
    *  reach the walls, where a hole cannot. */
@@ -628,9 +623,7 @@ function buildCeilingGeometry(
   shape.lineTo(width / 2, depth / 2);
   shape.lineTo(-width / 2, depth / 2);
   shape.closePath();
-  if (grandHole) {
-    shape.holes.push(grandHole);
-  } else if (closed && domeR !== null) {
+  if (closed && domeR !== null) {
     const hole = new THREE.Path();
     hole.absarc(0, 0, domeR, 0, Math.PI * 2, false);
     shape.holes.push(hole);
@@ -642,29 +635,24 @@ function buildCeilingGeometry(
   return g;
 }
 
-/** Rows of panes between two radii, facing down. The pane texture tiles
- *  once per pane round the ring and once per row outward, so its glazing
- *  bars come out as spokes and circles. `edge(j)` gives row edge `j`'s
- *  distance from the axis and its height: flat for the ring round the
- *  well, curved for the dome. */
-function buildGlassRing(
-  rows: number,
-  edge: (j: number) => { r: number; y: number },
-): THREE.BufferGeometry {
+/** The dome's rows of panes, facing down into the room. The pane
+ *  texture tiles once per pane round the dome and once per row, so its
+ *  glazing bars come out as ribs and rings. */
+function buildDomeRows(d: ReturnType<typeof dome>): THREE.BufferGeometry {
   const pos: number[] = [];
   const uv: number[] = [];
   const idx: number[] = [];
-  for (let j = 0; j <= rows; j++) {
-    const { r, y } = edge(j);
-    for (let i = 0; i <= RING_SEGMENTS; i++) {
-      const a = (i / RING_SEGMENTS) * Math.PI * 2;
+  for (let j = 0; j <= d.rows; j++) {
+    const { r, y } = d.rowEdge(j);
+    for (let i = 0; i <= DOME_SEGMENTS; i++) {
+      const a = (i / DOME_SEGMENTS) * Math.PI * 2;
       pos.push(r * Math.cos(a), y, r * Math.sin(a));
-      uv.push((i / RING_SEGMENTS) * RING_PANES, j);
+      uv.push((i / DOME_SEGMENTS) * DOME_PANES, j);
     }
   }
-  const stride = RING_SEGMENTS + 1;
-  for (let j = 0; j < rows; j++) {
-    for (let i = 0; i < RING_SEGMENTS; i++) {
+  const stride = DOME_SEGMENTS + 1;
+  for (let j = 0; j < d.rows; j++) {
+    for (let i = 0; i < DOME_SEGMENTS; i++) {
       const a = j * stride + i;
       const b = a + stride;
       idx.push(a, b, a + 1, a + 1, b, b + 1);
@@ -679,8 +667,8 @@ function buildGlassRing(
 
 /** The round pane at the top of the dome: the inside of one pane of the
  *  texture, clear of its bars, raised to the dome's crown. */
-function buildGlassHub(heightAt: (r: number) => number): THREE.BufferGeometry {
-  const g = new THREE.CircleGeometry(OCULUS_HUB_R, RING_SEGMENTS);
+function buildDomeHub(heightAt: (r: number) => number): THREE.BufferGeometry {
+  const g = new THREE.CircleGeometry(DOME_HUB_R, DOME_SEGMENTS);
   g.deleteAttribute("normal");
   const uv = g.attributes.uv;
   for (let i = 0; i < uv.count; i++) {
@@ -694,18 +682,10 @@ function buildGlassHub(heightAt: (r: number) => number): THREE.BufferGeometry {
   return g;
 }
 
-/** The glazing: a flat ring round the well from RING_INNER_R out to
- *  `outerR`, or on the top floor a dome on a rim of that radius. */
-function buildGlassGeometry(closed: boolean, outerR: number): THREE.BufferGeometry {
-  if (!closed) {
-    const rows = Math.max(1, Math.round((outerR - RING_INNER_R) / RING_ROW_M));
-    return buildGlassRing(rows, (j) => ({
-      r: RING_INNER_R + ((outerR - RING_INNER_R) * j) / rows,
-      y: 0,
-    }));
-  }
-  const d = dome(outerR);
-  const parts = [buildGlassRing(d.rows, d.rowEdge), buildGlassHub(d.heightAt)];
+/** The dome's glass on a rim of radius `rimR`. */
+function buildDomeGlass(rimR: number): THREE.BufferGeometry {
+  const d = dome(rimR);
+  const parts = [buildDomeRows(d), buildDomeHub(d.heightAt)];
   const merged = mergeGeometries(parts, false);
   for (const p of parts) p.dispose();
   // The glass is unlit, and in one tone a dome read as a flat disc. Its
@@ -736,15 +716,11 @@ function getDomeGlassMaterial(): THREE.MeshBasicMaterial {
   return domeGlassMaterial;
 }
 
-/** Bronze bars round the glazing: one at each edge of the ring, or
- *  round the dome's rim and its crown pane. */
-function buildGlazingFrame(closed: boolean, outerR: number): THREE.BufferGeometry {
+/** Bronze bars round the dome's rim and its crown pane. */
+function buildDomeFrame(rimR: number): THREE.BufferGeometry {
   const bars = [
-    {
-      r: closed ? OCULUS_HUB_R : RING_INNER_R,
-      y: closed ? dome(outerR).heightAt(OCULUS_HUB_R) : 0,
-    },
-    { r: outerR, y: 0 },
+    { r: DOME_HUB_R, y: dome(rimR).heightAt(DOME_HUB_R) },
+    { r: rimR, y: 0 },
   ].map(({ r, y }) =>
     new THREE.LatheGeometry(
       [
@@ -753,7 +729,7 @@ function buildGlazingFrame(closed: boolean, outerR: number): THREE.BufferGeometr
         new THREE.Vector2(r + FRAME_HALF_WIDTH, -FRAME_DROP),
         new THREE.Vector2(r + FRAME_HALF_WIDTH, 0),
       ],
-      RING_SEGMENTS,
+      DOME_SEGMENTS,
     ).translate(0, y, 0),
   );
   const merged = mergeGeometries(bars, false);
@@ -767,7 +743,7 @@ function buildGlazingFrame(closed: boolean, outerR: number): THREE.BufferGeometr
  * through the well is lit the same way.
  */
 export function StairwellLight({ floor }: { floor: FloorLayout }) {
-  // One for each stair hall. The tower has one a floor.
+  // One for each stair room: two halls, the court and two spirals.
   const rooms = useMemo(() => floor.rooms.filter((r) => r.isStairwell), [floor.rooms]);
   return (
     <>
@@ -835,21 +811,19 @@ function StairHallLight({ floor, room }: { floor: FloorLayout; room: RoomLayout 
   const grand = room.ceilingOpening;
   const closed = grand !== undefined ? grand === null : floor.stairsOut.length === 0;
   // The top of a grand stair hall is glazed over the void under it: a
-  // laylight the shape of a rectangular opening, the dome over a round
-  // one.
+  // laylight the shape of the opening.
   const voidUnder = closed && grand !== undefined ? room.floorOpening : null;
-  const laylight = voidUnder?.kind === "rects" ? voidUnder.rects : null;
-  const roundGlass = (closed || grand === undefined) && !laylight;
+  const laylight = voidUnder ? voidUnder.rects : null;
+  // A spiral's room is closed on its top floor by a dome.
+  const domed = closed && grand === undefined;
   // A stair hall is one colour through every storey.
   const palette = room.paletteEra ? paletteOfRoom(room) : floor.era.palette;
   const { wallColor } = palette;
 
   const built = useMemo(() => {
     const { xMin, xMax, zMin, zMax, width, depth, cx, cz, washes } = roomWashes(room);
-    // The glass stops short of the washers' cans. Round the well of a
-    // room too narrow for a row of panes there is none.
-    const outerR = glazingOuterR(width, depth);
-    const glazed = roundGlass && (closed || ringFits(outerR));
+    // The dome's glass stops short of the washers' cans.
+    const rimR = glazingOuterR(width, depth);
     const washed = washes.length > 0;
     return {
       position: [cx, room.worldRect.y, cz] as [number, number, number],
@@ -869,22 +843,19 @@ function StairHallLight({ floor, room }: { floor: FloorLayout; room: RoomLayout 
         width,
         depth,
         closed,
-        grand ? openingHole(grand, cx, cz, 1) : null,
         // The top of a hall is cut where its laylight is recessed.
-        grand?.kind === "rects"
+        grand
           ? rectsAround(grand.rects, cx, cz, width, depth)
           : laylight
             ? rectsAround(laylight, cx, cz, width, depth)
             : null,
-        glazed && closed ? outerR : null,
+        domed ? rimR : null,
       ),
       bounds: { xMin, xMax, zMin, zMax },
-      glazed,
-      domed: glazed && closed,
-      glass: buildGlassGeometry(closed, outerR),
-      frame: buildGlazingFrame(closed, outerR),
+      glass: domed ? buildDomeGlass(rimR) : null,
+      frame: domed ? buildDomeFrame(rimR) : null,
     };
-  }, [room, closed, grand, wallColor, laylight, roundGlass]);
+  }, [room, closed, grand, wallColor, laylight, domed]);
 
   useEffect(
     () => () => {
@@ -892,8 +863,8 @@ function StairHallLight({ floor, room }: { floor: FloorLayout; room: RoomLayout 
       built.cans?.dispose();
       built.canGlow?.dispose();
       built.ceiling.dispose();
-      built.glass.dispose();
-      built.frame.dispose();
+      built.glass?.dispose();
+      built.frame?.dispose();
     },
     [built],
   );
@@ -912,14 +883,13 @@ function StairHallLight({ floor, room }: { floor: FloorLayout; room: RoomLayout 
           room={built.bounds}
         />
       ))}
-      <StairHallFixtures built={built} glazed={built.glazed} palette={palette} />
+      <StairHallFixtures built={built} palette={palette} />
     </>
   );
 }
 
 function StairHallFixtures({
   built,
-  glazed,
   palette,
 }: {
   built: {
@@ -929,11 +899,9 @@ function StairHallFixtures({
     cans: THREE.BufferGeometry | null;
     canGlow: THREE.BufferGeometry | null;
     ceiling: THREE.BufferGeometry;
-    glass: THREE.BufferGeometry;
-    frame: THREE.BufferGeometry;
-    domed: boolean;
+    glass: THREE.BufferGeometry | null;
+    frame: THREE.BufferGeometry | null;
   };
-  glazed: boolean;
   palette: Parameters<typeof getPaletteMaterials>[0];
 }) {
   return (
@@ -943,11 +911,11 @@ function StairHallFixtures({
         material={getPaletteMaterials(palette).ceiling}
         position={[0, CEILING_Y, 0]}
       />
-      {glazed && (
+      {built.glass && built.frame && (
         <>
           <mesh
             geometry={built.glass}
-            material={built.domed ? getDomeGlassMaterial() : getGlassMaterial()}
+            material={getDomeGlassMaterial()}
             position={[0, CEILING_Y - GLASS_DROP, 0]}
           />
           <mesh

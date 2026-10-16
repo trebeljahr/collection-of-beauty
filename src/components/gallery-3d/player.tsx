@@ -163,7 +163,7 @@ export function Player({
   allStaircases: readonly Staircase[];
   /** The building's grand stairs (`grand-stair.ts`). Where the visitor
    *  stands in one of their halls is read off the hall's surfaces, with
-   *  no state. None in the tower. */
+   *  no state. */
   grandStairs?: readonly GrandStair[];
   spawnAt: [number, number, number];
   resumePose?: GalleryPose | null;

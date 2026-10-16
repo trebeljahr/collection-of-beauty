@@ -346,10 +346,6 @@ function addFloorColliders(
   for (const stair of openStairs) {
     const o = openingInWorld(stair, floor.index);
     const m = OPENING_COLLIDER_MARGIN;
-    if (o.kind === "disc") {
-      holes.push({ ...o, r: o.r + m });
-      continue;
-    }
     for (const r of o.rects) {
       holes.push({
         kind: "rect",

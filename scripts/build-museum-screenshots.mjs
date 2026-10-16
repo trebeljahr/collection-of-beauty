@@ -9,6 +9,11 @@
 // in for the API, so the page's own PointerLockControls read the synthetic
 // mouse moves. Nothing in the app changes for the capture.
 //
+// The SHOTS below were tuned on the tower plan, which the block plan
+// replaced on 17 October 2026: its floor keys, walks and the "Grand
+// Hall" no longer exist. Retune them against the block plan before the
+// next run.
+//
 // Shots are scripted as key presses and mouse deltas, not camera
 // coordinates, so a change to the floor plan can move them. Walking is
 // timed, so the framing also shifts a little between runs. Look at the
@@ -151,8 +156,8 @@ async function main() {
   await page.addInitScript(fakePointerLock);
   const settled = trackImages(page);
 
-  console.log(`opening ${BASE_URL}/gallery-3d?plan=tower`);
-  await page.goto(`${BASE_URL}/gallery-3d?plan=tower`, { waitUntil: "domcontentloaded" });
+  console.log(`opening ${BASE_URL}/gallery-3d`);
+  await page.goto(`${BASE_URL}/gallery-3d`, { waitUntil: "domcontentloaded" });
   const enter = page.getByRole("button", { name: /^Enter/ });
   await enter.waitFor({ timeout: 180_000 });
   await page.waitForFunction(

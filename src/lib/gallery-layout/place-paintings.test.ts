@@ -4,8 +4,6 @@ import { familyOf, frameReach, pickFrameDesign } from "./frame-design";
 import {
   computeRoomRuns,
   distributePaintings,
-  dividerWallMetres,
-  estimateWallMetres,
   PAINTING_FLOOR_GAP,
   PAINTING_WALL_OFFSET,
   PLAQUE_FOOTPRINT,
@@ -359,7 +357,7 @@ describe("the frames a room chose", () => {
   });
 
   it("frames a room's works together when it hangs them", () => {
-    // Post-Impressionists on their ochre wall: floor 9 of the tower.
+    // Post-Impressionists on their ochre wall.
     const artworks = Array.from({ length: 30 }, (_, i) => ({
       id: `p${i}`,
       movement: "Post-Impressionism",
@@ -471,15 +469,6 @@ describe("divider runs", () => {
     const south = runs.filter((r) => r.side === "south" && r.divider === undefined);
     expect(south).toHaveLength(1);
   });
-
-  it("counts the wall dividers add to the metre", () => {
-    const length = (list: ReturnType<typeof computeRoomRuns>) =>
-      list.reduce((sum, r) => sum + runLength(r), 0);
-    const bare = length(computeRoomRuns(makeRoom(bounds)));
-    expect(dividerWallMetres(bounds, [wing, panel])).toBeCloseTo(length(runs) - bare, 9);
-    // The room's own walls are still what the estimate says they are.
-    expect(bare).toBeCloseTo(estimateWallMetres(9 * CELL_SIZE, 5 * CELL_SIZE, 0), 9);
-  });
 });
 
 describe("a door screen", () => {
@@ -510,7 +499,6 @@ describe("a door screen", () => {
     expect(faces[0].surface).toBeCloseTo(6 * CELL_SIZE - 0.2, 9);
     expect(runLength(faces[0])).toBeCloseTo(2 * CELL_SIZE - 2 * WALL_MARGIN, 9);
     expect(faces[0].feature).toBe(true);
-    expect(dividerWallMetres(bounds, [screen])).toBeCloseTo(runLength(faces[0]), 9);
   });
 
   it("hangs it with one picture: the room's largest that fits", () => {
@@ -557,14 +545,5 @@ describe("ceiling height and the hang", () => {
     );
     expect(standard[0].maxHeight).toBe(3.2);
     expect(tall[0].maxHeight).toBe(3.2);
-  });
-});
-
-describe("estimateWallMetres", () => {
-  it("takes a portal's extra width off the wall", () => {
-    expect(estimateWallMetres(20, 10, 3, 1)).toBeCloseTo(
-      estimateWallMetres(20, 10, 3) - 2.1 - 2 * (PORTAL_TRIM - DOOR_TRIM),
-      9,
-    );
   });
 });

@@ -35,7 +35,7 @@ import {
 } from "./palette-materials";
 import { registerCulledRoom } from "./room-culling";
 import { inRoomLight } from "./room-light";
-import { openingHole, rectsAround, spiralHole } from "./stair-opening";
+import { rectsAround, spiralHole } from "./stair-opening";
 import { type SkirtingClip, WallWithDoors } from "./wall";
 
 type Side = Door["side"];
@@ -86,8 +86,8 @@ export function RoomGeometry({
   const mats = getPaletteMaterials(palette);
   // A room that carries its own era stands beside rooms in other
   // colours. It draws all four of its walls on its own side only, and
-  // its neighbour does the same from the other side. In the tower a
-  // floor is one colour and a shared wall is one two-sided plane.
+  // its neighbour does the same from the other side. A room with no
+  // era of its own draws a shared wall as one two-sided plane.
   const ownWalls = room.era !== undefined;
   const wallMat = ownWalls ? mats.wallInside : mats.wall;
   const suppress = ownWalls ? undefined : room.suppressWalls;
@@ -117,9 +117,10 @@ export function RoomGeometry({
   // the ceiling plane, at the room's own height, covers the plenum
   // from inside.
   //
-  // A grand stair hall is one room through every storey, and one of its
-  // walls may stand sheer with no gallery against it (`room.sheer`):
-  // there the wall runs on through the slab's depth to the storey above.
+  // A grand stair hall is one room through every storey: its walls run
+  // on through the slab's depth to the storey above. One of them may
+  // stand sheer with no gallery against it (`room.sheer`, the salon's
+  // far wall).
   const wallHeight = room.ceilingOpening !== undefined ? FLOOR_SEPARATION : INTER_FLOOR_HEIGHT;
   const wallMidY = floorY + wallHeight / 2;
   // A hall with a sheer wall stands its walls a few millimetres inside
@@ -537,9 +538,8 @@ export function RoomReveals() {
 // (painting.tsx) for as long as its floor is mounted, at no cost in
 // textures. They used to mount with the work, and the pools faded in as
 // it did: a room seen through a portal from over 14 m away stood unlit,
-// and its lights came on as the visitor walked up to it. In the tower a
-// room that far is seldom in view. In the block plan the spine is five
-// rooms in a line through 3.5 m portals. Lights mount this many a frame
+// and its lights came on as the visitor walked up to it. The spine is
+// five rooms in a line through 3.5 m portals. Lights mount this many a frame
 // from the moment the floor does, nearest room first.
 const LIGHTS_PER_FRAME = 6;
 
@@ -838,11 +838,11 @@ function StairwellFloor({
   hole: WorldOpening | "spiral" | null;
 }) {
   const { topGeom, slabGeom } = useMemo(() => {
-    // An opening of rectangles may reach the hall's walls (a sheer
-    // wall), and a hole that touches a shape's edge does not
+    // An opening of rectangles may reach the hall's walls, and a hole
+    // that touches a shape's edge does not
     // triangulate. So the floor is built from the rectangles round the
     // opening instead: one box each, their inner faces never seen.
-    if (opening && opening !== "spiral" && opening.kind === "rects") {
+    if (opening && opening !== "spiral") {
       const cells = rectsAround(opening.rects, cxWorld, czWorld, width, depth);
       const tops = cells.map((c) => {
         const g = new THREE.PlaneGeometry(c.xMax - c.xMin, c.zMax - c.zMin);
@@ -872,8 +872,6 @@ function StairwellFloor({
     shape.closePath();
     if (opening === "spiral") {
       shape.holes.push(spiralHole());
-    } else if (opening) {
-      shape.holes.push(openingHole(opening, cxWorld, czWorld, -1));
     }
     const top = new THREE.ShapeGeometry(shape, 32);
     // Shape lives on XY plane; rotate it down onto XZ so it lies flat.
@@ -954,7 +952,7 @@ function openingClip(
   cz: number,
 ): SkirtingClip {
   const opening = room.floorOpening;
-  if (opening?.kind !== "rects") return undefined;
+  if (!opening) return undefined;
   const alongX = side === "north" || side === "south";
   const half = (alongX ? width : depth) / 2;
   const line =

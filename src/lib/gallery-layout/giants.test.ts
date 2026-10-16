@@ -188,7 +188,6 @@ describe("giants in the block plan's halls", () => {
         // Under the next landing up, or the storey's ceiling.
         const clear = landing ? landing.top - landing.y : INTER_FLOOR_HEIGHT;
         expect(f.top - stand, p.artwork.id).toBeLessThan(clear - 0.1);
-        expect(p.sheer, p.artwork.id).toBeUndefined();
       }
     }
   });

@@ -12,7 +12,6 @@ import {
   LOOK_IDS,
   looksFor,
   pickFrameDesign,
-  pickPairDesign,
   readPicture,
   roomHanging,
   wallHanging,
@@ -244,12 +243,11 @@ describe("pinned frames", () => {
     expect([own.look, own.options.variant, own.slots[0].finish]).toEqual(["louisXV", 1, "gilt"]);
   });
 
-  it("keeps the pinned frame on any wall and in any pair", () => {
+  it("keeps the pinned frame on any wall", () => {
     const work = restingGirl as Work;
     const own = pickFrameDesign(work);
     const hanging = roomHanging("r1", "#2e3b4f", [work, ...ids.slice(0, 6).map((id) => work_(id))]);
     expect(pickFrameDesign(work, hanging)).toBe(own);
-    expect(pickPairDesign(work_("w1"), work)).toBe(own);
   });
 });
 
@@ -269,54 +267,6 @@ describe("Stuck's frame for his Salome", () => {
 
   it("is drawn by no school", () => {
     expect(looksOf("Symbolism", 1906)).not.toContain("stuck");
-  });
-});
-
-describe("pickPairDesign", () => {
-  it("draws from the looks both schools hang in", () => {
-    // Baroque and Dutch Golden Age share one look: the wood bolection.
-    for (const id of ids) {
-      const a = pickPairDesign(work(id, "Baroque", 1640), work("b", "Dutch Golden Age", 1642));
-      const b = pickPairDesign(work(id, "Dutch Golden Age", 1642), work("b", "Baroque", 1640));
-      expect(a.look).toBe("bolection");
-      expect(b.look).toBe("bolection");
-    }
-  });
-
-  it("is one of the lead's own looks when the schools are the same", () => {
-    const own = new Set(looksFor({ movement: "Romanticism", year: 1830 }).map(([look]) => look));
-    for (const id of ids) {
-      const pair = pickPairDesign(
-        work(id, "Romanticism", 1830),
-        work(`${id}-twin`, "Romanticism", 1820),
-      );
-      expect(own.has(pair.look)).toBe(true);
-    }
-  });
-
-  it("falls back to the lead's own frame when the schools share none", () => {
-    for (const id of ids) {
-      const lead = work(id, "Ukiyo-e", 1830);
-      expect(pickPairDesign(lead, work("b", "Baroque", 1640))).toBe(pickFrameDesign(lead));
-    }
-    expect(pickPairDesign(work("a", "Nihonga", 1907), work("b", "Shin-hanga", 1916)).style).toBe(
-      "mount",
-    );
-  });
-
-  it("weighs both pictures", () => {
-    // A pale partner pulls a Realist pair away from dark wood.
-    const dark = { dominantColor: "#2a1d14", colorBuckets: ["brown"] };
-    const pale = { dominantColor: "#dcd9cc", colorBuckets: ["white", "grey"] };
-    const gilt = (partner: object) =>
-      ids.filter((id) => {
-        const pair = pickPairDesign(
-          work(id, "Realism", 1870, dark),
-          work("b", "Realism", 1875, partner),
-        );
-        return FINISHES[pair.slots[0].finish].surface === "leaf";
-      }).length;
-    expect(gilt(dark)).toBeGreaterThanOrEqual(gilt(pale));
   });
 });
 
@@ -491,15 +441,6 @@ describe("framing a room together", () => {
       "silk",
     );
     expect(spread(together(silks, "#403a34"), "silk")).toBeLessThan(ownSilks * 0.4);
-  });
-
-  it("frames a pair for the hall it hangs in", () => {
-    const pool = Array.from({ length: 24 }, (_, i) => work(`h${i}`, "Impressionism", 1880));
-    const hanging = roomHanging("hall", "#efeadd", pool);
-    const pairs = Array.from({ length: 12 }, (_, i) =>
-      pickPairDesign(pool[2 * i], pool[2 * i + 1], hanging),
-    );
-    expect(most(pairs.map(familyIn))).toBeGreaterThan(0.8);
   });
 });
 

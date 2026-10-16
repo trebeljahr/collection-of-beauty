@@ -17,7 +17,6 @@ export const CELL_SIZE = 2.5; // metres per cell on the XZ plane
 export const ROOM_HEIGHT = 5.6;
 export const ROOM_HEIGHT_LOW = 4.6;
 export const ROOM_HEIGHT_TALL = 6.6;
-export const CORRIDOR_HEIGHT = 3.12; // lower interior ceiling in hallways
 // Metres between floor surfaces. The spiral staircase climbs a full
 // revolution per storey, so this also sets the rise per tread (0.233 m
 // at 36 steps). It caps every ceiling above. It was 6.12 m until
@@ -27,13 +26,11 @@ export const CORRIDOR_HEIGHT = 3.12; // lower interior ceiling in hallways
 export const FLOOR_SEPARATION = 8.4;
 export const WALL_THICKNESS = 0.1;
 
-// Door openings. 1.4 m wide leaves ≥ 0.55 m of wall on each side of a
-// CELL_SIZE-wide cell so doorframes look architectural, not just a hole.
-// 2.4 m tall is a normal human-scale door — kept compact against the
-// taller ceiling so paintings and doors still set the room scale
-// rather than the ceiling dominating.
+// A narrow door, 1.4 m wide: ≥ 0.55 m of wall on each side of a
+// CELL_SIZE-wide cell. The plan's doors are wider (`BLOCK_DOOR_WIDTH`);
+// the fitting rules in fittings.ts and divider-plans.ts take either, and
+// their tests use this one.
 export const DOOR_WIDTH = 1.4;
-export const DOOR_HEIGHT = 2.4;
 // Portals: the openings on a room sequence's main axis. A door centre
 // sits mid-cell, so 3.5 m reaches half a metre into the cells either
 // side; collision opens all three cell edges and closes the jambs with
@@ -79,8 +76,6 @@ export const FLOOR_THICKNESS = 0.2;
  *  inside the room, so rooms still feel architecturally sized rather
  *  than cavernous. */
 export const INTER_FLOOR_HEIGHT = FLOOR_SEPARATION - FLOOR_THICKNESS;
-/** Stairwell room footprint in cells. Must be odd so it centres cleanly. */
-export const SPIRAL_ROOM_CELLS = 9;
 /** Radius of the floor cutout round the spiral: the treads' outer edge.
  *  The floor meets the treads and the top landing with no gap. Until
  *  17 October 2026 the hole was 4 cm wider, and that ring showed the

@@ -183,7 +183,7 @@ function buildCutoutBalusters(
  * face-on as you walk up to the staircase.
  */
 export function StairwellAccents({ floor }: { floor: FloorLayout }) {
-  // One set for each stair well. The tower has one a floor.
+  // One set for each spiral well: two a floor.
   const shafts = useMemo(() => floorShafts(floor), [floor]);
   return (
     <>

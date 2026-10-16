@@ -1,7 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { artworkListings } from "@/lib/data";
 import { layoutBlock } from "./layout-block";
-import { layoutMuseum } from "./layout-museum";
 import {
   BASE_POOL_BYTE_BUDGET,
   baseTextureBytes,
@@ -181,14 +180,11 @@ describe("the plans against the pool", () => {
     expect(REVEAL_BYTE_BUDGET).toBeLessThan(BASE_POOL_BYTE_BUDGET);
   });
 
-  it.each([
-    ["tower", layoutMuseum],
-    ["block", layoutBlock],
-  ] as const)("fits any one room of the %s", (_, layout) => {
+  it("fits any one room of the plan", () => {
     // The room the visitor stands in is granted whatever it costs. A
     // room over the budget would be the pool overrun this module stops.
     let largest = { id: "", bytes: 0 };
-    for (const floor of layout(artworkListings).floors) {
+    for (const floor of layoutBlock(artworkListings).floors) {
       for (const room of floor.rooms) {
         const bytes = roomRevealBytes(room);
         if (bytes > largest.bytes) largest = { id: room.id, bytes };

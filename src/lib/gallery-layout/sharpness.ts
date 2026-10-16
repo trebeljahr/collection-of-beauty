@@ -1,8 +1,8 @@
 // Which works are sharp enough to hang.
 //
-// A work is judged at its real size, up to 3.2 m: the tower hangs no
-// larger, and the block plan, which hangs larger works at their real
-// size, admits the same works. The museum's largest
+// A work is judged at its real size, up to 3.2 m: a room hangs no
+// larger, and the halls, which hang larger works at their real size,
+// admit the same works. The museum's largest
 // texture for it is a ladder rung: 4096 px wide, or 6144 px where the
 // source is big enough for that rung to exist. A 3 m canvas from a
 // 900 px scan is 300 texture pixels a metre, and a visitor who walks up

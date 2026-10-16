@@ -43,7 +43,7 @@ describe("assignEra", () => {
   });
 
   it("returns null when both signals are missing", () => {
-    // bucketByEra in layout-museum drops these — null is the "we
+    // bucketByEra in floor-works.ts drops these — null is the "we
     // don't know, don't try to place it" sentinel.
     expect(assignEra({ movement: null, year: null })).toBeNull();
   });

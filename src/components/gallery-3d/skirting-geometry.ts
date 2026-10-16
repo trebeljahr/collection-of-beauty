@@ -33,8 +33,7 @@ export function buildSkirtingGeometry(
   floorY: number,
   /** The board stands on the wall's own face only (local +z). For a
    *  wall each room draws for itself: straddling, the board of the room
-   *  behind a stair hall's sheer wall showed through it as a dark line
-   *  at every storey. */
+   *  behind could show through the wall as a dark line. */
   oneSided = false,
 ): THREE.BufferGeometry | null {
   const parts: THREE.BufferGeometry[] = [];

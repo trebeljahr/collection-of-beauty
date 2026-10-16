@@ -18,9 +18,8 @@
 // doors. Dividers lie on cell lines; `writeDividerEdges` puts them into
 // the collision masks.
 //
-// The layout calls the planners with the doors a room has when every
-// slot of the plan is open (see `PLAN_FITTINGS` in layout-museum.ts), so
-// a room is fitted the same way on every storey.
+// The layout calls the planners with the doors a room has on every
+// storey, so a room is fitted the same way on each.
 
 import { arrangementOf } from "./divider-plans";
 import {
@@ -138,22 +137,17 @@ function toBench(frame: Frame, a: number, c: number, along: "axis" | "across"): 
  * the nave between rows of panels, an island in a room with neither. A
  * door screen seats nothing, and no bench stands within a metre of one.
  * A pinwheel is seated by the plan that hangs it, after the hang.
- *
- * `mirrorAxis` is for a room composed about one axis (the Grand Hall
- * about its portals): it names the world axis that line runs along, and
- * the room gets an island each side of it, a quarter of the room out.
  */
 export function planBenches(
   rect: CellRect,
   doors: readonly PlanDoor[],
   dividers: readonly Divider[],
-  mirrorAxis?: "x" | "z",
 ): Bench[] {
   const kind = roomKind(rect);
   const set = arrangementOf(rect, dividers);
   const walls = dividers.filter((d) => !d.bare);
   const setAxis = set.kind === "wings" || set.kind === "rows" ? set.axis : longAxis(rect);
-  const frame = frameFor(rect, mirrorAxis ?? setAxis);
+  const frame = frameFor(rect, setAxis);
   const fd = frameDoors(frame, doors);
 
   let benches: Bench[];
@@ -166,7 +160,7 @@ export function planBenches(
   } else if (Math.min(frame.length, frame.breadth) < LARGE_MIN_CELLS) {
     benches = [];
   } else {
-    benches = planIslands(frame, fd, mirrorAxis !== undefined);
+    benches = planIslands(frame, fd);
   }
   return benches.filter((b) => benchClearOf(b, dividers, BENCH_SCREEN_CLEARANCE));
 }
@@ -280,9 +274,8 @@ function planNaveBenches(frame: Frame, doors: FrameDoor[], dividers: readonly Di
 }
 
 /** An island of two benches back to back, as near the middle of the
- *  room as its doors' walking lines allow. `mirrored` puts one island
- *  each side of the axis instead, a quarter of the room out. */
-function planIslands(frame: Frame, doors: FrameDoor[], mirrored: boolean): Bench[] {
+ *  room as its doors' walking lines allow. */
+function planIslands(frame: Frame, doors: FrameDoor[]): Bench[] {
   const lengthM = frame.length * CELL_SIZE;
   const breadthM = frame.breadth * CELL_SIZE;
   const halfAlong = BENCH_LENGTH / 2;
@@ -304,38 +297,18 @@ function planIslands(frame: Frame, doors: FrameDoor[], mirrored: boolean): Bench
   );
   if (a === null) return [];
 
-  const centres: number[] = [];
-  if (mirrored) {
-    const axis = hallAxis(frame, doors) * CELL_SIZE;
-    for (const side of [-1, 1]) {
-      const target = axis + (side * breadthM) / 4;
-      const c = nearestClear(
-        target,
-        halfAcross,
-        wall + halfAcross,
-        breadthM - wall - halfAcross,
-        acrossBands,
-        side as -1 | 1,
-      );
-      if (c !== null) centres.push(c);
-    }
-  } else {
-    const c = nearestClear(
-      breadthM / 2,
-      halfAcross,
-      wall + halfAcross,
-      breadthM - wall - halfAcross,
-      acrossBands,
-      1,
-    );
-    if (c !== null) centres.push(c);
-  }
+  const c = nearestClear(
+    breadthM / 2,
+    halfAcross,
+    wall + halfAcross,
+    breadthM - wall - halfAcross,
+    acrossBands,
+    1,
+  );
+  if (c === null) return [];
 
   const back = (BENCH_DEPTH + ISLAND_GAP) / 2;
-  return centres.flatMap((c) => [
-    toBench(frame, a, c - back, "axis"),
-    toBench(frame, a, c + back, "axis"),
-  ]);
+  return [toBench(frame, a, c - back, "axis"), toBench(frame, a, c + back, "axis")];
 }
 
 // ── Footprints ────────────────────────────────────────────────────────

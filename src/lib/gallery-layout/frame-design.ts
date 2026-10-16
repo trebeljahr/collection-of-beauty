@@ -873,8 +873,7 @@ function once(score: (finish: FinishId) => number): (finish: FinishId) => number
 type Reading = { wall: Rgb | null; tone: PictureTone; c: Candidates };
 
 // A room asks for a work's candidates three times, for its family, for
-// its wall's lead and for the frame, and the Grand Hall once for every
-// pair it tries. The last answer is kept per record, for one wall: the
+// its wall's lead and for the frame. The last answer is kept per record, for one wall: the
 // `Hanging`s of a room share theirs.
 const readings = new WeakMap<Framed, Reading>();
 
@@ -889,25 +888,6 @@ function readingOf(artwork: Framed, wall: Rgb | null): Reading {
   const reading = { wall, tone, c };
   readings.set(artwork, reading);
   return reading;
-}
-
-/** One frame for two works: the looks both schools hang in, each scored
- *  by how well it does on both pictures. Null when they share none. */
-function pairCandidates(lead: Framed, partner: Framed, wall: Rgb | null): Candidates | null {
-  const a = readingOf(lead, wall).c;
-  const b = readingOf(partner, wall).c;
-  const theirs = new Map(b.looks);
-  const looks = a.looks
-    .map(([id, score]) => [id, Math.sqrt(score * (theirs.get(id) ?? 0))] as const)
-    .filter(([, score]) => score > 0);
-  if (looks.length === 0) return null;
-  const main = once((f) => Math.sqrt(a.main(f) * b.main(f)));
-  return {
-    looks,
-    main,
-    suits: once((f) => Math.sqrt(a.suits(f) * b.suits(f))),
-    weight: sharpened(main),
-  };
 }
 
 const MAINS = new Map<LookId, FinishId[]>();
@@ -1494,24 +1474,6 @@ export function pickFrameDesign(artwork: Framed, hanging?: Hanging): FrameDesign
   const design = drawDesign(c, artwork, tone, hanging);
   if (!hanging) designs.set(artwork, design);
   return design;
-}
-
-/**
- * One frame for two works hung as a pair (the Grand Hall's mirrored
- * slots). It is drawn from the looks both schools hang in, each
- * weighted by how well it suits both pictures, and built from the lead
- * work's draws, so the pair's frame is still the lead's own kind of
- * frame. Two schools with no look in common keep the lead's own design.
- */
-export function pickPairDesign(lead: Framed, partner: Framed, hanging?: Hanging): FrameDesign {
-  // A work whose scan shows part of its own frame keeps that frame, and
-  // its partner hangs in the same one.
-  const pinned = pinnedDesign(lead) ?? pinnedDesign(partner);
-  if (pinned) return pinned;
-  const wall = hanging?.wall ?? null;
-  const c = pairCandidates(lead, partner, wall);
-  if (!c) return pickFrameDesign(lead, hanging);
-  return drawDesign(c, lead, readingOf(lead, wall).tone, hanging);
 }
 
 // ── Size ──────────────────────────────────────────────────────────────

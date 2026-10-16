@@ -90,8 +90,8 @@ const TEXTURE_RETRY_DELAY_MS = 500;
 // pool calibrated on a laptop overflows on a 4K panel and turns into the
 // eviction treadmill this budget exists to prevent.
 //
-// Measured against the real `layoutMuseum(artworks.json)` output (11
-// floors, 2,801 placements) by standing the player 0.45 m off each
+// Measured against the tower plan of the time (11 floors, 2,801
+// placements; the block plan replaced it on 17 October 2026) by standing the player 0.45 m off each
 // painting in turn and summing every rung whose prefetch radius contains
 // them, worst floor:
 //

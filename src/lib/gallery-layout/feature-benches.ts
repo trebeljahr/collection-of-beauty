@@ -1,8 +1,8 @@
 // Benches for the block plan's rooms, set out from the room's own lines.
 //
 // `planBenches` (fittings.ts) seats a room from its footprint and doors.
-// It was written for the tower, whose doors are 1.4 m wide. In the block
-// plan every room has a door to every neighbour, 2.4 m or more wide, and
+// It was written for 1.4 m doors. In this plan every room has a door to
+// every neighbour, 2.4 m or more wide, and
 // that planner finds no place in a room with panels: the benches it
 // would stand in the nave come 5 cm too near a panel.
 //

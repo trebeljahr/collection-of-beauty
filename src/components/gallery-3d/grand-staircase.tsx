@@ -245,24 +245,6 @@ class Solid {
     ]);
   }
 
-  /** A piece of a ring between two angles. */
-  wedge(rIn: number, rOut: number, a: number, b: number, yMin: number, yMax: number) {
-    const ca = Math.cos(a);
-    const sa = Math.sin(a);
-    const cb = Math.cos(b);
-    const sb = Math.sin(b);
-    this.hexa([
-      [rIn * ca, yMin, rIn * sa],
-      [rOut * ca, yMin, rOut * sa],
-      [rOut * cb, yMin, rOut * sb],
-      [rIn * cb, yMin, rIn * sb],
-      [rIn * ca, yMax, rIn * sa],
-      [rOut * ca, yMax, rOut * sa],
-      [rOut * cb, yMax, rOut * sb],
-      [rIn * cb, yMax, rIn * sb],
-    ]);
-  }
-
   build(): THREE.BufferGeometry | null {
     if (this.position.length === 0) return null;
     const g = new THREE.BufferGeometry();
@@ -301,64 +283,38 @@ function addPatch(stone: Solid, carpet: Solid, p: StairPatch, baseY: number) {
     return;
   }
 
-  if (p.kind === "flight") {
-    const rise = (p.y1 - p.y0) / p.steps;
-    const runner = 0.55 * Math.min(p.hw0, p.hw1);
-    const toward = Math.sign(p.z1 - p.z0);
-    for (let i = 0; i < p.steps; i++) {
-      const t0 = i / p.steps;
-      const t1 = (i + 1) / p.steps;
-      const za = p.z0 + (p.z1 - p.z0) * t0;
-      const zb = p.z0 + (p.z1 - p.z0) * t1;
-      const ha = p.hw0 + (p.hw1 - p.hw0) * t0;
-      const hb = p.hw0 + (p.hw1 - p.hw0) * t1;
-      const top = p.y0 + (i + 1) * rise;
-      const foot = p.solid ? baseY : p.y0 + i * rise - STAIR_SLAB;
-      stone.hexa([
-        [p.cx - ha, foot, za],
-        [p.cx + ha, foot, za],
-        [p.cx + hb, foot, zb],
-        [p.cx - hb, foot, zb],
-        [p.cx - ha, top, za],
-        [p.cx + ha, top, za],
-        [p.cx + hb, top, zb],
-        [p.cx - hb, top, zb],
-      ]);
-      // The runner covers the tread and the riser under it.
-      const front = za - toward * CARPET_LIFT;
-      carpet.box(
-        p.cx - runner,
-        p.cx + runner,
-        top - rise,
-        top + CARPET_LIFT,
-        Math.min(front, zb),
-        Math.max(front, zb),
-      );
-    }
-    return;
-  }
-
-  const inset = 0.7;
-  const lead = (Math.sign(p.sweep) * CARPET_LIFT) / p.rIn;
-  if (p.steps === 0) {
-    // A level sector, in pieces short enough to read as round.
-    const pieces = Math.max(2, Math.ceil(Math.abs(p.sweep) / 0.14));
-    for (let i = 0; i < pieces; i++) {
-      const a = p.a0 + (p.sweep * i) / pieces;
-      const b = p.a0 + (p.sweep * (i + 1)) / pieces;
-      stone.wedge(p.rIn, p.rOut, a, b, p.solid ? baseY : p.y0 - STAIR_SLAB, p.y0);
-      carpet.wedge(p.rIn + inset, p.rOut - inset, a, b, p.y0, p.y0 + CARPET_LIFT);
-    }
-    return;
-  }
   const rise = (p.y1 - p.y0) / p.steps;
+  const runner = 0.55 * Math.min(p.hw0, p.hw1);
+  const toward = Math.sign(p.z1 - p.z0);
   for (let i = 0; i < p.steps; i++) {
-    const a = p.a0 + (p.sweep * i) / p.steps;
-    const b = p.a0 + (p.sweep * (i + 1)) / p.steps;
+    const t0 = i / p.steps;
+    const t1 = (i + 1) / p.steps;
+    const za = p.z0 + (p.z1 - p.z0) * t0;
+    const zb = p.z0 + (p.z1 - p.z0) * t1;
+    const ha = p.hw0 + (p.hw1 - p.hw0) * t0;
+    const hb = p.hw0 + (p.hw1 - p.hw0) * t1;
     const top = p.y0 + (i + 1) * rise;
     const foot = p.solid ? baseY : p.y0 + i * rise - STAIR_SLAB;
-    stone.wedge(p.rIn, p.rOut, a, b, foot, top);
-    carpet.wedge(p.rIn + inset, p.rOut - inset, a - lead, b, top - rise, top + CARPET_LIFT);
+    stone.hexa([
+      [p.cx - ha, foot, za],
+      [p.cx + ha, foot, za],
+      [p.cx + hb, foot, zb],
+      [p.cx - hb, foot, zb],
+      [p.cx - ha, top, za],
+      [p.cx + ha, top, za],
+      [p.cx + hb, top, zb],
+      [p.cx - hb, top, zb],
+    ]);
+    // The runner covers the tread and the riser under it.
+    const front = za - toward * CARPET_LIFT;
+    carpet.box(
+      p.cx - runner,
+      p.cx + runner,
+      top - rise,
+      top + CARPET_LIFT,
+      Math.min(front, zb),
+      Math.max(front, zb),
+    );
   }
 }
 

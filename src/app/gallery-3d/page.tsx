@@ -24,10 +24,10 @@ const TOP_ERA = ERAS[ERAS.length - 1]?.title ?? "the most recent era";
 const MUSEUM_TITLE = `The Museum — ${FLOOR_COUNT} walkable floors`;
 
 // "Every canonical work on a wall" used to sit in this description. It
-// stopped being true when the floor builder started capping a storey at
-// MAX_WORKS_PER_FLOOR and sampling the overflow across artists (see
-// selectFloorWorks in gallery-layout/layout-museum.ts), so the copy now
-// says what the building actually hangs.
+// stopped being true when the floor builder started sampling an era
+// across its artists to fit its rooms (see selectFloorWorks in
+// gallery-layout/floor-works.ts), so the copy now says what the
+// building actually hangs.
 const MUSEUM_DESCRIPTION =
   `Walk through a museum of ${FLOOR_COUNT} floors in your browser: one floor per era, ` +
   `${GROUND_ERA} at ground level rising to ${TOP_ERA}, joined by a central spiral ` +

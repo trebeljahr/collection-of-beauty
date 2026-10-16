@@ -144,8 +144,8 @@ export function findStairBelow(
   return all.find((s) => s.upperFloor === staircase.lowerFloor && sameShaft(s, staircase));
 }
 
-/** Two flights stand in the same well when they share a centre. The
- *  tower has one well; the block plan has two to a floor. */
+/** Two flights stand in the same well when they share a centre. A
+ *  floor has two wells. */
 export function sameShaft(a: Staircase, b: Staircase): boolean {
   return Math.abs(a.centerX - b.centerX) < 0.01 && Math.abs(a.centerZ - b.centerZ) < 0.01;
 }

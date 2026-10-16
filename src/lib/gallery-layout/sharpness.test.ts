@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import type { ArtworkListing } from "@/lib/data";
-import { layoutMuseum } from "./layout-museum";
+import { layoutBlock } from "./layout-block";
 import {
   MIN_TEXTURE_PX_PER_METRE,
   sharpEnoughToHang,
@@ -95,7 +95,7 @@ describe("the museum's walls", () => {
     }) as unknown as ArtworkListing;
 
   it("hang the sharp work and leave the blurred one off", () => {
-    const layout = layoutMuseum([make("sharp", 3000), make("blurred", 1000)]);
+    const layout = layoutBlock([make("sharp", 3000), make("blurred", 1000)]);
     const hung = layout.allRooms.flatMap((r) => r.placements.map((p) => p.artwork.id));
     expect(hung).toEqual(["sharp"]);
   });

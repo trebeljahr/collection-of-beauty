@@ -1,5 +1,4 @@
-// The museum's floor plan. The tower before it (layout-museum.ts) is
-// behind a switch (`?plan=tower`).
+// The museum's floor plan.
 //
 // One rectangular block, 117.5 × 62.5 m, on four floors, the same plan
 // on each. Down its middle runs a spine of five bays: a stair hall 27.5
@@ -31,7 +30,7 @@
 //   3.95 m deep, with a gallery along the end wall beyond it. The
 //   hall's end wall stands a cell inside the building's: the strip
 //   between is no room.
-// - The tower's spiral north and south of the court, in a room of its
+// - A spiral north and south of the court, in a room of its
 //   own (22.5 × 17.5 m) with a door to the court and to the gallery on
 //   either side.
 //
@@ -55,13 +54,13 @@
 // quarter of its size: "stuff like this is *exactly* what I want", and
 // asked for a room over more than one storey for such works.
 //
-// The galleries are the size of the tower's larger rooms and take its
-// dividers and benches. A floor holds two or three eras, each in rooms
-// that touch, each room in its era's colour.
+// The galleries take the dividers and benches of fittings.ts. A floor
+// holds two or three eras, each in rooms that touch, each room in its
+// era's colour.
 //
-// It exists to be walked and judged against the tower
-// (`layout-museum.ts`), which stays the default. Five earlier plans
-// were walked and changed:
+// It replaced the tower (a storey per era round one spiral stairwell,
+// `layout-museum.ts`, tag `museum-tower-default-2026-10-17`) on
+// 17 October 2026. Five earlier plans were walked and changed:
 //
 // - `?plan=wings`, 12.5 m galleries in rings: rooms too small, too many
 //   of them, no dividers, too few doors between rooms.
@@ -89,6 +88,7 @@
 import type { ArtworkListing } from "@/lib/data";
 import { assignEra, type Era, type EraId, eraAccentColor, getEra } from "@/lib/gallery-eras";
 import { slugify } from "@/lib/utils";
+import { computeBlockedEdges } from "./blocked-edges";
 import { curatedQueue, roomDescription, roomTitle } from "./curation";
 import type { DividerStyle } from "./divider-plans";
 import {
@@ -108,6 +108,13 @@ import {
   planBenches,
   planDividers,
 } from "./fittings";
+import {
+  bucketByEra,
+  dominantMovement,
+  fillRooms,
+  selectFloorWorks,
+  shuffleByIdHash,
+} from "./floor-works";
 import {
   fitsStretch,
   giantSize,
@@ -131,14 +138,6 @@ import {
   SALON_GALLERY,
   STAIR_SLAB,
 } from "./grand-stair";
-import {
-  bucketByEra,
-  computeBlockedEdges,
-  dominantMovement,
-  fillRooms,
-  selectFloorWorks,
-  shuffleByIdHash,
-} from "./layout-museum";
 import {
   computeRoomRuns,
   distributePaintings,
@@ -559,7 +558,6 @@ export function layoutBlock(
     floors,
     entry: { floorIndex: 0, worldPosition: [0, anchor.worldRect.y, 0] },
     allRooms: floors.flatMap((f) => f.rooms),
-    allHallways: [],
     allStaircases,
     grandStairs,
   };
@@ -833,8 +831,8 @@ function buildFloor(
       style: plan.styles[key],
       screens,
     });
-    // Benches keep further from a wall here than in the tower: a bay
-    // bench a metre from a screen's picture is in the way of it.
+    // Benches keep further from a screen than `planBenches` does: a
+    // bay bench a metre from a screen's picture is in the way of it.
     room.benches = planBenches(room.cellBounds, room.doors, room.dividers).filter((b) =>
       benchClearOf(b, room.dividers, ISLAND_CLEARANCE),
     );
@@ -919,7 +917,6 @@ function buildFloor(
     blockedEdgesEW,
     blockedEdgesNS,
     rooms,
-    hallways: [],
     stairsIn: [],
     stairsOut: [],
     grandStairsIn: [],
@@ -1013,10 +1010,13 @@ function hangZone(
   });
 
   // Spill stays inside the era: the placer sees only its rooms.
-  const stats = distributePaintings({ ...floor, rooms: zoneRooms }, undefined, {
-    anchorToBenches: true,
-    ...REAL_SIZE,
-  });
+  const stats = distributePaintings(
+    { ...floor, rooms: zoneRooms },
+    {
+      anchorToBenches: true,
+      ...REAL_SIZE,
+    },
+  );
   if (stats.dropped > 0 && process.env.NODE_ENV !== "production") {
     console.warn(`[gallery-layout] ${era.title}: ${stats.dropped} works did not fit their rooms`);
   }
@@ -1174,7 +1174,7 @@ function buildStair(
   });
 }
 
-/** One revolution of the tower's spiral, from one floor to the next. */
+/** One revolution of a spiral, from one floor to the next. */
 function buildSpiral(
   lower: FloorLayout,
   upper: FloorLayout,

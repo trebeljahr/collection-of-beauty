@@ -70,8 +70,7 @@ const PANEL_CELLS = 3;
 const SPLIT_PANEL_CELLS = 2;
 /** A stretch of a hall this long with no door looking across it takes a
  *  row of panels, a panel's length apart, and not one. Only a long
- *  gallery joined from several rooms has one: the tower's longest
- *  stretch is 7 cells. */
+ *  gallery joined from several rooms has one. */
 const PANEL_ROW_MIN_CELLS = 12;
 const PANEL_ROW_GAP_CELLS = 3;
 /** The same for the long rows. */

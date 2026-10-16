@@ -1,7 +1,6 @@
 import { describe, expect, it } from "vitest";
 import type { ArtworkListing } from "@/lib/data";
 import { ERAS } from "@/lib/gallery-eras";
-import { galleryLayoutIdentity } from "@/lib/gallery-release-state";
 import { arrangementOf } from "./divider-plans";
 import {
   benchClearOfDividers,
@@ -9,7 +8,8 @@ import {
   SCREEN_BENCH_ROOM,
   screenBenches,
 } from "./feature-benches";
-import { benchRect, longAxis } from "./fittings";
+import { arrivalPoint, benchRect, clearOfFittings, longAxis, type Rect } from "./fittings";
+import { frameReach, pickFrameDesign } from "./frame-design";
 import {
   grandStairsAt,
   grandSurfaceAt,
@@ -31,16 +31,16 @@ import {
   hallFront,
   layoutBlock,
 } from "./layout-block";
-import { layoutMuseum } from "./layout-museum";
 import {
   centredFootprint,
   computeRoomRuns,
+  PAINTING_FLOOR_GAP,
   runLength,
   sizeWork,
   wallFootprint,
 } from "./place-paintings";
 import { eraOfRoom, floorTitle } from "./room-era";
-import type { Bench, Door, RoomLayout } from "./types";
+import type { Bench, Door, Placement, RoomLayout } from "./types";
 import {
   CELL_SIZE,
   DIVIDER_THICKNESS,
@@ -278,7 +278,6 @@ describe("the block plan", () => {
         expect(stair.design).toBe("loggia");
         expect(stair.hasFlightBelow).toBe(i > 0);
         expect(stair.hasFlightAbove).toBe(i < stairs.length - 1);
-        expect(stair.sheerWall).toBeFalsy();
         // Set out from the front wall as in a square hall; the end wall
         // three cells nearer, where the landing ends.
         expect(stair.back).toBe(stair.half - 7.5);
@@ -306,7 +305,6 @@ describe("the block plan", () => {
           floor.index === 0 ? "up" : floor.index === top ? "down" : "both",
         );
         // Every wall has floor in front of it on every storey.
-        expect(hall.sheer).toBeUndefined();
         // A visitor sent to the hall lands on its floor, inside its door.
         const arrival = blockArrivalPoint(layout, hall);
         const here = grandStairsAt(layout.grandStairs!, arrival.x, arrival.z, floor.y);
@@ -338,7 +336,6 @@ describe("the block plan", () => {
       expect(room.floorOpening === null).toBe(floor.index === 0);
       expect(room.ceilingOpening === null).toBe(floor.index === top);
       expect(room.stairGlyph).toBe("void");
-      expect(room.sheer).toBeUndefined();
       expect(room.doors.map((d) => d.side).sort()).toEqual(["east", "north", "south", "west"]);
       for (const d of room.doors) expect(d.width).toBe(PORTAL_WIDTH);
       const arrival = blockArrivalPoint(layout, room);
@@ -1017,13 +1014,123 @@ describe("the block plan", () => {
     const here = grandStairsAt(layout.grandStairs!, x, z, 0);
     expect(grandSurfaceAt(here, x, z, 0)?.floorIndex).toBe(0);
   });
+});
 
-  it("has an identity of its own, so a visit saved in the tower starts afresh", () => {
-    // `layout` is the block plan of this same catalogue. Only the tower
-    // is built here.
-    expect(galleryLayoutIdentity(layout)).not.toBe(
-      galleryLayoutIdentity(layoutMuseum(catalogue())),
-    );
+// Rules every room keeps, whatever the plan. They were the tower's tests
+// until the tower was taken out on 17 October 2026.
+describe("the block plan's rooms as fitted and hung", () => {
+  const galleries = layout.floors.flatMap((f) => f.rooms.filter((r) => !r.isStairwell));
+  const boundsOf = (room: RoomLayout): Rect => ({
+    xMin: room.cellBounds.xMin * CELL_SIZE,
+    xMax: (room.cellBounds.xMax + 1) * CELL_SIZE,
+    zMin: room.cellBounds.zMin * CELL_SIZE,
+    zMax: (room.cellBounds.zMax + 1) * CELL_SIZE,
+  });
+  const overlap = (a: Rect, b: Rect) =>
+    a.xMin < b.xMax - 1e-6 &&
+    b.xMin < a.xMax - 1e-6 &&
+    a.zMin < b.zMax - 1e-6 &&
+    b.zMin < a.zMax - 1e-6;
+
+  it("leaves every room at least one cell of passage past each divider line", () => {
+    const blocked: string[] = [];
+    for (const room of galleries) {
+      const r = room.cellBounds;
+      const byLine = new Map<string, number>();
+      for (const d of room.dividers) {
+        const id = `${d.axis}:${d.line}`;
+        byLine.set(id, (byLine.get(id) ?? 0) + d.end - d.start);
+      }
+      for (const [id, built] of byLine) {
+        const span = id.startsWith("x") ? r.xMax - r.xMin + 1 : r.zMax - r.zMin + 1;
+        if (span - built < 1) blocked.push(`${room.id} ${id}`);
+      }
+    }
+    expect(blocked).toEqual([]);
+  });
+
+  it("keeps benches inside their room and off each other", () => {
+    const wrong: string[] = [];
+    for (const room of galleries) {
+      const b = boundsOf(room);
+      const seats = room.benches.map(benchRect);
+      for (const seat of seats) {
+        if (
+          seat.xMin <= b.xMin + 1 ||
+          seat.xMax >= b.xMax - 1 ||
+          seat.zMin <= b.zMin + 1 ||
+          seat.zMax >= b.zMax - 1
+        )
+          wrong.push(`${room.id}: bench within 1 m of a wall`);
+      }
+      for (let i = 0; i < seats.length; i++) {
+        for (let j = i + 1; j < seats.length; j++) {
+          if (overlap(seats[i], seats[j])) wrong.push(`${room.id}: benches overlap`);
+        }
+      }
+    }
+    expect(wrong).toEqual([]);
+  });
+
+  it("puts a visitor down clear of every fitting", () => {
+    const blocked = galleries
+      .filter((room) => {
+        const p = arrivalPoint(room);
+        return !clearOfFittings({ rooms: [room] }, p.x, p.z, 0.3);
+      })
+      .map((room) => room.id);
+    expect(blocked).toEqual([]);
+  });
+
+  it("hangs works on dividers, each on a divider its room has", () => {
+    let onDividers = 0;
+    const missing: string[] = [];
+    for (const room of galleries) {
+      for (const p of room.placements) {
+        if (p.divider === undefined) continue;
+        onDividers++;
+        if (!room.dividers[p.divider]) missing.push(`${room.id} ${p.artwork.id}`);
+      }
+    }
+    expect(missing).toEqual([]);
+    expect(onDividers).toBeGreaterThan(0);
+  });
+
+  // A giant hangs at its real size in a hall, across storeys, and is not
+  // held to a room's ceiling.
+  const hung = galleries.flatMap((room) =>
+    room.placements.filter((p) => !p.giant).map((p) => ({ room, p })),
+  );
+  /** How far the frame the work hangs in reaches past its canvas. */
+  const reachOf = (p: Placement) =>
+    frameReach(p.frame ?? pickFrameDesign(p.artwork), p.widthM, p.heightM);
+
+  it("keeps every frame 0.4 m off the floor", () => {
+    expect(hung.length).toBeGreaterThan(100);
+    let lowest = Number.POSITIVE_INFINITY;
+    let lowestId = "";
+    for (const { room, p } of hung) {
+      const bottom = p.position[1] - p.heightM / 2 - reachOf(p) - room.worldRect.y;
+      if (bottom < lowest || Number.isNaN(bottom)) {
+        lowest = bottom;
+        lowestId = p.artwork.id;
+      }
+    }
+    expect(lowest, lowestId).toBeGreaterThanOrEqual(PAINTING_FLOOR_GAP - 1e-9);
+  });
+
+  it("leaves wall for the picture light above every frame", () => {
+    let least = Number.POSITIVE_INFINITY;
+    let leastId = "";
+    for (const { room, p } of hung) {
+      const top = p.position[1] + p.heightM / 2 + reachOf(p) - room.worldRect.y;
+      const left = room.ceilingHeight - top;
+      if (left < least || Number.isNaN(left)) {
+        least = left;
+        leastId = p.artwork.id;
+      }
+    }
+    expect(least, leastId).toBeGreaterThanOrEqual(0.5);
   });
 
   it("signs each stair hall's floors on a pair of pylons that stand on its floor", () => {

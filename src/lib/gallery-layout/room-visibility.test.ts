@@ -3,7 +3,6 @@ import { describe, expect, it } from "vitest";
 import type { ArtworkListing } from "@/lib/data";
 import { ERAS } from "@/lib/gallery-eras";
 import { layoutBlock } from "./layout-block";
-import { layoutMuseum } from "./layout-museum";
 import {
   isWholeScreen,
   NEAR_OPENING_M,
@@ -290,7 +289,6 @@ describe("visibleRooms, the stairwell", () => {
     expect(new Set(top).size).toBe(6);
     expect(keys.map((k) => new Set(k).size)).toEqual([6, 6, 6, 6]);
     for (const floorKeys of keys) for (const key of floorKeys) expect(top).toContain(key);
-    expect(tower.flatMap((r) => shaftKey(r) ?? [])).toHaveLength(1);
   });
 
   it("hides the well from a hall with its back to the portal", () => {
@@ -353,23 +351,7 @@ describe("sphereInScreenRect", () => {
 // ceiling. A room a ray enters is a room with a pixel on screen, and the
 // walk must have it, in a rectangle that holds that pixel.
 
-const works = Array.from(
-  { length: 300 },
-  (_, i) =>
-    ({
-      id: `work-${i}`,
-      objectKey: `folder/work-${i}.jpg`,
-      movement: "Baroque",
-      year: 1650,
-      artistSlug: `artist-${i % 40}`,
-      width: 1600,
-      height: 1200,
-      realDimensions: { widthCm: 150, heightCm: 112 },
-    }) as unknown as ArtworkListing,
-);
-const tower = layoutMuseum(works).floors.find((f) => f.era.id === "baroque")?.rooms ?? [];
-
-/** The second plan (layout-block.ts): two stair halls, a court and two
+/** The floor plan (layout-block.ts): two stair halls, a court and two
  *  spirals a floor, a door in nearly every wall two rooms share, each
  *  room in its own era's colour. */
 const blockPlan = layoutBlock(
@@ -404,7 +386,6 @@ function mulberry32(seed: number) {
 }
 
 describe.each([
-  ["the tower's Baroque floor", tower, 8],
   // Eleven: six galleries, two stair halls, the court and two spirals.
   ["a floor of the block plan", block, 11],
 ])("visibleRooms on %s", (_name, floorRooms, atLeast) => {
@@ -596,31 +577,26 @@ const SIDES = ["north", "south", "east", "west"] as const;
 const OPPOSITE = { north: "south", south: "north", east: "west", west: "east" } as const;
 
 describe("wallSharers", () => {
-  const floorRooms = tower;
-  const stairwell = floorRooms.find((r) => r.isStairwell) as RoomLayout;
-  const named = (suffix: string) => floorRooms.find((r) => r.id.endsWith(suffix)) as RoomLayout;
+  const floorRooms = block;
+  const named = (key: string) => floorRooms.find((r) => r.id.endsWith(`-${key}`)) as RoomLayout;
 
   it("names the rooms that stand against each side", () => {
-    expect(wallSharers(stairwell, floorRooms)).toEqual({
-      // Leaves its south wall out: the stairwell's is the only one.
-      north: [named("n-hall").id],
-      // Draws its own north wall on the same line.
-      south: [named("grand-hall").id],
-      // No door on these two, and still one wall between two rooms.
-      east: [named("-east").id],
-      west: [named("-west").id],
+    // The court is a cell wider each way than the stair rooms, so a
+    // corner of each long gallery stands against it too.
+    expect(wallSharers(named("court"), floorRooms)).toEqual({
+      north: [named("stair-n").id, named("nw").id, named("ne").id],
+      south: [named("stair-s").id, named("sw").id, named("se").id],
+      east: [named("ce").id],
+      west: [named("cw").id],
     });
   });
 
   it("leaves an outside wall to its own room", () => {
-    const strip = named("s-strip");
-    expect(wallSharers(strip, floorRooms).south).toEqual([]);
+    expect(wallSharers(named("nw"), floorRooms).north).toEqual([]);
   });
 
-  it.each([
-    ["the tower", tower],
-    ["the block plan", block],
-  ])("finds a drawn wall for every wall a room of %s leaves out", (_name, rooms) => {
+  it("finds a drawn wall for every wall a room leaves out", () => {
+    const rooms = block;
     // Every stretch of a left-out wall, cell by cell: a wall can run
     // past more than one neighbour.
     for (const r of rooms) {
@@ -647,10 +623,8 @@ describe("wallSharers", () => {
     }
   });
 
-  it.each([
-    ["the tower", tower],
-    ["the block plan", block],
-  ])("pairs up in %s: a room is on its neighbour's list for the facing side", (_name, rooms) => {
+  it("pairs up: a room is on its neighbour's list for the facing side", () => {
+    const rooms = block;
     const byId = new Map(rooms.map((r) => [r.id, r]));
     for (const r of rooms) {
       const shared = wallSharers(r, rooms);

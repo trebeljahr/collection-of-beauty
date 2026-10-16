@@ -12,7 +12,6 @@ import { useAudioSettings } from "@/lib/audio-settings";
 import type { ArtworkListing } from "@/lib/data";
 import { COURT_BRIDGE_PATTERNS } from "@/lib/gallery-layout/grand-stair";
 import { blockArrivalPoint, layoutBlock } from "@/lib/gallery-layout/layout-block";
-import { layoutMuseum } from "@/lib/gallery-layout/layout-museum";
 import { eraOfRoom, floorBlurb, floorTitle, paletteOfRoom } from "@/lib/gallery-layout/room-era";
 import { shaftKey, wallSharers } from "@/lib/gallery-layout/room-visibility";
 import type { FloorLayout, MuseumLayout, Staircase } from "@/lib/gallery-layout/types";
@@ -32,7 +31,6 @@ import { UNREFLECTED_LAYER } from "./floor-mirror";
 import { FloorReflection } from "./floor-reflection";
 import { GlowField } from "./glow-field";
 import { GrandStaircase } from "./grand-staircase";
-import { HallwayRenderer } from "./hallway";
 import { LandscapePrompt } from "./landscape-prompt";
 import { LodController } from "./lod-controller";
 import { Minimap, mapFillOf, type PlayerSample, roomRect } from "./minimap";
@@ -67,24 +65,16 @@ type Props = { artworks: ArtworkListing[] };
  * organic floor-to-floor walking.
  */
 export function Gallery3D({ artworks }: Props) {
-  // The museum is the block plan (layout-block.ts): four floors of long
-  // galleries round a court, a grand stair at each end and a spiral
-  // either side of the court. `?plan=tower` walks the plan before it
-  // (layout-museum.ts), kept so it can be compared or taken up again.
-  // Read once: the layout must not change under a running visit.
-  const [plan] = useState(() =>
-    new URLSearchParams(window.location.search).get("plan") === "tower" ? "tower" : "block",
-  );
+  // The museum's plan (layout-block.ts): four floors of long galleries
+  // round a court, a grand stair at each end and a spiral either side
+  // of the court.
   // `?bridges=none`: the court's void with no walkway across it
   // (`CourtBridges`).
   const [courtBridges] = useState(() => {
     const asked = new URLSearchParams(window.location.search).get("bridges");
     return COURT_BRIDGE_PATTERNS.find((p) => p === asked);
   });
-  const layout = useMemo(
-    () => (plan === "block" ? layoutBlock(artworks, { courtBridges }) : layoutMuseum(artworks)),
-    [artworks, plan, courtBridges],
-  );
+  const layout = useMemo(() => layoutBlock(artworks, { courtBridges }), [artworks, courtBridges]);
   const layoutIdentity = useMemo(() => galleryLayoutIdentity(layout), [layout]);
   const [restoredVisit] = useState(() => restoreGalleryVisit(layout, layoutIdentity));
   const poseRef = useRef<GalleryPose | null>(restoredVisit?.pose ?? null);
@@ -258,9 +248,9 @@ export function Gallery3D({ artworks }: Props) {
   const currentFloor = layout.floors[currentFloorIdx];
   const activeRoom = activeRoomIdx >= 0 ? currentFloor.rooms[activeRoomIdx] : undefined;
   // Where the visitor is, for the HUD: the floor's name, and the era of
-  // the gallery they stand in where that is not the floor's name. In the
-  // tower a floor is an era; in the block plan a floor holds two or
-  // three, and its halls and stairs belong to none of them. The light
+  // the gallery they stand in where that is not the floor's name. A
+  // floor holds two or three eras, and its halls and stairs belong to
+  // none of them. The light
   // does not follow it: every room is lit by its own palette wherever
   // the visitor stands (room-light.ts).
   const floorLabel = useMemo(() => {
@@ -269,8 +259,7 @@ export function Gallery3D({ artworks }: Props) {
     return era && era !== floor ? `${floor} · ${era}` : floor;
   }, [currentFloor, activeRoom]);
   // The stairs belong to no room and take the palette of the stair
-  // column: the floor's in the tower, one stone through every storey in
-  // the block plan.
+  // rooms: one stone through every storey.
   const stairPalette = useMemo(() => {
     const well = currentFloor.rooms.find((room) => room.isStairwell);
     return well ? paletteOfRoom(well) : currentFloor.era.palette;
@@ -304,7 +293,7 @@ export function Gallery3D({ artworks }: Props) {
   // the next flight should be visible. Without preloading this floor,
   // its stair geometry isn't mounted and the cutout reads as a black
   // void where the next flight ought to be. We mount it in a new
-  // "stairs"-only mode (no rooms, no hallways, no accents) per the
+  // "stairs"-only mode (no rooms, no accents) per the
   // user's request: "load the stairs for the room below but nothing
   // else." Falsy when not on a stair or when the beyond floor is
   // outside the building.
@@ -1162,7 +1151,6 @@ function FloorScene({
     [floor, showOnly],
   );
 
-  const hallways = showOnly ? [] : floor.hallways;
   // Stair geometry only mounts once per Staircase (from the lower
   // floor's stairsOut). Skipping stairsIn here avoids double-rendering
   // the same stair on the upper floor — the geometry is the same
@@ -1203,9 +1191,6 @@ function FloorScene({
           sharedWalls={sharedWalls.get(room.id) ?? NO_SHARED_WALLS}
           onPaintingSettled={room.id === entryRoomId ? onEntryPaintingSettled : undefined}
         />
-      ))}
-      {hallways.map((hw) => (
-        <HallwayRenderer key={hw.id} hallway={hw} floor={floor} />
       ))}
       <group ref={wellRef}>
         {stairs.map((s) => (
@@ -1280,10 +1265,7 @@ function FloorPreloader({
     // proximity loader takes over, so priming a whole floor just buries
     // the thumbs that matter behind a few hundred that don't (and
     // overruns the preload pool, evicting them again).
-    const all = [
-      ...other.rooms.flatMap((r) => r.placements),
-      ...other.hallways.flatMap((h) => h.placements),
-    ];
+    const all = other.rooms.flatMap((r) => r.placements);
     all.sort(
       (a, b) =>
         (a.position[0] - stair.centerX) ** 2 +

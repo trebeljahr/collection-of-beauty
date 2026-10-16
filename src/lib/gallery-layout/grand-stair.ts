@@ -1,26 +1,22 @@
-// Grand staircases for the block plan's square stair halls.
+// Grand staircases for the stair halls, and the court and the salon.
 //
-// The tower's stair is a spiral whose height is a function of the angle
-// walked round it (`spiral-physics.ts`). A grand stair is flights and
-// landings in a hall two storeys high, so it is described as surfaces:
-// each a patch of plan with a height over it. Where the visitor stands
-// is the highest surface they can step onto from where their feet are.
-// There is no state to carry, so the same rule holds on the hall floor,
-// on a flight, on a landing and on the gallery above, whichever floor
-// the renderer thinks is current.
+// A spiral stair's height is a function of the angle walked round it
+// (`spiral-physics.ts`). A grand stair is flights and landings in a hall
+// two storeys high, so it is described as surfaces: each a patch of
+// plan with a height over it. Where the visitor stands is the highest
+// surface they can step onto from where their feet are. There is no
+// state to carry, so the same rule holds on the hall floor, on a
+// flight, on a landing and on the gallery above, whichever floor the
+// renderer thinks is current.
 //
-// Three stairs, and two halls made from them:
+// Three designs:
 //
-//   imperial   One flight up the middle to a half landing, two flights
-//              back along the sides. Kunsthistorisches Museum Vienna,
-//              Carnegie Museum, Natural History Museum London.
-//   arcs       Two curved flights round a rotunda, meeting on the far
-//              side. Bode-Museum Berlin.
-//   hourglass  One straight flight that narrows to a landing at its
-//              waist and widens again. Kunstmuseum Bonn.
-//   loggia     The imperial stair on every storey, each over the one
-//              below, in the front of its hall. Its half landings run
-//              back to the end wall, which stands sheer between them.
+//   loggia     An imperial stair (one flight up the middle to a half
+//              landing, two back along the sides, as in the
+//              Kunsthistorisches Museum Vienna) on every storey, each
+//              over the one below, in the front of its hall. Its half
+//              landings run back to the end wall, which stands sheer
+//              between them.
 //   court      No stair: a hall open from its floor to the roof, with
 //              a gallery round the opening on every floor above.
 //   salon      No stair: a hall open from its floor to the roof, with a
@@ -28,15 +24,17 @@
 //              walls beside it on every floor above. The far wall
 //              stands sheer: it hangs a work taller than a storey.
 //
-// A stair can stand alone in a hall that is open above it to the roof
-// (`topFloor`): the floors over the one it arrives on are balconies
-// round the same opening. They can also stack, the flights of one
-// storey over the flights of the storey below (`hasFlightAbove`). The
-// first stack filled a hall 22.5 m square and felt cramped: a soffit
-// 5.8 m over every flight and no opening but the stair's own. The block
-// plan then gave each hall one stair, and Rico found that a stair that
-// is in another place on every floor reads worse. The loggia is the
-// stack again, each half landing a floor in front of the end wall.
+// A hall can be open above its floor to the roof (`topFloor`): the
+// floors over the one a stair arrives on are balconies round the same
+// opening. Stairs stack, the flights of one storey over the flights of
+// the storey below (`hasFlightAbove`). The first stack filled a hall
+// 22.5 m square and felt cramped: a soffit 5.8 m over every flight and
+// no opening but the stair's own. A plan with one stair to a hall
+// followed, and Rico found that a stair in another place on every floor
+// reads worse. The loggia is the stack again, each half landing a floor
+// in front of the end wall. A plain imperial stair in the middle of a
+// hall, a curved stair round a rotunda and an hourglass flight were
+// built, never used by a plan, and taken out on 17 October 2026.
 //
 // A design is drawn in the hall's own frame, the visitor coming in from
 // +z (south) and the first flight rising toward -z, and turned a quarter
@@ -47,7 +45,7 @@
 
 import { FLOOR_SEPARATION } from "./world-coords";
 
-export type GrandStairDesign = "imperial" | "arcs" | "hourglass" | "loggia" | "court" | "salon";
+export type GrandStairDesign = "loggia" | "court" | "salon";
 
 /** A straight flight along the hall's z axis. `z0` is its foot and `z1`
  *  its head, so it rises north when `z1 < z0`. Its half width runs from
@@ -79,22 +77,7 @@ export type FlatPatch = {
   solid?: boolean;
 };
 
-/** A curved flight, or a level sector when `steps` is 0. Angles are
- *  `atan2(z, x)`: 0 is east, a quarter turn is south. It starts at `a0`
- *  and turns through `sweep` (signed) as it rises from `y0` to `y1`. */
-export type ArcPatch = {
-  kind: "arc";
-  rIn: number;
-  rOut: number;
-  a0: number;
-  sweep: number;
-  y0: number;
-  y1: number;
-  steps: number;
-  solid: boolean;
-};
-
-export type StairPatch = FlightPatch | FlatPatch | ArcPatch;
+export type StairPatch = FlightPatch | FlatPatch;
 
 /** A balustrade: a straight run from one point to another, `y` the
  *  height of its foot at each end. A curved rail is a chain of these. */
@@ -124,13 +107,11 @@ export type StairLamp = { x: number; z: number; y: number };
 export type PlanRect = { xMin: number; xMax: number; zMin: number; zMax: number };
 
 /** The hole a stair's hall has in every floor over the one the stair
- *  leaves: round, or one or more rectangles that touch. `outline` is the
+ *  leaves: one or more rectangles that touch. `outline` is the
  *  rectangles' edge as one closed line of points, in order. The hole is
  *  the stair's own footprint and, in a hall with nothing over the stair,
  *  as much more of the hall as leaves a gallery inside its walls. */
-export type StairOpening =
-  | { kind: "rects"; rects: PlanRect[]; outline: Array<[number, number]> }
-  | { kind: "disc"; r: number };
+export type StairOpening = { rects: PlanRect[]; outline: Array<[number, number]> };
 
 /** A walkway across a hall's void on one floor: floor level with that
  *  floor's gallery, from one edge of the opening to the other. */
@@ -180,12 +161,6 @@ export type GrandStair = {
    *  on, or arrives on the floor this one leaves. */
   hasFlightAbove: boolean;
   hasFlightBelow: boolean;
-  /** The hall has no gallery along the wall its stair climbs toward:
-   *  the void reaches that wall on every floor over the stair's foot, so
-   *  the wall stands sheer from the hall floor to the roof. An imperial
-   *  stair with nothing over it, when asked. No plan asks: the loggia
-   *  had it until 17 October 2026 (see `LOGGIA`). */
-  sheerWall?: boolean;
   /** Everything below is in the hall's frame, heights in world metres. */
   patches: StairPatch[];
   rails: StairRail[];
@@ -258,10 +233,10 @@ export function toStairWorld(
  *  drawn and fenced from its rectangles. */
 export function openingOn(stair: GrandStair, floorIndex?: number): StairOpening {
   const o = stair.opening;
-  if (floorIndex === undefined || o.kind === "disc") return o;
+  if (floorIndex === undefined) return o;
   const cut = stair.bridges.filter((b) => b.floor === floorIndex).map((b) => b.rect);
   if (cut.length === 0) return o;
-  return { kind: "rects", rects: o.rects.flatMap((r) => rectMinus(r, cut)), outline: o.outline };
+  return { rects: o.rects.flatMap((r) => rectMinus(r, cut)), outline: o.outline };
 }
 
 /** A rectangle less some others, as the cells of the grid their edges
@@ -291,18 +266,11 @@ export function rectMinus(r: PlanRect, cut: readonly PlanRect[]): PlanRect[] {
   return out;
 }
 
-/** The opening as a world rectangle or disc: the void, or with a floor
- *  the hole in that floor (`openingOn`). */
-export function openingInWorld(
-  stair: GrandStair,
-  floorIndex?: number,
-):
-  | { kind: "rects"; rects: PlanRect[]; outline: Array<[number, number]> }
-  | { kind: "disc"; x: number; z: number; r: number } {
+/** The opening in world rectangles: the void, or with a floor the hole
+ *  in that floor (`openingOn`). */
+export function openingInWorld(stair: GrandStair, floorIndex?: number): StairOpening {
   const o = openingOn(stair, floorIndex);
-  if (o.kind === "disc") return { kind: "disc", x: stair.centerX, z: stair.centerZ, r: o.r };
   return {
-    kind: "rects",
     rects: o.rects.map((r) => {
       const a = toStairWorld(stair, r.xMin, r.zMin);
       const b = toStairWorld(stair, r.xMax, r.zMax);
@@ -320,40 +288,12 @@ export function openingInWorld(
   };
 }
 
-/** The compass side of the wall a sheer hall's void reaches: the one
- *  its stair climbs toward. */
-export function sheerSide(stair: Pick<GrandStair, "turns">): "north" | "east" | "south" | "west" {
-  return (["north", "east", "south", "west"] as const)[stair.turns];
-}
-
-/** Depth of the strip a sheer hall has no gallery over, measured in
- *  from its sheer wall: to the far edge of the stair's half landing. */
-export function sheerStripDepth(stair: Pick<GrandStair, "half">): number {
-  return stair.half + IMPERIAL.north;
-}
-
 /** How far an opening reaches from the hall's centre. */
 export function openingReach(o: StairOpening): number {
-  if (o.kind === "disc") return o.r;
   return Math.max(...o.rects.flatMap((r) => [-r.xMin, r.xMax, -r.zMin, r.zMax]));
 }
 
 // ── Surfaces ──────────────────────────────────────────────────────────
-
-const TAU = Math.PI * 2;
-
-/** How far along an arc patch a point is, 0 at its foot and 1 at its
- *  head, or null when the point is off it. */
-function arcProgress(p: ArcPatch, x: number, z: number): number | null {
-  const r = Math.hypot(x, z);
-  if (r < p.rIn || r > p.rOut) return null;
-  let d = (Math.atan2(z, x) - p.a0) * Math.sign(p.sweep || 1);
-  d = ((d % TAU) + TAU) % TAU;
-  const span = Math.abs(p.sweep);
-  // A point a hair before the foot reads as a full turn on.
-  if (d > span && d > TAU - 1e-6) d = 0;
-  return d <= span ? d / span : null;
-}
 
 function flightProgress(p: FlightPatch, x: number, z: number): number | null {
   const t = (z - p.z0) / (p.z1 - p.z0);
@@ -376,7 +316,7 @@ export function patchHeight(p: StairPatch, x: number, z: number): number | null 
   if (p.kind === "flat") {
     return x >= p.xMin && x <= p.xMax && z >= p.zMin && z <= p.zMax ? p.y : null;
   }
-  const t = p.kind === "flight" ? flightProgress(p, x, z) : arcProgress(p, x, z);
+  const t = flightProgress(p, x, z);
   if (t === null) return null;
   return stepped(p.y0, p.y1, p.steps, t);
 }
@@ -388,7 +328,7 @@ function patchUnderside(p: StairPatch, x: number, z: number, baseY: number): num
     if (patchHeight(p, x, z) === null) return null;
     return p.solid ? baseY : p.y - STAIR_SLAB;
   }
-  const t = p.kind === "flight" ? flightProgress(p, x, z) : arcProgress(p, x, z);
+  const t = flightProgress(p, x, z);
   if (t === null) return null;
   if (p.solid) return baseY;
   return p.y0 + (p.y1 - p.y0) * t - STAIR_SLAB;
@@ -398,7 +338,6 @@ function patchUnderside(p: StairPatch, x: number, z: number, baseY: number): num
  *  over the hole in that floor, walkways left out. */
 export function inOpening(stair: GrandStair, x: number, z: number, floorIndex?: number): boolean {
   const o = openingOn(stair, floorIndex);
-  if (o.kind === "disc") return Math.hypot(x, z) < o.r;
   return o.rects.some((r) => x >= r.xMin && x <= r.xMax && z >= r.zMin && z <= r.zMax);
 }
 
@@ -579,7 +518,6 @@ type Site = {
   upperY: number;
   hasFlightAbove: boolean;
   hasFlightBelow: boolean;
-  sheerWall?: boolean;
   /** Heights of the balcony floors over the floor the stair arrives
    *  on: the opening is fenced all round on each. */
   balconies: number[];
@@ -720,17 +658,17 @@ export function stairSignPosts(floor: {
   return posts;
 }
 
-function buildImperial(site: Site, loggia = false): Built {
+function buildLoggia(site: Site): Built {
   const { lowerY, upperY, hasFlightAbove, hasFlightBelow } = site;
   const mid = (lowerY + upperY) / 2;
   const { half, landingDepth, centralHalf, sideWidth } = IMPERIAL;
-  const shift = loggia ? loggiaShift(site.half) : 0;
+  const shift = loggiaShift(site.half);
   const north = IMPERIAL.north + shift;
   const south = IMPERIAL.south + shift;
   const landingSouth = north + landingDepth;
-  // A loggia's landing runs back to the end wall, and the wall carries
-  // it: no void behind it and no piers.
-  const far = loggia ? -site.back : north;
+  // The landing runs back to the end wall, and the wall carries it: no
+  // void behind it and no piers.
+  const far = -site.back;
   const sideInner = half - sideWidth;
   const sideCx = half - sideWidth / 2;
   const steps = GRAND_RISERS / 2;
@@ -758,10 +696,10 @@ function buildImperial(site: Site, loggia = false): Built {
       zMin: far,
       zMax: landingSouth,
       y: mid,
-      // The lowest loggia's landing is masonry to the floor, as its
-      // middle flight is: under it would be a low room against the end
-      // wall, 7 m deep and lit by nothing.
-      ...(loggia && solid ? { solid: true } : {}),
+      // The lowest landing is masonry to the floor, as its middle flight
+      // is: under it would be a low room against the end wall, 7 m deep
+      // and lit by nothing.
+      ...(solid ? { solid: true } : {}),
     },
     ...[-1, 1].map(
       (side): FlightPatch => ({
@@ -784,21 +722,12 @@ function buildImperial(site: Site, loggia = false): Built {
     // Central flight.
     rail(-centralHalf, south, lowerY, -centralHalf, landingSouth, mid, skirt),
     rail(centralHalf, south, lowerY, centralHalf, landingSouth, mid, skirt),
-    // Half landing: its far edge (but in a loggia, where the wall is),
-    // its ends, and the stretches of its near edge between the flights.
-    ...(loggia ? [] : [rail(-half, north, mid, half, north, mid)]),
-    rail(-half, far, mid, -half, landingSouth, mid, loggia ? skirt : undefined),
-    rail(half, far, mid, half, landingSouth, mid, loggia ? skirt : undefined),
-    rail(
-      -sideInner,
-      landingSouth,
-      mid,
-      -centralHalf,
-      landingSouth,
-      mid,
-      loggia ? skirt : undefined,
-    ),
-    rail(centralHalf, landingSouth, mid, sideInner, landingSouth, mid, loggia ? skirt : undefined),
+    // Half landing: its ends, back to the wall, and the stretches of its
+    // near edge between the flights.
+    rail(-half, far, mid, -half, landingSouth, mid, skirt),
+    rail(half, far, mid, half, landingSouth, mid, skirt),
+    rail(-sideInner, landingSouth, mid, -centralHalf, landingSouth, mid, skirt),
+    rail(centralHalf, landingSouth, mid, sideInner, landingSouth, mid, skirt),
   ];
   for (const side of [-1, 1]) {
     rails.push(
@@ -806,92 +735,36 @@ function buildImperial(site: Site, loggia = false): Built {
       rail(side * half, landingSouth, mid, side * half, south, upperY),
     );
   }
-  // The opening in the floors above. Over the stair it is the stair's
-  // own width. With nothing over the stair it runs on south over the
-  // hall floor in front of the middle flight, between two strips of
-  // floor the side flights arrive on, and stops a gallery's depth from
-  // the wall: the hall is open to the roof from the door to the landing.
-  // Under another stair it ends at the stair, and the next middle flight
-  // leaves from the middle of that edge.
-  const court = site.half - HALL_GALLERY;
-  const courted = !loggia && !hasFlightAbove && court > south + 2;
-  // A sheer wall: no gallery behind the half landing either. The void
-  // runs on north to the wall, the hall's whole width, and the side
-  // galleries end level with the landing's far edge.
-  const sheer = !loggia && courted && site.sheerWall === true;
-  const wall = site.half;
+  // The opening in the floors above: the stair's own width, from the end
+  // wall to its foot. Under another stair it ends at the stair, and the
+  // next middle flight leaves from the middle of that edge.
   const stairRect: PlanRect = { xMin: -half, xMax: half, zMin: far, zMax: south };
-  // The stair's own edge on the side the visitor comes in from, east to
-  // west: the heads of the side flights at its ends, and in the middle
-  // the hall floor in front of the middle flight (a court's far edge) or
-  // the foot of the next stair.
-  const front: Array<[number, number]> = courted
-    ? [
-        [half, south],
-        [sideInner, south],
-        [sideInner, court],
-        [-sideInner, court],
-        [-sideInner, south],
-        [-half, south],
-      ]
-    : [
-        [half, south],
-        [sideInner, south],
-        [centralHalf, south],
-        [-centralHalf, south],
-        [-sideInner, south],
-        [-half, south],
-      ];
-  const outline: Array<[number, number]> = sheer
-    ? [
-        [-wall, -wall],
-        [wall, -wall],
-        [wall, north],
-        [half, north],
-        ...front,
-        [-half, north],
-        [-wall, north],
-      ]
-    : [[-half, far], [half, far], ...front];
-  // Edges with no balustrade. Along a wall: the first two and the last
-  // of a sheer hall's outline, the first of a loggia's. The heads of the
-  // two side flights. The foot of the next stair, where there is one.
-  const first = sheer ? 3 : 1;
-  const onWall = sheer ? [0, 1, outline.length - 1] : loggia ? [0] : [];
-  const arrivals = courted
-    ? [first + 1, first + 5]
-    : [first + 1, first + 5, ...(hasFlightAbove ? [first + 3] : [])];
+  // The opening's edge: along the end wall, then east to west on the
+  // side the visitor comes in from, the heads of the side flights at its
+  // ends and the foot of the next stair in the middle.
+  const outline: Array<[number, number]> = [
+    [-half, far],
+    [half, far],
+    [half, south],
+    [sideInner, south],
+    [centralHalf, south],
+    [-centralHalf, south],
+    [-sideInner, south],
+    [-half, south],
+  ];
+  // Edges with no balustrade: the end wall, the heads of the two side
+  // flights, and the foot of the next stair, where there is one.
+  const onWall = [0];
+  const arrivals = [2, 6, ...(hasFlightAbove ? [4] : [])];
   rails.push(...fence(outline, upperY, [...onWall, ...arrivals]));
   for (const y of site.balconies) rails.push(...fence(outline, y, onWall));
-
-  // Piers under the landing's far edge, but in a loggia, whose wall
-  // carries it. Each stands on the landing of the stair below, or on
-  // the hall floor.
-  const footY = hasFlightBelow ? mid - FLOOR_SEPARATION : lowerY;
-  const columns: StairColumn[] = loggia
-    ? []
-    : [-half + 0.3, -centralHalf - 0.5, centralHalf + 0.5, half - 0.3].map((x) => ({
-        x,
-        z: north + 0.3,
-        size: 0.6,
-        y0: footY,
-        y1: mid - STAIR_SLAB,
-      }));
 
   return {
     patches,
     rails,
-    columns,
+    columns: [],
     lamps: [-1, 1].map((side) => ({ x: side * centralHalf, z: south, y: lowerY })),
-    opening: {
-      kind: "rects",
-      rects: [
-        ...(sheer ? [{ xMin: -wall, xMax: wall, zMin: -wall, zMax: north }] : []),
-        stairRect,
-        ...(courted ? [{ xMin: -sideInner, xMax: sideInner, zMin: south, zMax: court }] : []),
-      ],
-      outline,
-    },
+    opening: { rects: [stairRect], outline },
   };
 }
 
@@ -948,7 +821,7 @@ function buildCourt(site: Site): Built {
     rails,
     columns: [],
     lamps: [],
-    opening: { kind: "rects", rects: [whole], outline },
+    opening: { rects: [whole], outline },
     bridges,
   };
 }
@@ -985,254 +858,14 @@ function buildSalon(site: Site): Built {
     columns: [],
     lamps: [],
     opening: {
-      kind: "rects",
       rects: [{ xMin: -inner, xMax: inner, zMin: -w, zMax: inner }],
       outline,
     },
   };
 }
 
-// Two curved flights round a rotunda. They leave a level sector on the
-// side the visitor comes in from and meet on a level sector opposite.
-export const ARCS = {
-  rIn: 4.6,
-  rOut: 7.8,
-  /** Half the angle of each level sector. */
-  gate: (16 * Math.PI) / 180,
-  /** Straight pieces a curved rail is drawn in, per flight. */
-  railSegments: 14,
-} as const;
-
-function buildArcs(site: Site): Built {
-  const { lowerY, upperY, hasFlightAbove, hasFlightBelow } = site;
-  const { rIn, rOut, gate, railSegments } = ARCS;
-  const south = Math.PI / 2;
-  const north = -Math.PI / 2;
-  const sweep = Math.PI - 2 * gate;
-  const solid = !hasFlightBelow;
-
-  const patches: StairPatch[] = [
-    // The foot: level with the floor the stair leaves. On an upper floor
-    // it is a bridge over the well from the gallery to both flights.
-    {
-      kind: "arc",
-      rIn,
-      rOut,
-      a0: south - gate,
-      sweep: 2 * gate,
-      y0: lowerY,
-      y1: lowerY,
-      steps: 0,
-      solid: false,
-    },
-    // East flight turns clockwise on the plan (angle falling), west
-    // flight the other way.
-    {
-      kind: "arc",
-      rIn,
-      rOut,
-      a0: south - gate,
-      sweep: -sweep,
-      y0: lowerY,
-      y1: upperY,
-      steps: GRAND_RISERS,
-      solid,
-    },
-    {
-      kind: "arc",
-      rIn,
-      rOut,
-      a0: south + gate,
-      sweep,
-      y0: lowerY,
-      y1: upperY,
-      steps: GRAND_RISERS,
-      solid,
-    },
-    // The head, level with the floor above.
-    {
-      kind: "arc",
-      rIn,
-      rOut,
-      a0: north - gate,
-      sweep: 2 * gate,
-      y0: upperY,
-      y1: upperY,
-      steps: 0,
-      solid,
-    },
-  ];
-
-  const rails: StairRail[] = [];
-  const arcRail = (
-    r: number,
-    a0: number,
-    turn: number,
-    y0: number,
-    y1: number,
-    skirtTo?: number,
-  ) => {
-    const n = Math.max(1, Math.round((Math.abs(turn) / sweep) * railSegments));
-    for (let i = 0; i < n; i++) {
-      const a = a0 + (turn * i) / n;
-      const b = a0 + (turn * (i + 1)) / n;
-      rails.push(
-        rail(
-          r * Math.cos(a),
-          r * Math.sin(a),
-          y0 + ((y1 - y0) * i) / n,
-          r * Math.cos(b),
-          r * Math.sin(b),
-          y0 + ((y1 - y0) * (i + 1)) / n,
-          skirtTo,
-        ),
-      );
-    }
-  };
-  const skirt = solid ? lowerY : undefined;
-  for (const [a0, turn] of [
-    [south - gate, -sweep],
-    [south + gate, sweep],
-  ] as const) {
-    arcRail(rIn, a0, turn, lowerY, upperY, skirt);
-    arcRail(rOut, a0, turn, lowerY, upperY, skirt);
-  }
-  // The head's inner edge looks down the well.
-  arcRail(rIn, north - gate, 2 * gate, upperY, upperY, skirt);
-  // The foot's inner edge too, where the foot is a bridge. On the hall
-  // floor it is the way into the rotunda.
-  if (hasFlightBelow) arcRail(rIn, south - gate, 2 * gate, lowerY, lowerY);
-  // Round the opening on the floor above: closed but for the head, and
-  // for the foot of the next stair when there is one.
-  if (hasFlightAbove) {
-    arcRail(rOut, south - gate, -sweep, upperY, upperY);
-    arcRail(rOut, south + gate, sweep, upperY, upperY);
-  } else {
-    arcRail(rOut, north + gate, TAU - 2 * gate, upperY, upperY);
-  }
-
-  for (const y of site.balconies) arcRail(rOut, north + gate, TAU, y, y);
-
-  return {
-    patches,
-    rails,
-    columns: [],
-    // Either side of the way in, on the outer rails' first posts.
-    lamps: [-1, 1].map((side) => ({
-      x: rOut * Math.cos(south + side * gate),
-      z: rOut * Math.sin(south + side * gate),
-      y: lowerY,
-    })),
-    opening: { kind: "disc", r: rOut },
-  };
-}
-
-// One straight flight, 9 m wide at its foot and head and 4 m at the
-// landing in its waist.
-export const HOURGLASS = {
-  end: 7.9,
-  landingHalfDepth: 1.1,
-  wide: 4.5,
-  waist: 2,
-} as const;
-
-function buildHourglass(site: Site): Built {
-  const { lowerY, upperY, hasFlightAbove, hasFlightBelow } = site;
-  const { end, landingHalfDepth, wide, waist } = HOURGLASS;
-  const mid = (lowerY + upperY) / 2;
-  const steps = GRAND_RISERS / 2;
-  const solid = !hasFlightBelow;
-
-  const patches: StairPatch[] = [
-    {
-      kind: "flight",
-      cx: 0,
-      z0: end,
-      z1: landingHalfDepth,
-      hw0: wide,
-      hw1: waist,
-      y0: lowerY,
-      y1: mid,
-      steps,
-      solid,
-    },
-    {
-      kind: "flat",
-      xMin: -waist,
-      xMax: waist,
-      zMin: -landingHalfDepth,
-      zMax: landingHalfDepth,
-      y: mid,
-    },
-    {
-      kind: "flight",
-      cx: 0,
-      z0: -landingHalfDepth,
-      z1: -end,
-      hw0: waist,
-      hw1: wide,
-      y0: mid,
-      y1: upperY,
-      steps,
-      solid: false,
-    },
-  ];
-
-  const skirt = solid ? lowerY : undefined;
-  const rails: StairRail[] = [];
-  for (const side of [-1, 1]) {
-    rails.push(
-      rail(side * wide, end, lowerY, side * waist, landingHalfDepth, mid, skirt),
-      rail(side * waist, landingHalfDepth, mid, side * waist, -landingHalfDepth, mid),
-      rail(side * waist, -landingHalfDepth, mid, side * wide, -end, upperY),
-    );
-  }
-  // The opening in the floors above: the stair's length, and with
-  // nothing over the stair twice its width, so the flight stands free
-  // in the well with air on both sides. The head arrives in the middle
-  // of the far edge; under another stair, the next foot leaves from the
-  // near one.
-  const voidHalf = hasFlightAbove
-    ? wide
-    : Math.max(wide, Math.min(site.half - HALL_GALLERY, 2 * wide));
-  const outline: Array<[number, number]> = [
-    [-voidHalf, -end],
-    [-wide, -end],
-    [wide, -end],
-    [voidHalf, -end],
-    [voidHalf, end],
-    [-voidHalf, end],
-  ];
-  rails.push(...fence(outline, upperY, hasFlightAbove ? [1, 4] : [1]));
-  for (const y of site.balconies) rails.push(...fence(outline, y));
-
-  const footY = hasFlightBelow ? mid - FLOOR_SEPARATION : lowerY;
-  const columns: StairColumn[] = [-1, 1].map((side) => ({
-    x: side * (waist - 0.3),
-    z: -landingHalfDepth + 0.3,
-    size: 0.6,
-    y0: footY,
-    y1: mid - STAIR_SLAB,
-  }));
-
-  return {
-    patches,
-    rails,
-    columns,
-    lamps: [-1, 1].map((side) => ({ x: side * wide, z: end, y: lowerY })),
-    opening: {
-      kind: "rects",
-      rects: [{ xMin: -voidHalf, xMax: voidHalf, zMin: -end, zMax: end }],
-      outline,
-    },
-  };
-}
-
 const BUILDERS: Record<GrandStairDesign, (site: Site) => Built> = {
-  imperial: (site) => buildImperial(site),
-  arcs: buildArcs,
-  hourglass: buildHourglass,
-  loggia: (site) => buildImperial(site, true),
+  loggia: buildLoggia,
   court: buildCourt,
   salon: buildSalon,
 };

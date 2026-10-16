@@ -340,17 +340,6 @@ export function clearSpans(
   return spans.filter(([s, e]) => e - s > 0.01);
 }
 
-/** How far inside their lines a stair hall with a sheer wall draws its
- *  walls (room-geometry.tsx says why). Every pool in such a hall lies on
- *  the wall as drawn. Left on the wall's line, 2 mm off it, a pool was
- *  2 mm behind the plaster: the depth test passed it where the wall was
- *  seen at a slant and failed it elsewhere, and a pool came and went in
- *  blocks as the visitor turned. */
-export const SHEER_HALL_WALL_INSET = 0.004;
-export function wallInsetOf(room: { sheer?: unknown }): number {
-  return room.sheer ? SHEER_HALL_WALL_INSET : 0;
-}
-
 /** The compass wall a placement hangs on, from its turn about y
  *  (place-paintings: 0 north, π south, π/2 west, -π/2 east). */
 export function wallSideOf(rotationY: number): "north" | "south" | "east" | "west" {
@@ -491,4 +480,15 @@ export function wallContextFor(
     floorY,
     thresholds,
   };
+}
+
+/** How far inside their lines a stair hall with a sheer wall draws its
+ *  walls (room-geometry.tsx says why). Every pool in such a hall lies on
+ *  the wall as drawn. Left on the wall's line, 2 mm off it, a pool was
+ *  2 mm behind the plaster: the depth test passed it where the wall was
+ *  seen at a slant and failed it elsewhere, and a pool came and went in
+ *  blocks as the visitor turned. */
+export const SHEER_HALL_WALL_INSET = 0.004;
+export function wallInsetOf(room: { sheer?: unknown }): number {
+  return room.sheer ? SHEER_HALL_WALL_INSET : 0;
 }

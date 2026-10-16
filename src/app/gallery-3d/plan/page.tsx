@@ -35,8 +35,8 @@ export default function FloorPlanPage() {
             without a movement label are slots that didn&apos;t have a movement to claim them.
           </p>
           <p className="text-neutral-500 text-xs">
-            Floors: {museumLayout.floors.length} · Rooms: {museumLayout.allRooms.length} · Hallways:{" "}
-            {museumLayout.allHallways.length} · Doors: {totalDoors}
+            Floors: {museumLayout.floors.length} · Rooms: {museumLayout.allRooms.length} · Doors:{" "}
+            {totalDoors}
           </p>
         </header>
 
@@ -60,7 +60,6 @@ function FloorSvg({ floor }: { floor: FloorLayout }) {
   const eraArtworkCount = floor.rooms.reduce((acc, r) => acc + r.artworks.length, 0);
   const doorCount = floor.rooms.reduce((n, r) => n + r.doors.length, 0);
   const placedInRooms = floor.rooms.reduce((n, r) => n + r.placements.length, 0);
-  const placedInHallways = floor.hallways.reduce((n, h) => n + h.placements.length, 0);
 
   return (
     <section className="space-y-3">
@@ -69,8 +68,8 @@ function FloorSvg({ floor }: { floor: FloorLayout }) {
         <h2 className="text-xl font-semibold">{floor.era.title}</h2>
         <span className="text-neutral-500 text-xs">
           {floor.era.yearMin}–{floor.era.yearMax === 9999 ? "now" : floor.era.yearMax} ·{" "}
-          {floor.rooms.length} rooms · {floor.hallways.length} hallways · {doorCount} doors ·{" "}
-          {eraArtworkCount} works ({placedInRooms}+{placedInHallways} placed)
+          {floor.rooms.length} rooms · {doorCount} doors · {eraArtworkCount} works ({placedInRooms}{" "}
+          placed)
         </span>
       </div>
       <p className="text-neutral-400 text-sm italic">{floor.era.blurb}</p>

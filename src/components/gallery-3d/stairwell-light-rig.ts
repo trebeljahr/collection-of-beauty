@@ -49,39 +49,23 @@ export const WASH_OUTER_DEG = 33;
  *  before. */
 export const WASH_PEAK = 3.5;
 
-/** Glazed ring round the well: inner and outer radius, metres from the
- *  stair's axis. The inner edge clears the floor cutout above it; the
- *  outer one leaves the washers' cans a metre of plain ceiling. */
-export const RING_INNER_R = 5.95;
-export const RING_OUTER_R = 8.35;
-/** Panes round the ring, and the radial depth of one row of them. */
-export const RING_PANES = 32;
-export const RING_ROW_M = 1.2;
-/** Rows of panes in the ring, and in the oculus that closes the top
- *  floor (the same ring carried in to a round centre pane). */
-export const RING_ROWS = Math.round((RING_OUTER_R - RING_INNER_R) / RING_ROW_M);
-export const OCULUS_ROWS = 6;
-export const OCULUS_HUB_R = RING_OUTER_R - OCULUS_ROWS * RING_ROW_M;
+/** Panes round the dome, and the depth of one row of them on its
+ *  curve. */
+export const DOME_PANES = 32;
+export const DOME_ROW_M = 1.2;
+/** Radius of the round pane at the dome's crown. */
+export const DOME_HUB_R = 1.15;
 
 /** Plain ceiling kept between a washer's can and the glass. */
 export const GLAZING_CAN_CLEAR = 1.0;
 
 /**
- * Outer radius of the glazing in a stair room `width` by `depth`: the
- * ring's own, or less where the washers' cans would hang over the glass.
- * The ring was drawn for the tower's stairwell, 22.5 m square. A spiral
- * room of the block plan is 17.5 m deep, and the glass reached to 0.4 m
- * of its long walls, under the cans that hang 1.9 m out from them.
+ * Rim of the dome over a stair room `width` by `depth`: a metre of plain
+ * ceiling short of the washers' cans, which hang 1.9 m out from every
+ * wall. Rico, 17 October 2026: no light hangs on the glass.
  */
 export function glazingOuterR(width: number, depth: number): number {
-  return Math.min(RING_OUTER_R, Math.min(width, depth) / 2 - WASH_THROW - GLAZING_CAN_CLEAR);
-}
-
-/** Whether a glazed ring round the well fits inside `outerR`: one row of
- *  panes at least. Where it does not, the ceiling round the well is
- *  plain. */
-export function ringFits(outerR: number): boolean {
-  return outerR - RING_INNER_R >= RING_ROW_M;
+  return Math.min(width, depth) / 2 - WASH_THROW - GLAZING_CAN_CLEAR;
 }
 
 /** How high the dome that closes the top floor rises over its rim, as a
@@ -91,7 +75,7 @@ export const DOME_RISE = 0.75;
 /** The dome over a rim of radius `rimR`: a spherical cap, `rise` high,
  *  whose height over the rim at a distance `r` from the axis is
  *  `heightAt(r)`. `rows` rows of panes run from the hub to the rim,
- *  each about RING_ROW_M long on the curve. */
+ *  each about DOME_ROW_M long on the curve. */
 export function dome(rimR: number): {
   rise: number;
   rows: number;
@@ -103,9 +87,9 @@ export function dome(rimR: number): {
   const rise = rimR * DOME_RISE;
   const sphere = (rimR * rimR + rise * rise) / (2 * rise);
   const centreY = rise - sphere;
-  const hubAngle = Math.asin(OCULUS_HUB_R / sphere);
+  const hubAngle = Math.asin(DOME_HUB_R / sphere);
   const rimAngle = Math.asin(rimR / sphere);
-  const rows = Math.max(3, Math.round((sphere * (rimAngle - hubAngle)) / RING_ROW_M));
+  const rows = Math.max(3, Math.round((sphere * (rimAngle - hubAngle)) / DOME_ROW_M));
   return {
     rise,
     rows,

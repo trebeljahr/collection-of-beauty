@@ -469,31 +469,11 @@ required by the Dockerfile — don't remove it.
 - `texture-cache.ts` is module-scope so it survives the Canvas remount
   used to recover from WebGL context loss. **Don't** initialize it
   inside a component or hook.
-- The Grand Hall (spawn and floor-teleport room) is composed, not
-  filled: [`grand-hall.ts`](src/lib/gallery-layout/grand-hall.ts)
-  hangs the floor's largest high-resolution works in mirrored,
-  height-matched pairs, biggest pair beside the stairwell door. Its
-  candidates are picked before `selectFloorWorks` samples the era, and
-  `distributePaintings` skips the hall so spill can't break the
-  symmetry. A floor with fewer than 4 composable works falls back to
-  the ordinary hang. Both works of a pair hang in one frame
-  (`pickPairDesign`), drawn from the looks both schools hang in, each
-  weighted by how well it suits both pictures. Two schools with no look
-  in common keep the lead's own design. The hall frames for its wall
-  colour and keeps to one family of finishes like any room
-  (`roomHanging` over its whole pool, before a pair is chosen, because
-  a pair's frame decides the wall the pair claims). The placements
-  carry the frame as `Placement.frame`; without one the renderer uses
-  `pickFrameDesign`.
-  The slot's wall and lift come from that same frame, so read
-  `Placement.frame` wherever a hall work's reach matters.
 - A room has fittings besides its four walls: a ceiling height,
   freestanding divider walls and benches
   ([`fittings.ts`](src/lib/gallery-layout/fittings.ts)). They are
-  planned from the room's footprint and the doors it has when all 24
-  slots are open (`fittingsFor` in `layout-museum.ts`), so a room is
-  fitted the same on every storey and its wall can be counted before a
-  floor's doors are wired.
+  planned from the room's footprint and its doors, which are the same
+  on every storey, so a room is fitted the same on every storey.
   - **Ceiling.** `RoomLayout.ceilingHeight`: 4.6 m when the narrow side
     is 10 m, 6.6 m when it is 17.5 m or more, 5.6 m between and in the
     stairwell ("How high things are", below). Walls still run to the
@@ -512,13 +492,12 @@ required by the Dockerfile — don't remove it.
     - `pinwheel`: four panels, each a quarter turn from the last, in a
       room 22.5 m or more both ways;
     - `cross-rows`: rows along the room's other axis.
-    The plan names a style for each room: `SLOT_STYLES` in the tower,
-    `BLOCK_PLAN[].styles` in the block plan. A room not named, or named
-    a style it has no place for, takes rows when it is a hall (17.5 m
-    both ways) and bays when it is a long room (17.5 m or more, and 1.4
-    times its width). The Grand Hall gets none. Until 13 October 2026
+    The plan names a style for each room (`BLOCK_PLAN[].styles`). A
+    room not named, or named a style it has no place for, takes rows
+    when it is a hall (17.5 m both ways) and bays when it is a long room
+    (17.5 m or more, and 1.4 times its width). Until 13 October 2026
     every hall had the same four panels and every long room the same
-    paired wing walls, and Rico found it repetitive: both plans' tests
+    paired wing walls, and Rico found it repetitive: the plan's tests
     check that two neighbours are not divided alike.
   - **Door screens.** A wall 2.5 m inside a door and parallel to it,
     5 m long, or 2.5 m in front of a 1.4 m door in a wall under 15 m.
@@ -538,21 +517,17 @@ required by the Dockerfile — don't remove it.
     room's works that fits it, hung on the middle of the screen
     (`hangFeatures`, `WallRun.feature`). A room of small sheets has no
     work that holds 4.4 m alone and hangs the screen like any wall. The
-    plan names each screen by its room and the room its door leads to:
-    `SLOT_SCREENS`, `BLOCK_PLAN[].screens`. Before adding one:
+    plan names each screen by its room and the room its door leads to
+    (`BLOCK_PLAN[].screens`). Before adding one:
     - never in front of a portal, never on both sides of one door, and
       only where 12.5 m of room lie behind the door;
-    - in the tower a slot is fitted once for every storey, so a screen
-      goes only at a door to a slot that opens no later than its own
-      (`SLOT_STAGES`). At any other door it would stand in front of a
-      blank wall on the storeys that open fewer rooms;
     - a door stands in the middle of a cell, so a 5 m screen ends on
       half lines. `writeDividerEdges` blocks whole cells only; the rest
       is the collider and `clearOfFittings`;
     - a screened door has no line of sight to keep. A row runs on past
       it, and the door in the wall opposite looks at the screen's
       picture. No other divider stands in an open door's line of sight;
-      `layout-museum.test.ts` checks it on a floor with every room open;
+      `fittings.test.ts` checks it for every style;
     - two walls keep 5 m apart face to face, 2.5 m end to end in one
       line and 3.75 m corner to corner (`clash`). A row or a wing wall
       that would stand nearer a screen is left out.
@@ -563,29 +538,24 @@ required by the Dockerfile — don't remove it.
        the edge mask alone stops the player 0.1 m inside the plaster;
     3. two runs in `computeRoomRuns`, one per face (`WallRun.divider`,
        `Placement.divider`; one run for a screen), and a cut in the room
-       wall a wing wall is built off. `dividerWallMetres` counts them
-       when a floor decides how many rooms to open: the tower went from
-       116 rooms to 96;
+       wall a wing wall is built off;
     4. a wall for the picture light: `wallContextFor` takes the
        divider's face, so the pool stops at its ends.
     Laylights are cut where a divider reaches under them
     (`laylight-layout.ts`). Each sits 10 cm up in a hole in the ceiling
     with a plaster reveal round it (`RECESS_M`, `ceilingAround` in
     `laylight.tsx`); Rico asked for 5 to 10 cm on 17 October 2026.
-  - **Portals.** The doors between the rooms of the stair column
-    (`Door.portal`, 3.5 × 3.0 m; every other door is 1.4 × 2.4 m). A
+  - **Portals.** The doors of the spine (`Door.portal`, 3.5 × 3.0 m;
+    every other door is `BLOCK_DOOR_WIDTH` × `BLOCK_DOOR_HEIGHT`). A
     door centre sits mid-cell, so a portal opens three cell edges
     (`doorOpenHalfSpan`) and is narrower than the three cells: the
     physics world closes each jamb with a collider, and
-    `fitsDoorwayApertures` does the same without one. A portal costs
-    the Grand Hall's front and back walls 2.1 m each, so the composed
-    hang takes smaller second pairs there, or none (Baroque: 8 works,
-    12 before).
+    `fitsDoorwayApertures` does the same without one.
   - **Benches.** `RoomLayout.benches`, modelled in `bench-geometry.ts`.
     They follow how the room's walls are set out (`arrangementOf`): one
     in each bay between wing walls, two facing the panels of a room of
     rows, an island of two back to back in any other room 15 m or more
-    across, two islands in the Grand Hall. A door screen seats nothing,
+    across. A door screen seats nothing,
     and no bench stands within a metre of one. None stands in the
     walking line between doors; a screened door has none. A bench is smaller than a cell, so it is in no edge
     mask: it is a box collider, and `clearOfFittings` in
@@ -616,8 +586,7 @@ required by the Dockerfile — don't remove it.
   - A bench can stand on a room's centre, so nothing sends the player
     to a raw room centre: use `arrivalPoint`.
   - Dividers and benches are part of `galleryLayoutIdentity`. Change
-    where they stand and every saved visit restarts once in its floor's
-    Grand Hall.
+    where they stand and every saved visit restarts once in the court.
 - **Jump has one code path.** `jump()` in `player.tsx` checks `enabled`
   and `grounded`. The Space key calls it, and the touch HUD's Jump button
   calls it through `PlayerHandle`, the Player's `ref`. The button stands
@@ -628,10 +597,14 @@ required by the Dockerfile — don't remove it.
   under the crosshair.
 - **The museum is the block plan** (`/gallery-3d`,
   `src/lib/gallery-layout/layout-block.ts`) since 17 October 2026. The
-  tower before it is behind `/gallery-3d?plan=tower`, and its code stays
-  (tag `museum-tower-default-2026-10-17` is the last main with the tower
-  as default). `precomputed.ts` and `/gallery-3d/plan` show the block
-  plan; `build-museum-screenshots.mjs` walks the tower. One rectangular
+  tower before it (a storey per era round one spiral stairwell, a
+  composed Grand Hall on each) and the code only it used were removed
+  the same day; tag `museum-tower-default-2026-10-17` is the last main
+  with it. What the plans shared moved to `floor-works.ts`
+  (`bucketByEra`, `selectFloorWorks`, `fillRooms`) and
+  `blocked-edges.ts`. Where a note below says "the tower", it is that
+  plan's history. `build-museum-screenshots.mjs` still has the tower's
+  shot list and needs retuning. One rectangular
   block, 117.5 × 62.5 m, on four floors, the same plan on each. Down
   its middle runs a spine of five bays: a stair hall 27.5 m wide and
   20 m deep at each end, a court 27.5 m square in the centre, and a
@@ -760,8 +733,9 @@ required by the Dockerfile — don't remove it.
       that a stair in another place on each floor reads worse. In a
       loggia a flight has the next one 8.1 m over it (5.8 m while the
       storey was 6.12 m); the hall has its height behind the stair,
-      and every half landing looks into it. `arcs` and `hourglass` and the single `imperial` are
-      still built and tested; no plan uses them.
+      and every half landing looks into it. The `arcs`, `hourglass` and
+      single `imperial` designs were built and tested, never used by a
+      plan, and taken out on 17 October 2026.
     - **The court** (`design: "court"`) has no patches. Its one object
       runs from the first floor to the top (`topFloor`): floor from
       wall to wall on the first, a gallery 5 m wide round a square
@@ -813,9 +787,8 @@ required by the Dockerfile — don't remove it.
       closed and glazed: a laylight over the void.
     - **A stair is cut off at its hall's walls** (`WALL_CLEAR` in
       `grand-staircase.tsx`). A wall is a plane with no thickness, and
-      the room behind draws its own on the same line. A sheer hall's
-      gallery fence ends at the side wall, and the post there is
-      centred on the wall line. Until 13 October 2026 the 12 such posts
+      the room behind draws its own on the same line. A gallery fence
+      that ends at a side wall has its post centred on the wall line. Until 13 October 2026 the 12 such posts
       of the loggias each stood 22 cm into the long gallery next door.
       Every box of a stair goes through `Solid`, which stops it 2 cm
       inside the wall, and 2 cm inside `back` toward the end wall. A
@@ -1240,12 +1213,11 @@ required by the Dockerfile — don't remove it.
     with too few works leaves both stretches bare. The East Asian and
     Impressionist floors have few giants, and their hall storeys hang
     three works.
-    No plan has a sheer wall now. The support for one stays, for an
-    imperial stair that asks for it (`GrandStair.sheerWall`) and for
-    `RoomLayout.sheer`, which nothing sets: walls 4 mm inside their
-    lines and `wallInsetOf(room)` for what lies on them, one-sided
-    skirting left out where there is no floor (`SkirtingClip`), and
-    washers that skip the sheer wall (`washedWalls`). A hole that
+    No stair hall has a sheer wall now; the salon's far wall is one
+    (`RoomLayout.sheer`), and keeps the support: walls 4 mm inside
+    their lines and `wallInsetOf(room)` for what lies on them, skirting
+    left out where there is no floor (`SkirtingClip`), and washers that
+    skip the sheer wall (`washedWalls`). A hole that
     touches a shape's edge does not triangulate, so a hall's floor and
     ceiling round an opening of rectangles are still built from the
     rectangles left (`rectsAround` in `stair-opening.ts`).
@@ -1326,10 +1298,6 @@ required by the Dockerfile — don't remove it.
     from small scans. Do
     not raise the threshold past 1,280: that is all a 3.2 m canvas has
     on the 4096 rung.
-  - Dividers add wall to a room and do not count when a floor decides
-    how many rooms to open (`roomWallMetres` in `layout-museum.ts`).
-    Counted, they closed rooms and filled the rest: 30 works a room
-    where it had been 25.
 - **Where in a room a work hangs** (`place-paintings.ts`) is decided
   in two steps. `tryAssign` puts a work in a room, spill included.
   `evenOutRoom` then deals the room's works over its runs again:
@@ -1531,20 +1499,18 @@ required by the Dockerfile — don't remove it.
     that are now lit. Those rooms cost up to 72 draw calls more.
   The scene's fog (`index.tsx`, 20 to 80 m) is left as it was. Down the
   block plan's spine a room 50 m off is half dark through it.
-- The tower's stairwell hangs no works, so it has its own light
-  (`stairwell-light.tsx`, geometry in `stairwell-light-rig.ts`), built
-  the same way. A hall of the block plan has the same washers, a row to
-  each stretch of its walls ("A hall is lit by rows of wall washers",
-  above):
-  - a plaster ceiling a storey up, with a glazed ring round the well.
-    On the top floor a glazed dome closes it, rising 0.75 of its rim's
-    radius over the ceiling (`dome()`, `DOME_RISE`), shaded darker
-    toward the rim because the glass is unlit;
-  - the glass stops a metre short of the washers' cans
-    (`glazingOuterR`). Rico, 17 October 2026: no light hangs on the
-    glass. A spiral room of the block plan is 17.5 m deep, so its dome
-    has a 5.85 m rim and its lower floors have no ring (`ringFits`);
-    the tower's stairwell keeps its 8.35 m ring;
+- The stair rooms have their own light (`stairwell-light.tsx`,
+  geometry in `stairwell-light-rig.ts`), built the same way. A hall has
+  a row of washers to each stretch of its walls ("A hall is lit by rows
+  of wall washers", above):
+  - a plaster ceiling a storey up. On a spiral room's top floor a glazed
+    dome closes it, rising 0.75 of its rim's radius over the ceiling
+    (`dome()`, `DOME_RISE`), shaded darker toward the rim because the
+    glass is unlit;
+  - the dome stops a metre short of the washers' cans
+    (`glazingOuterR`): a 5.85 m rim in a room 17.5 m deep. Rico,
+    17 October 2026: no light hangs on the glass. The tower's glass ring
+    round the well on the floors below did not fit and was taken out;
   - wall washers along each wall, an even count, the end cans
     `WASH_CORNER_GAP` from the corners: six on a 22.5 m wall, four on a
     17.5 m one. Their pools are one mesh for the
@@ -1641,13 +1607,8 @@ required by the Dockerfile — don't remove it.
       own. A work hung for a bench or alone on a door screen takes the
       room's frame only where it reaches no further than its own. For
       one of these reasons 3 of the tower's 2,771 works hang in their
-      own frame (13 October 2026). The Grand Hall is the
-      exception: it is composed with its hanging, so a pull can change
-      which pairs fit a wall, and in the block plan where the hall's
-      benches stand, which is part of that plan's identity. On
-      13 October 2026 it changed neither, on either plan. The giants
-      of the block plan's stair halls (`giants.ts`) hang in their own
-      frames.
+      own frame (13 October 2026). The giants of the halls
+      (`giants.ts`) hang in their own frames.
     - Every hung work carries its frame in `Placement.frame`. Read a
       placed work's frame as `p.frame ?? pickFrameDesign(p.artwork)`.
     - It is a second design for every hung work, and the tower's
@@ -1659,8 +1620,7 @@ required by the Dockerfile — don't remove it.
       all 4,555 works came out the same.
   - **A frame's width is part of the hang.** `sideClearance()` in
     `place-paintings.ts` reserves the frame on both sides of a canvas
-    and the plaque beyond it; the Grand Hall uses the same number
-    (`frameReach`). A Barbizon frame with a linen liner on a 3.2 m
+    and the plaque beyond it (`frameReach`). A Barbizon frame with a linen liner on a 3.2 m
     canvas reaches 23 cm, a strip frame 1 cm. Widening a profile, its
     scale range, a liner or a design's `weight` adds wall demand, which
     adds rooms, which changes `galleryLayoutIdentity` and sends every
@@ -2224,7 +2184,7 @@ Several sessions run the suite while the machine is at a load average of
   sources for past fixes.
 - Hidden is not harmless. The 3D gallery sizes each painting from the
   raw `realDimensions` long edge (`sizeWork()` in `place-paintings.ts`),
-  and the Grand Hall leads with the largest works. A value ten times too
+  and the tower's Grand Hall led with the largest works. A value ten times too
   big, such as Malevich's Suprematism at 805 cm tall, would hang there.
   Three details hang as large as their whole painting for that reason:
   Parmigianino's Madonna with the Long Neck (the head and bust, hung

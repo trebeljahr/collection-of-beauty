@@ -3,8 +3,7 @@
 // A room's fill light is an environment map painted from its palette
 // (room-env-map.tsx). Until 13 October 2026 one map lit the whole scene,
 // bound to `scene.environment`: the map of the room the visitor stood
-// in. In the tower a floor is one palette, so the map changed on the
-// stairs and nowhere else. In the block plan a floor holds three eras
+// in. A floor holds three eras
 // and its halls a fourth palette, and the map changed in every doorway
 // between them. One step from the court into the crimson gallery beside
 // it took a fifth of the brightness off every wall, floor and ceiling in

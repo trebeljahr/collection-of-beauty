@@ -1,9 +1,8 @@
 import { ERAS, type Era, getEra } from "@/lib/gallery-eras";
 import type { FloorLayout, RoomLayout } from "./types";
 
-/** The era whose palette and title a room takes. In the tower a floor
- *  is an era, so the floor's index names it; in the wings plan a floor
- *  holds four and each room carries its own. */
+/** The era whose palette and title a room takes: its own, or the era
+ *  its floor's index names. */
 export function eraOfRoom(room: Pick<RoomLayout, "era" | "floorIndex">): Era {
   return room.era ? getEra(room.era) : ERAS[room.floorIndex];
 }

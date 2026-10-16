@@ -4,7 +4,6 @@ import {
   arrivalPoint,
   BENCH_DEPTH,
   BENCH_HEIGHT,
-  BENCH_LENGTH,
   benchClearOf,
   benchRect,
   benchUnder,
@@ -19,7 +18,6 @@ import {
   roomKind,
   writeDividerEdges,
 } from "./fittings";
-import { fittingsFor, GRAND_HALL, SLOT_STAGES, STAIR } from "./layout-museum";
 import type { Bench, CellRect, Divider } from "./types";
 import { CELL_SIZE, DOOR_WIDTH, PORTAL_WIDTH } from "./world-coords";
 
@@ -442,94 +440,8 @@ describe("planBenches", () => {
     expect((a.z + b.z) / 2).toBeCloseTo(7.5, 9);
   });
 
-  it("mirrors an island each side of the axis it is told", () => {
-    const r = rect(9, 7);
-    const doors = [
-      door(r, "north", 4, PORTAL_WIDTH),
-      door(r, "south", 4, PORTAL_WIDTH),
-      door(r, "west", 3),
-      door(r, "east", 3),
-    ];
-    const benches = planBenches(r, doors, [], "z");
-    expect(benches).toHaveLength(4);
-    const xs = benches.map((b) => b.x - 11.25).sort((a, b) => a - b);
-    expect(xs[0]).toBeCloseTo(-xs[3], 9);
-    expect(xs[1]).toBeCloseTo(-xs[2], 9);
-    // North of the east–west door line: the wall a visitor faces.
-    expect(benches.every((b) => b.z < 8.75 - DOOR_WIDTH / 2 - BENCH_LENGTH / 2)).toBe(true);
-  });
-
   it("gives a small room none", () => {
     expect(planBenches(rect(5, 5), [], [])).toEqual([]);
-  });
-});
-
-describe("the museum's rooms as fitted", () => {
-  const rooms = [
-    { key: "grand-hall", rect: GRAND_HALL },
-    ...SLOT_STAGES.flat().map((slot) => ({ key: slot.id, rect: slot.rect })),
-  ];
-
-  it("leaves every room at least one cell of passage past each divider line", () => {
-    for (const { key, rect: r } of rooms) {
-      const { dividers } = fittingsFor(key);
-      const byLine = new Map<string, Divider[]>();
-      for (const d of dividers) {
-        const id = `${d.axis}:${d.line}`;
-        byLine.set(id, [...(byLine.get(id) ?? []), d]);
-      }
-      for (const [id, onLine] of byLine) {
-        const span = onLine[0].axis === "x" ? r.xMax - r.xMin + 1 : r.zMax - r.zMin + 1;
-        const built = onLine.reduce((n, d) => n + d.end - d.start, 0);
-        expect(span - built, `${key} ${id}`).toBeGreaterThanOrEqual(1);
-      }
-    }
-  });
-
-  it("keeps dividers and benches inside their room and off each other", () => {
-    for (const { key, rect: r } of rooms) {
-      const { dividers, benches } = fittingsFor(key);
-      const room: Rect = {
-        xMin: r.xMin * CELL_SIZE,
-        xMax: (r.xMax + 1) * CELL_SIZE,
-        zMin: r.zMin * CELL_SIZE,
-        zMax: (r.zMax + 1) * CELL_SIZE,
-      };
-      const walls = dividers.map(dividerRect);
-      const seats = benches.map(benchRect);
-      for (const b of seats) {
-        expect(b.xMin, key).toBeGreaterThan(room.xMin + 1);
-        expect(b.xMax, key).toBeLessThan(room.xMax - 1);
-        expect(b.zMin, key).toBeGreaterThan(room.zMin + 1);
-        expect(b.zMax, key).toBeLessThan(room.zMax - 1);
-        for (const w of walls) {
-          const grown = { xMin: w.xMin - 1, xMax: w.xMax + 1, zMin: w.zMin - 1, zMax: w.zMax + 1 };
-          expect(overlap(b, grown), `${key}: bench within 1 m of a divider`).toBe(false);
-        }
-      }
-      for (let i = 0; i < seats.length; i++) {
-        for (let j = i + 1; j < seats.length; j++) {
-          expect(overlap(seats[i], seats[j]), key).toBe(false);
-        }
-      }
-    }
-  });
-
-  it("gives the Grand Hall benches and no walls", () => {
-    const hall = fittingsFor("grand-hall");
-    expect(hall.dividers).toEqual([]);
-    expect(hall.benches).toHaveLength(4);
-    expect(hall.ceilingHeight).toBe(6.6);
-  });
-
-  it("fits the stairwell with nothing", () => {
-    expect(STAIR.xMax - STAIR.xMin).toBe(8);
-    expect(fittingsFor("stairwell")).toEqual({
-      ceilingHeight: 5.6,
-      dividers: [],
-      benches: [],
-      portals: 0,
-    });
   });
 });
 
@@ -669,14 +581,5 @@ describe("arrivalPoint", () => {
       clearOfFittings({ rooms: [{ cellBounds: r, dividers: [], benches }] }, p.x, p.z, 0.3),
     ).toBe(true);
     expect(Math.hypot(p.x - 7.5, p.z - 7.5)).toBeLessThan(2.5);
-  });
-
-  it("lands clear of every fitting in every room of the plan", () => {
-    for (const slot of [{ id: "grand-hall", rect: GRAND_HALL }, ...SLOT_STAGES.flat()]) {
-      const fittings = fittingsFor(slot.id);
-      const room = { cellBounds: slot.rect, ...fittings };
-      const p = arrivalPoint(room);
-      expect(clearOfFittings({ rooms: [room] }, p.x, p.z, 0.3), slot.id).toBe(true);
-    }
   });
 });

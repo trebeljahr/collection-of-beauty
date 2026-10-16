@@ -150,7 +150,7 @@ const roomFloorCache = new Map<string, THREE.MeshStandardMaterial>();
 
 /**
  * Per-room floor material. Reuses the building-wide shared floor
- * texture (floor 0's slug) so adjacent rooms and hallways tile
+ * texture (floor 0's slug) so adjacent rooms tile
  * continuously, with only the colour tint distinguishing rooms.
  */
 export function getRoomFloorMaterial(color: string): THREE.MeshStandardMaterial {
@@ -186,12 +186,6 @@ export const darkWoodTrimMaterial = new THREE.MeshStandardMaterial({
   color: "#2a1d14",
   roughness: 0.6,
   metalness: 0.1,
-});
-
-export const frameMaterial = new THREE.MeshStandardMaterial({
-  color: "#1a1108",
-  roughness: 0.55,
-  metalness: 0.05,
 });
 
 // ── Frames ────────────────────────────────────────────────────────────

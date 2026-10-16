@@ -488,7 +488,7 @@ export const Painting = memo(function Painting({
     [widthM, heightM],
   );
 
-  // A Grand Hall pair hangs in one frame, which the placement carries.
+  // The frame the hang chose, which the placement carries.
   const design = useMemo(() => frame ?? pickFrameDesign(artwork), [frame, artwork]);
   // Frame and plaque are lit as their room is (room-light.ts).
   const palette = paletteOfRoom(room);

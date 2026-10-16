@@ -7,8 +7,6 @@ import type { Era, EraId } from "@/lib/gallery-eras";
 import type { FrameDesign } from "./frame-design";
 import type { GrandStair } from "./grand-stair";
 
-export type Band = "small" | "medium" | "large";
-
 /** A rectangle of grid cells, both ends inclusive. */
 export type CellRect = { xMin: number; xMax: number; zMin: number; zMax: number };
 
@@ -16,12 +14,11 @@ export type Placement = {
   artwork: ArtworkListing;
   position: [number, number, number];
   rotation: [number, number, number];
-  band: Band;
   /** Painting width in world metres (already aspect-fit to the slot). */
   widthM: number;
   /** Painting height in world metres (already aspect-fit to the slot). */
   heightM: number;
-  /** The frame, when the hang chose it: a Grand Hall pair shares one.
+  /** The frame, when the hang chose it for the room it hangs in.
    *  Unset, the work hangs in its own (`pickFrameDesign`). */
   frame?: FrameDesign;
   /** Index into the room's `dividers` when the work hangs on one. Its
@@ -32,10 +29,6 @@ export type Placement = {
    *  spiral's storey. It has no picture light of its own: the room's
    *  washers light its wall, set out about it (stairwell-light.tsx). */
   giant?: true;
-  /** Hung on a stair hall's sheer wall (`RoomLayout.sheer`): the wall
-   *  runs on under and over it, past the floor and the ceiling of the
-   *  storey it is filed under. */
-  sheer?: true;
   /** Where the plaque hangs when not beside the frame at eye level
    *  over the room's floor (`PLAQUE_EYE`): metres from the canvas
    *  centre to the plaque's, `dy` up and `dx` to the viewer's right.
@@ -56,10 +49,8 @@ export type Door = {
    *  width and height above already carry its size. */
   portal: boolean;
   /** The room on the other side of this shared wall. Every connection in
-   *  the museum is a door cut through a wall two rooms share — there are
-   *  no corridors (`FloorLayout.hallways` is permanently empty) and the
-   *  stairwell is itself a room, so a `hallway` / `staircase` variant
-   *  had nothing to describe and was never constructed. */
+   *  the museum is a door cut through a wall two rooms share, and every
+   *  stair stands in a room of its own. */
   connectsTo: { kind: "room"; roomId: string };
 };
 
@@ -97,21 +88,17 @@ export type Bench = {
 };
 
 /** A hole in a stair hall's floor or ceiling, world metres. */
-export type WorldOpening =
-  | {
-      kind: "rects";
-      rects: Array<{ xMin: number; xMax: number; zMin: number; zMax: number }>;
-      /** The rectangles' edge as one closed line of [x, z] points. */
-      outline: Array<[number, number]>;
-    }
-  | { kind: "disc"; x: number; z: number; r: number };
+export type WorldOpening = {
+  rects: Array<{ xMin: number; xMax: number; zMin: number; zMax: number }>;
+  /** The rectangles' edge as one closed line of [x, z] points. */
+  outline: Array<[number, number]>;
+};
 
 export type RoomLayout = {
   id: string;
   floorIndex: number;
-  /** The era this room shows, when its floor holds more than one (the
-   *  wings plan, `layout-wings.ts`). Unset in the tower, where a floor
-   *  is an era: read it through `eraOfRoom`. */
+  /** The era this room shows: a floor holds more than one. Read it
+   *  through `eraOfRoom`. */
   era?: EraId;
   /** The era whose colours the room takes when they are not its own
    *  era's: a stair hall is one colour through every storey. Read a
@@ -139,9 +126,9 @@ export type RoomLayout = {
    *  unset in a spiral's stairwell, which is cut round by rule. */
   floorOpening?: WorldOpening | null;
   ceilingOpening?: WorldOpening | null;
-  /** A stair hall's sheer wall (`GrandStair.sheerWall`): the side it is
-   *  on, and the depth of the strip along it that the hall's void takes
-   *  on every floor over the stair's foot. The same on each storey of
+  /** A hall's sheer wall (the salon's far wall): the side it is on,
+   *  and the depth of the strip along it that the hall's void takes on
+   *  every floor over the first. The same on each storey of
    *  the hall; `floorOpening` and `ceilingOpening` say whether this
    *  storey has floor or ceiling there. `base` and `roof` are the world
    *  heights the wall stands between: the hall's floor and its glazed
@@ -187,13 +174,6 @@ export type RoomLayout = {
   suppressWalls?: { north?: boolean; south?: boolean; east?: boolean; west?: boolean };
 };
 
-export type HallwayLayout = {
-  id: string;
-  floorIndex: number;
-  cells: Array<{ x: number; z: number }>;
-  placements: Placement[];
-};
-
 export type Staircase = {
   id: string;
   lowerFloor: number;
@@ -236,9 +216,8 @@ export type Staircase = {
 export type FloorLayout = {
   index: number;
   era: Era;
-  /** What the floor is called on the map and the entry card, when it
-   *  holds more than one era. Unset in the tower: read it through
-   *  `floorTitle`. */
+  /** What the floor is called on the map and the entry card. Read it
+   *  through `floorTitle`. */
   title?: string;
   /** The entry card's line under the title, set with `title`. Read it
    *  through `floorBlurb`. */
@@ -259,20 +238,9 @@ export type FloorLayout = {
    *  `z * gridSize.x + x`. */
   blockedEdgesNS: Uint8Array;
   rooms: RoomLayout[];
-  /** Always empty — `layoutMuseum` builds every connection as a shared
-   *  wall with a door cut, never a corridor. `HallwayRenderer` still
-   *  exists and would render these, but it is the one `Painting` call
-   *  site with no reveal gate: it mounts every placement immediately,
-   *  where rooms mount/unmount them by distance. Reviving hallways
-   *  without porting `useRevealedPlacements` across would reintroduce
-   *  the texture-LRU churn documented at `room-geometry.tsx`'s
-   *  PAINTING_UNLOAD_RADIUS — every hallway painting pinning a texture
-   *  on every LOD tick until the floor stops rendering reliably. */
-  hallways: HallwayLayout[];
   stairsIn: Staircase[];
   stairsOut: Staircase[];
-  /** Grand stairs that arrive on and leave this floor. Unset in the
-   *  tower, whose stairs are all spirals. */
+  /** Grand stairs that arrive on and leave this floor. */
   grandStairsIn?: GrandStair[];
   grandStairsOut?: GrandStair[];
   /** Every grand stair whose hall this floor is a storey of: the floor
@@ -284,8 +252,7 @@ export type MuseumLayout = {
   floors: FloorLayout[];
   entry: { floorIndex: number; worldPosition: [number, number, number] };
   allRooms: RoomLayout[];
-  allHallways: HallwayLayout[];
   allStaircases: Staircase[];
-  /** Every grand stair of the building. Unset in the tower. */
+  /** Every grand stair of the building. */
   grandStairs?: GrandStair[];
 };

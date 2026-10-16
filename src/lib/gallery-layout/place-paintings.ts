@@ -7,7 +7,7 @@
 // doesn't fit in its home room spills to free wall space elsewhere on
 // the same floor; anything still left over is dropped, which is why the
 // floor builder trims each era to a floor's worth of works before we
-// get here (see `selectFloorWorks` in layout-museum.ts).
+// get here (see `selectFloorWorks` in floor-works.ts).
 //
 // Placement is continuous, not cell-quantised. Each wall is cut into
 // "runs" — maximal stretches of paintable plaster between the room's
@@ -30,17 +30,9 @@ import {
   roomHanging,
   wallHanging,
 } from "./frame-design";
-import { artworkBand } from "./painting-bands";
 import { eraOfRoom } from "./room-era";
-import type { CellRect, Divider, Door, FloorLayout, Placement, RoomLayout } from "./types";
-import {
-  CELL_SIZE,
-  DIVIDER_THICKNESS,
-  DOOR_TRIM,
-  DOOR_WIDTH,
-  PORTAL_TRIM,
-  PORTAL_WIDTH,
-} from "./world-coords";
+import type { Divider, Door, FloorLayout, Placement, RoomLayout } from "./types";
+import { CELL_SIZE, DIVIDER_THICKNESS, DOOR_TRIM, PORTAL_TRIM } from "./world-coords";
 
 /** Eye-height-ish centre for every wall-mounted painting. A work too
  *  tall to hang there without coming within PAINTING_FLOOR_GAP of the
@@ -54,10 +46,9 @@ const CANONICAL_Y_CENTER_OFFSET = 1.65;
  *  have, so we cheat them up to a readable small-print size instead of
  *  excluding them. */
 const MIN_DISPLAY_LONG_EDGE = 0.45;
-/** Max painting dimensions in metres, independent of real-world size,
- *  in the tower. The block plan hangs a work at its real size where its
- *  size is trusted (`HangOptions.realSize`) and keeps this cap for the
- *  rest.
+/** Max painting dimensions in metres for a work whose size is not
+ *  trusted. One whose size is hangs at its real size
+ *  (`HangOptions.realSize`).
  *  It acts as an upper bound; a short run further constrains this so a
  *  painting never overruns the plaster it was assigned. Sized to feel
  *  monumental against the 2.4 m door while still leaving a metre of
@@ -70,8 +61,8 @@ const MAX_PAINTING_H_ROOM = 3.2;
 /** Wall left bare between the tallest canvas a room hangs and its
  *  ceiling, on top of the gap under it. The frame's top rail and the
  *  picture light share it. A 4.0 m cabinet hangs nothing taller than
- *  2.6 m; the standard 4.8 m room reaches the 3.2 m cap above. In the
- *  tower taller rooms keep the cap. At real size (`HangOptions`) the
+ *  2.6 m; the standard 4.8 m room reaches the 3.2 m cap above. At real
+ *  size (`HangOptions`) the
  *  ceiling is the only limit: 4.3 m of canvas under 5.7 m. */
 const CEILING_CLEARANCE = 1.0;
 /** Inset from the wall surface so paintings don't z-fight. Sized to
@@ -108,7 +99,7 @@ const WALL_MARGIN = 0.5;
  *  plaster opens the gap well past this. */
 const ADJACENT_GAP = 0.1;
 /** How much wider a run with nothing on it reads than a gap of the same
- *  length between two works. At 1 the tower left 44 panel faces bare
+ *  length between two works. At 1 the earlier tower plan left 44 panel faces bare
  *  beside hung ones; at 3 a room with as many surfaces as works hung
  *  one work on each, and an 11.9 m wall stood with 4.9 m bare either
  *  side of its one canvas. */
@@ -371,8 +362,8 @@ export type SizedWork = { artwork: ArtworkListing; wM: number; hM: number };
  *  so: a run long enough and a ceiling high enough. It is never shrunk
  *  to fit. A work whose size is not trusted keeps the 3.2 m cap, since
  *  nobody knows how large it is. Rico, 17 October 2026: in the rooms
- *  too, "I want the paintings in their real sizes". The block plan
- *  hangs this way; the tower keeps the cap. */
+ *  too, "I want the paintings in their real sizes". The museum hangs
+ *  this way. */
 export type HangOptions = { realSize?: boolean };
 
 /** How far the work's frame reaches past each canvas edge, metres.
@@ -442,8 +433,8 @@ type Container = {
 };
 
 /** False when the run cannot hang the work at the size it has: at real
- *  size a work is never shrunk to a wall. In the tower `packRun` scales
- *  a work to its run, and every run takes every work. */
+ *  size a work is never shrunk to a wall. Without it `packRun` scales a
+ *  work to its run, and every run takes every work. */
 function holds(container: Container, run: WallRun, work: SizedWork): boolean {
   return !container.realSize || work.hM <= run.maxHeight + 1e-9;
 }
@@ -763,9 +754,6 @@ function gatherArtists(container: Container): void {
  *    rooms on the same floor; whatever the floor can't hold is dropped
  *    (the floor builder trims the era to a floor's worth up front, so
  *    this should only ever bite by a handful of works).
- *  - Rooms named in `skipRoomIds` already carry a composed hang (the
- *    Grand Hall, see grand-hall.ts) and are left alone — neither hung
- *    nor used as spill space, which would break their symmetry.
  *  - Walls are measured with each work's own frame. Once every work has
  *    its wall the room frames them together (`roomHanging`,
  *    `wallHanging` in frame-design.ts): for its wall colour, in one
@@ -774,7 +762,6 @@ function gatherArtists(container: Container): void {
  */
 export function distributePaintings(
   floor: FloorLayout,
-  skipRoomIds: ReadonlySet<string> = new Set(),
   /** `anchorToBenches`: hang a room's largest works centred in front of
    *  its benches first (`hangForBenches`). The benches have to be
    *  planned before the hang. */
@@ -784,7 +771,7 @@ export function distributePaintings(
   // Stairwell rooms are excluded — their walls hold the spiral steps
   // and signs, not paintings.
   const containers: Container[] = floor.rooms
-    .filter((r) => !r.isStairwell && !skipRoomIds.has(r.id))
+    .filter((r) => !r.isStairwell)
     .map((room) => {
       const runs = computeRoomRuns(room, { realSize });
       return {
@@ -992,7 +979,6 @@ function placementAt(
       (run.axis === "z" ? along : run.surface) + run.normalZ * PAINTING_WALL_OFFSET,
     ],
     rotation: [0, run.rotationY, 0],
-    band: artworkBand(work.artwork),
     widthM: work.wM,
     heightM: work.hM,
     ...(work.frame && { frame: work.frame }),
@@ -1100,50 +1086,4 @@ export function sizeWork(artwork: ArtworkListing, options: HangOptions = {}): Si
  */
 export function wallFootprint(artwork: ArtworkListing, options: HangOptions = {}): number {
   return footprintOf(sizeWork(artwork, options));
-}
-
-/**
- * Hangable wall the four walls of a room this size offer, before it
- * exists. Exact for the room shapes this museum uses: `computeRoomRuns`
- * trims WALL_MARGIN off both ends of all four walls and a door's casing
- * and DOOR_CLEARANCE off both sides of every door opening, so the only
- * estimate here is
- * the door count. `portalCount` of the doors are portals. Dividers are
- * counted apart, by `dividerWallMetres`.
- */
-export function estimateWallMetres(
-  widthM: number,
-  depthM: number,
-  doorCount: number,
-  portalCount = 0,
-): number {
-  const perimeter = 2 * (widthM + depthM);
-  return (
-    perimeter -
-    8 * WALL_MARGIN -
-    doorCount * 2 * doorCut({ width: DOOR_WIDTH, portal: false }) -
-    portalCount *
-      (2 * doorCut({ width: PORTAL_WIDTH, portal: true }) -
-        2 * doorCut({ width: DOOR_WIDTH, portal: false }))
-  );
-}
-
-/**
- * Hangable wall a room's dividers add, in metres: both faces of each
- * (one of a door screen), less the stretch of room wall a wing wall
- * covers where it is built off one. The same arithmetic as `computeRoomRuns`, so the floor
- * builder counts divider wall before it opens rooms and does not open
- * more than the works need.
- */
-export function dividerWallMetres(rect: CellRect, dividers: readonly Divider[]): number {
-  let metres = 0;
-  for (const d of dividers) {
-    const face = (d.end - d.start) * CELL_SIZE - 2 * WALL_MARGIN;
-    if (face >= MIN_RUN_LENGTH) metres += (d.bare ? 1 : 2) * face;
-    const lowLine = d.axis === "x" ? rect.xMin : rect.zMin;
-    const highLine = (d.axis === "x" ? rect.xMax : rect.zMax) + 1;
-    const attached = (d.start === lowLine ? 1 : 0) + (d.end === highLine ? 1 : 0);
-    metres -= attached * (DIVIDER_THICKNESS + 2 * WALL_MARGIN);
-  }
-  return metres;
 }

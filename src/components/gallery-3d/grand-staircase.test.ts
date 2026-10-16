@@ -1,13 +1,9 @@
 import { describe, expect, it } from "vitest";
-import {
-  buildGrandStair,
-  GRAND_RAIL_HEIGHT,
-  type GrandStairDesign,
-} from "@/lib/gallery-layout/grand-stair";
+import { buildGrandStair, type GrandStairDesign } from "@/lib/gallery-layout/grand-stair";
 import { FLOOR_SEPARATION } from "@/lib/gallery-layout/world-coords";
 import { buildStair } from "./grand-staircase";
 
-const DESIGNS: GrandStairDesign[] = ["loggia", "imperial", "arcs", "hourglass", "court"];
+const DESIGNS: GrandStairDesign[] = ["loggia", "court"];
 const HALF = 13.75;
 /** A loggia's end wall stands three cells inside its square, on its
  *  landings' far edge, as in the block plan. */
@@ -32,7 +28,6 @@ function stairOf(design: GrandStairDesign, storey: number) {
     turns: 0,
     hasFlightBelow: storey > 0,
     hasFlightAbove: storey < 2,
-    sheerWall: true,
   });
 }
 
@@ -66,21 +61,5 @@ describe("grand stair geometry", () => {
       }
     }
     expect(furthest, where).toBeLessThan(0);
-  });
-
-  it("keeps a post where a balustrade ends at a wall", () => {
-    // A sheer imperial hall's gallery fence meets the side wall level
-    // with the landing's far edge, 8 m short of the hall's middle. The
-    // post there is cut at the wall, not left out: it stands higher
-    // than the rail it ends.
-    const stair = stairOf("imperial", 2);
-    const at = buildStair(stair).stone?.getAttribute("position");
-    const overRail = stair.upperY + GRAND_RAIL_HEIGHT + 0.05;
-    let onWall = 0;
-    for (let i = 0; at && i < at.count; i++) {
-      const atWall = Math.abs(at.getX(i)) > HALF - 0.05 && Math.abs(at.getZ(i) + 8) < 0.3;
-      if (atWall && at.getY(i) > overRail) onWall++;
-    }
-    expect(onWall).toBeGreaterThan(0);
   });
 });
