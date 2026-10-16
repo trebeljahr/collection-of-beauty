@@ -27,8 +27,9 @@ export type Placement = {
   /** Index into the room's `dividers` when the work hangs on one. Its
    *  position is then on that divider's face, not on a room wall. */
   divider?: number;
-  /** A work too large for a room, hung at its real size in a stair hall
-   *  (`giants.ts`). It has no picture light of its own: the hall's
+  /** A work hung at its real size on a storey of a hall or a spiral
+   *  room (`giants.ts`): too large for a room, or a tall work on a
+   *  spiral's storey. It has no picture light of its own: the room's
    *  washers light its wall, set out about it (stairwell-light.tsx). */
   giant?: true;
   /** Hung on a stair hall's sheer wall (`RoomLayout.sheer`): the wall

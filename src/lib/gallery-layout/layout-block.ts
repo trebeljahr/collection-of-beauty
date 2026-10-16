@@ -116,6 +116,7 @@ import {
   salonSize,
   stairHallHang,
   stretchMiddle,
+  tallSize,
 } from "./giants";
 import {
   buildGrandStair,
@@ -485,7 +486,7 @@ export function layoutBlock(allArtworks: ArtworkListing[]): MuseumLayout {
   // The giants go to the halls first; each era then hangs what is left.
   // A giant no hall took hangs in its era's rooms, at its real size,
   // where a wall holds it.
-  const inHalls = hangGiants(floors, byEra, allArtworks);
+  const { hung: inHalls, spirals } = hangGiants(floors, byEra, allArtworks);
   const forRooms = new Map(
     [...byEra].map(([era, works]) => [era, works.filter((a) => !inHalls.has(a.id))]),
   );
@@ -496,6 +497,7 @@ export function layoutBlock(allArtworks: ArtworkListing[]): MuseumLayout {
       .map((a) => a.id),
   );
   for (const b of built) b.hang(forRooms, leftGiants);
+  hangTallInSpirals(floors, byEra, spirals);
 
   const ground = floors[0];
   const anchor = ground.rooms.find((r) => r.isAnchor) ?? ground.rooms[0];
@@ -523,13 +525,14 @@ const hallRoom = (floor: FloorLayout, key: RoomKey) =>
  * of its end wall, where a visitor sees it from the foot of the stair.
  * The court then takes one work to a stretch: it is the middle of its
  * floor. The stair halls hang pairs from what is left, and the spiral
- * rooms what no hall holds. Returns the ids hung.
+ * rooms what no hall holds. Returns the ids hung, and the spiral rooms'
+ * hang for the tall works (`hangTallInSpirals`).
  */
 function hangGiants(
   floors: FloorLayout[],
   byEra: Map<EraId, ArtworkListing[]>,
   allArtworks: readonly ArtworkListing[],
-): Set<string> {
+): { hung: Set<string>; spirals: ReturnType<typeof stairHallHang> } {
   const works: Array<{ work: SizedWork; start: number }> = [];
   BLOCK_PLAN.forEach((plan, floorIndex) => {
     for (const zone of plan.zones) {
@@ -597,14 +600,67 @@ function hangGiants(
       hallRuns(hallRoom(floor, h.key)).filter((run) => run.side !== OPPOSITE[hallFront(h)]),
     ),
   ]);
-  hangHallStoreys(
-    floors.map((floor) => [BLOCK_SPIRALS.map((s) => hallRoom(floor, s.key))]),
+  const spirals = stairHallHang(
+    floors.map((floor) =>
+      BLOCK_SPIRALS.map(
+        (s): StairHallStorey => ({
+          room: hallRoom(floor, s.key),
+          end: OPPOSITE[s.door],
+          front: s.door,
+        }),
+      ),
+    ),
+    { ownFloor: true },
+  );
+  spirals.axes(
     unhung.filter((e) => !fitsStretch(stretches, e.work) && !inSalon.has(e.work.artwork.id)),
   );
 
   const halls = floors.flatMap((f) => f.rooms.filter((r) => r.isStairwell));
   for (const room of halls) room.artworks = room.placements.map((p) => p.artwork);
-  return new Set(halls.flatMap((r) => r.artworks).map((a) => a.id));
+  return { hung: new Set(halls.flatMap((r) => r.artworks).map((a) => a.id)), spirals };
+}
+
+/**
+ * Hang tall works on the spiral rooms' storeys: full-length portraits
+ * and altarpieces no gallery hung, each on its own floor (`tallSize`).
+ * Rico, 17 October 2026: "the spiral stair case rooms could also hold
+ * tall paintings nicely". A storey is 8.2 m high, and until then five
+ * of the eight hung nothing.
+ *
+ * It runs after the galleries, from what they left, so it takes no
+ * work from a gallery and changes none of their hang. A storey is one
+ * composition, as in a stair hall (`stairHallHang`): the largest work
+ * on the middle of the outer wall, a pair beside it, and pairs that
+ * mirror each other across the stair on the side walls and either
+ * side of the portal to the court. A storey whose outer wall holds a
+ * handscroll keeps it as the work on the axis. The south spiral's
+ * outer wall has the door to the salon: a pair either side of it, and
+ * no work on the axis.
+ */
+function hangTallInSpirals(
+  floors: FloorLayout[],
+  byEra: Map<EraId, ArtworkListing[]>,
+  spirals: ReturnType<typeof stairHallHang>,
+) {
+  const hung = new Set(
+    floors.flatMap((f) => f.rooms.flatMap((r) => r.placements.map((p) => p.artwork.id))),
+  );
+  const works = BLOCK_PLAN.flatMap((plan, start) =>
+    plan.zones.flatMap((zone) =>
+      (byEra.get(zone.era) ?? []).flatMap((artwork) => {
+        const work = hung.has(artwork.id) ? null : tallSize(artwork);
+        return work ? [{ work, start }] : [];
+      }),
+    ),
+  );
+  spirals.pairs(spirals.axes(works));
+  for (const floor of floors) {
+    for (const s of BLOCK_SPIRALS) {
+      const room = hallRoom(floor, s.key);
+      room.artworks = room.placements.map((p) => p.artwork);
+    }
+  }
 }
 
 /** Where a visitor sent to a room lands. A hall's centre is a flight or

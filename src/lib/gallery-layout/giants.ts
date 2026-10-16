@@ -20,6 +20,12 @@
 //   The spiral rooms' outer walls, 22.5 m with no door, take what no
 //   hall holds: a handscroll 12 m long (`hangGiants` in layout-block).
 //
+//   The spiral rooms' storeys then take tall works no gallery hung, in
+//   the stair halls' composition (`tallSize`, `hangTallInSpirals` in
+//   layout-block). Rico, 17 October 2026: "the spiral stair case rooms
+//   could also hold tall paintings nicely". A storey there is 8.2 m
+//   high and its walls stood bare.
+//
 // The first hang put every tall work on one wall, in two tiers 0.8 m
 // apart, and a hall's storeys took two works a stretch. Rico, 13 October
 // 2026: the big paintings "cluster too close together". So a stretch
@@ -98,16 +104,41 @@ export function giantSize(
   artwork: ArtworkListing,
   minPxPerMetre = GIANT_MIN_PX_PER_METRE,
 ): SizedWork | null {
+  const work = realSize(artwork);
+  if (!work || (work.wM <= MAX_PAINTING_W && work.hM <= MAX_PAINTING_W)) return null;
+  const px = widestTexturePx(artwork);
+  if (px == null || px / work.wM < minPxPerMetre) return null;
+  return work;
+}
+
+/** The work at its audited real size, in the scan's shape. */
+function realSize(artwork: ArtworkListing): SizedWork | null {
   const size = trustworthyRealSize(artwork);
   if (!size || !artwork.width || !artwork.height) return null;
   const long = Math.max(size.widthCm, size.heightCm) / 100;
   const aspect = artwork.width / artwork.height;
   const wM = aspect >= 1 ? long : long * aspect;
   const hM = aspect >= 1 ? long / aspect : long;
-  if (wM <= MAX_PAINTING_W && hM <= MAX_PAINTING_W) return null;
-  const px = widestTexturePx(artwork);
-  if (px == null || px / wM < minPxPerMetre) return null;
   return { artwork, wM, hM };
+}
+
+/** A work hangs on a spiral room's storey when it is at least this
+ *  tall, metres, at its real size: a full-length portrait, an
+ *  altarpiece. A shorter one reads as small on a wall 8.2 m high. */
+export const TALL_MIN_HEIGHT = 1.8;
+/** And at least this much taller than wide. */
+const TALL_MIN_ASPECT = 1.25;
+
+/**
+ * The work at its real size when it is tall enough for a spiral room's
+ * storey and fits one, null for every other work. A work over a room's
+ * 3.2 m passes only as a giant would, sharp enough at that size.
+ */
+export function tallSize(artwork: ArtworkListing): SizedWork | null {
+  const work = realSize(artwork);
+  if (!work || work.hM < TALL_MIN_HEIGHT || work.hM < TALL_MIN_ASPECT * work.wM) return null;
+  if (work.hM > MAX_PAINTING_W && !giantSize(artwork)) return null;
+  return fitsStorey(work) ? work : null;
 }
 
 /** Height of a work in its frame. */
@@ -265,8 +296,10 @@ export type StairHallStorey = { room: RoomLayout; end: WallRun["side"]; front: W
 type Bay = {
   storey: StairHallStorey;
   floor: number;
-  /** The end wall, one stretch from corner to corner. */
-  end: WallRun;
+  /** The end wall, one stretch from corner to corner. Null when a door
+   *  splits it (the south spiral's, into the salon): its two stretches
+   *  then hang a pair and nothing hangs on the axis. */
+  end: WallRun | null;
   /** The two halves of the end wall either side of the axis work, once
    *  it hangs: a work on the middle of each. */
   flanks: [WallRun, WallRun] | null;
@@ -284,8 +317,9 @@ function bayOf(storey: StairHallStorey, floor: number): Bay | null {
   const runs = hallRuns(storey.room);
   const longest = (side: WallRun["side"]) =>
     runs.filter((r) => r.side === side).sort((a, b) => runLength(b) - runLength(a));
-  const end = longest(storey.end)[0];
-  if (!end) return null;
+  const ends = longest(storey.end);
+  if (ends.length === 0) return null;
+  const end = ends.length === 1 ? ends[0] : null;
   // Each side wall in two stretches, the one nearer the end wall first:
   // either side of its door, or its halves when it has none. World
   // coordinate along a run is `sign * u`: the end wall lies at the low
@@ -307,6 +341,7 @@ function bayOf(storey: StairHallStorey, floor: number): Bay | null {
       );
     });
   const pairs: Array<[WallRun, WallRun]> = [];
+  if (ends.length === 2) pairs.push([ends[0], ends[1]]);
   if (halves.length === 2 && halves[0].length === 2 && halves[1].length === 2) {
     pairs.push([halves[0][0], halves[1][0]], [halves[0][1], halves[1][1]]);
   }
@@ -350,9 +385,19 @@ function naturalCenter(run: WallRun, work: SizedWork): number {
  * Two steps, so a caller can hang other rooms between them: `axes`
  * gives each storey's end wall the largest work of its floor, and
  * `pairs` fills the rest from what is left. Each takes and returns the
- * works not hung, with the floor each belongs to.
+ * works not hung, with the floor each belongs to. `axes` may be called
+ * again with other works: it passes over a storey whose end wall
+ * hangs one.
+ *
+ * The spiral rooms are hung the same way: the outer wall is the end
+ * wall and the wall toward the court the front.
  */
-export function stairHallHang(levels: StairHallStorey[][]) {
+export function stairHallHang(
+  levels: StairHallStorey[][],
+  /** Hang a work only on its own floor's storeys. Unset, a pair takes
+   *  another floor's works where its own floor has none alike. */
+  { ownFloor = false }: { ownFloor?: boolean } = {},
+) {
   type Entry = { work: SizedWork; start: number };
   const bays = levels.flatMap((storeys, floor) =>
     storeys.map((s) => bayOf(s, floor)).filter((b): b is Bay => b !== null),
@@ -362,22 +407,21 @@ export function stairHallHang(levels: StairHallStorey[][]) {
   const axes = (works: Entry[]): Entry[] => {
     let pool = [...works].sort((a, b) => bySize(a.work, b.work));
     for (const bay of bays) {
-      const entry = pool.find((e) => e.start === bay.floor && fits(bay.end, e.work));
+      const end = bay.end;
+      if (bay.hero || !end) continue;
+      const entry = pool.find((e) => e.start === bay.floor && fits(end, e.work));
       if (!entry) continue;
       pool = pool.filter((e) => e !== entry);
       const work = framed(entry.work);
-      const centerY = hangOn(bay.storey.room, bay.end, work);
+      const centerY = hangOn(bay.storey.room, end, work);
       bay.hero = { work, centerY };
       // The two halves of the wall beside it, each from the corner to a
       // gap beyond its frame and plaque. The plaque is on one side only;
       // both halves keep clear of it, so they mirror each other.
-      const mid = (bay.end.uMin + bay.end.uMax) / 2;
+      const mid = (end.uMin + end.uMax) / 2;
       const { left, right } = sideClearance(work);
       const clear = work.wM / 2 + Math.max(left, right) + GIANT_GAP;
-      bay.flanks = [
-        stretch(bay.end, bay.end.uMin, mid - clear),
-        stretch(bay.end, mid + clear, bay.end.uMax),
-      ];
+      bay.flanks = [stretch(end, end.uMin, mid - clear), stretch(end, mid + clear, end.uMax)];
     }
     return pool;
   };
@@ -397,7 +441,13 @@ export function stairHallHang(levels: StairHallStorey[][]) {
       also: (w: Framed) => boolean,
       kinTo: ArtworkListing | null,
     ) => {
-      const room = pool.filter((e) => fits(a, e.work) && fits(b, e.work) && also(e.framed));
+      const room = pool.filter(
+        (e) =>
+          (!ownFloor || e.start === bay.floor) &&
+          fits(a, e.work) &&
+          fits(b, e.work) &&
+          also(e.framed),
+      );
       let best: { pair: [Candidate, Candidate]; score: number } | null = null;
       for (let i = 0; i < room.length; i++) {
         for (let j = i + 1; j < room.length; j++) {

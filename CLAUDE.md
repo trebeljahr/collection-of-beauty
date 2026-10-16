@@ -903,10 +903,10 @@ required by the Dockerfile — don't remove it.
     not fixed: 0.21 to 0.23 in the three that are not the Grand Hall.
     One room fewer is not possible there (rooms open in mirrored
     pairs), and the one room behind the stair alone would be at 0.69.
-  - It hangs 1,421 works (17 October 2026): 1,350 in 24 galleries, and
-    71 in the halls and spiral rooms. The spiral
-    rooms hang only what no hall holds (next point but several), and
-    each corner of the block is part of a long gallery, which has less
+  - It hangs 1,481 works (17 October 2026): 1,339 in 24 galleries, 66
+    in the court and the stair halls, 28 in the salon and 48 in the
+    spiral rooms, 46 of them tall works ("A spiral room's storeys hang
+    tall works", below). Each corner of the block is part of a long gallery, which has less
     wall than the rooms it could be: the plan before hung 1,726, 1,663
     of them in 43 rooms.
   - **Works in full take the texture pool, nearest room first**
@@ -1047,11 +1047,33 @@ required by the Dockerfile — don't remove it.
     - All 71 giants hang (17 October 2026): 32 in the court, 34 in the
       stair halls, 3 in the spiral rooms and 2 in their era's galleries
       at real size (The Seven Works of Mercy, Heroes), which no pair
-      took. A spiral room takes only what fits no stretch of a hall but
-      an end wall (a last `hangHallStoreys` pass, `fitsStretch`): its
-      outer wall is 22.5 m with no door. That is Les Nuages, whose
-      floor's two end walls hang the other two Orangerie panels, and
-      the two East Asian handscrolls, 11.86 and 11.15 m.
+      took. A spiral room's giant is only what fits no stretch of a
+      hall but an end wall (`fitsStretch`): the north spiral's outer
+      wall is 22.5 m with no door. That is Les Nuages, whose floor's
+      two end walls hang the other two Orangerie panels, and the
+      Qingming handscroll, 11.86 m. Each hangs on its storey's axis
+      (`stairHallHang(...).axes`, `ownFloor`). Since the salon's door
+      cut the south spiral's outer wall, the Yangtze handscroll
+      (11.15 m) hangs in the East Asian galleries (`must`).
+  - **A spiral room's storeys hang tall works** (`hangTallInSpirals`,
+    `tallSize`). Rico, 17 October 2026: "the spiral stair case rooms
+    could also hold tall paintings nicely". Until then five of the
+    eight storeys hung nothing. A tall work is 1.8 m or more at its
+    trusted real size and 1.25 times as tall as wide: full-length
+    portraits, altarpieces. The pass runs after the galleries, from
+    the works they left, so it changes no gallery. A storey is hung as
+    a stair hall's storey: the outer wall is the end wall, the wall
+    toward the court the front, and a work hangs only on its own
+    floor. The south spiral's outer wall has the salon's door, so it
+    hangs a pair either side of it and no work on the axis (`Bay.end`
+    null). It runs after the salon too, which took El Greco's
+    Annunciation. 46 works on 17 October 2026, 6 to 9 a storey on the
+    first three floors, among them Rembrandt's Prodigal Son, the
+    Isenheim saints as a pair, Gainsborough's full-lengths and
+    Whistler's White Girl. The top floor's eras have no tall work left
+    over: the north storey keeps its handscroll and the south one
+    hangs nothing. They are `giant` placements: washers, no picture
+    light.
     - The tower has no such wall: its stairwell is one storey high
       between slabs. Giants hang there as before, at 3.2 m.
   - **The galleries hang at real size too.** Rico, 17 October 2026: the

@@ -1,7 +1,9 @@
 import { describe, expect, it } from "vitest";
 import { artworkListings } from "@/lib/data";
+import { assignEra } from "@/lib/gallery-eras";
 import { trustworthyRealSize } from "@/lib/real-size";
-import { BLOCK_PLAN, BLOCK_WALL_COVERAGE, layoutBlock } from "./layout-block";
+import { giantSize, tallSize } from "./giants";
+import { BLOCK_PLAN, BLOCK_SPIRALS, BLOCK_WALL_COVERAGE, layoutBlock } from "./layout-block";
 import { computeRoomRuns, runLength, sideClearance, type WallRun } from "./place-paintings";
 import { eraOfRoom } from "./room-era";
 import type { Placement, RoomLayout } from "./types";
@@ -125,5 +127,42 @@ describe("the block plan and the catalogue", () => {
       }
     }
     expect(shrunk).toEqual([]);
+  });
+
+  it("hangs tall works in the spiral rooms, of their own floor, in mirrored pairs", () => {
+    // Rico, 17 October 2026: "the spiral stair case rooms could also
+    // hold tall paintings nicely". Every floor whose eras have tall
+    // works no gallery hung fills both its spiral storeys.
+    const spirals = layout.allRooms.filter((r) =>
+      BLOCK_SPIRALS.some((s) => r.id.endsWith(`-${s.key}`)),
+    );
+    const wrong: string[] = [];
+    for (const room of spirals) {
+      const eras = BLOCK_PLAN[room.floorIndex].zones.map((z) => z.era);
+      for (const p of room.placements) {
+        if (!giantSize(p.artwork) && !tallSize(p.artwork))
+          wrong.push(`${room.id} ${p.artwork.id}: not tall`);
+        if (!eras.includes(assignEra(p.artwork)!))
+          wrong.push(`${room.id} ${p.artwork.id}: other floor`);
+        if (!p.giant) wrong.push(`${room.id} ${p.artwork.id}: has a picture light`);
+      }
+      // A work on a side wall has its pair on the other, at its height.
+      const sides = room.placements.filter(
+        (p) => Math.abs(Math.abs(p.rotation[1]) - Math.PI / 2) < 1e-6,
+      );
+      for (const p of sides) {
+        const twin = sides.find(
+          (q) =>
+            q !== p &&
+            Math.abs(q.position[2] - p.position[2]) < 1e-6 &&
+            Math.abs(q.position[1] - p.position[1]) < 1e-6,
+        );
+        if (!twin) wrong.push(`${room.id} ${p.artwork.id}: no pair`);
+      }
+    }
+    expect(wrong).toEqual([]);
+    const counts = spirals.map((r) => `${r.id} ${r.placements.length}`);
+    const full = spirals.filter((r) => r.floorIndex < 3 && r.placements.length >= 6);
+    expect(full.length, counts.join(", ")).toBe(6);
   });
 });
