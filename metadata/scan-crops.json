@@ -1,5 +1,5 @@
 {
-  "_comment": "Scans that show more than the work: the picture frame, a miniature's case, a mount. Keyed '<folder>/<filename>'. l/t/r/b: percent of the displayed original (after EXIF rotation) cut from the left, top, right and bottom. The original stays the Commons file; shrink-sources, build-tiles and build-data apply the cut (scripts/lib/scan-crops.mjs). Editing an entry makes the cropped works' variants and tiles stale: rerun assets:shrink, assets:build-data and assets:tiles with --only for them. Measured on the 1280 variant and checked by eye on 17 October 2026; Rico approved each from before/after proofs.",
+  "_comment": "Scans that show more than the work: the picture frame, a miniature's case, a mount. Keyed '<folder>/<filename>'. l/t/r/b: percent of the displayed original (after EXIF rotation) cut from the left, top, right and bottom. The original stays the Commons file; shrink-sources, build-tiles and build-data apply the cut (scripts/lib/scan-crops.mjs). Editing an entry makes the cropped works' variants and tiles stale: rerun assets:shrink, assets:build-data and assets:tiles with --only for them. Measured on the 1280 variant and checked by eye on 17 October 2026; Rico approved each from before/after proofs. 'panels' lists the panels of a polyptych photographed as one object, x0/y0/x1/y1 in percent of the cut image, left to right; the museum hangs each in its own frame.",
   "collection-of-beauty/La_Fornarina_by_Raffaello.jpg": {
     "l": 16.3,
     "t": 12.7,
@@ -104,5 +104,137 @@
     "r": 28.1,
     "b": 20.8,
     "_why": "the scan shows the frame Stuck designed for it (Salome, Franz von Stuck); the museum builds that frame again round the cut canvas (frame-design.ts, PINNED_FRAMES)"
+  },
+  "collection-of-beauty/El_jardín_de_las_Delicias,_de_El_Bosco.jpg": {
+    "l": 3.2,
+    "t": 5.6,
+    "r": 3.2,
+    "b": 5.3,
+    "panels": [
+      {
+        "x0": 0,
+        "y0": 0,
+        "x1": 21.0,
+        "y1": 100
+      },
+      {
+        "x0": 26.6,
+        "y0": 0,
+        "x1": 73.9,
+        "y1": 100
+      },
+      {
+        "x0": 79.7,
+        "y0": 0,
+        "x1": 100,
+        "y1": 100
+      }
+    ],
+    "_why": "triptych, open; the scan shows the outer frame and the frames between the panels (The Garden of Earthly Delights, Hieronymus Bosch)"
+  },
+  "collection-of-beauty/Hieronymus_Bosch_-_The_Garden_of_Earthly_Delights_-_The_exterior_(shutters).jpg": {
+    "l": 7.3,
+    "t": 7.3,
+    "r": 7.0,
+    "b": 5.6,
+    "panels": [
+      {
+        "x0": 0,
+        "y0": 0,
+        "x1": 44.0,
+        "y1": 100
+      },
+      {
+        "x0": 55.9,
+        "y0": 0,
+        "x1": 100,
+        "y1": 100
+      }
+    ],
+    "_why": "the closed wings of the Garden of Earthly Delights, two panels in their frames (Creation, Hieronymus Bosch)"
+  },
+  "collection-of-beauty/Rogier_van_der_Weyden_-_Triptych-_The_Crucifixion_-_Google_Art_Project.jpg": {
+    "l": 2.45,
+    "t": 4.4,
+    "r": 2.45,
+    "b": 5.3,
+    "panels": [
+      {
+        "x0": 0,
+        "y0": 0,
+        "x1": 18.55,
+        "y1": 100
+      },
+      {
+        "x0": 27.5,
+        "y0": 0,
+        "x1": 72.95,
+        "y1": 100
+      },
+      {
+        "x0": 81.9,
+        "y0": 0,
+        "x1": 100,
+        "y1": 100
+      }
+    ],
+    "_why": "triptych; the scan shows the outer frame and the frames between the panels (Crucifixion Triptych, Rogier van der Weyden)"
+  },
+  "collection-of-beauty/Hieronymus_Bosch_-_Triptych_of_Temptation_of_St_Anthony_-_WGA2585.jpg": {
+    "panels": [
+      {
+        "x0": 0,
+        "y0": 0,
+        "x1": 22.05,
+        "y1": 100
+      },
+      {
+        "x0": 23.85,
+        "y0": 0,
+        "x1": 76.05,
+        "y1": 100
+      },
+      {
+        "x0": 77.95,
+        "y0": 0,
+        "x1": 100,
+        "y1": 100
+      }
+    ],
+    "_why": "triptych photographed as three panels on a white ground (Triptych of the Temptation of St Anthony, Hieronymus Bosch)"
+  },
+  "collection-of-beauty/Albrecht_Dürer_-_Adam_and_Eve_(Prado)_2.jpg": {
+    "panels": [
+      {
+        "x0": 0.35,
+        "y0": 0.3,
+        "x1": 48.0,
+        "y1": 99.7
+      },
+      {
+        "x0": 50.65,
+        "y0": 0.3,
+        "x1": 99.0,
+        "y1": 99.7
+      }
+    ],
+    "_why": "diptych, two panels on a white ground (Adam and Eve, Albrecht Dürer)"
+  },
+  "collection-of-beauty/Hugo_van_der_Goes_-_Vienna_Diptych.jpg": {
+    "panels": [
+      {
+        "x0": 0,
+        "y0": 0,
+        "x1": 49.82,
+        "y1": 100
+      },
+      {
+        "x0": 49.86,
+        "y0": 0,
+        "x1": 100,
+        "y1": 100
+      }
+    ],
+    "_why": "diptych, two panels side by side (Vienna Diptych, Hugo van der Goes)"
   }
 }

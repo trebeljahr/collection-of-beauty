@@ -11,6 +11,7 @@ import {
   type FrameDesign,
   frameExtents,
   frameMoulding,
+  frameReach as frameReachOf,
   frameScale,
   pickFrameDesign,
 } from "@/lib/gallery-layout/frame-design";
@@ -20,6 +21,7 @@ import {
   PLAQUE_GAP,
   PLAQUE_WIDTH,
 } from "@/lib/gallery-layout/place-paintings";
+import { layoutPanels, type PanelPlacement } from "@/lib/gallery-layout/polyptych";
 import { baseVariantWidth } from "@/lib/gallery-layout/reveal-budget";
 import { paletteOfRoom } from "@/lib/gallery-layout/room-era";
 import type { Placement, RoomLayout } from "@/lib/gallery-layout/types";
@@ -35,6 +37,7 @@ import { buildLightRig, wallContextFor } from "./painting-light-rig";
 import { createPaintingPreview } from "./painting-preview";
 import { type PaintingEntry, registerPainting, unregisterPainting } from "./painting-registry";
 import { frameMaterials, plaqueBaseMaterial, plaqueMountMaterial } from "./palette-materials";
+import { buildPanelGeometry } from "./panel-geometry";
 import { setWorkBounds } from "./room-culling";
 import { inRoomLight } from "./room-light";
 import {
@@ -501,6 +504,15 @@ export const Painting = memo(function Painting({
   const extents = useMemo(() => frameExtents(design, dW, dH), [design, dW, dH]);
   const frameReach = extents.side;
   const frameRise = Math.max(extents.top, extents.bottom);
+  // A diptych or triptych photographed as one object hangs as its
+  // panels, each in a frame of its own (polyptych.ts).
+  const panels = useMemo(
+    () =>
+      artwork.panels
+        ? layoutPanels(artwork.panels, dW, dH, (w, h) => frameReachOf(design, w, h))
+        : null,
+    [artwork.panels, design, dW, dH],
+  );
 
   // Picture light: one can per work, its pool clipped to this wall's
   // clear stretches, or to the divider the work hangs on, and faded out
@@ -580,13 +592,27 @@ export const Painting = memo(function Painting({
     <group ref={groupRef} position={position} rotation={rotation}>
       {revealed ? (
         <>
-          <FrameMesh
-            design={design}
-            moulding={moulding}
-            widthM={dW}
-            heightM={dH}
-            palette={palette}
-          />
+          {panels ? (
+            panels.map((panel) => (
+              <group key={`${panel.uv[0]}`} position={[panel.x, panel.y, 0]}>
+                <FrameMesh
+                  design={design}
+                  moulding={frameMoulding(design, panel.w, panel.h)}
+                  widthM={panel.w}
+                  heightM={panel.h}
+                  palette={palette}
+                />
+              </group>
+            ))
+          ) : (
+            <FrameMesh
+              design={design}
+              moulding={moulding}
+              widthM={dW}
+              heightM={dH}
+              palette={palette}
+            />
+          )}
           <PaintingPlane
             url={url}
             baseWidth={baseWidth}
@@ -597,6 +623,7 @@ export const Painting = memo(function Painting({
             artwork={artwork}
             onSettled={onSettled}
             onTextureAspect={handleTextureAspect}
+            panels={panels}
           />
           {plaque && (
             <Plaque
@@ -1262,6 +1289,7 @@ function PaintingPlane({
   artwork,
   onSettled,
   onTextureAspect,
+  panels,
 }: {
   /** 480 px AVIF (see baseVariantWidth) — the base "good enough"
    *  texture; once it lands the painting reads as fully loaded. */
@@ -1286,8 +1314,13 @@ function PaintingPlane({
    *  this to refit the plane + frame to the texture's real shape, so a
    *  bad realDimensions value can't visibly distort the painting. */
   onTextureAspect?: (aspect: number) => void;
+  /** A polyptych's panels: the plane is then one quad per panel, each
+   *  showing its part of the one texture. */
+  panels?: PanelPlacement[] | null;
 }) {
   const meshRef = useRef<THREE.Mesh>(null);
+  const panelGeometry = useMemo(() => (panels ? buildPanelGeometry(panels) : null), [panels]);
+  useEffect(() => () => panelGeometry?.dispose(), [panelGeometry]);
   const matRef = useRef<THREE.MeshBasicMaterial>(null);
   const entryRef = useRef<PaintingEntry | null>(null);
   const { gl } = useThree();
@@ -1698,8 +1731,13 @@ function PaintingPlane({
   }, [widthM, heightM]);
 
   return (
-    <mesh ref={meshRef} position={[0, 0, PICTURE_Z]} userData={{ artwork }}>
-      <planeGeometry args={[widthM, heightM]} />
+    <mesh
+      ref={meshRef}
+      position={[0, 0, PICTURE_Z]}
+      userData={{ artwork }}
+      geometry={panelGeometry ?? undefined}
+    >
+      {!panelGeometry && <planeGeometry args={[widthM, heightM]} />}
       {/* No `map` or `color` props — both are mutated directly on the
           material via the layout effect (initial state) and load effect
           (progressive install + LOD upgrades). Binding them as JSX

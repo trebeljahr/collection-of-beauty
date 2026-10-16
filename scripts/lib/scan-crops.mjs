@@ -19,6 +19,17 @@
 // A variant or a tile pyramid counts as stale when it is older than
 // scan-crops.json (cropped works only), so editing an entry re-encodes the
 // cropped works on the next shrink and tiles run.
+//
+// An entry can also list the panels of a polyptych photographed as one
+// object, in percent of the cut image, left to right:
+//
+//   "panels": [{ "x0": 0, "y0": 0, "x1": 21.0, "y1": 100 }, …]
+//
+// Nothing is encoded per panel. build-data copies them to the catalogue
+// (`Artwork.panels`, as fractions), and the museum hangs each panel in a
+// frame of its own (src/lib/gallery-layout/polyptych.ts). The sides of a
+// cut are optional: a scan whose panels stand on a plain ground needs
+// no cut.
 
 import { existsSync, readFileSync, statSync } from "node:fs";
 import path from "node:path";
@@ -41,12 +52,15 @@ const SIDES = ["l", "t", "r", "b"];
  *  publish a sliver of a painting. */
 export function loadScanCrops(file = SCAN_CROPS_PATH) {
   const crops = new Map();
+  const panels = new Map();
   let mtimeMs = 0;
   if (existsSync(file)) {
     mtimeMs = statSync(file).mtimeMs;
     const raw = JSON.parse(readFileSync(file, "utf8"));
     for (const [key, entry] of Object.entries(raw)) {
       if (key.startsWith("_")) continue;
+      if (entry.panels) panels.set(nfc(key), readPanels(key, entry.panels));
+      if (SIDES.every((s) => entry[s] === undefined)) continue;
       for (const s of SIDES) {
         const v = entry[s];
         if (typeof v !== "number" || !(v >= 0) || v >= 45)
@@ -64,7 +78,32 @@ export function loadScanCrops(file = SCAN_CROPS_PATH) {
     get(folder, filename) {
       return crops.get(`${nfc(folder)}/${nfc(filename)}`) ?? null;
     },
+    /** The panels of a polyptych, as fractions of the cut image. */
+    panels(folder, filename) {
+      return panels.get(`${nfc(folder)}/${nfc(filename)}`) ?? null;
+    },
   };
+}
+
+const round4 = (v) => Math.round(v * 100) / 10000;
+
+/** Panels in percent, checked and returned as fractions. Two panels may
+ *  touch but not overlap, and they run left to right. */
+function readPanels(key, list) {
+  if (!Array.isArray(list) || list.length < 2)
+    throw new Error(`scan-crops.json: ${key} needs two panels or more`);
+  const out = list.map((q, i) => {
+    const ok =
+      [q.x0, q.y0, q.x1, q.y1].every((v) => typeof v === "number" && v >= 0 && v <= 100) &&
+      q.x1 > q.x0 &&
+      q.y1 > q.y0;
+    if (!ok) throw new Error(`scan-crops.json: ${key} panel ${i} is not a rectangle`);
+    return { x0: round4(q.x0), y0: round4(q.y0), x1: round4(q.x1), y1: round4(q.y1) };
+  });
+  for (let i = 1; i < out.length; i++)
+    if (out[i].x0 < out[i - 1].x1)
+      throw new Error(`scan-crops.json: ${key} panel ${i} overlaps the one before it`);
+  return out;
 }
 
 /** The pixel rectangle a crop keeps of an image `width` × `height` (the

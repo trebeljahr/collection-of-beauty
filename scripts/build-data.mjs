@@ -1794,6 +1794,9 @@ async function main() {
         thumbHash,
         colorBuckets: colorProfile?.buckets ?? null,
         colorStrength: colorProfile?.strength ?? null,
+        // A polyptych photographed as one object: its panels in the cut
+        // scan (scan-crops.json). Absent on every other work.
+        ...(scanCrops.panels(folderKey, fname) ? { panels: scanCrops.panels(folderKey, fname) } : {}),
         fileUrl: entry.source.file_url,
         commonsUrl: entry.source.url,
         credit: creditOverrides.get(objectKeyNFC) ?? cleanCredit(entry.source.credit),

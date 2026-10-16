@@ -14,17 +14,20 @@ import { ERAS, isEraId } from "@/lib/gallery-eras";
 import {
   type FrameDesign,
   frameMoulding,
+  frameReach,
   frameScale,
   pickFrameDesign,
   roomHanging,
   wallHanging,
 } from "@/lib/gallery-layout/frame-design";
 import { PAINTING_WALL_OFFSET, sizeWork } from "@/lib/gallery-layout/place-paintings";
+import { layoutPanels } from "@/lib/gallery-layout/polyptych";
 import { variantProxyUrl } from "@/lib/utils";
 import { UNREFLECTED_LAYER } from "./floor-mirror";
 import { buildFrameGeometry } from "./frame-geometry";
 import { frameMaterials } from "./frame-materials";
 import { FramePaint } from "./frame-paint";
+import { buildPanelGeometry } from "./panel-geometry";
 import { RoomEnvironment } from "./room-env-map";
 import { isDeepWall } from "./wall-light";
 
@@ -68,16 +71,35 @@ function SheetWork({
       : FIT_EDGE / Math.max(sized.wM, sized.hM);
     return [sized.wM * k, sized.hM * k];
   }, [work, realSize]);
-  const geometry = useMemo(() => {
-    const moulding = frameMoulding(design, w, h);
-    return buildFrameGeometry(moulding.profile, w, h, PAINTING_WALL_OFFSET, {
-      slots: design.slots,
-      swell: moulding.swell,
-      blocks: moulding.blocks,
-      rails: moulding.rails,
-    });
-  }, [design, w, h]);
-  useEffect(() => () => geometry.dispose(), [geometry]);
+  // A polyptych hangs as its panels, each in a frame of its own.
+  const panels = useMemo(
+    () =>
+      work.panels ? layoutPanels(work.panels, w, h, (pw, ph) => frameReach(design, pw, ph)) : null,
+    [work.panels, design, w, h],
+  );
+  const frames = useMemo(
+    () =>
+      (panels ?? [{ x: 0, y: 0, w, h }]).map((p) => {
+        const moulding = frameMoulding(design, p.w, p.h);
+        const geometry = buildFrameGeometry(moulding.profile, p.w, p.h, PAINTING_WALL_OFFSET, {
+          slots: design.slots,
+          swell: moulding.swell,
+          blocks: moulding.blocks,
+          rails: moulding.rails,
+        });
+        return { x: p.x, y: p.y, geometry };
+      }),
+    [design, w, h, panels],
+  );
+  const geometry = frames[0].geometry;
+  const panelGeometry = useMemo(() => (panels ? buildPanelGeometry(panels) : null), [panels]);
+  useEffect(
+    () => () => {
+      for (const f of frames) f.geometry.dispose();
+      panelGeometry?.dispose();
+    },
+    [frames, panelGeometry],
+  );
 
   const [texture, setTexture] = useState<THREE.Texture | null>(null);
   useEffect(() => {
@@ -104,7 +126,14 @@ function SheetWork({
     .join(" ");
   return (
     <group position={[x, y, PAINTING_WALL_OFFSET]}>
-      <mesh geometry={geometry} material={frameMaterials(design)} />
+      {frames.map((f) => (
+        <mesh
+          key={`${f.x}`}
+          position={[f.x, f.y, 0]}
+          geometry={f.geometry}
+          material={frameMaterials(design)}
+        />
+      ))}
       {design.painted && (
         <FramePaint
           painted={design.painted}
@@ -113,8 +142,8 @@ function SheetWork({
           scale={frameScale(design, w, h)}
         />
       )}
-      <mesh position={[0, 0, 0.014]}>
-        <planeGeometry args={[w, h]} />
+      <mesh position={[0, 0, 0.014]} geometry={panelGeometry ?? undefined}>
+        {!panelGeometry && <planeGeometry args={[w, h]} />}
         {/* Keyed on the texture: a material compiled without a map does
             not pick one up later. */}
         <meshBasicMaterial

@@ -228,10 +228,23 @@ required by the Dockerfile — don't remove it.
   folder and build-data lists it. Move it to
   `assets/.rejected/frame-crop-stale-variants/`, never under
   `assets-web/.rejected/`.
-- Triptychs and diptychs whose scan shows the frames between the panels
-  (Bosch's Garden and its closed wings, van der Weyden's Crucifixion)
-  are not cut yet: an outer cut leaves the inner frames standing. See
-  the vault note `collection-of-beauty-polyptychs.md`.
+- **Polyptychs.** A diptych or triptych photographed as one object
+  stays one work: one id, one scan, one set of variants. Its entry in
+  `scan-crops.json` lists `panels` (percent of the cut image, left to
+  right), build-data copies them to `Artwork.panels` (fractions, in
+  `ArtworkListing` for these works only), and the museum hangs each
+  panel in a frame of its own, frames touching, in the wall the hang
+  gave the whole work (`layoutPanels` in `gallery-layout/polyptych.ts`).
+  The canvas is one mesh of a quad per panel on the one texture
+  (`panel-geometry.ts`), so the LOD ladder and the painting registry see
+  one work. What lies between the panels in the scan, frames or a white
+  ground, is not drawn. Pages show the whole scan. Six works have
+  panels (17 October 2026): the open Garden of Earthly Delights and its
+  closed wings, van der Weyden's Crucifixion (all three also cut),
+  Bosch's St Anthony, Dürer's Adam and Eve and the Vienna Diptych.
+  Panels with shaped tops (Massys's Joiners' Altarpiece, the Seven
+  Sacraments, the Isenheim scans) need a mask and are not done; the
+  vault note `collection-of-beauty-polyptychs.md` lists them.
 
 ## Originals saved as previews
 
