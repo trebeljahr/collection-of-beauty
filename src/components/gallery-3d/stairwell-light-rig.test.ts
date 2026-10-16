@@ -1,4 +1,5 @@
 import { describe, expect, it } from "vitest";
+import { INTER_FLOOR_HEIGHT } from "@/lib/gallery-layout/world-coords";
 import {
   dome,
   fitWashRow,
@@ -10,6 +11,7 @@ import {
   RING_ROW_M,
   RING_ROWS,
   ringFits,
+  WASH_PEAK,
   WASH_SIDE_REACH,
   WASH_THROW,
   type WashRow,
@@ -78,6 +80,26 @@ describe("fitWashRow", () => {
     const e = illuminance(row, [x, aimY, 0], false);
     // One can gives exactly 1, and its neighbours don't reach this high.
     expect(e).toBeCloseTo(1, 6);
+  });
+
+  it("lights a storey-high wall no brighter at its peak than a 5.9 m one", () => {
+    const peakOf = (ceiling: number) => {
+      const row = fitWashRow(WALL, ceiling);
+      const x = washLampXs(row)[2];
+      let peak = 0;
+      for (let y = 0; y <= row.wallTop; y += 0.05) {
+        peak = Math.max(peak, illuminance(row, [x, y, 0], false));
+      }
+      return peak;
+    };
+    const low = peakOf(CEILING);
+    const high = peakOf(INTER_FLOOR_HEIGHT - 0.02);
+    expect(low).toBeLessThan(WASH_PEAK);
+    // Before the cap the 8.18 m ceiling peaked at 7.5. This helper ramps
+    // the cone's edge linearly where the shader smoothsteps it, so it
+    // reads a little under the cap.
+    expect(high).toBeLessThan(WASH_PEAK * 1.02);
+    expect(high).toBeGreaterThan(WASH_PEAK * 0.85);
   });
 
   it("leaves a dip between two pools, so the wall reads as scallops", () => {

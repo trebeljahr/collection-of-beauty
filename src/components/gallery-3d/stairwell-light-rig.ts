@@ -30,6 +30,16 @@ export const WASH_THROW = 1.9;
 export const WASH_AIM_HEIGHT = 2.5;
 /** Outer half-angle of the cone. */
 export const WASH_OUTER_DEG = 33;
+/** The most light a can may put on the wall, on the line under it, where
+ *  the aim point gets 1. The top of a pool is nearer its can than the
+ *  aim point is, and brighter by the square of that. Under the 5.9 m
+ *  ceiling the stairwell had until 17 October 2026 it peaked at 3.46.
+ *  When the storey grew to 8.4 m the cans rose with the ceiling and the
+ *  peak went to 7.5: the scallops clipped on a pale wall, and the wall
+ *  took nearly twice the light. A row whose peak would pass this is
+ *  dimmed until it does not, so a ceiling of 5.9 m or less is lit as
+ *  before. */
+export const WASH_PEAK = 3.5;
 
 /** Glazed ring round the well: inner and outer radius, metres from the
  *  stair's axis. The inner edge clears the floor cutout above it; the
@@ -136,6 +146,16 @@ export function fitWashRow(wallLength: number, ceilingY: number): WashRow {
   const tilt = Math.atan2(WASH_THROW, drop);
   const upper = tilt + outer;
   const lower = tilt - outer;
+  const wallTop =
+    upper >= Math.PI / 2
+      ? ceilingY
+      : Math.min(ceilingY, lampY - WASH_THROW / Math.tan(upper) + PAD);
+  const cosOuter = Math.cos(outer);
+  const cosInner = Math.cos(outer * (1 - LIGHT_PENUMBRA));
+  // I·cosθ/d² = 1 at the aim point, as for a picture light, then less
+  // where the top of the pool would pass WASH_PEAK.
+  const aimed = (dist * dist) / (WASH_THROW / dist);
+  const peak = washPeak(lampY, wallTop, -drop / dist, -WASH_THROW / dist, cosOuter, cosInner);
   return {
     count,
     spacing: wallLength / count,
@@ -143,16 +163,37 @@ export function fitWashRow(wallLength: number, ceilingY: number): WashRow {
     throwM: WASH_THROW,
     dirY: -drop / dist,
     dirZ: -WASH_THROW / dist,
-    cosOuter: Math.cos(outer),
-    cosInner: Math.cos(outer * (1 - LIGHT_PENUMBRA)),
-    // I·cosθ/d² = 1 at the aim point, as for a picture light.
-    intensity: (dist * dist) / (WASH_THROW / dist),
-    wallTop:
-      upper >= Math.PI / 2
-        ? ceilingY
-        : Math.min(ceilingY, lampY - WASH_THROW / Math.tan(upper) + PAD),
+    cosOuter,
+    cosInner,
+    intensity: aimed * Math.min(1, WASH_PEAK / (aimed * peak)),
+    wallTop,
     floorReach: Math.max(0, WASH_THROW - lampY * Math.tan(lower)) + PAD,
   };
+}
+
+/** The most light a can of unit intensity puts on the wall, on the line
+ *  under it, between the floor and `wallTop`. The shader's smoothstep
+ *  for the cone's edge, sampled every 5 cm. */
+function washPeak(
+  lampY: number,
+  wallTop: number,
+  dirY: number,
+  dirZ: number,
+  cosOuter: number,
+  cosInner: number,
+): number {
+  let peak = 0;
+  for (let y = 0; y <= wallTop; y += 0.05) {
+    const up = lampY - y;
+    const d2 = up * up + WASH_THROW * WASH_THROW;
+    const d = Math.sqrt(d2);
+    const t = Math.min(
+      1,
+      Math.max(0, (-(up * dirY + WASH_THROW * dirZ) / d - cosOuter) / (cosInner - cosOuter)),
+    );
+    peak = Math.max(peak, ((WASH_THROW / d) * t * t * (3 - 2 * t)) / d2);
+  }
+  return peak;
 }
 
 /** Where the cans sit along the wall. */
