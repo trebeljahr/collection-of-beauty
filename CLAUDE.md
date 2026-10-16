@@ -1358,11 +1358,11 @@ required by the Dockerfile — don't remove it.
     Before, each storey took its floor's first era, and a hall was four
     bands. The room's `era` is still the floor's, so the HUD names the
     floor.
-  - **The first floor walks the other way round**: Gothic in the
-    south-east, the Renaissance east and north-east, the Baroque north-
-    west, west and south-west, the mirror of the other floors. Rico,
-    17 October 2026: west to east it read blue, white, red, the French
-    flag.
+  - **The first floor's Gothic room is the north-east long gallery**,
+    and the Baroque starts in the south-west one. Rico, 17 October
+    2026: with the Gothic in the south-west, west to east the map read
+    blue, white, red, the French flag. A mirror of the whole floor was
+    tried the same day and dropped.
   - **A loggia's floors are signed on pylons at its foot**
     (`stairSignPosts` in `grand-stair.ts`, drawn by `GrandStairSigns`),
     the spiral gate's post and plaques: either side of the middle

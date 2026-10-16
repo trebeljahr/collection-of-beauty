@@ -368,29 +368,28 @@ export const BLOCK_PLAN: readonly FloorPlan[] = [
     title: "Old Masters",
     blurb:
       "European painting up to about 1700, with Botticelli and Dürer in the first room and Poussin in the last.",
-    // The mirror of the other floors' walk: out of the court to the
-    // east, round by the north and back by the south-west. Rico, 17
-    // October 2026: with the Gothic and Renaissance rooms in the west
-    // and the Baroque ones in the east the map read as the French flag.
     styles: {
-      se: "long-rows",
+      ne: "long-rows",
+      cw: "bays",
+      sw: "rows",
       ce: "bays",
-      nw: "bays",
-      cw: "long-rows",
-      sw: "staggered",
+      se: "long-rows",
     },
     screens: [
-      ["se", "stair-s"],
-      ["ne", "ce"],
-      ["cw", "sw"],
+      ["ne", "stair-n"],
+      ["nw", "cw"],
+      ["ce", "se"],
     ],
     zones: [
       // One long gallery. The era has 69 works that are sharp enough to
       // hang: in three rooms they covered a third of the wall and read
-      // as a collection with works missing.
-      { era: "gothic", cells: ["se"] },
-      { era: "renaissance", cells: ["ce", "ne"] },
-      { era: "baroque", cells: ["nw", "cw", "sw"] },
+      // as a collection with works missing. It stands in the north-east
+      // and the Baroque's first room in the south-west: Rico, 17
+      // October 2026, with the Gothic in the south-west the map read
+      // west to east as the French flag.
+      { era: "gothic", cells: ["ne"] },
+      { era: "renaissance", cells: ["cw", "nw"] },
+      { era: "baroque", cells: ["sw", "ce", "se"] },
     ],
   },
   {
