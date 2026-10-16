@@ -139,18 +139,14 @@ export type StairBridge = { floor: number; rect: PlanRect };
 /** How a court's void is crossed on the floors over its first:
  *
  *   none       an open void, a gallery round it on every floor;
- *   cross      a walkway from each portal to the one opposite, on every
- *              floor, meeting in the middle;
  *   alternate  one walkway a floor, north to south on the second floor,
- *              east to west on the third, and so on;
- *   middle     a cross on the middle floor of the void only. */
-export type CourtBridges = "none" | "cross" | "alternate" | "middle";
-export const COURT_BRIDGE_PATTERNS: readonly CourtBridges[] = [
-  "none",
-  "cross",
-  "alternate",
-  "middle",
-];
+ *              east to west on the third, and so on.
+ *
+ *  Never two on one floor. A cross on every floor and a cross on the
+ *  third floor alone were built on 17 October 2026, and Rico chose the
+ *  alternate pattern: "I want no crosses." */
+export type CourtBridges = "none" | "alternate";
+export const COURT_BRIDGE_PATTERNS: readonly CourtBridges[] = ["none", "alternate"];
 /** Width of a court's walkway: the portal it leads from. */
 export const COURT_BRIDGE_WIDTH = 3.5;
 
@@ -889,7 +885,7 @@ function buildCourt(site: Site): Built {
   const rails: StairRail[] = [];
   levels.forEach((y, k) => {
     const floor = site.upperFloor + k;
-    const across = courtCrossings(site.bridges, k, levels.length).map((axis) =>
+    const across = courtCrossings(site.bridges, k).map((axis) =>
       axis === "ns" ? northSouth : eastWest,
     );
     for (const rect of across) bridges.push({ floor, rect });
@@ -926,24 +922,10 @@ function buildCourt(site: Site): Built {
   };
 }
 
-/** The walkways of the `k`th of a court's `count` floors over its
- *  first: "ns" from the north portal to the south one, "ew" from west
- *  to east. */
-export function courtCrossings(
-  pattern: CourtBridges,
-  k: number,
-  count: number,
-): Array<"ns" | "ew"> {
-  switch (pattern) {
-    case "cross":
-      return ["ns", "ew"];
-    case "alternate":
-      return [k % 2 === 0 ? "ns" : "ew"];
-    case "middle":
-      return k === Math.floor((count - 1) / 2) ? ["ns", "ew"] : [];
-    default:
-      return [];
-  }
+/** The walkways of the `k`th of a court's floors over its first: "ns"
+ *  from the north portal to the south one, "ew" from west to east. */
+export function courtCrossings(pattern: CourtBridges, k: number): Array<"ns" | "ew"> {
+  return pattern === "alternate" ? [k % 2 === 0 ? "ns" : "ew"] : [];
 }
 
 /** Depth of a salon's galleries. */

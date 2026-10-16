@@ -428,7 +428,7 @@ export const BLOCK_PLAN: readonly FloorPlan[] = [
 // --- Public entry ---------------------------------------------------------
 
 /** How the court's void is crossed on the floors over its first
- *  (`CourtBridges`). `/gallery-3d?bridges=` shows the others. */
+ *  (`CourtBridges`). `/gallery-3d?bridges=none` shows it without. */
 export const DEFAULT_COURT_BRIDGES: CourtBridges = "alternate";
 
 export function layoutBlock(

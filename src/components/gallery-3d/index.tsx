@@ -75,8 +75,8 @@ export function Gallery3D({ artworks }: Props) {
   const [plan] = useState(() =>
     new URLSearchParams(window.location.search).get("plan") === "tower" ? "tower" : "block",
   );
-  // `?bridges=none|cross|alternate|middle`: how the court's void is
-  // crossed on the floors over its first (`CourtBridges`).
+  // `?bridges=none`: the court's void with no walkway across it
+  // (`CourtBridges`).
   const [courtBridges] = useState(() => {
     const asked = new URLSearchParams(window.location.search).get("bridges");
     return COURT_BRIDGE_PATTERNS.find((p) => p === asked);

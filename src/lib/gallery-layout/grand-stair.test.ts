@@ -812,52 +812,42 @@ describe("walkways across a court's void", () => {
       bridges,
     });
 
-  it("crosses the floors as each pattern says", () => {
-    expect([0, 1, 2].map((k) => courtCrossings("cross", k, 3))).toEqual([
-      ["ns", "ew"],
-      ["ns", "ew"],
-      ["ns", "ew"],
-    ]);
-    expect([0, 1, 2].map((k) => courtCrossings("alternate", k, 3))).toEqual([
-      ["ns"],
-      ["ew"],
-      ["ns"],
-    ]);
-    expect([0, 1, 2].map((k) => courtCrossings("middle", k, 3))).toEqual([[], ["ns", "ew"], []]);
+  it("crosses one way a floor, north to south first, never twice on one floor", () => {
+    expect([0, 1, 2].map((k) => courtCrossings("alternate", k))).toEqual([["ns"], ["ew"], ["ns"]]);
+    expect(courtCrossings("none", 0)).toEqual([]);
     expect(court("none").bridges).toHaveLength(0);
-    expect(court("cross").bridges).toHaveLength(6);
+    const stair = court("alternate");
+    expect(stair.bridges.map((b) => b.floor)).toEqual([1, 2, 3]);
   });
 
-  it("leaves the hole in a crossed floor as four quarters, and the void whole", () => {
-    const stair = court("cross");
+  it("leaves the hole in a floor as two halves, and the void whole", () => {
+    const stair = court("alternate");
     expect(stair.opening.kind === "rects" && stair.opening.rects).toHaveLength(1);
-    const o = openingOn(stair, 2);
-    expect(o.kind === "rects" && o.rects).toHaveLength(4);
+    for (const floor of [1, 2, 3]) {
+      const o = openingOn(stair, floor);
+      expect(o.kind === "rects" && o.rects).toHaveLength(2);
+    }
     expect(rectMinus({ xMin: -c, xMax: c, zMin: -c, zMax: c }, [])).toHaveLength(1);
   });
 
   it("is floor on its walkways and void beside them", () => {
-    for (const pattern of ["cross", "alternate"] as const) {
-      const stair = court(pattern);
-      for (const floor of [1, 2, 3]) {
-        const y = floor * FLOOR_SEPARATION;
-        const ns = stair.bridges.some((b) => b.floor === floor && b.rect.zMax - b.rect.zMin > 10);
-        const along = (t: number) => toStairWorld(stair, ns ? 0 : t, ns ? t : 0);
-        const beside = toStairWorld(stair, ns ? w + 1 : 4, ns ? 4 : w + 1);
-        for (const t of [-c + 0.2, -3, 0, 3, c - 0.2]) {
-          const p = along(t);
-          expect(grandSurfaceAt([stair], p.x, p.z, y)?.floorIndex, `${pattern} ${floor} ${t}`).toBe(
-            floor,
-          );
-        }
-        expect(grandSurfacesAt([stair], beside.x, beside.z).some((s) => s.y === y)).toBe(false);
-        // Onto the walkway from the gallery, and off its side refused.
-        const gallery = along(c + 1);
-        const onto = along(c - 1);
-        expect(grandMoveAllowed([stair], gallery.x, gallery.z, onto.x, onto.z, y)).toBe(true);
-        const mid = along(2);
-        expect(grandMoveAllowed([stair], mid.x, mid.z, beside.x, beside.z, y)).toBe(false);
+    const stair = court("alternate");
+    for (const floor of [1, 2, 3]) {
+      const y = floor * FLOOR_SEPARATION;
+      const ns = stair.bridges.some((b) => b.floor === floor && b.rect.zMax - b.rect.zMin > 10);
+      const along = (t: number) => toStairWorld(stair, ns ? 0 : t, ns ? t : 0);
+      const beside = toStairWorld(stair, ns ? w + 1 : 4, ns ? 4 : w + 1);
+      for (const t of [-c + 0.2, -3, 0, 3, c - 0.2]) {
+        const p = along(t);
+        expect(grandSurfaceAt([stair], p.x, p.z, y)?.floorIndex, `${floor} ${t}`).toBe(floor);
       }
+      expect(grandSurfacesAt([stair], beside.x, beside.z).some((s) => s.y === y)).toBe(false);
+      // Onto the walkway from the gallery, and off its side refused.
+      const gallery = along(c + 1);
+      const onto = along(c - 1);
+      expect(grandMoveAllowed([stair], gallery.x, gallery.z, onto.x, onto.z, y)).toBe(true);
+      const mid = along(2);
+      expect(grandMoveAllowed([stair], mid.x, mid.z, beside.x, beside.z, y)).toBe(false);
     }
   });
 
@@ -882,10 +872,13 @@ describe("walkways across a court's void", () => {
   });
 
   it("puts each floor's hole in the world where its walkways leave it", () => {
-    const stair = court("cross");
+    const stair = court("alternate");
     const top = openingInWorld(stair, 3);
-    expect(top.kind === "rects" && top.rects).toHaveLength(4);
-    expect(inOpening(stair, 0, 0, 3)).toBe(false);
+    expect(top.kind === "rects" && top.rects).toHaveLength(2);
+    // The third floor runs east to west, the fourth north to south.
+    expect(inOpening(stair, 4, 0, 2)).toBe(false);
+    expect(inOpening(stair, 0, 4, 2)).toBe(true);
+    expect(inOpening(stair, 0, 4, 3)).toBe(false);
     expect(inOpening(stair, 4, 4, 3)).toBe(true);
     expect(inOpening(stair, 0, 0)).toBe(true);
   });

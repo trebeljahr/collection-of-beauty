@@ -741,14 +741,13 @@ required by the Dockerfile — don't remove it.
       wall. The player does not treat it as a stair to load ahead for.
     - **Walkways cross the court's void** (`GrandStair.bridges`), 3.5 m
       wide, from a portal to the one opposite. Rico asked on 17 October
-      2026 for walkways "connecting the sides" of the court. Four
-      patterns were built (`CourtBridges`), and `/gallery-3d?bridges=`
-      shows each: `none`, `cross` (both on every floor), `middle` (a
-      cross on the third floor only) and `alternate`, the default:
-      north to south on the second and fourth floors, east to west on
-      the third. A cross on every floor left four shafts 7 m square
-      where the void had been, and on the floor it read as a hall with
-      four wells, not as walkways. A walkway is floor: `openingOn(stair,
+      2026 for walkways "connecting the sides" of the court: one a
+      floor, north to south on the second and fourth floors, east to
+      west on the third (`CourtBridges` "alternate";
+      `/gallery-3d?bridges=none` shows the open void). A cross on every
+      floor and a cross on the third floor alone were built and shown
+      him the same day, and he chose this: "I want no crosses." Never
+      put two walkways on one floor. A walkway is floor: `openingOn(stair,
       floor)` is the void less that floor's walkways, and the room's
       `floorOpening` / `ceilingOpening` are built from it, so the deck,
       its soffit, the fences and what the player may stand on all follow
