@@ -1,5 +1,31 @@
 import * as THREE from "three";
 import type { WorldOpening } from "@/lib/gallery-layout/types";
+import {
+  SPIRAL_EDGE_SEGMENTS,
+  SPIRAL_FLOOR_CUTOUT_RADIUS,
+} from "@/lib/gallery-layout/world-coords";
+
+/**
+ * The hole round a spiral, drawn about the well's centre. Its vertices
+ * stand where the treads' outer edge has its own, a multiple of 2.5°
+ * from +x, as every spiral's entry angle is a quarter turn. So the hole
+ * and the treads share one polygon, and the floor meets them edge to
+ * edge. `absarc` puts its own vertices elsewhere: the floor's chords
+ * would then cross the treads at floor level by a few millimetres, or
+ * leave a gap.
+ */
+export function spiralHole(): THREE.Path {
+  const hole = new THREE.Path();
+  for (let k = 0; k < SPIRAL_EDGE_SEGMENTS; k++) {
+    const a = (k / SPIRAL_EDGE_SEGMENTS) * Math.PI * 2;
+    const x = SPIRAL_FLOOR_CUTOUT_RADIUS * Math.cos(a);
+    const y = SPIRAL_FLOOR_CUTOUT_RADIUS * Math.sin(a);
+    if (k === 0) hole.moveTo(x, y);
+    else hole.lineTo(x, y);
+  }
+  hole.closePath();
+  return hole;
+}
 
 /**
  * The hole a grand stair leaves in a stair hall's floor or ceiling, as

@@ -19,7 +19,6 @@ import {
   FLOOR_THICKNESS,
   hasStairwellCutout,
   INTER_FLOOR_HEIGHT,
-  SPIRAL_FLOOR_CUTOUT_RADIUS,
 } from "@/lib/gallery-layout/world-coords";
 import { RoomBenches } from "./bench";
 import { RoomDividers } from "./divider";
@@ -36,7 +35,7 @@ import {
 } from "./palette-materials";
 import { registerCulledRoom } from "./room-culling";
 import { inRoomLight } from "./room-light";
-import { openingHole, rectsAround } from "./stair-opening";
+import { openingHole, rectsAround, spiralHole } from "./stair-opening";
 import { type SkirtingClip, WallWithDoors } from "./wall";
 
 type Side = Door["side"];
@@ -872,9 +871,7 @@ function StairwellFloor({
     shape.lineTo(-halfW, halfD);
     shape.closePath();
     if (opening === "spiral") {
-      const hole = new THREE.Path();
-      hole.absarc(0, 0, SPIRAL_FLOOR_CUTOUT_RADIUS, 0, Math.PI * 2, false);
-      shape.holes.push(hole);
+      shape.holes.push(spiralHole());
     } else if (opening) {
       shape.holes.push(openingHole(opening, cxWorld, czWorld, -1));
     }

@@ -1,4 +1,4 @@
-import { SPIRAL_FLOOR_CUTOUT_RADIUS } from "@/lib/gallery-layout/world-coords";
+import { SPIRAL_OUTER_RADIUS } from "@/lib/gallery-layout/world-coords";
 
 // Shared "rail vocabulary" — geometric constants that have to match
 // across the spiral rail (staircase.tsx), the cutout-edge rail and
@@ -29,9 +29,9 @@ export const BALUSTER_SIZE = 0.07;
  *  angle that catches the rail in cross-section. */
 export const BALUSTER_HEIGHT = RAIL_HEIGHT - RAIL_BAR_HEIGHT;
 
-/** Radial offset of the cutout-edge rail's centerline from the
- *  stairwell hole's edge. Shared by the visible rail and its collider. */
-export const CUTOUT_RAIL_RADIUS = SPIRAL_FLOOR_CUTOUT_RADIUS + 0.18;
+/** Radius of the cutout-edge rail's centerline, 0.22 m outside the
+ *  treads. Shared by the visible rail and its collider. */
+export const CUTOUT_RAIL_RADIUS = SPIRAL_OUTER_RADIUS + 0.22;
 
 /** Gate-post tangent width — wide enough for the sign plaque to fit
  *  flush within it, so post + sign reads as one architectural pylon. */

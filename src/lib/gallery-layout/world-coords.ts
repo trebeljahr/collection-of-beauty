@@ -81,12 +81,17 @@ export const FLOOR_THICKNESS = 0.2;
 export const INTER_FLOOR_HEIGHT = FLOOR_SEPARATION - FLOOR_THICKNESS;
 /** Stairwell room footprint in cells. Must be odd so it centres cleanly. */
 export const SPIRAL_ROOM_CELLS = 9;
-/** Radius the floor cutout uses around the spiral. Sits just outside
- *  the outermost tread so the stair fits cleanly with no z-fight at
- *  the boundary, but the gap is small enough that the player's bbox
- *  always straddles either the floor or the spiral — no walking over
- *  empty no-man's-land. */
-export const SPIRAL_FLOOR_CUTOUT_RADIUS = SPIRAL_OUTER_RADIUS + 0.04;
+/** Radius of the floor cutout round the spiral: the treads' outer edge.
+ *  The floor meets the treads and the top landing with no gap. Until
+ *  17 October 2026 the hole was 4 cm wider, and that ring showed the
+ *  dark below it as a black line round every tread at floor level. The
+ *  hole is cut as the polygon the treads are drawn as (`spiralHole` in
+ *  `stair-opening.ts`), so the two edges lie on one line and nothing
+ *  that stands at floor level overlaps the floor to z-fight. */
+export const SPIRAL_FLOOR_CUTOUT_RADIUS = SPIRAL_OUTER_RADIUS;
+/** Vertices of the treads' outer edge in one revolution: 4 a step.
+ *  The floor's hole is cut at the same angles. */
+export const SPIRAL_EDGE_SEGMENTS = SPIRAL_STEPS_PER_FLOOR * 4;
 
 /**
  * Half the stretch of wall whose cell edges a door opens, metres either

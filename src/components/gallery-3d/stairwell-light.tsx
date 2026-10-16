@@ -24,11 +24,7 @@ import * as THREE from "three";
 import { mergeGeometries } from "three/examples/jsm/utils/BufferGeometryUtils.js";
 import { paletteOfRoom } from "@/lib/gallery-layout/room-era";
 import type { Door, FloorLayout, RoomLayout } from "@/lib/gallery-layout/types";
-import {
-  CELL_SIZE,
-  INTER_FLOOR_HEIGHT,
-  SPIRAL_FLOOR_CUTOUT_RADIUS,
-} from "@/lib/gallery-layout/world-coords";
+import { CELL_SIZE, INTER_FLOOR_HEIGHT } from "@/lib/gallery-layout/world-coords";
 import { UNREFLECTED_LAYER } from "./floor-mirror";
 import { buildGlowGeometry, type Glow, lampGlowMaterial } from "./glow";
 import { getGlassMaterial, Laylight } from "./laylight";
@@ -54,7 +50,7 @@ import {
   wallSideOf,
 } from "./painting-light-rig";
 import { fixtureMaterial, getPaletteMaterials } from "./palette-materials";
-import { openingHole, rectsAround } from "./stair-opening";
+import { openingHole, rectsAround, spiralHole } from "./stair-opening";
 import {
   dome,
   glazingOuterR,
@@ -505,9 +501,7 @@ function buildCeilingGeometry(
     hole.absarc(0, 0, domeR, 0, Math.PI * 2, false);
     shape.holes.push(hole);
   } else if (!closed) {
-    const hole = new THREE.Path();
-    hole.absarc(0, 0, SPIRAL_FLOOR_CUTOUT_RADIUS, 0, Math.PI * 2, false);
-    shape.holes.push(hole);
+    shape.holes.push(spiralHole());
   }
   const g = new THREE.ShapeGeometry(shape, 32);
   g.rotateX(Math.PI / 2);

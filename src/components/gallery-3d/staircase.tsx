@@ -393,6 +393,7 @@ function buildSpiralStepsGeometry(staircase: Staircase): THREE.BufferGeometry {
   const positions: number[] = [];
   const colors: number[] = [];
   const indices: number[] = [];
+  // The floor's hole is cut at these vertices (`SPIRAL_EDGE_SEGMENTS`).
   const segPerStep = 4;
 
   for (let i = 0; i < numSteps; i++) {
