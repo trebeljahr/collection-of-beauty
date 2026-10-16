@@ -58,7 +58,7 @@ function catalogue(): ArtworkListing[] {
     work("coarse", "baroque", 800, 400, 2400),
     work("coarse-b", "baroque", 780, 400, 2400),
     // Taller than a storey and too coarse for a hall: the salon's far
-    // wall, with a work by the same hand over it.
+    // wall. A work by the same hand hangs in its era's galleries.
     { ...work("judgment", "renaissance", 1231, 1370, 3950), artistSlug: "buonarroti" },
     { ...work("adam", "renaissance", 570, 262, 1614), artistSlug: "buonarroti" },
     // Too coarse a scan even for the salon: stays in its rooms.
@@ -386,7 +386,7 @@ describe("giants in the block plan's halls", () => {
 });
 
 describe("the salon", () => {
-  const salon = layout.floors.map((f) => f.rooms.find((r) => key(r) === "salon")!);
+  const salon = layout.floors.flatMap((f) => f.rooms.filter((r) => key(r) === "salon"));
   const inSalon = (id: string) => {
     const found = hung(id);
     return found && key(found.room) === "salon" ? found : null;
@@ -414,19 +414,44 @@ describe("the salon", () => {
     expect(frame(p).top).toBeGreaterThan(FLOOR_SEPARATION);
   });
 
-  it("hangs a work by the same hand over it, clear of it, with no plaque", () => {
+  it("hangs nothing over it, under a roof two storeys and a bit up", () => {
     const below = inSalon("judgment")!.p;
-    const { p } = inSalon("adam")!;
-    expect(p.position[0]).toBeCloseTo(axisX, 6);
-    expect(p.position[2]).toBeCloseTo(farZ, 1);
-    expect(frame(p).bottom - frame(below).top).toBeGreaterThanOrEqual(3 - 1e-6);
-    expect(p.plaque).toBeNull();
+    const onFar = salon.flatMap((room) =>
+      room.placements.filter(
+        (p) => Math.abs(p.position[2] - farZ) < 0.1 && Math.abs(p.position[0] - axisX) < 6.2,
+      ),
+    );
+    expect(onFar.map((p) => p.artwork.id)).toEqual(["judgment"]);
+    // The work by the same hand that hung over it hangs in its era's
+    // galleries, at its real size.
+    const adam = hung("adam");
+    expect(adam?.room.isStairwell).toBe(false);
+    expect(adam?.p.widthM).toBeCloseTo(5.7, 2);
+    // The salon is two storeys, the top one running on to its dome.
+    expect(salon.map((r) => r.floorIndex)).toEqual([0, 1]);
+    const roof = salon[1].worldRect.y + salon[1].storeyHeight!;
+    expect(roof).toBeGreaterThan(2 * FLOOR_SEPARATION);
+    expect(frame(below).top).toBeLessThan(roof - 3);
+  });
+
+  it("hangs its side walls in pairs, at most one to each third", () => {
+    for (const room of salon) {
+      const sides = room.placements.filter((p) => Math.abs(Math.sin(p.rotation[1])) > 0.5);
+      const at = sides.map((p) => p.position[2].toFixed(3));
+      // Each pair mirrors across the axis, on one line along the walls.
+      for (const z of new Set(at))
+        expect(
+          at.filter((x) => x === z),
+          room.id,
+        ).toHaveLength(2);
+      expect(new Set(at).size, room.id).toBeLessThanOrEqual(3);
+    }
   });
 
   it("hangs every other work on a storey, with floor in front of it", () => {
     for (const room of salon) {
       for (const p of room.placements) {
-        if (["judgment", "adam"].includes(p.artwork.id)) continue;
+        if (p.artwork.id === "judgment") continue;
         const f = frame(p);
         expect(f.bottom - room.worldRect.y, p.artwork.id).toBeGreaterThanOrEqual(
           PAINTING_FLOOR_GAP - 1e-6,

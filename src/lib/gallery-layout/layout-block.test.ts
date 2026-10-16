@@ -45,6 +45,7 @@ import {
   CELL_SIZE,
   DIVIDER_THICKNESS,
   doorOpenHalfSpan,
+  FLOOR_SEPARATION,
   PORTAL_WIDTH,
   SPIRAL_OUTER_RADIUS,
 } from "./world-coords";
@@ -121,15 +122,16 @@ const metres = (cells: number) => cells * CELL_SIZE;
 const top = layout.floors.length - 1;
 
 describe("the block plan", () => {
-  it("is four floors of one plan: two stair halls, a court, a salon, two spirals and six galleries", () => {
+  it("is four floors of one plan: two stair halls, a court, two spirals, six galleries, and a salon on two", () => {
     expect(layout.floors).toHaveLength(4);
     for (const floor of layout.floors) {
       expect(floor.gridSize).toEqual(BLOCK_GRID);
       expect(floor.rooms.filter(isStairHall)).toHaveLength(2);
       expect(floor.rooms.filter(isCourt)).toHaveLength(1);
       expect(floor.rooms.filter(isSpiral)).toHaveLength(2);
-      expect(floor.rooms.filter(isSalon)).toHaveLength(1);
-      expect(floor.rooms.filter((r) => r.isStairwell)).toHaveLength(6);
+      const salon = floor.index <= 1 ? 1 : 0;
+      expect(floor.rooms.filter(isSalon)).toHaveLength(salon);
+      expect(floor.rooms.filter((r) => r.isStairwell)).toHaveLength(5 + salon);
       expect(floor.rooms.filter((r) => !r.isStairwell)).toHaveLength(BLOCK_ROOMS.length);
       // Every gallery is in one era, once.
       const cells = BLOCK_PLAN[floor.index].zones.flatMap((z) => [...z.cells]);
@@ -142,7 +144,15 @@ describe("the block plan", () => {
     expect(layout.allStaircases).toHaveLength(6);
     expect(layout.floors.map((f) => f.grandStairsOut!.length)).toEqual([4, 2, 2, 0]);
     expect(layout.floors.map((f) => f.grandStairsIn!.length)).toEqual([0, 4, 2, 2]);
-    expect(layout.floors.map((f) => f.grandHalls!.length)).toEqual([4, 6, 6, 4]);
+    expect(layout.floors.map((f) => f.grandHalls!.length)).toEqual([4, 6, 5, 3]);
+    // The salon is two storeys, the second one running on past the floor
+    // above to its dome.
+    const salons = layout.allRooms.filter(isSalon);
+    expect(salons.map((r) => r.floorIndex)).toEqual([0, 1]);
+    expect(salons[1].ceilingOpening).toBeNull();
+    expect(salons[1].domed).toBe(true);
+    expect(salons[1].storeyHeight).toBeGreaterThan(FLOOR_SEPARATION);
+    expect(salons[0].storeyHeight).toBeUndefined();
     expect(layout.floors.map((f) => f.stairsOut.length)).toEqual([2, 2, 2, 0]);
     expect(layout.floors.map((f) => f.stairsIn.length)).toEqual([0, 2, 2, 2]);
   });
@@ -213,8 +223,9 @@ describe("the block plan", () => {
         expect(door.width).toBe(PORTAL_WIDTH);
         expect(door.worldX).toBe(cx);
         // And a door to the gallery on either side; the south one opens
-        // into the salon too.
-        const salon = shaft.key === "stair-s" ? [OPPOSITE_SIDE[shaft.door]] : [];
+        // into the salon too, on the floors the salon stands on.
+        const salon =
+          shaft.key === "stair-s" && floor.index <= 1 ? [OPPOSITE_SIDE[shaft.door]] : [];
         expect(room.doors.map((d) => d.side).sort()).toEqual(
           ["east", "west", shaft.door, ...salon].sort(),
         );
@@ -783,8 +794,11 @@ describe("the block plan", () => {
       );
       // And for the rows south of the block, where only the salon stands.
       const blockRows = Math.max(...BLOCK_ROOMS.map((r) => r.rect.zMax)) + 1;
-      const salon = BLOCK_HALLS.find((h) => h.design === "salon")!.rect;
-      const salonCells = (salon.xMax - salon.xMin + 1) * (salon.zMax - salon.zMin + 1);
+      const salon = BLOCK_HALLS.find((h) => h.design === "salon")!;
+      const salonCells =
+        floor.index <= (salon.top ?? top)
+          ? (salon.rect.xMax - salon.rect.xMin + 1) * (salon.rect.zMax - salon.rect.zMin + 1)
+          : 0;
       const outside = (BLOCK_GRID.z - blockRows) * BLOCK_GRID.x - salonCells;
       expect(owned.size).toBe(BLOCK_GRID.x * BLOCK_GRID.z - behind - outside);
       for (let z = 0; z < BLOCK_GRID.z; z++) {

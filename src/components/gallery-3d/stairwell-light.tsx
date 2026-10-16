@@ -25,7 +25,7 @@ import * as THREE from "three";
 import { mergeGeometries } from "three/examples/jsm/utils/BufferGeometryUtils.js";
 import { paletteOfRoom } from "@/lib/gallery-layout/room-era";
 import type { Door, FloorLayout, RoomLayout } from "@/lib/gallery-layout/types";
-import { CELL_SIZE, INTER_FLOOR_HEIGHT } from "@/lib/gallery-layout/world-coords";
+import { CELL_SIZE, FLOOR_SEPARATION, INTER_FLOOR_HEIGHT } from "@/lib/gallery-layout/world-coords";
 import { UNREFLECTED_LAYER } from "./floor-mirror";
 import { buildGlowGeometry, type Glow, lampGlowMaterial } from "./glow";
 import { getGlassMaterial, Laylight } from "./laylight";
@@ -75,6 +75,13 @@ import { poolGainScale } from "./wall-light";
 /** The ceiling plane hangs just under the slab of the floor above, whose
  *  parquet underside it covers. */
 const CEILING_Y = INTER_FLOOR_HEIGHT - 0.02;
+/** A room's ceiling over its floor: CEILING_Y, or as far under the slab
+ *  in a storey that runs higher (`RoomLayout.storeyHeight`). */
+function ceilingYOf(room: RoomLayout): number {
+  return room.storeyHeight === undefined
+    ? CEILING_Y
+    : room.storeyHeight - (FLOOR_SEPARATION - CEILING_Y);
+}
 /** How far the glass and its frame hang below the ceiling plane. */
 const GLASS_DROP = 0.012;
 const FRAME_HALF_WIDTH = 0.045;
@@ -769,7 +776,13 @@ function roomWashes(room: RoomLayout) {
   const depth = zMax - zMin;
   const cx = (xMin + xMax) / 2;
   const cz = (zMin + zMax) / 2;
-  const walls = washedWalls(room, roomWalls(room, width, depth, cx, cz));
+  // A storey that runs higher than a storey keeps its washers at a
+  // storey's height, on stems from its ceiling: the light on its walls
+  // is the light on every other.
+  const hangFrom = room.storeyHeight === undefined ? undefined : ceilingYOf(room);
+  const walls = washedWalls(room, roomWalls(room, width, depth, cx, cz)).map((wall) =>
+    hangFrom === undefined ? wall : { ...wall, hangFrom },
+  );
   // A hall of the block plan hangs a giant on the middle of each
   // stretch of wall, and has a row to each stretch; so does a spiral
   // room given a work too long for any hall. A stairwell that hangs
@@ -816,10 +829,12 @@ function StairHallLight({ floor, room }: { floor: FloorLayout; room: RoomLayout 
   const closed = grand !== undefined ? grand === null : floor.stairsOut.length === 0;
   // The top of a grand stair hall is glazed over the void under it: a
   // laylight the shape of the opening.
-  const voidUnder = closed && grand !== undefined ? room.floorOpening : null;
+  const voidUnder = closed && grand !== undefined && !room.domed ? room.floorOpening : null;
   const laylight = voidUnder ? voidUnder.rects : null;
-  // A spiral's room is closed on its top floor by a dome.
-  const domed = closed && grand === undefined;
+  // A spiral's room is closed on its top floor by a dome, and so is the
+  // salon.
+  const domed = closed && (grand === undefined || room.domed === true);
+  const ceilingY = ceilingYOf(room);
   // A stair hall is one colour through every storey.
   const palette = room.paletteEra ? paletteOfRoom(room) : floor.era.palette;
   const { wallColor } = palette;
@@ -831,6 +846,7 @@ function StairHallLight({ floor, room }: { floor: FloorLayout; room: RoomLayout 
     const washed = washes.length > 0;
     return {
       position: [cx, room.worldRect.y, cz] as [number, number, number],
+      ceilingY,
       washMaterial: washed
         ? getWashMaterial(
             washes[0].row,
@@ -859,7 +875,7 @@ function StairHallLight({ floor, room }: { floor: FloorLayout; room: RoomLayout 
       glass: domed ? buildDomeGlass(rimR) : null,
       frame: domed ? buildDomeFrame(rimR) : null,
     };
-  }, [room, closed, grand, wallColor, laylight, domed]);
+  }, [room, closed, grand, wallColor, laylight, domed, ceilingY]);
 
   useEffect(
     () => () => {
@@ -880,7 +896,7 @@ function StairHallLight({ floor, room }: { floor: FloorLayout; room: RoomLayout 
           key={`${r.xMin}:${r.zMin}`}
           cx={(r.xMin + r.xMax) / 2}
           cz={(r.zMin + r.zMax) / 2}
-          ceilingY={room.worldRect.y + CEILING_Y}
+          ceilingY={room.worldRect.y + ceilingY}
           w={r.xMax - r.xMin}
           d={r.zMax - r.zMin}
           reveal={getPaletteMaterials(palette).ceiling}
@@ -898,6 +914,7 @@ function StairHallFixtures({
 }: {
   built: {
     position: [number, number, number];
+    ceilingY: number;
     washMaterial: THREE.ShaderMaterial | null;
     wash: THREE.BufferGeometry | null;
     cans: THREE.BufferGeometry | null;
@@ -913,19 +930,19 @@ function StairHallFixtures({
       <mesh
         geometry={built.ceiling}
         material={getPaletteMaterials(palette).ceiling}
-        position={[0, CEILING_Y, 0]}
+        position={[0, built.ceilingY, 0]}
       />
       {built.glass && built.frame && (
         <>
           <mesh
             geometry={built.glass}
             material={getDomeGlassMaterial()}
-            position={[0, CEILING_Y - GLASS_DROP, 0]}
+            position={[0, built.ceilingY - GLASS_DROP, 0]}
           />
           <mesh
             geometry={built.frame}
             material={fixtureMaterial}
-            position={[0, CEILING_Y, 0]}
+            position={[0, built.ceilingY, 0]}
             layers={UNREFLECTED_LAYER}
           />
         </>

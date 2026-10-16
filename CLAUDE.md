@@ -1090,8 +1090,7 @@ required by the Dockerfile — don't remove it.
       as tall beside it: "the images should start at the same height
       in those rooms". Before, a pair shared a centre line and a
       smaller work hung by `packRun`'s eye-level rule. The court, the
-      stair halls, the spiral rooms and the salon all hang so; the one
-      exception is the salon's work over its axis work.
+      stair halls, the spiral rooms and the salon all hang so.
     - All 71 giants hang (17 October 2026): 32 in the court, 34 in the
       stair halls, 3 in the spiral rooms and 2 in their era's galleries
       at real size (The Seven Works of Mercy, Heroes), which no pair
@@ -1100,9 +1099,9 @@ required by the Dockerfile — don't remove it.
       wall is 22.5 m with no door. That is Les Nuages, whose floor's
       two end walls hang the other two Orangerie panels, and the
       Qingming handscroll, 11.86 m. Each hangs on its storey's axis
-      (`stairHallHang(...).axes`, `ownFloor`). Since the salon's door
-      cut the south spiral's outer wall, the Yangtze handscroll
-      (11.15 m) hangs in the East Asian galleries (`must`).
+      (`stairHallHang(...).axes`, `ownFloor`). The salon's door cuts
+      the south spiral's outer wall on the first two floors only, so
+      the Yangtze handscroll (11.15 m) hangs on the fourth floor's.
   - **A spiral room's storeys hang tall works** (`hangTallInSpirals`,
     `tallSize`). Rico, 17 October 2026: "the spiral stair case rooms
     could also hold tall paintings nicely". Until then five of the
@@ -1112,9 +1111,9 @@ required by the Dockerfile — don't remove it.
     the works they left, so it changes no gallery. A storey is hung as
     a stair hall's storey: the outer wall is the end wall, the wall
     toward the court the front, and a work hangs only on its own
-    floor. The south spiral's outer wall has the salon's door, so it
-    hangs a pair either side of it and no work on the axis (`Bay.end`
-    null). It runs after the salon too, which took El Greco's
+    floor. On the first two floors the south spiral's outer wall has
+    the salon's door, so it hangs a pair either side of it and no work
+    on the axis (`Bay.end` null). It runs after the salon too, which took El Greco's
     Annunciation. 46 works on 17 October 2026, 6 to 9 a storey on the
     first three floors, among them Rembrandt's Prodigal Son, the
     Isenheim saints as a pair, Gainsborough's full-lengths and
@@ -1153,15 +1152,27 @@ required by the Dockerfile — don't remove it.
     Judgment left out at its real size: "stuff like this is *exactly*
     what I want", and he asked for a room over more than one storey for
     such works. A hall 37.5 m square beyond the block's south front
-    (grid rows 25 to 39; `BLOCK_GRID` is 47 × 40), four storeys high,
-    entered from the south spiral's room on every floor (`SALON_DOOR`):
-    the court's short axis runs on through the spiral into it.
-    - A gallery 5 m deep runs along its front and side walls on every
-      floor above the first; the side galleries reach the far wall. The
-      far wall stands sheer (`RoomLayout.sheer`, depth 0). The same
-      morning Rico found works hung high over a void "meh" in the stair
-      halls, so only the far wall's middle hangs over a void: the axis
-      work on the hall floor and one work by the same hand over it.
+    (grid rows 25 to 39; `BLOCK_GRID` is 47 × 40), entered from the
+    south spiral's room (`SALON_DOOR`): the court's short axis runs on
+    through the spiral into it.
+    - Two storeys and a bit, on the first two floors (`BLOCK_HALLS[].top`;
+      no salon room on the floors above). It was four storeys high until
+      the evening of 17 October 2026; Rico asked for "2 floors and a
+      bit", the ceiling where the middle of the Creation of Adam then
+      hung over the Last Judgment, and a dome. So the top storey runs
+      on past the third floor to a ceiling 18.85 m over the salon's
+      floor (`SALON_TOP_STOREY`, `RoomLayout.storeyHeight`: walls to
+      the slab, the ceiling 0.22 m under it), and a glazed dome closes
+      its middle in place of a laylight (`RoomLayout.domed`, the spiral
+      rooms' dome, a 15.85 m rim rising 11.9 m). Its washers keep a
+      storey's height and hang on stems from that ceiling, so its walls
+      are lit as every other hall's.
+    - A gallery 5 m deep runs along its front and side walls on the
+      second floor; the side galleries reach the far wall. The far wall
+      stands sheer (`RoomLayout.sheer`, depth 0). The same morning Rico
+      found works hung high over a void "meh" in the stair halls, so
+      only the far wall's middle hangs over a void: the axis work on
+      the hall floor, and nothing over it.
     - The long galleries beside it (`sw`, `se`) share 7.5 m of its
       front wall and have no door to it: a door there stood in the line
       of the door screen in front of their door to the spiral.
@@ -1169,11 +1180,13 @@ required by the Dockerfile — don't remove it.
       from 4 m), so it reads the whole catalogue, not the era buckets.
       It takes what the halls left, largest first, after the halls and
       before the spiral rooms.
-    - The hang (17 October 2026, 28 works): the Last Judgment on the far
-      wall, the Creation of Adam 3 m over it, the Siege of Pskov and the
-      Valley of Tears beside it; on each storey a pair on each half of
-      the side walls and a pair on the front wall either side of the
-      door. A pair is two works of like size (`PAIR_MAX_UNLIKE`), led by
+    - The hang (17 October 2026, 19 works): the Last Judgment on the far
+      wall, the Siege of Pskov and the Valley of Tears beside it; on each
+      storey a pair on each third of the side walls
+      (`SALON_SIDE_STRETCHES`; two left the walls "a bit empty", Rico)
+      and a pair on the front wall either side of the door. The Creation
+      of Adam, hung over the Last Judgment until Rico asked for it to go
+      elsewhere, hangs on the second storey's east wall. A pair is two works of like size (`PAIR_MAX_UNLIKE`), led by
       the largest work that has such a partner, so a work with no like
       partner hangs nowhere: Rhythm No. 1 (5.92 × 5.38 m) and the Two
       Willows (17 m).

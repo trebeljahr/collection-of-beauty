@@ -132,8 +132,15 @@ export type RoomLayout = {
    *  the hall; `floorOpening` and `ceilingOpening` say whether this
    *  storey has floor or ceiling there. `base` and `roof` are the world
    *  heights the wall stands between: the hall's floor and its glazed
-   *  ceiling four storeys up. */
+   *  ceiling. */
   sheer?: { side: Door["side"]; depth: number; base: number; roof: number };
+  /** Metres from this storey's floor to the slab its walls run up to,
+   *  where that is not a storey (`FLOOR_SEPARATION`): the salon's top
+   *  storey, which rises past the floor above to its dome. */
+  storeyHeight?: number;
+  /** The top of a hall closed by a glazed dome over its middle, as a
+   *  spiral's room is, in place of a laylight over its void. */
+  domed?: true;
   /** A stair hall's end wall where the half landings meet it (`LOGGIA`
    *  in grand-stair.ts): the middle `2 * half` metres of the wall on
    *  `side` have no floor in front of them on this storey. `landing` is

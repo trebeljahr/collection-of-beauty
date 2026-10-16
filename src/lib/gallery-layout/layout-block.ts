@@ -43,16 +43,19 @@
 // real size (`giants.ts`): one to a stretch of wall on each storey, a
 // stair hall's storey composed about its stair's axis.
 //
-// The salon stands beyond the south front, 37.5 m square and four
-// storeys high, and opens from the south spiral's room on every floor:
-// the court's short axis runs on through the spiral into it. A gallery
-// runs along its front and side walls on every floor above the first;
-// its far wall stands sheer from the floor to the roof. It hangs the
-// largest works no hall holds (`hangSalon`): Michelangelo's Last
-// Judgment, 13.7 m tall, on the far wall, and the rest in pairs on the
-// storeys. Rico, 17 October 2026, of the Last Judgment hung at a
-// quarter of its size: "stuff like this is *exactly* what I want", and
-// asked for a room over more than one storey for such works.
+// The salon stands beyond the south front, 37.5 m square, and opens
+// from the south spiral's room on the first two floors: the court's
+// short axis runs on through the spiral into it. A gallery runs along
+// its front and side walls on the second floor; its far wall stands
+// sheer from the floor to the roof, 18.85 m up, and a glazed dome
+// closes it. It hangs the largest works no hall holds (`hangSalon`):
+// Michelangelo's Last Judgment, 13.7 m tall, on the far wall, and the
+// rest in pairs on the two storeys. Rico, 17 October 2026, of the Last
+// Judgment hung at a quarter of its size: "stuff like this is
+// *exactly* what I want", and asked for a room over more than one
+// storey for such works. It was four storeys high that morning; he
+// asked for "2 floors and a bit", the ceiling where the middle of the
+// Creation of Adam had hung over the Last Judgment, and a dome.
 //
 // The galleries take the dividers and benches of fittings.ts. A floor
 // holds two or three eras, each in rooms that touch, each room in its
@@ -255,13 +258,21 @@ export const BLOCK_HALLS: ReadonlyArray<{
   rect: CellRect;
   design: Extract<GrandStairDesign, "loggia" | "court" | "salon">;
   turns: GrandStair["turns"];
+  /** The highest floor the hall stands on: the top floor, unset. */
+  top?: number;
 }> = [
   { key: "hall-w", rect: span(3, 10, ROW_M), design: "loggia", turns: 3 },
   { key: "court", rect: span(18, 28, ROW_M), design: "court", turns: 0 },
   { key: "hall-e", rect: span(36, 43, ROW_M), design: "loggia", turns: 1 },
-  { key: "salon", rect: span(16, 30, ROW_SALON), design: "salon", turns: 2 },
+  { key: "salon", rect: span(16, 30, ROW_SALON), design: "salon", turns: 2, top: 1 },
 ];
-/** The one room the salon opens from, on every floor: the south
+/** How high the salon's top storey runs, from its floor to the slab
+ *  over it (`RoomLayout.storeyHeight`): past the floor above, so its
+ *  ceiling is 18.85 m over the salon's floor, where the middle of the
+ *  Creation of Adam hung when the salon was four storeys high. The dome
+ *  rises from there. */
+export const SALON_TOP_STOREY = 10.67;
+/** The one room the salon opens from, on the floors it stands on: the south
  *  spiral's, so the court's short axis runs on through it into the
  *  salon. The long galleries beside it share 7.5 m of the salon's front
  *  wall and have no door to it: a door there stood in the line of the
@@ -451,6 +462,7 @@ export function layoutBlock(
   // the first.
   const grandStairs: GrandStair[] = [];
   for (const hall of BLOCK_HALLS) {
+    const hallTop = hall.top ?? top;
     const stairs =
       hall.design !== "loggia"
         ? [
@@ -458,7 +470,7 @@ export function layoutBlock(
               floors[0],
               floors[1],
               hall,
-              top,
+              hallTop,
               false,
               false,
               hall.design === "court" ? courtBridges : undefined,
@@ -474,23 +486,28 @@ export function layoutBlock(
       grandStairs.push(stair);
     }
     const court = hall.design !== "loggia";
-    for (let f = 0; f <= top; f++) {
+    for (let f = 0; f <= hallTop; f++) {
       const room = hallRoom(floors[f], hall.key);
       // The stair whose opening is in this floor, and the one whose
       // opening is in the ceiling: the floor above's.
       const below = court ? stairs[0] : stairs[f - 1];
       const above = court ? stairs[0] : stairs[f];
       room.floorOpening = f > 0 ? openingInWorld(below, f) : null;
-      room.ceilingOpening = f < top ? openingInWorld(above, f + 1) : null;
+      room.ceilingOpening = f < hallTop ? openingInWorld(above, f + 1) : null;
       room.stairGlyph = court ? "void" : f === 0 ? "up" : f === top ? "down" : "both";
       // The salon's far wall stands sheer from its floor to the roof:
-      // its galleries run along the other three.
+      // its galleries run along the other three. Its top storey rises
+      // past the floor above to a glazed dome.
       if (hall.design === "salon") {
+        if (f === hallTop) {
+          room.storeyHeight = SALON_TOP_STOREY;
+          room.domed = true;
+        }
         room.sheer = {
           side: OPPOSITE[hallFront(hall)],
           depth: 0,
           base: floors[0].y,
-          roof: floors[top].y + INTER_FLOOR_HEIGHT,
+          roof: floors[hallTop].y + SALON_TOP_STOREY - (FLOOR_SEPARATION - INTER_FLOOR_HEIGHT),
         };
       }
       // A loggia's half landings run back to its end wall: the wall's
@@ -622,6 +639,9 @@ function hangGiants(
     floors.flatMap((f) => f.rooms.flatMap((r) => r.placements.map((p) => p.artwork.id))),
   );
   const salon = BLOCK_HALLS.find((h) => h.design === "salon");
+  const salonStoreys = salon
+    ? floors.slice(0, (salon.top ?? floors.length - 1) + 1).map((f) => hallRoom(f, salon.key))
+    : [];
   if (salon) {
     const forSalon = allArtworks.flatMap((artwork) => {
       if (hungSoFar.has(artwork.id) || !assignEra(artwork)) return [];
@@ -630,22 +650,15 @@ function hangGiants(
     });
     const front = hallFront(salon);
     const width = (salon.rect.xMax - salon.rect.xMin + 1) * CELL_SIZE;
-    hangSalon(
-      floors.map((floor) => hallRoom(floor, salon.key)),
-      forSalon,
-      { far: OPPOSITE[front], front },
-      width / 2 - SALON_GALLERY,
-    );
+    hangSalon(salonStoreys, forSalon, { far: OPPOSITE[front], front }, width / 2 - SALON_GALLERY);
   }
-  const inSalon = new Set(
-    salon ? floors.flatMap((f) => hallRoom(f, salon.key).placements.map((p) => p.artwork.id)) : [],
-  );
+  const inSalon = new Set(salonStoreys.flatMap((r) => r.placements.map((p) => p.artwork.id)));
 
   // The spiral rooms take only what no hall's wall holds: the north
   // one's outer wall, 22.5 m with no door, is the one wall left for a
   // handscroll 12 m long once the end walls have their works (the south
-  // one's opens into the salon). Any other work a pair left hangs in
-  // its era's rooms.
+  // one's opens into the salon on the first two floors). Any other work
+  // a pair left hangs in its era's rooms.
   const stretches = floors.flatMap((floor) => [
     ...courts[floor.index].flat().flatMap(hallRuns),
     ...stairHalls.flatMap((h) =>
@@ -686,9 +699,9 @@ function hangGiants(
  * on the middle of the outer wall, a pair beside it, and pairs that
  * mirror each other across the stair on the side walls and either
  * side of the portal to the court. A storey whose outer wall holds a
- * handscroll keeps it as the work on the axis. The south spiral's
- * outer wall has the door to the salon: a pair either side of it, and
- * no work on the axis.
+ * handscroll keeps it as the work on the axis. On the floors the salon
+ * stands on, the south spiral's outer wall has the door to it: a pair
+ * either side of it, and no work on the axis.
  */
 function hangTallInSpirals(
   floors: FloorLayout[],
@@ -754,7 +767,8 @@ function buildFloor(
     rooms.push(room);
     byKey.set(key, room);
   };
-  for (const { key, rect: r, design } of BLOCK_HALLS) {
+  for (const { key, rect: r, design, top } of BLOCK_HALLS) {
+    if (top !== undefined && index > top) continue;
     const room = makeRoom(index, key, r, floorEra, {
       title: HALL_NAMES[key] ?? (design === "court" ? "Court" : "Stair Hall"),
       isStairwell: true,

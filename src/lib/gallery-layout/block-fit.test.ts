@@ -171,4 +171,21 @@ describe("the block plan and the catalogue", () => {
     const full = spirals.filter((r) => r.floorIndex < 3 && r.placements.length >= 6);
     expect(full.length, counts.join(", ")).toBe(6);
   });
+
+  it("hangs three works on each side wall of every storey of the salon", () => {
+    // Rico, 17 October 2026: with two the side walls looked "a bit empty".
+    const salon = layout.allRooms.filter((r) => r.id.endsWith("-salon"));
+    expect(salon).toHaveLength(2);
+    for (const room of salon) {
+      const sides = room.placements.filter((p) => Math.abs(Math.sin(p.rotation[1])) > 0.5);
+      expect(sides, room.id).toHaveLength(6);
+    }
+    // Nothing hangs over the Last Judgment.
+    const far = salon.flatMap((r) =>
+      r.placements.filter((p) => Math.abs(p.position[0] - 58.75) < 6.2 && p.rotation[1] !== 0),
+    );
+    expect(
+      far.filter((p) => Math.abs(Math.cos(p.rotation[1])) > 0.5).map((p) => p.artwork.id),
+    ).toEqual(["collection-of-beauty-last-judgement-by-michelangelo"]);
+  });
 });

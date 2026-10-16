@@ -132,7 +132,10 @@ export function RoomGeometry({
   // on through the slab's depth to the storey above. One of them may
   // stand sheer with no gallery against it (`room.sheer`, the salon's
   // far wall).
-  const wallHeight = room.ceilingOpening !== undefined ? FLOOR_SEPARATION : INTER_FLOOR_HEIGHT;
+  // The salon's top storey runs on past the floor above to its dome.
+  const wallHeight =
+    room.storeyHeight ??
+    (room.ceilingOpening !== undefined ? FLOOR_SEPARATION : INTER_FLOOR_HEIGHT);
   const wallMidY = floorY + wallHeight / 2;
   // A hall with a sheer wall stands its walls a few millimetres inside
   // their lines. On the sheer wall nothing hides the edge of the floor
