@@ -1102,13 +1102,21 @@ required by the Dockerfile — don't remove it.
       the frame: with small works the plaque should start where the
       image starts. 360 of the 1,381 plaques beside a frame hang so,
       centres 1.7 to 1.9 m.
-    - **Every frame in a hall starts 0.4 m over its floor or landing**
-      (`seatedCenter` in `giants.ts`), whatever its size. Rico, 17
-      October 2026, of a pair hung on the centre line of a canvas twice
-      as tall beside it: "the images should start at the same height
-      in those rooms". Before, a pair shared a centre line and a
-      smaller work hung by `packRun`'s eye-level rule. The court, the
-      stair halls, the spiral rooms and the salon all hang so.
+    - **A work in a hall is centred at eye level, or stands 0.4 m over
+      its floor or landing when too tall for that** (`hungCenter` in
+      `giants.ts`): canvas centre 1.65 m up, the line the galleries
+      hang on, until the frame would come within 0.4 m of the floor,
+      about 2.3 m of canvas. A pair shares one bottom line, the higher
+      of the two works' own (`pairCenters`), so a tall partner of a
+      short work stands up to 0.3 m higher. Rico, 17 October 2026, of
+      a pair centred on the line of a canvas twice as tall beside it:
+      "the images should start at the same height in those rooms".
+      Every frame of a hall then stood 0.4 m up, and that evening he
+      found a short work hung so: its "visual weight should be at eye
+      level". 52 of 134 hall works moved up, the two handscrolls of
+      the spiral rooms (34 and 23 cm tall) from a centre at 0.68 m to
+      1.65 m. The court, the stair halls, the spiral rooms and the
+      salon all hang so.
     - All 71 giants hang (17 October 2026): 32 in the court, 34 in the
       stair halls, 3 in the spiral rooms and 2 in their era's galleries
       at real size (The Seven Works of Mercy, Heroes), which no pair

@@ -56,6 +56,7 @@ import { assignEra } from "@/lib/gallery-eras";
 import { trustworthyRealSize } from "@/lib/real-size";
 import { frameExtents, pickFrameDesign } from "./frame-design";
 import {
+  CANONICAL_Y_CENTER_OFFSET,
   computeRoomRuns,
   footprintOf,
   frameReachOf,
@@ -260,7 +261,7 @@ export function hangHallStoreys(
         // it: `packRun` centres the two together.
         const position: Placement["position"] = [...p.position];
         position[run.axis === "x" ? 0 : 2] = stretchMiddle(run);
-        position[1] = seatedCenter(p, room.worldRect.y);
+        position[1] = hungCenter(p, room.worldRect.y);
         room.placements.push({ ...p, position, giant: true });
       }
     }
@@ -268,14 +269,46 @@ export function hangHallStoreys(
   return left;
 }
 
+/** The canvas centre of a work in a hall, over a floor at `floorY`:
+ *  on the eye line the galleries hang on (`CANONICAL_Y_CENTER_OFFSET`),
+ *  or, for a work too tall for that, with its frame
+ *  `PAINTING_FLOOR_GAP` over the floor. The two meet at a canvas about
+ *  2.3 m tall in its frame, so a taller work stands on the gap and a
+ *  shorter one is centred at eye level.
+ *
+ *  Rico, 17 October 2026, of a pair centred on one line beside a canvas
+ *  twice as tall: "the images should start at the same height in those
+ *  rooms". Every frame of a hall then stood on the gap, and a work
+ *  1.2 m tall had its middle at a visitor's waist. Rico, the same
+ *  evening: its "visual weight should be at eye level". */
+function hungCenter(
+  work: Pick<Placement, "artwork" | "frame" | "widthM" | "heightM">,
+  floorY: number,
+): number {
+  return Math.max(floorY + CANONICAL_Y_CENTER_OFFSET, seatedCenter(work, floorY));
+}
+
 /** The canvas centre of a work whose frame stands `PAINTING_FLOOR_GAP`
- *  over a floor at `floorY`. Every work of a hall starts at that one
- *  height, whatever its size. Rico, 17 October 2026, of a pair centred
- *  on one line beside a canvas twice as tall: "the images should start
- *  at the same height in those rooms". */
-function seatedCenter(p: Placement, floorY: number): number {
+ *  over a floor at `floorY`. */
+function seatedCenter(
+  p: Pick<Placement, "artwork" | "frame" | "widthM" | "heightM">,
+  floorY: number,
+): number {
   const e = frameExtents(p.frame ?? pickFrameDesign(p.artwork), p.widthM, p.heightM);
   return floorY + PAINTING_FLOOR_GAP + e.bottom + p.heightM / 2;
+}
+
+/** The canvas centres of a pair over a floor at `floorY`, on one
+ *  bottom line: the higher of the two each work would take alone
+ *  (`hungCenter`). A short work keeps its eye-level centre, and a tall
+ *  partner stands that much higher off the floor. */
+function pairCenters(pair: readonly SizedWork[], floorY: number): number[] {
+  const sized = pair.map((w) => ({ artwork: w.artwork, widthM: w.wM, heightM: w.hM }));
+  const below = sized.map(
+    (w) => frameExtents(pickFrameDesign(w.artwork), w.widthM, w.heightM).bottom + w.heightM / 2,
+  );
+  const line = Math.max(...sized.map((w, i) => hungCenter(w, floorY) - below[i]));
+  return below.map((b) => line + b);
 }
 
 /** True when a work fits one of these stretches, a gap clear at each
@@ -405,8 +438,8 @@ function bayOf(storey: StairHallStorey, floor: number): Bay | null {
   return { storey, floor, end, landing: over?.landing ?? null, flanks: null, pairs, hero: null };
 }
 
-/** A work hung on the middle of a stretch, seated on a floor `lift`
- *  metres above the room's (`seatedCenter`), or with its canvas centre
+/** A work hung on the middle of a stretch, over a floor `lift` metres
+ *  above the room's (`hungCenter`), or with its canvas centre
  *  at `centerY`. The plaque is at eye level over that floor. Returns
  *  the canvas centre. */
 function hangOn(
@@ -418,7 +451,7 @@ function hangOn(
   const [p] = packRun(run, [work], Number.POSITIVE_INFINITY);
   const position: Placement["position"] = [...p.position];
   position[run.axis === "x" ? 0 : 2] = stretchMiddle(run);
-  position[1] = centerY ?? seatedCenter(p, room.worldRect.y + lift);
+  position[1] = centerY ?? hungCenter(p, room.worldRect.y + lift);
   const plaque =
     lift === 0 ? {} : { plaque: { dy: room.worldRect.y + lift + PLAQUE_EYE - position[1] } };
   room.placements.push({ ...p, position, giant: true, ...plaque });
@@ -442,8 +475,9 @@ function hangOn(
  * the wall there is the one over the landing below.
  *
  * Every work hangs on the middle of its stretch, so a pair mirrors
- * about the axis, and every frame stands at one height over its floor
- * or landing (`seatedCenter`). A pair is two works of like size
+ * about the axis. Over its floor or landing a work is centred at eye
+ * level, or stands 0.4 m up when too tall for that (`hungCenter`), and
+ * a pair shares one bottom line (`pairCenters`). A pair is two works of like size
  * (`unlike`), of one hand or one era where the pool has such two. Nothing hangs alone where a pair belongs.
  *
  * Two steps, so a caller can hang other rooms between them: `axes`
@@ -541,8 +575,12 @@ export function stairHallHang(
       lift = 0,
     ) => {
       pool = pool.filter((e) => e !== pair[0] && e !== pair[1]);
+      const centres = pairCenters(
+        pair.map((e) => e.work),
+        bay.storey.room.worldRect.y + lift,
+      );
       pair.forEach((e, i) => {
-        hangOn(bay.storey.room, runs[i], e.work, { lift });
+        hangOn(bay.storey.room, runs[i], e.work, { lift, centerY: centres[i] });
       });
     };
 
@@ -661,9 +699,10 @@ export function hangSalon(
     return null;
   };
   const hangPair = (room: RoomLayout, runs: [WallRun, WallRun], pair: [Framed, Framed]) => {
+    const centres = pairCenters(pair, room.worldRect.y);
     pair.forEach((w, i) => {
       take(w);
-      hangOn(room, runs[i], w);
+      hangOn(room, runs[i], w, { centerY: centres[i] });
     });
   };
 

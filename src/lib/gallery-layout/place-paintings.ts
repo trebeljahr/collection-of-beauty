@@ -40,7 +40,7 @@ import { CELL_SIZE, DIVIDER_THICKNESS, DOOR_TRIM, PORTAL_TRIM } from "./world-co
  *  floor is lifted (see `packRun`). Lowered from
  *  1.9 m to read closer to a real-museum hang (where centres land
  *  around 1.45-1.55 m, slightly below the player's 1.75 m eye line). */
-const CANONICAL_Y_CENTER_OFFSET = 1.65;
+export const CANONICAL_Y_CENTER_OFFSET = 1.65;
 /** Smallest long edge (metres) any work renders at. The corpus includes
  *  pocket-sized engravings (8–15 cm) whose true scale would be
  *  invisible on a 15 m wall; museums hang those in vitrines we don't

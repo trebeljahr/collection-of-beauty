@@ -11,7 +11,13 @@ import {
 } from "./giants";
 import { grandStairsAt, grandSurfaceAt } from "./grand-stair";
 import { BLOCK_HALLS, layoutBlock } from "./layout-block";
-import { MAX_PAINTING_W, PAINTING_FLOOR_GAP, PLAQUE_EYE, sizeWork } from "./place-paintings";
+import {
+  CANONICAL_Y_CENTER_OFFSET,
+  MAX_PAINTING_W,
+  PAINTING_FLOOR_GAP,
+  PLAQUE_EYE,
+  sizeWork,
+} from "./place-paintings";
 import type { Placement, RoomLayout } from "./types";
 import { CELL_SIZE, FLOOR_SEPARATION, INTER_FLOOR_HEIGHT } from "./world-coords";
 
@@ -183,8 +189,13 @@ describe("giants in the block plan's halls", () => {
         const f = frame(p);
         const landing = landingOf(room, p);
         const stand = standOf(room, p);
-        // Every frame starts at one height over its floor or landing.
-        expect(f.bottom - stand, p.artwork.id).toBeCloseTo(PAINTING_FLOOR_GAP, 6);
+        // Never under eye level over its floor or landing, and never
+        // within the floor gap. A pair shares a bottom line, so a tall
+        // partner of a short work stands higher than the gap.
+        expect(p.position[1] - stand, p.artwork.id).toBeGreaterThanOrEqual(
+          CANONICAL_Y_CENTER_OFFSET - 1e-6,
+        );
+        expect(f.bottom - stand, p.artwork.id).toBeGreaterThanOrEqual(PAINTING_FLOOR_GAP - 1e-6);
         // Under the next landing up, or the storey's ceiling.
         const clear = landing ? landing.top - landing.y : INTER_FLOOR_HEIGHT;
         expect(f.top - stand, p.artwork.id).toBeLessThan(clear - 0.1);
