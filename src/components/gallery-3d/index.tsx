@@ -1188,6 +1188,7 @@ function FloorScene({
           room={room}
           mountedRooms={mountedRooms}
           worksInFull={worksInFull}
+          stairsOut={stairs}
           sharedWalls={sharedWalls.get(room.id) ?? NO_SHARED_WALLS}
           onPaintingSettled={room.id === entryRoomId ? onEntryPaintingSettled : undefined}
         />

@@ -12,7 +12,13 @@ import {
 } from "@/lib/gallery-layout/reveal-budget";
 import { paletteOfRoom } from "@/lib/gallery-layout/room-era";
 import { shaftKey, visibilityRoom } from "@/lib/gallery-layout/room-visibility";
-import type { Door, Placement, RoomLayout, WorldOpening } from "@/lib/gallery-layout/types";
+import type {
+  Door,
+  Placement,
+  RoomLayout,
+  Staircase,
+  WorldOpening,
+} from "@/lib/gallery-layout/types";
 import {
   CELL_SIZE,
   FLOOR_SEPARATION,
@@ -35,7 +41,7 @@ import {
 } from "./palette-materials";
 import { registerCulledRoom } from "./room-culling";
 import { inRoomLight } from "./room-light";
-import { rectsAround, spiralHole } from "./stair-opening";
+import { firstTreadHole, rectsAround, spiralHole } from "./stair-opening";
 import { type SkirtingClip, WallWithDoors } from "./wall";
 
 type Side = Door["side"];
@@ -63,9 +69,14 @@ export function RoomGeometry({
   sharedWalls,
   mountedRooms,
   worksInFull = true,
+  stairsOut,
   onPaintingSettled,
 }: {
   room: RoomLayout;
+  /** The spirals that leave this room's floor. On the ground floor the
+   *  one that stands in this room has its first tread cut out of the
+   *  floor (`firstTreadHole`). */
+  stairsOut?: readonly Staircase[];
   /** False on a floor that is mounted only because a hall shows its
    *  doors: its galleries keep their stand-ins however near they are on
    *  the plan. A hall is one room through every storey and shows its
@@ -290,7 +301,8 @@ export function RoomGeometry({
 
         {/* Stairwell main floor. On the ground floor the spiral only
           rises (no stair below), so the floor stays solid — a hole
-          there would just expose blackness. On every other floor the
+          there would just expose blackness — but for the first tread,
+          whose top lies in the floor's plane. On every other floor the
           stair from below ascends through this level, so we cut a
           clean circular hole around the spiral so the descending
           flights stay visible. */}
@@ -307,7 +319,13 @@ export function RoomGeometry({
                 ? room.floorOpening
                 : hasStairwellCutout(room.floorIndex)
                   ? "spiral"
-                  : null
+                  : (stairsOut?.find(
+                      (s) =>
+                        s.centerX > xMin &&
+                        s.centerX < xMax &&
+                        s.centerZ > zMin &&
+                        s.centerZ < zMax,
+                    ) ?? null)
             }
           />
         )}
@@ -834,15 +852,16 @@ function StairwellFloor({
   depth: number;
   floorY: number;
   floorMat: THREE.MeshStandardMaterial;
-  /** The spiral's round well, a grand stair's opening, or no hole. */
-  hole: WorldOpening | "spiral" | null;
+  /** The spiral's round well, a grand stair's opening, the first tread
+   *  of a spiral that starts on this floor, or no hole. */
+  hole: WorldOpening | "spiral" | Staircase | null;
 }) {
   const { topGeom, slabGeom } = useMemo(() => {
     // An opening of rectangles may reach the hall's walls, and a hole
     // that touches a shape's edge does not
     // triangulate. So the floor is built from the rectangles round the
     // opening instead: one box each, their inner faces never seen.
-    if (opening && opening !== "spiral") {
+    if (opening && opening !== "spiral" && "rects" in opening) {
       const cells = rectsAround(opening.rects, cxWorld, czWorld, width, depth);
       const tops = cells.map((c) => {
         const g = new THREE.PlaneGeometry(c.xMax - c.xMin, c.zMax - c.zMin);
@@ -872,6 +891,8 @@ function StairwellFloor({
     shape.closePath();
     if (opening === "spiral") {
       shape.holes.push(spiralHole());
+    } else if (opening) {
+      shape.holes.push(firstTreadHole(opening, cxWorld, czWorld));
     }
     const top = new THREE.ShapeGeometry(shape, 32);
     // Shape lives on XY plane; rotate it down onto XZ so it lies flat.
@@ -923,7 +944,8 @@ function StairwellFloor({
   // the floor here. Hiding the neighbour's slab left the line; hiding
   // the lintel removed it. Do not lower this floor again. Nothing else
   // stands at floorY here: the flights that arrive on this floor end
-  // inside the opening.
+  // inside the opening, and the ground floor's first tread, whose top
+  // is at floorY, fills a hole of its own shape (`firstTreadHole`).
   return (
     <>
       <mesh geometry={topGeom} position={[cxWorld, floorY, czWorld]} receiveShadow>

@@ -1,4 +1,5 @@
 import * as THREE from "three";
+import type { Staircase } from "@/lib/gallery-layout/types";
 import {
   SPIRAL_EDGE_SEGMENTS,
   SPIRAL_FLOOR_CUTOUT_RADIUS,
@@ -22,6 +23,37 @@ export function spiralHole(): THREE.Path {
     if (k === 0) hole.moveTo(x, y);
     else hole.lineTo(x, y);
   }
+  hole.closePath();
+  return hole;
+}
+
+/**
+ * The hole the lowest spiral leaves in the ground floor: the plan of its
+ * first tread, whose top lies at the floor's height. The ground floor has
+ * no well (nothing climbs to it), so without this hole the floor and that
+ * tread are one plane and z-fight. The tread's body reaches a rise below
+ * the floor, deeper than the slab, so nothing below shows through. Drawn
+ * in the floor shape's plane about the room's centre: shape y is world -z.
+ * The vertices are the tread's own (`buildSpiralStepsGeometry`, 4 a step).
+ */
+export function firstTreadHole(stair: Staircase, cxWorld: number, czWorld: number): THREE.Path {
+  const stepAngle = ((Math.PI * 2) / stair.numSteps) * stair.direction;
+  const a = stair.entryAngle;
+  const b = stair.entryAngle + stepAngle;
+  const lo = Math.min(a, b);
+  const hi = Math.max(a, b);
+  const segments = 4;
+  const at = (r: number, i: number): [number, number] => {
+    const theta = lo + (hi - lo) * (i / segments);
+    return [
+      stair.centerX - cxWorld + r * Math.cos(theta),
+      -(stair.centerZ - czWorld + r * Math.sin(theta)),
+    ];
+  };
+  const hole = new THREE.Path();
+  hole.moveTo(...at(stair.outerRadius, 0));
+  for (let i = 1; i <= segments; i++) hole.lineTo(...at(stair.outerRadius, i));
+  for (let i = segments; i >= 0; i--) hole.lineTo(...at(stair.innerRadius, i));
   hole.closePath();
   return hole;
 }
