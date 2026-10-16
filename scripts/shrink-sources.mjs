@@ -69,7 +69,7 @@ import {
   GALLERY_LOD_WIDTH,
   VARIANT_WIDTHS,
 } from "../src/lib/variant-config.mjs";
-import { cropRect, loadScanCrops, orientedSize } from "./lib/scan-crops.mjs";
+import { applyTone, cropRect, loadScanCrops, orientedSize } from "./lib/scan-crops.mjs";
 import { SOURCE_FOLDERS } from "./lib/source-folders.mjs";
 import { loadTakedowns } from "./lib/takedowns.mjs";
 
@@ -328,6 +328,7 @@ async function collectJobs() {
       // (metadata/scan-crops.json), so the planned widths are those of the
       // cut image, and editing the table makes its variants stale.
       const crop = scanCrops.get(folder, name);
+      const tone = scanCrops.tone(folder, name);
       let extract = null;
       try {
         const meta = await sharp(srcPath, {
@@ -352,8 +353,10 @@ async function collectJobs() {
         name,
         srcPath,
         srcStat,
-        sinceMs: extract ? Math.max(srcStat.mtimeMs, scanCrops.mtimeMs) : srcStat.mtimeMs,
+        sinceMs:
+          extract || tone ? Math.max(srcStat.mtimeMs, scanCrops.mtimeMs) : srcStat.mtimeMs,
         extract,
+        tone,
         sourceWidth,
         sourceHeight,
         destDir,
@@ -370,16 +373,17 @@ async function collectJobs() {
 }
 
 /** The source as every variant sees it: EXIF rotation applied, then the
- *  frame cut off when scan-crops.json lists the work. The order matters:
- *  sharp extracts after rotating only when rotate() is called first, and
- *  the crop is measured on the displayed image. */
+ *  frame cut off and the colour corrected when scan-crops.json lists the
+ *  work. The order matters: sharp extracts after rotating only when
+ *  rotate() is called first, and the crop is measured on the displayed
+ *  image. */
 function decodeSource(job) {
   const img = sharp(job.srcPath, {
     failOn: "none",
     unlimited: true,
     limitInputPixels: false,
   }).rotate(); // apply EXIF rotation then discard the tag
-  return job.extract ? img.extract(job.extract) : img;
+  return applyTone(job.extract ? img.extract(job.extract) : img, job.tone);
 }
 
 async function processFile(job, build) {

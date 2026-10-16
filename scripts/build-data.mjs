@@ -16,7 +16,7 @@ import {
   matchArtistExact,
 } from "./lib/artist-alias.mjs";
 import { artworkId, ID_MAX_LENGTH, slugify } from "./lib/artwork-id.mjs";
-import { cropRect, cropSignature, loadScanCrops } from "./lib/scan-crops.mjs";
+import { cropRect, cropSignature, loadScanCrops, toneSignature } from "./lib/scan-crops.mjs";
 import { SOURCE_FOLDERS } from "./lib/source-folders.mjs";
 import { loadTakedowns } from "./lib/takedowns.mjs";
 
@@ -250,7 +250,7 @@ function probeSignature(folderKey, filename) {
   let sig;
   try {
     const st = statSync(path.join(ASSETS, folderKey, filename));
-    sig = `${Math.round(st.mtimeMs)}:${st.size}${cropSignature(scanCrops.get(folderKey, filename))}`;
+    sig = `${Math.round(st.mtimeMs)}:${st.size}${cropSignature(scanCrops.get(folderKey, filename))}${toneSignature(scanCrops.tone(folderKey, filename))}`;
   } catch {
     return null;
   }

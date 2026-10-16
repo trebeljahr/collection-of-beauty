@@ -37,6 +37,22 @@
 // its own at those sizes (src/lib/gallery-layout/polyptych.ts). The
 // sides of a cut are optional: a scan whose panels stand on a plain
 // ground needs no cut.
+//
+// An entry can also correct a scan's colour, for a larger photograph Rico
+// took on the condition that it look like the scan it replaced:
+//
+//   "tone": { "matrix": [[0.9, 0.1, 0], [0, 1, 0], [0.05, -0.1, 1.05]],
+//             "a": [1.08, 1.02, 0.97], "b": [-6, 2, 9],
+//             "saturation": 1.3, "sharpen": 0.8 }
+//
+// In sRGB levels (0–255): the pixel is first multiplied by the 3 × 3
+// matrix (optional, sharp's recomb), then each channel becomes
+// a * value + b (a defaults to 1), then saturation is multiplied
+// (optional), then an optional unsharp mask of that sigma is applied at
+// each output size. sharp runs recomb, linear and modulate in that order
+// whatever the call order. The numbers are fitted once against the old
+// scan and written here; nothing is fitted at encode time. Like a cut, a
+// tone makes the work's variants and tiles stale when the table changes.
 
 import { existsSync, readFileSync, statSync } from "node:fs";
 import path from "node:path";
@@ -60,6 +76,7 @@ const SIDES = ["l", "t", "r", "b"];
 export function loadScanCrops(file = SCAN_CROPS_PATH) {
   const crops = new Map();
   const panels = new Map();
+  const tones = new Map();
   let mtimeMs = 0;
   if (existsSync(file)) {
     mtimeMs = statSync(file).mtimeMs;
@@ -67,6 +84,7 @@ export function loadScanCrops(file = SCAN_CROPS_PATH) {
     for (const [key, entry] of Object.entries(raw)) {
       if (key.startsWith("_")) continue;
       if (entry.panels) panels.set(nfc(key), readPolyptych(key, entry));
+      if (entry.tone) tones.set(nfc(key), readTone(key, entry.tone));
       if (SIDES.every((s) => entry[s] === undefined)) continue;
       for (const s of SIDES) {
         const v = entry[s];
@@ -84,6 +102,10 @@ export function loadScanCrops(file = SCAN_CROPS_PATH) {
     mtimeMs,
     get(folder, filename) {
       return crops.get(`${nfc(folder)}/${nfc(filename)}`) ?? null;
+    },
+    /** The colour correction of a scan, or null. */
+    tone(folder, filename) {
+      return tones.get(`${nfc(folder)}/${nfc(filename)}`) ?? null;
     },
     /** A polyptych's panels (fractions of the cut image, and real
      *  sizes), its frame width and the gap between frames. */
@@ -109,6 +131,55 @@ function readPolyptych(key, entry) {
   if (!(entry.frameCm >= 0) || !(entry.gapCm >= 0))
     throw new Error(`scan-crops.json: ${key} needs frameCm and gapCm`);
   return { panels, frameCm: entry.frameCm, gapCm: entry.gapCm };
+}
+
+/** A tone is three gains and three offsets in sRGB levels. Values past
+ *  these bounds throw: a typo here would publish a recoloured painting. */
+function readTone(key, t) {
+  const three = (v, lo, hi) =>
+    Array.isArray(v) &&
+    v.length === 3 &&
+    v.every((x) => typeof x === "number" && x >= lo && x <= hi);
+  const matrixOk =
+    t.matrix === undefined ||
+    (Array.isArray(t.matrix) &&
+      t.matrix.length === 3 &&
+      t.matrix.every((row) => three(row, -1.5, 2.5)));
+  if (!matrixOk || (t.a !== undefined && !three(t.a, 0.5, 2.5)) || !three(t.b, -160, 160))
+    throw new Error(`scan-crops.json: ${key} has a bad "tone"`);
+  if (
+    t.saturation !== undefined &&
+    !(typeof t.saturation === "number" && t.saturation >= 0.5 && t.saturation <= 2.5)
+  )
+    throw new Error(`scan-crops.json: ${key} has a bad "tone.saturation"`);
+  if (
+    t.sharpen !== undefined &&
+    !(typeof t.sharpen === "number" && t.sharpen > 0 && t.sharpen <= 3)
+  )
+    throw new Error(`scan-crops.json: ${key} has a bad "tone.sharpen"`);
+  return {
+    ...(t.matrix ? { matrix: t.matrix.map((row) => [...row]) } : {}),
+    a: t.a ? [...t.a] : [1, 1, 1],
+    b: [...t.b],
+    ...(t.saturation ? { saturation: t.saturation } : {}),
+    ...(t.sharpen ? { sharpen: t.sharpen } : {}),
+  };
+}
+
+/** Apply a tone to a sharp pipeline (no-op for null). */
+export function applyTone(img, tone) {
+  if (!tone) return img;
+  let out = tone.matrix ? img.recomb(tone.matrix) : img;
+  out = out.linear(tone.a, tone.b);
+  if (tone.saturation) out = out.modulate({ saturation: tone.saturation });
+  return tone.sharpen ? out.sharpen({ sigma: tone.sharpen }) : out;
+}
+
+/** Stable string for a tone, for cache signatures. */
+export function toneSignature(tone) {
+  return tone
+    ? `tone:${tone.matrix ? tone.matrix.flat().join(",") : "-"};${tone.a.join(",")};${tone.b.join(",")};${tone.saturation ?? 1};${tone.sharpen ?? 0}`
+    : "";
 }
 
 /** Panels in percent, checked and returned as fractions. Two panels may

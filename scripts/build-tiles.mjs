@@ -77,7 +77,7 @@ import {
   TILE_OVERLAP,
   TILE_SIZE,
 } from "../src/lib/deep-zoom-config.mjs";
-import { cropRect, loadScanCrops, orientedSize } from "./lib/scan-crops.mjs";
+import { applyTone, cropRect, loadScanCrops, orientedSize } from "./lib/scan-crops.mjs";
 
 // One libvips thread per op; parallelize at the JS level instead — same
 // tradeoff scripts/shrink-sources.mjs makes, for the same reason.
@@ -156,6 +156,7 @@ function collectJobs() {
       srcPath: path.join(SRC_ROOT, art.objectKey),
       // The catalogue's width/height are already those of the cut scan.
       crop: scanCrops.get(art.folder, filename),
+      tone: scanCrops.tone(art.folder, filename),
       cropsMtimeMs: scanCrops.mtimeMs,
       destDir: path.join(DEST_ROOT, art.folder, basename, TILE_DIR),
       width: size.width,
@@ -173,7 +174,8 @@ async function isFresh(job, srcStat) {
   const deepest = path.join(job.destDir, String(maxLevelFor(job.width, job.height)));
   try {
     const dirStat = await stat(deepest);
-    const since = job.crop ? Math.max(srcStat.mtimeMs, job.cropsMtimeMs) : srcStat.mtimeMs;
+    const since =
+      job.crop || job.tone ? Math.max(srcStat.mtimeMs, job.cropsMtimeMs) : srcStat.mtimeMs;
     if (dirStat.mtimeMs < since) return false;
     const files = await readdir(deepest);
     return files.length >= tileCountAtDeepestLevel(job.width, job.height);
@@ -214,7 +216,8 @@ async function buildPyramid(job) {
       const shown = orientedSize(meta.width, meta.height, meta.orientation);
       img = img.extract(cropRect(job.crop, shown.width, shown.height));
     }
-    await img
+    // And correct its colour the same way too.
+    await applyTone(img, job.tone)
       .flatten({ background: "#ffffff" }) // PNG/WebP alpha -> flat white
       // Resize to exactly the dimensions deepZoomSize() computes rather
       // than letting `fit: "inside"` round on its own. The runtime derives
