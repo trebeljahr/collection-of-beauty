@@ -3,7 +3,12 @@ import type { ArtworkListing } from "@/lib/data";
 import { ERAS } from "@/lib/gallery-eras";
 import { galleryLayoutIdentity } from "@/lib/gallery-release-state";
 import { arrangementOf } from "./divider-plans";
-import { benchClearOfDividers, centredIsland } from "./feature-benches";
+import {
+  benchClearOfDividers,
+  centredIsland,
+  SCREEN_BENCH_ROOM,
+  screenBenches,
+} from "./feature-benches";
 import { benchRect, longAxis } from "./fittings";
 import {
   grandStairsAt,
@@ -35,8 +40,14 @@ import {
   wallFootprint,
 } from "./place-paintings";
 import { eraOfRoom, floorTitle } from "./room-era";
-import type { Door, RoomLayout } from "./types";
-import { CELL_SIZE, doorOpenHalfSpan, PORTAL_WIDTH, SPIRAL_OUTER_RADIUS } from "./world-coords";
+import type { Bench, Door, RoomLayout } from "./types";
+import {
+  CELL_SIZE,
+  DIVIDER_THICKNESS,
+  doorOpenHalfSpan,
+  PORTAL_WIDTH,
+  SPIRAL_OUTER_RADIUS,
+} from "./world-coords";
 
 /** 160 sharp works for every era, in mixed sizes, by 40 artists each.
  *  Every fourth is a sharper scan of the same size. */
@@ -429,6 +440,9 @@ describe("the block plan", () => {
         const onCentre =
           Math.abs(room.benches.reduce((sum, q) => sum + q.x, 0) / n - (x0 + x1) / 2) < 1e-6 &&
           Math.abs(room.benches.reduce((sum, q) => sum + q.z, 0) / n - (z0 + z1) / 2) < 1e-6;
+        const facing = screenBenches(room);
+        const facesScreen = (bench: Bench) =>
+          facing.some((f) => f.x === bench.x && f.z === bench.z && f.along === bench.along);
         room.benches.forEach((bench, i) => {
           const r = rects[i];
           // 4 m or more of floor to every wall: a bench in the 5 m
@@ -439,6 +453,32 @@ describe("the block plan", () => {
           ).toBeGreaterThanOrEqual(4);
           // And 2.2 m to every freestanding wall, a door screen included.
           expect(benchClearOfDividers(bench, room, 2.2), room.id).toBe(true);
+          if (facesScreen(bench)) {
+            // Square in front of a door screen, on its middle, and no
+            // other bench beside it.
+            const screen = room.dividers.find((d) => {
+              if (!d.bare || d.axis !== bench.along) return false;
+              const middle = ((d.start + d.end) / 2) * CELL_SIZE;
+              const into = d.bare === "high" ? -1 : 1;
+              const ahead =
+                ((bench.along === "x" ? bench.z : bench.x) - d.line * CELL_SIZE) * into -
+                DIVIDER_THICKNESS / 2;
+              return (
+                Math.abs((bench.along === "x" ? bench.x : bench.z) - middle) < 1e-6 &&
+                ahead >= 3.5 - 1e-6 &&
+                ahead <= 4.5 + 1e-6
+              );
+            });
+            expect(screen, room.id).toBeDefined();
+            for (const other of room.benches) {
+              if (other === bench) continue;
+              expect(
+                Math.hypot(other.x - bench.x, other.z - bench.z),
+                room.id,
+              ).toBeGreaterThanOrEqual(SCREEN_BENCH_ROOM);
+            }
+            return;
+          }
           if (set.kind === "wings") {
             // Between wing walls a bench lies along the room, across
             // the wings.
@@ -671,6 +711,15 @@ describe("the block plan", () => {
         );
         const largest = Math.max(...fitting.map((p) => p.widthM * p.heightM));
         expect(work.widthM * work.heightM, room.id).toBeCloseTo(largest, 6);
+
+        // A bench faces it, on its middle, parallel to it.
+        const seat = room.benches.find(
+          (b) =>
+            b.along === screen.axis &&
+            Math.abs((b.along === "x" ? b.x : b.z) / CELL_SIZE - along) < 1e-6 &&
+            Math.sign((b.along === "x" ? b.z : b.x) / CELL_SIZE - screen.line) === inward,
+        );
+        expect(seat, `${room.id}: a bench facing its screen`).toBeDefined();
       }
       // No screen but those, and none in a hall or a stair's room.
       const all = floor.rooms.flatMap((r) => r.dividers.filter((d) => d.bare));

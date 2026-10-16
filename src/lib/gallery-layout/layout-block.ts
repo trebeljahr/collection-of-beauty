@@ -95,7 +95,9 @@ import {
   centredIsland,
   courtIslands,
   planPanelBenches,
+  SCREEN_BENCH_ROOM,
   salonIslands,
+  screenBenches,
   wallIsland,
 } from "./feature-benches";
 import {
@@ -835,7 +837,7 @@ function buildFloor(
       room.benches = clear(centredIsland(room.cellBounds, room.doors)) ?? [];
     }
     const { xMin, xMax, zMin, zMax } = room.cellBounds;
-    room.benches = room.benches.filter((bench) => {
+    const hasFloor = (bench: Bench) => {
       const r = benchRect(bench);
       const floor = Math.min(
         r.xMin - xMin * CELL_SIZE,
@@ -844,7 +846,13 @@ function buildFloor(
         (zMax + 1) * CELL_SIZE - r.zMax,
       );
       return floor >= BENCH_WALL_FLOOR - 1e-9;
-    });
+    };
+    // A door screen's picture has a bench square in front of it, and
+    // the benches of the room's other lines beside that one give way.
+    const facing = screenBenches(room).filter(hasFloor);
+    const apart = (bench: Bench) =>
+      facing.every((f) => Math.hypot(f.x - bench.x, f.z - bench.z) >= SCREEN_BENCH_ROOM);
+    room.benches = [...facing, ...room.benches.filter((b) => hasFloor(b) && apart(b))];
   }
 
   // The court's floor is seated in front of its north and south walls,

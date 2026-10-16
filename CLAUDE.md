@@ -849,6 +849,18 @@ required by the Dockerfile — don't remove it.
       rows, every line of their panels is one of two walking lines.
       They are seated where their walls leave a place: one of the eight
       has no bench.
+    - **A door screen has a bench square in front of it**
+      (`screenBenches`), parallel to it, on its middle, 3.5 to 4.5 m
+      from its face, so the bench looks at the screen's one picture.
+      Rico, 17 October 2026, of the American gallery, where the
+      Washington Family hung on the screen and the benches stood in
+      line with the panels beside it: he wanted a bench facing "the
+      divider wall with a nice big image on it". A bench may stand in
+      the line of the door behind the screen and of a door opposite
+      that looks at it: the screen already stands across both. Any
+      other bench within 6.5 m of it is left out (`SCREEN_BENCH_ROOM`);
+      at 4 m the two read as a waiting room. All 12 screens of the plan
+      have their bench.
     - The hang gives each door screen its one picture first
       (`hangFeatures`). Then it finds what each bench looks at: the
       nearest wall or panel face square in front of it and behind it,

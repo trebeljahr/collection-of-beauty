@@ -28,7 +28,13 @@
 // - on the centre line of a room with no panels and a door in three of
 //   its walls, in front of the fourth (`wallIsland`);
 // - in a court, in front of each stretch of its north and south walls
-//   (`courtIslands`).
+//   (`courtIslands`);
+// - square in front of a door screen, on its middle, facing the one
+//   picture it hangs (`screenBenches`). Rico, 17 October 2026, of the
+//   American gallery, where the Washington Family hung on the screen
+//   with a bench in line with each row of panels beside it: the bench
+//   should face "the divider wall with a nice big image on it". A bench
+//   of the room's other lines within 6.5 m of it gives way.
 //
 // A bench placed so is on a line of the room, but nothing says a work
 // hangs on that line: Rico, the same day, "now they are not aligning
@@ -292,6 +298,57 @@ export function wallIsland(rect: CellRect, doors: readonly PlanDoor[]): Bench[] 
       return [-back, back].map((off): Bench => ({ x: at + off, z, along: "z" }));
     }
   }
+}
+
+/** From a door screen's face to the middle of the bench that faces it,
+ *  metres, in the order they are tried. The screen's picture is up to
+ *  4 m wide; a door's walking line can push the bench nearer. */
+const SCREEN_VIEW = [4.5, 4.25, 4, 3.75, 3.5];
+/** A bench of the room's other lines nearer than this to a screen's
+ *  bench is left out: two benches side by side read as a waiting room. */
+export const SCREEN_BENCH_ROOM = 6.5;
+
+/**
+ * A bench for each door screen of a room: on the middle of the screen,
+ * parallel to it, at a distance from which its picture is seen whole.
+ * It stands in no door's walking line but those the screen already
+ * stands across (the door behind it, and a door opposite that looks at
+ * it), and keeps 2.2 m from every divider. A screen with no such place
+ * has no bench.
+ */
+export function screenBenches(room: Pick<RoomLayout, "doors" | "dividers">): Bench[] {
+  const out: Bench[] = [];
+  for (const screen of room.dividers) {
+    if (!screen.bare) continue;
+    // Toward the room: away from the bare face.
+    const into = screen.bare === "high" ? -1 : 1;
+    const face = screen.line * CELL_SIZE + (into * DIVIDER_THICKNESS) / 2;
+    const lo = screen.start * CELL_SIZE;
+    const hi = screen.end * CELL_SIZE;
+    const middle = (lo + hi) / 2;
+    for (const view of SCREEN_VIEW) {
+      const at = face + into * view;
+      const bench: Bench =
+        screen.axis === "x" ? { x: middle, z: at, along: "x" } : { x: at, z: middle, along: "z" };
+      if (!benchClearOf(bench, room.dividers, DIVIDER_CLEARANCE)) continue;
+      const r = benchRect(bench);
+      const inLine = room.doors.some((door) => {
+        // A door in a wall parallel to the screen looks along the
+        // screen's normal; one in a wall across it, along the screen.
+        const parallel = (door.side === "north" || door.side === "south") === (screen.axis === "x");
+        const pos = door.side === "north" || door.side === "south" ? door.worldX : door.worldZ;
+        if (parallel && pos > lo && pos < hi) return false;
+        const half = door.width / 2 + DOOR_LINE_MARGIN;
+        const [from, to] =
+          door.side === "north" || door.side === "south" ? [r.xMin, r.xMax] : [r.zMin, r.zMax];
+        return from < pos + half && to > pos - half;
+      });
+      if (inLine) continue;
+      out.push(bench);
+      break;
+    }
+  }
+  return out;
 }
 
 /** True when a bench stands clear of every divider of its room by at
