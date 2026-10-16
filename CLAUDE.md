@@ -830,7 +830,7 @@ required by the Dockerfile — don't remove it.
   - **An era's rooms fit its works.** Rico, 13 October 2026: "Rooms
     shouldn't read as sparse and room layout/sizes should fit the number
     of images that there are." Every era covers its wall to within 0.02
-    of the plan's share (0.45, 0.38 for the two floors of prints), and
+    of the plan's share (0.475, 0.40 for the two floors of prints), and
     every room to within 0.04. `block-fit.test.ts` holds the plan to
     that against the real catalogue. Three things do it:
     - `zones` names an era's rooms, and `styles` sets how much wall a
@@ -852,10 +852,8 @@ required by the Dockerfile — don't remove it.
     not fixed: 0.21 to 0.23 in the three that are not the Grand Hall.
     One room fewer is not possible there (rooms open in mirrored
     pairs), and the one room behind the stair alone would be at 0.69.
-  - It hangs 1,352 works (17 October 2026): 1,281 in 24 galleries, 27
-    to 77 a room, and 71 in the halls and spiral rooms. The galleries
-    hung 1,352 before the wider clearances ("A work keeps 0.5 m of
-    plaster", below). The spiral
+  - It hangs 1,421 works (17 October 2026): 1,350 in 24 galleries, and
+    71 in the halls and spiral rooms. The spiral
     rooms hang only what no hall holds (next point but several), and
     each corner of the block is part of a long gallery, which has less
     wall than the rooms it could be: the plan before hung 1,726, 1,663
@@ -1169,7 +1167,9 @@ required by the Dockerfile — don't remove it.
     The casing widths are `DOOR_TRIM` and `PORTAL_TRIM`
     (`world-coords.ts`), which `wall.tsx` draws. The tower opened 6
     rooms more for the wall it lost (108 → 114 galleries), and the
-    block plan takes 71 works fewer to keep its coverage. A door
+    block plan took 71 works fewer to keep its coverage, until its
+    share went up to 0.475 and 0.40 (`BLOCK_WALL_COVERAGE`): the same
+    works hang closer, a median gap of 1.22 m where it was 1.34 m. A door
     screen's face is 4 m now, and its picture is the largest that fits
     with its canvas on the screen's middle (`centredFootprint`).
   - Until 13 October 2026 a run took works by the share of its length

@@ -152,9 +152,13 @@ export const BLOCK_DOOR_HEIGHT = 2.9;
  *  included. Rico found works hung too close at 0.55; below a half the
  *  gap between two works is wider than a work. The two floors of small
  *  sheets hang thinner still: many prints of one shape in a row read as
- *  wallpaper. */
-export const BLOCK_WALL_COVERAGE = 0.45;
-export const BLOCK_PRINT_COVERAGE = 0.38;
+ *  wallpaper. It was 0.45 and 0.38 until 17 October 2026, when the
+ *  clearances to doors, corners and wing walls took 5.5 % of the
+ *  hangable wall and the plan hung 71 works fewer. Rico wanted them
+ *  back, so the share went up by that much: the same works hang, the
+ *  median gap between two works is 1.22 m where it was 1.34 m. */
+export const BLOCK_WALL_COVERAGE = 0.475;
+export const BLOCK_PRINT_COVERAGE = 0.4;
 
 /** The galleries hang every work at its real size where that size is
  *  trusted, with no 3.2 m cap (`HangOptions`). */
