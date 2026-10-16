@@ -24,7 +24,7 @@ import {
 import { RoomBenches } from "./bench";
 import { RoomDividers } from "./divider";
 import { registerMirrorRoom } from "./floor-mirror";
-import { Laylight } from "./laylight";
+import { ceilingAround, Laylight } from "./laylight";
 import { laylightPanels } from "./laylight-layout";
 import { Painting } from "./painting";
 import { wallInsetOf } from "./painting-light-rig";
@@ -148,6 +148,12 @@ export function RoomGeometry({
     return atLow ? { xMin: -half + strip, xMax: half } : { xMin: -half, xMax: half - strip };
   };
   const laylights = useMemo(() => laylightPanels(room), [room]);
+  // The ceiling, cut where each laylight is recessed into it.
+  const ceilingGeom = useMemo(
+    () => ceilingAround(laylights, cxWorld, czWorld, width, depth),
+    [laylights, cxWorld, czWorld, width, depth],
+  );
+  useEffect(() => () => ceilingGeom.dispose(), [ceilingGeom]);
 
   // Floor plane with world-unit UVs so 1 m of floor = 1 m of texture
   // tile, regardless of room size. UVs are anchored to the room's
@@ -262,8 +268,7 @@ export function RoomGeometry({
         )}
         {isStandardRoom && (
           <>
-            <mesh rotation={[Math.PI / 2, 0, 0]} position={[cxWorld, ceilingY, czWorld]}>
-              <planeGeometry args={[width, depth]} />
+            <mesh position={[cxWorld, ceilingY, czWorld]} geometry={ceilingGeom}>
               <primitive object={mats.ceiling} attach="material" />
             </mesh>
             {laylights.map((p) => (
@@ -274,6 +279,7 @@ export function RoomGeometry({
                 ceilingY={ceilingY}
                 w={p.xMax - p.xMin}
                 d={p.zMax - p.zMin}
+                reveal={mats.ceiling}
                 fixture={fixture}
               />
             ))}

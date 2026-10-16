@@ -417,8 +417,9 @@ function buildCeilingGeometry(
   depth: number,
   closed: boolean,
   grandHole: THREE.Path | null,
-  /** A grand stair's opening of rectangles, as the ceiling round it
-   *  (`rectsAround`): it may reach the walls, where a hole cannot. */
+  /** A grand stair's opening of rectangles, or the laylight over the
+   *  top of its void, as the ceiling round it (`rectsAround`): it may
+   *  reach the walls, where a hole cannot. */
   around: ReturnType<typeof rectsAround> | null = null,
 ): THREE.BufferGeometry {
   if (around) {
@@ -593,12 +594,18 @@ function StairHallLight({ floor, room }: { floor: FloorLayout; room: RoomLayout 
         depth,
         closed,
         grand ? openingHole(grand, cx, cz, 1) : null,
-        grand?.kind === "rects" ? rectsAround(grand.rects, cx, cz, width, depth) : null,
+        // The top of a hall is cut where its laylight is recessed.
+        grand?.kind === "rects"
+          ? rectsAround(grand.rects, cx, cz, width, depth)
+          : laylight
+            ? rectsAround(laylight, cx, cz, width, depth)
+            : null,
       ),
+      bounds: { xMin, xMax, zMin, zMax },
       glass: buildGlassGeometry(closed),
       frame: buildGlazingFrame(closed),
     };
-  }, [room, closed, grand, wallColor]);
+  }, [room, closed, grand, wallColor, laylight]);
 
   useEffect(
     () => () => {
@@ -621,6 +628,8 @@ function StairHallLight({ floor, room }: { floor: FloorLayout; room: RoomLayout 
           ceilingY={room.worldRect.y + CEILING_Y}
           w={r.xMax - r.xMin}
           d={r.zMax - r.zMin}
+          reveal={getPaletteMaterials(palette).ceiling}
+          room={built.bounds}
         />
       ))}
       <StairHallFixtures built={built} glazed={glazed} palette={palette} />
